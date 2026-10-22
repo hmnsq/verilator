@@ -25,21 +25,21 @@
 //
 //*************************************************************************
 
-#include "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
+#અન્તર્ભાવ "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
 
-#include "V3AstNodeExpr.h"
-#include "V3Sched.h"
+#અન્તર્ભાવ "V3AstNodeExpr.h"
+#અન્તર્ભાવ "V3Sched.h"
 
 VL_DEFINE_DEBUG_FUNCTIONS;
 
-namespace V3Sched {
+નામાકાશ V3Sched {
 
-namespace {
+નામાકાશ {
 
-class VirtIfaceVisitor final : public VNVisitor {
-private:
+વર્ગ VirtIfaceVisitor final : જાહેર VNVisitor {
+ખાનગી:
     // STATE
-    using IfaceMember = std::pair<const AstIface*, std::string>;
+    using IfaceMember = std::pair<અચલ AstIface*, std::string>;
     using IfaceCallable = std::pair<AstIface*, AstCFunc*>;
 
     // Set of (iface, member) pairs written through VIF -- defines which members need triggers
@@ -48,122 +48,122 @@ private:
     std::map<IfaceMember, std::vector<AstVarScope*>> m_candidateVscps;
     std::set<std::pair<IfaceMember, AstVarScope*>> m_seenCandidateVscps;
     // VarScope index and callable worklist for VIF method-body writes.
-    std::map<const AstVar*, std::vector<AstVarScope*>> m_vscpsByVar;
+    std::map<અચલ AstVar*, std::vector<AstVarScope*>> m_vscpsByVar;
     std::vector<IfaceCallable> m_reachableIfaceCallables;
     std::set<IfaceCallable> m_seenReachableIfaceCallables;
     VirtIfaceTriggers m_triggers;
 
     // METHODS
     // Returns true if statement writes across a virtual interface boundary
-    static bool writesToVirtIface(const AstNode* const nodep) {
-        return nodep->exists([](const AstMemberSel* const memberSelp) {
-            if (!memberSelp->access().isWriteOrRW()) return false;
-            AstIfaceRefDType* const dtypep
+    સ્થિર તાર્કિક writesToVirtIface(અચલ Ast_ગાંઠ* અચલ nodep) {
+        પાછા nodep->exists([](અચલ AstMemberSel* અચલ memberSelp) {
+            જો (!memberSelp->access().isWriteOrRW()) પાછા ખોટું;
+            AstIfaceRefDType* અચલ dtypep
                 = VN_CAST(memberSelp->fromp()->dtypep()->skipRefp(), IfaceRefDType);
-            return dtypep && dtypep->isVirtual();
+            પાછા dtypep && dtypep->isVirtual();
         });
     }
 
     // VISITORS
-    void visit(AstMemberSel* nodep) override {
+    શૂન્ય visit(AstMemberSel* nodep) override {
         // Detect writes through VIF: the MemberSel's fromp resolves to a virtual interface type.
         // Handles both direct VIF access (vif.member) and class chain (obj.vif.member).
-        if (nodep->access().isWriteOrRW()) {
-            AstIfaceRefDType* const dtypep
+        જો (nodep->access().isWriteOrRW()) {
+            AstIfaceRefDType* અચલ dtypep
                 = VN_CAST(nodep->fromp()->dtypep()->skipRefp(), IfaceRefDType);
-            if (dtypep && dtypep->isVirtual()) {
+            જો (dtypep && dtypep->isVirtual()) {
                 m_vifWrittenMembers.emplace(dtypep->ifacep(), nodep->varp()->name());
             }
         }
         iterateChildren(nodep);
     }
-    void visit(AstCMethodCall* nodep) override {
-        if (const AstIfaceRefDType* const dtypep
+    શૂન્ય visit(AstCMethodCall* nodep) override {
+        જો (અચલ AstIfaceRefDType* અચલ dtypep
             = VN_CAST(nodep->fromp()->dtypep()->skipRefp(), IfaceRefDType)) {
-            if (VL_UNCOVERABLE(!dtypep->isVirtual())) {
+            જો (VL_UNCOVERABLE(!dtypep->isVirtual())) {
                 // Concrete interface method calls are lowered before this pass.
-            } else {
+            } નહીંતર {
                 addReachableIfaceCallable(dtypep->ifaceViaCellp(), nodep->funcp());
             }
         }
         iterateChildren(nodep);
     }
-    void visit(AstVarScope* nodep) override {
+    શૂન્ય visit(AstVarScope* nodep) override {
         // Collect candidate VarScopes. sensIfacep() is set on interface members
         // accessed via any MemberSel (virtual or non-virtual).
-        AstVar* const varp = nodep->varp();
-        if (varp->isTemp()) return;
-        m_vscpsByVar[varp].push_back(nodep);
-        if (const AstIface* const ifacep = varp->sensIfacep()) addCandidateVscp(ifacep, nodep);
+        AstVar* અચલ varp = nodep->varp();
+        જો (varp->isTemp()) પાછા;
+        m_vscpsByVar[varp].ધકેલો_back(nodep);
+        જો (અચલ AstIface* અચલ ifacep = varp->sensIfacep()) addCandidateVscp(ifacep, nodep);
     }
-    void visit(AstNodeProcedure* nodep) override {
+    શૂન્ય visit(Ast_ગાંઠ_Procedure* nodep) override {
         // Disable lifetime optimization for variables in AlwaysPost blocks
         // that write to virtual interface members, as VIF reads may observe them
-        if (VN_IS(nodep, AlwaysPost) && writesToVirtIface(nodep)) {
-            nodep->foreach([](AstVarRef* refp) { refp->varScopep()->optimizeLifePost(false); });
+        જો (VN_IS(nodep, AlwaysPost) && writesToVirtIface(nodep)) {
+            nodep->foreach([](AstVarRef* refp) { refp->varScopep()->optimizeLifePost(ખોટું); });
         }
         iterateChildren(nodep);
     }
-    void visit(AstNode* nodep) override { iterateChildren(nodep); }
+    શૂન્ય visit(Ast_ગાંઠ* nodep) override { iterateChildren(nodep); }
 
-    void addCandidateVscp(const AstIface* const ifacep, AstVarScope* const vscp) {
-        const IfaceMember member{ifacep, vscp->varp()->name()};
-        if (m_seenCandidateVscps.emplace(member, vscp).second)
-            m_candidateVscps[member].push_back(vscp);
+    શૂન્ય addCandidateVscp(અચલ AstIface* અચલ ifacep, AstVarScope* અચલ vscp) {
+        અચલ IfaceMember member{ifacep, vscp->varp()->name()};
+        જો (m_seenCandidateVscps.emplace(member, vscp).second)
+            m_candidateVscps[member].ધકેલો_back(vscp);
     }
 
-    void addReachableIfaceCallable(AstIface* const ifacep, AstCFunc* const funcp) {
-        const IfaceCallable callable{ifacep, funcp};
-        if (m_seenReachableIfaceCallables.emplace(callable).second) {
-            m_reachableIfaceCallables.push_back(callable);
+    શૂન્ય addReachableIfaceCallable(AstIface* અચલ ifacep, AstCFunc* અચલ funcp) {
+        અચલ IfaceCallable callable{ifacep, funcp};
+        જો (m_seenReachableIfaceCallables.emplace(callable).second) {
+            m_reachableIfaceCallables.ધકેલો_back(callable);
         }
     }
 
     // Build final trigger list by intersecting VIF writes with candidate VarScopes
-    void buildTriggers() {
-        for (const auto& written : m_vifWrittenMembers) {
-            const auto it = m_candidateVscps.find(written);
-            if (it == m_candidateVscps.end()) continue;
-            for (AstVarScope* const vscp : it->second) {
-                const AstIface* const ifacep = written.first;
+    શૂન્ય buildTriggers() {
+        માટે (અચલ auto& written : m_vifWrittenMembers) {
+            અચલ auto it = m_candidateVscps.find(written);
+            જો (it == m_candidateVscps.end()) ચાલુ;
+            માટે (AstVarScope* અચલ vscp : it->second) {
+                અચલ AstIface* અચલ ifacep = written.first;
                 m_triggers.addTrigger(ifacep, vscp->varp(), vscp);
             }
         }
     }
 
-public:
+જાહેર:
     // CONSTRUCTORS
     explicit VirtIfaceVisitor(AstNetlist* nodep) {
         iterate(nodep);
-        for (size_t i = 0; i < m_reachableIfaceCallables.size(); ++i) {
-            const IfaceCallable callable = m_reachableIfaceCallables[i];
-            callable.second->foreach([this, callable](AstNodeExpr* const nodep) {
-                if (AstVarRef* const refp = VN_CAST(nodep, VarRef)) {
+        માટે (size_t i = 0; i < m_reachableIfaceCallables.size(); ++i) {
+            અચલ IfaceCallable callable = m_reachableIfaceCallables[i];
+            callable.second->foreach([આ, callable](Ast_ગાંઠ_પદાવલિ* અચલ nodep) {
+                જો (AstVarRef* અચલ refp = VN_CAST(nodep, VarRef)) {
                     // Only persistent interface storage is observable through a VIF read.
                     UASSERT_OBJ(refp->varScopep(), refp, "No var scope");
-                    AstVar* const varp = refp->varp();
-                    if (!refp->access().isWriteOrRW() || varp->isFuncLocal() || varp->isTemp()
+                    AstVar* અચલ varp = refp->varp();
+                    જો (!refp->access().isWriteOrRW() || varp->isFuncLocal() || varp->isTemp()
                         || varp->isEvent() || !VN_IS(refp->varScopep()->scopep()->modp(), Iface)) {
-                        return;
+                        પાછા;
                     }
                     varp->sensIfacep(callable.first);
                     m_vifWrittenMembers.emplace(callable.first, varp->name());
-                    const auto it = m_vscpsByVar.find(varp);
+                    અચલ auto it = m_vscpsByVar.find(varp);
                     UASSERT_OBJ(it != m_vscpsByVar.end(), varp,
                                 "No VarScope for interface member");
-                    for (AstVarScope* const vscp : it->second)
+                    માટે (AstVarScope* અચલ vscp : it->second)
                         addCandidateVscp(callable.first, vscp);
-                } else if (AstNodeCCall* const callp = VN_CAST(nodep, NodeCCall)) {
+                } નહીંતર જો (Ast_ગાંઠ_CCall* અચલ callp = VN_CAST(nodep, ગાંઠ_CCall)) {
                     addReachableIfaceCallable(callable.first, callp->funcp());
                 }
             });
         }
         buildTriggers();
     }
-    ~VirtIfaceVisitor() override = default;
+    ~VirtIfaceVisitor() override = મૂળભૂત;
 
     // METHODS
-    VirtIfaceTriggers take_triggers() { return std::move(m_triggers); }
+    VirtIfaceTriggers take_triggers() { પાછા std::move(m_triggers); }
 };
 
 }  //namespace
@@ -171,12 +171,12 @@ public:
 VirtIfaceTriggers makeVirtIfaceTriggers(AstNetlist* nodep) {
     UINFO(2, __FUNCTION__ << ":");
     VirtIfaceTriggers triggers{};
-    if (v3Global.hasVirtIfaces()) {
+    જો (v3Global.hasVirtIfaces()) {
         triggers = VirtIfaceVisitor{nodep}.take_triggers();
         // Dump after destructor so VNDeleter runs
-        V3Global::dumpCheckGlobalTree("sched_vif", 0, dumpTreeEitherLevel() >= 6);
+        V3Global::dump_Check_Global_વૃક્ષ("sched_vif", 0, dump_વૃક્ષ_Either_Level() >= 6);
     }
-    return triggers;
+    પાછા triggers;
 }
 
 }  //namespace V3Sched

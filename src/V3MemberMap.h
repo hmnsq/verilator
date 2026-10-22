@@ -22,90 +22,90 @@
 #ifndef VERILATOR_V3MEMBERMAP_H_
 #define VERILATOR_V3MEMBERMAP_H_
 
-#include "config_build.h"
-#include "verilatedos.h"
+#અન્તર્ભાવ "config_build.h"
+#અન્તર્ભાવ "verilatedos.h"
 
-#include "V3Ast.h"
-#include "V3Global.h"
+#અન્તર્ભાવ "V3Ast.h"
+#અન્તર્ભાવ "V3Global.h"
 
-#include <map>
+#અન્તર્ભાવ <map>
 
 //######################################################################
 
 class VMemberMap final {
     // MEMBERS
-    using MemberMap = std::map<std::string, AstNode*>;
-    using NodeMap = std::map<const AstNode*, MemberMap>;
-    NodeMap m_map;  // Map of nodes being tracked
+    using MemberMap = std::map<std::string, Ast_ગાંઠ*>;
+    using ગાંઠ_Map = std::map<અચલ Ast_ગાંઠ*, MemberMap>;
+    ગાંઠ_Map m_map;  // Map of nodes being tracked
 
     VL_DEFINE_DEBUG_FUNCTIONS;
 
-public:
-    void clear() { m_map.clear(); }
+જાહેર:
+    શૂન્ય clear() { m_map.clear(); }
     // Find 'name' under 'nodep', caching nodep's children if needed
-    AstNode* findMember(const AstNode* nodep, const std::string& name) {
+    Ast_ગાંઠ* findMember(અચલ Ast_ગાંઠ* nodep, અચલ std::string& name) {
         auto nit = m_map.find(nodep);
-        if (VL_UNLIKELY(nit == m_map.end())) {
+        જો (VL_UNLIKELY(nit == m_map.end())) {
             scan(nodep);
             nit = m_map.find(nodep);
         }
-        const auto mit = nit->second.find(name);
-        if (mit == nit->second.end()) return nullptr;
-        return mit->second;
+        અચલ auto mit = nit->second.find(name);
+        જો (mit == nit->second.end()) પાછા nullptr;
+        પાછા mit->second;
     }
     // Insert under the given parent node the child's name
-    void insert(const AstNode* nodep, AstNode* childp) {
+    શૂન્ય ઉમેરો(અચલ Ast_ગાંઠ* nodep, Ast_ગાંઠ* childp) {
         auto nit = m_map.find(nodep);
-        if (nit == m_map.end()) {
+        જો (nit == m_map.end()) {
             scan(nodep);
             nit = m_map.find(nodep);
         }
-        memberInsert(nit->second, childp, false);
+        member_ઉમેરો(nit->second, childp, false);
     }
 
-private:
-    void scan(const AstNode* nodep) {
-        const auto nitPair = m_map.emplace(nodep, MemberMap{});
+ખાનગી:
+    શૂન્ય scan(અચલ Ast_ગાંઠ* nodep) {
+        અચલ auto nitPair = m_map.emplace(nodep, MemberMap{});
         MemberMap& mmapr = nitPair.first->second;
-        if (const AstClass* const anodep = VN_CAST(nodep, Class)) {
-            for (AstNode* itemp = anodep->membersp(); itemp; itemp = itemp->nextp()) {
-                if (const AstScope* const scopep = VN_CAST(itemp, Scope)) {
-                    for (AstNode* blockp = scopep->blocksp(); blockp; blockp = blockp->nextp()) {
-                        if (AstClass::isCacheableChild(blockp)) memberInsert(mmapr, blockp);
+        જો (અચલ AstClass* અચલ anodep = VN_CAST(nodep, Class)) {
+            માટે (Ast_ગાંઠ* itemp = anodep->membersp(); itemp; itemp = itemp->nextp()) {
+                જો (અચલ AstScope* અચલ scopep = VN_CAST(itemp, Scope)) {
+                    માટે (Ast_ગાંઠ* blockp = scopep->blocksp(); blockp; blockp = blockp->nextp()) {
+                        જો (AstClass::isCacheableChild(blockp)) member_ઉમેરો(mmapr, blockp);
                     }
-                } else {
-                    if (AstClass::isCacheableChild(itemp)) memberInsert(mmapr, itemp);
+                } નહીંતર {
+                    જો (AstClass::isCacheableChild(itemp)) member_ઉમેરો(mmapr, itemp);
                 }
             }
-        } else if (const AstIface* const anodep = VN_CAST(nodep, Iface)) {
-            for (AstNode* itemp = anodep->stmtsp(); itemp; itemp = itemp->nextp()) {
-                if (const AstScope* const scopep = VN_CAST(itemp, Scope)) {
-                    for (AstNode* blockp = scopep->blocksp(); blockp; blockp = blockp->nextp()) {
-                        memberInsert(mmapr, blockp);
+        } નહીંતર જો (અચલ AstIface* અચલ anodep = VN_CAST(nodep, Iface)) {
+            માટે (Ast_ગાંઠ* itemp = anodep->stmtsp(); itemp; itemp = itemp->nextp()) {
+                જો (અચલ AstScope* અચલ scopep = VN_CAST(itemp, Scope)) {
+                    માટે (Ast_ગાંઠ* blockp = scopep->blocksp(); blockp; blockp = blockp->nextp()) {
+                        member_ઉમેરો(mmapr, blockp);
                     }
-                } else if (!VN_IS(itemp, Always)) {
-                    memberInsert(mmapr, itemp);
+                } નહીંતર જો (!VN_IS(itemp, Always)) {
+                    member_ઉમેરો(mmapr, itemp);
                 }
             }
-        } else if (const AstNodeUOrStructDType* const anodep
-                   = VN_CAST(nodep, NodeUOrStructDType)) {
-            for (AstNode* itemp = anodep->membersp(); itemp; itemp = itemp->nextp()) {
-                memberInsert(mmapr, itemp);
+        } નહીંતર જો (અચલ Ast_ગાંઠ_UOr_Struct_DType* અચલ anodep
+                   = VN_CAST(nodep, ગાંઠ_UOr_Struct_DType)) {
+            માટે (Ast_ગાંઠ* itemp = anodep->membersp(); itemp; itemp = itemp->nextp()) {
+                member_ઉમેરો(mmapr, itemp);
             }
-        } else if (const AstPackage* const anodep = VN_CAST(nodep, Package)) {
-            for (AstNode* itemp = anodep->stmtsp(); itemp; itemp = itemp->nextp()) {
-                memberInsert(mmapr, itemp);
+        } નહીંતર જો (અચલ AstPackage* અચલ anodep = VN_CAST(nodep, Package)) {
+            માટે (Ast_ગાંઠ* itemp = anodep->stmtsp(); itemp; itemp = itemp->nextp()) {
+                member_ઉમેરો(mmapr, itemp);
             }
-        } else {
+        } નહીંતર {
             nodep->v3fatalSrc("Unsupported node type");
         }
     }
-    void memberInsert(MemberMap& mmapr, AstNode* childp, bool warn = true) {
+    શૂન્ય member_ઉમેરો(MemberMap& mmapr, Ast_ગાંઠ* childp, bool warn = true) {
         // Skip nodes without names (e.g., initial blocks, anonymous statements)
         // These can't be looked up by name anyway
-        if (childp->name().empty()) return;
-        const auto mitPair = mmapr.emplace(childp->name(), childp);
-        if (VL_UNCOVERABLE(!mitPair.second && warn)) {
+        જો (childp->name().empty()) પાછા;
+        અચલ auto mitPair = mmapr.emplace(childp->name(), childp);
+        જો (VL_UNCOVERABLE(!mitPair.second && warn)) {
             // Probably an internal error, but we'll make it user friendly if happens
             childp->v3error("Duplicate declaration of member name: " << childp->prettyNameQ());
         }

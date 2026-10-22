@@ -34,139 +34,139 @@
 //
 //*************************************************************************
 
-#include "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
+#અન્તર્ભાવ "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
 
-#include "V3EmitV.h"
-#include "V3Graph.h"
-#include "V3Sched.h"
+#અન્તર્ભાવ "V3EmitV.h"
+#અન્તર્ભાવ "V3Graph.h"
+#અન્તર્ભાવ "V3Sched.h"
 
-#include <tuple>
-#include <unordered_map>
-#include <vector>
+#અન્તર્ભાવ <tuple>
+#અન્તર્ભાવ <unordered_map>
+#અન્તર્ભાવ <vector>
 
 VL_DEFINE_DEBUG_FUNCTIONS;
 
-namespace V3Sched {
+નામાકાશ V3Sched {
 
-namespace {
+નામાકાશ {
 
-class SchedSenVertex final : public V3GraphVertex {
+વર્ગ SchedSenVertex final : જાહેર V3GraphVertex {
     VL_RTTI_IMPL(SchedSenVertex, V3GraphVertex)
-    const AstSenItem* const m_senItemp;
+    અચલ AstSenItem* અચલ m_senItemp;
 
-public:
-    SchedSenVertex(V3Graph* graphp, const AstSenItem* senItemp)
+જાહેર:
+    SchedSenVertex(V3Graph* graphp, અચલ AstSenItem* senItemp)
         : V3GraphVertex{graphp}
         , m_senItemp{senItemp} {}
 
     // LCOV_EXCL_START // Debug code
-    string name() const override {
+    string name() અચલ override {
         std::ostringstream os;
-        V3EmitV::verilogForTree(const_cast<AstSenItem*>(m_senItemp), os);
-        return os.str();
+        V3EmitV::verilog_For_વૃક્ષ(const_cast<AstSenItem*>(m_senItemp), os);
+        પાછા os.str();
     }
-    string dotShape() const override { return "doubleoctagon"; }
-    string dotColor() const override { return "red"; }
+    string dotShape() અચલ override { પાછા "doubleoctagon"; }
+    string dotColor() અચલ override { પાછા "red"; }
     // LCOV_EXCL_STOP
 };
 
-class SchedLogicVertex final : public V3GraphVertex {
+વર્ગ SchedLogicVertex final : જાહેર V3GraphVertex {
     VL_RTTI_IMPL(SchedLogicVertex, V3GraphVertex)
-    AstScope* const m_scopep;
-    AstSenTree* const m_senTreep;
-    AstNode* const m_logicp;
+    AstScope* અચલ m_scopep;
+    Ast_Sen_વૃક્ષ* અચલ m_senTreep;
+    Ast_ગાંઠ* અચલ m_logicp;
 
-public:
-    SchedLogicVertex(V3Graph* graphp, AstScope* scopep, AstSenTree* senTreep, AstNode* logicp)
+જાહેર:
+    SchedLogicVertex(V3Graph* graphp, AstScope* scopep, Ast_Sen_વૃક્ષ* senTreep, Ast_ગાંઠ* logicp)
         : V3GraphVertex{graphp}
         , m_scopep{scopep}
         , m_senTreep{senTreep}
         , m_logicp{logicp} {}
-    AstScope* scopep() const { return m_scopep; }
-    AstSenTree* senTreep() const { return m_senTreep; }
-    AstNode* logicp() const { return m_logicp; }
+    AstScope* scopep() અચલ { પાછા m_scopep; }
+    Ast_Sen_વૃક્ષ* senTreep() અચલ { પાછા m_senTreep; }
+    Ast_ગાંઠ* logicp() અચલ { પાછા m_logicp; }
 
     // LCOV_EXCL_START // Debug code
-    string name() const override VL_MT_STABLE {
-        return m_logicp->typeName() + ("\n" + m_logicp->fileline()->ascii());
+    string name() અચલ override VL_MT_STABLE {
+        પાછા m_logicp->typeName() + ("\n" + m_logicp->fileline()->ascii());
     };
-    string dotShape() const override { return "rectangle"; }
+    string dotShape() અચલ override { પાછા "rectangle"; }
     // LCOV_EXCL_STOP
 };
 
-class SchedVarVertex final : public V3GraphVertex {
+વર્ગ SchedVarVertex final : જાહેર V3GraphVertex {
     VL_RTTI_IMPL(SchedVarVertex, V3GraphVertex)
-    const AstVarScope* const m_vscp;
+    અચલ AstVarScope* અચલ m_vscp;
 
-public:
+જાહેર:
     SchedVarVertex(V3Graph* graphp, AstVarScope* vscp)
         : V3GraphVertex{graphp}
         , m_vscp{vscp} {}
 
-    AstVar* varp() const { return m_vscp->varp(); }
+    AstVar* varp() અચલ { પાછા m_vscp->varp(); }
 
     // LCOV_EXCL_START // Debug code
-    string name() const override VL_MT_STABLE { return m_vscp->name(); }
-    string dotShape() const override {
-        return m_vscp->scopep()->isTop() && m_vscp->varp()->isNonOutput() ? "invhouse" : "ellipse";
+    string name() અચલ override VL_MT_STABLE { પાછા m_vscp->name(); }
+    string dotShape() અચલ override {
+        પાછા m_vscp->scopep()->is_ટોચ() && m_vscp->varp()->isNonOutput() ? "invhouse" : "ellipse";
     }
-    string dotColor() const override {
-        return m_vscp->scopep()->isTop() && m_vscp->varp()->isNonOutput() ? "green" : "black";
+    string dotColor() અચલ override {
+        પાછા m_vscp->scopep()->is_ટોચ() && m_vscp->varp()->isNonOutput() ? "green" : "black";
     }
     // LCOV_EXCL_STOP
 };
 
-class SchedGraphBuilder final : public VNVisitor {
+વર્ગ SchedGraphBuilder final : જાહેર VNVisitor {
     // NODE STATE
     // AstVarScope::user1p() -> SchedVarVertex
     // AstSenItem::user1p() -> SchedSenVertex
     // AstVarScope::user2() -> bool: Read of this AstVarScope triggers this logic.
     //                         Used only for hybrid logic.
-    const VNUser1InUse m_user1InUse;
-    const VNUser2InUse m_user2InUse;
+    અચલ VNUser1InUse m_user1InUse;
+    અચલ VNUser2InUse m_user2InUse;
 
     // STATE
-    V3Graph* const m_graphp = new V3Graph;  // The dataflow graph being built
+    V3Graph* અચલ m_graphp = નવું V3Graph;  // The dataflow graph being built
     // The vertices associated with a unique AstSenItem
     std::unordered_map<VNRef<AstSenItem>, SchedSenVertex*> m_senVertices;
     AstScope* m_scopep = nullptr;  // AstScope of the current AstActive
-    AstSenTree* m_senTreep = nullptr;  // AstSenTree of the current AstActive
+    Ast_Sen_વૃક્ષ* m_senTreep = nullptr;  // AstSenTree of the current AstActive
     // Predicate for whether a read of the given variable triggers this block
-    std::function<bool(AstVarScope*)> m_readTriggersThisLogic;
+    std::function<તાર્કિક(AstVarScope*)> m_readTriggersThisLogic;
     // The DPI export trigger variable, if any
-    AstVarScope* const m_dpiExportTriggerp = v3Global.rootp()->dpiExportTriggerp();
+    AstVarScope* અચલ m_dpiExportTriggerp = v3Global.rootp()->dpiExportTriggerp();
 
-    SchedVarVertex* getVarVertex(AstVarScope* vscp) const {
-        if (!vscp->user1p()) {
-            SchedVarVertex* const vtxp = new SchedVarVertex{m_graphp, vscp};
+    SchedVarVertex* getVarVertex(AstVarScope* vscp) અચલ {
+        જો (!vscp->user1p()) {
+            SchedVarVertex* અચલ vtxp = નવું SchedVarVertex{m_graphp, vscp};
             // If this variable can be written via a DPI export, add a source edge from the
             // DPI export trigger vertex. This ensures calls to DPI exports that might write a
             // clock end up in the 'act' region.
-            if (vscp->varp()->isWrittenByDpi()) {
-                new V3GraphEdge{m_graphp, getVarVertex(m_dpiExportTriggerp), vtxp, 1};
+            જો (vscp->varp()->isWrittenByDpi()) {
+                નવું V3GraphEdge{m_graphp, getVarVertex(m_dpiExportTriggerp), vtxp, 1};
             }
             vscp->user1p(vtxp);
         }
-        return vscp->user1u().to<SchedVarVertex*>();
+        પાછા vscp->user1u().to<SchedVarVertex*>();
     }
 
     SchedSenVertex* getSenVertex(AstSenItem* senItemp) {
-        if (!senItemp->user1p()) {
+        જો (!senItemp->user1p()) {
             // There is a unique SchedSenVertex for each globally unique AstSenItem. Multiple
             // AstSenTree might use the same AstSenItem (e.g.: posedge clk1 or rst, posedge clk2 or
             // rst), so we use a hash map to get the unique SchedSenVertex. (Note: This creates
             // separate vertices for ET_CHANGED and ET_HYBRID over the same expression, but that is
             // OK for now).
-            const auto pair = m_senVertices.emplace(*senItemp, nullptr);
+            અચલ auto pair = m_senVertices.emplace(*senItemp, nullptr);
             // If it does not exist, create it
-            if (pair.second) {
+            જો (pair.second) {
                 // Create the vertex
-                SchedSenVertex* const vtxp = new SchedSenVertex{m_graphp, senItemp};
+                SchedSenVertex* અચલ vtxp = નવું SchedSenVertex{m_graphp, senItemp};
 
                 // Connect up the variable references
-                if (senItemp->sensp()) {
+                જો (senItemp->sensp()) {
                     senItemp->sensp()->foreach([&](AstVarRef* refp) {
-                        new V3GraphEdge{m_graphp, getVarVertex(refp->varScopep()), vtxp, 1};
+                        નવું V3GraphEdge{m_graphp, getVarVertex(refp->varScopep()), vtxp, 1};
                     });
                 }
 
@@ -177,61 +177,61 @@ class SchedGraphBuilder final : public VNVisitor {
             // Cache sensitivity vertex
             senItemp->user1p(pair.first->second);
         }
-        return senItemp->user1u().to<SchedSenVertex*>();
+        પાછા senItemp->user1u().to<SchedSenVertex*>();
     }
 
-    void visitLogic(AstNode* nodep) {
+    શૂન્ય visitLogic(Ast_ગાંઠ* nodep) {
         UASSERT_OBJ(m_senTreep, nodep, "Should be under AstActive");
 
-        SchedLogicVertex* const logicVtxp
-            = new SchedLogicVertex{m_graphp, m_scopep, m_senTreep, nodep};
+        SchedLogicVertex* અચલ logicVtxp
+            = નવું SchedLogicVertex{m_graphp, m_scopep, m_senTreep, nodep};
 
         // Clocked or hybrid logic has explicit sensitivity, so add edge from sensitivity vertex
-        if (!m_senTreep->hasCombo()) {
-            m_senTreep->foreach([this, nodep, logicVtxp](AstSenItem* senItemp) {
+        જો (!m_senTreep->hasCombo()) {
+            m_senTreep->foreach([આ, nodep, logicVtxp](AstSenItem* senItemp) {
                 UASSERT_OBJ(senItemp->isClocked() || senItemp->isHybrid(), nodep,
                             "Non-clocked SenItem under clocked SenTree");
-                V3GraphVertex* const eventVtxp = getSenVertex(senItemp);
-                new V3GraphEdge{m_graphp, eventVtxp, logicVtxp, 10};
+                V3GraphVertex* અચલ eventVtxp = getSenVertex(senItemp);
+                નવું V3GraphEdge{m_graphp, eventVtxp, logicVtxp, 10};
             });
         }
 
         // Add edges based on references
         V3Sched::util::VarScopeSet forceReadEdgeIgnores;
         V3Sched::util::collectForceReadEdgeIgnores(nodep, forceReadEdgeIgnores);
-        nodep->foreach([this, logicVtxp, &forceReadEdgeIgnores](const AstVarRef* vrefp) {
-            AstVarScope* const vscp = vrefp->varScopep();
-            if (vrefp->access().isReadOrRW() && m_readTriggersThisLogic(vscp)
-                && !forceReadEdgeIgnores.count(vscp)) {
-                new V3GraphEdge{m_graphp, getVarVertex(vscp), logicVtxp, 10};
+        nodep->foreach([આ, logicVtxp, &forceReadEdgeIgnores](અચલ AstVarRef* vrefp) {
+            AstVarScope* અચલ vscp = vrefp->varScopep();
+            જો (vrefp->access().isReadOrRW() && m_readTriggersThisLogic(vscp)
+                && !forceReadEdgeIgnores.ગણતરી(vscp)) {
+                નવું V3GraphEdge{m_graphp, getVarVertex(vscp), logicVtxp, 10};
             }
-            if (vrefp->access().isWriteOrRW() && !vrefp->varp()->ignoreSchedWrite()) {
-                new V3GraphEdge{m_graphp, logicVtxp, getVarVertex(vscp), 10};
+            જો (vrefp->access().isWriteOrRW() && !vrefp->varp()->ignoreSchedWrite()) {
+                નવું V3GraphEdge{m_graphp, logicVtxp, getVarVertex(vscp), 10};
             }
         });
 
         // If the logic calls a 'context' DPI import, it might fire the DPI Export trigger
-        if (m_dpiExportTriggerp) {
-            nodep->foreach([this, logicVtxp](const AstCCall* callp) {
-                if (!callp->funcp()->dpiImportWrapper()) return;
-                if (!callp->funcp()->dpiContext()) return;
-                new V3GraphEdge{m_graphp, logicVtxp, getVarVertex(m_dpiExportTriggerp), 10};
+        જો (m_dpiExportTriggerp) {
+            nodep->foreach([આ, logicVtxp](અચલ AstCCall* callp) {
+                જો (!callp->funcp()->dpiImportWrapper()) પાછા;
+                જો (!callp->funcp()->dpiContext()) પાછા;
+                નવું V3GraphEdge{m_graphp, logicVtxp, getVarVertex(m_dpiExportTriggerp), 10};
             });
         }
     }
 
     // VISIT methods
-    void visit(AstActive* nodep) override {
-        AstSenTree* const senTreep = nodep->sentreep();
+    શૂન્ય visit(AstActive* nodep) override {
+        Ast_Sen_વૃક્ષ* અચલ senTreep = nodep->sentreep();
         UASSERT_OBJ(senTreep->hasClocked() || senTreep->hasCombo() || senTreep->hasHybrid(), nodep,
                     "Unhandled");
         UASSERT_OBJ(!m_senTreep, nodep, "Should not nest");
 
         // Mark explicit sensitivities as not triggering these blocks
-        if (senTreep->hasHybrid()) {
-            AstNode::user2ClearTree();
-            senTreep->foreach([](const AstVarRef* refp) {  //
-                refp->varScopep()->user2(true);
+        જો (senTreep->hasHybrid()) {
+            Ast_ગાંઠ::user2_Clear_વૃક્ષ();
+            senTreep->foreach([](અચલ AstVarRef* refp) {  //
+                refp->varScopep()->user2(સાચું);
             });
         }
 
@@ -240,99 +240,99 @@ class SchedGraphBuilder final : public VNVisitor {
         iterateChildrenConst(nodep);
     }
 
-    void visit(AstNodeProcedure* nodep) override { visitLogic(nodep); }
-    void visit(AstNodeAssign* nodep) override { visitLogic(nodep); }
-    void visit(AstCoverToggle* nodep) override { visitLogic(nodep); }
+    શૂન્ય visit(Ast_ગાંઠ_Procedure* nodep) override { visitLogic(nodep); }
+    શૂન્ય visit(Ast_ગાંઠ_Assign* nodep) override { visitLogic(nodep); }
+    શૂન્ય visit(AstCoverToggle* nodep) override { visitLogic(nodep); }
 
     // Pre and Post logic are handled separately
-    void visit(AstAlwaysPre* nodep) override {}
-    void visit(AstAlwaysPost* nodep) override {}
+    શૂન્ય visit(AstAlwaysPre* nodep) override {}
+    શૂન્ય visit(AstAlwaysPost* nodep) override {}
 
     // LCOV_EXCL_START
     // Ignore
-    void visit(AstInitialStatic* nodep) override { nodep->v3fatalSrc("Should not need ordering"); }
-    void visit(AstInitial* nodep) override {  //
+    શૂન્ય visit(AstInitialStatic* nodep) override { nodep->v3fatalSrc("Should not need ordering"); }
+    શૂન્ય visit(AstInitial* nodep) override {  //
         nodep->v3fatalSrc("Should not need ordering");
     }
-    void visit(AstFinal* nodep) override {  //
+    શૂન્ય visit(AstFinal* nodep) override {  //
         nodep->v3fatalSrc("Should not need ordering");
     }
 
     // Default - Any other AstActive content not handled above will hit this
-    void visit(AstNode* nodep) override {  //
+    શૂન્ય visit(Ast_ગાંઠ* nodep) override {  //
         nodep->v3fatalSrc("Should be handled above");
     }
     // LCOV_EXCL_STOP
 
-    SchedGraphBuilder(const LogicByScope& clockedLogic, const LogicByScope& combinationalLogic,
-                      const LogicByScope& hybridLogic) {
+    SchedGraphBuilder(અચલ LogicByScope& clockedLogic, અચલ LogicByScope& combinationalLogic,
+                      અચલ LogicByScope& hybridLogic) {
         // Build the data flow graph
-        const auto iter = [this](const LogicByScope& lbs) {
-            for (const auto& entry : lbs) {
+        અચલ auto iter = [આ](અચલ LogicByScope& lbs) {
+            માટે (અચલ auto& entry : lbs) {
                 m_scopep = entry.m_scopep;
                 iterate(entry.m_activep);
                 m_scopep = nullptr;
             }
         };
         // Clocked logic is never triggered by reads
-        m_readTriggersThisLogic = [](AstVarScope*) { return false; };
+        m_readTriggersThisLogic = [](AstVarScope*) { પાછા ખોટું; };
         iter(clockedLogic);
         // Combinational logic is always triggered by reads
-        m_readTriggersThisLogic = [](AstVarScope*) { return true; };
+        m_readTriggersThisLogic = [](AstVarScope*) { પાછા સાચું; };
         iter(combinationalLogic);
         // Hybrid logic is triggered by all reads, except for reads of the explicit sensitivities
-        m_readTriggersThisLogic = [](AstVarScope* vscp) { return !vscp->user2(); };
+        m_readTriggersThisLogic = [](AstVarScope* vscp) { પાછા !vscp->user2(); };
         iter(hybridLogic);
     }
 
-public:
+જાહેર:
     // Build the dataflow graph for partitioning
-    static std::unique_ptr<V3Graph> build(const LogicByScope& clockedLogic,
-                                          const LogicByScope& combinationalLogic,
-                                          const LogicByScope& hybridLogic) {
-        const SchedGraphBuilder visitor{clockedLogic, combinationalLogic, hybridLogic};
-        return std::unique_ptr<V3Graph>{visitor.m_graphp};
+    સ્થિર std::unique_ptr<V3Graph> build(અચલ LogicByScope& clockedLogic,
+                                          અચલ LogicByScope& combinationalLogic,
+                                          અચલ LogicByScope& hybridLogic) {
+        અચલ SchedGraphBuilder visitor{clockedLogic, combinationalLogic, hybridLogic};
+        પાછા std::unique_ptr<V3Graph>{visitor.m_graphp};
     }
 };
 
-void colorActiveRegion(V3Graph& graph) {
+શૂન્ય colorActiveRegion(V3Graph& graph) {
     // Work queue for depth first traversal
     std::vector<V3GraphVertex*> queue{};
 
     // Trace from all SchedSenVertex
-    for (V3GraphVertex& vtx : graph.vertices()) {
-        if (const auto activeEventVtxp = vtx.cast<SchedSenVertex>()) {
-            queue.push_back(activeEventVtxp);
+    માટે (V3GraphVertex& vtx : graph.vertices()) {
+        જો (અચલ auto activeEventVtxp = vtx.cast<SchedSenVertex>()) {
+            queue.ધકેલો_back(activeEventVtxp);
         }
     }
 
     // Depth first traversal
-    while (!queue.empty()) {
+    જ્યારે (!queue.empty()) {
         // Pop next work item
         V3GraphVertex& vtx = *queue.back();
-        queue.pop_back();
+        queue.કાઢો_back();
         // If not first encounter, move on
-        if (vtx.color() != 0) continue;
+        જો (vtx.color() != 0) ચાલુ;
 
         // Mark vertex as being in active region
         vtx.color(1);
 
         // Enqueue all parent vertices that feed this vertex.
-        for (V3GraphEdge& edge : vtx.inEdges()) queue.push_back(edge.fromp());
+        માટે (V3GraphEdge& edge : vtx.inEdges()) queue.ધકેલો_back(edge.fromp());
 
         // Mark top level ports that drive a sensitivity list
-        if (SchedVarVertex* const vvtxp = vtx.cast<SchedVarVertex>()) {
-            AstVar* const varp = vvtxp->varp();
-            if (varp->isPrimaryIO()) varp->setPrimaryClock();
+        જો (SchedVarVertex* અચલ vvtxp = vtx.cast<SchedVarVertex>()) {
+            AstVar* અચલ varp = vvtxp->varp();
+            જો (varp->isPrimaryIO()) varp->setPrimaryClock();
         }
 
         // If this is a logic vertex, also enqueue all variable vertices that are driven from this
         // logic. This will ensure that if a variable is set in the active region, then all
         // settings of that variable will be in the active region.
-        if (vtx.is<SchedLogicVertex>()) {
-            for (V3GraphEdge& edge : vtx.outEdges()) {
-                UASSERT(edge.top()->is<SchedVarVertex>(), "Should be var vertex");
-                queue.push_back(edge.top());
+        જો (vtx.is<SchedLogicVertex>()) {
+            માટે (V3GraphEdge& edge : vtx.outEdges()) {
+                UASSERT(edge.ટોચ()->is<SchedVarVertex>(), "Should be var vertex");
+                queue.ધકેલો_back(edge.ટોચ());
             }
         }
     }
@@ -345,27 +345,27 @@ LogicRegions partition(LogicByScope& clockedLogic, LogicByScope& combinationalLo
     UINFO(2, __FUNCTION__ << ":");
 
     // Build the graph
-    const std::unique_ptr<V3Graph> graphp
+    અચલ std::unique_ptr<V3Graph> graphp
         = SchedGraphBuilder::build(clockedLogic, combinationalLogic, hybridLogic);
-    if (dumpGraphLevel() >= 6) graphp->dumpDotFilePrefixed("sched");
+    જો (dumpGraphLevel() >= 6) graphp->dumpDotFilePrefixed("sched");
 
     // Partition into Active and NBA regions
     colorActiveRegion(*(graphp.get()));
-    if (dumpGraphLevel() >= 6) graphp->dumpDotFilePrefixed("sched-partitioned", true);
+    જો (dumpGraphLevel() >= 6) graphp->dumpDotFilePrefixed("sched-partitioned", સાચું);
 
     LogicRegions result;
 
-    for (V3GraphVertex& vtx : graphp->vertices()) {
-        if (const auto lvtxp = vtx.cast<SchedLogicVertex>()) {
+    માટે (V3GraphVertex& vtx : graphp->vertices()) {
+        જો (અચલ auto lvtxp = vtx.cast<SchedLogicVertex>()) {
             // Move to 'act'/'nba' based on coloring by default ...
-            bool toAct = lvtxp->color();
+            તાર્કિક toAct = lvtxp->color();
             // ... however, if a #0 delay is possible, then the 'inact' region is required,
             // in which case **EVERYTHING** that is not a Post block needs to go to 'act'.
             // This severely limits downstream optimizations (e.g. V3LifePost), and severely
             // reduces available parallelism in 'nba' for multi-threaded execution.
-            if (v3Global.usesZeroDelay() && !VN_IS(lvtxp->logicp(), AlwaysPost)) toAct = true;
+            જો (v3Global.usesZeroDelay() && !VN_IS(lvtxp->logicp(), AlwaysPost)) toAct = સાચું;
             LogicByScope& lbs = toAct ? result.m_act : result.m_nba;
-            AstNode* const logicp = lvtxp->logicp();
+            Ast_ગાંઠ* અચલ logicp = lvtxp->logicp();
             logicp->unlinkFrBack();
             lbs.add(lvtxp->scopep(), lvtxp->senTreep(), logicp);
         }
@@ -373,47 +373,47 @@ LogicRegions partition(LogicByScope& clockedLogic, LogicByScope& combinationalLo
 
     // Partition the Pre logic
     {
-        const VNUser1InUse user1InUse;  // AstVarScope::user1() -> bool: read in Active region
-        const VNUser2InUse user2InUse;  // AstVarScope::user2() -> bool: written in Active region
+        અચલ VNUser1InUse user1InUse;  // AstVarScope::user1() -> bool: read in Active region
+        અચલ VNUser2InUse user2InUse;  // AstVarScope::user2() -> bool: written in Active region
 
-        const auto markVars = [](AstNode* nodep) {
-            nodep->foreach([](const AstNodeVarRef* vrefp) {
-                AstVarScope* const vscp = vrefp->varScopep();
-                if (vrefp->access().isReadOrRW()) vscp->user1(true);
-                if (vrefp->access().isWriteOrRW() && !vrefp->varp()->ignoreSchedWrite())
-                    vscp->user2(true);
+        અચલ auto markVars = [](Ast_ગાંઠ* nodep) {
+            nodep->foreach([](અચલ Ast_ગાંઠ_Var_Ref* vrefp) {
+                AstVarScope* અચલ vscp = vrefp->varScopep();
+                જો (vrefp->access().isReadOrRW()) vscp->user1(સાચું);
+                જો (vrefp->access().isWriteOrRW() && !vrefp->varp()->ignoreSchedWrite())
+                    vscp->user2(સાચું);
             });
         };
 
-        for (const auto& entry : result.m_act) {
-            AstActive* const activep = entry.m_activep;
+        માટે (અચલ auto& entry : result.m_act) {
+            AstActive* અચલ activep = entry.m_activep;
             markVars(activep->sentreep());
             markVars(activep);
         }
 
         // AstAlwaysPre and AstAlwaysPost should only appear under a clocked
         // AstActive, and should be the only thing left at this point.
-        for (const auto& entry : clockedLogic) {
-            AstScope* const scopep = entry.m_scopep;
-            AstActive* const activep = entry.m_activep;
-            for (AstNode *nodep = activep->stmtsp(), *nextp; nodep; nodep = nextp) {
+        માટે (અચલ auto& entry : clockedLogic) {
+            AstScope* અચલ scopep = entry.m_scopep;
+            AstActive* અચલ activep = entry.m_activep;
+            માટે (Ast_ગાંઠ *nodep = activep->stmtsp(), *nextp; nodep; nodep = nextp) {
                 nextp = nodep->nextp();
-                if (AstAlwaysPre* const logicp = VN_CAST(nodep, AlwaysPre)) {
-                    bool toActiveRegion = false;
-                    logicp->foreach([&](const AstNodeVarRef* vrefp) {
-                        AstVarScope* const vscp = vrefp->varScopep();
-                        if (vrefp->access().isReadOnly()) {
+                જો (AstAlwaysPre* અચલ logicp = VN_CAST(nodep, AlwaysPre)) {
+                    તાર્કિક toActiveRegion = ખોટું;
+                    logicp->foreach([&](અચલ Ast_ગાંઠ_Var_Ref* vrefp) {
+                        AstVarScope* અચલ vscp = vrefp->varScopep();
+                        જો (vrefp->access().isReadOnly()) {
                             // Variable only read in Pre, and is written in active region
-                            if (vscp->user2()) toActiveRegion = true;
-                        } else {
+                            જો (vscp->user2()) toActiveRegion = સાચું;
+                        } નહીંતર {
                             // Variable written in Pre, and referenced in active region
-                            if (vscp->user1() || vscp->user2()) toActiveRegion = true;
+                            જો (vscp->user1() || vscp->user2()) toActiveRegion = સાચું;
                         }
                     });
                     LogicByScope& lbs = toActiveRegion ? result.m_pre : result.m_nba;
                     logicp->unlinkFrBack();
                     lbs.add(scopep, activep->sentreep(), logicp);
-                } else {
+                } નહીંતર {
                     UASSERT_OBJ(VN_IS(nodep, AlwaysPost), nodep,
                                 "Unexpected node type " << nodep->typeName());
                     nodep->unlinkFrBack();
@@ -428,7 +428,7 @@ LogicRegions partition(LogicByScope& clockedLogic, LogicByScope& combinationalLo
     combinationalLogic.deleteActives();
     hybridLogic.deleteActives();
 
-    return result;
+    પાછા result;
 }
 
 }  // namespace V3Sched

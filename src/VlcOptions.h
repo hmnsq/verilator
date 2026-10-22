@@ -17,15 +17,15 @@
 #ifndef VERILATOR_VLCOPTIONS_H_
 #define VERILATOR_VLCOPTIONS_H_
 
-#include "config_build.h"
-#include "verilatedos.h"
+#અન્તર્ભાવ "config_build.h"
+#અન્તર્ભાવ "verilatedos.h"
 
-#include "VlcPoint.h"
-#include "config_rev.h"
+#અન્તર્ભાવ "VlcPoint.h"
+#અન્તર્ભાવ "config_rev.h"
 
-#include <map>
-#include <set>
-#include <vector>
+#અન્તર્ભાવ <map>
+#અન્તર્ભાવ <set>
+#અન્તર્ભાવ <vector>
 
 //######################################################################
 // V3Options - Command line options
@@ -37,12 +37,12 @@ class VlcOptions final {
     // clang-format off
     string m_annotateOut;       // main switch: --annotate I<output_directory>
     bool m_annotateAll = false;  // main switch: --annotate-all
-    int m_annotateMin = 10;     // main switch: --annotate-min I<count>
+    પૂર્ણાંક m_annotateMin = 10;     // main switch: --annotate-min I<count>
     bool m_annotatePoints = false;  // main switch: --annotate-points
     bool m_includeResetArcs = false;  // main switch: --include-reset-arcs
     string m_filterType = "*";  // main switch: --filter-type
     VlStringSet m_readFiles;    // main switch: --read
-    int m_reportLevels = -1;    // main switch: --levels, negative means all depths
+    પૂર્ણાંક m_reportLevels = -1;    // main switch: --levels, negative means all depths
     string m_report;            // main switch: --report
     bool m_reportSummary = false;  // main switch: --report summary
     bool m_reportHierarchy = false;  // main switch: --report hier or hierarchy
@@ -52,42 +52,42 @@ class VlcOptions final {
     string m_writeInfoFile;     // main switch: --write-info
     // clang-format on
 
-private:
+ખાનગી:
     // METHODS
-    void parseReportOption() VL_MT_DISABLED;
-    static void showVersion(bool verbose) VL_MT_DISABLED;
+    શૂન્ય parseReportOption() VL_MT_DISABLED;
+    સ્થિર શૂન્ય showVersion(bool verbose) VL_MT_DISABLED;
 
-public:
+જાહેર:
     // CONSTRUCTORS
-    VlcOptions() = default;
-    ~VlcOptions() = default;
+    VlcOptions() = મૂળભૂત;
+    ~VlcOptions() = મૂળભૂત;
 
     // METHODS
-    void parseOptsList(int argc, char** argv) VL_MT_DISABLED;
-    void addReadFile(const string& filename) VL_MT_DISABLED;
+    શૂન્ય parseOptsList(પૂર્ણાંક argc, અક્ષર** argv) VL_MT_DISABLED;
+    શૂન્ય addReadFile(અચલ string& filename) VL_MT_DISABLED;
 
     // ACCESSORS (options)
-    const VlStringSet& readFiles() const { return m_readFiles; }
-    string annotateOut() const { return m_annotateOut; }
-    bool annotateAll() const { return m_annotateAll; }
-    int annotateMin() const { return m_annotateMin; }
-    bool countOk(uint64_t count) const { return count >= static_cast<uint64_t>(m_annotateMin); }
-    bool annotatePoints() const { return m_annotatePoints; }
-    bool includeResetArcs() const { return m_includeResetArcs; }
-    int reportLevels() const { return m_reportLevels; }
-    bool reportSpecified() const { return !m_report.empty(); }
-    bool reportSummary() const { return m_reportSummary; }
-    bool reportHierarchy() const { return m_reportHierarchy; }
-    bool rank() const { return m_rank; }
-    bool unlink() const { return m_unlink; }
-    string writeFile() const { return m_writeFile; }
-    string writeInfoFile() const { return m_writeInfoFile; }
-    bool isTypeMatch(const char* name) const {
-        return VString::wildmatch(VlcPoint::typeExtract(name), m_filterType);
+    અચલ VlStringSet& readFiles() અચલ { પાછા m_readFiles; }
+    string annotateOut() અચલ { પાછા m_annotateOut; }
+    bool annotateAll() અચલ { પાછા m_annotateAll; }
+    પૂર્ણાંક annotateMin() અચલ { પાછા m_annotateMin; }
+    bool ગણતરી_Ok(uint64_t ગણતરી) અચલ { પાછા ગણતરી >= static_cast<uint64_t>(m_annotateMin); }
+    bool annotatePoints() અચલ { પાછા m_annotatePoints; }
+    bool includeResetArcs() અચલ { પાછા m_includeResetArcs; }
+    પૂર્ણાંક reportLevels() અચલ { પાછા m_reportLevels; }
+    bool reportSpecified() અચલ { પાછા !m_report.empty(); }
+    bool reportSummary() અચલ { પાછા m_reportSummary; }
+    bool reportHierarchy() અચલ { પાછા m_reportHierarchy; }
+    bool rank() અચલ { પાછા m_rank; }
+    bool unlink() અચલ { પાછા m_unlink; }
+    string writeFile() અચલ { પાછા m_writeFile; }
+    string writeInfoFile() અચલ { પાછા m_writeInfoFile; }
+    bool isTypeMatch(અચલ અક્ષર* name) અચલ {
+        પાછા VString::wildmatch(VlcPoint::typeExtract(name), m_filterType);
     }
 
     // METHODS (from main)
-    static string version() VL_MT_DISABLED;
+    સ્થિર string version() VL_MT_DISABLED;
 };
 
 //######################################################################

@@ -19,95 +19,95 @@
 //
 //*************************************************************************
 
-#include "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
+#અન્તર્ભાવ "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
 
-#include "V3Clock.h"
+#અન્તર્ભાવ "V3Clock.h"
 
-#include "V3Const.h"
+#અન્તર્ભાવ "V3Const.h"
 
 VL_DEFINE_DEBUG_FUNCTIONS;
 
 //######################################################################
 // Convert every WRITE AstVarRef to a READ ref
 
-class ConvertWriteRefsToRead final : public VNVisitor {
+વર્ગ ConvertWriteRefsToRead final : જાહેર VNVisitor {
     // MEMBERS
-    AstNodeExpr* m_result = nullptr;
+    Ast_ગાંઠ_પદાવલિ* m_result = nullptr;
 
     // CONSTRUCTORS
-    explicit ConvertWriteRefsToRead(AstNodeExpr* nodep) {
-        m_result = VN_AS(iterateSubtreeReturnEdits(nodep), NodeExpr);
+    explicit ConvertWriteRefsToRead(Ast_ગાંઠ_પદાવલિ* nodep) {
+        m_result = VN_AS(iterateSubtreeReturnEdits(nodep), ગાંઠ_પદાવલિ);
     }
 
     // VISITORS
-    void visit(AstVarRef* nodep) override {
+    શૂન્ય visit(AstVarRef* nodep) override {
         UASSERT_OBJ(!nodep->access().isRW(), nodep, "Cannot handle a READWRITE reference");
-        if (nodep->access().isWriteOnly()) {
+        જો (nodep->access().isWriteOnly()) {
             nodep->replaceWith(
-                new AstVarRef{nodep->fileline(), nodep->varScopep(), VAccess::READ});
-            VL_DO_DANGLING(pushDeletep(nodep), nodep);
+                નવું AstVarRef{nodep->fileline(), nodep->varScopep(), VAccess::READ});
+            VL_DO_DANGLING(ધકેલો_Deletep(nodep), nodep);
         }
     }
 
-    void visit(AstNode* nodep) override { iterateChildren(nodep); }
+    શૂન્ય visit(Ast_ગાંઠ* nodep) override { iterateChildren(nodep); }
 
-public:
-    static AstNodeExpr* main(AstNodeExpr* nodep) { return ConvertWriteRefsToRead{nodep}.m_result; }
+જાહેર:
+    સ્થિર Ast_ગાંઠ_પદાવલિ* મુખ્ય(Ast_ગાંઠ_પદાવલિ* nodep) { પાછા ConvertWriteRefsToRead{nodep}.m_result; }
 };
 
 //######################################################################
 // Clock state, as a visitor of each AstNode
 
-class ClockVisitor final : public VNVisitor {
+વર્ગ ClockVisitor final : જાહેર VNVisitor {
     // VISITORS
-    void visit(AstCoverToggle* nodep) override {
+    શૂન્ય visit(AstCoverToggle* nodep) override {
         // UINFOTREE(1, nodep, "", "ct");
         // COVERTOGGLE(INC, ORIG, CHANGE) ->
         //   IF(ORIG ^ CHANGE) { INC; CHANGE = ORIG; }
-        AstCoverInc* const incp = nodep->incp()->unlinkFrBack();
-        AstNodeExpr* const origp = nodep->origp()->unlinkFrBack();
-        AstNodeExpr* const changeWrp = nodep->changep()->unlinkFrBack();
-        AstNodeExpr* const changeRdp = ConvertWriteRefsToRead::main(changeWrp->cloneTree(false));
-        AstNodeExpr* comparedp = nullptr;
-        incp->toggleExprp(origp->cloneTree(false));
-        incp->toggleCovExprp(changeRdp->cloneTree(false));
-        FileLine* const flp = nodep->fileline();
+        AstCoverInc* અચલ incp = nodep->incp()->unlinkFrBack();
+        Ast_ગાંઠ_પદાવલિ* અચલ origp = nodep->origp()->unlinkFrBack();
+        Ast_ગાંઠ_પદાવલિ* અચલ changeWrp = nodep->changep()->unlinkFrBack();
+        Ast_ગાંઠ_પદાવલિ* અચલ changeRdp = ConvertWriteRefsToRead::મુખ્ય(changeWrp->clone_વૃક્ષ(ખોટું));
+        Ast_ગાંઠ_પદાવલિ* comparedp = nullptr;
+        incp->toggleExprp(origp->clone_વૃક્ષ(ખોટું));
+        incp->toggleCovExprp(changeRdp->clone_વૃક્ષ(ખોટું));
+        File_લીટી* અચલ flp = nodep->fileline();
         // Xor will optimize better than Eq, when CoverToggle has bit selects,
         // but can only use Xor with non-opaque types
-        if (const AstBasicDType* const bdtypep
+        જો (અચલ AstBasicDType* અચલ bdtypep
             = VN_CAST(origp->dtypep()->skipRefp(), BasicDType)) {
-            if (!bdtypep->isOpaque()) {
-                AstNodeExpr* const zp = new AstConst{flp, AstConst::DTyped{}, origp->dtypep()};
-                comparedp = new AstNeq{flp, zp, new AstXor{flp, origp, changeRdp}};
+            જો (!bdtypep->isOpaque()) {
+                Ast_ગાંઠ_પદાવલિ* અચલ zp = નવું AstConst{flp, AstConst::DTyped{}, origp->dtypep()};
+                comparedp = નવું AstNeq{flp, zp, નવું AstXor{flp, origp, changeRdp}};
             }
         }
-        if (!comparedp) comparedp = AstNeq::newTyped(flp, origp, changeRdp);
-        AstIf* const newp = new AstIf{flp, comparedp, incp};
+        જો (!comparedp) comparedp = AstNeq::newTyped(flp, origp, changeRdp);
+        AstIf* અચલ newp = નવું AstIf{flp, comparedp, incp};
         // We could add another IF to detect posedges, and only increment if so.
         // It's another whole branch though versus a potential memory miss.
         // We'll go with the miss.
-        newp->addThensp(new AstAssign{flp, changeWrp, origp->cloneTree(false)});
+        newp->addThensp(નવું AstAssign{flp, changeWrp, origp->clone_વૃક્ષ(ખોટું)});
         nodep->replaceWith(newp);
-        VL_DO_DANGLING(nodep->deleteTree(), nodep);
+        VL_DO_DANGLING(nodep->delete_વૃક્ષ(), nodep);
     }
-    void visit(AstSenTree* nodep) override {
-        VL_DO_DANGLING(pushDeletep(nodep->unlinkFrBack()), nodep);  // No longer needed
+    શૂન્ય visit(Ast_Sen_વૃક્ષ* nodep) override {
+        VL_DO_DANGLING(ધકેલો_Deletep(nodep->unlinkFrBack()), nodep);  // No longer needed
     }
 
     //--------------------
-    void visit(AstNode* nodep) override { iterateChildren(nodep); }
+    શૂન્ય visit(Ast_ગાંઠ* nodep) override { iterateChildren(nodep); }
 
-public:
+જાહેર:
     // CONSTRUCTORS
     explicit ClockVisitor(AstNetlist* netlistp) { iterate(netlistp); }
-    ~ClockVisitor() override = default;
+    ~ClockVisitor() override = મૂળભૂત;
 };
 
 //######################################################################
 // Clock class functions
 
-void V3Clock::clockAll(AstNetlist* nodep) {
+શૂન્ય V3Clock::clockAll(AstNetlist* nodep) {
     UINFO(2, __FUNCTION__ << ":");
     { ClockVisitor{nodep}; }  // Destruct before checking
-    V3Global::dumpCheckGlobalTree("clock", 0, dumpTreeEitherLevel() >= 3);
+    V3Global::dump_Check_Global_વૃક્ષ("clock", 0, dump_વૃક્ષ_Either_Level() >= 3);
 }

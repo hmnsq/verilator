@@ -17,43 +17,43 @@
 #ifndef VERILATOR_V3LANGUAGEWORDS_H_
 #define VERILATOR_V3LANGUAGEWORDS_H_
 
-#include "config_build.h"
-#include "verilatedos.h"
+#અન્તર્ભાવ "config_build.h"
+#અન્તર્ભાવ "verilatedos.h"
 
-#include <map>
+#અન્તર્ભાવ <map>
 
 //============================================================================
 
-class V3LanguageWords final {
+class V3_Language_શબ્દો final {
     // List of common reserved keywords
-private:
-    using KeywordMap = std::map<const string, std::string>;
-    struct Singleton final {
+ખાનગી:
+    using KeywordMap = std::map<અચલ string, std::string>;
+    સંરચના Singleton final {
         KeywordMap s_kwdMap;  // List of keywords, and what language applies
         Singleton() { init(); }
-        void addKwd(const string& kwd, const string& why) { s_kwdMap.emplace(kwd, why); }
-        void init();
+        શૂન્ય addKwd(અચલ string& kwd, અચલ string& why) { s_kwdMap.emplace(kwd, why); }
+        શૂન્ય init();
     };
 
-public:
+જાહેર:
     using const_iterator = KeywordMap::const_iterator;
     // METHODS
-    static const_iterator begin() { return s().s_kwdMap.begin(); }
-    static const_iterator end() { return s().s_kwdMap.end(); }
-    static string isKeyword(const string& kwd) {
-        const auto it = vlstd::as_const(s().s_kwdMap).find(kwd);
-        if (it == s().s_kwdMap.end()) return "";
-        return it->second;
+    સ્થિર const_iterator begin() { પાછા s().s_kwdMap.begin(); }
+    સ્થિર const_iterator end() { પાછા s().s_kwdMap.end(); }
+    સ્થિર string isKeyword(અચલ string& kwd) {
+        અચલ auto it = vlstd::as_const(s().s_kwdMap).find(kwd);
+        જો (it == s().s_kwdMap.end()) પાછા "";
+        પાછા it->second;
     }
 
-private:
-    static Singleton& s() {
-        static Singleton s_s;  // LCOV_EXCL_BR_LINE
-        return s_s;
+ખાનગી:
+    સ્થિર Singleton& s() {
+        સ્થિર Singleton s_s;  // LCOV_EXCL_BR_LINE
+        પાછા s_s;
     }
 };
 
-inline void V3LanguageWords::Singleton::init() {
+અંતઃરેખ શૂન્ય V3_Language_શબ્દો::Singleton::init() {
     // C++ keywords
     // clang-format off
     addKwd("abort",                 "C++ common word");

@@ -17,12 +17,12 @@
 #ifndef VERILATOR_V3OPTION_PARSER_H_
 #define VERILATOR_V3OPTION_PARSER_H_
 
-#include "config_build.h"
-#include "verilatedos.h"
+#અન્તર્ભાવ "config_build.h"
+#અન્તર્ભાવ "verilatedos.h"
 
-#include <functional>
-#include <memory>
-#include <string>
+#અન્તર્ભાવ <functional>
+#અન્તર્ભાવ <memory>
+#અન્તર્ભાવ <string>
 
 // Not to include V3Option.h here so that VlcMain or other executables can use this file easily.
 #ifndef V3OPTION_PARSER_NO_VOPTION_BOOL
@@ -52,37 +52,37 @@ class VOptionBool;
 // V3 OptionParser
 
 class V3OptionParser final {
-public:
+જાહેર:
     // TYPES
     class ActionIfs;
     // Functor to register options to V3OptionParser
     class AppendHelper;
-    struct Impl;
+    સંરચના Impl;
 
-private:
+ખાનગી:
     // MEMBERS
-    const std::unique_ptr<Impl> m_pimpl;  // Implementation class
+    અચલ std::unique_ptr<Impl> m_pimpl;  // Implementation class
 
     // METHODS
-    ActionIfs* find(const char* optp) VL_MT_DISABLED;
+    ActionIfs* find(અચલ અક્ષર* optp) VL_MT_DISABLED;
     template <typename T_Act, typename T_Arg>
-    ActionIfs& add(const string& opt, T_Arg arg) VL_MT_DISABLED;
+    ActionIfs& add(અચલ string& opt, T_Arg arg) VL_MT_DISABLED;
     // Returns true if strp starts with "-fno"
-    static bool hasPrefixFNo(const char* strp) VL_MT_DISABLED;
+    સ્થિર bool hasPrefixFNo(અચલ અક્ષર* strp) VL_MT_DISABLED;
     // Returns true if strp starts with "-no"
-    static bool hasPrefixNo(const char* strp) VL_MT_DISABLED;
+    સ્થિર bool hasPrefixNo(અચલ અક્ષર* strp) VL_MT_DISABLED;
 
-public:
+જાહેર:
     // METHODS
     // Returns how many args are consumed. 0 means not match.
     // Also bool, true iff option is needed for rerun with --dump-inputs
-    std::pair<int, bool> parse(int idx, int argc, char* argv[]) VL_MT_DISABLED;
+    std::pair<પૂર્ણાંક, bool> parse(પૂર્ણાંક idx, પૂર્ણાંક argc, અક્ષર* argv[]) VL_MT_DISABLED;
     // Find the most similar option
-    string getSuggestion(const char* str) const VL_MT_DISABLED;
-    void addSuggestionCandidate(const string& s) VL_MT_DISABLED;
+    string getSuggestion(અચલ અક્ષર* str) અચલ VL_MT_DISABLED;
+    શૂન્ય addSuggestionCandidate(અચલ string& s) VL_MT_DISABLED;
     // Call this function after all options are registered.
-    void finalize() VL_MT_DISABLED;
-    void dumpOptions() VL_MT_DISABLED;
+    શૂન્ય finalize() VL_MT_DISABLED;
+    શૂન્ય dumpOptions() VL_MT_DISABLED;
 
     // CONSTRUCTORS
     V3OptionParser() VL_MT_DISABLED;
@@ -90,71 +90,71 @@ public:
 };
 
 class V3OptionParser::ActionIfs VL_NOT_FINAL {
-public:
-    virtual ~ActionIfs() = default;
-    virtual bool isValueNeeded() const = 0;  // Need val of "-opt val"
-    virtual bool isFOnOffAllowed() const = 0;  // true if "-fno-opt" is allowed
-    virtual bool isNotForRerun() const = 0;  // Will not be dumped with --dump-inputs
-    virtual bool isOnOffAllowed() const = 0;  // true if "-no-opt" is allowed
-    virtual bool isPartialMatchAllowed() const = 0;  // true if "-Wno-" matches "-Wno-fatal"
-    virtual bool isUndocumented() const = 0;  // Will not be suggested in typo
+જાહેર:
+    આભાસી ~ActionIfs() = મૂળભૂત;
+    આભાસી bool is_કિંમત_Needed() અચલ = 0;  // Need val of "-opt val"
+    આભાસી bool isFOnOffAllowed() અચલ = 0;  // true if "-fno-opt" is allowed
+    આભાસી bool isNotForRerun() અચલ = 0;  // Will not be dumped with --dump-inputs
+    આભાસી bool isOnOffAllowed() અચલ = 0;  // true if "-no-opt" is allowed
+    આભાસી bool isPartialMatchAllowed() અચલ = 0;  // true if "-Wno-" matches "-Wno-fatal"
+    આભાસી bool isUndocumented() અચલ = 0;  // Will not be suggested in typo
     // Set a value or run callback
-    virtual void exec(const char* optp, const char* valp) = 0;
+    આભાસી શૂન્ય exec(અચલ અક્ષર* optp, અચલ અક્ષર* valp) = 0;
     // Mark this option undocumented. (Exclude this option from suggestion list).
-    virtual ActionIfs& undocumented() = 0;
+    આભાસી ActionIfs& undocumented() = 0;
     // Mark this as not needed for rerunning with preprocessed sources
-    virtual ActionIfs& notForRerun() = 0;
+    આભાસી ActionIfs& notForRerun() = 0;
 };
 
 // A helper class to register options
 class V3OptionParser::AppendHelper final {
-public:
+જાહેર:
     // TYPES
     // Tag to specify which operator() to call
-    struct FOnOff {};  // For ActionFOnOff
-    struct OnOff {};  // For ActionOnOff
-    struct Set {};  // For ActionSet
+    સંરચના FOnOff {};  // For ActionFOnOff
+    સંરચના OnOff {};  // For ActionOnOff
+    સંરચના Set {};  // For ActionSet
 
-    struct CbCall {};  // For ActionCbCall
-    struct CbFOnOff {};  // For ActionCbFOnOff
-    struct CbOnOff {};  // For ActionCbOnOff
-    struct CbPartialMatch {};  // For ActionCbPartialMatch
-    struct CbPartialMatchVal {};  // For ActionCbPartialMatchVal
-    struct CbVal {};  // For ActionCbVal
+    સંરચના CbCall {};  // For ActionCbCall
+    સંરચના CbFOnOff {};  // For ActionCbFOnOff
+    સંરચના CbOnOff {};  // For ActionCbOnOff
+    સંરચના CbPartialMatch {};  // For ActionCbPartialMatch
+    સંરચના CbPartialMatchVal {};  // For ActionCbPartialMatchVal
+    સંરચના CbVal {};  // For ActionCbVal
 
-private:
+ખાનગી:
     // MEMBERS
     V3OptionParser& m_parser;  // The actual option registry
 
-public:
+જાહેર:
     // METHODS
-    ActionIfs& operator()(const char* optp, Set, bool*) const VL_MT_DISABLED;
+    ActionIfs& operator()(અચલ અક્ષર* optp, Set, bool*) અચલ VL_MT_DISABLED;
 #ifndef V3OPTION_PARSER_NO_VOPTION_BOOL
-    ActionIfs& operator()(const char* optp, Set, VOptionBool*) const VL_MT_DISABLED;
+    ActionIfs& operator()(અચલ અક્ષર* optp, Set, VOptionBool*) અચલ VL_MT_DISABLED;
 #endif
-    ActionIfs& operator()(const char* optp, Set, int*) const VL_MT_DISABLED;
-    ActionIfs& operator()(const char* optp, Set, string*) const VL_MT_DISABLED;
+    ActionIfs& operator()(અચલ અક્ષર* optp, Set, પૂર્ણાંક*) અચલ VL_MT_DISABLED;
+    ActionIfs& operator()(અચલ અક્ષર* optp, Set, string*) અચલ VL_MT_DISABLED;
 
-    ActionIfs& operator()(const char* optp, FOnOff, bool*) const VL_MT_DISABLED;
-    ActionIfs& operator()(const char* optp, OnOff, bool*) const VL_MT_DISABLED;
+    ActionIfs& operator()(અચલ અક્ષર* optp, FOnOff, bool*) અચલ VL_MT_DISABLED;
+    ActionIfs& operator()(અચલ અક્ષર* optp, OnOff, bool*) અચલ VL_MT_DISABLED;
 #ifndef V3OPTION_PARSER_NO_VOPTION_BOOL
-    ActionIfs& operator()(const char* optp, OnOff, VOptionBool*) const VL_MT_DISABLED;
+    ActionIfs& operator()(અચલ અક્ષર* optp, OnOff, VOptionBool*) અચલ VL_MT_DISABLED;
 #endif
 
-    ActionIfs& operator()(const char* optp, CbCall,
-                          std::function<void(void)>) const VL_MT_DISABLED;
-    ActionIfs& operator()(const char* optp, CbFOnOff,
-                          std::function<void(bool)>) const VL_MT_DISABLED;
-    ActionIfs& operator()(const char* optp, CbOnOff,
-                          std::function<void(bool)>) const VL_MT_DISABLED;
-    ActionIfs& operator()(const char* optp, CbVal, std::function<void(int)>) const VL_MT_DISABLED;
-    ActionIfs& operator()(const char* optp, CbVal,
-                          std::function<void(const char*)>) const VL_MT_DISABLED;
+    ActionIfs& operator()(અચલ અક્ષર* optp, CbCall,
+                          std::function<શૂન્ય(શૂન્ય)>) અચલ VL_MT_DISABLED;
+    ActionIfs& operator()(અચલ અક્ષર* optp, CbFOnOff,
+                          std::function<શૂન્ય(bool)>) અચલ VL_MT_DISABLED;
+    ActionIfs& operator()(અચલ અક્ષર* optp, CbOnOff,
+                          std::function<શૂન્ય(bool)>) અચલ VL_MT_DISABLED;
+    ActionIfs& operator()(અચલ અક્ષર* optp, CbVal, std::function<શૂન્ય(પૂર્ણાંક)>) અચલ VL_MT_DISABLED;
+    ActionIfs& operator()(અચલ અક્ષર* optp, CbVal,
+                          std::function<શૂન્ય(અચલ અક્ષર*)>) અચલ VL_MT_DISABLED;
 
-    ActionIfs& operator()(const char* optp, CbPartialMatch,
-                          std::function<void(const char*)>) const VL_MT_DISABLED;
-    ActionIfs& operator()(const char* optp, CbPartialMatchVal,
-                          std::function<void(const char*, const char*)>) const VL_MT_DISABLED;
+    ActionIfs& operator()(અચલ અક્ષર* optp, CbPartialMatch,
+                          std::function<શૂન્ય(અચલ અક્ષર*)>) અચલ VL_MT_DISABLED;
+    ActionIfs& operator()(અચલ અક્ષર* optp, CbPartialMatchVal,
+                          std::function<શૂન્ય(અચલ અક્ષર*, અચલ અક્ષર*)>) અચલ VL_MT_DISABLED;
 
     // CONSTRUCTORS
     explicit AppendHelper(V3OptionParser& parser)
@@ -162,16 +162,16 @@ public:
 };
 
 #define V3OPTION_PARSER_DECL_TAGS \
-    const auto Set VL_ATTR_UNUSED = V3OptionParser::AppendHelper::Set{}; \
-    const auto FOnOff VL_ATTR_UNUSED = V3OptionParser::AppendHelper::FOnOff{}; \
-    const auto OnOff VL_ATTR_UNUSED = V3OptionParser::AppendHelper::OnOff{}; \
-    const auto CbCall VL_ATTR_UNUSED = V3OptionParser::AppendHelper::CbCall{}; \
-    const auto CbFOnOff VL_ATTR_UNUSED = V3OptionParser::AppendHelper::CbFOnOff{}; \
-    const auto CbOnOff VL_ATTR_UNUSED = V3OptionParser::AppendHelper::CbOnOff{}; \
-    const auto CbPartialMatch VL_ATTR_UNUSED = V3OptionParser::AppendHelper::CbPartialMatch{}; \
-    const auto CbPartialMatchVal VL_ATTR_UNUSED \
+    અચલ auto Set VL_ATTR_UNUSED = V3OptionParser::AppendHelper::Set{}; \
+    અચલ auto FOnOff VL_ATTR_UNUSED = V3OptionParser::AppendHelper::FOnOff{}; \
+    અચલ auto OnOff VL_ATTR_UNUSED = V3OptionParser::AppendHelper::OnOff{}; \
+    અચલ auto CbCall VL_ATTR_UNUSED = V3OptionParser::AppendHelper::CbCall{}; \
+    અચલ auto CbFOnOff VL_ATTR_UNUSED = V3OptionParser::AppendHelper::CbFOnOff{}; \
+    અચલ auto CbOnOff VL_ATTR_UNUSED = V3OptionParser::AppendHelper::CbOnOff{}; \
+    અચલ auto CbPartialMatch VL_ATTR_UNUSED = V3OptionParser::AppendHelper::CbPartialMatch{}; \
+    અચલ auto CbPartialMatchVal VL_ATTR_UNUSED \
         = V3OptionParser::AppendHelper::CbPartialMatchVal{}; \
-    const auto CbVal VL_ATTR_UNUSED = V3OptionParser::AppendHelper::CbVal{};
+    અચલ auto CbVal VL_ATTR_UNUSED = V3OptionParser::AppendHelper::CbVal{};
 
 //######################################################################
 

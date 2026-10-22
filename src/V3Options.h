@@ -17,74 +17,74 @@
 #ifndef VERILATOR_V3OPTIONS_H_
 #define VERILATOR_V3OPTIONS_H_
 
-#include "config_build.h"
-#include "verilatedos.h"
+#અન્તર્ભાવ "config_build.h"
+#અન્તર્ભાવ "verilatedos.h"
 
-#include "V3Error.h"
-#include "V3LangCode.h"
+#અન્તર્ભાવ "V3Error.h"
+#અન્તર્ભાવ "V3LangCode.h"
 
-#include <list>
-#include <map>
-#include <set>
-#include <string>
-#include <vector>
+#અન્તર્ભાવ <list>
+#અન્તર્ભાવ <map>
+#અન્તર્ભાવ <set>
+#અન્તર્ભાવ <string>
+#અન્તર્ભાવ <vector>
 
 class V3OptionsImp;
-class FileLine;
+class File_લીટી;
 
 //######################################################################
 
 class VOptionBool final {
     // Class to track options that are either not specified (and default
     // true/false), versus user setting the option to true or false
-public:
-    enum en : uint8_t { OPT_DEFAULT_FALSE = 0, OPT_DEFAULT_TRUE, OPT_TRUE, OPT_FALSE };
-    enum en m_e;
+જાહેર:
+    ગણના en : uint8_t { OPT_DEFAULT_FALSE = 0, OPT_DEFAULT_TRUE, OPT_TRUE, OPT_FALSE };
+    ગણના en m_e;
     VOptionBool()
         : m_e{OPT_DEFAULT_FALSE} {}
     // cppcheck-suppress noExplicitConstructor
     constexpr VOptionBool(en _e)
         : m_e{_e} {}
-    explicit VOptionBool(int _e)
+    explicit VOptionBool(પૂર્ણાંક _e)
         : m_e(static_cast<en>(_e)) {}  // Need () or GCC 4.8 false warning
-    constexpr operator en() const { return m_e; }
-    const char* ascii() const {
-        static const char* const names[]
+    constexpr operator en() અચલ { પાછા m_e; }
+    અચલ અક્ષર* ascii() અચલ {
+        સ્થિર અચલ અક્ષર* અચલ names[]
             = {"DEFAULT_FALSE", "DEFAULT_TRUE", "OPT_TRUE", "OPT_FALSE"};
-        return names[m_e];
+        પાછા names[m_e];
     }
-    bool isDefault() const { return m_e == OPT_DEFAULT_FALSE || m_e == OPT_DEFAULT_TRUE; }
-    bool isTrue() const { return m_e == OPT_TRUE || m_e == OPT_DEFAULT_TRUE; }
-    bool isSetTrue() const { return m_e == OPT_TRUE; }
-    bool isSetFalse() const { return m_e == OPT_FALSE; }
-    void setTrueOrFalse(bool flag) { m_e = flag ? OPT_TRUE : OPT_FALSE; }
+    bool isDefault() અચલ { પાછા m_e == OPT_DEFAULT_FALSE || m_e == OPT_DEFAULT_TRUE; }
+    bool isTrue() અચલ { પાછા m_e == OPT_TRUE || m_e == OPT_DEFAULT_TRUE; }
+    bool isSetTrue() અચલ { પાછા m_e == OPT_TRUE; }
+    bool isSetFalse() અચલ { પાછા m_e == OPT_FALSE; }
+    શૂન્ય setTrueOrFalse(bool flag) { m_e = flag ? OPT_TRUE : OPT_FALSE; }
 };
-constexpr bool operator==(const VOptionBool& lhs, const VOptionBool& rhs) {
-    return lhs.m_e == rhs.m_e;
+constexpr bool operator==(અચલ VOptionBool& lhs, અચલ VOptionBool& rhs) {
+    પાછા lhs.m_e == rhs.m_e;
 }
-constexpr bool operator==(const VOptionBool& lhs, VOptionBool::en rhs) { return lhs.m_e == rhs; }
-constexpr bool operator==(VOptionBool::en lhs, const VOptionBool& rhs) { return lhs == rhs.m_e; }
+constexpr bool operator==(અચલ VOptionBool& lhs, VOptionBool::en rhs) { પાછા lhs.m_e == rhs; }
+constexpr bool operator==(VOptionBool::en lhs, અચલ VOptionBool& rhs) { પાછા lhs == rhs.m_e; }
 
 //######################################################################
 
 class VFileLibName final {
     // Filename and libname pair
-    const string m_filename;  // Filename
-    const string m_libname;  // Libname
-public:
-    VFileLibName(const string& filename, const string& libname)
+    અચલ string m_filename;  // Filename
+    અચલ string m_libname;  // Libname
+જાહેર:
+    VFileLibName(અચલ string& filename, અચલ string& libname)
         : m_filename{filename}
         , m_libname{libname} {}
-    VFileLibName(const VFileLibName& rhs) = default;
-    string filename() const { return m_filename; }
-    string libname() const { return m_libname; }
-    bool operator==(const VFileLibName& rhs) const {
-        return m_filename == rhs.m_filename && m_libname == rhs.m_libname;
+    VFileLibName(અચલ VFileLibName& rhs) = મૂળભૂત;
+    string filename() અચલ { પાછા m_filename; }
+    string libname() અચલ { પાછા m_libname; }
+    bool operator==(અચલ VFileLibName& rhs) અચલ {
+        પાછા m_filename == rhs.m_filename && m_libname == rhs.m_libname;
     }
-    bool operator<(const VFileLibName& rhs) const {
-        if (m_filename < rhs.m_filename) return true;
-        if (m_filename > rhs.m_filename) return false;
-        return m_libname < rhs.m_libname;
+    bool operator<(અચલ VFileLibName& rhs) અચલ {
+        જો (m_filename < rhs.m_filename) પાછા true;
+        જો (m_filename > rhs.m_filename) પાછા false;
+        પાછા m_libname < rhs.m_libname;
     }
 };
 
@@ -94,8 +94,8 @@ using VFileLibSet = std::set<VFileLibName>;
 // ######################################################################
 
 class VTimescale final {
-public:
-    enum en : uint8_t {
+જાહેર:
+    ગણના en : uint8_t {
         // clang-format off
         TS_100S = 0, TS_10S = 1, TS_1S = 2,
         TS_100MS = 3, TS_10MS = 4, TS_1MS = 5,
@@ -107,66 +107,66 @@ public:
         NONE = 18,
         _ENUM_END
     };
-    enum : uint8_t { TS_DEFAULT = TS_1PS };
-    enum en m_e;
+    ગણના : uint8_t { TS_DEFAULT = TS_1PS };
+    ગણના en m_e;
     // CONSTRUCTOR
     VTimescale()
         : m_e{NONE} {}
     // cppcheck-suppress noExplicitConstructor
     constexpr VTimescale(en _e)
         : m_e{_e} {}
-    explicit VTimescale(int _e)
+    explicit VTimescale(પૂર્ણાંક _e)
         : m_e(static_cast<en>(_e)) {}  // Need () or GCC 4.8 false warning
     // Construct from string
-    VTimescale(const string& value, bool& badr);
-    VTimescale(double value, bool& badr) {
+    VTimescale(અચલ string& કિંમત, bool& badr);
+    VTimescale(દ્વિગુણ કિંમત, bool& badr) {
         badr = false;
-        for (int i = TS_100S; i < _ENUM_END; ++i) {
+        માટે (પૂર્ણાંક i = TS_100S; i < _ENUM_END; ++i) {
             m_e = static_cast<en>(i);
-            if (multiplier() == value) break;
+            જો (multiplier() == કિંમત) તોડો;
         }
-        if (multiplier() != value) {
+        જો (multiplier() != કિંમત) {
             m_e = NONE;
             badr = true;
         }
     }
-    bool isNone() const { return m_e == NONE; }
+    bool isNone() અચલ { પાછા m_e == NONE; }
     // Parse a "unit/precision" string into two VTimescales, with error checking
-    static void parseSlashed(FileLine* fl, const char* textp, VTimescale& unitr, VTimescale& precr,
+    સ્થિર શૂન્ય parseSlashed(File_લીટી* fl, અચલ અક્ષર* textp, VTimescale& unitr, VTimescale& precr,
                              bool allowEmpty = false);
-    const char* ascii() const {
-        static const char* const names[]
+    અચલ અક્ષર* ascii() અચલ {
+        સ્થિર અચલ અક્ષર* અચલ names[]
             = {"100s", "10s", "1s",    "100ms", "10ms", "1ms",   "100us", "10us", "1us", "100ns",
                "10ns", "1ns", "100ps", "10ps",  "1ps",  "100fs", "10fs",  "1fs",  "NONE"};
-        return names[m_e];
+        પાછા names[m_e];
     }
-    int powerOfTen() const { return 2 - static_cast<int>(m_e); }
-    double multiplier() const {
-        static const double values[]
+    પૂર્ણાંક powerOfTen() અચલ { પાછા 2 - static_cast<પૂર્ણાંક>(m_e); }
+    દ્વિગુણ multiplier() અચલ {
+        સ્થિર અચલ દ્વિગુણ કિંમતો[]
             = {100,  10,   1,     1e-1,  1e-2,  1e-3,  1e-4,  1e-5,  1e-6, 1e-7,
                1e-8, 1e-9, 1e-10, 1e-11, 1e-12, 1e-13, 1e-14, 1e-15, 0};
-        return values[m_e];
+        પાછા કિંમતો[m_e];
     }
 };
-constexpr bool operator==(const VTimescale& lhs, const VTimescale& rhs) {
-    return lhs.m_e == rhs.m_e;
+constexpr bool operator==(અચલ VTimescale& lhs, અચલ VTimescale& rhs) {
+    પાછા lhs.m_e == rhs.m_e;
 }
-constexpr bool operator==(const VTimescale& lhs, VTimescale::en rhs) { return lhs.m_e == rhs; }
-constexpr bool operator==(VTimescale::en lhs, const VTimescale& rhs) { return lhs == rhs.m_e; }
+constexpr bool operator==(અચલ VTimescale& lhs, VTimescale::en rhs) { પાછા lhs.m_e == rhs; }
+constexpr bool operator==(VTimescale::en lhs, અચલ VTimescale& rhs) { પાછા lhs == rhs.m_e; }
 // Comparisons are based on time, not enum values, so seconds > milliseconds
-constexpr bool operator<(const VTimescale& lhs, const VTimescale& rhs) {
-    return lhs.m_e > rhs.m_e;
+constexpr bool operator<(અચલ VTimescale& lhs, અચલ VTimescale& rhs) {
+    પાછા lhs.m_e > rhs.m_e;
 }
-inline std::ostream& operator<<(std::ostream& os, const VTimescale& rhs) {
-    return os << rhs.ascii();
+અંતઃરેખ std::ostream& operator<<(std::ostream& os, અચલ VTimescale& rhs) {
+    પાછા os << rhs.ascii();
 }
 
 // ######################################################################
 
 class VFsmExpandType final {
     // Defined here since it is used in V3Options which does not include V3Ast.h
-public:
-    enum en : uint8_t {
+જાહેર:
+    ગણના en : uint8_t {
         DEFAULT = 0,  // Use the global default expansion type
         AUTO,  // Expands only reset and default
         AUTO_EXPAND,  // Expands transitions between all possible states
@@ -177,36 +177,36 @@ public:
     // cppcheck-suppress noExplicitConstructor
     constexpr VFsmExpandType(en _e)
         : m_e{_e} {}
-    explicit VFsmExpandType(int _e)
+    explicit VFsmExpandType(પૂર્ણાંક _e)
         : m_e(static_cast<en>(_e)) {}  // Need () or GCC 4.8 false warning
-    constexpr operator en() const { return m_e; }
-    constexpr const char* ascii() const {
-        constexpr const char* const names[] = {"DEFAULT", "AUTO", "AUTO_EXPAND", "FULL"};
-        return names[m_e];
+    constexpr operator en() અચલ { પાછા m_e; }
+    constexpr અચલ અક્ષર* ascii() અચલ {
+        constexpr અચલ અક્ષર* અચલ names[] = {"DEFAULT", "AUTO", "AUTO_EXPAND", "FULL"};
+        પાછા names[m_e];
     }
 };
-constexpr bool operator==(const VFsmExpandType& lhs, const VFsmExpandType& rhs) VL_MT_SAFE {
-    return lhs.m_e == rhs.m_e;
+constexpr bool operator==(અચલ VFsmExpandType& lhs, અચલ VFsmExpandType& rhs) VL_MT_SAFE {
+    પાછા lhs.m_e == rhs.m_e;
 }
-constexpr bool operator==(const VFsmExpandType& lhs, VFsmExpandType::en rhs) VL_MT_SAFE {
-    return lhs.m_e == rhs;
+constexpr bool operator==(અચલ VFsmExpandType& lhs, VFsmExpandType::en rhs) VL_MT_SAFE {
+    પાછા lhs.m_e == rhs;
 }
-constexpr bool operator==(VFsmExpandType::en lhs, const VFsmExpandType& rhs) VL_MT_SAFE {
-    return lhs == rhs.m_e;
+constexpr bool operator==(VFsmExpandType::en lhs, અચલ VFsmExpandType& rhs) VL_MT_SAFE {
+    પાછા lhs == rhs.m_e;
 }
-inline std::ostream& operator<<(std::ostream& os, const VFsmExpandType& rhs) VL_MT_SAFE {
-    return os << rhs.ascii();
+અંતઃરેખ std::ostream& operator<<(std::ostream& os, અચલ VFsmExpandType& rhs) VL_MT_SAFE {
+    પાછા os << rhs.ascii();
 }
 
 // ######################################################################
 
 // Information given by --hierarchical-block option
 class V3HierarchicalBlockOption final {
-public:
+જાહેર:
     // key:parameter name, value:value (as string)
-    using ParamStrMap = std::map<const std::string, std::string>;
+    using ParamStrMap = std::map<અચલ std::string, std::string>;
 
-private:
+ખાનગી:
     string m_origName;  // module name
     // module name after uniquified
     // same as m_origName for non-parameterized module
@@ -214,23 +214,23 @@ private:
     // overriding parameter values specified by -G option
     ParamStrMap m_parameters;
 
-public:
-    explicit V3HierarchicalBlockOption(const string& optstring);
-    const string& origName() const { return m_origName; }
-    const string& mangledName() const { return m_mangledName; }
-    const ParamStrMap params() const { return m_parameters; }
+જાહેર:
+    explicit V3HierarchicalBlockOption(અચલ string& optstring);
+    અચલ string& origName() અચલ { પાછા m_origName; }
+    અચલ string& mangledName() અચલ { પાછા m_mangledName; }
+    અચલ ParamStrMap params() અચલ { પાછા m_parameters; }
 };
 
-using V3HierBlockOptSet = std::map<const std::string, V3HierarchicalBlockOption>;
+using V3HierBlockOptSet = std::map<અચલ std::string, V3HierarchicalBlockOption>;
 
 //######################################################################
 // V3Options - Command line options
 
 class V3Options final {
-public:
-private:
+જાહેર:
+ખાનગી:
     // TYPES
-    using DebugLevelMap = std::map<const std::string, unsigned>;
+    using DebugLevelMap = std::map<અચલ std::string, unsigned>;
 
     // MEMBERS (general options)
     V3OptionsImp* m_impp;  // Slow hidden options
@@ -252,26 +252,26 @@ private:
     VStringList m_forceIncs;   // argument: -FI
     DebugLevelMap m_debugLevel; // argument: --debugi-<srcfile/tag> <level>
     DebugLevelMap m_dumpLevel;  // argument: --dumpi-<srcfile/tag> <level>
-    std::map<const string, string> m_parameters;  // Parameters
-    std::map<const string, V3HierarchicalBlockOption> m_hierBlocks;  // main switch: --hierarchical-block
+    std::map<અચલ string, string> m_parameters;  // Parameters
+    std::map<અચલ string, V3HierarchicalBlockOption> m_hierBlocks;  // main switch: --hierarchical-block
     VStringSet m_fDfgPeepholeDisabled; // argument: -f[no-]dfg-peephole-<name>
 
     bool m_preprocOnly = false;     // main switch: -E
     bool m_preprocResolve = false;  // main switch: --preproc-resolve
     bool m_makePhony = false;       // main switch: -MP
-    bool m_preprocNoLine = false;   // main switch: -P
+    bool m_preproc_No_લીટી = false;   // main switch: -P
     bool m_assert = true;           // main switch: --assert
     bool m_assertCase = true;       // main switch: --assert-case
     bool m_autoflush = false;       // main switch: --autoflush
     bool m_bboxSys = false;         // main switch: --bbox-sys
     bool m_bboxUnsup = false;       // main switch: --bbox-unsup
-    bool m_binary = false;          // main switch: --binary
+    bool m_દ્વિઅંકી = false;          // main switch: --binary
     bool m_build = false;           // main switch: --build
     bool m_context = true;          // main switch: --Wcontext
     bool m_coverageBranch = false;  // main switch: --coverage-branch
-    bool m_coverageExpr = false;    // main switch: --coverage-expr
+    bool m_coverage_પદાવલિ = false;    // main switch: --coverage-expr
     bool m_coverageFsm = false;     // main switch: --coverage-fsm
-    bool m_coverageLine = false;    // main switch: --coverage-block
+    bool m_coverage_લીટી = false;    // main switch: --coverage-block
     bool m_coverageMergeInstances = false;  // main switch: --coverage-merge-instances
     bool m_coveragePerInstance = false;  // main switch: --coverage-per-instance
     bool m_coverageToggle = false;  // main switch: --coverage-toggle
@@ -289,8 +289,8 @@ private:
     bool m_debugPreprocPassthru = false;  // main switch: --debug-preproc-passthru
     bool m_debugProtect = false;    // main switch: --debug-protect
     bool m_debugSelfTest = false;   // main switch: --debug-self-test
-    bool m_debugStackCheck = false;  // main switch: --debug-stack-check
-    int m_debugRuntimeTimeout = 0;  // main switch: --debug-runtime-timeout <n>
+    bool m_debug_ઢગલો_Check = false;  // main switch: --debug-stack-check
+    પૂર્ણાંક m_debugRuntimeTimeout = 0;  // main switch: --debug-runtime-timeout <n>
     bool m_debugWidth = false;      // main switch: --debug-width
     bool m_decoration = true;       // main switch: --decoration
     bool m_decorationNodes = false;  // main switch: --decoration=nodes
@@ -348,7 +348,7 @@ private:
     bool m_traceEnabledVcd = false;  // main switch: --trace-vcd
     bool m_traceParams = true;      // main switch: --trace-params
     bool m_traceStructs = false;    // main switch: --trace-structs
-    bool m_noTraceTop = false;      // main switch: --no-trace-top
+    bool m_no_Trace_ટોચ = false;      // main switch: --no-trace-top
     bool m_traceUnderscore = false; // main switch: --trace-underscore
     bool m_underlineZero = false;   // main switch: --underline-zero; undocumented old Verilator 2
     bool m_verilate = true;         // main switch: --verilate
@@ -356,61 +356,61 @@ private:
     bool m_waiverMultiline = false;  // main switch: --waiver-multiline
     bool m_xInitialEdge = false;    // main switch: --x-initial-edge
 
-    int         m_buildJobs = -1;    // main switch: --build-jobs, -j
-    int         m_coverageExprMax = 32;    // main switch: --coverage-expr-max
+    પૂર્ણાંક         m_buildJobs = -1;    // main switch: --build-jobs, -j
+    પૂર્ણાંક         m_coverage_પદાવલિ_Max = 32;    // main switch: --coverage-expr-max
     VFsmExpandType m_coverageFsmExpand;  // main switch: --coverage-fsm-expand <mode>
-    int         m_coverageFsmMaxArcs = 4096;  // main switch: --coverage-fsm-max-arcs
-    int         m_convergeLimit = 10000;  // main switch: --converge-limit
+    પૂર્ણાંક         m_coverageFsmMaxArcs = 4096;  // main switch: --coverage-fsm-max-arcs
+    પૂર્ણાંક         m_convergeLimit = 10000;  // main switch: --converge-limit
     uint32_t    m_coverageMaxBins = 1024;  // main switch: --coverage-max-bins
     uint32_t    m_coverageMaxRealBins = 1024;  // main switch: --coverage-max-real-bins
-    int         m_coverageMaxWidth = 256; // main switch: --coverage-max-width
-    int         m_debugAllocRandom = 0;  // main switch: --debug-alloc-random <seed>
-    int         m_expandLimit = 256;  // main switch: --expand-limit
-    int         m_gateStmts = 100;    // main switch: --gate-stmts
-    int         m_hierChild = 0;      // main switch: --hierarchical-child
-    int         m_hierThreads = 0;      // main switch: --hierarchical-threads
-    int         m_ifDepth = 0;      // main switch: --if-depth
-    int         m_inlineCFuncs = 20;   // main switch: --inline-cfuncs
-    int         m_inlineCFuncsProduct = 200;   // main switch: --inline-cfuncs-product
-    int         m_inlineMult = 2000;   // main switch: --inline-mult
-    int         m_instrCountDpi = 200;   // main switch: --instr-count-dpi
+    પૂર્ણાંક         m_coverageMaxWidth = 256; // main switch: --coverage-max-width
+    પૂર્ણાંક         m_debugAllocRandom = 0;  // main switch: --debug-alloc-random <seed>
+    પૂર્ણાંક         m_expandLimit = 256;  // main switch: --expand-limit
+    પૂર્ણાંક         m_gateStmts = 100;    // main switch: --gate-stmts
+    પૂર્ણાંક         m_hierChild = 0;      // main switch: --hierarchical-child
+    પૂર્ણાંક         m_hierThreads = 0;      // main switch: --hierarchical-threads
+    પૂર્ણાંક         m_ifDepth = 0;      // main switch: --if-depth
+    પૂર્ણાંક         m_inlineCFuncs = 20;   // main switch: --inline-cfuncs
+    પૂર્ણાંક         m_inlineCFuncsProduct = 200;   // main switch: --inline-cfuncs-product
+    પૂર્ણાંક         m_inlineMult = 2000;   // main switch: --inline-mult
+    પૂર્ણાંક         m_instr_ગણતરી_Dpi = 200;   // main switch: --instr-count-dpi
     bool        m_jsonEditNums = true; // main switch: --no-json-edit-nums
     bool        m_jsonIds = true; // main switch: --no-json-ids
-    int         m_localizeMaxSize = 1024;  // main switch: --localize-max-size
+    પૂર્ણાંક         m_localizeMaxSize = 1024;  // main switch: --localize-max-size
     VOptionBool m_makeDepend;  // main switch: -MMD
-    int         m_maxNumWidth = 65536;  // main switch: --max-num-width
-    int         m_funcRecursion = 1000;  // main switch: --func-recursion-depth
-    int         m_moduleRecursion = 100;  // main switch: --module-recursion-depth
-    int         m_outputGroups = -1;  // main switch: --output-groups
+    પૂર્ણાંક         m_max_અંક_Width = 65536;  // main switch: --max-num-width
+    પૂર્ણાંક         m_funcRecursion = 1000;  // main switch: --func-recursion-depth
+    પૂર્ણાંક         m_moduleRecursion = 100;  // main switch: --module-recursion-depth
+    પૂર્ણાંક         m_outputGroups = -1;  // main switch: --output-groups
     int64_t     m_outputGroupsSize = 512 * 1024 * 1024;  // main switch: --output-groups-size
-    int         m_outputSplit = 20000;  // main switch: --output-split
-    int         m_outputSplitCFuncs = -1;  // main switch: --output-split-cfuncs
-    int         m_outputSplitCTrace = -1;  // main switch: --output-split-ctrace
-    int         m_pinsBv = 65;       // main switch: --pins-bv
-    int         m_preprocTokenLimit = 40000; // main switch: --preproc-token-limit
-    int         m_publicDepth = 0;   // main switch: --public-depth
-    int         m_reloopLimit = 40; // main switch: --reloop-limit
-    int         m_replicationLimit = 8192; // main switch: --replication-limit
+    પૂર્ણાંક         m_outputSplit = 20000;  // main switch: --output-split
+    પૂર્ણાંક         m_outputSplitCFuncs = -1;  // main switch: --output-split-cfuncs
+    પૂર્ણાંક         m_outputSplitCTrace = -1;  // main switch: --output-split-ctrace
+    પૂર્ણાંક         m_pinsBv = 65;       // main switch: --pins-bv
+    પૂર્ણાંક         m_preprocTokenLimit = 40000; // main switch: --preproc-token-limit
+    પૂર્ણાંક         m_publicDepth = 0;   // main switch: --public-depth
+    પૂર્ણાંક         m_reloopLimit = 40; // main switch: --reloop-limit
+    પૂર્ણાંક         m_replicationLimit = 8192; // main switch: --replication-limit
     VOptionBool m_skipIdentical;  // main switch: --skip-identical
     bool        m_stopFail = true;  // main switch: --stop-fail
-    int         m_threads = 1;      // main switch: --threads
-    int         m_threadsMaxMTasks = 0;  // main switch: --threads-max-mtasks
+    પૂર્ણાંક         m_threads = 1;      // main switch: --threads
+    પૂર્ણાંક         m_threadsMaxMTasks = 0;  // main switch: --threads-max-mtasks
     VTimescale  m_timeDefaultPrec;  // main switch: --timescale
     VTimescale  m_timeDefaultUnit;  // main switch: --timescale
     VTimescale  m_timeOverridePrec;  // main switch: --timescale-override
     VTimescale  m_timeOverrideUnit;  // main switch: --timescale-override
-    int         m_traceDepth = 0;   // main switch: --trace-depth
-    int         m_traceMaxArray = 32;  // main switch: --trace-max-array
-    int         m_traceMaxWidth = 4096; // main switch: --trace-max-width
-    int         m_unrollCount = 64;  // main switch: --unroll-count
-    int         m_unrollLimit = 16384;  // main switch: --unroll-limit
-    int         m_unrollStmts = 30000;  // main switch: --unroll-stmts
-    int         m_constraintArrayLimit = 64;  // main switch: --constraint-array-limit
-    int         m_verilateJobs = -1;  // main switch: --verilate-jobs
+    પૂર્ણાંક         m_traceDepth = 0;   // main switch: --trace-depth
+    પૂર્ણાંક         m_traceMaxArray = 32;  // main switch: --trace-max-array
+    પૂર્ણાંક         m_traceMaxWidth = 4096; // main switch: --trace-max-width
+    પૂર્ણાંક         m_unroll_ગણતરી = 64;  // main switch: --unroll-count
+    પૂર્ણાંક         m_unrollLimit = 16384;  // main switch: --unroll-limit
+    પૂર્ણાંક         m_unrollStmts = 30000;  // main switch: --unroll-stmts
+    પૂર્ણાંક         m_constraintArrayLimit = 64;  // main switch: --constraint-array-limit
+    પૂર્ણાંક         m_verilateJobs = -1;  // main switch: --verilate-jobs
 
-    int         m_compLimitBlocks = 0;  // compiler selection; number of nested blocks
-    int         m_compLimitMembers = 64;  // compiler selection; number of members in struct before make anon array
-    int         m_compLimitParens = 240;  // compiler selection; number of nested parens
+    પૂર્ણાંક         m_compLimitBlocks = 0;  // compiler selection; number of nested blocks
+    પૂર્ણાંક         m_compLimitMembers = 64;  // compiler selection; number of members in struct before make anon array
+    પૂર્ણાંક         m_compLimitParens = 240;  // compiler selection; number of nested parens
 
     string      m_buildDepBin;  // main switch: --build-dep-bin {filename}
     string      m_diagnosticsSarifOutput;  // main switch: --diagnostics-sarif-output
@@ -420,13 +420,13 @@ private:
     string      m_jsonOnlyMetaOutput;    // main switch: --json-only-meta-output
     string      m_l2Name;       // main switch: --l2name; "" for top-module's name
     string      m_libCreate;    // main switch: --lib-create {lib_name}
-    string      m_mainTopName;  // main switch: --main-top-name
+    string      m_main_ટોચ_Name;  // main switch: --main-top-name
     string      m_makeDir;      // main switch: -Mdir
     string      m_modPrefix;    // main switch: --mod-prefix
     string      m_pipeFilter;   // main switch: --pipe-filter
     string      m_prefix;       // main switch: --prefix
-    string      m_protectKey;   // main switch: --protect-key
-    string      m_topModule;    // main switch: --top-module
+    string      m_protect_ચાવી;   // main switch: --protect-key
+    string      m_ટોચ_Module;    // main switch: --top-module
     string      m_unusedRegexp; // main switch: --unused-regexp
     string      m_waiverOutput;  // main switch: --waiver-output {filename}
     string      m_work = "work";  // main switch: --work {libname}
@@ -444,15 +444,15 @@ private:
     bool m_fBitblast;    // main switch: -fno-bitblast: split packed variables into bit ranges
     bool m_fCaseDecoder; // main switch: -fno-case-decoder: case decoder conversion
     bool m_fCaseTable;   // main switch: -fno-case-table: case table conversion
-    bool m_fCaseTree;    // main switch: -fno-case-tree: case tree conversion
+    bool m_f_Case_વૃક્ષ;    // main switch: -fno-case-tree: case tree conversion
     bool m_fCombine;     // main switch: -fno-combine: common icode packing
     bool m_fConst;       // main switch: -fno-const: constant folding
     bool m_fConstBeforeDfg = true;  // main switch: -fno-const-before-dfg for testing only!
-    bool m_fConstBitOpTree;  // main switch: -fno-const-bit-op-tree constant bit op tree
+    bool m_f_Const_Bit_Op_વૃક્ષ;  // main switch: -fno-const-bit-op-tree constant bit op tree
     bool m_fConstEager = true;  // main switch: -fno-const-eagerly run V3Const during passes
     bool m_fDedupe;      // main switch: -fno-dedupe: logic deduplication
     bool m_fDfgPeephole = true; // main switch: -fno-dfg-peephole
-    bool m_fDfgPushDownSels = true; // main switch: -fno-dfg-push-down-sels
+    bool m_f_Dfg_ધકેલો_Down_Sels = true; // main switch: -fno-dfg-push-down-sels
     bool m_fDfg;         // main switch: -fno-dfg
     bool m_fDfgSynthesizeAll = false;  // main switch: -fdfg-synthesize-all
     bool m_fDeadAssigns;     // main switch: -fno-dead-assigns: remove dead assigns
@@ -478,7 +478,7 @@ private:
     bool m_fReloop;      // main switch: -fno-reloop: reform loops
     bool m_fReorder;     // main switch: -fno-reorder: reorder assignments in blocks
     bool m_fSlice = true;  // main switch: -fno-slice: array assignment slicing
-    int  m_fSliceElementLimit = 256;  // main switch: --fslice-element-limit
+    પૂર્ણાંક  m_fSliceElementLimit = 256;  // main switch: --fslice-element-limit
     bool m_fSplit;       // main switch: -fno-split: always assignment splitting
     bool m_fSubst;       // main switch: -fno-subst: substitute expression temp values
     bool m_fSubstConst;  // main switch: -fno-subst-const: final constant substitution
@@ -489,420 +489,420 @@ private:
     bool m_available = false;  // Set to true at the end of option parsing
 
     // METHODS
-    void addArg(char** argv, size_t count, bool isForRerun);
-    void addArg(const std::string& arg, bool isForRerun);
-    void addLineArg(const string& arg);
-    void addDefine(const string& defline, bool allowPlus) VL_MT_DISABLED;
-    void addFuture(const string& flag);
-    void addFuture0(const string& flag);
-    void addFuture1(const string& flag);
-    void addIncDirUser(const string& incdir);  // User requested
-    void addIncDirFallback(const string& incdir);  // Low priority if not found otherwise
-    void addParameter(const string& paramline, bool allowPlus);
-    void addLangExt(const string& langext, const V3LangCode& lc);
-    void addLibExtV(const string& libext);
-    void optimize(int level);
-    void showVersion(bool verbose);
-    void coverage(bool flag) {
-        m_coverageLine = m_coverageBranch = m_coverageToggle = m_coverageExpr = m_coverageFsm
+    શૂન્ય addArg(અક્ષર** argv, size_t ગણતરી, bool isForRerun);
+    શૂન્ય addArg(અચલ std::string& arg, bool isForRerun);
+    શૂન્ય add_લીટી_Arg(અચલ string& arg);
+    શૂન્ય addDefine(અચલ string& defline, bool allowPlus) VL_MT_DISABLED;
+    શૂન્ય addFuture(અચલ string& flag);
+    શૂન્ય addFuture0(અચલ string& flag);
+    શૂન્ય addFuture1(અચલ string& flag);
+    શૂન્ય addIncDirUser(અચલ string& incdir);  // User requested
+    શૂન્ય addIncDirFallback(અચલ string& incdir);  // Low priority if not found otherwise
+    શૂન્ય addParameter(અચલ string& paramline, bool allowPlus);
+    શૂન્ય addLangExt(અચલ string& langext, અચલ V3LangCode& lc);
+    શૂન્ય addLibExtV(અચલ string& libext);
+    શૂન્ય optimize(પૂર્ણાંક level);
+    શૂન્ય showVersion(bool verbose);
+    શૂન્ય coverage(bool flag) {
+        m_coverage_લીટી = m_coverageBranch = m_coverageToggle = m_coverage_પદાવલિ = m_coverageFsm
             = m_coverageUser = flag;
     }
-    static bool suffixed(const string& sw, const char* arg);
-    static string parseFileArg(const string& optdir, const string& relfilename);
-    string filePathCheckOneDir(const string& modname, const string& dirname);
-    static int stripOptionsForChildRun(const string& opt, bool forTop);
-    void validateIdentifier(FileLine* fl, const string& arg, const string& opt);
+    સ્થિર bool suffixed(અચલ string& sw, અચલ અક્ષર* arg);
+    સ્થિર string parseFileArg(અચલ string& optdir, અચલ string& relfilename);
+    string filePathCheckOneDir(અચલ string& modname, અચલ string& dirname);
+    સ્થિર પૂર્ણાંક stripOptionsForChildRun(અચલ string& opt, bool for_ટોચ);
+    શૂન્ય validateIdentifier(File_લીટી* fl, અચલ string& arg, અચલ string& opt);
 
     // CONSTRUCTORS
     VL_UNCOPYABLE(V3Options);
 
-public:
+જાહેર:
     V3Options();
     ~V3Options();
-    void setDebugMode(int level);
-    unsigned debugLevel(const string& tag) const VL_MT_SAFE;
-    unsigned debugSrcLevel(const string& srcfile_path) const VL_MT_SAFE;
-    unsigned dumpLevel(const string& tag) const VL_MT_SAFE;
-    unsigned dumpSrcLevel(const string& srcfile_path) const VL_MT_SAFE;
+    શૂન્ય setDebugMode(પૂર્ણાંક level);
+    unsigned debugLevel(અચલ string& tag) અચલ VL_MT_SAFE;
+    unsigned debugSrcLevel(અચલ string& srcfile_path) અચલ VL_MT_SAFE;
+    unsigned dumpLevel(અચલ string& tag) અચલ VL_MT_SAFE;
+    unsigned dumpSrcLevel(અચલ string& srcfile_path) અચલ VL_MT_SAFE;
 
     // METHODS
-    void addCppFile(const string& filename);
-    void addCFlags(const string& filename);
-    void addCompilerIncludes(const string& filename);
-    void addLdLibFile(const string& filename);
-    void addLdLibs(const string& filename);
-    void addMakeFlags(const string& filename);
-    void addLibMapFile(const string& filename);
-    void addLibraryFile(const string& filename, const string& libname);
-    void addVFile(const string& filename, const string& libname);
-    void addVltFile(const string& filename, const string& libname);
-    void addForceInc(const string& filename);
-    bool available() const VL_MT_SAFE { return m_available; }
-    void ccSet();
-    void decorations(FileLine* fl, const string& filename);
-    void notify() VL_MT_DISABLED;
+    શૂન્ય addCppFile(અચલ string& filename);
+    શૂન્ય addCFlags(અચલ string& filename);
+    શૂન્ય addCompilerIncludes(અચલ string& filename);
+    શૂન્ય addLdLibFile(અચલ string& filename);
+    શૂન્ય addLdLibs(અચલ string& filename);
+    શૂન્ય addMakeFlags(અચલ string& filename);
+    શૂન્ય addLibMapFile(અચલ string& filename);
+    શૂન્ય addLibraryFile(અચલ string& filename, અચલ string& libname);
+    શૂન્ય addVFile(અચલ string& filename, અચલ string& libname);
+    શૂન્ય addVltFile(અચલ string& filename, અચલ string& libname);
+    શૂન્ય addForceInc(અચલ string& filename);
+    bool available() અચલ VL_MT_SAFE { પાછા m_available; }
+    શૂન્ય ccSet();
+    શૂન્ય decorations(File_લીટી* fl, અચલ string& filename);
+    શૂન્ય notify() VL_MT_DISABLED;
 
     // ACCESSORS (options)
-    bool preprocOnly() const { return m_preprocOnly; }
-    bool makePhony() const { return m_makePhony; }
-    bool preprocNoLine() const { return m_preprocNoLine; }
-    bool preprocResolve() const { return m_preprocResolve; }
-    int preprocTokenLimit() const { return m_preprocTokenLimit; }
-    bool underlineZero() const { return m_underlineZero; }
-    bool systemC() const VL_MT_SAFE { return m_systemC; }
-    bool savable() const VL_MT_SAFE { return m_savable; }
-    VOptionBool schedZeroDelay() const { return m_schedZeroDelay; }
-    bool stats() const { return m_stats; }
-    bool statsVars() const { return m_statsVars; }
-    bool stdPackage() const { return m_stdPackage; }
-    bool stdWaiver() const { return m_stdWaiver; }
-    bool assertOn() const { return m_assert; }  // assertOn as __FILE__ may be defined
-    bool assertCase() const { return m_assertCase; }
-    bool autoflush() const { return m_autoflush; }
-    bool bboxSys() const { return m_bboxSys; }
-    bool bboxUnsup() const { return m_bboxUnsup; }
-    bool build() const { return m_build; }
-    string buildDepBin() const { return m_buildDepBin; }
-    void buildDepBin(const string& flag) { m_buildDepBin = flag; }
-    bool context() const VL_MT_SAFE { return m_context; }
-    bool coverage() const VL_MT_SAFE {
+    bool preprocOnly() અચલ { પાછા m_preprocOnly; }
+    bool makePhony() અચલ { પાછા m_makePhony; }
+    bool preproc_No_લીટી() અચલ { પાછા m_preproc_No_લીટી; }
+    bool preprocResolve() અચલ { પાછા m_preprocResolve; }
+    પૂર્ણાંક preprocTokenLimit() અચલ { પાછા m_preprocTokenLimit; }
+    bool underlineZero() અચલ { પાછા m_underlineZero; }
+    bool systemC() અચલ VL_MT_SAFE { પાછા m_systemC; }
+    bool savable() અચલ VL_MT_SAFE { પાછા m_savable; }
+    VOptionBool schedZeroDelay() અચલ { પાછા m_schedZeroDelay; }
+    bool stats() અચલ { પાછા m_stats; }
+    bool statsVars() અચલ { પાછા m_statsVars; }
+    bool stdPackage() અચલ { પાછા m_stdPackage; }
+    bool stdWaiver() અચલ { પાછા m_stdWaiver; }
+    bool assertOn() અચલ { પાછા m_assert; }  // assertOn as __FILE__ may be defined
+    bool assertCase() અચલ { પાછા m_assertCase; }
+    bool autoflush() અચલ { પાછા m_autoflush; }
+    bool bboxSys() અચલ { પાછા m_bboxSys; }
+    bool bboxUnsup() અચલ { પાછા m_bboxUnsup; }
+    bool build() અચલ { પાછા m_build; }
+    string buildDepBin() અચલ { પાછા m_buildDepBin; }
+    શૂન્ય buildDepBin(અચલ string& flag) { m_buildDepBin = flag; }
+    bool context() અચલ VL_MT_SAFE { પાછા m_context; }
+    bool coverage() અચલ VL_MT_SAFE {
         // Any enabled coverage kind, including FSM coverage. Code generation
         // and runtime support should generally query this accessor.
-        return m_coverageLine || m_coverageBranch || m_coverageToggle || m_coverageExpr
+        પાછા m_coverage_લીટી || m_coverageBranch || m_coverageToggle || m_coverage_પદાવલિ
                || m_coverageUser || m_coverageFsm;
     }
-    bool coverageNonFsm() const VL_MT_SAFE {
+    bool coverageNonFsm() અચલ VL_MT_SAFE {
         // The broad line/toggle/expr/user coverage transforms use this
         // accessor. FSM coverage shares the overall coverage umbrella, but its
         // extraction still happens through a separate early-recognition path.
-        return m_coverageLine || m_coverageBranch || m_coverageToggle || m_coverageExpr
+        પાછા m_coverage_લીટી || m_coverageBranch || m_coverageToggle || m_coverage_પદાવલિ
                || m_coverageUser;
     }
-    bool coverageBranch() const { return m_coverageBranch; }
-    bool coverageExpr() const { return m_coverageExpr; }
-    bool coverageFsm() const { return m_coverageFsm; }
-    VFsmExpandType coverageFsmExpand() const { return m_coverageFsmExpand; }
-    int coverageFsmMaxArcs() const { return m_coverageFsmMaxArcs; }
-    bool coverageLine() const { return m_coverageLine; }
-    bool coverageMergeInstances() const { return m_coverageMergeInstances; }
-    bool coveragePerInstance() const { return m_coveragePerInstance; }
-    bool coverageToggle() const { return m_coverageToggle; }
-    bool coverageUnderscore() const { return m_coverageUnderscore; }
-    bool coverageUser() const { return m_coverageUser; }
-    bool debugCheck() const VL_MT_SAFE { return m_debugCheck; }
-    bool debugCollision() const { return m_debugCollision; }
-    bool debugEmitV() const VL_MT_SAFE { return m_debugEmitV; }
-    bool debugExitElab() const { return m_debugExitElab; }
-    bool debugExitParse() const { return m_debugExitParse; }
-    bool debugLeak() const { return m_debugLeak; }
-    bool debugNondeterminism() const { return m_debugNondeterminism; }
-    bool debugPartition() const { return m_debugPartition; }
-    bool debugPreprocPassthru() const VL_MT_SAFE { return m_debugPreprocPassthru; }
-    bool debugProtect() const VL_MT_SAFE { return m_debugProtect; }
-    int debugRuntimeTimeout() const { return m_debugRuntimeTimeout; }
-    bool debugSelfTest() const { return m_debugSelfTest; }
-    bool debugStackCheck() const { return m_debugStackCheck; }
-    bool debugWidth() const VL_PURE { return m_debugWidth; }
-    bool decoration() const VL_MT_SAFE { return m_decoration; }
-    bool decorationNodes() const VL_MT_SAFE { return m_decorationNodes; }
-    bool diagnosticsSarif() const VL_MT_SAFE { return m_diagnosticsSarif; }
-    bool dpiHdrOnly() const { return m_dpiHdrOnly; }
-    bool dumpAstPatterns() const {
-        return m_dumpLevel.count("ast-patterns") && m_dumpLevel.at("ast-patterns");
+    bool coverageBranch() અચલ { પાછા m_coverageBranch; }
+    bool coverage_પદાવલિ() અચલ { પાછા m_coverage_પદાવલિ; }
+    bool coverageFsm() અચલ { પાછા m_coverageFsm; }
+    VFsmExpandType coverageFsmExpand() અચલ { પાછા m_coverageFsmExpand; }
+    પૂર્ણાંક coverageFsmMaxArcs() અચલ { પાછા m_coverageFsmMaxArcs; }
+    bool coverage_લીટી() અચલ { પાછા m_coverage_લીટી; }
+    bool coverageMergeInstances() અચલ { પાછા m_coverageMergeInstances; }
+    bool coveragePerInstance() અચલ { પાછા m_coveragePerInstance; }
+    bool coverageToggle() અચલ { પાછા m_coverageToggle; }
+    bool coverageUnderscore() અચલ { પાછા m_coverageUnderscore; }
+    bool coverageUser() અચલ { પાછા m_coverageUser; }
+    bool debugCheck() અચલ VL_MT_SAFE { પાછા m_debugCheck; }
+    bool debugCollision() અચલ { પાછા m_debugCollision; }
+    bool debugEmitV() અચલ VL_MT_SAFE { પાછા m_debugEmitV; }
+    bool debugExitElab() અચલ { પાછા m_debugExitElab; }
+    bool debugExitParse() અચલ { પાછા m_debugExitParse; }
+    bool debugLeak() અચલ { પાછા m_debugLeak; }
+    bool debugNondeterminism() અચલ { પાછા m_debugNondeterminism; }
+    bool debugPartition() અચલ { પાછા m_debugPartition; }
+    bool debugPreprocPassthru() અચલ VL_MT_SAFE { પાછા m_debugPreprocPassthru; }
+    bool debugProtect() અચલ VL_MT_SAFE { પાછા m_debugProtect; }
+    પૂર્ણાંક debugRuntimeTimeout() અચલ { પાછા m_debugRuntimeTimeout; }
+    bool debugSelfTest() અચલ { પાછા m_debugSelfTest; }
+    bool debug_ઢગલો_Check() અચલ { પાછા m_debug_ઢગલો_Check; }
+    bool debugWidth() અચલ VL_PURE { પાછા m_debugWidth; }
+    bool decoration() અચલ VL_MT_SAFE { પાછા m_decoration; }
+    bool decorationNodes() અચલ VL_MT_SAFE { પાછા m_decorationNodes; }
+    bool diagnosticsSarif() અચલ VL_MT_SAFE { પાછા m_diagnosticsSarif; }
+    bool dpiHdrOnly() અચલ { પાછા m_dpiHdrOnly; }
+    bool dumpAstPatterns() અચલ {
+        પાછા m_dumpLevel.ગણતરી("ast-patterns") && m_dumpLevel.at("ast-patterns");
     }
-    bool dumpDefines() const { return m_dumpLevel.count("defines") && m_dumpLevel.at("defines"); }
-    bool dumpDfgPatterns() const {
-        return m_dumpLevel.count("dfg-patterns") && m_dumpLevel.at("dfg-patterns");
+    bool dumpDefines() અચલ { પાછા m_dumpLevel.ગણતરી("defines") && m_dumpLevel.at("defines"); }
+    bool dumpDfgPatterns() અચલ {
+        પાછા m_dumpLevel.ગણતરી("dfg-patterns") && m_dumpLevel.at("dfg-patterns");
     }
-    bool dumpTreeDot() const {
-        return m_dumpLevel.count("tree-dot") && m_dumpLevel.at("tree-dot");
+    bool dump_વૃક્ષ_Dot() અચલ {
+        પાછા m_dumpLevel.ગણતરી("tree-dot") && m_dumpLevel.at("tree-dot");
     }
-    bool emitAccessors() const { return m_emitAccessors; }
-    bool exe() const { return m_exe; }
-    bool flatten() const { return m_flatten; }
-    bool fourstate() const { return m_fourstate; }
-    bool gmake() const { return m_gmake; }
-    bool makeJson() const { return m_makeJson; }
-    bool threadsDpiPure() const { return m_threadsDpiPure; }
-    bool threadsDpiUnpure() const { return m_threadsDpiUnpure; }
-    bool threadsCoarsen() const { return m_threadsCoarsen; }
-    VOptionBool timing() const { return m_timing; }
-    bool trace() const { return m_trace; }
-    bool traceCoverage() const { return m_traceCoverage; }
-    bool traceEnabledFst() const { return m_traceEnabledFst; }
-    bool traceEnabledSaif() const { return m_traceEnabledSaif; }
-    bool traceEnabledVcd() const { return m_traceEnabledVcd; }
-    bool traceParams() const { return m_traceParams; }
-    bool traceStructs() const { return m_traceStructs; }
-    bool traceUnderscore() const { return m_traceUnderscore; }
-    bool main() const { return m_main; }
-    bool outFormatOk() const { return m_outFormatOk; }
-    bool jsonOnly() const { return m_jsonOnly; }
-    bool keepTempFiles() const { return (V3Error::debugDefault() != 0); }
-    bool pedantic() const { return m_pedantic; }
-    bool pinsInoutEnables() const { return m_pinsInoutEnables; }
-    bool pinsScUint() const { return m_pinsScUint; }
-    bool pinsScUintBool() const { return m_pinsScUintBool; }
-    bool pinsScBigUint() const VL_MT_SAFE { return m_pinsScBigUint; }
-    bool pinsUint8() const { return m_pinsUint8; }
-    bool preprocComments() const { return m_preprocComments; }
-    bool preprocDefines() const { return m_preprocDefines; }
-    bool profC() const { return m_profC; }
-    bool profCFuncs() const { return m_profCFuncs; }
-    bool profExec() const { return m_profExec; }
-    bool profPgo() const { return m_profPgo; }
-    bool usesProfiler() const { return profExec() || profPgo(); }
-    bool protectIds() const VL_MT_SAFE { return m_protectIds; }
-    bool allPublic() const { return m_public; }
-    bool publicParams() const { return m_publicParams; }
-    bool publicOff() const { return m_publicIgnore; }
-    bool publicFlatRW() const { return m_publicFlatRW; }
-    int publicDepth() const { return m_publicDepth; }
-    bool anyPublicFlat() const { return m_publicParams || m_publicFlatRW || m_publicDepth; }
-    bool lintOnly() const VL_MT_SAFE { return m_lintOnly; }
-    bool ignc() const { return m_ignc; }
-    bool quietBuild() const VL_MT_SAFE { return m_quietBuild; }
-    bool quietExit() const VL_MT_SAFE { return m_quietExit; }
-    bool quietStats() const VL_MT_SAFE { return m_quietStats; }
-    bool reportUnoptflat() const { return m_reportUnoptflat; }
-    bool verilate() const { return m_verilate; }
-    bool vpi() const { return m_vpi.isTrue(); }
-    bool waiverMultiline() const { return m_waiverMultiline; }
-    bool xInitialEdge() const { return m_xInitialEdge; }
-    bool serializeOnly() const { return m_jsonOnly; }
-    bool topIfacesSupported() const { return lintOnly() && !hierarchical(); }
+    bool emitAccessors() અચલ { પાછા m_emitAccessors; }
+    bool exe() અચલ { પાછા m_exe; }
+    bool flatten() અચલ { પાછા m_flatten; }
+    bool fourstate() અચલ { પાછા m_fourstate; }
+    bool gmake() અચલ { પાછા m_gmake; }
+    bool makeJson() અચલ { પાછા m_makeJson; }
+    bool threadsDpiPure() અચલ { પાછા m_threadsDpiPure; }
+    bool threadsDpiUnpure() અચલ { પાછા m_threadsDpiUnpure; }
+    bool threadsCoarsen() અચલ { પાછા m_threadsCoarsen; }
+    VOptionBool timing() અચલ { પાછા m_timing; }
+    bool trace() અચલ { પાછા m_trace; }
+    bool traceCoverage() અચલ { પાછા m_traceCoverage; }
+    bool traceEnabledFst() અચલ { પાછા m_traceEnabledFst; }
+    bool traceEnabledSaif() અચલ { પાછા m_traceEnabledSaif; }
+    bool traceEnabledVcd() અચલ { પાછા m_traceEnabledVcd; }
+    bool traceParams() અચલ { પાછા m_traceParams; }
+    bool traceStructs() અચલ { પાછા m_traceStructs; }
+    bool traceUnderscore() અચલ { પાછા m_traceUnderscore; }
+    bool મુખ્ય() અચલ { પાછા m_main; }
+    bool outFormatOk() અચલ { પાછા m_outFormatOk; }
+    bool jsonOnly() અચલ { પાછા m_jsonOnly; }
+    bool keepTempFiles() અચલ { પાછા (V3Error::debugDefault() != 0); }
+    bool pedantic() અચલ { પાછા m_pedantic; }
+    bool pinsInoutEnables() અચલ { પાછા m_pinsInoutEnables; }
+    bool pinsScUint() અચલ { પાછા m_pinsScUint; }
+    bool pinsScUintBool() અચલ { પાછા m_pinsScUintBool; }
+    bool pinsScBigUint() અચલ VL_MT_SAFE { પાછા m_pinsScBigUint; }
+    bool pinsUint8() અચલ { પાછા m_pinsUint8; }
+    bool preprocComments() અચલ { પાછા m_preprocComments; }
+    bool preprocDefines() અચલ { પાછા m_preprocDefines; }
+    bool profC() અચલ { પાછા m_profC; }
+    bool profCFuncs() અચલ { પાછા m_profCFuncs; }
+    bool profExec() અચલ { પાછા m_profExec; }
+    bool profPgo() અચલ { પાછા m_profPgo; }
+    bool usesProfiler() અચલ { પાછા profExec() || profPgo(); }
+    bool protectIds() અચલ VL_MT_SAFE { પાછા m_protectIds; }
+    bool allPublic() અચલ { પાછા m_public; }
+    bool publicParams() અચલ { પાછા m_publicParams; }
+    bool publicOff() અચલ { પાછા m_publicIgnore; }
+    bool publicFlatRW() અચલ { પાછા m_publicFlatRW; }
+    પૂર્ણાંક publicDepth() અચલ { પાછા m_publicDepth; }
+    bool anyPublicFlat() અચલ { પાછા m_publicParams || m_publicFlatRW || m_publicDepth; }
+    bool lintOnly() અચલ VL_MT_SAFE { પાછા m_lintOnly; }
+    bool ignc() અચલ { પાછા m_ignc; }
+    bool quietBuild() અચલ VL_MT_SAFE { પાછા m_quietBuild; }
+    bool quietExit() અચલ VL_MT_SAFE { પાછા m_quietExit; }
+    bool quietStats() અચલ VL_MT_SAFE { પાછા m_quietStats; }
+    bool reportUnoptflat() અચલ { પાછા m_reportUnoptflat; }
+    bool verilate() અચલ { પાછા m_verilate; }
+    bool vpi() અચલ { પાછા m_vpi.isTrue(); }
+    bool waiverMultiline() અચલ { પાછા m_waiverMultiline; }
+    bool xInitialEdge() અચલ { પાછા m_xInitialEdge; }
+    bool serializeOnly() અચલ { પાછા m_jsonOnly; }
+    bool ટોચ_Ifaces_Supported() અચલ { પાછા lintOnly() && !hierarchical(); }
 
-    int buildJobs() const VL_MT_SAFE { return m_buildJobs; }
-    int convergeLimit() const { return m_convergeLimit; }
-    int coverageExprMax() const { return m_coverageExprMax; }
-    uint32_t coverageMaxBins() const { return m_coverageMaxBins; }
-    uint32_t coverageMaxRealBins() const { return m_coverageMaxRealBins; }
-    int coverageMaxWidth() const { return m_coverageMaxWidth; }
-    int debugAllocRandom() const { return m_debugAllocRandom; }
-    bool dumpTreeAddrids() const VL_MT_SAFE;
-    int expandLimit() const { return m_expandLimit; }
-    int gateStmts() const { return m_gateStmts; }
-    int ifDepth() const { return m_ifDepth; }
-    int inlineCFuncs() const { return m_inlineCFuncs; }
-    int inlineCFuncsProduct() const { return m_inlineCFuncsProduct; }
-    int inlineMult() const { return m_inlineMult; }
-    int instrCountDpi() const { return m_instrCountDpi; }
-    int localizeMaxSize() const { return m_localizeMaxSize; }
-    bool jsonEditNums() const { return m_jsonEditNums; }
-    bool jsonIds() const { return m_jsonIds; }
-    VOptionBool makeDepend() const { return m_makeDepend; }
-    int maxNumWidth() const { return m_maxNumWidth; }
-    int funcRecursionDepth() const { return m_funcRecursion; }
-    int moduleRecursionDepth() const { return m_moduleRecursion; }
-    int outputSplit() const { return m_outputSplit; }
-    int outputSplitCFuncs() const { return m_outputSplitCFuncs; }
-    int outputSplitCTrace() const { return m_outputSplitCTrace; }
-    int outputGroups() const { return m_outputGroups; }
-    int64_t outputGroupsSize() const { return m_outputGroupsSize; }
-    int pinsBv() const VL_MT_SAFE { return m_pinsBv; }
-    int reloopLimit() const { return m_reloopLimit; }
-    int replicationLimit() const { return m_replicationLimit; }
-    VOptionBool skipIdentical() const { return m_skipIdentical; }
-    bool stopFail() const { return m_stopFail; }
-    int threads() const VL_MT_SAFE { return m_threads; }
-    int threadsMaxMTasks() const { return m_threadsMaxMTasks; }
-    bool mtasks() const VL_MT_SAFE { return (m_threads > 1); }
-    VTimescale timeDefaultPrec() const { return m_timeDefaultPrec; }
-    VTimescale timeDefaultUnit() const { return m_timeDefaultUnit; }
-    VTimescale timeOverridePrec() const { return m_timeOverridePrec; }
-    VTimescale timeOverrideUnit() const { return m_timeOverrideUnit; }
-    VTimescale timeComputePrec(const VTimescale& flag) const;
-    VTimescale timeComputeUnit(const VTimescale& flag) const;
-    int traceDepth() const { return m_traceDepth; }
-    int traceMaxArray() const { return m_traceMaxArray; }
-    int traceMaxWidth() const { return m_traceMaxWidth; }
-    bool useTraceParallel() const {
-        return trace() && traceEnabledVcd() && (threads() > 1 || hierChild() > 1);
+    પૂર્ણાંક buildJobs() અચલ VL_MT_SAFE { પાછા m_buildJobs; }
+    પૂર્ણાંક convergeLimit() અચલ { પાછા m_convergeLimit; }
+    પૂર્ણાંક coverage_પદાવલિ_Max() અચલ { પાછા m_coverage_પદાવલિ_Max; }
+    uint32_t coverageMaxBins() અચલ { પાછા m_coverageMaxBins; }
+    uint32_t coverageMaxRealBins() અચલ { પાછા m_coverageMaxRealBins; }
+    પૂર્ણાંક coverageMaxWidth() અચલ { પાછા m_coverageMaxWidth; }
+    પૂર્ણાંક debugAllocRandom() અચલ { પાછા m_debugAllocRandom; }
+    bool dump_વૃક્ષ_Addrids() અચલ VL_MT_SAFE;
+    પૂર્ણાંક expandLimit() અચલ { પાછા m_expandLimit; }
+    પૂર્ણાંક gateStmts() અચલ { પાછા m_gateStmts; }
+    પૂર્ણાંક ifDepth() અચલ { પાછા m_ifDepth; }
+    પૂર્ણાંક inlineCFuncs() અચલ { પાછા m_inlineCFuncs; }
+    પૂર્ણાંક inlineCFuncsProduct() અચલ { પાછા m_inlineCFuncsProduct; }
+    પૂર્ણાંક inlineMult() અચલ { પાછા m_inlineMult; }
+    પૂર્ણાંક instr_ગણતરી_Dpi() અચલ { પાછા m_instr_ગણતરી_Dpi; }
+    પૂર્ણાંક localizeMaxSize() અચલ { પાછા m_localizeMaxSize; }
+    bool jsonEditNums() અચલ { પાછા m_jsonEditNums; }
+    bool jsonIds() અચલ { પાછા m_jsonIds; }
+    VOptionBool makeDepend() અચલ { પાછા m_makeDepend; }
+    પૂર્ણાંક max_અંક_Width() અચલ { પાછા m_max_અંક_Width; }
+    પૂર્ણાંક funcRecursionDepth() અચલ { પાછા m_funcRecursion; }
+    પૂર્ણાંક moduleRecursionDepth() અચલ { પાછા m_moduleRecursion; }
+    પૂર્ણાંક outputSplit() અચલ { પાછા m_outputSplit; }
+    પૂર્ણાંક outputSplitCFuncs() અચલ { પાછા m_outputSplitCFuncs; }
+    પૂર્ણાંક outputSplitCTrace() અચલ { પાછા m_outputSplitCTrace; }
+    પૂર્ણાંક outputGroups() અચલ { પાછા m_outputGroups; }
+    int64_t outputGroupsSize() અચલ { પાછા m_outputGroupsSize; }
+    પૂર્ણાંક pinsBv() અચલ VL_MT_SAFE { પાછા m_pinsBv; }
+    પૂર્ણાંક reloopLimit() અચલ { પાછા m_reloopLimit; }
+    પૂર્ણાંક replicationLimit() અચલ { પાછા m_replicationLimit; }
+    VOptionBool skipIdentical() અચલ { પાછા m_skipIdentical; }
+    bool stopFail() અચલ { પાછા m_stopFail; }
+    પૂર્ણાંક threads() અચલ VL_MT_SAFE { પાછા m_threads; }
+    પૂર્ણાંક threadsMaxMTasks() અચલ { પાછા m_threadsMaxMTasks; }
+    bool mtasks() અચલ VL_MT_SAFE { પાછા (m_threads > 1); }
+    VTimescale timeDefaultPrec() અચલ { પાછા m_timeDefaultPrec; }
+    VTimescale timeDefaultUnit() અચલ { પાછા m_timeDefaultUnit; }
+    VTimescale timeOverridePrec() અચલ { પાછા m_timeOverridePrec; }
+    VTimescale timeOverrideUnit() અચલ { પાછા m_timeOverrideUnit; }
+    VTimescale timeComputePrec(અચલ VTimescale& flag) અચલ;
+    VTimescale timeComputeUnit(અચલ VTimescale& flag) અચલ;
+    પૂર્ણાંક traceDepth() અચલ { પાછા m_traceDepth; }
+    પૂર્ણાંક traceMaxArray() અચલ { પાછા m_traceMaxArray; }
+    પૂર્ણાંક traceMaxWidth() અચલ { પાછા m_traceMaxWidth; }
+    bool useTraceParallel() અચલ {
+        પાછા trace() && traceEnabledVcd() && (threads() > 1 || hierChild() > 1);
     }
-    int unrollCount() const { return m_unrollCount; }
-    int unrollLimit() const { return m_unrollLimit; }
-    int unrollStmts() const { return m_unrollStmts; }
-    int constraintArrayLimit() const { return m_constraintArrayLimit; }
-    int verilateJobs() const { return m_verilateJobs; }
+    પૂર્ણાંક unroll_ગણતરી() અચલ { પાછા m_unroll_ગણતરી; }
+    પૂર્ણાંક unrollLimit() અચલ { પાછા m_unrollLimit; }
+    પૂર્ણાંક unrollStmts() અચલ { પાછા m_unrollStmts; }
+    પૂર્ણાંક constraintArrayLimit() અચલ { પાછા m_constraintArrayLimit; }
+    પૂર્ણાંક verilateJobs() અચલ { પાછા m_verilateJobs; }
 
-    int compLimitBlocks() const { return m_compLimitBlocks; }
-    int compLimitMembers() const VL_MT_SAFE { return m_compLimitMembers; }
-    int compLimitParens() const { return m_compLimitParens; }
+    પૂર્ણાંક compLimitBlocks() અચલ { પાછા m_compLimitBlocks; }
+    પૂર્ણાંક compLimitMembers() અચલ VL_MT_SAFE { પાછા m_compLimitMembers; }
+    પૂર્ણાંક compLimitParens() અચલ { પાછા m_compLimitParens; }
 
-    string diagnosticsSarifOutput() const VL_MT_SAFE {
-        return m_diagnosticsSarifOutput.empty() ? makeDir() + "/" + prefix() + ".sarif"
+    string diagnosticsSarifOutput() અચલ VL_MT_SAFE {
+        પાછા m_diagnosticsSarifOutput.empty() ? makeDir() + "/" + prefix() + ".sarif"
                                                 : m_diagnosticsSarifOutput;
     }
-    string exeName() const { return m_exeName != "" ? m_exeName : prefix(); }
-    VFileLibList hierParamFile() const { return m_hierParamsFile; }
-    string jsonOnlyOutput() const { return m_jsonOnlyOutput; }
-    string jsonOnlyMetaOutput() const { return m_jsonOnlyMetaOutput; }
-    string l2Name() const { return m_l2Name; }
-    string libCreate() const { return m_libCreate; }
-    string libCreateName(bool shared) const {
+    string exeName() અચલ { પાછા m_exeName != "" ? m_exeName : prefix(); }
+    VFileLibList hierParamFile() અચલ { પાછા m_hierParamsFile; }
+    string jsonOnlyOutput() અચલ { પાછા m_jsonOnlyOutput; }
+    string jsonOnlyMetaOutput() અચલ { પાછા m_jsonOnlyMetaOutput; }
+    string l2Name() અચલ { પાછા m_l2Name; }
+    string libCreate() અચલ { પાછા m_libCreate; }
+    string libCreateName(bool shared) અચલ {
         string libName = "lib" + libCreate();
-        if (shared) {
+        જો (shared) {
             libName += ".so";
-        } else {
+        } નહીંતર {
             libName += ".a";
         }
-        return libName;
+        પાછા libName;
     }
-    string mainTopName() const { return m_mainTopName; }
-    string makeDir() const VL_MT_SAFE { return m_makeDir; }
-    string modPrefix() const VL_MT_SAFE { return m_modPrefix; }
-    string pipeFilter() const { return m_pipeFilter; }
-    string prefix() const VL_MT_SAFE { return m_prefix; }
+    string main_ટોચ_Name() અચલ { પાછા m_main_ટોચ_Name; }
+    string makeDir() અચલ VL_MT_SAFE { પાછા m_makeDir; }
+    string modPrefix() અચલ VL_MT_SAFE { પાછા m_modPrefix; }
+    string pipeFilter() અચલ { પાછા m_pipeFilter; }
+    string prefix() અચલ VL_MT_SAFE { પાછા m_prefix; }
     // Not just called protectKey() to avoid bugs of not using protectKeyDefaulted()
-    bool protectKeyProvided() const { return !m_protectKey.empty(); }
-    string protectKeyDefaulted() VL_MT_SAFE;  // Set default key if not set by user
-    string topModule() const { return m_topModule; }  // As AstNode::encodeName()
-    bool noTraceTop() const { return m_noTraceTop; }
-    string unusedRegexp() const { return m_unusedRegexp; }
-    string waiverOutput() const { return m_waiverOutput; }
-    string work() const { return m_work; }
-    bool isWaiverOutput() const { return !m_waiverOutput.empty(); }
-    string xAssign() const { return m_xAssign; }
-    string xInitial() const { return m_xInitial; }
+    bool protect_ચાવી_Provided() અચલ { પાછા !m_protect_ચાવી.empty(); }
+    string protect_ચાવી_Defaulted() VL_MT_SAFE;  // Set default key if not set by user
+    string ટોચ_Module() અચલ { પાછા m_ટોચ_Module; }  // As AstNode::encodeName()
+    bool no_Trace_ટોચ() અચલ { પાછા m_no_Trace_ટોચ; }
+    string unusedRegexp() અચલ { પાછા m_unusedRegexp; }
+    string waiverOutput() અચલ { પાછા m_waiverOutput; }
+    string work() અચલ { પાછા m_work; }
+    bool isWaiverOutput() અચલ { પાછા !m_waiverOutput.empty(); }
+    string xAssign() અચલ { પાછા m_xAssign; }
+    string xInitial() અચલ { પાછા m_xInitial; }
 
-    const VStringSet& cppFiles() const { return m_cppFiles; }
-    const VStringList& cFlags() const { return m_cFlags; }
-    const VStringSet& compilerIncludes() const { return m_compilerIncludes; }
-    const VStringList& ldLibFiles() const { return m_ldLibFiles; }
-    const VStringList& ldLibs() const { return m_ldLibs; }
-    const VStringList& makeFlags() const { return m_makeFlags; }
-    const VFileLibSet& libraryFiles() const { return m_libraryFiles; }
-    const VStringSet& libmapFiles() const { return m_libmapFiles; }
-    const VFileLibList& vFiles() const { return m_vFiles; }
-    const VFileLibSet& vltFiles() const { return m_vltFiles; }
-    const VStringList& forceIncs() const { return m_forceIncs; }
+    અચલ VStringSet& cppFiles() અચલ { પાછા m_cppFiles; }
+    અચલ VStringList& cFlags() અચલ { પાછા m_cFlags; }
+    અચલ VStringSet& compilerIncludes() અચલ { પાછા m_compilerIncludes; }
+    અચલ VStringList& ldLibFiles() અચલ { પાછા m_ldLibFiles; }
+    અચલ VStringList& ldLibs() અચલ { પાછા m_ldLibs; }
+    અચલ VStringList& makeFlags() અચલ { પાછા m_makeFlags; }
+    અચલ VFileLibSet& libraryFiles() અચલ { પાછા m_libraryFiles; }
+    અચલ VStringSet& libmapFiles() અચલ { પાછા m_libmapFiles; }
+    અચલ VFileLibList& vFiles() અચલ { પાછા m_vFiles; }
+    અચલ VFileLibSet& vltFiles() અચલ { પાછા m_vltFiles; }
+    અચલ VStringList& forceIncs() અચલ { પાછા m_forceIncs; }
 
-    bool hasParameter(const string& name);
-    string parameter(const string& name);
-    void checkParameters();
+    bool hasParameter(અચલ string& name);
+    string parameter(અચલ string& name);
+    શૂન્ય checkParameters();
 
-    bool isFuture(const string& flag) const;
-    bool isFuture0(const string& flag) const;
-    bool isFuture1(const string& flag) const;
-    bool isLibraryFile(const string& filename, const string& libname) const;
+    bool isFuture(અચલ string& flag) અચલ;
+    bool isFuture0(અચલ string& flag) અચલ;
+    bool isFuture1(અચલ string& flag) અચલ;
+    bool isLibraryFile(અચલ string& filename, અચલ string& libname) અચલ;
 
     // ACCESSORS (optimization options)
-    bool fAcycSimp() const { return m_fAcycSimp; }
-    bool fAssemble() const { return m_fAssemble; }
-    bool fBitScanLoops() const { return m_fBitScanLoops; }
-    bool fBitblast() const { return m_fBitblast; }
-    bool fCaseDecoder() const { return m_fCaseDecoder; }
-    bool fCaseTable() const { return m_fCaseTable; }
-    bool fCaseTree() const { return m_fCaseTree; }
-    bool fCombine() const { return m_fCombine; }
-    bool fConst() const { return m_fConst; }
-    bool fConstBeforeDfg() const { return m_fConstBeforeDfg; }
-    bool fConstBitOpTree() const { return m_fConstBitOpTree; }
-    bool fConstEager() const { return m_fConstEager; }
-    bool fDedupe() const { return m_fDedupe; }
-    bool fDfg() const { return m_fDfg; }
-    bool fDfgPeephole() const { return m_fDfgPeephole; }
-    bool fDfgPushDownSels() const { return m_fDfgPushDownSels; }
-    bool fDfgSynthesizeAll() const { return m_fDfgSynthesizeAll; }
-    bool fDfgPeepholeEnabled(const std::string& name) const {
-        return !m_fDfgPeepholeDisabled.count(name);
+    bool fAcycSimp() અચલ { પાછા m_fAcycSimp; }
+    bool fAssemble() અચલ { પાછા m_fAssemble; }
+    bool fBitScanLoops() અચલ { પાછા m_fBitScanLoops; }
+    bool fBitblast() અચલ { પાછા m_fBitblast; }
+    bool fCaseDecoder() અચલ { પાછા m_fCaseDecoder; }
+    bool fCaseTable() અચલ { પાછા m_fCaseTable; }
+    bool f_Case_વૃક્ષ() અચલ { પાછા m_f_Case_વૃક્ષ; }
+    bool fCombine() અચલ { પાછા m_fCombine; }
+    bool fConst() અચલ { પાછા m_fConst; }
+    bool fConstBeforeDfg() અચલ { પાછા m_fConstBeforeDfg; }
+    bool f_Const_Bit_Op_વૃક્ષ() અચલ { પાછા m_f_Const_Bit_Op_વૃક્ષ; }
+    bool fConstEager() અચલ { પાછા m_fConstEager; }
+    bool fDedupe() અચલ { પાછા m_fDedupe; }
+    bool fDfg() અચલ { પાછા m_fDfg; }
+    bool fDfgPeephole() અચલ { પાછા m_fDfgPeephole; }
+    bool f_Dfg_ધકેલો_Down_Sels() અચલ { પાછા m_f_Dfg_ધકેલો_Down_Sels; }
+    bool fDfgSynthesizeAll() અચલ { પાછા m_fDfgSynthesizeAll; }
+    bool fDfgPeepholeEnabled(અચલ std::string& name) અચલ {
+        પાછા !m_fDfgPeepholeDisabled.ગણતરી(name);
     }
-    bool fDeadAssigns() const { return m_fDeadAssigns; }
-    bool fDeadCells() const { return m_fDeadCells; }
-    bool fDeadMethods() const { return m_fDeadMethods; }
-    bool fDecompose() const { return m_fDecomposePacked || m_fDecomposeUnpacked; }
-    bool fDecomposePacked() const { return m_fDecomposePacked; }
-    bool fDecomposeUnpacked() const { return m_fDecomposeUnpacked; }
-    bool fExpand() const { return m_fExpand; }
-    bool fFuncBalanceCat() const { return m_fFuncBalanceCat; }
-    bool fFuncSplitCat() const { return m_fFuncSplitCat; }
-    bool fFunc() const { return fFuncSplitCat() || fFuncBalanceCat(); }
-    bool fGate() const { return m_fGate; }
-    VOptionBool fIcoChangeDetect() const { return m_fIcoChangeDetect; }
-    bool fInline() const { return m_fInline; }
-    bool fInlineCFuncs() const { return m_fInlineCFuncs; }
-    bool fInlineFuncs() const { return m_fInlineFuncs; }
-    bool fInlineFuncsEager() const { return m_fInlineFuncsEager; }
-    bool fLife() const { return m_fLife; }
-    bool fLifePost() const { return m_fLifePost; }
-    bool fLocalize() const { return m_fLocalize; }
-    bool fMergeCond() const { return m_fMergeCond; }
-    bool fMergeCondMotion() const { return m_fMergeCondMotion; }
-    bool fReloop() const { return m_fReloop; }
-    bool fReorder() const { return m_fReorder; }
-    bool fSlice() const { return m_fSlice; }
-    int fSliceElementLimit() const { return m_fSliceElementLimit; }
-    bool fSplit() const { return m_fSplit; }
-    bool fSubst() const { return m_fSubst; }
-    bool fSubstConst() const { return m_fSubstConst; }
-    bool fTable() const { return m_fTable; }
-    bool fTaskifyAll() const { return m_fTaskifyAll; }
+    bool fDeadAssigns() અચલ { પાછા m_fDeadAssigns; }
+    bool fDeadCells() અચલ { પાછા m_fDeadCells; }
+    bool fDeadMethods() અચલ { પાછા m_fDeadMethods; }
+    bool fDecompose() અચલ { પાછા m_fDecomposePacked || m_fDecomposeUnpacked; }
+    bool fDecomposePacked() અચલ { પાછા m_fDecomposePacked; }
+    bool fDecomposeUnpacked() અચલ { પાછા m_fDecomposeUnpacked; }
+    bool fExpand() અચલ { પાછા m_fExpand; }
+    bool fFuncBalanceCat() અચલ { પાછા m_fFuncBalanceCat; }
+    bool fFuncSplitCat() અચલ { પાછા m_fFuncSplitCat; }
+    bool fFunc() અચલ { પાછા fFuncSplitCat() || fFuncBalanceCat(); }
+    bool fGate() અચલ { પાછા m_fGate; }
+    VOptionBool fIcoChangeDetect() અચલ { પાછા m_fIcoChangeDetect; }
+    bool fInline() અચલ { પાછા m_fInline; }
+    bool fInlineCFuncs() અચલ { પાછા m_fInlineCFuncs; }
+    bool fInlineFuncs() અચલ { પાછા m_fInlineFuncs; }
+    bool fInlineFuncsEager() અચલ { પાછા m_fInlineFuncsEager; }
+    bool fLife() અચલ { પાછા m_fLife; }
+    bool fLifePost() અચલ { પાછા m_fLifePost; }
+    bool fLocalize() અચલ { પાછા m_fLocalize; }
+    bool fMergeCond() અચલ { પાછા m_fMergeCond; }
+    bool fMergeCondMotion() અચલ { પાછા m_fMergeCondMotion; }
+    bool fReloop() અચલ { પાછા m_fReloop; }
+    bool fReorder() અચલ { પાછા m_fReorder; }
+    bool fSlice() અચલ { પાછા m_fSlice; }
+    પૂર્ણાંક fSliceElementLimit() અચલ { પાછા m_fSliceElementLimit; }
+    bool fSplit() અચલ { પાછા m_fSplit; }
+    bool fSubst() અચલ { પાછા m_fSubst; }
+    bool fSubstConst() અચલ { પાછા m_fSubstConst; }
+    bool fTable() અચલ { પાછા m_fTable; }
+    bool fTaskifyAll() અચલ { પાછા m_fTaskifyAll; }
 
-    std::string traceClassBase() const VL_MT_SAFE;  // Deprecated
-    std::string traceClassLang() const VL_MT_SAFE;  // Deprecated
-    std::vector<std::string> traceClassBases() const VL_MT_SAFE;
-    std::vector<std::string> traceClassLangs() const VL_MT_SAFE;
-    std::vector<std::string> traceSourceBases() const VL_MT_SAFE;
-    std::vector<std::string> traceSourceLangs() const VL_MT_SAFE;
+    std::string traceClassBase() અચલ VL_MT_SAFE;  // Deprecated
+    std::string traceClassLang() અચલ VL_MT_SAFE;  // Deprecated
+    std::vector<std::string> traceClassBases() અચલ VL_MT_SAFE;
+    std::vector<std::string> traceClassLangs() અચલ VL_MT_SAFE;
+    std::vector<std::string> traceSourceBases() અચલ VL_MT_SAFE;
+    std::vector<std::string> traceSourceLangs() અચલ VL_MT_SAFE;
 
-    bool hierarchical() const { return m_hierarchical; }
-    int hierChild() const VL_MT_SAFE { return m_hierChild; }
-    int hierThreads() const VL_MT_SAFE { return m_hierThreads == 0 ? m_threads : m_hierThreads; }
-    bool hierTop() const VL_MT_SAFE { return !m_hierChild && !m_hierBlocks.empty(); }
-    const V3HierBlockOptSet& hierBlocks() const { return m_hierBlocks; }
+    bool hierarchical() અચલ { પાછા m_hierarchical; }
+    પૂર્ણાંક hierChild() અચલ VL_MT_SAFE { પાછા m_hierChild; }
+    પૂર્ણાંક hierThreads() અચલ VL_MT_SAFE { પાછા m_hierThreads == 0 ? m_threads : m_hierThreads; }
+    bool hier_ટોચ() અચલ VL_MT_SAFE { પાછા !m_hierChild && !m_hierBlocks.empty(); }
+    અચલ V3HierBlockOptSet& hierBlocks() અચલ { પાછા m_hierBlocks; }
     // Directory to save .tree, .dot, .dat, .vpp for hierarchical block top
     // Returns makeDir() unless top module of hierarchical Verilation.
-    string hierTopDataDir() const VL_MT_SAFE {
-        return hierTop() ? (makeDir() + '/' + prefix() + "__hier.dir") : makeDir();
+    string hier_ટોચ_Data_Dir() અચલ VL_MT_SAFE {
+        પાછા hier_ટોચ() ? (makeDir() + '/' + prefix() + "__hier.dir") : makeDir();
     }
 
     // METHODS (from main)
-    static string version() VL_PURE;
-    static string argString(int argc, char** argv);  ///< Return list of arguments as simple string
-    string allArgsString() const VL_MT_SAFE;  ///< Return all passed arguments as simple string
-    const std::list<std::pair<std::list<std::string>, bool>>& allArgs() const;
+    સ્થિર string version() VL_PURE;
+    સ્થિર string argString(પૂર્ણાંક argc, અક્ષર** argv);  ///< Return list of arguments as simple string
+    string allArgsString() અચલ VL_MT_SAFE;  ///< Return all passed arguments as simple string
+    અચલ std::list<std::pair<std::list<std::string>, bool>>& allArgs() અચલ;
     // Return options for child hierarchical blocks when forTop==false, otherwise returns args for
     // the top module.
-    string allArgsStringForHierBlock(bool forTop) const;
-    void parseOpts(FileLine* fl, int argc, char** argv) VL_MT_DISABLED;
-    void parseOptsList(FileLine* fl, const string& optdir, int argc, char** argv) VL_MT_DISABLED;
-    void parseOptsFile(FileLine* fl, const string& filename, bool rel) VL_MT_DISABLED;
+    string allArgsStringForHierBlock(bool for_ટોચ) અચલ;
+    શૂન્ય parseOpts(File_લીટી* fl, પૂર્ણાંક argc, અક્ષર** argv) VL_MT_DISABLED;
+    શૂન્ય parseOptsList(File_લીટી* fl, અચલ string& optdir, પૂર્ણાંક argc, અક્ષર** argv) VL_MT_DISABLED;
+    શૂન્ય parseOptsFile(File_લીટી* fl, અચલ string& filename, bool rel) VL_MT_DISABLED;
 
     // METHODS (environment)
     // Most of these may be built into the executable with --enable-defenv,
     // see the README.  If adding new variables, also see src/Makefile_obj.in
     // Also add to V3Options::showVersion()
-    static string getenvBuiltins(const string& var);
-    static string getenvMAKE();
-    static string getenvMAKEFLAGS();
-    static string getenvPERL();
-    static string getenvPYTHON3();
-    static string getenvSYSTEMC();
-    static string getenvSYSTEMC_ARCH();
-    static string getenvSYSTEMC_INCLUDE();
-    static string getenvSYSTEMC_LIBDIR();
-    static string getenvVERILATOR_ROOT();
-    static string getenvVERILATOR_SOLVER();
-    static string getStdPackagePath();
-    static string getStdWaiverPath();
-    static string getSupported(const string& var);
-    static bool systemCSystemWide();
-    static bool systemCFound();  // SystemC installed, or environment points to it
-    static bool coroutineSupport();  // Configured C++ compiler supports coroutines
-    static bool devAsan();  // 'verilator_bin' built with AddressSanitizer
-    static bool devGcov();  // 'verilator_bin' built with code coverage for gcov
-    static bool tsanSupport();  // Configured C++ compiler supports ThreadSanitizer
+    સ્થિર string getenvBuiltins(અચલ string& var);
+    સ્થિર string getenvMAKE();
+    સ્થિર string getenvMAKEFLAGS();
+    સ્થિર string getenvPERL();
+    સ્થિર string getenvPYTHON3();
+    સ્થિર string getenvSYSTEMC();
+    સ્થિર string getenvSYSTEMC_ARCH();
+    સ્થિર string getenvSYSTEMC_INCLUDE();
+    સ્થિર string getenvSYSTEMC_LIBDIR();
+    સ્થિર string getenv_VERILATOR_મૂળ();
+    સ્થિર string getenvVERILATOR_SOLVER();
+    સ્થિર string getStdPackagePath();
+    સ્થિર string getStdWaiverPath();
+    સ્થિર string getSupported(અચલ string& var);
+    સ્થિર bool systemCSystemWide();
+    સ્થિર bool systemCFound();  // SystemC installed, or environment points to it
+    સ્થિર bool coroutineSupport();  // Configured C++ compiler supports coroutines
+    સ્થિર bool devAsan();  // 'verilator_bin' built with AddressSanitizer
+    સ્થિર bool devGcov();  // 'verilator_bin' built with code coverage for gcov
+    સ્થિર bool tsanSupport();  // Configured C++ compiler supports ThreadSanitizer
 
     // METHODS (file utilities using these options)
-    string fileExists(const string& filename);
-    string filePath(FileLine* fl, const string& modname, const string& lastpath,
-                    const string& errmsg);
-    string filePathLookedMsg(FileLine* fl, const string& modname);
-    V3LangCode fileLanguage(const string& filename);
-    static bool fileStatNormal(const string& filename);
+    string fileExists(અચલ string& filename);
+    string filePath(File_લીટી* fl, અચલ string& modname, અચલ string& lastpath,
+                    અચલ string& errmsg);
+    string file_Path_Looked_સંદેશ(File_લીટી* fl, અચલ string& modname);
+    V3LangCode fileLanguage(અચલ string& filename);
+    સ્થિર bool fileStatNormal(અચલ string& filename);
 
     // METHODS (other OS)
-    static void throwSigsegv();
+    સ્થિર શૂન્ય throwSigsegv();
 };
 
 //######################################################################

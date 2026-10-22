@@ -18,75 +18,75 @@
 //          Set lvalue() attributes on appropriate VARREFs.
 //*************************************************************************
 
-#include "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
+#અન્તર્ભાવ "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
 
-#include "V3LinkLValue.h"
+#અન્તર્ભાવ "V3LinkLValue.h"
 
-#include "V3Task.h"
+#અન્તર્ભાવ "V3Task.h"
 
 VL_DEFINE_DEBUG_FUNCTIONS;
 
 //######################################################################
 // Link state, as a visitor of each AstNode
 
-class LinkLValueVisitor final : public VNVisitor {
+વર્ગ LinkLValueVisitor final : જાહેર VNVisitor {
     // NODE STATE
 
     // STATE - for current visit position (use VL_RESTORER)
-    bool m_setContinuously = false;  // Set that var has some continuous assignment
-    bool m_setForcedByCode = false;  // Set that var is the target of an AstAssignForce/AstRelease
-    bool m_setIfRand = false;  // Update VarRefs if var declared as rand
-    bool m_setStrengthSpecified = false;  // Set that var has assignment with strength specified.
-    bool m_inFunc = false;  // Set if inside AstNodeFTask
-    bool m_inInitialStatic = false;  // Set if inside AstInitialStatic
-    bool m_inInitialStaticStmt = false;  // Set if inside AstInitialStaticStmt
+    તાર્કિક m_setContinuously = ખોટું;  // Set that var has some continuous assignment
+    તાર્કિક m_setForcedByCode = ખોટું;  // Set that var is the target of an AstAssignForce/AstRelease
+    તાર્કિક m_setIfRand = ખોટું;  // Update VarRefs if var declared as rand
+    તાર્કિક m_setStrengthSpecified = ખોટું;  // Set that var has assignment with strength specified.
+    તાર્કિક m_inFunc = ખોટું;  // Set if inside AstNodeFTask
+    તાર્કિક m_inInitialStatic = ખોટું;  // Set if inside AstInitialStatic
+    તાર્કિક m_inInitialStaticStmt = ખોટું;  // Set if inside AstInitialStaticStmt
     VAccess m_setRefLvalue;  // Set VarRefs to lvalues for pin assignments
 
     // VISITORS
     // Result handing
-    void visit(AstNodeVarRef* nodep) override {
+    શૂન્ય visit(Ast_ગાંઠ_Var_Ref* nodep) override {
         // VarRef: LValue its reference
-        if (m_setIfRand && !(nodep->varp() && nodep->varp()->isRand())) return;
-        if (m_setRefLvalue != VAccess::NOCHANGE) nodep->access(m_setRefLvalue);
+        જો (m_setIfRand && !(nodep->varp() && nodep->varp()->isRand())) પાછા;
+        જો (m_setRefLvalue != VAccess::NOCHANGE) nodep->access(m_setRefLvalue);
         // Linked via an input-only modport by V3LinkDot, before it was known if written
-        if (AstVarXRef* const xrefp = VN_CAST(nodep, VarXRef)) {
-            if (xrefp->readOnlyModport()) {
-                if (nodep->access().isWriteOrRW()) {
+        જો (AstVarXRef* અચલ xrefp = VN_CAST(nodep, VarXRef)) {
+            જો (xrefp->readOnlyModport()) {
+                જો (nodep->access().isWriteOrRW()) {
                     nodep->v3error(
                         "Attempt to drive input-only modport: " << nodep->prettyNameQ());
                 }
-                xrefp->readOnlyModport(false);
+                xrefp->readOnlyModport(ખોટું);
             }
         }
-        if (nodep->varp() && nodep->access().isWriteOrRW()) {
-            if (nodep->varp()->isParam()) {
+        જો (nodep->varp() && nodep->access().isWriteOrRW()) {
+            જો (nodep->varp()->isParam()) {
                 // All parameters that did get constified happened before now
                 // as V3LinkLValue runs after V3Param
                 nodep->v3error("Storing to parameter variable "
                                << nodep->prettyNameQ()
                                << " in a context that is determined only at runtime");
             }
-            if (m_setContinuously) {
-                nodep->varp()->isContinuously(true);
+            જો (m_setContinuously) {
+                nodep->varp()->isContinuously(સાચું);
                 // Strength may only be specified in continuous assignment,
                 // so it is needed to check only if m_setContinuously is true
-                if (m_setStrengthSpecified) nodep->varp()->hasStrengthAssignment(true);
+                જો (m_setStrengthSpecified) nodep->varp()->hasStrengthAssignment(સાચું);
             }
-            if (const AstClockingItem* const itemp
+            જો (અચલ AstClockingItem* અચલ itemp
                 = VN_CAST(nodep->varp()->backp(), ClockingItem)) {
                 UINFO(5, "ClkOut " << nodep);
-                if (itemp->outputp()) nodep->varp(itemp->outputp()->varp());
+                જો (itemp->outputp()) nodep->varp(itemp->outputp()->varp());
             }
-            if (m_setForcedByCode) {
+            જો (m_setForcedByCode) {
                 nodep->varp()->setForcedByCode();
                 // If a public signal is being forced in SystemVerilog and VPI
                 // is enabled, mark it as forceable to ensure that the VPI
                 // functions read the forced value correctly
-                if (v3Global.opt.vpi()
+                જો (v3Global.opt.vpi()
                     && (nodep->varp()->isSigPublic() || nodep->varp()->isSigModPublic())) {
                     nodep->varp()->setForceable();
                 }
-            } else if (!nodep->varp()->isFuncLocal() && nodep->varp()->isReadOnly()) {
+            } નહીંતર જો (!nodep->varp()->isFuncLocal() && nodep->varp()->isReadOnly()) {
                 // This is allowed with IEEE 1800-2009 module input with default value.
                 // the checking now happens in V3Width::visit(AstNodeVarRef*)
                 // If you were to check here, it would fail on module inputs with default value,
@@ -98,27 +98,27 @@ class LinkLValueVisitor final : public VNVisitor {
     }
 
     // Nodes that start propagating down lvalues
-    void visit(AstPin* nodep) override {
+    શૂન્ય visit(AstPin* nodep) override {
         VL_RESTORER(m_setRefLvalue);
-        if (nodep->modVarp() && nodep->modVarp()->isWritable()) {
+        જો (nodep->modVarp() && nodep->modVarp()->isWritable()) {
             // When the varref's were created, we didn't know the I/O state
             // Now that we do, and it's from a output, we know it's a lvalue
             m_setRefLvalue = VAccess::WRITE;
             iterateChildren(nodep);
             m_setRefLvalue = VAccess::NOCHANGE;
-        } else {
+        } નહીંતર {
             iterateChildren(nodep);
         }
     }
-    void visit(AstNodeAssign* nodep) override {
+    શૂન્ય visit(Ast_ગાંઠ_Assign* nodep) override {
         VL_RESTORER(m_setRefLvalue);
         VL_RESTORER(m_setContinuously);
         VL_RESTORER(m_setStrengthSpecified);
         {
             m_setRefLvalue = VAccess::WRITE;
             m_setContinuously = VN_IS(nodep, AssignW);
-            if (const AstAssignW* const assignwp = VN_CAST(nodep, AssignW)) {
-                if (assignwp->strengthSpecp()) m_setStrengthSpecified = true;
+            જો (અચલ AstAssignW* અચલ assignwp = VN_CAST(nodep, AssignW)) {
+                જો (assignwp->strengthSpecp()) m_setStrengthSpecified = સાચું;
             }
             {
                 VL_RESTORER(m_setForcedByCode);
@@ -126,28 +126,28 @@ class LinkLValueVisitor final : public VNVisitor {
                 iterateAndNextNull(nodep->lhsp());
             }
             m_setRefLvalue = VAccess::NOCHANGE;
-            m_setContinuously = false;
-            m_setStrengthSpecified = false;
+            m_setContinuously = ખોટું;
+            m_setStrengthSpecified = ખોટું;
             iterateAndNextNull(nodep->rhsp());
         }
 
-        if ((m_inInitialStatic || m_inInitialStaticStmt) && m_inFunc) {
-            const bool rhsHasIO = nodep->rhsp()->exists([](const AstNodeVarRef* const refp) {
+        જો ((m_inInitialStatic || m_inInitialStaticStmt) && m_inFunc) {
+            અચલ તાર્કિક rhsHasIO = nodep->rhsp()->exists([](અચલ Ast_ગાંઠ_Var_Ref* અચલ refp) {
                 // Exclude module I/O referenced from a function/task.
-                return refp->varp() && refp->varp()->isIO()
+                પાછા refp->varp() && refp->varp()->isIO()
                        && refp->varp()->lifetime() != VLifetime::NONE;
             });
-            if (rhsHasIO) {
+            જો (rhsHasIO) {
                 nodep->rhsp()->v3warn(E_UNSUPPORTED,
                                       "Static variable initializer\n"
                                           << nodep->rhsp()->warnMore()
                                           << "is dependent on function/task I/O variable");
-            } else {
-                const bool rhsHasAutomatic
-                    = nodep->rhsp()->exists([](const AstNodeVarRef* const refp) {
-                          return refp->varp() && refp->varp()->lifetime().isAutomatic();
+            } નહીંતર {
+                અચલ તાર્કિક rhsHasAutomatic
+                    = nodep->rhsp()->exists([](અચલ Ast_ગાંઠ_Var_Ref* અચલ refp) {
+                          પાછા refp->varp() && refp->varp()->lifetime().isAutomatic();
                       });
-                if (rhsHasAutomatic) {
+                જો (rhsHasAutomatic) {
                     nodep->rhsp()->v3error("Static variable initializer\n"
                                            << nodep->rhsp()->warnMore()
                                            << "is dependent on automatic variable");
@@ -155,94 +155,94 @@ class LinkLValueVisitor final : public VNVisitor {
             }
         }
     }
-    void visit(AstAlias* nodep) override {
+    શૂન્ય visit(AstAlias* nodep) override {
         VL_RESTORER(m_setRefLvalue);
         m_setRefLvalue = VAccess::READWRITE;
         iterateChildren(nodep);
     }
-    void visit(AstInitialStatic* nodep) override {
+    શૂન્ય visit(AstInitialStatic* nodep) override {
         VL_RESTORER(m_inInitialStatic);
-        m_inInitialStatic = true;
+        m_inInitialStatic = સાચું;
         iterateChildren(nodep);
     }
-    void visit(AstInitialStaticStmt* nodep) override {
+    શૂન્ય visit(AstInitialStaticStmt* nodep) override {
         VL_RESTORER(m_inInitialStaticStmt);
-        m_inInitialStaticStmt = true;
+        m_inInitialStaticStmt = સાચું;
         iterateChildren(nodep);
     }
-    void visit(AstRelease* nodep) override {
+    શૂન્ય visit(AstRelease* nodep) override {
         VL_RESTORER(m_setRefLvalue);
         VL_RESTORER(m_setContinuously);
         VL_RESTORER(m_setForcedByCode);
         m_setRefLvalue = VAccess::WRITE;
-        m_setContinuously = false;
-        m_setForcedByCode = true;
+        m_setContinuously = ખોટું;
+        m_setForcedByCode = સાચું;
         iterateAndNextNull(nodep->lhsp());
     }
-    void visit(AstDeassign* nodep) override {
+    શૂન્ય visit(AstDeassign* nodep) override {
         VL_RESTORER(m_setRefLvalue);
         VL_RESTORER(m_setContinuously);
         m_setRefLvalue = VAccess::WRITE;
-        m_setContinuously = false;
+        m_setContinuously = ખોટું;
         iterateAndNextNull(nodep->lhsp());
     }
-    void visit(AstFireEvent* nodep) override {
+    શૂન્ય visit(AstFireEvent* nodep) override {
         VL_RESTORER(m_setRefLvalue);
         m_setRefLvalue = VAccess::WRITE;
         iterateAndNextNull(nodep->operandp());
     }
-    void visit(AstCastDynamic* nodep) override {
+    શૂન્ય visit(AstCastDynamic* nodep) override {
         VL_RESTORER(m_setRefLvalue);
         m_setRefLvalue = VAccess::NOCHANGE;
         iterateAndNextNull(nodep->fromp());
         m_setRefLvalue = VAccess::WRITE;
-        iterateAndNextNull(nodep->top());
+        iterateAndNextNull(nodep->ટોચ());
     }
-    void visit(AstFError* nodep) override {
+    શૂન્ય visit(AstFError* nodep) override {
         VL_RESTORER(m_setRefLvalue);
         iterateAndNextNull(nodep->filep());
         m_setRefLvalue = VAccess::WRITE;
         iterateAndNextNull(nodep->strp());
     }
-    void visit(AstFGetS* nodep) override {
+    શૂન્ય visit(AstFGetS* nodep) override {
         VL_RESTORER(m_setRefLvalue);
         iterateAndNextNull(nodep->filep());
         m_setRefLvalue = VAccess::WRITE;
         iterateAndNextNull(nodep->strgp());
     }
-    void visit(AstFRead* nodep) override {
+    શૂન્ય visit(AstFRead* nodep) override {
         VL_RESTORER(m_setRefLvalue);
         iterateAndNextNull(nodep->filep());
         m_setRefLvalue = VAccess::WRITE;
         iterateAndNextNull(nodep->memp());
     }
-    void visit(AstFScanF* nodep) override {
+    શૂન્ય visit(AstFScanF* nodep) override {
         VL_RESTORER(m_setRefLvalue);
         iterateAndNextNull(nodep->filep());
         m_setRefLvalue = VAccess::WRITE;
         iterateAndNextNull(nodep->exprsp());
     }
-    void visit(AstFUngetC* nodep) override {
+    શૂન્ય visit(AstFUngetC* nodep) override {
         VL_RESTORER(m_setRefLvalue);
         iterateAndNextNull(nodep->filep());
         m_setRefLvalue = VAccess::WRITE;
         iterateAndNextNull(nodep->rhsp());
     }
-    void visit(AstSScanF* nodep) override {
+    શૂન્ય visit(AstSScanF* nodep) override {
         VL_RESTORER(m_setRefLvalue);
         m_setRefLvalue = VAccess::WRITE;
         iterateAndNextNull(nodep->exprsp());
     }
-    void visit(AstSysIgnore* nodep) override {
+    શૂન્ય visit(AstSysIgnore* nodep) override {
         // Can't know if lvalue or not; presume not
         iterateChildren(nodep);
     }
-    void visit(AstRand* nodep) override {
+    શૂન્ય visit(AstRand* nodep) override {
         VL_RESTORER(m_setRefLvalue);
-        if (!nodep->urandom()) m_setRefLvalue = VAccess::READWRITE;
+        જો (!nodep->urandom()) m_setRefLvalue = VAccess::READWRITE;
         iterateAndNextNull(nodep->seedp());
     }
-    void visit(AstReadMem* nodep) override {
+    શૂન્ય visit(AstReadMem* nodep) override {
         VL_RESTORER(m_setRefLvalue);
         m_setRefLvalue = VAccess::WRITE;
         iterateAndNextNull(nodep->memp());
@@ -251,33 +251,33 @@ class LinkLValueVisitor final : public VNVisitor {
         iterateAndNextNull(nodep->lsbp());
         iterateAndNextNull(nodep->msbp());
     }
-    void visit(AstTestPlusArgs* nodep) override {
+    શૂન્ય visit(AstTestPlusArgs* nodep) override {
         VL_RESTORER(m_setRefLvalue);
         m_setRefLvalue = VAccess::NOCHANGE;
         iterateAndNextNull(nodep->searchp());
     }
-    void visit(AstValuePlusArgs* nodep) override {
+    શૂન્ય visit(Ast_કિંમત_Plus_Args* nodep) override {
         VL_RESTORER(m_setRefLvalue);
         m_setRefLvalue = VAccess::NOCHANGE;
         iterateAndNextNull(nodep->searchp());
         m_setRefLvalue = VAccess::WRITE;
         iterateAndNextNull(nodep->outp());
     }
-    void visit(AstSFormat* nodep) override {
+    શૂન્ય visit(AstSFormat* nodep) override {
         VL_RESTORER(m_setRefLvalue);
         m_setRefLvalue = VAccess::WRITE;
         iterateAndNextNull(nodep->lhsp());
         m_setRefLvalue = VAccess::NOCHANGE;
         iterateAndNextNull(nodep->fmtp());
     }
-    void visit(AstNodeDistBiop* nodep) override {
+    શૂન્ય visit(Ast_ગાંઠ_Dist_Biop* nodep) override {
         VL_RESTORER(m_setRefLvalue);
         m_setRefLvalue = VAccess::READWRITE;
         iterateAndNextNull(nodep->lhsp());
         m_setRefLvalue = VAccess::NOCHANGE;
         iterateAndNextNull(nodep->rhsp());
     }
-    void visit(AstNodeDistTriop* nodep) override {
+    શૂન્ય visit(Ast_ગાંઠ_Dist_Triop* nodep) override {
         VL_RESTORER(m_setRefLvalue);
         m_setRefLvalue = VAccess::READWRITE;
         iterateAndNextNull(nodep->lhsp());
@@ -286,39 +286,39 @@ class LinkLValueVisitor final : public VNVisitor {
         iterateAndNextNull(nodep->thsp());
     }
     // cppcheck-suppress constParameterPointer
-    void prepost_visit(AstNodeUniop* nodep) {
+    શૂન્ય prepost_visit(Ast_ગાંઠ_Uniop* nodep) {
         VL_RESTORER(m_setRefLvalue);
         m_setRefLvalue = VAccess::WRITE;
         iterateAndNextNull(nodep->lhsp());
     }
-    void visit(AstPreInc* nodep) override { prepost_visit(nodep); }
-    void visit(AstPostInc* nodep) override { prepost_visit(nodep); }
-    void visit(AstPreDec* nodep) override { prepost_visit(nodep); }
-    void visit(AstPostDec* nodep) override { prepost_visit(nodep); }
+    શૂન્ય visit(AstPreInc* nodep) override { prepost_visit(nodep); }
+    શૂન્ય visit(AstPostInc* nodep) override { prepost_visit(nodep); }
+    શૂન્ય visit(AstPreDec* nodep) override { prepost_visit(nodep); }
+    શૂન્ય visit(AstPostDec* nodep) override { prepost_visit(nodep); }
 
     // Nodes that change LValue state
-    void visit(AstSel* nodep) override {
+    શૂન્ય visit(AstSel* nodep) override {
         VL_RESTORER(m_setRefLvalue);
         iterateAndNextNull(nodep->fromp());
         // Only set lvalues on the from
         m_setRefLvalue = VAccess::NOCHANGE;
         iterateAndNextNull(nodep->lsbp());
     }
-    void visit(AstNodeSel* nodep) override {
+    શૂન્ય visit(Ast_ગાંઠ_Sel* nodep) override {
         VL_RESTORER(m_setRefLvalue);
         // Only set lvalues on the from
         iterateAndNextNull(nodep->fromp());
         m_setRefLvalue = VAccess::NOCHANGE;
         iterateAndNextNull(nodep->bitp());
     }
-    void visit(AstCellArrayRef* nodep) override {
+    શૂન્ય visit(AstCellArrayRef* nodep) override {
         VL_RESTORER(m_setRefLvalue);
         // selp is not an lvalue
         m_setRefLvalue = VAccess::NOCHANGE;
         iterateAndNextNull(nodep->selp());
     }
-    void visit(AstNodePreSel* nodep) override {
-        if (AstSelBit* const selbitp = VN_CAST(nodep, SelBit)) selbitp->access(m_setRefLvalue);
+    શૂન્ય visit(Ast_ગાંઠ_Pre_Sel* nodep) override {
+        જો (AstSelBit* અચલ selbitp = VN_CAST(nodep, SelBit)) selbitp->access(m_setRefLvalue);
         VL_RESTORER(m_setRefLvalue);
         // Only set lvalues on the from
         iterateAndNextNull(nodep->fromp());
@@ -326,72 +326,72 @@ class LinkLValueVisitor final : public VNVisitor {
         iterateAndNextNull(nodep->rhsp());
         iterateAndNextNull(nodep->thsp());
     }
-    void visit(AstMemberSel* nodep) override {
-        if (m_setRefLvalue != VAccess::NOCHANGE) {
+    શૂન્ય visit(AstMemberSel* nodep) override {
+        જો (m_setRefLvalue != VAccess::NOCHANGE) {
             nodep->access(m_setRefLvalue);
-            if (nodep->varp() && nodep->access().isWriteOrRW()) {
-                if (const AstClockingItem* const itemp
+            જો (nodep->varp() && nodep->access().isWriteOrRW()) {
+                જો (અચલ AstClockingItem* અચલ itemp
                     = VN_CAST(nodep->varp()->backp(), ClockingItem)) {
                     UINFO(5, "ClkOut " << nodep);
-                    if (itemp->outputp()) nodep->varp(itemp->outputp()->varp());
+                    જો (itemp->outputp()) nodep->varp(itemp->outputp()->varp());
                 }
             }
-        } else {
+        } નહીંતર {
             // It is the only place where the access is set to member select nodes.
             // If it doesn't have to be set to WRITE, it means that it is READ.
             nodep->access(VAccess::READ);
         }
         iterateChildren(nodep);
     }
-    void visit(AstNodeFTaskRef* nodep) override {
-        const AstNodeFTask* const taskp = nodep->taskp();
+    શૂન્ય visit(Ast_ગાંઠ_FTask_Ref* nodep) override {
+        અચલ Ast_ગાંઠ_FTask* અચલ taskp = nodep->taskp();
         // We'll deal with mismatching pins later
-        if (!taskp) return;
-        const V3TaskConnects tconnects
-            = V3Task::taskConnects(nodep, taskp->stmtsp(), nullptr, false);
-        for (const auto& tconnect : tconnects) {
-            const AstVar* const portp = tconnect.first;
-            const AstArg* const argp = tconnect.second;
-            if (!argp) continue;
-            AstNodeExpr* const pinp = argp->exprp();
-            if (!pinp) continue;
+        જો (!taskp) પાછા;
+        અચલ V3TaskConnects tconnects
+            = V3Task::taskConnects(nodep, taskp->stmtsp(), nullptr, ખોટું);
+        માટે (અચલ auto& tconnect : tconnects) {
+            અચલ AstVar* અચલ portp = tconnect.first;
+            અચલ AstArg* અચલ argp = tconnect.second;
+            જો (!argp) ચાલુ;
+            Ast_ગાંઠ_પદાવલિ* અચલ pinp = argp->exprp();
+            જો (!pinp) ચાલુ;
             VL_RESTORER(m_setRefLvalue);
             m_setRefLvalue = portp->direction().pinAccess();
             iterate(pinp);
         }
-        if (nodep->withp()) iterate(nodep->withp());
+        જો (nodep->withp()) iterate(nodep->withp());
     }
-    void visit(AstConstraint* nodep) override {
+    શૂન્ય visit(AstConstraint* nodep) override {
         VL_RESTORER(m_setIfRand);
-        m_setIfRand = true;
+        m_setIfRand = સાચું;
         iterateChildren(nodep);
     }
-    void visit(AstNodeFTask* nodep) override {
+    શૂન્ય visit(Ast_ગાંઠ_FTask* nodep) override {
         VL_RESTORER(m_inFunc);
-        m_inFunc = true;
+        m_inFunc = સાચું;
         iterateChildren(nodep);
     }
 
-    void visit(AstNode* nodep) override { iterateChildren(nodep); }
+    શૂન્ય visit(Ast_ગાંઠ* nodep) override { iterateChildren(nodep); }
 
-public:
+જાહેર:
     // CONSTRUCTORS
-    LinkLValueVisitor(AstNode* nodep, VAccess start)
+    LinkLValueVisitor(Ast_ગાંઠ* nodep, VAccess start)
         : m_setRefLvalue{start} {
         iterate(nodep);
     }
-    ~LinkLValueVisitor() override = default;
+    ~LinkLValueVisitor() override = મૂળભૂત;
 };
 
 //######################################################################
 // Link class functions
 
-void V3LinkLValue::linkLValue(AstNetlist* nodep) {
+શૂન્ય V3LinkLValue::linkLValue(AstNetlist* nodep) {
     UINFO(4, __FUNCTION__ << ": ");
     { LinkLValueVisitor{nodep, VAccess::NOCHANGE}; }  // Destruct before checking
-    V3Global::dumpCheckGlobalTree("linklvalue", 0, dumpTreeEitherLevel() >= 6);
+    V3Global::dump_Check_Global_વૃક્ષ("linklvalue", 0, dump_વૃક્ષ_Either_Level() >= 6);
 }
-void V3LinkLValue::linkLValueSet(AstNode* const nodep, const VAccess access) {
+શૂન્ય V3LinkLValue::linkLValueSet(Ast_ગાંઠ* અચલ nodep, અચલ VAccess access) {
     // Called by later link functions when it is known a node needs
     // to be converted to a lvalue.
     UINFO(9, __FUNCTION__ << ": ");

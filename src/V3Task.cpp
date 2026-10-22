@@ -23,216 +23,216 @@
 //
 //*************************************************************************
 
-#include "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
+#અન્તર્ભાવ "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
 
-#include "V3Task.h"
+#અન્તર્ભાવ "V3Task.h"
 
-#include "V3Const.h"
-#include "V3ConstPool.h"
-#include "V3Control.h"
-#include "V3EmitCBase.h"
-#include "V3Graph.h"
-#include "V3LanguageWords.h"
-#include "V3SharedTmps.h"
-#include "V3Stats.h"
+#અન્તર્ભાવ "V3Const.h"
+#અન્તર્ભાવ "V3ConstPool.h"
+#અન્તર્ભાવ "V3Control.h"
+#અન્તર્ભાવ "V3EmitCBase.h"
+#અન્તર્ભાવ "V3Graph.h"
+#અન્તર્ભાવ "V3LanguageWords.h"
+#અન્તર્ભાવ "V3SharedTmps.h"
+#અન્તર્ભાવ "V3Stats.h"
 
-#include <tuple>
+#અન્તર્ભાવ <tuple>
 
 VL_DEFINE_DEBUG_FUNCTIONS;
 
 //######################################################################
 // Graph subclasses
 
-class TaskBaseVertex VL_NOT_FINAL : public V3GraphVertex {
+વર્ગ TaskBaseVertex VL_NOT_FINAL : જાહેર V3GraphVertex {
     VL_RTTI_IMPL(TaskBaseVertex, V3GraphVertex);
-    AstNode* m_impurep = nullptr;  // Node causing impure function w/ outside references
-    bool m_noInline = false;  // Marked with pragma
-public:
+    Ast_ગાંઠ* m_impurep = nullptr;  // Node causing impure function w/ outside references
+    તાર્કિક m_noInline = ખોટું;  // Marked with pragma
+જાહેર:
     explicit TaskBaseVertex(V3Graph* graphp)
         : V3GraphVertex{graphp} {}
-    ~TaskBaseVertex() override = default;
-    bool pure() const { return m_impurep == nullptr; }
-    AstNode* impureNode() const { return m_impurep; }
-    void impure(AstNode* nodep) { m_impurep = nodep; }
-    bool noInline() const { return m_noInline; }
-    void noInline(bool flag) { m_noInline = flag; }
+    ~TaskBaseVertex() override = મૂળભૂત;
+    તાર્કિક pure() અચલ { પાછા m_impurep == nullptr; }
+    Ast_ગાંઠ* impure_ગાંઠ() અચલ { પાછા m_impurep; }
+    શૂન્ય impure(Ast_ગાંઠ* nodep) { m_impurep = nodep; }
+    તાર્કિક noInline() અચલ { પાછા m_noInline; }
+    શૂન્ય noInline(તાર્કિક flag) { m_noInline = flag; }
 };
 
-class TaskFTaskVertex final : public TaskBaseVertex {
+વર્ગ TaskFTaskVertex final : જાહેર TaskBaseVertex {
     VL_RTTI_IMPL(TaskFTaskVertex, TaskBaseVertex);
     // Every task gets a vertex, and we link tasks together based on funcrefs.
-    AstNodeFTask* const m_nodep;
+    Ast_ગાંઠ_FTask* અચલ m_nodep;
     AstCFunc* m_cFuncp = nullptr;
-    bool m_needsNonInlineCFunc = false;  // Needs CFunc for selected non-inlined call sites
+    તાર્કિક m_needsNonInlineCFunc = ખોટું;  // Needs CFunc for selected non-inlined call sites
 
-public:
-    TaskFTaskVertex(V3Graph* graphp, AstNodeFTask* nodep)
+જાહેર:
+    TaskFTaskVertex(V3Graph* graphp, Ast_ગાંઠ_FTask* nodep)
         : TaskBaseVertex{graphp}
         , m_nodep{nodep} {}
-    ~TaskFTaskVertex() override = default;
-    AstNodeFTask* nodep() const VL_MT_STABLE { return m_nodep; }
-    string name() const override VL_MT_STABLE { return nodep()->name(); }
-    string dotColor() const override { return pure() ? "black" : "red"; }
-    AstCFunc* cFuncp() const { return m_cFuncp; }
-    void cFuncp(AstCFunc* nodep) { m_cFuncp = nodep; }
-    bool needsNonInlineCFunc() const { return m_needsNonInlineCFunc; }
-    void needsNonInlineCFunc(bool flag) { m_needsNonInlineCFunc = flag; }
+    ~TaskFTaskVertex() override = મૂળભૂત;
+    Ast_ગાંઠ_FTask* nodep() અચલ VL_MT_STABLE { પાછા m_nodep; }
+    string name() અચલ override VL_MT_STABLE { પાછા nodep()->name(); }
+    string dotColor() અચલ override { પાછા pure() ? "black" : "red"; }
+    AstCFunc* cFuncp() અચલ { પાછા m_cFuncp; }
+    શૂન્ય cFuncp(AstCFunc* nodep) { m_cFuncp = nodep; }
+    તાર્કિક needsNonInlineCFunc() અચલ { પાછા m_needsNonInlineCFunc; }
+    શૂન્ય needsNonInlineCFunc(તાર્કિક flag) { m_needsNonInlineCFunc = flag; }
 };
 
-class TaskCodeVertex final : public TaskBaseVertex {
+વર્ગ TaskCodeVertex final : જાહેર TaskBaseVertex {
     VL_RTTI_IMPL(TaskCodeVertex, TaskBaseVertex);
     // Top vertex for all calls not under another task
-public:
+જાહેર:
     explicit TaskCodeVertex(V3Graph* graphp)
         : TaskBaseVertex{graphp} {}
-    ~TaskCodeVertex() override = default;
-    string name() const override VL_MT_STABLE { return "*CODE*"; }
-    string dotColor() const override { return "green"; }
+    ~TaskCodeVertex() override = મૂળભૂત;
+    string name() અચલ override VL_MT_STABLE { પાછા "*CODE*"; }
+    string dotColor() અચલ override { પાછા "green"; }
 };
 
-class TaskEdge final : public V3GraphEdge {
+વર્ગ TaskEdge final : જાહેર V3GraphEdge {
     VL_RTTI_IMPL(TaskEdge, V3GraphEdge)
-public:
-    TaskEdge(V3Graph* graphp, TaskBaseVertex* fromp, TaskBaseVertex* top)
-        : V3GraphEdge{graphp, fromp, top, 1, false} {}
-    ~TaskEdge() override = default;
-    string dotLabel() const override { return "w" + cvtToStr(weight()); }
+જાહેર:
+    TaskEdge(V3Graph* graphp, TaskBaseVertex* fromp, TaskBaseVertex* ટોચ)
+        : V3GraphEdge{graphp, fromp, ટોચ, 1, ખોટું} {}
+    ~TaskEdge() override = મૂળભૂત;
+    string dotLabel() અચલ override { પાછા "w" + cvtToStr(weight()); }
 };
 
 //######################################################################
 
-class TaskStateVisitor final : public VNVisitor {
+વર્ગ TaskStateVisitor final : જાહેર VNVisitor {
     // NODE STATE
     //  Output:
     //   AstNodeFTask::user3p   // AstScope* this FTask is under
     //   AstNodeFTask::user4p   // GraphFTaskVertex* this FTask is under
     //   AstVar::user4p         // GraphFTaskVertex* this variable is declared in
-    const VNUser3InUse m_inuser3;
-    const VNUser4InUse m_inuser4;
+    અચલ VNUser3InUse m_inuser3;
+    અચલ VNUser4InUse m_inuser4;
 
     // TYPES
     using VarToScopeMap = std::map<std::pair<AstScope*, AstVar*>, AstVarScope*>;
-    using FuncToClassMap = std::unordered_map<const AstNodeFTask*, AstClass*>;
+    using FuncToClassMap = std::unordered_map<અચલ Ast_ગાંઠ_FTask*, AstClass*>;
     // MEMBERS
     VarToScopeMap m_varToScopeMap;  // Map for Var -> VarScope mappings
     FuncToClassMap m_funcToClassMap;  // Map for ctor func -> class
-    AstNodeFTask* m_ctorp = nullptr;  // Class constructor
+    Ast_ગાંઠ_FTask* m_ctorp = nullptr;  // Class constructor
     AstClass* m_classp = nullptr;  // Current class
     V3Graph m_callGraph;  // Task call graph
     TaskBaseVertex* m_curVxp;  // Current vertex we're adding to
     std::vector<AstInitialAutomatic*> m_initialps;  // Initial blocks to move
-    bool m_underPortVar = false;  // Visiting under a port AstVar; any expression there
+    તાર્કિક m_underPortVar = ખોટું;  // Visiting under a port AstVar; any expression there
                                   // is a default value, evaluated at call sites only
 
-public:
+જાહેર:
     // METHODS
-    static bool isVirtualIfaceMethodCall(const AstNodeFTaskRef* refp) {
-        const AstMethodCall* const mrefp = VN_CAST(refp, MethodCall);
-        if (!mrefp) return false;
-        const AstNodeExpr* const fromp = mrefp->fromp();
-        if (!fromp || !fromp->dtypep()) return false;
-        const AstIfaceRefDType* const ifrefp = VN_CAST(fromp->dtypep()->skipRefp(), IfaceRefDType);
-        return ifrefp && ifrefp->isVirtual();
+    સ્થિર તાર્કિક isVirtualIfaceMethodCall(અચલ Ast_ગાંઠ_FTask_Ref* refp) {
+        અચલ AstMethodCall* અચલ mrefp = VN_CAST(refp, MethodCall);
+        જો (!mrefp) પાછા ખોટું;
+        અચલ Ast_ગાંઠ_પદાવલિ* અચલ fromp = mrefp->fromp();
+        જો (!fromp || !fromp->dtypep()) પાછા ખોટું;
+        અચલ AstIfaceRefDType* અચલ ifrefp = VN_CAST(fromp->dtypep()->skipRefp(), IfaceRefDType);
+        પાછા ifrefp && ifrefp->isVirtual();
     }
-    static bool isIfaceFTaskScope(const AstScope* scopep) {
-        return scopep && VN_IS(scopep->modp(), Iface);
+    સ્થિર તાર્કિક isIfaceFTaskScope(અચલ AstScope* scopep) {
+        પાછા scopep && VN_IS(scopep->modp(), Iface);
     }
-    AstScope* getScope(AstNodeFTask* nodep) {
-        AstScope* const scopep = VN_AS(nodep->user3p(), Scope);
+    AstScope* getScope(Ast_ગાંઠ_FTask* nodep) {
+        AstScope* અચલ scopep = VN_AS(nodep->user3p(), Scope);
         UASSERT_OBJ(scopep, nodep, "No scope for function");
-        return scopep;
+        પાછા scopep;
     }
     AstVarScope* findVarScope(AstScope* scopep, AstVar* nodep) {
-        const auto iter = m_varToScopeMap.find(std::make_pair(scopep, nodep));
+        અચલ auto iter = m_varToScopeMap.find(std::make_pair(scopep, nodep));
         UASSERT_OBJ(iter != m_varToScopeMap.end(), nodep, "No scope for var");
-        return iter->second;
+        પાછા iter->second;
     }
-    AstClass* getClassp(AstNodeFTask* nodep) {
-        AstClass* const classp = m_funcToClassMap[nodep];
+    AstClass* getClassp(Ast_ગાંઠ_FTask* nodep) {
+        AstClass* અચલ classp = m_funcToClassMap[nodep];
         UASSERT_OBJ(classp, nodep, "No class for ctor func");
-        return classp;
+        પાછા classp;
     }
-    void remapFuncClassp(AstNodeFTask* nodep, AstNodeFTask* newp) {
+    શૂન્ય remapFuncClassp(Ast_ગાંઠ_FTask* nodep, Ast_ગાંઠ_FTask* newp) {
         m_funcToClassMap[newp] = getClassp(nodep);
     }
-    bool ftaskNoInline(AstNodeFTask* nodep) { return getFTaskVertex(nodep)->noInline(); }
-    bool ftaskNeedsNonInlineCFunc(AstNodeFTask* nodep) {
-        return getFTaskVertex(nodep)->needsNonInlineCFunc();
+    તાર્કિક ftaskNoInline(Ast_ગાંઠ_FTask* nodep) { પાછા getFTaskVertex(nodep)->noInline(); }
+    તાર્કિક ftaskNeedsNonInlineCFunc(Ast_ગાંઠ_FTask* nodep) {
+        પાછા getFTaskVertex(nodep)->needsNonInlineCFunc();
     }
-    AstCFunc* ftaskCFuncp(AstNodeFTask* nodep) { return getFTaskVertex(nodep)->cFuncp(); }
-    void ftaskCFuncp(AstNodeFTask* nodep, AstCFunc* cfuncp) {
+    AstCFunc* ftaskCFuncp(Ast_ગાંઠ_FTask* nodep) { પાછા getFTaskVertex(nodep)->cFuncp(); }
+    શૂન્ય ftaskCFuncp(Ast_ગાંઠ_FTask* nodep, AstCFunc* cfuncp) {
         getFTaskVertex(nodep)->cFuncp(cfuncp);
     }
     // Returns pointer to node that makes the given FTask impure
-    AstNode* checkImpure(AstNodeFTask* nodep) { return getFTaskVertex(nodep)->impureNode(); }
+    Ast_ગાંઠ* checkImpure(Ast_ગાંઠ_FTask* nodep) { પાછા getFTaskVertex(nodep)->impure_ગાંઠ(); }
 
-private:
-    TaskFTaskVertex* getFTaskVertex(AstNodeFTask* nodep) {
-        if (!nodep->user4p()) nodep->user4p(new TaskFTaskVertex{&m_callGraph, nodep});
-        return static_cast<TaskFTaskVertex*>(nodep->user4u().toGraphVertex());
+ખાનગી:
+    TaskFTaskVertex* getFTaskVertex(Ast_ગાંઠ_FTask* nodep) {
+        જો (!nodep->user4p()) nodep->user4p(નવું TaskFTaskVertex{&m_callGraph, nodep});
+        પાછા static_cast<TaskFTaskVertex*>(nodep->user4u().toGraphVertex());
     }
 
-    void propagateImpureReason() {
+    શૂન્ય propagateImpureReason() {
         std::vector<TaskFTaskVertex*> workList;
         // Gather all impure FTask vertices
-        for (V3GraphVertex& vtx : m_callGraph.vertices()) {
-            if (TaskFTaskVertex* const ftVtxp = vtx.cast<TaskFTaskVertex>()) {
-                if (!ftVtxp->pure()) workList.emplace_back(ftVtxp);
+        માટે (V3GraphVertex& vtx : m_callGraph.vertices()) {
+            જો (TaskFTaskVertex* અચલ ftVtxp = vtx.cast<TaskFTaskVertex>()) {
+                જો (!ftVtxp->pure()) workList.emplace_back(ftVtxp);
             }
         }
         // Mark every pure caller as impure and enqueue them - this propagates impureness
-        while (!workList.empty()) {
-            TaskFTaskVertex* const calleep = workList.back();
-            workList.pop_back();
+        જ્યારે (!workList.empty()) {
+            TaskFTaskVertex* અચલ calleep = workList.back();
+            workList.કાઢો_back();
             UASSERT_OBJ(!calleep->pure(), calleep->nodep(), "Should not enqueue pure vertex");
-            for (V3GraphEdge& edge : calleep->inEdges()) {
-                if (TaskFTaskVertex* const callerp = edge.fromp()->cast<TaskFTaskVertex>()) {
-                    if (!callerp->pure()) continue;  // Already processed or on workList
-                    callerp->impure(calleep->impureNode());
+            માટે (V3GraphEdge& edge : calleep->inEdges()) {
+                જો (TaskFTaskVertex* અચલ callerp = edge.fromp()->cast<TaskFTaskVertex>()) {
+                    જો (!callerp->pure()) ચાલુ;  // Already processed or on workList
+                    callerp->impure(calleep->impure_ગાંઠ());
                     workList.emplace_back(callerp);
                 }
             }
         }
     }
 
-    void decideInlining() {
-        for (V3GraphVertex& vtx : m_callGraph.vertices()) {
-            TaskFTaskVertex* const ftVtxp = vtx.cast<TaskFTaskVertex>();
-            if (!ftVtxp) continue;
+    શૂન્ય decideInlining() {
+        માટે (V3GraphVertex& vtx : m_callGraph.vertices()) {
+            TaskFTaskVertex* અચલ ftVtxp = vtx.cast<TaskFTaskVertex>();
+            જો (!ftVtxp) ચાલુ;
             // Move on if already decided not to inline
-            if (ftVtxp->noInline()) continue;
+            જો (ftVtxp->noInline()) ચાલુ;
             // If inlining blanked disabled, don't do it. Note this usually
             // results in large amounts of breakage so is mostly for testing.
-            if (!v3Global.opt.fInlineFuncs()) {
-                ftVtxp->noInline(true);
-                continue;
+            જો (!v3Global.opt.fInlineFuncs()) {
+                ftVtxp->noInline(સાચું);
+                ચાલુ;
             }
 
             // If eagerly inlining (historic - and still default - behaviour) then nothing to do
-            if (v3Global.opt.fInlineFuncsEager()) continue;
+            જો (v3Global.opt.fInlineFuncsEager()) ચાલુ;
 
-            AstNodeFTask* const ftaskp = ftVtxp->nodep();
+            Ast_ગાંઠ_FTask* અચલ ftaskp = ftVtxp->nodep();
             // We are relying on inlining of some internal functions for
             // functional corretness. Probably that's not a good thing?
-            if (!ftaskp->verilogFunction()) continue;
+            જો (!ftaskp->verilogFunction()) ચાલુ;
             // Non-inlned public functions are a bit broken right now, so keep
             // inlining them (internal calls are inlined + keep public version)
-            if (ftaskp->taskPublic()) continue;
+            જો (ftaskp->taskPublic()) ચાલુ;
             // If the function is pure, it's OK not to inline, so don't do it
-            if (ftVtxp->pure()) ftVtxp->noInline(true);
+            જો (ftVtxp->pure()) ftVtxp->noInline(સાચું);
         }
     }
 
     // VISITORS
-    void visit(AstScope* nodep) override {
+    શૂન્ય visit(AstScope* nodep) override {
         // Each FTask is unique per-scope, so AstNodeFTaskRefs do not need
         // pointers to what scope the FTask is to be invoked under.
         // However, to create variables, we need to track the scopes involved.
         // Find all var->varscope mappings, for later cleanup
-        for (AstNode* stmtp = nodep->varsp(); stmtp; stmtp = stmtp->nextp()) {
-            if (AstVarScope* const vscp = VN_CAST(stmtp, VarScope)) {
-                AstVar* const varp = vscp->varp();
-                if (varp->isFuncLocal() || varp->isUsedLoopIdx()
+        માટે (Ast_ગાંઠ* stmtp = nodep->varsp(); stmtp; stmtp = stmtp->nextp()) {
+            જો (AstVarScope* અચલ vscp = VN_CAST(stmtp, VarScope)) {
+                AstVar* અચલ varp = vscp->varp();
+                જો (varp->isFuncLocal() || varp->isUsedLoopIdx()
                     || varp->lifetime().isAutomatic()) {
                     UINFO(9, "   funcvsc " << vscp);
                     m_varToScopeMap.emplace(std::make_pair(nodep, varp), vscp);
@@ -240,75 +240,75 @@ private:
             }
         }
         // Likewise, all FTask->scope mappings
-        for (AstNode* stmtp = nodep->blocksp(); stmtp; stmtp = stmtp->nextp()) {
-            if (AstNodeFTask* const taskp = VN_CAST(stmtp, NodeFTask)) taskp->user3p(nodep);
+        માટે (Ast_ગાંઠ* stmtp = nodep->blocksp(); stmtp; stmtp = stmtp->nextp()) {
+            જો (Ast_ગાંઠ_FTask* અચલ taskp = VN_CAST(stmtp, ગાંઠ_FTask)) taskp->user3p(nodep);
         }
         iterateChildren(nodep);
     }
-    void visit(AstNodeFTaskRef* nodep) override {
+    શૂન્ય visit(Ast_ગાંઠ_FTask_Ref* nodep) override {
         // We make multiple edges if a task is called multiple times from another task.
         UASSERT_OBJ(nodep->taskp(), nodep, "Unlinked task");
-        TaskFTaskVertex* const taskVtxp = getFTaskVertex(nodep->taskp());
-        new TaskEdge{&m_callGraph, m_curVxp, taskVtxp};
+        TaskFTaskVertex* અચલ taskVtxp = getFTaskVertex(nodep->taskp());
+        નવું TaskEdge{&m_callGraph, m_curVxp, taskVtxp};
         // Virtual-interface method calls dispatch through a runtime handle and
         // must not be inlined.
-        if (isVirtualIfaceMethodCall(nodep)) taskVtxp->needsNonInlineCFunc(true);
+        જો (isVirtualIfaceMethodCall(nodep)) taskVtxp->needsNonInlineCFunc(સાચું);
         // Do we have to disable inlining the function?
-        const V3TaskConnects tconnects = V3Task::taskConnects(nodep, nodep->taskp()->stmtsp());
-        if (!taskVtxp->noInline()) {  // Else short-circuit below
-            for (const auto& itr : tconnects) {
-                const AstVar* const portp = itr.first;
-                const AstArg* const argp = itr.second;
-                if (const AstNodeExpr* const pinp = argp->exprp()) {
-                    if ((portp->isRef() || portp->isConstRef()) && !VN_IS(pinp, VarRef)) {
+        અચલ V3TaskConnects tconnects = V3Task::taskConnects(nodep, nodep->taskp()->stmtsp());
+        જો (!taskVtxp->noInline()) {  // Else short-circuit below
+            માટે (અચલ auto& itr : tconnects) {
+                અચલ AstVar* અચલ portp = itr.first;
+                અચલ AstArg* અચલ argp = itr.second;
+                જો (અચલ Ast_ગાંઠ_પદાવલિ* અચલ pinp = argp->exprp()) {
+                    જો ((portp->isRef() || portp->isConstRef()) && !VN_IS(pinp, VarRef)) {
                         UINFO(9, "No function inline due to ref " << pinp);
-                        taskVtxp->noInline(true);
+                        taskVtxp->noInline(સાચું);
                     }
                 }
             }
         }
     }
-    void visit(AstNodeFTask* nodep) override {
+    શૂન્ય visit(Ast_ગાંઠ_FTask* nodep) override {
         UINFO(9, "  TASK " << nodep);
         VL_RESTORER(m_curVxp);
         m_curVxp = getFTaskVertex(nodep);
-        if (nodep->dpiImport()) m_curVxp->noInline(true);
-        if (nodep->classMethod()) m_curVxp->noInline(true);  // Until V3Task supports it
-        if (nodep->recursive()) m_curVxp->noInline(true);
-        if (nodep->isConstructor()) {
-            m_curVxp->noInline(true);
+        જો (nodep->dpiImport()) m_curVxp->noInline(સાચું);
+        જો (nodep->classMethod()) m_curVxp->noInline(સાચું);  // Until V3Task supports it
+        જો (nodep->recursive()) m_curVxp->noInline(સાચું);
+        જો (nodep->isConstructor()) {
+            m_curVxp->noInline(સાચું);
             m_ctorp = nodep;
             UASSERT_OBJ(m_classp, nodep, "Ctor not under class");
             m_funcToClassMap[nodep] = m_classp;
         }
         iterateChildren(nodep);
     }
-    void visit(AstPragma* nodep) override {
-        if (nodep->pragType() == VPragmaType::NO_INLINE_TASK) {
+    શૂન્ય visit(AstPragma* nodep) override {
+        જો (nodep->pragType() == VPragmaType::NO_INLINE_TASK) {
             // Just mark for the next steps, and we're done with it.
-            m_curVxp->noInline(true);
-            VL_DO_DANGLING(nodep->unlinkFrBack()->deleteTree(), nodep);
-        } else {
+            m_curVxp->noInline(સાચું);
+            VL_DO_DANGLING(nodep->unlinkFrBack()->delete_વૃક્ષ(), nodep);
+        } નહીંતર {
             iterateChildren(nodep);
         }
     }
-    void visit(AstVar* nodep) override {
+    શૂન્ય visit(AstVar* nodep) override {
         VL_RESTORER(m_underPortVar);
-        if (nodep->isIO()) m_underPortVar = true;
+        જો (nodep->isIO()) m_underPortVar = સાચું;
         iterateChildren(nodep);
         nodep->user4p(m_curVxp);  // Remember what task it's under
     }
-    void visit(AstVarRef* nodep) override {
+    શૂન્ય visit(AstVarRef* nodep) override {
         iterateChildren(nodep);
-        if (m_underPortVar) return;
-        AstVar* const varp = nodep->varp();
+        જો (m_underPortVar) પાછા;
+        AstVar* અચલ varp = nodep->varp();
         // Reading a constant pool entry does not depend on external runtime state.
-        if (nodep->access().isReadOnly() && varp->constPoolEntry()) return;
-        if (varp->user4u().toGraphVertex() != m_curVxp) {
-            if (m_curVxp->pure() && !varp->isXTemp() && !varp->isParam()) m_curVxp->impure(nodep);
+        જો (nodep->access().isReadOnly() && varp->constPoolEntry()) પાછા;
+        જો (varp->user4u().toGraphVertex() != m_curVxp) {
+            જો (m_curVxp->pure() && !varp->isXTemp() && !varp->isParam()) m_curVxp->impure(nodep);
         }
     }
-    void visit(AstClass* nodep) override {
+    શૂન્ય visit(AstClass* nodep) override {
         // Move initial statements into the constructor
         VL_RESTORER_CLEAR(m_initialps);
         VL_RESTORER(m_ctorp);
@@ -319,163 +319,163 @@ private:
             iterateChildren(nodep);
         }
         UASSERT_OBJ(m_ctorp, nodep, "class constructor missing");  // LinkDot always makes it
-        AstNode* insertp = nullptr;
-        for (AstInitialAutomatic* initialp : m_initialps) {
-            if (AstNode* const movep = initialp->stmtsp()) {
+        Ast_ગાંઠ* insertp = nullptr;
+        માટે (AstInitialAutomatic* initialp : m_initialps) {
+            જો (Ast_ગાંઠ* અચલ movep = initialp->stmtsp()) {
                 movep->unlinkFrBackWithNext();
                 // Next InitialAutomatic must go in order after what we inserted
-                insertp = AstNode::addNextNull(insertp, movep);
+                insertp = Ast_ગાંઠ::addNextNull(insertp, movep);
             }
-            VL_DO_DANGLING(pushDeletep(initialp->unlinkFrBack()), initialp);
+            VL_DO_DANGLING(ધકેલો_Deletep(initialp->unlinkFrBack()), initialp);
         }
         m_initialps.clear();
         m_ctorp->prependStmtsp(insertp);
     }
-    void visit(AstInitialAutomatic* nodep) override {
-        m_initialps.push_back(nodep);
+    શૂન્ય visit(AstInitialAutomatic* nodep) override {
+        m_initialps.ધકેલો_back(nodep);
         iterateChildren(nodep);
     }
     //--------------------
-    void visit(AstNode* nodep) override { iterateChildren(nodep); }
+    શૂન્ય visit(Ast_ગાંઠ* nodep) override { iterateChildren(nodep); }
 
-public:
+જાહેર:
     // CONSTRUCTORS
     explicit TaskStateVisitor(AstNetlist* nodep) {
-        m_curVxp = new TaskCodeVertex{&m_callGraph};
+        m_curVxp = નવું TaskCodeVertex{&m_callGraph};
         //
         iterate(nodep);
         //
         m_callGraph.removeRedundantEdgesSum(&TaskEdge::followAlwaysTrue);
         propagateImpureReason();
         decideInlining();
-        if (dumpGraphLevel()) m_callGraph.dumpDotFilePrefixed("task_call");
+        જો (dumpGraphLevel()) m_callGraph.dumpDotFilePrefixed("task_call");
     }
-    ~TaskStateVisitor() override = default;
+    ~TaskStateVisitor() override = મૂળભૂત;
     VL_UNCOPYABLE(TaskStateVisitor);
 };
 
 //######################################################################
 // DPI related utility functions
 
-struct TaskDpiUtils final {
+સંરચના TaskDpiUtils final {
     // Returns a vector of ('elements', 'stride') pairs for each unpacked dimension
-    static std::vector<std::pair<int, int>> unpackDimsAndStrides(AstVar* varp) {
-        AstNodeDType* const dtypep = varp->dtypep()->skipRefp();
-        std::vector<std::pair<int, int>> dimStrides;
-        AstUnpackArrayDType* const unpackp = VN_CAST(dtypep->skipRefp(), UnpackArrayDType);
-        if (!unpackp) return dimStrides;
+    સ્થિર std::vector<std::pair<પૂર્ણાંક, પૂર્ણાંક>> unpackDimsAndStrides(AstVar* varp) {
+        Ast_ગાંઠ_DType* અચલ dtypep = varp->dtypep()->skipRefp();
+        std::vector<std::pair<પૂર્ણાંક, પૂર્ણાંક>> dimStrides;
+        AstUnpackArrayDType* અચલ unpackp = VN_CAST(dtypep->skipRefp(), UnpackArrayDType);
+        જો (!unpackp) પાછા dimStrides;
 
-        const std::vector<AstUnpackArrayDType*> dims = unpackp->unpackDimensions();
-        const size_t nDims = dims.size();
+        અચલ std::vector<AstUnpackArrayDType*> dims = unpackp->unpackDimensions();
+        અચલ size_t nDims = dims.size();
         dimStrides.resize(nDims);
         // Stride of fastest varying dimension is 1.
         dimStrides[nDims - 1].first = dims.back()->elementsConst();
         dimStrides[nDims - 1].second = 1;
         // Rest are densly packed
-        for (ssize_t i = nDims - 2; i >= 0; --i) {
+        માટે (ssize_t i = nDims - 2; i >= 0; --i) {
             dimStrides[i].first = dims[i]->elementsConst();
             dimStrides[i].second = dimStrides[i + 1].first * dimStrides[i + 1].second;
         }
-        return dimStrides;
+        પાછા dimStrides;
     }
     // Returns the prefix of a function-call like statement used to convert
     // from IEEE DPI data types to internal types, and a bool that is true
     // if type uses svBitVecVal/svLogicVecVal and ther result is returned via
     // an output parameter, o false if uses C primitive type and result is the
     // return value.
-    static std::pair<std::string, bool> dpiToInternalCvtStmt(const AstNodeDType* dtypep) {
-        const AstBasicDType* const basicp = dtypep->basicp();
+    સ્થિર std::pair<std::string, તાર્કિક> dpiToInternalCvtStmt(અચલ Ast_ગાંઠ_DType* dtypep) {
+        અચલ AstBasicDType* અચલ basicp = dtypep->basicp();
 
         // DPI types using Primitive C types
-        if (basicp->keyword() == VBasicDTypeKwd::CHANDLE) return {"VL_CVT_VP_Q(", false};
-        if (basicp->keyword() == VBasicDTypeKwd::STRING) return {"VL_CVT_N_CSTR(", false};
-        if (basicp->isDpiPrimitive()) return {"(", false};
+        જો (basicp->keyword() == VBasicDTypeKwd::CHANDLE) પાછા {"VL_CVT_VP_Q(", ખોટું};
+        જો (basicp->keyword() == VBasicDTypeKwd::STRING) પાછા {"VL_CVT_N_CSTR(", ખોટું};
+        જો (basicp->isDpiPrimitive()) પાછા {"(", ખોટું};
 
         // DPI types using svBitVecVal/svLogicVecVal
         UASSERT_OBJ(basicp->isDpiBitVec() || basicp->isDpiLogicVec(), dtypep,
                     "Should use svBitVecVal/svLogicVecVal");
 
-        const std::string vecType = basicp->isDpiBitVec() ? "SVBV" : "SVLV";
+        અચલ std::string vecType = basicp->isDpiBitVec() ? "SVBV" : "SVLV";
         dtypep = dtypep->skipRefp();
-        const char sizeChar = dtypep->width() <= 8    ? 'C'
+        અચલ અક્ષર sizeChar = dtypep->width() <= 8    ? 'C'
                               : dtypep->width() <= 16 ? 'S'
                                                       : *dtypep->charIQWN();
-        const std::string& size = std::to_string(dtypep->width());
+        અચલ std::string& size = std::to_string(dtypep->width());
         // cppcheck-suppress strPlusChar
-        return {"VL_SET_"s + sizeChar + "_" + vecType + "(" + size + ", ", true};
+        પાછા {"VL_SET_"s + sizeChar + "_" + vecType + "(" + size + ", ", સાચું};
     }
 };
 
 //######################################################################
 // Task state, as a visitor of each AstNode
 
-class TaskVisitor final : public VNVisitor {
+વર્ગ TaskVisitor final : જાહેર VNVisitor {
     // NODE STATE
     // Each module:
     //    AstNodeFTask::user1   // True if its been expanded
     // Each funccall
     //  to 'relink' function:
     //    AstVar::user2p        // AstVarScope* to replace varref with
-    const VNUser1InUse m_inuser1;
-    const VNUser2InUse m_inuser2;
+    અચલ VNUser1InUse m_inuser1;
+    અચલ VNUser2InUse m_inuser2;
 
     // TYPES
-    using DpiCFuncs = std::map<const string, std::tuple<AstNodeFTask*, std::string, AstCFunc*>>;
+    using DpiCFuncs = std::map<અચલ string, std::tuple<Ast_ગાંઠ_FTask*, std::string, AstCFunc*>>;
 
     // STATE
-    TaskStateVisitor* const m_statep;  // Common state between visitors
-    AstNodeModule* m_modp = nullptr;  // Current module
-    AstTopScope* const m_topScopep = v3Global.rootp()->topScopep();  // The AstTopScope
+    TaskStateVisitor* અચલ m_statep;  // Common state between visitors
+    Ast_ગાંઠ_Module* m_modp = nullptr;  // Current module
+    Ast_ટોચ_Scope* અચલ m_ટોચ_Scopep = v3Global.rootp()->ટોચ_Scopep();  // The AstTopScope
     AstScope* m_scopep = nullptr;  // Current scope
-    AstNode* m_insStmtp = nullptr;  // Where to insert statement
-    bool m_inSensesp = false;  // Are we under a senitem?
-    bool m_inNew = false;  // Are we under a constructor?
+    Ast_ગાંઠ* m_insStmtp = nullptr;  // Where to insert statement
+    તાર્કિક m_inSensesp = ખોટું;  // Are we under a senitem?
+    તાર્કિક m_inNew = ખોટું;  // Are we under a constructor?
     // Variables created by createVarScope, shared by instances
     V3SharedTmps m_funcTmps{"__Vfunc", VVarType::BLOCKTEMP};  // For function calls
     V3SharedTmps m_taskTmps{"__Vtask", VVarType::BLOCKTEMP};  // For task calls
     V3SharedTmps m_consArrayTmps{"__VconsArrayTemp", VVarType::BLOCKTEMP};  // For ConsArray args
     V3SharedTmps m_forceTmps{"__Vforcefuncout", VVarType::VAR};  // For calls in force statements
-    int m_unconVarNum = 0;  // Unique bad connection variable
+    પૂર્ણાંક m_uncon_Var_અંક = 0;  // Unique bad connection variable
 
     // STATE - across all visitors
     DpiCFuncs m_dpiNames;  // Map of all created DPI functions
-    std::map<std::string, const AstStructDType*> m_dpiStructs;  // C names of DPI structures
+    std::map<std::string, અચલ AstStructDType*> m_dpiStructs;  // C names of DPI structures
     VDouble0 m_statInlines;  // Statistic tracking
     VDouble0 m_statHierDpisWithCosts;  // Statistic tracking
 
     // METHODS
 
-    AstVarScope* createFuncVar(AstCFunc* funcp, const string& name, AstVar* examplep) {
-        AstVar* const newvarp = new AstVar{funcp->fileline(), VVarType::BLOCKTEMP, name, examplep};
-        newvarp->funcLocal(true);
+    AstVarScope* createFuncVar(AstCFunc* funcp, અચલ string& name, AstVar* examplep) {
+        AstVar* અચલ newvarp = નવું AstVar{funcp->fileline(), VVarType::BLOCKTEMP, name, examplep};
+        newvarp->funcLocal(સાચું);
         funcp->addVarsp(newvarp);
-        AstVarScope* const newvscp = new AstVarScope{funcp->fileline(), m_scopep, newvarp};
+        AstVarScope* અચલ newvscp = નવું AstVarScope{funcp->fileline(), m_scopep, newvarp};
         m_scopep->addVarsp(newvscp);
-        return newvscp;
+        પાછા newvscp;
     }
-    AstVarScope* createInputVar(AstCFunc* funcp, const string& name, VBasicDTypeKwd kwd) {
-        AstVar* const newvarp
-            = new AstVar{funcp->fileline(), VVarType::BLOCKTEMP, name, funcp->findBasicDType(kwd)};
-        newvarp->funcLocal(true);
-        newvarp->direction(VDirection::INPUT);
+    AstVarScope* create_આગત_Var(AstCFunc* funcp, અચલ string& name, VBasicDTypeKwd kwd) {
+        AstVar* અચલ newvarp
+            = નવું AstVar{funcp->fileline(), VVarType::BLOCKTEMP, name, funcp->findBasicDType(kwd)};
+        newvarp->funcLocal(સાચું);
+        newvarp->direction(VDirection::આગત);
         funcp->addArgsp(newvarp);
-        AstVarScope* const newvscp = new AstVarScope{funcp->fileline(), m_scopep, newvarp};
+        AstVarScope* અચલ newvscp = નવું AstVarScope{funcp->fileline(), m_scopep, newvarp};
         m_scopep->addVarsp(newvscp);
-        return newvscp;
+        પાછા newvscp;
     }
-    static AstVarScope* constPoolTable(AstVar* paramp) {
+    સ્થિર AstVarScope* constPoolTable(AstVar* paramp) {
         // Move array params in functions into constant pool, return the VarScope of the entry
-        AstVarRef* const refp = V3ConstPool::find(VN_AS(paramp->valuep(), ConsArray));
-        AstVarScope* const vscp = refp->varScopep();
-        VL_DO_DANGLING(refp->deleteTree(), refp);
-        return vscp;
+        AstVarRef* અચલ refp = V3ConstPool::find(VN_AS(paramp->valuep(), ConsArray));
+        AstVarScope* અચલ vscp = refp->varScopep();
+        VL_DO_DANGLING(refp->delete_વૃક્ષ(), refp);
+        પાછા vscp;
     }
     // Create variable for 'invarp' of the call 'refp', named after the called task and 'suffix'
-    AstVarScope* createVarScope(const AstNodeFTaskRef* refp, AstVar* invarp,
-                                const std::string& suffix) {
-        if (invarp->isParam() && VN_IS(invarp->valuep(), ConsArray)) {
-            return constPoolTable(invarp);
-        } else {
+    AstVarScope* createVarScope(અચલ Ast_ગાંઠ_FTask_Ref* refp, AstVar* invarp,
+                                અચલ std::string& suffix) {
+        જો (invarp->isParam() && VN_IS(invarp->valuep(), ConsArray)) {
+            પાછા constPoolTable(invarp);
+        } નહીંતર {
             // We could create under either the ref's scope or the ftask's scope.
             // It shouldn't matter, as they are only local variables.
             // We choose to do it under whichever called this function, which results
@@ -483,372 +483,372 @@ class TaskVisitor final : public VNVisitor {
             // Share the variable with the other scopes of the module, so the same calls in
             // instances use the same variables
             V3SharedTmps& tmps = VN_IS(refp, FuncRef) ? m_funcTmps : m_taskTmps;
-            AstVarScope* const newvscp = tmps.make(invarp->fileline(), m_scopep, invarp->dtypep(),
+            AstVarScope* અચલ newvscp = tmps.make(invarp->fileline(), m_scopep, invarp->dtypep(),
                                                    refp->taskp()->shortName() + suffix);
-            AstVar* const newvarp = newvscp->varp();
-            newvarp->funcLocal(false);
+            AstVar* અચલ newvarp = newvscp->varp();
+            newvarp->funcLocal(ખોટું);
             newvarp->propagateAttrFrom(invarp);
-            newvarp->isInternal(true);
-            return newvscp;
+            newvarp->isInternal(સાચું);
+            પાછા newvscp;
         }
     }
 
     // Replace varrefs with new var pointer
-    void relink(AstNode* nodep) {
+    શૂન્ય relink(Ast_ગાંઠ* nodep) {
         nodep->foreachAndNext([](AstVarRef* refp) {
-            if (refp->varp()->user2p()) {  // It's being converted to an alias.
-                AstVarScope* const newvscp = VN_AS(refp->varp()->user2p(), VarScope);
+            જો (refp->varp()->user2p()) {  // It's being converted to an alias.
+                AstVarScope* અચલ newvscp = VN_AS(refp->varp()->user2p(), VarScope);
                 refp->varScopep(newvscp);
                 refp->varp(refp->varScopep()->varp());
             }
         });
     }
 
-    AstAssign* connectPortMakeInAssign(AstNodeExpr* pinp, AstVarScope* newvscp, bool pureCheck) {
+    AstAssign* connectPortMakeInAssign(Ast_ગાંઠ_પદાવલિ* pinp, AstVarScope* newvscp, તાર્કિક pureCheck) {
         // Create input assignment to go in FRONT of function call
-        AstNodeExpr* inPinp = pinp;
-        if (AstResizeLValue* sinPinp = VN_CAST(inPinp, ResizeLValue)) inPinp = sinPinp->lhsp();
-        AstNodeExpr* inPinClonep
-            = pureCheck ? inPinp->cloneTreePure(true) : inPinp->cloneTree(true);
+        Ast_ગાંઠ_પદાવલિ* inPinp = pinp;
+        જો (AstResizeLValue* sinPinp = VN_CAST(inPinp, ResizeLValue)) inPinp = sinPinp->lhsp();
+        Ast_ગાંઠ_પદાવલિ* inPinClonep
+            = pureCheck ? inPinp->clone_વૃક્ષ_Pure(સાચું) : inPinp->clone_વૃક્ષ(સાચું);
         // A reversed array is assigned by the left-to-right order of elements (IEEE 1800-2023 7.6)
-        const AstUnpackArrayDType* const arrayp
+        અચલ AstUnpackArrayDType* અચલ arrayp
             = VN_CAST(newvscp->dtypep()->skipRefp(), UnpackArrayDType);
-        if (arrayp && arrayp->isReverseOf(inPinClonep->dtypep())) {
+        જો (arrayp && arrayp->isReverseOf(inPinClonep->dtypep())) {
             inPinClonep
-                = new AstCvtUnpackToUnpack{pinp->fileline(), inPinClonep, newvscp->dtypep()};
+                = નવું AstCvtUnpackToUnpack{pinp->fileline(), inPinClonep, newvscp->dtypep()};
         }
-        AstAssign* const assp = new AstAssign{
-            pinp->fileline(), new AstVarRef{newvscp->fileline(), newvscp, VAccess::WRITE},
+        AstAssign* અચલ assp = નવું AstAssign{
+            pinp->fileline(), નવું AstVarRef{newvscp->fileline(), newvscp, VAccess::WRITE},
             inPinClonep};
-        assp->fileline()->modifyWarnOff(V3ErrorCode::BLKSEQ, true);  // Ok if in <= block
-        return assp;
+        assp->fileline()->modifyWarnOff(V3ErrorCode::BLKSEQ, સાચું);  // Ok if in <= block
+        પાછા assp;
     }
-    AstAssign* connectPortMakeOutAssign(AstVar* portp, AstNodeExpr* pinp, AstVarScope* newvscp,
-                                        bool pureCheck) {
+    AstAssign* connectPortMakeOutAssign(AstVar* portp, Ast_ગાંઠ_પદાવલિ* pinp, AstVarScope* newvscp,
+                                        તાર્કિક pureCheck) {
         // If needed, remap size of function to caller's output size
-        AstNodeExpr* outPinp = pinp;
-        AstNodeExpr* postRhsp = new AstVarRef{newvscp->fileline(), newvscp, VAccess::READ};
-        if (AstResizeLValue* soutPinp = VN_CAST(outPinp, ResizeLValue)) {
+        Ast_ગાંઠ_પદાવલિ* outPinp = pinp;
+        Ast_ગાંઠ_પદાવલિ* postRhsp = નવું AstVarRef{newvscp->fileline(), newvscp, VAccess::READ};
+        જો (AstResizeLValue* soutPinp = VN_CAST(outPinp, ResizeLValue)) {
             outPinp = soutPinp->lhsp();
-            if (VN_IS(outPinp, RToIRoundS) || VN_IS(outPinp, RToIS)) {
-                outPinp = VN_AS(outPinp, NodeUniop)->lhsp();
-                if (postRhsp->isSigned()) {
-                    postRhsp = new AstISToRD{pinp->fileline(), postRhsp};
-                } else {
-                    postRhsp = new AstIToRD{pinp->fileline(), postRhsp};
+            જો (VN_IS(outPinp, RToIRoundS) || VN_IS(outPinp, RToIS)) {
+                outPinp = VN_AS(outPinp, ગાંઠ_Uniop)->lhsp();
+                જો (postRhsp->isSigned()) {
+                    postRhsp = નવું AstISToRD{pinp->fileline(), postRhsp};
+                } નહીંતર {
+                    postRhsp = નવું AstIToRD{pinp->fileline(), postRhsp};
                 }
-            } else {
-                if (AstNodeUniop* aoutPinp = VN_CAST(outPinp, Extend)) {
+            } નહીંતર {
+                જો (Ast_ગાંઠ_Uniop* aoutPinp = VN_CAST(outPinp, Extend)) {
                     outPinp = aoutPinp->lhsp();
-                } else if (AstNodeUniop* aoutPinp = VN_CAST(outPinp, ExtendS)) {
+                } નહીંતર જો (Ast_ગાંઠ_Uniop* aoutPinp = VN_CAST(outPinp, ExtendS)) {
                     outPinp = aoutPinp->lhsp();
-                } else if (AstSel* aoutPinp = VN_CAST(outPinp, Sel)) {
+                } નહીંતર જો (AstSel* aoutPinp = VN_CAST(outPinp, Sel)) {
                     outPinp = aoutPinp->fromp();
-                } else {
+                } નહીંતર {
                     outPinp->v3fatalSrc("Inout pin resizing should have had extend or select");
                 }
-                if (outPinp->width() < portp->width()) {
-                    postRhsp = new AstSel{pinp->fileline(), postRhsp, 0, pinp->width()};
-                } else {  // pin width > port width
-                    if (pinp->isSigned() && postRhsp->isSigned()) {
-                        postRhsp = new AstExtendS{pinp->fileline(), postRhsp};
-                    } else {
-                        postRhsp = new AstExtend{pinp->fileline(), postRhsp};
+                જો (outPinp->width() < portp->width()) {
+                    postRhsp = નવું AstSel{pinp->fileline(), postRhsp, 0, pinp->width()};
+                } નહીંતર {  // pin width > port width
+                    જો (pinp->isSigned() && postRhsp->isSigned()) {
+                        postRhsp = નવું AstExtendS{pinp->fileline(), postRhsp};
+                    } નહીંતર {
+                        postRhsp = નવું AstExtend{pinp->fileline(), postRhsp};
                     }
                 }
             }
             postRhsp->dtypeFrom(outPinp);
         }
-        if (VN_IS(outPinp, IToRD) || VN_IS(outPinp, ISToRD)) {
-            outPinp = VN_AS(outPinp, NodeUniop)->lhsp();
-            postRhsp = new AstRToIRoundS{pinp->fileline(), postRhsp};
+        જો (VN_IS(outPinp, IToRD) || VN_IS(outPinp, ISToRD)) {
+            outPinp = VN_AS(outPinp, ગાંઠ_Uniop)->lhsp();
+            postRhsp = નવું AstRToIRoundS{pinp->fileline(), postRhsp};
             postRhsp->dtypeFrom(outPinp);
         }
         // Put output assignment AFTER function call
-        AstNodeExpr* const outPinClonep
-            = pureCheck ? outPinp->cloneTreePure(true) : outPinp->cloneTree(true);
+        Ast_ગાંઠ_પદાવલિ* અચલ outPinClonep
+            = pureCheck ? outPinp->clone_વૃક્ષ_Pure(સાચું) : outPinp->clone_વૃક્ષ(સાચું);
         // A reversed array is assigned by the left-to-right order of elements (IEEE 1800-2023 7.6)
-        const AstUnpackArrayDType* const arrayp
+        અચલ AstUnpackArrayDType* અચલ arrayp
             = VN_CAST(outPinp->dtypep()->skipRefp(), UnpackArrayDType);
-        if (arrayp && arrayp->isReverseOf(postRhsp->dtypep())) {
-            postRhsp = new AstCvtUnpackToUnpack{pinp->fileline(), postRhsp, outPinp->dtypep()};
+        જો (arrayp && arrayp->isReverseOf(postRhsp->dtypep())) {
+            postRhsp = નવું AstCvtUnpackToUnpack{pinp->fileline(), postRhsp, outPinp->dtypep()};
         }
-        AstAssign* const assp = new AstAssign{pinp->fileline(), outPinClonep, postRhsp};
-        assp->fileline()->modifyWarnOff(V3ErrorCode::BLKSEQ, true);  // Ok if in <= block
-        return assp;
+        AstAssign* અચલ assp = નવું AstAssign{pinp->fileline(), outPinClonep, postRhsp};
+        assp->fileline()->modifyWarnOff(V3ErrorCode::BLKSEQ, સાચું);  // Ok if in <= block
+        પાછા assp;
     }
 
-    void changeAtWriteRecurse(AstNodeExpr* const exprp) {
+    શૂન્ય changeAtWriteRecurse(Ast_ગાંઠ_પદાવલિ* અચલ exprp) {
         // Change nested at methods to writable variant
-        if (AstCMethodHard* const cMethodp = VN_CAST(exprp, CMethodHard)) {
-            if (cMethodp->method() == VCMethod::ARRAY_AT) {
+        જો (AstCMethodHard* અચલ cMethodp = VN_CAST(exprp, CMethodHard)) {
+            જો (cMethodp->method() == VCMethod::ARRAY_AT) {
                 cMethodp->method(VCMethod::ARRAY_AT_WRITE);
             }
             changeAtWriteRecurse(cMethodp->fromp());
         }
     }
 
-    void connectPort(const AstNodeFTaskRef* refp, AstVar* portp, AstArg* argp, AstNode* beginp,
-                     bool inlineTask) {
-        AstNodeExpr* pinp = argp->exprp();
-        if (inlineTask) {
+    શૂન્ય connectPort(અચલ Ast_ગાંઠ_FTask_Ref* refp, AstVar* portp, AstArg* argp, Ast_ગાંઠ* beginp,
+                     તાર્કિક inlineTask) {
+        Ast_ગાંઠ_પદાવલિ* pinp = argp->exprp();
+        જો (inlineTask) {
             portp->unlinkFrBack();
-            pushDeletep(portp);  // Remove it from the clone (not original)
+            ધકેલો_Deletep(portp);  // Remove it from the clone (not original)
         }
-        if (!pinp) {
+        જો (!pinp) {
             // Too few arguments in function call
-        } else {
+        } નહીંતર {
             UINFO(9, "     Port " << portp);
             UINFO(9, "      pin " << pinp);
-            if (portp->isWritable() && VN_IS(pinp, Const)) {
+            જો (portp->isWritable() && VN_IS(pinp, Const)) {
                 pinp->v3error("Function/task " + portp->direction().prettyName()  // e.g. "output"
                               + " connected to constant instead of variable: "
                               + portp->prettyNameQ());
                 // Make temp pin to tie it off
-                AstVar* const varp = new AstVar{pinp->fileline(), VVarType::STMTTEMP,
+                AstVar* અચલ varp = નવું AstVar{pinp->fileline(), VVarType::STMTTEMP,
                                                 "__VfuncUnconn_" + portp->name() + "__"
-                                                    + std::to_string(m_unconVarNum++),
+                                                    + std::to_string(m_uncon_Var_અંક++),
                                                 portp->dtypep()};
                 m_modp->addStmtsp(varp);
-                AstVarScope* const newvscp = new AstVarScope{pinp->fileline(), m_scopep, varp};
+                AstVarScope* અચલ newvscp = નવું AstVarScope{pinp->fileline(), m_scopep, varp};
                 m_scopep->addVarsp(newvscp);
-                AstVarRef* const repp = new AstVarRef{pinp->fileline(), newvscp, VAccess::WRITE};
+                AstVarRef* અચલ repp = નવું AstVarRef{pinp->fileline(), newvscp, VAccess::WRITE};
                 pinp->replaceWith(repp);
-                VL_DO_DANGLING(pushDeletep(pinp), pinp);
+                VL_DO_DANGLING(ધકેલો_Deletep(pinp), pinp);
                 pinp = repp;
             }
-            if (inlineTask) {
-                pushDeletep(pinp->unlinkFrBack());  // Cloned in assignment below
-                VL_DO_DANGLING(argp->unlinkFrBack()->deleteTree(), argp);  // Args no longer needed
+            જો (inlineTask) {
+                ધકેલો_Deletep(pinp->unlinkFrBack());  // Cloned in assignment below
+                VL_DO_DANGLING(argp->unlinkFrBack()->delete_વૃક્ષ(), argp);  // Args no longer needed
             }
-            if (portp->isRef() || portp->isConstRef()) {
-                bool refArgOk = false;
-                if (VN_IS(pinp, VarRef) || VN_IS(pinp, MemberSel) || VN_IS(pinp, StructSel)
+            જો (portp->isRef() || portp->isConstRef()) {
+                તાર્કિક refArgOk = ખોટું;
+                જો (VN_IS(pinp, VarRef) || VN_IS(pinp, MemberSel) || VN_IS(pinp, StructSel)
                     || VN_IS(pinp, ArraySel)) {
-                    refArgOk = true;
-                } else if (AstCMethodHard* const cMethodp = VN_CAST(pinp, CMethodHard)) {
-                    if (VN_IS(cMethodp->fromp()->dtypep()->skipRefp(), QueueDType)) {
+                    refArgOk = સાચું;
+                } નહીંતર જો (AstCMethodHard* અચલ cMethodp = VN_CAST(pinp, CMethodHard)) {
+                    જો (VN_IS(cMethodp->fromp()->dtypep()->skipRefp(), QueueDType)) {
                         refArgOk = cMethodp->method() == VCMethod::DYN_AT_WRITE_APPEND
                                    || cMethodp->method() == VCMethod::DYN_AT_WRITE_APPEND_BACK;
-                    } else {
+                    } નહીંતર {
                         changeAtWriteRecurse(cMethodp);
                         refArgOk = cMethodp->method() == VCMethod::ARRAY_AT_WRITE;
                     }
                 }
-                if (refArgOk) {
-                    if (AstVarRef* const varrefp = VN_CAST(pinp, VarRef)) {
+                જો (refArgOk) {
+                    જો (AstVarRef* અચલ varrefp = VN_CAST(pinp, VarRef)) {
                         varrefp->access(VAccess::READWRITE);
                     }
-                } else {
+                } નહીંતર {
                     pinp->v3error("Function/task ref argument is not of allowed type");
                 }
-                if (inlineTask) {
-                    if (AstVarRef* const varrefp = VN_CAST(pinp, VarRef)) {
+                જો (inlineTask) {
+                    જો (AstVarRef* અચલ varrefp = VN_CAST(pinp, VarRef)) {
                         // Connect to this exact variable
-                        AstVarScope* const localVscp = varrefp->varScopep();
+                        AstVarScope* અચલ localVscp = varrefp->varScopep();
                         UASSERT_OBJ(localVscp, varrefp, "Null var scope");
                         portp->user2p(localVscp);
-                    } else {
+                    } નહીંતર {
                         pinp->v3fatalSrc("ref argument should have caused non-inline of function");
                     }
                 }
-            } else if (portp->isInout()) {
+            } નહીંતર જો (portp->isInout()) {
                 // UINFOTREE(9, pinp, "", "pinrsize-");
 
-                AstVarScope* const newvscp
+                AstVarScope* અચલ newvscp
                     = createVarScope(refp, portp, "__" + portp->shortName());
                 portp->user2p(newvscp);
-                if (!inlineTask) {
+                જો (!inlineTask) {
                     pinp->replaceWith(
-                        new AstVarRef{newvscp->fileline(), newvscp, VAccess::READWRITE});
-                    pushDeletep(pinp);  // Cloned by connectPortMakeInAssign
+                        નવું AstVarRef{newvscp->fileline(), newvscp, VAccess::READWRITE});
+                    ધકેલો_Deletep(pinp);  // Cloned by connectPortMakeInAssign
                 }
                 // Put input assignment in FRONT of all other statements
-                AstAssign* const preassp = connectPortMakeInAssign(pinp, newvscp, true);
+                AstAssign* અચલ preassp = connectPortMakeInAssign(pinp, newvscp, સાચું);
                 beginp->addNextHere(preassp);
 
-                AstAssign* const postassp = connectPortMakeOutAssign(portp, pinp, newvscp, true);
+                AstAssign* અચલ postassp = connectPortMakeOutAssign(portp, pinp, newvscp, સાચું);
                 beginp->addNext(postassp);
                 // if (debug() >= 9) beginp->dumpTreeAndNext(cout, "-pinrsize-out- ");
-            } else if (portp->isWritable()) {
+            } નહીંતર જો (portp->isWritable()) {
                 // Even if it's referencing a varref, we still make a temporary
                 // Else task(x,x,x) might produce incorrect results
-                AstVarScope* const newvscp
+                AstVarScope* અચલ newvscp
                     = createVarScope(refp, portp, "__" + portp->shortName());
                 portp->user2p(newvscp);
-                if (!inlineTask) {
-                    pinp->replaceWith(new AstVarRef{newvscp->fileline(), newvscp, VAccess::WRITE});
-                    pushDeletep(pinp);  // Cloned by connectPortMakeOutAssign
+                જો (!inlineTask) {
+                    pinp->replaceWith(નવું AstVarRef{newvscp->fileline(), newvscp, VAccess::WRITE});
+                    ધકેલો_Deletep(pinp);  // Cloned by connectPortMakeOutAssign
                 }
-                AstAssign* const postassp = connectPortMakeOutAssign(portp, pinp, newvscp, false);
+                AstAssign* અચલ postassp = connectPortMakeOutAssign(portp, pinp, newvscp, ખોટું);
                 // Put assignment BEHIND of all other statements
                 beginp->addNext(postassp);
-            } else if (inlineTask && portp->isNonOutput()) {
+            } નહીંતર જો (inlineTask && portp->isNonOutput()) {
                 // Make input variable
-                AstVarScope* const newvscp
+                AstVarScope* અચલ newvscp
                     = createVarScope(refp, portp, "__" + portp->shortName());
                 portp->user2p(newvscp);
-                AstAssign* const preassp = connectPortMakeInAssign(pinp, newvscp, false);
+                AstAssign* અચલ preassp = connectPortMakeInAssign(pinp, newvscp, ખોટું);
                 // Put assignment in FRONT of all other statements
                 beginp->addNextHere(preassp);
             }
         }
     }
 
-    bool hasRefArgument(AstNodeFTask* nodep) {
-        for (AstNode* stmtp = nodep->stmtsp(); stmtp; stmtp = stmtp->nextp()) {
-            if (AstVar* const varp = VN_CAST(stmtp, Var)) {
-                if (varp->isRef() || varp->isConstRef()) return true;
+    તાર્કિક hasRefArgument(Ast_ગાંઠ_FTask* nodep) {
+        માટે (Ast_ગાંઠ* stmtp = nodep->stmtsp(); stmtp; stmtp = stmtp->nextp()) {
+            જો (AstVar* અચલ varp = VN_CAST(stmtp, Var)) {
+                જો (varp->isRef() || varp->isConstRef()) પાછા સાચું;
             }
         }
-        return false;
+        પાછા ખોટું;
     }
 
-    AstNode* createInlinedFTask(AstNodeFTaskRef* refp, AstVarScope* outvscp) {
+    Ast_ગાંઠ* createInlinedFTask(Ast_ગાંઠ_FTask_Ref* refp, AstVarScope* outvscp) {
         // outvscp is the variable for functions only, if nullptr, it's a task
         UASSERT_OBJ(refp->taskp(), refp, "Unlinked?");
-        AstNode* const newbodysp
-            = refp->taskp()->stmtsp() ? refp->taskp()->stmtsp()->cloneTree(true) : nullptr;
-        AstNode* const beginp
-            = new AstComment{refp->fileline(), "Function: "s + refp->name(), true};
-        if (newbodysp) beginp->addNext(newbodysp);
-        if (debug() >= 9) beginp->dumpTreeAndNext(cout, "-  newbegi: ");
+        Ast_ગાંઠ* અચલ newbodysp
+            = refp->taskp()->stmtsp() ? refp->taskp()->stmtsp()->clone_વૃક્ષ(સાચું) : nullptr;
+        Ast_ગાંઠ* અચલ beginp
+            = નવું AstComment{refp->fileline(), "Function: "s + refp->name(), સાચું};
+        જો (newbodysp) beginp->addNext(newbodysp);
+        જો (debug() >= 9) beginp->dump_વૃક્ષ_And_Next(cout, "-  newbegi: ");
         //
         // Create input variables
-        AstNode::user2ClearTree();
+        Ast_ગાંઠ::user2_Clear_વૃક્ષ();
         {
-            const V3TaskConnects tconnects = V3Task::taskConnects(refp, beginp);
-            for (const auto& itr : tconnects) {
-                AstVar* const portp = itr.first;
-                AstArg* const argp = itr.second;
-                connectPort(refp, portp, argp, beginp, true);
+            અચલ V3TaskConnects tconnects = V3Task::taskConnects(refp, beginp);
+            માટે (અચલ auto& itr : tconnects) {
+                AstVar* અચલ portp = itr.first;
+                AstArg* અચલ argp = itr.second;
+                connectPort(refp, portp, argp, beginp, સાચું);
             }
         }
         UASSERT_OBJ(!refp->argsp(), refp, "Arg wasn't removed by above loop");
         {
-            AstNode* nextstmtp;
-            for (AstNode* stmtp = beginp; stmtp; stmtp = nextstmtp) {
+            Ast_ગાંઠ* nextstmtp;
+            માટે (Ast_ગાંઠ* stmtp = beginp; stmtp; stmtp = nextstmtp) {
                 nextstmtp = stmtp->nextp();
-                if (AstVar* const portp = VN_CAST(stmtp, Var)) {
+                જો (AstVar* અચલ portp = VN_CAST(stmtp, Var)) {
                     // Any I/O variables that fell out of above loop were already linked
-                    if (!portp->user2p()) {
+                    જો (!portp->user2p()) {
                         // Move it to a new localized variable
-                        AstVarScope* const localVscp
+                        AstVarScope* અચલ localVscp
                             = createVarScope(refp, portp, "__" + portp->shortName());
                         portp->user2p(localVscp);
-                        if (portp->needsCReset() && portp->lifetime().isAutomatic()
+                        જો (portp->needsCReset() && portp->lifetime().isAutomatic()
                             && !portp->valuep()) {
                             // Reset automatic var to its default, on each invocation of function
-                            AstNode* const crstp = new AstAssign{
+                            Ast_ગાંઠ* અચલ crstp = નવું AstAssign{
                                 portp->fileline(),
-                                new AstVarRef{portp->fileline(), portp, VAccess::WRITE},
-                                new AstCReset{portp->fileline(), portp, false}};
+                                નવું AstVarRef{portp->fileline(), portp, VAccess::WRITE},
+                                નવું AstCReset{portp->fileline(), portp, ખોટું}};
                             portp->replaceWith(crstp);
-                        } else {
+                        } નહીંતર {
                             portp->unlinkFrBack();
                         }
-                        pushDeletep(portp);  // Remove it from the clone (not original)
+                        ધકેલો_Deletep(portp);  // Remove it from the clone (not original)
                     }
                 }
             }
         }
         // Create function output variables
-        if (outvscp) {
+        જો (outvscp) {
             // UINFO(0, "setflag on " << funcp->fvarp() << " to " << outvscp);
             refp->taskp()->fvarp()->user2p(outvscp);
         }
         // Replace variable refs
         relink(beginp);
         //
-        if (debug() >= 9) beginp->dumpTreeAndNext(cout, "-  iotask: ");
-        return beginp;
+        જો (debug() >= 9) beginp->dump_વૃક્ષ_And_Next(cout, "-  iotask: ");
+        પાછા beginp;
     }
 
-    AstNode* createNonInlinedFTask(AstNodeFTaskRef* refp, AstVarScope* outvscp, AstCNew*& cnewpr) {
+    Ast_ગાંઠ* createNonInlinedFTask(Ast_ગાંઠ_FTask_Ref* refp, AstVarScope* outvscp, AstCNew*& cnewpr) {
         // outvscp is the variable for functions only, if nullptr, it's a task
         UASSERT_OBJ(refp->taskp(), refp, "Unlinked?");
-        AstCFunc* const cfuncp = m_statep->ftaskCFuncp(refp->taskp());
+        AstCFunc* અચલ cfuncp = m_statep->ftaskCFuncp(refp->taskp());
         UASSERT_OBJ(cfuncp, refp, "No non-inline task associated with this task call?");
         //
-        AstNode* const beginp
-            = new AstComment{refp->fileline(), "Function: "s + refp->name(), true};
-        AstNodeCCall* ccallp;
-        if (VN_IS(refp, New)) {
-            AstCNew* const cnewp = new AstCNew{refp->fileline(), cfuncp};
+        Ast_ગાંઠ* અચલ beginp
+            = નવું AstComment{refp->fileline(), "Function: "s + refp->name(), સાચું};
+        Ast_ગાંઠ_CCall* ccallp;
+        જો (VN_IS(refp, New)) {
+            AstCNew* અચલ cnewp = નવું AstCNew{refp->fileline(), cfuncp};
             cnewp->dtypep(refp->dtypep());
             ccallp = cnewp;
             // Parent AstNew will replace with this CNew
             cnewpr = cnewp;
-        } else if (const AstMethodCall* const mrefp = VN_CAST(refp, MethodCall)) {
-            ccallp = new AstCMethodCall{refp->fileline(), mrefp->fromp()->unlinkFrBack(), cfuncp};
+        } નહીંતર જો (અચલ AstMethodCall* અચલ mrefp = VN_CAST(refp, MethodCall)) {
+            ccallp = નવું AstCMethodCall{refp->fileline(), mrefp->fromp()->unlinkFrBack(), cfuncp};
             ccallp->dtypeSetVoid();
             beginp->addNext(ccallp->makeStmt());
-        } else {
-            ccallp = new AstCCall{refp->fileline(), cfuncp};
+        } નહીંતર {
+            ccallp = નવું AstCCall{refp->fileline(), cfuncp};
             ccallp->dtypeSetVoid();
             beginp->addNext(ccallp->makeStmt());
         }
 
-        if (const AstFuncRef* const funcRefp = VN_CAST(refp, FuncRef)) {
+        જો (અચલ AstFuncRef* અચલ funcRefp = VN_CAST(refp, FuncRef)) {
             ccallp->superReference(funcRefp->superReference());
-        } else if (const AstTaskRef* const taskRefp = VN_CAST(refp, TaskRef)) {
+        } નહીંતર જો (અચલ AstTaskRef* અચલ taskRefp = VN_CAST(refp, TaskRef)) {
             ccallp->superReference(taskRefp->superReference());
-        } else if (const AstMethodCall* const methodCallp = VN_CAST(refp, MethodCall)) {
+        } નહીંતર જો (અચલ AstMethodCall* અચલ methodCallp = VN_CAST(refp, MethodCall)) {
             ccallp->superReference(methodCallp->superReference());
         }
 
         // Convert complicated outputs to temp signals
         {
-            const V3TaskConnects tconnects = V3Task::taskConnects(refp, refp->taskp()->stmtsp());
-            for (const auto& itr : tconnects) {
-                AstVar* const portp = itr.first;
-                AstArg* const argp = itr.second;
-                connectPort(refp, portp, argp, beginp, false);
+            અચલ V3TaskConnects tconnects = V3Task::taskConnects(refp, refp->taskp()->stmtsp());
+            માટે (અચલ auto& itr : tconnects) {
+                AstVar* અચલ portp = itr.first;
+                AstArg* અચલ argp = itr.second;
+                connectPort(refp, portp, argp, beginp, ખોટું);
             }
         }
         // First argument is symbol table, then output if a function
-        const bool needSyms = !refp->taskp()->dpiImport() || v3Global.opt.profExec();
-        if (needSyms) ccallp->argTypes("vlSymsp");
+        અચલ તાર્કિક needSyms = !refp->taskp()->dpiImport() || v3Global.opt.profExec();
+        જો (needSyms) ccallp->argTypes("vlSymsp");
 
-        if (refp->taskp()->dpiContext()) {
-            AstScopeName* const snp = refp->scopeNamep();
+        જો (refp->taskp()->dpiContext()) {
+            AstScopeName* અચલ snp = refp->scopeNamep();
             UASSERT_OBJ(snp, refp, "Missing scoping context");
             snp->unlinkFrBack();
-            FileLine* const flp = refp->fileline();
+            File_લીટી* અચલ flp = refp->fileline();
             // __Vscopep
             ccallp->addArgsp(snp);
             // __Vfilenamep
             ccallp->addArgsp(
-                new AstCExpr{flp, AstCExpr::Pure{}, "\"" + flp->filenameEsc() + "\"", 64});
+                નવું AstCExpr{flp, AstCExpr::Pure{}, "\"" + flp->filenameEsc() + "\"", 64});
             // __Vlineno
-            ccallp->addArgsp(new AstConst(flp, flp->lineno()));
+            ccallp->addArgsp(નવું AstConst(flp, flp->lineno()));
         }
 
         // Move artument expression to the CCall, without AstArg
-        for (AstArg *argp = refp->argsp(), *nextp; argp; argp = nextp) {
+        માટે (AstArg *argp = refp->argsp(), *nextp; argp; argp = nextp) {
             nextp = VN_AS(argp->nextp(), Arg);
             ccallp->addArgsp(argp->exprp()->unlinkFrBack());
         }
 
-        if (outvscp) ccallp->addArgsp(new AstVarRef{refp->fileline(), outvscp, VAccess::WRITE});
+        જો (outvscp) ccallp->addArgsp(નવું AstVarRef{refp->fileline(), outvscp, VAccess::WRITE});
 
-        if (debug() >= 9) beginp->dumpTreeAndNext(cout, "-  nitask: ");
-        return beginp;
+        જો (debug() >= 9) beginp->dump_વૃક્ષ_And_Next(cout, "-  nitask: ");
+        પાછા beginp;
     }
 
-    string dpiSignature(AstNodeFTask* nodep, AstVar* rtnvarp) const {
+    string dpiSignature(Ast_ગાંઠ_FTask* nodep, AstVar* rtnvarp) અચલ {
         // Return fancy signature for DPI function. Variable names are not included so differences
         // in only argument names will not matter (as required by the standard).
         string dpiproto;
-        if (nodep->dpiPure()) dpiproto += "pure ";
-        if (nodep->dpiContext()) dpiproto += "context ";
-        dpiproto += rtnvarp ? rtnvarp->dpiArgType(true, true) : "void";
+        જો (nodep->dpiPure()) dpiproto += "pure ";
+        જો (nodep->dpiContext()) dpiproto += "context ";
+        dpiproto += rtnvarp ? rtnvarp->dpiArgType(સાચું, સાચું) : "void";
         dpiproto += " " + nodep->cname() + " (";
         string args;
-        for (AstNode* stmtp = nodep->stmtsp(); stmtp; stmtp = stmtp->nextp()) {
-            if (const AstVar* const portp = VN_CAST(stmtp, Var)) {
-                if (portp->isIO() && !portp->isFuncReturn() && portp != rtnvarp) {
-                    if (args != "") {
+        માટે (Ast_ગાંઠ* stmtp = nodep->stmtsp(); stmtp; stmtp = stmtp->nextp()) {
+            જો (અચલ AstVar* અચલ portp = VN_CAST(stmtp, Var)) {
+                જો (portp->isIO() && !portp->isFuncReturn() && portp != rtnvarp) {
+                    જો (args != "") {
                         args += ", ";
                         dpiproto += ", ";
                     }
@@ -856,12 +856,12 @@ class TaskVisitor final : public VNVisitor {
                     // differ we may get C compilation problems later. An unpacked structure
                     // has one layout per C name (checkDpiStructArgs), so its C name and
                     // elements suffice, as e.g. specializations differ only in Verilator names.
-                    const std::string dpiType = portp->dpiArgType(false, false);
+                    અચલ std::string dpiType = portp->dpiArgType(ખોટું, ખોટું);
                     dpiproto += dpiType;
-                    const std::string vType = portp->dtypep()->containsUnpackedStruct()
+                    અચલ std::string vType = portp->dtypep()->containsUnpackedStruct()
                                                   ? portp->dpiTmpVarType("")
-                                                  : portp->dtypep()->prettyDTypeName(false);
-                    if (!portp->isDpiOpenArray() && dpiType != vType) {
+                                                  : portp->dtypep()->prettyDTypeName(ખોટું);
+                    જો (!portp->isDpiOpenArray() && dpiType != vType) {
                         dpiproto += " /* " + vType + " */ ";
                     }
                     args += portp->name();  // Leftover so ,'s look nice
@@ -869,181 +869,181 @@ class TaskVisitor final : public VNVisitor {
             }
         }
         dpiproto += ")";
-        return dpiproto;
+        પાછા dpiproto;
     }
 
-    static void checkLegalCIdentifier(AstNode* nodep, const string& name) {
-        if (name.end() != std::find_if(name.begin(), name.end(), [](char c) {
-                return !std::isalnum(c) && c != '_';
+    સ્થિર શૂન્ય checkLegalCIdentifier(Ast_ગાંઠ* nodep, અચલ string& name) {
+        જો (name.end() != std::find_if(name.begin(), name.end(), [](અક્ષર c) {
+                પાછા !std::isalnum(c) && c != '_';
             })) {
             nodep->v3error("DPI function has illegal characters in C identifier name '" << name
                                                                                         << '\'');
         }
     }
 
-    static AstNode* createDpiTemp(AstVar* portp, const string& suffix) {
-        const string stmt = portp->dpiTmpVarType(portp->name() + suffix) + ";";
-        return new AstCStmt{portp->fileline(), stmt};
+    સ્થિર Ast_ગાંઠ* createDpiTemp(AstVar* portp, અચલ string& suffix) {
+        અચલ string stmt = portp->dpiTmpVarType(portp->name() + suffix) + ";";
+        પાછા નવું AstCStmt{portp->fileline(), stmt};
     }
 
-    void unlinkAndClone(AstNodeFTask* funcp, AstNode* nodep, bool withNext) {
+    શૂન્ય unlinkAndClone(Ast_ગાંઠ_FTask* funcp, Ast_ગાંઠ* nodep, તાર્કિક withNext) {
         UASSERT_OBJ(nodep, funcp, "null in function object clone");
-        if (funcp->recursive()) {
+        જો (funcp->recursive()) {
             VNRelinker relinkHandle;
-            if (withNext) {
+            જો (withNext) {
                 nodep->unlinkFrBackWithNext(&relinkHandle);
-            } else {
+            } નહીંતર {
                 nodep->unlinkFrBack(&relinkHandle);
             }
             // Recursive functions require the original argument list to
             // still be live for linking purposes.
             // The old function gets clone, so that node pointers are mostly
             // retained through the V3Task transformations
-            AstNode* const newp = nodep->cloneTree(withNext);
+            Ast_ગાંઠ* અચલ newp = nodep->clone_વૃક્ષ(withNext);
             relinkHandle.relink(newp);
-        } else {
-            if (withNext) {
+        } નહીંતર {
+            જો (withNext) {
                 nodep->unlinkFrBackWithNext();
-            } else {
+            } નહીંતર {
                 nodep->unlinkFrBack();
             }
         }
     }
 
-    static AstNode* createAssignInternalToDpi(AstVar* portp, bool isPtr, const string& frSuffix,
-                                              const string& toSuffix) {
-        const string stmt = V3Task::assignInternalToDpi(portp, isPtr, frSuffix, toSuffix);
-        return new AstCStmt{portp->fileline(), stmt};
+    સ્થિર Ast_ગાંઠ* createAssignInternalToDpi(AstVar* portp, તાર્કિક isPtr, અચલ string& frSuffix,
+                                              અચલ string& toSuffix) {
+        અચલ string stmt = V3Task::assignInternalToDpi(portp, isPtr, frSuffix, toSuffix);
+        પાછા નવું AstCStmt{portp->fileline(), stmt};
     }
 
     // Create statement converting between 'internalp' and the DPI C expression 'dpi' of type
     // 'dtypep', neither an unpacked array nor an unpacked structure, to DPI if 'toDpi', else from
     // DPI. If the DPI type is svBitVecVal/svLogicVecVal, 'dpi' is a pointer to the value.
-    static AstNodeStmt* createDpiScalarCvt(AstNodeExpr* internalp, const std::string& dpi,
-                                           const AstNodeDType* dtypep, bool toDpi) {
-        FileLine* const flp = internalp->fileline();
-        const AstBasicDType* const basicp = dtypep->basicp();
-        if (toDpi) {
-            AstCStmt* const cstmtp = new AstCStmt{flp};
-            if (basicp->isDpiPrimitive()) {
+    સ્થિર Ast_ગાંઠ_Stmt* createDpiScalarCvt(Ast_ગાંઠ_પદાવલિ* internalp, અચલ std::string& dpi,
+                                           અચલ Ast_ગાંઠ_DType* dtypep, તાર્કિક toDpi) {
+        File_લીટી* અચલ flp = internalp->fileline();
+        અચલ AstBasicDType* અચલ basicp = dtypep->basicp();
+        જો (toDpi) {
+            AstCStmt* અચલ cstmtp = નવું AstCStmt{flp};
+            જો (basicp->isDpiPrimitive()) {
                 cstmtp->add(dpi + (basicp->isCHandle() ? " = VL_CVT_Q_VP(" : " = "));
                 cstmtp->add(internalp);
                 cstmtp->add(basicp->isCHandle() ? ");" : basicp->isString() ? ".c_str();" : ";");
-            } else {
+            } નહીંતર {
                 cstmtp->add((basicp->isDpiBitVec() ? "VL_SET_SVBV_"s : "VL_SET_SVLV_"s)
                             + dtypep->skipRefp()->charIQWN() + "("
                             + std::to_string(dtypep->width()) + ", " + dpi + ", ");
                 cstmtp->add(internalp);
                 cstmtp->add(");");
             }
-            return cstmtp;
+            પાછા cstmtp;
         }
         std::string cvt;
-        bool useSvVec;
+        તાર્કિક useSvVec;
         std::tie(cvt, useSvVec) = TaskDpiUtils::dpiToInternalCvtStmt(dtypep);
-        if (useSvVec) {
-            AstCStmt* const cstmtp = new AstCStmt{flp};
+        જો (useSvVec) {
+            AstCStmt* અચલ cstmtp = નવું AstCStmt{flp};
             cstmtp->add(cvt);
             cstmtp->add(internalp);
             cstmtp->add(", " + dpi + ");");
-            return cstmtp;
+            પાછા cstmtp;
         }
         // Number of bits in the C expression result, for masking.
-        const int cwidth = basicp->widthWords() * VL_EDATASIZE;
-        AstNodeExpr* const rhsp = new AstCExpr{flp, cvt + dpi + ")", cwidth};
-        return new AstAssign{flp, internalp, new AstSel{flp, rhsp, 0, dtypep->width()}};
+        અચલ પૂર્ણાંક cwidth = basicp->width_શબ્દો() * VL_EDATASIZE;
+        Ast_ગાંઠ_પદાવલિ* અચલ rhsp = નવું AstCExpr{flp, cvt + dpi + ")", cwidth};
+        પાછા નવું AstAssign{flp, internalp, નવું AstSel{flp, rhsp, 0, dtypep->width()}};
     }
 
     // Create statements converting between 'internalp' and the DPI C expression 'dpi' of type
     // 'dtypep'. Unpacked arrays and unpacked structures are converted by their elements and
     // members, as DPI passes them as C arrays and C structures (IEEE 1800-2023 H.7.3).
-    static AstNodeStmt* createDpiCvt(AstNodeExpr* internalp, const std::string& dpi,
-                                     const AstNodeDType* dtypep, bool toDpi) {
-        FileLine* const flp = internalp->fileline();
+    સ્થિર Ast_ગાંઠ_Stmt* createDpiCvt(Ast_ગાંઠ_પદાવલિ* internalp, અચલ std::string& dpi,
+                                     અચલ Ast_ગાંઠ_DType* dtypep, તાર્કિક toDpi) {
+        File_લીટી* અચલ flp = internalp->fileline();
         dtypep = dtypep->skipRefp();
-        AstNodeStmt* stmtsp = nullptr;
-        if (const AstUnpackArrayDType* const arrayp = VN_CAST(dtypep, UnpackArrayDType)) {
+        Ast_ગાંઠ_Stmt* stmtsp = nullptr;
+        જો (અચલ AstUnpackArrayDType* અચલ arrayp = VN_CAST(dtypep, UnpackArrayDType)) {
             // Internal index 0 is of the lowest SystemVerilog index, as C index 0 is
-            for (int i = 0; i < arrayp->elementsConst(); ++i) {
-                AstNodeExpr* const elemp = new AstArraySel{flp, internalp->cloneTree(false), i};
-                stmtsp = AstNode::addNext(stmtsp,
+            માટે (પૂર્ણાંક i = 0; i < arrayp->elementsConst(); ++i) {
+                Ast_ગાંઠ_પદાવલિ* અચલ elemp = નવું AstArraySel{flp, internalp->clone_વૃક્ષ(ખોટું), i};
+                stmtsp = Ast_ગાંઠ::addNext(stmtsp,
                                           createDpiCvt(elemp, dpi + "[" + std::to_string(i) + "]",
                                                        arrayp->subDTypep(), toDpi));
             }
-        } else if (dtypep->containsUnpackedStruct()) {
-            for (const AstMemberDType* itemp = VN_AS(dtypep, StructDType)->membersp(); itemp;
+        } નહીંતર જો (dtypep->containsUnpackedStruct()) {
+            માટે (અચલ AstMemberDType* itemp = VN_AS(dtypep, StructDType)->membersp(); itemp;
                  itemp = VN_AS(itemp->nextp(), MemberDType)) {
-                AstStructSel* const selp
-                    = new AstStructSel{flp, internalp->cloneTree(false), itemp->name()};
+                AstStructSel* અચલ selp
+                    = નવું AstStructSel{flp, internalp->clone_વૃક્ષ(ખોટું), itemp->name()};
                 selp->dtypeFrom(itemp->dtypep());
                 stmtsp
-                    = AstNode::addNext(stmtsp, createDpiCvt(selp, dpi + "." + itemp->prettyName(),
+                    = Ast_ગાંઠ::addNext(stmtsp, createDpiCvt(selp, dpi + "." + itemp->prettyName(),
                                                             itemp->subDTypep(), toDpi));
             }
-        } else {
-            return createDpiScalarCvt(internalp, dpi, dtypep, toDpi);
+        } નહીંતર {
+            પાછા createDpiScalarCvt(internalp, dpi, dtypep, toDpi);
         }
-        VL_DO_DANGLING(internalp->deleteTree(), internalp);
-        return stmtsp;
+        VL_DO_DANGLING(internalp->delete_વૃક્ષ(), internalp);
+        પાછા stmtsp;
     }
 
     // Create statements converting between the internal variable 'vscp' and the DPI temporary or
     // argument 'dpiName'. Converts to DPI if 'toDpi', else from DPI. Internal representation is
     // scalar, 1D, or multi-dimensional array (similar to SV). DPI value is scalar or 1D array (if
     // unpacked array), always an array if of unpacked structures, as passed by reference.
-    static AstNodeStmt* createDpiArgCvt(AstVarScope* vscp, const std::string& dpiName,
-                                        bool toDpi) {
-        AstVar* const varp = vscp->varp();
-        FileLine* const flp = vscp->fileline();
-        const std::vector<std::pair<int, int>> strides = TaskDpiUtils::unpackDimsAndStrides(varp);
+    સ્થિર Ast_ગાંઠ_Stmt* createDpiArgCvt(AstVarScope* vscp, અચલ std::string& dpiName,
+                                        તાર્કિક toDpi) {
+        AstVar* અચલ varp = vscp->varp();
+        File_લીટી* અચલ flp = vscp->fileline();
+        અચલ std::vector<std::pair<પૂર્ણાંક, પૂર્ણાંક>> strides = TaskDpiUtils::unpackDimsAndStrides(varp);
         // Total number of elements in unpacked array
-        const int total = strides.empty() ? 1 : strides[0].first * strides[0].second;
-        const bool isStruct = varp->dtypep()->containsUnpackedStruct();
-        const AstNodeDType* const elemDTypep = varp->dtypep()->elemDTypep();
+        અચલ પૂર્ણાંક total = strides.empty() ? 1 : strides[0].first * strides[0].second;
+        અચલ તાર્કિક isStruct = varp->dtypep()->containsUnpackedStruct();
+        અચલ Ast_ગાંઠ_DType* અચલ elemDTypep = varp->dtypep()->elemDTypep();
         // The resulting list of statements
-        AstNodeStmt* stmtsp = nullptr;
-        for (int i = 0; i < total; ++i) {
-            AstNodeExpr* internalp
-                = new AstVarRef{flp, vscp, toDpi ? VAccess::READ : VAccess::WRITE};
+        Ast_ગાંઠ_Stmt* stmtsp = nullptr;
+        માટે (પૂર્ણાંક i = 0; i < total; ++i) {
+            Ast_ગાંઠ_પદાવલિ* internalp
+                = નવું AstVarRef{flp, vscp, toDpi ? VAccess::READ : VAccess::WRITE};
 
             // Extract a scalar from multi-dimensional array (internal format)
-            for (const auto& stride : strides) {
-                internalp = new AstArraySel(flp, internalp, (i / stride.second) % stride.first);
+            માટે (અચલ auto& stride : strides) {
+                internalp = નવું AstArraySel(flp, internalp, (i / stride.second) % stride.first);
             }
 
             // Extract a scalar from DPI temporary var that is scalar or 1D array
             std::string dpi = dpiName;
-            if (!isStruct && !varp->basicp()->isDpiPrimitive()) {
-                dpi += " + " + std::to_string(i * varp->basicp()->widthWords());
-            } else if (isStruct || !strides.empty()) {
+            જો (!isStruct && !varp->basicp()->isDpiPrimitive()) {
+                dpi += " + " + std::to_string(i * varp->basicp()->width_શબ્દો());
+            } નહીંતર જો (isStruct || !strides.empty()) {
                 dpi += "[" + std::to_string(i) + "]";
             }
-            stmtsp = AstNode::addNext(stmtsp, createDpiCvt(internalp, dpi, elemDTypep, toDpi));
+            stmtsp = Ast_ગાંઠ::addNext(stmtsp, createDpiCvt(internalp, dpi, elemDTypep, toDpi));
         }
-        return stmtsp;
+        પાછા stmtsp;
     }
 
     // Create dispatch wrapper
-    AstCFunc* makeDpiExportDispatcher(AstNodeFTask* const nodep, AstVar* const rtnvarp) {
+    AstCFunc* makeDpiExportDispatcher(Ast_ગાંઠ_FTask* અચલ nodep, AstVar* અચલ rtnvarp) {
         // Verilog name has __ conversion and other tricks, to match DPI C code, back that out
-        FileLine* const flp = nodep->fileline();
-        const std::string cname = AstNode::prettyName(nodep->cname());
+        File_લીટી* અચલ flp = nodep->fileline();
+        અચલ std::string cname = Ast_ગાંઠ::prettyName(nodep->cname());
         checkLegalCIdentifier(nodep, cname);
-        const char* const tmpSuffixp = V3Task::dpiTemporaryVarSuffix();
-        const std::string rtnType = rtnvarp ? rtnvarp->dpiArgType(true, true) : "";
+        અચલ અક્ષર* અચલ tmpSuffixp = V3Task::dpiTemporaryVarSuffix();
+        અચલ std::string rtnType = rtnvarp ? rtnvarp->dpiArgType(સાચું, સાચું) : "";
         // The function we are building
-        AstCFunc* const funcp = new AstCFunc{flp, cname, m_scopep, rtnType};
-        funcp->dpiExportDispatcher(true);
+        AstCFunc* અચલ funcp = નવું AstCFunc{flp, cname, m_scopep, rtnType};
+        funcp->dpiExportDispatcher(સાચું);
         funcp->dpiContext(nodep->dpiContext());
-        funcp->dontCombine(true);
-        funcp->entryPoint(true);
-        funcp->isStatic(true);
-        funcp->protect(false);
+        funcp->dontCombine(સાચું);
+        funcp->entryPoint(સાચું);
+        funcp->isStatic(સાચું);
+        funcp->protect(ખોટું);
         funcp->cname(cname);
         // Add DPI Export to top, since it's a global function
-        m_topScopep->scopep()->addBlocksp(funcp);
+        m_ટોચ_Scopep->scopep()->addBlocksp(funcp);
         // Check the arguments before converting them
-        if (!makePortList(nodep, funcp)) return nullptr;
+        જો (!makePortList(nodep, funcp)) પાછા nullptr;
 
         // Note this function may dispatch on a different class.
         // Thus we need to be careful not to assume a particular function layout.
@@ -1056,7 +1056,7 @@ class TaskVisitor final : public VNVisitor {
         // it's not worth optimizing.
 
         // Peramble - fetch the exproted function from the scope table
-        AstCStmt* const prep = new AstCStmt{flp};
+        AstCStmt* અચલ prep = નવું AstCStmt{flp};
         funcp->addStmtsp(prep);
         // Static doesn't need save-restore as if below will re-fill proper value
         prep->add("static int __Vfuncnum = -1;\n");
@@ -1068,124 +1068,124 @@ class TaskVisitor final : public VNVisitor {
         prep->add("const VerilatedScope* const __Vscopep = Verilated::dpiScope();\n");
         // If 'dpiScope()' fails and '__Vscopep' is null; the exportFind function throws an error
         // If __Vcb is null the exportFind function throws and error
-        const std::string cbtype
+        અચલ std::string cbtype
             = VIdProtect::protect(v3Global.opt.prefix() + "__Vcb_" + nodep->cname() + "_t");
         prep->add(cbtype + " __Vcb = reinterpret_cast<" + cbtype
                   + ">(VerilatedScope::exportFind(__Vscopep, __Vfuncnum));");
 
         // Convert input/inout DPI arguments to Internal types, and construct the call
-        AstCStmt* const callp = new AstCStmt{flp};
-        const auto addFuncArg = [&](AstVar* portp) -> AstVarScope* {
+        AstCStmt* અચલ callp = નવું AstCStmt{flp};
+        અચલ auto addFuncArg = [&](AstVar* portp) -> AstVarScope* {
             // No createDpiTemp; we make a real internal variable instead
-            AstVarScope* const vscp = createFuncVar(funcp, portp->name() + tmpSuffixp, portp);
+            AstVarScope* અચલ vscp = createFuncVar(funcp, portp->name() + tmpSuffixp, portp);
             // No information exposure; is already visible in import/export func template
-            vscp->varp()->protect(false);
-            portp->protect(false);
+            vscp->varp()->protect(ખોટું);
+            portp->protect(ખોટું);
             // Add argument to call
-            const VAccess access = portp->direction().pinAccess();
+            અચલ VAccess access = portp->direction().pinAccess();
             callp->add(", ");
-            callp->add(new AstVarRef{portp->fileline(), vscp, access});
-            return vscp;
+            callp->add(નવું AstVarRef{portp->fileline(), vscp, access});
+            પાછા vscp;
         };
         // Call callback
         callp->add("(*__Vcb)(");
         // First argument is the Syms
         callp->add("(" + EmitCUtil::symClassName() + "*)(__Vscopep->symsp())");
         // Add function arguments
-        AstNode* outCvtsp = nullptr;  // Conversions of output/inout arguments, after the call
-        for (AstNode* stmtp = nodep->stmtsp(); stmtp; stmtp = stmtp->nextp()) {
-            AstVar* const portp = VN_CAST(stmtp, Var);
-            if (!portp) continue;
-            if (!portp->isIO()) continue;
-            if (portp->isFuncReturn()) continue;
-            if (portp == rtnvarp) continue;  // Handled below
+        Ast_ગાંઠ* outCvtsp = nullptr;  // Conversions of output/inout arguments, after the call
+        માટે (Ast_ગાંઠ* stmtp = nodep->stmtsp(); stmtp; stmtp = stmtp->nextp()) {
+            AstVar* અચલ portp = VN_CAST(stmtp, Var);
+            જો (!portp) ચાલુ;
+            જો (!portp->isIO()) ચાલુ;
+            જો (portp->isFuncReturn()) ચાલુ;
+            જો (portp == rtnvarp) ચાલુ;  // Handled below
             // Add argument to call
-            AstVarScope* const outvscp = addFuncArg(portp);
-            const bool isStruct = portp->dtypep()->containsUnpackedStruct();
-            if (portp->isWritable()) {
-                outCvtsp = AstNode::addNext(
-                    outCvtsp, isStruct ? createDpiArgCvt(outvscp, portp->name(), true)
-                                       : createAssignInternalToDpi(portp, true, tmpSuffixp, ""));
+            AstVarScope* અચલ outvscp = addFuncArg(portp);
+            અચલ તાર્કિક isStruct = portp->dtypep()->containsUnpackedStruct();
+            જો (portp->isWritable()) {
+                outCvtsp = Ast_ગાંઠ::addNext(
+                    outCvtsp, isStruct ? createDpiArgCvt(outvscp, portp->name(), સાચું)
+                                       : createAssignInternalToDpi(portp, સાચું, tmpSuffixp, ""));
             }
-            if (!portp->isNonOutput()) continue;
+            જો (!portp->isNonOutput()) ચાલુ;
             // Convert input/inout arguments to dpi type
-            const std::string deref
+            અચલ std::string deref
                 = portp->isInout() && !isStruct  //
                           && portp->basicp()->isDpiPrimitive()  //
-                          && portp->dtypep()->skipRefp()->dimensions(false).second == 0
+                          && portp->dtypep()->skipRefp()->dimensions(ખોટું).second == 0
                       ? "*"
                       : "";
-            funcp->addStmtsp(createDpiArgCvt(outvscp, deref + portp->name(), false));
+            funcp->addStmtsp(createDpiArgCvt(outvscp, deref + portp->name(), ખોટું));
         }
         // Return value argument goes last
-        if (rtnvarp) addFuncArg(rtnvarp);
+        જો (rtnvarp) addFuncArg(rtnvarp);
         // Close statement
         callp->add(");");
         // Call the user function
         funcp->addStmtsp(callp);
         // Convert output/inout arguments back to internal type
-        if (outCvtsp) funcp->addStmtsp(outCvtsp);
+        જો (outCvtsp) funcp->addStmtsp(outCvtsp);
         // Convert return value
-        if (rtnvarp) {
+        જો (rtnvarp) {
             funcp->addStmtsp(createDpiTemp(rtnvarp, ""));
-            funcp->addStmtsp(createAssignInternalToDpi(rtnvarp, false, tmpSuffixp, ""));
-            const std::string index = rtnvarp->basicp()->isDpiPrimitive() ? "" : "[0]";
-            funcp->addStmtsp(new AstCStmt{flp, "return " + rtnvarp->name() + index + ";"});
+            funcp->addStmtsp(createAssignInternalToDpi(rtnvarp, ખોટું, tmpSuffixp, ""));
+            અચલ std::string index = rtnvarp->basicp()->isDpiPrimitive() ? "" : "[0]";
+            funcp->addStmtsp(નવું AstCStmt{flp, "return " + rtnvarp->name() + index + ";"});
         }
-        return funcp;
+        પાછા funcp;
     }
 
-    AstCFunc* makeDpiImportPrototype(AstNodeFTask* nodep, AstVar* rtnvarp) {
+    AstCFunc* makeDpiImportPrototype(Ast_ગાંઠ_FTask* nodep, AstVar* rtnvarp) {
         // Verilog name has __ conversion and other tricks, to match DPI C code, back that out
-        const string name = AstNode::prettyName(nodep->cname());
+        અચલ string name = Ast_ગાંઠ::prettyName(nodep->cname());
         checkLegalCIdentifier(nodep, name);
         // Tasks (but not void functions) return a boolean 'int' indicating disabled
-        const string rtnType = rtnvarp            ? rtnvarp->dpiArgType(true, true)
+        અચલ string rtnType = rtnvarp            ? rtnvarp->dpiArgType(સાચું, સાચું)
                                : nodep->dpiTask() ? "int"
                                                   : "";
-        AstCFunc* const funcp = new AstCFunc{nodep->fileline(), name, m_scopep, rtnType};
+        AstCFunc* અચલ funcp = નવું AstCFunc{nodep->fileline(), name, m_scopep, rtnType};
         funcp->dpiContext(nodep->dpiContext());
-        funcp->dpiImportPrototype(true);
-        funcp->dontCombine(true);
-        funcp->entryPoint(false);
-        funcp->isMethod(false);
-        funcp->protect(false);
+        funcp->dpiImportPrototype(સાચું);
+        funcp->dontCombine(સાચું);
+        funcp->entryPoint(ખોટું);
+        funcp->isMethod(ખોટું);
+        funcp->protect(ખોટું);
         funcp->dpiPure(nodep->dpiPure());
 
-        const int cost = static_cast<int>(V3Control::getProfileData(funcp->name()));
+        અચલ પૂર્ણાંક cost = static_cast<પૂર્ણાંક>(V3Control::getProfileData(funcp->name()));
         m_statHierDpisWithCosts += (cost != 0);
         funcp->cost(cost);
 
         // Add DPI Import to top, since it's a global function
-        m_topScopep->scopep()->addBlocksp(funcp);
+        m_ટોચ_Scopep->scopep()->addBlocksp(funcp);
         funcp->dpiCDecl(nodep->dpiCDecl());
-        if (!makePortList(nodep, funcp)) return nullptr;
-        return funcp;
+        જો (!makePortList(nodep, funcp)) પાછા nullptr;
+        પાછા funcp;
     }
 
-    AstCFunc* getDpiFunc(AstNodeFTask* nodep, AstVar* rtnvarp) {
+    AstCFunc* getDpiFunc(Ast_ગાંઠ_FTask* nodep, AstVar* rtnvarp) {
         UASSERT_OBJ(nodep->dpiImport() || nodep->dpiExport(), nodep, "Not a DPI function");
         // Compute unique signature of this DPI function
-        const string signature = dpiSignature(nodep, rtnvarp);
+        અચલ string signature = dpiSignature(nodep, rtnvarp);
         // Only create one DPI Import prototype or DPI Export entry point for each unique cname as
         // it is illegal for the user to attach multiple tasks with different signatures to one DPI
         // cname.
-        const auto pair = m_dpiNames.emplace(std::piecewise_construct,  //
+        અચલ auto pair = m_dpiNames.emplace(std::piecewise_construct,  //
                                              std::forward_as_tuple(nodep->cname()),
                                              std::forward_as_tuple(nodep, signature, nullptr));
-        if (pair.second) {
+        જો (pair.second) {
             // First time encountering this cname. Create Import prototype / Export entry point
-            AstCFunc* const funcp = nodep->dpiExport() ? makeDpiExportDispatcher(nodep, rtnvarp)
+            AstCFunc* અચલ funcp = nodep->dpiExport() ? makeDpiExportDispatcher(nodep, rtnvarp)
                                                        : makeDpiImportPrototype(nodep, rtnvarp);
             std::get<2>(pair.first->second) = funcp;
-            return funcp;
-        } else {
+            પાછા funcp;
+        } નહીંતર {
             // Seen this cname import before. Check if it's the same prototype.
-            const AstNodeFTask* firstNodep;
+            અચલ Ast_ગાંઠ_FTask* firstNodep;
             string firstSignature;
             AstCFunc* firstFuncp;
             std::tie(firstNodep, firstSignature, firstFuncp) = pair.first->second;
-            if (signature != firstSignature) {
+            જો (signature != firstSignature) {
                 // Different signature, so error.
                 nodep->v3error("Duplicate declaration of DPI function with different signature: '"
                                << nodep->cname() << "'\n"
@@ -1195,27 +1195,27 @@ class TaskVisitor final : public VNVisitor {
                                << firstNodep->warnOther()
                                << "... Original signature: " << firstSignature << '\n'  //
                                << firstNodep->warnContextSecondary());
-                return nullptr;
-            } else {
+                પાછા nullptr;
+            } નહીંતર {
                 // Same signature, return the previously created CFunc
-                return firstFuncp;
+                પાછા firstFuncp;
             }
         }
     }
 
-    static bool makePortList(AstNodeFTask* nodep, AstCFunc* dpip) {
-        bool allOk = true;
+    સ્થિર તાર્કિક makePortList(Ast_ગાંઠ_FTask* nodep, AstCFunc* dpip) {
+        તાર્કિક allOk = સાચું;
         // Copy nodep's list of function I/O to the new dpip c function
-        for (AstNode* stmtp = nodep->stmtsp(); stmtp; stmtp = stmtp->nextp()) {
-            if (AstVar* const portp = VN_CAST(stmtp, Var)) {
-                if (portp->isIO()) {
+        માટે (Ast_ગાંઠ* stmtp = nodep->stmtsp(); stmtp; stmtp = stmtp->nextp()) {
+            જો (AstVar* અચલ portp = VN_CAST(stmtp, Var)) {
+                જો (portp->isIO()) {
                     // Move it to new function
-                    AstVar* const newPortp = portp->cloneTree(false);
-                    newPortp->funcLocal(true);
+                    AstVar* અચલ newPortp = portp->clone_વૃક્ષ(ખોટું);
+                    newPortp->funcLocal(સાચું);
                     dpip->addArgsp(newPortp);
                     // Unpacked structures were checked by checkDpiStruct
-                    if (!portp->basicp() && !portp->dtypep()->containsUnpackedStruct()) {
-                        allOk = false;
+                    જો (!portp->basicp() && !portp->dtypep()->containsUnpackedStruct()) {
+                        allOk = ખોટું;
                         portp->v3warn(
                             E_UNSUPPORTED,
                             "Unsupported: DPI argument of type "
@@ -1228,65 +1228,65 @@ class TaskVisitor final : public VNVisitor {
                 }
             }
         }
-        return allOk;
+        પાછા allOk;
     }
 
     // Whether C code, and the C++ Verilator generates, can use 'name' as an identifier
-    static bool isDpiCIdentifier(const string& name) {
-        return !name.empty() && VString::isIdentifier(name)
+    સ્થિર તાર્કિક isDpiCIdentifier(અચલ string& name) {
+        પાછા !name.empty() && VString::isIdentifier(name)
                && !std::isdigit(name[0])
                // C reserves names beginning with '__', or '_' and an uppercase letter
                && !(name[0] == '_' && (name[1] == '_' || std::isupper(name[1])))
-               && V3LanguageWords::isKeyword(name).empty();
+               && V3_Language_શબ્દો::isKeyword(name).empty();
     }
 
     // Check DPI can pass the unpacked structure 'sdtypep' of argument 'portp', else report.
     // If 'nested' in another structure, it may be anonymous, as declared where used.
-    bool checkDpiStruct(const AstVar* portp, const AstStructDType* sdtypep, bool nested) {
-        const std::string name = sdtypep->dpiName();
-        if (!(nested && name.empty()) && !isDpiCIdentifier(name)) {
+    તાર્કિક checkDpiStruct(અચલ AstVar* portp, અચલ AstStructDType* sdtypep, તાર્કિક nested) {
+        અચલ std::string name = sdtypep->dpiName();
+        જો (!(nested && name.empty()) && !isDpiCIdentifier(name)) {
             portp->v3warn(E_UNSUPPORTED,
                           "Unsupported: DPI argument of unpacked structure type "
                           "without a typedef name usable in C: "
-                              << sdtypep->prettyDTypeNameQ(true) << "\n"
+                              << sdtypep->prettyDTypeNameQ(સાચું) << "\n"
                               << portp->warnMore()
                               << "... Suggest use a typedef with a C identifier name");
-            return false;
+            પાછા ખોટું;
         }
-        for (const AstMemberDType* itemp = sdtypep->membersp(); itemp;
+        માટે (અચલ AstMemberDType* itemp = sdtypep->membersp(); itemp;
              itemp = VN_AS(itemp->nextp(), MemberDType)) {
-            if (!isDpiCIdentifier(itemp->prettyName())) {
+            જો (!isDpiCIdentifier(itemp->prettyName())) {
                 portp->v3warn(E_UNSUPPORTED, "Unsupported: DPI argument of unpacked structure "
                                              "type with member name not usable in C: "
                                                  << itemp->prettyNameQ());
-                return false;
+                પાછા ખોટું;
             }
             // Of the types of arguments, or unpacked arrays of them (IEEE 1800-2023 35.5.6)
-            const AstNodeDType* dtypep = itemp->subDTypep()->skipRefp();
-            while (const AstUnpackArrayDType* const arrayp = VN_CAST(dtypep, UnpackArrayDType)) {
+            અચલ Ast_ગાંઠ_DType* dtypep = itemp->subDTypep()->skipRefp();
+            જ્યારે (અચલ AstUnpackArrayDType* અચલ arrayp = VN_CAST(dtypep, UnpackArrayDType)) {
                 dtypep = arrayp->subDTypep()->skipRefp();
             }
-            const AstNodeUOrStructDType* const subp = VN_CAST(dtypep, NodeUOrStructDType);
-            const AstBasicDType* const basicp = VN_CAST(dtypep, BasicDType);
+            અચલ Ast_ગાંઠ_UOr_Struct_DType* અચલ subp = VN_CAST(dtypep, ગાંઠ_UOr_Struct_DType);
+            અચલ AstBasicDType* અચલ basicp = VN_CAST(dtypep, BasicDType);
             // Neither an unpacked array nor an unpacked structure, as createDpiScalarCvt converts
-            const bool isScalar = (subp && subp->packed()) || VN_IS(dtypep, PackArrayDType)
+            અચલ તાર્કિક isScalar = (subp && subp->packed()) || VN_IS(dtypep, PackArrayDType)
                                   || (basicp && !basicp->isEvent());
-            if (dtypep->containsUnpackedStruct()) {
-                if (!checkDpiStruct(portp, VN_AS(dtypep, StructDType), true)) return false;
-            } else if (!isScalar) {
+            જો (dtypep->containsUnpackedStruct()) {
+                જો (!checkDpiStruct(portp, VN_AS(dtypep, StructDType), સાચું)) પાછા ખોટું;
+            } નહીંતર જો (!isScalar) {
                 portp->v3error("DPI argument " << portp->prettyNameQ()
                                                << " has unpacked structure member "
                                                << itemp->prettyNameQ() << " of type "
-                                               << itemp->subDTypep()->prettyDTypeNameQ(true)
+                                               << itemp->subDTypep()->prettyDTypeNameQ(સાચું)
                                                << ", which DPI does not allow"
                                                << " (IEEE 1800-2023 35.5.6)");
-                return false;
+                પાછા ખોટું;
             }
         }
         // C has no scopes, so cannot have different structures of the same name
-        if (name.empty()) return true;
-        const AstStructDType* const firstp = m_dpiStructs.emplace(name, sdtypep).first->second;
-        if (firstp->dpiTypedef() == sdtypep->dpiTypedef()) return true;
+        જો (name.empty()) પાછા સાચું;
+        અચલ AstStructDType* અચલ firstp = m_dpiStructs.emplace(name, sdtypep).first->second;
+        જો (firstp->dpiTypedef() == sdtypep->dpiTypedef()) પાછા સાચું;
         portp->v3warn(E_UNSUPPORTED, "Unsupported: DPI arguments of different unpacked "
                                      "structure types with the same name '"
                                          << name << "'\n"
@@ -1294,45 +1294,45 @@ class TaskVisitor final : public VNVisitor {
                                          << firstp->warnOther()
                                          << "... Location of the other structure type\n"
                                          << firstp->warnContextSecondary());
-        return false;
+        પાછા ખોટું;
     }
 
     // Check DPI can pass the unpacked structure arguments of 'nodep', else report
-    bool checkDpiStructArgs(const AstNodeFTask* nodep) {
-        bool allOk = true;
-        for (const AstNode* stmtp = nodep->stmtsp(); stmtp; stmtp = stmtp->nextp()) {
-            const AstVar* const portp = VN_CAST(stmtp, Var);
-            if (portp && portp->isIO() && portp->dtypep()->containsUnpackedStruct()) {
+    તાર્કિક checkDpiStructArgs(અચલ Ast_ગાંઠ_FTask* nodep) {
+        તાર્કિક allOk = સાચું;
+        માટે (અચલ Ast_ગાંઠ* stmtp = nodep->stmtsp(); stmtp; stmtp = stmtp->nextp()) {
+            અચલ AstVar* અચલ portp = VN_CAST(stmtp, Var);
+            જો (portp && portp->isIO() && portp->dtypep()->containsUnpackedStruct()) {
                 allOk = checkDpiStruct(portp, VN_AS(portp->dtypep()->elemDTypep(), StructDType),
-                                       false)
+                                       ખોટું)
                         && allOk;
             }
         }
-        return allOk;
+        પાછા allOk;
     }
 
-    void bodyDpiImportFunc(AstNodeFTask* nodep, AstVarScope* rtnvscp, AstCFunc* cfuncp,
+    શૂન્ય bodyDpiImportFunc(Ast_ગાંઠ_FTask* nodep, AstVarScope* rtnvscp, AstCFunc* cfuncp,
                            AstCFunc* dpiFuncp) {
-        const char* const tmpSuffixp = V3Task::dpiTemporaryVarSuffix();
+        અચલ અક્ષર* અચલ tmpSuffixp = V3Task::dpiTemporaryVarSuffix();
 
-        if (v3Global.opt.profExec()) {
-            cfuncp->addStmtsp(AstCStmt::profExecSectionPush(nodep->fileline(), "dpiimports"));
+        જો (v3Global.opt.profExec()) {
+            cfuncp->addStmtsp(AstCStmt::prof_Exec_Section_ધકેલો(nodep->fileline(), "dpiimports"));
         }
 
         // Convert input/inout arguments to DPI types
         string args;
-        for (AstNode* stmtp = cfuncp->argsp(); stmtp; stmtp = stmtp->nextp()) {
-            if (AstVar* const portp = VN_CAST(stmtp, Var)) {
-                AstVarScope* const portvscp
+        માટે (Ast_ગાંઠ* stmtp = cfuncp->argsp(); stmtp; stmtp = stmtp->nextp()) {
+            જો (AstVar* અચલ portp = VN_CAST(stmtp, Var)) {
+                AstVarScope* અચલ portvscp
                     = VN_AS(portp->user2p(), VarScope);  // Remembered when we created it earlier
-                if (portp->isIO() && !portp->isFuncReturn() && portvscp != rtnvscp
+                જો (portp->isIO() && !portp->isFuncReturn() && portvscp != rtnvscp
                     && portp->name() != "__Vscopep"  // Passed to dpiContext, not callee
                     && portp->name() != "__Vfilenamep" && portp->name() != "__Vlineno") {
 
-                    if (args != "") args += ", ";
+                    જો (args != "") args += ", ";
 
-                    if (portp->isDpiOpenArray()) {
-                        AstNodeDType* const dtypep = portp->dtypep()->skipRefp();
+                    જો (portp->isDpiOpenArray()) {
+                        Ast_ગાંઠ_DType* અચલ dtypep = portp->dtypep()->skipRefp();
                         UASSERT_OBJ(!VN_IS(dtypep, DynArrayDType) && !VN_IS(dtypep, QueueDType),
                                     portp,
                                     "Passing dynamic array or queue as actual argument to DPI "
@@ -1340,36 +1340,36 @@ class TaskVisitor final : public VNVisitor {
                         // Ideally we'd make a table of variable
                         // characteristics, and reuse it wherever we can
                         // At least put them into the module's CTOR as static?
-                        const string propName = portp->name() + "__Vopenprops";
-                        const string propCode = portp->vlPropDecl(propName);
-                        cfuncp->addStmtsp(new AstCStmt{portp->fileline(), propCode});
+                        અચલ string propName = portp->name() + "__Vopenprops";
+                        અચલ string propCode = portp->vlPropDecl(propName);
+                        cfuncp->addStmtsp(નવું AstCStmt{portp->fileline(), propCode});
                         //
                         // At runtime we need the svOpenArrayHandle to
                         // point to this task & thread's data, in addition
                         // to static info about the variable
-                        const string name = portp->name() + "__Vopenarray";
-                        const string varCode
+                        અચલ string name = portp->name() + "__Vopenarray";
+                        અચલ string varCode
                             = ("VerilatedDpiOpenVar "
                                // NOLINTNEXTLINE(performance-inefficient-string-concatenation)
                                + name + " (&" + propName + ", &" + portp->name() + ");\n");
-                        cfuncp->addStmtsp(new AstCStmt{portp->fileline(), varCode});
+                        cfuncp->addStmtsp(નવું AstCStmt{portp->fileline(), varCode});
                         args += "&" + name;
-                    } else {
+                    } નહીંતર {
                         // Unpacked structures are passed by reference from a C array
-                        const bool isStruct = portp->dtypep()->containsUnpackedStruct();
-                        if (portp->isWritable() && !isStruct
+                        અચલ તાર્કિક isStruct = portp->dtypep()->containsUnpackedStruct();
+                        જો (portp->isWritable() && !isStruct
                             && portp->basicp()->isDpiPrimitive()) {
-                            if (!VN_IS(portp->dtypep()->skipRefp(), UnpackArrayDType)) args += "&";
+                            જો (!VN_IS(portp->dtypep()->skipRefp(), UnpackArrayDType)) args += "&";
                         }
 
                         args += portp->name() + tmpSuffixp;
 
                         cfuncp->addStmtsp(createDpiTemp(portp, tmpSuffixp));
-                        if (portp->isNonOutput()) {
+                        જો (portp->isNonOutput()) {
                             cfuncp->addStmtsp(
                                 isStruct
-                                    ? createDpiArgCvt(portvscp, portp->name() + tmpSuffixp, true)
-                                    : createAssignInternalToDpi(portp, false, "", tmpSuffixp));
+                                    ? createDpiArgCvt(portvscp, portp->name() + tmpSuffixp, સાચું)
+                                    : createAssignInternalToDpi(portp, ખોટું, "", tmpSuffixp));
                         }
                     }
                 }
@@ -1377,95 +1377,95 @@ class TaskVisitor final : public VNVisitor {
         }
 
         // Store context, if needed
-        if (nodep->dpiContext()) {
-            const string stmt = "Verilated::dpiContext(__Vscopep, __Vfilenamep, __Vlineno);";
-            cfuncp->addStmtsp(new AstCStmt{nodep->fileline(), stmt});
+        જો (nodep->dpiContext()) {
+            અચલ string stmt = "Verilated::dpiContext(__Vscopep, __Vfilenamep, __Vlineno);";
+            cfuncp->addStmtsp(નવું AstCStmt{nodep->fileline(), stmt});
         }
 
         {  // Call the imported function
-            AstCCall* const callp = new AstCCall{nodep->fileline(), dpiFuncp};
+            AstCCall* અચલ callp = નવું AstCCall{nodep->fileline(), dpiFuncp};
             callp->dtypeSetVoid();
             callp->argTypes(args);
-            if (rtnvscp) {
+            જો (rtnvscp) {
                 // If it has a return value, capture it
                 cfuncp->addStmtsp(createDpiTemp(rtnvscp->varp(), tmpSuffixp));
-                const std::string sel = rtnvscp->varp()->basicp()->isDpiPrimitive() ? "" : "[0]";
-                AstCStmt* const cstmtp = new AstCStmt{nodep->fileline()};
+                અચલ std::string sel = rtnvscp->varp()->basicp()->isDpiPrimitive() ? "" : "[0]";
+                AstCStmt* અચલ cstmtp = નવું AstCStmt{nodep->fileline()};
                 cstmtp->add(rtnvscp->varp()->name() + tmpSuffixp + sel);  // LHS
                 cstmtp->add(" = ");
                 cstmtp->add(callp);  // RHS
                 cstmtp->add(";");
                 cfuncp->addStmtsp(cstmtp);
-            } else {
+            } નહીંતર {
                 // Othervise just call it
                 cfuncp->addStmtsp(callp->makeStmt());
             }
         }
 
         // Convert output/inout arguments back to internal type
-        for (AstNode* stmtp = cfuncp->argsp(); stmtp; stmtp = stmtp->nextp()) {
-            if (AstVar* const portp = VN_CAST(stmtp, Var)) {
-                portp->protect(false);  // No additional exposure - already part of shown proto
-                if (portp->isIO() && (portp->isWritable() || portp->isFuncReturn())
+        માટે (Ast_ગાંઠ* stmtp = cfuncp->argsp(); stmtp; stmtp = stmtp->nextp()) {
+            જો (AstVar* અચલ portp = VN_CAST(stmtp, Var)) {
+                portp->protect(ખોટું);  // No additional exposure - already part of shown proto
+                જો (portp->isIO() && (portp->isWritable() || portp->isFuncReturn())
                     && !portp->isDpiOpenArray()) {
-                    AstVarScope* const portvscp = VN_AS(
+                    AstVarScope* અચલ portvscp = VN_AS(
                         portp->user2p(), VarScope);  // Remembered when we created it earlier
                     cfuncp->addStmtsp(
-                        createDpiArgCvt(portvscp, portp->name() + tmpSuffixp, false));
+                        createDpiArgCvt(portvscp, portp->name() + tmpSuffixp, ખોટું));
                 }
             }
         }
 
-        if (v3Global.opt.profExec()) {
-            cfuncp->addStmtsp(AstCStmt::profExecSectionPop(nodep->fileline(), "dpiimports"));
+        જો (v3Global.opt.profExec()) {
+            cfuncp->addStmtsp(AstCStmt::prof_Exec_Section_કાઢો(nodep->fileline(), "dpiimports"));
         }
     }
 
     AstVarScope* getDpiExporTrigger() {
-        AstNetlist* const netlistp = v3Global.rootp();
+        AstNetlist* અચલ netlistp = v3Global.rootp();
         AstVarScope* dpiExportTriggerp = netlistp->dpiExportTriggerp();
-        if (!dpiExportTriggerp) {
+        જો (!dpiExportTriggerp) {
             // Create the global DPI export trigger flag the first time we encounter a DPI export.
             // This flag is set any time a DPI export is invoked, and cleared at the end of eval.
-            dpiExportTriggerp = m_topScopep->createTemp("__Vdpi_export_trigger", 1);
+            dpiExportTriggerp = m_ટોચ_Scopep->createTemp("__Vdpi_export_trigger", 1);
             netlistp->dpiExportTriggerp(dpiExportTriggerp);
         }
-        return dpiExportTriggerp;
+        પાછા dpiExportTriggerp;
     }
 
-    AstCFunc* makeUserFunc(AstNodeFTask* nodep, bool ftaskNoInline) {
+    AstCFunc* makeUserFunc(Ast_ગાંઠ_FTask* nodep, તાર્કિક ftaskNoInline) {
         // Given a already cloned node, make a public C function, or a non-inline C function
         // Probably some of this work should be done later, but...
         // should the type of the function be bool/uint32/64 etc (based on lookup) or IData?
-        AstNode::user2ClearTree();
+        Ast_ગાંઠ::user2_Clear_વૃક્ષ();
         AstVar* rtnvarp = nullptr;
-        if (nodep->isFunction()) {
-            AstVar* const portp = VN_AS(nodep->fvarp(), Var);
+        જો (nodep->isFunction()) {
+            AstVar* અચલ portp = VN_AS(nodep->fvarp(), Var);
             UASSERT_OBJ(portp, nodep, "function without function output variable");
             UASSERT_OBJ(portp->isFuncReturn(), nodep, "Not marked as function return var");
-            if (nodep->dpiImport() || nodep->dpiExport()) {
-                AstBasicDType* const bdtypep = portp->dtypep()->basicp();
-                if (!bdtypep) {
+            જો (nodep->dpiImport() || nodep->dpiExport()) {
+                AstBasicDType* અચલ bdtypep = portp->dtypep()->basicp();
+                જો (!bdtypep) {
                     portp->v3error("DPI function may not return type "
-                                   << portp->dtypep()->prettyDTypeNameQ(true)
+                                   << portp->dtypep()->prettyDTypeNameQ(સાચું)
                                    << " (IEEE 1800-2023 35.5.5)");
-                    VL_DO_DANGLING(pushDeletep(nodep), nodep);
-                    return nullptr;
+                    VL_DO_DANGLING(ધકેલો_Deletep(nodep), nodep);
+                    પાછા nullptr;
                 }
-                if (!bdtypep->isDpiPrimitive()) {
-                    if (bdtypep->isDpiBitVec() && portp->width() > 32) {
+                જો (!bdtypep->isDpiPrimitive()) {
+                    જો (bdtypep->isDpiBitVec() && portp->width() > 32) {
                         portp->v3error("DPI function may not return a > 32 bits wide type "
                                        "other than basic types.\n"
                                        + portp->warnMore()
                                        + "... Suggest make it an output argument instead?");
                     }
-                    if (bdtypep->isDpiLogicVec()) {
+                    જો (bdtypep->isDpiLogicVec()) {
                         portp->v3error("DPI function may not return a 4-state type "
                                        "other than a single 'logic' (IEEE 1800-2023 35.5.5)");
                     }
                 }
-            } else if (nodep->taskPublic()) {
-                if (portp->isWide()) {
+            } નહીંતર જો (nodep->taskPublic()) {
+                જો (portp->isWide()) {
                     nodep->v3warn(E_UNSUPPORTED,
                                   "Unsupported: Public functions with return > 64 bits wide.\n"
                                       + nodep->warnMore()
@@ -1473,56 +1473,56 @@ class TaskVisitor final : public VNVisitor {
                 }
             }
 
-            if (ftaskNoInline || nodep->dpiExport()) {
-                portp->funcReturn(false);  // Converting return to 'outputs'
+            જો (ftaskNoInline || nodep->dpiExport()) {
+                portp->funcReturn(ખોટું);  // Converting return to 'outputs'
             }
-            unlinkAndClone(nodep, portp, false);
+            unlinkAndClone(nodep, portp, ખોટું);
             rtnvarp = portp;
-            rtnvarp->funcLocal(true);
-            rtnvarp->noCReset(true);  // As made for port in V3LinkResolve
+            rtnvarp->funcLocal(સાચું);
+            rtnvarp->noCReset(સાચું);  // As made for port in V3LinkResolve
             rtnvarp->name(rtnvarp->name()
                           + "__Vfuncrtn");  // Avoid conflict with DPI function name
-            if (nodep->dpiImport() || nodep->dpiExport()) rtnvarp->protect(false);
+            જો (nodep->dpiImport() || nodep->dpiExport()) rtnvarp->protect(ખોટું);
         }
 
         // Create/pick up the DPI CFunc for DPI Import/ DPI Export.
         AstCFunc* dpiFuncp = nullptr;
-        if (nodep->dpiImport() || nodep->dpiExport()) {
+        જો (nodep->dpiImport() || nodep->dpiExport()) {
             UASSERT_OBJ(!(nodep->dpiOpenParent() && nodep->dpiOpenChild()), nodep,
                         "DPI task should not be both parent and child");
             dpiFuncp = checkDpiStructArgs(nodep) ? getDpiFunc(nodep, rtnvarp) : nullptr;
-            if (!dpiFuncp || (nodep->dpiImport() && nodep->dpiOpenParent())) {
+            જો (!dpiFuncp || (nodep->dpiImport() && nodep->dpiOpenParent())) {
                 // No need to make more than just the DPI Import prototype, the children will
                 // create the wrapper implementations.
-                if (rtnvarp) VL_DO_DANGLING(pushDeletep(rtnvarp), rtnvarp);
-                VL_DO_DANGLING(pushDeletep(nodep), nodep);
-                return nullptr;
+                જો (rtnvarp) VL_DO_DANGLING(ધકેલો_Deletep(rtnvarp), rtnvarp);
+                VL_DO_DANGLING(ધકેલો_Deletep(nodep), nodep);
+                પાછા nullptr;
             }
         }
 
         AstVarScope* rtnvscp = nullptr;
-        if (rtnvarp) {
-            rtnvscp = new AstVarScope{rtnvarp->fileline(), m_scopep, rtnvarp};
+        જો (rtnvarp) {
+            rtnvscp = નવું AstVarScope{rtnvarp->fileline(), m_scopep, rtnvarp};
             m_scopep->addVarsp(rtnvscp);
             rtnvarp->user2p(rtnvscp);
         }
 
         string prefix;
-        if (nodep->dpiImport()) {
+        જો (nodep->dpiImport()) {
             prefix = "__Vdpiimwrap_";
-        } else if (nodep->dpiExport()) {
+        } નહીંતર જો (nodep->dpiExport()) {
             prefix = "__Vdpiexp_";
-        } else if (ftaskNoInline) {
+        } નહીંતર જો (ftaskNoInline) {
             prefix = "__VnoInFunc_";
         }
         // Unless public, v3Descope will not uniquify function names even if duplicate per-scope,
         // so make it unique now.
         string suffix;  // So, make them unique
-        if (!nodep->taskPublic() && !nodep->classMethod()) suffix = "_" + m_scopep->nameDotless();
-        const string name = ((nodep->name() == "new") ? "new" : prefix + nodep->name() + suffix);
-        AstCFunc* const cfuncp = new AstCFunc{
+        જો (!nodep->taskPublic() && !nodep->classMethod()) suffix = "_" + m_scopep->nameDotless();
+        અચલ string name = ((nodep->name() == "new") ? "new" : prefix + nodep->name() + suffix);
+        AstCFunc* અચલ cfuncp = નવું AstCFunc{
             nodep->fileline(), name, m_scopep,
-            ((nodep->taskPublic() && rtnvarp) ? rtnvarp->cPubArgType(true, true) : "")};
+            ((nodep->taskPublic() && rtnvarp) ? rtnvarp->cPubArgType(સાચું, સાચું) : "")};
         // It's ok to combine imports because this is just a wrapper;
         // duplicate wrappers can get merged.
         cfuncp->dontCombine(!nodep->dpiImport());
@@ -1536,83 +1536,83 @@ class TaskVisitor final : public VNVisitor {
         cfuncp->unlikely(nodep->name() == "uvm_report_error" || nodep->name() == "uvm_report_info"
                          || nodep->name() == "uvm_report_fatal"
                          || nodep->name() == "uvm_report_warning");
-        if (nodep->dpiImport() || nodep->dpiExport()) {
-            cfuncp->isStatic(true);
-            cfuncp->isLoose(true);
-        } else {
-            cfuncp->isStatic(false);
+        જો (nodep->dpiImport() || nodep->dpiExport()) {
+            cfuncp->isStatic(સાચું);
+            cfuncp->isLoose(સાચું);
+        } નહીંતર {
+            cfuncp->isStatic(ખોટું);
         }
         cfuncp->isVirtual(nodep->isVirtual());
         cfuncp->dpiPure(nodep->dpiPure());
-        if (nodep->name() == "new") cfuncp->isConstructor(true);
-        if (nodep->isCovergroupSample()) cfuncp->isCovergroupSample(true);
-        if (cfuncp->dpiExportImpl()) cfuncp->cname(nodep->cname());
+        જો (nodep->name() == "new") cfuncp->isConstructor(સાચું);
+        જો (nodep->isCovergroupSample()) cfuncp->isCovergroupSample(સાચું);
+        જો (cfuncp->dpiExportImpl()) cfuncp->cname(nodep->cname());
 
-        if (cfuncp->dpiImportWrapper()) cfuncp->cname(nodep->cname());
+        જો (cfuncp->dpiImportWrapper()) cfuncp->cname(nodep->cname());
 
-        const bool needSyms
+        અચલ તાર્કિક needSyms
             = nodep->needsSyms()
               && ((!nodep->dpiImport() && !nodep->taskPublic()) || v3Global.opt.profExec());
-        if (needSyms) cfuncp->argTypes(EmitCUtil::symClassVar());
+        જો (needSyms) cfuncp->argTypes(EmitCUtil::symClassVar());
 
-        if (!nodep->dpiImport() && !nodep->taskPublic()) {
+        જો (!nodep->dpiImport() && !nodep->taskPublic()) {
             // Need symbol table
-            if (cfuncp->isConstructor()) {
-                bool isInterfaceClass = false;
-                if (const AstClass* const classp = VN_CAST(m_modp, Class)) {
+            જો (cfuncp->isConstructor()) {
+                તાર્કિક isInterfaceClass = ખોટું;
+                જો (અચલ AstClass* અચલ classp = VN_CAST(m_modp, Class)) {
                     isInterfaceClass = classp->isInterfaceClass();
                 }
-                if (!isInterfaceClass) {
-                    const string stmt = VIdProtect::protect("_ctor_var_reset") + "(vlSymsp);";
+                જો (!isInterfaceClass) {
+                    અચલ string stmt = VIdProtect::protect("_ctor_var_reset") + "(vlSymsp);";
                     cfuncp->addStmtsp(
-                        new AstCStmt{nodep->fileline(), stmt, VCStmtType::CTOR_VAR_RESET_CALL});
+                        નવું AstCStmt{nodep->fileline(), stmt, VCStmtType::CTOR_VAR_RESET_CALL});
                 }
             }
         }
-        if (nodep->dpiContext()) {
+        જો (nodep->dpiContext()) {
             // First three args go to dpiContext call
-            createInputVar(cfuncp, "__Vscopep", VBasicDTypeKwd::SCOPEPTR);
-            createInputVar(cfuncp, "__Vfilenamep", VBasicDTypeKwd::CHARPTR);
-            createInputVar(cfuncp, "__Vlineno", VBasicDTypeKwd::INT);
+            create_આગત_Var(cfuncp, "__Vscopep", VBasicDTypeKwd::SCOPEPTR);
+            create_આગત_Var(cfuncp, "__Vfilenamep", VBasicDTypeKwd::CHARPTR);
+            create_આગત_Var(cfuncp, "__Vlineno", VBasicDTypeKwd::INT);
         }
 
-        if (nodep->dpiExport()) {
-            AstScopeName* const snp = nodep->scopeNamep();
+        જો (nodep->dpiExport()) {
+            AstScopeName* અચલ snp = nodep->scopeNamep();
             UASSERT_OBJ(snp, nodep, "Missing scoping context");
-            snp->dpiExport(true);
+            snp->dpiExport(સાચું);
             snp->unlinkFrBack();
             cfuncp->scopeNamep(snp);
         }
 
         // Create list of arguments and move to function
-        for (AstNode *nextp, *stmtp = nodep->stmtsp(); stmtp; stmtp = nextp) {
+        માટે (Ast_ગાંઠ *nextp, *stmtp = nodep->stmtsp(); stmtp; stmtp = nextp) {
             nextp = stmtp->nextp();
-            if (AstVar* const portp = VN_CAST(stmtp, Var)) {
-                if (portp->isParam() && VN_IS(portp->valuep(), ConsArray)) {
+            જો (AstVar* અચલ portp = VN_CAST(stmtp, Var)) {
+                જો (portp->isParam() && VN_IS(portp->valuep(), ConsArray)) {
                     // Move array parameters in functions into constant pool
                     portp->unlinkFrBack();
-                    pushDeletep(portp);
+                    ધકેલો_Deletep(portp);
                     portp->user2p(constPoolTable(portp));
-                } else {
-                    if (portp->isIO()) {
+                } નહીંતર {
+                    જો (portp->isIO()) {
                         // Move it to new function
-                        unlinkAndClone(nodep, portp, false);
-                        portp->funcLocal(true);
-                        if (portp->valuep()) pushDeletep(portp->valuep()->unlinkFrBack());
+                        unlinkAndClone(nodep, portp, ખોટું);
+                        portp->funcLocal(સાચું);
+                        જો (portp->valuep()) ધકેલો_Deletep(portp->valuep()->unlinkFrBack());
                         cfuncp->addArgsp(portp);
                         // Pass inputs to DPI import wrappers by reference, unless fits in register
-                        if (cfuncp->dpiImportWrapper() && portp->isReadOnly()) {
-                            AstNodeDType* const dtypep = portp->dtypep()->skipRefp();
-                            if (dtypep->isCompound() || dtypep->isWide()) {
+                        જો (cfuncp->dpiImportWrapper() && portp->isReadOnly()) {
+                            Ast_ગાંઠ_DType* અચલ dtypep = portp->dtypep()->skipRefp();
+                            જો (dtypep->isCompound() || dtypep->isWide()) {
                                 portp->direction(VDirection::CONSTREF);
                             }
                         }
-                    } else {
+                    } નહીંતર {
                         // "Normal" variable, mark inside function
-                        portp->funcLocal(true);
+                        portp->funcLocal(સાચું);
                     }
-                    AstVarScope* const newvscp
-                        = new AstVarScope{portp->fileline(), m_scopep, portp};
+                    AstVarScope* અચલ newvscp
+                        = નવું AstVarScope{portp->fileline(), m_scopep, portp};
                     m_scopep->addVarsp(newvscp);
                     portp->user2p(newvscp);
                 }
@@ -1623,56 +1623,56 @@ class TaskVisitor final : public VNVisitor {
         // have it last, rather than first, as the C compiler can sometimes
         // avoid copying variables when calling shells if argument 1
         // remains argument 1 (which it wouldn't if a return got added).
-        if (rtnvarp) cfuncp->addArgsp(rtnvarp);
+        જો (rtnvarp) cfuncp->addArgsp(rtnvarp);
 
         // Move body
-        AstNode* bodysp = nodep->stmtsp();
-        if (bodysp) {
-            unlinkAndClone(nodep, bodysp, true);
-            AstBegin* const tempp
-                = new AstBegin{nodep->fileline(), "[EditWrapper]", bodysp, false};
+        Ast_ગાંઠ* bodysp = nodep->stmtsp();
+        જો (bodysp) {
+            unlinkAndClone(nodep, bodysp, સાચું);
+            AstBegin* અચલ tempp
+                = નવું AstBegin{nodep->fileline(), "[EditWrapper]", bodysp, ખોટું};
             VL_DANGLING(bodysp);
             // If we cloned due to recursion, now need to rip out the ports
             // (that remained in place) then got cloned
-            for (AstNode *nextp, *stmtp = tempp->stmtsp(); stmtp; stmtp = nextp) {
+            માટે (Ast_ગાંઠ *nextp, *stmtp = tempp->stmtsp(); stmtp; stmtp = nextp) {
                 nextp = stmtp->nextp();
-                if (AstVar* const portp = VN_CAST(stmtp, Var)) {
-                    if (portp->isIO()) VL_DO_DANGLING(pushDeletep(portp->unlinkFrBack()), portp);
+                જો (AstVar* અચલ portp = VN_CAST(stmtp, Var)) {
+                    જો (portp->isIO()) VL_DO_DANGLING(ધકેલો_Deletep(portp->unlinkFrBack()), portp);
                 }
             }
-            if (tempp->stmtsp()) cfuncp->addStmtsp(tempp->stmtsp()->unlinkFrBackWithNext());
-            VL_DO_DANGLING(tempp->deleteTree(), tempp);
+            જો (tempp->stmtsp()) cfuncp->addStmtsp(tempp->stmtsp()->unlinkFrBackWithNext());
+            VL_DO_DANGLING(tempp->delete_વૃક્ષ(), tempp);
         }
-        if (nodep->dpiImport()) bodyDpiImportFunc(nodep, rtnvscp, cfuncp, dpiFuncp);
+        જો (nodep->dpiImport()) bodyDpiImportFunc(nodep, rtnvscp, cfuncp, dpiFuncp);
 
         // Return statement
-        if (rtnvscp && nodep->taskPublic()) {
-            cfuncp->addStmtsp(new AstCReturn{
-                rtnvscp->fileline(), new AstVarRef{rtnvscp->fileline(), rtnvscp, VAccess::READ}});
+        જો (rtnvscp && nodep->taskPublic()) {
+            cfuncp->addStmtsp(નવું AstCReturn{
+                rtnvscp->fileline(), નવું AstVarRef{rtnvscp->fileline(), rtnvscp, VAccess::READ}});
         }
         // Replace variable refs
         relink(cfuncp);
 
-        if (cfuncp->dpiExportImpl()) {
+        જો (cfuncp->dpiExportImpl()) {
             // Mark all non-local variables written by the DPI exported function as being updated
             // by DPI exports. This ensures correct ordering and change detection later.
 
             // Mark non-local variables written by the exported function
-            bool writesNonLocals = false;
+            તાર્કિક writesNonLocals = ખોટું;
             cfuncp->foreach([&writesNonLocals](AstVarRef* refp) {
-                AstVar* const varp = refp->varScopep()->varp();
+                AstVar* અચલ varp = refp->varScopep()->varp();
                 // We are ignoring function locals as they should not be referenced anywhere
                 // outside the enclosing AstCFunc, hence they are irrelevant for code ordering.
-                if (varp->isFuncLocal()) return;
+                જો (varp->isFuncLocal()) પાછા;
                 // Check if written
-                if (refp->access().isWriteOrRW()) {
+                જો (refp->access().isWriteOrRW()) {
                     // Mark it as written by DPI export
                     varp->setWrittenByDpi();
                     // Remember we had some
-                    writesNonLocals = true;
+                    writesNonLocals = સાચું;
                 }
                 // Check if read
-                if (refp->access().isReadOrRW()) {
+                જો (refp->access().isReadOrRW()) {
                     // Mark it as read by DPI export
                     varp->setReadByDpi();
                 }
@@ -1680,37 +1680,37 @@ class TaskVisitor final : public VNVisitor {
 
             // If this DPI export writes some non-local variables, set the DPI Export Trigger flag
             // in the function.
-            if (writesNonLocals) {
-                AstVarScope* const dpiExportTriggerp = getDpiExporTrigger();
-                FileLine* const flp = cfuncp->fileline();
+            જો (writesNonLocals) {
+                AstVarScope* અચલ dpiExportTriggerp = getDpiExporTrigger();
+                File_લીટી* અચલ flp = cfuncp->fileline();
 
                 // Set DPI export trigger flag every time the DPI export is called.
-                AstAssign* const assignp
-                    = new AstAssign{flp, new AstVarRef{flp, dpiExportTriggerp, VAccess::WRITE},
-                                    new AstConst{flp, AstConst::BitTrue{}}};
+                AstAssign* અચલ assignp
+                    = નવું AstAssign{flp, નવું AstVarRef{flp, dpiExportTriggerp, VAccess::WRITE},
+                                    નવું AstConst{flp, AstConst::BitTrue{}}};
 
                 // Add as first statement (to avoid issues with early returns) to exported function
                 cfuncp->prependStmtsp(assignp);
 
                 // With --sc, also wake the SystemC wrapper: it cannot see the flag, and may
                 // otherwise sleep until its next timed slot. (usesTiming() is not known yet.)
-                if (v3Global.opt.systemC()) {
-                    assignp->addNextHere(new AstCStmt{
+                જો (v3Global.opt.systemC()) {
+                    assignp->addNextHere(નવું AstCStmt{
                         flp, "vlSymsp->__Vm_wakeEvent.notify(sc_core::SC_ZERO_TIME);\n"});
                 }
             }
         }
 
         // Mark the fact that this function allocates std::process
-        if (nodep->needProcess()) cfuncp->setNeedProcess();
+        જો (nodep->needProcess()) cfuncp->setNeedProcess();
 
         // Delete rest of cloned task and return new func
-        VL_DO_DANGLING(pushDeletep(nodep), nodep);
+        VL_DO_DANGLING(ધકેલો_Deletep(nodep), nodep);
         UINFOTREE(9, cfuncp, "", "userFunc");
-        return cfuncp;
+        પાછા cfuncp;
     }
 
-    void iterateIntoFTask(AstNodeFTask* nodep) {
+    શૂન્ય iterateIntoFTask(Ast_ગાંઠ_FTask* nodep) {
         // Iterate into the FTask we are calling.  Note it may be under a different
         // scope then the caller, so we need to restore state.
         VL_RESTORER(m_scopep);
@@ -1720,108 +1720,108 @@ class TaskVisitor final : public VNVisitor {
         m_modp = m_scopep->modp();
         iterate(nodep);
     }
-    void insertBeforeStmt(AstNode* nodep, AstNode* newp) {
+    શૂન્ય ઉમેરો_Before_Stmt(Ast_ગાંઠ* nodep, Ast_ગાંઠ* newp) {
         UINFOTREE(9, nodep, "", "newstmt");
         UASSERT_OBJ(m_insStmtp, nodep, "Function call not underneath a statement");
         UINFOTREE(9, newp, "", "newfunc");
         m_insStmtp->addHereThisAsNext(newp);
     }
-    void processArgs(AstNodeFTaskRef* nodep) {
+    શૂન્ય processArgs(Ast_ગાંઠ_FTask_Ref* nodep) {
         // Create a fresh variable for each concat array present in pins list
-        for (AstArg* argp = nodep->argsp(); argp; argp = VN_AS(argp->nextp(), Arg)) {
-            AstConsArray* const arrayp = VN_CAST(argp->exprp(), ConsArray);
-            if (!arrayp) continue;
+        માટે (AstArg* argp = nodep->argsp(); argp; argp = VN_AS(argp->nextp(), Arg)) {
+            AstConsArray* અચલ arrayp = VN_CAST(argp->exprp(), ConsArray);
+            જો (!arrayp) ચાલુ;
 
-            FileLine* const flp = arrayp->fileline();
-            AstVarScope* const substvscp = m_consArrayTmps.make(flp, m_scopep, arrayp->dtypep());
-            substvscp->varp()->isInternal(true);
+            File_લીટી* અચલ flp = arrayp->fileline();
+            AstVarScope* અચલ substvscp = m_consArrayTmps.make(flp, m_scopep, arrayp->dtypep());
+            substvscp->varp()->isInternal(સાચું);
 
-            AstAssign* const assignp
-                = new AstAssign{flp, new AstVarRef{arrayp->fileline(), substvscp, VAccess::WRITE},
+            AstAssign* અચલ assignp
+                = નવું AstAssign{flp, નવું AstVarRef{arrayp->fileline(), substvscp, VAccess::WRITE},
                                 arrayp->unlinkFrBack()};
 
-            AstExprStmt* const exprstmtp = new AstExprStmt{
-                flp, assignp, new AstVarRef{arrayp->fileline(), substvscp, VAccess::READ}};
+            Ast_પદાવલિ_Stmt* અચલ exprstmtp = નવું Ast_પદાવલિ_Stmt{
+                flp, assignp, નવું AstVarRef{arrayp->fileline(), substvscp, VAccess::READ}};
             argp->exprp(exprstmtp);
         }
     }
 
-    bool isIfaceLocalImpure(AstNodeFTask* nodep, AstNode* impurep) {
-        const AstScope* const scopep = m_statep->getScope(nodep);
-        if (!TaskStateVisitor::isIfaceFTaskScope(scopep)) return false;
+    તાર્કિક isIfaceLocalImpure(Ast_ગાંઠ_FTask* nodep, Ast_ગાંઠ* impurep) {
+        અચલ AstScope* અચલ scopep = m_statep->getScope(nodep);
+        જો (!TaskStateVisitor::isIfaceFTaskScope(scopep)) પાછા ખોટું;
 
-        const AstVarRef* const refp = VN_CAST(impurep, VarRef);
-        if (!refp || !refp->varScopep()) return false;
+        અચલ AstVarRef* અચલ refp = VN_CAST(impurep, VarRef);
+        જો (!refp || !refp->varScopep()) પાછા ખોટું;
 
-        return refp->varScopep()->scopep() == scopep;
+        પાછા refp->varScopep()->scopep() == scopep;
     }
 
     // VISITORS
-    void visit(AstNodeModule* nodep) override {
+    શૂન્ય visit(Ast_ગાંઠ_Module* nodep) override {
         VL_RESTORER(m_modp);
         m_modp = nodep;
         iterateChildren(nodep);
         UASSERT_OBJ(!m_insStmtp, nodep, "Didn't finish out last statement");
     }
-    void visit(AstWith* nodep) override {
-        if (nodep->user1SetOnce()) {
+    શૂન્ય visit(AstWith* nodep) override {
+        જો (nodep->user1SetOnce()) {
             // Make sure that the return expression is converted only once
-            return;
+            પાછા;
         }
-        AstNodeExpr* const withExprp = VN_AS(nodep->exprp()->unlinkFrBack(), NodeExpr);
-        nodep->addExprp(new AstCReturn{withExprp->fileline(), withExprp});
+        Ast_ગાંઠ_પદાવલિ* અચલ withExprp = VN_AS(nodep->exprp()->unlinkFrBack(), ગાંઠ_પદાવલિ);
+        nodep->addExprp(નવું AstCReturn{withExprp->fileline(), withExprp});
         iterateChildren(nodep);
     }
-    void visit(AstScope* nodep) override {
+    શૂન્ય visit(AstScope* nodep) override {
         VL_RESTORER(m_scopep);
         m_scopep = nodep;
         iterateChildren(nodep);
         UASSERT_OBJ(!m_insStmtp, nodep, "Didn't finish out last statement");
     }
-    void visit(AstCNew* nodep) override {
+    શૂન્ય visit(AstCNew* nodep) override {
         VL_RESTORER(m_inNew);
-        m_inNew = true;
+        m_inNew = સાચું;
         iterateChildren(nodep);
     }
-    void visit(AstNodeFTaskRef* nodep) override {
-        if (m_inSensesp && !nodep->isPure()) {
+    શૂન્ય visit(Ast_ગાંઠ_FTask_Ref* nodep) override {
+        જો (m_inSensesp && !nodep->isPure()) {
             nodep->v3warn(E_UNSUPPORTED,
                           "Unsupported: Impure function calls in sensitivity lists");
             nodep->taskp(nullptr);  // So V3Broken doesn't complain
-            return;
+            પાછા;
         }
         // Includes handling AstMethodCall, AstNew
         UASSERT_OBJ(nodep->taskp(), nodep, "Unlinked?");
         iterateIntoFTask(nodep->taskp());  // First, do hierarchical funcs
-        if (m_statep->ftaskNoInline(nodep->taskp()) && !m_statep->ftaskCFuncp(nodep->taskp())) {
+        જો (m_statep->ftaskNoInline(nodep->taskp()) && !m_statep->ftaskCFuncp(nodep->taskp())) {
             // An earlier error (e.g. a DPI import declared twice with conflicting
             // signatures) prevented creating the function, so remove the call
-            UASSERT_OBJ(V3Error::errorCount(), nodep, "No non-inline task, but no error issued");
-            if (VN_IS(nodep->backp(), StmtExpr)) {
-                VL_DO_DANGLING(pushDeletep(nodep->unlinkFrBack()), nodep);
-            } else {
-                nodep->replaceWith(new AstConst{nodep->fileline(), AstConst::BitFalseErroring{}});
-                VL_DO_DANGLING(pushDeletep(nodep), nodep);
+            UASSERT_OBJ(V3Error::error_ગણતરી(), nodep, "No non-inline task, but no error issued");
+            જો (VN_IS(nodep->backp(), Stmt_પદાવલિ)) {
+                VL_DO_DANGLING(ધકેલો_Deletep(nodep->unlinkFrBack()), nodep);
+            } નહીંતર {
+                nodep->replaceWith(નવું AstConst{nodep->fileline(), AstConst::BitFalseErroring{}});
+                VL_DO_DANGLING(ધકેલો_Deletep(nodep), nodep);
             }
-            return;
+            પાછા;
         }
         UINFO(4, " FTask REF   " << nodep);
         UINFOTREE(9, nodep, "", "inlfunc");
         UASSERT_OBJ(m_scopep, nodep, "func ref not under scope");
         // Create output variable
         AstVarScope* outvscp = nullptr;
-        if (nodep->taskp()->isFunction()) {
-            AstVar* const fvarp = VN_AS(nodep->taskp()->fvarp(), Var);
+        જો (nodep->taskp()->isFunction()) {
+            AstVar* અચલ fvarp = VN_AS(nodep->taskp()->fvarp(), Var);
             // If the call is on the RHS of a simple assignment 'lhs = call()',
             // the LHS variable can be reused as the output variable iff it has
             // the same type, and the function does not read the output variable itself.
             // This can be proven cheaply if the LHS is an automatic variable and the
             // function does not have any ref arguments. This arises a lot after V3LiftExpr.
-            if (AstAssign* const assignp = VN_CAST(nodep->backp(), Assign)) {
-                if (AstVarRef* const lhsp = VN_CAST(assignp->lhsp(), VarRef)) {
-                    AstVarScope* const vscp = lhsp->varScopep();
-                    if (vscp->varp()->lifetime().isAutomatic()
-                        && vscp->varp()->dtypep()->skipRefp()->sameTree(
+            જો (AstAssign* અચલ assignp = VN_CAST(nodep->backp(), Assign)) {
+                જો (AstVarRef* અચલ lhsp = VN_CAST(assignp->lhsp(), VarRef)) {
+                    AstVarScope* અચલ vscp = lhsp->varScopep();
+                    જો (vscp->varp()->lifetime().isAutomatic()
+                        && vscp->varp()->dtypep()->skipRefp()->same_વૃક્ષ(
                             fvarp->dtypep()->skipRefp())
                         && !hasRefArgument(nodep->taskp())) {
                         outvscp = vscp;
@@ -1829,57 +1829,57 @@ class TaskVisitor final : public VNVisitor {
                 }
             }
             // Otherwise create a new variable for the result
-            if (!outvscp) outvscp = createVarScope(nodep, fvarp, "__Vfuncout");
+            જો (!outvscp) outvscp = createVarScope(nodep, fvarp, "__Vfuncout");
         }
         // Create cloned statements
-        AstNode* beginp;
+        Ast_ગાંઠ* beginp;
         AstCNew* cnewp = nullptr;
         // getScope() is safe here: TaskStateVisitor stamped all FTask scopes before this pass.
-        const bool virtualIfaceCall
+        અચલ તાર્કિક virtualIfaceCall
             = TaskStateVisitor::isVirtualIfaceMethodCall(nodep)
               && TaskStateVisitor::isIfaceFTaskScope(m_statep->getScope(nodep->taskp()));
-        if (m_statep->ftaskNoInline(nodep->taskp()) || virtualIfaceCall) {
+        જો (m_statep->ftaskNoInline(nodep->taskp()) || virtualIfaceCall) {
             processArgs(nodep);
             // This may share VarScope's with a public task, if any.  Yuk.
             beginp = createNonInlinedFTask(nodep, outvscp, cnewp /*ref*/);
-        } else {
+        } નહીંતર {
             beginp = createInlinedFTask(nodep, outvscp);
             ++m_statInlines;
         }
 
-        if (VN_IS(nodep, New)) {  // New not legal as while() condition
-            insertBeforeStmt(nodep, beginp);
+        જો (VN_IS(nodep, New)) {  // New not legal as while() condition
+            ઉમેરો_Before_Stmt(nodep, beginp);
             UASSERT_OBJ(cnewp, nodep, "didn't create cnew for new");
             nodep->replaceWith(cnewp);
-            VL_DO_DANGLING(nodep->deleteTree(), nodep);
-        } else if (VN_IS(nodep->backp(), NodeAssign)) {
+            VL_DO_DANGLING(nodep->delete_વૃક્ષ(), nodep);
+        } નહીંતર જો (VN_IS(nodep->backp(), ગાંઠ_Assign)) {
             UASSERT_OBJ(nodep->taskp()->isFunction(), nodep,
                         "funcref-like assign to non-function");
-            insertBeforeStmt(nodep, beginp);
-            AstVarRef* const outrefp = new AstVarRef{nodep->fileline(), outvscp, VAccess::READ};
+            ઉમેરો_Before_Stmt(nodep, beginp);
+            AstVarRef* અચલ outrefp = નવું AstVarRef{nodep->fileline(), outvscp, VAccess::READ};
             nodep->replaceWith(outrefp);
-            VL_DO_DANGLING(nodep->deleteTree(), nodep);
-        } else if (!VN_IS(nodep->backp(), StmtExpr)) {
+            VL_DO_DANGLING(nodep->delete_વૃક્ષ(), nodep);
+        } નહીંતર જો (!VN_IS(nodep->backp(), Stmt_પદાવલિ)) {
             UASSERT_OBJ(nodep->taskp()->isFunction(), nodep,
                         "funcref-like expression to non-function");
-            AstVarRef* const outrefp = new AstVarRef{nodep->fileline(), outvscp, VAccess::READ};
-            AstExprStmt* lambdap = new AstExprStmt{nodep->fileline(), beginp, outrefp};
+            AstVarRef* અચલ outrefp = નવું AstVarRef{nodep->fileline(), outvscp, VAccess::READ};
+            Ast_પદાવલિ_Stmt* lambdap = નવું Ast_પદાવલિ_Stmt{nodep->fileline(), beginp, outrefp};
 
-            if (m_inNew) {
+            જો (m_inNew) {
                 AstVar* varp = outvscp->varp();
 
                 // Create a new var that will be inside the lambda
-                AstVar* newvarp = varp->cloneTree(false);
-                newvarp->funcLocal(true);
+                AstVar* newvarp = varp->clone_વૃક્ષ(ખોટું);
+                newvarp->funcLocal(સાચું);
 
                 // Create a new VarScope for the new variable
-                AstVarScope* const newvscp
-                    = new AstVarScope{newvarp->fileline(), m_scopep, newvarp};
+                AstVarScope* અચલ newvscp
+                    = નવું AstVarScope{newvarp->fileline(), m_scopep, newvarp};
                 m_scopep->addVarsp(newvscp);
 
                 // Replace all references so they point to the new var and varscope
                 lambdap->stmtsp()->foreachAndNext([outvscp, newvscp](AstVarRef* refp) {
-                    if (refp->varScopep() == outvscp) {
+                    જો (refp->varScopep() == outvscp) {
                         refp->varScopep(newvscp);
                         refp->varp(newvscp->varp());
                     }
@@ -1887,64 +1887,64 @@ class TaskVisitor final : public VNVisitor {
 
                 // Add variable initialization
                 lambdap->prependStmtsp(newvarp);
-                lambdap->hasResult(false);
+                lambdap->hasResult(ખોટું);
 
                 // Add return statement - TODO: Why not VarRef(outvscp)?
-                AstCExpr* const exprp = new AstCExpr{nodep->fileline(), varp->name()};
+                AstCExpr* અચલ exprp = નવું AstCExpr{nodep->fileline(), varp->name()};
                 exprp->dtypeSetString();
-                lambdap->addStmtsp(new AstCReturn{nodep->fileline(), exprp});
+                lambdap->addStmtsp(નવું AstCReturn{nodep->fileline(), exprp});
             }
 
             // AstExprStmt is currently treated as impure, so clear the cached purity of its
             // parents
             nodep->replaceWith(lambdap);
-            VL_DO_DANGLING(nodep->deleteTree(), nodep);
-            VIsCached::clearCacheTree();
-        } else {  // VN_IS(nodep->backp(), StmtExpr)
-            insertBeforeStmt(nodep, beginp);
-            if (nodep->taskp()->isFunction()
+            VL_DO_DANGLING(nodep->delete_વૃક્ષ(), nodep);
+            VIsCached::clear_Cache_વૃક્ષ();
+        } નહીંતર {  // VN_IS(nodep->backp(), StmtExpr)
+            ઉમેરો_Before_Stmt(nodep, beginp);
+            જો (nodep->taskp()->isFunction()
                 && !nodep->backp()->fileline()->warnIsOff(V3ErrorCode::IGNOREDRETURN)) {
                 nodep->v3warn(
                     IGNOREDRETURN,
                     "Ignoring return value of non-void function (IEEE 1800-2023 13.4.1)");
             }
             nodep->unlinkFrBack();
-            VL_DO_DANGLING(nodep->deleteTree(), nodep);
+            VL_DO_DANGLING(nodep->delete_વૃક્ષ(), nodep);
         }
         UINFO(4, "  FTask REF Done.");
     }
-    void visit(AstNodeFTask* const nodep) override {
+    શૂન્ય visit(Ast_ગાંઠ_FTask* અચલ nodep) override {
         UINFO(4, " visitFTask   " << nodep);
         VL_RESTORER(m_insStmtp);
         m_insStmtp = nodep->stmtsp();  // Might be null if no statements, but we won't use it
-        if (!nodep->user1SetOnce()) {  // Just one creation needed per function
+        જો (!nodep->user1SetOnce()) {  // Just one creation needed per function
             // Expand functions in it
-            int modes = 0;
-            if (nodep->dpiImport()) modes++;
-            if (nodep->dpiExport()) modes++;
-            if (nodep->taskPublic()) modes++;
-            if (nodep->classMethod()) modes++;
-            if (v3Global.opt.protectIds() && nodep->taskPublic()) {
+            પૂર્ણાંક modes = 0;
+            જો (nodep->dpiImport()) modes++;
+            જો (nodep->dpiExport()) modes++;
+            જો (nodep->taskPublic()) modes++;
+            જો (nodep->classMethod()) modes++;
+            જો (v3Global.opt.protectIds() && nodep->taskPublic()) {
                 // We always call protect() on names, we don't check if public or not
                 // Hence any external references wouldn't be able to find the refed public object.
                 nodep->v3warn(E_UNSUPPORTED,
                               "Unsupported: Using --protect-ids with public function");
             }
-            if (modes > 1) {
+            જો (modes > 1) {
                 nodep->v3error("Cannot mix DPI import, DPI export, class methods, and/or public "
                                "on same function: "
                                << nodep->prettyNameQ());
             }
 
-            const bool noInline = m_statep->ftaskNoInline(nodep);
-            const bool needsNonInlineCFunc = m_statep->ftaskNeedsNonInlineCFunc(nodep);
+            અચલ તાર્કિક noInline = m_statep->ftaskNoInline(nodep);
+            અચલ તાર્કિક needsNonInlineCFunc = m_statep->ftaskNeedsNonInlineCFunc(nodep);
             // Warn if not inlining an impure ftask (unless method, recursive,
             // or interface-local member access, which is not truly external).
             // Will likely not schedule correctly.
             // TODO: Why not if recursive? It will not work ...
-            if (noInline && !nodep->classMethod() && !nodep->recursive()) {
-                if (AstNode* const impurep = m_statep->checkImpure(nodep)) {
-                    if (!isIfaceLocalImpure(nodep, impurep)) {
+            જો (noInline && !nodep->classMethod() && !nodep->recursive()) {
+                જો (Ast_ગાંઠ* અચલ impurep = m_statep->checkImpure(nodep)) {
+                    જો (!isIfaceLocalImpure(nodep, impurep)) {
                         nodep->v3warn(IMPURE, "Unsupported: External variable referenced by "
                                               "non-inlined function/task: "
                                                   << nodep->prettyNameQ() << '\n'
@@ -1957,16 +1957,16 @@ class TaskVisitor final : public VNVisitor {
                 }
             }
 
-            if (noInline || needsNonInlineCFunc || nodep->dpiImport() || nodep->dpiExport()
+            જો (noInline || needsNonInlineCFunc || nodep->dpiImport() || nodep->dpiExport()
                 || nodep->taskPublic()) {
                 // Clone it first, because we may have later FTaskRef's that still need
                 // the original version.
-                AstNodeFTask* const clonedFuncp = nodep->cloneTree(false);
-                if (nodep->isConstructor()) m_statep->remapFuncClassp(nodep, clonedFuncp);
-                const bool makeNonInlineFunc = noInline || needsNonInlineCFunc;
-                if (AstCFunc* const cfuncp = makeUserFunc(clonedFuncp, makeNonInlineFunc)) {
+                Ast_ગાંઠ_FTask* અચલ clonedFuncp = nodep->clone_વૃક્ષ(ખોટું);
+                જો (nodep->isConstructor()) m_statep->remapFuncClassp(nodep, clonedFuncp);
+                અચલ તાર્કિક makeNonInlineFunc = noInline || needsNonInlineCFunc;
+                જો (AstCFunc* અચલ cfuncp = makeUserFunc(clonedFuncp, makeNonInlineFunc)) {
                     nodep->addNextHere(cfuncp);
-                    if (nodep->dpiImport() || makeNonInlineFunc) {
+                    જો (nodep->dpiImport() || makeNonInlineFunc) {
                         m_statep->ftaskCFuncp(nodep, cfuncp);
                     }
                     iterateIntoFTask(clonedFuncp);  // Do the clone too
@@ -1975,87 +1975,87 @@ class TaskVisitor final : public VNVisitor {
 
             // Any variables inside the function still have varscopes pointing to them.
             // We're going to delete the vars, so delete the varscopes.
-            if (nodep->isFunction()) {
-                if (AstVar* const portp = VN_CAST(nodep->fvarp(), Var)) {
-                    AstVarScope* const vscp = m_statep->findVarScope(m_scopep, portp);
+            જો (nodep->isFunction()) {
+                જો (AstVar* અચલ portp = VN_CAST(nodep->fvarp(), Var)) {
+                    AstVarScope* અચલ vscp = m_statep->findVarScope(m_scopep, portp);
                     UINFO(9, "   funcremovevsc " << vscp);
-                    VL_DO_DANGLING(pushDeletep(vscp->unlinkFrBack()), vscp);
+                    VL_DO_DANGLING(ધકેલો_Deletep(vscp->unlinkFrBack()), vscp);
                 }
             }
-            for (AstNode *nextp, *stmtp = nodep->stmtsp(); stmtp; stmtp = nextp) {
+            માટે (Ast_ગાંઠ *nextp, *stmtp = nodep->stmtsp(); stmtp; stmtp = nextp) {
                 nextp = stmtp->nextp();
-                if (AstVar* const portp = VN_CAST(stmtp, Var)) {
-                    AstVarScope* const vscp = m_statep->findVarScope(m_scopep, portp);
+                જો (AstVar* અચલ portp = VN_CAST(stmtp, Var)) {
+                    AstVarScope* અચલ vscp = m_statep->findVarScope(m_scopep, portp);
                     UINFO(9, "   funcremovevsc " << vscp);
-                    VL_DO_DANGLING(pushDeletep(vscp->unlinkFrBack()), vscp);
+                    VL_DO_DANGLING(ધકેલો_Deletep(vscp->unlinkFrBack()), vscp);
                 }
             }
             // Just push for deletion, as other references to func may
             // remain until visitor exits
             nodep->unlinkFrBack();
-            VL_DO_DANGLING(pushDeletep(nodep), nodep);
+            VL_DO_DANGLING(ધકેલો_Deletep(nodep), nodep);
         }
     }
-    void visit(AstAssignForce* nodep) override {
+    શૂન્ય visit(AstAssignForce* nodep) override {
         // Force statements cannot be converted to always blocks outside of a logic block
         // This causes function calls on RHS of force assignments to be improperly inlined and
         // called just once. To prevent this, we create a temporary variable for each function
         // reference on RHS. This variable is declared in the nearest scope and gets a continuous
         // assignment of the function, so it can be converted to always and properly inlined This
         // temporary variable becomes the RHS of the force assignment
-        std::vector<AstNodeFTaskRef*> refs;
-        nodep->rhsp()->foreach([&refs](AstNodeFTaskRef* refp) { refs.push_back(refp); });
-        for (AstNodeFTaskRef* const refp : refs) {
+        std::vector<Ast_ગાંઠ_FTask_Ref*> refs;
+        nodep->rhsp()->foreach([&refs](Ast_ગાંઠ_FTask_Ref* refp) { refs.ધકેલો_back(refp); });
+        માટે (Ast_ગાંઠ_FTask_Ref* અચલ refp : refs) {
 
             // Create the temporary variable and its scope. Every function call gets its own
             // variable in each scope, which is shared with the same call in other instances.
-            AstVarScope* const interVscp
+            AstVarScope* અચલ interVscp
                 = m_forceTmps.make(refp->fileline(), m_scopep, refp->dtypep(), refp->name());
 
             // Recompute the helper in a combo block so any inlined function body stays
             // inside schedulable logic rather than spilling statements at module scope.
-            AstAssign* const assignp = new AstAssign{
-                nodep->fileline(), new AstVarRef{nodep->fileline(), interVscp, VAccess::WRITE},
-                nodep->rhsp()->cloneTreePure(false)};
-            AstSenTree* const senTreep = new AstSenTree{
-                nodep->fileline(), new AstSenItem{nodep->fileline(), AstSenItem::Combo{}}};
-            AstActive* const activep
-                = new AstActive{nodep->fileline(), "force-func-update", senTreep};
-            activep->senTreeStorep(activep->sentreep());
+            AstAssign* અચલ assignp = નવું AstAssign{
+                nodep->fileline(), નવું AstVarRef{nodep->fileline(), interVscp, VAccess::WRITE},
+                nodep->rhsp()->clone_વૃક્ષ_Pure(ખોટું)};
+            Ast_Sen_વૃક્ષ* અચલ senTreep = નવું Ast_Sen_વૃક્ષ{
+                nodep->fileline(), નવું AstSenItem{nodep->fileline(), AstSenItem::Combo{}}};
+            AstActive* અચલ activep
+                = નવું AstActive{nodep->fileline(), "force-func-update", senTreep};
+            activep->sen_વૃક્ષ_Storep(activep->sentreep());
             activep->addStmtsp(
-                new AstAlways{nodep->fileline(), VAlwaysKwd::ALWAYS, nullptr, assignp});
+                નવું AstAlways{nodep->fileline(), VAlwaysKwd::ALWAYS, nullptr, assignp});
             m_scopep->addBlocksp(activep);
 
             // Replace RHS of force assignment with the temporary variable
-            refp->replaceWith(new AstVarRef{nodep->fileline(), interVscp, VAccess::READ});
-            VL_DO_DANGLING(refp->deleteTree(), refp);
+            refp->replaceWith(નવું AstVarRef{nodep->fileline(), interVscp, VAccess::READ});
+            VL_DO_DANGLING(refp->delete_વૃક્ષ(), refp);
         }
     }
-    void visit(AstNodeForeach* nodep) override {  // LCOV_EXCL_LINE
+    શૂન્ય visit(Ast_ગાંઠ_Foreach* nodep) override {  // LCOV_EXCL_LINE
         nodep->v3fatalSrc(
             "Foreach statements should have been converted to while statements in V3Begin.cpp");
     }
-    void visit(AstNodeStmt* nodep) override {
+    શૂન્ય visit(Ast_ગાંઠ_Stmt* nodep) override {
         VL_RESTORER(m_insStmtp);
         m_insStmtp = nodep;
         iterateChildren(nodep);
     }
-    void visit(AstStmtExpr* nodep) override {
+    શૂન્ય visit(Ast_Stmt_પદાવલિ* nodep) override {
         VL_RESTORER(m_insStmtp);
         m_insStmtp = nodep;
         iterateChildren(nodep);
-        if (!nodep->exprp()) VL_DO_DANGLING(nodep->unlinkFrBack()->deleteTree(), nodep);
+        જો (!nodep->exprp()) VL_DO_DANGLING(nodep->unlinkFrBack()->delete_વૃક્ષ(), nodep);
     }
-    void visit(AstSenItem* nodep) override {
+    શૂન્ય visit(AstSenItem* nodep) override {
         UASSERT_OBJ(!m_inSensesp, nodep, "Senitem under senitem?");
         VL_RESTORER(m_inSensesp);
-        m_inSensesp = true;
+        m_inSensesp = સાચું;
         iterateChildren(nodep);
     }
     //--------------------
-    void visit(AstNode* nodep) override { iterateChildren(nodep); }
+    શૂન્ય visit(Ast_ગાંઠ* nodep) override { iterateChildren(nodep); }
 
-public:
+જાહેર:
     // CONSTRUCTORS
     TaskVisitor(AstNetlist* nodep, TaskStateVisitor* statep)
         : m_statep{statep} {
@@ -2071,74 +2071,74 @@ public:
 //######################################################################
 // Mark interface members under timing controls of interface CFuncs as interface-sensed
 
-class TaskIfaceSensVisitor final : public VNVisitorConst {
+વર્ગ TaskIfaceSensVisitor final : જાહેર VNVisitorConst {
     // STATE
-    bool m_underIfaceFunc = false;  // Under a CFunc owned by an interface scope
-    bool m_underSenses = false;  // Under a sensitivity expression of such a CFunc
+    તાર્કિક m_underIfaceFunc = ખોટું;  // Under a CFunc owned by an interface scope
+    તાર્કિક m_underSenses = ખોટું;  // Under a sensitivity expression of such a CFunc
 
     // METHODS
-    void markSensesAndIterate(AstNode* nodep) {
-        if (!m_underIfaceFunc) return;
+    શૂન્ય markSensesAndIterate(Ast_ગાંઠ* nodep) {
+        જો (!m_underIfaceFunc) પાછા;
         VL_RESTORER(m_underSenses);
-        m_underSenses = true;
+        m_underSenses = સાચું;
         iterateAndNextConstNull(nodep);
     }
     // VISITORS
-    void visit(AstCFunc* nodep) override {
+    શૂન્ય visit(AstCFunc* nodep) override {
         VL_RESTORER(m_underIfaceFunc);
         m_underIfaceFunc = VN_IS(nodep->scopep()->modp(), Iface);
         iterateChildrenConst(nodep);
     }
-    void visit(AstSenTree* nodep) override { markSensesAndIterate(nodep->sensesp()); }
-    void visit(AstWait* nodep) override {
+    શૂન્ય visit(Ast_Sen_વૃક્ષ* nodep) override { markSensesAndIterate(nodep->sensesp()); }
+    શૂન્ય visit(AstWait* nodep) override {
         markSensesAndIterate(nodep->condp());
         iterateAndNextConstNull(nodep->stmtsp());
     }
-    void visit(AstVarRef* nodep) override {
-        if (!m_underSenses) return;
+    શૂન્ય visit(AstVarRef* nodep) override {
+        જો (!m_underSenses) પાછા;
         UASSERT_OBJ(nodep->varScopep(), nodep, "No var scope");
         // Keep temps: the clocking event var is a MODULETEMP
-        if (nodep->varp()->isFuncLocal()) return;
-        if (AstIface* const ifacep = VN_CAST(nodep->varScopep()->scopep()->modp(), Iface)) {
+        જો (nodep->varp()->isFuncLocal()) પાછા;
+        જો (AstIface* અચલ ifacep = VN_CAST(nodep->varScopep()->scopep()->modp(), Iface)) {
             nodep->varp()->sensIfacep(ifacep);
         }
     }
-    void visit(AstNode* nodep) override { iterateChildrenConst(nodep); }
+    શૂન્ય visit(Ast_ગાંઠ* nodep) override { iterateChildrenConst(nodep); }
 
-public:
+જાહેર:
     // CONSTRUCTORS
     explicit TaskIfaceSensVisitor(AstNetlist* nodep) { iterateChildrenConst(nodep); }
-    ~TaskIfaceSensVisitor() override = default;
+    ~TaskIfaceSensVisitor() override = મૂળભૂત;
 };
 
 //######################################################################
 // Task class functions
 
-const char* const V3Task::s_dpiTemporaryVarSuffix = "__Vcvt";
+અચલ અક્ષર* અચલ V3Task::s_dpiTemporaryVarSuffix = "__Vcvt";
 
-V3TaskConnects V3Task::taskConnects(AstNodeFTaskRef* nodep, AstNode* taskStmtsp,
-                                    V3TaskConnectState* statep, bool makeChanges) {
+V3TaskConnects V3Task::taskConnects(Ast_ગાંઠ_FTask_Ref* nodep, Ast_ગાંઠ* taskStmtsp,
+                                    V3TaskConnectState* statep, તાર્કિક makeChanges) {
     // Output list will be in order of the port declaration variables (so
     // func calls are made right in C)
     // Missing pin/expr?  We return (pinvar, nullptr)
     // Extra   pin/expr?  We clean it up
     UINFO(9, "taskConnects " << nodep);
-    std::map<const std::string, int> nameToIndex;
+    std::map<અચલ std::string, પૂર્ણાંક> nameToIndex;
     V3TaskConnects tconnects;
     UASSERT_OBJ(nodep->taskp(), nodep, "unlinked");
 
     // Find ports
-    int tpinnum = 0;
+    પૂર્ણાંક tpinnum = 0;
     AstVar* sformatp = nullptr;
-    for (AstNode* stmtp = taskStmtsp; stmtp; stmtp = stmtp->nextp()) {
-        if (AstVar* const portp = VN_CAST(stmtp, Var)) {
-            if (portp->isIO()) {
+    માટે (Ast_ગાંઠ* stmtp = taskStmtsp; stmtp; stmtp = stmtp->nextp()) {
+        જો (AstVar* અચલ portp = VN_CAST(stmtp, Var)) {
+            જો (portp->isIO()) {
                 tconnects.emplace_back(portp, static_cast<AstArg*>(nullptr));
                 nameToIndex.emplace(portp->name(), tpinnum);  // For name based connections
                 ++tpinnum;
-                if (portp->attrSFormat()) {
+                જો (portp->attrSFormat()) {
                     sformatp = portp;
-                } else if (sformatp) {
+                } નહીંતર જો (sformatp) {
                     portp->v3error("/*verilator sformat*/ can only be applied to last argument of "
                                    "a function");
                 }
@@ -2147,15 +2147,15 @@ V3TaskConnects V3Task::taskConnects(AstNodeFTaskRef* nodep, AstNode* taskStmtsp,
     }
 
     // Find pins
-    int ppinnum = 0;
-    bool reorganize = false;
-    for (AstArg *argp = nodep->argsp(), *nextp; argp; argp = nextp) {
+    પૂર્ણાંક ppinnum = 0;
+    તાર્કિક reorganize = ખોટું;
+    માટે (AstArg *argp = nodep->argsp(), *nextp; argp; argp = nextp) {
         nextp = VN_AS(argp->nextp(), Arg);
-        if (!argp->name().empty()) {
+        જો (!argp->name().empty()) {
             // By name
-            const auto it = nameToIndex.find(argp->name());
-            if (it == nameToIndex.end()) {
-                if (makeChanges) {
+            અચલ auto it = nameToIndex.find(argp->name());
+            જો (it == nameToIndex.end()) {
+                જો (makeChanges) {
                     argp->v3error(
                         "No such argument "
                         << argp->prettyNameQ() << " in call to " << nodep->taskp()->verilogKwd()
@@ -2165,27 +2165,27 @@ V3TaskConnects V3Task::taskConnects(AstNodeFTaskRef* nodep, AstNode* taskStmtsp,
                         << " " << nodep->taskp()->prettyNameQ() << " declaration\n"
                         << nodep->taskp()->warnContextSecondary());
                     // We'll just delete it; seems less error prone than making a false argument
-                    VL_DO_DANGLING(argp->unlinkFrBack()->deleteTree(), argp);
+                    VL_DO_DANGLING(argp->unlinkFrBack()->delete_વૃક્ષ(), argp);
                 }
-            } else {
-                if (tconnects[it->second].second && makeChanges) {
+            } નહીંતર {
+                જો (tconnects[it->second].second && makeChanges) {
                     argp->v3error("Duplicate argument " << argp->prettyNameQ()
                                                         << " in function call to "
                                                         << nodep->taskp()->prettyTypeName());
-                    tconnects[it->second].second->unlinkFrBack()->deleteTree();
+                    tconnects[it->second].second->unlinkFrBack()->delete_વૃક્ષ();
                 }
                 tconnects[it->second].second = argp;
-                reorganize = true;
+                reorganize = સાચું;
             }
-        } else {  // By pin number
-            if (nodep->taskp()->prettyName() == "randomize") {
+        } નહીંતર {  // By pin number
+            જો (nodep->taskp()->prettyName() == "randomize") {
                 // Arguments to randomize() are special, will be handled in V3Randomize
-            } else if (ppinnum >= tpinnum) {
-                if (sformatp) {
+            } નહીંતર જો (ppinnum >= tpinnum) {
+                જો (sformatp) {
                     tconnects.emplace_back(sformatp, static_cast<AstArg*>(nullptr));
                     tconnects[ppinnum].second = argp;
                     ++tpinnum;
-                } else if (makeChanges) {
+                } નહીંતર જો (makeChanges) {
                     argp->v3error("Too many arguments in call to "
                                   << nodep->taskp()->verilogKwd() << " "
                                   << nodep->taskp()->prettyNameQ() << '\n'
@@ -2195,46 +2195,46 @@ V3TaskConnects V3Task::taskConnects(AstNodeFTaskRef* nodep, AstNode* taskStmtsp,
                                   << nodep->taskp()->prettyNameQ() << " declaration:\n"
                                   << nodep->taskp()->warnContextSecondary());
                     // We'll just delete it; seems less error prone than making a false argument
-                    VL_DO_DANGLING(argp->unlinkFrBack()->deleteTree(), argp);
+                    VL_DO_DANGLING(argp->unlinkFrBack()->delete_વૃક્ષ(), argp);
                 }
-            } else {
+            } નહીંતર {
                 tconnects[ppinnum].second = argp;
             }
         }
         ++ppinnum;
     }
 
-    if (!makeChanges) return tconnects;
+    જો (!makeChanges) પાછા tconnects;
 
     // Connect missing ones
-    VInsertionSet<const AstVar*> argWrap;  // Which ports are defaulted; need arg wrapper creation
-    for (int i = 0; i < tpinnum; ++i) {
-        AstVar* const portp = tconnects[i].first;
-        if (!tconnects[i].second || !tconnects[i].second->exprp()) {
-            AstNodeExpr* newvaluep = nullptr;
-            if (!portp->valuep()) {
+    VInsertionSet<અચલ AstVar*> argWrap;  // Which ports are defaulted; need arg wrapper creation
+    માટે (પૂર્ણાંક i = 0; i < tpinnum; ++i) {
+        AstVar* અચલ portp = tconnects[i].first;
+        જો (!tconnects[i].second || !tconnects[i].second->exprp()) {
+            Ast_ગાંઠ_પદાવલિ* newvaluep = nullptr;
+            જો (!portp->valuep()) {
                 nodep->v3error("Missing argument on non-defaulted argument "
                                << portp->prettyNameQ() << " in function call to "
                                << nodep->taskp()->prettyTypeName());
-                newvaluep = new AstConst{nodep->fileline(), AstConst::Unsized32{}, 0};
-            } else if (AstFuncRef* const funcRefp = VN_CAST(portp->valuep(), FuncRef)) {
-                const AstNodeFTask* const funcp = funcRefp->taskp();
-                if (funcp->classMethod() && funcp->isStatic()) newvaluep = funcRefp;
-            } else if (AstConst* const constp = VN_CAST(portp->valuep(), Const)) {
+                newvaluep = નવું AstConst{nodep->fileline(), AstConst::Unsized32{}, 0};
+            } નહીંતર જો (AstFuncRef* અચલ funcRefp = VN_CAST(portp->valuep(), FuncRef)) {
+                અચલ Ast_ગાંઠ_FTask* અચલ funcp = funcRefp->taskp();
+                જો (funcp->classMethod() && funcp->isStatic()) newvaluep = funcRefp;
+            } નહીંતર જો (AstConst* અચલ constp = VN_CAST(portp->valuep(), Const)) {
                 newvaluep = constp;
             }
 
-            if (!newvaluep) {
+            જો (!newvaluep) {
                 // The default value for this port might be a constant
                 // expression that hasn't been folded yet. Try folding it
                 // now; we don't have much to lose if it fails.
-                newvaluep = V3Const::constifyEdit(VN_AS(portp->valuep(), NodeExpr));
-                if (!VN_IS(newvaluep, Const)) {
-                    if (statep) {
-                        portp->pinNum(i + 1);  // Make sure correct, will use to build name
+                newvaluep = V3Const::constifyEdit(VN_AS(portp->valuep(), ગાંઠ_પદાવલિ));
+                જો (!VN_IS(newvaluep, Const)) {
+                    જો (statep) {
+                        portp->pin_અંક(i + 1);  // Make sure correct, will use to build name
                         UINFO(9, "taskConnects arg wrapper needed " << portp->valuep());
-                        argWrap.insert(portp);
-                    } else {  // statep = nullptr, called too late or otherwise to handle args
+                        argWrap.ઉમેરો(portp);
+                    } નહીંતર {  // statep = nullptr, called too late or otherwise to handle args
                         // Problem otherwise is we might have a varref, task
                         // call, or something else that only makes sense in the
                         // domain of the function (or class containing the method),
@@ -2244,89 +2244,89 @@ V3TaskConnects V3Task::taskConnects(AstNodeFTaskRef* nodep, AstNode* taskStmtsp,
                             "Unsupported: Non-constant default value in missing argument "
                                 << portp->prettyNameQ() << " in function call to "
                                 << nodep->taskp()->prettyTypeName());
-                        newvaluep = new AstConst{nodep->fileline(), AstConst::Unsized32{}, 0};
+                        newvaluep = નવું AstConst{nodep->fileline(), AstConst::Unsized32{}, 0};
                     }
                 }
             }
-            newvaluep = newvaluep->backp() ? newvaluep->cloneTree(true) : newvaluep;
+            newvaluep = newvaluep->backp() ? newvaluep->clone_વૃક્ષ(સાચું) : newvaluep;
             // To avoid problems with callee needing to know to deleteTree
             // or not, we make this into a pin
             UINFO(9, "Default pin for " << portp);
-            AstArg* const newp = new AstArg{nodep->fileline(), portp->name(), newvaluep};
-            if (tconnects[i].second) {  // Have a "nullptr" pin already defined for it
-                VL_DO_CLEAR(tconnects[i].second->unlinkFrBack()->deleteTree(),
+            AstArg* અચલ newp = નવું AstArg{nodep->fileline(), portp->name(), newvaluep};
+            જો (tconnects[i].second) {  // Have a "nullptr" pin already defined for it
+                VL_DO_CLEAR(tconnects[i].second->unlinkFrBack()->delete_વૃક્ષ(),
                             tconnects[i].second = nullptr);
             }
             tconnects[i].second = newp;
-            reorganize = true;
+            reorganize = સાચું;
         }
-        if (tconnects[i].second) {
+        જો (tconnects[i].second) {
             UINFO(9, "Connect " << portp << "  ->  " << tconnects[i].second);
-        } else {
+        } નહીંતર {
             UINFO(9, "Connect " << portp << "  ->  NONE");
         }
     }
 
-    for (const auto& tconnect : tconnects) {
-        AstArg* const argp = tconnect.second;
+    માટે (અચલ auto& tconnect : tconnects) {
+        AstArg* અચલ argp = tconnect.second;
         argp->name("");  // Can forget name as will add back in pin order
     }
 
-    if (reorganize) {
+    જો (reorganize) {
         // To simplify downstream, put argument list back into pure pinnumber ordering
-        while (nodep->argsp()) {
+        જ્યારે (nodep->argsp()) {
             // Must unlink each pin, not all pins linked together as one list
             nodep->argsp()->unlinkFrBack();
         }
-        for (int i = 0; i < tpinnum; ++i) {
-            AstArg* const argp = tconnects[i].second;
+        માટે (પૂર્ણાંક i = 0; i < tpinnum; ++i) {
+            AstArg* અચલ argp = tconnects[i].second;
             UASSERT_OBJ(argp, nodep, "Lost argument in func conversion");
             nodep->addArgsp(argp);
         }
     }
 
-    if (debug() >= 9) {  // LCOV_EXCL_START
-        nodep->dumpTree("-  ftref-out: ");
-        for (int i = 0; i < tpinnum; ++i) {
+    જો (debug() >= 9) {  // LCOV_EXCL_START
+        nodep->dump_વૃક્ષ("-  ftref-out: ");
+        માટે (પૂર્ણાંક i = 0; i < tpinnum; ++i) {
             UINFO(0, "   pin " << i << "  pin=" << cvtToHex(tconnects[i].first)
                                << "  conn=" << cvtToHex(tconnects[i].second));
         }
     }  // LCOV_EXCL_STOP
 
-    if (!argWrap.empty()) {
+    જો (!argWrap.empty()) {
         UINFO(9, "Arg wrapper generation " << nodep);
         // Create wrapper function with default argument settings.
         // Needed because the default needs symbol table of the called function.
         taskConnectWrap(nodep, tconnects, statep, argWrap);
         // Regenerate all connections, this time connecting to the wrapper
-        return taskConnects(nodep, nodep->taskp()->stmtsp(),
+        પાછા taskConnects(nodep, nodep->taskp()->stmtsp(),
                             // statep null, so can't recurse forever
                             nullptr);
     }
-    return tconnects;
+    પાછા tconnects;
 }
 
-void V3Task::taskConnectWrap(AstNodeFTaskRef* nodep, const V3TaskConnects& tconnects,
+શૂન્ય V3Task::taskConnectWrap(Ast_ગાંઠ_FTask_Ref* nodep, અચલ V3TaskConnects& tconnects,
                              V3TaskConnectState* statep,
-                             const VInsertionSet<const AstVar*>& argWrap) {
+                             અચલ VInsertionSet<અચલ AstVar*>& argWrap) {
     statep->setDidWrap();
     // Make wrapper name such that is same iff same args are defaulted
     std::string newname = nodep->name() + "__Vtcwrap";
-    for (const AstVar* varp : argWrap) newname += "_" + cvtToStr(varp->pinNum());
-    const auto pair = statep->wrapMap().emplace(std::piecewise_construct,
+    માટે (અચલ AstVar* varp : argWrap) newname += "_" + cvtToStr(varp->pin_અંક());
+    અચલ auto pair = statep->wrapMap().emplace(std::piecewise_construct,
                                                 std::forward_as_tuple(nodep->taskp(), newname),
                                                 std::forward_as_tuple(nullptr));
-    if (pair.second) {
+    જો (pair.second) {
         pair.first->second = taskConnectWrapNew(nodep->taskp(), newname, tconnects, argWrap);
     }
-    AstNodeFTask* const newTaskp = pair.first->second;
+    Ast_ગાંઠ_FTask* અચલ newTaskp = pair.first->second;
 
     // Remove the defaulted arguments from original outside call
-    for (const auto& tconnect : tconnects) {
-        const AstVar* const portp = tconnect.first;
-        AstArg* const argp = tconnect.second;
-        if (argWrap.exists(portp)) {  // Removed arg
-            statep->pushDeletep(argp->unlinkFrBack());
+    માટે (અચલ auto& tconnect : tconnects) {
+        અચલ AstVar* અચલ portp = tconnect.first;
+        AstArg* અચલ argp = tconnect.second;
+        જો (argWrap.exists(portp)) {  // Removed arg
+            statep->ધકેલો_Deletep(argp->unlinkFrBack());
         }
     }
     // Change outside call to connect to new function
@@ -2335,92 +2335,92 @@ void V3Task::taskConnectWrap(AstNodeFTaskRef* nodep, const V3TaskConnects& tconn
     // UINFOTREE(9, nodep, "", "taskConnectWrap-call");
 }
 
-AstNodeFTask* V3Task::taskConnectWrapNew(AstNodeFTask* taskp, const string& newname,
-                                         const V3TaskConnects& tconnects,
-                                         const VInsertionSet<const AstVar*>& argWrap) {
-    std::map<const AstVar*, AstVar*> oldNewVars;  // Old -> new var mappings
+Ast_ગાંઠ_FTask* V3Task::taskConnectWrapNew(Ast_ગાંઠ_FTask* taskp, અચલ string& newname,
+                                         અચલ V3TaskConnects& tconnects,
+                                         અચલ VInsertionSet<અચલ AstVar*>& argWrap) {
+    std::map<અચલ AstVar*, AstVar*> oldNewVars;  // Old -> new var mappings
 
-    AstNodeFTask* const newTaskp = taskp->cloneType(newname);
+    Ast_ગાંઠ_FTask* અચલ newTaskp = taskp->cloneType(newname);
     newTaskp->propagateAttrFrom(taskp);
     taskp->addNextHere(newTaskp);
 
-    AstNodeFTaskRef* newCallp = nullptr;
-    AstNode* newCallInsertp = nullptr;
-    if (VN_IS(taskp, Func)) {
-        AstVar* const fvarp = VN_AS(taskp->fvarp(), Var);
+    Ast_ગાંઠ_FTask_Ref* newCallp = nullptr;
+    Ast_ગાંઠ* newCallInsertp = nullptr;
+    જો (VN_IS(taskp, Func)) {
+        AstVar* અચલ fvarp = VN_AS(taskp->fvarp(), Var);
         UASSERT_OBJ(fvarp, taskp, "FuncRef without fvar");
-        AstVar* const newFVarp = fvarp->cloneTree(true);
+        AstVar* અચલ newFVarp = fvarp->clone_વૃક્ષ(સાચું);
         oldNewVars.emplace(fvarp, newFVarp);
         newFVarp->name(newTaskp->name());
         newTaskp->fvarp(newFVarp);
         newTaskp->dtypeFrom(newFVarp);
-        newCallp = new AstFuncRef{taskp->fileline(), VN_AS(taskp, Func)};
+        newCallp = નવું AstFuncRef{taskp->fileline(), VN_AS(taskp, Func)};
         newCallInsertp
-            = new AstAssign{taskp->fileline(),
-                            new AstVarRef{fvarp->fileline(), newFVarp, VAccess::WRITE}, newCallp};
+            = નવું AstAssign{taskp->fileline(),
+                            નવું AstVarRef{fvarp->fileline(), newFVarp, VAccess::WRITE}, newCallp};
         newCallInsertp->dtypeFrom(newFVarp);
-    } else if (VN_IS(taskp, Task)) {
-        newCallp = new AstTaskRef{taskp->fileline(), VN_AS(taskp, Task)};
-        newCallInsertp = new AstStmtExpr{taskp->fileline(), newCallp};
-    } else {
+    } નહીંતર જો (VN_IS(taskp, Task)) {
+        newCallp = નવું AstTaskRef{taskp->fileline(), VN_AS(taskp, Task)};
+        newCallInsertp = નવું Ast_Stmt_પદાવલિ{taskp->fileline(), newCallp};
+    } નહીંતર {
         taskp->v3fatalSrc("Unsupported: Non-constant default value in missing argument in a "
                           << taskp->prettyTypeName());
     }
 
     // Create wrapper's ports matching original's
-    for (const auto& tconnect : tconnects) {
-        AstVar* const portp = tconnect.first;
+    માટે (અચલ auto& tconnect : tconnects) {
+        AstVar* અચલ portp = tconnect.first;
         AstVar* newPortp;
-        if (!argWrap.exists(portp)) {  // Not removed arg
-            newPortp = new AstVar{portp->fileline(), portp->varType(), portp->name(), portp};
+        જો (!argWrap.exists(portp)) {  // Not removed arg
+            newPortp = નવું AstVar{portp->fileline(), portp->varType(), portp->name(), portp};
             newPortp->propagateWrapAttrFrom(portp);
-            newPortp->funcLocal(true);
-            if (newPortp->valuep()) newPortp->valuep()->unlinkFrBack()->deleteTree();
+            newPortp->funcLocal(સાચું);
+            જો (newPortp->valuep()) newPortp->valuep()->unlinkFrBack()->delete_વૃક્ષ();
             newTaskp->addStmtsp(newPortp);
-        } else {  // Defaulting arg
-            AstNodeExpr* const valuep = VN_AS(portp->valuep(), NodeExpr);
-            if ((portp->isRef() || portp->isConstRef()) && VN_IS(valuep, VarRef)) {
-                const VAccess refAccess = portp->direction().pinAccess();
-                AstVarRef* const refp = VN_AS(valuep->cloneTree(false), VarRef);
+        } નહીંતર {  // Defaulting arg
+            Ast_ગાંઠ_પદાવલિ* અચલ valuep = VN_AS(portp->valuep(), ગાંઠ_પદાવલિ);
+            જો ((portp->isRef() || portp->isConstRef()) && VN_IS(valuep, VarRef)) {
+                અચલ VAccess refAccess = portp->direction().pinAccess();
+                AstVarRef* અચલ refp = VN_AS(valuep->clone_વૃક્ષ(ખોટું), VarRef);
                 refp->access(refAccess);
-                AstArg* const newArgp = new AstArg{portp->fileline(), portp->name(), refp};
+                AstArg* અચલ newArgp = નવું AstArg{portp->fileline(), portp->name(), refp};
                 newCallp->addArgsp(newArgp);
-                continue;
+                ચાલુ;
             }
             // Create local temporary
-            newPortp = new AstVar{portp->fileline(), VVarType::BLOCKTEMP, portp->name(),
+            newPortp = નવું AstVar{portp->fileline(), VVarType::BLOCKTEMP, portp->name(),
                                   portp->dtypep()};
             newPortp->propagateAttrFrom(portp);
-            newPortp->funcLocal(true);
+            newPortp->funcLocal(સાચું);
             newTaskp->addStmtsp(newPortp);
             // Runtime-assign it to the default
-            if (!VN_IS(valuep, EmptyQueue)) {
-                AstAssign* const newAssignp
-                    = new AstAssign{valuep->fileline(),
-                                    new AstVarRef{valuep->fileline(), newPortp, VAccess::WRITE},
-                                    valuep->cloneTree(true)};
+            જો (!VN_IS(valuep, EmptyQueue)) {
+                AstAssign* અચલ newAssignp
+                    = નવું AstAssign{valuep->fileline(),
+                                    નવું AstVarRef{valuep->fileline(), newPortp, VAccess::WRITE},
+                                    valuep->clone_વૃક્ષ(સાચું)};
                 newTaskp->addStmtsp(newAssignp);
             }
         }
         oldNewVars.emplace(portp, newPortp);
-        AstArg* const newArgp = new AstArg{
+        AstArg* અચલ newArgp = નવું AstArg{
             portp->fileline(), portp->name(),
-            new AstVarRef{portp->fileline(), newPortp, portp->direction().pinAccess()}};
+            નવું AstVarRef{portp->fileline(), newPortp, portp->direction().pinAccess()}};
         newCallp->addArgsp(newArgp);
     }
     // Create wrapper call to original, passing arguments, adding setting of return value
     newTaskp->addStmtsp(newCallInsertp);
     // Replace any varref's to original to new ports (e.g. in argument equations)
     newTaskp->foreach([=](AstVarRef* refp) {
-        const auto it = oldNewVars.find(refp->varp());
-        if (it != oldNewVars.end()) refp->varp(it->second);
+        અચલ auto it = oldNewVars.find(refp->varp());
+        જો (it != oldNewVars.end()) refp->varp(it->second);
     });
     // UINFOTREE(9, newTaskp, "", "taskConnectWrap-new");
-    return newTaskp;
+    પાછા newTaskp;
 }
 
-string V3Task::assignInternalToDpi(AstVar* portp, bool isPtr, const string& frSuffix,
-                                   const string& toSuffix, const string& frPrefix) {
+string V3Task::assignInternalToDpi(AstVar* portp, તાર્કિક isPtr, અચલ string& frSuffix,
+                                   અચલ string& toSuffix, અચલ string& frPrefix) {
     // Create assignment from internal format into DPI temporary
     // Internal representation is scalar, 1D, or multi-dimensional array (similar to SV)
     // DPI temporary is scalar or 1D array (if unpacked array)
@@ -2428,21 +2428,21 @@ string V3Task::assignInternalToDpi(AstVar* portp, bool isPtr, const string& frSu
     string ket;
     // Someday we'll have better type support, and this can make variables and casts.
     // But for now, we'll just text-bash it.
-    const string frName = frPrefix + portp->name() + frSuffix;
-    const string toName = portp->name() + toSuffix;
-    const string idx = portp->name() + "__Vidx";
+    અચલ string frName = frPrefix + portp->name() + frSuffix;
+    અચલ string toName = portp->name() + toSuffix;
+    અચલ string idx = portp->name() + "__Vidx";
     size_t unpackSize = 1;  // non-unpacked array is treated as size 1
-    int unpackDim = 0;
-    if (AstUnpackArrayDType* const unpackp
+    પૂર્ણાંક unpackDim = 0;
+    જો (AstUnpackArrayDType* અચલ unpackp
         = VN_CAST(portp->dtypep()->skipRefp(), UnpackArrayDType)) {
         unpackSize = unpackp->arrayUnpackedElements();
-        unpackDim = unpackp->dimensions(false).second;
-        if (unpackDim > 0) UASSERT_OBJ(unpackSize > 0, portp, "size must be greater than 0");
+        unpackDim = unpackp->dimensions(ખોટું).second;
+        જો (unpackDim > 0) UASSERT_OBJ(unpackSize > 0, portp, "size must be greater than 0");
     }
-    if (portp->basicp()->isDpiBitVec() || portp->basicp()->isDpiLogicVec()) {
-        const bool isBit = portp->basicp()->isDpiBitVec();
-        const bool needsFor = unpackSize > 1;
-        if (needsFor) {
+    જો (portp->basicp()->isDpiBitVec() || portp->basicp()->isDpiLogicVec()) {
+        અચલ તાર્કિક isBit = portp->basicp()->isDpiBitVec();
+        અચલ તાર્કિક needsFor = unpackSize > 1;
+        જો (needsFor) {
             stmt = "for (size_t " + idx + " = 0; " + idx + " < " + cvtToStr(unpackSize) + "; ++"
                    + idx + ") ";
         }
@@ -2450,86 +2450,86 @@ string V3Task::assignInternalToDpi(AstVar* portp, bool isPtr, const string& frSu
         stmt += (isBit ? "VL_SET_SVBV_"s : "VL_SET_SVLV_"s)
                 + portp->dtypep()->skipRefp()->charIQWN() + "(" + cvtToStr(portp->width()) + ", ";
         stmt += toName;
-        if (needsFor) {
-            stmt += " + " + cvtToStr(portp->dtypep()->skipRefp()->widthWords()) + " * " + idx;
+        જો (needsFor) {
+            stmt += " + " + cvtToStr(portp->dtypep()->skipRefp()->width_શબ્દો()) + " * " + idx;
         }
         stmt += ", ";
-        if (unpackDim > 0) {  // Access multi-dimensional array as a 1D array
+        જો (unpackDim > 0) {  // Access multi-dimensional array as a 1D array
             stmt += "(&" + frName;
-            for (int i = 0; i < unpackDim; ++i) stmt += "[0]";
+            માટે (પૂર્ણાંક i = 0; i < unpackDim; ++i) stmt += "[0]";
             stmt += ")[" + (needsFor ? idx : "0") + "])";
-        } else {
+        } નહીંતર {
             stmt += frName + ")";
         }
-    } else {
-        const bool isChandle
+    } નહીંતર {
+        અચલ તાર્કિક isChandle
             = portp->basicp() && portp->basicp()->keyword() == VBasicDTypeKwd::CHANDLE;
-        const bool isString
+        અચલ તાર્કિક isString
             = portp->basicp() && portp->basicp()->keyword() == VBasicDTypeKwd::STRING;
-        const string unpackAt = unpackSize > 1 ? "[" + idx + "]" : "[0]";
-        if (unpackDim > 0) {
-            const string forStmt = unpackSize > 1
+        અચલ string unpackAt = unpackSize > 1 ? "[" + idx + "]" : "[0]";
+        જો (unpackDim > 0) {
+            અચલ string forStmt = unpackSize > 1
                                        ? "for (size_t " + idx + " = 0; " + idx + " < "
                                              + cvtToStr(unpackSize) + "; ++" + idx + ") "
                                        : "";
             stmt += forStmt + toName + unpackAt;
-        } else {
-            if (isPtr) stmt += "*";  // DPI outputs are pointers
+        } નહીંતર {
+            જો (isPtr) stmt += "*";  // DPI outputs are pointers
             stmt += toName;
         }
         stmt += " = ";
-        if (isChandle) {
+        જો (isChandle) {
             stmt += "VL_CVT_Q_VP(";
             ket += ")";
         }
-        if (unpackDim > 0) {
+        જો (unpackDim > 0) {
             stmt += "(&" + frName;
-            for (int i = 0; i < unpackDim; ++i) stmt += "[0]";
+            માટે (પૂર્ણાંક i = 0; i < unpackDim; ++i) stmt += "[0]";
             stmt += ")" + unpackAt;
-        } else {
+        } નહીંતર {
             stmt += frName;
         }
-        if (isString) stmt += ".c_str()";
+        જો (isString) stmt += ".c_str()";
     }
     stmt += ket + ";";
-    return stmt;
+    પાછા stmt;
 }
 
 // Create assignment from DPI temporary into internal format
 // DPI temporary is scalar or 1D array (if unpacked array)
 // Internal representation is scalar, 1D, or multi-dimensional array (similar to SV)
-std::string V3Task::assignDpiToInternal(const std::string& lhsName, AstVar* varp) {
+std::string V3Task::assignDpiToInternal(અચલ std::string& lhsName, AstVar* varp) {
     std::string cvt;
-    bool useSvVec;
+    તાર્કિક useSvVec;
     std::tie(cvt, useSvVec) = TaskDpiUtils::dpiToInternalCvtStmt(varp->dtypep());
-    const std::vector<std::pair<int, int>> strides = TaskDpiUtils::unpackDimsAndStrides(varp);
-    const int total = strides.empty() ? 1 : strides[0].first * strides[0].second;
-    const int widthWords = varp->basicp()->widthWords();
+    અચલ std::vector<std::pair<પૂર્ણાંક, પૂર્ણાંક>> strides = TaskDpiUtils::unpackDimsAndStrides(varp);
+    અચલ પૂર્ણાંક total = strides.empty() ? 1 : strides[0].first * strides[0].second;
+    અચલ પૂર્ણાંક width_શબ્દો = varp->basicp()->width_શબ્દો();
     string statements;
-    for (int i = 0; i < total; ++i) {
+    માટે (પૂર્ણાંક i = 0; i < total; ++i) {
         std::string lhs = lhsName;
         // extract a scalar from multi-dimensional array (internal format)
-        for (const auto& stride : strides) {
+        માટે (અચલ auto& stride : strides) {
             lhs += "[" + std::to_string((i / stride.second) % stride.first) + "]";
         }
         // extract a scalar from DPI temporary var that is scalar or 1D array
-        if (useSvVec) {
-            const std::string offset = std::to_string(i * widthWords);
+        જો (useSvVec) {
+            અચલ std::string offset = std::to_string(i * width_શબ્દો);
             statements += cvt + " " + lhs + ", " + varp->name() + " + " + offset + ");\n";
-        } else {
-            const std::string elem = strides.empty() ? "" : "[" + std::to_string(i) + "]";
+        } નહીંતર {
+            અચલ std::string elem = strides.empty() ? "" : "[" + std::to_string(i) + "]";
             statements += lhs + " = " + cvt + varp->name() + elem + ")" + ";\n";
         }
     }
-    return statements;
+    પાછા statements;
 }
 
-void V3Task::taskAll(AstNetlist* nodep) {
+શૂન્ય V3Task::taskAll(AstNetlist* nodep) {
     UINFO(2, __FUNCTION__ << ":");
     {
         TaskStateVisitor visitors{nodep};
-        const TaskVisitor visitor{nodep, &visitors};
+        અચલ TaskVisitor visitor{nodep, &visitors};
     }  // Destruct before checking
     { TaskIfaceSensVisitor{nodep}; }
-    V3Global::dumpCheckGlobalTree("task", 0, dumpTreeEitherLevel() >= 3);
+    V3Global::dump_Check_Global_વૃક્ષ("task", 0, dump_વૃક્ષ_Either_Level() >= 3);
 }

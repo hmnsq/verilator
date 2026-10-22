@@ -18,16 +18,16 @@
 #ifndef VERILATOR_V3GRAPHSTREAM_H_
 #define VERILATOR_V3GRAPHSTREAM_H_
 
-#include "config_build.h"
-#include "verilatedos.h"
+#અન્તર્ભાવ "config_build.h"
+#અન્તર્ભાવ "verilatedos.h"
 
-#include "V3Graph.h"
+#અન્તર્ભાવ "V3Graph.h"
 
-#include <functional>
-#include <map>
-#include <set>
-#include <unordered_map>
-#include <vector>
+#અન્તર્ભાવ <functional>
+#અન્તર્ભાવ <map>
+#અન્તર્ભાવ <set>
+#અન્તર્ભાવ <unordered_map>
+#અન્તર્ભાવ <vector>
 
 //######################################################################
 // GraphStream
@@ -44,42 +44,42 @@ template <typename T_Compare>
 class GraphStream final {
     // TYPES
     class VxHolder final {
-    public:
+    જાહેર:
         // MEMBERS
-        const V3GraphVertex* const m_vxp;  // [mtask] Vertex
-        const uint32_t m_pos;  // Sort position
-        uint32_t m_numBlockingEdges;  // Number of blocking edges
+        અચલ V3GraphVertex* અચલ m_vxp;  // [mtask] Vertex
+        અચલ uint32_t m_pos;  // Sort position
+        uint32_t m_અંક_Blocking_Edges;  // Number of blocking edges
         // CONSTRUCTORS
-        VxHolder(const V3GraphVertex* vxp, uint32_t pos, uint32_t numBlockingEdges)
+        VxHolder(અચલ V3GraphVertex* vxp, uint32_t pos, uint32_t અંક_Blocking_Edges)
             : m_vxp{vxp}
             , m_pos{pos}
-            , m_numBlockingEdges{numBlockingEdges} {}
+            , m_અંક_Blocking_Edges{અંક_Blocking_Edges} {}
         // METHODS
-        const V3GraphVertex* vertexp() const { return m_vxp; }
+        અચલ V3GraphVertex* vertexp() અચલ { પાછા m_vxp; }
         // Decrement blocking edges count, return true if the vertex is
         // newly unblocked
         bool unblock() {
-            UASSERT_OBJ(m_numBlockingEdges > 0, vertexp(), "Underflow of blocking edges");
-            --m_numBlockingEdges;
-            return (m_numBlockingEdges == 0);
+            UASSERT_OBJ(m_અંક_Blocking_Edges > 0, vertexp(), "Underflow of blocking edges");
+            --m_અંક_Blocking_Edges;
+            પાછા (m_અંક_Blocking_Edges == 0);
         }
     };
 
     class VxHolderCmp final {
-    public:
+    જાહેર:
         // MEMBERS
-        const T_Compare m_lessThan;  // Sorting functor
+        અચલ T_Compare m_lessThan;  // Sorting functor
         // CONSTRUCTORS
-        explicit VxHolderCmp(const T_Compare& lessThan)
+        explicit VxHolderCmp(અચલ T_Compare& lessThan)
             : m_lessThan{lessThan} {}
         // METHODS
-        bool operator()(const VxHolder& a, const VxHolder& b) const {
-            if (m_lessThan.operator()(a.vertexp(), b.vertexp())) return true;
-            if (m_lessThan.operator()(b.vertexp(), a.vertexp())) return false;
-            return a.m_pos < b.m_pos;
+        bool operator()(અચલ VxHolder& a, અચલ VxHolder& b) અચલ {
+            જો (m_lessThan.operator()(a.vertexp(), b.vertexp())) પાછા true;
+            જો (m_lessThan.operator()(b.vertexp(), a.vertexp())) પાછા false;
+            પાછા a.m_pos < b.m_pos;
         }
 
-    private:
+    ખાનગી:
         VL_UNCOPYABLE(VxHolderCmp);
     };
 
@@ -88,14 +88,14 @@ class GraphStream final {
     // MEMBERS
     VxHolderCmp m_vxHolderCmp;  // Vertext comparison functor
     ReadyVertices m_readyVertices;  // List of ready vertices
-    std::map<const V3GraphVertex*, VxHolder> m_waitingVertices;  // List of waiting vertices
+    std::map<અચલ V3GraphVertex*, VxHolder> m_waitingVertices;  // List of waiting vertices
     typename ReadyVertices::iterator m_last;  // Previously returned element
-    const GraphWay m_way;  // FORWARD or REVERSE order of traversal
+    અચલ GraphWay m_way;  // FORWARD or REVERSE order of traversal
 
-public:
+જાહેર:
     // CONSTRUCTORS
-    explicit GraphStream(const V3Graph* graphp, GraphWay way = GraphWay::FORWARD,
-                         const T_Compare& lessThan = T_Compare())
+    explicit GraphStream(અચલ V3Graph* graphp, GraphWay way = GraphWay::FORWARD,
+                         અચલ T_Compare& lessThan = T_Compare())
         // NOTE: Perhaps REVERSE way should also reverse the sense of the
         // lessThan function? For now the only usage of REVERSE is not
         // sensitive to its lessThan at all, so it doesn't matter.
@@ -104,30 +104,30 @@ public:
         , m_last{m_readyVertices.end()}
         , m_way{way} {
         uint32_t pos = 0;
-        for (const V3GraphVertex& vtx : graphp->vertices()) {
+        માટે (અચલ V3GraphVertex& vtx : graphp->vertices()) {
             // Every vertex initially is waiting, or ready.
-            if (way == GraphWay::FORWARD) {
-                if (vtx.inEmpty()) {
-                    const VxHolder newVx{&vtx, pos++, 0};
-                    m_readyVertices.insert(newVx);
-                } else {
-                    const uint32_t depCount = vtx.inEdges().size();
-                    const VxHolder newVx{&vtx, pos++, depCount};
+            જો (way == GraphWay::FORWARD) {
+                જો (vtx.inEmpty()) {
+                    અચલ VxHolder newVx{&vtx, pos++, 0};
+                    m_readyVertices.ઉમેરો(newVx);
+                } નહીંતર {
+                    અચલ uint32_t dep_ગણતરી = vtx.inEdges().size();
+                    અચલ VxHolder newVx{&vtx, pos++, dep_ગણતરી};
                     m_waitingVertices.emplace(&vtx, newVx);
                 }
-            } else {  // REVERSE
-                if (vtx.outEmpty()) {
-                    const VxHolder newVx{&vtx, pos++, 0};
-                    m_readyVertices.insert(newVx);
-                } else {
-                    const uint32_t depCount = vtx.outEdges().size();
-                    const VxHolder newVx{&vtx, pos++, depCount};
+            } નહીંતર {  // REVERSE
+                જો (vtx.outEmpty()) {
+                    અચલ VxHolder newVx{&vtx, pos++, 0};
+                    m_readyVertices.ઉમેરો(newVx);
+                } નહીંતર {
+                    અચલ uint32_t dep_ગણતરી = vtx.outEdges().size();
+                    અચલ VxHolder newVx{&vtx, pos++, dep_ગણતરી};
                     m_waitingVertices.emplace(&vtx, newVx);
                 }
             }
         }
     }
-    ~GraphStream() = default;
+    ~GraphStream() = મૂળભૂત;
 
     // METHODS
 
@@ -154,14 +154,14 @@ public:
     // nextp() returns them in the original graph order (presumably also
     // good locality.) V3Order.cpp relies on this to order the logic
     // vertices within a given mtask without jumping over domains too much.
-    const V3GraphVertex* nextp() {
-        const V3GraphVertex* resultp = nullptr;
+    અચલ V3GraphVertex* nextp() {
+        અચલ V3GraphVertex* resultp = nullptr;
 
         typename ReadyVertices::iterator curIt;
-        if (m_last == m_readyVertices.end()) {
+        જો (m_last == m_readyVertices.end()) {
             // First call to nextp()
             curIt = m_readyVertices.begin();
-        } else {
+        } નહીંતર {
             // Subsequent call to nextp()
             curIt = m_last;
             ++curIt;
@@ -170,45 +170,45 @@ public:
             // Wrap curIt. Expect to wrap, and make another pass, to find
             // newly-ready elements that could have appeared ahead of the
             // m_last iterator
-            if (curIt == m_readyVertices.end()) curIt = m_readyVertices.begin();
+            જો (curIt == m_readyVertices.end()) curIt = m_readyVertices.begin();
         }
 
-        if (curIt != m_readyVertices.end()) {
+        જો (curIt != m_readyVertices.end()) {
             resultp = curIt->vertexp();
             unblockDeps(resultp);
-        } else {
+        } નહીંતર {
             // No ready vertices; waiting should be empty too, otherwise we
             // were fed a graph with cycles (which is not supported.)
             UASSERT(m_waitingVertices.empty(), "DGS fed non-DAG");
         }
 
         m_last = curIt;
-        return resultp;
+        પાછા resultp;
     }
 
-private:
-    void unblockDeps(const V3GraphVertex* vertexp) {
-        if (m_way == GraphWay::FORWARD) {
-            for (const V3GraphEdge& edgep : vertexp->outEdges()) {
-                const V3GraphVertex* const toVertexp = edgep.top();
+ખાનગી:
+    શૂન્ય unblockDeps(અચલ V3GraphVertex* vertexp) {
+        જો (m_way == GraphWay::FORWARD) {
+            માટે (અચલ V3GraphEdge& edgep : vertexp->outEdges()) {
+                અચલ V3GraphVertex* અચલ toVertexp = edgep.ટોચ();
 
-                const auto it = m_waitingVertices.find(toVertexp);
+                અચલ auto it = m_waitingVertices.find(toVertexp);
                 UASSERT_OBJ(it != m_waitingVertices.end(), toVertexp,
                             "Found edge into vertex not in waiting list.");
-                if (it->second.unblock()) {
-                    m_readyVertices.insert(it->second);
+                જો (it->second.unblock()) {
+                    m_readyVertices.ઉમેરો(it->second);
                     m_waitingVertices.erase(it);
                 }
             }
-        } else {
-            for (const V3GraphEdge& edge : vertexp->inEdges()) {
-                const V3GraphVertex* const fromVertexp = edge.fromp();
+        } નહીંતર {
+            માટે (અચલ V3GraphEdge& edge : vertexp->inEdges()) {
+                અચલ V3GraphVertex* અચલ fromVertexp = edge.fromp();
 
-                const auto it = m_waitingVertices.find(fromVertexp);
+                અચલ auto it = m_waitingVertices.find(fromVertexp);
                 UASSERT_OBJ(it != m_waitingVertices.end(), fromVertexp,
                             "Found edge into vertex not in waiting list.");
-                if (it->second.unblock()) {
-                    m_readyVertices.insert(it->second);
+                જો (it->second.unblock()) {
+                    m_readyVertices.ઉમેરો(it->second);
                     m_waitingVertices.erase(it);
                 }
             }
@@ -224,66 +224,66 @@ private:
 
 class GraphStreamUnordered final {
     // MEMBERS
-    const GraphWay m_way;  // Direction of traversal
+    અચલ GraphWay m_way;  // Direction of traversal
     size_t m_nextIndex = 0;  // Which index to return from m_nextVertices next
-    std::vector<const V3GraphVertex*> m_nextVertices;  // List of ready vertices returned next
-    std::vector<const V3GraphVertex*> m_readyVertices;  // List of other ready vertices
+    std::vector<અચલ V3GraphVertex*> m_nextVertices;  // List of ready vertices returned next
+    std::vector<અચલ V3GraphVertex*> m_readyVertices;  // List of other ready vertices
 
-public:
+જાહેર:
     // CONSTRUCTORS
     VL_UNCOPYABLE(GraphStreamUnordered);
     explicit GraphStreamUnordered(V3Graph* graphp, GraphWay way = GraphWay::FORWARD)
         : m_way{way} {
-        if (m_way == GraphWay::FORWARD) {
+        જો (m_way == GraphWay::FORWARD) {
             init<GraphWay::FORWARD>(graphp);
-        } else {
+        } નહીંતર {
             init<GraphWay::REVERSE>(graphp);
         }
     }
-    ~GraphStreamUnordered() = default;
+    ~GraphStreamUnordered() = મૂળભૂત;
 
     // METHODS
 
     // Each call to nextp() returns a unique vertex in the graph, in dependency order. Dependencies
     // alone do not specify a total ordering. Un-ordered vertices are returned in an arbitrary but
     // deterministic order.
-    const V3GraphVertex* nextp() {
-        if (VL_UNLIKELY(m_nextIndex == m_nextVertices.size())) {
-            if (VL_UNLIKELY(m_readyVertices.empty())) return nullptr;
+    અચલ V3GraphVertex* nextp() {
+        જો (VL_UNLIKELY(m_nextIndex == m_nextVertices.size())) {
+            જો (VL_UNLIKELY(m_readyVertices.empty())) પાછા nullptr;
             m_nextIndex = 0;
             // Use swap to avoid reallocation
             m_nextVertices.swap(m_readyVertices);
             m_readyVertices.clear();
         }
-        const V3GraphVertex* const resultp = m_nextVertices[m_nextIndex++];
-        if (m_way == GraphWay::FORWARD) return unblock<GraphWay::FORWARD>(resultp);
-        return unblock<GraphWay::REVERSE>(resultp);
+        અચલ V3GraphVertex* અચલ resultp = m_nextVertices[m_nextIndex++];
+        જો (m_way == GraphWay::FORWARD) પાછા unblock<GraphWay::FORWARD>(resultp);
+        પાછા unblock<GraphWay::REVERSE>(resultp);
     }
 
-private:
+ખાનગી:
     template <uint8_t N_Way>  //
-    VL_ATTR_NOINLINE void init(V3Graph* graphp) {
+    VL_ATTR_NOINLINE શૂન્ય init(V3Graph* graphp) {
         constexpr GraphWay way{N_Way};
         // Assign every vertex without an incoming edge to ready, others to waiting
-        for (V3GraphVertex& vertex : graphp->vertices()) {
-            const uint32_t nDeps = vertex.edges<way.invert()>().size();
+        માટે (V3GraphVertex& vertex : graphp->vertices()) {
+            અચલ uint32_t nDeps = vertex.edges<way.invert()>().size();
             vertex.color(nDeps);  // Using color instead of user, as user might be used by client
-            if (VL_UNLIKELY(nDeps == 0)) m_nextVertices.push_back(&vertex);
+            જો (VL_UNLIKELY(nDeps == 0)) m_nextVertices.ધકેલો_back(&vertex);
         }
     }
 
     template <uint8_t N_Way>  //
-    VL_ATTR_NOINLINE const V3GraphVertex* unblock(const V3GraphVertex* resultp) {
+    VL_ATTR_NOINLINE અચલ V3GraphVertex* unblock(અચલ V3GraphVertex* resultp) {
         constexpr GraphWay way{N_Way};
-        for (const V3GraphEdge& edge : resultp->edges<way>()) {
-            V3GraphVertex* const vertexp = edge.furtherp<way>();
-#if VL_DEBUG
+        માટે (અચલ V3GraphEdge& edge : resultp->edges<way>()) {
+            V3GraphVertex* અચલ vertexp = edge.furtherp<way>();
+#જો VL_DEBUG
             UASSERT_OBJ(vertexp->color() != 0, vertexp, "Should not be on waiting list");
 #endif
             vertexp->color(vertexp->color() - 1);
-            if (!vertexp->color()) m_readyVertices.push_back(vertexp);
+            જો (!vertexp->color()) m_readyVertices.ધકેલો_back(vertexp);
         }
-        return resultp;  // Returning input so we can tail call this method
+        પાછા resultp;  // Returning input so we can tail call this method
     }
 };
 

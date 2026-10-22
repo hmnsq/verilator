@@ -19,7 +19,7 @@
 //**********************************************************************
 //**** Version and host name
 
-#include "config_package.h"
+#અન્તર્ભાવ "config_package.h"
 
 //**********************************************************************
 //**** Functions
@@ -47,8 +47,8 @@
 #ifndef DEFENV_SYSTEMC_LIBDIR
 # define DEFENV_SYSTEMC_LIBDIR ""
 #endif
-#ifndef DEFENV_VERILATOR_ROOT
-# define DEFENV_VERILATOR_ROOT ""
+#ifndef DEFENV_VERILATOR_મૂળ
+# define DEFENV_VERILATOR_મૂળ ""
 #endif
 #ifndef DEFENV_VERILATOR_SOLVER
 # define DEFENV_VERILATOR_SOLVER ""
@@ -58,13 +58,13 @@
 //**********************************************************************
 //**** Compile options
 
-#include <cstdio>
-#include <cstdlib>
-#include <cstring>
-#include <iostream>
-#include <string>
+#અન્તર્ભાવ <cstdio>
+#અન્તર્ભાવ <cstdlib>
+#અન્તર્ભાવ <cstring>
+#અન્તર્ભાવ <iostream>
+#અન્તર્ભાવ <string>
 
-#include <sys/types.h>
+#અન્તર્ભાવ <sys/types.h>
 
 // Avoid needing std:: prefixes on some very common items
 using string = std::string;
@@ -75,4 +75,4 @@ using namespace std::literals;  // "<std::string literal>"s; see SF.7 core guide
 //**********************************************************************
 //**** OS and compiler specifics
 
-#include "verilatedos.h"
+#અન્તર્ભાવ "verilatedos.h"

@@ -18,63 +18,63 @@
 
 #define VL_MT_DISABLED_CODE_UNIT 1
 
-#include "V3Ast.h"  // This must be before V3ParseBison.cpp, as we don't want #defines to conflict
+#અન્તર્ભાવ "V3Ast.h"  // This must be before V3ParseBison.cpp, as we don't want #defines to conflict
 
 VL_DEFINE_DEBUG_FUNCTIONS;
 
 //======================================================================
 // The guts come from bison output
 
-#include "V3ParseBison.c"
+#અન્તર્ભાવ "V3ParseBison.c"
 
 //======================================================================
 // V3ParseImp functions requiring bison state
 
-int V3ParseImp::bisonParse() {
+પૂર્ણાંક V3ParseImp::bisonParse() {
     // Use --debugi-bison 9 to enable this
-    if (PARSEP->debugBison() >= 9) yydebug = 1;
-    return yyparse();
+    જો (PARSEP->debugBison() >= 9) yydebug = 1;
+    પાછા yyparse();
 }
 
-const char* V3ParseImp::tokenName(int token) {
-#if YYDEBUG || YYERROR_VERBOSE
-    static const char** nameTablep = nullptr;
-    if (!nameTablep) {
-        int size;
-        for (size = 0; yytname[size]; ++size) {}
-        nameTablep = new const char*[size];
+અચલ અક્ષર* V3ParseImp::tokenName(પૂર્ણાંક token) {
+#જો YYDEBUG || YYERROR_VERBOSE
+    સ્થિર અચલ અક્ષર** nameTablep = nullptr;
+    જો (!nameTablep) {
+        પૂર્ણાંક size;
+        માટે (size = 0; yytname[size]; ++size) {}
+        nameTablep = નવું અચલ અક્ષર*[size];
         // Workaround bug in bison's which have '!' in yytname but not token values
-        int iout = 0;
-        for (int i = 0; yytname[i]; ++i) {
-            if (yytname[i][0] == '\'') continue;
+        પૂર્ણાંક iout = 0;
+        માટે (પૂર્ણાંક i = 0; yytname[i]; ++i) {
+            જો (yytname[i][0] == '\'') ચાલુ;
             nameTablep[iout++] = yytname[i];
         }
     }
-    if (token >= 255) {
-        return nameTablep[token - 255];
-    } else {
-        static char s_ch[2];
+    જો (token >= 255) {
+        પાછા nameTablep[token - 255];
+    } નહીંતર {
+        સ્થિર અક્ષર s_ch[2];
         s_ch[0] = token;
         s_ch[1] = '\0';
-        return s_ch;
+        પાછા s_ch;
     }
-#else
-    return "";
+#નહીંતર
+    પાછા "";
 #endif
 }
 
-void V3ParseImp::candidatePli(VSpellCheck* spellerp) {
-#if !YYERROR_VERBOSE
+શૂન્ય V3ParseImp::candidatePli(VSpellCheck* spellerp) {
+#જો !YYERROR_VERBOSE
 #error "Need lex token names"
 #endif
-    for (int i = 0; yytname[i]; ++i) {
-        if (yytname[i][0] != '\"') continue;
-        if (yytname[i][1] != '$') continue;
-        spellerp->pushCandidate(string{yytname[i]}.substr(1, strlen(yytname[i]) - 2));
+    માટે (પૂર્ણાંક i = 0; yytname[i]; ++i) {
+        જો (yytname[i][0] != '\"') ચાલુ;
+        જો (yytname[i][1] != '$') ચાલુ;
+        spellerp->ધકેલો_Candidate(string{yytname[i]}.substr(1, strlen(yytname[i]) - 2));
     }
 }
 
-void V3ParseImp::parserClear() {
+શૂન્ય V3ParseImp::parserClear() {
     // Clear up any dynamic memory V3Parser required
     VARDTYPE(nullptr);
     GRAMMARP->setNetDelay(nullptr);
@@ -84,214 +84,214 @@ void V3ParseImp::parserClear() {
 //======================================================================
 // V3ParseGrammar functions requiring bison state
 
-AstArg* V3ParseGrammar::argWrapList(AstNodeExpr* nodep) {
+AstArg* V3ParseGrammar::argWrapList(Ast_ગાંઠ_પદાવલિ* nodep) {
     // Convert list of expressions to list of arguments
     AstArg* outp = nullptr;
-    while (nodep) {
-        AstNodeExpr* const nextp = VN_AS(nodep->nextp(), NodeExpr);
-        if (nextp) nextp->unlinkFrBackWithNext();
-        outp = AstNode::addNext(outp, new AstArg{nodep->fileline(), "", nodep});
+    જ્યારે (nodep) {
+        Ast_ગાંઠ_પદાવલિ* અચલ nextp = VN_AS(nodep->nextp(), ગાંઠ_પદાવલિ);
+        જો (nextp) nextp->unlinkFrBackWithNext();
+        outp = Ast_ગાંઠ::addNext(outp, નવું AstArg{nodep->fileline(), "", nodep});
         nodep = nextp;
     }
-    return outp;
+    પાછા outp;
 }
 
-AstAssignW* V3ParseGrammar::createSupplyExpr(FileLine* fileline, const string& name, int value) {
-    AstAssignW* assignp = new AstAssignW{fileline, new AstParseRef{fileline, name},
-                                         value ? new AstConst{fileline, AstConst::All1{}}
-                                               : new AstConst{fileline, AstConst::All0{}}};
+AstAssignW* V3ParseGrammar::create_Supply_પદાવલિ(File_લીટી* fileline, અચલ string& name, પૂર્ણાંક કિંમત) {
+    AstAssignW* assignp = નવું AstAssignW{fileline, નવું AstParseRef{fileline, name},
+                                         કિંમત ? નવું AstConst{fileline, AstConst::All1{}}
+                                               : નવું AstConst{fileline, AstConst::All0{}}};
     AstStrengthSpec* strengthSpecp
-        = new AstStrengthSpec{fileline, VStrength::SUPPLY, VStrength::SUPPLY};
+        = નવું AstStrengthSpec{fileline, VStrength::SUPPLY, VStrength::SUPPLY};
     assignp->strengthSpecp(strengthSpecp);
-    return assignp;
+    પાછા assignp;
 }
 
-AstRange* V3ParseGrammar::scrubRangeMulti(AstNodeRange* nrangep) {
+AstRange* V3ParseGrammar::scrubRangeMulti(Ast_ગાંઠ_Range* nrangep) {
     // Remove any UnsizedRange's from list; preserves multi-dim chain via nextp().
-    for (AstNodeRange *nodep = nrangep, *nextp; nodep; nodep = nextp) {
-        nextp = VN_AS(nodep->nextp(), NodeRange);
-        if (!VN_IS(nodep, Range)) {
+    માટે (Ast_ગાંઠ_Range *nodep = nrangep, *nextp; nodep; nodep = nextp) {
+        nextp = VN_AS(nodep->nextp(), ગાંઠ_Range);
+        જો (!VN_IS(nodep, Range)) {
             nodep->v3error(
                 "Unsupported or syntax error: Unsized range in instance or other declaration");
             nodep->unlinkFrBack();
-            VL_DO_DANGLING(nodep->deleteTree(), nodep);
+            VL_DO_DANGLING(nodep->delete_વૃક્ષ(), nodep);
         }
     }
-    return VN_CAST(nrangep, Range);
+    પાછા VN_CAST(nrangep, Range);
 }
-AstRange* V3ParseGrammar::scrubRange(AstNodeRange* nrangep) {
-    AstRange* const rangep = scrubRangeMulti(nrangep);
-    if (rangep && rangep->nextp()) {
+AstRange* V3ParseGrammar::scrubRange(Ast_ગાંઠ_Range* nrangep) {
+    AstRange* અચલ rangep = scrubRangeMulti(nrangep);
+    જો (rangep && rangep->nextp()) {
         // Gate primitives only support a single dimension
         rangep->nextp()->v3warn(E_UNSUPPORTED, "Unsupported: Multidimensional gate instances.");
-        rangep->nextp()->unlinkFrBackWithNext()->deleteTree();
+        rangep->nextp()->unlinkFrBackWithNext()->delete_વૃક્ષ();
     }
-    return rangep;
+    પાછા rangep;
 }
 
-AstNodePreSel* V3ParseGrammar::scrubSel(AstNodeExpr* fromp, AstNodePreSel* selp) VL_MT_DISABLED {
+Ast_ગાંઠ_Pre_Sel* V3ParseGrammar::scrubSel(Ast_ગાંઠ_પદાવલિ* fromp, Ast_ગાંઠ_Pre_Sel* selp) VL_MT_DISABLED {
     // SEL(PARSELVALUE, ...) -> SEL(fromp, ...)
-    AstNodePreSel* subSelp = selp;
-    while (true) {
-        if (VN_IS(subSelp->fromp(), ParseHolder)) break;
-        if (AstNodePreSel* const lowerSelp = VN_CAST(subSelp->fromp(), NodePreSel)) {
+    Ast_ગાંઠ_Pre_Sel* subSelp = selp;
+    જ્યારે (સાચું) {
+        જો (VN_IS(subSelp->fromp(), ParseHolder)) તોડો;
+        જો (Ast_ગાંઠ_Pre_Sel* અચલ lowerSelp = VN_CAST(subSelp->fromp(), ગાંઠ_Pre_Sel)) {
             subSelp = lowerSelp;
-            continue;
+            ચાલુ;
         }
         subSelp->v3fatalSrc("Couldn't find where to insert expression into select");
     }
-    AstNode* subSelFromp = subSelp->fromp();
+    Ast_ગાંઠ* subSelFromp = subSelp->fromp();
     subSelFromp->replaceWith(fromp);
-    VL_DO_DANGLING(subSelFromp->deleteTree(), subSelFromp);
-    return selp;
+    VL_DO_DANGLING(subSelFromp->delete_વૃક્ષ(), subSelFromp);
+    પાછા selp;
 }
 
-AstNodeDType* V3ParseGrammar::createArray(AstNodeDType* basep, AstNodeRange* nrangep,
-                                          bool isPacked) {
+Ast_ગાંઠ_DType* V3ParseGrammar::createArray(Ast_ગાંઠ_DType* basep, Ast_ગાંઠ_Range* nrangep,
+                                          તાર્કિક isPacked) {
     // Split RANGE0-RANGE1-RANGE2
     // into ARRAYDTYPE0(ARRAYDTYPE1(ARRAYDTYPE2(BASICTYPE3), RANGE), RANGE)
-    AstNodeDType* arrayp = basep;
-    if (nrangep) {  // Maybe no range - return unmodified base type
-        while (nrangep->nextp()) nrangep = VN_AS(nrangep->nextp(), NodeRange);
-        while (nrangep) {
-            AstNodeRange* const prevp = VN_AS(nrangep->backp(), NodeRange);
-            if (prevp) nrangep->unlinkFrBack();
-            AstRange* const rangep = VN_CAST(nrangep, Range);
-            if (rangep && isPacked) {
+    Ast_ગાંઠ_DType* arrayp = basep;
+    જો (nrangep) {  // Maybe no range - return unmodified base type
+        જ્યારે (nrangep->nextp()) nrangep = VN_AS(nrangep->nextp(), ગાંઠ_Range);
+        જ્યારે (nrangep) {
+            Ast_ગાંઠ_Range* અચલ prevp = VN_AS(nrangep->backp(), ગાંઠ_Range);
+            જો (prevp) nrangep->unlinkFrBack();
+            AstRange* અચલ rangep = VN_CAST(nrangep, Range);
+            જો (rangep && isPacked) {
                 arrayp
-                    = new AstPackArrayDType{rangep->fileline(), VFlagChildDType{}, arrayp, rangep};
-            } else if (rangep
+                    = નવું AstPackArrayDType{rangep->fileline(), VFlagChildDType{}, arrayp, rangep};
+            } નહીંતર જો (rangep
                        && (VN_IS(rangep->leftp(), Unbounded)
                            || VN_IS(rangep->rightp(), Unbounded))) {
-                arrayp = new AstQueueDType{nrangep->fileline(), VFlagChildDType{}, arrayp,
-                                           rangep->rightp()->cloneTree(true)};
-                VL_DO_DANGLING(nrangep->deleteTree(), nrangep);
-            } else if (rangep) {
-                arrayp = new AstUnpackArrayDType{rangep->fileline(), VFlagChildDType{}, arrayp,
+                arrayp = નવું AstQueueDType{nrangep->fileline(), VFlagChildDType{}, arrayp,
+                                           rangep->rightp()->clone_વૃક્ષ(સાચું)};
+                VL_DO_DANGLING(nrangep->delete_વૃક્ષ(), nrangep);
+            } નહીંતર જો (rangep) {
+                arrayp = નવું AstUnpackArrayDType{rangep->fileline(), VFlagChildDType{}, arrayp,
                                                  rangep};
-            } else if (VN_IS(nrangep, UnsizedRange)) {
-                arrayp = new AstDynArrayDType{nrangep->fileline(), VFlagChildDType{}, arrayp};
-                VL_DO_DANGLING(nrangep->deleteTree(), nrangep);
-            } else if (VN_IS(nrangep, BracketRange)) {
-                const AstBracketRange* const arangep = VN_AS(nrangep, BracketRange);
-                AstNode* const keyp = arangep->elementsp()->unlinkFrBack();
-                arrayp = new AstBracketArrayDType{nrangep->fileline(), VFlagChildDType{}, arrayp,
+            } નહીંતર જો (VN_IS(nrangep, UnsizedRange)) {
+                arrayp = નવું AstDynArrayDType{nrangep->fileline(), VFlagChildDType{}, arrayp};
+                VL_DO_DANGLING(nrangep->delete_વૃક્ષ(), nrangep);
+            } નહીંતર જો (VN_IS(nrangep, BracketRange)) {
+                અચલ AstBracketRange* અચલ arangep = VN_AS(nrangep, BracketRange);
+                Ast_ગાંઠ* અચલ keyp = arangep->elementsp()->unlinkFrBack();
+                arrayp = નવું AstBracketArrayDType{nrangep->fileline(), VFlagChildDType{}, arrayp,
                                                   keyp};
-                VL_DO_DANGLING(nrangep->deleteTree(), nrangep);
-            } else if (VN_IS(nrangep, WildcardRange)) {
-                arrayp = new AstWildcardArrayDType{nrangep->fileline(), VFlagChildDType{}, arrayp};
-                VL_DO_DANGLING(nrangep->deleteTree(), nrangep);
-            } else {
+                VL_DO_DANGLING(nrangep->delete_વૃક્ષ(), nrangep);
+            } નહીંતર જો (VN_IS(nrangep, WildcardRange)) {
+                arrayp = નવું AstWildcardArrayDType{nrangep->fileline(), VFlagChildDType{}, arrayp};
+                VL_DO_DANGLING(nrangep->delete_વૃક્ષ(), nrangep);
+            } નહીંતર {
                 UASSERT_OBJ(0, nrangep, "Expected range or unsized range");
             }
             nrangep = prevp;
         }
     }
-    return arrayp;
+    પાછા arrayp;
 }
 
-AstVar* V3ParseGrammar::createVariable(FileLine* fileline, const string& name,
-                                       AstNodeRange* arrayp, AstNode* attrsp) {
+AstVar* V3ParseGrammar::createVariable(File_લીટી* fileline, અચલ string& name,
+                                       Ast_ગાંઠ_Range* arrayp, Ast_ગાંઠ* attrsp) {
     UINFO(5, "  creVar " << name << "  decl=" << GRAMMARP->m_varDecl << "  io="
                          << GRAMMARP->m_varIO << "  dt=" << (GRAMMARP->m_varDTypep ? "set" : ""));
-    if (GRAMMARP->m_varIO == VDirection::NONE  // In non-ANSI port list
+    જો (GRAMMARP->m_varIO == VDirection::NONE  // In non-ANSI port list
         && GRAMMARP->m_varDecl == VVarType::PORT) {
         // Just a port list with variable name (not v2k format); AstPort already created
-        if (arrayp) VL_DO_DANGLING(arrayp->deleteTree(), arrayp);
-        if (attrsp) {
+        જો (arrayp) VL_DO_DANGLING(arrayp->delete_વૃક્ષ(), arrayp);
+        જો (attrsp) {
             // TODO: Merge attributes across list? Or warn attribute is ignored
-            VL_DO_DANGLING(attrsp->deleteTree(), attrsp);
+            VL_DO_DANGLING(attrsp->delete_વૃક્ષ(), attrsp);
         }
-        return nullptr;
+        પાછા nullptr;
     }
 
-    AstNodeDType* const dtypep = [&]() -> AstNodeDType* {
-        if (GRAMMARP->m_varDecl == VVarType::WREAL) {
+    Ast_ગાંઠ_DType* અચલ dtypep = [&]() -> Ast_ગાંઠ_DType* {
+        જો (GRAMMARP->m_varDecl == VVarType::WREAL) {
             // dtypep might not be null, might be implicit LOGIC before we knew better
-            return new AstBasicDType{fileline, VBasicDTypeKwd::DOUBLE};
+            પાછા નવું AstBasicDType{fileline, VBasicDTypeKwd::DOUBLE};
         }
-        if (GRAMMARP->m_varDTypep) {
+        જો (GRAMMARP->m_varDTypep) {
             // May make new variables with same type, so clone
-            return GRAMMARP->m_varDTypep->cloneTree(false);
+            પાછા GRAMMARP->m_varDTypep->clone_વૃક્ષ(ખોટું);
         }
         // Created implicitly
-        if (m_insideProperty) {
-            if (m_typedPropertyPort) {
+        જો (m_insideProperty) {
+            જો (m_typedPropertyPort) {
                 fileline->v3warn(E_UNSUPPORTED, "Untyped property port following a typed port");
             }
-            return new AstBasicDType{fileline, VBasicDTypeKwd::UNTYPED};
+            પાછા નવું AstBasicDType{fileline, VBasicDTypeKwd::UNTYPED};
         }
-        return new AstBasicDType{fileline, LOGIC_IMPLICIT};
+        પાછા નવું AstBasicDType{fileline, LOGIC_IMPLICIT};
     }();
 
     // UINFO(0,"CREVAR "<<fileline->ascii()<<" decl="<<GRAMMARP->m_varDecl.ascii()<<"
     // io="<<GRAMMARP->m_varIO.ascii()<<endl);
     VVarType type = GRAMMARP->m_varDecl;
-    if (type == VVarType::UNKNOWN) {  // e.g. "output" non-ANSI standalone direction (vs "reg")
-        if (GRAMMARP->m_varIO.isAny()) {
+    જો (type == VVarType::UNKNOWN) {  // e.g. "output" non-ANSI standalone direction (vs "reg")
+        જો (GRAMMARP->m_varIO.isAny()) {
             type = VVarType::PORT;
-        } else {
+        } નહીંતર {
             fileline->v3fatalSrc("Unknown signal type declared: " << type.ascii());
         }
     }
-    if (type == VVarType::GENVAR) {
+    જો (type == VVarType::GENVAR) {
         // Should be impossible as the grammar blocks this, but...
-        if (arrayp) fileline->v3error("Genvars may not be arrayed: " << name);  // LCOV_EXCL_LINE
+        જો (arrayp) fileline->v3error("Genvars may not be arrayed: " << name);  // LCOV_EXCL_LINE
     }
 
     // Split RANGE0-RANGE1-RANGE2 into
     // ARRAYDTYPE0(ARRAYDTYPE1(ARRAYDTYPE2(BASICTYPE3), RANGE), RANGE)
-    AstNodeDType* const arrayDTypep = createArray(dtypep, arrayp, false);
+    Ast_ગાંઠ_DType* અચલ arrayDTypep = createArray(dtypep, arrayp, ખોટું);
 
-    AstVar* const nodep = new AstVar{fileline, type, name, VFlagChildDType(), arrayDTypep};
+    AstVar* અચલ nodep = નવું AstVar{fileline, type, name, VFlagChildDType(), arrayDTypep};
     nodep->addAttrsp(attrsp);
     nodep->ansi(m_pinAnsi);
     nodep->declTyped(m_varDeclTyped);
     nodep->lifetime(m_varLifetime);
-    if (m_netDelayp) nodep->delayp(m_netDelayp->cloneTree(false));
-    if (GRAMMARP->m_varDecl != VVarType::UNKNOWN) nodep->combineType(GRAMMARP->m_varDecl);
-    if (GRAMMARP->m_varIO != VDirection::NONE) {
+    જો (m_netDelayp) nodep->delayp(m_netDelayp->clone_વૃક્ષ(ખોટું));
+    જો (GRAMMARP->m_varDecl != VVarType::UNKNOWN) nodep->combineType(GRAMMARP->m_varDecl);
+    જો (GRAMMARP->m_varIO != VDirection::NONE) {
         nodep->declDirection(GRAMMARP->m_varIO);
         nodep->direction(GRAMMARP->m_varIO);
     }
 
-    if (GRAMMARP->m_varDecl == VVarType::SUPPLY0) {
-        AstAssignW* const ap = V3ParseGrammar::createSupplyExpr(fileline, nodep->name(), 0);
-        AstNode::addNext<AstNode, AstNode>(nodep, new AstAlways{ap});
+    જો (GRAMMARP->m_varDecl == VVarType::SUPPLY0) {
+        AstAssignW* અચલ ap = V3ParseGrammar::create_Supply_પદાવલિ(fileline, nodep->name(), 0);
+        Ast_ગાંઠ::addNext<Ast_ગાંઠ, Ast_ગાંઠ>(nodep, નવું AstAlways{ap});
     }
-    if (GRAMMARP->m_varDecl == VVarType::SUPPLY1) {
-        AstAssignW* const ap = V3ParseGrammar::createSupplyExpr(fileline, nodep->name(), 1);
-        AstNode::addNext<AstNode, AstNode>(nodep, new AstAlways{ap});
+    જો (GRAMMARP->m_varDecl == VVarType::SUPPLY1) {
+        AstAssignW* અચલ ap = V3ParseGrammar::create_Supply_પદાવલિ(fileline, nodep->name(), 1);
+        Ast_ગાંઠ::addNext<Ast_ગાંઠ, Ast_ગાંઠ>(nodep, નવું AstAlways{ap});
     }
-    if (VN_IS(dtypep, ParseTypeDType)) {
+    જો (VN_IS(dtypep, ParseTypeDType)) {
         // Parser needs to know what is a type
-        AstNode* const newp = new AstTypedefFwd{fileline, name, VFwdType::NONE};
-        AstNode::addNext<AstNode, AstNode>(nodep, newp);
+        Ast_ગાંઠ* અચલ newp = નવું AstTypedefFwd{fileline, name, VFwdType::NONE};
+        Ast_ગાંઠ::addNext<Ast_ગાંઠ, Ast_ગાંઠ>(nodep, newp);
     }
     // Don't set dtypep in the ranging;
     // We need to autosize parameters and integers separately
     //
     // Propagate from current module tracing state
-    if (nodep->isGenVar()) {
-        nodep->trace(false);
-    } else if (nodep->isParam() && !v3Global.opt.traceParams()) {
-        nodep->trace(false);
-    } else {
+    જો (nodep->isGenVar()) {
+        nodep->trace(ખોટું);
+    } નહીંતર જો (nodep->isParam() && !v3Global.opt.traceParams()) {
+        nodep->trace(ખોટું);
+    } નહીંતર {
         nodep->trace(allTracingOn(nodep->fileline()));
     }
-    if (nodep->varType().isVPIAccessible()) nodep->addAttrsp(GRAMMARP->cloneScopedSigAttr());
+    જો (nodep->varType().isVPIAccessible()) nodep->addAttrsp(GRAMMARP->cloneScopedSigAttr());
 
     // Remember the last variable created, so we can attach attributes to it in later parsing
     GRAMMARP->m_varAttrp = nodep;
     PARSEP->tagNodep(GRAMMARP->m_varAttrp);
-    return nodep;
+    પાછા nodep;
 }
 
-string V3ParseGrammar::unquoteString(FileLine* fileline, const std::string& text) {
-    string errMsg;
-    string res = VString::unquoteSVString(text, errMsg);
-    if (!errMsg.empty()) fileline->v3error(errMsg.c_str());
-    return res;
+string V3ParseGrammar::unquoteString(File_લીટી* fileline, અચલ std::string& text) {
+    string err_સંદેશ;
+    string res = VString::unquoteSVString(text, err_સંદેશ);
+    જો (!err_સંદેશ.empty()) fileline->v3error(err_સંદેશ.c_str());
+    પાછા res;
 }
 
-int V3ParseGrammar::s_typeImpNum = 0;
+પૂર્ણાંક V3ParseGrammar::s_type_Imp_અંક = 0;

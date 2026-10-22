@@ -44,19 +44,19 @@
 #ifndef VERILATOR_V3DFGDATATYPE_H_
 #define VERILATOR_V3DFGDATATYPE_H_
 
-#include "config_build.h"
-#include "verilatedos.h"
+#અન્તર્ભાવ "config_build.h"
+#અન્તર્ભાવ "verilatedos.h"
 
-#include "V3Ast.h"
-#include "V3Error.h"
-#include "V3Global.h"
-#include "V3Hash.h"
+#અન્તર્ભાવ "V3Ast.h"
+#અન્તર્ભાવ "V3Error.h"
+#અન્તર્ભાવ "V3Global.h"
+#અન્તર્ભાવ "V3Hash.h"
 
-#include <memory>
-#include <unordered_map>
+#અન્તર્ભાવ <memory>
+#અન્તર્ભાવ <unordered_map>
 
 class DfgDataType final {
-    enum class Kind : uint8_t {
+    ગણના class Kind : uint8_t {
         Packed,
         Array,
         // Tuple - to model unpacked structs in the future
@@ -64,28 +64,28 @@ class DfgDataType final {
     };
 
     // STATE
-    const Kind m_kind;  // The type category
+    અચલ Kind m_kind;  // The type category
     uint32_t m_size;  // The number of elements in this type
-    AstNodeDType* const m_astDtypep;  // Equivalent canonical AstNodeDType
-    const DfgDataType* const m_elemDtypep;  // Type of elements - for arrays only
+    Ast_ગાંઠ_DType* અચલ m_astDtypep;  // Equivalent canonical AstNodeDType
+    અચલ DfgDataType* અચલ m_elemDtypep;  // Type of elements - for arrays only
     // Static singleton Null type
-    static const DfgDataType* s_nullTypep;
+    સ્થિર અચલ DfgDataType* s_nullTypep;
     // Static map from 'width' -> 'interned Packed DfgDataType with that width'
-    static std::unordered_map<uint32_t, const DfgDataType*> s_packedTypes;
+    સ્થિર std::unordered_map<uint32_t, અચલ DfgDataType*> s_packedTypes;
     // Map from 'elements' -> 'interned Array DfgDataType with that many elements of *this* type'
-    mutable std::unordered_map<uint32_t, const DfgDataType*> m_arrayTypes;
+    mutable std::unordered_map<uint32_t, અચલ DfgDataType*> m_arrayTypes;
 
     // METHODS
-    static AstNodeDType* canonicalPackedDType(uint32_t width) {
-        return v3Global.rootp()->typeTablep()->findBitDType(width, width, VSigning::UNSIGNED);
+    સ્થિર Ast_ગાંઠ_DType* canonicalPackedDType(uint32_t width) {
+        પાછા v3Global.rootp()->typeTablep()->findBitDType(width, width, VSigning::UNSIGNED);
     }
-    static AstNodeDType* canonicalArrayDType(uint32_t size, const DfgDataType& elemType) {
-        AstNodeDType* const elemDTypep = elemType.m_astDtypep;
-        FileLine* const flp = elemDTypep->fileline();
-        AstRange* const rangep = new AstRange{flp, static_cast<int>(size - 1), 0};
-        AstNodeDType* const dtypep = new AstUnpackArrayDType{flp, elemDTypep, rangep};
+    સ્થિર Ast_ગાંઠ_DType* canonicalArrayDType(uint32_t size, અચલ DfgDataType& elemType) {
+        Ast_ગાંઠ_DType* અચલ elemDTypep = elemType.m_astDtypep;
+        File_લીટી* અચલ flp = elemDTypep->fileline();
+        AstRange* અચલ rangep = new AstRange{flp, static_cast<પૂર્ણાંક>(size - 1), 0};
+        Ast_ગાંઠ_DType* અચલ dtypep = new AstUnpackArrayDType{flp, elemDTypep, rangep};
         v3Global.rootp()->typeTablep()->addTypesp(dtypep);
-        return dtypep;
+        પાછા dtypep;
     }
 
     // CONSTRUCTOR - use 'fromAst' instead
@@ -99,7 +99,7 @@ class DfgDataType final {
         , m_size{size}
         , m_astDtypep{canonicalPackedDType(size)}
         , m_elemDtypep{nullptr} {}
-    DfgDataType(uint32_t size, const DfgDataType& elemType)
+    DfgDataType(uint32_t size, અચલ DfgDataType& elemType)
         : m_kind{Kind::Array}
         , m_size{size}
         , m_astDtypep{canonicalArrayDType(size, elemType)}
@@ -108,124 +108,124 @@ class DfgDataType final {
     VL_UNCOPYABLE(DfgDataType);
     VL_UNMOVABLE(DfgDataType);
     ~DfgDataType() {
-        for (const auto& pair : m_arrayTypes) VL_DO_DANGLING(delete pair.second, pair.second);
+        માટે (અચલ auto& pair : m_arrayTypes) VL_DO_DANGLING(delete pair.second, pair.second);
     }
 
-public:
+જાહેર:
     //-----------------------------------------------------------------------
     // Properties
 
-    bool isNull() const { return m_kind == Kind::Null; }
-    bool isPacked() const { return m_kind == Kind::Packed; }
-    bool isArray() const { return m_kind == Kind::Array; }
+    bool isNull() અચલ { પાછા m_kind == Kind::Null; }
+    bool isPacked() અચલ { પાછા m_kind == Kind::Packed; }
+    bool isArray() અચલ { પાછા m_kind == Kind::Array; }
     // Size of type (this is 'width' for Ppacked, 'elements' for Array, 0 for Null)
-    uint32_t size() const { return m_size; }
-    AstNodeDType* astDtypep() const { return m_astDtypep; }
+    uint32_t size() અચલ { પાછા m_size; }
+    Ast_ગાંઠ_DType* astDtypep() અચલ { પાછા m_astDtypep; }
 
     // Thanks to the interning, equality is identity
-    bool operator==(const DfgDataType& that) const { return this == &that; }
-    bool operator!=(const DfgDataType& that) const { return this != &that; }
+    bool operator==(અચલ DfgDataType& that) અચલ { પાછા this == &that; }
+    bool operator!=(અચલ DfgDataType& that) અચલ { પાછા this != &that; }
     // Similarly for hash
-    V3Hash hash() const { return V3Hash{this}; }
+    V3Hash hash() અચલ { પાછા V3Hash{this}; }
 
     // Type of elements, for arrays only
-    const DfgDataType& elemDtype() const {
+    અચલ DfgDataType& elemDtype() અચલ {
         UASSERT(isArray(), "Non-array has no 'elemDType'");
-        return *m_elemDtypep;
+        પાછા *m_elemDtypep;
     }
 
     //-----------------------------------------------------------------------
     // Static factory and management functions
 
     // Returns a Packed type of the given width
-    static const DfgDataType& packed(uint32_t width) {
+    સ્થિર અચલ DfgDataType& packed(uint32_t width) {
         UASSERT(width > 0, "Width must be positive");
         // Find or create the right sized packed type
-        const DfgDataType*& entryr = s_packedTypes[width];
-        if (!entryr) entryr = new DfgDataType{width};
-        return *entryr;
+        અચલ DfgDataType*& entryr = s_packedTypes[width];
+        જો (!entryr) entryr = new DfgDataType{width};
+        પાછા *entryr;
     }
 
     // Returns an Array type of the given size with the given elements
-    static const DfgDataType& array(const DfgDataType& elemType, uint32_t size) {
+    સ્થિર અચલ DfgDataType& array(અચલ DfgDataType& elemType, uint32_t size) {
         UASSERT(elemType.isPacked(), "Cannot create multi-dimensional arrays yet");
         // Find or create the right sized array type with this as elements
-        const DfgDataType*& entryr = elemType.m_arrayTypes[size];
-        if (!entryr) entryr = new DfgDataType{size, elemType};
-        return *entryr;
+        અચલ DfgDataType*& entryr = elemType.m_arrayTypes[size];
+        જો (!entryr) entryr = new DfgDataType{size, elemType};
+        પાછા *entryr;
     }
 
     // Returns the singleton Null type
-    static const DfgDataType& null() {
-        if (!s_nullTypep) s_nullTypep = new DfgDataType{};
-        return *s_nullTypep;
+    સ્થિર અચલ DfgDataType& null() {
+        જો (!s_nullTypep) s_nullTypep = new DfgDataType{};
+        પાછા *s_nullTypep;
     }
 
     // Returns the data type of selecting the range [lo + size - 1 : lo] from this type
-    static const DfgDataType& select(const DfgDataType& dtype, uint32_t lo, uint32_t size) {
-        switch (dtype.m_kind) {
-        case Kind::Packed: {
+    સ્થિર અચલ DfgDataType& select(અચલ DfgDataType& dtype, uint32_t lo, uint32_t size) {
+        પસંદગી (dtype.m_kind) {
+        સ્થિતિ Kind::Packed: {
             UASSERT(lo + size - 1 < dtype.size(), "Out of range");
-            return DfgDataType::packed(size);
+            પાછા DfgDataType::packed(size);
         }
-        case Kind::Array: {
+        સ્થિતિ Kind::Array: {
             UASSERT(lo + size - 1 < dtype.size(), "Out of range");
-            return DfgDataType::array(dtype.elemDtype(), size);
+            પાછા DfgDataType::array(dtype.elemDtype(), size);
         }
-        case Kind::Null: v3fatal("Type cannot be selected from");  // LCOV_EXCL_LINE
+        સ્થિતિ Kind::Null: v3fatal("Type cannot be selected from");  // LCOV_EXCL_LINE
         }
         VL_UNREACHABLE;
     }
 
     // Construct a DfgDataType that represents the given AstNodeDType.
     // Returns nullptr if AstNodeDType is not representable by DfgDataType.
-    static const DfgDataType* fromAst(const AstNodeDType* dtypep) {
+    સ્થિર અચલ DfgDataType* fromAst(અચલ Ast_ગાંઠ_DType* dtypep) {
         dtypep = dtypep->skipRefp();
 
-        if (const AstUnpackArrayDType* const typep = VN_CAST(dtypep, UnpackArrayDType)) {
+        જો (અચલ AstUnpackArrayDType* અચલ typep = VN_CAST(dtypep, UnpackArrayDType)) {
             // Convert the element type
-            const DfgDataType* const elemp = fromAst(typep->subDTypep());
+            અચલ DfgDataType* અચલ elemp = fromAst(typep->subDTypep());
             // If element type is not supported, we cannot handle the array either
-            if (!elemp) return nullptr;
+            જો (!elemp) પાછા nullptr;
             // Currently restricted to 1-dimensional arrays, just assumptions in the code
-            if (elemp->isArray()) return nullptr;
+            જો (elemp->isArray()) પાછા nullptr;
             // Unpacked array maps to Array
-            return &array(*elemp, typep->elementsConst());
+            પાછા &array(*elemp, typep->elementsConst());
         }
 
-        if (const AstPackArrayDType* const typep = VN_CAST(dtypep, PackArrayDType)) {
+        જો (અચલ AstPackArrayDType* અચલ typep = VN_CAST(dtypep, PackArrayDType)) {
             // Packed array maps to Packed
-            return &packed(typep->width());
+            પાછા &packed(typep->width());
         }
 
-        if (const AstStructDType* const typep = VN_CAST(dtypep, StructDType)) {
+        જો (અચલ AstStructDType* અચલ typep = VN_CAST(dtypep, StructDType)) {
             // Unpacked structs currently not supported
-            if (!typep->packed()) return nullptr;
+            જો (!typep->packed()) પાછા nullptr;
             // Packed struct maps to Packed
-            return &packed(typep->width());
+            પાછા &packed(typep->width());
         }
 
-        if (const AstUnionDType* const typep = VN_CAST(dtypep, UnionDType)) {
+        જો (અચલ AstUnionDType* અચલ typep = VN_CAST(dtypep, UnionDType)) {
             // Unpacked unions not supported
-            if (!typep->packed()) return nullptr;
+            જો (!typep->packed()) પાછા nullptr;
             // Packed union maps to Packed
-            return &packed(typep->width());
+            પાછા &packed(typep->width());
         }
 
-        if (const AstBasicDType* const typep = VN_CAST(dtypep, BasicDType)) {
+        જો (અચલ AstBasicDType* અચલ typep = VN_CAST(dtypep, BasicDType)) {
             // Anything not resembling a binary encoded number is not supported
-            if (!typep->keyword().isIntNumeric()) return nullptr;
+            જો (!typep->keyword().isIntNumeric()) પાછા nullptr;
             // Basic numeric types map to Packed
-            return &packed(typep->width());
+            પાછા &packed(typep->width());
         }
 
         // Anything else is not representable
-        return nullptr;
+        પાછા nullptr;
     }
 
     // Reset interned types
-    static void reset() {
-        for (const auto& pair : s_packedTypes) VL_DO_DANGLING(delete pair.second, pair.second);
+    સ્થિર શૂન્ય reset() {
+        માટે (અચલ auto& pair : s_packedTypes) VL_DO_DANGLING(delete pair.second, pair.second);
         s_packedTypes.clear();
         delete s_nullTypep;
         s_nullTypep = nullptr;

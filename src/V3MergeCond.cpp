@@ -72,21 +72,21 @@
 //
 //*************************************************************************
 
-#include "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
+#અન્તર્ભાવ "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
 
-#include "V3MergeCond.h"
+#અન્તર્ભાવ "V3MergeCond.h"
 
-#include "V3AstUserAllocator.h"
-#include "V3DupFinder.h"
-#include "V3Hasher.h"
-#include "V3Stats.h"
+#અન્તર્ભાવ "V3AstUserAllocator.h"
+#અન્તર્ભાવ "V3DupFinder.h"
+#અન્તર્ભાવ "V3Hasher.h"
+#અન્તર્ભાવ "V3Stats.h"
 
-#include <queue>
-#include <set>
+#અન્તર્ભાવ <queue>
+#અન્તર્ભાવ <set>
 
 VL_DEFINE_DEBUG_FUNCTIONS;
 
-namespace {
+નામાકાશ {
 
 //######################################################################
 // Utilities
@@ -95,15 +95,15 @@ namespace {
 // if there is one and it is in a supported position, which are:
 // - RHS is the Cond
 // - RHS is And(Const, Cond). This And is inserted often by V3Clean.
-AstCond* extractCondFromRhs(AstNode* rhsp) {
-    if (AstCond* const condp = VN_CAST(rhsp, Cond)) {
-        return condp;
-    } else if (const AstAnd* const andp = VN_CAST(rhsp, And)) {
-        if (AstCond* const condp = VN_CAST(andp->rhsp(), Cond)) {
-            if (VN_IS(andp->lhsp(), Const)) return condp;
+AstCond* extractCondFromRhs(Ast_ગાંઠ* rhsp) {
+    જો (AstCond* અચલ condp = VN_CAST(rhsp, Cond)) {
+        પાછા condp;
+    } નહીંતર જો (અચલ AstAnd* અચલ andp = VN_CAST(rhsp, And)) {
+        જો (AstCond* અચલ condp = VN_CAST(andp->rhsp(), Cond)) {
+            જો (VN_IS(andp->lhsp(), Const)) પાછા condp;
         }
     }
-    return nullptr;
+    પાછા nullptr;
 }
 
 // Predicate to check if two sets are disjoint. This is stable, as we only need
@@ -111,20 +111,20 @@ AstCond* extractCondFromRhs(AstNode* rhsp) {
 // property. It is also efficient as we use sorted sets, and therefore can
 // enumerate elements in order (what the ordering is, is unimportant), meaning
 // the worst case complexity is O(size of smaller set).
-bool areDisjoint(const std::set<const AstVar*>& a, const std::set<const AstVar*>& b) {
-    if (a.empty() || b.empty()) return true;
-    const auto endA = a.end();
-    const auto endB = b.end();
+તાર્કિક areDisjoint(અચલ std::set<અચલ AstVar*>& a, અચલ std::set<અચલ AstVar*>& b) {
+    જો (a.empty() || b.empty()) પાછા સાચું;
+    અચલ auto endA = a.end();
+    અચલ auto endB = b.end();
     auto itA = a.begin();
     auto itB = b.begin();
-    while (true) {
-        if (*itA == *itB) return false;
-        if (std::less<const AstVar*>{}(*itA, *itB)) {
+    જ્યારે (સાચું) {
+        જો (*itA == *itB) પાછા ખોટું;
+        જો (std::less<અચલ AstVar*>{}(*itA, *itB)) {
             itA = std::lower_bound(++itA, endA, *itB);
-            if (itA == endA) return true;
-        } else {
+            જો (itA == endA) પાછા સાચું;
+        } નહીંતર {
             itB = std::lower_bound(++itB, endB, *itA);
-            if (itB == endB) return true;
+            જો (itB == endB) પાછા સાચું;
         }
     }
 }
@@ -132,37 +132,37 @@ bool areDisjoint(const std::set<const AstVar*>& a, const std::set<const AstVar*>
 //######################################################################
 // Structure containing information required for code motion/merging
 
-struct StmtProperties final {
-    AstNodeExpr* m_condp = nullptr;  // The condition expression, if a conditional node
-    std::set<const AstVar*> m_rdVars;  // Variables read by this statement
-    std::set<const AstVar*> m_wrVars;  // Variables written by this statement
-    bool m_isFence = false;  // Nothing should move across this statement, nor should it be merged
-    bool m_sideEffect = false;  // Statement may have side effect, without access to model state
-    bool m_implPubRd = false;  // Statement may implicitly read public state (without VarRef)
-    bool m_implPubWr = false;  // Statement may implicitly write public state (without VarRef)
-    bool m_explPubRef = false;  // Statement explicitly references public state via VarRef
-    AstNodeStmt* m_prevWithSameCondp = nullptr;  // Previous node in same list, with same condition
-    bool writesConditionVar(bool condPubWritable) const {
+સંરચના StmtProperties final {
+    Ast_ગાંઠ_પદાવલિ* m_condp = nullptr;  // The condition expression, if a conditional node
+    std::set<અચલ AstVar*> m_rdVars;  // Variables read by this statement
+    std::set<અચલ AstVar*> m_wrVars;  // Variables written by this statement
+    તાર્કિક m_isFence = ખોટું;  // Nothing should move across this statement, nor should it be merged
+    તાર્કિક m_sideEffect = ખોટું;  // Statement may have side effect, without access to model state
+    તાર્કિક m_implPubRd = ખોટું;  // Statement may implicitly read public state (without VarRef)
+    તાર્કિક m_implPubWr = ખોટું;  // Statement may implicitly write public state (without VarRef)
+    તાર્કિક m_explPubRef = ખોટું;  // Statement explicitly references public state via VarRef
+    Ast_ગાંઠ_Stmt* m_prevWithSameCondp = nullptr;  // Previous node in same list, with same condition
+    તાર્કિક writesConditionVar(તાર્કિક condPubWritable) અચલ {
         // This relies on MarkVarsVisitor having been called on the condition node
-        for (const AstVar* const varp : m_wrVars) {
-            if (varp->user1()) return true;
+        માટે (અચલ AstVar* અચલ varp : m_wrVars) {
+            જો (varp->user1()) પાછા સાચું;
         }
         // If the condition contains a public variable, check if it might be written
-        if (condPubWritable && m_implPubWr) return true;
+        જો (condPubWritable && m_implPubWr) પાછા સાચું;
         // Otherwise not written
-        return false;
+        પાછા ખોટું;
     }
 };
 
 // We store the statement properties in user3 via AstUser3Allocator
-using StmtPropertiesAllocator = AstUser3Allocator<AstNodeStmt, StmtProperties>;
+using StmtPropertiesAllocator = AstUser3Allocator<Ast_ગાંઠ_Stmt, StmtProperties>;
 
 //######################################################################
 // Code motion analysis and implementation
 
 // Pure analysis visitor that build the StmtProperties for each statement in the given
 // AstNode list (following AstNode::nextp())
-class CodeMotionAnalysisVisitor final : public VNVisitorConst {
+વર્ગ CodeMotionAnalysisVisitor final : જાહેર VNVisitorConst {
     // NODE STATE
     // AstNodeStmt::user3   -> StmtProperties (accessed via m_stmtProperties, managed externally,
     //                         see MergeCondVisitor::process)
@@ -177,53 +177,53 @@ class CodeMotionAnalysisVisitor final : public VNVisitorConst {
     V3Hasher m_hasher;  // Used by V3DupFinder
     // Stack of a V3DupFinder used for finding identical condition expressions within one
     // statement list.
-    std::vector<V3DupFinder> m_stack;
+    std::vector<V3DupFinder> m_ઢગલો;
     StmtProperties* m_propsp = nullptr;  // StmtProperties structure of current AstNodeStmt
 
     // Extract condition expression from a mergeable conditional statement, if any
-    static AstNodeExpr* extractCondition(const AstNodeStmt* nodep) {
-        AstNodeExpr* conditionp = nullptr;
-        if (const AstNodeAssign* const assignp = VN_CAST(nodep, NodeAssign)) {
-            if (AstCond* const conditionalp = extractCondFromRhs(assignp->rhsp())) {
+    સ્થિર Ast_ગાંઠ_પદાવલિ* extractCondition(અચલ Ast_ગાંઠ_Stmt* nodep) {
+        Ast_ગાંઠ_પદાવલિ* conditionp = nullptr;
+        જો (અચલ Ast_ગાંઠ_Assign* અચલ assignp = VN_CAST(nodep, ગાંઠ_Assign)) {
+            જો (AstCond* અચલ conditionalp = extractCondFromRhs(assignp->rhsp())) {
                 conditionp = conditionalp->condp();
             }
-        } else if (const AstNodeIf* const ifp = VN_CAST(nodep, NodeIf)) {
+        } નહીંતર જો (અચલ Ast_ગાંઠ_If* અચલ ifp = VN_CAST(nodep, ગાંઠ_If)) {
             conditionp = ifp->condp();
         }
-        while (AstCCast* const castp = VN_CAST(conditionp, CCast)) conditionp = castp->lhsp();
-        return conditionp;
+        જ્યારે (AstCCast* અચલ castp = VN_CAST(conditionp, CCast)) conditionp = castp->lhsp();
+        પાછા conditionp;
     }
 
-    void analyzeStmt(AstNodeStmt* nodep, bool tryCondMatch) {
+    શૂન્ય analyzeStmt(Ast_ગાંઠ_Stmt* nodep, તાર્કિક tryCondMatch) {
         VL_RESTORER(m_propsp);
         // Keep hold of props of enclosing statement
-        StmtProperties* const outerPropsp = m_propsp;
+        StmtProperties* અચલ outerPropsp = m_propsp;
         // Grab the props of this statement
         m_propsp = &m_stmtProperties(nodep);
 
         // Extract condition from statement
-        if (AstNodeExpr* const condp = extractCondition(nodep)) {
+        જો (Ast_ગાંઠ_પદાવલિ* અચલ condp = extractCondition(nodep)) {
             // Remember condition node. We always need this as it is used in the later
             // traversal.
             m_propsp->m_condp = condp;
             // If this is a conditional statement, try to find an earlier one with the same
             // condition in the same list (unless we have been told not to bother because we know
             // this node is in a singleton list).
-            if (tryCondMatch) {
+            જો (tryCondMatch) {
                 // Grab the duplicate finder of this list
-                V3DupFinder& dupFinder = m_stack.back();
+                V3DupFinder& dupFinder = m_ઢગલો.back();
                 // Find a duplicate condition
-                const V3DupFinder::iterator& dit = dupFinder.findDuplicate(condp);
-                if (dit == dupFinder.end()) {
+                અચલ V3DupFinder::iterator& dit = dupFinder.findDuplicate(condp);
+                જો (dit == dupFinder.end()) {
                     // First time seeing this condition in the current list
-                    dupFinder.insert(condp);
+                    dupFinder.ઉમેરો(condp);
                     // Remember last statement with this condition (which is this statement)
                     condp->user3p(nodep);
-                } else {
+                } નહીંતર {
                     // Seen a conditional with the same condition earlier in the current list
-                    AstNodeExpr* const firstp = VN_AS(dit->second, NodeExpr);
+                    Ast_ગાંઠ_પદાવલિ* અચલ firstp = VN_AS(dit->second, ગાંઠ_પદાવલિ);
                     // Add to properties for easy retrieval during optimization
-                    m_propsp->m_prevWithSameCondp = static_cast<AstNodeStmt*>(firstp->user3p());
+                    m_propsp->m_prevWithSameCondp = static_cast<Ast_ગાંઠ_Stmt*>(firstp->user3p());
                     // Remember last statement with this condition (which is this statement)
                     firstp->user3p(nodep);
                 }
@@ -231,13 +231,13 @@ class CodeMotionAnalysisVisitor final : public VNVisitorConst {
         }
 
         // Analyze this statement
-        analyzeNode(nodep);
+        analyze_ગાંઠ(nodep);
 
         // If there is an enclosing statement, propagate properties upwards
-        if (outerPropsp) {
+        જો (outerPropsp) {
             // Add all rd/wr vars to outer statement
-            outerPropsp->m_rdVars.insert(m_propsp->m_rdVars.cbegin(), m_propsp->m_rdVars.cend());
-            outerPropsp->m_wrVars.insert(m_propsp->m_wrVars.cbegin(), m_propsp->m_wrVars.cend());
+            outerPropsp->m_rdVars.ઉમેરો(m_propsp->m_rdVars.cbegin(), m_propsp->m_rdVars.cend());
+            outerPropsp->m_wrVars.ઉમેરો(m_propsp->m_wrVars.cbegin(), m_propsp->m_wrVars.cend());
             // Propagate flags to enclosing statement
             outerPropsp->m_isFence |= m_propsp->m_isFence;
             outerPropsp->m_sideEffect |= m_propsp->m_sideEffect;
@@ -247,94 +247,94 @@ class CodeMotionAnalysisVisitor final : public VNVisitorConst {
         }
     }
 
-    void analyzeVarRef(AstVarRef* nodep) {
-        const VAccess access = nodep->access();
-        AstVar* const varp = nodep->varp();
+    શૂન્ય analyzeVarRef(AstVarRef* nodep) {
+        અચલ VAccess access = nodep->access();
+        AstVar* અચલ varp = nodep->varp();
         // Gather read and written variables
-        if (access.isReadOrRW()) m_propsp->m_rdVars.insert(varp);
-        if (access.isWriteOrRW()) m_propsp->m_wrVars.insert(varp);
-        if (varp->isSigPublic() || varp->isWrittenByDpi() || varp->isReadByDpi()) {
-            m_propsp->m_explPubRef = true;
+        જો (access.isReadOrRW()) m_propsp->m_rdVars.ઉમેરો(varp);
+        જો (access.isWriteOrRW()) m_propsp->m_wrVars.ઉમેરો(varp);
+        જો (varp->isSigPublic() || varp->isWrittenByDpi() || varp->isReadByDpi()) {
+            m_propsp->m_explPubRef = સાચું;
         }
     }
 
-    void checkProperties(AstNode* nodep) {
+    શૂન્ય checkProperties(Ast_ગાંઠ* nodep) {
         // Ignore StmtExpr. It interferes with special casing DPI calls below,
         // and it only checks if the child expr is impure, which is checked
         // explicitly during the analysis.
-        if (VN_IS(nodep, StmtExpr)) return;
+        જો (VN_IS(nodep, Stmt_પદાવલિ)) પાછા;
 
         // Call to a DPI import
-        if (const AstNodeCCall* const ccallp = VN_CAST(nodep, NodeCCall)) {
-            AstCFunc* const funcp = ccallp->funcp();
-            if (funcp->dpiImportWrapper()) {
-                if (!funcp->dpiPure()) {
+        જો (અચલ Ast_ગાંઠ_CCall* અચલ ccallp = VN_CAST(nodep, ગાંઠ_CCall)) {
+            AstCFunc* અચલ funcp = ccallp->funcp();
+            જો (funcp->dpiImportWrapper()) {
+                જો (!funcp->dpiPure()) {
                     // Assume has side effect and accesses public state
-                    m_propsp->m_sideEffect = true;
-                    m_propsp->m_implPubRd = true;
-                    m_propsp->m_implPubWr = true;
+                    m_propsp->m_sideEffect = સાચું;
+                    m_propsp->m_implPubRd = સાચું;
+                    m_propsp->m_implPubWr = સાચું;
                 }
-                return;
+                પાછા;
             }
         }
 
         // Side effect, but assume does not access public state
-        if (VN_IS(nodep, Display) || VN_IS(nodep, Stop)) {
-            m_propsp->m_sideEffect = true;
-            return;
+        જો (VN_IS(nodep, Display) || VN_IS(nodep, Stop)) {
+            m_propsp->m_sideEffect = સાચું;
+            પાછા;
         }
 
         // If impure, or branch, mark statement as fence
-        if (!nodep->isPure() || nodep->isBrancher()) m_propsp->m_isFence = true;
+        જો (!nodep->isPure() || nodep->isBrancher()) m_propsp->m_isFence = સાચું;
     }
 
-    void analyzeNode(AstNode* nodep) {
+    શૂન્ય analyze_ગાંઠ(Ast_ગાંઠ* nodep) {
         // Check properties of this node if under a statement
-        if (m_propsp) checkProperties(nodep);
+        જો (m_propsp) checkProperties(nodep);
         // Analyze children
         iterateChildrenConst(nodep);
     }
 
     // VISITORS
-    void visit(AstNode* nodep) override {
+    શૂન્ય visit(Ast_ગાંઠ* nodep) override {
         // Push a new stack entry at the start of a list, but only if the list is not a
         // single element (this saves a lot of allocations in expressions)
-        bool singletonListStart = false;
-        if (nodep->backp()->nextp() != nodep) {  // If at head of list
+        તાર્કિક singletonListStart = ખોટું;
+        જો (nodep->backp()->nextp() != nodep) {  // If at head of list
             singletonListStart = nodep->nextp() == nullptr;
-            if (!singletonListStart) m_stack.emplace_back(m_hasher);
+            જો (!singletonListStart) m_ઢગલો.emplace_back(m_hasher);
         }
 
         // Analyze node
-        if (AstNodeStmt* const stmtp = VN_CAST(nodep, NodeStmt)) {
+        જો (Ast_ગાંઠ_Stmt* અચલ stmtp = VN_CAST(nodep, ગાંઠ_Stmt)) {
             analyzeStmt(stmtp, /*tryCondMatch:*/ !singletonListStart);
-        } else if (AstVarRef* const vrefp = VN_CAST(nodep, VarRef)) {
+        } નહીંતર જો (AstVarRef* અચલ vrefp = VN_CAST(nodep, VarRef)) {
             analyzeVarRef(vrefp);
-        } else {
-            analyzeNode(nodep);
+        } નહીંતર {
+            analyze_ગાંઠ(nodep);
         }
 
         // Pop the stack at the end of a list
-        if (!singletonListStart && !nodep->nextp()) m_stack.pop_back();
+        જો (!singletonListStart && !nodep->nextp()) m_ઢગલો.કાઢો_back();
     }
 
     // CONSTRUCTOR
-    CodeMotionAnalysisVisitor(AstNode* nodep, StmtPropertiesAllocator& stmtProperties)
+    CodeMotionAnalysisVisitor(Ast_ગાંઠ* nodep, StmtPropertiesAllocator& stmtProperties)
         : m_stmtProperties{stmtProperties} {
         iterateAndNextConstNull(nodep);
     }
 
-public:
+જાહેર:
     // Analyze the statement list starting at nodep, filling in stmtProperties.
-    static void analyze(AstNode* nodep, StmtPropertiesAllocator& stmtProperties) {
+    સ્થિર શૂન્ય analyze(Ast_ગાંઠ* nodep, StmtPropertiesAllocator& stmtProperties) {
         CodeMotionAnalysisVisitor{nodep, stmtProperties};
     }
 };
 
-class CodeMotionOptimizeVisitor final : public VNVisitor {
+વર્ગ CodeMotionOptimizeVisitor final : જાહેર VNVisitor {
     // Do not move a node more than this many statements.
     // This bounds complexity at O(N), rather than O(N^2).
-    static constexpr unsigned MAX_DISTANCE = 500;
+    સ્થિર constexpr unsigned MAX_DISTANCE = 500;
 
     // NODE STATE
     // AstNodeStmt::user3   -> StmtProperties (accessed via m_stmtProperties, managed externally,
@@ -343,101 +343,101 @@ class CodeMotionOptimizeVisitor final : public VNVisitor {
 
     VNUser4InUse m_user4InUse;
 
-    const StmtPropertiesAllocator& m_stmtProperties;
+    અચલ StmtPropertiesAllocator& m_stmtProperties;
 
     // MEMBERS
 
     // Predicate that checks if the order of two statements can be swapped
-    bool areSwappable(const AstNodeStmt* ap, const AstNodeStmt* bp) const {
-        const StmtProperties& aProps = m_stmtProperties(ap);
-        const StmtProperties& bProps = m_stmtProperties(bp);
+    તાર્કિક areSwappable(અચલ Ast_ગાંઠ_Stmt* ap, અચલ Ast_ગાંઠ_Stmt* bp) અચલ {
+        અચલ StmtProperties& aProps = m_stmtProperties(ap);
+        અચલ StmtProperties& bProps = m_stmtProperties(bp);
         // Don't move across fences
-        if (aProps.m_isFence) return false;
-        if (bProps.m_isFence) return false;
+        જો (aProps.m_isFence) પાછા ખોટું;
+        જો (bProps.m_isFence) પાછા ખોટું;
         // Don't swap side effecting statements, but can move others across them
-        if (aProps.m_sideEffect && bProps.m_sideEffect) return false;
+        જો (aProps.m_sideEffect && bProps.m_sideEffect) પાછા ખોટું;
         // Don't swap if there is a hazard around public state - must observe ordering
-        const bool bPubRef = bProps.m_implPubWr || bProps.m_implPubRd || bProps.m_explPubRef;
-        if (aProps.m_implPubWr && bPubRef) return false;
-        const bool aPubRef = aProps.m_implPubWr || aProps.m_implPubRd || aProps.m_explPubRef;
-        if (aPubRef && bProps.m_implPubWr) return false;
+        અચલ તાર્કિક bPubRef = bProps.m_implPubWr || bProps.m_implPubRd || bProps.m_explPubRef;
+        જો (aProps.m_implPubWr && bPubRef) પાછા ખોટું;
+        અચલ તાર્કિક aPubRef = aProps.m_implPubWr || aProps.m_implPubRd || aProps.m_explPubRef;
+        જો (aPubRef && bProps.m_implPubWr) પાછા ખોટું;
         // If either statement writes a variable that the other reads, they are not swappable
-        if (!areDisjoint(aProps.m_rdVars, bProps.m_wrVars)) return false;
-        if (!areDisjoint(bProps.m_rdVars, aProps.m_wrVars)) return false;
+        જો (!areDisjoint(aProps.m_rdVars, bProps.m_wrVars)) પાછા ખોટું;
+        જો (!areDisjoint(bProps.m_rdVars, aProps.m_wrVars)) પાછા ખોટું;
         // If they both write to the same variable, they are not swappable
-        if (!areDisjoint(aProps.m_wrVars, bProps.m_wrVars)) return false;
+        જો (!areDisjoint(aProps.m_wrVars, bProps.m_wrVars)) પાછા ખોટું;
         // Otherwise good to go
-        return true;
+        પાછા સાચું;
     }
 
     // VISITORS
-    void visit(AstNodeStmt* nodep) override {
+    શૂન્ય visit(Ast_ગાંઠ_Stmt* nodep) override {
         // Process only on first encounter
-        if (nodep->user4SetOnce()) return;
+        જો (nodep->user4SetOnce()) પાછા;
         // First re-order children
         iterateChildren(nodep);
         // Grab hold of previous node with same condition
-        AstNodeStmt* prevp = m_stmtProperties(nodep).m_prevWithSameCondp;
+        Ast_ગાંઠ_Stmt* prevp = m_stmtProperties(nodep).m_prevWithSameCondp;
         // If no previous node with same condition, we are done
-        if (!prevp) return;
+        જો (!prevp) પાછા;
 #ifdef VL_DEBUG
         {  // Sanity check, only in debug build, otherwise expensive
-            const AstNode* currp = prevp;
-            while (currp && currp != nodep) currp = currp->nextp();
+            અચલ Ast_ગાંઠ* currp = prevp;
+            જ્યારે (currp && currp != nodep) currp = currp->nextp();
             UASSERT_OBJ(currp, nodep, "Predecessor not in same list as " << currp);
         }
 #endif
         // Otherwise try to move this node backwards, as close as we can to the previous node
         // with the same condition
-        if (AstNodeStmt* predp = VN_CAST(nodep->backp(), NodeStmt)) {
+        જો (Ast_ગાંઠ_Stmt* predp = VN_CAST(nodep->backp(), ગાંઠ_Stmt)) {
             // 'predp' is the newly computed predecessor node of 'nodep', which is initially
             // (without movement) the 'backp' of the node.
-            for (unsigned i = MAX_DISTANCE; i; --i) {
+            માટે (unsigned i = MAX_DISTANCE; i; --i) {
                 // If the predecessor is the previous node with the same condition, job done
-                if (predp == prevp) break;
+                જો (predp == prevp) તોડો;
                 // Don't move past a non-statement (e.g.: AstVar), or end of list
-                AstNodeStmt* const backp = VN_CAST(predp->backp(), NodeStmt);
-                if (!backp) break;
+                Ast_ગાંઠ_Stmt* અચલ backp = VN_CAST(predp->backp(), ગાંઠ_Stmt);
+                જો (!backp) તોડો;
                 // Don't swap statements if doing so would change program semantics
-                if (!areSwappable(predp, nodep)) break;
+                જો (!areSwappable(predp, nodep)) તોડો;
                 // Otherwise move 'nodep' back
                 predp = backp;
             }
 
             // If we decided that 'nodep' should be moved back
-            if (nodep->backp() != predp) {
+            જો (nodep->backp() != predp) {
                 // Move the current node to directly follow the computed predecessor
                 nodep->unlinkFrBack();
                 predp->addNextHere(nodep);
                 // If the predecessor is the previous node with the same condition, job done
-                if (predp == prevp) return;
+                જો (predp == prevp) પાછા;
             }
         }
         // If we reach here, it means we were unable to move the current node all the way back
         // such that it immediately follows the previous statement with the same condition. Now
         // try to move all previous statements with the same condition forward, in the hope of
         // compacting the list further.
-        for (AstNodeStmt* currp = nodep; prevp;
+        માટે (Ast_ગાંઠ_Stmt* currp = nodep; prevp;
              currp = prevp, prevp = m_stmtProperties(currp).m_prevWithSameCondp) {
             // Move prevp (previous statement with same condition) towards currp
-            if (AstNodeStmt* succp = VN_CAST(prevp->nextp(), NodeStmt)) {
+            જો (Ast_ગાંઠ_Stmt* succp = VN_CAST(prevp->nextp(), ગાંઠ_Stmt)) {
                 // 'succp' is the newly computed successor node of 'prevp', which is initially
                 // (without movement) the 'nextp' of the node.
-                for (unsigned i = MAX_DISTANCE; --i;) {
+                માટે (unsigned i = MAX_DISTANCE; --i;) {
                     // If the successor of the previous statement with same condition is the
                     // target node, we are done with this predecessor
-                    if (succp == currp) break;
+                    જો (succp == currp) તોડો;
                     // Don't move past a non-statement (e.g.: AstVar), or end of list
-                    AstNodeStmt* const nextp = VN_CAST(succp->nextp(), NodeStmt);
-                    if (!nextp) break;
+                    Ast_ગાંઠ_Stmt* અચલ nextp = VN_CAST(succp->nextp(), ગાંઠ_Stmt);
+                    જો (!nextp) તોડો;
                     // Don't swap statements if doing so would change program semantics
-                    if (!areSwappable(prevp, succp)) break;
+                    જો (!areSwappable(prevp, succp)) તોડો;
                     // Otherwise move further forward
                     succp = nextp;
                 }
 
                 // If we decided that 'prevp' should be moved forward
-                if (prevp->nextp() != succp) {
+                જો (prevp->nextp() != succp) {
                     // Move the current node to directly before the computed successor
                     prevp->unlinkFrBack();
                     succp->addHereThisAsNext(prevp);
@@ -446,10 +446,10 @@ class CodeMotionOptimizeVisitor final : public VNVisitor {
         }
     }
 
-    void visit(AstNode* nodep) override {}  // Ignore all non-statements
+    શૂન્ય visit(Ast_ગાંઠ* nodep) override {}  // Ignore all non-statements
 
     // CONSTRUCTOR
-    CodeMotionOptimizeVisitor(AstNode* nodep, const StmtPropertiesAllocator& stmtProperties)
+    CodeMotionOptimizeVisitor(Ast_ગાંઠ* nodep, અચલ StmtPropertiesAllocator& stmtProperties)
         : m_stmtProperties{stmtProperties} {
         // We assert the given node is at the head of the list otherwise we might move a node
         // before the given node. This is easy to fix in the above iteration with a check on a
@@ -460,22 +460,22 @@ class CodeMotionOptimizeVisitor final : public VNVisitor {
         iterateAndNextNull(nodep);
     }
 
-public:
+જાહેર:
     // Given an AstNode list (held via AstNode::nextp()), move conditional statements as close
     // together as possible
-    static AstNode* optimize(AstNode* nodep, const StmtPropertiesAllocator& stmtProperties) {
+    સ્થિર Ast_ગાંઠ* optimize(Ast_ગાંઠ* nodep, અચલ StmtPropertiesAllocator& stmtProperties) {
         { CodeMotionOptimizeVisitor{nodep, stmtProperties}; }
         // It is possible for the head of the list to be moved later such that it is no longer
         // in head position. If so, rewind the list and return the new head.
-        while (nodep->backp()->nextp() == nodep) nodep = nodep->backp();
-        return nodep;
+        જ્યારે (nodep->backp()->nextp() == nodep) nodep = nodep->backp();
+        પાછા nodep;
     }
 };
 
 //######################################################################
 // Conditional merging
 
-class MergeCondVisitor final : public VNVisitor {
+વર્ગ MergeCondVisitor final : જાહેર VNVisitor {
     // NODE STATE
     // AstVar::user1        -> bool: Set for variables referenced by m_mgCondp
     //                         (Only below MergeCondVisitor::process).
@@ -489,48 +489,48 @@ class MergeCondVisitor final : public VNVisitor {
 
     // STATE
     VDouble0 m_statMerges;  // Statistic tracking
-    VDouble0 m_statMergedItems;  // Statistic tracking
-    VDouble0 m_statCandidateItems;  // Statistic tracking
+    VDouble0 m_stat_Merged_વસ્તુઓ;  // Statistic tracking
+    VDouble0 m_stat_Candidate_વસ્તુઓ;  // Statistic tracking
     VDouble0 m_statLongestList;  // Statistic tracking
 
-    AstNode* m_mgFirstp = nullptr;  // First node in merged sequence
-    AstNodeExpr* m_mgCondp = nullptr;  // The condition of the first node
-    const AstNode* m_mgLastp = nullptr;  // Last node in merged sequence
-    const AstNode* m_mgNextp = nullptr;  // Next node in list being examined
-    bool m_mgCondPubWritable = false;  // True if m_mgCondp contains a public writable variable
+    Ast_ગાંઠ* m_mgFirstp = nullptr;  // First node in merged sequence
+    Ast_ગાંઠ_પદાવલિ* m_mgCondp = nullptr;  // The condition of the first node
+    અચલ Ast_ગાંઠ* m_mgLastp = nullptr;  // Last node in merged sequence
+    અચલ Ast_ગાંઠ* m_mgNextp = nullptr;  // Next node in list being examined
+    તાર્કિક m_mgCondPubWritable = ખોટું;  // True if m_mgCondp contains a public writable variable
     uint32_t m_listLenght = 0;  // Length of current list
 
-    std::queue<AstNode*>* m_workQueuep = nullptr;  // Node lists (via AstNode::nextp()) to merge
+    std::queue<Ast_ગાંઠ*>* m_workQueuep = nullptr;  // Node lists (via AstNode::nextp()) to merge
     // Statement properties for code motion and merging
     StmtPropertiesAllocator* m_stmtPropertiesp = nullptr;
 
     // METHODS
 
     // Function that processes a whole sub-tree
-    void process(AstNode* nodep) {
+    શૂન્ય process(Ast_ગાંઠ* nodep) {
         // Set up work queue
-        std::queue<AstNode*> workQueue;
+        std::queue<Ast_ગાંઠ*> workQueue;
         m_workQueuep = &workQueue;
-        m_workQueuep->push(nodep);
+        m_workQueuep->ધકેલો(nodep);
 
-        do {
+        કરો {
             // Set up user* for this iteration
-            const VNUser1InUse user1InUse;
-            const VNUser2InUse user2InUse;
-            const VNUser3InUse user3InUse;
+            અચલ VNUser1InUse user1InUse;
+            અચલ VNUser2InUse user2InUse;
+            અચલ VNUser3InUse user3InUse;
             // Statement properties only preserved for this iteration,
             // then memory is released immediately.
             StmtPropertiesAllocator stmtProperties;
             m_stmtPropertiesp = &stmtProperties;
 
             // Pop off current work item
-            AstNode* currp = m_workQueuep->front();
-            m_workQueuep->pop();
+            Ast_ગાંઠ* currp = m_workQueuep->front();
+            m_workQueuep->કાઢો();
 
             // Analyze sub-tree list for code motion and conditional merging
             CodeMotionAnalysisVisitor::analyze(currp, stmtProperties);
             // Perform the code motion within the whole sub-tree list
-            if (v3Global.opt.fMergeCondMotion()) {
+            જો (v3Global.opt.fMergeCondMotion()) {
                 currp = CodeMotionOptimizeVisitor::optimize(currp, stmtProperties);
             }
 
@@ -538,146 +538,146 @@ class MergeCondVisitor final : public VNVisitor {
             iterateAndNextNull(currp);
 
             // Close pending merge, if there is one at the end of the whole sub-tree list
-            if (m_mgFirstp) mergeEnd();
+            જો (m_mgFirstp) mergeEnd();
             m_stmtPropertiesp = nullptr;
-        } while (!m_workQueuep->empty());
+        } જ્યારે (!m_workQueuep->empty());
 
         m_workQueuep = nullptr;
     }
 
     // Skip past AstArraySel and AstWordSel with const index
-    static AstNode* skipConstSels(AstNode* nodep) {
-        while (const AstArraySel* const aselp = VN_CAST(nodep, ArraySel)) {
+    સ્થિર Ast_ગાંઠ* skipConstSels(Ast_ગાંઠ* nodep) {
+        જ્યારે (અચલ AstArraySel* અચલ aselp = VN_CAST(nodep, ArraySel)) {
             // ArraySel index is not constant, so might be expensive
-            if (!VN_IS(aselp->bitp(), Const)) return nodep;
+            જો (!VN_IS(aselp->bitp(), Const)) પાછા nodep;
             nodep = aselp->fromp();
         }
-        while (const AstWordSel* const wselp = VN_CAST(nodep, WordSel)) {
+        જ્યારે (અચલ AstWordSel* અચલ wselp = VN_CAST(nodep, WordSel)) {
             // WordSel index is not constant, so might be expensive
-            if (!VN_IS(wselp->bitp(), Const)) return nodep;
+            જો (!VN_IS(wselp->bitp(), Const)) પાછા nodep;
             nodep = wselp->fromp();
         }
-        return nodep;
+        પાછા nodep;
     }
 
     // Check if this node is cheap enough that duplicating it in two branches of an
     // AstIf is not likely to cause a performance degradation.
-    static bool isCheapNode(AstNode* nodep) {
+    સ્થિર તાર્કિક is_Cheap_ગાંઠ(Ast_ગાંઠ* nodep) {
         // Comments are cheap
-        if (VN_IS(nodep, Comment)) return true;
+        જો (VN_IS(nodep, Comment)) પાછા સાચું;
         // So are some assignments
-        if (const AstNodeAssign* const assignp = VN_CAST(nodep, NodeAssign)) {
+        જો (અચલ Ast_ગાંઠ_Assign* અચલ assignp = VN_CAST(nodep, ગાંઠ_Assign)) {
             // Check LHS
-            AstNode* const lhsp = skipConstSels(assignp->lhsp());
+            Ast_ગાંઠ* અચલ lhsp = skipConstSels(assignp->lhsp());
             // LHS is not a VarRef, so might be expensive
-            if (!VN_IS(lhsp, VarRef)) return false;
+            જો (!VN_IS(lhsp, VarRef)) પાછા ખોટું;
 
             // Check RHS
-            AstNode* const rhsp = skipConstSels(assignp->rhsp());
+            Ast_ગાંઠ* અચલ rhsp = skipConstSels(assignp->rhsp());
             // RHS is not a VarRef or Constant so might be expensive
-            if (!VN_IS(rhsp, VarRef) && !VN_IS(rhsp, Const)) return false;
+            જો (!VN_IS(rhsp, VarRef) && !VN_IS(rhsp, Const)) પાછા ખોટું;
 
             // Otherwise it is a cheap assignment
-            return true;
+            પાછા સાચું;
         }
         // Others are not
-        return false;
+        પાછા ખોટું;
     }
 
     // Predicate to check if an expression yields only 0 or 1 (i.e.: a 1-bit value)
-    static bool yieldsOneOrZero(const AstNode* nodep) {
+    સ્થિર તાર્કિક yieldsOneOrZero(અચલ Ast_ગાંઠ* nodep) {
         UASSERT_OBJ(!nodep->isWide(), nodep, "Cannot handle wide nodes");
-        if (const AstConst* const constp = VN_CAST(nodep, Const)) {
-            return constp->num().toUQuad() <= 1;
+        જો (અચલ AstConst* અચલ constp = VN_CAST(nodep, Const)) {
+            પાછા constp->અંક().toUQuad() <= 1;
         }
-        if (const AstVarRef* const vrefp = VN_CAST(nodep, VarRef)) {
-            const AstVar* const varp = vrefp->varp();
-            return varp->widthMin() == 1 && !varp->dtypep()->isSigned();
+        જો (અચલ AstVarRef* અચલ vrefp = VN_CAST(nodep, VarRef)) {
+            અચલ AstVar* અચલ varp = vrefp->varp();
+            પાછા varp->widthMin() == 1 && !varp->dtypep()->isSigned();
         }
-        if (const AstShiftR* const shiftp = VN_CAST(nodep, ShiftR)) {
+        જો (અચલ AstShiftR* અચલ shiftp = VN_CAST(nodep, ShiftR)) {
             // Shift right by width - 1 or more
-            if (const AstConst* const constp = VN_CAST(shiftp->rhsp(), Const)) {
-                const AstVarRef* const vrefp = VN_CAST(shiftp->lhsp(), VarRef);
-                const int width = vrefp && !vrefp->varp()->dtypep()->isSigned()
+            જો (અચલ AstConst* અચલ constp = VN_CAST(shiftp->rhsp(), Const)) {
+                અચલ AstVarRef* અચલ vrefp = VN_CAST(shiftp->lhsp(), VarRef);
+                અચલ પૂર્ણાંક width = vrefp && !vrefp->varp()->dtypep()->isSigned()
                                       ? vrefp->varp()->widthMin()
                                       : shiftp->width();
-                if (constp->toSInt() >= width - 1) return true;
+                જો (constp->toSInt() >= width - 1) પાછા સાચું;
             }
-            return false;
+            પાછા ખોટું;
         }
-        if (VN_IS(nodep, Eq) || VN_IS(nodep, Neq) || VN_IS(nodep, Lt) || VN_IS(nodep, Lte)
+        જો (VN_IS(nodep, Eq) || VN_IS(nodep, Neq) || VN_IS(nodep, Lt) || VN_IS(nodep, Lte)
             || VN_IS(nodep, Gt) || VN_IS(nodep, Gte)) {
-            return true;
+            પાછા સાચું;
         }
-        if (const AstNodeBiop* const biopp = VN_CAST(nodep, NodeBiop)) {
-            if (VN_IS(nodep, And))
-                return yieldsOneOrZero(biopp->lhsp()) || yieldsOneOrZero(biopp->rhsp());
-            if (VN_IS(nodep, Or) || VN_IS(nodep, Xor))
-                return yieldsOneOrZero(biopp->lhsp()) && yieldsOneOrZero(biopp->rhsp());
-            return false;
+        જો (અચલ Ast_ગાંઠ_Biop* અચલ biopp = VN_CAST(nodep, ગાંઠ_Biop)) {
+            જો (VN_IS(nodep, And))
+                પાછા yieldsOneOrZero(biopp->lhsp()) || yieldsOneOrZero(biopp->rhsp());
+            જો (VN_IS(nodep, Or) || VN_IS(nodep, Xor))
+                પાછા yieldsOneOrZero(biopp->lhsp()) && yieldsOneOrZero(biopp->rhsp());
+            પાછા ખોટું;
         }
-        if (const AstCond* const condp = VN_CAST(nodep, Cond)) {
-            return yieldsOneOrZero(condp->thenp()) && yieldsOneOrZero(condp->elsep());
+        જો (અચલ AstCond* અચલ condp = VN_CAST(nodep, Cond)) {
+            પાછા yieldsOneOrZero(condp->thenp()) && yieldsOneOrZero(condp->elsep());
         }
-        if (const AstCCast* const castp = VN_CAST(nodep, CCast)) {
+        જો (અચલ AstCCast* અચલ castp = VN_CAST(nodep, CCast)) {
             // Cast never sign extends
-            return yieldsOneOrZero(castp->lhsp());
+            પાછા yieldsOneOrZero(castp->lhsp());
         }
-        return false;
+        પાછા ખોટું;
     }
 
     // Apply (1'b1 & _) cleaning mask if necessary. This is required because this pass is after
     // V3Clean, and sometimes we have an AstAnd with a 1-bit condition on one side, but a more
     // than 1-bit value on the other side, so we need to keep only the LSB.
-    static AstNodeExpr* maskLsb(AstNodeExpr* nodep) {
-        if (yieldsOneOrZero(nodep)) return nodep;
+    સ્થિર Ast_ગાંઠ_પદાવલિ* maskLsb(Ast_ગાંઠ_પદાવલિ* nodep) {
+        જો (yieldsOneOrZero(nodep)) પાછા nodep;
         // Otherwise apply masking
-        AstConst* const maskp = new AstConst{nodep->fileline(), AstConst::BitTrue{}};
+        AstConst* અચલ maskp = નવું AstConst{nodep->fileline(), AstConst::BitTrue{}};
         // Mask on left, as conventional
-        return new AstAnd{nodep->fileline(), maskp, nodep};
+        પાછા નવું AstAnd{nodep->fileline(), maskp, nodep};
     }
 
     // Fold the RHS expression of an assignment assuming the given condition state.
     // Unlink bits from the RHS which is only used once, and can be reused (is an unmodified
     // sub-tree). What remains of the RHS is expected to be deleted by the caller.
-    AstNodeExpr* foldAndUnlink(AstNodeExpr* rhsp, bool condTrue) {
-        if (rhsp->sameTree(m_mgCondp)) {
-            return new AstConst{rhsp->fileline(), AstConst::BitTrue{}, condTrue};
-        } else if (const AstCond* const condp = extractCondFromRhs(rhsp)) {
-            AstNodeExpr* const resp
+    Ast_ગાંઠ_પદાવલિ* foldAndUnlink(Ast_ગાંઠ_પદાવલિ* rhsp, તાર્કિક condTrue) {
+        જો (rhsp->same_વૃક્ષ(m_mgCondp)) {
+            પાછા નવું AstConst{rhsp->fileline(), AstConst::BitTrue{}, condTrue};
+        } નહીંતર જો (અચલ AstCond* અચલ condp = extractCondFromRhs(rhsp)) {
+            Ast_ગાંઠ_પદાવલિ* અચલ resp
                 = condTrue ? condp->thenp()->unlinkFrBack() : condp->elsep()->unlinkFrBack();
-            if (condp == rhsp) return resp;
-            if (const AstAnd* const andp = VN_CAST(rhsp, And)) {
+            જો (condp == rhsp) પાછા resp;
+            જો (અચલ AstAnd* અચલ andp = VN_CAST(rhsp, And)) {
                 UASSERT_OBJ(andp->rhsp() == condp, rhsp, "Should not try to fold this");
-                return new AstAnd{andp->fileline(), andp->lhsp()->cloneTreePure(false), resp};
+                પાછા નવું AstAnd{andp->fileline(), andp->lhsp()->clone_વૃક્ષ_Pure(ખોટું), resp};
             }
-        } else if (const AstAnd* const andp = VN_CAST(rhsp, And)) {
-            if (andp->lhsp()->sameTree(m_mgCondp)) {
-                return condTrue ? maskLsb(andp->rhsp()->unlinkFrBack())
-                                : new AstConst{rhsp->fileline(), AstConst::BitFalse{}};
-            } else {
-                UASSERT_OBJ(andp->rhsp()->sameTree(m_mgCondp), rhsp,
+        } નહીંતર જો (અચલ AstAnd* અચલ andp = VN_CAST(rhsp, And)) {
+            જો (andp->lhsp()->same_વૃક્ષ(m_mgCondp)) {
+                પાછા condTrue ? maskLsb(andp->rhsp()->unlinkFrBack())
+                                : નવું AstConst{rhsp->fileline(), AstConst::BitFalse{}};
+            } નહીંતર {
+                UASSERT_OBJ(andp->rhsp()->same_વૃક્ષ(m_mgCondp), rhsp,
                             "AstAnd doesn't hold condition expression");
-                return condTrue ? maskLsb(andp->lhsp()->unlinkFrBack())
-                                : new AstConst{rhsp->fileline(), AstConst::BitFalse{}};
+                પાછા condTrue ? maskLsb(andp->lhsp()->unlinkFrBack())
+                                : નવું AstConst{rhsp->fileline(), AstConst::BitFalse{}};
             }
-        } else if (VN_IS(rhsp, ArraySel) || VN_IS(rhsp, WordSel) || VN_IS(rhsp, VarRef)
+        } નહીંતર જો (VN_IS(rhsp, ArraySel) || VN_IS(rhsp, WordSel) || VN_IS(rhsp, VarRef)
                    || VN_IS(rhsp, Const)) {
-            return rhsp->cloneTree(false);
+            પાછા rhsp->clone_વૃક્ષ(ખોટું);
         }
         // LCOV_EXCL_START
-        if (debug()) rhsp->dumpTree("Don't know how to fold expression: ");
+        જો (debug()) rhsp->dump_વૃક્ષ("Don't know how to fold expression: ");
         rhsp->v3fatalSrc("Should not try to fold this during conditional merging");
-        return nullptr;
+        પાછા nullptr;
         // LCOV_EXCL_STOP
     }
 
-    void mergeEnd() {
+    શૂન્ય mergeEnd() {
         UASSERT(m_mgFirstp, "mergeEnd without list");
         // Drop leading cheap nodes. These were only added in the hope of finding
         // an earlier reduced form, but we failed to do so.
-        while (m_mgFirstp->user2() && m_mgFirstp != m_mgLastp) {
-            const AstNode* const backp = m_mgFirstp;
+        જ્યારે (m_mgFirstp->user2() && m_mgFirstp != m_mgLastp) {
+            અચલ Ast_ગાંઠ* અચલ backp = m_mgFirstp;
             m_mgFirstp = m_mgFirstp->nextp();
             --m_listLenght;
             UASSERT_OBJ(m_mgFirstp && m_mgFirstp->backp() == backp, m_mgLastp,
@@ -685,8 +685,8 @@ class MergeCondVisitor final : public VNVisitor {
         }
         // Drop trailing cheap nodes. These were only added in the hope of finding
         // a later conditional to merge, but we failed to do so.
-        while (m_mgLastp->user2() && m_mgFirstp != m_mgLastp) {
-            const AstNode* const nextp = m_mgLastp;
+        જ્યારે (m_mgLastp->user2() && m_mgFirstp != m_mgLastp) {
+            અચલ Ast_ગાંઠ* અચલ nextp = m_mgLastp;
             m_mgLastp = m_mgLastp->backp();
             --m_listLenght;
             UASSERT_OBJ(m_mgLastp && m_mgLastp->nextp() == nextp, m_mgFirstp,
@@ -694,72 +694,72 @@ class MergeCondVisitor final : public VNVisitor {
         }
         // If the list contains a single AstNodeIf, we will want to merge its branches.
         // If so, keep hold of the AstNodeIf in this variable.
-        AstNodeIf* recursivep = nullptr;
+        Ast_ગાંઠ_If* recursivep = nullptr;
         // Merge if list is longer than one node
-        if (m_mgFirstp != m_mgLastp) {
+        જો (m_mgFirstp != m_mgLastp) {
             UINFO(6, "MergeCond - First: " << m_mgFirstp << " Last: " << m_mgLastp);
             ++m_statMerges;
-            if (m_listLenght > m_statLongestList) m_statLongestList = m_listLenght;
+            જો (m_listLenght > m_statLongestList) m_statLongestList = m_listLenght;
 
             // We need a copy of the condition in the new equivalent 'if' statement,
             // and we also need to keep track of it for comparisons later.
-            m_mgCondp = m_mgCondp->cloneTreePure(false);
+            m_mgCondp = m_mgCondp->clone_વૃક્ષ_Pure(ખોટું);
             // Create equivalent 'if' statement and insert it before the first node
-            AstIf* const resultp = new AstIf{m_mgCondp->fileline(), m_mgCondp};
+            AstIf* અચલ resultp = નવું AstIf{m_mgCondp->fileline(), m_mgCondp};
             m_mgFirstp->addHereThisAsNext(resultp);
             // Try to preserve branch prediction if we can
             size_t nLikely = 0;
             size_t nUnlikely = 0;
             // Unzip the list and insert under branches
-            AstNode* nextp = m_mgFirstp;
-            do {
+            Ast_ગાંઠ* nextp = m_mgFirstp;
+            કરો {
                 // Grab next pointer and unlink
-                AstNode* const currp = nextp;
+                Ast_ગાંઠ* અચલ currp = nextp;
                 nextp = currp != m_mgLastp ? currp->nextp() : nullptr;
                 currp->unlinkFrBack();
                 // Skip over comments
-                if (VN_IS(currp, Comment)) {
-                    VL_DO_DANGLING(currp->deleteTree(), currp);
-                    continue;
+                જો (VN_IS(currp, Comment)) {
+                    VL_DO_DANGLING(currp->delete_વૃક્ષ(), currp);
+                    ચાલુ;
                 }
-                // Count
-                ++m_statMergedItems;
-                if (AstNodeAssign* const assignp = VN_CAST(currp, NodeAssign)) {
+                //ગણતરી
+                ++m_stat_Merged_વસ્તુઓ;
+                જો (Ast_ગાંઠ_Assign* અચલ assignp = VN_CAST(currp, ગાંઠ_Assign)) {
                     // Unlink RHS and clone to get the 2 assignments (reusing assignp)
-                    AstNodeExpr* const rhsp = assignp->rhsp()->unlinkFrBack();
-                    AstNodeAssign* const thenp = assignp;
-                    AstNodeAssign* const elsep = assignp->cloneTree(false);
+                    Ast_ગાંઠ_પદાવલિ* અચલ rhsp = assignp->rhsp()->unlinkFrBack();
+                    Ast_ગાંઠ_Assign* અચલ thenp = assignp;
+                    Ast_ગાંઠ_Assign* અચલ elsep = assignp->clone_વૃક્ષ(ખોટું);
                     // Construct the new RHSs and add to branches
-                    thenp->rhsp(foldAndUnlink(rhsp, true));
-                    elsep->rhsp(foldAndUnlink(rhsp, false));
+                    thenp->rhsp(foldAndUnlink(rhsp, સાચું));
+                    elsep->rhsp(foldAndUnlink(rhsp, ખોટું));
                     resultp->addThensp(thenp);
                     resultp->addElsesp(elsep);
                     // Cleanup
-                    VL_DO_DANGLING(rhsp->deleteTree(), rhsp);
-                } else {
-                    AstNodeIf* const ifp = VN_AS(currp, NodeIf);
+                    VL_DO_DANGLING(rhsp->delete_વૃક્ષ(), rhsp);
+                } નહીંતર {
+                    Ast_ગાંઠ_If* અચલ ifp = VN_AS(currp, ગાંઠ_If);
                     UASSERT_OBJ(ifp, currp, "Must be AstNodeIf");
                     // Move branch contents under new if
-                    if (AstNode* const listp = ifp->thensp()) {
+                    જો (Ast_ગાંઠ* અચલ listp = ifp->thensp()) {
                         resultp->addThensp(listp->unlinkFrBackWithNext());
                     }
-                    if (AstNode* const listp = ifp->elsesp()) {
+                    જો (Ast_ગાંઠ* અચલ listp = ifp->elsesp()) {
                         resultp->addElsesp(listp->unlinkFrBackWithNext());
                     }
                     // Record branch prediction
-                    if (ifp->branchPred().likely()) ++nLikely;
-                    if (ifp->branchPred().unlikely()) ++nUnlikely;
+                    જો (ifp->branchPred().likely()) ++nLikely;
+                    જો (ifp->branchPred().unlikely()) ++nUnlikely;
                     // Cleanup
-                    VL_DO_DANGLING(ifp->deleteTree(), ifp);
+                    VL_DO_DANGLING(ifp->delete_વૃક્ષ(), ifp);
                 }
-            } while (nextp);
+            } જ્યારે (nextp);
             // If prediction is unanimous, assign it to the merged AstIf
-            if (nLikely && !nUnlikely) resultp->branchPred(VBranchPred::BP_LIKELY);
-            if (!nLikely && nUnlikely) resultp->branchPred(VBranchPred::BP_UNLIKELY);
+            જો (nLikely && !nUnlikely) resultp->branchPred(VBranchPred::BP_LIKELY);
+            જો (!nLikely && nUnlikely) resultp->branchPred(VBranchPred::BP_UNLIKELY);
             // Merge the branches of the resulting AstIf after re-analysis
-            if (resultp->thensp()) m_workQueuep->push(resultp->thensp());
-            if (resultp->elsesp()) m_workQueuep->push(resultp->elsesp());
-        } else if (AstNodeIf* const ifp = VN_CAST(m_mgFirstp, NodeIf)) {
+            જો (resultp->thensp()) m_workQueuep->ધકેલો(resultp->thensp());
+            જો (resultp->elsesp()) m_workQueuep->ધકેલો(resultp->elsesp());
+        } નહીંતર જો (Ast_ગાંઠ_If* અચલ ifp = VN_CAST(m_mgFirstp, ગાંઠ_If)) {
             // There was nothing to merge this AstNodeIf with, so try to merge its branches.
             // No re-analysis is required for this, so do it directly below
             recursivep = ifp;
@@ -769,78 +769,78 @@ class MergeCondVisitor final : public VNVisitor {
         m_mgCondp = nullptr;
         m_mgLastp = nullptr;
         m_mgNextp = nullptr;
-        m_mgCondPubWritable = false;
-        AstNode::user1ClearTree();  // Clear marked variables
-        AstNode::user2ClearTree();
+        m_mgCondPubWritable = ખોટું;
+        Ast_ગાંઠ::user1_Clear_વૃક્ષ();  // Clear marked variables
+        Ast_ગાંઠ::user2_Clear_વૃક્ષ();
         // Merge recursively within the branches of an un-merged AstNodeIF
-        if (recursivep) {
+        જો (recursivep) {
             iterateAndNextNull(recursivep->thensp());
             iterateAndNextNull(recursivep->elsesp());
             // Close a pending merge to ensure merge state is
             // reset as expected at the end of this function
             // cppcheck-has-bug-suppress knownConditionTrueFalse
-            if (m_mgFirstp) mergeEnd();
+            જો (m_mgFirstp) mergeEnd();
         }
     }
 
     // Check if the node can be simplified if included under the if
-    bool isSimplifiableNode(AstNode* nodep) {
+    તાર્કિક is_Simplifiable_ગાંઠ(Ast_ગાંઠ* nodep) {
         UASSERT_OBJ(m_mgFirstp, nodep, "Cannot check with empty list");
-        if (const AstNodeAssign* const assignp = VN_CAST(nodep, NodeAssign)) {
+        જો (અચલ Ast_ગાંઠ_Assign* અચલ assignp = VN_CAST(nodep, ગાંઠ_Assign)) {
             // If it's an assignment to a 1-bit signal, try reduced forms
-            if (assignp->lhsp()->widthMin() == 1) {
+            જો (assignp->lhsp()->widthMin() == 1) {
                 // Is it a 'lhs = cond & value' or 'lhs = value & cond'?
-                if (const AstAnd* const andp = VN_CAST(assignp->rhsp(), And)) {
-                    if (andp->lhsp()->sameTree(m_mgCondp) || andp->rhsp()->sameTree(m_mgCondp)) {
-                        return true;
+                જો (અચલ AstAnd* અચલ andp = VN_CAST(assignp->rhsp(), And)) {
+                    જો (andp->lhsp()->same_વૃક્ષ(m_mgCondp) || andp->rhsp()->same_વૃક્ષ(m_mgCondp)) {
+                        પાછા સાચું;
                     }
                 }
                 // Is it 'lhs = cond'?
-                if (assignp->rhsp()->sameTree(m_mgCondp)) return true;
+                જો (assignp->rhsp()->same_વૃક્ષ(m_mgCondp)) પાછા સાચું;
             }
         }
-        return false;
+        પાછા ખોટું;
     }
 
-    bool addToList(AstNodeStmt* nodep, AstNodeExpr* condp) {
+    તાર્કિક addToList(Ast_ગાંઠ_Stmt* nodep, Ast_ગાંઠ_પદાવલિ* condp) {
         // Set up head of new list if node is first in list
-        if (!m_mgFirstp) {
+        જો (!m_mgFirstp) {
             UASSERT_OBJ(condp, nodep, "Cannot start new list without condition");
             // Mark variable references in the condition, record if a public variable is involved
-            condp->foreach([&](const AstVarRef* nodep) {
-                AstVar* const varp = nodep->varp();
+            condp->foreach([&](અચલ AstVarRef* nodep) {
+                AstVar* અચલ varp = nodep->varp();
                 varp->user1(1);
-                if (varp->isSigPublic() || varp->isWrittenByDpi()) m_mgCondPubWritable = true;
+                જો (varp->isSigPublic() || varp->isWrittenByDpi()) m_mgCondPubWritable = સાચું;
             });
             // Now check again if mergeable. We need this to pick up assignments to conditions,
             // e.g.: 'c = c ? a : b' at the beginning of the list, which is in fact not mergeable
             // because it updates the condition. We simply bail on these.
-            if ((*m_stmtPropertiesp)(nodep).writesConditionVar(m_mgCondPubWritable)) {
+            જો ((*m_stmtPropertiesp)(nodep).writesConditionVar(m_mgCondPubWritable)) {
                 // Clear marked variables
-                AstNode::user1ClearTree();
-                m_mgCondPubWritable = false;
+                Ast_ગાંઠ::user1_Clear_વૃક્ષ();
+                m_mgCondPubWritable = ખોટું;
                 // We did not add to the list
-                return false;
+                પાછા ખોટું;
             }
             m_mgFirstp = nodep;
             m_mgCondp = condp;
             m_listLenght = 0;
             // Add any preceding nodes to the list that would allow us to extend the merge
             // range
-            while (true) {
-                AstNodeStmt* const backp = VN_CAST(m_mgFirstp->backp(), NodeStmt);
-                if (!backp || backp->nextp() != m_mgFirstp) break;  // Don't move up the tree
-                const StmtProperties& props = (*m_stmtPropertiesp)(backp);
-                if (props.m_isFence || props.writesConditionVar(m_mgCondPubWritable)) break;
-                if (isSimplifiableNode(backp)) {
+            જ્યારે (સાચું) {
+                Ast_ગાંઠ_Stmt* અચલ backp = VN_CAST(m_mgFirstp->backp(), ગાંઠ_Stmt);
+                જો (!backp || backp->nextp() != m_mgFirstp) તોડો;  // Don't move up the tree
+                અચલ StmtProperties& props = (*m_stmtPropertiesp)(backp);
+                જો (props.m_isFence || props.writesConditionVar(m_mgCondPubWritable)) તોડો;
+                જો (is_Simplifiable_ગાંઠ(backp)) {
                     ++m_listLenght;
                     m_mgFirstp = backp;
-                } else if (isCheapNode(backp)) {
+                } નહીંતર જો (is_Cheap_ગાંઠ(backp)) {
                     backp->user2(1);
                     ++m_listLenght;
                     m_mgFirstp = backp;
-                } else {
-                    break;
+                } નહીંતર {
+                    તોડો;
                 }
             }
         }
@@ -851,69 +851,69 @@ class MergeCondVisitor final : public VNVisitor {
         // Set up expected next node in list.
         m_mgNextp = nodep->nextp();
         // If last under parent, done with current list
-        if (!m_mgNextp) mergeEnd();
+        જો (!m_mgNextp) mergeEnd();
         // Statistics
-        ++m_statCandidateItems;
+        ++m_stat_Candidate_વસ્તુઓ;
         // We did add to the list
-        return true;
+        પાછા સાચું;
     }
 
     // If this node is the next expected node and is helpful to add to the list, do so,
     // otherwise end the current merge. Return true if added, false if ended merge.
-    bool addIfHelpfulElseEndMerge(AstNodeStmt* nodep) {
+    તાર્કિક addIfHelpfulElseEndMerge(Ast_ગાંઠ_Stmt* nodep) {
         UASSERT_OBJ(m_mgFirstp, nodep, "List must be open");
-        if (!checkOrMakeMergeable(nodep)) return false;
-        if (!m_mgFirstp) return false;  // If 'checkOrMakeMergeable' closed the list
-        if (m_mgNextp == nodep) {
-            if (isSimplifiableNode(nodep)) {
-                if (addToList(nodep, nullptr)) return true;
-            } else if (isCheapNode(nodep)) {
+        જો (!checkOrMakeMergeable(nodep)) પાછા ખોટું;
+        જો (!m_mgFirstp) પાછા ખોટું;  // If 'checkOrMakeMergeable' closed the list
+        જો (m_mgNextp == nodep) {
+            જો (is_Simplifiable_ગાંઠ(nodep)) {
+                જો (addToList(nodep, nullptr)) પાછા સાચું;
+            } નહીંતર જો (is_Cheap_ગાંઠ(nodep)) {
                 nodep->user2(1);
-                if (addToList(nodep, nullptr)) return true;
+                જો (addToList(nodep, nullptr)) પાછા સાચું;
             }
         }
         // Not added to list, so we are done with the current list
         mergeEnd();
-        return false;
+        પાછા ખોટું;
     }
 
-    bool checkOrMakeMergeable(const AstNodeStmt* nodep) {
-        const StmtProperties& props = (*m_stmtPropertiesp)(nodep);
-        if (props.m_isFence) return false;  // Fence node never mergeable
+    તાર્કિક checkOrMakeMergeable(અચલ Ast_ગાંઠ_Stmt* nodep) {
+        અચલ StmtProperties& props = (*m_stmtPropertiesp)(nodep);
+        જો (props.m_isFence) પાછા ખોટું;  // Fence node never mergeable
         // If the statement writes a condition variable of a pending merge,
         // we must end the pending merge
-        if (m_mgFirstp && props.writesConditionVar(m_mgCondPubWritable)) mergeEnd();
-        return true;  // Now surely mergeable
+        જો (m_mgFirstp && props.writesConditionVar(m_mgCondPubWritable)) mergeEnd();
+        પાછા સાચું;  // Now surely mergeable
     }
 
-    void mergeEndIfIncompatible(const AstNode* nodep, const AstNode* condp) {
-        if (m_mgFirstp && (m_mgNextp != nodep || !condp->sameTree(m_mgCondp))) {
+    શૂન્ય mergeEndIfIncompatible(અચલ Ast_ગાંઠ* nodep, અચલ Ast_ગાંઠ* condp) {
+        જો (m_mgFirstp && (m_mgNextp != nodep || !condp->same_વૃક્ષ(m_mgCondp))) {
             // Node in different list, or has different condition. Finish current list.
             mergeEnd();
         }
     }
 
     // VISITORS
-    void visit(AstNodeAssign* nodep) override {
-        if (AstNodeExpr* const condp = (*m_stmtPropertiesp)(nodep).m_condp) {
+    શૂન્ય visit(Ast_ગાંઠ_Assign* nodep) override {
+        જો (Ast_ગાંઠ_પદાવલિ* અચલ condp = (*m_stmtPropertiesp)(nodep).m_condp) {
             // Check if mergeable
-            if (!checkOrMakeMergeable(nodep)) return;
+            જો (!checkOrMakeMergeable(nodep)) પાછા;
             // Close potentially incompatible pending merge
             mergeEndIfIncompatible(nodep, condp);
             // Add current node
             addToList(nodep, condp);
-        } else if (m_mgFirstp) {
+        } નહીંતર જો (m_mgFirstp) {
             addIfHelpfulElseEndMerge(nodep);
         }
     }
 
-    void visit(AstNodeIf* nodep) override {
+    શૂન્ય visit(Ast_ગાંઠ_If* nodep) override {
         // Check if mergeable
-        if (!checkOrMakeMergeable(nodep)) {
+        જો (!checkOrMakeMergeable(nodep)) {
             // If not mergeable, try to merge the branches
             iterateAndNextNull(nodep->thensp());
             iterateAndNextNull(nodep->elsesp());
-            return;
+            પાછા;
         }
         // Close potentially incompatible pending merge
         mergeEndIfIncompatible(nodep, nodep->condp());
@@ -921,28 +921,28 @@ class MergeCondVisitor final : public VNVisitor {
         addToList(nodep, nodep->condp());
     }
 
-    void visit(AstNodeStmt* nodep) override {
-        if (m_mgFirstp && addIfHelpfulElseEndMerge(nodep)) return;
+    શૂન્ય visit(Ast_ગાંઠ_Stmt* nodep) override {
+        જો (m_mgFirstp && addIfHelpfulElseEndMerge(nodep)) પાછા;
         iterateChildren(nodep);
     }
 
-    void visit(AstCFunc* nodep) override {
+    શૂન્ય visit(AstCFunc* nodep) override {
         // Merge function body
-        if (nodep->stmtsp()) process(nodep->stmtsp());
+        જો (nodep->stmtsp()) process(nodep->stmtsp());
     }
 
     // For speed, only iterate what is necessary.
-    void visit(AstNetlist* nodep) override { iterateAndNextNull(nodep->modulesp()); }
-    void visit(AstNodeModule* nodep) override { iterateAndNextNull(nodep->stmtsp()); }
-    void visit(AstNode* nodep) override {}
+    શૂન્ય visit(AstNetlist* nodep) override { iterateAndNextNull(nodep->modulesp()); }
+    શૂન્ય visit(Ast_ગાંઠ_Module* nodep) override { iterateAndNextNull(nodep->stmtsp()); }
+    શૂન્ય visit(Ast_ગાંઠ* nodep) override {}
 
-public:
+જાહેર:
     // CONSTRUCTORS
     explicit MergeCondVisitor(AstNetlist* nodep) { iterate(nodep); }
     ~MergeCondVisitor() override {
         V3Stats::addStat("Optimizations, MergeCond merges", m_statMerges);
-        V3Stats::addStat("Optimizations, MergeCond candidate items", m_statCandidateItems);
-        V3Stats::addStat("Optimizations, MergeCond merged items", m_statMergedItems);
+        V3Stats::addStat("Optimizations, MergeCond candidate items", m_stat_Candidate_વસ્તુઓ);
+        V3Stats::addStat("Optimizations, MergeCond merged items", m_stat_Merged_વસ્તુઓ);
         V3Stats::addStat("Optimizations, MergeCond longest merge", m_statLongestList);
     }
 };
@@ -952,8 +952,8 @@ public:
 //######################################################################
 // MergeConditionals class functions
 
-void V3MergeCond::mergeAll(AstNetlist* nodep) {
+શૂન્ય V3MergeCond::mergeAll(AstNetlist* nodep) {
     UINFO(2, __FUNCTION__ << ":");
     { MergeCondVisitor{nodep}; }
-    V3Global::dumpCheckGlobalTree("merge_cond", 0, dumpTreeEitherLevel() >= 6);
+    V3Global::dump_Check_Global_વૃક્ષ("merge_cond", 0, dump_વૃક્ષ_Either_Level() >= 6);
 }

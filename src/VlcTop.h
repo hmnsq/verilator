@@ -17,51 +17,51 @@
 #ifndef VERILATOR_VLCTOP_H_
 #define VERILATOR_VLCTOP_H_
 
-#include "config_build.h"
-#include "verilatedos.h"
+#અન્તર્ભાવ "config_build.h"
+#અન્તર્ભાવ "verilatedos.h"
 
-#include "VlcOptions.h"
-#include "VlcPoint.h"
-#include "VlcSource.h"
-#include "VlcTest.h"
+#અન્તર્ભાવ "VlcOptions.h"
+#અન્તર્ભાવ "VlcPoint.h"
+#અન્તર્ભાવ "VlcSource.h"
+#અન્તર્ભાવ "VlcTest.h"
 
 //######################################################################
 // VlcTop - Top level options container
 
-class VlcTop final {
-public:
+class Vlc_ટોચ final {
+જાહેર:
     // PUBLIC MEMBERS
     VlcOptions opt;  //< Runtime options
-private:
+ખાનગી:
     // MEMBERS
     VlcTests m_tests;  //< List of all tests (all coverage files)
     VlcPoints m_points;  //< List of all points
     VlcSources m_sources;  //< List of all source files to annotate
 
     // METHODS
-    void annotateCalc();
-    void annotateCalcNeeded();
-    void annotateOutputFiles(const string& dirname);
+    શૂન્ય annotateCalc();
+    શૂન્ય annotateCalcNeeded();
+    શૂન્ય annotateOutputFiles(અચલ string& dirname);
 
-public:
+જાહેર:
     // CONSTRUCTORS
-    VlcTop() = default;
-    ~VlcTop() = default;
+    Vlc_ટોચ() = મૂળભૂત;
+    ~Vlc_ટોચ() = મૂળભૂત;
 
     // ACCESSORS
-    VlcTests& tests() { return m_tests; }
-    VlcPoints& points() { return m_points; }
-    VlcSources& sources() { return m_sources; }
+    VlcTests& tests() { પાછા m_tests; }
+    VlcPoints& points() { પાછા m_points; }
+    VlcSources& sources() { પાછા m_sources; }
 
     // METHODS
-    void annotate(const string& dirname);
-    void printHierarchyReport();
-    void printTypeSummary();
-    void readCoverage(const string& filename, bool nonfatal = false);
-    void writeCoverage(const string& filename);
-    void writeInfo(const string& filename);
+    શૂન્ય annotate(અચલ string& dirname);
+    શૂન્ય printHierarchyReport();
+    શૂન્ય printTypeSummary();
+    શૂન્ય readCoverage(અચલ string& filename, bool nonfatal = false);
+    શૂન્ય writeCoverage(અચલ string& filename);
+    શૂન્ય writeInfo(અચલ string& filename);
 
-    void rank();
+    શૂન્ય rank();
 };
 
 //######################################################################

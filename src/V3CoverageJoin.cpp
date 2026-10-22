@@ -17,21 +17,21 @@
 //      If two COVERTOGGLEs have same VARSCOPE, combine them
 //*************************************************************************
 
-#include "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
+#અન્તર્ભાવ "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
 
-#include "V3CoverageJoin.h"
+#અન્તર્ભાવ "V3CoverageJoin.h"
 
-#include "V3DupFinder.h"
-#include "V3Stats.h"
+#અન્તર્ભાવ "V3DupFinder.h"
+#અન્તર્ભાવ "V3Stats.h"
 
-#include <vector>
+#અન્તર્ભાવ <vector>
 
 VL_DEFINE_DEBUG_FUNCTIONS;
 
 //######################################################################
 // CoverageJoin state, as a visitor of each AstNode
 
-class CoverageJoinVisitor final : public VNVisitor {
+વર્ગ CoverageJoinVisitor final : જાહેર VNVisitor {
     // NODE STATE
     // VNUser4InUse     In V3Hasher via V3DupFinder
 
@@ -43,67 +43,67 @@ class CoverageJoinVisitor final : public VNVisitor {
 
     // METHODS
 
-    void detectDuplicates() {
+    શૂન્ય detectDuplicates() {
         UINFO(9, "Finding duplicates");
         // Note uses user4
         V3DupFinder dupFinder;  // Duplicate code detection
         // Hash all of the original signals we toggle cover
-        for (const AstCoverToggle* const nodep : m_toggleps) dupFinder.insert(nodep->origp());
-        if (dumpLevel() || debug() >= 9)
-            dupFinder.dumpFile(v3Global.debugFilename("coveragejoin") + ".hash", false);
+        માટે (અચલ AstCoverToggle* અચલ nodep : m_toggleps) dupFinder.ઉમેરો(nodep->origp());
+        જો (dumpLevel() || debug() >= 9)
+            dupFinder.dumpFile(v3Global.debugFilename("coveragejoin") + ".hash", ખોટું);
         // Find if there are any duplicates
-        for (AstCoverToggle* nodep : m_toggleps) {
+        માટે (AstCoverToggle* nodep : m_toggleps) {
             // nodep->backp() is null if we already detected it's a duplicate and unlinked earlier
-            if (!nodep->backp()) continue;
+            જો (!nodep->backp()) ચાલુ;
             // Want to choose a base node, and keep finding duplicates that are identical.
             // This prevents making chains where a->b, then c->d, then b->c, as we'll
             // find a->b, a->c, a->d directly.
-            while (true) {
-                const auto dupit = dupFinder.findDuplicate(nodep->origp());
-                if (dupit == dupFinder.end()) break;
-                const AstNode* const duporigp = dupit->second;
+            જ્યારે (સાચું) {
+                અચલ auto dupit = dupFinder.findDuplicate(nodep->origp());
+                જો (dupit == dupFinder.end()) તોડો;
+                અચલ Ast_ગાંઠ* અચલ duporigp = dupit->second;
                 // Remove node from comparison so don't hit it again
                 dupFinder.erase(dupit);
                 //
                 // Note dupFinder will point to the original toggle-increment equation (what's
                 // duplicated), not the covertoggle, but we need to get back to the
                 // covertoggle which is immediately above, so:
-                AstCoverToggle* const removep = VN_AS(duporigp->backp(), CoverToggle);
+                AstCoverToggle* અચલ removep = VN_AS(duporigp->backp(), CoverToggle);
                 UASSERT_OBJ(removep, nodep, "CoverageJoin duplicate of wrong type");
                 UINFO(8, "  Orig " << nodep << " -->> " << nodep->incp()->declp());
                 UINFO(8, "   dup " << removep << " -->> " << removep->incp()->declp());
                 // The CoverDecl the duplicate pointed to now needs to point to the
                 // original's data. I.e. the duplicate will get the coverage number
                 // from the non-duplicate
-                AstNodeCoverDecl* const datadeclp = nodep->incp()->declp()->dataDeclThisp();
+                Ast_ગાંઠ_Cover_Decl* અચલ datadeclp = nodep->incp()->declp()->dataDeclThisp();
                 removep->incp()->declp()->dataDeclp(datadeclp);
                 UINFO(8, "   new " << removep->incp()->declp());
                 // Mark the found node as a duplicate of the first node
                 // (Not vice-versa as we have the iterator for the found node)
                 removep->unlinkFrBack();
-                VL_DO_DANGLING(pushDeletep(removep), removep);
+                VL_DO_DANGLING(ધકેલો_Deletep(removep), removep);
                 ++m_statToggleJoins;
             }
         }
     }
 
     // VISITORS
-    void visit(AstActive* nodep) override {
+    શૂન્ય visit(AstActive* nodep) override {
         m_toggleps.clear();
         // Find all Coverage's
         iterateChildren(nodep);
         // Simplify
         detectDuplicates();
     }
-    void visit(AstCoverToggle* nodep) override {
-        m_toggleps.push_back(nodep);
+    શૂન્ય visit(AstCoverToggle* nodep) override {
+        m_toggleps.ધકેલો_back(nodep);
         iterateChildren(nodep);
     }
     //--------------------
-    void visit(AstNodeExpr*) override {}  // Accelerate
-    void visit(AstNode* nodep) override { iterateChildren(nodep); }
+    શૂન્ય visit(Ast_ગાંઠ_પદાવલિ*) override {}  // Accelerate
+    શૂન્ય visit(Ast_ગાંઠ* nodep) override { iterateChildren(nodep); }
 
-public:
+જાહેર:
     // CONSTRUCTORS
     explicit CoverageJoinVisitor(AstNetlist* nodep) { iterate(nodep); }
     ~CoverageJoinVisitor() override {
@@ -114,8 +114,8 @@ public:
 //######################################################################
 // Coverage class functions
 
-void V3CoverageJoin::coverageJoin(AstNetlist* rootp) {
+શૂન્ય V3CoverageJoin::coverageJoin(AstNetlist* rootp) {
     UINFO(2, __FUNCTION__ << ":");
     { CoverageJoinVisitor{rootp}; }  // Destruct before checking
-    V3Global::dumpCheckGlobalTree("coveragejoin", 0, dumpTreeEitherLevel() >= 3);
+    V3Global::dump_Check_Global_વૃક્ષ("coveragejoin", 0, dump_વૃક્ષ_Either_Level() >= 3);
 }

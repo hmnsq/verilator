@@ -17,17 +17,17 @@
 #ifndef VERILATOR_V3FSMDETECT_H_
 #define VERILATOR_V3FSMDETECT_H_
 
-#include "config_build.h"
-#include "verilatedos.h"
+#અન્તર્ભાવ "config_build.h"
+#અન્તર્ભાવ "verilatedos.h"
 
 class AstNetlist;
 
 class V3FsmDetect final {
-public:
+જાહેર:
     // Detect FSMs while the original clocked/case structure is still visible,
     // then immediately lower the recovered graphs into concrete coverage
     // instrumentation as a second local phase in the same pass.
-    static void detect(AstNetlist* rootp) VL_MT_DISABLED;
+    સ્થિર શૂન્ય detect(AstNetlist* rootp) VL_MT_DISABLED;
 };
 
 #endif

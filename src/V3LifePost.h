@@ -17,16 +17,16 @@
 #ifndef VERILATOR_V3LIFEPOST_H_
 #define VERILATOR_V3LIFEPOST_H_
 
-#include "config_build.h"
-#include "verilatedos.h"
+#અન્તર્ભાવ "config_build.h"
+#અન્તર્ભાવ "verilatedos.h"
 
 class AstNetlist;
 
 //============================================================================
 
 class V3LifePost final {
-public:
-    static void lifepostAll(AstNetlist* nodep) VL_MT_DISABLED;
+જાહેર:
+    સ્થિર શૂન્ય lifepostAll(AstNetlist* nodep) VL_MT_DISABLED;
 };
 
 #endif  // Guard

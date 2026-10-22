@@ -17,15 +17,15 @@
 #ifndef VERILATOR_V3BITBLAST_H_
 #define VERILATOR_V3BITBLAST_H_
 
-#include "verilatedos.h"
+#અન્તર્ભાવ "verilatedos.h"
 
 //============================================================================
 
 class AstNetlist;
 
 class V3BitBlast final {
-public:
-    static void bitBlastAll(AstNetlist* nodep) VL_MT_DISABLED;
+જાહેર:
+    સ્થિર શૂન્ય bitBlastAll(AstNetlist* nodep) VL_MT_DISABLED;
 };
 
 #endif  // Guard

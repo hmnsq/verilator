@@ -17,71 +17,71 @@
 #ifndef VERILATOR_V3HASH_H_
 #define VERILATOR_V3HASH_H_
 
-#include "verilatedos.h"
+#અન્તર્ભાવ "verilatedos.h"
 
-#include <cstdint>
-#include <string>
+#અન્તર્ભાવ <cstdint>
+#અન્તર્ભાવ <string>
 
 //######################################################################
 // V3Hash -- Generic hashing
 
 class V3Hash final {
-    uint32_t m_value;  // The 32-bit hash value.
+    uint32_t m_કિંમત;  // The 32-bit hash value.
 
-    static uint32_t combine(uint32_t a, uint32_t b) {
-        return a ^ (b + 0x9e3779b9 + (a << 6) + (a >> 2));
+    સ્થિર uint32_t combine(uint32_t a, uint32_t b) {
+        પાછા a ^ (b + 0x9e3779b9 + (a << 6) + (a >> 2));
     }
 
-public:
+જાહેર:
     // CONSTRUCTORS
     V3Hash()
-        : m_value{0} {}
+        : m_કિંમત{0} {}
     explicit V3Hash(uint32_t val)
-        : m_value{val} {}
+        : m_કિંમત{val} {}
     explicit V3Hash(uint64_t val)
-        : m_value{combine(static_cast<uint32_t>(val), static_cast<uint32_t>(val >> 32))} {}
-    explicit V3Hash(const std::string& val);
-    explicit V3Hash(double val);
+        : m_કિંમત{combine(static_cast<uint32_t>(val), static_cast<uint32_t>(val >> 32))} {}
+    explicit V3Hash(અચલ std::string& val);
+    explicit V3Hash(દ્વિગુણ val);
 
     explicit V3Hash(int32_t val)
         : V3Hash{static_cast<uint32_t>(val)} {}
     explicit V3Hash(int64_t val)
         : V3Hash{static_cast<uint64_t>(val)} {}
-    explicit V3Hash(const void* val)
+    explicit V3Hash(અચલ શૂન્ય* val)
         : V3Hash{static_cast<uint64_t>(reinterpret_cast<uintptr_t>(val))} {}
 
     // METHODS
-    uint32_t value() const VL_MT_SAFE { return m_value; }
-    std::string toString() const VL_MT_SAFE;
+    uint32_t કિંમત() અચલ VL_MT_SAFE { પાછા m_કિંમત; }
+    std::string toString() અચલ VL_MT_SAFE;
 
     // OPERATORS
     // Comparisons
-    bool operator==(const V3Hash& rh) const { return m_value == rh.m_value; }
-    bool operator!=(const V3Hash& rh) const { return m_value != rh.m_value; }
-    bool operator<(const V3Hash& rh) const { return m_value < rh.m_value; }
+    bool operator==(અચલ V3Hash& rh) અચલ { પાછા m_કિંમત == rh.m_કિંમત; }
+    bool operator!=(અચલ V3Hash& rh) અચલ { પાછા m_કિંમત != rh.m_કિંમત; }
+    bool operator<(અચલ V3Hash& rh) અચલ { પાછા m_કિંમત < rh.m_કિંમત; }
 
     // '+' combines hashes
     template <typename T>
-    V3Hash operator+(T that) const {
-        return V3Hash{combine(m_value, V3Hash{that}.m_value)};
+    V3Hash operator+(T that) અચલ {
+        પાછા V3Hash{combine(m_કિંમત, V3Hash{that}.m_કિંમત)};
     }
-    V3Hash operator+(const std::string& that) const {
-        return V3Hash{combine(m_value, V3Hash{that}.m_value)};
+    V3Hash operator+(અચલ std::string& that) અચલ {
+        પાછા V3Hash{combine(m_કિંમત, V3Hash{that}.m_કિંમત)};
     }
 
     // '+=' combines in place
     template <typename T>
     V3Hash& operator+=(T that) {
-        return *this = *this + that;
+        પાછા *this = *this + that;
     }
-    V3Hash& operator+=(const std::string& that) { return *this = *this + that; }
+    V3Hash& operator+=(અચલ std::string& that) { પાછા *this = *this + that; }
 };
 
-std::ostream& operator<<(std::ostream& os, const V3Hash& rhs) VL_MT_SAFE;
+std::ostream& operator<<(std::ostream& os, અચલ V3Hash& rhs) VL_MT_SAFE;
 
 template <>
-struct std::hash<V3Hash> {
-    std::size_t operator()(const V3Hash& h) const noexcept { return h.value(); }
+સંરચના std::hash<V3Hash> {
+    std::size_t operator()(અચલ V3Hash& h) અચલ noexcept { પાછા h.કિંમત(); }
 };
 
 #endif  // Guard

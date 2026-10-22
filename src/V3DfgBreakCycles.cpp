@@ -14,22 +14,22 @@
 //
 //*************************************************************************
 
-#include "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
+#અન્તર્ભાવ "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
 
-#include "V3Dfg.h"
-#include "V3DfgPasses.h"
-#include "V3Error.h"
-#include "V3Hash.h"
+#અન્તર્ભાવ "V3Dfg.h"
+#અન્તર્ભાવ "V3DfgPasses.h"
+#અન્તર્ભાવ "V3Error.h"
+#અન્તર્ભાવ "V3Hash.h"
 
-#include <algorithm>
-#include <fstream>
-#include <queue>
-#include <unordered_map>
-#include <vector>
+#અન્તર્ભાવ <algorithm>
+#અન્તર્ભાવ <fstream>
+#અન્તર્ભાવ <queue>
+#અન્તર્ભાવ <unordered_map>
+#અન્તર્ભાવ <vector>
 
 VL_DEFINE_DEBUG_FUNCTIONS;
 
-namespace V3DfgBreakCycles {
+નામાકાશ V3DfgBreakCycles {
 
 // Mutable map from vertices to the SCC index they belong to. Initialized
 // from a proper analysis, then updated as we break cycles. After updates
@@ -37,86 +37,86 @@ namespace V3DfgBreakCycles {
 // cyclic might not actually be if an SCC split into multple SCCs after a
 // fixup. However it should always be true that if a vertex is thought to
 // be non-cyclic based on this datastructure, then it indeed is not cyclic.
-class SccInfo final {
+વર્ગ SccInfo final {
     DfgGraph& m_dfg;  // The annotated graph
     // The map from vertices to their SCC index (0 if trivial SCC - non cyclic)
-    std::unordered_map<const DfgVertex*, uint64_t> m_vtx2Scc;
+    std::unordered_map<અચલ DfgVertex*, uint64_t> m_vtx2Scc;
     size_t m_nCyclicVertices = 0;  // Number of vertices in non-trivial SCCs
 
-public:
+જાહેર:
     SccInfo(DfgGraph& dfg)
         : m_dfg{dfg} {
         // Initialize m_vtx2Scc for the graph from a proper analysis
         DfgUserMap<uint64_t> vtx2Scc = dfg.makeUserMap<uint64_t>();
         V3DfgPasses::colorStronglyConnectedComponents(dfg, vtx2Scc);
-        m_dfg.forEachVertex([&](const DfgVertex& vtx) {
-            const uint64_t sccIdx = vtx2Scc[vtx];
+        m_dfg.forEachVertex([&](અચલ DfgVertex& vtx) {
+            અચલ uint64_t sccIdx = vtx2Scc[vtx];
             m_vtx2Scc[&vtx] = sccIdx;
-            if (sccIdx) ++m_nCyclicVertices;
+            જો (sccIdx) ++m_nCyclicVertices;
         });
     }
 
     // Is the graph cyclic still?
-    bool isCyclic() const { return m_nCyclicVertices; }
+    તાર્કિક isCyclic() અચલ { પાછા m_nCyclicVertices; }
 
     // Returns the index of the SCC the given vertex is a part of
     // This is 0 iff the vertex is in a trivial SCC (no cycles through vertex)
-    uint64_t get(const DfgVertex& vtx) const { return m_vtx2Scc.at(&vtx); }
+    uint64_t get(અચલ DfgVertex& vtx) અચલ { પાછા m_vtx2Scc.at(&vtx); }
 
     // Add a new vertex to graph that is part of the given SCC
-    void add(const DfgVertex& vtx, uint64_t sccIdx) {
-        const bool newEntry = m_vtx2Scc.emplace(&vtx, sccIdx).second;
+    શૂન્ય add(અચલ DfgVertex& vtx, uint64_t sccIdx) {
+        અચલ તાર્કિક newEntry = m_vtx2Scc.emplace(&vtx, sccIdx).second;
         UASSERT_OBJ(newEntry, &vtx, "Vertex already inserted");
-        if (sccIdx) ++m_nCyclicVertices;
+        જો (sccIdx) ++m_nCyclicVertices;
     }
 
-    bool stillCyclicFwd(const DfgVertex& vtx) const {
+    તાર્કિક stillCyclicFwd(અચલ DfgVertex& vtx) અચલ {
         // If it only reads non-cyclic vertices, it has also become acyclic
-        return vtx.foreachSource([&](const DfgVertex& src) {  //
-            return m_vtx2Scc.at(&src);
+        પાછા vtx.foreachSource([&](અચલ DfgVertex& src) {  //
+            પાછા m_vtx2Scc.at(&src);
         });
     }
 
-    bool stillCyclicBwd(const DfgVertex& vtx) const {
+    તાર્કિક stillCyclicBwd(અચલ DfgVertex& vtx) અચલ {
         // If itonly drives non-cyclic vertices, it has also become acyclic
-        return vtx.foreachSink([&](const DfgVertex& dst) {  //
-            return m_vtx2Scc.at(&dst);
+        પાછા vtx.foreachSink([&](અચલ DfgVertex& dst) {  //
+            પાછા m_vtx2Scc.at(&dst);
         });
     }
 
     // The given vertex is known to have become acyclic after some edits,
     // propagate through graph to mark connected vertices as well.
-    void updateAcyclic(const DfgVertex& vtx) {
+    શૂન્ય updateAcyclic(અચલ DfgVertex& vtx) {
         // Mark as acyclic
         uint64_t& sccIdxr = m_vtx2Scc.at(&vtx);
         UASSERT_OBJ(sccIdxr, &vtx, "Vertex should be cyclic");
         sccIdxr = 0;
         --m_nCyclicVertices;
         // Propagate the update through the graph forward
-        vtx.foreachSink([&](const DfgVertex& dst) {
+        vtx.foreachSink([&](અચલ DfgVertex& dst) {
             // Sink was known to be acyclic, stop
-            if (!m_vtx2Scc.at(&dst)) return false;
-            if (!stillCyclicFwd(dst)) updateAcyclic(dst);
-            return false;
+            જો (!m_vtx2Scc.at(&dst)) પાછા ખોટું;
+            જો (!stillCyclicFwd(dst)) updateAcyclic(dst);
+            પાછા ખોટું;
         });
         // Propagate the update through the graph backward
-        vtx.foreachSource([&](const DfgVertex& src) {
+        vtx.foreachSource([&](અચલ DfgVertex& src) {
             // Source was known to be acyclic, stop
-            if (!m_vtx2Scc.at(&src)) return false;
-            if (!stillCyclicBwd(src)) updateAcyclic(src);
-            return false;
+            જો (!m_vtx2Scc.at(&src)) પાછા ખોટું;
+            જો (!stillCyclicBwd(src)) updateAcyclic(src);
+            પાછા ખોટું;
         });
     }
 
     // Update after replacing 'vtxp' with 'replacement'
-    void updateReplacement(const DfgVertex& vtx, DfgVertex& replacement) {
+    શૂન્ય updateReplacement(અચલ DfgVertex& vtx, DfgVertex& replacement) {
         UASSERT_OBJ(!vtx.hasSinks(), &vtx, "Replaced vertex should have no sinks");
         updateAcyclic(vtx);
-        if (!get(replacement)) {
+        જો (!get(replacement)) {
             replacement.foreachSink([&](DfgVertex& dst) {
-                if (!get(dst)) return false;
-                if (!stillCyclicFwd(dst)) updateAcyclic(dst);
-                return false;
+                જો (!get(dst)) પાછા ખોટું;
+                જો (!stillCyclicFwd(dst)) updateAcyclic(dst);
+                પાછા ખોટું;
             });
         }
     }
@@ -136,45 +136,45 @@ public:
        on the SccInfo must indeed be not cyclic, but might still think a
        vertex is cyclic based on the SccInfo but it actually isn't.
     */
-    void validate() const {
+    શૂન્ય validate() અચલ {
         // Re-compute the actual SCCs
         DfgUserMap<uint64_t> actual = m_dfg.makeUserMap<uint64_t>();
         V3DfgPasses::colorStronglyConnectedComponents(m_dfg, actual);
         // Assert that if we think a vertex is not cyclic, it indeed is not
-        m_dfg.forEachVertex([&](const DfgVertex& vtx) {
+        m_dfg.forEachVertex([&](અચલ DfgVertex& vtx) {
             // 'think not cyclic' implies 'actually not cyclic'
             UASSERT_OBJ(m_vtx2Scc.at(&vtx) || !actual.at(vtx), &vtx, "Inconsisten SccInfo");
         });
     }
 };
 
-class TraceDriver final : public DfgVisitor {
+વર્ગ TraceDriver final : જાહેર DfgVisitor {
     // TYPES
     // Key for caching the result of a trace
-    struct CacheKey final {
+    સંરચના Cache_ચાવી final {
         DfgVertex* m_vtxp;  // Vertex being traced
         uint32_t m_lsb;  // LSB of the range within m_vtxp being traced
         uint32_t m_msb;  // MSB of the range within m_vtxp being traced
 
-        CacheKey() = delete;
-        CacheKey(DfgVertex* vtxp, uint32_t lsb, uint32_t msb)
+        Cache_ચાવી() = delete;
+        Cache_ચાવી(DfgVertex* vtxp, uint32_t lsb, uint32_t msb)
             : m_vtxp{vtxp}
             , m_lsb{lsb}
             , m_msb{msb} {}
 
-        struct Hash final {
-            size_t operator()(const CacheKey& item) const {
+        સંરચના Hash final {
+            size_t operator()(અચલ Cache_ચાવી& item) અચલ {
                 // cppcheck-suppress unreadVariable
                 V3Hash hash{item.m_vtxp};
                 hash += item.m_lsb;
                 hash += item.m_msb;
-                return hash.value();
+                પાછા hash.કિંમત();
             }
         };
 
-        struct Equal final {
-            bool operator()(const CacheKey& a, const CacheKey& b) const {
-                return a.m_vtxp == b.m_vtxp && a.m_lsb == b.m_lsb && a.m_msb == b.m_msb;
+        સંરચના Equal final {
+            તાર્કિક operator()(અચલ Cache_ચાવી& a, અચલ Cache_ચાવી& b) અચલ {
+                પાછા a.m_vtxp == b.m_vtxp && a.m_lsb == b.m_lsb && a.m_msb == b.m_msb;
             }
         };
     };
@@ -198,12 +198,12 @@ class TraceDriver final : public DfgVisitor {
     DfgVertex* m_defaultp = nullptr;
     DfgVertex* m_splicep = nullptr;  // The splice vertex being traced, just for assertions
     // Result cache for reusing already traced vertices
-    std::unordered_map<CacheKey, DfgVertex*, CacheKey::Hash, CacheKey::Equal> m_cache;
+    std::unordered_map<Cache_ચાવી, DfgVertex*, Cache_ચાવી::Hash, Cache_ચાવી::Equal> m_cache;
     // Cache for boundary vertices (where m_sccInfo.get(*vtxp) != m_component)
-    std::unordered_map<CacheKey, DfgVertex*, CacheKey::Hash, CacheKey::Equal> m_boundaryCache;
+    std::unordered_map<Cache_ચાવી, DfgVertex*, Cache_ચાવી::Hash, Cache_ચાવી::Equal> m_boundaryCache;
 
 #ifdef VL_DEBUG
-    std::ofstream m_lineCoverageFile;  // Line coverage file, just for testing
+    std::ofstream m_લીટી_Coverage_File;  // Line coverage file, just for testing
 #endif
 
     // METHODS
@@ -216,37 +216,37 @@ class TraceDriver final : public DfgVisitor {
     // component we are trying to escape, and will sink into that component.
     // Given those are separate SCCs, these new vertices must be acyclic.
     template <typename Vertex>
-    Vertex* make(const DfgVertex* refp, uint32_t width) {
-        static_assert(std::is_base_of<DfgVertex, Vertex>::value  //
-                          && !std::is_base_of<DfgVertexVar, Vertex>::value,
+    Vertex* make(અચલ DfgVertex* refp, uint32_t width) {
+        static_assert(std::is_base_of<DfgVertex, Vertex>::કિંમત  //
+                          && !std::is_base_of<DfgVertexVar, Vertex>::કિંમત,
                       "Should only make operation vertices and constants");
 
-        if VL_CONSTEXPR_CXX17 (std::is_same<DfgConst, Vertex>::value) {
-            DfgConst* const vtxp = new DfgConst{m_dfg, refp->fileline(), width, 0};
+        જો VL_CONSTEXPR_CXX17 (std::is_same<DfgConst, Vertex>::કિંમત) {
+            DfgConst* અચલ vtxp = નવું DfgConst{m_dfg, refp->fileline(), width, 0};
             m_sccInfo.add(*vtxp, 0);
-            return reinterpret_cast<Vertex*>(vtxp);
-        } else {
+            પાછા reinterpret_cast<Vertex*>(vtxp);
+        } નહીંતર {
             // TODO: this is a gross hack around lack of C++17 'if constexpr' Vtx is always Vertex
             // when this code is actually executed, but needs a fudged type to type check when
             // Vertex is DfgConst, in which case this code is unreachable ...
-            using Vtx = typename std::conditional<std::is_same<DfgConst, Vertex>::value, DfgSel,
+            using Vtx = typename std::conditional<std::is_same<DfgConst, Vertex>::કિંમત, DfgSel,
                                                   Vertex>::type;
-            Vtx* const vtxp = new Vtx{m_dfg, refp->fileline(), DfgDataType::packed(width)};
+            Vtx* અચલ vtxp = નવું Vtx{m_dfg, refp->fileline(), DfgDataType::packed(width)};
             m_sccInfo.add(*vtxp, 0);
-            return reinterpret_cast<Vertex*>(vtxp);
+            પાછા reinterpret_cast<Vertex*>(vtxp);
         }
     }
 
     // Create temporary capable of holding the result of 'vtxp'
-    DfgVertexVar* createTmp(const char* prefix, DfgVertex* vtxp) {
-        FileLine* const flp = vtxp->fileline();
+    DfgVertexVar* createTmp(અચલ અક્ષર* prefix, DfgVertex* vtxp) {
+        File_લીટી* અચલ flp = vtxp->fileline();
         DfgVertex::ScopeCache scopeCache;
-        AstScope* const scopep = vtxp->scopep(scopeCache);
-        DfgVertexVar* const varp = m_dfg.makeNewVar(flp, prefix, vtxp->dtype(), scopep);
-        varp->vscp()->varp()->isInternal(true);
+        AstScope* અચલ scopep = vtxp->scopep(scopeCache);
+        DfgVertexVar* અચલ varp = m_dfg.makeNewVar(flp, prefix, vtxp->dtype(), scopep);
+        varp->vscp()->varp()->isInternal(સાચું);
         varp->tmpForp(varp->vscp());
         m_sccInfo.add(*varp, 0);
-        return varp;
+        પાછા varp;
     }
 
     // Trace drivers of the given packed vertex, at the given bit range.
@@ -258,13 +258,13 @@ class TraceDriver final : public DfgVisitor {
         // 'm_pendingps' holds the cache entries of the vertices on the current chain. They
         // all yield the same result, which is filled in when the chain is resolved.
         // Note: references into 'm_cache' are stable across the insertions below.
-        DfgVertex* const startVtxp = vtxp;
-        const uint32_t startMsb = msb;
-        const uint32_t startLsb = lsb;
-        const size_t pendingBegin = m_pendingps.size();
+        DfgVertex* અચલ startVtxp = vtxp;
+        અચલ uint32_t startMsb = msb;
+        અચલ uint32_t startLsb = lsb;
+        અચલ size_t pendingBegin = m_pendingps.size();
         DfgVertex* resp = nullptr;
 
-        while (true) {
+        જ્યારે (સાચું) {
             UASSERT_OBJ(vtxp->isPacked(), vtxp, "Can only trace packed type vertices");
             UASSERT_OBJ(vtxp->size() > msb, vtxp, "Traced Vertex too narrow");
             UASSERT_OBJ(!m_defaultp || vtxp == m_splicep, vtxp, "Tracing wrong vertex");
@@ -273,33 +273,33 @@ class TraceDriver final : public DfgVisitor {
             // then we found what we were looking for. But if it's a splice
             // with a corresponding default, we need to keep going as the
             // splice does not fully define the value we are seeking.
-            if (m_sccInfo.get(*vtxp) != m_component && !m_defaultp) {
+            જો (m_sccInfo.get(*vtxp) != m_component && !m_defaultp) {
                 DfgVertex*& respr
                     = m_boundaryCache
                           .emplace(std::piecewise_construct, std::forward_as_tuple(vtxp, msb, lsb),
                                    std::forward_as_tuple(nullptr))
                           .first->second;
-                if (!respr) {
+                જો (!respr) {
                     respr = vtxp;
                     // If the result is a splice, we need to insert a temporary for it
                     // as a splice cannot be fed into arbitray logic
-                    if (DfgVertexSplice* const splicep = respr->cast<DfgVertexSplice>()) {
-                        DfgVertexVar* const tmpp = createTmp("TraceDriver", splicep);
+                    જો (DfgVertexSplice* અચલ splicep = respr->cast<DfgVertexSplice>()) {
+                        DfgVertexVar* અચલ tmpp = createTmp("TraceDriver", splicep);
                         // Note: we can't do 'splicep->replaceWith(tmpp)', as other
                         // variable sinks of the splice might have a defaultp driver.
                         tmpp->srcp(splicep);
                         respr = tmpp;
                     }
                     // Apply a Sel to extract the relevant bits if only a part is needed
-                    if (msb != respr->width() - 1 || lsb != 0) {
-                        DfgSel* const selp = make<DfgSel>(respr, msb - lsb + 1);
+                    જો (msb != respr->width() - 1 || lsb != 0) {
+                        DfgSel* અચલ selp = make<DfgSel>(respr, msb - lsb + 1);
                         selp->fromp(respr);
                         selp->lsb(lsb);
                         respr = selp;
                     }
                 }
                 resp = respr;
-                break;
+                તોડો;
             }
 
             // Normal cache for intra-component traces
@@ -310,11 +310,11 @@ class TraceDriver final : public DfgVisitor {
                                     .first->second;
 
             // Trace the vertex
-            if (respr) {
+            જો (respr) {
                 // If already traced this vtxp/msb/lsb, just use the result.
                 // This is important to avoid combinatorial explosion when the
                 // same sub-expression is needed multiple times.
-            } else {
+            } નહીંતર {
                 // Otherwise visit the vertex to trace it
                 VL_RESTORER(m_msb);
                 VL_RESTORER(m_lsb);
@@ -328,20 +328,20 @@ class TraceDriver final : public DfgVisitor {
                 iterate(vtxp);
                 UASSERT_OBJ((m_resp != nullptr) != (m_tailp != nullptr), vtxp,
                             "Expected exactly one trace result");
-                if (m_tailp) {
+                જો (m_tailp) {
                     // This vertex just passes the range through, so continue with its
                     // source, at the updated range. Its cache entry is filled in when
                     // the chain is resolved.
-                    m_pendingps.push_back(&respr);
+                    m_pendingps.ધકેલો_back(&respr);
                     vtxp = m_tailp;
                     msb = m_msb;
                     lsb = m_lsb;
-                    continue;
+                    ચાલુ;
                 }
                 respr = m_resp;
             }
             resp = respr;
-            break;
+            તોડો;
         }
 
         // We only ever trace drivers of bits that are known to be independent
@@ -349,13 +349,13 @@ class TraceDriver final : public DfgVisitor {
         UASSERT_OBJ(resp, startVtxp, "Tracing driver failed for " << startVtxp->typeName());
         UASSERT_OBJ(resp->width() == (startMsb - startLsb + 1), startVtxp, "Wrong result width");
         // Every vertex on the pass-through chain resolves to the same driver
-        for (size_t i = pendingBegin; i < m_pendingps.size(); ++i) *m_pendingps[i] = resp;
+        માટે (size_t i = pendingBegin; i < m_pendingps.size(); ++i) *m_pendingps[i] = resp;
         m_pendingps.resize(pendingBegin);
-        return resp;
+        પાછા resp;
     }
 
     // Trace drivers of the given array vertex, at the current m_idxs, m_msb, m_lsb.
-    DfgVertex* traceSameIdx(DfgVertex* const vtxp) {
+    DfgVertex* traceSameIdx(DfgVertex* અચલ vtxp) {
         UASSERT_OBJ(vtxp->isArray(), vtxp, "Should be an array vertex");
         UASSERT_OBJ(!m_idxs.empty(), vtxp, "Should have a pending index");
         VL_RESTORER(m_resp);
@@ -363,71 +363,71 @@ class TraceDriver final : public DfgVisitor {
         iterate(vtxp);  // Resolve the element, the array visitors set 'm_resp'
         UASSERT_OBJ(m_resp, vtxp, "Tracing driver failed for " << vtxp->typeName());
         UASSERT_OBJ(m_resp->width() == (m_msb - m_lsb + 1), vtxp, "Wrong result width");
-        return m_resp;
+        પાછા m_resp;
     }
 
     // Trace drivers of the given array vertex, pushing the given index, at current m_msb, m_lsb.
-    DfgVertex* tracePushIdx(DfgVertex* const vtxp, const uint32_t idx) {
-        const size_t nIdxs = m_idxs.size();
-        m_idxs.push_back(idx);
-        DfgVertex* const resp = traceSameIdx(vtxp);
-        m_idxs.pop_back();
+    DfgVertex* trace_ધકેલો_Idx(DfgVertex* અચલ vtxp, અચલ uint32_t idx) {
+        અચલ size_t nIdxs = m_idxs.size();
+        m_idxs.ધકેલો_back(idx);
+        DfgVertex* અચલ resp = traceSameIdx(vtxp);
+        m_idxs.કાઢો_back();
         UASSERT_OBJ(m_idxs.size() == nIdxs, vtxp, "Index stack size mismatch");
-        return resp;
+        પાછા resp;
     }
 
     // Trace drivers of the given vertex, popping the innermost index, at current m_msb, m_lsb.
-    DfgVertex* tracePopIdx(DfgVertex* const vtxp) {
+    DfgVertex* trace_કાઢો_Idx(DfgVertex* અચલ vtxp) {
         UASSERT_OBJ(!m_idxs.empty(), vtxp, "Should have a pending index");
-        const size_t nIdxs = m_idxs.size();
-        const uint32_t idx = m_idxs.back();
-        m_idxs.pop_back();
-        DfgVertex* const resp = m_idxs.empty() ? trace(vtxp, m_msb, m_lsb) : traceSameIdx(vtxp);
-        m_idxs.push_back(idx);
+        અચલ size_t nIdxs = m_idxs.size();
+        અચલ uint32_t idx = m_idxs.back();
+        m_idxs.કાઢો_back();
+        DfgVertex* અચલ resp = m_idxs.empty() ? trace(vtxp, m_msb, m_lsb) : traceSameIdx(vtxp);
+        m_idxs.ધકેલો_back(idx);
         UASSERT_OBJ(m_idxs.size() == nIdxs, vtxp, "Index stack size mismatch");
-        return resp;
+        પાછા resp;
     }
 
     template <typename Vertex>
-    Vertex* traceBitwiseBinary(Vertex* vtxp) {
-        static_assert(std::is_base_of<DfgVertexBinary, Vertex>::value,
+    Vertex* trace_Bitwise_દ્વિઅંકી(Vertex* vtxp) {
+        static_assert(std::is_base_of<Dfg_Vertex_દ્વિઅંકી, Vertex>::કિંમત,
                       "Should only call on DfgVertexBinary");
-        Vertex* const resp = make<Vertex>(vtxp, m_msb - m_lsb + 1);
+        Vertex* અચલ resp = make<Vertex>(vtxp, m_msb - m_lsb + 1);
         resp->rhsp(trace(vtxp->rhsp(), m_msb, m_lsb));
         resp->lhsp(trace(vtxp->lhsp(), m_msb, m_lsb));
-        return resp;
+        પાછા resp;
     }
 
     template <typename Vertex>
     DfgVertex* traceAddSub(Vertex* vtxp) {
-        static_assert(std::is_base_of<DfgVertexBinary, Vertex>::value,
+        static_assert(std::is_base_of<Dfg_Vertex_દ્વિઅંકી, Vertex>::કિંમત,
                       "Should only call on DfgVertexBinary");
-        Vertex* const opp = make<Vertex>(vtxp, m_msb + 1);
+        Vertex* અચલ opp = make<Vertex>(vtxp, m_msb + 1);
         opp->rhsp(trace(vtxp->rhsp(), m_msb, 0));
         opp->lhsp(trace(vtxp->lhsp(), m_msb, 0));
-        DfgSel* const selp = make<DfgSel>(vtxp, m_msb - m_lsb + 1);
+        DfgSel* અચલ selp = make<DfgSel>(vtxp, m_msb - m_lsb + 1);
         selp->fromp(opp);
         selp->lsb(m_lsb);
-        return selp;
+        પાછા selp;
     }
 
     template <typename Vertex>
     Vertex* traceReduction(Vertex* vtxp) {
-        static_assert(std::is_base_of<DfgVertexUnary, Vertex>::value,
+        static_assert(std::is_base_of<DfgVertexUnary, Vertex>::કિંમત,
                       "Should only call on DfgVertexUnary");
-        Vertex* const resp = make<Vertex>(vtxp, 1);
+        Vertex* અચલ resp = make<Vertex>(vtxp, 1);
         resp->srcp(trace(vtxp->srcp(), vtxp->srcp()->width() - 1, 0));
-        return resp;
+        પાછા resp;
     }
 
     template <typename Vertex>
     Vertex* traceCmp(Vertex* vtxp) {
-        static_assert(std::is_base_of<DfgVertexBinary, Vertex>::value,
+        static_assert(std::is_base_of<Dfg_Vertex_દ્વિઅંકી, Vertex>::કિંમત,
                       "Should only call on DfgVertexBinary");
-        Vertex* const resp = make<Vertex>(vtxp, m_msb - m_lsb + 1);
+        Vertex* અચલ resp = make<Vertex>(vtxp, m_msb - m_lsb + 1);
         resp->rhsp(trace(vtxp->rhsp(), vtxp->rhsp()->width() - 1, 0));
         resp->lhsp(trace(vtxp->lhsp(), vtxp->lhsp()->width() - 1, 0));
-        return resp;
+        પાછા resp;
     }
 
     // Use this macro to return the result from 'visit' methods. This also emits
@@ -435,21 +435,21 @@ class TraceDriver final : public DfgVisitor {
     // TODO: Use C++20 std::source_location instead of a macro
 #ifdef VL_DEBUG
 #define TRACE_RESULT_COVER() \
-    do { \
-        if (VL_UNLIKELY(m_lineCoverageFile.is_open())) m_lineCoverageFile << __LINE__ << '\n'; \
-    } while (false)
-#else
+    કરો { \
+        જો (VL_UNLIKELY(m_લીટી_Coverage_File.is_open())) m_લીટી_Coverage_File << __LINE__ << '\n'; \
+    } જ્યારે (ખોટું)
+#નહીંતર
 #define TRACE_RESULT_COVER() \
-    do { \
-    } while (false)
+    કરો { \
+    } જ્યારે (ખોટું)
 #endif
 
 #define RETURN_RESULT(vtxp) \
-    do { \
+    કરો { \
         m_resp = (vtxp); \
         TRACE_RESULT_COVER(); \
-        return; \
-    } while (false)
+        પાછા; \
+    } જ્યારે (ખોટું)
 
     // Use this macro in 'visit' methods when the result is exactly the result of tracing
     // 'srcp' at [smsb:slsb]. 'trace' then continues iteratively instead of recursing, so
@@ -458,30 +458,30 @@ class TraceDriver final : public DfgVisitor {
     // immediately. Only use this when no state set up by the visitor (e.g.: 'm_defaultp')
     // has to stay live while 'srcp' is traced, as that happens after the visitor returned.
 #define RETURN_RESULT_TAIL(srcp, smsb, slsb) \
-    do { \
+    કરો { \
         /* Evaluate all arguments before assigning, as they usually read 'm_msb'/'m_lsb' */ \
-        DfgVertex* const tailp = (srcp); \
-        const uint32_t tailMsb = (smsb); \
-        const uint32_t tailLsb = (slsb); \
+        DfgVertex* અચલ tailp = (srcp); \
+        અચલ uint32_t tailMsb = (smsb); \
+        અચલ uint32_t tailLsb = (slsb); \
         m_tailp = tailp; \
         m_msb = tailMsb; \
         m_lsb = tailLsb; \
         TRACE_RESULT_COVER(); \
-        return; \
-    } while (false)
+        પાછા; \
+    } જ્યારે (ખોટું)
 
     // VISITORS
-    void visit(DfgVertex* vtxp) override {  // LCOV_EXCL_START
+    શૂન્ય visit(DfgVertex* vtxp) override {  // LCOV_EXCL_START
         vtxp->v3fatalSrc("TraceDriver - Unhandled vertex type: " << vtxp->typeName());
     }  // LCOV_EXCL_STOP
 
-    void visit(DfgSplicePacked* vtxp) override {
+    શૂન્ય visit(DfgSplicePacked* vtxp) override {
         UASSERT_OBJ(m_splicep == vtxp, vtxp, "Unexpected trace of DfgSplicePacked");
         DfgVertex* defaultp = m_defaultp;
         m_defaultp = nullptr;
         m_splicep = nullptr;
 
-        struct Driver final {
+        સંરચના Driver final {
             DfgVertex* m_vtxp;  // Vertex driving this range
             uint32_t m_lsb;  // LSB of driven range (internal, not Verilog)
             uint32_t m_msb;  // MSB of driven range (internal, not Verilog)
@@ -494,55 +494,55 @@ class TraceDriver final : public DfgVisitor {
         std::vector<Driver> drivers;
 
         // Look at all the drivers, one might cover the whole range, but also gather all drivers
-        bool tryWholeDefault = defaultp;
+        તાર્કિક tryWholeDefault = defaultp;
         DfgVertex* coverp = nullptr;  // Driver covering the whole searched range, if any
         uint32_t coverLsb = 0;  // LSB of the range driven by 'coverp'
         vtxp->foreachDriver([&](DfgVertex& src, uint32_t lsb) {
-            const uint32_t msb = lsb + src.width() - 1;
+            અચલ uint32_t msb = lsb + src.width() - 1;
             drivers.emplace_back(&src, lsb, msb);
             // Check if this driver covers any of the bits, then we can't use whole default
-            if (m_msb >= lsb && msb >= m_lsb) tryWholeDefault = false;
+            જો (m_msb >= lsb && msb >= m_lsb) tryWholeDefault = ખોટું;
             // If it does not cover the whole searched bit range, move on
-            if (m_lsb < lsb || msb < m_msb) return false;
+            જો (m_lsb < lsb || msb < m_msb) પાછા ખોટું;
             // Driver covers whole search range, we are done gathering
             coverp = &src;
             coverLsb = lsb;
-            return true;
+            પાછા સાચું;
         });
 
         // Trace the driver covering the whole searched range, if there is one
-        if (coverp) RETURN_RESULT_TAIL(coverp, m_msb - coverLsb, m_lsb - coverLsb);
+        જો (coverp) RETURN_RESULT_TAIL(coverp, m_msb - coverLsb, m_lsb - coverLsb);
 
         // Trace the default driver if no other drivers cover the searched range
-        if (tryWholeDefault) RETURN_RESULT_TAIL(defaultp, m_msb, m_lsb);
+        જો (tryWholeDefault) RETURN_RESULT_TAIL(defaultp, m_msb, m_lsb);
 
         // Hard case: We need to combine multiple drivers to produce the searched bit range
 
         // Sort drivers (they are non-overlapping)
-        std::sort(drivers.begin(), drivers.end(), [](const Driver& a, const Driver& b) {  //
-            return a.m_lsb < b.m_lsb;
+        std::sort(drivers.begin(), drivers.end(), [](અચલ Driver& a, અચલ Driver& b) {  //
+            પાછા a.m_lsb < b.m_lsb;
         });
 
         // Gather terms
         std::vector<DfgVertex*> termps;
         uint32_t lsb = m_lsb;
-        for (const Driver& driver : drivers) {
+        માટે (અચલ Driver& driver : drivers) {
             // Driver is below the searched LSB, move on
-            if (lsb > driver.m_msb) continue;
+            જો (lsb > driver.m_msb) ચાલુ;
             // Driver is above the searched MSB, done
-            if (driver.m_lsb > m_msb) break;
+            જો (driver.m_lsb > m_msb) તોડો;
             // Gap below this driver, trace default to fill it
-            if (driver.m_lsb > lsb) {
+            જો (driver.m_lsb > lsb) {
                 UASSERT_OBJ(defaultp, vtxp, "Should have a default driver if needs tracing");
                 termps.emplace_back(trace(defaultp, driver.m_lsb - 1, lsb));
                 lsb = driver.m_lsb;
             }
             // Driver covers searched range, pick the needed/available bits
-            const uint32_t lim = std::min(m_msb, driver.m_msb);
+            અચલ uint32_t lim = std::min(m_msb, driver.m_msb);
             termps.emplace_back(trace(driver.m_vtxp, lim - driver.m_lsb, lsb - driver.m_lsb));
             lsb = lim + 1;
         }
-        if (m_msb >= lsb) {
+        જો (m_msb >= lsb) {
             UASSERT_OBJ(defaultp, vtxp, "Should have a default driver if needs tracing");
             termps.emplace_back(trace(defaultp, m_msb, lsb));
         }
@@ -553,9 +553,9 @@ class TraceDriver final : public DfgVisitor {
 
         // Concatenate all terms and set result
         DfgVertex* resp = termps.front();
-        for (size_t i = 1; i < termps.size(); ++i) {
-            DfgVertex* const termp = termps[i];
-            DfgConcat* const catp = make<DfgConcat>(termp, resp->width() + termp->width());
+        માટે (size_t i = 1; i < termps.size(); ++i) {
+            DfgVertex* અચલ termp = termps[i];
+            DfgConcat* અચલ catp = make<DfgConcat>(termp, resp->width() + termp->width());
             catp->rhsp(resp);
             catp->lhsp(termp);
             resp = catp;
@@ -563,36 +563,36 @@ class TraceDriver final : public DfgVisitor {
         RETURN_RESULT(resp);
     }
 
-    void visit(DfgSpliceArray* vtxp) override {
+    શૂન્ય visit(DfgSpliceArray* vtxp) override {
         UASSERT_OBJ(m_splicep == vtxp, vtxp, "Unexpected trace of DfgSpliceArray");
-        DfgVertex* const defaultp = m_defaultp;
+        DfgVertex* અચલ defaultp = m_defaultp;
         m_defaultp = nullptr;
         m_splicep = nullptr;
 
         // Explicit per-element driver (a UnitArray wrapping the element value)
-        const uint32_t idx = m_idxs.back();
-        if (DfgVertex* const driverp = vtxp->driverAt(idx)) {
-            DfgVertex* const srcp = driverp->as<DfgUnitArray>()->srcp();
-            if (srcp->is<DfgVertexSplice>()) {
+        અચલ uint32_t idx = m_idxs.back();
+        જો (DfgVertex* અચલ driverp = vtxp->driverAt(idx)) {
+            DfgVertex* અચલ srcp = driverp->as<DfgUnitArray>()->srcp();
+            જો (srcp->is<DfgVertexSplice>()) {
                 // Partial-element propagation is rejected during synthesis.
                 UASSERT_OBJ(!defaultp, vtxp, "Array default with partial element driver");
                 m_splicep = srcp;
             }
             // Consume this index, then trace the element value
-            RETURN_RESULT(tracePopIdx(srcp));
+            RETURN_RESULT(trace_કાઢો_Idx(srcp));
         }
         // An element not driven explicitly comes from the default array at the same index.
         UASSERT_OBJ(defaultp, vtxp, "Independent array element should have a driver or default");
         RETURN_RESULT(traceSameIdx(defaultp));
     }
 
-    void visit(DfgVertexVar* vtxp) override {
+    શૂન્ય visit(DfgVertexVar* vtxp) override {
         UASSERT_OBJ(!vtxp->isVolatile(), vtxp, "Should not trace through volatile variable");
-        DfgVertex* const srcp = vtxp->srcp();
-        DfgVertex* const defaultp = vtxp->defaultp();
-        DfgVertex* const drvp = srcp ? srcp : defaultp;
+        DfgVertex* અચલ srcp = vtxp->srcp();
+        DfgVertex* અચલ defaultp = vtxp->defaultp();
+        DfgVertex* અચલ drvp = srcp ? srcp : defaultp;
         // If we are about to trace a splice, set the defaultp to the corresponding default
-        if (srcp && srcp->is<DfgVertexSplice>()) {
+        જો (srcp && srcp->is<DfgVertexSplice>()) {
             m_defaultp = defaultp;
             m_splicep = srcp;
         }
@@ -602,230 +602,230 @@ class TraceDriver final : public DfgVisitor {
         RETURN_RESULT(m_idxs.empty() ? trace(drvp, m_msb, m_lsb) : traceSameIdx(drvp));
     }
 
-    void visit(DfgArraySel* vtxp) override {
+    શૂન્ય visit(DfgArraySel* vtxp) override {
         // If constant index, push it and trace the selected element through the array
         // structure of 'fromp'. This handles arbitrarily nested (multi-dimensional)
         // arrays, as each nested ArraySel pushes a further index.
-        if (const DfgConst* const idxp = vtxp->bitp()->cast<DfgConst>()) {
-            RETURN_RESULT(tracePushIdx(vtxp->fromp(), idxp->toU32()));
+        જો (અચલ DfgConst* અચલ idxp = vtxp->bitp()->cast<DfgConst>()) {
+            RETURN_RESULT(trace_ધકેલો_Idx(vtxp->fromp(), idxp->toU32()));
         }
 
         // If index is not constant, independence was proven only if the 'fromp' is
         // independent, so no need to trace that, just reference it with the traced
         // index. This only happens at the packed ArraySel leaf.
         UASSERT_OBJ(m_idxs.empty(), vtxp, "Non-constant index below an outer array index");
-        DfgArraySel* const resp = make<DfgArraySel>(vtxp, vtxp->width());
+        DfgArraySel* અચલ resp = make<DfgArraySel>(vtxp, vtxp->width());
         resp->fromp(vtxp->fromp());
         resp->bitp(trace(vtxp->bitp(), vtxp->bitp()->width() - 1, 0));
-        DfgSel* const selp = make<DfgSel>(vtxp, m_msb - m_lsb + 1);
+        DfgSel* અચલ selp = make<DfgSel>(vtxp, m_msb - m_lsb + 1);
         selp->fromp(resp);
         selp->lsb(m_lsb);
         RETURN_RESULT(selp);
     }
 
-    void visit(DfgUnitArray* vtxp) override {
+    શૂન્ય visit(DfgUnitArray* vtxp) override {
         // Single-element array adapter, the pending index must be 0, unwrap the element
         UASSERT_OBJ(m_idxs.back() == 0, vtxp, "UnitArray element index should be 0");
-        RETURN_RESULT(tracePopIdx(vtxp->srcp()));
+        RETURN_RESULT(trace_કાઢો_Idx(vtxp->srcp()));
     }
 
-    void visit(DfgConcat* vtxp) override {
-        DfgVertex* const rhsp = vtxp->rhsp();
-        DfgVertex* const lhsp = vtxp->lhsp();
-        const uint32_t rWidth = rhsp->width();
+    શૂન્ય visit(DfgConcat* vtxp) override {
+        DfgVertex* અચલ rhsp = vtxp->rhsp();
+        DfgVertex* અચલ lhsp = vtxp->lhsp();
+        અચલ uint32_t rWidth = rhsp->width();
         // If the traced bits are wholly in the RHS
-        if (rWidth > m_msb) RETURN_RESULT_TAIL(rhsp, m_msb, m_lsb);
+        જો (rWidth > m_msb) RETURN_RESULT_TAIL(rhsp, m_msb, m_lsb);
         // If the traced bits are wholly in the LHS
-        if (m_lsb >= rWidth) RETURN_RESULT_TAIL(lhsp, m_msb - rWidth, m_lsb - rWidth);
+        જો (m_lsb >= rWidth) RETURN_RESULT_TAIL(lhsp, m_msb - rWidth, m_lsb - rWidth);
         // The traced bit spans both sides, trace both
-        DfgConcat* const resp = make<DfgConcat>(vtxp, m_msb - m_lsb + 1);
+        DfgConcat* અચલ resp = make<DfgConcat>(vtxp, m_msb - m_lsb + 1);
         resp->rhsp(trace(rhsp, rWidth - 1, m_lsb));
         resp->lhsp(trace(lhsp, m_msb - rWidth, 0));
         RETURN_RESULT(resp);
     }
 
-    void visit(DfgRep* vtxp) override {
-        DfgVertex* const srcp = vtxp->srcp();
-        const uint32_t sWidth = srcp->width();
+    શૂન્ય visit(DfgRep* vtxp) override {
+        DfgVertex* અચલ srcp = vtxp->srcp();
+        અચલ uint32_t sWidth = srcp->width();
         // If we need more bits than the source, then we need the whole source
-        if (m_msb - m_lsb + 1 > sWidth) {
-            DfgRep* const repp = make<DfgRep>(vtxp, vtxp->width());
+        જો (m_msb - m_lsb + 1 > sWidth) {
+            DfgRep* અચલ repp = make<DfgRep>(vtxp, vtxp->width());
             repp->srcp(trace(srcp, sWidth - 1, 0));
-            DfgSel* const resp = make<DfgSel>(vtxp, m_msb - m_lsb + 1);
+            DfgSel* અચલ resp = make<DfgSel>(vtxp, m_msb - m_lsb + 1);
             resp->fromp(repp);
             resp->lsb(m_lsb);
             RETURN_RESULT(resp);
         }
         // If the requested bits are within the same repliacted word
-        if (m_msb / sWidth == m_lsb / sWidth) {
+        જો (m_msb / sWidth == m_lsb / sWidth) {
             RETURN_RESULT_TAIL(srcp, m_msb % sWidth, m_lsb % sWidth);
         }
         // The requested bits span two replicated words
-        DfgConcat* const resp = make<DfgConcat>(vtxp, m_msb - m_lsb + 1);
+        DfgConcat* અચલ resp = make<DfgConcat>(vtxp, m_msb - m_lsb + 1);
         resp->rhsp(trace(srcp, sWidth - 1, m_lsb % sWidth));
         resp->lhsp(trace(srcp, m_msb % sWidth, 0));
         RETURN_RESULT(resp);
     }
 
-    void visit(DfgExtend* vtxp) override {
-        DfgVertex* const srcp = vtxp->srcp();
-        const uint32_t sWidth = srcp->width();
+    શૂન્ય visit(DfgExtend* vtxp) override {
+        DfgVertex* અચલ srcp = vtxp->srcp();
+        અચલ uint32_t sWidth = srcp->width();
         // If the traced bits are wholly in the input
-        if (sWidth > m_msb) RETURN_RESULT_TAIL(srcp, m_msb, m_lsb);
+        જો (sWidth > m_msb) RETURN_RESULT_TAIL(srcp, m_msb, m_lsb);
         // If the traced bits are wholly in the extension
-        if (m_lsb >= sWidth) RETURN_RESULT(make<DfgConst>(vtxp, m_msb - m_lsb + 1));
+        જો (m_lsb >= sWidth) RETURN_RESULT(make<DfgConst>(vtxp, m_msb - m_lsb + 1));
         // The traced bits span both sides
-        DfgExtend* const resp = make<DfgExtend>(vtxp, m_msb - m_lsb + 1);
+        DfgExtend* અચલ resp = make<DfgExtend>(vtxp, m_msb - m_lsb + 1);
         resp->srcp(trace(srcp, sWidth - 1, m_lsb));
         RETURN_RESULT(resp);
     }
 
-    void visit(DfgExtendS* vtxp) override {
-        DfgVertex* const srcp = vtxp->srcp();
-        const uint32_t sWidth = srcp->width();
+    શૂન્ય visit(DfgExtendS* vtxp) override {
+        DfgVertex* અચલ srcp = vtxp->srcp();
+        અચલ uint32_t sWidth = srcp->width();
         // If the traced bits are wholly in the input
-        if (sWidth > m_msb) RETURN_RESULT_TAIL(srcp, m_msb, m_lsb);
+        જો (sWidth > m_msb) RETURN_RESULT_TAIL(srcp, m_msb, m_lsb);
         // If the traced bits are wholly in the extension
-        if (m_lsb >= sWidth) {
-            if (m_msb == m_lsb) RETURN_RESULT_TAIL(srcp, sWidth - 1, sWidth - 1);
-            DfgExtendS* const resp = make<DfgExtendS>(vtxp, m_msb - m_lsb + 1);
+        જો (m_lsb >= sWidth) {
+            જો (m_msb == m_lsb) RETURN_RESULT_TAIL(srcp, sWidth - 1, sWidth - 1);
+            DfgExtendS* અચલ resp = make<DfgExtendS>(vtxp, m_msb - m_lsb + 1);
             resp->srcp(trace(srcp, sWidth - 1, sWidth - 1));
             RETURN_RESULT(resp);
         }
         // The traced bits span both sides
-        DfgExtendS* const resp = make<DfgExtendS>(vtxp, m_msb - m_lsb + 1);
+        DfgExtendS* અચલ resp = make<DfgExtendS>(vtxp, m_msb - m_lsb + 1);
         resp->srcp(trace(srcp, sWidth - 1, m_lsb));
         RETURN_RESULT(resp);
     }
 
-    void visit(DfgSel* vtxp) override {
-        const uint32_t lsb = vtxp->lsb();
+    શૂન્ય visit(DfgSel* vtxp) override {
+        અચલ uint32_t lsb = vtxp->lsb();
         RETURN_RESULT_TAIL(vtxp->srcp(), m_msb + lsb, m_lsb + lsb);
     }
 
-    void visit(DfgNot* vtxp) override {
-        DfgNot* const resp = make<DfgNot>(vtxp, m_msb - m_lsb + 1);
+    શૂન્ય visit(DfgNot* vtxp) override {
+        DfgNot* અચલ resp = make<DfgNot>(vtxp, m_msb - m_lsb + 1);
         resp->srcp(trace(vtxp->srcp(), m_msb, m_lsb));
         RETURN_RESULT(resp);
     }
 
-    void visit(DfgAnd* vtxp) override { RETURN_RESULT(traceBitwiseBinary(vtxp)); }
-    void visit(DfgOr* vtxp) override { RETURN_RESULT(traceBitwiseBinary(vtxp)); }
-    void visit(DfgXor* vtxp) override { RETURN_RESULT(traceBitwiseBinary(vtxp)); }
-    void visit(DfgAdd* vtxp) override { RETURN_RESULT(traceAddSub(vtxp)); }
-    void visit(DfgSub* vtxp) override { RETURN_RESULT(traceAddSub(vtxp)); }
-    void visit(DfgRedAnd* vtxp) override { RETURN_RESULT(traceReduction(vtxp)); }
-    void visit(DfgRedOr* vtxp) override { RETURN_RESULT(traceReduction(vtxp)); }
-    void visit(DfgRedXor* vtxp) override { RETURN_RESULT(traceReduction(vtxp)); }
-    void visit(DfgEq* vtxp) override { RETURN_RESULT(traceCmp(vtxp)); }
-    void visit(DfgNeq* vtxp) override { RETURN_RESULT(traceCmp(vtxp)); }
-    void visit(DfgLt* vtxp) override { RETURN_RESULT(traceCmp(vtxp)); }
-    void visit(DfgLte* vtxp) override { RETURN_RESULT(traceCmp(vtxp)); }
-    void visit(DfgGt* vtxp) override { RETURN_RESULT(traceCmp(vtxp)); }
-    void visit(DfgGte* vtxp) override { RETURN_RESULT(traceCmp(vtxp)); }
+    શૂન્ય visit(DfgAnd* vtxp) override { RETURN_RESULT(trace_Bitwise_દ્વિઅંકી(vtxp)); }
+    શૂન્ય visit(DfgOr* vtxp) override { RETURN_RESULT(trace_Bitwise_દ્વિઅંકી(vtxp)); }
+    શૂન્ય visit(DfgXor* vtxp) override { RETURN_RESULT(trace_Bitwise_દ્વિઅંકી(vtxp)); }
+    શૂન્ય visit(DfgAdd* vtxp) override { RETURN_RESULT(traceAddSub(vtxp)); }
+    શૂન્ય visit(DfgSub* vtxp) override { RETURN_RESULT(traceAddSub(vtxp)); }
+    શૂન્ય visit(DfgRedAnd* vtxp) override { RETURN_RESULT(traceReduction(vtxp)); }
+    શૂન્ય visit(DfgRedOr* vtxp) override { RETURN_RESULT(traceReduction(vtxp)); }
+    શૂન્ય visit(DfgRedXor* vtxp) override { RETURN_RESULT(traceReduction(vtxp)); }
+    શૂન્ય visit(DfgEq* vtxp) override { RETURN_RESULT(traceCmp(vtxp)); }
+    શૂન્ય visit(DfgNeq* vtxp) override { RETURN_RESULT(traceCmp(vtxp)); }
+    શૂન્ય visit(DfgLt* vtxp) override { RETURN_RESULT(traceCmp(vtxp)); }
+    શૂન્ય visit(DfgLte* vtxp) override { RETURN_RESULT(traceCmp(vtxp)); }
+    શૂન્ય visit(DfgGt* vtxp) override { RETURN_RESULT(traceCmp(vtxp)); }
+    શૂન્ય visit(DfgGte* vtxp) override { RETURN_RESULT(traceCmp(vtxp)); }
 
-    void visit(DfgShiftRS* vtxp) override {
-        DfgVertex* const lhsp = vtxp->lhsp();
-        if (const DfgConst* const rConstp = vtxp->rhsp()->cast<DfgConst>()) {
-            const uint32_t shiftAmnt = rConstp->toU32();
+    શૂન્ય visit(DfgShiftRS* vtxp) override {
+        DfgVertex* અચલ lhsp = vtxp->lhsp();
+        જો (અચલ DfgConst* અચલ rConstp = vtxp->rhsp()->cast<DfgConst>()) {
+            અચલ uint32_t shiftAmnt = rConstp->toU32();
             // Width of lower half of result
-            const uint32_t lowerWidth = shiftAmnt > vtxp->width() ? 0 : vtxp->width() - shiftAmnt;
+            અચલ uint32_t lowerWidth = shiftAmnt > vtxp->width() ? 0 : vtxp->width() - shiftAmnt;
             // If the traced bits are wholly in the input
-            if (lowerWidth > m_msb) {
+            જો (lowerWidth > m_msb) {
                 RETURN_RESULT_TAIL(lhsp, m_msb + shiftAmnt, m_lsb + shiftAmnt);
             }
             // If the traced bits are wholly in the extension
-            if (m_lsb >= lowerWidth) {
-                DfgExtendS* const resp = make<DfgExtendS>(vtxp, m_msb - m_lsb + 1);
+            જો (m_lsb >= lowerWidth) {
+                DfgExtendS* અચલ resp = make<DfgExtendS>(vtxp, m_msb - m_lsb + 1);
                 resp->srcp(trace(lhsp, lhsp->width() - 1, lhsp->width() - 1));
                 RETURN_RESULT(resp);
             }
             // The traced bits span both sides
-            DfgExtendS* const resp = make<DfgExtendS>(vtxp, m_msb - m_lsb + 1);
+            DfgExtendS* અચલ resp = make<DfgExtendS>(vtxp, m_msb - m_lsb + 1);
             resp->srcp(trace(lhsp, lowerWidth - 1 + shiftAmnt, m_lsb + shiftAmnt));
             RETURN_RESULT(resp);
         }
 
-        DfgShiftRS* const shiftrsp = make<DfgShiftRS>(vtxp, vtxp->lhsp()->width() - m_lsb);
+        DfgShiftRS* અચલ shiftrsp = make<DfgShiftRS>(vtxp, vtxp->lhsp()->width() - m_lsb);
         shiftrsp->rhsp(trace(vtxp->rhsp(), vtxp->rhsp()->width() - 1, 0));
         shiftrsp->lhsp(trace(vtxp->lhsp(), vtxp->lhsp()->width() - 1, m_lsb));
-        if (m_msb == vtxp->lhsp()->width() - 1) RETURN_RESULT(shiftrsp);
-        DfgSel* const selp = make<DfgSel>(vtxp, m_msb - m_lsb + 1);
+        જો (m_msb == vtxp->lhsp()->width() - 1) RETURN_RESULT(shiftrsp);
+        DfgSel* અચલ selp = make<DfgSel>(vtxp, m_msb - m_lsb + 1);
         selp->fromp(shiftrsp);
         selp->lsb(0);
         RETURN_RESULT(selp);
     }
 
-    void visit(DfgShiftR* vtxp) override {
-        DfgVertex* const lhsp = vtxp->lhsp();
-        if (const DfgConst* const rConstp = vtxp->rhsp()->cast<DfgConst>()) {
-            const uint32_t shiftAmnt = rConstp->toU32();
+    શૂન્ય visit(DfgShiftR* vtxp) override {
+        DfgVertex* અચલ lhsp = vtxp->lhsp();
+        જો (અચલ DfgConst* અચલ rConstp = vtxp->rhsp()->cast<DfgConst>()) {
+            અચલ uint32_t shiftAmnt = rConstp->toU32();
             // Width of lower half of result
-            const uint32_t lowerWidth = shiftAmnt > vtxp->width() ? 0 : vtxp->width() - shiftAmnt;
+            અચલ uint32_t lowerWidth = shiftAmnt > vtxp->width() ? 0 : vtxp->width() - shiftAmnt;
             // If the traced bits are wholly in the input
-            if (lowerWidth > m_msb) {
+            જો (lowerWidth > m_msb) {
                 RETURN_RESULT_TAIL(lhsp, m_msb + shiftAmnt, m_lsb + shiftAmnt);
             }
             // If the traced bits are wholly in the extension
-            if (m_lsb >= lowerWidth) RETURN_RESULT(make<DfgConst>(vtxp, m_msb - m_lsb + 1));
+            જો (m_lsb >= lowerWidth) RETURN_RESULT(make<DfgConst>(vtxp, m_msb - m_lsb + 1));
             // The traced bits span both sides
-            DfgExtend* const resp = make<DfgExtend>(vtxp, m_msb - m_lsb + 1);
+            DfgExtend* અચલ resp = make<DfgExtend>(vtxp, m_msb - m_lsb + 1);
             resp->srcp(trace(lhsp, lowerWidth - 1 + shiftAmnt, m_lsb + shiftAmnt));
             RETURN_RESULT(resp);
         }
 
-        DfgShiftR* const shiftrp = make<DfgShiftR>(vtxp, vtxp->lhsp()->width() - m_lsb);
+        DfgShiftR* અચલ shiftrp = make<DfgShiftR>(vtxp, vtxp->lhsp()->width() - m_lsb);
         shiftrp->rhsp(trace(vtxp->rhsp(), vtxp->rhsp()->width() - 1, 0));
         shiftrp->lhsp(trace(vtxp->lhsp(), vtxp->lhsp()->width() - 1, m_lsb));
-        if (m_msb == vtxp->lhsp()->width() - 1) RETURN_RESULT(shiftrp);
-        DfgSel* const selp = make<DfgSel>(vtxp, m_msb - m_lsb + 1);
+        જો (m_msb == vtxp->lhsp()->width() - 1) RETURN_RESULT(shiftrp);
+        DfgSel* અચલ selp = make<DfgSel>(vtxp, m_msb - m_lsb + 1);
         selp->fromp(shiftrp);
         selp->lsb(0);
         RETURN_RESULT(selp);
     }
 
-    void visit(DfgShiftL* vtxp) override {
-        DfgVertex* const lhsp = vtxp->lhsp();
-        if (const DfgConst* const rConstp = vtxp->rhsp()->cast<DfgConst>()) {
-            const uint32_t shiftAmnt = rConstp->toU32();
+    શૂન્ય visit(DfgShiftL* vtxp) override {
+        DfgVertex* અચલ lhsp = vtxp->lhsp();
+        જો (અચલ DfgConst* અચલ rConstp = vtxp->rhsp()->cast<DfgConst>()) {
+            અચલ uint32_t shiftAmnt = rConstp->toU32();
             // Width of lower half of result
-            const uint32_t lowerWidth = shiftAmnt > vtxp->width() ? vtxp->width() : shiftAmnt;
+            અચલ uint32_t lowerWidth = shiftAmnt > vtxp->width() ? vtxp->width() : shiftAmnt;
             // If the traced bits are wholly in the input
-            if (m_lsb >= lowerWidth) {
+            જો (m_lsb >= lowerWidth) {
                 RETURN_RESULT_TAIL(lhsp, m_msb - shiftAmnt, m_lsb - shiftAmnt);
             }
             // If the traced bits are wholly in the extension
-            if (lowerWidth > m_msb) RETURN_RESULT(make<DfgConst>(vtxp, m_msb - m_lsb + 1));
+            જો (lowerWidth > m_msb) RETURN_RESULT(make<DfgConst>(vtxp, m_msb - m_lsb + 1));
             // The traced bits span both sides
-            DfgConcat* const resp = make<DfgConcat>(vtxp, m_msb - m_lsb + 1);
+            DfgConcat* અચલ resp = make<DfgConcat>(vtxp, m_msb - m_lsb + 1);
             resp->rhsp(make<DfgConst>(vtxp, resp->width() - (m_msb - lowerWidth + 1)));
             resp->lhsp(trace(lhsp, m_msb - shiftAmnt, lowerWidth - shiftAmnt));
             RETURN_RESULT(resp);
         }
 
-        DfgShiftL* const shiftlp = make<DfgShiftL>(vtxp, m_msb + 1);
+        DfgShiftL* અચલ shiftlp = make<DfgShiftL>(vtxp, m_msb + 1);
         shiftlp->rhsp(trace(vtxp->rhsp(), vtxp->rhsp()->width() - 1, 0));
         shiftlp->lhsp(trace(vtxp->lhsp(), m_msb, 0));
-        if (m_lsb == 0) RETURN_RESULT(shiftlp);
-        DfgSel* const selp = make<DfgSel>(vtxp, m_msb - m_lsb + 1);
+        જો (m_lsb == 0) RETURN_RESULT(shiftlp);
+        DfgSel* અચલ selp = make<DfgSel>(vtxp, m_msb - m_lsb + 1);
         selp->fromp(shiftlp);
         selp->lsb(m_lsb);
         RETURN_RESULT(selp);
     }
 
-    void visit(DfgCond* vtxp) override {
-        DfgCond* const resp = make<DfgCond>(vtxp, m_msb - m_lsb + 1);
+    શૂન્ય visit(DfgCond* vtxp) override {
+        DfgCond* અચલ resp = make<DfgCond>(vtxp, m_msb - m_lsb + 1);
         resp->condp(trace(vtxp->condp(), vtxp->condp()->width() - 1, 0));
         resp->thenp(trace(vtxp->thenp(), m_msb, m_lsb));
         resp->elsep(trace(vtxp->elsep(), m_msb, m_lsb));
         RETURN_RESULT(resp);
     }
 
-    void visit(DfgMatchMasked* vtxp) override {
-        DfgMatchMasked* const resp = make<DfgMatchMasked>(vtxp, vtxp->width());
+    શૂન્ય visit(DfgMatchMasked* vtxp) override {
+        DfgMatchMasked* અચલ resp = make<DfgMatchMasked>(vtxp, vtxp->width());
         resp->lhsp(trace(vtxp->lhsp(), vtxp->lhsp()->width() - 1, 0));
         resp->matchp(trace(vtxp->matchp(), vtxp->matchp()->width() - 1, 0));
-        DfgSel* const selp = make<DfgSel>(vtxp, m_msb - m_lsb + 1);
+        DfgSel* અચલ selp = make<DfgSel>(vtxp, m_msb - m_lsb + 1);
         selp->fromp(resp);
         selp->lsb(m_lsb);
         RETURN_RESULT(selp);
@@ -835,14 +835,14 @@ class TraceDriver final : public DfgVisitor {
 #undef TRACE_RESULT_COVER
 #undef RETURN_RESULT_TAIL
 
-public:
+જાહેર:
     // CONSTRUCTOR
     TraceDriver(DfgGraph& dfg, SccInfo& sccInfo)
         : m_dfg{dfg}
         , m_sccInfo{sccInfo} {
 #ifdef VL_DEBUG
-        if (v3Global.opt.debugCheck()) {
-            m_lineCoverageFile.open(  //
+        જો (v3Global.opt.debugCheck()) {
+            m_લીટી_Coverage_File.open(  //
                 v3Global.opt.makeDir() + "/" + v3Global.opt.prefix()
                     + "__V3DfgBreakCycles-TraceDriver-line-coverage.txt",  //
                 std::ios_base::out | std::ios_base::app);
@@ -857,171 +857,171 @@ public:
     DfgVertex* apply(DfgVertex& vtx, uint32_t lsb, uint32_t width) {
         VL_RESTORER(m_component);
         m_component = m_sccInfo.get(vtx);
-        return trace(&vtx, lsb + width - 1, lsb);
+        પાછા trace(&vtx, lsb + width - 1, lsb);
     }
 };
 
 // A bit mask for each bit in a value, which can be either packed or aggregate type
-class BitMask final {
+વર્ગ BitMask final {
     // TYPES
-    const DfgDataType& m_dtype;
-    union {
-        V3Number m_num;  // The bits, if packed
+    અચલ DfgDataType& m_dtype;
+    સંઘ {
+        V3_સંખ્યા m_અંક;  // The bits, if packed
         std::vector<BitMask> m_sub;  // The per element masks, if aggregate
     };
 
-public:
+જાહેર:
     // CONSTRUCTOR
-    BitMask(FileLine* flp, const DfgDataType& dtype)
+    BitMask(File_લીટી* flp, અચલ DfgDataType& dtype)
         : m_dtype{dtype} {
         UASSERT_OBJ(!m_dtype.isNull(), flp, "Expected non-null data type");
-        if (m_dtype.isPacked()) {
-            new (&m_num) V3Number{flp, static_cast<int>(m_dtype.size()), 0};
-        } else {
-            new (&m_sub) std::vector<BitMask>{};
+        જો (m_dtype.isPacked()) {
+            નવું (&m_અંક) V3_સંખ્યા{flp, static_cast<પૂર્ણાંક>(m_dtype.size()), 0};
+        } નહીંતર {
+            નવું (&m_sub) std::vector<BitMask>{};
             m_sub.reserve(m_dtype.size());
-            for (uint32_t i = 0; i < m_dtype.size(); ++i)
+            માટે (uint32_t i = 0; i < m_dtype.size(); ++i)
                 m_sub.emplace_back(flp, m_dtype.elemDtype());
         }
     }
-    BitMask(const DfgVertex& vtx)
+    BitMask(અચલ DfgVertex& vtx)
         : BitMask{vtx.fileline(), vtx.dtype()} {}
-    BitMask(const BitMask& other)
+    BitMask(અચલ BitMask& other)
         : m_dtype{other.m_dtype} {
-        if (m_dtype.isPacked()) {
-            new (&m_num) V3Number{other.m_num};
-        } else {
-            new (&m_sub) std::vector<BitMask>{other.m_sub};
+        જો (m_dtype.isPacked()) {
+            નવું (&m_અંક) V3_સંખ્યા{other.m_અંક};
+        } નહીંતર {
+            નવું (&m_sub) std::vector<BitMask>{other.m_sub};
         }
     }
-    BitMask& operator=(const BitMask& other) {
-        if (this != &other) {
+    BitMask& operator=(અચલ BitMask& other) {
+        જો (આ != &other) {
             UASSERT(m_dtype == other.m_dtype, "Expected same data type");
-            if (other.m_dtype.isPacked()) {
-                m_num = other.m_num;
-            } else {
+            જો (other.m_dtype.isPacked()) {
+                m_અંક = other.m_અંક;
+            } નહીંતર {
                 m_sub = other.m_sub;
             }
         }
-        return *this;
+        પાછા *આ;
     }
     ~BitMask() {
-        if (m_dtype.isPacked()) {
-            m_num.~V3Number();
-        } else {
+        જો (m_dtype.isPacked()) {
+            m_અંક.~V3_સંખ્યા();
+        } નહીંતર {
             m_sub.~vector<BitMask>();
         }
     }
 
     // METHODS
-    V3Number& num() {
+    V3_સંખ્યા& અંક() {
         UASSERT(m_dtype.isPacked(), "Expected packed data type");
-        return m_num;
+        પાછા m_અંક;
     }
-    const V3Number& num() const {
+    અચલ V3_સંખ્યા& અંક() અચલ {
         UASSERT(m_dtype.isPacked(), "Expected packed data type");
-        return m_num;
+        પાછા m_અંક;
     }
     std::vector<BitMask>& sub() {
         UASSERT(m_dtype.isArray(), "Expected array data type");
-        return m_sub;
+        પાછા m_sub;
     }
 
-    bool isZero() const {
-        if (m_dtype.isPacked()) return m_num.isEqZero();
+    તાર્કિક isZero() અચલ {
+        જો (m_dtype.isPacked()) પાછા m_અંક.isEqZero();
 
-        for (const BitMask& sub : m_sub) {
-            if (!sub.isZero()) return false;
+        માટે (અચલ BitMask& sub : m_sub) {
+            જો (!sub.isZero()) પાછા ખોટું;
         }
-        return true;
+        પાછા સાચું;
     }
-    bool isOnes() const {
-        if (m_dtype.isPacked()) return m_num.isEqAllOnes();
+    તાર્કિક isOnes() અચલ {
+        જો (m_dtype.isPacked()) પાછા m_અંક.isEqAllOnes();
 
-        for (const BitMask& sub : m_sub) {
-            if (!sub.isOnes()) return false;
+        માટે (અચલ BitMask& sub : m_sub) {
+            જો (!sub.isOnes()) પાછા ખોટું;
         }
-        return true;
+        પાછા સાચું;
     }
-    void setZero() {
-        if (m_dtype.isPacked()) {
-            m_num.setAllBits0();
-        } else {
-            for (BitMask& sub : m_sub) sub.setZero();
+    શૂન્ય setZero() {
+        જો (m_dtype.isPacked()) {
+            m_અંક.setAllBits0();
+        } નહીંતર {
+            માટે (BitMask& sub : m_sub) sub.setZero();
         }
     }
-    void setOnes() {
-        if (m_dtype.isPacked()) {
-            m_num.setAllBits1();
-        } else {
-            for (BitMask& sub : m_sub) sub.setOnes();
+    શૂન્ય setOnes() {
+        જો (m_dtype.isPacked()) {
+            m_અંક.setAllBits1();
+        } નહીંતર {
+            માટે (BitMask& sub : m_sub) sub.setOnes();
         }
     }
 
-    bool operator==(const BitMask& other) const {
+    તાર્કિક operator==(અચલ BitMask& other) અચલ {
         UASSERT(m_dtype == other.m_dtype, "Expected same data type");
-        if (m_dtype.isPacked()) return m_num.isCaseEq(other.m_num);
-        return m_sub == other.m_sub;
+        જો (m_dtype.isPacked()) પાછા m_અંક.isCaseEq(other.m_અંક);
+        પાછા m_sub == other.m_sub;
     }
-    bool operator!=(const BitMask& other) const { return !(*this == other); }
+    તાર્કિક operator!=(અચલ BitMask& other) અચલ { પાછા !(*આ == other); }
 
     // 'this' has a clear bit where 'that' has a set bit, that is,
     // 'this' has a proper subset of bits set compared to 'that'.
-    bool isContractionOf(const BitMask& that) const {
+    તાર્કિક isContractionOf(અચલ BitMask& that) અચલ {
         UASSERT(m_dtype == that.m_dtype, "Expected same data type");
-        if (m_dtype.isPacked()) {
-            const size_t words = VL_WORDS_I(m_dtype.size());
-            for (size_t i = 0; i < words; ++i) {
-                if (~m_num.edataWord(i) & that.m_num.edataWord(i)) return true;
+        જો (m_dtype.isPacked()) {
+            અચલ size_t શબ્દો = VL_શબ્દો_I(m_dtype.size());
+            માટે (size_t i = 0; i < શબ્દો; ++i) {
+                જો (~m_અંક.edataWord(i) & that.m_અંક.edataWord(i)) પાછા સાચું;
             }
-            return false;
+            પાછા ખોટું;
         }
 
         UASSERT(m_dtype.isArray(), "Expected array data type");
-        for (size_t i = 0; i < m_sub.size(); ++i) {
-            if (m_sub[i].isContractionOf(that.m_sub[i])) return true;
+        માટે (size_t i = 0; i < m_sub.size(); ++i) {
+            જો (m_sub[i].isContractionOf(that.m_sub[i])) પાછા સાચું;
         }
-        return false;
+        પાછા ખોટું;
     }
 
-    std::string toString() const {
-        if (m_dtype.isPacked()) return "0x" + m_num.displayed(m_num.fileline(), "%x");
+    std::string toString() અચલ {
+        જો (m_dtype.isPacked()) પાછા "0x" + m_અંક.displayed(m_અંક.fileline(), "%x");
         std::string result;
         result += "{";
-        for (const BitMask& sub : m_sub) {
-            if (&sub != &m_sub.front()) result += ", ";
+        માટે (અચલ BitMask& sub : m_sub) {
+            જો (&sub != &m_sub.front()) result += ", ";
             result += sub.toString();
         }
         result += "}";
-        return result;
+        પાછા result;
     }
 };
 
-class IndependentBits final : public DfgVisitor {
+વર્ગ IndependentBits final : જાહેર DfgVisitor {
     // TYPES
-    struct VertexState final {
-        size_t m_rpoNumber = 0;  // Reverse Postorder Number of vertex
-        bool m_isOnWorkList = false;  // Whether the vertex is on the work list
+    સંરચના VertexState final {
+        size_t m_rpo_સંખ્યા = 0;  // Reverse Postorder Number of vertex
+        તાર્કિક m_isOnWorkList = ખોટું;  // Whether the vertex is on the work list
     };
 
     // STATE
-    const SccInfo& m_sccInfo;  // The SccInfo instance
+    અચલ SccInfo& m_sccInfo;  // The SccInfo instance
     // Vertex to current bit mask map. The mask is set for the bits that are independent of the SCC
-    std::unordered_map<const DfgVertex*, BitMask> m_vtxp2Mask;
+    std::unordered_map<અચલ DfgVertex*, BitMask> m_vtxp2Mask;
     // Work list for the traversal (min-queue of vertex RPO numbers)
     std::priority_queue<size_t, std::vector<size_t>, std::greater<size_t>> m_workQueue;
-    std::unordered_map<const DfgVertex*, VertexState> m_vtxp2State;  // State of each vertex
+    std::unordered_map<અચલ DfgVertex*, VertexState> m_vtxp2State;  // State of each vertex
 
 #ifdef VL_DEBUG
-    std::ofstream m_lineCoverageFile;  // Line coverage file, just for testing
+    std::ofstream m_લીટી_Coverage_File;  // Line coverage file, just for testing
 #endif
 
     // METHODS
 
     // Retrieve the mask for the given vertex (create it with value 0 if needed)
-    BitMask& mask(const DfgVertex& vtx) {
+    BitMask& mask(અચલ DfgVertex& vtx) {
         // Look up (or create) mask for 'vtx'
-        return m_vtxp2Mask
+        પાછા m_vtxp2Mask
             .emplace(std::piecewise_construct,  //
                      std::forward_as_tuple(&vtx), std::forward_as_tuple(vtx))
             .first->second;
@@ -1032,332 +1032,332 @@ class IndependentBits final : public DfgVisitor {
     // TODO: Use C++20 std::source_location instead of a macro
 #ifdef VL_DEBUG
 #define MASK(vtxp) \
-    ([this](const DfgVertex& vtx) -> BitMask& { \
-        if (VL_UNLIKELY(m_lineCoverageFile.is_open())) m_lineCoverageFile << __LINE__ << '\n'; \
-        return mask(vtx); \
+    ([આ](અચલ DfgVertex& vtx) -> BitMask& { \
+        જો (VL_UNLIKELY(m_લીટી_Coverage_File.is_open())) m_લીટી_Coverage_File << __LINE__ << '\n'; \
+        પાછા mask(vtx); \
     }(*vtxp))
-#else
+#નહીંતર
 #define MASK(vtxp) mask(*vtxp)
 #endif
 
     // Clear all bits at or below the most significant clear bit
-    void floodTowardsLsb(V3Number& num) {
-        for (int i = num.width() - 1; i >= 0; --i) {
-            if (num.bitIs1(i)) continue;
-            num.opSetRange(0, i + 1, '0');
-            break;
+    શૂન્ય floodTowardsLsb(V3_સંખ્યા& અંક) {
+        માટે (પૂર્ણાંક i = અંક.width() - 1; i >= 0; --i) {
+            જો (અંક.bitIs1(i)) ચાલુ;
+            અંક.opSetRange(0, i + 1, '0');
+            તોડો;
         }
     }
 
     // Clear all bits at or above the least significant clear bit
-    void floodTowardsMsb(V3Number& num) {
-        for (int i = 0; i < num.width(); ++i) {
-            if (num.bitIs1(i)) continue;
-            num.opSetRange(i, num.width() - i, '0');
-            break;
+    શૂન્ય floodTowardsMsb(V3_સંખ્યા& અંક) {
+        માટે (પૂર્ણાંક i = 0; i < અંક.width(); ++i) {
+            જો (અંક.bitIs1(i)) ચાલુ;
+            અંક.opSetRange(i, અંક.width() - i, '0');
+            તોડો;
         }
     }
 
-    void propagateFromDriver(BitMask& m, const DfgVertex* srcp) {
+    શૂન્ય propagateFromDriver(BitMask& m, અચલ DfgVertex* srcp) {
         // If there is no driver, we are done
-        if (!srcp) return;
+        જો (!srcp) પાછા;
         // If it is driven by a splice, we need to combine the masks of the drivers
-        if (const DfgSplicePacked* const splicep = srcp->cast<DfgSplicePacked>()) {
-            splicep->foreachDriver([&](const DfgVertex& src, uint32_t lo) {
-                m.num().opSelInto(MASK(&src).num(), lo, src.width());
-                return false;
+        જો (અચલ DfgSplicePacked* અચલ splicep = srcp->cast<DfgSplicePacked>()) {
+            splicep->foreachDriver([&](અચલ DfgVertex& src, uint32_t lo) {
+                m.અંક().opSelInto(MASK(&src).અંક(), lo, src.width());
+                પાછા ખોટું;
             });
-            return;
+            પાછા;
         }
-        if (const DfgSpliceArray* const splicep = srcp->cast<DfgSpliceArray>()) {
-            splicep->foreachDriver([&](const DfgVertex& src, uint32_t lo) {
-                if (const DfgUnitArray* const uap = src.cast<DfgUnitArray>()) {
+        જો (અચલ DfgSpliceArray* અચલ splicep = srcp->cast<DfgSpliceArray>()) {
+            splicep->foreachDriver([&](અચલ DfgVertex& src, uint32_t lo) {
+                જો (અચલ DfgUnitArray* અચલ uap = src.cast<DfgUnitArray>()) {
                     m.sub().at(lo) = MASK(uap->srcp());
-                } else {
+                } નહીંતર {
                     // m.sub().at(lo) = Can't happen MASK(&src);
                 }
-                return false;
+                પાછા ખોટું;
             });
-            return;
+            પાછા;
         }
         // Otherwise, we just use the mask of the single driver
         m = MASK(srcp);
     }
 
     // VISITORS
-    void visit(DfgVertex* vtxp) override {  // LCOV_EXCL_START
+    શૂન્ય visit(DfgVertex* vtxp) override {  // LCOV_EXCL_START
         UINFO(9, "IndependentBits - Unhandled vertex type: " << vtxp->typeName());
         // Conservative assumption about all bits being dependent prevails
     }  // LCOV_EXCL_STOP
 
-    void visit(DfgVertexVar* vtxp) override {
+    શૂન્ય visit(DfgVertexVar* vtxp) override {
         // We cannot trace through a volatile variable, so pretend all bits are dependent
-        if (vtxp->isVolatile()) return;
+        જો (vtxp->isVolatile()) પાછા;
 
         BitMask& m = MASK(vtxp);
-        DfgVertex* const srcp = vtxp->srcp();
-        DfgVertex* const defaultp = vtxp->defaultp();
+        DfgVertex* અચલ srcp = vtxp->srcp();
+        DfgVertex* અચલ defaultp = vtxp->defaultp();
         // If there is a default driver, we start from that
-        if (defaultp) m = MASK(defaultp);
+        જો (defaultp) m = MASK(defaultp);
         // Then propagate mask from the driver
         propagateFromDriver(m, srcp);
     }
 
-    void visit(DfgVertexSplice* vtxp) override {
+    શૂન્ય visit(DfgVertexSplice* vtxp) override {
         propagateFromDriver(MASK(vtxp), vtxp);  // Needed to continue traversal
     }
 
-    void visit(DfgUnitArray* vtxp) override { MASK(vtxp).sub().at(0) = MASK(vtxp->srcp()); }
+    શૂન્ય visit(DfgUnitArray* vtxp) override { MASK(vtxp).sub().at(0) = MASK(vtxp->srcp()); }
 
-    void visit(DfgArraySel* vtxp) override {
-        DfgVertex* const fromp = vtxp->fromp();
+    શૂન્ય visit(DfgArraySel* vtxp) override {
+        DfgVertex* અચલ fromp = vtxp->fromp();
 
         // If constant index, copy mask of relevant element
-        if (const DfgConst* const idxp = vtxp->bitp()->cast<DfgConst>()) {
+        જો (અચલ DfgConst* અચલ idxp = vtxp->bitp()->cast<DfgConst>()) {
             MASK(vtxp) = MASK(vtxp->fromp()).sub().at(idxp->toSizeT());
-            return;
+            પાછા;
         }
 
         // If index is not constant, independent only if the index is indenpendent, and the array
         // is independent. TODO: could relax by '&' reducing, not sure if worth it.
-        if (MASK(vtxp->bitp()).isOnes() && MASK(fromp).isOnes()) MASK(vtxp).setOnes();
+        જો (MASK(vtxp->bitp()).isOnes() && MASK(fromp).isOnes()) MASK(vtxp).setOnes();
     }
 
-    void visit(DfgConcat* vtxp) override {
-        const DfgVertex* const rhsp = vtxp->rhsp();
-        const DfgVertex* const lhsp = vtxp->lhsp();
-        V3Number& m = MASK(vtxp).num();
-        m.opSelInto(MASK(rhsp).num(), 0, rhsp->width());
-        m.opSelInto(MASK(lhsp).num(), rhsp->width(), lhsp->width());
+    શૂન્ય visit(DfgConcat* vtxp) override {
+        અચલ DfgVertex* અચલ rhsp = vtxp->rhsp();
+        અચલ DfgVertex* અચલ lhsp = vtxp->lhsp();
+        V3_સંખ્યા& m = MASK(vtxp).અંક();
+        m.opSelInto(MASK(rhsp).અંક(), 0, rhsp->width());
+        m.opSelInto(MASK(lhsp).અંક(), rhsp->width(), lhsp->width());
     }
 
-    void visit(DfgRep* vtxp) override {
-        const uint32_t count = vtxp->count();
-        const DfgVertex* const srcp = vtxp->srcp();
-        const uint32_t sWidth = srcp->width();
-        V3Number& vMask = MASK(vtxp).num();
-        V3Number& sMask = MASK(srcp).num();
-        for (uint32_t i = 0; i < count; ++i) vMask.opSelInto(sMask, i * sWidth, sWidth);
+    શૂન્ય visit(DfgRep* vtxp) override {
+        અચલ uint32_t ગણતરી = vtxp->ગણતરી();
+        અચલ DfgVertex* અચલ srcp = vtxp->srcp();
+        અચલ uint32_t sWidth = srcp->width();
+        V3_સંખ્યા& vMask = MASK(vtxp).અંક();
+        V3_સંખ્યા& sMask = MASK(srcp).અંક();
+        માટે (uint32_t i = 0; i < ગણતરી; ++i) vMask.opSelInto(sMask, i * sWidth, sWidth);
     }
 
-    void visit(DfgSel* vtxp) override {
-        const uint32_t lsb = vtxp->lsb();
-        const uint32_t msb = lsb + vtxp->width() - 1;
-        MASK(vtxp).num().opSel(MASK(vtxp->fromp()).num(), msb, lsb);
+    શૂન્ય visit(DfgSel* vtxp) override {
+        અચલ uint32_t lsb = vtxp->lsb();
+        અચલ uint32_t msb = lsb + vtxp->width() - 1;
+        MASK(vtxp).અંક().opSel(MASK(vtxp->fromp()).અંક(), msb, lsb);
     }
 
-    void visit(DfgExtend* vtxp) override {
-        const DfgVertex* const srcp = vtxp->srcp();
-        const uint32_t sWidth = srcp->width();
-        V3Number& s = MASK(srcp).num();
-        V3Number& m = MASK(vtxp).num();
+    શૂન્ય visit(DfgExtend* vtxp) override {
+        અચલ DfgVertex* અચલ srcp = vtxp->srcp();
+        અચલ uint32_t sWidth = srcp->width();
+        V3_સંખ્યા& s = MASK(srcp).અંક();
+        V3_સંખ્યા& m = MASK(vtxp).અંક();
         m.opSelInto(s, 0, sWidth);
         m.opSetRange(sWidth, vtxp->width() - sWidth, '1');
     }
-    void visit(DfgExtendS* vtxp) override {
-        const DfgVertex* const srcp = vtxp->srcp();
-        const uint32_t sWidth = srcp->width();
-        V3Number& s = MASK(srcp).num();
-        V3Number& m = MASK(vtxp).num();
+    શૂન્ય visit(DfgExtendS* vtxp) override {
+        અચલ DfgVertex* અચલ srcp = vtxp->srcp();
+        અચલ uint32_t sWidth = srcp->width();
+        V3_સંખ્યા& s = MASK(srcp).અંક();
+        V3_સંખ્યા& m = MASK(vtxp).અંક();
         m.opSelInto(s, 0, sWidth);
         m.opSetRange(sWidth, vtxp->width() - sWidth, s.bitIs0(sWidth - 1) ? '0' : '1');
     }
 
-    void visit(DfgNot* vtxp) override {  //
+    શૂન્ય visit(DfgNot* vtxp) override {  //
         MASK(vtxp) = MASK(vtxp->srcp());
     }
 
-    void visit(DfgAnd* vtxp) override {  //
-        MASK(vtxp).num().opAnd(MASK(vtxp->lhsp()).num(), MASK(vtxp->rhsp()).num());
+    શૂન્ય visit(DfgAnd* vtxp) override {  //
+        MASK(vtxp).અંક().opAnd(MASK(vtxp->lhsp()).અંક(), MASK(vtxp->rhsp()).અંક());
     }
-    void visit(DfgOr* vtxp) override {  //
-        MASK(vtxp).num().opAnd(MASK(vtxp->lhsp()).num(), MASK(vtxp->rhsp()).num());
+    શૂન્ય visit(DfgOr* vtxp) override {  //
+        MASK(vtxp).અંક().opAnd(MASK(vtxp->lhsp()).અંક(), MASK(vtxp->rhsp()).અંક());
     }
-    void visit(DfgXor* vtxp) override {  //
-        MASK(vtxp).num().opAnd(MASK(vtxp->lhsp()).num(), MASK(vtxp->rhsp()).num());
+    શૂન્ય visit(DfgXor* vtxp) override {  //
+        MASK(vtxp).અંક().opAnd(MASK(vtxp->lhsp()).અંક(), MASK(vtxp->rhsp()).અંક());
     }
 
-    void visit(DfgAdd* vtxp) override {
-        V3Number& m = MASK(vtxp).num();
-        m.opAnd(MASK(vtxp->lhsp()).num(), MASK(vtxp->rhsp()).num());
+    શૂન્ય visit(DfgAdd* vtxp) override {
+        V3_સંખ્યા& m = MASK(vtxp).અંક();
+        m.opAnd(MASK(vtxp->lhsp()).અંક(), MASK(vtxp->rhsp()).અંક());
         floodTowardsMsb(m);
     }
-    void visit(DfgSub* vtxp) override {  // Same as Add: 2's complement (a - b) == (a + ~b + 1)
-        V3Number& m = MASK(vtxp).num();
-        m.opAnd(MASK(vtxp->lhsp()).num(), MASK(vtxp->rhsp()).num());
+    શૂન્ય visit(DfgSub* vtxp) override {  // Same as Add: 2's complement (a - b) == (a + ~b + 1)
+        V3_સંખ્યા& m = MASK(vtxp).અંક();
+        m.opAnd(MASK(vtxp->lhsp()).અંક(), MASK(vtxp->rhsp()).અંક());
         floodTowardsMsb(m);
     }
 
-    void visit(DfgRedAnd* vtxp) override {
-        const bool independent = MASK(vtxp->lhsp()).isOnes();
-        if (independent) MASK(vtxp).setOnes();
+    શૂન્ય visit(DfgRedAnd* vtxp) override {
+        અચલ તાર્કિક independent = MASK(vtxp->lhsp()).isOnes();
+        જો (independent) MASK(vtxp).setOnes();
     }
-    void visit(DfgRedOr* vtxp) override {
-        const bool independent = MASK(vtxp->lhsp()).isOnes();
-        if (independent) MASK(vtxp).setOnes();
+    શૂન્ય visit(DfgRedOr* vtxp) override {
+        અચલ તાર્કિક independent = MASK(vtxp->lhsp()).isOnes();
+        જો (independent) MASK(vtxp).setOnes();
     }
-    void visit(DfgRedXor* vtxp) override {
-        const bool independent = MASK(vtxp->lhsp()).isOnes();
-        if (independent) MASK(vtxp).setOnes();
-    }
-
-    void visit(DfgEq* vtxp) override {
-        const bool independent = MASK(vtxp->lhsp()).isOnes() && MASK(vtxp->rhsp()).isOnes();
-        if (independent) MASK(vtxp).setOnes();
-    }
-    void visit(DfgNeq* vtxp) override {
-        const bool independent = MASK(vtxp->lhsp()).isOnes() && MASK(vtxp->rhsp()).isOnes();
-        if (independent) MASK(vtxp).setOnes();
-    }
-    void visit(DfgLt* vtxp) override {
-        const bool independent = MASK(vtxp->lhsp()).isOnes() && MASK(vtxp->rhsp()).isOnes();
-        if (independent) MASK(vtxp).setOnes();
-    }
-    void visit(DfgLte* vtxp) override {
-        const bool independent = MASK(vtxp->lhsp()).isOnes() && MASK(vtxp->rhsp()).isOnes();
-        if (independent) MASK(vtxp).setOnes();
-    }
-    void visit(DfgGt* vtxp) override {
-        const bool independent = MASK(vtxp->lhsp()).isOnes() && MASK(vtxp->rhsp()).isOnes();
-        if (independent) MASK(vtxp).setOnes();
-    }
-    void visit(DfgGte* vtxp) override {
-        const bool independent = MASK(vtxp->lhsp()).isOnes() && MASK(vtxp->rhsp()).isOnes();
-        if (independent) MASK(vtxp).setOnes();
+    શૂન્ય visit(DfgRedXor* vtxp) override {
+        અચલ તાર્કિક independent = MASK(vtxp->lhsp()).isOnes();
+        જો (independent) MASK(vtxp).setOnes();
     }
 
-    void visit(DfgShiftRS* vtxp) override {
-        DfgVertex* const rhsp = vtxp->rhsp();
-        DfgVertex* const lhsp = vtxp->lhsp();
-        const uint32_t width = vtxp->width();
+    શૂન્ય visit(DfgEq* vtxp) override {
+        અચલ તાર્કિક independent = MASK(vtxp->lhsp()).isOnes() && MASK(vtxp->rhsp()).isOnes();
+        જો (independent) MASK(vtxp).setOnes();
+    }
+    શૂન્ય visit(DfgNeq* vtxp) override {
+        અચલ તાર્કિક independent = MASK(vtxp->lhsp()).isOnes() && MASK(vtxp->rhsp()).isOnes();
+        જો (independent) MASK(vtxp).setOnes();
+    }
+    શૂન્ય visit(DfgLt* vtxp) override {
+        અચલ તાર્કિક independent = MASK(vtxp->lhsp()).isOnes() && MASK(vtxp->rhsp()).isOnes();
+        જો (independent) MASK(vtxp).setOnes();
+    }
+    શૂન્ય visit(DfgLte* vtxp) override {
+        અચલ તાર્કિક independent = MASK(vtxp->lhsp()).isOnes() && MASK(vtxp->rhsp()).isOnes();
+        જો (independent) MASK(vtxp).setOnes();
+    }
+    શૂન્ય visit(DfgGt* vtxp) override {
+        અચલ તાર્કિક independent = MASK(vtxp->lhsp()).isOnes() && MASK(vtxp->rhsp()).isOnes();
+        જો (independent) MASK(vtxp).setOnes();
+    }
+    શૂન્ય visit(DfgGte* vtxp) override {
+        અચલ તાર્કિક independent = MASK(vtxp->lhsp()).isOnes() && MASK(vtxp->rhsp()).isOnes();
+        જો (independent) MASK(vtxp).setOnes();
+    }
+
+    શૂન્ય visit(DfgShiftRS* vtxp) override {
+        DfgVertex* અચલ rhsp = vtxp->rhsp();
+        DfgVertex* અચલ lhsp = vtxp->lhsp();
+        અચલ uint32_t width = vtxp->width();
 
         // Constant shift can be computed precisely
-        if (DfgConst* const rConstp = rhsp->cast<DfgConst>()) {
-            const uint32_t shiftAmount = rConstp->toU32();
-            if (shiftAmount >= width) {
-                if (MASK(lhsp).num().bitIs1(width - 1)) { MASK(vtxp).setOnes(); }
-            } else {
-                V3Number& m = MASK(vtxp).num();
-                m.opShiftRS(MASK(lhsp).num(), rConstp->num(), width);
+        જો (DfgConst* અચલ rConstp = rhsp->cast<DfgConst>()) {
+            અચલ uint32_t shiftAmount = rConstp->toU32();
+            જો (shiftAmount >= width) {
+                જો (MASK(lhsp).અંક().bitIs1(width - 1)) { MASK(vtxp).setOnes(); }
+            } નહીંતર {
+                V3_સંખ્યા& m = MASK(vtxp).અંક();
+                m.opShiftRS(MASK(lhsp).અંક(), rConstp->અંક(), width);
                 m.opSetRange(width - shiftAmount, shiftAmount, '1');
             }
-            return;
+            પાછા;
         }
 
         // Otherwise, as the shift amount is non-negative, all independent
         // and consecutive top bits in the lhs yield an independent result
         // if the shift amount is independent.
-        if (MASK(rhsp).isOnes()) {
-            V3Number& m = MASK(vtxp).num();
-            m = MASK(lhsp).num();
+        જો (MASK(rhsp).isOnes()) {
+            V3_સંખ્યા& m = MASK(vtxp).અંક();
+            m = MASK(lhsp).અંક();
             floodTowardsLsb(m);
         }
     }
 
-    void visit(DfgShiftR* vtxp) override {
-        DfgVertex* const rhsp = vtxp->rhsp();
-        DfgVertex* const lhsp = vtxp->lhsp();
-        const uint32_t width = vtxp->width();
+    શૂન્ય visit(DfgShiftR* vtxp) override {
+        DfgVertex* અચલ rhsp = vtxp->rhsp();
+        DfgVertex* અચલ lhsp = vtxp->lhsp();
+        અચલ uint32_t width = vtxp->width();
 
         // Constant shift can be computed precisely
-        if (DfgConst* const rConstp = rhsp->cast<DfgConst>()) {
-            const uint32_t shiftAmount = rConstp->toU32();
-            if (shiftAmount >= width) {
+        જો (DfgConst* અચલ rConstp = rhsp->cast<DfgConst>()) {
+            અચલ uint32_t shiftAmount = rConstp->toU32();
+            જો (shiftAmount >= width) {
                 MASK(vtxp).setOnes();
-            } else {
-                V3Number& m = MASK(vtxp).num();
-                m.opShiftR(MASK(lhsp).num(), rConstp->num());
+            } નહીંતર {
+                V3_સંખ્યા& m = MASK(vtxp).અંક();
+                m.opShiftR(MASK(lhsp).અંક(), rConstp->અંક());
                 m.opSetRange(width - shiftAmount, shiftAmount, '1');
             }
-            return;
+            પાછા;
         }
 
         // Otherwise, as the shift amount is non-negative, all independent
         // and consecutive top bits in the lhs yield an independent result
         // if the shift amount is independent.
-        if (MASK(rhsp).isOnes()) {
-            V3Number& m = MASK(vtxp).num();
-            m = MASK(lhsp).num();
+        જો (MASK(rhsp).isOnes()) {
+            V3_સંખ્યા& m = MASK(vtxp).અંક();
+            m = MASK(lhsp).અંક();
             floodTowardsLsb(m);
         }
     }
 
-    void visit(DfgShiftL* vtxp) override {
-        DfgVertex* const rhsp = vtxp->rhsp();
-        DfgVertex* const lhsp = vtxp->lhsp();
-        const uint32_t width = vtxp->width();
+    શૂન્ય visit(DfgShiftL* vtxp) override {
+        DfgVertex* અચલ rhsp = vtxp->rhsp();
+        DfgVertex* અચલ lhsp = vtxp->lhsp();
+        અચલ uint32_t width = vtxp->width();
 
         // Constant shift can be computed precisely
-        if (DfgConst* const rConstp = rhsp->cast<DfgConst>()) {
-            const uint32_t shiftAmount = rConstp->toU32();
-            if (shiftAmount >= width) {
+        જો (DfgConst* અચલ rConstp = rhsp->cast<DfgConst>()) {
+            અચલ uint32_t shiftAmount = rConstp->toU32();
+            જો (shiftAmount >= width) {
                 MASK(vtxp).setOnes();
-            } else {
-                V3Number& m = MASK(vtxp).num();
-                m.opShiftL(MASK(lhsp).num(), rConstp->num());
+            } નહીંતર {
+                V3_સંખ્યા& m = MASK(vtxp).અંક();
+                m.opShiftL(MASK(lhsp).અંક(), rConstp->અંક());
                 m.opSetRange(0, shiftAmount, '1');
             }
-            return;
+            પાછા;
         }
 
         // Otherwise, as the shift amount is non-negative, all independent
         // and consecutive bottom bits in the lhs yield an independent result
         // if the shift amount is independent.
-        if (MASK(rhsp).isOnes()) {
-            V3Number& m = MASK(vtxp).num();
-            m = MASK(lhsp).num();
+        જો (MASK(rhsp).isOnes()) {
+            V3_સંખ્યા& m = MASK(vtxp).અંક();
+            m = MASK(lhsp).અંક();
             floodTowardsMsb(m);
         }
     }
 
-    void visit(DfgCond* vtxp) override {
-        if (MASK(vtxp->condp()).isOnes()) {
-            MASK(vtxp).num().opAnd(MASK(vtxp->thenp()).num(), MASK(vtxp->elsep()).num());
+    શૂન્ય visit(DfgCond* vtxp) override {
+        જો (MASK(vtxp->condp()).isOnes()) {
+            MASK(vtxp).અંક().opAnd(MASK(vtxp->thenp()).અંક(), MASK(vtxp->elsep()).અંક());
         }
     }
 
-    void visit(DfgMatchMasked* vtxp) override {
-        if (MASK(vtxp->lhsp()).isOnes() && MASK(vtxp->matchp()).isOnes()) { MASK(vtxp).setOnes(); }
+    શૂન્ય visit(DfgMatchMasked* vtxp) override {
+        જો (MASK(vtxp->lhsp()).isOnes() && MASK(vtxp->matchp()).isOnes()) { MASK(vtxp).setOnes(); }
     }
 
 #undef MASK
 
     // Enqueue sinks of vertex to work list for traversal - only called from constructor
-    void enqueueSinks(DfgVertex& vtx) {
+    શૂન્ય enqueueSinks(DfgVertex& vtx) {
         vtx.foreachSink([&](DfgVertex& sink) {
             // Ignore if sink is not part of an SCC, already has all bits marked independent
-            if (!m_sccInfo.get(sink)) return false;
+            જો (!m_sccInfo.get(sink)) પાછા ખોટું;
             // Otherwise just enqueue it
             VertexState& state = m_vtxp2State.at(&sink);
-            if (!state.m_isOnWorkList) {
+            જો (!state.m_isOnWorkList) {
                 UINFO(9, "Enqueuing vertex " << &sink << " " << sink.typeName());
-                m_workQueue.push(state.m_rpoNumber);
+                m_workQueue.ધકેલો(state.m_rpo_સંખ્યા);
             }
-            state.m_isOnWorkList = true;
-            return false;
+            state.m_isOnWorkList = સાચું;
+            પાછા ખોટું;
         });
     };
 
-    void dfsPostOrder(std::unordered_set<DfgVertex*>& visited,  //
+    શૂન્ય dfsPostOrder(std::unordered_set<DfgVertex*>& visited,  //
                       std::vector<DfgVertex*>& postOrderEnumeration,  //
                       DfgVertex& vtx) {
         // Mark visited, skip if already visited
-        if (!visited.insert(&vtx).second) return;
+        જો (!visited.ઉમેરો(&vtx).second) પાછા;
         // Visit un-visited successors
         vtx.foreachSink([&](DfgVertex& snk) {
             dfsPostOrder(visited, postOrderEnumeration, snk);
-            return false;
+            પાછા ખોટું;
         });
         // Add to post order enumeration
         postOrderEnumeration.emplace_back(&vtx);
     };
 
-    IndependentBits(DfgGraph& dfg, const SccInfo& sccInfo)
+    IndependentBits(DfgGraph& dfg, અચલ SccInfo& sccInfo)
         : m_sccInfo{sccInfo} {
 
 #ifdef VL_DEBUG
-        if (v3Global.opt.debugCheck()) {
-            m_lineCoverageFile.open(  //
+        જો (v3Global.opt.debugCheck()) {
+            m_લીટી_Coverage_File.open(  //
                 v3Global.opt.makeDir() + "/" + v3Global.opt.prefix()
                     + "__V3DfgBreakCycles-IndependentBits-line-coverage.txt",  //
                 std::ios_base::out | std::ios_base::app);
@@ -1368,7 +1368,7 @@ class IndependentBits final : public DfgVisitor {
         std::vector<DfgVertex*> rpoEnumeration;
         std::unordered_set<DfgVertex*> visited;
         dfg.forEachVertex([&](DfgVertex& vtx) {
-            if (!vtx.nInputs()) dfsPostOrder(visited, rpoEnumeration, vtx);
+            જો (!vtx.nInputs()) dfsPostOrder(visited, rpoEnumeration, vtx);
         });
         dfg.forEachVertex([&](DfgVertex& vtx) {  //
             dfsPostOrder(visited, rpoEnumeration, vtx);
@@ -1377,10 +1377,10 @@ class IndependentBits final : public DfgVisitor {
         UASSERT(rpoEnumeration.size() == dfg.size(), "Inconsistent vertex count");
 
         // Initialzie VertexState for each vertex
-        for (size_t i = 0; i < rpoEnumeration.size(); ++i) {
+        માટે (size_t i = 0; i < rpoEnumeration.size(); ++i) {
             VertexState& state = m_vtxp2State[rpoEnumeration[i]];
-            state.m_rpoNumber = i;
-            state.m_isOnWorkList = false;
+            state.m_rpo_સંખ્યા = i;
+            state.m_isOnWorkList = ખોટું;
         }
 
         // Set up the initial conditions:
@@ -1388,31 +1388,31 @@ class IndependentBits final : public DfgVisitor {
         // - For vertices in an SCC, dispatch to analyse at least once, as some vertices
         //   always assign constants bits, which are always independent (eg Extend/Shift)
         // Enqueue sinks of all SCC vertices that have at least one independent bit
-        for (DfgVertex* const vtxp : rpoEnumeration) {
-            if (m_sccInfo.get(*vtxp)) continue;
+        માટે (DfgVertex* અચલ vtxp : rpoEnumeration) {
+            જો (m_sccInfo.get(*vtxp)) ચાલુ;
             mask(*vtxp).setOnes();
         }
-        for (DfgVertex* const vtxp : rpoEnumeration) {
-            if (!m_sccInfo.get(*vtxp)) continue;
+        માટે (DfgVertex* અચલ vtxp : rpoEnumeration) {
+            જો (!m_sccInfo.get(*vtxp)) ચાલુ;
             iterate(vtxp);
             UINFO(9, "Initial independent bits of " << vtxp << " " << vtxp->typeName()
                                                     << " are: " << mask(*vtxp).toString());
-            if (!mask(*vtxp).isZero()) enqueueSinks(*vtxp);
+            જો (!mask(*vtxp).isZero()) enqueueSinks(*vtxp);
         }
 
         // Propagate independent bits until no more changes are made
-        while (!m_workQueue.empty()) {
+        જ્યારે (!m_workQueue.empty()) {
             // Grab next item
-            DfgVertex* const currp = rpoEnumeration[m_workQueue.top()];
-            m_workQueue.pop();
-            m_vtxp2State.at(currp).m_isOnWorkList = false;
+            DfgVertex* અચલ currp = rpoEnumeration[m_workQueue.ટોચ()];
+            m_workQueue.કાઢો();
+            m_vtxp2State.at(currp).m_isOnWorkList = ખોટું;
             // Should not enqueue vertices that are not in an SCC
             UASSERT_OBJ(m_sccInfo.get(*currp), currp, "Vertex should be in an SCC");
 
             // Grab current mask of item
-            const BitMask& currMask = mask(*currp);
+            અચલ BitMask& currMask = mask(*currp);
             // Remember current mask so we can check if it changed
-            const BitMask prevMask = currMask;
+            અચલ BitMask prevMask = currMask;
 
             UINFO(9, "Analyzing independent bits of " << currp << " " << currp->typeName());
 
@@ -1420,14 +1420,14 @@ class IndependentBits final : public DfgVisitor {
             iterate(currp);
 
             // If mask changed, enqueue sinks
-            if (prevMask != currMask) {
+            જો (prevMask != currMask) {
                 UINFO(9, "Independent bits of "  //
                              << currp << " " << currp->typeName() << " changed"  //
                              << "\n    form: " << prevMask.toString()
                              << "\n      to: " << currMask.toString());
                 enqueueSinks(*currp);
                 // Check the mask only ever expands (no bit goes 1 -> 0)
-                if (VL_UNLIKELY(v3Global.opt.debugCheck())) {
+                જો (VL_UNLIKELY(v3Global.opt.debugCheck())) {
                     UASSERT_OBJ(!currMask.isContractionOf(prevMask), currp,
                                 "Mask should only expand");
                 }
@@ -1435,72 +1435,72 @@ class IndependentBits final : public DfgVisitor {
         }
     }
 
-public:
+જાહેર:
     // Given a DfgGraph, and a map from vertices to the SCCs they reside in,
     // returns a map from vertices to a bit mask, where a bit in the mask is
     // set if the corresponding bit in that vertex is known to be independent
     // of the values of vertices in the same SCC as the vertex resides in.
-    static std::unordered_map<const DfgVertex*, BitMask> apply(DfgGraph& dfg,
-                                                               const SccInfo& sccInfo) {
-        return std::move(IndependentBits{dfg, sccInfo}.m_vtxp2Mask);
+    સ્થિર std::unordered_map<અચલ DfgVertex*, BitMask> apply(DfgGraph& dfg,
+                                                               અચલ SccInfo& sccInfo) {
+        પાછા std::move(IndependentBits{dfg, sccInfo}.m_vtxp2Mask);
     }
 };
 
-class FixUp final {
+વર્ગ FixUp final {
     DfgGraph& m_dfg;  // The graph being processed
     SccInfo& m_sccInfo;  // The SccInfo instance
     TraceDriver m_traceDriver{m_dfg, m_sccInfo};
     // The independent bits map
-    const std::unordered_map<const DfgVertex*, BitMask> m_independentBits
+    અચલ std::unordered_map<અચલ DfgVertex*, BitMask> m_independentBits
         = IndependentBits::apply(m_dfg, m_sccInfo);
     size_t m_nImprovements = 0;  // Number of improvements made
 
     // Returns a bitmask set if that bit of 'vtx' is used (has a sink)
-    static BitMask computeUsedBits(DfgVertex& vtx) {
+    સ્થિર BitMask computeUsedBits(DfgVertex& vtx) {
         BitMask result{vtx};
         vtx.foreachSink([&result](DfgVertex& sink) {
             // If used via a Sel, mark the selected bits used
-            if (const DfgSel* const selp = sink.cast<DfgSel>()) {
-                result.num().opSetRange(selp->lsb(), selp->width(), '1');
-                return false;
+            જો (અચલ DfgSel* અચલ selp = sink.cast<DfgSel>()) {
+                result.અંક().opSetRange(selp->lsb(), selp->width(), '1');
+                પાછા ખોટું;
             }
             // Used without a Sel, so all bits are used
             result.setOnes();
-            return true;
+            પાછા સાચું;
         });
-        return result;
+        પાછા result;
     }
 
-    static std::string debugStr(const DfgVertex& vtx) {  // LCOV_EXCL_START
-        if (const DfgArraySel* const aselp = vtx.cast<DfgArraySel>()) {
-            const size_t i = aselp->bitp()->as<DfgConst>()->toSizeT();
-            return debugStr(*aselp->fromp()) + "[" + std::to_string(i) + "]";
+    સ્થિર std::string debugStr(અચલ DfgVertex& vtx) {  // LCOV_EXCL_START
+        જો (અચલ DfgArraySel* અચલ aselp = vtx.cast<DfgArraySel>()) {
+            અચલ size_t i = aselp->bitp()->as<DfgConst>()->toSizeT();
+            પાછા debugStr(*aselp->fromp()) + "[" + std::to_string(i) + "]";
         }
-        if (const DfgVertexVar* const varp = vtx.cast<DfgVertexVar>()) {
-            return varp->vscp()->name();
+        જો (અચલ DfgVertexVar* અચલ varp = vtx.cast<DfgVertexVar>()) {
+            પાછા varp->vscp()->name();
         }
         vtx.v3fatalSrc("Unhandled node type");
     }  // LCOV_EXCL_STOP
 
     // Trace drivers of independent bits of 'vtxp' in the range '[hi:lo]'
     // append replacement terms to 'termps'.
-    void gatherTerms(std::vector<DfgVertex*>& termps, DfgVertex& vtx, const V3Number& indpBits,
-                     const uint32_t hi, const uint32_t lo) {
+    શૂન્ય gatherTerms(std::vector<DfgVertex*>& termps, DfgVertex& vtx, અચલ V3_સંખ્યા& indpBits,
+                     અચલ uint32_t hi, અચલ uint32_t lo) {
         // Iterate through consecutive dependent/non-dependet ranges within [hi:lo]
-        bool isIndependent = indpBits.bitIs1(lo);
+        તાર્કિક isIndependent = indpBits.bitIs1(lo);
         uint32_t lsb = lo;
-        for (uint32_t msb = lo; msb <= hi; ++msb) {
-            const bool endRange = msb == hi || isIndependent != indpBits.bitIs1(msb + 1);
-            if (!endRange) continue;
-            const uint32_t width = msb - lsb + 1;
+        માટે (uint32_t msb = lo; msb <= hi; ++msb) {
+            અચલ તાર્કિક endRange = msb == hi || isIndependent != indpBits.bitIs1(msb + 1);
+            જો (!endRange) ચાલુ;
+            અચલ uint32_t width = msb - lsb + 1;
             // Compute the term to use for this range
-            if (isIndependent) {
+            જો (isIndependent) {
                 // If the range is independent of the cycles, trace its driver
                 ++m_nImprovements;
                 termps.emplace_back(m_traceDriver.apply(vtx, lsb, width));
-            } else {
+            } નહીંતર {
                 // If dependent, fall back on using the part of the variable
-                DfgSel* const selp = new DfgSel{m_dfg, vtx.fileline(), DfgDataType::packed(width)};
+                DfgSel* અચલ selp = નવું DfgSel{m_dfg, vtx.fileline(), DfgDataType::packed(width)};
                 // Same component as 'vtxp', as reads 'vtxp' and will replace 'vtxp'
                 m_sccInfo.add(*selp, m_sccInfo.get(vtx));
                 // Do not connect selp->fromp yet, need to do afer replacing 'vtxp'
@@ -1513,42 +1513,42 @@ class FixUp final {
         }
     }
 
-    void fixUpPacked(DfgVertex& vtx) {
+    શૂન્ય fixUpPacked(DfgVertex& vtx) {
         UASSERT_OBJ(vtx.isPacked(), &vtx, "Should be a packed type");
         UASSERT_OBJ(!vtx.is<DfgSplicePacked>(), &vtx, "Should not be a splice");
 
         // Get which bits of 'vtxp' are independent of the SCCs
-        const BitMask& indpBits = m_independentBits.at(&vtx);
+        અચલ BitMask& indpBits = m_independentBits.at(&vtx);
         UINFO(9, "Independent bits of '" << debugStr(vtx) << "' are " << indpBits.toString());
         // Can't do anything if all bits are dependent
-        if (indpBits.isZero()) return;
+        જો (indpBits.isZero()) પાછા;
 
         // Figure out which bits of 'vtxp' are used
-        const BitMask usedBits = computeUsedBits(vtx);
+        અચલ BitMask usedBits = computeUsedBits(vtx);
         UINFO(9, "Used        bits of '" << debugStr(vtx) << "' are " << usedBits.toString());
 
         // Nothing to do if no used bits are independen (all used bits are dependent)
-        V3Number usedAndIndependent{vtx.fileline(), static_cast<int>(vtx.width()), 0};
-        usedAndIndependent.opAnd(usedBits.num(), indpBits.num());
-        if (usedAndIndependent.isEqZero()) return;
+        V3_સંખ્યા usedAndIndependent{vtx.fileline(), static_cast<પૂર્ણાંક>(vtx.width()), 0};
+        usedAndIndependent.opAnd(usedBits.અંક(), indpBits.અંક());
+        જો (usedAndIndependent.isEqZero()) પાછા;
 
         // We are computing the terms to concatenate and replace 'vtxp' with
         std::vector<DfgVertex*> termps;
 
         // Iterate through consecutive used/unused ranges
-        FileLine* const flp = vtx.fileline();
-        const uint32_t width = vtx.width();
-        bool isUsed = usedBits.num().bitIs1(0);  // Is current range used
+        File_લીટી* અચલ flp = vtx.fileline();
+        અચલ uint32_t width = vtx.width();
+        તાર્કિક isUsed = usedBits.અંક().bitIs1(0);  // Is current range used
         uint32_t lsb = 0;  // LSB of current range
-        for (uint32_t msb = 0; msb < width; ++msb) {
-            const bool endRange = msb == width - 1 || isUsed != usedBits.num().bitIs1(msb + 1);
-            if (!endRange) continue;
-            if (isUsed) {
+        માટે (uint32_t msb = 0; msb < width; ++msb) {
+            અચલ તાર્કિક endRange = msb == width - 1 || isUsed != usedBits.અંક().bitIs1(msb + 1);
+            જો (!endRange) ચાલુ;
+            જો (isUsed) {
                 // The range is used, compute the replacement terms
-                gatherTerms(termps, vtx, indpBits.num(), msb, lsb);
-            } else {
+                gatherTerms(termps, vtx, indpBits.અંક(), msb, lsb);
+            } નહીંતર {
                 // The range is not used, just use constant 0 as a placeholder
-                DfgConst* const constp = new DfgConst{m_dfg, flp, msb - lsb + 1, 0};
+                DfgConst* અચલ constp = નવું DfgConst{m_dfg, flp, msb - lsb + 1, 0};
                 m_sccInfo.add(*constp, 0);
                 termps.emplace_back(constp);
             }
@@ -1559,11 +1559,11 @@ class FixUp final {
 
         // Concatenate all the terms to create the replacement
         DfgVertex* replacementp = termps.front();
-        const uint64_t vComp = m_sccInfo.get(vtx);
-        for (size_t i = 1; i < termps.size(); ++i) {
-            DfgVertex* const termp = termps[i];
-            const uint32_t catWidth = replacementp->width() + termp->width();
-            DfgConcat* const catp = new DfgConcat{m_dfg, flp, DfgDataType::packed(catWidth)};
+        અચલ uint64_t vComp = m_sccInfo.get(vtx);
+        માટે (size_t i = 1; i < termps.size(); ++i) {
+            DfgVertex* અચલ termp = termps[i];
+            અચલ uint32_t catWidth = replacementp->width() + termp->width();
+            DfgConcat* અચલ catp = નવું DfgConcat{m_dfg, flp, DfgDataType::packed(catWidth)};
             catp->rhsp(replacementp);
             catp->lhsp(termp);
             // Need to figure out which component the replacement vertex
@@ -1571,8 +1571,8 @@ class FixUp final {
             // component, it's part of that component, otherwise its not
             // cyclic (all terms are from outside the original component,
             // and feed into the original component).
-            const uint64_t tComp = m_sccInfo.get(*termp);
-            const uint64_t rComp = m_sccInfo.get(*replacementp);
+            અચલ uint64_t tComp = m_sccInfo.get(*termp);
+            અચલ uint64_t rComp = m_sccInfo.get(*replacementp);
             m_sccInfo.add(*catp, tComp == vComp || rComp == vComp ? vComp : 0);
             replacementp = catp;
         }
@@ -1580,9 +1580,9 @@ class FixUp final {
         // Replace the vertex
         vtx.replaceWith(replacementp);
         // Connect the Sel nodes in the replacement
-        for (DfgVertex* const termp : termps) {
-            if (DfgSel* const selp = termp->cast<DfgSel>()) {
-                if (!selp->fromp()) selp->fromp(&vtx);
+        માટે (DfgVertex* અચલ termp : termps) {
+            જો (DfgSel* અચલ selp = termp->cast<DfgSel>()) {
+                જો (!selp->fromp()) selp->fromp(&vtx);
             }
         }
 
@@ -1591,28 +1591,28 @@ class FixUp final {
                     "Replacement vertex SCC inconsistent");
 
         // If we broke the cycle through this vertex, update the SccInfo
-        if (!vtx.hasSinks()) m_sccInfo.updateReplacement(vtx, *replacementp);
+        જો (!vtx.hasSinks()) m_sccInfo.updateReplacement(vtx, *replacementp);
     }
 
-    void main(DfgVertexVar& var) {
+    શૂન્ય મુખ્ય(DfgVertexVar& var) {
         UINFO(9, "FixUp of " << var.vscp()->name());
 
-        if (var.is<DfgVarPacked>()) {
+        જો (var.is<DfgVarPacked>()) {
             // For Packed variables, fix up as whole
             fixUpPacked(var);
-        } else if (var.is<DfgVarArray>()) {
+        } નહીંતર જો (var.is<DfgVarArray>()) {
             // For array variables, fix up element-wise
-            const uint64_t component = m_sccInfo.get(var);
+            અચલ uint64_t component = m_sccInfo.get(var);
             var.foreachSink([&](DfgVertex& sink) {
                 // Ignore if sink is not part of same cycle
-                if (m_sccInfo.get(sink) != component) return false;
+                જો (m_sccInfo.get(sink) != component) પાછા ખોટું;
                 // Only handle ArraySels with constant index
-                DfgArraySel* const aselp = sink.cast<DfgArraySel>();
-                if (!aselp) return false;
-                if (!aselp->bitp()->is<DfgConst>()) return false;
+                DfgArraySel* અચલ aselp = sink.cast<DfgArraySel>();
+                જો (!aselp) પાછા ખોટું;
+                જો (!aselp->bitp()->is<DfgConst>()) પાછા ખોટું;
                 // Fix up the word
                 fixUpPacked(*aselp);
-                return false;
+                પાછા ખોટું;
             });
         }
 
@@ -1623,12 +1623,12 @@ class FixUp final {
         : m_dfg{dfg}
         , m_sccInfo{sccInfo} {}
 
-public:
+જાહેર:
     // Compute which bits of vertices are independent of the SCC they reside
     // in, and replace rferences to used independent bits with an equivalent
     // vertex that is not part of the same SCC.
-    static size_t apply(DfgGraph& dfg, SccInfo& sccInfo) {
-        if (!sccInfo.isCyclic()) return 0;
+    સ્થિર size_t apply(DfgGraph& dfg, SccInfo& sccInfo) {
+        જો (!sccInfo.isCyclic()) પાછા 0;
 
         FixUp fixUp{dfg, sccInfo};
 
@@ -1636,20 +1636,20 @@ public:
         //       Sadly that is a computationally hard problem.
 
         // Fix up cyclic variables, stop as soon as the graph becomes acyclic
-        for (DfgVertexVar& vtx : dfg.varVertices()) {
-            if (!sccInfo.get(vtx)) continue;
-            fixUp.main(vtx);
-            if (!sccInfo.isCyclic()) break;
+        માટે (DfgVertexVar& vtx : dfg.varVertices()) {
+            જો (!sccInfo.get(vtx)) ચાલુ;
+            fixUp.મુખ્ય(vtx);
+            જો (!sccInfo.isCyclic()) તોડો;
         }
         // Return the number of improvements made
-        return fixUp.m_nImprovements;
+        પાછા fixUp.m_nImprovements;
     }
 };
 
-void breakCycles(DfgGraph& dfg, V3DfgBreakCyclesContext& ctx) {
+શૂન્ય breakCycles(DfgGraph& dfg, V3DfgBreakCyclesContext& ctx) {
     // Shorthand for dumping graph at given dump level
-    const auto dump = [&](int level, const DfgGraph& dfg, const std::string& name) {
-        if (dumpDfgLevel() >= level) dfg.dumpDotFilePrefixed("breakCycles-" + name);
+    અચલ auto dump = [&](પૂર્ણાંક level, અચલ DfgGraph& dfg, અચલ std::string& name) {
+        જો (dumpDfgLevel() >= level) dfg.dumpDotFilePrefixed("breakCycles-" + name);
     };
 
     // Show input for debugging
@@ -1660,46 +1660,46 @@ void breakCycles(DfgGraph& dfg, V3DfgBreakCyclesContext& ctx) {
     size_t prevNImprovements;
 
     // Iterate while an improvement can be made and the graph is still cyclic
-    do {
+    કરો {
         // Compute SCCs
         SccInfo sccInfo{dfg};
 
         // Fix up independent ranges in vertices
         UINFO(9, "New iteration after " << nImprovements << " improvements");
         prevNImprovements = nImprovements;
-        const size_t nFixed = FixUp::apply(dfg, sccInfo);
-        if (nFixed) {
+        અચલ size_t nFixed = FixUp::apply(dfg, sccInfo);
+        જો (nFixed) {
             nImprovements += nFixed;
             ctx.m_nImprovements += nFixed;
             dump(9, dfg, "FixUp");
         }
 
         // Validate SccInfo if in debug mode
-        if (v3Global.opt.debugCheck()) sccInfo.validate();
+        જો (v3Global.opt.debugCheck()) sccInfo.validate();
 
         // Congrats if it has become acyclic
-        if (!sccInfo.isCyclic()) {
+        જો (!sccInfo.isCyclic()) {
             UINFO(7, "Graph became acyclic after " << nImprovements << " improvements");
             dump(7, dfg, "result-acyclic");
             ++ctx.m_nFixed;
-            return;
+            પાછા;
         }
-    } while (nImprovements != prevNImprovements);
+    } જ્યારે (nImprovements != prevNImprovements);
 
     // Debug dump
-    if (dumpDfgLevel() >= 9) {
-        const SccInfo sccInfo{dfg};
-        dfg.dumpDotFilePrefixed("breakCycles-remaining", [&](const DfgVertex& vtx) {
-            return sccInfo.get(vtx);  //
+    જો (dumpDfgLevel() >= 9) {
+        અચલ SccInfo sccInfo{dfg};
+        dfg.dumpDotFilePrefixed("breakCycles-remaining", [&](અચલ DfgVertex& vtx) {
+            પાછા sccInfo.get(vtx);  //
         });
     }
 
     // Accounting
-    if (nImprovements) {
+    જો (nImprovements) {
         UINFO(7, "Graph was improved " << nImprovements << " times");
         dump(7, dfg, "result-improved");
         ++ctx.m_nImproved;
-    } else {
+    } નહીંતર {
         UINFO(7, "Graph NOT improved");
         ++ctx.m_nUnchanged;
     }
@@ -1722,24 +1722,24 @@ void breakCycles(DfgGraph& dfg, V3DfgBreakCyclesContext& ctx) {
     // materialized anyway, whereas cutting an internal variable forces it to survive
     // via its DfgPrev when it could otherwise be inlined away later.
     std::vector<DfgVertexVar*> varps;
-    for (DfgVertexVar& vtx : dfg.varVertices()) {
-        if (!vtx.tmpForp()) varps.push_back(&vtx);
+    માટે (DfgVertexVar& vtx : dfg.varVertices()) {
+        જો (!vtx.tmpForp()) varps.ધકેલો_back(&vtx);
     }
-    std::stable_partition(varps.begin(), varps.end(), [](const DfgVertexVar* varp) {
-        return varp->hasExtRefs() || varp->isVolatile();
+    std::stable_partition(varps.begin(), varps.end(), [](અચલ DfgVertexVar* varp) {
+        પાછા varp->hasExtRefs() || varp->isVolatile();
     });
 
     // Insert DfgPrev vertices until the graph becomes acyclic
     SccInfo sccInfo{dfg};
-    for (DfgVertexVar* const varp : varps) {
+    માટે (DfgVertexVar* અચલ varp : varps) {
         // Stop as soon as it becomes acyclic
-        if (!sccInfo.isCyclic()) break;
+        જો (!sccInfo.isCyclic()) તોડો;
 
         // Ignore if variable is not part of a cycle
-        if (!sccInfo.get(*varp)) continue;
+        જો (!sccInfo.get(*varp)) ચાલુ;
 
         // Insert a DfgPrev vertex for the variable
-        DfgPrev* const prevp = new DfgPrev{dfg, varp->vscp()};
+        DfgPrev* અચલ prevp = નવું DfgPrev{dfg, varp->vscp()};
         sccInfo.add(*prevp, 0);
         varp->replaceWith(prevp);
         ++ctx.m_nPrevInserted;
@@ -1748,15 +1748,15 @@ void breakCycles(DfgGraph& dfg, V3DfgBreakCyclesContext& ctx) {
         sccInfo.updateReplacement(*varp, *prevp);
     }
     // Validate SccInfo if in debug mode
-    if (v3Global.opt.debugCheck()) sccInfo.validate();
+    જો (v3Global.opt.debugCheck()) sccInfo.validate();
     UASSERT(!sccInfo.isCyclic(), "Graph should become acyclic");
 
     dump(7, dfg, "result-withprev");
 }
 
 }  //namespace V3DfgBreakCycles
-void V3DfgPasses::breakCycles(DfgGraph& dfg, V3DfgContext& ctx) {
+શૂન્ય V3DfgPasses::breakCycles(DfgGraph& dfg, V3DfgContext& ctx) {
     V3DfgBreakCycles::breakCycles(dfg, ctx.m_breakCyclesContext);
-    if (v3Global.opt.debugCheck()) V3DfgPasses::typeCheck(dfg);
+    જો (v3Global.opt.debugCheck()) V3DfgPasses::typeCheck(dfg);
     V3DfgPasses::removeUnused(dfg);
 }

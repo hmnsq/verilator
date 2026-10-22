@@ -16,19 +16,19 @@
 
 #define VL_MT_DISABLED_CODE_UNIT 1
 
-#include "config_build.h"
-#include "verilatedos.h"
+#અન્તર્ભાવ "config_build.h"
+#અન્તર્ભાવ "verilatedos.h"
 
-#include "V3Graph.h"
+#અન્તર્ભાવ "V3Graph.h"
 
-#include "V3File.h"
-#include "V3Global.h"
+#અન્તર્ભાવ "V3File.h"
+#અન્તર્ભાવ "V3Global.h"
 
-#include <map>
-#include <memory>
-#include <unordered_map>
-#include <unordered_set>
-#include <vector>
+#અન્તર્ભાવ <map>
+#અન્તર્ભાવ <memory>
+#અન્તર્ભાવ <unordered_map>
+#અન્તર્ભાવ <unordered_set>
+#અન્તર્ભાવ <vector>
 
 VL_DEFINE_DEBUG_FUNCTIONS;
 
@@ -36,12 +36,12 @@ VL_DEFINE_DEBUG_FUNCTIONS;
 //######################################################################
 // Vertices
 
-V3GraphVertex::V3GraphVertex(V3Graph* graphp, const V3GraphVertex& old)
+V3GraphVertex::V3GraphVertex(V3Graph* graphp, અચલ V3GraphVertex& old)
     : m_fanout{old.m_fanout}
     , m_color{old.m_color}
     , m_rank{old.m_rank} {
     m_userp = nullptr;
-    graphp->vertices().linkBack(this);
+    graphp->vertices().linkBack(આ);
 }
 
 V3GraphVertex::V3GraphVertex(V3Graph* graphp)
@@ -49,28 +49,28 @@ V3GraphVertex::V3GraphVertex(V3Graph* graphp)
     , m_color{0}
     , m_rank{0} {
     m_userp = nullptr;
-    graphp->vertices().linkBack(this);
+    graphp->vertices().linkBack(આ);
 }
 
-void V3GraphVertex::unlinkEdges(V3Graph*) {
-    while (V3GraphEdge* const ep = m_outs.frontp()) VL_DO_DANGLING(ep->unlinkDelete(), ep);
-    while (V3GraphEdge* const ep = m_ins.frontp()) VL_DO_DANGLING(ep->unlinkDelete(), ep);
+શૂન્ય V3GraphVertex::unlinkEdges(V3Graph*) {
+    જ્યારે (V3GraphEdge* અચલ ep = m_outs.frontp()) VL_DO_DANGLING(ep->unlinkDelete(), ep);
+    જ્યારે (V3GraphEdge* અચલ ep = m_ins.frontp()) VL_DO_DANGLING(ep->unlinkDelete(), ep);
 }
 
-void V3GraphVertex::unlinkDelete(V3Graph* graphp) {
+શૂન્ય V3GraphVertex::unlinkDelete(V3Graph* graphp) {
     // Delete edges
     unlinkEdges(graphp);
     // Unlink from vertex list
-    graphp->m_vertices.unlink(this);
+    graphp->m_vertices.unlink(આ);
     // Delete
-    delete this;  // this=nullptr;
+    delete આ;  // this=nullptr;
 }
 
-void V3GraphVertex::rerouteEdges(V3Graph* graphp) {
+શૂન્ય V3GraphVertex::rerouteEdges(V3Graph* graphp) {
     // Make new edges for each from/to pair
-    for (const V3GraphEdge& iedge : inEdges()) {
-        for (const V3GraphEdge& oedge : outEdges()) {
-            new V3GraphEdge{graphp, iedge.fromp(), oedge.top(),
+    માટે (અચલ V3GraphEdge& iedge : inEdges()) {
+        માટે (અચલ V3GraphEdge& oedge : outEdges()) {
+            નવું V3GraphEdge{graphp, iedge.fromp(), oedge.ટોચ(),
                             std::min(iedge.weight(), oedge.weight()),
                             iedge.cutable() && oedge.cutable()};
         }
@@ -80,76 +80,76 @@ void V3GraphVertex::rerouteEdges(V3Graph* graphp) {
 }
 
 // cppcheck-has-bug-suppress constParameter
-void V3GraphVertex::v3errorEnd(const std::ostringstream& str) const  // LCOV_EXCL_START
+શૂન્ય V3GraphVertex::v3errorEnd(અચલ std::ostringstream& str) અચલ  // LCOV_EXCL_START
     VL_RELEASE(V3Error::s().m_mutex) {
     std::ostringstream nsstr;
     nsstr << str.str();
-    if (debug()) nsstr << "\n-vertex: " << this << '\n';
-    if (FileLine* const flp = fileline()) {
+    જો (debug()) nsstr << "\n-vertex: " << આ << '\n';
+    જો (File_લીટી* અચલ flp = fileline()) {
         flp->v3errorEnd(nsstr);
-    } else {
+    } નહીંતર {
         V3Error::v3errorEnd(nsstr, "", nullptr);
     }
 }
-void V3GraphVertex::v3errorEndFatal(const std::ostringstream& str) const
+શૂન્ય V3GraphVertex::v3errorEndFatal(અચલ std::ostringstream& str) અચલ
     VL_RELEASE(V3Error::s().m_mutex) {
     v3errorEnd(str);
-    assert(0);
+    પ્રતિજ્ઞા(0);
     VL_UNREACHABLE;
 }  // LCOV_EXCL_STOP
 
 std::ostream& operator<<(std::ostream& os, V3GraphVertex* vertexp) {
     os << "  VERTEX=" << vertexp->name();
-    if (vertexp->rank()) os << " r" << vertexp->rank();
-    if (vertexp->fanout() != 0.0) os << " f" << vertexp->fanout();
-    if (vertexp->color()) os << " c" << vertexp->color();
-    return os;
+    જો (vertexp->rank()) os << " r" << vertexp->rank();
+    જો (vertexp->fanout() != 0.0) os << " f" << vertexp->fanout();
+    જો (vertexp->color()) os << " c" << vertexp->color();
+    પાછા os;
 }
 
 //######################################################################
 //######################################################################
 // Edges
 
-void V3GraphEdge::init(V3Graph* /*graphp*/, V3GraphVertex* fromp, V3GraphVertex* top, int weight,
-                       bool cutable) {
+શૂન્ય V3GraphEdge::init(V3Graph* /*graphp*/, V3GraphVertex* fromp, V3GraphVertex* ટોચ, પૂર્ણાંક weight,
+                       તાર્કિક cutable) {
     UASSERT(fromp, "Null from pointer");
-    UASSERT(top, "Null to pointer");
+    UASSERT(ટોચ, "Null to pointer");
     m_fromp = fromp;
-    m_top = top;
+    m_ટોચ = ટોચ;
     m_weight = weight;
     m_cutable = cutable;
     m_userp = nullptr;
     // Link vertices to this edge
-    m_fromp->outEdges().linkBack(this);
-    m_top->inEdges().linkBack(this);
+    m_fromp->outEdges().linkBack(આ);
+    m_ટોચ->inEdges().linkBack(આ);
 }
 
-void V3GraphEdge::relinkFromp(V3GraphVertex* newFromp) {
-    m_fromp->outEdges().unlink(this);
+શૂન્ય V3GraphEdge::relinkFromp(V3GraphVertex* newFromp) {
+    m_fromp->outEdges().unlink(આ);
     m_fromp = newFromp;
-    m_fromp->outEdges().linkBack(this);
+    m_fromp->outEdges().linkBack(આ);
 }
 
-void V3GraphEdge::relinkTop(V3GraphVertex* newTop) {
-    m_top->inEdges().unlink(this);
-    m_top = newTop;
-    m_top->inEdges().linkBack(this);
+શૂન્ય V3GraphEdge::relink_ટોચ(V3GraphVertex* new_ટોચ) {
+    m_ટોચ->inEdges().unlink(આ);
+    m_ટોચ = new_ટોચ;
+    m_ટોચ->inEdges().linkBack(આ);
 }
 
-void V3GraphEdge::unlinkDelete() {
+શૂન્ય V3GraphEdge::unlinkDelete() {
     // Unlink from side
-    m_fromp->outEdges().unlink(this);
+    m_fromp->outEdges().unlink(આ);
     // Unlink to side
-    m_top->inEdges().unlink(this);
+    m_ટોચ->inEdges().unlink(આ);
     // Delete
-    delete this;
+    delete આ;
 }
 
-std::string V3GraphEdge::name() const { return m_fromp->name() + "->" + m_top->name(); }
+std::string V3GraphEdge::name() અચલ { પાછા m_fromp->name() + "->" + m_ટોચ->name(); }
 
-int V3GraphEdge::sortCmp(const V3GraphEdge* rhsp) const {
-    if (!m_weight || !rhsp->m_weight) return 0;
-    return top()->sortCmp(rhsp->top());
+પૂર્ણાંક V3GraphEdge::sortCmp(અચલ V3GraphEdge* rhsp) અચલ {
+    જો (!m_weight || !rhsp->m_weight) પાછા 0;
+    પાછા ટોચ()->sortCmp(rhsp->ટોચ());
 }
 
 //######################################################################
@@ -161,37 +161,37 @@ V3Graph::V3Graph() {}
 
 V3Graph::~V3Graph() { clear(); }
 
-void V3Graph::clear() {
+શૂન્ય V3Graph::clear() {
     // Empty it of all points, as if making a new object
     // Delete the old edges
-    for (V3GraphVertex& vertex : vertices()) {
-        while (V3GraphEdge* const edgep = vertex.outEdges().unlinkFront()) {
+    માટે (V3GraphVertex& vertex : vertices()) {
+        જ્યારે (V3GraphEdge* અચલ edgep = vertex.outEdges().unlinkFront()) {
             VL_DO_DANGLING(delete edgep, edgep);
         }
     }
     // Delete the old vertices
-    while (V3GraphVertex* const vertexp = vertices().unlinkFront()) {
+    જ્યારે (V3GraphVertex* અચલ vertexp = vertices().unlinkFront()) {
         VL_DO_DANGLING(delete vertexp, vertexp);
     }
 }
 
-void V3Graph::userClearVertices() {
+શૂન્ય V3Graph::userClearVertices() {
     // Clear user() in all of tree
     // We may use the userCnt trick in V3Ast later... (but gblCnt would be
     // in V3Graph instead of static - which has the complication of finding
     // the graph pointer given a vertex.)  For now, we don't call this often, and
     // the extra code on each read of user() would probably slow things
     // down more than help.
-    for (V3GraphVertex& vertex : vertices()) {
+    માટે (V3GraphVertex& vertex : vertices()) {
         vertex.user(0);
         vertex.userp(nullptr);  // It's a union, but might be different size than user()
     }
 }
 
-void V3Graph::userClearEdges() {
+શૂન્ય V3Graph::userClearEdges() {
     // Clear user() in all of tree
-    for (V3GraphVertex& vertex : vertices()) {
-        for (V3GraphEdge& edge : vertex.outEdges()) {
+    માટે (V3GraphVertex& vertex : vertices()) {
+        માટે (V3GraphEdge& edge : vertex.outEdges()) {
             edge.user(0);
             edge.userp(nullptr);  // It's a union, but might be different size than user()
         }
@@ -201,61 +201,61 @@ void V3Graph::userClearEdges() {
 //======================================================================
 // Dumping
 
-void V3Graph::loopsMessageCb(V3GraphVertex* vertexp, V3EdgeFuncP edgeFuncp) {
+શૂન્ય V3Graph::loopsMessageCb(V3GraphVertex* vertexp, V3EdgeFuncP edgeFuncp) {
     vertexp->v3fatalSrc("Loops detected in graph: " << vertexp << "\n"
                                                     << reportLoops(edgeFuncp, vertexp));
 }
 string V3Graph::loopsVertexCb(V3GraphVertex* vertexp) {
     // Needed here as V3GraphVertex<< isn't defined until later in header
-    if (debug())
-        return "-Info-Loop: "s + cvtToHex(vertexp) + ' ' + cvtToStr(vertexp) + '\n';
-    else
-        return "";
+    જો (debug())
+        પાછા "-Info-Loop: "s + cvtToHex(vertexp) + ' ' + cvtToStr(vertexp) + '\n';
+    નહીંતર
+        પાછા "";
 }
 
-void V3Graph::dump(std::ostream& os) const {
+શૂન્ય V3Graph::dump(std::ostream& os) અચલ {
     // This generates a file used by graphviz, https://www.graphviz.org
     os << " Graph:\n";
     // Print vertices
-    for (const V3GraphVertex& vertex : vertices()) {
+    માટે (અચલ V3GraphVertex& vertex : vertices()) {
         os << "\tNode: " << vertex.name();
-        if (vertex.color()) os << "  color=" << vertex.color();
+        જો (vertex.color()) os << "  color=" << vertex.color();
         os << '\n';
         // Print edges
-        for (const V3GraphEdge& edge : vertex.inEdges()) dumpEdge(os, vertex, edge);
-        for (const V3GraphEdge& edge : vertex.outEdges()) dumpEdge(os, vertex, edge);
+        માટે (અચલ V3GraphEdge& edge : vertex.inEdges()) dumpEdge(os, vertex, edge);
+        માટે (અચલ V3GraphEdge& edge : vertex.outEdges()) dumpEdge(os, vertex, edge);
     }
 }
 
-void V3Graph::dumpEdge(std::ostream& os, const V3GraphVertex& vertex,
-                       const V3GraphEdge& edge) const {
-    if (edge.weight() && (edge.fromp() == &vertex || edge.top() == &vertex)) {
+શૂન્ય V3Graph::dumpEdge(std::ostream& os, અચલ V3GraphVertex& vertex,
+                       અચલ V3GraphEdge& edge) અચલ {
+    જો (edge.weight() && (edge.fromp() == &vertex || edge.ટોચ() == &vertex)) {
         os << "\t\t";
-        if (edge.fromp() == &vertex) os << "-> " << edge.top()->name();
-        if (edge.top() == &vertex) os << "<- " << edge.fromp()->name();
-        if (edge.cutable()) os << "  [CUTABLE]";
+        જો (edge.fromp() == &vertex) os << "-> " << edge.ટોચ()->name();
+        જો (edge.ટોચ() == &vertex) os << "<- " << edge.fromp()->name();
+        જો (edge.cutable()) os << "  [CUTABLE]";
         os << '\n';
     }
 }
-void V3Graph::dumpEdges(std::ostream& os, const V3GraphVertex& vertex) const {
-    for (const V3GraphEdge& edge : vertex.inEdges()) dumpEdge(os, vertex, edge);
-    for (const V3GraphEdge& edge : vertex.outEdges()) dumpEdge(os, vertex, edge);
+શૂન્ય V3Graph::dumpEdges(std::ostream& os, અચલ V3GraphVertex& vertex) અચલ {
+    માટે (અચલ V3GraphEdge& edge : vertex.inEdges()) dumpEdge(os, vertex, edge);
+    માટે (અચલ V3GraphEdge& edge : vertex.outEdges()) dumpEdge(os, vertex, edge);
 }
 
-void V3Graph::dumpDotFilePrefixed(const string& nameComment, bool colorAsSubgraph) const {
+શૂન્ય V3Graph::dumpDotFilePrefixed(અચલ string& nameComment, તાર્કિક colorAsSubgraph) અચલ {
     dumpDotFile(v3Global.debugFilename(nameComment) + ".dot", colorAsSubgraph);
 }
 
 //! Variant of dumpDotFilePrefixed without --dump option check
-void V3Graph::dumpDotFilePrefixedAlways(const string& nameComment, bool colorAsSubgraph) const {
+શૂન્ય V3Graph::dumpDotFilePrefixedAlways(અચલ string& nameComment, તાર્કિક colorAsSubgraph) અચલ {
     dumpDotFile(v3Global.debugFilename(nameComment) + ".dot", colorAsSubgraph);
 }
 
-void V3Graph::dumpDotFile(const string& filename, bool colorAsSubgraph) const {
+શૂન્ય V3Graph::dumpDotFile(અચલ string& filename, તાર્કિક colorAsSubgraph) અચલ {
     // This generates a file used by graphviz, https://www.graphviz.org
     // "hardcoded" parameters:
-    const std::unique_ptr<std::ofstream> logp{V3File::new_ofstream(filename)};
-    if (logp->fail()) v3fatal("Can't write file: " << filename);
+    અચલ std::unique_ptr<std::ofstream> logp{V3File::new_ofstream(filename)};
+    જો (logp->fail()) v3fatal("Can't write file: " << filename);
 
     // Header
     *logp << "digraph v3graph {\n";
@@ -267,14 +267,14 @@ void V3Graph::dumpDotFile(const string& filename, bool colorAsSubgraph) const {
     // List of all possible subgraphs
     // Collections of explicit ranks
     std::unordered_set<std::string> ranks;
-    std::unordered_multimap<std::string, const V3GraphVertex*> rankSets;
-    std::multimap<std::string, const V3GraphVertex*> subgraphs;
-    for (const V3GraphVertex& vertex : vertices()) {
-        const string vertexSubgraph
+    std::unordered_multimap<std::string, અચલ V3GraphVertex*> rankSets;
+    std::multimap<std::string, અચલ V3GraphVertex*> subgraphs;
+    માટે (અચલ V3GraphVertex& vertex : vertices()) {
+        અચલ string vertexSubgraph
             = (colorAsSubgraph && vertex.color()) ? cvtToStr(vertex.color()) : "";
         subgraphs.emplace(vertexSubgraph, &vertex);
-        const string& dotRank = vertex.dotRank();
-        if (!dotRank.empty()) {
+        અચલ string& dotRank = vertex.dotRank();
+        જો (!dotRank.empty()) {
             ranks.emplace(dotRank);
             rankSets.emplace(dotRank, &vertex);
         }
@@ -282,50 +282,50 @@ void V3Graph::dumpDotFile(const string& filename, bool colorAsSubgraph) const {
 
     // We use a map here, as we don't want to corrupt anything (userp) in the graph,
     // and we don't care if this is slow.
-    std::unordered_map<const V3GraphVertex*, int> numMap;
+    std::unordered_map<અચલ V3GraphVertex*, પૂર્ણાંક> અંક_Map;
 
     // Print vertices
-    int n = 0;
+    પૂર્ણાંક n = 0;
     string subgr;
-    for (auto it = subgraphs.cbegin(); it != subgraphs.cend(); ++it) {
-        const string vertexSubgraph = it->first;
-        const V3GraphVertex* vertexp = it->second;
-        numMap[vertexp] = n;
-        if (subgr != vertexSubgraph) {
-            if (subgr != "") *logp << "\t};\n";
+    માટે (auto it = subgraphs.cbegin(); it != subgraphs.cend(); ++it) {
+        અચલ string vertexSubgraph = it->first;
+        અચલ V3GraphVertex* vertexp = it->second;
+        અંક_Map[vertexp] = n;
+        જો (subgr != vertexSubgraph) {
+            જો (subgr != "") *logp << "\t};\n";
             subgr = vertexSubgraph;
-            if (subgr != "") {
+            જો (subgr != "") {
                 *logp << "\tsubgraph cluster_" << subgr << " {\n";
                 *logp << "\tlabel=\"" << subgr << "\"\n";
             }
         }
-        if (subgr != "") *logp << "\t";
+        જો (subgr != "") *logp << "\t";
         *logp << "\tn" << vertexp->dotName() << (n++) << "\t[fontsize=8 " << "label=\""
               << (vertexp->name() != "" ? vertexp->name() : "\\N");
-        if (vertexp->rank()) *logp << " r" << vertexp->rank();
-        if (vertexp->fanout() != 0.0) *logp << " f" << vertexp->fanout();
-        if (vertexp->color()) *logp << "\\n c" << vertexp->color();
+        જો (vertexp->rank()) *logp << " r" << vertexp->rank();
+        જો (vertexp->fanout() != 0.0) *logp << " f" << vertexp->fanout();
+        જો (vertexp->color()) *logp << "\\n c" << vertexp->color();
         *logp << "\"";
         *logp << ", color=" << vertexp->dotColor();
-        if (vertexp->dotStyle() != "") *logp << ", style=" << vertexp->dotStyle();
-        if (vertexp->dotShape() != "") *logp << ", shape=" << vertexp->dotShape();
+        જો (vertexp->dotStyle() != "") *logp << ", style=" << vertexp->dotStyle();
+        જો (vertexp->dotShape() != "") *logp << ", shape=" << vertexp->dotShape();
         *logp << "];\n";
     }
-    if (subgr != "") *logp << "\t};\n";
+    જો (subgr != "") *logp << "\t};\n";
 
     // Print edges
-    for (const V3GraphVertex& vertex : vertices()) {
-        for (const V3GraphEdge& edge : vertex.outEdges()) {
-            if (edge.weight()) {
-                const int fromVnum = numMap[edge.fromp()];
-                const int toVnum = numMap[edge.top()];
+    માટે (અચલ V3GraphVertex& vertex : vertices()) {
+        માટે (અચલ V3GraphEdge& edge : vertex.outEdges()) {
+            જો (edge.weight()) {
+                અચલ પૂર્ણાંક fromVnum = અંક_Map[edge.fromp()];
+                અચલ પૂર્ણાંક toVnum = અંક_Map[edge.ટોચ()];
                 *logp << "\tn" << edge.fromp()->dotName() << fromVnum << " -> n"
-                      << edge.top()->dotName() << toVnum
+                      << edge.ટોચ()->dotName() << toVnum
                       << " ["
                       // <<"fontsize=8 label=\""<<(edge.name()!="" ? edge.name() : "\\E")<<"\""
                       << "fontsize=8 label=\"" << (edge.dotLabel() != "" ? edge.dotLabel() : "")
                       << "\"" << " weight=" << edge.weight() << " color=" << edge.dotColor();
-                if (edge.dotStyle() != "") *logp << " style=" << edge.dotStyle();
+                જો (edge.dotStyle() != "") *logp << " style=" << edge.dotStyle();
                 // if (edge.cutable()) *logp << ",constraint=false";  // to rank without
                 // following edges
                 *logp << "];\n";
@@ -334,18 +334,18 @@ void V3Graph::dumpDotFile(const string& filename, bool colorAsSubgraph) const {
     }
 
     // Print ranks
-    for (const auto& dotRank : ranks) {
+    માટે (અચલ auto& dotRank : ranks) {
         *logp << "\t{ rank=";
-        if (dotRank != "sink" && dotRank != "source" && dotRank != "min" && dotRank != "max") {
+        જો (dotRank != "sink" && dotRank != "source" && dotRank != "min" && dotRank != "max") {
             *logp << "same";
-        } else {
+        } નહીંતર {
             *logp << dotRank;
         }
         *logp << "; ";
         auto bounds = rankSets.equal_range(dotRank);
-        for (auto it{bounds.first}; it != bounds.second; ++it) {
-            if (it != bounds.first) *logp << ", ";
-            *logp << 'n' << numMap[it->second] << "";
+        માટે (auto it{bounds.first}; it != bounds.second; ++it) {
+            જો (it != bounds.first) *logp << ", ";
+            *logp << 'n' << અંક_Map[it->second] << "";
         }
         *logp << " }\n";
     }
@@ -359,17 +359,17 @@ void V3Graph::dumpDotFile(const string& filename, bool colorAsSubgraph) const {
     cout << "dot -Tpdf -o ~/a.pdf " << filename << "\n";
 }
 
-void V3Graph::hashGraphDebug(const char* debugName) const {
+શૂન્ય V3Graph::hashGraphDebug(અચલ અક્ષર* debugName) અચલ {
     // Disabled when there are no nondeterminism issues in flight.
-    if (!v3Global.opt.debugNondeterminism()) return;
+    જો (!v3Global.opt.debugNondeterminism()) પાછા;
 
     // Assign a unique ID to each vertex for pointer stability, then hash
     uint32_t id = 1;
-    std::unordered_map<const V3GraphVertex*, uint32_t> vx2Id;
-    for (const V3GraphVertex& vtx : vertices()) vx2Id[&vtx] = ++id;
+    std::unordered_map<અચલ V3GraphVertex*, uint32_t> vx2Id;
+    માટે (અચલ V3GraphVertex& vtx : vertices()) vx2Id[&vtx] = ++id;
     V3Hash hash;
-    for (const V3GraphVertex& vtx : vertices()) {
-        for (const V3GraphEdge& edge : vtx.outEdges()) hash += vx2Id[edge.top()];
+    માટે (અચલ V3GraphVertex& vtx : vertices()) {
+        માટે (અચલ V3GraphEdge& edge : vtx.outEdges()) hash += vx2Id[edge.ટોચ()];
     }
-    UINFO(0, "Hash of shape (not contents) of " << debugName << " = " << cvtToHex(hash.value()));
+    UINFO(0, "Hash of shape (not contents) of " << debugName << " = " << cvtToHex(hash.કિંમત()));
 }

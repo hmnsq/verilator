@@ -14,24 +14,24 @@
 //
 //*************************************************************************
 
-#include "config_build.h"
-#include "verilatedos.h"
+#અન્તર્ભાવ "config_build.h"
+#અન્તર્ભાવ "verilatedos.h"
 
-#if defined(_WIN32) || defined(__MINGW32__)
-#include <io.h>  // open, read, write, close
+#જો defined(_WIN32) || defined(__MINGW32__)
+#અન્તર્ભાવ <io.h>  // open, read, write, close
 #endif
 
-#include "V3Error.h"
-#include "V3FileLine.h"
-#include "V3String.h"
+#અન્તર્ભાવ "V3Error.h"
+#અન્તર્ભાવ "V3FileLine.h"
+#અન્તર્ભાવ "V3String.h"
 
 #ifndef V3ERROR_NO_GLOBAL_
-#include "V3Global.h"
+#અન્તર્ભાવ "V3Global.h"
 VL_DEFINE_DEBUG_FUNCTIONS;
 #endif
 
-#include <algorithm>
-#include <fcntl.h>
+#અન્તર્ભાવ <algorithm>
+#અન્તર્ભાવ <fcntl.h>
 
 size_t VName::s_minLength = 32;
 size_t VName::s_maxLength = 0;  // Disabled
@@ -41,341 +41,341 @@ std::map<string, string> VName::s_dehashMap;
 // Wildcard
 
 // Double procedures, inlined, unrolls loop much better
-template <bool Even = true>
-static bool wildMatchImpl(const char* s, const char* p) VL_PURE {
-    for (; *p; s++, p++) {
-        if (*p != '*') {
-            if (((*s) != (*p)) && *p != '?') return false;
-        } else {
+template <તાર્કિક Even = સાચું>
+સ્થિર તાર્કિક wildMatchImpl(અચલ અક્ષર* s, અચલ અક્ષર* p) VL_PURE {
+    માટે (; *p; s++, p++) {
+        જો (*p != '*') {
+            જો (((*s) != (*p)) && *p != '?') પાછા ખોટું;
+        } નહીંતર {
             // Trailing star matches everything.
-            if (!*++p) return true;
-            while (!wildMatchImpl<!Even>(s, p)) {
-                if (*++s == '\0') return false;
+            જો (!*++p) પાછા સાચું;
+            જ્યારે (!wildMatchImpl<!Even>(s, p)) {
+                જો (*++s == '\0') પાછા ખોટું;
             }
-            return true;
+            પાછા સાચું;
         }
     }
-    return (*s == '\0');
+    પાછા (*s == '\0');
 }
 
-bool VString::wildmatch(const char* s, const char* p) VL_PURE {
-    if (*s == '\0') {
-        while (*p == '*') ++p;
-        return *p == '\0';
+તાર્કિક VString::wildmatch(અચલ અક્ષર* s, અચલ અક્ષર* p) VL_PURE {
+    જો (*s == '\0') {
+        જ્યારે (*p == '*') ++p;
+        પાછા *p == '\0';
     }
-    return wildMatchImpl(s, p);
+    પાછા wildMatchImpl(s, p);
 }
 
-bool VString::wildmatch(const string& s, const string& p) VL_PURE {
-    return wildmatch(s.c_str(), p.c_str());
+તાર્કિક VString::wildmatch(અચલ string& s, અચલ string& p) VL_PURE {
+    પાછા wildmatch(s.c_str(), p.c_str());
 }
 
-string VString::dot(const string& a, const string& dot, const string& b) {
-    if (b == "") return a;
-    if (a == "") return b;
-    return a + dot + b;
+string VString::dot(અચલ string& a, અચલ string& dot, અચલ string& b) {
+    જો (b == "") પાછા a;
+    જો (a == "") પાછા b;
+    પાછા a + dot + b;
 }
 
-string VString::downcase(const string& str) VL_PURE {
+string VString::downcase(અચલ string& str) VL_PURE {
     string result = str;
-    for (char& cr : result) cr = std::tolower(cr);
-    return result;
+    માટે (અક્ષર& cr : result) cr = std::tolower(cr);
+    પાછા result;
 }
 
-string VString::upcase(const string& str) VL_PURE {
+string VString::upcase(અચલ string& str) VL_PURE {
     string result = str;
-    for (char& cr : result) cr = std::toupper(cr);
-    return result;
+    માટે (અક્ષર& cr : result) cr = std::toupper(cr);
+    પાછા result;
 }
 
-string VString::quoteAny(const string& str, char tgt, char esc) VL_PURE {
+string VString::quoteAny(અચલ string& str, અક્ષર tgt, અક્ષર esc) VL_PURE {
     string result;
-    for (const char c : str) {
-        if (c == tgt) result += esc;
+    માટે (અચલ અક્ષર c : str) {
+        જો (c == tgt) result += esc;
         result += c;
     }
-    return result;
+    પાછા result;
 }
 
-string VString::dequotePercent(const string& str) {
+string VString::dequotePercent(અચલ string& str) {
     string result;
-    char last = '\0';
-    for (const char c : str) {
-        if (last == '%' && c == '%') {
+    અક્ષર last = '\0';
+    માટે (અચલ અક્ષર c : str) {
+        જો (last == '%' && c == '%') {
             last = '\0';
-        } else {
+        } નહીંતર {
             result += c;
             last = c;
         }
     }
-    return result;
+    પાછા result;
 }
 
-string VString::quoteStringLiteralForShell(const string& str) {
+string VString::quoteStringLiteralForShell(અચલ string& str) {
     string result;
-    constexpr char dquote = '"';
-    constexpr char escape = '\\';
-    result.push_back(dquote);  // Start quoted string
-    result.push_back(escape);
-    result.push_back(dquote);  // "
-    for (const char c : str) {
-        if (c == dquote || c == escape) result.push_back(escape);
-        result.push_back(c);
+    constexpr અક્ષર dquote = '"';
+    constexpr અક્ષર escape = '\\';
+    result.ધકેલો_back(dquote);  // Start quoted string
+    result.ધકેલો_back(escape);
+    result.ધકેલો_back(dquote);  // "
+    માટે (અચલ અક્ષર c : str) {
+        જો (c == dquote || c == escape) result.ધકેલો_back(escape);
+        result.ધકેલો_back(c);
     }
-    result.push_back(escape);
-    result.push_back(dquote);  // "
-    result.push_back(dquote);  // Terminate quoted string
-    return result;
+    result.ધકેલો_back(escape);
+    result.ધકેલો_back(dquote);  // "
+    result.ધકેલો_back(dquote);  // Terminate quoted string
+    પાછા result;
 }
 
-string VString::escapeStringForPath(const string& str) {
-    if (str.find(R"(\\)") != string::npos)
-        return str;  // if it has been escaped already, don't do it again
-    if (str.find('/') != string::npos) return str;  // can be replaced by `__MINGW32__` or `_WIN32`
+string VString::escapeStringForPath(અચલ string& str) {
+    જો (str.find(R"(\\)") != string::npos)
+        પાછા str;  // if it has been escaped already, don't do it again
+    જો (str.find('/') != string::npos) પાછા str;  // can be replaced by `__MINGW32__` or `_WIN32`
     string result;
-    constexpr char space = ' ';  // escape space like this `Program Files`
-    constexpr char escape = '\\';
-    for (const char c : str) {
-        if (c == space || c == escape) result.push_back(escape);
-        result.push_back(c);
+    constexpr અક્ષર space = ' ';  // escape space like this `Program Files`
+    constexpr અક્ષર escape = '\\';
+    માટે (અચલ અક્ષર c : str) {
+        જો (c == space || c == escape) result.ધકેલો_back(escape);
+        result.ધકેલો_back(c);
     }
-    return result;
+    પાછા result;
 }
 
-static int vl_decodexdigit(char c) {
-    return std::isdigit(c) ? c - '0' : std::tolower(c) - 'a' + 10;
+સ્થિર પૂર્ણાંક vl_decodexdigit(અક્ષર c) {
+    પાછા std::isdigit(c) ? c - '0' : std::tolower(c) - 'a' + 10;
 }
 
-string VString::unquoteSVString(const string& text, string& errOut) {
-    bool quoted = false;
+string VString::unquoteSVString(અચલ string& text, string& errOut) {
+    તાર્કિક quoted = ખોટું;
     string newtext;
     newtext.reserve(text.size());
-    unsigned char octal_val = 0;
-    int octal_digits = 0;
-    for (string::const_iterator cp = text.begin(); cp != text.end(); ++cp) {
-        if (quoted) {
-            if (std::isdigit(*cp)) {
+    unsigned અક્ષર octal_val = 0;
+    પૂર્ણાંક octal_digits = 0;
+    માટે (string::const_iterator cp = text.begin(); cp != text.end(); ++cp) {
+        જો (quoted) {
+            જો (std::isdigit(*cp)) {
                 octal_val = octal_val * 8 + (*cp - '0');
-                if (++octal_digits == 3) {
+                જો (++octal_digits == 3) {
                     newtext += octal_val;
                     octal_digits = 0;
                     octal_val = 0;
-                    quoted = false;
+                    quoted = ખોટું;
                 }
-            } else {
-                if (octal_digits) {
+            } નહીંતર {
+                જો (octal_digits) {
                     // Spec allows 1-3 digits
                     newtext += octal_val;
                     octal_digits = 0;
                     octal_val = 0;
-                    quoted = false;
+                    quoted = ખોટું;
                     --cp;  // Backup to reprocess terminating character as non-escaped
-                    continue;
+                    ચાલુ;
                 }
-                quoted = false;
-                if (*cp == 'n') {
+                quoted = ખોટું;
+                જો (*cp == 'n') {
                     newtext += '\n';
-                } else if (*cp == 'a') {
+                } નહીંતર જો (*cp == 'a') {
                     newtext += '\a';  // SystemVerilog 3.1
-                } else if (*cp == 'f') {
+                } નહીંતર જો (*cp == 'f') {
                     newtext += '\f';  // SystemVerilog 3.1
-                } else if (*cp == 'r') {
+                } નહીંતર જો (*cp == 'r') {
                     newtext += '\r';
-                } else if (*cp == 't') {
+                } નહીંતર જો (*cp == 't') {
                     newtext += '\t';
-                } else if (*cp == 'v') {
+                } નહીંતર જો (*cp == 'v') {
                     newtext += '\v';  // SystemVerilog 3.1
-                } else if (*cp == 'x' && std::isxdigit(cp[1])
+                } નહીંતર જો (*cp == 'x' && std::isxdigit(cp[1])
                            && std::isxdigit(cp[2])) {  // SystemVerilog 3.1
                     newtext
-                        += static_cast<char>(16 * vl_decodexdigit(cp[1]) + vl_decodexdigit(cp[2]));
+                        += static_cast<અક્ષર>(16 * vl_decodexdigit(cp[1]) + vl_decodexdigit(cp[2]));
                     cp += 2;
-                } else if (std::isalnum(*cp)) {
+                } નહીંતર જો (std::isalnum(*cp)) {
                     errOut = "Unknown escape sequence: \\";
                     errOut += *cp;
-                    break;
-                } else {
+                    તોડો;
+                } નહીંતર {
                     newtext += *cp;
                 }
             }
-        } else if (*cp == '\\') {
-            if (octal_digits) {
+        } નહીંતર જો (*cp == '\\') {
+            જો (octal_digits) {
                 newtext += octal_val;
                 // below: octal_digits = 0;
                 octal_val = 0;
             }
-            quoted = true;
+            quoted = સાચું;
             octal_digits = 0;
-        } else {
+        } નહીંતર {
             newtext += *cp;
         }
     }
-    return newtext;
+    પાછા newtext;
 }
 
-size_t VString::quotedEnd(const string& str, size_t pos) VL_PURE {
-    for (size_t i = pos + 1; i < str.size(); ++i) {
-        if (str[i] == '\\') {
+size_t VString::quotedEnd(અચલ string& str, size_t pos) VL_PURE {
+    માટે (size_t i = pos + 1; i < str.size(); ++i) {
+        જો (str[i] == '\\') {
             ++i;  // Past the escaped character, as of '\"'
-        } else if (str[i] == '"') {
-            return i + 1;
+        } નહીંતર જો (str[i] == '"') {
+            પાછા i + 1;
         }
     }
-    return string::npos;
+    પાછા string::npos;
 }
 
-string VString::spaceUnprintable(const string& str) VL_PURE {
+string VString::spaceUnprintable(અચલ string& str) VL_PURE {
     string result;
-    for (const char c : str) {
-        if (std::isprint(c)) {
+    માટે (અચલ અક્ષર c : str) {
+        જો (std::isprint(c)) {
             result += c;
-        } else {
+        } નહીંતર {
             result += ' ';
         }
     }
-    return result;
+    પાછા result;
 }
 
-string VString::removeWhitespace(const string& str) {
+string VString::removeWhitespace(અચલ string& str) {
     string result;
     result.reserve(str.size());
-    for (const char c : str) {
-        if (!std::isspace(c)) result += c;
+    માટે (અચલ અક્ષર c : str) {
+        જો (!std::isspace(c)) result += c;
     }
-    return result;
+    પાછા result;
 }
 
-string VString::trimWhitespace(const string& str) {
+string VString::trimWhitespace(અચલ string& str) {
     string result;
     result.reserve(str.size());
     string add;
-    bool newline = false;
-    for (const char c : str) {
-        if (newline && std::isspace(c)) continue;
-        if (c == '\n') {
+    તાર્કિક newline = ખોટું;
+    માટે (અચલ અક્ષર c : str) {
+        જો (newline && std::isspace(c)) ચાલુ;
+        જો (c == '\n') {
             add = "\n";
-            newline = true;
-            continue;
+            newline = સાચું;
+            ચાલુ;
         }
-        if (std::isspace(c)) {
+        જો (std::isspace(c)) {
             add += c;
-            continue;
+            ચાલુ;
         }
-        if (!add.empty()) {
+        જો (!add.empty()) {
             result += add;
-            newline = false;
+            newline = ખોટું;
             add.clear();
         }
         result += c;
     }
-    return result;
+    પાછા result;
 }
 
-bool VString::isIdentifier(const string& str) {
-    for (const char c : str) {
-        if (!isIdentifierChar(c)) return false;
+તાર્કિક VString::isIdentifier(અચલ string& str) {
+    માટે (અચલ અક્ષર c : str) {
+        જો (!isIdentifierChar(c)) પાછા ખોટું;
     }
-    return true;
+    પાછા સાચું;
 }
 
-bool VString::isWhitespace(const string& str) {
-    for (const char c : str) {
-        if (!std::isspace(c)) return false;
+તાર્કિક VString::isWhitespace(અચલ string& str) {
+    માટે (અચલ અક્ષર c : str) {
+        જો (!std::isspace(c)) પાછા ખોટું;
     }
-    return true;
+    પાછા સાચું;
 }
 
-string::size_type VString::leadingWhitespaceCount(const string& str) {
+string::size_type VString::leading_Whitespace_ગણતરી(અચલ string& str) {
     string::size_type result = 0;
-    for (const char c : str) {
+    માટે (અચલ અક્ષર c : str) {
         ++result;
-        if (!std::isspace(c)) break;
+        જો (!std::isspace(c)) તોડો;
     }
-    return result;
+    પાછા result;
 }
 
-double VString::parseDouble(const string& str, bool* successp) {
-    char* const strgp = new char[str.size() + 1];
-    char* dp = strgp;
-    if (successp) *successp = true;
-    for (const char* sp = str.c_str(); *sp; ++sp) {
-        if (*sp != '_') *dp++ = *sp;
+દ્વિગુણ VString::parseDouble(અચલ string& str, તાર્કિક* successp) {
+    અક્ષર* અચલ strgp = નવું અક્ષર[str.size() + 1];
+    અક્ષર* dp = strgp;
+    જો (successp) *successp = સાચું;
+    માટે (અચલ અક્ષર* sp = str.c_str(); *sp; ++sp) {
+        જો (*sp != '_') *dp++ = *sp;
     }
     *dp++ = '\0';
-    char* endp = strgp;
-    const double d = strtod(strgp, &endp);
-    const size_t parsed_len = endp - strgp;
-    if (parsed_len != std::strlen(strgp)) {
-        if (successp) *successp = false;
+    અક્ષર* endp = strgp;
+    અચલ દ્વિગુણ d = strtod(strgp, &endp);
+    અચલ size_t parsed_len = endp - strgp;
+    જો (parsed_len != std::strlen(strgp)) {
+        જો (successp) *successp = ખોટું;
     }
     VL_DO_DANGLING(delete[] strgp, strgp);
-    return d;
+    પાછા d;
 }
 
-string VString::replaceSubstr(const string& str, const string& from, const string& to) {
+string VString::replaceSubstr(અચલ string& str, અચલ string& from, અચલ string& to) {
     string result = str;
-    const size_t fromLen = from.size();
-    const size_t toLen = to.size();
+    અચલ size_t fromLen = from.size();
+    અચલ size_t toLen = to.size();
     UASSERT_STATIC(fromLen > 0, "Cannot replace empty string");
-    for (size_t pos = 0; (pos = result.find(from, pos)) != string::npos; pos += toLen) {
+    માટે (size_t pos = 0; (pos = result.find(from, pos)) != string::npos; pos += toLen) {
         result.replace(pos, fromLen, to);
     }
-    return result;
+    પાછા result;
 }
 
-string VString::replaceWord(const string& str, const string& from, const string& to) {
+string VString::replaceWord(અચલ string& str, અચલ string& from, અચલ string& to) {
     string result = str;
-    const size_t len = from.size();
+    અચલ size_t len = from.size();
     UASSERT_STATIC(len > 0, "Cannot replace empty string");
-    for (size_t pos = 0; (pos = result.find(from, pos)) != string::npos; pos += len) {
+    માટે (size_t pos = 0; (pos = result.find(from, pos)) != string::npos; pos += len) {
         // Only replace whole words
-        if (((pos > 0) && VString::isIdentifierChar(result[pos - 1])) ||  //
+        જો (((pos > 0) && VString::isIdentifierChar(result[pos - 1])) ||  //
             ((pos + len < result.size()) && VString::isIdentifierChar(result[pos + len]))) {
-            continue;
+            ચાલુ;
         }
         result.replace(pos, len, to);
     }
-    return result;
+    પાછા result;
 }
 
-std::deque<string> VString::split(const string& str, char delimiter) {
+std::deque<string> VString::split(અચલ string& str, અક્ષર delimiter) {
     std::deque<std::string> results;
     std::istringstream is{str};
     std::string token;
-    while (std::getline(is, token, delimiter)) results.push_back(token);
-    return results;
+    જ્યારે (std::getline(is, token, delimiter)) results.ધકેલો_back(token);
+    પાછા results;
 }
 
-bool VString::endsWith(const string& str, const string& suffix) {
-    if (str.length() < suffix.length()) return false;
-    return str.compare(str.length() - suffix.length(), suffix.length(), suffix) == 0;
+તાર્કિક VString::endsWith(અચલ string& str, અચલ string& suffix) {
+    જો (str.length() < suffix.length()) પાછા ખોટું;
+    પાછા str.compare(str.length() - suffix.length(), suffix.length(), suffix) == 0;
 }
-string VString::aOrAn(const char* word) {
-    switch (word[0]) {
-    case '\0': return "";
-    case 'a':
-    case 'e':
-    case 'i':
-    case 'o':
-    case 'u': return "an";
-    default: return "a";
+string VString::aOrAn(અચલ અક્ષર* word) {
+    પસંદગી (word[0]) {
+    સ્થિતિ '\0': પાછા "";
+    સ્થિતિ 'a':
+    સ્થિતિ 'e':
+    સ્થિતિ 'i':
+    સ્થિતિ 'o':
+    સ્થિતિ 'u': પાછા "an";
+    મૂળભૂત: પાછા "a";
     }
 }
 
 // MurmurHash64A
-uint64_t VString::hashMurmur(const string& str) VL_PURE {
-    const char* key = str.c_str();
-    const size_t len = str.size();
+uint64_t VString::hashMurmur(અચલ string& str) VL_PURE {
+    અચલ અક્ષર* ચાવી = str.c_str();
+    અચલ size_t len = str.size();
     constexpr uint64_t seed = 0;
     constexpr uint64_t m = 0xc6a4a7935bd1e995ULL;
-    constexpr int r = 47;
+    constexpr પૂર્ણાંક r = 47;
 
     uint64_t h = seed ^ (len * m);
 
-    const uint64_t* data = reinterpret_cast<const uint64_t*>(key);
-    const uint64_t* end = data + (len / 8);
+    અચલ uint64_t* data = reinterpret_cast<અચલ uint64_t*>(ચાવી);
+    અચલ uint64_t* end = data + (len / 8);
 
-    while (data != end) {
+    જ્યારે (data != end) {
         uint64_t k = *data++;
 
         k *= m;
@@ -386,59 +386,59 @@ uint64_t VString::hashMurmur(const string& str) VL_PURE {
         h *= m;
     }
 
-    const unsigned char* data2 = reinterpret_cast<const unsigned char*>(data);
+    અચલ unsigned અક્ષર* data2 = reinterpret_cast<અચલ unsigned અક્ષર*>(data);
 
-    switch (len & 7) {
-    case 7: h ^= static_cast<uint64_t>(data2[6]) << 48;  // FALLTHRU
-    case 6: h ^= static_cast<uint64_t>(data2[5]) << 40;  // FALLTHRU
-    case 5: h ^= static_cast<uint64_t>(data2[4]) << 32;  // FALLTHRU
-    case 4: h ^= static_cast<uint64_t>(data2[3]) << 24;  // FALLTHRU
-    case 3: h ^= static_cast<uint64_t>(data2[2]) << 16;  // FALLTHRU
-    case 2: h ^= static_cast<uint64_t>(data2[1]) << 8;  // FALLTHRU
-    case 1: h ^= static_cast<uint64_t>(data2[0]); h *= m;  // FALLTHRU
-    default:;
+    પસંદગી (len & 7) {
+    સ્થિતિ 7: h ^= static_cast<uint64_t>(data2[6]) << 48;  // FALLTHRU
+    સ્થિતિ 6: h ^= static_cast<uint64_t>(data2[5]) << 40;  // FALLTHRU
+    સ્થિતિ 5: h ^= static_cast<uint64_t>(data2[4]) << 32;  // FALLTHRU
+    સ્થિતિ 4: h ^= static_cast<uint64_t>(data2[3]) << 24;  // FALLTHRU
+    સ્થિતિ 3: h ^= static_cast<uint64_t>(data2[2]) << 16;  // FALLTHRU
+    સ્થિતિ 2: h ^= static_cast<uint64_t>(data2[1]) << 8;  // FALLTHRU
+    સ્થિતિ 1: h ^= static_cast<uint64_t>(data2[0]); h *= m;  // FALLTHRU
+    મૂળભૂત:;
     };
 
     h ^= h >> r;
     h *= m;
     h ^= h >> r;
 
-    return h;
+    પાછા h;
 }
 
-string VString::base64Enc(const string& str) VL_PURE {
+string VString::base64Enc(અચલ string& str) VL_PURE {
     // Non-URL format (+/), versus URL format (-/).
-    static constexpr const char* const digits
+    સ્થિર constexpr અચલ અક્ષર* અચલ digits
         = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
     size_t len = str.size();
     string result;
     result.reserve(len * 4 / 3 + 2);
     size_t pos = 0;
-    if (len >= 3) {
-        for (; pos < len - 2; pos += 3) {
+    જો (len >= 3) {
+        માટે (; pos < len - 2; pos += 3) {
             result += digits[((str[pos] >> 2) & 0x3f)];
             result
-                += digits[((str[pos] & 0x3) << 4) | (static_cast<int>(str[pos + 1] & 0xf0) >> 4)];
+                += digits[((str[pos] & 0x3) << 4) | (static_cast<પૂર્ણાંક>(str[pos + 1] & 0xf0) >> 4)];
             result += digits[((str[pos + 1] & 0xf) << 2)
-                             | (static_cast<int>(str[pos + 2] & 0xc0) >> 6)];
+                             | (static_cast<પૂર્ણાંક>(str[pos + 2] & 0xc0) >> 6)];
             result += digits[((str[pos + 2] & 0x3f))];
         }
     }
-    if (len >= 2 && pos < len - 1) {  // Pad 2
+    જો (len >= 2 && pos < len - 1) {  // Pad 2
         result += digits[((str[pos] >> 2) & 0x3f)];
-        result += digits[((str[pos] & 0x3) << 4) | (static_cast<int>(str[pos + 1] & 0xf0) >> 4)];
-        result += digits[((str[pos + 1] & 0xf) << 2) | (static_cast<int>(0) >> 6)];
+        result += digits[((str[pos] & 0x3) << 4) | (static_cast<પૂર્ણાંક>(str[pos + 1] & 0xf0) >> 4)];
+        result += digits[((str[pos + 1] & 0xf) << 2) | (static_cast<પૂર્ણાંક>(0) >> 6)];
         result += '=';
-    } else if (pos < len) {  // Pad 1
+    } નહીંતર જો (pos < len) {  // Pad 1
         result += digits[((str[pos] >> 2) & 0x3f)];
-        result += digits[((str[pos] & 0x3) << 4) | (static_cast<int>(0) >> 4)];
+        result += digits[((str[pos] & 0x3) << 4) | (static_cast<પૂર્ણાંક>(0) >> 4)];
         result += '=';
         result += '=';
     }
-    return result;
+    પાછા result;
 }
 
-void VString::selfTest() {
+શૂન્ય VString::selfTest() {
     UASSERT_SELFTEST(VString::replaceSubstr("aa", "a", "ba"), "baba");
 
     // Cross-checked with 'base64'
@@ -455,7 +455,7 @@ void VString::selfTest() {
 //######################################################################
 // VHashSha512
 
-static constexpr uint64_t sha512K[]
+સ્થિર constexpr uint64_t sha512K[]
     = {0x428a2f98d728ae22ULL, 0x7137449123ef65cdULL, 0xb5c0fbcfec4d3b2fULL, 0xe9b5dba58189dbbcULL,
        0x3956c25bf348b538ULL, 0x59f111f1b605d019ULL, 0x923f82a4af194f9bULL, 0xab1c5ed5da6d8118ULL,
        0xd807aa98a3030242ULL, 0x12835b0145706fbeULL, 0x243185be4ee4b28cULL, 0x550c7dc3d5ffb4e2ULL,
@@ -478,38 +478,38 @@ static constexpr uint64_t sha512K[]
        0x4cc5d4becb3e42b6ULL, 0x597f299cfc657e2aULL, 0x5fcb6fab3ad6faecULL, 0x6c44198c4a475817ULL};
 
 VL_ATTR_ALWINLINE
-static uint64_t shaRotr64(uint64_t lhs, uint64_t rhs) VL_PURE {
-    return lhs >> rhs | lhs << (64 - rhs);
+સ્થિર uint64_t shaRotr64(uint64_t lhs, uint64_t rhs) VL_PURE {
+    પાછા lhs >> rhs | lhs << (64 - rhs);
 }
 
 VL_ATTR_ALWINLINE
-static void sha512Block(uint64_t* h, const uint64_t* chunk) VL_PURE {
+સ્થિર શૂન્ય sha512Block(uint64_t* h, અચલ uint64_t* chunk) VL_PURE {
     uint64_t ah[8];
-    const uint64_t* p = chunk;
+    અચલ uint64_t* p = chunk;
 
     // Initialize working variables to current hash value
-    for (unsigned i = 0; i < 8; i++) ah[i] = h[i];
+    માટે (unsigned i = 0; i < 8; i++) ah[i] = h[i];
     // Compression function main loop
     uint64_t w[16] = {};
-    for (unsigned i = 0; i < 5; ++i) {
-        for (unsigned j = 0; j < 16; ++j) {
-            if (i == 0) {
+    માટે (unsigned i = 0; i < 5; ++i) {
+        માટે (unsigned j = 0; j < 16; ++j) {
+            જો (i == 0) {
                 w[j] = *p++;
-            } else {
+            } નહીંતર {
                 // Extend the first 16 words into the remaining
                 // 64 words w[16..79] of the message schedule array:
-                const uint64_t s0 = shaRotr64(w[(j + 1) & 0xf], 1) ^ shaRotr64(w[(j + 1) & 0xf], 8)
+                અચલ uint64_t s0 = shaRotr64(w[(j + 1) & 0xf], 1) ^ shaRotr64(w[(j + 1) & 0xf], 8)
                                     ^ (w[(j + 1) & 0xf] >> 7);
-                const uint64_t s1 = shaRotr64(w[(j + 14) & 0xf], 19)
+                અચલ uint64_t s1 = shaRotr64(w[(j + 14) & 0xf], 19)
                                     ^ shaRotr64(w[(j + 14) & 0xf], 61) ^ (w[(j + 14) & 0xf] >> 6);
                 w[j] = w[j] + s0 + w[(j + 9) & 0xf] + s1;
             }
-            const uint64_t s1 = shaRotr64(ah[4], 14) ^ shaRotr64(ah[4], 18) ^ shaRotr64(ah[4], 41);
-            const uint64_t ch = (ah[4] & ah[5]) ^ (~ah[4] & ah[6]);
-            const uint64_t temp1 = ah[7] + s1 + ch + sha512K[i * 16 + j] + w[j];
-            const uint64_t s0 = shaRotr64(ah[0], 28) ^ shaRotr64(ah[0], 34) ^ shaRotr64(ah[0], 39);
-            const uint64_t maj = (ah[0] & ah[1]) ^ (ah[0] & ah[2]) ^ (ah[1] & ah[2]);
-            const uint64_t temp2 = s0 + maj;
+            અચલ uint64_t s1 = shaRotr64(ah[4], 14) ^ shaRotr64(ah[4], 18) ^ shaRotr64(ah[4], 41);
+            અચલ uint64_t ch = (ah[4] & ah[5]) ^ (~ah[4] & ah[6]);
+            અચલ uint64_t temp1 = ah[7] + s1 + ch + sha512K[i * 16 + j] + w[j];
+            અચલ uint64_t s0 = shaRotr64(ah[0], 28) ^ shaRotr64(ah[0], 34) ^ shaRotr64(ah[0], 39);
+            અચલ uint64_t maj = (ah[0] & ah[1]) ^ (ah[0] & ah[2]) ^ (ah[1] & ah[2]);
+            અચલ uint64_t temp2 = s0 + maj;
 
             ah[7] = ah[6];
             ah[6] = ah[5];
@@ -521,38 +521,38 @@ static void sha512Block(uint64_t* h, const uint64_t* chunk) VL_PURE {
             ah[0] = temp1 + temp2;
         }
     }
-    for (unsigned i = 0; i < 8; ++i) h[i] += ah[i];
+    માટે (unsigned i = 0; i < 8; ++i) h[i] += ah[i];
 }
 
-void VHashSha512::insert(const void* datap, size_t length) {
+શૂન્ય VHashSha512::ઉમેરો(અચલ શૂન્ય* datap, size_t length) {
     UASSERT(!m_final, "Called VHashSha512::insert after finalized the hash value");
     m_totLength += length;
 
     string tempData;
-    int chunkLen;
-    const uint8_t* chunkp;
-    if (m_remainder == "") {
+    પૂર્ણાંક chunkLen;
+    અચલ uint8_t* chunkp;
+    જો (m_remainder == "") {
         chunkLen = length;
-        chunkp = static_cast<const uint8_t*>(datap);
-    } else {
+        chunkp = static_cast<અચલ uint8_t*>(datap);
+    } નહીંતર {
         // If there are large inserts it would be more efficient to avoid this copy
         // by copying bytes in the loop below from either m_remainder or the data
         // as appropriate.
-        tempData = m_remainder + std::string{static_cast<const char*>(datap), length};
+        tempData = m_remainder + std::string{static_cast<અચલ અક્ષર*>(datap), length};
         chunkLen = tempData.length();
-        chunkp = reinterpret_cast<const uint8_t*>(tempData.data());
+        chunkp = reinterpret_cast<અચલ uint8_t*>(tempData.data());
     }
 
     // See wikipedia SHA-2 algorithm summary
     uint64_t w[80];  // Round buffer, [0..15] are input data, rest used by rounds
-    int posBegin = 0;  // Position in buffer for start of this block
-    int posEnd = 0;  // Position in buffer for end of this block
+    પૂર્ણાંક posBegin = 0;  // Position in buffer for start of this block
+    પૂર્ણાંક posEnd = 0;  // Position in buffer for end of this block
 
     // Process complete 128-byte blocks
-    while (posBegin <= chunkLen - 128) {
+    જ્યારે (posBegin <= chunkLen - 128) {
         posEnd = posBegin + 128;
         // 128 byte round input data, being careful to swap on big, keep on little
-        for (int roundByte = 0; posBegin < posEnd; posBegin += 8) {
+        માટે (પૂર્ણાંક roundByte = 0; posBegin < posEnd; posBegin += 8) {
             w[roundByte++] = (static_cast<uint64_t>(chunkp[posBegin + 7])
                               | (static_cast<uint64_t>(chunkp[posBegin + 6]) << 8)
                               | (static_cast<uint64_t>(chunkp[posBegin + 5]) << 16)
@@ -565,42 +565,42 @@ void VHashSha512::insert(const void* datap, size_t length) {
         sha512Block(m_inthash, w);
     }
 
-    m_remainder = std::string(reinterpret_cast<const char*>(chunkp + posBegin), chunkLen - posEnd);
+    m_remainder = std::string(reinterpret_cast<અચલ અક્ષર*>(chunkp + posBegin), chunkLen - posEnd);
 }
 
-void VHashSha512::insertFile(const string& filename) {
-    static constexpr size_t BUFFER_SIZE = 64 * 1024;
+શૂન્ય VHashSha512::ઉમેરો_File(અચલ string& filename) {
+    સ્થિર constexpr size_t BUFFER_SIZE = 64 * 1024;
 
-    const int fd = ::open(filename.c_str(), O_RDONLY);
-    if (fd < 0) return;
+    અચલ પૂર્ણાંક fd = ::open(filename.c_str(), O_RDONLY);
+    જો (fd < 0) પાછા;
 
-    std::array<char, BUFFER_SIZE + 1> buf;
-    while (const ssize_t got = ::read(fd, &buf, BUFFER_SIZE)) {
-        if (got <= 0) break;
-        insert(&buf, got);
+    std::array<અક્ષર, BUFFER_SIZE + 1> buf;
+    જ્યારે (અચલ ssize_t got = ::પઠ(fd, &buf, BUFFER_SIZE)) {
+        જો (got <= 0) તોડો;
+        ઉમેરો(&buf, got);
     }
     ::close(fd);
 }
 
-void VHashSha512::finalize() {
-    if (!m_final) {
+શૂન્ય VHashSha512::finalize() {
+    જો (!m_final) {
         // Make sure no 128 byte blocks left
-        insert("");
-        m_final = true;
+        ઉમેરો("");
+        m_final = સાચું;
 
         // Process final possibly non-complete 128-byte block
         uint64_t w[16];  // Round buffer, [0..15] are input data
-        for (int i = 0; i < 16; ++i) w[i] = 0;
+        માટે (પૂર્ણાંક i = 0; i < 16; ++i) w[i] = 0;
         size_t blockPos = 0;
-        for (; blockPos < m_remainder.length(); ++blockPos) {
+        માટે (; blockPos < m_remainder.length(); ++blockPos) {
             w[blockPos >> 3]
                 |= ((static_cast<uint64_t>(static_cast<uint8_t>(m_remainder[blockPos])))
                     << ((7 - (blockPos & 7)) << 3));
         }
         w[blockPos >> 3] |= static_cast<uint64_t>(0x80) << ((7 - (blockPos & 7)) << 3);
-        if (m_remainder.length() >= 112) {
+        જો (m_remainder.length() >= 112) {
             sha512Block(m_inthash, w);
-            for (int i = 0; i < 16; ++i) w[i] = 0;
+            માટે (પૂર્ણાંક i = 0; i < 16; ++i) w[i] = 0;
         }
         // Only supporting 2^61 bytes max
         w[14] = 0;
@@ -611,41 +611,41 @@ void VHashSha512::finalize() {
     }
 }
 
-string VHashSha512::digestBinary() {
+string VHashSha512::digest_દ્વિઅંકી() {
     finalize();
     string result;
     result.reserve(64);
-    for (size_t i = 0; i < 64; ++i) {
-        result += static_cast<char>((m_inthash[i >> 3] >> (((7 - i) & 0x7) << 3)) & 0xff);
+    માટે (size_t i = 0; i < 64; ++i) {
+        result += static_cast<અક્ષર>((m_inthash[i >> 3] >> (((7 - i) & 0x7) << 3)) & 0xff);
     }
-    return result;
+    પાછા result;
 }
 
 uint64_t VHashSha512::digestUInt64() {
-    const string& binhash = digestBinary();
+    અચલ string& binhash = digest_દ્વિઅંકી();
     uint64_t result = 0;
-    for (size_t byte = 0; byte < sizeof(uint64_t); ++byte) {
-        const unsigned char c = binhash[byte];
+    માટે (size_t byte = 0; byte < કદ(uint64_t); ++byte) {
+        અચલ unsigned અક્ષર c = binhash[byte];
         result = (result << 8) | c;
     }
-    return result;
+    પાછા result;
 }
 
 string VHashSha512::digestHex() {
-    static constexpr const char* const digits = "0123456789abcdef";
-    const string& binhash = digestBinary();
+    સ્થિર constexpr અચલ અક્ષર* અચલ digits = "0123456789abcdef";
+    અચલ string& binhash = digest_દ્વિઅંકી();
     string result;
     result.reserve(128);
-    for (size_t byte = 0; byte < 64; ++byte) {
+    માટે (size_t byte = 0; byte < 64; ++byte) {
         result += digits[(binhash[byte] >> 4) & 0xf];
         result += digits[(binhash[byte] >> 0) & 0xf];
     }
-    return result;
+    પાછા result;
 }
 
 string VHashSha512::digestBase64() {
     // Return base64 from hash.  Complete representation of the binary/reversable.
-    return VString::base64Enc(digestBinary());
+    પાછા VString::base64Enc(digest_દ્વિઅંકી());
 }
 
 string VHashSha512::digestSymbol24() {
@@ -653,48 +653,48 @@ string VHashSha512::digestSymbol24() {
     // has + and / for last two digits, but need C symbol, and we also
     // avoid conflicts with use of _, so use "AB" at the end.
     // Thus this function is non-reversible.
-    static constexpr const char* const digits
+    સ્થિર constexpr અચલ અક્ષર* અચલ digits
         = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789AB";
-    const string& binhash = digestBinary();
+    અચલ string& binhash = digest_દ્વિઅંકી();
     string result;
     result.reserve(84);
-    int pos = 0;
-    for (; pos < (512 / 8) - 2; pos += 3) {
+    પૂર્ણાંક pos = 0;
+    માટે (; pos < (512 / 8) - 2; pos += 3) {
         result += digits[((binhash[pos] >> 2) & 0x3f)];
         result += digits[((binhash[pos] & 0x3) << 4)
-                         | (static_cast<int>(binhash[pos + 1] & 0xf0) >> 4)];
+                         | (static_cast<પૂર્ણાંક>(binhash[pos + 1] & 0xf0) >> 4)];
         result += digits[((binhash[pos + 1] & 0xf) << 2)
-                         | (static_cast<int>(binhash[pos + 2] & 0xc0) >> 6)];
+                         | (static_cast<પૂર્ણાંક>(binhash[pos + 2] & 0xc0) >> 6)];
         result += digits[((binhash[pos + 2] & 0x3f))];
         // Keep symbols short-ish, with 24 chars/144 bits we won't have hash collisions
-        if (result.size() >= DIGEST_SYMBOL24_LENGTH) break;
+        જો (result.size() >= DIGEST_SYMBOL24_LENGTH) તોડો;
     }
     // Any leftover bits don't matter for our purpose
-    return result;
+    પાછા result;
 }
 
-void VHashSha512::selfTestOne(const string& data, const string& data2, const string& exp,
-                              const string& exp64, const string& exp24) {
+શૂન્ય VHashSha512::selfTestOne(અચલ string& data, અચલ string& data2, અચલ string& exp,
+                              અચલ string& exp64, અચલ string& exp24) {
     VHashSha512 digest{data};
-    if (data2 != "") digest.insert(data2);
-    if (VL_UNCOVERABLE(digest.digestHex() != exp)) {
+    જો (data2 != "") digest.ઉમેરો(data2);
+    જો (VL_UNCOVERABLE(digest.digestHex() != exp)) {
         std::cerr << "%Error: When hashing '" << data + data2 << "'\n"  // LCOV_EXCL_LINE
                   << "        ... got=" << digest.digestHex() << '\n'  // LCOV_EXCL_LINE
                   << "        ... exp=" << exp << endl;  // LCOV_EXCL_LINE
     }
-    if (VL_UNCOVERABLE(digest.digestBase64() != exp64)) {
+    જો (VL_UNCOVERABLE(digest.digestBase64() != exp64)) {
         std::cerr << "%Error: When hashing '" << data + data2 << "'\n"  // LCOV_EXCL_LINE
                   << "        ... got=" << digest.digestBase64() << '\n'  // LCOV_EXCL_LINE
                   << "        ... exp=" << exp64 << endl;  // LCOV_EXCL_LINE
     }
-    if (VL_UNCOVERABLE(digest.digestSymbol24() != exp24)) {
+    જો (VL_UNCOVERABLE(digest.digestSymbol24() != exp24)) {
         std::cerr << "%Error: When hashing '" << data + data2 << "'\n"  // LCOV_EXCL_LINE
                   << "        ... got=" << digest.digestSymbol24() << '\n'  // LCOV_EXCL_LINE
                   << "        ... exp=" << exp64 << endl;  // LCOV_EXCL_LINE
     }
 }
 
-void VHashSha512::selfTest() {
+શૂન્ય VHashSha512::selfTest() {
     // Cross-checked with sha512sum
     selfTestOne(
         "", "",
@@ -741,209 +741,209 @@ void VHashSha512::selfTest() {
 //######################################################################
 // VName
 
-string VName::dehash(const string& in) {
-    static constexpr const char VHSH[] = "__Vhsh";
-    static constexpr size_t VHSH_LEN = sizeof(VHSH) - 1 + VHashSha512::DIGEST_SYMBOL24_LENGTH;
-    static const size_t DOT_LEN = std::strlen("__DOT__");
+string VName::dehash(અચલ string& in) {
+    સ્થિર constexpr અચલ અક્ષર VHSH[] = "__Vhsh";
+    સ્થિર constexpr size_t VHSH_LEN = કદ(VHSH) - 1 + VHashSha512::DIGEST_SYMBOL24_LENGTH;
+    સ્થિર અચલ size_t DOT_LEN = std::strlen("__DOT__");
     std::string dehashed;
 
     // Need to split 'in' into components separated by __DOT__, 'last_dot_pos'
     // keeps track of the position after the most recently found instance of __DOT__
-    for (string::size_type last_dot_pos = 0; last_dot_pos < in.size();) {
-        const string::size_type next_dot_pos = in.find("__DOT__", last_dot_pos);
+    માટે (string::size_type last_dot_pos = 0; last_dot_pos < in.size();) {
+        અચલ string::size_type next_dot_pos = in.find("__DOT__", last_dot_pos);
         // Two iterators defining the range between the last and next dots.
-        const auto search_begin = std::begin(in) + last_dot_pos;
-        const auto search_end
+        અચલ auto શોધ_begin = std::begin(in) + last_dot_pos;
+        અચલ auto શોધ_end
             = next_dot_pos == string::npos ? std::end(in) : std::begin(in) + next_dot_pos;
 
         // Search for __Vhsh between the two dots.
-        const auto begin_vhsh
-            = std::search(search_begin, search_end, std::begin(VHSH), std::end(VHSH) - 1);
-        if (begin_vhsh != search_end) {
+        અચલ auto begin_vhsh
+            = std::શોધ(શોધ_begin, શોધ_end, std::begin(VHSH), std::end(VHSH) - 1);
+        જો (begin_vhsh != શોધ_end) {
             // V3Decompose and V3BitBlast append suffixes to names already hashed, so the
             // hash does not always reach the end of the component.
-            const auto end_vhsh
-                = begin_vhsh + std::min<size_t>(std::distance(begin_vhsh, search_end), VHSH_LEN);
-            const std::string vhsh{begin_vhsh, end_vhsh};
-            const auto& it = s_dehashMap.find(vhsh);
+            અચલ auto end_vhsh
+                = begin_vhsh + std::min<size_t>(std::distance(begin_vhsh, શોધ_end), VHSH_LEN);
+            અચલ std::string vhsh{begin_vhsh, end_vhsh};
+            અચલ auto& it = s_dehashMap.find(vhsh);
             UASSERT(it != s_dehashMap.end(), "String not in reverse hash map '" << vhsh << "'");
             // Is this not the first component, but the first to require dehashing?
-            if (last_dot_pos > 0 && dehashed.empty()) {
+            જો (last_dot_pos > 0 && dehashed.empty()) {
                 // Seed 'dehashed' with the previously processed components.
                 dehashed = in.substr(0, last_dot_pos);
             }
             // Append the unhashed part of the component.
-            dehashed += std::string{search_begin, begin_vhsh};
+            dehashed += std::string{શોધ_begin, begin_vhsh};
             // Append the bit that was lost to truncation but retrieved from the dehash map.
             dehashed += it->second;
             // Append what follows the hash, such as a split variable bit range.
-            dehashed += std::string{end_vhsh, search_end};
+            dehashed += std::string{end_vhsh, શોધ_end};
         }
         // This component doesn't need dehashing but a previous one might have.
-        else if (!dehashed.empty()) {
-            dehashed += std::string{search_begin, search_end};
+        નહીંતર જો (!dehashed.empty()) {
+            dehashed += std::string{શોધ_begin, શોધ_end};
         }
 
-        if (next_dot_pos != string::npos) {
+        જો (next_dot_pos != string::npos) {
             // Is there a __DOT__ to add to the dehashed version of 'in'?
-            if (!dehashed.empty()) dehashed += "__DOT__";
+            જો (!dehashed.empty()) dehashed += "__DOT__";
             last_dot_pos = next_dot_pos + DOT_LEN;
-        } else {
+        } નહીંતર {
             last_dot_pos = string::npos;
         }
     }
-    return dehashed.empty() ? in : dehashed;
+    પાછા dehashed.empty() ? in : dehashed;
 }
 
 string VName::hashedName() {
-    if (m_name == "") return "";
-    if (m_hashed != "") return m_hashed;  // Memoized
-    if (s_maxLength == 0 || m_name.length() < s_maxLength) {
+    જો (m_name == "") પાછા "";
+    જો (m_hashed != "") પાછા m_hashed;  // Memoized
+    જો (s_maxLength == 0 || m_name.length() < s_maxLength) {
         m_hashed = m_name;
-        return m_hashed;
+        પાછા m_hashed;
     }
     VHashSha512 hash{m_name};
-    const string suffix = "__Vhsh" + hash.digestSymbol24();
-    if (s_minLength < s_maxLength) {
+    અચલ string suffix = "__Vhsh" + hash.digestSymbol24();
+    જો (s_minLength < s_maxLength) {
         // Keep a prefix from the original name
         // Backup over digits so adding __Vhash doesn't look like a encoded hex digit
         // ("__0__Vhsh")
         size_t prefLength = s_minLength;
-        while (prefLength >= 1 && m_name[prefLength - 1] != '_') --prefLength;
+        જ્યારે (prefLength >= 1 && m_name[prefLength - 1] != '_') --prefLength;
         s_dehashMap[suffix] = m_name.substr(prefLength);
         m_hashed = m_name.substr(0, prefLength) + suffix;
-    } else {
+    } નહીંતર {
         s_dehashMap[suffix] = m_name;
         m_hashed = suffix;
     }
-    return m_hashed;
+    પાછા m_hashed;
 }
 
 //######################################################################
 // VSpellCheck - Algorithm same as GCC's spellcheck.c
 
-VSpellCheck::EditDistance VSpellCheck::editDistance(const string& s, const string& t) {
+VSpellCheck::EditDistance VSpellCheck::editDistance(અચલ string& s, અચલ string& t) {
     // Wagner-Fischer algorithm for the Damerau-Levenshtein distance
-    const size_t sLen = s.length();
-    const size_t tLen = t.length();
-    if (sLen == 0) return tLen;
-    if (tLen == 0) return sLen;
-    if (sLen >= LENGTH_LIMIT) return sLen;
-    if (tLen >= LENGTH_LIMIT) return tLen;
+    અચલ size_t sLen = s.length();
+    અચલ size_t tLen = t.length();
+    જો (sLen == 0) પાછા tLen;
+    જો (tLen == 0) પાછા sLen;
+    જો (sLen >= LENGTH_LIMIT) પાછા sLen;
+    જો (tLen >= LENGTH_LIMIT) પાછા tLen;
 
-    static std::array<EditDistance, LENGTH_LIMIT + 1> s_v_two_ago;
-    static std::array<EditDistance, LENGTH_LIMIT + 1> s_v_one_ago;
-    static std::array<EditDistance, LENGTH_LIMIT + 1> s_v_next;
+    સ્થિર std::array<EditDistance, LENGTH_LIMIT + 1> s_v_two_ago;
+    સ્થિર std::array<EditDistance, LENGTH_LIMIT + 1> s_v_one_ago;
+    સ્થિર std::array<EditDistance, LENGTH_LIMIT + 1> s_v_next;
 
-    for (size_t i = 0; i < sLen + 1; i++) s_v_one_ago[i] = i;
+    માટે (size_t i = 0; i < sLen + 1; i++) s_v_one_ago[i] = i;
 
-    for (size_t i = 0; i < tLen; i++) {
+    માટે (size_t i = 0; i < tLen; i++) {
         s_v_next[0] = i + 1;
-        for (size_t j = 0; j < sLen; j++) {
-            const EditDistance cost = (s[j] == t[i] ? 0 : 1);
-            const EditDistance deletion = s_v_next[j] + 1;
-            const EditDistance insertion = s_v_one_ago[j + 1] + 1;
-            const EditDistance substitution = s_v_one_ago[j] + cost;
+        માટે (size_t j = 0; j < sLen; j++) {
+            અચલ EditDistance cost = (s[j] == t[i] ? 0 : 1);
+            અચલ EditDistance deletion = s_v_next[j] + 1;
+            અચલ EditDistance insertion = s_v_one_ago[j + 1] + 1;
+            અચલ EditDistance substitution = s_v_one_ago[j] + cost;
             EditDistance cheapest = std::min(deletion, insertion);
             cheapest = std::min(cheapest, substitution);
-            if (i > 0 && j > 0 && s[j] == t[i - 1] && s[j - 1] == t[i]) {
-                const EditDistance transposition = s_v_two_ago[j - 1] + 1;
+            જો (i > 0 && j > 0 && s[j] == t[i - 1] && s[j - 1] == t[i]) {
+                અચલ EditDistance transposition = s_v_two_ago[j - 1] + 1;
                 cheapest = std::min(cheapest, transposition);
             }
             s_v_next[j + 1] = cheapest;
         }
-        for (size_t j = 0; j < sLen + 1; j++) {
+        માટે (size_t j = 0; j < sLen + 1; j++) {
             s_v_two_ago[j] = s_v_one_ago[j];
             s_v_one_ago[j] = s_v_next[j];
         }
     }
 
-    const EditDistance result = s_v_next[sLen];
-    return result;
+    અચલ EditDistance result = s_v_next[sLen];
+    પાછા result;
 }
 
 VSpellCheck::EditDistance VSpellCheck::cutoffDistance(size_t goal_len, size_t candidate_len) {
     // Return max acceptable edit distance
-    const size_t max_length = std::max(goal_len, candidate_len);
-    const size_t min_length = std::min(goal_len, candidate_len);
-    if (max_length <= 1) return 0;
-    if (max_length - min_length <= 1) return std::max(max_length / 3, static_cast<size_t>(1));
-    return (max_length + 2) / 3;
+    અચલ size_t max_length = std::max(goal_len, candidate_len);
+    અચલ size_t min_length = std::min(goal_len, candidate_len);
+    જો (max_length <= 1) પાછા 0;
+    જો (max_length - min_length <= 1) પાછા std::max(max_length / 3, static_cast<size_t>(1));
+    પાછા (max_length + 2) / 3;
 }
 
-VSpellCheck::Candidate VSpellCheck::bestCandidateInfo(const string& goal,
-                                                      EditDistance& distancer) const {
+VSpellCheck::Candidate VSpellCheck::bestCandidateInfo(અચલ string& goal,
+                                                      EditDistance& distancer) અચલ {
     Candidate best;
-    const size_t gLen = goal.length();
+    અચલ size_t gLen = goal.length();
     distancer = LENGTH_LIMIT * 10;
-    for (const Candidate& candidate : m_candidates) {
-        const size_t cLen = candidate.str.length();
+    માટે (અચલ Candidate& candidate : m_candidates) {
+        અચલ size_t cLen = candidate.str.length();
 
         // Min distance must be inserting/deleting to make lengths match
-        const EditDistance min_distance = (cLen > gLen ? (cLen - gLen) : (gLen - cLen));
-        if (min_distance >= distancer) continue;  // Short-circuit if already better
+        અચલ EditDistance min_distance = (cLen > gLen ? (cLen - gLen) : (gLen - cLen));
+        જો (min_distance >= distancer) ચાલુ;  // Short-circuit if already better
 
-        const EditDistance cutoff = cutoffDistance(gLen, cLen);
-        if (min_distance > cutoff) continue;  // Short-circuit if already too bad
+        અચલ EditDistance cutoff = cutoffDistance(gLen, cLen);
+        જો (min_distance > cutoff) ચાલુ;  // Short-circuit if already too bad
 
-        const EditDistance dist = editDistance(goal, candidate.str);
+        અચલ EditDistance dist = editDistance(goal, candidate.str);
         UINFO(9, "EditDistance dist=" << dist << " cutoff=" << cutoff << " goal=" << goal
-                                      << " candidate=" << candidate.str << ":'" << candidate.msg
+                                      << " candidate=" << candidate.str << ":'" << candidate.સંદેશ
                                       << "'");
-        if (dist < distancer && dist <= cutoff) {
+        જો (dist < distancer && dist <= cutoff) {
             distancer = dist;
             best = candidate;
         }
     }
 
     // If goal matches candidate avoid suggesting replacing with self
-    if (distancer == 0) return Candidate{.str = best.str, .msg = ""};
-    return best;
+    જો (distancer == 0) પાછા Candidate{.str = best.str, .સંદેશ = ""};
+    પાછા best;
 }
 
-void VSpellCheck::selfTestDistanceOne(const string& a, const string& b, EditDistance expected) {
+શૂન્ય VSpellCheck::selfTestDistanceOne(અચલ string& a, અચલ string& b, EditDistance expected) {
     UASSERT_SELFTEST(editDistance(a, b), expected);
     UASSERT_SELFTEST(editDistance(b, a), expected);
 }
 
-void VSpellCheck::selfTestSuggestOne(bool matches, const string& c, const string& goal,
+શૂન્ય VSpellCheck::selfTestSuggestOne(તાર્કિક matches, અચલ string& c, અચલ string& goal,
                                      EditDistance dist) {
     EditDistance gdist;
     VSpellCheck speller;
-    speller.pushCandidate(c);
-    const string got = speller.bestCandidateInfo(goal, gdist /*ref*/).str;
-    if (matches) {
+    speller.ધકેલો_Candidate(c);
+    અચલ string got = speller.bestCandidateInfo(goal, gdist /*ref*/).str;
+    જો (matches) {
         UASSERT_SELFTEST(got, c);
         UASSERT_SELFTEST(gdist, dist);
-    } else {
+    } નહીંતર {
         UASSERT_SELFTEST(got, "");
     }
 }
 
-void VSpellCheck::selfTest() {
+શૂન્ય VSpellCheck::selfTest() {
     {
         selfTestDistanceOne("ab", "ac", 1);
         selfTestDistanceOne("ab", "a", 1);
         selfTestDistanceOne("a", "b", 1);
     }
     {
-        selfTestSuggestOne(true, "DEL_ETE", "DELETE", 1);
-        selfTestSuggestOne(true, "abcdef", "acbdef", 1);
-        selfTestSuggestOne(true, "db", "dc", 1);
-        selfTestSuggestOne(true, "db", "dba", 1);
+        selfTestSuggestOne(સાચું, "DEL_ETE", "DELETE", 1);
+        selfTestSuggestOne(સાચું, "abcdef", "acbdef", 1);
+        selfTestSuggestOne(સાચું, "db", "dc", 1);
+        selfTestSuggestOne(સાચું, "db", "dba", 1);
         // Negative suggestions
-        selfTestSuggestOne(false, "x", "y", 1);
-        selfTestSuggestOne(false, "sqrt", "assert", 3);
+        selfTestSuggestOne(ખોટું, "x", "y", 1);
+        selfTestSuggestOne(ખોટું, "sqrt", "assert", 3);
     }
     {
-        const VSpellCheck speller;
+        અચલ VSpellCheck speller;
         UASSERT_SELFTEST(speller.bestCandidate("").str, "");
     }
     {
         VSpellCheck speller;
-        speller.pushCandidate("fred");
-        speller.pushCandidate("wilma");
-        speller.pushCandidate("barney");
+        speller.ધકેલો_Candidate("fred");
+        speller.ધકેલો_Candidate("wilma");
+        speller.ધકેલો_Candidate("barney");
         UASSERT_SELFTEST(speller.bestCandidate("fre").str, "fred");
         UASSERT_SELFTEST(speller.bestCandidate("whilma").str, "wilma");
         UASSERT_SELFTEST(speller.bestCandidate("Barney").str, "barney");
@@ -951,10 +951,10 @@ void VSpellCheck::selfTest() {
     }
     {
         VSpellCheck speller;
-        for (unsigned i = 0; i < NUM_CANDIDATE_LIMIT; ++i) speller.pushCandidate("fred");
-        UASSERT_SELFTEST(speller.m_candidates.size(), NUM_CANDIDATE_LIMIT);
-        speller.pushCandidate("wilma");
-        UASSERT_SELFTEST(speller.m_candidates.size(), NUM_CANDIDATE_LIMIT);
+        માટે (unsigned i = 0; i < અંક_CANDIDATE_LIMIT; ++i) speller.ધકેલો_Candidate("fred");
+        UASSERT_SELFTEST(speller.m_candidates.size(), અંક_CANDIDATE_LIMIT);
+        speller.ધકેલો_Candidate("wilma");
+        UASSERT_SELFTEST(speller.m_candidates.size(), અંક_CANDIDATE_LIMIT);
         UASSERT_SELFTEST(speller.bestCandidate("fre").str, "fred");
         UASSERT_SELFTEST(speller.bestCandidate("wilma").str, "");
     }

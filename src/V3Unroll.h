@@ -17,11 +17,11 @@
 #ifndef VERILATOR_V3UNROLL_H_
 #define VERILATOR_V3UNROLL_H_
 
-#include "config_build.h"
-#include "verilatedos.h"
+#અન્તર્ભાવ "config_build.h"
+#અન્તર્ભાવ "verilatedos.h"
 
-#include "V3Ast.h"
-#include "V3Error.h"
+#અન્તર્ભાવ "V3Ast.h"
+#અન્તર્ભાવ "V3Error.h"
 
 //============================================================================
 // Generate loop unroller
@@ -30,22 +30,22 @@ class UnrollGenVisitor;
 
 class GenForUnroller final {
     // MEMBERS
-    UnrollGenVisitor* const m_unrollerp;  // Unroller implementation class
+    UnrollGenVisitor* અચલ m_unrollerp;  // Unroller implementation class
 
-public:
+જાહેર:
     // CONSTRUCTOR
     GenForUnroller() VL_MT_DISABLED;
     ~GenForUnroller() VL_MT_DISABLED;
     // METHODS
-    void unroll(AstGenFor* nodep, const std::string& beginName) VL_MT_DISABLED;
+    શૂન્ય unroll(AstGenFor* nodep, અચલ std::string& beginName) VL_MT_DISABLED;
 };
 
 //============================================================================
 // Loop statement unroller
 
 class V3Unroll final {
-public:
-    static void unrollAll(AstNetlist* nodep) VL_MT_DISABLED;
+જાહેર:
+    સ્થિર શૂન્ય unrollAll(AstNetlist* nodep) VL_MT_DISABLED;
 };
 
 #endif  // Guard

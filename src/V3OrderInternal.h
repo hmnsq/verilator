@@ -17,15 +17,15 @@
 #ifndef VERILATOR_V3ORDERINTERNAL_H_
 #define VERILATOR_V3ORDERINTERNAL_H_
 
-#include "config_build.h"
-#include "verilatedos.h"
+#અન્તર્ભાવ "config_build.h"
+#અન્તર્ભાવ "verilatedos.h"
 
-#include "V3Order.h"
-#include "V3OrderGraph.h"
-#include "V3OrderMoveGraph.h"
+#અન્તર્ભાવ "V3Order.h"
+#અન્તર્ભાવ "V3OrderGraph.h"
+#અન્તર્ભાવ "V3OrderMoveGraph.h"
 
-#include <string>
-#include <vector>
+#અન્તર્ભાવ <string>
+#અન્તર્ભાવ <vector>
 
 class AstVarScope;
 
@@ -37,21 +37,21 @@ class LogicByScope;
 
 namespace V3Order {
 
-std::unique_ptr<OrderGraph> buildOrderGraph(const V3Sched::TriggerKit& trigKit,  //
+std::unique_ptr<OrderGraph> buildOrderGraph(અચલ V3Sched::TriggerKit& trigKit,  //
                                             AstVarScope* trigVscp,  //
-                                            const std::vector<V3Sched::LogicByScope*>& coll,  //
-                                            const V3Sched::CovergroupRefBindings& cgRefBindings,
+                                            અચલ std::vector<V3Sched::LogicByScope*>& coll,  //
+                                            અચલ V3Sched::CovergroupRefBindings& cgRefBindings,
                                             bool parallel);
 
-void orderOrderGraph(OrderGraph& graph, const std::string& tag);
+શૂન્ય orderOrderGraph(OrderGraph& graph, અચલ std::string& tag);
 
-void processDomains(OrderGraph& graph,  //
-                    const std::string& tag,  //
-                    const ExternalTriggersProvider& externalTriggers);
+શૂન્ય processDomains(OrderGraph& graph,  //
+                    અચલ std::string& tag,  //
+                    અચલ ExternalTriggersProvider& externalTriggers);
 
-AstNodeStmt* createSerial(OrderMoveGraph& moveGraph, const std::string& tag, bool slow);
+Ast_ગાંઠ_Stmt* createSerial(OrderMoveGraph& moveGraph, અચલ std::string& tag, bool slow);
 
-AstNodeStmt* createParallel(OrderMoveGraph& moveGraph, const std::string& tag, bool slow);
+Ast_ગાંઠ_Stmt* createParallel(OrderMoveGraph& moveGraph, અચલ std::string& tag, bool slow);
 
 };  // namespace V3Order
 

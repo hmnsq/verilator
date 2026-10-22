@@ -14,17 +14,17 @@
 //
 //*************************************************************************
 
-#include "V3PchAstMT.h"
+#અન્તર્ભાવ "V3PchAstMT.h"
 
-#include "V3Control.h"
+#અન્તર્ભાવ "V3Control.h"
 
-#include "V3InstrCount.h"
-#include "V3Os.h"
-#include "V3String.h"
+#અન્તર્ભાવ "V3InstrCount.h"
+#અન્તર્ભાવ "V3Os.h"
+#અન્તર્ભાવ "V3String.h"
 
-#include <memory>
-#include <set>
-#include <unordered_map>
+#અન્તર્ભાવ <memory>
+#અન્તર્ભાવ <set>
+#અન્તર્ભાવ <unordered_map>
 
 VL_DEFINE_DEBUG_FUNCTIONS;
 
@@ -36,77 +36,77 @@ VL_DEFINE_DEBUG_FUNCTIONS;
 // cache of resolved entities. Entities stored in this container need an update
 // function that takes a reference of this type to join multiple entities into one.
 template <typename T>
-class V3ControlWildcardResolver final {
+વર્ગ V3ControlWildcardResolver final {
     mutable V3Mutex m_mutex;  // protects members
     // Pattern strings (wildcard, or simple name) to entities
-    std::map<const std::string, T> m_mapPatterns VL_GUARDED_BY(m_mutex);
+    std::map<અચલ std::string, T> m_mapPatterns VL_GUARDED_BY(m_mutex);
     // Resolved strings to converged entities - nullptr, iff none of the patterns applies
-    std::map<const std::string, std::unique_ptr<T>> m_mapResolved VL_GUARDED_BY(m_mutex);
+    std::map<અચલ std::string, std::unique_ptr<T>> m_mapResolved VL_GUARDED_BY(m_mutex);
 
-public:
-    V3ControlWildcardResolver() = default;
-    ~V3ControlWildcardResolver() = default;
+જાહેર:
+    V3ControlWildcardResolver() = મૂળભૂત;
+    ~V3ControlWildcardResolver() = મૂળભૂત;
 
     // Update this resolved file's item map by inserting other's (wildcarded filename's) items
-    void update(const V3ControlWildcardResolver& other) VL_MT_SAFE_EXCLUDES(m_mutex)
+    શૂન્ય update(અચલ V3ControlWildcardResolver& other) VL_MT_SAFE_EXCLUDES(m_mutex)
         VL_EXCLUDES(other.m_mutex) {
-        const V3LockGuard lock{m_mutex};
-        const V3LockGuard otherLock{other.m_mutex};
+        અચલ V3LockGuard lock{m_mutex};
+        અચલ V3LockGuard otherLock{other.m_mutex};
         // Clear the resolved cache, as 'other' might add new patterns that need to be applied as
         // well.
         m_mapResolved.clear();
-        for (const auto& itr : other.m_mapPatterns) m_mapPatterns[itr.first].update(itr.second);
+        માટે (અચલ auto& itr : other.m_mapPatterns) m_mapPatterns[itr.first].update(itr.second);
     }
 
     // Access and create a pattern entry
-    T& at(const string& name) VL_MT_SAFE_EXCLUDES(m_mutex) {
-        const V3LockGuard lock{m_mutex};
+    T& at(અચલ string& name) VL_MT_SAFE_EXCLUDES(m_mutex) {
+        અચલ V3LockGuard lock{m_mutex};
         // We might be adding a new entry under this, so clear the cache.
         m_mapResolved.clear();
         // Patterns use '/' as separator; normalize Windows backslashes
-        return m_mapPatterns[V3Os::filenameSlashPath(name)];
+        પાછા m_mapPatterns[V3Os::filenameSlashPath(name)];
     }
     // Access an entity and resolve patterns that match it
-    T* resolve(const string& name) VL_MT_SAFE_EXCLUDES(m_mutex) {
-        const V3LockGuard lock{m_mutex};
+    T* resolve(અચલ string& name) VL_MT_SAFE_EXCLUDES(m_mutex) {
+        અચલ V3LockGuard lock{m_mutex};
         // Lookup if it was resolved before, typically not
-        const auto pair = m_mapResolved.emplace(name, nullptr);
+        અચલ auto pair = m_mapResolved.emplace(name, nullptr);
         std::unique_ptr<T>& entryr = pair.first->second;
         // Resolve entry when first requested, cache the result
-        if (pair.second) {
+        જો (pair.second) {
             // Inserted: update the entity with all matches in the patterns.
             // Normalize separators so Windows backslash filenames match the
             // slash-separated patterns (normalized when loaded).
-            const string slashName = V3Os::filenameSlashPath(name);
-            for (const auto& patEnt : m_mapPatterns) {
-                if (VString::wildmatch(slashName, patEnt.first)) {
-                    if (!entryr) entryr.reset(new T{});
+            અચલ string slashName = V3Os::filenameSlashPath(name);
+            માટે (અચલ auto& patEnt : m_mapPatterns) {
+                જો (VString::wildmatch(slashName, patEnt.first)) {
+                    જો (!entryr) entryr.reset(નવું T{});
                     entryr->update(patEnt.second);
                 }
             }
             // Perform final actions that needed all updates completed
-            if (entryr) entryr->updateFinalize();
+            જો (entryr) entryr->updateFinalize();
         }
-        return entryr.get();
+        પાછા entryr.get();
     }
 };
 
 // List of attributes for variables
-class V3ControlVar final {
+વર્ગ V3ControlVar final {
     std::vector<VAttrType> m_attrs;  // The list of attributes
-public:
+જાહેર:
     // Add new attribugte
-    void add(VAttrType attr) { m_attrs.emplace_back(attr); }
+    શૂન્ય add(VAttrType attr) { m_attrs.emplace_back(attr); }
     // Update from other by copying all attributes
-    void update(const V3ControlVar& other) {
+    શૂન્ય update(અચલ V3ControlVar& other) {
         m_attrs.reserve(m_attrs.size() + other.m_attrs.size());
-        m_attrs.insert(m_attrs.end(), other.m_attrs.begin(), other.m_attrs.end());
+        m_attrs.ઉમેરો(m_attrs.end(), other.m_attrs.begin(), other.m_attrs.end());
     }
-    void updateFinalize() {}
+    શૂન્ય updateFinalize() {}
     // Apply all attributes to the variable
-    void apply(AstVar* varp) const {
-        for (const VAttrType attr : m_attrs) {
-            varp->addAttrsp(new AstAttrOf{varp->fileline(), attr});
+    શૂન્ય apply(AstVar* varp) અચલ {
+        માટે (અચલ VAttrType attr : m_attrs) {
+            varp->addAttrsp(નવું AstAttrOf{varp->fileline(), attr});
         }
     }
 };
@@ -115,105 +115,105 @@ using V3ControlVarResolver = V3ControlWildcardResolver<V3ControlVar>;
 
 //======================================================================
 
-class WildcardContents final {
+વર્ગ WildcardContents final {
     // Not mutex protected, current calling from V3Control::waive is protected by error's mutex
     // MEMBERS
-    std::map<const std::string, bool> m_mapPatterns;  // Pattern match results
-    std::deque<string> m_lines;  // Source text lines
+    std::map<અચલ std::string, તાર્કિક> m_mapPatterns;  // Pattern match results
+    std::deque<string> m_લીટીઓ;  // Source text lines
 
     // METHODS
-    static WildcardContents& s() {  // Singleton
-        static WildcardContents s_s;
-        return s_s;
+    સ્થિર WildcardContents& s() {  // Singleton
+        સ્થિર WildcardContents s_s;
+        પાછા s_s;
     }
-    void clearCacheImp() { m_mapPatterns.clear(); }
-    void pushTextImp(const string& text) {
+    શૂન્ય clearCacheImp() { m_mapPatterns.clear(); }
+    શૂન્ય ધકેલો_Text_Imp(અચલ string& text) {
         // Similar code in VFileContent::pushText()
         // Any leftover text is stored on largest line (might be "")
-        const string leftover = m_lines.back() + text;
-        m_lines.pop_back();
+        અચલ string leftover = m_લીટીઓ.back() + text;
+        m_લીટીઓ.કાઢો_back();
 
         // Insert line-by-line
-        string::size_type line_start = 0;
-        while (true) {
-            const string::size_type line_end = leftover.find('\n', line_start);
-            if (line_end != string::npos) {
-                const string oneline(leftover, line_start, line_end - line_start + 1);
-                if (oneline.size() > 1) m_lines.push_back(oneline);  // Keeps newline
-                UINFO(9, "Push[+" << (m_lines.size() - 1) << "]: " << oneline);
-                line_start = line_end + 1;
-            } else {
-                break;
+        string::size_type લીટી_start = 0;
+        જ્યારે (સાચું) {
+            અચલ string::size_type લીટી_end = leftover.find('\n', લીટી_start);
+            જો (લીટી_end != string::npos) {
+                અચલ string oneline(leftover, લીટી_start, લીટી_end - લીટી_start + 1);
+                જો (oneline.size() > 1) m_લીટીઓ.ધકેલો_back(oneline);  // Keeps newline
+                UINFO(9, "Push[+" << (m_લીટીઓ.size() - 1) << "]: " << oneline);
+                લીટી_start = લીટી_end + 1;
+            } નહીંતર {
+                તોડો;
             }
         }
         // Keep leftover for next time
-        m_lines.emplace_back(string(leftover, line_start));  // Might be ""
+        m_લીટીઓ.emplace_back(string(leftover, લીટી_start));  // Might be ""
         clearCacheImp();
     }
 
-    bool resolveUncachedImp(const string& contentsRegexp) {
-        for (const string& i : m_lines) {
-            if (VString::wildmatch(i, contentsRegexp)) return true;
+    તાર્કિક resolveUncachedImp(અચલ string& contentsRegexp) {
+        માટે (અચલ string& i : m_લીટીઓ) {
+            જો (VString::wildmatch(i, contentsRegexp)) પાછા સાચું;
         }
-        return false;
+        પાછા ખોટું;
     }
-    bool resolveCachedImp(const string& contentsRegexp) {
+    તાર્કિક resolveCachedImp(અચલ string& contentsRegexp) {
         // Lookup if it was resolved before, typically is
-        if (contentsRegexp.empty()) return true;
-        const auto pair = m_mapPatterns.emplace(contentsRegexp, false);
-        bool& entryr = pair.first->second;
+        જો (contentsRegexp.empty()) પાછા સાચું;
+        અચલ auto pair = m_mapPatterns.emplace(contentsRegexp, ખોટું);
+        તાર્કિક& entryr = pair.first->second;
         // Resolve entry when first requested, cache the result
-        if (pair.second) entryr = resolveUncachedImp(contentsRegexp);
-        return entryr;
+        જો (pair.second) entryr = resolveUncachedImp(contentsRegexp);
+        પાછા entryr;
     }
 
-public:
+જાહેર:
     WildcardContents() {
-        m_lines.emplace_back("");  // start with no leftover
+        m_લીટીઓ.emplace_back("");  // start with no leftover
     }
-    ~WildcardContents() = default;
+    ~WildcardContents() = મૂળભૂત;
     // Return true iff contentsRegexp in parsed contents
-    static bool resolve(const string& contentsRegexp) {
-        return s().resolveCachedImp(contentsRegexp);
+    સ્થિર તાર્કિક resolve(અચલ string& contentsRegexp) {
+        પાછા s().resolveCachedImp(contentsRegexp);
     }
     // Add arbitrary text (need not be line-by-line)
-    static void pushText(const string& text) { s().pushTextImp(text); }
+    સ્થિર શૂન્ય ધકેલો_Text(અચલ string& text) { s().ધકેલો_Text_Imp(text); }
 };
 
 //######################################################################
 // Function or task: Have variables and properties
 
-class V3ControlFTask final {
+વર્ગ V3ControlFTask final {
     V3ControlVarResolver m_params;  // Parameters in function/task
     V3ControlVarResolver m_ports;  // Ports in function/task
     V3ControlVarResolver m_vars;  // Variables in function/task
-    bool m_noinline = false;  // Don't inline function/task
-    bool m_public = false;  // Public function/task
+    તાર્કિક m_noinline = ખોટું;  // Don't inline function/task
+    તાર્કિક m_public = ખોટું;  // Public function/task
 
-public:
-    V3ControlFTask() = default;
-    void update(const V3ControlFTask& f) {
+જાહેર:
+    V3ControlFTask() = મૂળભૂત;
+    શૂન્ય update(અચલ V3ControlFTask& f) {
         // Don't overwrite true with false
-        if (f.m_noinline) m_noinline = true;
-        if (f.m_public) m_public = true;
+        જો (f.m_noinline) m_noinline = સાચું;
+        જો (f.m_public) m_public = સાચું;
         m_params.update(f.m_params);
         m_ports.update(f.m_ports);
         m_vars.update(f.m_vars);
     }
-    void updateFinalize() {}
+    શૂન્ય updateFinalize() {}
 
-    V3ControlVarResolver& params() { return m_params; }
-    V3ControlVarResolver& ports() { return m_ports; }
-    V3ControlVarResolver& vars() { return m_vars; }
+    V3ControlVarResolver& params() { પાછા m_params; }
+    V3ControlVarResolver& ports() { પાછા m_ports; }
+    V3ControlVarResolver& vars() { પાછા m_vars; }
 
-    void setNoInline(bool set) { m_noinline = set; }
-    void setPublic(bool set) { m_public = set; }
+    શૂન્ય setNoInline(તાર્કિક set) { m_noinline = set; }
+    શૂન્ય setPublic(તાર્કિક set) { m_public = set; }
 
-    void apply(AstNodeFTask* ftaskp) const {
-        if (m_noinline)
-            ftaskp->addStmtsp(new AstPragma{ftaskp->fileline(), VPragmaType::NO_INLINE_TASK});
-        if (m_public)
-            ftaskp->addStmtsp(new AstPragma{ftaskp->fileline(), VPragmaType::PUBLIC_TASK});
+    શૂન્ય apply(Ast_ગાંઠ_FTask* ftaskp) અચલ {
+        જો (m_noinline)
+            ftaskp->addStmtsp(નવું AstPragma{ftaskp->fileline(), VPragmaType::NO_INLINE_TASK});
+        જો (m_public)
+            ftaskp->addStmtsp(નવું AstPragma{ftaskp->fileline(), VPragmaType::PUBLIC_TASK});
     }
 };
 
@@ -222,7 +222,7 @@ using V3ControlFTaskResolver = V3ControlWildcardResolver<V3ControlFTask>;
 //######################################################################
 // Modules have tasks, variables, named blocks and properties
 
-class V3ControlModule final {
+વર્ગ V3ControlModule final {
     V3ControlFTaskResolver m_tasks;  // Functions/tasks in module
     V3ControlVarResolver m_params;  // Parameters in module
     V3ControlVarResolver m_ports;  // Ports in module
@@ -230,91 +230,91 @@ class V3ControlModule final {
     V3Control::FsmRegisterWrapper m_fsmRegisterWrapper;  // FSM wrapper descriptor
     std::unordered_set<std::string> m_coverageOffBlocks;  // List of block names for coverage_off
     std::set<VPragmaType> m_modPragmas;  // List of Pragmas for modules
-    bool m_hasFsmRegisterWrapper = false;  // Whether descriptor has been set
-    bool m_inline = false;  // Whether to force the inline
-    bool m_inlineValue = false;  // The inline value (on/off)
+    તાર્કિક m_hasFsmRegisterWrapper = ખોટું;  // Whether descriptor has been set
+    તાર્કિક m_inline = ખોટું;  // Whether to force the inline
+    તાર્કિક m_inline_કિંમત = ખોટું;  // The inline value (on/off)
 
-public:
-    V3ControlModule() = default;
+જાહેર:
+    V3ControlModule() = મૂળભૂત;
 
-    void update(const V3ControlModule& m) {
+    શૂન્ય update(અચલ V3ControlModule& m) {
         m_tasks.update(m.m_tasks);
         m_params.update(m.m_params);
         m_ports.update(m.m_ports);
         m_vars.update(m.m_vars);
-        if (m.m_hasFsmRegisterWrapper) {
+        જો (m.m_hasFsmRegisterWrapper) {
             m_fsmRegisterWrapper = m.m_fsmRegisterWrapper;
-            m_hasFsmRegisterWrapper = true;
+            m_hasFsmRegisterWrapper = સાચું;
         }
-        for (const string& i : m.m_coverageOffBlocks) m_coverageOffBlocks.insert(i);
-        if (!m_inline) {
+        માટે (અચલ string& i : m.m_coverageOffBlocks) m_coverageOffBlocks.ઉમેરો(i);
+        જો (!m_inline) {
             m_inline = m.m_inline;
-            m_inlineValue = m.m_inlineValue;
+            m_inline_કિંમત = m.m_inline_કિંમત;
         }
-        for (auto it = m.m_modPragmas.cbegin(); it != m.m_modPragmas.cend(); ++it) {
-            m_modPragmas.insert(*it);
+        માટે (auto it = m.m_modPragmas.cbegin(); it != m.m_modPragmas.cend(); ++it) {
+            m_modPragmas.ઉમેરો(*it);
         }
     }
-    void updateFinalize() {}
+    શૂન્ય updateFinalize() {}
 
-    V3ControlFTaskResolver& ftasks() { return m_tasks; }
-    V3ControlVarResolver& params() { return m_params; }
-    V3ControlVarResolver& ports() { return m_ports; }
-    V3ControlVarResolver& vars() { return m_vars; }
+    V3ControlFTaskResolver& ftasks() { પાછા m_tasks; }
+    V3ControlVarResolver& params() { પાછા m_params; }
+    V3ControlVarResolver& ports() { પાછા m_ports; }
+    V3ControlVarResolver& vars() { પાછા m_vars; }
 
-    void addCoverageBlockOff(const string& name) { m_coverageOffBlocks.insert(name); }
-    void setInline(bool set) {
-        m_inline = true;
-        m_inlineValue = set;
+    શૂન્ય addCoverageBlockOff(અચલ string& name) { m_coverageOffBlocks.ઉમેરો(name); }
+    શૂન્ય setInline(તાર્કિક set) {
+        m_inline = સાચું;
+        m_inline_કિંમત = set;
     }
-    void setFsmRegisterWrapper(FileLine* fl, const V3Control::FsmRegisterWrapper& desc) {
-        if (m_hasFsmRegisterWrapper) {
+    શૂન્ય setFsmRegisterWrapper(File_લીટી* fl, અચલ V3Control::FsmRegisterWrapper& desc) {
+        જો (m_hasFsmRegisterWrapper) {
             fl->v3warn(BADVLTPRAGMA, "Duplicate fsm_register_wrapper descriptor for module "
-                                         << AstNode::prettyNameQ(desc.moduleName)
+                                         << Ast_ગાંઠ::prettyNameQ(desc.moduleName)
                                          << "; replacing previous descriptor");
         }
         m_fsmRegisterWrapper = desc;
-        m_hasFsmRegisterWrapper = true;
+        m_hasFsmRegisterWrapper = સાચું;
     }
-    const V3Control::FsmRegisterWrapper* fsmRegisterWrapperp() const {
-        return m_hasFsmRegisterWrapper ? &m_fsmRegisterWrapper : nullptr;
+    અચલ V3Control::FsmRegisterWrapper* fsmRegisterWrapperp() અચલ {
+        પાછા m_hasFsmRegisterWrapper ? &m_fsmRegisterWrapper : nullptr;
     }
-    void addModulePragma(VPragmaType pragma) { m_modPragmas.insert(pragma); }
+    શૂન્ય addModulePragma(VPragmaType pragma) { m_modPragmas.ઉમેરો(pragma); }
 
-    void apply(AstNodeModule* modp) {
-        if (m_inline) {
-            const VPragmaType type
-                = m_inlineValue ? VPragmaType::INLINE_MODULE : VPragmaType::NO_INLINE_MODULE;
-            AstNode* const nodep = new AstPragma{modp->fileline(), type};
+    શૂન્ય apply(Ast_ગાંઠ_Module* modp) {
+        જો (m_inline) {
+            અચલ VPragmaType type
+                = m_inline_કિંમત ? VPragmaType::INLINE_MODULE : VPragmaType::NO_INLINE_MODULE;
+            Ast_ગાંઠ* અચલ nodep = નવું AstPragma{modp->fileline(), type};
             modp->addStmtsp(nodep);
         }
-        for (const auto& itr : m_modPragmas) {
+        માટે (અચલ auto& itr : m_modPragmas) {
             // Catch hier param modules to mark their attributes before they are
             // flagged dead in LinkDot.
-            if (itr == VPragmaType::HIER_PARAMS) modp->hierParams(true);
-            AstNode* const nodep = new AstPragma{modp->fileline(), itr};
+            જો (itr == VPragmaType::HIER_PARAMS) modp->hierParams(સાચું);
+            Ast_ગાંઠ* અચલ nodep = નવું AstPragma{modp->fileline(), itr};
             modp->addStmtsp(nodep);
         }
     }
 
-    void applyBlock(AstGenBlock* nodep) {
-        const VPragmaType pragma = VPragmaType::COVERAGE_BLOCK_OFF;
-        if (!nodep->unnamed()) {
-            for (const string& i : m_coverageOffBlocks) {
-                if (VString::wildmatch(nodep->prettyDehashOrigOrName(), i)) {
-                    nodep->addItemsp(new AstPragma{nodep->fileline(), pragma});
+    શૂન્ય applyBlock(AstGenBlock* nodep) {
+        અચલ VPragmaType pragma = VPragmaType::COVERAGE_BLOCK_OFF;
+        જો (!nodep->unnamed()) {
+            માટે (અચલ string& i : m_coverageOffBlocks) {
+                જો (VString::wildmatch(nodep->prettyDehashOrigOrName(), i)) {
+                    nodep->addItemsp(નવું AstPragma{nodep->fileline(), pragma});
                 }
             }
         }
     }
 
-    void applyBlock(AstNodeBlock* nodep) {
-        const VPragmaType pragma = VPragmaType::COVERAGE_BLOCK_OFF;
-        FileLine* const flp = nodep->fileline();
-        if (!nodep->unnamed()) {
-            for (const string& i : m_coverageOffBlocks) {
-                if (VString::wildmatch(nodep->prettyDehashOrigOrName(), i)) {
-                    nodep->addStmtsp(new AstStmtPragma{flp, new AstPragma{flp, pragma}});
+    શૂન્ય applyBlock(Ast_ગાંઠ_Block* nodep) {
+        અચલ VPragmaType pragma = VPragmaType::COVERAGE_BLOCK_OFF;
+        File_લીટી* અચલ flp = nodep->fileline();
+        જો (!nodep->unnamed()) {
+            માટે (અચલ string& i : m_coverageOffBlocks) {
+                જો (VString::wildmatch(nodep->prettyDehashOrigOrName(), i)) {
+                    nodep->addStmtsp(નવું AstStmtPragma{flp, નવું AstPragma{flp, pragma}});
                 }
             }
         }
@@ -329,152 +329,152 @@ using V3ControlModuleResolver = V3ControlWildcardResolver<V3ControlModule>;
 //  - Line attributes: Attributes attached to lines
 
 // lint/coverage/tracing on/off
-class V3ControlIgnoresLine final {
-public:
-    const int m_lineMin;  // Minimum line number to make change at
-    const int m_lineMax;  // Maximum line number to make change at (inclusive)
-    const V3ErrorCode m_code;  // Error code
-    const bool m_on;  // True to enable message
-    V3ControlIgnoresLine(V3ErrorCode code, int linemin, int linemax, bool on)
-        : m_lineMin{linemin}
-        , m_lineMax{linemax}
+વર્ગ V3_Control_Ignores_લીટી final {
+જાહેર:
+    અચલ પૂર્ણાંક m_લીટી_Min;  // Minimum line number to make change at
+    અચલ પૂર્ણાંક m_લીટી_Max;  // Maximum line number to make change at (inclusive)
+    અચલ V3ErrorCode m_code;  // Error code
+    અચલ તાર્કિક m_on;  // True to enable message
+    V3_Control_Ignores_લીટી(V3ErrorCode code, પૂર્ણાંક linemin, પૂર્ણાંક linemax, તાર્કિક on)
+        : m_લીટી_Min{linemin}
+        , m_લીટી_Max{linemax}
         , m_code{code}
         , m_on{on} {}
-    ~V3ControlIgnoresLine() = default;
-    bool everyLine() const { return m_lineMin == 0 && m_lineMax == 0; }
-    bool inRange(int lineno) const {
-        return (lineno >= m_lineMin && lineno <= m_lineMax) || everyLine();
+    ~V3_Control_Ignores_લીટી() = મૂળભૂત;
+    તાર્કિક every_લીટી() અચલ { પાછા m_લીટી_Min == 0 && m_લીટી_Max == 0; }
+    તાર્કિક inRange(પૂર્ણાંક lineno) અચલ {
+        પાછા (lineno >= m_લીટી_Min && lineno <= m_લીટી_Max) || every_લીટી();
     }
 };
-std::ostream& operator<<(std::ostream& os, const V3ControlIgnoresLine& rhs) {
-    return os << rhs.m_lineMin << "-" << rhs.m_lineMax << ", " << rhs.m_code << ", " << rhs.m_on;
+std::ostream& operator<<(std::ostream& os, અચલ V3_Control_Ignores_લીટી& rhs) {
+    પાછા os << rhs.m_લીટી_Min << "-" << rhs.m_લીટી_Max << ", " << rhs.m_code << ", " << rhs.m_on;
 }
 
 // Ignore line settings, index is parse order
 // Single global deque to avoid copying when update()
-static std::vector<V3ControlIgnoresLine> controlIgnLines;
+સ્થિર std::vector<V3_Control_Ignores_લીટી> control_Ign_લીટીઓ;
 
 using IgnIndices = std::vector<uint32_t>;  // List of {s_ignLines indces}
 
-class VIntervalTree final {
-    struct Entry final {
+વર્ગ VInterval_વૃક્ષ final {
+    સંરચના Entry final {
         // Classic centered interval tree, referencing an index to controlIgnLines
-        int m_center;  // Line number of central point
+        પૂર્ણાંક m_center;  // Line number of central point
         std::unique_ptr<Entry> m_leftp;  // Entry with all its rules/entries < this center
         std::unique_ptr<Entry> m_rightp;  // Entry with all its rules/entries > this center
         IgnIndices m_byMin;  // Rules overlapping center sorted by min line number
         IgnIndices m_byMax;  // Rules overlapping center sorted by max line number
-        explicit Entry(int center)
+        explicit Entry(પૂર્ણાંક center)
             : m_center{center} {}
     };
 
     std::unique_ptr<Entry> m_rootp;  // Root of interval tree
-    IgnIndices m_everyLines;  // All-line disables
+    IgnIndices m_every_લીટીઓ;  // All-line disables
 
-private:
-    std::unique_ptr<Entry> buildTree(const IgnIndices& points) {
-        if (points.empty()) return nullptr;
+ખાનગી:
+    std::unique_ptr<Entry> build_વૃક્ષ(અચલ IgnIndices& points) {
+        જો (points.empty()) પાછા nullptr;
 
-        int minval = std::numeric_limits<int>::max();
-        int maxval = std::numeric_limits<int>::min();
-        for (const auto& it : points) {
-            const V3ControlIgnoresLine& cign = controlIgnLines[it];
-            if (cign.everyLine()) {
-                m_everyLines.emplace_back(it);
-                continue;
+        પૂર્ણાંક minval = std::numeric_limits<પૂર્ણાંક>::max();
+        પૂર્ણાંક maxval = std::numeric_limits<પૂર્ણાંક>::min();
+        માટે (અચલ auto& it : points) {
+            અચલ V3_Control_Ignores_લીટી& cign = control_Ign_લીટીઓ[it];
+            જો (cign.every_લીટી()) {
+                m_every_લીટીઓ.emplace_back(it);
+                ચાલુ;
             }
-            minval = std::min(minval, cign.m_lineMin);
-            maxval = std::max(maxval, cign.m_lineMax);
+            minval = std::min(minval, cign.m_લીટી_Min);
+            maxval = std::max(maxval, cign.m_લીટી_Max);
         }
 
-        const int center = minval + (maxval - minval) / 2;
-        auto entp = std::unique_ptr<Entry>(new Entry{center});
+        અચલ પૂર્ણાંક center = minval + (maxval - minval) / 2;
+        auto entp = std::unique_ptr<Entry>(નવું Entry{center});
 
-        IgnIndices leftPoints;
-        IgnIndices rightPoints;
-        for (const auto& it : points) {
-            const V3ControlIgnoresLine& cign = controlIgnLines[it];
-            if (cign.everyLine()) continue;
+        IgnIndices ડાબું_Points;
+        IgnIndices જમણું_Points;
+        માટે (અચલ auto& it : points) {
+            અચલ V3_Control_Ignores_લીટી& cign = control_Ign_લીટીઓ[it];
+            જો (cign.every_લીટી()) ચાલુ;
             // UINFO(9, "Inserting for center " << center << " point " << it);
-            if (cign.m_lineMax < center)
-                leftPoints.emplace_back(it);
-            else if (cign.m_lineMin > center)
-                rightPoints.emplace_back(it);
-            else {
-                entp->m_byMin.push_back(it);
-                entp->m_byMax.push_back(it);
+            જો (cign.m_લીટી_Max < center)
+                ડાબું_Points.emplace_back(it);
+            નહીંતર જો (cign.m_લીટી_Min > center)
+                જમણું_Points.emplace_back(it);
+            નહીંતર {
+                entp->m_byMin.ધકેલો_back(it);
+                entp->m_byMax.ધકેલો_back(it);
             }
         }
 
         std::sort(entp->m_byMin.begin(), entp->m_byMin.end(), [](uint32_t a, uint32_t b) {
-            return controlIgnLines[a].m_lineMin < controlIgnLines[b].m_lineMin;
+            પાછા control_Ign_લીટીઓ[a].m_લીટી_Min < control_Ign_લીટીઓ[b].m_લીટી_Min;
         });
         std::sort(entp->m_byMax.begin(), entp->m_byMax.end(), [](uint32_t a, uint32_t b) {
-            return controlIgnLines[a].m_lineMax > controlIgnLines[b].m_lineMax;
+            પાછા control_Ign_લીટીઓ[a].m_લીટી_Max > control_Ign_લીટીઓ[b].m_લીટી_Max;
         });
 
-        entp->m_leftp = buildTree(leftPoints);
-        entp->m_rightp = buildTree(rightPoints);
-        return entp;
+        entp->m_leftp = build_વૃક્ષ(ડાબું_Points);
+        entp->m_rightp = build_વૃક્ષ(જમણું_Points);
+        પાછા entp;
     }
 
-    void findTree(int lineno, Entry* entp, IgnIndices& resultsr, int& nextChanger) const {
+    શૂન્ય find_વૃક્ષ(પૂર્ણાંક lineno, Entry* entp, IgnIndices& resultsr, પૂર્ણાંક& nextChanger) અચલ {
         // UINFO(9, "Find " << lineno << " center " << entp->m_center);
-        if (lineno < entp->m_center) {
+        જો (lineno < entp->m_center) {
             nextChanger = std::min(nextChanger, entp->m_center);
-            for (const auto& it : entp->m_byMin) {
-                const V3ControlIgnoresLine& cign = controlIgnLines[it];
-                if (cign.m_lineMin <= lineno) {
+            માટે (અચલ auto& it : entp->m_byMin) {
+                અચલ V3_Control_Ignores_લીટી& cign = control_Ign_લીટીઓ[it];
+                જો (cign.m_લીટી_Min <= lineno) {
                     resultsr.emplace_back(it);
-                } else {
-                    nextChanger = std::min(nextChanger, cign.m_lineMin);
-                    break;
+                } નહીંતર {
+                    nextChanger = std::min(nextChanger, cign.m_લીટી_Min);
+                    તોડો;
                 }
             }
-            if (entp->m_leftp) findTree(lineno, entp->m_leftp.get(), resultsr, nextChanger);
-        } else if (lineno > entp->m_center) {
-            for (const auto& it : entp->m_byMax) {
-                const V3ControlIgnoresLine& cign = controlIgnLines[it];
-                if (cign.m_lineMax >= lineno) {
-                    nextChanger = std::min(nextChanger, cign.m_lineMax + 1);
+            જો (entp->m_leftp) find_વૃક્ષ(lineno, entp->m_leftp.get(), resultsr, nextChanger);
+        } નહીંતર જો (lineno > entp->m_center) {
+            માટે (અચલ auto& it : entp->m_byMax) {
+                અચલ V3_Control_Ignores_લીટી& cign = control_Ign_લીટીઓ[it];
+                જો (cign.m_લીટી_Max >= lineno) {
+                    nextChanger = std::min(nextChanger, cign.m_લીટી_Max + 1);
                     resultsr.emplace_back(it);
-                } else {
-                    break;
+                } નહીંતર {
+                    તોડો;
                 }
             }
-            if (entp->m_rightp) findTree(lineno, entp->m_rightp.get(), resultsr, nextChanger);
-        } else {
-            for (const auto& it : entp->m_byMin) {
-                const V3ControlIgnoresLine& cign = controlIgnLines[it];
+            જો (entp->m_rightp) find_વૃક્ષ(lineno, entp->m_rightp.get(), resultsr, nextChanger);
+        } નહીંતર {
+            માટે (અચલ auto& it : entp->m_byMin) {
+                અચલ V3_Control_Ignores_લીટી& cign = control_Ign_લીટીઓ[it];
                 resultsr.emplace_back(it);
-                if (cign.m_lineMax >= lineno)
-                    nextChanger = std::min(nextChanger, cign.m_lineMax + 1);
+                જો (cign.m_લીટી_Max >= lineno)
+                    nextChanger = std::min(nextChanger, cign.m_લીટી_Max + 1);
             }
-            if (entp->m_leftp) findTree(lineno, entp->m_leftp.get(), resultsr, nextChanger);
-            if (entp->m_rightp) findTree(lineno, entp->m_rightp.get(), resultsr, nextChanger);
+            જો (entp->m_leftp) find_વૃક્ષ(lineno, entp->m_leftp.get(), resultsr, nextChanger);
+            જો (entp->m_rightp) find_વૃક્ષ(lineno, entp->m_rightp.get(), resultsr, nextChanger);
         }
     }
 
-public:
+જાહેર:
     // CONSTRUCTORS
-    VIntervalTree() = default;
-    ~VIntervalTree() = default;
+    VInterval_વૃક્ષ() = મૂળભૂત;
+    ~VInterval_વૃક્ષ() = મૂળભૂત;
     // METHODS
-    void clear() { m_rootp = nullptr; }
-    void build(const IgnIndices& points) {
+    શૂન્ય clear() { m_rootp = nullptr; }
+    શૂન્ય build(અચલ IgnIndices& points) {
         clear();
-        m_rootp = buildTree(points);
+        m_rootp = build_વૃક્ષ(points);
     }
-    void find(int lineno, IgnIndices& resultsr, int& nextChanger) const {
-        resultsr = m_everyLines;
-        nextChanger = std::numeric_limits<int>::max();
+    શૂન્ય find(પૂર્ણાંક lineno, IgnIndices& resultsr, પૂર્ણાંક& nextChanger) અચલ {
+        resultsr = m_every_લીટીઓ;
+        nextChanger = std::numeric_limits<પૂર્ણાંક>::max();
 
-        if (m_rootp) findTree(lineno, m_rootp.get(), resultsr, nextChanger);
+        જો (m_rootp) find_વૃક્ષ(lineno, m_rootp.get(), resultsr, nextChanger);
         // Sort indices, so can process in parse order
         std::sort(resultsr.begin(), resultsr.end());
     }
 
-    static void selfTest() {
+    સ્થિર શૂન્ય selfTest() {
         //            0     10     20     30     40     50
         // i0:        .     10-10  .      .      .      .
         // i1:        .     .      20-20  .      .      .
@@ -483,64 +483,64 @@ public:
         // i4:        .     .      20------------40     .
         // i5:(below) 0---------------------------------------0
         IgnIndices data;
-        std::vector<std::pair<int, int>> points
+        std::vector<std::pair<પૂર્ણાંક, પૂર્ણાંક>> points
             = {{10, 10}, {20, 20}, {40, 40}, {10, 30}, {20, 40}};
-        for (const auto& it : points) {
-            controlIgnLines.emplace_back(
-                V3ControlIgnoresLine{V3ErrorCode::I_LINT, it.first, it.second, true});
-            data.emplace_back(static_cast<uint32_t>(controlIgnLines.size() - 1));
+        માટે (અચલ auto& it : points) {
+            control_Ign_લીટીઓ.emplace_back(
+                V3_Control_Ignores_લીટી{V3ErrorCode::I_LINT, it.first, it.second, સાચું});
+            data.emplace_back(static_cast<uint32_t>(control_Ign_લીટીઓ.size() - 1));
         }
-        VIntervalTree tree;
-        tree.build(data);
+        VInterval_વૃક્ષ વૃક્ષ;
+        વૃક્ષ.build(data);
 
         IgnIndices results;
-        int nextChange = 0;
-        tree.find(0, results, nextChange);
+        પૂર્ણાંક nextChange = 0;
+        વૃક્ષ.find(0, results, nextChange);
         UASSERT_SELFTEST(results.size(), 0);
         UASSERT_SELFTEST(nextChange, 10);
-        tree.find(10, results, nextChange);
+        વૃક્ષ.find(10, results, nextChange);
         UASSERT_SELFTEST(results.size(), 2);
         UASSERT_SELFTEST(results[0], 0);
         UASSERT_SELFTEST(results[1], 3);
         UASSERT_SELFTEST(nextChange, 11);
-        tree.find(11, results, nextChange);
+        વૃક્ષ.find(11, results, nextChange);
         UASSERT_SELFTEST(results.size(), 1);
         UASSERT_SELFTEST(results[0], 3);
         UASSERT_SELFTEST(nextChange, 15);  // Center, or would be 20
-        tree.find(20, results, nextChange);
+        વૃક્ષ.find(20, results, nextChange);
         UASSERT_SELFTEST(results.size(), 3);
         UASSERT_SELFTEST(results[0], 1);
         UASSERT_SELFTEST(results[1], 3);
         UASSERT_SELFTEST(results[2], 4);
         UASSERT_SELFTEST(nextChange, 21);
-        tree.find(21, results, nextChange);
+        વૃક્ષ.find(21, results, nextChange);
         UASSERT_SELFTEST(results.size(), 2);
         UASSERT_SELFTEST(results[0], 3);
         UASSERT_SELFTEST(results[1], 4);
         UASSERT_SELFTEST(nextChange, 25);  // Center, or would be 30
-        tree.find(30, results, nextChange);
+        વૃક્ષ.find(30, results, nextChange);
         UASSERT_SELFTEST(results.size(), 2);
         UASSERT_SELFTEST(results[0], 3);
         UASSERT_SELFTEST(results[1], 4);
         UASSERT_SELFTEST(nextChange, 31);
-        tree.find(40, results, nextChange);
+        વૃક્ષ.find(40, results, nextChange);
         UASSERT_SELFTEST(results.size(), 2);
         UASSERT_SELFTEST(results[0], 2);
         UASSERT_SELFTEST(results[1], 4);
         UASSERT_SELFTEST(nextChange, 41);
-        tree.find(41, results, nextChange);
+        વૃક્ષ.find(41, results, nextChange);
         UASSERT_SELFTEST(results.size(), 0);
-        UASSERT_SELFTEST(nextChange, std::numeric_limits<int>::max());
+        UASSERT_SELFTEST(nextChange, std::numeric_limits<પૂર્ણાંક>::max());
         //
         points = {{0, 0}};
-        for (const auto& it : points) {
-            controlIgnLines.emplace_back(
-                V3ControlIgnoresLine{V3ErrorCode::I_LINT, it.first, it.second, true});
-            data.emplace_back(static_cast<uint32_t>(controlIgnLines.size() - 1));
+        માટે (અચલ auto& it : points) {
+            control_Ign_લીટીઓ.emplace_back(
+                V3_Control_Ignores_લીટી{V3ErrorCode::I_LINT, it.first, it.second, સાચું});
+            data.emplace_back(static_cast<uint32_t>(control_Ign_લીટીઓ.size() - 1));
         }
-        tree.build(data);
+        વૃક્ષ.build(data);
         //
-        tree.find(50, results, nextChange);
+        વૃક્ષ.find(50, results, nextChange);
         UASSERT_SELFTEST(results.size(), 1);
         UASSERT_SELFTEST(results[0], 5);
     }
@@ -548,118 +548,118 @@ public:
 
 // Some attributes are attached to entities of the occur on a fileline
 // and multiple attributes can be attached to a line
-using V3ControlLineAttribute = std::bitset<VPragmaType::_ENUM_SIZE>;
+using V3_Control_લીટી_Attribute = std::bitset<VPragmaType::_ENUM_SIZE>;
 
-class WaiverSetting final {
-public:
+વર્ગ WaiverSetting final {
+જાહેર:
     V3ErrorCode m_code;  // Error code
     string m_contents;  // --contents regexp
     string m_match;  // --match regexp
-    WaiverSetting(V3ErrorCode code, const string& contents, const string& match)
+    WaiverSetting(V3ErrorCode code, અચલ string& contents, અચલ string& match)
         : m_code{code}
         , m_contents{contents}
         , m_match{match} {}
-    ~WaiverSetting() = default;
-    WaiverSetting& operator=(const WaiverSetting& rhs) = default;
+    ~WaiverSetting() = મૂળભૂત;
+    WaiverSetting& operator=(અચલ WaiverSetting& rhs) = મૂળભૂત;
 };
 
 // File entity
-class V3ControlFile final {
-    using LineAttrMap = std::map<int, V3ControlLineAttribute>;  // Map line->bitset of attributes
+વર્ગ V3ControlFile final {
+    using લીટી_Attr_Map = std::map<પૂર્ણાંક, V3_Control_લીટી_Attribute>;  // Map line->bitset of attributes
     using Waivers = std::vector<WaiverSetting>;  // List of {code,wildcard string}
 
-    LineAttrMap m_lineAttrs;  // Attributes to line mapping
+    લીટી_Attr_Map m_લીટી_Attrs;  // Attributes to line mapping
     IgnIndices m_ignIndices;  // s_ignLines that apply to this specific file
     Waivers m_waivers;  // Waive messages
-    VIntervalTree m_intervalTree;  // Tree of indices to IgnLines
+    VInterval_વૃક્ષ m_interval_વૃક્ષ;  // Tree of indices to IgnLines
 
-    struct {
-        int filenameno = -1;  // Last filename
-        int lineno = -1;  // Last linenumber
-        int nextChange = -1;  // Line number of next change
+    સંરચના {
+        પૂર્ણાંક filenameno = -1;  // Last filename
+        પૂર્ણાંક lineno = -1;  // Last linenumber
+        પૂર્ણાંક nextChange = -1;  // Line number of next change
     } m_lastIgnore;  // Last ignore line run
 
     // Match a given line and attribute to the map, line 0 is any
-    bool lineMatch(int lineno, VPragmaType type) {
-        if (m_lineAttrs.find(0) != m_lineAttrs.end() && m_lineAttrs[0][type]) return true;
-        if (m_lineAttrs.find(lineno) == m_lineAttrs.end()) return false;
-        return m_lineAttrs[lineno][type];
+    તાર્કિક લીટી_Match(પૂર્ણાંક lineno, VPragmaType type) {
+        જો (m_લીટી_Attrs.find(0) != m_લીટી_Attrs.end() && m_લીટી_Attrs[0][type]) પાછા સાચું;
+        જો (m_લીટી_Attrs.find(lineno) == m_લીટી_Attrs.end()) પાછા ખોટું;
+        પાછા m_લીટી_Attrs[lineno][type];
     }
 
-public:
-    V3ControlFile() = default;
-    void update(const V3ControlFile& file) {
+જાહેર:
+    V3ControlFile() = મૂળભૂત;
+    શૂન્ય update(અચલ V3ControlFile& file) {
         // Copy in all attributes and waivers
-        for (const auto& itr : file.m_lineAttrs) m_lineAttrs[itr.first] |= itr.second;
+        માટે (અચલ auto& itr : file.m_લીટી_Attrs) m_લીટી_Attrs[itr.first] |= itr.second;
         m_waivers.reserve(m_waivers.size() + file.m_waivers.size());
-        m_waivers.insert(m_waivers.end(), file.m_waivers.begin(), file.m_waivers.end());
+        m_waivers.ઉમેરો(m_waivers.end(), file.m_waivers.begin(), file.m_waivers.end());
         // Copy in all ignore references
         m_ignIndices.reserve(m_ignIndices.size() + file.m_ignIndices.size());
-        m_ignIndices.insert(m_ignIndices.end(), file.m_ignIndices.begin(),
+        m_ignIndices.ઉમેરો(m_ignIndices.end(), file.m_ignIndices.begin(),
                             file.m_ignIndices.end());
         // updateFinalize() will soon build tree
     }
-    void updateFinalize() { m_intervalTree.build(m_ignIndices); }
-    void addLineAttribute(int lineno, VPragmaType attr) { m_lineAttrs[lineno].set(attr); }
-    void addIgnore(V3ErrorCode code, int min, int max, bool on) {
-        controlIgnLines.emplace_back(V3ControlIgnoresLine{code, min, max, on});
-        m_ignIndices.emplace_back(static_cast<uint32_t>(controlIgnLines.size() - 1));
+    શૂન્ય updateFinalize() { m_interval_વૃક્ષ.build(m_ignIndices); }
+    શૂન્ય add_લીટી_Attribute(પૂર્ણાંક lineno, VPragmaType attr) { m_લીટી_Attrs[lineno].set(attr); }
+    શૂન્ય addIgnore(V3ErrorCode code, પૂર્ણાંક min, પૂર્ણાંક max, તાર્કિક on) {
+        control_Ign_લીટીઓ.emplace_back(V3_Control_Ignores_લીટી{code, min, max, on});
+        m_ignIndices.emplace_back(static_cast<uint32_t>(control_Ign_લીટીઓ.size() - 1));
         m_lastIgnore.nextChange = -1;
     }
-    void addIgnoreMatch(V3ErrorCode code, const string& contents, const string& match) {
+    શૂન્ય addIgnoreMatch(V3ErrorCode code, અચલ string& contents, અચલ string& match) {
         // Since Verilator 5.031 the error message compared has context, so
         // allow old rules to still match using a final '*'
         string newMatch = match;
-        if (newMatch.empty() || newMatch.back() != '*') newMatch += '*';
+        જો (newMatch.empty() || newMatch.back() != '*') newMatch += '*';
         m_waivers.emplace_back(code, contents, newMatch);
     }
 
-    void applyBlock(AstGenBlock* nodep) {
+    શૂન્ય applyBlock(AstGenBlock* nodep) {
         // Apply to block at this line
-        const VPragmaType pragma = VPragmaType::COVERAGE_BLOCK_OFF;
-        if (lineMatch(nodep->fileline()->lineno(), pragma)) {
-            nodep->addItemsp(new AstPragma{nodep->fileline(), pragma});
+        અચલ VPragmaType pragma = VPragmaType::COVERAGE_BLOCK_OFF;
+        જો (લીટી_Match(nodep->fileline()->lineno(), pragma)) {
+            nodep->addItemsp(નવું AstPragma{nodep->fileline(), pragma});
         }
     }
-    void applyBlock(AstNodeBlock* nodep) {
+    શૂન્ય applyBlock(Ast_ગાંઠ_Block* nodep) {
         // Apply to block at this line
-        const VPragmaType pragma = VPragmaType::COVERAGE_BLOCK_OFF;
-        FileLine* const flp = nodep->fileline();
-        if (lineMatch(flp->lineno(), pragma)) {
-            nodep->addStmtsp(new AstStmtPragma{flp, new AstPragma{flp, pragma}});
+        અચલ VPragmaType pragma = VPragmaType::COVERAGE_BLOCK_OFF;
+        File_લીટી* અચલ flp = nodep->fileline();
+        જો (લીટી_Match(flp->lineno(), pragma)) {
+            nodep->addStmtsp(નવું AstStmtPragma{flp, નવું AstPragma{flp, pragma}});
         }
     }
-    void applyCase(AstCase* nodep) {
+    શૂન્ય applyCase(AstCase* nodep) {
         // Apply to this case at this line
-        const int lineno = nodep->fileline()->lineno();
-        if (lineMatch(lineno, VPragmaType::FULL_CASE)) nodep->fullPragma(true);
-        if (lineMatch(lineno, VPragmaType::PARALLEL_CASE)) nodep->parallelPragma(true);
+        અચલ પૂર્ણાંક lineno = nodep->fileline()->lineno();
+        જો (લીટી_Match(lineno, VPragmaType::FULL_CASE)) nodep->fullPragma(સાચું);
+        જો (લીટી_Match(lineno, VPragmaType::PARALLEL_CASE)) nodep->parallelPragma(સાચું);
     }
-    void applyIgnores(FileLine* filelinep) {
+    શૂન્ય applyIgnores(File_લીટી* filelinep) {
         // HOT routine, called each parsed token line of this filename
-        if (filelinep->filenameno() == m_lastIgnore.filenameno
+        જો (filelinep->filenameno() == m_lastIgnore.filenameno
             && filelinep->lineno() == m_lastIgnore.lineno)
-            return;  // Short circuit, no change, no debug
+            પાછા;  // Short circuit, no change, no debug
         // For speed, compute line number of next potential change, and skip if before then
-        if (filelinep->filenameno() == m_lastIgnore.filenameno
+        જો (filelinep->filenameno() == m_lastIgnore.filenameno
             && filelinep->lineno() < m_lastIgnore.nextChange) {
             m_lastIgnore.lineno = filelinep->lineno();
             UINFO(9, "   ApplyIgnores for " << filelinep->ascii() << " (no change predicted)");
-            return;
+            પાછા;
         }
         UINFO(9, "   ApplyIgnores for " << filelinep->ascii());
         m_lastIgnore.filenameno = filelinep->filenameno();
         m_lastIgnore.lineno = filelinep->lineno();
-        m_lastIgnore.nextChange = std::numeric_limits<int>::max();
+        m_lastIgnore.nextChange = std::numeric_limits<પૂર્ણાંક>::max();
 
         // Find all on/offs.  Unlike lint pragmas we calculate the entire
         // bitset of errors to enable, instead of individual enable/disable changes.
         IgnIndices results;
-        m_intervalTree.find(filelinep->lineno(), results /*ref*/, m_lastIgnore.nextChange /*ref*/);
+        m_interval_વૃક્ષ.find(filelinep->lineno(), results /*ref*/, m_lastIgnore.nextChange /*ref*/);
         // Process all on/offs for lines up to and including the current line
         VErrorBitSet bitset{VErrorBitSet::AllOnes{}};
-        for (const auto& it : results) {
-            const V3ControlIgnoresLine& cign = controlIgnLines[it];
+        માટે (અચલ auto& it : results) {
+            અચલ V3_Control_Ignores_લીટી& cign = control_Ign_લીટીઓ[it];
             UASSERT(cign.inRange(filelinep->lineno()),
                     "Interval tree returned lines outside range");
             UINFO(9, "     Hit " << cign);
@@ -673,16 +673,16 @@ public:
                                        << m_lastIgnore.nextChange
                                        << " Messages: " << bitset.ascii());
     }
-    bool waive(V3ErrorCode code, const string& message) {
-        if (code.hardError()) return false;
-        for (const auto& itr : m_waivers) {
-            if ((code.isUnder(itr.m_code) || (itr.m_code == V3ErrorCode::I_LINT))
+    તાર્કિક waive(V3ErrorCode code, અચલ string& message) {
+        જો (code.hardError()) પાછા ખોટું;
+        માટે (અચલ auto& itr : m_waivers) {
+            જો ((code.isUnder(itr.m_code) || (itr.m_code == V3ErrorCode::I_LINT))
                 && VString::wildmatch(message, itr.m_match)
                 && WildcardContents::resolve(itr.m_contents)) {
-                return true;
+                પાછા સાચું;
             }
         }
-        return false;
+        પાછા ખોટું;
     }
 };
 
@@ -691,113 +691,113 @@ using V3ControlFileResolver = V3ControlWildcardResolver<V3ControlFile>;
 //######################################################################
 // ScopeTrace tracking
 
-class V3ControlScopeTraceEntry final {
-public:
-    const string m_scope;  // Scope or regexp to match
-    const bool m_on;  // True to enable message
-    int m_levels = 0;  // # levels, 0 = all, 1 = only this, ...
+વર્ગ V3ControlScopeTraceEntry final {
+જાહેર:
+    અચલ string m_scope;  // Scope or regexp to match
+    અચલ તાર્કિક m_on;  // True to enable message
+    પૂર્ણાંક m_levels = 0;  // # levels, 0 = all, 1 = only this, ...
     // CONSTRUCTORS
-    V3ControlScopeTraceEntry(const string& scope, bool on, int levels)
+    V3ControlScopeTraceEntry(અચલ string& scope, તાર્કિક on, પૂર્ણાંક levels)
         : m_scope{scope}
         , m_on{on}
         , m_levels{levels} {}
-    ~V3ControlScopeTraceEntry() = default;
-    bool operator<(const V3ControlScopeTraceEntry& other) const {
-        if (m_on < other.m_on) return true;
-        if (m_on > other.m_on) return false;
-        if (m_levels < other.m_levels) return true;
-        if (m_levels > other.m_levels) return false;
-        return m_scope < other.m_scope;
+    ~V3ControlScopeTraceEntry() = મૂળભૂત;
+    તાર્કિક operator<(અચલ V3ControlScopeTraceEntry& other) અચલ {
+        જો (m_on < other.m_on) પાછા સાચું;
+        જો (m_on > other.m_on) પાછા ખોટું;
+        જો (m_levels < other.m_levels) પાછા સાચું;
+        જો (m_levels > other.m_levels) પાછા ખોટું;
+        પાછા m_scope < other.m_scope;
     }
 };
 
 // Tracks what matches are known to hit against V3ControlScopeTraceEntries
-class V3ControlScopeTraceEntryMatch final {
-public:
-    const V3ControlScopeTraceEntry* m_entryp;  // Entry the match refers to
-    const string m_scopepart;  // Scope prefix being matched against the entry
-    V3ControlScopeTraceEntryMatch(const V3ControlScopeTraceEntry* entryp, const string& scopepart)
+વર્ગ V3ControlScopeTraceEntryMatch final {
+જાહેર:
+    અચલ V3ControlScopeTraceEntry* m_entryp;  // Entry the match refers to
+    અચલ string m_scopepart;  // Scope prefix being matched against the entry
+    V3ControlScopeTraceEntryMatch(અચલ V3ControlScopeTraceEntry* entryp, અચલ string& scopepart)
         : m_entryp{entryp}
         , m_scopepart{scopepart} {}
-    bool operator<(const V3ControlScopeTraceEntryMatch& other) const {
-        if (m_entryp < other.m_entryp) return true;
-        if (m_entryp > other.m_entryp) return false;
-        return m_scopepart < other.m_scopepart;
+    તાર્કિક operator<(અચલ V3ControlScopeTraceEntryMatch& other) અચલ {
+        જો (m_entryp < other.m_entryp) પાછા સાચું;
+        જો (m_entryp > other.m_entryp) પાછા ખોટું;
+        પાછા m_scopepart < other.m_scopepart;
     }
 };
 
-class V3ControlScopeTraceResolver final {
+વર્ગ V3ControlScopeTraceResolver final {
     std::vector<V3ControlScopeTraceEntry> m_entries;  // User specified on/offs and levels
-    std::map<V3ControlScopeTraceEntryMatch, bool> m_matchCache;  // Matching entries for speed
+    std::map<V3ControlScopeTraceEntryMatch, તાર્કિક> m_matchCache;  // Matching entries for speed
 
-public:
-    void addScopeTraceOn(bool on, const string& scope, int levels) {
+જાહેર:
+    શૂન્ય addScopeTraceOn(તાર્કિક on, અચલ string& scope, પૂર્ણાંક levels) {
         UINFO(9, "addScopeTraceOn " << on << " '" << scope << "' " << " levels=" << levels);
         m_entries.emplace_back(V3ControlScopeTraceEntry{scope, on, levels});
         m_matchCache.clear();
     }
 
-    bool getEntryMatch(const V3ControlScopeTraceEntry* entp, const string& scopepart) {
+    તાર્કિક getEntryMatch(અચલ V3ControlScopeTraceEntry* entp, અચલ string& scopepart) {
         // Return if a entry matches the scopepart, with memoization
-        const V3ControlScopeTraceEntryMatch key{entp, scopepart};
-        const auto pair = m_matchCache.emplace(key, false);
-        if (pair.second) pair.first->second = VString::wildmatch(scopepart, entp->m_scope);
-        return pair.first->second;
+        અચલ V3ControlScopeTraceEntryMatch ચાવી{entp, scopepart};
+        અચલ auto pair = m_matchCache.emplace(ચાવી, ખોટું);
+        જો (pair.second) pair.first->second = VString::wildmatch(scopepart, entp->m_scope);
+        પાછા pair.first->second;
     }
 
-    bool getScopeTraceOn(const string& scope) {
+    તાર્કિક getScopeTraceOn(અચલ string& scope) {
         // Apply in the order the user provided them, so they can choose on/off preferences
-        int maxLevel = 1;
-        for (const auto& ch : scope) {
-            if (ch == '.') ++maxLevel;
+        પૂર્ણાંક maxLevel = 1;
+        માટે (અચલ auto& ch : scope) {
+            જો (ch == '.') ++maxLevel;
         }
         UINFO(9, "getScopeTraceOn " << scope << " maxLevel=" << maxLevel);
 
-        bool enabled = true;
-        for (const auto& ent : m_entries) {
+        તાર્કિક enabled = સાચું;
+        માટે (અચલ auto& ent : m_entries) {
             // We apply shortest match first for each rule component
             // (Otherwise the levels would be useless as "--scope top* --levels 1" would
             // always match at every scopepart, and we wouldn't know how to count levels)
-            int partLevel = 1;
-            for (string::size_type partEnd = 0; true;) {
+            પૂર્ણાંક partLevel = 1;
+            માટે (string::size_type partEnd = 0; સાચું;) {
                 partEnd = scope.find('.', partEnd + 1);
-                if (partEnd == string::npos) partEnd = scope.length();
-                const std::string scopepart = scope.substr(0, partEnd);
-                if (getEntryMatch(&ent, scopepart)) {
-                    const bool levelMatch
+                જો (partEnd == string::npos) partEnd = scope.length();
+                અચલ std::string scopepart = scope.substr(0, partEnd);
+                જો (getEntryMatch(&ent, scopepart)) {
+                    અચલ તાર્કિક levelMatch
                         = !ent.m_levels || (ent.m_levels >= maxLevel - partLevel);
-                    if (levelMatch) enabled = ent.m_on;
+                    જો (levelMatch) enabled = ent.m_on;
                     UINFO(9, "getScopeTraceOn-part " << scope << " enabled=" << enabled
                                                      << " @ lev=" << partLevel
                                                      << (levelMatch ? "[match]" : "[miss]")
                                                      << " from scopepart=" << scopepart);
-                    break;
+                    તોડો;
                 }
-                if (partEnd == scope.length()) break;
+                જો (partEnd == scope.length()) તોડો;
                 ++partLevel;
             }
         }
-        return enabled;
+        પાછા enabled;
     }
 };
 
 //######################################################################
 // Resolve modules and files in the design
 
-class V3ControlResolverHierWorkerEntry final {
-    const int m_workers;  // Number of workers requested for the hierarchical block
-    FileLine* const m_flp;  // Location the worker count was specified at
+વર્ગ V3ControlResolverHierWorkerEntry final {
+    અચલ પૂર્ણાંક m_workers;  // Number of workers requested for the hierarchical block
+    File_લીટી* અચલ m_flp;  // Location the worker count was specified at
 
-public:
-    explicit V3ControlResolverHierWorkerEntry(int workers, FileLine* flp)
+જાહેર:
+    explicit V3ControlResolverHierWorkerEntry(પૂર્ણાંક workers, File_લીટી* flp)
         : m_workers{workers}
         , m_flp{flp} {}
-    int workers() const { return m_workers; }
-    FileLine* flp() const { return m_flp; }
+    પૂર્ણાંક workers() અચલ { પાછા m_workers; }
+    File_લીટી* flp() અચલ { પાછા m_flp; }
 };
 
-class V3ControlResolver final {
-    enum ProfileDataMode : uint8_t { NONE = 0, MTASK = 1, HIER_DPI = 2 };
+વર્ગ V3ControlResolver final {
+    ગણના ProfileDataMode : uint8_t { NONE = 0, MTASK = 1, HIER_DPI = 2 };
     V3ControlModuleResolver m_modules;  // Access to module names (with wildcards)
     V3ControlFileResolver m_files;  // Access to file names (with wildcards)
     V3ControlScopeTraceResolver m_scopeTraces;  // Regexp to trace enables
@@ -805,333 +805,333 @@ class V3ControlResolver final {
         m_profileData;  // Access to profile_data records
     uint8_t m_mode = NONE;  // Kind of profile_data records is currently active
     std::unordered_map<string, V3ControlResolverHierWorkerEntry> m_hierWorkers;
-    FileLine* m_profileFileLine = nullptr;  // Location profile_data was read from
+    File_લીટી* m_profile_File_લીટી = nullptr;  // Location profile_data was read from
 
-    V3ControlResolver() = default;
-    ~V3ControlResolver() = default;
+    V3ControlResolver() = મૂળભૂત;
+    ~V3ControlResolver() = મૂળભૂત;
 
-public:
-    static V3ControlResolver& s() {
-        static V3ControlResolver s_singleton;
-        return s_singleton;
+જાહેર:
+    સ્થિર V3ControlResolver& s() {
+        સ્થિર V3ControlResolver s_singleton;
+        પાછા s_singleton;
     }
-    V3ControlModuleResolver& modules() { return m_modules; }
-    V3ControlFileResolver& files() { return m_files; }
-    V3ControlScopeTraceResolver& scopeTraces() { return m_scopeTraces; }
+    V3ControlModuleResolver& modules() { પાછા m_modules; }
+    V3ControlFileResolver& files() { પાછા m_files; }
+    V3ControlScopeTraceResolver& scopeTraces() { પાછા m_scopeTraces; }
 
-    void addProfileData(FileLine* fl, const string& hierDpi, uint64_t cost) {
+    શૂન્ય addProfileData(File_લીટી* fl, અચલ string& hierDpi, uint64_t cost) {
         // Empty key for hierarchical DPI wrapper costs.
         addProfileData(fl, hierDpi, "", cost, HIER_DPI);
     }
-    void addProfileData(FileLine* fl, const string& model, const string& key, uint64_t cost,
+    શૂન્ય addProfileData(File_લીટી* fl, અચલ string& model, અચલ string& ચાવી, uint64_t cost,
                         ProfileDataMode mode = MTASK) {
-        if (!m_profileFileLine) m_profileFileLine = fl;
-        if (cost == 0) cost = 1;  // Cost 0 means delete (or no data)
-        if (mode == MTASK) {
-            m_profileData[model][key] += cost;
-        } else if (mode == HIER_DPI) {
-            m_profileData[model][key] = std::max(m_profileData[model][key], cost);
+        જો (!m_profile_File_લીટી) m_profile_File_લીટી = fl;
+        જો (cost == 0) cost = 1;  // Cost 0 means delete (or no data)
+        જો (mode == MTASK) {
+            m_profileData[model][ચાવી] += cost;
+        } નહીંતર જો (mode == HIER_DPI) {
+            m_profileData[model][ચાવી] = std::max(m_profileData[model][ચાવી], cost);
         }
         m_mode |= mode;
     }
-    bool containsMTaskProfileData() const { return m_mode & MTASK; }
-    uint64_t getProfileData(const string& hierDpi) const {
+    તાર્કિક containsMTaskProfileData() અચલ { પાછા m_mode & MTASK; }
+    uint64_t getProfileData(અચલ string& hierDpi) અચલ {
         // Empty key for hierarchical DPI wrapper costs.
-        return getProfileData(hierDpi, "");
+        પાછા getProfileData(hierDpi, "");
     }
-    void addHierWorkers(FileLine* flp, const string& model, int workers) {
+    શૂન્ય addHierWorkers(File_લીટી* flp, અચલ string& model, પૂર્ણાંક workers) {
         m_hierWorkers.emplace(std::piecewise_construct, std::forward_as_tuple(model),
                               std::forward_as_tuple(workers, flp));
     }
-    int getHierWorkers(const string& model) const {
-        const auto mit = m_hierWorkers.find(model);
+    પૂર્ણાંક getHierWorkers(અચલ string& model) અચલ {
+        અચલ auto mit = m_hierWorkers.find(model);
         // Assign a single worker if no specified.
-        return mit != m_hierWorkers.cend() ? mit->second.workers() : 0;
+        પાછા mit != m_hierWorkers.cend() ? mit->second.workers() : 0;
     }
-    FileLine* getHierWorkersFileLine(const string& model) const {
-        const auto mit = m_hierWorkers.find(model);
-        return mit != m_hierWorkers.cend() ? mit->second.flp() : v3Global.rootp()->fileline();
+    File_લીટી* get_Hier_Workers_File_લીટી(અચલ string& model) અચલ {
+        અચલ auto mit = m_hierWorkers.find(model);
+        પાછા mit != m_hierWorkers.cend() ? mit->second.flp() : v3Global.rootp()->fileline();
     }
-    uint64_t getProfileData(const string& model, const string& key) const {
-        const auto mit = m_profileData.find(model);
-        if (mit == m_profileData.cend()) return 0;
-        const auto it = mit->second.find(key);
-        if (it == mit->second.cend()) return 0;
-        return it->second;
+    uint64_t getProfileData(અચલ string& model, અચલ string& ચાવી) અચલ {
+        અચલ auto mit = m_profileData.find(model);
+        જો (mit == m_profileData.cend()) પાછા 0;
+        અચલ auto it = mit->second.find(ચાવી);
+        જો (it == mit->second.cend()) પાછા 0;
+        પાછા it->second;
     }
-    FileLine* getProfileDataFileLine() const { return m_profileFileLine; }  // Maybe null
-    static uint64_t getCurrentHierBlockCost() {
-        if (uint64_t cost = V3Control::getProfileData(v3Global.opt.prefix())) {
+    File_લીટી* get_Profile_Data_File_લીટી() અચલ { પાછા m_profile_File_લીટી; }  // Maybe null
+    સ્થિર uint64_t getCurrentHierBlockCost() {
+        જો (uint64_t cost = V3Control::getProfileData(v3Global.opt.prefix())) {
             UINFO(9, "Fetching cost from profile info: " << cost);
-            return cost;
+            પાછા cost;
         }
 
         // Without profiling data, sum the regions evaluated on each time step
-        AstNetlist* const netlistp = v3Global.rootp();
+        AstNetlist* અચલ netlistp = v3Global.rootp();
         uint64_t cost = 0;
-        for (int i = 0; i < VEval::_ENUM_END; ++i) {
-            const VEval eval{i};
-            if (eval.slow()) continue;
-            cost += V3InstrCount::count(netlistp->evalFuncp(eval), false);
+        માટે (પૂર્ણાંક i = 0; i < VEval::_ENUM_END; ++i) {
+            અચલ VEval eval{i};
+            જો (eval.slow()) ચાલુ;
+            cost += V3_Instr_ગણતરી::ગણતરી(netlistp->evalFuncp(eval), ખોટું);
         }
         UINFO(9, "Evaluating cost: " << cost);
-        return cost;
+        પાછા cost;
     }
 };
 
 //######################################################################
 // V3Control
 
-void V3Control::addCaseFull(const string& filename, int lineno) {
+શૂન્ય V3Control::addCaseFull(અચલ string& filename, પૂર્ણાંક lineno) {
     V3ControlFile& file = V3ControlResolver::s().files().at(filename);
-    file.addLineAttribute(lineno, VPragmaType::FULL_CASE);
+    file.add_લીટી_Attribute(lineno, VPragmaType::FULL_CASE);
 }
-void V3Control::addCaseParallel(const string& filename, int lineno) {
+શૂન્ય V3Control::addCaseParallel(અચલ string& filename, પૂર્ણાંક lineno) {
     V3ControlFile& file = V3ControlResolver::s().files().at(filename);
-    file.addLineAttribute(lineno, VPragmaType::PARALLEL_CASE);
+    file.add_લીટી_Attribute(lineno, VPragmaType::PARALLEL_CASE);
 }
-void V3Control::addCoverageBlockOff(const string& filename, int lineno) {
+શૂન્ય V3Control::addCoverageBlockOff(અચલ string& filename, પૂર્ણાંક lineno) {
     V3ControlFile& file = V3ControlResolver::s().files().at(filename);
-    file.addLineAttribute(lineno, VPragmaType::COVERAGE_BLOCK_OFF);
+    file.add_લીટી_Attribute(lineno, VPragmaType::COVERAGE_BLOCK_OFF);
 }
-void V3Control::addCoverageBlockOff(const string& module, const string& blockname) {
+શૂન્ય V3Control::addCoverageBlockOff(અચલ string& module, અચલ string& blockname) {
     V3ControlResolver::s().modules().at(module).addCoverageBlockOff(blockname);
 }
 
-void V3Control::addHierWorkers(FileLine* fl, const string& model, int workers) {
+શૂન્ય V3Control::addHierWorkers(File_લીટી* fl, અચલ string& model, પૂર્ણાંક workers) {
     V3ControlResolver::s().addHierWorkers(fl, model, workers);
 }
 
-void V3Control::addFsmRegisterWrapper(FileLine* fl, const string& module, const string& d,
-                                      const string& q, const string& clock, const string& reset,
-                                      const string& resetValue) {
+શૂન્ય V3Control::addFsmRegisterWrapper(File_લીટી* fl, અચલ string& module, અચલ string& d,
+                                      અચલ string& q, અચલ string& clock, અચલ string& reset,
+                                      અચલ string& reset_કિંમત) {
     string missing;
-    if (module.empty()) missing += "-module";
-    if (d.empty()) missing = VString::dot(missing, ", ", "-d");
-    if (q.empty()) missing = VString::dot(missing, ", ", "-q");
-    if (clock.empty()) missing = VString::dot(missing, ", ", "-clock");
-    if (!missing.empty()) {
+    જો (module.empty()) missing += "-module";
+    જો (d.empty()) missing = VString::dot(missing, ", ", "-d");
+    જો (q.empty()) missing = VString::dot(missing, ", ", "-q");
+    જો (clock.empty()) missing = VString::dot(missing, ", ", "-clock");
+    જો (!missing.empty()) {
         fl->v3error("fsm_register_wrapper missing " << missing);
-        return;
+        પાછા;
     }
 
-    const FsmRegisterWrapper desc{module, d, q, clock, reset, resetValue};
+    અચલ FsmRegisterWrapper desc{module, d, q, clock, reset, reset_કિંમત};
     V3ControlResolver::s().modules().at(module).setFsmRegisterWrapper(fl, desc);
 }
 
-void V3Control::addIgnore(V3ErrorCode code, bool on, const string& filename, int min, int max) {
+શૂન્ય V3Control::addIgnore(V3ErrorCode code, તાર્કિક on, અચલ string& filename, પૂર્ણાંક min, પૂર્ણાંક max) {
     UINFO(9, "addIgnore " << code << " " << min << "-" << max << " fn=" << filename);
-    if (filename == "*") {  // For "lint_off/lint_on [--rule x]"
-        FileLine::globalWarnOff(code, !on);
-    } else {  // For "lint_off/lint_on [--rule x] --file y [-lines min[-max]]"
+    જો (filename == "*") {  // For "lint_off/lint_on [--rule x]"
+        File_લીટી::globalWarnOff(code, !on);
+    } નહીંતર {  // For "lint_off/lint_on [--rule x] --file y [-lines min[-max]]"
         V3ControlResolver::s().files().at(filename).addIgnore(code, min, max, on);
     }
 }
-void V3Control::addIgnoreMatch(V3ErrorCode code, const string& filename, const string& contents,
-                               const string& match) {
+શૂન્ય V3Control::addIgnoreMatch(V3ErrorCode code, અચલ string& filename, અચલ string& contents,
+                               અચલ string& match) {
     // For "lint_off --rule x --file y --match z", no support for lint_on
     V3ControlResolver::s().files().at(filename).addIgnoreMatch(code, contents, match);
 }
 
-void V3Control::addInline(FileLine* fl, const string& module, const string& ftask, bool on) {
-    if (ftask.empty()) {
+શૂન્ય V3Control::addInline(File_લીટી* fl, અચલ string& module, અચલ string& ftask, તાર્કિક on) {
+    જો (ftask.empty()) {
         V3ControlResolver::s().modules().at(module).setInline(on);
-    } else {
-        if (!on) {
+    } નહીંતર {
+        જો (!on) {
             fl->v3warn(E_UNSUPPORTED, "Unsupported: no_inline for tasks");
-        } else {
+        } નહીંતર {
             V3ControlResolver::s().modules().at(module).ftasks().at(ftask).setNoInline(on);
         }
     }
 }
 
-void V3Control::addModulePragma(const string& module, VPragmaType pragma) {
+શૂન્ય V3Control::addModulePragma(અચલ string& module, VPragmaType pragma) {
     V3ControlResolver::s().modules().at(module).addModulePragma(pragma);
 }
 
-void V3Control::addProfileData(FileLine* fl, const string& hierDpi, uint64_t cost) {
+શૂન્ય V3Control::addProfileData(File_લીટી* fl, અચલ string& hierDpi, uint64_t cost) {
     V3ControlResolver::s().addProfileData(fl, hierDpi, cost);
 }
-void V3Control::addProfileData(FileLine* fl, const string& model, const string& key,
+શૂન્ય V3Control::addProfileData(File_લીટી* fl, અચલ string& model, અચલ string& ચાવી,
                                uint64_t cost) {
-    V3ControlResolver::s().addProfileData(fl, model, key, cost);
+    V3ControlResolver::s().addProfileData(fl, model, ચાવી, cost);
 }
 
-void V3Control::addScopeTraceOn(bool on, const string& scope, int levels) {
+શૂન્ય V3Control::addScopeTraceOn(તાર્કિક on, અચલ string& scope, પૂર્ણાંક levels) {
     V3ControlResolver::s().scopeTraces().addScopeTraceOn(on, scope, levels);
 }
 
-void V3Control::addVarAttr(FileLine* fl, const string& module, const string& ftask,
-                           VarSpecKind kind, const string& pattern, VAttrType attr,
-                           AstSenTree* sensep) {
-    if (sensep) {
-        FileLine* const flp = sensep->fileline();
+શૂન્ય V3Control::addVarAttr(File_લીટી* fl, અચલ string& module, અચલ string& ftask,
+                           VarSpecKind kind, અચલ string& pattern, VAttrType attr,
+                           Ast_Sen_વૃક્ષ* sensep) {
+    જો (sensep) {
+        File_લીટી* અચલ flp = sensep->fileline();
         // Historical, not actually needed, only parsed for compatibility, delete it
-        VL_DO_DANGLING(sensep->deleteTree(), sensep);
+        VL_DO_DANGLING(sensep->delete_વૃક્ષ(), sensep);
         // Used to be only accepted on public_flat_rw
-        if (attr != VAttrType::VAR_PUBLIC_FLAT_RW) {
+        જો (attr != VAttrType::VAR_PUBLIC_FLAT_RW) {
             flp->v3error("sensitivity not expected for attribute");
-            return;
+            પાછા;
         }
     }
 
-    if (kind != VarSpecKind::VAR) {
-        switch (attr) {
-        case VAttrType::VAR_PUBLIC_FLAT:
-        case VAttrType::VAR_PUBLIC_FLAT_RD:
-        case VAttrType::VAR_PUBLIC_FLAT_RW: break;
-        default:
+    જો (kind != VarSpecKind::VAR) {
+        પસંદગી (attr) {
+        સ્થિતિ VAttrType::VAR_PUBLIC_FLAT:
+        સ્થિતિ VAttrType::VAR_PUBLIC_FLAT_RD:
+        સ્થિતિ VAttrType::VAR_PUBLIC_FLAT_RW: તોડો;
+        મૂળભૂત:
             fl->v3error("'"s + attr.ascii() + "' attribute does not accept -param/-port");
-            return;
+            પાછા;
         }
     }
 
     // Semantics: Most of the attributes operate on signals
-    if (pattern.empty()) {
-        if (attr == VAttrType::VAR_PUBLIC) {
-            if (ftask.empty()) {
+    જો (pattern.empty()) {
+        જો (attr == VAttrType::VAR_PUBLIC) {
+            જો (ftask.empty()) {
                 // public module, this is the only exception from var here
                 V3ControlResolver::s().modules().at(module).addModulePragma(
                     VPragmaType::PUBLIC_MODULE);
-            } else {
-                V3ControlResolver::s().modules().at(module).ftasks().at(ftask).setPublic(true);
+            } નહીંતર {
+                V3ControlResolver::s().modules().at(module).ftasks().at(ftask).setPublic(સાચું);
             }
-        } else {
+        } નહીંતર {
             fl->v3error("missing -var");
         }
-    } else {
-        if (attr == VAttrType::VAR_FORCEABLE) {
-            if (module.empty()) {
+    } નહીંતર {
+        જો (attr == VAttrType::VAR_FORCEABLE) {
+            જો (module.empty()) {
                 fl->v3error("forceable missing -module");
-            } else if (!ftask.empty()) {
+            } નહીંતર જો (!ftask.empty()) {
                 fl->v3error("Signals inside functions/tasks cannot be marked forceable");
-            } else {
+            } નહીંતર {
                 V3ControlResolver::s().modules().at(module).vars().at(pattern).add(attr);
             }
-        } else {
+        } નહીંતર {
             V3ControlModule& mod = V3ControlResolver::s().modules().at(module);
             V3ControlVar& controlVar = [&]() -> V3ControlVar& {
-                if (ftask.empty()) {
-                    if (kind == VarSpecKind::PARAM) return mod.params().at(pattern);
-                    if (kind == VarSpecKind::PORT) return mod.ports().at(pattern);
+                જો (ftask.empty()) {
+                    જો (kind == VarSpecKind::PARAM) પાછા mod.params().at(pattern);
+                    જો (kind == VarSpecKind::PORT) પાછા mod.ports().at(pattern);
                     UASSERT_OBJ(kind == VarSpecKind::VAR, fl, "Unexpected VarSpecKind");
-                    return mod.vars().at(pattern);
+                    પાછા mod.vars().at(pattern);
                 }
-                if (kind == VarSpecKind::PARAM) return mod.ftasks().at(ftask).params().at(pattern);
-                if (kind == VarSpecKind::PORT) return mod.ftasks().at(ftask).ports().at(pattern);
+                જો (kind == VarSpecKind::PARAM) પાછા mod.ftasks().at(ftask).params().at(pattern);
+                જો (kind == VarSpecKind::PORT) પાછા mod.ftasks().at(ftask).ports().at(pattern);
                 UASSERT_OBJ(kind == VarSpecKind::VAR, fl, "Unexpected VarSpecKind");
-                return mod.ftasks().at(ftask).vars().at(pattern);
+                પાછા mod.ftasks().at(ftask).vars().at(pattern);
             }();
             controlVar.add(attr);
         }
     }
 }
 
-void V3Control::applyCase(AstCase* nodep) {
-    const string& filename = nodep->fileline()->filename();
-    V3ControlFile* const filep = V3ControlResolver::s().files().resolve(filename);
-    if (filep) filep->applyCase(nodep);
+શૂન્ય V3Control::applyCase(AstCase* nodep) {
+    અચલ string& filename = nodep->fileline()->filename();
+    V3ControlFile* અચલ filep = V3ControlResolver::s().files().resolve(filename);
+    જો (filep) filep->applyCase(nodep);
 }
 
-void V3Control::applyCoverageBlock(AstNodeModule* modulep, AstBegin* nodep) {
-    const string& filename = nodep->fileline()->filename();
-    V3ControlFile* const filep = V3ControlResolver::s().files().resolve(filename);
-    if (filep) filep->applyBlock(nodep);
-    const string& modname = modulep->prettyDehashOrigOrName();
-    V3ControlModule* const modp = V3ControlResolver::s().modules().resolve(modname);
-    if (modp) modp->applyBlock(nodep);
+શૂન્ય V3Control::applyCoverageBlock(Ast_ગાંઠ_Module* modulep, AstBegin* nodep) {
+    અચલ string& filename = nodep->fileline()->filename();
+    V3ControlFile* અચલ filep = V3ControlResolver::s().files().resolve(filename);
+    જો (filep) filep->applyBlock(nodep);
+    અચલ string& modname = modulep->prettyDehashOrigOrName();
+    V3ControlModule* અચલ modp = V3ControlResolver::s().modules().resolve(modname);
+    જો (modp) modp->applyBlock(nodep);
 }
-void V3Control::applyCoverageBlock(AstNodeModule* modulep, AstGenBlock* nodep) {
-    const string& filename = nodep->fileline()->filename();
-    V3ControlFile* const filep = V3ControlResolver::s().files().resolve(filename);
-    if (filep) filep->applyBlock(nodep);
-    const string& modname = modulep->prettyDehashOrigOrName();
-    V3ControlModule* const modp = V3ControlResolver::s().modules().resolve(modname);
-    if (modp) modp->applyBlock(nodep);
-}
-
-void V3Control::applyIgnores(FileLine* filelinep) {
-    const string& filename = filelinep->filename();
-    V3ControlFile* const filep = V3ControlResolver::s().files().resolve(filename);
-    if (filep) filep->applyIgnores(filelinep);
+શૂન્ય V3Control::applyCoverageBlock(Ast_ગાંઠ_Module* modulep, AstGenBlock* nodep) {
+    અચલ string& filename = nodep->fileline()->filename();
+    V3ControlFile* અચલ filep = V3ControlResolver::s().files().resolve(filename);
+    જો (filep) filep->applyBlock(nodep);
+    અચલ string& modname = modulep->prettyDehashOrigOrName();
+    V3ControlModule* અચલ modp = V3ControlResolver::s().modules().resolve(modname);
+    જો (modp) modp->applyBlock(nodep);
 }
 
-void V3Control::applyModule(AstNodeModule* modulep) {
-    const string& modname = modulep->prettyDehashOrigOrName();
-    V3ControlModule* const modp = V3ControlResolver::s().modules().resolve(modname);
-    if (modp) modp->apply(modulep);
+શૂન્ય V3Control::applyIgnores(File_લીટી* filelinep) {
+    અચલ string& filename = filelinep->filename();
+    V3ControlFile* અચલ filep = V3ControlResolver::s().files().resolve(filename);
+    જો (filep) filep->applyIgnores(filelinep);
 }
 
-void V3Control::applyFTask(AstNodeModule* modulep, AstNodeFTask* ftaskp) {
-    const string& modname = modulep->prettyDehashOrigOrName();
-    V3ControlModule* const modp = V3ControlResolver::s().modules().resolve(modname);
-    if (!modp) return;
-    const V3ControlFTask* const ftp = modp->ftasks().resolve(ftaskp->prettyDehashOrigOrName());
-    if (ftp) ftp->apply(ftaskp);
+શૂન્ય V3Control::applyModule(Ast_ગાંઠ_Module* modulep) {
+    અચલ string& modname = modulep->prettyDehashOrigOrName();
+    V3ControlModule* અચલ modp = V3ControlResolver::s().modules().resolve(modname);
+    જો (modp) modp->apply(modulep);
+}
+
+શૂન્ય V3Control::applyFTask(Ast_ગાંઠ_Module* modulep, Ast_ગાંઠ_FTask* ftaskp) {
+    અચલ string& modname = modulep->prettyDehashOrigOrName();
+    V3ControlModule* અચલ modp = V3ControlResolver::s().modules().resolve(modname);
+    જો (!modp) પાછા;
+    અચલ V3ControlFTask* અચલ ftp = modp->ftasks().resolve(ftaskp->prettyDehashOrigOrName());
+    જો (ftp) ftp->apply(ftaskp);
 }
 
 template <typename T_Resolver>
-static void resolveThenApply(T_Resolver& resolver, AstVar* varp) {
-    const std::string name = varp->prettyDehashOrigOrName();
-    if (const V3ControlVar* const vp = resolver.vars().resolve(name)) vp->apply(varp);
-    if (varp->isParam()) {
-        if (const V3ControlVar* const vp = resolver.params().resolve(name)) vp->apply(varp);
+સ્થિર શૂન્ય resolveThenApply(T_Resolver& resolver, AstVar* varp) {
+    અચલ std::string name = varp->prettyDehashOrigOrName();
+    જો (અચલ V3ControlVar* અચલ vp = resolver.vars().resolve(name)) vp->apply(varp);
+    જો (varp->isParam()) {
+        જો (અચલ V3ControlVar* અચલ vp = resolver.params().resolve(name)) vp->apply(varp);
     }
-    if (varp->isIO()) {
-        if (const V3ControlVar* const vp = resolver.ports().resolve(name)) vp->apply(varp);
+    જો (varp->isIO()) {
+        જો (અચલ V3ControlVar* અચલ vp = resolver.ports().resolve(name)) vp->apply(varp);
     }
 }
 
-void V3Control::applyVarAttr(const AstNodeModule* modulep, const AstNodeFTask* ftaskp,
+શૂન્ય V3Control::applyVarAttr(અચલ Ast_ગાંઠ_Module* modulep, અચલ Ast_ગાંઠ_FTask* ftaskp,
                              AstVar* varp) {
-    V3ControlModule* const modp
+    V3ControlModule* અચલ modp
         = V3ControlResolver::s().modules().resolve(modulep->prettyDehashOrigOrName());
-    if (!modp) return;
-    if (ftaskp) {
-        V3ControlFTask* const ftp = modp->ftasks().resolve(ftaskp->prettyDehashOrigOrName());
-        if (!ftp) return;
+    જો (!modp) પાછા;
+    જો (ftaskp) {
+        V3ControlFTask* અચલ ftp = modp->ftasks().resolve(ftaskp->prettyDehashOrigOrName());
+        જો (!ftp) પાછા;
         resolveThenApply(*ftp, varp);
-    } else {
+    } નહીંતર {
         resolveThenApply(*modp, varp);
     }
 }
 
-int V3Control::getHierWorkers(const string& model) {
-    return V3ControlResolver::s().getHierWorkers(model);
+પૂર્ણાંક V3Control::getHierWorkers(અચલ string& model) {
+    પાછા V3ControlResolver::s().getHierWorkers(model);
 }
-FileLine* V3Control::getHierWorkersFileLine(const string& model) {
-    return V3ControlResolver::s().getHierWorkersFileLine(model);
+File_લીટી* V3Control::get_Hier_Workers_File_લીટી(અચલ string& model) {
+    પાછા V3ControlResolver::s().get_Hier_Workers_File_લીટી(model);
 }
-const V3Control::FsmRegisterWrapper* V3Control::getFsmRegisterWrapper(const string& module) {
-    V3ControlModule* const modp = V3ControlResolver::s().modules().resolve(module);
-    return modp ? modp->fsmRegisterWrapperp() : nullptr;
+અચલ V3Control::FsmRegisterWrapper* V3Control::getFsmRegisterWrapper(અચલ string& module) {
+    V3ControlModule* અચલ modp = V3ControlResolver::s().modules().resolve(module);
+    પાછા modp ? modp->fsmRegisterWrapperp() : nullptr;
 }
-uint64_t V3Control::getProfileData(const string& hierDpi) {
-    return V3ControlResolver::s().getProfileData(hierDpi);
+uint64_t V3Control::getProfileData(અચલ string& hierDpi) {
+    પાછા V3ControlResolver::s().getProfileData(hierDpi);
 }
-uint64_t V3Control::getProfileData(const string& model, const string& key) {
-    return V3ControlResolver::s().getProfileData(model, key);
+uint64_t V3Control::getProfileData(અચલ string& model, અચલ string& ચાવી) {
+    પાછા V3ControlResolver::s().getProfileData(model, ચાવી);
 }
-FileLine* V3Control::getProfileDataFileLine() {
-    return V3ControlResolver::s().getProfileDataFileLine();
+File_લીટી* V3Control::get_Profile_Data_File_લીટી() {
+    પાછા V3ControlResolver::s().get_Profile_Data_File_લીટી();
 }
-bool V3Control::getScopeTraceOn(const string& scope) {
-    return V3ControlResolver::s().scopeTraces().getScopeTraceOn(scope);
+તાર્કિક V3Control::getScopeTraceOn(અચલ string& scope) {
+    પાછા V3ControlResolver::s().scopeTraces().getScopeTraceOn(scope);
 }
 
-void V3Control::contentsPushText(const string& text) { WildcardContents::pushText(text); }
+શૂન્ય V3Control::contents_ધકેલો_Text(અચલ string& text) { WildcardContents::ધકેલો_Text(text); }
 
-bool V3Control::containsMTaskProfileData() {
-    return V3ControlResolver::s().containsMTaskProfileData();
+તાર્કિક V3Control::containsMTaskProfileData() {
+    પાછા V3ControlResolver::s().containsMTaskProfileData();
 }
 uint64_t V3Control::getCurrentHierBlockCost() {
-    return V3ControlResolver::s().getCurrentHierBlockCost();
+    પાછા V3ControlResolver::s().getCurrentHierBlockCost();
 }
 
-bool V3Control::waive(const FileLine* filelinep, V3ErrorCode code, const string& message) {
-    V3ControlFile* const filep = V3ControlResolver::s().files().resolve(filelinep->filename());
-    if (!filep) return false;
-    return filep->waive(code, message);
+તાર્કિક V3Control::waive(અચલ File_લીટી* filelinep, V3ErrorCode code, અચલ string& message) {
+    V3ControlFile* અચલ filep = V3ControlResolver::s().files().resolve(filelinep->filename());
+    જો (!filep) પાછા ખોટું;
+    પાછા filep->waive(code, message);
 }
 
-void V3Control::selfTest() { VIntervalTree::selfTest(); }
+શૂન્ય V3Control::selfTest() { VInterval_વૃક્ષ::selfTest(); }

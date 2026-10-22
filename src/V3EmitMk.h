@@ -17,20 +17,20 @@
 #ifndef VERILATOR_V3EMITMK_H_
 #define VERILATOR_V3EMITMK_H_
 
-#include "config_build.h"
-#include "verilatedos.h"
+#અન્તર્ભાવ "config_build.h"
+#અન્તર્ભાવ "verilatedos.h"
 
 class V3HierGraph;
 
 //============================================================================
 
 class V3EmitMk final {
-public:
+જાહેર:
     // Number of source files after which to use parallel compiles
-    static const size_t PARALLEL_FILE_CNT_THRESHOLD = 128;
+    સ્થિર અચલ size_t PARALLEL_FILE_CNT_THRESHOLD = 128;
 
-    static void emitmk() VL_MT_DISABLED;
-    static void emitHierVerilation(const V3HierGraph* planp) VL_MT_DISABLED;
+    સ્થિર શૂન્ય emitmk() VL_MT_DISABLED;
+    સ્થિર શૂન્ય emitHierVerilation(અચલ V3HierGraph* planp) VL_MT_DISABLED;
 };
 
 #endif  // Guard

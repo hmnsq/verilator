@@ -17,53 +17,53 @@
 #ifndef VERILATOR_V3CONTAINER_H_
 #define VERILATOR_V3CONTAINER_H_
 
-#include "config_build.h"
-#include "verilatedos.h"
+#અન્તર્ભાવ "config_build.h"
+#અન્તર્ભાવ "verilatedos.h"
 
-#include <unordered_map>
-#include <unordered_set>
-#include <vector>
+#અન્તર્ભાવ <unordered_map>
+#અન્તર્ભાવ <unordered_set>
+#અન્તર્ભાવ <vector>
 
 //============================================================================
 
 // Similar to std::set, but ordered based on call order to emplace.  Used
 // when insertion order is desired (e.g. std::vector), but duplicates need removal.
 // Keys may not be modified.  (If needed in future, m_set could contain vector positions.)
-template <typename T_Key>
+template <typename T_ચાવી>
 class VInsertionSet final {
-    std::vector<T_Key> m_keys;  // Elements by insertion order
-    std::unordered_set<T_Key> m_keySet;  // Elements by key
-public:
+    std::vector<T_ચાવી> m_ચાવીઓ;  // Elements by insertion order
+    std::unordered_set<T_ચાવી> m_ચાવી_Set;  // Elements by key
+જાહેર:
     // METHODS
-    bool insert(const T_Key& key) {
+    bool ઉમેરો(અચલ T_ચાવી& ચાવી) {
         // Returns if did insertion (second pair argument of traditional emplace)
-        const auto itFoundPair = m_keySet.insert(key);
-        if (itFoundPair.second) m_keys.push_back(key);
-        return itFoundPair.second;
+        અચલ auto itFoundPair = m_ચાવી_Set.ઉમેરો(ચાવી);
+        જો (itFoundPair.second) m_ચાવીઓ.ધકેલો_back(ચાવી);
+        પાછા itFoundPair.second;
     }
     template <typename T>
-    void insert(T begin, const T end) {
-        static_assert(std::is_same<typename std::iterator_traits<T>::value_type, T_Key>::value,
+    શૂન્ય ઉમેરો(T begin, અચલ T end) {
+        static_assert(std::is_same<typename std::iterator_traits<T>::કિંમત_type, T_ચાવી>::કિંમત,
                       "T must be an iterator with value type T_Key");
-        while (begin != end) {
-            if (m_keySet.insert(*begin).second) m_keys.push_back(*begin);
+        જ્યારે (begin != end) {
+            જો (m_ચાવી_Set.ઉમેરો(*begin).second) m_ચાવીઓ.ધકેલો_back(*begin);
             ++begin;
         }
     }
-    void clear() {
-        m_keys.clear();
-        m_keySet.clear();
+    શૂન્ય clear() {
+        m_ચાવીઓ.clear();
+        m_ચાવી_Set.clear();
     }
 
     // ACCESSORS
-    bool empty() const { return m_keys.empty(); }
-    size_t size() const { return m_keys.size(); }
-    bool exists(const T_Key& key) const { return m_keySet.find(key) != m_keySet.end(); }
+    bool empty() અચલ { પાછા m_ચાવીઓ.empty(); }
+    size_t size() અચલ { પાછા m_ચાવીઓ.size(); }
+    bool exists(અચલ T_ચાવી& ચાવી) અચલ { પાછા m_ચાવી_Set.find(ચાવી) != m_ચાવી_Set.end(); }
 
     // ITERATORS
-    using const_iterator = typename std::vector<T_Key>::const_iterator;
-    const_iterator begin() const { return m_keys.begin(); }
-    const_iterator end() const { return m_keys.end(); }
+    using const_iterator = typename std::vector<T_ચાવી>::const_iterator;
+    const_iterator begin() અચલ { પાછા m_ચાવીઓ.begin(); }
+    const_iterator end() અચલ { પાછા m_ચાવીઓ.end(); }
 };
 
 //============================================================================

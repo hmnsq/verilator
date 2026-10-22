@@ -21,17 +21,17 @@
 //
 //*************************************************************************
 
-#include "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
+#અન્તર્ભાવ "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
 
-#include "V3Table.h"
+#અન્તર્ભાવ "V3Table.h"
 
-#include "V3ConstPool.h"
-#include "V3SharedTmps.h"
-#include "V3Simulate.h"
-#include "V3Stats.h"
+#અન્તર્ભાવ "V3ConstPool.h"
+#અન્તર્ભાવ "V3SharedTmps.h"
+#અન્તર્ભાવ "V3Simulate.h"
+#અન્તર્ભાવ "V3Stats.h"
 
-#include <cmath>
-#include <vector>
+#અન્તર્ભાવ <cmath>
+#અન્તર્ભાવ <vector>
 
 VL_DEFINE_DEBUG_FUNCTIONS;
 
@@ -40,123 +40,123 @@ VL_DEFINE_DEBUG_FUNCTIONS;
 
 // CONFIG
 // 1MB is max table size (better be lots of instructs to be worth it!)
-static constexpr int TABLE_MAX_BYTES = 1 * 1024 * 1024;
+સ્થિર constexpr પૂર્ણાંક TABLE_MAX_BYTES = 1 * 1024 * 1024;
 // 64MB is close to max memory of some systems (256MB or so), so don't get out of control
-static constexpr int TABLE_TOTAL_BYTES = 64 * 1024 * 1024;
+સ્થિર constexpr પૂર્ણાંક TABLE_TOTAL_BYTES = 64 * 1024 * 1024;
 // Worth no more than 8 bytes of data to replace an instruction
-static constexpr int TABLE_SPACE_TIME_MULT = 8;
+સ્થિર constexpr પૂર્ણાંક TABLE_SPACE_TIME_MULT = 8;
 // If < 32 instructions, not worth the effort
-static constexpr int TABLE_MIN_NODE_COUNT = 32;
+સ્થિર constexpr પૂર્ણાંક TABLE_MIN_ગાંઠ_ગણતરી = 32;
 // Assume an instruction is 4 bytes
-static constexpr int TABLE_BYTES_PER_INST = 4;
+સ્થિર constexpr પૂર્ણાંક TABLE_BYTES_PER_INST = 4;
 
 //######################################################################
 
-class TableVisitor;
+વર્ગ TableVisitor;
 
-class TableSimulateVisitor final : public SimulateVisitor {
+વર્ગ TableSimulateVisitor final : જાહેર SimulateVisitor {
     // MEMBERS
-    TableVisitor* const m_cbthis;  ///< Class for callback
+    TableVisitor* અચલ m_cbthis;  ///< Class for callback
 
-public:
+જાહેર:
     ///< Call other-this function on all new var references
-    void varRefCb(AstVarRef* nodep) override;
+    શૂન્ય varRefCb(AstVarRef* nodep) override;
 
     // CONSTRUCTORS
     explicit TableSimulateVisitor(TableVisitor* cbthis)
         : m_cbthis{cbthis} {}
-    ~TableSimulateVisitor() override = default;
+    ~TableSimulateVisitor() override = મૂળભૂત;
 };
 
 //######################################################################
 // Class for holding lookup table state during construction
 
-class TableBuilder final {
-    FileLine* const m_fl;  // FileLine used during construction
+વર્ગ TableBuilder final {
+    File_લીટી* અચલ m_fl;  // FileLine used during construction
     AstConsArray* m_consp = nullptr;  // The lookup table initializer values
     AstVarScope* m_varScopep = nullptr;  // The scoped variable holding the table
 
-public:
-    explicit TableBuilder(FileLine* fl)
+જાહેર:
+    explicit TableBuilder(File_લીટી* fl)
         : m_fl{fl} {}
 
     ~TableBuilder() {
-        if (m_consp) VL_DO_DANGLING(m_consp->deleteTree(), m_consp);
+        જો (m_consp) VL_DO_DANGLING(m_consp->delete_વૃક્ષ(), m_consp);
     }
 
-    void setTableSize(AstNodeDType* elemDType, unsigned size) {
+    શૂન્ય setTableSize(Ast_ગાંઠ_DType* elemDType, unsigned size) {
         UASSERT_OBJ(!m_consp, m_fl, "Table size already set");
         UASSERT_OBJ(size > 0, m_fl, "Size zero");
         // TODO: Assert elemDType is a packed type
         // Create data type
-        const int width = elemDType->width();
-        AstNodeDType* const subDTypep
+        અચલ પૂર્ણાંક width = elemDType->width();
+        Ast_ગાંઠ_DType* અચલ subDTypep
             = elemDType->isString() || elemDType->isDouble()
                   ? elemDType
                   : v3Global.rootp()->findBitDType(width, width, VSigning::UNSIGNED);
-        AstUnpackArrayDType* const tableDTypep = new AstUnpackArrayDType{
-            m_fl, subDTypep, new AstRange{m_fl, static_cast<int>(size), 0}};
+        AstUnpackArrayDType* અચલ tableDTypep = નવું AstUnpackArrayDType{
+            m_fl, subDTypep, નવું AstRange{m_fl, static_cast<પૂર્ણાંક>(size), 0}};
         v3Global.rootp()->typeTablep()->addTypesp(tableDTypep);
         // Create table initializer (with default value 0)
-        AstConst* const defaultp
-            = elemDType->isString()   ? new AstConst{m_fl, AstConst::String{}, ""}
-              : elemDType->isDouble() ? new AstConst{m_fl, AstConst::RealDouble{}, 0.0}
-                                      : new AstConst{m_fl, AstConst::WidthedValue{}, width, 0};
-        m_consp = new AstConsArray{m_fl, tableDTypep, defaultp};
+        AstConst* અચલ defaultp
+            = elemDType->isString()   ? નવું AstConst{m_fl, AstConst::String{}, ""}
+              : elemDType->isDouble() ? નવું AstConst{m_fl, AstConst::RealDouble{}, 0.0}
+                                      : નવું AstConst{m_fl, AstConst::Widthed_કિંમત{}, width, 0};
+        m_consp = નવું AstConsArray{m_fl, tableDTypep, defaultp};
     }
 
-    void addValue(unsigned index, const V3Number& value) {
+    શૂન્ય add_કિંમત(unsigned index, અચલ V3_સંખ્યા& કિંમત) {
         UASSERT_OBJ(!m_varScopep, m_fl, "Table variable already created");
         // Default value is zero/empty string so don't add it
-        if (value.isString() ? value.toString().empty() : value.isEqZero()) return;
-        m_consp->valuep(index, new AstConst{m_fl, value});
+        જો (કિંમત.isString() ? કિંમત.toString().empty() : કિંમત.isEqZero()) પાછા;
+        m_consp->valuep(index, નવું AstConst{m_fl, કિંમત});
     }
 
     AstVarScope* varScopep() {
-        if (!m_varScopep) {
-            AstVarRef* const refp = V3ConstPool::find(m_consp);
+        જો (!m_varScopep) {
+            AstVarRef* અચલ refp = V3ConstPool::find(m_consp);
             m_varScopep = refp->varScopep();
-            VL_DO_DANGLING(refp->deleteTree(), refp);
+            VL_DO_DANGLING(refp->delete_વૃક્ષ(), refp);
         }
-        return m_varScopep;
+        પાછા m_varScopep;
     }
 };
 
 //######################################################################
 // Class for holding output variable state during table conversion of logic
 
-class TableOutputVar final {
-    AstVarScope* const m_varScopep;  // The output variable
-    const unsigned m_ord;  // Output ordinal number in this block
-    bool m_mayBeUnassigned = false;  // If true, then this variable may be unassigned through
+વર્ગ TableOutputVar final {
+    AstVarScope* અચલ m_varScopep;  // The output variable
+    અચલ unsigned m_ord;  // Output ordinal number in this block
+    તાર્કિક m_mayBeUnassigned = ખોટું;  // If true, then this variable may be unassigned through
                                      // some path through the block being table converted
     TableBuilder m_tableBuilder;
 
-public:
+જાહેર:
     TableOutputVar(AstVarScope* varScopep, unsigned ord)
         : m_varScopep{varScopep}
         , m_ord{ord}
         , m_tableBuilder{varScopep->fileline()} {}
 
-    AstVarScope* varScopep() const { return m_varScopep; }
-    string name() const { return varScopep()->varp()->name(); }
-    unsigned ord() const { return m_ord; }
-    void setMayBeUnassigned() { m_mayBeUnassigned = true; }
-    bool mayBeUnassigned() const { return m_mayBeUnassigned; }
-    void setTableSize(unsigned size) { m_tableBuilder.setTableSize(varScopep()->dtypep(), size); }
-    void addValue(unsigned index, const V3Number& value) { m_tableBuilder.addValue(index, value); }
-    AstVarScope* tabeVarScopep() { return m_tableBuilder.varScopep(); }
+    AstVarScope* varScopep() અચલ { પાછા m_varScopep; }
+    string name() અચલ { પાછા varScopep()->varp()->name(); }
+    unsigned ord() અચલ { પાછા m_ord; }
+    શૂન્ય setMayBeUnassigned() { m_mayBeUnassigned = સાચું; }
+    તાર્કિક mayBeUnassigned() અચલ { પાછા m_mayBeUnassigned; }
+    શૂન્ય setTableSize(unsigned size) { m_tableBuilder.setTableSize(varScopep()->dtypep(), size); }
+    શૂન્ય add_કિંમત(unsigned index, અચલ V3_સંખ્યા& કિંમત) { m_tableBuilder.add_કિંમત(index, કિંમત); }
+    AstVarScope* tabeVarScopep() { પાછા m_tableBuilder.varScopep(); }
 };
 
 //######################################################################
 // Table class functions
 
-class TableVisitor final : public VNVisitor {
+વર્ગ TableVisitor final : જાહેર VNVisitor {
     // NODE STATE
     // Cleared on each always/assignw
 
     // STATE
-    double m_totalBytes = 0;  // Total bytes in tables created
+    દ્વિગુણ m_totalBytes = 0;  // Total bytes in tables created
     VDouble0 m_statTablesCre;  // Statistic tracking
     V3SharedTmps m_indexTmps{"__Vtableidx", VVarType::BLOCKTEMP};  // Table index variables
 
@@ -164,7 +164,7 @@ class TableVisitor final : public VNVisitor {
     AstScope* m_scopep = nullptr;  // Current SCOPE
 
     //  State cleared on each always/assignw
-    bool m_assignDly = false;  // Consists of delayed assignments instead of normal assignments
+    તાર્કિક m_assignDly = ખોટું;  // Consists of delayed assignments instead of normal assignments
     unsigned m_inWidthBits = 0;  // Input table width - in bits
     unsigned m_outWidthBytes = 0;  // Output table width - in bytes
     std::vector<AstVarScope*> m_inVarps;  // Input variable list
@@ -172,25 +172,25 @@ class TableVisitor final : public VNVisitor {
 
     // METHODS
 
-public:
-    void simulateVarRefCb(AstVarRef* nodep) {
+જાહેર:
+    શૂન્ય simulateVarRefCb(AstVarRef* nodep) {
         // Called by TableSimulateVisitor on each unique varref encountered
         UINFO(9, "   SimVARREF " << nodep);
-        AstVarScope* const vscp = nodep->varScopep();
-        if (nodep->access().isWriteOrRW()) {
+        AstVarScope* અચલ vscp = nodep->varScopep();
+        જો (nodep->access().isWriteOrRW()) {
             // We'll make the table with a separate natural alignment for each output var, so
             // always have 8, 16 or 32 bit widths, so use widthTotalBytes
             m_outWidthBytes += nodep->varp()->dtypeSkipRefp()->widthTotalBytes();
             m_outVarps.emplace_back(vscp, static_cast<unsigned>(m_outVarps.size()));
         }
-        if (nodep->access().isReadOrRW()) {
+        જો (nodep->access().isReadOrRW()) {
             m_inWidthBits += nodep->varp()->width();
-            m_inVarps.push_back(vscp);
+            m_inVarps.ધકેલો_back(vscp);
         }
     }
 
-private:
-    bool treeTest(AstAlways* nodep) {
+ખાનગી:
+    તાર્કિક વૃક્ષ_Test(AstAlways* nodep) {
         // Process alw/assign tree
         m_inWidthBits = 0;
         m_outWidthBytes = 0;
@@ -198,7 +198,7 @@ private:
         m_outVarps.clear();
 
         // Collect stats
-        TableSimulateVisitor chkvis{this};
+        TableSimulateVisitor chkvis{આ};
         chkvis.mainTableCheck(nodep);
         m_assignDly = chkvis.isAssignDly();
         // Also sets m_inWidthBits
@@ -207,52 +207,52 @@ private:
         // Also sets m_outVarps
 
         // Calc data storage in bytes
-        const size_t chgWidth = m_outVarps.size();
-        const double space = std::pow<double>(2.0, m_inWidthBits) * (m_outWidthBytes + chgWidth);
+        અચલ size_t chgWidth = m_outVarps.size();
+        અચલ દ્વિગુણ space = std::pow<દ્વિગુણ>(2.0, m_inWidthBits) * (m_outWidthBytes + chgWidth);
         // Instruction count bytes (ok, it's space also not time :)
-        const double time  // max(_, 1), so we won't divide by zero
-            = std::max<double>(chkvis.instrCount() * TABLE_BYTES_PER_INST + chkvis.dataCount(), 1);
-        if (chkvis.isImpure()) chkvis.clearOptimizable(nodep, "Table creates side effects");
-        if (chkvis.isCoverage()) {
+        અચલ દ્વિગુણ time  // max(_, 1), so we won't divide by zero
+            = std::max<દ્વિગુણ>(chkvis.instr_ગણતરી() * TABLE_BYTES_PER_INST + chkvis.data_ગણતરી(), 1);
+        જો (chkvis.isImpure()) chkvis.clearOptimizable(nodep, "Table creates side effects");
+        જો (chkvis.isCoverage()) {
             chkvis.clearOptimizable(nodep, "Table removes coverage points");
         }
         // cppcheck-suppress knownConditionTrueFalse // set by TableSimulateVisitor
-        if (!m_outWidthBytes || !m_inWidthBits) {
+        જો (!m_outWidthBytes || !m_inWidthBits) {
             chkvis.clearOptimizable(nodep, "Table has no outputs");
         }
-        if (chkvis.instrCount() < TABLE_MIN_NODE_COUNT) {
+        જો (chkvis.instr_ગણતરી() < TABLE_MIN_ગાંઠ_ગણતરી) {
             chkvis.clearOptimizable(nodep, "Table has too few nodes involved");
         }
         // cppcheck-suppress knownConditionTrueFalse
-        if (space > TABLE_MAX_BYTES) {
+        જો (space > TABLE_MAX_BYTES) {
             chkvis.clearOptimizable(nodep, "Table takes too much space");
         }
-        if (space > time * TABLE_SPACE_TIME_MULT) {
+        જો (space > time * TABLE_SPACE_TIME_MULT) {
             chkvis.clearOptimizable(nodep, "Table has bad tradeoff");
         }
-        if (m_totalBytes > TABLE_TOTAL_BYTES) {
+        જો (m_totalBytes > TABLE_TOTAL_BYTES) {
             chkvis.clearOptimizable(nodep, "Table out of memory");
         }
         UINFO(4, "  Test: Opt=" << (chkvis.optimizable() ? "OK" : "NO") << ", Instrs="
-                                << chkvis.instrCount() << " Data=" << chkvis.dataCount()
+                                << chkvis.instr_ગણતરી() << " Data=" << chkvis.data_ગણતરી()
                                 << " in width (bits)=" << m_inWidthBits << " out width (bytes)="
                                 << m_outWidthBytes << " Spacetime=" << (space / time) << "("
                                 << space << "/" << time << ")" << ": " << nodep);
-        if (chkvis.optimizable()) {
+        જો (chkvis.optimizable()) {
             UINFO(3, " Table Optimize spacetime=" << (space / time) << " " << nodep);
             m_totalBytes += space;
         }
-        return chkvis.optimizable();
+        પાછા chkvis.optimizable();
     }
 
-    void replaceWithTable(AstAlways* nodep) {
+    શૂન્ય replaceWithTable(AstAlways* nodep) {
         // We've determined this table of nodes is optimizable, do it.
         ++m_statTablesCre;
 
-        FileLine* const fl = nodep->fileline();
+        File_લીટી* અચલ fl = nodep->fileline();
 
         // We will need a table index variable, create it here.
-        AstVarScope* const indexVscp = m_indexTmps.make(fl, m_scopep, m_inWidthBits);
+        AstVarScope* અચલ indexVscp = m_indexTmps.make(fl, m_scopep, m_inWidthBits);
 
         // The 'output assigned' table builder
         TableBuilder outputAssignedTableBuilder{fl};
@@ -261,31 +261,31 @@ private:
             VL_MASK_I(m_inWidthBits));
 
         // Set sizes of output tables
-        for (TableOutputVar& tov : m_outVarps) tov.setTableSize(VL_MASK_I(m_inWidthBits));
+        માટે (TableOutputVar& tov : m_outVarps) tov.setTableSize(VL_MASK_I(m_inWidthBits));
 
         // Populate the tables
         createTables(nodep, outputAssignedTableBuilder);
 
-        AstNode* const stmtsp = createLookupInput(fl, indexVscp);
+        Ast_ગાંઠ* અચલ stmtsp = create_Lookup_આગત(fl, indexVscp);
         createOutputAssigns(nodep, stmtsp, indexVscp, outputAssignedTableBuilder.varScopep());
 
         // Link it in.
         // Replace the body, keeping the AstAlways itself under its AstActive
-        nodep->stmtsp()->unlinkFrBackWithNext()->deleteTree();
+        nodep->stmtsp()->unlinkFrBackWithNext()->delete_વૃક્ષ();
         nodep->addStmtsp(stmtsp);
         UINFOTREE(6, nodep, "", "table_new");
     }
 
-    void createTables(AstAlways* nodep, TableBuilder& outputAssignedTableBuilder) {
+    શૂન્ય createTables(AstAlways* nodep, TableBuilder& outputAssignedTableBuilder) {
         // Create table
         // There may be a simulation path by which the output doesn't change value.
         // We could bail on these cases, or we can have a "change it" boolean.
         // We've chosen the latter route, since recirc is common in large FSMs.
-        TableSimulateVisitor simvis{this};
-        for (uint32_t i = 0; i <= VL_MASK_I(m_inWidthBits); ++i) {
-            const uint32_t inValue = i;
+        TableSimulateVisitor simvis{આ};
+        માટે (uint32_t i = 0; i <= VL_MASK_I(m_inWidthBits); ++i) {
+            અચલ uint32_t in_કિંમત = i;
             // Make a new simulation structure so we can set new input values
-            UINFO(8, " Simulating " << std::hex << inValue);
+            UINFO(8, " Simulating " << std::hex << in_કિંમત);
 
             // Above simulateVisitor clears user 3, so
             // all outputs default to nullptr to mean 'recirculating'.
@@ -293,11 +293,11 @@ private:
 
             // Set all inputs to the constant
             uint32_t shift = 0;
-            for (AstVarScope* invscp : m_inVarps) {
+            માટે (AstVarScope* invscp : m_inVarps) {
                 // LSB is first variable, so extract it that way
-                const AstConst cnst{invscp->fileline(), AstConst::WidthedValue{}, invscp->width(),
-                                    VL_MASK_I(invscp->width()) & (inValue >> shift)};
-                simvis.newValue(invscp, &cnst);
+                અચલ AstConst cnst{invscp->fileline(), AstConst::Widthed_કિંમત{}, invscp->width(),
+                                    VL_MASK_I(invscp->width()) & (in_કિંમત >> shift)};
+                simvis.new_કિંમત(invscp, &cnst);
                 shift += invscp->width();
                 // We are using 32 bit arithmetic, because there's no way the input table can be
                 // 2^32 bytes!
@@ -312,67 +312,67 @@ private:
                             << simvis.whyNotMessage());
 
             // Build output value tables and the assigned flags table
-            V3Number outputAssignedMask{nodep, static_cast<int>(m_outVarps.size()), 0};
-            for (TableOutputVar& tov : m_outVarps) {
-                if (V3Number* const outnump = simvis.fetchOutNumberNull(tov.varScopep())) {
+            V3_સંખ્યા outputAssignedMask{nodep, static_cast<પૂર્ણાંક>(m_outVarps.size()), 0};
+            માટે (TableOutputVar& tov : m_outVarps) {
+                જો (V3_સંખ્યા* અચલ outnump = simvis.fetch_Out_સંખ્યા_Null(tov.varScopep())) {
                     UINFO(8, "   Output " << tov.name() << " = " << *outnump);
                     UASSERT_OBJ(!outnump->isAnyXZ(), outnump, "Table should not contain X/Z");
                     outputAssignedMask.setBit(tov.ord(), 1);  // Mark output as assigned
-                    tov.addValue(inValue, *outnump);
-                } else {
+                    tov.add_કિંમત(in_કિંમત, *outnump);
+                } નહીંતર {
                     UINFO(8, "   Output " << tov.name() << " not set for this input");
                     tov.setMayBeUnassigned();
                 }
             }
 
             // Set changed table
-            outputAssignedTableBuilder.addValue(inValue, outputAssignedMask);
+            outputAssignedTableBuilder.add_કિંમત(in_કિંમત, outputAssignedMask);
         }  // each value
     }
 
-    AstNode* createLookupInput(FileLine* fl, AstVarScope* indexVscp) {
+    Ast_ગાંઠ* create_Lookup_આગત(File_લીટી* fl, AstVarScope* indexVscp) {
         // Concat inputs into a single temp variable (inside always)
         // First var in inVars becomes the LSB of the concat
-        AstNodeExpr* concatp = nullptr;
-        for (AstVarScope* invscp : m_inVarps) {
-            AstVarRef* const refp = new AstVarRef{fl, invscp, VAccess::READ};
-            if (concatp) {
-                concatp = new AstConcat{fl, refp, concatp};
-            } else {
+        Ast_ગાંઠ_પદાવલિ* concatp = nullptr;
+        માટે (AstVarScope* invscp : m_inVarps) {
+            AstVarRef* અચલ refp = નવું AstVarRef{fl, invscp, VAccess::READ};
+            જો (concatp) {
+                concatp = નવું AstConcat{fl, refp, concatp};
+            } નહીંતર {
                 concatp = refp;
             }
         }
 
-        return new AstAssign{fl, new AstVarRef{fl, indexVscp, VAccess::WRITE}, concatp};
+        પાછા નવું AstAssign{fl, નવું AstVarRef{fl, indexVscp, VAccess::WRITE}, concatp};
     }
 
-    AstArraySel* select(FileLine* fl, AstVarScope* fromp, AstVarScope* indexp) {
-        AstVarRef* const fromRefp = new AstVarRef{fl, fromp, VAccess::READ};
-        AstVarRef* const indexRefp = new AstVarRef{fl, indexp, VAccess::READ};
-        return new AstArraySel{fl, fromRefp, indexRefp};
+    AstArraySel* select(File_લીટી* fl, AstVarScope* fromp, AstVarScope* indexp) {
+        AstVarRef* અચલ fromRefp = નવું AstVarRef{fl, fromp, VAccess::READ};
+        AstVarRef* અચલ indexRefp = નવું AstVarRef{fl, indexp, VAccess::READ};
+        પાછા નવું AstArraySel{fl, fromRefp, indexRefp};
     }
 
-    void createOutputAssigns(AstNode* nodep, AstNode* stmtsp, AstVarScope* indexVscp,
+    શૂન્ય createOutputAssigns(Ast_ગાંઠ* nodep, Ast_ગાંઠ* stmtsp, AstVarScope* indexVscp,
                              AstVarScope* outputAssignedTableVscp) {
-        FileLine* const fl = nodep->fileline();
-        for (TableOutputVar& tov : m_outVarps) {
-            AstNodeExpr* const alhsp = new AstVarRef{fl, tov.varScopep(), VAccess::WRITE};
-            AstNodeExpr* const arhsp = select(fl, tov.tabeVarScopep(), indexVscp);
-            AstNode* outsetp = m_assignDly
-                                   ? static_cast<AstNode*>(new AstAssignDly{fl, alhsp, arhsp})
-                                   : static_cast<AstNode*>(new AstAssign{fl, alhsp, arhsp});
+        File_લીટી* અચલ fl = nodep->fileline();
+        માટે (TableOutputVar& tov : m_outVarps) {
+            Ast_ગાંઠ_પદાવલિ* અચલ alhsp = નવું AstVarRef{fl, tov.varScopep(), VAccess::WRITE};
+            Ast_ગાંઠ_પદાવલિ* અચલ arhsp = select(fl, tov.tabeVarScopep(), indexVscp);
+            Ast_ગાંઠ* outsetp = m_assignDly
+                                   ? static_cast<Ast_ગાંઠ*>(નવું AstAssignDly{fl, alhsp, arhsp})
+                                   : static_cast<Ast_ગાંઠ*>(નવું AstAssign{fl, alhsp, arhsp});
 
             // If this output is unassigned on some code paths, wrap the assignment in an If
-            if (tov.mayBeUnassigned()) {
-                V3Number outputChgMask{nodep, static_cast<int>(m_outVarps.size()), 0};
+            જો (tov.mayBeUnassigned()) {
+                V3_સંખ્યા outputChgMask{nodep, static_cast<પૂર્ણાંક>(m_outVarps.size()), 0};
                 outputChgMask.setBit(tov.ord(), 1);
-                AstNodeExpr* const condp
-                    = new AstNeq{fl,
-                                 new AstAnd{fl, select(fl, outputAssignedTableVscp, indexVscp),
-                                            new AstConst{fl, outputChgMask}},
-                                 new AstConst{fl, AstConst::WidthedValue{},
-                                              static_cast<int>(m_outVarps.size()), 0}};
-                outsetp = new AstIf{fl, condp, outsetp};
+                Ast_ગાંઠ_પદાવલિ* અચલ condp
+                    = નવું AstNeq{fl,
+                                 નવું AstAnd{fl, select(fl, outputAssignedTableVscp, indexVscp),
+                                            નવું AstConst{fl, outputChgMask}},
+                                 નવું AstConst{fl, AstConst::Widthed_કિંમત{},
+                                              static_cast<પૂર્ણાંક>(m_outVarps.size()), 0}};
+                outsetp = નવું AstIf{fl, condp, outsetp};
             }
 
             stmtsp->addNext(outsetp);
@@ -380,27 +380,27 @@ private:
     }
 
     // VISITORS
-    void visit(AstNode* nodep) override { iterateChildren(nodep); }
-    void visit(AstScope* nodep) override {
+    શૂન્ય visit(Ast_ગાંઠ* nodep) override { iterateChildren(nodep); }
+    શૂન્ય visit(AstScope* nodep) override {
         UINFO(4, " SCOPE " << nodep);
         VL_RESTORER(m_scopep);
         m_scopep = nodep;
         iterateChildren(nodep);
     }
-    void visit(AstAlways* nodep) override {
+    શૂન્ય visit(AstAlways* nodep) override {
         UINFO(4, "  ALWAYS  " << nodep);
-        if (treeTest(nodep)) {
+        જો (વૃક્ષ_Test(nodep)) {
             // Well, then, I'll be a memory hog.
             replaceWithTable(nodep);
         }
     }
-    void visit(AstNodeAssign* nodep) override {
+    શૂન્ય visit(Ast_ગાંઠ_Assign* nodep) override {
         // It's nearly impossible to have a large enough assign to make this worthwhile
         // For now we won't bother.
         // Accelerated: no iterate
     }
 
-public:
+જાહેર:
     // CONSTRUCTORS
     explicit TableVisitor(AstNetlist* nodep) { iterate(nodep); }
     ~TableVisitor() override {  //
@@ -410,7 +410,7 @@ public:
 
 //######################################################################
 
-void TableSimulateVisitor::varRefCb(AstVarRef* nodep) {
+શૂન્ય TableSimulateVisitor::varRefCb(AstVarRef* nodep) {
     // Called by checking on each new varref encountered
     // We cross-call into a TableVisitor function.
     m_cbthis->simulateVarRefCb(nodep);
@@ -419,8 +419,8 @@ void TableSimulateVisitor::varRefCb(AstVarRef* nodep) {
 //######################################################################
 // Table class functions
 
-void V3Table::tableAll(AstNetlist* nodep) {
+શૂન્ય V3Table::tableAll(AstNetlist* nodep) {
     UINFO(2, __FUNCTION__ << ":");
     { TableVisitor{nodep}; }  // Destruct before checking
-    V3Global::dumpCheckGlobalTree("table", 0, dumpTreeEitherLevel() >= 3);
+    V3Global::dump_Check_Global_વૃક્ષ("table", 0, dump_વૃક્ષ_Either_Level() >= 3);
 }

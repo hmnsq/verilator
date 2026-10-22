@@ -14,32 +14,32 @@
 //
 //*************************************************************************
 
-#include "V3Hash.h"
+#અન્તર્ભાવ "V3Hash.h"
 
-#include <cstring>
-#include <functional>
-#include <iomanip>
-#include <iostream>
-#include <sstream>
+#અન્તર્ભાવ <cstring>
+#અન્તર્ભાવ <functional>
+#અન્તર્ભાવ <iomanip>
+#અન્તર્ભાવ <iostream>
+#અન્તર્ભાવ <sstream>
 
-V3Hash::V3Hash(const std::string& val)
-    : m_value{static_cast<uint32_t>(std::hash<std::string>{}(val))} {}
+V3Hash::V3Hash(અચલ std::string& val)
+    : m_કિંમત{static_cast<uint32_t>(std::hash<std::string>{}(val))} {}
 
-V3Hash::V3Hash(double val) {
+V3Hash::V3Hash(દ્વિગુણ val) {
     // By value, so +0.0 and -0.0, which compare equal, hash the same
-    if (val == 0.0) val = 0.0;
-    static_assert(sizeof(double) == sizeof(uint64_t), "Hashing assumes 64-bit double");
+    જો (val == 0.0) val = 0.0;
+    static_assert(કદ(દ્વિગુણ) == કદ(uint64_t), "Hashing assumes 64-bit double");
     uint64_t bits;
-    std::memcpy(&bits, &val, sizeof(bits));
-    m_value = V3Hash{bits}.m_value;
+    std::memcpy(&bits, &val, કદ(bits));
+    m_કિંમત = V3Hash{bits}.m_કિંમત;
 }
 
-std::ostream& operator<<(std::ostream& os, const V3Hash& rhs) VL_MT_SAFE {
-    return os << 'h' << std::hex << std::setw(8) << std::setfill('0') << rhs.value();
+std::ostream& operator<<(std::ostream& os, અચલ V3Hash& rhs) VL_MT_SAFE {
+    પાછા os << 'h' << std::hex << std::setw(8) << std::setfill('0') << rhs.કિંમત();
 }
 
-std::string V3Hash::toString() const VL_MT_SAFE {
+std::string V3Hash::toString() અચલ VL_MT_SAFE {
     std::ostringstream os;
-    os << *this;
-    return os.str();
+    os << *આ;
+    પાછા os.str();
 }

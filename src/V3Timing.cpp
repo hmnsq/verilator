@@ -60,30 +60,30 @@
 //
 //*************************************************************************
 
-#include "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
+#અન્તર્ભાવ "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
 
-#include "V3Timing.h"
+#અન્તર્ભાવ "V3Timing.h"
 
-#include "V3Const.h"
-#include "V3EmitV.h"
-#include "V3File.h"
-#include "V3Global.h"
-#include "V3Graph.h"
-#include "V3MemberMap.h"
-#include "V3SenExprBuilder.h"
-#include "V3SenTree.h"
-#include "V3SharedTmps.h"
-#include "V3Stats.h"
-#include "V3UniqueNames.h"
+#અન્તર્ભાવ "V3Const.h"
+#અન્તર્ભાવ "V3EmitV.h"
+#અન્તર્ભાવ "V3File.h"
+#અન્તર્ભાવ "V3Global.h"
+#અન્તર્ભાવ "V3Graph.h"
+#અન્તર્ભાવ "V3MemberMap.h"
+#અન્તર્ભાવ "V3SenExprBuilder.h"
+#અન્તર્ભાવ "V3SenTree.h"
+#અન્તર્ભાવ "V3SharedTmps.h"
+#અન્તર્ભાવ "V3Stats.h"
+#અન્તર્ભાવ "V3UniqueNames.h"
 
-#include <limits>
-#include <queue>
+#અન્તર્ભાવ <limits>
+#અન્તર્ભાવ <queue>
 
 VL_DEFINE_DEBUG_FUNCTIONS;
 
 // ######################################################################
 
-enum NodeFlag : uint8_t {
+ગણના ગાંઠ_Flag : uint8_t {
     T_SUSPENDEE = 1 << 0,  // Suspendable (due to dependence on another suspendable)
     T_SUSPENDER = 1 << 1,  // Suspendable (has timing control)
     T_ALLOCS_PROC = 1 << 2,  // Can allocate VlProcess
@@ -93,86 +93,86 @@ enum NodeFlag : uint8_t {
     T_NBA_UPDATE = 1 << 6,  // Fork branch of a pending NBA update, which is not a subprocess
 };
 
-enum ForkType : uint8_t {
+ગણના ForkType : uint8_t {
     F_NONE = 0,  // Not under a fork
     F_MIGHT_SUSPEND = 1 << 0,  // Fork might suspend the execution of current process
     F_MIGHT_NEED_PROC = 1 << 1,  // Fork might need a process (any fork really)
 };
 
-enum PropagationType : uint8_t {
+ગણના PropagationType : uint8_t {
     P_CALL = 1,  // Propagation through call to a function/task/method
     P_FORK = 2,  // Propagation due to fork's behavior
     P_SIGNATURE = 3,  // Propagation required to maintain C++ function's signature requirements
 };
 
 // Add timing flag to a node
-static void addFlags(AstNode* const nodep, uint8_t flags) { nodep->user2Or(flags); }
+સ્થિર શૂન્ય addFlags(Ast_ગાંઠ* અચલ nodep, uint8_t flags) { nodep->user2Or(flags); }
 // Check if a node has ALL of the expected flags set
-static bool hasFlags(AstNode* const nodep, uint8_t flags) { return !(~nodep->user2() & flags); }
+સ્થિર તાર્કિક hasFlags(Ast_ગાંઠ* અચલ nodep, uint8_t flags) { પાછા !(~nodep->user2() & flags); }
 
 // ######################################################################
 //  Detect nodes affected by timing and/or requiring a process
 
-class TimingSuspendableVisitor final : public VNVisitor {
+વર્ગ TimingSuspendableVisitor final : જાહેર VNVisitor {
     // TYPES
     // Vertex of a dependency graph of suspendable nodes, e.g. if a node (process or task) is
     // suspendable, all its dependents should also be suspendable
-    class DepVtx VL_NOT_FINAL : public V3GraphVertex {
+    વર્ગ DepVtx VL_NOT_FINAL : જાહેર V3GraphVertex {
         VL_RTTI_IMPL(DepVtx, V3GraphVertex)
-        AstClass* const m_classp;  // Class associated with a method
-        AstNode* const m_nodep;  // AST node represented by this graph vertex
+        AstClass* અચલ m_classp;  // Class associated with a method
+        Ast_ગાંઠ* અચલ m_nodep;  // AST node represented by this graph vertex
 
         // ACCESSORS
-        string name() const override {
-            if (m_classp) {
-                if (VN_IS(nodep(), CFunc)) {
-                    return cvtToHex(nodep()) + ' ' + classp()->name() + "::" + nodep()->name();
+        string name() અચલ override {
+            જો (m_classp) {
+                જો (VN_IS(nodep(), CFunc)) {
+                    પાછા cvtToHex(nodep()) + ' ' + classp()->name() + "::" + nodep()->name();
                 }
             }
-            return cvtToHex(nodep()) + ' ' + nodep()->prettyTypeName();
+            પાછા cvtToHex(nodep()) + ' ' + nodep()->prettyTypeName();
         }
-        FileLine* fileline() const override { return nodep()->fileline(); }
+        File_લીટી* fileline() અચલ override { પાછા nodep()->fileline(); }
 
-    public:
+    જાહેર:
         // CONSTRUCTORS
-        DepVtx(V3Graph* graphp, AstNode* nodep, AstClass* classp)
+        DepVtx(V3Graph* graphp, Ast_ગાંઠ* nodep, AstClass* classp)
             : V3GraphVertex{graphp}
             , m_classp{classp}
             , m_nodep{nodep} {}
-        ~DepVtx() override = default;
+        ~DepVtx() override = મૂળભૂત;
 
         // ACCESSORS
-        virtual AstNode* nodep() const VL_MT_STABLE { return m_nodep; }
-        virtual AstNode* classp() const VL_MT_STABLE { return m_classp; }
+        આભાસી Ast_ગાંઠ* nodep() અચલ VL_MT_STABLE { પાછા m_nodep; }
+        આભાસી Ast_ગાંઠ* classp() અચલ VL_MT_STABLE { પાછા m_classp; }
     };
 
-    class SuspendDepVtx final : public DepVtx {
+    વર્ગ SuspendDepVtx final : જાહેર DepVtx {
         VL_RTTI_IMPL(SuspendDepVtx, DepVtx)
-        string dotColor() const override {
-            if (hasFlags(nodep(), T_SUSPENDER)) return "red";
-            if (hasFlags(nodep(), T_SUSPENDEE)) return "blue";
-            return "black";
+        string dotColor() અચલ override {
+            જો (hasFlags(nodep(), T_SUSPENDER)) પાછા "red";
+            જો (hasFlags(nodep(), T_SUSPENDEE)) પાછા "blue";
+            પાછા "black";
         }
 
-    public:
-        SuspendDepVtx(V3Graph* graphp, AstNode* nodep, AstClass* classp)
+    જાહેર:
+        SuspendDepVtx(V3Graph* graphp, Ast_ગાંઠ* nodep, AstClass* classp)
             : DepVtx{graphp, nodep, classp} {}
-        ~SuspendDepVtx() override = default;
+        ~SuspendDepVtx() override = મૂળભૂત;
     };
 
-    class NeedsProcDepVtx final : public DepVtx {
+    વર્ગ NeedsProcDepVtx final : જાહેર DepVtx {
         VL_RTTI_IMPL(NeedsProcDepVtx, DepVtx)
-        string dotColor() const override {
-            if (hasFlags(nodep(), T_HAS_PROC)) return "blue";
-            if (hasFlags(nodep(), T_NEEDS_PROC)) return "green";
-            if (hasFlags(nodep(), T_FORCES_PROC)) return "red";
-            return "black";
+        string dotColor() અચલ override {
+            જો (hasFlags(nodep(), T_HAS_PROC)) પાછા "blue";
+            જો (hasFlags(nodep(), T_NEEDS_PROC)) પાછા "green";
+            જો (hasFlags(nodep(), T_FORCES_PROC)) પાછા "red";
+            પાછા "black";
         }
 
-    public:
-        NeedsProcDepVtx(V3Graph* graphp, AstNode* nodep, AstClass* classp)
+    જાહેર:
+        NeedsProcDepVtx(V3Graph* graphp, Ast_ગાંઠ* nodep, AstClass* classp)
             : DepVtx{graphp, nodep, classp} {}
-        ~NeedsProcDepVtx() override = default;
+        ~NeedsProcDepVtx() override = મૂળભૂત;
     };
 
     // NODE STATE
@@ -183,13 +183,13 @@ class TimingSuspendableVisitor final : public VNVisitor {
     //                                                         needs process metadata.
     //  Ast{NodeProcedure,CFunc,Begin}::user3()  -> DependencyVertex*.  Vertex in m_suspGraph
     //  Ast{NodeProcedure,CFunc,Begin}::user3()  -> DependencyVertex*.  Vertex in m_procGraph
-    const VNUser3InUse m_user3InUse;
-    const VNUser4InUse m_user4InUse;
+    અચલ VNUser3InUse m_user3InUse;
+    અચલ VNUser4InUse m_user4InUse;
 
     // STATE
     VMemberMap m_memberMap;  // Member names cached for fast lookup
     AstClass* m_classp = nullptr;  // Current class
-    AstNode* m_procp = nullptr;  // NodeProcedure/CFunc/Begin we're under
+    Ast_ગાંઠ* m_procp = nullptr;  // NodeProcedure/CFunc/Begin we're under
     uint8_t m_underFork = F_NONE;  // F_NONE or flags of a fork we are under
     V3Graph m_suspGraph;  // Dependency graph where a node is a dependency of another if it being
                           // suspendable makes the other node suspendable
@@ -198,269 +198,269 @@ class TimingSuspendableVisitor final : public VNVisitor {
 
     // METHODS
     // Get or create the dependency vertex for the given node
-    DepVtx* getSuspendDepVtx(AstNode* const nodep) {
+    DepVtx* getSuspendDepVtx(Ast_ગાંઠ* અચલ nodep) {
         AstClass* classp = nullptr;
-        if (AstCFunc* funcp = VN_CAST(nodep, CFunc)) {
-            if (funcp->scopep() && funcp->scopep()->modp()) {
+        જો (AstCFunc* funcp = VN_CAST(nodep, CFunc)) {
+            જો (funcp->scopep() && funcp->scopep()->modp()) {
                 classp = VN_CAST(funcp->scopep()->modp(), Class);
             }
         }
-        if (!nodep->user3p()) nodep->user3p(new SuspendDepVtx{&m_suspGraph, nodep, classp});
-        return nodep->user3u().to<SuspendDepVtx*>();
+        જો (!nodep->user3p()) nodep->user3p(નવું SuspendDepVtx{&m_suspGraph, nodep, classp});
+        પાછા nodep->user3u().to<SuspendDepVtx*>();
     }
-    DepVtx* getNeedsProcDepVtx(AstNode* const nodep) {
+    DepVtx* getNeedsProcDepVtx(Ast_ગાંઠ* અચલ nodep) {
         AstClass* classp = nullptr;
-        if (AstCFunc* funcp = VN_CAST(nodep, CFunc)) {
-            if (funcp->scopep() && funcp->scopep()->modp()) {
+        જો (AstCFunc* funcp = VN_CAST(nodep, CFunc)) {
+            જો (funcp->scopep() && funcp->scopep()->modp()) {
                 classp = VN_CAST(funcp->scopep()->modp(), Class);
             }
         }
-        if (!nodep->user4p()) nodep->user4p(new NeedsProcDepVtx{&m_procGraph, nodep, classp});
-        return nodep->user4u().to<NeedsProcDepVtx*>();
+        જો (!nodep->user4p()) nodep->user4p(નવું NeedsProcDepVtx{&m_procGraph, nodep, classp});
+        પાછા nodep->user4u().to<NeedsProcDepVtx*>();
     }
     // Pass timing flag between nodes
-    bool passFlag(const AstNode* from, AstNode* to, NodeFlag flag) {
-        if ((from->user2() & flag) && !(to->user2() & flag)) {
+    તાર્કિક passFlag(અચલ Ast_ગાંઠ* from, Ast_ગાંઠ* to, ગાંઠ_Flag flag) {
+        જો ((from->user2() & flag) && !(to->user2() & flag)) {
             addFlags(to, flag);
-            return true;
+            પાછા સાચું;
         }
-        return false;
+        પાછા ખોટું;
     }
     // Propagate flag to all nodes that depend on the given one
-    void propagateFlags(DepVtx* const vxp, NodeFlag flag) {
-        auto* const parentp = vxp->nodep();
-        for (V3GraphEdge& edge : vxp->outEdges()) {
-            auto* const depVxp = static_cast<DepVtx*>(edge.top());
-            AstNode* const depp = depVxp->nodep();
-            if (passFlag(parentp, depp, flag)) propagateFlags(depVxp, flag);
+    શૂન્ય propagateFlags(DepVtx* અચલ vxp, ગાંઠ_Flag flag) {
+        auto* અચલ parentp = vxp->nodep();
+        માટે (V3GraphEdge& edge : vxp->outEdges()) {
+            auto* અચલ depVxp = static_cast<DepVtx*>(edge.ટોચ());
+            Ast_ગાંઠ* અચલ depp = depVxp->nodep();
+            જો (passFlag(parentp, depp, flag)) propagateFlags(depVxp, flag);
         }
     }
     template <typename T_Predicate>
-    void propagateFlagsIf(DepVtx* const vxp, NodeFlag flag, T_Predicate p) {
-        auto* const parentp = vxp->nodep();
-        for (V3GraphEdge& edge : vxp->outEdges()) {
-            auto* const depVxp = static_cast<DepVtx*>(edge.top());
-            AstNode* const depp = depVxp->nodep();
-            if (p(&edge) && passFlag(parentp, depp, flag)) propagateFlagsIf(depVxp, flag, p);
+    શૂન્ય propagateFlagsIf(DepVtx* અચલ vxp, ગાંઠ_Flag flag, T_Predicate p) {
+        auto* અચલ parentp = vxp->nodep();
+        માટે (V3GraphEdge& edge : vxp->outEdges()) {
+            auto* અચલ depVxp = static_cast<DepVtx*>(edge.ટોચ());
+            Ast_ગાંઠ* અચલ depp = depVxp->nodep();
+            જો (p(&edge) && passFlag(parentp, depp, flag)) propagateFlagsIf(depVxp, flag, p);
         }
     }
     template <typename T_Predicate>
-    void propagateFlagsReversedIf(DepVtx* const vxp, NodeFlag flag, T_Predicate p) {
-        auto* const parentp = vxp->nodep();
-        for (V3GraphEdge& edge : vxp->inEdges()) {
-            auto* const depVxp = static_cast<DepVtx*>(edge.fromp());
-            AstNode* const depp = depVxp->nodep();
-            if (p(&edge) && passFlag(parentp, depp, flag))
+    શૂન્ય propagateFlagsReversedIf(DepVtx* અચલ vxp, ગાંઠ_Flag flag, T_Predicate p) {
+        auto* અચલ parentp = vxp->nodep();
+        માટે (V3GraphEdge& edge : vxp->inEdges()) {
+            auto* અચલ depVxp = static_cast<DepVtx*>(edge.fromp());
+            Ast_ગાંઠ* અચલ depp = depVxp->nodep();
+            જો (p(&edge) && passFlag(parentp, depp, flag))
                 propagateFlagsReversedIf(depVxp, flag, p);
         }
     }
 
     // VISITORS
-    void visit(AstClass* nodep) override {
+    શૂન્ય visit(AstClass* nodep) override {
         UASSERT_OBJ(!m_classp, nodep, "Class under class");
         VL_RESTORER(m_classp);
         m_classp = nodep;
         iterateChildren(nodep);
     }
-    void visit(AstNodeProcedure* nodep) override {
+    શૂન્ય visit(Ast_ગાંઠ_Procedure* nodep) override {
         VL_RESTORER(m_procp);
         m_procp = nodep;
         getNeedsProcDepVtx(nodep);
         addFlags(nodep, T_ALLOCS_PROC);
-        if (VN_IS(nodep, Always)) {
+        જો (VN_IS(nodep, Always)) {
             UINFO(9, "Always does " << (nodep->needProcess() ? "" : "NOT ") << "need process");
         }
         iterateChildren(nodep);
     }
-    void visit(AstDisableFork* nodep) override {
-        visit(static_cast<AstNode*>(nodep));
+    શૂન્ય visit(AstDisableFork* nodep) override {
+        visit(static_cast<Ast_ગાંઠ*>(nodep));
         addFlags(m_procp, T_FORCES_PROC | T_NEEDS_PROC);
     }
-    void visit(AstWaitFork* nodep) override {
-        visit(static_cast<AstNode*>(nodep));
+    શૂન્ય visit(AstWaitFork* nodep) override {
+        visit(static_cast<Ast_ગાંઠ*>(nodep));
         addFlags(m_procp, T_FORCES_PROC | T_NEEDS_PROC);
     }
-    void visit(AstWait* nodep) override {
+    શૂન્ય visit(AstWait* nodep) override {
         UINFO(9, "suspendable-visit " << nodep);
-        AstNodeExpr* const condp = V3Const::constifyEdit(nodep->condp());
-        if (AstConst* const constp = VN_CAST(condp, Const)) {
-            if (!nodep->fileline()->warnIsOff(V3ErrorCode::WAITCONST)) {
+        Ast_ગાંઠ_પદાવલિ* અચલ condp = V3Const::constifyEdit(nodep->condp());
+        જો (AstConst* અચલ constp = VN_CAST(condp, Const)) {
+            જો (!nodep->fileline()->warnIsOff(V3ErrorCode::WAITCONST)) {
                 condp->v3warn(WAITCONST, "Wait statement condition is constant");
             }
-            if (!constp->isZero()) {
+            જો (!constp->isZero()) {
                 // Remove AstWait before we track process as T_SUSPENDER
-                if (AstNode* const stmtsp = nodep->stmtsp()) {
+                જો (Ast_ગાંઠ* અચલ stmtsp = nodep->stmtsp()) {
                     stmtsp->unlinkFrBackWithNext();
                     nodep->replaceWith(stmtsp);
-                } else {
+                } નહીંતર {
                     nodep->unlinkFrBack();
                 }
-                VL_DO_DANGLING(pushDeletep(nodep), nodep);
-                return;
+                VL_DO_DANGLING(ધકેલો_Deletep(nodep), nodep);
+                પાછા;
             }
         }
         v3Global.setUsesTiming();
-        if (m_procp) addFlags(m_procp, T_SUSPENDEE | T_SUSPENDER | T_NEEDS_PROC);
+        જો (m_procp) addFlags(m_procp, T_SUSPENDEE | T_SUSPENDER | T_NEEDS_PROC);
         iterateChildren(nodep);
     }
-    void visit(AstCFunc* nodep) override {
+    શૂન્ય visit(AstCFunc* nodep) override {
         VL_RESTORER(m_procp);
         m_procp = nodep;
         iterateChildren(nodep);
-        if (nodep->needProcess()) addFlags(nodep, T_FORCES_PROC | T_NEEDS_PROC);
-        DepVtx* const sVxp = getSuspendDepVtx(nodep);
-        DepVtx* const pVxp = getNeedsProcDepVtx(nodep);
-        if (!m_classp) return;
+        જો (nodep->needProcess()) addFlags(nodep, T_FORCES_PROC | T_NEEDS_PROC);
+        DepVtx* અચલ sVxp = getSuspendDepVtx(nodep);
+        DepVtx* અચલ pVxp = getNeedsProcDepVtx(nodep);
+        જો (!m_classp) પાછા;
 
         // Go over overridden functions
 
         std::queue<AstClassExtends*> extends;
-        if (m_classp->extendsp()) extends.push(m_classp->extendsp());
+        જો (m_classp->extendsp()) extends.ધકેલો(m_classp->extendsp());
 
-        while (!extends.empty()) {
+        જ્યારે (!extends.empty()) {
             AstClassExtends* ext_list = extends.front();
-            extends.pop();
+            extends.કાઢો();
 
-            for (AstClassExtends* cextp = ext_list; cextp;
+            માટે (AstClassExtends* cextp = ext_list; cextp;
                  cextp = VN_AS(cextp->nextp(), ClassExtends)) {
                 // TODO: It is possible that a methods the same name in the base class is not
                 // actually overridden by our method. If this causes a problem, traverse to
                 // the root of the inheritance hierarchy and check if the original method is
                 // virtual or not.
-                if (auto* const overriddenp
+                જો (auto* અચલ overriddenp
                     = VN_CAST(m_memberMap.findMember(cextp->classp(), nodep->name()), CFunc)) {
                     // Suspendability and process affects typing, so they propagate both ways
-                    DepVtx* const overriddenSVxp = getSuspendDepVtx(overriddenp);
-                    DepVtx* const overriddenPVxp = getNeedsProcDepVtx(overriddenp);
-                    new V3GraphEdge{&m_suspGraph, sVxp, overriddenSVxp, P_SIGNATURE};
-                    new V3GraphEdge{&m_suspGraph, overriddenSVxp, sVxp, P_SIGNATURE};
-                    new V3GraphEdge{&m_procGraph, pVxp, overriddenPVxp, P_SIGNATURE};
-                    new V3GraphEdge{&m_procGraph, overriddenPVxp, pVxp, P_SIGNATURE};
-                } else {
+                    DepVtx* અચલ overriddenSVxp = getSuspendDepVtx(overriddenp);
+                    DepVtx* અચલ overriddenPVxp = getNeedsProcDepVtx(overriddenp);
+                    નવું V3GraphEdge{&m_suspGraph, sVxp, overriddenSVxp, P_SIGNATURE};
+                    નવું V3GraphEdge{&m_suspGraph, overriddenSVxp, sVxp, P_SIGNATURE};
+                    નવું V3GraphEdge{&m_procGraph, pVxp, overriddenPVxp, P_SIGNATURE};
+                    નવું V3GraphEdge{&m_procGraph, overriddenPVxp, pVxp, P_SIGNATURE};
+                } નહીંતર {
                     AstClassExtends* more_extends = cextp->classp()->extendsp();
-                    if (more_extends) extends.push(more_extends);
+                    જો (more_extends) extends.ધકેલો(more_extends);
                 }
             }
         }
     }
-    void visit(AstNodeCCall* nodep) override {
-        AstCFunc* const funcp = nodep->funcp();
+    શૂન્ય visit(Ast_ગાંઠ_CCall* nodep) override {
+        AstCFunc* અચલ funcp = nodep->funcp();
         UASSERT_OBJ(funcp, nodep, "AstNodeCCall must have non-null funcp post-link");
         UASSERT_OBJ(m_procp, nodep, "AstNodeCCall must be inside a procedure/CFunc/Begin");
 
         UINFO(9, "V3Timing: Processing CCall to " << funcp->name() << " in dependency graph\n");
-        new V3GraphEdge{&m_suspGraph, getSuspendDepVtx(funcp), getSuspendDepVtx(m_procp), P_CALL};
+        નવું V3GraphEdge{&m_suspGraph, getSuspendDepVtx(funcp), getSuspendDepVtx(m_procp), P_CALL};
 
-        new V3GraphEdge{&m_procGraph, getNeedsProcDepVtx(funcp), getNeedsProcDepVtx(m_procp),
+        નવું V3GraphEdge{&m_procGraph, getNeedsProcDepVtx(funcp), getNeedsProcDepVtx(m_procp),
                         P_CALL};
 
         iterateChildren(nodep);
     }
-    void visit(AstBegin* nodep) override {
+    શૂન્ય visit(AstBegin* nodep) override {
         VL_RESTORER(m_procp);
         VL_RESTORER(m_underFork);
 
-        if (!m_underFork || (m_underFork & F_MIGHT_SUSPEND))
-            new V3GraphEdge{&m_suspGraph, getSuspendDepVtx(nodep), getSuspendDepVtx(m_procp),
+        જો (!m_underFork || (m_underFork & F_MIGHT_SUSPEND))
+            નવું V3GraphEdge{&m_suspGraph, getSuspendDepVtx(nodep), getSuspendDepVtx(m_procp),
                             m_underFork ? P_FORK : P_CALL};
 
-        new V3GraphEdge{&m_procGraph, getNeedsProcDepVtx(nodep), getNeedsProcDepVtx(m_procp),
+        નવું V3GraphEdge{&m_procGraph, getNeedsProcDepVtx(nodep), getNeedsProcDepVtx(m_procp),
                         P_CALL};
 
-        if (m_underFork) addFlags(nodep, T_NEEDS_PROC | T_ALLOCS_PROC);
+        જો (m_underFork) addFlags(nodep, T_NEEDS_PROC | T_ALLOCS_PROC);
 
         m_procp = nodep;
         m_underFork = 0;
         iterateChildren(nodep);
     }
-    void visit(AstFork* nodep) override {
+    શૂન્ય visit(AstFork* nodep) override {
         UINFO(9, "suspendable-visit " << nodep);
         VL_RESTORER(m_underFork);
 
         v3Global.setUsesTiming();  // Even if there are no event controls, we have to set this flag
                                    // so that transformForks() in V3SchedTiming gets called and
                                    // removes all forks and begins
-        if (nodep->isTimingControl() && m_procp) {
+        જો (nodep->isTimingControl() && m_procp) {
             addFlags(m_procp, T_SUSPENDEE | T_SUSPENDER);
             m_underFork |= F_MIGHT_SUSPEND;
         }
         m_underFork |= F_MIGHT_NEED_PROC;
         iterateChildren(nodep);
     }
-    void visit(AstAssignDly* nodep) override {
-        if (!VN_IS(m_procp, NodeProcedure)) v3Global.setUsesTiming();
-        visit(static_cast<AstNode*>(nodep));
+    શૂન્ય visit(AstAssignDly* nodep) override {
+        જો (!VN_IS(m_procp, ગાંઠ_Procedure)) v3Global.setUsesTiming();
+        visit(static_cast<Ast_ગાંઠ*>(nodep));
     }
-    void visit(AstFireEvent* nodep) override {
-        if (nodep->isDelayed()
-            && (!VN_IS(m_procp, NodeProcedure) || !VN_IS(nodep->operandp(), VarRef))) {
+    શૂન્ય visit(AstFireEvent* nodep) override {
+        જો (nodep->isDelayed()
+            && (!VN_IS(m_procp, ગાંઠ_Procedure) || !VN_IS(nodep->operandp(), VarRef))) {
             v3Global.setUsesTiming();
         }
-        visit(static_cast<AstNode*>(nodep));
+        visit(static_cast<Ast_ગાંઠ*>(nodep));
     }
-    void visit(AstAssignW* nodep) override {
-        if (nodep->timingControlp()) v3Global.setUsesTiming();
+    શૂન્ય visit(AstAssignW* nodep) override {
+        જો (nodep->timingControlp()) v3Global.setUsesTiming();
         // Containing process will not suspend, don't mark it
     }
-    void visit(AstNode* nodep) override {
-        if (nodep->isTimingControl()) {
+    શૂન્ય visit(Ast_ગાંઠ* nodep) override {
+        જો (nodep->isTimingControl()) {
             v3Global.setUsesTiming();
-            if (m_procp) addFlags(m_procp, T_SUSPENDEE | T_SUSPENDER | T_NEEDS_PROC);
+            જો (m_procp) addFlags(m_procp, T_SUSPENDEE | T_SUSPENDER | T_NEEDS_PROC);
         }
         iterateChildren(nodep);
     }
 
     //--------------------
-    void visit(AstVar*) override {}  // Accelerate
+    શૂન્ય visit(AstVar*) override {}  // Accelerate
 
-public:
+જાહેર:
     // CONSTRUCTORS
     explicit TimingSuspendableVisitor(AstNetlist* nodep) {
         iterate(nodep);
         m_suspGraph.removeTransitiveEdges();
         m_procGraph.removeTransitiveEdges();
         // Propagate suspendability
-        for (V3GraphVertex& vtx : m_suspGraph.vertices()) {
+        માટે (V3GraphVertex& vtx : m_suspGraph.vertices()) {
             DepVtx& depVtx = static_cast<DepVtx&>(vtx);
-            if (hasFlags(depVtx.nodep(), T_SUSPENDEE)) propagateFlags(&depVtx, T_SUSPENDEE);
+            જો (hasFlags(depVtx.nodep(), T_SUSPENDEE)) propagateFlags(&depVtx, T_SUSPENDEE);
         }
-        if (dumpGraphLevel() >= 6) m_suspGraph.dumpDotFilePrefixed("timing_deps");
+        જો (dumpGraphLevel() >= 6) m_suspGraph.dumpDotFilePrefixed("timing_deps");
 
         // Propagate T_HAS_PROCESS
-        for (V3GraphVertex& vtx : m_procGraph.vertices()) {
+        માટે (V3GraphVertex& vtx : m_procGraph.vertices()) {
             DepVtx& depVtx = static_cast<DepVtx&>(vtx);
             // Find processes that'll allocate VlProcess
-            if (hasFlags(depVtx.nodep(), T_FORCES_PROC)) {
-                propagateFlagsIf(&depVtx, T_FORCES_PROC, [&](const V3GraphEdge* e) -> bool {
-                    return !hasFlags(static_cast<DepVtx*>(e->fromp())->nodep(), T_ALLOCS_PROC);
+            જો (hasFlags(depVtx.nodep(), T_FORCES_PROC)) {
+                propagateFlagsIf(&depVtx, T_FORCES_PROC, [&](અચલ V3GraphEdge* e) -> તાર્કિક {
+                    પાછા !hasFlags(static_cast<DepVtx*>(e->fromp())->nodep(), T_ALLOCS_PROC);
                 });
             }
             // Mark nodes on paths between processes and statements that use VlProcess
-            if (hasFlags(depVtx.nodep(), T_NEEDS_PROC)) {
-                propagateFlagsIf(&depVtx, T_NEEDS_PROC, [&](const V3GraphEdge* e) -> bool {
-                    return !hasFlags(static_cast<DepVtx*>(e->top())->nodep(), T_ALLOCS_PROC);
+            જો (hasFlags(depVtx.nodep(), T_NEEDS_PROC)) {
+                propagateFlagsIf(&depVtx, T_NEEDS_PROC, [&](અચલ V3GraphEdge* e) -> તાર્કિક {
+                    પાછા !hasFlags(static_cast<DepVtx*>(e->ટોચ())->nodep(), T_ALLOCS_PROC);
                 });
             }
         }
-        for (V3GraphVertex& vtx : m_procGraph.vertices()) {
+        માટે (V3GraphVertex& vtx : m_procGraph.vertices()) {
             DepVtx& depVtx = static_cast<DepVtx&>(vtx);
             // Mark nodes that will be emitted with a VlProcess argument
-            if (hasFlags(depVtx.nodep(), T_ALLOCS_PROC | T_FORCES_PROC)) {
+            જો (hasFlags(depVtx.nodep(), T_ALLOCS_PROC | T_FORCES_PROC)) {
                 addFlags(depVtx.nodep(), T_HAS_PROC);
-                propagateFlagsReversedIf(&depVtx, T_HAS_PROC, [&](const V3GraphEdge* e) -> bool {
-                    return hasFlags(static_cast<DepVtx*>(e->fromp())->nodep(), T_NEEDS_PROC);
+                propagateFlagsReversedIf(&depVtx, T_HAS_PROC, [&](અચલ V3GraphEdge* e) -> તાર્કિક {
+                    પાછા hasFlags(static_cast<DepVtx*>(e->fromp())->nodep(), T_NEEDS_PROC);
                 });
             }
         }
-        if (dumpGraphLevel() >= 6) m_procGraph.dumpDotFilePrefixed("proc_deps");
+        જો (dumpGraphLevel() >= 6) m_procGraph.dumpDotFilePrefixed("proc_deps");
     }
-    ~TimingSuspendableVisitor() override = default;
+    ~TimingSuspendableVisitor() override = મૂળભૂત;
 };
 
 // ######################################################################
 //  Transform nodes affected by timing
 
-class TimingControlVisitor final : public VNVisitor {
+વર્ગ TimingControlVisitor final : જાહેર VNVisitor {
     // NODE STATE
     //  Ast{Always,NodeCCall,Fork,NodeAssign}::user1()  -> bool.         Set true if the node has
     //                                                                   been processed.
@@ -480,24 +480,24 @@ class TimingControlVisitor final : public VNVisitor {
 
     // STATE
     // Current context
-    AstNetlist* const m_netlistp;  // Root node
-    AstTopScope* const m_topScopep = m_netlistp->topScopep();  // The AstTopScope
-    AstScope* const m_scopeTopp = m_topScopep->scopep();  // Scope at the top
+    AstNetlist* અચલ m_netlistp;  // Root node
+    Ast_ટોચ_Scope* અચલ m_ટોચ_Scopep = m_netlistp->ટોચ_Scopep();  // The AstTopScope
+    AstScope* અચલ m_scopeTopp = m_ટોચ_Scopep->scopep();  // Scope at the top
     AstClass* m_classp = nullptr;  // Current class
     AstScope* m_scopep = nullptr;  // Current scope
     AstActive* m_activep = nullptr;  // Current active
-    AstNode* m_procp = nullptr;  // NodeProcedure/CFunc/Begin we're under
-    bool m_hasProcess = false;  // True if current scope has a VlProcess handle available
-    int m_forkCnt = 0;  // Number of forks inside a module
-    bool m_underJumpBlock = false;  // True if we are inside of a jump-block
-    bool m_underProcedure = false;  // True if we are under an always or initial
-    bool m_underIfaceCFunc = false;  // True if we are under a CFunc owned by an interface scope
-    bool m_hasStaticZeroDelay = false;  // True if we have a static #0 delay
-    std::vector<FileLine*> m_unknownDelayFlps;  // Locations of AstDelay with non-constant value
+    Ast_ગાંઠ* m_procp = nullptr;  // NodeProcedure/CFunc/Begin we're under
+    તાર્કિક m_hasProcess = ખોટું;  // True if current scope has a VlProcess handle available
+    પૂર્ણાંક m_forkCnt = 0;  // Number of forks inside a module
+    તાર્કિક m_underJumpBlock = ખોટું;  // True if we are inside of a jump-block
+    તાર્કિક m_underProcedure = ખોટું;  // True if we are under an always or initial
+    તાર્કિક m_underIfaceCFunc = ખોટું;  // True if we are under a CFunc owned by an interface scope
+    તાર્કિક m_hasStaticZeroDelay = ખોટું;  // True if we have a static #0 delay
+    std::vector<File_લીટી*> m_unknownDelayFlps;  // Locations of AstDelay with non-constant value
 
     // Unique names
     V3UniqueNames m_dlyforkNames{"__Vdlyfork"};  // Names for temp AssignW vars
-    V3UniqueNames m_intraValueNames{"__Vintraval"};  // Intra assign delay value var names
+    V3UniqueNames m_intra_કિંમત_Names{"__Vintraval"};  // Intra assign delay value var names
     V3UniqueNames m_intraIndexNames{"__Vintraidx"};  // Intra assign delay index var names
     V3UniqueNames m_intraLsbNames{"__Vintralsb"};  // Intra assign delay LSB var names
     V3UniqueNames m_trigSchedNames{"__VtrigSched"};  // Trigger scheduler name generator
@@ -513,12 +513,12 @@ class TimingControlVisitor final : public VNVisitor {
     // Timing-related globals
     AstVarScope* m_delaySchedp = nullptr;  // Global delay scheduler
     AstVarScope* m_dynamicSchedp = nullptr;  // Global dynamic trigger scheduler
-    AstSenTree* m_delaySensesp = nullptr;  // Domain to trigger if a delayed coroutine is resumed
-    AstSenTree* m_dynamicSensesp = nullptr;  // Domain to trigger if a dynamic trigger is set
+    Ast_Sen_વૃક્ષ* m_delaySensesp = nullptr;  // Domain to trigger if a delayed coroutine is resumed
+    Ast_Sen_વૃક્ષ* m_dynamicSensesp = nullptr;  // Domain to trigger if a dynamic trigger is set
 
     // Other
-    SenTreeFinder m_finder{m_netlistp};  // Sentree finder and uniquifier
-    SenExprBuilder* m_senExprBuilderp = nullptr;  // Sens expression builder for current m_scope
+    Sen_વૃક્ષ_Finder m_finder{m_netlistp};  // Sentree finder and uniquifier
+    Sen_પદાવલિ_Builder* m_sen_પદાવલિ_Builderp = nullptr;  // Sens expression builder for current m_scope
 
     // Stats
     size_t m_statZeroDelays = 0;  // Number of statically known #0 delays
@@ -528,232 +528,232 @@ class TimingControlVisitor final : public VNVisitor {
     // METHODS
     // Transform an assignment with an intra timing control into a timing control with the
     // assignment under it
-    AstNode* factorOutTimingControl(AstNodeAssign* nodep) const {
-        AstNode* stmtp = nodep;
-        AstNode* const controlp = nodep->timingControlp();
-        if (AstDelay* const delayp = VN_CAST(controlp, Delay)) {
+    Ast_ગાંઠ* factorOutTimingControl(Ast_ગાંઠ_Assign* nodep) અચલ {
+        Ast_ગાંઠ* stmtp = nodep;
+        Ast_ગાંઠ* અચલ controlp = nodep->timingControlp();
+        જો (AstDelay* અચલ delayp = VN_CAST(controlp, Delay)) {
             stmtp->replaceWith(delayp->unlinkFrBack());
             delayp->addStmtsp(stmtp);
             stmtp = delayp;
-        } else if (AstSenTree* const sentreep = VN_CAST(controlp, SenTree)) {
-            AstEventControl* const eventControlp
-                = new AstEventControl{sentreep->fileline(), sentreep->unlinkFrBack(), nullptr};
+        } નહીંતર જો (Ast_Sen_વૃક્ષ* અચલ sentreep = VN_CAST(controlp, Sen_વૃક્ષ)) {
+            AstEventControl* અચલ eventControlp
+                = નવું AstEventControl{sentreep->fileline(), sentreep->unlinkFrBack(), nullptr};
             stmtp->replaceWith(eventControlp);
             eventControlp->addStmtsp(stmtp);
             stmtp = eventControlp;
-        } else if (AstBegin* const beginp = VN_CAST(controlp, Begin)) {
+        } નહીંતર જો (AstBegin* અચલ beginp = VN_CAST(controlp, Begin)) {
             // Begin from V3AssertPre
             stmtp->replaceWith(beginp->unlinkFrBack());
             beginp->addStmtsp(stmtp);
             stmtp = beginp;
         }
-        return stmtp == nodep ? nullptr : stmtp;
+        પાછા stmtp == nodep ? nullptr : stmtp;
     }
-    static bool staticallyNonZeroDelay(const AstNodeExpr* valuep) {
-        if (const AstConst* const constp = VN_CAST(valuep, Const)) return !constp->isZero();
-        if (const AstCond* const condp = VN_CAST(valuep, Cond)) {
-            return staticallyNonZeroDelay(condp->thenp())
+    સ્થિર તાર્કિક staticallyNonZeroDelay(અચલ Ast_ગાંઠ_પદાવલિ* valuep) {
+        જો (અચલ AstConst* અચલ constp = VN_CAST(valuep, Const)) પાછા !constp->isZero();
+        જો (અચલ AstCond* અચલ condp = VN_CAST(valuep, Cond)) {
+            પાછા staticallyNonZeroDelay(condp->thenp())
                    && staticallyNonZeroDelay(condp->elsep());
         }
-        if (const AstMul* const mulp = VN_CAST(valuep, Mul)) {
-            const AstConst* const lhsConstp = VN_CAST(mulp->lhsp(), Const);
-            const AstConst* const rhsConstp = VN_CAST(mulp->rhsp(), Const);
-            if (lhsConstp && !lhsConstp->isZero()) return staticallyNonZeroDelay(mulp->rhsp());
-            if (rhsConstp && !rhsConstp->isZero()) return staticallyNonZeroDelay(mulp->lhsp());
+        જો (અચલ AstMul* અચલ mulp = VN_CAST(valuep, Mul)) {
+            અચલ AstConst* અચલ lhsConstp = VN_CAST(mulp->lhsp(), Const);
+            અચલ AstConst* અચલ rhsConstp = VN_CAST(mulp->rhsp(), Const);
+            જો (lhsConstp && !lhsConstp->isZero()) પાછા staticallyNonZeroDelay(mulp->rhsp());
+            જો (rhsConstp && !rhsConstp->isZero()) પાછા staticallyNonZeroDelay(mulp->lhsp());
         }
-        return false;
+        પાછા ખોટું;
     }
     // Creates the global delay scheduler variable
     AstVarScope* getCreateDelayScheduler() {
-        if (m_delaySchedp) return m_delaySchedp;
-        auto* const dlySchedDtp = new AstBasicDType{
+        જો (m_delaySchedp) પાછા m_delaySchedp;
+        auto* અચલ dlySchedDtp = નવું AstBasicDType{
             m_scopeTopp->fileline(), VBasicDTypeKwd::DELAY_SCHEDULER, VSigning::UNSIGNED};
         m_netlistp->typeTablep()->addTypesp(dlySchedDtp);
-        m_delaySchedp = m_topScopep->createTemp("__VdlySched", dlySchedDtp);
+        m_delaySchedp = m_ટોચ_Scopep->createTemp("__VdlySched", dlySchedDtp);
         // Delay scheduler has to be accessible from top
-        m_delaySchedp->varp()->sigPublic(true);
+        m_delaySchedp->varp()->sigPublic(સાચું);
         m_netlistp->delaySchedulerp(m_delaySchedp->varp());
-        return m_delaySchedp;
+        પાછા m_delaySchedp;
     }
     // Creates the delay sentree
-    AstSenTree* getCreateDelaySenTree() {
-        if (m_delaySensesp) return m_delaySensesp;
-        FileLine* const flp = m_scopeTopp->fileline();
-        auto* const awaitingCurrentTimep
-            = new AstCMethodHard{flp, new AstVarRef{flp, getCreateDelayScheduler(), VAccess::READ},
+    Ast_Sen_વૃક્ષ* get_Create_Delay_Sen_વૃક્ષ() {
+        જો (m_delaySensesp) પાછા m_delaySensesp;
+        File_લીટી* અચલ flp = m_scopeTopp->fileline();
+        auto* અચલ awaitingCurrentTimep
+            = નવું AstCMethodHard{flp, નવું AstVarRef{flp, getCreateDelayScheduler(), VAccess::READ},
                                  VCMethod::SCHED_AWAITING_CURRENT_TIME};
         awaitingCurrentTimep->dtypeSetBit();
         m_delaySensesp
-            = new AstSenTree{flp, new AstSenItem{flp, VEdgeType::ET_TRUE, awaitingCurrentTimep}};
-        m_netlistp->topScopep()->addSenTreesp(m_delaySensesp);
-        return m_delaySensesp;
+            = નવું Ast_Sen_વૃક્ષ{flp, નવું AstSenItem{flp, VEdgeType::ET_TRUE, awaitingCurrentTimep}};
+        m_netlistp->ટોચ_Scopep()->addSenTreesp(m_delaySensesp);
+        પાછા m_delaySensesp;
     }
     // Creates the global dynamic trigger scheduler variable
     AstVarScope* getCreateDynamicTriggerScheduler() {
-        if (m_dynamicSchedp) return m_dynamicSchedp;
-        auto* const dynSchedDtp
-            = new AstBasicDType{m_scopeTopp->fileline(), VBasicDTypeKwd::DYNAMIC_TRIGGER_SCHEDULER,
+        જો (m_dynamicSchedp) પાછા m_dynamicSchedp;
+        auto* અચલ dynSchedDtp
+            = નવું AstBasicDType{m_scopeTopp->fileline(), VBasicDTypeKwd::DYNAMIC_TRIGGER_SCHEDULER,
                                 VSigning::UNSIGNED};
         m_netlistp->typeTablep()->addTypesp(dynSchedDtp);
-        m_dynamicSchedp = m_topScopep->createTemp("__VdynSched", dynSchedDtp);
-        return m_dynamicSchedp;
+        m_dynamicSchedp = m_ટોચ_Scopep->createTemp("__VdynSched", dynSchedDtp);
+        પાછા m_dynamicSchedp;
     }
     // Creates the dynamic trigger sentree
-    AstSenTree* getCreateDynamicTriggerSenTree() {
-        if (m_dynamicSensesp) return m_dynamicSensesp;
-        FileLine* const flp = m_scopeTopp->fileline();
-        auto* const awaitingCurrentTimep = new AstCMethodHard{
-            flp, new AstVarRef{flp, getCreateDynamicTriggerScheduler(), VAccess::READ},
+    Ast_Sen_વૃક્ષ* get_Create_Dynamic_Trigger_Sen_વૃક્ષ() {
+        જો (m_dynamicSensesp) પાછા m_dynamicSensesp;
+        File_લીટી* અચલ flp = m_scopeTopp->fileline();
+        auto* અચલ awaitingCurrentTimep = નવું AstCMethodHard{
+            flp, નવું AstVarRef{flp, getCreateDynamicTriggerScheduler(), VAccess::READ},
             VCMethod::SCHED_EVALUATE};
         awaitingCurrentTimep->dtypeSetBit();
         m_dynamicSensesp
-            = new AstSenTree{flp, new AstSenItem{flp, VEdgeType::ET_TRUE, awaitingCurrentTimep}};
-        m_netlistp->topScopep()->addSenTreesp(m_dynamicSensesp);
-        return m_dynamicSensesp;
+            = નવું Ast_Sen_વૃક્ષ{flp, નવું AstSenItem{flp, VEdgeType::ET_TRUE, awaitingCurrentTimep}};
+        m_netlistp->ટોચ_Scopep()->addSenTreesp(m_dynamicSensesp);
+        પાછા m_dynamicSensesp;
     }
     // Creates the event variable to trigger in NBA region
-    AstEventControl* createNbaEventControl(FileLine* flp) {
-        if (!m_netlistp->nbaEventp()) {
-            auto* const nbaEventDtp = new AstBasicDType{m_scopeTopp->fileline(),
+    AstEventControl* createNbaEventControl(File_લીટી* flp) {
+        જો (!m_netlistp->nbaEventp()) {
+            auto* અચલ nbaEventDtp = નવું AstBasicDType{m_scopeTopp->fileline(),
                                                         VBasicDTypeKwd::EVENT, VSigning::UNSIGNED};
             m_netlistp->typeTablep()->addTypesp(nbaEventDtp);
-            m_netlistp->nbaEventp(m_topScopep->createTemp("__VnbaEvent", nbaEventDtp));
+            m_netlistp->nbaEventp(m_ટોચ_Scopep->createTemp("__VnbaEvent", nbaEventDtp));
             v3Global.setHasEvents();
         }
-        return new AstEventControl{
+        પાછા નવું AstEventControl{
             flp,
-            new AstSenTree{
-                flp, new AstSenItem{flp, VEdgeType::ET_EVENT,
-                                    new AstVarRef{flp, m_netlistp->nbaEventp(), VAccess::READ}}},
+            નવું Ast_Sen_વૃક્ષ{
+                flp, નવું AstSenItem{flp, VEdgeType::ET_EVENT,
+                                    નવું AstVarRef{flp, m_netlistp->nbaEventp(), VAccess::READ}}},
             nullptr};
     }
     // Creates the variable that, if set, causes the NBA event to be triggered
-    AstAssign* createNbaEventTriggerAssignment(FileLine* flp) {
-        if (!m_netlistp->nbaEventTriggerp()) {
-            m_netlistp->nbaEventTriggerp(m_topScopep->createTemp("__VnbaEventTrigger", 1));
+    AstAssign* createNbaEventTriggerAssignment(File_લીટી* flp) {
+        જો (!m_netlistp->nbaEventTriggerp()) {
+            m_netlistp->nbaEventTriggerp(m_ટોચ_Scopep->createTemp("__VnbaEventTrigger", 1));
         }
-        return new AstAssign{flp,
-                             new AstVarRef{flp, m_netlistp->nbaEventTriggerp(), VAccess::WRITE},
-                             new AstConst{flp, AstConst::BitTrue{}}};
+        પાછા નવું AstAssign{flp,
+                             નવું AstVarRef{flp, m_netlistp->nbaEventTriggerp(), VAccess::WRITE},
+                             નવું AstConst{flp, AstConst::BitTrue{}}};
     }
     // Returns true if we are under a class or interface function, or the tree references locals.
     // These are cases where static, globally-evaluated triggers are not suitable.
-    bool needDynamicTrigger(AstNode* const nodep) const {
-        return m_classp || m_underIfaceCFunc || nodep->exists([](AstNode* const nodep) {
-            if (AstNodeVarRef* varp = VN_CAST(nodep, NodeVarRef)) {
-                return varp->varp()->isFuncLocal();
+    તાર્કિક needDynamicTrigger(Ast_ગાંઠ* અચલ nodep) અચલ {
+        પાછા m_classp || m_underIfaceCFunc || nodep->exists([](Ast_ગાંઠ* અચલ nodep) {
+            જો (Ast_ગાંઠ_Var_Ref* varp = VN_CAST(nodep, ગાંઠ_Var_Ref)) {
+                પાછા varp->varp()->isFuncLocal();
             }
-            return !nodep->isPure();
+            પાછા !nodep->isPure();
         });
     }
     // Creates a trigger scheduler variable
-    AstVarScope* getCreateTriggerSchedulerp(AstSenTree* const sentreep) {
-        if (!sentreep->user1p()) {
-            if (!m_trigSchedDtp) {
+    AstVarScope* getCreateTriggerSchedulerp(Ast_Sen_વૃક્ષ* અચલ sentreep) {
+        જો (!sentreep->user1p()) {
+            જો (!m_trigSchedDtp) {
                 m_trigSchedDtp
-                    = new AstBasicDType{m_scopeTopp->fileline(), VBasicDTypeKwd::TRIGGER_SCHEDULER,
+                    = નવું AstBasicDType{m_scopeTopp->fileline(), VBasicDTypeKwd::TRIGGER_SCHEDULER,
                                         VSigning::UNSIGNED};
                 m_netlistp->typeTablep()->addTypesp(m_trigSchedDtp);
             }
-            AstVarScope* const trigSchedp
-                = m_topScopep->createTemp(m_trigSchedNames.get(sentreep), m_trigSchedDtp);
+            AstVarScope* અચલ trigSchedp
+                = m_ટોચ_Scopep->createTemp(m_trigSchedNames.get(sentreep), m_trigSchedDtp);
             sentreep->user1p(trigSchedp);
         }
-        return VN_AS(sentreep->user1p(), VarScope);
+        પાછા VN_AS(sentreep->user1p(), VarScope);
     }
     // Creates a string describing the sentree
-    AstCExpr* createEventDescription(AstSenTree* const sentreep) const {
-        if (!sentreep->user2p()) {
+    AstCExpr* createEventDescription(Ast_Sen_વૃક્ષ* અચલ sentreep) અચલ {
+        જો (!sentreep->user2p()) {
             std::stringstream ss;
-            V3EmitV::verilogForTree(sentreep, ss);
+            V3EmitV::verilog_For_વૃક્ષ(sentreep, ss);
             // possibly a multiline string
             // Names were hashed by V3Name, show the user the original text
             std::string comment = VName::dehash(ss.str());
             std::replace(comment.begin(), comment.end(), '\n', ' ');
             // Escape quotes, e.g. from string-indexed event array selects
             comment = '"' + V3OutFormatter::quoteNameControls(comment) + '"';
-            AstCExpr* const commentp = new AstCExpr{sentreep->fileline(), comment};
+            AstCExpr* અચલ commentp = નવું AstCExpr{sentreep->fileline(), comment};
             commentp->dtypeSetString();
             sentreep->user2p(commentp);
-            return commentp;
+            પાછા commentp;
         }
-        return VN_AS(sentreep->user2p(), CExpr)->cloneTree(false);
+        પાછા VN_AS(sentreep->user2p(), CExpr)->clone_વૃક્ષ(ખોટું);
     }
     // Adds debug info to a hardcoded method call
-    void addDebugInfo(AstCMethodHard* const methodp) const {
-        FileLine* const flp = methodp->fileline();
-        const bool protectIds = v3Global.opt.protectIds();
-        AstCExpr* const ap
-            = new AstCExpr{flp, protectIds ? "VL_UNKNOWN" : '"' + flp->filenameEsc() + '"'};
+    શૂન્ય addDebugInfo(AstCMethodHard* અચલ methodp) અચલ {
+        File_લીટી* અચલ flp = methodp->fileline();
+        અચલ તાર્કિક protectIds = v3Global.opt.protectIds();
+        AstCExpr* અચલ ap
+            = નવું AstCExpr{flp, protectIds ? "VL_UNKNOWN" : '"' + flp->filenameEsc() + '"'};
         ap->dtypeSetString();
         methodp->addPinsp(ap);
-        AstCExpr* const bp = new AstCExpr{flp, protectIds ? "0" : cvtToStr(flp->lineno())};
+        AstCExpr* અચલ bp = નવું AstCExpr{flp, protectIds ? "0" : cvtToStr(flp->lineno())};
         bp->dtypeSetString();
         methodp->addPinsp(bp);
     }
     // Adds debug info to a trigSched.trigger() call
-    void addEventDebugInfo(AstCMethodHard* const methodp, AstSenTree* const sentreep) const {
-        if (v3Global.opt.protectIds()) {
-            FileLine* const flp = sentreep->fileline();
-            AstCExpr* const descp = new AstCExpr{flp, "VL_UNKNOWN"};
+    શૂન્ય addEventDebugInfo(AstCMethodHard* અચલ methodp, Ast_Sen_વૃક્ષ* અચલ sentreep) અચલ {
+        જો (v3Global.opt.protectIds()) {
+            File_લીટી* અચલ flp = sentreep->fileline();
+            AstCExpr* અચલ descp = નવું AstCExpr{flp, "VL_UNKNOWN"};
             descp->dtypeSetString();
             methodp->addPinsp(descp);
             addDebugInfo(methodp);
-            return;
+            પાછા;
         }
         methodp->addPinsp(createEventDescription(sentreep));
         addDebugInfo(methodp);
     }
     // Adds process pointer to a hardcoded method call
-    void addProcessInfo(AstCMethodHard* const methodp) const {
-        FileLine* const flp = methodp->fileline();
-        AstCExpr* const ap
-            = new AstCExpr{flp, (m_procp && m_hasProcess) ? "vlProcess" : "nullptr"};
+    શૂન્ય addProcessInfo(AstCMethodHard* અચલ methodp) અચલ {
+        File_લીટી* અચલ flp = methodp->fileline();
+        AstCExpr* અચલ ap
+            = નવું AstCExpr{flp, (m_procp && m_hasProcess) ? "vlProcess" : "nullptr"};
         methodp->addPinsp(ap);
     }
     // Creates the fork handle type and returns it
     AstBasicDType* getCreateForkSyncDTypep() {
-        if (m_forkDtp) return m_forkDtp;
-        m_forkDtp = new AstBasicDType{m_scopeTopp->fileline(), VBasicDTypeKwd::FORK_SYNC,
+        જો (m_forkDtp) પાછા m_forkDtp;
+        m_forkDtp = નવું AstBasicDType{m_scopeTopp->fileline(), VBasicDTypeKwd::FORK_SYNC,
                                       VSigning::UNSIGNED};
         m_netlistp->typeTablep()->addTypesp(m_forkDtp);
-        return m_forkDtp;
+        પાછા m_forkDtp;
     }
     // Move `nodep` into `AstCLocalScope`.
-    AstCLocalScope* addCLocalScope(FileLine* const flp, AstNode* const nodep) const {
-        if (!nodep) return nullptr;
+    AstCLocalScope* addCLocalScope(File_લીટી* અચલ flp, Ast_ગાંઠ* અચલ nodep) અચલ {
+        જો (!nodep) પાછા nullptr;
         VNRelinker handle;
         nodep->unlinkFrBack(&handle);
-        AstCLocalScope* const cscopep = new AstCLocalScope{flp, nodep};
+        AstCLocalScope* અચલ cscopep = નવું AstCLocalScope{flp, nodep};
         handle.relink(cscopep);
-        return cscopep;
+        પાછા cscopep;
     }
     // Create a temp variable and optionally put it before the specified node (mark local if so)
-    AstVarScope* createTemp(FileLine* const flp, const std::string& name,
-                            AstNodeDType* const dtypep, AstNode* const insertBeforep = nullptr) {
+    AstVarScope* createTemp(File_લીટી* અચલ flp, અચલ std::string& name,
+                            Ast_ગાંઠ_DType* અચલ dtypep, Ast_ગાંઠ* અચલ ઉમેરો_Beforep = nullptr) {
         AstVar* varp;
-        if (insertBeforep) {
-            varp = new AstVar{flp, VVarType::BLOCKTEMP, name, dtypep};
-            varp->funcLocal(true);
-            insertBeforep->addHereThisAsNext(varp);
-        } else {
-            varp = new AstVar{flp, VVarType::MODULETEMP, name, dtypep};
+        જો (ઉમેરો_Beforep) {
+            varp = નવું AstVar{flp, VVarType::BLOCKTEMP, name, dtypep};
+            varp->funcLocal(સાચું);
+            ઉમેરો_Beforep->addHereThisAsNext(varp);
+        } નહીંતર {
+            varp = નવું AstVar{flp, VVarType::MODULETEMP, name, dtypep};
             m_scopep->modp()->addStmtsp(varp);
         }
-        AstVarScope* const vscp = new AstVarScope{flp, m_scopep, varp};
+        AstVarScope* અચલ vscp = નવું AstVarScope{flp, m_scopep, varp};
         m_scopep->addVarsp(vscp);
-        return vscp;
+        પાછા vscp;
     }
     // Add a done() call on the fork sync
-    void addForkDone(AstBegin* const beginp, AstVarScope* const forkVscp) const {
-        FileLine* const flp = beginp->fileline();
-        auto* const donep = new AstCMethodHard{
-            beginp->fileline(), new AstVarRef{flp, forkVscp, VAccess::WRITE}, VCMethod::FORK_DONE};
+    શૂન્ય addForkDone(AstBegin* અચલ beginp, AstVarScope* અચલ forkVscp) અચલ {
+        File_લીટી* અચલ flp = beginp->fileline();
+        auto* અચલ donep = નવું AstCMethodHard{
+            beginp->fileline(), નવું AstVarRef{flp, forkVscp, VAccess::WRITE}, VCMethod::FORK_DONE};
         donep->dtypeSetVoid();
         addDebugInfo(donep);
         beginp->addStmtsp(donep->makeStmt());
     }
-    static bool hasDisableQueuePushSelfPrefix(AstBegin* const beginp) {
+    સ્થિર તાર્કિક has_Disable_Queue_ધકેલો_Self_Prefix(AstBegin* અચલ beginp) {
         // LinkJump prepends disable-by-name registration as:
         //   __VprocessQueue_*.push_back(std::process::self())
         // V3LiftExpr lifts std::process::self() into an assignment to a temporary, then V3Task
@@ -761,78 +761,78 @@ class TimingControlVisitor final : public VNVisitor {
         // push_back is no longer necessarily the first statement. Scan across this generated
         // prefix for it, stopping at the fork-start sentinel or the branch body. Registrations for
         // nested forks live in sub-blocks and so are not in this statement list.
-        for (AstNode* stmtp = beginp->stmtsp(); stmtp; stmtp = stmtp->nextp()) {
-            if (VN_IS(stmtp, Comment)) continue;
-            AstStmtExpr* const stmtExprp = VN_CAST(stmtp, StmtExpr);
-            if (!stmtExprp) break;
-            if (stmtExprp->isDisableQueuePushSelfStmt()) return true;
+        માટે (Ast_ગાંઠ* stmtp = beginp->stmtsp(); stmtp; stmtp = stmtp->nextp()) {
+            જો (VN_IS(stmtp, Comment)) ચાલુ;
+            Ast_Stmt_પદાવલિ* અચલ stmtExprp = VN_CAST(stmtp, Stmt_પદાવલિ);
+            જો (!stmtExprp) તોડો;
+            જો (stmtExprp->is_Disable_Queue_ધકેલો_Self_Stmt()) પાછા સાચું;
         }
-        return false;
+        પાછા ખોટું;
     }
     // Register a callback so killing a process-backed fork branch decrements the join counter
-    void addForkOnKill(AstBegin* const beginp, AstVarScope* const forkVscp) const {
-        if (!beginp->needProcess() && !hasDisableQueuePushSelfPrefix(beginp)) return;
-        FileLine* const flp = beginp->fileline();
-        AstCMethodHard* const onKillp = new AstCMethodHard{
-            flp, new AstVarRef{flp, forkVscp, VAccess::WRITE}, VCMethod::FORK_ON_KILL};
+    શૂન્ય addForkOnKill(AstBegin* અચલ beginp, AstVarScope* અચલ forkVscp) અચલ {
+        જો (!beginp->needProcess() && !has_Disable_Queue_ધકેલો_Self_Prefix(beginp)) પાછા;
+        File_લીટી* અચલ flp = beginp->fileline();
+        AstCMethodHard* અચલ onKillp = નવું AstCMethodHard{
+            flp, નવું AstVarRef{flp, forkVscp, VAccess::WRITE}, VCMethod::FORK_ON_KILL};
         onKillp->dtypeSetVoid();
-        AstCExpr* const processp = new AstCExpr{flp, "vlProcess"};
+        AstCExpr* અચલ processp = નવું AstCExpr{flp, "vlProcess"};
         processp
             ->dtypeSetVoid();  // Opaque process reference; type is irrelevant for hardcoded emit
         onKillp->addPinsp(processp);
-        AstNodeStmt* const stmtp = onKillp->makeStmt();
+        Ast_ગાંઠ_Stmt* અચલ stmtp = onKillp->makeStmt();
         beginp->prependStmtsp(stmtp);
     }
     // Handle the 'join' part of a fork..join
-    void makeForkJoin(AstFork* const forkp) {
+    શૂન્ય makeForkJoin(AstFork* અચલ forkp) {
         // Create a fork sync var
-        FileLine* const flp = forkp->fileline();
+        File_લીટી* અચલ flp = forkp->fileline();
         // Insert the sync var directly before the fork
-        AstNode* const insertBeforep = forkp;
+        Ast_ગાંઠ* અચલ ઉમેરો_Beforep = forkp;
         // Make sure all references to the fork var are contained within a single scope to prevent
         // moving statements accessing it in case of large functions splitting.
-        addCLocalScope(flp, insertBeforep);
+        addCLocalScope(flp, ઉમેરો_Beforep);
         AstVarScope* forkVscp
-            = createTemp(flp, forkp->name() + "__sync", getCreateForkSyncDTypep(), insertBeforep);
-        unsigned joinCount = 0;  // Needed for join counter
+            = createTemp(flp, forkp->name() + "__sync", getCreateForkSyncDTypep(), ઉમેરો_Beforep);
+        unsigned join_ગણતરી = 0;  // Needed for join counter
         // Add a <fork sync>.done() to each begin
-        for (AstNode* beginp = forkp->forksp(); beginp; beginp = beginp->nextp()) {
+        માટે (Ast_ગાંઠ* beginp = forkp->forksp(); beginp; beginp = beginp->nextp()) {
             addForkOnKill(VN_AS(beginp, Begin), forkVscp);
             addForkDone(VN_AS(beginp, Begin), forkVscp);
-            joinCount++;
+            join_ગણતરી++;
         }
-        if (forkp->joinType().joinAny()) joinCount = 1;
+        જો (forkp->joinType().joinAny()) join_ગણતરી = 1;
         // Set the join counter
-        auto* const initp = new AstCMethodHard{flp, new AstVarRef{flp, forkVscp, VAccess::WRITE},
-                                               VCMethod::FORK_INIT, new AstConst{flp, joinCount}};
+        auto* અચલ initp = નવું AstCMethodHard{flp, નવું AstVarRef{flp, forkVscp, VAccess::WRITE},
+                                               VCMethod::FORK_INIT, નવું AstConst{flp, join_ગણતરી}};
         initp->dtypeSetVoid();
         addProcessInfo(initp);
         forkp->addHereThisAsNext(initp->makeStmt());
         // Await the join at the end
-        auto* const joinp = new AstCMethodHard{flp, new AstVarRef{flp, forkVscp, VAccess::WRITE},
+        auto* અચલ joinp = નવું AstCMethodHard{flp, નવું AstVarRef{flp, forkVscp, VAccess::WRITE},
                                                VCMethod::FORK_JOIN};
         joinp->dtypeSetVoid();
         addProcessInfo(joinp);
         addDebugInfo(joinp);
-        forkp->addNextHere(new AstCAwait{flp, joinp});
+        forkp->addNextHere(નવું AstCAwait{flp, joinp});
     }
 
     // `procp` shall be a NodeProcedure/CFunc/Begin and within it vars from `varsp` will be placed.
     // `varsp` vector of vars which shall be localized.
-    static void localizeVars(AstNode* const procp, const std::vector<AstVar*>& varsp) {
+    સ્થિર શૂન્ય localizeVars(Ast_ગાંઠ* અચલ procp, અચલ std::vector<AstVar*>& varsp) {
         UASSERT(procp, "procp is nullptr");
         AstVar* newVarsp = nullptr;
-        for (AstVar* const varp : varsp) {
-            varp->funcLocal(true);
-            newVarsp = AstNode::addNextNull(newVarsp, varp->unlinkFrBack());
+        માટે (AstVar* અચલ varp : varsp) {
+            varp->funcLocal(સાચું);
+            newVarsp = Ast_ગાંઠ::addNextNull(newVarsp, varp->unlinkFrBack());
         }
-        if (AstNodeProcedure* const nodeProcp = VN_CAST(procp, NodeProcedure)) {
-            nodeProcp->prependStmtsp(newVarsp);
-        } else if (AstCFunc* const cfuncp = VN_CAST(procp, CFunc)) {
+        જો (Ast_ગાંઠ_Procedure* અચલ ગાંઠ_Procp = VN_CAST(procp, ગાંઠ_Procedure)) {
+            ગાંઠ_Procp->prependStmtsp(newVarsp);
+        } નહીંતર જો (AstCFunc* અચલ cfuncp = VN_CAST(procp, CFunc)) {
             cfuncp->prependVarsp(newVarsp);
-        } else if (AstBegin* const beginp = VN_CAST(procp, Begin)) {
+        } નહીંતર જો (AstBegin* અચલ beginp = VN_CAST(procp, Begin)) {
             beginp->prependStmtsp(newVarsp);
-        } else {
+        } નહીંતર {
             procp->v3fatalSrc(
                 procp->prettyNameQ()
                 << " is not of an expected type NodeProcedure/CFunc/Begin instead it is: "
@@ -840,15 +840,15 @@ class TimingControlVisitor final : public VNVisitor {
         }
     }
 
-    AstNodeExpr* delayToIntegral(AstDelay* nodep, AstNodeExpr* valuep) {
-        const AstConst* const constp = VN_CAST(valuep, Const);
+    Ast_ગાંઠ_પદાવલિ* delayToIntegral(AstDelay* nodep, Ast_ગાંઠ_પદાવલિ* valuep) {
+        અચલ AstConst* અચલ constp = VN_CAST(valuep, Const);
         // The fork start sentinel is already in ticks
-        if (constp && constp->toUQuad() == std::numeric_limits<uint64_t>::max()) return valuep;
-        return V3Timing::delayToTicks(valuep, nodep->timeunit());
+        જો (constp && constp->toUQuad() == std::numeric_limits<uint64_t>::max()) પાછા valuep;
+        પાછા V3Timing::delayToTicks(valuep, nodep->timeunit());
     }
 
     // VISITORS
-    void visit(AstNodeModule* nodep) override {
+    શૂન્ય visit(Ast_ગાંઠ_Module* nodep) override {
         UASSERT_OBJ(!m_classp, nodep, "Module or class under class");
         VL_RESTORER(m_classp);
         m_classp = VN_CAST(nodep, Class);
@@ -856,80 +856,80 @@ class TimingControlVisitor final : public VNVisitor {
         m_forkCnt = 0;
         iterateChildren(nodep);
     }
-    void visit(AstScope* nodep) override {
+    શૂન્ય visit(AstScope* nodep) override {
         VL_RESTORER(m_scopep);
         m_scopep = nodep;
-        SenExprBuilder senExprBuilder{m_scopep};
+        Sen_પદાવલિ_Builder sen_પદાવલિ_Builder{m_scopep};
         {  // Restore m_senExprBuilderp before destroying senExprBuilder
-            VL_RESTORER(m_senExprBuilderp);
-            m_senExprBuilderp = &senExprBuilder;
+            VL_RESTORER(m_sen_પદાવલિ_Builderp);
+            m_sen_પદાવલિ_Builderp = &sen_પદાવલિ_Builder;
             iterateChildren(nodep);
         }
     }
-    void visit(AstActive* nodep) override {
+    શૂન્ય visit(AstActive* nodep) override {
         VL_RESTORER(m_activep);
         m_activep = nodep;
         iterateChildren(nodep);
     }
-    void visit(AstNodeProcedure* nodep) override {
+    શૂન્ય visit(Ast_ગાંઠ_Procedure* nodep) override {
         VL_RESTORER(m_procp);
         VL_RESTORER(m_hasProcess);
         m_procp = nodep;
         m_hasProcess = hasFlags(nodep, T_HAS_PROC);
         VL_RESTORER(m_underProcedure);
-        m_underProcedure = true;
+        m_underProcedure = સાચું;
         iterateChildren(nodep);
-        if (hasFlags(nodep, T_SUSPENDEE)) nodep->setSuspendable();
-        if (hasFlags(nodep, T_HAS_PROC)) nodep->setNeedProcess();
+        જો (hasFlags(nodep, T_SUSPENDEE)) nodep->setSuspendable();
+        જો (hasFlags(nodep, T_HAS_PROC)) nodep->setNeedProcess();
     }
-    void visit(AstInitial* nodep) override {
-        visit(static_cast<AstNodeProcedure*>(nodep));
-        if (nodep->needProcess() && !nodep->user1SetOnce()) {
+    શૂન્ય visit(AstInitial* nodep) override {
+        visit(static_cast<Ast_ગાંઠ_Procedure*>(nodep));
+        જો (nodep->needProcess() && !nodep->user1SetOnce()) {
             nodep->addStmtsp(
-                new AstCStmt{nodep->fileline(), "vlProcess->state(VlProcess::FINISHED);"});
+                નવું AstCStmt{nodep->fileline(), "vlProcess->state(VlProcess::FINISHED);"});
         }
     }
-    void visit(AstJumpBlock* nodep) override {
+    શૂન્ય visit(AstJumpBlock* nodep) override {
         VL_RESTORER(m_underJumpBlock);
-        m_underJumpBlock = true;
-        visit(static_cast<AstNodeStmt*>(nodep));
+        m_underJumpBlock = સાચું;
+        visit(static_cast<Ast_ગાંઠ_Stmt*>(nodep));
     }
-    void visit(AstAlways* nodep) override {
-        if (nodep->user1SetOnce()) return;
+    શૂન્ય visit(AstAlways* nodep) override {
+        જો (nodep->user1SetOnce()) પાછા;
         VL_RESTORER(m_procp);
         VL_RESTORER(m_hasProcess);
         m_procp = nodep;
         m_hasProcess = hasFlags(nodep, T_HAS_PROC);
         VL_RESTORER(m_underProcedure);
-        m_underProcedure = true;
+        m_underProcedure = સાચું;
         // Workaround for killing `always` processes (doing that is pretty much UB)
         // TODO: Disallow killing `always` at runtime (throw an error)
         // Skip for combinational blocks; if the body has timing controls
         // iterateChildren will add T_SUSPENDEE, otherwise it would spin.
-        if (hasFlags(nodep, T_HAS_PROC)
+        જો (hasFlags(nodep, T_HAS_PROC)
             && !(m_activep && m_activep->sentreep() && m_activep->sentreep()->hasCombo()))
             addFlags(nodep, T_SUSPENDEE);
 
         iterateChildren(nodep);
-        if (hasFlags(nodep, T_HAS_PROC)) nodep->setNeedProcess();
-        if (!hasFlags(nodep, T_SUSPENDEE)) return;
+        જો (hasFlags(nodep, T_HAS_PROC)) nodep->setNeedProcess();
+        જો (!hasFlags(nodep, T_SUSPENDEE)) પાછા;
         nodep->setSuspendable();
-        FileLine* const flp = nodep->fileline();
-        AstSenTree* const sentreep = m_activep->sentreep();
-        if (sentreep->hasClocked()) {
-            AstNode* const bodysp = nodep->stmtsp()->unlinkFrBackWithNext();
-            auto* const controlp = new AstEventControl{flp, sentreep->cloneTree(false), bodysp};
+        File_લીટી* અચલ flp = nodep->fileline();
+        Ast_Sen_વૃક્ષ* અચલ sentreep = m_activep->sentreep();
+        જો (sentreep->hasClocked()) {
+            Ast_ગાંઠ* અચલ bodysp = nodep->stmtsp()->unlinkFrBackWithNext();
+            auto* અચલ controlp = નવું AstEventControl{flp, sentreep->clone_વૃક્ષ(ખોટું), bodysp};
             nodep->addStmtsp(controlp);
             iterate(controlp);
         }
         // Note: The 'while (true)' outer loop will be added in V3Sched
-        auto* const activep = new AstActive{
-            flp, "", new AstSenTree{flp, new AstSenItem{flp, AstSenItem::Initial{}}}};
-        activep->senTreeStorep(activep->sentreep());
+        auto* અચલ activep = નવું AstActive{
+            flp, "", નવું Ast_Sen_વૃક્ષ{flp, નવું AstSenItem{flp, AstSenItem::Initial{}}}};
+        activep->sen_વૃક્ષ_Storep(activep->sentreep());
         activep->addStmtsp(nodep->unlinkFrBack());
         m_activep->addNextHere(activep);
     }
-    void visit(AstCFunc* nodep) override {
+    શૂન્ય visit(AstCFunc* nodep) override {
         VL_RESTORER(m_procp);
         VL_RESTORER(m_hasProcess);
         VL_RESTORER(m_underIfaceCFunc);
@@ -937,255 +937,255 @@ class TimingControlVisitor final : public VNVisitor {
         m_hasProcess = hasFlags(nodep, T_HAS_PROC);
         m_underIfaceCFunc = VN_IS(m_scopep->modp(), Iface);
         iterateChildren(nodep);
-        if (hasFlags(nodep, T_HAS_PROC)) nodep->setNeedProcess();
-        if (!(hasFlags(nodep, T_SUSPENDEE))) return;
+        જો (hasFlags(nodep, T_HAS_PROC)) nodep->setNeedProcess();
+        જો (!(hasFlags(nodep, T_SUSPENDEE))) પાછા;
 
         nodep->rtnType("VlCoroutine");
         // If in a class, create a shared pointer to 'this'
-        if (m_classp) {
-            AstCStmt* const cstmtp = new AstCStmt{nodep->fileline(), "VL_KEEP_THIS;"};
+        જો (m_classp) {
+            AstCStmt* અચલ cstmtp = નવું AstCStmt{nodep->fileline(), "VL_KEEP_THIS;"};
             nodep->prependStmtsp(cstmtp);
         }
-        if (nodep->dpiExportImpl()) {
-            nodep->exists([](AstCAwait* const awaitp) -> bool {
+        જો (nodep->dpiExportImpl()) {
+            nodep->exists([](AstCAwait* અચલ awaitp) -> તાર્કિક {
                 // A DPI-exported coroutine won't be able to block the calling code
                 // Error on the await node; fall back to the function node
                 awaitp->v3warn(E_UNSUPPORTED,
                                "Unsupported: Timing controls inside DPI-exported tasks");
-                return true;
+                પાછા સાચું;
             });
         }
     }
-    void visit(AstNodeCCall* nodep) override {
-        AstCFunc* const funcp = nodep->funcp();
+    શૂન્ય visit(Ast_ગાંઠ_CCall* nodep) override {
+        AstCFunc* અચલ funcp = nodep->funcp();
 
         // Skip automatic covergroup sampling calls
-        if (funcp->isCovergroupSample()) {
+        જો (funcp->isCovergroupSample()) {
             iterateChildren(nodep);
-            return;
+            પાછા;
         }
 
-        if (funcp->needProcess()) m_hasProcess = true;
-        if (hasFlags(funcp, T_SUSPENDEE) && !nodep->user1SetOnce()) {  // If suspendable
+        જો (funcp->needProcess()) m_hasProcess = સાચું;
+        જો (hasFlags(funcp, T_SUSPENDEE) && !nodep->user1SetOnce()) {  // If suspendable
             // Calls to suspendables are always void return type, hence parent must be StmtExpr
-            AstStmtExpr* const stmtp = VN_AS(nodep->backp(), StmtExpr);
-            stmtp->replaceWith(new AstCAwait{nodep->fileline(), nodep->unlinkFrBack()});
-            VL_DO_DANGLING(pushDeletep(stmtp), stmtp);
+            Ast_Stmt_પદાવલિ* અચલ stmtp = VN_AS(nodep->backp(), Stmt_પદાવલિ);
+            stmtp->replaceWith(નવું AstCAwait{nodep->fileline(), nodep->unlinkFrBack()});
+            VL_DO_DANGLING(ધકેલો_Deletep(stmtp), stmtp);
         }
         iterateChildren(nodep);
     }
-    void visit(AstDelay* nodep) override {
+    શૂન્ય visit(AstDelay* nodep) override {
         UASSERT_OBJ(!nodep->isCycleDelay(), nodep,
                     "Cycle delays should have been handled in V3AssertPre");
-        FileLine* const flp = nodep->fileline();
+        File_લીટી* અચલ flp = nodep->fileline();
 
-        AstNodeExpr* valuep = delayToIntegral(nodep, nodep->lhsp()->unlinkFrBack());
+        Ast_ગાંઠ_પદાવલિ* valuep = delayToIntegral(nodep, nodep->lhsp()->unlinkFrBack());
 
         // Statistics
-        if (valuep->isZero()) {
+        જો (valuep->isZero()) {
             ++m_statZeroDelays;
-        } else if (VN_IS(valuep, Const)) {
+        } નહીંતર જો (VN_IS(valuep, Const)) {
             ++m_statConstDelays;
-        } else {
+        } નહીંતર {
             ++m_statVariableDelays;
         }
 
         // Decide scheduling support for #0
-        if (v3Global.opt.schedZeroDelay().isSetTrue()) {
+        જો (v3Global.opt.schedZeroDelay().isSetTrue()) {
             // User said to schedule for #0 support, nothing else to do
             v3Global.setUsesZeroDelay();
-        } else if (v3Global.opt.schedZeroDelay().isSetFalse()) {
+        } નહીંતર જો (v3Global.opt.schedZeroDelay().isSetFalse()) {
             // User said to schedule without #0 support. Still warn if a static #0 delay exists
-            if (valuep->isZero()) {
+            જો (valuep->isZero()) {
                 nodep->v3warn(
                     ZERODLY,
                     "Static #0 delay exists, but '--no-sched-zero-delay' was given.\n"
                         << nodep->warnMore()  //
                         << "... Can proceed, but this will fail at runtime if executed.");
             }
-        } else {
+        } નહીંતર {
             // User did not express preference, decide based on presence of delays
-            if (valuep->isZero()) {
+            જો (valuep->isZero()) {
                 // Statically known #0 delay exists, schedule for #0 support
                 v3Global.setUsesZeroDelay();
-                m_hasStaticZeroDelay = true;
+                m_hasStaticZeroDelay = સાચું;
                 // Don't warn on variable delays, as no point
                 m_unknownDelayFlps.clear();
-            } else if (staticallyNonZeroDelay(valuep)) {
+            } નહીંતર જો (staticallyNonZeroDelay(valuep)) {
                 // Delay is dynamic, but every statically known outcome is non-zero.
                 // So we don't need #0 delay support and there should be no warning.
-            } else if (!VN_IS(valuep, Const)) {
+            } નહીંતર જો (!VN_IS(valuep, Const)) {
                 // Delay is not known at compiile time. Conservatively schedule for #0 support,
                 // but warn if no static #0 delays used as performance might be improved
                 v3Global.setUsesZeroDelay();
-                if (!m_hasStaticZeroDelay) m_unknownDelayFlps.push_back(nodep->fileline());
+                જો (!m_hasStaticZeroDelay) m_unknownDelayFlps.ધકેલો_back(nodep->fileline());
             }
         }
 
         // Replace self with a 'co_await dlySched.delay(<valuep>)'
-        AstCMethodHard* const delayMethodp = new AstCMethodHard{
-            flp, new AstVarRef{flp, getCreateDelayScheduler(), VAccess::WRITE},
+        AstCMethodHard* અચલ delayMethodp = નવું AstCMethodHard{
+            flp, નવું AstVarRef{flp, getCreateDelayScheduler(), VAccess::WRITE},
             VCMethod::SCHED_DELAY, valuep};
         delayMethodp->dtypeSetVoid();
         addProcessInfo(delayMethodp);
         addDebugInfo(delayMethodp);
         // Create the co_await
-        AstNode* const awaitp = new AstCAwait{flp, delayMethodp, getCreateDelaySenTree()};
+        Ast_ગાંઠ* અચલ awaitp = નવું AstCAwait{flp, delayMethodp, get_Create_Delay_Sen_વૃક્ષ()};
         // Relink child statements after the co_await
-        if (AstNode* const stmtsp = nodep->stmtsp()) {
+        જો (Ast_ગાંઠ* અચલ stmtsp = nodep->stmtsp()) {
             awaitp->addNext(stmtsp->unlinkFrBackWithNext());
         }
         nodep->replaceWith(awaitp);
-        VL_DO_DANGLING(nodep->deleteTree(), nodep);
+        VL_DO_DANGLING(nodep->delete_વૃક્ષ(), nodep);
     }
-    void visit(AstEventControl* nodep) override {
+    શૂન્ય visit(AstEventControl* nodep) override {
         // Do not allow waiting on local named events, as they get enqueued for clearing, but can
         // go out of scope before that happens
-        if (!nodep->sentreep()) {
+        જો (!nodep->sentreep()) {
             nodep->v3warn(E_UNSUPPORTED,
                           "Unsupported: Event control with implicit sensitivity (@*)"
                           " in this context; use an explicit sensitivity list instead");
-            VL_DO_DANGLING(pushDeletep(nodep->unlinkFrBack()), nodep);
-            return;
+            VL_DO_DANGLING(ધકેલો_Deletep(nodep->unlinkFrBack()), nodep);
+            પાછા;
         }
-        FileLine* const flp = nodep->fileline();
+        File_લીટી* અચલ flp = nodep->fileline();
         // Relink child statements after the event control
-        if (nodep->stmtsp()) nodep->addNextHere(nodep->stmtsp()->unlinkFrBackWithNext());
-        if (needDynamicTrigger(nodep->sentreep())) {
+        જો (nodep->stmtsp()) nodep->addNextHere(nodep->stmtsp()->unlinkFrBackWithNext());
+        જો (needDynamicTrigger(nodep->sentreep())) {
             // Create the trigger variable and init it with 0
-            AstVarScope* const trigvscp
+            AstVarScope* અચલ trigvscp
                 = createTemp(flp, m_dynTrigNames.get(nodep), nodep->findBitDType(), nodep);
-            auto* const initp = new AstAssign{flp, new AstVarRef{flp, trigvscp, VAccess::WRITE},
-                                              new AstConst{flp, AstConst::BitFalse{}}};
+            auto* અચલ initp = નવું AstAssign{flp, નવું AstVarRef{flp, trigvscp, VAccess::WRITE},
+                                              નવું AstConst{flp, AstConst::BitFalse{}}};
             // Await the eval step with the dynamic trigger scheduler. First, create the method
             // call
-            auto* const evalMethodp = new AstCMethodHard{
-                flp, new AstVarRef{flp, getCreateDynamicTriggerScheduler(), VAccess::WRITE},
+            auto* અચલ evalMethodp = નવું AstCMethodHard{
+                flp, નવું AstVarRef{flp, getCreateDynamicTriggerScheduler(), VAccess::WRITE},
                 VCMethod::SCHED_EVALUATION};
             evalMethodp->dtypeSetVoid();
             addProcessInfo(evalMethodp);
-            auto* const sentreep = nodep->sentreep();
+            auto* અચલ sentreep = nodep->sentreep();
             addEventDebugInfo(evalMethodp, sentreep);
             // Create the co_await
-            AstCAwait* const awaitEvalp
-                = new AstCAwait{flp, evalMethodp, getCreateDynamicTriggerSenTree()};
+            AstCAwait* અચલ awaitEvalp
+                = નવું AstCAwait{flp, evalMethodp, get_Create_Dynamic_Trigger_Sen_વૃક્ષ()};
             // Construct the sen expression for this sentree
-            UASSERT_OBJ(m_senExprBuilderp, nodep, "No SenExprBuilder for this scope");
-            auto* const assignp = new AstAssign{flp, new AstVarRef{flp, trigvscp, VAccess::WRITE},
-                                                m_senExprBuilderp->build(sentreep).first};
+            UASSERT_OBJ(m_sen_પદાવલિ_Builderp, nodep, "No SenExprBuilder for this scope");
+            auto* અચલ assignp = નવું AstAssign{flp, નવું AstVarRef{flp, trigvscp, VAccess::WRITE},
+                                                m_sen_પદાવલિ_Builderp->build(sentreep).first};
             // Get the SenExprBuilder results
-            const SenExprBuilder::Results senResults = m_senExprBuilderp->getAndClearResults();
+            અચલ Sen_પદાવલિ_Builder::Results senResults = m_sen_પદાવલિ_Builderp->getAndClearResults();
             localizeVars(m_procp, senResults.m_vars);
             // If post updates are destructive (e.g. clearFired on events), perform a
             // conservative pre-clear once before entering the wait loop so stale state from a
             // previous wait does not cause an immediate false-positive trigger.
-            const bool hasDestructivePostUpdates = !senResults.m_destructivePostUpdates.empty();
+            અચલ તાર્કિક hasDestructivePostUpdates = !senResults.m_destructivePostUpdates.empty();
             // Create the trigger eval loop, which will await the evaluation step and check the
             // trigger
-            AstNodeExpr* const condp
-                = new AstLogNot{flp, new AstVarRef{flp, trigvscp, VAccess::READ}};
-            AstLoop* const loopp = new AstLoop{flp};
-            loopp->addStmtsp(new AstLoopTest{flp, loopp, condp});
+            Ast_ગાંઠ_પદાવલિ* અચલ condp
+                = નવું AstLogNot{flp, નવું AstVarRef{flp, trigvscp, VAccess::READ}};
+            AstLoop* અચલ loopp = નવું AstLoop{flp};
+            loopp->addStmtsp(નવું AstLoopTest{flp, loopp, condp});
             loopp->addStmtsp(awaitEvalp);
             // Put pre updates before the trigger check and assignment
-            for (AstNodeStmt* const stmtp : senResults.m_preUpdates) loopp->addStmtsp(stmtp);
+            માટે (Ast_ગાંઠ_Stmt* અચલ stmtp : senResults.m_preUpdates) loopp->addStmtsp(stmtp);
             // Then the trigger check and assignment
             loopp->addStmtsp(assignp);
             // Let the dynamic trigger scheduler know if this trigger was set
             // If it was, a call to the scheduler's evaluate() will return true
-            AstCMethodHard* const anyTriggeredMethodp = new AstCMethodHard{
-                flp, new AstVarRef{flp, getCreateDynamicTriggerScheduler(), VAccess::WRITE},
-                VCMethod::SCHED_ANY_TRIGGERED, new AstVarRef{flp, trigvscp, VAccess::READ}};
+            AstCMethodHard* અચલ anyTriggeredMethodp = નવું AstCMethodHard{
+                flp, નવું AstVarRef{flp, getCreateDynamicTriggerScheduler(), VAccess::WRITE},
+                VCMethod::SCHED_ANY_TRIGGERED, નવું AstVarRef{flp, trigvscp, VAccess::READ}};
             anyTriggeredMethodp->dtypeSetVoid();
             loopp->addStmtsp(anyTriggeredMethodp->makeStmt());
             // If the post update is destructive (e.g. event vars are cleared), create an await for
             // the post update step
-            if (hasDestructivePostUpdates) {
-                AstCAwait* const awaitPostUpdatep = awaitEvalp->cloneTree(false);
+            જો (hasDestructivePostUpdates) {
+                AstCAwait* અચલ awaitPostUpdatep = awaitEvalp->clone_વૃક્ષ(ખોટું);
                 VN_AS(awaitPostUpdatep->exprp(), CMethodHard)->method(VCMethod::SCHED_POST_UPDATE);
                 loopp->addStmtsp(awaitPostUpdatep);
             }
             // Put the post updates at the end of the loop
-            for (AstNodeStmt* const stmtp : senResults.m_postUpdates) loopp->addStmtsp(stmtp);
+            માટે (Ast_ગાંઠ_Stmt* અચલ stmtp : senResults.m_postUpdates) loopp->addStmtsp(stmtp);
             // Finally, await the resumption step in 'act'
-            AstCAwait* const awaitResumep = awaitEvalp->cloneTree(false);
+            AstCAwait* અચલ awaitResumep = awaitEvalp->clone_વૃક્ષ(ખોટું);
             VN_AS(awaitResumep->exprp(), CMethodHard)->method(VCMethod::SCHED_RESUMPTION);
-            AstNode::addNext<AstNodeStmt, AstNodeStmt>(loopp, awaitResumep);
+            Ast_ગાંઠ::addNext<Ast_ગાંઠ_Stmt, Ast_ગાંઠ_Stmt>(loopp, awaitResumep);
             // Replace the event control with one explicit stmt chain:
             //   init -> [inits] -> [optional destructive pre-clears] -> loop -> awaitResumption
-            AstNodeStmt* chainp = nullptr;
-            chainp = AstNode::addNextNull(chainp, initp);
-            for (AstNodeStmt* const stmtp : senResults.m_inits) {
-                chainp = AstNode::addNextNull(chainp, stmtp);
+            Ast_ગાંઠ_Stmt* chainp = nullptr;
+            chainp = Ast_ગાંઠ::addNextNull(chainp, initp);
+            માટે (Ast_ગાંઠ_Stmt* અચલ stmtp : senResults.m_inits) {
+                chainp = Ast_ગાંઠ::addNextNull(chainp, stmtp);
             }
-            if (hasDestructivePostUpdates) {
-                for (AstNodeStmt* const stmtp : senResults.m_destructivePostUpdates) {
-                    chainp = AstNode::addNextNull(chainp, stmtp->cloneTree(false));
+            જો (hasDestructivePostUpdates) {
+                માટે (Ast_ગાંઠ_Stmt* અચલ stmtp : senResults.m_destructivePostUpdates) {
+                    chainp = Ast_ગાંઠ::addNextNull(chainp, stmtp->clone_વૃક્ષ(ખોટું));
                 }
             }
-            chainp = AstNode::addNextNull(chainp, loopp);
+            chainp = Ast_ગાંઠ::addNextNull(chainp, loopp);
             nodep->replaceWith(chainp);
-        } else {
-            auto* const sentreep = m_finder.getSenTree(nodep->sentreep());
-            nodep->sentreep()->unlinkFrBack()->deleteTree();
+        } નહીંતર {
+            auto* અચલ sentreep = m_finder.get_Sen_વૃક્ષ(nodep->sentreep());
+            nodep->sentreep()->unlinkFrBack()->delete_વૃક્ષ();
             // Get this sentree's trigger scheduler
             // Replace self with a 'co_await trigSched.trigger()'
-            auto* const triggerMethodp = new AstCMethodHard{
-                flp, new AstVarRef{flp, getCreateTriggerSchedulerp(sentreep), VAccess::WRITE},
+            auto* અચલ triggerMethodp = નવું AstCMethodHard{
+                flp, નવું AstVarRef{flp, getCreateTriggerSchedulerp(sentreep), VAccess::WRITE},
                 VCMethod::SCHED_TRIGGER};
             triggerMethodp->dtypeSetVoid();
             // If it should be committed immediately, pass true, otherwise false
-            triggerMethodp->addPinsp(nodep->user2() ? new AstConst{flp, AstConst::BitTrue{}}
-                                                    : new AstConst{flp, AstConst::BitFalse{}});
+            triggerMethodp->addPinsp(nodep->user2() ? નવું AstConst{flp, AstConst::BitTrue{}}
+                                                    : નવું AstConst{flp, AstConst::BitFalse{}});
             addProcessInfo(triggerMethodp);
             addEventDebugInfo(triggerMethodp, sentreep);
             // Create the co_await
-            AstCAwait* const awaitp = new AstCAwait{flp, triggerMethodp, sentreep};
+            AstCAwait* અચલ awaitp = નવું AstCAwait{flp, triggerMethodp, sentreep};
             nodep->replaceWith(awaitp);
         }
-        VL_DO_DANGLING(nodep->deleteTree(), nodep);
+        VL_DO_DANGLING(nodep->delete_વૃક્ષ(), nodep);
     }
-    void visit(AstNodeAssign* nodep) override {
+    શૂન્ય visit(Ast_ગાંઠ_Assign* nodep) override {
         // Only process once to avoid infinite loops (due to the net delay)
-        if (nodep->user1SetOnce()) return;
+        જો (nodep->user1SetOnce()) પાછા;
         UINFO(9, "control-visit " << nodep);
-        FileLine* const flp = nodep->fileline();
-        AstNode* controlp = factorOutTimingControl(nodep);
-        const bool inAssignDly = VN_IS(nodep, AssignDly);
+        File_લીટી* અચલ flp = nodep->fileline();
+        Ast_ગાંઠ* controlp = factorOutTimingControl(nodep);
+        અચલ તાર્કિક inAssignDly = VN_IS(nodep, AssignDly);
         // Handle the intra assignment timing control
         // Transform if:
         // * there's a timing control in the assignment
         // * the assignment is an AssignDly and it's in a non-inlined function
-        if (!controlp && (!inAssignDly || m_underProcedure)) {
+        જો (!controlp && (!inAssignDly || m_underProcedure)) {
             iterateChildren(nodep);
-            return;
+            પાછા;
         }
         // The timing control, if any, which is put in a fork for an NBA
-        AstNode* const timingp = controlp;
+        Ast_ગાંઠ* અચલ timingp = controlp;
         // Insert new vars before the timing control if we're in a function; in a process we can't
         // do that, as after V3Begin only modules and functions declare variables. These
         // intra-assignment vars will later be passed to forked processes by value.
-        AstNode* insertBeforep = m_underProcedure ? nullptr : controlp;
+        Ast_ગાંઠ* ઉમેરો_Beforep = m_underProcedure ? nullptr : controlp;
         // Special case for NBA
-        if (inAssignDly) {
+        જો (inAssignDly) {
             // Put it in a fork so it doesn't block
             // Could already be the only thing directly under a fork, reuse that if possible
             AstFork* forkp = !nodep->nextp() ? VN_CAST(nodep->firstAbovep(), Fork) : nullptr;
-            if (!forkp) forkp = new AstFork{flp, VJoinType::JOIN_NONE};
-            if (!m_underProcedure) {
+            જો (!forkp) forkp = નવું AstFork{flp, VJoinType::JOIN_NONE};
+            જો (!m_underProcedure) {
                 // If it's in a function, it won't be handled by V3Delayed
                 // Put it behind an additional named event that gets triggered in the NBA region
-                AstEventControl* const nbaEventControlp = createNbaEventControl(flp);
-                AstAssign* const trigAssignp = createNbaEventTriggerAssignment(flp);
+                AstEventControl* અચલ nbaEventControlp = createNbaEventControl(flp);
+                AstAssign* અચલ trigAssignp = createNbaEventTriggerAssignment(flp);
                 nodep->replaceWith(trigAssignp);
                 trigAssignp->addNextHere(nbaEventControlp);
                 nbaEventControlp->addStmtsp(nodep);
-                insertBeforep = forkp;
-                if (!controlp) controlp = nbaEventControlp;
+                ઉમેરો_Beforep = forkp;
+                જો (!controlp) controlp = nbaEventControlp;
             }
             controlp->replaceWith(forkp);
             AstBegin* beginp = VN_CAST(controlp, Begin);
-            if (!beginp) beginp = new AstBegin{nodep->fileline(), "", controlp, false};
+            જો (!beginp) beginp = નવું AstBegin{nodep->fileline(), "", controlp, ખોટું};
             forkp->addForksp(beginp);
             addFlags(beginp, T_NBA_UPDATE);
             controlp = forkp;
@@ -1194,151 +1194,151 @@ class TimingControlVisitor final : public VNVisitor {
         // Move `insertBeforep` into `AstCLocalScope` if necessary to avoid jumping over
         // a variable initialization that would be inserted before `insertBeforep`. All
         // access to this variable should be contained within returned `AstCLocalScope`.
-        if (m_underJumpBlock) addCLocalScope(flp, insertBeforep);
+        જો (m_underJumpBlock) addCLocalScope(flp, ઉમેરો_Beforep);
         // Function for replacing values with intermediate variables
-        const auto replaceWithIntermediate = [&](AstNodeExpr* const valuep,
-                                                 const std::string& name) {
-            AstVarScope* const newvscp = createTemp(flp, name, valuep->dtypep(), insertBeforep);
+        અચલ auto replaceWithIntermediate = [&](Ast_ગાંઠ_પદાવલિ* અચલ valuep,
+                                                 અચલ std::string& name) {
+            AstVarScope* અચલ newvscp = createTemp(flp, name, valuep->dtypep(), ઉમેરો_Beforep);
             // A pending update keeps its own value, even if its process schedules more
-            if (inAssignDly && !insertBeforep) newvscp->forkByValue(true);
-            valuep->replaceWith(new AstVarRef{flp, newvscp, VAccess::READ});
+            જો (inAssignDly && !ઉમેરો_Beforep) newvscp->fork_By_કિંમત(સાચું);
+            valuep->replaceWith(નવું AstVarRef{flp, newvscp, VAccess::READ});
             controlp->addHereThisAsNext(
-                new AstAssign{flp, new AstVarRef{flp, newvscp, VAccess::WRITE}, valuep});
+                નવું AstAssign{flp, નવું AstVarRef{flp, newvscp, VAccess::WRITE}, valuep});
         };
         // NBAs with delays evaluate the indices selecting the target now (IEEE 1800-2023 10.4.2),
         // in order, each as a whole, also the selects and function calls in it. So follow the
         // selects of the target up from the variable, not into their indices. As an example, this
         // transforms 'x[a[i]][f(j)] <= #1 y' into 't0 = a[i]; t1 = f(j); x[t0][t1] <= #1 y'.
         // V3Const has split NBAs to concatenations, also streamed, into NBAs to each part.
-        if (inAssignDly) {
-            for (AstNode* exprp = nodep->lhsp()->baseFromp(true); exprp != nodep;
+        જો (inAssignDly) {
+            માટે (Ast_ગાંઠ* exprp = nodep->lhsp()->baseFromp(સાચું); exprp != nodep;
                  exprp = exprp->firstAbovep()) {
-                if (AstSel* const selp = VN_CAST(exprp, Sel)) {
+                જો (AstSel* અચલ selp = VN_CAST(exprp, Sel)) {
                     // widthp should be const
-                    if (!VN_IS(selp->lsbp(), Const)) {
+                    જો (!VN_IS(selp->lsbp(), Const)) {
                         replaceWithIntermediate(selp->lsbp(), m_intraLsbNames.get(nodep));
                     }
-                } else if (AstNodeSel* const selp = VN_CAST(exprp, NodeSel)) {
-                    if (!VN_IS(selp->bitp(), Const)) {
+                } નહીંતર જો (Ast_ગાંઠ_Sel* અચલ selp = VN_CAST(exprp, ગાંઠ_Sel)) {
+                    જો (!VN_IS(selp->bitp(), Const)) {
                         replaceWithIntermediate(selp->bitp(), m_intraIndexNames.get(nodep));
                     }
                 }
             }
         }
         // Replace the RHS with an intermediate value var
-        replaceWithIntermediate(nodep->rhsp(), m_intraValueNames.get(nodep));
-        if (!inAssignDly) return;
+        replaceWithIntermediate(nodep->rhsp(), m_intra_કિંમત_Names.get(nodep));
+        જો (!inAssignDly) પાછા;
         // The process executing the NBA evaluates its delay (IEEE 1800-2023 4.9.4), not the forked
         // process, if it has side effects, e.g. calling a function that checks its process. A pure
         // one is evaluated as the forked process starts, at once.
-        if (AstDelay* const delayp = VN_CAST(timingp, Delay)) {
-            if (!delayp->lhsp()->isPure()) {
-                replaceWithIntermediate(delayp->lhsp(), m_intraValueNames.get(nodep));
+        જો (AstDelay* અચલ delayp = VN_CAST(timingp, Delay)) {
+            જો (!delayp->lhsp()->isPure()) {
+                replaceWithIntermediate(delayp->lhsp(), m_intra_કિંમત_Names.get(nodep));
             }
         }
     }
-    void visit(AstFireEvent* nodep) override {
+    શૂન્ય visit(AstFireEvent* nodep) override {
         // V3Delayed handles '->>' of a variable in a process. Like NBAs in non-inlined functions,
         // trigger other events from a fork awaiting the NBA region.
-        if (!nodep->isDelayed() || (m_underProcedure && VN_IS(nodep->operandp(), VarRef))) {
+        જો (!nodep->isDelayed() || (m_underProcedure && VN_IS(nodep->operandp(), VarRef))) {
             iterateChildren(nodep);
-            return;
+            પાછા;
         }
-        FileLine* const flp = nodep->fileline();
-        AstAssign* const trigAssignp = createNbaEventTriggerAssignment(flp);
+        File_લીટી* અચલ flp = nodep->fileline();
+        AstAssign* અચલ trigAssignp = createNbaEventTriggerAssignment(flp);
         nodep->replaceWith(trigAssignp);
-        AstFork* const forkp = new AstFork{flp, VJoinType::JOIN_NONE};
+        AstFork* અચલ forkp = નવું AstFork{flp, VJoinType::JOIN_NONE};
         trigAssignp->addNextHere(forkp);
-        if (m_underJumpBlock) addCLocalScope(flp, forkp);
+        જો (m_underJumpBlock) addCLocalScope(flp, forkp);
         // The triggered event is the one referenced now, so evaluate handles and indices now
-        AstNodeExpr* const eventp = nodep->operandp()->unlinkFrBack();
-        const auto evalNow = [&](AstNodeExpr* const valuep, V3UniqueNames& names) {
+        Ast_ગાંઠ_પદાવલિ* અચલ eventp = nodep->operandp()->unlinkFrBack();
+        અચલ auto evalNow = [&](Ast_ગાંઠ_પદાવલિ* અચલ valuep, V3UniqueNames& names) {
             // Like for an NBA, a process uses a module variable, passed to the fork by value
-            AstVarScope* const vscp = createTemp(flp, names.get(nodep), valuep->dtypep(),
+            AstVarScope* અચલ vscp = createTemp(flp, names.get(nodep), valuep->dtypep(),
                                                  m_underProcedure ? nullptr : forkp);
-            if (m_underProcedure) vscp->forkByValue(true);
-            valuep->replaceWith(new AstVarRef{flp, vscp, VAccess::READ});
+            જો (m_underProcedure) vscp->fork_By_કિંમત(સાચું);
+            valuep->replaceWith(નવું AstVarRef{flp, vscp, VAccess::READ});
             // Unlike an event, a handle selecting one is only read
-            valuep->foreach([](AstNode* const np) {
-                if (AstNodeVarRef* const refp = VN_CAST(np, NodeVarRef)) {
+            valuep->foreach([](Ast_ગાંઠ* અચલ np) {
+                જો (Ast_ગાંઠ_Var_Ref* અચલ refp = VN_CAST(np, ગાંઠ_Var_Ref)) {
                     refp->access(VAccess::READ);
-                } else if (AstMemberSel* const selp = VN_CAST(np, MemberSel)) {
+                } નહીંતર જો (AstMemberSel* અચલ selp = VN_CAST(np, MemberSel)) {
                     selp->access(VAccess::READ);
                 }
             });
             forkp->addHereThisAsNext(
-                new AstAssign{flp, new AstVarRef{flp, vscp, VAccess::WRITE}, valuep});
+                નવું AstAssign{flp, નવું AstVarRef{flp, vscp, VAccess::WRITE}, valuep});
         };
-        AstNodeExpr* refp = eventp;
-        while (AstNodeSel* const selp = VN_CAST(refp, NodeSel)) {
-            if (!VN_IS(selp->bitp(), Const)) evalNow(selp->bitp(), m_intraIndexNames);
+        Ast_ગાંઠ_પદાવલિ* refp = eventp;
+        જ્યારે (Ast_ગાંઠ_Sel* અચલ selp = VN_CAST(refp, ગાંઠ_Sel)) {
+            જો (!VN_IS(selp->bitp(), Const)) evalNow(selp->bitp(), m_intraIndexNames);
             refp = selp->fromp();
         }
         // Handle of a class (or virtual interface)
-        if (AstMemberSel* const selp = VN_CAST(refp, MemberSel)) {
-            evalNow(selp->fromp(), m_intraValueNames);
+        જો (AstMemberSel* અચલ selp = VN_CAST(refp, MemberSel)) {
+            evalNow(selp->fromp(), m_intra_કિંમત_Names);
         }
-        AstEventControl* const controlp = createNbaEventControl(flp);
-        controlp->addStmtsp(new AstFireEvent{flp, eventp, false});
-        AstBegin* const beginp = new AstBegin{flp, "", controlp, false};
+        AstEventControl* અચલ controlp = createNbaEventControl(flp);
+        controlp->addStmtsp(નવું AstFireEvent{flp, eventp, ખોટું});
+        AstBegin* અચલ beginp = નવું AstBegin{flp, "", controlp, ખોટું};
         addFlags(beginp, T_NBA_UPDATE);
         forkp->addForksp(beginp);
-        VL_DO_DANGLING(pushDeletep(nodep), nodep);
+        VL_DO_DANGLING(ધકેલો_Deletep(nodep), nodep);
     }
-    void visit(AstAssignW* nodep) override {
-        FileLine* const flp = nodep->fileline();
+    શૂન્ય visit(AstAssignW* nodep) override {
+        File_લીટી* અચલ flp = nodep->fileline();
         // Get the net delay unless this assignment was created for handling the net delay (user1)
-        AstDelay* const netDelayp = nodep->user1() ? nullptr : nodep->getLhsNetDelay();
-        if (netDelayp) {
-            if (nodep->timingControlp()) {
+        AstDelay* અચલ netDelayp = nodep->user1() ? nullptr : nodep->getLhsNetDelay();
+        જો (netDelayp) {
+            જો (nodep->timingControlp()) {
                 // If this assignment has a delay, create another one to handle the net delay
-                AstVarScope* const newvscp = m_assignWTmps.make(flp, m_scopep, nodep->dtypep());
-                AstAssignW* assignp = new AstAssignW{
+                AstVarScope* અચલ newvscp = m_assignWTmps.make(flp, m_scopep, nodep->dtypep());
+                AstAssignW* assignp = નવું AstAssignW{
                     nodep->fileline(), nodep->lhsp()->unlinkFrBack(),
-                    new AstVarRef{flp, newvscp, VAccess::READ}, netDelayp->cloneTree(false)};
-                assignp->user1(true);
+                    નવું AstVarRef{flp, newvscp, VAccess::READ}, netDelayp->clone_વૃક્ષ(ખોટું)};
+                assignp->user1(સાચું);
                 nodep->addNextHere(assignp);
-                nodep->lhsp(new AstVarRef{flp, newvscp, VAccess::WRITE});
-            } else {
+                nodep->lhsp(નવું AstVarRef{flp, newvscp, VAccess::WRITE});
+            } નહીંતર {
                 // Else just use this one with the net delay
-                nodep->timingControlp(netDelayp->cloneTree(false));
+                nodep->timingControlp(netDelayp->clone_વૃક્ષ(ખોટું));
             }
         }
-        if (!nodep->timingControlp()) return;
+        જો (!nodep->timingControlp()) પાછા;
         // There will be some circular logic here, suppress the warning for newly created vars
-        flp->modifyWarnOff(V3ErrorCode::UNOPTFLAT, true);
+        flp->modifyWarnOff(V3ErrorCode::UNOPTFLAT, સાચું);
         // Also suppress the warning for the LHS var, for cases like `assign #1 clk = ~clk;`
         // TODO: Restore the warning for other, non-delayed drivers
         nodep->lhsp()->foreach([](AstVarRef* refp) {
-            if (refp->access().isWriteOrRW()) {
-                refp->varp()->fileline()->modifyWarnOff(V3ErrorCode::UNOPTFLAT, true);
+            જો (refp->access().isWriteOrRW()) {
+                refp->varp()->fileline()->modifyWarnOff(V3ErrorCode::UNOPTFLAT, સાચું);
             }
         });
         // Should be under an always
-        AstAlways* const alwaysp = VN_AS(m_procp, Always);
+        AstAlways* અચલ alwaysp = VN_AS(m_procp, Always);
         // Convert it to an Assign; the new assign with intra delay will be handled by
         // visit(AstNodeAssign*)
-        AstNodeExpr* const lhs1p = nodep->lhsp()->unlinkFrBack();
-        AstNodeExpr* const rhs1p = nodep->rhsp()->unlinkFrBack();
-        AstNode* const controlp = nodep->timingControlp()->unlinkFrBack();
-        if (AstDelay* const delayp = VN_CAST(controlp, Delay)) {
-            if (AstNodeExpr* fallDelayp = delayp->fallDelay()) {
+        Ast_ગાંઠ_પદાવલિ* અચલ lhs1p = nodep->lhsp()->unlinkFrBack();
+        Ast_ગાંઠ_પદાવલિ* અચલ rhs1p = nodep->rhsp()->unlinkFrBack();
+        Ast_ગાંઠ* અચલ controlp = nodep->timingControlp()->unlinkFrBack();
+        જો (AstDelay* અચલ delayp = VN_CAST(controlp, Delay)) {
+            જો (Ast_ગાંઠ_પદાવલિ* fallDelayp = delayp->fallDelay()) {
                 fallDelayp = fallDelayp->unlinkFrBack();
-                AstNodeExpr* lhsp = delayp->lhsp()->unlinkFrBack();
+                Ast_ગાંઠ_પદાવલિ* lhsp = delayp->lhsp()->unlinkFrBack();
                 // Use fall only for an all-zero value, rise otherwise.
                 lhsp = delayToIntegral(delayp, lhsp);
                 fallDelayp = delayToIntegral(delayp, fallDelayp);
                 delayp->lhsp(
-                    new AstCond{flp, new AstEq{flp, rhs1p->cloneTree(false), new AstConst{flp, 0}},
+                    નવું AstCond{flp, નવું AstEq{flp, rhs1p->clone_વૃક્ષ(ખોટું), નવું AstConst{flp, 0}},
                                 fallDelayp, lhsp});
             }
         }
-        AstAssign* const assignp = new AstAssign{nodep->fileline(), lhs1p, rhs1p, controlp};
+        AstAssign* અચલ assignp = નવું AstAssign{nodep->fileline(), lhs1p, rhs1p, controlp};
         // Put the assignment in a fork..join_none.
-        AstFork* const forkp = new AstFork{flp, VJoinType::JOIN_NONE};
+        AstFork* અચલ forkp = નવું AstFork{flp, VJoinType::JOIN_NONE};
         nodep->replaceWith(forkp);
-        VL_DO_DANGLING(pushDeletep(nodep), nodep);
-        AstBegin* const beginp = new AstBegin{flp, "", assignp, false};
+        VL_DO_DANGLING(ધકેલો_Deletep(nodep), nodep);
+        AstBegin* અચલ beginp = નવું AstBegin{flp, "", assignp, ખોટું};
         forkp->addForksp(beginp);
         visit(forkp);  // Visit now as we need to do some post-processing
         // IEEE 1800-2023 10.3.3 - if the RHS value differs from the currently scheduled value to
@@ -1346,134 +1346,134 @@ class TimingControlVisitor final : public VNVisitor {
         // assignment should be descheduled, each scheduled assignment event has a 'generation',
         // and if at assignment time its generation differs from the current generation, it won't
         // be performed
-        AstAssign* const preAssignp = VN_AS(beginp->stmtsp(), Assign);
+        AstAssign* અચલ preAssignp = VN_AS(beginp->stmtsp(), Assign);
         UASSERT_OBJ(preAssignp, alwaysp, "Pre-assign should be there from visit(AstFork)");
-        AstAssign* const postAssignp = VN_AS(preAssignp->nextp()->nextp(), Assign);
+        AstAssign* અચલ postAssignp = VN_AS(preAssignp->nextp()->nextp(), Assign);
         UASSERT_OBJ(postAssignp, alwaysp, "Post-assign should be there from visit(AstFork)");
         // Increment generation and copy it to a local
-        AstVarScope* const generationVarp
+        AstVarScope* અચલ generationVarp
             = m_assignWGens.make(flp, m_scopep, alwaysp->findUInt64DType());
-        AstVarScope* const genLocalVarp
+        AstVarScope* અચલ genLocalVarp
             = createTemp(flp, generationVarp->varp()->name() + "__local",
                          alwaysp->findUInt64DType(), preAssignp);
         preAssignp->addHereThisAsNext(
-            new AstAssign{flp, new AstVarRef{flp, generationVarp, VAccess::WRITE},
-                          new AstAdd{flp, new AstVarRef{flp, generationVarp, VAccess::READ},
-                                     new AstConst{flp, 1}}});
+            નવું AstAssign{flp, નવું AstVarRef{flp, generationVarp, VAccess::WRITE},
+                          નવું AstAdd{flp, નવું AstVarRef{flp, generationVarp, VAccess::READ},
+                                     નવું AstConst{flp, 1}}});
         preAssignp->addHereThisAsNext(
-            new AstAssign{flp, new AstVarRef{flp, genLocalVarp, VAccess::WRITE},
-                          new AstVarRef{flp, generationVarp, VAccess::READ}});
+            નવું AstAssign{flp, નવું AstVarRef{flp, genLocalVarp, VAccess::WRITE},
+                          નવું AstVarRef{flp, generationVarp, VAccess::READ}});
         // If the current generation is same as the one saved in the local var, assign
         beginp->addStmtsp(
-            new AstIf{flp,
-                      new AstEq{flp, new AstVarRef{flp, generationVarp, VAccess::READ},
-                                new AstVarRef{flp, genLocalVarp, VAccess::READ}},
+            નવું AstIf{flp,
+                      નવું AstEq{flp, નવું AstVarRef{flp, generationVarp, VAccess::READ},
+                                નવું AstVarRef{flp, genLocalVarp, VAccess::READ}},
                       postAssignp->unlinkFrBack()});
         // Save scheduled RHS value before delay
-        AstVarScope* const tmpVarp
+        AstVarScope* અચલ tmpVarp
             = m_assignWTmps.make(flp, m_scopep, preAssignp->rhsp()->dtypep());
-        AstVarRef* const tmpAssignRhsp = VN_AS(preAssignp->lhsp(), VarRef)->cloneTree(false);
+        AstVarRef* અચલ tmpAssignRhsp = VN_AS(preAssignp->lhsp(), VarRef)->clone_વૃક્ષ(ખોટું);
         tmpAssignRhsp->access(VAccess::WRITE);
         preAssignp->addNextHere(
-            new AstAssign{flp, new AstVarRef{flp, tmpVarp, VAccess::WRITE}, tmpAssignRhsp});
+            નવું AstAssign{flp, નવું AstVarRef{flp, tmpVarp, VAccess::WRITE}, tmpAssignRhsp});
         // If the RHS is different from the currently scheduled value, schedule the new assignment
         // The generation will increase, effectively 'descheduling' the previous assignment.
-        AstNodeExpr* const didNotInitp
-            = new AstLogNot{flp, new AstCExpr{flp, "vlSymsp->__Vm_didInit", 1}};
-        AstVarRef* const firstIterp
-            = new AstVarRef{flp, m_netlistp->stlFirstIterationp(), VAccess::READ};
-        AstNodeExpr* const schedCondp
-            = new AstLogOr{flp,
-                           new AstNeq{flp, preAssignp->rhsp()->cloneTree(false),
-                                      new AstVarRef{flp, tmpVarp, VAccess::READ}},
-                           new AstLogAnd{flp, didNotInitp, firstIterp}};
-        alwaysp->addStmtsp(new AstIf{flp, schedCondp, forkp->unlinkFrBack()});
+        Ast_ગાંઠ_પદાવલિ* અચલ didNotInitp
+            = નવું AstLogNot{flp, નવું AstCExpr{flp, "vlSymsp->__Vm_didInit", 1}};
+        AstVarRef* અચલ firstIterp
+            = નવું AstVarRef{flp, m_netlistp->stlFirstIterationp(), VAccess::READ};
+        Ast_ગાંઠ_પદાવલિ* અચલ schedCondp
+            = નવું AstLogOr{flp,
+                           નવું AstNeq{flp, preAssignp->rhsp()->clone_વૃક્ષ(ખોટું),
+                                      નવું AstVarRef{flp, tmpVarp, VAccess::READ}},
+                           નવું AstLogAnd{flp, didNotInitp, firstIterp}};
+        alwaysp->addStmtsp(નવું AstIf{flp, schedCondp, forkp->unlinkFrBack()});
     }
-    void visit(AstDisableFork* nodep) override {
-        if (m_hasProcess) return;
+    શૂન્ય visit(AstDisableFork* nodep) override {
+        જો (m_hasProcess) પાછા;
         // never reached by any process; remove to avoid compilation error
-        VL_DO_DANGLING(nodep->unlinkFrBack()->deleteTree(), nodep);
+        VL_DO_DANGLING(nodep->unlinkFrBack()->delete_વૃક્ષ(), nodep);
     }
-    void visit(AstWaitFork* nodep) override {
-        if (m_hasProcess) {
-            FileLine* const flp = nodep->fileline();
-            AstCExpr* const exprp = new AstCExpr{flp, "vlProcess->completedFork()", 1};
-            AstWait* const waitp = new AstWait{flp, exprp, nullptr};
+    શૂન્ય visit(AstWaitFork* nodep) override {
+        જો (m_hasProcess) {
+            File_લીટી* અચલ flp = nodep->fileline();
+            AstCExpr* અચલ exprp = નવું AstCExpr{flp, "vlProcess->completedFork()", 1};
+            AstWait* અચલ waitp = નવું AstWait{flp, exprp, nullptr};
             nodep->replaceWith(waitp);
-        } else {
+        } નહીંતર {
             // never reached by any process; remove to avoid compilation error
             nodep->unlinkFrBack();
         }
-        VL_DO_DANGLING(nodep->deleteTree(), nodep);
+        VL_DO_DANGLING(nodep->delete_વૃક્ષ(), nodep);
     }
-    void visit(AstWait* nodep) override {
+    શૂન્ય visit(AstWait* nodep) override {
         // Wait on changed events related to the vars in the wait statement
         UINFO(9, "control-visit " << nodep);
-        FileLine* const flp = nodep->fileline();
-        AstNode* const stmtsp = nodep->stmtsp();
-        if (stmtsp) stmtsp->unlinkFrBackWithNext();
-        AstNodeExpr* const condp = V3Const::constifyEdit(nodep->condp()->unlinkFrBack());
-        auto* const constp = VN_CAST(condp, Const);
-        if (constp) {
-            if (constp->isZero()) {
+        File_લીટી* અચલ flp = nodep->fileline();
+        Ast_ગાંઠ* અચલ stmtsp = nodep->stmtsp();
+        જો (stmtsp) stmtsp->unlinkFrBackWithNext();
+        Ast_ગાંઠ_પદાવલિ* અચલ condp = V3Const::constifyEdit(nodep->condp()->unlinkFrBack());
+        auto* અચલ constp = VN_CAST(condp, Const);
+        જો (constp) {
+            જો (constp->isZero()) {
                 // We have to await forever instead of simply returning in case we're deep in a
                 // callstack
-                AstCMethodHard* const foreverMethodp = new AstCMethodHard{
-                    flp, new AstVarRef{flp, getCreateDelayScheduler(), VAccess::WRITE},
+                AstCMethodHard* અચલ foreverMethodp = નવું AstCMethodHard{
+                    flp, નવું AstVarRef{flp, getCreateDelayScheduler(), VAccess::WRITE},
                     VCMethod::SCHED_WAIT_FOREVER};
                 foreverMethodp->dtypeSetVoid();
                 addProcessInfo(foreverMethodp);
                 addDebugInfo(foreverMethodp);
-                AstCAwait* const awaitp = new AstCAwait{flp, foreverMethodp};
+                AstCAwait* અચલ awaitp = નવું AstCAwait{flp, foreverMethodp};
                 nodep->replaceWith(awaitp);
-                if (stmtsp) VL_DO_DANGLING(stmtsp->deleteTree(), stmtsp);
-                VL_DO_DANGLING(condp->deleteTree(), condp);
-            } else {
+                જો (stmtsp) VL_DO_DANGLING(stmtsp->delete_વૃક્ષ(), stmtsp);
+                VL_DO_DANGLING(condp->delete_વૃક્ષ(), condp);
+            } નહીંતર {
                 nodep->v3fatalSrc("constant wait should have been removed in "
                                   "TimingSuspendableVisitor::visit(AstWait)");
             }
-        } else if (needDynamicTrigger(condp)) {
+        } નહીંતર જો (needDynamicTrigger(condp)) {
             // No point in making a sentree, just use the expression as sensitivity
             // Put the event control in an if so we only wait if the condition isn't met already
-            auto* const ifp = new AstIf{
-                flp, new AstLogNot{flp, condp},
-                new AstEventControl{flp,
-                                    new AstSenTree{flp, new AstSenItem{flp, VEdgeType::ET_TRUE,
-                                                                       condp->cloneTree(false)}},
+            auto* અચલ ifp = નવું AstIf{
+                flp, નવું AstLogNot{flp, condp},
+                નવું AstEventControl{flp,
+                                    નવું Ast_Sen_વૃક્ષ{flp, નવું AstSenItem{flp, VEdgeType::ET_TRUE,
+                                                                       condp->clone_વૃક્ષ(ખોટું)}},
                                     nullptr}};
-            if (stmtsp) AstNode::addNext<AstNode, AstNode>(ifp, stmtsp);
+            જો (stmtsp) Ast_ગાંઠ::addNext<Ast_ગાંઠ, Ast_ગાંઠ>(ifp, stmtsp);
             nodep->replaceWith(ifp);
-        } else {
+        } નહીંતર {
             // We are using a global sentree, so we cannot use ET_TRUE, as that could lead to the
             // active region never converging. Because of this, we need to use ET_CHANGED in a
             // loop.
-            AstEventControl* const controlp = new AstEventControl{
+            AstEventControl* અચલ controlp = નવું AstEventControl{
                 flp,
-                new AstSenTree{
-                    flp, new AstSenItem{flp, VEdgeType::ET_CHANGED, condp->cloneTree(false)}},
+                નવું Ast_Sen_વૃક્ષ{
+                    flp, નવું AstSenItem{flp, VEdgeType::ET_CHANGED, condp->clone_વૃક્ષ(ખોટું)}},
                 nullptr};
-            controlp->user2(true);  // Commit immediately
-            AstLoop* const loopp = new AstLoop{flp};
-            loopp->addStmtsp(new AstLoopTest{flp, loopp, new AstLogNot{flp, condp}});
+            controlp->user2(સાચું);  // Commit immediately
+            AstLoop* અચલ loopp = નવું AstLoop{flp};
+            loopp->addStmtsp(નવું AstLoopTest{flp, loopp, નવું AstLogNot{flp, condp}});
             loopp->addStmtsp(controlp);
-            if (stmtsp) AstNode::addNext<AstNode, AstNode>(loopp, stmtsp);
+            જો (stmtsp) Ast_ગાંઠ::addNext<Ast_ગાંઠ, Ast_ગાંઠ>(loopp, stmtsp);
             nodep->replaceWith(loopp);
         }
-        VL_DO_DANGLING(nodep->deleteTree(), nodep);
+        VL_DO_DANGLING(nodep->delete_વૃક્ષ(), nodep);
     }
-    void visit(AstBegin* nodep) override {
+    શૂન્ય visit(AstBegin* nodep) override {
         VL_RESTORER(m_procp);
         VL_RESTORER(m_hasProcess);
         m_hasProcess |= hasFlags(nodep, T_HAS_PROC);
         // A pending NBA update is not a subprocess of the process that scheduled it, so it is
         // unaffected by 'disable fork' and 'wait fork' (IEEE 1800-2023 9.6.1, 9.6.3)
-        if (hasFlags(nodep, T_NBA_UPDATE)) m_hasProcess = false;
+        જો (hasFlags(nodep, T_NBA_UPDATE)) m_hasProcess = ખોટું;
         m_procp = nodep;
-        if (m_hasProcess) nodep->setNeedProcess();
+        જો (m_hasProcess) nodep->setNeedProcess();
         iterateChildren(nodep);
     }
-    void visit(AstFork* nodep) override {
-        if (nodep->user1SetOnce()) return;
+    શૂન્ય visit(AstFork* nodep) override {
+        જો (nodep->user1SetOnce()) પાછા;
         UINFO(9, "control-visit " << nodep);
         v3Global.setUsesTiming();
 
@@ -1485,7 +1485,7 @@ class TimingControlVisitor final : public VNVisitor {
 
         // Process and name each fork
         size_t idx = 0;  // Index for naming begins
-        for (AstBegin *itemp = nodep->forksp(), *nextp; itemp; itemp = nextp) {
+        માટે (AstBegin *itemp = nodep->forksp(), *nextp; itemp; itemp = nextp) {
             nextp = VN_AS(itemp->nextp(), Begin);
             iterate(itemp);
             // Note: Even if we do not find any awaits, we cannot simply inline
@@ -1493,19 +1493,19 @@ class TimingControlVisitor final : public VNVisitor {
 
             // Name the begin (later the name will be used for a new function)
             itemp->name(nodep->name() + "__" + std::to_string(idx++));
-            if (itemp->needProcess()) {
+            જો (itemp->needProcess()) {
                 itemp->addStmtsp(
-                    new AstCStmt{itemp->fileline(), "vlProcess->state(VlProcess::FINISHED);"});
+                    નવું AstCStmt{itemp->fileline(), "vlProcess->state(VlProcess::FINISHED);"});
             }
         }
-        if (!nodep->joinType().joinNone()) makeForkJoin(nodep);
+        જો (!nodep->joinType().joinNone()) makeForkJoin(nodep);
     }
 
     //--------------------
-    void visit(AstVar*) override {}  // Accelerate
-    void visit(AstNode* nodep) override { iterateChildren(nodep); }
+    શૂન્ય visit(AstVar*) override {}  // Accelerate
+    શૂન્ય visit(Ast_ગાંઠ* nodep) override { iterateChildren(nodep); }
 
-public:
+જાહેર:
     // CONSTRUCTORS
     explicit TimingControlVisitor(AstNetlist* nodep)
         : m_netlistp{nodep} {
@@ -1514,7 +1514,7 @@ public:
         // If there is no static #0 in the design, but an unknown delay was found,
         // and the user did not specify preference, then warn on all unknown delays
         // as we will be assuming they can be #0, which can cause performance degradation.
-        for (FileLine* const flp : m_unknownDelayFlps) {
+        માટે (File_લીટી* અચલ flp : m_unknownDelayFlps) {
             flp->v3warn(ZERODLY,
                         "Value of # delay control statically unknown. Assuming it can be #0.\n"
                             << flp->warnMore()  //
@@ -1537,42 +1537,42 @@ public:
 //######################################################################
 // Timing class functions
 
-AstNodeExpr* V3Timing::delayToTicks(AstNodeExpr* valuep, VTimescale timeunit) {
-    FileLine* const flp = valuep->fileline();
-    if (const AstConst* const constp = VN_CAST(valuep, Const)) {
-        if (constp->num().is1Step()) {
+Ast_ગાંઠ_પદાવલિ* V3Timing::delayToTicks(Ast_ગાંઠ_પદાવલિ* valuep, VTimescale timeunit) {
+    File_લીટી* અચલ flp = valuep->fileline();
+    જો (અચલ AstConst* અચલ constp = VN_CAST(valuep, Const)) {
+        જો (constp->અંક().is1Step()) {
             // A step is one tick of the global time precision (IEEE 1800-2023 3.14.3)
-            VL_DO_DANGLING(valuep->deleteTree(), valuep);
-            AstConst* const tickp = new AstConst{flp, AstConst::Unsized64{}, 1};
+            VL_DO_DANGLING(valuep->delete_વૃક્ષ(), valuep);
+            AstConst* અચલ tickp = નવું AstConst{flp, AstConst::Unsized64{}, 1};
             tickp->dtypeSetBitSized(64, VSigning::UNSIGNED);
-            return tickp;
+            પાછા tickp;
         }
-        if (constp->isZero()) return valuep;
+        જો (constp->isZero()) પાછા valuep;
     }
     UASSERT_OBJ(!timeunit.isNone(), valuep, "timeunit must be set");
-    const double timescaleFactorD
+    અચલ દ્વિગુણ timescaleFactorD
         = std::pow(10.0, timeunit.powerOfTen() - v3Global.rootp()->timeprecision().powerOfTen());
-    if (valuep->dtypep()->skipRefp()->isDouble()) {
-        AstConst* const tsfp = new AstConst{flp, AstConst::RealDouble{}, timescaleFactorD};
-        valuep = new AstMulD{flp, valuep, tsfp};
-        valuep = new AstRToIRoundS{flp, valuep};
+    જો (valuep->dtypep()->skipRefp()->isDouble()) {
+        AstConst* અચલ tsfp = નવું AstConst{flp, AstConst::RealDouble{}, timescaleFactorD};
+        valuep = નવું AstMulD{flp, valuep, tsfp};
+        valuep = નવું AstRToIRoundS{flp, valuep};
         valuep->dtypeSetBitSized(64, VSigning::UNSIGNED);
-    } else {
+    } નહીંતર {
         valuep->dtypeSetBitSized(64, VSigning::UNSIGNED);
-        const uint64_t timescaleFactorU = static_cast<uint64_t>(timescaleFactorD);
-        AstConst* const tsfp = new AstConst{flp, AstConst::Unsized64{}, timescaleFactorU};
-        valuep = new AstMul{flp, valuep, tsfp};
+        અચલ uint64_t timescaleFactorU = static_cast<uint64_t>(timescaleFactorD);
+        AstConst* અચલ tsfp = નવું AstConst{flp, AstConst::Unsized64{}, timescaleFactorU};
+        valuep = નવું AstMul{flp, valuep, tsfp};
     }
-    return V3Const::constifyEdit(valuep);  // Simplify
+    પાછા V3Const::constifyEdit(valuep);  // Simplify
 }
 
-void V3Timing::timingAll(AstNetlist* nodep) {
+શૂન્ય V3Timing::timingAll(AstNetlist* nodep) {
     UINFO(2, __FUNCTION__ << ":");
     {
-        const VNUser1InUse m_user1InUse;
-        const VNUser2InUse m_user2InUse;
+        અચલ VNUser1InUse m_user1InUse;
+        અચલ VNUser2InUse m_user2InUse;
         { TimingSuspendableVisitor{nodep}; }
-        if (v3Global.usesTiming()) TimingControlVisitor{nodep};
+        જો (v3Global.usesTiming()) TimingControlVisitor{nodep};
     }
-    V3Global::dumpCheckGlobalTree("timing", 0, dumpTreeEitherLevel() >= 3);
+    V3Global::dump_Check_Global_વૃક્ષ("timing", 0, dump_વૃક્ષ_Either_Level() >= 3);
 }

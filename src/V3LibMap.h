@@ -17,10 +17,10 @@
 #ifndef VERILATOR_V3LIBMAP_H_
 #define VERILATOR_V3LIBMAP_H_
 
-#include "config_build.h"
-#include "verilatedos.h"
+#અન્તર્ભાવ "config_build.h"
+#અન્તર્ભાવ "verilatedos.h"
 
-#include <vector>
+#અન્તર્ભાવ <vector>
 
 class AstNetlist;
 class VInFilter;
@@ -30,22 +30,22 @@ class V3ParseSym;
 
 // State to pass between config parsing and cell linking visitors.
 class LibMapping final {
-    const string m_pattern;  // Pattern to match
-    const string m_libname;  // Library name
-    const string m_base;  // Relative path of the libmap file
+    અચલ string m_pattern;  // Pattern to match
+    અચલ string m_libname;  // Library name
+    અચલ string m_base;  // Relative path of the libmap file
 
-public:
-    LibMapping(const string& pattern_, const string& libname_, const string& base_)
+જાહેર:
+    LibMapping(અચલ string& pattern_, અચલ string& libname_, અચલ string& base_)
         : m_pattern{pattern_}
         , m_libname{libname_}
         , m_base{base_} {}
-    string pattern() const { return m_pattern; }
-    string libname() const { return m_libname; }
-    string base() const { return m_base; }
+    string pattern() અચલ { પાછા m_pattern; }
+    string libname() અચલ { પાછા m_libname; }
+    string base() અચલ { પાછા m_base; }
 };
 
 class V3LibMap final {
-private:
+ખાનગી:
     // STATE
     // 33.3.1.1 File path resolution
     //   If a file name potentially matches multiple file path specifications, the path
@@ -57,11 +57,11 @@ private:
     std::vector<LibMapping> m_directoryMappings;
 
     // METHODS
-public:
-    string matchMapping(const string& filename);
-    void addPattern(const string& pattern, const string& libname, const string& base);
+જાહેર:
+    string matchMapping(અચલ string& filename);
+    શૂન્ય addPattern(અચલ string& pattern, અચલ string& libname, અચલ string& base);
 
-    static void map(AstNetlist* nodep) VL_MT_DISABLED;
+    સ્થિર શૂન્ય map(AstNetlist* nodep) VL_MT_DISABLED;
 };
 
 #endif  // Guard

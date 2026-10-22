@@ -23,92 +23,92 @@
 //
 //*************************************************************************
 
-#include "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
+#અન્તર્ભાવ "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
 
-#include "V3ActiveTop.h"
+#અન્તર્ભાવ "V3ActiveTop.h"
 
-#include "V3Const.h"
-#include "V3SenTree.h"
+#અન્તર્ભાવ "V3Const.h"
+#અન્તર્ભાવ "V3SenTree.h"
 
 VL_DEFINE_DEBUG_FUNCTIONS;
 
 //######################################################################
 // Active class functions
 
-class ActiveTopVisitor final : public VNVisitor {
+વર્ગ Active_ટોચ_Visitor final : જાહેર VNVisitor {
     // NODE STATE
     // AstVarScope::user1()  // bool.  Processed
 
     // STATE
-    SenTreeFinder m_finder;  // Find global sentree's / add them under the AstTopScope
+    Sen_વૃક્ષ_Finder m_finder;  // Find global sentree's / add them under the AstTopScope
 
     // METHODS
-    static bool isInitial(AstNode* nodep) {
-        const VNUser1InUse user1InUse;
+    સ્થિર તાર્કિક isInitial(Ast_ગાંઠ* nodep) {
+        અચલ VNUser1InUse user1InUse;
         // Return true if no variables that read.
-        return nodep->forall([&](const AstVarRef* refp) -> bool {
-            AstVarScope* const vscp = refp->varScopep();
+        પાછા nodep->forall([&](અચલ AstVarRef* refp) -> તાર્કિક {
+            AstVarScope* અચલ vscp = refp->varScopep();
             // Note: Use same heuristic as ordering does to ignore written variables
             // TODO: Use live variable analysis.
-            if (refp->access().isWriteOnly()) {
-                vscp->user1(true);
-                return true;
+            જો (refp->access().isWriteOnly()) {
+                vscp->user1(સાચું);
+                પાછા સાચું;
             }
             // Read or ReadWrite: OK if written before
-            return vscp->user1();
+            પાછા vscp->user1();
         });
     }
 
     // VISITORS
-    void visit(AstNodeModule* nodep) override {
+    શૂન્ય visit(Ast_ગાંઠ_Module* nodep) override {
         // Create required actives and add to module
         // We can start ordering at a module, or a scope
         UINFO(4, " MOD   " << nodep);
         iterateChildren(nodep);
     }
-    void visit(AstActive* nodep) override {
+    શૂન્ય visit(AstActive* nodep) override {
         UINFO(4, "   ACTIVE " << nodep);
         // Remove duplicate clocks and such; sensesp() may change!
         V3Const::constifyExpensiveEdit(nodep);
-        AstSenTree* sentreep = nodep->sentreep();
+        Ast_Sen_વૃક્ષ* sentreep = nodep->sentreep();
         UASSERT_OBJ(sentreep, nodep, "nullptr");
-        if (sentreep->sensesp() && sentreep->sensesp()->isNever()) {
+        જો (sentreep->sensesp() && sentreep->sensesp()->isNever()) {
             // Never executing.  Kill it.
             UASSERT_OBJ(!sentreep->sensesp()->nextp(), nodep,
                         "Never senitem should be alone, else the never should be eliminated.");
-            VL_DO_DANGLING(nodep->unlinkFrBack()->deleteTree(), nodep);
-            return;
+            VL_DO_DANGLING(nodep->unlinkFrBack()->delete_વૃક્ષ(), nodep);
+            પાછા;
         }
 
         // Delete empty procedures
-        for (AstNode *stmtp = nodep->stmtsp(), *nextp; stmtp; stmtp = nextp) {
+        માટે (Ast_ગાંઠ *stmtp = nodep->stmtsp(), *nextp; stmtp; stmtp = nextp) {
             nextp = stmtp->nextp();
-            if (AstNodeProcedure* const procp = VN_CAST(stmtp, NodeProcedure)) {
-                if (!procp->stmtsp()) VL_DO_DANGLING(pushDeletep(procp->unlinkFrBack()), stmtp);
+            જો (Ast_ગાંઠ_Procedure* અચલ procp = VN_CAST(stmtp, ગાંઠ_Procedure)) {
+                જો (!procp->stmtsp()) VL_DO_DANGLING(ધકેલો_Deletep(procp->unlinkFrBack()), stmtp);
             }
         }
 
         // Delete empty actives
-        if (!nodep->stmtsp()) {
-            VL_DO_DANGLING(nodep->unlinkFrBack()->deleteTree(), nodep);
-            return;
+        જો (!nodep->stmtsp()) {
+            VL_DO_DANGLING(nodep->unlinkFrBack()->delete_વૃક્ષ(), nodep);
+            પાછા;
         }
 
         // Move the SENTREE for each active up to the global level.
         // This way we'll easily see what clock domains are identical
-        AstSenTree* const wantp = m_finder.getSenTree(sentreep);
+        Ast_Sen_વૃક્ષ* અચલ wantp = m_finder.get_Sen_વૃક્ષ(sentreep);
         UINFO(4, "   lookdone");
-        if (wantp != sentreep) {
+        જો (wantp != sentreep) {
             // Move the active's contents to the other active
             UINFO(4, "   merge active " << sentreep << " into " << wantp);
-            if (nodep->senTreeStorep()) {
-                UASSERT_OBJ(sentreep == nodep->senTreeStorep(), nodep,
+            જો (nodep->sen_વૃક્ષ_Storep()) {
+                UASSERT_OBJ(sentreep == nodep->sen_વૃક્ષ_Storep(), nodep,
                             "sensesStore should have been deleted earlier if different");
                 sentreep->unlinkFrBack();
                 // There may be other references to same sense tree,
                 // we'll be removing all references when we get to them,
                 // but don't dangle our pointer yet!
-                VL_DO_DANGLING(pushDeletep(sentreep), sentreep);
+                VL_DO_DANGLING(ધકેલો_Deletep(sentreep), sentreep);
             }
             nodep->sentreep(wantp);
         }
@@ -118,37 +118,37 @@ class ActiveTopVisitor final : public VNVisitor {
         // prune these otherwise.
         // TODO: we should warn for these if they were 'always @*' as some (including strictly
         //       compliant) simulators will never execute these.
-        if (nodep->sentreep()->hasCombo()) {
-            FileLine* const flp = nodep->fileline();
+        જો (nodep->sentreep()->hasCombo()) {
+            File_લીટી* અચલ flp = nodep->fileline();
             AstActive* initialp = nullptr;
-            for (AstNode *logicp = nodep->stmtsp(), *nextp; logicp; logicp = nextp) {
+            માટે (Ast_ગાંઠ *logicp = nodep->stmtsp(), *nextp; logicp; logicp = nextp) {
                 nextp = logicp->nextp();
-                if (!isInitial(logicp)) continue;
-                if (!initialp) initialp = new AstActive{flp, "", m_finder.getInitial()};
+                જો (!isInitial(logicp)) ચાલુ;
+                જો (!initialp) initialp = નવું AstActive{flp, "", m_finder.getInitial()};
                 initialp->addStmtsp(logicp->unlinkFrBack());
             }
-            if (initialp) nodep->addHereThisAsNext(initialp);
+            જો (initialp) nodep->addHereThisAsNext(initialp);
         }
     }
-    void visit(AstNodeProcedure* nodep) override {  // LCOV_EXCL_LINE
+    શૂન્ય visit(Ast_ગાંઠ_Procedure* nodep) override {  // LCOV_EXCL_LINE
         nodep->v3fatalSrc("Node should have been under ACTIVE");
     }
     //--------------------
-    void visit(AstNodeExpr*) override {}  // Accelerate
-    void visit(AstVarScope*) override {}  // Accelerate
-    void visit(AstNode* nodep) override { iterateChildren(nodep); }
+    શૂન્ય visit(Ast_ગાંઠ_પદાવલિ*) override {}  // Accelerate
+    શૂન્ય visit(AstVarScope*) override {}  // Accelerate
+    શૂન્ય visit(Ast_ગાંઠ* nodep) override { iterateChildren(nodep); }
 
-public:
+જાહેર:
     // CONSTRUCTORS
-    explicit ActiveTopVisitor(AstNetlist* nodep) { iterate(nodep); }
-    ~ActiveTopVisitor() override = default;
+    explicit Active_ટોચ_Visitor(AstNetlist* nodep) { iterate(nodep); }
+    ~Active_ટોચ_Visitor() override = મૂળભૂત;
 };
 
 //######################################################################
 // Active class functions
 
-void V3ActiveTop::activeTopAll(AstNetlist* nodep) {
+શૂન્ય V3_Active_ટોચ::active_ટોચ_All(AstNetlist* nodep) {
     UINFO(2, __FUNCTION__ << ":");
-    { ActiveTopVisitor{nodep}; }  // Destruct before checking
-    V3Global::dumpCheckGlobalTree("activetop", 0, dumpTreeEitherLevel() >= 3);
+    { Active_ટોચ_Visitor{nodep}; }  // Destruct before checking
+    V3Global::dump_Check_Global_વૃક્ષ("activetop", 0, dump_વૃક્ષ_Either_Level() >= 3);
 }

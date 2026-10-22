@@ -17,31 +17,31 @@
 #ifndef VERILATOR_V3WIDTHCOMMIT_H_
 #define VERILATOR_V3WIDTHCOMMIT_H_
 
-#include "config_build.h"
-#include "verilatedos.h"
+#અન્તર્ભાવ "config_build.h"
+#અન્તર્ભાવ "verilatedos.h"
 
-#include "V3Ast.h"
-#include "V3Error.h"
+#અન્તર્ભાવ "V3Ast.h"
+#અન્તર્ભાવ "V3Error.h"
 
 //============================================================================
 
 class V3WidthCommit final {
-public:
-    static AstConst* newIfConstCommitSize(AstConst* nodep) {
-        if (((nodep->dtypep()->width() != nodep->num().width()) || !nodep->num().sized())
-            && !nodep->num().isString()) {  // Need to force the number from unsized to sized
-            V3Number num{nodep, nodep->dtypep()->width(), nodep->num()};
-            num.isSigned(nodep->isSigned());
-            AstConst* const newp = new AstConst{nodep->fileline(), num};
+જાહેર:
+    સ્થિર AstConst* newIfConstCommitSize(AstConst* nodep) {
+        જો (((nodep->dtypep()->width() != nodep->અંક().width()) || !nodep->અંક().sized())
+            && !nodep->અંક().isString()) {  // Need to force the number from unsized to sized
+            V3_સંખ્યા અંક{nodep, nodep->dtypep()->width(), nodep->અંક()};
+            અંક.isSigned(nodep->isSigned());
+            AstConst* અચલ newp = new AstConst{nodep->fileline(), અંક};
             newp->dtypeFrom(nodep);
             newp->user1(true);
-            return newp;
+            પાછા newp;
         }
-        return nullptr;
+        પાછા nullptr;
     }
 
     // Final step... Mark all widths as equal
-    static void widthCommit(AstNetlist* nodep) VL_MT_DISABLED;
+    સ્થિર શૂન્ય widthCommit(AstNetlist* nodep) VL_MT_DISABLED;
 };
 
 //######################################################################
