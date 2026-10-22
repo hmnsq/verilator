@@ -25,14 +25,14 @@
 
 EmitCParentModule::EmitCParentModule() {
     const auto setAll = [](AstNodeModule* modp) -> void {
-        for (AstNode* nodep = modp->stmtsp(); nodep; nodep = nodep->nextp()) {
-            if (VN_IS(nodep, CFunc) || VN_IS(nodep, Var) || VN_IS(nodep, NodeCoverDecl)) {
+        សម្រាប់ (AstNode* nodep = modp->stmtsp(); nodep; nodep = nodep->nextp()) {
+            ប្រសិនបើ (VN_IS(nodep, CFunc) || VN_IS(nodep, Var) || VN_IS(nodep, NodeCoverDecl)) {
                 nodep->user4p(modp);
             }
         }
         modp->foreach([&](AstNodeCoverDecl* nodep) { nodep->user4p(modp); });
     };
-    for (AstNode* modp = v3Global.rootp()->modulesp(); modp; modp = modp->nextp()) {
+    សម្រាប់ (AstNode* modp = v3Global.rootp()->modulesp(); modp; modp = modp->nextp()) {
         setAll(VN_AS(modp, NodeModule));
     }
 }
@@ -52,25 +52,25 @@ string EmitCUtil::prefixNameProtect(const AstNode* nodep) VL_MT_STABLE {
     static std::map<std::string, std::string> s_ucToPrefix;
     // Memoize results
     const auto mit = s_memoized.find(prefix);
-    if (mit != s_memoized.end()) return mit->second;
+    ប្រសិនបើ (mit != s_memoized.end()) ត្រឡប់ mit->second;
     //
     // Check capitalization
     const string prefixUpper = VString::upcase(prefix);
     string result;
     {
         const auto it = s_ucToPrefix.find(prefixUpper);
-        if (it == s_ucToPrefix.end()) {
+        ប្រសិនបើ (it == s_ucToPrefix.end()) {
             s_ucToPrefix.emplace(prefixUpper, prefix);
             result = prefix;
-        } else if (it->second == prefix) {
+        } បើមិនដូច្នេះ ប្រសិនបើ (it->second == prefix) {
             result = prefix;  // Same capitialization as last time
-        } else {
+        } បើមិនដូច្នេះ {
             VHashSha512 hash{prefix};
             result = prefix + "__Vphsh" + hash.digestSymbol24();
         }
     }
     s_memoized.emplace(prefix, result);
-    return result;
+    ត្រឡប់ result;
 }
 
 //######################################################################
@@ -79,57 +79,57 @@ string EmitCUtil::prefixNameProtect(const AstNode* nodep) VL_MT_STABLE {
 string EmitCBaseVisitorConst::funcNameProtect(const AstCFunc* nodep, const AstNodeModule* modp) {
     modp = modp ? modp : EmitCParentModule::get(nodep);
     string name;
-    if (nodep->isConstructor()) {
+    ប្រសិនបើ (nodep->isConstructor()) {
         name += "init";
-    } else if (nodep->isDestructor()) {
+    } បើមិនដូច្នេះ ប្រសិនបើ (nodep->isDestructor()) {
         name += "~";
         name += EmitCUtil::prefixNameProtect(modp);
-    } else {
-        if (nodep->isLoose()) {
+    } បើមិនដូច្នេះ {
+        ប្រសិនបើ (nodep->isLoose()) {
             name += EmitCUtil::prefixNameProtect(modp);
             name += "__";
         }
         name += nodep->nameProtect();
     }
-    return name;
+    ត្រឡប់ name;
 }
 
 string EmitCBaseVisitorConst::cFuncArgs(const AstCFunc* nodep, bool cpp) {
     // Return argument list for given C function
     string args;
-    if (nodep->isLoose() && !nodep->isStatic()) {
-        if (nodep->voidSelf()) {
+    ប្រសិនបើ (nodep->isLoose() && !nodep->isStatic()) {
+        ប្រសិនបើ (nodep->voidSelf()) {
             args += "void* vlVoidSelf";  // Converted to 'vlSelf' in the function body
-        } else {
-            if (nodep->isConst().trueKnown()) args += "const ";
+        } បើមិនដូច្នេះ {
+            ប្រសិនបើ (nodep->isConst().trueKnown()) args += "const ";
             args += EmitCUtil::prefixNameProtect(EmitCParentModule::get(nodep));
             args += "* vlSelf";
         }
     }
-    if (nodep->needProcess()) {
-        if (!args.empty()) args += ", ";
+    ប្រសិនបើ (nodep->needProcess()) {
+        ប្រសិនបើ (!args.empty()) args += ", ";
         args += "VlProcessRef vlProcess";
     }
-    if (!nodep->argTypes().empty()) {
-        if (!args.empty()) args += ", ";
+    ប្រសិនបើ (!nodep->argTypes().empty()) {
+        ប្រសិនបើ (!args.empty()) args += ", ";
         args += nodep->argTypes();
     }
     // Might be a user function with argument list.
-    for (const AstNode* stmtp = nodep->argsp(); stmtp; stmtp = stmtp->nextp()) {
-        if (const AstVar* const portp = VN_CAST(stmtp, Var)) {
-            if (portp->isIO() && !portp->isFuncReturn()) {
-                if (!args.empty()) args += ", ";
-                if (nodep->dpiImportPrototype() || nodep->dpiExportDispatcher()) {
+    សម្រាប់ (const AstNode* stmtp = nodep->argsp(); stmtp; stmtp = stmtp->nextp()) {
+        ប្រសិនបើ (const AstVar* const portp = VN_CAST(stmtp, Var)) {
+            ប្រសិនបើ (portp->isIO() && !portp->isFuncReturn()) {
+                ប្រសិនបើ (!args.empty()) args += ", ";
+                ប្រសិនបើ (nodep->dpiImportPrototype() || nodep->dpiExportDispatcher()) {
                     args += portp->dpiArgType(true, false, cpp);
-                } else if (nodep->funcPublic()) {
+                } បើមិនដូច្នេះ ប្រសិនបើ (nodep->funcPublic()) {
                     args += portp->cPubArgType(true, false);
-                } else {
+                } បើមិនដូច្នេះ {
                     args += portp->vlArgType(true, false, true);
                 }
             }
         }
     }
-    return args;
+    ត្រឡប់ args;
 }
 
 void EmitCBaseVisitorConst::emitCDefaultConstructor(const AstNodeModule* const modp) {
@@ -139,35 +139,35 @@ void EmitCBaseVisitorConst::emitCDefaultConstructor(const AstNodeModule* const m
 
 void EmitCBaseVisitorConst::emitCFuncHeader(const AstCFunc* funcp, const AstNodeModule* modp,
                                             bool withScope) {
-    if (funcp->slow()) putns(funcp, "VL_ATTR_COLD ");
-    if (funcp->dpiCDeclOverride()) {
+    ប្រសិនបើ (funcp->slow()) putns(funcp, "VL_ATTR_COLD ");
+    ប្រសិនបើ (funcp->dpiCDeclOverride()) {
         putns(funcp, funcp->dpiCDecl() + ";\n");
-        return;
+        ត្រឡប់;
     }
-    if (!funcp->isDestructor()) {
+    ប្រសិនបើ (!funcp->isDestructor()) {
         putns(funcp, funcp->rtnTypeVoid());
         puts(" ");
     }
-    if (withScope) {
-        if (funcp->dpiExportDispatcher()) {
+    ប្រសិនបើ (withScope) {
+        ប្រសិនបើ (funcp->dpiExportDispatcher()) {
             putns(funcp, EmitCUtil::topClassName() + "::");
-        } else if (funcp->isProperMethod()) {
+        } បើមិនដូច្នេះ ប្រសិនបើ (funcp->isProperMethod()) {
             putns(funcp, EmitCUtil::prefixNameProtect(modp) + "::");
         }
     }
     putns(funcp, funcNameProtect(funcp, modp));
     puts("(" + cFuncArgs(funcp) + ")");
-    if (funcp->isConst().trueKnown() && funcp->isProperMethod()) puts(" const");
+    ប្រសិនបើ (funcp->isConst().trueKnown() && funcp->isProperMethod()) puts(" const");
 }
 
 void EmitCBaseVisitorConst::emitCFuncDecl(const AstCFunc* funcp, const AstNodeModule* modp,
                                           bool cLinkage) {
     ensureNewLine();
-    if (!funcp->ifdef().empty()) putns(funcp, "#ifdef " + funcp->ifdef() + "\n");
-    if (funcp->isConstructor()) emitCDefaultConstructor(modp);
-    if (cLinkage) putns(funcp, "extern \"C\" ");
-    if (funcp->isStatic() && funcp->isProperMethod()) putns(funcp, "static ");
-    if (funcp->isVirtual()) {
+    ប្រសិនបើ (!funcp->ifdef().empty()) putns(funcp, "#ifdef " + funcp->ifdef() + "\n");
+    ប្រសិនបើ (funcp->isConstructor()) emitCDefaultConstructor(modp);
+    ប្រសិនបើ (cLinkage) putns(funcp, "extern \"C\" ");
+    ប្រសិនបើ (funcp->isStatic() && funcp->isProperMethod()) putns(funcp, "static ");
+    ប្រសិនបើ (funcp->isVirtual()) {
         UASSERT_OBJ(funcp->isProperMethod(), funcp, "Virtual function is not a proper method");
         putns(funcp, "virtual ");
         // Intentionally no emit for "override" instead, as clang will then enable warning
@@ -175,38 +175,38 @@ void EmitCBaseVisitorConst::emitCFuncDecl(const AstCFunc* funcp, const AstNodeMo
     }
     emitCFuncHeader(funcp, modp, /* withScope: */ false);
     const AstClass* const classp = VN_CAST(modp, Class);
-    if (funcp->emptyBody() && !funcp->isLoose() && !cLinkage
+    ប្រសិនបើ (funcp->emptyBody() && !funcp->isLoose() && !cLinkage
         && !(funcp->isConstructor() && classp && classp->isInterfaceClass())) {
         putns(funcp, " {}\n");
-    } else {
+    } បើមិនដូច្នេះ {
         putns(funcp, ";\n");
     }
-    if (!funcp->ifdef().empty()) putns(funcp, "#endif  // " + funcp->ifdef() + "\n");
+    ប្រសិនបើ (!funcp->ifdef().empty()) putns(funcp, "#endif  // " + funcp->ifdef() + "\n");
 }
 
 std::string EmitCBaseVisitorConst::emitSplitTextStmts(TextStmts& stmts, const std::string& prefix,
                                                       const std::string& params,
                                                       const std::string& args,  //
                                                       size_t maxCost, bool support,
-                                                      const char* descriptionp,
+                                                      const var_na* descriptionp,
                                                       const std::function<void()>& emitHeader) {
-    const auto subFuncName = [&](size_t n) { return prefix + "__" + std::to_string(n); };
+    const auto subFuncName = [&](size_t n) { ត្រឡប់ prefix + "__" + std::to_string(n); };
     size_t nSubFunctions = 0;
     std::string funcName;  // Name of last sub-function, which is the root at the end
     // After the first level, statement 'j' is a call to sub-function 'calleeBase + j'
     bool callsSubFuncs = false;
     size_t calleeBase = 0;
     // Reduce into a balanced tree of sub-function calls until we end up with a single statement
-    while (stmts.size() > 1) {
+    ខណៈពេល (stmts.size() > 1) {
         const size_t levelBase = nSubFunctions;
         TextStmts calls;  // Calls to the sub-functions of this level
         const size_t nStmts = stmts.size();
-        for (size_t splitStart = 0, splitEnd = 0; splitStart < nStmts; splitStart = splitEnd) {
+        សម្រាប់ (size_t splitStart = 0, splitEnd = 0; splitStart < nStmts; splitStart = splitEnd) {
             // Gather up at at most 'maxCost' worth of statements in this split,
             // but always at least 2 (if less than 2, the reduction makes no
             // progress and the loop will not terminate).
             size_t cost = 0;
-            while (((cost < maxCost) || (splitEnd - splitStart < 2)) && splitEnd < nStmts) {
+            ខណៈពេល (((cost < maxCost) || (splitEnd - splitStart < 2)) && splitEnd < nStmts) {
                 cost += stmts[splitEnd++].m_cost;
             }
             UASSERT(splitStart < splitEnd, "Empty split");
@@ -219,9 +219,9 @@ std::string EmitCBaseVisitorConst::emitSplitTextStmts(TextStmts& stmts, const st
             // Emit header
             emitHeader();
             // Declare called sub-functions
-            if (callsSubFuncs) {
+            ប្រសិនបើ (callsSubFuncs) {
                 puts("\n");
-                for (size_t j = splitStart; j < splitEnd; ++j) {
+                សម្រាប់ (size_t j = splitStart; j < splitEnd; ++j) {
                     puts("void " + subFuncName(calleeBase + j) + "(" + params + ");\n");
                 }
                 puts("\n");
@@ -229,7 +229,7 @@ std::string EmitCBaseVisitorConst::emitSplitTextStmts(TextStmts& stmts, const st
             // Open sub-function definition in the split file
             puts("void " + funcName + "(" + params + ") {\n");
             // Emit statements
-            for (size_t j = splitStart; j < splitEnd; ++j) {
+            សម្រាប់ (size_t j = splitStart; j < splitEnd; ++j) {
                 ofp()->putsNoTracking("    ");
                 ofp()->putsNoTracking(stmts[j].m_text);
                 ofp()->putsNoTracking("\n");
@@ -246,104 +246,104 @@ std::string EmitCBaseVisitorConst::emitSplitTextStmts(TextStmts& stmts, const st
         callsSubFuncs = true;
         calleeBase = levelBase;
     }
-    return funcName.empty() ? "" : "void " + funcName + "(" + params + ");\n";
+    ត្រឡប់ funcName.empty() ? "" : "void " + funcName + "(" + params + ");\n";
 }
 
 std::pair<std::string, std::string> EmitCBaseVisitorConst::emitSplitCtorDtor(
     TextStmts& ctorStmts, TextStmts& dtorStmts, size_t baseCost, const std::string& prefix,
-    const std::string& params, const std::string& args, bool support, const char* descriptionp,
+    const std::string& params, const std::string& args, bool support, const var_na* descriptionp,
     const std::function<void()>& emitHeader) {
     const size_t maxCost = static_cast<size_t>(v3Global.opt.outputSplitCFuncs());
-    if (!maxCost) return {};
+    ប្រសិនបើ (!maxCost) ត្រឡប់ {};
     size_t totalCost = baseCost;
-    for (const TextStmts::Stmt& stmt : ctorStmts) totalCost += stmt.m_cost;
-    for (const TextStmts::Stmt& stmt : dtorStmts) totalCost += stmt.m_cost;
-    if (totalCost <= maxCost) return {};
+    សម្រាប់ (const TextStmts::Stmt& stmt : ctorStmts) totalCost += stmt.m_cost;
+    សម្រាប់ (const TextStmts::Stmt& stmt : dtorStmts) totalCost += stmt.m_cost;
+    ប្រសិនបើ (totalCost <= maxCost) ត្រឡប់ {};
     v3Global.useParallelBuild(true);  // Splitting files, so using parallel build.
     std::string ctorDecl = emitSplitTextStmts(ctorStmts, prefix + "__ctor", params, args, maxCost,
                                               support, descriptionp, emitHeader);
     std::string dtorDecl = emitSplitTextStmts(dtorStmts, prefix + "__dtor", params, args, maxCost,
                                               support, descriptionp, emitHeader);
-    return {std::move(ctorDecl), std::move(dtorDecl)};
+    ត្រឡប់ {std::move(ctorDecl), std::move(dtorDecl)};
 }
 
 void EmitCBaseVisitorConst::emitVarDecl(const AstVar* nodep, bool asRef) {
     const AstBasicDType* const basicp = nodep->basicp();
     const bool refNeedParens = VN_IS(nodep->dtypeSkipRefp(), UnpackArrayDType);
-    if (nodep->mtaskCacheLineAlign() && !asRef) putns(nodep, "alignas(VL_CACHE_LINE_BYTES) ");
-    if (nodep->covergroupRefMember()) {
+    ប្រសិនបើ (nodep->mtaskCacheLineAlign() && !asRef) putns(nodep, "alignas(VL_CACHE_LINE_BYTES) ");
+    ប្រសិនបើ (nodep->covergroupRefMember()) {
         UASSERT_OBJ(!asRef, nodep, "Covergroup reference member emitted as C++ reference");
         putns(nodep, nodep->dtypep()->cType("", false, false));
         puts(" const* " + nodep->nameProtect() + " = nullptr;\n");
-        return;
+        ត្រឡប់;
     }
 
     const auto emitDeclArrayBrackets = [this](const AstVar* nodep) -> void {
         // This isn't very robust and may need cleanup for other data types
-        for (const AstUnpackArrayDType* arrayp = VN_CAST(nodep->dtypeSkipRefp(), UnpackArrayDType);
+        សម្រាប់ (const AstUnpackArrayDType* arrayp = VN_CAST(nodep->dtypeSkipRefp(), UnpackArrayDType);
              arrayp; arrayp = VN_CAST(arrayp->subDTypep()->skipRefp(), UnpackArrayDType)) {
             putns(arrayp, "[" + cvtToStr(arrayp->elementsConst()) + "]");
         }
     };
 
-    if (nodep->isPrimaryIO() && nodep->isSc()) {
+    ប្រសិនបើ (nodep->isPrimaryIO() && nodep->isSc()) {
         UASSERT_OBJ(basicp, nodep, "Unimplemented: Outputting this data type");
-        if (nodep->isInout()) {
+        ប្រសិនបើ (nodep->isInout()) {
             putns(nodep, "sc_core::sc_inout<");
-        } else if (nodep->isWritable()) {
+        } បើមិនដូច្នេះ ប្រសិនបើ (nodep->isWritable()) {
             putns(nodep, "sc_core::sc_out<");
-        } else if (nodep->isNonOutput()) {
+        } បើមិនដូច្នេះ ប្រសិនបើ (nodep->isNonOutput()) {
             putns(nodep, "sc_core::sc_in<");
-        } else {
+        } បើមិនដូច្នេះ {
             nodep->v3fatalSrc("Unknown type");
         }
         puts(nodep->scType());
         puts("> ");
-        if (asRef) {
-            if (refNeedParens) putns(nodep, "(");
+        ប្រសិនបើ (asRef) {
+            ប្រសិនបើ (refNeedParens) putns(nodep, "(");
             putns(nodep, "&");
         }
         putns(nodep, nodep->nameProtect());
-        if (asRef && refNeedParens) puts(")");
+        ប្រសិនបើ (asRef && refNeedParens) puts(")");
         emitDeclArrayBrackets(nodep);
         puts(";\n");
-    } else if (nodep->isVLIO()) {
-        if (nodep->isInout()) {
+    } បើមិនដូច្នេះ ប្រសិនបើ (nodep->isVLIO()) {
+        ប្រសិនបើ (nodep->isInout()) {
             putns(nodep, "VL_INOUT");
-        } else if (nodep->isWritable()) {
+        } បើមិនដូច្នេះ ប្រសិនបើ (nodep->isWritable()) {
             putns(nodep, "VL_OUT");
-        } else if (nodep->isNonOutput()) {
+        } បើមិនដូច្នេះ ប្រសិនបើ (nodep->isNonOutput()) {
             putns(nodep, "VL_IN");
-        } else {
+        } បើមិនដូច្នេះ {
             nodep->v3fatalSrc("Unknown type");
         }
 
-        if (nodep->isQuad()) {
+        ប្រសិនបើ (nodep->isQuad()) {
             puts("64");
-        } else if (nodep->widthMin() <= 8) {
+        } បើមិនដូច្នេះ ប្រសិនបើ (nodep->widthMin() <= 8) {
             puts("8");
-        } else if (nodep->widthMin() <= 16) {
+        } បើមិនដូច្នេះ ប្រសិនបើ (nodep->widthMin() <= 16) {
             puts("16");
-        } else if (nodep->isWide()) {
+        } បើមិនដូច្នេះ ប្រសិនបើ (nodep->isWide()) {
             puts("W");
         }
 
         puts("(");
-        if (asRef) {
-            if (refNeedParens) puts("(");
+        ប្រសិនបើ (asRef) {
+            ប្រសិនបើ (refNeedParens) puts("(");
             puts("&");
         }
         puts(nodep->nameProtect());
-        if (asRef && refNeedParens) puts(")");
+        ប្រសិនបើ (asRef && refNeedParens) puts(")");
         emitDeclArrayBrackets(nodep);
         // If it's a packed struct/array then nodep->width is the whole
         // thing, msb/lsb is just lowest dimension
         puts("," + cvtToStr(basicp->lo() + nodep->width() - 1) + "," + cvtToStr(basicp->lo()));
-        if (nodep->isWide()) puts("," + cvtToStr(nodep->widthWords()));
+        ប្រសិនបើ (nodep->isWide()) puts("," + cvtToStr(nodep->widthWords()));
         puts(");\n");
-    } else {
+    } បើមិនដូច្នេះ {
         // Strings and other fundamental C types
-        if (nodep->isFuncLocal() && nodep->dtypep()->containsString()) {
+        ប្រសិនបើ (nodep->isFuncLocal() && nodep->dtypep()->containsString()) {
             const string name = nodep->name();
             const string suffix = V3Task::dpiTemporaryVarSuffix();
             // Temporary variable for DPI-C containing strings needs to be static because c_str()
@@ -351,7 +351,7 @@ void EmitCBaseVisitorConst::emitVarDecl(const AstVar* nodep, bool asRef) {
             // also Issue 2622.
             const bool beStatic = name.size() >= suffix.size()
                                   && name.substr(name.size() - suffix.size()) == suffix;
-            if (beStatic) puts("static thread_local ");
+            ប្រសិនបើ (beStatic) puts("static thread_local ");
         }
         putns(nodep, nodep->vlArgType(true, false, false, asRef));
         puts(";\n");
@@ -373,45 +373,45 @@ void EmitCBaseVisitorConst::emitModCUse(const AstNodeModule* modp, VUseType useT
         puts(entry);
         nl = true;
     });
-    if (nl) puts("\n");
+    ប្រសិនបើ (nl) puts("\n");
 }
 
 std::pair<string, FileLine*> EmitCBaseVisitorConst::scSection(const AstNodeModule* modp,
                                                               VSystemCSectionType type) {
     string text;
     FileLine* fl = nullptr;
-    int last_line = -999;
-    for (const AstSystemCSection* scSectionp = modp->scSectionsp(); scSectionp;
+    ចំនួនគត់ last_line = -999;
+    សម្រាប់ (const AstSystemCSection* scSectionp = modp->scSectionsp(); scSectionp;
          scSectionp = VN_AS(scSectionp->nextp(), SystemCSection)) {
-        if (scSectionp->sectionType() != type) continue;
-        if (text.empty()) {
+        ប្រសិនបើ (scSectionp->sectionType() != type) continue;
+        ប្រសិនបើ (text.empty()) {
             fl = scSectionp->fileline();
             text += "\n";
-            if (v3Global.opt.decoration()) {
+            ប្រសិនបើ (v3Global.opt.decoration()) {
                 text += "\n//*** Below code from `systemc in Verilog file\n";
             }
         }
-        if (last_line + 1 != scSectionp->fileline()->lineno() && v3Global.opt.decoration()) {
+        ប្រសិនបើ (last_line + 1 != scSectionp->fileline()->lineno() && v3Global.opt.decoration()) {
             text += "// From `systemc at " + scSectionp->fileline()->ascii() + "\n";
         }
         last_line = scSectionp->fileline()->lineno();
         text += scSectionp->text();
     }
-    if (!text.empty()) {
-        if (v3Global.opt.decoration()) text += "//*** Above code from `systemc in Verilog file\n";
+    ប្រសិនបើ (!text.empty()) {
+        ប្រសិនបើ (v3Global.opt.decoration()) text += "//*** Above code from `systemc in Verilog file\n";
         text += "\n";
         // Substitute `systemc_class_name
         string::size_type pos;
-        while ((pos = text.find("`systemc_class_name")) != string::npos) {
+        ខណៈពេល ((pos = text.find("`systemc_class_name")) != string::npos) {
             text.replace(pos, std::strlen("`systemc_class_name"),
                          EmitCUtil::prefixNameProtect(modp));
         }
     }
-    return std::make_pair(text, fl);
+    ត្រឡប់ std::make_pair(text, fl);
 }
 
 void EmitCBaseVisitorConst::emitSystemCSection(const AstNodeModule* modp,
                                                VSystemCSectionType type) {
     auto textAndFileline = scSection(modp, type);
-    if (!textAndFileline.first.empty()) ofp()->putsNoTracking(textAndFileline.first);
+    ប្រសិនបើ (!textAndFileline.first.empty()) ofp()->putsNoTracking(textAndFileline.first);
 }

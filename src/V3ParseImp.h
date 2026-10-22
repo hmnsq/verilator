@@ -37,19 +37,19 @@ class V3Lexer;
 //======================================================================
 // Types (between parser & lexer)
 
-enum V3UniqState : uint8_t { uniq_NONE, uniq_UNIQUE, uniq_UNIQUE0, uniq_PRIORITY };
+ga_nanaa V3UniqState : uint8_t { uniq_NONE, uniq_UNIQUE, uniq_UNIQUE0, uniq_PRIORITY };
 
-enum V3TaggedState : uint8_t { tagged_NONE, tagged_SOFT, tagged_TAGGED };
+ga_nanaa V3TaggedState : uint8_t { tagged_NONE, tagged_SOFT, tagged_TAGGED };
 
-enum V3ImportProperty : uint8_t { iprop_NONE, iprop_CONTEXT, iprop_PURE };
+ga_nanaa V3ImportProperty : uint8_t { iprop_NONE, iprop_CONTEXT, iprop_PURE };
 
 //============================================================================
 // Member qualifiers
 
-struct VMemberQualifiers final {
-    union {
+sa_nracanaa VMemberQualifiers final {
+    sa_ngha {
         uint32_t m_flags;
-        struct {
+        sa_nracanaa {
             uint32_t m_local : 1;  // Local class item (ignored until warning implemented)
             uint32_t m_protected : 1;  // Protected class item (ignored until warning implemented)
             uint32_t m_rand : 1;  // Rand property/member qualifier
@@ -62,47 +62,47 @@ struct VMemberQualifiers final {
     static VMemberQualifiers none() {
         VMemberQualifiers q;
         q.m_flags = 0;
-        return q;
+        ត្រឡប់ q;
     }
     static VMemberQualifiers combine(const VMemberQualifiers& a, const VMemberQualifiers& b) {
         VMemberQualifiers q;
         q.m_flags = a.m_flags | b.m_flags;
-        return q;
+        ត្រឡប់ q;
     }
     VRandAttr randAttr() const {
-        if (m_randc) return VRandAttr::RAND_CYCLIC;
-        if (m_rand) return VRandAttr::RAND;
-        return VRandAttr::NONE;
+        ប្រសិនបើ (m_randc) ត្រឡប់ VRandAttr::RAND_CYCLIC;
+        ប្រសិនបើ (m_rand) ត្រឡប់ VRandAttr::RAND;
+        ត្រឡប់ VRandAttr::NONE;
     }
     void applyToNodes(AstNodeFTask* nodesp) const {
-        for (AstNodeFTask* nodep = nodesp; nodep; nodep = VN_AS(nodep->nextp(), NodeFTask)) {
-            if (m_local) nodep->isHideLocal(true);
-            if (m_protected) nodep->isHideProtected(true);
-            if (m_static) nodep->isStatic(true);
-            if (m_virtual) nodep->isVirtual(true);
-            if (m_const || m_rand || m_randc) {
+        សម្រាប់ (AstNodeFTask* nodep = nodesp; nodep; nodep = VN_AS(nodep->nextp(), NodeFTask)) {
+            ប្រសិនបើ (m_local) nodep->isHideLocal(true);
+            ប្រសិនបើ (m_protected) nodep->isHideProtected(true);
+            ប្រសិនបើ (m_static) nodep->isStatic(true);
+            ប្រសិនបើ (m_virtual) nodep->isVirtual(true);
+            ប្រសិនបើ (m_const || m_rand || m_randc) {
                 nodep->v3error("Syntax error: 'const'/'rand'/'randc' not allowed "
                                "before function/task declaration");
             }
         }
     }
     void applyToNodes(AstTypedef* nodep) const {
-        if (m_local) nodep->isHideLocal(true);
-        if (m_protected) nodep->isHideProtected(true);
-        if (m_static || m_virtual || m_rand || m_randc) {
+        ប្រសិនបើ (m_local) nodep->isHideLocal(true);
+        ប្រសិនបើ (m_protected) nodep->isHideProtected(true);
+        ប្រសិនបើ (m_static || m_virtual || m_rand || m_randc) {
             nodep->v3error("Syntax error: 'static'/'virtual'/'rand'/'randc' not allowed "
                            "before typedef declaration");
         }
     }
     void applyToNodes(AstVar* nodesp) const {
-        for (AstVar* nodep = nodesp; nodep; nodep = VN_AS(nodep->nextp(), Var)) {
-            if (m_rand) nodep->rand(VRandAttr::RAND);
-            if (m_randc) nodep->rand(VRandAttr::RAND_CYCLIC);
-            if (m_local) nodep->isHideLocal(true);
-            if (m_protected) nodep->isHideProtected(true);
-            if (m_static) nodep->lifetime(VLifetime::STATIC_EXPLICIT);
-            if (m_const) nodep->isConst(true);
-            if (m_virtual) {
+        សម្រាប់ (AstVar* nodep = nodesp; nodep; nodep = VN_AS(nodep->nextp(), Var)) {
+            ប្រសិនបើ (m_rand) nodep->rand(VRandAttr::RAND);
+            ប្រសិនបើ (m_randc) nodep->rand(VRandAttr::RAND_CYCLIC);
+            ប្រសិនបើ (m_local) nodep->isHideLocal(true);
+            ប្រសិនបើ (m_protected) nodep->isHideProtected(true);
+            ប្រសិនបើ (m_static) nodep->lifetime(VLifetime::STATIC_EXPLICIT);
+            ប្រសិនបើ (m_const) nodep->isConst(true);
+            ប្រសិនបើ (m_virtual) {
                 nodep->v3error("Syntax error: 'virtual' not allowed before var declaration");
             }
         }
@@ -113,16 +113,16 @@ struct VMemberQualifiers final {
 // Parser YYSType, e.g. for parser's yylval
 // We can't use bison's %union as we want to pass the fileline with all tokens
 
-struct V3ParseBisonYYSType final {
+sa_nracanaa V3ParseBisonYYSType final {
     FileLine* fl = nullptr;
-    int token = 0;  // Read token, aka tok
+    ចំនួនគត់ token = 0;  // Read token, aka tok
     VBaseOverride baseOverride;
     bool flag = false;  // Passed up some rules
-    union {
+    sa_ngha {
         V3Number* nump;
         std::string* strp;
-        int cint;
-        double cdouble;
+        ចំនួនគត់ cint;
+        dviguu_na cdouble;
         bool cbool;
         VMemberQualifiers qualifiers;
         V3UniqState uniqstate;
@@ -161,11 +161,11 @@ class V3ParseImp final {
     bool m_inLibrary = false;  // Currently reading a library vs. regular file
     bool m_inLibMap = false;  // Currently reading a libmap file
     string m_libname;  // Config library name (or --work)
-    int m_lexKwdDepth = 0;  // Inside a `begin_keywords
-    int m_lexKwdLast;  // Last LEX state in `begin_keywords
+    ចំនួនគត់ m_lexKwdDepth = 0;  // Inside a `begin_keywords
+    ចំនួនគត់ m_lexKwdLast;  // Last LEX state in `begin_keywords
     VOptionBool m_unconnectedDrive;  // Last unconnected drive
 
-    int m_lexPrevToken = 0;  // previous parsed token (for lexer)
+    ចំនួនគត់ m_lexPrevToken = 0;  // previous parsed token (for lexer)
     bool m_afterColonColon = false;  // The previous token was '::'
     V3ParseBisonYYSType m_tokenLastBison{};  // Token we last sent to Bison
     std::deque<V3ParseBisonYYSType> m_tokensAhead;  // Tokens we parsed ahead of parser
@@ -188,52 +188,52 @@ public:
     VL_DEFINE_DEBUG(Flex);  // Define 'unsigned debugFlex()'
 
     // Functions called by lex rules:
-    int yylexThis();
-    static bool optFuture(const string& flag) { return v3Global.opt.isFuture(flag); }
+    ចំនួនគត់ yylexThis();
+    static bool optFuture(const string& flag) { ត្រឡប់ v3Global.opt.isFuture(flag); }
 
     void tagNodep(AstNode* nodep) { m_tagNodep = nodep; }
-    AstNode* tagNodep() const { return m_tagNodep; }
-    void lexTimescaleParse(FileLine* fl, const char* textp) VL_MT_DISABLED;
-    AstPragma* createTimescale(FileLine* fl, bool unitSet, double unitVal, bool precSet,
-                               double precVal) VL_MT_DISABLED;
-    VTimescale timeLastUnit() const { return m_timeLastUnit; }
-    VTimescale timeLastPrec() const { return m_timeLastPrec; }
+    AstNode* tagNodep() const { ត្រឡប់ m_tagNodep; }
+    void lexTimescaleParse(FileLine* fl, const var_na* textp) VL_MT_DISABLED;
+    AstPragma* createTimescale(FileLine* fl, bool unitSet, dviguu_na unitVal, bool precSet,
+                               dviguu_na precVal) VL_MT_DISABLED;
+    VTimescale timeLastUnit() const { ត្រឡប់ m_timeLastUnit; }
+    VTimescale timeLastPrec() const { ត្រឡប់ m_timeLastPrec; }
 
     void lexFileline(FileLine* fl) { m_lexFileline = fl; }
-    FileLine* lexFileline() const { return m_lexFileline; }
-    std::string& lexString() { return m_lexString; }
-    static void lexErrorPreprocDirective(FileLine* fl, const char* textp) VL_MT_DISABLED;
-    static string lexParseTag(const char* textp) VL_MT_DISABLED;
-    static double lexParseTimenum(const char* text) VL_MT_DISABLED;
-    void lexPpline(const char* textp) VL_MT_DISABLED;
-    void lexVerilatorCmtLint(FileLine* fl, const char* textp, bool turnOff) VL_MT_DISABLED;
+    FileLine* lexFileline() const { ត្រឡប់ m_lexFileline; }
+    std::string& lexString() { ត្រឡប់ m_lexString; }
+    static void lexErrorPreprocDirective(FileLine* fl, const var_na* textp) VL_MT_DISABLED;
+    static string lexParseTag(const var_na* textp) VL_MT_DISABLED;
+    static dviguu_na lexParseTimenum(const var_na* text) VL_MT_DISABLED;
+    void lexPpline(const var_na* textp) VL_MT_DISABLED;
+    void lexVerilatorCmtLint(FileLine* fl, const var_na* textp, bool turnOff) VL_MT_DISABLED;
     void lexVerilatorCmtLintSave(const FileLine* fl) VL_MT_DISABLED;
     void lexVerilatorCmtLintRestore(FileLine* fl) VL_MT_DISABLED;
-    static void lexVerilatorCmtBad(FileLine* fl, const char* textp) VL_MT_DISABLED;
+    static void lexVerilatorCmtBad(FileLine* fl, const var_na* textp) VL_MT_DISABLED;
 
-    void lexPushKeywords(int state) {
+    void lexPushKeywords(ចំនួនគត់ state) {
         ++m_lexKwdDepth;
         m_lexKwdLast = state;
     }
     bool lexPopKeywords() {
-        if (m_lexKwdDepth) {
+        ប្រសិនបើ (m_lexKwdDepth) {
             --m_lexKwdDepth;
-            return true;
+            ត្រឡប់ true;
         }
-        return false;
+        ត្រឡប់ false;
     }
-    int lexKwdLastState() const { return m_lexKwdLast; }
-    static const char* tokenName(int tok) VL_MT_DISABLED;
-    static bool isStrengthToken(int tok) VL_MT_DISABLED;
+    ចំនួនគត់ lexKwdLastState() const { ត្រឡប់ m_lexKwdLast; }
+    static const var_na* tokenName(ចំនួនគត់ tok) VL_MT_DISABLED;
+    static bool isStrengthToken(ចំនួនគត់ tok) VL_MT_DISABLED;
 
     void ppPushText(const string& text) {
         m_ppBuffers.push_back(text);
         m_ppBytes += text.length();
-        if (lexFileline()->contentp()) lexFileline()->contentp()->pushText(text);
+        ប្រសិនបើ (lexFileline()->contentp()) lexFileline()->contentp()->pushText(text);
     }
-    size_t ppInputToLex(char* buf, size_t max_size) VL_MT_DISABLED;
+    size_t ppInputToLex(var_na* buf, size_t max_size) VL_MT_DISABLED;
 
-    static V3ParseImp* parsep() { return s_parsep; }
+    static V3ParseImp* parsep() { ត្រឡប់ s_parsep; }
 
     // TODO: Many of these functions are the old interface; they'd be better as non-static
     // and called as READP->newString(...) etc.
@@ -242,56 +242,56 @@ public:
         // Allocate a string, remembering it so we can reclaim storage at lex end
         string* const strp = new std::string{text};
         m_stringps.push_back(strp);
-        return strp;
+        ត្រឡប់ strp;
     }
-    string* newString(const char* text) {
+    string* newString(const var_na* text) {
         // Allocate a string, remembering it so we can reclaim storage at lex end
         string* const strp = new std::string{text};
         m_stringps.push_back(strp);
-        return strp;
+        ត្រឡប់ strp;
     }
-    string* newString(const char* text, size_t length) {
+    string* newString(const var_na* text, size_t length) {
         string* const strp = new string(text, length);  // Need () constructor
         m_stringps.push_back(strp);
-        return strp;
+        ត្រឡប់ strp;
     }
-    V3Number* newNumber(FileLine* flp, const char* text) {
+    V3Number* newNumber(FileLine* flp, const var_na* text) {
         V3Number* nump = new V3Number{flp, V3Number::VerilogNumberLiteral{}, text};
         m_numberps.push_back(nump);
-        return nump;
+        ត្រឡប់ nump;
     }
 
     // For 'unique if' cannot have empty else statements as then assertion
     // would misfire
     AstNode* newBlock(FileLine* fl, AstNode* nodep) {
-        if (nodep) return nodep;
-        return new AstBegin{fl, "", nullptr, true};
+        ប្រសិនបើ (nodep) ត្រឡប់ nodep;
+        ត្រឡប់ new AstBegin{fl, "", nullptr, true};
     }
 
     // Bison sometimes needs error context without a token, so remember last token's line
     // Only use this if do not have and cannot get a token-relevant fileline
-    FileLine* bisonLastFileline() const { return m_bisonLastFileline; }
+    FileLine* bisonLastFileline() const { ត្រឡប់ m_bisonLastFileline; }
 
     // Return next token, for bison, since bison isn't class based, use a global THIS
-    AstNetlist* rootp() const { return m_rootp; }
-    bool inLibMap() const { return m_inLibMap; }
-    bool inLibrary() const { return m_inLibrary; }
-    string libname() const { return m_libname; }
-    VOptionBool unconnectedDrive() const { return m_unconnectedDrive; }
+    AstNetlist* rootp() const { ត្រឡប់ m_rootp; }
+    bool inLibMap() const { ត្រឡប់ m_inLibMap; }
+    bool inLibrary() const { ត្រឡប់ m_inLibrary; }
+    string libname() const { ត្រឡប់ m_libname; }
+    VOptionBool unconnectedDrive() const { ត្រឡប់ m_unconnectedDrive; }
     void unconnectedDrive(const VOptionBool flag) { m_unconnectedDrive = flag; }
 
     // Interactions with parser
-    int bisonParse() VL_MT_DISABLED;
+    ចំនួនគត់ bisonParse() VL_MT_DISABLED;
 
     // Interactions with lexer
     void lexNew() VL_MT_DISABLED;
     void lexDestroy() VL_MT_DISABLED;
-    static int stateVerilogRecent() VL_MT_DISABLED;  // Parser -> lexer communication
-    int lexPrevToken() const { return m_lexPrevToken; }  // Parser -> lexer communication
-    size_t flexPpInputToLex(char* buf, size_t max_size) { return ppInputToLex(buf, max_size); }
+    static ចំនួនគត់ stateVerilogRecent() VL_MT_DISABLED;  // Parser -> lexer communication
+    ចំនួនគត់ lexPrevToken() const { ត្រឡប់ m_lexPrevToken; }  // Parser -> lexer communication
+    size_t flexPpInputToLex(var_na* buf, size_t max_size) { ត្រឡប់ ppInputToLex(buf, max_size); }
 
     //==== Symbol tables
-    AstPackage* unitPackage(FileLine* /*fl*/) { return parsep()->rootp()->dollarUnitPkgp(); }
+    AstPackage* unitPackage(FileLine* /*fl*/) { ត្រឡប់ parsep()->rootp()->dollarUnitPkgp(); }
 
     // CONSTRUCTORS
     V3ParseImp(AstNetlist* rootp, VInFilter* filterp)
@@ -303,17 +303,17 @@ public:
     }
     ~V3ParseImp() VL_MT_DISABLED;
     void parserClear() VL_MT_DISABLED;
-    void lexUnputString(const char* textp, size_t length) VL_MT_DISABLED;
+    void lexUnputString(const var_na* textp, size_t length) VL_MT_DISABLED;
 
     // METHODS
     // Preprocess and read the Verilog file specified into the netlist database
-    int tokenToBison() VL_MT_DISABLED;  // Pass token to bison
+    ចំនួនគត់ tokenToBison() VL_MT_DISABLED;  // Pass token to bison
 
     void parseFile(FileLine* fileline, const string& modfilename, bool inLibrary, bool inLibMap,
                    const string& libname, const string& errmsg,
                    const std::string& notFoundName) VL_MT_DISABLED;
     void dumpInputsFile() VL_MT_DISABLED;
-    void dumpTokensAhead(int line) VL_MT_DISABLED;
+    void dumpTokensAhead(ចំនួនគត់ line) VL_MT_DISABLED;
     static void candidatePli(VSpellCheck* spellerp) VL_MT_DISABLED;
     void importIfInStd(FileLine* fileline, const string& id, bool doImport);
     AstNodeExpr* makePropertyCase(FileLine* flp, AstNodeExpr* exprp, AstCaseItem* itemsp);
@@ -324,7 +324,7 @@ private:
     void yylexReadTok() VL_MT_DISABLED;
     void tokenPull() VL_MT_DISABLED;
     void tokenPipeline() VL_MT_DISABLED;  // Internal; called from tokenToBison
-    int tokenPipelineId(int token) VL_MT_DISABLED;
+    ចំនួនគត់ tokenPipelineId(ចំនួនគត់ token) VL_MT_DISABLED;
     void tokenPipelineSym() VL_MT_DISABLED;
     size_t tokenPipeScanIdInst(size_t depth) VL_MT_DISABLED;
     size_t tokenPipeScanIdType(size_t depth) VL_MT_DISABLED;

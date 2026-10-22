@@ -56,22 +56,22 @@ public:
     AstNode* m_modportProtoTasksp
         = nullptr;  // Prototype tasks from modport import/export with prototype
 
-    int m_pinNum = -1;  // Pin number currently parsing
-    std::stack<int> m_pinStack;  // Queue of pin numbers being parsed
+    ចំនួនគត់ m_pinNum = -1;  // Pin number currently parsing
+    std::stack<ចំនួនគត់> m_pinStack;  // Queue of pin numbers being parsed
 
-    static int s_typeImpNum;  // Implicit type number, incremented each module
+    static ចំនួនគត់ s_typeImpNum;  // Implicit type number, incremented each module
 
     // CONSTRUCTORS
     V3ParseGrammar() = default;
     static V3ParseGrammar* singletonp() {
         static V3ParseGrammar singleton;
-        return &singleton;
+        ត្រឡប់ &singleton;
     }
 
     // METHODS
     AstArg* argWrapList(AstNodeExpr* nodep) VL_MT_DISABLED;
     bool allTracingOn(const FileLine* fl) const {
-        return v3Global.opt.trace() && m_tracingParse && fl->tracingOn();
+        ត្រឡប់ v3Global.opt.trace() && m_tracingParse && fl->tracingOn();
     }
     AstRange* scrubRange(AstNodeRange* rangep) VL_MT_DISABLED;
     AstRange* scrubRangeMulti(AstNodeRange* rangep) VL_MT_DISABLED;
@@ -80,9 +80,9 @@ public:
                               bool isPacked) VL_MT_DISABLED;
     AstVar* createVariable(FileLine* fileline, const string& name, AstNodeRange* arrayp,
                            AstNode* attrsp) VL_MT_DISABLED;
-    AstAssignW* createSupplyExpr(FileLine* fileline, const string& name, int value) VL_MT_DISABLED;
+    AstAssignW* createSupplyExpr(FileLine* fileline, const string& name, ចំនួនគត់ value) VL_MT_DISABLED;
     std::string textQuoted(FileLine* fileline, const std::string& text) {
-        return singletonp()->unquoteString(fileline, text);
+        ត្រឡប់ singletonp()->unquoteString(fileline, text);
     }
     AstNode* createCell(FileLine* fileline, const string& name, AstPin* pinlistp,
                         AstNodeRange* rangelistp) {
@@ -96,102 +96,102 @@ public:
             (singletonp()->m_instParamp ? singletonp()->m_instParamp->cloneTree(true) : nullptr),
             singletonp()->scrubRangeMulti(rangelistp)};
         nodep->trace(singletonp()->allTracingOn(fileline));
-        return nodep;
+        ត្រឡប់ nodep;
     }
     static AstNode* createPatternKey(AstNodeExpr* exprp) {
         // Assignment pattern key.  A bare identifier may name a structure
         // member rather than a constant, so pass it on as a Text node for
         // V3LinkDot to resolve; anything else is a constant expression.
-        if (const AstParseRef* const refp = VN_CAST(exprp, ParseRef)) {
-            if (!refp->lhsp() && !refp->ftaskrefp()) {
+        ប្រសិនបើ (const AstParseRef* const refp = VN_CAST(exprp, ParseRef)) {
+            ប្រសិនបើ (!refp->lhsp() && !refp->ftaskrefp()) {
                 AstNode* const textp = new AstText{refp->fileline(), refp->name()};
                 VL_DO_DANGLING(exprp->deleteTree(), exprp);
-                return textp;
+                ត្រឡប់ textp;
             }
         }
-        return exprp;
+        ត្រឡប់ exprp;
     }
     AstDisplay* createDisplayError(FileLine* fileline) {
         AstDisplay* nodep = new AstDisplay{fileline, VDisplayType::DT_ERROR, "", nullptr, nullptr};
         AstNode::addNext<AstNode, AstNode>(nodep, new AstStop{fileline, false});
-        return nodep;
+        ត្រឡប់ nodep;
     }
     // Apply the array marker of a bins declaration of values: '[]' creates a bin per value, and
     // '[N]' N bins holding the values (IEEE 1800-2023 19.5.1)
     static AstCoverBin* coverBinArray(AstCoverBin* binp, AstNodeExpr* sizep) {
-        if (!sizep) return binp;
+        ប្រសិនបើ (!sizep) ត្រឡប់ binp;
         binp->isArray(true);
-        if (VN_IS(sizep, Unbounded)) {
+        ប្រសិនបើ (VN_IS(sizep, Unbounded)) {
             VL_DO_DANGLING(sizep->deleteTree(), sizep);
-        } else {
+        } បើមិនដូច្នេះ {
             binp->arraySizep(sizep);
         }
-        return binp;
+        ត្រឡប់ binp;
     }
     // The array marker of another bins declaration, which supports only '[]'; true if present
     static bool coverBinArrayUnsized(AstNodeExpr* sizep) {
-        if (!sizep) return false;
-        if (!VN_IS(sizep, Unbounded)) {
+        ប្រសិនបើ (!sizep) ត្រឡប់ false;
+        ប្រសិនបើ (!VN_IS(sizep, Unbounded)) {
             sizep->v3warn(COVERIGN, "Unsupported: 'bins' explicit array size (treated as '[]')");
         }
         VL_DO_DANGLING(sizep->deleteTree(), sizep);
-        return true;
+        ត្រឡប់ true;
     }
     AstNodeExpr* createGatePin(AstNodeExpr* exprp) {
         AstRange* const rangep = m_gateRangep;
-        if (!rangep) return exprp;
-        return new AstGatePin{rangep->fileline(), exprp, rangep->cloneTree(true)};
+        ប្រសិនបើ (!rangep) ត្រឡប់ exprp;
+        ត្រឡប់ new AstGatePin{rangep->fileline(), exprp, rangep->cloneTree(true)};
     }
     AstSenTree* createSenTreeChanged(FileLine* fl, AstNodeExpr* exprp) {
-        return new AstSenTree{fl, new AstSenItem{fl, VEdgeType::ET_CHANGED, exprp}};
+        ត្រឡប់ new AstSenTree{fl, new AstSenItem{fl, VEdgeType::ET_CHANGED, exprp}};
     }
     AstSenTree* createSenTreeDotStar(FileLine* fl) {
-        return new AstSenTree{fl, new AstSenItem{fl, VEdgeType::ET_COMBO_STAR, nullptr}};
+        ត្រឡប់ new AstSenTree{fl, new AstSenItem{fl, VEdgeType::ET_COMBO_STAR, nullptr}};
     }
     AstNodeExpr* createGlobalClockParseRef(FileLine* fl) {
-        return new AstParseRef{fl, "__024global_clock", nullptr, nullptr};
+        ត្រឡប់ new AstParseRef{fl, "__024global_clock", nullptr, nullptr};
     }
     AstSenTree* createGlobalClockSenTree(FileLine* fl) {
-        return createSenTreeChanged(fl, createGlobalClockParseRef(fl));
+        ត្រឡប់ createSenTreeChanged(fl, createGlobalClockParseRef(fl));
     }
     AstNode* createNettype(FileLine* fl, const string& name) {
         // As nettypes are unsupported, we just alias to logic
         AstTypedef* const nodep = new AstTypedef{fl, name, nullptr, VFlagChildDType{},
                                                  new AstBasicDType{fl, VFlagLogicPacked{}, 1}};
         V3ParseImp::parsep()->tagNodep(nodep);
-        return nodep;
+        ត្រឡប់ nodep;
     }
     AstNode* createTypedef(FileLine* fl, const string& name, AstNode* attrsp, AstNodeDType* basep,
                            AstNodeRange* rangep) {
         AstTypedef* const nodep = new AstTypedef{fl, name, attrsp, VFlagChildDType{},
                                                  singletonp()->createArray(basep, rangep, false)};
         V3ParseImp::parsep()->tagNodep(nodep);
-        return nodep;
+        ត្រឡប់ nodep;
     }
     AstNode* createTypedefFwd(FileLine* fl, const string& name, const VFwdType& fwdType) {
         AstTypedefFwd* const nodep = new AstTypedefFwd{fl, name, fwdType};
         V3ParseImp::parsep()->tagNodep(nodep);
-        return nodep;
+        ត្រឡប់ nodep;
     }
     static void endLabel(FileLine* fl, const AstNode* nodep, const string* endnamep) {
         endLabel(fl, nodep->prettyName(), endnamep);
     }
     static void endLabel(FileLine* fl, const string& name, const string* endnamep) {
-        if (fl && endnamep && *endnamep != "" && name != *endnamep
+        ប្រសិនបើ (fl && endnamep && *endnamep != "" && name != *endnamep
             && name != AstNode::prettyName(*endnamep)) {
             fl->v3warn(ENDLABEL, "End label '" << *endnamep << "' does not match begin label '"
                                                << name << "'");
         }
     }
     void setDType(AstNodeDType* dtypep) {
-        if (m_varDTypep) {
+        ប្រសិនបើ (m_varDTypep) {
             UASSERT_OBJ(!m_varDTypep->backp(), m_varDTypep, "Should not link directly");
             VL_DO_CLEAR(m_varDTypep->deleteTree(), m_varDTypep = nullptr);
         }
         m_varDTypep = dtypep;
     }
     void setNetDelay(AstDelay* netDelayp) {
-        if (m_netDelayp) {
+        ប្រសិនបើ (m_netDelayp) {
             UASSERT_OBJ(!m_netDelayp->backp(), m_netDelayp, "Should not link directly");
             VL_DO_CLEAR(m_netDelayp->deleteTree(), m_netDelayp = nullptr);
         }
@@ -203,29 +203,29 @@ public:
         m_pinNum = 1;
     }
     void pinPop(FileLine* fl) {
-        if (VL_UNCOVERABLE(m_pinStack.empty())) fl->v3fatalSrc("Underflow of pin stack");
+        ប្រសិនបើ (VL_UNCOVERABLE(m_pinStack.empty())) fl->v3fatalSrc("Underflow of pin stack");
         m_pinNum = m_pinStack.top();
         m_pinStack.pop();
     }
     AstNodeDType* addRange(AstBasicDType* dtypep, AstNodeRange* rangesp, bool isPacked) {
         // If dtypep isn't basic, don't use this, call createArray() instead
-        if (!rangesp) return dtypep;
+        ប្រសិនបើ (!rangesp) ត្រឡប់ dtypep;
 
         // If rangesp is "wire [3:3][2:2][1:1] foo [5:5][4:4]"
         // then [1:1] becomes the basicdtype range; everything else is arraying
         // the final [5:5][4:4] will be passed in another call to createArray
         AstNodeRange* rangearraysp = nullptr;
-        if (dtypep->isRanged()) {
+        ប្រសិនបើ (dtypep->isRanged()) {
             rangearraysp = rangesp;  // Already a range; everything is an array
-        } else {
+        } បើមិនដូច្នេះ {
             AstNodeRange* finalp = rangesp;
-            while (finalp->nextp()) finalp = VN_CAST(finalp->nextp(), Range);
-            if (finalp != rangesp) {
+            ខណៈពេល (finalp->nextp()) finalp = VN_CAST(finalp->nextp(), Range);
+            ប្រសិនបើ (finalp != rangesp) {
                 finalp->unlinkFrBack();
                 rangearraysp = rangesp;
             }
-            if (AstRange* const finalRangep = VN_CAST(finalp, Range)) {  // not an UnsizedRange
-                if (dtypep->implicit()) {
+            ប្រសិនបើ (AstRange* const finalRangep = VN_CAST(finalp, Range)) {  // not an UnsizedRange
+                ប្រសិនបើ (dtypep->implicit()) {
                     // It's no longer implicit but a wire logic type
                     AstBasicDType* const newp = new AstBasicDType{
                         dtypep->fileline(), VBasicDTypeKwd::LOGIC, dtypep->numeric(),
@@ -236,11 +236,11 @@ public:
                 dtypep->rangep(finalRangep);
             }
         }
-        return createArray(dtypep, rangearraysp, isPacked);
+        ត្រឡប់ createArray(dtypep, rangearraysp, isPacked);
     }
     string unquoteString(FileLine* fileline, const std::string& text) VL_MT_DISABLED;
     void checkDpiVer(FileLine* fileline, const string& str) {
-        if (str != "DPI-C" && !v3Global.opt.bboxSys())
+        ប្រសិនបើ (str != "DPI-C" && !v3Global.opt.bboxSys())
             fileline->v3warn(E_UNSUPPORTED, "Unsupported DPI type '"
                                                 << str
                                                 << "': Use 'DPI-C' (IEEE 1800-2023 35.5.4)");
@@ -249,18 +249,18 @@ public:
     AstClockingItem* makeClockingItemList(FileLine* flp, const VDirection direction,
                                           AstNodeExpr* skewp, AstNode* const clockingDeclps) {
         AstClockingItem* itemsp = nullptr;
-        for (AstNode *nodep = clockingDeclps, *nextp; nodep; nodep = nextp) {
+        សម្រាប់ (AstNode *nodep = clockingDeclps, *nextp; nodep; nodep = nextp) {
             nextp = nodep->nextp();
-            if (nextp) nextp->unlinkFrBackWithNext();
-            if (itemsp && skewp) skewp = skewp->cloneTree(false);
+            ប្រសិនបើ (nextp) nextp->unlinkFrBackWithNext();
+            ប្រសិនបើ (itemsp && skewp) skewp = skewp->cloneTree(false);
             AstClockingItem* itemp = new AstClockingItem{flp, direction, skewp, nodep};
             itemsp = AstNode::addNextNull(itemsp, itemp);
         }
-        return itemsp;
+        ត្រឡប់ itemsp;
     }
 
     void setScopedSigAttr(AstNode* attrsp) {
-        if (m_scopedSigAttr) {  // clearing set attribute
+        ប្រសិនបើ (m_scopedSigAttr) {  // clearing set attribute
             UASSERT_OBJ(!m_scopedSigAttr->backp(), m_scopedSigAttr, "Should not link directly");
             VL_DO_DANGLING(m_scopedSigAttr->deleteTree(), m_scopedSigAttr);
         }
@@ -272,7 +272,7 @@ public:
     }
 
     AstNode* cloneScopedSigAttr() const {
-        return m_scopedSigAttr ? m_scopedSigAttr->cloneTree(true) : nullptr;
+        ត្រឡប់ m_scopedSigAttr ? m_scopedSigAttr->cloneTree(true) : nullptr;
     }
 
     void createGenericIface(AstNode* const nodep, AstNodeRange* const rangep,
@@ -300,13 +300,13 @@ public:
     // Wrap all statements in the given list in an AstBegin (except those already an AstBegin)
     static AstBegin* wrapInBegin(AstNodeStmt* stmtsp) {
         AstBegin* resp = nullptr;
-        for (AstNodeStmt *nodep = stmtsp, *nextp; nodep; nodep = nextp) {
+        សម្រាប់ (AstNodeStmt *nodep = stmtsp, *nextp; nodep; nodep = nextp) {
             nextp = VN_AS(nodep->nextp(), NodeStmt);
-            if (nextp) nextp->unlinkFrBackWithNext();
+            ប្រសិនបើ (nextp) nextp->unlinkFrBackWithNext();
             AstBegin* beginp = VN_CAST(nodep, Begin);
-            if (!beginp) beginp = new AstBegin{nodep->fileline(), "", nodep, true};
+            ប្រសិនបើ (!beginp) beginp = new AstBegin{nodep->fileline(), "", nodep, true};
             resp = AstNode::addNext(resp, beginp);
         }
-        return resp;
+        ត្រឡប់ resp;
     }
 };

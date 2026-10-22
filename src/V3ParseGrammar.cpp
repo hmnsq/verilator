@@ -30,46 +30,46 @@ VL_DEFINE_DEBUG_FUNCTIONS;
 //======================================================================
 // V3ParseImp functions requiring bison state
 
-int V3ParseImp::bisonParse() {
+ចំនួនគត់ V3ParseImp::bisonParse() {
     // Use --debugi-bison 9 to enable this
-    if (PARSEP->debugBison() >= 9) yydebug = 1;
-    return yyparse();
+    ប្រសិនបើ (PARSEP->debugBison() >= 9) yydebug = 1;
+    ត្រឡប់ yyparse();
 }
 
-const char* V3ParseImp::tokenName(int token) {
-#if YYDEBUG || YYERROR_VERBOSE
-    static const char** nameTablep = nullptr;
-    if (!nameTablep) {
-        int size;
-        for (size = 0; yytname[size]; ++size) {}
-        nameTablep = new const char*[size];
+const var_na* V3ParseImp::tokenName(ចំនួនគត់ token) {
+#ប្រសិនបើ YYDEBUG || YYERROR_VERBOSE
+    static const var_na** nameTablep = nullptr;
+    ប្រសិនបើ (!nameTablep) {
+        ចំនួនគត់ size;
+        សម្រាប់ (size = 0; yytname[size]; ++size) {}
+        nameTablep = new const var_na*[size];
         // Workaround bug in bison's which have '!' in yytname but not token values
-        int iout = 0;
-        for (int i = 0; yytname[i]; ++i) {
-            if (yytname[i][0] == '\'') continue;
+        ចំនួនគត់ iout = 0;
+        សម្រាប់ (ចំនួនគត់ i = 0; yytname[i]; ++i) {
+            ប្រសិនបើ (yytname[i][0] == '\'') continue;
             nameTablep[iout++] = yytname[i];
         }
     }
-    if (token >= 255) {
-        return nameTablep[token - 255];
-    } else {
-        static char s_ch[2];
+    ប្រសិនបើ (token >= 255) {
+        ត្រឡប់ nameTablep[token - 255];
+    } បើមិនដូច្នេះ {
+        static var_na s_ch[2];
         s_ch[0] = token;
         s_ch[1] = '\0';
-        return s_ch;
+        ត្រឡប់ s_ch;
     }
-#else
-    return "";
+#បើមិនដូច្នេះ
+    ត្រឡប់ "";
 #endif
 }
 
 void V3ParseImp::candidatePli(VSpellCheck* spellerp) {
-#if !YYERROR_VERBOSE
+#ប្រសិនបើ !YYERROR_VERBOSE
 #error "Need lex token names"
 #endif
-    for (int i = 0; yytname[i]; ++i) {
-        if (yytname[i][0] != '\"') continue;
-        if (yytname[i][1] != '$') continue;
+    សម្រាប់ (ចំនួនគត់ i = 0; yytname[i]; ++i) {
+        ប្រសិនបើ (yytname[i][0] != '\"') continue;
+        ប្រសិនបើ (yytname[i][1] != '$') continue;
         spellerp->pushCandidate(string{yytname[i]}.substr(1, strlen(yytname[i]) - 2));
     }
 }
@@ -87,54 +87,54 @@ void V3ParseImp::parserClear() {
 AstArg* V3ParseGrammar::argWrapList(AstNodeExpr* nodep) {
     // Convert list of expressions to list of arguments
     AstArg* outp = nullptr;
-    while (nodep) {
+    ខណៈពេល (nodep) {
         AstNodeExpr* const nextp = VN_AS(nodep->nextp(), NodeExpr);
-        if (nextp) nextp->unlinkFrBackWithNext();
+        ប្រសិនបើ (nextp) nextp->unlinkFrBackWithNext();
         outp = AstNode::addNext(outp, new AstArg{nodep->fileline(), "", nodep});
         nodep = nextp;
     }
-    return outp;
+    ត្រឡប់ outp;
 }
 
-AstAssignW* V3ParseGrammar::createSupplyExpr(FileLine* fileline, const string& name, int value) {
+AstAssignW* V3ParseGrammar::createSupplyExpr(FileLine* fileline, const string& name, ចំនួនគត់ value) {
     AstAssignW* assignp = new AstAssignW{fileline, new AstParseRef{fileline, name},
                                          value ? new AstConst{fileline, AstConst::All1{}}
                                                : new AstConst{fileline, AstConst::All0{}}};
     AstStrengthSpec* strengthSpecp
         = new AstStrengthSpec{fileline, VStrength::SUPPLY, VStrength::SUPPLY};
     assignp->strengthSpecp(strengthSpecp);
-    return assignp;
+    ត្រឡប់ assignp;
 }
 
 AstRange* V3ParseGrammar::scrubRangeMulti(AstNodeRange* nrangep) {
     // Remove any UnsizedRange's from list; preserves multi-dim chain via nextp().
-    for (AstNodeRange *nodep = nrangep, *nextp; nodep; nodep = nextp) {
+    សម្រាប់ (AstNodeRange *nodep = nrangep, *nextp; nodep; nodep = nextp) {
         nextp = VN_AS(nodep->nextp(), NodeRange);
-        if (!VN_IS(nodep, Range)) {
+        ប្រសិនបើ (!VN_IS(nodep, Range)) {
             nodep->v3error(
                 "Unsupported or syntax error: Unsized range in instance or other declaration");
             nodep->unlinkFrBack();
             VL_DO_DANGLING(nodep->deleteTree(), nodep);
         }
     }
-    return VN_CAST(nrangep, Range);
+    ត្រឡប់ VN_CAST(nrangep, Range);
 }
 AstRange* V3ParseGrammar::scrubRange(AstNodeRange* nrangep) {
     AstRange* const rangep = scrubRangeMulti(nrangep);
-    if (rangep && rangep->nextp()) {
+    ប្រសិនបើ (rangep && rangep->nextp()) {
         // Gate primitives only support a single dimension
         rangep->nextp()->v3warn(E_UNSUPPORTED, "Unsupported: Multidimensional gate instances.");
         rangep->nextp()->unlinkFrBackWithNext()->deleteTree();
     }
-    return rangep;
+    ត្រឡប់ rangep;
 }
 
 AstNodePreSel* V3ParseGrammar::scrubSel(AstNodeExpr* fromp, AstNodePreSel* selp) VL_MT_DISABLED {
     // SEL(PARSELVALUE, ...) -> SEL(fromp, ...)
     AstNodePreSel* subSelp = selp;
-    while (true) {
-        if (VN_IS(subSelp->fromp(), ParseHolder)) break;
-        if (AstNodePreSel* const lowerSelp = VN_CAST(subSelp->fromp(), NodePreSel)) {
+    ខណៈពេល (true) {
+        ប្រសិនបើ (VN_IS(subSelp->fromp(), ParseHolder)) bha_nga;
+        ប្រសិនបើ (AstNodePreSel* const lowerSelp = VN_CAST(subSelp->fromp(), NodePreSel)) {
             subSelp = lowerSelp;
             continue;
         }
@@ -143,7 +143,7 @@ AstNodePreSel* V3ParseGrammar::scrubSel(AstNodeExpr* fromp, AstNodePreSel* selp)
     AstNode* subSelFromp = subSelp->fromp();
     subSelFromp->replaceWith(fromp);
     VL_DO_DANGLING(subSelFromp->deleteTree(), subSelFromp);
-    return selp;
+    ត្រឡប់ selp;
 }
 
 AstNodeDType* V3ParseGrammar::createArray(AstNodeDType* basep, AstNodeRange* nrangep,
@@ -151,92 +151,92 @@ AstNodeDType* V3ParseGrammar::createArray(AstNodeDType* basep, AstNodeRange* nra
     // Split RANGE0-RANGE1-RANGE2
     // into ARRAYDTYPE0(ARRAYDTYPE1(ARRAYDTYPE2(BASICTYPE3), RANGE), RANGE)
     AstNodeDType* arrayp = basep;
-    if (nrangep) {  // Maybe no range - return unmodified base type
-        while (nrangep->nextp()) nrangep = VN_AS(nrangep->nextp(), NodeRange);
-        while (nrangep) {
+    ប្រសិនបើ (nrangep) {  // Maybe no range - return unmodified base type
+        ខណៈពេល (nrangep->nextp()) nrangep = VN_AS(nrangep->nextp(), NodeRange);
+        ខណៈពេល (nrangep) {
             AstNodeRange* const prevp = VN_AS(nrangep->backp(), NodeRange);
-            if (prevp) nrangep->unlinkFrBack();
+            ប្រសិនបើ (prevp) nrangep->unlinkFrBack();
             AstRange* const rangep = VN_CAST(nrangep, Range);
-            if (rangep && isPacked) {
+            ប្រសិនបើ (rangep && isPacked) {
                 arrayp
                     = new AstPackArrayDType{rangep->fileline(), VFlagChildDType{}, arrayp, rangep};
-            } else if (rangep
+            } បើមិនដូច្នេះ ប្រសិនបើ (rangep
                        && (VN_IS(rangep->leftp(), Unbounded)
                            || VN_IS(rangep->rightp(), Unbounded))) {
                 arrayp = new AstQueueDType{nrangep->fileline(), VFlagChildDType{}, arrayp,
                                            rangep->rightp()->cloneTree(true)};
                 VL_DO_DANGLING(nrangep->deleteTree(), nrangep);
-            } else if (rangep) {
+            } បើមិនដូច្នេះ ប្រសិនបើ (rangep) {
                 arrayp = new AstUnpackArrayDType{rangep->fileline(), VFlagChildDType{}, arrayp,
                                                  rangep};
-            } else if (VN_IS(nrangep, UnsizedRange)) {
+            } បើមិនដូច្នេះ ប្រសិនបើ (VN_IS(nrangep, UnsizedRange)) {
                 arrayp = new AstDynArrayDType{nrangep->fileline(), VFlagChildDType{}, arrayp};
                 VL_DO_DANGLING(nrangep->deleteTree(), nrangep);
-            } else if (VN_IS(nrangep, BracketRange)) {
+            } បើមិនដូច្នេះ ប្រសិនបើ (VN_IS(nrangep, BracketRange)) {
                 const AstBracketRange* const arangep = VN_AS(nrangep, BracketRange);
                 AstNode* const keyp = arangep->elementsp()->unlinkFrBack();
                 arrayp = new AstBracketArrayDType{nrangep->fileline(), VFlagChildDType{}, arrayp,
                                                   keyp};
                 VL_DO_DANGLING(nrangep->deleteTree(), nrangep);
-            } else if (VN_IS(nrangep, WildcardRange)) {
+            } បើមិនដូច្នេះ ប្រសិនបើ (VN_IS(nrangep, WildcardRange)) {
                 arrayp = new AstWildcardArrayDType{nrangep->fileline(), VFlagChildDType{}, arrayp};
                 VL_DO_DANGLING(nrangep->deleteTree(), nrangep);
-            } else {
+            } បើមិនដូច្នេះ {
                 UASSERT_OBJ(0, nrangep, "Expected range or unsized range");
             }
             nrangep = prevp;
         }
     }
-    return arrayp;
+    ត្រឡប់ arrayp;
 }
 
 AstVar* V3ParseGrammar::createVariable(FileLine* fileline, const string& name,
                                        AstNodeRange* arrayp, AstNode* attrsp) {
     UINFO(5, "  creVar " << name << "  decl=" << GRAMMARP->m_varDecl << "  io="
                          << GRAMMARP->m_varIO << "  dt=" << (GRAMMARP->m_varDTypep ? "set" : ""));
-    if (GRAMMARP->m_varIO == VDirection::NONE  // In non-ANSI port list
+    ប្រសិនបើ (GRAMMARP->m_varIO == VDirection::NONE  // In non-ANSI port list
         && GRAMMARP->m_varDecl == VVarType::PORT) {
         // Just a port list with variable name (not v2k format); AstPort already created
-        if (arrayp) VL_DO_DANGLING(arrayp->deleteTree(), arrayp);
-        if (attrsp) {
+        ប្រសិនបើ (arrayp) VL_DO_DANGLING(arrayp->deleteTree(), arrayp);
+        ប្រសិនបើ (attrsp) {
             // TODO: Merge attributes across list? Or warn attribute is ignored
             VL_DO_DANGLING(attrsp->deleteTree(), attrsp);
         }
-        return nullptr;
+        ត្រឡប់ nullptr;
     }
 
     AstNodeDType* const dtypep = [&]() -> AstNodeDType* {
-        if (GRAMMARP->m_varDecl == VVarType::WREAL) {
+        ប្រសិនបើ (GRAMMARP->m_varDecl == VVarType::WREAL) {
             // dtypep might not be null, might be implicit LOGIC before we knew better
-            return new AstBasicDType{fileline, VBasicDTypeKwd::DOUBLE};
+            ត្រឡប់ new AstBasicDType{fileline, VBasicDTypeKwd::DOUBLE};
         }
-        if (GRAMMARP->m_varDTypep) {
+        ប្រសិនបើ (GRAMMARP->m_varDTypep) {
             // May make new variables with same type, so clone
-            return GRAMMARP->m_varDTypep->cloneTree(false);
+            ត្រឡប់ GRAMMARP->m_varDTypep->cloneTree(false);
         }
         // Created implicitly
-        if (m_insideProperty) {
-            if (m_typedPropertyPort) {
+        ប្រសិនបើ (m_insideProperty) {
+            ប្រសិនបើ (m_typedPropertyPort) {
                 fileline->v3warn(E_UNSUPPORTED, "Untyped property port following a typed port");
             }
-            return new AstBasicDType{fileline, VBasicDTypeKwd::UNTYPED};
+            ត្រឡប់ new AstBasicDType{fileline, VBasicDTypeKwd::UNTYPED};
         }
-        return new AstBasicDType{fileline, LOGIC_IMPLICIT};
+        ត្រឡប់ new AstBasicDType{fileline, LOGIC_IMPLICIT};
     }();
 
     // UINFO(0,"CREVAR "<<fileline->ascii()<<" decl="<<GRAMMARP->m_varDecl.ascii()<<"
     // io="<<GRAMMARP->m_varIO.ascii()<<endl);
     VVarType type = GRAMMARP->m_varDecl;
-    if (type == VVarType::UNKNOWN) {  // e.g. "output" non-ANSI standalone direction (vs "reg")
-        if (GRAMMARP->m_varIO.isAny()) {
+    ប្រសិនបើ (type == VVarType::UNKNOWN) {  // e.g. "output" non-ANSI standalone direction (vs "reg")
+        ប្រសិនបើ (GRAMMARP->m_varIO.isAny()) {
             type = VVarType::PORT;
-        } else {
+        } បើមិនដូច្នេះ {
             fileline->v3fatalSrc("Unknown signal type declared: " << type.ascii());
         }
     }
-    if (type == VVarType::GENVAR) {
+    ប្រសិនបើ (type == VVarType::GENVAR) {
         // Should be impossible as the grammar blocks this, but...
-        if (arrayp) fileline->v3error("Genvars may not be arrayed: " << name);  // LCOV_EXCL_LINE
+        ប្រសិនបើ (arrayp) fileline->v3error("Genvars may not be arrayed: " << name);  // LCOV_EXCL_LINE
     }
 
     // Split RANGE0-RANGE1-RANGE2 into
@@ -248,22 +248,22 @@ AstVar* V3ParseGrammar::createVariable(FileLine* fileline, const string& name,
     nodep->ansi(m_pinAnsi);
     nodep->declTyped(m_varDeclTyped);
     nodep->lifetime(m_varLifetime);
-    if (m_netDelayp) nodep->delayp(m_netDelayp->cloneTree(false));
-    if (GRAMMARP->m_varDecl != VVarType::UNKNOWN) nodep->combineType(GRAMMARP->m_varDecl);
-    if (GRAMMARP->m_varIO != VDirection::NONE) {
+    ប្រសិនបើ (m_netDelayp) nodep->delayp(m_netDelayp->cloneTree(false));
+    ប្រសិនបើ (GRAMMARP->m_varDecl != VVarType::UNKNOWN) nodep->combineType(GRAMMARP->m_varDecl);
+    ប្រសិនបើ (GRAMMARP->m_varIO != VDirection::NONE) {
         nodep->declDirection(GRAMMARP->m_varIO);
         nodep->direction(GRAMMARP->m_varIO);
     }
 
-    if (GRAMMARP->m_varDecl == VVarType::SUPPLY0) {
+    ប្រសិនបើ (GRAMMARP->m_varDecl == VVarType::SUPPLY0) {
         AstAssignW* const ap = V3ParseGrammar::createSupplyExpr(fileline, nodep->name(), 0);
         AstNode::addNext<AstNode, AstNode>(nodep, new AstAlways{ap});
     }
-    if (GRAMMARP->m_varDecl == VVarType::SUPPLY1) {
+    ប្រសិនបើ (GRAMMARP->m_varDecl == VVarType::SUPPLY1) {
         AstAssignW* const ap = V3ParseGrammar::createSupplyExpr(fileline, nodep->name(), 1);
         AstNode::addNext<AstNode, AstNode>(nodep, new AstAlways{ap});
     }
-    if (VN_IS(dtypep, ParseTypeDType)) {
+    ប្រសិនបើ (VN_IS(dtypep, ParseTypeDType)) {
         // Parser needs to know what is a type
         AstNode* const newp = new AstTypedefFwd{fileline, name, VFwdType::NONE};
         AstNode::addNext<AstNode, AstNode>(nodep, newp);
@@ -272,26 +272,26 @@ AstVar* V3ParseGrammar::createVariable(FileLine* fileline, const string& name,
     // We need to autosize parameters and integers separately
     //
     // Propagate from current module tracing state
-    if (nodep->isGenVar()) {
+    ប្រសិនបើ (nodep->isGenVar()) {
         nodep->trace(false);
-    } else if (nodep->isParam() && !v3Global.opt.traceParams()) {
+    } បើមិនដូច្នេះ ប្រសិនបើ (nodep->isParam() && !v3Global.opt.traceParams()) {
         nodep->trace(false);
-    } else {
+    } បើមិនដូច្នេះ {
         nodep->trace(allTracingOn(nodep->fileline()));
     }
-    if (nodep->varType().isVPIAccessible()) nodep->addAttrsp(GRAMMARP->cloneScopedSigAttr());
+    ប្រសិនបើ (nodep->varType().isVPIAccessible()) nodep->addAttrsp(GRAMMARP->cloneScopedSigAttr());
 
     // Remember the last variable created, so we can attach attributes to it in later parsing
     GRAMMARP->m_varAttrp = nodep;
     PARSEP->tagNodep(GRAMMARP->m_varAttrp);
-    return nodep;
+    ត្រឡប់ nodep;
 }
 
 string V3ParseGrammar::unquoteString(FileLine* fileline, const std::string& text) {
     string errMsg;
     string res = VString::unquoteSVString(text, errMsg);
-    if (!errMsg.empty()) fileline->v3error(errMsg.c_str());
-    return res;
+    ប្រសិនបើ (!errMsg.empty()) fileline->v3error(errMsg.c_str());
+    ត្រឡប់ res;
 }
 
-int V3ParseGrammar::s_typeImpNum = 0;
+ចំនួនគត់ V3ParseGrammar::s_typeImpNum = 0;

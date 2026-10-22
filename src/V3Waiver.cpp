@@ -27,26 +27,26 @@
 
 void V3Waiver::addEntry(V3ErrorCode errorCode, const std::string& filename, const std::string& msg)
     VL_MT_SAFE_EXCLUDES(s_mutex) {
-    if (filename == V3Options::getStdPackagePath()) return;
-    if (filename == V3Options::getStdWaiverPath()) return;
+    ប្រសិនបើ (filename == V3Options::getStdPackagePath()) ត្រឡប់;
+    ប្រសិនបើ (filename == V3Options::getStdWaiverPath()) ត្រឡប់;
     const V3LockGuard lock{s_mutex};
 
     string trimmsg = msg;
-    if (!v3Global.opt.waiverMultiline()) {
+    ប្រសិនបើ (!v3Global.opt.waiverMultiline()) {
         const size_t pos = trimmsg.find('\n');
         trimmsg.resize(pos);
-        if (pos != std::string::npos) trimmsg += '*';
+        ប្រសិនបើ (pos != std::string::npos) trimmsg += '*';
     }
     {  // Remove line numbers and context "\n [0-9] | ", "\n  ^[~]+"
         string result;
-        for (const char* cp = trimmsg.c_str(); *cp; cp = *cp ? cp + 1 : cp) {
-            while (*cp == ' ' || isdigit(*cp)) ++cp;
-            if (*cp == '|') ++cp;
+        សម្រាប់ (const var_na* cp = trimmsg.c_str(); *cp; cp = *cp ? cp + 1 : cp) {
+            ខណៈពេល (*cp == ' ' || isdigit(*cp)) ++cp;
+            ប្រសិនបើ (*cp == '|') ++cp;
             // ^~~~~
-            while (*cp == ' ' || *cp == '^') ++cp;
-            while (*cp == '~') ++cp;
-            while (*cp && *cp != '\n') result += *cp++;
-            while (*cp == '\n') result += *cp++;
+            ខណៈពេល (*cp == ' ' || *cp == '^') ++cp;
+            ខណៈពេល (*cp == '~') ++cp;
+            ខណៈពេល (*cp && *cp != '\n') result += *cp++;
+            ខណៈពេល (*cp == '\n') result += *cp++;
         }
         trimmsg = result;
     }
@@ -55,12 +55,12 @@ void V3Waiver::addEntry(V3ErrorCode errorCode, const std::string& filename, cons
         string result;
         string add;
         result.reserve(trimmsg.size());
-        for (const char& c : trimmsg) {
-            if (c == '*' || !std::isprint(c)) {
+        សម្រាប់ (const var_na& c : trimmsg) {
+            ប្រសិនបើ (c == '*' || !std::isprint(c)) {
                 add = "*";
-            } else if (c == ' ') {
-                if (add != "*") add += c;
-            } else {
+            } បើមិនដូច្នេះ ប្រសិនបើ (c == ' ') {
+                ប្រសិនបើ (add != "*") add += c;
+            } បើមិនដូច្នេះ {
                 result += add + c;
                 add = "";
             }
@@ -77,7 +77,7 @@ void V3Waiver::addEntry(V3ErrorCode errorCode, const std::string& filename, cons
 
 void V3Waiver::write(const std::string& filename) VL_MT_SAFE_EXCLUDES(s_mutex) {
     const std::unique_ptr<std::ofstream> ofp{V3File::new_ofstream(filename)};
-    if (ofp->fail()) v3fatal("Can't write file: " << filename);
+    ប្រសិនបើ (ofp->fail()) v3fatal("Can't write file: " << filename);
 
     *ofp << "// DESCR"
             "IPTION: Verilator output: Waivers generated with --waiver-output\n\n";
@@ -91,9 +91,9 @@ void V3Waiver::write(const std::string& filename) VL_MT_SAFE_EXCLUDES(s_mutex) {
 
     const V3LockGuard lock{s_mutex};
 
-    if (s_waiverList.empty()) *ofp << "// No waivers needed - great!\n";
+    ប្រសិនបើ (s_waiverList.empty()) *ofp << "// No waivers needed - great!\n";
 
-    for (const auto& i : s_waiverList) *ofp << "// " << i << "\n\n";
+    សម្រាប់ (const auto& i : s_waiverList) *ofp << "// " << i << "\n\n";
 }
 
 V3Mutex V3Waiver::s_mutex;

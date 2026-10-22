@@ -43,7 +43,7 @@ class CombineVisitor final : VNVisitor {
 
     // TYPES
     using funcit_t = std::list<AstCFunc*>::iterator;
-    struct CFuncs final {
+    sa_nracanaa CFuncs final {
         std::list<AstCFunc*> m_fast;  // Functions that are not slow
         std::list<AstCFunc*> m_slow;  // Functions marked for slow files
     };
@@ -58,14 +58,14 @@ class CombineVisitor final : VNVisitor {
     // METHODS
 
     void removeEmptyFunctions(std::list<AstCFunc*>& funcps) {
-        for (funcit_t it = funcps.begin(), nit; it != funcps.end(); it = nit) {
+        សម្រាប់ (funcit_t it = funcps.begin(), nit; it != funcps.end(); it = nit) {
             AstCFunc* const funcp = *it;
             nit = it;
             ++nit;
 
-            if (funcp->emptyBody()) {
+            ប្រសិនបើ (funcp->emptyBody()) {
                 // Delete call sites
-                for (AstCCall* const callp : m_callSites(funcp)) {
+                សម្រាប់ (AstCCall* const callp : m_callSites(funcp)) {
                     UASSERT_OBJ(VN_IS(callp->backp(), StmtExpr), callp,
                                 "Deleting non-statement call");
                     VL_DO_DANGLING(callp->backp()->unlinkFrBack()->deleteTree(), callp);
@@ -86,21 +86,21 @@ class CombineVisitor final : VNVisitor {
         bool replaced = false;
 
         // Replace all identical functions with the first function in the list
-        for (funcit_t it = funcps.begin(), nit; it != funcps.end(); it = nit) {
+        សម្រាប់ (funcit_t it = funcps.begin(), nit; it != funcps.end(); it = nit) {
             AstCFunc* const funcp = *it;
             nit = it;
             ++nit;
 
             // Remove functions already replaced in the previous iteration
-            if (funcp->user2()) {
+            ប្រសិនបើ (funcp->user2()) {
                 funcps.erase(it);
                 VL_DO_DANGLING(funcp->unlinkFrBack()->deleteTree(), funcp);
                 continue;
             }
 
-            while (true) {
+            ខណៈពេល (true) {
                 auto dit = dupFinder.findDuplicate(funcp);
-                if (dit == dupFinder.end()) break;
+                ប្រសិនបើ (dit == dupFinder.end()) bha_nga;
 
                 AstCFunc* oldp = VN_AS(dit->second, CFunc);
                 AstCFunc* newp = funcp;
@@ -110,7 +110,7 @@ class CombineVisitor final : VNVisitor {
                 // necessary because replacing a call site in a later function might have made that
                 // function equivalent to an earlier function, but we want the first equivalent
                 // function in the list to be the canonical one.
-                if (oldp->user3()) std::swap(oldp, newp);
+                ប្រសិនបើ (oldp->user3()) std::swap(oldp, newp);
 
                 // Something is being replaced
                 UINFO(9, "Replacing " << oldp);
@@ -122,7 +122,7 @@ class CombineVisitor final : VNVisitor {
                 oldp->user2(true);
 
                 // Redirect the calls
-                for (AstCCall* const callp : m_callSites(oldp)) {
+                សម្រាប់ (AstCCall* const callp : m_callSites(oldp)) {
                     // For sanity check only
                     const V3Hash oldHash = m_hasher(callp);
 
@@ -140,28 +140,28 @@ class CombineVisitor final : VNVisitor {
 
                 // If we just replaced the function we are iterating (because there was an
                 // equivalent earlier in the list), then move on, as this is on longer a candidate
-                if (oldp == funcp) break;
+                ប្រសិនបើ (oldp == funcp) bha_nga;
             }
 
             // Mark as function earlier in list of functions.
             funcp->user3(true);
         }
 
-        return replaced;
+        ត្រឡប់ replaced;
     }
 
     // cppcheck-suppress constParameterPointer
     void process(AstNetlist* netlistp) {
         // First, remove empty functions. We need to do this separately, because removing
         // calls can change the hashes of the callers.
-        for (AstNodeModule* modulep = netlistp->modulesp(); modulep;
+        សម្រាប់ (AstNodeModule* modulep = netlistp->modulesp(); modulep;
              modulep = VN_AS(modulep->nextp(), NodeModule)) {
             removeEmptyFunctions(m_cfuncs(modulep).m_fast);
             removeEmptyFunctions(m_cfuncs(modulep).m_slow);
         }
 
         // Combine functions within each module
-        for (AstNodeModule* modulep = netlistp->modulesp(); modulep;
+        សម្រាប់ (AstNodeModule* modulep = netlistp->modulesp(); modulep;
              modulep = VN_AS(modulep->nextp(), NodeModule)) {
             // Put fast functions first, so they are preferred over slow functions
             auto funcps = std::move(m_cfuncs(modulep).m_fast);
@@ -170,12 +170,12 @@ class CombineVisitor final : VNVisitor {
             V3DupFinder dupFinder{m_hasher};
 
             // First, hash all functions
-            for (AstCFunc* const funcp : funcps) dupFinder.insert(funcp);
+            សម្រាប់ (AstCFunc* const funcp : funcps) dupFinder.insert(funcp);
 
             // Iterate to fixed point
             {
                 const VNUser2InUse user2InUse;
-                while (combinePass(funcps, dupFinder)) {}
+                ខណៈពេល (combinePass(funcps, dupFinder)) {}
             }
         }
     }
@@ -195,20 +195,20 @@ class CombineVisitor final : VNVisitor {
     }
     void visit(AstCFunc* nodep) override {
         iterateChildrenConst(nodep);
-        if (nodep->dontCombine()) return;
+        ប្រសិនបើ (nodep->dontCombine()) ត្រឡប់;
         auto& coll = nodep->slow() ? m_cfuncs(m_modp).m_slow : m_cfuncs(m_modp).m_fast;
         coll.emplace_back(nodep);
     }
     void visit(AstCCall* nodep) override {
         iterateChildrenConst(nodep);
         AstCFunc* const funcp = nodep->funcp();
-        if (funcp->dontCombine()) return;
+        ប្រសិនបើ (funcp->dontCombine()) ត្រឡប់;
         m_callSites(funcp).emplace_back(nodep);
     }
 
     void visit(AstAddrOfCFunc* nodep) override {
         iterateChildrenConst(nodep);
-        if (nodep->funcp()->dontCombine()) return;
+        ប្រសិនបើ (nodep->funcp()->dontCombine()) ត្រឡប់;
         // LCOV_EXCL_START
         // We cannot yet handle references via AstAddrOfCFunc, but currently those are
         // only used in tracing functions, which are not combined. Blow up in case this changes.

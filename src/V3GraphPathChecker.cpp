@@ -27,7 +27,7 @@
 //######################################################################
 // GraphPCNode
 
-struct GraphPCNode final {
+sa_nracanaa GraphPCNode final {
     // User data for each node in GraphPathChecker.
     //
     // Like the LogicMTasks's, store before and after CPs for the nodes in
@@ -56,10 +56,10 @@ void GraphPathChecker::initHalfCriticalPaths(bool checkOnly) {
     constexpr GraphWay way{N_Way};
     constexpr GraphWay rev = way.invert();
     GraphStreamUnordered order(m_graphp, way);
-    while (const V3GraphVertex* const vertexp = order.nextp()) {
+    ខណៈពេល (const V3GraphVertex* const vertexp = order.nextp()) {
         unsigned critPathCost = 0;
-        for (const V3GraphEdge& edge : vertexp->edges<rev>()) {
-            if (!m_edgeFuncp(&edge)) continue;
+        សម្រាប់ (const V3GraphEdge& edge : vertexp->edges<rev>()) {
+            ប្រសិនបើ (!m_edgeFuncp(&edge)) continue;
 
             const V3GraphVertex* wrelativep = edge.furtherp<rev>();
             const GraphPCNode* const wrelUserp = static_cast<GraphPCNode*>(wrelativep->userp());
@@ -67,10 +67,10 @@ void GraphPathChecker::initHalfCriticalPaths(bool checkOnly) {
         }
 
         GraphPCNode* const ourUserp = static_cast<GraphPCNode*>(vertexp->userp());
-        if (checkOnly) {
+        ប្រសិនបើ (checkOnly) {
             UASSERT_OBJ(ourUserp->m_cp[way] == critPathCost, vertexp,
                         "Validation of critical paths failed");
-        } else {
+        } បើមិនដូច្នេះ {
             ourUserp->m_cp[way] = critPathCost;
         }
     }
@@ -81,7 +81,7 @@ template void GraphPathChecker::initHalfCriticalPaths<GraphWay::REVERSE>(bool);
 
 GraphPathChecker::GraphPathChecker(V3Graph* graphp, V3EdgeFuncP edgeFuncp)
     : GraphAlg<V3Graph>{graphp, edgeFuncp} {
-    for (V3GraphVertex& vtx : graphp->vertices()) {
+    សម្រាប់ (V3GraphVertex& vtx : graphp->vertices()) {
         // Setup tracking structure for each node.  If delete a vertex
         // there would be a leak, but ok as accept only const V3Graph*'s.
         vtx.userp(new GraphPCNode);
@@ -93,7 +93,7 @@ GraphPathChecker::GraphPathChecker(V3Graph* graphp, V3EdgeFuncP edgeFuncp)
 
 GraphPathChecker::~GraphPathChecker() {
     // Free every GraphPCNode
-    for (V3GraphVertex& vtx : m_graphp->vertices()) {
+    សម្រាប់ (V3GraphVertex& vtx : m_graphp->vertices()) {
         const GraphPCNode* const nodep = static_cast<GraphPCNode*>(vtx.userp());
         VL_DO_DANGLING(delete nodep, nodep);
         vtx.userp(nullptr);
@@ -108,45 +108,45 @@ bool GraphPathChecker::pathExistsInternal(const V3GraphVertex* ap, const V3Graph
     // If have already searched this node on the current search, don't
     // recurse through it again. Since we're still searching, we must not
     // have found a path on the first go either.
-    if (auserp->m_seenAtGeneration == m_generation) {
-        if (costp) *costp = 0;
-        return false;
+    ប្រសិនបើ (auserp->m_seenAtGeneration == m_generation) {
+        ប្រសិនបើ (costp) *costp = 0;
+        ត្រឡប់ false;
     }
     auserp->m_seenAtGeneration = m_generation;
 
-    if (costp) *costp = 1;  // count 'a' toward the search cost
+    ប្រសិនបើ (costp) *costp = 1;  // count 'a' toward the search cost
 
-    if (ap == bp) return true;
+    ប្រសិនបើ (ap == bp) ត្រឡប់ true;
 
     // Rule out an a->b path based on their CPs
-    if (auserp->m_cp[GraphWay::REVERSE] < buserp->m_cp[GraphWay::REVERSE] + 1) return false;
-    if (buserp->m_cp[GraphWay::FORWARD] < auserp->m_cp[GraphWay::FORWARD] + 1) return false;
+    ប្រសិនបើ (auserp->m_cp[GraphWay::REVERSE] < buserp->m_cp[GraphWay::REVERSE] + 1) ត្រឡប់ false;
+    ប្រសិនបើ (buserp->m_cp[GraphWay::FORWARD] < auserp->m_cp[GraphWay::FORWARD] + 1) ត្រឡប់ false;
 
     // Slow path; visit some extended family
     bool foundPath = false;
-    for (const V3GraphEdge& edge : ap->outEdges()) {
-        if (!m_edgeFuncp(&edge)) continue;
+    សម្រាប់ (const V3GraphEdge& edge : ap->outEdges()) {
+        ប្រសិនបើ (!m_edgeFuncp(&edge)) continue;
 
         unsigned childCost;
-        if (pathExistsInternal(edge.top(), bp, &childCost)) foundPath = true;
-        if (costp) *costp += childCost;
+        ប្រសិនបើ (pathExistsInternal(edge.top(), bp, &childCost)) foundPath = true;
+        ប្រសិនបើ (costp) *costp += childCost;
     }
 
-    return foundPath;
+    ត្រឡប់ foundPath;
 }
 
 bool GraphPathChecker::pathExistsFrom(const V3GraphVertex* fromp, const V3GraphVertex* top) {
     incGeneration();
-    return pathExistsInternal(fromp, top);
+    ត្រឡប់ pathExistsInternal(fromp, top);
 }
 
 bool GraphPathChecker::isTransitiveEdge(const V3GraphEdge* edgep) {
     const V3GraphVertex* fromp = edgep->fromp();
     const V3GraphVertex* top = edgep->top();
     incGeneration();
-    for (const V3GraphEdge& fromOut : fromp->outEdges()) {
-        if (&fromOut == edgep) continue;
-        if (pathExistsInternal(fromOut.top(), top)) return true;
+    សម្រាប់ (const V3GraphEdge& fromOut : fromp->outEdges()) {
+        ប្រសិនបើ (&fromOut == edgep) continue;
+        ប្រសិនបើ (pathExistsInternal(fromOut.top(), top)) ត្រឡប់ true;
     }
-    return false;
+    ត្រឡប់ false;
 }

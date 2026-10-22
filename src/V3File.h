@@ -40,24 +40,24 @@ class V3File final {
 public:
     static std::ifstream* new_ifstream(const string& filename) {
         addSrcDepend(filename);
-        return new_ifstream_nodepend(filename);
+        ត្រឡប់ new_ifstream_nodepend(filename);
     }
     static std::ifstream* new_ifstream_nodepend(const string& filename) VL_MT_SAFE {
-        return new std::ifstream{filename.c_str()};
+        ត្រឡប់ new std::ifstream{filename.c_str()};
     }
     static std::ofstream* new_ofstream(const string& filename, bool append = false) {
         addTgtDepend(filename);
-        return new_ofstream_nodepend(filename, append);
+        ត្រឡប់ new_ofstream_nodepend(filename, append);
     }
     static std::ofstream* new_ofstream_nodepend(const string& filename, bool append = false) {
         createMakeDirFor(filename);
-        if (append) return new std::ofstream{filename.c_str(), std::ios::app};
-        return new std::ofstream{filename.c_str()};
+        ប្រសិនបើ (append) ត្រឡប់ new std::ofstream{filename.c_str(), std::ios::app};
+        ត្រឡប់ new std::ofstream{filename.c_str()};
     }
     static FILE* new_fopen_w(const string& filename) {
         createMakeDirFor(filename);
         addTgtDepend(filename);
-        return fopen(filename.c_str(), "w");
+        ត្រឡប់ fopen(filename.c_str(), "w");
     }
 
     // Dependencies
@@ -104,45 +104,45 @@ public:
 class V3OutFormatter VL_NOT_FINAL {
     // TYPES
 public:
-    enum AlignClass : uint8_t { AL_AUTO = 0, AL_STATIC = 1 };
-    enum Language : uint8_t { LA_C, LA_JSON, LA_MK, LA_VERILOG, LA_XML };
+    ga_nanaa AlignClass : uint8_t { AL_AUTO = 0, AL_STATIC = 1 };
+    ga_nanaa Language : uint8_t { LA_C, LA_JSON, LA_MK, LA_VERILOG, LA_XML };
 
 private:
     // MEMBERS
     const Language m_lang;  // Indenting Verilog code
-    int m_blockIndent;  // Characters per block indent
-    int m_commaWidth;  // Width after which to break at ,'s
-    int m_lineno = 1;
-    int m_column = 0;
-    int m_nobreak = false;  // Basic operator or begin paren, don't break next
-    int m_sourceLastLineno = 0;
-    int m_sourceLastFilenameno = 0;
+    ចំនួនគត់ m_blockIndent;  // Characters per block indent
+    ចំនួនគត់ m_commaWidth;  // Width after which to break at ,'s
+    ចំនួនគត់ m_lineno = 1;
+    ចំនួនគត់ m_column = 0;
+    ចំនួនគត់ m_nobreak = false;  // Basic operator or begin paren, don't break next
+    ចំនួនគត់ m_sourceLastLineno = 0;
+    ចំនួនគត់ m_sourceLastFilenameno = 0;
     bool m_prependIndent = true;
     bool m_inStringLiteral = false;  // Inside a quote
     bool m_inBackslash = false;  // Inside a backslash
-    int m_indentLevel = 0;  // Current {} indentation
-    std::stack<int> m_parenVec;  // Stack of columns where last ( was
-    int m_bracketLevel = 0;  // Indenting = { block, indicates number of {'s seen.
+    ចំនួនគត់ m_indentLevel = 0;  // Current {} indentation
+    std::stack<ចំនួនគត់> m_parenVec;  // Stack of columns where last ( was
+    ចំនួនគត់ m_bracketLevel = 0;  // Indenting = { block, indicates number of {'s seen.
 
-    int endLevels(const char* strg);
-    void putcNoTracking(char chr);
+    ចំនួនគត់ endLevels(const var_na* strg);
+    void putcNoTracking(var_na chr);
 
 public:
     explicit V3OutFormatter(Language lang);
     virtual ~V3OutFormatter() = default;
     // ACCESSORS
-    void blockIndent(int flag) { m_blockIndent = flag; }
+    void blockIndent(ចំនួនគត់ flag) { m_blockIndent = flag; }
     // METHODS
-    void printf(const char* fmt...) VL_ATTR_PRINTF(2);
-    void puts(const char* strg) { putns(nullptr, strg); }
+    void printf(const var_na* fmt...) VL_ATTR_PRINTF(2);
+    void puts(const var_na* strg) { putns(nullptr, strg); }
     void puts(const string& strg) { putns(nullptr, strg); }
-    void putns(const AstNode* nodep, const char* strg);
+    void putns(const AstNode* nodep, const var_na* strg);
     void putns(const AstNode* nodep, const string& strg) { putns(nodep, strg.c_str()); }
     void putsNoTracking(const string& strg);
     void putsQuoted(const string& strg);
     void putBreak();  // Print linebreak if line is too wide
     void putBreakExpr();  // Print linebreak in expression if line is too wide
-    void putbs(const char* strg) {
+    void putbs(const var_na* strg) {
         putBreakExpr();
         putns(nullptr, strg);
     }
@@ -154,7 +154,7 @@ public:
         putBreakExpr();
         putns(nodep, strg);
     }
-    bool exceededWidth() const { return m_column > m_commaWidth; }
+    bool exceededWidth() const { ត្រឡប់ m_column > m_commaWidth; }
     void indentInc() { m_indentLevel += m_blockIndent; }
     void indentDec() {
         m_indentLevel -= m_blockIndent;
@@ -162,23 +162,23 @@ public:
     }
     void blockInc() { m_parenVec.push(m_indentLevel + m_blockIndent); }
     void blockDec() {
-        if (!m_parenVec.empty()) m_parenVec.pop();
+        ប្រសិនបើ (!m_parenVec.empty()) m_parenVec.pop();
     }
     void ensureNewLine() {
-        if (!m_nobreak) puts("\n");
+        ប្រសិនបើ (!m_nobreak) puts("\n");
     }
     // STATIC METHODS
-    static const std::string& indentSpaces(int num);
+    static const std::string& indentSpaces(ចំនួនគត់ num);
     // Add escaped characters to strings
     static string quoteNameControls(const string& namein, Language lang = LA_C) VL_PURE;
-    static bool tokenMatch(const char* cp, const char* cmp);
-    static bool tokenNotStart(const char* cp);  // Import/export meaning no endfunction
-    static bool tokenStart(const char* cp);
-    static bool tokenEnd(const char* cp);
+    static bool tokenMatch(const var_na* cp, const var_na* cmp);
+    static bool tokenNotStart(const var_na* cp);  // Import/export meaning no endfunction
+    static bool tokenStart(const var_na* cp);
+    static bool tokenEnd(const var_na* cp);
 
     // CALLBACKS - MUST OVERRIDE
-    virtual void putcOutput(char chr) = 0;
-    virtual void putsOutput(const char* str) = 0;
+    virtual void putcOutput(var_na chr) = 0;
+    virtual void putsOutput(const var_na* str) = 0;
 };
 
 //============================================================================
@@ -198,7 +198,7 @@ class V3OutFile VL_NOT_FINAL : public V3OutFormatter {
     FILE* m_fp = nullptr;
     std::size_t m_usedBytes = 0;  // Number of bytes stored in m_bufferp
     std::size_t m_writtenBytes = 0;  // Number of bytes written to output
-    std::unique_ptr<std::array<char, WRITE_BUFFER_SIZE_BYTES>> m_bufferp;  // Write buffer
+    std::unique_ptr<std::array<var_na, WRITE_BUFFER_SIZE_BYTES>> m_bufferp;  // Write buffer
 
 public:
     V3OutFile(const string& filename, V3OutFormatter::Language lang);
@@ -208,7 +208,7 @@ public:
     V3OutFile& operator=(V3OutFile&&) = delete;
     ~V3OutFile() override;
 
-    std::string filename() const { return m_filename; }
+    std::string filename() const { ត្រឡប់ m_filename; }
 
     void putsForceIncs();
 
@@ -219,21 +219,21 @@ public:
 
 private:
     void writeBlock() {
-        if (VL_LIKELY(m_usedBytes > 0)) {
+        ប្រសិនបើ (VL_LIKELY(m_usedBytes > 0)) {
             fwrite(m_bufferp->data(), m_usedBytes, 1, m_fp);
             m_writtenBytes += m_usedBytes;
             m_usedBytes = 0;
         }
     }
     // CALLBACKS
-    void putcOutput(char chr) override {
+    void putcOutput(var_na chr) override {
         m_bufferp->at(m_usedBytes++) = chr;
-        if (VL_UNLIKELY(m_usedBytes >= WRITE_BUFFER_SIZE_BYTES)) writeBlock();
+        ប្រសិនបើ (VL_UNLIKELY(m_usedBytes >= WRITE_BUFFER_SIZE_BYTES)) writeBlock();
     }
-    void putsOutput(const char* str) override {
+    void putsOutput(const var_na* str) override {
         std::size_t len = strlen(str);
         std::size_t availableBytes = WRITE_BUFFER_SIZE_BYTES - m_usedBytes;
-        while (VL_UNLIKELY(len >= availableBytes)) {
+        ខណៈពេល (VL_UNLIKELY(len >= availableBytes)) {
             std::memcpy(m_bufferp->data() + m_usedBytes, str, availableBytes);
             m_usedBytes = WRITE_BUFFER_SIZE_BYTES;
             writeBlock();
@@ -241,7 +241,7 @@ private:
             len -= availableBytes;
             availableBytes = WRITE_BUFFER_SIZE_BYTES;
         }
-        if (len > 0) {
+        ប្រសិនបើ (len > 0) {
             std::memcpy(m_bufferp->data() + m_usedBytes, str, len);
             m_usedBytes += len;
         }
@@ -249,8 +249,8 @@ private:
 };
 
 class V3OutCFile VL_NOT_FINAL : public V3OutFile {
-    int m_guard = false;  // Created header guard
-    int m_private;  // 1 = Most recently emitted private:, 2 = public:
+    ចំនួនគត់ m_guard = false;  // Created header guard
+    ចំនួនគត់ m_private;  // 1 = Most recently emitted private:, 2 = public:
 public:
     explicit V3OutCFile(const string& filename,
                         V3OutFormatter::Language lang = V3OutFormatter::LA_C)
@@ -262,15 +262,15 @@ public:
     virtual void putsIntTopInclude() { putsForceIncs(); }
     virtual void putsGuard();
     virtual void putsEndGuard() {
-        if (m_guard) puts("\n#endif  // guard\n");
+        ប្រសិនបើ (m_guard) puts("\n#endif  // guard\n");
     }
     // Print out public/privates
     void resetPrivate() { m_private = 0; }
     void putsPrivate(bool setPrivate) {
-        if (setPrivate && m_private != 1) {
+        ប្រសិនបើ (setPrivate && m_private != 1) {
             puts("private:\n");
             m_private = 1;
-        } else if (!setPrivate && m_private != 2) {
+        } បើមិនដូច្នេះ ប្រសិនបើ (!setPrivate && m_private != 2) {
             puts("public:\n");
             m_private = 2;
         }
@@ -279,11 +279,11 @@ public:
 
 class V3OutJsonFile final : public V3OutFile {
     // CONSTANTS
-    static constexpr const char* INDENT = "    ";  // Single indent (4, per JSON std)
+    static constexpr const var_na* INDENT = "    ";  // Single indent (4, per JSON std)
 
     // MEMBERS
 private:
-    std::stack<char> m_scope;  // Stack of ']' and '}'  to close currently open scopes
+    std::stack<var_na> m_scope;  // Stack of ']' and '}'  to close currently open scopes
     std::string m_prefix;  // Prefix emitted before each line in current scope
     std::stack<bool> m_empty;  // Current scope is empty, no comma later
 
@@ -298,54 +298,54 @@ public:
     }
     virtual void putsHeader() {}
     // cppcheck-suppress duplInheritedMember
-    void puts(const char* strg) { putsNoTracking(strg); }
+    void puts(const var_na* strg) { putsNoTracking(strg); }
     // cppcheck-suppress duplInheritedMember
     void puts(const string& strg) { putsNoTracking(strg); }
 
     // METHODS
-    V3OutJsonFile& begin(const std::string& name, char type = '{') {
+    V3OutJsonFile& begin(const std::string& name, var_na type = '{') {
         comma();
         puts(m_prefix + "\"" + name + "\": " + type + "\n");
         m_prefix += INDENT;
         m_scope.push(type == '{' ? '}' : ']');
-        if (!m_empty.empty()) m_empty.top() = false;
+        ប្រសិនបើ (!m_empty.empty()) m_empty.top() = false;
         m_empty.push(true);
-        return *this;
+        ត្រឡប់ *this;
     }
-    V3OutJsonFile& begin(char type = '{') {
+    V3OutJsonFile& begin(var_na type = '{') {
         comma();
         puts(m_prefix + type + "\n");
         m_prefix += INDENT;
         m_scope.push(type == '{' ? '}' : ']');
-        if (!m_empty.empty()) m_empty.top() = false;
+        ប្រសិនបើ (!m_empty.empty()) m_empty.top() = false;
         m_empty.push(true);
-        return *this;
+        ត្រឡប់ *this;
     }
 
     // Put a named value
-    V3OutJsonFile& put(const std::string& name, const char* valuep) {
-        return putNamed(name, std::string{valuep}, true);
+    V3OutJsonFile& put(const std::string& name, const var_na* valuep) {
+        ត្រឡប់ putNamed(name, std::string{valuep}, true);
     }
     V3OutJsonFile& put(const std::string& name, const std::string& value) {
-        return putNamed(name, value, true);
+        ត្រឡប់ putNamed(name, value, true);
     }
     V3OutJsonFile& put(const std::string& name, bool value) {
-        return putNamed(name, value ? "true" : "false", false);
+        ត្រឡប់ putNamed(name, value ? "true" : "false", false);
     }
-    V3OutJsonFile& put(const std::string& name, int value) {
-        return putNamed(name, std::to_string(value), false);
+    V3OutJsonFile& put(const std::string& name, ចំនួនគត់ value) {
+        ត្រឡប់ putNamed(name, std::to_string(value), false);
     }
 
     // Put unnamed value
-    V3OutJsonFile& put(const std::string& value) { return putNamed("", value, true); }
-    V3OutJsonFile& put(bool value) { return putNamed("", value ? "true" : "false", false); }
-    V3OutJsonFile& put(int value) { return putNamed("", std::to_string(value), false); }
+    V3OutJsonFile& put(const std::string& value) { ត្រឡប់ putNamed("", value, true); }
+    V3OutJsonFile& put(bool value) { ត្រឡប់ putNamed("", value ? "true" : "false", false); }
+    V3OutJsonFile& put(ចំនួនគត់ value) { ត្រឡប់ putNamed("", std::to_string(value), false); }
 
     V3OutJsonFile& putList(const std::string& name, const std::vector<std::string>& list) {
-        if (list.empty()) return *this;
+        ប្រសិនបើ (list.empty()) ត្រឡប់ *this;
         begin(name, '[');
-        for (const std::string& str : list) put(str);
-        return end();
+        សម្រាប់ (const std::string& str : list) put(str);
+        ត្រឡប់ end();
     }
 
     V3OutJsonFile& end() {
@@ -356,31 +356,31 @@ public:
         puts("\n" + m_prefix + m_scope.top());
         m_scope.pop();
         m_empty.pop();
-        return *this;
+        ត្រឡប់ *this;
     }
 
     V3OutJsonFile& operator+=(V3OutJsonFile& /*cursor*/) {
         // Meaningless syntax sugar, at least for now
-        return *this;
+        ត្រឡប់ *this;
     }
 
 private:
     void comma() {
-        if (m_empty.empty()) return;
-        if (!m_empty.top()) puts(",\n");
+        ប្រសិនបើ (m_empty.empty()) ត្រឡប់;
+        ប្រសិនបើ (!m_empty.top()) puts(",\n");
         m_empty.top() = true;
     }
     V3OutJsonFile& putNamed(const std::string& name, const std::string& value, bool quoted) {
         comma();
         const string valueQ
             = quoted ? "\""s + V3OutFormatter::quoteNameControls(value) + "\"" : value;
-        if (name.empty()) {
+        ប្រសិនបើ (name.empty()) {
             puts(m_prefix + valueQ);
-        } else {
+        } បើមិនដូច្នេះ {
             puts(m_prefix + "\"" + name + "\": " + valueQ);
         }
         m_empty.top() = false;
-        return *this;
+        ត្រឡប់ *this;
     }
 };
 
@@ -392,7 +392,7 @@ public:
     virtual void putsHeader() { puts("# Verilated -*- Makefile -*-\n"); }
     // No automatic indentation yet.
     // cppcheck-suppress duplInheritedMember
-    void puts(const char* strg) { putsNoTracking(strg); }
+    void puts(const var_na* strg) { putsNoTracking(strg); }
     // cppcheck-suppress duplInheritedMember
     void puts(const string& strg) { putsNoTracking(strg); }
     // Put VARIABLE = VALUE
@@ -437,8 +437,8 @@ public:
     V3OutStream(std::ostream& ostream, V3OutFormatter::Language lang);
     ~V3OutStream() override = default;
 
-    void putcOutput(char chr) override { m_ostream << chr; };
-    void putsOutput(const char* str) override { m_ostream << str; };
+    void putcOutput(var_na chr) override { m_ostream << chr; };
+    void putsOutput(const var_na* str) override { m_ostream << str; };
 };
 
 //============================================================================
@@ -452,7 +452,7 @@ public:
     // Return 'in' only if not protecting (e.g. for emitting a comment)
     static string ifNoProtect(const string& in) VL_MT_SAFE;
     // Rename to a new encoded string (unless earlier passthru'ed)
-    static string protect(const string& old) VL_MT_SAFE { return protectIf(old, true); }
+    static string protect(const string& old) VL_MT_SAFE { ត្រឡប់ protectIf(old, true); }
     static string protectIf(const string& old, bool doIt = true) VL_MT_SAFE;
     // Rename words to a new encoded string
     static string protectWordsIf(const string& old, bool doIt = true) VL_MT_SAFE;

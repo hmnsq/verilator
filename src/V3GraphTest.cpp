@@ -29,7 +29,7 @@ VL_DEFINE_DEBUG_FUNCTIONS;
 // Test class
 
 class V3GraphTest VL_NOT_FINAL {
-protected:
+rak_sita:
     // MEMBERS
     V3Graph m_graph;
 
@@ -39,7 +39,7 @@ protected:
 
     // Utilities
     void dumpSelf() {
-        if (dumpGraphLevel() >= 9) m_graph.dumpDotFilePrefixed("v3graphtest_" + name());
+        ប្រសិនបើ (dumpGraphLevel() >= 9) m_graph.dumpDotFilePrefixed("v3graphtest_" + name());
     }
 
 public:
@@ -63,7 +63,7 @@ public:
         , m_name{name} {}
     ~V3GraphTestVertex() override = default;
     // ACCESSORS
-    string name() const override VL_MT_STABLE { return m_name; }
+    string name() const override VL_MT_STABLE { ត្រឡប់ m_name; }
 };
 
 class V3GraphTestVarVertex final : public V3GraphTestVertex {
@@ -72,7 +72,7 @@ public:
         : V3GraphTestVertex{graphp, name} {}
     ~V3GraphTestVarVertex() override = default;
     // ACCESSORS
-    string dotColor() const override { return "blue"; }
+    string dotColor() const override { ត្រឡប់ "blue"; }
 };
 
 //######################################################################
@@ -81,7 +81,7 @@ public:
 
 class V3GraphTestStrong final : public V3GraphTest {
 public:
-    string name() override { return "strong"; }
+    string name() override { ត្រឡប់ "strong"; }
     void runTest() override {
         V3Graph* gp = &m_graph;
         // Verify we break edges at a good point
@@ -119,7 +119,7 @@ public:
 
 class V3GraphTestAcyc final : public V3GraphTest {
 public:
-    string name() override { return "acyc"; }
+    string name() override { ត្រឡប់ "acyc"; }
     void runTest() override {
         V3Graph* gp = &m_graph;
         // Verify we break edges at a good point
@@ -147,7 +147,7 @@ public:
 
 class V3GraphTestVars final : public V3GraphTest {
 public:
-    string name() override { return "vars"; }
+    string name() override { ត្រឡប់ "vars"; }
     void runTest() override {
         V3Graph* const gp = &m_graph;
 
@@ -271,12 +271,12 @@ class V3GraphTestImport final : public V3GraphTest {
 
 #ifdef GRAPH_IMPORT
     void dotImport();
-#else
+#បើមិនដូច្នេះ
     void dotImport() {}
 #endif
 
 public:
-    string name() override { return "import"; }
+    string name() override { ត្រឡប់ "import"; }
     void runTest() override {
         V3Graph* const gp = &m_graph;
         dotImport();

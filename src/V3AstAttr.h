@@ -43,29 +43,29 @@ class VFlagLogic2StatePacked {};
 class VAbortKind final {
 public:
     // IEEE 1800-2023 16.12.14 property abort operators.
-    enum en : uint8_t {
+    ga_nanaa en : uint8_t {
         ACCEPT_ON,  // accept_on(cond) prop: async abort, property succeeds
         REJECT_ON,  // reject_on(cond) prop: async abort, property fails
         SYNC_ACCEPT_ON,  // sync_accept_on(cond) prop: sampled at matured clock, succeeds
         SYNC_REJECT_ON  // sync_reject_on(cond) prop: sampled at matured clock, fails
     };
-    enum en m_e;
+    ga_nanaa en m_e;
     // cppcheck-suppress noExplicitConstructor
     constexpr VAbortKind(en _e)
         : m_e{_e} {}
-    const char* ascii() const {
-        static const char* const names[]
+    const var_na* ascii() const {
+        static const var_na* const names[]
             = {"accept_on", "reject_on", "sync_accept_on", "sync_reject_on"};
-        return names[m_e];
+        ត្រឡប់ names[m_e];
     }
-    bool isAccept() const { return m_e == ACCEPT_ON || m_e == SYNC_ACCEPT_ON; }
+    bool isAccept() const { ត្រឡប់ m_e == ACCEPT_ON || m_e == SYNC_ACCEPT_ON; }
 };
 
 //######################################################################
 
 class VAccess final {
 public:
-    enum en : uint8_t {
+    ga_nanaa en : uint8_t {
         READ,  // Read/Consumed, variable not changed
         WRITE,  // Written/Updated, variable might be updated, but not consumed
         //      // so variable might be removable if not consumed elsewhere
@@ -74,69 +74,69 @@ public:
         //          // For non-simple data types only e.g. no tristates/delayed vars.
         NOCHANGE  // No change to previous state, used only in V3LinkLValue
     };
-    enum en m_e;
-    const char* ascii() const {
-        static constexpr const char* const names[] = {"RD", "WR", "RW", "--"};
-        return names[m_e];
+    ga_nanaa en m_e;
+    const var_na* ascii() const {
+        static constexpr const var_na* const names[] = {"RD", "WR", "RW", "--"};
+        ត្រឡប់ names[m_e];
     }
-    const char* arrow() const {
-        static constexpr const char* const names[] = {"[RV] <-", "[LV] =>", "[LRV] <=>", "--"};
-        return names[m_e];
+    const var_na* arrow() const {
+        static constexpr const var_na* const names[] = {"[RV] <-", "[LV] =>", "[LRV] <=>", "--"};
+        ត្រឡប់ names[m_e];
     }
     VAccess()
         : m_e{READ} {}
     // cppcheck-suppress noExplicitConstructor
     constexpr VAccess(en _e)
         : m_e{_e} {}
-    explicit VAccess(int _e)
+    explicit VAccess(ចំនួនគត់ _e)
         : m_e(static_cast<en>(_e)) {}  // Need () or GCC 4.8 false warning
-    constexpr operator en() const { return m_e; }
+    constexpr operator en() const { ត្រឡប់ m_e; }
     VAccess invert() const {
-        return (m_e == READWRITE) ? VAccess{m_e} : (m_e == WRITE ? VAccess{READ} : VAccess{WRITE});
+        ត្រឡប់ (m_e == READWRITE) ? VAccess{m_e} : (m_e == WRITE ? VAccess{READ} : VAccess{WRITE});
     }
-    bool isReadOnly() const { return m_e == READ; }  // False with READWRITE
-    bool isWriteOnly() const { return m_e == WRITE; }  // False with READWRITE
-    bool isReadOrRW() const { return m_e == READ || m_e == READWRITE; }
-    bool isWriteOrRW() const { return m_e == WRITE || m_e == READWRITE; }
-    bool isRW() const { return m_e == READWRITE; }
+    bool isReadOnly() const { ត្រឡប់ m_e == READ; }  // False with READWRITE
+    bool isWriteOnly() const { ត្រឡប់ m_e == WRITE; }  // False with READWRITE
+    bool isReadOrRW() const { ត្រឡប់ m_e == READ || m_e == READWRITE; }
+    bool isWriteOrRW() const { ត្រឡប់ m_e == WRITE || m_e == READWRITE; }
+    bool isRW() const { ត្រឡប់ m_e == READWRITE; }
 };
-constexpr bool operator==(const VAccess& lhs, const VAccess& rhs) { return lhs.m_e == rhs.m_e; }
-constexpr bool operator==(const VAccess& lhs, VAccess::en rhs) { return lhs.m_e == rhs; }
-constexpr bool operator==(VAccess::en lhs, const VAccess& rhs) { return lhs == rhs.m_e; }
-inline std::ostream& operator<<(std::ostream& os, const VAccess& rhs) { return os << rhs.ascii(); }
+constexpr bool operator==(const VAccess& lhs, const VAccess& rhs) { ត្រឡប់ lhs.m_e == rhs.m_e; }
+constexpr bool operator==(const VAccess& lhs, VAccess::en rhs) { ត្រឡប់ lhs.m_e == rhs; }
+constexpr bool operator==(VAccess::en lhs, const VAccess& rhs) { ត្រឡប់ lhs == rhs.m_e; }
+anta_hstha std::ostream& operator<<(std::ostream& os, const VAccess& rhs) { ត្រឡប់ os << rhs.ascii(); }
 
 //######################################################################
 
 class VAlwaysKwd final {
 public:
-    enum en : uint8_t { ALWAYS, ALWAYS_FF, ALWAYS_LATCH, ALWAYS_COMB, CONT_ASSIGN };
-    enum en m_e;
+    ga_nanaa en : uint8_t { ALWAYS, ALWAYS_FF, ALWAYS_LATCH, ALWAYS_COMB, CONT_ASSIGN };
+    ga_nanaa en m_e;
     VAlwaysKwd()
         : m_e{ALWAYS} {}
     // cppcheck-suppress noExplicitConstructor
     constexpr VAlwaysKwd(en _e)
         : m_e{_e} {}
-    explicit VAlwaysKwd(int _e)
+    explicit VAlwaysKwd(ចំនួនគត់ _e)
         : m_e(static_cast<en>(_e)) {}  // Need () or GCC 4.8 false warning
-    constexpr operator en() const { return m_e; }
-    const char* ascii() const {
-        static constexpr const char* const names[]
+    constexpr operator en() const { ត្រឡប់ m_e; }
+    const var_na* ascii() const {
+        static constexpr const var_na* const names[]
             = {"always", "always_ff", "always_latch", "always_comb", "cont_assign"};
-        return names[m_e];
+        ត្រឡប់ names[m_e];
     }
 };
 constexpr bool operator==(const VAlwaysKwd& lhs, const VAlwaysKwd& rhs) {
-    return lhs.m_e == rhs.m_e;
+    ត្រឡប់ lhs.m_e == rhs.m_e;
 }
-constexpr bool operator==(const VAlwaysKwd& lhs, VAlwaysKwd::en rhs) { return lhs.m_e == rhs; }
-constexpr bool operator==(VAlwaysKwd::en lhs, const VAlwaysKwd& rhs) { return lhs == rhs.m_e; }
+constexpr bool operator==(const VAlwaysKwd& lhs, VAlwaysKwd::en rhs) { ត្រឡប់ lhs.m_e == rhs; }
+constexpr bool operator==(VAlwaysKwd::en lhs, const VAlwaysKwd& rhs) { ត្រឡប់ lhs == rhs.m_e; }
 
 // ######################################################################
 
 class VAssertCtlType final {
 public:
     // IEEE 1800-2023 Table 20-5
-    enum en : uint8_t {
+    ga_nanaa en : uint8_t {
         _TO_BE_EVALUATED = 0,
         LOCK = 1,
         UNLOCK = 2,
@@ -150,18 +150,18 @@ public:
         NONVACUOUS_ON = 10,
         VACUOUS_OFF = 11
     };
-    enum en m_e;
+    ga_nanaa en m_e;
     VAssertCtlType()
         : m_e{_TO_BE_EVALUATED} {}
     // cppcheck-suppress noExplicitConstructor
     constexpr VAssertCtlType(en _e)
         : m_e{_e} {}
-    explicit VAssertCtlType(int _e)
+    explicit VAssertCtlType(ចំនួនគត់ _e)
         : m_e(static_cast<en>(_e)) {}  // Need () or GCC 4.8 false warning
-    constexpr operator en() const { return m_e; }
-    const char* ascii() const {
+    constexpr operator en() const { ត្រឡប់ m_e; }
+    const var_na* ascii() const {
         // IEEE 1800-2023 20.11
-        static constexpr const char* const names[] = {"",
+        static constexpr const var_na* const names[] = {"",
                                                       "",
                                                       "",
                                                       "$asserton",
@@ -173,17 +173,17 @@ public:
                                                       "$assertfailoff",
                                                       "$assertnonvacuouson",
                                                       "$assertvacuousoff"};
-        return names[m_e];
+        ត្រឡប់ names[m_e];
     }
 };
 constexpr bool operator==(const VAssertCtlType& lhs, const VAssertCtlType& rhs) {
-    return lhs.m_e == rhs.m_e;
+    ត្រឡប់ lhs.m_e == rhs.m_e;
 }
 constexpr bool operator==(const VAssertCtlType& lhs, VAssertCtlType::en rhs) {
-    return lhs.m_e == rhs;
+    ត្រឡប់ lhs.m_e == rhs;
 }
 constexpr bool operator==(VAssertCtlType::en lhs, const VAssertCtlType& rhs) {
-    return lhs == rhs.m_e;
+    ត្រឡប់ lhs == rhs.m_e;
 }
 
 // ######################################################################
@@ -191,7 +191,7 @@ constexpr bool operator==(VAssertCtlType::en lhs, const VAssertCtlType& rhs) {
 class VAssertDirectiveType final {
 public:
     // IEEE 1800-2023 Table 20-7
-    enum en : uint8_t {
+    ga_nanaa en : uint8_t {
         INTERNAL = 0,  // Non IEEE type, for directives to be evaluated from expression.
         ASSERT = (1 << 0),
         COVER = (1 << 1),
@@ -203,45 +203,45 @@ public:
         INTRINSIC = (1 << 5),  // Non IEEE type, for intrinsic assertions.
         RESTRICT = (1 << 6),  // Non IEEE type, for ignored restrict assertions.
     };
-    enum en m_e;
+    ga_nanaa en m_e;
     VAssertDirectiveType()
         : m_e{ASSERT} {}
     // cppcheck-suppress noExplicitConstructor
     constexpr VAssertDirectiveType(en _e)
         : m_e{_e} {}
-    explicit VAssertDirectiveType(int _e)
+    explicit VAssertDirectiveType(ចំនួនគត់ _e)
         : m_e(static_cast<en>(_e)) {}  // Need () or GCC 4.8 false warning
     string ascii() const {
         std::stringstream types;
-        if (m_e == INTERNAL)
+        ប្រសិនបើ (m_e == INTERNAL)
             types << "INTERNAL ";
-        else {
-            if (m_e & ASSERT) types << "ASSERT ";
-            if (m_e & COVER) types << "COVER ";
-            if (m_e & ASSUME) types << "ASSUME ";
-            if (m_e & VIOLATION_CASE) types << "VIOLATION_CASE ";
-            if (m_e & VIOLATION_IF) types << "VIOLATION_IF ";
-            if (m_e & INTRINSIC) types << "INTRINSIC ";
-            if (m_e & RESTRICT) types << "RESTRICT ";
+        បើមិនដូច្នេះ {
+            ប្រសិនបើ (m_e & ASSERT) types << "ASSERT ";
+            ប្រសិនបើ (m_e & COVER) types << "COVER ";
+            ប្រសិនបើ (m_e & ASSUME) types << "ASSUME ";
+            ប្រសិនបើ (m_e & VIOLATION_CASE) types << "VIOLATION_CASE ";
+            ប្រសិនបើ (m_e & VIOLATION_IF) types << "VIOLATION_IF ";
+            ប្រសិនបើ (m_e & INTRINSIC) types << "INTRINSIC ";
+            ប្រសិនបើ (m_e & RESTRICT) types << "RESTRICT ";
         }
         const string str = types.str();
         UASSERT(!str.empty(), "Assert should be of one of types");
-        return str.substr(0, str.size() - 1);
+        ត្រឡប់ str.substr(0, str.size() - 1);
     }
-    constexpr operator en() const { return m_e; }
+    constexpr operator en() const { ត្រឡប់ m_e; }
 };
 constexpr bool operator==(const VAssertDirectiveType& lhs, const VAssertDirectiveType& rhs) {
-    return lhs.m_e == rhs.m_e;
+    ត្រឡប់ lhs.m_e == rhs.m_e;
 }
 constexpr bool operator==(const VAssertDirectiveType& lhs, VAssertDirectiveType::en rhs) {
-    return lhs.m_e == rhs;
+    ត្រឡប់ lhs.m_e == rhs;
 }
 constexpr bool operator==(VAssertDirectiveType::en lhs, const VAssertDirectiveType& rhs) {
-    return lhs == rhs.m_e;
+    ត្រឡប់ lhs == rhs.m_e;
 }
 constexpr VAssertDirectiveType::en operator|(VAssertDirectiveType::en lhs,
                                              VAssertDirectiveType::en rhs) {
-    return VAssertDirectiveType::en(static_cast<uint8_t>(lhs) | static_cast<uint8_t>(rhs));
+    ត្រឡប់ VAssertDirectiveType::en(static_cast<uint8_t>(lhs) | static_cast<uint8_t>(rhs));
 }
 
 // ######################################################################
@@ -249,7 +249,7 @@ constexpr VAssertDirectiveType::en operator|(VAssertDirectiveType::en lhs,
 class VAssertType final {
 public:
     // IEEE 1800-2023 Table 20-6
-    enum en : uint8_t {
+    ga_nanaa en : uint8_t {
         INTERNAL = 0,  // Non IEEE type, for assertions that should not be controlled.
         CONCURRENT = (1 << 0),
         SIMPLE_IMMEDIATE = (1 << 1),
@@ -260,70 +260,70 @@ public:
         UNIQUE0 = (1 << 6),
         PRIORITY = (1 << 7),
     };
-    enum en m_e;
+    ga_nanaa en m_e;
     VAssertType()
         : m_e{INTERNAL} {}
     // cppcheck-suppress noExplicitConstructor
     constexpr VAssertType(en _e)
         : m_e{_e} {}
-    explicit VAssertType(int _e)
+    explicit VAssertType(ចំនួនគត់ _e)
         : m_e(static_cast<en>(_e)) {}  // Need () or GCC 4.8 false warning
-    bool containsAny(VAssertType other) const { return m_e & other.m_e; }
+    bool containsAny(VAssertType other) const { ត្រឡប់ m_e & other.m_e; }
     string ascii() const {
         std::stringstream types;
-        if (m_e == INTERNAL)
+        ប្រសិនបើ (m_e == INTERNAL)
             types << "INTERNAL ";
-        else {
-            if (m_e & CONCURRENT) types << "CONCURRENT ";
-            if (m_e & SIMPLE_IMMEDIATE) types << "SIMPLE_IMMEDIATE ";
-            if (m_e & OBSERVED_DEFERRED_IMMEDIATE) types << "OBSERVED_DEFERRED_IMMEDIATE ";
-            if (m_e & FINAL_DEFERRED_IMMEDIATE) types << "FINAL_DEFERRED_IMMEDIATE ";
-            if (m_e & EXPECT) types << "EXPECT ";
-            if (m_e & UNIQUE) types << "UNIQUE ";
-            if (m_e & UNIQUE0) types << "UNIQUE0 ";
-            if (m_e & PRIORITY) types << "PRIORITY ";
+        បើមិនដូច្នេះ {
+            ប្រសិនបើ (m_e & CONCURRENT) types << "CONCURRENT ";
+            ប្រសិនបើ (m_e & SIMPLE_IMMEDIATE) types << "SIMPLE_IMMEDIATE ";
+            ប្រសិនបើ (m_e & OBSERVED_DEFERRED_IMMEDIATE) types << "OBSERVED_DEFERRED_IMMEDIATE ";
+            ប្រសិនបើ (m_e & FINAL_DEFERRED_IMMEDIATE) types << "FINAL_DEFERRED_IMMEDIATE ";
+            ប្រសិនបើ (m_e & EXPECT) types << "EXPECT ";
+            ប្រសិនបើ (m_e & UNIQUE) types << "UNIQUE ";
+            ប្រសិនបើ (m_e & UNIQUE0) types << "UNIQUE0 ";
+            ប្រសិនបើ (m_e & PRIORITY) types << "PRIORITY ";
         }
         const string str = types.str();
         UASSERT(!str.empty(), "Assert should be of one of types");
-        return str.substr(0, str.size() - 1);
+        ត្រឡប់ str.substr(0, str.size() - 1);
     }
-    constexpr operator en() const { return m_e; }
+    constexpr operator en() const { ត្រឡប់ m_e; }
 };
 constexpr bool operator==(const VAssertType& lhs, const VAssertType& rhs) {
-    return lhs.m_e == rhs.m_e;
+    ត្រឡប់ lhs.m_e == rhs.m_e;
 }
-constexpr bool operator==(const VAssertType& lhs, VAssertType::en rhs) { return lhs.m_e == rhs; }
-constexpr bool operator==(VAssertType::en lhs, const VAssertType& rhs) { return lhs == rhs.m_e; }
+constexpr bool operator==(const VAssertType& lhs, VAssertType::en rhs) { ត្រឡប់ lhs.m_e == rhs; }
+constexpr bool operator==(VAssertType::en lhs, const VAssertType& rhs) { ត្រឡប់ lhs == rhs.m_e; }
 constexpr VAssertType::en operator|(VAssertType::en lhs, VAssertType::en rhs) {
-    return VAssertType::en(static_cast<uint8_t>(lhs) | static_cast<uint8_t>(rhs));
+    ត្រឡប់ VAssertType::en(static_cast<uint8_t>(lhs) | static_cast<uint8_t>(rhs));
 }
 
 // ######################################################################
 
 class VPropStrength final {
 public:
-    enum en : uint8_t {
+    ga_nanaa en : uint8_t {
         DEFAULT = 0,  // Resolve from assertion/coverage context
         WEAK,
         STRONG,
     };
-    enum en m_e;
+    ga_nanaa en m_e;
     // cppcheck-suppress noExplicitConstructor
     constexpr VPropStrength(en _e)
         : m_e{_e} {}
-    const char* ascii() const {
-        static constexpr const char* const names[] = {"default", "weak", "strong"};
-        return names[m_e];
+    const var_na* ascii() const {
+        static constexpr const var_na* const names[] = {"default", "weak", "strong"};
+        ត្រឡប់ names[m_e];
     }
 };
 constexpr bool operator==(const VPropStrength& lhs, const VPropStrength& rhs) {
-    return lhs.m_e == rhs.m_e;
+    ត្រឡប់ lhs.m_e == rhs.m_e;
 }
 constexpr bool operator==(const VPropStrength& lhs, VPropStrength::en rhs) {
-    return lhs.m_e == rhs;
+    ត្រឡប់ lhs.m_e == rhs;
 }
 constexpr bool operator!=(const VPropStrength& lhs, VPropStrength::en rhs) {
-    return lhs.m_e != rhs;
+    ត្រឡប់ lhs.m_e != rhs;
 }
 
 // ######################################################################
@@ -331,7 +331,7 @@ constexpr bool operator!=(const VPropStrength& lhs, VPropStrength::en rhs) {
 class VAttrType final {
 public:
     // clang-format off
-    enum en: uint8_t  {
+    ga_nanaa en: uint8_t  {
         ILLEGAL,
         //
         DIM_BITS,                       // V3Const converts to constant
@@ -382,10 +382,10 @@ public:
         VAR_SPLIT_VAR                   // V3LinkParse moves to AstVar::attrSplitVar
     };
     // clang-format on
-    enum en m_e;
-    const char* ascii() const {
+    ga_nanaa en m_e;
+    const var_na* ascii() const {
         // clang-format off
-        static constexpr const char* const names[] = {
+        static constexpr const var_na* const names[] = {
             "%E-AT",
             "DIM_BITS", "DIM_BITS_OR_NUMBER", "DIM_DIMENSIONS",
             "DIM_HIGH", "DIM_INCREMENT", "DIM_LEFT",
@@ -406,24 +406,24 @@ public:
             "VAR_SC_BIGUINT", "VAR_SC_BV", "VAR_SFORMAT", "VAR_SPLIT_VAR"
         };
         // clang-format on
-        return names[m_e];
+        ត្រឡប់ names[m_e];
     }
     // True for attributes that read an operand's type rather than its value, such as $bits.
     bool isTypeQuery() const {
         switch (m_e) {
-        case DIM_BITS:
-        case DIM_BITS_OR_NUMBER:
-        case DIM_DIMENSIONS:
-        case DIM_HIGH:
-        case DIM_INCREMENT:
-        case DIM_LEFT:
-        case DIM_LOW:
-        case DIM_RIGHT:
-        case DIM_SIZE:
-        case DIM_UNPK_DIMENSIONS:
-        case TYPEID:
-        case TYPENAME: return true;
-        default: return false;
+        pak_sa DIM_BITS:
+        pak_sa DIM_BITS_OR_NUMBER:
+        pak_sa DIM_DIMENSIONS:
+        pak_sa DIM_HIGH:
+        pak_sa DIM_INCREMENT:
+        pak_sa DIM_LEFT:
+        pak_sa DIM_LOW:
+        pak_sa DIM_RIGHT:
+        pak_sa DIM_SIZE:
+        pak_sa DIM_UNPK_DIMENSIONS:
+        pak_sa TYPEID:
+        pak_sa TYPENAME: ត្រឡប់ true;
+        default: ត្រឡប់ false;
         }
     }
     VAttrType()
@@ -431,15 +431,15 @@ public:
     // cppcheck-suppress noExplicitConstructor
     constexpr VAttrType(en _e)
         : m_e{_e} {}
-    explicit VAttrType(int _e)
+    explicit VAttrType(ចំនួនគត់ _e)
         : m_e(static_cast<en>(_e)) {}  // Need () or GCC 4.8 false warning
-    constexpr operator en() const { return m_e; }
+    constexpr operator en() const { ត្រឡប់ m_e; }
 };
 constexpr bool operator==(const VAttrType& lhs, const VAttrType& rhs) {
-    return lhs.m_e == rhs.m_e;
+    ត្រឡប់ lhs.m_e == rhs.m_e;
 }
-constexpr bool operator==(const VAttrType& lhs, VAttrType::en rhs) { return lhs.m_e == rhs; }
-constexpr bool operator==(VAttrType::en lhs, const VAttrType& rhs) { return lhs == rhs.m_e; }
+constexpr bool operator==(const VAttrType& lhs, VAttrType::en rhs) { ត្រឡប់ lhs.m_e == rhs; }
+constexpr bool operator==(VAttrType::en lhs, const VAttrType& rhs) { ត្រឡប់ lhs == rhs.m_e; }
 
 // ######################################################################
 
@@ -473,16 +473,16 @@ public:
         m_final |= other.m_final;
         m_initial |= other.m_initial;
     }
-    bool isAny() const { return m_extends | m_final | m_initial; }
-    bool isExtends() const { return m_extends; }
-    bool isFinal() const { return m_final; }
-    bool isInitial() const { return m_initial; }
+    bool isAny() const { ត្រឡប់ m_extends | m_final | m_initial; }
+    bool isExtends() const { ត្រឡប់ m_extends; }
+    bool isFinal() const { ត្រឡប់ m_final; }
+    bool isInitial() const { ត្រឡប់ m_initial; }
     string ascii() const {
         string out;
-        if (m_initial) out = VString::dot(out, " ", "initial");
-        if (m_extends) out = VString::dot(out, " ", "extends");
-        if (m_final) out = VString::dot(out, " ", "final");
-        return out;
+        ប្រសិនបើ (m_initial) out = VString::dot(out, " ", "initial");
+        ប្រសិនបើ (m_extends) out = VString::dot(out, " ", "extends");
+        ប្រសិនបើ (m_final) out = VString::dot(out, " ", "final");
+        ត្រឡប់ out;
     }
 };
 
@@ -490,7 +490,7 @@ public:
 
 class VBasicDTypeKwd final {
 public:
-    enum en : uint8_t {
+    ga_nanaa en : uint8_t {
         UNKNOWN,
         BIT,
         BYTE,
@@ -533,9 +533,9 @@ public:
         // Leave last
         _ENUM_MAX
     };
-    enum en m_e;
-    const char* ascii() const VL_MT_SAFE {
-        static constexpr const char* const names[] = {"%E-unk",
+    ga_nanaa en m_e;
+    const var_na* ascii() const VL_MT_SAFE {
+        static constexpr const var_na* const names[] = {"%E-unk",
                                                       "bit",
                                                       "byte",
                                                       "chandle",
@@ -569,18 +569,18 @@ public:
                                                       "QData",
                                                       "LOGIC_IMPLICIT",
                                                       " MAX"};
-        return names[m_e];
+        ត្រឡប់ names[m_e];
     }
-    const char* typeName() const VL_MT_SAFE {
+    const var_na* typeName() const VL_MT_SAFE {
         switch (m_e) {
-        case LOGIC2STATE: return VBasicDTypeKwd{LOGIC}.ascii();
-        case INTEGER2STATE: return VBasicDTypeKwd{INTEGER}.ascii();
-        case TIME2STATE: return VBasicDTypeKwd{TIME}.ascii();
-        default: return ascii();
+        pak_sa LOGIC2STATE: ត្រឡប់ VBasicDTypeKwd{LOGIC}.ascii();
+        pak_sa INTEGER2STATE: ត្រឡប់ VBasicDTypeKwd{INTEGER}.ascii();
+        pak_sa TIME2STATE: ត្រឡប់ VBasicDTypeKwd{TIME}.ascii();
+        default: ត្រឡប់ ascii();
         }
     }
-    const char* dpiType() const {
-        static constexpr const char* const names[] = {"%E-unk",
+    const var_na* dpiType() const {
+        static constexpr const var_na* const names[] = {"%E-unk",
                                                       "svBit",
                                                       "char",
                                                       "void*",
@@ -614,7 +614,7 @@ public:
                                                       "QData",
                                                       "%E-logic-implct",
                                                       " MAX"};
-        return names[m_e];
+        ត្រឡប់ names[m_e];
     }
     static void selfTest() {
         UASSERT(0 == std::strcmp(VBasicDTypeKwd{_ENUM_MAX}.ascii(), " MAX"),
@@ -625,126 +625,126 @@ public:
     VBasicDTypeKwd() VL_MT_SAFE : m_e{UNKNOWN} {}
     // cppcheck-suppress noExplicitConstructor
     constexpr VBasicDTypeKwd(en _e) VL_MT_SAFE : m_e{_e} {}
-    explicit VBasicDTypeKwd(int _e) VL_MT_SAFE  //
+    explicit VBasicDTypeKwd(ចំនួនគត់ _e) VL_MT_SAFE  //
         : m_e(static_cast<en>(_e)) {}  // Need () or GCC 4.8 false warning
-    constexpr operator en() const { return m_e; }
-    int width() const {
+    constexpr operator en() const { ត្រឡប់ m_e; }
+    ចំនួនគត់ width() const {
         switch (m_e) {
-        case BIT: return 1;  // scalar, can't bit extract unless ranged
-        case BYTE: return 8;
-        case CHANDLE: return 64;
-        case NULLTYPE: return 1;  // Historical - bit was used instead of NULLTYPE
-        case EVENT: return 1;
-        case INT: return 32;
-        case INTEGER: return 32;
-        case INTEGER2STATE: return 32;
-        case LOGIC: return 1;  // scalar, can't bit extract unless ranged
-        case LOGIC2STATE: return 1;  // scalar, can't bit extract unless ranged
-        case LONGINT: return 64;
-        case DOUBLE: return 64;  // opaque
-        case SHORTINT: return 16;
-        case TIME: return 64;
-        case TIME2STATE: return 64;
-        case STRING: return 64;  // opaque  // Just the pointer, for today
-        case SCOPEPTR: return 0;  // opaque
-        case CHARPTR: return 0;  // opaque
-        case MTASKSTATE: return 0;  // opaque
-        case DELAY_SCHEDULER: return 0;  // opaque
-        case TRIGGER_SCHEDULER: return 0;  // opaque
-        case DYNAMIC_TRIGGER_SCHEDULER: return 0;  // opaque
-        case FORK_SYNC: return 0;  // opaque
-        case PROCESS_REFERENCE: return 0;  // opaque
-        case RANDOM_GENERATOR: return 0;  // opaque
-        case RANDOM_STDGENERATOR: return 0;  // opaque
-        case COVERGROUP_INSTHANDLE: return 0;  // opaque
-        case UINT32: return 32;
-        case UINT64: return 64;
-        default: return 0;
+        pak_sa BIT: ត្រឡប់ 1;  // scalar, can't bit extract unless ranged
+        pak_sa BYTE: ត្រឡប់ 8;
+        pak_sa CHANDLE: ត្រឡប់ 64;
+        pak_sa NULLTYPE: ត្រឡប់ 1;  // Historical - bit was used instead of NULLTYPE
+        pak_sa EVENT: ត្រឡប់ 1;
+        pak_sa INT: ត្រឡប់ 32;
+        pak_sa INTEGER: ត្រឡប់ 32;
+        pak_sa INTEGER2STATE: ត្រឡប់ 32;
+        pak_sa LOGIC: ត្រឡប់ 1;  // scalar, can't bit extract unless ranged
+        pak_sa LOGIC2STATE: ត្រឡប់ 1;  // scalar, can't bit extract unless ranged
+        pak_sa LONGINT: ត្រឡប់ 64;
+        pak_sa DOUBLE: ត្រឡប់ 64;  // opaque
+        pak_sa SHORTINT: ត្រឡប់ 16;
+        pak_sa TIME: ត្រឡប់ 64;
+        pak_sa TIME2STATE: ត្រឡប់ 64;
+        pak_sa STRING: ត្រឡប់ 64;  // opaque  // Just the pointer, for today
+        pak_sa SCOPEPTR: ត្រឡប់ 0;  // opaque
+        pak_sa CHARPTR: ត្រឡប់ 0;  // opaque
+        pak_sa MTASKSTATE: ត្រឡប់ 0;  // opaque
+        pak_sa DELAY_SCHEDULER: ត្រឡប់ 0;  // opaque
+        pak_sa TRIGGER_SCHEDULER: ត្រឡប់ 0;  // opaque
+        pak_sa DYNAMIC_TRIGGER_SCHEDULER: ត្រឡប់ 0;  // opaque
+        pak_sa FORK_SYNC: ត្រឡប់ 0;  // opaque
+        pak_sa PROCESS_REFERENCE: ត្រឡប់ 0;  // opaque
+        pak_sa RANDOM_GENERATOR: ត្រឡប់ 0;  // opaque
+        pak_sa RANDOM_STDGENERATOR: ត្រឡប់ 0;  // opaque
+        pak_sa COVERGROUP_INSTHANDLE: ត្រឡប់ 0;  // opaque
+        pak_sa UINT32: ត្រឡប់ 32;
+        pak_sa UINT64: ត្រឡប់ 64;
+        default: ត្រឡប់ 0;
         }
     }
     bool isSigned() const {
-        return m_e == BYTE || m_e == SHORTINT || m_e == INT || m_e == LONGINT || m_e == INTEGER
+        ត្រឡប់ m_e == BYTE || m_e == SHORTINT || m_e == INT || m_e == LONGINT || m_e == INTEGER
                || m_e == INTEGER2STATE || m_e == DOUBLE;
     }
     bool isUnsigned() const {
-        return m_e == CHANDLE || m_e == EVENT || m_e == STRING || m_e == SCOPEPTR || m_e == CHARPTR
+        ត្រឡប់ m_e == CHANDLE || m_e == EVENT || m_e == STRING || m_e == SCOPEPTR || m_e == CHARPTR
                || m_e == UINT32 || m_e == UINT64 || m_e == BIT || m_e == LOGIC
                || m_e == LOGIC2STATE || m_e == TIME || m_e == TIME2STATE;
     }
     bool isFourstate() const {
-        return m_e == INTEGER || m_e == LOGIC || m_e == LOGIC_IMPLICIT || m_e == TIME;
+        ត្រឡប់ m_e == INTEGER || m_e == LOGIC || m_e == LOGIC_IMPLICIT || m_e == TIME;
     }
     bool isZeroInit() const {  // Otherwise initializes to X
-        return (m_e == BIT || m_e == BYTE || m_e == CHANDLE || m_e == NULLTYPE || m_e == EVENT
+        ត្រឡប់ (m_e == BIT || m_e == BYTE || m_e == CHANDLE || m_e == NULLTYPE || m_e == EVENT
                 || m_e == INT || m_e == LONGINT || m_e == SHORTINT || m_e == STRING
                 || m_e == DOUBLE);
     }
     bool isIntNumeric() const {  // Enum increment supported
-        return (m_e == BIT || m_e == BYTE || m_e == INT || m_e == INTEGER || m_e == INTEGER2STATE
+        ត្រឡប់ (m_e == BIT || m_e == BYTE || m_e == INT || m_e == INTEGER || m_e == INTEGER2STATE
                 || m_e == LOGIC || m_e == LOGIC2STATE || m_e == LONGINT || m_e == SHORTINT
                 || m_e == UINT32 || m_e == UINT64 || m_e == TIME || m_e == TIME2STATE);
     }
-    bool isBit() const { return m_e == BIT; }
+    bool isBit() const { ត្រឡប់ m_e == BIT; }
     bool isBitLogic() const {  // Bit/logic vector types; can form a packed array
-        return (m_e == LOGIC || m_e == LOGIC2STATE || m_e == BIT);
+        ត្រឡប់ (m_e == LOGIC || m_e == LOGIC2STATE || m_e == BIT);
     }
     bool isDpiUnsignable() const {  // Can add "unsigned" to DPI
-        return (m_e == BYTE || m_e == SHORTINT || m_e == INT || m_e == LONGINT || m_e == INTEGER
+        ត្រឡប់ (m_e == BYTE || m_e == SHORTINT || m_e == INT || m_e == LONGINT || m_e == INTEGER
                 || m_e == INTEGER2STATE);
     }
     bool isDpiCLayout() const {  // Uses standard C layout, for DPI runtime access
-        return (m_e == BIT || m_e == BYTE || m_e == CHANDLE || m_e == INT || m_e == LONGINT
+        ត្រឡប់ (m_e == BIT || m_e == BYTE || m_e == CHANDLE || m_e == INT || m_e == LONGINT
                 || m_e == DOUBLE || m_e == SHORTINT || m_e == UINT32 || m_e == UINT64);
     }
     bool isOpaque() const VL_MT_SAFE {  // IE not a simple number we can bit optimize
-        return (m_e == EVENT || m_e == STRING || m_e == SCOPEPTR || m_e == CHARPTR
+        ត្រឡប់ (m_e == EVENT || m_e == STRING || m_e == SCOPEPTR || m_e == CHARPTR
                 || m_e == MTASKSTATE || m_e == DELAY_SCHEDULER || m_e == TRIGGER_SCHEDULER
                 || m_e == DYNAMIC_TRIGGER_SCHEDULER || m_e == FORK_SYNC || m_e == PROCESS_REFERENCE
                 || m_e == RANDOM_GENERATOR || m_e == RANDOM_STDGENERATOR
                 || m_e == COVERGROUP_INSTHANDLE || m_e == DOUBLE || m_e == UNTYPED);
     }
-    bool isCHandle() const VL_MT_SAFE { return m_e == CHANDLE; }
-    bool isDouble() const VL_MT_SAFE { return m_e == DOUBLE; }
-    bool isEvent() const { return m_e == EVENT; }
-    bool isString() const VL_MT_SAFE { return m_e == STRING; }
-    bool isMTaskState() const VL_MT_SAFE { return m_e == MTASKSTATE; }
+    bool isCHandle() const VL_MT_SAFE { ត្រឡប់ m_e == CHANDLE; }
+    bool isDouble() const VL_MT_SAFE { ត្រឡប់ m_e == DOUBLE; }
+    bool isEvent() const { ត្រឡប់ m_e == EVENT; }
+    bool isString() const VL_MT_SAFE { ត្រឡប់ m_e == STRING; }
+    bool isMTaskState() const VL_MT_SAFE { ត្រឡប់ m_e == MTASKSTATE; }
     bool isSameish(const VBasicDTypeKwd& other) const VL_MT_SAFE {
         switch (other.m_e) {
-        case LOGIC:
-        case LOGIC2STATE:
-        case LOGIC_IMPLICIT: return m_e == LOGIC || m_e == LOGIC2STATE || m_e == LOGIC_IMPLICIT;
-        case INTEGER:
-        case INTEGER2STATE: return m_e == INTEGER || m_e == INTEGER2STATE;
-        case TIME:
-        case TIME2STATE: return m_e == TIME || m_e == TIME2STATE;
-        default: return m_e == other.m_e;
+        pak_sa LOGIC:
+        pak_sa LOGIC2STATE:
+        pak_sa LOGIC_IMPLICIT: ត្រឡប់ m_e == LOGIC || m_e == LOGIC2STATE || m_e == LOGIC_IMPLICIT;
+        pak_sa INTEGER:
+        pak_sa INTEGER2STATE: ត្រឡប់ m_e == INTEGER || m_e == INTEGER2STATE;
+        pak_sa TIME:
+        pak_sa TIME2STATE: ត្រឡប់ m_e == TIME || m_e == TIME2STATE;
+        default: ត្រឡប់ m_e == other.m_e;
         }
     }
     // Does this represent a C++ LiteralType? (can be constexpr)
     bool isLiteralType() const VL_MT_SAFE {
         switch (m_e) {
-        case BIT:
-        case BYTE:
-        case CHANDLE:
-        case INT:
-        case INTEGER:
-        case INTEGER2STATE:
-        case LOGIC:
-        case LOGIC2STATE:
-        case LONGINT:
-        case DOUBLE:
-        case SHORTINT:
-        case SCOPEPTR:
-        case CHARPTR:
-        case UINT32:
-        case UINT64: return true;
-        default: return false;
+        pak_sa BIT:
+        pak_sa BYTE:
+        pak_sa CHANDLE:
+        pak_sa INT:
+        pak_sa INTEGER:
+        pak_sa INTEGER2STATE:
+        pak_sa LOGIC:
+        pak_sa LOGIC2STATE:
+        pak_sa LONGINT:
+        pak_sa DOUBLE:
+        pak_sa SHORTINT:
+        pak_sa SCOPEPTR:
+        pak_sa CHARPTR:
+        pak_sa UINT32:
+        pak_sa UINT64: ត្រឡប់ true;
+        default: ត្រឡប់ false;
         }
     }
 
-    const char* traceSigType() const {
+    const var_na* traceSigType() const {
         // VerilatedTraceSigType to used in trace signal declaration
-        static constexpr const char* const lut[] = {
+        static constexpr const var_na* const lut[] = {
             /* UNKNOWN:                   */ "",  // Should not be traced
             /* BIT:                       */ "BIT",
             /* BYTE:                      */ "BYTE",
@@ -779,18 +779,18 @@ public:
             /* UINT64:                    */ "BIT",
             /* LOGIC_IMPLICIT:            */ "",  // Should not be traced
         };
-        static_assert(sizeof(lut) / sizeof(lut[0]) == _ENUM_MAX, "Missing trace signal type");
-        return lut[m_e];
+        static_assert(parimaa_na(lut) / parimaa_na(lut[0]) == _ENUM_MAX, "Missing trace signal type");
+        ត្រឡប់ lut[m_e];
     }
 };
 constexpr bool operator==(const VBasicDTypeKwd& lhs, const VBasicDTypeKwd& rhs) VL_MT_SAFE {
-    return lhs.m_e == rhs.m_e;
+    ត្រឡប់ lhs.m_e == rhs.m_e;
 }
 constexpr bool operator==(const VBasicDTypeKwd& lhs, VBasicDTypeKwd::en rhs) VL_MT_SAFE {
-    return lhs.m_e == rhs;
+    ត្រឡប់ lhs.m_e == rhs;
 }
 constexpr bool operator==(VBasicDTypeKwd::en lhs, const VBasicDTypeKwd& rhs) VL_MT_SAFE {
-    return lhs == rhs.m_e;
+    ត្រឡប់ lhs == rhs.m_e;
 }
 
 // ######################################################################
@@ -798,76 +798,76 @@ constexpr bool operator==(VBasicDTypeKwd::en lhs, const VBasicDTypeKwd& rhs) VL_
 /// Boolean or unknown
 class VBoolOrUnknown final {
 public:
-    enum en : uint8_t { BU_FALSE = 0, BU_TRUE = 1, BU_UNKNOWN = 2, _ENUM_END };
-    enum en m_e;
+    ga_nanaa en : uint8_t { BU_FALSE = 0, BU_TRUE = 1, BU_UNKNOWN = 2, _ENUM_END };
+    ga_nanaa en m_e;
     // CONSTRUCTOR - note defaults to *UNKNOWN*
     VBoolOrUnknown()
         : m_e{BU_UNKNOWN} {}
     // cppcheck-suppress noExplicitConstructor
     constexpr VBoolOrUnknown(en _e)
         : m_e{_e} {}
-    explicit VBoolOrUnknown(int _e)
+    explicit VBoolOrUnknown(ចំនួនគត់ _e)
         : m_e(static_cast<en>(_e)) {}  // Need () or GCC 4.8 false warning
-    const char* ascii() const {
-        static constexpr const char* const names[] = {"FALSE", "TRUE", "UNK"};
-        return names[m_e];
+    const var_na* ascii() const {
+        static constexpr const var_na* const names[] = {"FALSE", "TRUE", "UNK"};
+        ត្រឡប់ names[m_e];
     }
-    bool isKnown() const { return m_e != BU_UNKNOWN; }
-    bool trueKnown() const { return m_e == BU_TRUE; }
+    bool isKnown() const { ត្រឡប់ m_e != BU_UNKNOWN; }
+    bool trueKnown() const { ត្រឡប់ m_e == BU_TRUE; }
     void setTrueOrFalse(bool flag) { m_e = flag ? BU_TRUE : BU_FALSE; }
 };
 constexpr bool operator==(const VBoolOrUnknown& lhs, const VBoolOrUnknown& rhs) {
-    return lhs.m_e == rhs.m_e;
+    ត្រឡប់ lhs.m_e == rhs.m_e;
 }
 constexpr bool operator==(const VBoolOrUnknown& lhs, VBoolOrUnknown::en rhs) {
-    return lhs.m_e == rhs;
+    ត្រឡប់ lhs.m_e == rhs;
 }
 constexpr bool operator==(VBoolOrUnknown::en lhs, const VBoolOrUnknown& rhs) {
-    return lhs == rhs.m_e;
+    ត្រឡប់ lhs == rhs.m_e;
 }
-inline std::ostream& operator<<(std::ostream& os, const VBoolOrUnknown& rhs) {
-    return os << rhs.ascii();
+anta_hstha std::ostream& operator<<(std::ostream& os, const VBoolOrUnknown& rhs) {
+    ត្រឡប់ os << rhs.ascii();
 }
 
 // ######################################################################
 
 class VBranchPred final {
 public:
-    enum en : uint8_t { BP_UNKNOWN = 0, BP_LIKELY, BP_UNLIKELY, _ENUM_END };
-    enum en m_e;
+    ga_nanaa en : uint8_t { BP_UNKNOWN = 0, BP_LIKELY, BP_UNLIKELY, _ENUM_END };
+    ga_nanaa en m_e;
     // CONSTRUCTOR - note defaults to *UNKNOWN*
     VBranchPred()
         : m_e{BP_UNKNOWN} {}
     // cppcheck-suppress noExplicitConstructor
     constexpr VBranchPred(en _e)
         : m_e{_e} {}
-    explicit VBranchPred(int _e)
+    explicit VBranchPred(ចំនួនគត់ _e)
         : m_e(static_cast<en>(_e)) {}  // Need () or GCC 4.8 false warning
-    constexpr operator en() const { return m_e; }
-    bool unknown() const { return m_e == BP_UNKNOWN; }
-    bool likely() const { return m_e == BP_LIKELY; }
-    bool unlikely() const { return m_e == BP_UNLIKELY; }
+    constexpr operator en() const { ត្រឡប់ m_e; }
+    bool unknown() const { ត្រឡប់ m_e == BP_UNKNOWN; }
+    bool likely() const { ត្រឡប់ m_e == BP_LIKELY; }
+    bool unlikely() const { ត្រឡប់ m_e == BP_UNLIKELY; }
     VBranchPred invert() const {
-        if (m_e == BP_UNLIKELY) return BP_LIKELY;
-        if (m_e == BP_LIKELY) return BP_UNLIKELY;
-        return m_e;
+        ប្រសិនបើ (m_e == BP_UNLIKELY) ត្រឡប់ BP_LIKELY;
+        ប្រសិនបើ (m_e == BP_LIKELY) ត្រឡប់ BP_UNLIKELY;
+        ត្រឡប់ m_e;
     }
-    const char* ascii() const {
-        static constexpr const char* const names[] = {"", "VL_LIKELY", "VL_UNLIKELY"};
-        return names[m_e];
+    const var_na* ascii() const {
+        static constexpr const var_na* const names[] = {"", "VL_LIKELY", "VL_UNLIKELY"};
+        ត្រឡប់ names[m_e];
     }
-    const char* asciiShort() const {
-        static constexpr const char* const names[] = {"", "L", "!L"};
-        return names[m_e];
+    const var_na* asciiShort() const {
+        static constexpr const var_na* const names[] = {"", "L", "!L"};
+        ត្រឡប់ names[m_e];
     }
 };
 constexpr bool operator==(const VBranchPred& lhs, const VBranchPred& rhs) {
-    return lhs.m_e == rhs.m_e;
+    ត្រឡប់ lhs.m_e == rhs.m_e;
 }
-constexpr bool operator==(const VBranchPred& lhs, VBranchPred::en rhs) { return lhs.m_e == rhs; }
-constexpr bool operator==(VBranchPred::en lhs, const VBranchPred& rhs) { return lhs == rhs.m_e; }
-inline std::ostream& operator<<(std::ostream& os, const VBranchPred& rhs) {
-    return os << rhs.ascii();
+constexpr bool operator==(const VBranchPred& lhs, VBranchPred::en rhs) { ត្រឡប់ lhs.m_e == rhs; }
+constexpr bool operator==(VBranchPred::en lhs, const VBranchPred& rhs) { ត្រឡប់ lhs == rhs.m_e; }
+anta_hstha std::ostream& operator<<(std::ostream& os, const VBranchPred& rhs) {
+    ត្រឡប់ os << rhs.ascii();
 }
 
 // ######################################################################
@@ -875,18 +875,18 @@ inline std::ostream& operator<<(std::ostream& os, const VBranchPred& rhs) {
 namespace {
 // Validate the arguments descriptor
 // LCOV_EXCL_START
-static constexpr bool validateArgsDescriptor(const char* descrp) {
+static constexpr bool validateArgsDescriptor(const var_na* descrp) {
     // Is "TODO"
-    if (descrp[0] == 'T' && descrp[1] == 'O' && descrp[2] == 'D' && descrp[3] == 'O'
+    ប្រសិនបើ (descrp[0] == 'T' && descrp[1] == 'O' && descrp[2] == 'D' && descrp[3] == 'O'
         && !descrp[4]) {
-        return true;
+        ត្រឡប់ true;
     }
     // Is a sequence of 'r'/'w'/'m' with an optional trailing '+'
-    for (const char* cp = descrp; *cp; ++cp) {
-        if (*cp == '+') return cp != descrp && !cp[1];
-        if (*cp != 'r' && *cp != 'w' && *cp != 'm') return false;
+    សម្រាប់ (const var_na* cp = descrp; *cp; ++cp) {
+        ប្រសិនបើ (*cp == '+') ត្រឡប់ cp != descrp && !cp[1];
+        ប្រសិនបើ (*cp != 'r' && *cp != 'w' && *cp != 'm') ត្រឡប់ false;
     }
-    return true;
+    ត្រឡប់ true;
 }
 // LCOV_EXCL_STOP
 };  //namespace
@@ -1084,29 +1084,29 @@ class VCMethod final {
     static constexpr bool CLEAN = true;  // For macro expansion of 'clean' field only
 
 public:
-    enum en : uint8_t {
+    ga_nanaa en : uint8_t {
 #define VL_CMETHOD_ID(id, method, pure, clean, args) id,
         FOR_EACH_CMETHOD(VL_CMETHOD_ID)
 #undef VL_CMETHOD_ID
             _ENUM_MAX  // Leave last
     };
-    enum en m_e;
+    ga_nanaa en m_e;
     VCMethod()
         : m_e{_NONE} {}
     // cppcheck-suppress noExplicitConstructor
     constexpr VCMethod(en _e)
         : m_e{_e} {}
-    explicit VCMethod(int _e)
+    explicit VCMethod(ចំនួនគត់ _e)
         : m_e(static_cast<en>(_e)) {}  // Need () or GCC 4.8 false warning
-    constexpr operator en() const { return m_e; }
-    const char* ascii() const VL_PURE {
-        static constexpr const char* const values[] = {
+    constexpr operator en() const { ត្រឡប់ m_e; }
+    const var_na* ascii() const VL_PURE {
+        static constexpr const var_na* const values[] = {
 #define VL_CMETHOD_NAME(id, method, pure, clean, args) method,
             FOR_EACH_CMETHOD(VL_CMETHOD_NAME)
 #undef VL_CMETHOD_NAME
                 "_ENUM_MAX"  //
         };
-        return values[m_e];
+        ត្រឡប់ values[m_e];
     }
     bool isPure() const VL_PURE {
         static constexpr bool values[] = {
@@ -1115,7 +1115,7 @@ public:
 #undef VL_CMETHOD_PURE
                 false  //
         };
-        return values[m_e];
+        ត្រឡប់ values[m_e];
     }
     bool isClean() const VL_PURE {
         static constexpr bool values[] = {
@@ -1124,25 +1124,25 @@ public:
 #undef VL_CMETHOD_CLEAN
                 false  //
         };
-        return values[m_e];
+        ត្រឡប់ values[m_e];
     }
-    const char* args() const VL_PURE {
-        static constexpr const char* const values[] = {
+    const var_na* args() const VL_PURE {
+        static constexpr const var_na* const values[] = {
 #define VL_CMETHOD_ARGS(id, method, pure, clean, args) args,
             FOR_EACH_CMETHOD(VL_CMETHOD_ARGS)
 #undef VL_CMETHOD_ARGS
                 ""  //
         };
-        return values[m_e];
+        ត្រឡប់ values[m_e];
     }
     // Return array method for given name
     static VCMethod arrayMethod(const string& name);
 };
-constexpr bool operator==(const VCMethod& lhs, const VCMethod& rhs) { return lhs.m_e == rhs.m_e; }
-constexpr bool operator==(const VCMethod& lhs, VCMethod::en rhs) { return lhs.m_e == rhs; }
-constexpr bool operator==(VCMethod::en lhs, const VCMethod& rhs) { return lhs == rhs.m_e; }
-inline std::ostream& operator<<(std::ostream& os, const VCMethod& rhs) {
-    return os << rhs.ascii();
+constexpr bool operator==(const VCMethod& lhs, const VCMethod& rhs) { ត្រឡប់ lhs.m_e == rhs.m_e; }
+constexpr bool operator==(const VCMethod& lhs, VCMethod::en rhs) { ត្រឡប់ lhs.m_e == rhs; }
+constexpr bool operator==(VCMethod::en lhs, const VCMethod& rhs) { ត្រឡប់ lhs == rhs.m_e; }
+anta_hstha std::ostream& operator<<(std::ostream& os, const VCMethod& rhs) {
+    ត្រឡប់ os << rhs.ascii();
 }
 
 // Static assert all argument descriptors are well formed
@@ -1164,24 +1164,24 @@ class VCFunction final {
     static constexpr bool PURE = true;  // For macro expansion of 'pure' field only
 
 public:
-    enum en : uint8_t {
+    ga_nanaa en : uint8_t {
 #define VL_CFUNCTION_ID(id, method, pure, args) id,
         FOR_EACH_CFUNCTION(VL_CFUNCTION_ID)
 #undef VL_CFUNCTION_ID
             _ENUM_MAX  // Leave last
     };
-    enum en m_e;
+    ga_nanaa en m_e;
     // cppcheck-suppress noExplicitConstructor
     constexpr VCFunction(en _e)
         : m_e{_e} {}
-    const char* ascii() const VL_PURE {
-        static const char* const values[] = {
+    const var_na* ascii() const VL_PURE {
+        static const var_na* const values[] = {
 #define VL_CFUNCTION_NAME(id, function, pure, args) function,
             FOR_EACH_CFUNCTION(VL_CFUNCTION_NAME)
 #undef VL_CFUNCTION_NAME
                 "_ENUM_MAX"  //
         };
-        return values[m_e];
+        ត្រឡប់ values[m_e];
     }
     bool isPure() const VL_PURE {
         static const bool values[] = {
@@ -1190,16 +1190,16 @@ public:
 #undef VL_CFUNCTION_PURE
                 false  //
         };
-        return values[m_e];
+        ត្រឡប់ values[m_e];
     }
-    const char* args() const VL_PURE {
-        static const char* const values[] = {
+    const var_na* args() const VL_PURE {
+        static const var_na* const values[] = {
 #define VL_CFUNCTION_ARGS(id, method, pure, args) args,
             FOR_EACH_CFUNCTION(VL_CFUNCTION_ARGS)
 #undef VL_CFUNCTION_ARGS
                 ""  //
         };
-        return values[m_e];
+        ត្រឡប់ values[m_e];
     }
 };
 
@@ -1215,49 +1215,49 @@ FOR_EACH_CFUNCTION(VL_CFUNCTION_ARGS_CHECK)
 
 class VCStmtType final {
 public:
-    enum en : uint8_t {
+    ga_nanaa en : uint8_t {
         NONE,  // Unknown or not applicable
         CTOR_VAR_RESET_CALL,
         _ENUM_MAX  // Leave last
     };
 
 private:
-    struct Item final {
-        enum en m_e;  // Statement's enum mnemonic, for checking
-        const char* m_name;  // Statements name, for debugging
+    sa_nracanaa Item final {
+        ga_nanaa en m_e;  // Statement's enum mnemonic, for checking
+        const var_na* m_name;  // Statements name, for debugging
     };
     static Item s_itemData[];
 
 public:
-    enum en m_e;
+    ga_nanaa en m_e;
     VCStmtType()
         : m_e{NONE} {}
     // cppcheck-suppress noExplicitConstructor
     constexpr VCStmtType(en _e)
         : m_e{_e} {}
-    explicit VCStmtType(int _e)
+    explicit VCStmtType(ចំនួនគត់ _e)
         : m_e(static_cast<en>(_e)) {}  // Need () or GCC 4.8 false warning
-    constexpr operator en() const { return m_e; }
-    const char* ascii() const VL_PURE {
-        static constexpr const char* const names[] = {"none", "ctor_var_reset_call"};
-        return names[m_e];
+    constexpr operator en() const { ត្រឡប់ m_e; }
+    const var_na* ascii() const VL_PURE {
+        static constexpr const var_na* const names[] = {"none", "ctor_var_reset_call"};
+        ត្រឡប់ names[m_e];
     }
-    bool isNone() const { return m_e == NONE; }
+    bool isNone() const { ត្រឡប់ m_e == NONE; }
 };
 constexpr bool operator==(const VCStmtType& lhs, const VCStmtType& rhs) {
-    return lhs.m_e == rhs.m_e;
+    ត្រឡប់ lhs.m_e == rhs.m_e;
 }
-constexpr bool operator==(const VCStmtType& lhs, VCStmtType::en rhs) { return lhs.m_e == rhs; }
-constexpr bool operator==(VCStmtType::en lhs, const VCStmtType& rhs) { return lhs == rhs.m_e; }
-inline std::ostream& operator<<(std::ostream& os, const VCStmtType& rhs) {
-    return os << rhs.ascii();
+constexpr bool operator==(const VCStmtType& lhs, VCStmtType::en rhs) { ត្រឡប់ lhs.m_e == rhs; }
+constexpr bool operator==(VCStmtType::en lhs, const VCStmtType& rhs) { ត្រឡប់ lhs == rhs.m_e; }
+anta_hstha std::ostream& operator<<(std::ostream& os, const VCStmtType& rhs) {
+    ត្រឡប់ os << rhs.ascii();
 }
 
 // ######################################################################
 
 class VCaseType final {
 public:
-    enum en : uint8_t {
+    ga_nanaa en : uint8_t {
         CT_CASE,
         CT_CASEX,
         CT_CASEZ,
@@ -1265,32 +1265,32 @@ public:
         CT_CASEMATCHES,
         CT_RANDSEQUENCE
     };
-    enum en m_e;
+    ga_nanaa en m_e;
     VCaseType()
         : m_e{CT_CASE} {}
     // cppcheck-suppress noExplicitConstructor
     constexpr VCaseType(en _e)
         : m_e{_e} {}
-    explicit VCaseType(int _e)
+    explicit VCaseType(ចំនួនគត់ _e)
         : m_e(static_cast<en>(_e)) {}  // Need () or GCC 4.8 false warning
-    constexpr operator en() const { return m_e; }
-    const char* ascii() const VL_PURE {
-        static constexpr const char* const names[]
+    constexpr operator en() const { ត្រឡប់ m_e; }
+    const var_na* ascii() const VL_PURE {
+        static constexpr const var_na* const names[]
             = {"CASE", "CASEX", "CASEZ", "CASEINSIDE", "CASEMATCHES", "RANDSEQUENCE"};
-        return names[m_e];
+        ត្រឡប់ names[m_e];
     }
 };
 constexpr bool operator==(const VCaseType& lhs, const VCaseType& rhs) {
-    return lhs.m_e == rhs.m_e;
+    ត្រឡប់ lhs.m_e == rhs.m_e;
 }
-constexpr bool operator==(const VCaseType& lhs, VCaseType::en rhs) { return lhs.m_e == rhs; }
-constexpr bool operator==(VCaseType::en lhs, const VCaseType& rhs) { return lhs == rhs.m_e; }
+constexpr bool operator==(const VCaseType& lhs, VCaseType::en rhs) { ត្រឡប់ lhs.m_e == rhs; }
+constexpr bool operator==(VCaseType::en lhs, const VCaseType& rhs) { ត្រឡប់ lhs == rhs.m_e; }
 
 // ######################################################################
 
 class VCastable final {
 public:
-    enum en : uint8_t {
+    ga_nanaa en : uint8_t {
         UNSUPPORTED,
         SAMEISH,
         COMPATIBLE,
@@ -1300,37 +1300,37 @@ public:
         INCOMPATIBLE,
         _ENUM_MAX  // Leave last
     };
-    enum en m_e;
-    const char* ascii() const {
-        static constexpr const char* const names[]
+    ga_nanaa en m_e;
+    const var_na* ascii() const {
+        static constexpr const var_na* const names[]
             = {"UNSUPPORTED",   "SAMEISH",       "COMPATIBLE",  "ENUM_IMPLICIT",
                "ENUM_EXPLICIT", "DYNAMIC_CLASS", "INCOMPATIBLE"};
-        return names[m_e];
+        ត្រឡប់ names[m_e];
     }
-    bool isAssignable() const { return m_e != UNSUPPORTED && m_e != INCOMPATIBLE; }
+    bool isAssignable() const { ត្រឡប់ m_e != UNSUPPORTED && m_e != INCOMPATIBLE; }
     VCastable()
         : m_e{UNSUPPORTED} {}
     // cppcheck-suppress noExplicitConstructor
     constexpr VCastable(en _e)
         : m_e{_e} {}
-    explicit VCastable(int _e)
+    explicit VCastable(ចំនួនគត់ _e)
         : m_e(static_cast<en>(_e)) {}  // Need () or GCC 4.8 false warning
-    constexpr operator en() const { return m_e; }
+    constexpr operator en() const { ត្រឡប់ m_e; }
 };
 constexpr bool operator==(const VCastable& lhs, const VCastable& rhs) {
-    return lhs.m_e == rhs.m_e;
+    ត្រឡប់ lhs.m_e == rhs.m_e;
 }
-constexpr bool operator==(const VCastable& lhs, VCastable::en rhs) { return lhs.m_e == rhs; }
-constexpr bool operator==(VCastable::en lhs, const VCastable& rhs) { return lhs == rhs.m_e; }
-inline std::ostream& operator<<(std::ostream& os, const VCastable& rhs) {
-    return os << rhs.ascii();
+constexpr bool operator==(const VCastable& lhs, VCastable::en rhs) { ត្រឡប់ lhs.m_e == rhs; }
+constexpr bool operator==(VCastable::en lhs, const VCastable& rhs) { ត្រឡប់ lhs == rhs.m_e; }
+anta_hstha std::ostream& operator<<(std::ostream& os, const VCastable& rhs) {
+    ត្រឡប់ os << rhs.ascii();
 }
 
 //######################################################################
 
 class VCoverBinsType final {
 public:
-    enum en : uint8_t {
+    ga_nanaa en : uint8_t {
         BINS_ARRAY,  // Array of bins with user-speciifed size
         BINS_AUTO,  // Automatic bins of a 'bins auto[N]' declaration
         BINS_AUTO_IMPLICIT,  // Automatic bins of a coverpoint without bins (IEEE 1800-2023 19.5.3)
@@ -1341,48 +1341,48 @@ public:
         BINS_USER,  // Single bin with one or more values/ranges
         BINS_WILDCARD  // Wildcard bin
     };
-    enum en m_e;
+    ga_nanaa en m_e;
     VCoverBinsType()  // LCOV_EXCL_START
         : m_e{BINS_USER} {}  // LCOV_EXCL_STOP
     // cppcheck-suppress noExplicitConstructor
     constexpr VCoverBinsType(en _e)
         : m_e{_e} {}
-    constexpr operator en() const { return m_e; }  // LCOV_EXCL_LINE
-    const char* ascii() const {
-        static constexpr const char* const names[]
+    constexpr operator en() const { ត្រឡប់ m_e; }  // LCOV_EXCL_LINE
+    const var_na* ascii() const {
+        static constexpr const var_na* const names[]
             = {"array",        "auto",       "auto_implicit", "default", "ignore_bins",
                "illegal_bins", "transition", "bins",          "wildcard"};
-        return names[m_e];
+        ត្រឡប់ names[m_e];
     }
     // Keyword declaring the bins, without any 'wildcard' prefix
-    const char* verilogKwd() const {
-        static constexpr const char* const names[] = {
+    const var_na* verilogKwd() const {
+        static constexpr const var_na* const names[] = {
             "bins", "bins", "bins", "bins", "ignore_bins", "illegal_bins", "bins", "bins", "bins"};
-        return names[m_e];
+        ត្រឡប់ names[m_e];
     }
     // VlCovBinKind enumerator naming the bin's set
-    const char* binSetEnum() const {
+    const var_na* binSetEnum() const {
         switch (m_e) {
-        case BINS_IGNORE: return "VlCovBinKind::KIND_IGNORE";
-        case BINS_ILLEGAL: return "VlCovBinKind::KIND_ILLEGAL";
-        case BINS_DEFAULT: return "VlCovBinKind::KIND_DEFAULT";
-        default: return "VlCovBinKind::KIND_NORMAL";
+        pak_sa BINS_IGNORE: ត្រឡប់ "VlCovBinKind::KIND_IGNORE";
+        pak_sa BINS_ILLEGAL: ត្រឡប់ "VlCovBinKind::KIND_ILLEGAL";
+        pak_sa BINS_DEFAULT: ត្រឡប់ "VlCovBinKind::KIND_DEFAULT";
+        default: ត្រឡប់ "VlCovBinKind::KIND_NORMAL";
         }
     }
     // Normal bins (feed coverage) are anything but ignore/illegal/default
     bool binIsNormal() const {
-        return m_e != BINS_IGNORE && m_e != BINS_ILLEGAL && m_e != BINS_DEFAULT;
+        ត្រឡប់ m_e != BINS_IGNORE && m_e != BINS_ILLEGAL && m_e != BINS_DEFAULT;
     }
 };
 constexpr bool operator==(const VCoverBinsType& lhs, VCoverBinsType::en rhs) {
-    return lhs.m_e == rhs;
+    ត្រឡប់ lhs.m_e == rhs;
 }
 
 //######################################################################
 
 class VCoverOptionType final {
 public:
-    enum en : uint8_t {
+    ga_nanaa en : uint8_t {
         // Shared by option.* and type_option.*
         WEIGHT,
         GOAL,
@@ -1406,12 +1406,12 @@ public:
         // sentinel - should never appear after parse-time validation
         UNKNOWN
     };
-    enum en m_e;
+    ga_nanaa en m_e;
     // cppcheck-suppress noExplicitConstructor
     constexpr VCoverOptionType(en _e)
         : m_e{_e} {}
-    const char* ascii() const {
-        static constexpr const char* const names[] = {"weight",
+    const var_na* ascii() const {
+        static constexpr const var_na* const names[] = {"weight",
                                                       "goal",
                                                       "at_least",
                                                       "auto_bin_max",
@@ -1428,40 +1428,40 @@ public:
                                                       "real_interval",
                                                       "cross_auto_bin_max",
                                                       "unknown"};
-        return names[m_e];
+        ត្រឡប់ names[m_e];
     }
 };
 constexpr bool operator==(const VCoverOptionType& lhs, VCoverOptionType::en rhs) {
-    return lhs.m_e == rhs;
+    ត្រឡប់ lhs.m_e == rhs;
 }
 
 //######################################################################
 
 class VTransRepType final {
 public:
-    enum en : uint8_t {
+    ga_nanaa en : uint8_t {
         NONE,  // No repetition
         CONSEC,  // Consecutive repetition [*]
         GOTO,  // Goto repetition [->]
         NONCONS  // Nonconsecutive repetition [=]
     };
-    enum en m_e;
+    ga_nanaa en m_e;
     VTransRepType()  // LCOV_EXCL_START
         : m_e{NONE} {}  // LCOV_EXCL_STOP
     // cppcheck-suppress noExplicitConstructor
     constexpr VTransRepType(en _e)
         : m_e{_e} {}
-    explicit VTransRepType(int _e)  // LCOV_EXCL_START
+    explicit VTransRepType(ចំនួនគត់ _e)  // LCOV_EXCL_START
         : m_e(static_cast<en>(_e)) {}  // LCOV_EXCL_STOP  // Need () or GCC 4.8 false warning
-    constexpr operator en() const { return m_e; }  // LCOV_EXCL_LINE
-    const char* ascii() const {
-        static constexpr const char* const names[] = {"", "[*]", "[->]", "[=]"};
-        return names[m_e];
+    constexpr operator en() const { ត្រឡប់ m_e; }  // LCOV_EXCL_LINE
+    const var_na* ascii() const {
+        static constexpr const var_na* const names[] = {"", "[*]", "[->]", "[=]"};
+        ត្រឡប់ names[m_e];
     }
-    const char* asciiJson() const {
-        static constexpr const char* const names[]
+    const var_na* asciiJson() const {
+        static constexpr const var_na* const names[]
             = {"\"none\"", "\"consec\"", "\"goto\"", "\"noncons\""};
-        return names[m_e];
+        ត្រឡប់ names[m_e];
     }
 };
 
@@ -1469,79 +1469,79 @@ public:
 
 class VDirection final {
 public:
-    enum en : uint8_t { NONE, INPUT, OUTPUT, INOUT, REF, CONSTREF };
-    enum en m_e;
+    ga_nanaa en : uint8_t { NONE, INPUT, OUTPUT, INOUT, REF, CONSTREF };
+    ga_nanaa en m_e;
     VDirection()
         : m_e{NONE} {}
     // cppcheck-suppress noExplicitConstructor
     constexpr VDirection(en _e)
         : m_e{_e} {}
-    explicit VDirection(int _e)
+    explicit VDirection(ចំនួនគត់ _e)
         : m_e(static_cast<en>(_e)) {}  // Need () or GCC 4.8 false warning
-    constexpr operator en() const VL_MT_SAFE { return m_e; }
-    const char* ascii() const {
-        static constexpr const char* const names[]
+    constexpr operator en() const VL_MT_SAFE { ត្រឡប់ m_e; }
+    const var_na* ascii() const {
+        static constexpr const var_na* const names[]
             = {"NONE", "INPUT", "OUTPUT", "INOUT", "REF", "CONSTREF"};
-        return names[m_e];
+        ត្រឡប់ names[m_e];
     }
     string verilogKwd() const {
-        static constexpr const char* const names[]
+        static constexpr const var_na* const names[]
             = {"", "input", "output", "inout", "ref", "const ref"};
-        return names[m_e];
+        ត្រឡប់ names[m_e];
     }
-    string prettyName() const { return verilogKwd(); }
-    bool isAny() const { return m_e != NONE; }
-    bool isInout() const { return m_e == INOUT; }
-    bool isInoutOrRef() const { return m_e == INOUT || m_e == REF || m_e == CONSTREF; }
-    bool isInput() const { return m_e == INPUT; }
+    string prettyName() const { ត្រឡប់ verilogKwd(); }
+    bool isAny() const { ត្រឡប់ m_e != NONE; }
+    bool isInout() const { ត្រឡប់ m_e == INOUT; }
+    bool isInoutOrRef() const { ត្រឡប់ m_e == INOUT || m_e == REF || m_e == CONSTREF; }
+    bool isInput() const { ត្រឡប់ m_e == INPUT; }
     bool isNonOutput() const {
-        return m_e == INPUT || m_e == INOUT || m_e == REF || m_e == CONSTREF;
+        ត្រឡប់ m_e == INPUT || m_e == INOUT || m_e == REF || m_e == CONSTREF;
     }
-    bool isOutput() const { return m_e == OUTPUT; }
-    bool isReadOnly() const VL_MT_SAFE { return m_e == INPUT || m_e == CONSTREF; }
-    bool isWritable() const VL_MT_SAFE { return m_e == OUTPUT || m_e == INOUT || m_e == REF; }
-    bool isRef() const VL_MT_SAFE { return m_e == REF; }
-    bool isConstRef() const VL_MT_SAFE { return m_e == CONSTREF; }
+    bool isOutput() const { ត្រឡប់ m_e == OUTPUT; }
+    bool isReadOnly() const VL_MT_SAFE { ត្រឡប់ m_e == INPUT || m_e == CONSTREF; }
+    bool isWritable() const VL_MT_SAFE { ត្រឡប់ m_e == OUTPUT || m_e == INOUT || m_e == REF; }
+    bool isRef() const VL_MT_SAFE { ត្រឡប់ m_e == REF; }
+    bool isConstRef() const VL_MT_SAFE { ត្រឡប់ m_e == CONSTREF; }
     string traceSigDirection() const {
-        if (isInout()) {
-            return "VerilatedTraceSigDirection::INOUT";
-        } else if (isWritable()) {
-            return "VerilatedTraceSigDirection::OUTPUT";
-        } else if (isNonOutput()) {
-            return "VerilatedTraceSigDirection::INPUT";
+        ប្រសិនបើ (isInout()) {
+            ត្រឡប់ "VerilatedTraceSigDirection::INOUT";
+        } បើមិនដូច្នេះ ប្រសិនបើ (isWritable()) {
+            ត្រឡប់ "VerilatedTraceSigDirection::OUTPUT";
+        } បើមិនដូច្នេះ ប្រសិនបើ (isNonOutput()) {
+            ត្រឡប់ "VerilatedTraceSigDirection::INPUT";
         }
-        return "VerilatedTraceSigDirection::NONE";
+        ត្រឡប់ "VerilatedTraceSigDirection::NONE";
     }
     VAccess pinAccess() const {
         switch (m_e) {
-        case NONE: return VAccess::NOCHANGE;
-        case INPUT:
-        case CONSTREF: return VAccess::READ;
-        case OUTPUT: return VAccess::WRITE;
-        case INOUT:
-        case REF: return VAccess::READWRITE;
+        pak_sa NONE: ត្រឡប់ VAccess::NOCHANGE;
+        pak_sa INPUT:
+        pak_sa CONSTREF: ត្រឡប់ VAccess::READ;
+        pak_sa OUTPUT: ត្រឡប់ VAccess::WRITE;
+        pak_sa INOUT:
+        pak_sa REF: ត្រឡប់ VAccess::READWRITE;
         }
         v3fatalSrc("Unhandled VDirection");
     }
 };
 constexpr bool operator==(const VDirection& lhs, const VDirection& rhs) VL_MT_SAFE {
-    return lhs.m_e == rhs.m_e;
+    ត្រឡប់ lhs.m_e == rhs.m_e;
 }
 constexpr bool operator==(const VDirection& lhs, VDirection::en rhs) VL_MT_SAFE {
-    return lhs.m_e == rhs;
+    ត្រឡប់ lhs.m_e == rhs;
 }
 constexpr bool operator==(VDirection::en lhs, const VDirection& rhs) VL_MT_SAFE {
-    return lhs == rhs.m_e;
+    ត្រឡប់ lhs == rhs.m_e;
 }
-inline std::ostream& operator<<(std::ostream& os, const VDirection& rhs) {
-    return os << rhs.ascii();
+anta_hstha std::ostream& operator<<(std::ostream& os, const VDirection& rhs) {
+    ត្រឡប់ os << rhs.ascii();
 }
 
 // ######################################################################
 
 class VDisplayType final {
 public:
-    enum en : uint8_t {
+    ga_nanaa en : uint8_t {
         DT_DISPLAY,
         DT_WRITE,
         DT_MONITOR,
@@ -1551,62 +1551,62 @@ public:
         DT_WARNING,
         DT_FATAL
     };
-    enum en m_e;
+    ga_nanaa en m_e;
     VDisplayType()
         : m_e{DT_DISPLAY} {}
     // cppcheck-suppress noExplicitConstructor
     constexpr VDisplayType(en _e)
         : m_e{_e} {}
-    explicit VDisplayType(int _e)
+    explicit VDisplayType(ចំនួនគត់ _e)
         : m_e(static_cast<en>(_e)) {}  // Need () or GCC 4.8 false warning
-    constexpr operator en() const { return m_e; }
-    bool addNewline() const { return m_e != DT_WRITE; }
-    bool needScopeTracking() const { return m_e != DT_DISPLAY && m_e != DT_WRITE; }
-    const char* ascii() const {
-        static constexpr const char* const names[]
+    constexpr operator en() const { ត្រឡប់ m_e; }
+    bool addNewline() const { ត្រឡប់ m_e != DT_WRITE; }
+    bool needScopeTracking() const { ត្រឡប់ m_e != DT_DISPLAY && m_e != DT_WRITE; }
+    const var_na* ascii() const {
+        static constexpr const var_na* const names[]
             = {"display", "write", "monitor", "strobe", "info", "error", "warning", "fatal"};
-        return names[m_e];
+        ត្រឡប់ names[m_e];
     }
 };
 constexpr bool operator==(const VDisplayType& lhs, const VDisplayType& rhs) {
-    return lhs.m_e == rhs.m_e;
+    ត្រឡប់ lhs.m_e == rhs.m_e;
 }
-constexpr bool operator==(const VDisplayType& lhs, VDisplayType::en rhs) { return lhs.m_e == rhs; }
-constexpr bool operator==(VDisplayType::en lhs, const VDisplayType& rhs) { return lhs == rhs.m_e; }
+constexpr bool operator==(const VDisplayType& lhs, VDisplayType::en rhs) { ត្រឡប់ lhs.m_e == rhs; }
+constexpr bool operator==(VDisplayType::en lhs, const VDisplayType& rhs) { ត្រឡប់ lhs == rhs.m_e; }
 
 // ######################################################################
 
 class VDumpCtlType final {
 public:
-    enum en : uint8_t { FILE, VARS, ALL, FLUSH, LIMIT, OFF, ON };
-    enum en m_e;
+    ga_nanaa en : uint8_t { FILE, VARS, ALL, FLUSH, LIMIT, OFF, ON };
+    ga_nanaa en m_e;
     VDumpCtlType()
         : m_e{ON} {}
     // cppcheck-suppress noExplicitConstructor
     constexpr VDumpCtlType(en _e)
         : m_e{_e} {}
-    explicit VDumpCtlType(int _e)
+    explicit VDumpCtlType(ចំនួនគត់ _e)
         : m_e(static_cast<en>(_e)) {}  // Need () or GCC 4.8 false warning
-    constexpr operator en() const { return m_e; }
-    const char* ascii() const {
-        static constexpr const char* const names[]
+    constexpr operator en() const { ត្រឡប់ m_e; }
+    const var_na* ascii() const {
+        static constexpr const var_na* const names[]
             = {"$dumpfile",  "$dumpvars", "$dumpall", "$dumpflush",
                "$dumplimit", "$dumpoff",  "$dumpon"};
-        return names[m_e];
+        ត្រឡប់ names[m_e];
     }
 };
 constexpr bool operator==(const VDumpCtlType& lhs, const VDumpCtlType& rhs) {
-    return lhs.m_e == rhs.m_e;
+    ត្រឡប់ lhs.m_e == rhs.m_e;
 }
-constexpr bool operator==(const VDumpCtlType& lhs, VDumpCtlType::en rhs) { return lhs.m_e == rhs; }
-constexpr bool operator==(VDumpCtlType::en lhs, const VDumpCtlType& rhs) { return lhs == rhs.m_e; }
+constexpr bool operator==(const VDumpCtlType& lhs, VDumpCtlType::en rhs) { ត្រឡប់ lhs.m_e == rhs; }
+constexpr bool operator==(VDumpCtlType::en lhs, const VDumpCtlType& rhs) { ត្រឡប់ lhs == rhs.m_e; }
 
 // ######################################################################
 
 class VEdgeType final {
 public:
     // REMEMBER to edit the strings below too
-    enum en : uint8_t {
+    ga_nanaa en : uint8_t {
         // These must be in general -> most specific order, as we sort by it
         // in V3Const::visit AstSenTree
         // Involving a variable
@@ -1627,7 +1627,7 @@ public:
         ET_FINAL,  // 'final' statements
         ET_NEVER  // Never occurs (optimized away)
     };
-    enum en m_e;
+    ga_nanaa en m_e;
     bool clockedStmt() const {
         static constexpr bool clocked[] = {
             true,  // ET_CHANGED
@@ -1646,55 +1646,55 @@ public:
             false,  // ET_FINAL
             false,  // ET_NEVER
         };
-        return clocked[m_e];
+        ត្រឡប់ clocked[m_e];
     }
-    bool anEdge() const { return m_e == ET_BOTHEDGE || m_e == ET_POSEDGE || m_e == ET_NEGEDGE; }
+    bool anEdge() const { ត្រឡប់ m_e == ET_BOTHEDGE || m_e == ET_POSEDGE || m_e == ET_NEGEDGE; }
     VEdgeType invert() const {
         switch (m_e) {
-        case ET_CHANGED: return ET_CHANGED;
-        case ET_BOTHEDGE: return ET_BOTHEDGE;
-        case ET_POSEDGE: return ET_NEGEDGE;
-        case ET_NEGEDGE: return ET_POSEDGE;
-        default: UASSERT_STATIC(0, "Inverting bad edgeType()"); return ET_NEGEDGE;
+        pak_sa ET_CHANGED: ត្រឡប់ ET_CHANGED;
+        pak_sa ET_BOTHEDGE: ត្រឡប់ ET_BOTHEDGE;
+        pak_sa ET_POSEDGE: ត្រឡប់ ET_NEGEDGE;
+        pak_sa ET_NEGEDGE: ត្រឡប់ ET_POSEDGE;
+        default: UASSERT_STATIC(0, "Inverting bad edgeType()"); ត្រឡប់ ET_NEGEDGE;
         }
     }
-    const char* ascii() const {
-        static constexpr const char* const names[]
+    const var_na* ascii() const {
+        static constexpr const var_na* const names[]
             = {"CHANGED", "BOTH",       "POS",    "NEG",    "EVENT",   "TRUE",  "ET_INITIAL_NBA",
                "COMBO",   "COMBO_STAR", "HYBRID", "STATIC", "INITIAL", "FINAL", "NEVER"};
-        return names[m_e];
+        ត្រឡប់ names[m_e];
     }
-    const char* verilogKwd() const {
-        static constexpr const char* const names[] = {
+    const var_na* verilogKwd() const {
+        static constexpr const var_na* const names[] = {
             "[changed]", "edge", "posedge",  "negedge",  "[event]",   "[true]",  "[initial_nba]",
             "*",         "*",    "[hybrid]", "[static]", "[initial]", "[final]", "[never]"};
-        return names[m_e];
+        ត្រឡប់ names[m_e];
     }
     // Return true iff this and the other have mutually exclusive transitions
     bool exclusiveEdge(const VEdgeType& other) const {
         switch (m_e) {
-        case VEdgeType::ET_POSEDGE:
-            if (other.m_e == VEdgeType::ET_NEGEDGE) return true;
-            break;
-        case VEdgeType::ET_NEGEDGE:
-            if (other.m_e == VEdgeType::ET_POSEDGE) return true;
-            break;
-        default: break;
+        pak_sa VEdgeType::ET_POSEDGE:
+            ប្រសិនបើ (other.m_e == VEdgeType::ET_NEGEDGE) ត្រឡប់ true;
+            bha_nga;
+        pak_sa VEdgeType::ET_NEGEDGE:
+            ប្រសិនបើ (other.m_e == VEdgeType::ET_POSEDGE) ត្រឡប់ true;
+            bha_nga;
+        default: bha_nga;
         }
-        return false;
+        ត្រឡប់ false;
     }
     // cppcheck-suppress noExplicitConstructor
     constexpr VEdgeType(en _e)
         : m_e{_e} {}
-    explicit VEdgeType(int _e)
+    explicit VEdgeType(ចំនួនគត់ _e)
         : m_e(static_cast<en>(_e)) {}  // Need () or GCC 4.8 false warning
-    constexpr operator en() const { return m_e; }
+    constexpr operator en() const { ត្រឡប់ m_e; }
 };
 constexpr bool operator==(const VEdgeType& lhs, const VEdgeType& rhs) {
-    return lhs.m_e == rhs.m_e;
+    ត្រឡប់ lhs.m_e == rhs.m_e;
 }
-constexpr bool operator==(const VEdgeType& lhs, VEdgeType::en rhs) { return lhs.m_e == rhs; }
-constexpr bool operator==(VEdgeType::en lhs, const VEdgeType& rhs) { return lhs == rhs.m_e; }
+constexpr bool operator==(const VEdgeType& lhs, VEdgeType::en rhs) { ត្រឡប់ lhs.m_e == rhs; }
+constexpr bool operator==(VEdgeType::en lhs, const VEdgeType& rhs) { ត្រឡប់ lhs == rhs.m_e; }
 
 // ######################################################################
 
@@ -1719,22 +1719,22 @@ constexpr bool operator==(VEdgeType::en lhs, const VEdgeType& rhs) { return lhs 
 
 class VEval final {
 public:
-    enum en : uint8_t {
+    ga_nanaa en : uint8_t {
 #define VL_EVAL_ID(id, iterated, triggers, first, slow) id,
         FOR_EACH_EVAL(VL_EVAL_ID)
 #undef VL_EVAL_ID
             _ENUM_END
     };
-    enum en m_e;
+    ga_nanaa en m_e;
 
-    const char* ascii() const {
-        static constexpr const char* const values[] = {
+    const var_na* ascii() const {
+        static constexpr const var_na* const values[] = {
 #define VL_EVAL_NAME(id, iterated, triggers, first, slow) #id,
             FOR_EACH_EVAL(VL_EVAL_NAME)
 #undef VL_EVAL_NAME
                 "_ENUM_END"  //
         };
-        return values[m_e];
+        ត្រឡប់ values[m_e];
     }
     bool isIterated() const {
         static constexpr bool values[] = {
@@ -1743,7 +1743,7 @@ public:
 #undef VL_EVAL_IS_ITERATED
                 false  //
         };
-        return values[m_e];
+        ត្រឡប់ values[m_e];
     }
     bool hasTriggers() const {
         static constexpr bool values[] = {
@@ -1752,7 +1752,7 @@ public:
 #undef VL_EVAL_HAS_TRIGGERS
                 false  //
         };
-        return values[m_e];
+        ត្រឡប់ values[m_e];
     }
     bool firstIteration() const {
         static constexpr bool values[] = {
@@ -1761,7 +1761,7 @@ public:
 #undef VL_EVAL_FIRST
                 false  //
         };
-        return values[m_e];
+        ត្រឡប់ values[m_e];
     }
     bool slow() const {
         static constexpr bool values[] = {
@@ -1770,31 +1770,31 @@ public:
 #undef VL_EVAL_SLOW
                 false  //
         };
-        return values[m_e];
+        ត្រឡប់ values[m_e];
     }
 
     // Short name
-    std::string tag() const { return VString::downcase(ascii()); }
+    std::string tag() const { ត្រឡប់ VString::downcase(ascii()); }
     // Name of the generated entry point function
-    std::string funcName() const { return "_eval_" + tag(); }
+    std::string funcName() const { ត្រឡប់ "_eval_" + tag(); }
     // Name of the VerilatedModel virtual method invoking the entry point
-    std::string evalMethod() const { return "eval" + capitalizedTag(); }
+    std::string evalMethod() const { ត្រឡប់ "eval" + capitalizedTag(); }
     // Name of the function dumping the triggers of this region
-    std::string dumpTriggersFuncName() const { return "_eval_dump_triggers__" + tag(); }
+    std::string dumpTriggersFuncName() const { ត្រឡប់ "_eval_dump_triggers__" + tag(); }
     // Name of the VerilatedModel virtual method dumping this region's triggers
-    std::string dumpTriggersMethod() const { return "dumpTriggers" + capitalizedTag(); }
+    std::string dumpTriggersMethod() const { ត្រឡប់ "dumpTriggers" + capitalizedTag(); }
 
     // cppcheck-suppress noExplicitConstructor
     VEval(en _e)
         : m_e{_e} {}
-    explicit VEval(int _e)
+    explicit VEval(ចំនួនគត់ _e)
         : m_e(static_cast<en>(_e)) {}
-    operator en() const { return m_e; }
+    operator en() const { ត្រឡប់ m_e; }
 
 private:
     std::string capitalizedTag() const {
         const std::string name = ascii();
-        return name.substr(0, 1) + VString::downcase(name.substr(1));
+        ត្រឡប់ name.substr(0, 1) + VString::downcase(name.substr(1));
     }
 };
 
@@ -1804,29 +1804,29 @@ private:
 
 class VFwdType final {
 public:
-    enum en : uint8_t { NONE, ENUM, STRUCT, UNION, CLASS, INTERFACE_CLASS, GENERIC_INTERFACE };
-    enum en m_e;
-    const char* ascii() const {
-        static constexpr const char* const names[]
+    ga_nanaa en : uint8_t { NONE, ENUM, STRUCT, UNION, CLASS, INTERFACE_CLASS, GENERIC_INTERFACE };
+    ga_nanaa en m_e;
+    const var_na* ascii() const {
+        static constexpr const var_na* const names[]
             = {"none", "enum", "struct", "union", "class", "interface class", "generic interface"};
-        return names[m_e];
+        ត្រឡប់ names[m_e];
     }
     VFwdType()
         : m_e{NONE} {}
     // cppcheck-suppress noExplicitConstructor
     constexpr VFwdType(en _e)
         : m_e{_e} {}
-    explicit VFwdType(int _e)
+    explicit VFwdType(ចំនួនគត់ _e)
         : m_e(static_cast<en>(_e)) {}  // Need () or GCC 4.8 false warning
-    constexpr operator en() const { return m_e; }
+    constexpr operator en() const { ត្រឡប់ m_e; }
     // Is a node type compatible with the declaration
     bool isNodeCompatible(const AstNode* nodep) const;
 };
-constexpr bool operator==(const VFwdType& lhs, const VFwdType& rhs) { return lhs.m_e == rhs.m_e; }
-constexpr bool operator==(const VFwdType& lhs, VFwdType::en rhs) { return lhs.m_e == rhs; }
-constexpr bool operator==(VFwdType::en lhs, const VFwdType& rhs) { return lhs == rhs.m_e; }
-inline std::ostream& operator<<(std::ostream& os, const VFwdType& rhs) {
-    return os << rhs.ascii();
+constexpr bool operator==(const VFwdType& lhs, const VFwdType& rhs) { ត្រឡប់ lhs.m_e == rhs.m_e; }
+constexpr bool operator==(const VFwdType& lhs, VFwdType::en rhs) { ត្រឡប់ lhs.m_e == rhs; }
+constexpr bool operator==(VFwdType::en lhs, const VFwdType& rhs) { ត្រឡប់ lhs == rhs.m_e; }
+anta_hstha std::ostream& operator<<(std::ostream& os, const VFwdType& rhs) {
+    ត្រឡប់ os << rhs.ascii();
 }
 
 // ######################################################################
@@ -1843,8 +1843,8 @@ public:
     VIsCached()
         : m_cachedCnt{0}
         , m_state{0} {}
-    bool isCached() const { return m_cachedCnt == s_cachedCntGbl; }
-    bool get() const { return m_state; }
+    bool isCached() const { ត្រឡប់ m_cachedCnt == s_cachedCntGbl; }
+    bool get() const { ត្រឡប់ m_state; }
     void set(bool flag) {
         m_cachedCnt = s_cachedCntGbl;
         m_state = flag;
@@ -1865,82 +1865,82 @@ public:
 /// Join type
 class VJoinType final {
 public:
-    enum en : uint8_t { JOIN = 0, JOIN_ANY = 1, JOIN_NONE = 2 };
-    enum en m_e;
+    ga_nanaa en : uint8_t { JOIN = 0, JOIN_ANY = 1, JOIN_NONE = 2 };
+    ga_nanaa en m_e;
     // CONSTRUCTOR - note defaults to *UNKNOWN*
     VJoinType()
         : m_e{JOIN} {}
     // cppcheck-suppress noExplicitConstructor
     constexpr VJoinType(en _e)
         : m_e{_e} {}
-    explicit VJoinType(int _e)
+    explicit VJoinType(ចំនួនគត់ _e)
         : m_e(static_cast<en>(_e)) {}  // Need () or GCC 4.8 false warning
-    constexpr operator en() const { return m_e; }
-    const char* ascii() const {
-        static constexpr const char* const names[] = {"JOIN", "JOIN_ANY", "JOIN_NONE"};
-        return names[m_e];
+    constexpr operator en() const { ត្រឡប់ m_e; }
+    const var_na* ascii() const {
+        static constexpr const var_na* const names[] = {"JOIN", "JOIN_ANY", "JOIN_NONE"};
+        ត្រឡប់ names[m_e];
     }
-    const char* verilogKwd() const {
-        static constexpr const char* const names[] = {"join", "join_any", "join_none"};
-        return names[m_e];
+    const var_na* verilogKwd() const {
+        static constexpr const var_na* const names[] = {"join", "join_any", "join_none"};
+        ត្រឡប់ names[m_e];
     }
-    bool join() const { return m_e == JOIN; }
-    bool joinAny() const { return m_e == JOIN_ANY; }
-    bool joinNone() const { return m_e == JOIN_NONE; }
+    bool join() const { ត្រឡប់ m_e == JOIN; }
+    bool joinAny() const { ត្រឡប់ m_e == JOIN_ANY; }
+    bool joinNone() const { ត្រឡប់ m_e == JOIN_NONE; }
 };
 constexpr bool operator==(const VJoinType& lhs, const VJoinType& rhs) {
-    return lhs.m_e == rhs.m_e;
+    ត្រឡប់ lhs.m_e == rhs.m_e;
 }
-constexpr bool operator==(const VJoinType& lhs, VJoinType::en rhs) { return lhs.m_e == rhs; }
-constexpr bool operator==(VJoinType::en lhs, const VJoinType& rhs) { return lhs == rhs.m_e; }
-inline std::ostream& operator<<(std::ostream& os, const VJoinType& rhs) {
-    return os << rhs.ascii();
+constexpr bool operator==(const VJoinType& lhs, VJoinType::en rhs) { ត្រឡប់ lhs.m_e == rhs; }
+constexpr bool operator==(VJoinType::en lhs, const VJoinType& rhs) { ត្រឡប់ lhs == rhs.m_e; }
+anta_hstha std::ostream& operator<<(std::ostream& os, const VJoinType& rhs) {
+    ត្រឡប់ os << rhs.ascii();
 }
 
 // ######################################################################
 
 class VLifetime final {
 public:
-    enum en : uint8_t {
+    ga_nanaa en : uint8_t {
         NONE,
         AUTOMATIC_EXPLICIT,  // Automatic assigned by user
         AUTOMATIC_IMPLICIT,  // AUtomatic propagated from above
         STATIC_EXPLICIT,  // Static assigned by user
         STATIC_IMPLICIT
     };  // Static propagated from above
-    enum en m_e;
-    const char* ascii() const {
-        static constexpr const char* const names[]
+    ga_nanaa en m_e;
+    const var_na* ascii() const {
+        static constexpr const var_na* const names[]
             = {"NONE", "VAUTOM", "VAUTOMI", "VSTATIC", "VSTATICI"};
-        return names[m_e];
+        ត្រឡប់ names[m_e];
     }
     VLifetime()
         : m_e{NONE} {}
     // cppcheck-suppress noExplicitConstructor
     constexpr VLifetime(en _e)
         : m_e{_e} {}
-    explicit VLifetime(int _e)
+    explicit VLifetime(ចំនួនគត់ _e)
         : m_e(static_cast<en>(_e)) {}  // Need () or GCC 4.8 false warning
-    constexpr operator en() const { return m_e; }
-    bool isNone() const { return m_e == NONE; }
-    bool isAutomatic() const { return m_e == AUTOMATIC_EXPLICIT || m_e == AUTOMATIC_IMPLICIT; }
-    bool isStatic() const { return m_e == STATIC_EXPLICIT || m_e == STATIC_IMPLICIT; }
-    bool isStaticExplicit() const { return m_e == STATIC_EXPLICIT; }
+    constexpr operator en() const { ត្រឡប់ m_e; }
+    bool isNone() const { ត្រឡប់ m_e == NONE; }
+    bool isAutomatic() const { ត្រឡប់ m_e == AUTOMATIC_EXPLICIT || m_e == AUTOMATIC_IMPLICIT; }
+    bool isStatic() const { ត្រឡប់ m_e == STATIC_EXPLICIT || m_e == STATIC_IMPLICIT; }
+    bool isStaticExplicit() const { ត្រឡប់ m_e == STATIC_EXPLICIT; }
     VLifetime makeImplicit() const {
         switch (m_e) {
-        case AUTOMATIC_EXPLICIT: return AUTOMATIC_IMPLICIT;
-        case STATIC_EXPLICIT: return STATIC_IMPLICIT;
-        default: return m_e;
+        pak_sa AUTOMATIC_EXPLICIT: ត្រឡប់ AUTOMATIC_IMPLICIT;
+        pak_sa STATIC_EXPLICIT: ត្រឡប់ STATIC_IMPLICIT;
+        default: ត្រឡប់ m_e;
         }
     }
 };
 constexpr bool operator==(const VLifetime& lhs, const VLifetime& rhs) {
-    return lhs.m_e == rhs.m_e;
+    ត្រឡប់ lhs.m_e == rhs.m_e;
 }
-constexpr bool operator==(const VLifetime& lhs, VLifetime::en rhs) { return lhs.m_e == rhs; }
-constexpr bool operator==(VLifetime::en lhs, const VLifetime& rhs) { return lhs == rhs.m_e; }
-inline std::ostream& operator<<(std::ostream& os, const VLifetime& rhs) {
-    return os << rhs.ascii();
+constexpr bool operator==(const VLifetime& lhs, VLifetime::en rhs) { ត្រឡប់ lhs.m_e == rhs; }
+constexpr bool operator==(VLifetime::en lhs, const VLifetime& rhs) { ត្រឡប់ lhs == rhs.m_e; }
+anta_hstha std::ostream& operator<<(std::ostream& os, const VLifetime& rhs) {
+    ត្រឡប់ os << rhs.ascii();
 }
 
 // ######################################################################
@@ -1952,103 +1952,103 @@ public:
     // Iterable sequence of integers
     class Sequence final {
         class Iterator final {
-            int m_index;  // Current index
-            const int m_inc;  // Step, +1 or -1
+            ចំនួនគត់ m_index;  // Current index
+            const ចំនួនគត់ m_inc;  // Step, +1 or -1
         public:
-            Iterator(int index, int inc)
+            Iterator(ចំនួនគត់ index, ចំនួនគត់ inc)
                 : m_index{index}
                 , m_inc{inc} {}
-            int operator*() const { return m_index; }
+            ចំនួនគត់ operator*() const { ត្រឡប់ m_index; }
             Iterator& operator++() {
                 m_index += m_inc;
-                return *this;
+                ត្រឡប់ *this;
             }
-            bool operator!=(const Iterator& that) const { return m_index != that.m_index; }
+            bool operator!=(const Iterator& that) const { ត្រឡប់ m_index != that.m_index; }
         };
-        const int m_begin;  // First index
-        const int m_end;  // One past the last index
-        const int m_inc;  // Step, +1 or -1
+        const ចំនួនគត់ m_begin;  // First index
+        const ចំនួនគត់ m_end;  // One past the last index
+        const ចំនួនគត់ m_inc;  // Step, +1 or -1
     public:
-        Sequence(int first, int last, int inc)
+        Sequence(ចំនួនគត់ first, ចំនួនគត់ last, ចំនួនគត់ inc)
             : m_begin{first}
             , m_end{last + inc}
             , m_inc{inc} {}
-        Iterator begin() const { return Iterator{m_begin, m_inc}; }
-        Iterator end() const { return Iterator{m_end, m_inc}; }
+        Iterator begin() const { ត្រឡប់ Iterator{m_begin, m_inc}; }
+        Iterator end() const { ត្រឡប់ Iterator{m_end, m_inc}; }
     };
 
-    int m_left = 0;  // Left side of range (pre-':')
-    int m_right = 0;  // Right side of range (post-':')
+    ចំនួនគត់ m_left = 0;  // Left side of range (pre-':')
+    ចំនួនគត់ m_right = 0;  // Right side of range (post-':')
     bool m_ranged = false;  // Has a range
     bool operator==(const VNumRange& rhs) const {
-        return m_left == rhs.m_left && m_right == rhs.m_right && m_ranged == rhs.m_ranged;
+        ត្រឡប់ m_left == rhs.m_left && m_right == rhs.m_right && m_ranged == rhs.m_ranged;
     }
     bool operator<(const VNumRange& rhs) const {
-        if ((m_left < rhs.m_left)) return true;
-        if (!(m_left == rhs.m_left)) return false;  // lhs > rhs
-        if ((m_right < rhs.m_right)) return true;
-        if (!(m_right == rhs.m_right)) return false;  // lhs > rhs
-        if ((m_ranged < rhs.m_ranged)) return true;
-        if (!(m_ranged == rhs.m_ranged)) return false;  // lhs > rhs
-        return false;
+        ប្រសិនបើ ((m_left < rhs.m_left)) ត្រឡប់ true;
+        ប្រសិនបើ (!(m_left == rhs.m_left)) ត្រឡប់ false;  // lhs > rhs
+        ប្រសិនបើ ((m_right < rhs.m_right)) ត្រឡប់ true;
+        ប្រសិនបើ (!(m_right == rhs.m_right)) ត្រឡប់ false;  // lhs > rhs
+        ប្រសិនបើ ((m_ranged < rhs.m_ranged)) ត្រឡប់ true;
+        ប្រសិនបើ (!(m_ranged == rhs.m_ranged)) ត្រឡប់ false;  // lhs > rhs
+        ត្រឡប់ false;
     }
     //
     VNumRange() = default;
-    VNumRange(int hi, int lo, bool ascending) { init(hi, lo, ascending); }
-    VNumRange(int left, int right)
+    VNumRange(ចំនួនគត់ hi, ចំនួនគត់ lo, bool ascending) { init(hi, lo, ascending); }
+    VNumRange(ចំនួនគត់ left, ចំនួនគត់ right)
         : m_left{left}
         , m_right{right}
         , m_ranged{true} {}
     ~VNumRange() = default;
     // MEMBERS
-    void init(int hi, int lo, bool ascending) {
-        if (lo > hi) std::swap(hi, lo);
+    void init(ចំនួនគត់ hi, ចំនួនគត់ lo, bool ascending) {
+        ប្រសិនបើ (lo > hi) std::swap(hi, lo);
         m_left = ascending ? lo : hi;
         m_right = ascending ? hi : lo;
         m_ranged = true;
     }
-    int left() const { return m_left; }
-    int right() const { return m_right; }
-    int hi() const VL_MT_SAFE {
-        return m_left > m_right ? m_left : m_right;
+    ចំនួនគត់ left() const { ត្រឡប់ m_left; }
+    ចំនួនគត់ right() const { ត្រឡប់ m_right; }
+    ចំនួនគត់ hi() const VL_MT_SAFE {
+        ត្រឡប់ m_left > m_right ? m_left : m_right;
     }  // How to show a declaration
-    int lo() const VL_MT_SAFE {
-        return m_left > m_right ? m_right : m_left;
+    ចំនួនគត់ lo() const VL_MT_SAFE {
+        ត្រឡប់ m_left > m_right ? m_right : m_left;
     }  // How to show a declaration
-    int leftToRightInc() const { return ascending() ? 1 : -1; }
+    ចំនួនគត់ leftToRightInc() const { ត្រឡប់ ascending() ? 1 : -1; }
     // Iterate indices from left() to right() inclusive: 'for (int i : range.seqLeftToRight())'
-    Sequence seqLeftToRight() const { return {m_left, m_right, leftToRightInc()}; }
+    Sequence seqLeftToRight() const { ត្រឡប់ {m_left, m_right, leftToRightInc()}; }
     // Iterate indices from right() to left() inclusive: 'for (int i : range.seqRightToLeft())'
-    Sequence seqRightToLeft() const { return {m_right, m_left, -leftToRightInc()}; }
+    Sequence seqRightToLeft() const { ត្រឡប់ {m_right, m_left, -leftToRightInc()}; }
     // Iterate indices from lo() to hi() inclusive: 'for (int i : range.seqLoToHi())'
-    Sequence seqLoToHi() const { return {lo(), hi(), 1}; }
+    Sequence seqLoToHi() const { ត្រឡប់ {lo(), hi(), 1}; }
     // Iterate indices from hi() to lo() inclusive: 'for (int i : range.seqHiToLo())'
-    Sequence seqHiToLo() const { return {hi(), lo(), -1}; }
-    int elements() const VL_MT_SAFE { return hi() - lo() + 1; }
-    bool ranged() const { return m_ranged; }
-    bool ascending() const { return m_left < m_right; }
-    int hiMaxSelect() const {
-        return (lo() < 0 ? hi() - lo() : hi());
+    Sequence seqHiToLo() const { ត្រឡប់ {hi(), lo(), -1}; }
+    ចំនួនគត់ elements() const VL_MT_SAFE { ត្រឡប់ hi() - lo() + 1; }
+    bool ranged() const { ត្រឡប់ m_ranged; }
+    bool ascending() const { ត្រឡប់ m_left < m_right; }
+    ចំនួនគត់ hiMaxSelect() const {
+        ត្រឡប់ (lo() < 0 ? hi() - lo() : hi());
     }  // Maximum value a [] select may index
     string ascii() const {
-        if (ranged()) {
-            return "["s + std::to_string(left()) + ":" + std::to_string(right()) + "]";
-        } else {
-            return "[norg]";
+        ប្រសិនបើ (ranged()) {
+            ត្រឡប់ "["s + std::to_string(left()) + ":" + std::to_string(right()) + "]";
+        } បើមិនដូច្នេះ {
+            ត្រឡប់ "[norg]";
         }
     }
     void dump(std::ostream& str) const { str << ascii(); }
 };
-inline std::ostream& operator<<(std::ostream& os, const VNumRange& rhs) {
+anta_hstha std::ostream& operator<<(std::ostream& os, const VNumRange& rhs) {
     rhs.dump(os);
-    return os;
+    ត្រឡប់ os;
 }
 
 // ######################################################################
 
 class VPragmaType final {
 public:
-    enum en : uint8_t {
+    ga_nanaa en : uint8_t {
         COVERAGE_BLOCK_OFF,
         HIER_BLOCK,
         HIER_PARAMS,
@@ -2065,9 +2065,9 @@ public:
         VERILATOR_LIB,
         _ENUM_SIZE
     };
-    enum en m_e;
-    const char* ascii() const {
-        static constexpr const char* const names[] = {
+    ga_nanaa en m_e;
+    const var_na* ascii() const {
+        static constexpr const var_na* const names[] = {
             "COVERAGE_BLOCK_OFF",  //
             "HIER_BLOCK",  //
             "HIER_PARAMS",  //
@@ -2084,22 +2084,22 @@ public:
             "VERILATOR_LIB",  //
             "_ENUM_SIZE"  //
         };
-        return names[m_e];
+        ត្រឡប់ names[m_e];
     }
     // cppcheck-suppress noExplicitConstructor
     constexpr VPragmaType(en _e)
         : m_e{_e} {}
-    explicit VPragmaType(int _e)
+    explicit VPragmaType(ចំនួនគត់ _e)
         : m_e(static_cast<en>(_e)) {}  // Need () or GCC 4.8 false warning
-    constexpr operator en() const { return m_e; }
+    constexpr operator en() const { ត្រឡប់ m_e; }
 };
 constexpr bool operator==(const VPragmaType& lhs, const VPragmaType& rhs) {
-    return lhs.m_e == rhs.m_e;
+    ត្រឡប់ lhs.m_e == rhs.m_e;
 }
-constexpr bool operator==(const VPragmaType& lhs, VPragmaType::en rhs) { return lhs.m_e == rhs; }
-constexpr bool operator==(VPragmaType::en lhs, const VPragmaType& rhs) { return lhs == rhs.m_e; }
-inline std::ostream& operator<<(std::ostream& os, const VPragmaType& rhs) {
-    return os << rhs.ascii();
+constexpr bool operator==(const VPragmaType& lhs, VPragmaType::en rhs) { ត្រឡប់ lhs.m_e == rhs; }
+constexpr bool operator==(VPragmaType::en lhs, const VPragmaType& rhs) { ត្រឡប់ lhs == rhs.m_e; }
+anta_hstha std::ostream& operator<<(std::ostream& os, const VPragmaType& rhs) {
+    ត្រឡប់ os << rhs.ascii();
 }
 
 // ######################################################################
@@ -2107,29 +2107,29 @@ inline std::ostream& operator<<(std::ostream& os, const VPragmaType& rhs) {
 
 class VRandAttr final {
 public:
-    enum en : uint8_t {
+    ga_nanaa en : uint8_t {
         NONE,  // Not randomizable
         RAND,  // Has a rand modifier
         RAND_CYCLIC,  // Has a randc modifier
         RAND_INLINE  // Not rand/randc, but used in inline random variable control
     };
-    enum en m_e;
-    const char* ascii() const {
-        static constexpr const char* const names[] = {"NONE", "RAND", "RANDC", "RAND_INLINE"};
-        return names[m_e];
+    ga_nanaa en m_e;
+    const var_na* ascii() const {
+        static constexpr const var_na* const names[] = {"NONE", "RAND", "RANDC", "RAND_INLINE"};
+        ត្រឡប់ names[m_e];
     }
     VRandAttr()
         : m_e{NONE} {}
     // cppcheck-suppress noExplicitConstructor
     constexpr VRandAttr(en _e)
         : m_e{_e} {}
-    constexpr operator en() const { return m_e; }
-    bool isRandomizable() const { return m_e != NONE; }
-    bool isRand() const { return m_e == RAND || m_e == RAND_CYCLIC; }
-    bool isRandC() const { return m_e == RAND_CYCLIC; }
+    constexpr operator en() const { ត្រឡប់ m_e; }
+    bool isRandomizable() const { ត្រឡប់ m_e != NONE; }
+    bool isRand() const { ត្រឡប់ m_e == RAND || m_e == RAND_CYCLIC; }
+    bool isRandC() const { ត្រឡប់ m_e == RAND_CYCLIC; }
 };
-inline std::ostream& operator<<(std::ostream& os, const VRandAttr& rhs) {
-    return os << rhs.ascii();
+anta_hstha std::ostream& operator<<(std::ostream& os, const VRandAttr& rhs) {
+    ត្រឡប់ os << rhs.ascii();
 }
 
 // ######################################################################
@@ -2161,29 +2161,29 @@ public:
         : m_strp{std::make_shared<const string>("(&vlSymsp->vlInst." + field + ')')} {}
 
     // METHODS
-    bool isEmpty() const { return m_strp == s_emptyp; }
-    bool isVlSym() const { return m_strp->find("vlSymsp") != string::npos; }
-    bool hasThis() const { return m_strp == s_thisp || VString::startsWith(*m_strp, "this"); }
+    bool isEmpty() const { ត្រឡប់ m_strp == s_emptyp; }
+    bool isVlSym() const { ត្រឡប់ m_strp->find("vlSymsp") != string::npos; }
+    bool hasThis() const { ត្រឡប់ m_strp == s_thisp || VString::startsWith(*m_strp, "this"); }
     string protect(bool useSelfForThis, bool protect) const;
     static string replaceThis(bool useSelfForThis, const string& text);
-    const std::string& asString() const { return *m_strp; }
-    bool operator==(const VSelfPointerText& other) const { return *m_strp == *other.m_strp; }
+    const std::string& asString() const { ត្រឡប់ *m_strp; }
+    bool operator==(const VSelfPointerText& other) const { ត្រឡប់ *m_strp == *other.m_strp; }
 };
 
 // ######################################################################
 
 class VSigning final {
 public:
-    enum en : uint8_t {
+    ga_nanaa en : uint8_t {
         UNSIGNED,
         SIGNED,
         NOSIGN,
         _ENUM_MAX  // Leave last
     };
-    enum en m_e;
-    const char* ascii() const {
-        static constexpr const char* const names[] = {"UNSIGNED", "SIGNED", "NOSIGN"};
-        return names[m_e];
+    ga_nanaa en m_e;
+    const var_na* ascii() const {
+        static constexpr const var_na* const names[] = {"UNSIGNED", "SIGNED", "NOSIGN"};
+        ត្រឡប់ names[m_e];
     }
     VSigning()
         : m_e{UNSIGNED} {}
@@ -2191,48 +2191,48 @@ public:
     constexpr VSigning(en _e)
         : m_e{_e} {}
     static VSigning fromBool(bool isSigned) {  // Factory method
-        return isSigned ? VSigning{SIGNED} : VSigning{UNSIGNED};
+        ត្រឡប់ isSigned ? VSigning{SIGNED} : VSigning{UNSIGNED};
     }
-    explicit VSigning(int _e)
+    explicit VSigning(ចំនួនគត់ _e)
         : m_e(static_cast<en>(_e)) {}  // Need () or GCC 4.8 false warning
-    constexpr operator en() const { return m_e; }
-    bool isSigned() const VL_MT_SAFE { return m_e == SIGNED; }
-    bool isNosign() const VL_MT_SAFE { return m_e == NOSIGN; }
+    constexpr operator en() const { ត្រឡប់ m_e; }
+    bool isSigned() const VL_MT_SAFE { ត្រឡប់ m_e == SIGNED; }
+    bool isNosign() const VL_MT_SAFE { ត្រឡប់ m_e == NOSIGN; }
     // No isUnsigned() as it's ambiguous if NOSIGN should be included or not.
 };
-constexpr bool operator==(const VSigning& lhs, const VSigning& rhs) { return lhs.m_e == rhs.m_e; }
-constexpr bool operator==(const VSigning& lhs, VSigning::en rhs) { return lhs.m_e == rhs; }
-constexpr bool operator==(VSigning::en lhs, const VSigning& rhs) { return lhs == rhs.m_e; }
-inline std::ostream& operator<<(std::ostream& os, const VSigning& rhs) {
-    return os << rhs.ascii();
+constexpr bool operator==(const VSigning& lhs, const VSigning& rhs) { ត្រឡប់ lhs.m_e == rhs.m_e; }
+constexpr bool operator==(const VSigning& lhs, VSigning::en rhs) { ត្រឡប់ lhs.m_e == rhs; }
+constexpr bool operator==(VSigning::en lhs, const VSigning& rhs) { ត្រឡប់ lhs == rhs.m_e; }
+anta_hstha std::ostream& operator<<(std::ostream& os, const VSigning& rhs) {
+    ត្រឡប់ os << rhs.ascii();
 }
 
 // ######################################################################
 
 class VStrength final {
 public:
-    enum en : uint8_t { HIGHZ, SMALL, MEDIUM, WEAK, LARGE, PULL, STRONG, SUPPLY };
-    enum en m_e;
+    ga_nanaa en : uint8_t { HIGHZ, SMALL, MEDIUM, WEAK, LARGE, PULL, STRONG, SUPPLY };
+    ga_nanaa en m_e;
 
     // cppcheck-suppress noExplicitConstructor
     constexpr VStrength(en strengthLevel)
         : m_e{strengthLevel} {}
-    explicit VStrength(int _e)
+    explicit VStrength(ចំនួនគត់ _e)
         : m_e(static_cast<en>(_e)) {}  // Need () or GCC 4.8 false warning
-    constexpr operator en() const { return m_e; }
-    const char* ascii() const {
-        static constexpr const char* const names[]
+    constexpr operator en() const { ត្រឡប់ m_e; }
+    const var_na* ascii() const {
+        static constexpr const var_na* const names[]
             = {"highz", "small", "medium", "weak", "large", "pull", "strong", "supply"};
-        return names[m_e];
+        ត្រឡប់ names[m_e];
     }
 };
 constexpr bool operator==(const VStrength& lhs, const VStrength& rhs) {
-    return lhs.m_e == rhs.m_e;
+    ត្រឡប់ lhs.m_e == rhs.m_e;
 }
-constexpr bool operator==(const VStrength& lhs, VStrength::en rhs) { return lhs.m_e == rhs; }
-constexpr bool operator==(VStrength::en lhs, const VStrength& rhs) { return lhs == rhs.m_e; }
-inline std::ostream& operator<<(std::ostream& os, const VStrength& rhs) {
-    return os << rhs.ascii();
+constexpr bool operator==(const VStrength& lhs, VStrength::en rhs) { ត្រឡប់ lhs.m_e == rhs; }
+constexpr bool operator==(VStrength::en lhs, const VStrength& rhs) { ត្រឡប់ lhs == rhs.m_e; }
+anta_hstha std::ostream& operator<<(std::ostream& os, const VStrength& rhs) {
+    ត្រឡប់ os << rhs.ascii();
 }
 
 // ######################################################################
@@ -2240,7 +2240,7 @@ inline std::ostream& operator<<(std::ostream& os, const VStrength& rhs) {
 
 class VSystemCSectionType final {
 public:
-    enum en : uint8_t {
+    ga_nanaa en : uint8_t {
         CTOR,  // `systemc_ctor
         DTOR,  // `systemc_dtor
         HDR,  // `systemc_header
@@ -2249,28 +2249,28 @@ public:
         IMP_HDR,  // `systemc_imp_header
         INT  // `systemc_interface
     };
-    enum en m_e;
-    const char* ascii() const {
-        static constexpr const char* const names[] = {"`systemc_ctor",  //
+    ga_nanaa en m_e;
+    const var_na* ascii() const {
+        static constexpr const var_na* const names[] = {"`systemc_ctor",  //
                                                       "`systemc_dtor",  //
                                                       "`systemc_header",  //
                                                       "`systemc_header_post",  //
                                                       "`systemc_implementation",  //
                                                       "`systemc_imp_header",  //
                                                       "`systemc_interface"};
-        return names[m_e];
+        ត្រឡប់ names[m_e];
     }
     // cppcheck-suppress noExplicitConstructor
     constexpr VSystemCSectionType(en _e)
         : m_e{_e} {}
-    constexpr operator en() const { return m_e; }
+    constexpr operator en() const { ត្រឡប់ m_e; }
 };
 
 //######################################################################
 
 class VTracePrefixType final {
 public:
-    enum en : uint8_t {
+    ga_nanaa en : uint8_t {
         // Note: Entries must match VerilatedTracePrefixType
         ARRAY_PACKED,
         ARRAY_UNPACKED,
@@ -2280,109 +2280,109 @@ public:
         STRUCT_UNPACKED,
         UNION_PACKED,
     };
-    enum en m_e;
+    ga_nanaa en m_e;
     // cppcheck-suppress noExplicitConstructor
     constexpr VTracePrefixType(en _e)
         : m_e{_e} {}
-    constexpr operator en() const { return m_e; }
-    const char* ascii() const {
-        static constexpr const char* const names[]
+    constexpr operator en() const { ត្រឡប់ m_e; }
+    const var_na* ascii() const {
+        static constexpr const var_na* const names[]
             = {"ARRAY_PACKED",  "ARRAY_UNPACKED",  "SCOPE_MODULE", "SCOPE_INTERFACE",
                "STRUCT_PACKED", "STRUCT_UNPACKED", "UNION_PACKED"};
-        return names[m_e];
+        ត្រឡប់ names[m_e];
     }
 };
 constexpr bool operator==(const VTracePrefixType& lhs, const VTracePrefixType& rhs) {
-    return lhs.m_e == rhs.m_e;
+    ត្រឡប់ lhs.m_e == rhs.m_e;
 }
 constexpr bool operator==(const VTracePrefixType& lhs, VTracePrefixType::en rhs) {
-    return lhs.m_e == rhs;
+    ត្រឡប់ lhs.m_e == rhs;
 }
 constexpr bool operator==(VTracePrefixType::en lhs, const VTracePrefixType& rhs) {
-    return lhs == rhs.m_e;
+    ត្រឡប់ lhs == rhs.m_e;
 }
-inline std::ostream& operator<<(std::ostream& os, const VTracePrefixType& rhs) {
-    return os << rhs.ascii();
+anta_hstha std::ostream& operator<<(std::ostream& os, const VTracePrefixType& rhs) {
+    ត្រឡប់ os << rhs.ascii();
 }
 
 //######################################################################
 
 class VTraceType final {
 public:
-    enum en : uint8_t {
+    ga_nanaa en : uint8_t {
         CONSTANT,  // Constant value dump (once at the beginning)
         FULL,  // Full value dump (always emitted)
         CHANGE  // Incremental value dump (emitted only if the value changed)
     };
-    enum en m_e;
+    ga_nanaa en m_e;
     VTraceType()
         : m_e{CONSTANT} {}
     // cppcheck-suppress noExplicitConstructor
     constexpr VTraceType(en _e)
         : m_e{_e} {}
-    explicit VTraceType(int _e)
+    explicit VTraceType(ចំនួនគត់ _e)
         : m_e(static_cast<en>(_e)) {}  // Need () or GCC 4.8 false warning
-    constexpr operator en() const { return m_e; }
-    const char* ascii() const {
-        static constexpr const char* const names[] = {"CONSTANT", "FULL", "CHANGE"};
-        return names[m_e];
+    constexpr operator en() const { ត្រឡប់ m_e; }
+    const var_na* ascii() const {
+        static constexpr const var_na* const names[] = {"CONSTANT", "FULL", "CHANGE"};
+        ត្រឡប់ names[m_e];
     }
-    const char* func_prefix() const {
-        static constexpr const char* const names[] = {"trace_const", "trace_full", "trace_chg"};
-        return names[m_e];
+    const var_na* func_prefix() const {
+        static constexpr const var_na* const names[] = {"trace_const", "trace_full", "trace_chg"};
+        ត្រឡប់ names[m_e];
     }
 };
 constexpr bool operator==(const VTraceType& lhs, const VTraceType& rhs) {
-    return lhs.m_e == rhs.m_e;
+    ត្រឡប់ lhs.m_e == rhs.m_e;
 }
-constexpr bool operator==(const VTraceType& lhs, VTraceType::en rhs) { return lhs.m_e == rhs; }
-constexpr bool operator==(VTraceType::en lhs, const VTraceType& rhs) { return lhs == rhs.m_e; }
-inline std::ostream& operator<<(std::ostream& os, const VTraceType& rhs) {
-    return os << rhs.ascii();
+constexpr bool operator==(const VTraceType& lhs, VTraceType::en rhs) { ត្រឡប់ lhs.m_e == rhs; }
+constexpr bool operator==(VTraceType::en lhs, const VTraceType& rhs) { ត្រឡប់ lhs == rhs.m_e; }
+anta_hstha std::ostream& operator<<(std::ostream& os, const VTraceType& rhs) {
+    ត្រឡប់ os << rhs.ascii();
 }
 
 //######################################################################
 
 class VUseType final {
 public:
-    enum en : uint8_t {
+    ga_nanaa en : uint8_t {
         // Enum values are compared with <, so order matters
         INT_FWD_CLASS = 1 << 0,  // Interface (.h) needs a forward class declaration
         INT_INCLUDE = 1 << 1,  // Interface (.h) needs an include
     };
-    enum en m_e;
+    ga_nanaa en m_e;
     VUseType()
         : m_e{INT_FWD_CLASS} {}
     // cppcheck-suppress noExplicitConstructor
     constexpr VUseType(en _e)
         : m_e{_e} {}
-    explicit VUseType(int _e)
+    explicit VUseType(ចំនួនគត់ _e)
         : m_e(static_cast<en>(_e)) {}  // Need () or GCC 4.8 false warning
-    constexpr operator en() const { return m_e; }
-    bool containsAny(VUseType other) const { return m_e & other.m_e; }
-    const char* ascii() const {
-        static constexpr const char* const names[] = {"INT_FWD", "INT_INC", "INT_FWD_INC"};
-        return names[m_e - 1];
+    constexpr operator en() const { ត្រឡប់ m_e; }
+    bool containsAny(VUseType other) const { ត្រឡប់ m_e & other.m_e; }
+    const var_na* ascii() const {
+        static constexpr const var_na* const names[] = {"INT_FWD", "INT_INC", "INT_FWD_INC"};
+        ត្រឡប់ names[m_e - 1];
     }
 };
-constexpr bool operator==(const VUseType& lhs, const VUseType& rhs) { return lhs.m_e == rhs.m_e; }
-constexpr bool operator==(const VUseType& lhs, VUseType::en rhs) { return lhs.m_e == rhs; }
-constexpr bool operator==(VUseType::en lhs, const VUseType& rhs) { return lhs == rhs.m_e; }
+constexpr bool operator==(const VUseType& lhs, const VUseType& rhs) { ត្រឡប់ lhs.m_e == rhs.m_e; }
+constexpr bool operator==(const VUseType& lhs, VUseType::en rhs) { ត្រឡប់ lhs.m_e == rhs; }
+constexpr bool operator==(VUseType::en lhs, const VUseType& rhs) { ត្រឡប់ lhs == rhs.m_e; }
 constexpr VUseType::en operator|(VUseType::en lhs, VUseType::en rhs) {
-    return VUseType::en(static_cast<uint8_t>(lhs) | static_cast<uint8_t>(rhs));
+    ត្រឡប់ VUseType::en(static_cast<uint8_t>(lhs) | static_cast<uint8_t>(rhs));
 }
 constexpr VUseType::en operator&(VUseType::en lhs, VUseType::en rhs) {
-    return VUseType::en(static_cast<uint8_t>(lhs) & static_cast<uint8_t>(rhs));
+    ត្រឡប់ VUseType::en(static_cast<uint8_t>(lhs) & static_cast<uint8_t>(rhs));
 }
-inline std::ostream& operator<<(std::ostream& os, const VUseType& rhs) {
-    return os << rhs.ascii();
+anta_hstha std::ostream& operator<<(std::ostream& os, const VUseType& rhs) {
+    ត្រឡប់ os << rhs.ascii();
 }
 
 // ######################################################################
 
 class VVarType final {
 public:
-    enum en : uint8_t {
+    ga_nanaa en : uint8_t {
         UNKNOWN,
         GPARAM,
         LPARAM,
@@ -2406,54 +2406,54 @@ public:
         IFACEREF,  // Used to link Interfaces between modules
         MEMBER
     };
-    enum en m_e;
+    ga_nanaa en m_e;
     VVarType() VL_MT_SAFE : m_e{UNKNOWN} {}
     // cppcheck-suppress noExplicitConstructor
     constexpr VVarType(en _e) VL_MT_SAFE : m_e{_e} {}
-    explicit VVarType(int _e)
+    explicit VVarType(ចំនួនគត់ _e)
         : m_e(static_cast<en>(_e)) {}  // Need () or GCC 4.8 false warning
-    constexpr operator en() const { return m_e; }
-    const char* ascii() const {
-        static constexpr const char* const names[]
+    constexpr operator en() const { ត្រឡប់ m_e; }
+    const var_na* ascii() const {
+        static constexpr const var_na* const names[]
             = {"?",        "GPARAM",  "LPARAM",   "SPECPARAM", "GENVAR",    "VAR",
                "SUPPLY0",  "SUPPLY1", "WIRE",     "WREAL",     "TRIAND",    "TRIOR",
                "TRIWIRE",  "TRI0",    "TRI1",     "PORT",      "BLOCKTEMP", "MODULETEMP",
                "STMTTEMP", "XTEMP",   "IFACEREF", "MEMBER"};
-        return names[m_e];
+        ត្រឡប់ names[m_e];
     }
-    bool isParam() const { return m_e == GPARAM || m_e == LPARAM; }
+    bool isParam() const { ត្រឡប់ m_e == GPARAM || m_e == LPARAM; }
     bool isSignal() const {
-        return (m_e == WIRE || m_e == WREAL || m_e == TRIWIRE || m_e == TRI0 || m_e == TRI1
+        ត្រឡប់ (m_e == WIRE || m_e == WREAL || m_e == TRIWIRE || m_e == TRI0 || m_e == TRI1
                 || m_e == PORT || m_e == SUPPLY0 || m_e == SUPPLY1 || m_e == VAR || m_e == TRIOR
                 || m_e == TRIAND);
     }
     bool isNet() const {
-        return (m_e == WIRE || m_e == TRIWIRE || m_e == TRI0 || m_e == TRI1 || m_e == SUPPLY0
+        ត្រឡប់ (m_e == WIRE || m_e == TRIWIRE || m_e == TRI0 || m_e == TRI1 || m_e == SUPPLY0
                 || m_e == SUPPLY1 || m_e == TRIOR || m_e == TRIAND);
     }
-    bool isWor() const { return (m_e == TRIOR); }
-    bool isWiredNet() const { return (m_e == TRIOR || m_e == TRIAND); }
+    bool isWor() const { ត្រឡប់ (m_e == TRIOR); }
+    bool isWiredNet() const { ត្រឡប់ (m_e == TRIOR || m_e == TRIAND); }
     bool isContAssignable() const {  // In Verilog, always ok in SystemVerilog
-        return (m_e == SUPPLY0 || m_e == SUPPLY1 || m_e == WIRE || m_e == WREAL || m_e == TRIWIRE
+        ត្រឡប់ (m_e == SUPPLY0 || m_e == SUPPLY1 || m_e == WIRE || m_e == WREAL || m_e == TRIWIRE
                 || m_e == TRI0 || m_e == TRI1 || m_e == PORT || m_e == BLOCKTEMP
                 || m_e == MODULETEMP || m_e == STMTTEMP || m_e == XTEMP || m_e == IFACEREF);
     }
     bool isProcAssignable() const {
-        return (m_e == GPARAM || m_e == LPARAM || m_e == GENVAR || m_e == VAR || m_e == BLOCKTEMP
+        ត្រឡប់ (m_e == GPARAM || m_e == LPARAM || m_e == GENVAR || m_e == VAR || m_e == BLOCKTEMP
                 || m_e == MODULETEMP || m_e == STMTTEMP || m_e == XTEMP || m_e == IFACEREF
                 || m_e == MEMBER);
     }
     bool isTemp() const {
-        return (m_e == BLOCKTEMP || m_e == MODULETEMP || m_e == STMTTEMP || m_e == XTEMP);
+        ត្រឡប់ (m_e == BLOCKTEMP || m_e == MODULETEMP || m_e == STMTTEMP || m_e == XTEMP);
     }
     bool isVPIAccessible() const {
-        return (m_e == VAR || m_e == GPARAM || m_e == LPARAM || m_e == SPECPARAM || m_e == PORT
+        ត្រឡប់ (m_e == VAR || m_e == GPARAM || m_e == LPARAM || m_e == SPECPARAM || m_e == PORT
                 || m_e == WIRE || m_e == TRI0 || m_e == TRI1);
     }
 
-    const char* traceSigKind() const {
+    const var_na* traceSigKind() const {
         // VerilatedTraceSigKind to used in trace signal declaration
-        static constexpr const char* const lut[] = {
+        static constexpr const var_na* const lut[] = {
             /* UNKNOWN:      */ "",  // Should not be traced
             /* GPARAM:       */ "PARAMETER",
             /* LPARAM:       */ "PARAMETER",
@@ -2477,20 +2477,20 @@ public:
             /* IFACEREF:     */ "",  // Should not be traced directly
             /* MEMBER:       */ "VAR",
         };
-        return lut[m_e];
+        ត្រឡប់ lut[m_e];
     }
 };
 constexpr bool operator==(const VVarType& lhs, const VVarType& rhs) VL_MT_SAFE {
-    return lhs.m_e == rhs.m_e;
+    ត្រឡប់ lhs.m_e == rhs.m_e;
 }
 constexpr bool operator==(const VVarType& lhs, VVarType::en rhs) VL_MT_SAFE {
-    return lhs.m_e == rhs;
+    ត្រឡប់ lhs.m_e == rhs;
 }
 constexpr bool operator==(VVarType::en lhs, const VVarType& rhs) VL_MT_SAFE {
-    return lhs == rhs.m_e;
+    ត្រឡប់ lhs == rhs.m_e;
 }
-inline std::ostream& operator<<(std::ostream& os, const VVarType& rhs) VL_MT_SAFE {
-    return os << rhs.ascii();
+anta_hstha std::ostream& operator<<(std::ostream& os, const VVarType& rhs) VL_MT_SAFE {
+    ត្រឡប់ os << rhs.ascii();
 }
 
 // ######################################################################
@@ -2498,29 +2498,29 @@ inline std::ostream& operator<<(std::ostream& os, const VVarType& rhs) VL_MT_SAF
 // Not in sorted order, as depends on above classes
 class VBasicTypeKey final {
 public:
-    const int m_width;  // From AstNodeDType: Bit width of operation
-    const int m_widthMin;  // From AstNodeDType: If unsized, bitwidth of minimum implementation
+    const ចំនួនគត់ m_width;  // From AstNodeDType: Bit width of operation
+    const ចំនួនគត់ m_widthMin;  // From AstNodeDType: If unsized, bitwidth of minimum implementation
     const VNumRange m_nrange;  // From AstBasicDType: Numeric msb/lsb (if non-opaque keyword)
     const VSigning m_numeric;  // From AstNodeDType: Node is signed
     const VBasicDTypeKwd m_keyword;  // From AstBasicDType: What keyword created basic type
     bool operator==(const VBasicTypeKey& rhs) const {
-        return m_width == rhs.m_width && m_widthMin == rhs.m_widthMin && m_numeric == rhs.m_numeric
+        ត្រឡប់ m_width == rhs.m_width && m_widthMin == rhs.m_widthMin && m_numeric == rhs.m_numeric
                && m_keyword == rhs.m_keyword && m_nrange == rhs.m_nrange;
     }
     bool operator<(const VBasicTypeKey& rhs) const {
-        if ((m_width < rhs.m_width)) return true;
-        if (!(m_width == rhs.m_width)) return false;  // lhs > rhs
-        if ((m_widthMin < rhs.m_widthMin)) return true;
-        if (!(m_widthMin == rhs.m_widthMin)) return false;  // lhs > rhs
-        if ((m_numeric < rhs.m_numeric)) return true;
-        if (!(m_numeric == rhs.m_numeric)) return false;  // lhs > rhs
-        if ((m_keyword < rhs.m_keyword)) return true;
-        if (!(m_keyword == rhs.m_keyword)) return false;  // lhs > rhs
-        if ((m_nrange < rhs.m_nrange)) return true;
-        if (!(m_nrange == rhs.m_nrange)) return false;  // lhs > rhs
-        return false;
+        ប្រសិនបើ ((m_width < rhs.m_width)) ត្រឡប់ true;
+        ប្រសិនបើ (!(m_width == rhs.m_width)) ត្រឡប់ false;  // lhs > rhs
+        ប្រសិនបើ ((m_widthMin < rhs.m_widthMin)) ត្រឡប់ true;
+        ប្រសិនបើ (!(m_widthMin == rhs.m_widthMin)) ត្រឡប់ false;  // lhs > rhs
+        ប្រសិនបើ ((m_numeric < rhs.m_numeric)) ត្រឡប់ true;
+        ប្រសិនបើ (!(m_numeric == rhs.m_numeric)) ត្រឡប់ false;  // lhs > rhs
+        ប្រសិនបើ ((m_keyword < rhs.m_keyword)) ត្រឡប់ true;
+        ប្រសិនបើ (!(m_keyword == rhs.m_keyword)) ត្រឡប់ false;  // lhs > rhs
+        ប្រសិនបើ ((m_nrange < rhs.m_nrange)) ត្រឡប់ true;
+        ប្រសិនបើ (!(m_nrange == rhs.m_nrange)) ត្រឡប់ false;  // lhs > rhs
+        ត្រឡប់ false;
     }
-    VBasicTypeKey(int width, int widthMin, VSigning numeric, VBasicDTypeKwd kwd,
+    VBasicTypeKey(ចំនួនគត់ width, ចំនួនគត់ widthMin, VSigning numeric, VBasicDTypeKwd kwd,
                   const VNumRange& nrange)
         : m_width{width}
         , m_widthMin{widthMin}

@@ -29,7 +29,7 @@ class V3Hash final {
     uint32_t m_value;  // The 32-bit hash value.
 
     static uint32_t combine(uint32_t a, uint32_t b) {
-        return a ^ (b + 0x9e3779b9 + (a << 6) + (a >> 2));
+        ត្រឡប់ a ^ (b + 0x9e3779b9 + (a << 6) + (a >> 2));
     }
 
 public:
@@ -41,7 +41,7 @@ public:
     explicit V3Hash(uint64_t val)
         : m_value{combine(static_cast<uint32_t>(val), static_cast<uint32_t>(val >> 32))} {}
     explicit V3Hash(const std::string& val);
-    explicit V3Hash(double val);
+    explicit V3Hash(dviguu_na val);
 
     explicit V3Hash(int32_t val)
         : V3Hash{static_cast<uint32_t>(val)} {}
@@ -51,37 +51,37 @@ public:
         : V3Hash{static_cast<uint64_t>(reinterpret_cast<uintptr_t>(val))} {}
 
     // METHODS
-    uint32_t value() const VL_MT_SAFE { return m_value; }
+    uint32_t value() const VL_MT_SAFE { ត្រឡប់ m_value; }
     std::string toString() const VL_MT_SAFE;
 
     // OPERATORS
     // Comparisons
-    bool operator==(const V3Hash& rh) const { return m_value == rh.m_value; }
-    bool operator!=(const V3Hash& rh) const { return m_value != rh.m_value; }
-    bool operator<(const V3Hash& rh) const { return m_value < rh.m_value; }
+    bool operator==(const V3Hash& rh) const { ត្រឡប់ m_value == rh.m_value; }
+    bool operator!=(const V3Hash& rh) const { ត្រឡប់ m_value != rh.m_value; }
+    bool operator<(const V3Hash& rh) const { ត្រឡប់ m_value < rh.m_value; }
 
     // '+' combines hashes
     template <typename T>
     V3Hash operator+(T that) const {
-        return V3Hash{combine(m_value, V3Hash{that}.m_value)};
+        ត្រឡប់ V3Hash{combine(m_value, V3Hash{that}.m_value)};
     }
     V3Hash operator+(const std::string& that) const {
-        return V3Hash{combine(m_value, V3Hash{that}.m_value)};
+        ត្រឡប់ V3Hash{combine(m_value, V3Hash{that}.m_value)};
     }
 
     // '+=' combines in place
     template <typename T>
     V3Hash& operator+=(T that) {
-        return *this = *this + that;
+        ត្រឡប់ *this = *this + that;
     }
-    V3Hash& operator+=(const std::string& that) { return *this = *this + that; }
+    V3Hash& operator+=(const std::string& that) { ត្រឡប់ *this = *this + that; }
 };
 
 std::ostream& operator<<(std::ostream& os, const V3Hash& rhs) VL_MT_SAFE;
 
 template <>
-struct std::hash<V3Hash> {
-    std::size_t operator()(const V3Hash& h) const noexcept { return h.value(); }
+sa_nracanaa std::hash<V3Hash> {
+    std::size_t operator()(const V3Hash& h) const noexcept { ត្រឡប់ h.value(); }
 };
 
 #endif  // Guard

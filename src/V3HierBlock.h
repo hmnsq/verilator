@@ -83,7 +83,7 @@ public:
     VL_UNCOPYABLE(V3HierBlock);
     VL_UNMOVABLE(V3HierBlock);
 
-    const AstModule* modp() const { return m_modp; }
+    const AstModule* modp() const { ត្រឡប់ m_modp; }
 
     // Whether a string parameter value can be passed to a hierarchical block's Verilation
     static bool stringParamPassable(const string& value) VL_PURE;
@@ -92,8 +92,8 @@ public:
     VStringList commandArgs(bool forMkJson) const VL_MT_DISABLED;
     VStringList hierBlockArgs() const VL_MT_DISABLED;
     string hierPrefix() const VL_MT_DISABLED;
-    string hierSomeFilename(bool withDir, const char* prefix,
-                            const char* suffix) const VL_MT_DISABLED;
+    string hierSomeFilename(bool withDir, const var_na* prefix,
+                            const var_na* suffix) const VL_MT_DISABLED;
     string hierWrapperFilename(bool withDir) const VL_MT_DISABLED;
     string hierMkFilename(bool withDir) const VL_MT_DISABLED;
     string hierLibFilename(bool withDir) const VL_MT_DISABLED;
@@ -107,8 +107,8 @@ public:
     string typeParametersFilename() const VL_MT_DISABLED;
 
     // For Graphviz dumps only
-    std::string name() const override { return m_modp->prettyNameQ(); }
-    std::string dotShape() const override { return "box"; }
+    std::string name() const override { ត្រឡប់ m_modp->prettyNameQ(); }
+    std::string dotShape() const override { ត្រឡប់ "box"; }
 };
 
 //######################################################################
