@@ -14,234 +14,234 @@
 //
 //*************************************************************************
 
-#include "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
+#अन्तर्भाव "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
 
-#include "V3Assert.h"
+#अन्तर्भाव "V3Assert.h"
 
-#include "V3AstUserAllocator.h"
-#include "V3Const.h"
-#include "V3Stats.h"
-#include "V3UniqueNames.h"
+#अन्तर्भाव "V3AstUserAllocator.h"
+#अन्तर्भाव "V3Const.h"
+#अन्तर्भाव "V3Stats.h"
+#अन्तर्भाव "V3UniqueNames.h"
 
 VL_DEFINE_DEBUG_FUNCTIONS;
 
-namespace {
+नामाकाश {
 
-class DefaultDisableLocalVisitor final : public VNVisitor {
+वर्ग DefaultDisableLocalVisitor final : सार्वजनिक VNVisitor {
     // STATE
-    AstNode* m_scopep = nullptr;
+    Ast_गाँठ* m_scopep = nullptr;
 
     // VISITORS
-    void visit(AstNodeModule* nodep) override {
+    शून्य visit(Ast_गाँठ_Module* nodep) override {
         VL_RESTORER(m_scopep);
         m_scopep = nodep;
         nodep->defaultDisablep(nullptr);
         iterateChildren(nodep);
     }
-    void visit(AstGenBlock* nodep) override {
+    शून्य visit(AstGenBlock* nodep) override {
         VL_RESTORER(m_scopep);
         m_scopep = nodep;
         nodep->defaultDisablep(nullptr);
         iterateChildren(nodep);
     }
-    void visit(AstDefaultDisable* nodep) override {
+    शून्य visit(AstDefaultDisable* nodep) override {
         UASSERT_OBJ(nodep, m_scopep,
                     "default disable iff must be inside a module or generate block");
         AstDefaultDisable* defaultp = nullptr;
-        if (const AstNodeModule* const modp = VN_CAST(m_scopep, NodeModule)) {
+        यदि (ध्रुव Ast_गाँठ_Module* ध्रुव modp = VN_CAST(m_scopep, गाँठ_Module)) {
             defaultp = modp->defaultDisablep();
-        } else {
+        } अन्यथा {
             defaultp = VN_AS(m_scopep, GenBlock)->defaultDisablep();
         }
-        if (VL_UNLIKELY(defaultp)) {
+        यदि (VL_UNLIKELY(defaultp)) {
             nodep->v3error("Only one 'default disable iff' allowed per "
-                           << (VN_IS(m_scopep, NodeModule) ? "module" : "generate block")
+                           << (VN_IS(m_scopep, गाँठ_Module) ? "module" : "generate block")
                            << " (IEEE 1800-2023 16.15)");
-        } else if (AstNodeModule* const modp = VN_CAST(m_scopep, NodeModule)) {
+        } अन्यथा यदि (Ast_गाँठ_Module* ध्रुव modp = VN_CAST(m_scopep, गाँठ_Module)) {
             modp->defaultDisablep(nodep);
-        } else {
+        } अन्यथा {
             VN_AS(m_scopep, GenBlock)->defaultDisablep(nodep);
         }
     }
-    void visit(AstNode* nodep) override { iterateChildren(nodep); }
+    शून्य visit(Ast_गाँठ* nodep) override { iterateChildren(nodep); }
 
-public:
+सार्वजनिक:
     explicit DefaultDisableLocalVisitor(AstNetlist* nodep) { iterate(nodep); }
 };
 
-class DefaultDisablePropagateVisitor final : public VNVisitor {
+वर्ग DefaultDisablePropagateVisitor final : सार्वजनिक VNVisitor {
     // STATE
     AstDefaultDisable* m_defaultDisablep = nullptr;
 
     // VISITORS
-    void visit(AstNodeModule* nodep) override {
+    शून्य visit(Ast_गाँठ_Module* nodep) override {
         VL_RESTORER(m_defaultDisablep);
         m_defaultDisablep = nodep->defaultDisablep();
         iterateChildren(nodep);
     }
-    void visit(AstGenBlock* nodep) override {
+    शून्य visit(AstGenBlock* nodep) override {
         VL_RESTORER(m_defaultDisablep);
-        if (!nodep->defaultDisablep()) nodep->defaultDisablep(m_defaultDisablep);
+        यदि (!nodep->defaultDisablep()) nodep->defaultDisablep(m_defaultDisablep);
         m_defaultDisablep = nodep->defaultDisablep();
         iterateChildren(nodep);
     }
-    void visit(AstNode* nodep) override { iterateChildren(nodep); }
+    शून्य visit(Ast_गाँठ* nodep) override { iterateChildren(nodep); }
 
-public:
+सार्वजनिक:
     explicit DefaultDisablePropagateVisitor(AstNetlist* nodep) { iterate(nodep); }
 };
 
 // Lower a sequence used as an event control ('@seq', IEEE 1800-2023 9.4.2.4) into a
 // synthesized event fired by an internal 'cover sequence' on each end-of-match
-class SeqEventLowerVisitor final : public VNVisitor {
+वर्ग SeqEventLowerVisitor final : सार्वजनिक VNVisitor {
     // STATE
-    AstNodeModule* m_modp = nullptr;  // Current module
+    Ast_गाँठ_Module* m_modp = nullptr;  // Current module
     V3UniqueNames m_names{"__VseqEvent"};  // Synthesized event names
 
     // VISITORS
-    void visit(AstNodeModule* nodep) override {
+    शून्य visit(Ast_गाँठ_Module* nodep) override {
         VL_RESTORER(m_modp);
         m_modp = nodep;
         iterateChildren(nodep);
     }
-    void visit(AstSenItem* nodep) override {
-        AstFuncRef* const funcrefp = VN_CAST(nodep->sensp(), FuncRef);
-        if (funcrefp && VN_IS(funcrefp->taskp(), Sequence)) {
-            FileLine* const flp = nodep->fileline();
-            AstVar* const eventp = new AstVar{flp, VVarType::MODULETEMP, m_names.get(nodep),
+    शून्य visit(AstSenItem* nodep) override {
+        AstFuncRef* ध्रुव funcrefp = VN_CAST(nodep->sensp(), FuncRef);
+        यदि (funcrefp && VN_IS(funcrefp->taskp(), Sequence)) {
+            File_पंक्ति* ध्रुव flp = nodep->fileline();
+            AstVar* ध्रुव eventp = नूतन AstVar{flp, VVarType::MODULETEMP, m_names.get(nodep),
                                               m_modp->findBasicDType(VBasicDTypeKwd::EVENT)};
             eventp->lifetime(VLifetime::STATIC_EXPLICIT);
             m_modp->addStmtsp(eventp);
             v3Global.setHasEvents();
             funcrefp->unlinkFrBack();
-            nodep->sensp(new AstVarRef{flp, eventp, VAccess::READ});
-            const bool automaticActual = funcrefp->exists([](const AstNodeVarRef* refp) {
-                return refp->varp() && refp->varp()->lifetime().isAutomatic();
+            nodep->sensp(नूतन AstVarRef{flp, eventp, VAccess::READ});
+            ध्रुव तार्किक automaticActual = funcrefp->exists([](ध्रुव Ast_गाँठ_Var_Ref* refp) {
+                प्रत्यागम refp->varp() && refp->varp()->lifetime().isAutomatic();
             });
-            if (automaticActual) {
+            यदि (automaticActual) {
                 nodep->v3error("Arguments to a sequence used as an event control must be"
                                " static (IEEE 1800-2023 9.4.2.4)");
-                VN_AS(funcrefp->taskp(), Sequence)->isReferenced(false);
-                VL_DO_DANGLING(pushDeletep(funcrefp), funcrefp);
-                return;
+                VN_AS(funcrefp->taskp(), Sequence)->isReferenced(असत्य);
+                VL_DO_DANGLING(धकेलो_Deletep(funcrefp), funcrefp);
+                प्रत्यागम;
             }
-            AstFireEvent* const firep
-                = new AstFireEvent{flp, new AstVarRef{flp, eventp, VAccess::WRITE}, false};
-            AstCover* const coverp
-                = new AstCover{flp, new AstPropSpec{flp, nullptr, nullptr, funcrefp}, firep,
+            AstFireEvent* ध्रुव firep
+                = नूतन AstFireEvent{flp, नूतन AstVarRef{flp, eventp, VAccess::WRITE}, असत्य};
+            AstCover* ध्रुव coverp
+                = नूतन AstCover{flp, नूतन AstPropSpec{flp, nullptr, nullptr, funcrefp}, firep,
                                VAssertType::CONCURRENT};
-            coverp->isCoverSeq(true);
-            coverp->isSeqEvent(true);
+            coverp->isCoverSeq(सत्य);
+            coverp->isSeqEvent(सत्य);
             m_modp->addStmtsp(coverp);
-            return;
+            प्रत्यागम;
         }
         iterateChildren(nodep);
     }
-    void visit(AstNode* nodep) override { iterateChildren(nodep); }
+    शून्य visit(Ast_गाँठ* nodep) override { iterateChildren(nodep); }
 
-public:
+सार्वजनिक:
     explicit SeqEventLowerVisitor(AstNetlist* nodep) { iterate(nodep); }
 };
 
 }  // namespace
 
-void V3AssertCommon::collectDefaultDisable(AstNetlist* nodep) {
+शून्य V3AssertCommon::collectDefaultDisable(AstNetlist* nodep) {
     { DefaultDisableLocalVisitor{nodep}; }
     { DefaultDisablePropagateVisitor{nodep}; }
 }
 
-void V3AssertCommon::lowerSequenceEvents(AstNetlist* nodep) {
+शून्य V3AssertCommon::lowerSequenceEvents(AstNetlist* nodep) {
     { SeqEventLowerVisitor{nodep}; }
-    V3Global::dumpCheckGlobalTree("assertseqevent", 0, dumpTreeEitherLevel() >= 3);
+    V3Global::dump_Check_Global_वृक्ष("assertseqevent", 0, dump_वृक्ष_Either_Level() >= 3);
 }
 
-string V3AssertCommon::assertCtlGetCall(const char* query, VAssertType type,
+string V3AssertCommon::assertCtlGetCall(ध्रुव वर्ण* query, VAssertType type,
                                         VAssertDirectiveType directiveType) {
     // Template arguments let the runtime build the type/directive mask at C++ compile time
-    return "vlSymsp->_vm_contextp__->assertCtlGet<"s + std::to_string(type) + ", "s
+    प्रत्यागम "vlSymsp->_vm_contextp__->assertCtlGet<"s + std::to_string(type) + ", "s
            + std::to_string(directiveType) + ">(VerilatedAssertCtlQuery::"s + query + ")"s;
 }
 
-bool V3AssertCommon::checkSvaValueLimit(AstNode* nodep, const AstConst* constp, const char* what) {
+तार्किक V3AssertCommon::check_Sva_मूल्य_Limit(Ast_गाँठ* nodep, ध्रुव AstConst* constp, ध्रुव वर्ण* what) {
     // Temporal values can materialize as O(N) AST or state in later passes.
     // Leave headroom for a range ring's extra slot and V3Number's signed
     // `(bits + 31) / 32` word count.
-    static constexpr unsigned SVA_VALUE_HARD_LIMIT
-        = static_cast<unsigned>(std::numeric_limits<int>::max()) - 32U;
-    const unsigned configuredLimit = static_cast<unsigned>(v3Global.opt.maxNumWidth());
-    const unsigned limit = std::min(configuredLimit, SVA_VALUE_HARD_LIMIT);
-    if (constp->num().fitsInUInt() && constp->toUInt() <= limit) return true;
+    स्थिर constexpr unsigned SVA_मूल्य_HARD_LIMIT
+        = static_cast<unsigned>(std::numeric_limits<पूर्णाङ्क>::max()) - 32U;
+    ध्रुव unsigned configuredLimit = static_cast<unsigned>(v3Global.opt.max_अंक_Width());
+    ध्रुव unsigned limit = std::min(configuredLimit, SVA_मूल्य_HARD_LIMIT);
+    यदि (constp->अंक().fitsInUInt() && constp->toUInt() <= limit) प्रत्यागम सत्य;
     nodep->v3warn(E_UNSUPPORTED, "Unsupported: " << what << " exceeds implementation limit of "
                                                  << limit
-                                                 << (configuredLimit <= SVA_VALUE_HARD_LIMIT
+                                                 << (configuredLimit <= SVA_मूल्य_HARD_LIMIT
                                                          ? " (--max-num-width)"
                                                          : " (host arithmetic limit)"));
-    return false;
+    प्रत्यागम असत्य;
 }
 
 // The bound of a cycle delay in a sequence, if a non-negative elaboration-time constant
-static const AstConst* checkSvaDelayBound(AstNode* errp, AstNodeExpr* boundp, const char* what) {
-    const AstConst* const constp = VN_CAST(boundp, Const);
-    if (!constp || (constp->dtypep()->isSigned() && constp->num().isNegative())) {
+स्थिर ध्रुव AstConst* checkSvaDelayBound(Ast_गाँठ* errp, Ast_गाँठ_व्यंजक* boundp, ध्रुव वर्ण* what) {
+    ध्रुव AstConst* ध्रुव constp = VN_CAST(boundp, Const);
+    यदि (!constp || (constp->dtypep()->isSigned() && constp->अंक().isNegative())) {
         errp->v3error(what << " is not a non-negative elaboration-time constant"
                               " (IEEE 1800-2023 16.7)");
-        return nullptr;
+        प्रत्यागम nullptr;
     }
-    if (!V3AssertCommon::checkSvaValueLimit(errp, constp, "SVA cycle delay")) return nullptr;
-    return constp;
+    यदि (!V3AssertCommon::check_Sva_मूल्य_Limit(errp, constp, "SVA cycle delay")) प्रत्यागम nullptr;
+    प्रत्यागम constp;
 }
 
 // Fold the bounds of a cycle delay in a sequence, and return if they are valid, else report it
 // on errp
-static bool svaCycleDelayValid(const AstDelay* nodep, AstNode* errp) {
+स्थिर तार्किक svaCycleDelayValid(ध्रुव AstDelay* nodep, Ast_गाँठ* errp) {
     V3Const::constifyParamsNoWarnEdit(nodep->lhsp());
-    const AstConst* const minConstp = checkSvaDelayBound(
+    ध्रुव AstConst* ध्रुव minConstp = checkSvaDelayBound(
         errp, nodep->lhsp(), nodep->isRangeDelay() ? "Range delay minimum" : "Delay value");
-    if (!nodep->rhsp() || nodep->isUnbounded()) return minConstp != nullptr;
+    यदि (!nodep->rhsp() || nodep->isUnbounded()) प्रत्यागम minConstp != nullptr;
     V3Const::constifyParamsNoWarnEdit(nodep->rhsp());
-    const AstConst* const maxConstp
+    ध्रुव AstConst* ध्रुव maxConstp
         = checkSvaDelayBound(errp, nodep->rhsp(), "Range delay maximum");
-    if (!minConstp || !maxConstp) return false;
-    if (maxConstp->toUInt() < minConstp->toUInt()) {
+    यदि (!minConstp || !maxConstp) प्रत्यागम असत्य;
+    यदि (maxConstp->toUInt() < minConstp->toUInt()) {
         errp->v3error("Range delay maximum must be >= minimum (IEEE 1800-2023 16.7)");
-        return false;
+        प्रत्यागम असत्य;
     }
-    return true;
+    प्रत्यागम सत्य;
 }
 
-void V3AssertCommon::checkSvaCycleDelay(AstDelay* nodep, AstNode* errp) {
-    if (svaCycleDelayValid(nodep, errp)) return;
+शून्य V3AssertCommon::checkSvaCycleDelay(AstDelay* nodep, Ast_गाँठ* errp) {
+    यदि (svaCycleDelayValid(nodep, errp)) प्रत्यागम;
     // Make the delay valid, so later steps do not fail after the error
-    FileLine* const flp = nodep->fileline();
-    AstNodeExpr* const minp = nodep->lhsp();
-    minp->replaceWith(new AstConst{flp, AstConst::BitFalseErroring{}});
-    VL_DO_DANGLING(minp->deleteTree(), minp);
-    if (nodep->rhsp() && !nodep->isUnbounded()) {
-        AstNodeExpr* const maxp = nodep->rhsp();
-        maxp->replaceWith(new AstConst{flp, AstConst::BitFalseErroring{}});
-        VL_DO_DANGLING(maxp->deleteTree(), maxp);
+    File_पंक्ति* ध्रुव flp = nodep->fileline();
+    Ast_गाँठ_व्यंजक* ध्रुव minp = nodep->lhsp();
+    minp->replaceWith(नूतन AstConst{flp, AstConst::BitFalseErroring{}});
+    VL_DO_DANGLING(minp->delete_वृक्ष(), minp);
+    यदि (nodep->rhsp() && !nodep->isUnbounded()) {
+        Ast_गाँठ_व्यंजक* ध्रुव maxp = nodep->rhsp();
+        maxp->replaceWith(नूतन AstConst{flp, AstConst::BitFalseErroring{}});
+        VL_DO_DANGLING(maxp->delete_वृक्ष(), maxp);
     }
 }
 
-bool V3AssertCommon::refsSvaFormal(const AstNode* nodep) {
-    return nodep->exists([](const AstNodeVarRef* refp) {
-        const AstVar* const varp = refp->varp();
-        if (!varp || !varp->isIO()) return false;
-        const AstNode* const declp = varp->aboveLoopp();
-        return VN_IS(declp, Sequence) || VN_IS(declp, Property);
+तार्किक V3AssertCommon::refsSvaFormal(ध्रुव Ast_गाँठ* nodep) {
+    प्रत्यागम nodep->exists([](ध्रुव Ast_गाँठ_Var_Ref* refp) {
+        ध्रुव AstVar* ध्रुव varp = refp->varp();
+        यदि (!varp || !varp->isIO()) प्रत्यागम असत्य;
+        ध्रुव Ast_गाँठ* ध्रुव declp = varp->aboveLoopp();
+        प्रत्यागम VN_IS(declp, Sequence) || VN_IS(declp, Property);
     });
 }
 
-void V3AssertCommon::checkSvaInstanceDelays(AstNode* nodep, AstNode* instp) {
+शून्य V3AssertCommon::checkSvaInstanceDelays(Ast_गाँठ* nodep, Ast_गाँठ* instp) {
     // A delay still referencing a formal argument of an enclosing sequence or property is
     // checked when that is instanced. Collect first, as checking edits the delays.
     std::vector<AstDelay*> delayps;
     nodep->foreach([&](AstDelay* delayp) {
-        if (!delayp->isCycleDelay() || refsSvaFormal(delayp->lhsp())) return;
-        if (delayp->rhsp() && refsSvaFormal(delayp->rhsp())) return;
-        delayps.push_back(delayp);
+        यदि (!delayp->isCycleDelay() || refsSvaFormal(delayp->lhsp())) प्रत्यागम;
+        यदि (delayp->rhsp() && refsSvaFormal(delayp->rhsp())) प्रत्यागम;
+        delayps.धकेलो_back(delayp);
     });
-    for (AstDelay* const delayp : delayps) checkSvaCycleDelay(delayp, instp);
+    प्रति (AstDelay* ध्रुव delayp : delayps) checkSvaCycleDelay(delayp, instp);
 }
 
 //######################################################################
@@ -249,134 +249,134 @@ void V3AssertCommon::checkSvaInstanceDelays(AstNode* nodep, AstNode* instp) {
 // If any AstFuture, then move all non-future varrefs to be one cycle behind,
 // see IEEE 1800-2023 16.9.4.
 
-class AssertDeFutureVisitor final : public VNVisitor {
+वर्ग AssertDeFutureVisitor final : सार्वजनिक VNVisitor {
     // STATE - across all visitors
-    AstNodeModule* const m_modp;  // Module future is underneath
-    const AstFuture* m_futurep;  // First AstFuture found
-    const unsigned m_pastNum;  // Prefix unique number for this module
+    Ast_गाँठ_Module* ध्रुव m_modp;  // Module future is underneath
+    ध्रुव AstFuture* m_futurep;  // First AstFuture found
+    ध्रुव unsigned m_past_अंक;  // Prefix unique number for this module
     std::map<AstVar*, AstVar*> m_delayedVars;  // Old to delayed variable mapping
     // STATE - for current visit position (use VL_RESTORER)
-    bool m_inFuture = false;  // Inside a future
-    bool m_unsupported = false;  // Printed unsupported
+    तार्किक m_inFuture = असत्य;  // Inside a future
+    तार्किक m_unsupported = असत्य;  // Printed unsupported
 
     // METHODS
-    void unsupported(AstNode* nodep) {
-        if (m_unsupported) return;
-        m_unsupported = true;
+    शून्य unsupported(Ast_गाँठ* nodep) {
+        यदि (m_unsupported) प्रत्यागम;
+        m_unsupported = सत्य;
         nodep->v3warn(E_UNSUPPORTED,
                       "Unsupported/illegal: Future value function used with expression with "
                           << nodep->prettyOperatorName());
     }
     // VISITORS
-    void visit(AstFuture* nodep) override {
+    शून्य visit(AstFuture* nodep) override {
         VL_RESTORER(m_inFuture);
-        m_inFuture = true;
+        m_inFuture = सत्य;
         iterateChildren(nodep);
         // Done with the future, this subexpression is current-time
         nodep->replaceWith(nodep->exprp()->unlinkFrBack());
-        VL_DO_DANGLING(pushDeletep(nodep), nodep);
+        VL_DO_DANGLING(धकेलो_Deletep(nodep), nodep);
     }
-    void visit(AstNodeVarRef* nodep) override {
-        if (nodep->user1SetOnce()) return;
-        if (m_inFuture || m_unsupported)
-            return;  // Need user1 set above, don't process when Future is removed
-        if (nodep->access().isWriteOrRW()) {
+    शून्य visit(Ast_गाँठ_Var_Ref* nodep) override {
+        यदि (nodep->user1SetOnce()) प्रत्यागम;
+        यदि (m_inFuture || m_unsupported)
+            प्रत्यागम;  // Need user1 set above, don't process when Future is removed
+        यदि (nodep->access().isWriteOrRW()) {
             unsupported(nodep);
-            return;
+            प्रत्यागम;
         }
         auto it = m_delayedVars.find(nodep->varp());
         AstVar* outvarp;
-        if (it == m_delayedVars.end()) {
-            AstSenTree* const sentreep = m_futurep->sentreep();
-            AstAlways* const alwaysp = new AstAlways{nodep->fileline(), VAlwaysKwd::ALWAYS,
-                                                     sentreep->cloneTree(false), nullptr};
+        यदि (it == m_delayedVars.end()) {
+            Ast_Sen_वृक्ष* ध्रुव sentreep = m_futurep->sentreep();
+            AstAlways* ध्रुव alwaysp = नूतन AstAlways{nodep->fileline(), VAlwaysKwd::ALWAYS,
+                                                     sentreep->clone_वृक्ष(असत्य), nullptr};
             m_modp->addStmtsp(alwaysp);
-            outvarp = new AstVar{nodep->fileline(), VVarType::MODULETEMP,
-                                 "__Vnotfuture" + cvtToStr(m_pastNum) + "_" + nodep->name(),
+            outvarp = नूतन AstVar{nodep->fileline(), VVarType::MODULETEMP,
+                                 "__Vnotfuture" + cvtToStr(m_past_अंक) + "_" + nodep->name(),
                                  nodep->dtypep()};
             m_modp->addStmtsp(outvarp);
-            AstVarRef* varRefAWritep = new AstVarRef{nodep->fileline(), outvarp, VAccess::WRITE};
-            varRefAWritep->user1(true);
-            AstNodeVarRef* varRefAReadp = nodep->cloneTree(false);
-            varRefAReadp->user1(true);
-            AstNode* const assp = new AstAssignDly{nodep->fileline(), varRefAWritep, varRefAReadp};
+            AstVarRef* varRefAWritep = नूतन AstVarRef{nodep->fileline(), outvarp, VAccess::WRITE};
+            varRefAWritep->user1(सत्य);
+            Ast_गाँठ_Var_Ref* varRefAReadp = nodep->clone_वृक्ष(असत्य);
+            varRefAReadp->user1(सत्य);
+            Ast_गाँठ* ध्रुव assp = नूतन AstAssignDly{nodep->fileline(), varRefAWritep, varRefAReadp};
             alwaysp->addStmtsp(assp);
             m_delayedVars.emplace(nodep->varp(), outvarp);
-        } else {
+        } अन्यथा {
             outvarp = it->second;
         }
-        AstVarRef* newp = new AstVarRef{nodep->fileline(), outvarp, VAccess::READ};
-        newp->user1(true);
+        AstVarRef* newp = नूतन AstVarRef{nodep->fileline(), outvarp, VAccess::READ};
+        newp->user1(सत्य);
         UINFO(9, "DeFuture " << nodep << "  becomes " << newp);
         nodep->replaceWith(newp);
-        VL_DO_DANGLING(pushDeletep(nodep), nodep);
+        VL_DO_DANGLING(धकेलो_Deletep(nodep), nodep);
     }
-    void visit(AstNodeFTaskRef* nodep) override { unsupported(nodep); }
-    void visit(AstMethodCall* nodep) override { unsupported(nodep); }
-    void visit(AstNode* nodep) override {
-        if (!nodep->isPure()) unsupported(nodep);
+    शून्य visit(Ast_गाँठ_FTask_Ref* nodep) override { unsupported(nodep); }
+    शून्य visit(AstMethodCall* nodep) override { unsupported(nodep); }
+    शून्य visit(Ast_गाँठ* nodep) override {
+        यदि (!nodep->isPure()) unsupported(nodep);
         iterateChildren(nodep);
     }
 
-public:
+सार्वजनिक:
     // CONSTRUCTORS
-    explicit AssertDeFutureVisitor(AstNode* nodep, AstNodeModule* modp, unsigned pastNum)
+    explicit AssertDeFutureVisitor(Ast_गाँठ* nodep, Ast_गाँठ_Module* modp, unsigned past_अंक)
         : m_modp{modp}
-        , m_pastNum{pastNum} {
+        , m_past_अंक{past_अंक} {
         // See if any Future before we process
-        if (nodep->forall([&](const AstFuture* futurep) -> bool {
+        यदि (nodep->forall([&](ध्रुव AstFuture* futurep) -> तार्किक {
                 m_futurep = futurep;
-                return false;
+                प्रत्यागम असत्य;
             }))
-            return;
+            प्रत्यागम;
         // UINFOTREE(9, nodep, "", "defuture-in");
         visit(nodep);  // Nodep may get deleted
         // UINFOTREE(9, nodep, "", "defuture-ou");
     }
-    ~AssertDeFutureVisitor() = default;
+    ~AssertDeFutureVisitor() = स्वभाव;
 };
 
 // Prepare one default sampled expression.
-class DefaultSampledValueVisitor final : public VNVisitor {
+वर्ग Default_Sampled_मूल्य_Visitor final : सार्वजनिक VNVisitor {
     // METHODS
-    static AstConst* newTypeDefault(AstNodeExpr* nodep) {
-        AstConst* const constp
-            = new AstConst{nodep->fileline(), AstConst::DTyped{}, nodep->dtypep()};
-        if (nodep->dtypep()->isFourstate()) constp->num().setAllBitsX();
+    स्थिर AstConst* newTypeDefault(Ast_गाँठ_व्यंजक* nodep) {
+        AstConst* ध्रुव constp
+            = नूतन AstConst{nodep->fileline(), AstConst::DTyped{}, nodep->dtypep()};
+        यदि (nodep->dtypep()->isFourstate()) constp->अंक().setAllBitsX();
         constp->dtypeFrom(nodep);
-        return constp;
+        प्रत्यागम constp;
     }
 
     // VISITORS
-    void visit(AstCMethodHard* nodep) override {
-        if (nodep->method() == VCMethod::EVENT_IS_TRIGGERED) {
-            nodep->replaceWith(new AstConst{nodep->fileline(), AstConst::BitFalse{}});
-            VL_DO_DANGLING(pushDeletep(nodep), nodep);
-        } else {
+    शून्य visit(AstCMethodHard* nodep) override {
+        यदि (nodep->method() == VCMethod::EVENT_IS_TRIGGERED) {
+            nodep->replaceWith(नूतन AstConst{nodep->fileline(), AstConst::BitFalse{}});
+            VL_DO_DANGLING(धकेलो_Deletep(nodep), nodep);
+        } अन्यथा {
             iterateChildren(nodep);
         }
     }
-    void visit(AstNodeVarRef* nodep) override {
-        AstVar* const varp = nodep->varp();
-        if (varp->isParam()
+    शून्य visit(Ast_गाँठ_Var_Ref* nodep) override {
+        AstVar* ध्रुव varp = nodep->varp();
+        यदि (varp->isParam()
             || (!varp->isNet() && varp->lifetime().isStatic() && varp->hasUserInit())) {
-            return;
+            प्रत्यागम;
         }
         nodep->replaceWith(newTypeDefault(nodep));
-        VL_DO_DANGLING(pushDeletep(nodep), nodep);
+        VL_DO_DANGLING(धकेलो_Deletep(nodep), nodep);
     }
-    void visit(AstNode* nodep) override { iterateChildren(nodep); }
+    शून्य visit(Ast_गाँठ* nodep) override { iterateChildren(nodep); }
 
-public:
-    explicit DefaultSampledValueVisitor(AstNode* nodep) { iterate(nodep); }
+सार्वजनिक:
+    explicit Default_Sampled_मूल्य_Visitor(Ast_गाँठ* nodep) { iterate(nodep); }
 };
 
 //######################################################################
 // AssertVisitor
 
-class AssertVisitor final : public VNVisitor {
+वर्ग AssertVisitor final : सार्वजनिक VNVisitor {
     // CONSTANTS
-    static constexpr uint8_t ALL_ASSERT_TYPES
+    स्थिर constexpr uint8_t ALL_ASSERT_TYPES
         = std::numeric_limits<std::underlying_type<VAssertType::en>::type>::max();
 
     // NODE STATE/TYPES
@@ -385,19 +385,19 @@ class AssertVisitor final : public VNVisitor {
     //  AstAlways::user2p()      -> std::vector<AstVar*>. Delayed variables via 'm_delayed'
     //  AstNodeVarRef::user2()   -> bool.  True if shouldn't be sampled
     //  AstIf::user2()           -> bool.  True for assertOn() checks inserted in this pass
-    const VNUser1InUse m_user1InUse;
-    const VNUser2InUse m_user2InUse;
+    ध्रुव VNUser1InUse m_user1InUse;
+    ध्रुव VNUser2InUse m_user2InUse;
     AstUser2Allocator<AstAlways, std::vector<AstVar*>> m_delayed;
 
     // STATE
-    AstNodeModule* m_modp = nullptr;  // Last module
-    const AstNode* m_beginp = nullptr;  // Last AstBegin/AstGenBlock
-    unsigned m_monitorNum = 0;  // Global $monitor numbering (not per module)
-    AstVar* m_monitorNumVarp = nullptr;  // $monitor number variable
+    Ast_गाँठ_Module* m_modp = nullptr;  // Last module
+    ध्रुव Ast_गाँठ* m_beginp = nullptr;  // Last AstBegin/AstGenBlock
+    unsigned m_monitor_अंक = 0;  // Global $monitor numbering (not per module)
+    AstVar* m_monitor_अंक_Varp = nullptr;  // $monitor number variable
     AstVar* m_monitorOffVarp = nullptr;  // $monitoroff variable
-    unsigned m_modPastNum = 0;  // Module past numbering
-    unsigned m_modStrobeNum = 0;  // Module $strobe numbering
-    AstNodeProcedure* m_procedurep = nullptr;  // Current procedure
+    unsigned m_mod_Past_अंक = 0;  // Module past numbering
+    unsigned m_mod_Strobe_अंक = 0;  // Module $strobe numbering
+    Ast_गाँठ_Procedure* m_procedurep = nullptr;  // Current procedure
     VDouble0 m_statCover;  // Statistic tracking
     VDouble0 m_statAsNotImm;  // Statistic tracking
     VDouble0 m_statAsImm;  // Statistic tracking
@@ -405,399 +405,399 @@ class AssertVisitor final : public VNVisitor {
     VDouble0 m_statPastVars;  // Statistic tracking
     VDouble0 m_statAssertOnCombined;  // Statistic tracking
     VDouble0 m_statAssertOnHoisted;  // Statistic tracking
-    bool m_inSampled = false;  // True inside a sampled expression
-    bool m_inRestrict = false;  // True inside restrict assertion
-    AstNode* m_passsp = nullptr;  // Current pass statement
-    AstNode* m_failsp = nullptr;  // Current fail statement
-    AstNodeCoverOrAssert* m_assertp = nullptr;  // Current assertion
+    तार्किक m_inSampled = असत्य;  // True inside a sampled expression
+    तार्किक m_inRestrict = असत्य;  // True inside restrict assertion
+    Ast_गाँठ* m_passsp = nullptr;  // Current pass statement
+    Ast_गाँठ* m_failsp = nullptr;  // Current fail statement
+    Ast_गाँठ_Cover_Or_Assert* m_assertp = nullptr;  // Current assertion
     AstFinal* m_finalp = nullptr;  // Current final block
     VDouble0 m_statLiftedCaseExprs;  // Count of purified case expressions
-    AstNodeFTask* m_ftaskp = nullptr;  // Current function/task
+    Ast_गाँठ_FTask* m_ftaskp = nullptr;  // Current function/task
     V3UniqueNames m_caseTempNames{"__VCase"};
-    V3UniqueNames m_matchCountNames{"__VnfaRemainingMatchCount"};  // Match replay counter names
+    V3UniqueNames m_match_गिनती_Names{"__VnfaRemainingMatchCount"};  // Match replay counter names
     // Maps from (expression, senTree) to the AstAlways that computes its delayed values.
-    std::unordered_map<VNRef<AstNodeExpr>, std::unordered_map<VNRef<AstSenTree>, AstAlways*>>
+    std::unordered_map<VNRef<Ast_गाँठ_व्यंजक>, std::unordered_map<VNRef<Ast_Sen_वृक्ष>, AstAlways*>>
         m_modExpr2Sen2DelayedAlwaysp;
     // Source sampled-value history is initialized, unlike internal property-lowering history.
-    std::unordered_map<VNRef<AstNodeExpr>, std::unordered_map<VNRef<AstSenTree>, AstAlways*>>
+    std::unordered_map<VNRef<Ast_गाँठ_व्यंजक>, std::unordered_map<VNRef<Ast_Sen_वृक्ष>, AstAlways*>>
         m_modExpr2Sen2DefaultDelayedAlwaysp;
     // Map from delayed-value AstAlways to its last-sampling-tick time variable
-    std::unordered_map<const AstAlways*, AstVar*> m_delayedAlways2TickTimep;
+    std::unordered_map<ध्रुव AstAlways*, AstVar*> m_delayedAlways2TickTimep;
 
     // METHODS
-    static const char* assertPassOnQuery(bool vacuous) {
-        static constexpr const char* queries[2]
+    स्थिर ध्रुव वर्ण* assertPassOnQuery(तार्किक vacuous) {
+        स्थिर constexpr ध्रुव वर्ण* queries[2]
             = {"ASSERT_CTL_PASS_ON_NONVACUOUS", "ASSERT_CTL_PASS_ON_VACUOUS"};
-        return queries[vacuous];
+        प्रत्यागम queries[vacuous];
     }
-    static AstNodeExpr* assertOnCond(FileLine* fl, VAssertType type,
+    स्थिर Ast_गाँठ_व्यंजक* assertOnCond(File_पंक्ति* fl, VAssertType type,
                                      VAssertDirectiveType directiveType) {
         // cppcheck-suppress missingReturn
-        switch (directiveType) {
-        case VAssertDirectiveType::INTRINSIC: return new AstConst{fl, AstConst::BitTrue{}};
-        case VAssertDirectiveType::VIOLATION_CASE: {
-            if (v3Global.opt.assertCase()) {
-                return new AstCExpr{fl, AstCExpr::Pure{}, "vlSymsp->_vm_contextp__->assertOn()",
+        विकल्प (directiveType) {
+        पक्ष VAssertDirectiveType::INTRINSIC: प्रत्यागम नूतन AstConst{fl, AstConst::BitTrue{}};
+        पक्ष VAssertDirectiveType::VIOLATION_CASE: {
+            यदि (v3Global.opt.assertCase()) {
+                प्रत्यागम नूतन AstCExpr{fl, AstCExpr::Pure{}, "vlSymsp->_vm_contextp__->assertOn()",
                                     1};
             }
             // If assertions are off, have constant propagation rip them out later
             // This allows syntax errors and such to be detected normally.
-            return new AstConst{fl, AstConst::BitFalse{}};
+            प्रत्यागम नूतन AstConst{fl, AstConst::BitFalse{}};
         }
-        case VAssertDirectiveType::ASSERT:
-        case VAssertDirectiveType::COVER:
-        case VAssertDirectiveType::ASSUME: {
-            if (v3Global.opt.assertOn()) {
-                return new AstCExpr{
+        पक्ष VAssertDirectiveType::ASSERT:
+        पक्ष VAssertDirectiveType::COVER:
+        पक्ष VAssertDirectiveType::ASSUME: {
+            यदि (v3Global.opt.assertOn()) {
+                प्रत्यागम नूतन AstCExpr{
                     fl, AstCExpr::Pure{},
                     V3AssertCommon::assertCtlGetCall("ASSERT_CTL_ON", type, directiveType), 1};
             }
-            return new AstConst{fl, AstConst::BitFalse{}};
+            प्रत्यागम नूतन AstConst{fl, AstConst::BitFalse{}};
         }
-        case VAssertDirectiveType::INTERNAL:
-        case VAssertDirectiveType::VIOLATION_IF:
-        case VAssertDirectiveType::RESTRICT: {
-            if (v3Global.opt.assertOn()) {
-                return new AstCExpr{fl, AstCExpr::Pure{}, "vlSymsp->_vm_contextp__->assertOn()",
+        पक्ष VAssertDirectiveType::INTERNAL:
+        पक्ष VAssertDirectiveType::VIOLATION_IF:
+        पक्ष VAssertDirectiveType::RESTRICT: {
+            यदि (v3Global.opt.assertOn()) {
+                प्रत्यागम नूतन AstCExpr{fl, AstCExpr::Pure{}, "vlSymsp->_vm_contextp__->assertOn()",
                                     1};
             }
-            return new AstConst{fl, AstConst::BitFalse{}};
+            प्रत्यागम नूतन AstConst{fl, AstConst::BitFalse{}};
         }
         }
         VL_UNREACHABLE;
     }
 
-    static bool isControlled(VAssertDirectiveType directiveType) {
-        return (static_cast<int>(directiveType)
-                & (static_cast<int>(VAssertDirectiveType::ASSERT)
-                   | static_cast<int>(VAssertDirectiveType::COVER)
-                   | static_cast<int>(VAssertDirectiveType::ASSUME)));
+    स्थिर तार्किक isControlled(VAssertDirectiveType directiveType) {
+        प्रत्यागम (static_cast<पूर्णाङ्क>(directiveType)
+                & (static_cast<पूर्णाङ्क>(VAssertDirectiveType::ASSERT)
+                   | static_cast<पूर्णाङ्क>(VAssertDirectiveType::COVER)
+                   | static_cast<पूर्णाङ्क>(VAssertDirectiveType::ASSUME)));
     }
-    static AstNodeExpr* assertPassOnCond(FileLine* fl, VAssertType type,
-                                         VAssertDirectiveType directiveType, bool vacuous) {
-        if (!isControlled(directiveType)) return new AstConst{fl, AstConst::BitTrue{}};
-        if (!v3Global.opt.assertOn()) return new AstConst{fl, AstConst::BitFalse{}};
-        return new AstCExpr{
+    स्थिर Ast_गाँठ_व्यंजक* assertPassOnCond(File_पंक्ति* fl, VAssertType type,
+                                         VAssertDirectiveType directiveType, तार्किक vacuous) {
+        यदि (!isControlled(directiveType)) प्रत्यागम नूतन AstConst{fl, AstConst::BitTrue{}};
+        यदि (!v3Global.opt.assertOn()) प्रत्यागम नूतन AstConst{fl, AstConst::BitFalse{}};
+        प्रत्यागम नूतन AstCExpr{
             fl, AstCExpr::Pure{},
             V3AssertCommon::assertCtlGetCall(assertPassOnQuery(vacuous), type, directiveType), 1};
     }
-    static AstNodeExpr* assertFailOnCond(FileLine* fl, VAssertType type,
+    स्थिर Ast_गाँठ_व्यंजक* assertFailOnCond(File_पंक्ति* fl, VAssertType type,
                                          VAssertDirectiveType directiveType) {
-        if (!isControlled(directiveType)) return new AstConst{fl, AstConst::BitTrue{}};
-        if (!v3Global.opt.assertOn()) return new AstConst{fl, AstConst::BitFalse{}};
-        return new AstCExpr{
+        यदि (!isControlled(directiveType)) प्रत्यागम नूतन AstConst{fl, AstConst::BitTrue{}};
+        यदि (!v3Global.opt.assertOn()) प्रत्यागम नूतन AstConst{fl, AstConst::BitFalse{}};
+        प्रत्यागम नूतन AstCExpr{
             fl, AstCExpr::Pure{},
             V3AssertCommon::assertCtlGetCall("ASSERT_CTL_FAIL_ON", type, directiveType), 1};
     }
-    string assertDisplayMessage(const AstNode* nodep, const string& prefix, const string& message,
+    string assertDisplayMessage(ध्रुव Ast_गाँठ* nodep, ध्रुव string& prefix, ध्रुव string& message,
                                 VDisplayType severity) {
-        if (severity == VDisplayType::DT_ERROR || severity == VDisplayType::DT_FATAL) {
-            return ("[%0t] "s + prefix + ": " + nodep->fileline()->filebasename() + ":"
+        यदि (severity == VDisplayType::DT_ERROR || severity == VDisplayType::DT_FATAL) {
+            प्रत्यागम ("[%0t] "s + prefix + ": " + nodep->fileline()->filebasename() + ":"
                     + cvtToStr(nodep->fileline()->lineno()) + ": Assertion failed in %m"
                     + ((message != "") ? ": " : "") + message + "\n");
         }
-        return ("[%0t] "s + prefix + ": " + nodep->fileline()->filebasename() + ":"
+        प्रत्यागम ("[%0t] "s + prefix + ": " + nodep->fileline()->filebasename() + ":"
                 + cvtToStr(nodep->fileline()->lineno()) + ": %m" + ((message != "") ? ": " : "")
                 + message + "\n");
     }
-    void replaceDisplay(AstDisplay* nodep, const string& prefix) {
+    शून्य replaceDisplay(AstDisplay* nodep, ध्रुव string& prefix) {
         nodep->fmtp()->text(
             assertDisplayMessage(nodep, prefix, nodep->fmtp()->text(), nodep->displayType()));
         nodep->displayType(VDisplayType::DT_WRITE);
         // cppcheck-suppress nullPointer
-        AstNodeExpr* const timenewp = new AstTime{nodep->fileline(), m_modp->timeunit()};
+        Ast_गाँठ_व्यंजक* ध्रुव timenewp = नूतन AstTime{nodep->fileline(), m_modp->timeunit()};
         nodep->fmtp()->prependExprsp(timenewp);
-        if (!nodep->fmtp()->scopeNamep() && nodep->fmtp()->formatScopeTracking()) {
-            nodep->fmtp()->scopeNamep(new AstScopeName{nodep->fileline(), true});
+        यदि (!nodep->fmtp()->scopeNamep() && nodep->fmtp()->formatScopeTracking()) {
+            nodep->fmtp()->scopeNamep(नूतन AstScopeName{nodep->fileline(), सत्य});
         }
     }
-    AstSampled* newSampledExpr(AstNodeExpr* nodep) {
-        return new AstSampled{nodep->fileline(), nodep, nodep->dtypep(), true};
+    AstSampled* new_Sampled_व्यंजक(Ast_गाँठ_व्यंजक* nodep) {
+        प्रत्यागम नूतन AstSampled{nodep->fileline(), nodep, nodep->dtypep(), सत्य};
     }
-    AstVarRef* newMonitorNumVarRefp(const AstNode* nodep, VAccess access) {
-        if (!m_monitorNumVarp) {
-            m_monitorNumVarp = new AstVar{nodep->fileline(), VVarType::MODULETEMP, "__VmonitorNum",
+    AstVarRef* new_Monitor_अंक_Var_Refp(ध्रुव Ast_गाँठ* nodep, VAccess access) {
+        यदि (!m_monitor_अंक_Varp) {
+            m_monitor_अंक_Varp = नूतन AstVar{nodep->fileline(), VVarType::MODULETEMP, "__VmonitorNum",
                                           nodep->findUInt64DType()};
-            v3Global.rootp()->dollarUnitPkgp()->addStmtsp(m_monitorNumVarp);
+            v3Global.rootp()->dollarUnitPkgp()->addStmtsp(m_monitor_अंक_Varp);
         }
-        AstVarRef* const varrefp = new AstVarRef{nodep->fileline(), m_monitorNumVarp, access};
+        AstVarRef* ध्रुव varrefp = नूतन AstVarRef{nodep->fileline(), m_monitor_अंक_Varp, access};
         varrefp->classOrPackagep(v3Global.rootp()->dollarUnitPkgp());
-        return varrefp;
+        प्रत्यागम varrefp;
     }
-    AstVarRef* newMonitorOffVarRefp(const AstNode* nodep, VAccess access) {
-        if (!m_monitorOffVarp) {
-            m_monitorOffVarp = new AstVar{nodep->fileline(), VVarType::MODULETEMP, "__VmonitorOff",
+    AstVarRef* newMonitorOffVarRefp(ध्रुव Ast_गाँठ* nodep, VAccess access) {
+        यदि (!m_monitorOffVarp) {
+            m_monitorOffVarp = नूतन AstVar{nodep->fileline(), VVarType::MODULETEMP, "__VmonitorOff",
                                           nodep->findBitDType()};
             v3Global.rootp()->dollarUnitPkgp()->addStmtsp(m_monitorOffVarp);
         }
-        AstVarRef* const varrefp = new AstVarRef{nodep->fileline(), m_monitorOffVarp, access};
+        AstVarRef* ध्रुव varrefp = नूतन AstVarRef{nodep->fileline(), m_monitorOffVarp, access};
         varrefp->classOrPackagep(v3Global.rootp()->dollarUnitPkgp());
-        return varrefp;
+        प्रत्यागम varrefp;
     }
-    static AstIf* newIfAssertOn(AstNode* bodyp, VAssertDirectiveType directiveType,
+    स्थिर AstIf* newIfAssertOn(Ast_गाँठ* bodyp, VAssertDirectiveType directiveType,
                                 VAssertType type = VAssertType::INTERNAL) {
         // Add an internal if to check assertions are on.
         // Don't make this an AND term, as it's unlikely to need to test this.
-        FileLine* const fl = bodyp->fileline();
+        File_पंक्ति* ध्रुव fl = bodyp->fileline();
 
-        AstNodeExpr* const condp = assertOnCond(fl, type, directiveType);
-        AstIf* const newp = new AstIf{fl, condp, bodyp};
-        newp->isBoundsCheck(true);  // To avoid LATCH warning
-        newp->user2(true);  // Mark as an assertOn() check
-        return newp;
+        Ast_गाँठ_व्यंजक* ध्रुव condp = assertOnCond(fl, type, directiveType);
+        AstIf* ध्रुव newp = नूतन AstIf{fl, condp, bodyp};
+        newp->isBoundsCheck(सत्य);  // To avoid LATCH warning
+        newp->user2(सत्य);  // Mark as an assertOn() check
+        प्रत्यागम newp;
     }
-    static AstNodeStmt* newIfAssertPassOn(AstNode* bodyp, VAssertDirectiveType directiveType,
-                                          VAssertType type, bool vacuous) {
+    स्थिर Ast_गाँठ_Stmt* newIfAssertPassOn(Ast_गाँठ* bodyp, VAssertDirectiveType directiveType,
+                                          VAssertType type, तार्किक vacuous) {
         // Add an internal if to check assertion passOn is enabled.
         // Don't make this an AND term, as it's unlikely to need to test this.
-        FileLine* const fl = bodyp->fileline();
-        AstNodeExpr* const condp = assertPassOnCond(fl, type, directiveType, vacuous);
-        AstNodeIf* const newp = new AstIf{fl, condp, bodyp};
-        newp->isBoundsCheck(true);  // To avoid LATCH warning
-        newp->user1(true);  // Don't assert/cover this if
-        newp->user2(true);  // Mark as an assertOn() check
-        return newp;
+        File_पंक्ति* ध्रुव fl = bodyp->fileline();
+        Ast_गाँठ_व्यंजक* ध्रुव condp = assertPassOnCond(fl, type, directiveType, vacuous);
+        Ast_गाँठ_If* ध्रुव newp = नूतन AstIf{fl, condp, bodyp};
+        newp->isBoundsCheck(सत्य);  // To avoid LATCH warning
+        newp->user1(सत्य);  // Don't assert/cover this if
+        newp->user2(सत्य);  // Mark as an assertOn() check
+        प्रत्यागम newp;
     }
-    static AstNodeStmt* newIfAssertFailOn(AstNode* bodyp, VAssertDirectiveType directiveType,
+    स्थिर Ast_गाँठ_Stmt* newIfAssertFailOn(Ast_गाँठ* bodyp, VAssertDirectiveType directiveType,
                                           VAssertType type) {
         // Add an internal if to check assertion failOn is enabled.
         // Don't make this an AND term, as it's unlikely to need to test this.
-        FileLine* const fl = bodyp->fileline();
-        AstNodeExpr* const condp = assertFailOnCond(fl, type, directiveType);
-        AstNodeIf* const newp = new AstIf{fl, condp, bodyp};
-        newp->isBoundsCheck(true);  // To avoid LATCH warning
-        newp->user1(true);  // Don't assert/cover this if
-        newp->user2(true);  // Mark as an assertOn() check
-        return newp;
+        File_पंक्ति* ध्रुव fl = bodyp->fileline();
+        Ast_गाँठ_व्यंजक* ध्रुव condp = assertFailOnCond(fl, type, directiveType);
+        Ast_गाँठ_If* ध्रुव newp = नूतन AstIf{fl, condp, bodyp};
+        newp->isBoundsCheck(सत्य);  // To avoid LATCH warning
+        newp->user1(सत्य);  // Don't assert/cover this if
+        newp->user2(सत्य);  // Mark as an assertOn() check
+        प्रत्यागम newp;
     }
 
-    static AstIf* assertCond(const AstNodeCoverOrAssert* nodep, AstNodeExpr* propp,
-                             AstNode* passsp, AstNode* failsp) {
-        AstIf* const ifp = new AstIf{nodep->fileline(), propp, passsp, failsp};
+    स्थिर AstIf* assertCond(ध्रुव Ast_गाँठ_Cover_Or_Assert* nodep, Ast_गाँठ_व्यंजक* propp,
+                             Ast_गाँठ* passsp, Ast_गाँठ* failsp) {
+        AstIf* ध्रुव ifp = नूतन AstIf{nodep->fileline(), propp, passsp, failsp};
         // It's more LIKELY that we'll take the nullptr if clause
         // than the sim-killing else clause:
         ifp->branchPred(VBranchPred::BP_LIKELY);
-        ifp->isBoundsCheck(true);  // To avoid LATCH warning
-        return ifp;
+        ifp->isBoundsCheck(सत्य);  // To avoid LATCH warning
+        प्रत्यागम ifp;
     }
 
-    AstNodeStmt* assertBody(const AstNodeCoverOrAssert* nodep, AstNode* propp, AstNode* passsp,
-                            AstNode* failsp) {
-        if (AstPExpr* const pexprp = VN_CAST(propp, PExpr)) {
-            if (!v3Global.opt.timing().isSetTrue()) {
+    Ast_गाँठ_Stmt* assertBody(ध्रुव Ast_गाँठ_Cover_Or_Assert* nodep, Ast_गाँठ* propp, Ast_गाँठ* passsp,
+                            Ast_गाँठ* failsp) {
+        यदि (AstPExpr* ध्रुव pexprp = VN_CAST(propp, PExpr)) {
+            यदि (!v3Global.opt.timing().isSetTrue()) {
                 nodep->v3warn(E_NOTIMING, "This property expression requires --timing");
-                VL_DO_DANGLING(pushDeletep(pexprp), pexprp);
-                return new AstBegin{nodep->fileline(), "", nullptr, false};
+                VL_DO_DANGLING(धकेलो_Deletep(pexprp), pexprp);
+                प्रत्यागम नूतन AstBegin{nodep->fileline(), "", nullptr, असत्य};
             }
-            AstFork* const forkp = new AstFork{nodep->fileline(), VJoinType::JOIN_NONE};
+            AstFork* ध्रुव forkp = नूतन AstFork{nodep->fileline(), VJoinType::JOIN_NONE};
             forkp->addForksp(pexprp->bodyp()->unlinkFrBack());
-            if (AstNodeStmt* const finalp = pexprp->finalp()) {
-                if (!m_finalp) {
-                    m_finalp = new AstFinal{m_modp->fileline(), finalp->unlinkFrBack()};
+            यदि (Ast_गाँठ_Stmt* ध्रुव finalp = pexprp->finalp()) {
+                यदि (!m_finalp) {
+                    m_finalp = नूतन AstFinal{m_modp->fileline(), finalp->unlinkFrBack()};
                     m_modp->addStmtsp(m_finalp);
-                } else {
+                } अन्यथा {
                     m_finalp->addStmtsp(finalp->unlinkFrBack());
                 }
             }
-            VL_DO_DANGLING2(pushDeletep(pexprp), pexprp, propp);
-            return forkp;
+            VL_DO_DANGLING2(धकेलो_Deletep(pexprp), pexprp, propp);
+            प्रत्यागम forkp;
         }
 
-        return assertCond(nodep, VN_AS(propp, NodeExpr), passsp, failsp);
+        प्रत्यागम assertCond(nodep, VN_AS(propp, गाँठ_व्यंजक), passsp, failsp);
     }
 
-    AstNodeStmt* newFireAssertUnchecked(const AstNodeStmt* nodep, const string& message,
-                                        AstNodeExpr* exprsp = nullptr) {
+    Ast_गाँठ_Stmt* newFireAssertUnchecked(ध्रुव Ast_गाँठ_Stmt* nodep, ध्रुव string& message,
+                                        Ast_गाँठ_व्यंजक* exprsp = nullptr) {
         // Like newFireAssert() but omits the asserts-on check
-        AstDisplay* const dispp
-            = new AstDisplay{nodep->fileline(), VDisplayType::DT_ERROR, message, nullptr, nullptr};
+        AstDisplay* ध्रुव dispp
+            = नूतन AstDisplay{nodep->fileline(), VDisplayType::DT_ERROR, message, nullptr, nullptr};
         dispp->fmtp()->timeunit(m_modp->timeunit());
-        AstNodeStmt* const bodysp = dispp;
+        Ast_गाँठ_Stmt* ध्रुव bodysp = dispp;
         replaceDisplay(dispp, "%%Error");  // Convert to standard DISPLAY format
-        if (exprsp) dispp->fmtp()->exprsp()->addNext(exprsp);
-        if (v3Global.opt.stopFail()) bodysp->addNext(new AstStop{nodep->fileline(), false});
-        return bodysp;
+        यदि (exprsp) dispp->fmtp()->exprsp()->addNext(exprsp);
+        यदि (v3Global.opt.stopFail()) bodysp->addNext(नूतन AstStop{nodep->fileline(), असत्य});
+        प्रत्यागम bodysp;
     }
 
-    AstNodeStmt* newFireAssert(const AstNodeStmt* nodep, VAssertDirectiveType directiveType,
-                               VAssertType assertType, const string& message,
-                               AstNodeExpr* exprsp = nullptr) {
-        AstNodeStmt* bodysp = newFireAssertUnchecked(nodep, message, exprsp);
+    Ast_गाँठ_Stmt* newFireAssert(ध्रुव Ast_गाँठ_Stmt* nodep, VAssertDirectiveType directiveType,
+                               VAssertType assertType, ध्रुव string& message,
+                               Ast_गाँठ_व्यंजक* exprsp = nullptr) {
+        Ast_गाँठ_Stmt* bodysp = newFireAssertUnchecked(nodep, message, exprsp);
         bodysp = newIfAssertOn(bodysp, directiveType, assertType);
-        return bodysp;
+        प्रत्यागम bodysp;
     }
 
-    AstVar* createDelayedVar(const std::string& name, AstAlways* alwaysp, AstNodeExpr* exprp,
-                             AstNodeExpr* initp) {
-        FileLine* const flp = exprp->fileline();
-        AstVar* const varp = new AstVar{flp, VVarType::MODULETEMP, name, exprp->dtypep()};
+    AstVar* createDelayedVar(ध्रुव std::string& name, AstAlways* alwaysp, Ast_गाँठ_व्यंजक* exprp,
+                             Ast_गाँठ_व्यंजक* initp) {
+        File_पंक्ति* ध्रुव flp = exprp->fileline();
+        AstVar* ध्रुव varp = नूतन AstVar{flp, VVarType::MODULETEMP, name, exprp->dtypep()};
         // TODO: this lifetime seems nonsene (can't have NBAs to automatics), but is as before
         varp->lifetime(VLifetime::AUTOMATIC_EXPLICIT);
         m_modp->addStmtsp(varp);
         // Before enough clock ticks, $past returns the expression's default sampled value.
-        if (initp) {
-            m_modp->addStmtsp(new AstInitialStatic{
-                flp, new AstAssign{flp, new AstVarRef{flp, varp, VAccess::WRITE}, initp}});
+        यदि (initp) {
+            m_modp->addStmtsp(नूतन AstInitialStatic{
+                flp, नूतन AstAssign{flp, नूतन AstVarRef{flp, varp, VAccess::WRITE}, initp}});
         }
         ++m_statPastVars;
         // Actually set the delayed value
-        AstNodeExpr* const lhsp = new AstVarRef{flp, varp, VAccess::WRITE};
-        AstAssignDly* const assignp = new AstAssignDly{flp, lhsp, exprp};
+        Ast_गाँठ_व्यंजक* ध्रुव lhsp = नूतन AstVarRef{flp, varp, VAccess::WRITE};
+        AstAssignDly* ध्रुव assignp = नूतन AstAssignDly{flp, lhsp, exprp};
         alwaysp->prependStmtsp(assignp);
-        return varp;
+        प्रत्यागम varp;
     }
 
-    AstAlways* getDelayedAlways(AstNodeExpr* exprp, AstNodeExpr* initp, AstSenTree* senTreep) {
+    AstAlways* getDelayedAlways(Ast_गाँठ_व्यंजक* exprp, Ast_गाँठ_व्यंजक* initp, Ast_Sen_वृक्ष* senTreep) {
         auto& expr2Sen2Alwaysr
             = initp ? m_modExpr2Sen2DefaultDelayedAlwaysp : m_modExpr2Sen2DelayedAlwaysp;
         AstAlways*& alwayspr = expr2Sen2Alwaysr[*exprp][*senTreep];
-        if (!alwayspr) {
-            FileLine* const flp = exprp->fileline();
+        यदि (!alwayspr) {
+            File_पंक्ति* ध्रुव flp = exprp->fileline();
             // Create the always block that computes the delayed values
-            alwayspr = new AstAlways{flp, VAlwaysKwd::ALWAYS, senTreep, nullptr};
+            alwayspr = नूतन AstAlways{flp, VAlwaysKwd::ALWAYS, senTreep, nullptr};
             m_modp->addStmtsp(alwayspr);
             // Create the once-delayed variable
-            const std::string name = "_Vpast_" + cvtToStr(m_modPastNum++) + "_1";
-            AstVar* const varp = createDelayedVar(name, alwayspr, exprp, initp);
+            ध्रुव std::string name = "_Vpast_" + cvtToStr(m_mod_Past_अंक++) + "_1";
+            AstVar* ध्रुव varp = createDelayedVar(name, alwayspr, exprp, initp);
             // Add it to delayed variable vector
             m_delayed(alwayspr).emplace_back(varp);
-        } else {
+        } अन्यथा {
             // Reusing exiting, not needed
-            VL_DO_DANGLING(pushDeletep(exprp), exprp);
-            if (initp) VL_DO_DANGLING(pushDeletep(initp), initp);
-            VL_DO_DANGLING(pushDeletep(senTreep), senTreep);
+            VL_DO_DANGLING(धकेलो_Deletep(exprp), exprp);
+            यदि (initp) VL_DO_DANGLING(धकेलो_Deletep(initp), initp);
+            VL_DO_DANGLING(धकेलो_Deletep(senTreep), senTreep);
         }
-        return alwayspr;
+        प्रत्यागम alwayspr;
     }
 
-    AstNodeExpr* getPastValue(AstNodeExpr* exprp, AstNodeExpr* initp, AstSenTree* senTreep,
+    Ast_गाँठ_व्यंजक* get_Past_मूल्य(Ast_गाँठ_व्यंजक* exprp, Ast_गाँठ_व्यंजक* initp, Ast_Sen_वृक्ष* senTreep,
                               uint32_t ticks) {
         UASSERT_OBJ(ticks > 0, exprp, "Delay must be > 0");
-        FileLine* const flp = exprp->fileline();
-        AstAlways* const alwaysp
-            = getDelayedAlways(exprp, initp ? initp->cloneTreePure(false) : nullptr, senTreep);
-        AstNodeExpr* const resultp = pastValueRef(alwaysp, flp, ticks, initp);
-        if (initp) VL_DO_DANGLING(pushDeletep(initp), initp);
-        return resultp;
+        File_पंक्ति* ध्रुव flp = exprp->fileline();
+        AstAlways* ध्रुव alwaysp
+            = getDelayedAlways(exprp, initp ? initp->clone_वृक्ष_Pure(असत्य) : nullptr, senTreep);
+        Ast_गाँठ_व्यंजक* ध्रुव resultp = past_मूल्य_Ref(alwaysp, flp, ticks, initp);
+        यदि (initp) VL_DO_DANGLING(धकेलो_Deletep(initp), initp);
+        प्रत्यागम resultp;
     }
 
-    AstNodeExpr* pastValueRef(AstAlways* alwaysp, FileLine* flp, uint32_t ticks,
-                              AstNodeExpr* initp) {
+    Ast_गाँठ_व्यंजक* past_मूल्य_Ref(AstAlways* alwaysp, File_पंक्ति* flp, uint32_t ticks,
+                              Ast_गाँठ_व्यंजक* initp) {
         std::vector<AstVar*>& delayedr = m_delayed(alwaysp);
         // Ensure the required delay exists
-        while (delayedr.size() < ticks) {
-            AstVar* const firstp = delayedr.front();
-            FileLine* const varFlp = firstp->fileline();
+        यावत् (delayedr.size() < ticks) {
+            AstVar* ध्रुव firstp = delayedr.front();
+            File_पंक्ति* ध्रुव varFlp = firstp->fileline();
             // Create once more delayed value
             std::string name = firstp->name();
             name.resize(name.size() - 1);
             name += std::to_string(delayedr.size() + 1);
-            AstNodeExpr* const prevp = new AstVarRef{varFlp, delayedr.back(), VAccess::READ};
-            AstVar* const varp = createDelayedVar(name, alwaysp, prevp,
-                                                  initp ? initp->cloneTreePure(false) : nullptr);
+            Ast_गाँठ_व्यंजक* ध्रुव prevp = नूतन AstVarRef{varFlp, delayedr.back(), VAccess::READ};
+            AstVar* ध्रुव varp = createDelayedVar(name, alwaysp, prevp,
+                                                  initp ? initp->clone_वृक्ष_Pure(असत्य) : nullptr);
             // Add it to delayed variable vector
             delayedr.emplace_back(varp);
         }
         // Return a reference to the appropriately delayed variable
-        return new AstVarRef{flp, delayedr.at(ticks - 1), VAccess::READ};
+        प्रत्यागम नूतन AstVarRef{flp, delayedr.at(ticks - 1), VAccess::READ};
     }
 
     // Time of the pipeline's last sampling tick, for end-of-simulation readers
     AstVar* getPastTickTimeVar(AstAlways* alwaysp) {
         AstVar*& varpr = m_delayedAlways2TickTimep[alwaysp];
-        if (!varpr) {
-            FileLine* const flp = alwaysp->fileline();
-            varpr = new AstVar{flp, VVarType::MODULETEMP,
-                               "_Vpast_" + cvtToStr(m_modPastNum++) + "_t",
+        यदि (!varpr) {
+            File_पंक्ति* ध्रुव flp = alwaysp->fileline();
+            varpr = नूतन AstVar{flp, VVarType::MODULETEMP,
+                               "_Vpast_" + cvtToStr(m_mod_Past_अंक++) + "_t",
                                m_modp->findUInt64DType()};
             m_modp->addStmtsp(varpr);
-            AstNodeExpr* const timep = new AstCExpr{flp, "vlSymsp->_vm_contextp__->time()", 64};
+            Ast_गाँठ_व्यंजक* ध्रुव timep = नूतन AstCExpr{flp, "vlSymsp->_vm_contextp__->time()", 64};
             alwaysp->addStmtsp(
-                new AstAssign{flp, new AstVarRef{flp, varpr, VAccess::WRITE}, timep});
+                नूतन AstAssign{flp, नूतन AstVarRef{flp, varpr, VAccess::WRITE}, timep});
         }
-        return varpr;
+        प्रत्यागम varpr;
     }
 
-    void visitAssertionIterate(AstNodeCoverOrAssert* nodep, AstNode* failsp) {
-        if (m_beginp && nodep->name() == "") nodep->name(m_beginp->name());
+    शून्य visitAssertionIterate(Ast_गाँठ_Cover_Or_Assert* nodep, Ast_गाँठ* failsp) {
+        यदि (m_beginp && nodep->name() == "") nodep->name(m_beginp->name());
 
-        { AssertDeFutureVisitor{nodep->propp(), m_modp, m_modPastNum++}; }
+        { AssertDeFutureVisitor{nodep->propp(), m_modp, m_mod_Past_अंक++}; }
 
         iterateAndNextNull(nodep->sentreep());
-        if (AstAssert* const assertp = VN_CAST(nodep, Assert)) {
+        यदि (AstAssert* ध्रुव assertp = VN_CAST(nodep, Assert)) {
             iterateAndNextNull(assertp->failsp());
-        } else if (AstAssertIntrinsic* const assertp = VN_CAST(nodep, AssertIntrinsic)) {
+        } अन्यथा यदि (AstAssertIntrinsic* ध्रुव assertp = VN_CAST(nodep, AssertIntrinsic)) {
             iterateAndNextNull(assertp->failsp());
-        } else if (AstCover* const coverp = VN_CAST(nodep, Cover)) {
+        } अन्यथा यदि (AstCover* ध्रुव coverp = VN_CAST(nodep, Cover)) {
             iterateAndNextNull(coverp->coverincsp());
-        } else if (!VN_IS(nodep, Restrict)) {
+        } अन्यथा यदि (!VN_IS(nodep, Restrict)) {
             nodep->v3fatalSrc("Unhandled assert type");
         }
         iterateAndNextNull(nodep->passsp());
-        AstSenTree* sentreep = nodep->sentreep();
-        if (nodep->immediate()) {
+        Ast_Sen_वृक्ष* sentreep = nodep->sentreep();
+        यदि (nodep->immediate()) {
             UASSERT_OBJ(!sentreep, nodep, "Immediate assertions don't have sensitivity");
-        } else {
+        } अन्यथा {
             UASSERT_OBJ(sentreep, nodep, "Concurrent assertions must have sensitivity");
             // Explicit inline clock differs from the enclosing always: hoist
             // and warn. To support this need queue of asserts to activate.
-            if (m_procedurep && !nodep->senFromAlways()) {
+            यदि (m_procedurep && !nodep->senFromAlways()) {
                 nodep->v3warn(E_UNSUPPORTED,
                               "Unsupported: Procedural concurrent assertion with"
                               " clocking event inside always (IEEE 1800-2023 16.14.6)");
-                static_cast<AstNode*>(m_procedurep)->addNext(nodep->unlinkFrBack());
-                return;  // Later iterate will pick up
+                static_cast<Ast_गाँठ*>(m_procedurep)->addNext(nodep->unlinkFrBack());
+                प्रत्यागम;  // Later iterate will pick up
             }
             sentreep->unlinkFrBack();
-            if (m_procedurep) { VL_DO_DANGLING(pushDeletep(sentreep), sentreep); }
+            यदि (m_procedurep) { VL_DO_DANGLING(धकेलो_Deletep(sentreep), sentreep); }
         }
         //
-        const string& message = nodep->name();
-        AstNode* passsp = nodep->passsp();
-        if (passsp) passsp->unlinkFrBackWithNext();
-        if (AstAssert* const assertp = VN_CAST(nodep, Assert)) {
+        ध्रुव string& message = nodep->name();
+        Ast_गाँठ* passsp = nodep->passsp();
+        यदि (passsp) passsp->unlinkFrBackWithNext();
+        यदि (AstAssert* ध्रुव assertp = VN_CAST(nodep, Assert)) {
             failsp = assertp->failsp();
-        } else if (AstAssertIntrinsic* const assertp = VN_CAST(nodep, AssertIntrinsic)) {
+        } अन्यथा यदि (AstAssertIntrinsic* ध्रुव assertp = VN_CAST(nodep, AssertIntrinsic)) {
             failsp = assertp->failsp();
         }
-        if (failsp) failsp->unlinkFrBackWithNext();
+        यदि (failsp) failsp->unlinkFrBackWithNext();
 
-        bool selfDestruct = false;
-        bool passspGated = false;
-        const AstCover* const coverp = VN_CAST(nodep, Cover);
+        तार्किक selfDestruct = असत्य;
+        तार्किक passspGated = असत्य;
+        ध्रुव AstCover* ध्रुव coverp = VN_CAST(nodep, Cover);
         // A sequence event control is not an assertion directive; no assertion control
-        const bool seqEvent = coverp && coverp->isSeqEvent();
-        if (coverp) {
+        ध्रुव तार्किक seqEvent = coverp && coverp->isSeqEvent();
+        यदि (coverp) {
             ++m_statCover;
-            if (seqEvent) {
+            यदि (seqEvent) {
                 // Keep the event-fire action, with no coverage bucket
-            } else if (!v3Global.opt.coverageUser()) {
-                selfDestruct = true;
-            } else {
+            } अन्यथा यदि (!v3Global.opt.coverageUser()) {
+                selfDestruct = सत्य;
+            } अन्यथा {
                 // V3Coverage assigned us a bucket to increment.
-                AstCoverInc* const covincp = VN_AS(coverp->coverincsp(), CoverInc);
+                AstCoverInc* ध्रुव covincp = VN_AS(coverp->coverincsp(), CoverInc);
                 UASSERT_OBJ(covincp, coverp, "Missing AstCoverInc under assertion");
                 covincp->unlinkFrBackWithNext();  // next() might have  AstAssign for trace
-                if (message != "") covincp->declp()->comment(message);
-                if (passsp) {
+                यदि (message != "") covincp->declp()->comment(message);
+                यदि (passsp) {
                     passsp = newIfAssertPassOn(passsp, nodep->directive(), nodep->userType(),
-                                               /*vacuous=*/false);
-                    passspGated = true;
-                    passsp = AstNode::addNext<AstNode, AstNode>(covincp, passsp);
-                } else {
+                                               /*vacuous=*/असत्य);
+                    passspGated = सत्य;
+                    passsp = Ast_गाँठ::addNext<Ast_गाँठ, Ast_गाँठ>(covincp, passsp);
+                } अन्यथा {
                     passsp = covincp;
                 }
             }
-        } else if (VN_IS(nodep, Assert) || VN_IS(nodep, AssertIntrinsic)) {
-            if (nodep->immediate()) {
+        } अन्यथा यदि (VN_IS(nodep, Assert) || VN_IS(nodep, AssertIntrinsic)) {
+            यदि (nodep->immediate()) {
                 ++m_statAsImm;
-            } else {
+            } अन्यथा {
                 ++m_statAsNotImm;
             }
-            if (!passsp && !failsp)
+            यदि (!passsp && !failsp)
                 failsp = newFireAssertUnchecked(
                     nodep, VN_IS(nodep, AssertIntrinsic) ? "'$cast' failed." : "'assert' failed.");
-        } else {
+        } अन्यथा {
             nodep->v3fatalSrc("Unknown node type");
         }
 
@@ -809,334 +809,334 @@ class AssertVisitor final : public VNVisitor {
         m_assertp = nodep;
         iterate(nodep->propp());
 
-        AstNode* propExprp;
-        AstNodeExpr* disablep = nullptr;
-        AstNodeExpr* matchCountp = nullptr;
-        if (AstPropSpec* const specp = VN_CAST(nodep->propp(), PropSpec)) {
+        Ast_गाँठ* propExprp;
+        Ast_गाँठ_व्यंजक* disablep = nullptr;
+        Ast_गाँठ_व्यंजक* matchCountp = nullptr;
+        यदि (AstPropSpec* ध्रुव specp = VN_CAST(nodep->propp(), PropSpec)) {
             propExprp = specp->propp()->unlinkFrBack();
-            if (specp->disablep()) disablep = specp->disablep()->unlinkFrBack();
+            यदि (specp->disablep()) disablep = specp->disablep()->unlinkFrBack();
             matchCountp = specp->matchCountp();
-        } else {
+        } अन्यथा {
             propExprp = nodep->propp()->unlinkFrBack();
         }
-        FileLine* const flp = nodep->fileline();
-        bool passspAlreadyGated = false;
-        if (passsp && VN_IS(passsp, If)) passspAlreadyGated = VN_AS(passsp, If)->user1();
-        if (passsp && !passspGated && !passspAlreadyGated && !VN_IS(propExprp, PExpr)
+        File_पंक्ति* ध्रुव flp = nodep->fileline();
+        तार्किक passspAlreadyGated = असत्य;
+        यदि (passsp && VN_IS(passsp, If)) passspAlreadyGated = VN_AS(passsp, If)->user1();
+        यदि (passsp && !passspGated && !passspAlreadyGated && !VN_IS(propExprp, PExpr)
             && !seqEvent) {
             passsp = newIfAssertPassOn(passsp, nodep->directive(), nodep->userType(),
-                                       /*vacuous=*/false);
+                                       /*vacuous=*/असत्य);
         }
-        if (failsp && !VN_IS(propExprp, PExpr)) {
+        यदि (failsp && !VN_IS(propExprp, PExpr)) {
             failsp = newIfAssertFailOn(failsp, nodep->directive(), nodep->userType());
         }
-        if (coverp && matchCountp && passsp) {
+        यदि (coverp && matchCountp && passsp) {
             // Convert the match count into a loop that decrements a temporary variable until it
             // reaches zero.
             matchCountp->unlinkFrBack();
-            AstVar* const remainingp = new AstVar{
-                flp, VVarType::MODULETEMP, m_matchCountNames.get(""), matchCountp->dtypep()};
+            AstVar* ध्रुव remainingp = नूतन AstVar{
+                flp, VVarType::MODULETEMP, m_match_गिनती_Names.get(""), matchCountp->dtypep()};
             remainingp->lifetime(VLifetime::STATIC_EXPLICIT);
             m_modp->addStmtsp(remainingp);
-            AstNode* const replaysp
-                = new AstAssign{flp, new AstVarRef{flp, remainingp, VAccess::WRITE}, matchCountp};
-            AstLoop* const loopp = new AstLoop{flp};
+            Ast_गाँठ* ध्रुव replaysp
+                = नूतन AstAssign{flp, नूतन AstVarRef{flp, remainingp, VAccess::WRITE}, matchCountp};
+            AstLoop* ध्रुव loopp = नूतन AstLoop{flp};
             loopp->addStmtsp(
-                new AstLoopTest{flp, loopp, new AstVarRef{flp, remainingp, VAccess::READ}});
+                नूतन AstLoopTest{flp, loopp, नूतन AstVarRef{flp, remainingp, VAccess::READ}});
             loopp->addStmtsp(passsp);
             loopp->addStmtsp(
-                new AstAssign{flp, new AstVarRef{flp, remainingp, VAccess::WRITE},
-                              new AstSub{flp, new AstVarRef{flp, remainingp, VAccess::READ},
-                                         new AstConst{flp, AstConst::WidthedValue{},
+                नूतन AstAssign{flp, नूतन AstVarRef{flp, remainingp, VAccess::WRITE},
+                              नूतन AstSub{flp, नूतन AstVarRef{flp, remainingp, VAccess::READ},
+                                         नूतन AstConst{flp, AstConst::Widthed_मूल्य{},
                                                       remainingp->dtypep()->width(), 1}}});
             replaysp->addNext(loopp);
             passsp = replaysp;
         }
-        AstNode* bodysp = assertBody(nodep, propExprp, passsp, failsp);
-        if (disablep) bodysp = new AstIf{flp, new AstLogNot{flp, disablep}, bodysp};
+        Ast_गाँठ* bodysp = assertBody(nodep, propExprp, passsp, failsp);
+        यदि (disablep) bodysp = नूतन AstIf{flp, नूतन AstLogNot{flp, disablep}, bodysp};
         // Add assertOn check last, for better combining
-        if (!seqEvent) bodysp = newIfAssertOn(bodysp, nodep->directive(), nodep->userType());
-        if (sentreep) bodysp = new AstAlways{flp, VAlwaysKwd::ALWAYS, sentreep, bodysp};
+        यदि (!seqEvent) bodysp = newIfAssertOn(bodysp, nodep->directive(), nodep->userType());
+        यदि (sentreep) bodysp = नूतन AstAlways{flp, VAlwaysKwd::ALWAYS, sentreep, bodysp};
 
-        if (passsp && !passsp->backp()) VL_DO_DANGLING(pushDeletep(passsp), passsp);
-        if (failsp && !failsp->backp()) VL_DO_DANGLING(pushDeletep(failsp), failsp);
+        यदि (passsp && !passsp->backp()) VL_DO_DANGLING(धकेलो_Deletep(passsp), passsp);
+        यदि (failsp && !failsp->backp()) VL_DO_DANGLING(धकेलो_Deletep(failsp), failsp);
 
         // Install it
-        if (selfDestruct) {
+        यदि (selfDestruct) {
             // Delete it after making the tree.  This way we can tell the user
             // if it wasn't constructed nicely or has other errors without needing --coverage.
-            VL_DO_DANGLING(bodysp->deleteTree(), bodysp);
+            VL_DO_DANGLING(bodysp->delete_वृक्ष(), bodysp);
             nodep->unlinkFrBack();
-        } else {
+        } अन्यथा {
             nodep->replaceWith(bodysp);
         }
         // Bye
-        VL_DO_DANGLING(pushDeletep(nodep), nodep);
+        VL_DO_DANGLING(धकेलो_Deletep(nodep), nodep);
     }
 
-    bool isEmptyStmt(AstNode* nodep) {
-        if (!nodep) return true;
-        if (AstBegin* const beginp = VN_CAST(nodep, Begin)) {
-            if (beginp->declsp()) return false;
-            for (AstNode* stmtp = beginp->stmtsp(); stmtp; stmtp = stmtp->nextp()) {
-                if (!isEmptyStmt(stmtp)) return false;
+    तार्किक isEmptyStmt(Ast_गाँठ* nodep) {
+        यदि (!nodep) प्रत्यागम सत्य;
+        यदि (AstBegin* ध्रुव beginp = VN_CAST(nodep, Begin)) {
+            यदि (beginp->declsp()) प्रत्यागम असत्य;
+            प्रति (Ast_गाँठ* stmtp = beginp->stmtsp(); stmtp; stmtp = stmtp->nextp()) {
+                यदि (!isEmptyStmt(stmtp)) प्रत्यागम असत्य;
             }
-            return true;
+            प्रत्यागम सत्य;
         }
-        return false;
+        प्रत्यागम असत्य;
     }
 
     // VISITORS
-    void visit(AstIf* nodep) override {
-        if (!nodep->user1SetOnce()) {
-            if (nodep->uniquePragma() || nodep->unique0Pragma()) {
-                const AstNodeIf* ifp = nodep;
-                AstNodeExpr* propp = nullptr;
-                bool hasDefaultElse = false;
-                do {
+    शून्य visit(AstIf* nodep) override {
+        यदि (!nodep->user1SetOnce()) {
+            यदि (nodep->uniquePragma() || nodep->unique0Pragma()) {
+                ध्रुव Ast_गाँठ_If* ifp = nodep;
+                Ast_गाँठ_व्यंजक* propp = nullptr;
+                तार्किक hasDefaultElse = असत्य;
+                कुरु {
                     // If this statement ends with 'else if', then nextIf will point to the
                     // nextIf statement.  Otherwise it will be null.
-                    const AstNodeIf* const nextifp = dynamic_cast<AstNodeIf*>(ifp->elsesp());
+                    ध्रुव Ast_गाँठ_If* ध्रुव nextifp = dynamic_cast<Ast_गाँठ_If*>(ifp->elsesp());
                     iterateAndNextNull(ifp->condp());
 
                     // Recurse into the true case.
                     iterateAndNextNull(ifp->thensp());
 
                     // If the last else is not an else if, recurse into that too.
-                    if (ifp->elsesp() && !nextifp) {  //
+                    यदि (ifp->elsesp() && !nextifp) {  //
                         iterateAndNextNull(ifp->elsesp());
                     }
 
                     // Build a bitmask of the true predicates
-                    AstNodeExpr* const predp = ifp->condp()->cloneTreePure(false);
-                    if (propp) {
-                        propp = new AstConcat{nodep->fileline(), predp, propp};
-                    } else {
+                    Ast_गाँठ_व्यंजक* ध्रुव predp = ifp->condp()->clone_वृक्ष_Pure(असत्य);
+                    यदि (propp) {
+                        propp = नूतन AstConcat{nodep->fileline(), predp, propp};
+                    } अन्यथा {
                         propp = predp;
                     }
 
                     // Record if this ends with an 'else' that does not have an if
-                    if (ifp->elsesp() && !nextifp) hasDefaultElse = true;
+                    यदि (ifp->elsesp() && !nextifp) hasDefaultElse = सत्य;
 
                     ifp = nextifp;
-                } while (ifp);
+                } यावत् (ifp);
 
-                const bool allow_none = nodep->unique0Pragma();
+                ध्रुव तार्किक allow_none = nodep->unique0Pragma();
 
                 // Empty case means no property
-                if (!propp) propp = new AstConst{nodep->fileline(), AstConst::BitFalse{}};
+                यदि (!propp) propp = नूतन AstConst{nodep->fileline(), AstConst::BitFalse{}};
 
                 // Note: if this ends with an 'else', then we don't need to validate that one of
                 // the predicates evaluates to true.
-                AstNodeExpr* const ohot
+                Ast_गाँठ_व्यंजक* ध्रुव ohot
                     = ((allow_none || hasDefaultElse)
-                           ? static_cast<AstNodeExpr*>(new AstOneHot0{nodep->fileline(), propp})
-                           : static_cast<AstNodeExpr*>(new AstOneHot{nodep->fileline(), propp}));
-                const VAssertType assertType
+                           ? static_cast<Ast_गाँठ_व्यंजक*>(नूतन AstOneHot0{nodep->fileline(), propp})
+                           : static_cast<Ast_गाँठ_व्यंजक*>(नूतन AstOneHot{nodep->fileline(), propp}));
+                ध्रुव VAssertType assertType
                     = nodep->uniquePragma() ? VAssertType::UNIQUE : VAssertType::UNIQUE0;
                 // Move, not clone, as the branches might declare referenced variables
                 VNRelinker relinker;
                 nodep->unlinkFrBack(&relinker);
-                AstIf* const checkifp
-                    = new AstIf{nodep->fileline(), new AstLogNot{nodep->fileline(), ohot},
+                AstIf* ध्रुव checkifp
+                    = नूतन AstIf{nodep->fileline(), नूतन AstLogNot{nodep->fileline(), ohot},
                                 newFireAssert(nodep, VAssertDirectiveType::VIOLATION_IF,
                                               assertType, "'unique if' statement violated"),
                                 nodep};
-                checkifp->isBoundsCheck(true);  // To avoid LATCH warning
+                checkifp->isBoundsCheck(सत्य);  // To avoid LATCH warning
                 checkifp->branchPred(VBranchPred::BP_UNLIKELY);
                 relinker.relink(checkifp);
-                return;
+                प्रत्यागम;
             }
         }
 
         iterateChildren(nodep);
 
-        if (nodep->user2()) {
+        यदि (nodep->user2()) {
             // Combine consecutive assertOn checks if possible
-            if (AstIf* const backp = VN_CAST(nodep->backp(), If)) {
-                if (backp->nextp() == nodep  //
+            यदि (AstIf* ध्रुव backp = VN_CAST(nodep->backp(), If)) {
+                यदि (backp->nextp() == nodep  //
                     && backp->user2()  //
-                    && backp->condp()->sameTree(nodep->condp())) {
+                    && backp->condp()->same_वृक्ष(nodep->condp())) {
                     ++m_statAssertOnCombined;
                     backp->addThensp(nodep->thensp()->unlinkFrBackWithNext());
                     nodep->unlinkFrBack();
-                    VL_DO_DANGLING(pushDeletep(nodep), nodep);
-                    return;
+                    VL_DO_DANGLING(धकेलो_Deletep(nodep), nodep);
+                    प्रत्यागम;
                 }
             }
             // Combine nested assertOn checks if possible
-            if (nodep->thensp() && !nodep->thensp()->nextp() && isEmptyStmt(nodep->elsesp())) {
-                AstIf* const checkp = VN_CAST(nodep->thensp(), If);
-                if (checkp  //
+            यदि (nodep->thensp() && !nodep->thensp()->nextp() && isEmptyStmt(nodep->elsesp())) {
+                AstIf* ध्रुव checkp = VN_CAST(nodep->thensp(), If);
+                यदि (checkp  //
                     && checkp->user2()  //
-                    && checkp->condp()->sameTree(nodep->condp())) {
+                    && checkp->condp()->same_वृक्ष(nodep->condp())) {
                     ++m_statAssertOnCombined;
                     nodep->addThensp(checkp->thensp()->unlinkFrBackWithNext());
-                    VL_DO_DANGLING(pushDeletep(checkp->unlinkFrBack()), checkp);
-                    return;
+                    VL_DO_DANGLING(धकेलो_Deletep(checkp->unlinkFrBack()), checkp);
+                    प्रत्यागम;
                 }
             }
-            return;
+            प्रत्यागम;
         }
 
         // Swap assertOn check with single statement 'if' statement to bubble up for combining
         // Note we can't just swap the conditions as they two Ifs have different flags,
         // so swapping the Ifs themeselves then swapping back the bodies.
-        if (nodep->condp()->isPure()) {
-            if (nodep->thensp() && !nodep->thensp()->nextp() && isEmptyStmt(nodep->elsesp())) {
-                AstIf* const checkp = VN_CAST(nodep->thensp(), If);
-                if (checkp && checkp->user2()) {
+        यदि (nodep->condp()->isPure()) {
+            यदि (nodep->thensp() && !nodep->thensp()->nextp() && isEmptyStmt(nodep->elsesp())) {
+                AstIf* ध्रुव checkp = VN_CAST(nodep->thensp(), If);
+                यदि (checkp && checkp->user2()) {
                     ++m_statAssertOnHoisted;
                     nodep->replaceWith(checkp->unlinkFrBack());
                     nodep->addThensp(checkp->thensp()->unlinkFrBackWithNext());
                     checkp->addThensp(nodep);
-                    return;
+                    प्रत्यागम;
                 }
             }
-            if (nodep->elsesp() && !nodep->elsesp()->nextp() && isEmptyStmt(nodep->thensp())) {
-                AstIf* const checkp = VN_CAST(nodep->elsesp(), If);
-                if (checkp && checkp->user2()) {
+            यदि (nodep->elsesp() && !nodep->elsesp()->nextp() && isEmptyStmt(nodep->thensp())) {
+                AstIf* ध्रुव checkp = VN_CAST(nodep->elsesp(), If);
+                यदि (checkp && checkp->user2()) {
                     ++m_statAssertOnHoisted;
                     nodep->replaceWith(checkp->unlinkFrBack());
                     nodep->addElsesp(checkp->thensp()->unlinkFrBackWithNext());
                     checkp->addThensp(nodep);
-                    return;
+                    प्रत्यागम;
                 }
             }
         }
     }
 
     //========== Case assertions
-    void visit(AstCase* nodep) override {
+    शून्य visit(AstCase* nodep) override {
         // Introduce temporary variable for AstCase if needed - it is done here and not in V3Case
         // because this phase is before V3Scope and V3Case is not. Doing it before V3Scope ensures
         // that V3Scope will take care of a scope creation
         // We also need to do it before V3Begin, co that pragmas like `unique0` also work correctly
-        if (!nodep->exprp()->isPure()) {
+        यदि (!nodep->exprp()->isPure()) {
             ++m_statLiftedCaseExprs;
-            FileLine* const fl = nodep->exprp()->fileline();
-            AstVar* const varp = new AstVar{fl, VVarType::BLOCKTEMP, m_caseTempNames.get(nodep),
+            File_पंक्ति* ध्रुव fl = nodep->exprp()->fileline();
+            AstVar* ध्रुव varp = नूतन AstVar{fl, VVarType::BLOCKTEMP, m_caseTempNames.get(nodep),
                                             nodep->exprp()->dtypep()};
-            AstNodeExpr* const origp = nodep->exprp()->unlinkFrBack();
+            Ast_गाँठ_व्यंजक* ध्रुव origp = nodep->exprp()->unlinkFrBack();
             nodep->addHereThisAsNext(
-                new AstAssign{fl, new AstVarRef{fl, varp, VAccess::WRITE}, origp});
-            nodep->exprp(new AstVarRef{fl, varp, VAccess::READ});
-            if (m_ftaskp) {
-                varp->funcLocal(true);
+                नूतन AstAssign{fl, नूतन AstVarRef{fl, varp, VAccess::WRITE}, origp});
+            nodep->exprp(नूतन AstVarRef{fl, varp, VAccess::READ});
+            यदि (m_ftaskp) {
+                varp->funcLocal(सत्य);
                 varp->lifetime(VLifetime::AUTOMATIC_EXPLICIT);
                 m_ftaskp->prependStmtsp(varp);
-            } else {
+            } अन्यथा {
                 m_modp->prependStmtsp(varp);
             }
-            VIsCached::clearCacheTree();
+            VIsCached::clear_Cache_वृक्ष();
         }
         iterateChildren(nodep);
-        if (!nodep->user1SetOnce()) {
-            bool has_default = false;
-            for (AstCaseItem* itemp = nodep->itemsp(); itemp;
+        यदि (!nodep->user1SetOnce()) {
+            तार्किक has_default = असत्य;
+            प्रति (AstCaseItem* itemp = nodep->itemsp(); itemp;
                  itemp = VN_AS(itemp->nextp(), CaseItem)) {
-                if (itemp->isDefault()) has_default = true;
+                यदि (itemp->isDefault()) has_default = सत्य;
             }
-            const AstNodeDType* exprDtypep = nodep->exprp()->dtypep()->skipRefp();
+            ध्रुव Ast_गाँठ_DType* व्यंजक_Dtypep = nodep->exprp()->dtypep()->skipRefp();
 
             VAssertType assertType = VAssertType::INTERNAL;
-            if (nodep->priorityPragma()) {
+            यदि (nodep->priorityPragma()) {
                 assertType = VAssertType::PRIORITY;
-            } else if (nodep->uniquePragma()) {
+            } अन्यथा यदि (nodep->uniquePragma()) {
                 assertType = VAssertType::UNIQUE;
-            } else if (nodep->unique0Pragma()) {
+            } अन्यथा यदि (nodep->unique0Pragma()) {
                 assertType = VAssertType::UNIQUE0;
             }
 
             string valFmt;
-            if (exprDtypep->isIntegralOrPacked())
-                valFmt = " for '" + cvtToStr(exprDtypep->widthMin()) + "'h%X'";
-            if (nodep->fullPragma() || nodep->priorityPragma()) {
+            यदि (व्यंजक_Dtypep->isIntegralOrPacked())
+                valFmt = " for '" + cvtToStr(व्यंजक_Dtypep->widthMin()) + "'h%X'";
+            यदि (nodep->fullPragma() || nodep->priorityPragma()) {
                 // Need to add a default if there isn't one already
                 ++m_statAsFull;
-                if (!has_default) {
-                    nodep->addItemsp(new AstCaseItem{
+                यदि (!has_default) {
+                    nodep->addItemsp(नूतन AstCaseItem{
                         nodep->fileline(), nullptr /*DEFAULT*/,
                         newFireAssert(nodep, VAssertDirectiveType::VIOLATION_CASE, assertType,
                                       nodep->pragmaString() + ", but non-match found" + valFmt,
                                       valFmt.empty() ? nullptr
-                                                     : nodep->exprp()->cloneTreePure(false))});
+                                                     : nodep->exprp()->clone_वृक्ष_Pure(असत्य))});
                 }
             }
-            if (nodep->parallelPragma() || nodep->uniquePragma() || nodep->unique0Pragma()) {
+            यदि (nodep->parallelPragma() || nodep->uniquePragma() || nodep->unique0Pragma()) {
                 // Need to check that one, and only one of the case items match at any moment
                 // If there's a default, we allow none to match, else exactly one must match
                 ++m_statAsFull;
-                if (!has_default && !nodep->itemsp()) {
+                यदि (!has_default && !nodep->itemsp()) {
                     // Not parallel, but harmlessly so.
-                } else {
-                    AstNodeExpr* propp = nullptr;
-                    for (AstCaseItem* itemp = nodep->itemsp(); itemp;
+                } अन्यथा {
+                    Ast_गाँठ_व्यंजक* propp = nullptr;
+                    प्रति (AstCaseItem* itemp = nodep->itemsp(); itemp;
                          itemp = VN_AS(itemp->nextp(), CaseItem)) {
-                        AstNodeExpr* itembitp = nullptr;
-                        for (AstNodeExpr* icondp = itemp->condsp(); icondp;
-                             icondp = VN_AS(icondp->nextp(), NodeExpr)) {
-                            AstNodeExpr* onep;
-                            if (AstInsideRange* const rcondp = VN_CAST(icondp, InsideRange)) {
+                        Ast_गाँठ_व्यंजक* itembitp = nullptr;
+                        प्रति (Ast_गाँठ_व्यंजक* icondp = itemp->condsp(); icondp;
+                             icondp = VN_AS(icondp->nextp(), गाँठ_व्यंजक)) {
+                            Ast_गाँठ_व्यंजक* onep;
+                            यदि (AstInsideRange* ध्रुव rcondp = VN_CAST(icondp, InsideRange)) {
                                 onep = rcondp->newAndFromInside(
-                                    nodep->exprp()->cloneTreePure(true),
-                                    rcondp->lhsp()->cloneTreePure(true),
-                                    rcondp->rhsp()->cloneTreePure(true));
-                            } else if (nodep->casex() || nodep->casez() || nodep->caseInside()) {
+                                    nodep->exprp()->clone_वृक्ष_Pure(सत्य),
+                                    rcondp->lhsp()->clone_वृक्ष_Pure(सत्य),
+                                    rcondp->rhsp()->clone_वृक्ष_Pure(सत्य));
+                            } अन्यथा यदि (nodep->casex() || nodep->casez() || nodep->caseInside()) {
                                 onep = AstEqWild::newTyped(itemp->fileline(),
-                                                           nodep->exprp()->cloneTreePure(false),
-                                                           icondp->cloneTreePure(false));
-                            } else {
+                                                           nodep->exprp()->clone_वृक्ष_Pure(असत्य),
+                                                           icondp->clone_वृक्ष_Pure(असत्य));
+                            } अन्यथा {
                                 onep = AstEq::newTyped(icondp->fileline(),
-                                                       nodep->exprp()->cloneTreePure(false),
-                                                       icondp->cloneTreePure(false));
+                                                       nodep->exprp()->clone_वृक्ष_Pure(असत्य),
+                                                       icondp->clone_वृक्ष_Pure(असत्य));
                             }
                             // OR together all conditions within the same case item
-                            if (onep) {
-                                if (itembitp) {
-                                    itembitp = new AstOr{icondp->fileline(), onep, itembitp};
-                                } else {
+                            यदि (onep) {
+                                यदि (itembitp) {
+                                    itembitp = नूतन AstOr{icondp->fileline(), onep, itembitp};
+                                } अन्यथा {
                                     itembitp = onep;
                                 }
                             }
                         }
-                        if (itembitp) {
-                            if (propp) {
-                                propp = new AstConcat{itemp->fileline(), itembitp, propp};
-                            } else {
+                        यदि (itembitp) {
+                            यदि (propp) {
+                                propp = नूतन AstConcat{itemp->fileline(), itembitp, propp};
+                            } अन्यथा {
                                 propp = itembitp;
                             }
                         }
                     }
                     // Empty case means no property
-                    if (!propp) propp = new AstConst{nodep->fileline(), AstConst::BitFalse{}};
-                    const bool allow_none = has_default || nodep->unique0Pragma();
+                    यदि (!propp) propp = नूतन AstConst{nodep->fileline(), AstConst::BitFalse{}};
+                    ध्रुव तार्किक allow_none = has_default || nodep->unique0Pragma();
                     // The following assertion looks as below.
                     // if (!$onehot(propp)) begin
                     //     if (propp == '0) begin if (!allow_none) $error("none match"); end
                     //     else $error("multiple match");
                     // end
-                    AstNodeExpr* const ohot = new AstOneHot{nodep->fileline(), propp};
-                    AstConst* const zero = new AstConst{
-                        nodep->fileline(), AstConst::WidthedValue{}, propp->width(), 0};
-                    AstIf* const ohotIfp
-                        = new AstIf{nodep->fileline(), new AstLogNot{nodep->fileline(), ohot}};
-                    AstIf* const zeroIfp = new AstIf{
+                    Ast_गाँठ_व्यंजक* ध्रुव ohot = नूतन AstOneHot{nodep->fileline(), propp};
+                    AstConst* ध्रुव zero = नूतन AstConst{
+                        nodep->fileline(), AstConst::Widthed_मूल्य{}, propp->width(), 0};
+                    AstIf* ध्रुव ohotIfp
+                        = नूतन AstIf{nodep->fileline(), नूतन AstLogNot{nodep->fileline(), ohot}};
+                    AstIf* ध्रुव zeroIfp = नूतन AstIf{
                         nodep->fileline(),
-                        new AstEq{nodep->fileline(), propp->cloneTreePure(false), zero}};
-                    AstNodeExpr* const exprp = nodep->exprp();
-                    const string pragmaStr = nodep->pragmaString();
-                    if (!allow_none)
+                        नूतन AstEq{nodep->fileline(), propp->clone_वृक्ष_Pure(असत्य), zero}};
+                    Ast_गाँठ_व्यंजक* ध्रुव exprp = nodep->exprp();
+                    ध्रुव string pragmaStr = nodep->pragmaString();
+                    यदि (!allow_none)
                         zeroIfp->addThensp(
                             newFireAssert(nodep, VAssertDirectiveType::VIOLATION_CASE, assertType,
                                           pragmaStr + ", but none matched" + valFmt,
-                                          valFmt.empty() ? nullptr : exprp->cloneTreePure(false)));
+                                          valFmt.empty() ? nullptr : exprp->clone_वृक्ष_Pure(असत्य)));
                     zeroIfp->addElsesp(
                         newFireAssert(nodep, VAssertDirectiveType::VIOLATION_CASE, assertType,
                                       pragmaStr + ", but multiple matches found" + valFmt,
-                                      valFmt.empty() ? nullptr : exprp->cloneTreePure(false)));
+                                      valFmt.empty() ? nullptr : exprp->clone_वृक्ष_Pure(असत्य)));
                     ohotIfp->addThensp(zeroIfp);
-                    ohotIfp->isBoundsCheck(true);  // To avoid LATCH warning
+                    ohotIfp->isBoundsCheck(सत्य);  // To avoid LATCH warning
                     ohotIfp->branchPred(VBranchPred::BP_UNLIKELY);
                     nodep->addNotParallelp(ohotIfp);
                 }
@@ -1144,78 +1144,78 @@ class AssertVisitor final : public VNVisitor {
         }
     }
 
-    void visit(AstFuture* nodep) override {
+    शून्य visit(AstFuture* nodep) override {
         nodep->v3error("Future sampled value function called outside property or sequence "
                        "expression (IEEE 16.9.4)");
-        nodep->replaceWith(new AstConst{nodep->fileline(), 0});
-        VL_DO_DANGLING(pushDeletep(nodep), nodep);
+        nodep->replaceWith(नूतन AstConst{nodep->fileline(), 0});
+        VL_DO_DANGLING(धकेलो_Deletep(nodep), nodep);
     }
 
     //========== Past
-    void visit(AstPast* nodep) override {
-        if (!nodep->propertyTiming()) {
-            nodep->initp(nodep->exprp()->cloneTreePure(false));
-            { DefaultSampledValueVisitor{nodep->initp()}; }
+    शून्य visit(AstPast* nodep) override {
+        यदि (!nodep->propertyTiming()) {
+            nodep->initp(nodep->exprp()->clone_वृक्ष_Pure(असत्य));
+            { Default_Sampled_मूल्य_Visitor{nodep->initp()}; }
         }
-        AstNodeExpr* const initp = nodep->initp() ? nodep->initp()->unlinkFrBack() : nullptr;
+        Ast_गाँठ_व्यंजक* ध्रुव initp = nodep->initp() ? nodep->initp()->unlinkFrBack() : nullptr;
         iterateChildren(nodep);
         uint32_t ticks = 1;
-        if (nodep->ticksp()) {
+        यदि (nodep->ticksp()) {
             UASSERT_OBJ(VN_IS(nodep->ticksp(), Const), nodep,
                         "Expected constant ticks, checked in V3Width");
             ticks = VN_AS(nodep->ticksp(), Const)->toUInt();
         }
         UASSERT_OBJ(ticks >= 1, nodep, "0 tick should have been checked in V3Width");
-        AstNodeExpr* const exprp = newSampledExpr(nodep->exprp()->unlinkFrBack());
-        AstSenTree* const senTreep = nodep->sentreep()->unlinkFrBack();
-        AstNodeExpr* inp = nullptr;
+        Ast_गाँठ_व्यंजक* ध्रुव exprp = new_Sampled_व्यंजक(nodep->exprp()->unlinkFrBack());
+        Ast_Sen_वृक्ष* ध्रुव senTreep = nodep->sentreep()->unlinkFrBack();
+        Ast_गाँठ_व्यंजक* inp = nullptr;
         // Deliberately emitted for every ftask $past; calls outside final take the normal stage
-        if (VN_IS(m_procedurep, Final) || m_ftaskp) {
+        यदि (VN_IS(m_procedurep, Final) || m_ftaskp) {
             // A sampling-tick finish reads one stage deeper (IEEE 1800-2023 16.9.3).
-            FileLine* const flp = nodep->fileline();
-            AstAlways* const alwaysp
-                = getDelayedAlways(exprp, initp ? initp->cloneTreePure(false) : nullptr, senTreep);
-            AstNodeExpr* const betweenTicksp = pastValueRef(alwaysp, flp, ticks, initp);
-            AstNodeExpr* const onTickp = pastValueRef(alwaysp, flp, ticks + 1, initp);
-            if (initp) VL_DO_DANGLING(pushDeletep(initp), initp);
-            AstNodeExpr* const onTickCondp = new AstLogAnd{
-                flp, new AstCExpr{flp, "vlSymsp->_vm_contextp__->executingFinal()", 1},
-                new AstEq{flp, new AstVarRef{flp, getPastTickTimeVar(alwaysp), VAccess::READ},
-                          new AstCExpr{flp, "vlSymsp->_vm_contextp__->finishPendingTime()", 64}}};
-            AstCond* const condp = new AstCond{flp, onTickCondp, onTickp, betweenTicksp};
+            File_पंक्ति* ध्रुव flp = nodep->fileline();
+            AstAlways* ध्रुव alwaysp
+                = getDelayedAlways(exprp, initp ? initp->clone_वृक्ष_Pure(असत्य) : nullptr, senTreep);
+            Ast_गाँठ_व्यंजक* ध्रुव betweenTicksp = past_मूल्य_Ref(alwaysp, flp, ticks, initp);
+            Ast_गाँठ_व्यंजक* ध्रुव onTickp = past_मूल्य_Ref(alwaysp, flp, ticks + 1, initp);
+            यदि (initp) VL_DO_DANGLING(धकेलो_Deletep(initp), initp);
+            Ast_गाँठ_व्यंजक* ध्रुव onTickCondp = नूतन AstLogAnd{
+                flp, नूतन AstCExpr{flp, "vlSymsp->_vm_contextp__->executingFinal()", 1},
+                नूतन AstEq{flp, नूतन AstVarRef{flp, getPastTickTimeVar(alwaysp), VAccess::READ},
+                          नूतन AstCExpr{flp, "vlSymsp->_vm_contextp__->finishPendingTime()", 64}}};
+            AstCond* ध्रुव condp = नूतन AstCond{flp, onTickCondp, onTickp, betweenTicksp};
             condp->dtypeFrom(onTickp);
             inp = condp;
-        } else {
-            inp = getPastValue(exprp, initp, senTreep, ticks);
+        } अन्यथा {
+            inp = get_Past_मूल्य(exprp, initp, senTreep, ticks);
         }
         nodep->replaceWith(inp);
-        VL_DO_DANGLING(pushDeletep(nodep), nodep);
+        VL_DO_DANGLING(धकेलो_Deletep(nodep), nodep);
     }
 
     //========== Move $sampled down to read-only variables
-    void visit(AstSampled* nodep) override {
-        if (nodep->user1()) return;
+    शून्य visit(AstSampled* nodep) override {
+        यदि (nodep->user1()) प्रत्यागम;
         VL_RESTORER(m_inSampled);
         {
-            m_inSampled = true;
+            m_inSampled = सत्य;
             iterateChildren(nodep);
         }
-        if (nodep->exprp()) {
+        यदि (nodep->exprp()) {
             nodep->replaceWith(nodep->exprp()->unlinkFrBack());
-        } else {
+        } अन्यथा {
             nodep->unlinkFrBack();
         }
-        VL_DO_DANGLING(pushDeletep(nodep), nodep);
+        VL_DO_DANGLING(धकेलो_Deletep(nodep), nodep);
     }
-    void visit(AstNodeVarRef* nodep) override {
-        if (m_inSampled && !nodep->user2() && !nodep->varp()->isTemp()) {
-            if (!nodep->access().isReadOnly()) {
+    शून्य visit(Ast_गाँठ_Var_Ref* nodep) override {
+        यदि (m_inSampled && !nodep->user2() && !nodep->varp()->isTemp()) {
+            यदि (!nodep->access().isReadOnly()) {
                 nodep->v3warn(E_UNSUPPORTED,
                               "Unsupported: Write to variable in sampled expression");
-            } else {
+            } अन्यथा {
                 VNRelinker relinkHandle;
                 nodep->unlinkFrBack(&relinkHandle);
-                AstSampled* const newp = newSampledExpr(nodep);
+                AstSampled* ध्रुव newp = new_Sampled_व्यंजक(nodep);
                 relinkHandle.relink(newp);
                 newp->user1(1);
                 v3Global.setHasSampled();
@@ -1223,243 +1223,243 @@ class AssertVisitor final : public VNVisitor {
         }
     }
     // Don't sample sensitivities
-    void visit(AstSenItem* nodep) override {
+    शून्य visit(AstSenItem* nodep) override {
         VL_RESTORER(m_inSampled);
-        m_inSampled = false;
+        m_inSampled = असत्य;
         iterateChildren(nodep);
     }
-    void visit(AstPExprClause* nodep) override {
-        AstNode* stmtsp = nullptr;
-        if (nodep->pass() && m_passsp) {
+    शून्य visit(AstPExprClause* nodep) override {
+        Ast_गाँठ* stmtsp = nullptr;
+        यदि (nodep->pass() && m_passsp) {
             // Cover adds COVERINC by AstNode::addNext, thus need to clone next too.
-            stmtsp = m_passsp->cloneTree(true);
+            stmtsp = m_passsp->clone_वृक्ष(सत्य);
             stmtsp = newIfAssertPassOn(stmtsp, m_assertp->directive(), m_assertp->userType(),
                                        nodep->vacuous());
-        } else if (!nodep->pass() && m_failsp) {
-            stmtsp = m_failsp->cloneTree(true);
+        } अन्यथा यदि (!nodep->pass() && m_failsp) {
+            stmtsp = m_failsp->clone_वृक्ष(सत्य);
             stmtsp = newIfAssertFailOn(stmtsp, m_assertp->directive(), m_assertp->userType());
         }
-        if (stmtsp) {
-            stmtsp->foreachAndNext([](AstNodeVarRef* const refp) {
+        यदि (stmtsp) {
+            stmtsp->foreachAndNext([](Ast_गाँठ_Var_Ref* ध्रुव refp) {
                 // References inside action blocks shouldn't be implicitly sampled
                 // m_passsp/m_failsp have been already visited once and refs explicitly sampled
                 // are handled already
                 refp->user2(1);
             });
             nodep->replaceWith(stmtsp);
-        } else {
+        } अन्यथा {
             nodep->unlinkFrBack();
         }
-        VL_DO_DANGLING(pushDeletep(nodep), nodep);
+        VL_DO_DANGLING(धकेलो_Deletep(nodep), nodep);
     }
-    void visit(AstPExpr* nodep) override {
-        if (m_inRestrict) {
-            VL_DO_DANGLING(pushDeletep(nodep->unlinkFrBack()), nodep);
-        } else {
+    शून्य visit(AstPExpr* nodep) override {
+        यदि (m_inRestrict) {
+            VL_DO_DANGLING(धकेलो_Deletep(nodep->unlinkFrBack()), nodep);
+        } अन्यथा {
             iterateChildren(nodep);
         }
     }
 
     //========== Statements
-    void visit(AstDisplay* nodep) override {
+    शून्य visit(AstDisplay* nodep) override {
         iterateChildren(nodep);
         // Replace the special types with standard text
-        if (nodep->displayType() == VDisplayType::DT_INFO) {
+        यदि (nodep->displayType() == VDisplayType::DT_INFO) {
             replaceDisplay(nodep, "-Info");
-        } else if (nodep->displayType() == VDisplayType::DT_WARNING) {
+        } अन्यथा यदि (nodep->displayType() == VDisplayType::DT_WARNING) {
             replaceDisplay(nodep, "%%Warning");
-        } else if (nodep->displayType() == VDisplayType::DT_ERROR) {
+        } अन्यथा यदि (nodep->displayType() == VDisplayType::DT_ERROR) {
             replaceDisplay(nodep, "%%Error");
-        } else if (nodep->displayType() == VDisplayType::DT_FATAL) {
+        } अन्यथा यदि (nodep->displayType() == VDisplayType::DT_FATAL) {
             replaceDisplay(nodep, "%%Fatal");
-        } else if (nodep->displayType() == VDisplayType::DT_MONITOR) {
+        } अन्यथा यदि (nodep->displayType() == VDisplayType::DT_MONITOR) {
             nodep->displayType(VDisplayType::DT_DISPLAY);
-            FileLine* const fl = nodep->fileline();
+            File_पंक्ति* ध्रुव fl = nodep->fileline();
 
             AstSenItem* monSenItemsp = nullptr;
-            if (AstNode* const monExprsp = nodep->fmtp()->exprsp()) {
+            यदि (Ast_गाँठ* ध्रुव monExprsp = nodep->fmtp()->exprsp()) {
                 monExprsp->foreachAndNext([&](AstVarRef* varrefp) {
-                    AstSenItem* const senItemp
-                        = new AstSenItem{fl, VEdgeType::ET_CHANGED,
+                    AstSenItem* ध्रुव senItemp
+                        = नूतन AstSenItem{fl, VEdgeType::ET_CHANGED,
                                          // Clone so get VarRef or VarXRef as needed
-                                         varrefp->cloneTree(false)};
-                    monSenItemsp = AstNode::addNextNull(monSenItemsp, senItemp);
+                                         varrefp->clone_वृक्ष(असत्य)};
+                    monSenItemsp = Ast_गाँठ::addNextNull(monSenItemsp, senItemp);
                 });
             }
 
-            AstSenTree* const monSenTree = new AstSenTree{fl, monSenItemsp};
-            const auto monNum = ++m_monitorNum;
+            Ast_Sen_वृक्ष* ध्रुव mon_Sen_वृक्ष = नूतन Ast_Sen_वृक्ष{fl, monSenItemsp};
+            ध्रुव auto mon_अंक = ++m_monitor_अंक;
             // Where $monitor was we do "__VmonitorNum = N;"
-            AstAssign* const newsetp = new AstAssign{
-                fl, newMonitorNumVarRefp(nodep, VAccess::WRITE), new AstConst{fl, monNum}};
+            AstAssign* ध्रुव newsetp = नूतन AstAssign{
+                fl, new_Monitor_अंक_Var_Refp(nodep, VAccess::WRITE), नूतन AstConst{fl, mon_अंक}};
             nodep->replaceWith(newsetp);
             // Add "always_comb if (__VmonitorOn && __VmonitorNum==N) $display(...);"
-            AstNode* const stmtsp = nodep;
-            AstIf* const ifp = new AstIf{
+            Ast_गाँठ* ध्रुव stmtsp = nodep;
+            AstIf* ध्रुव ifp = नूतन AstIf{
                 fl,
-                new AstLogAnd{fl, new AstLogNot{fl, newMonitorOffVarRefp(nodep, VAccess::READ)},
-                              new AstEq{fl, new AstConst{fl, monNum},
-                                        newMonitorNumVarRefp(nodep, VAccess::READ)}},
+                नूतन AstLogAnd{fl, नूतन AstLogNot{fl, newMonitorOffVarRefp(nodep, VAccess::READ)},
+                              नूतन AstEq{fl, नूतन AstConst{fl, mon_अंक},
+                                        new_Monitor_अंक_Var_Refp(nodep, VAccess::READ)}},
                 stmtsp};
-            ifp->isBoundsCheck(true);  // To avoid LATCH warning
+            ifp->isBoundsCheck(सत्य);  // To avoid LATCH warning
             ifp->branchPred(VBranchPred::BP_UNLIKELY);
-            AstNode* const newp = new AstAlways{fl, VAlwaysKwd::ALWAYS, monSenTree, ifp};
+            Ast_गाँठ* ध्रुव newp = नूतन AstAlways{fl, VAlwaysKwd::ALWAYS, mon_Sen_वृक्ष, ifp};
             m_modp->addStmtsp(newp);
-        } else if (nodep->displayType() == VDisplayType::DT_STROBE) {
+        } अन्यथा यदि (nodep->displayType() == VDisplayType::DT_STROBE) {
             nodep->displayType(VDisplayType::DT_DISPLAY);
             // Need one-shot
-            FileLine* const fl = nodep->fileline();
-            AstVar* const varp
-                = new AstVar{fl, VVarType::MODULETEMP, "__Vstrobe" + cvtToStr(m_modStrobeNum++),
+            File_पंक्ति* ध्रुव fl = nodep->fileline();
+            AstVar* ध्रुव varp
+                = नूतन AstVar{fl, VVarType::MODULETEMP, "__Vstrobe" + cvtToStr(m_mod_Strobe_अंक++),
                              nodep->findBitDType()};
             m_modp->addStmtsp(varp);
             // Where $strobe was we do "__Vstrobe = '1;"
-            AstAssign* const newsetp = new AstAssign{fl, new AstVarRef{fl, varp, VAccess::WRITE},
-                                                     new AstConst{fl, AstConst::BitTrue{}}};
+            AstAssign* ध्रुव newsetp = नूतन AstAssign{fl, नूतन AstVarRef{fl, varp, VAccess::WRITE},
+                                                     नूतन AstConst{fl, AstConst::BitTrue{}}};
             nodep->replaceWith(newsetp);
             // Add "always_comb if (__Vstrobe) begin $display(...); __Vstrobe = '0; end"
-            AstNode* const stmtsp = nodep;
-            AstIf* const ifp = new AstIf{fl, new AstVarRef{fl, varp, VAccess::READ}, stmtsp};
-            ifp->isBoundsCheck(true);  // To avoid LATCH warning
+            Ast_गाँठ* ध्रुव stmtsp = nodep;
+            AstIf* ध्रुव ifp = नूतन AstIf{fl, नूतन AstVarRef{fl, varp, VAccess::READ}, stmtsp};
+            ifp->isBoundsCheck(सत्य);  // To avoid LATCH warning
             ifp->branchPred(VBranchPred::BP_UNLIKELY);
-            AstNode* const newp = new AstAlwaysPostponed{fl, ifp};
-            stmtsp->addNext(new AstAssign{fl, new AstVarRef{fl, varp, VAccess::WRITE},
-                                          new AstConst{fl, AstConst::BitFalse{}}});
+            Ast_गाँठ* ध्रुव newp = नूतन AstAlwaysPostponed{fl, ifp};
+            stmtsp->addNext(नूतन AstAssign{fl, नूतन AstVarRef{fl, varp, VAccess::WRITE},
+                                          नूतन AstConst{fl, AstConst::BitFalse{}}});
             m_modp->addStmtsp(newp);
         }
     }
-    void visit(AstMonitorOff* nodep) override {
-        AstAssign* const newp
-            = new AstAssign{nodep->fileline(), newMonitorOffVarRefp(nodep, VAccess::WRITE),
-                            new AstConst{nodep->fileline(), AstConst::BitTrue{}, nodep->off()}};
+    शून्य visit(AstMonitorOff* nodep) override {
+        AstAssign* ध्रुव newp
+            = नूतन AstAssign{nodep->fileline(), newMonitorOffVarRefp(nodep, VAccess::WRITE),
+                            नूतन AstConst{nodep->fileline(), AstConst::BitTrue{}, nodep->off()}};
         nodep->replaceWith(newp);
-        VL_DO_DANGLING(pushDeletep(nodep), nodep);
+        VL_DO_DANGLING(धकेलो_Deletep(nodep), nodep);
     }
-    void visit(AstAssert* nodep) override {  //
+    शून्य visit(AstAssert* nodep) override {  //
         visitAssertionIterate(nodep, nodep->failsp());
     }
-    void visit(AstAssertCtl* nodep) override {
+    शून्य visit(AstAssertCtl* nodep) override {
         iterateChildren(nodep);
 
-        bool assertTypeConst = true;
-        if (!nodep->assertTypesp()) {
+        तार्किक assertTypeConst = सत्य;
+        यदि (!nodep->assertTypesp()) {
             nodep->assertTypes(VAssertType{ALL_ASSERT_TYPES});
-        } else if (const AstConst* const assertTypesp = VN_CAST(nodep->assertTypesp(), Const)) {
+        } अन्यथा यदि (ध्रुव AstConst* ध्रुव assertTypesp = VN_CAST(nodep->assertTypesp(), Const)) {
             nodep->assertTypes(VAssertType{assertTypesp->toSInt()});
-        } else {
-            assertTypeConst = false;
+        } अन्यथा {
+            assertTypeConst = असत्य;
         }
 
-        bool controlTypeConst = false;
-        if (const AstConst* const constp = VN_CAST(nodep->controlTypep(), Const)) {
+        तार्किक controlTypeConst = असत्य;
+        यदि (ध्रुव AstConst* ध्रुव constp = VN_CAST(nodep->controlTypep(), Const)) {
             nodep->ctlType(constp->toSInt());
-            controlTypeConst = true;
+            controlTypeConst = सत्य;
         }
-        if (controlTypeConst
+        यदि (controlTypeConst
             && (nodep->ctlType() < VAssertCtlType::LOCK
                 || nodep->ctlType() > VAssertCtlType::VACUOUS_OFF)) {
             nodep->unlinkFrBack();
             nodep->v3error("Bad $assertcontrol control_type '"
-                           << cvtToStr(static_cast<int>(nodep->ctlType()))
+                           << cvtToStr(static_cast<पूर्णाङ्क>(nodep->ctlType()))
                            << "' (IEEE 1800-2023 Table 20-5)");
-            VL_DO_DANGLING(pushDeletep(nodep), nodep);
-            return;
+            VL_DO_DANGLING(धकेलो_Deletep(nodep), nodep);
+            प्रत्यागम;
         }
-        if (assertTypeConst && nodep->assertTypes() != ALL_ASSERT_TYPES
+        यदि (assertTypeConst && nodep->assertTypes() != ALL_ASSERT_TYPES
             && nodep->assertTypes().containsAny(VAssertType::UNIQUE | VAssertType::UNIQUE0
                                                 | VAssertType::PRIORITY)) {
             nodep->v3warn(E_UNSUPPORTED, "Unsupported: assert control assertion_type");
-            VL_DO_DANGLING(pushDeletep(nodep->unlinkFrBack()), nodep);
-            return;
+            VL_DO_DANGLING(धकेलो_Deletep(nodep->unlinkFrBack()), nodep);
+            प्रत्यागम;
         }
 
-        bool directiveTypeConst = true;
-        if (!nodep->directiveTypesp()) {
+        तार्किक directiveTypeConst = सत्य;
+        यदि (!nodep->directiveTypesp()) {
             nodep->directiveTypes(VAssertDirectiveType::ASSERT | VAssertDirectiveType::ASSUME
                                   | VAssertDirectiveType::COVER);
-        } else if (const AstConst* const directiveTypesp
+        } अन्यथा यदि (ध्रुव AstConst* ध्रुव directiveTypesp
                    = VN_CAST(nodep->directiveTypesp(), Const)) {
             nodep->directiveTypes(VAssertDirectiveType{directiveTypesp->toSInt()});
-        } else {
-            directiveTypeConst = false;
+        } अन्यथा {
+            directiveTypeConst = असत्य;
         }
-        if (!directiveTypeConst) {
+        यदि (!directiveTypeConst) {
             nodep->v3warn(E_UNSUPPORTED,
                           "Unsupported: non-const assert directive type expression");
-            VL_DO_DANGLING(pushDeletep(nodep->unlinkFrBack()), nodep);
-            return;
+            VL_DO_DANGLING(धकेलो_Deletep(nodep->unlinkFrBack()), nodep);
+            प्रत्यागम;
         }
 
-        FileLine* const fl = nodep->fileline();
+        File_पंक्ति* ध्रुव fl = nodep->fileline();
         UINFO(9, "Generating assertctl for a module: " << m_modp);
-        AstCStmt* const newp = new AstCStmt{fl};
+        AstCStmt* ध्रुव newp = नूतन AstCStmt{fl};
         newp->add("vlSymsp->_vm_contextp__->assertCtl(");
         newp->add(nodep->controlTypep()->unlinkFrBack());
         newp->add(", ");
-        if (nodep->assertTypesp()) {
+        यदि (nodep->assertTypesp()) {
             newp->add(nodep->assertTypesp()->unlinkFrBack());
-        } else {
+        } अन्यथा {
             newp->add(std::to_string(ALL_ASSERT_TYPES));
         }
         newp->add(", " + std::to_string(nodep->directiveTypes()) + ");\n");
         nodep->replaceWith(newp);
-        VL_DO_DANGLING(pushDeletep(nodep), nodep);
+        VL_DO_DANGLING(धकेलो_Deletep(nodep), nodep);
     }
-    void visit(AstAssertIntrinsic* nodep) override {  //
+    शून्य visit(AstAssertIntrinsic* nodep) override {  //
         visitAssertionIterate(nodep, nodep->failsp());
     }
-    void visit(AstCover* nodep) override {  //
+    शून्य visit(AstCover* nodep) override {  //
         visitAssertionIterate(nodep, nullptr);
     }
-    void visit(AstRestrict* nodep) override {
+    शून्य visit(AstRestrict* nodep) override {
         VL_RESTORER(m_inRestrict);
-        m_inRestrict = true;
+        m_inRestrict = सत्य;
         iterateChildren(nodep);
         // IEEE says simulator ignores these
-        VL_DO_DANGLING(pushDeletep(nodep->unlinkFrBack()), nodep);
+        VL_DO_DANGLING(धकेलो_Deletep(nodep->unlinkFrBack()), nodep);
     }
 
-    void visit(AstNodeModule* nodep) override {
+    शून्य visit(Ast_गाँठ_Module* nodep) override {
         VL_RESTORER(m_modp);
-        VL_RESTORER(m_modPastNum);
-        VL_RESTORER(m_modStrobeNum);
+        VL_RESTORER(m_mod_Past_अंक);
+        VL_RESTORER(m_mod_Strobe_अंक);
         VL_RESTORER(m_finalp);
         VL_RESTORER_CLEAR(m_modExpr2Sen2DelayedAlwaysp);
         VL_RESTORER_CLEAR(m_modExpr2Sen2DefaultDelayedAlwaysp);
         VL_RESTORER_CLEAR(m_delayedAlways2TickTimep);
         m_modp = nodep;
-        m_modPastNum = 0;
-        m_modStrobeNum = 0;
+        m_mod_Past_अंक = 0;
+        m_mod_Strobe_अंक = 0;
         m_finalp = nullptr;
         iterateChildren(nodep);
     }
-    void visit(AstNodeProcedure* nodep) override {
+    शून्य visit(Ast_गाँठ_Procedure* nodep) override {
         VL_RESTORER(m_procedurep);
         m_procedurep = nodep;
         iterateChildren(nodep);
     }
-    void visit(AstNodeFTask* nodep) override {
+    शून्य visit(Ast_गाँठ_FTask* nodep) override {
         VL_RESTORER(m_ftaskp);
         m_ftaskp = nodep;
         iterateChildren(nodep);
     }
-    void visit(AstGenBlock* nodep) override {
+    शून्य visit(AstGenBlock* nodep) override {
         // This code is needed rather than a visitor in V3Begin,
         // because V3Assert is called before V3Begin
         VL_RESTORER(m_beginp);
         m_beginp = nodep;
         iterateChildren(nodep);
     }
-    void visit(AstBegin* nodep) override {
+    शून्य visit(AstBegin* nodep) override {
         // This code is needed rather than a visitor in V3Begin,
         // because V3Assert is called before V3Begin
         VL_RESTORER(m_beginp);
         m_beginp = nodep;
         iterateChildren(nodep);
         // If the body is a single assertOn check, bubble it up for combining
-        if (!nodep->declsp()) {
-            if (AstIf* const ifp = VN_CAST(nodep->stmtsp(), If)) {
-                if (ifp->user2() && !ifp->nextp()) {
+        यदि (!nodep->declsp()) {
+            यदि (AstIf* ध्रुव ifp = VN_CAST(nodep->stmtsp(), If)) {
+                यदि (ifp->user2() && !ifp->nextp()) {
                     ++m_statAssertOnHoisted;
                     nodep->replaceWith(ifp->unlinkFrBack());
                     nodep->addStmtsp(ifp->thensp()->unlinkFrBackWithNext());
@@ -1469,9 +1469,9 @@ class AssertVisitor final : public VNVisitor {
         }
     }
 
-    void visit(AstNode* nodep) override { iterateChildren(nodep); }
+    शून्य visit(Ast_गाँठ* nodep) override { iterateChildren(nodep); }
 
-public:
+सार्वजनिक:
     // CONSTRUCTORS
     explicit AssertVisitor(AstNetlist* nodep) { iterate(nodep); }
     ~AssertVisitor() override {
@@ -1484,15 +1484,15 @@ public:
         V3Stats::addStat("Assertions, assertOn checks hoisted", m_statAssertOnHoisted);
         V3Stats::addStat("Assertions, lifted impure case expressions", m_statLiftedCaseExprs);
         // Rewrites can change purity, e.g. by compiling out assertion statements with --no-assert
-        VIsCached::clearCacheTree();
+        VIsCached::clear_Cache_वृक्ष();
     }
 };
 
 //######################################################################
 // Top Assert class
 
-void V3Assert::assertAll(AstNetlist* nodep) {
+शून्य V3Assert::assertAll(AstNetlist* nodep) {
     UINFO(2, __FUNCTION__ << ":");
     { AssertVisitor{nodep}; }  // Destruct before checking
-    V3Global::dumpCheckGlobalTree("assert", 0, dumpTreeEitherLevel() >= 3);
+    V3Global::dump_Check_Global_वृक्ष("assert", 0, dump_वृक्ष_Either_Level() >= 3);
 }
