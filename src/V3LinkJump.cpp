@@ -29,365 +29,365 @@
 //
 //*************************************************************************
 
-#include "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
+#अन्तर्भाव "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
 
-#include "V3LinkJump.h"
+#अन्तर्भाव "V3LinkJump.h"
 
-#include "V3AstUserAllocator.h"
-#include "V3Error.h"
-#include "V3UniqueNames.h"
+#अन्तर्भाव "V3AstUserAllocator.h"
+#अन्तर्भाव "V3Error.h"
+#अन्तर्भाव "V3UniqueNames.h"
 
-#include <unordered_map>
-#include <vector>
+#अन्तर्भाव <unordered_map>
+#अन्तर्भाव <vector>
 
 VL_DEFINE_DEBUG_FUNCTIONS;
 
 //######################################################################
 
-class LinkJumpVisitor final : public VNVisitor {
+वर्ग LinkJumpVisitor final : सार्वजनिक VNVisitor {
     // NODE STATE
     //  AstBegin/etc::user1()  -> AstJumpBlock*, for body of this loop
     //  AstFinish::user1()     -> bool, processed
     //  AstNode::user2()       -> AstJumpBlock*, for this block
     //  AstNodeBegin::user3()  -> bool, true if contains a fork
-    const VNUser1InUse m_user1InUse;
-    const VNUser2InUse m_user2InUse;
-    const VNUser3InUse m_user3InUse;
+    अचर VNUser1InUse m_user1InUse;
+    अचर VNUser2InUse m_user2InUse;
+    अचर VNUser3InUse m_user3InUse;
 
     // STATE
-    AstNodeModule* m_modp = nullptr;  // Current module
-    AstNodeFTask* m_ftaskp = nullptr;  // Current function/task
-    AstNode* m_loopp = nullptr;  // Current loop
+    Ast_गाँठो_Module* m_modp = nullptr;  // Current module
+    Ast_गाँठो_FTask* m_ftaskp = nullptr;  // Current function/task
+    Ast_गाँठो* m_loopp = nullptr;  // Current loop
     AstRandSequence* m_randsequencep = nullptr;  // Current randsequence
-    bool m_loopInc = false;  // In loop increment
-    bool m_inFork = false;  // Under fork
-    int m_modRepeatNum = 0;  // Repeat counter
+    तार्किक m_loopInc = असत्य;  // In loop increment
+    तार्किक m_inFork = असत्य;  // Under fork
+    पूर्णाङ्क m_mod_Repeat_अङ्क = 0;  // Repeat counter
     VOptionBool m_unrollFull;  // Pragma full, disable, or default unrolling
-    std::vector<AstNodeBlock*> m_blockStack;  // All begin blocks above current node
+    std::vector<Ast_गाँठो_Block*> m_block_थाक;  // All begin blocks above current node
     V3UniqueNames m_queueNames{
         "__VprocessQueue"};  // Names for queues needed for 'disable' handling
-    std::unordered_map<const AstTask*, AstVar*> m_taskDisableQueues;  // Per-task process queues
-    std::unordered_map<const AstBegin*, AstVar*> m_beginDisableQueues;  // Per-begin process queues
-    std::unordered_map<const AstFork*, AstVar*> m_forkDisableQueues;  // Per-fork process queues
-    std::unordered_map<const AstTask*, AstBegin*>
+    std::unordered_map<अचर AstTask*, AstVar*> m_taskDisableQueues;  // Per-task process queues
+    std::unordered_map<अचर AstBegin*, AstVar*> m_beginDisableQueues;  // Per-begin process queues
+    std::unordered_map<अचर AstFork*, AstVar*> m_forkDisableQueues;  // Per-fork process queues
+    std::unordered_map<अचर AstTask*, AstBegin*>
         m_taskDisableBegins;  // Per-task process wrappers
-    std::unordered_map<const AstBegin*, AstBegin*>
+    std::unordered_map<अचर AstBegin*, AstBegin*>
         m_beginDisableBegins;  // Per-begin process wrappers
 
     // METHODS
     // Get (and create if necessary) the JumpBlock for this statement
-    AstJumpBlock* getJumpBlock(AstNode* nodep, bool endOfIter) {
+    AstJumpBlock* getJumpBlock(Ast_गाँठो* nodep, तार्किक endOfIter) {
         // Wrap 'nodep' in JumpBlock. If loop, wrap the body instead if endOfIter is true
         UINFO(4, "Create JumpBlock for " << nodep);
 
         // Made it previously?  We always jump to the end, so this works out
-        if (endOfIter) {
-            if (nodep->user1p()) return VN_AS(nodep->user1p(), JumpBlock);
-        } else {
-            if (nodep->user2p()) return VN_AS(nodep->user2p(), JumpBlock);
+        यदि (endOfIter) {
+            यदि (nodep->user1p()) फर्काऊ VN_AS(nodep->user1p(), JumpBlock);
+        } अन्यथा {
+            यदि (nodep->user2p()) फर्काऊ VN_AS(nodep->user2p(), JumpBlock);
         }
 
-        AstNode* underp = nullptr;
-        bool under_and_next = true;
-        if (AstBegin* const blockp = VN_CAST(nodep, Begin)) {
+        Ast_गाँठो* underp = nullptr;
+        तार्किक under_and_next = सत्य;
+        यदि (AstBegin* अचर blockp = VN_CAST(nodep, Begin)) {
             UASSERT_OBJ(!endOfIter, nodep, "No endOfIter for Begin");
             underp = blockp->stmtsp();
-        } else if (AstNodeFTask* const fTaskp = VN_CAST(nodep, NodeFTask)) {
+        } अन्यथा यदि (Ast_गाँठो_FTask* अचर fTaskp = VN_CAST(nodep, गाँठो_FTask)) {
             UASSERT_OBJ(!endOfIter, nodep, "No endOfIter for FTask");
             underp = fTaskp->stmtsp();
-        } else if (AstForeach* const foreachp = VN_CAST(nodep, Foreach)) {
-            if (endOfIter) {
+        } अन्यथा यदि (AstForeach* अचर foreachp = VN_CAST(nodep, Foreach)) {
+            यदि (endOfIter) {
                 underp = foreachp->bodyp();
                 // Keep a LoopTest **at the front** outside the jump block
-                if (VN_IS(underp, LoopTest)) underp = underp->nextp();
-            } else {
+                यदि (VN_IS(underp, LoopTest)) underp = underp->nextp();
+            } अन्यथा {
                 underp = nodep;
-                under_and_next = false;  // IE we skip the entire foreach
+                under_and_next = असत्य;  // IE we skip the entire foreach
             }
-        } else if (AstLoop* const loopp = VN_CAST(nodep, Loop)) {
-            if (endOfIter) {
+        } अन्यथा यदि (AstLoop* अचर loopp = VN_CAST(nodep, Loop)) {
+            यदि (endOfIter) {
                 underp = loopp->stmtsp();
-            } else {
+            } अन्यथा {
                 underp = nodep;
-                under_and_next = false;  // IE we skip the entire loop
+                under_and_next = असत्य;  // IE we skip the entire loop
             }
-        } else {
+        } अन्यथा {
             nodep->v3fatalSrc("Unknown jump point for break/disable/continue");
-            return nullptr;
+            फर्काऊ nullptr;
         }
         // Skip over variables as we'll just move them in a moment
         // Also this would otherwise prevent us from using a label twice
         // see t_func_return test.
-        while (underp && VN_IS(underp, Var)) underp = underp->nextp();
+        जबसम्म (underp && VN_IS(underp, Var)) underp = underp->nextp();
         UASSERT_OBJ(underp, nodep, "Break/disable/continue not under expected statement");
         UINFO(5, "  Underpoint is " << underp);
 
         // If already wrapped, we are done ...
-        if (!underp->nextp() || !under_and_next) {
-            if (AstJumpBlock* const blockp = VN_CAST(underp, JumpBlock)) return blockp;
+        यदि (!underp->nextp() || !under_and_next) {
+            यदि (AstJumpBlock* अचर blockp = VN_CAST(underp, JumpBlock)) फर्काऊ blockp;
         }
 
         // Move underp stuff to be under a new AstJumpBlock
         VNRelinker repHandle;
-        if (under_and_next) {
+        यदि (under_and_next) {
             underp->unlinkFrBackWithNext(&repHandle);
-        } else {
+        } अन्यथा {
             underp->unlinkFrBack(&repHandle);
         }
-        AstJumpBlock* const blockp = new AstJumpBlock{nodep->fileline(), underp};
-        if (endOfIter) {
+        AstJumpBlock* अचर blockp = नूतन AstJumpBlock{nodep->fileline(), underp};
+        यदि (endOfIter) {
             nodep->user1p(blockp);
-        } else {
+        } अन्यथा {
             nodep->user2p(blockp);
         }
         repHandle.relink(blockp);
 
         // Keep any AstVars under the function not under the new JumpLabel
-        for (AstNode *nextp, *varp = underp; varp; varp = nextp) {
+        लागि (Ast_गाँठो *nextp, *varp = underp; varp; varp = nextp) {
             nextp = varp->nextp();
-            if (VN_IS(varp, Var)) blockp->addHereThisAsNext(varp->unlinkFrBack());
+            यदि (VN_IS(varp, Var)) blockp->addHereThisAsNext(varp->unlinkFrBack());
         }
-        return blockp;
+        फर्काऊ blockp;
     }
-    void addPrefixToBlocksRecurse(const std::string& prefix, AstNode* const nodep) {
+    शून्य addPrefixToBlocksRecurse(अचर std::string& prefix, Ast_गाँठो* अचर nodep) {
         // Add a prefix to blocks
         // Used to not have blocks with duplicated names
-        if (AstBegin* const beginp = VN_CAST(nodep, Begin)) {
-            if (beginp->name() != "") beginp->name(prefix + beginp->name());
+        यदि (AstBegin* अचर beginp = VN_CAST(nodep, Begin)) {
+            यदि (beginp->name() != "") beginp->name(prefix + beginp->name());
         }
 
-        if (AstNode* const refp = nodep->op1p()) addPrefixToBlocksRecurse(prefix, refp);
-        if (AstNode* const refp = nodep->op2p()) addPrefixToBlocksRecurse(prefix, refp);
-        if (AstNode* const refp = nodep->op3p()) addPrefixToBlocksRecurse(prefix, refp);
-        if (AstNode* const refp = nodep->op4p()) addPrefixToBlocksRecurse(prefix, refp);
-        if (AstNode* const refp = nodep->nextp()) addPrefixToBlocksRecurse(prefix, refp);
+        यदि (Ast_गाँठो* अचर refp = nodep->op1p()) addPrefixToBlocksRecurse(prefix, refp);
+        यदि (Ast_गाँठो* अचर refp = nodep->op2p()) addPrefixToBlocksRecurse(prefix, refp);
+        यदि (Ast_गाँठो* अचर refp = nodep->op3p()) addPrefixToBlocksRecurse(prefix, refp);
+        यदि (Ast_गाँठो* अचर refp = nodep->op4p()) addPrefixToBlocksRecurse(prefix, refp);
+        यदि (Ast_गाँठो* अचर refp = nodep->nextp()) addPrefixToBlocksRecurse(prefix, refp);
     }
-    bool existsBlockAbove(const std::string& name) const {
-        for (const AstNodeBlock* const stackp : vlstd::reverse_view(m_blockStack)) {
-            if (stackp->name() == name) return true;
+    तार्किक existsBlockAbove(अचर std::string& name) अचर {
+        लागि (अचर Ast_गाँठो_Block* अचर stackp : vlstd::reverse_view(m_block_थाक)) {
+            यदि (stackp->name() == name) फर्काऊ सत्य;
         }
-        return false;
+        फर्काऊ असत्य;
     }
-    static AstNodeModule* findOwnerModulep(AstNode* nodep) {
-        for (AstNode* curp = nodep; curp; curp = curp->aboveLoopp()) {
-            if (AstNodeModule* const modp = VN_CAST(curp, NodeModule)) return modp;
+    स्थिर Ast_गाँठो_Module* findOwnerModulep(Ast_गाँठो* nodep) {
+        लागि (Ast_गाँठो* curp = nodep; curp; curp = curp->aboveLoopp()) {
+            यदि (Ast_गाँठो_Module* अचर modp = VN_CAST(curp, गाँठो_Module)) फर्काऊ modp;
         }
         nodep->v3fatalSrc("Disable target is not under a module");
-        return nullptr;  // LCOV_EXCL_LINE
+        फर्काऊ nullptr;  // LCOV_EXCL_LINE
     }
-    static std::string targetInstancePath(const AstDisable* const nodep) {
-        if (const AstVarXRef* const xrefp = VN_CAST(nodep->targetRefp(), VarXRef)) {
-            return xrefp->dotted();
+    स्थिर std::string targetInstancePath(अचर AstDisable* अचर nodep) {
+        यदि (अचर AstVarXRef* अचर xrefp = VN_CAST(nodep->targetRefp(), VarXRef)) {
+            फर्काऊ xrefp->dotted();
         }
-        return "";
+        फर्काऊ "";
     }
-    static std::string queueDotted(const AstDisable* const nodep,
-                                   const AstVar* const processQueuep) {
-        return processQueuep->isTemp() ? targetInstancePath(nodep) : "";
+    स्थिर std::string queueDotted(अचर AstDisable* अचर nodep,
+                                   अचर AstVar* अचर processQueuep) {
+        फर्काऊ processQueuep->isTemp() ? targetInstancePath(nodep) : "";
     }
-    AstBegin* innerForkBranchp(const AstNodeBlock* const targetp) const {
+    AstBegin* innerForkBranchp(अचर Ast_गाँठो_Block* अचर targetp) अचर {
         AstBegin* innerForkBranchp = nullptr;
-        AstNodeBlock* prevBlockp = nullptr;
-        for (AstNodeBlock* const blockp : vlstd::reverse_view(m_blockStack)) {
-            if (!innerForkBranchp && VN_IS(blockp, Fork)) {
+        Ast_गाँठो_Block* prevBlockp = nullptr;
+        लागि (Ast_गाँठो_Block* अचर blockp : vlstd::reverse_view(m_block_थाक)) {
+            यदि (!innerForkBranchp && VN_IS(blockp, Fork)) {
                 innerForkBranchp = VN_CAST(prevBlockp, Begin);
             }
-            if (blockp == targetp) return innerForkBranchp;
+            यदि (blockp == targetp) फर्काऊ innerForkBranchp;
             prevBlockp = blockp;
         }
-        return nullptr;
+        फर्काऊ nullptr;
     }
-    static AstStmtExpr* getQueuePushProcessSelfp(AstVarRef* const queueRefp) {
+    स्थिर Ast_Stmt_अभिव्यक्ति* get_Queue_थप_Process_Selfp(AstVarRef* अचर queueRefp) {
         // Constructs queue.push_back(std::process::self()) statement
-        FileLine* const flp = queueRefp->fileline();
-        return new AstStmtExpr{
+        File_पङ्क्ति* अचर flp = queueRefp->fileline();
+        फर्काऊ नूतन Ast_Stmt_अभिव्यक्ति{
             flp,
-            new AstMethodCall{flp, queueRefp, "push_back",
-                              new AstArg{flp, "", v3Global.rootp()->stdPackageProcessSelfp(flp)}}};
+            नूतन AstMethodCall{flp, queueRefp, "push_back",
+                              नूतन AstArg{flp, "", v3Global.rootp()->stdPackageProcessSelfp(flp)}}};
     }
-    static AstNodeVarRef* newQueueRefp(FileLine* const fl, AstVar* const processQueuep,
-                                       const VAccess& access, const std::string& dotted = "") {
-        if (dotted != "") return new AstVarXRef{fl, processQueuep, dotted, access};
-        if (!processQueuep->lifetime().isStatic() || processQueuep->isTemp()) {
-            return new AstVarRef{fl, processQueuep, access};
+    स्थिर Ast_गाँठो_Var_Ref* newQueueRefp(File_पङ्क्ति* अचर fl, AstVar* अचर processQueuep,
+                                       अचर VAccess& access, अचर std::string& dotted = "") {
+        यदि (dotted != "") फर्काऊ नूतन AstVarXRef{fl, processQueuep, dotted, access};
+        यदि (!processQueuep->lifetime().isStatic() || processQueuep->isTemp()) {
+            फर्काऊ नूतन AstVarRef{fl, processQueuep, access};
         }
-        AstPackage* const topPkgp = v3Global.rootp()->dollarUnitPkgp();
-        return new AstVarRef{fl, topPkgp, processQueuep, access};
+        AstPackage* अचर शीर्ष_Pkgp = v3Global.rootp()->dollarUnitPkgp();
+        फर्काऊ नूतन AstVarRef{fl, शीर्ष_Pkgp, processQueuep, access};
     }
-    static AstStmtExpr* getQueuePushProcessSelfp(FileLine* const fl, AstVar* const processQueuep) {
-        AstVarRef* const queueWriteRefp
+    स्थिर Ast_Stmt_अभिव्यक्ति* get_Queue_थप_Process_Selfp(File_पङ्क्ति* अचर fl, AstVar* अचर processQueuep) {
+        AstVarRef* अचर queueWriteRefp
             = VN_AS(newQueueRefp(fl, processQueuep, VAccess::WRITE), VarRef);
-        return getQueuePushProcessSelfp(queueWriteRefp);
+        फर्काऊ get_Queue_थप_Process_Selfp(queueWriteRefp);
     }
-    static AstStmtExpr* getQueueKillStmtp(FileLine* const fl, AstVar* const processQueuep,
-                                          const std::string& dotted = "") {
-        AstNodeVarRef* const queueRefp
+    स्थिर Ast_Stmt_अभिव्यक्ति* getQueueKillStmtp(File_पङ्क्ति* अचर fl, AstVar* अचर processQueuep,
+                                          अचर std::string& dotted = "") {
+        Ast_गाँठो_Var_Ref* अचर queueRefp
             = newQueueRefp(fl, processQueuep, VAccess::READWRITE, dotted);
         AstTaskRef* killQueueCall = nullptr;
-        for (AstNode* itemp = v3Global.rootp()->stdPackageProcessp()->stmtsp(); itemp;
+        लागि (Ast_गाँठो* itemp = v3Global.rootp()->stdPackageProcessp()->stmtsp(); itemp;
              itemp = itemp->nextp()) {
-            if (itemp->name() == "killQueue") {
+            यदि (itemp->name() == "killQueue") {
                 killQueueCall
-                    = new AstTaskRef{fl, VN_AS(itemp, Task), new AstArg{fl, "", queueRefp}};
-                break;
+                    = नूतन AstTaskRef{fl, VN_AS(itemp, Task), नूतन AstArg{fl, "", queueRefp}};
+                रोक;
             }
         }
         UASSERT(killQueueCall, "Should be found");
         killQueueCall->classOrPackagep(v3Global.rootp()->stdPackageProcessp());
-        return new AstStmtExpr{fl, killQueueCall};
+        फर्काऊ नूतन Ast_Stmt_अभिव्यक्ति{fl, killQueueCall};
     }
-    AstBegin* getOrCreateTaskDisableBeginp(AstTask* const taskp, FileLine* const fl) {
-        const auto it = m_taskDisableBegins.find(taskp);
-        if (it != m_taskDisableBegins.end()) return it->second;
+    AstBegin* getOrCreateTaskDisableBeginp(AstTask* अचर taskp, File_पङ्क्ति* अचर fl) {
+        अचर स्वतः it = m_taskDisableBegins.find(taskp);
+        यदि (it != m_taskDisableBegins.end()) फर्काऊ it->second;
 
-        AstBegin* const taskBodyp = new AstBegin{fl, "", nullptr, false};
+        AstBegin* अचर taskBodyp = नूतन AstBegin{fl, "", nullptr, असत्य};
         // Disable-by-name rewrites kill this detached task-body process, so mark it as process
         // backed to ensure fork/join kill-accounting hooks are always emitted.
         taskBodyp->setNeedProcess();
         v3Global.setUsesTiming();
         // Ports stay in the task so calls see them
-        for (AstNode* stmtp = taskp->stmtsp(); stmtp;) {
-            AstNode* const nextp = stmtp->nextp();
-            const AstVar* const varp = VN_CAST(stmtp, Var);
-            if (!varp || !varp->isIO()) taskBodyp->addStmtsp(stmtp->unlinkFrBack());
+        लागि (Ast_गाँठो* stmtp = taskp->stmtsp(); stmtp;) {
+            Ast_गाँठो* अचर nextp = stmtp->nextp();
+            अचर AstVar* अचर varp = VN_CAST(stmtp, Var);
+            यदि (!varp || !varp->isIO()) taskBodyp->addStmtsp(stmtp->unlinkFrBack());
             stmtp = nextp;
         }
 
-        AstFork* const forkp = new AstFork{fl, VJoinType::JOIN};
+        AstFork* अचर forkp = नूतन AstFork{fl, VJoinType::JOIN};
         forkp->addForksp(taskBodyp);
         taskp->addStmtsp(forkp);
 
         m_taskDisableBegins.emplace(taskp, taskBodyp);
-        return taskBodyp;
+        फर्काऊ taskBodyp;
     }
-    AstVar* newProcessQueuep(AstNode* const nodep, FileLine* const fl, const VVarType& varType) {
-        AstVar* const processQueuep = new AstVar{
+    AstVar* newProcessQueuep(Ast_गाँठो* अचर nodep, File_पङ्क्ति* अचर fl, अचर VVarType& varType) {
+        AstVar* अचर processQueuep = नूतन AstVar{
             fl, varType, m_queueNames.get(nodep->name()), VFlagChildDType{},
-            new AstQueueDType{
+            नूतन AstQueueDType{
                 fl, VFlagChildDType{},
-                new AstClassRefDType{fl, v3Global.rootp()->stdPackageProcessp(), nullptr},
+                नूतन AstClassRefDType{fl, v3Global.rootp()->stdPackageProcessp(), nullptr},
                 nullptr}};
-        processQueuep->processQueue(true);
+        processQueuep->processQueue(सत्य);
         processQueuep->setIgnoreSchedWrite();
-        return processQueuep;
+        फर्काऊ processQueuep;
     }
-    AstVar* getProcessQueuep(AstNode* const nodep, FileLine* const fl) {
-        AstNodeModule* const ownerp = findOwnerModulep(nodep);
+    AstVar* getProcessQueuep(Ast_गाँठो* अचर nodep, File_पङ्क्ति* अचर fl) {
+        Ast_गाँठो_Module* अचर ownerp = findOwnerModulep(nodep);
 
-        if (VN_IS(ownerp, Package) || VN_IS(ownerp, Class)) {
-            AstPackage* const topPkgp = v3Global.rootp()->dollarUnitPkgp();
-            AstVar* const processQueuep = newProcessQueuep(nodep, fl, VVarType::VAR);
+        यदि (VN_IS(ownerp, Package) || VN_IS(ownerp, Class)) {
+            AstPackage* अचर शीर्ष_Pkgp = v3Global.rootp()->dollarUnitPkgp();
+            AstVar* अचर processQueuep = newProcessQueuep(nodep, fl, VVarType::VAR);
             processQueuep->lifetime(VLifetime::STATIC_EXPLICIT);
-            topPkgp->addStmtsp(processQueuep);
-            return processQueuep;
+            शीर्ष_Pkgp->addStmtsp(processQueuep);
+            फर्काऊ processQueuep;
         }
 
-        AstVar* const processQueuep = newProcessQueuep(nodep, fl, VVarType::MODULETEMP);
+        AstVar* अचर processQueuep = newProcessQueuep(nodep, fl, VVarType::MODULETEMP);
         processQueuep->lifetime(VLifetime::STATIC_EXPLICIT);
         ownerp->addStmtsp(processQueuep);
-        return processQueuep;
+        फर्काऊ processQueuep;
     }
-    AstVar* getOrCreateTaskDisableQueuep(AstTask* const taskp, FileLine* const fl) {
-        const auto it = m_taskDisableQueues.find(taskp);
-        if (it != m_taskDisableQueues.end()) return it->second;
+    AstVar* getOrCreateTaskDisableQueuep(AstTask* अचर taskp, File_पङ्क्ति* अचर fl) {
+        अचर स्वतः it = m_taskDisableQueues.find(taskp);
+        यदि (it != m_taskDisableQueues.end()) फर्काऊ it->second;
 
-        AstVar* const processQueuep = getProcessQueuep(taskp, fl);
-        AstStmtExpr* const pushCurrentProcessp = getQueuePushProcessSelfp(fl, processQueuep);
-        AstBegin* const taskBodyp = getOrCreateTaskDisableBeginp(taskp, fl);
-        taskBodyp->prependStmtsp(pushCurrentProcessp);
+        AstVar* अचर processQueuep = getProcessQueuep(taskp, fl);
+        Ast_Stmt_अभिव्यक्ति* अचर थप_Current_Processp = get_Queue_थप_Process_Selfp(fl, processQueuep);
+        AstBegin* अचर taskBodyp = getOrCreateTaskDisableBeginp(taskp, fl);
+        taskBodyp->prependStmtsp(थप_Current_Processp);
         m_taskDisableQueues.emplace(taskp, processQueuep);
-        return processQueuep;
+        फर्काऊ processQueuep;
     }
-    AstBegin* getOrCreateBeginDisableBeginp(AstBegin* const beginp, FileLine* const fl) {
-        const auto it = m_beginDisableBegins.find(beginp);
-        if (it != m_beginDisableBegins.end()) return it->second;
+    AstBegin* getOrCreateBeginDisableBeginp(AstBegin* अचर beginp, File_पङ्क्ति* अचर fl) {
+        अचर स्वतः it = m_beginDisableBegins.find(beginp);
+        यदि (it != m_beginDisableBegins.end()) फर्काऊ it->second;
 
-        AstBegin* const beginBodyp = new AstBegin{fl, "", nullptr, false};
+        AstBegin* अचर beginBodyp = नूतन AstBegin{fl, "", nullptr, असत्य};
         // Disable-by-name rewrites kill this detached block-body process, so mark it as process
         // backed to ensure fork/join kill-accounting hooks are always emitted.
         beginBodyp->setNeedProcess();
         v3Global.setUsesTiming();
-        if (beginp->stmtsp()) beginBodyp->addStmtsp(beginp->stmtsp()->unlinkFrBackWithNext());
+        यदि (beginp->stmtsp()) beginBodyp->addStmtsp(beginp->stmtsp()->unlinkFrBackWithNext());
 
-        AstFork* const forkp = new AstFork{fl, VJoinType::JOIN};
+        AstFork* अचर forkp = नूतन AstFork{fl, VJoinType::JOIN};
         forkp->addForksp(beginBodyp);
         beginp->addStmtsp(forkp);
 
         m_beginDisableBegins.emplace(beginp, beginBodyp);
-        return beginBodyp;
+        फर्काऊ beginBodyp;
     }
-    void prependForkBranchQueuePushes(AstFork* const forkp, AstVar* const processQueuep,
-                                      FileLine* const fl, bool needProcess) {
-        for (AstBegin* branchp = forkp->forksp(); branchp;
+    शून्य prependForkBranchQueuePushes(AstFork* अचर forkp, AstVar* अचर processQueuep,
+                                      File_पङ्क्ति* अचर fl, तार्किक needProcess) {
+        लागि (AstBegin* branchp = forkp->forksp(); branchp;
              branchp = VN_AS(branchp->nextp(), Begin)) {
-            if (needProcess) branchp->setNeedProcess();
-            branchp->prependStmtsp(getQueuePushProcessSelfp(fl, processQueuep));
+            यदि (needProcess) branchp->setNeedProcess();
+            branchp->prependStmtsp(get_Queue_थप_Process_Selfp(fl, processQueuep));
         }
     }
-    void prependNestedForkBranchQueuePushes(AstNode* const nodep, AstVar* const processQueuep,
-                                            FileLine* const fl, bool needProcess) {
-        nodep->foreach([&](AstFork* const forkp) {
+    शून्य prependNestedForkBranchQueuePushes(Ast_गाँठो* अचर nodep, AstVar* अचर processQueuep,
+                                            File_पङ्क्ति* अचर fl, तार्किक needProcess) {
+        nodep->foreach([&](AstFork* अचर forkp) {
             prependForkBranchQueuePushes(forkp, processQueuep, fl, needProcess);
         });
     }
-    AstVar* getOrCreateBeginDisableQueuep(AstBegin* const beginp, FileLine* const fl) {
-        const auto it = m_beginDisableQueues.find(beginp);
-        if (it != m_beginDisableQueues.end()) return it->second;
+    AstVar* getOrCreateBeginDisableQueuep(AstBegin* अचर beginp, File_पङ्क्ति* अचर fl) {
+        अचर स्वतः it = m_beginDisableQueues.find(beginp);
+        यदि (it != m_beginDisableQueues.end()) फर्काऊ it->second;
 
-        AstVar* const processQueuep = getProcessQueuep(beginp, fl);
-        AstStmtExpr* const pushCurrentProcessp = getQueuePushProcessSelfp(fl, processQueuep);
-        AstBegin* const beginBodyp = getOrCreateBeginDisableBeginp(beginp, fl);
-        beginBodyp->prependStmtsp(pushCurrentProcessp);
+        AstVar* अचर processQueuep = getProcessQueuep(beginp, fl);
+        Ast_Stmt_अभिव्यक्ति* अचर थप_Current_Processp = get_Queue_थप_Process_Selfp(fl, processQueuep);
+        AstBegin* अचर beginBodyp = getOrCreateBeginDisableBeginp(beginp, fl);
+        beginBodyp->prependStmtsp(थप_Current_Processp);
 
         // Named-block disable must also terminate detached descendants created by forks
         // under the block, so track each fork branch process in the same queue.
-        prependNestedForkBranchQueuePushes(beginBodyp, processQueuep, fl, false);
+        prependNestedForkBranchQueuePushes(beginBodyp, processQueuep, fl, असत्य);
         m_beginDisableQueues.emplace(beginp, processQueuep);
-        return processQueuep;
+        फर्काऊ processQueuep;
     }
-    AstVar* getOrCreateForkDisableQueuep(AstFork* const forkp, FileLine* const fl) {
-        const auto it = m_forkDisableQueues.find(forkp);
-        if (it != m_forkDisableQueues.end()) return it->second;
+    AstVar* getOrCreateForkDisableQueuep(AstFork* अचर forkp, File_पङ्क्ति* अचर fl) {
+        अचर स्वतः it = m_forkDisableQueues.find(forkp);
+        यदि (it != m_forkDisableQueues.end()) फर्काऊ it->second;
 
-        AstVar* const processQueuep = getProcessQueuep(forkp, fl);
-        prependForkBranchQueuePushes(forkp, processQueuep, fl, true);
+        AstVar* अचर processQueuep = getProcessQueuep(forkp, fl);
+        prependForkBranchQueuePushes(forkp, processQueuep, fl, सत्य);
         // Disabling a fork must also terminate detached descendants created by nested forks
         // under each branch, so track nested fork branch processes in the same queue.
-        for (AstBegin* branchp = forkp->forksp(); branchp;
+        लागि (AstBegin* branchp = forkp->forksp(); branchp;
              branchp = VN_AS(branchp->nextp(), Begin)) {
-            prependNestedForkBranchQueuePushes(branchp, processQueuep, fl, true);
+            prependNestedForkBranchQueuePushes(branchp, processQueuep, fl, सत्य);
         }
         m_forkDisableQueues.emplace(forkp, processQueuep);
-        return processQueuep;
+        फर्काऊ processQueuep;
     }
-    AstStmtExpr* insertKillStmtp(AstDisable* const nodep, AstVar* const processQueuep) {
-        FileLine* const fl = nodep->fileline();
-        AstStmtExpr* const killStmtp
+    Ast_Stmt_अभिव्यक्ति* घुसाउ_Kill_Stmtp(AstDisable* अचर nodep, AstVar* अचर processQueuep) {
+        File_पङ्क्ति* अचर fl = nodep->fileline();
+        Ast_Stmt_अभिव्यक्ति* अचर killStmtp
             = getQueueKillStmtp(fl, processQueuep, queueDotted(nodep, processQueuep));
         nodep->addNextHere(killStmtp);
-        return killStmtp;
+        फर्काऊ killStmtp;
     }
-    void addJumpAfterKill(AstStmtExpr* const killStmtp, AstNode* const targetp) {
-        AstJumpBlock* const jmpBlockp = getJumpBlock(targetp, false);
-        killStmtp->addNextHere(new AstJumpGo{killStmtp->fileline(), jmpBlockp});
+    शून्य addJumpAfterKill(Ast_Stmt_अभिव्यक्ति* अचर killStmtp, Ast_गाँठो* अचर targetp) {
+        AstJumpBlock* अचर jmpBlockp = getJumpBlock(targetp, असत्य);
+        killStmtp->addNextHere(नूतन AstJumpGo{killStmtp->fileline(), jmpBlockp});
     }
-    void handleDisableOnFork(AstDisable* const nodep) {
+    शून्य handleDisableOnFork(AstDisable* अचर nodep) {
         // The support utilizes the process::kill()` method. For each disabled fork a queue of
         // processes is declared. At the beginning of each fork branch (and each nested fork
         // branch) its process handle is pushed to the queue. The `disable` statement is replaced
         // with calling `kill()` on each element of the queue.
-        FileLine* const fl = nodep->fileline();
-        AstFork* const targetp = VN_AS(nodep->targetp(), Fork);
-        if (m_ftaskp) {
-            if (!m_ftaskp->exists(
-                    [targetp](const AstNodeBlock* blockp) -> bool { return blockp == targetp; })) {
+        File_पङ्क्ति* अचर fl = nodep->fileline();
+        AstFork* अचर targetp = VN_AS(nodep->targetp(), Fork);
+        यदि (m_ftaskp) {
+            यदि (!m_ftaskp->exists(
+                    [targetp](अचर Ast_गाँठो_Block* blockp) -> तार्किक { फर्काऊ blockp == targetp; })) {
                 // Disabling a fork, which is within the same task, is not a problem
                 nodep->v3warn(E_UNSUPPORTED, "Unsupported: disabling fork from task / function");
             }
         }
 
-        AstVar* const processQueuep = getOrCreateForkDisableQueuep(targetp, fl);
-        AstStmtExpr* const killStmtp = insertKillStmtp(nodep, processQueuep);
+        AstVar* अचर processQueuep = getOrCreateForkDisableQueuep(targetp, fl);
+        Ast_Stmt_अभिव्यक्ति* अचर killStmtp = घुसाउ_Kill_Stmtp(nodep, processQueuep);
 
         // 'process::kill' does not immediately kill the current process executing the disable
         // statement (because it's in the running state). If the disable runs under the target
@@ -396,262 +396,262 @@ class LinkJumpVisitor final : public VNVisitor {
         // branch keeps the jump inside a single emitted coroutine even when the disable sits in a
         // nested sub-fork; targeting the outer target fork's branch would cross a coroutine
         // boundary once forks are split into separate functions.
-        if (AstBegin* const branchp = innerForkBranchp(targetp)) {
+        यदि (AstBegin* अचर branchp = innerForkBranchp(targetp)) {
             addJumpAfterKill(killStmtp, branchp);
         }
     }
     // VISITORS
-    void visit(AstNodeModule* nodep) override {
-        if (nodep->dead()) return;
+    शून्य visit(Ast_गाँठो_Module* nodep) override {
+        यदि (nodep->dead()) फर्काऊ;
         VL_RESTORER(m_modp);
-        VL_RESTORER(m_modRepeatNum);
+        VL_RESTORER(m_mod_Repeat_अङ्क);
         m_modp = nodep;
-        m_modRepeatNum = 0;
+        m_mod_Repeat_अङ्क = 0;
         iterateChildren(nodep);
     }
-    void visit(AstNodeFTask* nodep) override {
+    शून्य visit(Ast_गाँठो_FTask* nodep) override {
         VL_RESTORER(m_ftaskp);
         m_ftaskp = nodep;
         iterateChildren(nodep);
     }
-    void visit(AstBegin* nodep) override {
+    शून्य visit(AstBegin* nodep) override {
         UINFO(8, "  " << nodep);
         VL_RESTORER(m_unrollFull);
-        m_blockStack.push_back(nodep);
+        m_block_थाक.थप_back(nodep);
         iterateChildren(nodep);
-        m_blockStack.pop_back();
+        m_block_थाक.झिक_back();
     }
-    void visit(AstFork* nodep) override {
+    शून्य visit(AstFork* nodep) override {
         UINFO(8, "  " << nodep);
         VL_RESTORER(m_unrollFull);
         VL_RESTORER(m_inFork);
-        m_inFork = true;
+        m_inFork = सत्य;
         // Mark all upper blocks, can stop once see one set to avoid O(n^2)
-        for (AstNodeBlock* const blockp : vlstd::reverse_view(m_blockStack)) {
-            if (blockp->user3SetOnce()) break;
+        लागि (Ast_गाँठो_Block* अचर blockp : vlstd::reverse_view(m_block_थाक)) {
+            यदि (blockp->user3SetOnce()) रोक;
         }
-        m_blockStack.push_back(nodep);
+        m_block_थाक.थप_back(nodep);
         iterateChildren(nodep);
-        m_blockStack.pop_back();
+        m_block_थाक.झिक_back();
     }
-    void visit(AstStmtPragma* nodep) override {
-        if (nodep->pragp()->pragType() == VPragmaType::UNROLL_DISABLE) {
+    शून्य visit(AstStmtPragma* nodep) override {
+        यदि (nodep->pragp()->pragType() == VPragmaType::UNROLL_DISABLE) {
             m_unrollFull = VOptionBool::OPT_FALSE;
-            VL_DO_DANGLING(pushDeletep(nodep->unlinkFrBack()), nodep);
-        } else if (nodep->pragp()->pragType() == VPragmaType::UNROLL_FULL) {
+            VL_DO_DANGLING(थप_Deletep(nodep->unlinkFrBack()), nodep);
+        } अन्यथा यदि (nodep->pragp()->pragType() == VPragmaType::UNROLL_FULL) {
             m_unrollFull = VOptionBool::OPT_TRUE;
-            VL_DO_DANGLING(pushDeletep(nodep->unlinkFrBack()), nodep);
-        } else {
+            VL_DO_DANGLING(थप_Deletep(nodep->unlinkFrBack()), nodep);
+        } अन्यथा {
             iterateChildren(nodep);
         }
     }
-    void visit(AstRandSequence* nodep) override {
+    शून्य visit(AstRandSequence* nodep) override {
         VL_RESTORER(m_randsequencep);
         m_randsequencep = nodep;
         iterateChildren(nodep);
     }
-    void visit(AstRepeat* nodep) override {
+    शून्य visit(AstRepeat* nodep) override {
         // So later optimizations don't need to deal with them,
         //    REPEAT(count,body) -> loop=count,WHILE(loop>0) { body, loop-- }
         // Note var can be signed or unsigned based on original number.
-        AstNodeExpr* const countp = nodep->countp()->unlinkFrBackWithNext();
-        const string name = "__Vrepeat"s + cvtToStr(m_modRepeatNum++);
-        AstBegin* const beginp = new AstBegin{nodep->fileline(), "", nullptr, true};
+        Ast_गाँठो_अभिव्यक्ति* अचर countp = nodep->countp()->unlinkFrBackWithNext();
+        अचर string name = "__Vrepeat"s + cvtToStr(m_mod_Repeat_अङ्क++);
+        AstBegin* अचर beginp = नूतन AstBegin{nodep->fileline(), "", nullptr, सत्य};
         // Spec says value is integral, if negative is ignored
-        AstVar* const varp
-            = new AstVar{nodep->fileline(), VVarType::BLOCKTEMP, name, nodep->findIntDType()};
+        AstVar* अचर varp
+            = नूतन AstVar{nodep->fileline(), VVarType::BLOCKTEMP, name, nodep->findIntDType()};
         varp->lifetime(VLifetime::AUTOMATIC_EXPLICIT);
-        varp->usedLoopIdx(true);
+        varp->usedLoopIdx(सत्य);
         beginp->addStmtsp(varp);
-        AstNode* initsp = new AstAssign{
-            nodep->fileline(), new AstVarRef{nodep->fileline(), varp, VAccess::WRITE}, countp};
-        AstNode* const decp = new AstAssign{
-            nodep->fileline(), new AstVarRef{nodep->fileline(), varp, VAccess::WRITE},
-            new AstSub{nodep->fileline(), new AstVarRef{nodep->fileline(), varp, VAccess::READ},
-                       new AstConst{nodep->fileline(), 1}}};
-        AstNodeExpr* const zerosp = new AstConst{nodep->fileline(), AstConst::Signed32{}, 0};
-        AstNodeExpr* const condp = new AstGtS{
-            nodep->fileline(), new AstVarRef{nodep->fileline(), varp, VAccess::READ}, zerosp};
-        AstNode* const bodysp = nodep->stmtsp();
-        if (bodysp) bodysp->unlinkFrBackWithNext();
-        FileLine* const flp = nodep->fileline();
-        AstLoop* const loopp = new AstLoop{flp};
-        loopp->addStmtsp(new AstLoopTest{flp, loopp, condp});
+        Ast_गाँठो* initsp = नूतन AstAssign{
+            nodep->fileline(), नूतन AstVarRef{nodep->fileline(), varp, VAccess::WRITE}, countp};
+        Ast_गाँठो* अचर decp = नूतन AstAssign{
+            nodep->fileline(), नूतन AstVarRef{nodep->fileline(), varp, VAccess::WRITE},
+            नूतन AstSub{nodep->fileline(), नूतन AstVarRef{nodep->fileline(), varp, VAccess::READ},
+                       नूतन AstConst{nodep->fileline(), 1}}};
+        Ast_गाँठो_अभिव्यक्ति* अचर zerosp = नूतन AstConst{nodep->fileline(), AstConst::Signed32{}, 0};
+        Ast_गाँठो_अभिव्यक्ति* अचर condp = नूतन AstGtS{
+            nodep->fileline(), नूतन AstVarRef{nodep->fileline(), varp, VAccess::READ}, zerosp};
+        Ast_गाँठो* अचर bodysp = nodep->stmtsp();
+        यदि (bodysp) bodysp->unlinkFrBackWithNext();
+        File_पङ्क्ति* अचर flp = nodep->fileline();
+        AstLoop* अचर loopp = नूतन AstLoop{flp};
+        loopp->addStmtsp(नूतन AstLoopTest{flp, loopp, condp});
         loopp->addStmtsp(bodysp);
         loopp->addContsp(decp);
-        if (!m_unrollFull.isDefault()) loopp->unroll(m_unrollFull);
+        यदि (!m_unrollFull.isDefault()) loopp->unroll(m_unrollFull);
         m_unrollFull = VOptionBool::OPT_DEFAULT_FALSE;
         beginp->addStmtsp(initsp);
         beginp->addStmtsp(loopp);
         // Replacement AstBegin will be iterated next
         nodep->replaceWith(beginp);
-        VL_DO_DANGLING(nodep->deleteTree(), nodep);
+        VL_DO_DANGLING(nodep->delete_रूख(), nodep);
     }
-    void visit(AstLoop* nodep) override {
-        if (!m_unrollFull.isDefault()) nodep->unroll(m_unrollFull);
-        if (m_modp->hasParameterList() || m_modp->hasGParam()) {
-            nodep->fileline()->modifyWarnOff(V3ErrorCode::UNUSEDLOOP, true);
+    शून्य visit(AstLoop* nodep) override {
+        यदि (!m_unrollFull.isDefault()) nodep->unroll(m_unrollFull);
+        यदि (m_modp->hasParameterList() || m_modp->hasGParam()) {
+            nodep->fileline()->modifyWarnOff(V3ErrorCode::UNUSEDLOOP, सत्य);
         }
         m_unrollFull = VOptionBool::OPT_DEFAULT_FALSE;
         VL_RESTORER(m_loopp);
         VL_RESTORER(m_loopInc);
         m_loopp = nodep;
-        m_loopInc = false;
+        m_loopInc = असत्य;
         iterateAndNextNull(nodep->stmtsp());
-        m_loopInc = true;
+        m_loopInc = सत्य;
         iterateAndNextNull(nodep->contsp());
         // Move contsp into stmtsp, no longer needed to keep separately
-        if (nodep->contsp()) nodep->addStmtsp(nodep->contsp()->unlinkFrBackWithNext());
+        यदि (nodep->contsp()) nodep->addStmtsp(nodep->contsp()->unlinkFrBackWithNext());
     }
-    void visit(AstNodeForeach* nodep) override {
+    शून्य visit(Ast_गाँठो_Foreach* nodep) override {
         VL_RESTORER(m_loopp);
         m_loopp = nodep;
         iterateAndNextNull(nodep->bodyp());
     }
-    void visit(AstReturn* nodep) override {
+    शून्य visit(AstReturn* nodep) override {
         iterateChildren(nodep);
-        const AstFunc* const funcp = VN_CAST(m_ftaskp, Func);
-        if (m_randsequencep) {
-            nodep->replaceWith(new AstRSReturn{nodep->fileline()});
-            VL_DO_DANGLING(pushDeletep(nodep), nodep);
-            return;
-        } else if (m_inFork) {
+        अचर AstFunc* अचर funcp = VN_CAST(m_ftaskp, Func);
+        यदि (m_randsequencep) {
+            nodep->replaceWith(नूतन AstRSReturn{nodep->fileline()});
+            VL_DO_DANGLING(थप_Deletep(nodep), nodep);
+            फर्काऊ;
+        } अन्यथा यदि (m_inFork) {
             nodep->v3error("Return isn't legal under fork (IEEE 1800-2023 9.2.3)");
-            VL_DO_DANGLING(pushDeletep(nodep->unlinkFrBack()), nodep);
-            return;
-        } else if (!m_ftaskp) {
+            VL_DO_DANGLING(थप_Deletep(nodep->unlinkFrBack()), nodep);
+            फर्काऊ;
+        } अन्यथा यदि (!m_ftaskp) {
             nodep->v3error("Return isn't underneath a task or function");
-        } else if (funcp && !nodep->lhsp() && !funcp->isConstructor()) {
+        } अन्यथा यदि (funcp && !nodep->lhsp() && !funcp->isConstructor()) {
             nodep->v3error("Return underneath a function should have return value");
-        } else if (!funcp && nodep->lhsp()) {
+        } अन्यथा यदि (!funcp && nodep->lhsp()) {
             nodep->v3error("Return underneath a task shouldn't have return value");
-        } else {
-            if (funcp && nodep->lhsp()) {
+        } अन्यथा {
+            यदि (funcp && nodep->lhsp()) {
                 // Set output variable to return value
-                nodep->addHereThisAsNext(new AstAssign{
+                nodep->addHereThisAsNext(नूतन AstAssign{
                     nodep->fileline(),
-                    new AstVarRef{nodep->fileline(), VN_AS(funcp->fvarp(), Var), VAccess::WRITE},
+                    नूतन AstVarRef{nodep->fileline(), VN_AS(funcp->fvarp(), Var), VAccess::WRITE},
                     nodep->lhsp()->unlinkFrBackWithNext()});
             }
             // Jump to the end of the function call
-            AstJumpBlock* const blockp = getJumpBlock(m_ftaskp, false);
-            nodep->addHereThisAsNext(new AstJumpGo{nodep->fileline(), blockp});
+            AstJumpBlock* अचर blockp = getJumpBlock(m_ftaskp, असत्य);
+            nodep->addHereThisAsNext(नूतन AstJumpGo{nodep->fileline(), blockp});
         }
         nodep->unlinkFrBack();
-        VL_DO_DANGLING(pushDeletep(nodep), nodep);
+        VL_DO_DANGLING(थप_Deletep(nodep), nodep);
     }
-    void visit(AstBreak* nodep) override {
+    शून्य visit(AstBreak* nodep) override {
         iterateChildren(nodep);
-        if (!m_loopp && m_randsequencep) {
-            nodep->replaceWith(new AstRSBreak{nodep->fileline()});
-            VL_DO_DANGLING(pushDeletep(nodep), nodep);
-            return;
-        } else if (!m_loopp) {
+        यदि (!m_loopp && m_randsequencep) {
+            nodep->replaceWith(नूतन AstRSBreak{nodep->fileline()});
+            VL_DO_DANGLING(थप_Deletep(nodep), nodep);
+            फर्काऊ;
+        } अन्यथा यदि (!m_loopp) {
             nodep->v3error("break isn't underneath a loop");
-        } else {
+        } अन्यथा {
             // Jump to the end of the loop
-            AstJumpBlock* const blockp = getJumpBlock(m_loopp, false);
-            nodep->addNextHere(new AstJumpGo{nodep->fileline(), blockp});
+            AstJumpBlock* अचर blockp = getJumpBlock(m_loopp, असत्य);
+            nodep->addNextHere(नूतन AstJumpGo{nodep->fileline(), blockp});
         }
         nodep->unlinkFrBack();
-        VL_DO_DANGLING(pushDeletep(nodep), nodep);
+        VL_DO_DANGLING(थप_Deletep(nodep), nodep);
     }
-    void visit(AstContinue* nodep) override {
+    शून्य visit(AstContinue* nodep) override {
         iterateChildren(nodep);
-        if (!m_loopp) {
+        यदि (!m_loopp) {
             nodep->v3error("continue isn't underneath a loop");
-        } else {
+        } अन्यथा {
             // Jump to the end of this iteration
             // If a "for" loop then need to still do the post-loop increment
-            AstJumpBlock* const blockp = getJumpBlock(m_loopp, true);
-            nodep->addNextHere(new AstJumpGo{nodep->fileline(), blockp});
+            AstJumpBlock* अचर blockp = getJumpBlock(m_loopp, सत्य);
+            nodep->addNextHere(नूतन AstJumpGo{nodep->fileline(), blockp});
         }
         nodep->unlinkFrBack();
-        VL_DO_DANGLING(pushDeletep(nodep), nodep);
+        VL_DO_DANGLING(थप_Deletep(nodep), nodep);
     }
-    void visit(AstDisable* nodep) override {
+    शून्य visit(AstDisable* nodep) override {
         UINFO(8, "   DISABLE " << nodep);
-        AstNode* const targetp = nodep->targetp();
-        if (!targetp) {
+        Ast_गाँठो* अचर targetp = nodep->targetp();
+        यदि (!targetp) {
             // Linking errors on the disable target are already reported upstream.
             // Drop this node to avoid cascading into an internal assertion.
-            VL_DO_DANGLING(pushDeletep(nodep->unlinkFrBack()), nodep);
-            return;
+            VL_DO_DANGLING(थप_Deletep(nodep->unlinkFrBack()), nodep);
+            फर्काऊ;
         }
-        if (AstTask* const taskp = VN_CAST(targetp, Task)) {
-            AstVar* const processQueuep = getOrCreateTaskDisableQueuep(taskp, nodep->fileline());
-            AstStmtExpr* const killStmtp = insertKillStmtp(nodep, processQueuep);
+        यदि (AstTask* अचर taskp = VN_CAST(targetp, Task)) {
+            AstVar* अचर processQueuep = getOrCreateTaskDisableQueuep(taskp, nodep->fileline());
+            Ast_Stmt_अभिव्यक्ति* अचर killStmtp = घुसाउ_Kill_Stmtp(nodep, processQueuep);
 
             // process::kill does not terminate the currently running process immediately.
             // If we disable the current task by name from inside itself, jump to its end.
-            if (m_ftaskp == taskp) {
-                AstNode* jumpTargetp = taskp;
-                const auto it = m_taskDisableBegins.find(taskp);
-                if (it != m_taskDisableBegins.end()) jumpTargetp = it->second;
+            यदि (m_ftaskp == taskp) {
+                Ast_गाँठो* jumpTargetp = taskp;
+                अचर स्वतः it = m_taskDisableBegins.find(taskp);
+                यदि (it != m_taskDisableBegins.end()) jumpTargetp = it->second;
                 addJumpAfterKill(killStmtp, jumpTargetp);
             }
-        } else if (VN_IS(targetp, Fork)) {
+        } अन्यथा यदि (VN_IS(targetp, Fork)) {
             handleDisableOnFork(nodep);
-        } else if (AstBegin* const beginp = VN_CAST(targetp, Begin)) {
-            if (existsBlockAbove(beginp->name())) {
-                if (!beginp->user3()) {
+        } अन्यथा यदि (AstBegin* अचर beginp = VN_CAST(targetp, Begin)) {
+            यदि (existsBlockAbove(beginp->name())) {
+                यदि (!beginp->user3()) {
                     // Jump to the end of the named block
-                    AstJumpBlock* const blockp = getJumpBlock(beginp, false);
-                    nodep->addNextHere(new AstJumpGo{nodep->fileline(), blockp});
-                } else {
-                    AstVar* const processQueuep
+                    AstJumpBlock* अचर blockp = getJumpBlock(beginp, असत्य);
+                    nodep->addNextHere(नूतन AstJumpGo{nodep->fileline(), blockp});
+                } अन्यथा {
+                    AstVar* अचर processQueuep
                         = getOrCreateBeginDisableQueuep(beginp, nodep->fileline());
-                    AstStmtExpr* const killStmtp = insertKillStmtp(nodep, processQueuep);
+                    Ast_Stmt_अभिव्यक्ति* अचर killStmtp = घुसाउ_Kill_Stmtp(nodep, processQueuep);
 
                     // process::kill does not terminate the currently running process immediately.
                     // If disable executes inside a fork branch of this named block, jump to the
                     // end of that branch to prevent statements after disable from executing.
-                    AstBegin* const branchp = innerForkBranchp(beginp);
-                    AstBegin* const jumpTargetp
+                    AstBegin* अचर branchp = innerForkBranchp(beginp);
+                    AstBegin* अचर jumpTargetp
                         = branchp ? branchp : m_beginDisableBegins.at(beginp);
                     addJumpAfterKill(killStmtp, jumpTargetp);
                 }
-            } else {
-                AstVar* const processQueuep
+            } अन्यथा {
+                AstVar* अचर processQueuep
                     = getOrCreateBeginDisableQueuep(beginp, nodep->fileline());
-                insertKillStmtp(nodep, processQueuep);
+                घुसाउ_Kill_Stmtp(nodep, processQueuep);
             }
-        } else {
+        } अन्यथा {
             nodep->v3fatalSrc("Disable linked with node of unhandled type "
                               << targetp->prettyTypeName());
         }
         nodep->unlinkFrBack();
-        VL_DO_DANGLING(pushDeletep(nodep), nodep);
+        VL_DO_DANGLING(थप_Deletep(nodep), nodep);
     }
-    void visit(AstFinish* nodep) override {
-        if (nodep->user1SetOnce()) return;  // Process once
+    शून्य visit(AstFinish* nodep) override {
+        यदि (nodep->user1SetOnce()) फर्काऊ;  // Process once
         iterateChildren(nodep);
-        if (m_inFork) {
-            nodep->replaceWith(new AstFinishFork{nodep->fileline()});
-            VL_DO_DANGLING(nodep->deleteTree(), nodep);
-        } else if (m_loopp) {
+        यदि (m_inFork) {
+            nodep->replaceWith(नूतन AstFinishFork{nodep->fileline()});
+            VL_DO_DANGLING(nodep->delete_रूख(), nodep);
+        } अन्यथा यदि (m_loopp) {
             // Jump to the end of the loop (post-finish)
-            AstJumpBlock* const blockp = getJumpBlock(m_loopp, false);
-            nodep->addNextHere(new AstJumpGo{nodep->fileline(), blockp});
+            AstJumpBlock* अचर blockp = getJumpBlock(m_loopp, असत्य);
+            nodep->addNextHere(नूतन AstJumpGo{nodep->fileline(), blockp});
         }
     }
-    void visit(AstVarRef* nodep) override {
-        if (m_loopInc && nodep->varp()) nodep->varp()->usedLoopIdx(true);
+    शून्य visit(AstVarRef* nodep) override {
+        यदि (m_loopInc && nodep->varp()) nodep->varp()->usedLoopIdx(सत्य);
     }
-    void visit(AstConst*) override {}
-    void visit(AstNode* nodep) override { iterateChildren(nodep); }
+    शून्य visit(AstConst*) override {}
+    शून्य visit(Ast_गाँठो* nodep) override { iterateChildren(nodep); }
 
-public:
+सार्वजनिक:
     // CONSTRUCTORS
     explicit LinkJumpVisitor(AstNetlist* nodep) { iterate(nodep); }
-    ~LinkJumpVisitor() override = default;
+    ~LinkJumpVisitor() override = स्वभाव;
 };
 
 //######################################################################
 // Task class functions
 
-void V3LinkJump::linkJump(AstNetlist* nodep) {
+शून्य V3LinkJump::linkJump(AstNetlist* nodep) {
     UINFO(2, __FUNCTION__ << ":");
     { LinkJumpVisitor{nodep}; }  // Destruct before checking
-    V3Global::dumpCheckGlobalTree("linkjump", 0, dumpTreeEitherLevel() >= 3);
+    V3Global::dump_Check_Global_रूख("linkjump", 0, dump_रूख_Either_Level() >= 3);
 }

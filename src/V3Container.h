@@ -17,53 +17,53 @@
 #ifndef VERILATOR_V3CONTAINER_H_
 #define VERILATOR_V3CONTAINER_H_
 
-#include "config_build.h"
-#include "verilatedos.h"
+#अन्तर्भाव "config_build.h"
+#अन्तर्भाव "verilatedos.h"
 
-#include <unordered_map>
-#include <unordered_set>
-#include <vector>
+#अन्तर्भाव <unordered_map>
+#अन्तर्भाव <unordered_set>
+#अन्तर्भाव <vector>
 
 //============================================================================
 
 // Similar to std::set, but ordered based on call order to emplace.  Used
 // when insertion order is desired (e.g. std::vector), but duplicates need removal.
 // Keys may not be modified.  (If needed in future, m_set could contain vector positions.)
-template <typename T_Key>
+ढाँचा <typename T_साँचो>
 class VInsertionSet final {
-    std::vector<T_Key> m_keys;  // Elements by insertion order
-    std::unordered_set<T_Key> m_keySet;  // Elements by key
-public:
+    std::vector<T_साँचो> m_साँचोहरू;  // Elements by insertion order
+    std::unordered_set<T_साँचो> m_साँचो_Set;  // Elements by key
+सार्वजनिक:
     // METHODS
-    bool insert(const T_Key& key) {
+    bool घुसाउ(अचर T_साँचो& साँचो) {
         // Returns if did insertion (second pair argument of traditional emplace)
-        const auto itFoundPair = m_keySet.insert(key);
-        if (itFoundPair.second) m_keys.push_back(key);
-        return itFoundPair.second;
+        अचर स्वतः itFoundPair = m_साँचो_Set.घुसाउ(साँचो);
+        यदि (itFoundPair.second) m_साँचोहरू.थप_back(साँचो);
+        फर्काऊ itFoundPair.second;
     }
-    template <typename T>
-    void insert(T begin, const T end) {
-        static_assert(std::is_same<typename std::iterator_traits<T>::value_type, T_Key>::value,
+    ढाँचा <typename T>
+    शून्य घुसाउ(T begin, अचर T end) {
+        static_assert(std::is_same<typename std::iterator_traits<T>::मान_type, T_साँचो>::मान,
                       "T must be an iterator with value type T_Key");
-        while (begin != end) {
-            if (m_keySet.insert(*begin).second) m_keys.push_back(*begin);
+        जबसम्म (begin != end) {
+            यदि (m_साँचो_Set.घुसाउ(*begin).second) m_साँचोहरू.थप_back(*begin);
             ++begin;
         }
     }
-    void clear() {
-        m_keys.clear();
-        m_keySet.clear();
+    शून्य clear() {
+        m_साँचोहरू.clear();
+        m_साँचो_Set.clear();
     }
 
     // ACCESSORS
-    bool empty() const { return m_keys.empty(); }
-    size_t size() const { return m_keys.size(); }
-    bool exists(const T_Key& key) const { return m_keySet.find(key) != m_keySet.end(); }
+    bool empty() अचर { फर्काऊ m_साँचोहरू.empty(); }
+    माप_प्रकार size() अचर { फर्काऊ m_साँचोहरू.size(); }
+    bool exists(अचर T_साँचो& साँचो) अचर { फर्काऊ m_साँचो_Set.find(साँचो) != m_साँचो_Set.end(); }
 
     // ITERATORS
-    using const_iterator = typename std::vector<T_Key>::const_iterator;
-    const_iterator begin() const { return m_keys.begin(); }
-    const_iterator end() const { return m_keys.end(); }
+    using const_iterator = typename std::vector<T_साँचो>::const_iterator;
+    const_iterator begin() अचर { फर्काऊ m_साँचोहरू.begin(); }
+    const_iterator end() अचर { फर्काऊ m_साँचोहरू.end(); }
 };
 
 //============================================================================

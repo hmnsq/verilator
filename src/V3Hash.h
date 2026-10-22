@@ -17,71 +17,71 @@
 #ifndef VERILATOR_V3HASH_H_
 #define VERILATOR_V3HASH_H_
 
-#include "verilatedos.h"
+#अन्तर्भाव "verilatedos.h"
 
-#include <cstdint>
-#include <string>
+#अन्तर्भाव <cstdint>
+#अन्तर्भाव <string>
 
 //######################################################################
 // V3Hash -- Generic hashing
 
 class V3Hash final {
-    uint32_t m_value;  // The 32-bit hash value.
+    uint32_t m_मान;  // The 32-bit hash value.
 
-    static uint32_t combine(uint32_t a, uint32_t b) {
-        return a ^ (b + 0x9e3779b9 + (a << 6) + (a >> 2));
+    स्थिर uint32_t combine(uint32_t a, uint32_t b) {
+        फर्काऊ a ^ (b + 0x9e3779b9 + (a << 6) + (a >> 2));
     }
 
-public:
+सार्वजनिक:
     // CONSTRUCTORS
     V3Hash()
-        : m_value{0} {}
+        : m_मान{0} {}
     explicit V3Hash(uint32_t val)
-        : m_value{val} {}
+        : m_मान{val} {}
     explicit V3Hash(uint64_t val)
-        : m_value{combine(static_cast<uint32_t>(val), static_cast<uint32_t>(val >> 32))} {}
-    explicit V3Hash(const std::string& val);
-    explicit V3Hash(double val);
+        : m_मान{combine(static_cast<uint32_t>(val), static_cast<uint32_t>(val >> 32))} {}
+    explicit V3Hash(अचर std::string& val);
+    explicit V3Hash(द्विगुण val);
 
     explicit V3Hash(int32_t val)
         : V3Hash{static_cast<uint32_t>(val)} {}
     explicit V3Hash(int64_t val)
         : V3Hash{static_cast<uint64_t>(val)} {}
-    explicit V3Hash(const void* val)
+    explicit V3Hash(अचर शून्य* val)
         : V3Hash{static_cast<uint64_t>(reinterpret_cast<uintptr_t>(val))} {}
 
     // METHODS
-    uint32_t value() const VL_MT_SAFE { return m_value; }
-    std::string toString() const VL_MT_SAFE;
+    uint32_t मान() अचर VL_MT_SAFE { फर्काऊ m_मान; }
+    std::string toString() अचर VL_MT_SAFE;
 
     // OPERATORS
     // Comparisons
-    bool operator==(const V3Hash& rh) const { return m_value == rh.m_value; }
-    bool operator!=(const V3Hash& rh) const { return m_value != rh.m_value; }
-    bool operator<(const V3Hash& rh) const { return m_value < rh.m_value; }
+    bool चालक==(अचर V3Hash& rh) अचर { फर्काऊ m_मान == rh.m_मान; }
+    bool चालक!=(अचर V3Hash& rh) अचर { फर्काऊ m_मान != rh.m_मान; }
+    bool चालक<(अचर V3Hash& rh) अचर { फर्काऊ m_मान < rh.m_मान; }
 
     // '+' combines hashes
-    template <typename T>
-    V3Hash operator+(T that) const {
-        return V3Hash{combine(m_value, V3Hash{that}.m_value)};
+    ढाँचा <typename T>
+    V3Hash चालक+(T that) अचर {
+        फर्काऊ V3Hash{combine(m_मान, V3Hash{that}.m_मान)};
     }
-    V3Hash operator+(const std::string& that) const {
-        return V3Hash{combine(m_value, V3Hash{that}.m_value)};
+    V3Hash चालक+(अचर std::string& that) अचर {
+        फर्काऊ V3Hash{combine(m_मान, V3Hash{that}.m_मान)};
     }
 
     // '+=' combines in place
-    template <typename T>
-    V3Hash& operator+=(T that) {
-        return *this = *this + that;
+    ढाँचा <typename T>
+    V3Hash& चालक+=(T that) {
+        फर्काऊ *this = *this + that;
     }
-    V3Hash& operator+=(const std::string& that) { return *this = *this + that; }
+    V3Hash& चालक+=(अचर std::string& that) { फर्काऊ *this = *this + that; }
 };
 
-std::ostream& operator<<(std::ostream& os, const V3Hash& rhs) VL_MT_SAFE;
+std::ostream& चालक<<(std::ostream& os, अचर V3Hash& rhs) VL_MT_SAFE;
 
-template <>
-struct std::hash<V3Hash> {
-    std::size_t operator()(const V3Hash& h) const noexcept { return h.value(); }
+ढाँचा <>
+संरचना std::hash<V3Hash> {
+    std::माप_प्रकार चालक()(अचर V3Hash& h) अचर noexcept { फर्काऊ h.मान(); }
 };
 
 #endif  // Guard

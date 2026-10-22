@@ -14,53 +14,53 @@
 //
 //*************************************************************************
 
-#include "V3PchAstMT.h"
+#अन्तर्भाव "V3PchAstMT.h"
 
-#include "V3EmitC.h"
-#include "V3EmitCBase.h"
-#include "V3Stats.h"
+#अन्तर्भाव "V3EmitC.h"
+#अन्तर्भाव "V3EmitCBase.h"
+#अन्तर्भाव "V3Stats.h"
 
-#include <map>
+#अन्तर्भाव <map>
 
 VL_DEFINE_DEBUG_FUNCTIONS;
 
 //######################################################################
 
-class EmitCInlines final : EmitCBaseVisitorConst {
+वर्ग EmitCInlines final : EmitCBaseVisitorConst {
     // STATE
 
     // METHODS
 
     // VISITORS
-    void visit(AstCNew* nodep) override {
-        if (v3Global.opt.savable())
+    शून्य visit(AstCNew* nodep) override {
+        यदि (v3Global.opt.savable())
             v3warn(E_UNSUPPORTED, "Unsupported: --savable with dynamic new");
         iterateChildrenConst(nodep);
     }
-    void visit(AstDumpCtl* nodep) override {
-        if (v3Global.opt.trace()) v3Global.needTraceDumper(true);
+    शून्य visit(AstDumpCtl* nodep) override {
+        यदि (v3Global.opt.trace()) v3Global.needTraceDumper(सत्य);
         iterateChildrenConst(nodep);
     }
-    void visit(AstNodeDistBiop* nodep) override {
+    शून्य visit(Ast_गाँठो_Dist_Biop* nodep) override {
         v3Global.setUsesProbDist();
         iterateChildrenConst(nodep);
     }
-    void visit(AstNodeDistTriop* nodep) override {
+    शून्य visit(Ast_गाँठो_Dist_Triop* nodep) override {
         v3Global.setUsesProbDist();
         iterateChildrenConst(nodep);
     }
 
     //---------------------------------------
-    void visit(AstNode* nodep) override { iterateChildrenConst(nodep); }
+    शून्य visit(Ast_गाँठो* nodep) override { iterateChildrenConst(nodep); }
 
-public:
+सार्वजनिक:
     explicit EmitCInlines(AstNetlist* nodep) { iterateConst(nodep); }
 };
 
 //######################################################################
 // EmitC class functions
 
-void V3EmitC::emitcInlines() {
+शून्य V3EmitC::emitcInlines() {
     UINFO(2, __FUNCTION__ << ":");
     { EmitCInlines{v3Global.rootp()}; }
 }

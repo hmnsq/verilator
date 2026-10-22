@@ -14,110 +14,110 @@
 //
 //*************************************************************************
 
-#include "V3PchAstMT.h"
+#अन्तर्भाव "V3PchAstMT.h"
 
-#include "V3EmitC.h"
-#include "V3EmitCFunc.h"
-#include "V3ThreadPool.h"
-#include "V3UniqueNames.h"
+#अन्तर्भाव "V3EmitC.h"
+#अन्तर्भाव "V3EmitCFunc.h"
+#अन्तर्भाव "V3ThreadPool.h"
+#अन्तर्भाव "V3UniqueNames.h"
 
-#include <algorithm>
-#include <map>
-#include <set>
-#include <tuple>
-#include <vector>
+#अन्तर्भाव <algorithm>
+#अन्तर्भाव <map>
+#अन्तर्भाव <set>
+#अन्तर्भाव <tuple>
+#अन्तर्भाव <vector>
 
 VL_DEFINE_DEBUG_FUNCTIONS;
 
 //######################################################################
 // Internal EmitC implementation
 
-class EmitCImp final : public EmitCFunc {
+वर्ग EmitCImp final : सार्वजनिक EmitCFunc {
     // MEMBERS
     // Base module (For non-classes, same as m_modp. For classes, it's the ClassPackage.)
-    const AstNodeModule* const m_fileModp;
-    const bool m_slow;  // Creating __Slow file
+    अचर Ast_गाँठो_Module* अचर m_fileModp;
+    अचर तार्किक m_slow;  // Creating __Slow file
     V3UniqueNames m_uniqueNames;  // Generates unique file names
-    const std::string m_fileBaseName = EmitCUtil::prefixNameProtect(m_fileModp);
+    अचर std::string m_fileBaseName = EmitCUtil::prefixNameProtect(m_fileModp);
     TextStmts m_ctorStmts;  // Statements constructing members in 'ctor'
     TextStmts m_dtorStmts;  // Statements destroying members in 'dtor'
     std::string m_ctorSplitDecl;  // Declaration of sub-function 'ctor' was split into, if any
     std::string m_dtorSplitDecl;  // Declaration of sub-function 'dtor' was split into, if any
 
     // METHODS
-    void openNextOutputFile(const std::string& fileName) {
-        openNewOutputSourceFile(fileName, m_slow, false, "Design implementation internals");
+    शून्य openNextOutputFile(अचर std::string& fileName) {
+        openNewOutputSourceFile(fileName, m_slow, असत्य, "Design implementation internals");
         emitFileHeader();
     }
-    void emitFileHeader() {
-        puts("// See " + EmitCUtil::topClassName() + ".h for the primary calling header\n");
-        puts("\n");
-        puts("#include \"" + EmitCUtil::pchClassName() + ".h\"\n");
+    शून्य emitFileHeader() {
+        माला_दो("// See " + EmitCUtil::शीर्ष_Class_Name() + ".h for the primary calling header\n");
+        माला_दो("\n");
+        माला_दो("#include \"" + EmitCUtil::pchClassName() + ".h\"\n");
         emitSystemCSection(m_fileModp, VSystemCSectionType::IMP_HDR);
         // Need to emit new lazy declarations
         m_lazyDecls.reset();
     }
 
-    void emitParamDefns(const AstNodeModule* modp) {
-        bool first = true;
-        for (const AstNode* nodep = modp->stmtsp(); nodep; nodep = nodep->nextp()) {
-            if (const AstVar* const varp = VN_CAST(nodep, Var)) {
-                if (varp->isParam()) {
-                    if (first) {
-                        puts("\n");
-                        const string modName = EmitCUtil::prefixNameProtect(modp);
+    शून्य emitParamDefns(अचर Ast_गाँठो_Module* modp) {
+        तार्किक first = सत्य;
+        लागि (अचर Ast_गाँठो* nodep = modp->stmtsp(); nodep; nodep = nodep->nextp()) {
+            यदि (अचर AstVar* अचर varp = VN_CAST(nodep, Var)) {
+                यदि (varp->isParam()) {
+                    यदि (first) {
+                        माला_दो("\n");
+                        अचर string modName = EmitCUtil::prefixNameProtect(modp);
                         putsDecoration(modp, "// Parameter definitions for " + modName + "\n");
-                        first = false;
+                        first = असत्य;
                     }
-                    if (varp->dtypep()->isLiteralType()) putns(varp, "VL_CONSTINIT_CXX20 ");
+                    यदि (varp->dtypep()->isLiteralType()) putns(varp, "VL_CONSTINIT_CXX20 ");
                     putns(varp, "const ");
                     emitVarDefn(varp);
-                    puts(";\n");
+                    माला_दो(";\n");
                 }
             }
         }
-        if (!first) puts("\n");
+        यदि (!first) माला_दो("\n");
     }
     // Add statements explicitly constructing, or destroying, a member AstVar
-    static void addVarCtorDtorStmts(TextStmts& stmts, const AstVar* varp, bool destroy) {
-        const std::string name = "vlSelf->" + varName(varp);
+    स्थिर शून्य addVarCtorDtorStmts(TextStmts& stmts, अचर AstVar* varp, तार्किक destroy) {
+        अचर std::string name = "vlSelf->" + varName(varp);
 
         // SystemC port arrays are C arrays, so construct them element by element. They are
         // default constructed (unnamed), as the elements of an array member would be.
-        if (varp->isSc() && VN_IS(varp->dtypeSkipRefp(), UnpackArrayDType)) {
+        यदि (varp->isSc() && VN_IS(varp->dtypeSkipRefp(), UnpackArrayDType)) {
             std::vector<std::string> elems{name};
-            for (const AstUnpackArrayDType* adtypep
+            लागि (अचर AstUnpackArrayDType* adtypep
                  = VN_CAST(varp->dtypeSkipRefp(), UnpackArrayDType);
                  adtypep; adtypep = VN_CAST(adtypep->subDTypep()->skipRefp(), UnpackArrayDType)) {
                 std::vector<std::string> subElems;
-                for (const std::string& elem : elems) {
-                    for (int i = 0; i < adtypep->elementsConst(); ++i) {
-                        subElems.push_back(elem + "[" + std::to_string(i) + "]");
+                लागि (अचर std::string& elem : elems) {
+                    लागि (पूर्णाङ्क i = 0; i < adtypep->elementsConst(); ++i) {
+                        subElems.थप_back(elem + "[" + std::to_string(i) + "]");
                     }
                 }
                 elems = std::move(subElems);
             }
-            if (destroy) std::reverse(elems.begin(), elems.end());
-            for (const std::string& e : elems) {
+            यदि (destroy) std::reverse(elems.begin(), elems.end());
+            लागि (अचर std::string& e : elems) {
                 stmts.add((destroy ? "VL_INPLACE_DESTRUCT(" : "VL_INPLACE_CONSTRUCT(") + e + ");");
             }
-            return;
+            फर्काऊ;
         }
 
         // Other variables are constructed whole, even if aggregates
-        if (destroy) {
+        यदि (destroy) {
             stmts.add("VL_INPLACE_DESTRUCT(" + name + ");");
-            return;
+            फर्काऊ;
         }
-        const AstBasicDType* const basicp = VN_CAST(varp->dtypeSkipRefp(), BasicDType);
+        अचर AstBasicDType* अचर basicp = VN_CAST(varp->dtypeSkipRefp(), BasicDType);
         std::string args;
-        if (varp->isSc()) {
+        यदि (varp->isSc()) {
             // SystemC ports need their name
             args = ", \"" + V3OutFormatter::quoteNameControls(varp->nameProtect()) + "\"";
-        } else if (basicp && basicp->keyword().isMTaskState()) {
+        } अन्यथा यदि (basicp && basicp->keyword().isMTaskState()) {
             // MTask state needs the number of upstream dependencies to wait for
-            args = ", " + VN_AS(varp->valuep(), Const)->num().emitC();
-        } else if (basicp && basicp->isDelayScheduler()) {
+            args = ", " + VN_AS(varp->valuep(), Const)->अङ्क().emitC();
+        } अन्यथा यदि (basicp && basicp->isDelayScheduler()) {
             // Delay scheduler needs the context pointer
             args = ", *vlSelf->vlSymsp->_vm_contextp__";
         }
@@ -125,195 +125,195 @@ class EmitCImp final : public EmitCFunc {
     }
     // Gather the statements constructing/destroying members in anonymous unions, and split
     // them into sub-functions if needed. As this emits files, no output file can be open.
-    void createCtorDtorStmts(const AstNodeModule* modp) {
+    शून्य createCtorDtorStmts(अचर Ast_गाँठो_Module* modp) {
         // Construct member variables
-        for (const AstNode* nodep = modp->stmtsp(); nodep; nodep = nodep->nextp()) {
-            const AstVar* const varp = VN_CAST(nodep, Var);
-            if (varp && isExplicitlyConstructed(varp)) {
-                addVarCtorDtorStmts(m_ctorStmts, varp, false);
+        लागि (अचर Ast_गाँठो* nodep = modp->stmtsp(); nodep; nodep = nodep->nextp()) {
+            अचर AstVar* अचर varp = VN_CAST(nodep, Var);
+            यदि (varp && isExplicitlyConstructed(varp)) {
+                addVarCtorDtorStmts(m_ctorStmts, varp, असत्य);
             }
         }
 
         // Destroy in reverse order
-        const AstNode* const lastp = modp->stmtsp() ? modp->stmtsp()->lastp() : nullptr;
-        for (const AstNode* nodep = lastp; nodep; nodep = nodep->prevp()) {
-            const AstVar* const varp = VN_CAST(nodep, Var);
-            if (varp && isExplicitlyConstructed(varp)) {
-                addVarCtorDtorStmts(m_dtorStmts, varp, true);
+        अचर Ast_गाँठो* अचर lastp = modp->stmtsp() ? modp->stmtsp()->lastp() : nullptr;
+        लागि (अचर Ast_गाँठो* nodep = lastp; nodep; nodep = nodep->prevp()) {
+            अचर AstVar* अचर varp = VN_CAST(nodep, Var);
+            यदि (varp && isExplicitlyConstructed(varp)) {
+                addVarCtorDtorStmts(m_dtorStmts, varp, सत्य);
             }
         }
 
         // Split into sub-functions if needed
-        const std::string modName = EmitCUtil::prefixNameProtect(modp);
+        अचर std::string modName = EmitCUtil::prefixNameProtect(modp);
         std::tie(m_ctorSplitDecl, m_dtorSplitDecl) = emitSplitCtorDtor(
-            m_ctorStmts, m_dtorStmts, 0, modName, modName + "* vlSelf", "vlSelf", false,
-            "Design implementation internals", [this]() { emitFileHeader(); });
+            m_ctorStmts, m_dtorStmts, 0, modName, modName + "* vlSelf", "vlSelf", असत्य,
+            "Design implementation internals", [एतत्]() { emitFileHeader(); });
     }
-    void emitCtorDtorImp(const AstNodeModule* modp) {
-        const std::string modName = EmitCUtil::prefixNameProtect(modp);
+    शून्य emitCtorDtorImp(अचर Ast_गाँठो_Module* modp) {
+        अचर std::string modName = EmitCUtil::prefixNameProtect(modp);
 
         // ctor
-        if (modp->ctorVarReset()) {
+        यदि (modp->ctorVarReset()) {
             m_lazyDecls.emit("\nvoid " + modName + "__", protect("_ctor_var_reset"),
                              "(" + modName + "* vlSelf);\n");
         }
 
-        if (!m_ctorSplitDecl.empty()) puts("\n" + m_ctorSplitDecl + "\n");
-        puts("\nvoid " + modName + "__ctor(" + modName + "* vlSelf, " + EmitCUtil::symClassName()
+        यदि (!m_ctorSplitDecl.empty()) माला_दो("\n" + m_ctorSplitDecl + "\n");
+        माला_दो("\nvoid " + modName + "__ctor(" + modName + "* vlSelf, " + EmitCUtil::symClassName()
              + "* symsp, const char* namep) {\n");
-        puts("vlSelf->vlSymsp = symsp;\n");
-        if (modp->isTop()) {
-            puts("vlSelf->vlNamep = strdup(namep);\n");
-        } else {
-            puts("vlSelf->vlNamep = strdup(Verilated::catName(symsp->name(), namep));\n");
+        माला_दो("vlSelf->vlSymsp = symsp;\n");
+        यदि (modp->is_शीर्ष()) {
+            माला_दो("vlSelf->vlNamep = strdup(namep);\n");
+        } अन्यथा {
+            माला_दो("vlSelf->vlNamep = strdup(Verilated::catName(symsp->name(), namep));\n");
         }
         putsDecoration(modp, "// Construct members\n");
-        for (const TextStmts::Stmt& stmt : m_ctorStmts) puts(stmt.m_text + "\n");
+        लागि (अचर TextStmts::Stmt& stmt : m_ctorStmts) माला_दो(stmt.m_text + "\n");
 
         putsDecoration(modp, "// Reset structure values\n");
-        if (modp->ctorVarReset()) {
-            puts(modName + "__" + protect("_ctor_var_reset") + "(vlSelf);\n");
+        यदि (modp->ctorVarReset()) {
+            माला_दो(modName + "__" + protect("_ctor_var_reset") + "(vlSelf);\n");
         }
-        puts("}\n");
+        माला_दो("}\n");
 
         // C++ constructor
-        puts("\n" + modName + "::" + modName + "(" + EmitCUtil::symClassName()
+        माला_दो("\n" + modName + "::" + modName + "(" + EmitCUtil::symClassName()
              + "* symsp, const char* namep) {\n");
-        puts(modName + "__ctor(this, symsp, namep);\n");
+        माला_दो(modName + "__ctor(this, symsp, namep);\n");
         emitSystemCSection(modp, VSystemCSectionType::CTOR);
-        puts("}\n");
+        माला_दो("}\n");
 
         // dtor
-        if (!m_dtorSplitDecl.empty()) puts("\n" + m_dtorSplitDecl + "\n");
-        puts("\nvoid " + modName + "__dtor(" + modName + "* vlSelf) {\n");
+        यदि (!m_dtorSplitDecl.empty()) माला_दो("\n" + m_dtorSplitDecl + "\n");
+        माला_दो("\nvoid " + modName + "__dtor(" + modName + "* vlSelf) {\n");
         putsDecoration(modp, "// Destroy members\n");
-        for (const TextStmts::Stmt& stmt : m_dtorStmts) puts(stmt.m_text + "\n");
-        puts("VL_DO_DANGLING(std::free(const_cast<char*>(vlSelf->vlNamep)), "
+        लागि (अचर TextStmts::Stmt& stmt : m_dtorStmts) माला_दो(stmt.m_text + "\n");
+        माला_दो("VL_DO_DANGLING(std::free(const_cast<char*>(vlSelf->vlNamep)), "
              "vlSelf->vlNamep);\n");
-        puts("}\n");
+        माला_दो("}\n");
 
         // C++ destructor
-        puts("\n" + modName + "::~" + modName + "() {\n");
+        माला_दो("\n" + modName + "::~" + modName + "() {\n");
         emitSystemCSection(modp, VSystemCSectionType::DTOR);
-        puts(modName + "__dtor(this);\n");
-        puts("}\n");
+        माला_दो(modName + "__dtor(this);\n");
+        माला_दो("}\n");
     }
 
-    void emitConfigureImp(const AstNodeModule* modp) {
-        const string modName = EmitCUtil::prefixNameProtect(modp);
+    शून्य emitConfigureImp(अचर Ast_गाँठो_Module* modp) {
+        अचर string modName = EmitCUtil::prefixNameProtect(modp);
 
-        if (v3Global.opt.coverage()) {
-            puts("\n");
+        यदि (v3Global.opt.coverage()) {
+            माला_दो("\n");
             m_lazyDecls.emit("void " + modName + "__", protect("_configure_coverage"),
                              "(" + modName + "* vlSelf, bool first);");
         }
 
-        if (v3Global.opt.coverage()) {
-            puts("\nvoid " + modName + "::" + protect("__Vconfigure") + "(bool first) {\n");
-            puts("(void)first;  // Prevent unused variable warning\n");
-            puts(modName + "__" + protect("_configure_coverage") + "(this, first);\n");
-            puts("}\n");
+        यदि (v3Global.opt.coverage()) {
+            माला_दो("\nvoid " + modName + "::" + protect("__Vconfigure") + "(bool first) {\n");
+            माला_दो("(void)first;  // Prevent unused variable warning\n");
+            माला_दो(modName + "__" + protect("_configure_coverage") + "(this, first);\n");
+            माला_दो("}\n");
         }
     }
-    void emitCoverageImp() {
+    शून्य emitCoverageImp() {
         // Rather than putting out VL_COVER_INSERT calls directly, we do it via this
         // function. This gets around gcc slowness constructing all of the template
         // arguments.
-        if (v3Global.opt.coverage()) {
-            puts("\n// Coverage\n");
-            puts("void " + EmitCUtil::prefixNameProtect(m_modp) + "::__vlCoverInsert(");
-            puts(v3Global.opt.threads() > 1 ? "std::atomic<uint32_t>" : "uint32_t");
-            puts("* countp, bool enable, bool localCounter, const char* filenamep, int lineno, "
+        यदि (v3Global.opt.coverage()) {
+            माला_दो("\n// Coverage\n");
+            माला_दो("void " + EmitCUtil::prefixNameProtect(m_modp) + "::__vlCoverInsert(");
+            माला_दो(v3Global.opt.threads() > 1 ? "std::atomic<uint32_t>" : "uint32_t");
+            माला_दो("* countp, bool enable, bool localCounter, const char* filenamep, int lineno, "
                  "int column,\n");
-            puts("const char* hierp, const char* pagep, const char* commentp, const char* "
+            माला_दो("const char* hierp, const char* pagep, const char* commentp, const char* "
                  "linescovp,\n");
-            puts("const char* fsmVarp, const char* fsmFromp, const char* fsmTop, const char* "
+            माला_दो("const char* fsmVarp, const char* fsmFromp, const char* fsmTop, const char* "
                  "fsmTagp) {\n");
-            if (v3Global.opt.threads() > 1) {
-                puts("assert(sizeof(uint32_t) == sizeof(std::atomic<uint32_t>));\n");
-                puts("uint32_t* count32p = reinterpret_cast<uint32_t*>(countp);\n");
-            } else {
-                puts("uint32_t* count32p = countp;\n");
+            यदि (v3Global.opt.threads() > 1) {
+                माला_दो("assert(sizeof(uint32_t) == sizeof(std::atomic<uint32_t>));\n");
+                माला_दो("uint32_t* count32p = reinterpret_cast<uint32_t*>(countp);\n");
+            } अन्यथा {
+                माला_दो("uint32_t* count32p = countp;\n");
             }
             // static doesn't need save-restore as is constant
-            puts("static uint32_t fake_zero_count = 0;\n");
-            puts("std::string fullhier = std::string{vlNamep} + hierp;\n");
-            puts("if (!fullhier.empty() && fullhier[0] == '.') fullhier = fullhier.substr(1);\n");
+            माला_दो("static uint32_t fake_zero_count = 0;\n");
+            माला_दो("std::string fullhier = std::string{vlNamep} + hierp;\n");
+            माला_दो("if (!fullhier.empty() && fullhier[0] == '.') fullhier = fullhier.substr(1);\n");
             // Global-counter users still redirect later duplicate instances
             // to fake_zero_count for default collapsed coverage. Object-local
             // counters must keep the real pointer so forcePerInstance can
             // report each hierarchy independently.
-            puts("if (!enable && !localCounter) count32p = &fake_zero_count;\n");
-            puts("*count32p = 0;\n");
-            puts("VL_COVER_INSERT(vlSymsp->_vm_contextp__->coveragep(), vlNamep, count32p,");
-            puts("  \"filename\",filenamep,");
-            puts("  \"lineno\",lineno,");
-            puts("  \"column\",column,\n");
-            puts("\"hier\",fullhier.c_str(),");
-            puts("  \"page\",pagep,");
-            puts("  \"comment\",commentp,");
-            puts("  (linescovp[0] ? \"linescov\" : \"\"), linescovp,");
-            puts("  (fsmVarp[0] ? \"fsm_var\" : \"\"), fsmVarp,");
-            puts("  (fsmFromp[0] ? \"fsm_from\" : \"\"), fsmFromp,");
-            puts("  (fsmTop[0] ? \"fsm_to\" : \"\"), fsmTop,");
-            puts("  (fsmTagp[0] ? \"fsm_tag\" : \"\"), fsmTagp);\n");
-            puts("}\n");
+            माला_दो("if (!enable && !localCounter) count32p = &fake_zero_count;\n");
+            माला_दो("*count32p = 0;\n");
+            माला_दो("VL_COVER_INSERT(vlSymsp->_vm_contextp__->coveragep(), vlNamep, count32p,");
+            माला_दो("  \"filename\",filenamep,");
+            माला_दो("  \"lineno\",lineno,");
+            माला_दो("  \"column\",column,\n");
+            माला_दो("\"hier\",fullhier.c_str(),");
+            माला_दो("  \"page\",pagep,");
+            माला_दो("  \"comment\",commentp,");
+            माला_दो("  (linescovp[0] ? \"linescov\" : \"\"), linescovp,");
+            माला_दो("  (fsmVarp[0] ? \"fsm_var\" : \"\"), fsmVarp,");
+            माला_दो("  (fsmFromp[0] ? \"fsm_from\" : \"\"), fsmFromp,");
+            माला_दो("  (fsmTop[0] ? \"fsm_to\" : \"\"), fsmTop,");
+            माला_दो("  (fsmTagp[0] ? \"fsm_tag\" : \"\"), fsmTagp);\n");
+            माला_दो("}\n");
         }
-        if (v3Global.opt.coverageToggle()) {
-            puts("\n// Toggle Coverage\n");
-            puts("void " + EmitCUtil::prefixNameProtect(m_modp) + "::__vlCoverToggleInsert(");
-            puts("int begin, int end, bool ranged, ");
-            puts(v3Global.opt.threads() > 1 ? "std::atomic<uint32_t>" : "uint32_t");
-            puts("* countp, bool enable, bool localCounter, const char* filenamep, int lineno, "
+        यदि (v3Global.opt.coverageToggle()) {
+            माला_दो("\n// Toggle Coverage\n");
+            माला_दो("void " + EmitCUtil::prefixNameProtect(m_modp) + "::__vlCoverToggleInsert(");
+            माला_दो("int begin, int end, bool ranged, ");
+            माला_दो(v3Global.opt.threads() > 1 ? "std::atomic<uint32_t>" : "uint32_t");
+            माला_दो("* countp, bool enable, bool localCounter, const char* filenamep, int lineno, "
                  "int column,\n");
-            puts("const char* hierp, const char* pagep, const char* commentp) {\n");
-            if (v3Global.opt.threads() > 1) {
-                puts("assert(sizeof(uint32_t) == sizeof(std::atomic<uint32_t>));\n");
+            माला_दो("const char* hierp, const char* pagep, const char* commentp) {\n");
+            यदि (v3Global.opt.threads() > 1) {
+                माला_दो("assert(sizeof(uint32_t) == sizeof(std::atomic<uint32_t>));\n");
             }
-            puts("int step = (end >= begin) ? 1 : -1;\n");
+            माला_दो("int step = (end >= begin) ? 1 : -1;\n");
             // range is inclusive
-            puts("for (int i = begin; i != end + step; i += step) {\n");
-            puts("for (int j = 0; j < 2; j++) {\n");
-            if (v3Global.opt.threads() > 1) {
-                puts("uint32_t* count32p = reinterpret_cast<uint32_t*>(countp);\n");
-            } else {
-                puts("uint32_t* count32p = countp;\n");
+            माला_दो("for (int i = begin; i != end + step; i += step) {\n");
+            माला_दो("for (int j = 0; j < 2; j++) {\n");
+            यदि (v3Global.opt.threads() > 1) {
+                माला_दो("uint32_t* count32p = reinterpret_cast<uint32_t*>(countp);\n");
+            } अन्यथा {
+                माला_दो("uint32_t* count32p = countp;\n");
             }
             // static doesn't need save-restore as is constant
-            puts("static uint32_t fake_zero_count = 0;\n");
-            puts("std::string fullhier = std::string{vlNamep} + hierp;\n");
-            puts("if (!fullhier.empty() && fullhier[0] == '.') fullhier = fullhier.substr(1);\n");
-            puts("std::string commentWithIndex = commentp;\n");
-            puts("if (ranged) commentWithIndex += '[' + std::to_string(i) + ']';\n");
-            puts("commentWithIndex += j ? \":0->1\" : \":1->0\";\n");
+            माला_दो("static uint32_t fake_zero_count = 0;\n");
+            माला_दो("std::string fullhier = std::string{vlNamep} + hierp;\n");
+            माला_दो("if (!fullhier.empty() && fullhier[0] == '.') fullhier = fullhier.substr(1);\n");
+            माला_दो("std::string commentWithIndex = commentp;\n");
+            माला_दो("if (ranged) commentWithIndex += '[' + std::to_string(i) + ']';\n");
+            माला_दो("commentWithIndex += j ? \":0->1\" : \":1->0\";\n");
             // Global-counter users still redirect later duplicate instances
             // to fake_zero_count for default collapsed coverage. Object-local
             // counters must keep the real pointer so forcePerInstance can
             // report each hierarchy independently.
-            puts("if (!enable && !localCounter) count32p = &fake_zero_count;\n");
-            puts("*count32p = 0;\n");
-            puts("VL_COVER_INSERT(vlSymsp->_vm_contextp__->coveragep(), vlNamep, count32p,");
-            puts("  \"filename\",filenamep,");
-            puts("  \"lineno\",lineno,");
-            puts("  \"column\",column,\n");
-            puts("\"hier\",fullhier.c_str(),");
-            puts("  \"page\",pagep,");
-            puts("  \"comment\",commentWithIndex.c_str(),");
-            puts("  \"\", \"\");\n");  //  linescov argument, but in toggle coverage it is always
+            माला_दो("if (!enable && !localCounter) count32p = &fake_zero_count;\n");
+            माला_दो("*count32p = 0;\n");
+            माला_दो("VL_COVER_INSERT(vlSymsp->_vm_contextp__->coveragep(), vlNamep, count32p,");
+            माला_दो("  \"filename\",filenamep,");
+            माला_दो("  \"lineno\",lineno,");
+            माला_दो("  \"column\",column,\n");
+            माला_दो("\"hier\",fullhier.c_str(),");
+            माला_दो("  \"page\",pagep,");
+            माला_दो("  \"comment\",commentWithIndex.c_str(),");
+            माला_दो("  \"\", \"\");\n");  //  linescov argument, but in toggle coverage it is always
                                        //  empty
-            puts("++countp;\n");
-            puts("}\n");
-            puts("}\n");
-            puts("}\n");
+            माला_दो("++countp;\n");
+            माला_दो("}\n");
+            माला_दो("}\n");
+            माला_दो("}\n");
         }
     }
-    void emitSavableImp(const AstNodeModule* modp) {
-        if (v3Global.opt.savable()) {
-            puts("\n// Savable\n");
-            for (int de = 0; de < 2; ++de) {
-                const string classname = de ? "VerilatedDeserialize" : "VerilatedSerialize";
-                const string funcname = de ? "__Vdeserialize" : "__Vserialize";
-                const string op = de ? ">>" : "<<";
+    शून्य emitSavableImp(अचर Ast_गाँठो_Module* modp) {
+        यदि (v3Global.opt.savable()) {
+            माला_दो("\n// Savable\n");
+            लागि (पूर्णाङ्क de = 0; de < 2; ++de) {
+                अचर string classname = de ? "VerilatedDeserialize" : "VerilatedSerialize";
+                अचर string funcname = de ? "__Vdeserialize" : "__Vserialize";
+                अचर string op = de ? ">>" : "<<";
                 // NOLINTNEXTLINE(performance-inefficient-string-concatenation)
                 putns(modp, "void " + EmitCUtil::prefixNameProtect(modp) + "::" + protect(funcname)
                                 + "(" + classname + "& os) {\n");
@@ -321,115 +321,115 @@ class EmitCImp final : public EmitCFunc {
                 // OK if this hash includes some things we won't dump, since
                 // just looking for loading the wrong model
                 VHashSha512 hash;
-                for (AstNode* nodep = modp->stmtsp(); nodep; nodep = nodep->nextp()) {
-                    if (const AstVar* const varp = VN_CAST(nodep, Var)) {
-                        hash.insert(varp->name());
-                        hash.insert(varp->dtypep()->width());
+                लागि (Ast_गाँठो* nodep = modp->stmtsp(); nodep; nodep = nodep->nextp()) {
+                    यदि (अचर AstVar* अचर varp = VN_CAST(nodep, Var)) {
+                        hash.घुसाउ(varp->name());
+                        hash.घुसाउ(varp->dtypep()->width());
                     }
                 }
-                ofp()->printf("uint64_t __Vcheckval = 0x%" PRIx64 "ULL;\n",
+                ofp()->म_लिखो("uint64_t __Vcheckval = 0x%" PRIx64 "ULL;\n",
                               static_cast<uint64_t>(hash.digestUInt64()));
-                if (de) {
-                    puts("os.readAssert(__Vcheckval);\n");
-                } else {
-                    puts("os << __Vcheckval;\n");
+                यदि (de) {
+                    माला_दो("os.readAssert(__Vcheckval);\n");
+                } अन्यथा {
+                    माला_दो("os << __Vcheckval;\n");
                 }
 
                 // Save context
                 // If multiple models save the same context we'll save it multiple
                 // times, but is harmless, and doing it otherwise would break
                 // backwards compatibility.
-                puts("os " + op + " vlSymsp->_vm_contextp__;\n");
+                माला_दो("os " + op + " vlSymsp->_vm_contextp__;\n");
 
                 // Save all members
-                for (AstNode* nodep = modp->stmtsp(); nodep; nodep = nodep->nextp()) {
-                    if (const AstVar* const varp = VN_CAST(nodep, Var)) {
-                        if (varp->isIO() && modp->isTop() && optSystemC()) {
+                लागि (Ast_गाँठो* nodep = modp->stmtsp(); nodep; nodep = nodep->nextp()) {
+                    यदि (अचर AstVar* अचर varp = VN_CAST(nodep, Var)) {
+                        यदि (varp->isIO() && modp->is_शीर्ष() && optSystemC()) {
                             // System C top I/O doesn't need loading, as the
                             // lower level subinst code does it.
-                        } else if (varp->isParam()) {
-                        } else if (VN_IS(varp->dtypep(), NBACommitQueueDType)) {
-                        } else {
-                            int vects = 0;
-                            AstNodeDType* elementp = varp->dtypeSkipRefp();
-                            for (AstUnpackArrayDType* arrayp = VN_CAST(elementp, UnpackArrayDType);
+                        } अन्यथा यदि (varp->isParam()) {
+                        } अन्यथा यदि (VN_IS(varp->dtypep(), NBACommitQueueDType)) {
+                        } अन्यथा {
+                            पूर्णाङ्क vects = 0;
+                            Ast_गाँठो_DType* elementp = varp->dtypeSkipRefp();
+                            लागि (AstUnpackArrayDType* arrayp = VN_CAST(elementp, UnpackArrayDType);
                                  arrayp; arrayp = VN_CAST(elementp, UnpackArrayDType)) {
-                                const int vecnum = vects++;
+                                अचर पूर्णाङ्क vecnum = vects++;
                                 UASSERT_OBJ(arrayp->hi() >= arrayp->lo(), varp,
                                             "Should have swapped msb & lsb earlier.");
-                                const string ivar = "__Vi"s + cvtToStr(vecnum);
-                                puts("for (int __Vi" + cvtToStr(vecnum) + " = " + cvtToStr(0));
-                                puts("; " + ivar + " < " + cvtToStr(arrayp->elementsConst()));
-                                puts("; ++" + ivar + ") {\n");
+                                अचर string ivar = "__Vi"s + cvtToStr(vecnum);
+                                माला_दो("for (int __Vi" + cvtToStr(vecnum) + " = " + cvtToStr(0));
+                                माला_दो("; " + ivar + " < " + cvtToStr(arrayp->elementsConst()));
+                                माला_दो("; ++" + ivar + ") {\n");
                                 elementp = arrayp->subDTypep()->skipRefp();
                             }
-                            const AstBasicDType* const basicp = elementp->basicp();
+                            अचर AstBasicDType* अचर basicp = elementp->basicp();
                             // Do not save MTask state, only matters within an evaluation
-                            if (basicp && basicp->keyword().isMTaskState()) continue;
+                            यदि (basicp && basicp->keyword().isMTaskState()) जारी;
                             // Want to detect types that are represented as arrays
                             // (i.e. packed types of more than 64 bits).
-                            if (elementp->isWide()
+                            यदि (elementp->isWide()
                                 && !(basicp && basicp->keyword() == VBasicDTypeKwd::STRING)) {
-                                const int vecnum = vects++;
-                                const string ivar = "__Vi"s + cvtToStr(vecnum);
-                                puts("for (int __Vi" + cvtToStr(vecnum) + " = " + cvtToStr(0));
-                                puts("; " + ivar + " < " + cvtToStr(elementp->widthWords()));
-                                puts("; ++" + ivar + ") {\n");
+                                अचर पूर्णाङ्क vecnum = vects++;
+                                अचर string ivar = "__Vi"s + cvtToStr(vecnum);
+                                माला_दो("for (int __Vi" + cvtToStr(vecnum) + " = " + cvtToStr(0));
+                                माला_दो("; " + ivar + " < " + cvtToStr(elementp->width_शब्दहरू()));
+                                माला_दो("; ++" + ivar + ") {\n");
                             }
                             putns(varp, "os" + op + varName(varp));
-                            for (int v = 0; v < vects; ++v) puts("[__Vi" + cvtToStr(v) + "]");
-                            puts(";\n");
-                            for (int v = 0; v < vects; ++v) puts("}\n");
+                            लागि (पूर्णाङ्क v = 0; v < vects; ++v) माला_दो("[__Vi" + cvtToStr(v) + "]");
+                            माला_दो(";\n");
+                            लागि (पूर्णाङ्क v = 0; v < vects; ++v) माला_दो("}\n");
                         }
                     }
                 }
 
-                puts("}\n");
+                माला_दो("}\n");
             }
         }
     }
     // Predicate to check if we actually need to emit anything into the common implementation file.
     // Used to avoid creating empty output files.
-    bool hasCommonImp(const AstNodeModule* modp) const {
+    तार्किक hasCommonImp(अचर Ast_गाँठो_Module* modp) अचर {
         // Nothing to emit if no module!
-        if (!modp) return false;
+        यदि (!modp) फर्काऊ असत्य;
         // We always need the slow file
-        if (m_slow) return true;
+        यदि (m_slow) फर्काऊ सत्य;
         // The fast file is only required when we have `systemc_implementation nodes
-        for (const AstSystemCSection* scSectionp = modp->scSectionsp(); scSectionp;
+        लागि (अचर AstSystemCSection* scSectionp = modp->scSectionsp(); scSectionp;
              scSectionp = VN_AS(scSectionp->nextp(), SystemCSection)) {
-            if (scSectionp->sectionType() == VSystemCSectionType::IMP) return true;
+            यदि (scSectionp->sectionType() == VSystemCSectionType::IMP) फर्काऊ सत्य;
         }
-        return false;
+        फर्काऊ असत्य;
     }
     // Actually emit common implementation contents for given AstNodeModule
-    void doCommonImp(const AstNodeModule* modp) {
-        if (m_slow) {
-            if (!VN_IS(modp, Class)) {
+    शून्य doCommonImp(अचर Ast_गाँठो_Module* modp) {
+        यदि (m_slow) {
+            यदि (!VN_IS(modp, Class)) {
                 emitParamDefns(modp);
                 emitCtorDtorImp(modp);
                 emitConfigureImp(modp);
                 emitCoverageImp();
             }
             emitSavableImp(modp);
-        } else {
+        } अन्यथा {
             // From `systemc_implementation
             emitSystemCSection(modp, VSystemCSectionType::IMP);
         }
     }
-    void emitCommonImp(const AstNodeModule* modp) {
-        const AstClass* const classp
+    शून्य emitCommonImp(अचर Ast_गाँठो_Module* modp) {
+        अचर AstClass* अचर classp
             = VN_IS(modp, ClassPackage) ? VN_AS(modp, ClassPackage)->classp() : nullptr;
 
-        if (hasCommonImp(modp) || hasCommonImp(classp)) {
+        यदि (hasCommonImp(modp) || hasCommonImp(classp)) {
             // Create ctor/dtor statements. If these need splitting, they will be emitted
             // during construction so do this before opening the output file.
-            if (m_slow && !VN_IS(modp, Class)) createCtorDtorStmts(modp);
+            यदि (m_slow && !VN_IS(modp, Class)) createCtorDtorStmts(modp);
 
             openNextOutputFile(m_fileBaseName);
 
             doCommonImp(modp);
-            if (classp) {
+            यदि (classp) {
                 VL_RESTORER(m_modp);
                 m_modp = classp;
                 doCommonImp(classp);
@@ -438,37 +438,37 @@ class EmitCImp final : public EmitCFunc {
             closeOutputFile();
         }
     }
-    void emitCFuncImp(const AstNodeModule* modp) {
+    शून्य emitCFuncImp(अचर Ast_गाँठो_Module* modp) {
         // Functions to be emitted here
         std::vector<AstCFunc*> funcps;
 
-        const auto gather = [this, &funcps](const AstNodeModule* modp) {
-            for (AstNode* nodep = modp->stmtsp(); nodep; nodep = nodep->nextp()) {
-                AstCFunc* const funcp = VN_CAST(nodep, CFunc);
-                if (!funcp) continue;
+        अचर स्वतः gather = [एतत्, &funcps](अचर Ast_गाँठो_Module* modp) {
+            लागि (Ast_गाँठो* nodep = modp->stmtsp(); nodep; nodep = nodep->nextp()) {
+                AstCFunc* अचर funcp = VN_CAST(nodep, CFunc);
+                यदि (!funcp) जारी;
                 // TRACE_* and DPI handled elsewhere
-                if (funcp->isTrace()) continue;
-                if (funcp->dpiImportPrototype()) continue;
-                if (funcp->dpiExportDispatcher()) continue;
-                if (funcp->slow() != m_slow) continue;
-                funcps.push_back(funcp);
+                यदि (funcp->isTrace()) जारी;
+                यदि (funcp->dpiImportPrototype()) जारी;
+                यदि (funcp->dpiExportDispatcher()) जारी;
+                यदि (funcp->slow() != m_slow) जारी;
+                funcps.थप_back(funcp);
             }
         };
 
         gather(modp);
         VL_RESTORER(m_classOrPackage);
-        if (const AstClassPackage* const packagep = VN_CAST(modp, ClassPackage)) {
+        यदि (अचर AstClassPackage* अचर packagep = VN_CAST(modp, ClassPackage)) {
             m_classOrPackage = packagep;
             gather(packagep->classp());
         }
 
         // Do not create empty files
-        if (funcps.empty()) return;
+        यदि (funcps.empty()) फर्काऊ;
 
         // Open output file
         openNextOutputFile(m_uniqueNames.get(m_fileBaseName));
         // Emit all functions
-        for (AstCFunc* const funcp : funcps) {
+        लागि (AstCFunc* अचर funcp : funcps) {
             VL_RESTORER(m_modp);
             m_modp = EmitCParentModule::get(funcp);
             iterateConst(funcp);
@@ -478,10 +478,10 @@ class EmitCImp final : public EmitCFunc {
     }
 
     // VISITORS
-    void visit(AstCFunc* nodep) override {
-        if (splitNeeded()) {
+    शून्य visit(AstCFunc* nodep) override {
+        यदि (splitNeeded()) {
             // Splitting file, so using parallel build.
-            v3Global.useParallelBuild(true);
+            v3Global.useParallelBuild(सत्य);
             // Close old file
             closeOutputFile();
             // Open a new file
@@ -491,7 +491,7 @@ class EmitCImp final : public EmitCFunc {
         EmitCFunc::visit(nodep);
     }
 
-    explicit EmitCImp(const AstNodeModule* modp, bool slow)
+    explicit EmitCImp(अचर Ast_गाँठो_Module* modp, तार्किक slow)
         : m_fileModp{modp}
         , m_slow{slow} {
         UINFO(5, "  Emitting implementation of " << EmitCUtil::prefixNameProtect(modp));
@@ -509,12 +509,12 @@ class EmitCImp final : public EmitCFunc {
         // Emit implementations of all AstCFunc
         emitCFuncImp(modp);
     }
-    ~EmitCImp() override = default;
+    ~EmitCImp() override = स्वभाव;
 
-public:
-    static std::vector<AstCFile*> main(const AstNodeModule* modp, bool slow) VL_MT_STABLE {
+सार्वजनिक:
+    स्थिर std::vector<AstCFile*> main(अचर Ast_गाँठो_Module* modp, तार्किक slow) VL_MT_STABLE {
         EmitCImp emitCImp{modp, slow};
-        return emitCImp.getAndClearCfileps();
+        फर्काऊ emitCImp.getAndClearCfileps();
     }
 };
 
@@ -523,345 +523,345 @@ public:
 
 // Trace type descriptors go in a different file as it needs to be written in
 // parallel with the actual trace function source files
-class EmitCTraceTypes final : public EmitCFunc {
+वर्ग EmitCTraceTypes final : सार्वजनिक EmitCFunc {
     // NODE STATE/TYPES
     // None allowed to support threaded emitting
 
     // STATE
-    int m_enumNum = 0;  // Enumeration number (whole netlist)
-    std::unordered_map<AstNode*, int> m_enumNumMap;  // EnumDType to enumeration number
-    int m_traceTypeSubs = 0;  // Number of trace type declaration sub-functions
+    पूर्णाङ्क m_enum_अङ्क = 0;  // Enumeration number (whole netlist)
+    std::unordered_map<Ast_गाँठो*, पूर्णाङ्क> m_enum_अङ्क_Map;  // EnumDType to enumeration number
+    पूर्णाङ्क m_traceTypeSubs = 0;  // Number of trace type declaration sub-functions
     V3UniqueNames m_uniqueNames;  // Generates unique file names
-    const std::string m_fileBaseName = EmitCUtil::topClassName() + "_" + protect("_TraceDecls");
+    अचर std::string m_fileBaseName = EmitCUtil::शीर्ष_Class_Name() + "_" + protect("_TraceDecls");
     // This one uses CSplitTrace for file splitting, which is incorrect but historically accurates
-    const size_t m_splitLimit = v3Global.opt.outputSplitCTrace()
-                                    ? static_cast<size_t>(v3Global.opt.outputSplitCTrace())
-                                    : std::numeric_limits<size_t>::max();
+    अचर माप_प्रकार m_splitLimit = v3Global.opt.outputSplitCTrace()
+                                    ? static_cast<माप_प्रकार>(v3Global.opt.outputSplitCTrace())
+                                    : std::numeric_limits<माप_प्रकार>::max();
 
-    void openNextOutputFile() {
-        openNewOutputSourceFile(m_uniqueNames.get(m_fileBaseName), true, true,
+    शून्य openNextOutputFile() {
+        openNewOutputSourceFile(m_uniqueNames.get(m_fileBaseName), सत्य, सत्य,
                                 "Tracing declarations");
-        puts("\n");
-        for (const std::string& base : v3Global.opt.traceSourceLangs()) {
-            puts("#include \"" + base + ".h\"\n");
+        माला_दो("\n");
+        लागि (अचर std::string& base : v3Global.opt.traceSourceLangs()) {
+            माला_दो("#include \"" + base + ".h\"\n");
         }
-        puts("\n");
-        puts("\nvoid " + EmitCUtil::prefixNameProtect(m_modp) + "__"
+        माला_दो("\n");
+        माला_दो("\nvoid " + EmitCUtil::prefixNameProtect(m_modp) + "__"
              + protect("traceDeclTypesSub" + std::to_string(m_traceTypeSubs++)) + "("
              + v3Global.opt.traceClassBase() + "* tracep) {\n");
     }
 
-public:
+सार्वजनिक:
     // METHODS
-    int getEnumMapNum(AstEnumDType* nodep) {
-        int& enumNumr = m_enumNumMap[nodep];
-        if (!enumNumr) {
-            if (splitNeeded(m_splitLimit)) {
+    पूर्णाङ्क get_Enum_Map_अङ्क(AstEnumDType* nodep) {
+        पूर्णाङ्क& enumNumr = m_enum_अङ्क_Map[nodep];
+        यदि (!enumNumr) {
+            यदि (splitNeeded(m_splitLimit)) {
                 // Splitting file, so using parallel build.
-                v3Global.useParallelBuild(true);
-                puts("}\n");
+                v3Global.useParallelBuild(सत्य);
+                माला_दो("}\n");
                 closeOutputFile();
                 openNextOutputFile();
             }
 
-            enumNumr = ++m_enumNum;
-            int nvals = 0;
-            puts("{\n");
+            enumNumr = ++m_enum_अङ्क;
+            पूर्णाङ्क nvals = 0;
+            माला_दो("{\n");
             putns(nodep, "const char* " + protect("__VenumItemNames") + "[]\n");
-            puts("= {");
-            for (AstEnumItem* itemp = nodep->itemsp(); itemp;
+            माला_दो("= {");
+            लागि (AstEnumItem* itemp = nodep->itemsp(); itemp;
                  itemp = VN_AS(itemp->nextp(), EnumItem)) {
-                if (++nvals > 1) puts(", ");
+                यदि (++nvals > 1) माला_दो(", ");
                 putbs("\"" + itemp->prettyName() + "\"");
             }
-            puts("};\n");
+            माला_दो("};\n");
             nvals = 0;
-            puts("const char* " + protect("__VenumItemValues") + "[]\n");
-            puts("= {");
-            for (AstEnumItem* itemp = nodep->itemsp(); itemp;
+            माला_दो("const char* " + protect("__VenumItemValues") + "[]\n");
+            माला_दो("= {");
+            लागि (AstEnumItem* itemp = nodep->itemsp(); itemp;
                  itemp = VN_AS(itemp->nextp(), EnumItem)) {
-                AstConst* const constp = VN_AS(itemp->valuep(), Const);
-                if (++nvals > 1) puts(", ");
-                putbs("\"" + constp->num().displayed(nodep, "%0b") + "\"");
+                AstConst* अचर constp = VN_AS(itemp->valuep(), Const);
+                यदि (++nvals > 1) माला_दो(", ");
+                putbs("\"" + constp->अङ्क().displayed(nodep, "%0b") + "\"");
             }
-            puts("};\n");
-            puts("tracep->declDTypeEnum(" + std::to_string(enumNumr) + ", \"" + nodep->prettyName()
+            माला_दो("};\n");
+            माला_दो("tracep->declDTypeEnum(" + std::to_string(enumNumr) + ", \"" + nodep->prettyName()
                  + "\", " + std::to_string(nvals) + ", " + std::to_string(nodep->widthMin()) + ", "
                  + protect("__VenumItemNames") + ", " + protect("__VenumItemValues") + ");\n");
-            puts("}\n");
-            splitSizeInc(AstNode::INSTR_COUNT_CALL);
+            माला_दो("}\n");
+            splitSizeInc(Ast_गाँठो::INSTR_गन्ती_CALL);
         }
-        return enumNumr;
+        फर्काऊ enumNumr;
     }
 
     // Close output file
-    void finalize() {
+    शून्य finalize() {
         // Close function definition
-        puts("}\n");
+        माला_दो("}\n");
 
-        const std::string modName = EmitCUtil::prefixNameProtect(m_modp);
-        const std::string args = v3Global.opt.traceClassBase() + "* tracep";
+        अचर std::string modName = EmitCUtil::prefixNameProtect(m_modp);
+        अचर std::string args = v3Global.opt.traceClassBase() + "* tracep";
 
         // Forward declarations for subs in other files
-        for (int i = 0; i < m_traceTypeSubs - 1; ++i) {
-            puts("void " + modName + "__" + protect("traceDeclTypesSub" + std::to_string(i)) + "("
+        लागि (पूर्णाङ्क i = 0; i < m_traceTypeSubs - 1; ++i) {
+            माला_दो("void " + modName + "__" + protect("traceDeclTypesSub" + std::to_string(i)) + "("
                  + args + ");\n");
         }
 
         // Create top level trace_decl_types function and call each sub-function
-        puts("\nvoid " + modName + "__" + protect("trace_decl_types") + "(" + args + ") {\n");
-        for (int i = 0; i < m_traceTypeSubs; ++i) {
-            puts(modName + "__" + protect("traceDeclTypesSub" + std::to_string(i))
+        माला_दो("\nvoid " + modName + "__" + protect("trace_decl_types") + "(" + args + ") {\n");
+        लागि (पूर्णाङ्क i = 0; i < m_traceTypeSubs; ++i) {
+            माला_दो(modName + "__" + protect("traceDeclTypesSub" + std::to_string(i))
                  + "(tracep);\n");
         }
-        puts("}\n");
+        माला_दो("}\n");
 
         closeOutputFile();
     }
 
     EmitCTraceTypes() {
-        m_modp = v3Global.rootp()->topModulep();
+        m_modp = v3Global.rootp()->शीर्ष_Modulep();
         openNextOutputFile();
     }
-    ~EmitCTraceTypes() override = default;
+    ~EmitCTraceTypes() override = स्वभाव;
 };
 
-class EmitCTrace final : public EmitCFunc {
+वर्ग EmitCTrace final : सार्वजनिक EmitCFunc {
     // NODE STATE/TYPES
     // None allowed to support threaded emitting
 
     // MEMBERS
-    const bool m_slow;  // Making slow file
-    const std::unique_ptr<EmitCTraceTypes> m_emitTypesp{m_slow ? new EmitCTraceTypes{} : nullptr};
+    अचर तार्किक m_slow;  // Making slow file
+    अचर std::unique_ptr<EmitCTraceTypes> m_emitTypesp{m_slow ? नूतन EmitCTraceTypes{} : nullptr};
     V3UniqueNames m_uniqueNames;  // Generates unique file names
-    const std::string m_fileBaseName = EmitCUtil::topClassName() + "_" + protect("_Trace");
+    अचर std::string m_fileBaseName = EmitCUtil::शीर्ष_Class_Name() + "_" + protect("_Trace");
 
     // METHODS
-    void openNextOutputFile() {
-        openNewOutputSourceFile(m_uniqueNames.get(m_fileBaseName), m_slow, true,
+    शून्य openNextOutputFile() {
+        openNewOutputSourceFile(m_uniqueNames.get(m_fileBaseName), m_slow, सत्य,
                                 "Tracing implementation internals");
-        puts("\n");
-        for (const std::string& base : v3Global.opt.traceSourceLangs()) {
-            puts("#include \"" + base + ".h\"\n");
+        माला_दो("\n");
+        लागि (अचर std::string& base : v3Global.opt.traceSourceLangs()) {
+            माला_दो("#include \"" + base + ".h\"\n");
         }
-        puts("#include \"" + EmitCUtil::symClassName() + ".h\"\n");
-        puts("\n");
+        माला_दो("#include \"" + EmitCUtil::symClassName() + ".h\"\n");
+        माला_दो("\n");
         // Need to emit new lazy declarations
         m_lazyDecls.reset();
     }
 
-    bool emitTraceIsScBv(const AstTraceInc* nodep) {
-        const AstVarRef* const varrefp = VN_CAST(nodep->declp()->valuep(), VarRef);
-        if (!varrefp) return false;
-        const AstVar* const varp = varrefp->varp();
-        return varp->isSc() && varp->isScBv();
+    तार्किक emitTraceIsScBv(अचर AstTraceInc* nodep) {
+        अचर AstVarRef* अचर varrefp = VN_CAST(nodep->declp()->valuep(), VarRef);
+        यदि (!varrefp) फर्काऊ असत्य;
+        अचर AstVar* अचर varp = varrefp->varp();
+        फर्काऊ varp->isSc() && varp->isScBv();
     }
 
-    bool emitTraceIsScBigUint(const AstTraceInc* nodep) {
-        const AstVarRef* const varrefp = VN_CAST(nodep->declp()->valuep(), VarRef);
-        if (!varrefp) return false;
-        const AstVar* const varp = varrefp->varp();
-        return varp->isSc() && varp->isScBigUint();
+    तार्किक emitTraceIsScBigUint(अचर AstTraceInc* nodep) {
+        अचर AstVarRef* अचर varrefp = VN_CAST(nodep->declp()->valuep(), VarRef);
+        यदि (!varrefp) फर्काऊ असत्य;
+        अचर AstVar* अचर varp = varrefp->varp();
+        फर्काऊ varp->isSc() && varp->isScBigUint();
     }
 
-    bool emitTraceIsScUint(const AstTraceInc* nodep) {
-        const AstVarRef* const varrefp = VN_CAST(nodep->declp()->valuep(), VarRef);
-        if (!varrefp) return false;
-        const AstVar* const varp = varrefp->varp();
-        return varp->isSc() && (varp->isScUint() || varp->isScUintBool());
+    तार्किक emitTraceIsScUint(अचर AstTraceInc* nodep) {
+        अचर AstVarRef* अचर varrefp = VN_CAST(nodep->declp()->valuep(), VarRef);
+        यदि (!varrefp) फर्काऊ असत्य;
+        अचर AstVar* अचर varp = varrefp->varp();
+        फर्काऊ varp->isSc() && (varp->isScUint() || varp->isScUintBool());
     }
 
-    void emitTraceInitOne(const AstTraceDecl* nodep, int enumNum) {
+    शून्य emitTraceInitOne(अचर AstTraceDecl* nodep, पूर्णाङ्क enum_अङ्क) {
         std::string direction;
         direction = nodep->declDirection().traceSigDirection();
 
-        AstCCall* const callp = nodep->dtypeCallp();
-        if (callp) {
+        AstCCall* अचर callp = nodep->dtypeCallp();
+        यदि (callp) {
             callp->argTypes(callp->argTypes() + ", " + cvtToStr(nodep->fidx()) + ", c+"
                             + cvtToStr(nodep->code()) + ", " + direction);
-            return;
+            फर्काऊ;
         }
 
-        if (nodep->dtypep()->basicp()->isDouble()) {
-            puts("VL_TRACE_DECL_DOUBLE");
-        } else if (nodep->isWide()) {
-            puts("VL_TRACE_DECL_WIDE");
-        } else if (nodep->isQuad()) {
-            puts("VL_TRACE_DECL_QUAD");
-        } else if (nodep->bitRange().ranged()) {
-            puts("VL_TRACE_DECL_BUS");
-        } else if (nodep->dtypep()->basicp()->isEvent()) {
-            puts("VL_TRACE_DECL_EVENT");
-        } else {
-            puts("VL_TRACE_DECL_BIT");
+        यदि (nodep->dtypep()->basicp()->isDouble()) {
+            माला_दो("VL_TRACE_DECL_DOUBLE");
+        } अन्यथा यदि (nodep->isWide()) {
+            माला_दो("VL_TRACE_DECL_WIDE");
+        } अन्यथा यदि (nodep->isQuad()) {
+            माला_दो("VL_TRACE_DECL_QUAD");
+        } अन्यथा यदि (nodep->bitRange().ranged()) {
+            माला_दो("VL_TRACE_DECL_BUS");
+        } अन्यथा यदि (nodep->dtypep()->basicp()->isEvent()) {
+            माला_दो("VL_TRACE_DECL_EVENT");
+        } अन्यथा {
+            माला_दो("VL_TRACE_DECL_BIT");
         }
 
-        if (nodep->arrayRange().ranged()) {
-            puts("_ARRAY(tracep");
-        } else {
-            puts("(tracep");
+        यदि (nodep->arrayRange().ranged()) {
+            माला_दो("_ARRAY(tracep");
+        } अन्यथा {
+            माला_दो("(tracep");
         }
 
         // Code
-        puts(",c+" + cvtToStr(nodep->code()));
-        if (nodep->arrayRange().ranged()) puts("+i*" + cvtToStr(nodep->widthWords()));
+        माला_दो(",c+" + cvtToStr(nodep->code()));
+        यदि (nodep->arrayRange().ranged()) माला_दो("+i*" + cvtToStr(nodep->width_शब्दहरू()));
 
         // Function index
-        puts(",");
-        if (nodep->inDtypeFunc()) {
-            puts("fidx");
-        } else {
-            puts(cvtToStr(nodep->fidx()));
+        माला_दो(",");
+        यदि (nodep->inDtypeFunc()) {
+            माला_दो("fidx");
+        } अन्यथा {
+            माला_दो(cvtToStr(nodep->fidx()));
         }
 
         // Name
-        puts(",");
-        putsQuoted(VIdProtect::protectWordsIf(nodep->showname(), nodep->protect()));
+        माला_दो(",");
+        putsQuoted(VIdProtect::protect_शब्दहरू_If(nodep->showname(), nodep->protect()));
 
         // Enum number
-        puts("," + cvtToStr(enumNum));
+        माला_दो("," + cvtToStr(enum_अङ्क));
 
         // Direction
-        if (nodep->inDtypeFunc()) {
-            puts(", direction");
-        } else {
-            puts(", " + direction);
+        यदि (nodep->inDtypeFunc()) {
+            माला_दो(", direction");
+        } अन्यथा {
+            माला_दो(", " + direction);
         }
 
         // Kind
-        puts(", VerilatedTraceSigKind::");
-        puts(nodep->varType().traceSigKind());
+        माला_दो(", VerilatedTraceSigKind::");
+        माला_दो(nodep->varType().traceSigKind());
 
         // Type
-        puts(", VerilatedTraceSigType::");
+        माला_दो(", VerilatedTraceSigType::");
         UASSERT_OBJ(nodep->dtypep()->basicp()->keyword() != VBasicDTypeKwd::UNKNOWN, nodep,
                     "DType is unknown");
-        puts(nodep->dtypep()->basicp()->keyword().traceSigType());
+        माला_दो(nodep->dtypep()->basicp()->keyword().traceSigType());
 
         // Array range
-        if (nodep->arrayRange().ranged()) {
-            if (nodep->arrayRange().ascending()) {
-                puts(", (i + " + std::to_string(nodep->arrayRange().lo()) + ")");
-            } else {
-                puts(", (" + std::to_string(nodep->arrayRange().hi()) + " - i)");
+        यदि (nodep->arrayRange().ranged()) {
+            यदि (nodep->arrayRange().ascending()) {
+                माला_दो(", (i + " + std::to_string(nodep->arrayRange().lo()) + ")");
+            } अन्यथा {
+                माला_दो(", (" + std::to_string(nodep->arrayRange().hi()) + " - i)");
             }
         }
 
         // Bit range
-        if (!nodep->dtypep()->basicp()->isDouble() && nodep->bitRange().ranged()) {
-            puts(", " + cvtToStr(nodep->bitRange().left()) + ","
-                 + cvtToStr(nodep->bitRange().right()));
+        यदि (!nodep->dtypep()->basicp()->isDouble() && nodep->bitRange().ranged()) {
+            माला_दो(", " + cvtToStr(nodep->bitRange().बायाँ()) + ","
+                 + cvtToStr(nodep->bitRange().दायाँ()));
         }
 
         //
-        puts(");");
+        माला_दो(");");
     }
 
-    int emitTraceDeclDType(AstNodeDType* nodep) {
+    पूर्णाङ्क emitTraceDeclDType(Ast_गाँठो_DType* nodep) {
         // Return enum number or -1 for none
-        if (v3Global.opt.traceEnabledFst()) {
+        यदि (v3Global.opt.traceEnabledFst()) {
             // Skip over refs-to-refs, but stop before final ref so can get data type name
             // Alternatively back in V3Width we could push enum names from upper typedefs
-            if (AstEnumDType* const enump = VN_CAST(nodep->skipRefToEnump(), EnumDType)) {
-                return m_emitTypesp->getEnumMapNum(enump);
+            यदि (AstEnumDType* अचर enump = VN_CAST(nodep->skipRefToEnump(), EnumDType)) {
+                फर्काऊ m_emitTypesp->get_Enum_Map_अङ्क(enump);
             }
         }
-        return -1;
+        फर्काऊ -1;
     }
 
-    void emitTraceChangeOne(AstTraceInc* nodep, int arrayindex) {
+    शून्य emitTraceChangeOne(AstTraceInc* nodep, पूर्णाङ्क arrayindex) {
         // Note: Both VTraceType::CHANGE and VTraceType::FULL use the 'full' methods
-        const std::string func = nodep->traceType() == VTraceType::CHANGE ? "chg" : "full";
-        bool emitWidth = true;
+        अचर std::string func = nodep->traceType() == VTraceType::CHANGE ? "chg" : "full";
+        तार्किक emitWidth = सत्य;
         string stype;
-        if (nodep->dtypep()->basicp()->isDouble()) {
+        यदि (nodep->dtypep()->basicp()->isDouble()) {
             stype = "Double";
-            emitWidth = false;
-        } else if (nodep->isWide() || emitTraceIsScBv(nodep) || emitTraceIsScBigUint(nodep)) {
+            emitWidth = असत्य;
+        } अन्यथा यदि (nodep->isWide() || emitTraceIsScBv(nodep) || emitTraceIsScBigUint(nodep)) {
             stype = "WData";
-        } else if (nodep->isQuad()) {
+        } अन्यथा यदि (nodep->isQuad()) {
             stype = "QData";
-        } else if (nodep->declp()->widthMin() > 16) {
+        } अन्यथा यदि (nodep->declp()->widthMin() > 16) {
             stype = "IData";
-        } else if (nodep->declp()->widthMin() > 8) {
+        } अन्यथा यदि (nodep->declp()->widthMin() > 8) {
             stype = "SData";
-        } else if (nodep->declp()->widthMin() > 1) {
+        } अन्यथा यदि (nodep->declp()->widthMin() > 1) {
             stype = "CData";
-        } else if (nodep->dtypep()->basicp()->isEvent()) {
+        } अन्यथा यदि (nodep->dtypep()->basicp()->isEvent()) {
             stype = "Event";
-            emitWidth = false;
-        } else {
+            emitWidth = असत्य;
+        } अन्यथा {
             stype = "Bit";
-            emitWidth = false;
+            emitWidth = असत्य;
         }
         putns(nodep, "bufp->" + func + stype);
 
-        const uint32_t offset = (arrayindex < 0) ? 0 : (arrayindex * nodep->declp()->widthWords());
-        const uint32_t code = nodep->declp()->code() + offset;
+        अचर uint32_t offset = (arrayindex < 0) ? 0 : (arrayindex * nodep->declp()->width_शब्दहरू());
+        अचर uint32_t code = nodep->declp()->code() + offset;
         // Note: Both VTraceType::CHANGE and VTraceType::FULL use the 'full' methods
-        puts("(oldp+");
-        puts(cvtToStr(code - nodep->baseCode()));
-        puts(",");
-        const VNumRange& arrayRange = nodep->declp()->arrayRange();
-        if (arrayRange.ranged() && !arrayRange.ascending()) {
+        माला_दो("(oldp+");
+        माला_दो(cvtToStr(code - nodep->baseCode()));
+        माला_दो(",");
+        अचर VNumRange& arrayRange = nodep->declp()->arrayRange();
+        यदि (arrayRange.ranged() && !arrayRange.ascending()) {
             arrayindex = arrayRange.elements() - 1 - arrayindex;
         }
-        emitTraceValue(nodep, arrayindex);
-        if (emitWidth) puts("," + cvtToStr(nodep->declp()->widthMin()));
-        puts(");\n");
+        emit_Trace_मान(nodep, arrayindex);
+        यदि (emitWidth) माला_दो("," + cvtToStr(nodep->declp()->widthMin()));
+        माला_दो(");\n");
     }
 
-    void emitTraceValue(const AstTraceInc* nodep, int arrayindex) {
-        if (AstVarRef* const varrefp = VN_CAST(nodep->valuep(), VarRef)) {
-            const AstVar* const varp = varrefp->varp();
-            if (varp->isEvent()) puts("&");
-            puts("(");
-            if (emitTraceIsScBigUint(nodep)) {
-                puts("(uint32_t*)");
-            } else if (emitTraceIsScBv(nodep)) {
-                puts("VL_SC_BV_DATAP(");
+    शून्य emit_Trace_मान(अचर AstTraceInc* nodep, पूर्णाङ्क arrayindex) {
+        यदि (AstVarRef* अचर varrefp = VN_CAST(nodep->valuep(), VarRef)) {
+            अचर AstVar* अचर varp = varrefp->varp();
+            यदि (varp->isEvent()) माला_दो("&");
+            माला_दो("(");
+            यदि (emitTraceIsScBigUint(nodep)) {
+                माला_दो("(uint32_t*)");
+            } अन्यथा यदि (emitTraceIsScBv(nodep)) {
+                माला_दो("VL_SC_BV_DATAP(");
             }
             iterateConst(varrefp);  // Put var name out
             emitTraceIndex(nodep, arrayindex);
-            if (varp->isSc()) puts(".read()");
-            if (emitTraceIsScUint(nodep)) {
-                puts(nodep->isQuad() ? ".to_uint64()" : ".to_uint()");
-            } else if (emitTraceIsScBigUint(nodep)) {
-                puts(".get_raw()");
-            } else if (emitTraceIsScBv(nodep)) {
-                puts(")");
+            यदि (varp->isSc()) माला_दो(".read()");
+            यदि (emitTraceIsScUint(nodep)) {
+                माला_दो(nodep->isQuad() ? ".to_uint64()" : ".to_uint()");
+            } अन्यथा यदि (emitTraceIsScBigUint(nodep)) {
+                माला_दो(".get_raw()");
+            } अन्यथा यदि (emitTraceIsScBv(nodep)) {
+                माला_दो(")");
             }
-            puts(")");
-        } else {
-            puts("(");
+            माला_दो(")");
+        } अन्यथा {
+            माला_दो("(");
             iterateConst(nodep->valuep());
             emitTraceIndex(nodep, arrayindex);
-            puts(")");
+            माला_दो(")");
         }
     }
 
-    void emitTraceIndex(const AstTraceInc* const nodep, int arrayindex) {
+    शून्य emitTraceIndex(अचर AstTraceInc* अचर nodep, पूर्णाङ्क arrayindex) {
         // Tracing only supports 1D arrays
-        if (nodep->declp()->arrayRange().ranged()) {
-            if (arrayindex == -2) {
-                puts("[i]");
-            } else if (arrayindex == -1) {
-                puts("[0]");
-            } else {
-                puts("[" + cvtToStr(arrayindex) + "]");
+        यदि (nodep->declp()->arrayRange().ranged()) {
+            यदि (arrayindex == -2) {
+                माला_दो("[i]");
+            } अन्यथा यदि (arrayindex == -1) {
+                माला_दो("[0]");
+            } अन्यथा {
+                माला_दो("[" + cvtToStr(arrayindex) + "]");
             }
         }
     }
 
     // VISITORS
     using EmitCFunc::visit;  // Suppress hidden overloaded virtual function warning
-    void visit(AstCFunc* nodep) override {
-        if (!nodep->isTrace()) return;
-        if (nodep->slow() != m_slow) return;
+    शून्य visit(AstCFunc* nodep) override {
+        यदि (!nodep->isTrace()) फर्काऊ;
+        यदि (nodep->slow() != m_slow) फर्काऊ;
 
-        if (splitNeeded()) {
+        यदि (splitNeeded()) {
             // Splitting file, so using parallel build.
-            v3Global.useParallelBuild(true);
+            v3Global.useParallelBuild(सत्य);
             // Close old file
             closeOutputFile();
             // Open a new file
@@ -870,87 +870,87 @@ class EmitCTrace final : public EmitCFunc {
 
         EmitCFunc::visit(nodep);
     }
-    void visit(AstTracePushPrefix* nodep) override {
+    शून्य visit(Ast_Trace_थप_Prefix* nodep) override {
         putns(nodep, "VL_TRACE_PUSH_PREFIX(tracep, ");
-        if (nodep->quotedPrefix()) {
-            putsQuoted(VIdProtect::protectWordsIf(nodep->prefix(), nodep->protect()));
-        } else {
-            puts(nodep->prefix());
+        यदि (nodep->quotedPrefix()) {
+            putsQuoted(VIdProtect::protect_शब्दहरू_If(nodep->prefix(), nodep->protect()));
+        } अन्यथा {
+            माला_दो(nodep->prefix());
         }
-        puts(", VerilatedTracePrefixType::");
-        puts(nodep->prefixType().ascii());
-        puts(", " + std::to_string(nodep->left()));
-        puts(", " + std::to_string(nodep->right()));
-        puts(");\n");
+        माला_दो(", VerilatedTracePrefixType::");
+        माला_दो(nodep->prefixType().ascii());
+        माला_दो(", " + std::to_string(nodep->बायाँ()));
+        माला_दो(", " + std::to_string(nodep->दायाँ()));
+        माला_दो(");\n");
     }
-    void visit(AstTracePopPrefix* nodep) override {  //
+    शून्य visit(Ast_Trace_झिक_Prefix* nodep) override {  //
         putns(nodep, "VL_TRACE_POP_PREFIX(tracep);\n");
     }
-    void visit(AstTraceDecl* nodep) override {
-        const int enumNum = emitTraceDeclDType(nodep->dtypep());
+    शून्य visit(AstTraceDecl* nodep) override {
+        अचर पूर्णाङ्क enum_अङ्क = emitTraceDeclDType(nodep->dtypep());
         putns(nodep, "");
-        if (nodep->arrayRange().ranged()) {
-            puts("for (int i = 0; i < " + cvtToStr(nodep->arrayRange().elements()) + "; ++i) {\n");
-            emitTraceInitOne(nodep, enumNum);
-            puts("\n}\n");
-        } else {
-            emitTraceInitOne(nodep, enumNum);
-            puts("\n");
+        यदि (nodep->arrayRange().ranged()) {
+            माला_दो("for (int i = 0; i < " + cvtToStr(nodep->arrayRange().elements()) + "; ++i) {\n");
+            emitTraceInitOne(nodep, enum_अङ्क);
+            माला_दो("\n}\n");
+        } अन्यथा {
+            emitTraceInitOne(nodep, enum_अङ्क);
+            माला_दो("\n");
         }
     }
-    void visit(AstTraceInc* nodep) override {
-        if (nodep->declp()->arrayRange().ranged()) {
+    शून्य visit(AstTraceInc* nodep) override {
+        यदि (nodep->declp()->arrayRange().ranged()) {
             // It traces faster if we unroll the loop
-            for (int i = 0; i < nodep->declp()->arrayRange().elements(); i++) {
+            लागि (पूर्णाङ्क i = 0; i < nodep->declp()->arrayRange().elements(); i++) {
                 emitTraceChangeOne(nodep, i);
             }
-        } else {
+        } अन्यथा {
             emitTraceChangeOne(nodep, -1);
         }
     }
 
-    explicit EmitCTrace(bool slow)
+    explicit EmitCTrace(तार्किक slow)
         : m_slow{slow} {
-        m_modp = v3Global.rootp()->topModulep();
+        m_modp = v3Global.rootp()->शीर्ष_Modulep();
         // Open output file
         openNextOutputFile();
         // Emit functions
-        for (AstNode* nodep = m_modp->stmtsp(); nodep; nodep = nodep->nextp()) {
-            if (AstCFunc* const funcp = VN_CAST(nodep, CFunc)) iterateConst(funcp);
+        लागि (Ast_गाँठो* nodep = m_modp->stmtsp(); nodep; nodep = nodep->nextp()) {
+            यदि (AstCFunc* अचर funcp = VN_CAST(nodep, CFunc)) iterateConst(funcp);
         }
         // Close output file
         closeOutputFile();
-        if (m_slow) m_emitTypesp->finalize();
+        यदि (m_slow) m_emitTypesp->finalize();
     }
-    ~EmitCTrace() override = default;
+    ~EmitCTrace() override = स्वभाव;
 
-public:
-    static std::vector<AstCFile*> main(bool slow) VL_MT_STABLE {
+सार्वजनिक:
+    स्थिर std::vector<AstCFile*> main(तार्किक slow) VL_MT_STABLE {
         EmitCTrace emitCTrace{slow};
         std::vector<AstCFile*> cfileps = emitCTrace.getAndClearCfileps();
-        if (slow) {
-            for (AstCFile* const cfilep : emitCTrace.m_emitTypesp->getAndClearCfileps()) {
+        यदि (slow) {
+            लागि (AstCFile* अचर cfilep : emitCTrace.m_emitTypesp->getAndClearCfileps()) {
                 cfileps.emplace_back(cfilep);
             }
         }
-        return cfileps;
+        फर्काऊ cfileps;
     }
 };
 
 //######################################################################
 // Existing AstCFile emitter
 
-class EmitCFile final : public EmitCFunc {
+वर्ग EmitCFile final : सार्वजनिक EmitCFunc {
     explicit EmitCFile(AstCFile* cfilep) {
         openOutputFile(cfilep, "Generated C++");
         iterateConst(cfilep->tblockp());
         closeOutputFile();
     }
-    ~EmitCFile() override = default;
+    ~EmitCFile() override = स्वभाव;
 
-public:
-    static void main(AstCFile* cfilep) VL_MT_STABLE {
-        if (!cfilep->tblockp()) return;
+सार्वजनिक:
+    स्थिर शून्य main(AstCFile* cfilep) VL_MT_STABLE {
+        यदि (!cfilep->tblockp()) फर्काऊ;
         EmitCFile{cfilep};
     }
 };
@@ -958,47 +958,47 @@ public:
 //######################################################################
 // EmitC class functions
 
-void V3EmitC::emitcImp() {
+शून्य V3EmitC::emitcImp() {
     UINFO(2, __FUNCTION__ << ":");
     std::list<std::vector<AstCFile*>> cfiles;
     {
         // Make parent module pointers available.
-        const EmitCParentModule emitCParentModule;
+        अचर EmitCParentModule emitCParentModule;
         V3ThreadScope threadScope;
 
         // Process each module in turn
-        for (const AstNode* nodep = v3Global.rootp()->modulesp(); nodep; nodep = nodep->nextp()) {
-            if (VN_IS(nodep, Class)) continue;  // Imped with ClassPackage
-            const AstNodeModule* const modp = VN_AS(nodep, NodeModule);
-            if (modp->isConstPool()) continue;  // Emitted by V3EmitCConstPool
+        लागि (अचर Ast_गाँठो* nodep = v3Global.rootp()->modulesp(); nodep; nodep = nodep->nextp()) {
+            यदि (VN_IS(nodep, Class)) जारी;  // Imped with ClassPackage
+            अचर Ast_गाँठो_Module* अचर modp = VN_AS(nodep, गाँठो_Module);
+            यदि (modp->isConstPool()) जारी;  // Emitted by V3EmitCConstPool
             cfiles.emplace_back();
             std::vector<AstCFile*>& slow = cfiles.back();
-            threadScope.enqueue([modp, &slow] { slow = EmitCImp::main(modp, /* slow: */ true); });
+            threadScope.enqueue([modp, &slow] { slow = EmitCImp::main(modp, /* slow: */ सत्य); });
             cfiles.emplace_back();
             std::vector<AstCFile*>& fast = cfiles.back();
-            threadScope.enqueue([modp, &fast] { fast = EmitCImp::main(modp, /* slow: */ false); });
+            threadScope.enqueue([modp, &fast] { fast = EmitCImp::main(modp, /* slow: */ असत्य); });
         }
 
         // Emit trace routines (currently they can only exist in the top module)
-        if (v3Global.opt.trace() && !v3Global.opt.lintOnly()) {
+        यदि (v3Global.opt.trace() && !v3Global.opt.lintOnly()) {
             cfiles.emplace_back();
             std::vector<AstCFile*>& slow = cfiles.back();
-            threadScope.enqueue([&slow] { slow = EmitCTrace::main(/* slow: */ true); });
+            threadScope.enqueue([&slow] { slow = EmitCTrace::main(/* slow: */ सत्य); });
             cfiles.emplace_back();
             std::vector<AstCFile*>& fast = cfiles.back();
-            threadScope.enqueue([&fast] { fast = EmitCTrace::main(/* slow: */ false); });
+            threadScope.enqueue([&fast] { fast = EmitCTrace::main(/* slow: */ असत्य); });
         }
     }
     // Add files to netlist
-    for (const std::vector<AstCFile*>& cfileps : cfiles) {
-        for (AstCFile* const cfilep : cfileps) v3Global.rootp()->addFilesp(cfilep);
+    लागि (अचर std::vector<AstCFile*>& cfileps : cfiles) {
+        लागि (AstCFile* अचर cfilep : cfileps) v3Global.rootp()->addFilesp(cfilep);
     }
 }
 
-void V3EmitC::emitcFiles() {
+शून्य V3EmitC::emitcFiles() {
     UINFO(2, __FUNCTION__ << ":");
-    for (AstNodeFile *filep = v3Global.rootp()->filesp(), *nextp; filep; filep = nextp) {
-        nextp = VN_AS(filep->nextp(), NodeFile);
-        if (AstCFile* const cfilep = VN_CAST(filep, CFile)) EmitCFile::main(cfilep);
+    लागि (Ast_गाँठो_File *filep = v3Global.rootp()->filesp(), *nextp; filep; filep = nextp) {
+        nextp = VN_AS(filep->nextp(), गाँठो_File);
+        यदि (AstCFile* अचर cfilep = VN_CAST(filep, CFile)) EmitCFile::main(cfilep);
     }
 }

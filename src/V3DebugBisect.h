@@ -18,33 +18,33 @@
 #error "V3DebugBisect.h uses global state and is not thread-safe"
 #endif
 
-#include "V3Os.h"
+#अन्तर्भाव "V3Os.h"
 
-#include <string>
+#अन्तर्भाव <string>
 
 // Please see the inernals documentation for using this utility class with 'verilator_bisect'
 class V3DebugBisect final {
     // Name of instance
-    const char* const m_namep;
+    अचर वर्ण* अचर m_namep;
     // Limit for stopping - 0 means no limit
-    const size_t m_limit = std::stoull(V3Os::getenvStr("VERILATOR_DEBUG_BISECT_"s + m_namep, "0"));
+    अचर माप_प्रकार m_limit = std::stoull(V3Os::getenvStr("VERILATOR_DEBUG_BISECT_"s + m_namep, "0"));
     // Calls so far
-    size_t m_count = 0;
+    माप_प्रकार m_गन्ती = 0;
 
-public:
-    explicit V3DebugBisect(const char* namep)
+सार्वजनिक:
+    explicit V3DebugBisect(अचर वर्ण* namep)
         : m_namep{namep} {}
 
     // Returns 'false' up to m_limit invocations, then returns 'true'.
     // Calls 'f' on the last invocation that returns 'false', which can be used for reporting.
-    template <typename Callable>
+    ढाँचा <typename Callable>
     bool stop(Callable&& f) {
-        if (VL_LIKELY(!m_limit)) return false;
-        ++m_count;
-        if (VL_UNLIKELY(m_count == m_limit)) f();
-        return m_count > m_limit;
+        यदि (VL_LIKELY(!m_limit)) फर्काऊ false;
+        ++m_गन्ती;
+        यदि (VL_UNLIKELY(m_गन्ती == m_limit)) f();
+        फर्काऊ m_गन्ती > m_limit;
     }
 
     // Returns true if the limit has been reached
-    bool isStopped() const { return m_count > m_limit; }
+    bool isStopped() अचर { फर्काऊ m_गन्ती > m_limit; }
 };

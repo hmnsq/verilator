@@ -17,15 +17,15 @@
 #ifndef VERILATOR_V3CLASS_GRAPH_H_
 #define VERILATOR_V3CLASS_GRAPH_H_
 
-#include "config_build.h"
-#include "verilatedos.h"
+#अन्तर्भाव "config_build.h"
+#अन्तर्भाव "verilatedos.h"
 
-#include "V3Ast.h"
-#include "V3Graph.h"
+#अन्तर्भाव "V3Ast.h"
+#अन्तर्भाव "V3Graph.h"
 
-#include <memory>
-#include <unordered_map>
-#include <unordered_set>
+#अन्तर्भाव <memory>
+#अन्तर्भाव <unordered_map>
+#अन्तर्भाव <unordered_set>
 
 //============================================================================
 
@@ -33,25 +33,25 @@ class V3ClassGraphVertex;
 
 // Graph of classes - build by V3ClassGraph::build() and used to get CFuncs that may be
 // called by a AstNodeCCall (due to virtualization)
-class V3ClassGraph final : public V3Graph {
-    friend class ClassGraphBuilderVisitor;
-    std::unordered_map<const AstCFunc*, V3ClassGraphVertex*>
+class V3ClassGraph final : सार्वजनिक V3Graph {
+    मित्र class ClassGraphBuilderVisitor;
+    std::unordered_map<अचर AstCFunc*, V3ClassGraphVertex*>
         m_memberFuncToClassVertex;  // Map from member function to its class
-    const std::unordered_set<AstCFunc*>
+    अचर std::unordered_set<AstCFunc*>
         m_emptySet;  // Always empty set - used to return a reference to an empty set
 
-    V3ClassGraph() = default;
+    V3ClassGraph() = स्वभाव;
 
-public:
-    static std::unique_ptr<V3ClassGraph> build(AstNetlist*);
-    ~V3ClassGraph() override = default;
+सार्वजनिक:
+    स्थिर std::unique_ptr<V3ClassGraph> build(AstNetlist*);
+    ~V3ClassGraph() override = स्वभाव;
 
     // Returns possible CFuncs that may be called due to a NodeCCall passed as a callp argument
     // Warning: returned set may be empty if NodeCCall is a New call or a super call - in such
     // cases only `callp->funcp()` may be called. Also, if callp is to a non-member function the
     // set will be empty - post V3Task static functions are not member functions anymore.
-    const std::unordered_set<AstCFunc*>&
-    getCallPossibleCFuncs(const AstNodeCCall* const callp) const&;
+    अचर std::unordered_set<AstCFunc*>&
+    getCallPossibleCFuncs(अचर Ast_गाँठो_CCall* अचर callp) अचर&;
 };
 
 #endif  // Guard
