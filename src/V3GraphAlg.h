@@ -17,11 +17,11 @@
 #ifndef VERILATOR_V3GRAPHALG_H_
 #define VERILATOR_V3GRAPHALG_H_
 
-#include "config_build.h"
-#include "verilatedos.h"
+#অন্তর্ভাৱ "config_build.h"
+#অন্তর্ভাৱ "verilatedos.h"
 
-#include "V3Global.h"
-#include "V3Graph.h"
+#অন্তর্ভাৱ "V3Global.h"
+#অন্তর্ভাৱ "V3Graph.h"
 
 //=============================================================================
 // Algorithms - common class
@@ -29,16 +29,16 @@
 
 template <typename T_Graph = V3Graph>  // Or sometimes const V3Graph
 class GraphAlg VL_NOT_FINAL {
-protected:
-    T_Graph* const m_graphp;  // Graph we're operating upon
-    const V3EdgeFuncP m_edgeFuncp;  // Function that says we follow this edge
+রক্ষিত:
+    T_Graph* ধ্রুৱ m_graphp;  // Graph we're operating upon
+    ধ্রুৱ V3EdgeFuncP m_edgeFuncp;  // Function that says we follow this edge
     // CONSTRUCTORS
     GraphAlg(T_Graph* graphp, V3EdgeFuncP edgeFuncp)
         : m_graphp{graphp}
         , m_edgeFuncp{edgeFuncp} {}
-    ~GraphAlg() = default;
+    ~GraphAlg() = স্ৱভাৱ;
     // METHODS
-    bool followEdge(V3GraphEdge* edgep) { return (edgep->weight() && (m_edgeFuncp)(edgep)); }
+    bool followEdge(V3GraphEdge* edgep) { ঘূৰাই (edgep->weight() && (m_edgeFuncp)(edgep)); }
 };
 
 //============================================================================

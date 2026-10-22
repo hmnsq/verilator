@@ -17,15 +17,15 @@
 #ifndef VERILATOR_V3DECOMPOSE_H_
 #define VERILATOR_V3DECOMPOSE_H_
 
-#include "verilatedos.h"
+#অন্তর্ভাৱ "verilatedos.h"
 
 //============================================================================
 
 class AstNetlist;
 
 class V3Decompose final {
-public:
-    static void decomposeAll(AstNetlist* nodep) VL_MT_DISABLED;
+সার্ৱজনিক:
+    স্থির শূন্য decomposeAll(AstNetlist* nodep) VL_MT_DISABLED;
 };
 
 #endif  // Guard

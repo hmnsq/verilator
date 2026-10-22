@@ -17,14 +17,14 @@
 #ifndef VERILATOR_V3RANDSEQUENCE_H_
 #define VERILATOR_V3RANDSEQUENCE_H_
 
-#include "config_build.h"
-#include "verilatedos.h"
+#অন্তর্ভাৱ "config_build.h"
+#অন্তর্ভাৱ "verilatedos.h"
 
 class AstNetlist;
 
 class V3RandSequence final {
-public:
-    static void randSequenceNetlist(AstNetlist* nodep) VL_MT_DISABLED;
+সার্ৱজনিক:
+    স্থির শূন্য randSequenceNetlist(AstNetlist* nodep) VL_MT_DISABLED;
 };
 
 #endif  // Guard

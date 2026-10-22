@@ -17,16 +17,16 @@
 #ifndef VERILATOR_V3INLINE_H_
 #define VERILATOR_V3INLINE_H_
 
-#include "config_build.h"
-#include "verilatedos.h"
+#অন্তর্ভাৱ "config_build.h"
+#অন্তর্ভাৱ "verilatedos.h"
 
 class AstNetlist;
 
 //============================================================================
 
 class V3Inline final {
-public:
-    static void inlineAll(AstNetlist* nodep) VL_MT_DISABLED;
+সার্ৱজনিক:
+    স্থির শূন্য inlineAll(AstNetlist* nodep) VL_MT_DISABLED;
 };
 
 #endif  // Guard

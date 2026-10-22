@@ -17,16 +17,16 @@
 #ifndef VERILATOR_V3UDP_H_
 #define VERILATOR_V3UDP_H_
 
-#include "config_build.h"
-#include "verilatedos.h"
+#অন্তর্ভাৱ "config_build.h"
+#অন্তর্ভাৱ "verilatedos.h"
 
 class AstNetlist;
 
 //============================================================================
 
 class V3Udp final {
-public:
-    static void udpResolve(AstNetlist* rootp) VL_MT_DISABLED;
+সার্ৱজনিক:
+    স্থির শূন্য udpResolve(AstNetlist* rootp) VL_MT_DISABLED;
 };
 
 #endif  // Guard

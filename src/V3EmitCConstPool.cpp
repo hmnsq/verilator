@@ -14,56 +14,56 @@
 //
 //*************************************************************************
 
-#include "V3PchAstMT.h"
+#অন্তর্ভাৱ "V3PchAstMT.h"
 
-#include "V3EmitC.h"
-#include "V3EmitCConstInit.h"
-#include "V3File.h"
-#include "V3Stats.h"
-#include "V3UniqueNames.h"
+#অন্তর্ভাৱ "V3EmitC.h"
+#অন্তর্ভাৱ "V3EmitCConstInit.h"
+#অন্তর্ভাৱ "V3File.h"
+#অন্তর্ভাৱ "V3Stats.h"
+#অন্তর্ভাৱ "V3UniqueNames.h"
 
-#include <algorithm>
-#include <cinttypes>
+#অন্তর্ভাৱ <algorithm>
+#অন্তর্ভাৱ <cinttypes>
 
 VL_DEFINE_DEBUG_FUNCTIONS;
 
 //######################################################################
 // Const pool emitter
 
-class EmitCConstPool final : public EmitCConstInit {
+শ্ৰেণী EmitCConstPool final : সার্ৱজনিক EmitCConstInit {
     // TYPES
     using OutCFilePair = std::pair<V3OutCFile*, AstCFile*>;
 
     // MEMBERS
-    std::array<VDouble0, VNType::NUM_TYPES()> m_emitted;  // Entries emitted, by value type
+    std::array<VDouble0, VNType::অঙ্ক_TYPES()> m_emitted;  // Entries emitted, by value type
     V3UniqueNames m_uniqueNames;  // Generates unique file names
-    const std::string m_fileBaseName = EmitCUtil::topClassName() + "__ConstPool";
+    ধ্রুৱ std::string m_fileBaseName = EmitCUtil::শীৰ্ষ_Class_Name() + "__ConstPool";
 
     // METHODS
-    void emitVars(const AstPackage* poolp) {
+    শূন্য emitVars(ধ্রুৱ AstPackage* poolp) {
         UASSERT(!ofp(), "Output file should not be open");
 
-        std::vector<const AstVar*> varps;
-        for (AstNode* nodep = poolp->stmtsp(); nodep; nodep = nodep->nextp()) {
-            if (const AstVar* const varp = VN_CAST(nodep, Var)) varps.push_back(varp);
+        std::vector<ধ্রুৱ AstVar*> varps;
+        বাবে (Ast_গ্ৰন্থি* nodep = poolp->stmtsp(); nodep; nodep = nodep->nextp()) {
+            যদি (ধ্রুৱ AstVar* ধ্রুৱ varp = VN_CAST(nodep, Var)) varps.ঠেলো_back(varp);
         }
 
-        if (varps.empty()) return;  // Constant pool is empty, so we are done
+        যদি (varps.empty()) ঘূৰাই;  // Constant pool is empty, so we are done
 
-        stable_sort(varps.begin(), varps.end(), [](const AstVar* ap, const AstVar* bp) {  //
-            return ap->name() < bp->name();
+        stable_sort(varps.begin(), varps.end(), [](ধ্রুৱ AstVar* ap, ধ্রুৱ AstVar* bp) {  //
+            ঘূৰাই ap->name() < bp->name();
         });
 
-        for (const AstVar* varp : varps) {
-            if (splitNeeded()) {
+        বাবে (ধ্রুৱ AstVar* varp : varps) {
+            যদি (splitNeeded()) {
                 // Splitting file, so using parallel build.
-                v3Global.useParallelBuild(true);
+                v3Global.useParallelBuild(সঁচা);
                 // Close old file
                 closeOutputFile();
             }
 
-            if (!ofp()) {
-                openNewOutputSourceFile(m_uniqueNames.get(m_fileBaseName), true, false,
+            যদি (!ofp()) {
+                openNewOutputSourceFile(m_uniqueNames.get(m_fileBaseName), সঁচা, মিছা,
                                         "Constant pool");
                 puts("\n");
                 puts("#include \"verilated.h\"\n");
@@ -72,16 +72,16 @@ class EmitCConstPool final : public EmitCConstInit {
             puts("\n");
             putns(varp, "extern ");
             // Literal types should be constinit (no code generation needed)
-            if (varp->dtypep()->isLiteralType()) putns(varp, "VL_CONSTINIT_CXX20 ");
+            যদি (varp->dtypep()->isLiteralType()) putns(varp, "VL_CONSTINIT_CXX20 ");
             putns(varp, "const ");
             emitVarDefn(varp);
             // Account for file splitting
-            varp->valuep()->foreach([this](const AstConst* constp) {
-                if (constp->num().isString()) {
-                    splitSizeInc(AstNode::INSTR_COUNT_STR);
-                } else if (constp->isWide()) {
-                    splitSizeInc(constp->widthWords());
-                } else {
+            varp->valuep()->foreach([এতত্](ধ্রুৱ AstConst* constp) {
+                যদি (constp->অঙ্ক().isString()) {
+                    splitSizeInc(Ast_গ্ৰন্থি::INSTR_গুনতি_STR);
+                } অন্যথা যদি (constp->isWide()) {
+                    splitSizeInc(constp->width_শব্দগুলি());
+                } অন্যথা {
                     splitSizeInc(1);
                 }
             });
@@ -90,22 +90,22 @@ class EmitCConstPool final : public EmitCConstInit {
             ++m_emitted[varp->valuep()->type()];
         }
 
-        if (ofp()) closeOutputFile();
+        যদি (ofp()) closeOutputFile();
     }
 
     // VISITORS
-    void visit(AstNode* nodep) override {  // LCOV_EXCL_START
+    শূন্য visit(Ast_গ্ৰন্থি* nodep) override {  // LCOV_EXCL_START
         nodep->v3fatalSrc("Unknown node type reached EmitCConstPool: " << nodep->prettyTypeName());
     }  // LCOV_EXCL_STOP
 
-public:
-    explicit EmitCConstPool(const AstPackage* poolp) {
+সার্ৱজনিক:
+    explicit EmitCConstPool(ধ্রুৱ AstPackage* poolp) {
         emitVars(poolp);
-        const auto addStat = [this](VNType type) {
+        ধ্রুৱ auto addStat = [এতত্](VNType type) {
             V3Stats::addStat("ConstPool, "s + type.ascii() + " emitted", m_emitted[type]);
         };
         addStat(VNType::Const);
-        for (int t = VNType::firstNodeCons; t <= VNType::lastNodeCons; ++t) {
+        বাবে (পূর্ণাঙ্ক t = VNType::first_গ্ৰন্থি_Cons; t <= VNType::last_গ্ৰন্থি_Cons; ++t) {
             addStat(static_cast<VNType::en>(t));
         }
     }
@@ -114,7 +114,7 @@ public:
 //######################################################################
 // EmitC static functions
 
-void V3EmitC::emitcConstPool() {
+শূন্য V3EmitC::emitcConstPool() {
     UINFO(2, __FUNCTION__ << ":");
     EmitCConstPool(v3Global.rootp()->constPoolPkgp());
 }

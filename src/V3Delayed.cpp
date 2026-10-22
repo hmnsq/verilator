@@ -113,138 +113,138 @@
 //
 //*************************************************************************
 
-#include "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
+#অন্তর্ভাৱ "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
 
-#include "V3Delayed.h"
+#অন্তর্ভাৱ "V3Delayed.h"
 
-#include "V3AstUserAllocator.h"
-#include "V3ClassGraph.h"
-#include "V3Const.h"
-#include "V3LinkLValue.h"
-#include "V3SharedTmps.h"
-#include "V3Stats.h"
+#অন্তর্ভাৱ "V3AstUserAllocator.h"
+#অন্তর্ভাৱ "V3ClassGraph.h"
+#অন্তর্ভাৱ "V3Const.h"
+#অন্তর্ভাৱ "V3LinkLValue.h"
+#অন্তর্ভাৱ "V3SharedTmps.h"
+#অন্তর্ভাৱ "V3Stats.h"
 
-#include <deque>
-#include <map>
+#অন্তর্ভাৱ <deque>
+#অন্তর্ভাৱ <map>
 
 VL_DEFINE_DEBUG_FUNCTIONS;
 
 //######################################################################
 // Convert AstAssignDlys (NBAs)
 
-class DelayedVisitor final : public VNVisitor {
+শ্ৰেণী DelayedVisitor final : সার্ৱজনিক VNVisitor {
     // TYPES
 
     // The various NBA conversion schemes, including error cases
-    enum class Scheme : uint8_t {
+    গণনা শ্ৰেণী Scheme : uint8_t {
         Undecided = 0,
         UnsupportedCompoundArrayInLoop,
         ShadowVar,
         ShadowVarMasked,
         FlagShared,
         FlagUnique,
-        ValueQueueWhole,
-        ValueQueuePartial
+        মান_Queue_Whole,
+        মান_Queue_Partial
     };
 
     // All info associated with a variable that is the target of an NBA
-    class VarScopeInfo final {
-    public:
+    শ্ৰেণী VarScopeInfo final {
+    সার্ৱজনিক:
         // First write reference encountered to the VarScope as the target on an NBA
-        const AstVarRef* m_firstNbaRefp = nullptr;
+        ধ্রুৱ AstVarRef* m_firstNbaRefp = nullptr;
         // Active block 'm_firstNbaRefp' is under
-        const AstActive* m_fistActivep = nullptr;
-        bool m_whole = false;  // Used on LHS of NBA directly via VarRef
-        bool m_partial = false;  // Used on LHS of NBA under a Sel
-        bool m_inLoop = false;  // Used on LHS of NBA in a loop
-        bool m_inSuspOrFork = false;  // Used on LHS of NBA in suspendable process or fork
+        ধ্রুৱ AstActive* m_fistActivep = nullptr;
+        তার্কিক m_whole = মিছা;  // Used on LHS of NBA directly via VarRef
+        তার্কিক m_partial = মিছা;  // Used on LHS of NBA under a Sel
+        তার্কিক m_inLoop = মিছা;  // Used on LHS of NBA in a loop
+        তার্কিক m_inSuspOrFork = মিছা;  // Used on LHS of NBA in suspendable process or fork
         Scheme m_scheme = Scheme::Undecided;  // Conversion scheme to use for this variable
 
-    private:
+    গুপ্ত:
         // Combined sensitivities of all NBAs targeting this variable
-        AstSenTree* m_senTreep = nullptr;
+        Ast_Sen_বৃক্ষ* m_senTreep = nullptr;
 
         // Union of stuff needed for the various schemes - use accessors below!
-        union {
-            struct {  // Stuff needed for Scheme::ShadowVar
+        সঙ্ঘ {
+            সংরচনা {  // Stuff needed for Scheme::ShadowVar
                 AstVarScope* vscp;  // The shadow variable
             } m_shadowVariableKit;
-            struct {  // Stuff needed for Scheme::ShadowVarMasked
+            সংরচনা {  // Stuff needed for Scheme::ShadowVarMasked
                 AstVarScope* vscp;  // The shadow variable
                 AstVarScope* maskp;  // The mask variable
             } m_shadowVarMaskedKit;
-            struct {  // Stuff needed for Scheme::FlagShared
+            সংরচনা {  // Stuff needed for Scheme::FlagShared
                 AstActive* activep;  // The active block for the Pre/Post logic
                 AstAlwaysPost* postp;  // The post block for commiting results
                 AstVarScope* commitFlagp;  // The commit flag variable, for reuse
                 AstIf* commitIfp;  // The previous if statement for committing, for reuse
             } m_flagSharedKit;
-            struct {  // Stuff needed for Scheme::FlagUnique
+            সংরচনা {  // Stuff needed for Scheme::FlagUnique
                 AstAlwaysPost* postp;  // The post block for commiting results
             } m_flagUniqueKit;
-            struct {  // Stuff needed for Scheme::ValueQueueWhole/Scheme::ValueQueuePartial
+            সংরচনা {  // Stuff needed for Scheme::ValueQueueWhole/Scheme::ValueQueuePartial
                 AstVarScope* vscp;  // The commit queue variable
-            } m_valueQueueKit;
+            } m_মান_Queue_Kit;
         } m_kitUnion;
 
-    public:
-        VarScopeInfo() = default;
+    সার্ৱজনিক:
+        VarScopeInfo() = স্ৱভাৱ;
         ~VarScopeInfo() {
             // Might not be linked if there was an error
-            if (!m_senTreep->backp()) VL_DO_DANGLING(m_senTreep->deleteTree(), m_senTreep);
+            যদি (!m_senTreep->backp()) VL_DO_DANGLING(m_senTreep->delete_বৃক্ষ(), m_senTreep);
         }
         // Accessors for the above union fields
         auto& shadowVariableKit() {
             UASSERT(m_scheme == Scheme::ShadowVar, "Inconsistent Scheme");
-            return m_kitUnion.m_shadowVariableKit;
+            ঘূৰাই m_kitUnion.m_shadowVariableKit;
         }
         auto& shadowVarMaskedKit() {
             UASSERT(m_scheme == Scheme::ShadowVarMasked, "Inconsistent Scheme");
-            return m_kitUnion.m_shadowVarMaskedKit;
+            ঘূৰাই m_kitUnion.m_shadowVarMaskedKit;
         }
         auto& flagSharedKit() {
             UASSERT(m_scheme == Scheme::FlagShared, "Inconsistent Scheme");
-            return m_kitUnion.m_flagSharedKit;
+            ঘূৰাই m_kitUnion.m_flagSharedKit;
         }
         auto& flagUniqueKit() {
             UASSERT(m_scheme == Scheme::FlagUnique, "Inconsistent Scheme");
-            return m_kitUnion.m_flagUniqueKit;
+            ঘূৰাই m_kitUnion.m_flagUniqueKit;
         }
-        auto& valueQueueKit() {
-            UASSERT(m_scheme == Scheme::ValueQueuePartial || m_scheme == Scheme::ValueQueueWhole,
+        auto& মান_Queue_Kit() {
+            UASSERT(m_scheme == Scheme::মান_Queue_Partial || m_scheme == Scheme::মান_Queue_Whole,
                     "Inconsistent Scheme");
-            return m_kitUnion.m_valueQueueKit;
+            ঘূৰাই m_kitUnion.m_মান_Queue_Kit;
         }
 
         // Accessor
-        AstSenTree* senTreep() const { return m_senTreep; }
+        Ast_Sen_বৃক্ষ* senTreep() ধ্রুৱ { ঘূৰাই m_senTreep; }
 
         // Add sensitivities
-        void addSensitivity(AstSenItem* nodep) {
-            if (!m_senTreep) m_senTreep = new AstSenTree{nodep->fileline(), nullptr};
+        শূন্য addSensitivity(AstSenItem* nodep) {
+            যদি (!m_senTreep) m_senTreep = নূতন Ast_Sen_বৃক্ষ{nodep->fileline(), nullptr};
             // Add a copy of each term
-            m_senTreep->addSensesp(nodep->cloneTree(true));
+            m_senTreep->addSensesp(nodep->clone_বৃক্ষ(সঁচা));
             // Remove duplicates
             V3Const::constifyExpensiveEdit(m_senTreep);
         }
         // cppcheck-suppress constParameterPointer
-        void addSensitivity(AstSenTree* nodep) { addSensitivity(nodep->sensesp()); }
+        শূন্য addSensitivity(Ast_Sen_বৃক্ষ* nodep) { addSensitivity(nodep->sensesp()); }
     };
 
     // Data structure to keep track of all writes to
-    struct WriteReference final {
+    সংরচনা WriteReference final {
         AstVarRef* m_refp = nullptr;  // The reference
-        bool m_isNBA = false;  // True if an NBA write
-        bool m_inNonComb = false;  // True if reference is known to be in non-combinational logic
-        WriteReference() = default;
-        WriteReference(AstVarRef* refp, bool isNBA, bool inNonComb)
+        তার্কিক m_isNBA = মিছা;  // True if an NBA write
+        তার্কিক m_inNonComb = মিছা;  // True if reference is known to be in non-combinational logic
+        WriteReference() = স্ৱভাৱ;
+        WriteReference(AstVarRef* refp, তার্কিক isNBA, তার্কিক inNonComb)
             : m_refp{refp}
             , m_isNBA{isNBA}
             , m_inNonComb{inNonComb} {}
     };
 
     // Data required to lower AstAssignDelay later
-    struct NBA final {
+    সংরচনা NBA final {
         AstAssignDly* nodep = nullptr;  // The NBA this record refers to
         AstVarScope* vscp = nullptr;  // The target variable the NBA is updating
     };
@@ -258,17 +258,17 @@ class DelayedVisitor final : public VNVisitor {
     //  AstVarScope::user1p()   -> VarScopeInfo via m_vscpInfo
     //  AstVarScope::user2p()   -> AstVarRef*: First write reference to the Variable
     //  AstVarScope::user3p()   -> std::vector<WriteReference> via m_writeRefs;
-    const VNUser1InUse m_user1InUse;
-    const VNUser2InUse m_user2InUse;
-    const VNUser3InUse m_user3InUse;
+    ধ্রুৱ VNUser1InUse m_user1InUse;
+    ধ্রুৱ VNUser2InUse m_user2InUse;
+    ধ্রুৱ VNUser3InUse m_user3InUse;
 
-    struct CFuncCache final {
-        VInsertionSet<AstSenTree*> m_timingDomains;  // What shall be added to m_timingDomains
+    সংরচনা CFuncCache final {
+        VInsertionSet<Ast_Sen_বৃক্ষ*> m_timingDomains;  // What shall be added to m_timingDomains
         std::set<AstCFunc*>
             m_includes;  // CFuncs whose CFuncCache shall be included into this - this is used to
                          // break cycles: A->B->A (instead of visiting A while it is still begin
                          // visited B just marks that it includes A)
-        enum State : uint8_t {
+        গণনা State : uint8_t {
             UNINITIALIZED = 0,  // Not initialized members are empty
             VISITING,  // Visiting - needed for breaking recursion
             INITIALIZED,  // Members contains correct values
@@ -283,27 +283,27 @@ class DelayedVisitor final : public VNVisitor {
     AstUser3Allocator<AstVarScope, std::vector<WriteReference>> m_writeRefs;
 
     // STATE - across all visitors
-    VInsertionSet<AstSenTree*> m_timingDomains;  // Timing resume domains
+    VInsertionSet<Ast_Sen_বৃক্ষ*> m_timingDomains;  // Timing resume domains
     V3SharedTmps m_dlyTmps{"__Vdly", VVarType::BLOCKTEMP};  // Temporary variables
     // Commit queue data types, by element type and partial flag. Shared by all instances,
     // as m_dlyTmps only shares variables with the same data type.
-    std::map<std::pair<const AstNodeDType*, bool>, AstNBACommitQueueDType*> m_cqDTypeps;
+    std::map<std::pair<ধ্রুৱ Ast_গ্ৰন্থি_DType*, তার্কিক>, AstNBACommitQueueDType*> m_cqDTypeps;
 
-    const std::unique_ptr<V3ClassGraph>
+    ধ্রুৱ std::unique_ptr<V3ClassGraph>
         m_classGraphp;  // class graph to get possibly called functions from a virtual call
-    std::vector<const AstCFunc*> m_callStack;  // Current callstack of AstCFuncs
+    std::vector<ধ্রুৱ AstCFunc*> m_call_স্তূপ;  // Current callstack of AstCFuncs
 
     // STATE - for current visit position (use VL_RESTORER)
     AstActive* m_activep = nullptr;  // Current activate
-    const AstCFunc* m_cfuncp = nullptr;  // Current public C Function
-    AstNodeProcedure* m_procp = nullptr;  // Current process
+    ধ্রুৱ AstCFunc* m_cfuncp = nullptr;  // Current public C Function
+    Ast_গ্ৰন্থি_Procedure* m_procp = nullptr;  // Current process
     AstScope* m_scopep = nullptr;  // Current scope
-    bool m_inLoop = false;  // True in for loops
-    bool m_inSuspendableOrFork = false;  // True in suspendable processes and forks
-    bool m_ignoreBlkAndNBlk = false;  // Suppress delayed assignment BLKANDNBLK
-    bool m_inNonCombLogic = false;  // We are in non-combinational logic
-    bool m_needsInitialTrigger = false;  // Whether a NodeProcedure needs a initial trigger
-    std::vector<AstSenTree*> m_nbaEventSenTreeps;  // Sensitivities of '->>' in the process
+    তার্কিক m_inLoop = মিছা;  // True in for loops
+    তার্কিক m_inSuspendableOrFork = মিছা;  // True in suspendable processes and forks
+    তার্কিক m_ignoreBlkAndNBlk = মিছা;  // Suppress delayed assignment BLKANDNBLK
+    তার্কিক m_inNonCombLogic = মিছা;  // We are in non-combinational logic
+    তার্কিক m_needsInitialTrigger = মিছা;  // Whether a NodeProcedure needs a initial trigger
+    std::vector<Ast_Sen_বৃক্ষ*> m_nbaEventSenTreeps;  // Sensitivities of '->>' in the process
     AstVarRef* m_currNbaLhsRefp = nullptr;  // Current NBA LHS variable reference
 
     // STATE - during NBA conversion (after visit)
@@ -317,11 +317,11 @@ class DelayedVisitor final : public VNVisitor {
     VDouble0 m_nSchemeShadowVarMasked;  // Number of variabels using Scheme::ShadowVarMasked
     VDouble0 m_nSchemeFlagShared;  // Number of variables using Scheme::FlagShared
     VDouble0 m_nSchemeFlagUnique;  // Number of variables using Scheme::FlagUnique
-    VDouble0 m_nSchemeValueQueuesWhole;  //  Number of variables using Scheme::ValueQueueWhole
-    VDouble0 m_nSchemeValueQueuesPartial;  //  Number of variables using Scheme::ValueQueuePartial
+    VDouble0 m_n_Scheme_মান_Queues_Whole;  //  Number of variables using Scheme::ValueQueueWhole
+    VDouble0 m_n_Scheme_মান_Queues_Partial;  //  Number of variables using Scheme::ValueQueuePartial
     VDouble0 m_nSharedSetFlags;  // "Set" flags actually shared by Scheme::FlagShared variables
     VDouble0 m_nInitialNBA;  // Number of procedural blocks with initial NBA
-    VDouble0 m_nonInlinedCAwaitsWithSenTree;  // Count uses of not inlined co_awaits
+    VDouble0 m_non_Inlined_CAwaits_With_Sen_বৃক্ষ;  // Count uses of not inlined co_awaits
 
     // METHODS
 
@@ -330,14 +330,14 @@ class DelayedVisitor final : public VNVisitor {
     // assignments are to independent bits and the blocking assignment can be
     // in combinational logic, which is something we can't safely implement
     // still.
-    bool checkMixedUsage(const AstVarScope* vscp, bool isIntegralOrPacked) {
+    তার্কিক checkMixedUsage(ধ্রুৱ AstVarScope* vscp, তার্কিক isIntegralOrPacked) {
 
-        struct Ref final {
+        সংরচনা Ref final {
             AstVarRef* m_refp;  // The reference
-            bool m_inNonComb;  // True if known to be in non-combinational logic
-            int m_lsb;  // LSB of accessed range
-            int m_msb;  // MSB of accessed range
-            Ref(AstVarRef* refp, bool inNonComb, int lsb, int msb)
+            তার্কিক m_inNonComb;  // True if known to be in non-combinational logic
+            পূর্ণাঙ্ক m_lsb;  // LSB of accessed range
+            পূর্ণাঙ্ক m_msb;  // MSB of accessed range
+            Ref(AstVarRef* refp, তার্কিক inNonComb, পূর্ণাঙ্ক lsb, পূর্ণাঙ্ক msb)
                 : m_refp{refp}
                 , m_inNonComb{inNonComb}
                 , m_lsb{lsb}
@@ -347,43 +347,43 @@ class DelayedVisitor final : public VNVisitor {
         std::vector<Ref> blkRefs;  // Blocking writes
         std::vector<Ref> nbaRefs;  // Non-blockign writes
 
-        const int width = isIntegralOrPacked ? vscp->width() : 1;
+        ধ্রুৱ পূর্ণাঙ্ক width = isIntegralOrPacked ? vscp->width() : 1;
 
-        for (const auto& writeRef : m_writeRefs(vscp)) {
-            int lsb = 0;
-            int msb = width - 1;
-            if (const AstSel* const selp = VN_CAST(writeRef.m_refp->backp(), Sel)) {
-                if (VN_IS(selp->lsbp(), Const)) {
+        বাবে (ধ্রুৱ auto& writeRef : m_writeRefs(vscp)) {
+            পূর্ণাঙ্ক lsb = 0;
+            পূর্ণাঙ্ক msb = width - 1;
+            যদি (ধ্রুৱ AstSel* ধ্রুৱ selp = VN_CAST(writeRef.m_refp->backp(), Sel)) {
+                যদি (VN_IS(selp->lsbp(), Const)) {
                     lsb = selp->lsbConst();
                     msb = selp->msbConst();
                 }
             }
-            if (writeRef.m_isNBA) {
+            যদি (writeRef.m_isNBA) {
                 nbaRefs.emplace_back(writeRef.m_refp, writeRef.m_inNonComb, lsb, msb);
-            } else {
+            } অন্যথা {
                 blkRefs.emplace_back(writeRef.m_refp, writeRef.m_inNonComb, lsb, msb);
             }
         }
         // We only run this function on targets of NBAs, so there should be at least one...
         UASSERT_OBJ(!nbaRefs.empty(), vscp, "Did not record NBA write");
         // If no blocking upadte, then we are good
-        if (blkRefs.empty()) return false;
+        যদি (blkRefs.empty()) ঘূৰাই মিছা;
 
         // If the blocking assignment is in non-combinational logic (i.e.:
         // in logic that has an explicit trigger), then we can safely
         // implement it (there is no race between clocked logic and post
         // scheduled logic), so need not error
         blkRefs.erase(std::remove_if(blkRefs.begin(), blkRefs.end(),
-                                     [](const Ref& ref) { return ref.m_inNonComb; }),
+                                     [](ধ্রুৱ Ref& ref) { ঘূৰাই ref.m_inNonComb; }),
                       blkRefs.end());
 
         // If nothing left, then we need not error
-        if (blkRefs.empty()) return true;
+        যদি (blkRefs.empty()) ঘূৰাই সঁচা;
 
         // If not a packed variable, warn here as we can't prove independence
-        if (!isIntegralOrPacked) {
-            const Ref& blkRef = blkRefs.front();
-            const Ref& nbaRef = nbaRefs.front();
+        যদি (!isIntegralOrPacked) {
+            ধ্রুৱ Ref& blkRef = blkRefs.front();
+            ধ্রুৱ Ref& nbaRef = nbaRefs.front();
             vscp->v3warn(
                 BLKANDNBLK,
                 "Unsupported: Blocking and non-blocking assignments to same non-packed variable: "
@@ -393,35 +393,35 @@ class DelayedVisitor final : public VNVisitor {
                     << blkRef.m_refp->warnContextSecondary() << '\n'
                     << nbaRef.m_refp->warnOther() << "... Location of nonblocking assignment\n"
                     << nbaRef.m_refp->warnContextSecondary());
-            return true;
+            ঘূৰাই সঁচা;
         }
 
         // We need to error if we can't prove the written bits are independent
 
         // Sort refs by interval
-        const auto lessThanRef = [](const Ref& a, const Ref& b) {
-            if (a.m_lsb != b.m_lsb) return a.m_lsb < b.m_lsb;
-            return a.m_msb < b.m_msb;
+        ধ্রুৱ auto lessThanRef = [](ধ্রুৱ Ref& a, ধ্রুৱ Ref& b) {
+            যদি (a.m_lsb != b.m_lsb) ঘূৰাই a.m_lsb < b.m_lsb;
+            ঘূৰাই a.m_msb < b.m_msb;
         };
         std::stable_sort(blkRefs.begin(), blkRefs.end(), lessThanRef);
         std::stable_sort(nbaRefs.begin(), nbaRefs.end(), lessThanRef);
         // Iterate both vectors, checking for overlap
         auto bIt = blkRefs.begin();
         auto nIt = nbaRefs.begin();
-        while (bIt != blkRefs.end() && nIt != nbaRefs.end()) {
-            if (lessThanRef(*bIt, *nIt)) {
-                if (nIt->m_lsb <= bIt->m_msb) break;  // Stop on Overlap
+        যেতিয়ালৈ (bIt != blkRefs.end() && nIt != nbaRefs.end()) {
+            যদি (lessThanRef(*bIt, *nIt)) {
+                যদি (nIt->m_lsb <= bIt->m_msb) ভঙ্গ;  // Stop on Overlap
                 ++bIt;
-            } else {
-                if (bIt->m_lsb <= nIt->m_msb) break;  // Stop on Overlap
+            } অন্যথা {
+                যদি (bIt->m_lsb <= nIt->m_msb) ভঙ্গ;  // Stop on Overlap
                 ++nIt;
             }
         }
 
         // If we found an overlapping range that cannot be safely implemented, then wran...
-        if (bIt != blkRefs.end() && nIt != nbaRefs.end()) {
-            const Ref& blkRef = *bIt;
-            const Ref& nbaRef = *nIt;
+        যদি (bIt != blkRefs.end() && nIt != nbaRefs.end()) {
+            ধ্রুৱ Ref& blkRef = *bIt;
+            ধ্রুৱ Ref& nbaRef = *nIt;
             vscp->v3warn(BLKANDNBLK, "Unsupported: Blocking and non-blocking assignments to "
                                      "potentially overlapping bits of same packed variable: "
                                          << vscp->varp()->prettyNameQ() << '\n'
@@ -436,71 +436,71 @@ class DelayedVisitor final : public VNVisitor {
                                          << nbaRef.m_refp->warnContextSecondary());
         }
 
-        return true;
+        ঘূৰাই সঁচা;
     }
 
     // Choose the NBA scheme used for the given variable.
-    Scheme chooseScheme(const AstVarScope* vscp, const VarScopeInfo& vscpInfo) {
+    Scheme chooseScheme(ধ্রুৱ AstVarScope* vscp, ধ্রুৱ VarScopeInfo& vscpInfo) {
         UASSERT_OBJ(vscpInfo.m_scheme == Scheme::Undecided, vscp, "NBA scheme already decided");
 
-        const AstNodeDType* const dtypep = vscp->dtypep()->skipRefp();
+        ধ্রুৱ Ast_গ্ৰন্থি_DType* ধ্রুৱ dtypep = vscp->dtypep()->skipRefp();
         // Unpacked arrays
-        if (const AstUnpackArrayDType* const uaDTypep = VN_CAST(dtypep, UnpackArrayDType)) {
+        যদি (ধ্রুৱ AstUnpackArrayDType* ধ্রুৱ uaDTypep = VN_CAST(dtypep, UnpackArrayDType)) {
             // If whole array is target of NBA, use ShadowVar, but not in a suspendable process or
             // fork, which resume outside the 'nba' region, so its 'pre' logic would overwrite the
             // value they write in the shadow variable
-            if (vscpInfo.m_whole) {
-                return vscpInfo.m_inSuspOrFork ? Scheme::FlagUnique : Scheme::ShadowVar;
+            যদি (vscpInfo.m_whole) {
+                ঘূৰাই vscpInfo.m_inSuspOrFork ? Scheme::FlagUnique : Scheme::ShadowVar;
             }
             // Basic underlying type of elements, if any.
-            const AstBasicDType* const basicp = uaDTypep->basicp();
+            ধ্রুৱ AstBasicDType* ধ্রুৱ basicp = uaDTypep->basicp();
             // If used in a loop, we must have a dynamic commit queue. (Also works in suspendables)
-            if (vscpInfo.m_inLoop) {
+            যদি (vscpInfo.m_inLoop) {
                 // Arrays with compound element types are currently not supported in loops
-                if (!basicp
+                যদি (!basicp
                     || !(basicp->isIntegralOrPacked()  //
                          || basicp->isDouble()  //
                          || basicp->isString())) {
-                    return Scheme::UnsupportedCompoundArrayInLoop;
+                    ঘূৰাই Scheme::UnsupportedCompoundArrayInLoop;
                 }
-                if (vscpInfo.m_partial) return Scheme::ValueQueuePartial;
-                return Scheme::ValueQueueWhole;
+                যদি (vscpInfo.m_partial) ঘূৰাই Scheme::মান_Queue_Partial;
+                ঘূৰাই Scheme::মান_Queue_Whole;
             }
             // A suspendable process or fork can resume outside the 'nba' region, so the 'pre'
             // logic of the other schemes would undo its updates. The unique flag scheme has none.
-            if (vscpInfo.m_inSuspOrFork) return Scheme::FlagUnique;
+            যদি (vscpInfo.m_inSuspOrFork) ঘূৰাই Scheme::FlagUnique;
             // Otherwise if an array of packed/basic elements, use the shared flag scheme
-            if (basicp) return Scheme::FlagShared;
+            যদি (basicp) ঘূৰাই Scheme::FlagShared;
             // Finally fall back on the shadow variable scheme, e.g. for
             // arrays of unpacked structs. This will be slow.
             // TODO: generic LHS scheme as discussed in #5092
-            return Scheme::ShadowVar;
+            ঘূৰাই Scheme::ShadowVar;
         }
 
         // Likewise, the 'pre' logic of the shadow variable scheme would undo the updates of a
         // suspendable process or fork, so use the unique flag scheme
-        if (vscpInfo.m_inSuspOrFork) return Scheme::FlagUnique;
+        যদি (vscpInfo.m_inSuspOrFork) ঘূৰাই Scheme::FlagUnique;
 
-        const bool isIntegralOrPacked = dtypep->isIntegralOrPacked();
+        ধ্রুৱ তার্কিক isIntegralOrPacked = dtypep->isIntegralOrPacked();
         // Check for mixed usage (this also warns if not OK)
-        if (checkMixedUsage(vscp, isIntegralOrPacked)) {
+        যদি (checkMixedUsage(vscp, isIntegralOrPacked)) {
             // If it's a variable updated by both blocking and non-blocking
             // assignments, use the ShadowVarMasked schem if masked update is
             // possible. This can handle blocking and non-blocking updates to
             // inpdendent parts correctly at run-time, and always works, even
             // in loops or other dynamic context.
-            if (isIntegralOrPacked) return Scheme::ShadowVarMasked;
+            যদি (isIntegralOrPacked) ঘূৰাই Scheme::ShadowVarMasked;
             // If it's inside a loop, use Scheme::ShadowVar, which is safe,
             // but will generate incorrect code if a partial update is used
-            if (vscpInfo.m_inLoop) return Scheme::ShadowVar;
+            যদি (vscpInfo.m_inLoop) ঘূৰাই Scheme::ShadowVar;
             // Otherwise (for not packed variables), use the FlagUnique scheme,
             // which at least handles partial updates correctly, but might break
             // in loops or other dynamic context
-            return Scheme::FlagUnique;
+            ঘূৰাই Scheme::FlagUnique;
         }
 
         // Otherwise use the simple shadow variable scheme
-        return Scheme::ShadowVar;
+        ঘূৰাই Scheme::ShadowVar;
     }
 
     // Given an expression 'exprp', return a new expression that always evaluates to the
@@ -510,29 +510,29 @@ class DelayedVisitor final : public VNVisitor {
     //   to the new AstVarScope.
     // - If given a constant, just return that constant.
     // New statements are inserted before 'insertp'
-    AstNodeExpr* captureVal(AstScope* const scopep, AstNodeStmt* const insertp,
-                            AstNodeExpr* const exprp, const std::string& name) {
+    Ast_গ্ৰন্থি_ৰাশিমালা* captureVal(AstScope* ধ্রুৱ scopep, Ast_গ্ৰন্থি_Stmt* ধ্রুৱ insertp,
+                            Ast_গ্ৰন্থি_ৰাশিমালা* ধ্রুৱ exprp, ধ্রুৱ std::string& name) {
         UASSERT_OBJ(!exprp->backp(), exprp, "Should have been unlinked");
-        FileLine* const flp = exprp->fileline();
-        if (VN_IS(exprp, Const)) return exprp;
+        File_সাৰি* ধ্রুৱ flp = exprp->fileline();
+        যদি (VN_IS(exprp, Const)) ঘূৰাই exprp;
         // TODO: there are some const variables that could be simply referenced here
-        AstVarScope* const tmpVscp = m_dlyTmps.make(flp, scopep, exprp->dtypep(), name);
+        AstVarScope* ধ্রুৱ tmpVscp = m_dlyTmps.make(flp, scopep, exprp->dtypep(), name);
         insertp->addHereThisAsNext(
-            new AstAssign{flp, new AstVarRef{flp, tmpVscp, VAccess::WRITE}, exprp});
-        return new AstVarRef{flp, tmpVscp, VAccess::READ};
+            নূতন AstAssign{flp, নূতন AstVarRef{flp, tmpVscp, VAccess::WRITE}, exprp});
+        ঘূৰাই নূতন AstVarRef{flp, tmpVscp, VAccess::READ};
     };
 
     // Similar to 'captureVal', but captures an LValue expression. That is, the returned
     // expression will reference the same location as the input expression, at this point in the
     // program.
-    AstNodeExpr* captureLhs(AstScope* const scopep, AstNodeStmt* const insertp,
-                            AstNodeExpr* const lhsp, const std::string& baseName) {
+    Ast_গ্ৰন্থি_ৰাশিমালা* captureLhs(AstScope* ধ্রুৱ scopep, Ast_গ্ৰন্থি_Stmt* ধ্রুৱ insertp,
+                            Ast_গ্ৰন্থি_ৰাশিমালা* ধ্রুৱ lhsp, ধ্রুৱ std::string& baseName) {
         UASSERT_OBJ(!lhsp->backp(), lhsp, "Should have been unlinked");
         // Running node pointer
-        AstNodeExpr* nodep = lhsp;
+        Ast_গ্ৰন্থি_ৰাশিমালা* nodep = lhsp;
         // Capture AstSel indices - there should be only one
-        if (AstSel* const selp = VN_CAST(nodep, Sel)) {
-            const std::string tmpName{"Lsb" + baseName};
+        যদি (AstSel* ধ্রুৱ selp = VN_CAST(nodep, Sel)) {
+            ধ্রুৱ std::string tmpName{"Lsb" + baseName};
             selp->lsbp(captureVal(scopep, insertp, selp->lsbp()->unlinkFrBack(), tmpName));
             // Continue with target
             nodep = selp->fromp();
@@ -542,41 +542,41 @@ class DelayedVisitor final : public VNVisitor {
         // selects the instance the target is a member of, capture the handle instead, as it is
         // only read, to select the target when the NBA is executed (IEEE 1800-2023 10.4.2).
         size_t nArraySels = 0;
-        while (true) {
-            if (AstNodeSel* const selp = VN_CAST(nodep, NodeSel)) {
-                const std::string tmpName{"Dim" + std::to_string(nArraySels++) + baseName};
+        যেতিয়ালৈ (সঁচা) {
+            যদি (Ast_গ্ৰন্থি_Sel* ধ্রুৱ selp = VN_CAST(nodep, গ্ৰন্থি_Sel)) {
+                ধ্রুৱ std::string tmpName{"Dim" + std::to_string(nArraySels++) + baseName};
                 selp->bitp(captureVal(scopep, insertp, selp->bitp()->unlinkFrBack(), tmpName));
                 nodep = selp->fromp();
-            } else if (const AstStructSel* const selp = VN_CAST(nodep, StructSel)) {
+            } অন্যথা যদি (ধ্রুৱ AstStructSel* ধ্রুৱ selp = VN_CAST(nodep, StructSel)) {
                 nodep = selp->fromp();
-            } else if (AstMemberSel* const selp = VN_CAST(nodep, MemberSel)) {
-                AstNodeExpr* const handlep = selp->fromp()->unlinkFrBack();
+            } অন্যথা যদি (AstMemberSel* ধ্রুৱ selp = VN_CAST(nodep, MemberSel)) {
+                Ast_গ্ৰন্থি_ৰাশিমালা* ধ্রুৱ handlep = selp->fromp()->unlinkFrBack();
                 V3LinkLValue::linkLValueSet(handlep, VAccess::READ);
-                AstVarRef* const refp
+                AstVarRef* ধ্রুৱ refp
                     = VN_AS(captureVal(scopep, insertp, handlep, "Handle" + baseName), VarRef);
                 refp->varp()->setIgnorePostWrite();
                 // Like the handle it replaces, mark it written, as is the member it selects
                 refp->access(selp->access());
                 selp->fromp(refp);
-                return lhsp;
-            } else {
-                break;
+                ঘূৰাই lhsp;
+            } অন্যথা {
+                ভঙ্গ;
             }
         }
         // What remains must be the variable, or some sort of select, we assume can reuse it
         UASSERT_OBJ(nodep->isPure(), lhsp, "Malformed LHS in NBA");
         // Now have been converted to use the captured values
-        return lhsp;
+        ঘূৰাই lhsp;
     }
 
-    void addCFuncCachedValues(const AstCFunc* const cfuncp,
-                              std::unordered_set<const AstCFunc*>& visited) {
-        if (!visited.insert(cfuncp).second) return;
-        CFuncCache& value = m_cfuncsCache(cfuncp);
-        m_timingDomains.insert(value.m_timingDomains.begin(), value.m_timingDomains.end());
-        m_nonInlinedCAwaitsWithSenTree += value.m_timingDomains.size();
-        for (const AstCFunc* const includedp : value.m_includes) {
-            addCFuncCachedValues(includedp, visited);
+    শূন্য add_CFunc_Cached_মানসমূহ(ধ্রুৱ AstCFunc* ধ্রুৱ cfuncp,
+                              std::unordered_set<ধ্রুৱ AstCFunc*>& visited) {
+        যদি (!visited.ঢোকাও(cfuncp).second) ঘূৰাই;
+        CFuncCache& মান = m_cfuncsCache(cfuncp);
+        m_timingDomains.ঢোকাও(মান.m_timingDomains.begin(), মান.m_timingDomains.end());
+        m_non_Inlined_CAwaits_With_Sen_বৃক্ষ += মান.m_timingDomains.size();
+        বাবে (ধ্রুৱ AstCFunc* ধ্রুৱ includedp : মান.m_includes) {
+            add_CFunc_Cached_মানসমূহ(includedp, visited);
         }
     }
 
@@ -584,58 +584,58 @@ class DelayedVisitor final : public VNVisitor {
     // type, with the bits selected by 'sLsbp'/'sWidthp' set to 'valuep', other bits set to zero.
     // Insert new statements before 'insertp'.
     // Returns a read reference to the temporary variable.
-    AstVarRef* createWidened(FileLine* flp, AstScope* scopep, AstNodeDType* dtypep,
-                             AstNodeExpr* sLsbp, int sWidth, const std::string& name,
-                             AstNodeExpr* valuep, AstNode* insertp) {
+    AstVarRef* createWidened(File_সাৰি* flp, AstScope* scopep, Ast_গ্ৰন্থি_DType* dtypep,
+                             Ast_গ্ৰন্থি_ৰাশিমালা* sLsbp, পূর্ণাঙ্ক sWidth, ধ্রুৱ std::string& name,
+                             Ast_গ্ৰন্থি_ৰাশিমালা* valuep, Ast_গ্ৰন্থি* insertp) {
         // Create temporary variable.
-        AstVarScope* const tp = m_dlyTmps.make(flp, scopep, dtypep, name);
+        AstVarScope* ধ্রুৱ tp = m_dlyTmps.make(flp, scopep, dtypep, name);
         // Zero it
-        AstConst* const zerop = new AstConst{flp, AstConst::DTyped{}, dtypep};
-        zerop->num().setAllBits0();
+        AstConst* ধ্রুৱ zerop = নূতন AstConst{flp, AstConst::DTyped{}, dtypep};
+        zerop->অঙ্ক().setAllBits0();
         insertp->addHereThisAsNext(
-            new AstAssign{flp, new AstVarRef{flp, tp, VAccess::WRITE}, zerop});
+            নূতন AstAssign{flp, নূতন AstVarRef{flp, tp, VAccess::WRITE}, zerop});
         // Set the selected bits to 'valuep'
-        AstSel* const selp = new AstSel{flp, new AstVarRef{flp, tp, VAccess::WRITE},
-                                        sLsbp->cloneTreePure(true), sWidth};
-        insertp->addHereThisAsNext(new AstAssign{flp, selp, valuep});
+        AstSel* ধ্রুৱ selp = নূতন AstSel{flp, নূতন AstVarRef{flp, tp, VAccess::WRITE},
+                                        sLsbp->clone_বৃক্ষ_Pure(সঁচা), sWidth};
+        insertp->addHereThisAsNext(নূতন AstAssign{flp, selp, valuep});
         // This is the expression to get the value of the temporary
-        return new AstVarRef{flp, tp, VAccess::READ};
+        ঘূৰাই নূতন AstVarRef{flp, tp, VAccess::READ};
     }
 
     // Scheme::ShadowVar
-    void prepareSchemeShadowVar(AstVarScope* vscp, VarScopeInfo& vscpInfo) {
+    শূন্য prepareSchemeShadowVar(AstVarScope* vscp, VarScopeInfo& vscpInfo) {
         UASSERT_OBJ(vscpInfo.m_scheme == Scheme::ShadowVar, vscp, "Inconsistent NBA scheme");
-        FileLine* const flp = vscp->fileline();
-        AstScope* const scopep = vscp->scopep();
+        File_সাৰি* ধ্রুৱ flp = vscp->fileline();
+        AstScope* ধ্রুৱ scopep = vscp->scopep();
         // Create the shadow variable
-        const std::string name = "_" + vscp->varp()->shortName();
-        AstVarScope* const shadowVscp = m_dlyTmps.make(flp, scopep, vscp->dtypep(), name);
+        ধ্রুৱ std::string name = "_" + vscp->varp()->shortName();
+        AstVarScope* ধ্রুৱ shadowVscp = m_dlyTmps.make(flp, scopep, vscp->dtypep(), name);
         vscpInfo.shadowVariableKit().vscp = shadowVscp;
         // Mark both for V3LifePsot
-        vscp->optimizeLifePost(true);
-        shadowVscp->optimizeLifePost(true);
+        vscp->optimizeLifePost(সঁচা);
+        shadowVscp->optimizeLifePost(সঁচা);
         // Create the AstActive for the Pre/Post logic
-        AstActive* const activep = new AstActive{flp, "nba-shadow-variable", vscpInfo.senTreep()};
-        activep->senTreeStorep(vscpInfo.senTreep());
+        AstActive* ধ্রুৱ activep = নূতন AstActive{flp, "nba-shadow-variable", vscpInfo.senTreep()};
+        activep->sen_বৃক্ষ_Storep(vscpInfo.senTreep());
         scopep->addBlocksp(activep);
         // Add 'Pre' scheduled 'shadowVariable = originalVariable' assignment
-        AstAlwaysPre* const prep = new AstAlwaysPre{flp};
+        AstAlwaysPre* ধ্রুৱ prep = নূতন AstAlwaysPre{flp};
         activep->addStmtsp(prep);
-        prep->addStmtsp(new AstAssign{flp, new AstVarRef{flp, shadowVscp, VAccess::WRITE},
-                                      new AstVarRef{flp, vscp, VAccess::READ}});
+        prep->addStmtsp(নূতন AstAssign{flp, নূতন AstVarRef{flp, shadowVscp, VAccess::WRITE},
+                                      নূতন AstVarRef{flp, vscp, VAccess::READ}});
         // Add 'Post' scheduled 'originalVariable = shadowVariable' assignment
-        AstAlwaysPost* const postp = new AstAlwaysPost{flp};
+        AstAlwaysPost* ধ্রুৱ postp = নূতন AstAlwaysPost{flp};
         activep->addStmtsp(postp);
-        postp->addStmtsp(new AstAssign{flp, new AstVarRef{flp, vscp, VAccess::WRITE},
-                                       new AstVarRef{flp, shadowVscp, VAccess::READ}});
+        postp->addStmtsp(নূতন AstAssign{flp, নূতন AstVarRef{flp, vscp, VAccess::WRITE},
+                                       নূতন AstVarRef{flp, shadowVscp, VAccess::READ}});
     }
-    void convertSchemeShadowVar(AstAssignDly* nodep, AstVarScope* vscp, VarScopeInfo& vscpInfo) {
+    শূন্য convertSchemeShadowVar(AstAssignDly* nodep, AstVarScope* vscp, VarScopeInfo& vscpInfo) {
         UASSERT_OBJ(vscpInfo.m_scheme == Scheme::ShadowVar, vscp, "Inconsistent NBA scheme");
-        AstVarScope* const shadowVscp = vscpInfo.shadowVariableKit().vscp;
+        AstVarScope* ধ্রুৱ shadowVscp = vscpInfo.shadowVariableKit().vscp;
 
         // Replace the write ref on the LHS with the shadow variable
-        nodep->lhsp()->foreach([&](AstVarRef* const refp) {
-            if (!refp->access().isWriteOnly()) return;
+        nodep->lhsp()->foreach([&](AstVarRef* ধ্রুৱ refp) {
+            যদি (!refp->access().isWriteOnly()) ঘূৰাই;
             UASSERT_OBJ(refp->varScopep() == vscp, nodep, "NBA not setting expected variable");
             refp->varScopep(shadowVscp);
             refp->varp(shadowVscp->varp());
@@ -643,111 +643,111 @@ class DelayedVisitor final : public VNVisitor {
     }
 
     // Scheme::ShadowVarMasked
-    void prepareSchemeShadowVarMasked(AstVarScope* vscp, VarScopeInfo& vscpInfo) {
+    শূন্য prepareSchemeShadowVarMasked(AstVarScope* vscp, VarScopeInfo& vscpInfo) {
         UASSERT_OBJ(vscpInfo.m_scheme == Scheme::ShadowVarMasked, vscp, "Inconsistent NBA scheme");
-        FileLine* const flp = vscp->fileline();
-        AstScope* const scopep = vscp->scopep();
+        File_সাৰি* ধ্রুৱ flp = vscp->fileline();
+        AstScope* ধ্রুৱ scopep = vscp->scopep();
         // Create the shadow variable
-        const std::string shadowName = "_" + vscp->varp()->shortName();
-        AstVarScope* const shadowVscp = m_dlyTmps.make(flp, scopep, vscp->dtypep(), shadowName);
+        ধ্রুৱ std::string shadowName = "_" + vscp->varp()->shortName();
+        AstVarScope* ধ্রুৱ shadowVscp = m_dlyTmps.make(flp, scopep, vscp->dtypep(), shadowName);
         vscpInfo.shadowVarMaskedKit().vscp = shadowVscp;
         // Create the makk variable
-        const std::string maskName = "Mask__" + vscp->varp()->shortName();
-        AstVarScope* const maskVscp = m_dlyTmps.make(flp, scopep, vscp->dtypep(), maskName);
+        ধ্রুৱ std::string maskName = "Mask__" + vscp->varp()->shortName();
+        AstVarScope* ধ্রুৱ maskVscp = m_dlyTmps.make(flp, scopep, vscp->dtypep(), maskName);
         maskVscp->varp()->setIgnorePostWrite();
         vscpInfo.shadowVarMaskedKit().maskp = maskVscp;
         // Create the AstActive for the Post logic
-        AstActive* const activep
-            = new AstActive{flp, "nba-shadow-var-masked", vscpInfo.senTreep()};
-        activep->senTreeStorep(vscpInfo.senTreep());
+        AstActive* ধ্রুৱ activep
+            = নূতন AstActive{flp, "nba-shadow-var-masked", vscpInfo.senTreep()};
+        activep->sen_বৃক্ষ_Storep(vscpInfo.senTreep());
         scopep->addBlocksp(activep);
         // Add 'Post' scheduled process for the commit and mask clear
-        AstAlwaysPost* const postp = new AstAlwaysPost{flp};
+        AstAlwaysPost* ধ্রুৱ postp = নূতন AstAlwaysPost{flp};
         activep->addStmtsp(postp);
         // Add the commit - vscp = (shadowVscp & maskVscp) | (vscp & ~maskVscp);
-        postp->addStmtsp(new AstAssign{
-            flp, new AstVarRef{flp, vscp, VAccess::WRITE},
-            new AstOr{flp,
-                      new AstAnd{flp, new AstVarRef{flp, shadowVscp, VAccess::READ},
-                                 new AstVarRef{flp, maskVscp, VAccess::READ}},
-                      new AstAnd{flp, new AstVarRef{flp, vscp, VAccess::READ},
-                                 new AstNot{flp, new AstVarRef{flp, maskVscp, VAccess::READ}}}}});
+        postp->addStmtsp(নূতন AstAssign{
+            flp, নূতন AstVarRef{flp, vscp, VAccess::WRITE},
+            নূতন AstOr{flp,
+                      নূতন AstAnd{flp, নূতন AstVarRef{flp, shadowVscp, VAccess::READ},
+                                 নূতন AstVarRef{flp, maskVscp, VAccess::READ}},
+                      নূতন AstAnd{flp, নূতন AstVarRef{flp, vscp, VAccess::READ},
+                                 নূতন AstNot{flp, নূতন AstVarRef{flp, maskVscp, VAccess::READ}}}}});
         vscp->varp()->setIgnorePostRead();
         // Clar the mask - maskVscp = '0;
         postp->addStmtsp(
-            new AstAssign{flp, new AstVarRef{flp, maskVscp, VAccess::WRITE},
-                          new AstConst{flp, AstConst::WidthedValue{}, maskVscp->width(), 0}});
+            নূতন AstAssign{flp, নূতন AstVarRef{flp, maskVscp, VAccess::WRITE},
+                          নূতন AstConst{flp, AstConst::Widthed_মান{}, maskVscp->width(), 0}});
     }
-    void convertSchemeShadowVarMasked(AstAssignDly* nodep, AstVarScope* vscp,
+    শূন্য convertSchemeShadowVarMasked(AstAssignDly* nodep, AstVarScope* vscp,
                                       VarScopeInfo& vscpInfo) {
         UASSERT_OBJ(vscpInfo.m_scheme == Scheme::ShadowVarMasked, vscp, "Inconsistent NBA scheme");
-        AstVarScope* const shadowVscp = vscpInfo.shadowVarMaskedKit().vscp;
-        AstVarScope* const maskVscp = vscpInfo.shadowVarMaskedKit().maskp;
+        AstVarScope* ধ্রুৱ shadowVscp = vscpInfo.shadowVarMaskedKit().vscp;
+        AstVarScope* ধ্রুৱ maskVscp = vscpInfo.shadowVarMaskedKit().maskp;
 
-        AstNodeExpr* lhsClonep = nodep->lhsp()->cloneTree(false);
+        Ast_গ্ৰন্থি_ৰাশিমালা* lhsClonep = nodep->lhsp()->clone_বৃক্ষ(মিছা);
 
         // Replace the write ref on the LHS with the shadow variable
-        nodep->lhsp()->foreach([&](AstVarRef* const refp) {
-            if (!refp->access().isWriteOnly()) return;
+        nodep->lhsp()->foreach([&](AstVarRef* ধ্রুৱ refp) {
+            যদি (!refp->access().isWriteOnly()) ঘূৰাই;
             UASSERT_OBJ(refp->varScopep() == vscp, nodep, "NBA not setting expected variable");
             refp->varScopep(shadowVscp);
             refp->varp(shadowVscp->varp());
         });
         // Set the same bits in the mask to 1
-        lhsClonep->foreach([&](AstVarRef* const refp) {
-            if (!refp->access().isWriteOnly()) return;
+        lhsClonep->foreach([&](AstVarRef* ধ্রুৱ refp) {
+            যদি (!refp->access().isWriteOnly()) ঘূৰাই;
             UASSERT_OBJ(refp->varScopep() == vscp, nodep, "NBA not setting expected variable");
             refp->varScopep(maskVscp);
             refp->varp(maskVscp->varp());
         });
-        FileLine* const flp = nodep->fileline();
-        AstConst* const onesp = new AstConst{flp, AstConst::DTyped{}, lhsClonep->dtypep()};
-        onesp->num().setAllBits1();
-        nodep->addNextHere(new AstAssign{flp, lhsClonep, onesp});
+        File_সাৰি* ধ্রুৱ flp = nodep->fileline();
+        AstConst* ধ্রুৱ onesp = নূতন AstConst{flp, AstConst::DTyped{}, lhsClonep->dtypep()};
+        onesp->অঙ্ক().setAllBits1();
+        nodep->addNextHere(নূতন AstAssign{flp, lhsClonep, onesp});
     }
 
     // Scheme::FlagShared
-    void prepareSchemeFlagShared(AstVarScope* vscp, VarScopeInfo& vscpInfo) {
+    শূন্য prepareSchemeFlagShared(AstVarScope* vscp, VarScopeInfo& vscpInfo) {
         UASSERT_OBJ(vscpInfo.m_scheme == Scheme::FlagShared, vscp, "Inconsistent NBA scheme");
-        FileLine* const flp = vscp->fileline();
-        AstScope* const scopep = vscp->scopep();
+        File_সাৰি* ধ্রুৱ flp = vscp->fileline();
+        AstScope* ধ্রুৱ scopep = vscp->scopep();
         // Create the AstActive for the Pre/Post logic
-        AstActive* const activep = new AstActive{flp, "nba-flag-shared", vscpInfo.senTreep()};
-        activep->senTreeStorep(vscpInfo.senTreep());
+        AstActive* ধ্রুৱ activep = নূতন AstActive{flp, "nba-flag-shared", vscpInfo.senTreep()};
+        activep->sen_বৃক্ষ_Storep(vscpInfo.senTreep());
         scopep->addBlocksp(activep);
         vscpInfo.flagSharedKit().activep = activep;
         // Add 'Post' scheduled process to be populated later
-        AstAlwaysPost* const postp = new AstAlwaysPost{flp};
+        AstAlwaysPost* ধ্রুৱ postp = নূতন AstAlwaysPost{flp};
         activep->addStmtsp(postp);
         vscpInfo.flagSharedKit().postp = postp;
         // Initialize
         vscpInfo.flagSharedKit().commitFlagp = nullptr;
         vscpInfo.flagSharedKit().commitIfp = nullptr;
     }
-    void convertSchemeFlagShared(AstAssignDly* nodep, AstVarScope* vscp, VarScopeInfo& vscpInfo) {
+    শূন্য convertSchemeFlagShared(AstAssignDly* nodep, AstVarScope* vscp, VarScopeInfo& vscpInfo) {
         UASSERT_OBJ(vscpInfo.m_scheme == Scheme::FlagShared, vscp, "Inconsistent NBA scheme");
-        FileLine* const flp = vscp->fileline();
-        AstScope* const scopep = VN_AS(nodep->user2p(), Scope);
+        File_সাৰি* ধ্রুৱ flp = vscp->fileline();
+        AstScope* ধ্রুৱ scopep = VN_AS(nodep->user2p(), Scope);
 
         // Base name suffix for signals constructed below
-        const std::string baseName = "__" + vscp->varp()->shortName();
+        ধ্রুৱ std::string baseName = "__" + vscp->varp()->shortName();
 
         // Unlink and capture the RHS value
-        AstNodeExpr* const capturedRhsp
+        Ast_গ্ৰন্থি_ৰাশিমালা* ধ্রুৱ capturedRhsp
             = captureVal(scopep, nodep, nodep->rhsp()->unlinkFrBack(), "Val" + baseName);
 
         // Unlink and capture the LHS reference
-        AstNodeExpr* const capturedLhsp
+        Ast_গ্ৰন্থি_ৰাশিমালা* ধ্রুৱ capturedLhsp
             = captureLhs(scopep, nodep, nodep->lhsp()->unlinkFrBack(), baseName);
 
         // Is this NBA adjacent after the previously processed NBA?
-        const bool consecutive = nodep == m_nextDlyp;
+        ধ্রুৱ তার্কিক consecutive = nodep == m_nextDlyp;
         m_nextDlyp = VN_CAST(nodep->nextp(), AssignDly);
 
-        VarScopeInfo* const prevVscpInfop = consecutive ? &m_vscpInfo(m_prevVscp) : nullptr;
+        VarScopeInfo* ধ্রুৱ prevVscpInfop = consecutive ? &m_vscpInfo(m_prevVscp) : nullptr;
 
         // We can reuse the flag of the previous assignment if:
-        const bool reuseTheFlag =
+        ধ্রুৱ তার্কিক reuseTheFlag =
             // Consecutive NBAs
             consecutive
             // ... that use the same scheme
@@ -755,38 +755,38 @@ class DelayedVisitor final : public VNVisitor {
             // ... and are in the same scope as the target variable
             && scopep == vscp->scopep()
             // ... and share the same overall update domain
-            && prevVscpInfop->senTreep()->sameTree(vscpInfo.senTreep());
+            && prevVscpInfop->senTreep()->same_বৃক্ষ(vscpInfo.senTreep());
 
-        if (!reuseTheFlag) {
+        যদি (!reuseTheFlag) {
             // Create new flag
-            AstVarScope* const flagVscp = m_dlyTmps.make(flp, scopep, 1, "Set" + baseName);
+            AstVarScope* ধ্রুৱ flagVscp = m_dlyTmps.make(flp, scopep, 1, "Set" + baseName);
             // Set the flag at the original NBA
             nodep->addHereThisAsNext(  //
-                new AstAssign{flp, new AstVarRef{flp, flagVscp, VAccess::WRITE},
-                              new AstConst{flp, AstConst::BitTrue{}}});
+                নূতন AstAssign{flp, নূতন AstVarRef{flp, flagVscp, VAccess::WRITE},
+                              নূতন AstConst{flp, AstConst::BitTrue{}}});
             // Add the 'Pre' scheduled reset for the flag
-            AstAlwaysPre* const prep = new AstAlwaysPre{flp};
+            AstAlwaysPre* ধ্রুৱ prep = নূতন AstAlwaysPre{flp};
             vscpInfo.flagSharedKit().activep->addStmtsp(prep);
-            prep->addStmtsp(new AstAssign{flp, new AstVarRef{flp, flagVscp, VAccess::WRITE},
-                                          new AstConst{flp, AstConst::BitFalse{}}});
+            prep->addStmtsp(নূতন AstAssign{flp, নূতন AstVarRef{flp, flagVscp, VAccess::WRITE},
+                                          নূতন AstConst{flp, AstConst::BitFalse{}}});
             // Add the 'Post' scheduled commit
-            AstIf* const ifp = new AstIf{flp, new AstVarRef{flp, flagVscp, VAccess::READ}};
+            AstIf* ধ্রুৱ ifp = নূতন AstIf{flp, নূতন AstVarRef{flp, flagVscp, VAccess::READ}};
             vscpInfo.flagSharedKit().postp->addStmtsp(ifp);
             vscpInfo.flagSharedKit().commitFlagp = flagVscp;
             vscpInfo.flagSharedKit().commitIfp = ifp;
-        } else {
-            if (vscp != m_prevVscp) {
+        } অন্যথা {
+            যদি (vscp != m_prevVscp) {
                 // Different variable, ensure the commit block exists for this variable,
                 // can reuse existing one with the same flag, otherwise create a new one.
-                AstVarScope* const flagVscp = prevVscpInfop->flagSharedKit().commitFlagp;
+                AstVarScope* ধ্রুৱ flagVscp = prevVscpInfop->flagSharedKit().commitFlagp;
                 UASSERT_OBJ(flagVscp, nodep, "Commit flag of previous assignment should exist");
-                if (vscpInfo.flagSharedKit().commitFlagp != flagVscp) {
-                    AstIf* const ifp = new AstIf{flp, new AstVarRef{flp, flagVscp, VAccess::READ}};
+                যদি (vscpInfo.flagSharedKit().commitFlagp != flagVscp) {
+                    AstIf* ধ্রুৱ ifp = নূতন AstIf{flp, নূতন AstVarRef{flp, flagVscp, VAccess::READ}};
                     vscpInfo.flagSharedKit().postp->addStmtsp(ifp);
                     vscpInfo.flagSharedKit().commitFlagp = flagVscp;
                     vscpInfo.flagSharedKit().commitIfp = ifp;
                 }
-            } else {
+            } অন্যথা {
                 // Same variable, reuse the commit block of the previous assignment
                 vscpInfo.flagSharedKit().commitFlagp = prevVscpInfop->flagSharedKit().commitFlagp;
                 vscpInfo.flagSharedKit().commitIfp = prevVscpInfop->flagSharedKit().commitIfp;
@@ -795,194 +795,194 @@ class DelayedVisitor final : public VNVisitor {
         }
         // Commit the captured value to the captured destination
         vscpInfo.flagSharedKit().commitIfp->addThensp(
-            new AstAssign{flp, capturedLhsp, capturedRhsp});
+            নূতন AstAssign{flp, capturedLhsp, capturedRhsp});
 
         // Remember the variable for the next NBA
         m_prevVscp = vscp;
 
         // Delete original NBA
-        VL_DO_DANGLING(pushDeletep(nodep->unlinkFrBack()), nodep);
+        VL_DO_DANGLING(ঠেলো_Deletep(nodep->unlinkFrBack()), nodep);
     }
 
     // Scheme::FlagUnique
-    void prepareSchemeFlagUnique(AstVarScope* vscp, VarScopeInfo& vscpInfo) {
+    শূন্য prepareSchemeFlagUnique(AstVarScope* vscp, VarScopeInfo& vscpInfo) {
         UASSERT_OBJ(vscpInfo.m_scheme == Scheme::FlagUnique, vscp, "Inconsistent NBA scheme");
-        FileLine* const flp = vscp->fileline();
-        AstScope* const scopep = vscp->scopep();
+        File_সাৰি* ধ্রুৱ flp = vscp->fileline();
+        AstScope* ধ্রুৱ scopep = vscp->scopep();
         // Create the AstActive for the Pre/Post logic
-        AstActive* const activep = new AstActive{flp, "nba-flag-unique", vscpInfo.senTreep()};
-        activep->senTreeStorep(vscpInfo.senTreep());
+        AstActive* ধ্রুৱ activep = নূতন AstActive{flp, "nba-flag-unique", vscpInfo.senTreep()};
+        activep->sen_বৃক্ষ_Storep(vscpInfo.senTreep());
         scopep->addBlocksp(activep);
         // Add 'Post' scheduled process to be populated later
-        AstAlwaysPost* const postp = new AstAlwaysPost{flp};
+        AstAlwaysPost* ধ্রুৱ postp = নূতন AstAlwaysPost{flp};
         activep->addStmtsp(postp);
         vscpInfo.flagUniqueKit().postp = postp;
     }
-    void convertSchemeFlagUnique(AstAssignDly* nodep, AstVarScope* vscp, VarScopeInfo& vscpInfo) {
+    শূন্য convertSchemeFlagUnique(AstAssignDly* nodep, AstVarScope* vscp, VarScopeInfo& vscpInfo) {
         UASSERT_OBJ(vscpInfo.m_scheme == Scheme::FlagUnique, vscp, "Inconsistent NBA scheme");
-        FileLine* const flp = vscp->fileline();
-        AstScope* const scopep = VN_AS(nodep->user2p(), Scope);
+        File_সাৰি* ধ্রুৱ flp = vscp->fileline();
+        AstScope* ধ্রুৱ scopep = VN_AS(nodep->user2p(), Scope);
 
         // Base name suffix for signals constructed below
-        const std::string baseName = "__" + vscp->varp()->shortName();
+        ধ্রুৱ std::string baseName = "__" + vscp->varp()->shortName();
 
         // Unlink and capture the RHS value
-        AstNodeExpr* const capturedRhsp
+        Ast_গ্ৰন্থি_ৰাশিমালা* ধ্রুৱ capturedRhsp
             = captureVal(scopep, nodep, nodep->rhsp()->unlinkFrBack(), "Val" + baseName);
 
         // Unlink and capture the LHS reference
-        AstNodeExpr* const capturedLhsp
+        Ast_গ্ৰন্থি_ৰাশিমালা* ধ্রুৱ capturedLhsp
             = captureLhs(scopep, nodep, nodep->lhsp()->unlinkFrBack(), baseName);
 
         // Create new flag
-        AstVarScope* const flagVscp = m_dlyTmps.make(flp, scopep, 1, "Set" + baseName);
+        AstVarScope* ধ্রুৱ flagVscp = m_dlyTmps.make(flp, scopep, 1, "Set" + baseName);
         flagVscp->varp()->setIgnorePostWrite();
         // Set the flag at the original NBA
         nodep->addHereThisAsNext(  //
-            new AstAssign{flp, new AstVarRef{flp, flagVscp, VAccess::WRITE},
-                          new AstConst{flp, AstConst::BitTrue{}}});
+            নূতন AstAssign{flp, নূতন AstVarRef{flp, flagVscp, VAccess::WRITE},
+                          নূতন AstConst{flp, AstConst::BitTrue{}}});
         // Add the 'Post' scheduled commit
-        AstIf* const ifp = new AstIf{flp, new AstVarRef{flp, flagVscp, VAccess::READ}};
+        AstIf* ধ্রুৱ ifp = নূতন AstIf{flp, নূতন AstVarRef{flp, flagVscp, VAccess::READ}};
         vscpInfo.flagUniqueKit().postp->addStmtsp(ifp);
         // Immediately clear the flag
-        ifp->addThensp(new AstAssign{flp, new AstVarRef{flp, flagVscp, VAccess::WRITE},
-                                     new AstConst{flp, AstConst::BitFalse{}}});
+        ifp->addThensp(নূতন AstAssign{flp, নূতন AstVarRef{flp, flagVscp, VAccess::WRITE},
+                                     নূতন AstConst{flp, AstConst::BitFalse{}}});
         // Commit the value
-        ifp->addThensp(new AstAssign{flp, capturedLhsp, capturedRhsp});
+        ifp->addThensp(নূতন AstAssign{flp, capturedLhsp, capturedRhsp});
 
         // Delete original NBA
-        VL_DO_DANGLING(pushDeletep(nodep->unlinkFrBack()), nodep);
+        VL_DO_DANGLING(ঠেলো_Deletep(nodep->unlinkFrBack()), nodep);
     }
 
     // Scheme::ValueQueuePartial/Scheme::ValueQueueWhole
-    template <bool N_Partial>
-    void prepareSchemeValueQueue(AstVarScope* vscp, VarScopeInfo& vscpInfo) {
-        UASSERT_OBJ(N_Partial ? vscpInfo.m_scheme == Scheme::ValueQueuePartial
-                              : vscpInfo.m_scheme == Scheme::ValueQueueWhole,
+    template <তার্কিক N_Partial>
+    শূন্য prepare_Scheme_মান_Queue(AstVarScope* vscp, VarScopeInfo& vscpInfo) {
+        UASSERT_OBJ(N_Partial ? vscpInfo.m_scheme == Scheme::মান_Queue_Partial
+                              : vscpInfo.m_scheme == Scheme::মান_Queue_Whole,
                     vscp, "Inconsistent NBA scheme");
-        FileLine* const flp = vscp->fileline();
-        AstScope* const scopep = vscp->scopep();
+        File_সাৰি* ধ্রুৱ flp = vscp->fileline();
+        AstScope* ধ্রুৱ scopep = vscp->scopep();
 
         // Create the commit queue variable
-        AstNodeDType* const elemDTypep = vscp->dtypep()->skipRefp();
+        Ast_গ্ৰন্থি_DType* ধ্রুৱ elemDTypep = vscp->dtypep()->skipRefp();
         AstNBACommitQueueDType*& cqDTypep = m_cqDTypeps[{elemDTypep, N_Partial}];
-        if (!cqDTypep) {
-            cqDTypep = new AstNBACommitQueueDType{flp, elemDTypep, N_Partial};
+        যদি (!cqDTypep) {
+            cqDTypep = নূতন AstNBACommitQueueDType{flp, elemDTypep, N_Partial};
             v3Global.rootp()->typeTablep()->addTypesp(cqDTypep);
         }
-        const std::string name = "CommitQueue__" + vscp->varp()->shortName();
-        AstVarScope* const queueVscp = m_dlyTmps.make(flp, scopep, cqDTypep, name);
-        queueVscp->varp()->noReset(true);
+        ধ্রুৱ std::string name = "CommitQueue__" + vscp->varp()->shortName();
+        AstVarScope* ধ্রুৱ queueVscp = m_dlyTmps.make(flp, scopep, cqDTypep, name);
+        queueVscp->varp()->noReset(সঁচা);
         queueVscp->varp()->setIgnorePostWrite();
-        vscpInfo.valueQueueKit().vscp = queueVscp;
+        vscpInfo.মান_Queue_Kit().vscp = queueVscp;
         // Create the AstActive for the Post logic
-        AstActive* const activep
-            = new AstActive{flp, "nba-value-queue-whole", vscpInfo.senTreep()};
-        activep->senTreeStorep(vscpInfo.senTreep());
+        AstActive* ধ্রুৱ activep
+            = নূতন AstActive{flp, "nba-value-queue-whole", vscpInfo.senTreep()};
+        activep->sen_বৃক্ষ_Storep(vscpInfo.senTreep());
         scopep->addBlocksp(activep);
         // Add 'Post' scheduled process for the commit
-        AstAlwaysPost* const postp = new AstAlwaysPost{flp};
+        AstAlwaysPost* ধ্রুৱ postp = নূতন AstAlwaysPost{flp};
         activep->addStmtsp(postp);
         // Add the commit
-        AstCMethodHard* const callp = new AstCMethodHard{
-            flp, new AstVarRef{flp, queueVscp, VAccess::READWRITE}, VCMethod::NBA_COMMIT};
+        AstCMethodHard* ধ্রুৱ callp = নূতন AstCMethodHard{
+            flp, নূতন AstVarRef{flp, queueVscp, VAccess::READWRITE}, VCMethod::NBA_COMMIT};
         callp->dtypeSetVoid();
         // TODO: this is a partial update, so must be READWRITE, but that breaks scheduling
-        callp->addPinsp(new AstVarRef{flp, vscp, VAccess::WRITE});
+        callp->addPinsp(নূতন AstVarRef{flp, vscp, VAccess::WRITE});
         postp->addStmtsp(callp->makeStmt());
     }
 
-    void convertSchemeValueQueue(AstAssignDly* nodep, AstVarScope* vscp, VarScopeInfo& vscpInfo,
-                                 bool partial) {
-        UASSERT_OBJ(partial ? vscpInfo.m_scheme == Scheme::ValueQueuePartial
-                            : vscpInfo.m_scheme == Scheme::ValueQueueWhole,
+    শূন্য convert_Scheme_মান_Queue(AstAssignDly* nodep, AstVarScope* vscp, VarScopeInfo& vscpInfo,
+                                 তার্কিক partial) {
+        UASSERT_OBJ(partial ? vscpInfo.m_scheme == Scheme::মান_Queue_Partial
+                            : vscpInfo.m_scheme == Scheme::মান_Queue_Whole,
                     vscp, "Inconsistent NBA scheme");
-        FileLine* const flp = vscp->fileline();
-        AstScope* const scopep = VN_AS(nodep->user2p(), Scope);
+        File_সাৰি* ধ্রুৱ flp = vscp->fileline();
+        AstScope* ধ্রুৱ scopep = VN_AS(nodep->user2p(), Scope);
 
         // Base name suffix for signals constructed below
-        const std::string baseName = "__" + vscp->varp()->shortName();
+        ধ্রুৱ std::string baseName = "__" + vscp->varp()->shortName();
 
         // Unlink and capture the RHS value
-        AstNodeExpr* const capturedRhsp
+        Ast_গ্ৰন্থি_ৰাশিমালা* ধ্রুৱ capturedRhsp
             = captureVal(scopep, nodep, nodep->rhsp()->unlinkFrBack(), "Val" + baseName);
 
         // Unlink and capture the LHS reference
-        AstNodeExpr* const capturedLhsp
+        Ast_গ্ৰন্থি_ৰাশিমালা* ধ্রুৱ capturedLhsp
             = captureLhs(scopep, nodep, nodep->lhsp()->unlinkFrBack(), baseName);
 
         // RHS value (can be widened/masked iff Partial)
-        AstNodeExpr* valuep = capturedRhsp;
+        Ast_গ্ৰন্থি_ৰাশিমালা* valuep = capturedRhsp;
         // RHS mask (iff Partial)
-        AstNodeExpr* maskp = nullptr;
+        Ast_গ্ৰন্থি_ৰাশিমালা* maskp = nullptr;
 
         // Running node for LHS deconstruction
-        AstNodeExpr* lhsNodep = capturedLhsp;
+        Ast_গ্ৰন্থি_ৰাশিমালা* lhsNodep = capturedLhsp;
 
         // If partial updates are required, construct the mask and the widened value
-        if (partial) {
+        যদি (partial) {
             // Type of array element
-            AstNodeDType* const eDTypep = [&]() -> AstNodeDType* {
-                AstNodeDType* dtypep = vscp->dtypep()->skipRefp();
-                while (AstUnpackArrayDType* const ap = VN_CAST(dtypep, UnpackArrayDType)) {
+            Ast_গ্ৰন্থি_DType* ধ্রুৱ eDTypep = [&]() -> Ast_গ্ৰন্থি_DType* {
+                Ast_গ্ৰন্থি_DType* dtypep = vscp->dtypep()->skipRefp();
+                যেতিয়ালৈ (AstUnpackArrayDType* ধ্রুৱ ap = VN_CAST(dtypep, UnpackArrayDType)) {
                     dtypep = ap->subDTypep()->skipRefp();
                 }
-                return dtypep;
+                ঘূৰাই dtypep;
             }();
 
-            if (const AstSel* const lSelp = VN_CAST(lhsNodep, Sel)) {
+            যদি (ধ্রুৱ AstSel* ধ্রুৱ lSelp = VN_CAST(lhsNodep, Sel)) {
                 // This is a partial assignment.
                 // Need to create a mask and widen the value to element size.
                 lhsNodep = lSelp->fromp();
-                AstNodeExpr* const sLsbp = lSelp->lsbp();
-                const int sWidth = lSelp->widthConst();
+                Ast_গ্ৰন্থি_ৰাশিমালা* ধ্রুৱ sLsbp = lSelp->lsbp();
+                ধ্রুৱ পূর্ণাঙ্ক sWidth = lSelp->widthConst();
 
                 // Create mask value
-                maskp = [&]() -> AstNodeExpr* {
+                maskp = [&]() -> Ast_গ্ৰন্থি_ৰাশিমালা* {
                     // Constant mask we can compute here
-                    if (const AstConst* const cLsbp = VN_CAST(sLsbp, Const)) {
-                        AstConst* const cp = new AstConst{flp, AstConst::DTyped{}, eDTypep};
-                        cp->num().setMask(sWidth, cLsbp->toSInt());
-                        return cp;
+                    যদি (ধ্রুৱ AstConst* ধ্রুৱ cLsbp = VN_CAST(sLsbp, Const)) {
+                        AstConst* ধ্রুৱ cp = নূতন AstConst{flp, AstConst::DTyped{}, eDTypep};
+                        cp->অঙ্ক().setMask(sWidth, cLsbp->toSInt());
+                        ঘূৰাই cp;
                     }
 
                     // A non-constant mask we must compute at run-time.
-                    AstConst* const onesp = new AstConst{flp, AstConst::WidthedValue{}, sWidth, 0};
-                    onesp->num().setAllBits1();
-                    return createWidened(flp, scopep, eDTypep, sLsbp, sWidth, "Mask" + baseName,
+                    AstConst* ধ্রুৱ onesp = নূতন AstConst{flp, AstConst::Widthed_মান{}, sWidth, 0};
+                    onesp->অঙ্ক().setAllBits1();
+                    ঘূৰাই createWidened(flp, scopep, eDTypep, sLsbp, sWidth, "Mask" + baseName,
                                          onesp, nodep);
                 }();
 
                 // Adjust value to element size
-                valuep = [&]() -> AstNodeExpr* {
+                valuep = [&]() -> Ast_গ্ৰন্থি_ৰাশিমালা* {
                     // Constant value with constant select we can compute here
-                    if (AstConst* const cValuep = VN_CAST(valuep, Const)) {
-                        if (const AstConst* const cLsbp = VN_CAST(sLsbp, Const)) {
-                            AstConst* const cp = new AstConst{flp, AstConst::DTyped{}, eDTypep};
-                            cp->num().setAllBits0();
-                            cp->num().opSelInto(cValuep->num(), cLsbp->toSInt(), sWidth);
-                            VL_DO_DANGLING(valuep->deleteTree(), valuep);
-                            return cp;
+                    যদি (AstConst* ধ্রুৱ cValuep = VN_CAST(valuep, Const)) {
+                        যদি (ধ্রুৱ AstConst* ধ্রুৱ cLsbp = VN_CAST(sLsbp, Const)) {
+                            AstConst* ধ্রুৱ cp = নূতন AstConst{flp, AstConst::DTyped{}, eDTypep};
+                            cp->অঙ্ক().setAllBits0();
+                            cp->অঙ্ক().opSelInto(cValuep->অঙ্ক(), cLsbp->toSInt(), sWidth);
+                            VL_DO_DANGLING(valuep->delete_বৃক্ষ(), valuep);
+                            ঘূৰাই cp;
                         }
                     }
 
                     // A non-constant value we must adjust.
-                    return createWidened(flp, scopep, eDTypep, sLsbp, sWidth,  //
+                    ঘূৰাই createWidened(flp, scopep, eDTypep, sLsbp, sWidth,  //
                                          "Elem" + baseName, valuep, nodep);
                 }();
-            } else {
+            } অন্যথা {
                 // If this assignment is not partial, set mask to ones and we are done
-                AstConst* const ones = new AstConst{flp, AstConst::DTyped{}, eDTypep};
-                ones->num().setAllBits1();
+                AstConst* ধ্রুৱ ones = নূতন AstConst{flp, AstConst::DTyped{}, eDTypep};
+                ones->অঙ্ক().setAllBits1();
                 maskp = ones;
             }
         }
 
         // Extract array indices
-        std::vector<AstNodeExpr*> idxps;
+        std::vector<Ast_গ্ৰন্থি_ৰাশিমালা*> idxps;
         {
             UASSERT_OBJ(VN_IS(lhsNodep, ArraySel), lhsNodep, "Unexpected LHS form");
-            while (AstArraySel* const aSelp = VN_CAST(lhsNodep, ArraySel)) {
+            যেতিয়ালৈ (AstArraySel* ধ্রুৱ aSelp = VN_CAST(lhsNodep, ArraySel)) {
                 idxps.emplace_back(aSelp->bitp()->unlinkFrBack());
                 lhsNodep = aSelp->fromp();
             }
@@ -991,191 +991,191 @@ class DelayedVisitor final : public VNVisitor {
         }
 
         // Done with the LHS at this point
-        VL_DO_DANGLING(pushDeletep(capturedLhsp), capturedLhsp);
+        VL_DO_DANGLING(ঠেলো_Deletep(capturedLhsp), capturedLhsp);
 
         // Enqueue the update at the site of the original NBA
-        AstCMethodHard* const callp = new AstCMethodHard{
-            flp, new AstVarRef{flp, vscpInfo.valueQueueKit().vscp, VAccess::READWRITE},
+        AstCMethodHard* ধ্রুৱ callp = নূতন AstCMethodHard{
+            flp, নূতন AstVarRef{flp, vscpInfo.মান_Queue_Kit().vscp, VAccess::READWRITE},
             VCMethod::NBA_ENQUEUE};
         callp->dtypeSetVoid();
         callp->addPinsp(valuep);
-        if (partial) callp->addPinsp(maskp);
-        for (AstNodeExpr* const indexp : idxps) callp->addPinsp(indexp);
+        যদি (partial) callp->addPinsp(maskp);
+        বাবে (Ast_গ্ৰন্থি_ৰাশিমালা* ধ্রুৱ indexp : idxps) callp->addPinsp(indexp);
         nodep->addHereThisAsNext(callp->makeStmt());
 
         // Delete original NBA
-        VL_DO_DANGLING(pushDeletep(nodep->unlinkFrBack()), nodep);
+        VL_DO_DANGLING(ঠেলো_Deletep(nodep->unlinkFrBack()), nodep);
     }
 
     // Record where a variable is assigned
-    void recordWriteRef(AstVarRef* nodep, bool nonBlocking) {
+    শূন্য recordWriteRef(AstVarRef* nodep, তার্কিক nonBlocking) {
         // Ignore references in certain contexts
-        if (m_ignoreBlkAndNBlk) return;
+        যদি (m_ignoreBlkAndNBlk) ঘূৰাই;
         // Ignore if it's an array
         // TODO: we do this because it used to be the previous behaviour.
         //       Is it still required, or should we warn for arrays as well?
         //       Scheduling is no different for them...
         //       Clarification: This is OK for arrays of primitive types, but
         //       arrays that use the ShadowVar scheme don't work...
-        if (VN_IS(nodep->varScopep()->dtypep()->skipRefp(), UnpackArrayDType)) return;
+        যদি (VN_IS(nodep->varScopep()->dtypep()->skipRefp(), UnpackArrayDType)) ঘূৰাই;
 
         m_writeRefs(nodep->varScopep()).emplace_back(nodep, nonBlocking, m_inNonCombLogic);
     }
 
     template <typename Procedure_T>
-    static bool isProcedureWithSentreep(const AstNodeProcedure* const nodep) {
-        const Procedure_T* const procedurep = AstNode::cast<Procedure_T>(nodep);
-        return procedurep && procedurep->sentreep();
+    স্থির তার্কিক isProcedureWithSentreep(ধ্রুৱ Ast_গ্ৰন্থি_Procedure* ধ্রুৱ nodep) {
+        ধ্রুৱ Procedure_T* ধ্রুৱ procedurep = Ast_গ্ৰন্থি::cast<Procedure_T>(nodep);
+        ঘূৰাই procedurep && procedurep->sentreep();
     }
 
     // Visit AstCFunc from a AstNodeCCall - this is made into a separate quasi-visitor because
     // AstCFunc that is not called from the code (e.g.: DPI exports) does not need to be visited
     // this way. Also, not visiting such AstCFuncs allows to avoid caching results for them which
     // this function does - which could lead to excessive memory usage
-    void visitCalledCFunc(AstCFunc* const nodep) {
-        CFuncCache& value = m_cfuncsCache(nodep);
-        switch (value.m_state) {
-        case CFuncCache::UNINITIALIZED: {
+    শূন্য visitCalledCFunc(AstCFunc* ধ্রুৱ nodep) {
+        CFuncCache& মান = m_cfuncsCache(nodep);
+        ৱিকল্প (মান.m_state) {
+        পক্ষ CFuncCache::UNINITIALIZED: {
             // Save current state
             VL_RESTORER_CLEAR(m_timingDomains);
 
             // Visit
-            value.m_state = CFuncCache::VISITING;
-            m_callStack.push_back(nodep);
+            মান.m_state = CFuncCache::VISITING;
+            m_call_স্তূপ.ঠেলো_back(nodep);
             {
                 VL_RESTORER(m_cfuncp);
                 m_cfuncp = nodep;
                 iterateChildren(nodep);
             }
-            m_callStack.pop_back();
-            value.m_state = CFuncCache::INITIALIZED;
+            m_call_স্তূপ.বেৰ_কৰো_back();
+            মান.m_state = CFuncCache::INITIALIZED;
 
             // Save a cache
-            std::swap(m_timingDomains, value.m_timingDomains);
-        } break;
-        case CFuncCache::VISITING: {
-            for (size_t i = m_callStack.size() - 1; m_callStack.at(i) != nodep; --i) {
-                m_cfuncsCache(m_callStack[i]).m_includes.insert(nodep);
+            std::swap(m_timingDomains, মান.m_timingDomains);
+        } ভঙ্গ;
+        পক্ষ CFuncCache::VISITING: {
+            বাবে (size_t i = m_call_স্তূপ.size() - 1; m_call_স্তূপ.at(i) != nodep; --i) {
+                m_cfuncsCache(m_call_স্তূপ[i]).m_includes.ঢোকাও(nodep);
             }
-            return;  // Break recursion
+            ঘূৰাই;  // Break recursion
         }
-        case CFuncCache::INITIALIZED: break;
+        পক্ষ CFuncCache::INITIALIZED: ভঙ্গ;
         }
-        std::unordered_set<const AstCFunc*> visited;
-        addCFuncCachedValues(nodep, visited);
+        std::unordered_set<ধ্রুৱ AstCFunc*> visited;
+        add_CFunc_Cached_মানসমূহ(nodep, visited);
     }
 
     // VISITORS
-    void visit(AstNetlist* nodep) override {
+    শূন্য visit(AstNetlist* nodep) override {
         iterateChildren(nodep);
         // Decide which scheme to use for each variable and do the 'prepare' step
-        for (AstVarScope* const vscp : m_vscps) {
+        বাবে (AstVarScope* ধ্রুৱ vscp : m_vscps) {
             VarScopeInfo& vscpInfo = m_vscpInfo(vscp);
             vscpInfo.m_scheme = chooseScheme(vscp, vscpInfo);
             // Run 'prepare' step
-            switch (vscpInfo.m_scheme) {
-            case Scheme::Undecided:  // LCOV_EXCL_START
-                UASSERT_OBJ(false, vscp, "Failed to choose NBA scheme");
-                break;  // LCOV_EXCL_STOP
-            case Scheme::UnsupportedCompoundArrayInLoop: {
+            ৱিকল্প (vscpInfo.m_scheme) {
+            পক্ষ Scheme::Undecided:  // LCOV_EXCL_START
+                UASSERT_OBJ(মিছা, vscp, "Failed to choose NBA scheme");
+                ভঙ্গ;  // LCOV_EXCL_STOP
+            পক্ষ Scheme::UnsupportedCompoundArrayInLoop: {
                 // Will report error at the site of the NBA
-                break;
+                ভঙ্গ;
             }
-            case Scheme::ShadowVar: {
+            পক্ষ Scheme::ShadowVar: {
                 ++m_nSchemeShadowVar;
                 prepareSchemeShadowVar(vscp, vscpInfo);
-                break;
+                ভঙ্গ;
             }
-            case Scheme::ShadowVarMasked: {
+            পক্ষ Scheme::ShadowVarMasked: {
                 ++m_nSchemeShadowVarMasked;
                 prepareSchemeShadowVarMasked(vscp, vscpInfo);
-                break;
+                ভঙ্গ;
             }
-            case Scheme::FlagShared: {
+            পক্ষ Scheme::FlagShared: {
                 ++m_nSchemeFlagShared;
                 prepareSchemeFlagShared(vscp, vscpInfo);
-                break;
+                ভঙ্গ;
             }
-            case Scheme::FlagUnique: {
+            পক্ষ Scheme::FlagUnique: {
                 ++m_nSchemeFlagUnique;
                 prepareSchemeFlagUnique(vscp, vscpInfo);
-                break;
+                ভঙ্গ;
             }
-            case Scheme::ValueQueueWhole: {
-                ++m_nSchemeValueQueuesWhole;
-                prepareSchemeValueQueue</* Partial: */ false>(vscp, vscpInfo);
-                break;
+            পক্ষ Scheme::মান_Queue_Whole: {
+                ++m_n_Scheme_মান_Queues_Whole;
+                prepare_Scheme_মান_Queue</* Partial: */ মিছা>(vscp, vscpInfo);
+                ভঙ্গ;
             }
-            case Scheme::ValueQueuePartial: {
-                ++m_nSchemeValueQueuesPartial;
-                prepareSchemeValueQueue</* Partial: */ true>(vscp, vscpInfo);
-                break;
+            পক্ষ Scheme::মান_Queue_Partial: {
+                ++m_n_Scheme_মান_Queues_Partial;
+                prepare_Scheme_মান_Queue</* Partial: */ সঁচা>(vscp, vscpInfo);
+                ভঙ্গ;
             }
             }
         }
         // Convert all NBAs
-        for (const NBA& nba : m_nbas) {
-            AstAssignDly* const nbap = nba.nodep;
-            AstVarScope* const vscp = nba.vscp;
+        বাবে (ধ্রুৱ NBA& nba : m_nbas) {
+            AstAssignDly* ধ্রুৱ nbap = nba.nodep;
+            AstVarScope* ধ্রুৱ vscp = nba.vscp;
             VarScopeInfo& vscpInfo = m_vscpInfo(vscp);
             // Run 'convert' step
-            switch (vscpInfo.m_scheme) {
-            case Scheme::Undecided: {  // LCOV_EXCL_START
-                UASSERT_OBJ(false, vscp, "Unreachable");
-                break;
+            ৱিকল্প (vscpInfo.m_scheme) {
+            পক্ষ Scheme::Undecided: {  // LCOV_EXCL_START
+                UASSERT_OBJ(মিছা, vscp, "Unreachable");
+                ভঙ্গ;
             }  // LCOV_EXCL_STOP
-            case Scheme::UnsupportedCompoundArrayInLoop: {
+            পক্ষ Scheme::UnsupportedCompoundArrayInLoop: {
                 // TODO: make this an E_UNSUPPORTED...
                 nbap->v3warn(BLKLOOPINIT, "Unsupported: Non-blocking assignment to array with "
                                           "compound element type inside loop");
-                break;
+                ভঙ্গ;
             }
-            case Scheme::ShadowVar: {
+            পক্ষ Scheme::ShadowVar: {
                 convertSchemeShadowVar(nbap, vscp, vscpInfo);
-                break;
+                ভঙ্গ;
             }
-            case Scheme::ShadowVarMasked: {
+            পক্ষ Scheme::ShadowVarMasked: {
                 convertSchemeShadowVarMasked(nbap, vscp, vscpInfo);
-                break;
+                ভঙ্গ;
             }
-            case Scheme::FlagShared: {
+            পক্ষ Scheme::FlagShared: {
                 convertSchemeFlagShared(nbap, vscp, vscpInfo);
-                break;
+                ভঙ্গ;
             }
-            case Scheme::FlagUnique: {
+            পক্ষ Scheme::FlagUnique: {
                 convertSchemeFlagUnique(nbap, vscp, vscpInfo);
-                break;
+                ভঙ্গ;
             }
-            case Scheme::ValueQueueWhole: {
-                convertSchemeValueQueue(nbap, vscp, vscpInfo, /* partial: */ false);
-                break;
+            পক্ষ Scheme::মান_Queue_Whole: {
+                convert_Scheme_মান_Queue(nbap, vscp, vscpInfo, /* partial: */ মিছা);
+                ভঙ্গ;
             }
-            case Scheme::ValueQueuePartial:
-                convertSchemeValueQueue(nbap, vscp, vscpInfo, /* partial: */ true);
-                break;
+            পক্ষ Scheme::মান_Queue_Partial:
+                convert_Scheme_মান_Queue(nbap, vscp, vscpInfo, /* partial: */ সঁচা);
+                ভঙ্গ;
             }
         }
     }
-    void visit(AstScope* nodep) override {
+    শূন্য visit(AstScope* nodep) override {
         VL_RESTORER(m_scopep);
         m_scopep = nodep;
         iterateChildren(nodep);
     }
-    void visit(AstActive* nodep) override {
+    শূন্য visit(AstActive* nodep) override {
         UASSERT_OBJ(!m_activep, nodep, "Should not nest");
         VL_RESTORER(m_activep);
         VL_RESTORER(m_ignoreBlkAndNBlk);
         VL_RESTORER(m_inNonCombLogic);
         m_activep = nodep;
-        const AstSenTree* const senTreep = nodep->sentreep();
+        ধ্রুৱ Ast_Sen_বৃক্ষ* ধ্রুৱ senTreep = nodep->sentreep();
         m_ignoreBlkAndNBlk = senTreep->hasStatic() || senTreep->hasInitial();
         m_inNonCombLogic = senTreep->hasClocked();
         iterateChildren(nodep);
     }
-    void visit(AstNodeProcedure* nodep) override {
+    শূন্য visit(Ast_গ্ৰন্থি_Procedure* nodep) override {
         VL_RESTORER(m_needsInitialTrigger);
         VL_RESTORER_CLEAR(m_nbaEventSenTreeps);
-        const size_t firstNBAAddedIndex = m_nbas.size();
+        ধ্রুৱ size_t firstNBAAddedIndex = m_nbas.size();
         {
             VL_RESTORER(m_inSuspendableOrFork);
             VL_RESTORER(m_procp);
@@ -1185,25 +1185,25 @@ class DelayedVisitor final : public VNVisitor {
             // treat it as suspendable when we meet a NBA
             m_inSuspendableOrFork = nodep->isSuspendable() || VN_IS(nodep, Initial);
             m_procp = nodep;
-            if (nodep->isSuspendable()) {
-                m_ignoreBlkAndNBlk = false;
-                m_inNonCombLogic = true;
+            যদি (nodep->isSuspendable()) {
+                m_ignoreBlkAndNBlk = মিছা;
+                m_inNonCombLogic = সঁচা;
             }
             iterateChildren(nodep);
         }
-        auto containsClocled = [](const AstSenItem* itemp) {
-            while (itemp) {
-                if (itemp->edgeType().clockedStmt()) return true;
+        auto containsClocled = [](ধ্রুৱ AstSenItem* itemp) {
+            যেতিয়ালৈ (itemp) {
+                যদি (itemp->edgeType().clockedStmt()) ঘূৰাই সঁচা;
                 itemp = VN_AS(itemp->nextp(), SenItem);
             }
-            return false;
+            ঘূৰাই মিছা;
         };
-        const bool addInitialTrigger = m_needsInitialTrigger
+        ধ্রুৱ তার্কিক addInitialTrigger = m_needsInitialTrigger
                                        && !(isProcedureWithSentreep<AstAlways>(nodep)
                                             || isProcedureWithSentreep<AstAlwaysObserved>(nodep)
                                             || isProcedureWithSentreep<AstAlwaysReactive>(nodep))
                                        && !containsClocled(m_activep->sentreep()->sensesp());
-        if (m_timingDomains.empty() && !addInitialTrigger) return;
+        যদি (m_timingDomains.empty() && !addInitialTrigger) ঘূৰাই;
 
         // There were some timing domains involved in the process. Add all of them as sensitivities
         // of all NBA targets in this process. Note this is a bit of a sledgehammer, we should only
@@ -1212,112 +1212,112 @@ class DelayedVisitor final : public VNVisitor {
 
         // First gather all senItems
         AstSenItem* senItemp = nullptr;
-        if (addInitialTrigger) {
-            senItemp = new AstSenItem{nodep->fileline(), AstSenItem::InitialNBA{}};
+        যদি (addInitialTrigger) {
+            senItemp = নূতন AstSenItem{nodep->fileline(), AstSenItem::InitialNBA{}};
             ++m_nInitialNBA;
         }
 
-        for (const AstSenTree* const domainp : m_timingDomains) {
-            if (domainp->sensesp())
-                senItemp = AstNode::addNext(senItemp, domainp->sensesp()->cloneTree(true));
+        বাবে (ধ্রুৱ Ast_Sen_বৃক্ষ* ধ্রুৱ domainp : m_timingDomains) {
+            যদি (domainp->sensesp())
+                senItemp = Ast_গ্ৰন্থি::addNext(senItemp, domainp->sensesp()->clone_বৃক্ষ(সঁচা));
         }
         m_timingDomains.clear();
         // Add them to all nba targets we gathered in this process
-        for (size_t i = firstNBAAddedIndex; i < m_nbas.size(); ++i) {
+        বাবে (size_t i = firstNBAAddedIndex; i < m_nbas.size(); ++i) {
             m_vscpInfo(m_nbas[i].vscp).addSensitivity(senItemp);
         }
-        for (AstSenTree* const senTreep : m_nbaEventSenTreeps)
-            senTreep->addSensesp(senItemp->cloneTree(true));
+        বাবে (Ast_Sen_বৃক্ষ* ধ্রুৱ senTreep : m_nbaEventSenTreeps)
+            senTreep->addSensesp(senItemp->clone_বৃক্ষ(সঁচা));
         // Done with these
-        VL_DO_DANGLING(senItemp->deleteTree(), senItemp);
+        VL_DO_DANGLING(senItemp->delete_বৃক্ষ(), senItemp);
     }
-    void visit(AstFork* nodep) override {
+    শূন্য visit(AstFork* nodep) override {
         VL_RESTORER(m_inSuspendableOrFork);
-        m_inSuspendableOrFork = true;
+        m_inSuspendableOrFork = সঁচা;
         iterateChildren(nodep);
     }
-    void visit(AstCAwait* nodep) override {
-        if (nodep->sentreep()) m_timingDomains.insert(nodep->sentreep());
+    শূন্য visit(AstCAwait* nodep) override {
+        যদি (nodep->sentreep()) m_timingDomains.ঢোকাও(nodep->sentreep());
         iterateChildren(nodep);
     }
-    void visit(AstFireEvent* nodep) override {
+    শূন্য visit(AstFireEvent* nodep) override {
         UASSERT_OBJ(v3Global.hasEvents(), nodep, "Inconsistent");
-        FileLine* const flp = nodep->fileline();
+        File_সাৰি* ধ্রুৱ flp = nodep->fileline();
 
-        AstNodeExpr* const eventp = nodep->operandp()->unlinkFrBack();
+        Ast_গ্ৰন্থি_ৰাশিমালা* ধ্রুৱ eventp = nodep->operandp()->unlinkFrBack();
 
         // Enqueue for clearing 'triggered' state on next eval
-        AstCStmt* const cstmtp = new AstCStmt{flp};
+        AstCStmt* ধ্রুৱ cstmtp = নূতন AstCStmt{flp};
         cstmtp->add("vlSymsp->fireEvent(");
         cstmtp->add(eventp);
         cstmtp->add(");");
 
-        AstNode* newp = cstmtp;
-        const AstVarRef* const vrefp = VN_CAST(eventp, VarRef);
-        if (nodep->isDelayed() && (m_cfuncp || !vrefp)) {
+        Ast_গ্ৰন্থি* newp = cstmtp;
+        ধ্রুৱ AstVarRef* ধ্রুৱ vrefp = VN_CAST(eventp, VarRef);
+        যদি (nodep->isDelayed() && (m_cfuncp || !vrefp)) {
             // V3Timing converts these with --timing
             nodep->v3warn(E_NOTIMING, "Nonblocking event trigger "
                                           << (m_cfuncp ? "in a non-inlined function/task"
                                                        : "of a class or interface member or "
                                                          "array element")
                                           << " requires --timing");
-        } else if (nodep->isDelayed()) {
-            const std::string newvarname = "_" + vrefp->varp()->shortName();
-            AstVarScope* const dlyvscp
+        } অন্যথা যদি (nodep->isDelayed()) {
+            ধ্রুৱ std::string newvarname = "_" + vrefp->varp()->shortName();
+            AstVarScope* ধ্রুৱ dlyvscp
                 = m_dlyTmps.make(flp, vrefp->varScopep()->scopep(), 1, newvarname);
 
-            const auto dlyRef = [=](VAccess access) {  //
-                return new AstVarRef{flp, dlyvscp, access};
+            ধ্রুৱ auto dlyRef = [=](VAccess access) {  //
+                ঘূৰাই নূতন AstVarRef{flp, dlyvscp, access};
             };
 
-            AstAlwaysPost* const postp = new AstAlwaysPost{flp};
-            AstIf* const ifp = new AstIf{flp, dlyRef(VAccess::READ)};
+            AstAlwaysPost* ধ্রুৱ postp = নূতন AstAlwaysPost{flp};
+            AstIf* ধ্রুৱ ifp = নূতন AstIf{flp, dlyRef(VAccess::READ)};
             postp->addStmtsp(ifp);
 
             UASSERT_OBJ(m_activep, nodep, "No active to handle FireEvent");
-            AstSenTree* senTreep = m_activep->sentreep();
+            Ast_Sen_বৃক্ষ* senTreep = m_activep->sentreep();
             AstActive* activep = nullptr;
-            if (m_inSuspendableOrFork && (senTreep->hasInitial() || senTreep->hasClocked())) {
+            যদি (m_inSuspendableOrFork && (senTreep->hasInitial() || senTreep->hasClocked())) {
                 // Suspendable code can trigger whenever it resumes, so fire when its NBAs are
                 // committed (see visit(AstNodeProcedure*)), clearing the flag like
                 // Scheme::FlagUnique
-                senTreep = new AstSenTree{
-                    flp, senTreep->hasClocked() ? senTreep->sensesp()->cloneTree(true) : nullptr};
-                m_nbaEventSenTreeps.push_back(senTreep);
+                senTreep = নূতন Ast_Sen_বৃক্ষ{
+                    flp, senTreep->hasClocked() ? senTreep->sensesp()->clone_বৃক্ষ(সঁচা) : nullptr};
+                m_nbaEventSenTreeps.ঠেলো_back(senTreep);
                 m_needsInitialTrigger |= m_timingDomains.empty();
                 dlyvscp->varp()->setIgnorePostWrite();
-                ifp->addThensp(new AstAssign{flp, dlyRef(VAccess::WRITE),
-                                             new AstConst{flp, AstConst::BitFalse{}}});
-                activep = new AstActive{flp, "nba-event", senTreep};
-                activep->senTreeStorep(senTreep);
-            } else {
-                activep = new AstActive{flp, "nba-event", senTreep};
-                AstAlwaysPre* const prep = new AstAlwaysPre{flp};
-                prep->addStmtsp(new AstAssign{flp, dlyRef(VAccess::WRITE),
-                                              new AstConst{flp, AstConst::BitFalse{}}});
+                ifp->addThensp(নূতন AstAssign{flp, dlyRef(VAccess::WRITE),
+                                             নূতন AstConst{flp, AstConst::BitFalse{}}});
+                activep = নূতন AstActive{flp, "nba-event", senTreep};
+                activep->sen_বৃক্ষ_Storep(senTreep);
+            } অন্যথা {
+                activep = নূতন AstActive{flp, "nba-event", senTreep};
+                AstAlwaysPre* ধ্রুৱ prep = নূতন AstAlwaysPre{flp};
+                prep->addStmtsp(নূতন AstAssign{flp, dlyRef(VAccess::WRITE),
+                                              নূতন AstConst{flp, AstConst::BitFalse{}}});
                 activep->addStmtsp(prep);
             }
             ifp->addThensp(newp);
             m_activep->addNextHere(activep);
             activep->addStmtsp(postp);
 
-            newp = new AstAssign{flp, dlyRef(VAccess::WRITE),
-                                 new AstConst{flp, AstConst::BitTrue{}}};
+            newp = নূতন AstAssign{flp, dlyRef(VAccess::WRITE),
+                                 নূতন AstConst{flp, AstConst::BitTrue{}}};
         }
         nodep->replaceWith(newp);
-        VL_DO_DANGLING(nodep->deleteTree(), nodep);
+        VL_DO_DANGLING(nodep->delete_বৃক্ষ(), nodep);
     }
-    void visit(AstAssignDly* nodep) override {
+    শূন্য visit(AstAssignDly* nodep) override {
         // Prevent double processing due to AstExprStmt being moved before this node
-        if (nodep->user1SetOnce()) return;
+        যদি (nodep->user1SetOnce()) ঘূৰাই;
 
-        if (m_cfuncp) {
-            if (!v3Global.rootp()->nbaEventp()) {
+        যদি (m_cfuncp) {
+            যদি (!v3Global.rootp()->nbaEventp()) {
                 nodep->v3warn(
                     E_NOTIMING,
                     "Delayed assignment in a non-inlined function/task requires --timing");
             }
-            return;
+            ঘূৰাই;
         }
         UASSERT_OBJ(m_procp, nodep, "Delayed assignment not under process");
         UASSERT_OBJ(m_activep, nodep, "<= not under sensitivity block");
@@ -1333,18 +1333,18 @@ class DelayedVisitor final : public VNVisitor {
         // Grab the reference to the target of the NBA, also lift ExprStmt statements on the LHS
         VL_RESTORER(m_currNbaLhsRefp);
         UASSERT_OBJ(!m_currNbaLhsRefp, nodep, "NBAs should not nest");
-        nodep->lhsp()->foreach([&](AstNode* currp) {
+        nodep->lhsp()->foreach([&](Ast_গ্ৰন্থি* currp) {
             // cppcheck-suppress constVariablePointer
-            if (AstExprStmt* const exprp = VN_CAST(currp, ExprStmt)) {
+            যদি (Ast_ৰাশিমালা_Stmt* ধ্রুৱ exprp = VN_CAST(currp, ৰাশিমালা_Stmt)) {
                 // Move statements before the NBA
                 nodep->addHereThisAsNext(exprp->stmtsp()->unlinkFrBackWithNext());
                 // Replace with result
                 currp->replaceWith(exprp->resultp()->unlinkFrBack());
                 // Get rid of the AstExprStmt
-                VL_DO_DANGLING2(pushDeletep(currp), currp, exprp);
-            } else if (AstVarRef* const refp = VN_CAST(currp, VarRef)) {
+                VL_DO_DANGLING2(ঠেলো_Deletep(currp), currp, exprp);
+            } অন্যথা যদি (AstVarRef* ধ্রুৱ refp = VN_CAST(currp, VarRef)) {
                 // Ignore reads (e.g.: '_[*here*] <= _')
-                if (refp->access().isReadOnly()) return;
+                যদি (refp->access().isReadOnly()) ঘূৰাই;
                 // A RW ref on the LHS (e.g.: '_[preInc(*here*)] <= _') is asking for trouble at
                 // this point. These should be lowered in an earlier pass into sequenced
                 // temporaries.
@@ -1358,10 +1358,10 @@ class DelayedVisitor final : public VNVisitor {
             }
         });
         // The target variable of the NBA (there can only be one per NBA at this point)
-        AstVarScope* const vscp = m_currNbaLhsRefp->varScopep();
+        AstVarScope* ধ্রুৱ vscp = m_currNbaLhsRefp->varScopep();
         // Record it on first encounter
         VarScopeInfo& vscpInfo = m_vscpInfo(vscp);
-        if (!vscpInfo.m_firstNbaRefp) {
+        যদি (!vscpInfo.m_firstNbaRefp) {
             vscpInfo.m_firstNbaRefp = m_currNbaLhsRefp;
             vscpInfo.m_fistActivep = m_activep;
             m_vscps.emplace_back(vscp);
@@ -1372,10 +1372,10 @@ class DelayedVisitor final : public VNVisitor {
         vscpInfo.m_inLoop |= m_inLoop;
         vscpInfo.m_inSuspOrFork |= m_inSuspendableOrFork;
         // Sensitivity might be non-clocked, in a suspendable process, which are handled elsewhere
-        if (m_activep->sentreep()->hasClocked()) {
-            if (vscpInfo.m_fistActivep != m_activep) {
-                AstVar* const varp = vscp->varp();
-                if (!varp->user1SetOnce()
+        যদি (m_activep->sentreep()->hasClocked()) {
+            যদি (vscpInfo.m_fistActivep != m_activep) {
+                AstVar* ধ্রুৱ varp = vscp->varp();
+                যদি (!varp->user1SetOnce()
                     && !varp->fileline()->warnIsOff(V3ErrorCode::MULTIDRIVEN)) {
                     varp->v3warn(MULTIDRIVEN,
                                  "Signal has multiple driving blocks with different clocking: "
@@ -1399,37 +1399,37 @@ class DelayedVisitor final : public VNVisitor {
         nba.vscp = vscp;
 
         // Record write reference
-        recordWriteRef(m_currNbaLhsRefp, true);
+        recordWriteRef(m_currNbaLhsRefp, সঁচা);
 
         iterateChildren(nodep);
     }
-    void visit(AstVarRef* nodep) override {
+    শূন্য visit(AstVarRef* nodep) override {
         // Already checked the NBA LHS ref, ignore here
-        if (nodep == m_currNbaLhsRefp) return;
+        যদি (nodep == m_currNbaLhsRefp) ঘূৰাই;
         // Only care about write refs
-        if (!nodep->access().isWriteOrRW()) return;
+        যদি (!nodep->access().isWriteOrRW()) ঘূৰাই;
         // Record write reference
-        recordWriteRef(nodep, false);
+        recordWriteRef(nodep, মিছা);
     }
-    void visit(AstLoop* nodep) override {
+    শূন্য visit(AstLoop* nodep) override {
         VL_RESTORER(m_inLoop);
-        m_inLoop = true;
+        m_inLoop = সঁচা;
         iterateChildren(nodep);
     }
-    void visit(AstNodeCCall* const nodep) override {
+    শূন্য visit(Ast_গ্ৰন্থি_CCall* ধ্রুৱ nodep) override {
         iterateChildren(nodep);
         // We need to visit bodies of non-inlined functions
-        const auto& cfuncps = m_classGraphp->getCallPossibleCFuncs(nodep);
-        if (cfuncps.empty()) {
+        ধ্রুৱ auto& cfuncps = m_classGraphp->getCallPossibleCFuncs(nodep);
+        যদি (cfuncps.empty()) {
             visitCalledCFunc(nodep->funcp());
-        } else {
-            for (AstCFunc* const cfuncp : cfuncps) visitCalledCFunc(cfuncp);
+        } অন্যথা {
+            বাবে (AstCFunc* ধ্রুৱ cfuncp : cfuncps) visitCalledCFunc(cfuncp);
         }
     }
-    void visit(AstCFunc* const nodep) override {
-        const auto& value = m_cfuncsCache(nodep);
+    শূন্য visit(AstCFunc* ধ্রুৱ nodep) override {
+        ধ্রুৱ auto& মান = m_cfuncsCache(nodep);
         // Check whether it was already visited by visitCalledCFunc()
-        if (value.m_state != CFuncCache::UNINITIALIZED) return;
+        যদি (মান.m_state != CFuncCache::UNINITIALIZED) ঘূৰাই;
         VL_RESTORER(m_cfuncp);
         // Its timing domains are those of the processes calling it, see visitCalledCFunc()
         VL_RESTORER_CLEAR(m_timingDomains);
@@ -1438,13 +1438,13 @@ class DelayedVisitor final : public VNVisitor {
     }
 
     // Pre/Post logic are created here and their content need no further changes, so ignore.
-    void visit(AstAlwaysPre*) override {}
-    void visit(AstAlwaysPost*) override {}
+    শূন্য visit(AstAlwaysPre*) override {}
+    শূন্য visit(AstAlwaysPost*) override {}
 
     //--------------------
-    void visit(AstNode* nodep) override { iterateChildren(nodep); }
+    শূন্য visit(Ast_গ্ৰন্থি* nodep) override { iterateChildren(nodep); }
 
-public:
+সার্ৱজনিক:
     // CONSTRUCTORS
     explicit DelayedVisitor(AstNetlist* nodep)
         : m_classGraphp{V3ClassGraph::build(nodep)} {
@@ -1455,20 +1455,20 @@ public:
         V3Stats::addStat("NBA, variables using ShadowVarMasked scheme", m_nSchemeShadowVarMasked);
         V3Stats::addStat("NBA, variables using FlagShared scheme", m_nSchemeFlagShared);
         V3Stats::addStat("NBA, variables using FlagUnique scheme", m_nSchemeFlagUnique);
-        V3Stats::addStat("NBA, variables using ValueQueueWhole scheme", m_nSchemeValueQueuesWhole);
+        V3Stats::addStat("NBA, variables using ValueQueueWhole scheme", m_n_Scheme_মান_Queues_Whole);
         V3Stats::addStat("NBA, variables using ValueQueuePartial scheme",
-                         m_nSchemeValueQueuesPartial);
+                         m_n_Scheme_মান_Queues_Partial);
         V3Stats::addStat("Optimizations, NBA flags shared", m_nSharedSetFlags);
         V3Stats::addStat("Procedures needing initial NBA trigger", m_nInitialNBA);
-        V3Stats::addStat("Non-inlined co_awaits with SenTree", m_nonInlinedCAwaitsWithSenTree);
+        V3Stats::addStat("Non-inlined co_awaits with SenTree", m_non_Inlined_CAwaits_With_Sen_বৃক্ষ);
     }
 };
 
 //######################################################################
 // Delayed class functions
 
-void V3Delayed::delayedAll(AstNetlist* nodep) {
+শূন্য V3Delayed::delayedAll(AstNetlist* nodep) {
     UINFO(2, __FUNCTION__ << ":");
     { DelayedVisitor{nodep}; }  // Destruct before checking
-    V3Global::dumpCheckGlobalTree("delayed", 0, dumpTreeEitherLevel() >= 3);
+    V3Global::dump_Check_Global_বৃক্ষ("delayed", 0, dump_বৃক্ষ_Either_Level() >= 3);
 }

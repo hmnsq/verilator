@@ -20,42 +20,42 @@
 
 #ifndef VERILATOR_V3DUPFINDER_H_
 #define VERILATOR_V3DUPFINDER_H_
-#include "config_build.h"
-#include "verilatedos.h"
+#অন্তর্ভাৱ "config_build.h"
+#অন্তর্ভাৱ "verilatedos.h"
 
-#include "V3Ast.h"
-#include "V3Error.h"
-#include "V3Hasher.h"
+#অন্তর্ভাৱ "V3Ast.h"
+#অন্তর্ভাৱ "V3Error.h"
+#অন্তর্ভাৱ "V3Hasher.h"
 
-#include <map>
-#include <memory>
+#অন্তর্ভাৱ <map>
+#অন্তর্ভাৱ <memory>
 
 //============================================================================
 
-struct V3DupFinderUserSame VL_NOT_FINAL {
+সংরচনা V3DupFinderUserSame VL_NOT_FINAL {
     // Functor for V3DupFinder::findDuplicate
-    virtual bool isSame(AstNode*, AstNode*) = 0;
-    V3DupFinderUserSame() = default;
-    virtual ~V3DupFinderUserSame() = default;
+    আভাস bool isSame(Ast_গ্ৰন্থি*, Ast_গ্ৰন্থি*) = 0;
+    V3DupFinderUserSame() = স্ৱভাৱ;
+    আভাস ~V3DupFinderUserSame() = স্ৱভাৱ;
 };
 
 // This really is just a multimap from 'node hash' to 'node pointer', with some minor extensions.
-class V3DupFinder final : private std::multimap<V3Hash, AstNode*> {
-    using Super = std::multimap<V3Hash, AstNode*>;
+class V3DupFinder final : গুপ্ত std::multimap<V3Hash, Ast_গ্ৰন্থি*> {
+    using Super = std::multimap<V3Hash, Ast_গ্ৰন্থি*>;
 
     // MEMBERS
-    const V3Hasher* const m_hasherOwnedp = nullptr;  // Pointer to owned hasher
-    const V3Hasher& m_hasher;  // Reference to hasher
+    ধ্রুৱ V3Hasher* ধ্রুৱ m_hasherOwnedp = nullptr;  // Pointer to owned hasher
+    ধ্রুৱ V3Hasher& m_hasher;  // Reference to hasher
 
-public:
+সার্ৱজনিক:
     // CONSTRUCTORS
     V3DupFinder()
         : m_hasherOwnedp{new V3Hasher}
         , m_hasher{*m_hasherOwnedp} {}
-    explicit V3DupFinder(const V3Hasher& hasher)
+    explicit V3DupFinder(ধ্রুৱ V3Hasher& hasher)
         : m_hasher{hasher} {}
     ~V3DupFinder() {
-        if (m_hasherOwnedp) delete m_hasherOwnedp;
+        যদি (m_hasherOwnedp) delete m_hasherOwnedp;
     }
 
     // METHODS
@@ -73,17 +73,17 @@ public:
     using Super::size_type;
 
     // Insert node into data structure
-    iterator insert(AstNode* nodep) { return emplace(m_hasher(nodep), nodep); }
+    iterator ঢোকাও(Ast_গ্ৰন্থি* nodep) { ঘূৰাই emplace(m_hasher(nodep), nodep); }
 
     // Erase node from data structure
-    size_type erase(AstNode* nodep) VL_MT_DISABLED;
+    size_type erase(Ast_গ্ৰন্থি* nodep) VL_MT_DISABLED;
 
     // Return duplicate, if one was inserted, with optional user check for sameness
-    iterator findDuplicate(AstNode* nodep, V3DupFinderUserSame* checkp = nullptr) VL_MT_DISABLED;
+    iterator findDuplicate(Ast_গ্ৰন্থি* nodep, V3DupFinderUserSame* checkp = nullptr) VL_MT_DISABLED;
 
     // Dump for debug
-    void dumpFile(const string& filename, bool tree) VL_MT_DISABLED;
-    void dumpFilePrefixed(const string& nameComment, bool tree = false) VL_MT_DISABLED;
+    শূন্য dumpFile(ধ্রুৱ string& filename, bool বৃক্ষ) VL_MT_DISABLED;
+    শূন্য dumpFilePrefixed(ধ্রুৱ string& nameComment, bool বৃক্ষ = false) VL_MT_DISABLED;
 };
 
 #endif  // Guard

@@ -84,229 +84,229 @@
 //      Added in a), used for b).
 //      Each de-parameterized module version has exactly one hier params file specified.
 
-#include "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
+#অন্তর্ভাৱ "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
 
-#include "V3HierBlock.h"
+#অন্তর্ভাৱ "V3HierBlock.h"
 
-#include "V3Control.h"
-#include "V3EmitV.h"
-#include "V3File.h"
-#include "V3Os.h"
-#include "V3Stats.h"
-#include "V3String.h"
+#অন্তর্ভাৱ "V3Control.h"
+#অন্তর্ভাৱ "V3EmitV.h"
+#অন্তর্ভাৱ "V3File.h"
+#অন্তর্ভাৱ "V3Os.h"
+#অন্তর্ভাৱ "V3Stats.h"
+#অন্তর্ভাৱ "V3String.h"
 
-#include <cctype>
-#include <memory>
-#include <sstream>
-#include <utility>
-#include <vector>
+#অন্তর্ভাৱ <cctype>
+#অন্তর্ভাৱ <memory>
+#অন্তর্ভাৱ <sstream>
+#অন্তর্ভাৱ <utility>
+#অন্তর্ভাৱ <vector>
 
 VL_DEFINE_DEBUG_FUNCTIONS;
 
-static string V3HierCommandArgsFilename(const string& prefix, bool forMkJson) {
-    return v3Global.opt.makeDir() + "/" + prefix
+স্থির string V3HierCommandArgsFilename(ধ্রুৱ string& prefix, তার্কিক forMkJson) {
+    ঘূৰাই v3Global.opt.makeDir() + "/" + prefix
            + (forMkJson ? "__hierMkJsonArgs.f" : "__hierMkArgs.f");
 }
 
-static string V3HierParametersFileName(const string& prefix) {
-    return v3Global.opt.makeDir() + "/" + prefix + "__hierParameters.v";
+স্থির string V3HierParametersFileName(ধ্রুৱ string& prefix) {
+    ঘূৰাই v3Global.opt.makeDir() + "/" + prefix + "__hierParameters.v";
 }
 
-static void V3HierWriteCommonInputs(const V3HierBlock* hblockp, std::ostream* of, bool forMkJson) {
-    const string topModuleFile = hblockp ? hblockp->vFileIfNecessary() : "";
-    if (!forMkJson) {
-        for (const string& filename : V3HierGraph::sourceFiles(topModuleFile))
+স্থির শূন্য V3HierWriteCommonInputs(ধ্রুৱ V3HierBlock* hblockp, std::ostream* of, তার্কিক forMkJson) {
+    ধ্রুৱ string শীৰ্ষ_Module_File = hblockp ? hblockp->vFileIfNecessary() : "";
+    যদি (!forMkJson) {
+        বাবে (ধ্রুৱ string& filename : V3HierGraph::sourceFiles(শীৰ্ষ_Module_File))
             *of << filename << "\n";
     }
-    for (const auto& i : v3Global.opt.libraryFiles()) {
-        if (V3Os::filenameRealPath(i.filename()) != topModuleFile)
+    বাবে (ধ্রুৱ auto& i : v3Global.opt.libraryFiles()) {
+        যদি (V3Os::filenameRealPath(i.filename()) != শীৰ্ষ_Module_File)
             *of << "-v " << i.filename() << "\n";
     }
 }
 
 //######################################################################
 
-bool V3HierBlock::stringParamPassable(const string& value) {
+তার্কিক V3HierBlock::stringParamPassable(ধ্রুৱ string& মান) {
     // stringifyParams writes string values in double quotes into the arguments file, which
     // V3Options::parseOptsFile reads by lines, removing '/*' comments, and '//' comments after
     // whitespace, before splitting the quoted arguments. AstConst::parseParamLiteral for -G,
     // and V3HierarchicalBlockOption, then end each value at the next double quote.
-    if (value.find_first_of("\n\"") != string::npos) return false;
-    if (value.find("/*") != string::npos) return false;
-    for (size_t pos = value.find("//"); pos != string::npos; pos = value.find("//", pos + 1)) {
-        if (pos > 0 && std::isspace(static_cast<unsigned char>(value[pos - 1]))) return false;
+    যদি (মান.find_first_of("\n\"") != string::npos) ঘূৰাই মিছা;
+    যদি (মান.find("/*") != string::npos) ঘূৰাই মিছা;
+    বাবে (size_t pos = মান.find("//"); pos != string::npos; pos = মান.find("//", pos + 1)) {
+        যদি (pos > 0 && std::isspace(static_cast<unsigned ৱর্ণ>(মান[pos - 1]))) ঘূৰাই মিছা;
     }
-    return true;
+    ঘূৰাই সঁচা;
 }
 
-V3HierBlock::StrGParams V3HierBlock::stringifyParams(const std::vector<AstVar*>& gparams,
-                                                     bool forGOption) {
+V3HierBlock::StrGParams V3HierBlock::stringifyParams(ধ্রুৱ std::vector<AstVar*>& gparams,
+                                                     তার্কিক forGOption) {
     StrGParams strParams;
-    for (const AstVar* const gparam : gparams) {
-        if (const AstConst* const constp = VN_CAST(gparam->valuep(), Const)) {
+    বাবে (ধ্রুৱ AstVar* ধ্রুৱ gparam : gparams) {
+        যদি (ধ্রুৱ AstConst* ধ্রুৱ constp = VN_CAST(gparam->valuep(), Const)) {
             string s;
             // Only constant parameter needs to be set to -G because already checked in
             // V3Param.cpp. See also ParamVisitor::checkSupportedParam() in the file.
-            if (constp->isDouble()) {
+            যদি (constp->isDouble()) {
                 // 64 bit width of hex can be expressed with 16 chars.
                 // 32 chars must be long enough for hexadecimal floating point
                 // considering prefix of '0x', '.', and 'P'.
-                std::vector<char> hexFpStr(32, '\0');
-                const int len = VL_SNPRINTF(hexFpStr.data(), hexFpStr.size(), "%a",
-                                            constp->num().toDouble());
+                std::vector<ৱর্ণ> hexFpStr(32, '\0');
+                ধ্রুৱ পূর্ণাঙ্ক len = VL_SNPRINTF(hexFpStr.data(), hexFpStr.size(), "%a",
+                                            constp->অঙ্ক().toDouble());
                 UASSERT_OBJ(0 < len && static_cast<size_t>(len) < hexFpStr.size(), constp,
                             " is not properly converted to string");
                 s = hexFpStr.data();
-            } else if (constp->isString()) {
-                s = constp->num().toString();
-                if (!forGOption) s = VString::quoteBackslash(s);
+            } অন্যথা যদি (constp->isString()) {
+                s = constp->অঙ্ক().toString();
+                যদি (!forGOption) s = VString::quoteBackslash(s);
                 s = VString::quoteStringLiteralForShell(s);
-            } else {  // Either signed or unsigned integer.
+            } অন্যথা {  // Either signed or unsigned integer.
                 // Constant folding can leave the signedness on the dtype, not the V3Number.
-                V3Number num{constp->num()};
-                num.isSigned(constp->isSigned());
-                s = num.ascii(true, true);
+                V3_সংখ্যা অঙ্ক{constp->অঙ্ক()};
+                অঙ্ক.isSigned(constp->isSigned());
+                s = অঙ্ক.ascii(সঁচা, সঁচা);
                 s = VString::quoteAny(s, '\'', '\\');
             }
             strParams.emplace_back(gparam->name(), s);
         }
     }
-    return strParams;
+    ঘূৰাই strParams;
 }
 
-VStringList V3HierBlock::commandArgs(bool forMkJson) const {
+VStringList V3HierBlock::commandArgs(তার্কিক forMkJson) ধ্রুৱ {
     VStringList opts;
-    const string prefix = hierPrefix();
-    if (!forMkJson) {
-        opts.push_back(" --prefix " + prefix);
-        opts.push_back(" --mod-prefix " + prefix);
+    ধ্রুৱ string prefix = hierPrefix();
+    যদি (!forMkJson) {
+        opts.ঠেলো_back(" --prefix " + prefix);
+        opts.ঠেলো_back(" --mod-prefix " + prefix);
         // Similar to --top-module but need to use encoded name(), not prettyName()
-        opts.push_back(" --top-module-encoded " + modp()->name());
+        opts.ঠেলো_back(" --top-module-encoded " + modp()->name());
     }
-    opts.push_back(" --lib-create " + modp()->name());  // possibly mangled name
-    if (v3Global.opt.protectKeyProvided())
-        opts.push_back(" --protect-key " + v3Global.opt.protectKeyDefaulted());
-    opts.push_back(" --hierarchical-child " + cvtToStr(v3Global.opt.threads()));
+    opts.ঠেলো_back(" --lib-create " + modp()->name());  // possibly mangled name
+    যদি (v3Global.opt.protect_চাবি_Provided())
+        opts.ঠেলো_back(" --protect-key " + v3Global.opt.protect_চাবি_Defaulted());
+    opts.ঠেলো_back(" --hierarchical-child " + cvtToStr(v3Global.opt.threads()));
 
-    const StrGParams gparamsStr = stringifyParams(m_params, true);
-    for (const StrGParam& param : gparamsStr) {
-        opts.push_back("-G" + param.first + "=" + param.second + "");
+    ধ্রুৱ StrGParams gparamsStr = stringifyParams(m_params, সঁচা);
+    বাবে (ধ্রুৱ StrGParam& param : gparamsStr) {
+        opts.ঠেলো_back("-G" + param.first + "=" + param.second + "");
     }
-    if (!m_typeParams.empty()) {
-        opts.push_back(" --hierarchical-params-file " + typeParametersFilename());
+    যদি (!m_typeParams.empty()) {
+        opts.ঠেলো_back(" --hierarchical-params-file " + typeParametersFilename());
     }
 
-    const int blockThreads = V3Control::getHierWorkers(m_modp->origName());
-    if (blockThreads > 1) {
-        if (!inEmpty()) {
-            V3Control::getHierWorkersFileLine(m_modp->origName())
+    ধ্রুৱ পূর্ণাঙ্ক blockThreads = V3Control::getHierWorkers(m_modp->origName());
+    যদি (blockThreads > 1) {
+        যদি (!inEmpty()) {
+            V3Control::get_Hier_Workers_File_সাৰি(m_modp->origName())
                 ->v3warn(E_UNSUPPORTED, "Specifying workers for nested hierarchical blocks");
-        } else {
-            if (v3Global.opt.threads() < blockThreads) {
+        } অন্যথা {
+            যদি (v3Global.opt.threads() < blockThreads) {
                 m_modp->v3error("Hierarchical blocks cannot be scheduled on more threads than in "
                                 "thread pool, threads = "
                                 << v3Global.opt.threads()
                                 << " hierarchical block threads = " << blockThreads);
             }
 
-            opts.push_back(" --threads " + std::to_string(blockThreads));
+            opts.ঠেলো_back(" --threads " + std::to_string(blockThreads));
         }
     }
 
-    return opts;
+    ঘূৰাই opts;
 }
 
-VStringList V3HierBlock::hierBlockArgs() const {
+VStringList V3HierBlock::hierBlockArgs() ধ্রুৱ {
     VStringList opts;
-    const StrGParams gparamsStr = stringifyParams(m_params, false);
+    ধ্রুৱ StrGParams gparamsStr = stringifyParams(m_params, মিছা);
     opts.emplace_back("--hierarchical-block ");
     string s = modp()->origName();  // origName
     s += "," + modp()->name();  // mangledName
-    for (const StrGParam& pair : gparamsStr) {
+    বাবে (ধ্রুৱ StrGParam& pair : gparamsStr) {
         s += "," + pair.first;
         s += "," + pair.second;
     }
     opts.back() += s;
-    return opts;
+    ঘূৰাই opts;
 }
 
-string V3HierBlock::hierPrefix() const { return "V" + modp()->name(); }
+string V3HierBlock::hierPrefix() ধ্রুৱ { ঘূৰাই "V" + modp()->name(); }
 
-string V3HierBlock::hierSomeFilename(bool withDir, const char* prefix, const char* suffix) const {
+string V3HierBlock::hierSomeFilename(তার্কিক withDir, ধ্রুৱ ৱর্ণ* prefix, ধ্রুৱ ৱর্ণ* suffix) ধ্রুৱ {
     string s;
-    if (withDir) s = hierPrefix() + '/';
+    যদি (withDir) s = hierPrefix() + '/';
     s += prefix + modp()->name() + suffix;
-    return s;
+    ঘূৰাই s;
 }
 
-string V3HierBlock::hierWrapperFilename(bool withDir) const {
-    return hierSomeFilename(withDir, "", ".sv");
+string V3HierBlock::hierWrapperFilename(তার্কিক withDir) ধ্রুৱ {
+    ঘূৰাই hierSomeFilename(withDir, "", ".sv");
 }
 
-string V3HierBlock::hierMkFilename(bool withDir) const {
-    return hierSomeFilename(withDir, "V", ".mk");
+string V3HierBlock::hierMkFilename(তার্কিক withDir) ধ্রুৱ {
+    ঘূৰাই hierSomeFilename(withDir, "V", ".mk");
 }
 
-string V3HierBlock::hierLibFilename(bool withDir) const {
-    return hierSomeFilename(withDir, "lib", ".a");
+string V3HierBlock::hierLibFilename(তার্কিক withDir) ধ্রুৱ {
+    ঘূৰাই hierSomeFilename(withDir, "lib", ".a");
 }
 
-string V3HierBlock::hierGeneratedFilenames(bool withDir) const {
-    return hierWrapperFilename(withDir) + ' ' + hierMkFilename(withDir);
+string V3HierBlock::hierGeneratedFilenames(তার্কিক withDir) ধ্রুৱ {
+    ঘূৰাই hierWrapperFilename(withDir) + ' ' + hierMkFilename(withDir);
 }
 
-string V3HierBlock::vFileIfNecessary() const {
+string V3HierBlock::vFileIfNecessary() ধ্রুৱ {
     string filename = V3Os::filenameRealPath(m_modp->fileline()->filename());
-    for (const auto& v : v3Global.opt.vFiles()) {
+    বাবে (ধ্রুৱ auto& v : v3Global.opt.vFiles()) {
         // Already listed in vFiles, so no need to add the file.
-        if (filename == V3Os::filenameRealPath(v.filename())) return "";
+        যদি (filename == V3Os::filenameRealPath(v.filename())) ঘূৰাই "";
     }
-    return filename;
+    ঘূৰাই filename;
 }
 
-void V3HierBlock::writeCommandArgsFile(bool forMkJson) const {
-    const std::unique_ptr<std::ofstream> of{V3File::new_ofstream(commandArgsFilename(forMkJson))};
+শূন্য V3HierBlock::writeCommandArgsFile(তার্কিক forMkJson) ধ্রুৱ {
+    ধ্রুৱ std::unique_ptr<std::ofstream> of{V3File::new_ofstream(commandArgsFilename(forMkJson))};
     *of << "--cc\n";
 
-    if (!forMkJson) {
-        for (const V3GraphEdge& edge : outEdges()) {
-            const V3HierBlock* const dependencyp = edge.top()->as<V3HierBlock>();
-            *of << v3Global.opt.makeDir() << "/" << dependencyp->hierWrapperFilename(true) << "\n";
+    যদি (!forMkJson) {
+        বাবে (ধ্রুৱ V3GraphEdge& edge : outEdges()) {
+            ধ্রুৱ V3HierBlock* ধ্রুৱ dependencyp = edge.শীৰ্ষ()->as<V3HierBlock>();
+            *of << v3Global.opt.makeDir() << "/" << dependencyp->hierWrapperFilename(সঁচা) << "\n";
         }
         *of << "-Mdir " << v3Global.opt.makeDir() << "/" << hierPrefix() << " \n";
     }
-    V3HierWriteCommonInputs(this, of.get(), forMkJson);
-    const VStringList& commandOpts = commandArgs(false);
-    for (const string& opt : commandOpts) *of << opt << "\n";
+    V3HierWriteCommonInputs(এতত্, of.get(), forMkJson);
+    ধ্রুৱ VStringList& commandOpts = commandArgs(মিছা);
+    বাবে (ধ্রুৱ string& opt : commandOpts) *of << opt << "\n";
     *of << hierBlockArgs().front() << "\n";
-    for (const V3GraphEdge& edge : outEdges()) {
-        const V3HierBlock* const dependencyp = edge.top()->as<V3HierBlock>();
+    বাবে (ধ্রুৱ V3GraphEdge& edge : outEdges()) {
+        ধ্রুৱ V3HierBlock* ধ্রুৱ dependencyp = edge.শীৰ্ষ()->as<V3HierBlock>();
         *of << dependencyp->hierBlockArgs().front() << "\n";
     }
-    *of << v3Global.opt.allArgsStringForHierBlock(false) << "\n";
+    *of << v3Global.opt.allArgsStringForHierBlock(মিছা) << "\n";
 }
 
-string V3HierBlock::commandArgsFilename(bool forMkJson) const {
-    return V3HierCommandArgsFilename(hierPrefix(), forMkJson);
+string V3HierBlock::commandArgsFilename(তার্কিক forMkJson) ধ্রুৱ {
+    ঘূৰাই V3HierCommandArgsFilename(hierPrefix(), forMkJson);
 }
 
-string V3HierBlock::typeParametersFilename() const {
-    return V3HierParametersFileName(hierPrefix());
+string V3HierBlock::typeParametersFilename() ধ্রুৱ {
+    ঘূৰাই V3HierParametersFileName(hierPrefix());
 }
 
-void V3HierBlock::writeParametersFile() const {
-    if (m_typeParams.empty()) return;
+শূন্য V3HierBlock::writeParametersFile() ধ্রুৱ {
+    যদি (m_typeParams.empty()) ঘূৰাই;
 
     VHashSha512 hash{"type params"};
-    const string moduleName = "Vhsh" + hash.digestSymbol24();
-    const std::unique_ptr<std::ofstream> of{V3File::new_ofstream(typeParametersFilename())};
+    ধ্রুৱ string moduleName = "Vhsh" + hash.digestSymbol24();
+    ধ্রুৱ std::unique_ptr<std::ofstream> of{V3File::new_ofstream(typeParametersFilename())};
     *of << "module " << moduleName << ";\n";
-    for (AstParamTypeDType* const gparam : m_typeParams) {
+    বাবে (AstParamTypeDType* ধ্রুৱ gparam : m_typeParams) {
         AstTypedef* tdefp
-            = new AstTypedef{new FileLine{FileLine::builtInFilename()}, gparam->name(), nullptr,
-                             VFlagChildDType{}, gparam->skipRefp()->cloneTreePure(true)};
-        V3EmitV::verilogForTree(tdefp, *of);
-        VL_DO_DANGLING(tdefp->deleteTree(), tdefp);
+            = নূতন AstTypedef{নূতন File_সাৰি{File_সাৰি::builtInFilename()}, gparam->name(), nullptr,
+                             VFlagChildDType{}, gparam->skipRefp()->clone_বৃক্ষ_Pure(সঁচা)};
+        V3EmitV::verilog_For_বৃক্ষ(tdefp, *of);
+        VL_DO_DANGLING(tdefp->delete_বৃক্ষ(), tdefp);
     }
     *of << "endmodule\n\n";
     *of << "`verilator_config\n";
@@ -315,15 +315,15 @@ void V3HierBlock::writeParametersFile() const {
 
 //######################################################################
 // Construct graph of hierarchical blocks
-class HierBlockUsageCollectVisitor final : public VNVisitorConst {
+শ্ৰেণী HierBlockUsageCollectVisitor final : সার্ৱজনিক VNVisitorConst {
     // NODE STATE
     // AstNode::user1()            -> bool. Already visited
-    const VNUser1InUse m_inuser1;
+    ধ্রুৱ VNUser1InUse m_inuser1;
 
     // STATE
-    V3HierGraph* const m_graphp = new V3HierGraph{};  // The graph of hierarchical blocks
+    V3HierGraph* ধ্রুৱ m_graphp = নূতন V3HierGraph{};  // The graph of hierarchical blocks
     // Map from hier blocks to the corresponding V3HierBlock graph vertex
-    std::unordered_map<const AstModule*, V3HierBlock*> m_mod2vtx;
+    std::unordered_map<ধ্রুৱ AstModule*, V3HierBlock*> m_mod2vtx;
     AstModule* m_modp = nullptr;  // The current module
     std::vector<AstVar*> m_params;  // Overridden value parameters of current module
     std::vector<AstParamTypeDType*> m_typeParams;  // Type parameters of current module
@@ -331,19 +331,19 @@ class HierBlockUsageCollectVisitor final : public VNVisitorConst {
     std::vector<V3HierBlock*> m_childrenp;
 
     // VISITORSs
-    void visit(AstNodeModule*) override {}  // Ignore all non-AstModule
-    void visit(AstModule* nodep) override {
+    শূন্য visit(Ast_গ্ৰন্থি_Module*) override {}  // Ignore all non-AstModule
+    শূন্য visit(AstModule* nodep) override {
         // Visit each module once
-        if (nodep->user1SetOnce()) return;
+        যদি (nodep->user1SetOnce()) ঘূৰাই;
 
         UINFO(5, "Visiting " << nodep->prettyNameQ());
         VL_RESTORER(m_modp);
         m_modp = nodep;
 
         // If not a hierarchical block, just iterate and return
-        if (!nodep->hierBlock()) {
+        যদি (!nodep->hierBlock()) {
             iterateChildrenConst(nodep);
-            return;
+            ঘূৰাই;
         }
 
         // This is a hierarchical block, gather parts
@@ -352,137 +352,137 @@ class HierBlockUsageCollectVisitor final : public VNVisitorConst {
         VL_RESTORER_CLEAR(m_childrenp);
         iterateChildrenConst(nodep);
         // Create the graph vertex for this hier block
-        V3HierBlock* const blockp = new V3HierBlock{m_graphp, nodep, m_params, m_typeParams};
+        V3HierBlock* ধ্রুৱ blockp = নূতন V3HierBlock{m_graphp, nodep, m_params, m_typeParams};
         // Record it
         m_mod2vtx[nodep] = blockp;
         // Add an edge to each child block
-        for (V3HierBlock* const childp : m_childrenp) new V3GraphEdge{m_graphp, blockp, childp, 1};
+        বাবে (V3HierBlock* ধ্রুৱ childp : m_childrenp) নূতন V3GraphEdge{m_graphp, blockp, childp, 1};
     }
-    void visit(AstCell* nodep) override {
+    শূন্য visit(AstCell* nodep) override {
         // Nothing to do for non-AstModules because hierarchical block cannot exist under them.
-        AstModule* const modp = VN_CAST(nodep->modp(), Module);
-        if (!modp) return;
+        AstModule* ধ্রুৱ modp = VN_CAST(nodep->modp(), Module);
+        যদি (!modp) ঘূৰাই;
         // Depth-first traversal of module hierechy
         iterateConst(modp);
         // If this is an instance of a hierarchical block, add to child array to link parent
-        if (modp->hierBlock()) m_childrenp.emplace_back(m_mod2vtx.at(modp));
+        যদি (modp->hierBlock()) m_childrenp.emplace_back(m_mod2vtx.at(modp));
     }
-    void visit(AstVar* nodep) override {
-        if (!m_modp) return;
-        if (!m_modp->hierBlock()) return;
+    শূন্য visit(AstVar* nodep) override {
+        যদি (!m_modp) ঘূৰাই;
+        যদি (!m_modp->hierBlock()) ঘূৰাই;
         // Can't handle interface port on hier block
-        if (nodep->isIfaceRef() && !nodep->isIfaceParent()) {
+        যদি (nodep->isIfaceRef() && !nodep->isIfaceParent()) {
             nodep->v3error("Modport cannot be used at the hierarchical block boundary");
         }
         // Record overridden value parameter of this hier block
-        if (nodep->isGParam() && nodep->overriddenParam()) {
+        যদি (nodep->isGParam() && nodep->overriddenParam()) {
             UASSERT_OBJ(m_modp, nodep, "Value parameter not under module");
-            m_params.push_back(nodep);
+            m_params.ঠেলো_back(nodep);
         }
     }
-    void visit(AstParamTypeDType* nodep) override {
+    শূন্য visit(AstParamTypeDType* nodep) override {
         UASSERT_OBJ(m_modp, nodep, "Type parameter not under module");
-        if (!m_modp->hierBlock()) return;
+        যদি (!m_modp->hierBlock()) ঘূৰাই;
         // Record type parameter of this hier block
-        m_typeParams.push_back(nodep);
+        m_typeParams.ঠেলো_back(nodep);
     }
 
-    void visit(AstNodeStmt*) override {}  // Accelerate
-    void visit(AstNodeExpr*) override {}  // Accelerate
-    void visit(AstTypeTable*) override {}  // Accelerate
-    void visit(AstNode* nodep) override { iterateChildrenConst(nodep); }
+    শূন্য visit(Ast_গ্ৰন্থি_Stmt*) override {}  // Accelerate
+    শূন্য visit(Ast_গ্ৰন্থি_ৰাশিমালা*) override {}  // Accelerate
+    শূন্য visit(AstTypeTable*) override {}  // Accelerate
+    শূন্য visit(Ast_গ্ৰন্থি* nodep) override { iterateChildrenConst(nodep); }
 
     // CONSTRUCTOR
     explicit HierBlockUsageCollectVisitor(AstNetlist* netlistp) {
         iterateChildrenConst(netlistp);
-        if (dumpGraphLevel() >= 3) m_graphp->dumpDotFilePrefixed("hierblocks_initial");
+        যদি (dumpGraphLevel() >= 3) m_graphp->dumpDotFilePrefixed("hierblocks_initial");
         // Simplify dependencies
         m_graphp->removeRedundantEdgesSum(&V3GraphEdge::followAlwaysTrue);
         // Topologically sorder the graph
         m_graphp->order();  // This is a bit heavy weight, but does produce a topological ordering
-        if (dumpGraphLevel() >= 3) m_graphp->dumpDotFilePrefixed("hierblocks");
+        যদি (dumpGraphLevel() >= 3) m_graphp->dumpDotFilePrefixed("hierblocks");
     }
 
-public:
-    static V3HierGraph* apply(AstNetlist* netlistp) {
-        return HierBlockUsageCollectVisitor{netlistp}.m_graphp;
+সার্ৱজনিক:
+    স্থির V3HierGraph* apply(AstNetlist* netlistp) {
+        ঘূৰাই HierBlockUsageCollectVisitor{netlistp}.m_graphp;
     }
 };
 
-VStringList V3HierGraph::sourceFiles(const string& topModuleFile) {
+VStringList V3HierGraph::sourceFiles(ধ্রুৱ string& শীৰ্ষ_Module_File) {
     VStringList sources;
     sources.reserve(v3Global.opt.vFiles().size() + 1);
-    for (const VFileLibName& vfile : v3Global.opt.vFiles()) sources.emplace_back(vfile.filename());
+    বাবে (ধ্রুৱ VFileLibName& vfile : v3Global.opt.vFiles()) sources.emplace_back(vfile.filename());
     // Library-discovered blocks may depend on packages in the explicit input files.
-    if (!topModuleFile.empty()) sources.emplace_back(topModuleFile);
-    return sources;
+    যদি (!শীৰ্ষ_Module_File.empty()) sources.emplace_back(শীৰ্ষ_Module_File);
+    ঘূৰাই sources;
 }
 
-void V3HierGraph::writeCommandArgsFiles(bool forMkJson) const {
+শূন্য V3HierGraph::writeCommandArgsFiles(তার্কিক forMkJson) ধ্রুৱ {
 
-    for (const V3GraphVertex& vtx : vertices()) {
+    বাবে (ধ্রুৱ V3GraphVertex& vtx : vertices()) {
         vtx.as<V3HierBlock>()->writeCommandArgsFile(forMkJson);
     }
     // For the top module
-    const std::unique_ptr<std::ofstream> of{
-        V3File::new_ofstream(topCommandArgsFilename(forMkJson))};
-    if (!forMkJson) {
+    ধ্রুৱ std::unique_ptr<std::ofstream> of{
+        V3File::new_ofstream(শীৰ্ষ_Command_Args_Filename(forMkJson))};
+    যদি (!forMkJson) {
         // Load wrappers first not to be overwritten by the original HDL
-        for (const V3GraphVertex& vtx : vertices()) {
-            *of << vtx.as<V3HierBlock>()->hierWrapperFilename(true) << "\n";
+        বাবে (ধ্রুৱ V3GraphVertex& vtx : vertices()) {
+            *of << vtx.as<V3HierBlock>()->hierWrapperFilename(সঁচা) << "\n";
         }
     }
     V3HierWriteCommonInputs(nullptr, of.get(), forMkJson);
-    if (!forMkJson) {
-        const VStringSet& cppFiles = v3Global.opt.cppFiles();
-        for (const string& i : cppFiles) *of << i << "\n";
-        *of << "--top-module " << v3Global.rootp()->topModulep()->name() << "\n";
+    যদি (!forMkJson) {
+        ধ্রুৱ VStringSet& cppFiles = v3Global.opt.cppFiles();
+        বাবে (ধ্রুৱ string& i : cppFiles) *of << i << "\n";
+        *of << "--top-module " << v3Global.rootp()->শীৰ্ষ_Modulep()->name() << "\n";
         *of << "--prefix " << v3Global.opt.prefix() << "\n";
         *of << "-Mdir " << v3Global.opt.makeDir() << "\n";
         *of << "--mod-prefix " << v3Global.opt.modPrefix() << "\n";
     }
-    for (const V3GraphVertex& vtx : vertices()) {
+    বাবে (ধ্রুৱ V3GraphVertex& vtx : vertices()) {
         *of << vtx.as<V3HierBlock>()->hierBlockArgs().front() << "\n";
     }
 
-    if (!v3Global.opt.libCreate().empty()) {
+    যদি (!v3Global.opt.libCreate().empty()) {
         *of << "--lib-create " << v3Global.opt.libCreate() << "\n";
     }
-    if (v3Global.opt.protectKeyProvided()) {
-        *of << "--protect-key " << v3Global.opt.protectKeyDefaulted() << "\n";
+    যদি (v3Global.opt.protect_চাবি_Provided()) {
+        *of << "--protect-key " << v3Global.opt.protect_চাবি_Defaulted() << "\n";
     }
     *of << "--threads " << cvtToStr(v3Global.opt.threads()) << "\n";
     *of << (v3Global.opt.systemC() ? "--sc" : "--cc") << "\n";
-    *of << v3Global.opt.allArgsStringForHierBlock(true) << "\n";
+    *of << v3Global.opt.allArgsStringForHierBlock(সঁচা) << "\n";
 }
 
-string V3HierGraph::topCommandArgsFilename(bool forMkJson) {
-    return V3HierCommandArgsFilename(v3Global.opt.prefix(), forMkJson);
+string V3HierGraph::শীৰ্ষ_Command_Args_Filename(তার্কিক forMkJson) {
+    ঘূৰাই V3HierCommandArgsFilename(v3Global.opt.prefix(), forMkJson);
 }
 
-void V3HierGraph::writeParametersFiles() const {
-    for (const V3GraphVertex& vtx : vertices()) { vtx.as<V3HierBlock>()->writeParametersFile(); }
+শূন্য V3HierGraph::writeParametersFiles() ধ্রুৱ {
+    বাবে (ধ্রুৱ V3GraphVertex& vtx : vertices()) { vtx.as<V3HierBlock>()->writeParametersFile(); }
 }
 
 //######################################################################
 
-void V3Hierarchical::createGraph(AstNetlist* netlistp) {
+শূন্য V3Hierarchical::createGraph(AstNetlist* netlistp) {
     UASSERT(!v3Global.hierGraphp(), "Should only be called once");
 
-    AstNodeModule* const modp = netlistp->topModulep();
-    if (modp->hierBlock()) {
+    Ast_গ্ৰন্থি_Module* ধ্রুৱ modp = netlistp->শীৰ্ষ_Modulep();
+    যদি (modp->hierBlock()) {
         modp->v3warn(HIERBLOCK, "Top module marked as hierarchical block, ignoring\n"
                                     + modp->warnMore()
                                     + "... Suggest remove verilator hier_block on this module");
-        modp->hierBlock(false);
+        modp->hierBlock(মিছা);
     }
 
-    V3HierGraph* const graphp = HierBlockUsageCollectVisitor::apply(netlistp);
+    V3HierGraph* ধ্রুৱ graphp = HierBlockUsageCollectVisitor::apply(netlistp);
     V3Stats::addStat("HierBlock, Hierarchical blocks", graphp->vertices().size());
     // No hierarchical block is found, nothing to do.
-    if (graphp->empty()) {
+    যদি (graphp->empty()) {
         VL_DO_DANGLING(delete graphp, graphp);
-        return;
+        ঘূৰাই;
     }
     // Hold on to the graph
     v3Global.hierGraphp(graphp);

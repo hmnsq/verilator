@@ -17,14 +17,14 @@
 #ifndef VERILATOR_V3POOLALLOCATOR_H_
 #define VERILATOR_V3POOLALLOCATOR_H_
 
-#include "config_build.h"
-#include "verilatedos.h"
+#অন্তর্ভাৱ "config_build.h"
+#অন্তর্ভাৱ "verilatedos.h"
 
-#include <cstddef>
-#include <memory>
-#include <new>
-#include <utility>
-#include <vector>
+#অন্তর্ভাৱ <cstddef>
+#অন্তর্ভাৱ <memory>
+#অন্তর্ভাৱ <new>
+#অন্তর্ভাৱ <utility>
+#অন্তর্ভাৱ <vector>
 
 // Hands out elements of a single type, allocated 'N_ChunkSize' at a time for
 // efficiency. Released elements are recycled via a free list stored in the
@@ -36,7 +36,7 @@ class PoolAllocator final {
     static_assert(N_ChunkSize > 0, "Chunk size must be non-zero");
 
     // A slot of storage, holding either a live element, or a link in the free list.
-    union Slot final {
+    সঙ্ঘ Slot final {
         T_Elem m_elem;  // Storage for the allocated element
         Slot* m_nextFreep;  // Link to the next free slot
         Slot() {}
@@ -47,9 +47,9 @@ class PoolAllocator final {
     Slot* m_freep = nullptr;  // Head of the free list
     std::vector<std::unique_ptr<Slot[]>> m_allocated;  // The allocated chunks
 
-public:
+সার্ৱজনিক:
     // CONSTRUCTORS
-    PoolAllocator() = default;
+    PoolAllocator() = স্ৱভাৱ;
     VL_UNCOPYABLE(PoolAllocator);
     VL_UNMOVABLE(PoolAllocator);
 
@@ -58,25 +58,25 @@ public:
     template <typename... Args>
     T_Elem* alloc(Args&&... args) {
         // If no free slots available, then make some
-        if (!m_freep) {
+        যদি (!m_freep) {
             // Allocate in chunks for efficiency
             m_allocated.emplace_back(new Slot[N_ChunkSize]);
             // Chain the new slots into the free list
-            Slot* const chunkp = m_allocated.back().get();
-            for (size_t i = 1; i < N_ChunkSize; ++i) chunkp[i - 1].m_nextFreep = &chunkp[i];
+            Slot* ধ্রুৱ chunkp = m_allocated.back().get();
+            বাবে (size_t i = 1; i < N_ChunkSize; ++i) chunkp[i - 1].m_nextFreep = &chunkp[i];
             chunkp[N_ChunkSize - 1].m_nextFreep = nullptr;
             m_freep = chunkp;
         }
         // Free slots are available, pick up the first one
-        Slot* const slotp = m_freep;
+        Slot* ধ্রুৱ slotp = m_freep;
         m_freep = slotp->m_nextFreep;
-        return new (&slotp->m_elem) T_Elem{std::forward<Args>(args)...};
+        ঘূৰাই new (&slotp->m_elem) T_Elem{std::forward<Args>(args)...};
     }
 
     // Destroy an element, and return its slot for future allocation
-    void free(T_Elem* elemp) {
+    শূন্য মুক্ত(T_Elem* elemp) {
         elemp->~T_Elem();
-        Slot* const slotp = reinterpret_cast<Slot*>(elemp);
+        Slot* ধ্রুৱ slotp = reinterpret_cast<Slot*>(elemp);
         slotp->m_nextFreep = m_freep;
         m_freep = slotp;
     }

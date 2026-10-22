@@ -34,21 +34,21 @@
 //
 //*************************************************************************
 
-#include "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
+#অন্তর্ভাৱ "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
 
-#include "V3Graph.h"
-#include "V3Sched.h"
+#অন্তর্ভাৱ "V3Graph.h"
+#অন্তর্ভাৱ "V3Sched.h"
 
 VL_DEFINE_DEBUG_FUNCTIONS;
 
-namespace V3Sched {
+নামাকাশ V3Sched {
 
-namespace {
+নামাকাশ {
 
 // Driving region flags
-enum RegionFlags : uint8_t {
+গণনা RegionFlags : uint8_t {
     NONE = 0x0,  //
-    INPUT = 0x1,  // Variable/logic is driven from top level input
+    প্ৰবেশ = 0x1,  // Variable/logic is driven from top level input
     ACTIVE = 0x2,  // Variable/logic is driven from 'act' region logic
     NBA = 0x4,  // Variable/logic is driven from 'nba' region logic
     OBSERVED = 0x8,  // Variable/logic is driven from 'obs' region logic
@@ -58,72 +58,72 @@ enum RegionFlags : uint8_t {
 //##############################################################################
 // Data structures (graph types)
 
-class SchedReplicateVertex VL_NOT_FINAL : public V3GraphVertex {
+শ্ৰেণী SchedReplicateVertex VL_NOT_FINAL : সার্ৱজনিক V3GraphVertex {
     VL_RTTI_IMPL(SchedReplicateVertex, V3GraphVertex)
     RegionFlags m_drivingRegions{RegionFlags::NONE};  // The regions driving this vertex
 
-public:
+সার্ৱজনিক:
     explicit SchedReplicateVertex(V3Graph* graphp)
         : V3GraphVertex{graphp} {}
-    uint8_t drivingRegions() const { return m_drivingRegions; }
-    void addDrivingRegions(uint8_t regions) {
+    uint8_t drivingRegions() ধ্রুৱ { ঘূৰাই m_drivingRegions; }
+    শূন্য addDrivingRegions(uint8_t regions) {
         m_drivingRegions = static_cast<RegionFlags>(m_drivingRegions | regions);
     }
 
     // LCOV_EXCL_START // Debug code
-    string dotColor() const override {
-        switch (static_cast<unsigned>(m_drivingRegions)) {
-        case NONE: return "black";
-        case INPUT: return "red";
-        case ACTIVE: return "green";
-        case NBA: return "blue";
-        case INPUT | ACTIVE: return "yellow";
-        case INPUT | NBA: return "magenta";
-        case ACTIVE | NBA: return "cyan";
-        case INPUT | ACTIVE | NBA: return "gray80";  // don't want white on white background
+    string dotColor() ধ্রুৱ override {
+        ৱিকল্প (static_cast<unsigned>(m_drivingRegions)) {
+        পক্ষ NONE: ঘূৰাই "black";
+        পক্ষ প্ৰবেশ: ঘূৰাই "red";
+        পক্ষ ACTIVE: ঘূৰাই "green";
+        পক্ষ NBA: ঘূৰাই "blue";
+        পক্ষ প্ৰবেশ | ACTIVE: ঘূৰাই "yellow";
+        পক্ষ প্ৰবেশ | NBA: ঘূৰাই "magenta";
+        পক্ষ ACTIVE | NBA: ঘূৰাই "cyan";
+        পক্ষ প্ৰবেশ | ACTIVE | NBA: ঘূৰাই "gray80";  // don't want white on white background
 
-        case REACTIVE: return "gray60";
-        case REACTIVE | INPUT: return "lightcoral";
-        case REACTIVE | ACTIVE: return "lightgreen";
-        case REACTIVE | NBA: return "lightblue";
-        case REACTIVE | INPUT | ACTIVE: return "lightyellow";
-        case REACTIVE | INPUT | NBA: return "lightpink";
-        case REACTIVE | ACTIVE | NBA: return "lightcyan";
-        case REACTIVE | INPUT | ACTIVE | NBA: return "gray90";
+        পক্ষ REACTIVE: ঘূৰাই "gray60";
+        পক্ষ REACTIVE | প্ৰবেশ: ঘূৰাই "lightcoral";
+        পক্ষ REACTIVE | ACTIVE: ঘূৰাই "lightgreen";
+        পক্ষ REACTIVE | NBA: ঘূৰাই "lightblue";
+        পক্ষ REACTIVE | প্ৰবেশ | ACTIVE: ঘূৰাই "lightyellow";
+        পক্ষ REACTIVE | প্ৰবেশ | NBA: ঘূৰাই "lightpink";
+        পক্ষ REACTIVE | ACTIVE | NBA: ঘূৰাই "lightcyan";
+        পক্ষ REACTIVE | প্ৰবেশ | ACTIVE | NBA: ঘূৰাই "gray90";
 
-        case OBSERVED: return "gray20";
-        case OBSERVED | INPUT: return "darkred";
-        case OBSERVED | ACTIVE: return "darkgreen";
-        case OBSERVED | NBA: return "darkblue";
-        case OBSERVED | INPUT | ACTIVE: return "gold";
-        case OBSERVED | INPUT | NBA: return "purple";
-        case OBSERVED | ACTIVE | NBA: return "darkcyan";
-        case OBSERVED | INPUT | ACTIVE | NBA: return "gray30";
+        পক্ষ OBSERVED: ঘূৰাই "gray20";
+        পক্ষ OBSERVED | প্ৰবেশ: ঘূৰাই "darkred";
+        পক্ষ OBSERVED | ACTIVE: ঘূৰাই "darkgreen";
+        পক্ষ OBSERVED | NBA: ঘূৰাই "darkblue";
+        পক্ষ OBSERVED | প্ৰবেশ | ACTIVE: ঘূৰাই "gold";
+        পক্ষ OBSERVED | প্ৰবেশ | NBA: ঘূৰাই "purple";
+        পক্ষ OBSERVED | ACTIVE | NBA: ঘূৰাই "darkcyan";
+        পক্ষ OBSERVED | প্ৰবেশ | ACTIVE | NBA: ঘূৰাই "gray30";
 
-        case REACTIVE | OBSERVED: return "gray40";
-        case REACTIVE | OBSERVED | INPUT: return "indianred";
-        case REACTIVE | OBSERVED | ACTIVE: return "olive";
-        case REACTIVE | OBSERVED | NBA: return "dodgerBlue";
-        case REACTIVE | OBSERVED | INPUT | ACTIVE: return "khaki";
-        case REACTIVE | OBSERVED | INPUT | NBA: return "plum";
-        case REACTIVE | OBSERVED | ACTIVE | NBA: return "lightSeaGreen";
-        case REACTIVE | OBSERVED | INPUT | ACTIVE | NBA: return "gray50";
-        default: v3fatalSrc("There are only 5 region bits"); return "";
+        পক্ষ REACTIVE | OBSERVED: ঘূৰাই "gray40";
+        পক্ষ REACTIVE | OBSERVED | প্ৰবেশ: ঘূৰাই "indianred";
+        পক্ষ REACTIVE | OBSERVED | ACTIVE: ঘূৰাই "olive";
+        পক্ষ REACTIVE | OBSERVED | NBA: ঘূৰাই "dodgerBlue";
+        পক্ষ REACTIVE | OBSERVED | প্ৰবেশ | ACTIVE: ঘূৰাই "khaki";
+        পক্ষ REACTIVE | OBSERVED | প্ৰবেশ | NBA: ঘূৰাই "plum";
+        পক্ষ REACTIVE | OBSERVED | ACTIVE | NBA: ঘূৰাই "lightSeaGreen";
+        পক্ষ REACTIVE | OBSERVED | প্ৰবেশ | ACTIVE | NBA: ঘূৰাই "gray50";
+        স্ৱভাৱ: v3fatalSrc("There are only 5 region bits"); ঘূৰাই "";
         }
     }
     // LCOV_EXCL_STOP
 };
 
-class SchedReplicateLogicVertex final : public SchedReplicateVertex {
+শ্ৰেণী SchedReplicateLogicVertex final : সার্ৱজনিক SchedReplicateVertex {
     VL_RTTI_IMPL(SchedReplicateLogicVertex, SchedReplicateVertex)
-    AstScope* const m_scopep;  // The enclosing AstScope of the logic node
-    AstSenTree* const m_senTreep;  // The sensitivity of the logic node
-    AstNode* const m_logicp;  // The logic node this vertex represents
-    RegionFlags const m_assignedRegion;  // The region this logic is originally assigned to
+    AstScope* ধ্রুৱ m_scopep;  // The enclosing AstScope of the logic node
+    Ast_Sen_বৃক্ষ* ধ্রুৱ m_senTreep;  // The sensitivity of the logic node
+    Ast_গ্ৰন্থি* ধ্রুৱ m_logicp;  // The logic node this vertex represents
+    RegionFlags ধ্রুৱ m_assignedRegion;  // The region this logic is originally assigned to
 
-public:
-    SchedReplicateLogicVertex(V3Graph* graphp, AstScope* scopep, AstSenTree* senTreep,
-                              AstNode* logicp, RegionFlags assignedRegion)
+সার্ৱজনিক:
+    SchedReplicateLogicVertex(V3Graph* graphp, AstScope* scopep, Ast_Sen_বৃক্ষ* senTreep,
+                              Ast_গ্ৰন্থি* logicp, RegionFlags assignedRegion)
         : SchedReplicateVertex{graphp}
         , m_scopep{scopep}
         , m_senTreep{senTreep}
@@ -131,107 +131,107 @@ public:
         , m_assignedRegion{assignedRegion} {
         addDrivingRegions(assignedRegion);
     }
-    AstScope* scopep() const { return m_scopep; }
-    AstSenTree* senTreep() const { return m_senTreep; }
-    AstNode* logicp() const { return m_logicp; }
-    RegionFlags assignedRegion() const { return m_assignedRegion; }
+    AstScope* scopep() ধ্রুৱ { ঘূৰাই m_scopep; }
+    Ast_Sen_বৃক্ষ* senTreep() ধ্রুৱ { ঘূৰাই m_senTreep; }
+    Ast_গ্ৰন্থি* logicp() ধ্রুৱ { ঘূৰাই m_logicp; }
+    RegionFlags assignedRegion() ধ্রুৱ { ঘূৰাই m_assignedRegion; }
 
     // For graph dumping
-    string name() const override VL_MT_STABLE { return m_logicp->fileline()->ascii(); };
-    string dotShape() const override { return "rectangle"; }
+    string name() ধ্রুৱ override VL_MT_STABLE { ঘূৰাই m_logicp->fileline()->ascii(); };
+    string dotShape() ধ্রুৱ override { ঘূৰাই "rectangle"; }
 };
 
-class SchedReplicateVarVertex final : public SchedReplicateVertex {
+শ্ৰেণী SchedReplicateVarVertex final : সার্ৱজনিক SchedReplicateVertex {
     VL_RTTI_IMPL(SchedReplicateVarVertex, SchedReplicateVertex)
-    AstVarScope* const m_vscp;  // The AstVarScope this vertex represents
+    AstVarScope* ধ্রুৱ m_vscp;  // The AstVarScope this vertex represents
 
-public:
+সার্ৱজনিক:
     SchedReplicateVarVertex(V3Graph* graphp, AstVarScope* vscp)
         : SchedReplicateVertex{graphp}
         , m_vscp{vscp} {
         // Top level inputs are
-        if (varp()->isPrimaryInish() || varp()->isSigUserRWPublic() || varp()->sampled()
+        যদি (varp()->isPrimaryInish() || varp()->isSigUserRWPublic() || varp()->sampled()
             || varp()->isWrittenByDpi() || varp()->sensIfacep() || varp()->isVirtIface()) {
-            addDrivingRegions(INPUT);
+            addDrivingRegions(প্ৰবেশ);
         }
         // Currently we always execute suspendable processes at the beginning of
         // the act region, which means combinational logic driven from a suspendable
         // processes must be present in the 'act' region
-        if (varp()->isWrittenBySuspendable()) addDrivingRegions(ACTIVE);
+        যদি (varp()->isWrittenBySuspendable()) addDrivingRegions(ACTIVE);
     }
-    AstVarScope* vscp() const { return m_vscp; }
-    AstVar* varp() const { return m_vscp->varp(); }
-    AstScope* scopep() const { return m_vscp->scopep(); }
+    AstVarScope* vscp() ধ্রুৱ { ঘূৰাই m_vscp; }
+    AstVar* varp() ধ্রুৱ { ঘূৰাই m_vscp->varp(); }
+    AstScope* scopep() ধ্রুৱ { ঘূৰাই m_vscp->scopep(); }
 
     // For graph dumping
-    string name() const override VL_MT_STABLE { return m_vscp->name(); }
-    string dotShape() const override { return varp()->isPrimaryInish() ? "invhouse" : "ellipse"; }
+    string name() ধ্রুৱ override VL_MT_STABLE { ঘূৰাই m_vscp->name(); }
+    string dotShape() ধ্রুৱ override { ঘূৰাই varp()->isPrimaryInish() ? "invhouse" : "ellipse"; }
 };
 
-class Graph final : public V3Graph {};
+শ্ৰেণী Graph final : সার্ৱজনিক V3Graph {};
 
 //##############################################################################
 // Algorithm implementation
 
-std::unique_ptr<Graph> buildGraph(const LogicRegions& logicRegions) {
-    std::unique_ptr<Graph> graphp{new Graph};
+std::unique_ptr<Graph> buildGraph(ধ্রুৱ LogicRegions& logicRegions) {
+    std::unique_ptr<Graph> graphp{নূতন Graph};
 
     // AstVarScope::user1() -> VarVertx
-    const VNUser1InUse user1InUse;
-    const auto getVarVertex = [&](AstVarScope* vscp) {
-        if (!vscp->user1p()) vscp->user1p(new SchedReplicateVarVertex{graphp.get(), vscp});
-        return vscp->user1u().to<SchedReplicateVarVertex*>();
+    ধ্রুৱ VNUser1InUse user1InUse;
+    ধ্রুৱ auto getVarVertex = [&](AstVarScope* vscp) {
+        যদি (!vscp->user1p()) vscp->user1p(নূতন SchedReplicateVarVertex{graphp.get(), vscp});
+        ঘূৰাই vscp->user1u().to<SchedReplicateVarVertex*>();
     };
 
-    const auto addEdge = [&](SchedReplicateVertex* fromp, SchedReplicateVertex* top) {
-        new V3GraphEdge{graphp.get(), fromp, top, 1};
+    ধ্রুৱ auto addEdge = [&](SchedReplicateVertex* fromp, SchedReplicateVertex* শীৰ্ষ) {
+        নূতন V3GraphEdge{graphp.get(), fromp, শীৰ্ষ, 1};
     };
 
-    const auto addLogic = [&](RegionFlags region, AstScope* scopep, AstActive* activep) {
-        AstSenTree* const senTreep = activep->sentreep();
+    ধ্রুৱ auto addLogic = [&](RegionFlags region, AstScope* scopep, AstActive* activep) {
+        Ast_Sen_বৃক্ষ* ধ্রুৱ senTreep = activep->sentreep();
 
         // Predicate for whether a read of the given variable triggers this block
-        std::function<bool(AstVarScope*)> readTriggersThisLogic;
+        std::function<তার্কিক(AstVarScope*)> readTriggersThisLogic;
 
-        const VNUser4InUse user4InUse;  // bool: Explicit sensitivity of hybrid logic just below
+        ধ্রুৱ VNUser4InUse user4InUse;  // bool: Explicit sensitivity of hybrid logic just below
 
-        if (senTreep->hasClocked()) {
+        যদি (senTreep->hasClocked()) {
             // Clocked logic is never triggered by reads
-            readTriggersThisLogic = [](AstVarScope*) { return false; };
-        } else if (senTreep->hasCombo()) {
+            readTriggersThisLogic = [](AstVarScope*) { ঘূৰাই মিছা; };
+        } অন্যথা যদি (senTreep->hasCombo()) {
             // Combinational logic is always triggered by reads
-            readTriggersThisLogic = [](AstVarScope*) { return true; };
-        } else {
+            readTriggersThisLogic = [](AstVarScope*) { ঘূৰাই সঁচা; };
+        } অন্যথা {
             UASSERT_OBJ(senTreep->hasHybrid(), activep, "unexpected");
             // Hybrid logic is triggered by all reads, except for reads of the explicit
             // sensitivities
-            readTriggersThisLogic = [](AstVarScope* vscp) { return !vscp->user4(); };
-            senTreep->foreach([](const AstVarRef* refp) {  //
-                refp->varScopep()->user4(true);
+            readTriggersThisLogic = [](AstVarScope* vscp) { ঘূৰাই !vscp->user4(); };
+            senTreep->foreach([](ধ্রুৱ AstVarRef* refp) {  //
+                refp->varScopep()->user4(সঁচা);
             });
         }
 
-        for (AstNode* nodep = activep->stmtsp(); nodep; nodep = nodep->nextp()) {
-            SchedReplicateLogicVertex* const lvtxp
-                = new SchedReplicateLogicVertex{graphp.get(), scopep, senTreep, nodep, region};
-            const VNUser2InUse user2InUse;
-            const VNUser3InUse user3InUse;
+        বাবে (Ast_গ্ৰন্থি* nodep = activep->stmtsp(); nodep; nodep = nodep->nextp()) {
+            SchedReplicateLogicVertex* ধ্রুৱ lvtxp
+                = নূতন SchedReplicateLogicVertex{graphp.get(), scopep, senTreep, nodep, region};
+            ধ্রুৱ VNUser2InUse user2InUse;
+            ধ্রুৱ VNUser3InUse user3InUse;
 
             V3Sched::util::VarScopeSet forceReadEdgeIgnores;
             V3Sched::util::collectForceReadEdgeIgnores(nodep, forceReadEdgeIgnores);
 
             nodep->foreach([&](AstVarRef* refp) {
-                AstVarScope* const vscp = refp->varScopep();
-                SchedReplicateVarVertex* const vvtxp = getVarVertex(vscp);
-                if (refp->access().isReadOrRW() && !vscp->user3SetOnce()
+                AstVarScope* ধ্রুৱ vscp = refp->varScopep();
+                SchedReplicateVarVertex* ধ্রুৱ vvtxp = getVarVertex(vscp);
+                যদি (refp->access().isReadOrRW() && !vscp->user3SetOnce()
                     && readTriggersThisLogic(vscp) && !vscp->user2()
-                    && !forceReadEdgeIgnores.count(vscp)) {  //
+                    && !forceReadEdgeIgnores.গুনতি(vscp)) {  //
                     addEdge(vvtxp, lvtxp);
                 }
                 // If written, add logic -> var edge
                 // Note: See V3Order for why AlwaysPostponed is safe to be ignored. We ignore it
                 // as otherwise we would end up with a false cycle.
-                if (refp->access().isWriteOrRW() && !refp->varp()->ignoreSchedWrite()
+                যদি (refp->access().isWriteOrRW() && !refp->varp()->ignoreSchedWrite()
                     && !vscp->user2SetOnce() && !VN_IS(nodep, AlwaysPostponed)) {  //
                     addEdge(lvtxp, vvtxp);
                 }
@@ -239,27 +239,27 @@ std::unique_ptr<Graph> buildGraph(const LogicRegions& logicRegions) {
         }
     };
 
-    for (const auto& entry : logicRegions.m_pre) addLogic(ACTIVE, entry.m_scopep, entry.m_activep);
-    for (const auto& entry : logicRegions.m_act) addLogic(ACTIVE, entry.m_scopep, entry.m_activep);
-    for (const auto& entry : logicRegions.m_nba) addLogic(NBA, entry.m_scopep, entry.m_activep);
-    for (const auto& entry : logicRegions.m_obs)
+    বাবে (ধ্রুৱ auto& entry : logicRegions.m_pre) addLogic(ACTIVE, entry.m_scopep, entry.m_activep);
+    বাবে (ধ্রুৱ auto& entry : logicRegions.m_act) addLogic(ACTIVE, entry.m_scopep, entry.m_activep);
+    বাবে (ধ্রুৱ auto& entry : logicRegions.m_nba) addLogic(NBA, entry.m_scopep, entry.m_activep);
+    বাবে (ধ্রুৱ auto& entry : logicRegions.m_obs)
         addLogic(OBSERVED, entry.m_scopep, entry.m_activep);
-    for (const auto& entry : logicRegions.m_react)
+    বাবে (ধ্রুৱ auto& entry : logicRegions.m_react)
         addLogic(REACTIVE, entry.m_scopep, entry.m_activep);
 
-    return graphp;
+    ঘূৰাই graphp;
 }
 
-void propagateDrivingRegions(SchedReplicateVertex* vtxp) {
+শূন্য propagateDrivingRegions(SchedReplicateVertex* vtxp) {
     // Note: The graph is always acyclic, so the recursion will terminate
 
     // Nothing to do if already visited
-    if (vtxp->user()) return;
+    যদি (vtxp->user()) ঘূৰাই;
 
     // Compute union of driving regions of all inputs
     uint8_t drivingRegions = 0;
-    for (V3GraphEdge& edge : vtxp->inEdges()) {
-        SchedReplicateVertex* const srcp = edge.fromp()->as<SchedReplicateVertex>();
+    বাবে (V3GraphEdge& edge : vtxp->inEdges()) {
+        SchedReplicateVertex* ধ্রুৱ srcp = edge.fromp()->as<SchedReplicateVertex>();
         propagateDrivingRegions(srcp);
         drivingRegions |= srcp->drivingRegions();
     }
@@ -268,44 +268,44 @@ void propagateDrivingRegions(SchedReplicateVertex* vtxp) {
     vtxp->addDrivingRegions(drivingRegions);
 
     // Mark as visited
-    vtxp->user(true);
+    vtxp->user(সঁচা);
 }
 
 LogicReplicas replicate(Graph* graphp) {
     LogicReplicas result;
-    for (V3GraphVertex& vtx : graphp->vertices()) {
-        if (SchedReplicateLogicVertex* const lvtxp = vtx.cast<SchedReplicateLogicVertex>()) {
-            const auto replicateTo = [&](LogicByScope& lbs) {
-                lbs.add(lvtxp->scopep(), lvtxp->senTreep(), lvtxp->logicp()->cloneTree(false));
+    বাবে (V3GraphVertex& vtx : graphp->vertices()) {
+        যদি (SchedReplicateLogicVertex* ধ্রুৱ lvtxp = vtx.cast<SchedReplicateLogicVertex>()) {
+            ধ্রুৱ auto replicateTo = [&](LogicByScope& lbs) {
+                lbs.add(lvtxp->scopep(), lvtxp->senTreep(), lvtxp->logicp()->clone_বৃক্ষ(মিছা));
             };
-            const uint8_t targetRegions = lvtxp->drivingRegions() & ~lvtxp->assignedRegion();
+            ধ্রুৱ uint8_t targetRegions = lvtxp->drivingRegions() & ~lvtxp->assignedRegion();
             UASSERT(!lvtxp->senTreep()->hasClocked() || targetRegions == 0,
                     "replicating clocked logic");
-            if (targetRegions & INPUT) replicateTo(result.m_ico);
-            if (targetRegions & ACTIVE) replicateTo(result.m_act);
-            if (targetRegions & NBA) replicateTo(result.m_nba);
-            if (targetRegions & OBSERVED) replicateTo(result.m_obs);
-            if (targetRegions & REACTIVE) replicateTo(result.m_react);
+            যদি (targetRegions & প্ৰবেশ) replicateTo(result.m_ico);
+            যদি (targetRegions & ACTIVE) replicateTo(result.m_act);
+            যদি (targetRegions & NBA) replicateTo(result.m_nba);
+            যদি (targetRegions & OBSERVED) replicateTo(result.m_obs);
+            যদি (targetRegions & REACTIVE) replicateTo(result.m_react);
         }
     }
-    return result;
+    ঘূৰাই result;
 }
 
 }  // namespace
 
 LogicReplicas replicateLogic(LogicRegions& logicRegionsRegions) {
     // Build the dataflow (dependency) graph
-    const std::unique_ptr<Graph> graphp = buildGraph(logicRegionsRegions);
+    ধ্রুৱ std::unique_ptr<Graph> graphp = buildGraph(logicRegionsRegions);
     // Dump for debug
-    if (dumpGraphLevel() >= 6) graphp->dumpDotFilePrefixed("sched-replicate");
+    যদি (dumpGraphLevel() >= 6) graphp->dumpDotFilePrefixed("sched-replicate");
     // Propagate driving region flags
-    for (V3GraphVertex& vtx : graphp->vertices()) {
+    বাবে (V3GraphVertex& vtx : graphp->vertices()) {
         propagateDrivingRegions(vtx.as<SchedReplicateVertex>());
     }
     // Dump for debug
-    if (dumpGraphLevel() >= 6) graphp->dumpDotFilePrefixed("sched-replicate-propagated");
+    যদি (dumpGraphLevel() >= 6) graphp->dumpDotFilePrefixed("sched-replicate-propagated");
     // Replicate the necessary logic
-    return replicate(graphp.get());
+    ঘূৰাই replicate(graphp.get());
 }
 
 }  // namespace V3Sched

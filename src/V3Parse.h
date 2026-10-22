@@ -17,11 +17,11 @@
 #ifndef VERILATOR_V3PARSE_H_
 #define VERILATOR_V3PARSE_H_
 
-#include "config_build.h"
-#include "verilatedos.h"
+#অন্তর্ভাৱ "config_build.h"
+#অন্তর্ভাৱ "verilatedos.h"
 
-#include "V3Error.h"
-#include "V3Global.h"
+#অন্তর্ভাৱ "V3Error.h"
+#অন্তর্ভাৱ "V3Global.h"
 
 class AstNetlist;
 class VInFilter;
@@ -35,22 +35,22 @@ class V3Parse final {
     // CONSTRUCTORS
     VL_UNCOPYABLE(V3Parse);
 
-public:
+সার্ৱজনিক:
     // We must allow reading multiple files into one parser
     V3Parse(AstNetlist* rootp, VInFilter* filterp) VL_MT_DISABLED;
     ~V3Parse() VL_MT_DISABLED;
 
     // METHODS
     // Preprocess and read the Verilog file specified into the netlist database
-    void parseFile(FileLine* fileline, const string& modname, bool inLibrary, bool inLibMap,
-                   const string& libname, const string& errmsg,
-                   const std::string& notFoundName = "") VL_MT_DISABLED;
+    শূন্য parseFile(File_সাৰি* fileline, ধ্রুৱ string& modname, bool inLibrary, bool inLibMap,
+                   ধ্রুৱ string& libname, ধ্রুৱ string& errmsg,
+                   ধ্রুৱ std::string& notFoundName = "") VL_MT_DISABLED;
 
     // Push preprocessed text to the lexer
-    static void ppPushText(V3ParseImp* impp, const string& text) VL_MT_DISABLED;
+    স্থির শূন্য pp_ঠেলো_Text(V3ParseImp* impp, ধ্রুৱ string& text) VL_MT_DISABLED;
 
     // Suggest PLI functions for spell check
-    static void candidatePli(VSpellCheck* spellerp) VL_MT_DISABLED;
+    স্থির শূন্য candidatePli(VSpellCheck* spellerp) VL_MT_DISABLED;
 };
 
 #endif  // Guard

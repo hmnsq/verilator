@@ -17,15 +17,15 @@
 #ifndef VERILATOR_V3ORDERINTERNAL_H_
 #define VERILATOR_V3ORDERINTERNAL_H_
 
-#include "config_build.h"
-#include "verilatedos.h"
+#অন্তর্ভাৱ "config_build.h"
+#অন্তর্ভাৱ "verilatedos.h"
 
-#include "V3Order.h"
-#include "V3OrderGraph.h"
-#include "V3OrderMoveGraph.h"
+#অন্তর্ভাৱ "V3Order.h"
+#অন্তর্ভাৱ "V3OrderGraph.h"
+#অন্তর্ভাৱ "V3OrderMoveGraph.h"
 
-#include <string>
-#include <vector>
+#অন্তর্ভাৱ <string>
+#অন্তর্ভাৱ <vector>
 
 class AstVarScope;
 
@@ -37,21 +37,21 @@ class LogicByScope;
 
 namespace V3Order {
 
-std::unique_ptr<OrderGraph> buildOrderGraph(const V3Sched::TriggerKit& trigKit,  //
+std::unique_ptr<OrderGraph> buildOrderGraph(ধ্রুৱ V3Sched::TriggerKit& trigKit,  //
                                             AstVarScope* trigVscp,  //
-                                            const std::vector<V3Sched::LogicByScope*>& coll,  //
-                                            const V3Sched::CovergroupRefBindings& cgRefBindings,
+                                            ধ্রুৱ std::vector<V3Sched::LogicByScope*>& coll,  //
+                                            ধ্রুৱ V3Sched::CovergroupRefBindings& cgRefBindings,
                                             bool parallel);
 
-void orderOrderGraph(OrderGraph& graph, const std::string& tag);
+শূন্য orderOrderGraph(OrderGraph& graph, ধ্রুৱ std::string& tag);
 
-void processDomains(OrderGraph& graph,  //
-                    const std::string& tag,  //
-                    const ExternalTriggersProvider& externalTriggers);
+শূন্য processDomains(OrderGraph& graph,  //
+                    ধ্রুৱ std::string& tag,  //
+                    ধ্রুৱ ExternalTriggersProvider& externalTriggers);
 
-AstNodeStmt* createSerial(OrderMoveGraph& moveGraph, const std::string& tag, bool slow);
+Ast_গ্ৰন্থি_Stmt* createSerial(OrderMoveGraph& moveGraph, ধ্রুৱ std::string& tag, bool slow);
 
-AstNodeStmt* createParallel(OrderMoveGraph& moveGraph, const std::string& tag, bool slow);
+Ast_গ্ৰন্থি_Stmt* createParallel(OrderMoveGraph& moveGraph, ধ্রুৱ std::string& tag, bool slow);
 
 };  // namespace V3Order
 

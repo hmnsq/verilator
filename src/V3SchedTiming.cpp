@@ -24,67 +24,67 @@
 //
 //*************************************************************************
 
-#include "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
+#অন্তর্ভাৱ "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
 
-#include "V3AstUserAllocator.h"
-#include "V3ClassGraph.h"
-#include "V3EmitCBase.h"
-#include "V3Sched.h"
+#অন্তর্ভাৱ "V3AstUserAllocator.h"
+#অন্তর্ভাৱ "V3ClassGraph.h"
+#অন্তর্ভাৱ "V3EmitCBase.h"
+#অন্তর্ভাৱ "V3Sched.h"
 
-#include <unordered_map>
-#include <unordered_set>
+#অন্তর্ভাৱ <unordered_map>
+#অন্তর্ভাৱ <unordered_set>
 
 VL_DEFINE_DEBUG_FUNCTIONS;
 
-namespace V3Sched {
+নামাকাশ V3Sched {
 
 //============================================================================
 // Trigger indices of the external domains of each variable
 
-std::map<const AstVarScope*, std::vector<uint32_t>>
-TimingKit::externalTriggerIndices(const TriggerKit& trigKit) const {
-    std::map<const AstVarScope*, std::vector<uint32_t>> result;
-    for (const auto& vscpDomains : m_externalDomains) {
+std::map<ধ্রুৱ AstVarScope*, std::vector<uint32_t>>
+TimingKit::externalTriggerIndices(ধ্রুৱ TriggerKit& trigKit) ধ্রুৱ {
+    std::map<ধ্রুৱ AstVarScope*, std::vector<uint32_t>> result;
+    বাবে (ধ্রুৱ auto& vscpDomains : m_externalDomains) {
         std::vector<uint32_t>& indices = result[vscpDomains.first];
-        for (const AstSenTree* const domainp : vscpDomains.second) {
-            for (const AstSenItem* itemp = domainp->sensesp(); itemp;
+        বাবে (ধ্রুৱ Ast_Sen_বৃক্ষ* ধ্রুৱ domainp : vscpDomains.second) {
+            বাবে (ধ্রুৱ AstSenItem* itemp = domainp->sensesp(); itemp;
                  itemp = VN_AS(itemp->nextp(), SenItem)) {
-                indices.push_back(trigKit.senItem2TrigIdx(itemp));
+                indices.ঠেলো_back(trigKit.senItem2TrigIdx(itemp));
             }
         }
     }
-    return result;
+    ঘূৰাই result;
 }
 
 //============================================================================
 // Creates a timing resume call (if needed, else returns null)
 
 AstCCall* TimingKit::createResume(AstVarScope* trigVscp) {
-    if (!m_resumeFuncp) {
-        if (m_lbs.empty()) return nullptr;
+    যদি (!m_resumeFuncp) {
+        যদি (m_lbs.empty()) ঘূৰাই nullptr;
         // Create global resume function
-        AstNetlist* const netlistp = v3Global.rootp();
-        AstScope* const scopeTopp = netlistp->topScopep()->scopep();
-        m_resumeFuncp = new AstCFunc{netlistp->fileline(), "_timing_resume", scopeTopp, ""};
-        m_resumeFuncp->dontCombine(true);
-        m_resumeFuncp->isLoose(true);
-        m_resumeFuncp->isConst(false);
-        m_resumeFuncp->declPrivate(true);
+        AstNetlist* ধ্রুৱ netlistp = v3Global.rootp();
+        AstScope* ধ্রুৱ scopeTopp = netlistp->শীৰ্ষ_Scopep()->scopep();
+        m_resumeFuncp = নূতন AstCFunc{netlistp->fileline(), "_timing_resume", scopeTopp, ""};
+        m_resumeFuncp->dontCombine(সঁচা);
+        m_resumeFuncp->isLoose(সঁচা);
+        m_resumeFuncp->isConst(মিছা);
+        m_resumeFuncp->declPrivate(সঁচা);
         scopeTopp->addBlocksp(m_resumeFuncp);
 
-        for (const auto& entry : m_lbs) {
-            AstActive* const activep = entry.m_activep;
-            activep->foreach([this](AstCMethodHard* const exprp) {
-                if (exprp->method() != VCMethod::SCHED_RESUME) return;
-                AstNodeExpr* const fromp = exprp->fromp();
-                if (VN_AS(fromp->dtypep(), BasicDType)->keyword()
+        বাবে (ধ্রুৱ auto& entry : m_lbs) {
+            AstActive* ধ্রুৱ activep = entry.m_activep;
+            activep->foreach([এতত্](AstCMethodHard* ধ্রুৱ exprp) {
+                যদি (exprp->method() != VCMethod::SCHED_RESUME) ঘূৰাই;
+                Ast_গ্ৰন্থি_ৰাশিমালা* ধ্রুৱ fromp = exprp->fromp();
+                যদি (VN_AS(fromp->dtypep(), BasicDType)->keyword()
                     != VBasicDTypeKwd::TRIGGER_SCHEDULER) {
-                    return;
+                    ঘূৰাই;
                 }
-                AstCMethodHard* const moveToResumep = new AstCMethodHard{
-                    fromp->fileline(), fromp->cloneTree(false),
+                AstCMethodHard* ধ্রুৱ moveToResumep = নূতন AstCMethodHard{
+                    fromp->fileline(), fromp->clone_বৃক্ষ(মিছা),
                     VCMethod::SCHED_MOVE_TO_RESUME_QUEUE,
-                    exprp->pinsp() ? exprp->pinsp()->cloneTree(true) : nullptr};
+                    exprp->pinsp() ? exprp->pinsp()->clone_বৃক্ষ(সঁচা) : nullptr};
                 moveToResumep->dtypeSetVoid();
                 m_resumeFuncp->addStmtsp(moveToResumep->makeStmt());
             });
@@ -92,123 +92,123 @@ AstCCall* TimingKit::createResume(AstVarScope* trigVscp) {
 
         // Put all the timing actives in the resume function
         AstIf* dlyShedIfp = nullptr;
-        for (const auto& entry : m_lbs) {
-            AstActive* const activep = entry.m_activep;
+        বাবে (ধ্রুৱ auto& entry : m_lbs) {
+            AstActive* ধ্রুৱ activep = entry.m_activep;
             // Resume time delays last. For no particular reason other than
             // that's what we used to do prior to proper #0 support.
-            AstVarRef* const schedrefp = VN_AS(
-                VN_AS(VN_AS(activep->stmtsp(), StmtExpr)->exprp(), CMethodHard)->fromp(), VarRef);
+            AstVarRef* ধ্রুৱ schedrefp = VN_AS(
+                VN_AS(VN_AS(activep->stmtsp(), Stmt_ৰাশিমালা)->exprp(), CMethodHard)->fromp(), VarRef);
 
-            AstNode* const actionp = activep->stmtsp()->unlinkFrBackWithNext();
-            if (schedrefp->varScopep()->dtypep()->basicp()->isDelayScheduler()) {
-                FileLine* const flp = trigVscp->fileline();
-                const std::set<uint32_t>& triggers = entry.m_triggers;
-                AstTriggered* const condp
-                    = new AstTriggered{flp, trigVscp, {triggers.begin(), triggers.end()}};
-                dlyShedIfp = new AstIf{flp, condp};
+            Ast_গ্ৰন্থি* ধ্রুৱ actionp = activep->stmtsp()->unlinkFrBackWithNext();
+            যদি (schedrefp->varScopep()->dtypep()->basicp()->isDelayScheduler()) {
+                File_সাৰি* ধ্রুৱ flp = trigVscp->fileline();
+                ধ্রুৱ std::set<uint32_t>& triggers = entry.m_triggers;
+                AstTriggered* ধ্রুৱ condp
+                    = নূতন AstTriggered{flp, trigVscp, {triggers.begin(), triggers.end()}};
+                dlyShedIfp = নূতন AstIf{flp, condp};
                 dlyShedIfp->addThensp(actionp);
-            } else {
+            } অন্যথা {
                 m_resumeFuncp->addStmtsp(actionp);
             }
         }
-        if (dlyShedIfp) m_resumeFuncp->addStmtsp(dlyShedIfp);
+        যদি (dlyShedIfp) m_resumeFuncp->addStmtsp(dlyShedIfp);
 
         // These are now spent, oispose of now empty AstActive instances
         m_lbs.deleteActives();
     }
-    AstCCall* const callp = new AstCCall{m_resumeFuncp->fileline(), m_resumeFuncp};
+    AstCCall* ধ্রুৱ callp = নূতন AstCCall{m_resumeFuncp->fileline(), m_resumeFuncp};
     callp->dtypeSetVoid();
-    return callp;
+    ঘূৰাই callp;
 }
 
-AstVarScope* TimingKit::getDelayScheduler(AstNetlist* const /*netlistp*/) {
-    for (const auto& entry : m_lbs) {
-        AstActive* const ap = entry.m_activep;
+AstVarScope* TimingKit::getDelayScheduler(AstNetlist* ধ্রুৱ /*netlistp*/) {
+    বাবে (ধ্রুৱ auto& entry : m_lbs) {
+        AstActive* ধ্রুৱ ap = entry.m_activep;
         // TODO: this triple VN_AS expression is ridiculous
-        AstVarRef* const schedrefp
-            = VN_AS(VN_AS(VN_AS(ap->stmtsp(), StmtExpr)->exprp(), CMethodHard)->fromp(), VarRef);
-        AstVarScope* const vscp = schedrefp->varScopep();
-        if (vscp->dtypep()->basicp()->isDelayScheduler()) return vscp;
+        AstVarRef* ধ্রুৱ schedrefp
+            = VN_AS(VN_AS(VN_AS(ap->stmtsp(), Stmt_ৰাশিমালা)->exprp(), CMethodHard)->fromp(), VarRef);
+        AstVarScope* ধ্রুৱ vscp = schedrefp->varScopep();
+        যদি (vscp->dtypep()->basicp()->isDelayScheduler()) ঘূৰাই vscp;
     }
     // None found. Design doesn't use any time delays
-    return nullptr;
+    ঘূৰাই nullptr;
 }
 
 //============================================================================
 // Creates a timing ready call (if needed, else returns null)
 
 AstCCall* TimingKit::createReady(AstVarScope* trigVscp) {
-    if (!m_readyFuncp) {
-        for (const auto& entry : m_lbs) {
-            AstActive* const activep = entry.m_activep;
-            auto* const resumep = VN_AS(VN_AS(activep->stmtsp(), StmtExpr)->exprp(), CMethodHard);
+    যদি (!m_readyFuncp) {
+        বাবে (ধ্রুৱ auto& entry : m_lbs) {
+            AstActive* ধ্রুৱ activep = entry.m_activep;
+            auto* ধ্রুৱ resumep = VN_AS(VN_AS(activep->stmtsp(), Stmt_ৰাশিমালা)->exprp(), CMethodHard);
             UASSERT_OBJ(!resumep->nextp(), resumep, "Should be the only statement here");
-            AstVarScope* const schedulerp = VN_AS(resumep->fromp(), VarRef)->varScopep();
+            AstVarScope* ধ্রুৱ schedulerp = VN_AS(resumep->fromp(), VarRef)->varScopep();
             UASSERT_OBJ(schedulerp->dtypep()->basicp()->isDelayScheduler()
                             || schedulerp->dtypep()->basicp()->isTriggerScheduler()
                             || schedulerp->dtypep()->basicp()->isDynamicTriggerScheduler(),
                         schedulerp, "Unexpected type");
-            if (!schedulerp->dtypep()->basicp()->isTriggerScheduler()) continue;
+            যদি (!schedulerp->dtypep()->basicp()->isTriggerScheduler()) অনুৱর্ত;
             // Create the global ready function only if we have trigger schedulers
-            if (!m_readyFuncp) {
-                AstNetlist* const netlistp = v3Global.rootp();
-                AstScope* const scopeTopp = netlistp->topScopep()->scopep();
-                m_readyFuncp = new AstCFunc{netlistp->fileline(), "_timing_ready", scopeTopp, ""};
-                m_readyFuncp->dontCombine(true);
-                m_readyFuncp->isLoose(true);
-                m_readyFuncp->isConst(false);
-                m_readyFuncp->declPrivate(true);
+            যদি (!m_readyFuncp) {
+                AstNetlist* ধ্রুৱ netlistp = v3Global.rootp();
+                AstScope* ধ্রুৱ scopeTopp = netlistp->শীৰ্ষ_Scopep()->scopep();
+                m_readyFuncp = নূতন AstCFunc{netlistp->fileline(), "_timing_ready", scopeTopp, ""};
+                m_readyFuncp->dontCombine(সঁচা);
+                m_readyFuncp->isLoose(সঁচা);
+                m_readyFuncp->isConst(মিছা);
+                m_readyFuncp->declPrivate(সঁচা);
                 scopeTopp->addBlocksp(m_readyFuncp);
             }
 
-            FileLine* const flp = activep->sentreep()->fileline();
+            File_সাৰি* ধ্রুৱ flp = activep->sentreep()->fileline();
 
             // Create an 'AstIf' sensitive to the suspending triggers
-            const std::set<uint32_t>& triggers = entry.m_triggers;
-            AstTriggered* const condp
-                = new AstTriggered{flp, trigVscp, {triggers.begin(), triggers.end()}};
-            AstIf* const ifp = new AstIf{flp, condp};
+            ধ্রুৱ std::set<uint32_t>& triggers = entry.m_triggers;
+            AstTriggered* ধ্রুৱ condp
+                = নূতন AstTriggered{flp, trigVscp, {triggers.begin(), triggers.end()}};
+            AstIf* ধ্রুৱ ifp = নূতন AstIf{flp, condp};
             m_readyFuncp->addStmtsp(ifp);
 
             // Mark as ready the processes resumed on this sensitivity expression
-            AstVarRef* const refp = new AstVarRef{flp, schedulerp, VAccess::READWRITE};
-            AstCMethodHard* const callp = new AstCMethodHard{flp, refp, VCMethod::SCHED_READY};
+            AstVarRef* ধ্রুৱ refp = নূতন AstVarRef{flp, schedulerp, VAccess::READWRITE};
+            AstCMethodHard* ধ্রুৱ callp = নূতন AstCMethodHard{flp, refp, VCMethod::SCHED_READY};
             callp->dtypeSetVoid();
-            if (resumep->pinsp()) callp->addPinsp(resumep->pinsp()->cloneTree(false));
+            যদি (resumep->pinsp()) callp->addPinsp(resumep->pinsp()->clone_বৃক্ষ(মিছা));
             ifp->addThensp(callp->makeStmt());
         }
         // We still haven't created a ready function (no trigger schedulers), return null
-        if (!m_readyFuncp) return nullptr;
+        যদি (!m_readyFuncp) ঘূৰাই nullptr;
     }
-    AstCCall* const callp = new AstCCall{m_readyFuncp->fileline(), m_readyFuncp};
+    AstCCall* ধ্রুৱ callp = নূতন AstCCall{m_readyFuncp->fileline(), m_readyFuncp};
     callp->dtypeSetVoid();
-    return callp;
+    ঘূৰাই callp;
 }
 
 //============================================================================
 // Creates the timing kit and marks variables written by suspendables
 
-class AwaitVisitor final : public VNVisitor {
+শ্ৰেণী AwaitVisitor final : সার্ৱজনিক VNVisitor {
     // NODE STATE
     //  AstSenTree::user1()  -> bool.               Set true if the sentree has been visited.
     //  AstCFunc::user1()    -> AstUser1Allocator.  See alocator below
-    const VNUser1InUse m_inuser1;
+    ধ্রুৱ VNUser1InUse m_inuser1;
 
     // STATE
-    bool m_inProcess = false;  // Are we in a process?
-    bool m_gatherVars = false;  // Should we gather vars in m_writtenBySuspendable?
-    AstScope* const m_scopeTopp;  // Scope at the top
+    তার্কিক m_inProcess = মিছা;  // Are we in a process?
+    তার্কিক m_gatherVars = মিছা;  // Should we gather vars in m_writtenBySuspendable?
+    AstScope* ধ্রুৱ m_scopeTopp;  // Scope at the top
     LogicByScope& m_lbs;  // Timing resume actives
-    AstNodeStmt*& m_postUpdatesr;  // Post updates for the trigger eval function
+    Ast_গ্ৰন্থি_Stmt*& m_postUpdatesr;  // Post updates for the trigger eval function
     // Additional var sensitivities
-    std::map<const AstVarScope*, std::set<AstSenTree*>>& m_externalDomains;
+    std::map<ধ্রুৱ AstVarScope*, std::set<Ast_Sen_বৃক্ষ*>>& m_externalDomains;
     std::unique_ptr<V3ClassGraph>
         m_classGraphp;  // class graph to get possibly called functions from a virtual call
-    std::set<AstSenTree*> m_processDomains;  // Sentrees from the current process
+    std::set<Ast_Sen_বৃক্ষ*> m_processDomains;  // Sentrees from the current process
     // Variables written by suspendable processes
     std::set<AstVarScope*> m_writtenBySuspendable;
-    struct CFuncCache final {
-        std::set<AstSenTree*> m_processDomains;  // What shall be added to m_processDomains
+    সংরচনা CFuncCache final {
+        std::set<Ast_Sen_বৃক্ষ*> m_processDomains;  // What shall be added to m_processDomains
         std::set<AstVarScope*>
             m_writtenBySuspendable;  // What shall be added to m_writtenBySuspendable
         std::set<AstCFunc*> m_includes;  // CFuncs whose CFuncCache shall be included into this
@@ -221,14 +221,14 @@ class AwaitVisitor final : public VNVisitor {
         //  won't be in visiting state
         //  therefore, every node in a m_includes shall take value of m_gatherVars under which
         //  current CFuncCache is
-        enum State : uint8_t {
+        গণনা State : uint8_t {
             UNINITIALIZED = 0,  // Not initialized members are empty
             VISITING,  // Visiting - needed for breaking recursion
             INITIALIZED,  // Members contains correct values
         } m_state  // Current state of Cache
             = UNINITIALIZED;
     };
-    std::vector<const AstCFunc*> m_callStack;  // Current callstack of AstCFuncs
+    std::vector<ধ্রুৱ AstCFunc*> m_call_স্তূপ;  // Current callstack of AstCFuncs
     // Caches how visiting the function with given value of m_gatherVars changes
     // m_processDomains and m_writtenBySuspendable - only accessed from visit(AstCFunc* nodep)
     AstUser1Allocator<AstCFunc, std::array<CFuncCache, 2>> m_cfuncsCache;
@@ -237,158 +237,158 @@ class AwaitVisitor final : public VNVisitor {
 
     // METHODS
     // Add arguments to a resume() call based on arguments in the suspending call
-    void addResumePins(AstCMethodHard* const resumep, AstNodeExpr* pinsp) {
-        AstCExpr* const exprp = VN_CAST(pinsp, CExpr);
-        AstText* const textp = VN_CAST(exprp->nodesp(), Text);
-        if (textp) {
+    শূন্য addResumePins(AstCMethodHard* ধ্রুৱ resumep, Ast_গ্ৰন্থি_ৰাশিমালা* pinsp) {
+        AstCExpr* ধ্রুৱ exprp = VN_CAST(pinsp, CExpr);
+        AstText* ধ্রুৱ textp = VN_CAST(exprp->nodesp(), Text);
+        যদি (textp) {
             // The first argument, vlProcess, isn't used by any of resume() methods, skip it
-            if ((pinsp = VN_CAST(pinsp->nextp(), NodeExpr))) {
-                resumep->addPinsp(pinsp->cloneTree(false));
+            যদি ((pinsp = VN_CAST(pinsp->nextp(), গ্ৰন্থি_ৰাশিমালা))) {
+                resumep->addPinsp(pinsp->clone_বৃক্ষ(মিছা));
             }
-        } else {
-            resumep->addPinsp(pinsp->cloneTree(false));
+        } অন্যথা {
+            resumep->addPinsp(pinsp->clone_বৃক্ষ(মিছা));
         }
     }
-    void addCFuncCachedValues(const AstCFunc* const cfuncp,
-                              std::unordered_set<const AstCFunc*>& visited) {
-        if (!visited.insert(cfuncp).second) return;
-        CFuncCache& value = m_cfuncsCache(cfuncp)[static_cast<size_t>(m_gatherVars)];
-        const size_t initialSize = m_writtenBySuspendable.size();
-        m_writtenBySuspendable.insert(value.m_writtenBySuspendable.begin(),
-                                      value.m_writtenBySuspendable.end());
+    শূন্য add_CFunc_Cached_মানসমূহ(ধ্রুৱ AstCFunc* ধ্রুৱ cfuncp,
+                              std::unordered_set<ধ্রুৱ AstCFunc*>& visited) {
+        যদি (!visited.ঢোকাও(cfuncp).second) ঘূৰাই;
+        CFuncCache& মান = m_cfuncsCache(cfuncp)[static_cast<size_t>(m_gatherVars)];
+        ধ্রুৱ size_t initialSize = m_writtenBySuspendable.size();
+        m_writtenBySuspendable.ঢোকাও(মান.m_writtenBySuspendable.begin(),
+                                      মান.m_writtenBySuspendable.end());
         m_notInlinedWritesInSuspendableUsage += m_writtenBySuspendable.size() - initialSize;
-        m_processDomains.insert(value.m_processDomains.begin(), value.m_processDomains.end());
-        for (const AstCFunc* const includedp : value.m_includes) {
-            addCFuncCachedValues(includedp, visited);
+        m_processDomains.ঢোকাও(মান.m_processDomains.begin(), মান.m_processDomains.end());
+        বাবে (ধ্রুৱ AstCFunc* ধ্রুৱ includedp : মান.m_includes) {
+            add_CFunc_Cached_মানসমূহ(includedp, visited);
         }
     }
     // Create an active with a timing scheduler resume() call
-    void createResumeActive(AstCAwait* const awaitp) {
-        auto* const methodp = VN_AS(awaitp->exprp(), CMethodHard);
-        AstVarScope* const schedulerp = VN_AS(methodp->fromp(), VarRef)->varScopep();
-        AstSenTree* const sentreep = awaitp->sentreep();
-        FileLine* const flp = sentreep->fileline();
+    শূন্য createResumeActive(AstCAwait* ধ্রুৱ awaitp) {
+        auto* ধ্রুৱ methodp = VN_AS(awaitp->exprp(), CMethodHard);
+        AstVarScope* ধ্রুৱ schedulerp = VN_AS(methodp->fromp(), VarRef)->varScopep();
+        Ast_Sen_বৃক্ষ* ধ্রুৱ sentreep = awaitp->sentreep();
+        File_সাৰি* ধ্রুৱ flp = sentreep->fileline();
         // Create a resume() call on the timing scheduler
-        auto* const resumep = new AstCMethodHard{
-            flp, new AstVarRef{flp, schedulerp, VAccess::READWRITE}, VCMethod::SCHED_RESUME};
+        auto* ধ্রুৱ resumep = নূতন AstCMethodHard{
+            flp, নূতন AstVarRef{flp, schedulerp, VAccess::READWRITE}, VCMethod::SCHED_RESUME};
         resumep->dtypeSetVoid();
-        if (schedulerp->dtypep()->basicp()->isTriggerScheduler()) {
+        যদি (schedulerp->dtypep()->basicp()->isTriggerScheduler()) {
             UASSERT_OBJ(methodp->pinsp(), methodp,
                         "Trigger method should have pins from V3Timing");
             // The first pin is the ready boolean, the rest (if any) should be debug info
             // See V3Timing for details
-            if (AstNode* const dbginfop = methodp->pinsp()->nextp()) {
-                if (methodp->pinsp()) addResumePins(resumep, static_cast<AstNodeExpr*>(dbginfop));
+            যদি (Ast_গ্ৰন্থি* ধ্রুৱ dbginfop = methodp->pinsp()->nextp()) {
+                যদি (methodp->pinsp()) addResumePins(resumep, static_cast<Ast_গ্ৰন্থি_ৰাশিমালা*>(dbginfop));
             }
-        } else if (schedulerp->dtypep()->basicp()->isDynamicTriggerScheduler()) {
-            auto* const postp = resumep->cloneTree(false);
+        } অন্যথা যদি (schedulerp->dtypep()->basicp()->isDynamicTriggerScheduler()) {
+            auto* ধ্রুৱ postp = resumep->clone_বৃক্ষ(মিছা);
             postp->method(VCMethod::SCHED_DO_POST_UPDATES);
-            m_postUpdatesr = AstNode::addNext(m_postUpdatesr, postp->makeStmt());
+            m_postUpdatesr = Ast_গ্ৰন্থি::addNext(m_postUpdatesr, postp->makeStmt());
         }
         // Put it in an active
-        AstActive* const activep = new AstActive{flp, "_timing", sentreep};
+        AstActive* ধ্রুৱ activep = নূতন AstActive{flp, "_timing", sentreep};
         activep->addStmtsp(resumep->makeStmt());
         m_lbs.add(m_scopeTopp, activep);
     }
     // Visit AstCFunc from a AstNodeCCall - this function is rather expensive to call therefore, it
     // only shall be called when necessary
-    void visitCalledCFunc(AstCFunc* const nodep) {
-        if (!m_inProcess) return;  // Skip if not in process - nothing would be added to any set
-        const size_t cacheKey = static_cast<size_t>(m_gatherVars);
-        CFuncCache& value = m_cfuncsCache(nodep)[cacheKey];
-        switch (value.m_state) {
-        case CFuncCache::UNINITIALIZED: {
+    শূন্য visitCalledCFunc(AstCFunc* ধ্রুৱ nodep) {
+        যদি (!m_inProcess) ঘূৰাই;  // Skip if not in process - nothing would be added to any set
+        ধ্রুৱ size_t cache_চাবি = static_cast<size_t>(m_gatherVars);
+        CFuncCache& মান = m_cfuncsCache(nodep)[cache_চাবি];
+        ৱিকল্প (মান.m_state) {
+        পক্ষ CFuncCache::UNINITIALIZED: {
             // Save current state
             VL_RESTORER_CLEAR(m_processDomains);
             VL_RESTORER_CLEAR(m_writtenBySuspendable);
 
             // Visit
-            value.m_state = CFuncCache::VISITING;
-            m_callStack.push_back(nodep);
+            মান.m_state = CFuncCache::VISITING;
+            m_call_স্তূপ.ঠেলো_back(nodep);
             iterateChildren(nodep);
-            m_callStack.pop_back();
-            value.m_state = CFuncCache::INITIALIZED;
+            m_call_স্তূপ.বেৰ_কৰো_back();
+            মান.m_state = CFuncCache::INITIALIZED;
 
             // Save a cache
-            std::swap(m_processDomains, value.m_processDomains);
-            std::swap(m_writtenBySuspendable, value.m_writtenBySuspendable);
-        } break;
-        case CFuncCache::VISITING: {
-            for (size_t i = m_callStack.size() - 1; m_callStack.at(i) != nodep; --i) {
-                m_cfuncsCache(m_callStack[i])[cacheKey].m_includes.insert(nodep);
+            std::swap(m_processDomains, মান.m_processDomains);
+            std::swap(m_writtenBySuspendable, মান.m_writtenBySuspendable);
+        } ভঙ্গ;
+        পক্ষ CFuncCache::VISITING: {
+            বাবে (size_t i = m_call_স্তূপ.size() - 1; m_call_স্তূপ.at(i) != nodep; --i) {
+                m_cfuncsCache(m_call_স্তূপ[i])[cache_চাবি].m_includes.ঢোকাও(nodep);
             }
-            return;  // Break recursion
+            ঘূৰাই;  // Break recursion
         }
-        case CFuncCache::INITIALIZED: break;
+        পক্ষ CFuncCache::INITIALIZED: ভঙ্গ;
         }
-        std::unordered_set<const AstCFunc*> visited;
-        addCFuncCachedValues(nodep, visited);
+        std::unordered_set<ধ্রুৱ AstCFunc*> visited;
+        add_CFunc_Cached_মানসমূহ(nodep, visited);
     }
 
     // VISITORS
-    void visit(AstNodeProcedure* const nodep) override {
+    শূন্য visit(Ast_গ্ৰন্থি_Procedure* ধ্রুৱ nodep) override {
         UASSERT_OBJ(!m_inProcess && !m_gatherVars && m_processDomains.empty()
                         && m_writtenBySuspendable.empty(),
                     nodep, "Process in process?");
-        m_inProcess = true;
+        m_inProcess = সঁচা;
         m_gatherVars = nodep->isSuspendable();  // Only gather vars in a suspendable
         iterateChildren(nodep);
-        for (AstVarScope* const vscp : m_writtenBySuspendable) {
-            m_externalDomains[vscp].insert(m_processDomains.begin(), m_processDomains.end());
+        বাবে (AstVarScope* ধ্রুৱ vscp : m_writtenBySuspendable) {
+            m_externalDomains[vscp].ঢোকাও(m_processDomains.begin(), m_processDomains.end());
             vscp->varp()->setWrittenBySuspendable();
         }
         m_processDomains.clear();
         m_writtenBySuspendable.clear();
-        m_inProcess = false;
-        m_gatherVars = false;
+        m_inProcess = মিছা;
+        m_gatherVars = মিছা;
     }
-    void visit(AstFork* nodep) override {
+    শূন্য visit(AstFork* nodep) override {
         VL_RESTORER(m_gatherVars);
-        if (m_inProcess) m_gatherVars = true;
+        যদি (m_inProcess) m_gatherVars = সঁচা;
         // If not in a process, we don't need to gather variables or domains
         iterateChildren(nodep);
     }
-    void visit(AstCAwait* nodep) override {
-        if (AstSenTree* const sentreep = nodep->sentreep()) {
-            if (!sentreep->user1SetOnce()) createResumeActive(nodep);
-            if (m_inProcess) m_processDomains.insert(sentreep);
+    শূন্য visit(AstCAwait* nodep) override {
+        যদি (Ast_Sen_বৃক্ষ* ধ্রুৱ sentreep = nodep->sentreep()) {
+            যদি (!sentreep->user1SetOnce()) createResumeActive(nodep);
+            যদি (m_inProcess) m_processDomains.ঢোকাও(sentreep);
         }
         iterateChildren(nodep);
     }
-    void visit(AstNodeVarRef* nodep) override {
-        if (m_gatherVars && nodep->access().isWriteOrRW() && !nodep->varp()->ignoreSchedWrite()) {
-            m_writtenBySuspendable.insert(nodep->varScopep());
+    শূন্য visit(Ast_গ্ৰন্থি_Var_Ref* nodep) override {
+        যদি (m_gatherVars && nodep->access().isWriteOrRW() && !nodep->varp()->ignoreSchedWrite()) {
+            m_writtenBySuspendable.ঢোকাও(nodep->varScopep());
         }
     }
-    void visit(AstNodeCCall* const nodep) override {
+    শূন্য visit(Ast_গ্ৰন্থি_CCall* ধ্রুৱ nodep) override {
         iterateChildren(nodep);
         // We need to visit bodies of non-inlined functions
-        const auto& cfuncps = m_classGraphp->getCallPossibleCFuncs(nodep);
-        if (cfuncps.empty()) {
+        ধ্রুৱ auto& cfuncps = m_classGraphp->getCallPossibleCFuncs(nodep);
+        যদি (cfuncps.empty()) {
             visitCalledCFunc(nodep->funcp());
-        } else {
-            for (AstCFunc* const cfuncp : cfuncps) visitCalledCFunc(cfuncp);
+        } অন্যথা {
+            বাবে (AstCFunc* ধ্রুৱ cfuncp : cfuncps) visitCalledCFunc(cfuncp);
         }
     }
-    void visit(AstCFunc* const nodep) override {
-        const auto& value = m_cfuncsCache(nodep);
+    শূন্য visit(AstCFunc* ধ্রুৱ nodep) override {
+        ধ্রুৱ auto& মান = m_cfuncsCache(nodep);
         // Check whether it was already visited by visitCalledCFunc()
-        if (value[0].m_state != CFuncCache::UNINITIALIZED
-            || value[1].m_state != CFuncCache::UNINITIALIZED) {
-            return;
+        যদি (মান[0].m_state != CFuncCache::UNINITIALIZED
+            || মান[1].m_state != CFuncCache::UNINITIALIZED) {
+            ঘূৰাই;
         }
         iterateChildren(nodep);
     }
-    void visit(AstExprStmt* nodep) override { iterateChildren(nodep); }
+    শূন্য visit(Ast_ৰাশিমালা_Stmt* nodep) override { iterateChildren(nodep); }
 
     //--------------------
-    void visit(AstNode* nodep) override { iterateChildren(nodep); }
+    শূন্য visit(Ast_গ্ৰন্থি* nodep) override { iterateChildren(nodep); }
 
-public:
+সার্ৱজনিক:
     // CONSTRUCTORS
-    explicit AwaitVisitor(AstNetlist* nodep, LogicByScope& lbs, AstNodeStmt*& postUpdatesr,
-                          std::map<const AstVarScope*, std::set<AstSenTree*>>& externalDomains)
-        : m_scopeTopp{nodep->topScopep()->scopep()}
+    explicit AwaitVisitor(AstNetlist* nodep, LogicByScope& lbs, Ast_গ্ৰন্থি_Stmt*& postUpdatesr,
+                          std::map<ধ্রুৱ AstVarScope*, std::set<Ast_Sen_বৃক্ষ*>>& externalDomains)
+        : m_scopeTopp{nodep->শীৰ্ষ_Scopep()->scopep()}
         , m_lbs{lbs}
         , m_postUpdatesr{postUpdatesr}
         , m_externalDomains{externalDomains}
@@ -401,27 +401,27 @@ public:
     }
 };
 
-TimingKit prepareTiming(AstNetlist* const netlistp) {
-    if (!v3Global.usesTiming()) return {};
+TimingKit prepareTiming(AstNetlist* ধ্রুৱ netlistp) {
+    যদি (!v3Global.usesTiming()) ঘূৰাই {};
     LogicByScope lbs;
-    AstNodeStmt* postUpdates = nullptr;
-    std::map<const AstVarScope*, std::set<AstSenTree*>> externalDomains;
+    Ast_গ্ৰন্থি_Stmt* postUpdates = nullptr;
+    std::map<ধ্রুৱ AstVarScope*, std::set<Ast_Sen_বৃক্ষ*>> externalDomains;
     { AwaitVisitor{netlistp, lbs, postUpdates, externalDomains}; }
-    return {std::move(lbs), postUpdates, std::move(externalDomains)};
+    ঘূৰাই {std::move(lbs), postUpdates, std::move(externalDomains)};
 }
 
 //============================================================================
 // Visits all forks and transforms their sub-statements into separate functions.
 
 // Transform all forked processes into functions
-class TransformForksVisitor final : public VNVisitor {
+শ্ৰেণী TransformForksVisitor final : সার্ৱজনিক VNVisitor {
     // NODE STATE
     //  AstVar::user1()  -> bool.  Set true if the variable was declared before the current fork.
-    const VNUser1InUse m_inuser1;
+    ধ্রুৱ VNUser1InUse m_inuser1;
 
     // STATE
-    bool m_inClass = false;  // Are we in a class?
-    bool m_beginHasAwaits = false;  // Does the current begin have awaits?
+    তার্কিক m_inClass = মিছা;  // Are we in a class?
+    তার্কিক m_beginHasAwaits = মিছা;  // Does the current begin have awaits?
     AstFork* m_forkp = nullptr;  // Current fork
     AstCFunc* m_funcp = nullptr;  // Current function
 
@@ -430,64 +430,64 @@ class TransformForksVisitor final : public VNVisitor {
     // TODO: We should only pass variables to the fork that are
     // live in the fork body, but for that we need a proper data
     // flow analysis framework which we don't have at the moment
-    void remapLocals(AstCFunc* const funcp, AstCCall* const callp) {
-        const VNUser2InUse user2InUse;  // AstVarScope -> AstVarScope: var to remap to
-        funcp->foreach([&](AstNodeVarRef* refp) {
-            AstVar* const varp = refp->varp();
-            AstVarScope* const vscp = refp->varScopep();
-            AstBasicDType* const dtypep = varp->dtypep()->basicp();
+    শূন্য remapLocals(AstCFunc* ধ্রুৱ funcp, AstCCall* ধ্রুৱ callp) {
+        ধ্রুৱ VNUser2InUse user2InUse;  // AstVarScope -> AstVarScope: var to remap to
+        funcp->foreach([&](Ast_গ্ৰন্থি_Var_Ref* refp) {
+            AstVar* ধ্রুৱ varp = refp->varp();
+            AstVarScope* ধ্রুৱ vscp = refp->varScopep();
+            AstBasicDType* ধ্রুৱ dtypep = varp->dtypep()->basicp();
             // If not a fork..join, copy. All write refs should've been handled by V3Fork
-            bool passByValue = !m_forkp->joinType().join();
-            if (vscp->forkByValue()) {
+            তার্কিক pass_By_মান = !m_forkp->joinType().join();
+            যদি (vscp->fork_By_মান()) {
                 // Set just before the fork, for its processes to get by value
-                passByValue = true;
-            } else if (!varp->isFuncLocal()) {
+                pass_By_মান = সঁচা;
+            } অন্যথা যদি (!varp->isFuncLocal()) {
                 // Not func local. Its lifetime is longer than the forked process. Skip
-                return;
-            } else if (!varp->user1()) {
+                ঘূৰাই;
+            } অন্যথা যদি (!varp->user1()) {
                 // Not declared before the fork. It cannot outlive the forked process
-                return;
-            } else if (dtypep && dtypep->isForkSync()) {
+                ঘূৰাই;
+            } অন্যথা যদি (dtypep && dtypep->isForkSync()) {
                 // We can just pass it by value to the new function
-                passByValue = true;
+                pass_By_মান = সঁচা;
             }
             // Remap the reference
-            if (!vscp->user2p()) {
+            যদি (!vscp->user2p()) {
                 // Clone the var to the new function
-                AstVar* const newvarp
-                    = new AstVar{varp->fileline(), VVarType::BLOCKTEMP, varp->name(), varp};
-                newvarp->funcLocal(true);
-                newvarp->direction(passByValue ? VDirection::INPUT : VDirection::REF);
+                AstVar* ধ্রুৱ newvarp
+                    = নূতন AstVar{varp->fileline(), VVarType::BLOCKTEMP, varp->name(), varp};
+                newvarp->funcLocal(সঁচা);
+                newvarp->direction(pass_By_মান ? VDirection::প্ৰবেশ : VDirection::REF);
                 funcp->addArgsp(newvarp);
-                AstVarScope* const newvscp
-                    = new AstVarScope{newvarp->fileline(), funcp->scopep(), newvarp};
+                AstVarScope* ধ্রুৱ newvscp
+                    = নূতন AstVarScope{newvarp->fileline(), funcp->scopep(), newvarp};
                 funcp->scopep()->addVarsp(newvscp);
                 vscp->user2p(newvscp);
-                callp->addArgsp(new AstVarRef{refp->fileline(), vscp,
-                                              passByValue ? VAccess::READ : VAccess::READWRITE});
+                callp->addArgsp(নূতন AstVarRef{refp->fileline(), vscp,
+                                              pass_By_মান ? VAccess::READ : VAccess::READWRITE});
             }
-            AstVarScope* const newvscp = VN_AS(vscp->user2p(), VarScope);
+            AstVarScope* ধ্রুৱ newvscp = VN_AS(vscp->user2p(), VarScope);
             refp->varScopep(newvscp);
             refp->varp(newvscp->varp());
         });
     }
 
     // VISITORS
-    void visit(AstNodeModule* nodep) override {
+    শূন্য visit(Ast_গ্ৰন্থি_Module* nodep) override {
         VL_RESTORER(m_inClass);
         m_inClass = VN_IS(nodep, Class);
         iterateChildren(nodep);
     }
-    void visit(AstCFunc* nodep) override {
+    শূন্য visit(AstCFunc* nodep) override {
         VL_RESTORER(m_funcp);
         m_funcp = nodep;
         iterateChildren(nodep);
     }
-    void visit(AstVar* nodep) override {
-        if (!m_forkp) nodep->user1(true);
+    শূন্য visit(AstVar* nodep) override {
+        যদি (!m_forkp) nodep->user1(সঁচা);
     }
-    void visit(AstFork* nodep) override {
-        if (m_forkp) return;  // Handle forks in forks after moving them to new functions
+    শূন্য visit(AstFork* nodep) override {
+        যদি (m_forkp) ঘূৰাই;  // Handle forks in forks after moving them to new functions
         VL_RESTORER(m_forkp);
         m_forkp = nodep;
         iterateChildrenConst(nodep);  // Const, so we don't iterate the calls twice
@@ -495,88 +495,88 @@ class TransformForksVisitor final : public VNVisitor {
         // process to suspend whenever any of the children do)
         // V3Dead could have removed all statements from the fork, so guard against it
         // Inline begins now that they are not needed
-        AstNode* resp = nullptr;
-        if (AstNode* const declsp = nodep->declsp()) {
-            resp = AstNode::addNext(resp, declsp->unlinkFrBackWithNext());
+        Ast_গ্ৰন্থি* resp = nullptr;
+        যদি (Ast_গ্ৰন্থি* ধ্রুৱ declsp = nodep->declsp()) {
+            resp = Ast_গ্ৰন্থি::addNext(resp, declsp->unlinkFrBackWithNext());
         }
-        if (AstNode* const stmtsp = nodep->stmtsp()) {
-            resp = AstNode::addNext(resp, stmtsp->unlinkFrBackWithNext());
+        যদি (Ast_গ্ৰন্থি* ধ্রুৱ stmtsp = nodep->stmtsp()) {
+            resp = Ast_গ্ৰন্থি::addNext(resp, stmtsp->unlinkFrBackWithNext());
         }
-        while (AstBegin* const beginp = nodep->forksp()) {
-            if (AstNode* const declsp = beginp->declsp()) {
-                resp = AstNode::addNext(resp, declsp->unlinkFrBackWithNext());
+        যেতিয়ালৈ (AstBegin* ধ্রুৱ beginp = nodep->forksp()) {
+            যদি (Ast_গ্ৰন্থি* ধ্রুৱ declsp = beginp->declsp()) {
+                resp = Ast_গ্ৰন্থি::addNext(resp, declsp->unlinkFrBackWithNext());
             }
-            if (AstNode* const stmtsp = beginp->stmtsp()) {
-                resp = AstNode::addNext(resp, stmtsp->unlinkFrBackWithNext());
+            যদি (Ast_গ্ৰন্থি* ধ্রুৱ stmtsp = beginp->stmtsp()) {
+                resp = Ast_গ্ৰন্থি::addNext(resp, stmtsp->unlinkFrBackWithNext());
             }
-            VL_DO_DANGLING(pushDeletep(beginp->unlinkFrBack()), beginp);
+            VL_DO_DANGLING(ঠেলো_Deletep(beginp->unlinkFrBack()), beginp);
         }
-        if (resp) {
+        যদি (resp) {
             nodep->replaceWith(resp);
-        } else {
+        } অন্যথা {
             nodep->unlinkFrBack();
         }
-        VL_DO_DANGLING(pushDeletep(nodep), nodep);
+        VL_DO_DANGLING(ঠেলো_Deletep(nodep), nodep);
     }
-    void visit(AstBegin* nodep) override {
+    শূন্য visit(AstBegin* nodep) override {
         UASSERT_OBJ(m_forkp, nodep, "Begin outside of a fork");
         // Start with children, so later we only find awaits that are actually in this begin
-        m_beginHasAwaits = false;
+        m_beginHasAwaits = মিছা;
         iterateChildrenConst(nodep);
-        if (!nodep->stmtsp()) return;
-        if (!m_beginHasAwaits && !nodep->needProcess()) return;
+        যদি (!nodep->stmtsp()) ঘূৰাই;
+        যদি (!m_beginHasAwaits && !nodep->needProcess()) ঘূৰাই;
 
         UASSERT_OBJ(!nodep->name().empty(), nodep, "Begin needs a name");
         // Create a function to put this begin's statements in
-        FileLine* const flp = nodep->fileline();
-        AstCFunc* const newfuncp = new AstCFunc{flp, m_funcp->name() + "__" + nodep->name(),
+        File_সাৰি* ধ্রুৱ flp = nodep->fileline();
+        AstCFunc* ধ্রুৱ newfuncp = নূতন AstCFunc{flp, m_funcp->name() + "__" + nodep->name(),
                                                 m_funcp->scopep(), "VlCoroutine"};
 
         m_funcp->addNextHere(newfuncp);
         newfuncp->isLoose(m_funcp->isLoose());
         newfuncp->slow(m_funcp->slow());
         newfuncp->isConst(m_funcp->isConst());
-        newfuncp->declPrivate(true);
+        newfuncp->declPrivate(সঁচা);
         // Create the call to the function
-        AstCCall* const callp = new AstCCall{flp, newfuncp};
+        AstCCall* ধ্রুৱ callp = নূতন AstCCall{flp, newfuncp};
         callp->dtypeSetVoid();
         // If we're in a class, add a vlSymsp arg
-        if (m_inClass) {
-            newfuncp->addStmtsp(new AstCStmt{flp, "VL_KEEP_THIS;"});
+        যদি (m_inClass) {
+            newfuncp->addStmtsp(নূতন AstCStmt{flp, "VL_KEEP_THIS;"});
             newfuncp->argTypes(EmitCUtil::symClassVar());
             callp->argTypes("vlSymsp");
         }
         // Put the begin's statements in the function
-        if (AstNode* const declsp = nodep->declsp()) {
+        যদি (Ast_গ্ৰন্থি* ধ্রুৱ declsp = nodep->declsp()) {
             newfuncp->addStmtsp(declsp->unlinkFrBackWithNext());
         }
-        if (AstNode* const stmtsp = nodep->stmtsp()) {
+        যদি (Ast_গ্ৰন্থি* ধ্রুৱ stmtsp = nodep->stmtsp()) {
             newfuncp->addStmtsp(stmtsp->unlinkFrBackWithNext());
         }
         // Replace the body of the begin with a call to the newly created function
         nodep->addStmtsp(callp->makeStmt());
         // Propagate if needs process
-        if (nodep->needProcess()) newfuncp->setNeedProcess();
+        যদি (nodep->needProcess()) newfuncp->setNeedProcess();
         remapLocals(newfuncp, callp);
     }
-    void visit(AstCAwait* nodep) override {
-        m_beginHasAwaits = true;
+    শূন্য visit(AstCAwait* nodep) override {
+        m_beginHasAwaits = সঁচা;
         iterateChildrenConst(nodep);
     }
 
     //--------------------
-    void visit(AstNode* nodep) override { iterateChildren(nodep); }
+    শূন্য visit(Ast_গ্ৰন্থি* nodep) override { iterateChildren(nodep); }
 
-public:
+সার্ৱজনিক:
     // CONSTRUCTORS
     explicit TransformForksVisitor(AstNetlist* nodep) { iterate(nodep); }
-    ~TransformForksVisitor() override = default;
+    ~TransformForksVisitor() override = স্ৱভাৱ;
 };
 
-void transformForks(AstNetlist* const netlistp) {
-    if (!v3Global.usesTiming()) return;
+শূন্য transformForks(AstNetlist* ধ্রুৱ netlistp) {
+    যদি (!v3Global.usesTiming()) ঘূৰাই;
     { TransformForksVisitor{netlistp}; }
-    V3Global::dumpCheckGlobalTree("transform_forks", 0, dumpTreeEitherLevel() >= 3);
+    V3Global::dump_Check_Global_বৃক্ষ("transform_forks", 0, dump_বৃক্ষ_Either_Level() >= 3);
 }
 
 }  // namespace V3Sched

@@ -17,15 +17,15 @@
 #ifndef VERILATOR_V3TASK_H_
 #define VERILATOR_V3TASK_H_
 
-#include "config_build.h"
-#include "verilatedos.h"
+#অন্তর্ভাৱ "config_build.h"
+#অন্তর্ভাৱ "verilatedos.h"
 
-#include "V3Ast.h"
-#include "V3Container.h"
-#include "V3Error.h"
+#অন্তর্ভাৱ "V3Ast.h"
+#অন্তর্ভাৱ "V3Container.h"
+#অন্তর্ভাৱ "V3Error.h"
 
-#include <utility>
-#include <vector>
+#অন্তর্ভাৱ <utility>
+#অন্তর্ভাৱ <vector>
 
 //============================================================================
 
@@ -35,39 +35,39 @@ using V3TaskConnects = std::vector<V3TaskConnect>;  // [ [port, pin-connects-to]
 class V3TaskConnectState final {
     VNDeleter m_deleter;  // Allow delayed deletion of nodes
     bool m_didWrap = false;  // Made a wrapper
-    using WrapMap = std::map<std::pair<AstNodeFTask*, std::string>, AstNodeFTask*>;
+    using WrapMap = std::map<std::pair<Ast_গ্ৰন্থি_FTask*, std::string>, Ast_গ্ৰন্থি_FTask*>;
     WrapMap m_wrapMap;  // Map of {old function, arguments} -> new function
-public:
-    V3TaskConnectState() = default;
-    ~V3TaskConnectState() = default;
-    void pushDeletep(AstNode* nodep) { m_deleter.pushDeletep(nodep); }
-    bool didWrap() const { return m_didWrap; }
-    void setDidWrap() { m_didWrap = true; }
-    WrapMap& wrapMap() { return m_wrapMap; }
+সার্ৱজনিক:
+    V3TaskConnectState() = স্ৱভাৱ;
+    ~V3TaskConnectState() = স্ৱভাৱ;
+    শূন্য ঠেলো_Deletep(Ast_গ্ৰন্থি* nodep) { m_deleter.ঠেলো_Deletep(nodep); }
+    bool didWrap() ধ্রুৱ { ঘূৰাই m_didWrap; }
+    শূন্য setDidWrap() { m_didWrap = true; }
+    WrapMap& wrapMap() { ঘূৰাই m_wrapMap; }
 };
 
 //============================================================================
 
 class V3Task final {
-    static const char* const s_dpiTemporaryVarSuffix;
+    স্থির ধ্রুৱ ৱর্ণ* ধ্রুৱ s_dpiTemporaryVarSuffix;
 
-public:
-    static void taskAll(AstNetlist* nodep) VL_MT_DISABLED;
+সার্ৱজনিক:
+    স্থির শূন্য taskAll(AstNetlist* nodep) VL_MT_DISABLED;
     /// Return vector of [port, pin-connects-to]  (SLOW)
-    static V3TaskConnects taskConnects(AstNodeFTaskRef* nodep, AstNode* taskStmtsp,
+    স্থির V3TaskConnects taskConnects(Ast_গ্ৰন্থি_FTask_Ref* nodep, Ast_গ্ৰন্থি* taskStmtsp,
                                        V3TaskConnectState* statep = nullptr,
                                        bool makeChanges = true) VL_MT_DISABLED;
-    static void taskConnectWrap(AstNodeFTaskRef* nodep, const V3TaskConnects& tconnects,
+    স্থির শূন্য taskConnectWrap(Ast_গ্ৰন্থি_FTask_Ref* nodep, ধ্রুৱ V3TaskConnects& tconnects,
                                 V3TaskConnectState* statep,
-                                const VInsertionSet<const AstVar*>& argWrap) VL_MT_DISABLED;
-    static AstNodeFTask*
-    taskConnectWrapNew(AstNodeFTask* taskp, const string& newname, const V3TaskConnects& tconnects,
-                       const VInsertionSet<const AstVar*>& argWrap) VL_MT_DISABLED;
-    static string assignInternalToDpi(AstVar* portp, bool isPtr, const string& frSuffix,
-                                      const string& toSuffix,
-                                      const string& frPrefix = "") VL_MT_DISABLED;
-    static string assignDpiToInternal(const string& lhsName, AstVar* rhsp) VL_MT_DISABLED;
-    static const char* dpiTemporaryVarSuffix() VL_MT_SAFE { return s_dpiTemporaryVarSuffix; }
+                                ধ্রুৱ VInsertionSet<ধ্রুৱ AstVar*>& argWrap) VL_MT_DISABLED;
+    স্থির Ast_গ্ৰন্থি_FTask*
+    taskConnectWrapNew(Ast_গ্ৰন্থি_FTask* taskp, ধ্রুৱ string& newname, ধ্রুৱ V3TaskConnects& tconnects,
+                       ধ্রুৱ VInsertionSet<ধ্রুৱ AstVar*>& argWrap) VL_MT_DISABLED;
+    স্থির string assignInternalToDpi(AstVar* portp, bool isPtr, ধ্রুৱ string& frSuffix,
+                                      ধ্রুৱ string& toSuffix,
+                                      ধ্রুৱ string& frPrefix = "") VL_MT_DISABLED;
+    স্থির string assignDpiToInternal(ধ্রুৱ string& lhsName, AstVar* rhsp) VL_MT_DISABLED;
+    স্থির ধ্রুৱ ৱর্ণ* dpiTemporaryVarSuffix() VL_MT_SAFE { ঘূৰাই s_dpiTemporaryVarSuffix; }
 };
 
 #endif  // Guard

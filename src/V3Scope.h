@@ -17,16 +17,16 @@
 #ifndef VERILATOR_V3SCOPE_H_
 #define VERILATOR_V3SCOPE_H_
 
-#include "config_build.h"
-#include "verilatedos.h"
+#অন্তর্ভাৱ "config_build.h"
+#অন্তর্ভাৱ "verilatedos.h"
 
 class AstNetlist;
 
 //============================================================================
 
 class V3Scope final {
-public:
-    static void scopeAll(AstNetlist* nodep) VL_MT_DISABLED;
+সার্ৱজনিক:
+    স্থির শূন্য scopeAll(AstNetlist* nodep) VL_MT_DISABLED;
 };
 
 #endif  // Guard

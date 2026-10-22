@@ -17,21 +17,21 @@
 #ifndef VERILATOR_V3EMITV_H_
 #define VERILATOR_V3EMITV_H_
 
-#include "config_build.h"
-#include "verilatedos.h"
+#অন্তর্ভাৱ "config_build.h"
+#অন্তর্ভাৱ "verilatedos.h"
 
-class AstNode;
-class AstSenTree;
+class Ast_গ্ৰন্থি;
+class Ast_Sen_বৃক্ষ;
 
 //============================================================================
 
 class V3EmitV final {
-public:
-    static void verilogForTree(const AstNode* nodep, std::ostream& os = std::cout);
-    static void debugVerilogForTree(const AstNode* nodep, std::ostream& os);
-    static std::string debugVerilogForTree(const AstNode* nodep);
-    static void emitvFiles();
-    static void debugEmitV(const string& filename);
+সার্ৱজনিক:
+    স্থির শূন্য verilog_For_বৃক্ষ(ধ্রুৱ Ast_গ্ৰন্থি* nodep, std::ostream& os = std::cout);
+    স্থির শূন্য debug_Verilog_For_বৃক্ষ(ধ্রুৱ Ast_গ্ৰন্থি* nodep, std::ostream& os);
+    স্থির std::string debug_Verilog_For_বৃক্ষ(ধ্রুৱ Ast_গ্ৰন্থি* nodep);
+    স্থির শূন্য emitvFiles();
+    স্থির শূন্য debugEmitV(ধ্রুৱ string& filename);
 };
 
 #endif  // Guard

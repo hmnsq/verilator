@@ -17,15 +17,15 @@
 #ifndef VERILATOR_VLCOPTIONS_H_
 #define VERILATOR_VLCOPTIONS_H_
 
-#include "config_build.h"
-#include "verilatedos.h"
+#অন্তর্ভাৱ "config_build.h"
+#অন্তর্ভাৱ "verilatedos.h"
 
-#include "VlcPoint.h"
-#include "config_rev.h"
+#অন্তর্ভাৱ "VlcPoint.h"
+#অন্তর্ভাৱ "config_rev.h"
 
-#include <map>
-#include <set>
-#include <vector>
+#অন্তর্ভাৱ <map>
+#অন্তর্ভাৱ <set>
+#অন্তর্ভাৱ <vector>
 
 //######################################################################
 // V3Options - Command line options
@@ -37,12 +37,12 @@ class VlcOptions final {
     // clang-format off
     string m_annotateOut;       // main switch: --annotate I<output_directory>
     bool m_annotateAll = false;  // main switch: --annotate-all
-    int m_annotateMin = 10;     // main switch: --annotate-min I<count>
+    পূর্ণাঙ্ক m_annotateMin = 10;     // main switch: --annotate-min I<count>
     bool m_annotatePoints = false;  // main switch: --annotate-points
     bool m_includeResetArcs = false;  // main switch: --include-reset-arcs
     string m_filterType = "*";  // main switch: --filter-type
     VlStringSet m_readFiles;    // main switch: --read
-    int m_reportLevels = -1;    // main switch: --levels, negative means all depths
+    পূর্ণাঙ্ক m_reportLevels = -1;    // main switch: --levels, negative means all depths
     string m_report;            // main switch: --report
     bool m_reportSummary = false;  // main switch: --report summary
     bool m_reportHierarchy = false;  // main switch: --report hier or hierarchy
@@ -52,42 +52,42 @@ class VlcOptions final {
     string m_writeInfoFile;     // main switch: --write-info
     // clang-format on
 
-private:
+গুপ্ত:
     // METHODS
-    void parseReportOption() VL_MT_DISABLED;
-    static void showVersion(bool verbose) VL_MT_DISABLED;
+    শূন্য parseReportOption() VL_MT_DISABLED;
+    স্থির শূন্য showVersion(bool verbose) VL_MT_DISABLED;
 
-public:
+সার্ৱজনিক:
     // CONSTRUCTORS
-    VlcOptions() = default;
-    ~VlcOptions() = default;
+    VlcOptions() = স্ৱভাৱ;
+    ~VlcOptions() = স্ৱভাৱ;
 
     // METHODS
-    void parseOptsList(int argc, char** argv) VL_MT_DISABLED;
-    void addReadFile(const string& filename) VL_MT_DISABLED;
+    শূন্য parseOptsList(পূর্ণাঙ্ক argc, ৱর্ণ** argv) VL_MT_DISABLED;
+    শূন্য addReadFile(ধ্রুৱ string& filename) VL_MT_DISABLED;
 
     // ACCESSORS (options)
-    const VlStringSet& readFiles() const { return m_readFiles; }
-    string annotateOut() const { return m_annotateOut; }
-    bool annotateAll() const { return m_annotateAll; }
-    int annotateMin() const { return m_annotateMin; }
-    bool countOk(uint64_t count) const { return count >= static_cast<uint64_t>(m_annotateMin); }
-    bool annotatePoints() const { return m_annotatePoints; }
-    bool includeResetArcs() const { return m_includeResetArcs; }
-    int reportLevels() const { return m_reportLevels; }
-    bool reportSpecified() const { return !m_report.empty(); }
-    bool reportSummary() const { return m_reportSummary; }
-    bool reportHierarchy() const { return m_reportHierarchy; }
-    bool rank() const { return m_rank; }
-    bool unlink() const { return m_unlink; }
-    string writeFile() const { return m_writeFile; }
-    string writeInfoFile() const { return m_writeInfoFile; }
-    bool isTypeMatch(const char* name) const {
-        return VString::wildmatch(VlcPoint::typeExtract(name), m_filterType);
+    ধ্রুৱ VlStringSet& readFiles() ধ্রুৱ { ঘূৰাই m_readFiles; }
+    string annotateOut() ধ্রুৱ { ঘূৰাই m_annotateOut; }
+    bool annotateAll() ধ্রুৱ { ঘূৰাই m_annotateAll; }
+    পূর্ণাঙ্ক annotateMin() ধ্রুৱ { ঘূৰাই m_annotateMin; }
+    bool গুনতি_Ok(uint64_t গুনতি) ধ্রুৱ { ঘূৰাই গুনতি >= static_cast<uint64_t>(m_annotateMin); }
+    bool annotatePoints() ধ্রুৱ { ঘূৰাই m_annotatePoints; }
+    bool includeResetArcs() ধ্রুৱ { ঘূৰাই m_includeResetArcs; }
+    পূর্ণাঙ্ক reportLevels() ধ্রুৱ { ঘূৰাই m_reportLevels; }
+    bool reportSpecified() ধ্রুৱ { ঘূৰাই !m_report.empty(); }
+    bool reportSummary() ধ্রুৱ { ঘূৰাই m_reportSummary; }
+    bool reportHierarchy() ধ্রুৱ { ঘূৰাই m_reportHierarchy; }
+    bool rank() ধ্রুৱ { ঘূৰাই m_rank; }
+    bool unlink() ধ্রুৱ { ঘূৰাই m_unlink; }
+    string writeFile() ধ্রুৱ { ঘূৰাই m_writeFile; }
+    string writeInfoFile() ধ্রুৱ { ঘূৰাই m_writeInfoFile; }
+    bool isTypeMatch(ধ্রুৱ ৱর্ণ* name) ধ্রুৱ {
+        ঘূৰাই VString::wildmatch(VlcPoint::typeExtract(name), m_filterType);
     }
 
     // METHODS (from main)
-    static string version() VL_MT_DISABLED;
+    স্থির string version() VL_MT_DISABLED;
 };
 
 //######################################################################
