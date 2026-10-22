@@ -17,53 +17,53 @@
 #ifndef VERILATOR_V3CONTAINER_H_
 #define VERILATOR_V3CONTAINER_H_
 
-#include "config_build.h"
-#include "verilatedos.h"
+#अन्तर्भाव "config_build.h"
+#अन्तर्भाव "verilatedos.h"
 
-#include <unordered_map>
-#include <unordered_set>
-#include <vector>
+#अन्तर्भाव <unordered_map>
+#अन्तर्भाव <unordered_set>
+#अन्तर्भाव <vector>
 
 //============================================================================
 
 // Similar to std::set, but ordered based on call order to emplace.  Used
 // when insertion order is desired (e.g. std::vector), but duplicates need removal.
 // Keys may not be modified.  (If needed in future, m_set could contain vector positions.)
-template <typename T_Key>
+template <typename T_किल्ली>
 class VInsertionSet final {
-    std::vector<T_Key> m_keys;  // Elements by insertion order
-    std::unordered_set<T_Key> m_keySet;  // Elements by key
-public:
+    std::vector<T_किल्ली> m_किल्ल्या;  // Elements by insertion order
+    std::unordered_set<T_किल्ली> m_किल्ली_Set;  // Elements by key
+सार्वजनिक:
     // METHODS
-    bool insert(const T_Key& key) {
+    bool घाला(ध्रुव T_किल्ली& किल्ली) {
         // Returns if did insertion (second pair argument of traditional emplace)
-        const auto itFoundPair = m_keySet.insert(key);
-        if (itFoundPair.second) m_keys.push_back(key);
-        return itFoundPair.second;
+        ध्रुव auto itFoundPair = m_किल्ली_Set.घाला(किल्ली);
+        यदि (itFoundPair.second) m_किल्ल्या.ढकला_back(किल्ली);
+        प्रत्यागम itFoundPair.second;
     }
     template <typename T>
-    void insert(T begin, const T end) {
-        static_assert(std::is_same<typename std::iterator_traits<T>::value_type, T_Key>::value,
+    शून्य घाला(T begin, ध्रुव T end) {
+        static_assert(std::is_same<typename std::iterator_traits<T>::मूल्य_type, T_किल्ली>::मूल्य,
                       "T must be an iterator with value type T_Key");
-        while (begin != end) {
-            if (m_keySet.insert(*begin).second) m_keys.push_back(*begin);
+        यावत् (begin != end) {
+            यदि (m_किल्ली_Set.घाला(*begin).second) m_किल्ल्या.ढकला_back(*begin);
             ++begin;
         }
     }
-    void clear() {
-        m_keys.clear();
-        m_keySet.clear();
+    शून्य clear() {
+        m_किल्ल्या.clear();
+        m_किल्ली_Set.clear();
     }
 
     // ACCESSORS
-    bool empty() const { return m_keys.empty(); }
-    size_t size() const { return m_keys.size(); }
-    bool exists(const T_Key& key) const { return m_keySet.find(key) != m_keySet.end(); }
+    bool empty() ध्रुव { प्रत्यागम m_किल्ल्या.empty(); }
+    size_t size() ध्रुव { प्रत्यागम m_किल्ल्या.size(); }
+    bool exists(ध्रुव T_किल्ली& किल्ली) ध्रुव { प्रत्यागम m_किल्ली_Set.find(किल्ली) != m_किल्ली_Set.end(); }
 
     // ITERATORS
-    using const_iterator = typename std::vector<T_Key>::const_iterator;
-    const_iterator begin() const { return m_keys.begin(); }
-    const_iterator end() const { return m_keys.end(); }
+    using const_iterator = typename std::vector<T_किल्ली>::const_iterator;
+    const_iterator begin() ध्रुव { प्रत्यागम m_किल्ल्या.begin(); }
+    const_iterator end() ध्रुव { प्रत्यागम m_किल्ल्या.end(); }
 };
 
 //============================================================================

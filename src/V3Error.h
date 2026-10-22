@@ -17,33 +17,33 @@
 #ifndef VERILATOR_V3ERROR_H_
 #define VERILATOR_V3ERROR_H_
 
-#include "config_build.h"
-#include "verilatedos.h"
+#अन्तर्भाव "config_build.h"
+#अन्तर्भाव "verilatedos.h"
 
-#include "V3Hash.h"
-#include "V3Mutex.h"
+#अन्तर्भाव "V3Hash.h"
+#अन्तर्भाव "V3Mutex.h"
 
 // Limited V3 headers here - this is a base class for Vlc etc
-#include "V3String.h"
+#अन्तर्भाव "V3String.h"
 
-#include <array>
-#include <bitset>
-#include <cassert>
-#include <cctype>
-#include <deque>
-#include <map>
-#include <set>
-#include <sstream>
+#अन्तर्भाव <array>
+#अन्तर्भाव <bitset>
+#अन्तर्भाव <cassert>
+#अन्तर्भाव <cctype>
+#अन्तर्भाव <deque>
+#अन्तर्भाव <map>
+#अन्तर्भाव <set>
+#अन्तर्भाव <sstream>
 
 class V3Error;
-class FileLine;
+class File_ओळ;
 
 //######################################################################
 
 class V3ErrorCode final {
-public:
+सार्वजनिक:
     // clang-format off
-    enum en: uint8_t  {
+    गणना en: uint8_t  {
         EC_MIN=0,       // Keep first
         //
         EC_INFO,        // General information out
@@ -205,20 +205,20 @@ public:
         // ***Add new elements below also***
     };
     // clang-format on
-    enum en m_e;
+    गणना en m_e;
     V3ErrorCode()
         : m_e{EC_MIN} {}
     // cppcheck-suppress noExplicitConstructor
     constexpr V3ErrorCode(en _e)
         : m_e{_e} {}
-    explicit V3ErrorCode(const char* msgp);  // Matching code or ERROR
-    explicit V3ErrorCode(const std::string& msg)
-        : V3ErrorCode{msg.c_str()} {}
-    explicit V3ErrorCode(int _e)
+    explicit V3ErrorCode(ध्रुव वर्ण* msgp);  // Matching code or ERROR
+    explicit V3ErrorCode(ध्रुव std::string& संदेश)
+        : V3ErrorCode{संदेश.c_str()} {}
+    explicit V3ErrorCode(पूर्णाङ्क _e)
         : m_e(static_cast<en>(_e)) {}  // Need () or GCC 4.8 false warning
-    constexpr operator en() const VL_MT_SAFE { return m_e; }
-    const char* ascii() const VL_MT_SAFE {
-        static const char* const names[] = {
+    constexpr operator en() ध्रुव VL_MT_SAFE { प्रत्यागम m_e; }
+    ध्रुव वर्ण* ascii() ध्रुव VL_MT_SAFE {
+        स्थिर ध्रुव वर्ण* ध्रुव names[] = {
             // Leading spaces indicate it can't be disabled.
             " MIN", " INFO", " FATAL", " FATALMANY", " FATALSRC", " ERROR", " FIRST_NAMED",
             // Boolean
@@ -250,31 +250,31 @@ public:
             "USERERROR", "USERFATAL", "USERINFO", "USERWARN", "VARHIDDEN", "WAITCONST", "WIDTH",
             "WIDTHCONCAT", "WIDTHDIGITS", "WIDTHEXPAND", "WIDTHTRUNC", "WIDTHXZEXPAND", "ZERODLY",
             "ZEROREPL", " MAX"};
-        return names[m_e];
+        प्रत्यागम names[m_e];
     }
     // Warnings that default to off
-    bool defaultsOff() const VL_MT_SAFE {
-        return (m_e == IMPERFECTSCH || m_e == I_CELLDEFINE || m_e == I_ERRORING || styleError());
+    bool defaultsOff() ध्रुव VL_MT_SAFE {
+        प्रत्यागम (m_e == IMPERFECTSCH || m_e == I_CELLDEFINE || m_e == I_ERRORING || styleError());
     }
     // Warnings that warn about nasty side effects
-    bool dangerous() const VL_MT_SAFE { return (m_e == COMBDLY); }
+    bool dangerous() ध्रुव VL_MT_SAFE { प्रत्यागम (m_e == COMBDLY); }
     // Insuppressible error codes that should always stop elaboration
-    bool hardError() const VL_MT_SAFE {
-        return (m_e != EC_INFO && m_e < V3ErrorCode::EC_FIRST_WARN);
+    bool hardError() ध्रुव VL_MT_SAFE {
+        प्रत्यागम (m_e != EC_INFO && m_e < V3ErrorCode::EC_FIRST_WARN);
     }
     // Warning is fatal error, don't continue
-    bool severityFatal() const VL_MT_SAFE {
-        return m_e == V3ErrorCode::EC_FATAL || m_e == V3ErrorCode::EC_FATALMANY
+    bool severityFatal() ध्रुव VL_MT_SAFE {
+        प्रत्यागम m_e == V3ErrorCode::EC_FATAL || m_e == V3ErrorCode::EC_FATALMANY
                || m_e == V3ErrorCode::EC_FATALSRC;
     }
     // Warning is -Info informational
-    bool severityInfo() const VL_MT_SAFE {
-        return m_e == V3ErrorCode::USERINFO || m_e == V3ErrorCode::EC_INFO;
+    bool severityInfo() ध्रुव VL_MT_SAFE {
+        प्रत्यागम m_e == V3ErrorCode::USERINFO || m_e == V3ErrorCode::EC_INFO;
     }
     // Warnings we'll present to the user as errors
     // Later -Werror- options may make more of these.
-    bool pretendError() const VL_MT_SAFE {
-        return (m_e == ASSIGNIN || m_e == BADSTDPRAGMA || m_e == BADVLTPRAGMA || m_e == BLKANDNBLK
+    bool pretendError() ध्रुव VL_MT_SAFE {
+        प्रत्यागम (m_e == ASSIGNIN || m_e == BADSTDPRAGMA || m_e == BADVLTPRAGMA || m_e == BLKANDNBLK
                 || m_e == BLKLOOPINIT || m_e == CONTASSREG || m_e == ENCAPSULATED
                 || m_e == ENDLABEL || m_e == ENUMITEMWIDTH || m_e == ENUMVALUE || m_e == FINALDLY
                 || m_e == HIERPARAM || m_e == FUNCTIMECTL || m_e == IMPURE || m_e == MODMISSING
@@ -283,13 +283,13 @@ public:
                 || m_e == SUPERNFIRST || m_e == ZEROREPL);
     }
     // Warnings to mention manual
-    bool mentionManual() const VL_MT_SAFE {
-        return (pretendError() || m_e == EC_FATALSRC || m_e == SIDEEFFECT || m_e == SYMRSVDWORD
+    bool mentionManual() ध्रुव VL_MT_SAFE {
+        प्रत्यागम (pretendError() || m_e == EC_FATALSRC || m_e == SIDEEFFECT || m_e == SYMRSVDWORD
                 || m_e == ZERODLY);
     }
     // Warnings that are lint only; includes all style warnings
-    bool lintError() const VL_MT_SAFE {
-        return (styleError() || m_e == ALWCOMBORDER || m_e == ASCRANGE || m_e == ASSIGNEQEXPR
+    bool lintError() ध्रुव VL_MT_SAFE {
+        प्रत्यागम (styleError() || m_e == ALWCOMBORDER || m_e == ASCRANGE || m_e == ASSIGNEQEXPR
                 || m_e == BSSPACE || m_e == CASEINCOMPLETE || m_e == CASEOVERLAP
                 || m_e == CASEWITHX || m_e == CASEX || m_e == CASTCONST || m_e == CMPCONST
                 || m_e == COLONPLUS || m_e == IMPLICIT || m_e == IMPLICITSTATIC || m_e == LATCH
@@ -299,8 +299,8 @@ public:
                 || m_e == WIDTHXZEXPAND);
     }
     // Warnings that are style only
-    bool styleError() const VL_MT_SAFE {
-        return (m_e == ASSIGNDLY  // More than style, but for backward compatibility
+    bool styleError() ध्रुव VL_MT_SAFE {
+        प्रत्यागम (m_e == ASSIGNDLY  // More than style, but for backward compatibility
                 || m_e == BLKSEQ || m_e == DECLFILENAME || m_e == DEFPARAM || m_e == EOFNEWLINE
                 || m_e == GENUNNAMED || m_e == IMPORTSTAR || m_e == INCABSPATH
                 || m_e == MULTIDRIVENPROC || m_e == PINCONNECTEMPTY || m_e == PINNOCONNECT
@@ -308,80 +308,80 @@ public:
                 || m_e == UNDRIVEN || m_e == UNUSEDGENVAR || m_e == UNUSEDLOOP
                 || m_e == UNUSEDPARAM || m_e == UNUSEDSIGNAL || m_e == VARHIDDEN);
     }
-    bool isNamed() const { return m_e >= EC_FIRST_NAMED; }
+    bool isNamed() ध्रुव { प्रत्यागम m_e >= EC_FIRST_NAMED; }
 
-private:
-    V3ErrorCode renamedTo() const {
+गुप्त:
+    V3ErrorCode renamedTo() ध्रुव {
         // Return a new error this error has been renamed to
-        if (m_e == LITENDIAN) return V3ErrorCode{ASCRANGE};
-        return V3ErrorCode{EC_MIN};  // Not renamed; see isRenamed()
+        यदि (m_e == LITENDIAN) प्रत्यागम V3ErrorCode{ASCRANGE};
+        प्रत्यागम V3ErrorCode{EC_MIN};  // Not renamed; see isRenamed()
     }
-    bool isRenamed() const { return renamedTo() != V3ErrorCode{EC_MIN}; }
+    bool isRenamed() ध्रुव { प्रत्यागम renamedTo() != V3ErrorCode{EC_MIN}; }
 
-public:
+सार्वजनिक:
     // Call given callable on all error codes that result from given code.
     // Deals with codes which imply disabling multiple other codes.
-    void forDelegateCodes(std::function<void(V3ErrorCode code)> action) const {
+    शून्य forDelegateCodes(std::function<शून्य(V3ErrorCode code)> action) ध्रुव {
         // If add to this switch, also update isUnder()
-        switch (m_e) {
-        case V3ErrorCode::E_UNSUPPORTED:
+        विकल्प (m_e) {
+        पक्ष V3ErrorCode::E_UNSUPPORTED:
             action(V3ErrorCode{E_UNSUPPORTED});
             action(V3ErrorCode{COVERIGN});
             action(V3ErrorCode{SPECIFYIGN});
-            return;
-        case V3ErrorCode::I_LINT:
-            for (int i = V3ErrorCode::EC_MIN; i < V3ErrorCode::_ENUM_MAX; ++i) {
-                const V3ErrorCode subcode{i};
-                if (subcode.lintError()) action(subcode);
+            प्रत्यागम;
+        पक्ष V3ErrorCode::I_LINT:
+            प्रति (पूर्णाङ्क i = V3ErrorCode::EC_MIN; i < V3ErrorCode::_ENUM_MAX; ++i) {
+                ध्रुव V3ErrorCode subcode{i};
+                यदि (subcode.lintError()) action(subcode);
             }
-            return;
-        case V3ErrorCode::I_STYLE:
-            for (int i = V3ErrorCode::EC_MIN; i < V3ErrorCode::_ENUM_MAX; ++i) {
-                const V3ErrorCode subcode{i};
-                if (subcode.styleError()) action(subcode);
+            प्रत्यागम;
+        पक्ष V3ErrorCode::I_STYLE:
+            प्रति (पूर्णाङ्क i = V3ErrorCode::EC_MIN; i < V3ErrorCode::_ENUM_MAX; ++i) {
+                ध्रुव V3ErrorCode subcode{i};
+                यदि (subcode.styleError()) action(subcode);
             }
-            return;
-        case V3ErrorCode::UNUSED:
+            प्रत्यागम;
+        पक्ष V3ErrorCode::UNUSED:
             action(V3ErrorCode{UNUSEDGENVAR});
             action(V3ErrorCode{UNUSEDLOOP});
             action(V3ErrorCode{UNUSEDPARAM});
             action(V3ErrorCode{UNUSEDSIGNAL});
-            return;
-        case V3ErrorCode::WIDTH:
+            प्रत्यागम;
+        पक्ष V3ErrorCode::WIDTH:
             action(V3ErrorCode{WIDTHDIGITS});
             action(V3ErrorCode{WIDTHEXPAND});
             action(V3ErrorCode{WIDTHTRUNC});
             action(V3ErrorCode{WIDTHXZEXPAND});
-            return;
-        default: action(*this);
+            प्रत्यागम;
+        स्वभाव: action(*this);
         }
     }
-    bool isUnder(V3ErrorCode other) const {
+    bool isUnder(V3ErrorCode other) ध्रुव {
         // Reverse of forDelegateCodes, return true if this' code is under another
-        if (VL_LIKELY(other == m_e)) return true;
-        switch (other) {
-        case V3ErrorCode::E_UNSUPPORTED:
-            return m_e == E_UNSUPPORTED || m_e == COVERIGN || m_e == SPECIFYIGN;
-        case V3ErrorCode::I_LINT: return lintError();
-        case V3ErrorCode::I_STYLE: return styleError();
-        case V3ErrorCode::UNUSED:
-            return m_e == UNUSEDGENVAR || m_e == UNUSEDLOOP || m_e == UNUSEDPARAM
+        यदि (VL_LIKELY(other == m_e)) प्रत्यागम true;
+        विकल्प (other) {
+        पक्ष V3ErrorCode::E_UNSUPPORTED:
+            प्रत्यागम m_e == E_UNSUPPORTED || m_e == COVERIGN || m_e == SPECIFYIGN;
+        पक्ष V3ErrorCode::I_LINT: प्रत्यागम lintError();
+        पक्ष V3ErrorCode::I_STYLE: प्रत्यागम styleError();
+        पक्ष V3ErrorCode::UNUSED:
+            प्रत्यागम m_e == UNUSEDGENVAR || m_e == UNUSEDLOOP || m_e == UNUSEDPARAM
                    || m_e == UNUSEDSIGNAL;
-        case V3ErrorCode::WIDTH:
-            return m_e == WIDTHDIGITS || m_e == WIDTHEXPAND || m_e == WIDTHTRUNC
+        पक्ष V3ErrorCode::WIDTH:
+            प्रत्यागम m_e == WIDTHDIGITS || m_e == WIDTHEXPAND || m_e == WIDTHTRUNC
                    || m_e == WIDTHXZEXPAND;
-        default: return false;
+        स्वभाव: प्रत्यागम false;
         }
     }
-    string url() const;
+    string url() ध्रुव;
 };
-constexpr bool operator==(const V3ErrorCode& lhs, const V3ErrorCode& rhs) {
-    return lhs.m_e == rhs.m_e;
+constexpr bool operator==(ध्रुव V3ErrorCode& lhs, ध्रुव V3ErrorCode& rhs) {
+    प्रत्यागम lhs.m_e == rhs.m_e;
 }
-constexpr bool operator==(const V3ErrorCode& lhs, V3ErrorCode::en rhs) { return lhs.m_e == rhs; }
-constexpr bool operator==(V3ErrorCode::en lhs, const V3ErrorCode& rhs) { return lhs == rhs.m_e; }
-inline std::ostream& operator<<(std::ostream& os, const V3ErrorCode& rhs) {
-    return os << rhs.ascii();
+constexpr bool operator==(ध्रुव V3ErrorCode& lhs, V3ErrorCode::en rhs) { प्रत्यागम lhs.m_e == rhs; }
+constexpr bool operator==(V3ErrorCode::en lhs, ध्रुव V3ErrorCode& rhs) { प्रत्यागम lhs == rhs.m_e; }
+अन्तःस्थ std::ostream& operator<<(std::ostream& os, ध्रुव V3ErrorCode& rhs) {
+    प्रत्यागम os << rhs.ascii();
 }
 
 // ######################################################################
@@ -389,28 +389,28 @@ inline std::ostream& operator<<(std::ostream& os, const V3ErrorCode& rhs) {
 // Store a single bit for each error code
 class VErrorBitSet final {
     std::bitset<V3ErrorCode::_ENUM_MAX> m_bitset;  // Enable for each code
-    VErrorBitSet(const VErrorBitSet& lhs, const VErrorBitSet& rhs)
+    VErrorBitSet(ध्रुव VErrorBitSet& lhs, ध्रुव VErrorBitSet& rhs)
         : m_bitset{lhs.m_bitset & rhs.m_bitset} {}
 
-public:
+सार्वजनिक:
     class AllOnes {};
-    VErrorBitSet() = default;
+    VErrorBitSet() = स्वभाव;
     explicit VErrorBitSet(AllOnes) { m_bitset.set(); }
-    ~VErrorBitSet() = default;
-    bool test(V3ErrorCode code) const { return m_bitset[code]; }
-    void set(V3ErrorCode code, bool flag) { m_bitset[code] = flag; }
-    V3Hash hash() const {
-        const size_t hashCode = std::hash<std::bitset<V3ErrorCode::_ENUM_MAX>>()(m_bitset);
-        return V3Hash{static_cast<uint64_t>(hashCode)};
+    ~VErrorBitSet() = स्वभाव;
+    bool test(V3ErrorCode code) ध्रुव { प्रत्यागम m_bitset[code]; }
+    शून्य set(V3ErrorCode code, bool flag) { m_bitset[code] = flag; }
+    V3Hash hash() ध्रुव {
+        ध्रुव size_t hashCode = std::hash<std::bitset<V3ErrorCode::_ENUM_MAX>>()(m_bitset);
+        प्रत्यागम V3Hash{static_cast<uint64_t>(hashCode)};
     }
-    VErrorBitSet operator&(const VErrorBitSet& rhs) const { return VErrorBitSet{*this, rhs}; }
-    bool operator==(const VErrorBitSet& rhs) const { return m_bitset == rhs.m_bitset; }
-    string ascii() const {  // LCOV_EXCL_START
+    VErrorBitSet operator&(ध्रुव VErrorBitSet& rhs) ध्रुव { प्रत्यागम VErrorBitSet{*this, rhs}; }
+    bool operator==(ध्रुव VErrorBitSet& rhs) ध्रुव { प्रत्यागम m_bitset == rhs.m_bitset; }
+    string ascii() ध्रुव {  // LCOV_EXCL_START
         string result;
-        for (int i = V3ErrorCode::EC_MIN; i < V3ErrorCode::_ENUM_MAX; ++i) {
-            if (!test(V3ErrorCode{i})) result += " !"s + V3ErrorCode{i}.ascii();
+        प्रति (पूर्णाङ्क i = V3ErrorCode::EC_MIN; i < V3ErrorCode::_ENUM_MAX; ++i) {
+            यदि (!test(V3ErrorCode{i})) result += " !"s + V3ErrorCode{i}.ascii();
         }
-        return result;
+        प्रत्यागम result;
     }  // LCOV_EXCL_STOP
 };
 
@@ -418,35 +418,35 @@ public:
 
 class VErrorMessage final {
     // TYPES
-    using FileLines = std::deque<const FileLine*>;
+    using File_ओळी = std::deque<ध्रुव File_ओळ*>;
     // MEMBERS
     V3ErrorCode m_code;  // Which warning
     string m_text;  // Warning message text
-    FileLine* m_fileline;  // Primary warning fileline
-    FileLines m_filelines;  // Additional referenced filelines
-public:
+    File_ओळ* m_fileline;  // Primary warning fileline
+    File_ओळी m_filelines;  // Additional referenced filelines
+सार्वजनिक:
     // CONSTRUCTORS
     VErrorMessage() { clear(); }
-    ~VErrorMessage() = default;
-    void clear() { init(V3ErrorCode::EC_MIN); }
-    void init(V3ErrorCode code) {
+    ~VErrorMessage() = स्वभाव;
+    शून्य clear() { init(V3ErrorCode::EC_MIN); }
+    शून्य init(V3ErrorCode code) {
         m_code = code;
         m_text = "";
         m_fileline = nullptr;
         m_filelines.clear();
     }
     // ACCESSORS
-    V3ErrorCode code() const { return m_code; }
-    bool isClear() const { return m_code == V3ErrorCode::EC_MIN; }
-    string text() const { return m_text; }
-    void text(const string& msg) { m_text = msg; }
-    FileLine* fileline() const { return m_fileline; }
-    void fileline(FileLine* fl) { m_fileline = fl; }
-    FileLines filelines() const { return m_filelines; }
+    V3ErrorCode code() ध्रुव { प्रत्यागम m_code; }
+    bool isClear() ध्रुव { प्रत्यागम m_code == V3ErrorCode::EC_MIN; }
+    string text() ध्रुव { प्रत्यागम m_text; }
+    शून्य text(ध्रुव string& संदेश) { m_text = संदेश; }
+    File_ओळ* fileline() ध्रुव { प्रत्यागम m_fileline; }
+    शून्य fileline(File_ओळ* fl) { m_fileline = fl; }
+    File_ओळी filelines() ध्रुव { प्रत्यागम m_filelines; }
     // Returns identifier for use in warnRelated()
-    int pushFileline(const FileLine* fl) {
+    पूर्णाङ्क ढकला_Fileline(ध्रुव File_ओळ* fl) {
         m_filelines.emplace_back(fl);
-        return m_filelines.size() - 1;
+        प्रत्यागम m_filelines.size() - 1;
     }
 };
 
@@ -457,12 +457,12 @@ class V3ErrorGuarded final {
     // contains guarded members
     friend class V3Error;
 
-public:
+सार्वजनिक:
     using MessagesSet = std::set<std::string>;
-    using ErrorExitCb = void (*)(void);
+    using ErrorExitCb = शून्य (*)(शून्य);
 
-private:
-    static constexpr unsigned MAX_ERRORS = 50;  // Fatal after this may errors
+गुप्त:
+    स्थिर constexpr unsigned MAX_ERRORS = 50;  // Fatal after this may errors
 
     // MEMBERS
     // Tell user to see manual, 0=not yet, 1=doit, 2=disable
@@ -475,77 +475,77 @@ private:
     ErrorExitCb m_errorExitCb VL_GUARDED_BY(m_mutex)
         = nullptr;  // Callback when error occurs for dumping
     bool m_errorContexted VL_GUARDED_BY(m_mutex) = false;  // Error being formed got context
-    int m_warnCount VL_GUARDED_BY(m_mutex) = 0;  // Warning count
-    int m_errCount VL_GUARDED_BY(m_mutex) = 0;  // Error count
+    पूर्णाङ्क m_warn_मोजणी VL_GUARDED_BY(m_mutex) = 0;  // Warning count
+    पूर्णाङ्क m_err_मोजणी VL_GUARDED_BY(m_mutex) = 0;  // Error count
     // Pretend this warning is an error
     VErrorBitSet m_pretendError VL_GUARDED_BY(m_mutex);
     // Told user specifics about this warning
     VErrorBitSet m_describedEachWarn VL_GUARDED_BY(m_mutex);
     // Debug about suppressed this warning
     VErrorBitSet m_showedSuppressed VL_GUARDED_BY(m_mutex);
-    int m_debugDefault = 0;  // Option: --debugi Default debugging level
-    int m_errorLimit VL_GUARDED_BY(m_mutex)
+    पूर्णाङ्क m_debugDefault = 0;  // Option: --debugi Default debugging level
+    पूर्णाङ्क m_errorLimit VL_GUARDED_BY(m_mutex)
         = MAX_ERRORS;  // Option: --error-limit Number of errors before exit
     bool m_warnFatal VL_GUARDED_BY(m_mutex) = true;  // Option: --warnFatal Warnings are fatal
     std::ostringstream m_errorStr VL_GUARDED_BY(m_mutex);  // Error string being formed
 
     // METHODS
-    void v3errorPrep(V3ErrorCode code) VL_REQUIRES(m_mutex);
-    std::ostringstream& v3errorStr() VL_REQUIRES(m_mutex) { return m_errorStr; }
-    void v3errorEnd(const std::ostringstream& sstr, const string& extra, FileLine* fileline)
+    शून्य v3errorPrep(V3ErrorCode code) VL_REQUIRES(m_mutex);
+    std::ostringstream& v3errorStr() VL_REQUIRES(m_mutex) { प्रत्यागम m_errorStr; }
+    शून्य v3errorEnd(ध्रुव std::ostringstream& sstr, ध्रुव string& extra, File_ओळ* fileline)
         VL_REQUIRES(m_mutex);
-    void v3errorEndGuts(const std::ostringstream& sstr, const string& extra, FileLine* fileline)
+    शून्य v3errorEndGuts(ध्रुव std::ostringstream& sstr, ध्रुव string& extra, File_ओळ* fileline)
         VL_REQUIRES(m_mutex);
 
-public:
+सार्वजनिक:
     V3RecursiveMutex m_mutex;  // Make sure only single thread is in class
 
-    string msgPrefix() VL_REQUIRES(m_mutex);  // returns %Error/%Warn
+    string संदेश_Prefix() VL_REQUIRES(m_mutex);  // returns %Error/%Warn
     string warnMoreSpaces() VL_REQUIRES(m_mutex);
-    void execErrorExitCb() VL_REQUIRES(m_mutex) {
-        if (m_errorExitCb) m_errorExitCb();
+    शून्य execErrorExitCb() VL_REQUIRES(m_mutex) {
+        यदि (m_errorExitCb) m_errorExitCb();
     }
-    ErrorExitCb errorExitCb() VL_REQUIRES(m_mutex) { return m_errorExitCb; }
-    void errorExitCb(ErrorExitCb cb) VL_REQUIRES(m_mutex) { m_errorExitCb = cb; }
+    ErrorExitCb errorExitCb() VL_REQUIRES(m_mutex) { प्रत्यागम m_errorExitCb; }
+    शून्य errorExitCb(ErrorExitCb cb) VL_REQUIRES(m_mutex) { m_errorExitCb = cb; }
     bool isError(V3ErrorCode code, bool supp) VL_REQUIRES(m_mutex);
-    void vlAbortOrExit() VL_REQUIRES(m_mutex);
-    void errorContexted(bool flag) VL_REQUIRES(m_mutex) { m_errorContexted = flag; }
-    void incWarnings() VL_REQUIRES(m_mutex) { ++m_warnCount; }
-    void incErrors() VL_REQUIRES(m_mutex) { ++m_errCount; }
-    int errorCount() const VL_REQUIRES(m_mutex) { return m_errCount; }
-    bool isErrorOrWarn() const VL_REQUIRES(m_mutex) {
-        return errorCount() || (warnFatal() && warnCount());
+    शून्य vlAbortOrExit() VL_REQUIRES(m_mutex);
+    शून्य errorContexted(bool flag) VL_REQUIRES(m_mutex) { m_errorContexted = flag; }
+    शून्य incWarnings() VL_REQUIRES(m_mutex) { ++m_warn_मोजणी; }
+    शून्य incErrors() VL_REQUIRES(m_mutex) { ++m_err_मोजणी; }
+    पूर्णाङ्क error_मोजणी() ध्रुव VL_REQUIRES(m_mutex) { प्रत्यागम m_err_मोजणी; }
+    bool isErrorOrWarn() ध्रुव VL_REQUIRES(m_mutex) {
+        प्रत्यागम error_मोजणी() || (warnFatal() && warn_मोजणी());
     }
-    bool pretendError(V3ErrorCode code) VL_REQUIRES(m_mutex) { return m_pretendError.test(code); }
-    void pretendError(V3ErrorCode code, bool flag) VL_REQUIRES(m_mutex) {
+    bool pretendError(V3ErrorCode code) VL_REQUIRES(m_mutex) { प्रत्यागम m_pretendError.test(code); }
+    शून्य pretendError(V3ErrorCode code, bool flag) VL_REQUIRES(m_mutex) {
         code.forDelegateCodes([this, flag](V3ErrorCode subcode)
                                   VL_REQUIRES(m_mutex) { m_pretendError.set(subcode, flag); });
     }
-    int debugDefault() const VL_MT_SAFE { return m_debugDefault; }
-    void debugDefault(int level) VL_MT_UNSAFE { m_debugDefault = level; }
-    int errorLimit() const VL_REQUIRES(m_mutex) { return m_errorLimit; }
-    void errorLimit(int level) VL_REQUIRES(m_mutex) { m_errorLimit = level; }
-    bool warnFatal() const VL_REQUIRES(m_mutex) { return m_warnFatal; }
-    void warnFatal(bool flag) VL_REQUIRES(m_mutex) { m_warnFatal = flag; }
-    V3ErrorCode errorCode() const VL_REQUIRES(m_mutex) { return m_message.code(); }
-    bool errorContexted() VL_REQUIRES(m_mutex) { return m_errorContexted; }
-    int warnCount() const VL_REQUIRES(m_mutex) { return m_warnCount; }
-    bool errorSuppressed() const VL_REQUIRES(m_mutex) { return m_errorSuppressed; }
-    void errorSuppressed(bool flag) VL_REQUIRES(m_mutex) { m_errorSuppressed = flag; }
+    पूर्णाङ्क debugDefault() ध्रुव VL_MT_SAFE { प्रत्यागम m_debugDefault; }
+    शून्य debugDefault(पूर्णाङ्क level) VL_MT_UNSAFE { m_debugDefault = level; }
+    पूर्णाङ्क errorLimit() ध्रुव VL_REQUIRES(m_mutex) { प्रत्यागम m_errorLimit; }
+    शून्य errorLimit(पूर्णाङ्क level) VL_REQUIRES(m_mutex) { m_errorLimit = level; }
+    bool warnFatal() ध्रुव VL_REQUIRES(m_mutex) { प्रत्यागम m_warnFatal; }
+    शून्य warnFatal(bool flag) VL_REQUIRES(m_mutex) { m_warnFatal = flag; }
+    V3ErrorCode errorCode() ध्रुव VL_REQUIRES(m_mutex) { प्रत्यागम m_message.code(); }
+    bool errorContexted() VL_REQUIRES(m_mutex) { प्रत्यागम m_errorContexted; }
+    पूर्णाङ्क warn_मोजणी() ध्रुव VL_REQUIRES(m_mutex) { प्रत्यागम m_warn_मोजणी; }
+    bool errorSuppressed() ध्रुव VL_REQUIRES(m_mutex) { प्रत्यागम m_errorSuppressed; }
+    शून्य errorSuppressed(bool flag) VL_REQUIRES(m_mutex) { m_errorSuppressed = flag; }
     bool describedEachWarn(V3ErrorCode code) VL_REQUIRES(m_mutex) {
-        return m_describedEachWarn.test(code);
+        प्रत्यागम m_describedEachWarn.test(code);
     }
-    void describedEachWarn(V3ErrorCode code, bool flag) VL_REQUIRES(m_mutex) {
+    शून्य describedEachWarn(V3ErrorCode code, bool flag) VL_REQUIRES(m_mutex) {
         m_describedEachWarn.set(code, flag);
     }
-    void suppressThisWarning() VL_REQUIRES(m_mutex);
-    string warnRelated(const FileLine* fl) VL_REQUIRES(m_mutex) {
-        const int id = m_message.pushFileline(fl);
-        return "__WARNRELATED("s + std::to_string(id) + ")";
+    शून्य suppressThisWarning() VL_REQUIRES(m_mutex);
+    string warnRelated(ध्रुव File_ओळ* fl) VL_REQUIRES(m_mutex) {
+        ध्रुव पूर्णाङ्क id = m_message.ढकला_Fileline(fl);
+        प्रत्यागम "__WARNRELATED("s + std::to_string(id) + ")";
     }
     string warnContextNone() VL_REQUIRES(m_mutex) {
         errorContexted(true);
-        return "";
+        प्रत्यागम "";
     }
 };
 
@@ -554,142 +554,142 @@ public:
 class V3Error final {
     // Static members only
 
-public:
+सार्वजनिक:
     V3Error() = delete;
-    static V3ErrorGuarded& s() VL_MT_SAFE {  // Singleton
-        static V3ErrorGuarded s_s;
-        return s_s;
+    स्थिर V3ErrorGuarded& s() VL_MT_SAFE {  // Singleton
+        स्थिर V3ErrorGuarded s_s;
+        प्रत्यागम s_s;
     }
 
     // ACCESSORS
-    static void debugDefault(int level) VL_MT_UNSAFE { s().debugDefault(level); }
-    static int debugDefault() VL_MT_SAFE { return s().debugDefault(); }
-    static void errorLimit(int level) VL_MT_SAFE_EXCLUDES(s().m_mutex) {
-        const V3RecursiveLockGuard guard{s().m_mutex};
+    स्थिर शून्य debugDefault(पूर्णाङ्क level) VL_MT_UNSAFE { s().debugDefault(level); }
+    स्थिर पूर्णाङ्क debugDefault() VL_MT_SAFE { प्रत्यागम s().debugDefault(); }
+    स्थिर शून्य errorLimit(पूर्णाङ्क level) VL_MT_SAFE_EXCLUDES(s().m_mutex) {
+        ध्रुव V3RecursiveLockGuard guard{s().m_mutex};
         s().errorLimit(level);
     }
-    static int errorLimit() VL_MT_SAFE_EXCLUDES(s().m_mutex) {
-        const V3RecursiveLockGuard guard{s().m_mutex};
-        return s().errorLimit();
+    स्थिर पूर्णाङ्क errorLimit() VL_MT_SAFE_EXCLUDES(s().m_mutex) {
+        ध्रुव V3RecursiveLockGuard guard{s().m_mutex};
+        प्रत्यागम s().errorLimit();
     }
-    static void warnFatal(bool flag) VL_MT_SAFE_EXCLUDES(s().m_mutex) {
-        const V3RecursiveLockGuard guard{s().m_mutex};
+    स्थिर शून्य warnFatal(bool flag) VL_MT_SAFE_EXCLUDES(s().m_mutex) {
+        ध्रुव V3RecursiveLockGuard guard{s().m_mutex};
         s().warnFatal(flag);
     }
-    static bool warnFatal() VL_MT_SAFE_EXCLUDES(s().m_mutex) {
-        const V3RecursiveLockGuard guard{s().m_mutex};
-        return s().warnFatal();
+    स्थिर bool warnFatal() VL_MT_SAFE_EXCLUDES(s().m_mutex) {
+        ध्रुव V3RecursiveLockGuard guard{s().m_mutex};
+        प्रत्यागम s().warnFatal();
     }
     // returns %Error/%Warn
-    static string msgPrefix() VL_MT_SAFE_EXCLUDES(s().m_mutex) {
-        const V3RecursiveLockGuard guard{s().m_mutex};
-        return s().msgPrefix();
+    स्थिर string संदेश_Prefix() VL_MT_SAFE_EXCLUDES(s().m_mutex) {
+        ध्रुव V3RecursiveLockGuard guard{s().m_mutex};
+        प्रत्यागम s().संदेश_Prefix();
     }
-    static int errorCount() VL_MT_SAFE_EXCLUDES(s().m_mutex) {
-        const V3RecursiveLockGuard guard{s().m_mutex};
-        return s().errorCount();
+    स्थिर पूर्णाङ्क error_मोजणी() VL_MT_SAFE_EXCLUDES(s().m_mutex) {
+        ध्रुव V3RecursiveLockGuard guard{s().m_mutex};
+        प्रत्यागम s().error_मोजणी();
     }
-    static bool pretendError(V3ErrorCode code) VL_MT_SAFE_EXCLUDES(s().m_mutex) {
-        const V3RecursiveLockGuard guard{s().m_mutex};
-        return s().pretendError(code);
+    स्थिर bool pretendError(V3ErrorCode code) VL_MT_SAFE_EXCLUDES(s().m_mutex) {
+        ध्रुव V3RecursiveLockGuard guard{s().m_mutex};
+        प्रत्यागम s().pretendError(code);
     }
-    static int warnCount() VL_MT_SAFE_EXCLUDES(s().m_mutex) {
-        const V3RecursiveLockGuard guard{s().m_mutex};
-        return s().warnCount();
+    स्थिर पूर्णाङ्क warn_मोजणी() VL_MT_SAFE_EXCLUDES(s().m_mutex) {
+        ध्रुव V3RecursiveLockGuard guard{s().m_mutex};
+        प्रत्यागम s().warn_मोजणी();
     }
-    static bool errorContexted() VL_MT_SAFE_EXCLUDES(s().m_mutex) {
-        const V3RecursiveLockGuard guard{s().m_mutex};
-        return s().errorContexted();
+    स्थिर bool errorContexted() VL_MT_SAFE_EXCLUDES(s().m_mutex) {
+        ध्रुव V3RecursiveLockGuard guard{s().m_mutex};
+        प्रत्यागम s().errorContexted();
     }
-    static void errorContexted(bool flag) VL_MT_SAFE_EXCLUDES(s().m_mutex) {
-        const V3RecursiveLockGuard guard{s().m_mutex};
+    स्थिर शून्य errorContexted(bool flag) VL_MT_SAFE_EXCLUDES(s().m_mutex) {
+        ध्रुव V3RecursiveLockGuard guard{s().m_mutex};
         s().errorContexted(flag);
     }
-    static void describedEachWarn(V3ErrorCode code, bool flag) VL_MT_SAFE_EXCLUDES(s().m_mutex) {
-        const V3RecursiveLockGuard guard{s().m_mutex};
+    स्थिर शून्य describedEachWarn(V3ErrorCode code, bool flag) VL_MT_SAFE_EXCLUDES(s().m_mutex) {
+        ध्रुव V3RecursiveLockGuard guard{s().m_mutex};
         s().describedEachWarn(code, flag);
     }
     // METHODS
-    static void incErrors() VL_MT_SAFE_EXCLUDES(s().m_mutex) {
-        const V3RecursiveLockGuard guard{s().m_mutex};
+    स्थिर शून्य incErrors() VL_MT_SAFE_EXCLUDES(s().m_mutex) {
+        ध्रुव V3RecursiveLockGuard guard{s().m_mutex};
         s().incErrors();
     }
-    static void incWarnings() VL_MT_SAFE_EXCLUDES(s().m_mutex) {
-        const V3RecursiveLockGuard guard{s().m_mutex};
+    स्थिर शून्य incWarnings() VL_MT_SAFE_EXCLUDES(s().m_mutex) {
+        ध्रुव V3RecursiveLockGuard guard{s().m_mutex};
         s().incWarnings();
     }
-    static void init();
-    static bool isError(V3ErrorCode code, bool supp) VL_MT_SAFE_EXCLUDES(s().m_mutex) {
-        const V3RecursiveLockGuard guard{s().m_mutex};
-        return s().isError(code, supp);
+    स्थिर शून्य init();
+    स्थिर bool isError(V3ErrorCode code, bool supp) VL_MT_SAFE_EXCLUDES(s().m_mutex) {
+        ध्रुव V3RecursiveLockGuard guard{s().m_mutex};
+        प्रत्यागम s().isError(code, supp);
     }
-    static bool isErrorOrWarn() VL_MT_SAFE_EXCLUDES(s().m_mutex) {
-        const V3RecursiveLockGuard guard{s().m_mutex};
-        return s().isErrorOrWarn();
+    स्थिर bool isErrorOrWarn() VL_MT_SAFE_EXCLUDES(s().m_mutex) {
+        ध्रुव V3RecursiveLockGuard guard{s().m_mutex};
+        प्रत्यागम s().isErrorOrWarn();
     }
-    static void abortIfErrors() {
-        if (errorCount()) abortIfWarnings();
+    स्थिर शून्य abortIfErrors() {
+        यदि (error_मोजणी()) abortIfWarnings();
     }
-    static void abortIfWarnings();
+    स्थिर शून्य abortIfWarnings();
     // Suppress next %Warn if user has it off
-    static void suppressThisWarning() VL_MT_SAFE_EXCLUDES(s().m_mutex) {
-        const V3RecursiveLockGuard guard{s().m_mutex};
+    स्थिर शून्य suppressThisWarning() VL_MT_SAFE_EXCLUDES(s().m_mutex) {
+        ध्रुव V3RecursiveLockGuard guard{s().m_mutex};
         s().suppressThisWarning();
     }
-    static void pretendError(V3ErrorCode code, bool flag) VL_MT_SAFE_EXCLUDES(s().m_mutex) {
-        const V3RecursiveLockGuard guard{s().m_mutex};
+    स्थिर शून्य pretendError(V3ErrorCode code, bool flag) VL_MT_SAFE_EXCLUDES(s().m_mutex) {
+        ध्रुव V3RecursiveLockGuard guard{s().m_mutex};
         s().pretendError(code, flag);
     }
-    static string lineStr(const char* filename, int lineno) VL_PURE;
-    static string stripMetaText(const string& text, bool stripMeta) VL_PURE;
-    static V3ErrorCode errorCode() VL_MT_SAFE_EXCLUDES(s().m_mutex) {
-        const V3RecursiveLockGuard guard{s().m_mutex};
-        return s().errorCode();
+    स्थिर string ओळ_Str(ध्रुव वर्ण* filename, पूर्णाङ्क lineno) VL_PURE;
+    स्थिर string stripMetaText(ध्रुव string& text, bool stripMeta) VL_PURE;
+    स्थिर V3ErrorCode errorCode() VL_MT_SAFE_EXCLUDES(s().m_mutex) {
+        ध्रुव V3RecursiveLockGuard guard{s().m_mutex};
+        प्रत्यागम s().errorCode();
     }
-    static void errorExitCb(V3ErrorGuarded::ErrorExitCb cb) VL_MT_SAFE_EXCLUDES(s().m_mutex) {
-        const V3RecursiveLockGuard guard{s().m_mutex};
+    स्थिर शून्य errorExitCb(V3ErrorGuarded::ErrorExitCb cb) VL_MT_SAFE_EXCLUDES(s().m_mutex) {
+        ध्रुव V3RecursiveLockGuard guard{s().m_mutex};
         s().errorExitCb(cb);
     }
 
     // When printing an error/warning, print prefix for multiline message
-    static constexpr const char* WARN_MORE = "__WARNMORE__";
-    static string warnMore() VL_MT_SAFE { return WARN_MORE; }
+    स्थिर constexpr ध्रुव वर्ण* WARN_MORE = "__WARNMORE__";
+    स्थिर string warnMore() VL_MT_SAFE { प्रत्यागम WARN_MORE; }
     // When printing an error/warning, mark beginning of context information (can nest)
-    static constexpr const char* WARN_CONTEXT_BEGIN = "__WARNBEGIN__";
-    static string warnContextBegin() VL_MT_SAFE { return WARN_CONTEXT_BEGIN; }
+    स्थिर constexpr ध्रुव वर्ण* WARN_CONTEXT_BEGIN = "__WARNBEGIN__";
+    स्थिर string warnContextBegin() VL_MT_SAFE { प्रत्यागम WARN_CONTEXT_BEGIN; }
     // When printing an error/warning, mark end of context information (can nest)
-    static constexpr const char* WARN_CONTEXT_END = "__WARNEND__";
-    static string warnContextEnd() VL_MT_SAFE { return WARN_CONTEXT_END; }
+    स्थिर constexpr ध्रुव वर्ण* WARN_CONTEXT_END = "__WARNEND__";
+    स्थिर string warnContextEnd() VL_MT_SAFE { प्रत्यागम WARN_CONTEXT_END; }
     // This function marks place in error message from which point message
     // should be printed after information on the error code.
     // The post-processing is done in v3errorEnd function.
-    static string warnAdditionalInfo() VL_MT_SAFE { return "__WARNADDITIONALINFO__"; }
+    स्थिर string warnAdditionalInfo() VL_MT_SAFE { प्रत्यागम "__WARNADDITIONALINFO__"; }
     /// When building an error, don't show context info
-    static string warnContextNone() {
+    स्थिर string warnContextNone() {
         V3Error::errorContexted(true);
-        return "";
+        प्रत्यागम "";
     }
 
     // Internals for v3error()/v3fatal() macros only
     // Error end takes the string stream to output, be careful to seek() as needed
-    static std::ostringstream& v3errorPrep(V3ErrorCode code) VL_ACQUIRE(s().m_mutex);
-    static std::ostringstream& v3errorPrepFileLine(V3ErrorCode code, const char* file, int line)
+    स्थिर std::ostringstream& v3errorPrep(V3ErrorCode code) VL_ACQUIRE(s().m_mutex);
+    स्थिर std::ostringstream& v3error_Prep_File_ओळ(V3ErrorCode code, ध्रुव वर्ण* file, पूर्णाङ्क ओळ)
         VL_ACQUIRE(s().m_mutex);
-    static std::ostringstream& v3errorStr() VL_REQUIRES(s().m_mutex) { return s().v3errorStr(); }
+    स्थिर std::ostringstream& v3errorStr() VL_REQUIRES(s().m_mutex) { प्रत्यागम s().v3errorStr(); }
     // static, but often overridden in classes.
-    static void v3errorEnd(const std::ostringstream& sstr, const string& extra, FileLine* fileline)
+    स्थिर शून्य v3errorEnd(ध्रुव std::ostringstream& sstr, ध्रुव string& extra, File_ओळ* fileline)
         VL_RELEASE(s().m_mutex);
-    static void vlAbort();
+    स्थिर शून्य vlAbort();
 };
 
 // Global versions, so that if the class doesn't define an operator, we get the functions anyway.
-void v3errorEnd(std::ostringstream& sstr) VL_RELEASE(V3Error::s().m_mutex) VL_MT_SAFE;
-void v3errorEndFatal(std::ostringstream& sstr)
+शून्य v3errorEnd(std::ostringstream& sstr) VL_RELEASE(V3Error::s().m_mutex) VL_MT_SAFE;
+शून्य v3errorEndFatal(std::ostringstream& sstr)
     VL_RELEASE(V3Error::s().m_mutex) VL_MT_SAFE VL_ATTR_NORETURN;
 
 #ifdef VL_MT_DISABLED_CODE_UNIT
 #define VL_MT_DISABLED_CODE_UNIT_DEFINED 1
-#else
+#अन्यथा
 #define VL_MT_DISABLED_CODE_UNIT_DEFINED 0
 #endif
 
@@ -699,150 +699,150 @@ void v3errorEndFatal(std::ostringstream& sstr)
 // single statement can be arbitrary until C++17, thus make it possible to execute
 // V3Error::v3errorPrep that acquires the lock after functions in the msg may require it. So we use
 // the comma operator (,) to guarantee the execution order here.
-#define v3errorBuildMessage(prep, msg) \
-    (prep, static_cast<std::ostringstream&>(V3Error::v3errorStr() << msg))
-#define v3warnCode(code, msg) v3errorEnd(v3errorBuildMessage(V3Error::v3errorPrep(code), msg))
-#define v3warnCodeFatal(code, msg) \
-    v3errorEndFatal(v3errorBuildMessage(V3Error::v3errorPrep(code), msg))
-#define v3warn(code, msg) v3warnCode(V3ErrorCode::code, msg)
-#define v3info(msg) v3warnCode(V3ErrorCode::EC_INFO, msg)
-#define v3error(msg) v3warnCode(V3ErrorCode::EC_ERROR, msg)
-#define v3fatal(msg) v3warnCodeFatal(V3ErrorCode::EC_FATAL, msg)
+#define v3errorBuildMessage(prep, संदेश) \
+    (prep, static_cast<std::ostringstream&>(V3Error::v3errorStr() << संदेश))
+#define v3warnCode(code, संदेश) v3errorEnd(v3errorBuildMessage(V3Error::v3errorPrep(code), संदेश))
+#define v3warnCodeFatal(code, संदेश) \
+    v3errorEndFatal(v3errorBuildMessage(V3Error::v3errorPrep(code), संदेश))
+#define v3warn(code, संदेश) v3warnCode(V3ErrorCode::code, संदेश)
+#define v3info(संदेश) v3warnCode(V3ErrorCode::EC_INFO, संदेश)
+#define v3error(संदेश) v3warnCode(V3ErrorCode::EC_ERROR, संदेश)
+#define v3fatal(संदेश) v3warnCodeFatal(V3ErrorCode::EC_FATAL, संदेश)
 // Fatal exit; used instead of fatal() if message gets suppressed with --quiet-exit
-#define v3fatalMany(msg) v3warnCodeFatal(V3ErrorCode::EC_FATALMANY, msg)
+#define v3fatalMany(संदेश) v3warnCodeFatal(V3ErrorCode::EC_FATALMANY, संदेश)
 // Fatal exit; used instead of fatal() to mention the source code line
-#define v3fatalSrc(msg) \
+#define v3fatalSrc(संदेश) \
     v3errorEndFatal(v3errorBuildMessage( \
-        V3Error::v3errorPrepFileLine(V3ErrorCode::EC_FATALSRC, __FILE__, __LINE__), msg))
+        V3Error::v3error_Prep_File_ओळ(V3ErrorCode::EC_FATALSRC, __FILE__, __LINE__), संदेश))
 // Use this when normal v3fatal is called in static method that overrides fileline.
-#define v3fatalStatic(msg) \
-    ::v3errorEndFatal(v3errorBuildMessage(V3Error::v3errorPrep(V3ErrorCode::EC_FATAL), msg))
+#define v3fatalStatic(संदेश) \
+    ::v3errorEndFatal(v3errorBuildMessage(V3Error::v3errorPrep(V3ErrorCode::EC_FATAL), संदेश))
 
 /// Print a message when debug() >= level.  stmsg is stream; e.g. use as '"foo=" << foo'
 //
 // Requires debug() function to exist in current scope, to hack this in temporarily:
 // auto debug = []() -> bool { return V3Error::debugDefault(); };
 #define UINFO(level, stmsg) \
-    do { \
-        if (VL_UNCOVERABLE(debug() >= (level))) { \
+    कुरु { \
+        यदि (VL_UNCOVERABLE(debug() >= (level))) { \
             std::ostringstream ss; \
-            ss << "- " << V3Error::lineStr(__FILE__, __LINE__) << stmsg; \
-            if (ss.str()[ss.str().size() - 1] != '\n') ss << '\n'; \
+            ss << "- " << V3Error::ओळ_Str(__FILE__, __LINE__) << stmsg; \
+            यदि (ss.str()[ss.str().size() - 1] != '\n') ss << '\n'; \
             std::cout << ss.str(); \
         } \
-    } while (false)
+    } यावत् (false)
 
 /// Print the prefix of UINFO, but no newline.  No level argument, as
 /// always need an if() at the caller site to determine if rest of the line
 /// gets printed or not
 #define UINFO_PREFIX(stmsg) \
-    do { std::cout << "- " << V3Error::lineStr(__FILE__, __LINE__) << stmsg; } while (false)
+    कुरु { std::cout << "- " << V3Error::ओळ_Str(__FILE__, __LINE__) << stmsg; } यावत् (false)
 
 /// Based on debug level, call UINFO then dumpTree on nodep, using given message prefix
 /// If uinfo_msg = "", suppress the first UINFO
 /// If dumptree_msg = "", use the uinfo_msg; note any uinfo_msg side effects will happen twice.
-#define UINFOTREE(level, nodep, uinfo_msg, dumptree_msg) \
-    do { \
-        if (VL_UNCOVERABLE(debug() >= (level))) { \
+#define UINFOTREE(level, nodep, uinfo_संदेश, dumptree_संदेश) \
+    कुरु { \
+        यदि (VL_UNCOVERABLE(debug() >= (level))) { \
             std::ostringstream us; \
-            us << uinfo_msg; \
-            if (!us.str().empty()) UINFO(level, us.str()); \
-            if (nodep) { \
+            us << uinfo_संदेश; \
+            यदि (!us.str().empty()) UINFO(level, us.str()); \
+            यदि (nodep) { \
                 std::ostringstream ss; \
-                ss << dumptree_msg; \
-                if (ss.str().empty()) ss << uinfo_msg; \
-                nodep->dumpTree("- " + V3Error::lineStr(__FILE__, __LINE__) + ss.str() + " - "); \
+                ss << dumptree_संदेश; \
+                यदि (ss.str().empty()) ss << uinfo_संदेश; \
+                nodep->dump_वृक्ष("- " + V3Error::ओळ_Str(__FILE__, __LINE__) + ss.str() + " - "); \
             } \
         } \
-    } while (false)
+    } यावत् (false)
 
 /// Compile statements only when debug build
 #ifdef VL_DEBUG
 #define UDEBUGONLY(stmts) \
-    do { stmts } while (false)
-#else
+    कुरु { stmts } यावत् (false)
+#अन्यथा
 #define UDEBUGONLY(stmts) \
-    do { \
-        if (false) { stmts } \
-    } while (false)
+    कुरु { \
+        यदि (false) { stmts } \
+    } यावत् (false)
 #endif
 
 /// Assert without error location, generally UASSERT_OBJ preferred
 #define UASSERT(condition, stmsg) \
-    do { \
-        if (VL_UNCOVERABLE(!(condition))) v3fatalSrc(stmsg); \
-    } while (false)
+    कुरु { \
+        यदि (VL_UNCOVERABLE(!(condition))) v3fatalSrc(stmsg); \
+    } यावत् (false)
 /// Assert with object to provide error location
 #define UASSERT_OBJ(condition, obj, stmsg) \
-    do { \
-        if (VL_UNCOVERABLE(!(condition))) (obj)->v3fatalSrc(stmsg); \
-    } while (false)
+    कुरु { \
+        यदि (VL_UNCOVERABLE(!(condition))) (obj)->v3fatalSrc(stmsg); \
+    } यावत् (false)
 // For use in V3Ast static functions only
 #define UASSERT_STATIC(condition, stmsg) \
-    do { \
-        if (VL_UNCOVERABLE(!(condition))) { \
+    कुरु { \
+        यदि (VL_UNCOVERABLE(!(condition))) { \
             std::cerr << "Internal Error: " << __FILE__ << ":" << std::dec << __LINE__ << ":" \
                       << (stmsg) << std::endl; \
             V3Error::vlAbort(); \
         } \
-    } while (false)
+    } यावत् (false)
 /// Check self test values for expected value.  Safe from side-effects.
 #define UASSERT_SELFTEST(got, exp) \
-    do { \
-        const auto g = (got); \
-        const decltype(g) e{exp}; \
+    कुरु { \
+        ध्रुव auto g = (got); \
+        ध्रुव decltype(g) e{exp}; \
         UASSERT(g == e, "Self-test failed '" #got "==" #exp "'" \
                         " got=" \
                             << g << " expected=" << e); \
-    } while (false)
+    } यावत् (false)
 
 // Error that call not supported; only for some Ast functions
 #define V3ERROR_NA \
-    do { \
+    कुरु { \
         v3error("Internal: Unexpected Call"); \
         v3fatalSrc("Unexpected Call"); \
-    } while (false)
+    } यावत् (false)
 
 /// Throw fatal and return a value. The return value will never really be
 /// needed, but required to avoid compiler error.
-#define V3ERROR_NA_RETURN(value) \
+#define V3ERROR_NA_RETURN(मूल्य) \
     V3ERROR_NA; \
-    return value
+    प्रत्यागम मूल्य
 
 // Helper macros for VL_DEFINE_DEBUG_FUNCTIONS
 // Takes an optional "name" (as __VA_ARGS__)
 #define VL_DEFINE_DEBUG(...) \
-    VL_ATTR_UNUSED static int debug##__VA_ARGS__() VL_MT_SAFE { \
+    VL_ATTR_UNUSED स्थिर पूर्णाङ्क debug##__VA_ARGS__() VL_MT_SAFE { \
         /* Don't complain this function is unused */ \
-        (void)&debug##__VA_ARGS__; \
-        static int s_level = -1; \
-        if (VL_UNLIKELY(s_level < 0)) { \
+        (शून्य)&debug##__VA_ARGS__; \
+        स्थिर पूर्णाङ्क s_level = -1; \
+        यदि (VL_UNLIKELY(s_level < 0)) { \
             std::string tag{VL_STRINGIFY(__VA_ARGS__)}; \
-            if (!tag.empty()) tag[0] = std::tolower(tag[0]); \
-            const unsigned debugTag = v3Global.opt.debugLevel(tag); \
-            const unsigned debugSrc = v3Global.opt.debugSrcLevel(__FILE__); \
-            const unsigned debugLevel = debugTag >= debugSrc ? debugTag : debugSrc; \
-            if (!v3Global.opt.available()) return static_cast<int>(debugLevel); \
-            s_level = static_cast<int>(debugLevel); \
+            यदि (!tag.empty()) tag[0] = std::tolower(tag[0]); \
+            ध्रुव unsigned debugTag = v3Global.opt.debugLevel(tag); \
+            ध्रुव unsigned debugSrc = v3Global.opt.debugSrcLevel(__FILE__); \
+            ध्रुव unsigned debugLevel = debugTag >= debugSrc ? debugTag : debugSrc; \
+            यदि (!v3Global.opt.available()) प्रत्यागम static_cast<पूर्णाङ्क>(debugLevel); \
+            s_level = static_cast<पूर्णाङ्क>(debugLevel); \
         } \
-        return s_level; \
+        प्रत्यागम s_level; \
     } \
     static_assert(true, "")
 
 // Takes an optional "name" (as __VA_ARGS__)
 #define VL_DEFINE_DUMP(func, tag) \
-    VL_ATTR_UNUSED static int dump##func() VL_MT_SAFE { \
+    VL_ATTR_UNUSED स्थिर पूर्णाङ्क dump##func() VL_MT_SAFE { \
         /* Don't complain this function is unused */ \
-        (void)&dump##func; \
-        static int s_level = -1; \
-        if (VL_UNLIKELY(s_level < 0)) { \
-            const unsigned dumpTag = v3Global.opt.dumpLevel(tag); \
-            const unsigned dumpSrc = v3Global.opt.dumpSrcLevel(__FILE__); \
-            const unsigned dumpLevel = dumpTag >= dumpSrc ? dumpTag : dumpSrc; \
-            if (!v3Global.opt.available()) return static_cast<int>(dumpLevel); \
-            s_level = static_cast<int>(dumpLevel); \
+        (शून्य)&dump##func; \
+        स्थिर पूर्णाङ्क s_level = -1; \
+        यदि (VL_UNLIKELY(s_level < 0)) { \
+            ध्रुव unsigned dumpTag = v3Global.opt.dumpLevel(tag); \
+            ध्रुव unsigned dumpSrc = v3Global.opt.dumpSrcLevel(__FILE__); \
+            ध्रुव unsigned dumpLevel = dumpTag >= dumpSrc ? dumpTag : dumpSrc; \
+            यदि (!v3Global.opt.available()) प्रत्यागम static_cast<पूर्णाङ्क>(dumpLevel); \
+            s_level = static_cast<पूर्णाङ्क>(dumpLevel); \
         } \
-        return s_level; \
+        प्रत्यागम s_level; \
     } \
     static_assert(true, "")
 
@@ -853,12 +853,12 @@ void v3errorEndFatal(std::ostringstream& sstr)
     VL_DEFINE_DUMP(Level, ""); /* Define 'int dumpLevel()' for --dumpi */ \
     VL_DEFINE_DUMP(DfgLevel, "dfg"); /* Define 'int dumpDfgLevel()' for --dumpi-level */ \
     VL_DEFINE_DUMP(GraphLevel, "graph"); /* Define 'int dumpGraphLevel()' for dumpi-graph */ \
-    VL_DEFINE_DUMP(TreeLevel, "tree"); /* Define 'int dumpTreeLevel()' for dumpi-tree */ \
-    VL_DEFINE_DUMP(TreeJsonLevel, \
+    VL_DEFINE_DUMP(वृक्ष_Level, "tree"); /* Define 'int dumpTreeLevel()' for dumpi-tree */ \
+    VL_DEFINE_DUMP(वृक्ष_Json_Level, \
                    "tree-json"); /* Define 'int dumpTreeJsonLevel()' for dumpi-tree-json */ \
-    VL_ATTR_UNUSED static int dumpTreeEitherLevel() { \
-        /* Don't complain this function is unused */ (void)&dumpTreeEitherLevel; \
-        return dumpTreeJsonLevel() >= dumpTreeLevel() ? dumpTreeJsonLevel() : dumpTreeLevel(); \
+    VL_ATTR_UNUSED स्थिर पूर्णाङ्क dump_वृक्ष_Either_Level() { \
+        /* Don't complain this function is unused */ (शून्य)&dump_वृक्ष_Either_Level; \
+        प्रत्यागम dump_वृक्ष_Json_Level() >= dump_वृक्ष_Level() ? dump_वृक्ष_Json_Level() : dump_वृक्ष_Level(); \
     } \
     static_assert(true, "")
 

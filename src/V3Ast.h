@@ -17,41 +17,41 @@
 #ifndef VERILATOR_V3AST_H_
 #define VERILATOR_V3AST_H_
 
-#include "config_build.h"
-#include "verilatedos.h"
+#अन्तर्भाव "config_build.h"
+#अन्तर्भाव "verilatedos.h"
 
-#include "V3Broken.h"
-#include "V3Error.h"
-#include "V3FileLine.h"
-#include "V3FunctionTraits.h"
-#include "V3Global.h"
-#include "V3Number.h"
-#include "V3StdFuture.h"
+#अन्तर्भाव "V3Broken.h"
+#अन्तर्भाव "V3Error.h"
+#अन्तर्भाव "V3FileLine.h"
+#अन्तर्भाव "V3FunctionTraits.h"
+#अन्तर्भाव "V3Global.h"
+#अन्तर्भाव "V3Number.h"
+#अन्तर्भाव "V3StdFuture.h"
 
-#include "V3Ast__gen_forward_class_decls.h"  // From ./astgen
+#अन्तर्भाव "V3Ast__gen_forward_class_decls.h"  // From ./astgen
 
-#include <array>
-#include <cmath>
-#include <cstdint>
-#include <functional>
-#include <map>
-#include <set>
-#include <type_traits>
-#include <unordered_map>
-#include <unordered_set>
-#include <utility>
-#include <vector>
+#अन्तर्भाव <array>
+#अन्तर्भाव <cmath>
+#अन्तर्भाव <cstdint>
+#अन्तर्भाव <functional>
+#अन्तर्भाव <map>
+#अन्तर्भाव <set>
+#अन्तर्भाव <type_traits>
+#अन्तर्भाव <unordered_map>
+#अन्तर्भाव <unordered_set>
+#अन्तर्भाव <utility>
+#अन्तर्भाव <vector>
 
 // VL_USER_TYPE_CHECKS requires C++17 for std::variant. Ignore on older standards
-#if defined(VL_USER_TYPE_CHECKS) && __cplusplus < 201703L
+#यदि defined(VL_USER_TYPE_CHECKS) && __cplusplus < 201703L
 #undef VL_USER_TYPE_CHECKS
 #endif
 #ifdef VL_USER_TYPE_CHECKS
-#include <variant>
+#अन्तर्भाव <variant>
 #endif
 
 // clang-format off
-#include "V3AstAttr.h"
+#अन्तर्भाव "V3AstAttr.h"
 // clang-format on
 
 // Forward declarations
@@ -63,40 +63,40 @@ class VIfaceCaptureTag;
 
 // For broken() function, return error string if have a match
 #define BROKEN_RTN(test) \
-    do { \
-        if (VL_UNCOVERABLE(test)) return "'" #test "' @ " __FILE__ ":" VL_STRINGIFY(__LINE__); \
-    } while (false)
+    कुरु { \
+        यदि (VL_UNCOVERABLE(test)) प्रत्यागम "'" #test "' @ " __FILE__ ":" VL_STRINGIFY(__LINE__); \
+    } यावत् (false)
 // For broken() function, return error string if a base of this class has a match
 #define BROKEN_BASE_RTN(test) \
-    do { \
-        const char* const reasonp = (test); \
-        if (VL_UNCOVERABLE(reasonp)) return reasonp; \
-    } while (false)
+    कुरु { \
+        ध्रुव वर्ण* ध्रुव reasonp = (test); \
+        यदि (VL_UNCOVERABLE(reasonp)) प्रत्यागम reasonp; \
+    } यावत् (false)
 
 // (V)erilator (N)ode is: Returns true if and only if AstNode is of the given AstNode subtype,
 // and not nullptr.
-#define VN_IS(nodep, nodetypename) (AstNode::is<Ast##nodetypename>(nodep))
+#define VN_IS(nodep, nodetypename) (Ast_गाठ::is<Ast##nodetypename>(nodep))
 
 // (V)erilator (N)ode cast: Similar to dynamic_cast, but more efficient, use this instead.
 // Cast to given type if node is of such type, otherwise returns nullptr. If 'nodep' is nullptr,
 // return nullptr. Pointer constness is preserved, i.e.: given a 'const AstNode*',
 // a 'const Ast<nodetypename>*' is returned.
-#define VN_CAST(nodep, nodetypename) (AstNode::cast<Ast##nodetypename>(nodep))
+#define VN_CAST(nodep, nodetypename) (Ast_गाठ::cast<Ast##nodetypename>(nodep))
 
 // (V)erilator (N)ode as: Assert node is of given type then cast to that type. Use this to
 // downcast instead of VN_CAST when you know the true type of the node. If 'nodep' is nullptr,
 // return nullptr. Pointer constness is preserved, i.e.: given a 'const AstNode*', a 'const
 // Ast<nodetypename>*' is returned.
-#define VN_AS(nodep, nodetypename) (AstNode::as<Ast##nodetypename>(nodep))
+#define VN_AS(nodep, nodetypename) (Ast_गाठ::as<Ast##nodetypename>(nodep))
 
 // Same as VN_AS, but only checks the type in debug builds. Type checking is less critical in node
 // child getters (the strongly-typed functions that wrap op*p pointers). This is because the op*p
 // pointers are usually populated by code that already asserts the correct type. Having fewer type
 // assertions yields better performance in release builds.
-#if defined(VL_DEBUG) || defined(VL_ASAN)
+#यदि defined(VL_DEBUG) || defined(VL_ASAN)
 #define VN_DBG_AS(nodep, nodetypename) VN_AS(nodep, nodetypename)
-#else
-#define VN_DBG_AS(nodep, nodetypename) (AstNode::unsafePrivateAs<Ast##nodetypename>(nodep))
+#अन्यथा
+#define VN_DBG_AS(nodep, nodetypename) (Ast_गाठ::unsafePrivateAs<Ast##nodetypename>(nodep))
 #endif
 
 // (V)erilator (N)ode deleted: Pointer to deleted AstNode (for assertions only)
@@ -104,40 +104,40 @@ class VIfaceCaptureTag;
 
 //######################################################################
 
-struct VNTypeInfo final {
-    const char* m_namep;
-    enum OpEn : uint8_t {
+संरचना VNTypeInfo final {
+    ध्रुव वर्ण* m_namep;
+    गणना OpEn : uint8_t {
         OP_UNUSED,
         OP_USED,
         OP_LIST,
         OP_OPTIONAL,
     } m_opType[4];
-    const char* m_opNamep[4];
+    ध्रुव वर्ण* m_opNamep[4];
     size_t m_sizeof;
 };
 
 class VNType final {
-    static const VNTypeInfo s_typeInfoTable[];
+    स्थिर ध्रुव VNTypeInfo s_typeInfoTable[];
 
-public:
-#include "V3Ast__gen_type_enum.h"  // From ./astgen
-    const en m_e;
+सार्वजनिक:
+#अन्तर्भाव "V3Ast__gen_type_enum.h"  // From ./astgen
+    ध्रुव en m_e;
     VNType() = delete;
 
     // VNType is interconvetible with VNType::en
     // cppcheck-suppress noExplicitConstructor
     constexpr VNType(en _e) VL_MT_SAFE : m_e{_e} {}
-    constexpr operator en() const VL_MT_SAFE { return m_e; }
+    constexpr operator en() ध्रुव VL_MT_SAFE { प्रत्यागम m_e; }
 
     // Retrieve VNTypeInfo for the given type
-    static const VNTypeInfo& typeInfo(VNType t) VL_MT_SAFE { return s_typeInfoTable[t.m_e]; }
+    स्थिर ध्रुव VNTypeInfo& typeInfo(VNType t) VL_MT_SAFE { प्रत्यागम s_typeInfoTable[t.m_e]; }
 };
-constexpr bool operator==(const VNType& lhs, const VNType& rhs) VL_PURE {
-    return lhs.m_e == rhs.m_e;
+constexpr bool operator==(ध्रुव VNType& lhs, ध्रुव VNType& rhs) VL_PURE {
+    प्रत्यागम lhs.m_e == rhs.m_e;
 }
-constexpr bool operator==(const VNType& lhs, VNType::en rhs) VL_PURE { return lhs.m_e == rhs; }
-constexpr bool operator==(VNType::en lhs, const VNType& rhs) VL_PURE { return lhs == rhs.m_e; }
-inline std::ostream& operator<<(std::ostream& os, const VNType& rhs) { return os << rhs.ascii(); }
+constexpr bool operator==(ध्रुव VNType& lhs, VNType::en rhs) VL_PURE { प्रत्यागम lhs.m_e == rhs; }
+constexpr bool operator==(VNType::en lhs, ध्रुव VNType& rhs) VL_PURE { प्रत्यागम lhs == rhs.m_e; }
+अन्तःस्थ std::ostream& operator<<(std::ostream& os, ध्रुव VNType& rhs) { प्रत्यागम os << rhs.ascii(); }
 
 //######################################################################
 // AstNUser - Generic base class for AST User nodes.
@@ -153,65 +153,65 @@ class VNUser final {
 #ifdef VL_USER_TYPE_CHECKS
     // monostate is an unwritten / cleared slot. It can be read as either form
     // and yields nullptr/0.
-    std::variant<std::monostate, uint64_t, void*> m_u;
-#else
-    union {
-        void* up;
+    std::variant<std::monostate, uint64_t, शून्य*> m_u;
+#अन्यथा
+    सङ्घ {
+        शून्य* up;
         uint64_t uq;
     } m_u;
 #endif
 
-public:
+सार्वजनिक:
 #ifdef VL_USER_TYPE_CHECKS
-    VNUser() = default;
+    VNUser() = स्वभाव;
     // non-explicit:
     // cppcheck-suppress noExplicitConstructor
     VNUser(uint64_t i) {
         // VNUser{0} represents the monostate
-        if (i) m_u = i;
+        यदि (i) m_u = i;
     }
-    explicit VNUser(void* p) {
+    explicit VNUser(शून्य* p) {
         // VNUser{nullptr} represents the monostate
-        if (p) m_u = p;
+        यदि (p) m_u = p;
     }
-    ~VNUser() = default;
+    ~VNUser() = स्वभाव;
     // Casters
     template <typename T>
-    typename std::enable_if<std::is_pointer<T>::value, T>::type to() const VL_MT_SAFE {
-        if (std::holds_alternative<std::monostate>(m_u)) return nullptr;
-        void* const* const upp = std::get_if<void*>(&m_u);
+    typename std::enable_if<std::is_pointer<T>::मूल्य, T>::type to() ध्रुव VL_MT_SAFE {
+        यदि (std::holds_alternative<std::monostate>(m_u)) प्रत्यागम nullptr;
+        शून्य* ध्रुव* ध्रुव upp = std::get_if<शून्य*>(&m_u);
         UASSERT_STATIC(upp, "AstNode user() slot written as uint64_t, read as pointer");
-        return reinterpret_cast<T>(*upp);
+        प्रत्यागम reinterpret_cast<T>(*upp);
     }
-    uint64_t toUQuad() const {
-        if (std::holds_alternative<std::monostate>(m_u)) return 0;
-        const uint64_t* const uip = std::get_if<uint64_t>(&m_u);
+    uint64_t toUQuad() ध्रुव {
+        यदि (std::holds_alternative<std::monostate>(m_u)) प्रत्यागम 0;
+        ध्रुव uint64_t* ध्रुव uip = std::get_if<uint64_t>(&m_u);
         UASSERT_STATIC(uip, "AstNode user() slot written as pointer, read as uint64_t");
-        return *uip;
+        प्रत्यागम *uip;
     }
-#else
-    VNUser() = default;
+#अन्यथा
+    VNUser() = स्वभाव;
     // non-explicit:
     // cppcheck-suppress noExplicitConstructor
     VNUser(uint64_t i) {
         m_u.up = nullptr;
         m_u.uq = i;
     }
-    explicit VNUser(void* p) { m_u.up = p; }
-    ~VNUser() = default;
+    explicit VNUser(शून्य* p) { m_u.up = p; }
+    ~VNUser() = स्वभाव;
     // Casters
     template <typename T>
-    typename std::enable_if<std::is_pointer<T>::value, T>::type to() const VL_MT_SAFE {
-        return reinterpret_cast<T>(m_u.up);
+    typename std::enable_if<std::is_pointer<T>::मूल्य, T>::type to() ध्रुव VL_MT_SAFE {
+        प्रत्यागम reinterpret_cast<T>(m_u.up);
     }
-    uint64_t toUQuad() const { return m_u.uq; }
+    uint64_t toUQuad() ध्रुव { प्रत्यागम m_u.uq; }
 #endif
-    VSymEnt* toSymEnt() const { return to<VSymEnt*>(); }
-    AstNode* toNodep() const VL_MT_SAFE { return to<AstNode*>(); }
-    V3GraphVertex* toGraphVertex() const { return to<V3GraphVertex*>(); }
+    VSymEnt* toSymEnt() ध्रुव { प्रत्यागम to<VSymEnt*>(); }
+    Ast_गाठ* toNodep() ध्रुव VL_MT_SAFE { प्रत्यागम to<Ast_गाठ*>(); }
+    V3GraphVertex* toGraphVertex() ध्रुव { प्रत्यागम to<V3GraphVertex*>(); }
     // Render for dumps without asserting on the form held: "" if unset, "#<int>"
     // if an int, else the pointer via fmtAddrp
-    std::string dumpStr(std::string (*fmtAddrp)(const void*)) const;
+    std::string dumpStr(std::string (*fmtAddrp)(ध्रुव शून्य*)) ध्रुव;
 };
 
 //######################################################################
@@ -226,26 +226,26 @@ public:
 //  freed up.
 
 class VNUserInUseBase
-VL_NOT_FINAL{protected : static void allocate(int id, uint32_t& cntGblRef, bool& userBusyRef){
+VL_NOT_FINAL{रक्षित : स्थिर शून्य allocate(पूर्णाङ्क id, uint32_t& cntGblRef, bool& userBusyRef){
     // Perhaps there's still a AstUserInUse in scope for this?
     UASSERT_STATIC(!userBusyRef, "Conflicting user use; AstUser" + cvtToStr(id)
                                      + "InUse request when under another AstUserInUse");
 userBusyRef = true;
 clearcnt(id, cntGblRef, userBusyRef);
 }
-static void free(int id, uint32_t& cntGblRef, bool& userBusyRef) {
+स्थिर शून्य मुक्त(पूर्णाङ्क id, uint32_t& cntGblRef, bool& userBusyRef) {
     UASSERT_STATIC(userBusyRef, "Free of User" + cvtToStr(id) + "() not under AstUserInUse");
     clearcnt(id, cntGblRef, userBusyRef);  // Includes a checkUse for us
     userBusyRef = false;
 }
-static void clearcnt(int id, uint32_t& cntGblRef, const bool& userBusyRef) {
+स्थिर शून्य clearcnt(पूर्णाङ्क id, uint32_t& cntGblRef, ध्रुव bool& userBusyRef) {
     UASSERT_STATIC(userBusyRef, "Clear of User" + cvtToStr(id) + "() not under AstUserInUse");
     // If this really fires and is real (after 2^32 edits???)
     // we could just walk the tree and clear manually
     ++cntGblRef;
     UASSERT_STATIC(cntGblRef, "User*() overflowed!");
 }
-static void checkcnt(int id, uint32_t&, const bool& userBusyRef) {
+स्थिर शून्य checkcnt(पूर्णाङ्क id, uint32_t&, ध्रुव bool& userBusyRef) {
     UASSERT_STATIC(userBusyRef,
                    "Check of User" + cvtToStr(id) + "() failed, not under AstUserInUse");
 }
@@ -257,48 +257,48 @@ static void checkcnt(int id, uint32_t&, const bool& userBusyRef) {
 // an accessor would be way too slow.
 // clang-format off
 class VNUser1InUse final : VNUserInUseBase {
-protected:
-    friend class AstNode;
-    static uint32_t s_userCntGbl;  // Count of which usage of userp() this is
-    static bool s_userBusy;  // Count is in use
-public:
+रक्षित:
+    friend class Ast_गाठ;
+    स्थिर uint32_t s_userCntGbl;  // Count of which usage of userp() this is
+    स्थिर bool s_userBusy;  // Count is in use
+सार्वजनिक:
     VNUser1InUse()      { allocate(1, s_userCntGbl/*ref*/, s_userBusy/*ref*/); }
-    ~VNUser1InUse()     { free    (1, s_userCntGbl/*ref*/, s_userBusy/*ref*/); }
-    static void clear() { clearcnt(1, s_userCntGbl/*ref*/, s_userBusy/*ref*/); }
-    static void check() { checkcnt(1, s_userCntGbl/*ref*/, s_userBusy/*ref*/); }
+    ~VNUser1InUse()     { मुक्त    (1, s_userCntGbl/*ref*/, s_userBusy/*ref*/); }
+    स्थिर शून्य clear() { clearcnt(1, s_userCntGbl/*ref*/, s_userBusy/*ref*/); }
+    स्थिर शून्य check() { checkcnt(1, s_userCntGbl/*ref*/, s_userBusy/*ref*/); }
 };
 class VNUser2InUse final : VNUserInUseBase {
-protected:
-    friend class AstNode;
-    static uint32_t s_userCntGbl;  // Count of which usage of userp() this is
-    static bool s_userBusy;  // Count is in use
-public:
+रक्षित:
+    friend class Ast_गाठ;
+    स्थिर uint32_t s_userCntGbl;  // Count of which usage of userp() this is
+    स्थिर bool s_userBusy;  // Count is in use
+सार्वजनिक:
     VNUser2InUse()      { allocate(2, s_userCntGbl/*ref*/, s_userBusy/*ref*/); }
-    ~VNUser2InUse()     { free    (2, s_userCntGbl/*ref*/, s_userBusy/*ref*/); }
-    static void clear() { clearcnt(2, s_userCntGbl/*ref*/, s_userBusy/*ref*/); }
-    static void check() { checkcnt(2, s_userCntGbl/*ref*/, s_userBusy/*ref*/); }
+    ~VNUser2InUse()     { मुक्त    (2, s_userCntGbl/*ref*/, s_userBusy/*ref*/); }
+    स्थिर शून्य clear() { clearcnt(2, s_userCntGbl/*ref*/, s_userBusy/*ref*/); }
+    स्थिर शून्य check() { checkcnt(2, s_userCntGbl/*ref*/, s_userBusy/*ref*/); }
 };
 class VNUser3InUse final : VNUserInUseBase {
-protected:
-    friend class AstNode;
-    static uint32_t s_userCntGbl;  // Count of which usage of userp() this is
-    static bool s_userBusy;  // Count is in use
-public:
+रक्षित:
+    friend class Ast_गाठ;
+    स्थिर uint32_t s_userCntGbl;  // Count of which usage of userp() this is
+    स्थिर bool s_userBusy;  // Count is in use
+सार्वजनिक:
     VNUser3InUse()      { allocate(3, s_userCntGbl/*ref*/, s_userBusy/*ref*/); }
-    ~VNUser3InUse()     { free    (3, s_userCntGbl/*ref*/, s_userBusy/*ref*/); }
-    static void clear() { clearcnt(3, s_userCntGbl/*ref*/, s_userBusy/*ref*/); }
-    static void check() { checkcnt(3, s_userCntGbl/*ref*/, s_userBusy/*ref*/); }
+    ~VNUser3InUse()     { मुक्त    (3, s_userCntGbl/*ref*/, s_userBusy/*ref*/); }
+    स्थिर शून्य clear() { clearcnt(3, s_userCntGbl/*ref*/, s_userBusy/*ref*/); }
+    स्थिर शून्य check() { checkcnt(3, s_userCntGbl/*ref*/, s_userBusy/*ref*/); }
 };
 class VNUser4InUse final : VNUserInUseBase {
-protected:
-    friend class AstNode;
-    static uint32_t s_userCntGbl;  // Count of which usage of userp() this is
-    static bool s_userBusy;  // Count is in use
-public:
+रक्षित:
+    friend class Ast_गाठ;
+    स्थिर uint32_t s_userCntGbl;  // Count of which usage of userp() this is
+    स्थिर bool s_userBusy;  // Count is in use
+सार्वजनिक:
     VNUser4InUse()      { allocate(4, s_userCntGbl/*ref*/, s_userBusy/*ref*/); }
-    ~VNUser4InUse()     { free    (4, s_userCntGbl/*ref*/, s_userBusy/*ref*/); }
-    static void clear() { clearcnt(4, s_userCntGbl/*ref*/, s_userBusy/*ref*/); }
-    static void check() { checkcnt(4, s_userCntGbl/*ref*/, s_userBusy/*ref*/); }
+    ~VNUser4InUse()     { मुक्त    (4, s_userCntGbl/*ref*/, s_userBusy/*ref*/); }
+    स्थिर शून्य clear() { clearcnt(4, s_userCntGbl/*ref*/, s_userBusy/*ref*/); }
+    स्थिर शून्य check() { checkcnt(4, s_userCntGbl/*ref*/, s_userBusy/*ref*/); }
 };
 // clang-format on
 
@@ -310,19 +310,19 @@ public:
 
 class VNDeleter VL_NOT_FINAL {
     // MEMBERS
-    std::vector<AstNode*> m_deleteps;  // Nodes to delete
+    std::vector<Ast_गाठ*> m_deleteps;  // Nodes to delete
 
-public:
+सार्वजनिक:
     // METHODS
 
     // Enqueue node for deletion on next 'doDelete' (or destruction)
-    void pushDeletep(AstNode* nodep) {
+    शून्य ढकला_Deletep(Ast_गाठ* nodep) {
         UASSERT_STATIC(nodep, "Cannot delete nullptr node");
-        m_deleteps.push_back(nodep);
+        m_deleteps.ढकला_back(nodep);
     }
 
     // Delete all previously pushed nodes (by calling deleteTree)
-    void doDeletes();
+    शून्य doDeletes();
 
     // Do the deletions on destruction
     ~VNDeleter() { doDeletes(); }
@@ -335,46 +335,46 @@ public:
 // For more typical usage see VNVisitor
 
 class VNVisitorConst VL_NOT_FINAL {
-    friend class AstNode;
+    friend class Ast_गाठ;
 
-public:
+सार्वजनिक:
     /// Call visit()s on nodep
-    inline void iterateConst(AstNode* nodep);
+    अन्तःस्थ शून्य iterateConst(Ast_गाठ* nodep);
     /// Call visit()s on nodep
-    inline void iterateConstNull(AstNode* nodep);
+    अन्तःस्थ शून्य iterateConstNull(Ast_गाठ* nodep);
     /// Call visit()s on const nodep's children
-    inline void iterateChildrenConst(AstNode* nodep);
+    अन्तःस्थ शून्य iterateChildrenConst(Ast_गाठ* nodep);
     /// Call visit()s on nodep's children in backp() order
-    inline void iterateChildrenBackwardsConst(AstNode* nodep);
+    अन्तःस्थ शून्य iterateChildrenBackwardsConst(Ast_गाठ* nodep);
     /// Call visit()s on const nodep (maybe nullptr) and nodep's nextp() list
-    inline void iterateAndNextConstNull(AstNode* nodep);
+    अन्तःस्थ शून्य iterateAndNextConstNull(Ast_गाठ* nodep);
 
-    virtual void visit(AstNode* nodep) = 0;
-    virtual ~VNVisitorConst() {}
-#include "V3Ast__gen_visitor_decls.h"  // From ./astgen
+    आभास शून्य visit(Ast_गाठ* nodep) = 0;
+    आभास ~VNVisitorConst() {}
+#अन्तर्भाव "V3Ast__gen_visitor_decls.h"  // From ./astgen
 };
 
 //######################################################################
 // VNVisitor -- Allows new functions to be called on each node
 // type without changing the base classes.  See "Modern C++ Design".
 
-class VNVisitor VL_NOT_FINAL : public VNVisitorConst {
+class VNVisitor VL_NOT_FINAL : सार्वजनिक VNVisitorConst {
     VNDeleter m_deleter;  // Used to delay deletion of nodes
-public:
+सार्वजनिक:
     /// Call visit()s on nodep
-    inline void iterate(AstNode* nodep);
+    अन्तःस्थ शून्य iterate(Ast_गाठ* nodep);
     /// Call visit()s on nodep
-    inline void iterateNull(AstNode* nodep);
+    अन्तःस्थ शून्य iterateNull(Ast_गाठ* nodep);
     /// Call visit()s on nodep's children
-    inline void iterateChildren(AstNode* nodep);
+    अन्तःस्थ शून्य iterateChildren(Ast_गाठ* nodep);
     /// Call visit()s on nodep (maybe nullptr) and nodep's nextp() list
-    inline void iterateAndNextNull(AstNode* nodep);
+    अन्तःस्थ शून्य iterateAndNextNull(Ast_गाठ* nodep);
     /// Return edited nodep; see comments in V3Ast.cpp
-    inline AstNode* iterateSubtreeReturnEdits(AstNode* nodep);
+    अन्तःस्थ Ast_गाठ* iterateSubtreeReturnEdits(Ast_गाठ* nodep);
 
-    VNDeleter& deleter() { return m_deleter; }
-    void pushDeletep(AstNode* nodep) { deleter().pushDeletep(nodep); }
-    void doDeletes() { deleter().doDeletes(); }
+    VNDeleter& deleter() { प्रत्यागम m_deleter; }
+    शून्य ढकला_Deletep(Ast_गाठ* nodep) { deleter().ढकला_Deletep(nodep); }
+    शून्य doDeletes() { deleter().doDeletes(); }
 };
 
 //######################################################################
@@ -382,9 +382,9 @@ public:
 // added at the same point.
 
 class VNRelinker final {
-protected:
-    friend class AstNode;
-    enum RelinkWhatEn : uint8_t {
+रक्षित:
+    friend class Ast_गाठ;
+    गणना RelinkWhatEn : uint8_t {
         RELINK_BAD,
         RELINK_NEXT,
         RELINK_OP1,
@@ -392,13 +392,13 @@ protected:
         RELINK_OP3,
         RELINK_OP4
     };
-    AstNode* m_oldp = nullptr;  // The old node that was linked to this point in the tree
-    AstNode* m_backp = nullptr;  // Saved AstNode::m_backp of the unlinked node, to relink
-    AstNode** m_iterpp = nullptr;
+    Ast_गाठ* m_oldp = nullptr;  // The old node that was linked to this point in the tree
+    Ast_गाठ* m_backp = nullptr;  // Saved AstNode::m_backp of the unlinked node, to relink
+    Ast_गाठ** m_iterpp = nullptr;
     RelinkWhatEn m_chg = RELINK_BAD;
 
-public:
-    VNRelinker() = default;
+सार्वजनिक:
+    VNRelinker() = स्वभाव;
     ~VNRelinker() {
         // Relink is needed so m_iterpp's get restored, e.g. can't have:
         // ->unlinkFrBack(relinker);
@@ -406,19 +406,19 @@ public:
         UDEBUGONLY(
             UASSERT_STATIC(!m_backp, "Active linker must be relink()ed before destruction"););
     }
-    inline void relink(AstNode* newp);
-    void dump(std::ostream& str = std::cout) const;
+    अन्तःस्थ शून्य relink(Ast_गाठ* newp);
+    शून्य dump(std::ostream& str = std::cout) ध्रुव;
 };
-inline std::ostream& operator<<(std::ostream& os, const VNRelinker& rhs) {
+अन्तःस्थ std::ostream& operator<<(std::ostream& os, ध्रुव VNRelinker& rhs) {
     rhs.dump(os);
-    return os;
+    प्रत्यागम os;
 }
 
 // ######################################################################
 //  Callback base class to determine if node matches some formula
 
 class VNodeMatcher
-VL_NOT_FINAL{public : virtual bool nodeMatch(const AstNode* nodep) const {return true;
+VL_NOT_FINAL{सार्वजनिक : आभास bool गाठ_Match(ध्रुव Ast_गाठ* nodep) ध्रुव {प्रत्यागम true;
 }
 }
 ;
@@ -428,34 +428,34 @@ VL_NOT_FINAL{public : virtual bool nodeMatch(const AstNode* nodep) const {return
 
 // Prefetch a node.
 #define ASTNODE_PREFETCH_NON_NULL(nodep) \
-    do { \
+    कुरु { \
         VL_PREFETCH_RD(&((nodep)->m_nextp)); \
         VL_PREFETCH_RD(&((nodep)->m_type)); \
-    } while (false)
+    } यावत् (false)
 // The if() makes it faster, even though prefetch won't fault on null pointers
 #define ASTNODE_PREFETCH(nodep) \
-    do { \
-        if (nodep) ASTNODE_PREFETCH_NON_NULL(nodep); \
-    } while (false)
+    कुरु { \
+        यदि (nodep) ASTNODE_PREFETCH_NON_NULL(nodep); \
+    } यावत् (false)
 
-class AstNode VL_NOT_FINAL {
+class Ast_गाठ VL_NOT_FINAL {
     // v ASTNODE_PREFETCH depends on below ordering of members
-    AstNode* m_nextp = nullptr;  // Next peer in the parent's list
-    AstNode* m_backp = nullptr;  // Node that points to this one (via next/op1/op2/...)
-    AstNode* m_op1p = nullptr;  // Generic pointer 1
-    AstNode* m_op2p = nullptr;  // Generic pointer 2
-    AstNode* m_op3p = nullptr;  // Generic pointer 3
-    AstNode* m_op4p = nullptr;  // Generic pointer 4
-    AstNode** m_iterpp
+    Ast_गाठ* m_nextp = nullptr;  // Next peer in the parent's list
+    Ast_गाठ* m_backp = nullptr;  // Node that points to this one (via next/op1/op2/...)
+    Ast_गाठ* m_op1p = nullptr;  // Generic pointer 1
+    Ast_गाठ* m_op2p = nullptr;  // Generic pointer 2
+    Ast_गाठ* m_op3p = nullptr;  // Generic pointer 3
+    Ast_गाठ* m_op4p = nullptr;  // Generic pointer 4
+    Ast_गाठ** m_iterpp
         = nullptr;  // Pointer to node iterating on, change it if we replace this node.
-    const VNType m_type;  // Node sub-type identifier
+    ध्रुव VNType m_type;  // Node sub-type identifier
     // ^ ASTNODE_PREFETCH depends on above ordering of members
 
     // VNType is 2 bytes, so we can stick another 6 bytes after it to utilize what would
     // otherwise be padding (on a 64-bit system). We stick the attribute flags, broken state,
     // and the clone count here.
 
-    struct {
+    संरचना {
         bool didWidth : 1;  // Did V3Width computation
         bool doingWidth : 1;  // Inside V3Width
         bool protect : 1;  // Protect name if protection is on
@@ -469,28 +469,28 @@ class AstNode VL_NOT_FINAL {
     // field masking resulting in unnecessary read-modify-write ops.
     uint8_t m_brokenState = 0;
 
-    int m_cloneCnt = 0;  // Sequence number for when last clone was made
+    पूर्णाङ्क m_cloneCnt = 0;  // Sequence number for when last clone was made
 
-#if defined(__x86_64__) && defined(__gnu_linux__)
+#यदि defined(__x86_64__) && defined(__gnu_linux__)
     // Only assert this on known platforms, as it only affects performance, not correctness
-    static_assert(sizeof(m_type) + sizeof(m_flags) + sizeof(m_brokenState) + sizeof(m_cloneCnt)
-                      <= sizeof(void*),
+    static_assert(परिमाण(m_type) + परिमाण(m_flags) + परिमाण(m_brokenState) + परिमाण(m_cloneCnt)
+                      <= परिमाण(शून्य*),
                   "packing requires padding");
 #endif
 
-    AstNodeDType* m_dtypep = nullptr;  // Data type of output or assignment (etc)
-    AstNode* m_headtailp;  // When at begin/end of list, the opposite end of the list, else nullptr
-    FileLine* m_fileline;  // Where it was declared
+    Ast_गाठ_DType* m_dtypep = nullptr;  // Data type of output or assignment (etc)
+    Ast_गाठ* m_headtailp;  // When at begin/end of list, the opposite end of the list, else nullptr
+    File_ओळ* m_fileline;  // Where it was declared
 #ifdef VL_DEBUG
     // Only keep track of the edit count in the node in the debug build.
     // In the release build we will take the space saving instead.
-    uint64_t m_editCount;  // When it was last edited
+    uint64_t m_edit_मोजणी;  // When it was last edited
 #endif
-    static uint64_t s_editCntGbl;  // Global edit counter
-    static uint64_t s_editCntLast;  // Last committed value of global edit counter
+    स्थिर uint64_t s_editCntGbl;  // Global edit counter
+    स्थिर uint64_t s_editCntLast;  // Last committed value of global edit counter
 
-    AstNode* m_clonep = nullptr;  // Pointer to clone/source of node (only for *LAST* cloneTree())
-    static int s_cloneCntGbl;  // Count of which userp is set
+    Ast_गाठ* m_clonep = nullptr;  // Pointer to clone/source of node (only for *LAST* cloneTree())
+    स्थिर पूर्णाङ्क s_cloneCntGbl;  // Count of which userp is set
 
     // This member ordering both allows 64 bit alignment and puts associated data together
     // (under VL_USER_TYPE_CHECKS a VNUser is larger than 64 bits, so this packing no
@@ -505,740 +505,740 @@ class AstNode VL_NOT_FINAL {
     VNUser m_user4u{nullptr};  // Contains any information the user iteration routine wants
 
     // METHODS
-    void op1p(AstNode* nodep) {
+    शून्य op1p(Ast_गाठ* nodep) {
         m_op1p = nodep;
-        if (nodep) nodep->m_backp = this;
+        यदि (nodep) nodep->m_backp = this;
     }
-    void op2p(AstNode* nodep) {
+    शून्य op2p(Ast_गाठ* nodep) {
         m_op2p = nodep;
-        if (nodep) nodep->m_backp = this;
+        यदि (nodep) nodep->m_backp = this;
     }
-    void op3p(AstNode* nodep) {
+    शून्य op3p(Ast_गाठ* nodep) {
         m_op3p = nodep;
-        if (nodep) nodep->m_backp = this;
+        यदि (nodep) nodep->m_backp = this;
     }
-    void op4p(AstNode* nodep) {
+    शून्य op4p(Ast_गाठ* nodep) {
         m_op4p = nodep;
-        if (nodep) nodep->m_backp = this;
+        यदि (nodep) nodep->m_backp = this;
     }
 
-private:
-    AstNode* cloneTreeIter(bool needPure);
-    AstNode* cloneTreeIterList(bool needPure);
-    void checkTreeIter(const AstNode* prevBackp) const VL_MT_STABLE;
-    bool gateTreeIter() const;
-    static bool sameTreeIter(const AstNode* node1p, const AstNode* node2p, bool ignNext,
+गुप्त:
+    Ast_गाठ* clone_वृक्ष_Iter(bool needPure);
+    Ast_गाठ* clone_वृक्ष_Iter_List(bool needPure);
+    शून्य check_वृक्ष_Iter(ध्रुव Ast_गाठ* prevBackp) ध्रुव VL_MT_STABLE;
+    bool gate_वृक्ष_Iter() ध्रुव;
+    स्थिर bool same_वृक्ष_Iter(ध्रुव Ast_गाठ* node1p, ध्रुव Ast_गाठ* node2p, bool ignNext,
                              bool gateOnly);
-    void deleteTreeIter();
-    void deleteNode();
-    string instanceStr() const;
+    शून्य delete_वृक्ष_Iter();
+    शून्य delete_गाठ();
+    string instanceStr() ध्रुव;
 
-public:
-    void purityCheck();
-    static void relinkOneLink(AstNode*& pointpr, AstNode* newp);
+सार्वजनिक:
+    शून्य purityCheck();
+    स्थिर शून्य relinkOneLink(Ast_गाठ*& pointpr, Ast_गाठ* newp);
     // cppcheck-suppress functionConst
-    static void debugTreeChange(const AstNode* nodep, const char* prefix, int lineno, bool next);
+    स्थिर शून्य debug_वृक्ष_Change(ध्रुव Ast_गाठ* nodep, ध्रुव वर्ण* prefix, पूर्णाङ्क lineno, bool next);
 
-protected:
+रक्षित:
     // CONSTRUCTORS
-    AstNode(VNType t, FileLine* fl);
-    virtual ~AstNode() = default;  // Use 'deleteTree' instead
-    virtual AstNode* clone() = 0;  // Generally, cloneTree is what you want instead
-    virtual void cloneRelink() { cloneRelinkGen(); }
-    virtual void cloneRelinkGen() {};  // Overrides generated by 'astgen'
-    void cloneRelinkTree();
+    Ast_गाठ(VNType t, File_ओळ* fl);
+    आभास ~Ast_गाठ() = स्वभाव;  // Use 'deleteTree' instead
+    आभास Ast_गाठ* clone() = 0;  // Generally, cloneTree is what you want instead
+    आभास शून्य cloneRelink() { cloneRelinkGen(); }
+    आभास शून्य cloneRelinkGen() {};  // Overrides generated by 'astgen'
+    शून्य clone_Relink_वृक्ष();
 
     // METHODS
-    void setOp1p(AstNode* newp);  // Set non-list-type op1 to non-list element
-    void setOp2p(AstNode* newp);  // Set non-list-type op2 to non-list element
-    void setOp3p(AstNode* newp);  // Set non-list-type op3 to non-list element
-    void setOp4p(AstNode* newp);  // Set non-list-type op4 to non-list element
+    शून्य setOp1p(Ast_गाठ* newp);  // Set non-list-type op1 to non-list element
+    शून्य setOp2p(Ast_गाठ* newp);  // Set non-list-type op2 to non-list element
+    शून्य setOp3p(Ast_गाठ* newp);  // Set non-list-type op3 to non-list element
+    शून्य setOp4p(Ast_गाठ* newp);  // Set non-list-type op4 to non-list element
 
-    void addOp1p(AstNode* newp);  // Append newp to end of op1
-    void addOp2p(AstNode* newp);  // Append newp to end of op2
-    void addOp3p(AstNode* newp);  // Append newp to end of op3
-    void addOp4p(AstNode* newp);  // Append newp to end of op4
+    शून्य addOp1p(Ast_गाठ* newp);  // Append newp to end of op1
+    शून्य addOp2p(Ast_गाठ* newp);  // Append newp to end of op2
+    शून्य addOp3p(Ast_गाठ* newp);  // Append newp to end of op3
+    शून्य addOp4p(Ast_गाठ* newp);  // Append newp to end of op4
 
-    void prependOp1p(AstNode* newp);  // Prepend newp to front of op1
-    void prependOp2p(AstNode* newp);  // Prepend newp to front of op2
-    void prependOp3p(AstNode* newp);  // Prepend newp to front of op3
-    void prependOp4p(AstNode* newp);  // Prepend newp to front of op4
+    शून्य prependOp1p(Ast_गाठ* newp);  // Prepend newp to front of op1
+    शून्य prependOp2p(Ast_गाठ* newp);  // Prepend newp to front of op2
+    शून्य prependOp3p(Ast_गाठ* newp);  // Prepend newp to front of op3
+    शून्य prependOp4p(Ast_गाठ* newp);  // Prepend newp to front of op4
 
     // clang-format off
-    void setNOp1p(AstNode* newp) { if (newp) setOp1p(newp); }
-    void setNOp2p(AstNode* newp) { if (newp) setOp2p(newp); }
-    void setNOp3p(AstNode* newp) { if (newp) setOp3p(newp); }
-    void setNOp4p(AstNode* newp) { if (newp) setOp4p(newp); }
+    शून्य setNOp1p(Ast_गाठ* newp) { यदि (newp) setOp1p(newp); }
+    शून्य setNOp2p(Ast_गाठ* newp) { यदि (newp) setOp2p(newp); }
+    शून्य setNOp3p(Ast_गाठ* newp) { यदि (newp) setOp3p(newp); }
+    शून्य setNOp4p(Ast_गाठ* newp) { यदि (newp) setOp4p(newp); }
 
-    void addNOp1p(AstNode* newp) { if (newp) addOp1p(newp); }
-    void addNOp2p(AstNode* newp) { if (newp) addOp2p(newp); }
-    void addNOp3p(AstNode* newp) { if (newp) addOp3p(newp); }
-    void addNOp4p(AstNode* newp) { if (newp) addOp4p(newp); }
+    शून्य addNOp1p(Ast_गाठ* newp) { यदि (newp) addOp1p(newp); }
+    शून्य addNOp2p(Ast_गाठ* newp) { यदि (newp) addOp2p(newp); }
+    शून्य addNOp3p(Ast_गाठ* newp) { यदि (newp) addOp3p(newp); }
+    शून्य addNOp4p(Ast_गाठ* newp) { यदि (newp) addOp4p(newp); }
 
-    void prependNOp1p(AstNode* newp) { if (newp) prependOp1p(newp); }
-    void prependNOp2p(AstNode* newp) { if (newp) prependOp2p(newp); }
-    void prependNOp3p(AstNode* newp) { if (newp) prependOp3p(newp); }
-    void prependNOp4p(AstNode* newp) { if (newp) prependOp4p(newp); }
+    शून्य prependNOp1p(Ast_गाठ* newp) { यदि (newp) prependOp1p(newp); }
+    शून्य prependNOp2p(Ast_गाठ* newp) { यदि (newp) prependOp2p(newp); }
+    शून्य prependNOp3p(Ast_गाठ* newp) { यदि (newp) prependOp3p(newp); }
+    शून्य prependNOp4p(Ast_गाठ* newp) { यदि (newp) prependOp4p(newp); }
     // clang-format on
 
-    void clonep(AstNode* nodep) {
+    शून्य clonep(Ast_गाठ* nodep) {
         m_clonep = nodep;
         m_cloneCnt = s_cloneCntGbl;
     }
-    static void cloneClearTree() {
+    स्थिर शून्य clone_Clear_वृक्ष() {
         s_cloneCntGbl++;
         UASSERT_STATIC(s_cloneCntGbl, "Rollover");
     }
 
     // Use instead isSame(), this is for each Ast* class, and assumes node is of same type
-    virtual bool sameNode(const AstNode*) const { return true; }
+    आभास bool same_गाठ(ध्रुव Ast_गाठ*) ध्रुव { प्रत्यागम true; }
     // Generated by 'astgen'. If do an oldp->replaceNode(newp), would cause a broken()
-    virtual bool wouldBreakGen(const AstNode* const oldp,
-                               const AstNode* const newp) const
+    आभास bool wouldBreakGen(ध्रुव Ast_गाठ* ध्रुव oldp,
+                               ध्रुव Ast_गाठ* ध्रुव newp) ध्रुव
         = 0;  // Generated by 'astgen'
 
-public:
+सार्वजनिक:
     // ACCESSORS
-    VNType type() const VL_MT_SAFE { return m_type; }
-    const char* typeName() const VL_MT_SAFE { return type().ascii(); }  // See also prettyTypeName
-    AstNode* nextp() const VL_MT_STABLE { return m_nextp; }
-    AstNode* backp() const VL_MT_STABLE { return m_backp; }
-    AstNode* abovep() const;  // Get parent node above, only for list head and tail
-    AstNode* aboveLoopp() const;  // Get parent node above, may have performance issues as loops
-    AstNode* lastp() const {  // Get last node in list, only for list head
+    VNType type() ध्रुव VL_MT_SAFE { प्रत्यागम m_type; }
+    ध्रुव वर्ण* typeName() ध्रुव VL_MT_SAFE { प्रत्यागम type().ascii(); }  // See also prettyTypeName
+    Ast_गाठ* nextp() ध्रुव VL_MT_STABLE { प्रत्यागम m_nextp; }
+    Ast_गाठ* backp() ध्रुव VL_MT_STABLE { प्रत्यागम m_backp; }
+    Ast_गाठ* abovep() ध्रुव;  // Get parent node above, only for list head and tail
+    Ast_गाठ* aboveLoopp() ध्रुव;  // Get parent node above, may have performance issues as loops
+    Ast_गाठ* lastp() ध्रुव {  // Get last node in list, only for list head
         UASSERT_OBJ(m_backp->m_nextp != this, this, "lastp() only allowed on head of list");
-        return m_headtailp;
+        प्रत्यागम m_headtailp;
     }
-    AstNode* prevp() const {  // Previous node in list, nullptr for head of list
-        if (m_backp->m_nextp != this) return nullptr;
-        return m_backp;
+    Ast_गाठ* prevp() ध्रुव {  // Previous node in list, nullptr for head of list
+        यदि (m_backp->m_nextp != this) प्रत्यागम nullptr;
+        प्रत्यागम m_backp;
     }
-    AstNode* op1p() const VL_MT_STABLE { return m_op1p; }
-    AstNode* op2p() const VL_MT_STABLE { return m_op2p; }
-    AstNode* op3p() const VL_MT_STABLE { return m_op3p; }
-    AstNode* op4p() const VL_MT_STABLE { return m_op4p; }
-    AstNodeDType* dtypep() const VL_MT_STABLE { return m_dtypep; }
-    AstNode* clonep() const { return ((m_cloneCnt == s_cloneCntGbl) ? m_clonep : nullptr); }
-    AstNode* firstAbovep() const {  // Returns nullptr when second or later in list
-        return ((backp() && backp()->nextp() != this) ? backp() : nullptr);
+    Ast_गाठ* op1p() ध्रुव VL_MT_STABLE { प्रत्यागम m_op1p; }
+    Ast_गाठ* op2p() ध्रुव VL_MT_STABLE { प्रत्यागम m_op2p; }
+    Ast_गाठ* op3p() ध्रुव VL_MT_STABLE { प्रत्यागम m_op3p; }
+    Ast_गाठ* op4p() ध्रुव VL_MT_STABLE { प्रत्यागम m_op4p; }
+    Ast_गाठ_DType* dtypep() ध्रुव VL_MT_STABLE { प्रत्यागम m_dtypep; }
+    Ast_गाठ* clonep() ध्रुव { प्रत्यागम ((m_cloneCnt == s_cloneCntGbl) ? m_clonep : nullptr); }
+    Ast_गाठ* firstAbovep() ध्रुव {  // Returns nullptr when second or later in list
+        प्रत्यागम ((backp() && backp()->nextp() != this) ? backp() : nullptr);
     }
-    uint8_t brokenState() const VL_MT_SAFE { return m_brokenState; }
-    void brokenState(uint8_t value) { m_brokenState = value; }
+    uint8_t brokenState() ध्रुव VL_MT_SAFE { प्रत्यागम m_brokenState; }
+    शून्य brokenState(uint8_t मूल्य) { m_brokenState = मूल्य; }
 
     // Used by AstNode::broken()
-    bool brokeExists() const { return V3Broken::isLinkable(this); }
-    bool brokeExistsAbove() const { return brokeExists() && (m_brokenState >> 7); }
+    bool brokeExists() ध्रुव { प्रत्यागम V3Broken::isLinkable(this); }
+    bool brokeExistsAbove() ध्रुव { प्रत्यागम brokeExists() && (m_brokenState >> 7); }
 
     // Perform a function on every link in a node
-    virtual void foreachLink(std::function<void(AstNode** linkpp, const char* namep)> f) = 0;
+    आभास शून्य foreachLink(std::function<शून्य(Ast_गाठ** linkpp, ध्रुव वर्ण* namep)> f) = 0;
 
-#if defined(VL_LEAK_CHECKS) || defined(VL_ALLOC_RANDOM_CHECKS)
-    static void* operator new(size_t size);
-    static void operator delete(void* obj, size_t size);
+#यदि defined(VL_LEAK_CHECKS) || defined(VL_ALLOC_RANDOM_CHECKS)
+    स्थिर शून्य* operator new(size_t size);
+    स्थिर शून्य operator delete(शून्य* obj, size_t size);
 #endif
 
     // CONSTANTS
     // The following are relative dynamic costs (~ execution cycle count) of various operations.
     // They are used by V3InstCount to estimate the relative execution time of code fragments.
-    static constexpr int INSTR_COUNT_BRANCH = 4;  // Branch
-    static constexpr int INSTR_COUNT_CALL = INSTR_COUNT_BRANCH + 10;  // Subroutine call
-    static constexpr int INSTR_COUNT_LD = 2;  // Load memory
-    static constexpr int INSTR_COUNT_INT_MUL = 3;  // Integer multiply
-    static constexpr int INSTR_COUNT_INT_DIV = 10;  // Integer divide
-    static constexpr int INSTR_COUNT_DBL = 8;  // Convert or do float ops
-    static constexpr int INSTR_COUNT_DBL_DIV = 40;  // Double divide
-    static constexpr int INSTR_COUNT_DBL_TRIG = 200;  // Double trigonometric ops
-    static constexpr int INSTR_COUNT_STR = 100;  // String ops
-    static constexpr int INSTR_COUNT_TIME = INSTR_COUNT_CALL + 5;  // Determine simulation time
-    static constexpr int INSTR_COUNT_PLI = 20;  // PLI routines
-    static constexpr int INSTR_COUNT_CTOR_DTOR = 5;  // Syms and Module ctor/dtor statements
+    स्थिर constexpr पूर्णाङ्क INSTR_मोजणी_BRANCH = 4;  // Branch
+    स्थिर constexpr पूर्णाङ्क INSTR_मोजणी_CALL = INSTR_मोजणी_BRANCH + 10;  // Subroutine call
+    स्थिर constexpr पूर्णाङ्क INSTR_मोजणी_LD = 2;  // Load memory
+    स्थिर constexpr पूर्णाङ्क INSTR_मोजणी_INT_MUL = 3;  // Integer multiply
+    स्थिर constexpr पूर्णाङ्क INSTR_मोजणी_INT_DIV = 10;  // Integer divide
+    स्थिर constexpr पूर्णाङ्क INSTR_मोजणी_DBL = 8;  // Convert or do float ops
+    स्थिर constexpr पूर्णाङ्क INSTR_मोजणी_DBL_DIV = 40;  // Double divide
+    स्थिर constexpr पूर्णाङ्क INSTR_मोजणी_DBL_TRIG = 200;  // Double trigonometric ops
+    स्थिर constexpr पूर्णाङ्क INSTR_मोजणी_STR = 100;  // String ops
+    स्थिर constexpr पूर्णाङ्क INSTR_मोजणी_TIME = INSTR_मोजणी_CALL + 5;  // Determine simulation time
+    स्थिर constexpr पूर्णाङ्क INSTR_मोजणी_PLI = 20;  // PLI routines
+    स्थिर constexpr पूर्णाङ्क INSTR_मोजणी_CTOR_DTOR = 5;  // Syms and Module ctor/dtor statements
 
     // ACCESSORS
-    virtual string name() const VL_MT_STABLE { return ""; }
-    virtual string origName() const { return ""; }
-    string prettyDehashOrigOrName() const {
-        return prettyName(VName::dehash(origName().empty() ? name() : origName()));
+    आभास string name() ध्रुव VL_MT_STABLE { प्रत्यागम ""; }
+    आभास string origName() ध्रुव { प्रत्यागम ""; }
+    string prettyDehashOrigOrName() ध्रुव {
+        प्रत्यागम prettyName(VName::dehash(origName().empty() ? name() : origName()));
     }
-    virtual void name(const string& name) {
+    आभास शून्य name(ध्रुव string& name) {
         this->v3fatalSrc("name() called on object without name() method");
     }
-    virtual void tag(const string& text) {}
-    virtual string tag() const { return ""; }
-    virtual uint32_t declTokenNum() const { return 0; }
-    virtual void declTokenNumSetMin(uint32_t tokenNum) {}
-    virtual string verilogKwd() const { return ""; }
-    string nameProtect() const VL_MT_STABLE;  // Name with --protect-id applied
-    string origNameProtect() const;  // origName with --protect-id applied
-    string shortName() const;  // Name with __PVT__ removed for concatenating scopes
-    static string dedotName(const string& namein);  // Name with dots removed
-    static string nameNoArray(const string& namein);  // Name with any array index removed
-    static string prettyName(const string& namein) VL_PURE;  // Name for printing out to the user
-    static string vpiName(const string& namein);  // Name for vpi access
-    static string prettyNameQ(const string& namein) {  // Quoted pretty name (for errors)
-        return "'"s + prettyName(namein) + "'";
+    आभास शून्य tag(ध्रुव string& text) {}
+    आभास string tag() ध्रुव { प्रत्यागम ""; }
+    आभास uint32_t decl_Token_अंक() ध्रुव { प्रत्यागम 0; }
+    आभास शून्य decl_Token_अंक_Set_Min(uint32_t token_अंक) {}
+    आभास string verilogKwd() ध्रुव { प्रत्यागम ""; }
+    string nameProtect() ध्रुव VL_MT_STABLE;  // Name with --protect-id applied
+    string origNameProtect() ध्रुव;  // origName with --protect-id applied
+    string shortName() ध्रुव;  // Name with __PVT__ removed for concatenating scopes
+    स्थिर string dedotName(ध्रुव string& namein);  // Name with dots removed
+    स्थिर string nameNoArray(ध्रुव string& namein);  // Name with any array index removed
+    स्थिर string prettyName(ध्रुव string& namein) VL_PURE;  // Name for printing out to the user
+    स्थिर string vpiName(ध्रुव string& namein);  // Name for vpi access
+    स्थिर string prettyNameQ(ध्रुव string& namein) {  // Quoted pretty name (for errors)
+        प्रत्यागम "'"s + prettyName(namein) + "'";
     }
     // Encode user name into internal C representation
-    static string encodeName(const string& namein);
-    static string encodeNumber(int64_t num);  // Encode number into internal C representation
-    static string vcdName(const string& namein);  // Name for printing out to vcd files
-    string prettyName() const { return prettyName(name()); }
+    स्थिर string encodeName(ध्रुव string& namein);
+    स्थिर string encode_संख्या(int64_t अंक);  // Encode number into internal C representation
+    स्थिर string vcdName(ध्रुव string& namein);  // Name for printing out to vcd files
+    string prettyName() ध्रुव { प्रत्यागम prettyName(name()); }
     // Name for messages to the user, by default prettyName(), but friendlier for some nodes,
     // such as a specialized class, whose name() is internal
-    virtual string prettyNameMsg() const { return prettyName(); }
-    string prettyNameQ() const { return "'"s + prettyNameMsg() + "'"; }  // Quoted, for messages
-    string verilogName() const { return vpiName(origName()); }  // Decoded original Verilog name
+    आभास string pretty_Name_संदेश() ध्रुव { प्रत्यागम prettyName(); }
+    string prettyNameQ() ध्रुव { प्रत्यागम "'"s + pretty_Name_संदेश() + "'"; }  // Quoted, for messages
+    string verilogName() ध्रुव { प्रत्यागम vpiName(origName()); }  // Decoded original Verilog name
     // "VARREF" for error messages (NOT dtype's pretty name)
-    string prettyTypeName() const;
-    virtual string prettyOperatorName() const { return "operator " + prettyTypeName(); }
-    FileLine* fileline() const VL_MT_SAFE { return m_fileline; }
-    void fileline(FileLine* fl) { m_fileline = fl; }
-    inline bool width1() const;
-    inline int widthInstrs() const;
-    bool didWidth() const { return m_flags.didWidth; }
-    void didWidth(bool flag) { m_flags.didWidth = flag; }
+    string prettyTypeName() ध्रुव;
+    आभास string prettyOperatorName() ध्रुव { प्रत्यागम "operator " + prettyTypeName(); }
+    File_ओळ* fileline() ध्रुव VL_MT_SAFE { प्रत्यागम m_fileline; }
+    शून्य fileline(File_ओळ* fl) { m_fileline = fl; }
+    अन्तःस्थ bool width1() ध्रुव;
+    अन्तःस्थ पूर्णाङ्क widthInstrs() ध्रुव;
+    bool didWidth() ध्रुव { प्रत्यागम m_flags.didWidth; }
+    शून्य didWidth(bool flag) { m_flags.didWidth = flag; }
     bool didWidthAndSet() {
-        if (didWidth()) return true;
+        यदि (didWidth()) प्रत्यागम true;
         didWidth(true);
-        return false;
+        प्रत्यागम false;
     }
-    bool doingWidth() const { return m_flags.doingWidth; }
-    void doingWidth(bool flag) { m_flags.doingWidth = flag; }
-    bool protect() const VL_MT_SAFE { return m_flags.protect; }
-    void protect(bool flag) { m_flags.protect = flag; }
+    bool doingWidth() ध्रुव { प्रत्यागम m_flags.doingWidth; }
+    शून्य doingWidth(bool flag) { m_flags.doingWidth = flag; }
+    bool protect() ध्रुव VL_MT_SAFE { प्रत्यागम m_flags.protect; }
+    शून्य protect(bool flag) { m_flags.protect = flag; }
 
     // TODO stomp these width functions out, and call via dtypep() instead
-    inline int width() const VL_MT_STABLE;
-    inline int widthMin() const VL_MT_STABLE;
-    int widthMinV() const {
-        return v3Global.widthMinUsage() == VWidthMinUsage::VERILOG_WIDTH ? widthMin() : width();
+    अन्तःस्थ पूर्णाङ्क width() ध्रुव VL_MT_STABLE;
+    अन्तःस्थ पूर्णाङ्क widthMin() ध्रुव VL_MT_STABLE;
+    पूर्णाङ्क widthMinV() ध्रुव {
+        प्रत्यागम v3Global.widthMinUsage() == VWidthMinUsage::VERILOG_WIDTH ? widthMin() : width();
     }
-    int widthWords() const { return VL_WORDS_I(width()); }
-    bool isQuad() const VL_MT_STABLE { return (width() > VL_IDATASIZE && width() <= VL_QUADSIZE); }
-    bool isWide() const VL_MT_STABLE { return (width() > VL_QUADSIZE); }
-    inline bool isCHandle() const VL_MT_STABLE;
-    inline bool isDouble() const VL_MT_STABLE;
-    inline bool isSigned() const VL_MT_STABLE;
-    inline bool isString() const VL_MT_STABLE;
-    inline bool isEvent() const VL_MT_STABLE;
+    पूर्णाङ्क width_शब्द() ध्रुव { प्रत्यागम VL_शब्द_I(width()); }
+    bool isQuad() ध्रुव VL_MT_STABLE { प्रत्यागम (width() > VL_IDATASIZE && width() <= VL_QUADSIZE); }
+    bool isWide() ध्रुव VL_MT_STABLE { प्रत्यागम (width() > VL_QUADSIZE); }
+    अन्तःस्थ bool isCHandle() ध्रुव VL_MT_STABLE;
+    अन्तःस्थ bool isDouble() ध्रुव VL_MT_STABLE;
+    अन्तःस्थ bool isSigned() ध्रुव VL_MT_STABLE;
+    अन्तःस्थ bool isString() ध्रुव VL_MT_STABLE;
+    अन्तःस्थ bool isEvent() ध्रुव VL_MT_STABLE;
 
     // clang-format off
-    VNUser user1u() const VL_MT_STABLE {
+    VNUser user1u() ध्रुव VL_MT_STABLE {
         // Slows things down measurably, so disabled by default
         //UASSERT_STATIC(VNUser1InUse::s_userBusy, "user1p used without AstUserInUse");
-        return ((m_user1Cnt == VNUser1InUse::s_userCntGbl) ? m_user1u : VNUser{nullptr});
+        प्रत्यागम ((m_user1Cnt == VNUser1InUse::s_userCntGbl) ? m_user1u : VNUser{nullptr});
     }
-    AstNode* user1p() const VL_MT_STABLE { return user1u().toNodep(); }
-    void user1u(const VNUser& user) { m_user1u = user; m_user1Cnt = VNUser1InUse::s_userCntGbl; }
-    void user1p(void* userp) { user1u(VNUser{userp}); }
-    void user1(uint64_t val) { user1u(VNUser{val}); }
-    uint64_t user1() const { return user1u().toUQuad(); }
-    uint64_t user1Inc(uint64_t val = 1) { const uint64_t v = user1(); user1(v + val); return v; }
-    uint64_t user1Or(uint64_t val) { const uint64_t v = user1(); user1(v | val); return v; }
-    uint64_t user1SetOnce() { const uint64_t v = user1(); if (!v) user1(1); return v; }  // Better for cache than user1Inc()
-    static void user1ClearTree() { VNUser1InUse::clear(); }  // Clear userp()'s across the entire tree
+    Ast_गाठ* user1p() ध्रुव VL_MT_STABLE { प्रत्यागम user1u().toNodep(); }
+    शून्य user1u(ध्रुव VNUser& user) { m_user1u = user; m_user1Cnt = VNUser1InUse::s_userCntGbl; }
+    शून्य user1p(शून्य* userp) { user1u(VNUser{userp}); }
+    शून्य user1(uint64_t val) { user1u(VNUser{val}); }
+    uint64_t user1() ध्रुव { प्रत्यागम user1u().toUQuad(); }
+    uint64_t user1Inc(uint64_t val = 1) { ध्रुव uint64_t v = user1(); user1(v + val); प्रत्यागम v; }
+    uint64_t user1Or(uint64_t val) { ध्रुव uint64_t v = user1(); user1(v | val); प्रत्यागम v; }
+    uint64_t user1SetOnce() { ध्रुव uint64_t v = user1(); यदि (!v) user1(1); प्रत्यागम v; }  // Better for cache than user1Inc()
+    स्थिर शून्य user1_Clear_वृक्ष() { VNUser1InUse::clear(); }  // Clear userp()'s across the entire tree
 
-    VNUser user2u() const VL_MT_STABLE {
+    VNUser user2u() ध्रुव VL_MT_STABLE {
         // Slows things down measurably, so disabled by default
         //UASSERT_STATIC(VNUser2InUse::s_userBusy, "user2p used without AstUserInUse");
-        return ((m_user2Cnt == VNUser2InUse::s_userCntGbl) ? m_user2u : VNUser{nullptr});
+        प्रत्यागम ((m_user2Cnt == VNUser2InUse::s_userCntGbl) ? m_user2u : VNUser{nullptr});
     }
-    AstNode* user2p() const VL_MT_STABLE { return user2u().toNodep(); }
-    void user2u(const VNUser& user) { m_user2u = user; m_user2Cnt = VNUser2InUse::s_userCntGbl; }
-    void user2p(void* userp) { user2u(VNUser{userp}); }
-    void user2(uint64_t val) { user2u(VNUser{val}); }
-    uint64_t user2() const { return user2u().toUQuad(); }
-    uint64_t user2Inc(uint64_t val = 1) { const uint64_t v = user2(); user2(v + val); return v; }
-    uint64_t user2Or(uint64_t val) { const uint64_t v = user2(); user2(v | val); return v; }
-    uint64_t user2SetOnce() { const uint64_t v = user2(); if (!v) user2(1); return v; }  // Better for cache than user2Inc()
-    static void user2ClearTree() { VNUser2InUse::clear(); }  // Clear userp()'s across the entire tree
+    Ast_गाठ* user2p() ध्रुव VL_MT_STABLE { प्रत्यागम user2u().toNodep(); }
+    शून्य user2u(ध्रुव VNUser& user) { m_user2u = user; m_user2Cnt = VNUser2InUse::s_userCntGbl; }
+    शून्य user2p(शून्य* userp) { user2u(VNUser{userp}); }
+    शून्य user2(uint64_t val) { user2u(VNUser{val}); }
+    uint64_t user2() ध्रुव { प्रत्यागम user2u().toUQuad(); }
+    uint64_t user2Inc(uint64_t val = 1) { ध्रुव uint64_t v = user2(); user2(v + val); प्रत्यागम v; }
+    uint64_t user2Or(uint64_t val) { ध्रुव uint64_t v = user2(); user2(v | val); प्रत्यागम v; }
+    uint64_t user2SetOnce() { ध्रुव uint64_t v = user2(); यदि (!v) user2(1); प्रत्यागम v; }  // Better for cache than user2Inc()
+    स्थिर शून्य user2_Clear_वृक्ष() { VNUser2InUse::clear(); }  // Clear userp()'s across the entire tree
 
-    VNUser user3u() const VL_MT_STABLE {
+    VNUser user3u() ध्रुव VL_MT_STABLE {
         // Slows things down measurably, so disabled by default
         //UASSERT_STATIC(VNUser3InUse::s_userBusy, "user3p used without AstUserInUse");
-        return ((m_user3Cnt == VNUser3InUse::s_userCntGbl) ? m_user3u : VNUser{nullptr});
+        प्रत्यागम ((m_user3Cnt == VNUser3InUse::s_userCntGbl) ? m_user3u : VNUser{nullptr});
     }
-    AstNode* user3p() const VL_MT_STABLE { return user3u().toNodep(); }
-    void user3u(const VNUser& user) { m_user3u = user; m_user3Cnt = VNUser3InUse::s_userCntGbl; }
-    void user3p(void* userp) { user3u(VNUser{userp}); }
-    void user3(uint64_t val) { user3u(VNUser{val}); }
-    uint64_t user3() const { return user3u().toUQuad(); }
-    uint64_t user3Inc(uint64_t val = 1) { const uint64_t v = user3(); user3(v + val); return v; }
-    uint64_t user3Or(uint64_t val) { const uint64_t v = user3(); user3(v | val); return v; }
-    uint64_t user3SetOnce() { const uint64_t v = user3(); if (!v) user3(1); return v; }  // Better for cache than user3Inc()
-    static void user3ClearTree() { VNUser3InUse::clear(); }  // Clear userp()'s across the entire tree
+    Ast_गाठ* user3p() ध्रुव VL_MT_STABLE { प्रत्यागम user3u().toNodep(); }
+    शून्य user3u(ध्रुव VNUser& user) { m_user3u = user; m_user3Cnt = VNUser3InUse::s_userCntGbl; }
+    शून्य user3p(शून्य* userp) { user3u(VNUser{userp}); }
+    शून्य user3(uint64_t val) { user3u(VNUser{val}); }
+    uint64_t user3() ध्रुव { प्रत्यागम user3u().toUQuad(); }
+    uint64_t user3Inc(uint64_t val = 1) { ध्रुव uint64_t v = user3(); user3(v + val); प्रत्यागम v; }
+    uint64_t user3Or(uint64_t val) { ध्रुव uint64_t v = user3(); user3(v | val); प्रत्यागम v; }
+    uint64_t user3SetOnce() { ध्रुव uint64_t v = user3(); यदि (!v) user3(1); प्रत्यागम v; }  // Better for cache than user3Inc()
+    स्थिर शून्य user3_Clear_वृक्ष() { VNUser3InUse::clear(); }  // Clear userp()'s across the entire tree
 
-    VNUser user4u() const VL_MT_STABLE {
+    VNUser user4u() ध्रुव VL_MT_STABLE {
         // Slows things down measurably, so disabled by default
         //UASSERT_STATIC(VNUser4InUse::s_userBusy, "user4p used without AstUserInUse");
-        return ((m_user4Cnt == VNUser4InUse::s_userCntGbl) ? m_user4u : VNUser{nullptr});
+        प्रत्यागम ((m_user4Cnt == VNUser4InUse::s_userCntGbl) ? m_user4u : VNUser{nullptr});
     }
-    AstNode* user4p() const VL_MT_STABLE { return user4u().toNodep(); }
-    void user4u(const VNUser& user) { m_user4u = user; m_user4Cnt = VNUser4InUse::s_userCntGbl; }
-    void user4p(void* userp) { user4u(VNUser{userp}); }
-    void user4(uint64_t val) { user4u(VNUser{val}); }
-    uint64_t user4() const { return user4u().toUQuad(); }
-    uint64_t user4Or(uint64_t val) { const uint64_t v = user4(); user4(v | val); return v; }
-    uint64_t user4Inc(uint64_t val = 1) { const uint64_t v = user4(); user4(v + val); return v; }
-    uint64_t user4SetOnce() { const uint64_t v = user4(); if (!v) user4(1); return v; }  // Better for cache than user4Inc()
-    static void user4ClearTree() { VNUser4InUse::clear(); }  // Clear userp()'s across the entire tree
+    Ast_गाठ* user4p() ध्रुव VL_MT_STABLE { प्रत्यागम user4u().toNodep(); }
+    शून्य user4u(ध्रुव VNUser& user) { m_user4u = user; m_user4Cnt = VNUser4InUse::s_userCntGbl; }
+    शून्य user4p(शून्य* userp) { user4u(VNUser{userp}); }
+    शून्य user4(uint64_t val) { user4u(VNUser{val}); }
+    uint64_t user4() ध्रुव { प्रत्यागम user4u().toUQuad(); }
+    uint64_t user4Or(uint64_t val) { ध्रुव uint64_t v = user4(); user4(v | val); प्रत्यागम v; }
+    uint64_t user4Inc(uint64_t val = 1) { ध्रुव uint64_t v = user4(); user4(v + val); प्रत्यागम v; }
+    uint64_t user4SetOnce() { ध्रुव uint64_t v = user4(); यदि (!v) user4(1); प्रत्यागम v; }  // Better for cache than user4Inc()
+    स्थिर शून्य user4_Clear_वृक्ष() { VNUser4InUse::clear(); }  // Clear userp()'s across the entire tree
     // clang-format on
 
 #ifdef VL_DEBUG
-    uint64_t editCount() const { return m_editCount; }
-    void editCountInc() {
-        m_editCount = ++s_editCntGbl;  // Preincrement, so can "watch AstNode::s_editCntGbl=##"
-        VIsCached::clearCacheTree();  // Any edit clears all caching
+    uint64_t edit_मोजणी() ध्रुव { प्रत्यागम m_edit_मोजणी; }
+    शून्य edit_मोजणी_Inc() {
+        m_edit_मोजणी = ++s_editCntGbl;  // Preincrement, so can "watch AstNode::s_editCntGbl=##"
+        VIsCached::clear_Cache_वृक्ष();  // Any edit clears all caching
     }
-#else
-    void editCountInc() { ++s_editCntGbl; }
+#अन्यथा
+    शून्य edit_मोजणी_Inc() { ++s_editCntGbl; }
 #endif
-    static uint64_t editCountLast() VL_MT_SAFE { return s_editCntLast; }
-    static uint64_t editCountGbl() VL_MT_SAFE { return s_editCntGbl; }
-    static void editCountSetLast() { s_editCntLast = editCountGbl(); }
+    स्थिर uint64_t edit_मोजणी_Last() VL_MT_SAFE { प्रत्यागम s_editCntLast; }
+    स्थिर uint64_t edit_मोजणी_Gbl() VL_MT_SAFE { प्रत्यागम s_editCntGbl; }
+    स्थिर शून्य edit_मोजणी_Set_Last() { s_editCntLast = edit_मोजणी_Gbl(); }
 
     // ACCESSORS for specific types
     // Alas these can't be virtual or they break when passed a nullptr
-    bool isDisableQueuePushSelfStmt();
-    inline bool isClassHandleValue() const;
-    inline bool isNull() const;
-    inline bool isZero() const;
-    inline bool isOne() const;
-    inline bool isNeqZero() const;
-    inline bool isAllOnes() const;
-    inline bool isAllOnesV() const;  // Verilog width rules apply
+    bool is_Disable_Queue_ढकला_Self_Stmt();
+    अन्तःस्थ bool is_Class_Handle_मूल्य() ध्रुव;
+    अन्तःस्थ bool isNull() ध्रुव;
+    अन्तःस्थ bool isZero() ध्रुव;
+    अन्तःस्थ bool isOne() ध्रुव;
+    अन्तःस्थ bool isNeqZero() ध्रुव;
+    अन्तःस्थ bool isAllOnes() ध्रुव;
+    अन्तःस्थ bool isAllOnesV() ध्रुव;  // Verilog width rules apply
 
     // METHODS - data type changes especially for initial creation
-    void dtypep(AstNodeDType* nodep) {
-        if (m_dtypep != nodep) {
+    शून्य dtypep(Ast_गाठ_DType* nodep) {
+        यदि (m_dtypep != nodep) {
             m_dtypep = nodep;
-            editCountInc();
+            edit_मोजणी_Inc();
         }
     }
-    void dtypeFrom(const AstNode* fromp) {
-        if (fromp) dtypep(fromp->dtypep());
+    शून्य dtypeFrom(ध्रुव Ast_गाठ* fromp) {
+        यदि (fromp) dtypep(fromp->dtypep());
     }
-    void dtypeChgSigned(bool flag = true);
-    void dtypeChgWidth(int width, int widthMin);
-    void dtypeChgWidthSigned(int width, int widthMin, VSigning numeric);
-    void dtypeSetBitUnsized(int width, int widthMin, VSigning numeric) {
+    शून्य dtypeChgSigned(bool flag = true);
+    शून्य dtypeChgWidth(पूर्णाङ्क width, पूर्णाङ्क widthMin);
+    शून्य dtypeChgWidthSigned(पूर्णाङ्क width, पूर्णाङ्क widthMin, VSigning numeric);
+    शून्य dtypeSetBitUnsized(पूर्णाङ्क width, पूर्णाङ्क widthMin, VSigning numeric) {
         dtypep(findBitDType(width, widthMin, numeric));
     }
-    void dtypeSetBitSized(int width, VSigning numeric) {
+    शून्य dtypeSetBitSized(पूर्णाङ्क width, VSigning numeric) {
         dtypep(findBitDType(width, width, numeric));  // Since sized, widthMin is width
     }
-    void dtypeSetLogicUnsized(int width, int widthMin, VSigning numeric) {
+    शून्य dtypeSetLogicUnsized(पूर्णाङ्क width, पूर्णाङ्क widthMin, VSigning numeric) {
         dtypep(findLogicDType(width, widthMin, numeric));
     }
-    void dtypeSetLogicSized(int width, VSigning numeric) {
+    शून्य dtypeSetLogicSized(पूर्णाङ्क width, VSigning numeric) {
         dtypep(findLogicDType(width, width, numeric));  // Since sized, widthMin is width
     }
-    void dtypeSetLogic2StateUnsized(int width, int widthMin, VSigning numeric) {
+    शून्य dtypeSetLogic2StateUnsized(पूर्णाङ्क width, पूर्णाङ्क widthMin, VSigning numeric) {
         dtypep(findLogic2StateDType(width, widthMin, numeric));
     }
-    void dtypeSetLogic2StateSized(int width, VSigning numeric) {
+    शून्य dtypeSetLogic2StateSized(पूर्णाङ्क width, VSigning numeric) {
         dtypep(findLogic2StateDType(width, width, numeric));  // Since sized, widthMin is width
     }
-    void dtypeSetBitOrLogicUnsized(int width, int widthMin, VSigning numeric, bool isFourstate) {
+    शून्य dtypeSetBitOrLogicUnsized(पूर्णाङ्क width, पूर्णाङ्क widthMin, VSigning numeric, bool isFourstate) {
         dtypep(findBitOrLogicDType(width, widthMin, numeric, isFourstate));
     }
-    void dtypeSetBitOrLogicSized(int width, VSigning numeric, bool isFourstate) {
+    शून्य dtypeSetBitOrLogicSized(पूर्णाङ्क width, VSigning numeric, bool isFourstate) {
         dtypep(findBitOrLogicDType(width, width, numeric,
                                    isFourstate));  // Since sized, widthMin is width
     }
-    void dtypeSetBit() { dtypep(findBitDType()); }
-    void dtypeSetLogic() { dtypep(findLogicDType()); }
-    void dtypeSetLogic2State() { dtypep(findLogic2StateDType()); }
-    void dtypeSetDouble() { dtypep(findDoubleDType()); }
-    void dtypeSetInt() { dtypep(findIntDType()); }
-    void dtypeSetInteger() { dtypep(findIntegerDType()); }
-    void dtypeSetInteger2State() { dtypep(findInteger2StateDType()); }
-    void dtypeSetString() { dtypep(findStringDType()); }
-    void dtypeSetUInt32() { dtypep(findUInt32DType()); }  // Twostate
-    void dtypeSetUInt64() { dtypep(findUInt64DType()); }  // Twostate
-    void dtypeSetTime() { dtypep(findTimeDType()); }
-    void dtypeSetTime2State() { dtypep(findTime2StateDType()); }
-    void dtypeSetEmptyQueue() { dtypep(findEmptyQueueDType()); }
-    void dtypeSetStream() { dtypep(findStreamDType()); }
-    void dtypeSetVoid() { dtypep(findVoidDType()); }
-    void dtypeSetBitOrLogic(bool isFourstate) {
+    शून्य dtypeSetBit() { dtypep(findBitDType()); }
+    शून्य dtypeSetLogic() { dtypep(findLogicDType()); }
+    शून्य dtypeSetLogic2State() { dtypep(findLogic2StateDType()); }
+    शून्य dtypeSetDouble() { dtypep(findDoubleDType()); }
+    शून्य dtypeSetInt() { dtypep(findIntDType()); }
+    शून्य dtypeSetInteger() { dtypep(findIntegerDType()); }
+    शून्य dtypeSetInteger2State() { dtypep(findInteger2StateDType()); }
+    शून्य dtypeSetString() { dtypep(findStringDType()); }
+    शून्य dtypeSetUInt32() { dtypep(findUInt32DType()); }  // Twostate
+    शून्य dtypeSetUInt64() { dtypep(findUInt64DType()); }  // Twostate
+    शून्य dtypeSetTime() { dtypep(findTimeDType()); }
+    शून्य dtypeSetTime2State() { dtypep(findTime2StateDType()); }
+    शून्य dtypeSetEmptyQueue() { dtypep(findEmptyQueueDType()); }
+    शून्य dtypeSetStream() { dtypep(findStreamDType()); }
+    शून्य dtypeSetVoid() { dtypep(findVoidDType()); }
+    शून्य dtypeSetBitOrLogic(bool isFourstate) {
         dtypep(isFourstate ? findLogicDType() : findBitDType());
     }
 
     // Data type locators
-    AstNodeDType* findBitDType() const { return findBasicDType(VBasicDTypeKwd::BIT); }
-    AstNodeDType* findLogicDType() const { return findBasicDType(VBasicDTypeKwd::LOGIC); }
-    AstNodeDType* findNullDType() const { return findBasicDType(VBasicDTypeKwd::NULLTYPE); }
-    AstNodeDType* findLogic2StateDType() const {
-        return findBasicDType(VBasicDTypeKwd::LOGIC2STATE);
+    Ast_गाठ_DType* findBitDType() ध्रुव { प्रत्यागम findBasicDType(VBasicDTypeKwd::BIT); }
+    Ast_गाठ_DType* findLogicDType() ध्रुव { प्रत्यागम findBasicDType(VBasicDTypeKwd::LOGIC); }
+    Ast_गाठ_DType* findNullDType() ध्रुव { प्रत्यागम findBasicDType(VBasicDTypeKwd::NULLTYPE); }
+    Ast_गाठ_DType* findLogic2StateDType() ध्रुव {
+        प्रत्यागम findBasicDType(VBasicDTypeKwd::LOGIC2STATE);
     }
-    AstNodeDType* findDoubleDType() const { return findBasicDType(VBasicDTypeKwd::DOUBLE); }
-    AstNodeDType* findIntDType() const { return findBasicDType(VBasicDTypeKwd::INT); }
-    AstNodeDType* findIntegerDType() const { return findBasicDType(VBasicDTypeKwd::INTEGER); }
-    AstNodeDType* findInteger2StateDType() const {
-        return findBasicDType(VBasicDTypeKwd::INTEGER2STATE);
+    Ast_गाठ_DType* findDoubleDType() ध्रुव { प्रत्यागम findBasicDType(VBasicDTypeKwd::DOUBLE); }
+    Ast_गाठ_DType* findIntDType() ध्रुव { प्रत्यागम findBasicDType(VBasicDTypeKwd::INT); }
+    Ast_गाठ_DType* findIntegerDType() ध्रुव { प्रत्यागम findBasicDType(VBasicDTypeKwd::INTEGER); }
+    Ast_गाठ_DType* findInteger2StateDType() ध्रुव {
+        प्रत्यागम findBasicDType(VBasicDTypeKwd::INTEGER2STATE);
     }
-    AstNodeDType* findStringDType() const { return findBasicDType(VBasicDTypeKwd::STRING); }
-    AstNodeDType* findSigned8DType() const { return findBasicDType(VBasicDTypeKwd::BYTE); }
-    AstNodeDType* findUInt32DType() const { return findBasicDType(VBasicDTypeKwd::UINT32); }
-    AstNodeDType* findUInt64DType() const { return findBasicDType(VBasicDTypeKwd::UINT64); }
-    AstNodeDType* findTimeDType() const { return findBasicDType(VBasicDTypeKwd::TIME); }
-    AstNodeDType* findTime2StateDType() const {
-        return findBasicDType(VBasicDTypeKwd::TIME2STATE);
+    Ast_गाठ_DType* findStringDType() ध्रुव { प्रत्यागम findBasicDType(VBasicDTypeKwd::STRING); }
+    Ast_गाठ_DType* findSigned8DType() ध्रुव { प्रत्यागम findBasicDType(VBasicDTypeKwd::BYTE); }
+    Ast_गाठ_DType* findUInt32DType() ध्रुव { प्रत्यागम findBasicDType(VBasicDTypeKwd::UINT32); }
+    Ast_गाठ_DType* findUInt64DType() ध्रुव { प्रत्यागम findBasicDType(VBasicDTypeKwd::UINT64); }
+    Ast_गाठ_DType* findTimeDType() ध्रुव { प्रत्यागम findBasicDType(VBasicDTypeKwd::TIME); }
+    Ast_गाठ_DType* findTime2StateDType() ध्रुव {
+        प्रत्यागम findBasicDType(VBasicDTypeKwd::TIME2STATE);
     }
-    AstNodeDType* findCHandleDType() const { return findBasicDType(VBasicDTypeKwd::CHANDLE); }
-    AstNodeDType* findConstraintRefDType() const;
-    AstNodeDType* findEmptyQueueDType() const;
-    AstNodeDType* findQueueIndexDType() const;
-    AstNodeDType* findStreamDType() const;
-    AstNodeDType* findVoidDType() const;
-    AstNodeDType* findBitDType(int width, int widthMin, VSigning numeric) const;
-    AstNodeDType* findLogicDType(int width, int widthMin, VSigning numeric) const;
-    AstNodeDType* findLogic2StateDType(int width, int widthMin, VSigning numeric) const;
-    AstNodeDType* findBitOrLogicDType(int width, int widthMin, VSigning numeric,
-                                      bool isFourstate) const {
-        return isFourstate ? findLogicDType(width, widthMin, numeric)
+    Ast_गाठ_DType* findCHandleDType() ध्रुव { प्रत्यागम findBasicDType(VBasicDTypeKwd::CHANDLE); }
+    Ast_गाठ_DType* findConstraintRefDType() ध्रुव;
+    Ast_गाठ_DType* findEmptyQueueDType() ध्रुव;
+    Ast_गाठ_DType* findQueueIndexDType() ध्रुव;
+    Ast_गाठ_DType* findStreamDType() ध्रुव;
+    Ast_गाठ_DType* findVoidDType() ध्रुव;
+    Ast_गाठ_DType* findBitDType(पूर्णाङ्क width, पूर्णाङ्क widthMin, VSigning numeric) ध्रुव;
+    Ast_गाठ_DType* findLogicDType(पूर्णाङ्क width, पूर्णाङ्क widthMin, VSigning numeric) ध्रुव;
+    Ast_गाठ_DType* findLogic2StateDType(पूर्णाङ्क width, पूर्णाङ्क widthMin, VSigning numeric) ध्रुव;
+    Ast_गाठ_DType* findBitOrLogicDType(पूर्णाङ्क width, पूर्णाङ्क widthMin, VSigning numeric,
+                                      bool isFourstate) ध्रुव {
+        प्रत्यागम isFourstate ? findLogicDType(width, widthMin, numeric)
                            : findBitDType(width, widthMin, numeric);
     }
-    AstNodeDType* findBitOrLogicRangeDType(const VNumRange& range, const int widthMin,
-                                           const VSigning numeric,
-                                           const bool isFourstate) const VL_MT_STABLE {
-        return isFourstate ? findLogicRangeDType(range, widthMin, numeric)
+    Ast_गाठ_DType* findBitOrLogicRangeDType(ध्रुव VNumRange& range, ध्रुव पूर्णाङ्क widthMin,
+                                           ध्रुव VSigning numeric,
+                                           ध्रुव bool isFourstate) ध्रुव VL_MT_STABLE {
+        प्रत्यागम isFourstate ? findLogicRangeDType(range, widthMin, numeric)
                            : findBitRangeDType(range, widthMin, numeric);
     }
-    AstNodeDType* findLogicRangeDType(const VNumRange& range, int widthMin,
-                                      VSigning numeric) const VL_MT_STABLE;
-    AstNodeDType* findBitRangeDType(const VNumRange& range, int widthMin,
-                                    VSigning numeric) const VL_MT_STABLE;
-    AstNodeDType* findBasicDType(VBasicDTypeKwd kwd) const;
-    static AstBasicDType* findInsertSameDType(AstBasicDType* nodep);
+    Ast_गाठ_DType* findLogicRangeDType(ध्रुव VNumRange& range, पूर्णाङ्क widthMin,
+                                      VSigning numeric) ध्रुव VL_MT_STABLE;
+    Ast_गाठ_DType* findBitRangeDType(ध्रुव VNumRange& range, पूर्णाङ्क widthMin,
+                                    VSigning numeric) ध्रुव VL_MT_STABLE;
+    Ast_गाठ_DType* findBasicDType(VBasicDTypeKwd kwd) ध्रुव;
+    स्थिर AstBasicDType* find_घाला_Same_DType(AstBasicDType* nodep);
 
-    static VCastable computeCastable(const AstNodeDType* toDtp, const AstNodeDType* fromDtp,
-                                     const AstNode* fromConstp, bool checkIfaceArgCompat = false);
-    static AstNodeDType* getCommonClassTypep(AstNode* nodep1, AstNode* nodep2);
+    स्थिर VCastable computeCastable(ध्रुव Ast_गाठ_DType* toDtp, ध्रुव Ast_गाठ_DType* fromDtp,
+                                     ध्रुव Ast_गाठ* fromConstp, bool checkIfaceArgCompat = false);
+    स्थिर Ast_गाठ_DType* getCommonClassTypep(Ast_गाठ* nodep1, Ast_गाठ* nodep2);
 
     // METHODS - dump and error
-    void v3errorEnd(const std::ostringstream& str) const VL_RELEASE(V3Error::s().m_mutex);
-    void v3errorEndFatal(const std::ostringstream& str) const VL_ATTR_NORETURN
+    शून्य v3errorEnd(ध्रुव std::ostringstream& str) ध्रुव VL_RELEASE(V3Error::s().m_mutex);
+    शून्य v3errorEndFatal(ध्रुव std::ostringstream& str) ध्रुव VL_ATTR_NORETURN
         VL_RELEASE(V3Error::s().m_mutex);
-    string warnContextPrimary() const VL_REQUIRES(V3Error::s().m_mutex) {
-        return fileline()->warnContextPrimary();
+    string warnContextPrimary() ध्रुव VL_REQUIRES(V3Error::s().m_mutex) {
+        प्रत्यागम fileline()->warnContextPrimary();
     }
-    string warnContextSecondary() const { return fileline()->warnContextSecondary(); }
-    string warnMore() const VL_REQUIRES(V3Error::s().m_mutex) { return fileline()->warnMore(); }
-    string warnOther() const VL_REQUIRES(V3Error::s().m_mutex) { return fileline()->warnOther(); }
+    string warnContextSecondary() ध्रुव { प्रत्यागम fileline()->warnContextSecondary(); }
+    string warnMore() ध्रुव VL_REQUIRES(V3Error::s().m_mutex) { प्रत्यागम fileline()->warnMore(); }
+    string warnOther() ध्रुव VL_REQUIRES(V3Error::s().m_mutex) { प्रत्यागम fileline()->warnOther(); }
 
-    virtual void dump(std::ostream& str = std::cout) const;
-    static char* dumpTreeJsonGdb(const AstNode* nodep);  // For GDB only, free()d by caller
-    static char* dumpTreeJsonGdb(const char* str);  // For GDB only, free()d by caller
-    static char* dumpTreeJsonGdb(intptr_t nodep);  // For GDB only, free()d by caller
-    static void dumpGdb(const AstNode* nodep);  // For GDB only
-    void dumpGdbHeader() const;
+    आभास शून्य dump(std::ostream& str = std::cout) ध्रुव;
+    स्थिर वर्ण* dump_वृक्ष_Json_Gdb(ध्रुव Ast_गाठ* nodep);  // For GDB only, free()d by caller
+    स्थिर वर्ण* dump_वृक्ष_Json_Gdb(ध्रुव वर्ण* str);  // For GDB only, free()d by caller
+    स्थिर वर्ण* dump_वृक्ष_Json_Gdb(intptr_t nodep);  // For GDB only, free()d by caller
+    स्थिर शून्य dumpGdb(ध्रुव Ast_गाठ* nodep);  // For GDB only
+    शून्य dumpGdbHeader() ध्रुव;
 
     // METHODS - Tree modifications
     // Returns nodep. If newp is not nullptr, then add it to end of nodep's list.
-    template <typename T_NodeResult, typename T_NodeNext>
-    static T_NodeResult* addNext(T_NodeResult* nodep, T_NodeNext* newp) {
-        static_assert(std::is_base_of<AstNode, T_NodeResult>::value,
+    template <typename T_गाठ_Result, typename T_गाठ_Next>
+    स्थिर T_गाठ_Result* addNext(T_गाठ_Result* nodep, T_गाठ_Next* newp) {
+        static_assert(std::is_base_of<Ast_गाठ, T_गाठ_Result>::मूल्य,
                       "'T_NodeResult' must be a subtype of AstNode");
-        static_assert(std::is_base_of<T_NodeResult, T_NodeNext>::value,
+        static_assert(std::is_base_of<T_गाठ_Result, T_गाठ_Next>::मूल्य,
                       "'T_NodeNext' must be a subtype of 'T_NodeResult'");
-        if (!newp) return nodep;
-        return static_cast<T_NodeResult*>(addNext<AstNode, AstNode>(nodep, newp));
+        यदि (!newp) प्रत्यागम nodep;
+        प्रत्यागम static_cast<T_गाठ_Result*>(addNext<Ast_गाठ, Ast_गाठ>(nodep, newp));
     }
-    template <typename T_NodeResult, typename T_NodeNext>
-    static T_NodeResult* addNextNull(T_NodeResult* nodep, T_NodeNext* newp) {
-        static_assert(std::is_base_of<AstNode, T_NodeResult>::value,
+    template <typename T_गाठ_Result, typename T_गाठ_Next>
+    स्थिर T_गाठ_Result* addNextNull(T_गाठ_Result* nodep, T_गाठ_Next* newp) {
+        static_assert(std::is_base_of<Ast_गाठ, T_गाठ_Result>::मूल्य,
                       "'T_NodeResult' must be a subtype of AstNode");
-        static_assert(std::is_base_of<T_NodeResult, T_NodeNext>::value,
+        static_assert(std::is_base_of<T_गाठ_Result, T_गाठ_Next>::मूल्य,
                       "'T_NodeNext' must be a subtype of 'T_NodeResult'");
-        if (!newp) return nodep;
-        if (!nodep) return newp;
-        return static_cast<T_NodeResult*>(addNext<AstNode, AstNode>(nodep, newp));
+        यदि (!newp) प्रत्यागम nodep;
+        यदि (!nodep) प्रत्यागम newp;
+        प्रत्यागम static_cast<T_गाठ_Result*>(addNext<Ast_गाठ, Ast_गाठ>(nodep, newp));
     }
-    inline AstNode* addNext(AstNode* newp);
-    void addNextHere(AstNode* newp);  // Insert newp at this->nextp
-    void addHereThisAsNext(AstNode* newp);  // Adds at old place of this, this becomes next
-    void replaceWith(AstNode* newp);  // Replace current node in tree with new node
-    void replaceWithKeepDType(AstNode* newp);  // Replace current node in tree, keep old dtype
+    अन्तःस्थ Ast_गाठ* addNext(Ast_गाठ* newp);
+    शून्य addNextHere(Ast_गाठ* newp);  // Insert newp at this->nextp
+    शून्य addHereThisAsNext(Ast_गाठ* newp);  // Adds at old place of this, this becomes next
+    शून्य replaceWith(Ast_गाठ* newp);  // Replace current node in tree with new node
+    शून्य replaceWithKeepDType(Ast_गाठ* newp);  // Replace current node in tree, keep old dtype
     // Unlink this from whoever points to it.
-    AstNode* unlinkFrBack(VNRelinker* linkerp = nullptr);
+    Ast_गाठ* unlinkFrBack(VNRelinker* linkerp = nullptr);
     // Unlink this from whoever points to it, keep entire next list with unlinked node
-    AstNode* unlinkFrBackWithNext(VNRelinker* linkerp = nullptr);
-    void relink(VNRelinker* linkerp);  // Generally use linker->relink() instead
-    void cloneRelinkNode() { cloneRelink(); }
+    Ast_गाठ* unlinkFrBackWithNext(VNRelinker* linkerp = nullptr);
+    शून्य relink(VNRelinker* linkerp);  // Generally use linker->relink() instead
+    शून्य clone_Relink_गाठ() { cloneRelink(); }
 
     // METHODS - Iterate on a tree
-    AstNode* cloneTree(bool cloneNextLink,
+    Ast_गाठ* clone_वृक्ष(bool cloneNextLink,
                        bool needPure = false);  // Not const, as sets clonep() on original nodep
-    AstNode* cloneTreePure(bool cloneNextLink) { return cloneTree(cloneNextLink, true); }
-    bool gateTree() { return gateTreeIter(); }  // Is tree isGateOptimizable?
-    inline bool sameTree(const AstNode* node2p) const;  // Does tree of this == node2p?
+    Ast_गाठ* clone_वृक्ष_Pure(bool cloneNextLink) { प्रत्यागम clone_वृक्ष(cloneNextLink, true); }
+    bool gate_वृक्ष() { प्रत्यागम gate_वृक्ष_Iter(); }  // Is tree isGateOptimizable?
+    अन्तःस्थ bool same_वृक्ष(ध्रुव Ast_गाठ* node2p) ध्रुव;  // Does tree of this == node2p?
     // Does tree of this == node2p?, not allowing non-isGateOptimizable
-    inline bool sameGateTree(const AstNode* node2p) const;
-    void deleteTree();  // Always deletes the next link
-    void checkTree() const VL_MT_STABLE {
-        if (v3Global.opt.debugCheck()) checkTreeIter(backp());
+    अन्तःस्थ bool same_Gate_वृक्ष(ध्रुव Ast_गाठ* node2p) ध्रुव;
+    शून्य delete_वृक्ष();  // Always deletes the next link
+    शून्य check_वृक्ष() ध्रुव VL_MT_STABLE {
+        यदि (v3Global.opt.debugCheck()) check_वृक्ष_Iter(backp());
     }
-    void checkIter() const;
-    void dumpPtrs(std::ostream& os = std::cout) const;
-    void dumpTree(std::ostream& os = std::cout, const string& indent = "    ",
-                  int maxDepth = 0) const;
-    void dumpTree(const string& indent, int maxDepth = 0) const {
-        dumpTree(std::cout, indent, maxDepth);
+    शून्य checkIter() ध्रुव;
+    शून्य dumpPtrs(std::ostream& os = std::cout) ध्रुव;
+    शून्य dump_वृक्ष(std::ostream& os = std::cout, ध्रुव string& indent = "    ",
+                  पूर्णाङ्क maxDepth = 0) ध्रुव;
+    शून्य dump_वृक्ष(ध्रुव string& indent, पूर्णाङ्क maxDepth = 0) ध्रुव {
+        dump_वृक्ष(std::cout, indent, maxDepth);
     }
-    static void dumpTreeGdb(const AstNode* nodep);  // For GDB only
-    void dumpTreeAndNext(std::ostream& os = std::cout, const string& indent = "    ",
-                         int maxDepth = 0) const;
-    void dumpTreeFile(const string& filename, bool doDump = true);
-    static void dumpTreeFileGdb(const AstNode* nodep, const char* filenamep = nullptr);
-    void dumpTreeDot(std::ostream& os = std::cout) const;
-    void dumpTreeDotFile(const string& filename, bool doDump = true);
-    virtual void dumpJson(std::ostream& os) const { dumpJsonGen(os); };  // node-specific fields
+    स्थिर शून्य dump_वृक्ष_Gdb(ध्रुव Ast_गाठ* nodep);  // For GDB only
+    शून्य dump_वृक्ष_And_Next(std::ostream& os = std::cout, ध्रुव string& indent = "    ",
+                         पूर्णाङ्क maxDepth = 0) ध्रुव;
+    शून्य dump_वृक्ष_File(ध्रुव string& filename, bool doDump = true);
+    स्थिर शून्य dump_वृक्ष_File_Gdb(ध्रुव Ast_गाठ* nodep, ध्रुव वर्ण* filenamep = nullptr);
+    शून्य dump_वृक्ष_Dot(std::ostream& os = std::cout) ध्रुव;
+    शून्य dump_वृक्ष_Dot_File(ध्रुव string& filename, bool doDump = true);
+    आभास शून्य dumpJson(std::ostream& os) ध्रुव { dumpJsonGen(os); };  // node-specific fields
     // Generated by 'astgen'. Dumps node-specific pointers and calls 'dumpJson()' of parent class
     // Note that we don't make it virtual as it would result in infinite recursion
-    void dumpJsonGen(std::ostream& os) const {};
-    virtual void dumpTreeJsonOpGen(std::ostream& os, const string& indent) const {};
-    void dumpTreeJson(std::ostream& os, const string& indent = "") const;
-    void dumpTreeJsonFile(const string& filename, bool doDump = true);
-    static void dumpJsonMetaFileGdb(const char* filename);
-    static void dumpJsonMetaFile(const string& filename);
+    शून्य dumpJsonGen(std::ostream& os) ध्रुव {};
+    आभास शून्य dump_वृक्ष_Json_Op_Gen(std::ostream& os, ध्रुव string& indent) ध्रुव {};
+    शून्य dump_वृक्ष_Json(std::ostream& os, ध्रुव string& indent = "") ध्रुव;
+    शून्य dump_वृक्ष_Json_File(ध्रुव string& filename, bool doDump = true);
+    स्थिर शून्य dumpJsonMetaFileGdb(ध्रुव वर्ण* filename);
+    स्थिर शून्य dumpJsonMetaFile(ध्रुव string& filename);
 
     // Render node address for dumps. By default this is just the address
     // printed as hex, but with --dump-tree-addrids we map addresses to short
     // strings with a bijection to aid human readability. Observe that this might
     // not actually be a unique identifier as the address can get reused after a
     // node has been freed.
-    static std::string nodeAddr(const AstNode* nodep) {
-        return v3Global.opt.dumpTreeAddrids() ? v3Global.ptrToId(nodep) : cvtToHex(nodep);
+    स्थिर std::string गाठ_Addr(ध्रुव Ast_गाठ* nodep) {
+        प्रत्यागम v3Global.opt.dump_वृक्ष_Addrids() ? v3Global.ptrToId(nodep) : cvtToHex(nodep);
     }
 
     // METHODS - static advancement
-    static AstNode* afterCommentp(AstNode* nodep) {
+    स्थिर Ast_गाठ* afterCommentp(Ast_गाठ* nodep) {
         // Skip over comments starting at provided nodep,
         // such as to determine if a AstIf is empty.
         // nodep may be null, if so return nullptr.
-        while (nodep && VN_IS(nodep, Comment)) nodep = nodep->nextp();
-        return nodep;
+        यावत् (nodep && VN_IS(nodep, Comment)) nodep = nodep->nextp();
+        प्रत्यागम nodep;
     }
 
     // METHODS - queries
     // Changes control flow, disable some optimizations
-    virtual bool isBrancher() const { return false; }
+    आभास bool isBrancher() ध्रुव { प्रत्यागम false; }
     // Else a AstTime etc that can't be pushed out
-    virtual bool isGateOptimizable() const { return !isTimingControl(); }
+    आभास bool isGateOptimizable() ध्रुव { प्रत्यागम !isTimingControl(); }
     // GateDedupable is a slightly larger superset of GateOptimzable (eg, AstNodeIf)
-    virtual bool isGateDedupable() const { return isGateOptimizable(); }
+    आभास bool isGateDedupable() ध्रुव { प्रत्यागम isGateOptimizable(); }
     // Whether the node can be used in expression coverage
-    virtual bool isExprCoverageEligible() const { return isGateDedupable(); }
+    आभास bool is_अभिव्यक्ती_Coverage_Eligible() ध्रुव { प्रत्यागम isGateDedupable(); }
     // Else creates output or exits, etc, not unconsumed
-    virtual bool isOutputter() { return false; }
+    आभास bool isOutputter() { प्रत्यागम false; }
     // Else a AstTime etc which output can't be predicted from input
-    virtual bool isPredictOptimizable() const { return !isTimingControl(); }
+    आभास bool isPredictOptimizable() ध्रुव { प्रत्यागम !isTimingControl(); }
     // Else a $display, etc, that must be ordered with other displays
-    virtual bool isPure() { return true; }
+    आभास bool isPure() { प्रत्यागम true; }
     // Iff isPure on current node and any nextp()
-    bool isPureAndNext() { return isPure() && (!nextp() || nextp()->isPure()); }
+    bool isPureAndNext() { प्रत्यागम isPure() && (!nextp() || nextp()->isPure()); }
     // An event control, delay, wait, etc.
-    virtual bool isTimingControl() const { return false; }
+    आभास bool isTimingControl() ध्रुव { प्रत्यागम false; }
     // isUnlikely handles $stop or similar statement which means an above IF
     // statement is unlikely to be taken
-    virtual bool isUnlikely() const { return false; }
+    आभास bool isUnlikely() ध्रुव { प्रत्यागम false; }
     // Is an IEEE system function (versus internally-generated)
-    virtual bool isSystemFunc() const { return false; }
-    virtual int instrCount() const { return 0; }
+    आभास bool isSystemFunc() ध्रुव { प्रत्यागम false; }
+    आभास पूर्णाङ्क instr_मोजणी() ध्रुव { प्रत्यागम 0; }
     // Iff node is identical to another node
-    virtual bool isSame(const AstNode* samep) const {
-        return type() == samep->type() && sameNode(samep);
+    आभास bool isSame(ध्रुव Ast_गाठ* samep) ध्रुव {
+        प्रत्यागम type() == samep->type() && same_गाठ(samep);
     }
     // Iff has a data type; dtype() must be non-null
-    virtual bool hasDType() const VL_MT_SAFE { return false; }
+    आभास bool hasDType() ध्रुव VL_MT_SAFE { प्रत्यागम false; }
     // Iff has a non-null childDTypep(), as generic node function
-    virtual AstNodeDType* getChildDTypep() const { return nullptr; }
+    आभास Ast_गाठ_DType* getChildDTypep() ध्रुव { प्रत्यागम nullptr; }
     // Iff has a non-null child2DTypep(), as generic node function
-    virtual AstNodeDType* getChild2DTypep() const { return nullptr; }
+    आभास Ast_गाठ_DType* getChild2DTypep() ध्रुव { प्रत्यागम nullptr; }
     // Another AstNode* may have a pointer into this node, other then normal front/back/etc.
-    virtual bool maybePointedTo() const VL_MT_SAFE { return false; }
+    आभास bool maybePointedTo() ध्रुव VL_MT_SAFE { प्रत्यागम false; }
     // Don't reclaim this node in V3Dead
-    virtual bool undead() const { return false; }
+    आभास bool undead() ध्रुव { प्रत्यागम false; }
     // Check if node is consistent, return nullptr if ok, else reason string
-    virtual const char* broken() const { return nullptr; }
+    आभास ध्रुव वर्ण* broken() ध्रुव { प्रत्यागम nullptr; }
     // Generated by 'astgen'. Calls 'broken()', which can be used to add extra checks
-    virtual const char* brokenGen() const = 0;  // Generated by 'astgen'
+    आभास ध्रुव वर्ण* brokenGen() ध्रुव = 0;  // Generated by 'astgen'
     // If do a this->replaceNode(newp), would cause a broken()
-    bool wouldBreak(const AstNode* const newp) const { return backp()->wouldBreakGen(this, newp); }
+    bool wouldBreak(ध्रुव Ast_गाठ* ध्रुव newp) ध्रुव { प्रत्यागम backp()->wouldBreakGen(this, newp); }
 
     // INVOKERS
-    virtual void accept(VNVisitorConst& v) = 0;
+    आभास शून्य accept(VNVisitorConst& v) = 0;
 
-protected:
+रक्षित:
     // All VNVisitor related functions are called as methods off the visitor
     friend class VNVisitor;
     friend class VNVisitorConst;
     // Use instead VNVisitor::iterateChildren
-    void iterateChildren(VNVisitor& v);
+    शून्य iterateChildren(VNVisitor& v);
     // Use instead VNVisitor::iterateChildrenBackwardsConst
-    void iterateChildrenBackwardsConst(VNVisitorConst& v);
+    शून्य iterateChildrenBackwardsConst(VNVisitorConst& v);
     // Use instead VNVisitor::iterateChildrenConst
-    void iterateChildrenConst(VNVisitorConst& v);
+    शून्य iterateChildrenConst(VNVisitorConst& v);
     // Use instead VNVisitor::iterateAndNextNull
-    void iterateAndNext(VNVisitor& v);
+    शून्य iterateAndNext(VNVisitor& v);
     // Use instead VNVisitor::iterateAndNextConstNull
-    void iterateAndNextConst(VNVisitorConst& v);
+    शून्य iterateAndNextConst(VNVisitorConst& v);
     // Use instead VNVisitor::iterateSubtreeReturnEdits
-    AstNode* iterateSubtreeReturnEdits(VNVisitor& v);
+    Ast_गाठ* iterateSubtreeReturnEdits(VNVisitor& v);
 
-    static void dumpJsonNum(std::ostream& os, const std::string& name, int64_t val);
-    static void dumpJsonBoolIf(std::ostream& os, const std::string& name, bool val);
-    static void dumpJsonStr(std::ostream& os, const std::string& name, const std::string& val);
-    static void dumpJsonPtr(std::ostream& os, const std::string& name, const AstNode* const valp);
+    स्थिर शून्य dump_Json_अंक(std::ostream& os, ध्रुव std::string& name, int64_t val);
+    स्थिर शून्य dumpJsonBoolIf(std::ostream& os, ध्रुव std::string& name, bool val);
+    स्थिर शून्य dumpJsonStr(std::ostream& os, ध्रुव std::string& name, ध्रुव std::string& val);
+    स्थिर शून्य dumpJsonPtr(std::ostream& os, ध्रुव std::string& name, ध्रुव Ast_गाठ* ध्रुव valp);
 
-protected:
-    void iterateListBackwardsConst(VNVisitorConst& v);
+रक्षित:
+    शून्य iterateListBackwardsConst(VNVisitorConst& v);
 
     // For internal use only.
     // Note: specializations for particular node types are provided by 'astgen'
     template <typename T>
-    inline static bool privateTypeTest(const AstNode* nodep);
+    अन्तःस्थ स्थिर bool privateTypeTest(ध्रुव Ast_गाठ* nodep);
 
     // For internal use only.
     template <typename T_TargetType, typename T_DeclType>
-    constexpr static bool uselessCast() VL_PURE {  // LCOV_EXCL_START
+    constexpr स्थिर bool uselessCast() VL_PURE {  // LCOV_EXCL_START
         using NonRef = typename std::remove_reference<T_DeclType>::type;
         using NonPtr = typename std::remove_pointer<NonRef>::type;
         using NonCV = typename std::remove_cv<NonPtr>::type;
-        return std::is_base_of<T_TargetType, NonCV>::value;
+        प्रत्यागम std::is_base_of<T_TargetType, NonCV>::मूल्य;
     }  // LCOV_EXCL_STOP
 
     // For internal use only.
     template <typename T_TargetType, typename T_DeclType>
-    constexpr static bool impossibleCast() VL_PURE {  // LCOV_EXCL_START
+    constexpr स्थिर bool impossibleCast() VL_PURE {  // LCOV_EXCL_START
         using NonRef = typename std::remove_reference<T_DeclType>::type;
         using NonPtr = typename std::remove_pointer<NonRef>::type;
         using NonCV = typename std::remove_cv<NonPtr>::type;
-        return !std::is_base_of<NonCV, T_TargetType>::value;
+        प्रत्यागम !std::is_base_of<NonCV, T_TargetType>::मूल्य;
     }  // LCOV_EXCL_STOP
 
-public:
+सार्वजनिक:
     // For use via the VN_IS macro only, or in templated code
-    template <typename T_TargetType, typename T_Node>
-    static bool is(const T_Node* nodep) VL_MT_SAFE {
-        static_assert(std::is_base_of<AstNode, T_Node>::value, "VN_IS called on non-AstNode");
-        static_assert(!uselessCast<T_TargetType, T_Node>(),
+    template <typename T_TargetType, typename T_गाठ>
+    स्थिर bool is(ध्रुव T_गाठ* nodep) VL_MT_SAFE {
+        static_assert(std::is_base_of<Ast_गाठ, T_गाठ>::मूल्य, "VN_IS called on non-AstNode");
+        static_assert(!uselessCast<T_TargetType, T_गाठ>(),
                       "Unnecessary VN_IS, node known to have target type.");
-        static_assert(!impossibleCast<T_TargetType, T_Node>(),
+        static_assert(!impossibleCast<T_TargetType, T_गाठ>(),
                       "Unnecessary VN_IS, node cannot be this type.");
-        return nodep && privateTypeTest<T_TargetType>(nodep);
+        प्रत्यागम nodep && privateTypeTest<T_TargetType>(nodep);
     }
 
     // For use via the VN_CAST macro only, or in templated code
-    template <typename T_TargetType, typename T_Node>
-    static T_TargetType* cast(T_Node* nodep) VL_MT_SAFE {
-        static_assert(std::is_base_of<AstNode, T_Node>::value, "VN_CAST called on non-AstNode");
-        static_assert(!uselessCast<T_TargetType, T_Node>(),
+    template <typename T_TargetType, typename T_गाठ>
+    स्थिर T_TargetType* cast(T_गाठ* nodep) VL_MT_SAFE {
+        static_assert(std::is_base_of<Ast_गाठ, T_गाठ>::मूल्य, "VN_CAST called on non-AstNode");
+        static_assert(!uselessCast<T_TargetType, T_गाठ>(),
                       "Unnecessary VN_CAST, node known to have target type.");
-        static_assert(!impossibleCast<T_TargetType, T_Node>(),
+        static_assert(!impossibleCast<T_TargetType, T_गाठ>(),
                       "Unnecessary VN_CAST, node cannot be this type.");
-        return nodep && privateTypeTest<T_TargetType>(nodep)
+        प्रत्यागम nodep && privateTypeTest<T_TargetType>(nodep)
                    ? reinterpret_cast<T_TargetType*>(nodep)
                    : nullptr;
     }
-    template <typename T_TargetType, typename T_Node>
-    static const T_TargetType* cast(const T_Node* nodep) VL_MT_SAFE {
-        static_assert(std::is_base_of<AstNode, T_Node>::value, "VN_CAST called on non-AstNode");
-        static_assert(!uselessCast<T_TargetType, T_Node>(),
+    template <typename T_TargetType, typename T_गाठ>
+    स्थिर ध्रुव T_TargetType* cast(ध्रुव T_गाठ* nodep) VL_MT_SAFE {
+        static_assert(std::is_base_of<Ast_गाठ, T_गाठ>::मूल्य, "VN_CAST called on non-AstNode");
+        static_assert(!uselessCast<T_TargetType, T_गाठ>(),
                       "Unnecessary VN_CAST, node known to have target type.");
-        static_assert(!impossibleCast<T_TargetType, T_Node>(),
+        static_assert(!impossibleCast<T_TargetType, T_गाठ>(),
                       "Unnecessary VN_CAST, node cannot be this type.");
-        return nodep && privateTypeTest<T_TargetType>(nodep)
-                   ? reinterpret_cast<const T_TargetType*>(nodep)
+        प्रत्यागम nodep && privateTypeTest<T_TargetType>(nodep)
+                   ? reinterpret_cast<ध्रुव T_TargetType*>(nodep)
                    : nullptr;
     }
 
     // For use via the VN_AS macro only, or in templated code
-    template <typename T_TargetType, typename T_Node>
-    static T_TargetType* as(T_Node* nodep) VL_PURE {
-        static_assert(std::is_base_of<AstNode, T_Node>::value, "VN_AS called on non-AstNode");
-        static_assert(!uselessCast<T_TargetType, T_Node>(),
+    template <typename T_TargetType, typename T_गाठ>
+    स्थिर T_TargetType* as(T_गाठ* nodep) VL_PURE {
+        static_assert(std::is_base_of<Ast_गाठ, T_गाठ>::मूल्य, "VN_AS called on non-AstNode");
+        static_assert(!uselessCast<T_TargetType, T_गाठ>(),
                       "Unnecessary VN_AS, node known to have target type.");
-        static_assert(!impossibleCast<T_TargetType, T_Node>(),
+        static_assert(!impossibleCast<T_TargetType, T_गाठ>(),
                       "Unnecessary VN_AS, node cannot be this type.");
         UASSERT_OBJ(!nodep || privateTypeTest<T_TargetType>(nodep), nodep,
                     "AstNode is not of expected type, but instead has type '" << nodep->typeName()
                                                                               << "'");
-        return unsafePrivateAs<T_TargetType, T_Node>(nodep);
+        प्रत्यागम unsafePrivateAs<T_TargetType, T_गाठ>(nodep);
     }
-    template <typename T_TargetType, typename T_Node>
-    static const T_TargetType* as(const T_Node* nodep) VL_PURE {
-        static_assert(std::is_base_of<AstNode, T_Node>::value, "VN_AS called on non-AstNode");
-        static_assert(!uselessCast<T_TargetType, T_Node>(),
+    template <typename T_TargetType, typename T_गाठ>
+    स्थिर ध्रुव T_TargetType* as(ध्रुव T_गाठ* nodep) VL_PURE {
+        static_assert(std::is_base_of<Ast_गाठ, T_गाठ>::मूल्य, "VN_AS called on non-AstNode");
+        static_assert(!uselessCast<T_TargetType, T_गाठ>(),
                       "Unnecessary VN_AS, node known to have target type.");
-        static_assert(!impossibleCast<T_TargetType, T_Node>(),
+        static_assert(!impossibleCast<T_TargetType, T_गाठ>(),
                       "Unnecessary VN_AS, node cannot be this type.");
         UASSERT_OBJ(!nodep || privateTypeTest<T_TargetType>(nodep), nodep,
                     "AstNode is not of expected type, but instead has type '" << nodep->typeName()
                                                                               << "'");
-        return unsafePrivateAs<T_TargetType, T_Node>(nodep);
+        प्रत्यागम unsafePrivateAs<T_TargetType, T_गाठ>(nodep);
     }
 
     // For use via privateAs or the VN_DBG_AS macro only
-    template <typename T_TargetType, typename T_Node>
-    static T_TargetType* unsafePrivateAs(T_Node* nodep) VL_PURE {
-        static_assert(std::is_base_of<AstNode, T_Node>::value, "VN_DBG_AS called on non-AstNode");
-        static_assert(!uselessCast<T_TargetType, T_Node>(),
+    template <typename T_TargetType, typename T_गाठ>
+    स्थिर T_TargetType* unsafePrivateAs(T_गाठ* nodep) VL_PURE {
+        static_assert(std::is_base_of<Ast_गाठ, T_गाठ>::मूल्य, "VN_DBG_AS called on non-AstNode");
+        static_assert(!uselessCast<T_TargetType, T_गाठ>(),
                       "Unnecessary VN_DBG_AS, node known to have target type.");
-        static_assert(!impossibleCast<T_TargetType, T_Node>(),
+        static_assert(!impossibleCast<T_TargetType, T_गाठ>(),
                       "Unnecessary VN_DBG_AS, node cannot be this type.");
-        return reinterpret_cast<T_TargetType*>(nodep);
+        प्रत्यागम reinterpret_cast<T_TargetType*>(nodep);
     }
-    template <typename T_TargetType, typename T_Node>
-    static const T_TargetType* unsafePrivateAs(const T_Node* nodep) VL_PURE {
-        static_assert(std::is_base_of<AstNode, T_Node>::value, "VN_DBG_AS called on non-AstNode");
-        static_assert(!uselessCast<T_TargetType, T_Node>(),
+    template <typename T_TargetType, typename T_गाठ>
+    स्थिर ध्रुव T_TargetType* unsafePrivateAs(ध्रुव T_गाठ* nodep) VL_PURE {
+        static_assert(std::is_base_of<Ast_गाठ, T_गाठ>::मूल्य, "VN_DBG_AS called on non-AstNode");
+        static_assert(!uselessCast<T_TargetType, T_गाठ>(),
                       "Unnecessary VN_DBG_AS, node known to have target type.");
-        static_assert(!impossibleCast<T_TargetType, T_Node>(),
+        static_assert(!impossibleCast<T_TargetType, T_गाठ>(),
                       "Unnecessary VN_DBG_AS, node cannot be this type.");
-        return reinterpret_cast<const T_TargetType*>(nodep);
+        प्रत्यागम reinterpret_cast<ध्रुव T_TargetType*>(nodep);
     }
 
     // Predicate that returns true if the given 'nodep' might have a descendant of type 'T_Node'.
     // This is conservative and is used to speed up traversals.
     // Note: specializations for particular node types are provided below
-    template <typename T_Node>
-    static bool mayBeUnder(const AstNode* nodep) {
-        static_assert(!std::is_const<T_Node>::value,
+    template <typename T_गाठ>
+    स्थिर bool mayBeUnder(ध्रुव Ast_गाठ* nodep) {
+        static_assert(!std::is_const<T_गाठ>::मूल्य,
                       "Type parameter 'T_Node' should not be const qualified");
-        static_assert(std::is_base_of<AstNode, T_Node>::value,
+        static_assert(std::is_base_of<Ast_गाठ, T_गाठ>::मूल्य,
                       "Type parameter 'T_Node' must be a subtype of AstNode");
-        return true;
+        प्रत्यागम true;
     }
 
     // Predicate that is true for node subtypes 'T_Node' that do not have any children
     // This is conservative and is used to speed up traversals.
     // Note: specializations for particular node types are provided below
-    template <typename T_Node>
-    static constexpr bool isLeaf() {
-        static_assert(!std::is_const<T_Node>::value,
+    template <typename T_गाठ>
+    स्थिर constexpr bool isLeaf() {
+        static_assert(!std::is_const<T_गाठ>::मूल्य,
                       "Type parameter 'T_Node' should not be const qualified");
-        static_assert(std::is_base_of<AstNode, T_Node>::value,
+        static_assert(std::is_base_of<Ast_गाठ, T_गाठ>::मूल्य,
                       "Type parameter 'T_Node' must be a subtype of AstNode");
-        return false;
+        प्रत्यागम false;
     }
 
-private:
+गुप्त:
     // Using std::conditional for const correctness in the public 'foreach' functions
     template <typename T_Arg>
-    using ConstCorrectAstNode =
-        typename std::conditional<std::is_const<T_Arg>::value, const AstNode, AstNode>::type;
+    using Const_Correct_Ast_गाठ =
+        typename std::conditional<std::is_const<T_Arg>::मूल्य, ध्रुव Ast_गाठ, Ast_गाठ>::type;
 
     template <typename T_Arg, typename T_Callable>
-    inline static void foreachImpl(ConstCorrectAstNode<T_Arg>* nodep, const T_Callable& f,
+    अन्तःस्थ स्थिर शून्य foreachImpl(Const_Correct_Ast_गाठ<T_Arg>* nodep, ध्रुव T_Callable& f,
                                    bool visitNext);
 
     template <typename T_Arg, bool N_Default, typename T_Callable>
-    inline static bool predicateImpl(ConstCorrectAstNode<T_Arg>* nodep, const T_Callable& p,
+    अन्तःस्थ स्थिर bool predicateImpl(Const_Correct_Ast_गाठ<T_Arg>* nodep, ध्रुव T_Callable& p,
                                      bool visitNext);
 
-public:
+सार्वजनिक:
     // Given a callable 'f' that takes a single argument of some AstNode subtype 'T_Node', traverse
     // the tree rooted at this node, and call 'f' in pre-order on each node that is of type
     // 'T_Node'. The node passed to the callable 'f' can be removed or replaced, but other editing
@@ -1247,45 +1247,45 @@ public:
     // dispatch to the callable in 'foreach' should be completely predictable by branch target
     // caches in modern CPUs, while it is basically unpredictable for VNVisitor.
     template <typename T_Callable>
-    void foreach(T_Callable&& f) {
-        using T_Node = typename FunctionArgNoPointerNoCV<T_Callable, 0>::type;
-        static_assert(vlstd::is_invocable<T_Callable, T_Node*>::value
-                          && std::is_base_of<AstNode, T_Node>::value,
+    शून्य foreach(T_Callable&& f) {
+        using T_गाठ = typename FunctionArgNoPointerNoCV<T_Callable, 0>::type;
+        static_assert(vlstd::is_invocable<T_Callable, T_गाठ*>::मूल्य
+                          && std::is_base_of<Ast_गाठ, T_गाठ>::मूल्य,
                       "T_Callable 'f' must have a signature compatible with 'void(T_Node*)', "
                       "with 'T_Node' being a subtype of 'AstNode'");
-        foreachImpl<T_Node>(this, f, /* visitNext: */ false);
+        foreachImpl<T_गाठ>(this, f, /* visitNext: */ false);
     }
     // Same as above, but for 'const' nodes
     template <typename T_Callable>
-    void foreach(T_Callable&& f) const {
-        using T_Node = typename FunctionArgNoPointerNoCV<T_Callable, 0>::type;
+    शून्य foreach(T_Callable&& f) ध्रुव {
+        using T_गाठ = typename FunctionArgNoPointerNoCV<T_Callable, 0>::type;
         static_assert(
-            vlstd::is_invocable<T_Callable, const T_Node*>::value
-                && std::is_base_of<AstNode, T_Node>::value,
+            vlstd::is_invocable<T_Callable, ध्रुव T_गाठ*>::मूल्य
+                && std::is_base_of<Ast_गाठ, T_गाठ>::मूल्य,
             "T_Callable 'f' must have a signature compatible with 'void(const T_Node*)', "
             "with 'T_Node' being a subtype of 'AstNode'");
-        foreachImpl<const T_Node>(this, f, /* visitNext: */ false);
+        foreachImpl<ध्रुव T_गाठ>(this, f, /* visitNext: */ false);
     }
     // Same as 'foreach' but also traverses 'this->nextp()' transitively
     template <typename T_Callable>
-    void foreachAndNext(T_Callable&& f) {
-        using T_Node = typename FunctionArgNoPointerNoCV<T_Callable, 0>::type;
-        static_assert(vlstd::is_invocable<T_Callable, T_Node*>::value
-                          && std::is_base_of<AstNode, T_Node>::value,
+    शून्य foreachAndNext(T_Callable&& f) {
+        using T_गाठ = typename FunctionArgNoPointerNoCV<T_Callable, 0>::type;
+        static_assert(vlstd::is_invocable<T_Callable, T_गाठ*>::मूल्य
+                          && std::is_base_of<Ast_गाठ, T_गाठ>::मूल्य,
                       "T_Callable 'f' must have a signature compatible with 'void(T_Node*)', "
                       "with 'T_Node' being a subtype of 'AstNode'");
-        foreachImpl<T_Node>(this, f, /* visitNext: */ true);
+        foreachImpl<T_गाठ>(this, f, /* visitNext: */ true);
     }
     // Same as above, but for 'const' nodes
     template <typename T_Callable>
-    void foreachAndNext(T_Callable&& f) const {
-        using T_Node = typename FunctionArgNoPointerNoCV<T_Callable, 0>::type;
+    शून्य foreachAndNext(T_Callable&& f) ध्रुव {
+        using T_गाठ = typename FunctionArgNoPointerNoCV<T_Callable, 0>::type;
         static_assert(
-            vlstd::is_invocable<T_Callable, const T_Node*>::value
-                && std::is_base_of<AstNode, T_Node>::value,
+            vlstd::is_invocable<T_Callable, ध्रुव T_गाठ*>::मूल्य
+                && std::is_base_of<Ast_गाठ, T_गाठ>::मूल्य,
             "T_Callable 'f' must have a signature compatible with 'void(const T_Node*)', "
             "with 'T_Node' being a subtype of 'AstNode'");
-        foreachImpl<const T_Node>(this, f, /* visitNext: */ true);
+        foreachImpl<ध्रुव T_गाठ>(this, f, /* visitNext: */ true);
     }
 
     // Given a predicate 'p' that takes a single argument of some AstNode subtype 'T_Node', return
@@ -1295,43 +1295,43 @@ public:
     // be determined.
     template <typename T_Callable>
     bool exists(T_Callable&& p) {
-        using T_Node = typename FunctionArgNoPointerNoCV<T_Callable, 0>::type;
-        static_assert(vlstd::is_invocable_r<bool, T_Callable, T_Node*>::value
-                          && std::is_base_of<AstNode, T_Node>::value,
+        using T_गाठ = typename FunctionArgNoPointerNoCV<T_Callable, 0>::type;
+        static_assert(vlstd::is_invocable_r<bool, T_Callable, T_गाठ*>::मूल्य
+                          && std::is_base_of<Ast_गाठ, T_गाठ>::मूल्य,
                       "Predicate 'p' must have a signature compatible with 'bool(T_Node*)', "
                       "with 'T_Node' being a subtype of 'AstNode'");
-        return predicateImpl<T_Node, /* N_Default: */ false>(this, p, /* visitNext: */ false);
+        प्रत्यागम predicateImpl<T_गाठ, /* N_Default: */ false>(this, p, /* visitNext: */ false);
     }
     // Same as above, but for 'const' nodes
     template <typename T_Callable>
-    bool exists(T_Callable&& p) const {
-        using T_Node = typename FunctionArgNoPointerNoCV<T_Callable, 0>::type;
-        static_assert(vlstd::is_invocable_r<bool, T_Callable, const T_Node*>::value
-                          && std::is_base_of<AstNode, T_Node>::value,
+    bool exists(T_Callable&& p) ध्रुव {
+        using T_गाठ = typename FunctionArgNoPointerNoCV<T_Callable, 0>::type;
+        static_assert(vlstd::is_invocable_r<bool, T_Callable, ध्रुव T_गाठ*>::मूल्य
+                          && std::is_base_of<Ast_गाठ, T_गाठ>::मूल्य,
                       "Predicate 'p' must have a signature compatible with 'bool(const T_Node*)', "
                       "with 'T_Node' being a subtype of 'AstNode'");
-        return predicateImpl<const T_Node, /* N_Default: */ false>(this, p,
+        प्रत्यागम predicateImpl<ध्रुव T_गाठ, /* N_Default: */ false>(this, p,
                                                                    /* visitNext: */ false);
     }
     // Same as 'exists' but also traverses 'this->nextp()' transitively
     template <typename T_Callable>
     bool existsAndNext(T_Callable&& p) {
-        using T_Node = typename FunctionArgNoPointerNoCV<T_Callable, 0>::type;
-        static_assert(vlstd::is_invocable_r<bool, T_Callable, const T_Node*>::value
-                          && std::is_base_of<AstNode, T_Node>::value,
+        using T_गाठ = typename FunctionArgNoPointerNoCV<T_Callable, 0>::type;
+        static_assert(vlstd::is_invocable_r<bool, T_Callable, ध्रुव T_गाठ*>::मूल्य
+                          && std::is_base_of<Ast_गाठ, T_गाठ>::मूल्य,
                       "Predicate 'p' must have a signature compatible with 'bool(const T_Node*)', "
                       "with 'T_Node' being a subtype of 'AstNode'");
-        return predicateImpl<T_Node, /* N_Default: */ false>(this, p, /* visitNext: */ true);
+        प्रत्यागम predicateImpl<T_गाठ, /* N_Default: */ false>(this, p, /* visitNext: */ true);
     }
     // Same as above, but for 'const' nodes
     template <typename T_Callable>
-    bool existsAndNext(T_Callable&& p) const {
-        using T_Node = typename FunctionArgNoPointerNoCV<T_Callable, 0>::type;
-        static_assert(vlstd::is_invocable_r<bool, T_Callable, const T_Node*>::value
-                          && std::is_base_of<AstNode, T_Node>::value,
+    bool existsAndNext(T_Callable&& p) ध्रुव {
+        using T_गाठ = typename FunctionArgNoPointerNoCV<T_Callable, 0>::type;
+        static_assert(vlstd::is_invocable_r<bool, T_Callable, ध्रुव T_गाठ*>::मूल्य
+                          && std::is_base_of<Ast_गाठ, T_गाठ>::मूल्य,
                       "Predicate 'p' must have a signature compatible with 'bool(const T_Node*)', "
                       "with 'T_Node' being a subtype of 'AstNode'");
-        return predicateImpl<const T_Node, /* N_Default: */ false>(this, p, /* visitNext: */ true);
+        प्रत्यागम predicateImpl<ध्रुव T_गाठ, /* N_Default: */ false>(this, p, /* visitNext: */ true);
     }
 
     // Given a predicate 'p' that takes a single argument of some AstNode subtype 'T_Node', return
@@ -1340,104 +1340,104 @@ public:
     // in some arbitrary order and is terminated as soon as the result can be determined.
     template <typename T_Callable>
     bool forall(T_Callable&& p) {
-        using T_Node = typename FunctionArgNoPointerNoCV<T_Callable, 0>::type;
-        static_assert(vlstd::is_invocable_r<bool, T_Callable, T_Node*>::value
-                          && std::is_base_of<AstNode, T_Node>::value,
+        using T_गाठ = typename FunctionArgNoPointerNoCV<T_Callable, 0>::type;
+        static_assert(vlstd::is_invocable_r<bool, T_Callable, T_गाठ*>::मूल्य
+                          && std::is_base_of<Ast_गाठ, T_गाठ>::मूल्य,
                       "Predicate 'p' must have a signature compatible with 'bool(T_Node*)', "
                       "with 'T_Node' being a subtype of 'AstNode'");
-        return predicateImpl<T_Node, /* N_Default: */ true>(this, p, /* visitNext: */ false);
+        प्रत्यागम predicateImpl<T_गाठ, /* N_Default: */ true>(this, p, /* visitNext: */ false);
     }
     // Same as above, but for 'const' nodes
     template <typename T_Callable>
-    bool forall(T_Callable&& p) const {
-        using T_Node = typename FunctionArgNoPointerNoCV<T_Callable, 0>::type;
-        static_assert(vlstd::is_invocable_r<bool, T_Callable, const T_Node*>::value
-                          && std::is_base_of<AstNode, T_Node>::value,
+    bool forall(T_Callable&& p) ध्रुव {
+        using T_गाठ = typename FunctionArgNoPointerNoCV<T_Callable, 0>::type;
+        static_assert(vlstd::is_invocable_r<bool, T_Callable, ध्रुव T_गाठ*>::मूल्य
+                          && std::is_base_of<Ast_गाठ, T_गाठ>::मूल्य,
                       "Predicate 'p' must have a signature compatible with 'bool(const T_Node*)', "
                       "with 'T_Node' being a subtype of 'AstNode'");
-        return predicateImpl<const T_Node, /* N_Default: */ true>(this, p, /* visitNext: */ false);
+        प्रत्यागम predicateImpl<ध्रुव T_गाठ, /* N_Default: */ true>(this, p, /* visitNext: */ false);
     }
 
-    int nodeCount() const {
+    पूर्णाङ्क गाठ_मोजणी() ध्रुव {
         // TODO: this should really return size_t, but need to fix use sites
-        int count = 0;
-        this->foreach([&count](const AstNode*) { ++count; });
-        return count;
+        पूर्णाङ्क मोजणी = 0;
+        this->foreach([&मोजणी](ध्रुव Ast_गाठ*) { ++मोजणी; });
+        प्रत्यागम मोजणी;
     }
 
     // Return true if and only if the tree rooted at this node has more than 'limit' nodes.
     // Traversal terminates as soon as the result is known, so unlike comparing 'nodeCount',
     // this is cheap on a large tree.
-    bool isLargerThan(int limit) const {
-        int count = 0;
-        return this->exists([&count, limit](const AstNode*) { return ++count > limit; });
+    bool isLargerThan(पूर्णाङ्क limit) ध्रुव {
+        पूर्णाङ्क मोजणी = 0;
+        प्रत्यागम this->exists([&मोजणी, limit](ध्रुव Ast_गाठ*) { प्रत्यागम ++मोजणी > limit; });
     }
 };
 
 // Forward declarations of specializations defined in V3Ast.cpp
 template <>
-AstNode* AstNode::addNext<AstNode, AstNode>(AstNode* nodep, AstNode* newp);
+Ast_गाठ* Ast_गाठ::addNext<Ast_गाठ, Ast_गाठ>(Ast_गाठ* nodep, Ast_गाठ* newp);
 
 // Inline method implementations
-AstNode* AstNode::addNext(AstNode* newp) { return addNext(this, newp); }
+Ast_गाठ* Ast_गाठ::addNext(Ast_गाठ* newp) { प्रत्यागम addNext(this, newp); }
 
 // Specializations of privateTypeTest
-#include "V3Ast__gen_type_tests.h"  // From ./astgen
+#अन्तर्भाव "V3Ast__gen_type_tests.h"  // From ./astgen
 
 // Specializations of AstNode::mayBeUnder
 template <>
-inline bool AstNode::mayBeUnder<AstCell>(const AstNode* nodep) {
-    return !VN_IS(nodep, NodeStmt) && !VN_IS(nodep, NodeExpr);
+अन्तःस्थ bool Ast_गाठ::mayBeUnder<AstCell>(ध्रुव Ast_गाठ* nodep) {
+    प्रत्यागम !VN_IS(nodep, गाठ_Stmt) && !VN_IS(nodep, गाठ_अभिव्यक्ती);
 }
 template <>
-inline bool AstNode::mayBeUnder<AstNodeAssign>(const AstNode* nodep) {
-    return !VN_IS(nodep, NodeExpr);
+अन्तःस्थ bool Ast_गाठ::mayBeUnder<Ast_गाठ_Assign>(ध्रुव Ast_गाठ* nodep) {
+    प्रत्यागम !VN_IS(nodep, गाठ_अभिव्यक्ती);
 }
 template <>
-inline bool AstNode::mayBeUnder<AstVarScope>(const AstNode* nodep) {
-    if (VN_IS(nodep, VarScope)) return false;  // Should not nest
-    if (VN_IS(nodep, Var)) return false;
-    if (VN_IS(nodep, Active)) return false;
-    if (VN_IS(nodep, NodeStmt)) return false;
-    if (VN_IS(nodep, NodeExpr)) return false;
-    return true;
+अन्तःस्थ bool Ast_गाठ::mayBeUnder<AstVarScope>(ध्रुव Ast_गाठ* nodep) {
+    यदि (VN_IS(nodep, VarScope)) प्रत्यागम false;  // Should not nest
+    यदि (VN_IS(nodep, Var)) प्रत्यागम false;
+    यदि (VN_IS(nodep, Active)) प्रत्यागम false;
+    यदि (VN_IS(nodep, गाठ_Stmt)) प्रत्यागम false;
+    यदि (VN_IS(nodep, गाठ_अभिव्यक्ती)) प्रत्यागम false;
+    प्रत्यागम true;
 }
 template <>
-inline bool AstNode::mayBeUnder<AstExecGraph>(const AstNode* nodep) {
-    if (VN_IS(nodep, ExecGraph)) return false;  // Should not nest
-    if (VN_IS(nodep, NodeStmt)) return false;  // Should be directly under CFunc
-    return true;
+अन्तःस्थ bool Ast_गाठ::mayBeUnder<AstExecGraph>(ध्रुव Ast_गाठ* nodep) {
+    यदि (VN_IS(nodep, ExecGraph)) प्रत्यागम false;  // Should not nest
+    यदि (VN_IS(nodep, गाठ_Stmt)) प्रत्यागम false;  // Should be directly under CFunc
+    प्रत्यागम true;
 }
 template <>
-inline bool AstNode::mayBeUnder<AstActive>(const AstNode* nodep) {
-    return !VN_IS(nodep, Active);  // AstActives do not nest
+अन्तःस्थ bool Ast_गाठ::mayBeUnder<AstActive>(ध्रुव Ast_गाठ* nodep) {
+    प्रत्यागम !VN_IS(nodep, Active);  // AstActives do not nest
 }
 template <>
-inline bool AstNode::mayBeUnder<AstScope>(const AstNode* nodep) {
-    return !VN_IS(nodep, Scope);  // AstScopes do not nest
+अन्तःस्थ bool Ast_गाठ::mayBeUnder<AstScope>(ध्रुव Ast_गाठ* nodep) {
+    प्रत्यागम !VN_IS(nodep, Scope);  // AstScopes do not nest
 }
 template <>
-inline bool AstNode::mayBeUnder<AstSenTree>(const AstNode* nodep) {
-    return !VN_IS(nodep, SenTree);  // AstSenTree do not nest
+अन्तःस्थ bool Ast_गाठ::mayBeUnder<Ast_Sen_वृक्ष>(ध्रुव Ast_गाठ* nodep) {
+    प्रत्यागम !VN_IS(nodep, Sen_वृक्ष);  // AstSenTree do not nest
 }
 
 // Specializations of AstNode::isLeaf
 template <>
-constexpr bool AstNode::isLeaf<AstNodeVarRef>() {
-    return true;
+constexpr bool Ast_गाठ::isLeaf<Ast_गाठ_Var_Ref>() {
+    प्रत्यागम true;
 }
 template <>
-constexpr bool AstNode::isLeaf<AstVarRef>() {
-    return true;
+constexpr bool Ast_गाठ::isLeaf<AstVarRef>() {
+    प्रत्यागम true;
 }
 template <>
-constexpr bool AstNode::isLeaf<AstVarXRef>() {
-    return true;
+constexpr bool Ast_गाठ::isLeaf<AstVarXRef>() {
+    प्रत्यागम true;
 }
 
 // foreach implementation
 template <typename T_Arg, typename T_Callable>
-void AstNode::foreachImpl(ConstCorrectAstNode<T_Arg>* nodep, const T_Callable& f, bool visitNext) {
+शून्य Ast_गाठ::foreachImpl(Const_Correct_Ast_गाठ<T_Arg>* nodep, ध्रुव T_Callable& f, bool visitNext) {
     // Pre-order traversal implemented directly (without recursion) for speed reasons. The very
     // first iteration (the one that operates on the input nodep) is special, as we might or
     // might not need to enqueue nodep->nextp() depending on VisitNext, while in all other
@@ -1445,78 +1445,78 @@ void AstNode::foreachImpl(ConstCorrectAstNode<T_Arg>* nodep, const T_Callable& f
     // 'foreachImplVisit') for the initial iteration here to avoid an extra branch in the loop
 
     using T_Arg_NonConst = typename std::remove_const<T_Arg>::type;
-    using Node = ConstCorrectAstNode<T_Arg>;
+    using गाठ_2 = Const_Correct_Ast_गाठ<T_Arg>;
 
     // We prefetch this far into the stack
-    constexpr int PrefetchDistance = 2;
+    constexpr पूर्णाङ्क PrefetchDistance = 2;
     // We push max 5 items per iteration
     constexpr size_t MaxPushesPerIteration = 5;
     // Initial stack sie
-    constexpr size_t InitialStackSize = 32;
+    constexpr size_t Initial_चळत_Size = 32;
 
     // Traversal stack. Because we often iterate over small trees, use an in-line initial stack
-    size_t stackSize = InitialStackSize;
-    Node* inLineStack[InitialStackSize];  // In-line initial stack storage
-    std::unique_ptr<Node*[]> outOfLineStackp{nullptr};  // In case we need more, we will allocate
-    Node** basep = inLineStack + PrefetchDistance;  // Pointer to base of stack
-    Node** topp = basep;  // Pointer to top of stack
-    Node** limp = inLineStack + stackSize - MaxPushesPerIteration;  // Pointer to grow limit
+    size_t चळत_Size = Initial_चळत_Size;
+    गाठ_2* in_ओळ_चळत[Initial_चळत_Size];  // In-line initial stack storage
+    std::unique_ptr<गाठ_2*[]> out_Of_ओळ_Stackp{nullptr};  // In case we need more, we will allocate
+    गाठ_2** basep = in_ओळ_चळत + PrefetchDistance;  // Pointer to base of stack
+    गाठ_2** topp = basep;  // Pointer to top of stack
+    गाठ_2** limp = in_ओळ_चळत + चळत_Size - MaxPushesPerIteration;  // Pointer to grow limit
 
     // We want some non-null pointers at the beginning. These will be prefetched, but not
     // visited, so the root node will suffice. This eliminates needing branches in the loop.
-    for (int i = -PrefetchDistance; i; ++i) basep[i] = nodep;
+    प्रति (पूर्णाङ्क i = -PrefetchDistance; i; ++i) basep[i] = nodep;
 
     // Visit given node, enqueue children for traversal
-    const auto visit = [&](Node* currp) {
+    ध्रुव auto visit = [&](गाठ_2* currp) {
         // Type test this node
-        if (AstNode::privateTypeTest<T_Arg_NonConst>(currp)) {
+        यदि (Ast_गाठ::privateTypeTest<T_Arg_NonConst>(currp)) {
             // Call the client function
             f(static_cast<T_Arg*>(currp));
             // Short circuit if iterating leaf nodes
-            if VL_CONSTEXPR_CXX17 (isLeaf<T_Arg_NonConst>()) return;
+            यदि VL_CONSTEXPR_CXX17 (isLeaf<T_Arg_NonConst>()) प्रत्यागम;
         }
 
         // Enqueue children for traversal, unless futile
-        if (mayBeUnder<T_Arg_NonConst>(currp)) {
-            if (AstNode* const op4p = currp->op4p()) *topp++ = op4p;
-            if (AstNode* const op3p = currp->op3p()) *topp++ = op3p;
-            if (AstNode* const op2p = currp->op2p()) *topp++ = op2p;
-            if (AstNode* const op1p = currp->op1p()) *topp++ = op1p;
+        यदि (mayBeUnder<T_Arg_NonConst>(currp)) {
+            यदि (Ast_गाठ* ध्रुव op4p = currp->op4p()) *topp++ = op4p;
+            यदि (Ast_गाठ* ध्रुव op3p = currp->op3p()) *topp++ = op3p;
+            यदि (Ast_गाठ* ध्रुव op2p = currp->op2p()) *topp++ = op2p;
+            यदि (Ast_गाठ* ध्रुव op1p = currp->op1p()) *topp++ = op1p;
         }
     };
 
     // Enqueue the next of the root node, if required
-    if (visitNext && nodep->nextp()) *topp++ = nodep->nextp();
+    यदि (visitNext && nodep->nextp()) *topp++ = nodep->nextp();
 
     // Visit the root node
     visit(nodep);
 
     // Visit the rest of the tree
-    while (VL_LIKELY(topp > basep)) {
+    यावत् (VL_LIKELY(topp > basep)) {
         // Pop next node in the traversal
-        Node* const headp = *--topp;
+        गाठ_2* ध्रुव headp = *--topp;
 
         // Prefetch in case we are ascending the tree
         ASTNODE_PREFETCH_NON_NULL(topp[-PrefetchDistance]);
 
         // Ensure we have stack space for nextp and the 4 children
-        if (VL_UNLIKELY(topp >= limp)) {
-            const ptrdiff_t occupancy = topp - basep;
+        यदि (VL_UNLIKELY(topp >= limp)) {
+            ध्रुव ptrdiff_t occupancy = topp - basep;
             {
-                const size_t newStackSize = stackSize * 2;
-                Node** const newStackp = new Node*[newStackSize];
+                ध्रुव size_t new_चळत_Size = चळत_Size * 2;
+                गाठ_2** ध्रुव newStackp = new गाठ_2*[new_चळत_Size];
                 std::memcpy(newStackp, basep - PrefetchDistance,
-                            sizeof(Node**) * (occupancy + PrefetchDistance));
-                stackSize = newStackSize;
-                outOfLineStackp.reset(newStackp);
+                            परिमाण(गाठ_2**) * (occupancy + PrefetchDistance));
+                चळत_Size = new_चळत_Size;
+                out_Of_ओळ_Stackp.reset(newStackp);
             }
-            basep = outOfLineStackp.get() + PrefetchDistance;
+            basep = out_Of_ओळ_Stackp.get() + PrefetchDistance;
             topp = basep + occupancy;
-            limp = outOfLineStackp.get() + stackSize - MaxPushesPerIteration;
+            limp = out_Of_ओळ_Stackp.get() + चळत_Size - MaxPushesPerIteration;
         }
 
         // Enqueue the next node
-        if (headp->nextp()) *topp++ = headp->nextp();
+        यदि (headp->nextp()) *topp++ = headp->nextp();
 
         // Visit the head node
         visit(headp);
@@ -1525,123 +1525,123 @@ void AstNode::foreachImpl(ConstCorrectAstNode<T_Arg>* nodep, const T_Callable& f
 
 // predicate implementation
 template <typename T_Arg, bool N_Default, typename T_Callable>
-bool AstNode::predicateImpl(ConstCorrectAstNode<T_Arg>* nodep, const T_Callable& p,
+bool Ast_गाठ::predicateImpl(Const_Correct_Ast_गाठ<T_Arg>* nodep, ध्रुव T_Callable& p,
                             bool visitNext) {
     // Implementation similar to foreach, but abort traversal as soon as result is determined
     using T_Arg_NonConst = typename std::remove_const<T_Arg>::type;
-    using Node = ConstCorrectAstNode<T_Arg>;
+    using गाठ_2 = Const_Correct_Ast_गाठ<T_Arg>;
 
     // We prefetch this far into the stack
-    constexpr int PrefetchDistance = 2;
+    constexpr पूर्णाङ्क PrefetchDistance = 2;
     // We push max 5 items per iteration
     constexpr size_t MaxPushesPerIteration = 5;
     // Initial stack sie
-    constexpr size_t InitialStackSize = 32;
+    constexpr size_t Initial_चळत_Size = 32;
 
     // Traversal stack. Because we often iterate over small trees, use an in-line initial stack
-    size_t stackSize = InitialStackSize;
-    Node* inLineStack[InitialStackSize];  // In-line initial stack storage
-    std::unique_ptr<Node*[]> outOfLineStackp{nullptr};  // In case we need more, we will allocate
-    Node** basep = inLineStack + PrefetchDistance;  // Pointer to base of stack
-    Node** topp = basep;  // Pointer to top of stack
-    Node** limp = inLineStack + stackSize - MaxPushesPerIteration;  // Pointer to grow limit
+    size_t चळत_Size = Initial_चळत_Size;
+    गाठ_2* in_ओळ_चळत[Initial_चळत_Size];  // In-line initial stack storage
+    std::unique_ptr<गाठ_2*[]> out_Of_ओळ_Stackp{nullptr};  // In case we need more, we will allocate
+    गाठ_2** basep = in_ओळ_चळत + PrefetchDistance;  // Pointer to base of stack
+    गाठ_2** topp = basep;  // Pointer to top of stack
+    गाठ_2** limp = in_ओळ_चळत + चळत_Size - MaxPushesPerIteration;  // Pointer to grow limit
 
     // We want some non-null pointers at the beginning. These will be prefetched, but not
     // visited, so the root node will suffice. This eliminates needing branches in the loop.
-    for (int i = -PrefetchDistance; i; ++i) basep[i] = nodep;
+    प्रति (पूर्णाङ्क i = -PrefetchDistance; i; ++i) basep[i] = nodep;
 
     // Visit given node, enqueue children for traversal, return true if result determined.
-    const auto visit = [&](Node* currp) {
+    ध्रुव auto visit = [&](गाठ_2* currp) {
         // Type test this node
-        if (AstNode::privateTypeTest<T_Arg_NonConst>(currp)) {
+        यदि (Ast_गाठ::privateTypeTest<T_Arg_NonConst>(currp)) {
             // Call the client function
-            if (p(static_cast<T_Arg*>(currp)) != N_Default) return true;
+            यदि (p(static_cast<T_Arg*>(currp)) != N_Default) प्रत्यागम true;
             // Short circuit if iterating leaf nodes
-            if VL_CONSTEXPR_CXX17 (isLeaf<T_Arg_NonConst>()) return false;
+            यदि VL_CONSTEXPR_CXX17 (isLeaf<T_Arg_NonConst>()) प्रत्यागम false;
         }
 
         // Enqueue children for traversal, unless futile
-        if (mayBeUnder<T_Arg_NonConst>(currp)) {
-            if (AstNode* const op4p = currp->op4p()) *topp++ = op4p;
-            if (AstNode* const op3p = currp->op3p()) *topp++ = op3p;
-            if (AstNode* const op2p = currp->op2p()) *topp++ = op2p;
-            if (AstNode* const op1p = currp->op1p()) *topp++ = op1p;
+        यदि (mayBeUnder<T_Arg_NonConst>(currp)) {
+            यदि (Ast_गाठ* ध्रुव op4p = currp->op4p()) *topp++ = op4p;
+            यदि (Ast_गाठ* ध्रुव op3p = currp->op3p()) *topp++ = op3p;
+            यदि (Ast_गाठ* ध्रुव op2p = currp->op2p()) *topp++ = op2p;
+            यदि (Ast_गाठ* ध्रुव op1p = currp->op1p()) *topp++ = op1p;
         }
 
-        return false;
+        प्रत्यागम false;
     };
 
     // Enqueue the next of the root node, if required
-    if (visitNext && nodep->nextp()) *topp++ = nodep->nextp();
+    यदि (visitNext && nodep->nextp()) *topp++ = nodep->nextp();
 
     // Visit the root node
-    if (visit(nodep)) return !N_Default;
+    यदि (visit(nodep)) प्रत्यागम !N_Default;
 
     // Visit the rest of the tree
-    while (VL_LIKELY(topp > basep)) {
+    यावत् (VL_LIKELY(topp > basep)) {
         // Pop next node in the traversal
-        Node* const headp = *--topp;
+        गाठ_2* ध्रुव headp = *--topp;
 
         // Prefetch in case we are ascending the tree
         ASTNODE_PREFETCH_NON_NULL(topp[-PrefetchDistance]);
 
         // Ensure we have stack space for nextp and the 4 children
-        if (VL_UNLIKELY(topp >= limp)) {
-            const ptrdiff_t occupancy = topp - basep;
+        यदि (VL_UNLIKELY(topp >= limp)) {
+            ध्रुव ptrdiff_t occupancy = topp - basep;
             {
-                const size_t newStackSize = stackSize * 2;
-                Node** const newStackp = new Node*[newStackSize];
+                ध्रुव size_t new_चळत_Size = चळत_Size * 2;
+                गाठ_2** ध्रुव newStackp = new गाठ_2*[new_चळत_Size];
                 std::memcpy(newStackp, basep - PrefetchDistance,
-                            sizeof(Node**) * (occupancy + PrefetchDistance));
-                stackSize = newStackSize;
-                outOfLineStackp.reset(newStackp);
+                            परिमाण(गाठ_2**) * (occupancy + PrefetchDistance));
+                चळत_Size = new_चळत_Size;
+                out_Of_ओळ_Stackp.reset(newStackp);
             }
-            basep = outOfLineStackp.get() + PrefetchDistance;
+            basep = out_Of_ओळ_Stackp.get() + PrefetchDistance;
             topp = basep + occupancy;
-            limp = outOfLineStackp.get() + stackSize - MaxPushesPerIteration;
+            limp = out_Of_ओळ_Stackp.get() + चळत_Size - MaxPushesPerIteration;
         }
 
         // Enqueue the next node
-        if (headp->nextp()) *topp++ = headp->nextp();
+        यदि (headp->nextp()) *topp++ = headp->nextp();
 
         // Visit the head node
-        if (visit(headp)) return !N_Default;
+        यदि (visit(headp)) प्रत्यागम !N_Default;
     }
 
-    return N_Default;
+    प्रत्यागम N_Default;
 }
 
-inline std::ostream& operator<<(std::ostream& os, const AstNode* rhs) {
-    if (!rhs) {  // LCOV_EXCL_LINE
+अन्तःस्थ std::ostream& operator<<(std::ostream& os, ध्रुव Ast_गाठ* rhs) {
+    यदि (!rhs) {  // LCOV_EXCL_LINE
         os << "nullptr";  // LCOV_EXCL_LINE
-    } else if (VN_DELETED(rhs)) {  // LCOV_EXCL_LINE
+    } अन्यथा यदि (VN_DELETED(rhs)) {  // LCOV_EXCL_LINE
         os << "%E-0x1/deleted!";  // LCOV_EXCL_LINE
-    } else {
+    } अन्यथा {
         rhs->dump(os);
     }
-    return os;
+    प्रत्यागम os;
 }
-void VNRelinker::relink(AstNode* newp) { newp->AstNode::relink(this); }
+शून्य VNRelinker::relink(Ast_गाठ* newp) { newp->Ast_गाठ::relink(this); }
 
 //######################################################################
 
 // VNRef is std::reference_wrapper that can only hold AstNode subtypes
-template <typename T_Node>
-class VNRef final : public std::reference_wrapper<T_Node> {
-    static_assert(std::is_base_of<AstNode, T_Node>::value,
+template <typename T_गाठ>
+class VNRef final : सार्वजनिक std::reference_wrapper<T_गाठ> {
+    static_assert(std::is_base_of<Ast_गाठ, T_गाठ>::मूल्य,
                   "Type parameter 'T_Node' must be a subtype of AstNode");
 
-public:
+सार्वजनिक:
     template <typename U>
     // cppcheck-suppress noExplicitConstructor
     VNRef(U&& x)
-        : std::reference_wrapper<T_Node>{x} {}
+        : std::reference_wrapper<T_गाठ>{x} {}
     // cppcheck-suppress noExplicitConstructor
-    VNRef(const std::reference_wrapper<T_Node>& other)
-        : std::reference_wrapper<T_Node>{other} {}
+    VNRef(ध्रुव std::reference_wrapper<T_गाठ>& other)
+        : std::reference_wrapper<T_गाठ>{other} {}
 };
 
-static_assert(sizeof(VNRef<AstNode>) == sizeof(std::reference_wrapper<AstNode>),
+static_assert(परिमाण(VNRef<Ast_गाठ>) == परिमाण(std::reference_wrapper<Ast_गाठ>),
               "VNRef should not contain extra members");
 
 // Specializations of std::hash and std::equal_to for VNRef. This in turn
@@ -1650,19 +1650,19 @@ static_assert(sizeof(VNRef<AstNode>) == sizeof(std::reference_wrapper<AstNode>),
 // without having to copy nodes into the collections.
 
 // Forward declaration to avoid including V3Hasher.h which needs V3Ast.h (this file).
-size_t V3HasherUncachedHash(const AstNode&);
+size_t V3HasherUncachedHash(ध्रुव Ast_गाठ&);
 
 // Specialization of std::hash for VNRef
-template <typename T_Node>
-struct std::hash<VNRef<T_Node>> final {
-    size_t operator()(VNRef<T_Node> r) const { return V3HasherUncachedHash(r); }
+template <typename T_गाठ>
+संरचना std::hash<VNRef<T_गाठ>> final {
+    size_t operator()(VNRef<T_गाठ> r) ध्रुव { प्रत्यागम V3HasherUncachedHash(r); }
 };
 
 // Specialization of std::equal_to for VNRef
-template <typename T_Node>
-struct std::equal_to<VNRef<T_Node>> final {
-    size_t operator()(VNRef<T_Node> ra, VNRef<T_Node> rb) const {
-        return ra.get().sameTree(&(rb.get()));
+template <typename T_गाठ>
+संरचना std::equal_to<VNRef<T_गाठ>> final {
+    size_t operator()(VNRef<T_गाठ> ra, VNRef<T_गाठ> rb) ध्रुव {
+        प्रत्यागम ra.get().same_वृक्ष(&(rb.get()));
     }
 };
 
@@ -1680,20 +1680,20 @@ class VDTypeNameScopes final {
     // STATE
     // Each class, typedef, generate block, and design unit to the generate block or design unit
     // declaring it, or nullptr if none, as at the top
-    std::unordered_map<const AstNode*, AstNode*> m_outerps;
+    std::unordered_map<ध्रुव Ast_गाठ*, Ast_गाठ*> m_outerps;
     // The parameters of each design unit that its name holds
-    std::unordered_map<const AstNode*, std::vector<AstNode*>> m_paramps;
+    std::unordered_map<ध्रुव Ast_गाठ*, std::vector<Ast_गाठ*>> m_paramps;
     // Prefix of the names of the types each scope declares, once final
-    mutable std::unordered_map<const AstNode*, std::string> m_prefixes;
-    const VDTypeNameScopes* const m_prevp;  // Index in use before this one
-    static const VDTypeNameScopes* s_currentp;  // Index in use, or nullptr if none
+    mutable std::unordered_map<ध्रुव Ast_गाठ*, std::string> m_prefixes;
+    ध्रुव VDTypeNameScopes* ध्रुव m_prevp;  // Index in use before this one
+    स्थिर ध्रुव VDTypeNameScopes* s_currentp;  // Index in use, or nullptr if none
 
     // METHODS
-    void index(AstNode* nodep, AstNode* scopep);
+    शून्य index(Ast_गाठ* nodep, Ast_गाठ* scopep);
     VL_UNCOPYABLE(VDTypeNameScopes);
     VL_UNMOVABLE(VDTypeNameScopes);
 
-public:
+सार्वजनिक:
     // CONSTRUCTORS
     // Index the netlist, in use until destroyed
     explicit VDTypeNameScopes(AstNetlist* nodep);
@@ -1701,43 +1701,43 @@ public:
 
     // METHODS
     // The index in use, or nullptr if none
-    static const VDTypeNameScopes* currentp() { return s_currentp; }
+    स्थिर ध्रुव VDTypeNameScopes* currentp() { प्रत्यागम s_currentp; }
     // Whether 'nodep' is indexed, and if so 'outerpr', the generate block or design unit
     // declaring it, or nullptr if none
-    bool outerp(const AstNode* nodep, AstNode*& outerpr) const;
+    bool outerp(ध्रुव Ast_गाठ* nodep, Ast_गाठ*& outerpr) ध्रुव;
     // The parameters of design unit 'modp' that its name holds, or nullptr if not indexed
-    const std::vector<AstNode*>* paramsp(const AstNode* modp) const;
+    ध्रुव std::vector<Ast_गाठ*>* paramsp(ध्रुव Ast_गाठ* modp) ध्रुव;
     // The prefix kept for scope 'scopep', or nullptr if none
-    const std::string* prefixp(const AstNode* scopep) const;
+    ध्रुव std::string* prefixp(ध्रुव Ast_गाठ* scopep) ध्रुव;
     // Keep 'prefix', final, for scope 'scopep'
-    void prefix(const AstNode* scopep, const std::string& prefix) const;
+    शून्य prefix(ध्रुव Ast_गाठ* scopep, ध्रुव std::string& prefix) ध्रुव;
 };
 
 //######################################################################
 // Inline VNVisitor METHODS
 
-void VNVisitorConst::iterateConst(AstNode* nodep) { nodep->accept(*this); }
-void VNVisitorConst::iterateConstNull(AstNode* nodep) {
-    if (VL_LIKELY(nodep)) nodep->accept(*this);
+शून्य VNVisitorConst::iterateConst(Ast_गाठ* nodep) { nodep->accept(*this); }
+शून्य VNVisitorConst::iterateConstNull(Ast_गाठ* nodep) {
+    यदि (VL_LIKELY(nodep)) nodep->accept(*this);
 }
-void VNVisitorConst::iterateChildrenConst(AstNode* nodep) { nodep->iterateChildrenConst(*this); }
-void VNVisitorConst::iterateChildrenBackwardsConst(AstNode* nodep) {
+शून्य VNVisitorConst::iterateChildrenConst(Ast_गाठ* nodep) { nodep->iterateChildrenConst(*this); }
+शून्य VNVisitorConst::iterateChildrenBackwardsConst(Ast_गाठ* nodep) {
     nodep->iterateChildrenBackwardsConst(*this);
 }
-void VNVisitorConst::iterateAndNextConstNull(AstNode* nodep) {
-    if (VL_LIKELY(nodep)) nodep->iterateAndNextConst(*this);
+शून्य VNVisitorConst::iterateAndNextConstNull(Ast_गाठ* nodep) {
+    यदि (VL_LIKELY(nodep)) nodep->iterateAndNextConst(*this);
 }
 
-void VNVisitor::iterate(AstNode* nodep) { nodep->accept(*this); }
-void VNVisitor::iterateNull(AstNode* nodep) {
-    if (VL_LIKELY(nodep)) nodep->accept(*this);
+शून्य VNVisitor::iterate(Ast_गाठ* nodep) { nodep->accept(*this); }
+शून्य VNVisitor::iterateNull(Ast_गाठ* nodep) {
+    यदि (VL_LIKELY(nodep)) nodep->accept(*this);
 }
-void VNVisitor::iterateChildren(AstNode* nodep) { nodep->iterateChildren(*this); }
-void VNVisitor::iterateAndNextNull(AstNode* nodep) {
-    if (VL_LIKELY(nodep)) nodep->iterateAndNext(*this);
+शून्य VNVisitor::iterateChildren(Ast_गाठ* nodep) { nodep->iterateChildren(*this); }
+शून्य VNVisitor::iterateAndNextNull(Ast_गाठ* nodep) {
+    यदि (VL_LIKELY(nodep)) nodep->iterateAndNext(*this);
 }
-AstNode* VNVisitor::iterateSubtreeReturnEdits(AstNode* nodep) {
-    return nodep->iterateSubtreeReturnEdits(*this);
+Ast_गाठ* VNVisitor::iterateSubtreeReturnEdits(Ast_गाठ* nodep) {
+    प्रत्यागम nodep->iterateSubtreeReturnEdits(*this);
 }
 
 // Include macros generated by 'astgen'. These include ASTGEN_MEMBERS_Ast<Node>
@@ -1747,19 +1747,19 @@ AstNode* VNVisitor::iterateSubtreeReturnEdits(AstNode* nodep) {
 // is the necessary constructor invocation for concrete AstNode sub-types
 // that passes the generated type-id numbers all the way back to AstNode.
 // For precise details please read the generated macros.
-#include "V3Ast__gen_macros.h"
+#अन्तर्भाव "V3Ast__gen_macros.h"
 
 // AstNode subclasses - dependency order matters, so fmt off
 // clang-format off
-#include "V3AstNodeDType.h"
-#include "V3AstNodeOther.h"
-#include "V3AstNodeExpr.h"
-#include "V3AstNodeStmt.h"
+#अन्तर्भाव "V3AstNodeDType.h"
+#अन्तर्भाव "V3AstNodeOther.h"
+#अन्तर्भाव "V3AstNodeExpr.h"
+#अन्तर्भाव "V3AstNodeStmt.h"
 // clang-format on
 
 // Inline function definitions need to go last
-#include "V3AstInlines.h"
-void dumpNodeListJson(std::ostream& os, const AstNode* nodep, const std::string& listName,
-                      const string& indent);
+#अन्तर्भाव "V3AstInlines.h"
+शून्य dump_गाठ_List_Json(std::ostream& os, ध्रुव Ast_गाठ* nodep, ध्रुव std::string& listName,
+                      ध्रुव string& indent);
 
 #endif  // Guard

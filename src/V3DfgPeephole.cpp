@@ -36,172 +36,172 @@
 //
 //*************************************************************************
 
-#include "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
+#अन्तर्भाव "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
 
-#include "V3Ast.h"
-#include "V3Dfg.h"
-#include "V3DfgCache.h"
-#include "V3DfgDataType.h"
-#include "V3DfgPasses.h"
-#include "V3DfgPeepholePatterns.h"
+#अन्तर्भाव "V3Ast.h"
+#अन्तर्भाव "V3Dfg.h"
+#अन्तर्भाव "V3DfgCache.h"
+#अन्तर्भाव "V3DfgDataType.h"
+#अन्तर्भाव "V3DfgPasses.h"
+#अन्तर्भाव "V3DfgPeepholePatterns.h"
 
-#include <algorithm>
-#include <cctype>
-#include <vector>
+#अन्तर्भाव <algorithm>
+#अन्तर्भाव <cctype>
+#अन्तर्भाव <vector>
 
 VL_DEFINE_DEBUG_FUNCTIONS;
 
 // clang-format off
-namespace {
+नामाकाश {
 
 template <typename T_Reduction>
-struct ReductionToBitwiseImpl {};
-template <> struct ReductionToBitwiseImpl<DfgRedAnd> { using type = DfgAnd; };
-template <> struct ReductionToBitwiseImpl<DfgRedOr>  { using type = DfgOr;  };
-template <> struct ReductionToBitwiseImpl<DfgRedXor> { using type = DfgXor; };
+संरचना ReductionToBitwiseImpl {};
+template <> संरचना ReductionToBitwiseImpl<DfgRedAnd> { using type = DfgAnd; };
+template <> संरचना ReductionToBitwiseImpl<DfgRedOr>  { using type = DfgOr;  };
+template <> संरचना ReductionToBitwiseImpl<DfgRedXor> { using type = DfgXor; };
 template <typename T_Reduction>
 using ReductionToBitwise = typename ReductionToBitwiseImpl<T_Reduction>::type;
 
 template <typename T_Bitwise>
-struct BitwiseToReductionImpl {};
-template <> struct BitwiseToReductionImpl<DfgAnd> { using type = DfgRedAnd; };
-template <> struct BitwiseToReductionImpl<DfgOr>  { using type = DfgRedOr;  };
-template <> struct BitwiseToReductionImpl<DfgXor> { using type = DfgRedXor; };
+संरचना BitwiseToReductionImpl {};
+template <> संरचना BitwiseToReductionImpl<DfgAnd> { using type = DfgRedAnd; };
+template <> संरचना BitwiseToReductionImpl<DfgOr>  { using type = DfgRedOr;  };
+template <> संरचना BitwiseToReductionImpl<DfgXor> { using type = DfgRedXor; };
 template <typename T_Reduction>
 using BitwiseToReduction = typename BitwiseToReductionImpl<T_Reduction>::type;
 
 // Associative binary operators (a op (b op c) == (a op b) op c)
 template<typename Vertex>
-struct IsAssociative : public std::false_type {};
-template <> struct IsAssociative<DfgAnd> : public std::true_type {};
-template <> struct IsAssociative<DfgOr>  : public std::true_type {};
-template <> struct IsAssociative<DfgXor> : public std::true_type {};
-template <> struct IsAssociative<DfgAdd> : public std::true_type {};
-template <> struct IsAssociative<DfgConcat> : public std::true_type {};
-template <> struct IsAssociative<DfgMul> : public std::true_type {};
-template <> struct IsAssociative<DfgMulS> : public std::true_type {};
+संरचना IsAssociative : सार्वजनिक std::false_type {};
+template <> संरचना IsAssociative<DfgAnd> : सार्वजनिक std::true_type {};
+template <> संरचना IsAssociative<DfgOr>  : सार्वजनिक std::true_type {};
+template <> संरचना IsAssociative<DfgXor> : सार्वजनिक std::true_type {};
+template <> संरचना IsAssociative<DfgAdd> : सार्वजनिक std::true_type {};
+template <> संरचना IsAssociative<DfgConcat> : सार्वजनिक std::true_type {};
+template <> संरचना IsAssociative<DfgMul> : सार्वजनिक std::true_type {};
+template <> संरचना IsAssociative<DfgMulS> : सार्वजनिक std::true_type {};
 
 // Commutative binary operators (a op b == b op a)
 template<typename Vertex>
-struct IsCommutative : public std::false_type {};
-template <> struct IsCommutative<DfgAnd> : public std::true_type {};
-template <> struct IsCommutative<DfgOr>  : public std::true_type {};
-template <> struct IsCommutative<DfgXor> : public std::true_type {};
-template <> struct IsCommutative<DfgAdd> : public std::true_type {};
-template <> struct IsCommutative<DfgEq> : public std::true_type {};
-template <> struct IsCommutative<DfgMul> : public std::true_type {};
-template <> struct IsCommutative<DfgMulS> : public std::true_type {};
-template <> struct IsCommutative<DfgNeq> : public std::true_type {};
+संरचना IsCommutative : सार्वजनिक std::false_type {};
+template <> संरचना IsCommutative<DfgAnd> : सार्वजनिक std::true_type {};
+template <> संरचना IsCommutative<DfgOr>  : सार्वजनिक std::true_type {};
+template <> संरचना IsCommutative<DfgXor> : सार्वजनिक std::true_type {};
+template <> संरचना IsCommutative<DfgAdd> : सार्वजनिक std::true_type {};
+template <> संरचना IsCommutative<DfgEq> : सार्वजनिक std::true_type {};
+template <> संरचना IsCommutative<DfgMul> : सार्वजनिक std::true_type {};
+template <> संरचना IsCommutative<DfgMulS> : सार्वजनिक std::true_type {};
+template <> संरचना IsCommutative<DfgNeq> : सार्वजनिक std::true_type {};
 
 // Idempotent binary operators (a op a == a)
 template<typename Vertex>
-struct IsIdempotent : public std::false_type {};
-template <> struct IsIdempotent<DfgAnd> : public std::true_type {};
-template <> struct IsIdempotent<DfgOr>  : public std::true_type {};
+संरचना IsIdempotent : सार्वजनिक std::false_type {};
+template <> संरचना IsIdempotent<DfgAnd> : सार्वजनिक std::true_type {};
+template <> संरचना IsIdempotent<DfgOr>  : सार्वजनिक std::true_type {};
 
 // Binary result dtype
 template<typename Vertex>
-const DfgDataType& resultDType(const DfgVertex* lhsp, const DfgVertex* rhsp);
-template <> const DfgDataType& resultDType<DfgAdd>        (const DfgVertex* lhsp, const DfgVertex* rhsp) { return lhsp->dtype(); }
-template <> const DfgDataType& resultDType<DfgAnd>        (const DfgVertex* lhsp, const DfgVertex* rhsp) { return lhsp->dtype(); }
-template <> const DfgDataType& resultDType<DfgConcat>     (const DfgVertex* lhsp, const DfgVertex* rhsp) { return DfgDataType::packed(lhsp->width() + rhsp->width()); }
-template <> const DfgDataType& resultDType<DfgDiv>        (const DfgVertex* lhsp, const DfgVertex* rhsp) { return lhsp->dtype(); }
-template <> const DfgDataType& resultDType<DfgDivS>       (const DfgVertex* lhsp, const DfgVertex* rhsp) { return lhsp->dtype(); }
-template <> const DfgDataType& resultDType<DfgEq>         (const DfgVertex* lhsp, const DfgVertex* rhsp) { return DfgDataType::packed(1); }
-template <> const DfgDataType& resultDType<DfgGt>         (const DfgVertex* lhsp, const DfgVertex* rhsp) { return DfgDataType::packed(1); }
-template <> const DfgDataType& resultDType<DfgGtS>        (const DfgVertex* lhsp, const DfgVertex* rhsp) { return DfgDataType::packed(1); }
-template <> const DfgDataType& resultDType<DfgGte>        (const DfgVertex* lhsp, const DfgVertex* rhsp) { return DfgDataType::packed(1); }
-template <> const DfgDataType& resultDType<DfgGteS>       (const DfgVertex* lhsp, const DfgVertex* rhsp) { return DfgDataType::packed(1); }
-template <> const DfgDataType& resultDType<DfgLogAnd>     (const DfgVertex* lhsp, const DfgVertex* rhsp) { return DfgDataType::packed(1); }
-template <> const DfgDataType& resultDType<DfgLogEq>      (const DfgVertex* lhsp, const DfgVertex* rhsp) { return DfgDataType::packed(1); }
-template <> const DfgDataType& resultDType<DfgLogIf>      (const DfgVertex* lhsp, const DfgVertex* rhsp) { return DfgDataType::packed(1); }
-template <> const DfgDataType& resultDType<DfgLogOr>      (const DfgVertex* lhsp, const DfgVertex* rhsp) { return DfgDataType::packed(1); }
-template <> const DfgDataType& resultDType<DfgLt>         (const DfgVertex* lhsp, const DfgVertex* rhsp) { return DfgDataType::packed(1); }
-template <> const DfgDataType& resultDType<DfgLtS>        (const DfgVertex* lhsp, const DfgVertex* rhsp) { return DfgDataType::packed(1); }
-template <> const DfgDataType& resultDType<DfgLte>        (const DfgVertex* lhsp, const DfgVertex* rhsp) { return DfgDataType::packed(1); }
-template <> const DfgDataType& resultDType<DfgLteS>       (const DfgVertex* lhsp, const DfgVertex* rhsp) { return DfgDataType::packed(1); }
-template <> const DfgDataType& resultDType<DfgModDiv>     (const DfgVertex* lhsp, const DfgVertex* rhsp) { return lhsp->dtype(); }
-template <> const DfgDataType& resultDType<DfgModDivS>    (const DfgVertex* lhsp, const DfgVertex* rhsp) { return lhsp->dtype(); }
-template <> const DfgDataType& resultDType<DfgMul>        (const DfgVertex* lhsp, const DfgVertex* rhsp) { return lhsp->dtype(); }
-template <> const DfgDataType& resultDType<DfgMulS>       (const DfgVertex* lhsp, const DfgVertex* rhsp) { return lhsp->dtype(); }
-template <> const DfgDataType& resultDType<DfgNeq>        (const DfgVertex* lhsp, const DfgVertex* rhsp) { return DfgDataType::packed(1); }
-template <> const DfgDataType& resultDType<DfgOr>         (const DfgVertex* lhsp, const DfgVertex* rhsp) { return lhsp->dtype(); }
-template <> const DfgDataType& resultDType<DfgPow>        (const DfgVertex* lhsp, const DfgVertex* rhsp) { return lhsp->dtype(); }
-template <> const DfgDataType& resultDType<DfgPowSS>      (const DfgVertex* lhsp, const DfgVertex* rhsp) { return lhsp->dtype(); }
-template <> const DfgDataType& resultDType<DfgPowSU>      (const DfgVertex* lhsp, const DfgVertex* rhsp) { return lhsp->dtype(); }
-template <> const DfgDataType& resultDType<DfgPowUS>      (const DfgVertex* lhsp, const DfgVertex* rhsp) { return lhsp->dtype(); }
-template <> const DfgDataType& resultDType<DfgShiftL>     (const DfgVertex* lhsp, const DfgVertex* rhsp) { return lhsp->dtype(); }
-template <> const DfgDataType& resultDType<DfgShiftR>     (const DfgVertex* lhsp, const DfgVertex* rhsp) { return lhsp->dtype(); }
-template <> const DfgDataType& resultDType<DfgShiftRS>    (const DfgVertex* lhsp, const DfgVertex* rhsp) { return lhsp->dtype(); }
-template <> const DfgDataType& resultDType<DfgSub>        (const DfgVertex* lhsp, const DfgVertex* rhsp) { return lhsp->dtype(); }
-template <> const DfgDataType& resultDType<DfgXor>        (const DfgVertex* lhsp, const DfgVertex* rhsp) { return lhsp->dtype(); }
+ध्रुव DfgDataType& resultDType(ध्रुव DfgVertex* lhsp, ध्रुव DfgVertex* rhsp);
+template <> ध्रुव DfgDataType& resultDType<DfgAdd>        (ध्रुव DfgVertex* lhsp, ध्रुव DfgVertex* rhsp) { प्रत्यागम lhsp->dtype(); }
+template <> ध्रुव DfgDataType& resultDType<DfgAnd>        (ध्रुव DfgVertex* lhsp, ध्रुव DfgVertex* rhsp) { प्रत्यागम lhsp->dtype(); }
+template <> ध्रुव DfgDataType& resultDType<DfgConcat>     (ध्रुव DfgVertex* lhsp, ध्रुव DfgVertex* rhsp) { प्रत्यागम DfgDataType::packed(lhsp->width() + rhsp->width()); }
+template <> ध्रुव DfgDataType& resultDType<DfgDiv>        (ध्रुव DfgVertex* lhsp, ध्रुव DfgVertex* rhsp) { प्रत्यागम lhsp->dtype(); }
+template <> ध्रुव DfgDataType& resultDType<DfgDivS>       (ध्रुव DfgVertex* lhsp, ध्रुव DfgVertex* rhsp) { प्रत्यागम lhsp->dtype(); }
+template <> ध्रुव DfgDataType& resultDType<DfgEq>         (ध्रुव DfgVertex* lhsp, ध्रुव DfgVertex* rhsp) { प्रत्यागम DfgDataType::packed(1); }
+template <> ध्रुव DfgDataType& resultDType<DfgGt>         (ध्रुव DfgVertex* lhsp, ध्रुव DfgVertex* rhsp) { प्रत्यागम DfgDataType::packed(1); }
+template <> ध्रुव DfgDataType& resultDType<DfgGtS>        (ध्रुव DfgVertex* lhsp, ध्रुव DfgVertex* rhsp) { प्रत्यागम DfgDataType::packed(1); }
+template <> ध्रुव DfgDataType& resultDType<DfgGte>        (ध्रुव DfgVertex* lhsp, ध्रुव DfgVertex* rhsp) { प्रत्यागम DfgDataType::packed(1); }
+template <> ध्रुव DfgDataType& resultDType<DfgGteS>       (ध्रुव DfgVertex* lhsp, ध्रुव DfgVertex* rhsp) { प्रत्यागम DfgDataType::packed(1); }
+template <> ध्रुव DfgDataType& resultDType<DfgLogAnd>     (ध्रुव DfgVertex* lhsp, ध्रुव DfgVertex* rhsp) { प्रत्यागम DfgDataType::packed(1); }
+template <> ध्रुव DfgDataType& resultDType<DfgLogEq>      (ध्रुव DfgVertex* lhsp, ध्रुव DfgVertex* rhsp) { प्रत्यागम DfgDataType::packed(1); }
+template <> ध्रुव DfgDataType& resultDType<DfgLogIf>      (ध्रुव DfgVertex* lhsp, ध्रुव DfgVertex* rhsp) { प्रत्यागम DfgDataType::packed(1); }
+template <> ध्रुव DfgDataType& resultDType<DfgLogOr>      (ध्रुव DfgVertex* lhsp, ध्रुव DfgVertex* rhsp) { प्रत्यागम DfgDataType::packed(1); }
+template <> ध्रुव DfgDataType& resultDType<DfgLt>         (ध्रुव DfgVertex* lhsp, ध्रुव DfgVertex* rhsp) { प्रत्यागम DfgDataType::packed(1); }
+template <> ध्रुव DfgDataType& resultDType<DfgLtS>        (ध्रुव DfgVertex* lhsp, ध्रुव DfgVertex* rhsp) { प्रत्यागम DfgDataType::packed(1); }
+template <> ध्रुव DfgDataType& resultDType<DfgLte>        (ध्रुव DfgVertex* lhsp, ध्रुव DfgVertex* rhsp) { प्रत्यागम DfgDataType::packed(1); }
+template <> ध्रुव DfgDataType& resultDType<DfgLteS>       (ध्रुव DfgVertex* lhsp, ध्रुव DfgVertex* rhsp) { प्रत्यागम DfgDataType::packed(1); }
+template <> ध्रुव DfgDataType& resultDType<DfgModDiv>     (ध्रुव DfgVertex* lhsp, ध्रुव DfgVertex* rhsp) { प्रत्यागम lhsp->dtype(); }
+template <> ध्रुव DfgDataType& resultDType<DfgModDivS>    (ध्रुव DfgVertex* lhsp, ध्रुव DfgVertex* rhsp) { प्रत्यागम lhsp->dtype(); }
+template <> ध्रुव DfgDataType& resultDType<DfgMul>        (ध्रुव DfgVertex* lhsp, ध्रुव DfgVertex* rhsp) { प्रत्यागम lhsp->dtype(); }
+template <> ध्रुव DfgDataType& resultDType<DfgMulS>       (ध्रुव DfgVertex* lhsp, ध्रुव DfgVertex* rhsp) { प्रत्यागम lhsp->dtype(); }
+template <> ध्रुव DfgDataType& resultDType<DfgNeq>        (ध्रुव DfgVertex* lhsp, ध्रुव DfgVertex* rhsp) { प्रत्यागम DfgDataType::packed(1); }
+template <> ध्रुव DfgDataType& resultDType<DfgOr>         (ध्रुव DfgVertex* lhsp, ध्रुव DfgVertex* rhsp) { प्रत्यागम lhsp->dtype(); }
+template <> ध्रुव DfgDataType& resultDType<DfgPow>        (ध्रुव DfgVertex* lhsp, ध्रुव DfgVertex* rhsp) { प्रत्यागम lhsp->dtype(); }
+template <> ध्रुव DfgDataType& resultDType<DfgPowSS>      (ध्रुव DfgVertex* lhsp, ध्रुव DfgVertex* rhsp) { प्रत्यागम lhsp->dtype(); }
+template <> ध्रुव DfgDataType& resultDType<DfgPowSU>      (ध्रुव DfgVertex* lhsp, ध्रुव DfgVertex* rhsp) { प्रत्यागम lhsp->dtype(); }
+template <> ध्रुव DfgDataType& resultDType<DfgPowUS>      (ध्रुव DfgVertex* lhsp, ध्रुव DfgVertex* rhsp) { प्रत्यागम lhsp->dtype(); }
+template <> ध्रुव DfgDataType& resultDType<DfgShiftL>     (ध्रुव DfgVertex* lhsp, ध्रुव DfgVertex* rhsp) { प्रत्यागम lhsp->dtype(); }
+template <> ध्रुव DfgDataType& resultDType<DfgShiftR>     (ध्रुव DfgVertex* lhsp, ध्रुव DfgVertex* rhsp) { प्रत्यागम lhsp->dtype(); }
+template <> ध्रुव DfgDataType& resultDType<DfgShiftRS>    (ध्रुव DfgVertex* lhsp, ध्रुव DfgVertex* rhsp) { प्रत्यागम lhsp->dtype(); }
+template <> ध्रुव DfgDataType& resultDType<DfgSub>        (ध्रुव DfgVertex* lhsp, ध्रुव DfgVertex* rhsp) { प्रत्यागम lhsp->dtype(); }
+template <> ध्रुव DfgDataType& resultDType<DfgXor>        (ध्रुव DfgVertex* lhsp, ध्रुव DfgVertex* rhsp) { प्रत्यागम lhsp->dtype(); }
 
 // Unary constant folding
-template<typename Vertex> void foldOp(V3Number& out, const V3Number& src);
-template <> void foldOp<DfgCountOnes>  (V3Number& out, const V3Number& src) { out.opCountOnes(src); }
-template <> void foldOp<DfgExtend>     (V3Number& out, const V3Number& src) { out.opAssign(src); }
-template <> void foldOp<DfgExtendS>    (V3Number& out, const V3Number& src) { out.opExtendS(src, src.width()); }
-template <> void foldOp<DfgLogNot>     (V3Number& out, const V3Number& src) { out.opLogNot(src); }
-template <> void foldOp<DfgNegate>     (V3Number& out, const V3Number& src) { out.opNegate(src); }
-template <> void foldOp<DfgNot>        (V3Number& out, const V3Number& src) { out.opNot(src); }
-template <> void foldOp<DfgOneHot>     (V3Number& out, const V3Number& src) { out.opOneHot(src); }
-template <> void foldOp<DfgOneHot0>    (V3Number& out, const V3Number& src) { out.opOneHot0(src); }
-template <> void foldOp<DfgRedAnd>     (V3Number& out, const V3Number& src) { out.opRedAnd(src); }
-template <> void foldOp<DfgRedOr>      (V3Number& out, const V3Number& src) { out.opRedOr(src); }
-template <> void foldOp<DfgRedXor>     (V3Number& out, const V3Number& src) { out.opRedXor(src); }
+template<typename Vertex> शून्य foldOp(V3_संख्या& out, ध्रुव V3_संख्या& src);
+template <> शून्य foldOp<Dfg_मोजणी_Ones>  (V3_संख्या& out, ध्रुव V3_संख्या& src) { out.op_मोजणी_Ones(src); }
+template <> शून्य foldOp<DfgExtend>     (V3_संख्या& out, ध्रुव V3_संख्या& src) { out.opAssign(src); }
+template <> शून्य foldOp<DfgExtendS>    (V3_संख्या& out, ध्रुव V3_संख्या& src) { out.opExtendS(src, src.width()); }
+template <> शून्य foldOp<DfgLogNot>     (V3_संख्या& out, ध्रुव V3_संख्या& src) { out.opLogNot(src); }
+template <> शून्य foldOp<DfgNegate>     (V3_संख्या& out, ध्रुव V3_संख्या& src) { out.opNegate(src); }
+template <> शून्य foldOp<DfgNot>        (V3_संख्या& out, ध्रुव V3_संख्या& src) { out.opNot(src); }
+template <> शून्य foldOp<DfgOneHot>     (V3_संख्या& out, ध्रुव V3_संख्या& src) { out.opOneHot(src); }
+template <> शून्य foldOp<DfgOneHot0>    (V3_संख्या& out, ध्रुव V3_संख्या& src) { out.opOneHot0(src); }
+template <> शून्य foldOp<DfgRedAnd>     (V3_संख्या& out, ध्रुव V3_संख्या& src) { out.opRedAnd(src); }
+template <> शून्य foldOp<DfgRedOr>      (V3_संख्या& out, ध्रुव V3_संख्या& src) { out.opRedOr(src); }
+template <> शून्य foldOp<DfgRedXor>     (V3_संख्या& out, ध्रुव V3_संख्या& src) { out.opRedXor(src); }
 
 // Binary constant folding
-template<typename Vertex> void foldOp(V3Number& out, const V3Number& lhs, const V3Number& rhs);
-template <> void foldOp<DfgAdd>        (V3Number& out, const V3Number& lhs, const V3Number& rhs) { out.opAdd(lhs, rhs); }
-template <> void foldOp<DfgAnd>        (V3Number& out, const V3Number& lhs, const V3Number& rhs) { out.opAnd(lhs, rhs); }
-template <> void foldOp<DfgConcat>     (V3Number& out, const V3Number& lhs, const V3Number& rhs) { out.opConcat(lhs, rhs); }
-template <> void foldOp<DfgDiv>        (V3Number& out, const V3Number& lhs, const V3Number& rhs) { out.opDiv(lhs, rhs); }
-template <> void foldOp<DfgDivS>       (V3Number& out, const V3Number& lhs, const V3Number& rhs) { out.opDivS(lhs, rhs); }
-template <> void foldOp<DfgEq>         (V3Number& out, const V3Number& lhs, const V3Number& rhs) { out.opEq(lhs, rhs); }
-template <> void foldOp<DfgGt>         (V3Number& out, const V3Number& lhs, const V3Number& rhs) { out.opGt(lhs, rhs); }
-template <> void foldOp<DfgGtS>        (V3Number& out, const V3Number& lhs, const V3Number& rhs) { out.opGtS(lhs, rhs); }
-template <> void foldOp<DfgGte>        (V3Number& out, const V3Number& lhs, const V3Number& rhs) { out.opGte(lhs, rhs); }
-template <> void foldOp<DfgGteS>       (V3Number& out, const V3Number& lhs, const V3Number& rhs) { out.opGteS(lhs, rhs); }
-template <> void foldOp<DfgLogAnd>     (V3Number& out, const V3Number& lhs, const V3Number& rhs) { out.opLogAnd(lhs, rhs); }
-template <> void foldOp<DfgLogEq>      (V3Number& out, const V3Number& lhs, const V3Number& rhs) { out.opLogEq(lhs, rhs); }
-template <> void foldOp<DfgLogIf>      (V3Number& out, const V3Number& lhs, const V3Number& rhs) { out.opLogIf(lhs, rhs); }
-template <> void foldOp<DfgLogOr>      (V3Number& out, const V3Number& lhs, const V3Number& rhs) { out.opLogOr(lhs, rhs); }
-template <> void foldOp<DfgLt>         (V3Number& out, const V3Number& lhs, const V3Number& rhs) { out.opLt(lhs, rhs); }
-template <> void foldOp<DfgLtS>        (V3Number& out, const V3Number& lhs, const V3Number& rhs) { out.opLtS(lhs, rhs); }
-template <> void foldOp<DfgLte>        (V3Number& out, const V3Number& lhs, const V3Number& rhs) { out.opLte(lhs, rhs); }
-template <> void foldOp<DfgLteS>       (V3Number& out, const V3Number& lhs, const V3Number& rhs) { out.opLteS(lhs, rhs); }
-template <> void foldOp<DfgModDiv>     (V3Number& out, const V3Number& lhs, const V3Number& rhs) { out.opModDiv(lhs, rhs); }
-template <> void foldOp<DfgModDivS>    (V3Number& out, const V3Number& lhs, const V3Number& rhs) { out.opModDivS(lhs, rhs); }
-template <> void foldOp<DfgMul>        (V3Number& out, const V3Number& lhs, const V3Number& rhs) { out.opMul(lhs, rhs); }
-template <> void foldOp<DfgMulS>       (V3Number& out, const V3Number& lhs, const V3Number& rhs) { out.opMulS(lhs, rhs); }
-template <> void foldOp<DfgNeq>        (V3Number& out, const V3Number& lhs, const V3Number& rhs) { out.opNeq(lhs, rhs); }
-template <> void foldOp<DfgOr>         (V3Number& out, const V3Number& lhs, const V3Number& rhs) { out.opOr(lhs, rhs); }
-template <> void foldOp<DfgPow>        (V3Number& out, const V3Number& lhs, const V3Number& rhs) { out.opPow(lhs, rhs); }
-template <> void foldOp<DfgPowSS>      (V3Number& out, const V3Number& lhs, const V3Number& rhs) { out.opPowSS(lhs, rhs); }
-template <> void foldOp<DfgPowSU>      (V3Number& out, const V3Number& lhs, const V3Number& rhs) { out.opPowSU(lhs, rhs); }
-template <> void foldOp<DfgPowUS>      (V3Number& out, const V3Number& lhs, const V3Number& rhs) { out.opPowUS(lhs, rhs); }
-template <> void foldOp<DfgShiftL>     (V3Number& out, const V3Number& lhs, const V3Number& rhs) { out.opShiftL(lhs, rhs); }
-template <> void foldOp<DfgShiftR>     (V3Number& out, const V3Number& lhs, const V3Number& rhs) { out.opShiftR(lhs, rhs); }
-template <> void foldOp<DfgShiftRS>    (V3Number& out, const V3Number& lhs, const V3Number& rhs) { out.opShiftRS(lhs, rhs, lhs.width()); }
-template <> void foldOp<DfgSub>        (V3Number& out, const V3Number& lhs, const V3Number& rhs) { out.opSub(lhs, rhs); }
-template <> void foldOp<DfgXor>        (V3Number& out, const V3Number& lhs, const V3Number& rhs) { out.opXor(lhs, rhs); }
+template<typename Vertex> शून्य foldOp(V3_संख्या& out, ध्रुव V3_संख्या& lhs, ध्रुव V3_संख्या& rhs);
+template <> शून्य foldOp<DfgAdd>        (V3_संख्या& out, ध्रुव V3_संख्या& lhs, ध्रुव V3_संख्या& rhs) { out.opAdd(lhs, rhs); }
+template <> शून्य foldOp<DfgAnd>        (V3_संख्या& out, ध्रुव V3_संख्या& lhs, ध्रुव V3_संख्या& rhs) { out.opAnd(lhs, rhs); }
+template <> शून्य foldOp<DfgConcat>     (V3_संख्या& out, ध्रुव V3_संख्या& lhs, ध्रुव V3_संख्या& rhs) { out.opConcat(lhs, rhs); }
+template <> शून्य foldOp<DfgDiv>        (V3_संख्या& out, ध्रुव V3_संख्या& lhs, ध्रुव V3_संख्या& rhs) { out.opDiv(lhs, rhs); }
+template <> शून्य foldOp<DfgDivS>       (V3_संख्या& out, ध्रुव V3_संख्या& lhs, ध्रुव V3_संख्या& rhs) { out.opDivS(lhs, rhs); }
+template <> शून्य foldOp<DfgEq>         (V3_संख्या& out, ध्रुव V3_संख्या& lhs, ध्रुव V3_संख्या& rhs) { out.opEq(lhs, rhs); }
+template <> शून्य foldOp<DfgGt>         (V3_संख्या& out, ध्रुव V3_संख्या& lhs, ध्रुव V3_संख्या& rhs) { out.opGt(lhs, rhs); }
+template <> शून्य foldOp<DfgGtS>        (V3_संख्या& out, ध्रुव V3_संख्या& lhs, ध्रुव V3_संख्या& rhs) { out.opGtS(lhs, rhs); }
+template <> शून्य foldOp<DfgGte>        (V3_संख्या& out, ध्रुव V3_संख्या& lhs, ध्रुव V3_संख्या& rhs) { out.opGte(lhs, rhs); }
+template <> शून्य foldOp<DfgGteS>       (V3_संख्या& out, ध्रुव V3_संख्या& lhs, ध्रुव V3_संख्या& rhs) { out.opGteS(lhs, rhs); }
+template <> शून्य foldOp<DfgLogAnd>     (V3_संख्या& out, ध्रुव V3_संख्या& lhs, ध्रुव V3_संख्या& rhs) { out.opLogAnd(lhs, rhs); }
+template <> शून्य foldOp<DfgLogEq>      (V3_संख्या& out, ध्रुव V3_संख्या& lhs, ध्रुव V3_संख्या& rhs) { out.opLogEq(lhs, rhs); }
+template <> शून्य foldOp<DfgLogIf>      (V3_संख्या& out, ध्रुव V3_संख्या& lhs, ध्रुव V3_संख्या& rhs) { out.opLogIf(lhs, rhs); }
+template <> शून्य foldOp<DfgLogOr>      (V3_संख्या& out, ध्रुव V3_संख्या& lhs, ध्रुव V3_संख्या& rhs) { out.opLogOr(lhs, rhs); }
+template <> शून्य foldOp<DfgLt>         (V3_संख्या& out, ध्रुव V3_संख्या& lhs, ध्रुव V3_संख्या& rhs) { out.opLt(lhs, rhs); }
+template <> शून्य foldOp<DfgLtS>        (V3_संख्या& out, ध्रुव V3_संख्या& lhs, ध्रुव V3_संख्या& rhs) { out.opLtS(lhs, rhs); }
+template <> शून्य foldOp<DfgLte>        (V3_संख्या& out, ध्रुव V3_संख्या& lhs, ध्रुव V3_संख्या& rhs) { out.opLte(lhs, rhs); }
+template <> शून्य foldOp<DfgLteS>       (V3_संख्या& out, ध्रुव V3_संख्या& lhs, ध्रुव V3_संख्या& rhs) { out.opLteS(lhs, rhs); }
+template <> शून्य foldOp<DfgModDiv>     (V3_संख्या& out, ध्रुव V3_संख्या& lhs, ध्रुव V3_संख्या& rhs) { out.opModDiv(lhs, rhs); }
+template <> शून्य foldOp<DfgModDivS>    (V3_संख्या& out, ध्रुव V3_संख्या& lhs, ध्रुव V3_संख्या& rhs) { out.opModDivS(lhs, rhs); }
+template <> शून्य foldOp<DfgMul>        (V3_संख्या& out, ध्रुव V3_संख्या& lhs, ध्रुव V3_संख्या& rhs) { out.opMul(lhs, rhs); }
+template <> शून्य foldOp<DfgMulS>       (V3_संख्या& out, ध्रुव V3_संख्या& lhs, ध्रुव V3_संख्या& rhs) { out.opMulS(lhs, rhs); }
+template <> शून्य foldOp<DfgNeq>        (V3_संख्या& out, ध्रुव V3_संख्या& lhs, ध्रुव V3_संख्या& rhs) { out.opNeq(lhs, rhs); }
+template <> शून्य foldOp<DfgOr>         (V3_संख्या& out, ध्रुव V3_संख्या& lhs, ध्रुव V3_संख्या& rhs) { out.opOr(lhs, rhs); }
+template <> शून्य foldOp<DfgPow>        (V3_संख्या& out, ध्रुव V3_संख्या& lhs, ध्रुव V3_संख्या& rhs) { out.opPow(lhs, rhs); }
+template <> शून्य foldOp<DfgPowSS>      (V3_संख्या& out, ध्रुव V3_संख्या& lhs, ध्रुव V3_संख्या& rhs) { out.opPowSS(lhs, rhs); }
+template <> शून्य foldOp<DfgPowSU>      (V3_संख्या& out, ध्रुव V3_संख्या& lhs, ध्रुव V3_संख्या& rhs) { out.opPowSU(lhs, rhs); }
+template <> शून्य foldOp<DfgPowUS>      (V3_संख्या& out, ध्रुव V3_संख्या& lhs, ध्रुव V3_संख्या& rhs) { out.opPowUS(lhs, rhs); }
+template <> शून्य foldOp<DfgShiftL>     (V3_संख्या& out, ध्रुव V3_संख्या& lhs, ध्रुव V3_संख्या& rhs) { out.opShiftL(lhs, rhs); }
+template <> शून्य foldOp<DfgShiftR>     (V3_संख्या& out, ध्रुव V3_संख्या& lhs, ध्रुव V3_संख्या& rhs) { out.opShiftR(lhs, rhs); }
+template <> शून्य foldOp<DfgShiftRS>    (V3_संख्या& out, ध्रुव V3_संख्या& lhs, ध्रुव V3_संख्या& rhs) { out.opShiftRS(lhs, rhs, lhs.width()); }
+template <> शून्य foldOp<DfgSub>        (V3_संख्या& out, ध्रुव V3_संख्या& lhs, ध्रुव V3_संख्या& rhs) { out.opSub(lhs, rhs); }
+template <> शून्य foldOp<DfgXor>        (V3_संख्या& out, ध्रुव V3_संख्या& lhs, ध्रुव V3_संख्या& rhs) { out.opXor(lhs, rhs); }
 }
 // clang-format on
 
-class V3DfgPeephole final : public DfgVisitor {
+वर्ग V3DfgPeephole final : सार्वजनिक DfgVisitor {
     // TYPES
-    struct VertexInfo final {
+    संरचना VertexInfo final {
         size_t m_workListIndex = 0;  // Position of this vertx m_workList (0 means not in list)
         size_t m_iterListIndex = 0;  // Position of this vertx m_iterList (0 means not in list)
         size_t m_generation = 0;  // Generation number of this vertex - for uniqueness check
         size_t m_id = 0;  // Unique vertex ID (0 means unassigned) - for sorting
-        bool m_isCachedVertex = false;  // This vertex is the vertex cached for its operation
+        तार्किक m_isCachedVertex = असत्य;  // This vertex is the vertex cached for its operation
     };
 
     // STATE
     DfgGraph& m_dfg;  // The DfgGraph being visited
     V3DfgPeepholeContext& m_ctx;  // The config structure
-    const DfgDataType& m_bitDType = DfgDataType::packed(1);  // Common, so grab it up front
+    ध्रुव DfgDataType& m_bitDType = DfgDataType::packed(1);  // Common, so grab it up front
     std::vector<DfgVertex*> m_workList;  // List of vertices processed in current interation
     std::vector<DfgVertex*> m_iterList;  // Vertices to start from on next iteration
     DfgUserMap<VertexInfo> m_vInfo = m_dfg.makeUserMap<VertexInfo>();  // Map to VertexInfo
@@ -211,97 +211,97 @@ class V3DfgPeephole final : public DfgVisitor {
     size_t m_lastId = 0;  // Last unique vertex ID assigned
     // Scope for transient temporariy variables cerated in this pass. They should all be
     // eliminated wihtin this pass, so anything should be ok, pick the top scope as easy to find.
-    AstScope* const m_tmpScopep = v3Global.rootp()->topScopep()->scopep();
+    AstScope* ध्रुव m_tmpScopep = v3Global.rootp()->शीर्ष_Scopep()->scopep();
 
     // STATIC STATE
-    static V3DebugBisect s_debugBisect;  // Debug aid
+    स्थिर V3DebugBisect s_debugBisect;  // Debug aid
 
-#define APPLYING(id) if (checkApplying(VDfgPeepholePattern::id))
+#define APPLYING(id) यदि (checkApplying(VDfgPeepholePattern::id))
 
     // METHODS
-    bool checkApplying(VDfgPeepholePattern id) {
-        if (VL_UNLIKELY(!m_ctx.m_enabled[id] || s_debugBisect.isStopped())) return false;
+    तार्किक checkApplying(VDfgPeepholePattern id) {
+        यदि (VL_UNLIKELY(!m_ctx.m_enabled[id] || s_debugBisect.isStopped())) प्रत्यागम असत्य;
         UINFO(9, "Applying DFG pattern " << id.ascii());
-        ++m_ctx.m_count[id];
-        return true;
+        ++m_ctx.m_मोजणी[id];
+        प्रत्यागम सत्य;
     }
 
     // Add vertex to the cache. If an equivalent (but different) vertex is
     // already cached, it is returned and the cache is not updated.
     DfgVertex* cacheVertex(DfgVertex* vtxp) {
-        DfgVertex* const equivp = m_cache.cache(vtxp);
+        DfgVertex* ध्रुव equivp = m_cache.cache(vtxp);
         UASSERT_OBJ(!m_vInfo[vtxp].m_isCachedVertex || !equivp, vtxp,
                     "Vertex marked 'm_isCachedVertex' has a cached equivalent");
         m_vInfo[vtxp].m_isCachedVertex = !equivp;
-        return equivp;
+        प्रत्यागम equivp;
     }
 
     // Remove vertex from the cache (no-op if it is not the cached vertex)
-    void invalidateVertex(DfgVertex* vtxp) {
+    शून्य invalidateVertex(DfgVertex* vtxp) {
         m_cache.invalidate(vtxp);
-        m_vInfo[vtxp].m_isCachedVertex = false;
+        m_vInfo[vtxp].m_isCachedVertex = असत्य;
     }
 
     // Find the vertex of the given type with the given operands in the
     // cache, or create a new one and add it to the cache.
     template <typename Vertex, typename... Operands>
-    Vertex* getOrCreateVertex(FileLine* flp, const DfgDataType& dtype, Operands... operands) {
-        Vertex* const vtxp = m_cache.getOrCreate<Vertex, Operands...>(flp, dtype, operands...);
-        m_vInfo[vtxp].m_isCachedVertex = true;
-        return vtxp;
+    Vertex* getOrCreateVertex(File_ओळ* flp, ध्रुव DfgDataType& dtype, Operands... operands) {
+        Vertex* ध्रुव vtxp = m_cache.getOrCreate<Vertex, Operands...>(flp, dtype, operands...);
+        m_vInfo[vtxp].m_isCachedVertex = सत्य;
+        प्रत्यागम vtxp;
     }
 
     // Find the vertex of the given type with the given operands in the
     // cache, or nullptr if there is no such vertex.
     template <typename Vertex, typename... Operands>
-    Vertex* getVertex(const DfgDataType& dtype, Operands... operands) {
-        Vertex* const vtxp = m_cache.get<Vertex>(dtype, operands...);
+    Vertex* getVertex(ध्रुव DfgDataType& dtype, Operands... operands) {
+        Vertex* ध्रुव vtxp = m_cache.get<Vertex>(dtype, operands...);
         UASSERT_OBJ(!vtxp || m_vInfo[vtxp].m_isCachedVertex, vtxp,
                     "Cached vertex not marked 'm_isCachedVertex'");
-        return vtxp;
+        प्रत्यागम vtxp;
     }
 
-    void incrementGeneration() {
+    शून्य incrementGeneration() {
         ++m_currentGeneration;
         // TODO: could sweep on overflow
     }
 
-    void addToWorkList(DfgVertex* vtxp) {
+    शून्य addToWorkList(DfgVertex* vtxp) {
         VertexInfo& vInfo = m_vInfo[*vtxp];
         // If already on work list, ignore
-        if (vInfo.m_workListIndex) return;
+        यदि (vInfo.m_workListIndex) प्रत्यागम;
         // Add to work list
         vInfo.m_workListIndex = m_workList.size();
-        m_workList.push_back(vtxp);
+        m_workList.ढकला_back(vtxp);
     }
 
-    void removeFromWorkList(DfgVertex* vtxp) {
+    शून्य removeFromWorkList(DfgVertex* vtxp) {
         VertexInfo& vInfo = m_vInfo[*vtxp];
         // m_workList[0] is always nullptr, fine to assign same here
         m_workList[vInfo.m_workListIndex] = nullptr;
         vInfo.m_workListIndex = 0;
     }
 
-    void addToIterList(DfgVertex* vtxp) {
+    शून्य addToIterList(DfgVertex* vtxp) {
         VertexInfo& vInfo = m_vInfo[*vtxp];
         // If already on iter list, ignore
-        if (vInfo.m_iterListIndex) return;
+        यदि (vInfo.m_iterListIndex) प्रत्यागम;
         // Add to iter list
         vInfo.m_iterListIndex = m_iterList.size();
-        m_iterList.push_back(vtxp);
+        m_iterList.ढकला_back(vtxp);
     }
 
-    void removeFromIterList(DfgVertex* vtxp) {
+    शून्य removeFromIterList(DfgVertex* vtxp) {
         VertexInfo& vInfo = m_vInfo[*vtxp];
         // m_iterList[0] is always nullptr, fine to assign same here
         m_iterList[vInfo.m_iterListIndex] = nullptr;
         vInfo.m_iterListIndex = 0;
     }
 
-    void deleteVertex(DfgVertex* vtxp) {
+    शून्य deleteVertex(DfgVertex* vtxp) {
         UASSERT_OBJ(!m_vInfo[vtxp].m_workListIndex, vtxp, "Deleted Vertex is in work list");
         UASSERT_OBJ(!vtxp->hasSinks(), vtxp, "Should not delete used vertex");
-        const DfgVertexVar* const varp = vtxp->cast<DfgVertexVar>();
+        ध्रुव DfgVertexVar* ध्रुव varp = vtxp->cast<DfgVertexVar>();
         UASSERT_OBJ(!varp || !varp->hasPrev(), vtxp, "Deleting variable consumed via DfgPrev");
 
         // Invalidate cache entry
@@ -316,38 +316,38 @@ class V3DfgPeephole final : public DfgVisitor {
         srcps.reserve(vtxp->nInputs());
         vtxp->foreachSource([&](DfgVertex& src) {
             // If it's a variable, add to work list to see if it became redundant
-            if (src.is<DfgVertexVar>()) {
+            यदि (src.is<DfgVertexVar>()) {
                 addToWorkList(&src);
-                return false;
+                प्रत्यागम असत्य;
             }
             // Gather unique sources
             VertexInfo& vInfo = m_vInfo[src];
-            if (vInfo.m_generation != m_currentGeneration) srcps.push_back(&src);
+            यदि (vInfo.m_generation != m_currentGeneration) srcps.ढकला_back(&src);
             vInfo.m_generation = m_currentGeneration;
-            return false;
+            प्रत्यागम असत्य;
         });
 
         // This pass only removes variables that are either not driven in this graph,
         // or are not observable outside the graph. If there is also no external write
         // to the variable and no references in other graph then delete the Ast var too.
-        if (varp && !varp->isVolatile() && !varp->hasDfgRefs()) {
-            m_ctx.m_deleteps.push_back(varp->vscp());
+        यदि (varp && !varp->isVolatile() && !varp->hasDfgRefs()) {
+            m_ctx.m_deleteps.ढकला_back(varp->vscp());
             VL_DO_DANGLING(vtxp->unlinkDelete(m_dfg), vtxp);
-        } else {
+        } अन्यथा {
             VL_DO_DANGLING(vtxp->unlinkDelete(m_dfg), vtxp);
         }
 
         // Partition sources into used/unused after removing the vertex
-        const auto mid
+        ध्रुव auto mid
             = std::stable_partition(srcps.begin(), srcps.end(), [](DfgVertex* srcp) {  //
-                  return srcp->hasSinks();
+                  प्रत्यागम srcp->hasSinks();
               });
 
         // Add used sources to the iter list - their sinks have changed
-        for (auto it = srcps.begin(); it != mid; ++it) addToIterList(*it);
+        प्रति (auto it = srcps.begin(); it != mid; ++it) addToIterList(*it);
 
         // Recursively delete unused sources
-        for (auto it = mid; it != srcps.end(); ++it) {
+        प्रति (auto it = mid; it != srcps.end(); ++it) {
             // Remove from work list
             removeFromWorkList(*it);
             // Delete vertex
@@ -356,38 +356,38 @@ class V3DfgPeephole final : public DfgVisitor {
     }
 
     // Replace 'm_vtxp' with the given vertex
-    void replace(DfgVertex* resp) {
+    शून्य replace(DfgVertex* resp) {
         // Should not be in the work list
         UASSERT_OBJ(!m_vInfo[m_vtxp].m_workListIndex, m_vtxp, "Replaced Vertex is in work list");
 
         // Debug bisect check
-        const auto debugCallback = [&]() -> void {
+        ध्रुव auto debugCallback = [&]() -> शून्य {
             UINFO(0, "Problematic DfgPeephole replacement: " << m_vtxp << " -> " << resp);
             m_dfg.sourceCone({m_vtxp, resp});
-            const auto cone = m_dfg.sourceCone({m_vtxp, resp});
-            m_dfg.dumpDotFilePrefixed("peephole-broken", [&](const DfgVertex& v) {  //
-                return cone->count(&v);
+            ध्रुव auto cone = m_dfg.sourceCone({m_vtxp, resp});
+            m_dfg.dumpDotFilePrefixed("peephole-broken", [&](ध्रुव DfgVertex& v) {  //
+                प्रत्यागम cone->मोजणी(&v);
             });
         };
-        if (VL_UNLIKELY(s_debugBisect.stop(debugCallback))) return;
+        यदि (VL_UNLIKELY(s_debugBisect.stop(debugCallback))) प्रत्यागम;
 
         // Add sources of the original vertex to the iter list - their sinks are changing
         m_vtxp->foreachSource([&](DfgVertex& src) {
             addToIterList(&src);
-            return false;
+            प्रत्यागम असत्य;
         });
 
         // Remove sinks of the original vertex from the cache - their inputs are changing
         m_vtxp->foreachSink([&](DfgVertex& dst) {
             invalidateVertex(&dst);
-            return false;
+            प्रत्यागम असत्य;
         });
         // Replace vertex with the replacement
         m_vtxp->replaceWith(resp);
         // Re-cache all sinks of the replacement
         resp->foreachSink([&](DfgVertex& dst) {
             cacheVertex(&dst);
-            return false;
+            प्रत्यागम असत्य;
         });
 
         // Original vertex is now unused, so delete it
@@ -399,95 +399,95 @@ class V3DfgPeephole final : public DfgVisitor {
         addToWorkList(resp);
         resp->foreachSink([&](DfgVertex& dst) {
             addToWorkList(&dst);
-            return false;
+            प्रत्यागम असत्य;
         });
     }
 
     // Create a 32-bit DfgConst vertex
-    DfgConst* makeI32(FileLine* flp, uint32_t val) { return new DfgConst{m_dfg, flp, 32, val}; }
+    DfgConst* makeI32(File_ओळ* flp, uint32_t val) { प्रत्यागम नूतन DfgConst{m_dfg, flp, 32, val}; }
 
     // Create a DfgConst vertex with the given width and value zero
-    DfgConst* makeZero(FileLine* flp, uint32_t width) {
-        return new DfgConst{m_dfg, flp, width, 0};
+    DfgConst* makeZero(File_ओळ* flp, uint32_t width) {
+        प्रत्यागम नूतन DfgConst{m_dfg, flp, width, 0};
     }
-    DfgConst* makeZero(FileLine* flp, const DfgDataType& dtype) {
-        return makeZero(flp, dtype.size());
+    DfgConst* makeZero(File_ओळ* flp, ध्रुव DfgDataType& dtype) {
+        प्रत्यागम makeZero(flp, dtype.size());
     }
 
     // Create a DfgConst vertex with the given width and value all ones
-    DfgConst* makeOnes(FileLine* flp, uint32_t width) {
-        DfgConst* const resp = makeZero(flp, width);
-        resp->num().setAllBits1();
-        return resp;
+    DfgConst* makeOnes(File_ओळ* flp, uint32_t width) {
+        DfgConst* ध्रुव resp = makeZero(flp, width);
+        resp->अंक().setAllBits1();
+        प्रत्यागम resp;
     }
 
     // Create a new vertex of the given type
     template <typename Vertex, typename... Operands>
-    Vertex* make(FileLine* flp, const DfgDataType& dtype, Operands... operands) {
+    Vertex* make(File_ओळ* flp, ध्रुव DfgDataType& dtype, Operands... operands) {
         // Find or create an equivalent vertex
-        Vertex* const vtxp = getOrCreateVertex<Vertex, Operands...>(flp, dtype, operands...);
+        Vertex* ध्रुव vtxp = getOrCreateVertex<Vertex, Operands...>(flp, dtype, operands...);
         // Sanity check
         UASSERT_OBJ(vtxp->dtype() == dtype, vtxp, "Vertex dtype mismatch");
-        if (VL_UNLIKELY(v3Global.opt.debugCheck())) vtxp->typeCheck(m_dfg);
+        यदि (VL_UNLIKELY(v3Global.opt.debugCheck())) vtxp->typeCheck(m_dfg);
         // Assign vertex ID
         VertexInfo& vInfo = m_vInfo[vtxp];
-        if (!vInfo.m_id) vInfo.m_id = ++m_lastId;
+        यदि (!vInfo.m_id) vInfo.m_id = ++m_lastId;
         // Add to work list
         addToWorkList(vtxp);
         // Return new node
-        return vtxp;
+        प्रत्यागम vtxp;
     }
 
     // Same as above, but 'flp' and 'dtypep' are taken from the given example vertex
     template <typename Vertex, typename... Operands>
-    Vertex* make(const DfgVertex* examplep, Operands... operands) {
-        return make<Vertex>(examplep->fileline(), examplep->dtype(), operands...);
+    Vertex* make(ध्रुव DfgVertex* examplep, Operands... operands) {
+        प्रत्यागम make<Vertex>(examplep->fileline(), examplep->dtype(), operands...);
     }
 
     // Replicate 'bitp' to 'vtxp->width()' bits
     DfgVertex* replicate(DfgVertex* vtxp, DfgVertex* bitp) {
         UASSERT_OBJ(bitp->dtype() == m_bitDType, vtxp, "Expected 1-bit vertex");
-        if (vtxp->dtype() == m_bitDType) return bitp;
-        return make<DfgRep>(vtxp, bitp);
+        यदि (vtxp->dtype() == m_bitDType) प्रत्यागम bitp;
+        प्रत्यागम make<DfgRep>(vtxp, bitp);
     }
 
     // Check two vertex are the same, or the same constant value
-    static bool isSame(const DfgVertex* ap, const DfgVertex* bp) {
-        if (ap == bp) return true;
-        if (ap->dtype() != bp->dtype()) return false;
-        const DfgConst* const aConstp = ap->cast<DfgConst>();
-        if (!aConstp) return false;
-        const DfgConst* const bConstp = bp->cast<DfgConst>();
-        if (!bConstp) return false;
-        return aConstp->num().isCaseEq(bConstp->num());
+    स्थिर तार्किक isSame(ध्रुव DfgVertex* ap, ध्रुव DfgVertex* bp) {
+        यदि (ap == bp) प्रत्यागम सत्य;
+        यदि (ap->dtype() != bp->dtype()) प्रत्यागम असत्य;
+        ध्रुव DfgConst* ध्रुव aConstp = ap->cast<DfgConst>();
+        यदि (!aConstp) प्रत्यागम असत्य;
+        ध्रुव DfgConst* ध्रुव bConstp = bp->cast<DfgConst>();
+        यदि (!bConstp) प्रत्यागम असत्य;
+        प्रत्यागम aConstp->अंक().isCaseEq(bConstp->अंक());
     }
 
-    static bool isZero(const DfgVertex* vtxp) {
-        if (const DfgConst* const constp = vtxp->cast<DfgConst>()) return constp->isZero();
-        return false;
+    स्थिर तार्किक isZero(ध्रुव DfgVertex* vtxp) {
+        यदि (ध्रुव DfgConst* ध्रुव constp = vtxp->cast<DfgConst>()) प्रत्यागम constp->isZero();
+        प्रत्यागम असत्य;
     }
 
-    static bool isOnes(const DfgVertex* vtxp) {
-        if (const DfgConst* const constp = vtxp->cast<DfgConst>()) return constp->isOnes();
-        return false;
+    स्थिर तार्किक isOnes(ध्रुव DfgVertex* vtxp) {
+        यदि (ध्रुव DfgConst* ध्रुव constp = vtxp->cast<DfgConst>()) प्रत्यागम constp->isOnes();
+        प्रत्यागम असत्य;
     }
 
-    static bool isEqOne(const DfgVertex* vtxp) {
-        if (const DfgConst* const constp = vtxp->cast<DfgConst>()) return constp->num().isEqOne();
-        return false;
+    स्थिर तार्किक isEqOne(ध्रुव DfgVertex* vtxp) {
+        यदि (ध्रुव DfgConst* ध्रुव constp = vtxp->cast<DfgConst>()) प्रत्यागम constp->अंक().isEqOne();
+        प्रत्यागम असत्य;
     }
 
-    static bool areAdjacent(uint32_t& lsb, const DfgSel* lSelp, const DfgSel* rSelp) {
-        if (!isSame(lSelp->srcp(), rSelp->srcp())) return false;
-        if (lSelp->lsb() + lSelp->width() == rSelp->lsb()) {
+    स्थिर तार्किक areAdjacent(uint32_t& lsb, ध्रुव DfgSel* lSelp, ध्रुव DfgSel* rSelp) {
+        यदि (!isSame(lSelp->srcp(), rSelp->srcp())) प्रत्यागम असत्य;
+        यदि (lSelp->lsb() + lSelp->width() == rSelp->lsb()) {
             lsb = lSelp->lsb();
-            return true;
+            प्रत्यागम सत्य;
         }
-        if (lSelp->lsb() == rSelp->lsb() + rSelp->width()) {
+        यदि (lSelp->lsb() == rSelp->lsb() + rSelp->width()) {
             lsb = rSelp->lsb();
-            return true;
+            प्रत्यागम सत्य;
         }
-        return false;
+        प्रत्यागम असत्य;
     }
 
     // Note: If any of the following transformers return true, then the vertex was replaced and the
@@ -496,127 +496,127 @@ class V3DfgPeephole final : public DfgVisitor {
 
     // Constant fold unary vertex, return true if folded
     template <typename Vertex>
-    VL_ATTR_WARN_UNUSED_RESULT bool foldUnary(Vertex* const vtxp) {
-        static_assert(std::is_base_of<DfgVertexUnary, Vertex>::value, "Must invoke on unary");
-        static_assert(std::is_final<Vertex>::value, "Must invoke on final class");
-        if (DfgConst* const srcp = vtxp->srcp()->template cast<DfgConst>()) {
+    VL_ATTR_WARN_UNUSED_RESULT तार्किक foldUnary(Vertex* ध्रुव vtxp) {
+        static_assert(std::is_base_of<DfgVertexUnary, Vertex>::मूल्य, "Must invoke on unary");
+        static_assert(std::is_final<Vertex>::मूल्य, "Must invoke on final class");
+        यदि (DfgConst* ध्रुव srcp = vtxp->srcp()->template cast<DfgConst>()) {
             APPLYING(FOLD_UNARY) {
-                DfgConst* const resultp = makeZero(vtxp->fileline(), vtxp->width());
-                foldOp<Vertex>(resultp->num(), srcp->num());
+                DfgConst* ध्रुव resultp = makeZero(vtxp->fileline(), vtxp->width());
+                foldOp<Vertex>(resultp->अंक(), srcp->अंक());
                 replace(resultp);
-                return true;
+                प्रत्यागम सत्य;
             }
         }
-        return false;
+        प्रत्यागम असत्य;
     }
 
     // Generic transformations that apply to binary vertices. Returns true if vtxp was replaced.
     template <typename Vertex>
-    VL_ATTR_WARN_UNUSED_RESULT bool binary(Vertex* const vtxp) {
-        static_assert(std::is_base_of<DfgVertexBinary, Vertex>::value, "Must invoke on binary");
-        static_assert(std::is_final<Vertex>::value, "Must invoke on final class");
+    VL_ATTR_WARN_UNUSED_RESULT तार्किक द्विमान(Vertex* ध्रुव vtxp) {
+        static_assert(std::is_base_of<Dfg_Vertex_द्विमान, Vertex>::मूल्य, "Must invoke on binary");
+        static_assert(std::is_final<Vertex>::मूल्य, "Must invoke on final class");
 
-        FileLine* const flp = vtxp->fileline();
+        File_ओळ* ध्रुव flp = vtxp->fileline();
         // LHS/RHS of the vertex
-        DfgVertex* const lhsp = vtxp->lhsp();
-        DfgVertex* const rhsp = vtxp->rhsp();
+        DfgVertex* ध्रुव lhsp = vtxp->lhsp();
+        DfgVertex* ध्रुव rhsp = vtxp->rhsp();
         // LHS/RHS as constant
-        DfgConst* const lConstp = lhsp->cast<DfgConst>();
-        DfgConst* const rConstp = rhsp->cast<DfgConst>();
+        DfgConst* ध्रुव lConstp = lhsp->cast<DfgConst>();
+        DfgConst* ध्रुव rConstp = rhsp->cast<DfgConst>();
         // LHS/RHS as same vertex type
-        Vertex* const lSamep = lhsp->cast<Vertex>();
-        Vertex* const rSamep = rhsp->cast<Vertex>();
+        Vertex* ध्रुव lSamep = lhsp->cast<Vertex>();
+        Vertex* ध्रुव rSamep = rhsp->cast<Vertex>();
 
         // Constant folding
-        if (lConstp && rConstp) {
-            APPLYING(FOLD_BINARY) {
-                DfgConst* const resultp = makeZero(flp, resultDType<Vertex>(lhsp, rhsp));
-                foldOp<Vertex>(resultp->num(), lConstp->num(), rConstp->num());
+        यदि (lConstp && rConstp) {
+            APPLYING(FOLD_द्विमान) {
+                DfgConst* ध्रुव resultp = makeZero(flp, resultDType<Vertex>(lhsp, rhsp));
+                foldOp<Vertex>(resultp->अंक(), lConstp->अंक(), rConstp->अंक());
                 replace(resultp);
-                return true;
+                प्रत्यागम सत्य;
             }
         }
 
         // Idempotent
-        if VL_CONSTEXPR_CXX17 (IsIdempotent<Vertex>::value) {
-            if (isSame(lhsp, rhsp)) {
-                APPLYING(REMOVE_IDEMPOTENT_BINARY) {
+        यदि VL_CONSTEXPR_CXX17 (IsIdempotent<Vertex>::मूल्य) {
+            यदि (isSame(lhsp, rhsp)) {
+                APPLYING(REMOVE_IDEMPOTENT_द्विमान) {
                     replace(lhsp);
-                    return true;
+                    प्रत्यागम सत्य;
                 }
             }
         }
 
         // Associative
-        if VL_CONSTEXPR_CXX17 (IsAssociative<Vertex>::value) {
+        यदि VL_CONSTEXPR_CXX17 (IsAssociative<Vertex>::मूल्य) {
             // Also commutative and idempotent
-            if VL_CONSTEXPR_CXX17 (IsCommutative<Vertex>::value && IsIdempotent<Vertex>::value) {
-                if (lSamep && (isSame(lSamep->lhsp(), rhsp) || isSame(lSamep->rhsp(), rhsp))) {
-                    APPLYING(REMOVE_ACI_BINARY_LHS) {
+            यदि VL_CONSTEXPR_CXX17 (IsCommutative<Vertex>::मूल्य && IsIdempotent<Vertex>::मूल्य) {
+                यदि (lSamep && (isSame(lSamep->lhsp(), rhsp) || isSame(lSamep->rhsp(), rhsp))) {
+                    APPLYING(REMOVE_ACI_द्विमान_LHS) {
                         replace(lSamep);
-                        return true;
+                        प्रत्यागम सत्य;
                     }
                 }
-                if (rSamep && (isSame(lhsp, rSamep->lhsp()) || isSame(lhsp, rSamep->rhsp()))) {
-                    APPLYING(REMOVE_ACI_BINARY_RHS) {
+                यदि (rSamep && (isSame(lhsp, rSamep->lhsp()) || isSame(lhsp, rSamep->rhsp()))) {
+                    APPLYING(REMOVE_ACI_द्विमान_RHS) {
                         replace(rSamep);
-                        return true;
+                        प्रत्यागम सत्य;
                     }
                 }
             }
 
-            if (lConstp && rSamep) {
-                if (DfgConst* const rlConstp = rSamep->lhsp()->template cast<DfgConst>()) {
+            यदि (lConstp && rSamep) {
+                यदि (DfgConst* ध्रुव rlConstp = rSamep->lhsp()->template cast<DfgConst>()) {
                     // TODO: Maybe only if !rSamep->hasMultipleSinks()
-                    APPLYING(FOLD_ASSOC_BINARY_LHS_OF_RHS) {
-                        DfgConst* const cp = makeZero(flp, resultDType<Vertex>(lConstp, rlConstp));
-                        foldOp<Vertex>(cp->num(), lConstp->num(), rlConstp->num());
+                    APPLYING(FOLD_ASSOC_द्विमान_LHS_OF_RHS) {
+                        DfgConst* ध्रुव cp = makeZero(flp, resultDType<Vertex>(lConstp, rlConstp));
+                        foldOp<Vertex>(cp->अंक(), lConstp->अंक(), rlConstp->अंक());
                         replace(make<Vertex>(vtxp, cp, rSamep->rhsp()));
-                        return true;
+                        प्रत्यागम सत्य;
                     }
                 }
             }
 
-            if (lSamep && rConstp) {
-                if (DfgConst* const lrConstp = lSamep->rhsp()->template cast<DfgConst>()) {
+            यदि (lSamep && rConstp) {
+                यदि (DfgConst* ध्रुव lrConstp = lSamep->rhsp()->template cast<DfgConst>()) {
                     // TODO: Maybe only if !lSameps->hasMultipleSinks()
-                    APPLYING(FOLD_ASSOC_BINARY_RHS_OF_LHS) {
-                        DfgConst* const cp = makeZero(flp, resultDType<Vertex>(lrConstp, rConstp));
-                        foldOp<Vertex>(cp->num(), lrConstp->num(), rConstp->num());
+                    APPLYING(FOLD_ASSOC_द्विमान_RHS_OF_LHS) {
+                        DfgConst* ध्रुव cp = makeZero(flp, resultDType<Vertex>(lrConstp, rConstp));
+                        foldOp<Vertex>(cp->अंक(), lrConstp->अंक(), rConstp->अंक());
                         replace(make<Vertex>(vtxp, lSamep->lhsp(), cp));
-                        return true;
+                        प्रत्यागम सत्य;
                     }
                 }
             }
 
             // Make associative trees right leaning to reduce variations
-            if (lSamep && !lSamep->hasMultipleSinks()) {
-                DfgVertex* const ap = lSamep->lhsp();
-                DfgVertex* const bp = lSamep->rhsp();
-                DfgVertex* const cp = rhsp;
+            यदि (lSamep && !lSamep->hasMultipleSinks()) {
+                DfgVertex* ध्रुव ap = lSamep->lhsp();
+                DfgVertex* ध्रुव bp = lSamep->rhsp();
+                DfgVertex* ध्रुव cp = rhsp;
                 // Only do this if the rhs is not the same as the operands of the LHS, otherwise
                 // SWAP_SIDE_IN_COMMUTATIVE_BINARY can get in a loop with this pattern.
-                if (ap != cp && bp != cp) {
-                    APPLYING(RIGHT_LEANING_ASSOC) {
+                यदि (ap != cp && bp != cp) {
+                    APPLYING(उजवा_LEANING_ASSOC) {
                         // Rotate the expression tree rooted at 'vtxp' to the right,
                         // producing a right-leaning tree
-                        const DfgDataType& childDType = resultDType<Vertex>(bp, cp);
-                        Vertex* const bcp = make<Vertex>(vtxp->fileline(), childDType, bp, cp);
+                        ध्रुव DfgDataType& childDType = resultDType<Vertex>(bp, cp);
+                        Vertex* ध्रुव bcp = make<Vertex>(vtxp->fileline(), childDType, bp, cp);
                         replace(make<Vertex>(lSamep->fileline(), vtxp->dtype(), ap, bcp));
-                        return true;
+                        प्रत्यागम सत्य;
                     }
                 }
             }
 
-            if (rSamep && !rSamep->hasMultipleSinks()) {
-                DfgVertex* const rlVtxp = rSamep->lhsp();
-                DfgVertex* const rrVtxp = rSamep->rhsp();
+            यदि (rSamep && !rSamep->hasMultipleSinks()) {
+                DfgVertex* ध्रुव rlVtxp = rSamep->lhsp();
+                DfgVertex* ध्रुव rrVtxp = rSamep->rhsp();
 
-                if VL_CONSTEXPR_CXX17 (IsCommutative<Vertex>::value) {
-                    if (!lhsp->hasMultipleSinks() && rlVtxp->hasMultipleSinks()) {
+                यदि VL_CONSTEXPR_CXX17 (IsCommutative<Vertex>::मूल्य) {
+                    यदि (!lhsp->hasMultipleSinks() && rlVtxp->hasMultipleSinks()) {
                         APPLYING(ROTATE_ASSOC_COMM_MULTIUSE) {
                             replace(make<Vertex>(vtxp, rlVtxp, make<Vertex>(vtxp, lhsp, rrVtxp)));
-                            return true;
+                            प्रत्यागम सत्य;
                         }
                     }
                 }
@@ -628,26 +628,26 @@ class V3DfgPeephole final : public DfgVisitor {
                 // otherwise there is no improvement.
 
                 // '(a OP (b OP c))' -> '(a OP b) OP c'
-                if (Vertex* const existingp
+                यदि (Vertex* ध्रुव existingp
                     = getVertex<Vertex>(resultDType<Vertex>(lhsp, rlVtxp), lhsp, rlVtxp)) {
                     UASSERT_OBJ(existingp->hasSinks(), vtxp, "Existing vertex should be used");
-                    if (existingp != rhsp) {
-                        APPLYING(REUSE_ASSOC_BINARY_LHS_WITH_LHS_OF_RHS) {
+                    यदि (existingp != rhsp) {
+                        APPLYING(REUSE_ASSOC_द्विमान_LHS_WITH_LHS_OF_RHS) {
                             replace(make<Vertex>(vtxp, existingp, rrVtxp));
-                            return true;
+                            प्रत्यागम सत्य;
                         }
                     }
                 }
 
                 // '(a OP (b OP c))' -> '(a OP c) OP b' iff also commutative
-                if VL_CONSTEXPR_CXX17 (IsCommutative<Vertex>::value) {
-                    if (Vertex* const existingp
+                यदि VL_CONSTEXPR_CXX17 (IsCommutative<Vertex>::मूल्य) {
+                    यदि (Vertex* ध्रुव existingp
                         = getVertex<Vertex>(resultDType<Vertex>(lhsp, rrVtxp), lhsp, rrVtxp)) {
                         UASSERT_OBJ(existingp->hasSinks(), vtxp, "Existing vertex should be used");
-                        if (existingp != rhsp) {
-                            APPLYING(REUSE_ASSOC_BINARY_LHS_WITH_RHS_OF_RHS) {
+                        यदि (existingp != rhsp) {
+                            APPLYING(REUSE_ASSOC_द्विमान_LHS_WITH_RHS_OF_RHS) {
                                 replace(make<Vertex>(vtxp, existingp, rlVtxp));
-                                return true;
+                                प्रत्यागम सत्य;
                             }
                         }
                     }
@@ -656,215 +656,215 @@ class V3DfgPeephole final : public DfgVisitor {
         }
 
         // Commutative
-        if VL_CONSTEXPR_CXX17 (IsCommutative<Vertex>::value) {
+        यदि VL_CONSTEXPR_CXX17 (IsCommutative<Vertex>::मूल्य) {
             // If constant LHS, push through cond if used once. (Enables branch combining)
-            if (lConstp) {
-                if (DfgCond* const rCondp = rhsp->cast<DfgCond>()) {
-                    if (!rCondp->hasMultipleSinks()) {
-                        APPLYING(PUSH_COMMUTATIVE_BINARY_THROUGH_COND) {
-                            DfgVertex* const tp = make<Vertex>(vtxp, lConstp, rCondp->thenp());
-                            DfgVertex* const ep = make<Vertex>(vtxp, lConstp, rCondp->elsep());
+            यदि (lConstp) {
+                यदि (DfgCond* ध्रुव rCondp = rhsp->cast<DfgCond>()) {
+                    यदि (!rCondp->hasMultipleSinks()) {
+                        APPLYING(ढकला_COMMUTATIVE_द्विमान_THROUGH_COND) {
+                            DfgVertex* ध्रुव tp = make<Vertex>(vtxp, lConstp, rCondp->thenp());
+                            DfgVertex* ध्रुव ep = make<Vertex>(vtxp, lConstp, rCondp->elsep());
                             replace(make<DfgCond>(vtxp, rCondp->condp(), tp, ep));
-                            return true;
+                            प्रत्यागम सत्य;
                         }
                     }
                 }
-                return false;
+                प्रत्यागम असत्य;
             }
         }
 
         // Swap sides to simplify other patterns - This needs to be the last pattern
-        const bool swapSides = [&]() {
+        ध्रुव तार्किक swapSides = [&]() {
             // Don't swap if not commutative, duh
-            if VL_CONSTEXPR_CXX17 (!IsCommutative<Vertex>::value) return false;
+            यदि VL_CONSTEXPR_CXX17 (!IsCommutative<Vertex>::मूल्य) प्रत्यागम असत्य;
             // Const go on left
-            if (lConstp) return false;
-            if (rConstp) return true;
+            यदि (lConstp) प्रत्यागम असत्य;
+            यदि (rConstp) प्रत्यागम सत्य;
             // Not go on left
-            if (lhsp->is<DfgNot>()) return false;
-            if (rhsp->is<DfgNot>()) return true;
+            यदि (lhsp->is<DfgNot>()) प्रत्यागम असत्य;
+            यदि (rhsp->is<DfgNot>()) प्रत्यागम सत्य;
             // Same go on right
-            if (rSamep) return false;
-            if (lSamep) return true;
+            यदि (rSamep) प्रत्यागम असत्य;
+            यदि (lSamep) प्रत्यागम सत्य;
             // Otherwise put sides in order based on unique ID, this makes
             // 'a op b' and 'b op a' end up the same for better combining.
-            const VertexInfo& lInfo = m_vInfo[lhsp];
-            const VertexInfo& rInfo = m_vInfo[rhsp];
-            return lInfo.m_id > rInfo.m_id;
+            ध्रुव VertexInfo& lInfo = m_vInfo[lhsp];
+            ध्रुव VertexInfo& rInfo = m_vInfo[rhsp];
+            प्रत्यागम lInfo.m_id > rInfo.m_id;
         }();
-        if (swapSides) {
-            APPLYING(SWAP_SIDES_IN_BINARY) {
+        यदि (swapSides) {
+            APPLYING(SWAP_SIDES_IN_द्विमान) {
                 replace(make<Vertex>(vtxp, rhsp, lhsp));
-                return true;
+                प्रत्यागम सत्य;
             }
         }
 
-        return false;
+        प्रत्यागम असत्य;
     }
 
     // Transformations that apply to all distributive and associative binary
     // vertices 'Other' is the type that is distributive over 'Vertex',
     // that is: a Other (b Vertex c) == (a Other b) Vertex (a Other c)
     template <typename Other, typename Vertex>
-    VL_ATTR_WARN_UNUSED_RESULT bool distributiveAndAssociativeBinary(Vertex* vtxp) {
-        DfgVertex* const lhsp = vtxp->lhsp();
-        DfgVertex* const rhsp = vtxp->rhsp();
-        if (!lhsp->hasMultipleSinks() && !rhsp->hasMultipleSinks()) {
+    VL_ATTR_WARN_UNUSED_RESULT तार्किक distributive_And_Associative_द्विमान(Vertex* vtxp) {
+        DfgVertex* ध्रुव lhsp = vtxp->lhsp();
+        DfgVertex* ध्रुव rhsp = vtxp->rhsp();
+        यदि (!lhsp->hasMultipleSinks() && !rhsp->hasMultipleSinks()) {
             // Convert '(a Other b) Vertex (a Other c)' and associative
             // variations to 'a Other (b Vertex c)'
-            if (Other* const lp = lhsp->cast<Other>()) {
-                if (Other* const rp = rhsp->cast<Other>()) {
-                    DfgVertex* const llp = lp->lhsp();
-                    DfgVertex* const lrp = lp->rhsp();
-                    DfgVertex* const rlp = rp->lhsp();
-                    DfgVertex* const rrp = rp->rhsp();
+            यदि (Other* ध्रुव lp = lhsp->cast<Other>()) {
+                यदि (Other* ध्रुव rp = rhsp->cast<Other>()) {
+                    DfgVertex* ध्रुव llp = lp->lhsp();
+                    DfgVertex* ध्रुव lrp = lp->rhsp();
+                    DfgVertex* ध्रुव rlp = rp->lhsp();
+                    DfgVertex* ध्रुव rrp = rp->rhsp();
                     DfgVertex* ap = nullptr;
                     DfgVertex* bp = nullptr;
                     DfgVertex* cp = nullptr;
-                    if (llp == rlp) {
+                    यदि (llp == rlp) {
                         ap = llp;
                         bp = lrp;
                         cp = rrp;
-                    } else if (llp == rrp) {
+                    } अन्यथा यदि (llp == rrp) {
                         ap = llp;
                         bp = lrp;
                         cp = rlp;
-                    } else if (lrp == rlp) {
+                    } अन्यथा यदि (lrp == rlp) {
                         ap = lrp;
                         bp = llp;
                         cp = rrp;
-                    } else if (lrp == rrp) {
+                    } अन्यथा यदि (lrp == rrp) {
                         ap = lrp;
                         bp = llp;
                         cp = rlp;
                     }
-                    if (ap) {
-                        APPLYING(REPLACE_DISTRIBUTIVE_BINARY) {
+                    यदि (ap) {
+                        APPLYING(REPLACE_DISTRIBUTIVE_द्विमान) {
                             replace(make<Other>(vtxp, ap, make<Vertex>(lhsp, bp, cp)));
-                            return true;
+                            प्रत्यागम सत्य;
                         }
                     }
                 }
             }
         }
 
-        return false;
+        प्रत्यागम असत्य;
     }
 
     // Bitwise operation with one side Const, and the other side a Concat
     template <typename Vertex>
-    VL_ATTR_WARN_UNUSED_RESULT bool
-    tryPushBitwiseOpThroughConcat(Vertex* const vtxp, DfgConst* constp, DfgConcat* concatp) {
-        FileLine* const flp = vtxp->fileline();
+    VL_ATTR_WARN_UNUSED_RESULT तार्किक
+    try_ढकला_Bitwise_Op_Through_Concat(Vertex* ध्रुव vtxp, DfgConst* constp, DfgConcat* concatp) {
+        File_ओळ* ध्रुव flp = vtxp->fileline();
 
         // If at least one of the sides of the Concat constant, then push Vertex past Concat
-        DfgConst* const catLConstp = concatp->lhsp()->cast<DfgConst>();
-        DfgConst* const catRConstp = concatp->rhsp()->cast<DfgConst>();
-        if (catLConstp || catRConstp) {
-            APPLYING(PUSH_BITWISE_OP_THROUGH_CONCAT) {
-                const uint32_t width = concatp->width();
-                const DfgDataType& lDtype = concatp->lhsp()->dtype();
-                const DfgDataType& rDtype = concatp->rhsp()->dtype();
-                const uint32_t lWidth = lDtype.size();
-                const uint32_t rWidth = rDtype.size();
+        DfgConst* ध्रुव catLConstp = concatp->lhsp()->cast<DfgConst>();
+        DfgConst* ध्रुव catRConstp = concatp->rhsp()->cast<DfgConst>();
+        यदि (catLConstp || catRConstp) {
+            APPLYING(ढकला_BITWISE_OP_THROUGH_CONCAT) {
+                ध्रुव uint32_t width = concatp->width();
+                ध्रुव DfgDataType& lDtype = concatp->lhsp()->dtype();
+                ध्रुव DfgDataType& rDtype = concatp->rhsp()->dtype();
+                ध्रुव uint32_t lWidth = lDtype.size();
+                ध्रुव uint32_t rWidth = rDtype.size();
 
                 // The new Lhs vertex
-                DfgVertex* const newLhsp = [&]() -> DfgVertex* {
-                    DfgConst* const newLhsConstp = makeZero(constp->fileline(), lWidth);
-                    if (catLConstp) {
-                        V3Number num{constp->fileline(), static_cast<int>(lWidth), 0u};
-                        num.opSel(constp->num(), width - 1, rWidth);
-                        foldOp<Vertex>(newLhsConstp->num(), num, catLConstp->num());
-                        return newLhsConstp;
+                DfgVertex* ध्रुव newLhsp = [&]() -> DfgVertex* {
+                    DfgConst* ध्रुव newLhsConstp = makeZero(constp->fileline(), lWidth);
+                    यदि (catLConstp) {
+                        V3_संख्या अंक{constp->fileline(), static_cast<पूर्णाङ्क>(lWidth), 0u};
+                        अंक.opSel(constp->अंक(), width - 1, rWidth);
+                        foldOp<Vertex>(newLhsConstp->अंक(), अंक, catLConstp->अंक());
+                        प्रत्यागम newLhsConstp;
                     }
-                    newLhsConstp->num().opSel(constp->num(), width - 1, rWidth);
-                    return make<Vertex>(flp, lDtype, newLhsConstp, concatp->lhsp());
+                    newLhsConstp->अंक().opSel(constp->अंक(), width - 1, rWidth);
+                    प्रत्यागम make<Vertex>(flp, lDtype, newLhsConstp, concatp->lhsp());
                 }();
 
                 // The new Rhs vertex
-                DfgVertex* const newRhsp = [&]() -> DfgVertex* {
-                    DfgConst* const newRhsConstp = makeZero(constp->fileline(), rWidth);
-                    if (catRConstp) {
-                        V3Number num{constp->fileline(), static_cast<int>(rWidth), 0u};
-                        num.opSel(constp->num(), rWidth - 1, 0);
-                        foldOp<Vertex>(newRhsConstp->num(), num, catRConstp->num());
-                        return newRhsConstp;
+                DfgVertex* ध्रुव newRhsp = [&]() -> DfgVertex* {
+                    DfgConst* ध्रुव newRhsConstp = makeZero(constp->fileline(), rWidth);
+                    यदि (catRConstp) {
+                        V3_संख्या अंक{constp->fileline(), static_cast<पूर्णाङ्क>(rWidth), 0u};
+                        अंक.opSel(constp->अंक(), rWidth - 1, 0);
+                        foldOp<Vertex>(newRhsConstp->अंक(), अंक, catRConstp->अंक());
+                        प्रत्यागम newRhsConstp;
                     }
-                    newRhsConstp->num().opSel(constp->num(), rWidth - 1, 0);
-                    return make<Vertex>(flp, rDtype, newRhsConstp, concatp->rhsp());
+                    newRhsConstp->अंक().opSel(constp->अंक(), rWidth - 1, 0);
+                    प्रत्यागम make<Vertex>(flp, rDtype, newRhsConstp, concatp->rhsp());
                 }();
 
                 // Replace this vertex
                 replace(make<DfgConcat>(concatp, newLhsp, newRhsp));
-                return true;
+                प्रत्यागम सत्य;
             }
         }
-        return false;
+        प्रत्यागम असत्य;
     }
 
     template <typename Vertex>
-    VL_ATTR_WARN_UNUSED_RESULT bool
-    tryPushCompareOpThroughConcat(Vertex* const vtxp, DfgConst* constp, DfgConcat* concatp) {
-        FileLine* const flp = vtxp->fileline();
+    VL_ATTR_WARN_UNUSED_RESULT तार्किक
+    try_ढकला_Compare_Op_Through_Concat(Vertex* ध्रुव vtxp, DfgConst* constp, DfgConcat* concatp) {
+        File_ओळ* ध्रुव flp = vtxp->fileline();
 
         // If at least one of the sides of the Concat is constant, or the concat is unused once,
         // then push the Vertex past the Concat
-        if (!concatp->hasMultipleSinks()  //
+        यदि (!concatp->hasMultipleSinks()  //
             || concatp->lhsp()->is<DfgConst>()  //
             || concatp->rhsp()->is<DfgConst>()) {
-            APPLYING(PUSH_COMPARE_OP_THROUGH_CONCAT) {
-                const uint32_t width = concatp->width();
-                const uint32_t lWidth = concatp->lhsp()->width();
-                const uint32_t rWidth = concatp->rhsp()->width();
+            APPLYING(ढकला_COMPARE_OP_THROUGH_CONCAT) {
+                ध्रुव uint32_t width = concatp->width();
+                ध्रुव uint32_t lWidth = concatp->lhsp()->width();
+                ध्रुव uint32_t rWidth = concatp->rhsp()->width();
 
                 // The new Lhs vertex
-                DfgConst* const newLhsConstp = makeZero(constp->fileline(), lWidth);
-                newLhsConstp->num().opSel(constp->num(), width - 1, rWidth);
-                Vertex* const newLhsp
+                DfgConst* ध्रुव newLhsConstp = makeZero(constp->fileline(), lWidth);
+                newLhsConstp->अंक().opSel(constp->अंक(), width - 1, rWidth);
+                Vertex* ध्रुव newLhsp
                     = make<Vertex>(flp, m_bitDType, newLhsConstp, concatp->lhsp());
 
                 // The new Rhs vertex
-                DfgConst* const newRhsConstp = makeZero(constp->fileline(), rWidth);
-                newRhsConstp->num().opSel(constp->num(), rWidth - 1, 0);
-                Vertex* const newRhsp
+                DfgConst* ध्रुव newRhsConstp = makeZero(constp->fileline(), rWidth);
+                newRhsConstp->अंक().opSel(constp->अंक(), rWidth - 1, 0);
+                Vertex* ध्रुव newRhsp
                     = make<Vertex>(flp, m_bitDType, newRhsConstp, concatp->rhsp());
 
                 // The replacement Vertex
-                if VL_CONSTEXPR_CXX17 (std::is_same<Vertex, DfgEq>::value) {
+                यदि VL_CONSTEXPR_CXX17 (std::is_same<Vertex, DfgEq>::मूल्य) {
                     replace(make<DfgAnd>(concatp->fileline(), m_bitDType, newLhsp, newRhsp));
-                } else if VL_CONSTEXPR_CXX17 (std::is_same<Vertex, DfgNeq>::value) {
+                } अन्यथा यदि VL_CONSTEXPR_CXX17 (std::is_same<Vertex, DfgNeq>::मूल्य) {
                     replace(make<DfgOr>(concatp->fileline(), m_bitDType, newLhsp, newRhsp));
-                } else {
+                } अन्यथा {
                     vtxp->v3fatalSrc("Unhandled vertex type: " << vtxp->typeName());
                 }
-                return true;
+                प्रत्यागम सत्य;
             }
         }
-        return false;
+        प्रत्यागम असत्य;
     }
 
     template <typename Bitwise>
-    VL_ATTR_WARN_UNUSED_RESULT bool tryPushBitwiseOpThroughReductions(Bitwise* const vtxp) {
+    VL_ATTR_WARN_UNUSED_RESULT तार्किक try_ढकला_Bitwise_Op_Through_Reductions(Bitwise* ध्रुव vtxp) {
         using Reduction = BitwiseToReduction<Bitwise>;
 
-        if (Reduction* const lRedp = vtxp->lhsp()->template cast<Reduction>()) {
-            if (Reduction* const rRedp = vtxp->rhsp()->template cast<Reduction>()) {
-                DfgVertex* const lSrcp = lRedp->srcp();
-                DfgVertex* const rSrcp = rRedp->srcp();
-                if (lSrcp->dtype() == rSrcp->dtype() && lSrcp->width() <= VL_QUADSIZE
+        यदि (Reduction* ध्रुव lRedp = vtxp->lhsp()->template cast<Reduction>()) {
+            यदि (Reduction* ध्रुव rRedp = vtxp->rhsp()->template cast<Reduction>()) {
+                DfgVertex* ध्रुव lSrcp = lRedp->srcp();
+                DfgVertex* ध्रुव rSrcp = rRedp->srcp();
+                यदि (lSrcp->dtype() == rSrcp->dtype() && lSrcp->width() <= VL_QUADSIZE
                     && !lSrcp->is<DfgConcat>() && !rSrcp->is<DfgConcat>()
                     && !lSrcp->hasMultipleSinks() && !rSrcp->hasMultipleSinks()) {
-                    APPLYING(PUSH_BITWISE_THROUGH_REDUCTION) {
-                        FileLine* const flp = vtxp->fileline();
-                        Bitwise* const bwp = make<Bitwise>(flp, lSrcp->dtype(), lSrcp, rSrcp);
+                    APPLYING(ढकला_BITWISE_THROUGH_REDUCTION) {
+                        File_ओळ* ध्रुव flp = vtxp->fileline();
+                        Bitwise* ध्रुव bwp = make<Bitwise>(flp, lSrcp->dtype(), lSrcp, rSrcp);
                         replace(make<Reduction>(flp, m_bitDType, bwp));
-                        return true;
+                        प्रत्यागम सत्य;
                     }
                 }
             }
         }
 
-        return false;
+        प्रत्यागम असत्य;
     }
 
     // Checks if 'vtxp' is a single use 'n[i] OP w[j]', with 'OP' a bitwise operation, that can
@@ -873,57 +873,57 @@ class V3DfgPeephole final : public DfgVisitor {
     // and 'b' 64 bits, 'a[3] & b[20]' is '(a & b[24:17])[3]', but 'a[3] & b[1]' and
     // 'a[3] & b[62]' cannot be rewritten, as they would need bits below 'b[0]' or above
     // 'b[63]'.
-    static std::pair<DfgSel*, DfgSel*> pushableUnalignedSels(DfgVertex* vtxp) {
-        if (!vtxp->is<DfgAnd>() && !vtxp->is<DfgOr>() && !vtxp->is<DfgXor>()) {
-            return {nullptr, nullptr};
+    स्थिर std::pair<DfgSel*, DfgSel*> pushableUnalignedSels(DfgVertex* vtxp) {
+        यदि (!vtxp->is<DfgAnd>() && !vtxp->is<DfgOr>() && !vtxp->is<DfgXor>()) {
+            प्रत्यागम {nullptr, nullptr};
         }
-        if (vtxp->hasMultipleSinks()) return {nullptr, nullptr};
-        DfgVertexBinary* const bwp = vtxp->as<DfgVertexBinary>();
-        DfgSel* const lSelp = bwp->lhsp()->cast<DfgSel>();
-        DfgSel* const rSelp = bwp->rhsp()->cast<DfgSel>();
-        if (!lSelp || !rSelp) return {nullptr, nullptr};
-        DfgSel* const nSelp = lSelp->fromp()->width() <= rSelp->fromp()->width() ? lSelp : rSelp;
-        DfgSel* const wSelp = nSelp == lSelp ? rSelp : lSelp;
-        const uint32_t nWidth = nSelp->fromp()->width();
-        if (nWidth > VL_QUADSIZE || wSelp->lsb() < nSelp->lsb()) return {nullptr, nullptr};
-        if (wSelp->lsb() - nSelp->lsb() + nWidth > wSelp->fromp()->width()) {
-            return {nullptr, nullptr};
+        यदि (vtxp->hasMultipleSinks()) प्रत्यागम {nullptr, nullptr};
+        Dfg_Vertex_द्विमान* ध्रुव bwp = vtxp->as<Dfg_Vertex_द्विमान>();
+        DfgSel* ध्रुव lSelp = bwp->lhsp()->cast<DfgSel>();
+        DfgSel* ध्रुव rSelp = bwp->rhsp()->cast<DfgSel>();
+        यदि (!lSelp || !rSelp) प्रत्यागम {nullptr, nullptr};
+        DfgSel* ध्रुव nSelp = lSelp->fromp()->width() <= rSelp->fromp()->width() ? lSelp : rSelp;
+        DfgSel* ध्रुव wSelp = nSelp == lSelp ? rSelp : lSelp;
+        ध्रुव uint32_t nWidth = nSelp->fromp()->width();
+        यदि (nWidth > VL_QUADSIZE || wSelp->lsb() < nSelp->lsb()) प्रत्यागम {nullptr, nullptr};
+        यदि (wSelp->lsb() - nSelp->lsb() + nWidth > wSelp->fromp()->width()) {
+            प्रत्यागम {nullptr, nullptr};
         }
-        return {nSelp, wSelp};
+        प्रत्यागम {nSelp, wSelp};
     }
 
     template <typename Bitwise>
-    VL_ATTR_WARN_UNUSED_RESULT bool tryPushBitwiseOpThrougSel(Bitwise* const vtxp) {
-        DfgVertex* const lhsp = vtxp->lhsp();
-        DfgVertex* const rhsp = vtxp->rhsp();
+    VL_ATTR_WARN_UNUSED_RESULT तार्किक try_ढकला_Bitwise_Op_Throug_Sel(Bitwise* ध्रुव vtxp) {
+        DfgVertex* ध्रुव lhsp = vtxp->lhsp();
+        DfgVertex* ध्रुव rhsp = vtxp->rhsp();
 
-        if (DfgSel* const lSelp = lhsp->cast<DfgSel>()) {
+        यदि (DfgSel* ध्रुव lSelp = lhsp->cast<DfgSel>()) {
             DfgSel* rSelp = nullptr;
             DfgVertex* extrap = nullptr;
-            if (DfgSel* const selp = rhsp->cast<DfgSel>()) {
+            यदि (DfgSel* ध्रुव selp = rhsp->cast<DfgSel>()) {
                 rSelp = selp;
-            } else if (Bitwise* const bitwisep = rhsp->cast<Bitwise>()) {
-                if (DfgSel* const rlSelp = bitwisep->lhsp()->template cast<DfgSel>()) {
+            } अन्यथा यदि (Bitwise* ध्रुव bitwisep = rhsp->cast<Bitwise>()) {
+                यदि (DfgSel* ध्रुव rlSelp = bitwisep->lhsp()->template cast<DfgSel>()) {
                     rSelp = rlSelp;
                     extrap = bitwisep->rhsp();
-                } else if (DfgSel* const rrSelp = bitwisep->rhsp()->template cast<DfgSel>()) {
+                } अन्यथा यदि (DfgSel* ध्रुव rrSelp = bitwisep->rhsp()->template cast<DfgSel>()) {
                     rSelp = rrSelp;
                     extrap = bitwisep->lhsp();
                 }
             }
-            if (rSelp) {
-                DfgVertex* const lFromp = lSelp->fromp();
-                DfgVertex* const rFromp = rSelp->fromp();
-                if (lFromp->dtype() == rFromp->dtype() && lFromp->width() <= VL_QUADSIZE  //
+            यदि (rSelp) {
+                DfgVertex* ध्रुव lFromp = lSelp->fromp();
+                DfgVertex* ध्रुव rFromp = rSelp->fromp();
+                यदि (lFromp->dtype() == rFromp->dtype() && lFromp->width() <= VL_QUADSIZE  //
                     && lSelp->lsb() == rSelp->lsb()) {
-                    APPLYING(PUSH_BITWISE_THROUGH_SEL) {
-                        Bitwise* const bwp
+                    APPLYING(ढकला_BITWISE_THROUGH_SEL) {
+                        Bitwise* ध्रुव bwp
                             = make<Bitwise>(vtxp->fileline(), lSelp->fromp()->dtype(),
                                             lSelp->fromp(), rSelp->fromp());
                         DfgVertex* resp = make<DfgSel>(vtxp, bwp, lSelp->lsb());
-                        if (extrap) resp = make<Bitwise>(vtxp, resp, extrap);
+                        यदि (extrap) resp = make<Bitwise>(vtxp, resp, extrap);
                         replace(resp);
-                        return true;
+                        प्रत्यागम सत्य;
                     }
                 }
             }
@@ -938,224 +938,224 @@ class V3DfgPeephole final : public DfgVisitor {
         {
             // The adjacent terms are the LHS, and the RHS, or in a right-leaning chain the LHS
             // of the RHS
-            Bitwise* const rChainp = rhsp->cast<Bitwise>();
-            if (rChainp && rChainp->hasMultipleSinks()) return false;
-            DfgVertex* const rTermp = rChainp ? rChainp->lhsp() : rhsp;
+            Bitwise* ध्रुव rChainp = rhsp->cast<Bitwise>();
+            यदि (rChainp && rChainp->hasMultipleSinks()) प्रत्यागम असत्य;
+            DfgVertex* ध्रुव rTermp = rChainp ? rChainp->lhsp() : rhsp;
 
-            const auto lSels = pushableUnalignedSels(lhsp);
-            const auto rSels = pushableUnalignedSels(rTermp);
-            if (!lSels.first && !rSels.first) return false;
+            ध्रुव auto lSels = pushableUnalignedSels(lhsp);
+            ध्रुव auto rSels = pushableUnalignedSels(rTermp);
+            यदि (!lSels.first && !rSels.first) प्रत्यागम असत्य;
 
-            const DfgVertex* const opp = lSels.first ? lhsp : rTermp;
+            ध्रुव DfgVertex* ध्रुव opp = lSels.first ? lhsp : rTermp;
             // Must be a different operation, otherwise it is part of the chain
-            if (opp->is<Bitwise>()) return false;
-            const auto& sels = lSels.first ? lSels : rSels;
-            DfgVertex* const nFromp = sels.first->fromp();
-            DfgVertex* const wFromp = sels.second->fromp();
-            const uint32_t offset = sels.second->lsb() - sels.first->lsb();
+            यदि (opp->is<Bitwise>()) प्रत्यागम असत्य;
+            ध्रुव auto& sels = lSels.first ? lSels : rSels;
+            DfgVertex* ध्रुव nFromp = sels.first->fromp();
+            DfgVertex* ध्रुव wFromp = sels.second->fromp();
+            ध्रुव uint32_t offset = sels.second->lsb() - sels.first->lsb();
 
             // Both terms must end up as selects from the same pushed operation
-            const auto matches = [&](const DfgVertex* termp, const auto& tSels) {
+            ध्रुव auto matches = [&](ध्रुव DfgVertex* termp, ध्रुव auto& tSels) {
                 // Original form: 'n[i] OP w[j]'
-                if (tSels.first) {
-                    return termp->type() == opp->type()  //
+                यदि (tSels.first) {
+                    प्रत्यागम termp->type() == opp->type()  //
                            && tSels.first->fromp() == nFromp  //
                            && tSels.second->fromp() == wFromp  //
                            && tSels.second->lsb() - tSels.first->lsb() == offset;
                 }
                 // Already pushed forms: 'nFromp OP Sel(wFromp, offset)',
                 // a select from it, or a reduction of such a select
-                if (termp->is<DfgRedAnd>() || termp->is<DfgRedOr>() || termp->is<DfgRedXor>()) {
+                यदि (termp->is<DfgRedAnd>() || termp->is<DfgRedOr>() || termp->is<DfgRedXor>()) {
                     termp = termp->inputp(0);
                 }
-                if (const DfgSel* const selp = termp->cast<DfgSel>()) {  //
+                यदि (ध्रुव DfgSel* ध्रुव selp = termp->cast<DfgSel>()) {  //
                     termp = selp->fromp();
                 }
-                if (termp->type() != opp->type()) return false;
+                यदि (termp->type() != opp->type()) प्रत्यागम असत्य;
                 // Operands might have been swapped since
-                const DfgVertexBinary* const bwp = termp->as<DfgVertexBinary>();
-                const bool nIsLhs = bwp->lhsp() == nFromp;
-                if (!nIsLhs && bwp->rhsp() != nFromp) return false;
-                const DfgSel* const slicep = (nIsLhs ? bwp->rhsp() : bwp->lhsp())->cast<DfgSel>();
-                return slicep && slicep->fromp() == wFromp && slicep->lsb() == offset;
+                ध्रुव Dfg_Vertex_द्विमान* ध्रुव bwp = termp->as<Dfg_Vertex_द्विमान>();
+                ध्रुव तार्किक nIsLhs = bwp->lhsp() == nFromp;
+                यदि (!nIsLhs && bwp->rhsp() != nFromp) प्रत्यागम असत्य;
+                ध्रुव DfgSel* ध्रुव slicep = (nIsLhs ? bwp->rhsp() : bwp->lhsp())->cast<DfgSel>();
+                प्रत्यागम slicep && slicep->fromp() == wFromp && slicep->lsb() == offset;
             };
-            if (!matches(lhsp, lSels) || !matches(rTermp, rSels)) return false;
+            यदि (!matches(lhsp, lSels) || !matches(rTermp, rSels)) प्रत्यागम असत्य;
 
-            APPLYING(PUSH_BITWISE_THROUGH_UNALIGNED_SEL) {
-                FileLine* const flp = vtxp->fileline();
-                const DfgDataType& dtype = nFromp->dtype();
-                DfgSel* const slicep = make<DfgSel>(flp, dtype, wFromp, offset);
+            APPLYING(ढकला_BITWISE_THROUGH_UNALIGNED_SEL) {
+                File_ओळ* ध्रुव flp = vtxp->fileline();
+                ध्रुव DfgDataType& dtype = nFromp->dtype();
+                DfgSel* ध्रुव slicep = make<DfgSel>(flp, dtype, wFromp, offset);
                 DfgVertex* bwp = nullptr;
-                if (opp->is<DfgAnd>()) {
+                यदि (opp->is<DfgAnd>()) {
                     bwp = make<DfgAnd>(flp, dtype, nFromp, slicep);
-                } else if (opp->is<DfgOr>()) {
+                } अन्यथा यदि (opp->is<DfgOr>()) {
                     bwp = make<DfgOr>(flp, dtype, nFromp, slicep);
-                } else {
+                } अन्यथा {
                     bwp = make<DfgXor>(flp, dtype, nFromp, slicep);
                 }
-                const auto push = [&](DfgVertex* termp, const DfgSel* nSelp) -> DfgVertex* {
-                    return nSelp ? make<DfgSel>(termp, bwp, nSelp->lsb()) : termp;
+                ध्रुव auto ढकला = [&](DfgVertex* termp, ध्रुव DfgSel* nSelp) -> DfgVertex* {
+                    प्रत्यागम nSelp ? make<DfgSel>(termp, bwp, nSelp->lsb()) : termp;
                 };
-                DfgVertex* const newLhsp = push(lhsp, lSels.first);
-                DfgVertex* const newRTermp = push(rTermp, rSels.first);
-                if (rChainp) {
-                    DfgVertex* const newRChainp
+                DfgVertex* ध्रुव newLhsp = ढकला(lhsp, lSels.first);
+                DfgVertex* ध्रुव newRTermp = ढकला(rTermp, rSels.first);
+                यदि (rChainp) {
+                    DfgVertex* ध्रुव newRChainp
                         = make<Bitwise>(rChainp, newRTermp, rChainp->rhsp());
                     replace(make<Bitwise>(vtxp, newLhsp, newRChainp));
-                } else {
+                } अन्यथा {
                     replace(make<Bitwise>(vtxp, newLhsp, newRTermp));
                 }
-                return true;
+                प्रत्यागम सत्य;
             }
         }
 
-        return false;
+        प्रत्यागम असत्य;
     }
 
     // Returns true if 'Concat(lhsp, rhsp)' is folded into a single vertex by another pattern
-    static bool isConcatFoldable(const DfgVertex* lhsp, const DfgVertex* rhsp) {
+    स्थिर तार्किक isConcatFoldable(ध्रुव DfgVertex* lhsp, ध्रुव DfgVertex* rhsp) {
         // Concatenation of the same vertex is a replicate
-        if (isSame(lhsp, rhsp)) return true;
-        if (const DfgRep* const lRepp = lhsp->cast<DfgRep>()) {
-            if (isSame(lRepp->srcp(), rhsp)) return true;
+        यदि (isSame(lhsp, rhsp)) प्रत्यागम सत्य;
+        यदि (ध्रुव DfgRep* ध्रुव lRepp = lhsp->cast<DfgRep>()) {
+            यदि (isSame(lRepp->srcp(), rhsp)) प्रत्यागम सत्य;
         }
-        if (const DfgRep* const rRepp = rhsp->cast<DfgRep>()) {
-            if (isSame(lhsp, rRepp->srcp())) return true;
+        यदि (ध्रुव DfgRep* ध्रुव rRepp = rhsp->cast<DfgRep>()) {
+            यदि (isSame(lhsp, rRepp->srcp())) प्रत्यागम सत्य;
         }
         // Concatenation of adjoining selects is a select
-        if (const DfgSel* const lSelp = lhsp->cast<DfgSel>()) {
-            if (const DfgSel* const rSelp = rhsp->cast<DfgSel>()) {
-                return isSame(lSelp->fromp(), rSelp->fromp())
+        यदि (ध्रुव DfgSel* ध्रुव lSelp = lhsp->cast<DfgSel>()) {
+            यदि (ध्रुव DfgSel* ध्रुव rSelp = rhsp->cast<DfgSel>()) {
+                प्रत्यागम isSame(lSelp->fromp(), rSelp->fromp())
                        && lSelp->lsb() == rSelp->lsb() + rSelp->width();
             }
         }
         // Concatenation of Nots is pushed through the Nots (PUSH_CONCAT_THROUGH_NOTS)
-        if (const DfgNot* const lNotp = lhsp->cast<DfgNot>()) {
-            if (const DfgNot* const rNotp = rhsp->cast<DfgNot>()) {
-                return !lNotp->hasMultipleSinks()  //
+        यदि (ध्रुव DfgNot* ध्रुव lNotp = lhsp->cast<DfgNot>()) {
+            यदि (ध्रुव DfgNot* ध्रुव rNotp = rhsp->cast<DfgNot>()) {
+                प्रत्यागम !lNotp->hasMultipleSinks()  //
                        && !rNotp->hasMultipleSinks()  //
                        && isConcatFoldable(lNotp->srcp(), rNotp->srcp());
             }
         }
-        return false;
+        प्रत्यागम असत्य;
     }
 
     // Returns true if 'lhsp' and 'rhsp' are the same bitwise operation
-    static bool isSameBitwise(const DfgVertex* lhsp, const DfgVertex* rhsp) {
-        if (lhsp->type() != rhsp->type()) return false;
-        return lhsp->is<DfgAnd>() || lhsp->is<DfgOr>() || lhsp->is<DfgXor>();
+    स्थिर तार्किक isSameBitwise(ध्रुव DfgVertex* lhsp, ध्रुव DfgVertex* rhsp) {
+        यदि (lhsp->type() != rhsp->type()) प्रत्यागम असत्य;
+        प्रत्यागम lhsp->is<DfgAnd>() || lhsp->is<DfgOr>() || lhsp->is<DfgXor>();
     }
 
     // Returns true if 'Concat(lhsp, rhsp)' folds into a single vertex, either directly, or
     // after pushing it through the same bitwise operation on both sides
-    static bool isConcatSimplifiable(const DfgVertex* lhsp, const DfgVertex* rhsp) {
-        if (isConcatFoldable(lhsp, rhsp)) return true;
-        if (!isSameBitwise(lhsp, rhsp)) return false;
-        if (lhsp->hasMultipleSinks() || rhsp->hasMultipleSinks()) return false;
-        const DfgVertexBinary* const lp = lhsp->as<DfgVertexBinary>();
-        const DfgVertexBinary* const rp = rhsp->as<DfgVertexBinary>();
-        if (isConcatFoldable(lp->lhsp(), rp->lhsp()) && isConcatFoldable(lp->rhsp(), rp->rhsp()))
-            return true;
-        if (isConcatFoldable(lp->lhsp(), rp->rhsp()) && isConcatFoldable(lp->rhsp(), rp->lhsp()))
-            return true;
-        return false;
+    स्थिर तार्किक isConcatSimplifiable(ध्रुव DfgVertex* lhsp, ध्रुव DfgVertex* rhsp) {
+        यदि (isConcatFoldable(lhsp, rhsp)) प्रत्यागम सत्य;
+        यदि (!isSameBitwise(lhsp, rhsp)) प्रत्यागम असत्य;
+        यदि (lhsp->hasMultipleSinks() || rhsp->hasMultipleSinks()) प्रत्यागम असत्य;
+        ध्रुव Dfg_Vertex_द्विमान* ध्रुव lp = lhsp->as<Dfg_Vertex_द्विमान>();
+        ध्रुव Dfg_Vertex_द्विमान* ध्रुव rp = rhsp->as<Dfg_Vertex_द्विमान>();
+        यदि (isConcatFoldable(lp->lhsp(), rp->lhsp()) && isConcatFoldable(lp->rhsp(), rp->rhsp()))
+            प्रत्यागम सत्य;
+        यदि (isConcatFoldable(lp->lhsp(), rp->rhsp()) && isConcatFoldable(lp->rhsp(), rp->lhsp()))
+            प्रत्यागम सत्य;
+        प्रत्यागम असत्य;
     }
 
     // Returns true if replacing 'Concat(a OP b, c OP d)' (the Concat of 'lhsp' and 'rhsp') with
     // 'Concat(a, c) OP Concat(b, d)' removes vertices, that is if at least one of the resulting
     // Concats simplifies. The other might be pushed further by a later application. Sets 'swap'
     // if instead 'Concat(a, d) OP Concat(b, c)' should be used.
-    static bool isConcatPushableThroughBitwise(const DfgVertex* lhsp, const DfgVertex* rhsp,
-                                               bool& swap) {
-        if (!isSameBitwise(lhsp, rhsp)) return false;
-        if (lhsp->hasMultipleSinks() || rhsp->hasMultipleSinks()) return false;
-        const DfgVertexBinary* const lp = lhsp->as<DfgVertexBinary>();
-        const DfgVertexBinary* const rp = rhsp->as<DfgVertexBinary>();
-        swap = false;
-        if (isConcatSimplifiable(lp->lhsp(), rp->lhsp())) return true;
-        if (isConcatSimplifiable(lp->rhsp(), rp->rhsp())) return true;
-        swap = true;
-        if (isConcatSimplifiable(lp->lhsp(), rp->rhsp())) return true;
-        if (isConcatSimplifiable(lp->rhsp(), rp->lhsp())) return true;
-        return false;
+    स्थिर तार्किक isConcatPushableThroughBitwise(ध्रुव DfgVertex* lhsp, ध्रुव DfgVertex* rhsp,
+                                               तार्किक& swap) {
+        यदि (!isSameBitwise(lhsp, rhsp)) प्रत्यागम असत्य;
+        यदि (lhsp->hasMultipleSinks() || rhsp->hasMultipleSinks()) प्रत्यागम असत्य;
+        ध्रुव Dfg_Vertex_द्विमान* ध्रुव lp = lhsp->as<Dfg_Vertex_द्विमान>();
+        ध्रुव Dfg_Vertex_द्विमान* ध्रुव rp = rhsp->as<Dfg_Vertex_द्विमान>();
+        swap = असत्य;
+        यदि (isConcatSimplifiable(lp->lhsp(), rp->lhsp())) प्रत्यागम सत्य;
+        यदि (isConcatSimplifiable(lp->rhsp(), rp->rhsp())) प्रत्यागम सत्य;
+        swap = सत्य;
+        यदि (isConcatSimplifiable(lp->lhsp(), rp->rhsp())) प्रत्यागम सत्य;
+        यदि (isConcatSimplifiable(lp->rhsp(), rp->lhsp())) प्रत्यागम सत्य;
+        प्रत्यागम असत्य;
     }
 
     // Create 'Concat(a, c) OP Concat(b, d)' from 'lhsp' = 'a OP b' and 'rhsp' = 'c OP d', or
     // 'Concat(a, d) OP Concat(b, c)' if 'swap' is set
-    DfgVertex* makeConcatPushedThroughBitwise(FileLine* flp, const DfgVertex* lhsp,
-                                              const DfgVertex* rhsp, bool swap) {
-        const DfgVertexBinary* const lp = lhsp->as<DfgVertexBinary>();
-        const DfgVertexBinary* const rp = rhsp->as<DfgVertexBinary>();
-        const DfgDataType& dtype = DfgDataType::packed(lp->width() + rp->width());
-        DfgVertex* const cp = swap ? rp->rhsp() : rp->lhsp();
-        DfgVertex* const dp = swap ? rp->lhsp() : rp->rhsp();
-        DfgConcat* const newLhsp = make<DfgConcat>(flp, dtype, lp->lhsp(), cp);
-        DfgConcat* const newRhsp = make<DfgConcat>(flp, dtype, lp->rhsp(), dp);
-        if (lp->is<DfgAnd>()) return make<DfgAnd>(flp, dtype, newLhsp, newRhsp);
-        if (lp->is<DfgOr>()) return make<DfgOr>(flp, dtype, newLhsp, newRhsp);
+    DfgVertex* makeConcatPushedThroughBitwise(File_ओळ* flp, ध्रुव DfgVertex* lhsp,
+                                              ध्रुव DfgVertex* rhsp, तार्किक swap) {
+        ध्रुव Dfg_Vertex_द्विमान* ध्रुव lp = lhsp->as<Dfg_Vertex_द्विमान>();
+        ध्रुव Dfg_Vertex_द्विमान* ध्रुव rp = rhsp->as<Dfg_Vertex_द्विमान>();
+        ध्रुव DfgDataType& dtype = DfgDataType::packed(lp->width() + rp->width());
+        DfgVertex* ध्रुव cp = swap ? rp->rhsp() : rp->lhsp();
+        DfgVertex* ध्रुव dp = swap ? rp->lhsp() : rp->rhsp();
+        DfgConcat* ध्रुव newLhsp = make<DfgConcat>(flp, dtype, lp->lhsp(), cp);
+        DfgConcat* ध्रुव newRhsp = make<DfgConcat>(flp, dtype, lp->rhsp(), dp);
+        यदि (lp->is<DfgAnd>()) प्रत्यागम make<DfgAnd>(flp, dtype, newLhsp, newRhsp);
+        यदि (lp->is<DfgOr>()) प्रत्यागम make<DfgOr>(flp, dtype, newLhsp, newRhsp);
         UASSERT_OBJ(lp->is<DfgXor>(), lp, "Should be a bitwise operation");
-        return make<DfgXor>(flp, dtype, newLhsp, newRhsp);
+        प्रत्यागम make<DfgXor>(flp, dtype, newLhsp, newRhsp);
     }
 
     template <typename Bitwise>
-    VL_ATTR_WARN_UNUSED_RESULT bool tryReplaceBitwiseWithReduction(Bitwise* vtxp) {
+    VL_ATTR_WARN_UNUSED_RESULT तार्किक tryReplaceBitwiseWithReduction(Bitwise* vtxp) {
         UASSERT_OBJ(vtxp->width() == 1, vtxp, "Width must be 1");
         using Reduction = BitwiseToReduction<Bitwise>;
 
-        DfgVertex* const lhsp = vtxp->lhsp();
-        DfgVertex* const rhsp = vtxp->rhsp();
+        DfgVertex* ध्रुव lhsp = vtxp->lhsp();
+        DfgVertex* ध्रुव rhsp = vtxp->rhsp();
 
-        if (DfgSel* const lSelp = lhsp->template cast<DfgSel>()) {
+        यदि (DfgSel* ध्रुव lSelp = lhsp->template cast<DfgSel>()) {
             DfgSel* rSelp = nullptr;
             DfgVertex* extrap = nullptr;
-            if (DfgSel* const selp = rhsp->template cast<DfgSel>()) {
+            यदि (DfgSel* ध्रुव selp = rhsp->template cast<DfgSel>()) {
                 rSelp = selp;
-            } else if (Bitwise* const rBitwisep = rhsp->template cast<Bitwise>()) {
+            } अन्यथा यदि (Bitwise* ध्रुव rBitwisep = rhsp->template cast<Bitwise>()) {
                 rSelp = rBitwisep->lhsp()->template cast<DfgSel>();
                 extrap = rBitwisep->rhsp();
-            } else if (Reduction* const rRedp = rhsp->template cast<Reduction>()) {
+            } अन्यथा यदि (Reduction* ध्रुव rRedp = rhsp->template cast<Reduction>()) {
                 rSelp = rRedp->srcp()->template cast<DfgSel>();
             }
-            if (rSelp) {
+            यदि (rSelp) {
                 uint32_t lsb = 0;
-                if (areAdjacent(lsb, lSelp, rSelp)) {
+                यदि (areAdjacent(lsb, lSelp, rSelp)) {
                     APPLYING(REPLACE_BITWISE_OF_SELS_WITH_REDUCTION) {
-                        const DfgDataType& dtype
+                        ध्रुव DfgDataType& dtype
                             = DfgDataType::packed(lSelp->width() + rSelp->width());
-                        DfgSel* const newSelp
+                        DfgSel* ध्रुव newSelp
                             = make<DfgSel>(lSelp->fileline(), dtype, lSelp->srcp(), lsb);
                         DfgVertex* resp = make<Reduction>(vtxp, newSelp);
-                        if (extrap) resp = make<Bitwise>(vtxp, resp, extrap);
+                        यदि (extrap) resp = make<Bitwise>(vtxp, resp, extrap);
                         replace(resp);
-                        return true;
+                        प्रत्यागम सत्य;
                     }
                 }
             }
         }
 
-        if (Reduction* const lRedp = lhsp->template cast<Reduction>()) {
+        यदि (Reduction* ध्रुव lRedp = lhsp->template cast<Reduction>()) {
             Reduction* rRedp = rhsp->template cast<Reduction>();
             DfgVertex* extrap = nullptr;
-            if (!rRedp) {
-                if (Bitwise* const rBitwisep = rhsp->template cast<Bitwise>()) {
+            यदि (!rRedp) {
+                यदि (Bitwise* ध्रुव rBitwisep = rhsp->template cast<Bitwise>()) {
                     rRedp = rBitwisep->lhsp()->template cast<Reduction>();
                     extrap = rBitwisep->rhsp();
                 }
             }
-            if (rRedp) {
-                if (DfgSel* const lSelp = lRedp->srcp()->template cast<DfgSel>()) {
-                    if (DfgSel* const rSelp = rRedp->srcp()->template cast<DfgSel>()) {
+            यदि (rRedp) {
+                यदि (DfgSel* ध्रुव lSelp = lRedp->srcp()->template cast<DfgSel>()) {
+                    यदि (DfgSel* ध्रुव rSelp = rRedp->srcp()->template cast<DfgSel>()) {
                         uint32_t lsb = 0;
-                        if (areAdjacent(lsb, lSelp, rSelp)) {
+                        यदि (areAdjacent(lsb, lSelp, rSelp)) {
                             APPLYING(REPLACE_BITWISE_OF_REDUCTION_OF_SELS_WITH_REDUCTION) {
-                                const DfgDataType& dtype
+                                ध्रुव DfgDataType& dtype
                                     = DfgDataType::packed(lSelp->width() + rSelp->width());
-                                DfgSel* const newSelp
+                                DfgSel* ध्रुव newSelp
                                     = make<DfgSel>(lSelp->fileline(), dtype, lSelp->srcp(), lsb);
                                 DfgVertex* resp = make<Reduction>(vtxp, newSelp);
-                                if (extrap) resp = make<Bitwise>(vtxp, resp, extrap);
+                                यदि (extrap) resp = make<Bitwise>(vtxp, resp, extrap);
                                 replace(resp);
-                                return true;
+                                प्रत्यागम सत्य;
                             }
                         }
                     }
@@ -1163,89 +1163,89 @@ class V3DfgPeephole final : public DfgVisitor {
             }
         }
 
-        return false;
+        प्रत्यागम असत्य;
     }
 
     template <typename Reduction>
-    VL_ATTR_WARN_UNUSED_RESULT bool optimizeReduction(Reduction* const vtxp) {
+    VL_ATTR_WARN_UNUSED_RESULT तार्किक optimizeReduction(Reduction* ध्रुव vtxp) {
         using Bitwise = ReductionToBitwise<Reduction>;
 
-        if (foldUnary(vtxp)) return true;
+        यदि (foldUnary(vtxp)) प्रत्यागम सत्य;
 
-        DfgVertex* const srcp = vtxp->srcp();
-        FileLine* const flp = vtxp->fileline();
+        DfgVertex* ध्रुव srcp = vtxp->srcp();
+        File_ओळ* ध्रुव flp = vtxp->fileline();
 
         // Reduction of 1-bit value
-        if (srcp->dtype() == m_bitDType) {
+        यदि (srcp->dtype() == m_bitDType) {
             APPLYING(REMOVE_WIDTH_ONE_REDUCTION) {
                 replace(srcp);
-                return true;
+                प्रत्यागम सत्य;
             }
         }
 
-        if (DfgCond* const condp = srcp->cast<DfgCond>()) {
-            if (condp->thenp()->is<DfgConst>() || condp->elsep()->is<DfgConst>()) {
-                APPLYING(PUSH_REDUCTION_THROUGH_COND_WITH_CONST_BRANCH) {
+        यदि (DfgCond* ध्रुव condp = srcp->cast<DfgCond>()) {
+            यदि (condp->thenp()->is<DfgConst>() || condp->elsep()->is<DfgConst>()) {
+                APPLYING(ढकला_REDUCTION_THROUGH_COND_WITH_CONST_BRANCH) {
                     // The new 'then' vertex
-                    Reduction* const newThenp = make<Reduction>(flp, m_bitDType, condp->thenp());
+                    Reduction* ध्रुव newThenp = make<Reduction>(flp, m_bitDType, condp->thenp());
 
                     // The new 'else' vertex
-                    Reduction* const newElsep = make<Reduction>(flp, m_bitDType, condp->elsep());
+                    Reduction* ध्रुव newElsep = make<Reduction>(flp, m_bitDType, condp->elsep());
 
                     // The replacement Cond vertex
-                    DfgCond* const newCondp = make<DfgCond>(condp->fileline(), m_bitDType,
+                    DfgCond* ध्रुव newCondp = make<DfgCond>(condp->fileline(), m_bitDType,
                                                             condp->condp(), newThenp, newElsep);
 
                     // Replace this vertex
                     replace(newCondp);
-                    return true;
+                    प्रत्यागम सत्य;
                 }
             }
         }
 
-        if (DfgConcat* const concatp = srcp->cast<DfgConcat>()) {
-            if (concatp->lhsp()->is<DfgConst>() || concatp->rhsp()->is<DfgConst>()
+        यदि (DfgConcat* ध्रुव concatp = srcp->cast<DfgConcat>()) {
+            यदि (concatp->lhsp()->is<DfgConst>() || concatp->rhsp()->is<DfgConst>()
                 || concatp->lhsp()->dtype() == m_bitDType
                 || concatp->rhsp()->dtype() == m_bitDType) {
-                APPLYING(PUSH_REDUCTION_THROUGH_CONCAT) {
+                APPLYING(ढकला_REDUCTION_THROUGH_CONCAT) {
                     // Reduce the parts of the concatenation
-                    Reduction* const lRedp
+                    Reduction* ध्रुव lRedp
                         = make<Reduction>(concatp->fileline(), m_bitDType, concatp->lhsp());
-                    Reduction* const rRedp
+                    Reduction* ध्रुव rRedp
                         = make<Reduction>(concatp->fileline(), m_bitDType, concatp->rhsp());
 
                     // Bitwise reduce the results
                     replace(make<Bitwise>(flp, m_bitDType, lRedp, rRedp));
-                    return true;
+                    प्रत्यागम सत्य;
                 }
             }
         }
 
-        if (Bitwise* const bitwisep = vtxp->srcp()->template cast<Bitwise>()) {
-            if (!bitwisep->hasMultipleSinks()) {
-                if (bitwisep->lhsp()->template is<DfgConcat>()
+        यदि (Bitwise* ध्रुव bitwisep = vtxp->srcp()->template cast<Bitwise>()) {
+            यदि (!bitwisep->hasMultipleSinks()) {
+                यदि (bitwisep->lhsp()->template is<DfgConcat>()
                     || bitwisep->rhsp()->template is<DfgConcat>()) {
-                    APPLYING(PUSH_REDUCTION_THROUGH_BITWISE_OF_CONCAT) {
-                        Reduction* const newLhsp
+                    APPLYING(ढकला_REDUCTION_THROUGH_BITWISE_OF_CONCAT) {
+                        Reduction* ध्रुव newLhsp
                             = make<Reduction>(flp, m_bitDType, bitwisep->lhsp());
-                        Reduction* const newRhsp
+                        Reduction* ध्रुव newRhsp
                             = make<Reduction>(flp, m_bitDType, bitwisep->rhsp());
                         replace(make<Bitwise>(flp, m_bitDType, newLhsp, newRhsp));
-                        return true;
+                        प्रत्यागम सत्य;
                     }
                 }
 
-                if (DfgSel* const lSelp = bitwisep->lhsp()->template cast<DfgSel>()) {
-                    if (DfgSel* const rSelp = bitwisep->rhsp()->template cast<DfgSel>()) {
+                यदि (DfgSel* ध्रुव lSelp = bitwisep->lhsp()->template cast<DfgSel>()) {
+                    यदि (DfgSel* ध्रुव rSelp = bitwisep->rhsp()->template cast<DfgSel>()) {
                         uint32_t lsb = 0;
-                        if (areAdjacent(lsb, lSelp, rSelp)) {
-                            APPLYING(PUSH_REDUCTION_THROUGH_BITWISE_OF_SELS) {
-                                const DfgDataType& dtype
+                        यदि (areAdjacent(lsb, lSelp, rSelp)) {
+                            APPLYING(ढकला_REDUCTION_THROUGH_BITWISE_OF_SELS) {
+                                ध्रुव DfgDataType& dtype
                                     = DfgDataType::packed(lSelp->width() + rSelp->width());
-                                DfgSel* const newSelp
+                                DfgSel* ध्रुव newSelp
                                     = make<DfgSel>(lSelp->fileline(), dtype, lSelp->srcp(), lsb);
                                 replace(make<Reduction>(vtxp, newSelp));
-                                return true;
+                                प्रत्यागम सत्य;
                             }
                         }
                     }
@@ -1253,535 +1253,535 @@ class V3DfgPeephole final : public DfgVisitor {
             }
         }
 
-        return false;
+        प्रत्यागम असत्य;
     }
 
     template <typename Shift>
-    VL_ATTR_WARN_UNUSED_RESULT bool optimizeShiftRHS(Shift* const vtxp) {
-        static_assert(std::is_base_of<DfgVertexBinary, Shift>::value, "Must invoke on binary");
-        static_assert(std::is_final<Shift>::value, "Must invoke on final class");
-        if (const DfgConcat* const concatp = vtxp->rhsp()->template cast<DfgConcat>()) {
-            if (isZero(concatp->lhsp())) {  // Drop redundant zero extension
+    VL_ATTR_WARN_UNUSED_RESULT तार्किक optimizeShiftRHS(Shift* ध्रुव vtxp) {
+        static_assert(std::is_base_of<Dfg_Vertex_द्विमान, Shift>::मूल्य, "Must invoke on binary");
+        static_assert(std::is_final<Shift>::मूल्य, "Must invoke on final class");
+        यदि (ध्रुव DfgConcat* ध्रुव concatp = vtxp->rhsp()->template cast<DfgConcat>()) {
+            यदि (isZero(concatp->lhsp())) {  // Drop redundant zero extension
                 APPLYING(REMOVE_REDUNDANT_ZEXT_ON_RHS_OF_SHIFT) {
                     replace(make<Shift>(vtxp, vtxp->lhsp(), concatp->rhsp()));
-                    return true;
+                    प्रत्यागम सत्य;
                 }
             }
         }
-        return false;
+        प्रत्यागम असत्य;
     }
 
     // Given an operand of an Add, return the term that could be used for conveting to CountOnes
     // Result is a tulpe of (Vertex, Lsb, Width)
-    std::tuple<DfgVertex*, uint32_t, uint32_t> addToCountOnesTerm(DfgVertex* vtxp) {
-        if (DfgConcat* const oCatp = vtxp->cast<DfgConcat>()) {
-            if (isZero(oCatp->lhsp())) {
-                if (DfgCountOnes* const countOnesp = oCatp->rhsp()->cast<DfgCountOnes>()) {
+    std::tuple<DfgVertex*, uint32_t, uint32_t> add_To_मोजणी_Ones_Term(DfgVertex* vtxp) {
+        यदि (DfgConcat* ध्रुव oCatp = vtxp->cast<DfgConcat>()) {
+            यदि (isZero(oCatp->lhsp())) {
+                यदि (Dfg_मोजणी_Ones* ध्रुव मोजणी_Onesp = oCatp->rhsp()->cast<Dfg_मोजणी_Ones>()) {
                     // Zero extended count ones
-                    if (DfgSel* const selp = countOnesp->srcp()->cast<DfgSel>()) {
-                        return {selp->fromp(), selp->lsb(), selp->width()};
+                    यदि (DfgSel* ध्रुव selp = मोजणी_Onesp->srcp()->cast<DfgSel>()) {
+                        प्रत्यागम {selp->fromp(), selp->lsb(), selp->width()};
                     }
-                } else if (DfgSel* const selp = oCatp->rhsp()->cast<DfgSel>()) {
+                } अन्यथा यदि (DfgSel* ध्रुव selp = oCatp->rhsp()->cast<DfgSel>()) {
                     // Zero extended single bit select
-                    if (selp->dtype() == m_bitDType) {  //
-                        return {selp->fromp(), selp->lsb(), selp->width()};
+                    यदि (selp->dtype() == m_bitDType) {  //
+                        प्रत्यागम {selp->fromp(), selp->lsb(), selp->width()};
                     }
                 }
             }
-            return {nullptr, 0, 0};
+            प्रत्यागम {nullptr, 0, 0};
         }
-        if (DfgCountOnes* const countOnesp = vtxp->cast<DfgCountOnes>()) {
+        यदि (Dfg_मोजणी_Ones* ध्रुव मोजणी_Onesp = vtxp->cast<Dfg_मोजणी_Ones>()) {
             // Simple count ones
-            if (DfgSel* const selp = countOnesp->srcp()->cast<DfgSel>()) {
-                return {selp->fromp(), selp->lsb(), selp->width()};
+            यदि (DfgSel* ध्रुव selp = मोजणी_Onesp->srcp()->cast<DfgSel>()) {
+                प्रत्यागम {selp->fromp(), selp->lsb(), selp->width()};
             }
-            return {nullptr, 0, 0};
+            प्रत्यागम {nullptr, 0, 0};
         }
-        if (DfgSel* const oSelp = vtxp->cast<DfgSel>()) {
-            if (oSelp->lsb() == 0) {
+        यदि (DfgSel* ध्रुव oSelp = vtxp->cast<DfgSel>()) {
+            यदि (oSelp->lsb() == 0) {
                 // Truncated count ones
-                if (DfgCountOnes* const countOnesp = oSelp->fromp()->cast<DfgCountOnes>()) {
+                यदि (Dfg_मोजणी_Ones* ध्रुव मोजणी_Onesp = oSelp->fromp()->cast<Dfg_मोजणी_Ones>()) {
                     // Zero extended count ones
-                    if (DfgSel* const selp = countOnesp->srcp()->cast<DfgSel>()) {
-                        return {selp->fromp(), selp->lsb(), selp->width()};
+                    यदि (DfgSel* ध्रुव selp = मोजणी_Onesp->srcp()->cast<DfgSel>()) {
+                        प्रत्यागम {selp->fromp(), selp->lsb(), selp->width()};
                     }
                 }
             }
             // Single bit select
-            if (oSelp->dtype() == m_bitDType) {  //
-                return {oSelp->fromp(), oSelp->lsb(), 1};
+            यदि (oSelp->dtype() == m_bitDType) {  //
+                प्रत्यागम {oSelp->fromp(), oSelp->lsb(), 1};
             }
-            return {nullptr, 0, 0};
+            प्रत्यागम {nullptr, 0, 0};
         }
         // Altered form of extended MSB
-        if (DfgShiftR* const shiftrp = vtxp->cast<DfgShiftR>()) {
-            if (DfgConst* const rConstp = shiftrp->rhsp()->cast<DfgConst>()) {
-                if (rConstp->toU32() == shiftrp->width() - 1) {
-                    return {shiftrp->lhsp(), shiftrp->width() - 1, 1};
+        यदि (DfgShiftR* ध्रुव shiftrp = vtxp->cast<DfgShiftR>()) {
+            यदि (DfgConst* ध्रुव rConstp = shiftrp->rhsp()->cast<DfgConst>()) {
+                यदि (rConstp->toU32() == shiftrp->width() - 1) {
+                    प्रत्यागम {shiftrp->lhsp(), shiftrp->width() - 1, 1};
                 }
             }
-            return {nullptr, 0, 0};
+            प्रत्यागम {nullptr, 0, 0};
         }
         // Not applicable
-        return {nullptr, 0, 0};
+        प्रत्यागम {nullptr, 0, 0};
     }
 
     // The following patterns all unwind a Sel throgh it's source and replace it with
     // another single Sel. Doing this one at a time can take a long time with nested
     // concatenations/selects/etc, so instead unwind as much as possible in one go.
     std::pair<DfgVertex*, uint32_t> unwindSel(DfgVertex* fromp, uint32_t lsb,
-                                              const uint32_t width) {
-        while (true) {
-            const uint32_t msb = lsb + width - 1;
+                                              ध्रुव uint32_t width) {
+        यावत् (सत्य) {
+            ध्रुव uint32_t msb = lsb + width - 1;
 
             // Sel from Concat
-            if (DfgConcat* const concatp = fromp->cast<DfgConcat>()) {
-                DfgVertex* const lhsp = concatp->lhsp();
-                DfgVertex* const rhsp = concatp->rhsp();
+            यदि (DfgConcat* ध्रुव concatp = fromp->cast<DfgConcat>()) {
+                DfgVertex* ध्रुव lhsp = concatp->lhsp();
+                DfgVertex* ध्रुव rhsp = concatp->rhsp();
 
-                if (msb < rhsp->width()) {
+                यदि (msb < rhsp->width()) {
                     // If the select is entirely from rhs, then replace with sel from rhs
                     APPLYING(REMOVE_SEL_FROM_RHS_OF_CONCAT) {
                         fromp = rhsp;
-                        continue;
+                        अनुवर्त;
                     }
-                } else if (lsb >= rhsp->width()) {
+                } अन्यथा यदि (lsb >= rhsp->width()) {
                     // If the select is entirely from the lhs, then replace with sel from lhs
                     APPLYING(REMOVE_SEL_FROM_LHS_OF_CONCAT) {
                         fromp = lhsp;
                         lsb -= rhsp->width();
-                        continue;
+                        अनुवर्त;
                     }
                 }
             }
 
-            if (DfgRep* const repp = fromp->cast<DfgRep>()) {
+            यदि (DfgRep* ध्रुव repp = fromp->cast<DfgRep>()) {
                 // If the Sel is wholly into the source of the Replicate, push the Sel through
                 // the Replicate and apply it directly to the source of the Replicate.
-                const uint32_t srcWidth = repp->srcp()->width();
-                if (width <= srcWidth) {
-                    const uint32_t newLsb = lsb % srcWidth;
-                    const uint32_t newMsb = newLsb + width - 1;
-                    if (newMsb < srcWidth) {
-                        APPLYING(PUSH_SEL_THROUGH_REP) {
+                ध्रुव uint32_t srcWidth = repp->srcp()->width();
+                यदि (width <= srcWidth) {
+                    ध्रुव uint32_t newLsb = lsb % srcWidth;
+                    ध्रुव uint32_t newMsb = newLsb + width - 1;
+                    यदि (newMsb < srcWidth) {
+                        APPLYING(ढकला_SEL_THROUGH_REP) {
                             fromp = repp->srcp();
                             lsb = newLsb;
-                            continue;
+                            अनुवर्त;
                         }
                     }
                 }
             }
 
             // Sel from Sel
-            if (DfgSel* const selp = fromp->cast<DfgSel>()) {
+            यदि (DfgSel* ध्रुव selp = fromp->cast<DfgSel>()) {
                 APPLYING(REPLACE_SEL_FROM_SEL) {
                     // Select from the source of the source Sel with adjusted LSB
                     fromp = selp->fromp();
                     lsb += selp->lsb();
-                    continue;
+                    अनुवर्त;
                 }
             }
 
             // Sel from a partial variable (including narrowed vertex)
-            if (DfgVarPacked* const varp = fromp->cast<DfgVarPacked>()) {
+            यदि (DfgVarPacked* ध्रुव varp = fromp->cast<DfgVarPacked>()) {
                 // Find the driver of this range
-                const auto pair = varp->driverOfRange(lsb, width);
-                DfgVertex* const driverp = pair.first;
-                const uint32_t driverLsb = pair.second;
+                ध्रुव auto pair = varp->driverOfRange(lsb, width);
+                DfgVertex* ध्रुव driverp = pair.first;
+                ध्रुव uint32_t driverLsb = pair.second;
                 UASSERT_OBJ(
                     !driverp || driverp != varp->srcp(), varp,
                     "'varp' should be partially driven, otherwise should have been inlined");
-                if (driverp) {
-                    if (driverp == varp->defaultp()) {
-                        APPLYING(PUSH_SEL_THROUGH_DEFAULT) {
+                यदि (driverp) {
+                    यदि (driverp == varp->defaultp()) {
+                        APPLYING(ढकला_SEL_THROUGH_DEFAULT) {
                             fromp = driverp;
                             lsb = driverLsb;
-                            continue;
+                            अनुवर्त;
                         }
-                    } else {
-                        APPLYING(PUSH_SEL_THROUGH_SPLICE) {
+                    } अन्यथा {
+                        APPLYING(ढकला_SEL_THROUGH_SPLICE) {
                             fromp = driverp;
                             lsb = driverLsb;
-                            continue;
+                            अनुवर्त;
                         }
                     }
                 }
             }
 
             // No patterns matched, stop
-            break;
+            भङ्ग;
         }
-        return {fromp, lsb};
+        प्रत्यागम {fromp, lsb};
     }
 
     // Given a pair of vertices, returns a vertex representing the common LSBs of the two,
     // and the number of common LSBs. Returns {nullptr, 0} if no common LSBs are found.
     std::pair<DfgVertex*, uint32_t> commonLSBs(DfgVertex* ap, DfgVertex* bp) {
-        if (ap == bp) return {ap, ap->width()};
+        यदि (ap == bp) प्रत्यागम {ap, ap->width()};
 
         // If both constants, check LSBs
-        if (DfgConst* const aConstp = ap->cast<DfgConst>()) {
-            if (DfgConst* const bConstp = bp->cast<DfgConst>()) {
-                const V3Number& aNum = aConstp->num();
-                const V3Number& bNum = bConstp->num();
+        यदि (DfgConst* ध्रुव aConstp = ap->cast<DfgConst>()) {
+            यदि (DfgConst* ध्रुव bConstp = bp->cast<DfgConst>()) {
+                ध्रुव V3_संख्या& a_अंक = aConstp->अंक();
+                ध्रुव V3_संख्या& b_अंक = bConstp->अंक();
                 // Max match is the shorter constant
-                const uint32_t maxMatch = std::min(aConstp->width(), bConstp->width());
+                ध्रुव uint32_t maxMatch = std::min(aConstp->width(), bConstp->width());
                 // Check all bits
                 uint32_t matchWidth = 0;
-                for (; matchWidth < maxMatch; ++matchWidth) {
-                    if (aNum.bitIs0(matchWidth) != bNum.bitIs0(matchWidth)) break;
+                प्रति (; matchWidth < maxMatch; ++matchWidth) {
+                    यदि (a_अंक.bitIs0(matchWidth) != b_अंक.bitIs0(matchWidth)) भङ्ग;
                 }
                 // Will always return the shorter constant in case it can be used directly
-                DfgConst* const shorterp = aConstp->width() < bConstp->width() ? aConstp : bConstp;
-                return {matchWidth ? shorterp : nullptr, matchWidth};
+                DfgConst* ध्रुव shorterp = aConstp->width() < bConstp->width() ? aConstp : bConstp;
+                प्रत्यागम {matchWidth ? shorterp : nullptr, matchWidth};
             }
         }
 
         // If Concat, check against the RHS
-        if (DfgConcat* const catp = ap->cast<DfgConcat>()) return commonLSBs(catp->rhsp(), bp);
-        if (DfgConcat* const catp = bp->cast<DfgConcat>()) return commonLSBs(ap, catp->rhsp());
+        यदि (DfgConcat* ध्रुव catp = ap->cast<DfgConcat>()) प्रत्यागम commonLSBs(catp->rhsp(), bp);
+        यदि (DfgConcat* ध्रुव catp = bp->cast<DfgConcat>()) प्रत्यागम commonLSBs(ap, catp->rhsp());
 
         // If selecting the LSBs, check against the source of the Sel
-        if (DfgSel* const selp = ap->cast<DfgSel>()) {
-            if (selp->lsb() == 0) {
-                DfgVertex* const fromp = selp->fromp();
-                const std::pair<DfgVertex*, uint32_t> common = commonLSBs(fromp, bp);
-                return {common.first, std::min(common.second, selp->width())};
+        यदि (DfgSel* ध्रुव selp = ap->cast<DfgSel>()) {
+            यदि (selp->lsb() == 0) {
+                DfgVertex* ध्रुव fromp = selp->fromp();
+                ध्रुव std::pair<DfgVertex*, uint32_t> common = commonLSBs(fromp, bp);
+                प्रत्यागम {common.first, std::min(common.second, selp->width())};
             }
         }
-        if (DfgSel* const selp = bp->cast<DfgSel>()) {
-            if (selp->lsb() == 0) {
-                DfgVertex* const fromp = selp->fromp();
-                const std::pair<DfgVertex*, uint32_t> common = commonLSBs(ap, fromp);
-                return {common.first, std::min(common.second, selp->width())};
+        यदि (DfgSel* ध्रुव selp = bp->cast<DfgSel>()) {
+            यदि (selp->lsb() == 0) {
+                DfgVertex* ध्रुव fromp = selp->fromp();
+                ध्रुव std::pair<DfgVertex*, uint32_t> common = commonLSBs(ap, fromp);
+                प्रत्यागम {common.first, std::min(common.second, selp->width())};
             }
         }
 
         // Otherwise no common LSBs
-        return {nullptr, 0};
+        प्रत्यागम {nullptr, 0};
     }
 
     // Given a pair of vertices, returns a vertex representing the common MSBs of the two,
     // and the number of common LSBs. Returns {nullptr, 0} if no common LSBs are found.
     std::pair<DfgVertex*, uint32_t> commonMSBs(DfgVertex* ap, DfgVertex* bp) {
-        if (ap == bp) return {ap, ap->width()};
+        यदि (ap == bp) प्रत्यागम {ap, ap->width()};
 
         // If both constants, check MSBs
-        if (DfgConst* const aConstp = ap->cast<DfgConst>()) {
-            if (DfgConst* const bConstp = bp->cast<DfgConst>()) {
-                const uint32_t aMsb = aConstp->width() - 1;
-                const uint32_t bMsb = bConstp->width() - 1;
-                const V3Number& aNum = aConstp->num();
-                const V3Number& bNum = bConstp->num();
+        यदि (DfgConst* ध्रुव aConstp = ap->cast<DfgConst>()) {
+            यदि (DfgConst* ध्रुव bConstp = bp->cast<DfgConst>()) {
+                ध्रुव uint32_t aMsb = aConstp->width() - 1;
+                ध्रुव uint32_t bMsb = bConstp->width() - 1;
+                ध्रुव V3_संख्या& a_अंक = aConstp->अंक();
+                ध्रुव V3_संख्या& b_अंक = bConstp->अंक();
                 // Max match is the shorter constant
-                const uint32_t maxMatch = std::min(aConstp->width(), bConstp->width());
+                ध्रुव uint32_t maxMatch = std::min(aConstp->width(), bConstp->width());
                 // Check all bits
                 uint32_t matchWidth = 0;
-                for (; matchWidth < maxMatch; ++matchWidth) {
-                    if (aNum.bitIs0(aMsb - matchWidth) != bNum.bitIs0(bMsb - matchWidth)) break;
+                प्रति (; matchWidth < maxMatch; ++matchWidth) {
+                    यदि (a_अंक.bitIs0(aMsb - matchWidth) != b_अंक.bitIs0(bMsb - matchWidth)) भङ्ग;
                 }
                 // Will always return the shorter constant in case it can be used directly
-                DfgConst* const shorterp = aMsb < bMsb ? aConstp : bConstp;
-                return {matchWidth ? shorterp : nullptr, matchWidth};
+                DfgConst* ध्रुव shorterp = aMsb < bMsb ? aConstp : bConstp;
+                प्रत्यागम {matchWidth ? shorterp : nullptr, matchWidth};
             }
         }
 
         // If Concat, check against the LHS
-        if (DfgConcat* const catp = ap->cast<DfgConcat>()) return commonMSBs(catp->lhsp(), bp);
-        if (DfgConcat* const catp = bp->cast<DfgConcat>()) return commonMSBs(ap, catp->lhsp());
+        यदि (DfgConcat* ध्रुव catp = ap->cast<DfgConcat>()) प्रत्यागम commonMSBs(catp->lhsp(), bp);
+        यदि (DfgConcat* ध्रुव catp = bp->cast<DfgConcat>()) प्रत्यागम commonMSBs(ap, catp->lhsp());
 
         // If selecting the MSBs, check against the source of the Sel
-        if (DfgSel* const selp = ap->cast<DfgSel>()) {
-            DfgVertex* const fromp = selp->fromp();
-            if (selp->msb() == fromp->width() - 1) {
-                const std::pair<DfgVertex*, uint32_t> common = commonMSBs(fromp, bp);
-                return {common.first, std::min(common.second, selp->width())};
+        यदि (DfgSel* ध्रुव selp = ap->cast<DfgSel>()) {
+            DfgVertex* ध्रुव fromp = selp->fromp();
+            यदि (selp->msb() == fromp->width() - 1) {
+                ध्रुव std::pair<DfgVertex*, uint32_t> common = commonMSBs(fromp, bp);
+                प्रत्यागम {common.first, std::min(common.second, selp->width())};
             }
         }
-        if (DfgSel* const selp = bp->cast<DfgSel>()) {
-            DfgVertex* const fromp = selp->fromp();
-            if (selp->msb() == fromp->width() - 1) {
-                const std::pair<DfgVertex*, uint32_t> common = commonMSBs(ap, fromp);
-                return {common.first, std::min(common.second, selp->width())};
+        यदि (DfgSel* ध्रुव selp = bp->cast<DfgSel>()) {
+            DfgVertex* ध्रुव fromp = selp->fromp();
+            यदि (selp->msb() == fromp->width() - 1) {
+                ध्रुव std::pair<DfgVertex*, uint32_t> common = commonMSBs(ap, fromp);
+                प्रत्यागम {common.first, std::min(common.second, selp->width())};
             }
         }
 
         // Otherwise no common MSBs
-        return {nullptr, 0};
+        प्रत्यागम {nullptr, 0};
     }
 
     // VISIT methods
 
-    void visit(DfgVertex*) override {}
+    शून्य visit(DfgVertex*) override {}
 
     //=========================================================================
     //  DfgVertexUnary
     //=========================================================================
 
-    void visit(DfgCountOnes* const vtxp) override {
-        if (foldUnary(vtxp)) return;
+    शून्य visit(Dfg_मोजणी_Ones* ध्रुव vtxp) override {
+        यदि (foldUnary(vtxp)) प्रत्यागम;
     }
 
-    void visit(DfgExtend* const vtxp) override {
-        if (foldUnary(vtxp)) return;
+    शून्य visit(DfgExtend* ध्रुव vtxp) override {
+        यदि (foldUnary(vtxp)) प्रत्यागम;
 
         // Convert all Extend into Concat with zeros. This simplifies other patterns as they
         // only need to handle Concat, which is more generic, and don't need special cases for
         // Extend.
         APPLYING(REPLACE_EXTEND) {
-            DfgVertex* const zerop
+            DfgVertex* ध्रुव zerop
                 = makeZero(vtxp->fileline(), vtxp->width() - vtxp->srcp()->width());
             replace(make<DfgConcat>(vtxp, zerop, vtxp->srcp()));
-            return;
+            प्रत्यागम;
         }
     }
 
-    void visit(DfgExtendS* const vtxp) override {
-        if (foldUnary(vtxp)) return;
+    शून्य visit(DfgExtendS* ध्रुव vtxp) override {
+        यदि (foldUnary(vtxp)) प्रत्यागम;
     }
 
-    void visit(DfgLogNot* const vtxp) override {
-        if (foldUnary(vtxp)) return;
+    शून्य visit(DfgLogNot* ध्रुव vtxp) override {
+        यदि (foldUnary(vtxp)) प्रत्यागम;
     }
 
-    void visit(DfgNegate* const vtxp) override {
-        if (foldUnary(vtxp)) return;
+    शून्य visit(DfgNegate* ध्रुव vtxp) override {
+        यदि (foldUnary(vtxp)) प्रत्यागम;
     }
 
-    void visit(DfgNot* const vtxp) override {
-        if (foldUnary(vtxp)) return;
+    शून्य visit(DfgNot* ध्रुव vtxp) override {
+        यदि (foldUnary(vtxp)) प्रत्यागम;
 
         // Not of Cond
-        if (DfgCond* const condp = vtxp->srcp()->cast<DfgCond>()) {
+        यदि (DfgCond* ध्रुव condp = vtxp->srcp()->cast<DfgCond>()) {
             // If at least one of the branches are a constant, push the Not past the Cond
-            if (condp->thenp()->is<DfgConst>() || condp->elsep()->is<DfgConst>()) {
-                APPLYING(PUSH_NOT_THROUGH_COND) {
+            यदि (condp->thenp()->is<DfgConst>() || condp->elsep()->is<DfgConst>()) {
+                APPLYING(ढकला_NOT_THROUGH_COND) {
                     // The new 'then' vertex
-                    DfgNot* const newThenp = make<DfgNot>(vtxp, condp->thenp());
+                    DfgNot* ध्रुव newThenp = make<DfgNot>(vtxp, condp->thenp());
 
                     // The new 'else' vertex
-                    DfgNot* const newElsep = make<DfgNot>(vtxp, condp->elsep());
+                    DfgNot* ध्रुव newElsep = make<DfgNot>(vtxp, condp->elsep());
 
                     // The replacement Cond vertex
-                    DfgCond* const newCondp = make<DfgCond>(condp->fileline(), vtxp->dtype(),
+                    DfgCond* ध्रुव newCondp = make<DfgCond>(condp->fileline(), vtxp->dtype(),
                                                             condp->condp(), newThenp, newElsep);
 
                     // Replace this vertex
                     replace(newCondp);
-                    return;
+                    प्रत्यागम;
                 }
             }
         }
 
         // Not of Not
-        if (DfgNot* const notp = vtxp->srcp()->cast<DfgNot>()) {
+        यदि (DfgNot* ध्रुव notp = vtxp->srcp()->cast<DfgNot>()) {
             APPLYING(REMOVE_NOT_NOT) {
                 replace(notp->srcp());
-                return;
+                प्रत्यागम;
             }
         }
 
-        if (!vtxp->srcp()->hasMultipleSinks()) {
+        यदि (!vtxp->srcp()->hasMultipleSinks()) {
             // Not of Eq
-            if (DfgEq* const eqp = vtxp->srcp()->cast<DfgEq>()) {
+            यदि (DfgEq* ध्रुव eqp = vtxp->srcp()->cast<DfgEq>()) {
                 APPLYING(REPLACE_NOT_EQ) {
                     replace(
                         make<DfgNeq>(eqp->fileline(), vtxp->dtype(), eqp->lhsp(), eqp->rhsp()));
-                    return;
+                    प्रत्यागम;
                 }
             }
 
             // Not of Neq
-            if (DfgNeq* const neqp = vtxp->srcp()->cast<DfgNeq>()) {
+            यदि (DfgNeq* ध्रुव neqp = vtxp->srcp()->cast<DfgNeq>()) {
                 APPLYING(REPLACE_NOT_NEQ) {
                     replace(
                         make<DfgEq>(neqp->fileline(), vtxp->dtype(), neqp->lhsp(), neqp->rhsp()));
-                    return;
+                    प्रत्यागम;
                 }
             }
 
             // Not of unsigned comparisons
-            if (DfgLt* const p = vtxp->srcp()->cast<DfgLt>()) {
+            यदि (DfgLt* ध्रुव p = vtxp->srcp()->cast<DfgLt>()) {
                 APPLYING(REPLACE_NOT_LT) {
                     replace(make<DfgGte>(p->fileline(), vtxp->dtype(), p->lhsp(), p->rhsp()));
-                    return;
+                    प्रत्यागम;
                 }
             }
-            if (DfgGte* const p = vtxp->srcp()->cast<DfgGte>()) {
+            यदि (DfgGte* ध्रुव p = vtxp->srcp()->cast<DfgGte>()) {
                 APPLYING(REPLACE_NOT_GTE) {
                     replace(make<DfgLt>(p->fileline(), vtxp->dtype(), p->lhsp(), p->rhsp()));
-                    return;
+                    प्रत्यागम;
                 }
             }
-            if (DfgGt* const p = vtxp->srcp()->cast<DfgGt>()) {
+            यदि (DfgGt* ध्रुव p = vtxp->srcp()->cast<DfgGt>()) {
                 APPLYING(REPLACE_NOT_GT) {
                     replace(make<DfgLte>(p->fileline(), vtxp->dtype(), p->lhsp(), p->rhsp()));
-                    return;
+                    प्रत्यागम;
                 }
             }
-            if (DfgLte* const p = vtxp->srcp()->cast<DfgLte>()) {
+            यदि (DfgLte* ध्रुव p = vtxp->srcp()->cast<DfgLte>()) {
                 APPLYING(REPLACE_NOT_LTE) {
                     replace(make<DfgGt>(p->fileline(), vtxp->dtype(), p->lhsp(), p->rhsp()));
-                    return;
+                    प्रत्यागम;
                 }
             }
 
             // Not of signed comparisons
-            if (DfgLtS* const p = vtxp->srcp()->cast<DfgLtS>()) {
+            यदि (DfgLtS* ध्रुव p = vtxp->srcp()->cast<DfgLtS>()) {
                 APPLYING(REPLACE_NOT_LTS) {
                     replace(make<DfgGteS>(p->fileline(), vtxp->dtype(), p->lhsp(), p->rhsp()));
-                    return;
+                    प्रत्यागम;
                 }
             }
-            if (DfgGteS* const p = vtxp->srcp()->cast<DfgGteS>()) {
+            यदि (DfgGteS* ध्रुव p = vtxp->srcp()->cast<DfgGteS>()) {
                 APPLYING(REPLACE_NOT_GTES) {
                     replace(make<DfgLtS>(p->fileline(), vtxp->dtype(), p->lhsp(), p->rhsp()));
-                    return;
+                    प्रत्यागम;
                 }
             }
-            if (DfgGtS* const p = vtxp->srcp()->cast<DfgGtS>()) {
+            यदि (DfgGtS* ध्रुव p = vtxp->srcp()->cast<DfgGtS>()) {
                 APPLYING(REPLACE_NOT_GTS) {
                     replace(make<DfgLteS>(p->fileline(), vtxp->dtype(), p->lhsp(), p->rhsp()));
-                    return;
+                    प्रत्यागम;
                 }
             }
-            if (DfgLteS* const p = vtxp->srcp()->cast<DfgLteS>()) {
+            यदि (DfgLteS* ध्रुव p = vtxp->srcp()->cast<DfgLteS>()) {
                 APPLYING(REPLACE_NOT_LTES) {
                     replace(make<DfgGtS>(p->fileline(), vtxp->dtype(), p->lhsp(), p->rhsp()));
-                    return;
+                    प्रत्यागम;
                 }
             }
         }
     }
 
-    void visit(DfgOneHot* const vtxp) override {
-        if (foldUnary(vtxp)) return;
+    शून्य visit(DfgOneHot* ध्रुव vtxp) override {
+        यदि (foldUnary(vtxp)) प्रत्यागम;
     }
 
-    void visit(DfgOneHot0* const vtxp) override {
-        if (foldUnary(vtxp)) return;
+    शून्य visit(DfgOneHot0* ध्रुव vtxp) override {
+        यदि (foldUnary(vtxp)) प्रत्यागम;
     }
 
-    void visit(DfgRedOr* const vtxp) override {
-        if (optimizeReduction(vtxp)) return;
+    शून्य visit(DfgRedOr* ध्रुव vtxp) override {
+        यदि (optimizeReduction(vtxp)) प्रत्यागम;
     }
 
-    void visit(DfgRedAnd* const vtxp) override {
-        if (optimizeReduction(vtxp)) return;
+    शून्य visit(DfgRedAnd* ध्रुव vtxp) override {
+        यदि (optimizeReduction(vtxp)) प्रत्यागम;
     }
 
-    void visit(DfgRedXor* const vtxp) override {
-        if (optimizeReduction(vtxp)) return;
+    शून्य visit(DfgRedXor* ध्रुव vtxp) override {
+        यदि (optimizeReduction(vtxp)) प्रत्यागम;
     }
 
-    void visit(DfgSel* const vtxp) override {
-        DfgVertex* const fromp = vtxp->fromp();
+    शून्य visit(DfgSel* ध्रुव vtxp) override {
+        DfgVertex* ध्रुव fromp = vtxp->fromp();
 
-        FileLine* const flp = vtxp->fileline();
+        File_ओळ* ध्रुव flp = vtxp->fileline();
 
-        const uint32_t lsb = vtxp->lsb();
-        const uint32_t width = vtxp->width();
-        const uint32_t msb = lsb + width - 1;
+        ध्रुव uint32_t lsb = vtxp->lsb();
+        ध्रुव uint32_t width = vtxp->width();
+        ध्रुव uint32_t msb = lsb + width - 1;
 
-        if (DfgConst* const constp = fromp->cast<DfgConst>()) {
+        यदि (DfgConst* ध्रुव constp = fromp->cast<DfgConst>()) {
             APPLYING(FOLD_SEL) {
-                DfgConst* const resp = makeZero(flp, width);
-                resp->num().opSel(constp->num(), msb, lsb);
+                DfgConst* ध्रुव resp = makeZero(flp, width);
+                resp->अंक().opSel(constp->अंक(), msb, lsb);
                 replace(resp);
-                return;
+                प्रत्यागम;
             }
         }
 
         // Full width select, replace with the source.
-        if (fromp->width() == width) {
+        यदि (fromp->width() == width) {
             UASSERT_OBJ(lsb == 0, fromp, "Out of range select should have been fixed up earlier");
             APPLYING(REMOVE_FULL_WIDTH_SEL) {
                 replace(fromp);
-                return;
+                प्रत्यागम;
             }
         }
 
         // Unwind through bit packing in one go
         {
-            const auto res = unwindSel(fromp, lsb, width);
-            if (res.first != fromp || res.second != lsb) {
+            ध्रुव auto res = unwindSel(fromp, lsb, width);
+            यदि (res.first != fromp || res.second != lsb) {
                 replace(make<DfgSel>(vtxp, res.first, res.second));
-                return;
+                प्रत्यागम;
             }
         }
 
         // Sel from Not
-        if (DfgNot* const notp = fromp->cast<DfgNot>()) {
+        यदि (DfgNot* ध्रुव notp = fromp->cast<DfgNot>()) {
             // Replace "Sel from Not" with "Not of Sel"
-            if (!notp->hasMultipleSinks()) {
-                APPLYING(PUSH_SEL_THROUGH_NOT) {
+            यदि (!notp->hasMultipleSinks()) {
+                APPLYING(ढकला_SEL_THROUGH_NOT) {
                     // Make Sel select from source of Not
-                    DfgSel* const newSelp = make<DfgSel>(vtxp, notp->srcp(), vtxp->lsb());
+                    DfgSel* ध्रुव newSelp = make<DfgSel>(vtxp, notp->srcp(), vtxp->lsb());
                     // Add Not after Sel
                     replace(make<DfgNot>(notp->fileline(), vtxp->dtype(), newSelp));
-                    return;
+                    प्रत्यागम;
                 }
             }
         }
 
         // Sel from Cond
-        if (DfgCond* const condp = fromp->cast<DfgCond>()) {
-            if (!condp->hasMultipleSinks()) {
-                APPLYING(PUSH_SEL_THROUGH_COND) {
+        यदि (DfgCond* ध्रुव condp = fromp->cast<DfgCond>()) {
+            यदि (!condp->hasMultipleSinks()) {
+                APPLYING(ढकला_SEL_THROUGH_COND) {
                     // The new 'then' vertex
-                    DfgSel* const newThenp = make<DfgSel>(vtxp, condp->thenp(), lsb);
+                    DfgSel* ध्रुव newThenp = make<DfgSel>(vtxp, condp->thenp(), lsb);
 
                     // The new 'else' vertex
-                    DfgSel* const newElsep = make<DfgSel>(vtxp, condp->elsep(), lsb);
+                    DfgSel* ध्रुव newElsep = make<DfgSel>(vtxp, condp->elsep(), lsb);
 
                     // The replacement Cond vertex
-                    DfgCond* const newCondp = make<DfgCond>(condp->fileline(), vtxp->dtype(),
+                    DfgCond* ध्रुव newCondp = make<DfgCond>(condp->fileline(), vtxp->dtype(),
                                                             condp->condp(), newThenp, newElsep);
 
                     // Replace this vertex
                     replace(newCondp);
-                    return;
+                    प्रत्यागम;
                 }
             }
         }
 
         // Sel from ShiftL
-        if (DfgShiftL* const shiftLp = fromp->cast<DfgShiftL>()) {
+        यदि (DfgShiftL* ध्रुव shiftLp = fromp->cast<DfgShiftL>()) {
             // If selecting bottom bits of left shift, push the Sel before the shift
-            if (lsb == 0) {
+            यदि (lsb == 0) {
                 UASSERT_OBJ(shiftLp->lhsp()->width() >= width, vtxp, "input of shift narrow");
-                APPLYING(PUSH_SEL_THROUGH_SHIFTL) {
-                    DfgSel* const newSelp = make<DfgSel>(vtxp, shiftLp->lhsp(), vtxp->lsb());
+                APPLYING(ढकला_SEL_THROUGH_SHIFTL) {
+                    DfgSel* ध्रुव newSelp = make<DfgSel>(vtxp, shiftLp->lhsp(), vtxp->lsb());
                     replace(make<DfgShiftL>(vtxp, newSelp, shiftLp->rhsp()));
-                    return;
+                    प्रत्यागम;
                 }
             }
         }
     }
 
-    void visit(DfgMux* const vtxp) override {
-        DfgVertex* const fromp = vtxp->fromp();
-        DfgVertex* const lsbp = vtxp->lsbp();
-        FileLine* const flp = vtxp->fileline();
+    शून्य visit(DfgMux* ध्रुव vtxp) override {
+        DfgVertex* ध्रुव fromp = vtxp->fromp();
+        DfgVertex* ध्रुव lsbp = vtxp->lsbp();
+        File_ओळ* ध्रुव flp = vtxp->fileline();
 
-        if (DfgConst* const lsbConstp = lsbp->cast<DfgConst>()) {
+        यदि (DfgConst* ध्रुव lsbConstp = lsbp->cast<DfgConst>()) {
             APPLYING(REPLACE_MUX_WITH_SEL) {
-                replace(make<DfgSel>(vtxp, fromp, lsbConstp->num().toUInt()));
-                return;
+                replace(make<DfgSel>(vtxp, fromp, lsbConstp->अंक().toUInt()));
+                प्रत्यागम;
             }
         }
 
-        if (isZero(fromp)) {
+        यदि (isZero(fromp)) {
             APPLYING(FOLD_MUX_FROM_ZERO) {
                 replace(makeZero(flp, vtxp->width()));
-                return;
+                प्रत्यागम;
             }
         }
 
-        if (isOnes(fromp)) {
+        यदि (isOnes(fromp)) {
             APPLYING(FOLD_MUX_FROM_ONES) {
                 replace(makeOnes(flp, vtxp->width()));
-                return;
+                प्रत्यागम;
             }
         }
     }
@@ -1790,252 +1790,252 @@ class V3DfgPeephole final : public DfgVisitor {
     //  DfgVertexBinary - bitwise
     //=========================================================================
 
-    void visit(DfgAnd* const vtxp) override {
-        if (binary(vtxp)) return;
+    शून्य visit(DfgAnd* ध्रुव vtxp) override {
+        यदि (द्विमान(vtxp)) प्रत्यागम;
 
-        DfgVertex* const lhsp = vtxp->lhsp();
-        DfgVertex* const rhsp = vtxp->rhsp();
-        FileLine* const flp = vtxp->fileline();
+        DfgVertex* ध्रुव lhsp = vtxp->lhsp();
+        DfgVertex* ध्रुव rhsp = vtxp->rhsp();
+        File_ओळ* ध्रुव flp = vtxp->fileline();
 
         // Bubble pushing (De Morgan)
-        if (!lhsp->hasMultipleSinks() || !rhsp->hasMultipleSinks()) {
-            if (DfgNot* const lhsNotp = lhsp->cast<DfgNot>()) {
-                if (DfgNot* const rhsNotp = rhsp->cast<DfgNot>()) {
+        यदि (!lhsp->hasMultipleSinks() || !rhsp->hasMultipleSinks()) {
+            यदि (DfgNot* ध्रुव lhsNotp = lhsp->cast<DfgNot>()) {
+                यदि (DfgNot* ध्रुव rhsNotp = rhsp->cast<DfgNot>()) {
                     APPLYING(REPLACE_AND_OF_NOT_AND_NOT) {
-                        DfgOr* const orp = make<DfgOr>(vtxp, lhsNotp->srcp(), rhsNotp->srcp());
+                        DfgOr* ध्रुव orp = make<DfgOr>(vtxp, lhsNotp->srcp(), rhsNotp->srcp());
                         replace(make<DfgNot>(vtxp, orp));
-                        return;
+                        प्रत्यागम;
                     }
                 }
-                if (DfgNeq* const rhsNeqp = rhsp->cast<DfgNeq>()) {
+                यदि (DfgNeq* ध्रुव rhsNeqp = rhsp->cast<DfgNeq>()) {
                     APPLYING(REPLACE_AND_OF_NOT_AND_NEQ) {
-                        DfgEq* const newRhsp = make<DfgEq>(rhsp, rhsNeqp->lhsp(), rhsNeqp->rhsp());
-                        DfgOr* const orp = make<DfgOr>(vtxp, lhsNotp->srcp(), newRhsp);
+                        DfgEq* ध्रुव newRhsp = make<DfgEq>(rhsp, rhsNeqp->lhsp(), rhsNeqp->rhsp());
+                        DfgOr* ध्रुव orp = make<DfgOr>(vtxp, lhsNotp->srcp(), newRhsp);
                         replace(make<DfgNot>(vtxp, orp));
-                        return;
+                        प्रत्यागम;
                     }
                 }
             }
         }
 
-        if (DfgConst* const lConstp = lhsp->cast<DfgConst>()) {
-            if (lConstp->isZero()) {
+        यदि (DfgConst* ध्रुव lConstp = lhsp->cast<DfgConst>()) {
+            यदि (lConstp->isZero()) {
                 APPLYING(REPLACE_AND_WITH_ZERO) {
                     replace(lConstp);
-                    return;
+                    प्रत्यागम;
                 }
             }
 
-            if (lConstp->isOnes()) {
+            यदि (lConstp->isOnes()) {
                 APPLYING(REMOVE_AND_WITH_ONES) {
                     replace(rhsp);
-                    return;
+                    प्रत्यागम;
                 }
             }
 
-            if (DfgConcat* const rhsConcatp = rhsp->cast<DfgConcat>()) {
-                if (tryPushBitwiseOpThroughConcat(vtxp, lConstp, rhsConcatp)) return;
+            यदि (DfgConcat* ध्रुव rhsConcatp = rhsp->cast<DfgConcat>()) {
+                यदि (try_ढकला_Bitwise_Op_Through_Concat(vtxp, lConstp, rhsConcatp)) प्रत्यागम;
             }
         }
 
-        if (distributiveAndAssociativeBinary<DfgOr, DfgAnd>(vtxp)) return;
+        यदि (distributive_And_Associative_द्विमान<DfgOr, DfgAnd>(vtxp)) प्रत्यागम;
 
-        if (tryPushBitwiseOpThroughReductions(vtxp)) return;
+        यदि (try_ढकला_Bitwise_Op_Through_Reductions(vtxp)) प्रत्यागम;
 
-        if (tryPushBitwiseOpThrougSel(vtxp)) return;
+        यदि (try_ढकला_Bitwise_Op_Throug_Sel(vtxp)) प्रत्यागम;
 
         {
-            DfgNot* const lNotp = lhsp->cast<DfgNot>();
-            DfgNot* const rNotp = rhsp->cast<DfgNot>();
+            DfgNot* ध्रुव lNotp = lhsp->cast<DfgNot>();
+            DfgNot* ध्रुव rNotp = rhsp->cast<DfgNot>();
             // ~A & A is all zeroes
-            if ((lNotp && isSame(lNotp->srcp(), rhsp)) || (rNotp && isSame(lhsp, rNotp->srcp()))) {
+            यदि ((lNotp && isSame(lNotp->srcp(), rhsp)) || (rNotp && isSame(lhsp, rNotp->srcp()))) {
                 APPLYING(REPLACE_CONTRADICTORY_AND) {
                     replace(makeZero(flp, vtxp->width()));
-                    return;
+                    प्रत्यागम;
                 }
             }
 
-            if (DfgAnd* const rSamep = rhsp->cast<DfgAnd>()) {
-                DfgNot* const rlNotp = rSamep->lhsp()->cast<DfgNot>();
-                DfgNot* const rrNotp = rSamep->rhsp()->cast<DfgNot>();
+            यदि (DfgAnd* ध्रुव rSamep = rhsp->cast<DfgAnd>()) {
+                DfgNot* ध्रुव rlNotp = rSamep->lhsp()->cast<DfgNot>();
+                DfgNot* ध्रुव rrNotp = rSamep->rhsp()->cast<DfgNot>();
                 // ~A & (A & _) or ~A & (_ & A) is all zeroes
-                if ((lNotp && isSame(lNotp->srcp(), rSamep->lhsp()))
+                यदि ((lNotp && isSame(lNotp->srcp(), rSamep->lhsp()))
                     || (lNotp && isSame(lNotp->srcp(), rSamep->rhsp()))
                     || (rlNotp && isSame(lhsp, rlNotp->srcp()))
                     || (rrNotp && isSame(lhsp, rrNotp->srcp()))) {
                     APPLYING(REPLACE_CONTRADICTORY_AND_3) {
                         replace(makeZero(flp, vtxp->width()));
-                        return;
+                        प्रत्यागम;
                     }
                 }
             }
         }
 
-        if (vtxp->dtype() == m_bitDType) {
-            if (tryReplaceBitwiseWithReduction(vtxp)) return;
+        यदि (vtxp->dtype() == m_bitDType) {
+            यदि (tryReplaceBitwiseWithReduction(vtxp)) प्रत्यागम;
         }
 
         {
             DfgRep* repp = lhsp->cast<DfgRep>();
             DfgCond* condp = rhsp->cast<DfgCond>();
-            if (!repp && !condp) {
+            यदि (!repp && !condp) {
                 repp = rhsp->cast<DfgRep>();
                 condp = lhsp->cast<DfgCond>();
             }
-            if (repp && condp && repp->srcp()->size() == 1 && !condp->hasMultipleSinks()
+            यदि (repp && condp && repp->srcp()->size() == 1 && !condp->hasMultipleSinks()
                 && isZero(condp->elsep())) {
                 APPLYING(REPLACE_AND_REP_COND_ELSE_ZERO) {
-                    DfgAnd* const newCondp
+                    DfgAnd* ध्रुव newCondp
                         = make<DfgAnd>(condp->condp(), repp->srcp(), condp->condp());
                     replace(make<DfgCond>(condp, newCondp, condp->thenp(), condp->elsep()));
-                    return;
+                    प्रत्यागम;
                 }
             }
         }
     }
 
-    void visit(DfgOr* const vtxp) override {
-        if (binary(vtxp)) return;
+    शून्य visit(DfgOr* ध्रुव vtxp) override {
+        यदि (द्विमान(vtxp)) प्रत्यागम;
 
-        DfgVertex* const lhsp = vtxp->lhsp();
-        DfgVertex* const rhsp = vtxp->rhsp();
-        FileLine* const flp = vtxp->fileline();
+        DfgVertex* ध्रुव lhsp = vtxp->lhsp();
+        DfgVertex* ध्रुव rhsp = vtxp->rhsp();
+        File_ओळ* ध्रुव flp = vtxp->fileline();
 
         // Bubble pushing (De Morgan)
-        if (!lhsp->hasMultipleSinks() || !rhsp->hasMultipleSinks()) {
-            if (DfgNot* const lhsNotp = lhsp->cast<DfgNot>()) {
-                if (DfgNot* const rhsNotp = rhsp->cast<DfgNot>()) {
+        यदि (!lhsp->hasMultipleSinks() || !rhsp->hasMultipleSinks()) {
+            यदि (DfgNot* ध्रुव lhsNotp = lhsp->cast<DfgNot>()) {
+                यदि (DfgNot* ध्रुव rhsNotp = rhsp->cast<DfgNot>()) {
                     APPLYING(REPLACE_OR_OF_NOT_AND_NOT) {
-                        DfgAnd* const andp = make<DfgAnd>(vtxp, lhsNotp->srcp(), rhsNotp->srcp());
+                        DfgAnd* ध्रुव andp = make<DfgAnd>(vtxp, lhsNotp->srcp(), rhsNotp->srcp());
                         replace(make<DfgNot>(vtxp, andp));
-                        return;
+                        प्रत्यागम;
                     }
                 }
-                if (DfgNeq* const rhsNeqp = rhsp->cast<DfgNeq>()) {
+                यदि (DfgNeq* ध्रुव rhsNeqp = rhsp->cast<DfgNeq>()) {
                     APPLYING(REPLACE_OR_OF_NOT_AND_NEQ) {
-                        DfgEq* const newRhsp = make<DfgEq>(rhsp, rhsNeqp->lhsp(), rhsNeqp->rhsp());
-                        DfgAnd* const andp = make<DfgAnd>(vtxp, lhsNotp->srcp(), newRhsp);
+                        DfgEq* ध्रुव newRhsp = make<DfgEq>(rhsp, rhsNeqp->lhsp(), rhsNeqp->rhsp());
+                        DfgAnd* ध्रुव andp = make<DfgAnd>(vtxp, lhsNotp->srcp(), newRhsp);
                         replace(make<DfgNot>(vtxp, andp));
-                        return;
+                        प्रत्यागम;
                     }
                 }
             }
         }
 
-        if (DfgConcat* const lhsConcatp = lhsp->cast<DfgConcat>()) {
-            if (DfgConcat* const rhsConcatp = rhsp->cast<DfgConcat>()) {
-                if (lhsConcatp->lhsp()->dtype() == rhsConcatp->lhsp()->dtype()) {
-                    if (isZero(lhsConcatp->lhsp()) && isZero(rhsConcatp->rhsp())) {
+        यदि (DfgConcat* ध्रुव lhsConcatp = lhsp->cast<DfgConcat>()) {
+            यदि (DfgConcat* ध्रुव rhsConcatp = rhsp->cast<DfgConcat>()) {
+                यदि (lhsConcatp->lhsp()->dtype() == rhsConcatp->lhsp()->dtype()) {
+                    यदि (isZero(lhsConcatp->lhsp()) && isZero(rhsConcatp->rhsp())) {
                         APPLYING(REPLACE_OR_OF_CONCAT_ZERO_LHS_AND_CONCAT_RHS_ZERO) {
                             replace(make<DfgConcat>(vtxp, rhsConcatp->lhsp(), lhsConcatp->rhsp()));
-                            return;
+                            प्रत्यागम;
                         }
                     }
-                    if (isZero(lhsConcatp->rhsp()) && isZero(rhsConcatp->lhsp())) {
+                    यदि (isZero(lhsConcatp->rhsp()) && isZero(rhsConcatp->lhsp())) {
                         APPLYING(REPLACE_OR_OF_CONCAT_LHS_ZERO_AND_CONCAT_ZERO_RHS) {
                             replace(make<DfgConcat>(vtxp, lhsConcatp->lhsp(), rhsConcatp->rhsp()));
-                            return;
+                            प्रत्यागम;
                         }
                     }
                 }
             }
         }
 
-        if (DfgConst* const lConstp = lhsp->cast<DfgConst>()) {
-            if (lConstp->isZero()) {
+        यदि (DfgConst* ध्रुव lConstp = lhsp->cast<DfgConst>()) {
+            यदि (lConstp->isZero()) {
                 APPLYING(REMOVE_OR_WITH_ZERO) {
                     replace(rhsp);
-                    return;
+                    प्रत्यागम;
                 }
             }
 
-            if (lConstp->isOnes()) {
+            यदि (lConstp->isOnes()) {
                 APPLYING(REPLACE_OR_WITH_ONES) {
                     replace(lhsp);
-                    return;
+                    प्रत्यागम;
                 }
             }
 
-            if (DfgConcat* const rhsConcatp = rhsp->cast<DfgConcat>()) {
-                if (tryPushBitwiseOpThroughConcat(vtxp, lConstp, rhsConcatp)) return;
+            यदि (DfgConcat* ध्रुव rhsConcatp = rhsp->cast<DfgConcat>()) {
+                यदि (try_ढकला_Bitwise_Op_Through_Concat(vtxp, lConstp, rhsConcatp)) प्रत्यागम;
             }
         }
 
-        if (distributiveAndAssociativeBinary<DfgAnd, DfgOr>(vtxp)) return;
+        यदि (distributive_And_Associative_द्विमान<DfgAnd, DfgOr>(vtxp)) प्रत्यागम;
 
-        if (tryPushBitwiseOpThroughReductions(vtxp)) return;
+        यदि (try_ढकला_Bitwise_Op_Through_Reductions(vtxp)) प्रत्यागम;
 
-        if (tryPushBitwiseOpThrougSel(vtxp)) return;
+        यदि (try_ढकला_Bitwise_Op_Throug_Sel(vtxp)) प्रत्यागम;
 
         {
-            DfgNot* const lNotp = lhsp->cast<DfgNot>();
-            DfgNot* const rNotp = rhsp->cast<DfgNot>();
+            DfgNot* ध्रुव lNotp = lhsp->cast<DfgNot>();
+            DfgNot* ध्रुव rNotp = rhsp->cast<DfgNot>();
             // ~A | A is all ones
-            if ((lNotp && isSame(lNotp->srcp(), rhsp)) || (rNotp && isSame(lhsp, rNotp->srcp()))) {
+            यदि ((lNotp && isSame(lNotp->srcp(), rhsp)) || (rNotp && isSame(lhsp, rNotp->srcp()))) {
                 APPLYING(REPLACE_TAUTOLOGICAL_OR) {
                     replace(makeOnes(flp, vtxp->width()));
-                    return;
+                    प्रत्यागम;
                 }
             }
 
-            if (DfgOr* const rSamep = rhsp->cast<DfgOr>()) {
-                DfgNot* const rlNotp = rSamep->lhsp()->cast<DfgNot>();
-                DfgNot* const rrNotp = rSamep->rhsp()->cast<DfgNot>();
+            यदि (DfgOr* ध्रुव rSamep = rhsp->cast<DfgOr>()) {
+                DfgNot* ध्रुव rlNotp = rSamep->lhsp()->cast<DfgNot>();
+                DfgNot* ध्रुव rrNotp = rSamep->rhsp()->cast<DfgNot>();
                 // ~A | (A | _) or ~A | (_ | A) is all ones
-                if ((lNotp && isSame(lNotp->srcp(), rSamep->lhsp()))
+                यदि ((lNotp && isSame(lNotp->srcp(), rSamep->lhsp()))
                     || (lNotp && isSame(lNotp->srcp(), rSamep->rhsp()))
                     || (rlNotp && isSame(lhsp, rlNotp->srcp()))
                     || (rrNotp && isSame(lhsp, rrNotp->srcp()))) {
                     APPLYING(REPLACE_TAUTOLOGICAL_OR_3) {
                         replace(makeOnes(flp, vtxp->width()));
-                        return;
+                        प्रत्यागम;
                     }
                 }
             }
         }
 
-        if (vtxp->dtype() == m_bitDType) {
-            if (tryReplaceBitwiseWithReduction(vtxp)) return;
+        यदि (vtxp->dtype() == m_bitDType) {
+            यदि (tryReplaceBitwiseWithReduction(vtxp)) प्रत्यागम;
         }
     }
 
-    void visit(DfgXor* const vtxp) override {
-        if (binary(vtxp)) return;
+    शून्य visit(DfgXor* ध्रुव vtxp) override {
+        यदि (द्विमान(vtxp)) प्रत्यागम;
 
-        DfgVertex* const lhsp = vtxp->lhsp();
-        DfgVertex* const rhsp = vtxp->rhsp();
+        DfgVertex* ध्रुव lhsp = vtxp->lhsp();
+        DfgVertex* ध्रुव rhsp = vtxp->rhsp();
 
-        if (isSame(lhsp, rhsp)) {
+        यदि (isSame(lhsp, rhsp)) {
             APPLYING(REPLACE_XOR_WITH_SELF) {
                 replace(makeZero(vtxp->fileline(), vtxp->width()));
-                return;
+                प्रत्यागम;
             }
         }
 
-        if (DfgConst* const lConstp = lhsp->cast<DfgConst>()) {
-            if (lConstp->isZero()) {
+        यदि (DfgConst* ध्रुव lConstp = lhsp->cast<DfgConst>()) {
+            यदि (lConstp->isZero()) {
                 APPLYING(REMOVE_XOR_WITH_ZERO) {
                     replace(rhsp);
-                    return;
+                    प्रत्यागम;
                 }
             }
-            if (lConstp->isOnes()) {
+            यदि (lConstp->isOnes()) {
                 APPLYING(REPLACE_XOR_WITH_ONES) {
                     replace(make<DfgNot>(vtxp, rhsp));
-                    return;
+                    प्रत्यागम;
                 }
             }
-            if (DfgConcat* const rConcatp = rhsp->cast<DfgConcat>()) {
-                if (tryPushBitwiseOpThroughConcat(vtxp, lConstp, rConcatp)) return;
+            यदि (DfgConcat* ध्रुव rConcatp = rhsp->cast<DfgConcat>()) {
+                यदि (try_ढकला_Bitwise_Op_Through_Concat(vtxp, lConstp, rConcatp)) प्रत्यागम;
             }
         }
 
-        if (tryPushBitwiseOpThroughReductions(vtxp)) return;
+        यदि (try_ढकला_Bitwise_Op_Through_Reductions(vtxp)) प्रत्यागम;
 
-        if (tryPushBitwiseOpThrougSel(vtxp)) return;
+        यदि (try_ढकला_Bitwise_Op_Throug_Sel(vtxp)) प्रत्यागम;
 
-        if (vtxp->dtype() == m_bitDType) {
-            if (tryReplaceBitwiseWithReduction(vtxp)) return;
+        यदि (vtxp->dtype() == m_bitDType) {
+            यदि (tryReplaceBitwiseWithReduction(vtxp)) प्रत्यागम;
         }
     }
 
@@ -2043,62 +2043,62 @@ class V3DfgPeephole final : public DfgVisitor {
     //  DfgVertexBinary - other
     //=========================================================================
 
-    void visit(DfgAdd* const vtxp) override {
-        if (binary(vtxp)) return;
+    शून्य visit(DfgAdd* ध्रुव vtxp) override {
+        यदि (द्विमान(vtxp)) प्रत्यागम;
 
-        DfgVertex* const lhsp = vtxp->lhsp();
-        DfgVertex* const rhsp = vtxp->rhsp();
-        FileLine* const flp = vtxp->fileline();
+        DfgVertex* ध्रुव lhsp = vtxp->lhsp();
+        DfgVertex* ध्रुव rhsp = vtxp->rhsp();
+        File_ओळ* ध्रुव flp = vtxp->fileline();
 
-        if (isZero(lhsp)) {
+        यदि (isZero(lhsp)) {
             APPLYING(REMOVE_ADD_ZERO) {
                 replace(rhsp);
-                return;
+                प्रत्यागम;
             }
         }
 
-        const std::tuple<DfgVertex*, uint32_t, uint32_t> lTerm = addToCountOnesTerm(lhsp);
-        if (DfgVertex* const lVtxp = std::get<0>(lTerm)) {
-            std::tuple<DfgVertex*, uint32_t, uint32_t> rTerm = addToCountOnesTerm(rhsp);
+        ध्रुव std::tuple<DfgVertex*, uint32_t, uint32_t> lTerm = add_To_मोजणी_Ones_Term(lhsp);
+        यदि (DfgVertex* ध्रुव lVtxp = std::get<0>(lTerm)) {
+            std::tuple<DfgVertex*, uint32_t, uint32_t> rTerm = add_To_मोजणी_Ones_Term(rhsp);
             DfgVertex* extrap = nullptr;
-            if (!std::get<0>(rTerm)) {
-                if (DfgAdd* const rAddp = rhsp->cast<DfgAdd>()) {
-                    rTerm = addToCountOnesTerm(rAddp->lhsp());
+            यदि (!std::get<0>(rTerm)) {
+                यदि (DfgAdd* ध्रुव rAddp = rhsp->cast<DfgAdd>()) {
+                    rTerm = add_To_मोजणी_Ones_Term(rAddp->lhsp());
                     extrap = rAddp->rhsp();
                 }
             }
 
-            if (DfgVertex* const rVtxp = std::get<0>(rTerm)) {
-                if (isSame(lVtxp, rVtxp)) {
-                    const uint32_t lLsb = std::get<1>(lTerm);
-                    const uint32_t rLsb = std::get<1>(rTerm);
-                    const uint32_t lWidth = std::get<2>(lTerm);
-                    const uint32_t rWidth = std::get<2>(rTerm);
-                    bool adjoined = true;
+            यदि (DfgVertex* ध्रुव rVtxp = std::get<0>(rTerm)) {
+                यदि (isSame(lVtxp, rVtxp)) {
+                    ध्रुव uint32_t lLsb = std::get<1>(lTerm);
+                    ध्रुव uint32_t rLsb = std::get<1>(rTerm);
+                    ध्रुव uint32_t lWidth = std::get<2>(lTerm);
+                    ध्रुव uint32_t rWidth = std::get<2>(rTerm);
+                    तार्किक adjoined = सत्य;
                     uint32_t lsb = 0;
-                    if (lLsb + lWidth == rLsb) {
+                    यदि (lLsb + lWidth == rLsb) {
                         lsb = lLsb;
-                    } else if (lLsb == rLsb + rWidth) {
+                    } अन्यथा यदि (lLsb == rLsb + rWidth) {
                         lsb = rLsb;
-                    } else {
-                        adjoined = false;
+                    } अन्यथा {
+                        adjoined = असत्य;
                     }
-                    if (adjoined) {
-                        APPLYING(REPLACE_ADD_WITH_COUNT_ONES) {
-                            DfgSel* const selp
+                    यदि (adjoined) {
+                        APPLYING(REPLACE_ADD_WITH_मोजणी_ONES) {
+                            DfgSel* ध्रुव selp
                                 = make<DfgSel>(vtxp->fileline(),
                                                DfgDataType::packed(lWidth + rWidth), lVtxp, lsb);
                             DfgVertex* resp
-                                = make<DfgCountOnes>(flp, DfgDataType::packed(32), selp);
-                            if (vtxp->width() > 32U) {
+                                = make<Dfg_मोजणी_Ones>(flp, DfgDataType::packed(32), selp);
+                            यदि (vtxp->width() > 32U) {
                                 resp = make<DfgConcat>(vtxp, makeZero(flp, vtxp->width() - 32U),
                                                        resp);
-                            } else if (vtxp->width() < 32U) {
+                            } अन्यथा यदि (vtxp->width() < 32U) {
                                 resp = make<DfgSel>(vtxp, resp, 0U);
                             }
-                            if (extrap) resp = make<DfgAdd>(vtxp, resp, extrap);
+                            यदि (extrap) resp = make<DfgAdd>(vtxp, resp, extrap);
                             replace(resp);
-                            return;
+                            प्रत्यागम;
                         }
                     }
                 }
@@ -2106,152 +2106,152 @@ class V3DfgPeephole final : public DfgVisitor {
         }
     }
 
-    void visit(DfgArraySel* const vtxp) override {
-        DfgConst* const idxp = vtxp->bitp()->cast<DfgConst>();
-        if (!idxp) return;
-        DfgVarArray* const varp = vtxp->fromp()->cast<DfgVarArray>();
-        if (!varp) return;
-        AstVar* const astVarp = varp->vscp()->varp();
-        if (astVarp->isForced()) return;
-        if (astVarp->isSigUserRWPublic()) return;
-        DfgVertex* const srcp = varp->srcp();
-        if (!srcp) {
-            if (vtxp->isPacked()) {
-                if (AstConsArray* const iap = VN_CAST(astVarp->valuep(), ConsArray)) {
-                    if (AstConst* const valp = VN_CAST(iap->valuep(idxp->toSizeT()), Const)) {
+    शून्य visit(DfgArraySel* ध्रुव vtxp) override {
+        DfgConst* ध्रुव idxp = vtxp->bitp()->cast<DfgConst>();
+        यदि (!idxp) प्रत्यागम;
+        DfgVarArray* ध्रुव varp = vtxp->fromp()->cast<DfgVarArray>();
+        यदि (!varp) प्रत्यागम;
+        AstVar* ध्रुव astVarp = varp->vscp()->varp();
+        यदि (astVarp->isForced()) प्रत्यागम;
+        यदि (astVarp->isSigUserRWPublic()) प्रत्यागम;
+        DfgVertex* ध्रुव srcp = varp->srcp();
+        यदि (!srcp) {
+            यदि (vtxp->isPacked()) {
+                यदि (AstConsArray* ध्रुव iap = VN_CAST(astVarp->valuep(), ConsArray)) {
+                    यदि (AstConst* ध्रुव valp = VN_CAST(iap->valuep(idxp->toSizeT()), Const)) {
                         APPLYING(FOLD_ARRAYSEL_TABLE) {
-                            replace(new DfgConst{m_dfg, valp->fileline(), valp->num()});
-                            return;
+                            replace(नूतन DfgConst{m_dfg, valp->fileline(), valp->अंक()});
+                            प्रत्यागम;
                         }
                     }
                 }
             }
-            return;
+            प्रत्यागम;
         }
 
-        if (DfgSpliceArray* const splicep = srcp->cast<DfgSpliceArray>()) {
-            DfgVertex* const driverp = splicep->driverAt(idxp->toSizeT());
-            if (!driverp) return;
-            DfgUnitArray* const uap = driverp->cast<DfgUnitArray>();
-            if (!uap) return;
-            if (uap->srcp()->is<DfgVertexSplice>()) return;
+        यदि (DfgSpliceArray* ध्रुव splicep = srcp->cast<DfgSpliceArray>()) {
+            DfgVertex* ध्रुव driverp = splicep->driverAt(idxp->toSizeT());
+            यदि (!driverp) प्रत्यागम;
+            DfgUnitArray* ध्रुव uap = driverp->cast<DfgUnitArray>();
+            यदि (!uap) प्रत्यागम;
+            यदि (uap->srcp()->is<DfgVertexSplice>()) प्रत्यागम;
             // If driven by a variable that had a Driver in DFG, it is partial
-            if (DfgVertexVar* const dvarp = uap->srcp()->cast<DfgVertexVar>()) {
-                if (dvarp->srcp()) return;
+            यदि (DfgVertexVar* ध्रुव dvarp = uap->srcp()->cast<DfgVertexVar>()) {
+                यदि (dvarp->srcp()) प्रत्यागम;
             }
             APPLYING(INLINE_ARRAYSEL_SPLICE) {
                 replace(uap->srcp());
-                return;
+                प्रत्यागम;
             }
         }
 
-        if (DfgUnitArray* const uap = srcp->cast<DfgUnitArray>()) {
+        यदि (DfgUnitArray* ध्रुव uap = srcp->cast<DfgUnitArray>()) {
             UASSERT_OBJ(idxp->toSizeT() == 0, vtxp, "Array index out of range");
-            if (uap->srcp()->is<DfgSplicePacked>()) return;
+            यदि (uap->srcp()->is<DfgSplicePacked>()) प्रत्यागम;
             // If driven by a variable that had a Driver in DFG, it is partial
-            if (DfgVertexVar* const dvarp = uap->srcp()->cast<DfgVertexVar>()) {
-                if (dvarp->srcp()) return;
+            यदि (DfgVertexVar* ध्रुव dvarp = uap->srcp()->cast<DfgVertexVar>()) {
+                यदि (dvarp->srcp()) प्रत्यागम;
             }
             APPLYING(INLINE_ARRAYSEL_UNIT) {
                 replace(uap->srcp());
-                return;
+                प्रत्यागम;
             }
         }
     }
 
-    void visit(DfgConcat* const vtxp) override {
-        if (binary(vtxp)) return;
+    शून्य visit(DfgConcat* ध्रुव vtxp) override {
+        यदि (द्विमान(vtxp)) प्रत्यागम;
 
-        DfgVertex* const lhsp = vtxp->lhsp();
-        DfgVertex* const rhsp = vtxp->rhsp();
+        DfgVertex* ध्रुव lhsp = vtxp->lhsp();
+        DfgVertex* ध्रुव rhsp = vtxp->rhsp();
 
-        FileLine* const flp = vtxp->fileline();
+        File_ओळ* ध्रुव flp = vtxp->fileline();
 
-        if (isZero(lhsp)) {
-            DfgConst* const lConstp = lhsp->as<DfgConst>();
-            if (DfgSel* const rSelp = rhsp->cast<DfgSel>()) {
-                if (vtxp->dtype() == rSelp->fromp()->dtype() && rSelp->lsb() == lConstp->width()) {
-                    APPLYING(REPLACE_CONCAT_ZERO_AND_SEL_TOP_WITH_SHIFTR) {
+        यदि (isZero(lhsp)) {
+            DfgConst* ध्रुव lConstp = lhsp->as<DfgConst>();
+            यदि (DfgSel* ध्रुव rSelp = rhsp->cast<DfgSel>()) {
+                यदि (vtxp->dtype() == rSelp->fromp()->dtype() && rSelp->lsb() == lConstp->width()) {
+                    APPLYING(REPLACE_CONCAT_ZERO_AND_SEL_शीर्ष_WITH_SHIFTR) {
                         replace(
                             make<DfgShiftR>(vtxp, rSelp->fromp(), makeI32(flp, lConstp->width())));
-                        return;
+                        प्रत्यागम;
                     }
                 }
             }
         }
 
-        if (isZero(rhsp)) {
-            DfgConst* const rConstp = rhsp->as<DfgConst>();
-            if (DfgSel* const lSelp = lhsp->cast<DfgSel>()) {
-                if (vtxp->dtype() == lSelp->fromp()->dtype() && lSelp->lsb() == 0) {
+        यदि (isZero(rhsp)) {
+            DfgConst* ध्रुव rConstp = rhsp->as<DfgConst>();
+            यदि (DfgSel* ध्रुव lSelp = lhsp->cast<DfgSel>()) {
+                यदि (vtxp->dtype() == lSelp->fromp()->dtype() && lSelp->lsb() == 0) {
                     APPLYING(REPLACE_CONCAT_SEL_BOTTOM_AND_ZERO_WITH_SHIFTL) {
                         replace(
                             make<DfgShiftL>(vtxp, lSelp->fromp(), makeI32(flp, rConstp->width())));
-                        return;
+                        प्रत्यागम;
                     }
                 }
             }
         }
 
-        if (DfgNot* const lNot = lhsp->cast<DfgNot>()) {
-            if (DfgNot* const rNot = rhsp->cast<DfgNot>()) {
-                if (!lNot->hasMultipleSinks() && !rNot->hasMultipleSinks()) {
-                    APPLYING(PUSH_CONCAT_THROUGH_NOTS) {
-                        DfgConcat* const newCatp
+        यदि (DfgNot* ध्रुव lNot = lhsp->cast<DfgNot>()) {
+            यदि (DfgNot* ध्रुव rNot = rhsp->cast<DfgNot>()) {
+                यदि (!lNot->hasMultipleSinks() && !rNot->hasMultipleSinks()) {
+                    APPLYING(ढकला_CONCAT_THROUGH_NOTS) {
+                        DfgConcat* ध्रुव newCatp
                             = make<DfgConcat>(vtxp, lNot->srcp(), rNot->srcp());
                         replace(make<DfgNot>(vtxp, newCatp));
-                        return;
+                        प्रत्यागम;
                     }
                 }
             }
         }
 
         {
-            bool swap = false;
-            if (isConcatPushableThroughBitwise(lhsp, rhsp, swap)) {
-                APPLYING(PUSH_CONCAT_THROUGH_BITWISE) {
+            तार्किक swap = असत्य;
+            यदि (isConcatPushableThroughBitwise(lhsp, rhsp, swap)) {
+                APPLYING(ढकला_CONCAT_THROUGH_BITWISE) {
                     replace(makeConcatPushedThroughBitwise(flp, lhsp, rhsp, swap));
-                    return;
+                    प्रत्यागम;
                 }
             }
             // The mirrored RHS match is not needed due to RIGHT_LEANING_ASSOC
-            if (DfgConcat* const rConcatp = rhsp->cast<DfgConcat>()) {
-                DfgVertex* const rlp = rConcatp->lhsp();
-                if (!rConcatp->hasMultipleSinks()
+            यदि (DfgConcat* ध्रुव rConcatp = rhsp->cast<DfgConcat>()) {
+                DfgVertex* ध्रुव rlp = rConcatp->lhsp();
+                यदि (!rConcatp->hasMultipleSinks()
                     && isConcatPushableThroughBitwise(lhsp, rlp, swap)) {
-                    APPLYING(PUSH_NESTED_CONCAT_THROUGH_BITWISE_ON_LHS) {
-                        DfgVertex* const newp
+                    APPLYING(ढकला_NESTED_CONCAT_THROUGH_BITWISE_ON_LHS) {
+                        DfgVertex* ध्रुव newp
                             = makeConcatPushedThroughBitwise(flp, lhsp, rlp, swap);
                         replace(make<DfgConcat>(vtxp, newp, rConcatp->rhsp()));
-                        return;
+                        प्रत्यागम;
                     }
                 }
             }
         }
 
-        if (DfgSel* const lSelp = lhsp->cast<DfgSel>()) {
-            if (DfgSel* const rSelp = rhsp->cast<DfgSel>()) {
-                if (isSame(lSelp->fromp(), rSelp->fromp())) {
-                    if (lSelp->lsb() == rSelp->lsb() + rSelp->width()) {
+        यदि (DfgSel* ध्रुव lSelp = lhsp->cast<DfgSel>()) {
+            यदि (DfgSel* ध्रुव rSelp = rhsp->cast<DfgSel>()) {
+                यदि (isSame(lSelp->fromp(), rSelp->fromp())) {
+                    यदि (lSelp->lsb() == rSelp->lsb() + rSelp->width()) {
                         APPLYING(REMOVE_CONCAT_OF_ADJOINING_SELS) {
                             replace(make<DfgSel>(vtxp, rSelp->fromp(), rSelp->lsb()));
-                            return;
+                            प्रत्यागम;
                         }
                     }
                 }
             }
 
-            if (DfgConcat* const rConcatp = rhsp->cast<DfgConcat>()) {
-                if (DfgSel* const rlSelp = rConcatp->lhsp()->cast<DfgSel>()) {
-                    if (isSame(lSelp->fromp(), rlSelp->fromp())) {
-                        if (lSelp->lsb() == rlSelp->lsb() + rlSelp->width()) {
+            यदि (DfgConcat* ध्रुव rConcatp = rhsp->cast<DfgConcat>()) {
+                यदि (DfgSel* ध्रुव rlSelp = rConcatp->lhsp()->cast<DfgSel>()) {
+                    यदि (isSame(lSelp->fromp(), rlSelp->fromp())) {
+                        यदि (lSelp->lsb() == rlSelp->lsb() + rlSelp->width()) {
                             APPLYING(REPLACE_NESTED_CONCAT_OF_ADJOINING_SELS_ON_LHS) {
-                                const uint32_t width = lSelp->width() + rlSelp->width();
-                                const DfgDataType& dtype = DfgDataType::packed(width);
-                                DfgSel* const selp
+                                ध्रुव uint32_t width = lSelp->width() + rlSelp->width();
+                                ध्रुव DfgDataType& dtype = DfgDataType::packed(width);
+                                DfgSel* ध्रुव selp
                                     = make<DfgSel>(flp, dtype, rlSelp->fromp(), rlSelp->lsb());
                                 replace(make<DfgConcat>(vtxp, selp, rConcatp->rhsp()));
-                                return;
+                                प्रत्यागम;
                             }
                         }
                     }
@@ -2259,18 +2259,18 @@ class V3DfgPeephole final : public DfgVisitor {
             }
         }
 
-        if (DfgSel* const rSelp = rhsp->cast<DfgSel>()) {
-            if (DfgConcat* const lConcatp = lhsp->cast<DfgConcat>()) {
-                if (DfgSel* const lrSelp = lConcatp->rhsp()->cast<DfgSel>()) {
-                    if (isSame(lrSelp->fromp(), rSelp->fromp())) {
-                        if (lrSelp->lsb() == rSelp->lsb() + rSelp->width()) {
+        यदि (DfgSel* ध्रुव rSelp = rhsp->cast<DfgSel>()) {
+            यदि (DfgConcat* ध्रुव lConcatp = lhsp->cast<DfgConcat>()) {
+                यदि (DfgSel* ध्रुव lrSelp = lConcatp->rhsp()->cast<DfgSel>()) {
+                    यदि (isSame(lrSelp->fromp(), rSelp->fromp())) {
+                        यदि (lrSelp->lsb() == rSelp->lsb() + rSelp->width()) {
                             APPLYING(REPLACE_NESTED_CONCAT_OF_ADJOINING_SELS_ON_RHS) {
-                                const uint32_t width = lrSelp->width() + rSelp->width();
-                                const DfgDataType& dtype = DfgDataType::packed(width);
-                                DfgSel* const selp
+                                ध्रुव uint32_t width = lrSelp->width() + rSelp->width();
+                                ध्रुव DfgDataType& dtype = DfgDataType::packed(width);
+                                DfgSel* ध्रुव selp
                                     = make<DfgSel>(flp, dtype, rSelp->fromp(), rSelp->lsb());
                                 replace(make<DfgConcat>(vtxp, lConcatp->lhsp(), selp));
-                                return;
+                                प्रत्यागम;
                             }
                         }
                     }
@@ -2278,68 +2278,68 @@ class V3DfgPeephole final : public DfgVisitor {
             }
         }
 
-        if (DfgConst* const lConstp = lhsp->cast<DfgConst>()) {
-            if (DfgCond* const rCondp = rhsp->cast<DfgCond>()) {
-                DfgVertex* const rtVtxp = rCondp->thenp();
-                DfgVertex* const reVtxp = rCondp->elsep();
-                DfgConst* const rtConstp = rtVtxp->cast<DfgConst>();
-                DfgConst* const reConstp = reVtxp->cast<DfgConst>();
-                if (!rCondp->hasMultipleSinks() && (rtConstp || reConstp)) {
-                    APPLYING(PUSH_CONCAT_THROUGH_COND_LHS) {
-                        DfgVertex* const thenp = [&]() -> DfgVertex* {
-                            FileLine* const rtFlp = rtVtxp->fileline();
-                            if (rtConstp) {
-                                DfgConst* const constp = makeZero(rtFlp, vtxp->width());
-                                constp->num().opConcat(lConstp->num(), rtConstp->num());
-                                return constp;
+        यदि (DfgConst* ध्रुव lConstp = lhsp->cast<DfgConst>()) {
+            यदि (DfgCond* ध्रुव rCondp = rhsp->cast<DfgCond>()) {
+                DfgVertex* ध्रुव rtVtxp = rCondp->thenp();
+                DfgVertex* ध्रुव reVtxp = rCondp->elsep();
+                DfgConst* ध्रुव rtConstp = rtVtxp->cast<DfgConst>();
+                DfgConst* ध्रुव reConstp = reVtxp->cast<DfgConst>();
+                यदि (!rCondp->hasMultipleSinks() && (rtConstp || reConstp)) {
+                    APPLYING(ढकला_CONCAT_THROUGH_COND_LHS) {
+                        DfgVertex* ध्रुव thenp = [&]() -> DfgVertex* {
+                            File_ओळ* ध्रुव rtFlp = rtVtxp->fileline();
+                            यदि (rtConstp) {
+                                DfgConst* ध्रुव constp = makeZero(rtFlp, vtxp->width());
+                                constp->अंक().opConcat(lConstp->अंक(), rtConstp->अंक());
+                                प्रत्यागम constp;
                             }
-                            return make<DfgConcat>(rtFlp, vtxp->dtype(), lConstp, rtVtxp);
+                            प्रत्यागम make<DfgConcat>(rtFlp, vtxp->dtype(), lConstp, rtVtxp);
                         }();
-                        DfgVertex* const elsep = [&]() -> DfgVertex* {
-                            FileLine* const reFlp = reVtxp->fileline();
-                            if (reConstp) {
-                                DfgConst* const constp = makeZero(reFlp, vtxp->width());
-                                constp->num().opConcat(lConstp->num(), reConstp->num());
-                                return constp;
+                        DfgVertex* ध्रुव elsep = [&]() -> DfgVertex* {
+                            File_ओळ* ध्रुव reFlp = reVtxp->fileline();
+                            यदि (reConstp) {
+                                DfgConst* ध्रुव constp = makeZero(reFlp, vtxp->width());
+                                constp->अंक().opConcat(lConstp->अंक(), reConstp->अंक());
+                                प्रत्यागम constp;
                             }
-                            return make<DfgConcat>(reFlp, vtxp->dtype(), lConstp, reVtxp);
+                            प्रत्यागम make<DfgConcat>(reFlp, vtxp->dtype(), lConstp, reVtxp);
                         }();
                         replace(make<DfgCond>(vtxp, rCondp->condp(), thenp, elsep));
-                        return;
+                        प्रत्यागम;
                     }
                 }
             }
         }
 
-        if (DfgConst* const rConstp = rhsp->cast<DfgConst>()) {
-            if (DfgCond* const lCondp = lhsp->cast<DfgCond>()) {
-                DfgVertex* const ltVtxp = lCondp->thenp();
-                DfgVertex* const leVtxp = lCondp->elsep();
-                DfgConst* const ltConstp = ltVtxp->cast<DfgConst>();
-                DfgConst* const leConstp = leVtxp->cast<DfgConst>();
-                if (!lCondp->hasMultipleSinks() && (ltConstp || leConstp)) {
-                    APPLYING(PUSH_CONCAT_THROUGH_COND_RHS) {
-                        DfgVertex* const thenp = [&]() -> DfgVertex* {
-                            FileLine* const ltFlp = ltVtxp->fileline();
-                            if (ltConstp) {
-                                DfgConst* const constp = makeZero(ltFlp, vtxp->width());
-                                constp->num().opConcat(ltConstp->num(), rConstp->num());
-                                return constp;
+        यदि (DfgConst* ध्रुव rConstp = rhsp->cast<DfgConst>()) {
+            यदि (DfgCond* ध्रुव lCondp = lhsp->cast<DfgCond>()) {
+                DfgVertex* ध्रुव ltVtxp = lCondp->thenp();
+                DfgVertex* ध्रुव leVtxp = lCondp->elsep();
+                DfgConst* ध्रुव ltConstp = ltVtxp->cast<DfgConst>();
+                DfgConst* ध्रुव leConstp = leVtxp->cast<DfgConst>();
+                यदि (!lCondp->hasMultipleSinks() && (ltConstp || leConstp)) {
+                    APPLYING(ढकला_CONCAT_THROUGH_COND_RHS) {
+                        DfgVertex* ध्रुव thenp = [&]() -> DfgVertex* {
+                            File_ओळ* ध्रुव ltFlp = ltVtxp->fileline();
+                            यदि (ltConstp) {
+                                DfgConst* ध्रुव constp = makeZero(ltFlp, vtxp->width());
+                                constp->अंक().opConcat(ltConstp->अंक(), rConstp->अंक());
+                                प्रत्यागम constp;
                             }
-                            return make<DfgConcat>(ltFlp, vtxp->dtype(), ltVtxp, rConstp);
+                            प्रत्यागम make<DfgConcat>(ltFlp, vtxp->dtype(), ltVtxp, rConstp);
                         }();
-                        DfgVertex* const elsep = [&]() -> DfgVertex* {
-                            FileLine* const leFlp = leVtxp->fileline();
-                            if (leConstp) {
-                                DfgConst* const constp = makeZero(leFlp, vtxp->width());
-                                constp->num().opConcat(leConstp->num(), rConstp->num());
-                                return constp;
+                        DfgVertex* ध्रुव elsep = [&]() -> DfgVertex* {
+                            File_ओळ* ध्रुव leFlp = leVtxp->fileline();
+                            यदि (leConstp) {
+                                DfgConst* ध्रुव constp = makeZero(leFlp, vtxp->width());
+                                constp->अंक().opConcat(leConstp->अंक(), rConstp->अंक());
+                                प्रत्यागम constp;
                             }
-                            return make<DfgConcat>(leFlp, vtxp->dtype(), leVtxp, rConstp);
+                            प्रत्यागम make<DfgConcat>(leFlp, vtxp->dtype(), leVtxp, rConstp);
                         }();
 
                         replace(make<DfgCond>(vtxp, lCondp->condp(), thenp, elsep));
-                        return;
+                        प्रत्यागम;
                     }
                 }
             }
@@ -2347,105 +2347,105 @@ class V3DfgPeephole final : public DfgVisitor {
 
         // Attempt to narrow a concatenation that produces unused bits on the edges
         {
-            const uint32_t vMsb = vtxp->width() - 1;  // MSB of the concatenation
-            const uint32_t lLsb = vtxp->rhsp()->width();  // LSB of the LHS
-            const uint32_t rMsb = lLsb - 1;  // MSB of the RHS
+            ध्रुव uint32_t vMsb = vtxp->width() - 1;  // MSB of the concatenation
+            ध्रुव uint32_t lLsb = vtxp->rhsp()->width();  // LSB of the LHS
+            ध्रुव uint32_t rMsb = lLsb - 1;  // MSB of the RHS
             // Check each sink, and record the range of bits used by them
             uint32_t lsb = vMsb;  // LSB used by a sink
             uint32_t msb = 0;  // MSB used by a sink
-            bool hasCrossSink = false;  // True if some sinks use bits from both sides
+            तार्किक hasCrossSink = असत्य;  // True if some sinks use bits from both sides
             vtxp->foreachSink([&](DfgVertex& sink) {
                 // Record bits used by DfgSel sinks
-                if (const DfgSel* const selp = sink.cast<DfgSel>()) {
-                    const uint32_t selLsb = selp->lsb();
-                    const uint32_t selMsb = selLsb + selp->width() - 1;
+                यदि (ध्रुव DfgSel* ध्रुव selp = sink.cast<DfgSel>()) {
+                    ध्रुव uint32_t selLsb = selp->lsb();
+                    ध्रुव uint32_t selMsb = selLsb + selp->width() - 1;
                     lsb = std::min(lsb, selLsb);
                     msb = std::max(msb, selMsb);
                     hasCrossSink |= selMsb >= lLsb && rMsb >= selLsb;
-                    return false;
+                    प्रत्यागम असत्य;
                 }
                 // Ignore non-observable variable sinks. These will be eliminated.
-                if (const DfgVarPacked* const varp = sink.cast<DfgVarPacked>()) {
-                    if (!varp->hasSinks() && !varp->isObserved()) return false;
+                यदि (ध्रुव DfgVarPacked* ध्रुव varp = sink.cast<DfgVarPacked>()) {
+                    यदि (!varp->hasSinks() && !varp->isObserved()) प्रत्यागम असत्य;
                 }
                 // Otherwise the whole value is used
                 lsb = 0;
                 msb = vMsb;
-                return true;
+                प्रत्यागम सत्य;
             });
-            if (hasCrossSink && (vMsb > msb || lsb > 0)) {
+            यदि (hasCrossSink && (vMsb > msb || lsb > 0)) {
                 APPLYING(NARROW_CONCAT) {
                     // Narrowed RHS
                     DfgVertex* nRhsp = rhsp;
-                    if (lsb != 0)
+                    यदि (lsb != 0)
                         nRhsp = make<DfgSel>(flp, DfgDataType::packed(rMsb - lsb + 1), rhsp, lsb);
                     // Narrowed LHS
                     DfgVertex* nLhsp = lhsp;
-                    if (msb != vMsb)
+                    यदि (msb != vMsb)
                         nLhsp = make<DfgSel>(flp, DfgDataType::packed(msb - lLsb + 1), lhsp, 0U);
                     // Narrowed concatenation
-                    DfgVertex* const catp
+                    DfgVertex* ध्रुव catp
                         = make<DfgConcat>(flp, DfgDataType::packed(msb - lsb + 1), nLhsp, nRhsp);
 
                     // Need to insert via a partial splice to avoid infinite matching,
                     // this splice will be eliminated on later visits to its sinks.
-                    DfgSplicePacked* const sp = new DfgSplicePacked{m_dfg, flp, vtxp->dtype()};
+                    DfgSplicePacked* ध्रुव sp = नूतन DfgSplicePacked{m_dfg, flp, vtxp->dtype()};
                     m_vInfo[sp].m_id = ++m_lastId;
                     sp->addDriver(catp, lsb, flp);
-                    DfgVertexVar* const varp
+                    DfgVertexVar* ध्रुव varp
                         = m_dfg.makeNewVar(flp, "PeepholeNarrow", vtxp->dtype(), m_tmpScopep);
                     varp->tmpForp(varp->vscp());
                     m_vInfo[varp].m_id = ++m_lastId;
-                    varp->vscp()->varp()->isInternal(true);
+                    varp->vscp()->varp()->isInternal(सत्य);
                     varp->srcp(sp);
                     replace(varp);
-                    return;
+                    प्रत्यागम;
                 }
             }
         }
 
         // Convert various forms to REPLICATE
-        if (isSame(lhsp, rhsp)) {
+        यदि (isSame(lhsp, rhsp)) {
             APPLYING(REPLACE_CONCAT_SAME) {
                 replace(make<DfgRep>(vtxp, lhsp));
-                return;
+                प्रत्यागम;
             }
         }
-        if (DfgRep* const lRepp = lhsp->cast<DfgRep>()) {
-            if (isSame(lRepp->srcp(), rhsp)) {
+        यदि (DfgRep* ध्रुव lRepp = lhsp->cast<DfgRep>()) {
+            यदि (isSame(lRepp->srcp(), rhsp)) {
                 APPLYING(REPLACE_CONCAT_SAME_REP_ON_LHS) {
                     replace(make<DfgRep>(vtxp, rhsp));
-                    return;
+                    प्रत्यागम;
                 }
             }
         }
-        if (DfgRep* const rRepp = rhsp->cast<DfgRep>()) {
-            if (isSame(lhsp, rRepp->srcp())) {
+        यदि (DfgRep* ध्रुव rRepp = rhsp->cast<DfgRep>()) {
+            यदि (isSame(lhsp, rRepp->srcp())) {
                 APPLYING(REPLACE_CONCAT_SAME_REP_ON_RHS) {
                     replace(make<DfgRep>(vtxp, lhsp));
-                    return;
+                    प्रत्यागम;
                 }
             }
         }
-        if (DfgRep* const lRepp = lhsp->cast<DfgRep>()) {
-            if (DfgRep* const rRepp = rhsp->cast<DfgRep>()) {
-                if (isSame(lRepp->srcp(), rRepp->srcp())) {
+        यदि (DfgRep* ध्रुव lRepp = lhsp->cast<DfgRep>()) {
+            यदि (DfgRep* ध्रुव rRepp = rhsp->cast<DfgRep>()) {
+                यदि (isSame(lRepp->srcp(), rRepp->srcp())) {
                     APPLYING(REPLACE_CONCAT_SAME_REPS) {
                         replace(make<DfgRep>(vtxp, lRepp->srcp()));
-                        return;
+                        प्रत्यागम;
                     }
                 }
             }
             // The mirrored RHS match is not needed due to RIGHT_LEANING_ASSOC
-            if (DfgConcat* const rConcatp = rhsp->cast<DfgConcat>()) {
-                if (DfgRep* const rlRepp = rConcatp->lhsp()->cast<DfgRep>()) {
-                    if (!rConcatp->hasMultipleSinks() && isSame(lRepp->srcp(), rlRepp->srcp())) {
+            यदि (DfgConcat* ध्रुव rConcatp = rhsp->cast<DfgConcat>()) {
+                यदि (DfgRep* ध्रुव rlRepp = rConcatp->lhsp()->cast<DfgRep>()) {
+                    यदि (!rConcatp->hasMultipleSinks() && isSame(lRepp->srcp(), rlRepp->srcp())) {
                         APPLYING(REPLACE_NESTED_CONCAT_SAME_REPS_ON_LHS) {
-                            const uint32_t width = lRepp->width() + rlRepp->width();
-                            const DfgDataType& dtype = DfgDataType::packed(width);
-                            DfgRep* const repp = make<DfgRep>(flp, dtype, lRepp->srcp());
+                            ध्रुव uint32_t width = lRepp->width() + rlRepp->width();
+                            ध्रुव DfgDataType& dtype = DfgDataType::packed(width);
+                            DfgRep* ध्रुव repp = make<DfgRep>(flp, dtype, lRepp->srcp());
                             replace(make<DfgConcat>(vtxp, repp, rConcatp->rhsp()));
-                            return;
+                            प्रत्यागम;
                         }
                     }
                 }
@@ -2453,593 +2453,593 @@ class V3DfgPeephole final : public DfgVisitor {
         }
     }
 
-    void visit(DfgDiv* const vtxp) override {
-        if (binary(vtxp)) return;
+    शून्य visit(DfgDiv* ध्रुव vtxp) override {
+        यदि (द्विमान(vtxp)) प्रत्यागम;
 
-        if (DfgConst* const rConstp = vtxp->rhsp()->cast<DfgConst>()) {
-            if (isEqOne(rConstp)) {
+        यदि (DfgConst* ध्रुव rConstp = vtxp->rhsp()->cast<DfgConst>()) {
+            यदि (isEqOne(rConstp)) {
                 APPLYING(REMOVE_DIV_ONE) {
                     replace(vtxp->lhsp());
-                    return;
+                    प्रत्यागम;
                 }
             }
         }
     }
 
-    void visit(DfgDivS* const vtxp) override {
-        if (binary(vtxp)) return;
+    शून्य visit(DfgDivS* ध्रुव vtxp) override {
+        यदि (द्विमान(vtxp)) प्रत्यागम;
 
-        if (DfgConst* const rConstp = vtxp->rhsp()->cast<DfgConst>()) {
-            if (isEqOne(rConstp)) {
+        यदि (DfgConst* ध्रुव rConstp = vtxp->rhsp()->cast<DfgConst>()) {
+            यदि (isEqOne(rConstp)) {
                 APPLYING(REMOVE_DIVS_ONE) {
                     replace(vtxp->lhsp());
-                    return;
+                    प्रत्यागम;
                 }
             }
         }
     }
 
-    void visit(DfgGt* const vtxp) override {
-        if (binary(vtxp)) return;
+    शून्य visit(DfgGt* ध्रुव vtxp) override {
+        यदि (द्विमान(vtxp)) प्रत्यागम;
 
-        DfgVertex* const lhsp = vtxp->lhsp();
-        DfgVertex* const rhsp = vtxp->rhsp();
-        FileLine* const flp = vtxp->fileline();
+        DfgVertex* ध्रुव lhsp = vtxp->lhsp();
+        DfgVertex* ध्रुव rhsp = vtxp->rhsp();
+        File_ओळ* ध्रुव flp = vtxp->fileline();
 
-        if (isSame(lhsp, rhsp)) {
+        यदि (isSame(lhsp, rhsp)) {
             APPLYING(FOLD_SELF_GT) {
                 replace(makeZero(flp, 1));
-                return;
+                प्रत्यागम;
             }
         }
     }
 
-    void visit(DfgGtS* const vtxp) override {
-        if (binary(vtxp)) return;
+    शून्य visit(DfgGtS* ध्रुव vtxp) override {
+        यदि (द्विमान(vtxp)) प्रत्यागम;
 
-        DfgVertex* const lhsp = vtxp->lhsp();
-        DfgVertex* const rhsp = vtxp->rhsp();
-        FileLine* const flp = vtxp->fileline();
+        DfgVertex* ध्रुव lhsp = vtxp->lhsp();
+        DfgVertex* ध्रुव rhsp = vtxp->rhsp();
+        File_ओळ* ध्रुव flp = vtxp->fileline();
 
-        if (isSame(lhsp, rhsp)) {
+        यदि (isSame(lhsp, rhsp)) {
             APPLYING(FOLD_SELF_GTS) {
                 replace(makeZero(flp, 1));
-                return;
+                प्रत्यागम;
             }
         }
     }
 
-    void visit(DfgGte* const vtxp) override {
-        if (binary(vtxp)) return;
+    शून्य visit(DfgGte* ध्रुव vtxp) override {
+        यदि (द्विमान(vtxp)) प्रत्यागम;
 
-        DfgVertex* const lhsp = vtxp->lhsp();
-        DfgVertex* const rhsp = vtxp->rhsp();
-        FileLine* const flp = vtxp->fileline();
+        DfgVertex* ध्रुव lhsp = vtxp->lhsp();
+        DfgVertex* ध्रुव rhsp = vtxp->rhsp();
+        File_ओळ* ध्रुव flp = vtxp->fileline();
 
-        if (isSame(lhsp, rhsp)) {
+        यदि (isSame(lhsp, rhsp)) {
             APPLYING(FOLD_SELF_GTE) {
                 replace(makeOnes(flp, 1));
-                return;
+                प्रत्यागम;
             }
         }
     }
 
-    void visit(DfgGteS* const vtxp) override {
-        if (binary(vtxp)) return;
+    शून्य visit(DfgGteS* ध्रुव vtxp) override {
+        यदि (द्विमान(vtxp)) प्रत्यागम;
 
-        DfgVertex* const lhsp = vtxp->lhsp();
-        DfgVertex* const rhsp = vtxp->rhsp();
-        FileLine* const flp = vtxp->fileline();
+        DfgVertex* ध्रुव lhsp = vtxp->lhsp();
+        DfgVertex* ध्रुव rhsp = vtxp->rhsp();
+        File_ओळ* ध्रुव flp = vtxp->fileline();
 
-        if (isSame(lhsp, rhsp)) {
+        यदि (isSame(lhsp, rhsp)) {
             APPLYING(FOLD_SELF_GTES) {
                 replace(makeOnes(flp, 1));
-                return;
+                प्रत्यागम;
             }
         }
     }
 
-    void visit(DfgLogAnd* const vtxp) override {
-        if (binary(vtxp) || vtxp->rhsp()->unsafe()) return;
+    शून्य visit(DfgLogAnd* ध्रुव vtxp) override {
+        यदि (द्विमान(vtxp) || vtxp->rhsp()->unsafe()) प्रत्यागम;
 
-        DfgVertex* const lhsp = vtxp->lhsp();
-        DfgVertex* const rhsp = vtxp->rhsp();
+        DfgVertex* ध्रुव lhsp = vtxp->lhsp();
+        DfgVertex* ध्रुव rhsp = vtxp->rhsp();
 
-        if (lhsp->width() == 1 && rhsp->width() == 1) {
+        यदि (lhsp->width() == 1 && rhsp->width() == 1) {
             APPLYING(REPLACE_LOGAND_WITH_AND) {
                 replace(make<DfgAnd>(vtxp, lhsp, rhsp));
-                return;
+                प्रत्यागम;
             }
         }
     }
 
-    void visit(DfgLogEq* const vtxp) override {
-        if (binary(vtxp)) return;
+    शून्य visit(DfgLogEq* ध्रुव vtxp) override {
+        यदि (द्विमान(vtxp)) प्रत्यागम;
     }
 
-    void visit(DfgLogIf* const vtxp) override {
-        if (binary(vtxp) || vtxp->rhsp()->unsafe()) return;
+    शून्य visit(DfgLogIf* ध्रुव vtxp) override {
+        यदि (द्विमान(vtxp) || vtxp->rhsp()->unsafe()) प्रत्यागम;
     }
 
-    void visit(DfgLogOr* const vtxp) override {
-        if (binary(vtxp) || vtxp->rhsp()->unsafe()) return;
+    शून्य visit(DfgLogOr* ध्रुव vtxp) override {
+        यदि (द्विमान(vtxp) || vtxp->rhsp()->unsafe()) प्रत्यागम;
 
-        DfgVertex* const lhsp = vtxp->lhsp();
-        DfgVertex* const rhsp = vtxp->rhsp();
+        DfgVertex* ध्रुव lhsp = vtxp->lhsp();
+        DfgVertex* ध्रुव rhsp = vtxp->rhsp();
 
-        if (lhsp->width() == 1 && rhsp->width() == 1) {
+        यदि (lhsp->width() == 1 && rhsp->width() == 1) {
             APPLYING(REPLACE_LOGOR_WITH_OR) {
                 replace(make<DfgOr>(vtxp, lhsp, rhsp));
-                return;
+                प्रत्यागम;
             }
         }
     }
 
-    void visit(DfgLt* const vtxp) override {
-        if (binary(vtxp)) return;
+    शून्य visit(DfgLt* ध्रुव vtxp) override {
+        यदि (द्विमान(vtxp)) प्रत्यागम;
 
-        DfgVertex* const lhsp = vtxp->lhsp();
-        DfgVertex* const rhsp = vtxp->rhsp();
-        FileLine* const flp = vtxp->fileline();
+        DfgVertex* ध्रुव lhsp = vtxp->lhsp();
+        DfgVertex* ध्रुव rhsp = vtxp->rhsp();
+        File_ओळ* ध्रुव flp = vtxp->fileline();
 
-        if (isSame(lhsp, rhsp)) {
+        यदि (isSame(lhsp, rhsp)) {
             APPLYING(FOLD_SELF_LT) {
                 replace(makeZero(flp, 1));
-                return;
+                प्रत्यागम;
             }
         }
     }
 
-    void visit(DfgLtS* const vtxp) override {
-        if (binary(vtxp)) return;
+    शून्य visit(DfgLtS* ध्रुव vtxp) override {
+        यदि (द्विमान(vtxp)) प्रत्यागम;
 
-        DfgVertex* const lhsp = vtxp->lhsp();
-        DfgVertex* const rhsp = vtxp->rhsp();
-        FileLine* const flp = vtxp->fileline();
+        DfgVertex* ध्रुव lhsp = vtxp->lhsp();
+        DfgVertex* ध्रुव rhsp = vtxp->rhsp();
+        File_ओळ* ध्रुव flp = vtxp->fileline();
 
-        if (isSame(lhsp, rhsp)) {
+        यदि (isSame(lhsp, rhsp)) {
             APPLYING(FOLD_SELF_LTS) {
                 replace(makeZero(flp, 1));
-                return;
+                प्रत्यागम;
             }
         }
     }
 
-    void visit(DfgLte* const vtxp) override {
-        if (binary(vtxp)) return;
+    शून्य visit(DfgLte* ध्रुव vtxp) override {
+        यदि (द्विमान(vtxp)) प्रत्यागम;
 
-        DfgVertex* const lhsp = vtxp->lhsp();
-        DfgVertex* const rhsp = vtxp->rhsp();
-        FileLine* const flp = vtxp->fileline();
+        DfgVertex* ध्रुव lhsp = vtxp->lhsp();
+        DfgVertex* ध्रुव rhsp = vtxp->rhsp();
+        File_ओळ* ध्रुव flp = vtxp->fileline();
 
-        if (isSame(lhsp, rhsp)) {
+        यदि (isSame(lhsp, rhsp)) {
             APPLYING(FOLD_SELF_LTE) {
                 replace(makeOnes(flp, 1));
-                return;
+                प्रत्यागम;
             }
         }
     }
 
-    void visit(DfgLteS* const vtxp) override {
-        if (binary(vtxp)) return;
+    शून्य visit(DfgLteS* ध्रुव vtxp) override {
+        यदि (द्विमान(vtxp)) प्रत्यागम;
 
-        DfgVertex* const lhsp = vtxp->lhsp();
-        DfgVertex* const rhsp = vtxp->rhsp();
-        FileLine* const flp = vtxp->fileline();
+        DfgVertex* ध्रुव lhsp = vtxp->lhsp();
+        DfgVertex* ध्रुव rhsp = vtxp->rhsp();
+        File_ओळ* ध्रुव flp = vtxp->fileline();
 
-        if (isSame(lhsp, rhsp)) {
+        यदि (isSame(lhsp, rhsp)) {
             APPLYING(FOLD_SELF_LTES) {
                 replace(makeOnes(flp, 1));
-                return;
+                प्रत्यागम;
             }
         }
     }
 
-    void visit(DfgModDiv* const vtxp) override {
-        if (binary(vtxp)) return;
+    शून्य visit(DfgModDiv* ध्रुव vtxp) override {
+        यदि (द्विमान(vtxp)) प्रत्यागम;
     }
 
-    void visit(DfgModDivS* const vtxp) override {
-        if (binary(vtxp)) return;
+    शून्य visit(DfgModDivS* ध्रुव vtxp) override {
+        यदि (द्विमान(vtxp)) प्रत्यागम;
     }
 
-    void visit(DfgMul* const vtxp) override {
-        if (binary(vtxp)) return;
+    शून्य visit(DfgMul* ध्रुव vtxp) override {
+        यदि (द्विमान(vtxp)) प्रत्यागम;
 
-        DfgVertex* const lhsp = vtxp->lhsp();
-        DfgVertex* const rhsp = vtxp->rhsp();
-        FileLine* const flp = vtxp->fileline();
+        DfgVertex* ध्रुव lhsp = vtxp->lhsp();
+        DfgVertex* ध्रुव rhsp = vtxp->rhsp();
+        File_ओळ* ध्रुव flp = vtxp->fileline();
 
-        if (DfgConst* const lConstp = lhsp->cast<DfgConst>()) {
-            if (isZero(lConstp)) {
+        यदि (DfgConst* ध्रुव lConstp = lhsp->cast<DfgConst>()) {
+            यदि (isZero(lConstp)) {
                 APPLYING(REMOVE_MUL_ZERO) {
                     replace(makeZero(flp, vtxp->dtype()));
-                    return;
+                    प्रत्यागम;
                 }
             }
-            if (isEqOne(lConstp)) {
+            यदि (isEqOne(lConstp)) {
                 APPLYING(REMOVE_MUL_ONE) {
                     replace(rhsp);
-                    return;
+                    प्रत्यागम;
                 }
             }
         }
     }
 
-    void visit(DfgMulS* const vtxp) override {
-        if (binary(vtxp)) return;
+    शून्य visit(DfgMulS* ध्रुव vtxp) override {
+        यदि (द्विमान(vtxp)) प्रत्यागम;
 
-        DfgVertex* const lhsp = vtxp->lhsp();
-        DfgVertex* const rhsp = vtxp->rhsp();
-        FileLine* const flp = vtxp->fileline();
+        DfgVertex* ध्रुव lhsp = vtxp->lhsp();
+        DfgVertex* ध्रुव rhsp = vtxp->rhsp();
+        File_ओळ* ध्रुव flp = vtxp->fileline();
 
-        if (DfgConst* const lConstp = lhsp->cast<DfgConst>()) {
-            if (isZero(lConstp)) {
+        यदि (DfgConst* ध्रुव lConstp = lhsp->cast<DfgConst>()) {
+            यदि (isZero(lConstp)) {
                 APPLYING(REMOVE_MULS_ZERO) {
                     replace(makeZero(flp, vtxp->dtype()));
-                    return;
+                    प्रत्यागम;
                 }
             }
-            if (isEqOne(lConstp)) {
+            यदि (isEqOne(lConstp)) {
                 APPLYING(REMOVE_MULS_ONE) {
                     replace(rhsp);
-                    return;
+                    प्रत्यागम;
                 }
             }
         }
     }
 
-    void visit(DfgEq* const vtxp) override {
-        if (binary(vtxp)) return;
+    शून्य visit(DfgEq* ध्रुव vtxp) override {
+        यदि (द्विमान(vtxp)) प्रत्यागम;
 
-        DfgVertex* const lhsp = vtxp->lhsp();
-        DfgVertex* const rhsp = vtxp->rhsp();
-        FileLine* const flp = vtxp->fileline();
+        DfgVertex* ध्रुव lhsp = vtxp->lhsp();
+        DfgVertex* ध्रुव rhsp = vtxp->rhsp();
+        File_ओळ* ध्रुव flp = vtxp->fileline();
 
-        if (isSame(lhsp, rhsp)) {
+        यदि (isSame(lhsp, rhsp)) {
             APPLYING(FOLD_SELF_EQ) {
                 replace(makeOnes(flp, 1));
-                return;
+                प्रत्यागम;
             }
         }
 
-        if (DfgConst* const lhsConstp = lhsp->cast<DfgConst>()) {
-            if (DfgConcat* const rhsConcatp = rhsp->cast<DfgConcat>()) {
-                if (tryPushCompareOpThroughConcat(vtxp, lhsConstp, rhsConcatp)) return;
+        यदि (DfgConst* ध्रुव lhsConstp = lhsp->cast<DfgConst>()) {
+            यदि (DfgConcat* ध्रुव rhsConcatp = rhsp->cast<DfgConcat>()) {
+                यदि (try_ढकला_Compare_Op_Through_Concat(vtxp, lhsConstp, rhsConcatp)) प्रत्यागम;
             }
 
-            if (rhsp->dtype() == m_bitDType) {
-                if (isZero(lhsConstp)) {
+            यदि (rhsp->dtype() == m_bitDType) {
+                यदि (isZero(lhsConstp)) {
                     APPLYING(REPLACE_EQ_BIT_0) {
                         replace(make<DfgNot>(vtxp, rhsp));
-                        return;
+                        प्रत्यागम;
                     }
                 }
 
-                if (isOnes(lhsConstp)) {
+                यदि (isOnes(lhsConstp)) {
                     APPLYING(REMOVE_EQ_BIT_1) {
                         replace(rhsp);
-                        return;
+                        प्रत्यागम;
                     }
                 }
             }
         }
     }
 
-    void visit(DfgNeq* const vtxp) override {
-        if (binary(vtxp)) return;
+    शून्य visit(DfgNeq* ध्रुव vtxp) override {
+        यदि (द्विमान(vtxp)) प्रत्यागम;
 
-        DfgVertex* const lhsp = vtxp->lhsp();
-        DfgVertex* const rhsp = vtxp->rhsp();
-        FileLine* const flp = vtxp->fileline();
+        DfgVertex* ध्रुव lhsp = vtxp->lhsp();
+        DfgVertex* ध्रुव rhsp = vtxp->rhsp();
+        File_ओळ* ध्रुव flp = vtxp->fileline();
 
-        if (isSame(lhsp, rhsp)) {
+        यदि (isSame(lhsp, rhsp)) {
             APPLYING(FOLD_SELF_NEQ) {
                 replace(makeZero(flp, 1));
-                return;
+                प्रत्यागम;
             }
         }
 
-        if (DfgConst* const lhsConstp = lhsp->cast<DfgConst>()) {
-            if (DfgConcat* const rhsConcatp = rhsp->cast<DfgConcat>()) {
-                if (tryPushCompareOpThroughConcat(vtxp, lhsConstp, rhsConcatp)) return;
+        यदि (DfgConst* ध्रुव lhsConstp = lhsp->cast<DfgConst>()) {
+            यदि (DfgConcat* ध्रुव rhsConcatp = rhsp->cast<DfgConcat>()) {
+                यदि (try_ढकला_Compare_Op_Through_Concat(vtxp, lhsConstp, rhsConcatp)) प्रत्यागम;
             }
 
-            if (rhsp->dtype() == m_bitDType) {
-                if (isZero(lhsConstp)) {
+            यदि (rhsp->dtype() == m_bitDType) {
+                यदि (isZero(lhsConstp)) {
                     APPLYING(REMOVE_NEQ_BIT_0) {
                         replace(rhsp);
-                        return;
+                        प्रत्यागम;
                     }
                 }
 
-                if (isOnes(lhsConstp)) {
+                यदि (isOnes(lhsConstp)) {
                     APPLYING(REPLACE_NEQ_BIT_1) {
                         replace(make<DfgNot>(vtxp, rhsp));
-                        return;
+                        प्रत्यागम;
                     }
                 }
             }
         }
     }
 
-    void visit(DfgPow* const vtxp) override {
-        if (binary(vtxp)) return;
+    शून्य visit(DfgPow* ध्रुव vtxp) override {
+        यदि (द्विमान(vtxp)) प्रत्यागम;
     }
 
-    void visit(DfgPowSS* const vtxp) override {
-        if (binary(vtxp)) return;
+    शून्य visit(DfgPowSS* ध्रुव vtxp) override {
+        यदि (द्विमान(vtxp)) प्रत्यागम;
     }
 
-    void visit(DfgPowSU* const vtxp) override {
-        if (binary(vtxp)) return;
+    शून्य visit(DfgPowSU* ध्रुव vtxp) override {
+        यदि (द्विमान(vtxp)) प्रत्यागम;
     }
 
-    void visit(DfgPowUS* const vtxp) override {
-        if (binary(vtxp)) return;
+    शून्य visit(DfgPowUS* ध्रुव vtxp) override {
+        यदि (द्विमान(vtxp)) प्रत्यागम;
     }
 
-    void visit(DfgRep* const vtxp) override {
-        DfgVertex* const srcp = vtxp->srcp();
-        FileLine* const flp = vtxp->fileline();
+    शून्य visit(DfgRep* ध्रुव vtxp) override {
+        DfgVertex* ध्रुव srcp = vtxp->srcp();
+        File_ओळ* ध्रुव flp = vtxp->fileline();
 
-        if (DfgConst* const sConstp = srcp->cast<DfgConst>()) {
+        यदि (DfgConst* ध्रुव sConstp = srcp->cast<DfgConst>()) {
             APPLYING(FOLD_REP) {
-                DfgConst* const resultp = makeZero(flp, vtxp->width());
-                resultp->num().opRepl(sConstp->num(), vtxp->count());
+                DfgConst* ध्रुव resultp = makeZero(flp, vtxp->width());
+                resultp->अंक().opRepl(sConstp->अंक(), vtxp->मोजणी());
                 replace(resultp);
-                return;
+                प्रत्यागम;
             }
         }
 
-        if (vtxp->dtype() == srcp->dtype()) {
+        यदि (vtxp->dtype() == srcp->dtype()) {
             APPLYING(REMOVE_REP_ONCE) {
                 replace(vtxp->srcp());
-                return;
+                प्रत्यागम;
             }
         }
 
-        if (DfgRep* const sRepp = srcp->cast<DfgRep>()) {
-            if (!sRepp->hasMultipleSinks() || vtxp->width() <= VL_QUADSIZE) {
+        यदि (DfgRep* ध्रुव sRepp = srcp->cast<DfgRep>()) {
+            यदि (!sRepp->hasMultipleSinks() || vtxp->width() <= VL_QUADSIZE) {
                 APPLYING(REPLACE_REP_REP) {
                     replace(make<DfgRep>(vtxp, sRepp->srcp()));
-                    return;
+                    प्रत्यागम;
                 }
             }
         }
     }
 
-    void visit(DfgShiftL* const vtxp) override {
-        if (binary(vtxp)) return;
-        if (optimizeShiftRHS(vtxp)) return;
+    शून्य visit(DfgShiftL* ध्रुव vtxp) override {
+        यदि (द्विमान(vtxp)) प्रत्यागम;
+        यदि (optimizeShiftRHS(vtxp)) प्रत्यागम;
 
-        DfgVertex* const lhsp = vtxp->lhsp();
-        DfgVertex* const rhsp = vtxp->rhsp();
+        DfgVertex* ध्रुव lhsp = vtxp->lhsp();
+        DfgVertex* ध्रुव rhsp = vtxp->rhsp();
 
-        if (DfgShiftL* const lShiftLp = lhsp->cast<DfgShiftL>()) {
-            if (!lShiftLp->hasMultipleSinks() && rhsp->dtype() == lShiftLp->rhsp()->dtype()) {
+        यदि (DfgShiftL* ध्रुव lShiftLp = lhsp->cast<DfgShiftL>()) {
+            यदि (!lShiftLp->hasMultipleSinks() && rhsp->dtype() == lShiftLp->rhsp()->dtype()) {
                 APPLYING(REPLACE_SHIFTL_SHIFTL) {
                     // Fold '(a << b) << c' to 'a << (b + c)'.  Compute 'b + c'
                     // one bit wider than the amounts so it cannot overflow.
-                    FileLine* const flp = vtxp->fileline();
-                    const DfgDataType& sumDType = DfgDataType::packed(rhsp->width() + 1);
-                    DfgVertex* const bp = make<DfgExtend>(flp, sumDType, lShiftLp->rhsp());
-                    DfgVertex* const cp = make<DfgExtend>(flp, sumDType, rhsp);
-                    DfgAdd* const addp = make<DfgAdd>(flp, sumDType, bp, cp);
+                    File_ओळ* ध्रुव flp = vtxp->fileline();
+                    ध्रुव DfgDataType& sumDType = DfgDataType::packed(rhsp->width() + 1);
+                    DfgVertex* ध्रुव bp = make<DfgExtend>(flp, sumDType, lShiftLp->rhsp());
+                    DfgVertex* ध्रुव cp = make<DfgExtend>(flp, sumDType, rhsp);
+                    DfgAdd* ध्रुव addp = make<DfgAdd>(flp, sumDType, bp, cp);
                     replace(make<DfgShiftL>(vtxp, lShiftLp->lhsp(), addp));
-                    return;
+                    प्रत्यागम;
                 }
             }
         }
 
-        if (DfgConst* const rConstp = rhsp->cast<DfgConst>()) {
-            const uint32_t shiftAmount = rConstp->toU32();
+        यदि (DfgConst* ध्रुव rConstp = rhsp->cast<DfgConst>()) {
+            ध्रुव uint32_t shiftAmount = rConstp->toU32();
 
-            if (shiftAmount == 0) {
+            यदि (shiftAmount == 0) {
                 APPLYING(REMOVE_SHIFTL_ZERO) {
                     replace(lhsp);
-                    return;
+                    प्रत्यागम;
                 }
             }
 
-            if (shiftAmount >= vtxp->width()) {
+            यदि (shiftAmount >= vtxp->width()) {
                 APPLYING(REPLACE_SHIFTL_OVER) {
                     replace(makeZero(vtxp->fileline(), vtxp->width()));
-                    return;
+                    प्रत्यागम;
                 }
             }
 
-            if (DfgConcat* const lConcatp = lhsp->cast<DfgConcat>()) {
-                if (!lConcatp->hasMultipleSinks()) {
+            यदि (DfgConcat* ध्रुव lConcatp = lhsp->cast<DfgConcat>()) {
+                यदि (!lConcatp->hasMultipleSinks()) {
                     APPLYING(REPLACE_SHIFTL_CAT) {
-                        DfgVertex* const lRhsp = lConcatp->rhsp();
-                        DfgVertex* const lLhsp = lConcatp->lhsp();
+                        DfgVertex* ध्रुव lRhsp = lConcatp->rhsp();
+                        DfgVertex* ध्रुव lLhsp = lConcatp->lhsp();
                         // Compute widths of 3 possible result parts
-                        const uint32_t rW = shiftAmount;
-                        const uint32_t mW = std::min(lRhsp->width(), vtxp->width() - shiftAmount);
-                        const uint32_t lW = vtxp->width() - mW - rW;
+                        ध्रुव uint32_t rW = shiftAmount;
+                        ध्रुव uint32_t mW = std::min(lRhsp->width(), vtxp->width() - shiftAmount);
+                        ध्रुव uint32_t lW = vtxp->width() - mW - rW;
                         // Construct the result
-                        FileLine* const flp = lConcatp->fileline();
-                        DfgVertex* const rp = makeZero(flp, shiftAmount);
-                        DfgVertex* const mp
+                        File_ओळ* ध्रुव flp = lConcatp->fileline();
+                        DfgVertex* ध्रुव rp = makeZero(flp, shiftAmount);
+                        DfgVertex* ध्रुव mp
                             = make<DfgSel>(flp, DfgDataType::packed(mW), lRhsp, 0U);
                         DfgVertex* np = make<DfgConcat>(flp, DfgDataType::packed(mW + rW), mp, rp);
-                        if (!lW) {
+                        यदि (!lW) {
                             replace(np);
-                            return;
+                            प्रत्यागम;
                         }
-                        DfgVertex* const lp
+                        DfgVertex* ध्रुव lp
                             = make<DfgSel>(flp, DfgDataType::packed(lW), lLhsp, 0U);
                         np = make<DfgConcat>(vtxp, lp, np);
                         replace(np);
-                        return;
+                        प्रत्यागम;
                     }
                 }
             }
 
-            if (DfgSel* const lSelp = lhsp->cast<DfgSel>()) {
-                if (!lSelp->hasMultipleSinks()) {
+            यदि (DfgSel* ध्रुव lSelp = lhsp->cast<DfgSel>()) {
+                यदि (!lSelp->hasMultipleSinks()) {
                     APPLYING(REPLACE_SHIFTL_SEL) {
-                        const uint32_t nSelWidth = lSelp->width() - shiftAmount;
-                        DfgVertex* const nSelp
+                        ध्रुव uint32_t nSelWidth = lSelp->width() - shiftAmount;
+                        DfgVertex* ध्रुव nSelp
                             = make<DfgSel>(lSelp->fileline(), DfgDataType::packed(nSelWidth),
                                            lSelp->fromp(), lSelp->lsb());
                         replace(
                             make<DfgConcat>(vtxp, nSelp, makeZero(vtxp->fileline(), shiftAmount)));
-                        return;
+                        प्रत्यागम;
                     }
                 }
             }
 
-            if (DfgCond* const lCondp = lhsp->cast<DfgCond>()) {
-                if (!lCondp->hasMultipleSinks()) {
-                    APPLYING(PUSH_SHIFTL_THROUGH_COND) {
-                        DfgShiftL* const tp = make<DfgShiftL>(vtxp, lCondp->thenp(), rConstp);
-                        DfgShiftL* const ep = make<DfgShiftL>(vtxp, lCondp->elsep(), rConstp);
+            यदि (DfgCond* ध्रुव lCondp = lhsp->cast<DfgCond>()) {
+                यदि (!lCondp->hasMultipleSinks()) {
+                    APPLYING(ढकला_SHIFTL_THROUGH_COND) {
+                        DfgShiftL* ध्रुव tp = make<DfgShiftL>(vtxp, lCondp->thenp(), rConstp);
+                        DfgShiftL* ध्रुव ep = make<DfgShiftL>(vtxp, lCondp->elsep(), rConstp);
                         replace(make<DfgCond>(vtxp, lCondp->condp(), tp, ep));
-                        return;
+                        प्रत्यागम;
                     }
                 }
             }
         }
     }
 
-    void visit(DfgShiftR* const vtxp) override {
-        if (binary(vtxp)) return;
-        if (optimizeShiftRHS(vtxp)) return;
+    शून्य visit(DfgShiftR* ध्रुव vtxp) override {
+        यदि (द्विमान(vtxp)) प्रत्यागम;
+        यदि (optimizeShiftRHS(vtxp)) प्रत्यागम;
 
-        DfgVertex* const lhsp = vtxp->lhsp();
-        DfgVertex* const rhsp = vtxp->rhsp();
+        DfgVertex* ध्रुव lhsp = vtxp->lhsp();
+        DfgVertex* ध्रुव rhsp = vtxp->rhsp();
 
-        if (DfgShiftR* const lShiftRp = lhsp->cast<DfgShiftR>()) {
-            if (!lShiftRp->hasMultipleSinks() && rhsp->dtype() == lShiftRp->rhsp()->dtype()) {
+        यदि (DfgShiftR* ध्रुव lShiftRp = lhsp->cast<DfgShiftR>()) {
+            यदि (!lShiftRp->hasMultipleSinks() && rhsp->dtype() == lShiftRp->rhsp()->dtype()) {
                 APPLYING(REPLACE_SHIFTR_SHIFTR) {
                     // Fold '(a >> b) >> c' to 'a >> (b + c)'.  Compute 'b + c'
                     // one bit wider than the amounts so it cannot overflow.
-                    FileLine* const flp = vtxp->fileline();
-                    const DfgDataType& sumDType = DfgDataType::packed(rhsp->width() + 1);
-                    DfgVertex* const bp = make<DfgExtend>(flp, sumDType, lShiftRp->rhsp());
-                    DfgVertex* const cp = make<DfgExtend>(flp, sumDType, rhsp);
-                    DfgAdd* const addp = make<DfgAdd>(flp, sumDType, bp, cp);
+                    File_ओळ* ध्रुव flp = vtxp->fileline();
+                    ध्रुव DfgDataType& sumDType = DfgDataType::packed(rhsp->width() + 1);
+                    DfgVertex* ध्रुव bp = make<DfgExtend>(flp, sumDType, lShiftRp->rhsp());
+                    DfgVertex* ध्रुव cp = make<DfgExtend>(flp, sumDType, rhsp);
+                    DfgAdd* ध्रुव addp = make<DfgAdd>(flp, sumDType, bp, cp);
                     replace(make<DfgShiftR>(vtxp, lShiftRp->lhsp(), addp));
-                    return;
+                    प्रत्यागम;
                 }
             }
         }
 
-        if (DfgConst* const rConstp = rhsp->cast<DfgConst>()) {
-            const uint32_t shiftAmount = rConstp->toU32();
+        यदि (DfgConst* ध्रुव rConstp = rhsp->cast<DfgConst>()) {
+            ध्रुव uint32_t shiftAmount = rConstp->toU32();
 
-            if (shiftAmount == 0) {
+            यदि (shiftAmount == 0) {
                 APPLYING(REMOVE_SHIFTR_ZERO) {
                     replace(lhsp);
-                    return;
+                    प्रत्यागम;
                 }
             }
 
-            if (shiftAmount >= vtxp->width()) {
+            यदि (shiftAmount >= vtxp->width()) {
                 APPLYING(REPLACE_SHIFTR_OVER) {
                     replace(makeZero(vtxp->fileline(), vtxp->width()));
-                    return;
+                    प्रत्यागम;
                 }
             }
 
-            if (DfgConcat* const lConcatp = lhsp->cast<DfgConcat>()) {
-                if (!lConcatp->hasMultipleSinks()) {
+            यदि (DfgConcat* ध्रुव lConcatp = lhsp->cast<DfgConcat>()) {
+                यदि (!lConcatp->hasMultipleSinks()) {
                     APPLYING(REPLACE_SHIFTR_CAT) {
-                        DfgVertex* const lRhsp = lConcatp->rhsp();
-                        DfgVertex* const lLhsp = lConcatp->lhsp();
+                        DfgVertex* ध्रुव lRhsp = lConcatp->rhsp();
+                        DfgVertex* ध्रुव lLhsp = lConcatp->lhsp();
                         // Compute widths of 3 possible result parts
-                        const uint32_t lW = shiftAmount;
-                        const uint32_t mW = std::min(lLhsp->width(), vtxp->width() - shiftAmount);
-                        const uint32_t rW = vtxp->width() - mW - lW;
+                        ध्रुव uint32_t lW = shiftAmount;
+                        ध्रुव uint32_t mW = std::min(lLhsp->width(), vtxp->width() - shiftAmount);
+                        ध्रुव uint32_t rW = vtxp->width() - mW - lW;
                         // Construct the result
-                        FileLine* const flp = lConcatp->fileline();
-                        DfgVertex* const lp = makeZero(flp, shiftAmount);
-                        DfgVertex* const mp = make<DfgSel>(flp, DfgDataType::packed(mW), lLhsp,
+                        File_ओळ* ध्रुव flp = lConcatp->fileline();
+                        DfgVertex* ध्रुव lp = makeZero(flp, shiftAmount);
+                        DfgVertex* ध्रुव mp = make<DfgSel>(flp, DfgDataType::packed(mW), lLhsp,
                                                            lLhsp->width() - mW);
                         DfgVertex* np = make<DfgConcat>(flp, DfgDataType::packed(lW + mW), lp, mp);
-                        if (!rW) {
+                        यदि (!rW) {
                             replace(np);
-                            return;
+                            प्रत्यागम;
                         }
-                        DfgVertex* const rp = make<DfgSel>(flp, DfgDataType::packed(rW), lRhsp,
+                        DfgVertex* ध्रुव rp = make<DfgSel>(flp, DfgDataType::packed(rW), lRhsp,
                                                            lRhsp->width() - rW);
                         np = make<DfgConcat>(vtxp, np, rp);
                         replace(np);
-                        return;
+                        प्रत्यागम;
                     }
                 }
             }
 
-            if (DfgSel* const lSelp = lhsp->cast<DfgSel>()) {
-                if (!lSelp->hasMultipleSinks()) {
+            यदि (DfgSel* ध्रुव lSelp = lhsp->cast<DfgSel>()) {
+                यदि (!lSelp->hasMultipleSinks()) {
                     APPLYING(REPLACE_SHIFTR_SEL) {
-                        const uint32_t nSelWidth = lSelp->width() - shiftAmount;
-                        DfgVertex* const nSelp
+                        ध्रुव uint32_t nSelWidth = lSelp->width() - shiftAmount;
+                        DfgVertex* ध्रुव nSelp
                             = make<DfgSel>(lSelp->fileline(), DfgDataType::packed(nSelWidth),
                                            lSelp->fromp(), lSelp->lsb() + shiftAmount);
                         replace(
                             make<DfgConcat>(vtxp, makeZero(vtxp->fileline(), shiftAmount), nSelp));
-                        return;
+                        प्रत्यागम;
                     }
                 }
             }
 
-            if (DfgCond* const lCondp = lhsp->cast<DfgCond>()) {
-                if (!lCondp->hasMultipleSinks()) {
-                    APPLYING(PUSH_SHIFTR_THROUGH_COND) {
-                        DfgShiftR* const tp = make<DfgShiftR>(vtxp, lCondp->thenp(), rConstp);
-                        DfgShiftR* const ep = make<DfgShiftR>(vtxp, lCondp->elsep(), rConstp);
+            यदि (DfgCond* ध्रुव lCondp = lhsp->cast<DfgCond>()) {
+                यदि (!lCondp->hasMultipleSinks()) {
+                    APPLYING(ढकला_SHIFTR_THROUGH_COND) {
+                        DfgShiftR* ध्रुव tp = make<DfgShiftR>(vtxp, lCondp->thenp(), rConstp);
+                        DfgShiftR* ध्रुव ep = make<DfgShiftR>(vtxp, lCondp->elsep(), rConstp);
                         replace(make<DfgCond>(vtxp, lCondp->condp(), tp, ep));
-                        return;
+                        प्रत्यागम;
                     }
                 }
             }
         }
     }
 
-    void visit(DfgShiftRS* const vtxp) override {
-        if (binary(vtxp)) return;
-        if (optimizeShiftRHS(vtxp)) return;
+    शून्य visit(DfgShiftRS* ध्रुव vtxp) override {
+        यदि (द्विमान(vtxp)) प्रत्यागम;
+        यदि (optimizeShiftRHS(vtxp)) प्रत्यागम;
     }
 
-    void visit(DfgSub* const vtxp) override {
-        if (binary(vtxp)) return;
+    शून्य visit(DfgSub* ध्रुव vtxp) override {
+        यदि (द्विमान(vtxp)) प्रत्यागम;
 
-        DfgVertex* const lhsp = vtxp->lhsp();
-        DfgVertex* const rhsp = vtxp->rhsp();
-        FileLine* const flp = vtxp->fileline();
+        DfgVertex* ध्रुव lhsp = vtxp->lhsp();
+        DfgVertex* ध्रुव rhsp = vtxp->rhsp();
+        File_ओळ* ध्रुव flp = vtxp->fileline();
 
-        if (isSame(lhsp, rhsp)) {
+        यदि (isSame(lhsp, rhsp)) {
             APPLYING(FOLD_SELF_SUB) {
                 replace(makeZero(flp, vtxp->dtype()));
-                return;
+                प्रत्यागम;
             }
         }
 
-        if (DfgConst* const rConstp = rhsp->cast<DfgConst>()) {
-            if (rConstp->isZero()) {
+        यदि (DfgConst* ध्रुव rConstp = rhsp->cast<DfgConst>()) {
+            यदि (rConstp->isZero()) {
                 APPLYING(REMOVE_SUB_ZERO) {
                     replace(lhsp);
-                    return;
+                    प्रत्यागम;
                 }
             }
-            if (vtxp->dtype() == m_bitDType && rConstp->hasValue(1)) {
+            यदि (vtxp->dtype() == m_bitDType && rConstp->has_मूल्य(1)) {
                 APPLYING(REPLACE_SUB_WITH_NOT) {
                     replace(make<DfgNot>(vtxp->fileline(), m_bitDType, lhsp));
-                    return;
+                    प्रत्यागम;
                 }
             }
         }
     }
 
-    void visit(DfgMatchMasked* const vtxp) override {
-        if (DfgConst* const constp = vtxp->lhsp()->cast<DfgConst>()) {
+    शून्य visit(DfgMatchMasked* ध्रुव vtxp) override {
+        यदि (DfgConst* ध्रुव constp = vtxp->lhsp()->cast<DfgConst>()) {
             APPLYING(FOLD_MATCHMASKED) {
-                AstVar* const matchVarp = vtxp->matchp()->as<DfgVarPacked>()->vscp()->varp();
-                replace(makeI32(vtxp->fileline(), AstMatchMasked::fold(constp->num(), matchVarp)));
-                return;
+                AstVar* ध्रुव matchVarp = vtxp->matchp()->as<DfgVarPacked>()->vscp()->varp();
+                replace(makeI32(vtxp->fileline(), AstMatchMasked::fold(constp->अंक(), matchVarp)));
+                प्रत्यागम;
             }
         }
     }
@@ -3048,123 +3048,123 @@ class V3DfgPeephole final : public DfgVisitor {
     //  DfgVertexTernary
     //=========================================================================
 
-    void visit(DfgCond* const vtxp) override {
-        DfgVertex* const condp = vtxp->condp();
-        DfgVertex* const thenp = vtxp->thenp();
-        DfgVertex* const elsep = vtxp->elsep();
-        FileLine* const flp = vtxp->fileline();
+    शून्य visit(DfgCond* ध्रुव vtxp) override {
+        DfgVertex* ध्रुव condp = vtxp->condp();
+        DfgVertex* ध्रुव thenp = vtxp->thenp();
+        DfgVertex* ध्रुव elsep = vtxp->elsep();
+        File_ओळ* ध्रुव flp = vtxp->fileline();
 
-        if (condp->dtype() != m_bitDType) return;
+        यदि (condp->dtype() != m_bitDType) प्रत्यागम;
 
-        if (isOnes(condp)) {
+        यदि (isOnes(condp)) {
             APPLYING(REMOVE_COND_WITH_TRUE_CONDITION) {
                 replace(thenp);
-                return;
+                प्रत्यागम;
             }
         }
 
-        if (isZero(condp)) {
+        यदि (isZero(condp)) {
             APPLYING(REMOVE_COND_WITH_FALSE_CONDITION) {
                 replace(elsep);
-                return;
+                प्रत्यागम;
             }
         }
 
-        if (isSame(thenp, elsep)) {
+        यदि (isSame(thenp, elsep)) {
             APPLYING(REMOVE_COND_WITH_BRANCHES_SAME) {
                 replace(elsep);
-                return;
+                प्रत्यागम;
             }
         }
 
-        if (DfgNot* const condNotp = condp->cast<DfgNot>()) {
-            if (!condp->hasMultipleSinks() || condNotp->hasMultipleSinks()) {
+        यदि (DfgNot* ध्रुव condNotp = condp->cast<DfgNot>()) {
+            यदि (!condp->hasMultipleSinks() || condNotp->hasMultipleSinks()) {
                 APPLYING(SWAP_COND_WITH_NOT_CONDITION) {
                     replace(make<DfgCond>(vtxp, condNotp->srcp(), elsep, thenp));
-                    return;
+                    प्रत्यागम;
                 }
             }
         }
 
-        if (DfgNeq* const condNeqp = condp->cast<DfgNeq>()) {
-            if (!condp->hasMultipleSinks()) {
+        यदि (DfgNeq* ध्रुव condNeqp = condp->cast<DfgNeq>()) {
+            यदि (!condp->hasMultipleSinks()) {
                 APPLYING(SWAP_COND_WITH_NEQ_CONDITION) {
-                    DfgEq* const newCondp = make<DfgEq>(condp, condNeqp->lhsp(), condNeqp->rhsp());
+                    DfgEq* ध्रुव newCondp = make<DfgEq>(condp, condNeqp->lhsp(), condNeqp->rhsp());
                     replace(make<DfgCond>(vtxp, newCondp, elsep, thenp));
-                    return;
+                    प्रत्यागम;
                 }
             }
         }
 
-        if (DfgNot* const thenNotp = thenp->cast<DfgNot>()) {
-            if (DfgNot* const elseNotp = elsep->cast<DfgNot>()) {
-                if (!thenNotp->srcp()->is<DfgConst>() && !elseNotp->srcp()->is<DfgConst>()
+        यदि (DfgNot* ध्रुव thenNotp = thenp->cast<DfgNot>()) {
+            यदि (DfgNot* ध्रुव elseNotp = elsep->cast<DfgNot>()) {
+                यदि (!thenNotp->srcp()->is<DfgConst>() && !elseNotp->srcp()->is<DfgConst>()
                     && !thenNotp->hasMultipleSinks() && !elseNotp->hasMultipleSinks()) {
                     APPLYING(PULL_NOTS_THROUGH_COND) {
-                        DfgCond* const newCondp = make<DfgCond>(
+                        DfgCond* ध्रुव newCondp = make<DfgCond>(
                             vtxp, vtxp->condp(), thenNotp->srcp(), elseNotp->srcp());
                         replace(make<DfgNot>(thenp->fileline(), vtxp->dtype(), newCondp));
-                        return;
+                        प्रत्यागम;
                     }
                 }
             }
         }
 
-        if (DfgOr* const condOrp = condp->cast<DfgOr>()) {
-            if (DfgCond* const thenCondp = thenp->cast<DfgCond>()) {
-                if (!thenCondp->hasMultipleSinks()) {
-                    if (condOrp->lhsp() == thenCondp->condp()) {
+        यदि (DfgOr* ध्रुव condOrp = condp->cast<DfgOr>()) {
+            यदि (DfgCond* ध्रुव thenCondp = thenp->cast<DfgCond>()) {
+                यदि (!thenCondp->hasMultipleSinks()) {
+                    यदि (condOrp->lhsp() == thenCondp->condp()) {
                         // '(a | b) ? (a ? x : y) : z' -> 'a ? x : b ? y : z'
                         APPLYING(REPLACE_COND_OR_THEN_COND_LHS) {
-                            DfgCond* const ep = make<DfgCond>(thenCondp, condOrp->rhsp(),
+                            DfgCond* ध्रुव ep = make<DfgCond>(thenCondp, condOrp->rhsp(),
                                                               thenCondp->elsep(), elsep);
                             replace(make<DfgCond>(vtxp, condOrp->lhsp(), thenCondp->thenp(), ep));
-                            return;
+                            प्रत्यागम;
                         }
                     }
-                    if (condOrp->rhsp() == thenCondp->condp()) {
+                    यदि (condOrp->rhsp() == thenCondp->condp()) {
                         // '(a | b) ? (a ? x : y) : z' -> 'a ? x : b ? y : z'
                         APPLYING(REPLACE_COND_OR_THEN_COND_RHS) {
-                            DfgCond* const ep = make<DfgCond>(thenCondp, condOrp->lhsp(),
+                            DfgCond* ध्रुव ep = make<DfgCond>(thenCondp, condOrp->lhsp(),
                                                               thenCondp->elsep(), elsep);
                             replace(make<DfgCond>(vtxp, condOrp->rhsp(), thenCondp->thenp(), ep));
-                            return;
+                            प्रत्यागम;
                         }
                     }
                 }
             }
         }
 
-        if (vtxp->width() > 1) {
+        यदि (vtxp->width() > 1) {
             // 'cond ? a + 1 : a' -> 'a + cond'
-            if (DfgAdd* const thenAddp = thenp->cast<DfgAdd>()) {
-                if (DfgConst* const constp = thenAddp->lhsp()->cast<DfgConst>()) {
-                    if (constp->hasValue(1)) {
-                        if (thenAddp->rhsp() == elsep) {
+            यदि (DfgAdd* ध्रुव thenAddp = thenp->cast<DfgAdd>()) {
+                यदि (DfgConst* ध्रुव constp = thenAddp->lhsp()->cast<DfgConst>()) {
+                    यदि (constp->has_मूल्य(1)) {
+                        यदि (thenAddp->rhsp() == elsep) {
                             APPLYING(REPLACE_COND_INC) {
-                                DfgConcat* const extp = make<DfgConcat>(
+                                DfgConcat* ध्रुव extp = make<DfgConcat>(
                                     vtxp, makeZero(flp, vtxp->width() - 1), condp);
-                                FileLine* const thenFlp = thenAddp->fileline();
+                                File_ओळ* ध्रुव thenFlp = thenAddp->fileline();
                                 replace(
                                     make<DfgAdd>(thenFlp, vtxp->dtype(), thenAddp->rhsp(), extp));
-                                return;
+                                प्रत्यागम;
                             }
                         }
                     }
                 }
             }
             // 'cond ? a - 1 : a' -> 'a - cond'
-            if (DfgSub* const thenSubp = thenp->cast<DfgSub>()) {
-                if (DfgConst* const constp = thenSubp->rhsp()->cast<DfgConst>()) {
-                    if (constp->hasValue(1)) {
-                        if (thenSubp->lhsp() == elsep) {
+            यदि (DfgSub* ध्रुव thenSubp = thenp->cast<DfgSub>()) {
+                यदि (DfgConst* ध्रुव constp = thenSubp->rhsp()->cast<DfgConst>()) {
+                    यदि (constp->has_मूल्य(1)) {
+                        यदि (thenSubp->lhsp() == elsep) {
                             APPLYING(REPLACE_COND_DEC) {
-                                DfgConcat* const extp = make<DfgConcat>(
+                                DfgConcat* ध्रुव extp = make<DfgConcat>(
                                     vtxp, makeZero(flp, vtxp->width() - 1), condp);
-                                FileLine* const thenFlp = thenSubp->fileline();
+                                File_ओळ* ध्रुव thenFlp = thenSubp->fileline();
                                 replace(
                                     make<DfgSub>(thenFlp, vtxp->dtype(), thenSubp->lhsp(), extp));
-                                return;
+                                प्रत्यागम;
                             }
                         }
                     }
@@ -3172,220 +3172,220 @@ class V3DfgPeephole final : public DfgVisitor {
             }
         }
 
-        if (vtxp->dtype() == m_bitDType) {
-            if (isSame(condp, thenp) && !elsep->unsafe()) {  // a ? a : b becomes a | b
+        यदि (vtxp->dtype() == m_bitDType) {
+            यदि (isSame(condp, thenp) && !elsep->unsafe()) {  // a ? a : b becomes a | b
                 APPLYING(REPLACE_COND_WITH_THEN_BRANCH_COND) {
                     replace(make<DfgOr>(vtxp, condp, elsep));
-                    return;
+                    प्रत्यागम;
                 }
             }
-            if (isSame(condp, elsep) && !thenp->unsafe()) {  // a ? b : a becomes a & b
+            यदि (isSame(condp, elsep) && !thenp->unsafe()) {  // a ? b : a becomes a & b
                 APPLYING(REPLACE_COND_WITH_ELSE_BRANCH_COND) {
                     replace(make<DfgAnd>(vtxp, condp, thenp));
-                    return;
+                    प्रत्यागम;
                 }
             }
         }
 
-        if (vtxp->width() <= VL_QUADSIZE) {
-            if (isZero(thenp) && !elsep->unsafe()) {  // a ? 0 : b becomes ~a & b
+        यदि (vtxp->width() <= VL_QUADSIZE) {
+            यदि (isZero(thenp) && !elsep->unsafe()) {  // a ? 0 : b becomes ~a & b
                 APPLYING(REPLACE_COND_WITH_THEN_BRANCH_ZERO) {
-                    DfgVertex* const maskp = replicate(vtxp, make<DfgNot>(condp, condp));
+                    DfgVertex* ध्रुव maskp = replicate(vtxp, make<DfgNot>(condp, condp));
                     replace(make<DfgAnd>(vtxp, maskp, elsep));
-                    return;
+                    प्रत्यागम;
                 }
             }
-            if (isOnes(thenp) && !elsep->unsafe()) {  // a ? 1 : b becomes a | b
+            यदि (isOnes(thenp) && !elsep->unsafe()) {  // a ? 1 : b becomes a | b
                 APPLYING(REPLACE_COND_WITH_THEN_BRANCH_ONES) {
-                    DfgVertex* const maskp = replicate(vtxp, condp);
+                    DfgVertex* ध्रुव maskp = replicate(vtxp, condp);
                     replace(make<DfgOr>(vtxp, maskp, elsep));
-                    return;
+                    प्रत्यागम;
                 }
             }
-            if (isZero(elsep) && !thenp->unsafe()) {  // a ? b : 0 becomes a & b
+            यदि (isZero(elsep) && !thenp->unsafe()) {  // a ? b : 0 becomes a & b
                 APPLYING(REPLACE_COND_WITH_ELSE_BRANCH_ZERO) {
-                    DfgVertex* const maskp = replicate(vtxp, condp);
+                    DfgVertex* ध्रुव maskp = replicate(vtxp, condp);
                     replace(make<DfgAnd>(vtxp, maskp, thenp));
-                    return;
+                    प्रत्यागम;
                 }
             }
-            if (isOnes(elsep) && !thenp->unsafe()) {  // a ? b : 1 becomes ~a | b
+            यदि (isOnes(elsep) && !thenp->unsafe()) {  // a ? b : 1 becomes ~a | b
                 APPLYING(REPLACE_COND_WITH_ELSE_BRANCH_ONES) {
-                    DfgVertex* const maskp = replicate(vtxp, make<DfgNot>(condp, condp));
+                    DfgVertex* ध्रुव maskp = replicate(vtxp, make<DfgNot>(condp, condp));
                     replace(make<DfgOr>(vtxp, maskp, thenp));
-                    return;
+                    प्रत्यागम;
                 }
             }
 
-            if (DfgOr* const tOrp = thenp->cast<DfgOr>()) {
-                if (isSame(tOrp->lhsp(), elsep)
+            यदि (DfgOr* ध्रुव tOrp = thenp->cast<DfgOr>()) {
+                यदि (isSame(tOrp->lhsp(), elsep)
                     && !tOrp->rhsp()->unsafe()) {  // a ? b | c : b becomes b | (a & c)
                     APPLYING(REPLACE_COND_THEN_OR_LHS) {
-                        DfgVertex* const maskp = replicate(vtxp, condp);
-                        DfgAnd* const andp = make<DfgAnd>(vtxp, maskp, tOrp->rhsp());
+                        DfgVertex* ध्रुव maskp = replicate(vtxp, condp);
+                        DfgAnd* ध्रुव andp = make<DfgAnd>(vtxp, maskp, tOrp->rhsp());
                         replace(make<DfgOr>(vtxp, tOrp->lhsp(), andp));
-                        return;
+                        प्रत्यागम;
                     }
                 }
-                if (isSame(tOrp->rhsp(), elsep)
+                यदि (isSame(tOrp->rhsp(), elsep)
                     && !tOrp->lhsp()->unsafe()) {  // a ? b | c : c becomes c | (a & b)
                     APPLYING(REPLACE_COND_THEN_OR_RHS) {
-                        DfgVertex* const maskp = replicate(vtxp, condp);
-                        DfgAnd* const andp = make<DfgAnd>(vtxp, maskp, tOrp->lhsp());
+                        DfgVertex* ध्रुव maskp = replicate(vtxp, condp);
+                        DfgAnd* ध्रुव andp = make<DfgAnd>(vtxp, maskp, tOrp->lhsp());
                         replace(make<DfgOr>(vtxp, tOrp->rhsp(), andp));
-                        return;
+                        प्रत्यागम;
                     }
                 }
             }
         }
 
-        if (!thenp->is<DfgConst>() && !elsep->is<DfgConst>()) {
-            const std::pair<DfgVertex*, uint32_t> cLSBs = commonLSBs(thenp, elsep);
-            if (cLSBs.first) {
+        यदि (!thenp->is<DfgConst>() && !elsep->is<DfgConst>()) {
+            ध्रुव std::pair<DfgVertex*, uint32_t> cLSBs = commonLSBs(thenp, elsep);
+            यदि (cLSBs.first) {
                 APPLYING(REPLACE_COND_COMMON_LSBS) {
                     // Create new RHS
-                    const uint32_t rWidth = cLSBs.second;
+                    ध्रुव uint32_t rWidth = cLSBs.second;
                     DfgVertex* rhsp = cLSBs.first;
-                    if (rWidth != rhsp->width()) {
-                        const DfgDataType& rDtype = DfgDataType::packed(rWidth);
+                    यदि (rWidth != rhsp->width()) {
+                        ध्रुव DfgDataType& rDtype = DfgDataType::packed(rWidth);
                         rhsp = make<DfgSel>(flp, rDtype, rhsp, 0U);
                     }
                     // If it's all the same, just replace
-                    if (rhsp->dtype() == vtxp->dtype()) {
+                    यदि (rhsp->dtype() == vtxp->dtype()) {
                         // Note this branch can only be hit if rules run in the right order,
                         // it might have missing code coverage after a refactor.
                         replace(rhsp);
-                        return;
+                        प्रत्यागम;
                     }
                     // Create new LHS
-                    const uint32_t lWidth = vtxp->width() - rWidth;
-                    const DfgDataType& lDtype = DfgDataType::packed(lWidth);
-                    DfgVertex* const lThenp = make<DfgSel>(flp, lDtype, thenp, rWidth);
-                    DfgVertex* const lElsep = make<DfgSel>(flp, lDtype, elsep, rWidth);
-                    DfgVertex* const lhsp = make<DfgCond>(flp, lDtype, condp, lThenp, lElsep);
+                    ध्रुव uint32_t lWidth = vtxp->width() - rWidth;
+                    ध्रुव DfgDataType& lDtype = DfgDataType::packed(lWidth);
+                    DfgVertex* ध्रुव lThenp = make<DfgSel>(flp, lDtype, thenp, rWidth);
+                    DfgVertex* ध्रुव lElsep = make<DfgSel>(flp, lDtype, elsep, rWidth);
+                    DfgVertex* ध्रुव lhsp = make<DfgCond>(flp, lDtype, condp, lThenp, lElsep);
                     // Replace with concat
                     replace(make<DfgConcat>(vtxp, lhsp, rhsp));
-                    return;
+                    प्रत्यागम;
                 }
             }
 
-            const std::pair<DfgVertex*, uint32_t> cMSBs = commonMSBs(thenp, elsep);
-            if (cMSBs.first) {
+            ध्रुव std::pair<DfgVertex*, uint32_t> cMSBs = commonMSBs(thenp, elsep);
+            यदि (cMSBs.first) {
                 APPLYING(REPLACE_COND_COMMON_MSBS) {
                     // Create new LHS
-                    const uint32_t lWidth = cMSBs.second;
+                    ध्रुव uint32_t lWidth = cMSBs.second;
                     DfgVertex* lhsp = cMSBs.first;
-                    if (lWidth != lhsp->width()) {
-                        const DfgDataType& lDtype = DfgDataType::packed(lWidth);
+                    यदि (lWidth != lhsp->width()) {
+                        ध्रुव DfgDataType& lDtype = DfgDataType::packed(lWidth);
                         lhsp = make<DfgSel>(flp, lDtype, lhsp, lhsp->width() - lWidth);
                     }
                     // If it's all the same, just replace
-                    if (lhsp->dtype() == vtxp->dtype()) {
+                    यदि (lhsp->dtype() == vtxp->dtype()) {
                         // Note this branch can only be hit if rules run in the right order,
                         // it might have missing code coverage after a refactor.
                         replace(lhsp);
-                        return;
+                        प्रत्यागम;
                     }
                     // Create new RHS
-                    const uint32_t rWidth = vtxp->width() - lWidth;
-                    const DfgDataType& rDtype = DfgDataType::packed(rWidth);
-                    DfgVertex* const rThenp = make<DfgSel>(flp, rDtype, thenp, 0U);
-                    DfgVertex* const rElsep = make<DfgSel>(flp, rDtype, elsep, 0U);
-                    DfgVertex* const rhsp = make<DfgCond>(flp, rDtype, condp, rThenp, rElsep);
+                    ध्रुव uint32_t rWidth = vtxp->width() - lWidth;
+                    ध्रुव DfgDataType& rDtype = DfgDataType::packed(rWidth);
+                    DfgVertex* ध्रुव rThenp = make<DfgSel>(flp, rDtype, thenp, 0U);
+                    DfgVertex* ध्रुव rElsep = make<DfgSel>(flp, rDtype, elsep, 0U);
+                    DfgVertex* ध्रुव rhsp = make<DfgCond>(flp, rDtype, condp, rThenp, rElsep);
                     // Replace with concat
                     replace(make<DfgConcat>(vtxp, lhsp, rhsp));
-                    return;
+                    प्रत्यागम;
                 }
             }
         }
 
-        if (isEqOne(thenp) && isZero(elsep)) {
+        यदि (isEqOne(thenp) && isZero(elsep)) {
             APPLYING(REPLACE_COND_CONST_ONE_ZERO) {
                 DfgVertex* resp = condp;
-                if (const uint32_t extend = vtxp->width() - 1) {
-                    DfgConst* const zerop = makeZero(flp, extend);
+                यदि (ध्रुव uint32_t extend = vtxp->width() - 1) {
+                    DfgConst* ध्रुव zerop = makeZero(flp, extend);
                     resp = make<DfgConcat>(vtxp, zerop, resp);
                 }
                 replace(resp);
-                return;
+                प्रत्यागम;
             }
         }
 
-        if (isZero(thenp) && isEqOne(elsep)) {
+        यदि (isZero(thenp) && isEqOne(elsep)) {
             APPLYING(REPLACE_COND_CONST_ZERO_ONE) {
                 DfgVertex* resp = make<DfgNot>(condp, condp);
-                if (const uint32_t extend = vtxp->width() - 1) {
-                    DfgConst* const zerop = makeZero(vtxp->fileline(), extend);
+                यदि (ध्रुव uint32_t extend = vtxp->width() - 1) {
+                    DfgConst* ध्रुव zerop = makeZero(vtxp->fileline(), extend);
                     resp = make<DfgConcat>(vtxp, zerop, resp);
                 }
                 replace(resp);
-                return;
+                प्रत्यागम;
             }
         }
 
-        if (isOnes(thenp) && isZero(elsep)) {
+        यदि (isOnes(thenp) && isZero(elsep)) {
             APPLYING(REPLACE_COND_CONST_ONES_ZERO) {
                 replace(replicate(vtxp, condp));
-                return;
+                प्रत्यागम;
             }
         }
 
-        if (isZero(thenp) && isOnes(elsep)) {
+        यदि (isZero(thenp) && isOnes(elsep)) {
             APPLYING(REPLACE_COND_CONST_ZERO_ONES) {
                 replace(replicate(vtxp, make<DfgNot>(condp, condp)));
-                return;
+                प्रत्यागम;
             }
         }
 
-        if (DfgCond* const tCondp = thenp->cast<DfgCond>()) {
-            if (isSame(condp, tCondp->condp())) {
+        यदि (DfgCond* ध्रुव tCondp = thenp->cast<DfgCond>()) {
+            यदि (isSame(condp, tCondp->condp())) {
                 APPLYING(REPLACE_COND_SAME_COND_THEN) {
                     replace(make<DfgCond>(vtxp, condp, tCondp->thenp(), elsep));
-                    return;
+                    प्रत्यागम;
                 }
             }
         }
 
-        if (DfgCond* const eCondp = elsep->cast<DfgCond>()) {
-            if (isSame(condp, eCondp->condp())) {
+        यदि (DfgCond* ध्रुव eCondp = elsep->cast<DfgCond>()) {
+            यदि (isSame(condp, eCondp->condp())) {
                 APPLYING(REPLACE_COND_SAME_COND_ELSE) {
                     replace(make<DfgCond>(vtxp, condp, thenp, eCondp->elsep()));
-                    return;
+                    प्रत्यागम;
                 }
             }
         }
     }
 
-    void visit(DfgVertexVar* const vtxp) override {
-        if (vtxp->hasSinks()) return;
-        if (vtxp->isObserved()) return;
-        if (vtxp->defaultp()) return;
+    शून्य visit(DfgVertexVar* ध्रुव vtxp) override {
+        यदि (vtxp->hasSinks()) प्रत्यागम;
+        यदि (vtxp->isObserved()) प्रत्यागम;
+        यदि (vtxp->defaultp()) प्रत्यागम;
 
         // If undriven, or driven from another var, it is completely redundant.
-        if (!vtxp->srcp() || vtxp->srcp()->is<DfgVertexVar>()) {
+        यदि (!vtxp->srcp() || vtxp->srcp()->is<DfgVertexVar>()) {
             APPLYING(REMOVE_VAR) {
                 deleteVertex(vtxp);
-                return;
+                प्रत्यागम;
             }
         }
 
         // Otherwise remove if there is only one sink that is not a removable variable
-        bool foundOne = false;
-        const bool keep = vtxp->srcp()->foreachSink([&](DfgVertex& sink) -> bool {
+        तार्किक foundOne = असत्य;
+        ध्रुव तार्किक keep = vtxp->srcp()->foreachSink([&](DfgVertex& sink) -> तार्किक {
             // Ignore non-observable variable sinks. These can be eliminated.
-            if (const DfgVertexVar* const varp = sink.cast<DfgVertexVar>()) {
-                if (!varp->hasSinks() && !varp->isObserved()) return false;
+            यदि (ध्रुव DfgVertexVar* ध्रुव varp = sink.cast<DfgVertexVar>()) {
+                यदि (!varp->hasSinks() && !varp->isObserved()) प्रत्यागम असत्य;
             }
             // Keep if found more than one sink
-            if (foundOne) return true;
+            यदि (foundOne) प्रत्यागम सत्य;
             // Mark first sink found
-            foundOne = true;
-            return false;
+            foundOne = सत्य;
+            प्रत्यागम असत्य;
         });
-        if (!keep) {
+        यदि (!keep) {
             APPLYING(REMOVE_VAR) {
                 deleteVertex(vtxp);
-                return;
+                प्रत्यागम;
             }
         }
     }
@@ -3398,7 +3398,7 @@ class V3DfgPeephole final : public DfgVisitor {
         m_dfg.forEachVertex([&](DfgVertex& vtx) { m_vInfo[vtx].m_id = ++m_lastId; });
 
         // Add all operation vertices to the cache
-        for (DfgVertex& vtx : m_dfg.opVertices()) cacheVertex(&vtx);
+        प्रति (DfgVertex& vtx : m_dfg.opVertices()) cacheVertex(&vtx);
 
         // Initialize the work list and iter list. They can't get bigger than
         // m_dfg.size(), but new vertices are created in the loop, so over alloacte
@@ -3406,48 +3406,48 @@ class V3DfgPeephole final : public DfgVisitor {
         m_iterList.reserve(m_dfg.size() * 2);
 
         // Need a nullptr at index 0 so VertexInfo::m_*ListIndex == 0 can check membership
-        m_workList.push_back(nullptr);
-        m_iterList.push_back(nullptr);
+        m_workList.ढकला_back(nullptr);
+        m_iterList.ढकला_back(nullptr);
 
         // Add all variable vertices to the work list. Do this first so they are processed
         // last. This order has a better chance of preserving original variables in case
         // they are needed to hold intermediate results.
-        for (DfgVertexVar& vtx : m_dfg.varVertices()) addToWorkList(&vtx);
+        प्रति (DfgVertexVar& vtx : m_dfg.varVertices()) addToWorkList(&vtx);
 
         // Add all operation vertices to the work list
-        for (DfgVertex& vtx : m_dfg.opVertices()) addToWorkList(&vtx);
+        प्रति (DfgVertex& vtx : m_dfg.opVertices()) addToWorkList(&vtx);
 
         // Process iteratively
-        while (true) {
+        यावत् (सत्य) {
             // Process the work list - keep the placeholder at index 0
-            while (m_workList.size() > 1) {
+            यावत् (m_workList.size() > 1) {
                 VL_RESTORER(m_vtxp);
 
                 // Pop up head of work list
                 m_vtxp = m_workList.back();
-                m_workList.pop_back();
-                if (!m_vtxp) continue;  // If removed from worklist (deleted), move on
+                m_workList.काढा_back();
+                यदि (!m_vtxp) अनुवर्त;  // If removed from worklist (deleted), move on
                 m_vInfo[m_vtxp].m_workListIndex = 0;  // No longer on work list
 
                 // Variables are special, just visit them, the visit might delete them
-                if (DfgVertexVar* const varp = m_vtxp->cast<DfgVertexVar>()) {
+                यदि (DfgVertexVar* ध्रुव varp = m_vtxp->cast<DfgVertexVar>()) {
                     visit(varp);
-                    continue;
+                    अनुवर्त;
                 }
 
                 // Ast references are not considered
-                if (m_vtxp->is<DfgVertexAst>()) continue;
+                यदि (m_vtxp->is<DfgVertexAst>()) अनुवर्त;
 
                 // Unsued vertices should have been removed immediately
                 UASSERT_OBJ(m_vtxp->hasSinks(), m_vtxp, "Operation vertex should have sinks");
 
                 // Check if an equivalent vertex exists, if so replace this vertex with it.
                 // Can skip the lookup if the vertex is known to be the cached one
-                if (!m_vInfo[m_vtxp].m_isCachedVertex) {
-                    if (DfgVertex* const sampep = cacheVertex(m_vtxp)) {
+                यदि (!m_vInfo[m_vtxp].m_isCachedVertex) {
+                    यदि (DfgVertex* ध्रुव sampep = cacheVertex(m_vtxp)) {
                         APPLYING(REPLACE_WITH_EQUIVALENT) {
                             replace(sampep);
-                            continue;
+                            अनुवर्त;
                         }
                     }
                 }
@@ -3457,7 +3457,7 @@ class V3DfgPeephole final : public DfgVisitor {
             }
 
             // If nothing was added to the iter list, we can stop
-            if (m_iterList.size() == 1) break;
+            यदि (m_iterList.size() == 1) भङ्ग;
 
             // Expand the iter list to visit the whole neighborhood of vertices
             // within a fixed number of hops from the enqueued vertices. This
@@ -3465,17 +3465,17 @@ class V3DfgPeephole final : public DfgVisitor {
             {
                 size_t begin = 0;
                 size_t end = m_iterList.size();
-                for (size_t hops = 1; hops <= 4; ++hops) {
-                    for (size_t i = begin; i < end; ++i) {
-                        DfgVertex* const vtxp = m_iterList[i];
-                        if (!vtxp) continue;
+                प्रति (size_t hops = 1; hops <= 4; ++hops) {
+                    प्रति (size_t i = begin; i < end; ++i) {
+                        DfgVertex* ध्रुव vtxp = m_iterList[i];
+                        यदि (!vtxp) अनुवर्त;
                         vtxp->foreachSink([&](DfgVertex& dst) {
                             addToIterList(&dst);
-                            return false;
+                            प्रत्यागम असत्य;
                         });
                         vtxp->foreachSource([&](DfgVertex& src) {
                             addToIterList(&src);
-                            return false;
+                            प्रत्यागम असत्य;
                         });
                     }
                     begin = end;
@@ -3484,8 +3484,8 @@ class V3DfgPeephole final : public DfgVisitor {
             }
 
             // Move vertices in the iter list to the work list for the next iteration
-            for (DfgVertex* const vtxp : m_iterList) {
-                if (!vtxp) continue;
+            प्रति (DfgVertex* ध्रुव vtxp : m_iterList) {
+                यदि (!vtxp) अनुवर्त;
                 removeFromIterList(vtxp);
                 addToWorkList(vtxp);
             }
@@ -3496,13 +3496,13 @@ class V3DfgPeephole final : public DfgVisitor {
 
 #undef APPLYING
 
-public:
-    static void apply(DfgGraph& dfg, V3DfgPeepholeContext& ctx) { V3DfgPeephole{dfg, ctx}; }
+सार्वजनिक:
+    स्थिर शून्य apply(DfgGraph& dfg, V3DfgPeepholeContext& ctx) { V3DfgPeephole{dfg, ctx}; }
 };
 
 V3DebugBisect V3DfgPeephole::s_debugBisect{"DfgPeephole"};
 
-void V3DfgPasses::peephole(DfgGraph& dfg, V3DfgPeepholeContext& ctx) {
-    if (!v3Global.opt.fDfgPeephole()) return;
+शून्य V3DfgPasses::peephole(DfgGraph& dfg, V3DfgPeepholeContext& ctx) {
+    यदि (!v3Global.opt.fDfgPeephole()) प्रत्यागम;
     V3DfgPeephole::apply(dfg, ctx);
 }
