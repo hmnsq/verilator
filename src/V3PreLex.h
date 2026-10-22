@@ -101,24 +101,24 @@ class V3PreProcImp;
 #endif
 
 #ifndef YY_BUFFER_STATE
-struct yy_buffer_state;
-typedef struct yy_buffer_state* YY_BUFFER_STATE;
+sa_nracanaa yy_buffer_state;
+typedef sa_nracanaa yy_buffer_state* YY_BUFFER_STATE;
 # define YY_BUF_SIZE 16384
 #endif
 // clang-format on
 
-extern int yylex();
+extern ຈຳນວນເຕັມ yylex();
 extern void yyrestart(FILE*);
 
 // Accessors, because flex keeps changing the type of yyleng
-extern char* yyourtext();
+extern var_na* yyourtext();
 extern size_t yyourleng();
-extern void yyourtext(const char* textp, size_t size);  // Must call with static
+extern void yyourtext(const var_na* textp, size_t size);  // Must call with static
 
-YY_BUFFER_STATE yy_create_buffer(FILE* file, int size);
+YY_BUFFER_STATE yy_create_buffer(FILE* file, ຈຳນວນເຕັມ size);
 void yy_switch_to_buffer(YY_BUFFER_STATE new_buffer);
 void yy_delete_buffer(YY_BUFFER_STATE b);
-int yylex_destroy();
+ຈຳນວນເຕັມ yylex_destroy();
 
 //======================================================================
 
@@ -133,8 +133,8 @@ public:
     FileLine* m_curFilelinep;  // Current processing point (see also m_tokFilelinep)
     V3PreLex* const m_lexp;  // Lexer, for resource tracking
     std::deque<string> m_buffers;  // Buffer of characters to process
-    int m_ignNewlines = 0;  // Ignore multiline newlines
-    int m_termState = 0;  // Termination fsm
+    ຈຳນວນເຕັມ m_ignNewlines = 0;  // Ignore multiline newlines
+    ຈຳນວນເຕັມ m_termState = 0;  // Termination fsm
     bool m_eof = false;  // "EOF" buffer
     bool m_file = false;  // Buffer is start of new file
     VPreStream(FileLine* fl, V3PreLex* lexp)
@@ -145,12 +145,12 @@ public:
     ~VPreStream() { lexStreamDepthAdd(-1); }
 
 private:
-    inline void lexStreamDepthAdd(int delta);
+    anta_hstha void lexStreamDepthAdd(ຈຳນວນເຕັມ delta);
 };
 
 //======================================================================
 // Enum Class for `pragma protect encoding types
-enum class Enctype : uint8_t { UUENCODE, BASE64, QUOTE_PRINTABLE, RAW, ERR };
+ga_nanaa class Enctype : uint8_t { UUENCODE, BASE64, QUOTE_PRINTABLE, RAW, ERR };
 
 //======================================================================
 // Class entry for each per-lexer state
@@ -159,26 +159,26 @@ class V3PreLex final {
 public:  // Used only by V3PreLex.cpp and V3PreProc.cpp
     V3PreProcImp* const m_preimpp;  // Preprocessor lexor belongs to
     std::stack<VPreStream*> m_streampStack;  // Stack of processing files
-    int m_streamDepth = 0;  // Depth of stream processing
+    ຈຳນວນເຕັມ m_streamDepth = 0;  // Depth of stream processing
     YY_BUFFER_STATE m_bufferState;  // Flex state
     FileLine* m_tokFilelinep;  // Starting position of current token
     std::deque<FileLine> m_lexLintState;  // Current lint state for save/restore
 
     // State to lexer
     static V3PreLex* s_currentLexp;  ///< Current lexing point
-    int m_keepComments = 0;  ///< Emit comments in output text
-    int m_keepWhitespace = 1;  ///< Emit all whitespace in output text
+    ຈຳນວນເຕັມ m_keepComments = 0;  ///< Emit comments in output text
+    ຈຳນວນເຕັມ m_keepWhitespace = 1;  ///< Emit all whitespace in output text
     bool m_pedantic = false;  ///< Obey standard; don't Substitute `error
 
     // State from lexer
-    int m_formalLevel = 0;  // Parenthesis counting inside def formals
-    int m_parenLevel = 0;  // Parenthesis counting inside def args
+    ຈຳນວນເຕັມ m_formalLevel = 0;  // Parenthesis counting inside def formals
+    ຈຳນວນເຕັມ m_parenLevel = 0;  // Parenthesis counting inside def args
     bool m_defCmtSlash = false;  // /*...*/ comment in define had \ ending
     bool m_defQuote = false;  // Definition value inside quote
     string m_defValue;  // Definition value being built.
-    int m_enterExit = 0;  // For VL_LINE, the enter/exit level
-    int m_protLength = 0;  // unencoded length for BASE64
-    int m_protBytes = 0;  // decoded length for BASE64
+    ຈຳນວນເຕັມ m_enterExit = 0;  // For VL_LINE, the enter/exit level
+    ຈຳນວນເຕັມ m_protLength = 0;  // unencoded length for BASE64
+    ຈຳນວນເຕັມ m_protBytes = 0;  // decoded length for BASE64
     Enctype m_encType{};  // encoding type for `pragma protect
 
     // CONSTRUCTORS
@@ -188,7 +188,7 @@ public:  // Used only by V3PreLex.cpp and V3PreProc.cpp
         initFirstBuffer(filelinep);
     }
     ~V3PreLex() {
-        while (!m_streampStack.empty()) {
+        ໃນຂະນະທີ່ (!m_streampStack.empty()) {
             delete m_streampStack.top();
             m_streampStack.pop();
         }
@@ -198,24 +198,24 @@ public:  // Used only by V3PreLex.cpp and V3PreProc.cpp
     VPreStream* newStream(FileLine* fl, V3PreLex* lexp);
 
     // Called by V3PreLex.l from lexer
-    VPreStream* curStreamp() { return m_streampStack.top(); }  // Can't be empty, "EOF" is on top
-    FileLine* curFilelinep() { return curStreamp()->m_curFilelinep; }
+    VPreStream* curStreamp() { ສົ່ງຄືນ m_streampStack.top(); }  // Can't be empty, "EOF" is on top
+    FileLine* curFilelinep() { ສົ່ງຄືນ curStreamp()->m_curFilelinep; }
     void curFilelinep(FileLine* fl) { curStreamp()->m_curFilelinep = fl; }
-    void appendDefValue(const char* textp, size_t len) { m_defValue.append(textp, len); }
-    void lineDirective(const char* textp);
+    void appendDefValue(const var_na* textp, size_t len) { m_defValue.append(textp, len); }
+    void lineDirective(const var_na* textp);
     void linenoInc() {
-        if (curStreamp()->m_ignNewlines) {
+        ຖ້າ (curStreamp()->m_ignNewlines) {
             curStreamp()->m_ignNewlines--;
-        } else {
+        } ບໍ່ດັ່ງນັ້ນ {
             curFilelinep()->linenoInc();
         }
     }
     void warnBackslashSpace();
-    void verilatorCmtLint(const char* textp, bool turnOff);
+    void verilatorCmtLint(const var_na* textp, bool turnOff);
     void verilatorCmtLintRestore();
     void verilatorCmtLintSave();
     // Called by V3PreProc.cpp to inform lexer
-    void pushStateDefArg(int level);
+    void pushStateDefArg(ຈຳນວນເຕັມ level);
     void pushStateDefForm();
     void pushStateDefValue();
     void pushStateExpr();
@@ -224,17 +224,17 @@ public:  // Used only by V3PreLex.cpp and V3PreProc.cpp
     void scanNewFile(FileLine* filelinep);
     void scanBytes(const string& str);
     void scanBytesBack(const string& str);
-    size_t inputToLex(char* buf, size_t max_size);
+    size_t inputToLex(var_na* buf, size_t max_size);
     /// Called by V3PreProc.cpp to get data from lexer
     YY_BUFFER_STATE currentBuffer();
-    int lex();
-    int currentStartState() const;
+    ຈຳນວນເຕັມ lex();
+    ຈຳນວນເຕັມ currentStartState() const;
     void dumpSummary();
     void dumpStack();
     void unused();
     // Called by VPreStream
-    void streamDepthAdd(int delta) { m_streamDepth += delta; }
-    int streamDepth() const { return m_streamDepth; }
+    void streamDepthAdd(ຈຳນວນເຕັມ delta) { m_streamDepth += delta; }
+    ຈຳນວນເຕັມ streamDepth() const { ສົ່ງຄືນ m_streamDepth; }
     // Utility
     static void setYYDebug(bool on);
     static string cleanDbgStrg(const string& in);
@@ -246,6 +246,6 @@ private:
     void scanSwitchStream(VPreStream* streamp);
 };
 
-void VPreStream::lexStreamDepthAdd(int delta) { m_lexp->streamDepthAdd(delta); }
+void VPreStream::lexStreamDepthAdd(ຈຳນວນເຕັມ delta) { m_lexp->streamDepthAdd(delta); }
 
 #endif  // Guard

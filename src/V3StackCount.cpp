@@ -63,7 +63,7 @@ public:
     ~StackCountVisitor() override = default;
 
     // METHODS
-    uint64_t stackSize() const { return m_stackSize + m_callMax; }
+    uint64_t stackSize() const { ສົ່ງຄືນ m_stackSize + m_callMax; }
 
 private:
     void reset() {
@@ -78,16 +78,16 @@ private:
         // hierarchical view of the cost when in debug mode.
         const uint64_t savedCount = m_stackSize;
         m_stackSize = 0;
-        return savedCount;
+        ສົ່ງຄືນ savedCount;
     }
     void endVisitBase(uint64_t savedCount, const AstNode* nodep) {
         UINFO(8, "cost " << std::setw(6) << std::left << m_stackSize << "  " << nodep);
-        if (!m_ignoreRemaining) m_stackSize += savedCount;
+        ຖ້າ (!m_ignoreRemaining) m_stackSize += savedCount;
     }
 
     // VISITORS
     void visit(AstNodeIf* nodep) override {
-        if (m_ignoreRemaining) return;
+        ຖ້າ (m_ignoreRemaining) ສົ່ງຄືນ;
         const VisitBase vb{this, nodep};
         iterateAndNextConstNull(nodep->condp());
         const uint64_t savedCount = m_stackSize;
@@ -96,25 +96,25 @@ private:
         reset();
         iterateAndNextConstNull(nodep->thensp());
         uint64_t ifCount = m_stackSize;
-        if (nodep->branchPred().unlikely()) ifCount = 0;
+        ຖ້າ (nodep->branchPred().unlikely()) ifCount = 0;
 
         UINFO(8, "elsesp:");
         reset();
         iterateAndNextConstNull(nodep->elsesp());
         uint64_t elseCount = m_stackSize;
-        if (nodep->branchPred().likely()) elseCount = 0;
+        ຖ້າ (nodep->branchPred().likely()) elseCount = 0;
 
         reset();
-        if (ifCount >= elseCount) {
+        ຖ້າ (ifCount >= elseCount) {
             m_stackSize = savedCount + ifCount;
-            if (nodep->elsesp()) nodep->elsesp()->user2(0);  // Don't dump it
-        } else {
+            ຖ້າ (nodep->elsesp()) nodep->elsesp()->user2(0);  // Don't dump it
+        } ບໍ່ດັ່ງນັ້ນ {
             m_stackSize = savedCount + elseCount;
-            if (nodep->thensp()) nodep->thensp()->user2(0);  // Don't dump it
+            ຖ້າ (nodep->thensp()) nodep->thensp()->user2(0);  // Don't dump it
         }
     }
     void visit(AstCond* nodep) override {
-        if (m_ignoreRemaining) return;
+        ຖ້າ (m_ignoreRemaining) ສົ່ງຄືນ;
         // Just like if/else above, the ternary operator only evaluates
         // one of the two expressions, so only count the max.
         const VisitBase vb{this, nodep};
@@ -132,17 +132,17 @@ private:
         const uint64_t elseCount = m_stackSize;
 
         reset();
-        if (ifCount >= elseCount) {
+        ຖ້າ (ifCount >= elseCount) {
             m_stackSize = savedCount + ifCount;
-            if (nodep->elsep()) nodep->elsep()->user2(0);  // Don't dump it
-        } else {
+            ຖ້າ (nodep->elsep()) nodep->elsep()->user2(0);  // Don't dump it
+        } ບໍ່ດັ່ງນັ້ນ {
             m_stackSize = savedCount + elseCount;
-            if (nodep->thenp()) nodep->thenp()->user2(0);  // Don't dump it
+            ຖ້າ (nodep->thenp()) nodep->thenp()->user2(0);  // Don't dump it
         }
     }
     void visit(AstFork* nodep) override { nodep->v3fatalSrc("Fork removed earlier"); }
     void visit(AstNodeCCall* nodep) override {
-        if (m_ignoreRemaining) return;
+        ຖ້າ (m_ignoreRemaining) ສົ່ງຄືນ;
         const VisitBase vb{this, nodep};
         iterateChildrenConst(nodep);
         m_tracingCall = true;
@@ -152,10 +152,10 @@ private:
     void visit(AstCFunc* nodep) override {
         // Don't count a CFunc other than by tracing a call or counting it
         // from the root
-        if (!m_tracingCall && !nodep->entryPoint()) return;
+        ຖ້າ (!m_tracingCall && !nodep->entryPoint()) ສົ່ງຄືນ;
         m_tracingCall = false;
-        if (nodep->recursive()) return;
-        if (!nodep->user2()) {  // Short circuit
+        ຖ້າ (nodep->recursive()) ສົ່ງຄືນ;
+        ຖ້າ (!nodep->user2()) {  // Short circuit
             VL_RESTORER(m_ignoreRemaining);
             VL_RESTORER(m_stackSize);
             VL_RESTORER(m_callMax);
@@ -173,14 +173,14 @@ private:
         m_tracingCall = false;
     }
     void visit(AstVar* nodep) override {
-        if (!m_inCFunc) return;
-        m_stackSize += nodep->isRef() ? sizeof(void*) : nodep->dtypep()->widthTotalBytes();
+        ຖ້າ (!m_inCFunc) ສົ່ງຄືນ;
+        m_stackSize += nodep->isRef() ? parimaa_na(void*) : nodep->dtypep()->widthTotalBytes();
         iterateChildrenConst(nodep);
     }
 
     void visit(AstNodeExpr* nodep) override {}  // Short-circuit
     void visit(AstNode* nodep) override {
-        if (m_ignoreRemaining) return;
+        ຖ້າ (m_ignoreRemaining) ສົ່ງຄືນ;
         const VisitBase vb{this, nodep};
         iterateChildrenConst(nodep);
     }
@@ -190,5 +190,5 @@ private:
 
 uint64_t V3StackCount::count(AstNode* nodep) {
     const StackCountVisitor visitor{nodep};
-    return visitor.stackSize();
+    ສົ່ງຄືນ visitor.stackSize();
 }

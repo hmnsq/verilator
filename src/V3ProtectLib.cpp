@@ -31,7 +31,7 @@ VL_DEFINE_DEBUG_FUNCTIONS;
 
 class ProtectVisitor final : public VNVisitor {
     // TYPES
-    struct InoutPorts final {
+    sa_nracanaa InoutPorts final {
         AstVar* inp = nullptr;  // Resolved input value and original public port
         AstVar* outp = nullptr;  // Library drive value
         AstVar* enp = nullptr;  // Per-bit drive enable
@@ -70,7 +70,7 @@ class ProtectVisitor final : public VNVisitor {
     const string m_topName;
     bool m_foundTop = false;  // Have seen the top module
     bool m_hasClk = false;  // True if the top module has sequential logic
-    std::map<int, InoutPorts> m_inouts;  // Lowered ports grouped by original inout
+    std::map<ຈຳນວນເຕັມ, InoutPorts> m_inouts;  // Lowered ports grouped by original inout
 
     // VISITORS
     void visit(AstNetlist* nodep) override {
@@ -84,9 +84,9 @@ class ProtectVisitor final : public VNVisitor {
     }
 
     void visit(AstNodeModule* nodep) override {
-        if (!nodep->isTop()) {
-            return;
-        } else {
+        ຖ້າ (!nodep->isTop()) {
+            ສົ່ງຄືນ;
+        } ບໍ່ດັ່ງນັ້ນ {
             UASSERT_OBJ(!m_foundTop, nodep, "Multiple root modules");
         }
         FileLine* const fl = nodep->fileline();
@@ -183,11 +183,11 @@ class ProtectVisitor final : public VNVisitor {
         txtp->add(m_modPortsp);
 
         // Timescale
-        if (v3Global.opt.hierChild() && v3Global.rootp()->timescaleSpecified()) {
+        ຖ້າ (v3Global.opt.hierChild() && v3Global.rootp()->timescaleSpecified()) {
             // Emit timescale for hierarchical Verilation if input HDL specifies timespec
             txtp->add("timeunit "s + modp->timeunit().ascii() + ";\n");
             txtp->add("timeprecision "s + +v3Global.rootp()->timeprecision().ascii() + ";\n");
-        } else {
+        } ບໍ່ດັ່ງນັ້ນ {
             addComment(txtp, fl,
                        "Precision of submodule"
                        " (commented out to avoid requiring timescale on all modules)");
@@ -212,7 +212,7 @@ class ProtectVisitor final : public VNVisitor {
         m_comboPortsp->add("chandle handle__V\n");
         txtp->add(m_comboPortsp);
         seqComment(txtp, fl);
-        if (m_hasClk) {
+        ຖ້າ (m_hasClk) {
             m_seqPortsp = new AstTextBlock{fl,  //
                                            "import \"DPI-C\" function longint " + m_libName
                                                + "_protectlib_seq_update(\n",  //
@@ -241,7 +241,7 @@ class ProtectVisitor final : public VNVisitor {
 
         txtp->add("chandle handle__V;\n");
         txtp->add("time last_combo_seqnum__V;\n");
-        if (m_hasClk) txtp->add("time last_seq_seqnum__V;\n");
+        ຖ້າ (m_hasClk) txtp->add("time last_seq_seqnum__V;\n");
         txtp->add("\n");
 
         m_comboDeclsp = new AstTextBlock{fl};
@@ -281,7 +281,7 @@ class ProtectVisitor final : public VNVisitor {
         txtp->add("end\n\n");
 
         // Sequential process
-        if (m_hasClk) {
+        ຖ້າ (m_hasClk) {
             addComment(txtp, fl, "Evaluate clock edges");
             m_clkSensp = new AstTextBlock{fl, "always @(", " or ", ")"};
             txtp->add(m_clkSensp);
@@ -306,7 +306,7 @@ class ProtectVisitor final : public VNVisitor {
         // Select between combinatorial and sequential results
         addComment(txtp, fl, "Select between combinatorial and sequential results");
         txtp->add("always_comb begin\n");
-        if (m_hasClk) {
+        ຖ້າ (m_hasClk) {
             txtp->add("if (last_seq_seqnum__V > last_combo_seqnum__V) begin\n");
             m_seqAssignsp = new AstTextBlock{fl};
             txtp->add(m_seqAssignsp);
@@ -314,7 +314,7 @@ class ProtectVisitor final : public VNVisitor {
             m_comboAssignsp = new AstTextBlock{fl};
             txtp->add(m_comboAssignsp);
             txtp->add("end\n");
-        } else {
+        } ບໍ່ດັ່ງນັ້ນ {
             m_comboAssignsp = new AstTextBlock{fl};
             txtp->add(m_comboAssignsp);
         }
@@ -400,7 +400,7 @@ class ProtectVisitor final : public VNVisitor {
         txtp->add("return handlep__V->m_seqnum++;\n");
         txtp->add("}\n\n");
 
-        if (m_hasClk) {
+        ຖ້າ (m_hasClk) {
             seqComment(txtp, fl);
             m_cSeqParamsp = new AstTextBlock{
                 fl, "long long " + m_libName + "_protectlib_seq_update(\n", ",\n", "\n) {\n"};
@@ -435,25 +435,25 @@ class ProtectVisitor final : public VNVisitor {
     }
 
     void visit(AstVar* nodep) override {
-        if (!nodep->isIO()) return;
-        if (restoreInout(nodep)) {
+        ຖ້າ (!nodep->isIO()) ສົ່ງຄືນ;
+        ຖ້າ (restoreInout(nodep)) {
             InoutPorts& ports = m_inouts[nodep->libInoutId()];
-            if (nodep->isInput()) {
+            ຖ້າ (nodep->isInput()) {
                 ports.inp = nodep;
-            } else if (nodep->libInoutEnable()) {
+            } ບໍ່ດັ່ງນັ້ນ ຖ້າ (nodep->libInoutEnable()) {
                 ports.enp = nodep;
-            } else {
+            } ບໍ່ດັ່ງນັ້ນ {
                 ports.outp = nodep;
             }
         }
-        if (nodep->direction() == VDirection::INPUT) {
-            if (nodep->isPrimaryClock()) {
+        ຖ້າ (nodep->direction() == VDirection::INPUT) {
+            ຖ້າ (nodep->isPrimaryClock()) {
                 UASSERT_OBJ(m_hasClk, nodep, "checkIfClockExists() didn't find this clock");
                 handleClock(nodep);
-            } else {
+            } ບໍ່ດັ່ງນັ້ນ {
                 handleDataInput(nodep);
             }
-        } else {
+        } ບໍ່ດັ່ງນັ້ນ {
             // Ref ports were rejected during linking, and tristate lowering split all inouts.
             UASSERT_OBJ(nodep->direction() == VDirection::OUTPUT, nodep,
                         "Unexpected library port direction");
@@ -464,25 +464,25 @@ class ProtectVisitor final : public VNVisitor {
     void visit(AstNode*) override {}
 
     string cInputConnection(AstVar* varp) {
-        return V3Task::assignDpiToInternal("handlep__V->" + varp->name(), varp);
+        ສົ່ງຄືນ V3Task::assignDpiToInternal("handlep__V->" + varp->name(), varp);
     }
 
     // The wrapper's module ports are connected by name, so they must use the user's
     // names rather than the hashed form of long names used internally
     static string svPortName(const AstVar* varp) {
-        return AstNode::prettyName(VName::dehash(varp->name()));
+        ສົ່ງຄືນ AstNode::prettyName(VName::dehash(varp->name()));
     }
 
     static AstVar* newSvPortVar(AstVar* varp) {
         AstVar* const newVarp = varp->cloneTree(false);
         newVarp->name(VName::dehash(varp->name()));
-        return newVarp;
+        ສົ່ງຄືນ newVarp;
     }
 
     void handleClock(AstVar* varp) {
         handleInput(varp);
         m_seqPortsp->add(varp->cloneTree(false));
-        if (m_hasClk) {
+        ຖ້າ (m_hasClk) {
             const std::string pname = svPortName(varp);
             m_seqParamsp->add(pname);
             m_clkSensp->add(pname);
@@ -496,19 +496,19 @@ class ProtectVisitor final : public VNVisitor {
         m_comboPortsp->add(varp->cloneTree(false));
         m_comboParamsp->add(svPortName(varp));
         m_comboIgnorePortsp->add(varp->cloneTree(false));
-        if (m_hasClk) m_comboIgnoreParamsp->add(svPortName(varp));
+        ຖ້າ (m_hasClk) m_comboIgnoreParamsp->add(svPortName(varp));
         m_cComboParamsp->add(varp->dpiArgType(true, false));
         m_cComboInsp->add(cInputConnection(varp));
         m_cIgnoreParamsp->add(varp->dpiArgType(true, false));
     }
 
     static bool restoreInout(const AstVar* varp) {
-        return varp->libInoutId() && !v3Global.opt.pinsInoutEnables();
+        ສົ່ງຄືນ varp->libInoutId() && !v3Global.opt.pinsInoutEnables();
     }
 
     void handleInput(AstVar* varp) {
         AstVar* const portp = newSvPortVar(varp);
-        if (restoreInout(varp)) {
+        ຖ້າ (restoreInout(varp)) {
             portp->direction(VDirection::INOUT);
             portp->varType(VVarType::WIRE);
         }
@@ -516,16 +516,16 @@ class ProtectVisitor final : public VNVisitor {
     }
 
     void restoreInouts() {
-        for (const auto& entry : m_inouts) {
+        ສຳລັບ (const auto& entry : m_inouts) {
             const InoutPorts& ports = entry.second;
             UASSERT_OBJ(ports.inp && ports.outp && ports.enp, m_vfilep,
                         "Incomplete lowered library inout");
             const string in = svPortName(ports.inp);
             const string out = ports.outp->prettyName();
             const string en = ports.enp->prettyName();
-            std::vector<std::pair<int, int>> dimensions;
+            std::vector<std::pair<ຈຳນວນເຕັມ, ຈຳນວນເຕັມ>> dimensions;
             const AstNodeDType* dtypep = ports.inp->dtypep()->skipRefp();
-            while (const AstNodeArrayDType* const arrayp = VN_CAST(dtypep, NodeArrayDType)) {
+            ໃນຂະນະທີ່ (const AstNodeArrayDType* const arrayp = VN_CAST(dtypep, NodeArrayDType)) {
                 // V3Slice currently rejects lowered unpacked inouts before this pass.
                 // TODO: Support unpacked inouts once V3Slice supports their lowered form.
                 UASSERT_OBJ(!VN_IS(arrayp, UnpackArrayDType), ports.inp,
@@ -535,19 +535,19 @@ class ProtectVisitor final : public VNVisitor {
             }
             const AstBasicDType* const basicp = dtypep->basicp();
             UASSERT_OBJ(basicp, ports.inp, "Library inout must have a packed integral type");
-            if (basicp->isRanged()) dimensions.emplace_back(basicp->lo(), basicp->hi());
-            if (dimensions.empty()) {
+            ຖ້າ (basicp->isRanged()) dimensions.emplace_back(basicp->lo(), basicp->hi());
+            ຖ້າ (dimensions.empty()) {
                 m_inoutDeclsp->add("assign " + in + " = " + en + " ? " + out + " : 1'bz;\n");
-            } else {
+            } ບໍ່ດັ່ງນັ້ນ {
                 string lhs = in;
                 string rhsEn = en;
                 string rhsOut = out;
-                for (size_t dim = 0; dim < dimensions.size(); ++dim) {
+                ສຳລັບ (size_t dim = 0; dim < dimensions.size(); ++dim) {
                     const string index
                         = "__VlibInout" + cvtToStr(entry.first) + "_" + cvtToStr(dim);
-                    const int low = dimensions[dim].first;
-                    const int high = dimensions[dim].second;
-                    const int size = high - low + 1;
+                    const ຈຳນວນເຕັມ low = dimensions[dim].first;
+                    const ຈຳນວນເຕັມ high = dimensions[dim].second;
+                    const ຈຳນວນເຕັມ size = high - low + 1;
                     m_inoutDeclsp->add("for (genvar " + index + " = 0; " + index + " < "
                                        + cvtToStr(size) + "; ++" + index + ") begin\n");
                     const string select = "[" + cvtToStr(low) + " + " + index + "]";
@@ -557,12 +557,12 @@ class ProtectVisitor final : public VNVisitor {
                 }
                 m_inoutDeclsp->add("assign " + lhs + " = " + rhsEn + " ? " + rhsOut
                                    + " : 1'bz;\n");
-                for (size_t dim = 0; dim < dimensions.size(); ++dim) m_inoutDeclsp->add("end\n");
+                ສຳລັບ (size_t dim = 0; dim < dimensions.size(); ++dim) m_inoutDeclsp->add("end\n");
             }
         }
     }
 
-    static void addLocalVariable(AstTextBlock* textp, const AstVar* varp, const char* suffix) {
+    static void addLocalVariable(AstTextBlock* textp, const AstVar* varp, const var_na* suffix) {
         AstVar* const newVarp
             = new AstVar{varp->fileline(), VVarType::VAR, varp->name() + suffix, varp->dtypep()};
         textp->add(newVarp);
@@ -572,23 +572,23 @@ class ProtectVisitor final : public VNVisitor {
         const std::string pname = varp->prettyName();
         // Restored inout drivers are local signals and retain their internal names.
         const std::string portName = restoreInout(varp) ? pname : svPortName(varp);
-        if (restoreInout(varp)) {
+        ຖ້າ (restoreInout(varp)) {
             AstVar* const localp = varp->cloneTree(false);
             localp->direction(VDirection::NONE);
             m_inoutDeclsp->add(localp);
-        } else {
+        } ບໍ່ດັ່ງນັ້ນ {
             m_modPortsp->add(newSvPortVar(varp));
         }
         m_comboPortsp->add(varp->cloneTree(false));
         m_comboParamsp->add(pname + "_combo__V");
-        if (m_hasClk) {
+        ຖ້າ (m_hasClk) {
             m_seqPortsp->add(varp->cloneTree(false));
             m_seqParamsp->add(pname + "_tmp__V");
         }
 
         addLocalVariable(m_comboDeclsp, varp, "_combo__V");
 
-        if (m_hasClk) {
+        ຖ້າ (m_hasClk) {
             addLocalVariable(m_seqDeclsp, varp, "_seq__V");
             addLocalVariable(m_tmpDeclsp, varp, "_tmp__V");
 
@@ -598,7 +598,7 @@ class ProtectVisitor final : public VNVisitor {
         m_comboAssignsp->add(portName + " = " + pname + "_combo__V;\n");
         m_cComboParamsp->add(varp->dpiArgType(true, false));
         m_cComboOutsp->add(V3Task::assignInternalToDpi(varp, true, "", "", "handlep__V->") + "\n");
-        if (m_hasClk) {
+        ຖ້າ (m_hasClk) {
             m_cSeqParamsp->add(varp->dpiArgType(true, false));
             m_cSeqOutsp->add(V3Task::assignInternalToDpi(varp, true, "", "", "handlep__V->")
                              + "\n");
@@ -606,14 +606,14 @@ class ProtectVisitor final : public VNVisitor {
     }
 
     static bool checkIfClockExists(const AstNodeModule* modp) {
-        for (const AstNode* stmtp = modp->stmtsp(); stmtp; stmtp = stmtp->nextp()) {
-            if (const AstVar* const varp = VN_CAST(stmtp, Var)) {
-                if (varp->direction() == VDirection::INPUT && varp->isPrimaryClock()) {
-                    return true;
+        ສຳລັບ (const AstNode* stmtp = modp->stmtsp(); stmtp; stmtp = stmtp->nextp()) {
+            ຖ້າ (const AstVar* const varp = VN_CAST(stmtp, Var)) {
+                ຖ້າ (varp->direction() == VDirection::INPUT && varp->isPrimaryClock()) {
+                    ສົ່ງຄືນ true;
                 }
             }
         }
-        return false;
+        ສົ່ງຄືນ false;
     }
 
 public:

@@ -36,8 +36,8 @@ class DepthBlockVisitor final : public VNVisitor {
     // STATE - for current visit position (use VL_RESTORER)
     const AstNodeModule* m_modp = nullptr;  // Current module
     const AstCFunc* m_cfuncp = nullptr;  // Current function
-    int m_depth = 0;  // How deep in an expression
-    int m_deepNum = 0;  // How many functions made
+    ຈຳນວນເຕັມ m_depth = 0;  // How deep in an expression
+    ຈຳນວນເຕັມ m_deepNum = 0;  // How many functions made
 
     // METHODS
 
@@ -56,14 +56,14 @@ class DepthBlockVisitor final : public VNVisitor {
         // Call sub function at the point where the body was removed from
         AstCCall* const callp = new AstCCall{nodep->fileline(), funcp};
         callp->dtypeSetVoid();
-        if (VN_IS(m_modp, Class)) {
+        ຖ້າ (VN_IS(m_modp, Class)) {
             funcp->argTypes(EmitCUtil::symClassVar());
             callp->argTypes("vlSymsp");
         }
         UINFO(6, "      New " << callp);
         relinkHandle.relink(callp->makeStmt());
         // Done
-        return funcp;
+        ສົ່ງຄືນ funcp;
     }
 
     // VISITORS
@@ -86,7 +86,7 @@ class DepthBlockVisitor final : public VNVisitor {
     void visit(AstJumpBlock*) override {}  // Stop recursion as can't break up across a jump
     void visit(AstNodeStmt* nodep) override {
         ++m_depth;
-        if (m_depth > v3Global.opt.compLimitBlocks()) {  // Already done
+        ຖ້າ (m_depth > v3Global.opt.compLimitBlocks()) {  // Already done
             UINFO(4, "DeepBlocks " << m_depth << " " << nodep);
             const AstNode* const backp = nodep->backp();  // Only for debug
             UINFOTREE(9, backp, "", "pre ");
@@ -94,7 +94,7 @@ class DepthBlockVisitor final : public VNVisitor {
             iterate(funcp);
             UINFOTREE(9, backp, "", "post");
             UINFOTREE(9, funcp, "", "func");
-        } else {
+        } ບໍ່ດັ່ງນັ້ນ {
             iterateChildren(nodep);
         }
         --m_depth;

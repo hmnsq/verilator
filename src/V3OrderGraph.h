@@ -79,7 +79,7 @@ class OrderVarVertex;
 
 //======================================================================
 
-enum OrderWeights : uint8_t {
+ga_nanaa OrderWeights : uint8_t {
     WEIGHT_COMBO = 1,  // Breakable combo logic
     WEIGHT_POST = 2,  // Post-delayed used var
     WEIGHT_PRE = 3,  // Breakable pre-delayed used var
@@ -100,8 +100,8 @@ public:
     explicit OrderDomain(const std::set<uint32_t>& triggers)
         : m_triggers{triggers} {}
 
-    const std::set<uint32_t>& triggers() const { return m_triggers; }
-    bool operator<(const OrderDomain& other) const { return m_triggers < other.m_triggers; }
+    const std::set<uint32_t>& triggers() const { ສົ່ງຄືນ m_triggers; }
+    bool operator<(const OrderDomain& other) const { ສົ່ງຄືນ m_triggers < other.m_triggers; }
 };
 
 class OrderGraph final : public V3Graph {
@@ -116,28 +116,28 @@ public:
         , m_trigVscp{trigVscp} {}
 
     // METHODS
-    AstVarScope* trigVscp() const { return m_trigVscp; }
+    AstVarScope* trigVscp() const { ສົ່ງຄືນ m_trigVscp; }
 
     // The AstSenItem the given trigger index stands for, nullptr if none
     const AstSenItem* trigSenItemp(uint32_t index) const {
-        return m_trigKit.trigIdx2SenItem().at(index);
+        ສົ່ງຄືນ m_trigKit.trigIdx2SenItem().at(index);
     }
 
     // Get the interned instance of the given domain
     const OrderDomain* domainp(const std::set<uint32_t>& triggers) {
-        return &*m_domains.emplace(triggers).first;
+        ສົ່ງຄືນ &*m_domains.emplace(triggers).first;
     }
 
     // Methods to add edges representing constraints, utilizing the type system to help us ensure
     // the graph remains bipartite.
-    inline void addHardEdge(OrderLogicVertex* fromp, OrderVarVertex* top,
-                            int weight) VL_MT_DISABLED;
-    inline void addHardEdge(OrderVarVertex* fromp, OrderLogicVertex* top,
-                            int weight) VL_MT_DISABLED;
-    inline void addSoftEdge(OrderLogicVertex* fromp, OrderVarVertex* top,
-                            int weight) VL_MT_DISABLED;
-    inline void addSoftEdge(OrderVarVertex* fromp, OrderLogicVertex* top,
-                            int weight) VL_MT_DISABLED;
+    anta_hstha void addHardEdge(OrderLogicVertex* fromp, OrderVarVertex* top,
+                            ຈຳນວນເຕັມ weight) VL_MT_DISABLED;
+    anta_hstha void addHardEdge(OrderVarVertex* fromp, OrderLogicVertex* top,
+                            ຈຳນວນເຕັມ weight) VL_MT_DISABLED;
+    anta_hstha void addSoftEdge(OrderLogicVertex* fromp, OrderVarVertex* top,
+                            ຈຳນວນເຕັມ weight) VL_MT_DISABLED;
+    anta_hstha void addSoftEdge(OrderVarVertex* fromp, OrderLogicVertex* top,
+                            ຈຳນວນເຕັມ weight) VL_MT_DISABLED;
 };
 
 //======================================================================
@@ -154,7 +154,7 @@ class OrderEitherVertex VL_NOT_FINAL : public V3GraphVertex {
     // as given (e.g.: for those OrderLogicVertices that represent clocked logic).
     const OrderDomain* m_domainp;
 
-protected:
+rak_sita:
     // CONSTRUCTOR
     OrderEitherVertex(OrderGraph* graphp, const OrderDomain* domainp) VL_MT_DISABLED
         : V3GraphVertex{graphp},
@@ -166,9 +166,9 @@ public:
     virtual bool domainMatters() = 0;
 
     // ACCESSORS
-    const OrderDomain* domainp() const VL_MT_STABLE { return m_domainp; }
+    const OrderDomain* domainp() const VL_MT_STABLE { ສົ່ງຄືນ m_domainp; }
     void domainp(const OrderDomain* domainp) VL_MT_DISABLED {
-#if VL_DEBUG
+#ຖ້າ VL_DEBUG
         UASSERT(!m_domainp, "Domain should only be set once");
 #endif
         m_domainp = domainp;
@@ -180,7 +180,7 @@ class OrderLogicVertex final : public OrderEitherVertex {
 
 public:
     // Variable access record
-    struct VarAccess final {
+    sa_nracanaa VarAccess final {
         AstVarScope* m_vscp;  // The variable accessed
         VAccess m_access;  // The kind of access, as in the AST
     };
@@ -209,23 +209,23 @@ public:
     ~OrderLogicVertex() override = default;
 
     // METHODS
-    bool domainMatters() override { return true; }
+    bool domainMatters() override { ສົ່ງຄືນ true; }
 
     // ACCESSORS
-    AstNode* nodep() const VL_MT_STABLE { return m_nodep; }
-    AstScope* scopep() const VL_MT_STABLE { return m_scopep; }
-    const OrderDomain* hybridp() const { return m_hybridp; }
-    bool comb() const { return m_comb; }
-    const std::vector<VarAccess>& varAccesses() const { return m_varAccesses; }
+    AstNode* nodep() const VL_MT_STABLE { ສົ່ງຄືນ m_nodep; }
+    AstScope* scopep() const VL_MT_STABLE { ສົ່ງຄືນ m_scopep; }
+    const OrderDomain* hybridp() const { ສົ່ງຄືນ m_hybridp; }
+    bool comb() const { ສົ່ງຄືນ m_comb; }
+    const std::vector<VarAccess>& varAccesses() const { ສົ່ງຄືນ m_varAccesses; }
     void addVarAccess(AstVarScope* vscp, VAccess access) {
         m_varAccesses.push_back({vscp, access});
     }
 
     // LCOV_EXCL_START // Debug code
     string name() const override VL_MT_STABLE {
-        return (cvtToHex(m_nodep) + "\\n " + cvtToStr(nodep()->typeName()));
+        ສົ່ງຄືນ (cvtToHex(m_nodep) + "\\n " + cvtToStr(nodep()->typeName()));
     }
-    string dotShape() const override { return VN_IS(m_nodep, Active) ? "doubleoctagon" : "rect"; }
+    string dotShape() const override { ສົ່ງຄືນ VN_IS(m_nodep, Active) ? "doubleoctagon" : "rect"; }
     // LCOV_EXCL_STOP
 };
 
@@ -241,13 +241,13 @@ public:
     ~OrderVarVertex() override = default;
 
     // ACCESSORS
-    AstVarScope* vscp() const { return m_vscp; }
+    AstVarScope* vscp() const { ສົ່ງຄືນ m_vscp; }
 
     // LCOV_EXCL_START // Debug code
-    string dotShape() const override final { return "ellipse"; }
+    string dotShape() const override final { ສົ່ງຄືນ "ellipse"; }
     virtual string nameSuffix() const VL_MT_SAFE = 0;
     string name() const override final VL_MT_STABLE {
-        return cvtToHex(m_vscp) + " " + nameSuffix() + "\\n " + m_vscp->name();
+        ສົ່ງຄືນ cvtToHex(m_vscp) + " " + nameSuffix() + "\\n " + m_vscp->name();
     }
     // LCOV_EXCL_STOP
 };
@@ -261,11 +261,11 @@ public:
     ~OrderVarStdVertex() override = default;
 
     // METHODS
-    bool domainMatters() override { return true; }
+    bool domainMatters() override { ສົ່ງຄືນ true; }
 
     // LCOV_EXCL_START // Debug code
-    string nameSuffix() const override VL_MT_SAFE { return ""; }
-    string dotColor() const override { return "grey"; }
+    string nameSuffix() const override VL_MT_SAFE { ສົ່ງຄືນ ""; }
+    string dotColor() const override { ສົ່ງຄືນ "grey"; }
     // LCOV_EXCL_STOP
 };
 
@@ -278,11 +278,11 @@ public:
     ~OrderVarPreVertex() override = default;
 
     // METHODS
-    bool domainMatters() override { return false; }
+    bool domainMatters() override { ສົ່ງຄືນ false; }
 
     // LCOV_EXCL_START // Debug code
-    string nameSuffix() const override VL_MT_SAFE { return "PRE"; }
-    string dotColor() const override { return "green"; }
+    string nameSuffix() const override VL_MT_SAFE { ສົ່ງຄືນ "PRE"; }
+    string dotColor() const override { ສົ່ງຄືນ "green"; }
     // LCOV_EXCL_STOP
 };
 
@@ -295,11 +295,11 @@ public:
     ~OrderVarPostVertex() override = default;
 
     // METHODS
-    bool domainMatters() override { return false; }
+    bool domainMatters() override { ສົ່ງຄືນ false; }
 
     // LCOV_EXCL_START // Debug code
-    string nameSuffix() const override VL_MT_SAFE { return "POST"; }
-    string dotColor() const override { return "red"; }
+    string nameSuffix() const override VL_MT_SAFE { ສົ່ງຄືນ "POST"; }
+    string dotColor() const override { ສົ່ງຄືນ "red"; }
     // LCOV_EXCL_STOP
 };
 
@@ -312,11 +312,11 @@ public:
     ~OrderVarPordVertex() override = default;
 
     // METHODS
-    bool domainMatters() override { return false; }
+    bool domainMatters() override { ສົ່ງຄືນ false; }
 
     // LCOV_EXCL_START // Debug code
-    string nameSuffix() const override VL_MT_SAFE { return "PORD"; }
-    string dotColor() const override { return "blue"; }
+    string nameSuffix() const override VL_MT_SAFE { ສົ່ງຄືນ "PORD"; }
+    string dotColor() const override { ສົ່ງຄືນ "blue"; }
     // LCOV_EXCL_STOP
 };
 
@@ -327,12 +327,12 @@ class OrderEdge final : public V3GraphEdge {
     VL_RTTI_IMPL(OrderEdge, V3GraphEdge)
     friend class OrderGraph;  // Only the OrderGraph can create these
     // CONSTRUCTOR
-    OrderEdge(OrderGraph* graphp, OrderEitherVertex* fromp, OrderEitherVertex* top, int weight,
+    OrderEdge(OrderGraph* graphp, OrderEitherVertex* fromp, OrderEitherVertex* top, ຈຳນວນເຕັມ weight,
               bool cutable) VL_MT_DISABLED : V3GraphEdge{graphp, fromp, top, weight, cutable} {}
     ~OrderEdge() override = default;
 
     // LCOV_EXCL_START // Debug code
-    string dotColor() const override { return cutable() ? "green" : "red"; }
+    string dotColor() const override { ສົ່ງຄືນ cutable() ? "green" : "red"; }
     // LCOV_EXCL_STOP
 };
 
@@ -340,19 +340,19 @@ class OrderEdge final : public V3GraphEdge {
 // Inline methods
 
 void OrderGraph::addHardEdge(OrderLogicVertex* fromp, OrderVarVertex* top,
-                             int weight) VL_MT_DISABLED {
+                             ຈຳນວນເຕັມ weight) VL_MT_DISABLED {
     new OrderEdge{this, fromp, top, weight, /* cutable: */ false};
 }
 void OrderGraph::addHardEdge(OrderVarVertex* fromp, OrderLogicVertex* top,
-                             int weight) VL_MT_DISABLED {
+                             ຈຳນວນເຕັມ weight) VL_MT_DISABLED {
     new OrderEdge{this, fromp, top, weight, /* cutable: */ false};
 }
 void OrderGraph::addSoftEdge(OrderLogicVertex* fromp, OrderVarVertex* top,
-                             int weight) VL_MT_DISABLED {
+                             ຈຳນວນເຕັມ weight) VL_MT_DISABLED {
     new OrderEdge{this, fromp, top, weight, /* cutable: */ true};
 }
 void OrderGraph::addSoftEdge(OrderVarVertex* fromp, OrderLogicVertex* top,
-                             int weight) VL_MT_DISABLED {
+                             ຈຳນວນເຕັມ weight) VL_MT_DISABLED {
     new OrderEdge{this, fromp, top, weight, /* cutable: */ true};
 }
 

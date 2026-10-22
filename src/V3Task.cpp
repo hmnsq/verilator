@@ -51,10 +51,10 @@ public:
     explicit TaskBaseVertex(V3Graph* graphp)
         : V3GraphVertex{graphp} {}
     ~TaskBaseVertex() override = default;
-    bool pure() const { return m_impurep == nullptr; }
-    AstNode* impureNode() const { return m_impurep; }
+    bool pure() const { ສົ່ງຄືນ m_impurep == nullptr; }
+    AstNode* impureNode() const { ສົ່ງຄືນ m_impurep; }
     void impure(AstNode* nodep) { m_impurep = nodep; }
-    bool noInline() const { return m_noInline; }
+    bool noInline() const { ສົ່ງຄືນ m_noInline; }
     void noInline(bool flag) { m_noInline = flag; }
 };
 
@@ -70,12 +70,12 @@ public:
         : TaskBaseVertex{graphp}
         , m_nodep{nodep} {}
     ~TaskFTaskVertex() override = default;
-    AstNodeFTask* nodep() const VL_MT_STABLE { return m_nodep; }
-    string name() const override VL_MT_STABLE { return nodep()->name(); }
-    string dotColor() const override { return pure() ? "black" : "red"; }
-    AstCFunc* cFuncp() const { return m_cFuncp; }
+    AstNodeFTask* nodep() const VL_MT_STABLE { ສົ່ງຄືນ m_nodep; }
+    string name() const override VL_MT_STABLE { ສົ່ງຄືນ nodep()->name(); }
+    string dotColor() const override { ສົ່ງຄືນ pure() ? "black" : "red"; }
+    AstCFunc* cFuncp() const { ສົ່ງຄືນ m_cFuncp; }
     void cFuncp(AstCFunc* nodep) { m_cFuncp = nodep; }
-    bool needsNonInlineCFunc() const { return m_needsNonInlineCFunc; }
+    bool needsNonInlineCFunc() const { ສົ່ງຄືນ m_needsNonInlineCFunc; }
     void needsNonInlineCFunc(bool flag) { m_needsNonInlineCFunc = flag; }
 };
 
@@ -86,8 +86,8 @@ public:
     explicit TaskCodeVertex(V3Graph* graphp)
         : TaskBaseVertex{graphp} {}
     ~TaskCodeVertex() override = default;
-    string name() const override VL_MT_STABLE { return "*CODE*"; }
-    string dotColor() const override { return "green"; }
+    string name() const override VL_MT_STABLE { ສົ່ງຄືນ "*CODE*"; }
+    string dotColor() const override { ສົ່ງຄືນ "green"; }
 };
 
 class TaskEdge final : public V3GraphEdge {
@@ -96,7 +96,7 @@ public:
     TaskEdge(V3Graph* graphp, TaskBaseVertex* fromp, TaskBaseVertex* top)
         : V3GraphEdge{graphp, fromp, top, 1, false} {}
     ~TaskEdge() override = default;
-    string dotLabel() const override { return "w" + cvtToStr(weight()); }
+    string dotLabel() const override { ສົ່ງຄືນ "w" + cvtToStr(weight()); }
 };
 
 //######################################################################
@@ -128,66 +128,66 @@ public:
     // METHODS
     static bool isVirtualIfaceMethodCall(const AstNodeFTaskRef* refp) {
         const AstMethodCall* const mrefp = VN_CAST(refp, MethodCall);
-        if (!mrefp) return false;
+        ຖ້າ (!mrefp) ສົ່ງຄືນ false;
         const AstNodeExpr* const fromp = mrefp->fromp();
-        if (!fromp || !fromp->dtypep()) return false;
+        ຖ້າ (!fromp || !fromp->dtypep()) ສົ່ງຄືນ false;
         const AstIfaceRefDType* const ifrefp = VN_CAST(fromp->dtypep()->skipRefp(), IfaceRefDType);
-        return ifrefp && ifrefp->isVirtual();
+        ສົ່ງຄືນ ifrefp && ifrefp->isVirtual();
     }
     static bool isIfaceFTaskScope(const AstScope* scopep) {
-        return scopep && VN_IS(scopep->modp(), Iface);
+        ສົ່ງຄືນ scopep && VN_IS(scopep->modp(), Iface);
     }
     AstScope* getScope(AstNodeFTask* nodep) {
         AstScope* const scopep = VN_AS(nodep->user3p(), Scope);
         UASSERT_OBJ(scopep, nodep, "No scope for function");
-        return scopep;
+        ສົ່ງຄືນ scopep;
     }
     AstVarScope* findVarScope(AstScope* scopep, AstVar* nodep) {
         const auto iter = m_varToScopeMap.find(std::make_pair(scopep, nodep));
         UASSERT_OBJ(iter != m_varToScopeMap.end(), nodep, "No scope for var");
-        return iter->second;
+        ສົ່ງຄືນ iter->second;
     }
     AstClass* getClassp(AstNodeFTask* nodep) {
         AstClass* const classp = m_funcToClassMap[nodep];
         UASSERT_OBJ(classp, nodep, "No class for ctor func");
-        return classp;
+        ສົ່ງຄືນ classp;
     }
     void remapFuncClassp(AstNodeFTask* nodep, AstNodeFTask* newp) {
         m_funcToClassMap[newp] = getClassp(nodep);
     }
-    bool ftaskNoInline(AstNodeFTask* nodep) { return getFTaskVertex(nodep)->noInline(); }
+    bool ftaskNoInline(AstNodeFTask* nodep) { ສົ່ງຄືນ getFTaskVertex(nodep)->noInline(); }
     bool ftaskNeedsNonInlineCFunc(AstNodeFTask* nodep) {
-        return getFTaskVertex(nodep)->needsNonInlineCFunc();
+        ສົ່ງຄືນ getFTaskVertex(nodep)->needsNonInlineCFunc();
     }
-    AstCFunc* ftaskCFuncp(AstNodeFTask* nodep) { return getFTaskVertex(nodep)->cFuncp(); }
+    AstCFunc* ftaskCFuncp(AstNodeFTask* nodep) { ສົ່ງຄືນ getFTaskVertex(nodep)->cFuncp(); }
     void ftaskCFuncp(AstNodeFTask* nodep, AstCFunc* cfuncp) {
         getFTaskVertex(nodep)->cFuncp(cfuncp);
     }
     // Returns pointer to node that makes the given FTask impure
-    AstNode* checkImpure(AstNodeFTask* nodep) { return getFTaskVertex(nodep)->impureNode(); }
+    AstNode* checkImpure(AstNodeFTask* nodep) { ສົ່ງຄືນ getFTaskVertex(nodep)->impureNode(); }
 
 private:
     TaskFTaskVertex* getFTaskVertex(AstNodeFTask* nodep) {
-        if (!nodep->user4p()) nodep->user4p(new TaskFTaskVertex{&m_callGraph, nodep});
-        return static_cast<TaskFTaskVertex*>(nodep->user4u().toGraphVertex());
+        ຖ້າ (!nodep->user4p()) nodep->user4p(new TaskFTaskVertex{&m_callGraph, nodep});
+        ສົ່ງຄືນ static_cast<TaskFTaskVertex*>(nodep->user4u().toGraphVertex());
     }
 
     void propagateImpureReason() {
         std::vector<TaskFTaskVertex*> workList;
         // Gather all impure FTask vertices
-        for (V3GraphVertex& vtx : m_callGraph.vertices()) {
-            if (TaskFTaskVertex* const ftVtxp = vtx.cast<TaskFTaskVertex>()) {
-                if (!ftVtxp->pure()) workList.emplace_back(ftVtxp);
+        ສຳລັບ (V3GraphVertex& vtx : m_callGraph.vertices()) {
+            ຖ້າ (TaskFTaskVertex* const ftVtxp = vtx.cast<TaskFTaskVertex>()) {
+                ຖ້າ (!ftVtxp->pure()) workList.emplace_back(ftVtxp);
             }
         }
         // Mark every pure caller as impure and enqueue them - this propagates impureness
-        while (!workList.empty()) {
+        ໃນຂະນະທີ່ (!workList.empty()) {
             TaskFTaskVertex* const calleep = workList.back();
             workList.pop_back();
             UASSERT_OBJ(!calleep->pure(), calleep->nodep(), "Should not enqueue pure vertex");
-            for (V3GraphEdge& edge : calleep->inEdges()) {
-                if (TaskFTaskVertex* const callerp = edge.fromp()->cast<TaskFTaskVertex>()) {
-                    if (!callerp->pure()) continue;  // Already processed or on workList
+            ສຳລັບ (V3GraphEdge& edge : calleep->inEdges()) {
+                ຖ້າ (TaskFTaskVertex* const callerp = edge.fromp()->cast<TaskFTaskVertex>()) {
+                    ຖ້າ (!callerp->pure()) continue;  // Already processed or on workList
                     callerp->impure(calleep->impureNode());
                     workList.emplace_back(callerp);
                 }
@@ -196,30 +196,30 @@ private:
     }
 
     void decideInlining() {
-        for (V3GraphVertex& vtx : m_callGraph.vertices()) {
+        ສຳລັບ (V3GraphVertex& vtx : m_callGraph.vertices()) {
             TaskFTaskVertex* const ftVtxp = vtx.cast<TaskFTaskVertex>();
-            if (!ftVtxp) continue;
+            ຖ້າ (!ftVtxp) continue;
             // Move on if already decided not to inline
-            if (ftVtxp->noInline()) continue;
+            ຖ້າ (ftVtxp->noInline()) continue;
             // If inlining blanked disabled, don't do it. Note this usually
             // results in large amounts of breakage so is mostly for testing.
-            if (!v3Global.opt.fInlineFuncs()) {
+            ຖ້າ (!v3Global.opt.fInlineFuncs()) {
                 ftVtxp->noInline(true);
                 continue;
             }
 
             // If eagerly inlining (historic - and still default - behaviour) then nothing to do
-            if (v3Global.opt.fInlineFuncsEager()) continue;
+            ຖ້າ (v3Global.opt.fInlineFuncsEager()) continue;
 
             AstNodeFTask* const ftaskp = ftVtxp->nodep();
             // We are relying on inlining of some internal functions for
             // functional corretness. Probably that's not a good thing?
-            if (!ftaskp->verilogFunction()) continue;
+            ຖ້າ (!ftaskp->verilogFunction()) continue;
             // Non-inlned public functions are a bit broken right now, so keep
             // inlining them (internal calls are inlined + keep public version)
-            if (ftaskp->taskPublic()) continue;
+            ຖ້າ (ftaskp->taskPublic()) continue;
             // If the function is pure, it's OK not to inline, so don't do it
-            if (ftVtxp->pure()) ftVtxp->noInline(true);
+            ຖ້າ (ftVtxp->pure()) ftVtxp->noInline(true);
         }
     }
 
@@ -229,10 +229,10 @@ private:
         // pointers to what scope the FTask is to be invoked under.
         // However, to create variables, we need to track the scopes involved.
         // Find all var->varscope mappings, for later cleanup
-        for (AstNode* stmtp = nodep->varsp(); stmtp; stmtp = stmtp->nextp()) {
-            if (AstVarScope* const vscp = VN_CAST(stmtp, VarScope)) {
+        ສຳລັບ (AstNode* stmtp = nodep->varsp(); stmtp; stmtp = stmtp->nextp()) {
+            ຖ້າ (AstVarScope* const vscp = VN_CAST(stmtp, VarScope)) {
                 AstVar* const varp = vscp->varp();
-                if (varp->isFuncLocal() || varp->isUsedLoopIdx()
+                ຖ້າ (varp->isFuncLocal() || varp->isUsedLoopIdx()
                     || varp->lifetime().isAutomatic()) {
                     UINFO(9, "   funcvsc " << vscp);
                     m_varToScopeMap.emplace(std::make_pair(nodep, varp), vscp);
@@ -240,8 +240,8 @@ private:
             }
         }
         // Likewise, all FTask->scope mappings
-        for (AstNode* stmtp = nodep->blocksp(); stmtp; stmtp = stmtp->nextp()) {
-            if (AstNodeFTask* const taskp = VN_CAST(stmtp, NodeFTask)) taskp->user3p(nodep);
+        ສຳລັບ (AstNode* stmtp = nodep->blocksp(); stmtp; stmtp = stmtp->nextp()) {
+            ຖ້າ (AstNodeFTask* const taskp = VN_CAST(stmtp, NodeFTask)) taskp->user3p(nodep);
         }
         iterateChildren(nodep);
     }
@@ -252,15 +252,15 @@ private:
         new TaskEdge{&m_callGraph, m_curVxp, taskVtxp};
         // Virtual-interface method calls dispatch through a runtime handle and
         // must not be inlined.
-        if (isVirtualIfaceMethodCall(nodep)) taskVtxp->needsNonInlineCFunc(true);
+        ຖ້າ (isVirtualIfaceMethodCall(nodep)) taskVtxp->needsNonInlineCFunc(true);
         // Do we have to disable inlining the function?
         const V3TaskConnects tconnects = V3Task::taskConnects(nodep, nodep->taskp()->stmtsp());
-        if (!taskVtxp->noInline()) {  // Else short-circuit below
-            for (const auto& itr : tconnects) {
+        ຖ້າ (!taskVtxp->noInline()) {  // Else short-circuit below
+            ສຳລັບ (const auto& itr : tconnects) {
                 const AstVar* const portp = itr.first;
                 const AstArg* const argp = itr.second;
-                if (const AstNodeExpr* const pinp = argp->exprp()) {
-                    if ((portp->isRef() || portp->isConstRef()) && !VN_IS(pinp, VarRef)) {
+                ຖ້າ (const AstNodeExpr* const pinp = argp->exprp()) {
+                    ຖ້າ ((portp->isRef() || portp->isConstRef()) && !VN_IS(pinp, VarRef)) {
                         UINFO(9, "No function inline due to ref " << pinp);
                         taskVtxp->noInline(true);
                     }
@@ -272,10 +272,10 @@ private:
         UINFO(9, "  TASK " << nodep);
         VL_RESTORER(m_curVxp);
         m_curVxp = getFTaskVertex(nodep);
-        if (nodep->dpiImport()) m_curVxp->noInline(true);
-        if (nodep->classMethod()) m_curVxp->noInline(true);  // Until V3Task supports it
-        if (nodep->recursive()) m_curVxp->noInline(true);
-        if (nodep->isConstructor()) {
+        ຖ້າ (nodep->dpiImport()) m_curVxp->noInline(true);
+        ຖ້າ (nodep->classMethod()) m_curVxp->noInline(true);  // Until V3Task supports it
+        ຖ້າ (nodep->recursive()) m_curVxp->noInline(true);
+        ຖ້າ (nodep->isConstructor()) {
             m_curVxp->noInline(true);
             m_ctorp = nodep;
             UASSERT_OBJ(m_classp, nodep, "Ctor not under class");
@@ -284,28 +284,28 @@ private:
         iterateChildren(nodep);
     }
     void visit(AstPragma* nodep) override {
-        if (nodep->pragType() == VPragmaType::NO_INLINE_TASK) {
+        ຖ້າ (nodep->pragType() == VPragmaType::NO_INLINE_TASK) {
             // Just mark for the next steps, and we're done with it.
             m_curVxp->noInline(true);
             VL_DO_DANGLING(nodep->unlinkFrBack()->deleteTree(), nodep);
-        } else {
+        } ບໍ່ດັ່ງນັ້ນ {
             iterateChildren(nodep);
         }
     }
     void visit(AstVar* nodep) override {
         VL_RESTORER(m_underPortVar);
-        if (nodep->isIO()) m_underPortVar = true;
+        ຖ້າ (nodep->isIO()) m_underPortVar = true;
         iterateChildren(nodep);
         nodep->user4p(m_curVxp);  // Remember what task it's under
     }
     void visit(AstVarRef* nodep) override {
         iterateChildren(nodep);
-        if (m_underPortVar) return;
+        ຖ້າ (m_underPortVar) ສົ່ງຄືນ;
         AstVar* const varp = nodep->varp();
         // Reading a constant pool entry does not depend on external runtime state.
-        if (nodep->access().isReadOnly() && varp->constPoolEntry()) return;
-        if (varp->user4u().toGraphVertex() != m_curVxp) {
-            if (m_curVxp->pure() && !varp->isXTemp() && !varp->isParam()) m_curVxp->impure(nodep);
+        ຖ້າ (nodep->access().isReadOnly() && varp->constPoolEntry()) ສົ່ງຄືນ;
+        ຖ້າ (varp->user4u().toGraphVertex() != m_curVxp) {
+            ຖ້າ (m_curVxp->pure() && !varp->isXTemp() && !varp->isParam()) m_curVxp->impure(nodep);
         }
     }
     void visit(AstClass* nodep) override {
@@ -320,8 +320,8 @@ private:
         }
         UASSERT_OBJ(m_ctorp, nodep, "class constructor missing");  // LinkDot always makes it
         AstNode* insertp = nullptr;
-        for (AstInitialAutomatic* initialp : m_initialps) {
-            if (AstNode* const movep = initialp->stmtsp()) {
+        ສຳລັບ (AstInitialAutomatic* initialp : m_initialps) {
+            ຖ້າ (AstNode* const movep = initialp->stmtsp()) {
                 movep->unlinkFrBackWithNext();
                 // Next InitialAutomatic must go in order after what we inserted
                 insertp = AstNode::addNextNull(insertp, movep);
@@ -348,7 +348,7 @@ public:
         m_callGraph.removeRedundantEdgesSum(&TaskEdge::followAlwaysTrue);
         propagateImpureReason();
         decideInlining();
-        if (dumpGraphLevel()) m_callGraph.dumpDotFilePrefixed("task_call");
+        ຖ້າ (dumpGraphLevel()) m_callGraph.dumpDotFilePrefixed("task_call");
     }
     ~TaskStateVisitor() override = default;
     VL_UNCOPYABLE(TaskStateVisitor);
@@ -357,13 +357,13 @@ public:
 //######################################################################
 // DPI related utility functions
 
-struct TaskDpiUtils final {
+sa_nracanaa TaskDpiUtils final {
     // Returns a vector of ('elements', 'stride') pairs for each unpacked dimension
-    static std::vector<std::pair<int, int>> unpackDimsAndStrides(AstVar* varp) {
+    static std::vector<std::pair<ຈຳນວນເຕັມ, ຈຳນວນເຕັມ>> unpackDimsAndStrides(AstVar* varp) {
         AstNodeDType* const dtypep = varp->dtypep()->skipRefp();
-        std::vector<std::pair<int, int>> dimStrides;
+        std::vector<std::pair<ຈຳນວນເຕັມ, ຈຳນວນເຕັມ>> dimStrides;
         AstUnpackArrayDType* const unpackp = VN_CAST(dtypep->skipRefp(), UnpackArrayDType);
-        if (!unpackp) return dimStrides;
+        ຖ້າ (!unpackp) ສົ່ງຄືນ dimStrides;
 
         const std::vector<AstUnpackArrayDType*> dims = unpackp->unpackDimensions();
         const size_t nDims = dims.size();
@@ -372,11 +372,11 @@ struct TaskDpiUtils final {
         dimStrides[nDims - 1].first = dims.back()->elementsConst();
         dimStrides[nDims - 1].second = 1;
         // Rest are densly packed
-        for (ssize_t i = nDims - 2; i >= 0; --i) {
+        ສຳລັບ (ssize_t i = nDims - 2; i >= 0; --i) {
             dimStrides[i].first = dims[i]->elementsConst();
             dimStrides[i].second = dimStrides[i + 1].first * dimStrides[i + 1].second;
         }
-        return dimStrides;
+        ສົ່ງຄືນ dimStrides;
     }
     // Returns the prefix of a function-call like statement used to convert
     // from IEEE DPI data types to internal types, and a bool that is true
@@ -387,9 +387,9 @@ struct TaskDpiUtils final {
         const AstBasicDType* const basicp = dtypep->basicp();
 
         // DPI types using Primitive C types
-        if (basicp->keyword() == VBasicDTypeKwd::CHANDLE) return {"VL_CVT_VP_Q(", false};
-        if (basicp->keyword() == VBasicDTypeKwd::STRING) return {"VL_CVT_N_CSTR(", false};
-        if (basicp->isDpiPrimitive()) return {"(", false};
+        ຖ້າ (basicp->keyword() == VBasicDTypeKwd::CHANDLE) ສົ່ງຄືນ {"VL_CVT_VP_Q(", false};
+        ຖ້າ (basicp->keyword() == VBasicDTypeKwd::STRING) ສົ່ງຄືນ {"VL_CVT_N_CSTR(", false};
+        ຖ້າ (basicp->isDpiPrimitive()) ສົ່ງຄືນ {"(", false};
 
         // DPI types using svBitVecVal/svLogicVecVal
         UASSERT_OBJ(basicp->isDpiBitVec() || basicp->isDpiLogicVec(), dtypep,
@@ -397,12 +397,12 @@ struct TaskDpiUtils final {
 
         const std::string vecType = basicp->isDpiBitVec() ? "SVBV" : "SVLV";
         dtypep = dtypep->skipRefp();
-        const char sizeChar = dtypep->width() <= 8    ? 'C'
+        const var_na sizeChar = dtypep->width() <= 8    ? 'C'
                               : dtypep->width() <= 16 ? 'S'
                                                       : *dtypep->charIQWN();
         const std::string& size = std::to_string(dtypep->width());
         // cppcheck-suppress strPlusChar
-        return {"VL_SET_"s + sizeChar + "_" + vecType + "(" + size + ", ", true};
+        ສົ່ງຄືນ {"VL_SET_"s + sizeChar + "_" + vecType + "(" + size + ", ", true};
     }
 };
 
@@ -435,7 +435,7 @@ class TaskVisitor final : public VNVisitor {
     V3SharedTmps m_taskTmps{"__Vtask", VVarType::BLOCKTEMP};  // For task calls
     V3SharedTmps m_consArrayTmps{"__VconsArrayTemp", VVarType::BLOCKTEMP};  // For ConsArray args
     V3SharedTmps m_forceTmps{"__Vforcefuncout", VVarType::VAR};  // For calls in force statements
-    int m_unconVarNum = 0;  // Unique bad connection variable
+    ຈຳນວນເຕັມ m_unconVarNum = 0;  // Unique bad connection variable
 
     // STATE - across all visitors
     DpiCFuncs m_dpiNames;  // Map of all created DPI functions
@@ -451,7 +451,7 @@ class TaskVisitor final : public VNVisitor {
         funcp->addVarsp(newvarp);
         AstVarScope* const newvscp = new AstVarScope{funcp->fileline(), m_scopep, newvarp};
         m_scopep->addVarsp(newvscp);
-        return newvscp;
+        ສົ່ງຄືນ newvscp;
     }
     AstVarScope* createInputVar(AstCFunc* funcp, const string& name, VBasicDTypeKwd kwd) {
         AstVar* const newvarp
@@ -461,21 +461,21 @@ class TaskVisitor final : public VNVisitor {
         funcp->addArgsp(newvarp);
         AstVarScope* const newvscp = new AstVarScope{funcp->fileline(), m_scopep, newvarp};
         m_scopep->addVarsp(newvscp);
-        return newvscp;
+        ສົ່ງຄືນ newvscp;
     }
     static AstVarScope* constPoolTable(AstVar* paramp) {
         // Move array params in functions into constant pool, return the VarScope of the entry
         AstVarRef* const refp = V3ConstPool::find(VN_AS(paramp->valuep(), ConsArray));
         AstVarScope* const vscp = refp->varScopep();
         VL_DO_DANGLING(refp->deleteTree(), refp);
-        return vscp;
+        ສົ່ງຄືນ vscp;
     }
     // Create variable for 'invarp' of the call 'refp', named after the called task and 'suffix'
     AstVarScope* createVarScope(const AstNodeFTaskRef* refp, AstVar* invarp,
                                 const std::string& suffix) {
-        if (invarp->isParam() && VN_IS(invarp->valuep(), ConsArray)) {
-            return constPoolTable(invarp);
-        } else {
+        ຖ້າ (invarp->isParam() && VN_IS(invarp->valuep(), ConsArray)) {
+            ສົ່ງຄືນ constPoolTable(invarp);
+        } ບໍ່ດັ່ງນັ້ນ {
             // We could create under either the ref's scope or the ftask's scope.
             // It shouldn't matter, as they are only local variables.
             // We choose to do it under whichever called this function, which results
@@ -489,14 +489,14 @@ class TaskVisitor final : public VNVisitor {
             newvarp->funcLocal(false);
             newvarp->propagateAttrFrom(invarp);
             newvarp->isInternal(true);
-            return newvscp;
+            ສົ່ງຄືນ newvscp;
         }
     }
 
     // Replace varrefs with new var pointer
     void relink(AstNode* nodep) {
         nodep->foreachAndNext([](AstVarRef* refp) {
-            if (refp->varp()->user2p()) {  // It's being converted to an alias.
+            ຖ້າ (refp->varp()->user2p()) {  // It's being converted to an alias.
                 AstVarScope* const newvscp = VN_AS(refp->varp()->user2p(), VarScope);
                 refp->varScopep(newvscp);
                 refp->varp(refp->varScopep()->varp());
@@ -507,13 +507,13 @@ class TaskVisitor final : public VNVisitor {
     AstAssign* connectPortMakeInAssign(AstNodeExpr* pinp, AstVarScope* newvscp, bool pureCheck) {
         // Create input assignment to go in FRONT of function call
         AstNodeExpr* inPinp = pinp;
-        if (AstResizeLValue* sinPinp = VN_CAST(inPinp, ResizeLValue)) inPinp = sinPinp->lhsp();
+        ຖ້າ (AstResizeLValue* sinPinp = VN_CAST(inPinp, ResizeLValue)) inPinp = sinPinp->lhsp();
         AstNodeExpr* inPinClonep
             = pureCheck ? inPinp->cloneTreePure(true) : inPinp->cloneTree(true);
         // A reversed array is assigned by the left-to-right order of elements (IEEE 1800-2023 7.6)
         const AstUnpackArrayDType* const arrayp
             = VN_CAST(newvscp->dtypep()->skipRefp(), UnpackArrayDType);
-        if (arrayp && arrayp->isReverseOf(inPinClonep->dtypep())) {
+        ຖ້າ (arrayp && arrayp->isReverseOf(inPinClonep->dtypep())) {
             inPinClonep
                 = new AstCvtUnpackToUnpack{pinp->fileline(), inPinClonep, newvscp->dtypep()};
         }
@@ -521,45 +521,45 @@ class TaskVisitor final : public VNVisitor {
             pinp->fileline(), new AstVarRef{newvscp->fileline(), newvscp, VAccess::WRITE},
             inPinClonep};
         assp->fileline()->modifyWarnOff(V3ErrorCode::BLKSEQ, true);  // Ok if in <= block
-        return assp;
+        ສົ່ງຄືນ assp;
     }
     AstAssign* connectPortMakeOutAssign(AstVar* portp, AstNodeExpr* pinp, AstVarScope* newvscp,
                                         bool pureCheck) {
         // If needed, remap size of function to caller's output size
         AstNodeExpr* outPinp = pinp;
         AstNodeExpr* postRhsp = new AstVarRef{newvscp->fileline(), newvscp, VAccess::READ};
-        if (AstResizeLValue* soutPinp = VN_CAST(outPinp, ResizeLValue)) {
+        ຖ້າ (AstResizeLValue* soutPinp = VN_CAST(outPinp, ResizeLValue)) {
             outPinp = soutPinp->lhsp();
-            if (VN_IS(outPinp, RToIRoundS) || VN_IS(outPinp, RToIS)) {
+            ຖ້າ (VN_IS(outPinp, RToIRoundS) || VN_IS(outPinp, RToIS)) {
                 outPinp = VN_AS(outPinp, NodeUniop)->lhsp();
-                if (postRhsp->isSigned()) {
+                ຖ້າ (postRhsp->isSigned()) {
                     postRhsp = new AstISToRD{pinp->fileline(), postRhsp};
-                } else {
+                } ບໍ່ດັ່ງນັ້ນ {
                     postRhsp = new AstIToRD{pinp->fileline(), postRhsp};
                 }
-            } else {
-                if (AstNodeUniop* aoutPinp = VN_CAST(outPinp, Extend)) {
+            } ບໍ່ດັ່ງນັ້ນ {
+                ຖ້າ (AstNodeUniop* aoutPinp = VN_CAST(outPinp, Extend)) {
                     outPinp = aoutPinp->lhsp();
-                } else if (AstNodeUniop* aoutPinp = VN_CAST(outPinp, ExtendS)) {
+                } ບໍ່ດັ່ງນັ້ນ ຖ້າ (AstNodeUniop* aoutPinp = VN_CAST(outPinp, ExtendS)) {
                     outPinp = aoutPinp->lhsp();
-                } else if (AstSel* aoutPinp = VN_CAST(outPinp, Sel)) {
+                } ບໍ່ດັ່ງນັ້ນ ຖ້າ (AstSel* aoutPinp = VN_CAST(outPinp, Sel)) {
                     outPinp = aoutPinp->fromp();
-                } else {
+                } ບໍ່ດັ່ງນັ້ນ {
                     outPinp->v3fatalSrc("Inout pin resizing should have had extend or select");
                 }
-                if (outPinp->width() < portp->width()) {
+                ຖ້າ (outPinp->width() < portp->width()) {
                     postRhsp = new AstSel{pinp->fileline(), postRhsp, 0, pinp->width()};
-                } else {  // pin width > port width
-                    if (pinp->isSigned() && postRhsp->isSigned()) {
+                } ບໍ່ດັ່ງນັ້ນ {  // pin width > port width
+                    ຖ້າ (pinp->isSigned() && postRhsp->isSigned()) {
                         postRhsp = new AstExtendS{pinp->fileline(), postRhsp};
-                    } else {
+                    } ບໍ່ດັ່ງນັ້ນ {
                         postRhsp = new AstExtend{pinp->fileline(), postRhsp};
                     }
                 }
             }
             postRhsp->dtypeFrom(outPinp);
         }
-        if (VN_IS(outPinp, IToRD) || VN_IS(outPinp, ISToRD)) {
+        ຖ້າ (VN_IS(outPinp, IToRD) || VN_IS(outPinp, ISToRD)) {
             outPinp = VN_AS(outPinp, NodeUniop)->lhsp();
             postRhsp = new AstRToIRoundS{pinp->fileline(), postRhsp};
             postRhsp->dtypeFrom(outPinp);
@@ -570,18 +570,18 @@ class TaskVisitor final : public VNVisitor {
         // A reversed array is assigned by the left-to-right order of elements (IEEE 1800-2023 7.6)
         const AstUnpackArrayDType* const arrayp
             = VN_CAST(outPinp->dtypep()->skipRefp(), UnpackArrayDType);
-        if (arrayp && arrayp->isReverseOf(postRhsp->dtypep())) {
+        ຖ້າ (arrayp && arrayp->isReverseOf(postRhsp->dtypep())) {
             postRhsp = new AstCvtUnpackToUnpack{pinp->fileline(), postRhsp, outPinp->dtypep()};
         }
         AstAssign* const assp = new AstAssign{pinp->fileline(), outPinClonep, postRhsp};
         assp->fileline()->modifyWarnOff(V3ErrorCode::BLKSEQ, true);  // Ok if in <= block
-        return assp;
+        ສົ່ງຄືນ assp;
     }
 
     void changeAtWriteRecurse(AstNodeExpr* const exprp) {
         // Change nested at methods to writable variant
-        if (AstCMethodHard* const cMethodp = VN_CAST(exprp, CMethodHard)) {
-            if (cMethodp->method() == VCMethod::ARRAY_AT) {
+        ຖ້າ (AstCMethodHard* const cMethodp = VN_CAST(exprp, CMethodHard)) {
+            ຖ້າ (cMethodp->method() == VCMethod::ARRAY_AT) {
                 cMethodp->method(VCMethod::ARRAY_AT_WRITE);
             }
             changeAtWriteRecurse(cMethodp->fromp());
@@ -591,16 +591,16 @@ class TaskVisitor final : public VNVisitor {
     void connectPort(const AstNodeFTaskRef* refp, AstVar* portp, AstArg* argp, AstNode* beginp,
                      bool inlineTask) {
         AstNodeExpr* pinp = argp->exprp();
-        if (inlineTask) {
+        ຖ້າ (inlineTask) {
             portp->unlinkFrBack();
             pushDeletep(portp);  // Remove it from the clone (not original)
         }
-        if (!pinp) {
+        ຖ້າ (!pinp) {
             // Too few arguments in function call
-        } else {
+        } ບໍ່ດັ່ງນັ້ນ {
             UINFO(9, "     Port " << portp);
             UINFO(9, "      pin " << pinp);
-            if (portp->isWritable() && VN_IS(pinp, Const)) {
+            ຖ້າ (portp->isWritable() && VN_IS(pinp, Const)) {
                 pinp->v3error("Function/task " + portp->direction().prettyName()  // e.g. "output"
                               + " connected to constant instead of variable: "
                               + portp->prettyNameQ());
@@ -617,48 +617,48 @@ class TaskVisitor final : public VNVisitor {
                 VL_DO_DANGLING(pushDeletep(pinp), pinp);
                 pinp = repp;
             }
-            if (inlineTask) {
+            ຖ້າ (inlineTask) {
                 pushDeletep(pinp->unlinkFrBack());  // Cloned in assignment below
                 VL_DO_DANGLING(argp->unlinkFrBack()->deleteTree(), argp);  // Args no longer needed
             }
-            if (portp->isRef() || portp->isConstRef()) {
+            ຖ້າ (portp->isRef() || portp->isConstRef()) {
                 bool refArgOk = false;
-                if (VN_IS(pinp, VarRef) || VN_IS(pinp, MemberSel) || VN_IS(pinp, StructSel)
+                ຖ້າ (VN_IS(pinp, VarRef) || VN_IS(pinp, MemberSel) || VN_IS(pinp, StructSel)
                     || VN_IS(pinp, ArraySel)) {
                     refArgOk = true;
-                } else if (AstCMethodHard* const cMethodp = VN_CAST(pinp, CMethodHard)) {
-                    if (VN_IS(cMethodp->fromp()->dtypep()->skipRefp(), QueueDType)) {
+                } ບໍ່ດັ່ງນັ້ນ ຖ້າ (AstCMethodHard* const cMethodp = VN_CAST(pinp, CMethodHard)) {
+                    ຖ້າ (VN_IS(cMethodp->fromp()->dtypep()->skipRefp(), QueueDType)) {
                         refArgOk = cMethodp->method() == VCMethod::DYN_AT_WRITE_APPEND
                                    || cMethodp->method() == VCMethod::DYN_AT_WRITE_APPEND_BACK;
-                    } else {
+                    } ບໍ່ດັ່ງນັ້ນ {
                         changeAtWriteRecurse(cMethodp);
                         refArgOk = cMethodp->method() == VCMethod::ARRAY_AT_WRITE;
                     }
                 }
-                if (refArgOk) {
-                    if (AstVarRef* const varrefp = VN_CAST(pinp, VarRef)) {
+                ຖ້າ (refArgOk) {
+                    ຖ້າ (AstVarRef* const varrefp = VN_CAST(pinp, VarRef)) {
                         varrefp->access(VAccess::READWRITE);
                     }
-                } else {
+                } ບໍ່ດັ່ງນັ້ນ {
                     pinp->v3error("Function/task ref argument is not of allowed type");
                 }
-                if (inlineTask) {
-                    if (AstVarRef* const varrefp = VN_CAST(pinp, VarRef)) {
+                ຖ້າ (inlineTask) {
+                    ຖ້າ (AstVarRef* const varrefp = VN_CAST(pinp, VarRef)) {
                         // Connect to this exact variable
                         AstVarScope* const localVscp = varrefp->varScopep();
                         UASSERT_OBJ(localVscp, varrefp, "Null var scope");
                         portp->user2p(localVscp);
-                    } else {
+                    } ບໍ່ດັ່ງນັ້ນ {
                         pinp->v3fatalSrc("ref argument should have caused non-inline of function");
                     }
                 }
-            } else if (portp->isInout()) {
+            } ບໍ່ດັ່ງນັ້ນ ຖ້າ (portp->isInout()) {
                 // UINFOTREE(9, pinp, "", "pinrsize-");
 
                 AstVarScope* const newvscp
                     = createVarScope(refp, portp, "__" + portp->shortName());
                 portp->user2p(newvscp);
-                if (!inlineTask) {
+                ຖ້າ (!inlineTask) {
                     pinp->replaceWith(
                         new AstVarRef{newvscp->fileline(), newvscp, VAccess::READWRITE});
                     pushDeletep(pinp);  // Cloned by connectPortMakeInAssign
@@ -670,20 +670,20 @@ class TaskVisitor final : public VNVisitor {
                 AstAssign* const postassp = connectPortMakeOutAssign(portp, pinp, newvscp, true);
                 beginp->addNext(postassp);
                 // if (debug() >= 9) beginp->dumpTreeAndNext(cout, "-pinrsize-out- ");
-            } else if (portp->isWritable()) {
+            } ບໍ່ດັ່ງນັ້ນ ຖ້າ (portp->isWritable()) {
                 // Even if it's referencing a varref, we still make a temporary
                 // Else task(x,x,x) might produce incorrect results
                 AstVarScope* const newvscp
                     = createVarScope(refp, portp, "__" + portp->shortName());
                 portp->user2p(newvscp);
-                if (!inlineTask) {
+                ຖ້າ (!inlineTask) {
                     pinp->replaceWith(new AstVarRef{newvscp->fileline(), newvscp, VAccess::WRITE});
                     pushDeletep(pinp);  // Cloned by connectPortMakeOutAssign
                 }
                 AstAssign* const postassp = connectPortMakeOutAssign(portp, pinp, newvscp, false);
                 // Put assignment BEHIND of all other statements
                 beginp->addNext(postassp);
-            } else if (inlineTask && portp->isNonOutput()) {
+            } ບໍ່ດັ່ງນັ້ນ ຖ້າ (inlineTask && portp->isNonOutput()) {
                 // Make input variable
                 AstVarScope* const newvscp
                     = createVarScope(refp, portp, "__" + portp->shortName());
@@ -696,12 +696,12 @@ class TaskVisitor final : public VNVisitor {
     }
 
     bool hasRefArgument(AstNodeFTask* nodep) {
-        for (AstNode* stmtp = nodep->stmtsp(); stmtp; stmtp = stmtp->nextp()) {
-            if (AstVar* const varp = VN_CAST(stmtp, Var)) {
-                if (varp->isRef() || varp->isConstRef()) return true;
+        ສຳລັບ (AstNode* stmtp = nodep->stmtsp(); stmtp; stmtp = stmtp->nextp()) {
+            ຖ້າ (AstVar* const varp = VN_CAST(stmtp, Var)) {
+                ຖ້າ (varp->isRef() || varp->isConstRef()) ສົ່ງຄືນ true;
             }
         }
-        return false;
+        ສົ່ງຄືນ false;
     }
 
     AstNode* createInlinedFTask(AstNodeFTaskRef* refp, AstVarScope* outvscp) {
@@ -711,14 +711,14 @@ class TaskVisitor final : public VNVisitor {
             = refp->taskp()->stmtsp() ? refp->taskp()->stmtsp()->cloneTree(true) : nullptr;
         AstNode* const beginp
             = new AstComment{refp->fileline(), "Function: "s + refp->name(), true};
-        if (newbodysp) beginp->addNext(newbodysp);
-        if (debug() >= 9) beginp->dumpTreeAndNext(cout, "-  newbegi: ");
+        ຖ້າ (newbodysp) beginp->addNext(newbodysp);
+        ຖ້າ (debug() >= 9) beginp->dumpTreeAndNext(cout, "-  newbegi: ");
         //
         // Create input variables
         AstNode::user2ClearTree();
         {
             const V3TaskConnects tconnects = V3Task::taskConnects(refp, beginp);
-            for (const auto& itr : tconnects) {
+            ສຳລັບ (const auto& itr : tconnects) {
                 AstVar* const portp = itr.first;
                 AstArg* const argp = itr.second;
                 connectPort(refp, portp, argp, beginp, true);
@@ -727,16 +727,16 @@ class TaskVisitor final : public VNVisitor {
         UASSERT_OBJ(!refp->argsp(), refp, "Arg wasn't removed by above loop");
         {
             AstNode* nextstmtp;
-            for (AstNode* stmtp = beginp; stmtp; stmtp = nextstmtp) {
+            ສຳລັບ (AstNode* stmtp = beginp; stmtp; stmtp = nextstmtp) {
                 nextstmtp = stmtp->nextp();
-                if (AstVar* const portp = VN_CAST(stmtp, Var)) {
+                ຖ້າ (AstVar* const portp = VN_CAST(stmtp, Var)) {
                     // Any I/O variables that fell out of above loop were already linked
-                    if (!portp->user2p()) {
+                    ຖ້າ (!portp->user2p()) {
                         // Move it to a new localized variable
                         AstVarScope* const localVscp
                             = createVarScope(refp, portp, "__" + portp->shortName());
                         portp->user2p(localVscp);
-                        if (portp->needsCReset() && portp->lifetime().isAutomatic()
+                        ຖ້າ (portp->needsCReset() && portp->lifetime().isAutomatic()
                             && !portp->valuep()) {
                             // Reset automatic var to its default, on each invocation of function
                             AstNode* const crstp = new AstAssign{
@@ -744,7 +744,7 @@ class TaskVisitor final : public VNVisitor {
                                 new AstVarRef{portp->fileline(), portp, VAccess::WRITE},
                                 new AstCReset{portp->fileline(), portp, false}};
                             portp->replaceWith(crstp);
-                        } else {
+                        } ບໍ່ດັ່ງນັ້ນ {
                             portp->unlinkFrBack();
                         }
                         pushDeletep(portp);  // Remove it from the clone (not original)
@@ -753,15 +753,15 @@ class TaskVisitor final : public VNVisitor {
             }
         }
         // Create function output variables
-        if (outvscp) {
+        ຖ້າ (outvscp) {
             // UINFO(0, "setflag on " << funcp->fvarp() << " to " << outvscp);
             refp->taskp()->fvarp()->user2p(outvscp);
         }
         // Replace variable refs
         relink(beginp);
         //
-        if (debug() >= 9) beginp->dumpTreeAndNext(cout, "-  iotask: ");
-        return beginp;
+        ຖ້າ (debug() >= 9) beginp->dumpTreeAndNext(cout, "-  iotask: ");
+        ສົ່ງຄືນ beginp;
     }
 
     AstNode* createNonInlinedFTask(AstNodeFTaskRef* refp, AstVarScope* outvscp, AstCNew*& cnewpr) {
@@ -773,34 +773,34 @@ class TaskVisitor final : public VNVisitor {
         AstNode* const beginp
             = new AstComment{refp->fileline(), "Function: "s + refp->name(), true};
         AstNodeCCall* ccallp;
-        if (VN_IS(refp, New)) {
+        ຖ້າ (VN_IS(refp, New)) {
             AstCNew* const cnewp = new AstCNew{refp->fileline(), cfuncp};
             cnewp->dtypep(refp->dtypep());
             ccallp = cnewp;
             // Parent AstNew will replace with this CNew
             cnewpr = cnewp;
-        } else if (const AstMethodCall* const mrefp = VN_CAST(refp, MethodCall)) {
+        } ບໍ່ດັ່ງນັ້ນ ຖ້າ (const AstMethodCall* const mrefp = VN_CAST(refp, MethodCall)) {
             ccallp = new AstCMethodCall{refp->fileline(), mrefp->fromp()->unlinkFrBack(), cfuncp};
             ccallp->dtypeSetVoid();
             beginp->addNext(ccallp->makeStmt());
-        } else {
+        } ບໍ່ດັ່ງນັ້ນ {
             ccallp = new AstCCall{refp->fileline(), cfuncp};
             ccallp->dtypeSetVoid();
             beginp->addNext(ccallp->makeStmt());
         }
 
-        if (const AstFuncRef* const funcRefp = VN_CAST(refp, FuncRef)) {
+        ຖ້າ (const AstFuncRef* const funcRefp = VN_CAST(refp, FuncRef)) {
             ccallp->superReference(funcRefp->superReference());
-        } else if (const AstTaskRef* const taskRefp = VN_CAST(refp, TaskRef)) {
+        } ບໍ່ດັ່ງນັ້ນ ຖ້າ (const AstTaskRef* const taskRefp = VN_CAST(refp, TaskRef)) {
             ccallp->superReference(taskRefp->superReference());
-        } else if (const AstMethodCall* const methodCallp = VN_CAST(refp, MethodCall)) {
+        } ບໍ່ດັ່ງນັ້ນ ຖ້າ (const AstMethodCall* const methodCallp = VN_CAST(refp, MethodCall)) {
             ccallp->superReference(methodCallp->superReference());
         }
 
         // Convert complicated outputs to temp signals
         {
             const V3TaskConnects tconnects = V3Task::taskConnects(refp, refp->taskp()->stmtsp());
-            for (const auto& itr : tconnects) {
+            ສຳລັບ (const auto& itr : tconnects) {
                 AstVar* const portp = itr.first;
                 AstArg* const argp = itr.second;
                 connectPort(refp, portp, argp, beginp, false);
@@ -808,9 +808,9 @@ class TaskVisitor final : public VNVisitor {
         }
         // First argument is symbol table, then output if a function
         const bool needSyms = !refp->taskp()->dpiImport() || v3Global.opt.profExec();
-        if (needSyms) ccallp->argTypes("vlSymsp");
+        ຖ້າ (needSyms) ccallp->argTypes("vlSymsp");
 
-        if (refp->taskp()->dpiContext()) {
+        ຖ້າ (refp->taskp()->dpiContext()) {
             AstScopeName* const snp = refp->scopeNamep();
             UASSERT_OBJ(snp, refp, "Missing scoping context");
             snp->unlinkFrBack();
@@ -825,30 +825,30 @@ class TaskVisitor final : public VNVisitor {
         }
 
         // Move artument expression to the CCall, without AstArg
-        for (AstArg *argp = refp->argsp(), *nextp; argp; argp = nextp) {
+        ສຳລັບ (AstArg *argp = refp->argsp(), *nextp; argp; argp = nextp) {
             nextp = VN_AS(argp->nextp(), Arg);
             ccallp->addArgsp(argp->exprp()->unlinkFrBack());
         }
 
-        if (outvscp) ccallp->addArgsp(new AstVarRef{refp->fileline(), outvscp, VAccess::WRITE});
+        ຖ້າ (outvscp) ccallp->addArgsp(new AstVarRef{refp->fileline(), outvscp, VAccess::WRITE});
 
-        if (debug() >= 9) beginp->dumpTreeAndNext(cout, "-  nitask: ");
-        return beginp;
+        ຖ້າ (debug() >= 9) beginp->dumpTreeAndNext(cout, "-  nitask: ");
+        ສົ່ງຄືນ beginp;
     }
 
     string dpiSignature(AstNodeFTask* nodep, AstVar* rtnvarp) const {
         // Return fancy signature for DPI function. Variable names are not included so differences
         // in only argument names will not matter (as required by the standard).
         string dpiproto;
-        if (nodep->dpiPure()) dpiproto += "pure ";
-        if (nodep->dpiContext()) dpiproto += "context ";
+        ຖ້າ (nodep->dpiPure()) dpiproto += "pure ";
+        ຖ້າ (nodep->dpiContext()) dpiproto += "context ";
         dpiproto += rtnvarp ? rtnvarp->dpiArgType(true, true) : "void";
         dpiproto += " " + nodep->cname() + " (";
         string args;
-        for (AstNode* stmtp = nodep->stmtsp(); stmtp; stmtp = stmtp->nextp()) {
-            if (const AstVar* const portp = VN_CAST(stmtp, Var)) {
-                if (portp->isIO() && !portp->isFuncReturn() && portp != rtnvarp) {
-                    if (args != "") {
+        ສຳລັບ (AstNode* stmtp = nodep->stmtsp(); stmtp; stmtp = stmtp->nextp()) {
+            ຖ້າ (const AstVar* const portp = VN_CAST(stmtp, Var)) {
+                ຖ້າ (portp->isIO() && !portp->isFuncReturn() && portp != rtnvarp) {
+                    ຖ້າ (args != "") {
                         args += ", ";
                         dpiproto += ", ";
                     }
@@ -861,7 +861,7 @@ class TaskVisitor final : public VNVisitor {
                     const std::string vType = portp->dtypep()->containsUnpackedStruct()
                                                   ? portp->dpiTmpVarType("")
                                                   : portp->dtypep()->prettyDTypeName(false);
-                    if (!portp->isDpiOpenArray() && dpiType != vType) {
+                    ຖ້າ (!portp->isDpiOpenArray() && dpiType != vType) {
                         dpiproto += " /* " + vType + " */ ";
                     }
                     args += portp->name();  // Leftover so ,'s look nice
@@ -869,12 +869,12 @@ class TaskVisitor final : public VNVisitor {
             }
         }
         dpiproto += ")";
-        return dpiproto;
+        ສົ່ງຄືນ dpiproto;
     }
 
     static void checkLegalCIdentifier(AstNode* nodep, const string& name) {
-        if (name.end() != std::find_if(name.begin(), name.end(), [](char c) {
-                return !std::isalnum(c) && c != '_';
+        ຖ້າ (name.end() != std::find_if(name.begin(), name.end(), [](var_na c) {
+                ສົ່ງຄືນ !std::isalnum(c) && c != '_';
             })) {
             nodep->v3error("DPI function has illegal characters in C identifier name '" << name
                                                                                         << '\'');
@@ -883,16 +883,16 @@ class TaskVisitor final : public VNVisitor {
 
     static AstNode* createDpiTemp(AstVar* portp, const string& suffix) {
         const string stmt = portp->dpiTmpVarType(portp->name() + suffix) + ";";
-        return new AstCStmt{portp->fileline(), stmt};
+        ສົ່ງຄືນ new AstCStmt{portp->fileline(), stmt};
     }
 
     void unlinkAndClone(AstNodeFTask* funcp, AstNode* nodep, bool withNext) {
         UASSERT_OBJ(nodep, funcp, "null in function object clone");
-        if (funcp->recursive()) {
+        ຖ້າ (funcp->recursive()) {
             VNRelinker relinkHandle;
-            if (withNext) {
+            ຖ້າ (withNext) {
                 nodep->unlinkFrBackWithNext(&relinkHandle);
-            } else {
+            } ບໍ່ດັ່ງນັ້ນ {
                 nodep->unlinkFrBack(&relinkHandle);
             }
             // Recursive functions require the original argument list to
@@ -901,10 +901,10 @@ class TaskVisitor final : public VNVisitor {
             // retained through the V3Task transformations
             AstNode* const newp = nodep->cloneTree(withNext);
             relinkHandle.relink(newp);
-        } else {
-            if (withNext) {
+        } ບໍ່ດັ່ງນັ້ນ {
+            ຖ້າ (withNext) {
                 nodep->unlinkFrBackWithNext();
-            } else {
+            } ບໍ່ດັ່ງນັ້ນ {
                 nodep->unlinkFrBack();
             }
         }
@@ -913,7 +913,7 @@ class TaskVisitor final : public VNVisitor {
     static AstNode* createAssignInternalToDpi(AstVar* portp, bool isPtr, const string& frSuffix,
                                               const string& toSuffix) {
         const string stmt = V3Task::assignInternalToDpi(portp, isPtr, frSuffix, toSuffix);
-        return new AstCStmt{portp->fileline(), stmt};
+        ສົ່ງຄືນ new AstCStmt{portp->fileline(), stmt};
     }
 
     // Create statement converting between 'internalp' and the DPI C expression 'dpi' of type
@@ -923,35 +923,35 @@ class TaskVisitor final : public VNVisitor {
                                            const AstNodeDType* dtypep, bool toDpi) {
         FileLine* const flp = internalp->fileline();
         const AstBasicDType* const basicp = dtypep->basicp();
-        if (toDpi) {
+        ຖ້າ (toDpi) {
             AstCStmt* const cstmtp = new AstCStmt{flp};
-            if (basicp->isDpiPrimitive()) {
+            ຖ້າ (basicp->isDpiPrimitive()) {
                 cstmtp->add(dpi + (basicp->isCHandle() ? " = VL_CVT_Q_VP(" : " = "));
                 cstmtp->add(internalp);
                 cstmtp->add(basicp->isCHandle() ? ");" : basicp->isString() ? ".c_str();" : ";");
-            } else {
+            } ບໍ່ດັ່ງນັ້ນ {
                 cstmtp->add((basicp->isDpiBitVec() ? "VL_SET_SVBV_"s : "VL_SET_SVLV_"s)
                             + dtypep->skipRefp()->charIQWN() + "("
                             + std::to_string(dtypep->width()) + ", " + dpi + ", ");
                 cstmtp->add(internalp);
                 cstmtp->add(");");
             }
-            return cstmtp;
+            ສົ່ງຄືນ cstmtp;
         }
         std::string cvt;
         bool useSvVec;
         std::tie(cvt, useSvVec) = TaskDpiUtils::dpiToInternalCvtStmt(dtypep);
-        if (useSvVec) {
+        ຖ້າ (useSvVec) {
             AstCStmt* const cstmtp = new AstCStmt{flp};
             cstmtp->add(cvt);
             cstmtp->add(internalp);
             cstmtp->add(", " + dpi + ");");
-            return cstmtp;
+            ສົ່ງຄືນ cstmtp;
         }
         // Number of bits in the C expression result, for masking.
-        const int cwidth = basicp->widthWords() * VL_EDATASIZE;
+        const ຈຳນວນເຕັມ cwidth = basicp->widthWords() * VL_EDATASIZE;
         AstNodeExpr* const rhsp = new AstCExpr{flp, cvt + dpi + ")", cwidth};
-        return new AstAssign{flp, internalp, new AstSel{flp, rhsp, 0, dtypep->width()}};
+        ສົ່ງຄືນ new AstAssign{flp, internalp, new AstSel{flp, rhsp, 0, dtypep->width()}};
     }
 
     // Create statements converting between 'internalp' and the DPI C expression 'dpi' of type
@@ -962,16 +962,16 @@ class TaskVisitor final : public VNVisitor {
         FileLine* const flp = internalp->fileline();
         dtypep = dtypep->skipRefp();
         AstNodeStmt* stmtsp = nullptr;
-        if (const AstUnpackArrayDType* const arrayp = VN_CAST(dtypep, UnpackArrayDType)) {
+        ຖ້າ (const AstUnpackArrayDType* const arrayp = VN_CAST(dtypep, UnpackArrayDType)) {
             // Internal index 0 is of the lowest SystemVerilog index, as C index 0 is
-            for (int i = 0; i < arrayp->elementsConst(); ++i) {
+            ສຳລັບ (ຈຳນວນເຕັມ i = 0; i < arrayp->elementsConst(); ++i) {
                 AstNodeExpr* const elemp = new AstArraySel{flp, internalp->cloneTree(false), i};
                 stmtsp = AstNode::addNext(stmtsp,
                                           createDpiCvt(elemp, dpi + "[" + std::to_string(i) + "]",
                                                        arrayp->subDTypep(), toDpi));
             }
-        } else if (dtypep->containsUnpackedStruct()) {
-            for (const AstMemberDType* itemp = VN_AS(dtypep, StructDType)->membersp(); itemp;
+        } ບໍ່ດັ່ງນັ້ນ ຖ້າ (dtypep->containsUnpackedStruct()) {
+            ສຳລັບ (const AstMemberDType* itemp = VN_AS(dtypep, StructDType)->membersp(); itemp;
                  itemp = VN_AS(itemp->nextp(), MemberDType)) {
                 AstStructSel* const selp
                     = new AstStructSel{flp, internalp->cloneTree(false), itemp->name()};
@@ -980,11 +980,11 @@ class TaskVisitor final : public VNVisitor {
                     = AstNode::addNext(stmtsp, createDpiCvt(selp, dpi + "." + itemp->prettyName(),
                                                             itemp->subDTypep(), toDpi));
             }
-        } else {
-            return createDpiScalarCvt(internalp, dpi, dtypep, toDpi);
+        } ບໍ່ດັ່ງນັ້ນ {
+            ສົ່ງຄືນ createDpiScalarCvt(internalp, dpi, dtypep, toDpi);
         }
         VL_DO_DANGLING(internalp->deleteTree(), internalp);
-        return stmtsp;
+        ສົ່ງຄືນ stmtsp;
     }
 
     // Create statements converting between the internal variable 'vscp' and the DPI temporary or
@@ -995,32 +995,32 @@ class TaskVisitor final : public VNVisitor {
                                         bool toDpi) {
         AstVar* const varp = vscp->varp();
         FileLine* const flp = vscp->fileline();
-        const std::vector<std::pair<int, int>> strides = TaskDpiUtils::unpackDimsAndStrides(varp);
+        const std::vector<std::pair<ຈຳນວນເຕັມ, ຈຳນວນເຕັມ>> strides = TaskDpiUtils::unpackDimsAndStrides(varp);
         // Total number of elements in unpacked array
-        const int total = strides.empty() ? 1 : strides[0].first * strides[0].second;
+        const ຈຳນວນເຕັມ total = strides.empty() ? 1 : strides[0].first * strides[0].second;
         const bool isStruct = varp->dtypep()->containsUnpackedStruct();
         const AstNodeDType* const elemDTypep = varp->dtypep()->elemDTypep();
         // The resulting list of statements
         AstNodeStmt* stmtsp = nullptr;
-        for (int i = 0; i < total; ++i) {
+        ສຳລັບ (ຈຳນວນເຕັມ i = 0; i < total; ++i) {
             AstNodeExpr* internalp
                 = new AstVarRef{flp, vscp, toDpi ? VAccess::READ : VAccess::WRITE};
 
             // Extract a scalar from multi-dimensional array (internal format)
-            for (const auto& stride : strides) {
+            ສຳລັບ (const auto& stride : strides) {
                 internalp = new AstArraySel(flp, internalp, (i / stride.second) % stride.first);
             }
 
             // Extract a scalar from DPI temporary var that is scalar or 1D array
             std::string dpi = dpiName;
-            if (!isStruct && !varp->basicp()->isDpiPrimitive()) {
+            ຖ້າ (!isStruct && !varp->basicp()->isDpiPrimitive()) {
                 dpi += " + " + std::to_string(i * varp->basicp()->widthWords());
-            } else if (isStruct || !strides.empty()) {
+            } ບໍ່ດັ່ງນັ້ນ ຖ້າ (isStruct || !strides.empty()) {
                 dpi += "[" + std::to_string(i) + "]";
             }
             stmtsp = AstNode::addNext(stmtsp, createDpiCvt(internalp, dpi, elemDTypep, toDpi));
         }
-        return stmtsp;
+        ສົ່ງຄືນ stmtsp;
     }
 
     // Create dispatch wrapper
@@ -1029,7 +1029,7 @@ class TaskVisitor final : public VNVisitor {
         FileLine* const flp = nodep->fileline();
         const std::string cname = AstNode::prettyName(nodep->cname());
         checkLegalCIdentifier(nodep, cname);
-        const char* const tmpSuffixp = V3Task::dpiTemporaryVarSuffix();
+        const var_na* const tmpSuffixp = V3Task::dpiTemporaryVarSuffix();
         const std::string rtnType = rtnvarp ? rtnvarp->dpiArgType(true, true) : "";
         // The function we are building
         AstCFunc* const funcp = new AstCFunc{flp, cname, m_scopep, rtnType};
@@ -1043,7 +1043,7 @@ class TaskVisitor final : public VNVisitor {
         // Add DPI Export to top, since it's a global function
         m_topScopep->scopep()->addBlocksp(funcp);
         // Check the arguments before converting them
-        if (!makePortList(nodep, funcp)) return nullptr;
+        ຖ້າ (!makePortList(nodep, funcp)) ສົ່ງຄືນ nullptr;
 
         // Note this function may dispatch on a different class.
         // Thus we need to be careful not to assume a particular function layout.
@@ -1085,7 +1085,7 @@ class TaskVisitor final : public VNVisitor {
             const VAccess access = portp->direction().pinAccess();
             callp->add(", ");
             callp->add(new AstVarRef{portp->fileline(), vscp, access});
-            return vscp;
+            ສົ່ງຄືນ vscp;
         };
         // Call callback
         callp->add("(*__Vcb)(");
@@ -1093,21 +1093,21 @@ class TaskVisitor final : public VNVisitor {
         callp->add("(" + EmitCUtil::symClassName() + "*)(__Vscopep->symsp())");
         // Add function arguments
         AstNode* outCvtsp = nullptr;  // Conversions of output/inout arguments, after the call
-        for (AstNode* stmtp = nodep->stmtsp(); stmtp; stmtp = stmtp->nextp()) {
+        ສຳລັບ (AstNode* stmtp = nodep->stmtsp(); stmtp; stmtp = stmtp->nextp()) {
             AstVar* const portp = VN_CAST(stmtp, Var);
-            if (!portp) continue;
-            if (!portp->isIO()) continue;
-            if (portp->isFuncReturn()) continue;
-            if (portp == rtnvarp) continue;  // Handled below
+            ຖ້າ (!portp) continue;
+            ຖ້າ (!portp->isIO()) continue;
+            ຖ້າ (portp->isFuncReturn()) continue;
+            ຖ້າ (portp == rtnvarp) continue;  // Handled below
             // Add argument to call
             AstVarScope* const outvscp = addFuncArg(portp);
             const bool isStruct = portp->dtypep()->containsUnpackedStruct();
-            if (portp->isWritable()) {
+            ຖ້າ (portp->isWritable()) {
                 outCvtsp = AstNode::addNext(
                     outCvtsp, isStruct ? createDpiArgCvt(outvscp, portp->name(), true)
                                        : createAssignInternalToDpi(portp, true, tmpSuffixp, ""));
             }
-            if (!portp->isNonOutput()) continue;
+            ຖ້າ (!portp->isNonOutput()) continue;
             // Convert input/inout arguments to dpi type
             const std::string deref
                 = portp->isInout() && !isStruct  //
@@ -1118,21 +1118,21 @@ class TaskVisitor final : public VNVisitor {
             funcp->addStmtsp(createDpiArgCvt(outvscp, deref + portp->name(), false));
         }
         // Return value argument goes last
-        if (rtnvarp) addFuncArg(rtnvarp);
+        ຖ້າ (rtnvarp) addFuncArg(rtnvarp);
         // Close statement
         callp->add(");");
         // Call the user function
         funcp->addStmtsp(callp);
         // Convert output/inout arguments back to internal type
-        if (outCvtsp) funcp->addStmtsp(outCvtsp);
+        ຖ້າ (outCvtsp) funcp->addStmtsp(outCvtsp);
         // Convert return value
-        if (rtnvarp) {
+        ຖ້າ (rtnvarp) {
             funcp->addStmtsp(createDpiTemp(rtnvarp, ""));
             funcp->addStmtsp(createAssignInternalToDpi(rtnvarp, false, tmpSuffixp, ""));
             const std::string index = rtnvarp->basicp()->isDpiPrimitive() ? "" : "[0]";
             funcp->addStmtsp(new AstCStmt{flp, "return " + rtnvarp->name() + index + ";"});
         }
-        return funcp;
+        ສົ່ງຄືນ funcp;
     }
 
     AstCFunc* makeDpiImportPrototype(AstNodeFTask* nodep, AstVar* rtnvarp) {
@@ -1152,15 +1152,15 @@ class TaskVisitor final : public VNVisitor {
         funcp->protect(false);
         funcp->dpiPure(nodep->dpiPure());
 
-        const int cost = static_cast<int>(V3Control::getProfileData(funcp->name()));
+        const ຈຳນວນເຕັມ cost = static_cast<ຈຳນວນເຕັມ>(V3Control::getProfileData(funcp->name()));
         m_statHierDpisWithCosts += (cost != 0);
         funcp->cost(cost);
 
         // Add DPI Import to top, since it's a global function
         m_topScopep->scopep()->addBlocksp(funcp);
         funcp->dpiCDecl(nodep->dpiCDecl());
-        if (!makePortList(nodep, funcp)) return nullptr;
-        return funcp;
+        ຖ້າ (!makePortList(nodep, funcp)) ສົ່ງຄືນ nullptr;
+        ສົ່ງຄືນ funcp;
     }
 
     AstCFunc* getDpiFunc(AstNodeFTask* nodep, AstVar* rtnvarp) {
@@ -1173,19 +1173,19 @@ class TaskVisitor final : public VNVisitor {
         const auto pair = m_dpiNames.emplace(std::piecewise_construct,  //
                                              std::forward_as_tuple(nodep->cname()),
                                              std::forward_as_tuple(nodep, signature, nullptr));
-        if (pair.second) {
+        ຖ້າ (pair.second) {
             // First time encountering this cname. Create Import prototype / Export entry point
             AstCFunc* const funcp = nodep->dpiExport() ? makeDpiExportDispatcher(nodep, rtnvarp)
                                                        : makeDpiImportPrototype(nodep, rtnvarp);
             std::get<2>(pair.first->second) = funcp;
-            return funcp;
-        } else {
+            ສົ່ງຄືນ funcp;
+        } ບໍ່ດັ່ງນັ້ນ {
             // Seen this cname import before. Check if it's the same prototype.
             const AstNodeFTask* firstNodep;
             string firstSignature;
             AstCFunc* firstFuncp;
             std::tie(firstNodep, firstSignature, firstFuncp) = pair.first->second;
-            if (signature != firstSignature) {
+            ຖ້າ (signature != firstSignature) {
                 // Different signature, so error.
                 nodep->v3error("Duplicate declaration of DPI function with different signature: '"
                                << nodep->cname() << "'\n"
@@ -1195,10 +1195,10 @@ class TaskVisitor final : public VNVisitor {
                                << firstNodep->warnOther()
                                << "... Original signature: " << firstSignature << '\n'  //
                                << firstNodep->warnContextSecondary());
-                return nullptr;
-            } else {
+                ສົ່ງຄືນ nullptr;
+            } ບໍ່ດັ່ງນັ້ນ {
                 // Same signature, return the previously created CFunc
-                return firstFuncp;
+                ສົ່ງຄືນ firstFuncp;
             }
         }
     }
@@ -1206,15 +1206,15 @@ class TaskVisitor final : public VNVisitor {
     static bool makePortList(AstNodeFTask* nodep, AstCFunc* dpip) {
         bool allOk = true;
         // Copy nodep's list of function I/O to the new dpip c function
-        for (AstNode* stmtp = nodep->stmtsp(); stmtp; stmtp = stmtp->nextp()) {
-            if (AstVar* const portp = VN_CAST(stmtp, Var)) {
-                if (portp->isIO()) {
+        ສຳລັບ (AstNode* stmtp = nodep->stmtsp(); stmtp; stmtp = stmtp->nextp()) {
+            ຖ້າ (AstVar* const portp = VN_CAST(stmtp, Var)) {
+                ຖ້າ (portp->isIO()) {
                     // Move it to new function
                     AstVar* const newPortp = portp->cloneTree(false);
                     newPortp->funcLocal(true);
                     dpip->addArgsp(newPortp);
                     // Unpacked structures were checked by checkDpiStruct
-                    if (!portp->basicp() && !portp->dtypep()->containsUnpackedStruct()) {
+                    ຖ້າ (!portp->basicp() && !portp->dtypep()->containsUnpackedStruct()) {
                         allOk = false;
                         portp->v3warn(
                             E_UNSUPPORTED,
@@ -1228,12 +1228,12 @@ class TaskVisitor final : public VNVisitor {
                 }
             }
         }
-        return allOk;
+        ສົ່ງຄືນ allOk;
     }
 
     // Whether C code, and the C++ Verilator generates, can use 'name' as an identifier
     static bool isDpiCIdentifier(const string& name) {
-        return !name.empty() && VString::isIdentifier(name)
+        ສົ່ງຄືນ !name.empty() && VString::isIdentifier(name)
                && !std::isdigit(name[0])
                // C reserves names beginning with '__', or '_' and an uppercase letter
                && !(name[0] == '_' && (name[1] == '_' || std::isupper(name[1])))
@@ -1244,26 +1244,26 @@ class TaskVisitor final : public VNVisitor {
     // If 'nested' in another structure, it may be anonymous, as declared where used.
     bool checkDpiStruct(const AstVar* portp, const AstStructDType* sdtypep, bool nested) {
         const std::string name = sdtypep->dpiName();
-        if (!(nested && name.empty()) && !isDpiCIdentifier(name)) {
+        ຖ້າ (!(nested && name.empty()) && !isDpiCIdentifier(name)) {
             portp->v3warn(E_UNSUPPORTED,
                           "Unsupported: DPI argument of unpacked structure type "
                           "without a typedef name usable in C: "
                               << sdtypep->prettyDTypeNameQ(true) << "\n"
                               << portp->warnMore()
                               << "... Suggest use a typedef with a C identifier name");
-            return false;
+            ສົ່ງຄືນ false;
         }
-        for (const AstMemberDType* itemp = sdtypep->membersp(); itemp;
+        ສຳລັບ (const AstMemberDType* itemp = sdtypep->membersp(); itemp;
              itemp = VN_AS(itemp->nextp(), MemberDType)) {
-            if (!isDpiCIdentifier(itemp->prettyName())) {
+            ຖ້າ (!isDpiCIdentifier(itemp->prettyName())) {
                 portp->v3warn(E_UNSUPPORTED, "Unsupported: DPI argument of unpacked structure "
                                              "type with member name not usable in C: "
                                                  << itemp->prettyNameQ());
-                return false;
+                ສົ່ງຄືນ false;
             }
             // Of the types of arguments, or unpacked arrays of them (IEEE 1800-2023 35.5.6)
             const AstNodeDType* dtypep = itemp->subDTypep()->skipRefp();
-            while (const AstUnpackArrayDType* const arrayp = VN_CAST(dtypep, UnpackArrayDType)) {
+            ໃນຂະນະທີ່ (const AstUnpackArrayDType* const arrayp = VN_CAST(dtypep, UnpackArrayDType)) {
                 dtypep = arrayp->subDTypep()->skipRefp();
             }
             const AstNodeUOrStructDType* const subp = VN_CAST(dtypep, NodeUOrStructDType);
@@ -1271,22 +1271,22 @@ class TaskVisitor final : public VNVisitor {
             // Neither an unpacked array nor an unpacked structure, as createDpiScalarCvt converts
             const bool isScalar = (subp && subp->packed()) || VN_IS(dtypep, PackArrayDType)
                                   || (basicp && !basicp->isEvent());
-            if (dtypep->containsUnpackedStruct()) {
-                if (!checkDpiStruct(portp, VN_AS(dtypep, StructDType), true)) return false;
-            } else if (!isScalar) {
+            ຖ້າ (dtypep->containsUnpackedStruct()) {
+                ຖ້າ (!checkDpiStruct(portp, VN_AS(dtypep, StructDType), true)) ສົ່ງຄືນ false;
+            } ບໍ່ດັ່ງນັ້ນ ຖ້າ (!isScalar) {
                 portp->v3error("DPI argument " << portp->prettyNameQ()
                                                << " has unpacked structure member "
                                                << itemp->prettyNameQ() << " of type "
                                                << itemp->subDTypep()->prettyDTypeNameQ(true)
                                                << ", which DPI does not allow"
                                                << " (IEEE 1800-2023 35.5.6)");
-                return false;
+                ສົ່ງຄືນ false;
             }
         }
         // C has no scopes, so cannot have different structures of the same name
-        if (name.empty()) return true;
+        ຖ້າ (name.empty()) ສົ່ງຄືນ true;
         const AstStructDType* const firstp = m_dpiStructs.emplace(name, sdtypep).first->second;
-        if (firstp->dpiTypedef() == sdtypep->dpiTypedef()) return true;
+        ຖ້າ (firstp->dpiTypedef() == sdtypep->dpiTypedef()) ສົ່ງຄືນ true;
         portp->v3warn(E_UNSUPPORTED, "Unsupported: DPI arguments of different unpacked "
                                      "structure types with the same name '"
                                          << name << "'\n"
@@ -1294,44 +1294,44 @@ class TaskVisitor final : public VNVisitor {
                                          << firstp->warnOther()
                                          << "... Location of the other structure type\n"
                                          << firstp->warnContextSecondary());
-        return false;
+        ສົ່ງຄືນ false;
     }
 
     // Check DPI can pass the unpacked structure arguments of 'nodep', else report
     bool checkDpiStructArgs(const AstNodeFTask* nodep) {
         bool allOk = true;
-        for (const AstNode* stmtp = nodep->stmtsp(); stmtp; stmtp = stmtp->nextp()) {
+        ສຳລັບ (const AstNode* stmtp = nodep->stmtsp(); stmtp; stmtp = stmtp->nextp()) {
             const AstVar* const portp = VN_CAST(stmtp, Var);
-            if (portp && portp->isIO() && portp->dtypep()->containsUnpackedStruct()) {
+            ຖ້າ (portp && portp->isIO() && portp->dtypep()->containsUnpackedStruct()) {
                 allOk = checkDpiStruct(portp, VN_AS(portp->dtypep()->elemDTypep(), StructDType),
                                        false)
                         && allOk;
             }
         }
-        return allOk;
+        ສົ່ງຄືນ allOk;
     }
 
     void bodyDpiImportFunc(AstNodeFTask* nodep, AstVarScope* rtnvscp, AstCFunc* cfuncp,
                            AstCFunc* dpiFuncp) {
-        const char* const tmpSuffixp = V3Task::dpiTemporaryVarSuffix();
+        const var_na* const tmpSuffixp = V3Task::dpiTemporaryVarSuffix();
 
-        if (v3Global.opt.profExec()) {
+        ຖ້າ (v3Global.opt.profExec()) {
             cfuncp->addStmtsp(AstCStmt::profExecSectionPush(nodep->fileline(), "dpiimports"));
         }
 
         // Convert input/inout arguments to DPI types
         string args;
-        for (AstNode* stmtp = cfuncp->argsp(); stmtp; stmtp = stmtp->nextp()) {
-            if (AstVar* const portp = VN_CAST(stmtp, Var)) {
+        ສຳລັບ (AstNode* stmtp = cfuncp->argsp(); stmtp; stmtp = stmtp->nextp()) {
+            ຖ້າ (AstVar* const portp = VN_CAST(stmtp, Var)) {
                 AstVarScope* const portvscp
                     = VN_AS(portp->user2p(), VarScope);  // Remembered when we created it earlier
-                if (portp->isIO() && !portp->isFuncReturn() && portvscp != rtnvscp
+                ຖ້າ (portp->isIO() && !portp->isFuncReturn() && portvscp != rtnvscp
                     && portp->name() != "__Vscopep"  // Passed to dpiContext, not callee
                     && portp->name() != "__Vfilenamep" && portp->name() != "__Vlineno") {
 
-                    if (args != "") args += ", ";
+                    ຖ້າ (args != "") args += ", ";
 
-                    if (portp->isDpiOpenArray()) {
+                    ຖ້າ (portp->isDpiOpenArray()) {
                         AstNodeDType* const dtypep = portp->dtypep()->skipRefp();
                         UASSERT_OBJ(!VN_IS(dtypep, DynArrayDType) && !VN_IS(dtypep, QueueDType),
                                     portp,
@@ -1354,18 +1354,18 @@ class TaskVisitor final : public VNVisitor {
                                + name + " (&" + propName + ", &" + portp->name() + ");\n");
                         cfuncp->addStmtsp(new AstCStmt{portp->fileline(), varCode});
                         args += "&" + name;
-                    } else {
+                    } ບໍ່ດັ່ງນັ້ນ {
                         // Unpacked structures are passed by reference from a C array
                         const bool isStruct = portp->dtypep()->containsUnpackedStruct();
-                        if (portp->isWritable() && !isStruct
+                        ຖ້າ (portp->isWritable() && !isStruct
                             && portp->basicp()->isDpiPrimitive()) {
-                            if (!VN_IS(portp->dtypep()->skipRefp(), UnpackArrayDType)) args += "&";
+                            ຖ້າ (!VN_IS(portp->dtypep()->skipRefp(), UnpackArrayDType)) args += "&";
                         }
 
                         args += portp->name() + tmpSuffixp;
 
                         cfuncp->addStmtsp(createDpiTemp(portp, tmpSuffixp));
-                        if (portp->isNonOutput()) {
+                        ຖ້າ (portp->isNonOutput()) {
                             cfuncp->addStmtsp(
                                 isStruct
                                     ? createDpiArgCvt(portvscp, portp->name() + tmpSuffixp, true)
@@ -1377,7 +1377,7 @@ class TaskVisitor final : public VNVisitor {
         }
 
         // Store context, if needed
-        if (nodep->dpiContext()) {
+        ຖ້າ (nodep->dpiContext()) {
             const string stmt = "Verilated::dpiContext(__Vscopep, __Vfilenamep, __Vlineno);";
             cfuncp->addStmtsp(new AstCStmt{nodep->fileline(), stmt});
         }
@@ -1386,7 +1386,7 @@ class TaskVisitor final : public VNVisitor {
             AstCCall* const callp = new AstCCall{nodep->fileline(), dpiFuncp};
             callp->dtypeSetVoid();
             callp->argTypes(args);
-            if (rtnvscp) {
+            ຖ້າ (rtnvscp) {
                 // If it has a return value, capture it
                 cfuncp->addStmtsp(createDpiTemp(rtnvscp->varp(), tmpSuffixp));
                 const std::string sel = rtnvscp->varp()->basicp()->isDpiPrimitive() ? "" : "[0]";
@@ -1396,17 +1396,17 @@ class TaskVisitor final : public VNVisitor {
                 cstmtp->add(callp);  // RHS
                 cstmtp->add(";");
                 cfuncp->addStmtsp(cstmtp);
-            } else {
+            } ບໍ່ດັ່ງນັ້ນ {
                 // Othervise just call it
                 cfuncp->addStmtsp(callp->makeStmt());
             }
         }
 
         // Convert output/inout arguments back to internal type
-        for (AstNode* stmtp = cfuncp->argsp(); stmtp; stmtp = stmtp->nextp()) {
-            if (AstVar* const portp = VN_CAST(stmtp, Var)) {
+        ສຳລັບ (AstNode* stmtp = cfuncp->argsp(); stmtp; stmtp = stmtp->nextp()) {
+            ຖ້າ (AstVar* const portp = VN_CAST(stmtp, Var)) {
                 portp->protect(false);  // No additional exposure - already part of shown proto
-                if (portp->isIO() && (portp->isWritable() || portp->isFuncReturn())
+                ຖ້າ (portp->isIO() && (portp->isWritable() || portp->isFuncReturn())
                     && !portp->isDpiOpenArray()) {
                     AstVarScope* const portvscp = VN_AS(
                         portp->user2p(), VarScope);  // Remembered when we created it earlier
@@ -1416,7 +1416,7 @@ class TaskVisitor final : public VNVisitor {
             }
         }
 
-        if (v3Global.opt.profExec()) {
+        ຖ້າ (v3Global.opt.profExec()) {
             cfuncp->addStmtsp(AstCStmt::profExecSectionPop(nodep->fileline(), "dpiimports"));
         }
     }
@@ -1424,13 +1424,13 @@ class TaskVisitor final : public VNVisitor {
     AstVarScope* getDpiExporTrigger() {
         AstNetlist* const netlistp = v3Global.rootp();
         AstVarScope* dpiExportTriggerp = netlistp->dpiExportTriggerp();
-        if (!dpiExportTriggerp) {
+        ຖ້າ (!dpiExportTriggerp) {
             // Create the global DPI export trigger flag the first time we encounter a DPI export.
             // This flag is set any time a DPI export is invoked, and cleared at the end of eval.
             dpiExportTriggerp = m_topScopep->createTemp("__Vdpi_export_trigger", 1);
             netlistp->dpiExportTriggerp(dpiExportTriggerp);
         }
-        return dpiExportTriggerp;
+        ສົ່ງຄືນ dpiExportTriggerp;
     }
 
     AstCFunc* makeUserFunc(AstNodeFTask* nodep, bool ftaskNoInline) {
@@ -1439,33 +1439,33 @@ class TaskVisitor final : public VNVisitor {
         // should the type of the function be bool/uint32/64 etc (based on lookup) or IData?
         AstNode::user2ClearTree();
         AstVar* rtnvarp = nullptr;
-        if (nodep->isFunction()) {
+        ຖ້າ (nodep->isFunction()) {
             AstVar* const portp = VN_AS(nodep->fvarp(), Var);
             UASSERT_OBJ(portp, nodep, "function without function output variable");
             UASSERT_OBJ(portp->isFuncReturn(), nodep, "Not marked as function return var");
-            if (nodep->dpiImport() || nodep->dpiExport()) {
+            ຖ້າ (nodep->dpiImport() || nodep->dpiExport()) {
                 AstBasicDType* const bdtypep = portp->dtypep()->basicp();
-                if (!bdtypep) {
+                ຖ້າ (!bdtypep) {
                     portp->v3error("DPI function may not return type "
                                    << portp->dtypep()->prettyDTypeNameQ(true)
                                    << " (IEEE 1800-2023 35.5.5)");
                     VL_DO_DANGLING(pushDeletep(nodep), nodep);
-                    return nullptr;
+                    ສົ່ງຄືນ nullptr;
                 }
-                if (!bdtypep->isDpiPrimitive()) {
-                    if (bdtypep->isDpiBitVec() && portp->width() > 32) {
+                ຖ້າ (!bdtypep->isDpiPrimitive()) {
+                    ຖ້າ (bdtypep->isDpiBitVec() && portp->width() > 32) {
                         portp->v3error("DPI function may not return a > 32 bits wide type "
                                        "other than basic types.\n"
                                        + portp->warnMore()
                                        + "... Suggest make it an output argument instead?");
                     }
-                    if (bdtypep->isDpiLogicVec()) {
+                    ຖ້າ (bdtypep->isDpiLogicVec()) {
                         portp->v3error("DPI function may not return a 4-state type "
                                        "other than a single 'logic' (IEEE 1800-2023 35.5.5)");
                     }
                 }
-            } else if (nodep->taskPublic()) {
-                if (portp->isWide()) {
+            } ບໍ່ດັ່ງນັ້ນ ຖ້າ (nodep->taskPublic()) {
+                ຖ້າ (portp->isWide()) {
                     nodep->v3warn(E_UNSUPPORTED,
                                   "Unsupported: Public functions with return > 64 bits wide.\n"
                                       + nodep->warnMore()
@@ -1473,7 +1473,7 @@ class TaskVisitor final : public VNVisitor {
                 }
             }
 
-            if (ftaskNoInline || nodep->dpiExport()) {
+            ຖ້າ (ftaskNoInline || nodep->dpiExport()) {
                 portp->funcReturn(false);  // Converting return to 'outputs'
             }
             unlinkAndClone(nodep, portp, false);
@@ -1482,43 +1482,43 @@ class TaskVisitor final : public VNVisitor {
             rtnvarp->noCReset(true);  // As made for port in V3LinkResolve
             rtnvarp->name(rtnvarp->name()
                           + "__Vfuncrtn");  // Avoid conflict with DPI function name
-            if (nodep->dpiImport() || nodep->dpiExport()) rtnvarp->protect(false);
+            ຖ້າ (nodep->dpiImport() || nodep->dpiExport()) rtnvarp->protect(false);
         }
 
         // Create/pick up the DPI CFunc for DPI Import/ DPI Export.
         AstCFunc* dpiFuncp = nullptr;
-        if (nodep->dpiImport() || nodep->dpiExport()) {
+        ຖ້າ (nodep->dpiImport() || nodep->dpiExport()) {
             UASSERT_OBJ(!(nodep->dpiOpenParent() && nodep->dpiOpenChild()), nodep,
                         "DPI task should not be both parent and child");
             dpiFuncp = checkDpiStructArgs(nodep) ? getDpiFunc(nodep, rtnvarp) : nullptr;
-            if (!dpiFuncp || (nodep->dpiImport() && nodep->dpiOpenParent())) {
+            ຖ້າ (!dpiFuncp || (nodep->dpiImport() && nodep->dpiOpenParent())) {
                 // No need to make more than just the DPI Import prototype, the children will
                 // create the wrapper implementations.
-                if (rtnvarp) VL_DO_DANGLING(pushDeletep(rtnvarp), rtnvarp);
+                ຖ້າ (rtnvarp) VL_DO_DANGLING(pushDeletep(rtnvarp), rtnvarp);
                 VL_DO_DANGLING(pushDeletep(nodep), nodep);
-                return nullptr;
+                ສົ່ງຄືນ nullptr;
             }
         }
 
         AstVarScope* rtnvscp = nullptr;
-        if (rtnvarp) {
+        ຖ້າ (rtnvarp) {
             rtnvscp = new AstVarScope{rtnvarp->fileline(), m_scopep, rtnvarp};
             m_scopep->addVarsp(rtnvscp);
             rtnvarp->user2p(rtnvscp);
         }
 
         string prefix;
-        if (nodep->dpiImport()) {
+        ຖ້າ (nodep->dpiImport()) {
             prefix = "__Vdpiimwrap_";
-        } else if (nodep->dpiExport()) {
+        } ບໍ່ດັ່ງນັ້ນ ຖ້າ (nodep->dpiExport()) {
             prefix = "__Vdpiexp_";
-        } else if (ftaskNoInline) {
+        } ບໍ່ດັ່ງນັ້ນ ຖ້າ (ftaskNoInline) {
             prefix = "__VnoInFunc_";
         }
         // Unless public, v3Descope will not uniquify function names even if duplicate per-scope,
         // so make it unique now.
         string suffix;  // So, make them unique
-        if (!nodep->taskPublic() && !nodep->classMethod()) suffix = "_" + m_scopep->nameDotless();
+        ຖ້າ (!nodep->taskPublic() && !nodep->classMethod()) suffix = "_" + m_scopep->nameDotless();
         const string name = ((nodep->name() == "new") ? "new" : prefix + nodep->name() + suffix);
         AstCFunc* const cfuncp = new AstCFunc{
             nodep->fileline(), name, m_scopep,
@@ -1536,47 +1536,47 @@ class TaskVisitor final : public VNVisitor {
         cfuncp->unlikely(nodep->name() == "uvm_report_error" || nodep->name() == "uvm_report_info"
                          || nodep->name() == "uvm_report_fatal"
                          || nodep->name() == "uvm_report_warning");
-        if (nodep->dpiImport() || nodep->dpiExport()) {
+        ຖ້າ (nodep->dpiImport() || nodep->dpiExport()) {
             cfuncp->isStatic(true);
             cfuncp->isLoose(true);
-        } else {
+        } ບໍ່ດັ່ງນັ້ນ {
             cfuncp->isStatic(false);
         }
         cfuncp->isVirtual(nodep->isVirtual());
         cfuncp->dpiPure(nodep->dpiPure());
-        if (nodep->name() == "new") cfuncp->isConstructor(true);
-        if (nodep->isCovergroupSample()) cfuncp->isCovergroupSample(true);
-        if (cfuncp->dpiExportImpl()) cfuncp->cname(nodep->cname());
+        ຖ້າ (nodep->name() == "new") cfuncp->isConstructor(true);
+        ຖ້າ (nodep->isCovergroupSample()) cfuncp->isCovergroupSample(true);
+        ຖ້າ (cfuncp->dpiExportImpl()) cfuncp->cname(nodep->cname());
 
-        if (cfuncp->dpiImportWrapper()) cfuncp->cname(nodep->cname());
+        ຖ້າ (cfuncp->dpiImportWrapper()) cfuncp->cname(nodep->cname());
 
         const bool needSyms
             = nodep->needsSyms()
               && ((!nodep->dpiImport() && !nodep->taskPublic()) || v3Global.opt.profExec());
-        if (needSyms) cfuncp->argTypes(EmitCUtil::symClassVar());
+        ຖ້າ (needSyms) cfuncp->argTypes(EmitCUtil::symClassVar());
 
-        if (!nodep->dpiImport() && !nodep->taskPublic()) {
+        ຖ້າ (!nodep->dpiImport() && !nodep->taskPublic()) {
             // Need symbol table
-            if (cfuncp->isConstructor()) {
+            ຖ້າ (cfuncp->isConstructor()) {
                 bool isInterfaceClass = false;
-                if (const AstClass* const classp = VN_CAST(m_modp, Class)) {
+                ຖ້າ (const AstClass* const classp = VN_CAST(m_modp, Class)) {
                     isInterfaceClass = classp->isInterfaceClass();
                 }
-                if (!isInterfaceClass) {
+                ຖ້າ (!isInterfaceClass) {
                     const string stmt = VIdProtect::protect("_ctor_var_reset") + "(vlSymsp);";
                     cfuncp->addStmtsp(
                         new AstCStmt{nodep->fileline(), stmt, VCStmtType::CTOR_VAR_RESET_CALL});
                 }
             }
         }
-        if (nodep->dpiContext()) {
+        ຖ້າ (nodep->dpiContext()) {
             // First three args go to dpiContext call
             createInputVar(cfuncp, "__Vscopep", VBasicDTypeKwd::SCOPEPTR);
             createInputVar(cfuncp, "__Vfilenamep", VBasicDTypeKwd::CHARPTR);
             createInputVar(cfuncp, "__Vlineno", VBasicDTypeKwd::INT);
         }
 
-        if (nodep->dpiExport()) {
+        ຖ້າ (nodep->dpiExport()) {
             AstScopeName* const snp = nodep->scopeNamep();
             UASSERT_OBJ(snp, nodep, "Missing scoping context");
             snp->dpiExport(true);
@@ -1585,29 +1585,29 @@ class TaskVisitor final : public VNVisitor {
         }
 
         // Create list of arguments and move to function
-        for (AstNode *nextp, *stmtp = nodep->stmtsp(); stmtp; stmtp = nextp) {
+        ສຳລັບ (AstNode *nextp, *stmtp = nodep->stmtsp(); stmtp; stmtp = nextp) {
             nextp = stmtp->nextp();
-            if (AstVar* const portp = VN_CAST(stmtp, Var)) {
-                if (portp->isParam() && VN_IS(portp->valuep(), ConsArray)) {
+            ຖ້າ (AstVar* const portp = VN_CAST(stmtp, Var)) {
+                ຖ້າ (portp->isParam() && VN_IS(portp->valuep(), ConsArray)) {
                     // Move array parameters in functions into constant pool
                     portp->unlinkFrBack();
                     pushDeletep(portp);
                     portp->user2p(constPoolTable(portp));
-                } else {
-                    if (portp->isIO()) {
+                } ບໍ່ດັ່ງນັ້ນ {
+                    ຖ້າ (portp->isIO()) {
                         // Move it to new function
                         unlinkAndClone(nodep, portp, false);
                         portp->funcLocal(true);
-                        if (portp->valuep()) pushDeletep(portp->valuep()->unlinkFrBack());
+                        ຖ້າ (portp->valuep()) pushDeletep(portp->valuep()->unlinkFrBack());
                         cfuncp->addArgsp(portp);
                         // Pass inputs to DPI import wrappers by reference, unless fits in register
-                        if (cfuncp->dpiImportWrapper() && portp->isReadOnly()) {
+                        ຖ້າ (cfuncp->dpiImportWrapper() && portp->isReadOnly()) {
                             AstNodeDType* const dtypep = portp->dtypep()->skipRefp();
-                            if (dtypep->isCompound() || dtypep->isWide()) {
+                            ຖ້າ (dtypep->isCompound() || dtypep->isWide()) {
                                 portp->direction(VDirection::CONSTREF);
                             }
                         }
-                    } else {
+                    } ບໍ່ດັ່ງນັ້ນ {
                         // "Normal" variable, mark inside function
                         portp->funcLocal(true);
                     }
@@ -1623,37 +1623,37 @@ class TaskVisitor final : public VNVisitor {
         // have it last, rather than first, as the C compiler can sometimes
         // avoid copying variables when calling shells if argument 1
         // remains argument 1 (which it wouldn't if a return got added).
-        if (rtnvarp) cfuncp->addArgsp(rtnvarp);
+        ຖ້າ (rtnvarp) cfuncp->addArgsp(rtnvarp);
 
         // Move body
         AstNode* bodysp = nodep->stmtsp();
-        if (bodysp) {
+        ຖ້າ (bodysp) {
             unlinkAndClone(nodep, bodysp, true);
             AstBegin* const tempp
                 = new AstBegin{nodep->fileline(), "[EditWrapper]", bodysp, false};
             VL_DANGLING(bodysp);
             // If we cloned due to recursion, now need to rip out the ports
             // (that remained in place) then got cloned
-            for (AstNode *nextp, *stmtp = tempp->stmtsp(); stmtp; stmtp = nextp) {
+            ສຳລັບ (AstNode *nextp, *stmtp = tempp->stmtsp(); stmtp; stmtp = nextp) {
                 nextp = stmtp->nextp();
-                if (AstVar* const portp = VN_CAST(stmtp, Var)) {
-                    if (portp->isIO()) VL_DO_DANGLING(pushDeletep(portp->unlinkFrBack()), portp);
+                ຖ້າ (AstVar* const portp = VN_CAST(stmtp, Var)) {
+                    ຖ້າ (portp->isIO()) VL_DO_DANGLING(pushDeletep(portp->unlinkFrBack()), portp);
                 }
             }
-            if (tempp->stmtsp()) cfuncp->addStmtsp(tempp->stmtsp()->unlinkFrBackWithNext());
+            ຖ້າ (tempp->stmtsp()) cfuncp->addStmtsp(tempp->stmtsp()->unlinkFrBackWithNext());
             VL_DO_DANGLING(tempp->deleteTree(), tempp);
         }
-        if (nodep->dpiImport()) bodyDpiImportFunc(nodep, rtnvscp, cfuncp, dpiFuncp);
+        ຖ້າ (nodep->dpiImport()) bodyDpiImportFunc(nodep, rtnvscp, cfuncp, dpiFuncp);
 
         // Return statement
-        if (rtnvscp && nodep->taskPublic()) {
+        ຖ້າ (rtnvscp && nodep->taskPublic()) {
             cfuncp->addStmtsp(new AstCReturn{
                 rtnvscp->fileline(), new AstVarRef{rtnvscp->fileline(), rtnvscp, VAccess::READ}});
         }
         // Replace variable refs
         relink(cfuncp);
 
-        if (cfuncp->dpiExportImpl()) {
+        ຖ້າ (cfuncp->dpiExportImpl()) {
             // Mark all non-local variables written by the DPI exported function as being updated
             // by DPI exports. This ensures correct ordering and change detection later.
 
@@ -1663,16 +1663,16 @@ class TaskVisitor final : public VNVisitor {
                 AstVar* const varp = refp->varScopep()->varp();
                 // We are ignoring function locals as they should not be referenced anywhere
                 // outside the enclosing AstCFunc, hence they are irrelevant for code ordering.
-                if (varp->isFuncLocal()) return;
+                ຖ້າ (varp->isFuncLocal()) ສົ່ງຄືນ;
                 // Check if written
-                if (refp->access().isWriteOrRW()) {
+                ຖ້າ (refp->access().isWriteOrRW()) {
                     // Mark it as written by DPI export
                     varp->setWrittenByDpi();
                     // Remember we had some
                     writesNonLocals = true;
                 }
                 // Check if read
-                if (refp->access().isReadOrRW()) {
+                ຖ້າ (refp->access().isReadOrRW()) {
                     // Mark it as read by DPI export
                     varp->setReadByDpi();
                 }
@@ -1680,7 +1680,7 @@ class TaskVisitor final : public VNVisitor {
 
             // If this DPI export writes some non-local variables, set the DPI Export Trigger flag
             // in the function.
-            if (writesNonLocals) {
+            ຖ້າ (writesNonLocals) {
                 AstVarScope* const dpiExportTriggerp = getDpiExporTrigger();
                 FileLine* const flp = cfuncp->fileline();
 
@@ -1694,7 +1694,7 @@ class TaskVisitor final : public VNVisitor {
 
                 // With --sc, also wake the SystemC wrapper: it cannot see the flag, and may
                 // otherwise sleep until its next timed slot. (usesTiming() is not known yet.)
-                if (v3Global.opt.systemC()) {
+                ຖ້າ (v3Global.opt.systemC()) {
                     assignp->addNextHere(new AstCStmt{
                         flp, "vlSymsp->__Vm_wakeEvent.notify(sc_core::SC_ZERO_TIME);\n"});
                 }
@@ -1702,12 +1702,12 @@ class TaskVisitor final : public VNVisitor {
         }
 
         // Mark the fact that this function allocates std::process
-        if (nodep->needProcess()) cfuncp->setNeedProcess();
+        ຖ້າ (nodep->needProcess()) cfuncp->setNeedProcess();
 
         // Delete rest of cloned task and return new func
         VL_DO_DANGLING(pushDeletep(nodep), nodep);
         UINFOTREE(9, cfuncp, "", "userFunc");
-        return cfuncp;
+        ສົ່ງຄືນ cfuncp;
     }
 
     void iterateIntoFTask(AstNodeFTask* nodep) {
@@ -1728,9 +1728,9 @@ class TaskVisitor final : public VNVisitor {
     }
     void processArgs(AstNodeFTaskRef* nodep) {
         // Create a fresh variable for each concat array present in pins list
-        for (AstArg* argp = nodep->argsp(); argp; argp = VN_AS(argp->nextp(), Arg)) {
+        ສຳລັບ (AstArg* argp = nodep->argsp(); argp; argp = VN_AS(argp->nextp(), Arg)) {
             AstConsArray* const arrayp = VN_CAST(argp->exprp(), ConsArray);
-            if (!arrayp) continue;
+            ຖ້າ (!arrayp) continue;
 
             FileLine* const flp = arrayp->fileline();
             AstVarScope* const substvscp = m_consArrayTmps.make(flp, m_scopep, arrayp->dtypep());
@@ -1748,12 +1748,12 @@ class TaskVisitor final : public VNVisitor {
 
     bool isIfaceLocalImpure(AstNodeFTask* nodep, AstNode* impurep) {
         const AstScope* const scopep = m_statep->getScope(nodep);
-        if (!TaskStateVisitor::isIfaceFTaskScope(scopep)) return false;
+        ຖ້າ (!TaskStateVisitor::isIfaceFTaskScope(scopep)) ສົ່ງຄືນ false;
 
         const AstVarRef* const refp = VN_CAST(impurep, VarRef);
-        if (!refp || !refp->varScopep()) return false;
+        ຖ້າ (!refp || !refp->varScopep()) ສົ່ງຄືນ false;
 
-        return refp->varScopep()->scopep() == scopep;
+        ສົ່ງຄືນ refp->varScopep()->scopep() == scopep;
     }
 
     // VISITORS
@@ -1764,9 +1764,9 @@ class TaskVisitor final : public VNVisitor {
         UASSERT_OBJ(!m_insStmtp, nodep, "Didn't finish out last statement");
     }
     void visit(AstWith* nodep) override {
-        if (nodep->user1SetOnce()) {
+        ຖ້າ (nodep->user1SetOnce()) {
             // Make sure that the return expression is converted only once
-            return;
+            ສົ່ງຄືນ;
         }
         AstNodeExpr* const withExprp = VN_AS(nodep->exprp()->unlinkFrBack(), NodeExpr);
         nodep->addExprp(new AstCReturn{withExprp->fileline(), withExprp});
@@ -1784,43 +1784,43 @@ class TaskVisitor final : public VNVisitor {
         iterateChildren(nodep);
     }
     void visit(AstNodeFTaskRef* nodep) override {
-        if (m_inSensesp && !nodep->isPure()) {
+        ຖ້າ (m_inSensesp && !nodep->isPure()) {
             nodep->v3warn(E_UNSUPPORTED,
                           "Unsupported: Impure function calls in sensitivity lists");
             nodep->taskp(nullptr);  // So V3Broken doesn't complain
-            return;
+            ສົ່ງຄືນ;
         }
         // Includes handling AstMethodCall, AstNew
         UASSERT_OBJ(nodep->taskp(), nodep, "Unlinked?");
         iterateIntoFTask(nodep->taskp());  // First, do hierarchical funcs
-        if (m_statep->ftaskNoInline(nodep->taskp()) && !m_statep->ftaskCFuncp(nodep->taskp())) {
+        ຖ້າ (m_statep->ftaskNoInline(nodep->taskp()) && !m_statep->ftaskCFuncp(nodep->taskp())) {
             // An earlier error (e.g. a DPI import declared twice with conflicting
             // signatures) prevented creating the function, so remove the call
             UASSERT_OBJ(V3Error::errorCount(), nodep, "No non-inline task, but no error issued");
-            if (VN_IS(nodep->backp(), StmtExpr)) {
+            ຖ້າ (VN_IS(nodep->backp(), StmtExpr)) {
                 VL_DO_DANGLING(pushDeletep(nodep->unlinkFrBack()), nodep);
-            } else {
+            } ບໍ່ດັ່ງນັ້ນ {
                 nodep->replaceWith(new AstConst{nodep->fileline(), AstConst::BitFalseErroring{}});
                 VL_DO_DANGLING(pushDeletep(nodep), nodep);
             }
-            return;
+            ສົ່ງຄືນ;
         }
         UINFO(4, " FTask REF   " << nodep);
         UINFOTREE(9, nodep, "", "inlfunc");
         UASSERT_OBJ(m_scopep, nodep, "func ref not under scope");
         // Create output variable
         AstVarScope* outvscp = nullptr;
-        if (nodep->taskp()->isFunction()) {
+        ຖ້າ (nodep->taskp()->isFunction()) {
             AstVar* const fvarp = VN_AS(nodep->taskp()->fvarp(), Var);
             // If the call is on the RHS of a simple assignment 'lhs = call()',
             // the LHS variable can be reused as the output variable iff it has
             // the same type, and the function does not read the output variable itself.
             // This can be proven cheaply if the LHS is an automatic variable and the
             // function does not have any ref arguments. This arises a lot after V3LiftExpr.
-            if (AstAssign* const assignp = VN_CAST(nodep->backp(), Assign)) {
-                if (AstVarRef* const lhsp = VN_CAST(assignp->lhsp(), VarRef)) {
+            ຖ້າ (AstAssign* const assignp = VN_CAST(nodep->backp(), Assign)) {
+                ຖ້າ (AstVarRef* const lhsp = VN_CAST(assignp->lhsp(), VarRef)) {
                     AstVarScope* const vscp = lhsp->varScopep();
-                    if (vscp->varp()->lifetime().isAutomatic()
+                    ຖ້າ (vscp->varp()->lifetime().isAutomatic()
                         && vscp->varp()->dtypep()->skipRefp()->sameTree(
                             fvarp->dtypep()->skipRefp())
                         && !hasRefArgument(nodep->taskp())) {
@@ -1829,7 +1829,7 @@ class TaskVisitor final : public VNVisitor {
                 }
             }
             // Otherwise create a new variable for the result
-            if (!outvscp) outvscp = createVarScope(nodep, fvarp, "__Vfuncout");
+            ຖ້າ (!outvscp) outvscp = createVarScope(nodep, fvarp, "__Vfuncout");
         }
         // Create cloned statements
         AstNode* beginp;
@@ -1838,34 +1838,34 @@ class TaskVisitor final : public VNVisitor {
         const bool virtualIfaceCall
             = TaskStateVisitor::isVirtualIfaceMethodCall(nodep)
               && TaskStateVisitor::isIfaceFTaskScope(m_statep->getScope(nodep->taskp()));
-        if (m_statep->ftaskNoInline(nodep->taskp()) || virtualIfaceCall) {
+        ຖ້າ (m_statep->ftaskNoInline(nodep->taskp()) || virtualIfaceCall) {
             processArgs(nodep);
             // This may share VarScope's with a public task, if any.  Yuk.
             beginp = createNonInlinedFTask(nodep, outvscp, cnewp /*ref*/);
-        } else {
+        } ບໍ່ດັ່ງນັ້ນ {
             beginp = createInlinedFTask(nodep, outvscp);
             ++m_statInlines;
         }
 
-        if (VN_IS(nodep, New)) {  // New not legal as while() condition
+        ຖ້າ (VN_IS(nodep, New)) {  // New not legal as while() condition
             insertBeforeStmt(nodep, beginp);
             UASSERT_OBJ(cnewp, nodep, "didn't create cnew for new");
             nodep->replaceWith(cnewp);
             VL_DO_DANGLING(nodep->deleteTree(), nodep);
-        } else if (VN_IS(nodep->backp(), NodeAssign)) {
+        } ບໍ່ດັ່ງນັ້ນ ຖ້າ (VN_IS(nodep->backp(), NodeAssign)) {
             UASSERT_OBJ(nodep->taskp()->isFunction(), nodep,
                         "funcref-like assign to non-function");
             insertBeforeStmt(nodep, beginp);
             AstVarRef* const outrefp = new AstVarRef{nodep->fileline(), outvscp, VAccess::READ};
             nodep->replaceWith(outrefp);
             VL_DO_DANGLING(nodep->deleteTree(), nodep);
-        } else if (!VN_IS(nodep->backp(), StmtExpr)) {
+        } ບໍ່ດັ່ງນັ້ນ ຖ້າ (!VN_IS(nodep->backp(), StmtExpr)) {
             UASSERT_OBJ(nodep->taskp()->isFunction(), nodep,
                         "funcref-like expression to non-function");
             AstVarRef* const outrefp = new AstVarRef{nodep->fileline(), outvscp, VAccess::READ};
             AstExprStmt* lambdap = new AstExprStmt{nodep->fileline(), beginp, outrefp};
 
-            if (m_inNew) {
+            ຖ້າ (m_inNew) {
                 AstVar* varp = outvscp->varp();
 
                 // Create a new var that will be inside the lambda
@@ -1879,7 +1879,7 @@ class TaskVisitor final : public VNVisitor {
 
                 // Replace all references so they point to the new var and varscope
                 lambdap->stmtsp()->foreachAndNext([outvscp, newvscp](AstVarRef* refp) {
-                    if (refp->varScopep() == outvscp) {
+                    ຖ້າ (refp->varScopep() == outvscp) {
                         refp->varScopep(newvscp);
                         refp->varp(newvscp->varp());
                     }
@@ -1900,9 +1900,9 @@ class TaskVisitor final : public VNVisitor {
             nodep->replaceWith(lambdap);
             VL_DO_DANGLING(nodep->deleteTree(), nodep);
             VIsCached::clearCacheTree();
-        } else {  // VN_IS(nodep->backp(), StmtExpr)
+        } ບໍ່ດັ່ງນັ້ນ {  // VN_IS(nodep->backp(), StmtExpr)
             insertBeforeStmt(nodep, beginp);
-            if (nodep->taskp()->isFunction()
+            ຖ້າ (nodep->taskp()->isFunction()
                 && !nodep->backp()->fileline()->warnIsOff(V3ErrorCode::IGNOREDRETURN)) {
                 nodep->v3warn(
                     IGNOREDRETURN,
@@ -1917,20 +1917,20 @@ class TaskVisitor final : public VNVisitor {
         UINFO(4, " visitFTask   " << nodep);
         VL_RESTORER(m_insStmtp);
         m_insStmtp = nodep->stmtsp();  // Might be null if no statements, but we won't use it
-        if (!nodep->user1SetOnce()) {  // Just one creation needed per function
+        ຖ້າ (!nodep->user1SetOnce()) {  // Just one creation needed per function
             // Expand functions in it
-            int modes = 0;
-            if (nodep->dpiImport()) modes++;
-            if (nodep->dpiExport()) modes++;
-            if (nodep->taskPublic()) modes++;
-            if (nodep->classMethod()) modes++;
-            if (v3Global.opt.protectIds() && nodep->taskPublic()) {
+            ຈຳນວນເຕັມ modes = 0;
+            ຖ້າ (nodep->dpiImport()) modes++;
+            ຖ້າ (nodep->dpiExport()) modes++;
+            ຖ້າ (nodep->taskPublic()) modes++;
+            ຖ້າ (nodep->classMethod()) modes++;
+            ຖ້າ (v3Global.opt.protectIds() && nodep->taskPublic()) {
                 // We always call protect() on names, we don't check if public or not
                 // Hence any external references wouldn't be able to find the refed public object.
                 nodep->v3warn(E_UNSUPPORTED,
                               "Unsupported: Using --protect-ids with public function");
             }
-            if (modes > 1) {
+            ຖ້າ (modes > 1) {
                 nodep->v3error("Cannot mix DPI import, DPI export, class methods, and/or public "
                                "on same function: "
                                << nodep->prettyNameQ());
@@ -1942,9 +1942,9 @@ class TaskVisitor final : public VNVisitor {
             // or interface-local member access, which is not truly external).
             // Will likely not schedule correctly.
             // TODO: Why not if recursive? It will not work ...
-            if (noInline && !nodep->classMethod() && !nodep->recursive()) {
-                if (AstNode* const impurep = m_statep->checkImpure(nodep)) {
-                    if (!isIfaceLocalImpure(nodep, impurep)) {
+            ຖ້າ (noInline && !nodep->classMethod() && !nodep->recursive()) {
+                ຖ້າ (AstNode* const impurep = m_statep->checkImpure(nodep)) {
+                    ຖ້າ (!isIfaceLocalImpure(nodep, impurep)) {
                         nodep->v3warn(IMPURE, "Unsupported: External variable referenced by "
                                               "non-inlined function/task: "
                                                   << nodep->prettyNameQ() << '\n'
@@ -1957,16 +1957,16 @@ class TaskVisitor final : public VNVisitor {
                 }
             }
 
-            if (noInline || needsNonInlineCFunc || nodep->dpiImport() || nodep->dpiExport()
+            ຖ້າ (noInline || needsNonInlineCFunc || nodep->dpiImport() || nodep->dpiExport()
                 || nodep->taskPublic()) {
                 // Clone it first, because we may have later FTaskRef's that still need
                 // the original version.
                 AstNodeFTask* const clonedFuncp = nodep->cloneTree(false);
-                if (nodep->isConstructor()) m_statep->remapFuncClassp(nodep, clonedFuncp);
+                ຖ້າ (nodep->isConstructor()) m_statep->remapFuncClassp(nodep, clonedFuncp);
                 const bool makeNonInlineFunc = noInline || needsNonInlineCFunc;
-                if (AstCFunc* const cfuncp = makeUserFunc(clonedFuncp, makeNonInlineFunc)) {
+                ຖ້າ (AstCFunc* const cfuncp = makeUserFunc(clonedFuncp, makeNonInlineFunc)) {
                     nodep->addNextHere(cfuncp);
-                    if (nodep->dpiImport() || makeNonInlineFunc) {
+                    ຖ້າ (nodep->dpiImport() || makeNonInlineFunc) {
                         m_statep->ftaskCFuncp(nodep, cfuncp);
                     }
                     iterateIntoFTask(clonedFuncp);  // Do the clone too
@@ -1975,16 +1975,16 @@ class TaskVisitor final : public VNVisitor {
 
             // Any variables inside the function still have varscopes pointing to them.
             // We're going to delete the vars, so delete the varscopes.
-            if (nodep->isFunction()) {
-                if (AstVar* const portp = VN_CAST(nodep->fvarp(), Var)) {
+            ຖ້າ (nodep->isFunction()) {
+                ຖ້າ (AstVar* const portp = VN_CAST(nodep->fvarp(), Var)) {
                     AstVarScope* const vscp = m_statep->findVarScope(m_scopep, portp);
                     UINFO(9, "   funcremovevsc " << vscp);
                     VL_DO_DANGLING(pushDeletep(vscp->unlinkFrBack()), vscp);
                 }
             }
-            for (AstNode *nextp, *stmtp = nodep->stmtsp(); stmtp; stmtp = nextp) {
+            ສຳລັບ (AstNode *nextp, *stmtp = nodep->stmtsp(); stmtp; stmtp = nextp) {
                 nextp = stmtp->nextp();
-                if (AstVar* const portp = VN_CAST(stmtp, Var)) {
+                ຖ້າ (AstVar* const portp = VN_CAST(stmtp, Var)) {
                     AstVarScope* const vscp = m_statep->findVarScope(m_scopep, portp);
                     UINFO(9, "   funcremovevsc " << vscp);
                     VL_DO_DANGLING(pushDeletep(vscp->unlinkFrBack()), vscp);
@@ -2005,7 +2005,7 @@ class TaskVisitor final : public VNVisitor {
         // temporary variable becomes the RHS of the force assignment
         std::vector<AstNodeFTaskRef*> refs;
         nodep->rhsp()->foreach([&refs](AstNodeFTaskRef* refp) { refs.push_back(refp); });
-        for (AstNodeFTaskRef* const refp : refs) {
+        ສຳລັບ (AstNodeFTaskRef* const refp : refs) {
 
             // Create the temporary variable and its scope. Every function call gets its own
             // variable in each scope, which is shared with the same call in other instances.
@@ -2044,7 +2044,7 @@ class TaskVisitor final : public VNVisitor {
         VL_RESTORER(m_insStmtp);
         m_insStmtp = nodep;
         iterateChildren(nodep);
-        if (!nodep->exprp()) VL_DO_DANGLING(nodep->unlinkFrBack()->deleteTree(), nodep);
+        ຖ້າ (!nodep->exprp()) VL_DO_DANGLING(nodep->unlinkFrBack()->deleteTree(), nodep);
     }
     void visit(AstSenItem* nodep) override {
         UASSERT_OBJ(!m_inSensesp, nodep, "Senitem under senitem?");
@@ -2078,7 +2078,7 @@ class TaskIfaceSensVisitor final : public VNVisitorConst {
 
     // METHODS
     void markSensesAndIterate(AstNode* nodep) {
-        if (!m_underIfaceFunc) return;
+        ຖ້າ (!m_underIfaceFunc) ສົ່ງຄືນ;
         VL_RESTORER(m_underSenses);
         m_underSenses = true;
         iterateAndNextConstNull(nodep);
@@ -2095,11 +2095,11 @@ class TaskIfaceSensVisitor final : public VNVisitorConst {
         iterateAndNextConstNull(nodep->stmtsp());
     }
     void visit(AstVarRef* nodep) override {
-        if (!m_underSenses) return;
+        ຖ້າ (!m_underSenses) ສົ່ງຄືນ;
         UASSERT_OBJ(nodep->varScopep(), nodep, "No var scope");
         // Keep temps: the clocking event var is a MODULETEMP
-        if (nodep->varp()->isFuncLocal()) return;
-        if (AstIface* const ifacep = VN_CAST(nodep->varScopep()->scopep()->modp(), Iface)) {
+        ຖ້າ (nodep->varp()->isFuncLocal()) ສົ່ງຄືນ;
+        ຖ້າ (AstIface* const ifacep = VN_CAST(nodep->varScopep()->scopep()->modp(), Iface)) {
             nodep->varp()->sensIfacep(ifacep);
         }
     }
@@ -2114,7 +2114,7 @@ public:
 //######################################################################
 // Task class functions
 
-const char* const V3Task::s_dpiTemporaryVarSuffix = "__Vcvt";
+const var_na* const V3Task::s_dpiTemporaryVarSuffix = "__Vcvt";
 
 V3TaskConnects V3Task::taskConnects(AstNodeFTaskRef* nodep, AstNode* taskStmtsp,
                                     V3TaskConnectState* statep, bool makeChanges) {
@@ -2123,22 +2123,22 @@ V3TaskConnects V3Task::taskConnects(AstNodeFTaskRef* nodep, AstNode* taskStmtsp,
     // Missing pin/expr?  We return (pinvar, nullptr)
     // Extra   pin/expr?  We clean it up
     UINFO(9, "taskConnects " << nodep);
-    std::map<const std::string, int> nameToIndex;
+    std::map<const std::string, ຈຳນວນເຕັມ> nameToIndex;
     V3TaskConnects tconnects;
     UASSERT_OBJ(nodep->taskp(), nodep, "unlinked");
 
     // Find ports
-    int tpinnum = 0;
+    ຈຳນວນເຕັມ tpinnum = 0;
     AstVar* sformatp = nullptr;
-    for (AstNode* stmtp = taskStmtsp; stmtp; stmtp = stmtp->nextp()) {
-        if (AstVar* const portp = VN_CAST(stmtp, Var)) {
-            if (portp->isIO()) {
+    ສຳລັບ (AstNode* stmtp = taskStmtsp; stmtp; stmtp = stmtp->nextp()) {
+        ຖ້າ (AstVar* const portp = VN_CAST(stmtp, Var)) {
+            ຖ້າ (portp->isIO()) {
                 tconnects.emplace_back(portp, static_cast<AstArg*>(nullptr));
                 nameToIndex.emplace(portp->name(), tpinnum);  // For name based connections
                 ++tpinnum;
-                if (portp->attrSFormat()) {
+                ຖ້າ (portp->attrSFormat()) {
                     sformatp = portp;
-                } else if (sformatp) {
+                } ບໍ່ດັ່ງນັ້ນ ຖ້າ (sformatp) {
                     portp->v3error("/*verilator sformat*/ can only be applied to last argument of "
                                    "a function");
                 }
@@ -2147,15 +2147,15 @@ V3TaskConnects V3Task::taskConnects(AstNodeFTaskRef* nodep, AstNode* taskStmtsp,
     }
 
     // Find pins
-    int ppinnum = 0;
+    ຈຳນວນເຕັມ ppinnum = 0;
     bool reorganize = false;
-    for (AstArg *argp = nodep->argsp(), *nextp; argp; argp = nextp) {
+    ສຳລັບ (AstArg *argp = nodep->argsp(), *nextp; argp; argp = nextp) {
         nextp = VN_AS(argp->nextp(), Arg);
-        if (!argp->name().empty()) {
+        ຖ້າ (!argp->name().empty()) {
             // By name
             const auto it = nameToIndex.find(argp->name());
-            if (it == nameToIndex.end()) {
-                if (makeChanges) {
+            ຖ້າ (it == nameToIndex.end()) {
+                ຖ້າ (makeChanges) {
                     argp->v3error(
                         "No such argument "
                         << argp->prettyNameQ() << " in call to " << nodep->taskp()->verilogKwd()
@@ -2167,8 +2167,8 @@ V3TaskConnects V3Task::taskConnects(AstNodeFTaskRef* nodep, AstNode* taskStmtsp,
                     // We'll just delete it; seems less error prone than making a false argument
                     VL_DO_DANGLING(argp->unlinkFrBack()->deleteTree(), argp);
                 }
-            } else {
-                if (tconnects[it->second].second && makeChanges) {
+            } ບໍ່ດັ່ງນັ້ນ {
+                ຖ້າ (tconnects[it->second].second && makeChanges) {
                     argp->v3error("Duplicate argument " << argp->prettyNameQ()
                                                         << " in function call to "
                                                         << nodep->taskp()->prettyTypeName());
@@ -2177,15 +2177,15 @@ V3TaskConnects V3Task::taskConnects(AstNodeFTaskRef* nodep, AstNode* taskStmtsp,
                 tconnects[it->second].second = argp;
                 reorganize = true;
             }
-        } else {  // By pin number
-            if (nodep->taskp()->prettyName() == "randomize") {
+        } ບໍ່ດັ່ງນັ້ນ {  // By pin number
+            ຖ້າ (nodep->taskp()->prettyName() == "randomize") {
                 // Arguments to randomize() are special, will be handled in V3Randomize
-            } else if (ppinnum >= tpinnum) {
-                if (sformatp) {
+            } ບໍ່ດັ່ງນັ້ນ ຖ້າ (ppinnum >= tpinnum) {
+                ຖ້າ (sformatp) {
                     tconnects.emplace_back(sformatp, static_cast<AstArg*>(nullptr));
                     tconnects[ppinnum].second = argp;
                     ++tpinnum;
-                } else if (makeChanges) {
+                } ບໍ່ດັ່ງນັ້ນ ຖ້າ (makeChanges) {
                     argp->v3error("Too many arguments in call to "
                                   << nodep->taskp()->verilogKwd() << " "
                                   << nodep->taskp()->prettyNameQ() << '\n'
@@ -2197,44 +2197,44 @@ V3TaskConnects V3Task::taskConnects(AstNodeFTaskRef* nodep, AstNode* taskStmtsp,
                     // We'll just delete it; seems less error prone than making a false argument
                     VL_DO_DANGLING(argp->unlinkFrBack()->deleteTree(), argp);
                 }
-            } else {
+            } ບໍ່ດັ່ງນັ້ນ {
                 tconnects[ppinnum].second = argp;
             }
         }
         ++ppinnum;
     }
 
-    if (!makeChanges) return tconnects;
+    ຖ້າ (!makeChanges) ສົ່ງຄືນ tconnects;
 
     // Connect missing ones
     VInsertionSet<const AstVar*> argWrap;  // Which ports are defaulted; need arg wrapper creation
-    for (int i = 0; i < tpinnum; ++i) {
+    ສຳລັບ (ຈຳນວນເຕັມ i = 0; i < tpinnum; ++i) {
         AstVar* const portp = tconnects[i].first;
-        if (!tconnects[i].second || !tconnects[i].second->exprp()) {
+        ຖ້າ (!tconnects[i].second || !tconnects[i].second->exprp()) {
             AstNodeExpr* newvaluep = nullptr;
-            if (!portp->valuep()) {
+            ຖ້າ (!portp->valuep()) {
                 nodep->v3error("Missing argument on non-defaulted argument "
                                << portp->prettyNameQ() << " in function call to "
                                << nodep->taskp()->prettyTypeName());
                 newvaluep = new AstConst{nodep->fileline(), AstConst::Unsized32{}, 0};
-            } else if (AstFuncRef* const funcRefp = VN_CAST(portp->valuep(), FuncRef)) {
+            } ບໍ່ດັ່ງນັ້ນ ຖ້າ (AstFuncRef* const funcRefp = VN_CAST(portp->valuep(), FuncRef)) {
                 const AstNodeFTask* const funcp = funcRefp->taskp();
-                if (funcp->classMethod() && funcp->isStatic()) newvaluep = funcRefp;
-            } else if (AstConst* const constp = VN_CAST(portp->valuep(), Const)) {
+                ຖ້າ (funcp->classMethod() && funcp->isStatic()) newvaluep = funcRefp;
+            } ບໍ່ດັ່ງນັ້ນ ຖ້າ (AstConst* const constp = VN_CAST(portp->valuep(), Const)) {
                 newvaluep = constp;
             }
 
-            if (!newvaluep) {
+            ຖ້າ (!newvaluep) {
                 // The default value for this port might be a constant
                 // expression that hasn't been folded yet. Try folding it
                 // now; we don't have much to lose if it fails.
                 newvaluep = V3Const::constifyEdit(VN_AS(portp->valuep(), NodeExpr));
-                if (!VN_IS(newvaluep, Const)) {
-                    if (statep) {
+                ຖ້າ (!VN_IS(newvaluep, Const)) {
+                    ຖ້າ (statep) {
                         portp->pinNum(i + 1);  // Make sure correct, will use to build name
                         UINFO(9, "taskConnects arg wrapper needed " << portp->valuep());
                         argWrap.insert(portp);
-                    } else {  // statep = nullptr, called too late or otherwise to handle args
+                    } ບໍ່ດັ່ງນັ້ນ {  // statep = nullptr, called too late or otherwise to handle args
                         // Problem otherwise is we might have a varref, task
                         // call, or something else that only makes sense in the
                         // domain of the function (or class containing the method),
@@ -2253,57 +2253,57 @@ V3TaskConnects V3Task::taskConnects(AstNodeFTaskRef* nodep, AstNode* taskStmtsp,
             // or not, we make this into a pin
             UINFO(9, "Default pin for " << portp);
             AstArg* const newp = new AstArg{nodep->fileline(), portp->name(), newvaluep};
-            if (tconnects[i].second) {  // Have a "nullptr" pin already defined for it
+            ຖ້າ (tconnects[i].second) {  // Have a "nullptr" pin already defined for it
                 VL_DO_CLEAR(tconnects[i].second->unlinkFrBack()->deleteTree(),
                             tconnects[i].second = nullptr);
             }
             tconnects[i].second = newp;
             reorganize = true;
         }
-        if (tconnects[i].second) {
+        ຖ້າ (tconnects[i].second) {
             UINFO(9, "Connect " << portp << "  ->  " << tconnects[i].second);
-        } else {
+        } ບໍ່ດັ່ງນັ້ນ {
             UINFO(9, "Connect " << portp << "  ->  NONE");
         }
     }
 
-    for (const auto& tconnect : tconnects) {
+    ສຳລັບ (const auto& tconnect : tconnects) {
         AstArg* const argp = tconnect.second;
         argp->name("");  // Can forget name as will add back in pin order
     }
 
-    if (reorganize) {
+    ຖ້າ (reorganize) {
         // To simplify downstream, put argument list back into pure pinnumber ordering
-        while (nodep->argsp()) {
+        ໃນຂະນະທີ່ (nodep->argsp()) {
             // Must unlink each pin, not all pins linked together as one list
             nodep->argsp()->unlinkFrBack();
         }
-        for (int i = 0; i < tpinnum; ++i) {
+        ສຳລັບ (ຈຳນວນເຕັມ i = 0; i < tpinnum; ++i) {
             AstArg* const argp = tconnects[i].second;
             UASSERT_OBJ(argp, nodep, "Lost argument in func conversion");
             nodep->addArgsp(argp);
         }
     }
 
-    if (debug() >= 9) {  // LCOV_EXCL_START
+    ຖ້າ (debug() >= 9) {  // LCOV_EXCL_START
         nodep->dumpTree("-  ftref-out: ");
-        for (int i = 0; i < tpinnum; ++i) {
+        ສຳລັບ (ຈຳນວນເຕັມ i = 0; i < tpinnum; ++i) {
             UINFO(0, "   pin " << i << "  pin=" << cvtToHex(tconnects[i].first)
                                << "  conn=" << cvtToHex(tconnects[i].second));
         }
     }  // LCOV_EXCL_STOP
 
-    if (!argWrap.empty()) {
+    ຖ້າ (!argWrap.empty()) {
         UINFO(9, "Arg wrapper generation " << nodep);
         // Create wrapper function with default argument settings.
         // Needed because the default needs symbol table of the called function.
         taskConnectWrap(nodep, tconnects, statep, argWrap);
         // Regenerate all connections, this time connecting to the wrapper
-        return taskConnects(nodep, nodep->taskp()->stmtsp(),
+        ສົ່ງຄືນ taskConnects(nodep, nodep->taskp()->stmtsp(),
                             // statep null, so can't recurse forever
                             nullptr);
     }
-    return tconnects;
+    ສົ່ງຄືນ tconnects;
 }
 
 void V3Task::taskConnectWrap(AstNodeFTaskRef* nodep, const V3TaskConnects& tconnects,
@@ -2312,20 +2312,20 @@ void V3Task::taskConnectWrap(AstNodeFTaskRef* nodep, const V3TaskConnects& tconn
     statep->setDidWrap();
     // Make wrapper name such that is same iff same args are defaulted
     std::string newname = nodep->name() + "__Vtcwrap";
-    for (const AstVar* varp : argWrap) newname += "_" + cvtToStr(varp->pinNum());
+    ສຳລັບ (const AstVar* varp : argWrap) newname += "_" + cvtToStr(varp->pinNum());
     const auto pair = statep->wrapMap().emplace(std::piecewise_construct,
                                                 std::forward_as_tuple(nodep->taskp(), newname),
                                                 std::forward_as_tuple(nullptr));
-    if (pair.second) {
+    ຖ້າ (pair.second) {
         pair.first->second = taskConnectWrapNew(nodep->taskp(), newname, tconnects, argWrap);
     }
     AstNodeFTask* const newTaskp = pair.first->second;
 
     // Remove the defaulted arguments from original outside call
-    for (const auto& tconnect : tconnects) {
+    ສຳລັບ (const auto& tconnect : tconnects) {
         const AstVar* const portp = tconnect.first;
         AstArg* const argp = tconnect.second;
-        if (argWrap.exists(portp)) {  // Removed arg
+        ຖ້າ (argWrap.exists(portp)) {  // Removed arg
             statep->pushDeletep(argp->unlinkFrBack());
         }
     }
@@ -2346,7 +2346,7 @@ AstNodeFTask* V3Task::taskConnectWrapNew(AstNodeFTask* taskp, const string& newn
 
     AstNodeFTaskRef* newCallp = nullptr;
     AstNode* newCallInsertp = nullptr;
-    if (VN_IS(taskp, Func)) {
+    ຖ້າ (VN_IS(taskp, Func)) {
         AstVar* const fvarp = VN_AS(taskp->fvarp(), Var);
         UASSERT_OBJ(fvarp, taskp, "FuncRef without fvar");
         AstVar* const newFVarp = fvarp->cloneTree(true);
@@ -2359,27 +2359,27 @@ AstNodeFTask* V3Task::taskConnectWrapNew(AstNodeFTask* taskp, const string& newn
             = new AstAssign{taskp->fileline(),
                             new AstVarRef{fvarp->fileline(), newFVarp, VAccess::WRITE}, newCallp};
         newCallInsertp->dtypeFrom(newFVarp);
-    } else if (VN_IS(taskp, Task)) {
+    } ບໍ່ດັ່ງນັ້ນ ຖ້າ (VN_IS(taskp, Task)) {
         newCallp = new AstTaskRef{taskp->fileline(), VN_AS(taskp, Task)};
         newCallInsertp = new AstStmtExpr{taskp->fileline(), newCallp};
-    } else {
+    } ບໍ່ດັ່ງນັ້ນ {
         taskp->v3fatalSrc("Unsupported: Non-constant default value in missing argument in a "
                           << taskp->prettyTypeName());
     }
 
     // Create wrapper's ports matching original's
-    for (const auto& tconnect : tconnects) {
+    ສຳລັບ (const auto& tconnect : tconnects) {
         AstVar* const portp = tconnect.first;
         AstVar* newPortp;
-        if (!argWrap.exists(portp)) {  // Not removed arg
+        ຖ້າ (!argWrap.exists(portp)) {  // Not removed arg
             newPortp = new AstVar{portp->fileline(), portp->varType(), portp->name(), portp};
             newPortp->propagateWrapAttrFrom(portp);
             newPortp->funcLocal(true);
-            if (newPortp->valuep()) newPortp->valuep()->unlinkFrBack()->deleteTree();
+            ຖ້າ (newPortp->valuep()) newPortp->valuep()->unlinkFrBack()->deleteTree();
             newTaskp->addStmtsp(newPortp);
-        } else {  // Defaulting arg
+        } ບໍ່ດັ່ງນັ້ນ {  // Defaulting arg
             AstNodeExpr* const valuep = VN_AS(portp->valuep(), NodeExpr);
-            if ((portp->isRef() || portp->isConstRef()) && VN_IS(valuep, VarRef)) {
+            ຖ້າ ((portp->isRef() || portp->isConstRef()) && VN_IS(valuep, VarRef)) {
                 const VAccess refAccess = portp->direction().pinAccess();
                 AstVarRef* const refp = VN_AS(valuep->cloneTree(false), VarRef);
                 refp->access(refAccess);
@@ -2394,7 +2394,7 @@ AstNodeFTask* V3Task::taskConnectWrapNew(AstNodeFTask* taskp, const string& newn
             newPortp->funcLocal(true);
             newTaskp->addStmtsp(newPortp);
             // Runtime-assign it to the default
-            if (!VN_IS(valuep, EmptyQueue)) {
+            ຖ້າ (!VN_IS(valuep, EmptyQueue)) {
                 AstAssign* const newAssignp
                     = new AstAssign{valuep->fileline(),
                                     new AstVarRef{valuep->fileline(), newPortp, VAccess::WRITE},
@@ -2413,10 +2413,10 @@ AstNodeFTask* V3Task::taskConnectWrapNew(AstNodeFTask* taskp, const string& newn
     // Replace any varref's to original to new ports (e.g. in argument equations)
     newTaskp->foreach([=](AstVarRef* refp) {
         const auto it = oldNewVars.find(refp->varp());
-        if (it != oldNewVars.end()) refp->varp(it->second);
+        ຖ້າ (it != oldNewVars.end()) refp->varp(it->second);
     });
     // UINFOTREE(9, newTaskp, "", "taskConnectWrap-new");
-    return newTaskp;
+    ສົ່ງຄືນ newTaskp;
 }
 
 string V3Task::assignInternalToDpi(AstVar* portp, bool isPtr, const string& frSuffix,
@@ -2432,17 +2432,17 @@ string V3Task::assignInternalToDpi(AstVar* portp, bool isPtr, const string& frSu
     const string toName = portp->name() + toSuffix;
     const string idx = portp->name() + "__Vidx";
     size_t unpackSize = 1;  // non-unpacked array is treated as size 1
-    int unpackDim = 0;
-    if (AstUnpackArrayDType* const unpackp
+    ຈຳນວນເຕັມ unpackDim = 0;
+    ຖ້າ (AstUnpackArrayDType* const unpackp
         = VN_CAST(portp->dtypep()->skipRefp(), UnpackArrayDType)) {
         unpackSize = unpackp->arrayUnpackedElements();
         unpackDim = unpackp->dimensions(false).second;
-        if (unpackDim > 0) UASSERT_OBJ(unpackSize > 0, portp, "size must be greater than 0");
+        ຖ້າ (unpackDim > 0) UASSERT_OBJ(unpackSize > 0, portp, "size must be greater than 0");
     }
-    if (portp->basicp()->isDpiBitVec() || portp->basicp()->isDpiLogicVec()) {
+    ຖ້າ (portp->basicp()->isDpiBitVec() || portp->basicp()->isDpiLogicVec()) {
         const bool isBit = portp->basicp()->isDpiBitVec();
         const bool needsFor = unpackSize > 1;
-        if (needsFor) {
+        ຖ້າ (needsFor) {
             stmt = "for (size_t " + idx + " = 0; " + idx + " < " + cvtToStr(unpackSize) + "; ++"
                    + idx + ") ";
         }
@@ -2450,49 +2450,49 @@ string V3Task::assignInternalToDpi(AstVar* portp, bool isPtr, const string& frSu
         stmt += (isBit ? "VL_SET_SVBV_"s : "VL_SET_SVLV_"s)
                 + portp->dtypep()->skipRefp()->charIQWN() + "(" + cvtToStr(portp->width()) + ", ";
         stmt += toName;
-        if (needsFor) {
+        ຖ້າ (needsFor) {
             stmt += " + " + cvtToStr(portp->dtypep()->skipRefp()->widthWords()) + " * " + idx;
         }
         stmt += ", ";
-        if (unpackDim > 0) {  // Access multi-dimensional array as a 1D array
+        ຖ້າ (unpackDim > 0) {  // Access multi-dimensional array as a 1D array
             stmt += "(&" + frName;
-            for (int i = 0; i < unpackDim; ++i) stmt += "[0]";
+            ສຳລັບ (ຈຳນວນເຕັມ i = 0; i < unpackDim; ++i) stmt += "[0]";
             stmt += ")[" + (needsFor ? idx : "0") + "])";
-        } else {
+        } ບໍ່ດັ່ງນັ້ນ {
             stmt += frName + ")";
         }
-    } else {
+    } ບໍ່ດັ່ງນັ້ນ {
         const bool isChandle
             = portp->basicp() && portp->basicp()->keyword() == VBasicDTypeKwd::CHANDLE;
         const bool isString
             = portp->basicp() && portp->basicp()->keyword() == VBasicDTypeKwd::STRING;
         const string unpackAt = unpackSize > 1 ? "[" + idx + "]" : "[0]";
-        if (unpackDim > 0) {
+        ຖ້າ (unpackDim > 0) {
             const string forStmt = unpackSize > 1
                                        ? "for (size_t " + idx + " = 0; " + idx + " < "
                                              + cvtToStr(unpackSize) + "; ++" + idx + ") "
                                        : "";
             stmt += forStmt + toName + unpackAt;
-        } else {
-            if (isPtr) stmt += "*";  // DPI outputs are pointers
+        } ບໍ່ດັ່ງນັ້ນ {
+            ຖ້າ (isPtr) stmt += "*";  // DPI outputs are pointers
             stmt += toName;
         }
         stmt += " = ";
-        if (isChandle) {
+        ຖ້າ (isChandle) {
             stmt += "VL_CVT_Q_VP(";
             ket += ")";
         }
-        if (unpackDim > 0) {
+        ຖ້າ (unpackDim > 0) {
             stmt += "(&" + frName;
-            for (int i = 0; i < unpackDim; ++i) stmt += "[0]";
+            ສຳລັບ (ຈຳນວນເຕັມ i = 0; i < unpackDim; ++i) stmt += "[0]";
             stmt += ")" + unpackAt;
-        } else {
+        } ບໍ່ດັ່ງນັ້ນ {
             stmt += frName;
         }
-        if (isString) stmt += ".c_str()";
+        ຖ້າ (isString) stmt += ".c_str()";
     }
     stmt += ket + ";";
-    return stmt;
+    ສົ່ງຄືນ stmt;
 }
 
 // Create assignment from DPI temporary into internal format
@@ -2502,26 +2502,26 @@ std::string V3Task::assignDpiToInternal(const std::string& lhsName, AstVar* varp
     std::string cvt;
     bool useSvVec;
     std::tie(cvt, useSvVec) = TaskDpiUtils::dpiToInternalCvtStmt(varp->dtypep());
-    const std::vector<std::pair<int, int>> strides = TaskDpiUtils::unpackDimsAndStrides(varp);
-    const int total = strides.empty() ? 1 : strides[0].first * strides[0].second;
-    const int widthWords = varp->basicp()->widthWords();
+    const std::vector<std::pair<ຈຳນວນເຕັມ, ຈຳນວນເຕັມ>> strides = TaskDpiUtils::unpackDimsAndStrides(varp);
+    const ຈຳນວນເຕັມ total = strides.empty() ? 1 : strides[0].first * strides[0].second;
+    const ຈຳນວນເຕັມ widthWords = varp->basicp()->widthWords();
     string statements;
-    for (int i = 0; i < total; ++i) {
+    ສຳລັບ (ຈຳນວນເຕັມ i = 0; i < total; ++i) {
         std::string lhs = lhsName;
         // extract a scalar from multi-dimensional array (internal format)
-        for (const auto& stride : strides) {
+        ສຳລັບ (const auto& stride : strides) {
             lhs += "[" + std::to_string((i / stride.second) % stride.first) + "]";
         }
         // extract a scalar from DPI temporary var that is scalar or 1D array
-        if (useSvVec) {
+        ຖ້າ (useSvVec) {
             const std::string offset = std::to_string(i * widthWords);
             statements += cvt + " " + lhs + ", " + varp->name() + " + " + offset + ");\n";
-        } else {
+        } ບໍ່ດັ່ງນັ້ນ {
             const std::string elem = strides.empty() ? "" : "[" + std::to_string(i) + "]";
             statements += lhs + " = " + cvt + varp->name() + elem + ")" + ";\n";
         }
     }
-    return statements;
+    ສົ່ງຄືນ statements;
 }
 
 void V3Task::taskAll(AstNetlist* nodep) {

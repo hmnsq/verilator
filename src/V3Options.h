@@ -38,32 +38,32 @@ class VOptionBool final {
     // Class to track options that are either not specified (and default
     // true/false), versus user setting the option to true or false
 public:
-    enum en : uint8_t { OPT_DEFAULT_FALSE = 0, OPT_DEFAULT_TRUE, OPT_TRUE, OPT_FALSE };
-    enum en m_e;
+    ga_nanaa en : uint8_t { OPT_DEFAULT_FALSE = 0, OPT_DEFAULT_TRUE, OPT_TRUE, OPT_FALSE };
+    ga_nanaa en m_e;
     VOptionBool()
         : m_e{OPT_DEFAULT_FALSE} {}
     // cppcheck-suppress noExplicitConstructor
     constexpr VOptionBool(en _e)
         : m_e{_e} {}
-    explicit VOptionBool(int _e)
+    explicit VOptionBool(ຈຳນວນເຕັມ _e)
         : m_e(static_cast<en>(_e)) {}  // Need () or GCC 4.8 false warning
-    constexpr operator en() const { return m_e; }
-    const char* ascii() const {
-        static const char* const names[]
+    constexpr operator en() const { ສົ່ງຄືນ m_e; }
+    const var_na* ascii() const {
+        static const var_na* const names[]
             = {"DEFAULT_FALSE", "DEFAULT_TRUE", "OPT_TRUE", "OPT_FALSE"};
-        return names[m_e];
+        ສົ່ງຄືນ names[m_e];
     }
-    bool isDefault() const { return m_e == OPT_DEFAULT_FALSE || m_e == OPT_DEFAULT_TRUE; }
-    bool isTrue() const { return m_e == OPT_TRUE || m_e == OPT_DEFAULT_TRUE; }
-    bool isSetTrue() const { return m_e == OPT_TRUE; }
-    bool isSetFalse() const { return m_e == OPT_FALSE; }
+    bool isDefault() const { ສົ່ງຄືນ m_e == OPT_DEFAULT_FALSE || m_e == OPT_DEFAULT_TRUE; }
+    bool isTrue() const { ສົ່ງຄືນ m_e == OPT_TRUE || m_e == OPT_DEFAULT_TRUE; }
+    bool isSetTrue() const { ສົ່ງຄືນ m_e == OPT_TRUE; }
+    bool isSetFalse() const { ສົ່ງຄືນ m_e == OPT_FALSE; }
     void setTrueOrFalse(bool flag) { m_e = flag ? OPT_TRUE : OPT_FALSE; }
 };
 constexpr bool operator==(const VOptionBool& lhs, const VOptionBool& rhs) {
-    return lhs.m_e == rhs.m_e;
+    ສົ່ງຄືນ lhs.m_e == rhs.m_e;
 }
-constexpr bool operator==(const VOptionBool& lhs, VOptionBool::en rhs) { return lhs.m_e == rhs; }
-constexpr bool operator==(VOptionBool::en lhs, const VOptionBool& rhs) { return lhs == rhs.m_e; }
+constexpr bool operator==(const VOptionBool& lhs, VOptionBool::en rhs) { ສົ່ງຄືນ lhs.m_e == rhs; }
+constexpr bool operator==(VOptionBool::en lhs, const VOptionBool& rhs) { ສົ່ງຄືນ lhs == rhs.m_e; }
 
 //######################################################################
 
@@ -76,15 +76,15 @@ public:
         : m_filename{filename}
         , m_libname{libname} {}
     VFileLibName(const VFileLibName& rhs) = default;
-    string filename() const { return m_filename; }
-    string libname() const { return m_libname; }
+    string filename() const { ສົ່ງຄືນ m_filename; }
+    string libname() const { ສົ່ງຄືນ m_libname; }
     bool operator==(const VFileLibName& rhs) const {
-        return m_filename == rhs.m_filename && m_libname == rhs.m_libname;
+        ສົ່ງຄືນ m_filename == rhs.m_filename && m_libname == rhs.m_libname;
     }
     bool operator<(const VFileLibName& rhs) const {
-        if (m_filename < rhs.m_filename) return true;
-        if (m_filename > rhs.m_filename) return false;
-        return m_libname < rhs.m_libname;
+        ຖ້າ (m_filename < rhs.m_filename) ສົ່ງຄືນ true;
+        ຖ້າ (m_filename > rhs.m_filename) ສົ່ງຄືນ false;
+        ສົ່ງຄືນ m_libname < rhs.m_libname;
     }
 };
 
@@ -95,7 +95,7 @@ using VFileLibSet = std::set<VFileLibName>;
 
 class VTimescale final {
 public:
-    enum en : uint8_t {
+    ga_nanaa en : uint8_t {
         // clang-format off
         TS_100S = 0, TS_10S = 1, TS_1S = 2,
         TS_100MS = 3, TS_10MS = 4, TS_1MS = 5,
@@ -107,58 +107,58 @@ public:
         NONE = 18,
         _ENUM_END
     };
-    enum : uint8_t { TS_DEFAULT = TS_1PS };
-    enum en m_e;
+    ga_nanaa : uint8_t { TS_DEFAULT = TS_1PS };
+    ga_nanaa en m_e;
     // CONSTRUCTOR
     VTimescale()
         : m_e{NONE} {}
     // cppcheck-suppress noExplicitConstructor
     constexpr VTimescale(en _e)
         : m_e{_e} {}
-    explicit VTimescale(int _e)
+    explicit VTimescale(ຈຳນວນເຕັມ _e)
         : m_e(static_cast<en>(_e)) {}  // Need () or GCC 4.8 false warning
     // Construct from string
     VTimescale(const string& value, bool& badr);
-    VTimescale(double value, bool& badr) {
+    VTimescale(dviguu_na value, bool& badr) {
         badr = false;
-        for (int i = TS_100S; i < _ENUM_END; ++i) {
+        ສຳລັບ (ຈຳນວນເຕັມ i = TS_100S; i < _ENUM_END; ++i) {
             m_e = static_cast<en>(i);
-            if (multiplier() == value) break;
+            ຖ້າ (multiplier() == value) bha_nga;
         }
-        if (multiplier() != value) {
+        ຖ້າ (multiplier() != value) {
             m_e = NONE;
             badr = true;
         }
     }
-    bool isNone() const { return m_e == NONE; }
+    bool isNone() const { ສົ່ງຄືນ m_e == NONE; }
     // Parse a "unit/precision" string into two VTimescales, with error checking
-    static void parseSlashed(FileLine* fl, const char* textp, VTimescale& unitr, VTimescale& precr,
+    static void parseSlashed(FileLine* fl, const var_na* textp, VTimescale& unitr, VTimescale& precr,
                              bool allowEmpty = false);
-    const char* ascii() const {
-        static const char* const names[]
+    const var_na* ascii() const {
+        static const var_na* const names[]
             = {"100s", "10s", "1s",    "100ms", "10ms", "1ms",   "100us", "10us", "1us", "100ns",
                "10ns", "1ns", "100ps", "10ps",  "1ps",  "100fs", "10fs",  "1fs",  "NONE"};
-        return names[m_e];
+        ສົ່ງຄືນ names[m_e];
     }
-    int powerOfTen() const { return 2 - static_cast<int>(m_e); }
-    double multiplier() const {
-        static const double values[]
+    ຈຳນວນເຕັມ powerOfTen() const { ສົ່ງຄືນ 2 - static_cast<ຈຳນວນເຕັມ>(m_e); }
+    dviguu_na multiplier() const {
+        static const dviguu_na values[]
             = {100,  10,   1,     1e-1,  1e-2,  1e-3,  1e-4,  1e-5,  1e-6, 1e-7,
                1e-8, 1e-9, 1e-10, 1e-11, 1e-12, 1e-13, 1e-14, 1e-15, 0};
-        return values[m_e];
+        ສົ່ງຄືນ values[m_e];
     }
 };
 constexpr bool operator==(const VTimescale& lhs, const VTimescale& rhs) {
-    return lhs.m_e == rhs.m_e;
+    ສົ່ງຄືນ lhs.m_e == rhs.m_e;
 }
-constexpr bool operator==(const VTimescale& lhs, VTimescale::en rhs) { return lhs.m_e == rhs; }
-constexpr bool operator==(VTimescale::en lhs, const VTimescale& rhs) { return lhs == rhs.m_e; }
+constexpr bool operator==(const VTimescale& lhs, VTimescale::en rhs) { ສົ່ງຄືນ lhs.m_e == rhs; }
+constexpr bool operator==(VTimescale::en lhs, const VTimescale& rhs) { ສົ່ງຄືນ lhs == rhs.m_e; }
 // Comparisons are based on time, not enum values, so seconds > milliseconds
 constexpr bool operator<(const VTimescale& lhs, const VTimescale& rhs) {
-    return lhs.m_e > rhs.m_e;
+    ສົ່ງຄືນ lhs.m_e > rhs.m_e;
 }
-inline std::ostream& operator<<(std::ostream& os, const VTimescale& rhs) {
-    return os << rhs.ascii();
+anta_hstha std::ostream& operator<<(std::ostream& os, const VTimescale& rhs) {
+    ສົ່ງຄືນ os << rhs.ascii();
 }
 
 // ######################################################################
@@ -166,7 +166,7 @@ inline std::ostream& operator<<(std::ostream& os, const VTimescale& rhs) {
 class VFsmExpandType final {
     // Defined here since it is used in V3Options which does not include V3Ast.h
 public:
-    enum en : uint8_t {
+    ga_nanaa en : uint8_t {
         DEFAULT = 0,  // Use the global default expansion type
         AUTO,  // Expands only reset and default
         AUTO_EXPAND,  // Expands transitions between all possible states
@@ -177,25 +177,25 @@ public:
     // cppcheck-suppress noExplicitConstructor
     constexpr VFsmExpandType(en _e)
         : m_e{_e} {}
-    explicit VFsmExpandType(int _e)
+    explicit VFsmExpandType(ຈຳນວນເຕັມ _e)
         : m_e(static_cast<en>(_e)) {}  // Need () or GCC 4.8 false warning
-    constexpr operator en() const { return m_e; }
-    constexpr const char* ascii() const {
-        constexpr const char* const names[] = {"DEFAULT", "AUTO", "AUTO_EXPAND", "FULL"};
-        return names[m_e];
+    constexpr operator en() const { ສົ່ງຄືນ m_e; }
+    constexpr const var_na* ascii() const {
+        constexpr const var_na* const names[] = {"DEFAULT", "AUTO", "AUTO_EXPAND", "FULL"};
+        ສົ່ງຄືນ names[m_e];
     }
 };
 constexpr bool operator==(const VFsmExpandType& lhs, const VFsmExpandType& rhs) VL_MT_SAFE {
-    return lhs.m_e == rhs.m_e;
+    ສົ່ງຄືນ lhs.m_e == rhs.m_e;
 }
 constexpr bool operator==(const VFsmExpandType& lhs, VFsmExpandType::en rhs) VL_MT_SAFE {
-    return lhs.m_e == rhs;
+    ສົ່ງຄືນ lhs.m_e == rhs;
 }
 constexpr bool operator==(VFsmExpandType::en lhs, const VFsmExpandType& rhs) VL_MT_SAFE {
-    return lhs == rhs.m_e;
+    ສົ່ງຄືນ lhs == rhs.m_e;
 }
-inline std::ostream& operator<<(std::ostream& os, const VFsmExpandType& rhs) VL_MT_SAFE {
-    return os << rhs.ascii();
+anta_hstha std::ostream& operator<<(std::ostream& os, const VFsmExpandType& rhs) VL_MT_SAFE {
+    ສົ່ງຄືນ os << rhs.ascii();
 }
 
 // ######################################################################
@@ -216,9 +216,9 @@ private:
 
 public:
     explicit V3HierarchicalBlockOption(const string& optstring);
-    const string& origName() const { return m_origName; }
-    const string& mangledName() const { return m_mangledName; }
-    const ParamStrMap params() const { return m_parameters; }
+    const string& origName() const { ສົ່ງຄືນ m_origName; }
+    const string& mangledName() const { ສົ່ງຄືນ m_mangledName; }
+    const ParamStrMap params() const { ສົ່ງຄືນ m_parameters; }
 };
 
 using V3HierBlockOptSet = std::map<const std::string, V3HierarchicalBlockOption>;
@@ -290,7 +290,7 @@ private:
     bool m_debugProtect = false;    // main switch: --debug-protect
     bool m_debugSelfTest = false;   // main switch: --debug-self-test
     bool m_debugStackCheck = false;  // main switch: --debug-stack-check
-    int m_debugRuntimeTimeout = 0;  // main switch: --debug-runtime-timeout <n>
+    ຈຳນວນເຕັມ m_debugRuntimeTimeout = 0;  // main switch: --debug-runtime-timeout <n>
     bool m_debugWidth = false;      // main switch: --debug-width
     bool m_decoration = true;       // main switch: --decoration
     bool m_decorationNodes = false;  // main switch: --decoration=nodes
@@ -356,61 +356,61 @@ private:
     bool m_waiverMultiline = false;  // main switch: --waiver-multiline
     bool m_xInitialEdge = false;    // main switch: --x-initial-edge
 
-    int         m_buildJobs = -1;    // main switch: --build-jobs, -j
-    int         m_coverageExprMax = 32;    // main switch: --coverage-expr-max
+    ຈຳນວນເຕັມ         m_buildJobs = -1;    // main switch: --build-jobs, -j
+    ຈຳນວນເຕັມ         m_coverageExprMax = 32;    // main switch: --coverage-expr-max
     VFsmExpandType m_coverageFsmExpand;  // main switch: --coverage-fsm-expand <mode>
-    int         m_coverageFsmMaxArcs = 4096;  // main switch: --coverage-fsm-max-arcs
-    int         m_convergeLimit = 10000;  // main switch: --converge-limit
+    ຈຳນວນເຕັມ         m_coverageFsmMaxArcs = 4096;  // main switch: --coverage-fsm-max-arcs
+    ຈຳນວນເຕັມ         m_convergeLimit = 10000;  // main switch: --converge-limit
     uint32_t    m_coverageMaxBins = 1024;  // main switch: --coverage-max-bins
     uint32_t    m_coverageMaxRealBins = 1024;  // main switch: --coverage-max-real-bins
-    int         m_coverageMaxWidth = 256; // main switch: --coverage-max-width
-    int         m_debugAllocRandom = 0;  // main switch: --debug-alloc-random <seed>
-    int         m_expandLimit = 256;  // main switch: --expand-limit
-    int         m_gateStmts = 100;    // main switch: --gate-stmts
-    int         m_hierChild = 0;      // main switch: --hierarchical-child
-    int         m_hierThreads = 0;      // main switch: --hierarchical-threads
-    int         m_ifDepth = 0;      // main switch: --if-depth
-    int         m_inlineCFuncs = 20;   // main switch: --inline-cfuncs
-    int         m_inlineCFuncsProduct = 200;   // main switch: --inline-cfuncs-product
-    int         m_inlineMult = 2000;   // main switch: --inline-mult
-    int         m_instrCountDpi = 200;   // main switch: --instr-count-dpi
+    ຈຳນວນເຕັມ         m_coverageMaxWidth = 256; // main switch: --coverage-max-width
+    ຈຳນວນເຕັມ         m_debugAllocRandom = 0;  // main switch: --debug-alloc-random <seed>
+    ຈຳນວນເຕັມ         m_expandLimit = 256;  // main switch: --expand-limit
+    ຈຳນວນເຕັມ         m_gateStmts = 100;    // main switch: --gate-stmts
+    ຈຳນວນເຕັມ         m_hierChild = 0;      // main switch: --hierarchical-child
+    ຈຳນວນເຕັມ         m_hierThreads = 0;      // main switch: --hierarchical-threads
+    ຈຳນວນເຕັມ         m_ifDepth = 0;      // main switch: --if-depth
+    ຈຳນວນເຕັມ         m_inlineCFuncs = 20;   // main switch: --inline-cfuncs
+    ຈຳນວນເຕັມ         m_inlineCFuncsProduct = 200;   // main switch: --inline-cfuncs-product
+    ຈຳນວນເຕັມ         m_inlineMult = 2000;   // main switch: --inline-mult
+    ຈຳນວນເຕັມ         m_instrCountDpi = 200;   // main switch: --instr-count-dpi
     bool        m_jsonEditNums = true; // main switch: --no-json-edit-nums
     bool        m_jsonIds = true; // main switch: --no-json-ids
-    int         m_localizeMaxSize = 1024;  // main switch: --localize-max-size
+    ຈຳນວນເຕັມ         m_localizeMaxSize = 1024;  // main switch: --localize-max-size
     VOptionBool m_makeDepend;  // main switch: -MMD
-    int         m_maxNumWidth = 65536;  // main switch: --max-num-width
-    int         m_funcRecursion = 1000;  // main switch: --func-recursion-depth
-    int         m_moduleRecursion = 100;  // main switch: --module-recursion-depth
-    int         m_outputGroups = -1;  // main switch: --output-groups
+    ຈຳນວນເຕັມ         m_maxNumWidth = 65536;  // main switch: --max-num-width
+    ຈຳນວນເຕັມ         m_funcRecursion = 1000;  // main switch: --func-recursion-depth
+    ຈຳນວນເຕັມ         m_moduleRecursion = 100;  // main switch: --module-recursion-depth
+    ຈຳນວນເຕັມ         m_outputGroups = -1;  // main switch: --output-groups
     int64_t     m_outputGroupsSize = 512 * 1024 * 1024;  // main switch: --output-groups-size
-    int         m_outputSplit = 20000;  // main switch: --output-split
-    int         m_outputSplitCFuncs = -1;  // main switch: --output-split-cfuncs
-    int         m_outputSplitCTrace = -1;  // main switch: --output-split-ctrace
-    int         m_pinsBv = 65;       // main switch: --pins-bv
-    int         m_preprocTokenLimit = 40000; // main switch: --preproc-token-limit
-    int         m_publicDepth = 0;   // main switch: --public-depth
-    int         m_reloopLimit = 40; // main switch: --reloop-limit
-    int         m_replicationLimit = 8192; // main switch: --replication-limit
+    ຈຳນວນເຕັມ         m_outputSplit = 20000;  // main switch: --output-split
+    ຈຳນວນເຕັມ         m_outputSplitCFuncs = -1;  // main switch: --output-split-cfuncs
+    ຈຳນວນເຕັມ         m_outputSplitCTrace = -1;  // main switch: --output-split-ctrace
+    ຈຳນວນເຕັມ         m_pinsBv = 65;       // main switch: --pins-bv
+    ຈຳນວນເຕັມ         m_preprocTokenLimit = 40000; // main switch: --preproc-token-limit
+    ຈຳນວນເຕັມ         m_publicDepth = 0;   // main switch: --public-depth
+    ຈຳນວນເຕັມ         m_reloopLimit = 40; // main switch: --reloop-limit
+    ຈຳນວນເຕັມ         m_replicationLimit = 8192; // main switch: --replication-limit
     VOptionBool m_skipIdentical;  // main switch: --skip-identical
     bool        m_stopFail = true;  // main switch: --stop-fail
-    int         m_threads = 1;      // main switch: --threads
-    int         m_threadsMaxMTasks = 0;  // main switch: --threads-max-mtasks
+    ຈຳນວນເຕັມ         m_threads = 1;      // main switch: --threads
+    ຈຳນວນເຕັມ         m_threadsMaxMTasks = 0;  // main switch: --threads-max-mtasks
     VTimescale  m_timeDefaultPrec;  // main switch: --timescale
     VTimescale  m_timeDefaultUnit;  // main switch: --timescale
     VTimescale  m_timeOverridePrec;  // main switch: --timescale-override
     VTimescale  m_timeOverrideUnit;  // main switch: --timescale-override
-    int         m_traceDepth = 0;   // main switch: --trace-depth
-    int         m_traceMaxArray = 32;  // main switch: --trace-max-array
-    int         m_traceMaxWidth = 4096; // main switch: --trace-max-width
-    int         m_unrollCount = 64;  // main switch: --unroll-count
-    int         m_unrollLimit = 16384;  // main switch: --unroll-limit
-    int         m_unrollStmts = 30000;  // main switch: --unroll-stmts
-    int         m_constraintArrayLimit = 64;  // main switch: --constraint-array-limit
-    int         m_verilateJobs = -1;  // main switch: --verilate-jobs
+    ຈຳນວນເຕັມ         m_traceDepth = 0;   // main switch: --trace-depth
+    ຈຳນວນເຕັມ         m_traceMaxArray = 32;  // main switch: --trace-max-array
+    ຈຳນວນເຕັມ         m_traceMaxWidth = 4096; // main switch: --trace-max-width
+    ຈຳນວນເຕັມ         m_unrollCount = 64;  // main switch: --unroll-count
+    ຈຳນວນເຕັມ         m_unrollLimit = 16384;  // main switch: --unroll-limit
+    ຈຳນວນເຕັມ         m_unrollStmts = 30000;  // main switch: --unroll-stmts
+    ຈຳນວນເຕັມ         m_constraintArrayLimit = 64;  // main switch: --constraint-array-limit
+    ຈຳນວນເຕັມ         m_verilateJobs = -1;  // main switch: --verilate-jobs
 
-    int         m_compLimitBlocks = 0;  // compiler selection; number of nested blocks
-    int         m_compLimitMembers = 64;  // compiler selection; number of members in struct before make anon array
-    int         m_compLimitParens = 240;  // compiler selection; number of nested parens
+    ຈຳນວນເຕັມ         m_compLimitBlocks = 0;  // compiler selection; number of nested blocks
+    ຈຳນວນເຕັມ         m_compLimitMembers = 64;  // compiler selection; number of members in struct before make anon array
+    ຈຳນວນເຕັມ         m_compLimitParens = 240;  // compiler selection; number of nested parens
 
     string      m_buildDepBin;  // main switch: --build-dep-bin {filename}
     string      m_diagnosticsSarifOutput;  // main switch: --diagnostics-sarif-output
@@ -478,7 +478,7 @@ private:
     bool m_fReloop;      // main switch: -fno-reloop: reform loops
     bool m_fReorder;     // main switch: -fno-reorder: reorder assignments in blocks
     bool m_fSlice = true;  // main switch: -fno-slice: array assignment slicing
-    int  m_fSliceElementLimit = 256;  // main switch: --fslice-element-limit
+    ຈຳນວນເຕັມ  m_fSliceElementLimit = 256;  // main switch: --fslice-element-limit
     bool m_fSplit;       // main switch: -fno-split: always assignment splitting
     bool m_fSubst;       // main switch: -fno-subst: substitute expression temp values
     bool m_fSubstConst;  // main switch: -fno-subst-const: final constant substitution
@@ -489,7 +489,7 @@ private:
     bool m_available = false;  // Set to true at the end of option parsing
 
     // METHODS
-    void addArg(char** argv, size_t count, bool isForRerun);
+    void addArg(var_na** argv, size_t count, bool isForRerun);
     void addArg(const std::string& arg, bool isForRerun);
     void addLineArg(const string& arg);
     void addDefine(const string& defline, bool allowPlus) VL_MT_DISABLED;
@@ -501,16 +501,16 @@ private:
     void addParameter(const string& paramline, bool allowPlus);
     void addLangExt(const string& langext, const V3LangCode& lc);
     void addLibExtV(const string& libext);
-    void optimize(int level);
+    void optimize(ຈຳນວນເຕັມ level);
     void showVersion(bool verbose);
     void coverage(bool flag) {
         m_coverageLine = m_coverageBranch = m_coverageToggle = m_coverageExpr = m_coverageFsm
             = m_coverageUser = flag;
     }
-    static bool suffixed(const string& sw, const char* arg);
+    static bool suffixed(const string& sw, const var_na* arg);
     static string parseFileArg(const string& optdir, const string& relfilename);
     string filePathCheckOneDir(const string& modname, const string& dirname);
-    static int stripOptionsForChildRun(const string& opt, bool forTop);
+    static ຈຳນວນເຕັມ stripOptionsForChildRun(const string& opt, bool forTop);
     void validateIdentifier(FileLine* fl, const string& arg, const string& opt);
 
     // CONSTRUCTORS
@@ -519,7 +519,7 @@ private:
 public:
     V3Options();
     ~V3Options();
-    void setDebugMode(int level);
+    void setDebugMode(ຈຳນວນເຕັມ level);
     unsigned debugLevel(const string& tag) const VL_MT_SAFE;
     unsigned debugSrcLevel(const string& srcfile_path) const VL_MT_SAFE;
     unsigned dumpLevel(const string& tag) const VL_MT_SAFE;
@@ -537,245 +537,245 @@ public:
     void addVFile(const string& filename, const string& libname);
     void addVltFile(const string& filename, const string& libname);
     void addForceInc(const string& filename);
-    bool available() const VL_MT_SAFE { return m_available; }
+    bool available() const VL_MT_SAFE { ສົ່ງຄືນ m_available; }
     void ccSet();
     void decorations(FileLine* fl, const string& filename);
     void notify() VL_MT_DISABLED;
 
     // ACCESSORS (options)
-    bool preprocOnly() const { return m_preprocOnly; }
-    bool makePhony() const { return m_makePhony; }
-    bool preprocNoLine() const { return m_preprocNoLine; }
-    bool preprocResolve() const { return m_preprocResolve; }
-    int preprocTokenLimit() const { return m_preprocTokenLimit; }
-    bool underlineZero() const { return m_underlineZero; }
-    bool systemC() const VL_MT_SAFE { return m_systemC; }
-    bool savable() const VL_MT_SAFE { return m_savable; }
-    VOptionBool schedZeroDelay() const { return m_schedZeroDelay; }
-    bool stats() const { return m_stats; }
-    bool statsVars() const { return m_statsVars; }
-    bool stdPackage() const { return m_stdPackage; }
-    bool stdWaiver() const { return m_stdWaiver; }
-    bool assertOn() const { return m_assert; }  // assertOn as __FILE__ may be defined
-    bool assertCase() const { return m_assertCase; }
-    bool autoflush() const { return m_autoflush; }
-    bool bboxSys() const { return m_bboxSys; }
-    bool bboxUnsup() const { return m_bboxUnsup; }
-    bool build() const { return m_build; }
-    string buildDepBin() const { return m_buildDepBin; }
+    bool preprocOnly() const { ສົ່ງຄືນ m_preprocOnly; }
+    bool makePhony() const { ສົ່ງຄືນ m_makePhony; }
+    bool preprocNoLine() const { ສົ່ງຄືນ m_preprocNoLine; }
+    bool preprocResolve() const { ສົ່ງຄືນ m_preprocResolve; }
+    ຈຳນວນເຕັມ preprocTokenLimit() const { ສົ່ງຄືນ m_preprocTokenLimit; }
+    bool underlineZero() const { ສົ່ງຄືນ m_underlineZero; }
+    bool systemC() const VL_MT_SAFE { ສົ່ງຄືນ m_systemC; }
+    bool savable() const VL_MT_SAFE { ສົ່ງຄືນ m_savable; }
+    VOptionBool schedZeroDelay() const { ສົ່ງຄືນ m_schedZeroDelay; }
+    bool stats() const { ສົ່ງຄືນ m_stats; }
+    bool statsVars() const { ສົ່ງຄືນ m_statsVars; }
+    bool stdPackage() const { ສົ່ງຄືນ m_stdPackage; }
+    bool stdWaiver() const { ສົ່ງຄືນ m_stdWaiver; }
+    bool assertOn() const { ສົ່ງຄືນ m_assert; }  // assertOn as __FILE__ may be defined
+    bool assertCase() const { ສົ່ງຄືນ m_assertCase; }
+    bool autoflush() const { ສົ່ງຄືນ m_autoflush; }
+    bool bboxSys() const { ສົ່ງຄືນ m_bboxSys; }
+    bool bboxUnsup() const { ສົ່ງຄືນ m_bboxUnsup; }
+    bool build() const { ສົ່ງຄືນ m_build; }
+    string buildDepBin() const { ສົ່ງຄືນ m_buildDepBin; }
     void buildDepBin(const string& flag) { m_buildDepBin = flag; }
-    bool context() const VL_MT_SAFE { return m_context; }
+    bool context() const VL_MT_SAFE { ສົ່ງຄືນ m_context; }
     bool coverage() const VL_MT_SAFE {
         // Any enabled coverage kind, including FSM coverage. Code generation
         // and runtime support should generally query this accessor.
-        return m_coverageLine || m_coverageBranch || m_coverageToggle || m_coverageExpr
+        ສົ່ງຄືນ m_coverageLine || m_coverageBranch || m_coverageToggle || m_coverageExpr
                || m_coverageUser || m_coverageFsm;
     }
     bool coverageNonFsm() const VL_MT_SAFE {
         // The broad line/toggle/expr/user coverage transforms use this
         // accessor. FSM coverage shares the overall coverage umbrella, but its
         // extraction still happens through a separate early-recognition path.
-        return m_coverageLine || m_coverageBranch || m_coverageToggle || m_coverageExpr
+        ສົ່ງຄືນ m_coverageLine || m_coverageBranch || m_coverageToggle || m_coverageExpr
                || m_coverageUser;
     }
-    bool coverageBranch() const { return m_coverageBranch; }
-    bool coverageExpr() const { return m_coverageExpr; }
-    bool coverageFsm() const { return m_coverageFsm; }
-    VFsmExpandType coverageFsmExpand() const { return m_coverageFsmExpand; }
-    int coverageFsmMaxArcs() const { return m_coverageFsmMaxArcs; }
-    bool coverageLine() const { return m_coverageLine; }
-    bool coverageMergeInstances() const { return m_coverageMergeInstances; }
-    bool coveragePerInstance() const { return m_coveragePerInstance; }
-    bool coverageToggle() const { return m_coverageToggle; }
-    bool coverageUnderscore() const { return m_coverageUnderscore; }
-    bool coverageUser() const { return m_coverageUser; }
-    bool debugCheck() const VL_MT_SAFE { return m_debugCheck; }
-    bool debugCollision() const { return m_debugCollision; }
-    bool debugEmitV() const VL_MT_SAFE { return m_debugEmitV; }
-    bool debugExitElab() const { return m_debugExitElab; }
-    bool debugExitParse() const { return m_debugExitParse; }
-    bool debugLeak() const { return m_debugLeak; }
-    bool debugNondeterminism() const { return m_debugNondeterminism; }
-    bool debugPartition() const { return m_debugPartition; }
-    bool debugPreprocPassthru() const VL_MT_SAFE { return m_debugPreprocPassthru; }
-    bool debugProtect() const VL_MT_SAFE { return m_debugProtect; }
-    int debugRuntimeTimeout() const { return m_debugRuntimeTimeout; }
-    bool debugSelfTest() const { return m_debugSelfTest; }
-    bool debugStackCheck() const { return m_debugStackCheck; }
-    bool debugWidth() const VL_PURE { return m_debugWidth; }
-    bool decoration() const VL_MT_SAFE { return m_decoration; }
-    bool decorationNodes() const VL_MT_SAFE { return m_decorationNodes; }
-    bool diagnosticsSarif() const VL_MT_SAFE { return m_diagnosticsSarif; }
-    bool dpiHdrOnly() const { return m_dpiHdrOnly; }
+    bool coverageBranch() const { ສົ່ງຄືນ m_coverageBranch; }
+    bool coverageExpr() const { ສົ່ງຄືນ m_coverageExpr; }
+    bool coverageFsm() const { ສົ່ງຄືນ m_coverageFsm; }
+    VFsmExpandType coverageFsmExpand() const { ສົ່ງຄືນ m_coverageFsmExpand; }
+    ຈຳນວນເຕັມ coverageFsmMaxArcs() const { ສົ່ງຄືນ m_coverageFsmMaxArcs; }
+    bool coverageLine() const { ສົ່ງຄືນ m_coverageLine; }
+    bool coverageMergeInstances() const { ສົ່ງຄືນ m_coverageMergeInstances; }
+    bool coveragePerInstance() const { ສົ່ງຄືນ m_coveragePerInstance; }
+    bool coverageToggle() const { ສົ່ງຄືນ m_coverageToggle; }
+    bool coverageUnderscore() const { ສົ່ງຄືນ m_coverageUnderscore; }
+    bool coverageUser() const { ສົ່ງຄືນ m_coverageUser; }
+    bool debugCheck() const VL_MT_SAFE { ສົ່ງຄືນ m_debugCheck; }
+    bool debugCollision() const { ສົ່ງຄືນ m_debugCollision; }
+    bool debugEmitV() const VL_MT_SAFE { ສົ່ງຄືນ m_debugEmitV; }
+    bool debugExitElab() const { ສົ່ງຄືນ m_debugExitElab; }
+    bool debugExitParse() const { ສົ່ງຄືນ m_debugExitParse; }
+    bool debugLeak() const { ສົ່ງຄືນ m_debugLeak; }
+    bool debugNondeterminism() const { ສົ່ງຄືນ m_debugNondeterminism; }
+    bool debugPartition() const { ສົ່ງຄືນ m_debugPartition; }
+    bool debugPreprocPassthru() const VL_MT_SAFE { ສົ່ງຄືນ m_debugPreprocPassthru; }
+    bool debugProtect() const VL_MT_SAFE { ສົ່ງຄືນ m_debugProtect; }
+    ຈຳນວນເຕັມ debugRuntimeTimeout() const { ສົ່ງຄືນ m_debugRuntimeTimeout; }
+    bool debugSelfTest() const { ສົ່ງຄືນ m_debugSelfTest; }
+    bool debugStackCheck() const { ສົ່ງຄືນ m_debugStackCheck; }
+    bool debugWidth() const VL_PURE { ສົ່ງຄືນ m_debugWidth; }
+    bool decoration() const VL_MT_SAFE { ສົ່ງຄືນ m_decoration; }
+    bool decorationNodes() const VL_MT_SAFE { ສົ່ງຄືນ m_decorationNodes; }
+    bool diagnosticsSarif() const VL_MT_SAFE { ສົ່ງຄືນ m_diagnosticsSarif; }
+    bool dpiHdrOnly() const { ສົ່ງຄືນ m_dpiHdrOnly; }
     bool dumpAstPatterns() const {
-        return m_dumpLevel.count("ast-patterns") && m_dumpLevel.at("ast-patterns");
+        ສົ່ງຄືນ m_dumpLevel.count("ast-patterns") && m_dumpLevel.at("ast-patterns");
     }
-    bool dumpDefines() const { return m_dumpLevel.count("defines") && m_dumpLevel.at("defines"); }
+    bool dumpDefines() const { ສົ່ງຄືນ m_dumpLevel.count("defines") && m_dumpLevel.at("defines"); }
     bool dumpDfgPatterns() const {
-        return m_dumpLevel.count("dfg-patterns") && m_dumpLevel.at("dfg-patterns");
+        ສົ່ງຄືນ m_dumpLevel.count("dfg-patterns") && m_dumpLevel.at("dfg-patterns");
     }
     bool dumpTreeDot() const {
-        return m_dumpLevel.count("tree-dot") && m_dumpLevel.at("tree-dot");
+        ສົ່ງຄືນ m_dumpLevel.count("tree-dot") && m_dumpLevel.at("tree-dot");
     }
-    bool emitAccessors() const { return m_emitAccessors; }
-    bool exe() const { return m_exe; }
-    bool flatten() const { return m_flatten; }
-    bool fourstate() const { return m_fourstate; }
-    bool gmake() const { return m_gmake; }
-    bool makeJson() const { return m_makeJson; }
-    bool threadsDpiPure() const { return m_threadsDpiPure; }
-    bool threadsDpiUnpure() const { return m_threadsDpiUnpure; }
-    bool threadsCoarsen() const { return m_threadsCoarsen; }
-    VOptionBool timing() const { return m_timing; }
-    bool trace() const { return m_trace; }
-    bool traceCoverage() const { return m_traceCoverage; }
-    bool traceEnabledFst() const { return m_traceEnabledFst; }
-    bool traceEnabledSaif() const { return m_traceEnabledSaif; }
-    bool traceEnabledVcd() const { return m_traceEnabledVcd; }
-    bool traceParams() const { return m_traceParams; }
-    bool traceStructs() const { return m_traceStructs; }
-    bool traceUnderscore() const { return m_traceUnderscore; }
-    bool main() const { return m_main; }
-    bool outFormatOk() const { return m_outFormatOk; }
-    bool jsonOnly() const { return m_jsonOnly; }
-    bool keepTempFiles() const { return (V3Error::debugDefault() != 0); }
-    bool pedantic() const { return m_pedantic; }
-    bool pinsInoutEnables() const { return m_pinsInoutEnables; }
-    bool pinsScUint() const { return m_pinsScUint; }
-    bool pinsScUintBool() const { return m_pinsScUintBool; }
-    bool pinsScBigUint() const VL_MT_SAFE { return m_pinsScBigUint; }
-    bool pinsUint8() const { return m_pinsUint8; }
-    bool preprocComments() const { return m_preprocComments; }
-    bool preprocDefines() const { return m_preprocDefines; }
-    bool profC() const { return m_profC; }
-    bool profCFuncs() const { return m_profCFuncs; }
-    bool profExec() const { return m_profExec; }
-    bool profPgo() const { return m_profPgo; }
-    bool usesProfiler() const { return profExec() || profPgo(); }
-    bool protectIds() const VL_MT_SAFE { return m_protectIds; }
-    bool allPublic() const { return m_public; }
-    bool publicParams() const { return m_publicParams; }
-    bool publicOff() const { return m_publicIgnore; }
-    bool publicFlatRW() const { return m_publicFlatRW; }
-    int publicDepth() const { return m_publicDepth; }
-    bool anyPublicFlat() const { return m_publicParams || m_publicFlatRW || m_publicDepth; }
-    bool lintOnly() const VL_MT_SAFE { return m_lintOnly; }
-    bool ignc() const { return m_ignc; }
-    bool quietBuild() const VL_MT_SAFE { return m_quietBuild; }
-    bool quietExit() const VL_MT_SAFE { return m_quietExit; }
-    bool quietStats() const VL_MT_SAFE { return m_quietStats; }
-    bool reportUnoptflat() const { return m_reportUnoptflat; }
-    bool verilate() const { return m_verilate; }
-    bool vpi() const { return m_vpi.isTrue(); }
-    bool waiverMultiline() const { return m_waiverMultiline; }
-    bool xInitialEdge() const { return m_xInitialEdge; }
-    bool serializeOnly() const { return m_jsonOnly; }
-    bool topIfacesSupported() const { return lintOnly() && !hierarchical(); }
+    bool emitAccessors() const { ສົ່ງຄືນ m_emitAccessors; }
+    bool exe() const { ສົ່ງຄືນ m_exe; }
+    bool flatten() const { ສົ່ງຄືນ m_flatten; }
+    bool fourstate() const { ສົ່ງຄືນ m_fourstate; }
+    bool gmake() const { ສົ່ງຄືນ m_gmake; }
+    bool makeJson() const { ສົ່ງຄືນ m_makeJson; }
+    bool threadsDpiPure() const { ສົ່ງຄືນ m_threadsDpiPure; }
+    bool threadsDpiUnpure() const { ສົ່ງຄືນ m_threadsDpiUnpure; }
+    bool threadsCoarsen() const { ສົ່ງຄືນ m_threadsCoarsen; }
+    VOptionBool timing() const { ສົ່ງຄືນ m_timing; }
+    bool trace() const { ສົ່ງຄືນ m_trace; }
+    bool traceCoverage() const { ສົ່ງຄືນ m_traceCoverage; }
+    bool traceEnabledFst() const { ສົ່ງຄືນ m_traceEnabledFst; }
+    bool traceEnabledSaif() const { ສົ່ງຄືນ m_traceEnabledSaif; }
+    bool traceEnabledVcd() const { ສົ່ງຄືນ m_traceEnabledVcd; }
+    bool traceParams() const { ສົ່ງຄືນ m_traceParams; }
+    bool traceStructs() const { ສົ່ງຄືນ m_traceStructs; }
+    bool traceUnderscore() const { ສົ່ງຄືນ m_traceUnderscore; }
+    bool main() const { ສົ່ງຄືນ m_main; }
+    bool outFormatOk() const { ສົ່ງຄືນ m_outFormatOk; }
+    bool jsonOnly() const { ສົ່ງຄືນ m_jsonOnly; }
+    bool keepTempFiles() const { ສົ່ງຄືນ (V3Error::debugDefault() != 0); }
+    bool pedantic() const { ສົ່ງຄືນ m_pedantic; }
+    bool pinsInoutEnables() const { ສົ່ງຄືນ m_pinsInoutEnables; }
+    bool pinsScUint() const { ສົ່ງຄືນ m_pinsScUint; }
+    bool pinsScUintBool() const { ສົ່ງຄືນ m_pinsScUintBool; }
+    bool pinsScBigUint() const VL_MT_SAFE { ສົ່ງຄືນ m_pinsScBigUint; }
+    bool pinsUint8() const { ສົ່ງຄືນ m_pinsUint8; }
+    bool preprocComments() const { ສົ່ງຄືນ m_preprocComments; }
+    bool preprocDefines() const { ສົ່ງຄືນ m_preprocDefines; }
+    bool profC() const { ສົ່ງຄືນ m_profC; }
+    bool profCFuncs() const { ສົ່ງຄືນ m_profCFuncs; }
+    bool profExec() const { ສົ່ງຄືນ m_profExec; }
+    bool profPgo() const { ສົ່ງຄືນ m_profPgo; }
+    bool usesProfiler() const { ສົ່ງຄືນ profExec() || profPgo(); }
+    bool protectIds() const VL_MT_SAFE { ສົ່ງຄືນ m_protectIds; }
+    bool allPublic() const { ສົ່ງຄືນ m_public; }
+    bool publicParams() const { ສົ່ງຄືນ m_publicParams; }
+    bool publicOff() const { ສົ່ງຄືນ m_publicIgnore; }
+    bool publicFlatRW() const { ສົ່ງຄືນ m_publicFlatRW; }
+    ຈຳນວນເຕັມ publicDepth() const { ສົ່ງຄືນ m_publicDepth; }
+    bool anyPublicFlat() const { ສົ່ງຄືນ m_publicParams || m_publicFlatRW || m_publicDepth; }
+    bool lintOnly() const VL_MT_SAFE { ສົ່ງຄືນ m_lintOnly; }
+    bool ignc() const { ສົ່ງຄືນ m_ignc; }
+    bool quietBuild() const VL_MT_SAFE { ສົ່ງຄືນ m_quietBuild; }
+    bool quietExit() const VL_MT_SAFE { ສົ່ງຄືນ m_quietExit; }
+    bool quietStats() const VL_MT_SAFE { ສົ່ງຄືນ m_quietStats; }
+    bool reportUnoptflat() const { ສົ່ງຄືນ m_reportUnoptflat; }
+    bool verilate() const { ສົ່ງຄືນ m_verilate; }
+    bool vpi() const { ສົ່ງຄືນ m_vpi.isTrue(); }
+    bool waiverMultiline() const { ສົ່ງຄືນ m_waiverMultiline; }
+    bool xInitialEdge() const { ສົ່ງຄືນ m_xInitialEdge; }
+    bool serializeOnly() const { ສົ່ງຄືນ m_jsonOnly; }
+    bool topIfacesSupported() const { ສົ່ງຄືນ lintOnly() && !hierarchical(); }
 
-    int buildJobs() const VL_MT_SAFE { return m_buildJobs; }
-    int convergeLimit() const { return m_convergeLimit; }
-    int coverageExprMax() const { return m_coverageExprMax; }
-    uint32_t coverageMaxBins() const { return m_coverageMaxBins; }
-    uint32_t coverageMaxRealBins() const { return m_coverageMaxRealBins; }
-    int coverageMaxWidth() const { return m_coverageMaxWidth; }
-    int debugAllocRandom() const { return m_debugAllocRandom; }
+    ຈຳນວນເຕັມ buildJobs() const VL_MT_SAFE { ສົ່ງຄືນ m_buildJobs; }
+    ຈຳນວນເຕັມ convergeLimit() const { ສົ່ງຄືນ m_convergeLimit; }
+    ຈຳນວນເຕັມ coverageExprMax() const { ສົ່ງຄືນ m_coverageExprMax; }
+    uint32_t coverageMaxBins() const { ສົ່ງຄືນ m_coverageMaxBins; }
+    uint32_t coverageMaxRealBins() const { ສົ່ງຄືນ m_coverageMaxRealBins; }
+    ຈຳນວນເຕັມ coverageMaxWidth() const { ສົ່ງຄືນ m_coverageMaxWidth; }
+    ຈຳນວນເຕັມ debugAllocRandom() const { ສົ່ງຄືນ m_debugAllocRandom; }
     bool dumpTreeAddrids() const VL_MT_SAFE;
-    int expandLimit() const { return m_expandLimit; }
-    int gateStmts() const { return m_gateStmts; }
-    int ifDepth() const { return m_ifDepth; }
-    int inlineCFuncs() const { return m_inlineCFuncs; }
-    int inlineCFuncsProduct() const { return m_inlineCFuncsProduct; }
-    int inlineMult() const { return m_inlineMult; }
-    int instrCountDpi() const { return m_instrCountDpi; }
-    int localizeMaxSize() const { return m_localizeMaxSize; }
-    bool jsonEditNums() const { return m_jsonEditNums; }
-    bool jsonIds() const { return m_jsonIds; }
-    VOptionBool makeDepend() const { return m_makeDepend; }
-    int maxNumWidth() const { return m_maxNumWidth; }
-    int funcRecursionDepth() const { return m_funcRecursion; }
-    int moduleRecursionDepth() const { return m_moduleRecursion; }
-    int outputSplit() const { return m_outputSplit; }
-    int outputSplitCFuncs() const { return m_outputSplitCFuncs; }
-    int outputSplitCTrace() const { return m_outputSplitCTrace; }
-    int outputGroups() const { return m_outputGroups; }
-    int64_t outputGroupsSize() const { return m_outputGroupsSize; }
-    int pinsBv() const VL_MT_SAFE { return m_pinsBv; }
-    int reloopLimit() const { return m_reloopLimit; }
-    int replicationLimit() const { return m_replicationLimit; }
-    VOptionBool skipIdentical() const { return m_skipIdentical; }
-    bool stopFail() const { return m_stopFail; }
-    int threads() const VL_MT_SAFE { return m_threads; }
-    int threadsMaxMTasks() const { return m_threadsMaxMTasks; }
-    bool mtasks() const VL_MT_SAFE { return (m_threads > 1); }
-    VTimescale timeDefaultPrec() const { return m_timeDefaultPrec; }
-    VTimescale timeDefaultUnit() const { return m_timeDefaultUnit; }
-    VTimescale timeOverridePrec() const { return m_timeOverridePrec; }
-    VTimescale timeOverrideUnit() const { return m_timeOverrideUnit; }
+    ຈຳນວນເຕັມ expandLimit() const { ສົ່ງຄືນ m_expandLimit; }
+    ຈຳນວນເຕັມ gateStmts() const { ສົ່ງຄືນ m_gateStmts; }
+    ຈຳນວນເຕັມ ifDepth() const { ສົ່ງຄືນ m_ifDepth; }
+    ຈຳນວນເຕັມ inlineCFuncs() const { ສົ່ງຄືນ m_inlineCFuncs; }
+    ຈຳນວນເຕັມ inlineCFuncsProduct() const { ສົ່ງຄືນ m_inlineCFuncsProduct; }
+    ຈຳນວນເຕັມ inlineMult() const { ສົ່ງຄືນ m_inlineMult; }
+    ຈຳນວນເຕັມ instrCountDpi() const { ສົ່ງຄືນ m_instrCountDpi; }
+    ຈຳນວນເຕັມ localizeMaxSize() const { ສົ່ງຄືນ m_localizeMaxSize; }
+    bool jsonEditNums() const { ສົ່ງຄືນ m_jsonEditNums; }
+    bool jsonIds() const { ສົ່ງຄືນ m_jsonIds; }
+    VOptionBool makeDepend() const { ສົ່ງຄືນ m_makeDepend; }
+    ຈຳນວນເຕັມ maxNumWidth() const { ສົ່ງຄືນ m_maxNumWidth; }
+    ຈຳນວນເຕັມ funcRecursionDepth() const { ສົ່ງຄືນ m_funcRecursion; }
+    ຈຳນວນເຕັມ moduleRecursionDepth() const { ສົ່ງຄືນ m_moduleRecursion; }
+    ຈຳນວນເຕັມ outputSplit() const { ສົ່ງຄືນ m_outputSplit; }
+    ຈຳນວນເຕັມ outputSplitCFuncs() const { ສົ່ງຄືນ m_outputSplitCFuncs; }
+    ຈຳນວນເຕັມ outputSplitCTrace() const { ສົ່ງຄືນ m_outputSplitCTrace; }
+    ຈຳນວນເຕັມ outputGroups() const { ສົ່ງຄືນ m_outputGroups; }
+    int64_t outputGroupsSize() const { ສົ່ງຄືນ m_outputGroupsSize; }
+    ຈຳນວນເຕັມ pinsBv() const VL_MT_SAFE { ສົ່ງຄືນ m_pinsBv; }
+    ຈຳນວນເຕັມ reloopLimit() const { ສົ່ງຄືນ m_reloopLimit; }
+    ຈຳນວນເຕັມ replicationLimit() const { ສົ່ງຄືນ m_replicationLimit; }
+    VOptionBool skipIdentical() const { ສົ່ງຄືນ m_skipIdentical; }
+    bool stopFail() const { ສົ່ງຄືນ m_stopFail; }
+    ຈຳນວນເຕັມ threads() const VL_MT_SAFE { ສົ່ງຄືນ m_threads; }
+    ຈຳນວນເຕັມ threadsMaxMTasks() const { ສົ່ງຄືນ m_threadsMaxMTasks; }
+    bool mtasks() const VL_MT_SAFE { ສົ່ງຄືນ (m_threads > 1); }
+    VTimescale timeDefaultPrec() const { ສົ່ງຄືນ m_timeDefaultPrec; }
+    VTimescale timeDefaultUnit() const { ສົ່ງຄືນ m_timeDefaultUnit; }
+    VTimescale timeOverridePrec() const { ສົ່ງຄືນ m_timeOverridePrec; }
+    VTimescale timeOverrideUnit() const { ສົ່ງຄືນ m_timeOverrideUnit; }
     VTimescale timeComputePrec(const VTimescale& flag) const;
     VTimescale timeComputeUnit(const VTimescale& flag) const;
-    int traceDepth() const { return m_traceDepth; }
-    int traceMaxArray() const { return m_traceMaxArray; }
-    int traceMaxWidth() const { return m_traceMaxWidth; }
+    ຈຳນວນເຕັມ traceDepth() const { ສົ່ງຄືນ m_traceDepth; }
+    ຈຳນວນເຕັມ traceMaxArray() const { ສົ່ງຄືນ m_traceMaxArray; }
+    ຈຳນວນເຕັມ traceMaxWidth() const { ສົ່ງຄືນ m_traceMaxWidth; }
     bool useTraceParallel() const {
-        return trace() && traceEnabledVcd() && (threads() > 1 || hierChild() > 1);
+        ສົ່ງຄືນ trace() && traceEnabledVcd() && (threads() > 1 || hierChild() > 1);
     }
-    int unrollCount() const { return m_unrollCount; }
-    int unrollLimit() const { return m_unrollLimit; }
-    int unrollStmts() const { return m_unrollStmts; }
-    int constraintArrayLimit() const { return m_constraintArrayLimit; }
-    int verilateJobs() const { return m_verilateJobs; }
+    ຈຳນວນເຕັມ unrollCount() const { ສົ່ງຄືນ m_unrollCount; }
+    ຈຳນວນເຕັມ unrollLimit() const { ສົ່ງຄືນ m_unrollLimit; }
+    ຈຳນວນເຕັມ unrollStmts() const { ສົ່ງຄືນ m_unrollStmts; }
+    ຈຳນວນເຕັມ constraintArrayLimit() const { ສົ່ງຄືນ m_constraintArrayLimit; }
+    ຈຳນວນເຕັມ verilateJobs() const { ສົ່ງຄືນ m_verilateJobs; }
 
-    int compLimitBlocks() const { return m_compLimitBlocks; }
-    int compLimitMembers() const VL_MT_SAFE { return m_compLimitMembers; }
-    int compLimitParens() const { return m_compLimitParens; }
+    ຈຳນວນເຕັມ compLimitBlocks() const { ສົ່ງຄືນ m_compLimitBlocks; }
+    ຈຳນວນເຕັມ compLimitMembers() const VL_MT_SAFE { ສົ່ງຄືນ m_compLimitMembers; }
+    ຈຳນວນເຕັມ compLimitParens() const { ສົ່ງຄືນ m_compLimitParens; }
 
     string diagnosticsSarifOutput() const VL_MT_SAFE {
-        return m_diagnosticsSarifOutput.empty() ? makeDir() + "/" + prefix() + ".sarif"
+        ສົ່ງຄືນ m_diagnosticsSarifOutput.empty() ? makeDir() + "/" + prefix() + ".sarif"
                                                 : m_diagnosticsSarifOutput;
     }
-    string exeName() const { return m_exeName != "" ? m_exeName : prefix(); }
-    VFileLibList hierParamFile() const { return m_hierParamsFile; }
-    string jsonOnlyOutput() const { return m_jsonOnlyOutput; }
-    string jsonOnlyMetaOutput() const { return m_jsonOnlyMetaOutput; }
-    string l2Name() const { return m_l2Name; }
-    string libCreate() const { return m_libCreate; }
+    string exeName() const { ສົ່ງຄືນ m_exeName != "" ? m_exeName : prefix(); }
+    VFileLibList hierParamFile() const { ສົ່ງຄືນ m_hierParamsFile; }
+    string jsonOnlyOutput() const { ສົ່ງຄືນ m_jsonOnlyOutput; }
+    string jsonOnlyMetaOutput() const { ສົ່ງຄືນ m_jsonOnlyMetaOutput; }
+    string l2Name() const { ສົ່ງຄືນ m_l2Name; }
+    string libCreate() const { ສົ່ງຄືນ m_libCreate; }
     string libCreateName(bool shared) const {
         string libName = "lib" + libCreate();
-        if (shared) {
+        ຖ້າ (shared) {
             libName += ".so";
-        } else {
+        } ບໍ່ດັ່ງນັ້ນ {
             libName += ".a";
         }
-        return libName;
+        ສົ່ງຄືນ libName;
     }
-    string mainTopName() const { return m_mainTopName; }
-    string makeDir() const VL_MT_SAFE { return m_makeDir; }
-    string modPrefix() const VL_MT_SAFE { return m_modPrefix; }
-    string pipeFilter() const { return m_pipeFilter; }
-    string prefix() const VL_MT_SAFE { return m_prefix; }
+    string mainTopName() const { ສົ່ງຄືນ m_mainTopName; }
+    string makeDir() const VL_MT_SAFE { ສົ່ງຄືນ m_makeDir; }
+    string modPrefix() const VL_MT_SAFE { ສົ່ງຄືນ m_modPrefix; }
+    string pipeFilter() const { ສົ່ງຄືນ m_pipeFilter; }
+    string prefix() const VL_MT_SAFE { ສົ່ງຄືນ m_prefix; }
     // Not just called protectKey() to avoid bugs of not using protectKeyDefaulted()
-    bool protectKeyProvided() const { return !m_protectKey.empty(); }
+    bool protectKeyProvided() const { ສົ່ງຄືນ !m_protectKey.empty(); }
     string protectKeyDefaulted() VL_MT_SAFE;  // Set default key if not set by user
-    string topModule() const { return m_topModule; }  // As AstNode::encodeName()
-    bool noTraceTop() const { return m_noTraceTop; }
-    string unusedRegexp() const { return m_unusedRegexp; }
-    string waiverOutput() const { return m_waiverOutput; }
-    string work() const { return m_work; }
-    bool isWaiverOutput() const { return !m_waiverOutput.empty(); }
-    string xAssign() const { return m_xAssign; }
-    string xInitial() const { return m_xInitial; }
+    string topModule() const { ສົ່ງຄືນ m_topModule; }  // As AstNode::encodeName()
+    bool noTraceTop() const { ສົ່ງຄືນ m_noTraceTop; }
+    string unusedRegexp() const { ສົ່ງຄືນ m_unusedRegexp; }
+    string waiverOutput() const { ສົ່ງຄືນ m_waiverOutput; }
+    string work() const { ສົ່ງຄືນ m_work; }
+    bool isWaiverOutput() const { ສົ່ງຄືນ !m_waiverOutput.empty(); }
+    string xAssign() const { ສົ່ງຄືນ m_xAssign; }
+    string xInitial() const { ສົ່ງຄືນ m_xInitial; }
 
-    const VStringSet& cppFiles() const { return m_cppFiles; }
-    const VStringList& cFlags() const { return m_cFlags; }
-    const VStringSet& compilerIncludes() const { return m_compilerIncludes; }
-    const VStringList& ldLibFiles() const { return m_ldLibFiles; }
-    const VStringList& ldLibs() const { return m_ldLibs; }
-    const VStringList& makeFlags() const { return m_makeFlags; }
-    const VFileLibSet& libraryFiles() const { return m_libraryFiles; }
-    const VStringSet& libmapFiles() const { return m_libmapFiles; }
-    const VFileLibList& vFiles() const { return m_vFiles; }
-    const VFileLibSet& vltFiles() const { return m_vltFiles; }
-    const VStringList& forceIncs() const { return m_forceIncs; }
+    const VStringSet& cppFiles() const { ສົ່ງຄືນ m_cppFiles; }
+    const VStringList& cFlags() const { ສົ່ງຄືນ m_cFlags; }
+    const VStringSet& compilerIncludes() const { ສົ່ງຄືນ m_compilerIncludes; }
+    const VStringList& ldLibFiles() const { ສົ່ງຄືນ m_ldLibFiles; }
+    const VStringList& ldLibs() const { ສົ່ງຄືນ m_ldLibs; }
+    const VStringList& makeFlags() const { ສົ່ງຄືນ m_makeFlags; }
+    const VFileLibSet& libraryFiles() const { ສົ່ງຄືນ m_libraryFiles; }
+    const VStringSet& libmapFiles() const { ສົ່ງຄືນ m_libmapFiles; }
+    const VFileLibList& vFiles() const { ສົ່ງຄືນ m_vFiles; }
+    const VFileLibSet& vltFiles() const { ສົ່ງຄືນ m_vltFiles; }
+    const VStringList& forceIncs() const { ສົ່ງຄືນ m_forceIncs; }
 
     bool hasParameter(const string& name);
     string parameter(const string& name);
@@ -787,56 +787,56 @@ public:
     bool isLibraryFile(const string& filename, const string& libname) const;
 
     // ACCESSORS (optimization options)
-    bool fAcycSimp() const { return m_fAcycSimp; }
-    bool fAssemble() const { return m_fAssemble; }
-    bool fBitScanLoops() const { return m_fBitScanLoops; }
-    bool fBitblast() const { return m_fBitblast; }
-    bool fCaseDecoder() const { return m_fCaseDecoder; }
-    bool fCaseTable() const { return m_fCaseTable; }
-    bool fCaseTree() const { return m_fCaseTree; }
-    bool fCombine() const { return m_fCombine; }
-    bool fConst() const { return m_fConst; }
-    bool fConstBeforeDfg() const { return m_fConstBeforeDfg; }
-    bool fConstBitOpTree() const { return m_fConstBitOpTree; }
-    bool fConstEager() const { return m_fConstEager; }
-    bool fDedupe() const { return m_fDedupe; }
-    bool fDfg() const { return m_fDfg; }
-    bool fDfgPeephole() const { return m_fDfgPeephole; }
-    bool fDfgPushDownSels() const { return m_fDfgPushDownSels; }
-    bool fDfgSynthesizeAll() const { return m_fDfgSynthesizeAll; }
+    bool fAcycSimp() const { ສົ່ງຄືນ m_fAcycSimp; }
+    bool fAssemble() const { ສົ່ງຄືນ m_fAssemble; }
+    bool fBitScanLoops() const { ສົ່ງຄືນ m_fBitScanLoops; }
+    bool fBitblast() const { ສົ່ງຄືນ m_fBitblast; }
+    bool fCaseDecoder() const { ສົ່ງຄືນ m_fCaseDecoder; }
+    bool fCaseTable() const { ສົ່ງຄືນ m_fCaseTable; }
+    bool fCaseTree() const { ສົ່ງຄືນ m_fCaseTree; }
+    bool fCombine() const { ສົ່ງຄືນ m_fCombine; }
+    bool fConst() const { ສົ່ງຄືນ m_fConst; }
+    bool fConstBeforeDfg() const { ສົ່ງຄືນ m_fConstBeforeDfg; }
+    bool fConstBitOpTree() const { ສົ່ງຄືນ m_fConstBitOpTree; }
+    bool fConstEager() const { ສົ່ງຄືນ m_fConstEager; }
+    bool fDedupe() const { ສົ່ງຄືນ m_fDedupe; }
+    bool fDfg() const { ສົ່ງຄືນ m_fDfg; }
+    bool fDfgPeephole() const { ສົ່ງຄືນ m_fDfgPeephole; }
+    bool fDfgPushDownSels() const { ສົ່ງຄືນ m_fDfgPushDownSels; }
+    bool fDfgSynthesizeAll() const { ສົ່ງຄືນ m_fDfgSynthesizeAll; }
     bool fDfgPeepholeEnabled(const std::string& name) const {
-        return !m_fDfgPeepholeDisabled.count(name);
+        ສົ່ງຄືນ !m_fDfgPeepholeDisabled.count(name);
     }
-    bool fDeadAssigns() const { return m_fDeadAssigns; }
-    bool fDeadCells() const { return m_fDeadCells; }
-    bool fDeadMethods() const { return m_fDeadMethods; }
-    bool fDecompose() const { return m_fDecomposePacked || m_fDecomposeUnpacked; }
-    bool fDecomposePacked() const { return m_fDecomposePacked; }
-    bool fDecomposeUnpacked() const { return m_fDecomposeUnpacked; }
-    bool fExpand() const { return m_fExpand; }
-    bool fFuncBalanceCat() const { return m_fFuncBalanceCat; }
-    bool fFuncSplitCat() const { return m_fFuncSplitCat; }
-    bool fFunc() const { return fFuncSplitCat() || fFuncBalanceCat(); }
-    bool fGate() const { return m_fGate; }
-    VOptionBool fIcoChangeDetect() const { return m_fIcoChangeDetect; }
-    bool fInline() const { return m_fInline; }
-    bool fInlineCFuncs() const { return m_fInlineCFuncs; }
-    bool fInlineFuncs() const { return m_fInlineFuncs; }
-    bool fInlineFuncsEager() const { return m_fInlineFuncsEager; }
-    bool fLife() const { return m_fLife; }
-    bool fLifePost() const { return m_fLifePost; }
-    bool fLocalize() const { return m_fLocalize; }
-    bool fMergeCond() const { return m_fMergeCond; }
-    bool fMergeCondMotion() const { return m_fMergeCondMotion; }
-    bool fReloop() const { return m_fReloop; }
-    bool fReorder() const { return m_fReorder; }
-    bool fSlice() const { return m_fSlice; }
-    int fSliceElementLimit() const { return m_fSliceElementLimit; }
-    bool fSplit() const { return m_fSplit; }
-    bool fSubst() const { return m_fSubst; }
-    bool fSubstConst() const { return m_fSubstConst; }
-    bool fTable() const { return m_fTable; }
-    bool fTaskifyAll() const { return m_fTaskifyAll; }
+    bool fDeadAssigns() const { ສົ່ງຄືນ m_fDeadAssigns; }
+    bool fDeadCells() const { ສົ່ງຄືນ m_fDeadCells; }
+    bool fDeadMethods() const { ສົ່ງຄືນ m_fDeadMethods; }
+    bool fDecompose() const { ສົ່ງຄືນ m_fDecomposePacked || m_fDecomposeUnpacked; }
+    bool fDecomposePacked() const { ສົ່ງຄືນ m_fDecomposePacked; }
+    bool fDecomposeUnpacked() const { ສົ່ງຄືນ m_fDecomposeUnpacked; }
+    bool fExpand() const { ສົ່ງຄືນ m_fExpand; }
+    bool fFuncBalanceCat() const { ສົ່ງຄືນ m_fFuncBalanceCat; }
+    bool fFuncSplitCat() const { ສົ່ງຄືນ m_fFuncSplitCat; }
+    bool fFunc() const { ສົ່ງຄືນ fFuncSplitCat() || fFuncBalanceCat(); }
+    bool fGate() const { ສົ່ງຄືນ m_fGate; }
+    VOptionBool fIcoChangeDetect() const { ສົ່ງຄືນ m_fIcoChangeDetect; }
+    bool fInline() const { ສົ່ງຄືນ m_fInline; }
+    bool fInlineCFuncs() const { ສົ່ງຄືນ m_fInlineCFuncs; }
+    bool fInlineFuncs() const { ສົ່ງຄືນ m_fInlineFuncs; }
+    bool fInlineFuncsEager() const { ສົ່ງຄືນ m_fInlineFuncsEager; }
+    bool fLife() const { ສົ່ງຄືນ m_fLife; }
+    bool fLifePost() const { ສົ່ງຄືນ m_fLifePost; }
+    bool fLocalize() const { ສົ່ງຄືນ m_fLocalize; }
+    bool fMergeCond() const { ສົ່ງຄືນ m_fMergeCond; }
+    bool fMergeCondMotion() const { ສົ່ງຄືນ m_fMergeCondMotion; }
+    bool fReloop() const { ສົ່ງຄືນ m_fReloop; }
+    bool fReorder() const { ສົ່ງຄືນ m_fReorder; }
+    bool fSlice() const { ສົ່ງຄືນ m_fSlice; }
+    ຈຳນວນເຕັມ fSliceElementLimit() const { ສົ່ງຄືນ m_fSliceElementLimit; }
+    bool fSplit() const { ສົ່ງຄືນ m_fSplit; }
+    bool fSubst() const { ສົ່ງຄືນ m_fSubst; }
+    bool fSubstConst() const { ສົ່ງຄືນ m_fSubstConst; }
+    bool fTable() const { ສົ່ງຄືນ m_fTable; }
+    bool fTaskifyAll() const { ສົ່ງຄືນ m_fTaskifyAll; }
 
     std::string traceClassBase() const VL_MT_SAFE;  // Deprecated
     std::string traceClassLang() const VL_MT_SAFE;  // Deprecated
@@ -845,27 +845,27 @@ public:
     std::vector<std::string> traceSourceBases() const VL_MT_SAFE;
     std::vector<std::string> traceSourceLangs() const VL_MT_SAFE;
 
-    bool hierarchical() const { return m_hierarchical; }
-    int hierChild() const VL_MT_SAFE { return m_hierChild; }
-    int hierThreads() const VL_MT_SAFE { return m_hierThreads == 0 ? m_threads : m_hierThreads; }
-    bool hierTop() const VL_MT_SAFE { return !m_hierChild && !m_hierBlocks.empty(); }
-    const V3HierBlockOptSet& hierBlocks() const { return m_hierBlocks; }
+    bool hierarchical() const { ສົ່ງຄືນ m_hierarchical; }
+    ຈຳນວນເຕັມ hierChild() const VL_MT_SAFE { ສົ່ງຄືນ m_hierChild; }
+    ຈຳນວນເຕັມ hierThreads() const VL_MT_SAFE { ສົ່ງຄືນ m_hierThreads == 0 ? m_threads : m_hierThreads; }
+    bool hierTop() const VL_MT_SAFE { ສົ່ງຄືນ !m_hierChild && !m_hierBlocks.empty(); }
+    const V3HierBlockOptSet& hierBlocks() const { ສົ່ງຄືນ m_hierBlocks; }
     // Directory to save .tree, .dot, .dat, .vpp for hierarchical block top
     // Returns makeDir() unless top module of hierarchical Verilation.
     string hierTopDataDir() const VL_MT_SAFE {
-        return hierTop() ? (makeDir() + '/' + prefix() + "__hier.dir") : makeDir();
+        ສົ່ງຄືນ hierTop() ? (makeDir() + '/' + prefix() + "__hier.dir") : makeDir();
     }
 
     // METHODS (from main)
     static string version() VL_PURE;
-    static string argString(int argc, char** argv);  ///< Return list of arguments as simple string
+    static string argString(ຈຳນວນເຕັມ argc, var_na** argv);  ///< Return list of arguments as simple string
     string allArgsString() const VL_MT_SAFE;  ///< Return all passed arguments as simple string
     const std::list<std::pair<std::list<std::string>, bool>>& allArgs() const;
     // Return options for child hierarchical blocks when forTop==false, otherwise returns args for
     // the top module.
     string allArgsStringForHierBlock(bool forTop) const;
-    void parseOpts(FileLine* fl, int argc, char** argv) VL_MT_DISABLED;
-    void parseOptsList(FileLine* fl, const string& optdir, int argc, char** argv) VL_MT_DISABLED;
+    void parseOpts(FileLine* fl, ຈຳນວນເຕັມ argc, var_na** argv) VL_MT_DISABLED;
+    void parseOptsList(FileLine* fl, const string& optdir, ຈຳນວນເຕັມ argc, var_na** argv) VL_MT_DISABLED;
     void parseOptsFile(FileLine* fl, const string& filename, bool rel) VL_MT_DISABLED;
 
     // METHODS (environment)

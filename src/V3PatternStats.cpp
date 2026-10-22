@@ -43,28 +43,28 @@ private:
 
     void dump(std::ostream& os) {
         using Line = std::pair<std::string, size_t>;
-        for (uint32_t i = MIN_PATTERN_DEPTH; i <= MAX_PATTERN_DEPTH; ++i) {
+        ສຳລັບ (uint32_t i = MIN_PATTERN_DEPTH; i <= MAX_PATTERN_DEPTH; ++i) {
             os << m_what << " patterns with depth " << i << '\n';
 
             // Pick up pattern accumulators with given depth
             auto& patternCounts = m_patternCounts[i];
 
             // Remove patterns also present at shallower depths
-            for (uint32_t j = MIN_PATTERN_DEPTH; j < i; ++j) {
-                for (const auto& pair : m_patternCounts[j]) patternCounts.erase(pair.first);
+            ສຳລັບ (uint32_t j = MIN_PATTERN_DEPTH; j < i; ++j) {
+                ສຳລັບ (const auto& pair : m_patternCounts[j]) patternCounts.erase(pair.first);
             }
 
             // Sort patterns, first by descending frequency, then lexically
             std::vector<Line> lines;
             lines.reserve(patternCounts.size());
-            for (const auto& pair : patternCounts) lines.emplace_back(pair);
+            ສຳລັບ (const auto& pair : patternCounts) lines.emplace_back(pair);
             std::sort(lines.begin(), lines.end(), [](const Line& a, const Line& b) {
-                if (a.second != b.second) return a.second > b.second;
-                return a.first < b.first;
+                ຖ້າ (a.second != b.second) ສົ່ງຄືນ a.second > b.second;
+                ສົ່ງຄືນ a.first < b.first;
             });
 
             // Print each pattern
-            for (const auto& line : lines) {
+            ສຳລັບ (const auto& line : lines) {
                 os << ' ' << std::setw(12) << std::right << line.second;
                 os << ' ' << std::left << line.first << '\n';
             }
@@ -86,7 +86,7 @@ public:
     void dumpToFile(const std::string& filename) {
         // Open, write, close
         const std::unique_ptr<std::ofstream> ofp{V3File::new_ofstream(filename)};
-        if (ofp->fail()) v3fatal("Can't write file: " << filename);
+        ຖ້າ (ofp->fail()) v3fatal("Can't write file: " << filename);
         dump(*ofp);
     }
 };
@@ -98,7 +98,7 @@ void V3AstPatterns::dumpAll(const AstNetlist* nodep, const std::string& suffix) 
     UINFO(2, __FUNCTION__ << ":");
     V3PatternStats patternStats{"AST"};
     nodep->foreach([&](const AstNodeExpr* exprp) {
-        for (uint32_t i = V3PatternStats::MIN_PATTERN_DEPTH;
+        ສຳລັບ (uint32_t i = V3PatternStats::MIN_PATTERN_DEPTH;
              i <= V3PatternStats::MAX_PATTERN_DEPTH; ++i) {
             patternStats.accumulate(exprp->patternString(i), i);
         }
@@ -115,9 +115,9 @@ void V3AstPatterns::dumpAll(const AstNetlist* nodep, const std::string& suffix) 
 void V3DfgPasses::dumpPatterns(const std::vector<std::unique_ptr<DfgGraph>>& graphs,
                                const std::string& suffix) {
     V3PatternStats patternStats{"DFG"};
-    for (auto& cp : graphs) {
+    ສຳລັບ (auto& cp : graphs) {
         cp->forEachVertex([&](const DfgVertex& vtx) {
-            for (uint32_t i = V3PatternStats::MIN_PATTERN_DEPTH;
+            ສຳລັບ (uint32_t i = V3PatternStats::MIN_PATTERN_DEPTH;
                  i <= V3PatternStats::MAX_PATTERN_DEPTH; ++i) {
                 patternStats.accumulate(vtx.patternString(i), i);
             }

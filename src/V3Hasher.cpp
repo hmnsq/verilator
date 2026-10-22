@@ -41,10 +41,10 @@ class HasherVisitor final : public VNVisitorConst {
     void guardRecursion(AstNode* const nodep, std::function<void()>&& f) {
         // Guard against infinite recursion if there's no caching
         // Otherwise caching does the same but faster
-        if (!m_cacheInUser4) {
-            if (m_visited.find(nodep) != m_visited.end()) {
+        ຖ້າ (!m_cacheInUser4) {
+            ຖ້າ (m_visited.find(nodep) != m_visited.end()) {
                 m_hash += V3Hash{nodep->name()};
-                return;
+                ສົ່ງຄືນ;
             }
             m_visited.insert(nodep);
         }
@@ -54,18 +54,18 @@ class HasherVisitor final : public VNVisitorConst {
     V3Hash hashNodeAndIterate(AstNode* nodep, bool hashDType, bool hashChildren,
                               std::function<void()>&& f) {
         // See comments in visit(AstCFunc) about this breaking recursion
-        if (m_cacheInUser4 && nodep->user4()) {
-            return V3Hash{static_cast<uint32_t>(nodep->user4())};
-        } else {
+        ຖ້າ (m_cacheInUser4 && nodep->user4()) {
+            ສົ່ງຄືນ V3Hash{static_cast<uint32_t>(nodep->user4())};
+        } ບໍ່ດັ່ງນັ້ນ {
             VL_RESTORER(m_hash);
             // Reset accumulator
             m_hash = V3Hash{nodep->type().hash()};  // Node type
             f();  // Node-specific hash
-            if (hashDType && nodep != nodep->dtypep())
+            ຖ້າ (hashDType && nodep != nodep->dtypep())
                 iterateConstNull(nodep->dtypep());  // Node dtype
-            if (hashChildren) iterateChildrenConst(nodep);  // Children
-            if (m_cacheInUser4) nodep->user4(m_hash.value());
-            return m_hash;
+            ຖ້າ (hashChildren) iterateChildrenConst(nodep);  // Children
+            ຖ້າ (m_cacheInUser4) nodep->user4(m_hash.value());
+            ສົ່ງຄືນ m_hash;
         }
     }
 
@@ -96,7 +96,7 @@ class HasherVisitor final : public VNVisitorConst {
     // AstNode - Warns to help find missing cases
 
     void visit(AstNode* nodep) override {
-#if VL_DEBUG
+#ຖ້າ VL_DEBUG
         UINFO(0, "%Warning: Hashing node as AstNode: " << nodep);
 #endif
         m_hash += hashNodeAndIterate(nodep, HASH_DTYPE, HASH_CHILDREN, [=]() {});
@@ -235,9 +235,9 @@ class HasherVisitor final : public VNVisitorConst {
     }
     void visit(AstVarRef* nodep) override {
         m_hash += hashNodeAndIterate(nodep, HASH_DTYPE, HASH_CHILDREN, [this, nodep]() {
-            if (nodep->varScopep()) {
+            ຖ້າ (nodep->varScopep()) {
                 iterateConstNull(nodep->varScopep());
-            } else {
+            } ບໍ່ດັ່ງນັ້ນ {
                 iterateConstNull(nodep->varp());
                 m_hash += nodep->selfPointer().asString();
             }
@@ -271,7 +271,7 @@ class HasherVisitor final : public VNVisitorConst {
     }
     void visit(AstTriggered* nodep) override {
         m_hash += hashNodeAndIterate(nodep, HASH_DTYPE, HASH_CHILDREN, [this, nodep]() {  //
-            for (const uint32_t index : nodep->indices()) m_hash += index;
+            ສຳລັບ (const uint32_t index : nodep->indices()) m_hash += index;
         });
     }
 
@@ -400,7 +400,7 @@ class HasherVisitor final : public VNVisitorConst {
         m_hash += hashNodeAndIterate(nodep, HASH_DTYPE, /* hashChildren: */ false,
                                      [this, nodep, dtypep]() {
                                          const uint32_t size = dtypep->elementsConst();
-                                         for (uint32_t n = 0; n < size; ++n) {  //
+                                         ສຳລັບ (uint32_t n = 0; n < size; ++n) {  //
                                              iterateConstNull(nodep->valuep(n));
                                          }
                                      });
@@ -425,7 +425,7 @@ class HasherVisitor final : public VNVisitorConst {
             m_hash += hashNodeAndIterate(nodep, HASH_DTYPE, HASH_CHILDREN, [this, nodep]() {  //
                 // We might be in a recursive function, if so on *second* call
                 // here we need to break what would be an infinite loop.
-                if (m_cacheInUser4) nodep->user4(V3Hash{1}.value());  // Set this "first" call
+                ຖ້າ (m_cacheInUser4) nodep->user4(V3Hash{1}.value());  // Set this "first" call
                 // So that a second call will then exit hashNodeAndIterate
                 // Having a constant in the hash just means the recursion will
                 // end, it shouldn't change the CFunc having a unique hash itself.
@@ -486,7 +486,7 @@ class HasherVisitor final : public VNVisitorConst {
             m_hash += hashNodeAndIterate(nodep, HASH_DTYPE, HASH_CHILDREN, [this, nodep]() {  //
                 m_hash += nodep->name();
                 // See comments in AstCFunc
-                if (m_cacheInUser4) nodep->user4(V3Hash{1}.value());
+                ຖ້າ (m_cacheInUser4) nodep->user4(V3Hash{1}.value());
             });
         });
     }
@@ -567,7 +567,7 @@ public:
         : m_cacheInUser4{false} {
         iterateConst(const_cast<AstNode*>(nodep));
     }
-    V3Hash finalHash() const { return m_hash; }
+    V3Hash finalHash() const { ສົ່ງຄືນ m_hash; }
     ~HasherVisitor() override = default;
 };
 
@@ -575,19 +575,19 @@ public:
 // V3Hasher methods
 
 V3Hash V3Hasher::operator()(AstNode* nodep) const {
-    if (!nodep->user4()) HasherVisitor{nodep};
-    return V3Hash{static_cast<uint32_t>(nodep->user4())};
+    ຖ້າ (!nodep->user4()) HasherVisitor{nodep};
+    ສົ່ງຄືນ V3Hash{static_cast<uint32_t>(nodep->user4())};
 }
 
 V3Hash V3Hasher::rehash(AstNode* nodep) const {
     nodep->user4(0);
     { HasherVisitor{nodep}; }
-    return V3Hash{static_cast<uint32_t>(nodep->user4())};
+    ສົ່ງຄືນ V3Hash{static_cast<uint32_t>(nodep->user4())};
 }
 
 V3Hash V3Hasher::uncachedHash(const AstNode* nodep) {
     const HasherVisitor visitor{nodep, HasherVisitor::Uncached{}};
-    return visitor.finalHash();
+    ສົ່ງຄືນ visitor.finalHash();
 }
 
 //######################################################################
@@ -595,5 +595,5 @@ V3Hash V3Hasher::uncachedHash(const AstNode* nodep) {
 // Declared separately to avoid a circular header dependency.
 
 size_t V3HasherUncachedHash(const AstNode& node) {
-    return static_cast<size_t>(V3Hasher::uncachedHash(&node).value());
+    ສົ່ງຄືນ static_cast<size_t>(V3Hasher::uncachedHash(&node).value());
 }

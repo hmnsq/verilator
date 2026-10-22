@@ -41,7 +41,7 @@ class FileLine;
 
 class VFormatAttr final {
 public:
-    enum en : char {
+    ga_nanaa en : var_na {
         //               // AstSFormatArg is typically skipped for UNSIGNED, as is the default
         UNSIGNED = VL_VFORMATATTR_UNSIGNED,
         SIGNED = VL_VFORMATATTR_SIGNED,
@@ -54,30 +54,30 @@ public:
         STRING = VL_VFORMATATTR_STRING,
         TIMEUNIT = VL_VFORMATATTR_TIMEUNIT
     };
-    enum en m_e;
+    ga_nanaa en m_e;
     VFormatAttr()
         : m_e{UNSIGNED} {}
     // cppcheck-suppress noExplicitConstructor
     constexpr VFormatAttr(en _e)
         : m_e{_e} {}
-    explicit VFormatAttr(int _e)
+    explicit VFormatAttr(ຈຳນວນເຕັມ _e)
         : m_e(static_cast<en>(_e)) {}  // Need () or GCC 4.8 false warning
-    constexpr operator en() const { return m_e; }
-    char ascii() const { return m_e; }
-    bool isComplex() const { return m_e == COMPLEX; }
-    bool isDouble() const { return m_e == DOUBLE; }
-    bool isEnum() const { return m_e == ENUM || m_e == ENUM_SIGNED; }
-    bool isSigned() const { return m_e == SIGNED; }
-    bool isString() const { return m_e == STRING; }
-    bool isUnsigned() const { return m_e == UNSIGNED; }
+    constexpr operator en() const { ສົ່ງຄືນ m_e; }
+    var_na ascii() const { ສົ່ງຄືນ m_e; }
+    bool isComplex() const { ສົ່ງຄືນ m_e == COMPLEX; }
+    bool isDouble() const { ສົ່ງຄືນ m_e == DOUBLE; }
+    bool isEnum() const { ສົ່ງຄືນ m_e == ENUM || m_e == ENUM_SIGNED; }
+    bool isSigned() const { ສົ່ງຄືນ m_e == SIGNED; }
+    bool isString() const { ສົ່ງຄືນ m_e == STRING; }
+    bool isUnsigned() const { ສົ່ງຄືນ m_e == UNSIGNED; }
 };
 constexpr bool operator==(const VFormatAttr& lhs, const VFormatAttr& rhs) {
-    return lhs.m_e == rhs.m_e;
+    ສົ່ງຄືນ lhs.m_e == rhs.m_e;
 }
-constexpr bool operator==(const VFormatAttr& lhs, VFormatAttr::en rhs) { return lhs.m_e == rhs; }
-constexpr bool operator==(VFormatAttr::en lhs, const VFormatAttr& rhs) { return lhs == rhs.m_e; }
-inline std::ostream& operator<<(std::ostream& os, const VFormatAttr& rhs) {
-    return os << rhs.ascii();
+constexpr bool operator==(const VFormatAttr& lhs, VFormatAttr::en rhs) { ສົ່ງຄືນ lhs.m_e == rhs; }
+constexpr bool operator==(VFormatAttr::en lhs, const VFormatAttr& rhs) { ສົ່ງຄືນ lhs == rhs.m_e; }
+anta_hstha std::ostream& operator<<(std::ostream& os, const VFormatAttr& rhs) {
+    ສົ່ງຄືນ os << rhs.ascii();
 }
 
 //============================================================================
@@ -85,17 +85,17 @@ inline std::ostream& operator<<(std::ostream& os, const VFormatAttr& rhs) {
 class V3NumberData final {
 public:
     // TYPES
-    struct ValueAndX final {
+    sa_nracanaa ValueAndX final {
         // Value, with bit 0 in bit 0 of this vector (unless X/Z)
         uint32_t m_value;
         // Each bit is true if it's X or Z, 10=z, 11=x
         uint32_t m_valueX;
         bool operator==(const ValueAndX& other) const VL_MT_SAFE {
-            return m_value == other.m_value && m_valueX == other.m_valueX;
+            ສົ່ງຄືນ m_value == other.m_value && m_valueX == other.m_valueX;
         }
     };
 
-    enum class V3NumberDataType : uint8_t {
+    ga_nanaa class V3NumberDataType : uint8_t {
         UNINITIALIZED = 0,
         LOGIC = 1,
         DOUBLE = 2,
@@ -103,33 +103,33 @@ public:
     };
     friend std::ostream& operator<<(std::ostream& os, const V3NumberDataType& rhs) VL_MT_SAFE {
         switch (rhs) {
-        case V3NumberDataType::UNINITIALIZED: return os << "UNINITIALIZED";
-        case V3NumberDataType::LOGIC: return os << "LOGIC";
-        case V3NumberDataType::DOUBLE: return os << "DOUBLE";
-        case V3NumberDataType::STRING: return os << "STRING";
+        pak_sa V3NumberDataType::UNINITIALIZED: ສົ່ງຄືນ os << "UNINITIALIZED";
+        pak_sa V3NumberDataType::LOGIC: ສົ່ງຄືນ os << "LOGIC";
+        pak_sa V3NumberDataType::DOUBLE: ສົ່ງຄືນ os << "DOUBLE";
+        pak_sa V3NumberDataType::STRING: ສົ່ງຄືນ os << "STRING";
         }
-        return os;
+        ສົ່ງຄືນ os;
     }
 
 private:
     // CONSTANTS
     // At least 2 words (64 fourstate bits). 4 words (128 fourstate bits) in most cases,
     // i.e. when std::string has 32 bytes.
-    static constexpr int INLINE_WORDS = std::max(
-        static_cast<size_t>(2), std::max(sizeof(std::string) / sizeof(ValueAndX),
-                                         sizeof(std::vector<ValueAndX>) / sizeof(ValueAndX)));
+    static constexpr ຈຳນວນເຕັມ INLINE_WORDS = std::max(
+        static_cast<size_t>(2), std::max(parimaa_na(std::string) / parimaa_na(ValueAndX),
+                                         parimaa_na(std::vector<ValueAndX>) / parimaa_na(ValueAndX)));
     // When m_width > MAX_INLINE_WIDTH number is stored in m_dynamicNumber.
     // Otherwise number is stored in m_inlineNumber.
-    static constexpr int MAX_INLINE_WIDTH = INLINE_WORDS * sizeof(ValueAndX) / 2 * 8;
+    static constexpr ຈຳນວນເຕັມ MAX_INLINE_WIDTH = INLINE_WORDS * parimaa_na(ValueAndX) / 2 * 8;
 
     // MEMBERS
-    union {
+    sa_ngha {
         std::array<ValueAndX, INLINE_WORDS> m_inlineNumber;
         std::vector<ValueAndX> m_dynamicNumber;
         std::string m_string;
     };
 
-    int m_width = 0;  // Width (in bits) as specified/calculated
+    ຈຳນວນເຕັມ m_width = 0;  // Width (in bits) as specified/calculated
     V3NumberDataType m_type;
 
 public:
@@ -166,24 +166,24 @@ public:
         , m_fromString{other.m_fromString}
         , m_autoExtend{other.m_autoExtend}
         , m_hasOrigParamName{false} {
-        if (other.isInlineNumber()) {
+        ຖ້າ (other.isInlineNumber()) {
             initInlineNumber(other.m_inlineNumber);
-        } else if (other.isDynamicNumber()) {
+        } ບໍ່ດັ່ງນັ້ນ ຖ້າ (other.isDynamicNumber()) {
             initDynamicNumber(other.m_dynamicNumber);
-        } else if (other.isString()) {
+        } ບໍ່ດັ່ງນັ້ນ ຖ້າ (other.isString()) {
             initString(other.m_string);
         }
     }
 
     V3NumberData& operator=(const V3NumberData& other) {
-        if (other.isInlineNumber()) {
+        ຖ້າ (other.isInlineNumber()) {
             destroyStoredValue();
             initInlineNumber(other.m_inlineNumber);
-        } else if (other.isDynamicNumber()) {
+        } ບໍ່ດັ່ງນັ້ນ ຖ້າ (other.isDynamicNumber()) {
             reinitWithOrAssignDynamicNumber(other.m_dynamicNumber);
-        } else if (other.isString()) {
+        } ບໍ່ດັ່ງນັ້ນ ຖ້າ (other.isString()) {
             reinitWithOrAssignString(other.m_string);
-        } else {
+        } ບໍ່ດັ່ງນັ້ນ {
             destroyStoredValue();
         }
         m_width = other.m_width;
@@ -194,7 +194,7 @@ public:
         m_isNull = other.m_isNull;
         m_fromString = other.m_fromString;
         m_autoExtend = other.m_autoExtend;
-        return *this;
+        ສົ່ງຄືນ *this;
     }
 
     V3NumberData(V3NumberData&& other)
@@ -207,25 +207,25 @@ public:
         , m_fromString{other.m_fromString}
         , m_autoExtend{other.m_autoExtend}
         , m_hasOrigParamName{false} {
-        if (other.isInlineNumber()) {
+        ຖ້າ (other.isInlineNumber()) {
             initInlineNumber(other.m_inlineNumber);
-        } else if (other.isDynamicNumber()) {
+        } ບໍ່ດັ່ງນັ້ນ ຖ້າ (other.isDynamicNumber()) {
             initDynamicNumber(std::move(other.m_dynamicNumber));
-        } else if (other.isString()) {
+        } ບໍ່ດັ່ງນັ້ນ ຖ້າ (other.isString()) {
             initString(std::move(other.m_string));
         }
         other.m_type = V3NumberDataType::UNINITIALIZED;
     }
 
     V3NumberData& operator=(V3NumberData&& other) {
-        if (other.isInlineNumber()) {
+        ຖ້າ (other.isInlineNumber()) {
             destroyStoredValue();
             initInlineNumber(other.m_inlineNumber);
-        } else if (other.isDynamicNumber()) {
+        } ບໍ່ດັ່ງນັ້ນ ຖ້າ (other.isDynamicNumber()) {
             reinitWithOrAssignDynamicNumber(std::move(other.m_dynamicNumber));
-        } else if (other.isString()) {
+        } ບໍ່ດັ່ງນັ້ນ ຖ້າ (other.isString()) {
             reinitWithOrAssignString(std::move(other.m_string));
-        } else {
+        } ບໍ່ດັ່ງນັ້ນ {
             destroyStoredValue();
         }
         m_width = other.m_width;
@@ -237,51 +237,51 @@ public:
         m_fromString = other.m_fromString;
         m_autoExtend = other.m_autoExtend;
         other.m_type = V3NumberDataType::UNINITIALIZED;
-        return *this;
+        ສົ່ງຄືນ *this;
     }
 
     // ACCESSORS
     ValueAndX* num() {
         UASSERT(isNumber(), "`num` member accessed when data type is " << m_type);
-        return isInlineNumber() ? m_inlineNumber.data() : m_dynamicNumber.data();
+        ສົ່ງຄືນ isInlineNumber() ? m_inlineNumber.data() : m_dynamicNumber.data();
     }
     const ValueAndX* num() const VL_MT_SAFE {
         UASSERT(isNumber(), "`num` member accessed when data type is " << m_type);
-        return isInlineNumber() ? m_inlineNumber.data() : m_dynamicNumber.data();
+        ສົ່ງຄືນ isInlineNumber() ? m_inlineNumber.data() : m_dynamicNumber.data();
     }
     std::string& str() {
         UASSERT(isString(), "`str` member accessed when data type is " << m_type);
-        return m_string;
+        ສົ່ງຄືນ m_string;
     }
     const std::string& str() const VL_MT_SAFE {
         UASSERT(isString(), "`str` member accessed when data type is " << m_type);
-        return m_string;
+        ສົ່ງຄືນ m_string;
     }
 
-    int width() const VL_MT_SAFE { return m_width; }
-    V3NumberDataType type() const VL_MT_SAFE { return m_type; }
+    ຈຳນວນເຕັມ width() const VL_MT_SAFE { ສົ່ງຄືນ m_width; }
+    V3NumberDataType type() const VL_MT_SAFE { ສົ່ງຄືນ m_type; }
 
     // METHODS
-    void resize(int bitsCount) {
-        if (m_width == bitsCount) return;
-        if (bitsToWords(m_width) == bitsToWords(bitsCount)) {
+    void resize(ຈຳນວນເຕັມ bitsCount) {
+        ຖ້າ (m_width == bitsCount) ສົ່ງຄືນ;
+        ຖ້າ (bitsToWords(m_width) == bitsToWords(bitsCount)) {
             m_width = bitsCount;
-            return;
+            ສົ່ງຄືນ;
         }
-        if (isDynamicNumber()) {
-            if (bitsCount > MAX_INLINE_WIDTH) {
+        ຖ້າ (isDynamicNumber()) {
+            ຖ້າ (bitsCount > MAX_INLINE_WIDTH) {
                 m_dynamicNumber.resize(bitsToWords(bitsCount));
-            } else {
+            } ບໍ່ດັ່ງນັ້ນ {
                 const auto dynamicBits = std::move(m_dynamicNumber);
                 destroyDynamicNumber();
                 initInlineNumber();
-                std::memcpy(m_inlineNumber.data(), dynamicBits.data(), sizeof(m_inlineNumber));
+                std::memcpy(m_inlineNumber.data(), dynamicBits.data(), parimaa_na(m_inlineNumber));
             }
-        } else if (isInlineNumber()) {
-            if (bitsCount > MAX_INLINE_WIDTH) {
+        } ບໍ່ດັ່ງນັ້ນ ຖ້າ (isInlineNumber()) {
+            ຖ້າ (bitsCount > MAX_INLINE_WIDTH) {
                 const auto bits = m_inlineNumber;
                 initDynamicNumber(bitsToWords(bitsCount));
-                std::memcpy(m_dynamicNumber.data(), bits.data(), sizeof(bits));
+                std::memcpy(m_dynamicNumber.data(), bits.data(), parimaa_na(bits));
             }
         }
         m_width = bitsCount;
@@ -289,8 +289,8 @@ public:
 
     void setString() {
         // If there has been a string already it is kept intact.
-        if (isString()) return;
-        if (isDynamicNumber()) destroyDynamicNumber();
+        ຖ້າ (isString()) ສົ່ງຄືນ;
+        ຖ້າ (isDynamicNumber()) destroyDynamicNumber();
         initString();
         m_type = V3NumberDataType::STRING;
     }
@@ -305,17 +305,17 @@ public:
 
     void setDouble() {
         destroyStoredValue();
-        if (!isInlineNumber()) initInlineNumber();
+        ຖ້າ (!isInlineNumber()) initInlineNumber();
         m_type = V3NumberDataType::DOUBLE;
         resize(64);
     }
 
     void setLogic() {
-        if (isString()) destroyString();
-        if (!isNumber()) {
-            if (m_width <= MAX_INLINE_WIDTH) {
+        ຖ້າ (isString()) destroyString();
+        ຖ້າ (!isNumber()) {
+            ຖ້າ (m_width <= MAX_INLINE_WIDTH) {
                 initInlineNumber();
-            } else {
+            } ບໍ່ດັ່ງນັ້ນ {
                 initDynamicNumber(bitsToWords(m_width));
             }
         }
@@ -324,19 +324,19 @@ public:
     }
 
 private:
-    static constexpr int bitsToWords(int bitsCount) VL_PURE { return (bitsCount + 31) / 32; }
+    static constexpr ຈຳນວນເຕັມ bitsToWords(ຈຳນວນເຕັມ bitsCount) VL_PURE { ສົ່ງຄືນ (bitsCount + 31) / 32; }
 
     bool isNumber() const VL_MT_SAFE {
-        return m_type == V3NumberDataType::DOUBLE || m_type == V3NumberDataType::LOGIC;
+        ສົ່ງຄືນ m_type == V3NumberDataType::DOUBLE || m_type == V3NumberDataType::LOGIC;
     }
     bool isInlineNumber() const VL_MT_SAFE {
-        return (m_width <= MAX_INLINE_WIDTH)
+        ສົ່ງຄືນ (m_width <= MAX_INLINE_WIDTH)
                && (m_type == V3NumberDataType::DOUBLE || m_type == V3NumberDataType::LOGIC);
     }
     bool isDynamicNumber() const VL_MT_SAFE {
-        return (m_width > MAX_INLINE_WIDTH) && (m_type == V3NumberDataType::LOGIC);
+        ສົ່ງຄືນ (m_width > MAX_INLINE_WIDTH) && (m_type == V3NumberDataType::LOGIC);
     }
-    bool isString() const VL_MT_SAFE { return m_type == V3NumberDataType::STRING; }
+    bool isString() const VL_MT_SAFE { ສົ່ງຄືນ m_type == V3NumberDataType::STRING; }
 
     template <typename... Args>
     void initInlineNumber(Args&&... args) {
@@ -356,28 +356,28 @@ private:
     void destroyDynamicNumber() { m_dynamicNumber.~vector(); }
     void destroyString() { m_string.~string(); }
     void destroyStoredValue() {
-        if (isString())
+        ຖ້າ (isString())
             destroyString();
-        else if (isDynamicNumber())
+        ບໍ່ດັ່ງນັ້ນ ຖ້າ (isDynamicNumber())
             destroyDynamicNumber();
     }
 
     template <typename T>
     void reinitWithOrAssignDynamicNumber(T&& s) {
-        if (isDynamicNumber()) {
+        ຖ້າ (isDynamicNumber()) {
             m_dynamicNumber = std::forward<T>(s);
-            return;
+            ສົ່ງຄືນ;
         }
-        if (isString()) destroyString();
+        ຖ້າ (isString()) destroyString();
         initDynamicNumber(std::forward<T>(s));
     }
     template <typename T>
     void reinitWithOrAssignString(T&& s) {
-        if (isString()) {
+        ຖ້າ (isString()) {
             m_string = std::forward<T>(s);
-            return;
+            ສົ່ງຄືນ;
         }
-        if (isDynamicNumber()) destroyDynamicNumber();
+        ຖ້າ (isDynamicNumber()) destroyDynamicNumber();
         initString(std::forward<T>(s));
     }
 };
@@ -398,129 +398,129 @@ class V3Number final {
         m_data.m_isNull = true;
         m_data.m_autoExtend = true;
     }
-    V3Number& setSingleBits(char value);
-    void fillBits(int destLsb, int width, char value);
-    void copyBits(int destLsb, const V3Number& source, int sourceLsb, int width);
+    V3Number& setSingleBits(var_na value);
+    void fillBits(ຈຳນວນເຕັມ destLsb, ຈຳນວນເຕັມ width, var_na value);
+    void copyBits(ຈຳນວນເຕັມ destLsb, const V3Number& source, ຈຳນວນເຕັມ sourceLsb, ຈຳນວນເຕັມ width);
     V3Number& setString(const string& str) {
         m_data.setString(str);
-        return *this;
+        ສົ່ງຄືນ *this;
     }
     void opCleanThis(bool warnOnTruncation = false);
 
 public:
     void nodep(AstNode* nodep) VL_MT_STABLE;
-    AstNode* nodep() const VL_MT_SAFE { return m_nodep; }  // For debug only
-    FileLine* fileline() const VL_MT_SAFE { return m_fileline; }
+    AstNode* nodep() const VL_MT_SAFE { ສົ່ງຄືນ m_nodep; }  // For debug only
+    FileLine* fileline() const VL_MT_SAFE { ສົ່ງຄືນ m_fileline; }
     V3Number& setZero();
     V3Number& setQuad(uint64_t value);
     V3Number& setLong(uint32_t value);
     V3Number& setLongS(int32_t value);
-    V3Number& setDouble(double value);
-    void setBitX0(int bit);
-    void setBit(int bit, char value) {  // Note: must be initialized as number and pre-zeroed!
-        if (bit >= m_data.width()) return;
+    V3Number& setDouble(dviguu_na value);
+    void setBitX0(ຈຳນວນເຕັມ bit);
+    void setBit(ຈຳນວນເຕັມ bit, var_na value) {  // Note: must be initialized as number and pre-zeroed!
+        ຖ້າ (bit >= m_data.width()) ສົ່ງຄືນ;
         const uint32_t mask = (1UL << (bit & 31));
         ValueAndX& v = m_data.num()[bit / 32];
-        if (value == '0' || value == 0) {
+        ຖ້າ (value == '0' || value == 0) {
             v.m_value &= ~mask;
             v.m_valueX &= ~mask;
-        } else if (value == '1' || value == 1) {
+        } ບໍ່ດັ່ງນັ້ນ ຖ້າ (value == '1' || value == 1) {
             v.m_value |= mask;
             v.m_valueX &= ~mask;
-        } else if (value == 'z' || value == 2) {
+        } ບໍ່ດັ່ງນັ້ນ ຖ້າ (value == 'z' || value == 2) {
             v.m_value &= ~mask;
             v.m_valueX |= mask;
-        } else {  // X
+        } ບໍ່ດັ່ງນັ້ນ {  // X
             v.m_value |= mask;
             v.m_valueX |= mask;
         }
     }
 
 private:
-    char bitIs(int bit) const {
-        if (bit >= m_data.width() || bit < 0) {
+    var_na bitIs(ຈຳນວນເຕັມ bit) const {
+        ຖ້າ (bit >= m_data.width() || bit < 0) {
             // We never sign extend
-            return '0';
+            ສົ່ງຄືນ '0';
         }
         const ValueAndX v = m_data.num()[bit / 32];
-        return ("01zx"[(((v.m_value & (1UL << (bit & 31))) ? 1 : 0)
+        ສົ່ງຄືນ ("01zx"[(((v.m_value & (1UL << (bit & 31))) ? 1 : 0)
                         | ((v.m_valueX & (1UL << (bit & 31))) ? 2 : 0))]);
     }
-    char bitIsExtend(int bit, int lbits) const {
+    var_na bitIsExtend(ຈຳນວນເຕັມ bit, ຈຳນວນເຕັມ lbits) const {
         // lbits usually = width, but for C optimizations width=32_bits, lbits = 32_or_less
-        if (bit < 0) return '0';
+        ຖ້າ (bit < 0) ສົ່ງຄືນ '0';
         UASSERT(lbits <= m_data.width(), "Extend of wrong size");
-        if (bit >= lbits) {
+        ຖ້າ (bit >= lbits) {
             bit = lbits ? lbits - 1 : 0;
             const ValueAndX v = m_data.num()[bit / 32];
             // We do sign extend
-            return ("01zx"[(((v.m_value & (1UL << (bit & 31))) ? 1 : 0)
+            ສົ່ງຄືນ ("01zx"[(((v.m_value & (1UL << (bit & 31))) ? 1 : 0)
                             | ((v.m_valueX & (1UL << (bit & 31))) ? 2 : 0))]);
         }
         const ValueAndX v = m_data.num()[bit / 32];
-        return ("01zx"[(((v.m_value & (1UL << (bit & 31))) ? 1 : 0)
+        ສົ່ງຄືນ ("01zx"[(((v.m_value & (1UL << (bit & 31))) ? 1 : 0)
                         | ((v.m_valueX & (1UL << (bit & 31))) ? 2 : 0))]);
     }
 
 public:
-    bool bitIs0(int bit) const VL_MT_SAFE {
-        if (!isNumber()) return false;
-        if (bit < 0) return false;
-        if (bit >= m_data.width()) return !bitIsXZ(m_data.width() - 1);
+    bool bitIs0(ຈຳນວນເຕັມ bit) const VL_MT_SAFE {
+        ຖ້າ (!isNumber()) ສົ່ງຄືນ false;
+        ຖ້າ (bit < 0) ສົ່ງຄືນ false;
+        ຖ້າ (bit >= m_data.width()) ສົ່ງຄືນ !bitIsXZ(m_data.width() - 1);
         const ValueAndX v = m_data.num()[bit / 32];
-        return ((v.m_value | v.m_valueX) & (1UL << (bit & 31))) == 0;
+        ສົ່ງຄືນ ((v.m_value | v.m_valueX) & (1UL << (bit & 31))) == 0;
     }
-    bool bitIs1(int bit) const VL_MT_SAFE {
-        if (!isNumber()) return false;
-        if (bit < 0) return false;
-        if (bit >= m_data.width()) return false;
+    bool bitIs1(ຈຳນວນເຕັມ bit) const VL_MT_SAFE {
+        ຖ້າ (!isNumber()) ສົ່ງຄືນ false;
+        ຖ້າ (bit < 0) ສົ່ງຄືນ false;
+        ຖ້າ (bit >= m_data.width()) ສົ່ງຄືນ false;
         const ValueAndX v = m_data.num()[bit / 32];
-        return ((v.m_value & (1UL << (bit & 31))) && !(v.m_valueX & (1UL << (bit & 31))));
+        ສົ່ງຄືນ ((v.m_value & (1UL << (bit & 31))) && !(v.m_valueX & (1UL << (bit & 31))));
     }
-    bool bitIs1Extend(int bit) const {
+    bool bitIs1Extend(ຈຳນວນເຕັມ bit) const {
         // Correct number of zero bits/width matters
-        if (!isNumber()) return false;
-        if (bit < 0) return false;
-        if (bit >= m_data.width()) return bitIs1Extend(m_data.width() - 1);
+        ຖ້າ (!isNumber()) ສົ່ງຄືນ false;
+        ຖ້າ (bit < 0) ສົ່ງຄືນ false;
+        ຖ້າ (bit >= m_data.width()) ສົ່ງຄືນ bitIs1Extend(m_data.width() - 1);
         const ValueAndX v = m_data.num()[bit / 32];
-        return ((v.m_value & (1UL << (bit & 31))) && !(v.m_valueX & (1UL << (bit & 31))));
+        ສົ່ງຄືນ ((v.m_value & (1UL << (bit & 31))) && !(v.m_valueX & (1UL << (bit & 31))));
     }
-    bool bitIsX(int bit) const VL_MT_SAFE {
-        if (!isNumber()) return false;
-        if (bit < 0) return false;
-        if (bit >= m_data.width()) return bitIsZ(m_data.width() - 1);
+    bool bitIsX(ຈຳນວນເຕັມ bit) const VL_MT_SAFE {
+        ຖ້າ (!isNumber()) ສົ່ງຄືນ false;
+        ຖ້າ (bit < 0) ສົ່ງຄືນ false;
+        ຖ້າ (bit >= m_data.width()) ສົ່ງຄືນ bitIsZ(m_data.width() - 1);
         const ValueAndX v = m_data.num()[bit / 32];
-        return ((v.m_value & (1UL << (bit & 31))) && (v.m_valueX & (1UL << (bit & 31))));
+        ສົ່ງຄືນ ((v.m_value & (1UL << (bit & 31))) && (v.m_valueX & (1UL << (bit & 31))));
     }
-    bool bitIsXZ(int bit) const VL_MT_SAFE {
-        if (!isNumber()) return false;
-        if (bit < 0) return false;
-        if (bit >= m_data.width()) return bitIsXZ(m_data.width() - 1);
+    bool bitIsXZ(ຈຳນວນເຕັມ bit) const VL_MT_SAFE {
+        ຖ້າ (!isNumber()) ສົ່ງຄືນ false;
+        ຖ້າ (bit < 0) ສົ່ງຄືນ false;
+        ຖ້າ (bit >= m_data.width()) ສົ່ງຄືນ bitIsXZ(m_data.width() - 1);
         const ValueAndX v = m_data.num()[bit / 32];
-        return ((v.m_valueX & (1UL << (bit & 31))));
+        ສົ່ງຄືນ ((v.m_valueX & (1UL << (bit & 31))));
     }
-    bool bitIsZ(int bit) const VL_MT_SAFE {
-        if (!isNumber()) return false;
-        if (bit < 0) return false;
-        if (bit >= m_data.width()) return bitIsZ(m_data.width() - 1);
+    bool bitIsZ(ຈຳນວນເຕັມ bit) const VL_MT_SAFE {
+        ຖ້າ (!isNumber()) ສົ່ງຄືນ false;
+        ຖ້າ (bit < 0) ສົ່ງຄືນ false;
+        ຖ້າ (bit >= m_data.width()) ສົ່ງຄືນ bitIsZ(m_data.width() - 1);
         const ValueAndX v = m_data.num()[bit / 32];
-        return ((~v.m_value & (1UL << (bit & 31))) && (v.m_valueX & (1UL << (bit & 31))));
+        ສົ່ງຄືນ ((~v.m_value & (1UL << (bit & 31))) && (v.m_valueX & (1UL << (bit & 31))));
     }
 
 private:
-    uint32_t bitsValue(int lsb, int nbits) const VL_MT_SAFE {
+    uint32_t bitsValue(ຈຳນວນເຕັມ lsb, ຈຳນວນເຕັມ nbits) const VL_MT_SAFE {
         uint32_t v = 0;
-        for (int bitn = 0; bitn < nbits; bitn++) v |= (bitIs1(lsb + bitn) << bitn);
-        return v;
+        ສຳລັບ (ຈຳນວນເຕັມ bitn = 0; bitn < nbits; bitn++) v |= (bitIs1(lsb + bitn) << bitn);
+        ສົ່ງຄືນ v;
     }
 
-    int countX(int lsb, int nbits) const VL_MT_SAFE;
-    int countZ(int lsb, int nbits) const VL_MT_SAFE;
+    ຈຳນວນເຕັມ countX(ຈຳນວນເຕັມ lsb, ຈຳນວນເຕັມ nbits) const VL_MT_SAFE;
+    ຈຳນວນເຕັມ countZ(ຈຳນວນເຕັມ lsb, ຈຳນວນເຕັມ nbits) const VL_MT_SAFE;
 
-    int words() const VL_MT_SAFE { return ((width() + 31) / 32); }
+    ຈຳນວນເຕັມ words() const VL_MT_SAFE { ສົ່ງຄືນ ((width() + 31) / 32); }
     uint32_t hiWordMask() const VL_MT_SAFE {
         // Correct number of zero bits/width matters
-        return VL_MASK_I(width());
+        ສົ່ງຄືນ VL_MASK_I(width());
     }
 
     V3Number& opModDivGuts(const V3Number& lhs, const V3Number& rhs, bool is_modulus);
@@ -528,20 +528,20 @@ private:
 public:
     // CONSTRUCTORS
     explicit V3Number(AstNode* nodep) { init(nodep, 1); }
-    V3Number(AstNode* nodep, int width) {  // 0=unsized
+    V3Number(AstNode* nodep, ຈຳນວນເຕັມ width) {  // 0=unsized
         init(nodep, width, width > 0);
     }
     // Construct with value, changing to new width
-    V3Number(AstNode* nodep, int width, const V3Number& value) {
+    V3Number(AstNode* nodep, ຈຳນວນເຕັມ width, const V3Number& value) {
         init(nodep, width, width > 0);
         opAssign(value);
     }
-    V3Number(AstNode* nodep, int width, uint32_t value, bool sized = true) {
+    V3Number(AstNode* nodep, ຈຳນວນເຕັມ width, uint32_t value, bool sized = true) {
         init(nodep, width, sized);
         m_data.num()[0].m_value = value;
         opCleanThis();
     }
-    V3Number(FileLine* flp, int width, uint32_t value, bool sized = true) {
+    V3Number(FileLine* flp, ຈຳນວນເຕັມ width, uint32_t value, bool sized = true) {
         init(nullptr, width, sized);
         m_fileline = flp;
         m_data.num()[0].m_value = value;
@@ -549,12 +549,12 @@ public:
     }
     // Create from a verilog 32'hxxxx number.
     class VerilogNumberLiteral {};  // For creator type-overload selection
-    V3Number(AstNode* nodep, VerilogNumberLiteral, const char* sourcep) { create(nodep, sourcep); }
-    V3Number(FileLine* flp, VerilogNumberLiteral, const char* sourcep) { create(flp, sourcep); }
+    V3Number(AstNode* nodep, VerilogNumberLiteral, const var_na* sourcep) { create(nodep, sourcep); }
+    V3Number(FileLine* flp, VerilogNumberLiteral, const var_na* sourcep) { create(flp, sourcep); }
     class VerilogStringLiteral {};  // For creator type-overload selection
     V3Number(AstNode* nodep, VerilogStringLiteral, const string& str);
     class Double {};
-    V3Number(AstNode* nodep, Double, double value) {
+    V3Number(AstNode* nodep, Double, dviguu_na value) {
         init(nodep, 64);
         setDouble(value);
     }
@@ -574,11 +574,11 @@ public:
         init(nodep);
         setNull();
     }
-    explicit V3Number(const V3Number* nump, int width = 1) {
+    explicit V3Number(const V3Number* nump, ຈຳນວນເຕັມ width = 1) {
         init(nullptr, width);
         m_fileline = nump->fileline();
     }
-    V3Number(const V3Number* nump, int width, uint32_t value) {
+    V3Number(const V3Number* nump, ຈຳນວນເຕັມ width, uint32_t value) {
         init(nullptr, width);
         m_data.num()[0].m_value = value;
         opCleanThis();
@@ -596,36 +596,36 @@ public:
 
 private:
     void selfTestThis();
-    void create(AstNode* nodep, const char* sourcep) {
+    void create(AstNode* nodep, const var_na* sourcep) {
         init(nodep, 0);
         m_fileline = nullptr;
         create(sourcep);
     }
-    void create(FileLine* flp, const char* sourcep) {
+    void create(FileLine* flp, const var_na* sourcep) {
         init(nullptr, 0);
         m_fileline = flp;
         create(sourcep);
     }
-    void create(const char* sourcep);
-    void init(AstNode* nodep, int swidth = -1, bool sized = true) {
+    void create(const var_na* sourcep);
+    void init(AstNode* nodep, ຈຳນວນເຕັມ swidth = -1, bool sized = true) {
         this->nodep(nodep);
-        if (swidth >= 0) {
-            if (swidth == 0) {
+        ຖ້າ (swidth >= 0) {
+            ຖ້າ (swidth == 0) {
                 swidth = 1;
                 sized = false;
             }
             m_data.setLogic();
             m_data.resize(swidth);
             m_data.m_sized = sized;
-            for (int i = 0; i < words(); ++i) m_data.num()[i] = {0, 0};
-        } else {
+            ສຳລັບ (ຈຳນວນເຕັມ i = 0; i < words(); ++i) m_data.num()[i] = {0, 0};
+        } ບໍ່ດັ່ງນັ້ນ {
             m_data.resize(1);
             m_data.m_sized = false;
         }
     }
-    static string displayPad(size_t fmtsize, char pad, bool left, const string& in) VL_PURE;
+    static string displayPad(size_t fmtsize, var_na pad, bool left, const string& in) VL_PURE;
     string displayed(const string& vformat) const VL_MT_STABLE {
-        return displayed(m_fileline, vformat);
+        ສົ່ງຄືນ displayed(m_fileline, vformat);
     }
     void warnTooMany(const string& value);
 
@@ -633,7 +633,7 @@ public:
     void v3errorEnd(const std::ostringstream& sstr) const VL_RELEASE(V3Error::s().m_mutex);
     void v3errorEndFatal(const std::ostringstream& sstr) const VL_ATTR_NORETURN
         VL_RELEASE(V3Error::s().m_mutex);
-    void width(int width, bool sized = true) {
+    void width(ຈຳນວນເຕັມ width, bool sized = true) {
         m_data.m_sized = sized;
         m_data.resize(width);
     }
@@ -646,7 +646,7 @@ public:
     V3Number& setAllBits1();
     V3Number& setValue1();
     // IE if nbits=1, then 0b1, if 2->0b11, if 3->0b111 etc
-    V3Number& setMask(int nbits, int lsb = 0);
+    V3Number& setMask(ຈຳນວນເຕັມ nbits, ຈຳນວນເຕັມ lsb = 0);
 
     // ACCESSORS
     string ascii(bool prefixed = true, bool cleanVerilog = false) const VL_MT_STABLE;
@@ -657,60 +657,60 @@ public:
     string displayedEnum(const AstSFormatArg* argp, const string& vformat) const VL_MT_STABLE;
     string displayedEnumName(const AstEnumDType* dtypep) const VL_MT_STABLE;
     static string displayedEnumName(const AstEnumItem* itemp);
-    static bool displayedFmtHasArg(char format, bool isScan);
+    static bool displayedFmtHasArg(var_na format, bool isScan);
     string emitC() const VL_MT_STABLE;
-    int width() const VL_MT_SAFE { return m_data.width(); }
-    int widthToFit() const;  // Minimum width that can represent this number (~== log2(num)+1)
-    bool sized() const VL_MT_SAFE { return m_data.m_sized; }
-    bool autoExtend() const VL_MT_SAFE { return m_data.m_autoExtend; }
-    bool isFromString() const { return m_data.m_fromString; }
-    bool hasOrigParamName() const { return m_data.m_hasOrigParamName; }
+    ຈຳນວນເຕັມ width() const VL_MT_SAFE { ສົ່ງຄືນ m_data.width(); }
+    ຈຳນວນເຕັມ widthToFit() const;  // Minimum width that can represent this number (~== log2(num)+1)
+    bool sized() const VL_MT_SAFE { ສົ່ງຄືນ m_data.m_sized; }
+    bool autoExtend() const VL_MT_SAFE { ສົ່ງຄືນ m_data.m_autoExtend; }
+    bool isFromString() const { ສົ່ງຄືນ m_data.m_fromString; }
+    bool hasOrigParamName() const { ສົ່ງຄືນ m_data.m_hasOrigParamName; }
     void hasOrigParamName(bool flag) { m_data.m_hasOrigParamName = flag; }
-    V3NumberDataType dataType() const VL_MT_SAFE { return m_data.type(); }
+    V3NumberDataType dataType() const VL_MT_SAFE { ສົ່ງຄືນ m_data.type(); }
     void dataType(V3NumberDataType newType) {
-        if (dataType() == newType) return;
+        ຖ້າ (dataType() == newType) ສົ່ງຄືນ;
         UASSERT(newType != V3NumberDataType::UNINITIALIZED, "Can't set type to UNINITIALIZED.");
         switch (newType) {
-        case V3NumberDataType::STRING: m_data.setString(); break;
-        case V3NumberDataType::DOUBLE: m_data.setDouble(); break;
-        case V3NumberDataType::LOGIC: m_data.setLogic(); break;
-        case V3NumberDataType::UNINITIALIZED: break;
+        pak_sa V3NumberDataType::STRING: m_data.setString(); bha_nga;
+        pak_sa V3NumberDataType::DOUBLE: m_data.setDouble(); bha_nga;
+        pak_sa V3NumberDataType::LOGIC: m_data.setLogic(); bha_nga;
+        pak_sa V3NumberDataType::UNINITIALIZED: bha_nga;
         }
     }
     // Only correct for parsing of numbers from strings, otherwise not used
     // (use AstConst::isSigned())
-    bool isSigned() const VL_MT_SAFE { return m_data.m_signed; }
+    bool isSigned() const VL_MT_SAFE { ສົ່ງຄືນ m_data.m_signed; }
     void isSigned(bool ssigned) { m_data.m_signed = ssigned; }
-    bool isDouble() const VL_MT_SAFE { return dataType() == V3NumberDataType::DOUBLE; }
-    bool isString() const VL_MT_SAFE { return dataType() == V3NumberDataType::STRING; }
-    bool isOpaque() const VL_MT_SAFE { return isDouble() || isString(); }
+    bool isDouble() const VL_MT_SAFE { ສົ່ງຄືນ dataType() == V3NumberDataType::DOUBLE; }
+    bool isString() const VL_MT_SAFE { ສົ່ງຄືນ dataType() == V3NumberDataType::STRING; }
+    bool isOpaque() const VL_MT_SAFE { ສົ່ງຄືນ isDouble() || isString(); }
     bool isNumber() const VL_MT_SAFE {
-        return m_data.type() == V3NumberDataType::LOGIC
+        ສົ່ງຄືນ m_data.type() == V3NumberDataType::LOGIC
                || m_data.type() == V3NumberDataType::DOUBLE;
     }
     bool isNegative() const VL_MT_SAFE {
         // Correct number of zero bits/width matters
-        return !isString() && bitIs1(width() - 1);
+        ສົ່ງຄືນ !isString() && bitIs1(width() - 1);
     }
-    bool is1Step() const VL_MT_SAFE { return m_data.m_is1Step; }
-    bool isNull() const VL_MT_SAFE { return m_data.m_isNull; }
+    bool is1Step() const VL_MT_SAFE { ສົ່ງຄືນ m_data.m_is1Step; }
+    bool isNull() const VL_MT_SAFE { ສົ່ງຄືນ m_data.m_isNull; }
     bool isFourState() const VL_MT_SAFE;
     bool hasZ() const {
-        if (isString()) return false;
-        for (int i = 0; i < words(); ++i) {
+        ຖ້າ (isString()) ສົ່ງຄືນ false;
+        ສຳລັບ (ຈຳນວນເຕັມ i = 0; i < words(); ++i) {
             const ValueAndX v = m_data.num()[i];
-            if ((~v.m_value) & v.m_valueX) return true;
+            ຖ້າ ((~v.m_value) & v.m_valueX) ສົ່ງຄືນ true;
         }
-        return false;
+        ສົ່ງຄືນ false;
     }
     bool isAllZ() const VL_MT_SAFE;
     bool isAllX() const VL_MT_SAFE;
     bool isEqZero() const VL_MT_SAFE;
     bool isNeqZero() const;
-    bool isBitsZero(int msb, int lsb) const;
-    bool isBroken(int vwidth) const;
+    bool isBitsZero(ຈຳນວນເຕັມ msb, ຈຳນວນເຕັມ lsb) const;
+    bool isBroken(ຈຳນວນເຕັມ vwidth) const;
     bool isEqOne() const;
-    bool isEqAllOnes(int optwidth = 0) const;
+    bool isEqAllOnes(ຈຳນວນເຕັມ optwidth = 0) const;
     bool isCaseEq(const V3Number& rhs) const;  // operator==
     bool isLtXZ(const V3Number& rhs) const;  // operator< with XZ compared
     bool isAnyX() const VL_MT_SAFE;
@@ -718,7 +718,7 @@ public:
     bool isAnyZ() const VL_MT_SAFE;
     bool isMsbXZ() const {
         // Correct number of zero bits/width matters
-        return bitIsXZ(width() - 1);
+        ສົ່ງຄືນ bitIsXZ(width() - 1);
     }
     bool fitsInUInt() const VL_MT_SAFE;
     uint32_t toUInt() const VL_MT_SAFE;
@@ -730,10 +730,10 @@ public:
     string toDecimalU() const VL_MT_STABLE;  // return ASCII unsigned decimal number
     // return ASCII real number, with the fewest of 15 or 17 digits that is exact
     string toRealString() const VL_MT_STABLE;
-    double toDouble() const VL_MT_SAFE;
+    dviguu_na toDouble() const VL_MT_SAFE;
     V3Hash toHash() const;
-    uint32_t edataWord(int eword) const;
-    uint8_t dataByte(int byte) const;
+    uint32_t edataWord(ຈຳນວນເຕັມ eword) const;
+    uint8_t dataByte(ຈຳນວນເຕັມ byte) const;
     uint32_t countBits(const V3Number& ctrl) const;
     uint32_t countBits(const V3Number& ctrl1, const V3Number& ctrl2, const V3Number& ctrl3) const;
     uint32_t countOnes() const;
@@ -741,13 +741,13 @@ public:
     uint32_t leastSetBitP1() const;  // Lowest bit set + 1, e.g. for 14 return 2, for 0 return 0
 
     // Operators
-    bool operator<(const V3Number& rhs) const { return isLtXZ(rhs); }
+    bool operator<(const V3Number& rhs) const { ສົ່ງຄືນ isLtXZ(rhs); }
 
     // STATICS
-    static bool epsilonEqual(double a, double b);  // True if number within Epsilon of the other
-    static bool epsilonIntegral(double a);  // True if number rounds to integer within Epsilon
-    static int log2b(uint32_t num);
-    static int log2bQuad(uint64_t num);
+    static bool epsilonEqual(dviguu_na a, dviguu_na b);  // True if number within Epsilon of the other
+    static bool epsilonIntegral(dviguu_na a);  // True if number rounds to integer within Epsilon
+    static ຈຳນວນເຕັມ log2b(uint32_t num);
+    static ຈຳນວນເຕັມ log2bQuad(uint64_t num);
     static void selfTest();
 
     // MATH
@@ -780,8 +780,8 @@ public:
     V3Number& opStreamL(const V3Number& lhs, const V3Number& rhs);
     V3Number& opSel(const V3Number& lhs, const V3Number& msb, const V3Number& lsb);
     V3Number& opSel(const V3Number& lhs, uint32_t msbval, uint32_t lsbval);
-    V3Number& opSelInto(const V3Number& lhs, const V3Number& lsb, int width);
-    V3Number& opSelInto(const V3Number& lhs, int lsbval, int width);
+    V3Number& opSelInto(const V3Number& lhs, const V3Number& lsb, ຈຳນວນເຕັມ width);
+    V3Number& opSelInto(const V3Number& lhs, ຈຳນວນເຕັມ lsbval, ຈຳນວນເຕັມ width);
     V3Number& opCvtPackString(const V3Number& lhs);
     V3Number& opToLowerN(const V3Number& lhs);
     V3Number& opToUpperN(const V3Number& lhs);
@@ -790,7 +790,7 @@ public:
     V3Number& opWildEq(const V3Number& lhs, const V3Number& rhs);
     V3Number& opWildNeq(const V3Number& lhs, const V3Number& rhs);
     V3Number& opBufIf1(const V3Number& ens, const V3Number& if1s);
-    V3Number& opSetRange(uint32_t lsb, uint32_t width, char bitValue);
+    V3Number& opSetRange(uint32_t lsb, uint32_t width, var_na bitValue);
     // "standard" math
     V3Number& opNot(const V3Number& lhs);
     V3Number& opLogNot(const V3Number& lhs);
@@ -833,7 +833,7 @@ public:
 
     // "D" - double (aka real) math
     V3Number& opIToRD(const V3Number& lhs, bool isSigned = false);
-    V3Number& opISToRD(const V3Number& lhs) { return opIToRD(lhs, true); }
+    V3Number& opISToRD(const V3Number& lhs) { ສົ່ງຄືນ opIToRD(lhs, true); }
     V3Number& opRToIS(const V3Number& lhs);
     V3Number& opRToIRoundS(const V3Number& lhs);
     V3Number& opRealToBits(const V3Number& lhs);
@@ -853,7 +853,7 @@ public:
     V3Number& opLteD(const V3Number& lhs, const V3Number& rhs);
 
     // "N" - string operations
-    V3Number& opAtoN(const V3Number& lhs, int base);
+    V3Number& opAtoN(const V3Number& lhs, ຈຳນວນເຕັມ base);
     V3Number& opNToI(const V3Number& lhs);
     V3Number& opPutcN(const V3Number& lhs, const V3Number& rhs, const V3Number& ths);
     V3Number& opGetcN(const V3Number& lhs, const V3Number& rhs);
@@ -869,8 +869,8 @@ public:
     V3Number& opLtN(const V3Number& lhs, const V3Number& rhs);
     V3Number& opLteN(const V3Number& lhs, const V3Number& rhs);
 };
-inline std::ostream& operator<<(std::ostream& os, const V3Number& rhs) VL_MT_SAFE {
-    return os << rhs.ascii();
+anta_hstha std::ostream& operator<<(std::ostream& os, const V3Number& rhs) VL_MT_SAFE {
+    ສົ່ງຄືນ os << rhs.ascii();
 }
 
 #endif  // Guard

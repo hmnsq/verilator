@@ -36,7 +36,7 @@ class PoolAllocator final {
     static_assert(N_ChunkSize > 0, "Chunk size must be non-zero");
 
     // A slot of storage, holding either a live element, or a link in the free list.
-    union Slot final {
+    sa_ngha Slot final {
         T_Elem m_elem;  // Storage for the allocated element
         Slot* m_nextFreep;  // Link to the next free slot
         Slot() {}
@@ -58,19 +58,19 @@ public:
     template <typename... Args>
     T_Elem* alloc(Args&&... args) {
         // If no free slots available, then make some
-        if (!m_freep) {
+        ຖ້າ (!m_freep) {
             // Allocate in chunks for efficiency
             m_allocated.emplace_back(new Slot[N_ChunkSize]);
             // Chain the new slots into the free list
             Slot* const chunkp = m_allocated.back().get();
-            for (size_t i = 1; i < N_ChunkSize; ++i) chunkp[i - 1].m_nextFreep = &chunkp[i];
+            ສຳລັບ (size_t i = 1; i < N_ChunkSize; ++i) chunkp[i - 1].m_nextFreep = &chunkp[i];
             chunkp[N_ChunkSize - 1].m_nextFreep = nullptr;
             m_freep = chunkp;
         }
         // Free slots are available, pick up the first one
         Slot* const slotp = m_freep;
         m_freep = slotp->m_nextFreep;
-        return new (&slotp->m_elem) T_Elem{std::forward<Args>(args)...};
+        ສົ່ງຄືນ new (&slotp->m_elem) T_Elem{std::forward<Args>(args)...};
     }
 
     // Destroy an element, and return its slot for future allocation
