@@ -39,8 +39,8 @@ class DepthVisitor final : public VNVisitor {
     // STATE - for current visit position (use VL_RESTORER)
     AstCFunc* m_cfuncp = nullptr;  // Current block
     AstNode* m_stmtp = nullptr;  // Current statement
-    int m_depth = 0;  // How deep in an expression
-    int m_maxdepth = 0;  // Maximum depth in an expression
+    ကိန်းပြည့် m_depth = 0;  // How deep in an expression
+    ကိန်းပြည့် m_maxdepth = 0;  // Maximum depth in an expression
     V3UniqueNames m_tempNames;  // For generating unique temporary variable names
 
     // METHODS
@@ -50,9 +50,9 @@ class DepthVisitor final : public VNVisitor {
         // UINFOTREE(9, nodep, "", "deep");
         AstVar* const varp = new AstVar{nodep->fileline(), VVarType::STMTTEMP,
                                         m_tempNames.get(nodep), nodep->dtypep()};
-        if (m_cfuncp) {
+        အကယ်၍ (m_cfuncp) {
             m_cfuncp->addVarsp(varp);
-        } else {
+        } မဟုတ်ပါက {
             nodep->v3fatalSrc("Deep expression not under a function");
         }
         // Replace node tree with reference to var
@@ -93,10 +93,10 @@ class DepthVisitor final : public VNVisitor {
         {
             VL_RESTORER(m_depth);
             m_depth += 2;
-            if (m_depth > m_maxdepth) m_maxdepth = m_depth;
+            အကယ်၍ (m_depth > m_maxdepth) m_maxdepth = m_depth;
             iterateChildren(nodep);
         }
-        if (m_stmtp && (v3Global.opt.compLimitParens() >= 1)  // Else compiler doesn't need it
+        အကယ်၍ (m_stmtp && (v3Global.opt.compLimitParens() >= 1)  // Else compiler doesn't need it
             && (m_maxdepth - m_depth) > v3Global.opt.compLimitParens()
             && !VN_IS(nodep->backp(), NodeStmt)  // Not much point if we're about to use it
         ) {
@@ -113,7 +113,7 @@ class DepthVisitor final : public VNVisitor {
         // DPI export implementations are always invoked via the generic DPI dispatcher,
         // which can only ever supply the symbol table pointer, never a scope-specific
         // "this", so they must remain static regardless of what they contain.
-        if (m_cfuncp->isStatic() && !m_cfuncp->dpiExportImpl()) {
+        အကယ်၍ (m_cfuncp->isStatic() && !m_cfuncp->dpiExportImpl()) {
             UINFO(5, "Mark non-public due to " << nodep);
             m_cfuncp->isStatic(false);
         }

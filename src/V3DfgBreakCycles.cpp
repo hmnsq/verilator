@@ -52,35 +52,35 @@ public:
         m_dfg.forEachVertex([&](const DfgVertex& vtx) {
             const uint64_t sccIdx = vtx2Scc[vtx];
             m_vtx2Scc[&vtx] = sccIdx;
-            if (sccIdx) ++m_nCyclicVertices;
+            အကယ်၍ (sccIdx) ++m_nCyclicVertices;
         });
     }
 
     // Is the graph cyclic still?
-    bool isCyclic() const { return m_nCyclicVertices; }
+    bool isCyclic() const { ပြန်ပေး m_nCyclicVertices; }
 
     // Returns the index of the SCC the given vertex is a part of
     // This is 0 iff the vertex is in a trivial SCC (no cycles through vertex)
-    uint64_t get(const DfgVertex& vtx) const { return m_vtx2Scc.at(&vtx); }
+    uint64_t get(const DfgVertex& vtx) const { ပြန်ပေး m_vtx2Scc.at(&vtx); }
 
     // Add a new vertex to graph that is part of the given SCC
     void add(const DfgVertex& vtx, uint64_t sccIdx) {
         const bool newEntry = m_vtx2Scc.emplace(&vtx, sccIdx).second;
         UASSERT_OBJ(newEntry, &vtx, "Vertex already inserted");
-        if (sccIdx) ++m_nCyclicVertices;
+        အကယ်၍ (sccIdx) ++m_nCyclicVertices;
     }
 
     bool stillCyclicFwd(const DfgVertex& vtx) const {
         // If it only reads non-cyclic vertices, it has also become acyclic
-        return vtx.foreachSource([&](const DfgVertex& src) {  //
-            return m_vtx2Scc.at(&src);
+        ပြန်ပေး vtx.foreachSource([&](const DfgVertex& src) {  //
+            ပြန်ပေး m_vtx2Scc.at(&src);
         });
     }
 
     bool stillCyclicBwd(const DfgVertex& vtx) const {
         // If itonly drives non-cyclic vertices, it has also become acyclic
-        return vtx.foreachSink([&](const DfgVertex& dst) {  //
-            return m_vtx2Scc.at(&dst);
+        ပြန်ပေး vtx.foreachSink([&](const DfgVertex& dst) {  //
+            ပြန်ပေး m_vtx2Scc.at(&dst);
         });
     }
 
@@ -95,16 +95,16 @@ public:
         // Propagate the update through the graph forward
         vtx.foreachSink([&](const DfgVertex& dst) {
             // Sink was known to be acyclic, stop
-            if (!m_vtx2Scc.at(&dst)) return false;
-            if (!stillCyclicFwd(dst)) updateAcyclic(dst);
-            return false;
+            အကယ်၍ (!m_vtx2Scc.at(&dst)) ပြန်ပေး false;
+            အကယ်၍ (!stillCyclicFwd(dst)) updateAcyclic(dst);
+            ပြန်ပေး false;
         });
         // Propagate the update through the graph backward
         vtx.foreachSource([&](const DfgVertex& src) {
             // Source was known to be acyclic, stop
-            if (!m_vtx2Scc.at(&src)) return false;
-            if (!stillCyclicBwd(src)) updateAcyclic(src);
-            return false;
+            အကယ်၍ (!m_vtx2Scc.at(&src)) ပြန်ပေး false;
+            အကယ်၍ (!stillCyclicBwd(src)) updateAcyclic(src);
+            ပြန်ပေး false;
         });
     }
 
@@ -112,11 +112,11 @@ public:
     void updateReplacement(const DfgVertex& vtx, DfgVertex& replacement) {
         UASSERT_OBJ(!vtx.hasSinks(), &vtx, "Replaced vertex should have no sinks");
         updateAcyclic(vtx);
-        if (!get(replacement)) {
+        အကယ်၍ (!get(replacement)) {
             replacement.foreachSink([&](DfgVertex& dst) {
-                if (!get(dst)) return false;
-                if (!stillCyclicFwd(dst)) updateAcyclic(dst);
-                return false;
+                အကယ်၍ (!get(dst)) ပြန်ပေး false;
+                အကယ်၍ (!stillCyclicFwd(dst)) updateAcyclic(dst);
+                ပြန်ပေး false;
             });
         }
     }
@@ -151,7 +151,7 @@ public:
 class TraceDriver final : public DfgVisitor {
     // TYPES
     // Key for caching the result of a trace
-    struct CacheKey final {
+    sa_nracanaa CacheKey final {
         DfgVertex* m_vtxp;  // Vertex being traced
         uint32_t m_lsb;  // LSB of the range within m_vtxp being traced
         uint32_t m_msb;  // MSB of the range within m_vtxp being traced
@@ -162,19 +162,19 @@ class TraceDriver final : public DfgVisitor {
             , m_lsb{lsb}
             , m_msb{msb} {}
 
-        struct Hash final {
+        sa_nracanaa Hash final {
             size_t operator()(const CacheKey& item) const {
                 // cppcheck-suppress unreadVariable
                 V3Hash hash{item.m_vtxp};
                 hash += item.m_lsb;
                 hash += item.m_msb;
-                return hash.value();
+                ပြန်ပေး hash.value();
             }
         };
 
-        struct Equal final {
+        sa_nracanaa Equal final {
             bool operator()(const CacheKey& a, const CacheKey& b) const {
-                return a.m_vtxp == b.m_vtxp && a.m_lsb == b.m_lsb && a.m_msb == b.m_msb;
+                ပြန်ပေး a.m_vtxp == b.m_vtxp && a.m_lsb == b.m_lsb && a.m_msb == b.m_msb;
             }
         };
     };
@@ -221,11 +221,11 @@ class TraceDriver final : public DfgVisitor {
                           && !std::is_base_of<DfgVertexVar, Vertex>::value,
                       "Should only make operation vertices and constants");
 
-        if VL_CONSTEXPR_CXX17 (std::is_same<DfgConst, Vertex>::value) {
+        အကယ်၍ VL_CONSTEXPR_CXX17 (std::is_same<DfgConst, Vertex>::value) {
             DfgConst* const vtxp = new DfgConst{m_dfg, refp->fileline(), width, 0};
             m_sccInfo.add(*vtxp, 0);
-            return reinterpret_cast<Vertex*>(vtxp);
-        } else {
+            ပြန်ပေး reinterpret_cast<Vertex*>(vtxp);
+        } မဟုတ်ပါက {
             // TODO: this is a gross hack around lack of C++17 'if constexpr' Vtx is always Vertex
             // when this code is actually executed, but needs a fudged type to type check when
             // Vertex is DfgConst, in which case this code is unreachable ...
@@ -233,12 +233,12 @@ class TraceDriver final : public DfgVisitor {
                                                   Vertex>::type;
             Vtx* const vtxp = new Vtx{m_dfg, refp->fileline(), DfgDataType::packed(width)};
             m_sccInfo.add(*vtxp, 0);
-            return reinterpret_cast<Vertex*>(vtxp);
+            ပြန်ပေး reinterpret_cast<Vertex*>(vtxp);
         }
     }
 
     // Create temporary capable of holding the result of 'vtxp'
-    DfgVertexVar* createTmp(const char* prefix, DfgVertex* vtxp) {
+    DfgVertexVar* createTmp(const var_na* prefix, DfgVertex* vtxp) {
         FileLine* const flp = vtxp->fileline();
         DfgVertex::ScopeCache scopeCache;
         AstScope* const scopep = vtxp->scopep(scopeCache);
@@ -246,7 +246,7 @@ class TraceDriver final : public DfgVisitor {
         varp->vscp()->varp()->isInternal(true);
         varp->tmpForp(varp->vscp());
         m_sccInfo.add(*varp, 0);
-        return varp;
+        ပြန်ပေး varp;
     }
 
     // Trace drivers of the given packed vertex, at the given bit range.
@@ -264,7 +264,7 @@ class TraceDriver final : public DfgVisitor {
         const size_t pendingBegin = m_pendingps.size();
         DfgVertex* resp = nullptr;
 
-        while (true) {
+        နေစဉ် (true) {
             UASSERT_OBJ(vtxp->isPacked(), vtxp, "Can only trace packed type vertices");
             UASSERT_OBJ(vtxp->size() > msb, vtxp, "Traced Vertex too narrow");
             UASSERT_OBJ(!m_defaultp || vtxp == m_splicep, vtxp, "Tracing wrong vertex");
@@ -273,17 +273,17 @@ class TraceDriver final : public DfgVisitor {
             // then we found what we were looking for. But if it's a splice
             // with a corresponding default, we need to keep going as the
             // splice does not fully define the value we are seeking.
-            if (m_sccInfo.get(*vtxp) != m_component && !m_defaultp) {
+            အကယ်၍ (m_sccInfo.get(*vtxp) != m_component && !m_defaultp) {
                 DfgVertex*& respr
                     = m_boundaryCache
                           .emplace(std::piecewise_construct, std::forward_as_tuple(vtxp, msb, lsb),
                                    std::forward_as_tuple(nullptr))
                           .first->second;
-                if (!respr) {
+                အကယ်၍ (!respr) {
                     respr = vtxp;
                     // If the result is a splice, we need to insert a temporary for it
                     // as a splice cannot be fed into arbitray logic
-                    if (DfgVertexSplice* const splicep = respr->cast<DfgVertexSplice>()) {
+                    အကယ်၍ (DfgVertexSplice* const splicep = respr->cast<DfgVertexSplice>()) {
                         DfgVertexVar* const tmpp = createTmp("TraceDriver", splicep);
                         // Note: we can't do 'splicep->replaceWith(tmpp)', as other
                         // variable sinks of the splice might have a defaultp driver.
@@ -291,7 +291,7 @@ class TraceDriver final : public DfgVisitor {
                         respr = tmpp;
                     }
                     // Apply a Sel to extract the relevant bits if only a part is needed
-                    if (msb != respr->width() - 1 || lsb != 0) {
+                    အကယ်၍ (msb != respr->width() - 1 || lsb != 0) {
                         DfgSel* const selp = make<DfgSel>(respr, msb - lsb + 1);
                         selp->fromp(respr);
                         selp->lsb(lsb);
@@ -299,7 +299,7 @@ class TraceDriver final : public DfgVisitor {
                     }
                 }
                 resp = respr;
-                break;
+                bha_nga;
             }
 
             // Normal cache for intra-component traces
@@ -310,11 +310,11 @@ class TraceDriver final : public DfgVisitor {
                                     .first->second;
 
             // Trace the vertex
-            if (respr) {
+            အကယ်၍ (respr) {
                 // If already traced this vtxp/msb/lsb, just use the result.
                 // This is important to avoid combinatorial explosion when the
                 // same sub-expression is needed multiple times.
-            } else {
+            } မဟုတ်ပါက {
                 // Otherwise visit the vertex to trace it
                 VL_RESTORER(m_msb);
                 VL_RESTORER(m_lsb);
@@ -328,7 +328,7 @@ class TraceDriver final : public DfgVisitor {
                 iterate(vtxp);
                 UASSERT_OBJ((m_resp != nullptr) != (m_tailp != nullptr), vtxp,
                             "Expected exactly one trace result");
-                if (m_tailp) {
+                အကယ်၍ (m_tailp) {
                     // This vertex just passes the range through, so continue with its
                     // source, at the updated range. Its cache entry is filled in when
                     // the chain is resolved.
@@ -341,7 +341,7 @@ class TraceDriver final : public DfgVisitor {
                 respr = m_resp;
             }
             resp = respr;
-            break;
+            bha_nga;
         }
 
         // We only ever trace drivers of bits that are known to be independent
@@ -349,9 +349,9 @@ class TraceDriver final : public DfgVisitor {
         UASSERT_OBJ(resp, startVtxp, "Tracing driver failed for " << startVtxp->typeName());
         UASSERT_OBJ(resp->width() == (startMsb - startLsb + 1), startVtxp, "Wrong result width");
         // Every vertex on the pass-through chain resolves to the same driver
-        for (size_t i = pendingBegin; i < m_pendingps.size(); ++i) *m_pendingps[i] = resp;
+        အတွက် (size_t i = pendingBegin; i < m_pendingps.size(); ++i) *m_pendingps[i] = resp;
         m_pendingps.resize(pendingBegin);
-        return resp;
+        ပြန်ပေး resp;
     }
 
     // Trace drivers of the given array vertex, at the current m_idxs, m_msb, m_lsb.
@@ -363,7 +363,7 @@ class TraceDriver final : public DfgVisitor {
         iterate(vtxp);  // Resolve the element, the array visitors set 'm_resp'
         UASSERT_OBJ(m_resp, vtxp, "Tracing driver failed for " << vtxp->typeName());
         UASSERT_OBJ(m_resp->width() == (m_msb - m_lsb + 1), vtxp, "Wrong result width");
-        return m_resp;
+        ပြန်ပေး m_resp;
     }
 
     // Trace drivers of the given array vertex, pushing the given index, at current m_msb, m_lsb.
@@ -373,7 +373,7 @@ class TraceDriver final : public DfgVisitor {
         DfgVertex* const resp = traceSameIdx(vtxp);
         m_idxs.pop_back();
         UASSERT_OBJ(m_idxs.size() == nIdxs, vtxp, "Index stack size mismatch");
-        return resp;
+        ပြန်ပေး resp;
     }
 
     // Trace drivers of the given vertex, popping the innermost index, at current m_msb, m_lsb.
@@ -385,7 +385,7 @@ class TraceDriver final : public DfgVisitor {
         DfgVertex* const resp = m_idxs.empty() ? trace(vtxp, m_msb, m_lsb) : traceSameIdx(vtxp);
         m_idxs.push_back(idx);
         UASSERT_OBJ(m_idxs.size() == nIdxs, vtxp, "Index stack size mismatch");
-        return resp;
+        ပြန်ပေး resp;
     }
 
     template <typename Vertex>
@@ -395,7 +395,7 @@ class TraceDriver final : public DfgVisitor {
         Vertex* const resp = make<Vertex>(vtxp, m_msb - m_lsb + 1);
         resp->rhsp(trace(vtxp->rhsp(), m_msb, m_lsb));
         resp->lhsp(trace(vtxp->lhsp(), m_msb, m_lsb));
-        return resp;
+        ပြန်ပေး resp;
     }
 
     template <typename Vertex>
@@ -408,7 +408,7 @@ class TraceDriver final : public DfgVisitor {
         DfgSel* const selp = make<DfgSel>(vtxp, m_msb - m_lsb + 1);
         selp->fromp(opp);
         selp->lsb(m_lsb);
-        return selp;
+        ပြန်ပေး selp;
     }
 
     template <typename Vertex>
@@ -417,7 +417,7 @@ class TraceDriver final : public DfgVisitor {
                       "Should only call on DfgVertexUnary");
         Vertex* const resp = make<Vertex>(vtxp, 1);
         resp->srcp(trace(vtxp->srcp(), vtxp->srcp()->width() - 1, 0));
-        return resp;
+        ပြန်ပေး resp;
     }
 
     template <typename Vertex>
@@ -427,7 +427,7 @@ class TraceDriver final : public DfgVisitor {
         Vertex* const resp = make<Vertex>(vtxp, m_msb - m_lsb + 1);
         resp->rhsp(trace(vtxp->rhsp(), vtxp->rhsp()->width() - 1, 0));
         resp->lhsp(trace(vtxp->lhsp(), vtxp->lhsp()->width() - 1, 0));
-        return resp;
+        ပြန်ပေး resp;
     }
 
     // Use this macro to return the result from 'visit' methods. This also emits
@@ -436,20 +436,20 @@ class TraceDriver final : public DfgVisitor {
 #ifdef VL_DEBUG
 #define TRACE_RESULT_COVER() \
     do { \
-        if (VL_UNLIKELY(m_lineCoverageFile.is_open())) m_lineCoverageFile << __LINE__ << '\n'; \
-    } while (false)
-#else
+        အကယ်၍ (VL_UNLIKELY(m_lineCoverageFile.is_open())) m_lineCoverageFile << __LINE__ << '\n'; \
+    } နေစဉ် (false)
+#မဟုတ်ပါက
 #define TRACE_RESULT_COVER() \
     do { \
-    } while (false)
+    } နေစဉ် (false)
 #endif
 
 #define RETURN_RESULT(vtxp) \
     do { \
         m_resp = (vtxp); \
         TRACE_RESULT_COVER(); \
-        return; \
-    } while (false)
+        ပြန်ပေး; \
+    } နေစဉ် (false)
 
     // Use this macro in 'visit' methods when the result is exactly the result of tracing
     // 'srcp' at [smsb:slsb]. 'trace' then continues iteratively instead of recursing, so
@@ -467,8 +467,8 @@ class TraceDriver final : public DfgVisitor {
         m_msb = tailMsb; \
         m_lsb = tailLsb; \
         TRACE_RESULT_COVER(); \
-        return; \
-    } while (false)
+        ပြန်ပေး; \
+    } နေစဉ် (false)
 
     // VISITORS
     void visit(DfgVertex* vtxp) override {  // LCOV_EXCL_START
@@ -481,7 +481,7 @@ class TraceDriver final : public DfgVisitor {
         m_defaultp = nullptr;
         m_splicep = nullptr;
 
-        struct Driver final {
+        sa_nracanaa Driver final {
             DfgVertex* m_vtxp;  // Vertex driving this range
             uint32_t m_lsb;  // LSB of driven range (internal, not Verilog)
             uint32_t m_msb;  // MSB of driven range (internal, not Verilog)
@@ -501,38 +501,38 @@ class TraceDriver final : public DfgVisitor {
             const uint32_t msb = lsb + src.width() - 1;
             drivers.emplace_back(&src, lsb, msb);
             // Check if this driver covers any of the bits, then we can't use whole default
-            if (m_msb >= lsb && msb >= m_lsb) tryWholeDefault = false;
+            အကယ်၍ (m_msb >= lsb && msb >= m_lsb) tryWholeDefault = false;
             // If it does not cover the whole searched bit range, move on
-            if (m_lsb < lsb || msb < m_msb) return false;
+            အကယ်၍ (m_lsb < lsb || msb < m_msb) ပြန်ပေး false;
             // Driver covers whole search range, we are done gathering
             coverp = &src;
             coverLsb = lsb;
-            return true;
+            ပြန်ပေး true;
         });
 
         // Trace the driver covering the whole searched range, if there is one
-        if (coverp) RETURN_RESULT_TAIL(coverp, m_msb - coverLsb, m_lsb - coverLsb);
+        အကယ်၍ (coverp) RETURN_RESULT_TAIL(coverp, m_msb - coverLsb, m_lsb - coverLsb);
 
         // Trace the default driver if no other drivers cover the searched range
-        if (tryWholeDefault) RETURN_RESULT_TAIL(defaultp, m_msb, m_lsb);
+        အကယ်၍ (tryWholeDefault) RETURN_RESULT_TAIL(defaultp, m_msb, m_lsb);
 
         // Hard case: We need to combine multiple drivers to produce the searched bit range
 
         // Sort drivers (they are non-overlapping)
         std::sort(drivers.begin(), drivers.end(), [](const Driver& a, const Driver& b) {  //
-            return a.m_lsb < b.m_lsb;
+            ပြန်ပေး a.m_lsb < b.m_lsb;
         });
 
         // Gather terms
         std::vector<DfgVertex*> termps;
         uint32_t lsb = m_lsb;
-        for (const Driver& driver : drivers) {
+        အတွက် (const Driver& driver : drivers) {
             // Driver is below the searched LSB, move on
-            if (lsb > driver.m_msb) continue;
+            အကယ်၍ (lsb > driver.m_msb) continue;
             // Driver is above the searched MSB, done
-            if (driver.m_lsb > m_msb) break;
+            အကယ်၍ (driver.m_lsb > m_msb) bha_nga;
             // Gap below this driver, trace default to fill it
-            if (driver.m_lsb > lsb) {
+            အကယ်၍ (driver.m_lsb > lsb) {
                 UASSERT_OBJ(defaultp, vtxp, "Should have a default driver if needs tracing");
                 termps.emplace_back(trace(defaultp, driver.m_lsb - 1, lsb));
                 lsb = driver.m_lsb;
@@ -542,7 +542,7 @@ class TraceDriver final : public DfgVisitor {
             termps.emplace_back(trace(driver.m_vtxp, lim - driver.m_lsb, lsb - driver.m_lsb));
             lsb = lim + 1;
         }
-        if (m_msb >= lsb) {
+        အကယ်၍ (m_msb >= lsb) {
             UASSERT_OBJ(defaultp, vtxp, "Should have a default driver if needs tracing");
             termps.emplace_back(trace(defaultp, m_msb, lsb));
         }
@@ -553,7 +553,7 @@ class TraceDriver final : public DfgVisitor {
 
         // Concatenate all terms and set result
         DfgVertex* resp = termps.front();
-        for (size_t i = 1; i < termps.size(); ++i) {
+        အတွက် (size_t i = 1; i < termps.size(); ++i) {
             DfgVertex* const termp = termps[i];
             DfgConcat* const catp = make<DfgConcat>(termp, resp->width() + termp->width());
             catp->rhsp(resp);
@@ -571,9 +571,9 @@ class TraceDriver final : public DfgVisitor {
 
         // Explicit per-element driver (a UnitArray wrapping the element value)
         const uint32_t idx = m_idxs.back();
-        if (DfgVertex* const driverp = vtxp->driverAt(idx)) {
+        အကယ်၍ (DfgVertex* const driverp = vtxp->driverAt(idx)) {
             DfgVertex* const srcp = driverp->as<DfgUnitArray>()->srcp();
-            if (srcp->is<DfgVertexSplice>()) {
+            အကယ်၍ (srcp->is<DfgVertexSplice>()) {
                 // Partial-element propagation is rejected during synthesis.
                 UASSERT_OBJ(!defaultp, vtxp, "Array default with partial element driver");
                 m_splicep = srcp;
@@ -592,7 +592,7 @@ class TraceDriver final : public DfgVisitor {
         DfgVertex* const defaultp = vtxp->defaultp();
         DfgVertex* const drvp = srcp ? srcp : defaultp;
         // If we are about to trace a splice, set the defaultp to the corresponding default
-        if (srcp && srcp->is<DfgVertexSplice>()) {
+        အကယ်၍ (srcp && srcp->is<DfgVertexSplice>()) {
             m_defaultp = defaultp;
             m_splicep = srcp;
         }
@@ -606,7 +606,7 @@ class TraceDriver final : public DfgVisitor {
         // If constant index, push it and trace the selected element through the array
         // structure of 'fromp'. This handles arbitrarily nested (multi-dimensional)
         // arrays, as each nested ArraySel pushes a further index.
-        if (const DfgConst* const idxp = vtxp->bitp()->cast<DfgConst>()) {
+        အကယ်၍ (const DfgConst* const idxp = vtxp->bitp()->cast<DfgConst>()) {
             RETURN_RESULT(tracePushIdx(vtxp->fromp(), idxp->toU32()));
         }
 
@@ -634,9 +634,9 @@ class TraceDriver final : public DfgVisitor {
         DfgVertex* const lhsp = vtxp->lhsp();
         const uint32_t rWidth = rhsp->width();
         // If the traced bits are wholly in the RHS
-        if (rWidth > m_msb) RETURN_RESULT_TAIL(rhsp, m_msb, m_lsb);
+        အကယ်၍ (rWidth > m_msb) RETURN_RESULT_TAIL(rhsp, m_msb, m_lsb);
         // If the traced bits are wholly in the LHS
-        if (m_lsb >= rWidth) RETURN_RESULT_TAIL(lhsp, m_msb - rWidth, m_lsb - rWidth);
+        အကယ်၍ (m_lsb >= rWidth) RETURN_RESULT_TAIL(lhsp, m_msb - rWidth, m_lsb - rWidth);
         // The traced bit spans both sides, trace both
         DfgConcat* const resp = make<DfgConcat>(vtxp, m_msb - m_lsb + 1);
         resp->rhsp(trace(rhsp, rWidth - 1, m_lsb));
@@ -648,7 +648,7 @@ class TraceDriver final : public DfgVisitor {
         DfgVertex* const srcp = vtxp->srcp();
         const uint32_t sWidth = srcp->width();
         // If we need more bits than the source, then we need the whole source
-        if (m_msb - m_lsb + 1 > sWidth) {
+        အကယ်၍ (m_msb - m_lsb + 1 > sWidth) {
             DfgRep* const repp = make<DfgRep>(vtxp, vtxp->width());
             repp->srcp(trace(srcp, sWidth - 1, 0));
             DfgSel* const resp = make<DfgSel>(vtxp, m_msb - m_lsb + 1);
@@ -657,7 +657,7 @@ class TraceDriver final : public DfgVisitor {
             RETURN_RESULT(resp);
         }
         // If the requested bits are within the same repliacted word
-        if (m_msb / sWidth == m_lsb / sWidth) {
+        အကယ်၍ (m_msb / sWidth == m_lsb / sWidth) {
             RETURN_RESULT_TAIL(srcp, m_msb % sWidth, m_lsb % sWidth);
         }
         // The requested bits span two replicated words
@@ -671,9 +671,9 @@ class TraceDriver final : public DfgVisitor {
         DfgVertex* const srcp = vtxp->srcp();
         const uint32_t sWidth = srcp->width();
         // If the traced bits are wholly in the input
-        if (sWidth > m_msb) RETURN_RESULT_TAIL(srcp, m_msb, m_lsb);
+        အကယ်၍ (sWidth > m_msb) RETURN_RESULT_TAIL(srcp, m_msb, m_lsb);
         // If the traced bits are wholly in the extension
-        if (m_lsb >= sWidth) RETURN_RESULT(make<DfgConst>(vtxp, m_msb - m_lsb + 1));
+        အကယ်၍ (m_lsb >= sWidth) RETURN_RESULT(make<DfgConst>(vtxp, m_msb - m_lsb + 1));
         // The traced bits span both sides
         DfgExtend* const resp = make<DfgExtend>(vtxp, m_msb - m_lsb + 1);
         resp->srcp(trace(srcp, sWidth - 1, m_lsb));
@@ -684,10 +684,10 @@ class TraceDriver final : public DfgVisitor {
         DfgVertex* const srcp = vtxp->srcp();
         const uint32_t sWidth = srcp->width();
         // If the traced bits are wholly in the input
-        if (sWidth > m_msb) RETURN_RESULT_TAIL(srcp, m_msb, m_lsb);
+        အကယ်၍ (sWidth > m_msb) RETURN_RESULT_TAIL(srcp, m_msb, m_lsb);
         // If the traced bits are wholly in the extension
-        if (m_lsb >= sWidth) {
-            if (m_msb == m_lsb) RETURN_RESULT_TAIL(srcp, sWidth - 1, sWidth - 1);
+        အကယ်၍ (m_lsb >= sWidth) {
+            အကယ်၍ (m_msb == m_lsb) RETURN_RESULT_TAIL(srcp, sWidth - 1, sWidth - 1);
             DfgExtendS* const resp = make<DfgExtendS>(vtxp, m_msb - m_lsb + 1);
             resp->srcp(trace(srcp, sWidth - 1, sWidth - 1));
             RETURN_RESULT(resp);
@@ -726,16 +726,16 @@ class TraceDriver final : public DfgVisitor {
 
     void visit(DfgShiftRS* vtxp) override {
         DfgVertex* const lhsp = vtxp->lhsp();
-        if (const DfgConst* const rConstp = vtxp->rhsp()->cast<DfgConst>()) {
+        အကယ်၍ (const DfgConst* const rConstp = vtxp->rhsp()->cast<DfgConst>()) {
             const uint32_t shiftAmnt = rConstp->toU32();
             // Width of lower half of result
             const uint32_t lowerWidth = shiftAmnt > vtxp->width() ? 0 : vtxp->width() - shiftAmnt;
             // If the traced bits are wholly in the input
-            if (lowerWidth > m_msb) {
+            အကယ်၍ (lowerWidth > m_msb) {
                 RETURN_RESULT_TAIL(lhsp, m_msb + shiftAmnt, m_lsb + shiftAmnt);
             }
             // If the traced bits are wholly in the extension
-            if (m_lsb >= lowerWidth) {
+            အကယ်၍ (m_lsb >= lowerWidth) {
                 DfgExtendS* const resp = make<DfgExtendS>(vtxp, m_msb - m_lsb + 1);
                 resp->srcp(trace(lhsp, lhsp->width() - 1, lhsp->width() - 1));
                 RETURN_RESULT(resp);
@@ -749,7 +749,7 @@ class TraceDriver final : public DfgVisitor {
         DfgShiftRS* const shiftrsp = make<DfgShiftRS>(vtxp, vtxp->lhsp()->width() - m_lsb);
         shiftrsp->rhsp(trace(vtxp->rhsp(), vtxp->rhsp()->width() - 1, 0));
         shiftrsp->lhsp(trace(vtxp->lhsp(), vtxp->lhsp()->width() - 1, m_lsb));
-        if (m_msb == vtxp->lhsp()->width() - 1) RETURN_RESULT(shiftrsp);
+        အကယ်၍ (m_msb == vtxp->lhsp()->width() - 1) RETURN_RESULT(shiftrsp);
         DfgSel* const selp = make<DfgSel>(vtxp, m_msb - m_lsb + 1);
         selp->fromp(shiftrsp);
         selp->lsb(0);
@@ -758,16 +758,16 @@ class TraceDriver final : public DfgVisitor {
 
     void visit(DfgShiftR* vtxp) override {
         DfgVertex* const lhsp = vtxp->lhsp();
-        if (const DfgConst* const rConstp = vtxp->rhsp()->cast<DfgConst>()) {
+        အကယ်၍ (const DfgConst* const rConstp = vtxp->rhsp()->cast<DfgConst>()) {
             const uint32_t shiftAmnt = rConstp->toU32();
             // Width of lower half of result
             const uint32_t lowerWidth = shiftAmnt > vtxp->width() ? 0 : vtxp->width() - shiftAmnt;
             // If the traced bits are wholly in the input
-            if (lowerWidth > m_msb) {
+            အကယ်၍ (lowerWidth > m_msb) {
                 RETURN_RESULT_TAIL(lhsp, m_msb + shiftAmnt, m_lsb + shiftAmnt);
             }
             // If the traced bits are wholly in the extension
-            if (m_lsb >= lowerWidth) RETURN_RESULT(make<DfgConst>(vtxp, m_msb - m_lsb + 1));
+            အကယ်၍ (m_lsb >= lowerWidth) RETURN_RESULT(make<DfgConst>(vtxp, m_msb - m_lsb + 1));
             // The traced bits span both sides
             DfgExtend* const resp = make<DfgExtend>(vtxp, m_msb - m_lsb + 1);
             resp->srcp(trace(lhsp, lowerWidth - 1 + shiftAmnt, m_lsb + shiftAmnt));
@@ -777,7 +777,7 @@ class TraceDriver final : public DfgVisitor {
         DfgShiftR* const shiftrp = make<DfgShiftR>(vtxp, vtxp->lhsp()->width() - m_lsb);
         shiftrp->rhsp(trace(vtxp->rhsp(), vtxp->rhsp()->width() - 1, 0));
         shiftrp->lhsp(trace(vtxp->lhsp(), vtxp->lhsp()->width() - 1, m_lsb));
-        if (m_msb == vtxp->lhsp()->width() - 1) RETURN_RESULT(shiftrp);
+        အကယ်၍ (m_msb == vtxp->lhsp()->width() - 1) RETURN_RESULT(shiftrp);
         DfgSel* const selp = make<DfgSel>(vtxp, m_msb - m_lsb + 1);
         selp->fromp(shiftrp);
         selp->lsb(0);
@@ -786,16 +786,16 @@ class TraceDriver final : public DfgVisitor {
 
     void visit(DfgShiftL* vtxp) override {
         DfgVertex* const lhsp = vtxp->lhsp();
-        if (const DfgConst* const rConstp = vtxp->rhsp()->cast<DfgConst>()) {
+        အကယ်၍ (const DfgConst* const rConstp = vtxp->rhsp()->cast<DfgConst>()) {
             const uint32_t shiftAmnt = rConstp->toU32();
             // Width of lower half of result
             const uint32_t lowerWidth = shiftAmnt > vtxp->width() ? vtxp->width() : shiftAmnt;
             // If the traced bits are wholly in the input
-            if (m_lsb >= lowerWidth) {
+            အကယ်၍ (m_lsb >= lowerWidth) {
                 RETURN_RESULT_TAIL(lhsp, m_msb - shiftAmnt, m_lsb - shiftAmnt);
             }
             // If the traced bits are wholly in the extension
-            if (lowerWidth > m_msb) RETURN_RESULT(make<DfgConst>(vtxp, m_msb - m_lsb + 1));
+            အကယ်၍ (lowerWidth > m_msb) RETURN_RESULT(make<DfgConst>(vtxp, m_msb - m_lsb + 1));
             // The traced bits span both sides
             DfgConcat* const resp = make<DfgConcat>(vtxp, m_msb - m_lsb + 1);
             resp->rhsp(make<DfgConst>(vtxp, resp->width() - (m_msb - lowerWidth + 1)));
@@ -806,7 +806,7 @@ class TraceDriver final : public DfgVisitor {
         DfgShiftL* const shiftlp = make<DfgShiftL>(vtxp, m_msb + 1);
         shiftlp->rhsp(trace(vtxp->rhsp(), vtxp->rhsp()->width() - 1, 0));
         shiftlp->lhsp(trace(vtxp->lhsp(), m_msb, 0));
-        if (m_lsb == 0) RETURN_RESULT(shiftlp);
+        အကယ်၍ (m_lsb == 0) RETURN_RESULT(shiftlp);
         DfgSel* const selp = make<DfgSel>(vtxp, m_msb - m_lsb + 1);
         selp->fromp(shiftlp);
         selp->lsb(m_lsb);
@@ -841,7 +841,7 @@ public:
         : m_dfg{dfg}
         , m_sccInfo{sccInfo} {
 #ifdef VL_DEBUG
-        if (v3Global.opt.debugCheck()) {
+        အကယ်၍ (v3Global.opt.debugCheck()) {
             m_lineCoverageFile.open(  //
                 v3Global.opt.makeDir() + "/" + v3Global.opt.prefix()
                     + "__V3DfgBreakCycles-TraceDriver-line-coverage.txt",  //
@@ -857,7 +857,7 @@ public:
     DfgVertex* apply(DfgVertex& vtx, uint32_t lsb, uint32_t width) {
         VL_RESTORER(m_component);
         m_component = m_sccInfo.get(vtx);
-        return trace(&vtx, lsb + width - 1, lsb);
+        ပြန်ပေး trace(&vtx, lsb + width - 1, lsb);
     }
 };
 
@@ -865,7 +865,7 @@ public:
 class BitMask final {
     // TYPES
     const DfgDataType& m_dtype;
-    union {
+    sa_ngha {
         V3Number m_num;  // The bits, if packed
         std::vector<BitMask> m_sub;  // The per element masks, if aggregate
     };
@@ -875,12 +875,12 @@ public:
     BitMask(FileLine* flp, const DfgDataType& dtype)
         : m_dtype{dtype} {
         UASSERT_OBJ(!m_dtype.isNull(), flp, "Expected non-null data type");
-        if (m_dtype.isPacked()) {
-            new (&m_num) V3Number{flp, static_cast<int>(m_dtype.size()), 0};
-        } else {
+        အကယ်၍ (m_dtype.isPacked()) {
+            new (&m_num) V3Number{flp, static_cast<ကိန်းပြည့်>(m_dtype.size()), 0};
+        } မဟုတ်ပါက {
             new (&m_sub) std::vector<BitMask>{};
             m_sub.reserve(m_dtype.size());
-            for (uint32_t i = 0; i < m_dtype.size(); ++i)
+            အတွက် (uint32_t i = 0; i < m_dtype.size(); ++i)
                 m_sub.emplace_back(flp, m_dtype.elemDtype());
         }
     }
@@ -888,27 +888,27 @@ public:
         : BitMask{vtx.fileline(), vtx.dtype()} {}
     BitMask(const BitMask& other)
         : m_dtype{other.m_dtype} {
-        if (m_dtype.isPacked()) {
+        အကယ်၍ (m_dtype.isPacked()) {
             new (&m_num) V3Number{other.m_num};
-        } else {
+        } မဟုတ်ပါက {
             new (&m_sub) std::vector<BitMask>{other.m_sub};
         }
     }
     BitMask& operator=(const BitMask& other) {
-        if (this != &other) {
+        အကယ်၍ (this != &other) {
             UASSERT(m_dtype == other.m_dtype, "Expected same data type");
-            if (other.m_dtype.isPacked()) {
+            အကယ်၍ (other.m_dtype.isPacked()) {
                 m_num = other.m_num;
-            } else {
+            } မဟုတ်ပါက {
                 m_sub = other.m_sub;
             }
         }
-        return *this;
+        ပြန်ပေး *this;
     }
     ~BitMask() {
-        if (m_dtype.isPacked()) {
+        အကယ်၍ (m_dtype.isPacked()) {
             m_num.~V3Number();
-        } else {
+        } မဟုတ်ပါက {
             m_sub.~vector<BitMask>();
         }
     }
@@ -916,90 +916,90 @@ public:
     // METHODS
     V3Number& num() {
         UASSERT(m_dtype.isPacked(), "Expected packed data type");
-        return m_num;
+        ပြန်ပေး m_num;
     }
     const V3Number& num() const {
         UASSERT(m_dtype.isPacked(), "Expected packed data type");
-        return m_num;
+        ပြန်ပေး m_num;
     }
     std::vector<BitMask>& sub() {
         UASSERT(m_dtype.isArray(), "Expected array data type");
-        return m_sub;
+        ပြန်ပေး m_sub;
     }
 
     bool isZero() const {
-        if (m_dtype.isPacked()) return m_num.isEqZero();
+        အကယ်၍ (m_dtype.isPacked()) ပြန်ပေး m_num.isEqZero();
 
-        for (const BitMask& sub : m_sub) {
-            if (!sub.isZero()) return false;
+        အတွက် (const BitMask& sub : m_sub) {
+            အကယ်၍ (!sub.isZero()) ပြန်ပေး false;
         }
-        return true;
+        ပြန်ပေး true;
     }
     bool isOnes() const {
-        if (m_dtype.isPacked()) return m_num.isEqAllOnes();
+        အကယ်၍ (m_dtype.isPacked()) ပြန်ပေး m_num.isEqAllOnes();
 
-        for (const BitMask& sub : m_sub) {
-            if (!sub.isOnes()) return false;
+        အတွက် (const BitMask& sub : m_sub) {
+            အကယ်၍ (!sub.isOnes()) ပြန်ပေး false;
         }
-        return true;
+        ပြန်ပေး true;
     }
     void setZero() {
-        if (m_dtype.isPacked()) {
+        အကယ်၍ (m_dtype.isPacked()) {
             m_num.setAllBits0();
-        } else {
-            for (BitMask& sub : m_sub) sub.setZero();
+        } မဟုတ်ပါက {
+            အတွက် (BitMask& sub : m_sub) sub.setZero();
         }
     }
     void setOnes() {
-        if (m_dtype.isPacked()) {
+        အကယ်၍ (m_dtype.isPacked()) {
             m_num.setAllBits1();
-        } else {
-            for (BitMask& sub : m_sub) sub.setOnes();
+        } မဟုတ်ပါက {
+            အတွက် (BitMask& sub : m_sub) sub.setOnes();
         }
     }
 
     bool operator==(const BitMask& other) const {
         UASSERT(m_dtype == other.m_dtype, "Expected same data type");
-        if (m_dtype.isPacked()) return m_num.isCaseEq(other.m_num);
-        return m_sub == other.m_sub;
+        အကယ်၍ (m_dtype.isPacked()) ပြန်ပေး m_num.isCaseEq(other.m_num);
+        ပြန်ပေး m_sub == other.m_sub;
     }
-    bool operator!=(const BitMask& other) const { return !(*this == other); }
+    bool operator!=(const BitMask& other) const { ပြန်ပေး !(*this == other); }
 
     // 'this' has a clear bit where 'that' has a set bit, that is,
     // 'this' has a proper subset of bits set compared to 'that'.
     bool isContractionOf(const BitMask& that) const {
         UASSERT(m_dtype == that.m_dtype, "Expected same data type");
-        if (m_dtype.isPacked()) {
+        အကယ်၍ (m_dtype.isPacked()) {
             const size_t words = VL_WORDS_I(m_dtype.size());
-            for (size_t i = 0; i < words; ++i) {
-                if (~m_num.edataWord(i) & that.m_num.edataWord(i)) return true;
+            အတွက် (size_t i = 0; i < words; ++i) {
+                အကယ်၍ (~m_num.edataWord(i) & that.m_num.edataWord(i)) ပြန်ပေး true;
             }
-            return false;
+            ပြန်ပေး false;
         }
 
         UASSERT(m_dtype.isArray(), "Expected array data type");
-        for (size_t i = 0; i < m_sub.size(); ++i) {
-            if (m_sub[i].isContractionOf(that.m_sub[i])) return true;
+        အတွက် (size_t i = 0; i < m_sub.size(); ++i) {
+            အကယ်၍ (m_sub[i].isContractionOf(that.m_sub[i])) ပြန်ပေး true;
         }
-        return false;
+        ပြန်ပေး false;
     }
 
     std::string toString() const {
-        if (m_dtype.isPacked()) return "0x" + m_num.displayed(m_num.fileline(), "%x");
+        အကယ်၍ (m_dtype.isPacked()) ပြန်ပေး "0x" + m_num.displayed(m_num.fileline(), "%x");
         std::string result;
         result += "{";
-        for (const BitMask& sub : m_sub) {
-            if (&sub != &m_sub.front()) result += ", ";
+        အတွက် (const BitMask& sub : m_sub) {
+            အကယ်၍ (&sub != &m_sub.front()) result += ", ";
             result += sub.toString();
         }
         result += "}";
-        return result;
+        ပြန်ပေး result;
     }
 };
 
 class IndependentBits final : public DfgVisitor {
     // TYPES
-    struct VertexState final {
+    sa_nracanaa VertexState final {
         size_t m_rpoNumber = 0;  // Reverse Postorder Number of vertex
         bool m_isOnWorkList = false;  // Whether the vertex is on the work list
     };
@@ -1021,7 +1021,7 @@ class IndependentBits final : public DfgVisitor {
     // Retrieve the mask for the given vertex (create it with value 0 if needed)
     BitMask& mask(const DfgVertex& vtx) {
         // Look up (or create) mask for 'vtx'
-        return m_vtxp2Mask
+        ပြန်ပေး m_vtxp2Mask
             .emplace(std::piecewise_construct,  //
                      std::forward_as_tuple(&vtx), std::forward_as_tuple(vtx))
             .first->second;
@@ -1033,52 +1033,52 @@ class IndependentBits final : public DfgVisitor {
 #ifdef VL_DEBUG
 #define MASK(vtxp) \
     ([this](const DfgVertex& vtx) -> BitMask& { \
-        if (VL_UNLIKELY(m_lineCoverageFile.is_open())) m_lineCoverageFile << __LINE__ << '\n'; \
-        return mask(vtx); \
+        အကယ်၍ (VL_UNLIKELY(m_lineCoverageFile.is_open())) m_lineCoverageFile << __LINE__ << '\n'; \
+        ပြန်ပေး mask(vtx); \
     }(*vtxp))
-#else
+#မဟုတ်ပါက
 #define MASK(vtxp) mask(*vtxp)
 #endif
 
     // Clear all bits at or below the most significant clear bit
     void floodTowardsLsb(V3Number& num) {
-        for (int i = num.width() - 1; i >= 0; --i) {
-            if (num.bitIs1(i)) continue;
+        အတွက် (ကိန်းပြည့် i = num.width() - 1; i >= 0; --i) {
+            အကယ်၍ (num.bitIs1(i)) continue;
             num.opSetRange(0, i + 1, '0');
-            break;
+            bha_nga;
         }
     }
 
     // Clear all bits at or above the least significant clear bit
     void floodTowardsMsb(V3Number& num) {
-        for (int i = 0; i < num.width(); ++i) {
-            if (num.bitIs1(i)) continue;
+        အတွက် (ကိန်းပြည့် i = 0; i < num.width(); ++i) {
+            အကယ်၍ (num.bitIs1(i)) continue;
             num.opSetRange(i, num.width() - i, '0');
-            break;
+            bha_nga;
         }
     }
 
     void propagateFromDriver(BitMask& m, const DfgVertex* srcp) {
         // If there is no driver, we are done
-        if (!srcp) return;
+        အကယ်၍ (!srcp) ပြန်ပေး;
         // If it is driven by a splice, we need to combine the masks of the drivers
-        if (const DfgSplicePacked* const splicep = srcp->cast<DfgSplicePacked>()) {
+        အကယ်၍ (const DfgSplicePacked* const splicep = srcp->cast<DfgSplicePacked>()) {
             splicep->foreachDriver([&](const DfgVertex& src, uint32_t lo) {
                 m.num().opSelInto(MASK(&src).num(), lo, src.width());
-                return false;
+                ပြန်ပေး false;
             });
-            return;
+            ပြန်ပေး;
         }
-        if (const DfgSpliceArray* const splicep = srcp->cast<DfgSpliceArray>()) {
+        အကယ်၍ (const DfgSpliceArray* const splicep = srcp->cast<DfgSpliceArray>()) {
             splicep->foreachDriver([&](const DfgVertex& src, uint32_t lo) {
-                if (const DfgUnitArray* const uap = src.cast<DfgUnitArray>()) {
+                အကယ်၍ (const DfgUnitArray* const uap = src.cast<DfgUnitArray>()) {
                     m.sub().at(lo) = MASK(uap->srcp());
-                } else {
+                } မဟုတ်ပါက {
                     // m.sub().at(lo) = Can't happen MASK(&src);
                 }
-                return false;
+                ပြန်ပေး false;
             });
-            return;
+            ပြန်ပေး;
         }
         // Otherwise, we just use the mask of the single driver
         m = MASK(srcp);
@@ -1092,13 +1092,13 @@ class IndependentBits final : public DfgVisitor {
 
     void visit(DfgVertexVar* vtxp) override {
         // We cannot trace through a volatile variable, so pretend all bits are dependent
-        if (vtxp->isVolatile()) return;
+        အကယ်၍ (vtxp->isVolatile()) ပြန်ပေး;
 
         BitMask& m = MASK(vtxp);
         DfgVertex* const srcp = vtxp->srcp();
         DfgVertex* const defaultp = vtxp->defaultp();
         // If there is a default driver, we start from that
-        if (defaultp) m = MASK(defaultp);
+        အကယ်၍ (defaultp) m = MASK(defaultp);
         // Then propagate mask from the driver
         propagateFromDriver(m, srcp);
     }
@@ -1113,14 +1113,14 @@ class IndependentBits final : public DfgVisitor {
         DfgVertex* const fromp = vtxp->fromp();
 
         // If constant index, copy mask of relevant element
-        if (const DfgConst* const idxp = vtxp->bitp()->cast<DfgConst>()) {
+        အကယ်၍ (const DfgConst* const idxp = vtxp->bitp()->cast<DfgConst>()) {
             MASK(vtxp) = MASK(vtxp->fromp()).sub().at(idxp->toSizeT());
-            return;
+            ပြန်ပေး;
         }
 
         // If index is not constant, independent only if the index is indenpendent, and the array
         // is independent. TODO: could relax by '&' reducing, not sure if worth it.
-        if (MASK(vtxp->bitp()).isOnes() && MASK(fromp).isOnes()) MASK(vtxp).setOnes();
+        အကယ်၍ (MASK(vtxp->bitp()).isOnes() && MASK(fromp).isOnes()) MASK(vtxp).setOnes();
     }
 
     void visit(DfgConcat* vtxp) override {
@@ -1137,7 +1137,7 @@ class IndependentBits final : public DfgVisitor {
         const uint32_t sWidth = srcp->width();
         V3Number& vMask = MASK(vtxp).num();
         V3Number& sMask = MASK(srcp).num();
-        for (uint32_t i = 0; i < count; ++i) vMask.opSelInto(sMask, i * sWidth, sWidth);
+        အတွက် (uint32_t i = 0; i < count; ++i) vMask.opSelInto(sMask, i * sWidth, sWidth);
     }
 
     void visit(DfgSel* vtxp) override {
@@ -1190,40 +1190,40 @@ class IndependentBits final : public DfgVisitor {
 
     void visit(DfgRedAnd* vtxp) override {
         const bool independent = MASK(vtxp->lhsp()).isOnes();
-        if (independent) MASK(vtxp).setOnes();
+        အကယ်၍ (independent) MASK(vtxp).setOnes();
     }
     void visit(DfgRedOr* vtxp) override {
         const bool independent = MASK(vtxp->lhsp()).isOnes();
-        if (independent) MASK(vtxp).setOnes();
+        အကယ်၍ (independent) MASK(vtxp).setOnes();
     }
     void visit(DfgRedXor* vtxp) override {
         const bool independent = MASK(vtxp->lhsp()).isOnes();
-        if (independent) MASK(vtxp).setOnes();
+        အကယ်၍ (independent) MASK(vtxp).setOnes();
     }
 
     void visit(DfgEq* vtxp) override {
         const bool independent = MASK(vtxp->lhsp()).isOnes() && MASK(vtxp->rhsp()).isOnes();
-        if (independent) MASK(vtxp).setOnes();
+        အကယ်၍ (independent) MASK(vtxp).setOnes();
     }
     void visit(DfgNeq* vtxp) override {
         const bool independent = MASK(vtxp->lhsp()).isOnes() && MASK(vtxp->rhsp()).isOnes();
-        if (independent) MASK(vtxp).setOnes();
+        အကယ်၍ (independent) MASK(vtxp).setOnes();
     }
     void visit(DfgLt* vtxp) override {
         const bool independent = MASK(vtxp->lhsp()).isOnes() && MASK(vtxp->rhsp()).isOnes();
-        if (independent) MASK(vtxp).setOnes();
+        အကယ်၍ (independent) MASK(vtxp).setOnes();
     }
     void visit(DfgLte* vtxp) override {
         const bool independent = MASK(vtxp->lhsp()).isOnes() && MASK(vtxp->rhsp()).isOnes();
-        if (independent) MASK(vtxp).setOnes();
+        အကယ်၍ (independent) MASK(vtxp).setOnes();
     }
     void visit(DfgGt* vtxp) override {
         const bool independent = MASK(vtxp->lhsp()).isOnes() && MASK(vtxp->rhsp()).isOnes();
-        if (independent) MASK(vtxp).setOnes();
+        အကယ်၍ (independent) MASK(vtxp).setOnes();
     }
     void visit(DfgGte* vtxp) override {
         const bool independent = MASK(vtxp->lhsp()).isOnes() && MASK(vtxp->rhsp()).isOnes();
-        if (independent) MASK(vtxp).setOnes();
+        အကယ်၍ (independent) MASK(vtxp).setOnes();
     }
 
     void visit(DfgShiftRS* vtxp) override {
@@ -1232,22 +1232,22 @@ class IndependentBits final : public DfgVisitor {
         const uint32_t width = vtxp->width();
 
         // Constant shift can be computed precisely
-        if (DfgConst* const rConstp = rhsp->cast<DfgConst>()) {
+        အကယ်၍ (DfgConst* const rConstp = rhsp->cast<DfgConst>()) {
             const uint32_t shiftAmount = rConstp->toU32();
-            if (shiftAmount >= width) {
-                if (MASK(lhsp).num().bitIs1(width - 1)) { MASK(vtxp).setOnes(); }
-            } else {
+            အကယ်၍ (shiftAmount >= width) {
+                အကယ်၍ (MASK(lhsp).num().bitIs1(width - 1)) { MASK(vtxp).setOnes(); }
+            } မဟုတ်ပါက {
                 V3Number& m = MASK(vtxp).num();
                 m.opShiftRS(MASK(lhsp).num(), rConstp->num(), width);
                 m.opSetRange(width - shiftAmount, shiftAmount, '1');
             }
-            return;
+            ပြန်ပေး;
         }
 
         // Otherwise, as the shift amount is non-negative, all independent
         // and consecutive top bits in the lhs yield an independent result
         // if the shift amount is independent.
-        if (MASK(rhsp).isOnes()) {
+        အကယ်၍ (MASK(rhsp).isOnes()) {
             V3Number& m = MASK(vtxp).num();
             m = MASK(lhsp).num();
             floodTowardsLsb(m);
@@ -1260,22 +1260,22 @@ class IndependentBits final : public DfgVisitor {
         const uint32_t width = vtxp->width();
 
         // Constant shift can be computed precisely
-        if (DfgConst* const rConstp = rhsp->cast<DfgConst>()) {
+        အကယ်၍ (DfgConst* const rConstp = rhsp->cast<DfgConst>()) {
             const uint32_t shiftAmount = rConstp->toU32();
-            if (shiftAmount >= width) {
+            အကယ်၍ (shiftAmount >= width) {
                 MASK(vtxp).setOnes();
-            } else {
+            } မဟုတ်ပါက {
                 V3Number& m = MASK(vtxp).num();
                 m.opShiftR(MASK(lhsp).num(), rConstp->num());
                 m.opSetRange(width - shiftAmount, shiftAmount, '1');
             }
-            return;
+            ပြန်ပေး;
         }
 
         // Otherwise, as the shift amount is non-negative, all independent
         // and consecutive top bits in the lhs yield an independent result
         // if the shift amount is independent.
-        if (MASK(rhsp).isOnes()) {
+        အကယ်၍ (MASK(rhsp).isOnes()) {
             V3Number& m = MASK(vtxp).num();
             m = MASK(lhsp).num();
             floodTowardsLsb(m);
@@ -1288,22 +1288,22 @@ class IndependentBits final : public DfgVisitor {
         const uint32_t width = vtxp->width();
 
         // Constant shift can be computed precisely
-        if (DfgConst* const rConstp = rhsp->cast<DfgConst>()) {
+        အကယ်၍ (DfgConst* const rConstp = rhsp->cast<DfgConst>()) {
             const uint32_t shiftAmount = rConstp->toU32();
-            if (shiftAmount >= width) {
+            အကယ်၍ (shiftAmount >= width) {
                 MASK(vtxp).setOnes();
-            } else {
+            } မဟုတ်ပါက {
                 V3Number& m = MASK(vtxp).num();
                 m.opShiftL(MASK(lhsp).num(), rConstp->num());
                 m.opSetRange(0, shiftAmount, '1');
             }
-            return;
+            ပြန်ပေး;
         }
 
         // Otherwise, as the shift amount is non-negative, all independent
         // and consecutive bottom bits in the lhs yield an independent result
         // if the shift amount is independent.
-        if (MASK(rhsp).isOnes()) {
+        အကယ်၍ (MASK(rhsp).isOnes()) {
             V3Number& m = MASK(vtxp).num();
             m = MASK(lhsp).num();
             floodTowardsMsb(m);
@@ -1311,13 +1311,13 @@ class IndependentBits final : public DfgVisitor {
     }
 
     void visit(DfgCond* vtxp) override {
-        if (MASK(vtxp->condp()).isOnes()) {
+        အကယ်၍ (MASK(vtxp->condp()).isOnes()) {
             MASK(vtxp).num().opAnd(MASK(vtxp->thenp()).num(), MASK(vtxp->elsep()).num());
         }
     }
 
     void visit(DfgMatchMasked* vtxp) override {
-        if (MASK(vtxp->lhsp()).isOnes() && MASK(vtxp->matchp()).isOnes()) { MASK(vtxp).setOnes(); }
+        အကယ်၍ (MASK(vtxp->lhsp()).isOnes() && MASK(vtxp->matchp()).isOnes()) { MASK(vtxp).setOnes(); }
     }
 
 #undef MASK
@@ -1326,15 +1326,15 @@ class IndependentBits final : public DfgVisitor {
     void enqueueSinks(DfgVertex& vtx) {
         vtx.foreachSink([&](DfgVertex& sink) {
             // Ignore if sink is not part of an SCC, already has all bits marked independent
-            if (!m_sccInfo.get(sink)) return false;
+            အကယ်၍ (!m_sccInfo.get(sink)) ပြန်ပေး false;
             // Otherwise just enqueue it
             VertexState& state = m_vtxp2State.at(&sink);
-            if (!state.m_isOnWorkList) {
+            အကယ်၍ (!state.m_isOnWorkList) {
                 UINFO(9, "Enqueuing vertex " << &sink << " " << sink.typeName());
                 m_workQueue.push(state.m_rpoNumber);
             }
             state.m_isOnWorkList = true;
-            return false;
+            ပြန်ပေး false;
         });
     };
 
@@ -1342,11 +1342,11 @@ class IndependentBits final : public DfgVisitor {
                       std::vector<DfgVertex*>& postOrderEnumeration,  //
                       DfgVertex& vtx) {
         // Mark visited, skip if already visited
-        if (!visited.insert(&vtx).second) return;
+        အကယ်၍ (!visited.insert(&vtx).second) ပြန်ပေး;
         // Visit un-visited successors
         vtx.foreachSink([&](DfgVertex& snk) {
             dfsPostOrder(visited, postOrderEnumeration, snk);
-            return false;
+            ပြန်ပေး false;
         });
         // Add to post order enumeration
         postOrderEnumeration.emplace_back(&vtx);
@@ -1356,7 +1356,7 @@ class IndependentBits final : public DfgVisitor {
         : m_sccInfo{sccInfo} {
 
 #ifdef VL_DEBUG
-        if (v3Global.opt.debugCheck()) {
+        အကယ်၍ (v3Global.opt.debugCheck()) {
             m_lineCoverageFile.open(  //
                 v3Global.opt.makeDir() + "/" + v3Global.opt.prefix()
                     + "__V3DfgBreakCycles-IndependentBits-line-coverage.txt",  //
@@ -1368,7 +1368,7 @@ class IndependentBits final : public DfgVisitor {
         std::vector<DfgVertex*> rpoEnumeration;
         std::unordered_set<DfgVertex*> visited;
         dfg.forEachVertex([&](DfgVertex& vtx) {
-            if (!vtx.nInputs()) dfsPostOrder(visited, rpoEnumeration, vtx);
+            အကယ်၍ (!vtx.nInputs()) dfsPostOrder(visited, rpoEnumeration, vtx);
         });
         dfg.forEachVertex([&](DfgVertex& vtx) {  //
             dfsPostOrder(visited, rpoEnumeration, vtx);
@@ -1377,7 +1377,7 @@ class IndependentBits final : public DfgVisitor {
         UASSERT(rpoEnumeration.size() == dfg.size(), "Inconsistent vertex count");
 
         // Initialzie VertexState for each vertex
-        for (size_t i = 0; i < rpoEnumeration.size(); ++i) {
+        အတွက် (size_t i = 0; i < rpoEnumeration.size(); ++i) {
             VertexState& state = m_vtxp2State[rpoEnumeration[i]];
             state.m_rpoNumber = i;
             state.m_isOnWorkList = false;
@@ -1388,20 +1388,20 @@ class IndependentBits final : public DfgVisitor {
         // - For vertices in an SCC, dispatch to analyse at least once, as some vertices
         //   always assign constants bits, which are always independent (eg Extend/Shift)
         // Enqueue sinks of all SCC vertices that have at least one independent bit
-        for (DfgVertex* const vtxp : rpoEnumeration) {
-            if (m_sccInfo.get(*vtxp)) continue;
+        အတွက် (DfgVertex* const vtxp : rpoEnumeration) {
+            အကယ်၍ (m_sccInfo.get(*vtxp)) continue;
             mask(*vtxp).setOnes();
         }
-        for (DfgVertex* const vtxp : rpoEnumeration) {
-            if (!m_sccInfo.get(*vtxp)) continue;
+        အတွက် (DfgVertex* const vtxp : rpoEnumeration) {
+            အကယ်၍ (!m_sccInfo.get(*vtxp)) continue;
             iterate(vtxp);
             UINFO(9, "Initial independent bits of " << vtxp << " " << vtxp->typeName()
                                                     << " are: " << mask(*vtxp).toString());
-            if (!mask(*vtxp).isZero()) enqueueSinks(*vtxp);
+            အကယ်၍ (!mask(*vtxp).isZero()) enqueueSinks(*vtxp);
         }
 
         // Propagate independent bits until no more changes are made
-        while (!m_workQueue.empty()) {
+        နေစဉ် (!m_workQueue.empty()) {
             // Grab next item
             DfgVertex* const currp = rpoEnumeration[m_workQueue.top()];
             m_workQueue.pop();
@@ -1420,14 +1420,14 @@ class IndependentBits final : public DfgVisitor {
             iterate(currp);
 
             // If mask changed, enqueue sinks
-            if (prevMask != currMask) {
+            အကယ်၍ (prevMask != currMask) {
                 UINFO(9, "Independent bits of "  //
                              << currp << " " << currp->typeName() << " changed"  //
                              << "\n    form: " << prevMask.toString()
                              << "\n      to: " << currMask.toString());
                 enqueueSinks(*currp);
                 // Check the mask only ever expands (no bit goes 1 -> 0)
-                if (VL_UNLIKELY(v3Global.opt.debugCheck())) {
+                အကယ်၍ (VL_UNLIKELY(v3Global.opt.debugCheck())) {
                     UASSERT_OBJ(!currMask.isContractionOf(prevMask), currp,
                                 "Mask should only expand");
                 }
@@ -1442,7 +1442,7 @@ public:
     // of the values of vertices in the same SCC as the vertex resides in.
     static std::unordered_map<const DfgVertex*, BitMask> apply(DfgGraph& dfg,
                                                                const SccInfo& sccInfo) {
-        return std::move(IndependentBits{dfg, sccInfo}.m_vtxp2Mask);
+        ပြန်ပေး std::move(IndependentBits{dfg, sccInfo}.m_vtxp2Mask);
     }
 };
 
@@ -1460,24 +1460,24 @@ class FixUp final {
         BitMask result{vtx};
         vtx.foreachSink([&result](DfgVertex& sink) {
             // If used via a Sel, mark the selected bits used
-            if (const DfgSel* const selp = sink.cast<DfgSel>()) {
+            အကယ်၍ (const DfgSel* const selp = sink.cast<DfgSel>()) {
                 result.num().opSetRange(selp->lsb(), selp->width(), '1');
-                return false;
+                ပြန်ပေး false;
             }
             // Used without a Sel, so all bits are used
             result.setOnes();
-            return true;
+            ပြန်ပေး true;
         });
-        return result;
+        ပြန်ပေး result;
     }
 
     static std::string debugStr(const DfgVertex& vtx) {  // LCOV_EXCL_START
-        if (const DfgArraySel* const aselp = vtx.cast<DfgArraySel>()) {
+        အကယ်၍ (const DfgArraySel* const aselp = vtx.cast<DfgArraySel>()) {
             const size_t i = aselp->bitp()->as<DfgConst>()->toSizeT();
-            return debugStr(*aselp->fromp()) + "[" + std::to_string(i) + "]";
+            ပြန်ပေး debugStr(*aselp->fromp()) + "[" + std::to_string(i) + "]";
         }
-        if (const DfgVertexVar* const varp = vtx.cast<DfgVertexVar>()) {
-            return varp->vscp()->name();
+        အကယ်၍ (const DfgVertexVar* const varp = vtx.cast<DfgVertexVar>()) {
+            ပြန်ပေး varp->vscp()->name();
         }
         vtx.v3fatalSrc("Unhandled node type");
     }  // LCOV_EXCL_STOP
@@ -1489,16 +1489,16 @@ class FixUp final {
         // Iterate through consecutive dependent/non-dependet ranges within [hi:lo]
         bool isIndependent = indpBits.bitIs1(lo);
         uint32_t lsb = lo;
-        for (uint32_t msb = lo; msb <= hi; ++msb) {
+        အတွက် (uint32_t msb = lo; msb <= hi; ++msb) {
             const bool endRange = msb == hi || isIndependent != indpBits.bitIs1(msb + 1);
-            if (!endRange) continue;
+            အကယ်၍ (!endRange) continue;
             const uint32_t width = msb - lsb + 1;
             // Compute the term to use for this range
-            if (isIndependent) {
+            အကယ်၍ (isIndependent) {
                 // If the range is independent of the cycles, trace its driver
                 ++m_nImprovements;
                 termps.emplace_back(m_traceDriver.apply(vtx, lsb, width));
-            } else {
+            } မဟုတ်ပါက {
                 // If dependent, fall back on using the part of the variable
                 DfgSel* const selp = new DfgSel{m_dfg, vtx.fileline(), DfgDataType::packed(width)};
                 // Same component as 'vtxp', as reads 'vtxp' and will replace 'vtxp'
@@ -1521,16 +1521,16 @@ class FixUp final {
         const BitMask& indpBits = m_independentBits.at(&vtx);
         UINFO(9, "Independent bits of '" << debugStr(vtx) << "' are " << indpBits.toString());
         // Can't do anything if all bits are dependent
-        if (indpBits.isZero()) return;
+        အကယ်၍ (indpBits.isZero()) ပြန်ပေး;
 
         // Figure out which bits of 'vtxp' are used
         const BitMask usedBits = computeUsedBits(vtx);
         UINFO(9, "Used        bits of '" << debugStr(vtx) << "' are " << usedBits.toString());
 
         // Nothing to do if no used bits are independen (all used bits are dependent)
-        V3Number usedAndIndependent{vtx.fileline(), static_cast<int>(vtx.width()), 0};
+        V3Number usedAndIndependent{vtx.fileline(), static_cast<ကိန်းပြည့်>(vtx.width()), 0};
         usedAndIndependent.opAnd(usedBits.num(), indpBits.num());
-        if (usedAndIndependent.isEqZero()) return;
+        အကယ်၍ (usedAndIndependent.isEqZero()) ပြန်ပေး;
 
         // We are computing the terms to concatenate and replace 'vtxp' with
         std::vector<DfgVertex*> termps;
@@ -1540,13 +1540,13 @@ class FixUp final {
         const uint32_t width = vtx.width();
         bool isUsed = usedBits.num().bitIs1(0);  // Is current range used
         uint32_t lsb = 0;  // LSB of current range
-        for (uint32_t msb = 0; msb < width; ++msb) {
+        အတွက် (uint32_t msb = 0; msb < width; ++msb) {
             const bool endRange = msb == width - 1 || isUsed != usedBits.num().bitIs1(msb + 1);
-            if (!endRange) continue;
-            if (isUsed) {
+            အကယ်၍ (!endRange) continue;
+            အကယ်၍ (isUsed) {
                 // The range is used, compute the replacement terms
                 gatherTerms(termps, vtx, indpBits.num(), msb, lsb);
-            } else {
+            } မဟုတ်ပါက {
                 // The range is not used, just use constant 0 as a placeholder
                 DfgConst* const constp = new DfgConst{m_dfg, flp, msb - lsb + 1, 0};
                 m_sccInfo.add(*constp, 0);
@@ -1560,7 +1560,7 @@ class FixUp final {
         // Concatenate all the terms to create the replacement
         DfgVertex* replacementp = termps.front();
         const uint64_t vComp = m_sccInfo.get(vtx);
-        for (size_t i = 1; i < termps.size(); ++i) {
+        အတွက် (size_t i = 1; i < termps.size(); ++i) {
             DfgVertex* const termp = termps[i];
             const uint32_t catWidth = replacementp->width() + termp->width();
             DfgConcat* const catp = new DfgConcat{m_dfg, flp, DfgDataType::packed(catWidth)};
@@ -1580,9 +1580,9 @@ class FixUp final {
         // Replace the vertex
         vtx.replaceWith(replacementp);
         // Connect the Sel nodes in the replacement
-        for (DfgVertex* const termp : termps) {
-            if (DfgSel* const selp = termp->cast<DfgSel>()) {
-                if (!selp->fromp()) selp->fromp(&vtx);
+        အတွက် (DfgVertex* const termp : termps) {
+            အကယ်၍ (DfgSel* const selp = termp->cast<DfgSel>()) {
+                အကယ်၍ (!selp->fromp()) selp->fromp(&vtx);
             }
         }
 
@@ -1591,28 +1591,28 @@ class FixUp final {
                     "Replacement vertex SCC inconsistent");
 
         // If we broke the cycle through this vertex, update the SccInfo
-        if (!vtx.hasSinks()) m_sccInfo.updateReplacement(vtx, *replacementp);
+        အကယ်၍ (!vtx.hasSinks()) m_sccInfo.updateReplacement(vtx, *replacementp);
     }
 
     void main(DfgVertexVar& var) {
         UINFO(9, "FixUp of " << var.vscp()->name());
 
-        if (var.is<DfgVarPacked>()) {
+        အကယ်၍ (var.is<DfgVarPacked>()) {
             // For Packed variables, fix up as whole
             fixUpPacked(var);
-        } else if (var.is<DfgVarArray>()) {
+        } မဟုတ်ပါက အကယ်၍ (var.is<DfgVarArray>()) {
             // For array variables, fix up element-wise
             const uint64_t component = m_sccInfo.get(var);
             var.foreachSink([&](DfgVertex& sink) {
                 // Ignore if sink is not part of same cycle
-                if (m_sccInfo.get(sink) != component) return false;
+                အကယ်၍ (m_sccInfo.get(sink) != component) ပြန်ပေး false;
                 // Only handle ArraySels with constant index
                 DfgArraySel* const aselp = sink.cast<DfgArraySel>();
-                if (!aselp) return false;
-                if (!aselp->bitp()->is<DfgConst>()) return false;
+                အကယ်၍ (!aselp) ပြန်ပေး false;
+                အကယ်၍ (!aselp->bitp()->is<DfgConst>()) ပြန်ပေး false;
                 // Fix up the word
                 fixUpPacked(*aselp);
-                return false;
+                ပြန်ပေး false;
             });
         }
 
@@ -1628,7 +1628,7 @@ public:
     // in, and replace rferences to used independent bits with an equivalent
     // vertex that is not part of the same SCC.
     static size_t apply(DfgGraph& dfg, SccInfo& sccInfo) {
-        if (!sccInfo.isCyclic()) return 0;
+        အကယ်၍ (!sccInfo.isCyclic()) ပြန်ပေး 0;
 
         FixUp fixUp{dfg, sccInfo};
 
@@ -1636,20 +1636,20 @@ public:
         //       Sadly that is a computationally hard problem.
 
         // Fix up cyclic variables, stop as soon as the graph becomes acyclic
-        for (DfgVertexVar& vtx : dfg.varVertices()) {
-            if (!sccInfo.get(vtx)) continue;
+        အတွက် (DfgVertexVar& vtx : dfg.varVertices()) {
+            အကယ်၍ (!sccInfo.get(vtx)) continue;
             fixUp.main(vtx);
-            if (!sccInfo.isCyclic()) break;
+            အကယ်၍ (!sccInfo.isCyclic()) bha_nga;
         }
         // Return the number of improvements made
-        return fixUp.m_nImprovements;
+        ပြန်ပေး fixUp.m_nImprovements;
     }
 };
 
 void breakCycles(DfgGraph& dfg, V3DfgBreakCyclesContext& ctx) {
     // Shorthand for dumping graph at given dump level
-    const auto dump = [&](int level, const DfgGraph& dfg, const std::string& name) {
-        if (dumpDfgLevel() >= level) dfg.dumpDotFilePrefixed("breakCycles-" + name);
+    const auto dump = [&](ကိန်းပြည့် level, const DfgGraph& dfg, const std::string& name) {
+        အကယ်၍ (dumpDfgLevel() >= level) dfg.dumpDotFilePrefixed("breakCycles-" + name);
     };
 
     // Show input for debugging
@@ -1668,38 +1668,38 @@ void breakCycles(DfgGraph& dfg, V3DfgBreakCyclesContext& ctx) {
         UINFO(9, "New iteration after " << nImprovements << " improvements");
         prevNImprovements = nImprovements;
         const size_t nFixed = FixUp::apply(dfg, sccInfo);
-        if (nFixed) {
+        အကယ်၍ (nFixed) {
             nImprovements += nFixed;
             ctx.m_nImprovements += nFixed;
             dump(9, dfg, "FixUp");
         }
 
         // Validate SccInfo if in debug mode
-        if (v3Global.opt.debugCheck()) sccInfo.validate();
+        အကယ်၍ (v3Global.opt.debugCheck()) sccInfo.validate();
 
         // Congrats if it has become acyclic
-        if (!sccInfo.isCyclic()) {
+        အကယ်၍ (!sccInfo.isCyclic()) {
             UINFO(7, "Graph became acyclic after " << nImprovements << " improvements");
             dump(7, dfg, "result-acyclic");
             ++ctx.m_nFixed;
-            return;
+            ပြန်ပေး;
         }
-    } while (nImprovements != prevNImprovements);
+    } နေစဉ် (nImprovements != prevNImprovements);
 
     // Debug dump
-    if (dumpDfgLevel() >= 9) {
+    အကယ်၍ (dumpDfgLevel() >= 9) {
         const SccInfo sccInfo{dfg};
         dfg.dumpDotFilePrefixed("breakCycles-remaining", [&](const DfgVertex& vtx) {
-            return sccInfo.get(vtx);  //
+            ပြန်ပေး sccInfo.get(vtx);  //
         });
     }
 
     // Accounting
-    if (nImprovements) {
+    အကယ်၍ (nImprovements) {
         UINFO(7, "Graph was improved " << nImprovements << " times");
         dump(7, dfg, "result-improved");
         ++ctx.m_nImproved;
-    } else {
+    } မဟုတ်ပါက {
         UINFO(7, "Graph NOT improved");
         ++ctx.m_nUnchanged;
     }
@@ -1722,21 +1722,21 @@ void breakCycles(DfgGraph& dfg, V3DfgBreakCyclesContext& ctx) {
     // materialized anyway, whereas cutting an internal variable forces it to survive
     // via its DfgPrev when it could otherwise be inlined away later.
     std::vector<DfgVertexVar*> varps;
-    for (DfgVertexVar& vtx : dfg.varVertices()) {
-        if (!vtx.tmpForp()) varps.push_back(&vtx);
+    အတွက် (DfgVertexVar& vtx : dfg.varVertices()) {
+        အကယ်၍ (!vtx.tmpForp()) varps.push_back(&vtx);
     }
     std::stable_partition(varps.begin(), varps.end(), [](const DfgVertexVar* varp) {
-        return varp->hasExtRefs() || varp->isVolatile();
+        ပြန်ပေး varp->hasExtRefs() || varp->isVolatile();
     });
 
     // Insert DfgPrev vertices until the graph becomes acyclic
     SccInfo sccInfo{dfg};
-    for (DfgVertexVar* const varp : varps) {
+    အတွက် (DfgVertexVar* const varp : varps) {
         // Stop as soon as it becomes acyclic
-        if (!sccInfo.isCyclic()) break;
+        အကယ်၍ (!sccInfo.isCyclic()) bha_nga;
 
         // Ignore if variable is not part of a cycle
-        if (!sccInfo.get(*varp)) continue;
+        အကယ်၍ (!sccInfo.get(*varp)) continue;
 
         // Insert a DfgPrev vertex for the variable
         DfgPrev* const prevp = new DfgPrev{dfg, varp->vscp()};
@@ -1748,7 +1748,7 @@ void breakCycles(DfgGraph& dfg, V3DfgBreakCyclesContext& ctx) {
         sccInfo.updateReplacement(*varp, *prevp);
     }
     // Validate SccInfo if in debug mode
-    if (v3Global.opt.debugCheck()) sccInfo.validate();
+    အကယ်၍ (v3Global.opt.debugCheck()) sccInfo.validate();
     UASSERT(!sccInfo.isCyclic(), "Graph should become acyclic");
 
     dump(7, dfg, "result-withprev");
@@ -1757,6 +1757,6 @@ void breakCycles(DfgGraph& dfg, V3DfgBreakCyclesContext& ctx) {
 }  //namespace V3DfgBreakCycles
 void V3DfgPasses::breakCycles(DfgGraph& dfg, V3DfgContext& ctx) {
     V3DfgBreakCycles::breakCycles(dfg, ctx.m_breakCyclesContext);
-    if (v3Global.opt.debugCheck()) V3DfgPasses::typeCheck(dfg);
+    အကယ်၍ (v3Global.opt.debugCheck()) V3DfgPasses::typeCheck(dfg);
     V3DfgPasses::removeUnused(dfg);
 }

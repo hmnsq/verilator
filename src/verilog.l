@@ -32,7 +32,7 @@
 #define PARSEP V3ParseImp::parsep()
 
 #define YY_INPUT(buf, result, max_size) \
-    do { result = PARSEP->flexPpInputToLex(buf, max_size); } while (false)
+    do { result = PARSEP->flexPpInputToLex(buf, max_size); } နေစဉ် (false)
 
 //======================================================================
 
@@ -46,37 +46,37 @@
     do { \
         FL_FWD; \
         yylval.fl = CRELINE(); \
-    } while (false)
+    } နေစဉ် (false)
 
 #define STR \
     do { \
         const string str(yytext, yyleng); \
         yylval.strp = PARSEP->newString(AstNode::encodeName(str)); \
-    } while (false)
+    } နေစဉ် (false)
 
 #define STR_FILEPATH \
     do { \
         const string str(yytext, yyleng); \
         yylval.strp = PARSEP->newString(str); \
-    } while (false)
+    } နေစဉ် (false)
 
 #define ERROR_RSVD_WORD(language) \
     do { \
         yylval.fl->v3warn(E_UNSUPPORTED, "Unsupported: " << language \
                                                          << " reserved word not implemented: '" \
                                                          << yytext << "'"); \
-    } while (0)
+    } နေစဉ် (0)
 
 //======================================================================
 
-static double lexParseDouble(FileLine* fl, const char* textp, size_t length) {
+static dviguu_na lexParseDouble(FileLine* fl, const var_na* textp, size_t length) {
     const string text = std::string{textp, length};
     bool success = false;
-    const double d = VString::parseDouble(text, &success);
+    const dviguu_na d = VString::parseDouble(text, &success);
     // Below never fails, instead can't lex the number
-    if (VL_UNCOVERABLE(!success))
+    အကယ်၍ (VL_UNCOVERABLE(!success))
         fl->v3error("Syntax error parsing real: '" << textp << "'");  // LCOV_EXCL_LINE
-    return d;
+    ပြန်ပေး d;
 }
 
 // clang-format off
@@ -118,10 +118,10 @@ vnum    {vnum1}|{vnum2}|{vnum3}|{vnum4}|{vnum5}
 <FILEPATH>{
   {ws}            { FL_FWD; FL_BRK; }
   {crnl}          { FL_FWD; FL_BRK; }
-  "-incdir"       { FL; return yINCDIR; }
-  ";"             { yy_pop_state(); return ';'; }
-  ","             { FL; return ','; }
-  [^ \t\n\r;,"]+  { FL; STR_FILEPATH; return yaSTRING; }
+  "-incdir"       { FL; ပြန်ပေး yINCDIR; }
+  ";"             { yy_pop_state(); ပြန်ပေး ';'; }
+  ","             { FL; ပြန်ပေး ','; }
+  [^ \t\n\r;,"]+  { FL; STR_FILEPATH; ပြန်ပေး yaSTRING; }
 }
 
   /************************************************************************/
@@ -130,70 +130,70 @@ vnum    {vnum1}|{vnum2}|{vnum3}|{vnum4}|{vnum5}
   {ws}                  { FL_FWD; FL_BRK; }  /* otherwise ignore white-space */
   {crnl}                { FL_FWD; FL_BRK; }  /* Count line numbers */
 
-  "clock_enable"        { FL; return yVLT_CLOCK_ENABLE; }
-  "clocker"             { FL; return yVLT_CLOCKER; }
-  "coverage_block_off"  { FL; return yVLT_COVERAGE_BLOCK_OFF; }
-  "coverage_off"        { FL; return yVLT_COVERAGE_OFF; }
-  "coverage_on"         { FL; return yVLT_COVERAGE_ON; }
-  "forceable"           { FL; return yVLT_FORCEABLE; }
-  "fsm_register_wrapper" { FL; return yVLT_FSM_REGISTER_WRAPPER; }
-  "full_case"           { FL; return yVLT_FULL_CASE; }
-  "hier_block"          { FL; return yVLT_HIER_BLOCK; }
-  "hier_params"         { FL; return yVLT_HIER_PARAMS; }
-  "hier_workers"        { FL; return yVLT_HIER_WORKERS; }
-  "inline"              { FL; return yVLT_INLINE; }
-  "isolate_assignments" { FL; return yVLT_ISOLATE_ASSIGNMENTS; }
-  "lint_off"            { FL; return yVLT_LINT_OFF; }
-  "lint_on"             { FL; return yVLT_LINT_ON; }
-  "no_clocker"          { FL; return yVLT_NO_CLOCKER; }
-  "no_inline"           { FL; return yVLT_NO_INLINE; }
-  "parallel_case"       { FL; return yVLT_PARALLEL_CASE; }
-  "profile_data"        { FL; return yVLT_PROFILE_DATA; }
-  "public"              { FL; return yVLT_PUBLIC; }
-  "public_flat"         { FL; return yVLT_PUBLIC_FLAT; }
-  "public_flat_rd"      { FL; return yVLT_PUBLIC_FLAT_RD; }
-  "public_flat_rw"      { FL; return yVLT_PUBLIC_FLAT_RW; }
-  "public_module"       { FL; return yVLT_PUBLIC_MODULE; }
-  "sc_biguint"          { FL; return yVLT_SC_BIGUINT; }
-  "sc_bv"               { FL; return yVLT_SC_BV; }
-  "sformat"             { FL; return yVLT_SFORMAT; }
-  "split_var"           { FL; return yVLT_SPLIT_VAR; }
-  "timing_off"          { FL; return yVLT_TIMING_OFF; }
-  "timing_on"           { FL; return yVLT_TIMING_ON; }
-  "tracing_off"         { FL; return yVLT_TRACING_OFF; }
-  "tracing_on"          { FL; return yVLT_TRACING_ON; }
-  "verilator_lib"       { FL; return yVLT_VERILATOR_LIB; }
+  "clock_enable"        { FL; ပြန်ပေး yVLT_CLOCK_ENABLE; }
+  "clocker"             { FL; ပြန်ပေး yVLT_CLOCKER; }
+  "coverage_block_off"  { FL; ပြန်ပေး yVLT_COVERAGE_BLOCK_OFF; }
+  "coverage_off"        { FL; ပြန်ပေး yVLT_COVERAGE_OFF; }
+  "coverage_on"         { FL; ပြန်ပေး yVLT_COVERAGE_ON; }
+  "forceable"           { FL; ပြန်ပေး yVLT_FORCEABLE; }
+  "fsm_register_wrapper" { FL; ပြန်ပေး yVLT_FSM_REGISTER_WRAPPER; }
+  "full_case"           { FL; ပြန်ပေး yVLT_FULL_CASE; }
+  "hier_block"          { FL; ပြန်ပေး yVLT_HIER_BLOCK; }
+  "hier_params"         { FL; ပြန်ပေး yVLT_HIER_PARAMS; }
+  "hier_workers"        { FL; ပြန်ပေး yVLT_HIER_WORKERS; }
+  "inline"              { FL; ပြန်ပေး yVLT_INLINE; }
+  "isolate_assignments" { FL; ပြန်ပေး yVLT_ISOLATE_ASSIGNMENTS; }
+  "lint_off"            { FL; ပြန်ပေး yVLT_LINT_OFF; }
+  "lint_on"             { FL; ပြန်ပေး yVLT_LINT_ON; }
+  "no_clocker"          { FL; ပြန်ပေး yVLT_NO_CLOCKER; }
+  "no_inline"           { FL; ပြန်ပေး yVLT_NO_INLINE; }
+  "parallel_case"       { FL; ပြန်ပေး yVLT_PARALLEL_CASE; }
+  "profile_data"        { FL; ပြန်ပေး yVLT_PROFILE_DATA; }
+  "public"              { FL; ပြန်ပေး yVLT_PUBLIC; }
+  "public_flat"         { FL; ပြန်ပေး yVLT_PUBLIC_FLAT; }
+  "public_flat_rd"      { FL; ပြန်ပေး yVLT_PUBLIC_FLAT_RD; }
+  "public_flat_rw"      { FL; ပြန်ပေး yVLT_PUBLIC_FLAT_RW; }
+  "public_module"       { FL; ပြန်ပေး yVLT_PUBLIC_MODULE; }
+  "sc_biguint"          { FL; ပြန်ပေး yVLT_SC_BIGUINT; }
+  "sc_bv"               { FL; ပြန်ပေး yVLT_SC_BV; }
+  "sformat"             { FL; ပြန်ပေး yVLT_SFORMAT; }
+  "split_var"           { FL; ပြန်ပေး yVLT_SPLIT_VAR; }
+  "timing_off"          { FL; ပြန်ပေး yVLT_TIMING_OFF; }
+  "timing_on"           { FL; ပြန်ပေး yVLT_TIMING_ON; }
+  "tracing_off"         { FL; ပြန်ပေး yVLT_TRACING_OFF; }
+  "tracing_on"          { FL; ပြန်ပေး yVLT_TRACING_ON; }
+  "verilator_lib"       { FL; ပြန်ပေး yVLT_VERILATOR_LIB; }
 
-  -?"-block"            { FL; return yVLT_D_BLOCK; }
-  -?"-contents"         { FL; return yVLT_D_CONTENTS; }
-  -?"-cost"             { FL; return yVLT_D_COST; }
-  -?"-clock"            { FL; return yVLT_D_CLOCK; }
-  -?"-d"                { FL; return yVLT_D_D; }
-  -?"-file"             { FL; return yVLT_D_FILE; }
-  -?"-function"         { FL; return yVLT_D_FUNCTION; }
-  -?"-hier-dpi"         { FL; return yVLT_D_HIER_DPI; }
-  -?"-levels"           { FL; return yVLT_D_LEVELS; }
-  -?"-lines"            { FL; return yVLT_D_LINES; }
-  -?"-match"            { FL; return yVLT_D_MATCH; }
-  -?"-model"            { FL; return yVLT_D_MODEL; }
-  -?"-module"           { FL; return yVLT_D_MODULE; }
-  -?"-mtask"            { FL; return yVLT_D_MTASK; }
-  -?"-param"            { FL; return yVLT_D_PARAM; }
-  -?"-port"             { FL; return yVLT_D_PORT; }
-  -?"-rule"             { FL; return yVLT_D_RULE; }
-  -?"-q"                { FL; return yVLT_D_Q; }
-  -?"-reset"            { FL; return yVLT_D_RESET; }
-  -?"-reset_value"      { FL; return yVLT_D_RESET_VALUE; }
-  -?"-scope"            { FL; return yVLT_D_SCOPE; }
-  -?"-task"             { FL; return yVLT_D_TASK; }
-  -?"-var"              { FL; return yVLT_D_VAR; }
-  -?"-workers"          { FL; return yVLT_D_WORKERS; }
+  -?"-block"            { FL; ပြန်ပေး yVLT_D_BLOCK; }
+  -?"-contents"         { FL; ပြန်ပေး yVLT_D_CONTENTS; }
+  -?"-cost"             { FL; ပြန်ပေး yVLT_D_COST; }
+  -?"-clock"            { FL; ပြန်ပေး yVLT_D_CLOCK; }
+  -?"-d"                { FL; ပြန်ပေး yVLT_D_D; }
+  -?"-file"             { FL; ပြန်ပေး yVLT_D_FILE; }
+  -?"-function"         { FL; ပြန်ပေး yVLT_D_FUNCTION; }
+  -?"-hier-dpi"         { FL; ပြန်ပေး yVLT_D_HIER_DPI; }
+  -?"-levels"           { FL; ပြန်ပေး yVLT_D_LEVELS; }
+  -?"-lines"            { FL; ပြန်ပေး yVLT_D_LINES; }
+  -?"-match"            { FL; ပြန်ပေး yVLT_D_MATCH; }
+  -?"-model"            { FL; ပြန်ပေး yVLT_D_MODEL; }
+  -?"-module"           { FL; ပြန်ပေး yVLT_D_MODULE; }
+  -?"-mtask"            { FL; ပြန်ပေး yVLT_D_MTASK; }
+  -?"-param"            { FL; ပြန်ပေး yVLT_D_PARAM; }
+  -?"-port"             { FL; ပြန်ပေး yVLT_D_PORT; }
+  -?"-rule"             { FL; ပြန်ပေး yVLT_D_RULE; }
+  -?"-q"                { FL; ပြန်ပေး yVLT_D_Q; }
+  -?"-reset"            { FL; ပြန်ပေး yVLT_D_RESET; }
+  -?"-reset_value"      { FL; ပြန်ပေး yVLT_D_RESET_VALUE; }
+  -?"-scope"            { FL; ပြန်ပေး yVLT_D_SCOPE; }
+  -?"-task"             { FL; ပြန်ပေး yVLT_D_TASK; }
+  -?"-var"              { FL; ပြန်ပေး yVLT_D_VAR; }
+  -?"-workers"          { FL; ပြန်ပေး yVLT_D_WORKERS; }
 
   /* Reachable by attr_event_control */
-  "edge"                { FL; return yEDGE; }
-  "negedge"             { FL; return yNEGEDGE; }
-  "or"                  { FL; return yOR; }
-  "posedge"             { FL; return yPOSEDGE; }
+  "edge"                { FL; ပြန်ပေး yEDGE; }
+  "negedge"             { FL; ပြန်ပေး yNEGEDGE; }
+  "or"                  { FL; ပြန်ပေး yOR; }
+  "posedge"             { FL; ပြန်ပေး yPOSEDGE; }
 }
 
   /************************************************************************/
@@ -202,296 +202,296 @@ vnum    {vnum1}|{vnum2}|{vnum3}|{vnum4}|{vnum5}
   {ws}                  { FL_FWD; FL_BRK; }  /* otherwise ignore white-space */
   {crnl}                { FL_FWD; FL_BRK; }  /* Count line numbers */
   /*     Extensions to Verilog set, some specified by PSL */
-  "$c"[0-9]*            { FL; return yD_C; }      /*Verilator only*/
-  "$cpure"[0-9]*        { FL; return yD_CPURE; }  /*Verilator only*/
+  "$c"[0-9]*            { FL; ပြန်ပေး yD_C; }      /*Verilator only*/
+  "$cpure"[0-9]*        { FL; ပြန်ပေး yD_CPURE; }  /*Verilator only*/
   /*     System Tasks */
-  "$acos"               { FL; return yD_ACOS; }
-  "$acosh"              { FL; return yD_ACOSH; }
-  "$asin"               { FL; return yD_ASIN; }
-  "$asinh"              { FL; return yD_ASINH; }
-  "$atan"               { FL; return yD_ATAN; }
-  "$atan2"              { FL; return yD_ATAN2; }
-  "$atanh"              { FL; return yD_ATANH; }
-  "$bitstoreal"         { FL; return yD_BITSTOREAL; }
-  "$bitstoshortreal"    { FL; return yD_BITSTOSHORTREAL; }
-  "$cast"               { FL; return yD_CAST; }
-  "$ceil"               { FL; return yD_CEIL; }
-  "$cos"                { FL; return yD_COS; }
-  "$cosh"               { FL; return yD_COSH; }
-  "$display"            { FL; return yD_DISPLAY; }
-  "$displayb"           { FL; return yD_DISPLAYB; }
-  "$displayh"           { FL; return yD_DISPLAYH; }
-  "$displayo"           { FL; return yD_DISPLAYO; }
-  "$dist_chi_square"    { FL; return yD_DIST_CHI_SQUARE; }
-  "$dist_erlang"        { FL; return yD_DIST_ERLANG; }
-  "$dist_exponential"   { FL; return yD_DIST_EXPONENTIAL; }
-  "$dist_normal"        { FL; return yD_DIST_NORMAL; }
-  "$dist_poisson"       { FL; return yD_DIST_POISSON; }
-  "$dist_t"             { FL; return yD_DIST_T; }
-  "$dist_uniform"       { FL; return yD_DIST_UNIFORM; }
-  "$dumpall"            { FL; return yD_DUMPALL; }
-  "$dumpfile"           { FL; return yD_DUMPFILE; }
-  "$dumpflush"          { FL; return yD_DUMPFLUSH; }
-  "$dumplimit"          { FL; return yD_DUMPLIMIT; }
-  "$dumpoff"            { FL; return yD_DUMPOFF; }
-  "$dumpon"             { FL; return yD_DUMPON; }
-  "$dumpports"          { FL; return yD_DUMPPORTS; }
-  "$dumpportsall"       { FL; return yD_DUMPALL; }
-  "$dumpportsflush"     { FL; return yD_DUMPFLUSH; }
-  "$dumpportslimit"     { FL; return yD_DUMPLIMIT; }
-  "$dumpportsoff"       { FL; return yD_DUMPOFF; }
-  "$dumpportson"        { FL; return yD_DUMPON; }
-  "$dumpvars"           { FL; return yD_DUMPVARS; }
-  "$exit"               { FL; return yD_EXIT; }
-  "$exp"                { FL; return yD_EXP; }
-  "$fclose"             { FL; return yD_FCLOSE; }
-  "$fdisplay"           { FL; return yD_FDISPLAY; }
-  "$fdisplayb"          { FL; return yD_FDISPLAYB; }
-  "$fdisplayh"          { FL; return yD_FDISPLAYH; }
-  "$fdisplayo"          { FL; return yD_FDISPLAYO; }
-  "$feof"               { FL; return yD_FEOF; }
-  "$ferror"             { FL; return yD_FERROR; }
-  "$fflush"             { FL; return yD_FFLUSH; }
-  "$fgetc"              { FL; return yD_FGETC; }
-  "$fgets"              { FL; return yD_FGETS; }
-  "$finish"             { FL; return yD_FINISH; }
-  "$floor"              { FL; return yD_FLOOR; }
-  "$fmonitor"           { FL; return yD_FMONITOR; }
-  "$fmonitorb"          { FL; return yD_FMONITORB; }
-  "$fmonitorh"          { FL; return yD_FMONITORH; }
-  "$fmonitoro"          { FL; return yD_FMONITORO; }
-  "$fopen"              { FL; return yD_FOPEN; }
-  "$fread"              { FL; return yD_FREAD; }
-  "$frewind"            { FL; return yD_FREWIND; }
-  "$fscanf"             { FL; return yD_FSCANF; }
-  "$fseek"              { FL; return yD_FSEEK; }
-  "$fstrobe"            { FL; return yD_FSTROBE; }
-  "$fstrobeb"           { FL; return yD_FSTROBEB; }
-  "$fstrobeh"           { FL; return yD_FSTROBEH; }
-  "$fstrobeo"           { FL; return yD_FSTROBEO; }
-  "$ftell"              { FL; return yD_FTELL; }
-  "$fullskew"           { FL; return yaTIMINGSPEC; }
-  "$fwrite"             { FL; return yD_FWRITE; }
-  "$fwriteb"            { FL; return yD_FWRITEB; }
-  "$fwriteh"            { FL; return yD_FWRITEH; }
-  "$fwriteo"            { FL; return yD_FWRITEO; }
-  "$global_clock"       { FL; return yD_GLOBAL_CLOCK; }
-  "$hold"               { FL; return yaTIMINGSPEC; }
-  "$hypot"              { FL; return yD_HYPOT; }
-  "$itor"               { FL; return yD_ITOR; }
-  "$ln"                 { FL; return yD_LN; }
-  "$log10"              { FL; return yD_LOG10; }
-  "$monitor"            { FL; return yD_MONITOR; }
-  "$monitorb"           { FL; return yD_MONITORB; }
-  "$monitorh"           { FL; return yD_MONITORH; }
-  "$monitoro"           { FL; return yD_MONITORO; }
-  "$monitoroff"         { FL; return yD_MONITOROFF; }
-  "$monitoron"          { FL; return yD_MONITORON; }
-  "$nochange"           { FL; return yaTIMINGSPEC; }
-  "$period"             { FL; return yaTIMINGSPEC; }
-  "$pow"                { FL; return yD_POW; }
-  "$printtimescale"     { FL; return yD_PRINTTIMESCALE; }
+  "$acos"               { FL; ပြန်ပေး yD_ACOS; }
+  "$acosh"              { FL; ပြန်ပေး yD_ACOSH; }
+  "$asin"               { FL; ပြန်ပေး yD_ASIN; }
+  "$asinh"              { FL; ပြန်ပေး yD_ASINH; }
+  "$atan"               { FL; ပြန်ပေး yD_ATAN; }
+  "$atan2"              { FL; ပြန်ပေး yD_ATAN2; }
+  "$atanh"              { FL; ပြန်ပေး yD_ATANH; }
+  "$bitstoreal"         { FL; ပြန်ပေး yD_BITSTOREAL; }
+  "$bitstoshortreal"    { FL; ပြန်ပေး yD_BITSTOSHORTREAL; }
+  "$cast"               { FL; ပြန်ပေး yD_CAST; }
+  "$ceil"               { FL; ပြန်ပေး yD_CEIL; }
+  "$cos"                { FL; ပြန်ပေး yD_COS; }
+  "$cosh"               { FL; ပြန်ပေး yD_COSH; }
+  "$display"            { FL; ပြန်ပေး yD_DISPLAY; }
+  "$displayb"           { FL; ပြန်ပေး yD_DISPLAYB; }
+  "$displayh"           { FL; ပြန်ပေး yD_DISPLAYH; }
+  "$displayo"           { FL; ပြန်ပေး yD_DISPLAYO; }
+  "$dist_chi_square"    { FL; ပြန်ပေး yD_DIST_CHI_SQUARE; }
+  "$dist_erlang"        { FL; ပြန်ပေး yD_DIST_ERLANG; }
+  "$dist_exponential"   { FL; ပြန်ပေး yD_DIST_EXPONENTIAL; }
+  "$dist_normal"        { FL; ပြန်ပေး yD_DIST_NORMAL; }
+  "$dist_poisson"       { FL; ပြန်ပေး yD_DIST_POISSON; }
+  "$dist_t"             { FL; ပြန်ပေး yD_DIST_T; }
+  "$dist_uniform"       { FL; ပြန်ပေး yD_DIST_UNIFORM; }
+  "$dumpall"            { FL; ပြန်ပေး yD_DUMPALL; }
+  "$dumpfile"           { FL; ပြန်ပေး yD_DUMPFILE; }
+  "$dumpflush"          { FL; ပြန်ပေး yD_DUMPFLUSH; }
+  "$dumplimit"          { FL; ပြန်ပေး yD_DUMPLIMIT; }
+  "$dumpoff"            { FL; ပြန်ပေး yD_DUMPOFF; }
+  "$dumpon"             { FL; ပြန်ပေး yD_DUMPON; }
+  "$dumpports"          { FL; ပြန်ပေး yD_DUMPPORTS; }
+  "$dumpportsall"       { FL; ပြန်ပေး yD_DUMPALL; }
+  "$dumpportsflush"     { FL; ပြန်ပေး yD_DUMPFLUSH; }
+  "$dumpportslimit"     { FL; ပြန်ပေး yD_DUMPLIMIT; }
+  "$dumpportsoff"       { FL; ပြန်ပေး yD_DUMPOFF; }
+  "$dumpportson"        { FL; ပြန်ပေး yD_DUMPON; }
+  "$dumpvars"           { FL; ပြန်ပေး yD_DUMPVARS; }
+  "$exit"               { FL; ပြန်ပေး yD_EXIT; }
+  "$exp"                { FL; ပြန်ပေး yD_EXP; }
+  "$fclose"             { FL; ပြန်ပေး yD_FCLOSE; }
+  "$fdisplay"           { FL; ပြန်ပေး yD_FDISPLAY; }
+  "$fdisplayb"          { FL; ပြန်ပေး yD_FDISPLAYB; }
+  "$fdisplayh"          { FL; ပြန်ပေး yD_FDISPLAYH; }
+  "$fdisplayo"          { FL; ပြန်ပေး yD_FDISPLAYO; }
+  "$feof"               { FL; ပြန်ပေး yD_FEOF; }
+  "$ferror"             { FL; ပြန်ပေး yD_FERROR; }
+  "$fflush"             { FL; ပြန်ပေး yD_FFLUSH; }
+  "$fgetc"              { FL; ပြန်ပေး yD_FGETC; }
+  "$fgets"              { FL; ပြန်ပေး yD_FGETS; }
+  "$finish"             { FL; ပြန်ပေး yD_FINISH; }
+  "$floor"              { FL; ပြန်ပေး yD_FLOOR; }
+  "$fmonitor"           { FL; ပြန်ပေး yD_FMONITOR; }
+  "$fmonitorb"          { FL; ပြန်ပေး yD_FMONITORB; }
+  "$fmonitorh"          { FL; ပြန်ပေး yD_FMONITORH; }
+  "$fmonitoro"          { FL; ပြန်ပေး yD_FMONITORO; }
+  "$fopen"              { FL; ပြန်ပေး yD_FOPEN; }
+  "$fread"              { FL; ပြန်ပေး yD_FREAD; }
+  "$frewind"            { FL; ပြန်ပေး yD_FREWIND; }
+  "$fscanf"             { FL; ပြန်ပေး yD_FSCANF; }
+  "$fseek"              { FL; ပြန်ပေး yD_FSEEK; }
+  "$fstrobe"            { FL; ပြန်ပေး yD_FSTROBE; }
+  "$fstrobeb"           { FL; ပြန်ပေး yD_FSTROBEB; }
+  "$fstrobeh"           { FL; ပြန်ပေး yD_FSTROBEH; }
+  "$fstrobeo"           { FL; ပြန်ပေး yD_FSTROBEO; }
+  "$ftell"              { FL; ပြန်ပေး yD_FTELL; }
+  "$fullskew"           { FL; ပြန်ပေး yaTIMINGSPEC; }
+  "$fwrite"             { FL; ပြန်ပေး yD_FWRITE; }
+  "$fwriteb"            { FL; ပြန်ပေး yD_FWRITEB; }
+  "$fwriteh"            { FL; ပြန်ပေး yD_FWRITEH; }
+  "$fwriteo"            { FL; ပြန်ပေး yD_FWRITEO; }
+  "$global_clock"       { FL; ပြန်ပေး yD_GLOBAL_CLOCK; }
+  "$hold"               { FL; ပြန်ပေး yaTIMINGSPEC; }
+  "$hypot"              { FL; ပြန်ပေး yD_HYPOT; }
+  "$itor"               { FL; ပြန်ပေး yD_ITOR; }
+  "$ln"                 { FL; ပြန်ပေး yD_LN; }
+  "$log10"              { FL; ပြန်ပေး yD_LOG10; }
+  "$monitor"            { FL; ပြန်ပေး yD_MONITOR; }
+  "$monitorb"           { FL; ပြန်ပေး yD_MONITORB; }
+  "$monitorh"           { FL; ပြန်ပေး yD_MONITORH; }
+  "$monitoro"           { FL; ပြန်ပေး yD_MONITORO; }
+  "$monitoroff"         { FL; ပြန်ပေး yD_MONITOROFF; }
+  "$monitoron"          { FL; ပြန်ပေး yD_MONITORON; }
+  "$nochange"           { FL; ပြန်ပေး yaTIMINGSPEC; }
+  "$period"             { FL; ပြန်ပေး yaTIMINGSPEC; }
+  "$pow"                { FL; ပြန်ပေး yD_POW; }
+  "$printtimescale"     { FL; ပြန်ပေး yD_PRINTTIMESCALE; }
   "$psprintf"           { FL; yylval.fl->v3warn(NONSTD, "Non-standard system function '" << yytext << "';"
                                                 " suggest use standard '$sformatf' (IEEE 1800-2023 21.3.3)");
-                          return yD_SFORMATF; }
-  "$q_add"              { FL; STR; ERROR_RSVD_WORD("IEEE 1364-1995"); return yaD_PLI; }
-  "$q_exam"             { FL; STR; ERROR_RSVD_WORD("IEEE 1364-1995"); return yaD_PLI; }
-  "$q_full"             { FL; STR; ERROR_RSVD_WORD("IEEE 1364-1995"); return yaD_PLI; }
-  "$q_initialize"       { FL; STR; ERROR_RSVD_WORD("IEEE 1364-1995"); return yaD_PLI; }
-  "$q_remove"           { FL; STR; ERROR_RSVD_WORD("IEEE 1364-1995"); return yaD_PLI; }
-  "$random"             { FL; return yD_RANDOM; }
-  "$readmemb"           { FL; return yD_READMEMB; }
-  "$readmemh"           { FL; return yD_READMEMH; }
-  "$realtime"           { FL; return yD_REALTIME; }
-  "$realtobits"         { FL; return yD_REALTOBITS; }
-  "$recovery"           { FL; return yaTIMINGSPEC; }
-  "$recrem"             { FL; return yaTIMINGSPEC; }
-  "$removal"            { FL; return yaTIMINGSPEC; }
-  "$rewind"             { FL; return yD_REWIND; }
-  "$rtoi"               { FL; return yD_RTOI; }
-  "$sampled"            { FL; return yD_SAMPLED; }
-  "$sdf_annotate"       { FL; return yD_SDF_ANNOTATE; }
-  "$setup"              { FL; return yaTIMINGSPEC; }
-  "$setuphold"          { FL; return yD_SETUPHOLD; }
-  "$sformat"            { FL; return yD_SFORMAT; }
-  "$sformatf"           { FL; return yD_SFORMATF; }
-  "$shortrealtobits"    { FL; return yD_SHORTREALTOBITS; }
-  "$sin"                { FL; return yD_SIN; }
-  "$sinh"               { FL; return yD_SINH; }
-  "$skew"               { FL; return yaTIMINGSPEC; }
-  "$sqrt"               { FL; return yD_SQRT; }
-  "$sscanf"             { FL; return yD_SSCANF; }
-  "$stacktrace"         { FL; return yD_STACKTRACE; }
-  "$stime"              { FL; return yD_STIME; }
-  "$stop"               { FL; return yD_STOP; }
-  "$strobe"             { FL; return yD_STROBE; }
-  "$strobeb"            { FL; return yD_STROBEB; }
-  "$strobeh"            { FL; return yD_STROBEH; }
-  "$strobeo"            { FL; return yD_STROBEO; }
-  "$swrite"             { FL; return yD_SWRITE; }
-  "$swriteb"            { FL; return yD_SWRITEB; }
-  "$swriteh"            { FL; return yD_SWRITEH; }
-  "$swriteo"            { FL; return yD_SWRITEO; }
-  "$system"             { FL; return yD_SYSTEM; }
-  "$tan"                { FL; return yD_TAN; }
-  "$tanh"               { FL; return yD_TANH; }
-  "$test$plusargs"      { FL; return yD_TESTPLUSARGS; }
-  "$time"               { FL; return yD_TIME; }
-  "$timeformat"         { FL; return yD_TIMEFORMAT; }
-  "$timeprecision"      { FL; return yD_TIMEPRECISION; }
-  "$timeskew"           { FL; return yaTIMINGSPEC; }
-  "$timeunit"           { FL; return yD_TIMEUNIT; }
-  "$typename"           { FL; return yD_TYPENAME; }
-  "$ungetc"             { FL; return yD_UNGETC; }
-  "$urandom"            { FL; return yD_URANDOM; }
-  "$urandom_range"      { FL; return yD_URANDOM_RANGE; }
-  "$value$plusargs"     { FL; return yD_VALUEPLUSARGS; }
-  "$width"              { FL; return yaTIMINGSPEC; }
-  "$write"              { FL; return yD_WRITE; }
-  "$writeb"             { FL; return yD_WRITEB; }
-  "$writeh"             { FL; return yD_WRITEH; }
-  "$writememb"          { FL; return yD_WRITEMEMB; }
-  "$writememh"          { FL; return yD_WRITEMEMH; }
-  "$writeo"             { FL; return yD_WRITEO; }
+                          ပြန်ပေး yD_SFORMATF; }
+  "$q_add"              { FL; STR; ERROR_RSVD_WORD("IEEE 1364-1995"); ပြန်ပေး yaD_PLI; }
+  "$q_exam"             { FL; STR; ERROR_RSVD_WORD("IEEE 1364-1995"); ပြန်ပေး yaD_PLI; }
+  "$q_full"             { FL; STR; ERROR_RSVD_WORD("IEEE 1364-1995"); ပြန်ပေး yaD_PLI; }
+  "$q_initialize"       { FL; STR; ERROR_RSVD_WORD("IEEE 1364-1995"); ပြန်ပေး yaD_PLI; }
+  "$q_remove"           { FL; STR; ERROR_RSVD_WORD("IEEE 1364-1995"); ပြန်ပေး yaD_PLI; }
+  "$random"             { FL; ပြန်ပေး yD_RANDOM; }
+  "$readmemb"           { FL; ပြန်ပေး yD_READMEMB; }
+  "$readmemh"           { FL; ပြန်ပေး yD_READMEMH; }
+  "$realtime"           { FL; ပြန်ပေး yD_REALTIME; }
+  "$realtobits"         { FL; ပြန်ပေး yD_REALTOBITS; }
+  "$recovery"           { FL; ပြန်ပေး yaTIMINGSPEC; }
+  "$recrem"             { FL; ပြန်ပေး yaTIMINGSPEC; }
+  "$removal"            { FL; ပြန်ပေး yaTIMINGSPEC; }
+  "$rewind"             { FL; ပြန်ပေး yD_REWIND; }
+  "$rtoi"               { FL; ပြန်ပေး yD_RTOI; }
+  "$sampled"            { FL; ပြန်ပေး yD_SAMPLED; }
+  "$sdf_annotate"       { FL; ပြန်ပေး yD_SDF_ANNOTATE; }
+  "$setup"              { FL; ပြန်ပေး yaTIMINGSPEC; }
+  "$setuphold"          { FL; ပြန်ပေး yD_SETUPHOLD; }
+  "$sformat"            { FL; ပြန်ပေး yD_SFORMAT; }
+  "$sformatf"           { FL; ပြန်ပေး yD_SFORMATF; }
+  "$shortrealtobits"    { FL; ပြန်ပေး yD_SHORTREALTOBITS; }
+  "$sin"                { FL; ပြန်ပေး yD_SIN; }
+  "$sinh"               { FL; ပြန်ပေး yD_SINH; }
+  "$skew"               { FL; ပြန်ပေး yaTIMINGSPEC; }
+  "$sqrt"               { FL; ပြန်ပေး yD_SQRT; }
+  "$sscanf"             { FL; ပြန်ပေး yD_SSCANF; }
+  "$stacktrace"         { FL; ပြန်ပေး yD_STACKTRACE; }
+  "$stime"              { FL; ပြန်ပေး yD_STIME; }
+  "$stop"               { FL; ပြန်ပေး yD_STOP; }
+  "$strobe"             { FL; ပြန်ပေး yD_STROBE; }
+  "$strobeb"            { FL; ပြန်ပေး yD_STROBEB; }
+  "$strobeh"            { FL; ပြန်ပေး yD_STROBEH; }
+  "$strobeo"            { FL; ပြန်ပေး yD_STROBEO; }
+  "$swrite"             { FL; ပြန်ပေး yD_SWRITE; }
+  "$swriteb"            { FL; ပြန်ပေး yD_SWRITEB; }
+  "$swriteh"            { FL; ပြန်ပေး yD_SWRITEH; }
+  "$swriteo"            { FL; ပြန်ပေး yD_SWRITEO; }
+  "$system"             { FL; ပြန်ပေး yD_SYSTEM; }
+  "$tan"                { FL; ပြန်ပေး yD_TAN; }
+  "$tanh"               { FL; ပြန်ပေး yD_TANH; }
+  "$test$plusargs"      { FL; ပြန်ပေး yD_TESTPLUSARGS; }
+  "$time"               { FL; ပြန်ပေး yD_TIME; }
+  "$timeformat"         { FL; ပြန်ပေး yD_TIMEFORMAT; }
+  "$timeprecision"      { FL; ပြန်ပေး yD_TIMEPRECISION; }
+  "$timeskew"           { FL; ပြန်ပေး yaTIMINGSPEC; }
+  "$timeunit"           { FL; ပြန်ပေး yD_TIMEUNIT; }
+  "$typename"           { FL; ပြန်ပေး yD_TYPENAME; }
+  "$ungetc"             { FL; ပြန်ပေး yD_UNGETC; }
+  "$urandom"            { FL; ပြန်ပေး yD_URANDOM; }
+  "$urandom_range"      { FL; ပြန်ပေး yD_URANDOM_RANGE; }
+  "$value$plusargs"     { FL; ပြန်ပေး yD_VALUEPLUSARGS; }
+  "$width"              { FL; ပြန်ပေး yaTIMINGSPEC; }
+  "$write"              { FL; ပြန်ပေး yD_WRITE; }
+  "$writeb"             { FL; ပြန်ပေး yD_WRITEB; }
+  "$writeh"             { FL; ပြန်ပေး yD_WRITEH; }
+  "$writememb"          { FL; ပြန်ပေး yD_WRITEMEMB; }
+  "$writememh"          { FL; ပြန်ပေး yD_WRITEMEMH; }
+  "$writeo"             { FL; ပြန်ပေး yD_WRITEO; }
   /*     Keywords */
-  "always"              { FL; return yALWAYS; }
-  "and"                 { FL; return yAND; }
-  "assign"              { FL; return yASSIGN; }
-  "begin"               { FL; return yBEGIN; }
-  "buf"                 { FL; return yBUF; }
-  "bufif0"              { FL; return yBUFIF0; }
-  "bufif1"              { FL; return yBUFIF1; }
-  "case"                { FL; return yCASE; }
-  "casex"               { FL; return yCASEX; }
-  "casez"               { FL; return yCASEZ; }
-  "cmos"                { FL; return yCMOS; }
-  "deassign"            { FL; return yDEASSIGN; }
-  "default"             { FL; return yDEFAULT; }
-  "defparam"            { FL; return yDEFPARAM; }
-  "disable"             { FL; return yDISABLE; }
-  "edge"/{ws}*"["       { FL; yy_push_state(EDGEDESC); return yEDGE; }
-  "edge"                { FL; return yEDGE; }
-  "else"                { FL; return yELSE; }
-  "end"                 { FL; return yEND; }
-  "endcase"             { FL; return yENDCASE; }
-  "endfunction"         { FL; return yENDFUNCTION; }
-  "endmodule"           { FL; return yENDMODULE; }
-  "endprimitive"        { FL; return yENDPRIMITIVE; }
-  "endspecify"          { FL; return yENDSPECIFY; }
+  "always"              { FL; ပြန်ပေး yALWAYS; }
+  "and"                 { FL; ပြန်ပေး yAND; }
+  "assign"              { FL; ပြန်ပေး yASSIGN; }
+  "begin"               { FL; ပြန်ပေး yBEGIN; }
+  "buf"                 { FL; ပြန်ပေး yBUF; }
+  "bufif0"              { FL; ပြန်ပေး yBUFIF0; }
+  "bufif1"              { FL; ပြန်ပေး yBUFIF1; }
+  "case"                { FL; ပြန်ပေး yCASE; }
+  "casex"               { FL; ပြန်ပေး yCASEX; }
+  "casez"               { FL; ပြန်ပေး yCASEZ; }
+  "cmos"                { FL; ပြန်ပေး yCMOS; }
+  "deassign"            { FL; ပြန်ပေး yDEASSIGN; }
+  "default"             { FL; ပြန်ပေး yDEFAULT; }
+  "defparam"            { FL; ပြန်ပေး yDEFPARAM; }
+  "disable"             { FL; ပြန်ပေး yDISABLE; }
+  "edge"/{ws}*"["       { FL; yy_push_state(EDGEDESC); ပြန်ပေး yEDGE; }
+  "edge"                { FL; ပြန်ပေး yEDGE; }
+  "else"                { FL; ပြန်ပေး yELSE; }
+  "end"                 { FL; ပြန်ပေး yEND; }
+  "endcase"             { FL; ပြန်ပေး yENDCASE; }
+  "endfunction"         { FL; ပြန်ပေး yENDFUNCTION; }
+  "endmodule"           { FL; ပြန်ပေး yENDMODULE; }
+  "endprimitive"        { FL; ပြန်ပေး yENDPRIMITIVE; }
+  "endspecify"          { FL; ပြန်ပေး yENDSPECIFY; }
   "endtable"            { FL; yylval.fl->v3error("Syntax error: 'endtable' outside of 'table'"); FL_BRK; }
-  "endtask"             { FL; return yENDTASK; }
-  "event"               { FL; return yEVENT; }
-  "for"                 { FL; return yFOR; }
-  "force"               { FL; return yFORCE; }
-  "foreach"             { FL; return yFOREACH; }
-  "forever"             { FL; return yFOREVER; }
-  "fork"                { FL; return yFORK; }
-  "function"            { FL; return yFUNCTION; }
-  "highz0"              { FL; return yHIGHZ0; }
-  "highz1"              { FL; return yHIGHZ1; }
-  "if"                  { FL; return yIF; }
-  "initial"             { FL; return yINITIAL; }
-  "inout"               { FL; return yINOUT; }
-  "input"               { FL; return yINPUT; }
-  "integer"             { FL; return yINTEGER; }
-  "join"                { FL; return yJOIN; }
-  "large"               { FL; return ygenSTRENGTH; }
-  "macromodule"         { FL; return yMODULE; }
-  "medium"              { FL; return ygenSTRENGTH; }
-  "module"              { FL; return yMODULE; }
-  "nand"                { FL; return yNAND; }
-  "negedge"             { FL; return yNEGEDGE; }
-  "nmos"                { FL; return yNMOS; }
-  "nor"                 { FL; return yNOR; }
-  "not"                 { FL; return yNOT; }
-  "notif0"              { FL; return yNOTIF0; }
-  "notif1"              { FL; return yNOTIF1; }
-  "or"                  { FL; return yOR; }
-  "output"              { FL; return yOUTPUT; }
-  "parameter"           { FL; return yPARAMETER; }
-  "pmos"                { FL; return yPMOS; }
-  "posedge"             { FL; return yPOSEDGE; }
-  "primitive"           { FL; return yPRIMITIVE; }
-  "pull0"               { FL; return yPULL0; }
-  "pull1"               { FL; return yPULL1; }
-  "pulldown"            { FL; return yPULLDOWN; }
-  "pullup"              { FL; return yPULLUP; }
-  "rcmos"               { FL; return yRCMOS; }
-  "real"                { FL; return yREAL; }
-  "realtime"            { FL; return yREALTIME; }
-  "reg"                 { FL; return yREG; }
-  "release"             { FL; return yRELEASE; }
-  "repeat"              { FL; return yREPEAT; }
-  "rnmos"               { FL; return yRNMOS; }
-  "rpmos"               { FL; return yRPMOS; }
-  "rtran"               { FL; return yRTRAN; }
-  "rtranif0"            { FL; return yRTRANIF0; }
-  "rtranif1"            { FL; return yRTRANIF1; }
-  "scalared"            { FL; return ySCALARED; }
-  "small"               { FL; return ygenSTRENGTH; }
-  "specify"             { FL; return ySPECIFY; }
-  "specparam"           { FL; return ySPECPARAM; }
-  "strong0"             { FL; return ySTRONG0; }
-  "strong1"             { FL; return ySTRONG1; }
-  "supply0"             { FL; return ySUPPLY0; }
-  "supply1"             { FL; return ySUPPLY1; }
-  "table"               { FL; yy_push_state(TABLE); return yTABLE; }
-  "task"                { FL; return yTASK; }
-  "time"                { FL; return yTIME; }
-  "tran"                { FL; return yTRAN; }
-  "tranif0"             { FL; return yTRANIF0; }
-  "tranif1"             { FL; return yTRANIF1; }
-  "tri"                 { FL; return yTRI; }
-  "tri0"                { FL; return yTRI0; }
-  "tri1"                { FL; return yTRI1; }
-  "triand"              { FL; return yTRIAND; }
-  "trior"               { FL; return yTRIOR; }
-  "trireg"              { FL; return yTRIREG; }
-  "vectored"            { FL; return yVECTORED; }
-  "wait"                { FL; return yWAIT; }
-  "wand"                { FL; return yWAND; }
-  "weak0"               { FL; return yWEAK0; }
-  "weak1"               { FL; return yWEAK1; }
-  "while"               { FL; return yWHILE; }
-  "wire"                { FL; return yWIRE; }
-  "wor"                 { FL; return yWOR; }
-  "xnor"                { FL; return yXNOR; }
-  "xor"                 { FL; return yXOR; }
+  "endtask"             { FL; ပြန်ပေး yENDTASK; }
+  "event"               { FL; ပြန်ပေး yEVENT; }
+  "for"                 { FL; ပြန်ပေး yFOR; }
+  "force"               { FL; ပြန်ပေး yFORCE; }
+  "foreach"             { FL; ပြန်ပေး yFOREACH; }
+  "forever"             { FL; ပြန်ပေး yFOREVER; }
+  "fork"                { FL; ပြန်ပေး yFORK; }
+  "function"            { FL; ပြန်ပေး yFUNCTION; }
+  "highz0"              { FL; ပြန်ပေး yHIGHZ0; }
+  "highz1"              { FL; ပြန်ပေး yHIGHZ1; }
+  "if"                  { FL; ပြန်ပေး yIF; }
+  "initial"             { FL; ပြန်ပေး yINITIAL; }
+  "inout"               { FL; ပြန်ပေး yINOUT; }
+  "input"               { FL; ပြန်ပေး yINPUT; }
+  "integer"             { FL; ပြန်ပေး yINTEGER; }
+  "join"                { FL; ပြန်ပေး yJOIN; }
+  "large"               { FL; ပြန်ပေး ygenSTRENGTH; }
+  "macromodule"         { FL; ပြန်ပေး yMODULE; }
+  "medium"              { FL; ပြန်ပေး ygenSTRENGTH; }
+  "module"              { FL; ပြန်ပေး yMODULE; }
+  "nand"                { FL; ပြန်ပေး yNAND; }
+  "negedge"             { FL; ပြန်ပေး yNEGEDGE; }
+  "nmos"                { FL; ပြန်ပေး yNMOS; }
+  "nor"                 { FL; ပြန်ပေး yNOR; }
+  "not"                 { FL; ပြန်ပေး yNOT; }
+  "notif0"              { FL; ပြန်ပေး yNOTIF0; }
+  "notif1"              { FL; ပြန်ပေး yNOTIF1; }
+  "or"                  { FL; ပြန်ပေး yOR; }
+  "output"              { FL; ပြန်ပေး yOUTPUT; }
+  "parameter"           { FL; ပြန်ပေး yPARAMETER; }
+  "pmos"                { FL; ပြန်ပေး yPMOS; }
+  "posedge"             { FL; ပြန်ပေး yPOSEDGE; }
+  "primitive"           { FL; ပြန်ပေး yPRIMITIVE; }
+  "pull0"               { FL; ပြန်ပေး yPULL0; }
+  "pull1"               { FL; ပြန်ပေး yPULL1; }
+  "pulldown"            { FL; ပြန်ပေး yPULLDOWN; }
+  "pullup"              { FL; ပြန်ပေး yPULLUP; }
+  "rcmos"               { FL; ပြန်ပေး yRCMOS; }
+  "real"                { FL; ပြန်ပေး yREAL; }
+  "realtime"            { FL; ပြန်ပေး yREALTIME; }
+  "reg"                 { FL; ပြန်ပေး yREG; }
+  "release"             { FL; ပြန်ပေး yRELEASE; }
+  "repeat"              { FL; ပြန်ပေး yREPEAT; }
+  "rnmos"               { FL; ပြန်ပေး yRNMOS; }
+  "rpmos"               { FL; ပြန်ပေး yRPMOS; }
+  "rtran"               { FL; ပြန်ပေး yRTRAN; }
+  "rtranif0"            { FL; ပြန်ပေး yRTRANIF0; }
+  "rtranif1"            { FL; ပြန်ပေး yRTRANIF1; }
+  "scalared"            { FL; ပြန်ပေး ySCALARED; }
+  "small"               { FL; ပြန်ပေး ygenSTRENGTH; }
+  "specify"             { FL; ပြန်ပေး ySPECIFY; }
+  "specparam"           { FL; ပြန်ပေး ySPECPARAM; }
+  "strong0"             { FL; ပြန်ပေး ySTRONG0; }
+  "strong1"             { FL; ပြန်ပေး ySTRONG1; }
+  "supply0"             { FL; ပြန်ပေး ySUPPLY0; }
+  "supply1"             { FL; ပြန်ပေး ySUPPLY1; }
+  "table"               { FL; yy_push_state(TABLE); ပြန်ပေး yTABLE; }
+  "task"                { FL; ပြန်ပေး yTASK; }
+  "time"                { FL; ပြန်ပေး yTIME; }
+  "tran"                { FL; ပြန်ပေး yTRAN; }
+  "tranif0"             { FL; ပြန်ပေး yTRANIF0; }
+  "tranif1"             { FL; ပြန်ပေး yTRANIF1; }
+  "tri"                 { FL; ပြန်ပေး yTRI; }
+  "tri0"                { FL; ပြန်ပေး yTRI0; }
+  "tri1"                { FL; ပြန်ပေး yTRI1; }
+  "triand"              { FL; ပြန်ပေး yTRIAND; }
+  "trior"               { FL; ပြန်ပေး yTRIOR; }
+  "trireg"              { FL; ပြန်ပေး yTRIREG; }
+  "vectored"            { FL; ပြန်ပေး yVECTORED; }
+  "wait"                { FL; ပြန်ပေး yWAIT; }
+  "wand"                { FL; ပြန်ပေး yWAND; }
+  "weak0"               { FL; ပြန်ပေး yWEAK0; }
+  "weak1"               { FL; ပြန်ပေး yWEAK1; }
+  "while"               { FL; ပြန်ပေး yWHILE; }
+  "wire"                { FL; ပြန်ပေး yWIRE; }
+  "wor"                 { FL; ပြန်ပေး yWOR; }
+  "xnor"                { FL; ပြန်ပေး yXNOR; }
+  "xor"                 { FL; ပြန်ပေး yXOR; }
 }
 
   /* Verilog 2001 */
 <V01NC,V01C,V05,VA5,S05,S09,S12,S17,S23,SAX>{
   /*     System Tasks */
-  "$signed"             { FL; return yD_SIGNED; }
-  "$unsigned"           { FL; return yD_UNSIGNED; }
+  "$signed"             { FL; ပြန်ပေး yD_SIGNED; }
+  "$unsigned"           { FL; ပြန်ပေး yD_UNSIGNED; }
   /*     Keywords */
-  "automatic"           { FL; return yAUTOMATIC; }
-  "endgenerate"         { FL; return yENDGENERATE; }
-  "generate"            { FL; return yGENERATE; }
-  "genvar"              { FL; return yGENVAR; }
-  "ifnone"              { FL; return yaTIMINGSPEC; }
-  "localparam"          { FL; return yLOCALPARAM; }
-  "noshowcancelled"     { FL; return yaTIMINGSPEC; }
-  "pulsestyle_ondetect" { FL; return yaTIMINGSPEC; }
-  "pulsestyle_onevent"  { FL; return yaTIMINGSPEC; }
-  "showcancelled"       { FL; return yaTIMINGSPEC; }
-  "signed"              { FL; return ySIGNED; }
-  "unsigned"            { FL; return yUNSIGNED; }
+  "automatic"           { FL; ပြန်ပေး yAUTOMATIC; }
+  "endgenerate"         { FL; ပြန်ပေး yENDGENERATE; }
+  "generate"            { FL; ပြန်ပေး yGENERATE; }
+  "genvar"              { FL; ပြန်ပေး yGENVAR; }
+  "ifnone"              { FL; ပြန်ပေး yaTIMINGSPEC; }
+  "localparam"          { FL; ပြန်ပေး yLOCALPARAM; }
+  "noshowcancelled"     { FL; ပြန်ပေး yaTIMINGSPEC; }
+  "pulsestyle_ondetect" { FL; ပြန်ပေး yaTIMINGSPEC; }
+  "pulsestyle_onevent"  { FL; ပြန်ပေး yaTIMINGSPEC; }
+  "showcancelled"       { FL; ပြန်ပေး yaTIMINGSPEC; }
+  "signed"              { FL; ပြန်ပေး ySIGNED; }
+  "unsigned"            { FL; ပြန်ပေး yUNSIGNED; }
 }
 
   /* Verilog 2001 Config */
 <V01C,V05,VA5,S05,S09,S12,S17,S23,SAX>{
   /*     Generic unsupported keywords */
-  "cell"                { FL; return yCELL; }
-  "config"              { FL; return yCONFIG; }
-  "design"              { FL; return yDESIGN; }
-  "endconfig"           { FL; return yENDCONFIG; }
-  "incdir"              { FL; yy_push_state(FILEPATH); return yINCDIR; }
+  "cell"                { FL; ပြန်ပေး yCELL; }
+  "config"              { FL; ပြန်ပေး yCONFIG; }
+  "design"              { FL; ပြန်ပေး yDESIGN; }
+  "endconfig"           { FL; ပြန်ပေး yENDCONFIG; }
+  "incdir"              { FL; yy_push_state(FILEPATH); ပြန်ပေး yINCDIR; }
   "include"             { FL;
-                          if (PARSEP->inLibMap()) {
+                          အကယ်၍ (PARSEP->inLibMap()) {
                                 yy_push_state(FILEPATH);
-                                return yINCLUDE;
-                          } else {
+                                ပြန်ပေး yINCLUDE;
+                          } မဟုတ်ပါက {
                                 yylval.fl->v3warn(E_UNSUPPORTED, "Unsupported: IEEE 1800-2001-config lib.map"
                                                                  " reserved word not implemented: 'include'\n"
                                                                  << yylval.fl->warnMore() << "... Suggest unless in a lib.map file,"
@@ -499,218 +499,218 @@ vnum    {vnum1}|{vnum2}|{vnum3}|{vnum4}|{vnum5}
                                 FL_BRK;
                           }
                         }
-  "instance"            { FL; return yINSTANCE; }
-  "liblist"             { FL; return yLIBLIST; }
-  "library"             { FL; yy_push_state(FILEPATH); return yLIBRARY; }
-  "use"                 { FL; return yUSE; }
+  "instance"            { FL; ပြန်ပေး yINSTANCE; }
+  "liblist"             { FL; ပြန်ပေး yLIBLIST; }
+  "library"             { FL; yy_push_state(FILEPATH); ပြန်ပေး yLIBRARY; }
+  "use"                 { FL; ပြန်ပေး yUSE; }
 }
 
   /* Verilog 2005 */
 <V05,S05,S09,S12,S17,S23,SAX>{
   /*     System Tasks */
-  "$clog2"              { FL; return yD_CLOG2; }
+  "$clog2"              { FL; ပြန်ပေး yD_CLOG2; }
   /*     Keywords */
-  "uwire"               { FL; return yWIRE; }
+  "uwire"               { FL; ပြန်ပေး yWIRE; }
 }
 
   /* System Verilog 2005 */
 <S05,S09,S12,S17,S23,SAX>{
   /*     System Tasks */
-  "$bits"               { FL; return yD_BITS; }
-  "$changed"            { FL; return yD_CHANGED; }
-  "$changed_gclk"       { FL; return yD_CHANGED_GCLK; }
-  "$changing_gclk"      { FL; return yD_CHANGING_GCLK; }
-  "$countbits"          { FL; return yD_COUNTBITS; }
-  "$countones"          { FL; return yD_COUNTONES; }
-  "$coverage_control"   { FL; STR; ERROR_RSVD_WORD("IEEE 1800-2005"); return yaD_PLI; }
-  "$coverage_get"       { FL; STR; ERROR_RSVD_WORD("IEEE 1800-2005"); return yaD_PLI; }
-  "$coverage_get_max"   { FL; STR; ERROR_RSVD_WORD("IEEE 1800-2005"); return yaD_PLI; }
-  "$coverage_merge"     { FL; STR; ERROR_RSVD_WORD("IEEE 1800-2005"); return yaD_PLI; }
-  "$coverage_save"      { FL; STR; ERROR_RSVD_WORD("IEEE 1800-2005"); return yaD_PLI; }
-  "$dimensions"         { FL; return yD_DIMENSIONS; }
-  "$error"              { FL; return yD_ERROR; }
-  "$falling_gclk"       { FL; return yD_FALLING_GCLK; }
-  "$fatal"              { FL; return yD_FATAL; }
-  "$fell"               { FL; return yD_FELL; }
-  "$fell_gclk"          { FL; return yD_FELL_GCLK; }
-  "$future_gclk"        { FL; return yD_FUTURE_GCLK; }
-  "$get_initial_random_seed" { FL; return yD_GET_INITIAL_RANDOM_SEED; }
-  "$get_coverage"       { FL; STR; ERROR_RSVD_WORD("IEEE 1800-2005"); return yaD_PLI; }
-  "$high"               { FL; return yD_HIGH; }
-  "$increment"          { FL; return yD_INCREMENT; }
-  "$inferred_clock"     { FL; STR; ERROR_RSVD_WORD("IEEE 1800-2005"); return yaD_PLI; }
-  "$inferred_disable"   { FL; return yD_INFERRED_DISABLE; }
-  "$info"               { FL; return yD_INFO; }
-  "$isunbounded"        { FL; return yD_ISUNBOUNDED; }
-  "$isunknown"          { FL; return yD_ISUNKNOWN; }
-  "$left"               { FL; return yD_LEFT; }
-  "$load_coverage_db"   { FL; STR; ERROR_RSVD_WORD("IEEE 1800-2005"); return yaD_PLI; }
-  "$low"                { FL; return yD_LOW; }
-  "$onehot"             { FL; return yD_ONEHOT; }
-  "$onehot0"            { FL; return yD_ONEHOT0; }
-  "$past"               { FL; return yD_PAST; }
-  "$past_gclk"          { FL; return yD_PAST_GCLK; }
-  "$right"              { FL; return yD_RIGHT; }
-  "$rising_gclk"        { FL; return yD_RISING_GCLK; }
-  "$root"               { FL; return yD_ROOT; }
-  "$rose"               { FL; return yD_ROSE; }
-  "$rose_gclk"          { FL; return yD_ROSE_GCLK; }
-  "$set_coverage_db_name" { FL; STR; ERROR_RSVD_WORD("IEEE 1800-2005"); return yaD_PLI; }
-  "$size"               { FL; return yD_SIZE; }
-  "$stable"             { FL; return yD_STABLE; }
-  "$stable_gclk"        { FL; return yD_STABLE_GCLK; }
-  "$steady_gclk"        { FL; return yD_STEADY_GCLK; }
-  "$unpacked_dimensions" { FL; return yD_UNPACKED_DIMENSIONS; }
-  "$warning"            { FL; return yD_WARNING; }
+  "$bits"               { FL; ပြန်ပေး yD_BITS; }
+  "$changed"            { FL; ပြန်ပေး yD_CHANGED; }
+  "$changed_gclk"       { FL; ပြန်ပေး yD_CHANGED_GCLK; }
+  "$changing_gclk"      { FL; ပြန်ပေး yD_CHANGING_GCLK; }
+  "$countbits"          { FL; ပြန်ပေး yD_COUNTBITS; }
+  "$countones"          { FL; ပြန်ပေး yD_COUNTONES; }
+  "$coverage_control"   { FL; STR; ERROR_RSVD_WORD("IEEE 1800-2005"); ပြန်ပေး yaD_PLI; }
+  "$coverage_get"       { FL; STR; ERROR_RSVD_WORD("IEEE 1800-2005"); ပြန်ပေး yaD_PLI; }
+  "$coverage_get_max"   { FL; STR; ERROR_RSVD_WORD("IEEE 1800-2005"); ပြန်ပေး yaD_PLI; }
+  "$coverage_merge"     { FL; STR; ERROR_RSVD_WORD("IEEE 1800-2005"); ပြန်ပေး yaD_PLI; }
+  "$coverage_save"      { FL; STR; ERROR_RSVD_WORD("IEEE 1800-2005"); ပြန်ပေး yaD_PLI; }
+  "$dimensions"         { FL; ပြန်ပေး yD_DIMENSIONS; }
+  "$error"              { FL; ပြန်ပေး yD_ERROR; }
+  "$falling_gclk"       { FL; ပြန်ပေး yD_FALLING_GCLK; }
+  "$fatal"              { FL; ပြန်ပေး yD_FATAL; }
+  "$fell"               { FL; ပြန်ပေး yD_FELL; }
+  "$fell_gclk"          { FL; ပြန်ပေး yD_FELL_GCLK; }
+  "$future_gclk"        { FL; ပြန်ပေး yD_FUTURE_GCLK; }
+  "$get_initial_random_seed" { FL; ပြန်ပေး yD_GET_INITIAL_RANDOM_SEED; }
+  "$get_coverage"       { FL; STR; ERROR_RSVD_WORD("IEEE 1800-2005"); ပြန်ပေး yaD_PLI; }
+  "$high"               { FL; ပြန်ပေး yD_HIGH; }
+  "$increment"          { FL; ပြန်ပေး yD_INCREMENT; }
+  "$inferred_clock"     { FL; STR; ERROR_RSVD_WORD("IEEE 1800-2005"); ပြန်ပေး yaD_PLI; }
+  "$inferred_disable"   { FL; ပြန်ပေး yD_INFERRED_DISABLE; }
+  "$info"               { FL; ပြန်ပေး yD_INFO; }
+  "$isunbounded"        { FL; ပြန်ပေး yD_ISUNBOUNDED; }
+  "$isunknown"          { FL; ပြန်ပေး yD_ISUNKNOWN; }
+  "$left"               { FL; ပြန်ပေး yD_LEFT; }
+  "$load_coverage_db"   { FL; STR; ERROR_RSVD_WORD("IEEE 1800-2005"); ပြန်ပေး yaD_PLI; }
+  "$low"                { FL; ပြန်ပေး yD_LOW; }
+  "$onehot"             { FL; ပြန်ပေး yD_ONEHOT; }
+  "$onehot0"            { FL; ပြန်ပေး yD_ONEHOT0; }
+  "$past"               { FL; ပြန်ပေး yD_PAST; }
+  "$past_gclk"          { FL; ပြန်ပေး yD_PAST_GCLK; }
+  "$right"              { FL; ပြန်ပေး yD_RIGHT; }
+  "$rising_gclk"        { FL; ပြန်ပေး yD_RISING_GCLK; }
+  "$root"               { FL; ပြန်ပေး yD_ROOT; }
+  "$rose"               { FL; ပြန်ပေး yD_ROSE; }
+  "$rose_gclk"          { FL; ပြန်ပေး yD_ROSE_GCLK; }
+  "$set_coverage_db_name" { FL; STR; ERROR_RSVD_WORD("IEEE 1800-2005"); ပြန်ပေး yaD_PLI; }
+  "$size"               { FL; ပြန်ပေး yD_SIZE; }
+  "$stable"             { FL; ပြန်ပေး yD_STABLE; }
+  "$stable_gclk"        { FL; ပြန်ပေး yD_STABLE_GCLK; }
+  "$steady_gclk"        { FL; ပြန်ပေး yD_STEADY_GCLK; }
+  "$unpacked_dimensions" { FL; ပြန်ပေး yD_UNPACKED_DIMENSIONS; }
+  "$warning"            { FL; ပြန်ပေး yD_WARNING; }
   /*     SV2005 Keywords */
   /* Note assert_strobe was in SystemVerilog 3.1, but removed for SystemVerilog 2005 */
-  "$unit"               { FL; return yD_UNIT; }  /* Yes, a keyword, not task */
-  "alias"               { FL; return yALIAS; }
-  "always_comb"         { FL; return yALWAYS_COMB; }
-  "always_ff"           { FL; return yALWAYS_FF; }
-  "always_latch"        { FL; return yALWAYS_LATCH; }
-  "assert"              { FL; return yASSERT; }
-  "assume"              { FL; return yASSUME; }
-  "before"              { FL; return yBEFORE; }
-  "bind"                { FL; return yBIND; }
-  "bins"                { FL; return yBINS; }
-  "binsof"              { FL; return yBINSOF; }
-  "bit"                 { FL; return yBIT; }
-  "break"               { FL; return yBREAK; }
-  "byte"                { FL; return yBYTE; }
-  "chandle"             { FL; return yCHANDLE; }
-  "class"               { FL; return yCLASS; }
-  "clocking"            { FL; return yCLOCKING; }
-  "const"               { FL; return yCONST__LEX; }
-  "constraint"          { FL; return yCONSTRAINT; }
-  "context"             { FL; return yCONTEXT; }
-  "continue"            { FL; return yCONTINUE; }
-  "cover"               { FL; return yCOVER; }
-  "covergroup"          { FL; return yCOVERGROUP; }
-  "coverpoint"          { FL; return yCOVERPOINT; }
-  "cross"               { FL; return yCROSS; }
-  "dist"                { FL; return yDIST; }
-  "do"                  { FL; return yDO; }
-  "endclass"            { FL; return yENDCLASS; }
-  "endclocking"         { FL; return yENDCLOCKING; }
-  "endgroup"            { FL; return yENDGROUP; }
-  "endinterface"        { FL; return yENDINTERFACE; }
-  "endpackage"          { FL; return yENDPACKAGE; }
-  "endprogram"          { FL; return yENDPROGRAM; }
-  "endproperty"         { FL; return yENDPROPERTY; }
-  "endsequence"         { FL; return yENDSEQUENCE; }
-  "enum"                { FL; return yENUM; }
-  "expect"              { FL; return yEXPECT; }
-  "export"              { FL; return yEXPORT; }
-  "extends"             { FL; return yEXTENDS; }
-  "extern"              { FL; return yEXTERN; }
-  "final"               { FL; return yFINAL; }
-  "first_match"         { FL; return yFIRST_MATCH; }
-  "forkjoin"            { FL; return yFORKJOIN; }
-  "iff"                 { FL; return yIFF; }
-  "ignore_bins"         { FL; return yIGNORE_BINS; }
-  "illegal_bins"        { FL; return yILLEGAL_BINS; }
-  "import"              { FL; return yIMPORT; }
-  "inside"              { FL; return yINSIDE; }
-  "int"                 { FL; return yINT; }
-  "interface"           { FL; return yINTERFACE; }
-  "intersect"           { FL; return yINTERSECT; }
-  "join_any"            { FL; return yJOIN_ANY; }
-  "join_none"           { FL; return yJOIN_NONE; }
-  "local"               { FL; return yLOCAL__LEX; }
-  "logic"               { FL; return yLOGIC; }
-  "longint"             { FL; return yLONGINT; }
-  "matches"             { FL; return yMATCHES; }
-  "modport"             { FL; return yMODPORT; }
-  "new"                 { FL; return yNEW__LEX; }
-  "null"                { FL; return yNULL; }
-  "package"             { FL; return yPACKAGE; }
-  "packed"              { FL; return yPACKED; }
-  "priority"            { FL; return yPRIORITY; }
-  "program"             { FL; return yPROGRAM; }
-  "property"            { FL; return yPROPERTY; }
-  "protected"           { FL; return yPROTECTED; }
-  "pure"                { FL; return yPURE; }
-  "rand"                { FL; return yRAND; }
-  "randc"               { FL; return yRANDC; }
-  "randcase"            { FL; return yRANDCASE; }
-  "randomize"           { FL; return yRANDOMIZE; }
-  "randsequence"        { FL; return yRANDSEQUENCE; }
-  "ref"                 { FL; return yREF; }
-  "restrict"            { FL; return yRESTRICT; }
-  "return"              { FL; return yRETURN; }
-  "sequence"            { FL; return ySEQUENCE; }
-  "shortint"            { FL; return ySHORTINT; }
-  "shortreal"           { FL; return ySHORTREAL; }
-  "solve"               { FL; return ySOLVE; }
-  "static"              { FL; return ySTATIC__LEX; }
-  "string"              { FL; return ySTRING; }
-  "struct"              { FL; return ySTRUCT; }
-  "super"               { FL; return ySUPER; }
-  "tagged"              { FL; return yTAGGED__LEX; }
-  "this"                { FL; return yTHIS; }
-  "throughout"          { FL; return yTHROUGHOUT; }
-  "timeprecision"       { FL; return yTIMEPRECISION; }
-  "timeunit"            { FL; return yTIMEUNIT; }
-  "type"                { FL; return yTYPE__LEX; }
-  "typedef"             { FL; return yTYPEDEF; }
-  "union"               { FL; return yUNION; }
-  "unique"              { FL; return yUNIQUE; }
-  "var"                 { FL; return yVAR; }
-  "virtual"             { FL; return yVIRTUAL__LEX; }
-  "void"                { FL; return yVOID; }
-  "wait_order"          { FL; return yWAIT_ORDER; }
-  "wildcard"            { FL; return yWILDCARD; }
-  "with"                { FL; return yWITH__LEX; }
-  "within"              { FL; return yWITHIN; }
+  "$unit"               { FL; ပြန်ပေး yD_UNIT; }  /* Yes, a keyword, not task */
+  "alias"               { FL; ပြန်ပေး yALIAS; }
+  "always_comb"         { FL; ပြန်ပေး yALWAYS_COMB; }
+  "always_ff"           { FL; ပြန်ပေး yALWAYS_FF; }
+  "always_latch"        { FL; ပြန်ပေး yALWAYS_LATCH; }
+  "assert"              { FL; ပြန်ပေး yASSERT; }
+  "assume"              { FL; ပြန်ပေး yASSUME; }
+  "before"              { FL; ပြန်ပေး yBEFORE; }
+  "bind"                { FL; ပြန်ပေး yBIND; }
+  "bins"                { FL; ပြန်ပေး yBINS; }
+  "binsof"              { FL; ပြန်ပေး yBINSOF; }
+  "bit"                 { FL; ပြန်ပေး yBIT; }
+  "break"               { FL; ပြန်ပေး yBREAK; }
+  "byte"                { FL; ပြန်ပေး yBYTE; }
+  "chandle"             { FL; ပြန်ပေး yCHANDLE; }
+  "class"               { FL; ပြန်ပေး yCLASS; }
+  "clocking"            { FL; ပြန်ပေး yCLOCKING; }
+  "const"               { FL; ပြန်ပေး yCONST__LEX; }
+  "constraint"          { FL; ပြန်ပေး yCONSTRAINT; }
+  "context"             { FL; ပြန်ပေး yCONTEXT; }
+  "continue"            { FL; ပြန်ပေး yCONTINUE; }
+  "cover"               { FL; ပြန်ပေး yCOVER; }
+  "covergroup"          { FL; ပြန်ပေး yCOVERGROUP; }
+  "coverpoint"          { FL; ပြန်ပေး yCOVERPOINT; }
+  "cross"               { FL; ပြန်ပေး yCROSS; }
+  "dist"                { FL; ပြန်ပေး yDIST; }
+  "do"                  { FL; ပြန်ပေး yDO; }
+  "endclass"            { FL; ပြန်ပေး yENDCLASS; }
+  "endclocking"         { FL; ပြန်ပေး yENDCLOCKING; }
+  "endgroup"            { FL; ပြန်ပေး yENDGROUP; }
+  "endinterface"        { FL; ပြန်ပေး yENDINTERFACE; }
+  "endpackage"          { FL; ပြန်ပေး yENDPACKAGE; }
+  "endprogram"          { FL; ပြန်ပေး yENDPROGRAM; }
+  "endproperty"         { FL; ပြန်ပေး yENDPROPERTY; }
+  "endsequence"         { FL; ပြန်ပေး yENDSEQUENCE; }
+  "enum"                { FL; ပြန်ပေး yENUM; }
+  "expect"              { FL; ပြန်ပေး yEXPECT; }
+  "export"              { FL; ပြန်ပေး yEXPORT; }
+  "extends"             { FL; ပြန်ပေး yEXTENDS; }
+  "extern"              { FL; ပြန်ပေး yEXTERN; }
+  "final"               { FL; ပြန်ပေး yFINAL; }
+  "first_match"         { FL; ပြန်ပေး yFIRST_MATCH; }
+  "forkjoin"            { FL; ပြန်ပေး yFORKJOIN; }
+  "iff"                 { FL; ပြန်ပေး yIFF; }
+  "ignore_bins"         { FL; ပြန်ပေး yIGNORE_BINS; }
+  "illegal_bins"        { FL; ပြန်ပေး yILLEGAL_BINS; }
+  "import"              { FL; ပြန်ပေး yIMPORT; }
+  "inside"              { FL; ပြန်ပေး yINSIDE; }
+  "int"                 { FL; ပြန်ပေး yINT; }
+  "interface"           { FL; ပြန်ပေး yINTERFACE; }
+  "intersect"           { FL; ပြန်ပေး yINTERSECT; }
+  "join_any"            { FL; ပြန်ပေး yJOIN_ANY; }
+  "join_none"           { FL; ပြန်ပေး yJOIN_NONE; }
+  "local"               { FL; ပြန်ပေး yLOCAL__LEX; }
+  "logic"               { FL; ပြန်ပေး yLOGIC; }
+  "longint"             { FL; ပြန်ပေး yLONGINT; }
+  "matches"             { FL; ပြန်ပေး yMATCHES; }
+  "modport"             { FL; ပြန်ပေး yMODPORT; }
+  "new"                 { FL; ပြန်ပေး yNEW__LEX; }
+  "null"                { FL; ပြန်ပေး yNULL; }
+  "package"             { FL; ပြန်ပေး yPACKAGE; }
+  "packed"              { FL; ပြန်ပေး yPACKED; }
+  "priority"            { FL; ပြန်ပေး yPRIORITY; }
+  "program"             { FL; ပြန်ပေး yPROGRAM; }
+  "property"            { FL; ပြန်ပေး yPROPERTY; }
+  "protected"           { FL; ပြန်ပေး yPROTECTED; }
+  "pure"                { FL; ပြန်ပေး yPURE; }
+  "rand"                { FL; ပြန်ပေး yRAND; }
+  "randc"               { FL; ပြန်ပေး yRANDC; }
+  "randcase"            { FL; ပြန်ပေး yRANDCASE; }
+  "randomize"           { FL; ပြန်ပေး yRANDOMIZE; }
+  "randsequence"        { FL; ပြန်ပေး yRANDSEQUENCE; }
+  "ref"                 { FL; ပြန်ပေး yREF; }
+  "restrict"            { FL; ပြန်ပေး yRESTRICT; }
+  "return"              { FL; ပြန်ပေး yRETURN; }
+  "sequence"            { FL; ပြန်ပေး ySEQUENCE; }
+  "shortint"            { FL; ပြန်ပေး ySHORTINT; }
+  "shortreal"           { FL; ပြန်ပေး ySHORTREAL; }
+  "solve"               { FL; ပြန်ပေး ySOLVE; }
+  "static"              { FL; ပြန်ပေး ySTATIC__LEX; }
+  "string"              { FL; ပြန်ပေး ySTRING; }
+  "struct"              { FL; ပြန်ပေး ySTRUCT; }
+  "super"               { FL; ပြန်ပေး ySUPER; }
+  "tagged"              { FL; ပြန်ပေး yTAGGED__LEX; }
+  "this"                { FL; ပြန်ပေး yTHIS; }
+  "throughout"          { FL; ပြန်ပေး yTHROUGHOUT; }
+  "timeprecision"       { FL; ပြန်ပေး yTIMEPRECISION; }
+  "timeunit"            { FL; ပြန်ပေး yTIMEUNIT; }
+  "type"                { FL; ပြန်ပေး yTYPE__LEX; }
+  "typedef"             { FL; ပြန်ပေး yTYPEDEF; }
+  "union"               { FL; ပြန်ပေး yUNION; }
+  "unique"              { FL; ပြန်ပေး yUNIQUE; }
+  "var"                 { FL; ပြန်ပေး yVAR; }
+  "virtual"             { FL; ပြန်ပေး yVIRTUAL__LEX; }
+  "void"                { FL; ပြန်ပေး yVOID; }
+  "wait_order"          { FL; ပြန်ပေး yWAIT_ORDER; }
+  "wildcard"            { FL; ပြန်ပေး yWILDCARD; }
+  "with"                { FL; ပြန်ပေး yWITH__LEX; }
+  "within"              { FL; ပြန်ပေး yWITHIN; }
 }
 
   /* SystemVerilog 2009 */
 <S09,S12,S17,S23,SAX>{
   /*     System Tasks */
-  "$assertfailoff"      { FL; return yD_ASSERTFAILOFF; }
-  "$assertfailon"       { FL; return yD_ASSERTFAILON; }
-  "$assertkill"         { FL; return yD_ASSERTKILL; }
-  "$assertnonvacuouson" { FL; return yD_ASSERTNONVACUOUSON; }
-  "$assertoff"          { FL; return yD_ASSERTOFF; }
-  "$asserton"           { FL; return yD_ASSERTON; }
-  "$assertpassoff"      { FL; return yD_ASSERTPASSOFF; }
-  "$assertpasson"       { FL; return yD_ASSERTPASSON; }
-  "$assertvacuousoff"   { FL; return yD_ASSERTVACUOUSOFF; }
+  "$assertfailoff"      { FL; ပြန်ပေး yD_ASSERTFAILOFF; }
+  "$assertfailon"       { FL; ပြန်ပေး yD_ASSERTFAILON; }
+  "$assertkill"         { FL; ပြန်ပေး yD_ASSERTKILL; }
+  "$assertnonvacuouson" { FL; ပြန်ပေး yD_ASSERTNONVACUOUSON; }
+  "$assertoff"          { FL; ပြန်ပေး yD_ASSERTOFF; }
+  "$asserton"           { FL; ပြန်ပေး yD_ASSERTON; }
+  "$assertpassoff"      { FL; ပြန်ပေး yD_ASSERTPASSOFF; }
+  "$assertpasson"       { FL; ပြန်ပေး yD_ASSERTPASSON; }
+  "$assertvacuousoff"   { FL; ပြန်ပေး yD_ASSERTVACUOUSOFF; }
   /*     Keywords */
-  "accept_on"           { FL; return yACCEPT_ON; }
-  "checker"             { FL; return yCHECKER; }
-  "endchecker"          { FL; return yENDCHECKER; }
-  "eventually"          { FL; return yEVENTUALLY; }
-  "global"              { FL; return yGLOBAL__LEX; }
-  "implies"             { FL; return yIMPLIES; }
-  "let"                 { FL; return yLET; }
-  "nexttime"            { FL; return yNEXTTIME; }
-  "reject_on"           { FL; return yREJECT_ON; }
-  "s_always"            { FL; return yS_ALWAYS; }
-  "s_eventually"        { FL; return yS_EVENTUALLY; }
-  "s_nexttime"          { FL; return yS_NEXTTIME; }
-  "s_until"             { FL; return yS_UNTIL; }
-  "s_until_with"        { FL; return yS_UNTIL_WITH; }
-  "strong"              { FL; return ySTRONG; }
-  "sync_accept_on"      { FL; return ySYNC_ACCEPT_ON; }
-  "sync_reject_on"      { FL; return ySYNC_REJECT_ON; }
-  "unique0"             { FL; return yUNIQUE0; }
-  "until"               { FL; return yUNTIL; }
-  "until_with"          { FL; return yUNTIL_WITH; }
-  "untyped"             { FL; return yUNTYPED; }
-  "weak"                { FL; return yWEAK; }
+  "accept_on"           { FL; ပြန်ပေး yACCEPT_ON; }
+  "checker"             { FL; ပြန်ပေး yCHECKER; }
+  "endchecker"          { FL; ပြန်ပေး yENDCHECKER; }
+  "eventually"          { FL; ပြန်ပေး yEVENTUALLY; }
+  "global"              { FL; ပြန်ပေး yGLOBAL__LEX; }
+  "implies"             { FL; ပြန်ပေး yIMPLIES; }
+  "let"                 { FL; ပြန်ပေး yLET; }
+  "nexttime"            { FL; ပြန်ပေး yNEXTTIME; }
+  "reject_on"           { FL; ပြန်ပေး yREJECT_ON; }
+  "s_always"            { FL; ပြန်ပေး yS_ALWAYS; }
+  "s_eventually"        { FL; ပြန်ပေး yS_EVENTUALLY; }
+  "s_nexttime"          { FL; ပြန်ပေး yS_NEXTTIME; }
+  "s_until"             { FL; ပြန်ပေး yS_UNTIL; }
+  "s_until_with"        { FL; ပြန်ပေး yS_UNTIL_WITH; }
+  "strong"              { FL; ပြန်ပေး ySTRONG; }
+  "sync_accept_on"      { FL; ပြန်ပေး ySYNC_ACCEPT_ON; }
+  "sync_reject_on"      { FL; ပြန်ပေး ySYNC_REJECT_ON; }
+  "unique0"             { FL; ပြန်ပေး yUNIQUE0; }
+  "until"               { FL; ပြန်ပေး yUNTIL; }
+  "until_with"          { FL; ပြန်ပေး yUNTIL_WITH; }
+  "untyped"             { FL; ပြန်ပေး yUNTYPED; }
+  "weak"                { FL; ပြန်ပေး yWEAK; }
 }
 
   /* System Verilog 2012 */
 <S12,S17,S23,SAX>{
   /*     System Tasks */
-  "$assertcontrol"      { FL; return yD_ASSERTCTL; }
+  "$assertcontrol"      { FL; ပြန်ပေး yD_ASSERTCTL; }
   /*     Keywords */
-  "implements"          { FL; return yIMPLEMENTS; }
-  "interconnect"        { FL; return yINTERCONNECT; }
-  "nettype"             { FL; return yNETTYPE; }
-  "soft"                { FL; return ySOFT; }
+  "implements"          { FL; ပြန်ပေး yIMPLEMENTS; }
+  "interconnect"        { FL; ပြန်ပေး yINTERCONNECT; }
+  "nettype"             { FL; ပြန်ပေး yNETTYPE; }
+  "soft"                { FL; ပြန်ပေး ySOFT; }
 }
 
   /* System Verilog 2017 */
@@ -718,7 +718,7 @@ vnum    {vnum1}|{vnum2}|{vnum3}|{vnum4}|{vnum5}
 
   /* Default PLI rule */
 <V95,V01NC,V01C,V05,VA5,S05,S09,S12,S17,S23,SAX>{
-  "$"[a-zA-Z0-9_$]+     { FL; STR; return yaD_PLI; }
+  "$"[a-zA-Z0-9_$]+     { FL; STR; ပြန်ပေး yaD_PLI; }
 }
 
   /************************************************************************/
@@ -737,20 +737,20 @@ vnum    {vnum1}|{vnum2}|{vnum3}|{vnum4}|{vnum5}
    "aliasparam"         { FL; ERROR_RSVD_WORD("AMS"); FL_BRK; }
    "analog"             { FL; ERROR_RSVD_WORD("AMS"); FL_BRK; }
    "analysis"           { FL; ERROR_RSVD_WORD("AMS"); FL_BRK; }
-   "asin"               { FL; return yD_ASIN; }
-   "asinh"              { FL; return yD_ASINH; }
+   "asin"               { FL; ပြန်ပေး yD_ASIN; }
+   "asinh"              { FL; ပြန်ပေး yD_ASINH; }
    "assert"             { FL; ERROR_RSVD_WORD("AMS"); FL_BRK; }
-   "atan"               { FL; return yD_ATAN; }
-   "atan2"              { FL; return yD_ATAN2; }
-   "atanh"              { FL; return yD_ATANH; }
+   "atan"               { FL; ပြန်ပေး yD_ATAN; }
+   "atan2"              { FL; ပြန်ပေး yD_ATAN2; }
+   "atanh"              { FL; ပြန်ပေး yD_ATANH; }
    "branch"             { FL; ERROR_RSVD_WORD("AMS"); FL_BRK; }
-   "ceil"               { FL; return yD_CEIL; }
+   "ceil"               { FL; ပြန်ပေး yD_CEIL; }
    "connect"            { FL; ERROR_RSVD_WORD("AMS"); FL_BRK; }
    "connectmodule"      { FL; ERROR_RSVD_WORD("AMS"); FL_BRK; }
    "connectrules"       { FL; ERROR_RSVD_WORD("AMS"); FL_BRK; }
    "continuous"         { FL; ERROR_RSVD_WORD("AMS"); FL_BRK; }
-   "cos"                { FL; return yD_COS; }
-   "cosh"               { FL; return yD_COSH; }
+   "cos"                { FL; ပြန်ပေး yD_COS; }
+   "cosh"               { FL; ပြန်ပေး yD_COSH; }
    "cross"              { FL; ERROR_RSVD_WORD("AMS"); FL_BRK; }
    "ddt"                { FL; ERROR_RSVD_WORD("AMS"); FL_BRK; }
    "ddt_nature"         { FL; ERROR_RSVD_WORD("AMS"); FL_BRK; }
@@ -764,14 +764,14 @@ vnum    {vnum1}|{vnum2}|{vnum3}|{vnum4}|{vnum5}
    "endnature"          { FL; ERROR_RSVD_WORD("AMS"); FL_BRK; }
    "endparamset"        { FL; ERROR_RSVD_WORD("AMS"); FL_BRK; }
    "exclude"            { FL; ERROR_RSVD_WORD("AMS"); FL_BRK; }
-   "exp"                { FL; return yD_EXP; }
+   "exp"                { FL; ပြန်ပေး yD_EXP; }
    "final_step"         { FL; ERROR_RSVD_WORD("AMS"); FL_BRK; }
    "flicker_noise"      { FL; ERROR_RSVD_WORD("AMS"); FL_BRK; }
-   "floor"              { FL; return yD_FLOOR; }
+   "floor"              { FL; ပြန်ပေး yD_FLOOR; }
    "flow"               { FL; ERROR_RSVD_WORD("AMS"); FL_BRK; }
    "from"               { FL; ERROR_RSVD_WORD("AMS"); FL_BRK; }
    "ground"             { FL; ERROR_RSVD_WORD("AMS"); FL_BRK; }
-   "hypot"              { FL; return yD_HYPOT; }
+   "hypot"              { FL; ပြန်ပေး yD_HYPOT; }
    "idt"                { FL; ERROR_RSVD_WORD("AMS"); FL_BRK; }
    "idt_nature"         { FL; ERROR_RSVD_WORD("AMS"); FL_BRK; }
    "idtmod"             { FL; ERROR_RSVD_WORD("AMS"); FL_BRK; }
@@ -783,8 +783,8 @@ vnum    {vnum1}|{vnum2}|{vnum3}|{vnum4}|{vnum5}
    "laplace_zp"         { FL; ERROR_RSVD_WORD("AMS"); FL_BRK; }
    "last_crossing"      { FL; ERROR_RSVD_WORD("AMS"); FL_BRK; }
    "limexp"             { FL; ERROR_RSVD_WORD("AMS"); FL_BRK; }
-   "ln"                 { FL; return yD_LN; }
-   "log"                { FL; return yD_LOG10; }
+   "ln"                 { FL; ပြန်ပေး yD_LN; }
+   "log"                { FL; ပြန်ပေး yD_LOG10; }
    "max"                { FL; ERROR_RSVD_WORD("AMS"); FL_BRK; }
    "merged"             { FL; ERROR_RSVD_WORD("AMS"); FL_BRK; }
    "min"                { FL; ERROR_RSVD_WORD("AMS"); FL_BRK; }
@@ -793,21 +793,21 @@ vnum    {vnum1}|{vnum2}|{vnum3}|{vnum4}|{vnum5}
    "noise_table"        { FL; ERROR_RSVD_WORD("AMS"); FL_BRK; }
    "paramset"           { FL; ERROR_RSVD_WORD("AMS"); FL_BRK; }
    "potential"          { FL; ERROR_RSVD_WORD("AMS"); FL_BRK; }
-   "pow"                { FL; return yD_POW; }
+   "pow"                { FL; ပြန်ပေး yD_POW; }
    "resolveto"          { FL; ERROR_RSVD_WORD("AMS"); FL_BRK; }
-   "sin"                { FL; return yD_SIN; }
-   "sinh"               { FL; return yD_SINH; }
+   "sin"                { FL; ပြန်ပေး yD_SIN; }
+   "sinh"               { FL; ပြန်ပေး yD_SINH; }
    "slew"               { FL; ERROR_RSVD_WORD("AMS"); FL_BRK; }
    "split"              { FL; ERROR_RSVD_WORD("AMS"); FL_BRK; }
-   "sqrt"               { FL; return yD_SQRT; }
-   "string"             { FL; return ySTRING; }
-   "tan"                { FL; return yD_TAN; }
-   "tanh"               { FL; return yD_TANH; }
+   "sqrt"               { FL; ပြန်ပေး yD_SQRT; }
+   "string"             { FL; ပြန်ပေး ySTRING; }
+   "tan"                { FL; ပြန်ပေး yD_TAN; }
+   "tanh"               { FL; ပြန်ပေး yD_TANH; }
    "timer"              { FL; ERROR_RSVD_WORD("AMS"); FL_BRK; }
    "transition"         { FL; ERROR_RSVD_WORD("AMS"); FL_BRK; }
    "units"              { FL; ERROR_RSVD_WORD("AMS"); FL_BRK; }
    "white_noise"        { FL; ERROR_RSVD_WORD("AMS"); FL_BRK; }
-   "wreal"              { FL; return yWREAL; }
+   "wreal"              { FL; ပြန်ပေး yWREAL; }
    "zi_nd"              { FL; ERROR_RSVD_WORD("AMS"); FL_BRK; }
    "zi_np"              { FL; ERROR_RSVD_WORD("AMS"); FL_BRK; }
    "zi_zd"              { FL; ERROR_RSVD_WORD("AMS"); FL_BRK; }
@@ -820,64 +820,64 @@ vnum    {vnum1}|{vnum2}|{vnum3}|{vnum4}|{vnum5}
   /* Converted from //{cmt}verilator ...{cmt} by preprocessor */
 <V95,V01NC,V01C,V05,VA5,S05,S09,S12,S17,S23,SAX>{
   "/*verilator"{ws}*"*/"                { FL_FWD; FL_BRK; }  /* Ignore empty comments, may be `endif // verilator */
-  "/*verilator clock_enable*/"          { FL; return yVL_CLOCK_ENABLE; }
-  "/*verilator clocker*/"               { FL; return yVL_CLOCKER; }
-  "/*verilator coverage_block_off*/"    { FL; return yVL_COVERAGE_BLOCK_OFF; }
+  "/*verilator clock_enable*/"          { FL; ပြန်ပေး yVL_CLOCK_ENABLE; }
+  "/*verilator clocker*/"               { FL; ပြန်ပေး yVL_CLOCKER; }
+  "/*verilator coverage_block_off*/"    { FL; ပြန်ပေး yVL_COVERAGE_BLOCK_OFF; }
   "/*verilator coverage_off*/"          { FL_FWD; PARSEP->lexFileline()->coverageOn(false); FL_BRK; }
   "/*verilator coverage_on*/"           { FL_FWD; PARSEP->lexFileline()->coverageOn(true); FL_BRK; }
-  "/*verilator dpi_c_decl*/"            { FL; return yVL_DPI_C_DECL; }  // The "foo(bar)" is converted by the preproc
-  "/*verilator forceable*/"             { FL; return yVL_FORCEABLE; }
-  "/*verilator full_case*/"             { FL; return yVL_FULL_CASE; }
-  "/*verilator hier_block*/"            { FL; return yVL_HIER_BLOCK; }
-  "/*verilator inline_module*/"         { FL; return yVL_INLINE_MODULE; }
-  "/*verilator isolate_assignments*/"   { FL; return yVL_ISOLATE_ASSIGNMENTS; }
+  "/*verilator dpi_c_decl*/"            { FL; ပြန်ပေး yVL_DPI_C_DECL; }  // The "foo(bar)" is converted by the preproc
+  "/*verilator forceable*/"             { FL; ပြန်ပေး yVL_FORCEABLE; }
+  "/*verilator full_case*/"             { FL; ပြန်ပေး yVL_FULL_CASE; }
+  "/*verilator hier_block*/"            { FL; ပြန်ပေး yVL_HIER_BLOCK; }
+  "/*verilator inline_module*/"         { FL; ပြန်ပေး yVL_INLINE_MODULE; }
+  "/*verilator isolate_assignments*/"   { FL; ပြန်ပေး yVL_ISOLATE_ASSIGNMENTS; }
   "/*verilator lint_off"[^*]*"*/"       { FL; PARSEP->lexVerilatorCmtLint(yylval.fl, yytext, true); FL_BRK; }
   "/*verilator lint_on"[^*]*"*/"        { FL; PARSEP->lexVerilatorCmtLint(yylval.fl, yytext, false); FL_BRK; }
   "/*verilator lint_restore*/"          { FL; PARSEP->lexVerilatorCmtLintRestore(PARSEP->lexFileline()); FL_BRK; }
   "/*verilator lint_save*/"             { FL; PARSEP->lexVerilatorCmtLintSave(PARSEP->lexFileline()); FL_BRK; }
-  "/*verilator no_clocker*/"            { FL; return yVL_NO_CLOCKER; }
-  "/*verilator no_inline_module*/"      { FL; return yVL_NO_INLINE_MODULE; }
-  "/*verilator no_inline_task*/"        { FL; return yVL_NO_INLINE_TASK; }
-  "/*verilator parallel_case*/"         { FL; return yVL_PARALLEL_CASE; }
-  "/*verilator public*/"                { FL; return yVL_PUBLIC; }
-  "/*verilator public_flat*/"           { FL; return yVL_PUBLIC_FLAT; }
-  "/*verilator public_flat_on*/"        { FL; return yVL_PUBLIC_FLAT_ON; }
-  "/*verilator public_flat_rd*/"        { FL; return yVL_PUBLIC_FLAT_RD; }
-  "/*verilator public_flat_rd_on*/"     { FL; return yVL_PUBLIC_FLAT_RD_ON; }
-  "/*verilator public_flat_rw*/"        { FL; return yVL_PUBLIC_FLAT_RW; }  // The @(edge) is converted by the preproc
-  "/*verilator public_flat_rw_on*/"     { FL; return yVL_PUBLIC_FLAT_RW_ON; }
-  "/*verilator public_flat_rw_on_sns*/" { FL; return yVL_PUBLIC_FLAT_RW_ON_SNS; }
-  "/*verilator public_module*/"         { FL; return yVL_PUBLIC_MODULE; }
-  "/*verilator public_on*/"             { FL; return yVL_PUBLIC_ON; }
-  "/*verilator public_off*/"            { FL; return yVL_PUBLIC_OFF; }  // terminates previous 'verilator public*_on'
-  "/*verilator sc_biguint*/"            { FL; return yVL_SC_BIGUINT; }
-  "/*verilator sc_bv*/"                 { FL; return yVL_SC_BV; }
+  "/*verilator no_clocker*/"            { FL; ပြန်ပေး yVL_NO_CLOCKER; }
+  "/*verilator no_inline_module*/"      { FL; ပြန်ပေး yVL_NO_INLINE_MODULE; }
+  "/*verilator no_inline_task*/"        { FL; ပြန်ပေး yVL_NO_INLINE_TASK; }
+  "/*verilator parallel_case*/"         { FL; ပြန်ပေး yVL_PARALLEL_CASE; }
+  "/*verilator public*/"                { FL; ပြန်ပေး yVL_PUBLIC; }
+  "/*verilator public_flat*/"           { FL; ပြန်ပေး yVL_PUBLIC_FLAT; }
+  "/*verilator public_flat_on*/"        { FL; ပြန်ပေး yVL_PUBLIC_FLAT_ON; }
+  "/*verilator public_flat_rd*/"        { FL; ပြန်ပေး yVL_PUBLIC_FLAT_RD; }
+  "/*verilator public_flat_rd_on*/"     { FL; ပြန်ပေး yVL_PUBLIC_FLAT_RD_ON; }
+  "/*verilator public_flat_rw*/"        { FL; ပြန်ပေး yVL_PUBLIC_FLAT_RW; }  // The @(edge) is converted by the preproc
+  "/*verilator public_flat_rw_on*/"     { FL; ပြန်ပေး yVL_PUBLIC_FLAT_RW_ON; }
+  "/*verilator public_flat_rw_on_sns*/" { FL; ပြန်ပေး yVL_PUBLIC_FLAT_RW_ON_SNS; }
+  "/*verilator public_module*/"         { FL; ပြန်ပေး yVL_PUBLIC_MODULE; }
+  "/*verilator public_on*/"             { FL; ပြန်ပေး yVL_PUBLIC_ON; }
+  "/*verilator public_off*/"            { FL; ပြန်ပေး yVL_PUBLIC_OFF; }  // terminates previous 'verilator public*_on'
+  "/*verilator sc_biguint*/"            { FL; ပြန်ပေး yVL_SC_BIGUINT; }
+  "/*verilator sc_bv*/"                 { FL; ပြန်ပေး yVL_SC_BV; }
   "/*verilator sc_clock*/"              { FL; yylval.fl->v3warn(DEPRECATED, "sc_clock is ignored"); FL_BRK; }
-  "/*verilator sformat*/"               { FL; return yVL_SFORMAT; }
-  "/*verilator split_var*/"             { FL; return yVL_SPLIT_VAR; }
+  "/*verilator sformat*/"               { FL; ပြန်ပေး yVL_SFORMAT; }
+  "/*verilator split_var*/"             { FL; ပြန်ပေး yVL_SPLIT_VAR; }
   /* Experimental Verilator-specific FSM coverage controls. These names were
    * chosen to match the current extractor behavior, not a published synthesis
    * or simulator pragma standard, so they may evolve as we settle on longer-
    * term compatibility/aliasing.
    */
-  "/*verilator fsm_arc_include_cond*/"  { FL; return yVL_FSM_ARC_INCL_COND; }
-  "/*verilator fsm_arc_include_cond_auto*/"         { FL; return yVL_FSM_ARC_INCL_COND_AUTO; }
-  "/*verilator fsm_arc_include_cond_auto_expand*/"  { FL; return yVL_FSM_ARC_INCL_COND_AUTO_EXPAND; }
-  "/*verilator fsm_arc_include_cond_full*/"         { FL; return yVL_FSM_ARC_INCL_COND_FULL; }
+  "/*verilator fsm_arc_include_cond*/"  { FL; ပြန်ပေး yVL_FSM_ARC_INCL_COND; }
+  "/*verilator fsm_arc_include_cond_auto*/"         { FL; ပြန်ပေး yVL_FSM_ARC_INCL_COND_AUTO; }
+  "/*verilator fsm_arc_include_cond_auto_expand*/"  { FL; ပြန်ပေး yVL_FSM_ARC_INCL_COND_AUTO_EXPAND; }
+  "/*verilator fsm_arc_include_cond_full*/"         { FL; ပြန်ပေး yVL_FSM_ARC_INCL_COND_FULL; }
   "/*verilator fsm_reset_arc*/"         { FL; yylval.fl->v3warn(DEPRECATED, "/*verilator fsm_reset_arc*/ is deprecated and aliases /*verilator fsm_state*/");
-                                          return yVL_FSM_STATE; }
-  "/*verilator fsm_state*/"             { FL; return yVL_FSM_STATE; }
-  "/*verilator fsm_state_auto*/"        { FL; return yVL_FSM_STATE_AUTO; }
-  "/*verilator fsm_state_auto_expand*/" { FL; return yVL_FSM_STATE_AUTO_EXPAND; }
-  "/*verilator fsm_state_full*/"        { FL; return yVL_FSM_STATE_FULL; }
+                                          ပြန်ပေး yVL_FSM_STATE; }
+  "/*verilator fsm_state*/"             { FL; ပြန်ပေး yVL_FSM_STATE; }
+  "/*verilator fsm_state_auto*/"        { FL; ပြန်ပေး yVL_FSM_STATE_AUTO; }
+  "/*verilator fsm_state_auto_expand*/" { FL; ပြန်ပေး yVL_FSM_STATE_AUTO_EXPAND; }
+  "/*verilator fsm_state_full*/"        { FL; ပြန်ပေး yVL_FSM_STATE_FULL; }
   "/*verilator tag"[^*]*"*/"            { FL; yylval.strp = PARSEP->newString(V3ParseImp::lexParseTag(yytext));
-                                          return yVL_TAG; }
+                                          ပြန်ပေး yVL_TAG; }
   "/*verilator timing_off*/"            { FL_FWD; PARSEP->lexFileline()->timingOn(false); FL_BRK; }
   "/*verilator timing_on*/"             { FL_FWD; PARSEP->lexFileline()->timingOn(true); FL_BRK; }
   "/*verilator tracing_off*/"           { FL_FWD; PARSEP->lexFileline()->tracingOn(false); FL_BRK; }
   "/*verilator tracing_on*/"            { FL_FWD; PARSEP->lexFileline()->tracingOn(true); FL_BRK; }
-  "/*verilator unroll_disable*/"        { FL; return yVL_UNROLL_DISABLE; }
-  "/*verilator unroll_full*/"           { FL; return yVL_UNROLL_FULL; }
+  "/*verilator unroll_disable*/"        { FL; ပြန်ပေး yVL_UNROLL_DISABLE; }
+  "/*verilator unroll_full*/"           { FL; ပြန်ပေး yVL_UNROLL_FULL; }
 
   "/**/"                                { FL_FWD; FL_BRK; }
   "/*"[^*]+"*/"                         { FL; V3ParseImp::lexVerilatorCmtBad(yylval.fl, yytext); FL_BRK; }
@@ -887,33 +887,33 @@ vnum    {vnum1}|{vnum2}|{vnum3}|{vnum4}|{vnum5}
 
   /* Single character operator thingies */
 <V95,V01NC,V01C,V05,VA5,S05,S09,S12,S17,S23,SAX>{
-  "{"                   { FL; return yytext[0]; }
-  "}"                   { FL; return yytext[0]; }
-  "!"                   { FL; return yytext[0]; }
-  "#"                   { FL; return yytext[0]; }
-  "$"                   { FL; return yytext[0]; }
-  "%"                   { FL; return yytext[0]; }
-  "&"                   { FL; return yytext[0]; }
-  "("                   { FL; return yytext[0]; }
-  ")"                   { FL; return yytext[0]; }
-  "*"                   { FL; return yytext[0]; }
-  "+"                   { FL; return yytext[0]; }
-  ","                   { FL; return yytext[0]; }
-  "-"                   { FL; return yytext[0]; }
-  "."                   { FL; return yytext[0]; }
-  "/"                   { FL; return yytext[0]; }
-  ":"                   { FL; return yytext[0]; }
-  ";"                   { FL; return yytext[0]; }
-  "<"                   { FL; return yytext[0]; }
-  "="                   { FL; return yytext[0]; }
-  ">"                   { FL; return yytext[0]; }
-  "?"                   { FL; return yytext[0]; }
-  "@"                   { FL; return yytext[0]; }
-  "["                   { FL; return yytext[0]; }
-  "]"                   { FL; return yytext[0]; }
-  "^"                   { FL; return yytext[0]; }
-  "|"                   { FL; return yytext[0]; }
-  "~"                   { FL; return yytext[0]; }
+  "{"                   { FL; ပြန်ပေး yytext[0]; }
+  "}"                   { FL; ပြန်ပေး yytext[0]; }
+  "!"                   { FL; ပြန်ပေး yytext[0]; }
+  "#"                   { FL; ပြန်ပေး yytext[0]; }
+  "$"                   { FL; ပြန်ပေး yytext[0]; }
+  "%"                   { FL; ပြန်ပေး yytext[0]; }
+  "&"                   { FL; ပြန်ပေး yytext[0]; }
+  "("                   { FL; ပြန်ပေး yytext[0]; }
+  ")"                   { FL; ပြန်ပေး yytext[0]; }
+  "*"                   { FL; ပြန်ပေး yytext[0]; }
+  "+"                   { FL; ပြန်ပေး yytext[0]; }
+  ","                   { FL; ပြန်ပေး yytext[0]; }
+  "-"                   { FL; ပြန်ပေး yytext[0]; }
+  "."                   { FL; ပြန်ပေး yytext[0]; }
+  "/"                   { FL; ပြန်ပေး yytext[0]; }
+  ":"                   { FL; ပြန်ပေး yytext[0]; }
+  ";"                   { FL; ပြန်ပေး yytext[0]; }
+  "<"                   { FL; ပြန်ပေး yytext[0]; }
+  "="                   { FL; ပြန်ပေး yytext[0]; }
+  ">"                   { FL; ပြန်ပေး yytext[0]; }
+  "?"                   { FL; ပြန်ပေး yytext[0]; }
+  "@"                   { FL; ပြန်ပေး yytext[0]; }
+  "["                   { FL; ပြန်ပေး yytext[0]; }
+  "]"                   { FL; ပြန်ပေး yytext[0]; }
+  "^"                   { FL; ပြန်ပေး yytext[0]; }
+  "|"                   { FL; ပြန်ပေး yytext[0]; }
+  "~"                   { FL; ပြန်ပေး yytext[0]; }
 }
 
   /************************************************************************/
@@ -921,139 +921,139 @@ vnum    {vnum1}|{vnum2}|{vnum3}|{vnum4}|{vnum5}
 
   /* Verilog 1995 Operators */
 <V95,V01NC,V01C,V05,VA5,S05,S09,S12,S17,S23,SAX>{
-  "&&"                  { FL; return yP_ANDAND; }
-  "||"                  { FL; return yP_OROR; }
-  "<="                  { FL; return yP_LTE; }
-  ">="                  { FL; return yP_GTE; }
-  "<<"                  { FL; return yP_SLEFT; }
-  ">>"                  { FL; return yP_SRIGHT; }
-  "=="                  { FL; return yP_EQUAL; }
-  "!="                  { FL; return yP_NOTEQUAL; }
-  "==="                 { FL; return yP_CASEEQUAL; }
-  "!=="                 { FL; return yP_CASENOTEQUAL; }
-  "^~"                  { FL; return yP_XNOR; }
-  "~^"                  { FL; return yP_XNOR; }
-  "~&"                  { FL; return yP_NAND; }
-  "~|"                  { FL; return yP_NOR; }
-  "->"                  { FL; return yP_MINUSGT; }
-  "=>"                  { FL; return yP_EQGT; }
-  "*>"                  { FL; return yP_ASTGT; }
-  "&&&"                 { FL; return yP_ANDANDAND; }
+  "&&"                  { FL; ပြန်ပေး yP_ANDAND; }
+  "||"                  { FL; ပြန်ပေး yP_OROR; }
+  "<="                  { FL; ပြန်ပေး yP_LTE; }
+  ">="                  { FL; ပြန်ပေး yP_GTE; }
+  "<<"                  { FL; ပြန်ပေး yP_SLEFT; }
+  ">>"                  { FL; ပြန်ပေး yP_SRIGHT; }
+  "=="                  { FL; ပြန်ပေး yP_EQUAL; }
+  "!="                  { FL; ပြန်ပေး yP_NOTEQUAL; }
+  "==="                 { FL; ပြန်ပေး yP_CASEEQUAL; }
+  "!=="                 { FL; ပြန်ပေး yP_CASENOTEQUAL; }
+  "^~"                  { FL; ပြန်ပေး yP_XNOR; }
+  "~^"                  { FL; ပြန်ပေး yP_XNOR; }
+  "~&"                  { FL; ပြန်ပေး yP_NAND; }
+  "~|"                  { FL; ပြန်ပေး yP_NOR; }
+  "->"                  { FL; ပြန်ပေး yP_MINUSGT; }
+  "=>"                  { FL; ပြန်ပေး yP_EQGT; }
+  "*>"                  { FL; ပြန်ပေး yP_ASTGT; }
+  "&&&"                 { FL; ပြန်ပေး yP_ANDANDAND; }
 }
 
   /* Verilog 2001 Operators */
 <V01NC,V01C,V05,VA5,S05,S09,S12,S17,S23,SAX>{
-  "<<<"                 { FL; return yP_SLEFT; }
-  ">>>"                 { FL; return yP_SSRIGHT; }
-  "**"                  { FL; return yP_POW; }
-  "+:"                  { FL; return yP_PLUSCOLON; }
-  "-:"                  { FL; return yP_MINUSCOLON; }
-  ".*"                  { FL; return yP_DOTSTAR; }
+  "<<<"                 { FL; ပြန်ပေး yP_SLEFT; }
+  ">>>"                 { FL; ပြန်ပေး yP_SSRIGHT; }
+  "**"                  { FL; ပြန်ပေး yP_POW; }
+  "+:"                  { FL; ပြန်ပေး yP_PLUSCOLON; }
+  "-:"                  { FL; ပြန်ပေး yP_MINUSCOLON; }
+  ".*"                  { FL; ပြန်ပေး yP_DOTSTAR; }
   ":+"                  { FL; yyless(1);
                           yylval.fl->v3warn(COLONPLUS, "Perhaps instead of ':+' the intent was '+:'?");
-                          return ':'; }
+                          ပြန်ပေး ':'; }
 }
 
   /* SystemVerilog Operators */
 <S05,S09,S12,S17,S23,SAX>{
-  "'"                   { FL; return yP_TICK; }
-  "'{"                  { FL; return yP_TICKBRA; }
-  "==?"                 { FL; return yP_WILDEQUAL; }
-  "!=?"                 { FL; return yP_WILDNOTEQUAL; }
-  "++"                  { FL; return yP_PLUSPLUS; }
-  "--"                  { FL; return yP_MINUSMINUS; }
-  "+="                  { FL; return yP_PLUSEQ; }
-  "-="                  { FL; return yP_MINUSEQ; }
-  "*="                  { FL; return yP_TIMESEQ; }
-  "/="                  { FL; return yP_DIVEQ; }
-  "%="                  { FL; return yP_MODEQ; }
-  "&="                  { FL; return yP_ANDEQ; }
-  "|="                  { FL; return yP_OREQ; }
-  "^="                  { FL; return yP_XOREQ; }
-  "<<="                 { FL; return yP_SLEFTEQ; }
-  ">>="                 { FL; return yP_SRIGHTEQ; }
-  "<<<="                { FL; return yP_SLEFTEQ; }
-  ">>>="                { FL; return yP_SSRIGHTEQ; }
-  "->>"                 { FL; return yP_MINUSGTGT; }
-  "##"                  { FL; return yP_POUNDPOUND; }
-  "#-#"                 { FL; return yP_POUNDMINUSPD; }
-  "#=#"                 { FL; return yP_POUNDEQPD; }
-  "@@"                  { FL; return yP_ATAT; }
-  "::"                  { FL; return yP_COLONCOLON; }
-  ":="                  { FL; return yP_COLONEQ; }
-  ":/"/[^\/\*]          { FL; return yP_COLONDIV; }  /* : then comment is not ":/" */
-  "|->"                 { FL; return yP_ORMINUSGT; }
-  "|=>"                 { FL; return yP_OREQGT; }
+  "'"                   { FL; ပြန်ပေး yP_TICK; }
+  "'{"                  { FL; ပြန်ပေး yP_TICKBRA; }
+  "==?"                 { FL; ပြန်ပေး yP_WILDEQUAL; }
+  "!=?"                 { FL; ပြန်ပေး yP_WILDNOTEQUAL; }
+  "++"                  { FL; ပြန်ပေး yP_PLUSPLUS; }
+  "--"                  { FL; ပြန်ပေး yP_MINUSMINUS; }
+  "+="                  { FL; ပြန်ပေး yP_PLUSEQ; }
+  "-="                  { FL; ပြန်ပေး yP_MINUSEQ; }
+  "*="                  { FL; ပြန်ပေး yP_TIMESEQ; }
+  "/="                  { FL; ပြန်ပေး yP_DIVEQ; }
+  "%="                  { FL; ပြန်ပေး yP_MODEQ; }
+  "&="                  { FL; ပြန်ပေး yP_ANDEQ; }
+  "|="                  { FL; ပြန်ပေး yP_OREQ; }
+  "^="                  { FL; ပြန်ပေး yP_XOREQ; }
+  "<<="                 { FL; ပြန်ပေး yP_SLEFTEQ; }
+  ">>="                 { FL; ပြန်ပေး yP_SRIGHTEQ; }
+  "<<<="                { FL; ပြန်ပေး yP_SLEFTEQ; }
+  ">>>="                { FL; ပြန်ပေး yP_SSRIGHTEQ; }
+  "->>"                 { FL; ပြန်ပေး yP_MINUSGTGT; }
+  "##"                  { FL; ပြန်ပေး yP_POUNDPOUND; }
+  "#-#"                 { FL; ပြန်ပေး yP_POUNDMINUSPD; }
+  "#=#"                 { FL; ပြန်ပေး yP_POUNDEQPD; }
+  "@@"                  { FL; ပြန်ပေး yP_ATAT; }
+  "::"                  { FL; ပြန်ပေး yP_COLONCOLON; }
+  ":="                  { FL; ပြန်ပေး yP_COLONEQ; }
+  ":/"/[^\/\*]          { FL; ပြန်ပေး yP_COLONDIV; }  /* : then comment is not ":/" */
+  "|->"                 { FL; ပြန်ပေး yP_ORMINUSGT; }
+  "|=>"                 { FL; ပြန်ပေး yP_OREQGT; }
   /* Some simulators allow whitespace here. Grr */
-  "["{ws}*"*"           { FL; return yP_BRASTAR; }
-  "["{ws}*"+"{ws}*"]"   { FL; return yP_BRAPLUSKET; }
-  "["{ws}*"->"          { FL; return yP_BRAMINUSGT; }
-  "["{ws}*"="           { FL; return yP_BRAEQ; }
+  "["{ws}*"*"           { FL; ပြန်ပေး yP_BRASTAR; }
+  "["{ws}*"+"{ws}*"]"   { FL; ပြန်ပေး yP_BRAPLUSKET; }
+  "["{ws}*"->"          { FL; ပြန်ပေး yP_BRAMINUSGT; }
+  "["{ws}*"="           { FL; ပြန်ပေး yP_BRAEQ; }
 }
 
   /* SystemVerilog 2009 Operators */
 <S09,S12,S17,S23,SAX,VLT>{
-  "<->"                 { FL; return yP_LTMINUSGT; }
+  "<->"                 { FL; ပြန်ပေး yP_LTMINUSGT; }
 }
 
   /* SystemVerilog 2023 Operators */
 <S23,SAX,VLT>{
-  "+/-"                 { FL; return yP_PLUSSLASHMINUS; }
-  "+%-"                 { FL; return yP_PLUSPCTMINUS; }
+  "+/-"                 { FL; ပြန်ပေး yP_PLUSSLASHMINUS; }
+  "+%-"                 { FL; ပြန်ပေး yP_PLUSPCTMINUS; }
 }
 
   /* Identifiers and numbers */
 <V95,V01NC,V01C,V05,VA5,S05,S09,S12,S17,S23,SAX,VLT>{
   {escid}               { FL; yylval.strp = PARSEP->newString
                                   (AstNode::encodeName(std::string{yytext+1}));  // +1 to skip the backslash
-                          return yaID__LEX;
+                          ပြန်ပေး yaID__LEX;
                         }
   {id}                  { FL; yylval.strp = PARSEP->newString(AstNode::encodeName(std::string{yytext}));
-                          return yaID__LEX;
+                          ပြန်ပေး yaID__LEX;
                         }
   \"[^\"\\]*\"          { FL; yylval.strp = PARSEP->newString(yytext+1, yyleng-2);
-                          return yaSTRING;
+                          ပြန်ပေး yaSTRING;
                         }
   \"                    { yy_push_state(STRING); PARSEP->lexString().clear(); }
   \"\"\"                { yy_push_state(QQQ); PARSEP->lexString().clear(); }
   {vnum}                {
                           /* "# 1'b0" is a delay value so must lex as "#" "1" "'b0" */
-                          if (PARSEP->lexPrevToken()=='#') {
-                              int shortlen = 0;
-                              if (std::isdigit(yytext[shortlen])) {
-                                  while (std::isdigit(yytext[shortlen])
+                          အကယ်၍ (PARSEP->lexPrevToken()=='#') {
+                              ကိန်းပြည့် shortlen = 0;
+                              အကယ်၍ (std::isdigit(yytext[shortlen])) {
+                                  နေစဉ် (std::isdigit(yytext[shortlen])
                                          || yytext[shortlen]=='_') ++shortlen;
                               }
-                              if (shortlen) {
+                              အကယ်၍ (shortlen) {
                                   // Push rest past numbers for later parse
                                   PARSEP->lexUnputString(yytext + shortlen, yyleng - shortlen);
                                   // Return is stuff before the tick
                                   yyleng = shortlen;
                                   yytext[yyleng] = '\0';
-                                  FL; yylval.nump = PARSEP->newNumber(yylval.fl, (char*)yytext);
-                                  return yaINTNUM;
+                                  FL; yylval.nump = PARSEP->newNumber(yylval.fl, (var_na*)yytext);
+                                  ပြန်ပေး yaINTNUM;
                               }
                           }
-                          FL; yylval.nump = PARSEP->newNumber(yylval. fl, (char*)yytext);
-                          return yaINTNUM;
+                          FL; yylval.nump = PARSEP->newNumber(yylval. fl, (var_na*)yytext);
+                          ပြန်ပေး yaINTNUM;
                         }
   [0-9][_0-9]*          {
-                          FL; yylval.nump = PARSEP->newNumber(yylval.fl, (char*)yytext);
-                          return yaINTNUM;
+                          FL; yylval.nump = PARSEP->newNumber(yylval.fl, (var_na*)yytext);
+                          ပြန်ပေး yaINTNUM;
                         }
   [0-9][_0-9]*(\.[_0-9]+)([eE][-+]?[_0-9]+)? {
                           FL; yylval.cdouble = lexParseDouble(yylval.fl, yytext, yyleng);
-                          return yaFLOATNUM;
+                          ပြန်ပေး yaFLOATNUM;
                         }
   [0-9][_0-9]*(\.[_0-9]+)?([eE][-+]?[_0-9]+) {
                           FL; yylval.cdouble = lexParseDouble(yylval.fl, yytext, yyleng);
-                          return yaFLOATNUM;
+                          ပြန်ပေး yaFLOATNUM;
                         }
   [0-9][_0-9]*(\.[_0-9]+)?(fs|ps|ns|us|ms|s) {
                           FL; yylval.cdouble = V3ParseImp::lexParseTimenum(yytext);
-                          return yaTIMENUM;
+                          ပြန်ပေး yaTIMENUM;
                         }
-  1step                 { FL; return y1STEP; }
+  1step                 { FL; ပြန်ပေး y1STEP; }
 }
 
   /************************************************************************/
@@ -1069,7 +1069,7 @@ vnum    {vnum1}|{vnum2}|{vnum3}|{vnum4}|{vnum5}
                                                               PARSEP->lexString().size(), true);
                           PARSEP->lexFileline()->forwardToken("\"", 1, true);
                           FL; yylval.strp = PARSEP->newString(PARSEP->lexString());
-                          return yaSTRING; }
+                          ပြန်ပေး yaSTRING; }
 <STRING>{word}          { PARSEP->lexString().append(yytext, yyleng); }
 <STRING>.               { PARSEP->lexString().append(yytext, yyleng); }
 
@@ -1085,7 +1085,7 @@ vnum    {vnum1}|{vnum2}|{vnum3}|{vnum4}|{vnum5}
                                                               PARSEP->lexString().size(), true);
                           PARSEP->lexFileline()->forwardToken("\"\"\"", 3, true);
                           FL; yylval.strp = PARSEP->newString(PARSEP->lexString());
-                          return yaSTRING; }
+                          ပြန်ပေး yaSTRING; }
 <QQQ>\"                 { PARSEP->lexString().append(yytext, yyleng); }
 <QQQ>{word}             { PARSEP->lexString().append(yytext, yyleng); }
 <QQQ>.                  { PARSEP->lexString().append(yytext, yyleng); }
@@ -1108,24 +1108,24 @@ vnum    {vnum1}|{vnum2}|{vnum3}|{vnum4}|{vnum5}
 
   /************************************************************************/
   /* Tables */
-<TABLE>[rRfFpPnN\*]                     { FL; yylval.strp = PARSEP->newString(yytext, yyleng); return yaTABLE_FIELD; }  /* edge_symbol */
-<TABLE>[01xX\?bB\-]                     { FL; yylval.strp = PARSEP->newString(yytext, yyleng); return yaTABLE_FIELD; }  /* level_symbol, next_state */
-<TABLE>":"                              { FL; return yaTABLE_LRSEP; }  /* LHS and RHS separator for table line. */
-<TABLE>";"                              { FL; return yaTABLE_LINEEND; }
-<TABLE>[\(\)]                           { FL; return yytext[0]; }
+<TABLE>[rRfFpPnN\*]                     { FL; yylval.strp = PARSEP->newString(yytext, yyleng); ပြန်ပေး yaTABLE_FIELD; }  /* edge_symbol */
+<TABLE>[01xX\?bB\-]                     { FL; yylval.strp = PARSEP->newString(yytext, yyleng); ပြန်ပေး yaTABLE_FIELD; }  /* level_symbol, next_state */
+<TABLE>":"                              { FL; ပြန်ပေး yaTABLE_LRSEP; }  /* LHS and RHS separator for table line. */
+<TABLE>";"                              { FL; ပြန်ပေး yaTABLE_LINEEND; }
+<TABLE>[\(\)]                           { FL; ပြန်ပေး yytext[0]; }
 <TABLE>{ws}|(\\){0,1}{crnl}             { FL_FWD; FL_BRK; }
 <TABLE>"`line"{ws}+[^\n\r]*{crnl}       { FL_FWD; PARSEP->lexPpline(yytext); FL_BRK; }
 <TABLE>"//"[^\n]*                       { FL_FWD; FL_BRK; }  /* Throw away single line comments */
-<TABLE>"endtable"                       { FL; yy_pop_state(); return yENDTABLE; }
+<TABLE>"endtable"                       { FL; yy_pop_state(); ပြန်ပေး yENDTABLE; }
 <TABLE><<EOF>>                          { FL; yylval.fl->v3error("EOF in 'table'");
                                               yyleng = 0; yy_pop_state(); FL_BRK; yyterminate(); }
 
 <EDGEDESC>{
-  01|10|[01][zZxX]|[zZxX][01]  { FL; return yaEDGEDESC; }
+  01|10|[01][zZxX]|[zZxX][01]  { FL; ပြန်ပေး yaEDGEDESC; }
 }
-<EDGEDESC>","|"["         { FL; return yytext[0]; }
+<EDGEDESC>","|"["         { FL; ပြန်ပေး yytext[0]; }
 <EDGEDESC>{ws}            { FL_FWD; FL_BRK; }  /* otherwise ignore white-space */
-<EDGEDESC>"]"             { FL; yy_pop_state(); return yytext[0]; }
+<EDGEDESC>"]"             { FL; yy_pop_state(); ပြန်ပေး yytext[0]; }
 
   /************************************************************************/
   /* Preprocessor */
@@ -1161,7 +1161,7 @@ vnum    {vnum1}|{vnum2}|{vnum3}|{vnum4}|{vnum5}
   "`noremove_gatenames"                 { FL_FWD; FL_BRK; }  // Verilog-XL compatibility
   "`noremove_netnames"                  { FL_FWD; FL_BRK; }  // Verilog-XL compatibility
   "`nosuppress_faults"                  { FL_FWD; FL_BRK; }  // Verilog-XL compatibility
-  "`nounconnected_drive"                { FL; return yaT_NOUNCONNECTED; }
+  "`nounconnected_drive"                { FL; ပြန်ပေး yaT_NOUNCONNECTED; }
   "`portcoerce"                         { FL_FWD; FL_BRK; }
   "`pragma"{ws}*[^\n\r]*                { FL_FWD; FL_BRK; }  // Verilog 2005
   "`protect"                            { FL_FWD; FL_BRK; }
@@ -1172,13 +1172,13 @@ vnum    {vnum1}|{vnum2}|{vnum3}|{vnum4}|{vnum5}
                                           v3Global.rootp()->timeInit();
                                           PARSEP->lexFileline()->celldefineOn(false);
                                           PARSEP->unconnectedDrive(VOptionBool::OPT_DEFAULT_FALSE);
-                                          return yaT_RESETALL; }  // Rest handled by preproc
+                                          ပြန်ပေး yaT_RESETALL; }  // Rest handled by preproc
   "`suppress_faults"                    { FL_FWD; FL_BRK; }  // Verilog-XL compatibility
   "`timescale"{ws}+[^\n\r]*             { FL; PARSEP->lexTimescaleParse(yylval.fl,
                                                                         yytext + std::strlen("`timescale"));
                                           FL_BRK; }
-  "`unconnected_drive"{ws}+"pull0"      { FL; return yaT_UNCONNECTED_PULL0; }
-  "`unconnected_drive"{ws}+"pull1"      { FL; return yaT_UNCONNECTED_PULL1; }
+  "`unconnected_drive"{ws}+"pull0"      { FL; ပြန်ပေး yaT_UNCONNECTED_PULL0; }
+  "`unconnected_drive"{ws}+"pull1"      { FL; ပြန်ပေး yaT_UNCONNECTED_PULL1; }
   "`unconnected_drive"                  { FL; yylval.fl->v3error("Bad `unconnected_drive syntax"); FL_BRK; }
   "`uselib"{ws}+[^\n\r]*                { FL_FWD; FL_BRK; }  // Verilog-XL compatibility
 
@@ -1195,9 +1195,9 @@ vnum    {vnum1}|{vnum2}|{vnum3}|{vnum4}|{vnum5}
   "`begin_keywords"[ \t]*\"1800-2023\"          { FL_FWD; yy_push_state(S23); PARSEP->lexPushKeywords(YY_START); FL_BRK; }
   "`begin_keywords"[ \t]*\"1800[+]VAMS\"        { FL_FWD; yy_push_state(SAX); PARSEP->lexPushKeywords(YY_START); FL_BRK; }  /*Latest SV*/
   "`end_keywords"                               { FL;
-                                                  if (!PARSEP->lexPopKeywords()) {
+                                                  အကယ်၍ (!PARSEP->lexPopKeywords()) {
                                                       yylval.fl->v3error("`end_keywords when not inside `begin_keywords block");
-                                                  } else { yy_pop_state(); }
+                                                  } မဟုတ်ပါက { yy_pop_state(); }
                                                   FL_BRK; }
 
   /* Verilator */
@@ -1220,13 +1220,13 @@ vnum    {vnum1}|{vnum2}|{vnum3}|{vnum4}|{vnum5}
   /* If add to this list also add to V3LanguageWords.h */
 }
 
-<SYSCHDR>[ \t]*[^` \t\n\r][^\n\r]*{crnl}        { FL; yylval.strp = PARSEP->newString(yytext); return yaSCHDR; }
-<SYSCHDRP>[ \t]*[^` \t\n\r][^\n\r]*{crnl}       { FL; yylval.strp = PARSEP->newString(yytext); return yaSCHDRP; }
-<SYSCINT>[ \t]*[^` \t\n\r][^\n\r]*{crnl}        { FL; yylval.strp = PARSEP->newString(yytext); return yaSCINT; }
-<SYSCIMP>[ \t]*[^` \t\n\r][^\n\r]*{crnl}        { FL; yylval.strp = PARSEP->newString(yytext); return yaSCIMP; }
-<SYSCIMPH>[ \t]*[^` \t\n\r][^\n\r]*{crnl}       { FL; yylval.strp = PARSEP->newString(yytext); return yaSCIMPH; }
-<SYSCCTOR>[ \t]*[^` \t\n\r][^\n\r]*{crnl}       { FL; yylval.strp = PARSEP->newString(yytext); return yaSCCTOR; }
-<SYSCDTOR>[ \t]*[^` \t\n\r][^\n\r]*{crnl}       { FL; yylval.strp = PARSEP->newString(yytext); return yaSCDTOR; }
+<SYSCHDR>[ \t]*[^` \t\n\r][^\n\r]*{crnl}        { FL; yylval.strp = PARSEP->newString(yytext); ပြန်ပေး yaSCHDR; }
+<SYSCHDRP>[ \t]*[^` \t\n\r][^\n\r]*{crnl}       { FL; yylval.strp = PARSEP->newString(yytext); ပြန်ပေး yaSCHDRP; }
+<SYSCINT>[ \t]*[^` \t\n\r][^\n\r]*{crnl}        { FL; yylval.strp = PARSEP->newString(yytext); ပြန်ပေး yaSCINT; }
+<SYSCIMP>[ \t]*[^` \t\n\r][^\n\r]*{crnl}        { FL; yylval.strp = PARSEP->newString(yytext); ပြန်ပေး yaSCIMP; }
+<SYSCIMPH>[ \t]*[^` \t\n\r][^\n\r]*{crnl}       { FL; yylval.strp = PARSEP->newString(yytext); ပြန်ပေး yaSCIMPH; }
+<SYSCCTOR>[ \t]*[^` \t\n\r][^\n\r]*{crnl}       { FL; yylval.strp = PARSEP->newString(yytext); ပြန်ပေး yaSCCTOR; }
+<SYSCDTOR>[ \t]*[^` \t\n\r][^\n\r]*{crnl}       { FL; yylval.strp = PARSEP->newString(yytext); ပြန်ပေး yaSCDTOR; }
 
   /* Pick up text-type data */
 <SYSCHDR,SYSCHDRP,SYSCINT,SYSCIMP,SYSCIMPH,SYSCCTOR,SYSCDTOR>{
@@ -1240,7 +1240,7 @@ vnum    {vnum1}|{vnum2}|{vnum3}|{vnum4}|{vnum5}
 <V95,V01NC,V01C,V05,VA5,S05,S09,S12,S17,S23,SAX,VLT>{
   "`"[a-zA-Z_0-9]+      { FL; V3ParseImp::lexErrorPreprocDirective(yylval.fl, yytext); FL_BRK; }
   "//"[^\n]*            { FL_FWD; FL_BRK; }  /* throw away single line comments */
-  .                     { FL; return yytext[0]; }  /* return single char ops. */
+  .                     { FL; ပြန်ပေး yytext[0]; }  /* return single char ops. */
 }
 
   /* Catch all - absolutely last */
@@ -1252,4 +1252,4 @@ vnum    {vnum1}|{vnum2}|{vnum3}|{vnum4}|{vnum5}
 // Avoid code here as cl format misindents
 // For implementation functions see V3ParseImp.cpp
 
-int V3ParseImp::stateVerilogRecent() { return STATE_VERILOG_RECENT; }
+ကိန်းပြည့် V3ParseImp::stateVerilogRecent() { ပြန်ပေး STATE_VERILOG_RECENT; }

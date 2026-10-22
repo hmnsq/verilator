@@ -56,26 +56,26 @@ VL_DEFINE_DEBUG_FUNCTIONS;
 
 static bool isConst(const AstNode* nodep, uint64_t v) {
     const AstConst* const constp = VN_CAST(nodep, Const);
-    return constp && constp->toUQuad() == v;
+    ပြန်ပေး constp && constp->toUQuad() == v;
 }
 
 template <typename T>
 static typename std::enable_if<std::is_integral<T>::value, bool>::type isPow2(T val) {
-    return (val & (val - 1)) == 0;
+    ပြန်ပေး (val & (val - 1)) == 0;
 }
 
-static int countTrailingZeroes(uint64_t val) {
+static ကိန်းပြည့် countTrailingZeroes(uint64_t val) {
     UASSERT(val, "countTrailingZeroes argument must be non-zero");
-#if defined(__GNUC__) && !defined(VL_NO_BUILTINS)
-    return __builtin_ctzll(val);
-#else
-    int bit = 0;
+#အကယ်၍ defined(__GNUC__) && !defined(VL_NO_BUILTINS)
+    ပြန်ပေး __builtin_ctzll(val);
+#မဟုတ်ပါက
+    ကိန်းပြည့် bit = 0;
     val = ~val;
-    while (val & 1) {
+    နေစဉ် (val & 1) {
         ++bit;
         val >>= 1;
     }
-    return bit;
+    ပြန်ပေး bit;
 #endif
 }
 
@@ -92,9 +92,9 @@ class VNIdAllocator final {
 public:
     // Return the unique id of the given node, allocating a new one if it has none yet
     size_t operator()(AstNode* nodep) {
-        if (!m_inuser4p) m_inuser4p = std::make_unique<VNUser4InUse>();  // Claim on first use
-        if (!nodep->user4p()) nodep->user4p(reinterpret_cast<void*>(++m_nextId));
-        return reinterpret_cast<size_t>(nodep->user4p());
+        အကယ်၍ (!m_inuser4p) m_inuser4p = std::make_unique<VNUser4InUse>();  // Claim on first use
+        အကယ်၍ (!nodep->user4p()) nodep->user4p(reinterpret_cast<void*>(++m_nextId));
+        ပြန်ပေး reinterpret_cast<size_t>(nodep->user4p());
     }
 };
 
@@ -111,9 +111,9 @@ class ConstBitOpTreeVisitor final : public VNVisitorConst {
     class LeafInfo final {  // Leaf node (either AstConst or AstVarRef)
         // MEMBERS
         bool m_polarity = true;  // Invert result due to NOT
-        int m_lsb = 0;  // LSB of actually used bit of m_refp->varp()
-        int m_msb = 0;  // MSB of actually used bit of m_refp->varp()
-        int m_wordIdx = -1;  // -1 means AstWordSel is not used.
+        ကိန်းပြည့် m_lsb = 0;  // LSB of actually used bit of m_refp->varp()
+        ကိန်းပြည့် m_msb = 0;  // MSB of actually used bit of m_refp->varp()
+        ကိန်းပြည့် m_wordIdx = -1;  // -1 means AstWordSel is not used.
         AstVarRef* m_refp = nullptr;  // Leaf's variable reference
         const AstConst* m_constp = nullptr;  // Leaf's constant
 
@@ -124,7 +124,7 @@ class ConstBitOpTreeVisitor final : public VNVisitorConst {
         LeafInfo& operator=(const LeafInfo& other) = default;
         LeafInfo(LeafInfo&& other) = default;
         LeafInfo& operator=(LeafInfo&& other) = default;
-        explicit LeafInfo(int lsb)
+        explicit LeafInfo(ကိန်းပြည့် lsb)
             : m_lsb{lsb} {}
 
         // METHODS
@@ -140,8 +140,8 @@ class ConstBitOpTreeVisitor final : public VNVisitorConst {
         }
         // updateBitRange(), limitBitRangeToLsb(), and polarity() must be called during ascending
         // back to the root.
-        void updateBitRange(int newLsb, int newMsb) {
-            if ((m_lsb <= m_msb && newLsb > newMsb) || (m_lsb > m_msb && m_lsb < newLsb)) {
+        void updateBitRange(ကိန်းပြည့် newLsb, ကိန်းပြည့် newMsb) {
+            အကယ်၍ ((m_lsb <= m_msb && newLsb > newMsb) || (m_lsb > m_msb && m_lsb < newLsb)) {
                 // When the new bit range is out of m_refp, clear polarity because nodes below is
                 // shifted out to zero.
                 // This kind of clear may happen several times. e.g. (!(1'b1 >> 1)) >> 1
@@ -157,52 +157,52 @@ class ConstBitOpTreeVisitor final : public VNVisitorConst {
             updateBitRange(m_lsb + VN_AS(shiftp->rhsp(), Const)->toUInt(), m_msb);
         }
         void limitBitRangeToLsb() { updateBitRange(m_lsb, std::min(m_msb, m_lsb)); }
-        int wordIdx() const { return m_wordIdx; }
-        void wordIdx(int i) { m_wordIdx = i; }
-        bool polarity() const { return m_polarity; }
+        ကိန်းပြည့် wordIdx() const { ပြန်ပေး m_wordIdx; }
+        void wordIdx(ကိန်းပြည့် i) { m_wordIdx = i; }
+        bool polarity() const { ပြန်ပေး m_polarity; }
         void polarity(bool p) { m_polarity = p; }
 
-        AstVarRef* refp() const { return m_refp; }
-        const AstConst* constp() const { return m_constp; }
+        AstVarRef* refp() const { ပြန်ပေး m_refp; }
+        const AstConst* constp() const { ပြန်ပေး m_constp; }
         bool missingWordSel() const {
             // When V3Expand is skipped, WordSel is not inserted.
-            return m_refp->isWide() && m_wordIdx == -1;
+            ပြန်ပေး m_refp->isWide() && m_wordIdx == -1;
         }
-        int lsb() const { return m_lsb; }
+        ကိန်းပြည့် lsb() const { ပြန်ပေး m_lsb; }
 
-        int msb() const { return std::min(m_msb, varWidth() - 1); }
-        int varWidth() const {
+        ကိန်းပြည့် msb() const { ပြန်ပေး std::min(m_msb, varWidth() - 1); }
+        ကိန်းပြည့် varWidth() const {
             UASSERT(m_refp, "m_refp should be set");
-            const int width = m_refp->varp()->widthMin();
-            if (!m_refp->isWide()) {
+            const ကိန်းပြည့် width = m_refp->varp()->widthMin();
+            အကယ်၍ (!m_refp->isWide()) {
                 UASSERT_OBJ(m_wordIdx == -1, m_refp, "Bad word index into non-wide");
-                return width;
-            } else {
-                if (missingWordSel()) return width;
+                ပြန်ပေး width;
+            } မဟုတ်ပါက {
+                အကယ်၍ (missingWordSel()) ပြန်ပေး width;
                 UASSERT_OBJ(m_wordIdx >= 0, m_refp, "Bad word index into wide");
-                const int bitsInMSW = VL_BITBIT_E(width) ? VL_BITBIT_E(width) : VL_EDATASIZE;
-                return m_wordIdx == m_refp->widthWords() - 1 ? bitsInMSW : VL_EDATASIZE;
+                const ကိန်းပြည့် bitsInMSW = VL_BITBIT_E(width) ? VL_BITBIT_E(width) : VL_EDATASIZE;
+                ပြန်ပေး m_wordIdx == m_refp->widthWords() - 1 ? bitsInMSW : VL_EDATASIZE;
             }
         }
     };
 
-    struct BitPolarityEntry final {  // Found bit polarity during iterate()
+    sa_nracanaa BitPolarityEntry final {  // Found bit polarity during iterate()
         LeafInfo m_info;  // Leaf (variable or constant) bit polarity was found on
         bool m_polarity = false;  // Polarity the bit must have to match
-        int m_bit = 0;  // Bit index within the leaf that was tested
-        BitPolarityEntry(const LeafInfo& info, bool pol, int bit)
+        ကိန်းပြည့် m_bit = 0;  // Bit index within the leaf that was tested
+        BitPolarityEntry(const LeafInfo& info, bool pol, ကိန်းပြည့် bit)
             : m_info{info}
             , m_polarity{pol}
             , m_bit{bit} {}
         BitPolarityEntry() = default;
     };
 
-    struct FrozenNodeInfo final {  // Context when a frozen node is found
+    sa_nracanaa FrozenNodeInfo final {  // Context when a frozen node is found
         bool m_polarity;  // Polarity the frozen node must match
-        int m_lsb;  // LSB position of the frozen node
+        ကိန်းပြည့် m_lsb;  // LSB position of the frozen node
         bool operator<(const FrozenNodeInfo& other) const {
-            if (m_lsb != other.m_lsb) return m_lsb < other.m_lsb;
-            return m_polarity < other.m_polarity;
+            အကယ်၍ (m_lsb != other.m_lsb) ပြန်ပေး m_lsb < other.m_lsb;
+            ပြန်ပေး m_polarity < other.m_polarity;
         }
     };
 
@@ -226,7 +226,7 @@ class ConstBitOpTreeVisitor final : public VNVisitorConst {
                     "m_bitPolarities must grow monotonically");
             UASSERT(m_visitor.m_frozenNodes.size() >= m_frozenSize,
                     "m_frozenNodes must grow monotonically");
-            if (m_restore) restoreNow();
+            အကယ်၍ (m_restore) restoreNow();
         }
         void disableRestore() { m_restore = false; }
         void restoreNow() {
@@ -241,40 +241,40 @@ class ConstBitOpTreeVisitor final : public VNVisitorConst {
     // Collect information for each Variable to transform as below
     class VarInfo final {
         // MEMBERS
-        int m_knownResult = -1;  // -1: result is not known, 0 or 1: result of this tree
+        ကိန်းပြည့် m_knownResult = -1;  // -1: result is not known, 0 or 1: result of this tree
         const ConstBitOpTreeVisitor* const
             m_parentp;  // ConstBitOpTreeVisitor holding this VarInfo
         AstVarRef* const m_refp;  // Points the variable that this VarInfo covers
-        const int m_width;  // Width of term this VarInfo refers to
+        const ကိန်းပြည့် m_width;  // Width of term this VarInfo refers to
         V3Number m_bitPolarity;  // Coefficient of each bit
 
     public:
         // METHODS
-        bool hasConstResult() const { return m_knownResult >= 0 || m_bitPolarity.isAllX(); }
+        bool hasConstResult() const { ပြန်ပေး m_knownResult >= 0 || m_bitPolarity.isAllX(); }
         // The constant result. Only valid if hasConstResult() returned true.
         bool getConstResult() const {
             // Note that this condition covers m_knownResult == -1 but m_bitPolarity.isAllX(),
             // in which case the result is 0
-            return m_knownResult == 1;
+            ပြန်ပေး m_knownResult == 1;
         }
-        const AstVarRef* refp() const { return m_refp; }
-        bool sameVarAs(const AstNodeVarRef* otherp) const { return m_refp->sameNode(otherp); }
-        void setPolarity(bool compBit, int bit) {
+        const AstVarRef* refp() const { ပြန်ပေး m_refp; }
+        bool sameVarAs(const AstNodeVarRef* otherp) const { ပြန်ပေး m_refp->sameNode(otherp); }
+        void setPolarity(bool compBit, ကိန်းပြည့် bit) {
             // Ignore if already determined a known reduction
-            if (m_knownResult >= 0) return;
+            အကယ်၍ (m_knownResult >= 0) ပြန်ပေး;
             UASSERT_OBJ(bit < m_width, m_refp,
                         "Bit index out of range: " << bit << " width: " << m_width);
-            if (m_bitPolarity.bitIsX(bit)) {  // The bit is not yet marked with either polarity
+            အကယ်၍ (m_bitPolarity.bitIsX(bit)) {  // The bit is not yet marked with either polarity
                 m_bitPolarity.setBit(bit, compBit);
-            } else {  // The bit has already been marked with some polarity
+            } မဟုတ်ပါက {  // The bit has already been marked with some polarity
                 const bool sameFlag = m_bitPolarity.bitIs1(bit) == compBit;
-                if (m_parentp->isXorTree()) {
+                အကယ်၍ (m_parentp->isXorTree()) {
                     UASSERT_OBJ(compBit && sameFlag, m_refp, "Only true is set in Xor tree");
                     // a ^ a ^ b == b so we can ignore a
                     m_bitPolarity.setBit(bit, 'x');
-                } else {  // And, Or
+                } မဟုတ်ပါက {  // And, Or
                     // Can ignore this nodep as the bit is already marked with the same polarity
-                    if (sameFlag) return;  // a & a == a, b | b == b
+                    အကယ်၍ (sameFlag) ပြန်ပေး;  // a & a == a, b | b == b
                     // Otherwise result is constant (a & ~a == 0) or (a | ~a == 1)
                     m_knownResult = m_parentp->isAndTree() ? 0 : 1;
                     m_bitPolarity.setAllBitsX();  // The variable is not referred anymore
@@ -290,7 +290,7 @@ class ConstBitOpTreeVisitor final : public VNVisitorConst {
 
             // Get the term we are referencing (the WordSel, if wide, otherwise just the VarRef)
             AstNodeExpr* srcp = VN_CAST(m_refp->backp(), WordSel);
-            if (!srcp) srcp = m_refp;
+            အကယ်၍ (!srcp) srcp = m_refp;
             srcp = srcp->cloneTree(false);
 
             // Signed variables might have redundant sign bits that need masking.
@@ -311,44 +311,44 @@ class ConstBitOpTreeVisitor final : public VNVisitorConst {
             unsigned ops = 0;  // Number of ops in this term
             bool clean = false;  // Whether the term is clean (has value 0 or 1)
 
-            if (isPow2(maskVal)) {
+            အကယ်၍ (isPow2(maskVal)) {
                 // If we only want a single bit, shift it out instead of a masked compare. Shifts
                 // don't go through the flags register on x86 and are hence faster. This is also
                 // always fewer or same ops as mask and compare, but with shorter instructions on
                 // x86.
 
                 // Find the index of the bit we want.
-                const int bit = countTrailingZeroes(maskVal);
+                const ကိန်းပြည့် bit = countTrailingZeroes(maskVal);
                 // If we want something other than the bottom bit, shift it out
-                if (bit != 0) {
+                အကယ်၍ (bit != 0) {
                     resultp = new AstShiftR{fl, resultp,
                                             new AstConst{fl, static_cast<uint32_t>(bit)}, m_width};
                     ++ops;
                 }
                 // Negate it if necessary
                 const bool negate = m_bitPolarity.bitIs0(bit);
-                if (negate) {
+                အကယ်၍ (negate) {
                     resultp = new AstNot{fl, resultp};
                     ++ops;
                 }
                 // Clean if MSB of unsigned value, and not negated
                 clean = (bit == m_width - 1) && !hasRedundantSignBits && !negate;
-            } else {
+            } မဟုတ်ပါက {
                 // We want multiple bits. Go ahead and extract them.
 
                 // Check if masking is required, and if so apply it
                 const bool needsMasking = maskVal != VL_MASK_Q(m_width) || hasRedundantSignBits;
-                if (needsMasking) {
+                အကယ်၍ (needsMasking) {
                     resultp = new AstAnd{fl, new AstConst{fl, maskNum}, resultp};
                     ++ops;
                 }
 
                 // Create the sub-expression for this term
-                if (m_parentp->isXorTree()) {
-                    if (needsMasking) {
+                အကယ်၍ (m_parentp->isXorTree()) {
+                    အကယ်၍ (needsMasking) {
                         // Reduce the masked term to the minimum known width,
                         // to use the smallest RedXor formula
-                        const int widthMin = maskNum.widthToFit();
+                        const ကိန်းပြည့် widthMin = maskNum.widthToFit();
                         resultp->dtypeChgWidth(widthMin, widthMin);
                     }
                     resultp = new AstRedXor{fl, resultp};
@@ -356,13 +356,13 @@ class ConstBitOpTreeVisitor final : public VNVisitorConst {
                     clean = false;
                     // VL_REDXOR_* returns IData, set width accordingly to avoid unnecessary casts
                     resultp->dtypeChgWidth(VL_IDATASIZE, 1);
-                } else if (m_parentp->isAndTree()) {
+                } မဟုတ်ပါက အကယ်၍ (m_parentp->isAndTree()) {
                     V3Number compNum{srcp, m_width, 0};
                     compNum.opBitsOne(m_bitPolarity);  // 'x'->0, 0->0, 1->1
                     resultp = new AstEq{fl, new AstConst{fl, compNum}, resultp};
                     ++ops;
                     clean = true;
-                } else {  // Or
+                } မဟုတ်ပါက {  // Or
                     V3Number compNum{srcp, m_width, 0};
                     compNum.opBitsOne(m_bitPolarity);  // 'x'->0, 0->0, 1->1
                     compNum.opXor(V3Number{compNum}, maskNum);
@@ -372,11 +372,11 @@ class ConstBitOpTreeVisitor final : public VNVisitorConst {
                 }
             }
 
-            return ResultTerm{resultp, ops, clean};
+            ပြန်ပေး ResultTerm{resultp, ops, clean};
         }
 
         // CONSTRUCTORS
-        VarInfo(ConstBitOpTreeVisitor* parent, AstVarRef* refp, int width)
+        VarInfo(ConstBitOpTreeVisitor* parent, AstVarRef* refp, ကိန်းပြည့် width)
             : m_parentp{parent}
             , m_refp{refp}
             , m_width{width}
@@ -389,7 +389,7 @@ class ConstBitOpTreeVisitor final : public VNVisitorConst {
     bool m_failed = false;
     bool m_polarity = true;  // Flip when AstNot comes
     unsigned m_ops;  // Number of operations such as And, Or, Xor, Sel...
-    int m_lsb = 0;  // Current LSB
+    ကိန်းပြည့် m_lsb = 0;  // Current LSB
     LeafInfo* m_leafp = nullptr;  // AstConst or AstVarRef that currently looking for
     const AstNodeExpr* const m_rootp;  // Root of this AST subtree
 
@@ -400,63 +400,63 @@ class ConstBitOpTreeVisitor final : public VNVisitorConst {
     VNIdAllocator& m_ids;  // Node id allocator, owned by ConstVisitor
     // Base index of m_varInfos that points VarInfo, keyed by AstVarScope/AstVarRef id,
     // zero means not set yet.
-    std::unordered_map<size_t, int> m_baseIdxs;
+    std::unordered_map<size_t, ကိန်းပြည့်> m_baseIdxs;
 
     // METHODS
 
-    bool isAndTree() const { return VN_IS(m_rootp, And); }
-    bool isOrTree() const { return VN_IS(m_rootp, Or); }
-    bool isXorTree() const { return VN_IS(m_rootp, Xor) || VN_IS(m_rootp, RedXor); }
+    bool isAndTree() const { ပြန်ပေး VN_IS(m_rootp, And); }
+    bool isOrTree() const { ပြန်ပေး VN_IS(m_rootp, Or); }
+    bool isXorTree() const { ပြန်ပေး VN_IS(m_rootp, Xor) || VN_IS(m_rootp, RedXor); }
 
 #define CONST_BITOP_RETURN_IF(cond, nodep) \
-    if (setFailed(cond, #cond, nodep, __LINE__)) return
+    အကယ်၍ (setFailed(cond, #cond, nodep, __LINE__)) ပြန်ပေး
 
 #define CONST_BITOP_SET_FAILED(reason, nodep) setFailed(true, reason, nodep, __LINE__)
 
-    bool setFailed(bool fail, const char* reason, const AstNode* nodep, int line) {
-        if (fail && !m_failed) {
+    bool setFailed(bool fail, const var_na* reason, const AstNode* nodep, ကိန်းပြည့် line) {
+        အကယ်၍ (fail && !m_failed) {
             UINFO(9, "cannot optimize " << m_rootp << " reason:" << reason << " called from line:"
                                         << line << " when checking:" << nodep);
             // UINFOTREE(9, m_rootp, "", "root");
             m_failed = true;
         }
-        return m_failed;
+        ပြန်ပေး m_failed;
     }
-    void incrOps(const AstNode* nodep, int line) {
+    void incrOps(const AstNode* nodep, ကိန်းပြည့် line) {
         ++m_ops;
         UINFO(9, "Increment to " << m_ops << " " << nodep << " called from line " << line);
     }
     VarInfo& getVarInfo(const LeafInfo& ref) {
         UASSERT_OBJ(ref.refp(), m_rootp, "null varref in And/Or/Xor optimization");
         AstNode* nodep = ref.refp()->varScopep();
-        if (!nodep) nodep = ref.refp()->varp();  // Not scoped
-        int& baseIdxr = m_baseIdxs[m_ids(nodep)];
-        if (baseIdxr == 0) {  // Not set yet
+        အကယ်၍ (!nodep) nodep = ref.refp()->varp();  // Not scoped
+        ကိန်းပြည့်& baseIdxr = m_baseIdxs[m_ids(nodep)];
+        အကယ်၍ (baseIdxr == 0) {  // Not set yet
             baseIdxr = m_varInfos.size();
-            const int numWords
+            const ကိန်းပြည့် numWords
                 = ref.refp()->dtypep()->isWide() ? ref.refp()->dtypep()->widthWords() : 1;
             m_varInfos.resize(m_varInfos.size() + numWords);
         }
         const size_t idx = baseIdxr + std::max(0, ref.wordIdx());
         VarInfo* varInfop = m_varInfos[idx].get();
-        if (!varInfop) {
+        အကယ်၍ (!varInfop) {
             varInfop = new VarInfo{this, ref.refp(), ref.varWidth()};
             m_varInfos[idx].reset(varInfop);
-            if (ref.missingWordSel()) {
+            အကယ်၍ (ref.missingWordSel()) {
                 // ConstBitOpTreeVisitor makes some constants for masks and its type is uint64_t.
                 // That's why V3Expand, that inserts WordSel, is needed.
                 CONST_BITOP_SET_FAILED("V3Expand is skipped", ref.refp());
             }
-        } else {
-            if (!varInfop->sameVarAs(ref.refp()))
+        } မဟုတ်ပါက {
+            အကယ်၍ (!varInfop->sameVarAs(ref.refp()))
                 CONST_BITOP_SET_FAILED("different var (scope?)", ref.refp());
         }
-        return *varInfop;
+        ပြန်ပေး *varInfop;
     }
 
     // Traverse down to see AstConst or AstVarRef
     LeafInfo findLeaf(AstNode* nodep, bool expectConst) {
-        if (!nodep->dtypep()->skipRefp()->isIntegralOrPacked()) return LeafInfo{};
+        အကယ်၍ (!nodep->dtypep()->skipRefp()->isIntegralOrPacked()) ပြန်ပေး LeafInfo{};
         LeafInfo info{m_lsb};
         {
             VL_RESTORER(m_leafp);
@@ -465,19 +465,19 @@ class ConstBitOpTreeVisitor final : public VNVisitorConst {
         }
 
         bool ok = !m_failed;
-        if (expectConst) {
+        အကယ်၍ (expectConst) {
             ok &= !info.refp() && info.constp();
-        } else {
+        } မဟုတ်ပါက {
             ok &= info.refp() && !info.constp();
         }
-        return ok ? info : LeafInfo{};
+        ပြန်ပေး ok ? info : LeafInfo{};
     }
 
     // VISITORS
     void visit(AstNode* nodep) override { CONST_BITOP_SET_FAILED("Hit unexpected op", nodep); }
     void visit(AstCCast* nodep) override {
         iterateChildrenConst(nodep);
-        if (m_leafp) m_leafp->updateBitRange(nodep);
+        အကယ်၍ (m_leafp) m_leafp->updateBitRange(nodep);
     }
     void visit(AstShiftR* nodep) override {
         CONST_BITOP_RETURN_IF(!m_leafp, nodep);
@@ -493,15 +493,15 @@ class ConstBitOpTreeVisitor final : public VNVisitorConst {
         CONST_BITOP_RETURN_IF(nodep->widthMin() != 1, nodep);
         AstNode* lhsp = nodep->lhsp();
         AstCCast* const castp = VN_CAST(lhsp, CCast);
-        if (castp) lhsp = castp->lhsp();
+        အကယ်၍ (castp) lhsp = castp->lhsp();
         CONST_BITOP_RETURN_IF(!isXorTree() && !VN_IS(lhsp, VarRef) && !VN_IS(lhsp, ShiftR), lhsp);
         incrOps(nodep, __LINE__);
         m_polarity = !m_polarity;
         iterateChildrenConst(nodep);
         // Don't restore m_polarity for Xor as it counts parity of the entire tree
-        if (!isXorTree()) m_polarity = !m_polarity;
-        if (m_leafp && castp) m_leafp->updateBitRange(castp);
-        if (m_leafp) m_leafp->polarity(!m_leafp->polarity());
+        အကယ်၍ (!isXorTree()) m_polarity = !m_polarity;
+        အကယ်၍ (m_leafp && castp) m_leafp->updateBitRange(castp);
+        အကယ်၍ (m_leafp) m_leafp->polarity(!m_leafp->polarity());
     }
     void visit(AstWordSel* nodep) override {
         CONST_BITOP_RETURN_IF(!m_leafp, nodep);
@@ -525,8 +525,8 @@ class ConstBitOpTreeVisitor final : public VNVisitorConst {
         CONST_BITOP_RETURN_IF(!VN_IS(m_rootp, Xor), nodep);
         AstNode* lhsp = nodep->lhsp();
         const AstCCast* const castp = VN_CAST(lhsp, CCast);
-        if (castp) lhsp = castp->lhsp();
-        if (const AstAnd* const andp = VN_CAST(lhsp, And)) {  // '^(mask & leaf)'
+        အကယ်၍ (castp) lhsp = castp->lhsp();
+        အကယ်၍ (const AstAnd* const andp = VN_CAST(lhsp, And)) {  // '^(mask & leaf)'
             CONST_BITOP_RETURN_IF(!andp, lhsp);
 
             const LeafInfo& mask = findLeaf(andp->lhsp(), true);
@@ -534,7 +534,7 @@ class ConstBitOpTreeVisitor final : public VNVisitorConst {
 
             LeafInfo ref = findLeaf(andp->rhsp(), false);
             CONST_BITOP_RETURN_IF(!ref.refp(), andp->rhsp());
-            if (castp) ref.updateBitRange(castp);
+            အကယ်၍ (castp) ref.updateBitRange(castp);
 
             restorer.disableRestore();  // Now all subtree succeeded
 
@@ -544,43 +544,43 @@ class ConstBitOpTreeVisitor final : public VNVisitorConst {
             incrOps(andp, __LINE__);
 
             // Mark all bits checked in this reduction
-            const int maxBitIdx = std::min(ref.lsb() + maskNum.width(), ref.msb() + 1);
-            for (int bitIdx = ref.lsb(); bitIdx < maxBitIdx; ++bitIdx) {
-                const int maskIdx = bitIdx - ref.lsb();
-                if (maskNum.bitIs0(maskIdx)) continue;
+            const ကိန်းပြည့် maxBitIdx = std::min(ref.lsb() + maskNum.width(), ref.msb() + 1);
+            အတွက် (ကိန်းပြည့် bitIdx = ref.lsb(); bitIdx < maxBitIdx; ++bitIdx) {
+                const ကိန်းပြည့် maskIdx = bitIdx - ref.lsb();
+                အကယ်၍ (maskNum.bitIs0(maskIdx)) continue;
                 // Set true, m_polarity takes care of the entire parity
                 m_bitPolarities.emplace_back(ref, true, bitIdx);
             }
-        } else {  // '^leaf'
+        } မဟုတ်ပါက {  // '^leaf'
             LeafInfo ref = findLeaf(lhsp, false);
             CONST_BITOP_RETURN_IF(!ref.refp(), lhsp);
-            if (castp) ref.updateBitRange(castp);
+            အကယ်၍ (castp) ref.updateBitRange(castp);
 
             restorer.disableRestore();  // Now all checks passed
 
             incrOps(nodep, __LINE__);
 
             // Mark all bits checked by this comparison
-            for (int bitIdx = ref.lsb(); bitIdx <= ref.msb(); ++bitIdx) {
+            အတွက် (ကိန်းပြည့် bitIdx = ref.lsb(); bitIdx <= ref.msb(); ++bitIdx) {
                 m_bitPolarities.emplace_back(ref, true, bitIdx);
             }
         }
     }
 
     void visit(AstNodeBiop* nodep) override {
-        if (VN_IS(nodep, And) && isConst(nodep->lhsp(), 1)) {  // 1 & _
+        အကယ်၍ (VN_IS(nodep, And) && isConst(nodep->lhsp(), 1)) {  // 1 & _
             // Always reach past a plain making AND
             Restorer restorer{*this};
             incrOps(nodep, __LINE__);
             iterateConst(nodep->rhsp());
-            if (m_leafp) m_leafp->limitBitRangeToLsb();
+            အကယ်၍ (m_leafp) m_leafp->limitBitRangeToLsb();
             CONST_BITOP_RETURN_IF(m_failed, nodep->rhsp());
             restorer.disableRestore();  // Now all checks passed
-        } else if (nodep->type() == m_rootp->type()) {  // And, Or, Xor
+        } မဟုတ်ပါက အကယ်၍ (nodep->type() == m_rootp->type()) {  // And, Or, Xor
             // subtree under NOT can be optimized only in XOR tree.
             CONST_BITOP_RETURN_IF(!m_polarity && !isXorTree(), nodep);
             incrOps(nodep, __LINE__);
-            for (const bool right : {false, true}) {
+            အတွက် (const bool right : {false, true}) {
                 VL_RESTORER(m_leafp);
                 Restorer restorer{*this};
                 LeafInfo leafInfo{m_lsb};
@@ -589,11 +589,11 @@ class ConstBitOpTreeVisitor final : public VNVisitorConst {
                 AstNodeExpr* opp = right ? nodep->rhsp() : nodep->lhsp();
                 const bool origFailed = m_failed;
                 iterateConst(opp);
-                if (leafInfo.constp() || m_failed) {
+                အကယ်၍ (leafInfo.constp() || m_failed) {
                     // Revert changes in leaf
                     restorer.restoreNow();
                     // Reach past a cast then add to frozen nodes to be added to final reduction
-                    if (const AstCCast* const castp = VN_CAST(opp, CCast)) opp = castp->lhsp();
+                    အကယ်၍ (const AstCCast* const castp = VN_CAST(opp, CCast)) opp = castp->lhsp();
                     const bool pol = isXorTree() || m_polarity;  // Only AND/OR tree needs polarity
                     UASSERT_OBJ(pol, nodep, "AND/OR tree expects m_polarity==true");
                     m_frozenNodes.emplace_back(opp, FrozenNodeInfo{pol, m_lsb});
@@ -601,14 +601,14 @@ class ConstBitOpTreeVisitor final : public VNVisitorConst {
                     continue;
                 }
                 restorer.disableRestore();  // Now all checks passed
-                if (leafInfo.refp()) {
+                အကယ်၍ (leafInfo.refp()) {
                     // The conditional on the lsb being in range is necessary for some degenerate
                     // case, e.g.: (IData)((QData)wide[0] >> 32), or <1-bit-var> >> 1, which is
                     // just zero
-                    if (leafInfo.lsb() <= leafInfo.msb()) {
+                    အကယ်၍ (leafInfo.lsb() <= leafInfo.msb()) {
                         m_bitPolarities.emplace_back(leafInfo, isXorTree() || leafInfo.polarity(),
                                                      leafInfo.lsb());
-                    } else if ((isAndTree() && leafInfo.polarity())
+                    } မဟုတ်ပါက အကယ်၍ ((isAndTree() && leafInfo.polarity())
                                || (isOrTree() && !leafInfo.polarity())) {
                         // If there is a constant 0 term in an And tree or 1 term in an Or tree, we
                         // must include it. Fudge this by adding a bit with both polarities, which
@@ -620,12 +620,12 @@ class ConstBitOpTreeVisitor final : public VNVisitorConst {
                     }
                 }
             }
-        } else if ((isAndTree() && VN_IS(nodep, Eq)) || (isOrTree() && VN_IS(nodep, Neq))) {
+        } မဟုတ်ပါက အကယ်၍ ((isAndTree() && VN_IS(nodep, Eq)) || (isOrTree() && VN_IS(nodep, Neq))) {
             Restorer restorer{*this};
             CONST_BITOP_RETURN_IF(!m_polarity, nodep);
             CONST_BITOP_RETURN_IF(m_lsb, nodep);  // the result of EQ/NE is 1 bit width
             const AstNode* lhsp = nodep->lhsp();
-            if (const AstCCast* const castp = VN_CAST(lhsp, CCast)) lhsp = castp->lhsp();
+            အကယ်၍ (const AstCCast* const castp = VN_CAST(lhsp, CCast)) lhsp = castp->lhsp();
             const AstConst* const constp = VN_CAST(lhsp, Const);
             CONST_BITOP_RETURN_IF(!constp, nodep->lhsp());
 
@@ -633,23 +633,23 @@ class ConstBitOpTreeVisitor final : public VNVisitorConst {
 
             auto setPolarities = [this, &compNum](const LeafInfo& ref, const V3Number* maskp) {
                 const bool maskFlip = isAndTree() ^ ref.polarity();
-                int constantWidth = compNum.width();
-                if (maskp) constantWidth = std::max(constantWidth, maskp->width());
-                const int maxBitIdx = std::max(ref.lsb() + constantWidth, ref.msb() + 1);
+                ကိန်းပြည့် constantWidth = compNum.width();
+                အကယ်၍ (maskp) constantWidth = std::max(constantWidth, maskp->width());
+                const ကိန်းပြည့် maxBitIdx = std::max(ref.lsb() + constantWidth, ref.msb() + 1);
                 // Mark all bits checked by this comparison
-                for (int bitIdx = ref.lsb(); bitIdx < maxBitIdx; ++bitIdx) {
-                    const int maskIdx = bitIdx - ref.lsb();
+                အတွက် (ကိန်းပြည့် bitIdx = ref.lsb(); bitIdx < maxBitIdx; ++bitIdx) {
+                    const ကိန်းပြည့် maskIdx = bitIdx - ref.lsb();
                     const bool mask0 = maskp && maskp->bitIs0(maskIdx);
                     const bool outOfRange = bitIdx > ref.msb();
-                    if (mask0 || outOfRange) {  // RHS is 0
-                        if (compNum.bitIs1(maskIdx)) {
+                    အကယ်၍ (mask0 || outOfRange) {  // RHS is 0
+                        အကယ်၍ (compNum.bitIs1(maskIdx)) {
                             // LHS is 1
                             // And tree: 1 == 0 => always false, set v && !v
                             // Or tree : 1 != 0 => always true, set v || !v
                             m_bitPolarities.emplace_back(ref, true, 0);
                             m_bitPolarities.emplace_back(ref, false, 0);
-                            break;
-                        } else {  // This bitIdx is irrelevant
+                            bha_nga;
+                        } မဟုတ်ပါက {  // This bitIdx is irrelevant
                             continue;
                         }
                     }
@@ -658,7 +658,7 @@ class ConstBitOpTreeVisitor final : public VNVisitorConst {
                 }
             };
 
-            if (const AstAnd* const andp = VN_CAST(nodep->rhsp(), And)) {  // comp == (mask & v)
+            အကယ်၍ (const AstAnd* const andp = VN_CAST(nodep->rhsp(), And)) {  // comp == (mask & v)
                 const LeafInfo& mask = findLeaf(andp->lhsp(), true);
                 CONST_BITOP_RETURN_IF(!mask.constp() || mask.lsb() != 0, andp->lhsp());
 
@@ -673,7 +673,7 @@ class ConstBitOpTreeVisitor final : public VNVisitorConst {
                 incrOps(andp, __LINE__);
 
                 setPolarities(ref, &maskNum);
-            } else {  // comp == v
+            } မဟုတ်ပါက {  // comp == v
                 const LeafInfo& ref = findLeaf(nodep->rhsp(), false);
                 CONST_BITOP_RETURN_IF(!ref.refp(), nodep->rhsp());
 
@@ -683,7 +683,7 @@ class ConstBitOpTreeVisitor final : public VNVisitorConst {
 
                 setPolarities(ref, nullptr);
             }
-        } else {
+        } မဟုတ်ပါက {
             CONST_BITOP_SET_FAILED("Mixture of different ops cannot be optimized", nodep);
         }
     }
@@ -696,14 +696,14 @@ class ConstBitOpTreeVisitor final : public VNVisitorConst {
         // Fill nullptr at [0] because a base index of 0 means not set yet
         m_varInfos.push_back(nullptr);
         CONST_BITOP_RETURN_IF(!isAndTree() && !isOrTree() && !isXorTree(), nodep);
-        if (AstNodeBiop* const biopp = VN_CAST(nodep, NodeBiop)) {
+        အကယ်၍ (AstNodeBiop* const biopp = VN_CAST(nodep, NodeBiop)) {
             iterateConst(biopp);
-        } else {
+        } မဟုတ်ပါက {
             UASSERT_OBJ(VN_IS(nodep, RedXor), nodep, "Must be RedXor");
             incrOps(nodep, __LINE__);
             iterateChildrenConst(nodep);
         }
-        for (auto&& entry : m_bitPolarities) {
+        အတွက် (auto&& entry : m_bitPolarities) {
             getVarInfo(entry.m_info).setPolarity(entry.m_polarity, entry.m_bit);
         }
         UASSERT_OBJ(isXorTree() || m_polarity, nodep, "must be the original polarity");
@@ -721,7 +721,7 @@ public:
     // (3'b000 != (3'b011 & v)) | v[2]  => 3'b000 != (3'b111 & v)
     // Reduction ops are transformed in the same way.
     // &{v[0], v[1]} => 2'b11 == (2'b11 & v)
-    static AstNodeExpr* simplify(AstNodeExpr* nodep, int resultWidth, unsigned externalOps,
+    static AstNodeExpr* simplify(AstNodeExpr* nodep, ကိန်းပြည့် resultWidth, unsigned externalOps,
                                  VDouble0& reduction, VNIdAllocator& ids) {
         UASSERT_OBJ(1 <= resultWidth && resultWidth <= 64, nodep, "resultWidth out of range");
 
@@ -729,7 +729,7 @@ public:
         const ConstBitOpTreeVisitor visitor{nodep, externalOps, ids};
 
         // If failed on root node is not optimizable, or there are no variable terms, then done
-        if (visitor.m_failed || visitor.m_varInfos.size() == 1) return nullptr;
+        အကယ်၍ (visitor.m_failed || visitor.m_varInfos.size() == 1) ပြန်ပေး nullptr;
 
         // FileLine used for constructing all new nodes in this function
         FileLine* const fl = nodep->fileline();
@@ -744,37 +744,37 @@ public:
         bool hasCleanTerm = false;
         bool hasDirtyTerm = false;
 
-        for (auto&& v : visitor.m_varInfos) {
-            if (!v) continue;  // Skip nullptr at m_varInfos[0]
-            if (v->hasConstResult()) {
+        အတွက် (auto&& v : visitor.m_varInfos) {
+            အကယ်၍ (!v) continue;  // Skip nullptr at m_varInfos[0]
+            အကယ်၍ (v->hasConstResult()) {
                 // If a constant term is known, we can either drop it or the whole tree is constant
                 AstNodeExpr* resultp = nullptr;
-                if (v->getConstResult()) {
+                အကယ်၍ (v->getConstResult()) {
                     UASSERT_OBJ(visitor.isOrTree(), nodep,
                                 "Only OR tree can yield known 1 result");
                     UINFO(9, "OR tree with const 1 term: " << v->refp());
                     // Known 1 bit in OR tree, whole result is 1
                     resultp = new AstConst{fl, AstConst::BitTrue{}};
-                } else if (visitor.isAndTree()) {
+                } မဟုတ်ပါက အကယ်၍ (visitor.isAndTree()) {
                     UINFO(9, "AND tree with const 0 term: " << v->refp());
                     // Known 0 bit in AND tree, whole result is 0
                     resultp = new AstConst{fl, AstConst::BitFalse{}};
-                } else {
+                } မဟုတ်ပါက {
                     // Known 0 bit in OR or XOR tree. Ignore it.
                     continue;
                 }
                 // Set width and widthMin precisely
                 resultp->dtypeChgWidth(resultWidth, 1);
-                for (AstNode* const termp : termps) VL_DO_DANGLING(termp->deleteTree(), termp);
-                return resultp;
+                အတွက် (AstNode* const termp : termps) VL_DO_DANGLING(termp->deleteTree(), termp);
+                ပြန်ပေး resultp;
             }
             const ResultTerm result = v->getResultTerm();
             termps.push_back(std::get<0>(result));
             resultOps += std::get<1>(result);
-            if (std::get<2>(result)) {
+            အကယ်၍ (std::get<2>(result)) {
                 hasCleanTerm = true;
                 UINFO(9, "Clean term: " << termps.back());
-            } else {
+            } မဟုတ်ပါက {
                 hasDirtyTerm = true;
                 UINFO(9, "Dirty term: " << termps.back());
             }
@@ -783,14 +783,14 @@ public:
         // Group by FrozenNodeInfo
         std::map<FrozenNodeInfo, std::vector<AstNodeExpr*>> frozenNodes;
         // Check if frozen terms are clean or not
-        for (const auto& frozenInfo : visitor.m_frozenNodes) {
+        အတွက် (const auto& frozenInfo : visitor.m_frozenNodes) {
             AstNodeExpr* const termp = frozenInfo.first;
             // Comparison operators are clean
-            if ((VN_IS(termp, Eq) || VN_IS(termp, Neq) || VN_IS(termp, Lt) || VN_IS(termp, Lte)
+            အကယ်၍ ((VN_IS(termp, Eq) || VN_IS(termp, Neq) || VN_IS(termp, Lt) || VN_IS(termp, Lte)
                  || VN_IS(termp, Gt) || VN_IS(termp, Gte))
                 && frozenInfo.second.m_lsb == 0) {
                 hasCleanTerm = true;
-            } else {
+            } မဟုတ်ပါက {
                 // Otherwise, conservatively assume the frozen term is dirty
                 hasDirtyTerm = true;
                 UINFO(9, "Dirty frozen term: " << termp);
@@ -806,20 +806,20 @@ public:
 
         // Add size of reduction tree to op count
         resultOps += termps.size() - 1;
-        for (const auto& lsbAndNodes : frozenNodes) {
-            if (lsbAndNodes.first.m_lsb > 0) ++resultOps;  // Needs AstShiftR
-            if (!lsbAndNodes.first.m_polarity) ++resultOps;  // Needs AstNot
+        အတွက် (const auto& lsbAndNodes : frozenNodes) {
+            အကယ်၍ (lsbAndNodes.first.m_lsb > 0) ++resultOps;  // Needs AstShiftR
+            အကယ်၍ (!lsbAndNodes.first.m_polarity) ++resultOps;  // Needs AstNot
             resultOps += lsbAndNodes.second.size();
         }
         // Add final polarity flip in Xor tree
-        if (needsFlip) ++resultOps;
+        အကယ်၍ (needsFlip) ++resultOps;
         // Add final cleaning AND
-        if (needsCleaning) ++resultOps;
+        အကယ်၍ (needsCleaning) ++resultOps;
 
-        if (debug() >= 9) {  // LCOV_EXCL_START
+        အကယ်၍ (debug() >= 9) {  // LCOV_EXCL_START
             cout << "-  Bitop tree considered:\n";
-            for (const AstNodeExpr* const termp : termps) termp->dumpTree("-  Reduced term: ");
-            for (const std::pair<AstNodeExpr*, FrozenNodeInfo>& termp : visitor.m_frozenNodes) {
+            အတွက် (const AstNodeExpr* const termp : termps) termp->dumpTree("-  Reduced term: ");
+            အတွက် (const std::pair<AstNodeExpr*, FrozenNodeInfo>& termp : visitor.m_frozenNodes) {
                 termp.first->dumpTree("-  Frozen term with lsb "
                                       + std::to_string(termp.second.m_lsb) + " polarity "
                                       + std::to_string(termp.second.m_polarity) + ": ");
@@ -831,18 +831,18 @@ public:
 
         // Sometimes we have no terms left after ignoring redundant terms
         // (all of which were zeroes)
-        if (termps.empty() && visitor.m_frozenNodes.empty()) {
+        အကယ်၍ (termps.empty() && visitor.m_frozenNodes.empty()) {
             reduction += visitor.m_ops;
             AstNodeExpr* const resultp = needsFlip ? new AstConst{fl, AstConst::BitTrue{}}
                                                    : new AstConst{fl, AstConst::BitFalse{}};
             resultp->dtypeChgWidth(resultWidth, 1);
-            return resultp;
+            ပြန်ပေး resultp;
         }
 
         // Only substitute the result if beneficial as determined by operation count
-        if (visitor.m_ops <= resultOps) {
-            for (AstNode* const termp : termps) VL_DO_DANGLING(termp->deleteTree(), termp);
-            return nullptr;
+        အကယ်၍ (visitor.m_ops <= resultOps) {
+            အတွက် (AstNode* const termp : termps) VL_DO_DANGLING(termp->deleteTree(), termp);
+            ပြန်ပေး nullptr;
         }
 
         // Update statistics
@@ -850,36 +850,36 @@ public:
 
         // Reduction op to combine terms
         const auto reduce = [&visitor, fl](AstNodeExpr* lhsp, AstNodeExpr* rhsp) -> AstNodeExpr* {
-            if (!lhsp) return rhsp;
-            if (visitor.isAndTree()) {
-                return new AstAnd{fl, lhsp, rhsp};
-            } else if (visitor.isOrTree()) {
-                return new AstOr{fl, lhsp, rhsp};
-            } else {
-                return new AstXor{fl, lhsp, rhsp};
+            အကယ်၍ (!lhsp) ပြန်ပေး rhsp;
+            အကယ်၍ (visitor.isAndTree()) {
+                ပြန်ပေး new AstAnd{fl, lhsp, rhsp};
+            } မဟုတ်ပါက အကယ်၍ (visitor.isOrTree()) {
+                ပြန်ပေး new AstOr{fl, lhsp, rhsp};
+            } မဟုတ်ပါက {
+                ပြန်ပေး new AstXor{fl, lhsp, rhsp};
             }
         };
 
         // Compute result by reducing all terms
         AstNodeExpr* resultp = nullptr;
-        for (AstNodeExpr* const termp : termps) {  //
+        အတွက် (AstNodeExpr* const termp : termps) {  //
             resultp = reduce(resultp, termp);
         }
         // Add any frozen terms to the reduction
-        for (auto&& nodes : frozenNodes) {
+        အတွက် (auto&& nodes : frozenNodes) {
             // nodes.second has same lsb and polarity
             AstNodeExpr* termp = nullptr;
-            for (AstNodeExpr* const itemp : nodes.second) {
+            အတွက် (AstNodeExpr* const itemp : nodes.second) {
                 termp = reduce(termp, itemp->unlinkFrBack());
             }
-            if (nodes.first.m_lsb > 0) {  // LSB is not 0, so shiftR
+            အကယ်၍ (nodes.first.m_lsb > 0) {  // LSB is not 0, so shiftR
                 AstNodeDType* const dtypep = termp->dtypep();
                 termp = new AstShiftR{termp->fileline(), termp,
                                       new AstConst(termp->fileline(), AstConst::WidthedValue{},
                                                    termp->width(), nodes.first.m_lsb)};
                 termp->dtypep(dtypep);
             }
-            if (!nodes.first.m_polarity) {  // Polarity is inverted, so append Not
+            အကယ်၍ (!nodes.first.m_polarity) {  // Polarity is inverted, so append Not
                 AstNodeDType* const dtypep = termp->dtypep();
                 termp = new AstNot{termp->fileline(), termp};
                 termp->dtypep(dtypep);
@@ -891,15 +891,15 @@ public:
         // of the masking node e.g. by the "AND with all ones" rule. If the result width happens
         // to be 1, we still need to ensure the AstAnd is not dropped, so use a wider mask in this
         // special case.
-        const int maskWidth
+        const ကိန်းပြည့် maskWidth
             = std::max(resultp->width(), resultWidth == 1 ? VL_IDATASIZE : resultWidth);
 
         // Apply final polarity flip
-        if (needsFlip) {
-            if (needsCleaning) {
+        အကယ်၍ (needsFlip) {
+            အကယ်၍ (needsCleaning) {
                 // Cleaning will be added below. Use a NOT which is a byte shorter on x86
                 resultp = new AstNot{fl, resultp};
-            } else {
+            } မဟုတ်ပါက {
                 // Keep result clean by using XOR(1, _)
                 AstConst* const maskp = new AstConst{fl, AstConst::WidthedValue{}, maskWidth, 1};
                 resultp = new AstXor{fl, maskp, resultp};
@@ -907,20 +907,20 @@ public:
         }
 
         // Apply final cleaning
-        if (needsCleaning) {
+        အကယ်၍ (needsCleaning) {
             AstConst* const maskp = new AstConst{fl, AstConst::WidthedValue{}, maskWidth, 1};
             resultp = new AstAnd{fl, maskp, resultp};
         }
 
         // Cast back to original size if required
-        if (resultp->width() != resultWidth) {
+        အကယ်၍ (resultp->width() != resultWidth) {
             resultp = new AstCCast{fl, resultp, resultWidth, 1};
         }
 
         // Set width and widthMin precisely
         resultp->dtypeChgWidth(resultWidth, 1);
 
-        return resultp;
+        ပြန်ပေး resultp;
     }
 };
 
@@ -931,7 +931,7 @@ class ConstVisitor final : public VNVisitor {
     // CONSTANTS
     static constexpr unsigned CONCAT_MERGABLE_MAX_DEPTH = 10;  // Limit alg recursion
     // Largest right-hand side that is copied to each part of a split concatenation assignment
-    static constexpr int CONCAT_ASSIGN_MAX_RHS_NODES = 16;
+    static constexpr ကိန်းပြည့် CONCAT_ASSIGN_MAX_RHS_NODES = 16;
 
     // NODE STATE
     // See VNIdAllocator. All per node state below is held in side tables keyed on the
@@ -979,17 +979,17 @@ class ConstVisitor final : public VNVisitor {
 
     // Return true if statements may be deleted. Until statics are lifted, a variable declared
     // in a statement might be referenced from elsewhere (e.g. hierarchically).
-    static bool canDeleteStatements() { return v3Global.staticsLifted(); }
+    static bool canDeleteStatements() { ပြန်ပေး v3Global.staticsLifted(); }
 
     void deleteVarScopesUnder(AstNode* subtreep) {
-        if (!subtreep) return;
-        if (!m_scopep) return;
+        အကယ်၍ (!subtreep) ပြန်ပေး;
+        အကယ်၍ (!m_scopep) ပြန်ပေး;
         std::unordered_set<AstVar*> varps;
         subtreep->foreachAndNext([&](AstVar* varp) { varps.insert(varp); });
-        if (varps.empty()) return;
-        for (AstVarScope *vscp = m_scopep->varsp(), *nextp; vscp; vscp = nextp) {
+        အကယ်၍ (varps.empty()) ပြန်ပေး;
+        အတွက် (AstVarScope *vscp = m_scopep->varsp(), *nextp; vscp; vscp = nextp) {
             nextp = VN_AS(vscp->nextp(), VarScope);
-            if (varps.find(vscp->varp()) != varps.end()) {
+            အကယ်၍ (varps.find(vscp->varp()) != varps.end()) {
                 VL_DO_DANGLING(pushDeletep(vscp->unlinkFrBack()), vscp);
             }
         }
@@ -1000,48 +1000,48 @@ class ConstVisitor final : public VNVisitor {
         // The upper zeros in the C representation can otherwise cause
         // wrong results in some operations, e.g. MulS
         const V3Number& numc = VN_AS(nodep, Const)->num();
-        return !numc.isNumber() ? numc : V3Number{nodep, nodep->widthMinV(), numc};
+        ပြန်ပေး !numc.isNumber() ? numc : V3Number{nodep, nodep->widthMinV(), numc};
     }
     V3Number toNumC(AstNode* nodep, const V3Number& numv) {
         // Extend V width back to C width for given node
-        return !numv.isNumber() ? numv : V3Number{nodep, nodep->width(), numv};
+        ပြန်ပေး !numv.isNumber() ? numv : V3Number{nodep, nodep->width(), numv};
     }
 
     static bool lowerAsFixedAggregate(const AstNodeDType* const dtypep) {
-        return dtypep->isStreamableFixedAggregate() && dtypep->containsUnpackedStruct();
+        ပြန်ပေး dtypep->isStreamableFixedAggregate() && dtypep->containsUnpackedStruct();
     }
 
     AstStructSel* newStructSel(AstNodeExpr* const fromp, const AstMemberDType* const itemp) {
         AstStructSel* const selp = new AstStructSel{fromp->fileline(), fromp, itemp->name()};
         selp->dtypeFrom(itemp->dtypep());
-        return selp;
+        ပြန်ပေး selp;
     }
 
     void collectFixedAggregateTerms(AstNodeExpr* const fromp, std::vector<AstNodeExpr*>& termps,
                                     const bool packReal) {
         const AstNodeDType* const dtypep = fromp->dtypep()->skipRefp();
-        if (const AstUnpackArrayDType* const unpackDtypep = VN_CAST(dtypep, UnpackArrayDType)) {
-            for (const int idx : unpackDtypep->declRange().seqLeftToRight()) {
+        အကယ်၍ (const AstUnpackArrayDType* const unpackDtypep = VN_CAST(dtypep, UnpackArrayDType)) {
+            အတွက် (const ကိန်းပြည့် idx : unpackDtypep->declRange().seqLeftToRight()) {
                 AstArraySel* const selp
                     = new AstArraySel{fromp->fileline(), fromp->cloneTreePure(false), idx};
                 collectFixedAggregateTerms(selp, termps, packReal);
             }
             VL_DO_DANGLING(pushDeletep(fromp), fromp);
-        } else if (const AstNodeUOrStructDType* const sdtypep
+        } မဟုတ်ပါက အကယ်၍ (const AstNodeUOrStructDType* const sdtypep
                    = VN_CAST(dtypep, NodeUOrStructDType)) {
-            if (sdtypep->packed()) {
+            အကယ်၍ (sdtypep->packed()) {
                 termps.push_back(fromp);
-                return;
+                ပြန်ပေး;
             }
-            for (const AstMemberDType* itemp = sdtypep->membersp(); itemp;
+            အတွက် (const AstMemberDType* itemp = sdtypep->membersp(); itemp;
                  itemp = VN_AS(itemp->nextp(), MemberDType)) {
                 collectFixedAggregateTerms(newStructSel(fromp->cloneTreePure(false), itemp),
                                            termps, packReal);
             }
             VL_DO_DANGLING(pushDeletep(fromp), fromp);
-        } else if (packReal && dtypep->isDouble()) {
+        } မဟုတ်ပါက အကယ်၍ (packReal && dtypep->isDouble()) {
             termps.push_back(new AstRealToBits{fromp->fileline(), fromp});
-        } else {
+        } မဟုတ်ပါက {
             termps.push_back(fromp);
         }
     }
@@ -1051,19 +1051,19 @@ class ConstVisitor final : public VNVisitor {
         collectFixedAggregateTerms(fromp, termps, true);
         UASSERT(!termps.empty(), "No stream terms");
         AstNodeExpr* resultp = termps[0];
-        for (size_t i = 1; i < termps.size(); ++i) {
+        အတွက် (size_t i = 1; i < termps.size(); ++i) {
             resultp = new AstConcat{resultp->fileline(), resultp, termps[i]};
         }
-        return resultp;
+        ပြန်ပေး resultp;
     }
 
     void replaceAssignToFixedAggregate(AstNodeAssign* const nodep, AstNodeExpr* const dstp,
                                        AstNodeExpr* srcp) {
-        const int dstWidth = dstp->dtypep()->widthStream();
+        const ကိန်းပြည့် dstWidth = dstp->dtypep()->widthStream();
         std::vector<AstNodeExpr*> termps;
         collectFixedAggregateTerms(dstp, termps, false);
-        int srcWidth = srcp->width();
-        if (srcWidth < dstWidth) {
+        ကိန်းပြည့် srcWidth = srcp->width();
+        အကယ်၍ (srcWidth < dstWidth) {
             AstExtend* const extendp = new AstExtend{srcp->fileline(), srcp, dstWidth};
             srcp = new AstShiftL{
                 extendp->fileline(), extendp,
@@ -1072,15 +1072,15 @@ class ConstVisitor final : public VNVisitor {
             srcWidth = dstWidth;
         }
         AstNodeAssign* newp = nullptr;
-        int offset = 0;
-        for (size_t i = 0; i < termps.size(); ++i) {
+        ကိန်းပြည့် offset = 0;
+        အတွက် (size_t i = 0; i < termps.size(); ++i) {
             AstNodeExpr* const termp = termps[i];
-            const int width = termp->dtypep()->widthStream();
-            const int lsb = srcWidth - offset - width;
+            const ကိန်းပြည့် width = termp->dtypep()->widthStream();
+            const ကိန်းပြည့် lsb = srcWidth - offset - width;
             offset += width;
             AstNodeExpr* rhsp
                 = new AstSel{srcp->fileline(), srcp->cloneTreePure(false), lsb, width};
-            if (termp->dtypep()->skipRefp()->isDouble()) {
+            အကယ်၍ (termp->dtypep()->skipRefp()->isDouble()) {
                 rhsp = new AstBitsToRealD{rhsp->fileline(), rhsp};
             }
             AstNodeAssign* const assignp = nodep->cloneType(termp, rhsp);
@@ -1092,29 +1092,29 @@ class ConstVisitor final : public VNVisitor {
         VL_DO_DANGLING(pushDeletep(nodep->unlinkFrBack()), nodep);
     }
 
-    bool operandConst(const AstNode* nodep) { return VN_IS(nodep, Const); }
+    bool operandConst(const AstNode* nodep) { ပြန်ပေး VN_IS(nodep, Const); }
     bool operandAsvConst(const AstNode* nodep) {
         // BIASV(CONST, BIASV(CONST,...)) -> BIASV( BIASV_CONSTED(a,b), ...)
         const AstNodeBiComAsv* const bnodep = VN_CAST(nodep, NodeBiComAsv);
-        if (!bnodep) return false;
-        if (!VN_IS(bnodep->lhsp(), Const)) return false;
+        အကယ်၍ (!bnodep) ပြန်ပေး false;
+        အကယ်၍ (!VN_IS(bnodep->lhsp(), Const)) ပြန်ပေး false;
         const AstNodeBiComAsv* const rnodep = VN_CAST(bnodep->rhsp(), NodeBiComAsv);
-        if (!rnodep) return false;
-        if (rnodep->type() != bnodep->type()) return false;
-        if (rnodep->width() != bnodep->width()) return false;
-        if (rnodep->lhsp()->width() != bnodep->lhsp()->width()) return false;
-        if (!VN_IS(rnodep->lhsp(), Const)) return false;
-        return true;
+        အကယ်၍ (!rnodep) ပြန်ပေး false;
+        အကယ်၍ (rnodep->type() != bnodep->type()) ပြန်ပေး false;
+        အကယ်၍ (rnodep->width() != bnodep->width()) ပြန်ပေး false;
+        အကယ်၍ (rnodep->lhsp()->width() != bnodep->lhsp()->width()) ပြန်ပေး false;
+        အကယ်၍ (!VN_IS(rnodep->lhsp(), Const)) ပြန်ပေး false;
+        ပြန်ပေး true;
     }
     bool operandAsvSame(const AstNode* nodep) {
         // BIASV(SAMEa, BIASV(SAMEb,...)) -> BIASV( BIASV(SAMEa,SAMEb), ...)
         const AstNodeBiComAsv* const bnodep = VN_CAST(nodep, NodeBiComAsv);
-        if (!bnodep) return false;
+        အကယ်၍ (!bnodep) ပြန်ပေး false;
         const AstNodeBiComAsv* const rnodep = VN_CAST(bnodep->rhsp(), NodeBiComAsv);
-        if (!rnodep) return false;
-        if (rnodep->type() != bnodep->type()) return false;
-        if (rnodep->width() != bnodep->width()) return false;
-        return operandsSame(bnodep->lhsp(), rnodep->lhsp());
+        အကယ်၍ (!rnodep) ပြန်ပေး false;
+        အကယ်၍ (rnodep->type() != bnodep->type()) ပြန်ပေး false;
+        အကယ်၍ (rnodep->width() != bnodep->width()) ပြန်ပေး false;
+        ပြန်ပေး operandsSame(bnodep->lhsp(), rnodep->lhsp());
     }
     bool operandAsvLUp(const AstNode* nodep) {
         // BIASV(BIASV(CONSTll,lr),r) -> BIASV(CONSTll,BIASV(lr,r)) ?
@@ -1128,28 +1128,28 @@ class ConstVisitor final : public VNVisitor {
         //
         // Idea for the future: All BiComAsvs could be lists, sorted by if they're constant
         const AstNodeBiComAsv* const bnodep = VN_CAST(nodep, NodeBiComAsv);
-        if (!bnodep) return false;
+        အကယ်၍ (!bnodep) ပြန်ပေး false;
         const AstNodeBiComAsv* const lnodep = VN_CAST(bnodep->lhsp(), NodeBiComAsv);
-        if (!lnodep) return false;
-        if (lnodep->type() != bnodep->type()) return false;
-        if (lnodep->width() != bnodep->width()) return false;
-        return VN_IS(lnodep->lhsp(), Const);
+        အကယ်၍ (!lnodep) ပြန်ပေး false;
+        အကယ်၍ (lnodep->type() != bnodep->type()) ပြန်ပေး false;
+        အကယ်၍ (lnodep->width() != bnodep->width()) ပြန်ပေး false;
+        ပြန်ပေး VN_IS(lnodep->lhsp(), Const);
     }
     bool operandAsvRUp(const AstNode* nodep) {
         // BIASV(l,BIASV(CONSTrl,rr)) -> BIASV(CONSTrl,BIASV(l,rr)) ?
         const AstNodeBiComAsv* const bnodep = VN_CAST(nodep, NodeBiComAsv);
-        if (!bnodep) return false;
+        အကယ်၍ (!bnodep) ပြန်ပေး false;
         const AstNodeBiComAsv* const rnodep = VN_CAST(bnodep->rhsp(), NodeBiComAsv);
-        if (!rnodep) return false;
-        if (rnodep->type() != bnodep->type()) return false;
-        if (rnodep->width() != bnodep->width()) return false;
-        return VN_IS(rnodep->lhsp(), Const);
+        အကယ်၍ (!rnodep) ပြန်ပေး false;
+        အကယ်၍ (rnodep->type() != bnodep->type()) ပြန်ပေး false;
+        အကယ်၍ (rnodep->width() != bnodep->width()) ပြန်ပေး false;
+        ပြန်ပေး VN_IS(rnodep->lhsp(), Const);
     }
     static bool operandSubAdd(const AstNode* nodep) {
         // SUB( ADD(CONSTx,y), CONSTz) -> ADD(SUB(CONSTx,CONSTz), y)
         const AstNodeBiop* const np = VN_CAST(nodep, NodeBiop);
         const AstNodeBiop* const lp = VN_CAST(np->lhsp(), NodeBiop);
-        return (lp && VN_IS(lp->lhsp(), Const) && VN_IS(np->rhsp(), Const)
+        ပြန်ပေး (lp && VN_IS(lp->lhsp(), Const) && VN_IS(np->rhsp(), Const)
                 && lp->width() == np->width());
     }
     bool matchRedundantClean(AstAnd* andp) {
@@ -1161,26 +1161,26 @@ class ConstVisitor final : public VNVisitor {
         AstNodeExpr* const rhsp = andp->rhsp();
         AstCCast* ccastp = nullptr;
         const auto isEqOrNeq = [](const AstNode* nodep) -> bool {  //
-            return VN_IS(nodep, Eq) || VN_IS(nodep, Neq);
+            ပြန်ပေး VN_IS(nodep, Eq) || VN_IS(nodep, Neq);
         };
-        if (isEqOrNeq(rhsp)) {
+        အကယ်၍ (isEqOrNeq(rhsp)) {
             ccastp = new AstCCast{andp->fileline(), rhsp->unlinkFrBack(), andp};
-        } else if (AstCCast* const tmpp = VN_CAST(rhsp, CCast)) {
-            if (isEqOrNeq(tmpp->lhsp())) {
-                if (tmpp->width() == andp->width()) {
+        } မဟုတ်ပါက အကယ်၍ (AstCCast* const tmpp = VN_CAST(rhsp, CCast)) {
+            အကယ်၍ (isEqOrNeq(tmpp->lhsp())) {
+                အကယ်၍ (tmpp->width() == andp->width()) {
                     tmpp->unlinkFrBack();
                     ccastp = tmpp;
-                } else {
+                } မဟုတ်ပါက {
                     ccastp = new AstCCast{andp->fileline(), tmpp->lhsp()->unlinkFrBack(), andp};
                 }
             }
         }
-        if (ccastp) {
+        အကယ်၍ (ccastp) {
             andp->replaceWithKeepDType(ccastp);
             VL_DO_DANGLING(pushDeletep(andp), andp);
-            return true;
+            ပြန်ပေး true;
         }
-        return false;
+        ပြန်ပေး false;
     }
 
     static bool operandAndOrSame(const AstNode* nodep) {
@@ -1189,7 +1189,7 @@ class ConstVisitor final : public VNVisitor {
         const AstNodeBiop* const np = VN_CAST(nodep, NodeBiop);
         const AstNodeBiop* const lp = VN_CAST(np->lhsp(), NodeBiop);
         const AstNodeBiop* const rp = VN_CAST(np->rhsp(), NodeBiop);
-        return (lp && rp && lp->width() == rp->width() && lp->type() == rp->type()
+        ပြန်ပေး (lp && rp && lp->width() == rp->width() && lp->type() == rp->type()
                 && (operandsSame(lp->lhsp(), rp->lhsp()) || operandsSame(lp->rhsp(), rp->rhsp())));
     }
     bool matchOrAndNot(AstNodeBiop* nodep) {
@@ -1199,39 +1199,39 @@ class ConstVisitor final : public VNVisitor {
         // if (rst) ... else if (enable)... -> OR(rst,AND(!rst,enable))
         const AstNodeExpr* ap;
         AstNodeBiop* andp;
-        if (VN_IS(nodep->lhsp(), And)) {
+        အကယ်၍ (VN_IS(nodep->lhsp(), And)) {
             andp = VN_AS(nodep->lhsp(), And);
             ap = nodep->rhsp();
-        } else if (VN_IS(nodep->rhsp(), And)) {
+        } မဟုတ်ပါက အကယ်၍ (VN_IS(nodep->rhsp(), And)) {
             andp = VN_AS(nodep->rhsp(), And);
             ap = nodep->lhsp();
-        } else {
-            return false;
+        } မဟုတ်ပါက {
+            ပြန်ပေး false;
         }
         const AstNodeUniop* notp;
         AstNodeExpr* cp;
-        if (VN_IS(andp->lhsp(), Not)) {
+        အကယ်၍ (VN_IS(andp->lhsp(), Not)) {
             notp = VN_AS(andp->lhsp(), Not);
             cp = andp->rhsp();
-        } else if (VN_IS(andp->rhsp(), Not)) {
+        } မဟုတ်ပါက အကယ်၍ (VN_IS(andp->rhsp(), Not)) {
             notp = VN_AS(andp->rhsp(), Not);
             cp = andp->lhsp();
-        } else {
-            return false;
+        } မဟုတ်ပါက {
+            ပြန်ပေး false;
         }
         const AstNodeExpr* const bp = notp->lhsp();
-        if (!operandsSame(ap, bp)) return false;
+        အကယ်၍ (!operandsSame(ap, bp)) ပြန်ပေး false;
         // Do it
         cp->unlinkFrBack();
         VL_DO_DANGLING(pushDeletep(andp->unlinkFrBack()), andp);
         VL_DANGLING(notp);
         // Replace whichever branch is now dangling
-        if (nodep->rhsp()) {
+        အကယ်၍ (nodep->rhsp()) {
             nodep->lhsp(cp);
-        } else {
+        } မဟုတ်ပါက {
             nodep->rhsp(cp);
         }
-        return true;
+        ပြန်ပေး true;
     }
     bool matchAndCond(AstAnd* nodep) {
         // Push down a AND into conditional, when one side of conditional is constant
@@ -1240,10 +1240,10 @@ class ConstVisitor final : public VNVisitor {
         // as high as possible, which is usually the right choice, except for this.
         // cppcheck-suppress constVariablePointer // children unlinked below
         AstCond* const condp = VN_CAST(nodep->rhsp(), Cond);
-        if (!condp) return false;
-        if (!VN_IS(condp->thenp(), Const) && !VN_IS(condp->elsep(), Const)) return false;
+        အကယ်၍ (!condp) ပြန်ပေး false;
+        အကယ်၍ (!VN_IS(condp->thenp(), Const) && !VN_IS(condp->elsep(), Const)) ပြန်ပေး false;
         AstConst* const maskp = VN_CAST(nodep->lhsp(), Const);
-        if (!maskp) return false;
+        အကယ်၍ (!maskp) ပြန်ပေး false;
         UINFO(4, "AND(CONSTm, CONDcond(c, i, e))->CONDcond(c, AND(m,i), AND(m, e)) " << nodep);
         AstCond* const newp = new AstCond{
             condp->fileline(), condp->condp()->unlinkFrBack(),
@@ -1254,59 +1254,59 @@ class ConstVisitor final : public VNVisitor {
         newp->elsep()->dtypeFrom(nodep);
         nodep->replaceWithKeepDType(newp);
         VL_DO_DANGLING(pushDeletep(nodep), nodep);
-        return true;
+        ပြန်ပေး true;
     }
 
     bool matchCondCond(const AstCond* nodep) {
         // Same condition on either leg of a condition means that
         // expression is either always true or always false
-        if (VN_IS(nodep->backp(), Cond)) return false;  // Was checked when visited parent
-        if (!VN_IS(nodep->thenp(), Cond) && !VN_IS(nodep->elsep(), Cond))
-            return false;  // Short circuit
+        အကယ်၍ (VN_IS(nodep->backp(), Cond)) ပြန်ပေး false;  // Was checked when visited parent
+        အကယ်၍ (!VN_IS(nodep->thenp(), Cond) && !VN_IS(nodep->elsep(), Cond))
+            ပြန်ပေး false;  // Short circuit
         std::vector<AstNodeExpr*> truesp;
         std::vector<AstNodeExpr*> falsesp;
         matchCondCondRecurse(nodep, truesp /*ref*/, falsesp /*ref*/);
-        return false;  // Can optimize further
+        ပြန်ပေး false;  // Can optimize further
     }
     void matchCondCondRecurse(const AstCond* nodep, std::vector<AstNodeExpr*>& truesp,
                               std::vector<AstNodeExpr*>& falsesp) {
         // Avoid O(n^2) compares
         // Could reduce cost with hash table, but seems unlikely to be worth cost
-        if (truesp.size() > 4 || falsesp.size() > 4) return;
-        if (!nodep->condp()->isPure()) return;
+        အကယ်၍ (truesp.size() > 4 || falsesp.size() > 4) ပြန်ပေး;
+        အကယ်၍ (!nodep->condp()->isPure()) ပြန်ပေး;
         bool replaced = false;
-        for (const AstNodeExpr* condp : truesp) {
-            if (replaced) break;
-            if (!operandsSame(nodep->condp(), condp)) continue;
+        အတွက် (const AstNodeExpr* condp : truesp) {
+            အကယ်၍ (replaced) bha_nga;
+            အကယ်၍ (!operandsSame(nodep->condp(), condp)) continue;
             UINFO(9, "COND(c, CONDb(c, tt, tf), f) -> CONDb(1, tt, tf) " << nodep);
             replaceNum(nodep->condp(), 1);
             replaced = true;
             ++m_statCondExprRedundant;
         }
-        for (const AstNodeExpr* condp : falsesp) {
-            if (replaced) break;
-            if (!operandsSame(nodep->condp(), condp)) continue;
+        အတွက် (const AstNodeExpr* condp : falsesp) {
+            အကယ်၍ (replaced) bha_nga;
+            အကယ်၍ (!operandsSame(nodep->condp(), condp)) continue;
             UINFO(9, "COND(c, t, CONDb(c, ft, ff)) -> CONDb(0, ft, ff) " << nodep);
             replaceZero(nodep->condp());
             replaced = true;
             ++m_statCondExprRedundant;
         }
-        if (const AstCond* subCondp = VN_CAST(nodep->thenp(), Cond)) {
-            if (!replaced) truesp.emplace_back(nodep->condp());
+        အကယ်၍ (const AstCond* subCondp = VN_CAST(nodep->thenp(), Cond)) {
+            အကယ်၍ (!replaced) truesp.emplace_back(nodep->condp());
             matchCondCondRecurse(subCondp, truesp /*ref*/, falsesp /*ref*/);
-            if (!replaced) truesp.pop_back();
+            အကယ်၍ (!replaced) truesp.pop_back();
         }
-        if (const AstCond* subCondp = VN_CAST(nodep->elsep(), Cond)) {
-            if (!replaced) falsesp.emplace_back(nodep->condp());
+        အကယ်၍ (const AstCond* subCondp = VN_CAST(nodep->elsep(), Cond)) {
+            အကယ်၍ (!replaced) falsesp.emplace_back(nodep->condp());
             matchCondCondRecurse(subCondp, truesp /*ref*/, falsesp /*ref*/);
-            if (!replaced) falsesp.pop_back();
+            အကယ်၍ (!replaced) falsesp.pop_back();
         }
     }
     void matchIfCondCond(const AstNodeIf* nodep) {
         // Same condition on either leg of a condition means that
         // expression is either always true or always false
-        if (VN_IS(nodep->backp(), If)) return;  // Was checked when visited parent
-        if (!VN_IS(nodep->thensp(), If) && !VN_IS(nodep->elsesp(), If)) return;  // Short circuit
+        အကယ်၍ (VN_IS(nodep->backp(), If)) ပြန်ပေး;  // Was checked when visited parent
+        အကယ်၍ (!VN_IS(nodep->thensp(), If) && !VN_IS(nodep->elsesp(), If)) ပြန်ပေး;  // Short circuit
         std::vector<AstNodeExpr*> truesp;
         std::vector<AstNodeExpr*> falsesp;
         matchIfCondCondRecurse(nodep, truesp /*ref*/, falsesp /*ref*/);
@@ -1315,22 +1315,22 @@ class ConstVisitor final : public VNVisitor {
                                 std::vector<AstNodeExpr*>& falsesp) {
         // Avoid O(n^2) compares
         // Could reduce cost with hash table, but seems unlikely to be worth cost
-        if (truesp.size() > 4 || falsesp.size() > 4) return;
-        if (!nodep->condp()->isPure()) return;
+        အကယ်၍ (truesp.size() > 4 || falsesp.size() > 4) ပြန်ပေး;
+        အကယ်၍ (!nodep->condp()->isPure()) ပြန်ပေး;
         // A constant condition is folded by visit(AstNodeIf), once statements can be deleted
-        if (VN_IS(nodep->condp(), Const)) return;
+        အကယ်၍ (VN_IS(nodep->condp(), Const)) ပြန်ပေး;
         bool replaced = false;
-        for (const AstNodeExpr* condp : truesp) {
-            if (replaced) break;
-            if (!operandsSame(nodep->condp(), condp)) continue;
+        အတွက် (const AstNodeExpr* condp : truesp) {
+            အကယ်၍ (replaced) bha_nga;
+            အကယ်၍ (!operandsSame(nodep->condp(), condp)) continue;
             UINFO(9, "COND(c, CONDb(c, tt, tf), f) -> CONDb(1, tt, tf) " << nodep);
             replaceNum(nodep->condp(), 1);
             replaced = true;
             ++m_statIfCondExprRedundant;
         }
-        for (const AstNodeExpr* condp : falsesp) {
-            if (replaced) break;
-            if (!operandsSame(nodep->condp(), condp)) continue;
+        အတွက် (const AstNodeExpr* condp : falsesp) {
+            အကယ်၍ (replaced) bha_nga;
+            အကယ်၍ (!operandsSame(nodep->condp(), condp)) continue;
             UINFO(9, "COND(c, t, CONDb(c, ft, ff)) -> CONDb(0, ft, ff) " << nodep);
             replaceZero(nodep->condp());
             replaced = true;
@@ -1339,26 +1339,26 @@ class ConstVisitor final : public VNVisitor {
         // We only check the first statement of parent IF is an If
         // So we don't need to check for effects in the executing thensp/elsesp
         // altering the child't condition.  e.g. 'if (x) begin x=1; if (x) end'
-        if (const AstNodeIf* subIfp = VN_CAST(nodep->thensp(), NodeIf)) {
-            if (!replaced) truesp.emplace_back(nodep->condp());
+        အကယ်၍ (const AstNodeIf* subIfp = VN_CAST(nodep->thensp(), NodeIf)) {
+            အကယ်၍ (!replaced) truesp.emplace_back(nodep->condp());
             matchIfCondCondRecurse(subIfp, truesp /*ref*/, falsesp /*ref*/);
-            if (!replaced) truesp.pop_back();
+            အကယ်၍ (!replaced) truesp.pop_back();
         }
-        if (const AstNodeIf* subIfp = VN_CAST(nodep->elsesp(), NodeIf)) {
-            if (!replaced) falsesp.emplace_back(nodep->condp());
+        အကယ်၍ (const AstNodeIf* subIfp = VN_CAST(nodep->elsesp(), NodeIf)) {
+            အကယ်၍ (!replaced) falsesp.emplace_back(nodep->condp());
             matchIfCondCondRecurse(subIfp, truesp /*ref*/, falsesp /*ref*/);
-            if (!replaced) falsesp.pop_back();
+            အကယ်၍ (!replaced) falsesp.pop_back();
         }
     }
 
     void matchIfSameLast(AstNodeIf* nodep) {
-        if (!nodep->thensp()) return;
-        if (!nodep->elsesp()) return;
-        if (!canDeleteStatements()) return;
+        အကယ်၍ (!nodep->thensp()) ပြန်ပေး;
+        အကယ်၍ (!nodep->elsesp()) ပြန်ပေး;
+        အကယ်၍ (!canDeleteStatements()) ပြန်ပေး;
         // Iterate bodies in reverse
         AstNode* tp = nodep->thensp()->lastp();
         AstNode* ep = nodep->elsesp()->lastp();
-        while (tp && ep && tp->sameTree(ep)) {
+        နေစဉ် (tp && ep && tp->sameTree(ep)) {
             UASSERT_OBJ(!tp->nextp(), tp, "Expected no nextp");
             UASSERT_OBJ(!ep->nextp(), ep, "Expected no nextp");
             AstNode* const tPrevp = tp->prevp();
@@ -1384,32 +1384,32 @@ class ConstVisitor final : public VNVisitor {
         // Predicate for checking whether the bottom 'significantBits' bits of the given expression
         // are all zeroes.
         const auto checkBottomClear = [=](const AstNode* nodep) -> bool {
-            if (const AstShiftL* const shiftp = VN_CAST(nodep, ShiftL)) {
-                if (const AstConst* const scp = VN_CAST(shiftp->rhsp(), Const)) {
-                    return scp->num().toUInt() >= significantBits;
+            အကယ်၍ (const AstShiftL* const shiftp = VN_CAST(nodep, ShiftL)) {
+                အကယ်၍ (const AstConst* const scp = VN_CAST(shiftp->rhsp(), Const)) {
+                    ပြန်ပေး scp->num().toUInt() >= significantBits;
                 }
             }
-            return false;
+            ပြန်ပေး false;
         };
 
         const bool orLIsRedundant = checkBottomClear(orp->lhsp());
         const bool orRIsRedundant = checkBottomClear(orp->rhsp());
 
-        if (orLIsRedundant && orRIsRedundant) {
+        အကယ်၍ (orLIsRedundant && orRIsRedundant) {
             nodep->replaceWithKeepDType(
                 new AstConst{nodep->fileline(), AstConst::DTyped{}, nodep->dtypep()});
             VL_DO_DANGLING(pushDeletep(nodep), nodep);
-            return true;
-        } else if (orLIsRedundant) {
+            ပြန်ပေး true;
+        } မဟုတ်ပါက အကယ်၍ (orLIsRedundant) {
             orp->replaceWithKeepDType(orp->rhsp()->unlinkFrBack());
             VL_DO_DANGLING(pushDeletep(orp), orp);
-            return false;  // input node is still valid, keep going
-        } else if (orRIsRedundant) {
+            ပြန်ပေး false;  // input node is still valid, keep going
+        } မဟုတ်ပါက အကယ်၍ (orRIsRedundant) {
             orp->replaceWithKeepDType(orp->lhsp()->unlinkFrBack());
             VL_DO_DANGLING(pushDeletep(orp), orp);
-            return false;  // input node is still valid, keep going
-        } else {
-            return false;
+            ပြန်ပေး false;  // input node is still valid, keep going
+        } မဟုတ်ပါက {
+            ပြန်ပေး false;
         }
     }
     bool matchMaskedShift(AstAnd* nodep) {
@@ -1419,34 +1419,34 @@ class ConstVisitor final : public VNVisitor {
 
         const auto checkMask = [nodep, this](const V3Number& mask) -> bool {
             const AstConst* const constp = VN_AS(nodep->lhsp(), Const);
-            if (constp->num().isCaseEq(mask)) {
+            အကယ်၍ (constp->num().isCaseEq(mask)) {
                 AstNode* const rhsp = nodep->rhsp();
                 rhsp->unlinkFrBack();
                 nodep->replaceWithKeepDType(rhsp);
                 VL_DO_DANGLING(pushDeletep(nodep), nodep);
-                return true;
+                ပြန်ပေး true;
             }
-            return false;
+            ပြန်ပေး false;
         };
 
         // Check if masking is redundant
-        if (const AstShiftR* const shiftp = VN_CAST(nodep->rhsp(), ShiftR)) {
-            if (const AstConst* const scp = VN_CAST(shiftp->rhsp(), Const)) {
+        အကယ်၍ (const AstShiftR* const shiftp = VN_CAST(nodep->rhsp(), ShiftR)) {
+            အကယ်၍ (const AstConst* const scp = VN_CAST(shiftp->rhsp(), Const)) {
                 // Check if mask is full over the non-zero bits
                 V3Number maskLo{nodep, nodep->width()};
                 maskLo.setMask(nodep->width() - scp->num().toUInt());
-                return checkMask(maskLo);
+                ပြန်ပေး checkMask(maskLo);
             }
-        } else if (const AstShiftL* const shiftp = VN_CAST(nodep->rhsp(), ShiftL)) {
-            if (const AstConst* const scp = VN_CAST(shiftp->rhsp(), Const)) {
+        } မဟုတ်ပါက အကယ်၍ (const AstShiftL* const shiftp = VN_CAST(nodep->rhsp(), ShiftL)) {
+            အကယ်၍ (const AstConst* const scp = VN_CAST(shiftp->rhsp(), Const)) {
                 // Check if mask is full over the non-zero bits
                 V3Number mask{nodep, nodep->width()};
                 const uint32_t shiftAmount = scp->num().toUInt();
                 mask.setMask(nodep->width() - shiftAmount, shiftAmount);
-                return checkMask(mask);
+                ပြန်ပေး checkMask(mask);
             }
         }
-        return false;
+        ပြန်ပေး false;
     }
 
     bool matchMaskedZero(const AstAnd* nodep) {
@@ -1454,51 +1454,51 @@ class ConstVisitor final : public VNVisitor {
         const AstConst* const maskp = VN_AS(nodep->lhsp(), Const);
         const AstNodeExpr* const rhsp = nodep->rhsp();
         const uint32_t msbP1 = maskp->num().mostSetBitP1();
-        if (!msbP1) return false;  // Don't rewrite, separate rule matches for this
+        အကယ်၍ (!msbP1) ပြန်ပေး false;  // Don't rewrite, separate rule matches for this
         const uint32_t msb = msbP1 - 1;
         const uint32_t lsb = maskp->num().leastSetBitP1() - 1;
 
-        if (const AstShiftL* const shiftp = VN_CAST(rhsp, ShiftL)) {
+        အကယ်၍ (const AstShiftL* const shiftp = VN_CAST(rhsp, ShiftL)) {
             // 'a << S' forces the low S bits to zero
-            if (AstConst* const scp = VN_CAST(shiftp->rhsp(), Const)) {
-                return scp->num().fitsInUInt()  //
+            အကယ်၍ (AstConst* const scp = VN_CAST(shiftp->rhsp(), Const)) {
+                ပြန်ပေး scp->num().fitsInUInt()  //
                        && (scp->num().toUInt() > msb);
             }
         }
-        if (const AstShiftR* const shiftp = VN_CAST(rhsp, ShiftR)) {
+        အကယ်၍ (const AstShiftR* const shiftp = VN_CAST(rhsp, ShiftR)) {
             // 'a >> S' forces the high S bits to zero. Check against the width of the shifted
             // operand, V3Expand can create shifts wider than their inputs. Must use width(),
             // not widthMin(), as bits above widthMin() are not guaranteed to be zero.
-            if (AstConst* const scp = VN_CAST(shiftp->rhsp(), Const)) {
-                return scp->num().fitsInUInt()
+            အကယ်၍ (AstConst* const scp = VN_CAST(shiftp->rhsp(), Const)) {
+                ပြန်ပေး scp->num().fitsInUInt()
                        && (lsb + scp->num().toUInt()
                            >= static_cast<uint32_t>(shiftp->lhsp()->width()));
             }
         }
-        if (const AstMul* const mulp = VN_CAST(rhsp, Mul)) {
+        အကယ်၍ (const AstMul* const mulp = VN_CAST(rhsp, Mul)) {
             // 'C * a' forces the low N bits to zero where 'C' has low zero bits
-            if (AstConst* const cp = VN_CAST(mulp->lhsp(), Const)) {
-                return cp->num().leastSetBitP1() > msb + 1;
+            အကယ်၍ (AstConst* const cp = VN_CAST(mulp->lhsp(), Const)) {
+                ပြန်ပေး cp->num().leastSetBitP1() > msb + 1;
             }
         }
-        if (const AstExtend* const extendp = VN_CAST(rhsp, Extend)) {
+        အကယ်၍ (const AstExtend* const extendp = VN_CAST(rhsp, Extend)) {
             // Zero-extension forces the bits above the source width to zero
-            return lsb >= static_cast<uint32_t>(extendp->lhsp()->width());
+            ပြန်ပေး lsb >= static_cast<uint32_t>(extendp->lhsp()->width());
         }
 
-        return false;
+        ပြန်ပေး false;
     }
 
     bool matchBitOpTree(AstNodeExpr* nodep) {
-        if (nodep->widthMin() != 1) return false;
-        if (!v3Global.opt.fConstBitOpTree()) return false;
+        အကယ်၍ (nodep->widthMin() != 1) ပြန်ပေး false;
+        အကယ်၍ (!v3Global.opt.fConstBitOpTree()) ပြန်ပေး false;
 
-        const int width = nodep->width();
+        const ကိန်းပြည့် width = nodep->width();
         AstNodeExpr* rootp = nodep;
         unsigned externalOps = 0;
         // Reach past a plain making AND
-        if (const AstAnd* const andp = VN_CAST(nodep, And)) {
-            if (isConst(andp->lhsp(), 1)) {
+        အကယ်၍ (const AstAnd* const andp = VN_CAST(nodep, And)) {
+            အကယ်၍ (isConst(andp->lhsp(), 1)) {
                 rootp = andp->rhsp();
                 externalOps = 1;
             }
@@ -1508,11 +1508,11 @@ class ConstVisitor final : public VNVisitor {
         // operations, otherwise analysis on an eventually unoptimizable unablanced
         // tree can go O(N^2) as we would re-analyze every time as we move up the
         // tree, repeatedly re-discover the sub-tree is not optimizable.
-        if (rootp->type() == nodep->backp()->type()) return false;
+        အကယ်၍ (rootp->type() == nodep->backp()->type()) ပြန်ပေး false;
 
         std::string debugPrefix;
-        if (debug() >= 9) {  // LCOV_EXCL_START
-            static int s_c = 0;
+        အကယ်၍ (debug() >= 9) {  // LCOV_EXCL_START
+            static ကိန်းပြည့် s_c = 0;
             debugPrefix = "-  matchBitOpTree[" + std::to_string(++s_c) + "] ";
             nodep->dumpTree(debugPrefix + "INPUT: ");
         }  // LCOV_EXCL_STOP
@@ -1520,51 +1520,51 @@ class ConstVisitor final : public VNVisitor {
         AstNodeExpr* const newp = ConstBitOpTreeVisitor::simplify(rootp, width, externalOps,
                                                                   m_statBitOpReduction, m_ids);
 
-        if (newp) {
+        အကယ်၍ (newp) {
             nodep->replaceWithKeepDType(newp);
             UINFO(4, "Transformed leaf of bit tree to " << newp);
             VL_DO_DANGLING(pushDeletep(nodep), nodep);
         }
 
-        if (debug() >= 9) {  // LCOV_EXCL_START
-            if (newp) {
+        အကယ်၍ (debug() >= 9) {  // LCOV_EXCL_START
+            အကယ်၍ (newp) {
                 newp->dumpTree(debugPrefix + "RESULT: ");
-            } else {
+            } မဟုတ်ပါက {
                 cout << debugPrefix << "not replaced\n";
             }
         }  // LCOV_EXCL_STOP
 
-        return newp;
+        ပြန်ပေး newp;
     }
     static bool operandShiftSame(const AstNode* nodep) {
         const AstNodeBiop* const np = VN_AS(nodep, NodeBiop);
         {
             const AstShiftL* const lp = VN_CAST(np->lhsp(), ShiftL);
             const AstShiftL* const rp = VN_CAST(np->rhsp(), ShiftL);
-            if (lp && rp) {
-                return (lp->width() == rp->width() && lp->lhsp()->width() == rp->lhsp()->width()
+            အကယ်၍ (lp && rp) {
+                ပြန်ပေး (lp->width() == rp->width() && lp->lhsp()->width() == rp->lhsp()->width()
                         && operandsSame(lp->rhsp(), rp->rhsp()));
             }
         }
         {
             const AstShiftR* const lp = VN_CAST(np->lhsp(), ShiftR);
             const AstShiftR* const rp = VN_CAST(np->rhsp(), ShiftR);
-            if (lp && rp) {
-                return (lp->width() == rp->width() && lp->lhsp()->width() == rp->lhsp()->width()
+            အကယ်၍ (lp && rp) {
+                ပြန်ပေး (lp->width() == rp->width() && lp->lhsp()->width() == rp->lhsp()->width()
                         && operandsSame(lp->rhsp(), rp->rhsp()));
             }
         }
-        return false;
+        ပြန်ပေး false;
     }
     bool operandHugeShiftL(const AstNodeBiop* nodep) {
-        return (VN_IS(nodep->rhsp(), Const) && !VN_AS(nodep->rhsp(), Const)->num().isFourState()
+        ပြန်ပေး (VN_IS(nodep->rhsp(), Const) && !VN_AS(nodep->rhsp(), Const)->num().isFourState()
                 && (!VN_AS(nodep->rhsp(), Const)->num().fitsInUInt()  // > 2^32 shift
                     || (VN_AS(nodep->rhsp(), Const)->toUInt()
                         >= static_cast<uint32_t>(nodep->width())))
                 && nodep->lhsp()->isPure());
     }
     bool operandHugeShiftR(const AstNodeBiop* nodep) {
-        return (VN_IS(nodep->rhsp(), Const) && !VN_AS(nodep->rhsp(), Const)->num().isFourState()
+        ပြန်ပေး (VN_IS(nodep->rhsp(), Const) && !VN_AS(nodep->rhsp(), Const)->num().isFourState()
                 && (!VN_AS(nodep->rhsp(), Const)->num().fitsInUInt()  // > 2^32 shift
                     || (VN_AS(nodep->rhsp(), Const)->toUInt()
                         >= static_cast<uint32_t>(nodep->lhsp()->width())))
@@ -1573,115 +1573,115 @@ class ConstVisitor final : public VNVisitor {
     }
     bool operandIsTwo(const AstNode* nodep) {
         const AstConst* const constp = VN_CAST(nodep, Const);
-        if (!constp) return false;  // not constant
-        if (constp->num().isFourState()) return false;  // four-state
-        if (nodep->width() > VL_QUADSIZE) return false;  // too wide
-        if (nodep->isSigned() && constp->num().isNegative()) return false;  // signed and negative
-        return constp->toUQuad() == 2;
+        အကယ်၍ (!constp) ပြန်ပေး false;  // not constant
+        အကယ်၍ (constp->num().isFourState()) ပြန်ပေး false;  // four-state
+        အကယ်၍ (nodep->width() > VL_QUADSIZE) ပြန်ပေး false;  // too wide
+        အကယ်၍ (nodep->isSigned() && constp->num().isNegative()) ပြန်ပေး false;  // signed and negative
+        ပြန်ပေး constp->toUQuad() == 2;
     }
     bool operandIsTwostate(const AstNode* nodep) {
-        return (VN_IS(nodep, Const) && !VN_AS(nodep, Const)->num().isFourState());
+        ပြန်ပေး (VN_IS(nodep, Const) && !VN_AS(nodep, Const)->num().isFourState());
     }
     bool operandIsPowTwo(const AstNode* nodep) {
-        if (!operandIsTwostate(nodep)) return false;
-        return (1 == VN_AS(nodep, Const)->num().countOnes());
+        အကယ်၍ (!operandIsTwostate(nodep)) ပြန်ပေး false;
+        ပြန်ပေး (1 == VN_AS(nodep, Const)->num().countOnes());
     }
     bool operandShiftOp(const AstNodeBiop* nodep) {
-        if (!VN_IS(nodep->rhsp(), Const)) return false;
+        အကယ်၍ (!VN_IS(nodep->rhsp(), Const)) ပြန်ပေး false;
         const AstNodeBiop* const lhsp = VN_CAST(nodep->lhsp(), NodeBiop);
-        if (!lhsp || !(VN_IS(lhsp, And) || VN_IS(lhsp, Or) || VN_IS(lhsp, Xor))) return false;
-        if (nodep->width() != lhsp->width()) return false;
-        if (nodep->width() != lhsp->lhsp()->width()) return false;
-        if (nodep->width() != lhsp->rhsp()->width()) return false;
+        အကယ်၍ (!lhsp || !(VN_IS(lhsp, And) || VN_IS(lhsp, Or) || VN_IS(lhsp, Xor))) ပြန်ပေး false;
+        အကယ်၍ (nodep->width() != lhsp->width()) ပြန်ပေး false;
+        အကယ်၍ (nodep->width() != lhsp->lhsp()->width()) ပြန်ပေး false;
+        အကယ်၍ (nodep->width() != lhsp->rhsp()->width()) ပြန်ပေး false;
 
         // Only do it if we can fruther reduce one of the sides if pulling the shift through:
         // - Either operands are constants
-        if (VN_IS(lhsp->lhsp(), Const)) return true;
-        if (VN_IS(lhsp->rhsp(), Const)) return true;
+        အကယ်၍ (VN_IS(lhsp->lhsp(), Const)) ပြန်ပေး true;
+        အကယ်၍ (VN_IS(lhsp->rhsp(), Const)) ပြန်ပေး true;
         // - Const shift on either side
-        if (AstNodeBiop* const llp = VN_CAST(lhsp->lhsp(), NodeBiop)) {
-            return (VN_IS(llp, ShiftL) || VN_IS(llp, ShiftR)) && VN_IS(llp->rhsp(), Const);
+        အကယ်၍ (AstNodeBiop* const llp = VN_CAST(lhsp->lhsp(), NodeBiop)) {
+            ပြန်ပေး (VN_IS(llp, ShiftL) || VN_IS(llp, ShiftR)) && VN_IS(llp->rhsp(), Const);
         }
-        if (AstNodeBiop* const lrp = VN_CAST(lhsp->rhsp(), NodeBiop)) {
-            return (VN_IS(lrp, ShiftL) || VN_IS(lrp, ShiftR)) && VN_IS(lrp->rhsp(), Const);
+        အကယ်၍ (AstNodeBiop* const lrp = VN_CAST(lhsp->rhsp(), NodeBiop)) {
+            ပြန်ပေး (VN_IS(lrp, ShiftL) || VN_IS(lrp, ShiftR)) && VN_IS(lrp->rhsp(), Const);
         }
         // Otherwise we would increase logic size
-        return false;
+        ပြန်ပေး false;
     }
     bool operandShiftShift(const AstNodeBiop* nodep) {
         // We could add a AND though.
         const AstNodeBiop* const lhsp = VN_CAST(nodep->lhsp(), NodeBiop);
-        if (!lhsp || !(VN_IS(lhsp, ShiftL) || VN_IS(lhsp, ShiftR))) return false;
+        အကယ်၍ (!lhsp || !(VN_IS(lhsp, ShiftL) || VN_IS(lhsp, ShiftR))) ပြန်ပေး false;
         // We can only get rid of a<<b>>c or a<<b<<c, with constant b & c
         // because bits may be masked in that process, or (b+c) may exceed the word width.
-        if (!(VN_IS(nodep->rhsp(), Const) && VN_IS(lhsp->rhsp(), Const))) return false;
-        if (VN_AS(nodep->rhsp(), Const)->num().isFourState()
+        အကယ်၍ (!(VN_IS(nodep->rhsp(), Const) && VN_IS(lhsp->rhsp(), Const))) ပြန်ပေး false;
+        အကယ်၍ (VN_AS(nodep->rhsp(), Const)->num().isFourState()
             || VN_AS(lhsp->rhsp(), Const)->num().isFourState())
-            return false;
-        if (nodep->width() != lhsp->width()) return false;
-        if (nodep->width() != lhsp->lhsp()->width()) return false;
-        return true;
+            ပြန်ပေး false;
+        အကယ်၍ (nodep->width() != lhsp->width()) ပြန်ပေး false;
+        အကယ်၍ (nodep->width() != lhsp->lhsp()->width()) ပြန်ပေး false;
+        ပြန်ပေး true;
     }
     bool operandWordOOB(const AstWordSel* nodep) {
         // V3Expand may make a arraysel that exceeds the bounds of the array
         // It was an expression, then got constified.  In reality, the WordSel
         // must be wrapped in a Cond, that will be false.
-        return (VN_IS(nodep->bitp(), Const) && VN_IS(nodep->fromp(), NodeVarRef)
+        ပြန်ပေး (VN_IS(nodep->bitp(), Const) && VN_IS(nodep->fromp(), NodeVarRef)
                 && VN_AS(nodep->fromp(), NodeVarRef)->access().isReadOnly()
-                && (static_cast<int>(VN_AS(nodep->bitp(), Const)->toUInt())
+                && (static_cast<ကိန်းပြည့်>(VN_AS(nodep->bitp(), Const)->toUInt())
                     >= VN_AS(nodep->fromp(), NodeVarRef)->varp()->widthWords()));
     }
     bool operandSelFull(const AstSel* nodep) {
-        return (VN_IS(nodep->lsbp(), Const) && nodep->lsbConst() == 0
-                && static_cast<int>(nodep->widthConst()) == nodep->fromp()->width());
+        ပြန်ပေး (VN_IS(nodep->lsbp(), Const) && nodep->lsbConst() == 0
+                && static_cast<ကိန်းပြည့်>(nodep->widthConst()) == nodep->fromp()->width());
     }
     bool operandSelExtend(AstSel* nodep) {
-        if (!m_doV) return false;
+        အကယ်၍ (!m_doV) ပြန်ပေး false;
         AstExtend* const extendp = VN_CAST(nodep->fromp(), Extend);
-        if (!extendp) return false;
+        အကယ်၍ (!extendp) ပြန်ပေး false;
         AstConst* const lsbp = VN_CAST(nodep->lsbp(), Const);
-        if (!lsbp) return false;
-        const int width = nodep->widthConst();
-        const int lsb = lsbp->toSInt();
-        const int msb = lsb + width - 1;
+        အကယ်၍ (!lsbp) ပြန်ပေး false;
+        const ကိန်းပြည့် width = nodep->widthConst();
+        const ကိန်းပြည့် lsb = lsbp->toSInt();
+        const ကိန်းပြည့် msb = lsb + width - 1;
         AstNodeExpr* const lhsp = extendp->lhsp();
-        if (!lhsp->isPure()) return false;
+        အကယ်၍ (!lhsp->isPure()) ပြန်ပေး false;
 
         // Selecting the entire extended expression, replace with that
-        if (lsb == 0 && msb == lhsp->width() - 1) {
+        အကယ်၍ (lsb == 0 && msb == lhsp->width() - 1) {
             lhsp->unlinkFrBack();
             nodep->replaceWithKeepDType(lhsp);
             VL_DO_DANGLING(pushDeletep(nodep), nodep);
-            return true;
+            ပြန်ပေး true;
         }
         // Select entirely in the extended part - replace with zero
-        if (lsb >= lhsp->width()) {
+        အကယ်၍ (lsb >= lhsp->width()) {
             replaceZero(nodep);
-            return true;
+            ပြန်ပေး true;
         }
         // Select entirely in the extended expression - replace with select from that
-        if (msb < lhsp->width()) {
+        အကယ်၍ (msb < lhsp->width()) {
             lhsp->unlinkFrBack();
             lsbp->unlinkFrBack();
             nodep->replaceWithKeepDType(new AstSel{nodep->fileline(), lhsp, lsbp, width});
             VL_DO_DANGLING(pushDeletep(nodep), nodep);
-            return true;
+            ပြန်ပေး true;
         }
         // Select straddles both sides, but is just a shorter extend
-        if (lsb == 0) {
+        အကယ်၍ (lsb == 0) {
             lhsp->unlinkFrBack();
             nodep->replaceWithKeepDType(new AstExtend{nodep->fileline(), lhsp});
             VL_DO_DANGLING(pushDeletep(nodep), nodep);
-            return true;
+            ပြန်ပေး true;
         }
 
-        return false;
+        ပြန်ပေး false;
     }
     bool operandSelBiLower(AstSel* nodep) {
         // SEL(ADD(a,b),(width-1),0) -> ADD(SEL(a),SEL(b))
         // Add or any operation which doesn't care if we discard top bits
         AstNodeBiop* const bip = VN_CAST(nodep->fromp(), NodeBiop);
-        if (!(m_doV && bip && VN_IS(nodep->lsbp(), Const) && nodep->lsbConst() == 0)) return false;
+        အကယ်၍ (!(m_doV && bip && VN_IS(nodep->lsbp(), Const) && nodep->lsbConst() == 0)) ပြန်ပေး false;
         UINFOTREE(9, nodep, "", "SEL(BI)-in");
         AstNodeExpr* const bilhsp = bip->lhsp()->unlinkFrBack();
         AstNodeExpr* const birhsp = bip->rhsp()->unlinkFrBack();
@@ -1689,25 +1689,25 @@ class ConstVisitor final : public VNVisitor {
         bip->rhsp(new AstSel{nodep->fileline(), birhsp, 0, nodep->widthConst()});
         UINFOTREE(9, bip, "", "SEL(BI)-ou");
         VL_DO_DANGLING(replaceWChild(nodep, bip), nodep);
-        return true;
+        ပြန်ပေး true;
     }
     bool operandSelShiftLower(AstSel* nodep) {
         // AND({a}, SHIFTR({b}, {c})) is often shorthand in C for Verilog {b}[{c} :+ {a}]
         // becomes thought other optimizations
         // SEL(SHIFTR({a},{b}),{lsb},{width}) -> SEL({a},{lsb+b},{width})
         const AstShiftR* const shiftp = VN_CAST(nodep->fromp(), ShiftR);
-        if (!(m_doV && shiftp && VN_IS(shiftp->rhsp(), Const) && VN_IS(nodep->lsbp(), Const))) {
-            return false;
+        အကယ်၍ (!(m_doV && shiftp && VN_IS(shiftp->rhsp(), Const) && VN_IS(nodep->lsbp(), Const))) {
+            ပြန်ပေး false;
         }
         AstNodeExpr* const ap = shiftp->lhsp();
         const AstConst* const bp = VN_AS(shiftp->rhsp(), Const);
         const AstConst* const lp = VN_AS(nodep->lsbp(), Const);
-        if (bp->isWide() || bp->num().isFourState() || bp->num().isNegative() || lp->isWide()
+        အကယ်၍ (bp->isWide() || bp->num().isFourState() || bp->num().isNegative() || lp->isWide()
             || lp->num().isFourState() || lp->num().isNegative()) {
-            return false;
+            ပြန်ပေး false;
         }
-        const int newLsb = lp->toSInt() + bp->toSInt();
-        if (newLsb + nodep->widthConst() > ap->width()) return false;
+        const ကိန်းပြည့် newLsb = lp->toSInt() + bp->toSInt();
+        အကယ်၍ (newLsb + nodep->widthConst() > ap->width()) ပြန်ပေး false;
         //
         UINFO(9, "SEL(SHIFTR(a,b),l,w) -> SEL(a,l+b,w)");
         UINFOTREE(9, nodep, "", "SEL(SH)-in");
@@ -1716,7 +1716,7 @@ class ConstVisitor final : public VNVisitor {
         nodep->replaceWithKeepDType(newp);
         UINFOTREE(9, newp, "", "SEL(SH)-ou");
         VL_DO_DANGLING(pushDeletep(nodep), nodep);
-        return true;
+        ပြန်ပေး true;
     }
 
     bool operandBiExtendConstShrink(AstNodeBiop* nodep) {
@@ -1725,12 +1725,12 @@ class ConstVisitor final : public VNVisitor {
         // The constant must have zero bits (+ 1 if signed) or compare
         // would be incorrect. See also operandBiExtendConst
         AstExtend* const extendp = VN_CAST(nodep->rhsp(), Extend);
-        if (!extendp) return false;
+        အကယ်၍ (!extendp) ပြန်ပေး false;
         AstNodeExpr* const smallerp = extendp->lhsp();
-        const int subsize = smallerp->width();
+        const ကိန်းပြည့် subsize = smallerp->width();
         AstConst* const constp = VN_CAST(nodep->lhsp(), Const);
-        if (!constp) return false;
-        if (!constp->num().isBitsZero(constp->width() - 1, subsize)) return false;
+        အကယ်၍ (!constp) ပြန်ပေး false;
+        အကယ်၍ (!constp->num().isBitsZero(constp->width() - 1, subsize)) ပြန်ပေး false;
         //
         UINFOTREE(9, nodep, "", "BI(EXTEND)-in");
         smallerp->unlinkFrBack();
@@ -1741,25 +1741,25 @@ class ConstVisitor final : public VNVisitor {
         const V3Number num{constp, subsize, constp->num()};
         nodep->lhsp(new AstConst{constp->fileline(), num});
         VL_DO_DANGLING(pushDeletep(constp), constp);
-        return false;  // input node is still valid, keep going
+        ပြန်ပေး false;  // input node is still valid, keep going
     }
     bool operandBiExtendConstOver(const AstNodeBiop* nodep) {
         // EQ(const{width32}, EXTEND(xx{width3})) -> constant
         // When the constant has non-zero bits above the extend it's a constant.
         // Avoids compiler warning
         const AstExtend* const extendp = VN_CAST(nodep->rhsp(), Extend);
-        if (!extendp) return false;
+        အကယ်၍ (!extendp) ပြန်ပေး false;
         const AstNode* const smallerp = extendp->lhsp();
-        const int subsize = smallerp->width();
+        const ကိန်းပြည့် subsize = smallerp->width();
         const AstConst* const constp = VN_CAST(nodep->lhsp(), Const);
-        if (!constp) return false;
-        if (constp->num().isBitsZero(constp->width() - 1, subsize)) return false;
-        return true;
+        အကယ်၍ (!constp) ပြန်ပေး false;
+        အကယ်၍ (constp->num().isBitsZero(constp->width() - 1, subsize)) ပြန်ပေး false;
+        ပြန်ပေး true;
     }
 
     // Extraction checks
     bool warnSelect(AstSel* nodep) {
-        if (m_doGenerate) {
+        အကယ်၍ (m_doGenerate) {
             // Never checked yet
             V3Width::widthParamsEdit(nodep);
             iterateChildren(nodep);  // May need "constifying"
@@ -1767,25 +1767,25 @@ class ConstVisitor final : public VNVisitor {
         // Find range of dtype we are selecting from
         // Similar code in V3Unknown::AstSel
         const bool doit = true;
-        if (m_warn && VN_IS(nodep->lsbp(), Const) && doit) {
-            const int maxDeclBit = nodep->declRange().hiMaxSelect() * nodep->declElWidth()
+        အကယ်၍ (m_warn && VN_IS(nodep->lsbp(), Const) && doit) {
+            const ကိန်းပြည့် maxDeclBit = nodep->declRange().hiMaxSelect() * nodep->declElWidth()
                                    + (nodep->declElWidth() - 1);
-            if (VN_AS(nodep->lsbp(), Const)->num().isFourState()) {
+            အကယ်၍ (VN_AS(nodep->lsbp(), Const)->num().isFourState()) {
                 nodep->v3error("Selection index is constantly unknown or tristated: "
                                "lsb="
                                << nodep->lsbp()->name() << " width=" << nodep->widthConst());
                 // Replacing nodep will make a mess above, so we replace the offender
                 replaceZero(nodep->lsbp());
-            } else if (nodep->declRange().ranged()
+            } မဟုတ်ပါက အကယ်၍ (nodep->declRange().ranged()
                        && (nodep->msbConst() > maxDeclBit || nodep->lsbConst() > maxDeclBit)) {
                 // See also warning in V3Width
                 // Must adjust by element width as declRange() is in number of elements
                 string msbLsbProtected;
-                if (nodep->declElWidth() == 0) {
+                အကယ်၍ (nodep->declElWidth() == 0) {
                     msbLsbProtected = "(nodep->declElWidth() == 0) "
                                       + std::to_string(nodep->msbConst()) + ":"
                                       + std::to_string(nodep->lsbConst());
-                } else {
+                } မဟုတ်ပါက {
                     msbLsbProtected = std::to_string(nodep->msbConst() / nodep->declElWidth())
                                       + ":"
                                       + std::to_string(nodep->lsbConst() / nodep->declElWidth());
@@ -1803,95 +1803,95 @@ class ConstVisitor final : public VNVisitor {
                 // Don't replace with zero, we'll do it later
             }
         }
-        return false;  // Not a transform, so NOP
+        ပြန်ပေး false;  // Not a transform, so NOP
     }
 
     static bool operandsSame(const AstNode* node1p, const AstNode* node2p) {
         // For now we just detect constants & simple vars, though it could be more generic
-        if (const AstConst* const const1p = VN_CAST(node1p, Const)) {
-            if (const AstConst* const const2p = VN_CAST(node2p, Const)) {
-                return V3Number{node1p->fileline(), 1, 0}
+        အကယ်၍ (const AstConst* const const1p = VN_CAST(node1p, Const)) {
+            အကယ်၍ (const AstConst* const const2p = VN_CAST(node2p, Const)) {
+                ပြန်ပေး V3Number{node1p->fileline(), 1, 0}
                     .opEq(const1p->num(), const2p->num())
                     .isEqOne();
             }
         }
-        if (VN_IS(node1p, VarRef) && VN_IS(node2p, VarRef)) {
+        အကယ်၍ (VN_IS(node1p, VarRef) && VN_IS(node2p, VarRef)) {
             // Avoid comparing widthMin's, which results in lost optimization attempts
             // If cleanup sameGateTree to be smarter, this can be restored.
             // return node1p->sameGateTree(node2p);
-            return node1p->isSame(node2p);
+            ပြန်ပေး node1p->isSame(node2p);
         }
         // Pattern created by coverage-line/branch; avoid compiler tautological-compare warning
-        if (const AstAnd* const and1p = VN_CAST(node1p, And)) {
-            if (const AstAnd* const and2p = VN_CAST(node2p, And)) {
-                if (VN_IS(and1p->lhsp(), Const) && VN_IS(and1p->rhsp(), NodeVarRef)
+        အကယ်၍ (const AstAnd* const and1p = VN_CAST(node1p, And)) {
+            အကယ်၍ (const AstAnd* const and2p = VN_CAST(node2p, And)) {
+                အကယ်၍ (VN_IS(and1p->lhsp(), Const) && VN_IS(and1p->rhsp(), NodeVarRef)
                     && VN_IS(and2p->lhsp(), Const) && VN_IS(and2p->rhsp(), NodeVarRef))
-                    return node1p->sameGateTree(node2p);
+                    ပြန်ပေး node1p->sameGateTree(node2p);
             }
         }
-        return false;
+        ပြန်ပေး false;
     }
     bool ifSameAssign(const AstNodeIf* nodep) {
         const AstNodeAssign* const thensp = VN_CAST(nodep->thensp(), NodeAssign);
         const AstNodeAssign* const elsesp = VN_CAST(nodep->elsesp(), NodeAssign);
-        if (!thensp || thensp->nextp()) return false;  // Must be SINGLE statement
-        if (!elsesp || elsesp->nextp()) return false;
-        if (thensp->type() != elsesp->type()) return false;  // Can't mix an assigndly with assign
-        if (!thensp->lhsp()->sameGateTree(elsesp->lhsp())) return false;
-        if (!thensp->rhsp()->gateTree()) return false;
-        if (!elsesp->rhsp()->gateTree()) return false;
+        အကယ်၍ (!thensp || thensp->nextp()) ပြန်ပေး false;  // Must be SINGLE statement
+        အကယ်၍ (!elsesp || elsesp->nextp()) ပြန်ပေး false;
+        အကယ်၍ (thensp->type() != elsesp->type()) ပြန်ပေး false;  // Can't mix an assigndly with assign
+        အကယ်၍ (!thensp->lhsp()->sameGateTree(elsesp->lhsp())) ပြန်ပေး false;
+        အကယ်၍ (!thensp->rhsp()->gateTree()) ပြန်ပေး false;
+        အကယ်၍ (!elsesp->rhsp()->gateTree()) ပြန်ပေး false;
         // Must not create an expression with unpacked array type
-        if (VN_IS(thensp->rhsp()->dtypep()->skipRefp(), UnpackArrayDType)) return false;
-        if (VN_IS(elsesp->rhsp()->dtypep()->skipRefp(), UnpackArrayDType)) return false;
-        if (m_underRecFunc) return false;  // This optimization may lead to infinite recursion
-        if (m_doCpp) {  // Do not combine ifs cretaed by V3Premit
-            if (VN_IS(thensp->lhsp(), VarRef) && thensp->lhsp()->isWide()) return false;
+        အကယ်၍ (VN_IS(thensp->rhsp()->dtypep()->skipRefp(), UnpackArrayDType)) ပြန်ပေး false;
+        အကယ်၍ (VN_IS(elsesp->rhsp()->dtypep()->skipRefp(), UnpackArrayDType)) ပြန်ပေး false;
+        အကယ်၍ (m_underRecFunc) ပြန်ပေး false;  // This optimization may lead to infinite recursion
+        အကယ်၍ (m_doCpp) {  // Do not combine ifs cretaed by V3Premit
+            အကယ်၍ (VN_IS(thensp->lhsp(), VarRef) && thensp->lhsp()->isWide()) ပြန်ပေး false;
         }
         // Only do it if not calls and both pure, otherwise undoes V3LiftExpr
-        return !VN_IS(thensp->rhsp(), NodeFTaskRef)  //
+        ပြန်ပေး !VN_IS(thensp->rhsp(), NodeFTaskRef)  //
                && !VN_IS(elsesp->rhsp(), NodeFTaskRef)  //
                && thensp->rhsp()->isPure()  //
                && elsesp->rhsp()->isPure();
     }
     bool operandIfIf(const AstNodeIf* nodep) {
-        if (nodep->elsesp()) return false;
+        အကယ်၍ (nodep->elsesp()) ပြန်ပေး false;
         const AstNodeIf* const lowerIfp = VN_CAST(nodep->thensp(), NodeIf);
-        if (!lowerIfp || lowerIfp->nextp()) return false;
-        if (nodep->type() != lowerIfp->type()) return false;
-        if (AstNode::afterCommentp(lowerIfp->elsesp())) return false;
-        return true;
+        အကယ်၍ (!lowerIfp || lowerIfp->nextp()) ပြန်ပေး false;
+        အကယ်၍ (nodep->type() != lowerIfp->type()) ပြန်ပေး false;
+        အကယ်၍ (AstNode::afterCommentp(lowerIfp->elsesp())) ပြန်ပေး false;
+        ပြန်ပေး true;
     }
     bool ifConcatMergeableBiop(const AstNode* nodep) {
-        return (VN_IS(nodep, And) || VN_IS(nodep, Or) || VN_IS(nodep, Xor));
+        ပြန်ပေး (VN_IS(nodep, And) || VN_IS(nodep, Or) || VN_IS(nodep, Xor));
     }
     bool ifAdjacentSel(const AstSel* lhsp, const AstSel* rhsp) {
-        if (!v3Global.opt.fAssemble()) return false;  // opt disabled
-        if (!lhsp || !rhsp) return false;
+        အကယ်၍ (!v3Global.opt.fAssemble()) ပြန်ပေး false;  // opt disabled
+        အကယ်၍ (!lhsp || !rhsp) ပြန်ပေး false;
         const AstNode* const lfromp = lhsp->fromp();
         const AstNode* const rfromp = rhsp->fromp();
-        if (!lfromp || !rfromp || !lfromp->sameGateTree(rfromp)) return false;
+        အကယ်၍ (!lfromp || !rfromp || !lfromp->sameGateTree(rfromp)) ပြန်ပေး false;
         const AstConst* const lstart = VN_CAST(lhsp->lsbp(), Const);
         const AstConst* const rstart = VN_CAST(rhsp->lsbp(), Const);
-        if (!lstart || !rstart) return false;  // too complicated
-        const int rend = (rstart->toSInt() + rhsp->widthConst());
-        return (rend == lstart->toSInt());
+        အကယ်၍ (!lstart || !rstart) ပြန်ပေး false;  // too complicated
+        const ကိန်းပြည့် rend = (rstart->toSInt() + rhsp->widthConst());
+        ပြန်ပေး (rend == lstart->toSInt());
     }
     bool ifMergeAdjacent(const AstNodeExpr* lhsp, const AstNodeExpr* rhsp) {
         // Called by concatmergeable to determine if {lhsp, rhsp} make sense
-        if (!v3Global.opt.fAssemble()) return false;  // opt disabled
+        အကယ်၍ (!v3Global.opt.fAssemble()) ပြန်ပေး false;  // opt disabled
         // Two same varref
-        if (operandsSame(lhsp, rhsp)) return true;
+        အကယ်၍ (operandsSame(lhsp, rhsp)) ပြန်ပေး true;
         const AstSel* const lselp = VN_CAST(lhsp, Sel);
         const AstSel* const rselp = VN_CAST(rhsp, Sel);
-        if (!lselp && !rselp) return false;
-        if (lselp && !VN_IS(lselp->lsbp(), Const)) return false;
-        if (rselp && !VN_IS(rselp->lsbp(), Const)) return false;
+        အကယ်၍ (!lselp && !rselp) ပြန်ပေး false;
+        အကယ်၍ (lselp && !VN_IS(lselp->lsbp(), Const)) ပြန်ပေး false;
+        အကယ်၍ (rselp && !VN_IS(rselp->lsbp(), Const)) ပြန်ပေး false;
         // a[i:j] {a[j-1:k], b}
-        if (lselp && !rselp && VN_IS(rhsp, Concat))
-            return ifMergeAdjacent(lhsp, VN_AS(rhsp, Concat)->lhsp());
+        အကယ်၍ (lselp && !rselp && VN_IS(rhsp, Concat))
+            ပြန်ပေး ifMergeAdjacent(lhsp, VN_AS(rhsp, Concat)->lhsp());
         // {b, a[j:k]} a[k-1:i]
-        if (rselp && !lselp && VN_IS(lhsp, Concat))
-            return ifMergeAdjacent(VN_AS(lhsp, Concat)->rhsp(), rhsp);
+        အကယ်၍ (rselp && !lselp && VN_IS(lhsp, Concat))
+            ပြန်ပေး ifMergeAdjacent(VN_AS(lhsp, Concat)->rhsp(), rhsp);
         // a a[msb:j]
         const AstNodeExpr* const lfromp = lselp                                ? lselp->fromp()
                                           : lhsp->sameGateTree(rselp->fromp()) ? lhsp
@@ -1900,44 +1900,44 @@ class ConstVisitor final : public VNVisitor {
         const AstNodeExpr* const rfromp = rselp                                ? rselp->fromp()
                                           : rhsp->sameGateTree(lselp->fromp()) ? rhsp
                                                                                : nullptr;
-        if (!lfromp || !rfromp || !lfromp->sameGateTree(rfromp)) return false;
+        အကယ်၍ (!lfromp || !rfromp || !lfromp->sameGateTree(rfromp)) ပြန်ပေး false;
 
         const int32_t lstart = lselp ? lselp->lsbConst() : 0;
         const int32_t rstart = rselp ? rselp->lsbConst() : 0;
         const int32_t rend = rstart + (rselp ? rselp->widthConst() : rhsp->width());
         // a[i:j] a[j-1:k]
-        if (rend == lstart) return true;
+        အကယ်၍ (rend == lstart) ပြန်ပေး true;
         // a[i:0] a[msb:j]
-        if (rend == rfromp->width() && lstart == 0) return true;
-        return false;
+        အကယ်၍ (rend == rfromp->width() && lstart == 0) ပြန်ပေး true;
+        ပြန်ပေး false;
     }
     bool concatMergeable(const AstNodeExpr* lhsp, const AstNodeExpr* rhsp, unsigned depth) {
         // Determine if {a OP b, c OP d} => {a, c} OP {b, d} is advantageous
-        if (!v3Global.opt.fAssemble()) return false;  // opt disabled
-        if (lhsp->type() != rhsp->type()) return false;
-        if (!ifConcatMergeableBiop(lhsp)) return false;
-        if (depth > CONCAT_MERGABLE_MAX_DEPTH) return false;  // As worse case O(n^2) algorithm
+        အကယ်၍ (!v3Global.opt.fAssemble()) ပြန်ပေး false;  // opt disabled
+        အကယ်၍ (lhsp->type() != rhsp->type()) ပြန်ပေး false;
+        အကယ်၍ (!ifConcatMergeableBiop(lhsp)) ပြန်ပေး false;
+        အကယ်၍ (depth > CONCAT_MERGABLE_MAX_DEPTH) ပြန်ပေး false;  // As worse case O(n^2) algorithm
 
         const AstNodeBiop* const lp = VN_CAST(lhsp, NodeBiop);
         const AstNodeBiop* const rp = VN_CAST(rhsp, NodeBiop);
-        if (!lp || !rp) return false;
+        အကယ်၍ (!lp || !rp) ပြန်ပေး false;
         // {a[]&b[], a[]&b[]}
         const bool lad = ifMergeAdjacent(lp->lhsp(), rp->lhsp());
         const bool rad = ifMergeAdjacent(lp->rhsp(), rp->rhsp());
-        if (lad && rad) return true;
+        အကယ်၍ (lad && rad) ပြန်ပေး true;
         // {a[] & b[]&c[], a[] & b[]&c[]}
-        if (lad && concatMergeable(lp->rhsp(), rp->rhsp(), depth + 1)) return true;
+        အကယ်၍ (lad && concatMergeable(lp->rhsp(), rp->rhsp(), depth + 1)) ပြန်ပေး true;
         // {a[]&b[] & c[], a[]&b[] & c[]}
-        if (rad && concatMergeable(lp->lhsp(), rp->lhsp(), depth + 1)) return true;
+        အကယ်၍ (rad && concatMergeable(lp->lhsp(), rp->lhsp(), depth + 1)) ပြန်ပေး true;
         // {(a[]&b[])&(c[]&d[]), (a[]&b[])&(c[]&d[])}
-        if (concatMergeable(lp->lhsp(), rp->lhsp(), depth + 1)
+        အကယ်၍ (concatMergeable(lp->lhsp(), rp->lhsp(), depth + 1)
             && concatMergeable(lp->rhsp(), rp->rhsp(), depth + 1)) {
-            return true;
+            ပြန်ပေး true;
         }
-        return false;
+        ပြန်ပေး false;
     }
     static bool operandsSameWidth(const AstNode* lhsp, const AstNode* rhsp) {
-        return lhsp->width() == rhsp->width();
+        ပြန်ပေး lhsp->width() == rhsp->width();
     }
 
     //----------------------------------------
@@ -1950,7 +1950,7 @@ class ConstVisitor final : public VNVisitor {
         UASSERT_OBJ(!(VN_IS(oldp, Const) && !VN_AS(oldp, Const)->num().isFourState()), oldp,
                     "Already constant??");
         AstConst* const newp = new AstConst{oldp->fileline(), num};
-        if (!origParamName.empty()) newp->origParamName(origParamName);
+        အကယ်၍ (!origParamName.empty()) newp->origParamName(origParamName);
         oldp->replaceWithKeepDType(newp);
         UINFOTREE(6, oldp, "", "const_old");
         UINFOTREE(6, newp, "", "_new");
@@ -1963,14 +1963,14 @@ class ConstVisitor final : public VNVisitor {
     void replaceNumSigned(AstNodeBiop* nodep, uint32_t val) {
         // We allow both sides to be constant, as one may have come from
         // parameter propagation, etc.
-        if (m_warn && !(VN_IS(nodep->lhsp(), Const) && VN_IS(nodep->rhsp(), Const))) {
+        အကယ်၍ (m_warn && !(VN_IS(nodep->lhsp(), Const) && VN_IS(nodep->rhsp(), Const))) {
             nodep->v3warn(UNSIGNED, "Comparison is constant due to unsigned arithmetic");
         }
         VL_DO_DANGLING(replaceNum(nodep, val), nodep);
     }
     void replaceNumLimited(AstNodeBiop* nodep, uint32_t val) {
         // Avoids gcc warning about same
-        if (m_warn) nodep->v3warn(CMPCONST, "Comparison is constant due to limited range");
+        အကယ်၍ (m_warn) nodep->v3warn(CMPCONST, "Comparison is constant due to limited range");
         VL_DO_DANGLING(replaceNum(nodep, val), nodep);
     }
     void replaceZero(AstNode* nodep) { VL_DO_DANGLING(replaceNum(nodep, 0), nodep); }
@@ -1978,9 +1978,9 @@ class ConstVisitor final : public VNVisitor {
         // For example, "0 * n" -> 0 if n has no side effects
         // Else strength reduce it to 0 & n.
         // If ever change the operation note AstAnd rule specially ignores this created pattern
-        if (checkp->isPure()) {
+        အကယ်၍ (checkp->isPure()) {
             VL_DO_DANGLING(replaceNum(nodep, 0), nodep);
-        } else {
+        } မဟုတ်ပါက {
             AstNode* const newp = new AstAnd{nodep->fileline(), new AstConst{nodep->fileline(), 0},
                                              checkp->unlinkFrBack()};
             nodep->replaceWithKeepDType(newp);
@@ -2048,9 +2048,9 @@ class ConstVisitor final : public VNVisitor {
     void replaceWChildBool(AstNode* nodep, AstNodeExpr* childp) {
         // NODE(..., CHILD(...)) -> REDOR(CHILD(...))
         childp->unlinkFrBack();
-        if (childp->width1()) {
+        အကယ်၍ (childp->width1()) {
             nodep->replaceWithKeepDType(childp);
-        } else {
+        } မဟုတ်ပါက {
             nodep->replaceWithKeepDType(new AstRedOr{childp->fileline(), childp});
         }
         VL_DO_DANGLING(pushDeletep(nodep), nodep);
@@ -2059,14 +2059,14 @@ class ConstVisitor final : public VNVisitor {
     //! Replace a ternary node with its RHS after iterating
     //! Used with short-circuiting, where the RHS has not yet been iterated.
     void replaceWIteratedRhs(AstNodeTriop* nodep) {
-        if (AstNode* const rhsp = nodep->rhsp()) iterateAndNextNull(rhsp);
+        အကယ်၍ (AstNode* const rhsp = nodep->rhsp()) iterateAndNextNull(rhsp);
         replaceWChild(nodep, nodep->rhsp());  // May have changed
     }
 
     //! Replace a ternary node with its THS after iterating
     //! Used with short-circuiting, where the THS has not yet been iterated.
     void replaceWIteratedThs(AstNodeTriop* nodep) {
-        if (AstNode* const thsp = nodep->thsp()) iterateAndNextNull(thsp);
+        အကယ်၍ (AstNode* const thsp = nodep->thsp()) iterateAndNextNull(thsp);
         replaceWChild(nodep, nodep->thsp());  // May have changed
     }
     void replaceWLhs(AstNodeUniop* nodep) {
@@ -2100,7 +2100,7 @@ class ConstVisitor final : public VNVisitor {
         rp->lhsp(ap);
         rp->rhsp(bp);
         rp->dtypeFrom(nodep);  // Upper widthMin more likely correct
-        if (VN_IS(rp->lhsp(), Const) && VN_IS(rp->rhsp(), Const)) replaceConst(rp);
+        အကယ်၍ (VN_IS(rp->lhsp(), Const) && VN_IS(rp->rhsp(), Const)) replaceConst(rp);
         iterate(nodep);  // Proceed to fixed point
     }
     void replaceAsvLUp(AstNodeBiop* nodep) {
@@ -2141,7 +2141,7 @@ class ConstVisitor final : public VNVisitor {
         AstNodeExpr* const rlp = rp->lhsp()->unlinkFrBack();
         AstNodeExpr* const rrp = rp->rhsp()->unlinkFrBack();
         nodep->replaceWithKeepDType(lp);
-        if (operandsSame(llp, rlp)) {
+        အကယ်၍ (operandsSame(llp, rlp)) {
             lp->lhsp(llp);
             lp->rhsp(nodep);
             lp->dtypeFrom(nodep);
@@ -2149,7 +2149,7 @@ class ConstVisitor final : public VNVisitor {
             nodep->rhsp(rrp);
             VL_DO_DANGLING(pushDeletep(rp), rp);
             VL_DO_DANGLING(pushDeletep(rlp), rlp);
-        } else if (operandsSame(lrp, rrp)) {
+        } မဟုတ်ပါက အကယ်၍ (operandsSame(lrp, rrp)) {
             lp->lhsp(nodep);
             lp->rhsp(rrp);
             lp->dtypeFrom(nodep);
@@ -2157,7 +2157,7 @@ class ConstVisitor final : public VNVisitor {
             nodep->rhsp(rlp);
             VL_DO_DANGLING(pushDeletep(rp), rp);
             VL_DO_DANGLING(pushDeletep(lrp), lrp);
-        } else {
+        } မဟုတ်ပါက {
             nodep->v3fatalSrc("replaceAndOr on something operandAndOrSame shouldn't have matched");
         }
         // UINFOTREE(1, nodep, "", "repAndOr_new");
@@ -2185,10 +2185,10 @@ class ConstVisitor final : public VNVisitor {
         // {a[1], a[0]} -> a[1:0]
         AstSel* const lselp = VN_AS(nodep->lhsp()->unlinkFrBack(), Sel);
         AstSel* const rselp = VN_AS(nodep->rhsp()->unlinkFrBack(), Sel);
-        const int lstart = lselp->lsbConst();
-        const int lwidth = lselp->widthConst();
-        const int rstart = rselp->lsbConst();
-        const int rwidth = rselp->widthConst();
+        const ကိန်းပြည့် lstart = lselp->lsbConst();
+        const ကိန်းပြည့် lwidth = lselp->widthConst();
+        const ကိန်းပြည့် rstart = rselp->lsbConst();
+        const ကိန်းပြည့် rwidth = rselp->widthConst();
 
         UASSERT_OBJ((rstart + rwidth) == lstart, nodep,
                     "tried to merge two selects which are not adjacent");
@@ -2205,7 +2205,7 @@ class ConstVisitor final : public VNVisitor {
         // {llp OP lrp, rlp OP rrp} => {llp, rlp} OP {lrp, rrp}, where OP = AND/OR/XOR
         AstNodeBiop* const lp = VN_AS(nodep->lhsp(), NodeBiop);
         AstNodeBiop* const rp = VN_AS(nodep->rhsp(), NodeBiop);
-        if (concatMergeable(lp, rp, 0)) {
+        အကယ်၍ (concatMergeable(lp, rp, 0)) {
             AstNodeExpr* const llp = lp->lhsp();
             AstNodeExpr* const lrp = lp->rhsp();
             AstNodeExpr* const rlp = rp->lhsp();
@@ -2227,7 +2227,7 @@ class ConstVisitor final : public VNVisitor {
             VL_DO_DANGLING(pushDeletep(nodep), nodep);
             iterate(lp->lhsp());
             iterate(lp->rhsp());
-        } else {
+        } မဟုတ်ပါက {
             nodep->v3fatalSrc("tried to merge two Concat which are not adjacent");
         }
     }
@@ -2253,7 +2253,7 @@ class ConstVisitor final : public VNVisitor {
     }
     void replaceMulShift(AstMul* nodep) {  // Mul, but not MulS as not simple shift
         UINFO(5, "MUL(2^n,b)->SHIFTL(b,n) " << nodep);
-        const int amount = VN_AS(nodep->lhsp(), Const)->num().mostSetBitP1() - 1;  // 2^n->n+1
+        const ကိန်းပြည့် amount = VN_AS(nodep->lhsp(), Const)->num().mostSetBitP1() - 1;  // 2^n->n+1
         AstNodeExpr* const opp = nodep->rhsp()->unlinkFrBack();
         AstShiftL* const newp
             = new AstShiftL{nodep->fileline(), opp, new AstConst(nodep->fileline(), amount)};
@@ -2262,7 +2262,7 @@ class ConstVisitor final : public VNVisitor {
     }
     void replaceDivShift(AstDiv* nodep) {  // Mul, but not MulS as not simple shift
         UINFO(5, "DIV(b,2^n)->SHIFTR(b,n) " << nodep);
-        const int amount = VN_AS(nodep->rhsp(), Const)->num().mostSetBitP1() - 1;  // 2^n->n+1
+        const ကိန်းပြည့် amount = VN_AS(nodep->rhsp(), Const)->num().mostSetBitP1() - 1;  // 2^n->n+1
         AstNodeExpr* const opp = nodep->lhsp()->unlinkFrBack();
         AstShiftR* const newp
             = new AstShiftR{nodep->fileline(), opp, new AstConst(nodep->fileline(), amount)};
@@ -2271,7 +2271,7 @@ class ConstVisitor final : public VNVisitor {
     }
     void replaceModAnd(AstModDiv* nodep) {  // Mod, but not ModS as not simple shift
         UINFO(5, "MOD(b,2^n)->AND(b,2^n-1) " << nodep);
-        const int amount = VN_AS(nodep->rhsp(), Const)->num().mostSetBitP1() - 1;  // 2^n->n+1
+        const ကိန်းပြည့် amount = VN_AS(nodep->rhsp(), Const)->num().mostSetBitP1() - 1;  // 2^n->n+1
         V3Number mask{nodep, nodep->width()};
         mask.setMask(amount);
         AstNodeExpr* const opp = nodep->lhsp()->unlinkFrBack();
@@ -2283,8 +2283,8 @@ class ConstVisitor final : public VNVisitor {
     void replaceShiftOp(AstNodeBiop* nodep) {
         UINFO(5, "SHIFT(AND(a,b),CONST) with a/b special ->AND(SHIFT(a,CONST),SHIFT(b,CONST)) "
                      << nodep);
-        const int width = nodep->width();
-        const int widthMin = nodep->widthMin();
+        const ကိန်းပြည့် width = nodep->width();
+        const ကိန်းပြည့် widthMin = nodep->widthMin();
         VNRelinker handle;
         nodep->unlinkFrBack(&handle);
         AstNodeBiop* const lhsp = VN_AS(nodep->lhsp(), NodeBiop);
@@ -2315,43 +2315,43 @@ class ConstVisitor final : public VNVisitor {
         AstNodeExpr* const shift2p = nodep->rhsp()->unlinkFrBack();
         // Shift1p and shift2p may have different sizes, both are
         // self-determined so sum with infinite width
-        if (nodep->type() == lhsp->type()) {
-            const int shift1 = VN_AS(shift1p, Const)->toUInt();
-            const int shift2 = VN_AS(shift2p, Const)->toUInt();
-            const int newshift = shift1 + shift2;
+        အကယ်၍ (nodep->type() == lhsp->type()) {
+            const ကိန်းပြည့် shift1 = VN_AS(shift1p, Const)->toUInt();
+            const ကိန်းပြည့် shift2 = VN_AS(shift2p, Const)->toUInt();
+            const ကိန်းပြည့် newshift = shift1 + shift2;
             VL_DO_DANGLING(pushDeletep(shift1p), shift1p);
             VL_DO_DANGLING(pushDeletep(shift2p), shift2p);
             nodep->lhsp(ap);
             nodep->rhsp(new AstConst(nodep->fileline(), newshift));
             iterate(nodep);  // Further reduce, either node may have more reductions.
-        } else {
+        } မဟုတ်ပါက {
             // We know shift amounts are constant, but might be a mixed left/right shift
-            int shift1 = VN_AS(shift1p, Const)->toUInt();
-            if (VN_IS(lhsp, ShiftR)) shift1 = -shift1;
-            int shift2 = VN_AS(shift2p, Const)->toUInt();
-            if (VN_IS(nodep, ShiftR)) shift2 = -shift2;
-            const int newshift = shift1 + shift2;
+            ကိန်းပြည့် shift1 = VN_AS(shift1p, Const)->toUInt();
+            အကယ်၍ (VN_IS(lhsp, ShiftR)) shift1 = -shift1;
+            ကိန်းပြည့် shift2 = VN_AS(shift2p, Const)->toUInt();
+            အကယ်၍ (VN_IS(nodep, ShiftR)) shift2 = -shift2;
+            const ကိန်းပြည့် newshift = shift1 + shift2;
             VL_DO_DANGLING(pushDeletep(shift1p), shift1p);
             VL_DO_DANGLING(pushDeletep(shift2p), shift2p);
             AstNodeExpr* newp;
             V3Number mask1{nodep, nodep->width()};
             V3Number ones{nodep, nodep->width()};
             ones.setMask(nodep->width());
-            if (shift1 < 0) {
+            အကယ်၍ (shift1 < 0) {
                 mask1.opShiftR(ones, V3Number(nodep, VL_IDATASIZE, -shift1));
-            } else {
+            } မဟုတ်ပါက {
                 mask1.opShiftL(ones, V3Number(nodep, VL_IDATASIZE, shift1));
             }
             V3Number mask{nodep, nodep->width()};
-            if (shift2 < 0) {
+            အကယ်၍ (shift2 < 0) {
                 mask.opShiftR(mask1, V3Number(nodep, VL_IDATASIZE, -shift2));
-            } else {
+            } မဟုတ်ပါက {
                 mask.opShiftL(mask1, V3Number(nodep, VL_IDATASIZE, shift2));
             }
-            if (newshift < 0) {
+            အကယ်၍ (newshift < 0) {
                 newp = new AstShiftR{nodep->fileline(), ap,
                                      new AstConst(nodep->fileline(), -newshift)};
-            } else {
+            } မဟုတ်ပါက {
                 newp = new AstShiftL{nodep->fileline(), ap,
                                      new AstConst(nodep->fileline(), newshift)};
             }
@@ -2371,34 +2371,34 @@ class ConstVisitor final : public VNVisitor {
         // ie. assign var[2]=a, assign var[3]=b -> assign var[3:2]={b,a}
 
         // Skip if we're not const'ing an entire module (IE doing only one assign, etc)
-        if (!m_modp) return false;
+        အကယ်၍ (!m_modp) ပြန်ပေး false;
         // cppcheck-suppress constVariablePointer // children unlinked below
         AstSel* const sel1p = VN_CAST(nodep->lhsp(), Sel);
-        if (!sel1p) return false;
+        အကယ်၍ (!sel1p) ပြန်ပေး false;
         AstNodeAssign* const nextp = VN_CAST(nodep->nextp(), NodeAssign);
-        if (!nextp) return false;
-        if (nodep->type() != nextp->type()) return false;
+        အကယ်၍ (!nextp) ပြန်ပေး false;
+        အကယ်၍ (nodep->type() != nextp->type()) ပြန်ပေး false;
         const AstSel* const sel2p = VN_CAST(nextp->lhsp(), Sel);
-        if (!sel2p) return false;
+        အကယ်၍ (!sel2p) ပြန်ပေး false;
         AstVarRef* const varref1p = VN_CAST(sel1p->fromp(), VarRef);
-        if (!varref1p) return false;
+        အကယ်၍ (!varref1p) ပြန်ပေး false;
         const AstVarRef* const varref2p = VN_CAST(sel2p->fromp(), VarRef);
-        if (!varref2p) return false;
-        if (!varref1p->sameGateTree(varref2p)) return false;
+        အကယ်၍ (!varref2p) ပြန်ပေး false;
+        အကယ်၍ (!varref1p->sameGateTree(varref2p)) ပြန်ပေး false;
         const AstConst* const con1p = VN_CAST(sel1p->lsbp(), Const);
-        if (!con1p) return false;
+        အကယ်၍ (!con1p) ပြန်ပေး false;
         const AstConst* const con2p = VN_CAST(sel2p->lsbp(), Const);
-        if (!con2p) return false;
+        အကယ်၍ (!con2p) ပြန်ပေး false;
         // We need to make sure there's no self-references involved in either
         // assignment.  For speed, we only look 3 deep, then give up.
-        if (!varNotReferenced(nodep->rhsp(), varref1p->varp())) return false;
-        if (!varNotReferenced(nextp->rhsp(), varref2p->varp())) return false;
+        အကယ်၍ (!varNotReferenced(nodep->rhsp(), varref1p->varp())) ပြန်ပေး false;
+        အကယ်၍ (!varNotReferenced(nextp->rhsp(), varref2p->varp())) ပြန်ပေး false;
         // If a variable is marked split_var, access to the variable should not be merged.
-        if (varref1p->varp()->attrSplitVar() || varref2p->varp()->attrSplitVar()) return false;
+        အကယ်၍ (varref1p->varp()->attrSplitVar() || varref2p->varp()->attrSplitVar()) ပြန်ပေး false;
         // Swap?
-        if ((con1p->toSInt() != con2p->toSInt() + sel2p->width())
+        အကယ်၍ ((con1p->toSInt() != con2p->toSInt() + sel2p->width())
             && (con2p->toSInt() != con1p->toSInt() + sel1p->width())) {
-            return false;
+            ပြန်ပေး false;
         }
         const bool lsbFirstAssign = (con1p->toUInt() < con2p->toUInt());
         UINFO(4, "replaceAssignMultiSel " << nodep);
@@ -2408,11 +2408,11 @@ class ConstVisitor final : public VNVisitor {
         AstNodeExpr* const rhs1p = nodep->rhsp()->unlinkFrBack();
         AstNodeExpr* const rhs2p = nextp->rhsp()->unlinkFrBack();
         AstNodeAssign* newp;
-        if (lsbFirstAssign) {
+        အကယ်၍ (lsbFirstAssign) {
             newp = nodep->cloneType(new AstSel{sel1p->fileline(), varref1p->unlinkFrBack(),
                                                sel1p->lsbConst(), sel1p->width() + sel2p->width()},
                                     new AstConcat{rhs1p->fileline(), rhs2p, rhs1p});
-        } else {
+        } မဟုတ်ပါက {
             newp = nodep->cloneType(new AstSel{sel1p->fileline(), varref1p->unlinkFrBack(),
                                                sel2p->lsbConst(), sel1p->width() + sel2p->width()},
                                     new AstConcat{rhs1p->fileline(), rhs1p, rhs2p});
@@ -2421,33 +2421,33 @@ class ConstVisitor final : public VNVisitor {
         nodep->replaceWith(newp);  // dypep intentionally changing
         VL_DO_DANGLING(pushDeletep(nodep), nodep);
         VL_DO_DANGLING(pushDeletep(nextp->unlinkFrBack()), nextp);
-        return true;
+        ပြန်ပေး true;
     }
 
     bool replaceAssignSFormatF(AstNodeAssign* nodep) {
         // Rewrite 'x = sformatf(...)' into 'sformat(x, ...)', which is more efficient
         // at the call site as it does not need to check if 'x' needs to be freed first.
         // This is a somewhat common pattern after lowering assertions.
-        if (!VN_IS(nodep, Assign)) return false;
+        အကယ်၍ (!VN_IS(nodep, Assign)) ပြန်ပေး false;
         AstVarRef* const lhsp = VN_CAST(nodep->lhsp(), VarRef);
-        if (!lhsp) return false;
+        အကယ်၍ (!lhsp) ပြန်ပေး false;
         AstSFormatF* const fmtp = VN_CAST(nodep->rhsp(), SFormatF);
-        if (!fmtp) return false;
+        အကယ်၍ (!fmtp) ပြန်ပေး false;
         lhsp->unlinkFrBack();
         fmtp->unlinkFrBack();
         nodep->replaceWith(new AstSFormat{nodep->fileline(), fmtp, lhsp});
         VL_DO_DANGLING(pushDeletep(nodep), nodep);
-        return true;
+        ပြန်ပေး true;
     }
 
-    bool varNotReferenced(AstNode* nodep, AstVar* varp, int level = 0) {
+    bool varNotReferenced(AstNode* nodep, AstVar* varp, ကိန်းပြည့် level = 0) {
         // Return true if varp never referenced under node.
         // Return false if referenced, or tree too deep to be worth it, or side effects
-        if (!nodep) return true;
-        if (level > 2) return false;
-        if (!nodep->isPure()) return false;  // For example a $fgetc can't be reordered
-        if (VN_IS(nodep, NodeVarRef) && VN_AS(nodep, NodeVarRef)->varp() == varp) return false;
-        return (varNotReferenced(nodep->nextp(), varp, level + 1)
+        အကယ်၍ (!nodep) ပြန်ပေး true;
+        အကယ်၍ (level > 2) ပြန်ပေး false;
+        အကယ်၍ (!nodep->isPure()) ပြန်ပေး false;  // For example a $fgetc can't be reordered
+        အကယ်၍ (VN_IS(nodep, NodeVarRef) && VN_AS(nodep, NodeVarRef)->varp() == varp) ပြန်ပေး false;
+        ပြန်ပေး (varNotReferenced(nodep->nextp(), varp, level + 1)
                 && varNotReferenced(nodep->op1p(), varp, level + 1)
                 && varNotReferenced(nodep->op2p(), varp, level + 1)
                 && varNotReferenced(nodep->op3p(), varp, level + 1)
@@ -2455,20 +2455,20 @@ class ConstVisitor final : public VNVisitor {
     }
 
     bool replaceNodeAssign(AstNodeAssign* nodep) {
-        if (VN_IS(nodep->lhsp(), VarRef) && VN_IS(nodep->rhsp(), VarRef)
+        အကယ်၍ (VN_IS(nodep->lhsp(), VarRef) && VN_IS(nodep->rhsp(), VarRef)
             && VN_AS(nodep->lhsp(), VarRef)->sameNoLvalue(VN_AS(nodep->rhsp(), VarRef))
             && !VN_IS(nodep, AssignDly)) {
             // X = X.  Quite pointless, though X <= X may override another earlier assignment
-            if (VN_IS(nodep, AssignW)) {
-                if (!v3Global.opt.pedantic())
+            အကယ်၍ (VN_IS(nodep, AssignW)) {
+                အကယ်၍ (!v3Global.opt.pedantic())
                     nodep->v3error(
                         "Wire inputs its own output, creating circular logic (wire x=x)");
-                return false;  // Don't delete the assign, or V3Gate will freak out
-            } else {
+                ပြန်ပေး false;  // Don't delete the assign, or V3Gate will freak out
+            } မဟုတ်ပါက {
                 VL_DO_DANGLING(pushDeletep(nodep->unlinkFrBack()), nodep);
-                return true;
+                ပြန်ပေး true;
             }
-        } else if (m_doV && VN_IS(nodep->lhsp(), Concat)) {
+        } မဟုတ်ပါက အကယ်၍ (m_doV && VN_IS(nodep->lhsp(), Concat)) {
             bool need_temp = false;
             // A blocking assignment with an intra-assignment timing control evaluates its value,
             // then waits once (IEEE 1800-2023 9.4.5), here to assign a temporary for the parts
@@ -2477,7 +2477,7 @@ class ConstVisitor final : public VNVisitor {
             // grow with the product of the number of parts and the RHS size
             const bool needTempPure = !nodep->rhsp()->isPure() || waits
                                       || nodep->rhsp()->isLargerThan(CONCAT_ASSIGN_MAX_RHS_NODES);
-            if (m_warn && !VN_IS(nodep, AssignDly)
+            အကယ်၍ (m_warn && !VN_IS(nodep, AssignDly)
                 && !needTempPure) {  // Is same var on LHS and RHS?
                 // If the rhs is not pure, we need a temporary variable anyway
                 std::unordered_set<size_t> lhsVarIds;
@@ -2487,10 +2487,10 @@ class ConstVisitor final : public VNVisitor {
                 });
                 nodep->rhsp()->foreach([&](const AstVarRef* refp) {
                     UASSERT_OBJ(refp->varp(), refp, "Unlinked VarRef");
-                    if (lhsVarIds.count(m_ids(refp->varp()))) need_temp = true;
+                    အကယ်၍ (lhsVarIds.count(m_ids(refp->varp()))) need_temp = true;
                 });
             }
-            if (needTempPure) {
+            အကယ်၍ (needTempPure) {
                 // if the RHS is impure or large we need to create a temporary variable for it,
                 // because further handling involves copying of the RHS.
                 UINFO(4, "  ASSITEMPPURE " << nodep);
@@ -2513,8 +2513,8 @@ class ConstVisitor final : public VNVisitor {
                 nodep->addHereThisAsNext(asnp);
                 nodep->rhsp(new AstVarRef{rhsp->fileline(), tempPurep, VAccess::READ});
                 // Only the assignment of the temporary waits
-                if (waits) pushDeletep(nodep->timingControlp()->unlinkFrBack());
-            } else if (need_temp) {
+                အကယ်၍ (waits) pushDeletep(nodep->timingControlp()->unlinkFrBack());
+            } မဟုတ်ပါက အကယ်၍ (need_temp) {
                 // The first time we constify, there may be the same variable on the LHS
                 // and RHS.  In that case, we must use temporaries, or {a,b}={b,a} will break.
                 UINFO(4, "  ASSITEMP " << nodep);
@@ -2522,7 +2522,7 @@ class ConstVisitor final : public VNVisitor {
                 //                                ASSIGN(temp2,SEL(newrhs,{size}))
                 //                                ASSIGN(lc1,temp1),
                 //                                ASSIGN(lc2,temp2)
-            } else {
+            } မဟုတ်ပါက {
                 UINFO(4, "  ASSI " << nodep);
                 // ASSIGN(CONCAT(lc1,lc2),rhs) -> ASSIGN(lc1,SEL(rhs,{size})),
                 //                                ASSIGN(lc2,SEL(newrhs,{size}))
@@ -2531,7 +2531,7 @@ class ConstVisitor final : public VNVisitor {
             // so once for the NBAs to all parts
             AstDelay* const delayp
                 = VN_IS(nodep, AssignDly) ? VN_CAST(nodep->timingControlp(), Delay) : nullptr;
-            if (delayp && !delayp->lhsp()->isPure()) {
+            အကယ်၍ (delayp && !delayp->lhsp()->isPure()) {
                 FileLine* const flp = nodep->fileline();
                 AstNodeExpr* const valuep = delayp->lhsp()->unlinkFrBack();
                 AstVar* const tempp = new AstVar{flp, VVarType::BLOCKTEMP,
@@ -2551,10 +2551,10 @@ class ConstVisitor final : public VNVisitor {
             AstNodeExpr* const rhsp = nodep->rhsp()->unlinkFrBack();
             AstNodeExpr* const rhs2p = rhsp->cloneTreePure(false);
             // Calc widths
-            const int lsb2 = 0;
-            const int msb2 = lsb2 + lc2p->width() - 1;
-            const int lsb1 = msb2 + 1;
-            const int msb1 = lsb1 + lc1p->width() - 1;
+            const ကိန်းပြည့် lsb2 = 0;
+            const ကိန်းပြည့် msb2 = lsb2 + lc2p->width() - 1;
+            const ကိန်းပြည့် lsb1 = msb2 + 1;
+            const ကိန်းပြည့် msb1 = lsb1 + lc1p->width() - 1;
             UASSERT_OBJ(msb1 == (conp->width() - 1), nodep, "Width calc mismatch");
             // Form ranges
             AstSel* const sel1p = new AstSel{conp->fileline(), rhsp, lsb1, msb1 - lsb1 + 1};
@@ -2562,14 +2562,14 @@ class ConstVisitor final : public VNVisitor {
             // Make new assigns of same flavor as old one
             //*** Not cloneTree; just one node.
             AstNodeAssign* newp = nullptr;
-            if (!need_temp) {
+            အကယ်၍ (!need_temp) {
                 AstNodeAssign* const asn1ap = nodep->cloneType(lc1p, sel1p);
                 AstNodeAssign* const asn2ap = nodep->cloneType(lc2p, sel2p);
                 asn1ap->dtypeFrom(sel1p);
                 asn2ap->dtypeFrom(sel2p);
                 newp = AstNode::addNext(newp, asn1ap);
                 newp = AstNode::addNext(newp, asn2ap);
-            } else {
+            } မဟုတ်ပါက {
                 UASSERT_OBJ(m_modp, nodep, "Not under module");
                 UASSERT_OBJ(m_globalPass, nodep,
                             "Should not reach here when not invoked on whole AstNetlist");
@@ -2601,23 +2601,23 @@ class ConstVisitor final : public VNVisitor {
                 newp = AstNode::addNext(newp, asn1bp);
                 newp = AstNode::addNext(newp, asn2bp);
             }
-            if (debug() >= 9 && newp) newp->dumpTreeAndNext(cout, "-     _new: ");
+            အကယ်၍ (debug() >= 9 && newp) newp->dumpTreeAndNext(cout, "-     _new: ");
             nodep->addNextHere(newp);
             // Cleanup
             VL_DO_DANGLING(pushDeletep(nodep->unlinkFrBack()), nodep);
             VL_DO_DANGLING(pushDeletep(conp), conp);
             // Further reduce, either node may have more reductions.
-            return true;
-        } else if (m_doV && VN_IS(nodep->rhsp(), CvtPackedToArray)
+            ပြန်ပေး true;
+        } မဟုတ်ပါက အကယ်၍ (m_doV && VN_IS(nodep->rhsp(), CvtPackedToArray)
                    && lowerAsFixedAggregate(nodep->lhsp()->dtypep())) {
             AstCvtPackedToArray* const cvtp
                 = VN_AS(nodep->rhsp(), CvtPackedToArray)->unlinkFrBack();
             AstNodeExpr* srcp = cvtp->fromp()->unlinkFrBack();
-            if (lowerAsFixedAggregate(srcp->dtypep())) {
+            အကယ်၍ (lowerAsFixedAggregate(srcp->dtypep())) {
                 srcp = packFixedAggregate(srcp);
-            } else if (AstNodeStream* const streamp = VN_CAST(srcp, NodeStream)) {
+            } မဟုတ်ပါက အကယ်၍ (AstNodeStream* const streamp = VN_CAST(srcp, NodeStream)) {
                 AstNodeExpr* const streamSrcp = streamp->lhsp();
-                if (lowerAsFixedAggregate(streamSrcp->dtypep())) {
+                အကယ်၍ (lowerAsFixedAggregate(streamSrcp->dtypep())) {
                     AstNodeExpr* const packedp = packFixedAggregate(streamSrcp->unlinkFrBack());
                     streamp->lhsp(packedp);
                     streamp->dtypeSetBitOrLogicUnsized(packedp->width(), packedp->widthMin(),
@@ -2627,8 +2627,8 @@ class ConstVisitor final : public VNVisitor {
             }
             VL_DO_DANGLING(pushDeletep(cvtp), cvtp);
             replaceAssignToFixedAggregate(nodep, nodep->lhsp()->unlinkFrBack(), srcp);
-            return true;
-        } else if (m_doV && VN_IS(nodep->rhsp(), StreamR)
+            ပြန်ပေး true;
+        } မဟုတ်ပါက အကယ်၍ (m_doV && VN_IS(nodep->rhsp(), StreamR)
                    && !VN_IS(nodep->lhsp()->dtypep()->skipRefp(), QueueDType)) {
             // The right-streaming operator on rhs of assignment does not
             // change the order of bits. Eliminate stream but keep its lhsp.
@@ -2637,40 +2637,40 @@ class ConstVisitor final : public VNVisitor {
             AstNodeExpr* srcp = streamp->lhsp()->unlinkFrBack();
             AstNodeDType* const srcDTypep = srcp->dtypep()->skipRefp();
             const AstNodeDType* const dstDTypep = nodep->lhsp()->dtypep()->skipRefp();
-            if (lowerAsFixedAggregate(srcDTypep)) {
+            အကယ်၍ (lowerAsFixedAggregate(srcDTypep)) {
                 srcp = packFixedAggregate(srcp);
-            } else if (VN_IS(srcDTypep, QueueDType) || VN_IS(srcDTypep, DynArrayDType)) {
-                if (VN_IS(dstDTypep, QueueDType) || VN_IS(dstDTypep, DynArrayDType)) {
-                    int srcElementBits = 0;
-                    if (const AstNodeDType* const elemDtp = srcDTypep->subDTypep()) {
+            } မဟုတ်ပါက အကယ်၍ (VN_IS(srcDTypep, QueueDType) || VN_IS(srcDTypep, DynArrayDType)) {
+                အကယ်၍ (VN_IS(dstDTypep, QueueDType) || VN_IS(dstDTypep, DynArrayDType)) {
+                    ကိန်းပြည့် srcElementBits = 0;
+                    အကယ်၍ (const AstNodeDType* const elemDtp = srcDTypep->subDTypep()) {
                         srcElementBits = elemDtp->width();
                     }
-                    int dstElementBits = 0;
-                    if (const AstNodeDType* const elemDtp = dstDTypep->subDTypep()) {
+                    ကိန်းပြည့် dstElementBits = 0;
+                    အကယ်၍ (const AstNodeDType* const elemDtp = dstDTypep->subDTypep()) {
                         dstElementBits = elemDtp->width();
                     }
                     srcp = new AstCvtArrayToArray{
                         srcp->fileline(), srcp,          nodep->dtypep(), false, 1,
                         dstElementBits,   srcElementBits};
-                } else {
+                } မဟုတ်ပါက {
                     srcp = new AstCvtArrayToPacked{srcp->fileline(), srcp, nodep->dtypep()};
                 }
-            } else if (VN_IS(srcDTypep, UnpackArrayDType)) {
+            } မဟုတ်ပါက အကယ်၍ (VN_IS(srcDTypep, UnpackArrayDType)) {
                 srcp = new AstCvtArrayToPacked{srcp->fileline(), srcp, srcDTypep};
                 // Handling the case where lhs is wider than rhs by inserting zeros. StreamL does
                 // not require this, since the left streaming operator implicitly handles this.
-                const int packedBits = nodep->lhsp()->widthMin();
-                const int unpackBits
+                const ကိန်းပြည့် packedBits = nodep->lhsp()->widthMin();
+                const ကိန်းပြည့် unpackBits
                     = srcDTypep->arrayUnpackedElements() * srcDTypep->subDTypep()->widthMin();
                 const uint32_t offset = packedBits > unpackBits ? packedBits - unpackBits : 0;
                 srcp = new AstShiftL{srcp->fileline(), srcp,
                                      new AstConst{srcp->fileline(), offset}, packedBits};
             }
-            if (!VN_IS(dstDTypep, UnpackArrayDType) && !VN_IS(dstDTypep, QueueDType)
+            အကယ်၍ (!VN_IS(dstDTypep, UnpackArrayDType) && !VN_IS(dstDTypep, QueueDType)
                 && !VN_IS(dstDTypep, DynArrayDType)) {
-                const int sWidth = srcp->width();
-                const int dWidth = nodep->lhsp()->width();
-                if (sWidth < dWidth) {
+                const ကိန်းပြည့် sWidth = srcp->width();
+                const ကိန်းပြည့် dWidth = nodep->lhsp()->width();
+                အကယ်၍ (sWidth < dWidth) {
                     AstExtend* const extendp = new AstExtend{srcp->fileline(), srcp, dWidth};
                     srcp = new AstShiftL{
                         srcp->fileline(), extendp,
@@ -2681,8 +2681,8 @@ class ConstVisitor final : public VNVisitor {
             nodep->rhsp(srcp);
             VL_DO_DANGLING(pushDeletep(streamp), streamp);
             // Further reduce, any of the nodes may have more reductions.
-            return true;
-        } else if (m_doV && VN_IS(nodep->lhsp(), StreamL)) {
+            ပြန်ပေး true;
+        } မဟုတ်ပါက အကယ်၍ (m_doV && VN_IS(nodep->lhsp(), StreamL)) {
             // Push the stream operator to the rhs of the assignment statement
             AstNodeExpr* streamp = nodep->lhsp()->unlinkFrBack();
             AstNodeExpr* const dstp = VN_AS(streamp, StreamL)->lhsp()->unlinkFrBack();
@@ -2691,21 +2691,21 @@ class ConstVisitor final : public VNVisitor {
             const AstNodeDType* const srcDTypep = srcp->dtypep()->skipRefp();
             // Handle unpacked/queue/dynarray source -> queue/dynarray dest via
             // CvtArrayToArray (StreamL reverses, so reverse=true)
-            if ((VN_IS(srcDTypep, UnpackArrayDType) || VN_IS(srcDTypep, QueueDType)
+            အကယ်၍ ((VN_IS(srcDTypep, UnpackArrayDType) || VN_IS(srcDTypep, QueueDType)
                  || VN_IS(srcDTypep, DynArrayDType))
                 && (VN_IS(dstDTypep, QueueDType) || VN_IS(dstDTypep, DynArrayDType))) {
-                int blockSize = 1;
-                if (const AstConst* const constp
+                ကိန်းပြည့် blockSize = 1;
+                အကယ်၍ (const AstConst* const constp
                     = VN_CAST(VN_AS(streamp, StreamL)->rhsp(), Const)) {
                     blockSize = constp->toSInt();
-                    if (VL_UNLIKELY(blockSize <= 0)) blockSize = 1;
+                    အကယ်၍ (VL_UNLIKELY(blockSize <= 0)) blockSize = 1;
                 }
-                int srcElementBits = 0;
-                if (const AstNodeDType* const elemDtp = srcDTypep->subDTypep()) {
+                ကိန်းပြည့် srcElementBits = 0;
+                အကယ်၍ (const AstNodeDType* const elemDtp = srcDTypep->subDTypep()) {
                     srcElementBits = elemDtp->width();
                 }
-                int dstElementBits = 0;
-                if (const AstNodeDType* const elemDtp = dstDTypep->subDTypep()) {
+                ကိန်းပြည့် dstElementBits = 0;
+                အကယ်၍ (const AstNodeDType* const elemDtp = dstDTypep->subDTypep()) {
                     dstElementBits = elemDtp->width();
                 }
                 nodep->lhsp(dstp);
@@ -2713,35 +2713,35 @@ class ConstVisitor final : public VNVisitor {
                                                    blockSize, dstElementBits, srcElementBits});
                 nodep->dtypep(dstDTypep);
                 VL_DO_DANGLING(pushDeletep(streamp), streamp);
-                return true;
+                ပြန်ပေး true;
             }
-            if (lowerAsFixedAggregate(srcDTypep)) srcp = packFixedAggregate(srcp);
-            const int sWidth = srcp->width();
-            const int dWidth = dstp->width();
+            အကယ်၍ (lowerAsFixedAggregate(srcDTypep)) srcp = packFixedAggregate(srcp);
+            const ကိန်းပြည့် sWidth = srcp->width();
+            const ကိန်းပြည့် dWidth = dstp->width();
             // Connect the rhs to the stream operator and update its width
             VN_AS(streamp, StreamL)->lhsp(srcp);
-            if (VN_IS(srcDTypep, DynArrayDType) || VN_IS(srcDTypep, QueueDType)
+            အကယ်၍ (VN_IS(srcDTypep, DynArrayDType) || VN_IS(srcDTypep, QueueDType)
                 || VN_IS(srcDTypep, UnpackArrayDType)) {
                 streamp->dtypeSetStream();
-            } else {
+            } မဟုတ်ပါက {
                 streamp->dtypeSetBitOrLogicUnsized(srcp->width(), srcp->widthMin(),
                                                    VSigning::UNSIGNED,
                                                    srcp->isFourstateOrNoDtype());
             }
-            if (VN_IS(dstDTypep, UnpackArrayDType)) {
+            အကယ်၍ (VN_IS(dstDTypep, UnpackArrayDType)) {
                 streamp = new AstCvtPackedToArray{nodep->fileline(), streamp, dstDTypep};
-            } else {
-                if (dWidth == 0) {
+            } မဟုတ်ပါက {
+                အကယ်၍ (dWidth == 0) {
                     streamp = new AstCvtPackedToArray{nodep->fileline(), streamp, dstDTypep};
-                } else if (sWidth >= dWidth) {
+                } မဟုတ်ပါက အကယ်၍ (sWidth >= dWidth) {
                     streamp = new AstSel{streamp->fileline(), streamp, sWidth - dWidth, dWidth};
                 }
             }
             nodep->lhsp(dstp);
             nodep->rhsp(streamp);
             nodep->dtypep(dstDTypep);
-            return true;
-        } else if (m_doV && VN_IS(nodep->lhsp(), StreamR)) {
+            ပြန်ပေး true;
+        } မဟုတ်ပါက အကယ်၍ (m_doV && VN_IS(nodep->lhsp(), StreamR)) {
             // The right stream operator on lhs of assignment statement does
             // not reorder bits. However, if the rhs is wider than the lhs,
             // then we select bits from the left-most, not the right-most.
@@ -2752,30 +2752,30 @@ class ConstVisitor final : public VNVisitor {
             // Handle unpacked/queue/dynarray source -> queue/dynarray dest via
             // CvtArrayToArray (StreamR does not reverse, so reverse=false).
             // V3Width may have wrapped the source in CvtArrayToPacked; unwrap it.
-            if (VN_IS(dstDTypep, QueueDType) || VN_IS(dstDTypep, DynArrayDType)) {
+            အကယ်၍ (VN_IS(dstDTypep, QueueDType) || VN_IS(dstDTypep, DynArrayDType)) {
                 AstNodeExpr* origSrcp = srcp;
-                if (AstCvtArrayToPacked* const cvtp = VN_CAST(srcp, CvtArrayToPacked)) {
+                အကယ်၍ (AstCvtArrayToPacked* const cvtp = VN_CAST(srcp, CvtArrayToPacked)) {
                     origSrcp = cvtp->fromp();
                 }
                 const AstNodeDType* const origSrcDTypep = origSrcp->dtypep()->skipRefp();
-                if (VN_IS(origSrcDTypep, UnpackArrayDType) || VN_IS(origSrcDTypep, QueueDType)
+                အကယ်၍ (VN_IS(origSrcDTypep, UnpackArrayDType) || VN_IS(origSrcDTypep, QueueDType)
                     || VN_IS(origSrcDTypep, DynArrayDType)) {
-                    int srcElementBits = 0;
-                    if (const AstNodeDType* const elemDtp = origSrcDTypep->subDTypep()) {
+                    ကိန်းပြည့် srcElementBits = 0;
+                    အကယ်၍ (const AstNodeDType* const elemDtp = origSrcDTypep->subDTypep()) {
                         srcElementBits = elemDtp->width();
                     }
-                    int dstElementBits = 0;
-                    if (const AstNodeDType* const elemDtp = dstDTypep->subDTypep()) {
+                    ကိန်းပြည့် dstElementBits = 0;
+                    အကယ်၍ (const AstNodeDType* const elemDtp = dstDTypep->subDTypep()) {
                         dstElementBits = elemDtp->width();
                     }
-                    if (VN_IS(srcp, CvtArrayToPacked)) {
+                    အကယ်၍ (VN_IS(srcp, CvtArrayToPacked)) {
                         origSrcp = VN_AS(srcp, CvtArrayToPacked)->fromp()->unlinkFrBack();
                         VL_DO_DANGLING(pushDeletep(srcp), srcp);
                         srcp = origSrcp;
                     }
                     // Descending unpacked arrays need element reversal
                     bool reverse = false;
-                    if (const AstUnpackArrayDType* const unpackDtp
+                    အကယ်၍ (const AstUnpackArrayDType* const unpackDtp
                         = VN_CAST(origSrcDTypep, UnpackArrayDType)) {
                         reverse = !unpackDtp->declRange().ascending();
                     }
@@ -2784,38 +2784,38 @@ class ConstVisitor final : public VNVisitor {
                                                        1, dstElementBits, srcElementBits});
                     nodep->dtypep(dstDTypep);
                     VL_DO_DANGLING(pushDeletep(streamp), streamp);
-                    return true;
+                    ပြန်ပေး true;
                 }
             }
-            const int sWidth = srcp->width();
-            const int dWidth = dstp->width();
-            if (VN_IS(dstDTypep, UnpackArrayDType)) {
-                const int dstBitWidth
+            const ကိန်းပြည့် sWidth = srcp->width();
+            const ကိန်းပြည့် dWidth = dstp->width();
+            အကယ်၍ (VN_IS(dstDTypep, UnpackArrayDType)) {
+                const ကိန်းပြည့် dstBitWidth
                     = dWidth * VN_AS(dstDTypep, UnpackArrayDType)->arrayUnpackedElements();
                 // Handling the case where rhs is wider than lhs. StreamL does not require this
                 // since the combination of the left streaming operation and the implicit
                 // truncation in VL_ASSIGN_UNPACK automatically selects the left-most bits.
-                if (sWidth > dstBitWidth) {
+                အကယ်၍ (sWidth > dstBitWidth) {
                     srcp
                         = new AstSel{streamp->fileline(), srcp, sWidth - dstBitWidth, dstBitWidth};
                 }
                 srcp = new AstCvtPackedToArray{nodep->fileline(), srcp, dstDTypep};
-            } else {
-                if (dWidth == 0) {
+            } မဟုတ်ပါက {
+                အကယ်၍ (dWidth == 0) {
                     srcp = new AstCvtPackedToArray{nodep->fileline(), srcp, dstDTypep};
-                } else if (sWidth >= dWidth) {
+                } မဟုတ်ပါက အကယ်၍ (sWidth >= dWidth) {
                     srcp = new AstSel{streamp->fileline(), srcp, sWidth - dWidth, dWidth};
-                } else {
+                } မဟုတ်ပါက {
                     // Source narrower than destination: left-justify by shifting left.
                     // The right stream operator packs left-to-right, so remaining
                     // LSBs are zero-filled (IEEE 1800-2023 11.4.14.3).
-                    if (!VN_IS(srcp->dtypep()->skipRefp(), QueueDType)) {
+                    အကယ်၍ (!VN_IS(srcp->dtypep()->skipRefp(), QueueDType)) {
                         AstExtend* const extendp = new AstExtend{srcp->fileline(), srcp, dWidth};
                         srcp = new AstShiftL{
                             srcp->fileline(), extendp,
                             new AstConst{srcp->fileline(), static_cast<uint32_t>(dWidth - sWidth)},
                             dWidth};
-                    } else {  // if it is a queue we dont need do do a shiftL
+                    } မဟုတ်ပါက {  // if it is a queue we dont need do do a shiftL
                         srcp = new AstExtend{srcp->fileline(), srcp};
                     }
                 }
@@ -2825,26 +2825,26 @@ class ConstVisitor final : public VNVisitor {
             nodep->dtypep(dstDTypep);
             VL_DO_DANGLING(pushDeletep(streamp), streamp);
             // Further reduce, any of the nodes may have more reductions.
-            return true;
-        } else if (m_doV && VN_IS(nodep->rhsp(), StreamL)) {
+            ပြန်ပေး true;
+        } မဟုတ်ပါက အကယ်၍ (m_doV && VN_IS(nodep->rhsp(), StreamL)) {
             AstStreamL* streamp = VN_AS(nodep->rhsp(), StreamL);
             AstNodeExpr* srcp = streamp->lhsp();
             const AstNodeDType* const srcDTypep = srcp->dtypep()->skipRefp();
             AstNodeDType* const dstDTypep = nodep->lhsp()->dtypep()->skipRefp();
-            if (lowerAsFixedAggregate(srcDTypep)) {
+            အကယ်၍ (lowerAsFixedAggregate(srcDTypep)) {
                 AstNodeExpr* const packedp = packFixedAggregate(srcp->unlinkFrBack());
                 streamp->lhsp(packedp);
                 streamp->dtypeSetBitOrLogicUnsized(packedp->width(), packedp->widthMin(),
                                                    VSigning::UNSIGNED,
                                                    packedp->isFourstateOrNoDtype());
                 srcp = packedp;
-            } else if ((VN_IS(srcDTypep, QueueDType) || VN_IS(srcDTypep, DynArrayDType)
+            } မဟုတ်ပါက အကယ်၍ ((VN_IS(srcDTypep, QueueDType) || VN_IS(srcDTypep, DynArrayDType)
                         || VN_IS(srcDTypep, UnpackArrayDType))) {
-                if (VN_IS(dstDTypep, QueueDType) || VN_IS(dstDTypep, DynArrayDType)) {
-                    int blockSize = 1;
-                    if (const AstConst* const constp = VN_CAST(streamp->rhsp(), Const)) {
+                အကယ်၍ (VN_IS(dstDTypep, QueueDType) || VN_IS(dstDTypep, DynArrayDType)) {
+                    ကိန်းပြည့် blockSize = 1;
+                    အကယ်၍ (const AstConst* const constp = VN_CAST(streamp->rhsp(), Const)) {
                         blockSize = constp->toSInt();
-                        if (VL_UNLIKELY(blockSize <= 0)) {
+                        အကယ်၍ (VL_UNLIKELY(blockSize <= 0)) {
                             // Not reachable due to higher level checks when parsing stream
                             // operators commented out to not fail v3error-coverage-checks.
                             // nodep->v3error("Stream block size must be positive, got " <<
@@ -2859,12 +2859,12 @@ class ConstVisitor final : public VNVisitor {
                     // nodep->v3error("Stream block size must be constant (got " <<
                     // streamp->rhsp()->prettyTypeName() << ")");
                     // }
-                    int srcElementBits = 0;
-                    if (const AstNodeDType* const elemDtp = srcDTypep->subDTypep()) {
+                    ကိန်းပြည့် srcElementBits = 0;
+                    အကယ်၍ (const AstNodeDType* const elemDtp = srcDTypep->subDTypep()) {
                         srcElementBits = elemDtp->width();
                     }
-                    int dstElementBits = 0;
-                    if (const AstNodeDType* const elemDtp = dstDTypep->subDTypep()) {
+                    ကိန်းပြည့် dstElementBits = 0;
+                    အကယ်၍ (const AstNodeDType* const elemDtp = dstDTypep->subDTypep()) {
                         dstElementBits = elemDtp->width();
                     }
                     streamp->unlinkFrBack();
@@ -2873,32 +2873,32 @@ class ConstVisitor final : public VNVisitor {
                         blockSize,        dstElementBits,       srcElementBits};
                     nodep->rhsp(srcp);
                     VL_DO_DANGLING(pushDeletep(streamp), streamp);
-                } else {
+                } မဟုတ်ပါက {
                     streamp->lhsp(new AstCvtArrayToPacked{srcp->fileline(), srcp->unlinkFrBack(),
                                                           dstDTypep});
                     streamp->dtypeFrom(dstDTypep);
                 }
             }
-        } else if (m_doV && replaceAssignMultiSel(nodep)) {
-            return true;
-        } else if (replaceAssignSFormatF(nodep)) {
-            return true;
+        } မဟုတ်ပါက အကယ်၍ (m_doV && replaceAssignMultiSel(nodep)) {
+            ပြန်ပေး true;
+        } မဟုတ်ပါက အကယ်၍ (replaceAssignSFormatF(nodep)) {
+            ပြန်ပေး true;
         }
-        return false;
+        ပြန်ပေး false;
     }
 
     // Boolean replacements
     bool operandBoolShift(const AstNode* nodep) {
         // boolean test of AND(const,SHIFTR(x,const)) -> test of AND(SHIFTL(x,const), x)
-        if (!VN_IS(nodep, And)) return false;
-        if (!VN_IS(VN_AS(nodep, And)->lhsp(), Const)) return false;
-        if (!VN_IS(VN_AS(nodep, And)->rhsp(), ShiftR)) return false;
+        အကယ်၍ (!VN_IS(nodep, And)) ပြန်ပေး false;
+        အကယ်၍ (!VN_IS(VN_AS(nodep, And)->lhsp(), Const)) ပြန်ပေး false;
+        အကယ်၍ (!VN_IS(VN_AS(nodep, And)->rhsp(), ShiftR)) ပြန်ပေး false;
         const AstShiftR* const shiftp = VN_AS(VN_AS(nodep, And)->rhsp(), ShiftR);
-        if (!VN_IS(shiftp->rhsp(), Const)) return false;
-        if (static_cast<uint32_t>(nodep->width()) <= VN_AS(shiftp->rhsp(), Const)->toUInt()) {
-            return false;
+        အကယ်၍ (!VN_IS(shiftp->rhsp(), Const)) ပြန်ပေး false;
+        အကယ်၍ (static_cast<uint32_t>(nodep->width()) <= VN_AS(shiftp->rhsp(), Const)->toUInt()) {
+            ပြန်ပေး false;
         }
-        return true;
+        ပြန်ပေး true;
     }
     void replaceBoolShift(AstNode* nodep) {
         UINFOTREE(9, nodep, "", "bshft_old");
@@ -2921,15 +2921,15 @@ class ConstVisitor final : public VNVisitor {
         SimulateVisitor simvis;
         // Run it - may be unoptimizable due to large for loop, etc
         simvis.mainParamEmulate(nodep);
-        if (!simvis.optimizable()) {
+        အကယ်၍ (!simvis.optimizable()) {
             const AstNode* errorp = simvis.whyNotNodep();
-            if (!errorp) errorp = nodep;
+            အကယ်၍ (!errorp) errorp = nodep;
             nodep->v3error("Expecting expression to be constant, but can't determine constant for "
                            << nodep->prettyTypeName() << '\n'
                            << errorp->warnOther() << "... Location of non-constant "
                            << errorp->prettyTypeName() << ": " << simvis.whyNotMessage());
             VL_DO_DANGLING(replaceZero(nodep), nodep);
-        } else {
+        } မဟုတ်ပါက {
             // Fetch the result
             AstNode* const valuep = simvis.fetchValueNull(nodep);  // valuep is owned by Simulate
             UASSERT_OBJ(valuep, nodep, "No value returned from simulation");
@@ -2964,7 +2964,7 @@ class ConstVisitor final : public VNVisitor {
     }
     void visit(AstCLocalScope* nodep) override {
         iterateChildren(nodep);
-        if (!nodep->stmtsp()) {
+        အကယ်၍ (!nodep->stmtsp()) {
             nodep->unlinkFrBack();
             VL_DO_DANGLING(pushDeletep(nodep), nodep);
         }
@@ -2989,95 +2989,95 @@ class ConstVisitor final : public VNVisitor {
     }
 
     bool containsMemberAccessRecurse(AstNode* const nodep) {
-        if (!nodep) return false;
+        အကယ်၍ (!nodep) ပြန်ပေး false;
         const size_t id = m_ids(nodep);
         const auto it = m_containsMemberAccess.find(id);
-        if (it != m_containsMemberAccess.end()) return it->second;
+        အကယ်၍ (it != m_containsMemberAccess.end()) ပြန်ပေး it->second;
         ++m_statMemberAccessVisits;
         bool result = false;
-        if (VN_IS(nodep, MemberSel) || VN_IS(nodep, MethodCall) || VN_IS(nodep, CMethodCall)) {
+        အကယ်၍ (VN_IS(nodep, MemberSel) || VN_IS(nodep, MethodCall) || VN_IS(nodep, CMethodCall)) {
             result = true;
-        } else if (const AstNodeFTaskRef* const funcRefp = VN_CAST(nodep, NodeFTaskRef)) {
-            if (containsMemberAccessRecurse(funcRefp->taskp())) result = true;
-        } else if (const AstNodeCCall* const funcRefp = VN_CAST(nodep, NodeCCall)) {
-            if (containsMemberAccessRecurse(funcRefp->funcp())) result = true;
-        } else if (const AstNodeFTask* const funcp = VN_CAST(nodep, NodeFTask)) {
+        } မဟုတ်ပါက အကယ်၍ (const AstNodeFTaskRef* const funcRefp = VN_CAST(nodep, NodeFTaskRef)) {
+            အကယ်၍ (containsMemberAccessRecurse(funcRefp->taskp())) result = true;
+        } မဟုတ်ပါက အကယ်၍ (const AstNodeCCall* const funcRefp = VN_CAST(nodep, NodeCCall)) {
+            အကယ်၍ (containsMemberAccessRecurse(funcRefp->funcp())) result = true;
+        } မဟုတ်ပါက အကယ်၍ (const AstNodeFTask* const funcp = VN_CAST(nodep, NodeFTask)) {
             // Assume that it has a member access
-            if (funcp->recursive()) result = true;
-        } else if (const AstCFunc* const funcp = VN_CAST(nodep, CFunc)) {
-            if (funcp->recursive()) result = true;
+            အကယ်၍ (funcp->recursive()) result = true;
+        } မဟုတ်ပါက အကယ်၍ (const AstCFunc* const funcp = VN_CAST(nodep, CFunc)) {
+            အကယ်၍ (funcp->recursive()) result = true;
         }
-        if (!result) {
+        အကယ်၍ (!result) {
             result = containsMemberAccessRecurse(nodep->op1p())
                      || containsMemberAccessRecurse(nodep->op2p())
                      || containsMemberAccessRecurse(nodep->op3p())
                      || containsMemberAccessRecurse(nodep->op4p());
         }
-        if (!result && !VN_IS(nodep, NodeFTask)
+        အကယ်၍ (!result && !VN_IS(nodep, NodeFTask)
             && !VN_IS(nodep, CFunc)  // don't enter into next function
             && containsMemberAccessRecurse(nodep->nextp())) {
             result = true;
         }
         m_containsMemberAccess.emplace(id, result);
-        return result;
+        ပြန်ပေး result;
     }
 
     bool matchBiopToBitwise(AstNodeBiop* const nodep) {
-        if (!m_convertLogicToBit) return false;
-        if (!nodep->lhsp()->width1()) return false;
-        if (!nodep->rhsp()->width1()) return false;
-        if (!nodep->isPure()) return false;
-        if (containsMemberAccessRecurse(nodep)) return false;
-        return true;
+        အကယ်၍ (!m_convertLogicToBit) ပြန်ပေး false;
+        အကယ်၍ (!nodep->lhsp()->width1()) ပြန်ပေး false;
+        အကယ်၍ (!nodep->rhsp()->width1()) ပြန်ပေး false;
+        အကယ်၍ (!nodep->isPure()) ပြန်ပေး false;
+        အကယ်၍ (containsMemberAccessRecurse(nodep)) ပြန်ပေး false;
+        ပြန်ပေး true;
     }
     bool matchConcatRand(AstConcat* nodep) {
         //    CONCAT(RAND, RAND) - created by Chisel code
         AstRand* const aRandp = VN_CAST(nodep->lhsp(), Rand);
         const AstRand* const bRandp = VN_CAST(nodep->rhsp(), Rand);
-        if (!aRandp || !bRandp) return false;
-        if (!aRandp->combinable(bRandp)) return false;
+        အကယ်၍ (!aRandp || !bRandp) ပြန်ပေး false;
+        အကယ်၍ (!aRandp->combinable(bRandp)) ပြန်ပေး false;
         UINFO(4, "Concat(Rand,Rand) => Rand: " << nodep);
         nodep->replaceWithKeepDType(aRandp->unlinkFrBack());
         VL_DO_DANGLING(pushDeletep(nodep), nodep);
-        return true;
+        ပြန်ပေး true;
     }
     bool matchSelRand(AstSel* nodep) {
         //    SEL(RAND) - created by Chisel code
         AstRand* const aRandp = VN_CAST(nodep->fromp(), Rand);
-        if (!aRandp) return false;
-        if (aRandp->seedp()) return false;
+        အကယ်၍ (!aRandp) ပြန်ပေး false;
+        အကယ်၍ (aRandp->seedp()) ပြန်ပေး false;
         UINFO(4, "Sel(Rand) => Rand: " << nodep);
         nodep->replaceWithKeepDType(aRandp->unlinkFrBack());
         VL_DO_DANGLING(pushDeletep(nodep), nodep);
-        return true;
+        ပြန်ပေး true;
     }
     bool matchToStringNConst(AstToStringN* nodep) {
         iterateChildren(nodep);
-        if (const AstConsArray* const consp = VN_CAST(nodep->lhsp(), ConsArray)) {
-            if (!(m_doExpensive || m_params)) return false;
-            if (!consp->isConstantTree()) return false;
-        } else if (!VN_IS(nodep->lhsp(), Const)) {
-            return false;
+        အကယ်၍ (const AstConsArray* const consp = VN_CAST(nodep->lhsp(), ConsArray)) {
+            အကယ်၍ (!(m_doExpensive || m_params)) ပြန်ပေး false;
+            အကယ်၍ (!consp->isConstantTree()) ပြန်ပေး false;
+        } မဟုတ်ပါက အကယ်၍ (!VN_IS(nodep->lhsp(), Const)) {
+            ပြန်ပေး false;
         }
         replaceWithSimulation(nodep);
-        return true;
+        ပြန်ပေး true;
     }
-    int operandConcatMove(const AstConcat* nodep) {
+    ကိန်းပြည့် operandConcatMove(const AstConcat* nodep) {
         //    CONCAT under concat  (See moveConcat)
         // Return value: true indicates to do it; 2 means move to LHS
         const AstConcat* const abConcp = VN_CAST(nodep->lhsp(), Concat);
         const AstConcat* const bcConcp = VN_CAST(nodep->rhsp(), Concat);
-        if (!abConcp && !bcConcp) return 0;
-        if (bcConcp) {
+        အကယ်၍ (!abConcp && !bcConcp) ပြန်ပေး 0;
+        အကယ်၍ (bcConcp) {
             const AstNodeExpr* const ap = nodep->lhsp();
             const AstNodeExpr* const bp = bcConcp->lhsp();
             // If a+b == 32,64,96 etc, then we want to have a+b together on LHS
-            if (VL_BITBIT_I(ap->width() + bp->width()) == 0) return 2;  // Transform 2: to abConc
-        } else {  // abConcp
+            အကယ်၍ (VL_BITBIT_I(ap->width() + bp->width()) == 0) ပြန်ပေး 2;  // Transform 2: to abConc
+        } မဟုတ်ပါက {  // abConcp
             // Unless lhs is already 32 bits due to above, reorder it
-            if (VL_BITBIT_I(nodep->lhsp()->width()) != 0) return 1;  // Transform 1: to bcConc
+            အကယ်၍ (VL_BITBIT_I(nodep->lhsp()->width()) != 0) ပြန်ပေး 1;  // Transform 1: to bcConc
         }
-        return 0;  // ok
+        ပြန်ပေး 0;  // ok
     }
     void moveConcat(AstConcat* nodep) {
         //    1: CONCAT(CONCAT({a},{b}),{c})  -> CONCAT({a},CONCAT({b}, {c}))
@@ -3087,7 +3087,7 @@ class ConstVisitor final : public VNVisitor {
         // However, we'll end up with lots of wide moves if we make huge trees
         // like that, so on 32 bit boundaries, we'll do the opposite form.
         UINFO(4, "Move concat: " << nodep);
-        if (operandConcatMove(nodep) > 1) {
+        အကယ်၍ (operandConcatMove(nodep) > 1) {
             AstNodeExpr* const ap = nodep->lhsp()->unlinkFrBack();
             AstConcat* const bcConcp = VN_AS(nodep->rhsp(), Concat);
             bcConcp->unlinkFrBack();
@@ -3098,9 +3098,9 @@ class ConstVisitor final : public VNVisitor {
             nodep->rhsp(cp);
             // If bp was a concat, then we have this exact same form again!
             // Recurse rather then calling node->iterate to prevent 2^n recursion!
-            if (operandConcatMove(abConcp)) moveConcat(abConcp);
+            အကယ်၍ (operandConcatMove(abConcp)) moveConcat(abConcp);
             VL_DO_DANGLING(pushDeletep(bcConcp), bcConcp);
-        } else {
+        } မဟုတ်ပါက {
             AstConcat* const abConcp = VN_AS(nodep->lhsp(), Concat);
             abConcp->unlinkFrBack();
             AstNodeExpr* const ap = abConcp->lhsp()->unlinkFrBack();
@@ -3109,7 +3109,7 @@ class ConstVisitor final : public VNVisitor {
             AstConcat* const bcConcp = new AstConcat{abConcp->fileline(), bp, cp};
             nodep->lhsp(ap);
             nodep->rhsp(bcConcp);
-            if (operandConcatMove(bcConcp)) moveConcat(bcConcp);
+            အကယ်၍ (operandConcatMove(bcConcp)) moveConcat(bcConcp);
             VL_DO_DANGLING(pushDeletep(abConcp), abConcp);
         }
     }
@@ -3118,9 +3118,9 @@ class ConstVisitor final : public VNVisitor {
     void visit(AstConst*) override {}  // Already constant
 
     void visit(AstCell* nodep) override {
-        if (m_params) {
+        အကယ်၍ (m_params) {
             iterateAndNextNull(nodep->paramsp());
-        } else {
+        } မဟုတ်ပါက {
             iterateChildren(nodep);
         }
     }
@@ -3129,7 +3129,7 @@ class ConstVisitor final : public VNVisitor {
     void visit(AstMatchMasked* nodep) override {
         // Do not iterate the tables, they must be constant pool entries
         iterate(nodep->lhsp());
-        if (AstConst* const constp = VN_CAST(nodep->lhsp(), Const)) {
+        အကယ်၍ (AstConst* const constp = VN_CAST(nodep->lhsp(), Const)) {
             replaceNum(nodep, AstMatchMasked::fold(constp->num(), nodep->matchp()->varp()));
         }
     }
@@ -3161,12 +3161,12 @@ class ConstVisitor final : public VNVisitor {
         // Eliminate lower range
         UINFO(4, "Elim Lower range: " << nodep);
         AstNodeExpr* newlsbp;
-        if (VN_IS(lsb1p, Const) && VN_IS(lsb2p, Const)) {
+        အကယ်၍ (VN_IS(lsb1p, Const) && VN_IS(lsb2p, Const)) {
             newlsbp = new AstConst{lsb1p->fileline(),
                                    VN_AS(lsb1p, Const)->toUInt() + VN_AS(lsb2p, Const)->toUInt()};
             VL_DO_DANGLING(pushDeletep(lsb1p), lsb1p);
             VL_DO_DANGLING(pushDeletep(lsb2p), lsb2p);
-        } else {
+        } မဟုတ်ပါက {
             // Width is important, we need the width of the fromp's expression, not the
             // potentially smaller lsb1p's width, but don't insert a redundant AstExtend.
             // Note that due to some sloppiness in earlier passes, lsb1p might actually be wider,
@@ -3193,18 +3193,18 @@ class ConstVisitor final : public VNVisitor {
         AstConcat* const conp = VN_AS(nodep->fromp(), Concat);
         AstNodeExpr* const conLhsp = conp->lhsp();
         AstNodeExpr* const conRhsp = conp->rhsp();
-        if (static_cast<int>(nodep->lsbConst()) >= conRhsp->width()) {
+        အကယ်၍ (static_cast<ကိန်းပြည့်>(nodep->lsbConst()) >= conRhsp->width()) {
             conLhsp->unlinkFrBack();
             AstSel* const newp
                 = new AstSel{nodep->fileline(), conLhsp, nodep->lsbConst() - conRhsp->width(),
                              nodep->widthConst()};
             nodep->replaceWithKeepDType(newp);
-        } else if (static_cast<int>(nodep->msbConst()) < conRhsp->width()) {
+        } မဟုတ်ပါက အကယ်၍ (static_cast<ကိန်းပြည့်>(nodep->msbConst()) < conRhsp->width()) {
             conRhsp->unlinkFrBack();
             AstSel* const newp
                 = new AstSel{nodep->fileline(), conRhsp, nodep->lsbConst(), nodep->widthConst()};
             nodep->replaceWithKeepDType(newp);
-        } else {
+        } မဟုတ်ပါက {
             // Yuk, split between the two
             conRhsp->unlinkFrBack();
             conLhsp->unlinkFrBack();
@@ -3225,11 +3225,11 @@ class ConstVisitor final : public VNVisitor {
         AstReplicate* const repp = VN_AS(nodep->fromp(), Replicate);
         AstNodeExpr* const fromp = repp->srcp();
         const AstConst* const lsbp = VN_CAST(nodep->lsbp(), Const);
-        if (!lsbp) return false;
+        အကယ်၍ (!lsbp) ပြန်ပေး false;
         UASSERT_OBJ(fromp->width(), nodep, "Not widthed");
-        if ((lsbp->toUInt() / fromp->width())
+        အကယ်၍ ((lsbp->toUInt() / fromp->width())
             != ((lsbp->toUInt() + nodep->width() - 1) / fromp->width())) {
-            return false;
+            ပြန်ပေး false;
         }
         //
         fromp->unlinkFrBack();
@@ -3238,7 +3238,7 @@ class ConstVisitor final : public VNVisitor {
             new AstConst{lsbp->fileline(), lsbp->toUInt() % fromp->width()}, nodep->widthConst()};
         nodep->replaceWithKeepDType(newp);
         VL_DO_DANGLING(pushDeletep(nodep), nodep);
-        return true;
+        ပြန်ပေး true;
     }
     bool operandRepRep(AstReplicate* nodep) {
         // REPLICATE(REPLICATE2(from2,cnt2),cnt1) => REPLICATE(from2,(cnt1+cnt2))
@@ -3246,16 +3246,16 @@ class ConstVisitor final : public VNVisitor {
         AstReplicate* const rep2p = VN_AS(nodep->srcp(), Replicate);
         AstNodeExpr* const from2p = rep2p->srcp();
         const AstConst* const cnt1p = VN_CAST(nodep->countp(), Const);
-        if (!cnt1p) return false;
+        အကယ်၍ (!cnt1p) ပြန်ပေး false;
         const AstConst* const cnt2p = VN_CAST(rep2p->countp(), Const);
-        if (!cnt2p) return false;
+        အကယ်၍ (!cnt2p) ပြန်ပေး false;
         //
         from2p->unlinkFrBack();
         AstReplicate* const newp
             = new AstReplicate{nodep->fileline(), from2p, cnt1p->toUInt() * cnt2p->toUInt()};
         nodep->replaceWithKeepDType(newp);
         VL_DO_DANGLING(pushDeletep(nodep), nodep);
-        return true;
+        ပြန်ပေး true;
     }
     bool operandConcatSame(AstConcat* nodep) {
         // CONCAT(fromp,fromp) -> REPLICATE(fromp,1+1)
@@ -3266,25 +3266,25 @@ class ConstVisitor final : public VNVisitor {
         uint32_t cnt1 = 1;
         AstNodeExpr* from2p = nodep->rhsp();
         uint32_t cnt2 = 1;
-        if (VN_IS(from1p, Replicate)) {
+        အကယ်၍ (VN_IS(from1p, Replicate)) {
             const AstConst* const cnt1p = VN_CAST(VN_CAST(from1p, Replicate)->countp(), Const);
-            if (!cnt1p) return false;
+            အကယ်၍ (!cnt1p) ပြန်ပေး false;
             from1p = VN_AS(from1p, Replicate)->srcp();
             cnt1 = cnt1p->toUInt();
         }
-        if (VN_IS(from2p, Replicate)) {
+        အကယ်၍ (VN_IS(from2p, Replicate)) {
             const AstConst* const cnt2p = VN_CAST(VN_CAST(from2p, Replicate)->countp(), Const);
-            if (!cnt2p) return false;
+            အကယ်၍ (!cnt2p) ပြန်ပေး false;
             from2p = VN_AS(from2p, Replicate)->srcp();
             cnt2 = cnt2p->toUInt();
         }
-        if (!operandsSame(from1p, from2p)) return false;
+        အကယ်၍ (!operandsSame(from1p, from2p)) ပြန်ပေး false;
         //
         from1p->unlinkFrBack();
         AstReplicate* const newp = new AstReplicate{nodep->fileline(), from1p, cnt1 + cnt2};
         nodep->replaceWithKeepDType(newp);
         VL_DO_DANGLING(pushDeletep(nodep), nodep);
-        return true;
+        ပြန်ပေး true;
     }
     void replaceSelIntoBiop(AstSel* nodep) {
         // SEL(BUFIF1(a,b),1,bit) => BUFIF1(SEL(a,1,bit),SEL(b,1,bit))
@@ -3322,7 +3322,7 @@ class ConstVisitor final : public VNVisitor {
 
     void visit(AstArraySel* nodep) override {
         iterateAndNextNull(nodep->bitp());
-        if (VN_IS(nodep->bitp(), Const)
+        အကယ်၍ (VN_IS(nodep->bitp(), Const)
             && VN_IS(nodep->fromp(), VarRef)
             // Need to make sure it's an array object so don't mis-allow a constant (bug509.)
             && VN_AS(nodep->fromp(), VarRef)->varp()
@@ -3330,24 +3330,24 @@ class ConstVisitor final : public VNVisitor {
             m_selp = nodep;  // Ask visit(AstVarRef) to replace varref with const
         }
         iterateAndNextNull(nodep->fromp());
-        if (VN_IS(nodep->fromp(), Const)) {  // It did.
-            if (!m_selp) {
+        အကယ်၍ (VN_IS(nodep->fromp(), Const)) {  // It did.
+            အကယ်၍ (!m_selp) {
                 nodep->v3error("Illegal assignment of constant to unpacked array");
-            } else {
+            } မဟုတ်ပါက {
                 AstNode* const fromp = nodep->fromp()->unlinkFrBack();
                 nodep->replaceWithKeepDType(fromp);
                 VL_DO_DANGLING(pushDeletep(nodep), nodep);
             }
         }
         // Handle ARRAYSEL directly on ConsArray (not through VarRef)
-        else if (VN_IS(nodep->bitp(), Const) && VN_IS(nodep->fromp(), ConsArray)) {
+        မဟုတ်ပါက အကယ်၍ (VN_IS(nodep->bitp(), Const) && VN_IS(nodep->fromp(), ConsArray)) {
             const AstConsArray* const consp = VN_AS(nodep->fromp(), ConsArray);
             const uint32_t bit = VN_AS(nodep->bitp(), Const)->toUInt();
             AstNodeExpr* const itemp = consp->valuep(bit);
-            if (VN_IS(itemp, Const)) {
+            အကယ်၍ (VN_IS(itemp, Const)) {
                 const V3Number& num = VN_AS(itemp, Const)->num();
                 VL_DO_DANGLING(replaceNum(nodep, num), nodep);
-            } else if (m_params && itemp) {
+            } မဟုတ်ပါက အကယ်၍ (m_params && itemp) {
                 // An aggregate element, e.g. a structure in an array parameter
                 nodep->replaceWithKeepDType(itemp->cloneTree(false));
                 VL_DO_DANGLING(pushDeletep(nodep), nodep);
@@ -3362,7 +3362,7 @@ class ConstVisitor final : public VNVisitor {
     void visit(AstSliceSel* nodep) override {
         // First constify or width any child nodes
         iterateChildren(nodep);
-        if (!m_required) return;  // Do nothing unless we are in parameter mode
+        အကယ်၍ (!m_required) ပြန်ပေး;  // Do nothing unless we are in parameter mode
         // Fallback to simulation: this will invoke SimulateVisitor::visit(AstSliceSel*)
         replaceWithSimulation(nodep);
     }
@@ -3370,11 +3370,11 @@ class ConstVisitor final : public VNVisitor {
     void visit(AstStructSel* nodep) override {
         iterateChildren(nodep);
 
-        if (const AstConsStruct* const consp = VN_CAST(nodep->fromp(), ConsStruct)) {
+        အကယ်၍ (const AstConsStruct* const consp = VN_CAST(nodep->fromp(), ConsStruct)) {
             AstNodeExpr* const valuep = consp->memberValuep(nodep->name());
-            if (const AstConst* const constp = VN_CAST(valuep, Const)) {
+            အကယ်၍ (const AstConst* const constp = VN_CAST(valuep, Const)) {
                 VL_DO_DANGLING(replaceNum(nodep, constp->num()), nodep);
-            } else {
+            } မဟုတ်ပါက {
                 nodep->replaceWith(valuep->cloneTree(false));
                 VL_DO_DANGLING(pushDeletep(nodep), nodep);
             }
@@ -3389,7 +3389,7 @@ class ConstVisitor final : public VNVisitor {
         iterateChildren(nodep);
         UASSERT_OBJ(nodep->varp(), nodep, "Not linked");
         bool did = false;
-        if (m_doV && (!nodep->varp()->constPoolEntry() || m_selp) && nodep->varp()->valuep()
+        အကယ်၍ (m_doV && (!nodep->varp()->constPoolEntry() || m_selp) && nodep->varp()->valuep()
             && !m_attrp) {
             // UINFOTREE(1, valuep, "", "visitvaref");
             iterateAndNextNull(nodep->varp()->valuep());  // May change nodep->varp()->valuep()
@@ -3398,21 +3398,21 @@ class ConstVisitor final : public VNVisitor {
             const AstConsArray* const consp = VN_CAST(valuep, ConsArray);
             const AstNode* const selItemp
                 = (m_selp && consp) ? consp->valuep(m_selp->bitConst()) : nullptr;
-            if (nodep->access().isReadOnly() && valuep
+            အကယ်၍ (nodep->access().isReadOnly() && valuep
                 && ((!m_params  // Can reduce constant wires into equations
                      && m_doNConst && v3Global.opt.fConst() && nodep->varp()->isConst())
                     || nodep->varp()->isParam())) {
-                if (operandConst(valuep)) {
+                အကယ်၍ (operandConst(valuep)) {
                     const V3Number& num = VN_AS(valuep, Const)->num();
                     // UINFO(2, "constVisit " << cvtToHex(valuep) << " " << num);
                     const string origParamName
                         = nodep->varp()->isParam() ? nodep->varp()->name() : "";
                     VL_DO_DANGLING(replaceNum(nodep, num, origParamName), nodep);
                     did = true;
-                } else if (const AstConst* const itemp = VN_CAST(selItemp, Const)) {
+                } မဟုတ်ပါက အကယ်၍ (const AstConst* const itemp = VN_CAST(selItemp, Const)) {
                     VL_DO_DANGLING(replaceNum(nodep, itemp->num()), nodep);
                     did = true;
-                } else if (m_params && consp) {
+                } မဟုတ်ပါက အကယ်၍ (m_params && consp) {
                     // Allow parameters to pass arrays
                     // Earlier recursion of ConsArray made sure each array value is constant
                     // This exception is fairly fragile, i.e. doesn't
@@ -3421,12 +3421,12 @@ class ConstVisitor final : public VNVisitor {
                     nodep->replaceWithKeepDType(newp);
                     VL_DO_DANGLING(pushDeletep(nodep), nodep);
                     did = true;
-                } else if (m_params && VN_IS(valuep, ConsStruct)) {
+                } မဟုတ်ပါက အကယ်၍ (m_params && VN_IS(valuep, ConsStruct)) {
                     AstNode* const newp = valuep->cloneTree(false);
                     nodep->replaceWithKeepDType(newp);
                     VL_DO_DANGLING(pushDeletep(nodep), nodep);
                     did = true;
-                } else if (nodep->varp()->isParam() && VN_IS(valuep, Unbounded)) {
+                } မဟုတ်ပါက အကယ်၍ (nodep->varp()->isParam() && VN_IS(valuep, Unbounded)) {
                     AstNode* const newp = valuep->cloneTree(false);
                     nodep->replaceWithKeepDType(newp);
                     VL_DO_DANGLING(pushDeletep(nodep), nodep);
@@ -3434,14 +3434,14 @@ class ConstVisitor final : public VNVisitor {
                 }
             }
         }
-        if (!did && m_required) {
+        အကယ်၍ (!did && m_required) {
             nodep->v3error("Expecting expression to be constant, but variable isn't const: "
                            << nodep->varp()->prettyNameQ());
         }
     }
     void visit(AstExprStmt* nodep) override {
         iterateChildren(nodep);
-        if (!AstNode::afterCommentp(nodep->stmtsp())) {
+        အကယ်၍ (!AstNode::afterCommentp(nodep->stmtsp())) {
             deleteVarScopesUnder(nodep->stmtsp());
             UINFO(8, "ExprStmt(...) " << nodep << " " << nodep->resultp());
             nodep->replaceWith(nodep->resultp()->unlinkFrBack());
@@ -3453,23 +3453,23 @@ class ConstVisitor final : public VNVisitor {
         iterateChildren(nodep);
         UASSERT_OBJ(nodep->itemp(), nodep, "Not linked");
         bool did = false;
-        if (nodep->itemp()->valuep()) {
+        အကယ်၍ (nodep->itemp()->valuep()) {
             // UINFOTREE(1, nodep->itemp()->valuep(), "", "visitvaref");
             const AstEnumItem* const itemp = nodep->itemp();
-            if (m_recursingEnumItems.count(itemp)) {
+            အကယ်၍ (m_recursingEnumItems.count(itemp)) {
                 nodep->v3error("Recursive enum value: " << nodep->itemp()->prettyNameQ());
-            } else {
+            } မဟုတ်ပါက {
                 m_recursingEnumItems.emplace(itemp);
                 iterateAndNextNull(nodep->itemp()->valuep());
                 m_recursingEnumItems.erase(itemp);
             }
-            if (AstConst* const valuep = VN_CAST(nodep->itemp()->valuep(), Const)) {
+            အကယ်၍ (AstConst* const valuep = VN_CAST(nodep->itemp()->valuep(), Const)) {
                 const V3Number& num = valuep->num();
                 VL_DO_DANGLING(replaceNum(nodep, num), nodep);
                 did = true;
             }
         }
-        if (!did && m_required) {
+        အကယ်၍ (!did && m_required) {
             nodep->v3error("Expecting expression to be constant, but enum value isn't const: "
                            << nodep->itemp()->prettyNameQ());
         }
@@ -3477,123 +3477,123 @@ class ConstVisitor final : public VNVisitor {
 
     bool onlySenItemInSenTree(const AstSenItem* nodep) {
         // Only one if it's not in a list
-        return (!nodep->nextp() && nodep->backp()->nextp() != nodep);
+        ပြန်ပေး (!nodep->nextp() && nodep->backp()->nextp() != nodep);
     }
     void visit(AstSenItem* nodep) override {
         iterateChildren(nodep);
-        if (m_doNConst
+        အကယ်၍ (m_doNConst
             && !v3Global.opt.timing().isSetTrue()  // If --timing, V3Sched would turn this into an
                                                    // infinite loop. See #5080
             && (VN_IS(nodep->sensp(), Const) || VN_IS(nodep->sensp(), EnumItemRef)
                 || (nodep->varrefp() && nodep->varrefp()->varp()->isParam()))) {
             // Constants in sensitivity lists may be removed (we'll simplify later)
-            if (nodep->isClocked()) {  // A constant can never get a pos/negedge
-                if (onlySenItemInSenTree(nodep)) {
-                    if (nodep->edgeType() == VEdgeType::ET_CHANGED) {
+            အကယ်၍ (nodep->isClocked()) {  // A constant can never get a pos/negedge
+                အကယ်၍ (onlySenItemInSenTree(nodep)) {
+                    အကယ်၍ (nodep->edgeType() == VEdgeType::ET_CHANGED) {
                         // TODO: This really is dodgy, as strictly compliant simulators will not
                         //       execute this block, but but t_func_check relies on it
                         nodep->replaceWith(
                             new AstSenItem{nodep->fileline(), AstSenItem::Initial{}});
-                    } else {
+                    } မဟုတ်ပါက {
                         nodep->replaceWith(new AstSenItem{nodep->fileline(), AstSenItem::Never{}});
                     }
                     VL_DO_DANGLING(pushDeletep(nodep), nodep);
-                } else {
+                } မဟုတ်ပါက {
                     VL_DO_DANGLING(pushDeletep(nodep->unlinkFrBack()), nodep);
                 }
-            } else {  // Otherwise it may compute a result that needs to settle out
+            } မဟုတ်ပါက {  // Otherwise it may compute a result that needs to settle out
                 nodep->replaceWith(new AstSenItem{nodep->fileline(), AstSenItem::Combo{}});
                 VL_DO_DANGLING(pushDeletep(nodep), nodep);
             }
-        } else if (m_doNConst && VN_IS(nodep->sensp(), Not)) {
+        } မဟုတ်ပါက အကယ်၍ (m_doNConst && VN_IS(nodep->sensp(), Not)) {
             // V3Gate may propagate NOTs into clocks... Just deal with it
             AstNode* const sensp = nodep->sensp();
             AstNode* lastSensp = sensp;
             bool invert = false;
-            while (VN_IS(lastSensp, Not)) {
+            နေစဉ် (VN_IS(lastSensp, Not)) {
                 lastSensp = VN_AS(lastSensp, Not)->lhsp();
                 invert = !invert;
             }
             UINFO(8, "senItem(NOT...) " << nodep << " " << invert);
-            if (invert) nodep->edgeType(nodep->edgeType().invert());
+            အကယ်၍ (invert) nodep->edgeType(nodep->edgeType().invert());
             sensp->replaceWith(lastSensp->unlinkFrBack());
             VL_DO_DANGLING(pushDeletep(sensp), sensp);
         }
     }
 
     class SenItemCmp final {
-        static int cmp(const AstNodeExpr* ap, const AstNodeExpr* bp) {
+        static ကိန်းပြည့် cmp(const AstNodeExpr* ap, const AstNodeExpr* bp) {
             const VNType aType = ap->type();
             const VNType bType = bp->type();
-            if (aType != bType) return static_cast<int>(bType) - static_cast<int>(aType);
+            အကယ်၍ (aType != bType) ပြန်ပေး static_cast<ကိန်းပြည့်>(bType) - static_cast<ကိန်းပြည့်>(aType);
 
-            if (const AstVarRef* const aRefp = VN_CAST(ap, VarRef)) {
+            အကယ်၍ (const AstVarRef* const aRefp = VN_CAST(ap, VarRef)) {
                 const AstVarRef* const bRefp = VN_AS(bp, VarRef);
                 // Looks visually better if we keep sorted by name
-                if (aRefp->name() < bRefp->name()) return -1;
-                if (aRefp->name() > bRefp->name()) return 1;
+                အကယ်၍ (aRefp->name() < bRefp->name()) ပြန်ပေး -1;
+                အကယ်၍ (aRefp->name() > bRefp->name()) ပြန်ပေး 1;
                 // But might be same name with different scopes
-                if (aRefp->varScopep() < bRefp->varScopep()) return -1;
-                if (aRefp->varScopep() > bRefp->varScopep()) return 1;
+                အကယ်၍ (aRefp->varScopep() < bRefp->varScopep()) ပြန်ပေး -1;
+                အကယ်၍ (aRefp->varScopep() > bRefp->varScopep()) ပြန်ပေး 1;
                 // Or rarely, different data types
-                if (aRefp->dtypep() < bRefp->dtypep()) return -1;
-                if (aRefp->dtypep() > bRefp->dtypep()) return 1;
-                return 0;
+                အကယ်၍ (aRefp->dtypep() < bRefp->dtypep()) ပြန်ပေး -1;
+                အကယ်၍ (aRefp->dtypep() > bRefp->dtypep()) ပြန်ပေး 1;
+                ပြန်ပေး 0;
             }
 
-            if (const AstConst* const aConstp = VN_CAST(ap, Const)) {
+            အကယ်၍ (const AstConst* const aConstp = VN_CAST(ap, Const)) {
                 const AstConst* const bConstp = VN_AS(bp, Const);
-                if (aConstp->num().isLtXZ(bConstp->num())) return -1;
-                if (bConstp->num().isLtXZ(aConstp->num())) return 1;
-                return 0;
+                အကယ်၍ (aConstp->num().isLtXZ(bConstp->num())) ပြန်ပေး -1;
+                အကယ်၍ (bConstp->num().isLtXZ(aConstp->num())) ပြန်ပေး 1;
+                ပြန်ပေး 0;
             }
 
-            if (const AstNodeBiop* const aBiOpp = VN_CAST(ap, NodeBiop)) {
+            အကယ်၍ (const AstNodeBiop* const aBiOpp = VN_CAST(ap, NodeBiop)) {
                 const AstNodeBiop* const bBiOpp = VN_AS(bp, NodeBiop);
                 // Compare RHSs first, as LHS might be const
-                if (const int c = cmp(aBiOpp->rhsp(), bBiOpp->rhsp())) return c;
-                return cmp(aBiOpp->lhsp(), bBiOpp->lhsp());
+                အကယ်၍ (const ကိန်းပြည့် c = cmp(aBiOpp->rhsp(), bBiOpp->rhsp())) ပြန်ပေး c;
+                ပြန်ပေး cmp(aBiOpp->lhsp(), bBiOpp->lhsp());
             }
 
-            if (const AstCMethodHard* const aCallp = VN_CAST(ap, CMethodHard)) {
+            အကယ်၍ (const AstCMethodHard* const aCallp = VN_CAST(ap, CMethodHard)) {
                 const AstCMethodHard* const bCallp = VN_AS(bp, CMethodHard);
-                if (aCallp->method() < bCallp->method()) return -1;
-                if (aCallp->method() > bCallp->method()) return 1;
-                if (const int c = cmp(aCallp->fromp(), bCallp->fromp())) return c;
+                အကယ်၍ (aCallp->method() < bCallp->method()) ပြန်ပေး -1;
+                အကယ်၍ (aCallp->method() > bCallp->method()) ပြန်ပေး 1;
+                အကယ်၍ (const ကိန်းပြည့် c = cmp(aCallp->fromp(), bCallp->fromp())) ပြန်ပေး c;
                 const AstNodeExpr* aPinsp = aCallp->pinsp();
                 const AstNodeExpr* bPinsp = bCallp->pinsp();
-                while (aPinsp && bPinsp) {
-                    if (const int c = cmp(aPinsp, bPinsp)) return c;
+                နေစဉ် (aPinsp && bPinsp) {
+                    အကယ်၍ (const ကိန်းပြည့် c = cmp(aPinsp, bPinsp)) ပြန်ပေး c;
                     aPinsp = VN_AS(aPinsp->nextp(), NodeExpr);
                     bPinsp = VN_AS(bPinsp->nextp(), NodeExpr);
                 }
-                return aPinsp ? -1 : bPinsp ? 1 : 0;
+                ပြန်ပေး aPinsp ? -1 : bPinsp ? 1 : 0;
             }
 
-            return 0;
+            ပြန်ပေး 0;
         }
 
     public:
         bool operator()(const AstSenItem* lhsp, const AstSenItem* rhsp) const {
             const AstNodeExpr* const lSensp = lhsp->sensp();
             const AstNodeExpr* const rSensp = rhsp->sensp();
-            if (lSensp && rSensp) {
+            အကယ်၍ (lSensp && rSensp) {
                 // If both terms have sensitivity expressions, recursively compare them
-                if (const int c = cmp(lSensp, rSensp)) return c < 0;
-            } else if (lSensp || rSensp) {
+                အကယ်၍ (const ကိန်းပြည့် c = cmp(lSensp, rSensp)) ပြန်ပေး c < 0;
+            } မဟုတ်ပါက အကယ်၍ (lSensp || rSensp) {
                 // Terms with sensitivity expressions come after those without
-                return rSensp;
+                ပြန်ပေး rSensp;
             }
             // Finally sort by edge, AFTER variable, as we want multiple edges for same var
             // adjacent. note the SenTree optimizer requires this order (more general first,
             // less general last)
-            return lhsp->edgeType() < rhsp->edgeType();
+            ပြန်ပေး lhsp->edgeType() < rhsp->edgeType();
         }
     };
 
     void visit(AstSenTree* nodep) override {
         iterateChildren(nodep);
-        if (m_doExpensive) {
+        အကယ်၍ (m_doExpensive) {
             // UINFOTREE(1, nodep, "", "ssin");
             // Optimize ideas for the future:
             //   SENTREE(... SENGATE(x,a), SENGATE(SENITEM(x),b) ...)  => SENGATE(x,OR(a,b))
@@ -3607,39 +3607,39 @@ class ConstVisitor final : public VNVisitor {
 
             // Pass 1: Sort the sensitivity items so "posedge a or b" and "posedge b or a" and
             // similar, optimizable expressions end up next to each other.
-            for (AstSenItem *nextp, *senp = nodep->sensesp(); senp; senp = nextp) {
+            အတွက် (AstSenItem *nextp, *senp = nodep->sensesp(); senp; senp = nextp) {
                 nextp = VN_AS(senp->nextp(), SenItem);
                 // cppcheck-suppress unassignedVariable  // cppcheck bug
                 const SenItemCmp cmp;
-                if (nextp && !cmp(senp, nextp)) {
+                အကယ်၍ (nextp && !cmp(senp, nextp)) {
                     // Something's out of order, sort it
                     senp = nullptr;
                     std::vector<AstSenItem*> vec;
-                    for (AstSenItem* senp = nodep->sensesp(); senp;
+                    အတွက် (AstSenItem* senp = nodep->sensesp(); senp;
                          senp = VN_AS(senp->nextp(), SenItem)) {
                         vec.push_back(senp);
                     }
                     stable_sort(vec.begin(), vec.end(), SenItemCmp());
-                    for (const auto& ip : vec) ip->unlinkFrBack();
-                    for (const auto& ip : vec) nodep->addSensesp(ip);
-                    break;
+                    အတွက် (const auto& ip : vec) ip->unlinkFrBack();
+                    အတွက် (const auto& ip : vec) nodep->addSensesp(ip);
+                    bha_nga;
                 }
             }
 
             // Pass 2, remove duplicates and simplify adjacent terms if possible
-            for (AstSenItem *senp = nodep->sensesp(), *nextp; senp; senp = nextp) {
+            အတွက် (AstSenItem *senp = nodep->sensesp(), *nextp; senp; senp = nextp) {
                 nextp = VN_AS(senp->nextp(), SenItem);
-                if (!nextp) break;
+                အကယ်၍ (!nextp) bha_nga;
                 AstSenItem* const lItemp = senp;
                 AstSenItem* const rItemp = nextp;
                 const AstNodeExpr* const lSenp = lItemp->sensp();
                 const AstNodeExpr* const rSenp = rItemp->sensp();
-                if (!lSenp || !rSenp) continue;
+                အကယ်၍ (!lSenp || !rSenp) continue;
 
-                if (lSenp->sameGateTree(rSenp)) {
+                အကယ်၍ (lSenp->sameGateTree(rSenp)) {
                     // POSEDGE or NEGEDGE -> BOTHEDGE. (We've sorted POSEDGE, before NEGEDGE, so we
                     // do not need to test for the opposite orders.)
-                    if (lItemp->edgeType() == VEdgeType::ET_POSEDGE
+                    အကယ်၍ (lItemp->edgeType() == VEdgeType::ET_POSEDGE
                         && rItemp->edgeType() == VEdgeType::ET_NEGEDGE) {
                         // Make both terms BOTHEDGE, the second will be removed below
                         lItemp->edgeType(VEdgeType::ET_BOTHEDGE);
@@ -3647,7 +3647,7 @@ class ConstVisitor final : public VNVisitor {
                     }
 
                     // Remove identical expressions
-                    if (lItemp->edgeType() == rItemp->edgeType()) {
+                    အကယ်၍ (lItemp->edgeType() == rItemp->edgeType()) {
                         VL_DO_DANGLING(pushDeletep(rItemp->unlinkFrBack()), rItemp);
                         nextp = lItemp;
                     }
@@ -3660,8 +3660,8 @@ class ConstVisitor final : public VNVisitor {
     // Zero elimination
     void visit(AstNodeAssign* nodep) override {
         iterateChildren(nodep);
-        if (nodep->timingControlp()) m_hasJumpDelay = true;
-        if (m_doNConst && replaceNodeAssign(nodep)) return;
+        အကယ်၍ (nodep->timingControlp()) m_hasJumpDelay = true;
+        အကယ်၍ (m_doNConst && replaceNodeAssign(nodep)) ပြန်ပေး;
     }
     void visit(AstAlias* nodep) override {
         // Don't perform any optimizations, keep the alias around
@@ -3671,13 +3671,13 @@ class ConstVisitor final : public VNVisitor {
     }
     void visit(AstAssignW* nodep) override {
         iterateChildren(nodep);
-        if (m_doNConst && replaceNodeAssign(nodep)) return;
+        အကယ်၍ (m_doNConst && replaceNodeAssign(nodep)) ပြန်ပေး;
         // Process containing this AssignW as single body statement
         AstAlways* const procp = VN_CAST(nodep->backp(), Always);
-        if (!procp || procp->stmtsp() != nodep || nodep->nextp()) return;
+        အကယ်၍ (!procp || procp->stmtsp() != nodep || nodep->nextp()) ပြန်ပေး;
         // Not VarXRef, as different refs may set different values to each hierarchy
         AstNodeVarRef* const varrefp = VN_CAST(nodep->lhsp(), VarRef);
-        if (m_wremove && !m_params && m_doNConst && m_modp && operandConst(nodep->rhsp())
+        အကယ်၍ (m_wremove && !m_params && m_doNConst && m_modp && operandConst(nodep->rhsp())
             && !VN_AS(nodep->rhsp(), Const)->num().isFourState()
             && varrefp  // Don't do messes with BITREFs/ARRAYREFs
             && !varrefp->varp()->hasStrengthAssignment()  // Strengths are resolved in V3Tristate
@@ -3702,10 +3702,10 @@ class ConstVisitor final : public VNVisitor {
     }
     void visit(AstCReset* nodep) override {
         iterateChildren(nodep);
-        if (!m_doNConst) return;
+        အကယ်၍ (!m_doNConst) ပြန်ပေး;
         const AstBasicDType* const bdtypep = VN_CAST(nodep->dtypep()->skipRefp(), BasicDType);
-        if (!bdtypep) return;
-        if (!bdtypep->isZeroInit()) return;
+        အကယ်၍ (!bdtypep) ပြန်ပေး;
+        အကယ်၍ (!bdtypep->isZeroInit()) ပြန်ပေး;
         AstConst* const newp = new AstConst{nodep->fileline(), V3Number{nodep, bdtypep}};
         UINFO(9, "CRESET(0) => CONST(0) " << nodep);
         nodep->replaceWith(newp);
@@ -3714,7 +3714,7 @@ class ConstVisitor final : public VNVisitor {
     void visit(AstCvtUnpackToUnpack* nodep) override {
         iterateChildren(nodep);
         AstConsArray* const fromp = VN_CAST(nodep->fromp(), ConsArray);
-        if (!fromp) return;
+        အကယ်၍ (!fromp) ပြန်ပေး;
         // Fold the outermost dimension, converting the elements for any dimension under it
         const AstUnpackArrayDType* const toArrayp
             = VN_AS(nodep->dtypep()->skipRefp(), UnpackArrayDType);
@@ -3729,13 +3729,13 @@ class ConstVisitor final : public VNVisitor {
             = VN_CAST(subDTypep->skipRefp(), UnpackArrayDType);
         const auto convert = [&](AstNodeExpr* valuep) -> AstNodeExpr* {
             valuep->unlinkFrBack();
-            if (!subArrayp || !subArrayp->isReverseOf(valuep->dtypep())) return valuep;
-            return new AstCvtUnpackToUnpack{valuep->fileline(), valuep, subDTypep};
+            အကယ်၍ (!subArrayp || !subArrayp->isReverseOf(valuep->dtypep())) ပြန်ပေး valuep;
+            ပြန်ပေး new AstCvtUnpackToUnpack{valuep->fileline(), valuep, subDTypep};
         };
         AstConsArray* const newp
             = new AstConsArray{fromp->fileline(), nodep->dtypep(),
                                fromp->defaultp() ? convert(fromp->defaultp()) : nullptr};
-        for (const AstConsArrayItem* itemp = fromp->itemsp(); itemp;
+        အတွက် (const AstConsArrayItem* itemp = fromp->itemsp(); itemp;
              itemp = VN_AS(itemp->nextp(), ConsArrayItem)) {
             newp->valuep(reverse ? lastIndex - itemp->index() : itemp->index(),
                          convert(itemp->valuep()));
@@ -3750,22 +3750,22 @@ class ConstVisitor final : public VNVisitor {
         // Check for both StreamL and StreamR operations
         AstNodeStream* streamp = nullptr;
         bool isReverse = false;
-        if (AstStreamL* const streamLp = VN_CAST(nodep->fromp(), StreamL)) {
+        အကယ်၍ (AstStreamL* const streamLp = VN_CAST(nodep->fromp(), StreamL)) {
             streamp = streamLp;
             isReverse = true;  // StreamL reverses the operation
-        } else if (AstStreamR* const streamRp = VN_CAST(nodep->fromp(), StreamR)) {
+        } မဟုတ်ပါက အကယ်၍ (AstStreamR* const streamRp = VN_CAST(nodep->fromp(), StreamR)) {
             streamp = streamRp;
             isReverse = false;  // StreamR doesn't reverse the operation
         }
-        if (streamp) {
+        အကယ်၍ (streamp) {
             AstNodeExpr* srcp = streamp->lhsp();
             const AstNodeDType* const srcDTypep = srcp->dtypep()->skipRefp();
             AstNodeDType* const dstDTypep = nodep->dtypep()->skipRefp();
-            if (VN_IS(srcDTypep, QueueDType) && VN_IS(dstDTypep, QueueDType)) {
-                int blockSize = 1;
-                if (const AstConst* const constp = VN_CAST(streamp->rhsp(), Const)) {
+            အကယ်၍ (VN_IS(srcDTypep, QueueDType) && VN_IS(dstDTypep, QueueDType)) {
+                ကိန်းပြည့် blockSize = 1;
+                အကယ်၍ (const AstConst* const constp = VN_CAST(streamp->rhsp(), Const)) {
                     blockSize = constp->toSInt();
-                    if (VL_UNLIKELY(blockSize <= 0)) {
+                    အကယ်၍ (VL_UNLIKELY(blockSize <= 0)) {
                         // Not reachable due to higher level checks when parsing stream
                         // operators commented out to not fail v3error-coverage-checks.
                         // nodep->v3error("Stream block size must be positive, got " <<
@@ -3779,12 +3779,12 @@ class ConstVisitor final : public VNVisitor {
                 //    nodep->v3error("Stream block size must be constant (got " <<
                 //    streamp->rhsp()->prettyTypeName() << ")");
                 // }
-                int srcElementBits = 0;
-                if (const AstNodeDType* const elemDtp = srcDTypep->subDTypep()) {
+                ကိန်းပြည့် srcElementBits = 0;
+                အကယ်၍ (const AstNodeDType* const elemDtp = srcDTypep->subDTypep()) {
                     srcElementBits = elemDtp->width();
                 }
-                int dstElementBits = 0;
-                if (const AstNodeDType* const elemDtp = dstDTypep->subDTypep()) {
+                ကိန်းပြည့် dstElementBits = 0;
+                အကယ်၍ (const AstNodeDType* const elemDtp = dstDTypep->subDTypep()) {
                     dstElementBits = elemDtp->width();
                 }
                 streamp->unlinkFrBack();
@@ -3794,13 +3794,13 @@ class ConstVisitor final : public VNVisitor {
                 nodep->replaceWith(newp);
                 VL_DO_DANGLING(pushDeletep(streamp), streamp);
                 VL_DO_DANGLING(pushDeletep(nodep), nodep);
-                return;
+                ပြန်ပေး;
             }
         }
     }
     void visit(AstRelease* nodep) override {
         // cppcheck-suppress constVariablePointer // children unlinked below
-        if (AstConcat* const concatp = VN_CAST(nodep->lhsp(), Concat)) {
+        အကယ်၍ (AstConcat* const concatp = VN_CAST(nodep->lhsp(), Concat)) {
             FileLine* const flp = nodep->fileline();
             AstRelease* const newLp = new AstRelease{flp, concatp->lhsp()->unlinkFrBack()};
             AstRelease* const newRp = new AstRelease{flp, concatp->rhsp()->unlinkFrBack()};
@@ -3814,35 +3814,35 @@ class ConstVisitor final : public VNVisitor {
 
     void visit(AstNodeIf* nodep) override {
         iterateChildren(nodep);
-        if (m_doNConst) {
-            if (const AstConst* const constp = VN_CAST(nodep->condp(), Const)) {
+        အကယ်၍ (m_doNConst) {
+            အကယ်၍ (const AstConst* const constp = VN_CAST(nodep->condp(), Const)) {
                 AstNode* keepp = nullptr;
                 AstNode* delp = nullptr;
-                if (constp->isZero()) {
+                အကယ်၍ (constp->isZero()) {
                     UINFO(4, "IF(0,{any},{x}) => {x}: " << nodep);
                     keepp = nodep->elsesp();
                     delp = nodep->thensp();
-                } else if (!m_doV || constp->isNeqZero()) {  // Might be X in Verilog
+                } မဟုတ်ပါက အကယ်၍ (!m_doV || constp->isNeqZero()) {  // Might be X in Verilog
                     UINFO(4, "IF(!0,{x},{any}) => {x}: " << nodep);
                     keepp = nodep->thensp();
                     delp = nodep->elsesp();
-                } else {
+                } မဟုတ်ပါက {
                     UINFO(4, "IF condition is X, retaining: " << nodep);
-                    return;
+                    ပြန်ပေး;
                 }
-                if (!canDeleteStatements()) {
+                အကယ်၍ (!canDeleteStatements()) {
                     UINFO(4, "IF retained until statics lifted: " << nodep);
-                    return;
+                    ပြန်ပေး;
                 }
 
                 // If we delete a branch that contains variable declarations, also delete the
                 // corresponding varscopes so we don't leave dangling AstVarScope::m_varp pointers.
                 deleteVarScopesUnder(delp);
 
-                if (keepp) {
+                အကယ်၍ (keepp) {
                     keepp->unlinkFrBackWithNext();
                     nodep->replaceWith(keepp);
-                } else {
+                } မဟုတ်ပါက {
                     nodep->unlinkFrBack();
                     deleteVarScopesUnder(nodep->thensp());
                     deleteVarScopesUnder(nodep->elsesp());
@@ -3852,9 +3852,9 @@ class ConstVisitor final : public VNVisitor {
                 // Removed branch could contain only impurity within a function and the
                 // function could be purified
                 VIsCached::clearCacheTree();
-            } else if (!AstNode::afterCommentp(nodep->thensp())
+            } မဟုတ်ပါက အကယ်၍ (!AstNode::afterCommentp(nodep->thensp())
                        && !AstNode::afterCommentp(nodep->elsesp())) {
-                if (!nodep->condp()->isPure()) {
+                အကယ်၍ (!nodep->condp()->isPure()) {
                     // Condition has side effect - leave, but don't need return value
                     UINFO(4, "IF({x}) ; => STMTEXPR({x}): " << nodep);
                     nodep->fileline()->warnOff(V3ErrorCode::IGNOREDRETURN, true);
@@ -3862,25 +3862,25 @@ class ConstVisitor final : public VNVisitor {
                         = new AstStmtExpr{nodep->fileline(), nodep->condp()->unlinkFrBack()};
                     nodep->replaceWith(newp);
                     VL_DO_DANGLING(pushDeletep(nodep), nodep);
-                } else {
+                } မဟုတ်ပါက {
                     // Empty block, remove it
                     UINFO(4, "IF({x}) ; => ; : " << nodep);
                     VL_DO_DANGLING(pushDeletep(nodep->unlinkFrBack()), nodep);
                 }
-            } else if (!AstNode::afterCommentp(nodep->thensp())) {
+            } မဟုတ်ပါက အကယ်၍ (!AstNode::afterCommentp(nodep->thensp())) {
                 UINFO(4, "IF({x}) nullptr {...} => IF(NOT{x}}: " << nodep);
                 AstNodeExpr* const condp = nodep->condp();
                 AstNode* const elsesp = nodep->elsesp();
                 condp->unlinkFrBackWithNext();
                 elsesp->unlinkFrBackWithNext();
-                if (nodep->thensp()) {  // Must have been comment
+                အကယ်၍ (nodep->thensp()) {  // Must have been comment
                     pushDeletep(nodep->thensp()->unlinkFrBackWithNext());
                 }
                 nodep->condp(new AstLogNot{condp->fileline(),
                                            condp});  // LogNot, as C++ optimization also possible
                 nodep->addThensp(elsesp);
                 nodep->branchPred(nodep->branchPred().invert());
-            } else if (((VN_IS(nodep->condp(), Not) && nodep->condp()->width() == 1)
+            } မဟုတ်ပါက အကယ်၍ (((VN_IS(nodep->condp(), Not) && nodep->condp()->width() == 1)
                         || VN_IS(nodep->condp(), LogNot))
                        && nodep->thensp() && nodep->elsesp()) {
                 UINFO(4, "IF(NOT {x})  => IF(x) swapped if/else" << nodep);
@@ -3893,7 +3893,7 @@ class ConstVisitor final : public VNVisitor {
                 ifp->branchPred(nodep->branchPred().invert());
                 nodep->replaceWith(ifp);
                 VL_DO_DANGLING(pushDeletep(nodep), nodep);
-            } else if (ifSameAssign(nodep)) {
+            } မဟုတ်ပါက အကယ်၍ (ifSameAssign(nodep)) {
                 UINFO(4,
                       "IF({a}) ASSIGN({b},{c}) else ASSIGN({b},{d}) => ASSIGN({b}, {a}?{c}:{d})");
                 AstNodeAssign* const thensp = VN_AS(nodep->thensp(), NodeAssign);
@@ -3906,7 +3906,7 @@ class ConstVisitor final : public VNVisitor {
                 thensp->rhsp(new AstCond{truep->fileline(), condp, truep, falsep});
                 nodep->replaceWith(thensp);
                 VL_DO_DANGLING(pushDeletep(nodep), nodep);
-            } else if (false  // Disabled, as vpm assertions are faster
+            } မဟုတ်ပါက အကယ်၍ (false  // Disabled, as vpm assertions are faster
                               // without due to short-circuiting
                        && operandIfIf(nodep)) {
                 UINFO(9, "IF({a}) IF({b}) => IF({a} && {b})");
@@ -3917,9 +3917,9 @@ class ConstVisitor final : public VNVisitor {
                 nodep->condp(new AstLogAnd{lowerIfp->fileline(), condp, lowerCondp});
                 lowerIfp->replaceWith(lowerThensp);
                 VL_DO_DANGLING(pushDeletep(lowerIfp), lowerIfp);
-            } else {
+            } မဟုတ်ပါက {
                 // Optimizations that don't reform the IF itself
-                if (operandBoolShift(nodep->condp())) replaceBoolShift(nodep->condp());
+                အကယ်၍ (operandBoolShift(nodep->condp())) replaceBoolShift(nodep->condp());
                 matchIfSameLast(nodep);
                 matchIfCondCond(nodep);
             }
@@ -3929,59 +3929,59 @@ class ConstVisitor final : public VNVisitor {
     void visit(AstDisplay* nodep) override {
         // DISPLAY(SFORMAT(text1)),DISPLAY(SFORMAT(text2)) -> DISPLAY(SFORMAT(text1+text2))
         iterateChildren(nodep);
-        if (stmtDisplayDisplay(nodep)) return;
+        အကယ်၍ (stmtDisplayDisplay(nodep)) ပြန်ပေး;
     }
     bool stmtDisplayDisplay(AstDisplay* nodep) {
         // DISPLAY(SFORMAT(text1)),DISPLAY(SFORMAT(text2)) -> DISPLAY(SFORMAT(text1+text2))
-        if (!m_modp) return false;  // Don't optimize under single statement
+        အကယ်၍ (!m_modp) ပြန်ပေး false;  // Don't optimize under single statement
         AstDisplay* const prevp = VN_CAST(nodep->backp(), Display);
-        if (!prevp) return false;
-        if (!((prevp->displayType() == nodep->displayType())
+        အကယ်၍ (!prevp) ပြန်ပေး false;
+        အကယ်၍ (!((prevp->displayType() == nodep->displayType())
               || (prevp->displayType() == VDisplayType::DT_WRITE
                   && nodep->displayType() == VDisplayType::DT_DISPLAY)
               || (prevp->displayType() == VDisplayType::DT_DISPLAY
                   && nodep->displayType() == VDisplayType::DT_WRITE)))
-            return false;
-        if ((prevp->filep() && !nodep->filep()) || (!prevp->filep() && nodep->filep())
+            ပြန်ပေး false;
+        အကယ်၍ ((prevp->filep() && !nodep->filep()) || (!prevp->filep() && nodep->filep())
             || (prevp->filep() && nodep->filep() && !prevp->filep()->sameTree(nodep->filep())))
-            return false;
-        if (!prevp->fmtp() || prevp->fmtp()->nextp() || !nodep->fmtp() || nodep->fmtp()->nextp())
-            return false;
+            ပြန်ပေး false;
+        အကယ်၍ (!prevp->fmtp() || prevp->fmtp()->nextp() || !nodep->fmtp() || nodep->fmtp()->nextp())
+            ပြန်ပေး false;
         AstSFormatF* const pformatp = prevp->fmtp();
         // cppcheck-suppress constVariablePointer // children unlinked below
         AstSFormatF* const nformatp = nodep->fmtp();
         // We don't merge scopeNames as can have only one and might be different scopes (late in
         // process) Also rare for real code to print %m multiple times in same message
-        if (nformatp->scopeNamep() && pformatp->scopeNamep()) return false;
+        အကယ်၍ (nformatp->scopeNamep() && pformatp->scopeNamep()) ပြန်ပေး false;
         // We don't early merge arguments as might need to later print warnings with
         // right line numbers, nor scopeNames as might be different scopes (late in process)
-        if (!m_doCpp && pformatp->exprsp()) return false;
-        if (!m_doCpp && nformatp->exprsp()) return false;
-        if (pformatp->exprsp() && !pformatp->exprsp()->isPureAndNext()) return false;
-        if (nformatp->exprsp() && !nformatp->exprsp()->isPureAndNext()) return false;
+        အကယ်၍ (!m_doCpp && pformatp->exprsp()) ပြန်ပေး false;
+        အကယ်၍ (!m_doCpp && nformatp->exprsp()) ပြန်ပေး false;
+        အကယ်၍ (pformatp->exprsp() && !pformatp->exprsp()->isPureAndNext()) ပြန်ပေး false;
+        အကယ်၍ (nformatp->exprsp() && !nformatp->exprsp()->isPureAndNext()) ပြန်ပေး false;
         // Avoid huge merges
-        static constexpr int DISPLAY_MAX_MERGE_LENGTH = 500;
-        if (pformatp->text().length() + nformatp->text().length() > DISPLAY_MAX_MERGE_LENGTH)
-            return false;
+        static constexpr ကိန်းပြည့် DISPLAY_MAX_MERGE_LENGTH = 500;
+        အကယ်၍ (pformatp->text().length() + nformatp->text().length() > DISPLAY_MAX_MERGE_LENGTH)
+            ပြန်ပေး false;
         //
         UINFO(9, "DISPLAY(SF({a})) DISPLAY(SF({b})) -> DISPLAY(SF({a}+{b}))");
         // Convert DT_DISPLAY to DT_WRITE as may allow later optimizations
-        if (prevp->displayType() == VDisplayType::DT_DISPLAY) {
+        အကယ်၍ (prevp->displayType() == VDisplayType::DT_DISPLAY) {
             prevp->displayType(VDisplayType::DT_WRITE);
             pformatp->text(pformatp->text() + "\n");
         }
         // We can't replace prev() as the edit tracking iterators will get confused.
         // So instead we edit the prev note itself.
-        if (prevp->addNewline()) pformatp->text(pformatp->text() + "\n");
+        အကယ်၍ (prevp->addNewline()) pformatp->text(pformatp->text() + "\n");
         pformatp->text(pformatp->text() + nformatp->text());
-        if (!prevp->addNewline() && nodep->addNewline()) pformatp->text(pformatp->text() + "\n");
-        if (nformatp->exprsp()) pformatp->addExprsp(nformatp->exprsp()->unlinkFrBackWithNext());
-        if (AstScopeName* const scopeNamep = nformatp->scopeNamep()) {
+        အကယ်၍ (!prevp->addNewline() && nodep->addNewline()) pformatp->text(pformatp->text() + "\n");
+        အကယ်၍ (nformatp->exprsp()) pformatp->addExprsp(nformatp->exprsp()->unlinkFrBackWithNext());
+        အကယ်၍ (AstScopeName* const scopeNamep = nformatp->scopeNamep()) {
             scopeNamep->unlinkFrBackWithNext();
             pformatp->scopeNamep(scopeNamep);
         }
         VL_DO_DANGLING(pushDeletep(nodep->unlinkFrBack()), nodep);
-        return true;
+        ပြန်ပေး true;
     }
     void visit(AstSFormatArg* nodep) override {
         // Skip namep(): requiring its runtime lookup to be constant can reject valid
@@ -3994,12 +3994,12 @@ class ConstVisitor final : public VNVisitor {
         // simplify assertion methodologies which call functions with display's.
         // This eliminates a pile of wide temps, and makes the C a whole lot more readable.
         iterateChildren(nodep);
-        if (nodep->exprFormat()) {
+        အကယ်၍ (nodep->exprFormat()) {
             // Upconvert to text-based format?
             // Similar code in V3LinkResolve::visit(AstSFormatF)
             UASSERT_OBJ(nodep->text() == "", nodep,
                         "Non-format $sformatf should have text format == \"\"");
-            if (VN_IS(nodep->exprsp(), Const)
+            အကယ်၍ (VN_IS(nodep->exprsp(), Const)
                 && VN_AS(nodep->exprsp(), Const)->num().isFromString()) {
                 AstConst* const fmtp = VN_AS(nodep->exprsp()->unlinkFrBack(), Const);
                 nodep->text(fmtp->num().toString());
@@ -4007,42 +4007,42 @@ class ConstVisitor final : public VNVisitor {
                 VL_DO_DANGLING(pushDeletep(fmtp), fmtp);
             }
         }
-        if (nodep->exprFormat()) return;  // Runtime, unfortunately  (unless constify format later)
+        အကယ်၍ (nodep->exprFormat()) ပြန်ပေး;  // Runtime, unfortunately  (unless constify format later)
         bool anyconst = false;
-        for (AstNode* argp = nodep->exprsp(); argp; argp = argp->nextp()) {
+        အတွက် (AstNode* argp = nodep->exprsp(); argp; argp = argp->nextp()) {
             AstSFormatArg* const fargp = VN_CAST(argp, SFormatArg);
             AstNode* const subargp = fargp ? fargp->exprp() : argp;
-            if (VN_IS(subargp, Const)) {
+            အကယ်၍ (VN_IS(subargp, Const)) {
                 anyconst = true;
-                break;
+                bha_nga;
             }
         }
-        if (m_doNConst && anyconst) {
+        အကယ်၍ (m_doNConst && anyconst) {
             UINFO(9, "  Display in  " << nodep->text());
             string newFormat;
             string fmt;
             bool inPct = false;
             AstNode* argp = nodep->exprsp();
             const string text = nodep->text();
-            for (char ch : text) {
-                if (!inPct && ch == '%') {
+            အတွက် (var_na ch : text) {
+                အကယ်၍ (!inPct && ch == '%') {
                     inPct = true;
                     fmt = ch;
-                } else if (inPct && (std::isdigit(ch) || ch == '.' || ch == '-')) {
+                } မဟုတ်ပါက အကယ်၍ (inPct && (std::isdigit(ch) || ch == '.' || ch == '-')) {
                     fmt += ch;
-                } else if (inPct) {
+                } မဟုတ်ပါက အကယ်၍ (inPct) {
                     inPct = false;
                     fmt += ch;
                     ch = std::tolower(ch);
                     switch (ch) {
-                    case '%': break;  // %% - still %%
-                    case 'm': break;  // %m - still %m - auto insert "name"
-                    case 'l': break;  // %l - still %l - auto insert "library"
-                    case 't':  // %t - don't know $timeformat so can't constify
-                        if (argp) argp = argp->nextp();
-                        break;
+                    pak_sa '%': bha_nga;  // %% - still %%
+                    pak_sa 'm': bha_nga;  // %m - still %m - auto insert "name"
+                    pak_sa 'l': bha_nga;  // %l - still %l - auto insert "library"
+                    pak_sa 't':  // %t - don't know $timeformat so can't constify
+                        အကယ်၍ (argp) argp = argp->nextp();
+                        bha_nga;
                     default:  // Most operators, just move to next argument
-                        if (argp) {
+                        အကယ်၍ (argp) {
                             AstNode* const nextp = argp->nextp();
                             AstSFormatArg* const fargp = VN_CAST(argp, SFormatArg);
                             AstNode* const subargp = fargp ? fargp->exprp() : argp;
@@ -4050,7 +4050,7 @@ class ConstVisitor final : public VNVisitor {
                                 = argp
                                       ? AstSFormatArg::formatAttrDefauled(fargp, subargp->dtypep())
                                       : VFormatAttr{};
-                            if (VN_IS(subargp, Const)) {  // Convert it
+                            အကယ်၍ (VN_IS(subargp, Const)) {  // Convert it
                                 const string out
                                     = formatAttr.isEnum()
                                           ? constNumV(subargp).displayedEnum(fargp, fmt)
@@ -4064,56 +4064,56 @@ class ConstVisitor final : public VNVisitor {
                             }
                             argp = nextp;
                         }
-                        break;
+                        bha_nga;
                     }  // switch
                     newFormat += fmt;
-                } else {
+                } မဟုတ်ပါက {
                     newFormat += ch;
                 }
             }
-            if (newFormat != nodep->text()) {
+            အကယ်၍ (newFormat != nodep->text()) {
                 nodep->text(newFormat);
                 UINFO(9, "  Display out " << nodep);
             }
         }
-        if (!nodep->exprsp() && nodep->text().find('%') == string::npos && !nodep->hidden()) {
+        အကယ်၍ (!nodep->exprsp() && nodep->text().find('%') == string::npos && !nodep->hidden()) {
             // Just a simple constant string - the formatting is pointless
             UINFO(9, "replaceConstStr");
             VL_DO_DANGLING(replaceConstString(nodep, nodep->text()), nodep);
-            return;
+            ပြန်ပေး;
         }
-        if (VN_IS(nodep->backp(), NodeAssign)  // Can't remove under Display etc
+        အကယ်၍ (VN_IS(nodep->backp(), NodeAssign)  // Can't remove under Display etc
             && nodep->text() == "%s" && VN_IS(nodep->exprsp(), SFormatArg)
             && VN_AS(nodep->exprsp(), SFormatArg)->formatAttr().isString()
             && !nodep->exprsp()->nextp()) {
             UINFO(9, "  Display(%p, expr) -> constant expr " << nodep);
             nodep->replaceWith(VN_AS(nodep->exprsp(), SFormatArg)->exprp()->unlinkFrBack());
             VL_DO_DANGLING(pushDeletep(nodep), nodep);
-            return;
+            ပြန်ပေး;
         }
     }
     void visit(AstSFormat* nodep) override {
         iterateChildren(nodep);
-        if (!m_doNConst) return;
-        if (m_doNConst) {
+        အကယ်၍ (!m_doNConst) ပြန်ပေး;
+        အကယ်၍ (m_doNConst) {
             // If it's a constant string written to a string variable, inline it as an assignment
             AstSFormatF* const fmtp = nodep->fmtp();
             AstNodeExpr* const lhsp = nodep->lhsp();
             AstBasicDType* const basicp = VN_CAST(lhsp->dtypep()->skipRefp(), BasicDType);
-            if (basicp && basicp->isString() && !fmtp->exprsp()
+            အကယ်၍ (basicp && basicp->isString() && !fmtp->exprsp()
                 && fmtp->text().find('%') == string::npos) {
                 AstConst* const strp
                     = new AstConst{fmtp->fileline(), AstConst::String{}, fmtp->text()};
                 lhsp->unlinkFrBack();
                 nodep->replaceWith(new AstAssign{nodep->fileline(), lhsp, strp});
                 VL_DO_DANGLING(pushDeletep(nodep), nodep);
-                return;
+                ပြန်ပေး;
             }
         }
     }
     void visit(AstNodeFTask* nodep) override {
         VL_RESTORER(m_underRecFunc);
-        if (nodep->recursive()) m_underRecFunc = true;
+        အကယ်၍ (nodep->recursive()) m_underRecFunc = true;
         iterateChildren(nodep);
     }
 
@@ -4128,7 +4128,7 @@ class ConstVisitor final : public VNVisitor {
     }
     void visit(AstFuncRef* nodep) override {
         visit(static_cast<AstNodeFTaskRef*>(nodep));
-        if (m_params) {  // Only parameters force us to do constant function call propagation
+        အကယ်၍ (m_params) {  // Only parameters force us to do constant function call propagation
             replaceWithSimulation(nodep);
         }
     }
@@ -4145,27 +4145,27 @@ class ConstVisitor final : public VNVisitor {
         const bool thisLoopHasJumpDelay = m_hasJumpDelay;
         m_hasJumpDelay = thisLoopHasJumpDelay || oldHasJumpDelay;
         // If the first statement always break, the loop is useless
-        if (const AstLoopTest* const testp = VN_CAST(nodep->stmtsp(), LoopTest)) {
-            if (testp->condp()->isZero() && (!testp->nextp() || canDeleteStatements())) {
+        အကယ်၍ (const AstLoopTest* const testp = VN_CAST(nodep->stmtsp(), LoopTest)) {
+            အကယ်၍ (testp->condp()->isZero() && (!testp->nextp() || canDeleteStatements())) {
                 nodep->v3warn(UNUSEDLOOP, "Loop condition is always false");
                 VL_DO_DANGLING(pushDeletep(nodep->unlinkFrBack()), nodep);
-                return;
+                ပြန်ပေး;
             }
         }
         // If last statement always breaks, repalce loop with body
-        if (AstNode* lastp = nodep->stmtsp()) {
-            while (AstNode* const nextp = lastp->nextp()) lastp = nextp;
-            if (AstLoopTest* const testp = VN_CAST(lastp, LoopTest)) {
-                if (testp->condp()->isZero()) {
+        အကယ်၍ (AstNode* lastp = nodep->stmtsp()) {
+            နေစဉ် (AstNode* const nextp = lastp->nextp()) lastp = nextp;
+            အကယ်၍ (AstLoopTest* const testp = VN_CAST(lastp, LoopTest)) {
+                အကယ်၍ (testp->condp()->isZero()) {
                     VL_DO_DANGLING2(pushDeletep(testp->unlinkFrBack()), testp, lastp);
                     nodep->replaceWith(nodep->stmtsp()->unlinkFrBackWithNext());
                     VL_DO_DANGLING(pushDeletep(nodep), nodep);
-                    return;
+                    ပြန်ပေး;
                 }
             }
         }
         // Warn on infinite loop
-        if (!m_hasLoopTest && !thisLoopHasJumpDelay) {
+        အကယ်၍ (!m_hasLoopTest && !thisLoopHasJumpDelay) {
             nodep->v3warn(INFINITELOOP, "Infinite loop (condition always true)");
             nodep->fileline()->modifyWarnOff(V3ErrorCode::INFINITELOOP, true);  // Complain once
         }
@@ -4174,23 +4174,23 @@ class ConstVisitor final : public VNVisitor {
         iterateChildren(nodep);
 
         // If never breaks, remove
-        if (nodep->condp()->isNeqZero()) {
+        အကယ်၍ (nodep->condp()->isNeqZero()) {
             VL_DO_DANGLING(pushDeletep(nodep->unlinkFrBack()), nodep);
-            return;
+            ပြန်ပေး;
         }
 
         m_hasLoopTest = true;
 
         // If always breaks, subsequent statements are dead code, delete them
-        if (nodep->condp()->isZero()) {
+        အကယ်၍ (nodep->condp()->isZero()) {
             AstNode* const nextp = nodep->nextp();
-            if (nextp && canDeleteStatements()) {
+            အကယ်၍ (nextp && canDeleteStatements()) {
                 VL_DO_DANGLING(pushDeletep(nextp->unlinkFrBackWithNext()), nodep);
             }
-            return;
+            ပြန်ပေး;
         }
 
-        if (operandBoolShift(nodep->condp())) replaceBoolShift(nodep->condp());
+        အကယ်၍ (operandBoolShift(nodep->condp())) replaceBoolShift(nodep->condp());
     }
 
     void visit(AstConsArray* nodep) override { iterateChildren(nodep); }
@@ -4206,27 +4206,27 @@ class ConstVisitor final : public VNVisitor {
     // Ignored, can eliminate early
     void visit(AstSysIgnore* nodep) override {
         iterateChildren(nodep);
-        if (m_doNConst) VL_DO_DANGLING(pushDeletep(nodep->unlinkFrBack()), nodep);
+        အကယ်၍ (m_doNConst) VL_DO_DANGLING(pushDeletep(nodep->unlinkFrBack()), nodep);
     }
 
     void visit(AstStmtExpr* nodep) override {
         iterateChildren(nodep);
         // Malformed due to child being deleted, remove here
-        if (!nodep->exprp()) {
+        အကယ်၍ (!nodep->exprp()) {
             VL_DO_DANGLING(pushDeletep(nodep->unlinkFrBack()), nodep);
-            return;
+            ပြန်ပေး;
         }
         // Remove if expression is trivially pure
-        if (VN_IS(nodep->exprp(), Const) || VN_IS(nodep->exprp(), VarRef)) {
+        အကယ်၍ (VN_IS(nodep->exprp(), Const) || VN_IS(nodep->exprp(), VarRef)) {
             VL_DO_DANGLING(pushDeletep(nodep->unlinkFrBack()), nodep);
-            return;
+            ပြန်ပေး;
         }
         // Remove calls to empty functions
-        if (const AstCCall* const callp = VN_CAST(nodep->exprp(), CCall)) {
+        အကယ်၍ (const AstCCall* const callp = VN_CAST(nodep->exprp(), CCall)) {
             const AstCFunc* const funcp = callp->funcp();
-            if (!callp->argsp() && funcp->emptyBody()) {
+            အကယ်၍ (!callp->argsp() && funcp->emptyBody()) {
                 VL_DO_DANGLING(pushDeletep(nodep->unlinkFrBack()), nodep);
-                return;
+                ပြန်ပေး;
             }
         }
 
@@ -4250,21 +4250,21 @@ class ConstVisitor final : public VNVisitor {
 
     void visit(AstJumpGo* nodep) override {
         // Any statements following the JumpGo (at this statement level) never execute, delete
-        if (nodep->nextp() && canDeleteStatements()) {
+        အကယ်၍ (nodep->nextp() && canDeleteStatements()) {
             pushDeletep(nodep->nextp()->unlinkFrBackWithNext());
         }
 
         // JumpGo as last statement in target JumpBlock (including last in a last sub-list),
         // is a no-op, remove it.
-        if (!nodep->nextp()) {
-            for (AstNode* abovep = nodep->abovep(); abovep; abovep = abovep->abovep()) {
-                if (abovep == nodep->blockp()) {
+        အကယ်၍ (!nodep->nextp()) {
+            အတွက် (AstNode* abovep = nodep->abovep(); abovep; abovep = abovep->abovep()) {
+                အကယ်၍ (abovep == nodep->blockp()) {
                     VL_DO_DANGLING(pushDeletep(nodep->unlinkFrBack()), nodep);
-                    return;
+                    ပြန်ပေး;
                 }
                 // Stop if not doing expensive, or if the above node is not the last in its list,
                 // ... or if it's not an 'if' TODO: it would be enough if it was not a branch.
-                if (!m_doExpensive || abovep->nextp() || !VN_IS(abovep, If)) break;
+                အကယ်၍ (!m_doExpensive || abovep->nextp() || !VN_IS(abovep, If)) bha_nga;
             }
         }
         // Mark JumpBlock as used
@@ -4276,19 +4276,19 @@ class ConstVisitor final : public VNVisitor {
         iterateChildren(nodep);
 
         // If first statement is an AstLoopTest, pull it before the jump block
-        if (AstLoopTest* const testp = VN_CAST(nodep->stmtsp(), LoopTest)) {
+        အကယ်၍ (AstLoopTest* const testp = VN_CAST(nodep->stmtsp(), LoopTest)) {
             nodep->addHereThisAsNext(testp->unlinkFrBack());
         }
 
         // Remove if empty
-        if (!nodep->stmtsp()) {
+        အကယ်၍ (!nodep->stmtsp()) {
             UINFO(4, "JUMPLABEL => empty " << nodep);
             VL_DO_DANGLING(pushDeletep(nodep->unlinkFrBack()), nodep);
-            return;
+            ပြန်ပေး;
         }
 
         // If no JumpGo points to this node, replace it with its body
-        if (!m_usedJumpBlocks.count(nodep)) {
+        အကယ်၍ (!m_usedJumpBlocks.count(nodep)) {
             UINFO(4, "JUMPLABEL => unused " << nodep);
             nodep->replaceWith(nodep->stmtsp()->unlinkFrBackWithNext());
             VL_DO_DANGLING(pushDeletep(nodep), nodep);
@@ -4643,35 +4643,35 @@ class ConstVisitor final : public VNVisitor {
     //-----
     void visit(AstNode* nodep) override {
         // Default: Just iterate
-        if (m_required) {
-            if (VN_IS(nodep, NodeDType) || VN_IS(nodep, Range) || VN_IS(nodep, SliceSel)
+        အကယ်၍ (m_required) {
+            အကယ်၍ (VN_IS(nodep, NodeDType) || VN_IS(nodep, Range) || VN_IS(nodep, SliceSel)
                 || VN_IS(nodep, Dot) || VN_IS(nodep, Text)) {
                 // ignore
-            } else if (VN_IS(nodep, Pattern) || VN_IS(nodep, PatMember)) {
+            } မဟုတ်ပါက အကယ်၍ (VN_IS(nodep, Pattern) || VN_IS(nodep, PatMember)) {
                 // A parameter override pattern is typed later, so only fold its members
                 iterateChildren(nodep);
-            } else if (AstCellRef* const crp = VN_CAST(nodep, CellRef)) {
+            } မဟုတ်ပါက အကယ်၍ (AstCellRef* const crp = VN_CAST(nodep, CellRef)) {
                 iterate(crp->exprp());
-                if (AstNode* const newp = crp->exprp()) {
+                အကယ်၍ (AstNode* const newp = crp->exprp()) {
                     crp->replaceWithKeepDType(newp->unlinkFrBack());
                     VL_DO_DANGLING(pushDeletep(crp), crp);
                 }
-                return;
-            } else {
+                ပြန်ပေး;
+            } မဟုတ်ပါက {
                 nodep->v3error("Expecting expression to be constant, but can't convert a "
                                << nodep->prettyTypeName() << " to constant.");
             }
-        } else {
-            if (nodep->isTimingControl()) m_hasJumpDelay = true;
+        } မဟုတ်ပါက {
+            အကယ်၍ (nodep->isTimingControl()) m_hasJumpDelay = true;
             // Calculate the width of this operation
-            if (m_params && !nodep->width()) nodep = V3Width::widthParamsEdit(nodep);
+            အကယ်၍ (m_params && !nodep->width()) nodep = V3Width::widthParamsEdit(nodep);
             iterateChildren(nodep);
         }
     }
 
 public:
     // Processing Mode Enum
-    enum ProcMode : uint8_t {
+    ga_nanaa ProcMode : uint8_t {
         PROC_PARAMS_NOWARN,
         PROC_PARAMS,
         PROC_GENERATE,
@@ -4688,26 +4688,26 @@ public:
         , m_concswapNames{globalPass ? ("__Vconcswap_" + cvtToStr(s_globalPassNum++)) : ""} {
         // clang-format off
         switch (pmode) {
-        case PROC_PARAMS_NOWARN:  m_doV = true;  m_doNConst = true; m_params = true;
-                                  m_required = false; break;
-        case PROC_PARAMS:         m_doV = true;  m_doNConst = true; m_params = true;
-                                  m_required = true; break;
-        case PROC_GENERATE:       m_doV = true;  m_doNConst = true; m_params = true;
-                                  m_required = true; m_doGenerate = true; break;
-        case PROC_LIVE:           break;
-        case PROC_V_WARN:         m_doV = true;  m_doNConst = true; m_warn = true; m_convertLogicToBit = true; break;
-        case PROC_V_NOWARN:       m_doV = true;  m_doNConst = true; break;
-        case PROC_V_EXPENSIVE:    m_doV = true;  m_doNConst = true; m_doExpensive = true; break;
-        case PROC_CPP:            m_doV = false; m_doNConst = true; m_doCpp = true; break;
-        default:                  v3fatalSrc("Bad case"); break;
+        pak_sa PROC_PARAMS_NOWARN:  m_doV = true;  m_doNConst = true; m_params = true;
+                                  m_required = false; bha_nga;
+        pak_sa PROC_PARAMS:         m_doV = true;  m_doNConst = true; m_params = true;
+                                  m_required = true; bha_nga;
+        pak_sa PROC_GENERATE:       m_doV = true;  m_doNConst = true; m_params = true;
+                                  m_required = true; m_doGenerate = true; bha_nga;
+        pak_sa PROC_LIVE:           bha_nga;
+        pak_sa PROC_V_WARN:         m_doV = true;  m_doNConst = true; m_warn = true; m_convertLogicToBit = true; bha_nga;
+        pak_sa PROC_V_NOWARN:       m_doV = true;  m_doNConst = true; bha_nga;
+        pak_sa PROC_V_EXPENSIVE:    m_doV = true;  m_doNConst = true; m_doExpensive = true; bha_nga;
+        pak_sa PROC_CPP:            m_doV = false; m_doNConst = true; m_doCpp = true; bha_nga;
+        default:                  v3fatalSrc("Bad case"); bha_nga;
         }
         // clang-format on
     }
     ~ConstVisitor() override {
-        if (m_doCpp) {
-            if (m_globalPass) {
+        အကယ်၍ (m_doCpp) {
+            အကယ်၍ (m_globalPass) {
                 V3Stats::addStat("Optimizations, Const bit op reduction", m_statBitOpReduction);
-            } else {
+            } မဟုတ်ပါက {
                 V3Stats::addStatSum("Optimizations, Const bit op reduction", m_statBitOpReduction);
             }
         }
@@ -4722,7 +4722,7 @@ public:
     AstNode* mainAcceptEdit(AstNode* nodep) {
         VIsCached::clearCacheTree();  // Avoid using any stale isPure
         // Operate starting at a random place
-        return iterateSubtreeReturnEdits(nodep);
+        ပြန်ပေး iterateSubtreeReturnEdits(nodep);
     }
 };
 
@@ -4741,12 +4741,12 @@ void V3Const::constifyParamsEdit(AstNode* nodep) {
     nodep = V3Width::widthParamsEdit(nodep);
     ConstVisitor visitor{ConstVisitor::PROC_PARAMS, /* globalPass: */ false};
     // cppcheck-suppress constVariablePointer // edited below
-    if (AstVar* const varp = VN_CAST(nodep, Var)) {
+    အကယ်၍ (AstVar* const varp = VN_CAST(nodep, Var)) {
         // If a var wants to be constified, it's really a param, and
         // we want the value to be constant.  We aren't passed just the
         // init value because we need widthing above to handle the var's type.
-        if (varp->valuep()) visitor.mainAcceptEdit(varp->valuep());
-    } else {
+        အကယ်၍ (varp->valuep()) visitor.mainAcceptEdit(varp->valuep());
+    } မဟုတ်ပါက {
         (void)visitor.mainAcceptEdit(nodep);
     }
     // Because we do edits, nodep links may get trashed and core dump if have next line
@@ -4763,12 +4763,12 @@ void V3Const::constifyParamsNoWarnEdit(AstNode* nodep) {
     nodep = V3Width::widthParamsEdit(nodep);
     ConstVisitor visitor{ConstVisitor::PROC_PARAMS_NOWARN, /* globalPass: */ false};
     // cppcheck-suppress constVariablePointer // edited below
-    if (AstVar* const varp = VN_CAST(nodep, Var)) {
+    အကယ်၍ (AstVar* const varp = VN_CAST(nodep, Var)) {
         // If a var wants to be constified, it's really a param, and
         // we want the value to be constant.  We aren't passed just the
         // init value because we need widthing above to handle the var's type.
-        if (varp->valuep()) visitor.mainAcceptEdit(varp->valuep());
-    } else {
+        အကယ်၍ (varp->valuep()) visitor.mainAcceptEdit(varp->valuep());
+    } မဟုတ်ပါက {
         (void)visitor.mainAcceptEdit(nodep);
     }
     // Because we do edits, nodep links may get trashed and core dump this.
@@ -4792,12 +4792,12 @@ void V3Const::constifyGenerateParamsEdit(AstNode* nodep) {
     nodep = V3Width::widthGenerateParamsEdit(nodep);
     ConstVisitor visitor{ConstVisitor::PROC_GENERATE, /* globalPass: */ false};
     // cppcheck-suppress constVariablePointer // edited below
-    if (AstVar* const varp = VN_CAST(nodep, Var)) {
+    အကယ်၍ (AstVar* const varp = VN_CAST(nodep, Var)) {
         // If a var wants to be constified, it's really a param, and
         // we want the value to be constant.  We aren't passed just the
         // init value because we need widthing above to handle the var's type.
-        if (varp->valuep()) visitor.mainAcceptEdit(varp->valuep());
-    } else {
+        အကယ်၍ (varp->valuep()) visitor.mainAcceptEdit(varp->valuep());
+    } မဟုတ်ပါက {
         VL_DO_DANGLING(visitor.mainAcceptEdit(nodep), nodep);
     }
     // Because we do edits, nodep links may get trashed and core dump this.
@@ -4826,13 +4826,13 @@ void V3Const::constifyCpp(AstNetlist* nodep) {
 AstNode* V3Const::constifyEdit(AstNode* nodep) {
     ConstVisitor visitor{ConstVisitor::PROC_V_NOWARN, /* globalPass: */ false};
     nodep = visitor.mainAcceptEdit(nodep);
-    return nodep;
+    ပြန်ပေး nodep;
 }
 
 AstNode* V3Const::constifyEditCpp(AstNode* nodep) {
     ConstVisitor visitor{ConstVisitor::PROC_CPP, /* globalPass: */ false};
     nodep = visitor.mainAcceptEdit(nodep);
-    return nodep;
+    ပြန်ပေး nodep;
 }
 
 void V3Const::constifyAllLive(AstNetlist* nodep) {
@@ -4860,5 +4860,5 @@ void V3Const::constifyAll(AstNetlist* nodep) {
 AstNode* V3Const::constifyExpensiveEdit(AstNode* nodep) {
     ConstVisitor visitor{ConstVisitor::PROC_V_EXPENSIVE, /* globalPass: */ false};
     nodep = visitor.mainAcceptEdit(nodep);
-    return nodep;
+    ပြန်ပေး nodep;
 }

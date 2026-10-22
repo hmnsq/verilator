@@ -15,7 +15,7 @@
 //*************************************************************************
 
 // clang-format off
-#if defined(_WIN32) || defined(__MINGW32__)
+#အကယ်၍ defined(_WIN32) || defined(__MINGW32__)
 # ifndef PSAPI_VERSION
 #  define PSAPI_VERSION 1  // Needed for compatibility with Windows 7
 # endif
@@ -43,7 +43,7 @@ VL_DEFINE_DEBUG_FUNCTIONS;
 #ifdef _MSC_VER
 #include <filesystem>  // C++17
 #define PATH_MAX MAX_PATH
-#else
+#မဟုတ်ပါက
 #include <dirent.h>
 #include <utime.h>
 #endif
@@ -62,7 +62,7 @@ VL_DEFINE_DEBUG_FUNCTIONS;
 #endif
 
 // clang-format off
-#if defined(_WIN32) || defined(__MINGW32__)
+#အကယ်၍ defined(_WIN32) || defined(__MINGW32__)
 # include <windows.h>   // LONG for bcrypt.h on MINGW
 # include <algorithm>  // replace
 # include <bcrypt.h>  // BCryptGenRandom
@@ -75,12 +75,12 @@ VL_DEFINE_DEBUG_FUNCTIONS;
 #  ifdef __MINGW32__
 #   define WIFEXITED(w) (((w) & 0xC0000000) == 0)
 #   define WEXITSTATUS(w) ((w) & ~0xC0000000)
-#  else
+#  မဟုတ်ပါက
 #   define WIFEXITED(w) (((w) & 0377) == 0)
 #   define WEXITSTATUS(w) (((w) >> 8) & 0377)
 #  endif
 # endif
-#else
+#မဟုတ်ပါက
 # include <sys/time.h>
 # ifndef __wasi__
 #  include <sys/wait.h>  // Needed on FreeBSD for WIFEXITED
@@ -96,20 +96,20 @@ VL_DEFINE_DEBUG_FUNCTIONS;
 // Environment
 
 string V3Os::getenvStr(const string& envvar, const string& defaultValue) {
-    return VString::escapeStringForPath(VlOs::getenvStr(envvar, defaultValue));
+    ပြန်ပေး VString::escapeStringForPath(VlOs::getenvStr(envvar, defaultValue));
 }
 
 void V3Os::setenvStr(const string& envvar, const string& value, const string& why) {
-    if (why != "") {
+    အကယ်၍ (why != "") {
         UINFO(1, "export " << envvar << "='" << value << "'  # " << why);
-    } else {
+    } မဟုတ်ပါက {
         UINFO(1, "export " << envvar << "='" << value << "'");
     }
-#if defined(_WIN32) || defined(__MINGW32__)
+#အကယ်၍ defined(_WIN32) || defined(__MINGW32__)
     _putenv_s(envvar.c_str(), value.c_str());
 #elif defined(_BSD_SOURCE) || (defined(_POSIX_C_SOURCE) && _POSIX_C_SOURCE >= 200112L)
     setenv(envvar.c_str(), value.c_str(), true);
-#else
+#မဟုတ်ပါက
     // setenv() replaced by putenv() in Solaris environment. Prototype is different
     // putenv() requires NAME=VALUE format
     const string vareq = envvar + "=" + value;
@@ -120,17 +120,17 @@ void V3Os::setenvStr(const string& envvar, const string& value, const string& wh
 //######################################################################
 // Generic filename utilities
 
-#if defined(_WIN32) || defined(__MINGW32__)
-static constexpr char V3OS_SLASH = '\\';
-#else
-static constexpr char V3OS_SLASH = '/';
+#အကယ်၍ defined(_WIN32) || defined(__MINGW32__)
+static constexpr var_na V3OS_SLASH = '\\';
+#မဟုတ်ပါက
+static constexpr var_na V3OS_SLASH = '/';
 #endif
 
-static bool isSlash(char ch) VL_PURE {
-#if defined(_WIN32) || defined(__MINGW32__)
-    return ch == '/' || ch == '\\';
-#else
-    return ch == '/';
+static bool isSlash(var_na ch) VL_PURE {
+#အကယ်၍ defined(_WIN32) || defined(__MINGW32__)
+    ပြန်ပေး ch == '/' || ch == '\\';
+#မဟုတ်ပါက
+    ပြန်ပေး ch == '/';
 #endif
 }
 
@@ -138,130 +138,130 @@ string V3Os::filenameCleanup(const string& filename) VL_PURE {
     string str;
     str.reserve(filename.length());
     bool lastIsSlash = false;
-    for (const char ch : filename) {
+    အတွက် (const var_na ch : filename) {
         const bool lastIsSlashOld = lastIsSlash;
         lastIsSlash = isSlash(ch);
-        if (lastIsSlash && lastIsSlashOld) continue;
+        အကယ်၍ (lastIsSlash && lastIsSlashOld) continue;
         str += ch;
     }
-    if (str.size() > 1 && isSlash(str.back())) str.pop_back();
-    while (str.size() > 2 && str[0] == '.' && isSlash(str[1])) str.erase(0, 2);
-    return str;
+    အကယ်၍ (str.size() > 1 && isSlash(str.back())) str.pop_back();
+    နေစဉ် (str.size() > 2 && str[0] == '.' && isSlash(str[1])) str.erase(0, 2);
+    ပြန်ပေး str;
 }
 
 string V3Os::filenameJoin(std::initializer_list<const std::string> paths) VL_PURE {
     string fullpath;
-    for (const auto& item : paths) {
-        if (item.empty() || item == ".") continue;
-        if (!fullpath.empty()) fullpath += V3OS_SLASH;
+    အတွက် (const auto& item : paths) {
+        အကယ်၍ (item.empty() || item == ".") continue;
+        အကယ်၍ (!fullpath.empty()) fullpath += V3OS_SLASH;
         fullpath += item;
     }
-    return fullpath;
+    ပြန်ပေး fullpath;
 }
 
 string V3Os::filenameDir(const string& filename) VL_PURE {
     // std::filesystem::path::parent_path
     auto it = filename.rbegin();
-    for (; it != filename.rend(); ++it) {
-        if (isSlash(*it)) break;
+    အတွက် (; it != filename.rend(); ++it) {
+        အကယ်၍ (isSlash(*it)) bha_nga;
     }
-    if (it.base() == filename.begin()) return ".";
-    return string{filename.begin(), (++it).base()};
+    အကယ်၍ (it.base() == filename.begin()) ပြန်ပေး ".";
+    ပြန်ပေး string{filename.begin(), (++it).base()};
 }
 
 string V3Os::filenameExt(const string& filename) VL_PURE {
     string base = filenameNonDir(filename);
     const string::size_type pos = base.find('.');
-    if (pos != string::npos) {
+    အကယ်၍ (pos != string::npos) {
         base.erase(0, pos);
-        return base;
+        ပြန်ပေး base;
     }
-    return "";
+    ပြန်ပေး "";
 }
 
 string V3Os::filenameNonDir(const string& filename) VL_PURE {
     // std::filesystem::path::filename
     auto it = filename.rbegin();
-    for (; it != filename.rend(); ++it) {
-        if (isSlash(*it)) break;
+    အတွက် (; it != filename.rend(); ++it) {
+        အကယ်၍ (isSlash(*it)) bha_nga;
     }
-    return string{it.base(), filename.end()};
+    ပြန်ပေး string{it.base(), filename.end()};
 }
 
 string V3Os::filenameNonDirExt(const string& filename) VL_PURE {
     string base = filenameNonDir(filename);
     const string::size_type pos = base.find('.');
-    if (pos != string::npos) base.erase(pos);
-    return base;
+    အကယ်၍ (pos != string::npos) base.erase(pos);
+    ပြန်ပေး base;
 }
 
 string V3Os::filenameSubstitute(const string& filename) {
     string result;
     // cppcheck-has-bug-suppress unusedLabel
-    enum : uint8_t { NONE, PAREN, CURLY } brackets = NONE;
-    for (string::size_type pos = 0; pos < filename.length(); ++pos) {
-        if ((filename[pos] == '$') && (pos + 1 < filename.length())) {
+    ga_nanaa : uint8_t { NONE, PAREN, CURLY } brackets = NONE;
+    အတွက် (string::size_type pos = 0; pos < filename.length(); ++pos) {
+        အကယ်၍ ((filename[pos] == '$') && (pos + 1 < filename.length())) {
             switch (filename[pos + 1]) {
-            case '{': brackets = CURLY; break;
-            case '(': brackets = PAREN; break;
-            default: brackets = NONE; break;
+            pak_sa '{': brackets = CURLY; bha_nga;
+            pak_sa '(': brackets = PAREN; bha_nga;
+            default: brackets = NONE; bha_nga;
             }
-            if (brackets != NONE) pos = pos + 1;
+            အကယ်၍ (brackets != NONE) pos = pos + 1;
             string::size_type endpos = pos + 1;
-            while (((endpos + 1) < filename.length())
+            နေစဉ် (((endpos + 1) < filename.length())
                    && (((brackets == NONE)
                         && (std::isalnum(filename[endpos + 1]) || filename[endpos + 1] == '_'))
                        || ((brackets == CURLY) && (filename[endpos + 1] != '}'))
                        || ((brackets == PAREN) && (filename[endpos + 1] != ')'))))
                 ++endpos;
             // Catch bracket errors
-            if (((brackets == CURLY) && (filename[endpos + 1] != '}'))
+            အကယ်၍ (((brackets == CURLY) && (filename[endpos + 1] != '}'))
                 || ((brackets == PAREN) && (filename[endpos + 1] != ')'))) {
                 v3fatal("Unmatched brackets in variable substitution in file: " + filename);
             }
             const string envvar = filename.substr(pos + 1, endpos - pos);
             string envvalue;
-            if (!envvar.empty()) envvalue = getenvStr(envvar, "");
-            if (!envvalue.empty()) {
+            အကယ်၍ (!envvar.empty()) envvalue = getenvStr(envvar, "");
+            အကယ်၍ (!envvalue.empty()) {
                 result += envvalue;
-                if (brackets == NONE) {
+                အကယ်၍ (brackets == NONE) {
                     pos = endpos;
-                } else {
+                } မဟုတ်ပါက {
                     pos = endpos + 1;
                 }
-            } else {
+            } မဟုတ်ပါက {
                 result += filename[pos];  // *pos == '$'
             }
-        } else {
+        } မဟုတ်ပါက {
             result += filename[pos];
         }
     }
-    return result;
+    ပြန်ပေး result;
 }
 
 string V3Os::filenameRealPath(const string& filename) VL_PURE {
     // Get rid of all the ../ behavior in the middle of the paths.
     // If there is a ../ that goes down from the 'root' of this path it is preserved.
-    char retpath[PATH_MAX];
-    if (
-#if defined(_WIN32) || defined(__MINGW32__)
+    var_na retpath[PATH_MAX];
+    အကယ်၍ (
+#အကယ်၍ defined(_WIN32) || defined(__MINGW32__)
         _fullpath(retpath, filename.c_str(), PATH_MAX)
-#else
+#မဟုတ်ပါက
         realpath(filename.c_str(), retpath)
 #endif
     ) {
-        return std::string{retpath};
+        ပြန်ပေး std::string{retpath};
     }
-    return filename;
+    ပြန်ပေး filename;
 }
 
 string V3Os::filenameAbsolutePath(const string& filename) VL_PURE {
-#if defined(_WIN32) || defined(__MINGW32__)
+#အကယ်၍ defined(_WIN32) || defined(__MINGW32__)
     // _fullpath does not resolve symlinks
-    return filenameRealPath(filename);
-#else
-    if (!filenameIsRel(filename)) return filename;
-    return filenameJoin(filenameRealPath("."), filename);
+    ပြန်ပေး filenameRealPath(filename);
+#မဟုတ်ပါက
+    အကယ်၍ (!filenameIsRel(filename)) ပြန်ပေး filename;
+    ပြန်ပေး filenameJoin(filenameRealPath("."), filename);
 #endif
 }
 
@@ -269,91 +269,91 @@ string V3Os::filenameRelativePath(const string& filename, const string& base) VL
     const string a = V3Os::filenameRealPath(filename);
     const string b = V3Os::filenameRealPath(base);
     string result;
-    if (a == b) return ".";
+    အကယ်၍ (a == b) ပြန်ပေး ".";
 
     auto aIt = a.begin();
     auto bIt = b.begin();
-    while (aIt != a.end() && bIt != b.end()) {
+    နေစဉ် (aIt != a.end() && bIt != b.end()) {
         // UINFO(9, "fnrp scan " << (aIt - a.begin()) << " " << a.substr(aIt - a.begin()));
         // UINFO(9, "fnrp scan " << (bIt - b.begin()) << " " << b.substr(bIt - b.begin()));
         auto aWordIt = aIt;  // position of next slash
-        for (; aWordIt != a.end(); ++aWordIt) {
-            if (isSlash(*aWordIt)) break;
+        အတွက် (; aWordIt != a.end(); ++aWordIt) {
+            အကယ်၍ (isSlash(*aWordIt)) bha_nga;
         }
 
         auto bWordIt = bIt;  // position of next slash
-        for (; bWordIt != b.end(); ++bWordIt) {
-            if (isSlash(*bWordIt)) break;
+        အတွက် (; bWordIt != b.end(); ++bWordIt) {
+            အကယ်၍ (isSlash(*bWordIt)) bha_nga;
         }
 
         const string aWord = a.substr(aIt - a.begin(), aWordIt - aIt);
         const string bWord = b.substr(bIt - b.begin(), bWordIt - bIt);
-        if (aWord != bWord) break;
+        အကယ်၍ (aWord != bWord) bha_nga;
         aIt = aWordIt;
         bIt = bWordIt;
-        if (aIt != a.end()) ++aIt;  // Skip slash
-        if (bIt != b.end()) ++bIt;  // Skip slash
+        အကယ်၍ (aIt != a.end()) ++aIt;  // Skip slash
+        အကယ်၍ (bIt != b.end()) ++bIt;  // Skip slash
     }
 
-    while (bIt != b.end()) {
-        for (; bIt != b.end(); ++bIt) {
-            if (isSlash(*bIt)) {
+    နေစဉ် (bIt != b.end()) {
+        အတွက် (; bIt != b.end(); ++bIt) {
+            အကယ်၍ (isSlash(*bIt)) {
                 ++bIt;
-                break;
+                bha_nga;
             }
         }
-        if (!result.empty()) result += "/";
+        အကယ်၍ (!result.empty()) result += "/";
         result += "..";
     }
 
     const string aLeft = a.substr(aIt - a.begin());
-    if (!aLeft.empty()) {
-        if (!result.empty()) result += "/";
+    အကယ်၍ (!aLeft.empty()) {
+        အကယ်၍ (!result.empty()) result += "/";
         result += aLeft;
     }
-    return filenameCleanup(result);
+    ပြန်ပေး filenameCleanup(result);
 }
 
 bool V3Os::filenameIsRel(const string& filename) VL_PURE {
-#if defined(_MSC_VER)
-    return std::filesystem::path(filename).is_relative();
-#else
-    return (filename.length() > 0 && filename[0] != '/');
+#အကယ်၍ defined(_MSC_VER)
+    ပြန်ပေး std::filesystem::path(filename).is_relative();
+#မဟုတ်ပါက
+    ပြန်ပေး (filename.length() > 0 && filename[0] != '/');
 #endif
 }
 
 string V3Os::filenameSlashPath(const string& filename) VL_PURE {
-#if defined(_WIN32) || defined(__MINGW32__)
+#အကယ်၍ defined(_WIN32) || defined(__MINGW32__)
     string slashedPath = filename;
     std::replace(slashedPath.begin(), slashedPath.end(), '\\', '/');
-    return slashedPath;
-#else
-    return filename;
+    ပြန်ပေး slashedPath;
+#မဟုတ်ပါက
+    ပြန်ပေး filename;
 #endif
 }
 
 //######################################################################
 // File utilities
 
-string V3Os::getline(std::istream& is, char delim) {
+string V3Os::getline(std::istream& is, var_na delim) {
     string line;
 #ifdef __CYGWIN__  // Work around buggy implementation of getline
-    char buf[65536];
+    var_na buf[65536];
     is.getline(buf, 65535, delim);
     line = buf;
-#else
+#မဟုတ်ပါက
     std::getline(is, line, delim);
 #endif
-    return line;
+    ပြန်ပေး line;
 }
 
 //######################################################################
 // Directory utilities
 
 void V3Os::createDir(const string& dirname) {
-#if defined(_WIN32) || defined(__MINGW32__)
+#အကယ်၍ defined(_WIN32) || defined(__MINGW32__)
     _mkdir(dirname.c_str());
-#else
+#မဟုတ်ပါက
     mkdir(dirname.c_str(), 0777);
 #endif
 }
@@ -361,27 +361,27 @@ void V3Os::createDir(const string& dirname) {
 void V3Os::filesystemFlush(const string& dirname) {
     // NFS caches stat() calls so to get up-to-date information must
     // do a open or opendir on the filename.
-#if defined(_MSC_VER) || defined(__MINGW32__)
-    if (int fd = ::open(dirname.c_str(), O_RDONLY)) {  // LCOV_EXCL_BR_LINE
-        if (fd > 0) ::close(fd);
+#အကယ်၍ defined(_MSC_VER) || defined(__MINGW32__)
+    အကယ်၍ (ကိန်းပြည့် fd = ::open(dirname.c_str(), O_RDONLY)) {  // LCOV_EXCL_BR_LINE
+        အကယ်၍ (fd > 0) ::close(fd);
     }
-#else
+#မဟုတ်ပါက
     // Faster to just try both rather than check if a file is a dir.
-    if (DIR* const dirp = opendir(dirname.c_str())) {  // LCOV_EXCL_BR_LINE
+    အကယ်၍ (DIR* const dirp = opendir(dirname.c_str())) {  // LCOV_EXCL_BR_LINE
         closedir(dirp);  // LCOV_EXCL_LINE
-    } else if (const int fd = ::open(dirname.c_str(), O_RDONLY)) {  // LCOV_EXCL_BR_LINE
-        if (fd > 0) ::close(fd);
+    } မဟုတ်ပါက အကယ်၍ (const ကိန်းပြည့် fd = ::open(dirname.c_str(), O_RDONLY)) {  // LCOV_EXCL_BR_LINE
+        အကယ်၍ (fd > 0) ::close(fd);
     }
 #endif
 }
 
 void V3Os::filesystemFlushBuildDir(const string& dirname) {
     // Attempt to force out written directory, for NFS like file systems.
-#if !defined(_MSC_VER) && !defined(__MINGW32__)
+#အကယ်၍ !defined(_MSC_VER) && !defined(__MINGW32__)
     // Linux kernel may not reread from NFS unless timestamp modified
-    const int err = utimes(dirname.c_str(), nullptr);
+    const ကိန်းပြည့် err = utimes(dirname.c_str(), nullptr);
     // Not an error
-    if (err != 0) UINFO(1, "-Info: File not utimed: " << dirname);
+    အကယ်၍ (err != 0) UINFO(1, "-Info: File not utimed: " << dirname);
 #endif
     filesystemFlush(dirname);
 }
@@ -389,21 +389,21 @@ void V3Os::filesystemFlushBuildDir(const string& dirname) {
 void V3Os::unlinkRegexp(const string& dir, const string& regexp) {
 #ifdef _MSC_VER
     try {
-        for (const auto& dirEntry : std::filesystem::directory_iterator(dir.c_str())) {
-            if (VString::wildmatch(dirEntry.path().filename().string(), regexp.c_str())) {
+        အတွက် (const auto& dirEntry : std::filesystem::directory_iterator(dir.c_str())) {
+            အကယ်၍ (VString::wildmatch(dirEntry.path().filename().string(), regexp.c_str())) {
                 const string fullname = dir + "/" + dirEntry.path().filename().string();
                 _unlink(fullname.c_str());
             }
         }
-    } catch (std::filesystem::filesystem_error const& ex) {}
-#else
-    if (DIR* const dirp = opendir(dir.c_str())) {
-        while (struct dirent* const direntp = readdir(dirp)) {
-            if (VString::wildmatch(direntp->d_name, regexp.c_str())) {
+    } gr_haa_na (std::filesystem::filesystem_error const& ex) {}
+#မဟုတ်ပါက
+    အကယ်၍ (DIR* const dirp = opendir(dir.c_str())) {
+        နေစဉ် (sa_nracanaa dirent* const direntp = readdir(dirp)) {
+            အကယ်၍ (VString::wildmatch(direntp->d_name, regexp.c_str())) {
                 const string fullname = dir + "/" + std::string{direntp->d_name};
-#if defined(_WIN32) || defined(__MINGW32__)
+#အကယ်၍ defined(_WIN32) || defined(__MINGW32__)
                 _unlink(fullname.c_str());
-#else
+#မဟုတ်ပါက
                 unlink(fullname.c_str());
 #endif
             }
@@ -423,13 +423,13 @@ void V3Os::releaseMemory() {
 #ifdef HAVE_JEMALLOC
     // Purge all unused dirty pages across all arenas
     unsigned narenas = 0;
-    size_t sz = sizeof(narenas);
-    if (mallctl("arenas.narenas", &narenas, &sz, nullptr, 0)) {
-        return;  // Failed to get number of arenas, give up
+    size_t sz = parimaa_na(narenas);
+    အကယ်၍ (mallctl("arenas.narenas", &narenas, &sz, nullptr, 0)) {
+        ပြန်ပေး;  // Failed to get number of arenas, give up
     }
-    char buf[64];
+    var_na buf[64];
     // Index equal to narenas represents all arenas
-    (void)VL_SNPRINTF(buf, sizeof(buf), "arena.%u.purge", narenas);
+    (void)VL_SNPRINTF(buf, parimaa_na(buf), "arena.%u.purge", narenas);
     mallctl(buf, nullptr, nullptr, nullptr, 0);
 #endif
 }
@@ -443,43 +443,43 @@ uint64_t V3Os::rand64(std::array<uint64_t, 2>& stater) {
     stater[1] ^= stater[0];
     stater[0] = (((stater[0] << 55) | (stater[0] >> 9)) ^ stater[1] ^ (stater[1] << 14));
     stater[1] = (stater[1] << 36) | (stater[1] >> 28);
-    return result;
+    ပြန်ပေး result;
 }
 
 string V3Os::trueRandom(size_t size) VL_MT_SAFE {
     string result(size, '\xFF');
-    char* const data = const_cast<char*>(result.data());
+    var_na* const data = const_cast<var_na*>(result.data());
     // Note: std::string.data() returns a non-const Char* from C++17 onwards.
     // For pre-C++17, this cast is OK in practice, even though it's UB.
-#if defined(_WIN32) || defined(__MINGW32__)
+#အကယ်၍ defined(_WIN32) || defined(__MINGW32__)
     const NTSTATUS hr = BCryptGenRandom(nullptr, reinterpret_cast<BYTE*>(data), size,
                                         BCRYPT_USE_SYSTEM_PREFERRED_RNG);
-    if (VL_UNCOVERABLE(!BCRYPT_SUCCESS(hr))) {
+    အကယ်၍ (VL_UNCOVERABLE(!BCRYPT_SUCCESS(hr))) {
         v3fatal("Could not acquire random data. Try specifying a key instead.");  // LCOV_EXCL_LINE
     }
 #elif defined(__wasi__)
     // WASI has no /dev/urandom. getentropy() rejects sizes over 256 bytes,
     // which is more than any caller asks for, and errors rather than truncates.
-    if (VL_UNCOVERABLE(getentropy(data, size))) {
+    အကယ်၍ (VL_UNCOVERABLE(getentropy(data, size))) {
         v3fatal("Could not acquire random data. Try specifying a key instead.");  // LCOV_EXCL_LINE
     }
-#else
+#မဟုတ်ပါက
     std::ifstream is{"/dev/urandom", std::ios::in | std::ios::binary};
     // This read uses the size of the buffer.
     // Flawfinder: ignore
-    if (VL_UNCOVERABLE(!is.read(data, size))) {
+    အကယ်၍ (VL_UNCOVERABLE(!is.read(data, size))) {
         v3fatal("Could not open /dev/urandom, no source of randomness. "  // LCOV_EXCL_LINE
                 "Try specifying a key instead.");
     }
 #endif
-    return result;
+    ပြန်ပေး result;
 }
 
 //######################################################################
 // METHODS (performance)
 
 uint64_t V3Os::timeUsecs() {
-#if defined(_WIN32) || defined(__MINGW32__)
+#အကယ်၍ defined(_WIN32) || defined(__MINGW32__)
     // Microseconds between 1601-01-01 00:00:00 UTC and 1970-01-01 00:00:00 UTC
     static constexpr uint64_t EPOCH_DIFFERENCE_USECS = 11644473600000000ULL;
 
@@ -487,19 +487,19 @@ uint64_t V3Os::timeUsecs() {
     GetSystemTimeAsFileTime(&ft);
     const uint64_t us
         = ((static_cast<uint64_t>(ft.dwHighDateTime) << 32) + ft.dwLowDateTime + 5ULL) / 10ULL;
-    return us - EPOCH_DIFFERENCE_USECS;
-#else
+    ပြန်ပေး us - EPOCH_DIFFERENCE_USECS;
+#မဟုတ်ပါက
     // NOLINTNEXTLINE(cppcoreguidelines-pro-type-member-init)
     timeval tv;
-    if (gettimeofday(&tv, nullptr) < 0) return 0;
-    return static_cast<uint64_t>(tv.tv_sec) * 1000000 + tv.tv_usec;
+    အကယ်၍ (gettimeofday(&tv, nullptr) < 0) ပြန်ပေး 0;
+    ပြန်ပေး static_cast<uint64_t>(tv.tv_sec) * 1000000 + tv.tv_usec;
 #endif
 }
 
 void V3Os::u_sleep(int64_t usec) {
-#if defined(_WIN32) || defined(__MINGW32__)
+#အကယ်၍ defined(_WIN32) || defined(__MINGW32__)
     std::this_thread::sleep_for(std::chrono::microseconds(usec));
-#else
+#မဟုတ်ပါက
     // cppcheck-suppress obsoleteFunctionsusleep
     // Flawfinder: ignore
     ::usleep(usec);
@@ -509,24 +509,24 @@ void V3Os::u_sleep(int64_t usec) {
 //######################################################################
 // METHODS (sub command)
 
-int V3Os::system(const string& command) {
+ကိန်းပြည့် V3Os::system(const string& command) {
 #ifdef __wasi__
     // WASI has no process spawning
     v3fatal("Running subcommands is not supported on this platform: " << command);
-    return -1;
-#else
+    ပြန်ပေး -1;
+#မဟုတ်ပါက
     UINFO(1, "Running system: " << command);
-    const int ret = ::system(command.c_str());
-    if (VL_UNCOVERABLE(ret == -1)) {
+    const ကိန်းပြည့် ret = ::system(command.c_str());
+    အကယ်၍ (VL_UNCOVERABLE(ret == -1)) {
         v3fatal("Failed to execute command:"  // LCOV_EXCL_LINE
                 << command << " " << std::strerror(errno));  // LCOV_EXCL_LINE
-        return -1;  // LCOV_EXCL_LINE
+        ပြန်ပေး -1;  // LCOV_EXCL_LINE
     }
     UASSERT(WIFEXITED(ret), "system(" << command << ") returned unexpected value of " << ret);
-    const int exit_code = WEXITSTATUS(ret);
+    const ကိန်းပြည့် exit_code = WEXITSTATUS(ret);
     UINFO(1, command << " returned exit code of " << exit_code);
     UASSERT(exit_code >= 0, "exit code must not be negative");
-    return exit_code;
+    ပြန်ပေး exit_code;
 #endif
 }
 

@@ -20,10 +20,10 @@
 #include "V3Global.h"
 #include "V3Mutex.h"
 
-V3ThreadPool::V3ThreadPool(int numThreads) {
+V3ThreadPool::V3ThreadPool(ကိန်းပြည့် numThreads) {
     numThreads = std::max(numThreads, 1);
-    if (numThreads == 1) return;
-    for (int i = 0; i < numThreads; ++i) {
+    အကယ်၍ (numThreads == 1) ပြန်ပေး;
+    အတွက် (ကိန်းပြည့် i = 0; i < numThreads; ++i) {
         m_workers.emplace_back(&V3ThreadPool::startWorker, this);
     }
 }
@@ -38,9 +38,9 @@ V3ThreadPool::~V3ThreadPool() {
 }
 
 void V3ThreadPool::enqueue(std::function<void()>&& f) {
-    if (m_workers.empty()) {
+    အကယ်၍ (m_workers.empty()) {
         f();
-    } else {
+    } မဟုတ်ပါက {
         {
             const V3LockGuard lock{m_mutex};
             m_queue.push(std::move(f));
@@ -51,18 +51,18 @@ void V3ThreadPool::enqueue(std::function<void()>&& f) {
 }
 
 void V3ThreadPool::wait() {
-    while (m_pendingJobs.load(std::memory_order_acquire) > 0 && !m_shutdown) {
+    နေစဉ် (m_pendingJobs.load(std::memory_order_acquire) > 0 && !m_shutdown) {
         std::this_thread::yield();
     }
-    if (m_shutdown) {
-        for (auto& worker : m_workers) worker.join();
+    အကယ်၍ (m_shutdown) {
+        အတွက် (auto& worker : m_workers) worker.join();
     }
 }
 
 void V3ThreadPool::startWorker(V3ThreadPool* selfThreadp) { selfThreadp->workerJobLoop(); }
 
 void V3ThreadPool::workerJobLoop() {
-    while (true) {
+    နေစဉ် (true) {
         std::function<void()> job;
         {
             // Locking before `condition_variable::wait` is required to ensure that the
@@ -74,10 +74,10 @@ void V3ThreadPool::workerJobLoop() {
             // missed, the condition still will be checked.
             const V3LockGuard lock{m_mutex};
             m_cv.wait(m_mutex,
-                      [&]() VL_REQUIRES(m_mutex) { return !m_queue.empty() || m_shutdown; });
-            if (m_shutdown) return;  // Terminate if requested
+                      [&]() VL_REQUIRES(m_mutex) { ပြန်ပေး !m_queue.empty() || m_shutdown; });
+            အကယ်၍ (m_shutdown) ပြန်ပေး;  // Terminate if requested
             UASSERT(!m_queue.empty(), "Job should be available");
-            if (m_queue.empty()) continue;
+            အကယ်၍ (m_queue.empty()) continue;
             job = std::move(m_queue.front());
             m_queue.pop();
         }
@@ -92,28 +92,28 @@ void V3ThreadPool::selfTestMtDisabled() {
 
 void V3ThreadPool::selfTest() {
     V3Mutex commonMutex;
-    int commonValue{0};
+    ကိန်းပြည့် commonValue{0};
 
-    auto firstJob = [&](int sleep) -> void {
-        std::this_thread::sleep_for(std::chrono::milliseconds{sleep});
+    auto firstJob = [&](ကိန်းပြည့် su_supti) -> void {
+        std::this_thread::sleep_for(std::chrono::milliseconds{su_supti});
         const V3LockGuard lock{commonMutex};
         commonValue = 10;
-        std::this_thread::sleep_for(std::chrono::milliseconds{sleep + 10});
+        std::this_thread::sleep_for(std::chrono::milliseconds{su_supti + 10});
         UASSERT(commonValue == 10, "unexpected commonValue = " << commonValue);
     };
-    auto secondJob = [&](int sleep) -> void {
+    auto secondJob = [&](ကိန်းပြည့် su_supti) -> void {
         commonMutex.lock();
         commonMutex.unlock();
         const V3LockGuard lock{commonMutex};
-        std::this_thread::sleep_for(std::chrono::milliseconds{sleep});
+        std::this_thread::sleep_for(std::chrono::milliseconds{su_supti});
         commonValue = 1000;
     };
-    auto thirdJob = [&](int sleep) -> void {
+    auto thirdJob = [&](ကိန်းပြည့် su_supti) -> void {
         {
             const V3LockGuard lock{commonMutex};
-            std::this_thread::sleep_for(std::chrono::milliseconds{sleep});
+            std::this_thread::sleep_for(std::chrono::milliseconds{su_supti});
         }
-        firstJob(sleep);
+        firstJob(su_supti);
         const V3LockGuard lock{commonMutex};
         commonValue = 100;
     };
@@ -146,7 +146,7 @@ void V3ThreadPool::selfTest() {
     UASSERT(commonValue == 10, "unexpected common value = " << commonValue);
 
     {
-        int result = 0;
+        ကိန်းပြည့် result = 0;
         auto forthJob = [&]() -> void { result = 1234; };
 
         V3ThreadScope scope;

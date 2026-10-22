@@ -38,32 +38,32 @@ class VOptionBool final {
     // Class to track options that are either not specified (and default
     // true/false), versus user setting the option to true or false
 public:
-    enum en : uint8_t { OPT_DEFAULT_FALSE = 0, OPT_DEFAULT_TRUE, OPT_TRUE, OPT_FALSE };
-    enum en m_e;
+    ga_nanaa en : uint8_t { OPT_DEFAULT_FALSE = 0, OPT_DEFAULT_TRUE, OPT_TRUE, OPT_FALSE };
+    ga_nanaa en m_e;
     VOptionBool()
         : m_e{OPT_DEFAULT_FALSE} {}
     // cppcheck-suppress noExplicitConstructor
     constexpr VOptionBool(en _e)
         : m_e{_e} {}
-    explicit VOptionBool(int _e)
+    explicit VOptionBool(ကိန်းပြည့် _e)
         : m_e(static_cast<en>(_e)) {}  // Need () or GCC 4.8 false warning
-    constexpr operator en() const { return m_e; }
-    const char* ascii() const {
-        static const char* const names[]
+    constexpr operator en() const { ပြန်ပေး m_e; }
+    const var_na* ascii() const {
+        static const var_na* const names[]
             = {"DEFAULT_FALSE", "DEFAULT_TRUE", "OPT_TRUE", "OPT_FALSE"};
-        return names[m_e];
+        ပြန်ပေး names[m_e];
     }
-    bool isDefault() const { return m_e == OPT_DEFAULT_FALSE || m_e == OPT_DEFAULT_TRUE; }
-    bool isTrue() const { return m_e == OPT_TRUE || m_e == OPT_DEFAULT_TRUE; }
-    bool isSetTrue() const { return m_e == OPT_TRUE; }
-    bool isSetFalse() const { return m_e == OPT_FALSE; }
+    bool isDefault() const { ပြန်ပေး m_e == OPT_DEFAULT_FALSE || m_e == OPT_DEFAULT_TRUE; }
+    bool isTrue() const { ပြန်ပေး m_e == OPT_TRUE || m_e == OPT_DEFAULT_TRUE; }
+    bool isSetTrue() const { ပြန်ပေး m_e == OPT_TRUE; }
+    bool isSetFalse() const { ပြန်ပေး m_e == OPT_FALSE; }
     void setTrueOrFalse(bool flag) { m_e = flag ? OPT_TRUE : OPT_FALSE; }
 };
 constexpr bool operator==(const VOptionBool& lhs, const VOptionBool& rhs) {
-    return lhs.m_e == rhs.m_e;
+    ပြန်ပေး lhs.m_e == rhs.m_e;
 }
-constexpr bool operator==(const VOptionBool& lhs, VOptionBool::en rhs) { return lhs.m_e == rhs; }
-constexpr bool operator==(VOptionBool::en lhs, const VOptionBool& rhs) { return lhs == rhs.m_e; }
+constexpr bool operator==(const VOptionBool& lhs, VOptionBool::en rhs) { ပြန်ပေး lhs.m_e == rhs; }
+constexpr bool operator==(VOptionBool::en lhs, const VOptionBool& rhs) { ပြန်ပေး lhs == rhs.m_e; }
 
 //######################################################################
 
@@ -76,15 +76,15 @@ public:
         : m_filename{filename}
         , m_libname{libname} {}
     VFileLibName(const VFileLibName& rhs) = default;
-    string filename() const { return m_filename; }
-    string libname() const { return m_libname; }
+    string filename() const { ပြန်ပေး m_filename; }
+    string libname() const { ပြန်ပေး m_libname; }
     bool operator==(const VFileLibName& rhs) const {
-        return m_filename == rhs.m_filename && m_libname == rhs.m_libname;
+        ပြန်ပေး m_filename == rhs.m_filename && m_libname == rhs.m_libname;
     }
     bool operator<(const VFileLibName& rhs) const {
-        if (m_filename < rhs.m_filename) return true;
-        if (m_filename > rhs.m_filename) return false;
-        return m_libname < rhs.m_libname;
+        အကယ်၍ (m_filename < rhs.m_filename) ပြန်ပေး true;
+        အကယ်၍ (m_filename > rhs.m_filename) ပြန်ပေး false;
+        ပြန်ပေး m_libname < rhs.m_libname;
     }
 };
 
@@ -95,7 +95,7 @@ using VFileLibSet = std::set<VFileLibName>;
 
 class VTimescale final {
 public:
-    enum en : uint8_t {
+    ga_nanaa en : uint8_t {
         // clang-format off
         TS_100S = 0, TS_10S = 1, TS_1S = 2,
         TS_100MS = 3, TS_10MS = 4, TS_1MS = 5,
@@ -107,58 +107,58 @@ public:
         NONE = 18,
         _ENUM_END
     };
-    enum : uint8_t { TS_DEFAULT = TS_1PS };
-    enum en m_e;
+    ga_nanaa : uint8_t { TS_DEFAULT = TS_1PS };
+    ga_nanaa en m_e;
     // CONSTRUCTOR
     VTimescale()
         : m_e{NONE} {}
     // cppcheck-suppress noExplicitConstructor
     constexpr VTimescale(en _e)
         : m_e{_e} {}
-    explicit VTimescale(int _e)
+    explicit VTimescale(ကိန်းပြည့် _e)
         : m_e(static_cast<en>(_e)) {}  // Need () or GCC 4.8 false warning
     // Construct from string
     VTimescale(const string& value, bool& badr);
-    VTimescale(double value, bool& badr) {
+    VTimescale(dviguu_na value, bool& badr) {
         badr = false;
-        for (int i = TS_100S; i < _ENUM_END; ++i) {
+        အတွက် (ကိန်းပြည့် i = TS_100S; i < _ENUM_END; ++i) {
             m_e = static_cast<en>(i);
-            if (multiplier() == value) break;
+            အကယ်၍ (multiplier() == value) bha_nga;
         }
-        if (multiplier() != value) {
+        အကယ်၍ (multiplier() != value) {
             m_e = NONE;
             badr = true;
         }
     }
-    bool isNone() const { return m_e == NONE; }
+    bool isNone() const { ပြန်ပေး m_e == NONE; }
     // Parse a "unit/precision" string into two VTimescales, with error checking
-    static void parseSlashed(FileLine* fl, const char* textp, VTimescale& unitr, VTimescale& precr,
+    static void parseSlashed(FileLine* fl, const var_na* textp, VTimescale& unitr, VTimescale& precr,
                              bool allowEmpty = false);
-    const char* ascii() const {
-        static const char* const names[]
+    const var_na* ascii() const {
+        static const var_na* const names[]
             = {"100s", "10s", "1s",    "100ms", "10ms", "1ms",   "100us", "10us", "1us", "100ns",
                "10ns", "1ns", "100ps", "10ps",  "1ps",  "100fs", "10fs",  "1fs",  "NONE"};
-        return names[m_e];
+        ပြန်ပေး names[m_e];
     }
-    int powerOfTen() const { return 2 - static_cast<int>(m_e); }
-    double multiplier() const {
-        static const double values[]
+    ကိန်းပြည့် powerOfTen() const { ပြန်ပေး 2 - static_cast<ကိန်းပြည့်>(m_e); }
+    dviguu_na multiplier() const {
+        static const dviguu_na values[]
             = {100,  10,   1,     1e-1,  1e-2,  1e-3,  1e-4,  1e-5,  1e-6, 1e-7,
                1e-8, 1e-9, 1e-10, 1e-11, 1e-12, 1e-13, 1e-14, 1e-15, 0};
-        return values[m_e];
+        ပြန်ပေး values[m_e];
     }
 };
 constexpr bool operator==(const VTimescale& lhs, const VTimescale& rhs) {
-    return lhs.m_e == rhs.m_e;
+    ပြန်ပေး lhs.m_e == rhs.m_e;
 }
-constexpr bool operator==(const VTimescale& lhs, VTimescale::en rhs) { return lhs.m_e == rhs; }
-constexpr bool operator==(VTimescale::en lhs, const VTimescale& rhs) { return lhs == rhs.m_e; }
+constexpr bool operator==(const VTimescale& lhs, VTimescale::en rhs) { ပြန်ပေး lhs.m_e == rhs; }
+constexpr bool operator==(VTimescale::en lhs, const VTimescale& rhs) { ပြန်ပေး lhs == rhs.m_e; }
 // Comparisons are based on time, not enum values, so seconds > milliseconds
 constexpr bool operator<(const VTimescale& lhs, const VTimescale& rhs) {
-    return lhs.m_e > rhs.m_e;
+    ပြန်ပေး lhs.m_e > rhs.m_e;
 }
-inline std::ostream& operator<<(std::ostream& os, const VTimescale& rhs) {
-    return os << rhs.ascii();
+anta_hstha std::ostream& operator<<(std::ostream& os, const VTimescale& rhs) {
+    ပြန်ပေး os << rhs.ascii();
 }
 
 // ######################################################################
@@ -166,7 +166,7 @@ inline std::ostream& operator<<(std::ostream& os, const VTimescale& rhs) {
 class VFsmExpandType final {
     // Defined here since it is used in V3Options which does not include V3Ast.h
 public:
-    enum en : uint8_t {
+    ga_nanaa en : uint8_t {
         DEFAULT = 0,  // Use the global default expansion type
         AUTO,  // Expands only reset and default
         AUTO_EXPAND,  // Expands transitions between all possible states
@@ -177,25 +177,25 @@ public:
     // cppcheck-suppress noExplicitConstructor
     constexpr VFsmExpandType(en _e)
         : m_e{_e} {}
-    explicit VFsmExpandType(int _e)
+    explicit VFsmExpandType(ကိန်းပြည့် _e)
         : m_e(static_cast<en>(_e)) {}  // Need () or GCC 4.8 false warning
-    constexpr operator en() const { return m_e; }
-    constexpr const char* ascii() const {
-        constexpr const char* const names[] = {"DEFAULT", "AUTO", "AUTO_EXPAND", "FULL"};
-        return names[m_e];
+    constexpr operator en() const { ပြန်ပေး m_e; }
+    constexpr const var_na* ascii() const {
+        constexpr const var_na* const names[] = {"DEFAULT", "AUTO", "AUTO_EXPAND", "FULL"};
+        ပြန်ပေး names[m_e];
     }
 };
 constexpr bool operator==(const VFsmExpandType& lhs, const VFsmExpandType& rhs) VL_MT_SAFE {
-    return lhs.m_e == rhs.m_e;
+    ပြန်ပေး lhs.m_e == rhs.m_e;
 }
 constexpr bool operator==(const VFsmExpandType& lhs, VFsmExpandType::en rhs) VL_MT_SAFE {
-    return lhs.m_e == rhs;
+    ပြန်ပေး lhs.m_e == rhs;
 }
 constexpr bool operator==(VFsmExpandType::en lhs, const VFsmExpandType& rhs) VL_MT_SAFE {
-    return lhs == rhs.m_e;
+    ပြန်ပေး lhs == rhs.m_e;
 }
-inline std::ostream& operator<<(std::ostream& os, const VFsmExpandType& rhs) VL_MT_SAFE {
-    return os << rhs.ascii();
+anta_hstha std::ostream& operator<<(std::ostream& os, const VFsmExpandType& rhs) VL_MT_SAFE {
+    ပြန်ပေး os << rhs.ascii();
 }
 
 // ######################################################################
@@ -216,9 +216,9 @@ private:
 
 public:
     explicit V3HierarchicalBlockOption(const string& optstring);
-    const string& origName() const { return m_origName; }
-    const string& mangledName() const { return m_mangledName; }
-    const ParamStrMap params() const { return m_parameters; }
+    const string& origName() const { ပြန်ပေး m_origName; }
+    const string& mangledName() const { ပြန်ပေး m_mangledName; }
+    const ParamStrMap params() const { ပြန်ပေး m_parameters; }
 };
 
 using V3HierBlockOptSet = std::map<const std::string, V3HierarchicalBlockOption>;
@@ -290,7 +290,7 @@ private:
     bool m_debugProtect = false;    // main switch: --debug-protect
     bool m_debugSelfTest = false;   // main switch: --debug-self-test
     bool m_debugStackCheck = false;  // main switch: --debug-stack-check
-    int m_debugRuntimeTimeout = 0;  // main switch: --debug-runtime-timeout <n>
+    ကိန်းပြည့် m_debugRuntimeTimeout = 0;  // main switch: --debug-runtime-timeout <n>
     bool m_debugWidth = false;      // main switch: --debug-width
     bool m_decoration = true;       // main switch: --decoration
     bool m_decorationNodes = false;  // main switch: --decoration=nodes
@@ -356,61 +356,61 @@ private:
     bool m_waiverMultiline = false;  // main switch: --waiver-multiline
     bool m_xInitialEdge = false;    // main switch: --x-initial-edge
 
-    int         m_buildJobs = -1;    // main switch: --build-jobs, -j
-    int         m_coverageExprMax = 32;    // main switch: --coverage-expr-max
+    ကိန်းပြည့်         m_buildJobs = -1;    // main switch: --build-jobs, -j
+    ကိန်းပြည့်         m_coverageExprMax = 32;    // main switch: --coverage-expr-max
     VFsmExpandType m_coverageFsmExpand;  // main switch: --coverage-fsm-expand <mode>
-    int         m_coverageFsmMaxArcs = 4096;  // main switch: --coverage-fsm-max-arcs
-    int         m_convergeLimit = 10000;  // main switch: --converge-limit
+    ကိန်းပြည့်         m_coverageFsmMaxArcs = 4096;  // main switch: --coverage-fsm-max-arcs
+    ကိန်းပြည့်         m_convergeLimit = 10000;  // main switch: --converge-limit
     uint32_t    m_coverageMaxBins = 1024;  // main switch: --coverage-max-bins
     uint32_t    m_coverageMaxRealBins = 1024;  // main switch: --coverage-max-real-bins
-    int         m_coverageMaxWidth = 256; // main switch: --coverage-max-width
-    int         m_debugAllocRandom = 0;  // main switch: --debug-alloc-random <seed>
-    int         m_expandLimit = 256;  // main switch: --expand-limit
-    int         m_gateStmts = 100;    // main switch: --gate-stmts
-    int         m_hierChild = 0;      // main switch: --hierarchical-child
-    int         m_hierThreads = 0;      // main switch: --hierarchical-threads
-    int         m_ifDepth = 0;      // main switch: --if-depth
-    int         m_inlineCFuncs = 20;   // main switch: --inline-cfuncs
-    int         m_inlineCFuncsProduct = 200;   // main switch: --inline-cfuncs-product
-    int         m_inlineMult = 2000;   // main switch: --inline-mult
-    int         m_instrCountDpi = 200;   // main switch: --instr-count-dpi
+    ကိန်းပြည့်         m_coverageMaxWidth = 256; // main switch: --coverage-max-width
+    ကိန်းပြည့်         m_debugAllocRandom = 0;  // main switch: --debug-alloc-random <seed>
+    ကိန်းပြည့်         m_expandLimit = 256;  // main switch: --expand-limit
+    ကိန်းပြည့်         m_gateStmts = 100;    // main switch: --gate-stmts
+    ကိန်းပြည့်         m_hierChild = 0;      // main switch: --hierarchical-child
+    ကိန်းပြည့်         m_hierThreads = 0;      // main switch: --hierarchical-threads
+    ကိန်းပြည့်         m_ifDepth = 0;      // main switch: --if-depth
+    ကိန်းပြည့်         m_inlineCFuncs = 20;   // main switch: --inline-cfuncs
+    ကိန်းပြည့်         m_inlineCFuncsProduct = 200;   // main switch: --inline-cfuncs-product
+    ကိန်းပြည့်         m_inlineMult = 2000;   // main switch: --inline-mult
+    ကိန်းပြည့်         m_instrCountDpi = 200;   // main switch: --instr-count-dpi
     bool        m_jsonEditNums = true; // main switch: --no-json-edit-nums
     bool        m_jsonIds = true; // main switch: --no-json-ids
-    int         m_localizeMaxSize = 1024;  // main switch: --localize-max-size
+    ကိန်းပြည့်         m_localizeMaxSize = 1024;  // main switch: --localize-max-size
     VOptionBool m_makeDepend;  // main switch: -MMD
-    int         m_maxNumWidth = 65536;  // main switch: --max-num-width
-    int         m_funcRecursion = 1000;  // main switch: --func-recursion-depth
-    int         m_moduleRecursion = 100;  // main switch: --module-recursion-depth
-    int         m_outputGroups = -1;  // main switch: --output-groups
+    ကိန်းပြည့်         m_maxNumWidth = 65536;  // main switch: --max-num-width
+    ကိန်းပြည့်         m_funcRecursion = 1000;  // main switch: --func-recursion-depth
+    ကိန်းပြည့်         m_moduleRecursion = 100;  // main switch: --module-recursion-depth
+    ကိန်းပြည့်         m_outputGroups = -1;  // main switch: --output-groups
     int64_t     m_outputGroupsSize = 512 * 1024 * 1024;  // main switch: --output-groups-size
-    int         m_outputSplit = 20000;  // main switch: --output-split
-    int         m_outputSplitCFuncs = -1;  // main switch: --output-split-cfuncs
-    int         m_outputSplitCTrace = -1;  // main switch: --output-split-ctrace
-    int         m_pinsBv = 65;       // main switch: --pins-bv
-    int         m_preprocTokenLimit = 40000; // main switch: --preproc-token-limit
-    int         m_publicDepth = 0;   // main switch: --public-depth
-    int         m_reloopLimit = 40; // main switch: --reloop-limit
-    int         m_replicationLimit = 8192; // main switch: --replication-limit
+    ကိန်းပြည့်         m_outputSplit = 20000;  // main switch: --output-split
+    ကိန်းပြည့်         m_outputSplitCFuncs = -1;  // main switch: --output-split-cfuncs
+    ကိန်းပြည့်         m_outputSplitCTrace = -1;  // main switch: --output-split-ctrace
+    ကိန်းပြည့်         m_pinsBv = 65;       // main switch: --pins-bv
+    ကိန်းပြည့်         m_preprocTokenLimit = 40000; // main switch: --preproc-token-limit
+    ကိန်းပြည့်         m_publicDepth = 0;   // main switch: --public-depth
+    ကိန်းပြည့်         m_reloopLimit = 40; // main switch: --reloop-limit
+    ကိန်းပြည့်         m_replicationLimit = 8192; // main switch: --replication-limit
     VOptionBool m_skipIdentical;  // main switch: --skip-identical
     bool        m_stopFail = true;  // main switch: --stop-fail
-    int         m_threads = 1;      // main switch: --threads
-    int         m_threadsMaxMTasks = 0;  // main switch: --threads-max-mtasks
+    ကိန်းပြည့်         m_threads = 1;      // main switch: --threads
+    ကိန်းပြည့်         m_threadsMaxMTasks = 0;  // main switch: --threads-max-mtasks
     VTimescale  m_timeDefaultPrec;  // main switch: --timescale
     VTimescale  m_timeDefaultUnit;  // main switch: --timescale
     VTimescale  m_timeOverridePrec;  // main switch: --timescale-override
     VTimescale  m_timeOverrideUnit;  // main switch: --timescale-override
-    int         m_traceDepth = 0;   // main switch: --trace-depth
-    int         m_traceMaxArray = 32;  // main switch: --trace-max-array
-    int         m_traceMaxWidth = 4096; // main switch: --trace-max-width
-    int         m_unrollCount = 64;  // main switch: --unroll-count
-    int         m_unrollLimit = 16384;  // main switch: --unroll-limit
-    int         m_unrollStmts = 30000;  // main switch: --unroll-stmts
-    int         m_constraintArrayLimit = 64;  // main switch: --constraint-array-limit
-    int         m_verilateJobs = -1;  // main switch: --verilate-jobs
+    ကိန်းပြည့်         m_traceDepth = 0;   // main switch: --trace-depth
+    ကိန်းပြည့်         m_traceMaxArray = 32;  // main switch: --trace-max-array
+    ကိန်းပြည့်         m_traceMaxWidth = 4096; // main switch: --trace-max-width
+    ကိန်းပြည့်         m_unrollCount = 64;  // main switch: --unroll-count
+    ကိန်းပြည့်         m_unrollLimit = 16384;  // main switch: --unroll-limit
+    ကိန်းပြည့်         m_unrollStmts = 30000;  // main switch: --unroll-stmts
+    ကိန်းပြည့်         m_constraintArrayLimit = 64;  // main switch: --constraint-array-limit
+    ကိန်းပြည့်         m_verilateJobs = -1;  // main switch: --verilate-jobs
 
-    int         m_compLimitBlocks = 0;  // compiler selection; number of nested blocks
-    int         m_compLimitMembers = 64;  // compiler selection; number of members in struct before make anon array
-    int         m_compLimitParens = 240;  // compiler selection; number of nested parens
+    ကိန်းပြည့်         m_compLimitBlocks = 0;  // compiler selection; number of nested blocks
+    ကိန်းပြည့်         m_compLimitMembers = 64;  // compiler selection; number of members in struct before make anon array
+    ကိန်းပြည့်         m_compLimitParens = 240;  // compiler selection; number of nested parens
 
     string      m_buildDepBin;  // main switch: --build-dep-bin {filename}
     string      m_diagnosticsSarifOutput;  // main switch: --diagnostics-sarif-output
@@ -478,7 +478,7 @@ private:
     bool m_fReloop;      // main switch: -fno-reloop: reform loops
     bool m_fReorder;     // main switch: -fno-reorder: reorder assignments in blocks
     bool m_fSlice = true;  // main switch: -fno-slice: array assignment slicing
-    int  m_fSliceElementLimit = 256;  // main switch: --fslice-element-limit
+    ကိန်းပြည့်  m_fSliceElementLimit = 256;  // main switch: --fslice-element-limit
     bool m_fSplit;       // main switch: -fno-split: always assignment splitting
     bool m_fSubst;       // main switch: -fno-subst: substitute expression temp values
     bool m_fSubstConst;  // main switch: -fno-subst-const: final constant substitution
@@ -489,7 +489,7 @@ private:
     bool m_available = false;  // Set to true at the end of option parsing
 
     // METHODS
-    void addArg(char** argv, size_t count, bool isForRerun);
+    void addArg(var_na** argv, size_t count, bool isForRerun);
     void addArg(const std::string& arg, bool isForRerun);
     void addLineArg(const string& arg);
     void addDefine(const string& defline, bool allowPlus) VL_MT_DISABLED;
@@ -501,16 +501,16 @@ private:
     void addParameter(const string& paramline, bool allowPlus);
     void addLangExt(const string& langext, const V3LangCode& lc);
     void addLibExtV(const string& libext);
-    void optimize(int level);
+    void optimize(ကိန်းပြည့် level);
     void showVersion(bool verbose);
     void coverage(bool flag) {
         m_coverageLine = m_coverageBranch = m_coverageToggle = m_coverageExpr = m_coverageFsm
             = m_coverageUser = flag;
     }
-    static bool suffixed(const string& sw, const char* arg);
+    static bool suffixed(const string& sw, const var_na* arg);
     static string parseFileArg(const string& optdir, const string& relfilename);
     string filePathCheckOneDir(const string& modname, const string& dirname);
-    static int stripOptionsForChildRun(const string& opt, bool forTop);
+    static ကိန်းပြည့် stripOptionsForChildRun(const string& opt, bool forTop);
     void validateIdentifier(FileLine* fl, const string& arg, const string& opt);
 
     // CONSTRUCTORS
@@ -519,7 +519,7 @@ private:
 public:
     V3Options();
     ~V3Options();
-    void setDebugMode(int level);
+    void setDebugMode(ကိန်းပြည့် level);
     unsigned debugLevel(const string& tag) const VL_MT_SAFE;
     unsigned debugSrcLevel(const string& srcfile_path) const VL_MT_SAFE;
     unsigned dumpLevel(const string& tag) const VL_MT_SAFE;
@@ -537,245 +537,245 @@ public:
     void addVFile(const string& filename, const string& libname);
     void addVltFile(const string& filename, const string& libname);
     void addForceInc(const string& filename);
-    bool available() const VL_MT_SAFE { return m_available; }
+    bool available() const VL_MT_SAFE { ပြန်ပေး m_available; }
     void ccSet();
     void decorations(FileLine* fl, const string& filename);
     void notify() VL_MT_DISABLED;
 
     // ACCESSORS (options)
-    bool preprocOnly() const { return m_preprocOnly; }
-    bool makePhony() const { return m_makePhony; }
-    bool preprocNoLine() const { return m_preprocNoLine; }
-    bool preprocResolve() const { return m_preprocResolve; }
-    int preprocTokenLimit() const { return m_preprocTokenLimit; }
-    bool underlineZero() const { return m_underlineZero; }
-    bool systemC() const VL_MT_SAFE { return m_systemC; }
-    bool savable() const VL_MT_SAFE { return m_savable; }
-    VOptionBool schedZeroDelay() const { return m_schedZeroDelay; }
-    bool stats() const { return m_stats; }
-    bool statsVars() const { return m_statsVars; }
-    bool stdPackage() const { return m_stdPackage; }
-    bool stdWaiver() const { return m_stdWaiver; }
-    bool assertOn() const { return m_assert; }  // assertOn as __FILE__ may be defined
-    bool assertCase() const { return m_assertCase; }
-    bool autoflush() const { return m_autoflush; }
-    bool bboxSys() const { return m_bboxSys; }
-    bool bboxUnsup() const { return m_bboxUnsup; }
-    bool build() const { return m_build; }
-    string buildDepBin() const { return m_buildDepBin; }
+    bool preprocOnly() const { ပြန်ပေး m_preprocOnly; }
+    bool makePhony() const { ပြန်ပေး m_makePhony; }
+    bool preprocNoLine() const { ပြန်ပေး m_preprocNoLine; }
+    bool preprocResolve() const { ပြန်ပေး m_preprocResolve; }
+    ကိန်းပြည့် preprocTokenLimit() const { ပြန်ပေး m_preprocTokenLimit; }
+    bool underlineZero() const { ပြန်ပေး m_underlineZero; }
+    bool systemC() const VL_MT_SAFE { ပြန်ပေး m_systemC; }
+    bool savable() const VL_MT_SAFE { ပြန်ပေး m_savable; }
+    VOptionBool schedZeroDelay() const { ပြန်ပေး m_schedZeroDelay; }
+    bool stats() const { ပြန်ပေး m_stats; }
+    bool statsVars() const { ပြန်ပေး m_statsVars; }
+    bool stdPackage() const { ပြန်ပေး m_stdPackage; }
+    bool stdWaiver() const { ပြန်ပေး m_stdWaiver; }
+    bool assertOn() const { ပြန်ပေး m_assert; }  // assertOn as __FILE__ may be defined
+    bool assertCase() const { ပြန်ပေး m_assertCase; }
+    bool autoflush() const { ပြန်ပေး m_autoflush; }
+    bool bboxSys() const { ပြန်ပေး m_bboxSys; }
+    bool bboxUnsup() const { ပြန်ပေး m_bboxUnsup; }
+    bool build() const { ပြန်ပေး m_build; }
+    string buildDepBin() const { ပြန်ပေး m_buildDepBin; }
     void buildDepBin(const string& flag) { m_buildDepBin = flag; }
-    bool context() const VL_MT_SAFE { return m_context; }
+    bool context() const VL_MT_SAFE { ပြန်ပေး m_context; }
     bool coverage() const VL_MT_SAFE {
         // Any enabled coverage kind, including FSM coverage. Code generation
         // and runtime support should generally query this accessor.
-        return m_coverageLine || m_coverageBranch || m_coverageToggle || m_coverageExpr
+        ပြန်ပေး m_coverageLine || m_coverageBranch || m_coverageToggle || m_coverageExpr
                || m_coverageUser || m_coverageFsm;
     }
     bool coverageNonFsm() const VL_MT_SAFE {
         // The broad line/toggle/expr/user coverage transforms use this
         // accessor. FSM coverage shares the overall coverage umbrella, but its
         // extraction still happens through a separate early-recognition path.
-        return m_coverageLine || m_coverageBranch || m_coverageToggle || m_coverageExpr
+        ပြန်ပေး m_coverageLine || m_coverageBranch || m_coverageToggle || m_coverageExpr
                || m_coverageUser;
     }
-    bool coverageBranch() const { return m_coverageBranch; }
-    bool coverageExpr() const { return m_coverageExpr; }
-    bool coverageFsm() const { return m_coverageFsm; }
-    VFsmExpandType coverageFsmExpand() const { return m_coverageFsmExpand; }
-    int coverageFsmMaxArcs() const { return m_coverageFsmMaxArcs; }
-    bool coverageLine() const { return m_coverageLine; }
-    bool coverageMergeInstances() const { return m_coverageMergeInstances; }
-    bool coveragePerInstance() const { return m_coveragePerInstance; }
-    bool coverageToggle() const { return m_coverageToggle; }
-    bool coverageUnderscore() const { return m_coverageUnderscore; }
-    bool coverageUser() const { return m_coverageUser; }
-    bool debugCheck() const VL_MT_SAFE { return m_debugCheck; }
-    bool debugCollision() const { return m_debugCollision; }
-    bool debugEmitV() const VL_MT_SAFE { return m_debugEmitV; }
-    bool debugExitElab() const { return m_debugExitElab; }
-    bool debugExitParse() const { return m_debugExitParse; }
-    bool debugLeak() const { return m_debugLeak; }
-    bool debugNondeterminism() const { return m_debugNondeterminism; }
-    bool debugPartition() const { return m_debugPartition; }
-    bool debugPreprocPassthru() const VL_MT_SAFE { return m_debugPreprocPassthru; }
-    bool debugProtect() const VL_MT_SAFE { return m_debugProtect; }
-    int debugRuntimeTimeout() const { return m_debugRuntimeTimeout; }
-    bool debugSelfTest() const { return m_debugSelfTest; }
-    bool debugStackCheck() const { return m_debugStackCheck; }
-    bool debugWidth() const VL_PURE { return m_debugWidth; }
-    bool decoration() const VL_MT_SAFE { return m_decoration; }
-    bool decorationNodes() const VL_MT_SAFE { return m_decorationNodes; }
-    bool diagnosticsSarif() const VL_MT_SAFE { return m_diagnosticsSarif; }
-    bool dpiHdrOnly() const { return m_dpiHdrOnly; }
+    bool coverageBranch() const { ပြန်ပေး m_coverageBranch; }
+    bool coverageExpr() const { ပြန်ပေး m_coverageExpr; }
+    bool coverageFsm() const { ပြန်ပေး m_coverageFsm; }
+    VFsmExpandType coverageFsmExpand() const { ပြန်ပေး m_coverageFsmExpand; }
+    ကိန်းပြည့် coverageFsmMaxArcs() const { ပြန်ပေး m_coverageFsmMaxArcs; }
+    bool coverageLine() const { ပြန်ပေး m_coverageLine; }
+    bool coverageMergeInstances() const { ပြန်ပေး m_coverageMergeInstances; }
+    bool coveragePerInstance() const { ပြန်ပေး m_coveragePerInstance; }
+    bool coverageToggle() const { ပြန်ပေး m_coverageToggle; }
+    bool coverageUnderscore() const { ပြန်ပေး m_coverageUnderscore; }
+    bool coverageUser() const { ပြန်ပေး m_coverageUser; }
+    bool debugCheck() const VL_MT_SAFE { ပြန်ပေး m_debugCheck; }
+    bool debugCollision() const { ပြန်ပေး m_debugCollision; }
+    bool debugEmitV() const VL_MT_SAFE { ပြန်ပေး m_debugEmitV; }
+    bool debugExitElab() const { ပြန်ပေး m_debugExitElab; }
+    bool debugExitParse() const { ပြန်ပေး m_debugExitParse; }
+    bool debugLeak() const { ပြန်ပေး m_debugLeak; }
+    bool debugNondeterminism() const { ပြန်ပေး m_debugNondeterminism; }
+    bool debugPartition() const { ပြန်ပေး m_debugPartition; }
+    bool debugPreprocPassthru() const VL_MT_SAFE { ပြန်ပေး m_debugPreprocPassthru; }
+    bool debugProtect() const VL_MT_SAFE { ပြန်ပေး m_debugProtect; }
+    ကိန်းပြည့် debugRuntimeTimeout() const { ပြန်ပေး m_debugRuntimeTimeout; }
+    bool debugSelfTest() const { ပြန်ပေး m_debugSelfTest; }
+    bool debugStackCheck() const { ပြန်ပေး m_debugStackCheck; }
+    bool debugWidth() const VL_PURE { ပြန်ပေး m_debugWidth; }
+    bool decoration() const VL_MT_SAFE { ပြန်ပေး m_decoration; }
+    bool decorationNodes() const VL_MT_SAFE { ပြန်ပေး m_decorationNodes; }
+    bool diagnosticsSarif() const VL_MT_SAFE { ပြန်ပေး m_diagnosticsSarif; }
+    bool dpiHdrOnly() const { ပြန်ပေး m_dpiHdrOnly; }
     bool dumpAstPatterns() const {
-        return m_dumpLevel.count("ast-patterns") && m_dumpLevel.at("ast-patterns");
+        ပြန်ပေး m_dumpLevel.count("ast-patterns") && m_dumpLevel.at("ast-patterns");
     }
-    bool dumpDefines() const { return m_dumpLevel.count("defines") && m_dumpLevel.at("defines"); }
+    bool dumpDefines() const { ပြန်ပေး m_dumpLevel.count("defines") && m_dumpLevel.at("defines"); }
     bool dumpDfgPatterns() const {
-        return m_dumpLevel.count("dfg-patterns") && m_dumpLevel.at("dfg-patterns");
+        ပြန်ပေး m_dumpLevel.count("dfg-patterns") && m_dumpLevel.at("dfg-patterns");
     }
     bool dumpTreeDot() const {
-        return m_dumpLevel.count("tree-dot") && m_dumpLevel.at("tree-dot");
+        ပြန်ပေး m_dumpLevel.count("tree-dot") && m_dumpLevel.at("tree-dot");
     }
-    bool emitAccessors() const { return m_emitAccessors; }
-    bool exe() const { return m_exe; }
-    bool flatten() const { return m_flatten; }
-    bool fourstate() const { return m_fourstate; }
-    bool gmake() const { return m_gmake; }
-    bool makeJson() const { return m_makeJson; }
-    bool threadsDpiPure() const { return m_threadsDpiPure; }
-    bool threadsDpiUnpure() const { return m_threadsDpiUnpure; }
-    bool threadsCoarsen() const { return m_threadsCoarsen; }
-    VOptionBool timing() const { return m_timing; }
-    bool trace() const { return m_trace; }
-    bool traceCoverage() const { return m_traceCoverage; }
-    bool traceEnabledFst() const { return m_traceEnabledFst; }
-    bool traceEnabledSaif() const { return m_traceEnabledSaif; }
-    bool traceEnabledVcd() const { return m_traceEnabledVcd; }
-    bool traceParams() const { return m_traceParams; }
-    bool traceStructs() const { return m_traceStructs; }
-    bool traceUnderscore() const { return m_traceUnderscore; }
-    bool main() const { return m_main; }
-    bool outFormatOk() const { return m_outFormatOk; }
-    bool jsonOnly() const { return m_jsonOnly; }
-    bool keepTempFiles() const { return (V3Error::debugDefault() != 0); }
-    bool pedantic() const { return m_pedantic; }
-    bool pinsInoutEnables() const { return m_pinsInoutEnables; }
-    bool pinsScUint() const { return m_pinsScUint; }
-    bool pinsScUintBool() const { return m_pinsScUintBool; }
-    bool pinsScBigUint() const VL_MT_SAFE { return m_pinsScBigUint; }
-    bool pinsUint8() const { return m_pinsUint8; }
-    bool preprocComments() const { return m_preprocComments; }
-    bool preprocDefines() const { return m_preprocDefines; }
-    bool profC() const { return m_profC; }
-    bool profCFuncs() const { return m_profCFuncs; }
-    bool profExec() const { return m_profExec; }
-    bool profPgo() const { return m_profPgo; }
-    bool usesProfiler() const { return profExec() || profPgo(); }
-    bool protectIds() const VL_MT_SAFE { return m_protectIds; }
-    bool allPublic() const { return m_public; }
-    bool publicParams() const { return m_publicParams; }
-    bool publicOff() const { return m_publicIgnore; }
-    bool publicFlatRW() const { return m_publicFlatRW; }
-    int publicDepth() const { return m_publicDepth; }
-    bool anyPublicFlat() const { return m_publicParams || m_publicFlatRW || m_publicDepth; }
-    bool lintOnly() const VL_MT_SAFE { return m_lintOnly; }
-    bool ignc() const { return m_ignc; }
-    bool quietBuild() const VL_MT_SAFE { return m_quietBuild; }
-    bool quietExit() const VL_MT_SAFE { return m_quietExit; }
-    bool quietStats() const VL_MT_SAFE { return m_quietStats; }
-    bool reportUnoptflat() const { return m_reportUnoptflat; }
-    bool verilate() const { return m_verilate; }
-    bool vpi() const { return m_vpi.isTrue(); }
-    bool waiverMultiline() const { return m_waiverMultiline; }
-    bool xInitialEdge() const { return m_xInitialEdge; }
-    bool serializeOnly() const { return m_jsonOnly; }
-    bool topIfacesSupported() const { return lintOnly() && !hierarchical(); }
+    bool emitAccessors() const { ပြန်ပေး m_emitAccessors; }
+    bool exe() const { ပြန်ပေး m_exe; }
+    bool flatten() const { ပြန်ပေး m_flatten; }
+    bool fourstate() const { ပြန်ပေး m_fourstate; }
+    bool gmake() const { ပြန်ပေး m_gmake; }
+    bool makeJson() const { ပြန်ပေး m_makeJson; }
+    bool threadsDpiPure() const { ပြန်ပေး m_threadsDpiPure; }
+    bool threadsDpiUnpure() const { ပြန်ပေး m_threadsDpiUnpure; }
+    bool threadsCoarsen() const { ပြန်ပေး m_threadsCoarsen; }
+    VOptionBool timing() const { ပြန်ပေး m_timing; }
+    bool trace() const { ပြန်ပေး m_trace; }
+    bool traceCoverage() const { ပြန်ပေး m_traceCoverage; }
+    bool traceEnabledFst() const { ပြန်ပေး m_traceEnabledFst; }
+    bool traceEnabledSaif() const { ပြန်ပေး m_traceEnabledSaif; }
+    bool traceEnabledVcd() const { ပြန်ပေး m_traceEnabledVcd; }
+    bool traceParams() const { ပြန်ပေး m_traceParams; }
+    bool traceStructs() const { ပြန်ပေး m_traceStructs; }
+    bool traceUnderscore() const { ပြန်ပေး m_traceUnderscore; }
+    bool main() const { ပြန်ပေး m_main; }
+    bool outFormatOk() const { ပြန်ပေး m_outFormatOk; }
+    bool jsonOnly() const { ပြန်ပေး m_jsonOnly; }
+    bool keepTempFiles() const { ပြန်ပေး (V3Error::debugDefault() != 0); }
+    bool pedantic() const { ပြန်ပေး m_pedantic; }
+    bool pinsInoutEnables() const { ပြန်ပေး m_pinsInoutEnables; }
+    bool pinsScUint() const { ပြန်ပေး m_pinsScUint; }
+    bool pinsScUintBool() const { ပြန်ပေး m_pinsScUintBool; }
+    bool pinsScBigUint() const VL_MT_SAFE { ပြန်ပေး m_pinsScBigUint; }
+    bool pinsUint8() const { ပြန်ပေး m_pinsUint8; }
+    bool preprocComments() const { ပြန်ပေး m_preprocComments; }
+    bool preprocDefines() const { ပြန်ပေး m_preprocDefines; }
+    bool profC() const { ပြန်ပေး m_profC; }
+    bool profCFuncs() const { ပြန်ပေး m_profCFuncs; }
+    bool profExec() const { ပြန်ပေး m_profExec; }
+    bool profPgo() const { ပြန်ပေး m_profPgo; }
+    bool usesProfiler() const { ပြန်ပေး profExec() || profPgo(); }
+    bool protectIds() const VL_MT_SAFE { ပြန်ပေး m_protectIds; }
+    bool allPublic() const { ပြန်ပေး m_public; }
+    bool publicParams() const { ပြန်ပေး m_publicParams; }
+    bool publicOff() const { ပြန်ပေး m_publicIgnore; }
+    bool publicFlatRW() const { ပြန်ပေး m_publicFlatRW; }
+    ကိန်းပြည့် publicDepth() const { ပြန်ပေး m_publicDepth; }
+    bool anyPublicFlat() const { ပြန်ပေး m_publicParams || m_publicFlatRW || m_publicDepth; }
+    bool lintOnly() const VL_MT_SAFE { ပြန်ပေး m_lintOnly; }
+    bool ignc() const { ပြန်ပေး m_ignc; }
+    bool quietBuild() const VL_MT_SAFE { ပြန်ပေး m_quietBuild; }
+    bool quietExit() const VL_MT_SAFE { ပြန်ပေး m_quietExit; }
+    bool quietStats() const VL_MT_SAFE { ပြန်ပေး m_quietStats; }
+    bool reportUnoptflat() const { ပြန်ပေး m_reportUnoptflat; }
+    bool verilate() const { ပြန်ပေး m_verilate; }
+    bool vpi() const { ပြန်ပေး m_vpi.isTrue(); }
+    bool waiverMultiline() const { ပြန်ပေး m_waiverMultiline; }
+    bool xInitialEdge() const { ပြန်ပေး m_xInitialEdge; }
+    bool serializeOnly() const { ပြန်ပေး m_jsonOnly; }
+    bool topIfacesSupported() const { ပြန်ပေး lintOnly() && !hierarchical(); }
 
-    int buildJobs() const VL_MT_SAFE { return m_buildJobs; }
-    int convergeLimit() const { return m_convergeLimit; }
-    int coverageExprMax() const { return m_coverageExprMax; }
-    uint32_t coverageMaxBins() const { return m_coverageMaxBins; }
-    uint32_t coverageMaxRealBins() const { return m_coverageMaxRealBins; }
-    int coverageMaxWidth() const { return m_coverageMaxWidth; }
-    int debugAllocRandom() const { return m_debugAllocRandom; }
+    ကိန်းပြည့် buildJobs() const VL_MT_SAFE { ပြန်ပေး m_buildJobs; }
+    ကိန်းပြည့် convergeLimit() const { ပြန်ပေး m_convergeLimit; }
+    ကိန်းပြည့် coverageExprMax() const { ပြန်ပေး m_coverageExprMax; }
+    uint32_t coverageMaxBins() const { ပြန်ပေး m_coverageMaxBins; }
+    uint32_t coverageMaxRealBins() const { ပြန်ပေး m_coverageMaxRealBins; }
+    ကိန်းပြည့် coverageMaxWidth() const { ပြန်ပေး m_coverageMaxWidth; }
+    ကိန်းပြည့် debugAllocRandom() const { ပြန်ပေး m_debugAllocRandom; }
     bool dumpTreeAddrids() const VL_MT_SAFE;
-    int expandLimit() const { return m_expandLimit; }
-    int gateStmts() const { return m_gateStmts; }
-    int ifDepth() const { return m_ifDepth; }
-    int inlineCFuncs() const { return m_inlineCFuncs; }
-    int inlineCFuncsProduct() const { return m_inlineCFuncsProduct; }
-    int inlineMult() const { return m_inlineMult; }
-    int instrCountDpi() const { return m_instrCountDpi; }
-    int localizeMaxSize() const { return m_localizeMaxSize; }
-    bool jsonEditNums() const { return m_jsonEditNums; }
-    bool jsonIds() const { return m_jsonIds; }
-    VOptionBool makeDepend() const { return m_makeDepend; }
-    int maxNumWidth() const { return m_maxNumWidth; }
-    int funcRecursionDepth() const { return m_funcRecursion; }
-    int moduleRecursionDepth() const { return m_moduleRecursion; }
-    int outputSplit() const { return m_outputSplit; }
-    int outputSplitCFuncs() const { return m_outputSplitCFuncs; }
-    int outputSplitCTrace() const { return m_outputSplitCTrace; }
-    int outputGroups() const { return m_outputGroups; }
-    int64_t outputGroupsSize() const { return m_outputGroupsSize; }
-    int pinsBv() const VL_MT_SAFE { return m_pinsBv; }
-    int reloopLimit() const { return m_reloopLimit; }
-    int replicationLimit() const { return m_replicationLimit; }
-    VOptionBool skipIdentical() const { return m_skipIdentical; }
-    bool stopFail() const { return m_stopFail; }
-    int threads() const VL_MT_SAFE { return m_threads; }
-    int threadsMaxMTasks() const { return m_threadsMaxMTasks; }
-    bool mtasks() const VL_MT_SAFE { return (m_threads > 1); }
-    VTimescale timeDefaultPrec() const { return m_timeDefaultPrec; }
-    VTimescale timeDefaultUnit() const { return m_timeDefaultUnit; }
-    VTimescale timeOverridePrec() const { return m_timeOverridePrec; }
-    VTimescale timeOverrideUnit() const { return m_timeOverrideUnit; }
+    ကိန်းပြည့် expandLimit() const { ပြန်ပေး m_expandLimit; }
+    ကိန်းပြည့် gateStmts() const { ပြန်ပေး m_gateStmts; }
+    ကိန်းပြည့် ifDepth() const { ပြန်ပေး m_ifDepth; }
+    ကိန်းပြည့် inlineCFuncs() const { ပြန်ပေး m_inlineCFuncs; }
+    ကိန်းပြည့် inlineCFuncsProduct() const { ပြန်ပေး m_inlineCFuncsProduct; }
+    ကိန်းပြည့် inlineMult() const { ပြန်ပေး m_inlineMult; }
+    ကိန်းပြည့် instrCountDpi() const { ပြန်ပေး m_instrCountDpi; }
+    ကိန်းပြည့် localizeMaxSize() const { ပြန်ပေး m_localizeMaxSize; }
+    bool jsonEditNums() const { ပြန်ပေး m_jsonEditNums; }
+    bool jsonIds() const { ပြန်ပေး m_jsonIds; }
+    VOptionBool makeDepend() const { ပြန်ပေး m_makeDepend; }
+    ကိန်းပြည့် maxNumWidth() const { ပြန်ပေး m_maxNumWidth; }
+    ကိန်းပြည့် funcRecursionDepth() const { ပြန်ပေး m_funcRecursion; }
+    ကိန်းပြည့် moduleRecursionDepth() const { ပြန်ပေး m_moduleRecursion; }
+    ကိန်းပြည့် outputSplit() const { ပြန်ပေး m_outputSplit; }
+    ကိန်းပြည့် outputSplitCFuncs() const { ပြန်ပေး m_outputSplitCFuncs; }
+    ကိန်းပြည့် outputSplitCTrace() const { ပြန်ပေး m_outputSplitCTrace; }
+    ကိန်းပြည့် outputGroups() const { ပြန်ပေး m_outputGroups; }
+    int64_t outputGroupsSize() const { ပြန်ပေး m_outputGroupsSize; }
+    ကိန်းပြည့် pinsBv() const VL_MT_SAFE { ပြန်ပေး m_pinsBv; }
+    ကိန်းပြည့် reloopLimit() const { ပြန်ပေး m_reloopLimit; }
+    ကိန်းပြည့် replicationLimit() const { ပြန်ပေး m_replicationLimit; }
+    VOptionBool skipIdentical() const { ပြန်ပေး m_skipIdentical; }
+    bool stopFail() const { ပြန်ပေး m_stopFail; }
+    ကိန်းပြည့် threads() const VL_MT_SAFE { ပြန်ပေး m_threads; }
+    ကိန်းပြည့် threadsMaxMTasks() const { ပြန်ပေး m_threadsMaxMTasks; }
+    bool mtasks() const VL_MT_SAFE { ပြန်ပေး (m_threads > 1); }
+    VTimescale timeDefaultPrec() const { ပြန်ပေး m_timeDefaultPrec; }
+    VTimescale timeDefaultUnit() const { ပြန်ပေး m_timeDefaultUnit; }
+    VTimescale timeOverridePrec() const { ပြန်ပေး m_timeOverridePrec; }
+    VTimescale timeOverrideUnit() const { ပြန်ပေး m_timeOverrideUnit; }
     VTimescale timeComputePrec(const VTimescale& flag) const;
     VTimescale timeComputeUnit(const VTimescale& flag) const;
-    int traceDepth() const { return m_traceDepth; }
-    int traceMaxArray() const { return m_traceMaxArray; }
-    int traceMaxWidth() const { return m_traceMaxWidth; }
+    ကိန်းပြည့် traceDepth() const { ပြန်ပေး m_traceDepth; }
+    ကိန်းပြည့် traceMaxArray() const { ပြန်ပေး m_traceMaxArray; }
+    ကိန်းပြည့် traceMaxWidth() const { ပြန်ပေး m_traceMaxWidth; }
     bool useTraceParallel() const {
-        return trace() && traceEnabledVcd() && (threads() > 1 || hierChild() > 1);
+        ပြန်ပေး trace() && traceEnabledVcd() && (threads() > 1 || hierChild() > 1);
     }
-    int unrollCount() const { return m_unrollCount; }
-    int unrollLimit() const { return m_unrollLimit; }
-    int unrollStmts() const { return m_unrollStmts; }
-    int constraintArrayLimit() const { return m_constraintArrayLimit; }
-    int verilateJobs() const { return m_verilateJobs; }
+    ကိန်းပြည့် unrollCount() const { ပြန်ပေး m_unrollCount; }
+    ကိန်းပြည့် unrollLimit() const { ပြန်ပေး m_unrollLimit; }
+    ကိန်းပြည့် unrollStmts() const { ပြန်ပေး m_unrollStmts; }
+    ကိန်းပြည့် constraintArrayLimit() const { ပြန်ပေး m_constraintArrayLimit; }
+    ကိန်းပြည့် verilateJobs() const { ပြန်ပေး m_verilateJobs; }
 
-    int compLimitBlocks() const { return m_compLimitBlocks; }
-    int compLimitMembers() const VL_MT_SAFE { return m_compLimitMembers; }
-    int compLimitParens() const { return m_compLimitParens; }
+    ကိန်းပြည့် compLimitBlocks() const { ပြန်ပေး m_compLimitBlocks; }
+    ကိန်းပြည့် compLimitMembers() const VL_MT_SAFE { ပြန်ပေး m_compLimitMembers; }
+    ကိန်းပြည့် compLimitParens() const { ပြန်ပေး m_compLimitParens; }
 
     string diagnosticsSarifOutput() const VL_MT_SAFE {
-        return m_diagnosticsSarifOutput.empty() ? makeDir() + "/" + prefix() + ".sarif"
+        ပြန်ပေး m_diagnosticsSarifOutput.empty() ? makeDir() + "/" + prefix() + ".sarif"
                                                 : m_diagnosticsSarifOutput;
     }
-    string exeName() const { return m_exeName != "" ? m_exeName : prefix(); }
-    VFileLibList hierParamFile() const { return m_hierParamsFile; }
-    string jsonOnlyOutput() const { return m_jsonOnlyOutput; }
-    string jsonOnlyMetaOutput() const { return m_jsonOnlyMetaOutput; }
-    string l2Name() const { return m_l2Name; }
-    string libCreate() const { return m_libCreate; }
+    string exeName() const { ပြန်ပေး m_exeName != "" ? m_exeName : prefix(); }
+    VFileLibList hierParamFile() const { ပြန်ပေး m_hierParamsFile; }
+    string jsonOnlyOutput() const { ပြန်ပေး m_jsonOnlyOutput; }
+    string jsonOnlyMetaOutput() const { ပြန်ပေး m_jsonOnlyMetaOutput; }
+    string l2Name() const { ပြန်ပေး m_l2Name; }
+    string libCreate() const { ပြန်ပေး m_libCreate; }
     string libCreateName(bool shared) const {
         string libName = "lib" + libCreate();
-        if (shared) {
+        အကယ်၍ (shared) {
             libName += ".so";
-        } else {
+        } မဟုတ်ပါက {
             libName += ".a";
         }
-        return libName;
+        ပြန်ပေး libName;
     }
-    string mainTopName() const { return m_mainTopName; }
-    string makeDir() const VL_MT_SAFE { return m_makeDir; }
-    string modPrefix() const VL_MT_SAFE { return m_modPrefix; }
-    string pipeFilter() const { return m_pipeFilter; }
-    string prefix() const VL_MT_SAFE { return m_prefix; }
+    string mainTopName() const { ပြန်ပေး m_mainTopName; }
+    string makeDir() const VL_MT_SAFE { ပြန်ပေး m_makeDir; }
+    string modPrefix() const VL_MT_SAFE { ပြန်ပေး m_modPrefix; }
+    string pipeFilter() const { ပြန်ပေး m_pipeFilter; }
+    string prefix() const VL_MT_SAFE { ပြန်ပေး m_prefix; }
     // Not just called protectKey() to avoid bugs of not using protectKeyDefaulted()
-    bool protectKeyProvided() const { return !m_protectKey.empty(); }
+    bool protectKeyProvided() const { ပြန်ပေး !m_protectKey.empty(); }
     string protectKeyDefaulted() VL_MT_SAFE;  // Set default key if not set by user
-    string topModule() const { return m_topModule; }  // As AstNode::encodeName()
-    bool noTraceTop() const { return m_noTraceTop; }
-    string unusedRegexp() const { return m_unusedRegexp; }
-    string waiverOutput() const { return m_waiverOutput; }
-    string work() const { return m_work; }
-    bool isWaiverOutput() const { return !m_waiverOutput.empty(); }
-    string xAssign() const { return m_xAssign; }
-    string xInitial() const { return m_xInitial; }
+    string topModule() const { ပြန်ပေး m_topModule; }  // As AstNode::encodeName()
+    bool noTraceTop() const { ပြန်ပေး m_noTraceTop; }
+    string unusedRegexp() const { ပြန်ပေး m_unusedRegexp; }
+    string waiverOutput() const { ပြန်ပေး m_waiverOutput; }
+    string work() const { ပြန်ပေး m_work; }
+    bool isWaiverOutput() const { ပြန်ပေး !m_waiverOutput.empty(); }
+    string xAssign() const { ပြန်ပေး m_xAssign; }
+    string xInitial() const { ပြန်ပေး m_xInitial; }
 
-    const VStringSet& cppFiles() const { return m_cppFiles; }
-    const VStringList& cFlags() const { return m_cFlags; }
-    const VStringSet& compilerIncludes() const { return m_compilerIncludes; }
-    const VStringList& ldLibFiles() const { return m_ldLibFiles; }
-    const VStringList& ldLibs() const { return m_ldLibs; }
-    const VStringList& makeFlags() const { return m_makeFlags; }
-    const VFileLibSet& libraryFiles() const { return m_libraryFiles; }
-    const VStringSet& libmapFiles() const { return m_libmapFiles; }
-    const VFileLibList& vFiles() const { return m_vFiles; }
-    const VFileLibSet& vltFiles() const { return m_vltFiles; }
-    const VStringList& forceIncs() const { return m_forceIncs; }
+    const VStringSet& cppFiles() const { ပြန်ပေး m_cppFiles; }
+    const VStringList& cFlags() const { ပြန်ပေး m_cFlags; }
+    const VStringSet& compilerIncludes() const { ပြန်ပေး m_compilerIncludes; }
+    const VStringList& ldLibFiles() const { ပြန်ပေး m_ldLibFiles; }
+    const VStringList& ldLibs() const { ပြန်ပေး m_ldLibs; }
+    const VStringList& makeFlags() const { ပြန်ပေး m_makeFlags; }
+    const VFileLibSet& libraryFiles() const { ပြန်ပေး m_libraryFiles; }
+    const VStringSet& libmapFiles() const { ပြန်ပေး m_libmapFiles; }
+    const VFileLibList& vFiles() const { ပြန်ပေး m_vFiles; }
+    const VFileLibSet& vltFiles() const { ပြန်ပေး m_vltFiles; }
+    const VStringList& forceIncs() const { ပြန်ပေး m_forceIncs; }
 
     bool hasParameter(const string& name);
     string parameter(const string& name);
@@ -787,56 +787,56 @@ public:
     bool isLibraryFile(const string& filename, const string& libname) const;
 
     // ACCESSORS (optimization options)
-    bool fAcycSimp() const { return m_fAcycSimp; }
-    bool fAssemble() const { return m_fAssemble; }
-    bool fBitScanLoops() const { return m_fBitScanLoops; }
-    bool fBitblast() const { return m_fBitblast; }
-    bool fCaseDecoder() const { return m_fCaseDecoder; }
-    bool fCaseTable() const { return m_fCaseTable; }
-    bool fCaseTree() const { return m_fCaseTree; }
-    bool fCombine() const { return m_fCombine; }
-    bool fConst() const { return m_fConst; }
-    bool fConstBeforeDfg() const { return m_fConstBeforeDfg; }
-    bool fConstBitOpTree() const { return m_fConstBitOpTree; }
-    bool fConstEager() const { return m_fConstEager; }
-    bool fDedupe() const { return m_fDedupe; }
-    bool fDfg() const { return m_fDfg; }
-    bool fDfgPeephole() const { return m_fDfgPeephole; }
-    bool fDfgPushDownSels() const { return m_fDfgPushDownSels; }
-    bool fDfgSynthesizeAll() const { return m_fDfgSynthesizeAll; }
+    bool fAcycSimp() const { ပြန်ပေး m_fAcycSimp; }
+    bool fAssemble() const { ပြန်ပေး m_fAssemble; }
+    bool fBitScanLoops() const { ပြန်ပေး m_fBitScanLoops; }
+    bool fBitblast() const { ပြန်ပေး m_fBitblast; }
+    bool fCaseDecoder() const { ပြန်ပေး m_fCaseDecoder; }
+    bool fCaseTable() const { ပြန်ပေး m_fCaseTable; }
+    bool fCaseTree() const { ပြန်ပေး m_fCaseTree; }
+    bool fCombine() const { ပြန်ပေး m_fCombine; }
+    bool fConst() const { ပြန်ပေး m_fConst; }
+    bool fConstBeforeDfg() const { ပြန်ပေး m_fConstBeforeDfg; }
+    bool fConstBitOpTree() const { ပြန်ပေး m_fConstBitOpTree; }
+    bool fConstEager() const { ပြန်ပေး m_fConstEager; }
+    bool fDedupe() const { ပြန်ပေး m_fDedupe; }
+    bool fDfg() const { ပြန်ပေး m_fDfg; }
+    bool fDfgPeephole() const { ပြန်ပေး m_fDfgPeephole; }
+    bool fDfgPushDownSels() const { ပြန်ပေး m_fDfgPushDownSels; }
+    bool fDfgSynthesizeAll() const { ပြန်ပေး m_fDfgSynthesizeAll; }
     bool fDfgPeepholeEnabled(const std::string& name) const {
-        return !m_fDfgPeepholeDisabled.count(name);
+        ပြန်ပေး !m_fDfgPeepholeDisabled.count(name);
     }
-    bool fDeadAssigns() const { return m_fDeadAssigns; }
-    bool fDeadCells() const { return m_fDeadCells; }
-    bool fDeadMethods() const { return m_fDeadMethods; }
-    bool fDecompose() const { return m_fDecomposePacked || m_fDecomposeUnpacked; }
-    bool fDecomposePacked() const { return m_fDecomposePacked; }
-    bool fDecomposeUnpacked() const { return m_fDecomposeUnpacked; }
-    bool fExpand() const { return m_fExpand; }
-    bool fFuncBalanceCat() const { return m_fFuncBalanceCat; }
-    bool fFuncSplitCat() const { return m_fFuncSplitCat; }
-    bool fFunc() const { return fFuncSplitCat() || fFuncBalanceCat(); }
-    bool fGate() const { return m_fGate; }
-    VOptionBool fIcoChangeDetect() const { return m_fIcoChangeDetect; }
-    bool fInline() const { return m_fInline; }
-    bool fInlineCFuncs() const { return m_fInlineCFuncs; }
-    bool fInlineFuncs() const { return m_fInlineFuncs; }
-    bool fInlineFuncsEager() const { return m_fInlineFuncsEager; }
-    bool fLife() const { return m_fLife; }
-    bool fLifePost() const { return m_fLifePost; }
-    bool fLocalize() const { return m_fLocalize; }
-    bool fMergeCond() const { return m_fMergeCond; }
-    bool fMergeCondMotion() const { return m_fMergeCondMotion; }
-    bool fReloop() const { return m_fReloop; }
-    bool fReorder() const { return m_fReorder; }
-    bool fSlice() const { return m_fSlice; }
-    int fSliceElementLimit() const { return m_fSliceElementLimit; }
-    bool fSplit() const { return m_fSplit; }
-    bool fSubst() const { return m_fSubst; }
-    bool fSubstConst() const { return m_fSubstConst; }
-    bool fTable() const { return m_fTable; }
-    bool fTaskifyAll() const { return m_fTaskifyAll; }
+    bool fDeadAssigns() const { ပြန်ပေး m_fDeadAssigns; }
+    bool fDeadCells() const { ပြန်ပေး m_fDeadCells; }
+    bool fDeadMethods() const { ပြန်ပေး m_fDeadMethods; }
+    bool fDecompose() const { ပြန်ပေး m_fDecomposePacked || m_fDecomposeUnpacked; }
+    bool fDecomposePacked() const { ပြန်ပေး m_fDecomposePacked; }
+    bool fDecomposeUnpacked() const { ပြန်ပေး m_fDecomposeUnpacked; }
+    bool fExpand() const { ပြန်ပေး m_fExpand; }
+    bool fFuncBalanceCat() const { ပြန်ပေး m_fFuncBalanceCat; }
+    bool fFuncSplitCat() const { ပြန်ပေး m_fFuncSplitCat; }
+    bool fFunc() const { ပြန်ပေး fFuncSplitCat() || fFuncBalanceCat(); }
+    bool fGate() const { ပြန်ပေး m_fGate; }
+    VOptionBool fIcoChangeDetect() const { ပြန်ပေး m_fIcoChangeDetect; }
+    bool fInline() const { ပြန်ပေး m_fInline; }
+    bool fInlineCFuncs() const { ပြန်ပေး m_fInlineCFuncs; }
+    bool fInlineFuncs() const { ပြန်ပေး m_fInlineFuncs; }
+    bool fInlineFuncsEager() const { ပြန်ပေး m_fInlineFuncsEager; }
+    bool fLife() const { ပြန်ပေး m_fLife; }
+    bool fLifePost() const { ပြန်ပေး m_fLifePost; }
+    bool fLocalize() const { ပြန်ပေး m_fLocalize; }
+    bool fMergeCond() const { ပြန်ပေး m_fMergeCond; }
+    bool fMergeCondMotion() const { ပြန်ပေး m_fMergeCondMotion; }
+    bool fReloop() const { ပြန်ပေး m_fReloop; }
+    bool fReorder() const { ပြန်ပေး m_fReorder; }
+    bool fSlice() const { ပြန်ပေး m_fSlice; }
+    ကိန်းပြည့် fSliceElementLimit() const { ပြန်ပေး m_fSliceElementLimit; }
+    bool fSplit() const { ပြန်ပေး m_fSplit; }
+    bool fSubst() const { ပြန်ပေး m_fSubst; }
+    bool fSubstConst() const { ပြန်ပေး m_fSubstConst; }
+    bool fTable() const { ပြန်ပေး m_fTable; }
+    bool fTaskifyAll() const { ပြန်ပေး m_fTaskifyAll; }
 
     std::string traceClassBase() const VL_MT_SAFE;  // Deprecated
     std::string traceClassLang() const VL_MT_SAFE;  // Deprecated
@@ -845,27 +845,27 @@ public:
     std::vector<std::string> traceSourceBases() const VL_MT_SAFE;
     std::vector<std::string> traceSourceLangs() const VL_MT_SAFE;
 
-    bool hierarchical() const { return m_hierarchical; }
-    int hierChild() const VL_MT_SAFE { return m_hierChild; }
-    int hierThreads() const VL_MT_SAFE { return m_hierThreads == 0 ? m_threads : m_hierThreads; }
-    bool hierTop() const VL_MT_SAFE { return !m_hierChild && !m_hierBlocks.empty(); }
-    const V3HierBlockOptSet& hierBlocks() const { return m_hierBlocks; }
+    bool hierarchical() const { ပြန်ပေး m_hierarchical; }
+    ကိန်းပြည့် hierChild() const VL_MT_SAFE { ပြန်ပေး m_hierChild; }
+    ကိန်းပြည့် hierThreads() const VL_MT_SAFE { ပြန်ပေး m_hierThreads == 0 ? m_threads : m_hierThreads; }
+    bool hierTop() const VL_MT_SAFE { ပြန်ပေး !m_hierChild && !m_hierBlocks.empty(); }
+    const V3HierBlockOptSet& hierBlocks() const { ပြန်ပေး m_hierBlocks; }
     // Directory to save .tree, .dot, .dat, .vpp for hierarchical block top
     // Returns makeDir() unless top module of hierarchical Verilation.
     string hierTopDataDir() const VL_MT_SAFE {
-        return hierTop() ? (makeDir() + '/' + prefix() + "__hier.dir") : makeDir();
+        ပြန်ပေး hierTop() ? (makeDir() + '/' + prefix() + "__hier.dir") : makeDir();
     }
 
     // METHODS (from main)
     static string version() VL_PURE;
-    static string argString(int argc, char** argv);  ///< Return list of arguments as simple string
+    static string argString(ကိန်းပြည့် argc, var_na** argv);  ///< Return list of arguments as simple string
     string allArgsString() const VL_MT_SAFE;  ///< Return all passed arguments as simple string
     const std::list<std::pair<std::list<std::string>, bool>>& allArgs() const;
     // Return options for child hierarchical blocks when forTop==false, otherwise returns args for
     // the top module.
     string allArgsStringForHierBlock(bool forTop) const;
-    void parseOpts(FileLine* fl, int argc, char** argv) VL_MT_DISABLED;
-    void parseOptsList(FileLine* fl, const string& optdir, int argc, char** argv) VL_MT_DISABLED;
+    void parseOpts(FileLine* fl, ကိန်းပြည့် argc, var_na** argv) VL_MT_DISABLED;
+    void parseOptsList(FileLine* fl, const string& optdir, ကိန်းပြည့် argc, var_na** argv) VL_MT_DISABLED;
     void parseOptsFile(FileLine* fl, const string& filename, bool rel) VL_MT_DISABLED;
 
     // METHODS (environment)

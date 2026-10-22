@@ -41,7 +41,7 @@ class DescopeVisitor final : public VNVisitor {
 
     // TYPES
     using FuncMmap = std::multimap<std::string, AstCFunc*>;
-    struct ScopeSelfPtr final {
+    sa_nracanaa ScopeSelfPtr final {
         VSelfPointerText thisPtr = VSelfPointerText{VSelfPointerText::Empty()};
         VSelfPointerText vlSymsPtr = VSelfPointerText{VSelfPointerText::Empty()};
     };
@@ -58,34 +58,34 @@ class DescopeVisitor final : public VNVisitor {
 
     static bool modIsSingleton(const AstNodeModule* modp) {
         // True iff there's exactly one instance of this module in the design (including top).
-        if (modp->isTop()) return true;
-        int instances = 0;
-        for (const AstNode* stmtp = modp->stmtsp(); stmtp; stmtp = stmtp->nextp()) {
-            if (VN_IS(stmtp, Scope)) {
-                if (++instances > 1) return false;
+        အကယ်၍ (modp->isTop()) ပြန်ပေး true;
+        ကိန်းပြည့် instances = 0;
+        အတွက် (const AstNode* stmtp = modp->stmtsp(); stmtp; stmtp = stmtp->nextp()) {
+            အကယ်၍ (VN_IS(stmtp, Scope)) {
+                အကယ်၍ (++instances > 1) ပြန်ပေး false;
             }
         }
-        return (instances == 1);
+        ပြန်ပေး (instances == 1);
     }
 
     // Construct a 'this' self pointer for the given scope
     VSelfPointerText scopeThis(const AstScope* scopep) {
         auto& ret = m_scopeToSelf[scopep];
-        if (ret.thisPtr.isEmpty()) {
+        အကယ်၍ (ret.thisPtr.isEmpty()) {
             string name = scopep->name();
             string::size_type pos = name.rfind('.');
-            if (pos != string::npos) name.erase(0, pos + 1);
+            အကယ်၍ (pos != string::npos) name.erase(0, pos + 1);
             ret.thisPtr = VSelfPointerText{VSelfPointerText::This{}, name};
         }
-        return ret.thisPtr;
+        ပြန်ပေး ret.thisPtr;
     }
     // Construct a 'vlSyms' self pointer for the given scope
     VSelfPointerText scopeVlSyms(const AstScope* scopep) {
         auto& ret = m_scopeToSelf[scopep];
-        if (ret.vlSymsPtr.isEmpty()) {
+        အကယ်၍ (ret.vlSymsPtr.isEmpty()) {
             ret.vlSymsPtr = VSelfPointerText{VSelfPointerText::VlSyms(), scopep->nameDotless()};
         }
-        return ret.vlSymsPtr;
+        ပြန်ပေး ret.vlSymsPtr;
     }
 
     // Construct the best self pointer to reference an object in 'scopep'  from a CFunc in
@@ -102,23 +102,23 @@ class DescopeVisitor final : public VNVisitor {
         UINFO(8, "              ref to    " << scopep);
         UINFO(8, "             aboveScope " << scopep->aboveScopep());
 
-        if (VN_IS(scopep->modp(), Class)) {
+        အကယ်၍ (VN_IS(scopep->modp(), Class)) {
             // Direct reference to class members are from within the class itself, references from
             // outside the class must go via AstMemberSel
-            return VSelfPointerText{VSelfPointerText::This{}};
-        } else if (relativeRefOk && scopep == m_scopep) {
-            return VSelfPointerText{VSelfPointerText::This{}};
-        } else if (relativeRefOk && !m_modSingleton && scopep->aboveScopep() == m_scopep
+            ပြန်ပေး VSelfPointerText{VSelfPointerText::This{}};
+        } မဟုတ်ပါက အကယ်၍ (relativeRefOk && scopep == m_scopep) {
+            ပြန်ပေး VSelfPointerText{VSelfPointerText::This{}};
+        } မဟုတ်ပါက အကယ်၍ (relativeRefOk && !m_modSingleton && scopep->aboveScopep() == m_scopep
                    && VN_IS(scopep->modp(), Module)) {
             // Reference to scope of instance directly under this module, can just "this->cell",
             // which can potentially be V3Combined, but note this requires one extra pointer
             // dereference which is slower, so we only use it if the source scope is not a
             // singleton.
-            return scopeThis(scopep);
-        } else {
+            ပြန်ပေး scopeThis(scopep);
+        } မဟုတ်ပါက {
             // Reference to something elsewhere, or relative references are disabled. Use global
             // variable
-            return scopeVlSyms(scopep);
+            ပြန်ပေး scopeVlSyms(scopep);
         }
     }
 
@@ -126,23 +126,23 @@ class DescopeVisitor final : public VNVisitor {
         // We recorded all public functions in m_modFuncs.
         // If for any given name only one function exists, we can use that function directly.
         // If multiple functions exist, we need to select the appropriate scope.
-        for (FuncMmap::iterator it = m_modFuncs.begin(); it != m_modFuncs.end(); ++it) {
+        အတွက် (FuncMmap::iterator it = m_modFuncs.begin(); it != m_modFuncs.end(); ++it) {
             const string name = it->first;
             AstCFunc* const topFuncp = it->second;
             auto nextIt1 = it;
             ++nextIt1;
             const bool moreOfSame1 = (nextIt1 != m_modFuncs.end() && nextIt1->first == name);
-            if (moreOfSame1) {
+            အကယ်၍ (moreOfSame1) {
                 // Multiple functions under this name, need a wrapper function
                 UINFO(6, "  Wrapping " << name << " multifuncs");
                 AstCFunc* const newfuncp = topFuncp->cloneTree(false);
-                if (newfuncp->varsp()) newfuncp->varsp()->unlinkFrBackWithNext()->deleteTree();
-                if (newfuncp->stmtsp()) newfuncp->stmtsp()->unlinkFrBackWithNext()->deleteTree();
+                အကယ်၍ (newfuncp->varsp()) newfuncp->varsp()->unlinkFrBackWithNext()->deleteTree();
+                အကယ်၍ (newfuncp->stmtsp()) newfuncp->stmtsp()->unlinkFrBackWithNext()->deleteTree();
                 newfuncp->name(name);
                 newfuncp->isStatic(false);
                 topFuncp->addNextHere(newfuncp);
                 // In the body, call each function if it matches the given scope
-                for (FuncMmap::iterator eachIt = it;
+                အတွက် (FuncMmap::iterator eachIt = it;
                      eachIt != m_modFuncs.end() && eachIt->first == name; ++eachIt) {
                     it = eachIt;
                     AstCFunc* const funcp = eachIt->second;
@@ -156,9 +156,9 @@ class DescopeVisitor final : public VNVisitor {
                     UINFO(6, "  at " << newfuncp->argTypes() << " und " << funcp->argTypes());
                     funcp->declPrivate(true);
                     AstVarRef* argsp = nullptr;
-                    for (AstNode* stmtp = newfuncp->argsp(); stmtp; stmtp = stmtp->nextp()) {
-                        if (AstVar* const portp = VN_CAST(stmtp, Var)) {
-                            if (portp->isIO() && !portp->isFuncReturn()) {
+                    အတွက် (AstNode* stmtp = newfuncp->argsp(); stmtp; stmtp = stmtp->nextp()) {
+                        အကယ်၍ (AstVar* const portp = VN_CAST(stmtp, Var)) {
+                            အကယ်၍ (portp->isIO() && !portp->isFuncReturn()) {
                                 AstVarRef* const newp = new AstVarRef{
                                     portp->fileline(), portp, portp->direction().pinAccess()};
                                 argsp = AstNode::addNext(argsp, newp);
@@ -167,14 +167,14 @@ class DescopeVisitor final : public VNVisitor {
                     }
 
                     AstCCall* const callp = new AstCCall{funcp->fileline(), funcp, argsp};
-                    if (AstNodeDType* const dtypep = funcp->dtypep()) {
+                    အကယ်၍ (AstNodeDType* const dtypep = funcp->dtypep()) {
                         callp->dtypep(dtypep);
-                    } else {
+                    } မဟုတ်ပါက {
                         callp->dtypeSetVoid();
                     }
                     AstNode* const returnp = new AstCReturn{funcp->fileline(), callp};
 
-                    if (moreOfSame) {
+                    အကယ်၍ (moreOfSame) {
                         AstIf* const ifp = new AstIf{
                             funcp->fileline(),
                             new AstEq{funcp->fileline(),
@@ -183,7 +183,7 @@ class DescopeVisitor final : public VNVisitor {
                                                    scopeVlSyms(funcp->scopep()).asString(), 64}},
                             returnp};
                         newfuncp->addStmtsp(ifp);
-                    } else {
+                    } မဟုတ်ပါက {
                         newfuncp->addStmtsp(returnp);
                     }
                 }
@@ -195,7 +195,7 @@ class DescopeVisitor final : public VNVisitor {
                 //                                   scope", nullptr});
                 // newfuncp->addStmtsp(new AstStop{newfuncp->fileline()});
                 UINFOTREE(9, newfuncp, "", "newfunc");
-            } else {
+            } မဟုတ်ပါက {
                 // Only a single function under this name, we can rename it
                 UINFO(6, "  Wrapping " << name << " just one " << topFuncp);
                 topFuncp->name(name);
@@ -223,23 +223,23 @@ class DescopeVisitor final : public VNVisitor {
     }
     void visit(AstNodeVarRef* nodep) override {
         iterateChildren(nodep);
-        if (!nodep->varScopep()) {
+        အကယ်၍ (!nodep->varScopep()) {
             UASSERT_OBJ(nodep->varp()->isFuncLocal(), nodep,
                         "unscoped reference can only appear to function locals at this point");
-            return;
+            ပြန်ပေး;
         }
         // Convert the hierch name
         UINFO(9, "  ref-in " << nodep);
         UASSERT_OBJ(m_scopep, nodep, "Node not under scope");
         const AstVar* const varp = nodep->varScopep()->varp();
         const AstScope* const scopep = nodep->varScopep()->scopep();
-        if (varp->isFuncLocal()) {
+        အကယ်၍ (varp->isFuncLocal()) {
             // Reference to function locals need no self pointer
             nodep->selfPointer(VSelfPointerText{VSelfPointerText::Empty()});
-        } else if (scopep->modp()->isConstPool()) {
+        } မဟုတ်ပါက အကယ်၍ (scopep->modp()->isConstPool()) {
             // Reference to constant pool value need no self pointer
             nodep->selfPointer(VSelfPointerText{VSelfPointerText::Empty()});
-        } else {
+        } မဟုတ်ပါက {
             nodep->selfPointer(descopedSelfPointer(scopep));
         }
         nodep->varScopep(nullptr);
@@ -259,13 +259,13 @@ class DescopeVisitor final : public VNVisitor {
         // Print a %m under this instance as its vlNamep, which holds its pretty name, plus the
         // rest of the path, so the instances' code can be V3Combined. Not with --protect-ids, as
         // vlNamep then holds the protected name, while %m prints the original.
-        if (!m_funcp || !nodep->forFormat() || m_modSingleton || m_funcp->isStatic()
+        အကယ်၍ (!m_funcp || !nodep->forFormat() || m_modSingleton || m_funcp->isStatic()
             || v3Global.opt.protectIds()) {
-            return;
+            ပြန်ပေး;
         }
         std::string path = nodep->scopePrettySymName();
         const std::string inst = m_scopep->prettyName();
-        if (path != inst && !VString::startsWith(path, inst + ".")) return;
+        အကယ်၍ (path != inst && !VString::startsWith(path, inst + ".")) ပြန်ပေး;
         path.erase(0, inst.size() + 1);
         // The DPI scope table keeps the absolute name, via a copy outside any function
         m_scopep->addBlocksp(nodep->cloneTree(false));
@@ -277,7 +277,7 @@ class DescopeVisitor final : public VNVisitor {
     void visit(AstCNew* nodep) override { iterateChildren(nodep); }
     void visit(AstCFunc* nodep) override {
         VL_RESTORER(m_funcp);
-        if (!nodep->user1()) {
+        အကယ်၍ (!nodep->user1()) {
             // Static functions should have been moved under the corresponding AstClassPackage
             UASSERT_OBJ(!(nodep->isStatic() && VN_IS(m_modp, Class)), nodep,
                         "Static function under AstClass");
@@ -285,11 +285,11 @@ class DescopeVisitor final : public VNVisitor {
             iterateChildren(nodep);
             nodep->user1(true);
             // If it's under a scope, move it up to the top
-            if (m_scopep) {
+            အကယ်၍ (m_scopep) {
                 nodep->unlinkFrBack();
                 m_modp->addStmtsp(nodep);
 
-                if (nodep->funcPublic()) {
+                အကယ်၍ (nodep->funcPublic()) {
                     // There may be multiple public functions by the same name;
                     // record for later correction or making of shells
                     m_modFuncs.emplace(nodep->name(), nodep);

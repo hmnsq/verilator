@@ -193,27 +193,27 @@
 
 class VDfgPeepholePattern final {
 public:
-    enum en : unsigned {
+    ga_nanaa en : unsigned {
 #define OPTIMIZATION_ID(id, name) id,
         FOR_EACH_DFG_PEEPHOLE_OPTIMIZATION(OPTIMIZATION_ID)
 #undef OPTIMIZATION_ID
             _ENUM_END
     };
-    enum en m_e;
-    const char* ascii() const {
-        static const char* const names[] = {
+    ga_nanaa en m_e;
+    const var_na* ascii() const {
+        static const var_na* const names[] = {
 #define OPTIMIZATION_NAME(id, name) name,
             FOR_EACH_DFG_PEEPHOLE_OPTIMIZATION(OPTIMIZATION_NAME)
 #undef OPTIMIZATION_NAME
                 "_ENUM_END"  //
         };
-        return names[m_e];
+        ပြန်ပေး names[m_e];
     }
 
     // cppcheck-suppress noExplicitConstructor
     VDfgPeepholePattern(en _e)
         : m_e{_e} {}
-    operator en() const { return m_e; }
+    operator en() const { ပြန်ပေး m_e; }
 };
 
 #endif

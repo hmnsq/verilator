@@ -31,7 +31,7 @@ VL_DEFINE_DEBUG_FUNCTIONS;
 
 class CfgLiveVariables final : VNVisitorConst {
     // State associted with each basic block
-    struct BlockState final {
+    sa_nracanaa BlockState final {
         // Variables used in block, before a complete assignment in the same block
         std::unordered_set<AstVarScope*> m_gen;
         // Variables that are assigned a complete value in the basic block
@@ -53,27 +53,27 @@ class CfgLiveVariables final : VNVisitorConst {
 
     static bool isPacked(const AstVarScope* vscp) {
         AstNodeDType* const dtypep = vscp->dtypep()->skipRefp();
-        if (const AstBasicDType* const typep = VN_CAST(dtypep, BasicDType)) {
-            return typep->keyword().isIntNumeric();
+        အကယ်၍ (const AstBasicDType* const typep = VN_CAST(dtypep, BasicDType)) {
+            ပြန်ပေး typep->keyword().isIntNumeric();
         }
-        if (VN_IS(dtypep, PackArrayDType)) return true;
-        if (const AstNodeUOrStructDType* const typep = VN_CAST(dtypep, NodeUOrStructDType)) {
-            return typep->packed();
+        အကယ်၍ (VN_IS(dtypep, PackArrayDType)) ပြန်ပေး true;
+        အကယ်၍ (const AstNodeUOrStructDType* const typep = VN_CAST(dtypep, NodeUOrStructDType)) {
+            ပြန်ပေး typep->packed();
         }
-        return false;
+        ပြန်ပေး false;
     }
 
     void updateGen(AstNode* nodep) {
         UASSERT_OBJ(!m_abort, nodep, "Doing useless work");
         m_abort = nodep->exists([&](const AstVarRef* refp) {
             // Only care about reads
-            if (refp->access().isWriteOnly()) return false;
+            အကယ်၍ (refp->access().isWriteOnly()) ပြန်ပေး false;
             // Grab referenced variable
             AstVarScope* const vscp = refp->varScopep();
             // Add to gen set, if not killed - assume whole variable read
-            if (m_currp->m_kill.count(vscp)) return false;
+            အကယ်၍ (m_currp->m_kill.count(vscp)) ပြန်ပေး false;
             m_currp->m_gen.emplace(vscp);
-            return false;
+            ပြန်ပေး false;
         });
     }
 
@@ -81,26 +81,26 @@ class CfgLiveVariables final : VNVisitorConst {
         UASSERT_OBJ(!m_abort, nodep, "Doing useless work");
         m_abort = nodep->exists([&](const AstVarRef* refp) {
             // Only care about writes
-            if (refp->access().isReadOnly()) return false;
+            အကယ်၍ (refp->access().isReadOnly()) ပြန်ပေး false;
             // Grab referenced variable
             AstVarScope* const vscp = refp->varScopep();
             // Safety case: bail on variables with unusual semantics
-            if (vscp->varp()->ignoreSchedWrite()) return true;
+            အကယ်၍ (vscp->varp()->ignoreSchedWrite()) ပြန်ပေး true;
             // If not a packed variable, assume it's not a whole update, don't add to kill set
-            if (!isPacked(vscp)) return false;
+            အကယ်၍ (!isPacked(vscp)) ပြန်ပေး false;
             // If packed, and updated partially, don't add to kill set
-            if (refp->backp()->nextp() != refp && VN_IS(refp->abovep(), Sel)) return false;
+            အကယ်၍ (refp->backp()->nextp() != refp && VN_IS(refp->abovep(), Sel)) ပြန်ပေး false;
             // Whole variable is writen, add to kill set
             m_currp->m_kill.emplace(vscp);
-            return false;
+            ပြန်ပေး false;
         });
     }
 
     void single(AstNode* nodep) {
         // Assume all reads hapen before any writes
-        if (m_abort) return;
+        အကယ်၍ (m_abort) ပြန်ပေး;
         updateGen(nodep);
-        if (m_abort) return;
+        အကယ်၍ (m_abort) ပြန်ပေး;
         updateKill(nodep);
     }
 
@@ -110,13 +110,13 @@ class CfgLiveVariables final : VNVisitorConst {
 
         // liveIn = gen union (liveOut - kill)
         std::unordered_set<AstVarScope*> liveIn = state.m_gen;
-        for (AstVarScope* const varp : state.m_liveOut) {
-            if (state.m_kill.count(varp)) continue;
+        အတွက် (AstVarScope* const varp : state.m_liveOut) {
+            အကယ်၍ (state.m_kill.count(varp)) continue;
             liveIn.insert(varp);
         }
-        if (liveIn == state.m_liveIn) return false;
+        အကယ်၍ (liveIn == state.m_liveIn) ပြန်ပေး false;
         std::swap(liveIn, state.m_liveIn);
-        return true;
+        ပြန်ပေး true;
     }
 
     // VISIT
@@ -142,27 +142,27 @@ class CfgLiveVariables final : VNVisitorConst {
     explicit CfgLiveVariables(const CfgGraph& cfg)
         : m_cfg{cfg} {
         // For each basic block, compute the gen and kill set via visit
-        for (const V3GraphVertex& vtx : cfg.vertices()) {
+        အတွက် (const V3GraphVertex& vtx : cfg.vertices()) {
             const CfgBlock& bb = static_cast<const CfgBlock&>(vtx);
-            if (m_abort) return;
+            အကယ်၍ (m_abort) ပြန်ပေး;
             VL_RESTORER(m_currp);
             m_currp = &m_blockState[bb];
-            for (AstNode* const stmtp : bb.stmtps()) iterateConst(stmtp);
+            အတွက် (AstNode* const stmtp : bb.stmtps()) iterateConst(stmtp);
         }
-        if (m_abort) return;
+        အကယ်၍ (m_abort) ပြန်ပေး;
 
         // Perform the flow analysis
         std::deque<const CfgBlock*> workList;
         const auto enqueue = [&](const CfgBlock& bb) {
             BlockState& state = m_blockState[bb];
-            if (state.m_isOnWorkList) return;
+            အကယ်၍ (state.m_isOnWorkList) ပြန်ပေး;
             state.m_isOnWorkList = true;
             workList.emplace_back(&bb);
         };
 
         enqueue(cfg.exit());
 
-        while (!workList.empty()) {
+        နေစဉ် (!workList.empty()) {
             const CfgBlock* const currp = workList.front();
             workList.pop_front();
             BlockState& state = m_blockState[*currp];
@@ -177,7 +177,7 @@ class CfgLiveVariables final : VNVisitorConst {
             // Apply transfer function of block
             const bool changed = transfer(*currp);
             // Enqueue predecessors
-            if (changed || !state.m_wasProcessed) currp->forEachPredecessor(enqueue);
+            အကယ်၍ (changed || !state.m_wasProcessed) currp->forEachPredecessor(enqueue);
             // Mark as done with first visit
             state.m_wasProcessed = true;
         }
@@ -187,7 +187,7 @@ public:
     static std::unique_ptr<std::vector<AstVarScope*>> apply(const CfgGraph& cfg) {
         CfgLiveVariables analysis{cfg};
         // If failed, return nullptr
-        if (analysis.m_abort) return nullptr;
+        အကယ်၍ (analysis.m_abort) ပြန်ပေး nullptr;
         // Gather variables live in to the entry block
         const std::unordered_set<AstVarScope*>& lin = analysis.m_blockState[cfg.enter()].m_liveIn;
         std::vector<AstVarScope*>* const resultp
@@ -195,12 +195,12 @@ public:
         // Sort for stability
         std::stable_sort(resultp->begin(), resultp->end(),
                          [](AstVarScope* ap, AstVarScope* bp) {  //
-                             return ap->name() < bp->name();
+                             ပြန်ပေး ap->name() < bp->name();
                          });
-        return std::unique_ptr<std::vector<AstVarScope*>>{resultp};
+        ပြန်ပေး std::unique_ptr<std::vector<AstVarScope*>>{resultp};
     }
 };
 
 std::unique_ptr<std::vector<AstVarScope*>> V3Cfg::liveVarScopes(const CfgGraph& cfg) {
-    return CfgLiveVariables::apply(cfg);
+    ပြန်ပေး CfgLiveVariables::apply(cfg);
 }

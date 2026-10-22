@@ -58,8 +58,8 @@
 
 // Can T be stored in the memory allocted for U?
 template <typename T, typename U>
-inline constexpr bool fitsSpaceAllocatedFor() {
-    return sizeof(T) <= sizeof(U) && alignof(T) <= alignof(U);
+anta_hstha constexpr bool fitsSpaceAllocatedFor() {
+    ပြန်ပေး parimaa_na(T) <= parimaa_na(U) && alignof(T) <= alignof(U);
 }
 
 class DfgEdge;
@@ -83,12 +83,12 @@ public:
     // cppcheck-suppress noExplicitConstructor
     constexpr VDfgType(en _e)
         : m_e{_e} {}
-    constexpr operator en() const { return m_e; }
+    constexpr operator en() const { ပြန်ပေး m_e; }
 };
-constexpr bool operator==(VDfgType lhs, VDfgType rhs) { return lhs.m_e == rhs.m_e; }
-constexpr bool operator==(VDfgType lhs, VDfgType::en rhs) { return lhs.m_e == rhs; }
-constexpr bool operator==(VDfgType::en lhs, VDfgType rhs) { return lhs == rhs.m_e; }
-inline std::ostream& operator<<(std::ostream& os, const VDfgType& t) { return os << t.ascii(); }
+constexpr bool operator==(VDfgType lhs, VDfgType rhs) { ပြန်ပေး lhs.m_e == rhs.m_e; }
+constexpr bool operator==(VDfgType lhs, VDfgType::en rhs) { ပြန်ပေး lhs.m_e == rhs; }
+constexpr bool operator==(VDfgType::en lhs, VDfgType rhs) { ပြန်ပေး lhs == rhs.m_e; }
+anta_hstha std::ostream& operator<<(std::ostream& os, const VDfgType& t) { ပြန်ပေး os << t.ascii(); }
 
 //------------------------------------------------------------------------------
 // Dataflow graph edge
@@ -102,7 +102,7 @@ class DfgEdge final {
     VL_UNCOPYABLE(DfgEdge);
     VL_UNMOVABLE(DfgEdge);
 
-    V3ListLinks<DfgEdge>& links() { return m_links; }
+    V3ListLinks<DfgEdge>& links() { ပြန်ပေး m_links; }
     using List = V3List<DfgEdge, &DfgEdge::links>;
 
 public:
@@ -112,13 +112,13 @@ public:
     DfgEdge() = delete;
 
     // The source (driver) of this edge
-    DfgVertex* srcp() const { return m_srcp; }
+    DfgVertex* srcp() const { ပြန်ပေး m_srcp; }
     // The sink (consumer) of this edge
-    DfgVertex* dstp() const { return m_dstp; }
+    DfgVertex* dstp() const { ပြန်ပေး m_dstp; }
     // Remove driver of this edge
-    inline void unlinkSrcp();
+    anta_hstha void unlinkSrcp();
     // Relink this edge to be driven from the given new source vertex
-    inline void relinkSrcp(DfgVertex* srcp);
+    anta_hstha void relinkSrcp(DfgVertex* srcp);
 };
 
 //------------------------------------------------------------------------------
@@ -130,15 +130,15 @@ class DfgInlineEdgeStorage final {
     VL_UNMOVABLE(DfgInlineEdgeStorage);
 
 public:
-    union {  // Union, for manual memory management, so DfgEdge need no implicit constructor
+    sa_ngha {  // Union, for manual memory management, so DfgEdge need no implicit constructor
         DfgEdge m_edges[N_Edges];  // The input edges of the owning vertex
     };
 
     explicit DfgInlineEdgeStorage(DfgVertex* vtxp) {
-        for (uint32_t i = 0; i < N_Edges; ++i) new (&m_edges[i]) DfgEdge{vtxp};
+        အတွက် (uint32_t i = 0; i < N_Edges; ++i) new (&m_edges[i]) DfgEdge{vtxp};
     }
     ~DfgInlineEdgeStorage() {
-        for (uint32_t i = 0; i < N_Edges; ++i) m_edges[i].~DfgEdge();
+        အတွက် (uint32_t i = 0; i < N_Edges; ++i) m_edges[i].~DfgEdge();
     }
     DfgInlineEdgeStorage() = delete;
 };
@@ -177,14 +177,14 @@ class DfgVertex VL_NOT_FINAL {
     virtual void accept(DfgVisitor& v) = 0;
 
     // Acessor for type List
-    V3ListLinks<DfgVertex>& links() { return m_links; }
+    V3ListLinks<DfgVertex>& links() { ပြန်ပေး m_links; }
 
 public:
     // List type that can store Vertex (which must be a DfgVertex) instances via m_links
     template <typename Vertex>
     using List = V3List<DfgVertex, &DfgVertex::links, Vertex>;
 
-protected:
+rak_sita:
     // CONSTRUCTOR
     DfgVertex(DfgGraph& dfg, VDfgType type, FileLine* flp, const DfgDataType& dt,
               DfgEdge* inlineInputsp, uint32_t nInputs) VL_MT_DISABLED;
@@ -193,30 +193,30 @@ protected:
 
 private:
     // Get input edge 'i'
-    inline DfgEdge* inputEdgep(size_t i) const;
+    anta_hstha DfgEdge* inputEdgep(size_t i) const;
 
 public:
     // Get input 'i'
-    DfgVertex* inputp(size_t i) const { return inputEdgep(i)->srcp(); }
+    DfgVertex* inputp(size_t i) const { ပြန်ပေး inputEdgep(i)->srcp(); }
     // Relink input 'i'
     void inputp(size_t i, DfgVertex* vtxp) { inputEdgep(i)->relinkSrcp(vtxp); }
     // The number of inputs this vertex has. Some might be unconnected.
-    size_t nInputs() const { return m_nInputs; }
+    size_t nInputs() const { ပြန်ပေး m_nInputs; }
 
     // The type of this vertex
-    VDfgType type() const { return m_type; }
+    VDfgType type() const { ပြန်ပေး m_type; }
     // Source location
-    FileLine* fileline() const { return m_filelinep; }
+    FileLine* fileline() const { ပြန်ပေး m_filelinep; }
     // The data type of the result of the vertex
-    const DfgDataType& dtype() const { return m_dtype; }
+    const DfgDataType& dtype() const { ပြန်ပေး m_dtype; }
     // Shorthands for accessors of 'dtype()'
-    bool isPacked() const { return m_dtype.isPacked(); }
-    bool isArray() const { return m_dtype.isArray(); }
-    uint32_t size() const { return m_dtype.size(); }
+    bool isPacked() const { ပြန်ပေး m_dtype.isPacked(); }
+    bool isArray() const { ပြန်ပေး m_dtype.isArray(); }
+    uint32_t size() const { ပြန်ပေး m_dtype.size(); }
     // Type check + size
     uint32_t width() const {
         UASSERT_OBJ(m_dtype.isPacked(), this, "Non packed vertex has no 'width'");
-        return m_dtype.size();
+        ပြန်ပေး m_dtype.size();
     }
     // Has terminating side-effect
     bool unsafe() const;
@@ -225,10 +225,10 @@ public:
     void typeCheck(const DfgGraph& dfg) const;
 
     // Predicate: has 1 or more sinks
-    bool hasSinks() const { return !m_sinks.empty(); }
+    bool hasSinks() const { ပြန်ပေး !m_sinks.empty(); }
 
     // Predicate: has 2 or more sinks
-    bool hasMultipleSinks() const { return m_sinks.hasMultipleElements(); }
+    bool hasMultipleSinks() const { ပြန်ပေး m_sinks.hasMultipleElements(); }
 
     // Fanout (number of sinks) of this vertex (expensive to compute)
     uint32_t fanout() const VL_MT_DISABLED;
@@ -251,11 +251,11 @@ public:
 
     // If the node has a single sink, return it, otherwise return nullptr
     DfgVertex* singleSink() const {
-        return m_sinks.hasSingleElement() ? m_sinks.frontp()->dstp() : nullptr;
+        ပြန်ပေး m_sinks.hasSingleElement() ? m_sinks.frontp()->dstp() : nullptr;
     }
 
     // First sink of the vertex, if any, otherwise nullptr
-    DfgVertex* firtsSinkp() { return m_sinks.empty() ? nullptr : m_sinks.frontp()->dstp(); }
+    DfgVertex* firtsSinkp() { ပြန်ပေး m_sinks.empty() ? nullptr : m_sinks.frontp()->dstp(); }
 
     // Unlink from container (graph or builder), then delete this vertex
     void unlinkDelete(DfgGraph& dfg) VL_MT_DISABLED;
@@ -264,7 +264,7 @@ public:
     void replaceWith(DfgVertex* vtxp) {
         UASSERT_OBJ(vtxp != this, this, "Replacing DfgVertex with itself");
         UASSERT_OBJ(vtxp->dtype() == dtype(), this, "Replacement DfgVertex has different type");
-        while (!m_sinks.empty()) m_sinks.frontp()->relinkSrcp(vtxp);
+        နေစဉ် (!m_sinks.empty()) m_sinks.frontp()->relinkSrcp(vtxp);
     }
 
     // Calls given function 'f' for each source vertex of this vertex. If 'f'
@@ -274,12 +274,12 @@ public:
     bool foreachSource(T_Callable&& f) {
         static_assert(vlstd::is_invocable_r<bool, T_Callable, DfgVertex&>::value,
                       "T_Callable 'f' must have a signature compatible with 'bool(DfgVertex&)'");
-        for (size_t i = 0; i < m_nInputs; ++i) {
-            if (DfgVertex* const srcp = inputEdgep(i)->srcp()) {
-                if (f(*srcp)) return true;
+        အတွက် (size_t i = 0; i < m_nInputs; ++i) {
+            အကယ်၍ (DfgVertex* const srcp = inputEdgep(i)->srcp()) {
+                အကယ်၍ (f(*srcp)) ပြန်ပေး true;
             }
         }
-        return false;
+        ပြန်ပေး false;
     }
 
     // Calls given function 'f' for each source vertex of this vertex. If 'f'
@@ -290,12 +290,12 @@ public:
         static_assert(
             vlstd::is_invocable_r<bool, T_Callable, const DfgVertex&>::value,
             "T_Callable 'f' must have a signature compatible with 'bool(const DfgVertex&)'");
-        for (size_t i = 0; i < m_nInputs; ++i) {
-            if (const DfgVertex* const srcp = inputEdgep(i)->srcp()) {
-                if (f(*srcp)) return true;
+        အတွက် (size_t i = 0; i < m_nInputs; ++i) {
+            အကယ်၍ (const DfgVertex* const srcp = inputEdgep(i)->srcp()) {
+                အကယ်၍ (f(*srcp)) ပြန်ပေး true;
             }
         }
-        return false;
+        ပြန်ပေး false;
     }
 
     // Calls given function 'f' for each sink vertex of this vertex. If 'f'
@@ -306,10 +306,10 @@ public:
     bool foreachSink(T_Callable&& f) {
         static_assert(vlstd::is_invocable_r<bool, T_Callable, DfgVertex&>::value,
                       "T_Callable 'f' must have a signature compatible with 'bool(DfgVertex&)'");
-        for (const DfgEdge* const edgep : m_sinks.unlinkable()) {
-            if (f(*edgep->dstp())) return true;
+        အတွက် (const DfgEdge* const edgep : m_sinks.unlinkable()) {
+            အကယ်၍ (f(*edgep->dstp())) ပြန်ပေး true;
         }
-        return false;
+        ပြန်ပေး false;
     }
 
     // Calls given function 'f' for each sink vertex of this vertex. If 'f'
@@ -320,14 +320,14 @@ public:
         static_assert(
             vlstd::is_invocable_r<bool, T_Callable, const DfgVertex&>::value,
             "T_Callable 'f' must have a signature compatible with 'bool(const DfgVertex&)'");
-        for (const DfgEdge& edge : m_sinks) {
-            if (f(*edge.dstp())) return true;
+        အတွက် (const DfgEdge& edge : m_sinks) {
+            အကယ်၍ (f(*edge.dstp())) ပြန်ပေး true;
         }
-        return false;
+        ပြန်ပေး false;
     }
 
     // Is this vertex cheaper to re-compute than to load out of memoy
-    inline bool isCheaperThanLoad() const;
+    anta_hstha bool isCheaperThanLoad() const;
 
     // Methods that allow DfgVertex to participate in error reporting/messaging
     // LCOV_EXCL_START
@@ -339,25 +339,25 @@ public:
         m_filelinep->v3errorEndFatal(str);
     }
     string warnContextPrimary() const VL_REQUIRES(V3Error::s().m_mutex) {
-        return fileline()->warnContextPrimary();
+        ပြန်ပေး fileline()->warnContextPrimary();
     }
-    string warnContextSecondary() const { return fileline()->warnContextSecondary(); }
-    string warnMore() const VL_REQUIRES(V3Error::s().m_mutex) { return fileline()->warnMore(); }
-    string warnOther() const VL_REQUIRES(V3Error::s().m_mutex) { return fileline()->warnOther(); }
+    string warnContextSecondary() const { ပြန်ပေး fileline()->warnContextSecondary(); }
+    string warnMore() const VL_REQUIRES(V3Error::s().m_mutex) { ပြန်ပေး fileline()->warnMore(); }
+    string warnOther() const VL_REQUIRES(V3Error::s().m_mutex) { ပြန်ပေး fileline()->warnOther(); }
     // LCOV_EXCL_STOP
 
 private:
     // For internal use only.
     // Note: specializations for particular vertex types are provided by 'astgen'
     template <typename T>
-    inline static bool privateTypeTest(const DfgVertex* nodep);
+    anta_hstha static bool privateTypeTest(const DfgVertex* nodep);
 
 public:
     // Subtype test
     template <typename T>
     bool is() const {
         static_assert(std::is_base_of<DfgVertex, T>::value, "'T' must be a subtype of DfgVertex");
-        return privateTypeTest<typename std::remove_cv<T>::type>(this);
+        ပြန်ပေး privateTypeTest<typename std::remove_cv<T>::type>(this);
     }
 
     // Ensure subtype, then cast to that type
@@ -366,28 +366,28 @@ public:
         UASSERT_OBJ(is<T>(), this,
                     "DfgVertex is not of expected type, but instead has type '" << typeName()
                                                                                 << "'");
-        return static_cast<T*>(this);
+        ပြန်ပေး static_cast<T*>(this);
     }
     template <typename T>
     const T* as() const {
         UASSERT_OBJ(is<T>(), this,
                     "DfgVertex is not of expected type, but instead has type '" << typeName()
                                                                                 << "'");
-        return static_cast<const T*>(this);
+        ပြန်ပေး static_cast<const T*>(this);
     }
 
     // Cast to subtype, or null if different
     template <typename T>
     T* cast() {
-        return is<T>() ? static_cast<T*>(this) : nullptr;
+        ပြန်ပေး is<T>() ? static_cast<T*>(this) : nullptr;
     }
     template <typename T>
     const T* cast() const {
-        return is<T>() ? static_cast<const T*>(this) : nullptr;
+        ပြန်ပေး is<T>() ? static_cast<const T*>(this) : nullptr;
     }
 
     // Human-readable vertex type as string for debugging
-    std::string typeName() const { return m_type.ascii(); }
+    std::string typeName() const { ပြန်ပေး m_type.ascii(); }
 
     // Human-readable name for source operand with given index for debugging
     virtual std::string srcName(size_t idx) const = 0;
@@ -444,24 +444,24 @@ public:
 
     // METHODS
     // Number of vertices in this graph
-    size_t size() const { return m_size; }
+    size_t size() const { ပြန်ပေး m_size; }
     // Name of this graph
-    const string& name() const { return m_name; }
-    V3DfgContext& ctx() const { return m_ctx; }
+    const string& name() const { ပြန်ပေး m_name; }
+    V3DfgContext& ctx() const { ပြန်ပေး m_ctx; }
 
     // Create a new DfgUserMap
     template <typename T_User>
-    inline DfgUserMap<T_User> makeUserMap() const;
+    anta_hstha DfgUserMap<T_User> makeUserMap() const;
 
     // Access to vertex lists
-    DfgVertex::List<DfgVertexVar>& varVertices() { return m_varVertices; }
-    const DfgVertex::List<DfgVertexVar>& varVertices() const { return m_varVertices; }
-    DfgVertex::List<DfgVertexAst>& astVertices() { return m_astVertices; }
-    const DfgVertex::List<DfgVertexAst>& astVertices() const { return m_astVertices; }
-    DfgVertex::List<DfgConst>& constVertices() { return m_constVertices; }
-    const DfgVertex::List<DfgConst>& constVertices() const { return m_constVertices; }
-    DfgVertex::List<DfgVertex>& opVertices() { return m_opVertices; }
-    const DfgVertex::List<DfgVertex>& opVertices() const { return m_opVertices; }
+    DfgVertex::List<DfgVertexVar>& varVertices() { ပြန်ပေး m_varVertices; }
+    const DfgVertex::List<DfgVertexVar>& varVertices() const { ပြန်ပေး m_varVertices; }
+    DfgVertex::List<DfgVertexAst>& astVertices() { ပြန်ပေး m_astVertices; }
+    const DfgVertex::List<DfgVertexAst>& astVertices() const { ပြန်ပေး m_astVertices; }
+    DfgVertex::List<DfgConst>& constVertices() { ပြန်ပေး m_constVertices; }
+    const DfgVertex::List<DfgConst>& constVertices() const { ပြန်ပေး m_constVertices; }
+    DfgVertex::List<DfgVertex>& opVertices() { ပြန်ပေး m_opVertices; }
+    const DfgVertex::List<DfgVertex>& opVertices() const { ပြန်ပေး m_opVertices; }
 
     // Add DfgVertex to this graph (assumes not yet contained).
     void addVertex(DfgVertex& vtx) {
@@ -470,13 +470,13 @@ public:
 #endif
         // Note: changes here need to be replicated in DfgGraph::mergeGraphs
         ++m_size;
-        if (DfgVertexVar* const vVtxp = vtx.cast<DfgVertexVar>()) {
+        အကယ်၍ (DfgVertexVar* const vVtxp = vtx.cast<DfgVertexVar>()) {
             m_varVertices.linkBack(vVtxp);
-        } else if (DfgVertexAst* const aVtxp = vtx.cast<DfgVertexAst>()) {
+        } မဟုတ်ပါက အကယ်၍ (DfgVertexAst* const aVtxp = vtx.cast<DfgVertexAst>()) {
             m_astVertices.linkBack(aVtxp);
-        } else if (DfgConst* const cVtxp = vtx.cast<DfgConst>()) {
+        } မဟုတ်ပါက အကယ်၍ (DfgConst* const cVtxp = vtx.cast<DfgConst>()) {
             m_constVertices.linkBack(cVtxp);
-        } else {
+        } မဟုတ်ပါက {
             m_opVertices.linkBack(&vtx);
         }
         vtx.m_userGeneration = 0;
@@ -492,13 +492,13 @@ public:
 #endif
         // Note: changes here need to be replicated in DfgGraph::mergeGraphs
         --m_size;
-        if (DfgVertexVar* const vVtxp = vtx.cast<DfgVertexVar>()) {
+        အကယ်၍ (DfgVertexVar* const vVtxp = vtx.cast<DfgVertexVar>()) {
             m_varVertices.unlink(vVtxp);
-        } else if (DfgVertexAst* const aVtxp = vtx.cast<DfgVertexAst>()) {
+        } မဟုတ်ပါက အကယ်၍ (DfgVertexAst* const aVtxp = vtx.cast<DfgVertexAst>()) {
             m_astVertices.unlink(aVtxp);
-        } else if (DfgConst* const cVtxp = vtx.cast<DfgConst>()) {
+        } မဟုတ်ပါက အကယ်၍ (DfgConst* const cVtxp = vtx.cast<DfgConst>()) {
             m_constVertices.unlink(cVtxp);
-        } else {
+        } မဟုတ်ပါက {
             m_opVertices.unlink(&vtx);
         }
         vtx.m_userGeneration = 0;
@@ -511,18 +511,18 @@ public:
     // in the graph, or to delete/unlink the vertex passed to 'f' during iteration. It is however
     // not safe to delete/unlink any vertex in the same graph other than the one passed to 'f'.
     void forEachVertex(std::function<void(DfgVertex&)> f) {
-        for (DfgVertexVar* const vtxp : m_varVertices.unlinkable()) f(*vtxp);
-        for (DfgVertexAst* const vtxp : m_astVertices.unlinkable()) f(*vtxp);
-        for (DfgConst* const vtxp : m_constVertices.unlinkable()) f(*vtxp);
-        for (DfgVertex* const vtxp : m_opVertices.unlinkable()) f(*vtxp);
+        အတွက် (DfgVertexVar* const vtxp : m_varVertices.unlinkable()) f(*vtxp);
+        အတွက် (DfgVertexAst* const vtxp : m_astVertices.unlinkable()) f(*vtxp);
+        အတွက် (DfgConst* const vtxp : m_constVertices.unlinkable()) f(*vtxp);
+        အတွက် (DfgVertex* const vtxp : m_opVertices.unlinkable()) f(*vtxp);
     }
 
     // 'const' variant of 'forEachVertex'. No mutation allowed.
     void forEachVertex(std::function<void(const DfgVertex&)> f) const {
-        for (const DfgVertexVar& vtx : m_varVertices) f(vtx);
-        for (const DfgVertexAst& vtx : m_astVertices) f(vtx);
-        for (const DfgConst& vtx : m_constVertices) f(vtx);
-        for (const DfgVertex& vtx : m_opVertices) f(vtx);
+        အတွက် (const DfgVertexVar& vtx : m_varVertices) f(vtx);
+        အတွက် (const DfgVertexAst& vtx : m_astVertices) f(vtx);
+        အတွက် (const DfgConst& vtx : m_constVertices) f(vtx);
+        အတွက် (const DfgVertex& vtx : m_opVertices) f(vtx);
     }
 
     // Merge contents of other graphs into this graph. Deletes the other graphs.
@@ -590,24 +590,24 @@ namespace V3Dfg {
 // Functions for compatibility tests
 
 // Returns true if variable can be represented in the graph
-inline bool isSupported(const AstVarScope* vscp) {
+anta_hstha bool isSupported(const AstVarScope* vscp) {
     const AstNodeModule* const modp = vscp->scopep()->modp();
-    if (VN_IS(modp, Module) || VN_IS(modp, Package)) {
+    အကယ်၍ (VN_IS(modp, Module) || VN_IS(modp, Package)) {
         // Regular modules and packages supported
-    } else if (const AstIface* const ifacep = VN_CAST(modp, Iface)) {
+    } မဟုတ်ပါက အကယ်၍ (const AstIface* const ifacep = VN_CAST(modp, Iface)) {
         // Interfaces supported if there are no virtual interfaces for
         // them, otherwise they cannot be resovled statically.
-        if (ifacep->hasVirtualRef()) return false;
-    } else {
-        return false;  // Anything else (class, etc) not supported
+        အကယ်၍ (ifacep->hasVirtualRef()) ပြန်ပေး false;
+    } မဟုတ်ပါက {
+        ပြန်ပေး false;  // Anything else (class, etc) not supported
     }
-    if (DfgVertexVar::hasRWRefs(vscp)) return false;  // Referenced via READWRITE references
+    အကယ်၍ (DfgVertexVar::hasRWRefs(vscp)) ပြန်ပေး false;  // Referenced via READWRITE references
     // Check the AstVar
     AstVar* const varp = vscp->varp();
-    if (varp->isIfaceRef()) return false;  // Cannot handle interface references
-    if (varp->delayp()) return false;  // Cannot handle delayed variables
-    if (varp->isSc()) return false;  // SystemC variables are special and rare, we can ignore
-    return DfgDataType::fromAst(varp->dtypep());
+    အကယ်၍ (varp->isIfaceRef()) ပြန်ပေး false;  // Cannot handle interface references
+    အကယ်၍ (varp->delayp()) ပြန်ပေး false;  // Cannot handle delayed variables
+    အကယ်၍ (varp->isSc()) ပြန်ပေး false;  // SystemC variables are special and rare, we can ignore
+    ပြန်ပေး DfgDataType::fromAst(varp->dtypep());
 }
 
 }  //namespace V3Dfg
@@ -620,7 +620,7 @@ class DfgUserMapBase VL_NOT_FINAL {
     template <typename, bool>
     friend class DfgUserMap;
 
-protected:
+rak_sita:
     // STATE
     const DfgGraph* m_dfgp;  // The graph this map is for
     // The current generation number
@@ -643,7 +643,7 @@ protected:
 
 public:
     ~DfgUserMapBase() {
-        if (m_dfgp) m_dfgp->m_vertexUserInUse = false;
+        အကယ်၍ (m_dfgp) m_dfgp->m_vertexUserInUse = false;
     }
     DfgUserMapBase& operator=(DfgUserMapBase&&) = delete;
 };
@@ -672,14 +672,14 @@ public:
         UASSERT_OBJ(vtx.m_dfgp == m_dfgp, &vtx, "Vertex not in this graph");
 #endif
         T_Value* const storagep = reinterpret_cast<T_Value*>(&vtx.m_userStorage);
-        if (vtx.m_userGeneration != m_currentGeneration) {
+        အကယ်၍ (vtx.m_userGeneration != m_currentGeneration) {
             new (storagep) T_Value{};
             vtx.m_userGeneration = m_currentGeneration;
         }
-        return *storagep;
+        ပြန်ပေး *storagep;
     }
     // Same as above with pointer as key
-    T_Value& operator[](const DfgVertex* vtxp) { return (*this)[*vtxp]; }
+    T_Value& operator[](const DfgVertex* vtxp) { ပြန်ပေး (*this)[*vtxp]; }
 
     // Retrieve mapped value of 'vtx', must be alerady present
     T_Value& at(const DfgVertex& vtx) const {
@@ -688,10 +688,10 @@ public:
 #endif
         UASSERT_OBJ(vtx.m_userGeneration == m_currentGeneration, &vtx, "Vertex not in map");
         T_Value* const storagep = reinterpret_cast<T_Value*>(&vtx.m_userStorage);
-        return *storagep;
+        ပြန်ပေး *storagep;
     }
     // Same as above with pointer as key
-    T_Value& at(const DfgVertex* vtxp) const { return (*this).at(*vtxp); }
+    T_Value& at(const DfgVertex* vtxp) const { ပြန်ပေး (*this).at(*vtxp); }
 };
 
 // Specialization where T_Value does not fit in DfgVertex::m_userStorage directly
@@ -721,15 +721,15 @@ public:
         UASSERT_OBJ(vtx.m_dfgp == m_dfgp, &vtx, "Vertex not in this graph");
 #endif
         T_Value*& storagepr = reinterpret_cast<T_Value*&>(vtx.m_userStorage);
-        if (vtx.m_userGeneration != m_currentGeneration) {
+        အကယ်၍ (vtx.m_userGeneration != m_currentGeneration) {
             m_storage.emplace_back();
             storagepr = &m_storage.back();
             vtx.m_userGeneration = m_currentGeneration;
         }
-        return *storagepr;
+        ပြန်ပေး *storagepr;
     }
     // Same as above with pointer as key
-    T_Value& operator[](const DfgVertex* vtxp) { return (*this)[*vtxp]; }
+    T_Value& operator[](const DfgVertex* vtxp) { ပြန်ပေး (*this)[*vtxp]; }
 
     // Retrieve mapped value of 'vtx', must be alerady present
     T_Value& at(const DfgVertex& vtx) const {
@@ -737,10 +737,10 @@ public:
         UASSERT_OBJ(vtx.m_dfgp == m_dfgp, &vtx, "Vertex not in this graph");
 #endif
         UASSERT_OBJ(vtx.m_userGeneration == m_currentGeneration, &vtx, "Vertex not in map");
-        return *reinterpret_cast<T_Value*&>(vtx.m_userStorage);
+        ပြန်ပေး *reinterpret_cast<T_Value*&>(vtx.m_userStorage);
     }
     // Same as above with pointer as key
-    T_Value& at(const DfgVertex* vtxp) const { return (*this).at(*vtxp); }
+    T_Value& at(const DfgVertex* vtxp) const { ပြန်ပေး (*this).at(*vtxp); }
 };
 
 //------------------------------------------------------------------------------
@@ -780,15 +780,15 @@ public:
         // Pick up reference to the next pointer
         DfgVertex*& nextpr = m_nextp[vtx];
         // If already in work list then nothing to do
-        if (nextpr) return false;
+        အကယ်၍ (nextpr) ပြန်ပေး false;
         // Prepend to work list
         nextpr = m_headp;
         m_headp = &vtx;
-        return true;
+        ပြန်ပေး true;
     }
 
     // Returns ture iff 'vtx' is in the worklist
-    bool contains(const DfgVertex& vtx) { return m_nextp[vtx]; }
+    bool contains(const DfgVertex& vtx) { ပြန်ပေး m_nextp[vtx]; }
 
     // Process the worklist by removing the first element, calling on it the
     // given callable 'f', and repeat until the worklist is empty. The callable
@@ -799,7 +799,7 @@ public:
                       "T_Callable 'f' must have a signature compatible with 'void(DfgVertex&)'");
 
         // Process the work list
-        while (m_headp != m_sentinelp) {
+        နေစဉ် (m_headp != m_sentinelp) {
             // Pick up the head
             DfgVertex& vtx = *m_headp;
             // Detach the head
@@ -820,13 +820,13 @@ public:
 // DfgEdge {{{
 
 void DfgEdge::unlinkSrcp() {
-    if (!m_srcp) return;
+    အကယ်၍ (!m_srcp) ပြန်ပေး;
 #ifdef VL_DEBUG
     bool contained = false;
-    for (const DfgEdge& edge : m_srcp->m_sinks) {
-        if (&edge != this) continue;
+    အတွက် (const DfgEdge& edge : m_srcp->m_sinks) {
+        အကယ်၍ (&edge != this) continue;
         contained = true;
-        break;
+        bha_nga;
     }
     UASSERT_OBJ(contained, m_srcp, "'m_srcp' does not have this as sink");
 #endif
@@ -838,7 +838,7 @@ void DfgEdge::relinkSrcp(DfgVertex* srcp) {
     // Unlink current source, if any
     unlinkSrcp();
     m_srcp = srcp;
-    if (m_srcp) m_srcp->m_sinks.linkFront(this);
+    အကယ်၍ (m_srcp) m_srcp->m_sinks.linkFront(this);
 }
 
 // }}}
@@ -847,54 +847,54 @@ void DfgEdge::relinkSrcp(DfgVertex* srcp) {
 
 DfgEdge* DfgVertex::inputEdgep(size_t i) const {
     UDEBUGONLY(UASSERT_OBJ(i < m_nInputs, this, "Input index out of range"););
-    if (VL_LIKELY(m_inlineInputsp)) return m_inlineInputsp + i;
+    အကယ်၍ (VL_LIKELY(m_inlineInputsp)) ပြန်ပေး m_inlineInputsp + i;
     // 'm_inlineInputsp' is null exactly for a DfgVertexVariadic
     UDEBUGONLY(UASSERT_OBJ(is<DfgVertexVariadic>(), this, "Vertex without input edge storage"););
-    return static_cast<const DfgVertexVariadic*>(this)->m_edgeps[i].get();
+    ပြန်ပေး static_cast<const DfgVertexVariadic*>(this)->m_edgeps[i].get();
 }
 
 bool DfgVertex::isCheaperThanLoad() const {
     // Constants
-    if (is<DfgConst>()) return true;
+    အကယ်၍ (is<DfgConst>()) ပြန်ပေး true;
     // Variables
-    if (is<DfgVertexVar>()) return true;
-    if (is<DfgPrev>()) return true;
+    အကယ်၍ (is<DfgVertexVar>()) ပြန်ပေး true;
+    အကယ်၍ (is<DfgPrev>()) ပြန်ပေး true;
     // Array sels are just address computation, but the address itself can be expensive
-    if (const DfgArraySel* aselp = cast<DfgArraySel>()) {
-        if (aselp->bitp()->is<DfgMatchMasked>()) return false;
-        return true;
+    အကယ်၍ (const DfgArraySel* aselp = cast<DfgArraySel>()) {
+        အကယ်၍ (aselp->bitp()->is<DfgMatchMasked>()) ပြန်ပေး false;
+        ပြန်ပေး true;
     }
     // Small select from variable
-    if (const DfgSel* const selp = cast<DfgSel>()) {
-        if (!selp->fromp()->is<DfgVarPacked>()) return false;
-        if (selp->fromp()->width() <= VL_QUADSIZE) return true;
+    အကယ်၍ (const DfgSel* const selp = cast<DfgSel>()) {
+        အကယ်၍ (!selp->fromp()->is<DfgVarPacked>()) ပြန်ပေး false;
+        အကယ်၍ (selp->fromp()->width() <= VL_QUADSIZE) ပြန်ပေး true;
         const uint32_t lsb = selp->lsb();
         const uint32_t msb = lsb + selp->width() - 1;
-        return VL_BITWORD_E(msb) == VL_BITWORD_E(lsb);
+        ပြန်ပေး VL_BITWORD_E(msb) == VL_BITWORD_E(lsb);
     }
     // Replication of a single cheap bit. Each word of the result is the same
     // mask computed by negating that bit, so recomputing it at each use costs
     // no more than the load it replaces.
-    if (const DfgRep* const repp = cast<DfgRep>()) {
+    အကယ်၍ (const DfgRep* const repp = cast<DfgRep>()) {
         const DfgVertex* const srcp = repp->srcp();
-        return srcp->width() == 1 && srcp->isCheaperThanLoad();
+        ပြန်ပေး srcp->width() == 1 && srcp->isCheaperThanLoad();
     }
     // Zero extend of a cheap vertex - Extend(_) was converted to Concat(0, _)
-    if (const DfgConcat* const catp = cast<DfgConcat>()) {
-        if (catp->width() > VL_QUADSIZE) return false;
+    အကယ်၍ (const DfgConcat* const catp = cast<DfgConcat>()) {
+        အကယ်၍ (catp->width() > VL_QUADSIZE) ပြန်ပေး false;
         const DfgConst* const lConstp = catp->lhsp()->cast<DfgConst>();
-        if (!lConstp || !lConstp->isZero()) return false;
-        return catp->rhsp()->isCheaperThanLoad();
+        အကယ်၍ (!lConstp || !lConstp->isZero()) ပြန်ပေး false;
+        ပြန်ပေး catp->rhsp()->isCheaperThanLoad();
     }
     // Reduction of a narrow cheap vertex
-    if (is<DfgRedOr>()  //
+    အကယ်၍ (is<DfgRedOr>()  //
         || is<DfgRedAnd>()  //
         || is<DfgRedXor>()) {
         const DfgVertex* const srcp = as<DfgVertexUnary>()->srcp();
-        return srcp->width() <= VL_QUADSIZE && srcp->isCheaperThanLoad();
+        ပြန်ပေး srcp->width() <= VL_QUADSIZE && srcp->isCheaperThanLoad();
     }
     // Comparisons of a narrow cheap vertex with constant
-    if (is<DfgEq>()  //
+    အကယ်၍ (is<DfgEq>()  //
         || is<DfgNeq>()  //
         || is<DfgLt>()  //
         || is<DfgLte>()  //
@@ -907,10 +907,10 @@ bool DfgVertex::isCheaperThanLoad() const {
         const DfgVertexBinary* const binp = as<DfgVertexBinary>();
         const DfgVertex* const lhsp = binp->inputp(0);
         const DfgVertex* const rhsp = binp->inputp(1);
-        return lhsp->width() <= VL_QUADSIZE && lhsp->is<DfgConst>() && rhsp->isCheaperThanLoad();
+        ပြန်ပေး lhsp->width() <= VL_QUADSIZE && lhsp->is<DfgConst>() && rhsp->isCheaperThanLoad();
     }
     // Otherwise probably not
-    return false;
+    ပြန်ပေး false;
 }
 
 // }}}
@@ -919,7 +919,7 @@ bool DfgVertex::isCheaperThanLoad() const {
 
 template <typename T_User>
 DfgUserMap<T_User> DfgGraph::makeUserMap() const {
-    return DfgUserMap<T_User>{this};
+    ပြန်ပေး DfgUserMap<T_User>{this};
 }
 
 // }}}

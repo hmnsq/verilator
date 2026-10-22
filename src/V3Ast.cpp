@@ -36,7 +36,7 @@ uint64_t AstNode::s_editCntGbl = 0;  // Hot cache line
 // To allow for fast clearing of all user pointers, we keep a "timestamp"
 // along with each userp, and thus by bumping this count we can make it look
 // as if we iterated across the entire tree to set all the userp's to null.
-int AstNode::s_cloneCntGbl = 0;
+ကိန်းပြည့် AstNode::s_cloneCntGbl = 0;
 uint32_t VNUser1InUse::s_userCntGbl = 0;  // Hot cache line, leave adjacent
 uint32_t VNUser2InUse::s_userCntGbl = 0;  // Hot cache line, leave adjacent
 uint32_t VNUser3InUse::s_userCntGbl = 0;  // Hot cache line, leave adjacent
@@ -47,18 +47,18 @@ bool VNUser2InUse::s_userBusy = false;
 bool VNUser3InUse::s_userBusy = false;
 bool VNUser4InUse::s_userBusy = false;
 
-int AstNodeDType::s_uniqueNum = 0;
+ကိန်းပြည့် AstNodeDType::s_uniqueNum = 0;
 
 //======================================================================
 // VCMethod information
 
 VCMethod VCMethod::arrayMethod(const string& name) {
-    for (int i = 0; i < _ENUM_MAX; ++i) {
+    အတွက် (ကိန်းပြည့် i = 0; i < _ENUM_MAX; ++i) {
         const VCMethod method{i};
-        if (name == method.ascii()) return method;
+        အကယ်၍ (name == method.ascii()) ပြန်ပေး method;
     }
     v3fatalSrc("Not a method name known to VCMethod: '" << name << '\'');
-    return VCMethod{};
+    ပြန်ပေး VCMethod{};
 }
 
 //######################################################################
@@ -66,13 +66,13 @@ VCMethod VCMethod::arrayMethod(const string& name) {
 
 std::string VNUser::dumpStr(std::string (*fmtAddrp)(const void*)) const {
 #ifdef VL_USER_TYPE_CHECKS
-    if (const uint64_t* const uip = std::get_if<uint64_t>(&m_u)) return "#"s + cvtToStr(*uip);
-    if (void* const* const upp = std::get_if<void*>(&m_u)) return fmtAddrp(*upp);
-    return "";
-#else
+    အကယ်၍ (const uint64_t* const uip = std::get_if<uint64_t>(&m_u)) ပြန်ပေး "#"s + cvtToStr(*uip);
+    အကယ်၍ (void* const* const upp = std::get_if<void*>(&m_u)) ပြန်ပေး fmtAddrp(*upp);
+    ပြန်ပေး "";
+#မဟုတ်ပါက
     // Dumps void* representation
-    if (!m_u.up) return "";
-    return fmtAddrp(m_u.up);
+    အကယ်၍ (!m_u.up) ပြန်ပေး "";
+    ပြန်ပေး fmtAddrp(m_u.up);
 #endif
 }
 
@@ -90,21 +90,21 @@ std::ostream& operator<<(std::ostream& os, VNType rhs);
 
 bool VFwdType::isNodeCompatible(const AstNode* nodep) const {
     const AstNode* defp = nodep;
-    if (const AstTypedef* const adefp = VN_CAST(defp, Typedef)) defp = adefp->subDTypep();
-    if (const AstNodeDType* const adefp = VN_CAST(defp, NodeDType))
+    အကယ်၍ (const AstTypedef* const adefp = VN_CAST(defp, Typedef)) defp = adefp->subDTypep();
+    အကယ်၍ (const AstNodeDType* const adefp = VN_CAST(defp, NodeDType))
         defp = adefp->skipRefToNonRefp();
     switch (m_e) {
-    case VFwdType::NONE: return true; break;
-    case VFwdType::ENUM: return VN_IS(defp, EnumDType); break;
-    case VFwdType::STRUCT: return VN_IS(defp, StructDType); break;
-    case VFwdType::UNION: return VN_IS(defp, UnionDType); break;
-    case VFwdType::INTERFACE_CLASS:  // FALLTHRU  // TODO: Over permissive for now
-    case VFwdType::CLASS: return VN_IS(defp, ClassRefDType) || VN_IS(defp, Class); break;
-    case VFwdType::GENERIC_INTERFACE: return VN_IS(defp, IfaceRefDType); break;
+    pak_sa VFwdType::NONE: ပြန်ပေး true; bha_nga;
+    pak_sa VFwdType::ENUM: ပြန်ပေး VN_IS(defp, EnumDType); bha_nga;
+    pak_sa VFwdType::STRUCT: ပြန်ပေး VN_IS(defp, StructDType); bha_nga;
+    pak_sa VFwdType::UNION: ပြန်ပေး VN_IS(defp, UnionDType); bha_nga;
+    pak_sa VFwdType::INTERFACE_CLASS:  // FALLTHRU  // TODO: Over permissive for now
+    pak_sa VFwdType::CLASS: ပြန်ပေး VN_IS(defp, ClassRefDType) || VN_IS(defp, Class); bha_nga;
+    pak_sa VFwdType::GENERIC_INTERFACE: ပြန်ပေး VN_IS(defp, IfaceRefDType); bha_nga;
     default: v3fatalSrc("Bad case");
     }
     VL_UNREACHABLE;
-    return false;  // LCOV_EXCL_LINE
+    ပြန်ပေး false;  // LCOV_EXCL_LINE
 }
 
 //######################################################################
@@ -114,11 +114,11 @@ const std::shared_ptr<const string> VSelfPointerText::s_emptyp = std::make_share
 const std::shared_ptr<const string> VSelfPointerText::s_thisp = std::make_shared<string>("this");
 
 string VSelfPointerText::replaceThis(bool useSelfForThis, const string& text) {
-    return useSelfForThis ? VString::replaceWord(text, "this", "vlSelf") : text;
+    ပြန်ပေး useSelfForThis ? VString::replaceWord(text, "this", "vlSelf") : text;
 }
 
 string VSelfPointerText::protect(bool useSelfForThis, bool protect) const {
-    return VIdProtect::protectWordsIf(replaceThis(useSelfForThis, asString()), protect);
+    ပြန်ပေး VIdProtect::protectWordsIf(replaceThis(useSelfForThis, asString()), protect);
 }
 
 //######################################################################
@@ -142,32 +142,32 @@ AstNode* AstNode::abovep() const {
     // list which is likely to cause performance issues.
     UASSERT_OBJ(!m_nextp || firstAbovep(), this, "abovep() not allowed when in midlist");
     const AstNode* const firstp = firstAbovep() ? this : m_headtailp;
-    return firstp->backp();
+    ပြန်ပေး firstp->backp();
 }
 AstNode* AstNode::aboveLoopp() const {
     // Returns parent node. Avoid using this, may have performance issues.
     const AstNode* nodep = this;
     // Backwards over peers (versus parents)
-    while (nodep->backp() && nodep->backp()->nextp() == nodep) nodep = nodep->backp();
-    return nodep->backp();
+    နေစဉ် (nodep->backp() && nodep->backp()->nextp() == nodep) nodep = nodep->backp();
+    ပြန်ပေး nodep->backp();
 }
 
 string AstNode::encodeName(const string& namein) {
     // Encode signal name raw from parser, then not called again on same signal
     string out;
     out.reserve(namein.size());
-    for (auto pos = namein.begin(); pos != namein.end(); ++pos) {
-        if ((pos == namein.begin()) ? std::isalpha(pos[0])  // digits can't lead identifiers
+    အတွက် (auto pos = namein.begin(); pos != namein.end(); ++pos) {
+        အကယ်၍ ((pos == namein.begin()) ? std::isalpha(pos[0])  // digits can't lead identifiers
                                     : std::isalnum(pos[0])) {
             out += pos[0];
-        } else if (pos[0] == '_') {
+        } မဟုတ်ပါက အကယ်၍ (pos[0] == '_') {
             out += pos[0];
-            if (pos + 1 == namein.end()) break;
-            if (pos[1] == '_') {
+            အကယ်၍ (pos + 1 == namein.end()) bha_nga;
+            အကယ်၍ (pos[1] == '_') {
                 ++pos;
                 out += "__05F";  // hex(_) = 0x5F
             }
-        } else {
+        } မဟုတ်ပါက {
             // Need the leading 0 so this will never collide with
             // a user identifier nor a temp we create in Verilator.
             // We also do *NOT* use __DOT__ etc, as we search for those
@@ -182,34 +182,34 @@ string AstNode::encodeName(const string& namein) {
     // TODO long term use VName in place of "string name"
     // Then we also won't need to save the table of hashed values
     VName vname{out};
-    return vname.hashedName();
+    ပြန်ပေး vname.hashedName();
 }
 
 string AstNode::encodeNumber(int64_t num) {
-    if (num < 0) return "__02D" + cvtToStr(-num);  // 2D=-
-    return cvtToStr(num);
+    အကယ်၍ (num < 0) ပြန်ပေး "__02D" + cvtToStr(-num);  // 2D=-
+    ပြန်ပေး cvtToStr(num);
 }
 
-string AstNode::nameProtect() const { return VIdProtect::protectIf(name(), protect()); }
-string AstNode::origNameProtect() const { return VIdProtect::protectIf(origName(), protect()); }
+string AstNode::nameProtect() const { ပြန်ပေး VIdProtect::protectIf(name(), protect()); }
+string AstNode::origNameProtect() const { ပြန်ပေး VIdProtect::protectIf(origName(), protect()); }
 
 string AstNode::shortName() const {
     string pretty = name();
     string::size_type pos;
-    while ((pos = pretty.find("__PVT__")) != string::npos) pretty.replace(pos, 7, "");
-    return pretty;
+    နေစဉ် ((pos = pretty.find("__PVT__")) != string::npos) pretty.replace(pos, 7, "");
+    ပြန်ပေး pretty;
 }
 
 string AstNode::dedotName(const string& namein) {
     string pretty = namein;
     string::size_type pos;
-    while ((pos = pretty.find("__DOT__")) != string::npos) pretty.replace(pos, 7, ".");
-    if (pretty.substr(0, 4) == "TOP.") pretty.replace(0, 4, "");
-    return pretty;
+    နေစဉ် ((pos = pretty.find("__DOT__")) != string::npos) pretty.replace(pos, 7, ".");
+    အကယ်၍ (pretty.substr(0, 4) == "TOP.") pretty.replace(0, 4, "");
+    ပြန်ပေး pretty;
 }
 
 string AstNode::nameNoArray(const string& namein) {
-    return namein.substr(0, namein.find("__BRA__"));
+    ပြန်ပေး namein.substr(0, namein.find("__BRA__"));
 }
 
 string AstNode::vcdName(const string& namein) {
@@ -218,56 +218,56 @@ string AstNode::vcdName(const string& namein) {
     // We earlier hashed all symbols, dehash them so user sees real name
     string pretty{VName::dehash(namein)};
     string::size_type pos;
-    while ((pos = pretty.find("__DOT__")) != string::npos) pretty.replace(pos, 7, " ");
-    while ((pos = pretty.find('.')) != string::npos) pretty.replace(pos, 1, " ");
+    နေစဉ် ((pos = pretty.find("__DOT__")) != string::npos) pretty.replace(pos, 7, " ");
+    နေစဉ် ((pos = pretty.find('.')) != string::npos) pretty.replace(pos, 1, " ");
     // Now convert escaped special characters, etc
-    return prettyName(pretty);
+    ပြန်ပေး prettyName(pretty);
 }
 
 string AstNode::prettyName(const string& namein) VL_PURE {
     // This function is somewhat hot, so we short-circuit some compares
     string pretty;
     pretty.reserve(namein.length());
-    for (const char* pos = namein.c_str(); *pos;) {
-        if (pos[0] == '-' && pos[1] == '>') {  // ->
+    အတွက် (const var_na* pos = namein.c_str(); *pos;) {
+        အကယ်၍ (pos[0] == '-' && pos[1] == '>') {  // ->
             pretty += ".";
             pos += 2;
             continue;
         }
-        if (pos[0] == '_' && pos[1] == '_') {  // Short-circuit
-            if (0 == std::strncmp(pos, "__BRA__", 7)) {
+        အကယ်၍ (pos[0] == '_' && pos[1] == '_') {  // Short-circuit
+            အကယ်၍ (0 == std::strncmp(pos, "__BRA__", 7)) {
                 pretty += "[";
                 pos += 7;
                 continue;
             }
-            if (0 == std::strncmp(pos, "__KET__", 7)) {
+            အကယ်၍ (0 == std::strncmp(pos, "__KET__", 7)) {
                 pretty += "]";
                 pos += 7;
                 continue;
             }
-            if (0 == std::strncmp(pos, "__DOT__", 7)) {
+            အကယ်၍ (0 == std::strncmp(pos, "__DOT__", 7)) {
                 pretty += ".";
                 pos += 7;
                 continue;
             }
-            if (0 == std::strncmp(pos, "__LIB__", 7)) {
+            အကယ်၍ (0 == std::strncmp(pos, "__LIB__", 7)) {
                 pretty = "";  // Trim library name before module name
                 pos += 7;
                 continue;
             }
-            if (0 == std::strncmp(pos, "__PVT__", 7)) {
+            အကယ်၍ (0 == std::strncmp(pos, "__PVT__", 7)) {
                 pretty += "";
                 pos += 7;
                 continue;
             }
-            if (0 == std::strncmp(pos, "__Viftop", 8)) {
+            အကယ်၍ (0 == std::strncmp(pos, "__Viftop", 8)) {
                 pretty += "";
                 pos += 8;
                 continue;
             }
-            if (pos[0] == '_' && pos[1] == '_' && pos[2] == '0' && std::isxdigit(pos[3])
+            အကယ်၍ (pos[0] == '_' && pos[1] == '_' && pos[2] == '0' && std::isxdigit(pos[3])
                 && std::isxdigit(pos[4])) {
-                char value = 0;
+                var_na value = 0;
                 value += 16
                          * (std::isdigit(pos[3]) ? (pos[3] - '0')
                                                  : (std::tolower(pos[3]) - 'a' + 10));
@@ -282,9 +282,9 @@ string AstNode::prettyName(const string& namein) VL_PURE {
         pretty += pos[0];
         ++pos;
     }
-    if (pretty[0] == 'T' && pretty.substr(0, 4) == "TOP.") pretty.replace(0, 4, "");
-    if (pretty[0] == 'T' && pretty.substr(0, 5) == "TOP->") pretty.replace(0, 5, "");
-    return pretty;
+    အကယ်၍ (pretty[0] == 'T' && pretty.substr(0, 4) == "TOP.") pretty.replace(0, 4, "");
+    အကယ်၍ (pretty[0] == 'T' && pretty.substr(0, 5) == "TOP->") pretty.replace(0, 5, "");
+    ပြန်ပေး pretty;
 }
 
 string AstNode::vpiName(const string& namein) {
@@ -295,29 +295,29 @@ string AstNode::vpiName(const string& namein) {
     string pretty;
     pretty.reserve(namein.length());
     bool inEscapedIdent = false;
-    int lastIdent = 0;
+    ကိန်းပြည့် lastIdent = 0;
 
-    for (const char* pos = namein.c_str() + offset; *pos;) {
-        char specialChar = 0;
-        if (pos[0] == '-' && pos[1] == '>') {  // ->
+    အတွက် (const var_na* pos = namein.c_str() + offset; *pos;) {
+        var_na specialChar = 0;
+        အကယ်၍ (pos[0] == '-' && pos[1] == '>') {  // ->
             specialChar = '.';
             pos += 2;
-        } else if (pos[0] == '_' && pos[1] == '_') {  // __
-            if (0 == std::strncmp(pos, "__BRA__", 7)) {
+        } မဟုတ်ပါက အကယ်၍ (pos[0] == '_' && pos[1] == '_') {  // __
+            အကယ်၍ (0 == std::strncmp(pos, "__BRA__", 7)) {
                 specialChar = '[';
                 pos += 7;
-            } else if (0 == std::strncmp(pos, "__KET__", 7)) {
+            } မဟုတ်ပါက အကယ်၍ (0 == std::strncmp(pos, "__KET__", 7)) {
                 specialChar = ']';
                 pos += 7;
-            } else if (0 == std::strncmp(pos, "__DOT__", 7)) {
+            } မဟုတ်ပါက အကယ်၍ (0 == std::strncmp(pos, "__DOT__", 7)) {
                 specialChar = '.';
                 pos += 7;
-            } else if (0 == std::strncmp(pos, "__PVT__", 7)) {
+            } မဟုတ်ပါက အကယ်၍ (0 == std::strncmp(pos, "__PVT__", 7)) {
                 pos += 7;
                 continue;
-            } else if (0 == std::strncmp(pos, "__0", 3) && std::isxdigit(pos[3])
+            } မဟုတ်ပါက အကယ်၍ (0 == std::strncmp(pos, "__0", 3) && std::isxdigit(pos[3])
                        && std::isxdigit(pos[4])) {
-                char value = 0;
+                var_na value = 0;
                 value += 16
                          * (std::isdigit(pos[3]) ? (pos[3] - '0')
                                                  : (std::tolower(pos[3]) - 'a' + 10));
@@ -325,19 +325,19 @@ string AstNode::vpiName(const string& namein) {
                     += (std::isdigit(pos[4]) ? (pos[4] - '0') : (std::tolower(pos[4]) - 'a' + 10));
 
                 // __ doesn't always imply escaped ident
-                if (value != '_') inEscapedIdent = true;
+                အကယ်၍ (value != '_') inEscapedIdent = true;
 
                 pretty += value;
                 pos += 5;
                 continue;
             }
-        } else if (pos[0] == '.') {
+        } မဟုတ်ပါက အကယ်၍ (pos[0] == '.') {
             specialChar = '.';
             ++pos;
         }
 
-        if (specialChar) {
-            if (inEscapedIdent && (specialChar == '[' || specialChar == '.')) {
+        အကယ်၍ (specialChar) {
+            အကယ်၍ (inEscapedIdent && (specialChar == '[' || specialChar == '.')) {
                 pretty += " ";
                 pretty.insert(lastIdent, "\\");
                 inEscapedIdent = false;
@@ -345,33 +345,33 @@ string AstNode::vpiName(const string& namein) {
 
             pretty += specialChar;
 
-            if (specialChar == ']' || specialChar == '.') {
+            အကယ်၍ (specialChar == ']' || specialChar == '.') {
                 lastIdent = pretty.length();
                 inEscapedIdent = false;
             }
-        } else {
+        } မဟုတ်ပါက {
             pretty += pos[0];
             ++pos;
         }
     }
-    if (inEscapedIdent) {
+    အကယ်၍ (inEscapedIdent) {
         pretty += " ";
         pretty.insert(lastIdent, "\\");
     }
-    if (pretty[0] == 'T' && pretty.substr(0, 4) == "TOP.") pretty.replace(0, 4, "");
-    if (pretty[0] == 'T' && pretty.substr(0, 5) == "TOP->") pretty.replace(0, 5, "");
-    return pretty;
+    အကယ်၍ (pretty[0] == 'T' && pretty.substr(0, 4) == "TOP.") pretty.replace(0, 4, "");
+    အကယ်၍ (pretty[0] == 'T' && pretty.substr(0, 5) == "TOP->") pretty.replace(0, 5, "");
+    ပြန်ပေး pretty;
 }
 
 string AstNode::prettyTypeName() const {
-    if (name() == "") return typeName();
-    return std::string{typeName()} + " '" + prettyNameMsg() + "'";
+    အကယ်၍ (name() == "") ပြန်ပေး typeName();
+    ပြန်ပေး std::string{typeName()} + " '" + prettyNameMsg() + "'";
 }
 
 //######################################################################
 // Insertion
 
-void AstNode::debugTreeChange(const AstNode* nodep, const char* prefix, int lineno, bool next) {
+void AstNode::debugTreeChange(const AstNode* nodep, const var_na* prefix, ကိန်းပြည့် lineno, bool next) {
 #ifdef VL_DEBUG
 // Called on all major tree changers.
 // Only for use for those really nasty bugs relating to internals
@@ -400,20 +400,20 @@ AstNode* AstNode::addNext<AstNode, AstNode>(AstNode* nodep, AstNode* newp) {
     UDEBUGONLY(UASSERT_OBJ(newp, nodep, "Null item passed to addNext"););
     debugTreeChange(nodep, "-addNextThs: ", __LINE__, false);
     debugTreeChange(newp, "-addNextNew: ", __LINE__, true);
-    if (!nodep)  // verilog.y and lots of other places assume this
-        return newp;
+    အကယ်၍ (!nodep)  // verilog.y and lots of other places assume this
+        ပြန်ပေး newp;
 
     // Find end of old list
     AstNode* oldtailp = nodep;
-    if (oldtailp->m_nextp) {
-        if (oldtailp->m_headtailp) {
+    အကယ်၍ (oldtailp->m_nextp) {
+        အကယ်၍ (oldtailp->m_headtailp) {
             oldtailp = oldtailp->m_headtailp;  // This=beginning of list, jump to end
             UDEBUGONLY(UASSERT_OBJ(!oldtailp->m_nextp, nodep,
                                    "Node had next, but headtail says it shouldn't"););
-        } else {
+        } မဟုတ်ပါက {
             // Though inefficient, we are occasionally passed an
             // addNext in the middle of a list.
-            while (oldtailp->m_nextp) oldtailp = oldtailp->m_nextp;
+            နေစဉ် (oldtailp->m_nextp) oldtailp = oldtailp->m_nextp;
         }
     }
     // Link it in
@@ -431,7 +431,7 @@ AstNode* AstNode::addNext<AstNode, AstNode>(AstNode* nodep, AstNode* newp) {
     // the current node is still the one at the iteration point
 
     debugTreeChange(nodep, "-addNextOut:", __LINE__, true);
-    return nodep;
+    ပြန်ပေး nodep;
 }
 
 void AstNode::addNextHere(AstNode* newp) {
@@ -453,7 +453,7 @@ void AstNode::addNextHere(AstNode* newp) {
     addlastp->m_nextp = oldnextp;  // Perhaps null if 'this' is not list
 
     // Backward links
-    if (oldnextp) oldnextp->m_backp = addlastp;
+    အကယ်၍ (oldnextp) oldnextp->m_backp = addlastp;
     newp->m_backp = this;
 
     // Head/tail
@@ -467,11 +467,11 @@ void AstNode::addNextHere(AstNode* newp) {
     newp->m_headtailp = nullptr;  // Not at head any longer
     addlastp->m_headtailp = nullptr;  // Presume middle of list
     // newp might happen to be head/tail after all, if so will be set again below
-    if (oldheadtailp) {  // else in middle of list, no change
-        if (oldheadtailp == this) {  // this was one node
+    အကယ်၍ (oldheadtailp) {  // else in middle of list, no change
+        အကယ်၍ (oldheadtailp == this) {  // this was one node
             this->m_headtailp = addlastp;  // Was head/tail, now a tail
             addlastp->m_headtailp = oldheadtailp;  // Tail needs to remember head (or nullptr)
-        } else if (!oldnextp) {  // this was tail
+        } မဟုတ်ပါက အကယ်၍ (!oldnextp) {  // this was tail
             this->m_headtailp = nullptr;  // No longer a tail
             oldheadtailp->m_headtailp = addlastp;  // Head gets new tail
             addlastp->m_headtailp = oldheadtailp;  // Tail needs to remember head (or nullptr)
@@ -538,9 +538,9 @@ void AstNode::setOp4p(AstNode* newp) {
 void AstNode::addOp1p(AstNode* newp) {
     UASSERT(newp, "Null item passed to addOp1p");
     UDEBUGONLY(UASSERT_OBJ(!newp->m_backp, newp, "Adding already linked node"););
-    if (!m_op1p) {
+    အကယ်၍ (!m_op1p) {
         op1p(newp);
-    } else {
+    } မဟုတ်ပါက {
         m_op1p->addNext(newp);
     }
 }
@@ -548,9 +548,9 @@ void AstNode::addOp1p(AstNode* newp) {
 void AstNode::addOp2p(AstNode* newp) {
     UASSERT(newp, "Null item passed to addOp2p");
     UDEBUGONLY(UASSERT_OBJ(!newp->m_backp, newp, "Adding already linked node"););
-    if (!m_op2p) {
+    အကယ်၍ (!m_op2p) {
         op2p(newp);
-    } else {
+    } မဟုတ်ပါက {
         m_op2p->addNext(newp);
     }
 }
@@ -558,9 +558,9 @@ void AstNode::addOp2p(AstNode* newp) {
 void AstNode::addOp3p(AstNode* newp) {
     UASSERT(newp, "Null item passed to addOp3p");
     UDEBUGONLY(UASSERT_OBJ(!newp->m_backp, newp, "Adding already linked node"););
-    if (!m_op3p) {
+    အကယ်၍ (!m_op3p) {
         op3p(newp);
-    } else {
+    } မဟုတ်ပါက {
         m_op3p->addNext(newp);
     }
 }
@@ -568,9 +568,9 @@ void AstNode::addOp3p(AstNode* newp) {
 void AstNode::addOp4p(AstNode* newp) {
     UASSERT(newp, "Null item passed to addOp4p");
     UDEBUGONLY(UASSERT_OBJ(!newp->m_backp, newp, "Adding already linked node"););
-    if (!m_op4p) {
+    အကယ်၍ (!m_op4p) {
         op4p(newp);
-    } else {
+    } မဟုတ်ပါက {
         m_op4p->addNext(newp);
     }
 }
@@ -578,9 +578,9 @@ void AstNode::addOp4p(AstNode* newp) {
 void AstNode::prependOp1p(AstNode* newp) {
     UASSERT(newp, "Null item passed to prependOp1p");
     UDEBUGONLY(UASSERT_OBJ(!newp->m_backp, newp, "Adding already linked node"););
-    if (!m_op1p) {
+    အကယ်၍ (!m_op1p) {
         op1p(newp);
-    } else {
+    } မဟုတ်ပါက {
         m_op1p->addHereThisAsNext(newp);
     }
 }
@@ -588,9 +588,9 @@ void AstNode::prependOp1p(AstNode* newp) {
 void AstNode::prependOp2p(AstNode* newp) {
     UASSERT(newp, "Null item passed to prependOp2p");
     UDEBUGONLY(UASSERT_OBJ(!newp->m_backp, newp, "Adding already linked node"););
-    if (!m_op2p) {
+    အကယ်၍ (!m_op2p) {
         op2p(newp);
-    } else {
+    } မဟုတ်ပါက {
         m_op2p->addHereThisAsNext(newp);
     }
 }
@@ -598,9 +598,9 @@ void AstNode::prependOp2p(AstNode* newp) {
 void AstNode::prependOp3p(AstNode* newp) {
     UASSERT(newp, "Null item passed to prependOp3p");
     UDEBUGONLY(UASSERT_OBJ(!newp->m_backp, newp, "Adding already linked node"););
-    if (!m_op3p) {
+    အကယ်၍ (!m_op3p) {
         op3p(newp);
-    } else {
+    } မဟုတ်ပါက {
         m_op3p->addHereThisAsNext(newp);
     }
 }
@@ -608,9 +608,9 @@ void AstNode::prependOp3p(AstNode* newp) {
 void AstNode::prependOp4p(AstNode* newp) {
     UASSERT(newp, "Null item passed to prependOp4p");
     UDEBUGONLY(UASSERT_OBJ(!newp->m_backp, newp, "Adding already linked node"););
-    if (!m_op4p) {
+    အကယ်၍ (!m_op4p) {
         op4p(newp);
-    } else {
+    } မဟုတ်ပါက {
         m_op4p->addHereThisAsNext(newp);
     }
 }
@@ -644,35 +644,35 @@ AstNode* AstNode::unlinkFrBackWithNext(VNRelinker* linkerp) {
     oldp->editCountInc();
     // cppcheck-suppress shadowFunction
     AstNode* const backp = oldp->m_backp;
-    if (linkerp) {
+    အကယ်၍ (linkerp) {
         linkerp->m_oldp = oldp;
         linkerp->m_backp = backp;
         linkerp->m_iterpp = oldp->m_iterpp;
-        if (backp->m_nextp == oldp) {
+        အကယ်၍ (backp->m_nextp == oldp) {
             linkerp->m_chg = VNRelinker::RELINK_NEXT;
-        } else if (backp->m_op1p == oldp) {
+        } မဟုတ်ပါက အကယ်၍ (backp->m_op1p == oldp) {
             linkerp->m_chg = VNRelinker::RELINK_OP1;
-        } else if (backp->m_op2p == oldp) {
+        } မဟုတ်ပါက အကယ်၍ (backp->m_op2p == oldp) {
             linkerp->m_chg = VNRelinker::RELINK_OP2;
-        } else if (backp->m_op3p == oldp) {
+        } မဟုတ်ပါက အကယ်၍ (backp->m_op3p == oldp) {
             linkerp->m_chg = VNRelinker::RELINK_OP3;
-        } else if (backp->m_op4p == oldp) {
+        } မဟုတ်ပါက အကယ်၍ (backp->m_op4p == oldp) {
             linkerp->m_chg = VNRelinker::RELINK_OP4;
-        } else {
+        } မဟုတ်ပါက {
             oldp->v3fatalSrc("Unlink of node with back not pointing to it.");
         }
     }
-    if (backp->m_nextp == oldp) {
+    အကယ်၍ (backp->m_nextp == oldp) {
         backp->m_nextp = nullptr;
         // Old list gets truncated
         // New list becomes a list upon itself
         // Most common case is unlinking a entire operand tree, or all but the
         // head (else we'd probably call unlinkFrBack without next)
         AstNode* oldtailp = backp->m_headtailp;
-        if (!oldtailp) {
+        အကယ်၍ (!oldtailp) {
             // We are in the middle of a list; we have no way to find head or tail in O(1)
             oldtailp = oldp;
-            while (oldtailp->m_nextp) oldtailp = oldtailp->m_nextp;
+            နေစဉ် (oldtailp->m_nextp) oldtailp = oldtailp->m_nextp;
         }
         // Create new head/tail of old list
         AstNode* const oldheadp = oldtailp->m_headtailp;
@@ -681,26 +681,26 @@ AstNode* AstNode::unlinkFrBackWithNext(VNRelinker* linkerp) {
         // Create new head/tail of extracted list
         oldp->m_headtailp = oldtailp;
         oldp->m_headtailp->m_headtailp = oldp;
-    } else if (backp->m_op1p == oldp) {
+    } မဟုတ်ပါက အကယ်၍ (backp->m_op1p == oldp) {
         backp->m_op1p = nullptr;
-    } else if (backp->m_op2p == oldp) {
+    } မဟုတ်ပါက အကယ်၍ (backp->m_op2p == oldp) {
         backp->m_op2p = nullptr;
-    } else if (backp->m_op3p == oldp) {
+    } မဟုတ်ပါက အကယ်၍ (backp->m_op3p == oldp) {
         backp->m_op3p = nullptr;
-    } else if (backp->m_op4p == oldp) {
+    } မဟုတ်ပါက အကယ်၍ (backp->m_op4p == oldp) {
         backp->m_op4p = nullptr;
-    } else {
+    } မဟုတ်ပါက {
         this->v3fatalSrc("Unlink of node with back not pointing to it.");
     }
     // Relink
     oldp->m_backp = nullptr;
     // Iterator fixup
-    if (oldp->m_iterpp) {
+    အကယ်၍ (oldp->m_iterpp) {
         *(oldp->m_iterpp) = nullptr;
         oldp->m_iterpp = nullptr;
     }
     debugTreeChange(oldp, "-unlinkWNextOut: ", __LINE__, true);
-    return oldp;
+    ပြန်ပေး oldp;
 }
 
 AstNode* AstNode::unlinkFrBack(VNRelinker* linkerp) {
@@ -710,51 +710,51 @@ AstNode* AstNode::unlinkFrBack(VNRelinker* linkerp) {
     oldp->editCountInc();
     // cppcheck-suppress shadowFunction
     AstNode* const backp = oldp->m_backp;
-    if (linkerp) {
+    အကယ်၍ (linkerp) {
         linkerp->m_oldp = oldp;
         linkerp->m_backp = backp;
-        if (oldp->m_iterpp) {  // Assumes we will always relink() if want to keep iterating
+        အကယ်၍ (oldp->m_iterpp) {  // Assumes we will always relink() if want to keep iterating
             linkerp->m_iterpp = oldp->m_iterpp;
             *(oldp->m_iterpp) = nullptr;
             oldp->m_iterpp = nullptr;
         }
-        if (backp->m_nextp == oldp) {
+        အကယ်၍ (backp->m_nextp == oldp) {
             linkerp->m_chg = VNRelinker::RELINK_NEXT;
-        } else if (backp->m_op1p == oldp) {
+        } မဟုတ်ပါက အကယ်၍ (backp->m_op1p == oldp) {
             linkerp->m_chg = VNRelinker::RELINK_OP1;
-        } else if (backp->m_op2p == oldp) {
+        } မဟုတ်ပါက အကယ်၍ (backp->m_op2p == oldp) {
             linkerp->m_chg = VNRelinker::RELINK_OP2;
-        } else if (backp->m_op3p == oldp) {
+        } မဟုတ်ပါက အကယ်၍ (backp->m_op3p == oldp) {
             linkerp->m_chg = VNRelinker::RELINK_OP3;
-        } else if (backp->m_op4p == oldp) {
+        } မဟုတ်ပါက အကယ်၍ (backp->m_op4p == oldp) {
             linkerp->m_chg = VNRelinker::RELINK_OP4;
-        } else {
+        } မဟုတ်ပါက {
             this->v3fatalSrc("Unlink of node with back not pointing to it.");
         }
     }
-    if (backp->m_nextp == oldp) {
+    အကယ်၍ (backp->m_nextp == oldp) {
         // This node gets removed from middle (or tail) of list
         // Not head, since then oldp wouldn't be a next of backp...
         backp->m_nextp = oldp->m_nextp;
-        if (backp->m_nextp) backp->m_nextp->m_backp = backp;
+        အကယ်၍ (backp->m_nextp) backp->m_nextp->m_backp = backp;
         // If it was a tail, back becomes new tail
-        if (oldp->m_headtailp) {
+        အကယ်၍ (oldp->m_headtailp) {
             backp->m_headtailp = oldp->m_headtailp;
             backp->m_headtailp->m_headtailp = backp;
         }
-    } else {
-        if (backp->m_op1p == oldp) {
+    } မဟုတ်ပါက {
+        အကယ်၍ (backp->m_op1p == oldp) {
             backp->m_op1p = oldp->m_nextp;
-        } else if (backp->m_op2p == oldp) {
+        } မဟုတ်ပါက အကယ်၍ (backp->m_op2p == oldp) {
             backp->m_op2p = oldp->m_nextp;
-        } else if (backp->m_op3p == oldp) {
+        } မဟုတ်ပါက အကယ်၍ (backp->m_op3p == oldp) {
             backp->m_op3p = oldp->m_nextp;
-        } else if (backp->m_op4p == oldp) {
+        } မဟုတ်ပါက အကယ်၍ (backp->m_op4p == oldp) {
             backp->m_op4p = oldp->m_nextp;
-        } else {
+        } မဟုတ်ပါက {
             this->v3fatalSrc("Unlink of node with back not pointing to it.");
         }
-        if (oldp->m_nextp) {
+        အကယ်၍ (oldp->m_nextp) {
             AstNode* const newheadp = oldp->m_nextp;
             newheadp->m_backp = backp;
             newheadp->m_headtailp = oldp->m_headtailp;
@@ -762,8 +762,8 @@ AstNode* AstNode::unlinkFrBack(VNRelinker* linkerp) {
         }
     }
     // Iterator fixup
-    if (oldp->m_iterpp) {  // Only if no linker, point to next in list
-        if (oldp->m_nextp) oldp->m_nextp->m_iterpp = oldp->m_iterpp;
+    အကယ်၍ (oldp->m_iterpp) {  // Only if no linker, point to next in list
+        အကယ်၍ (oldp->m_nextp) oldp->m_nextp->m_iterpp = oldp->m_iterpp;
         *(oldp->m_iterpp) = oldp->m_nextp;
         oldp->m_iterpp = nullptr;
     }
@@ -772,11 +772,11 @@ AstNode* AstNode::unlinkFrBack(VNRelinker* linkerp) {
     oldp->m_backp = nullptr;
     oldp->m_headtailp = oldp;
     debugTreeChange(oldp, "-unlinkFrBkOut: ", __LINE__, true);
-    return oldp;
+    ပြန်ပေး oldp;
 }
 
 void AstNode::relink(VNRelinker* linkerp) {
-    if (debug() > 8) {
+    အကယ်၍ (debug() > 8) {
         UINFO_PREFIX(" EDIT:      relink: ");
         dumpPtrs();
     }
@@ -785,7 +785,7 @@ void AstNode::relink(VNRelinker* linkerp) {
     UASSERT_OBJ(!newp->m_backp, newp, "New node already linked?");
     newp->editCountInc();
 
-    if (debug() > 8) {
+    အကယ်၍ (debug() > 8) {
         linkerp->dump(cout);
         cout << endl;
     }
@@ -796,18 +796,18 @@ void AstNode::relink(VNRelinker* linkerp) {
     debugTreeChange(backp, "-relinkTre: ", __LINE__, true);
 
     switch (linkerp->m_chg) {
-    case VNRelinker::RELINK_NEXT: backp->addNextHere(newp); break;
-    case VNRelinker::RELINK_OP1: relinkOneLink(backp->m_op1p /*ref*/, newp); break;
-    case VNRelinker::RELINK_OP2: relinkOneLink(backp->m_op2p /*ref*/, newp); break;
-    case VNRelinker::RELINK_OP3: relinkOneLink(backp->m_op3p /*ref*/, newp); break;
-    case VNRelinker::RELINK_OP4: relinkOneLink(backp->m_op4p /*ref*/, newp); break;
-    default: this->v3fatalSrc("Relink of node without any link to change."); break;
+    pak_sa VNRelinker::RELINK_NEXT: backp->addNextHere(newp); bha_nga;
+    pak_sa VNRelinker::RELINK_OP1: relinkOneLink(backp->m_op1p /*ref*/, newp); bha_nga;
+    pak_sa VNRelinker::RELINK_OP2: relinkOneLink(backp->m_op2p /*ref*/, newp); bha_nga;
+    pak_sa VNRelinker::RELINK_OP3: relinkOneLink(backp->m_op3p /*ref*/, newp); bha_nga;
+    pak_sa VNRelinker::RELINK_OP4: relinkOneLink(backp->m_op4p /*ref*/, newp); bha_nga;
+    default: this->v3fatalSrc("Relink of node without any link to change."); bha_nga;
     }
     // Relink
     newp->m_backp = backp;
     linkerp->m_backp = nullptr;
     // Iterator fixup
-    if (linkerp->m_iterpp) {
+    အကယ်၍ (linkerp->m_iterpp) {
         // If we're iterating over a next() link, we need to follow links off the
         // NEW node, which is always assumed to be what we are relinking to.
         // This adds a unfortunate hot 8 bytes to every AstNode, but is faster than passing
@@ -823,7 +823,7 @@ void AstNode::relink(VNRelinker* linkerp) {
 
 void AstNode::relinkOneLink(AstNode*& pointpr,  // Ref to pointer that gets set to newp
                             AstNode* newp) {
-    if (pointpr) {
+    အကယ်၍ (pointpr) {
         // We know there will be at least two elements when we are done,
         //    (newp & the old list).
         // We *ALLOW* the new node to have its own next list.
@@ -867,21 +867,21 @@ void AstNode::addHereThisAsNext(AstNode* newp) {
     // If newLastp == newp, then below handles newp becoming head
     newLastp->m_headtailp = nullptr;
     // Linkage dependent on position
-    if (backp && backp->m_nextp == this) {
+    အကယ်၍ (backp && backp->m_nextp == this) {
         // If 'this' is not at the head of a list, then the new node will also not be at the head
         // of a list, so we can just link in the new node in the middle.
         backp->m_nextp = newp;
         newp->m_headtailp = nullptr;
-    } else {
+    } မဟုတ်ပါက {
         // If 'this' is at the head of a list, then the new node becomes the head of that list.
-        if (backp) {
-            if (backp->m_op1p == this) {
+        အကယ်၍ (backp) {
+            အကယ်၍ (backp->m_op1p == this) {
                 backp->m_op1p = newp;
-            } else if (backp->m_op2p == this) {
+            } မဟုတ်ပါက အကယ်၍ (backp->m_op2p == this) {
                 backp->m_op2p = newp;
-            } else if (backp->m_op3p == this) {
+            } မဟုတ်ပါက အကယ်၍ (backp->m_op3p == this) {
                 backp->m_op3p = newp;
-            } else {
+            } မဟုတ်ပါက {
                 UASSERT_OBJ(backp->m_op4p == this, this, "Don't know where newp should go");
                 backp->m_op4p = newp;
             }
@@ -893,8 +893,8 @@ void AstNode::addHereThisAsNext(AstNode* newp) {
         tailp->m_headtailp = newp;
     }
     // Iterator fixup
-    if (newLastp->m_iterpp) *(newLastp->m_iterpp) = this;
-    if (this->m_iterpp) {
+    အကယ်၍ (newLastp->m_iterpp) *(newLastp->m_iterpp) = this;
+    အကယ်၍ (this->m_iterpp) {
         *(this->m_iterpp) = newp;
         this->m_iterpp = nullptr;
     }
@@ -907,16 +907,16 @@ void AstNode::addHereThisAsNext(AstNode* newp) {
 
 AstNode* AstNode::cloneTreeIter(bool needPure) {
     // private: Clone single node and children
-    if (needPure) purityCheck();
+    အကယ်၍ (needPure) purityCheck();
     AstNode* const newp = this->clone();
-    if (this->m_op1p) newp->op1p(this->m_op1p->cloneTreeIterList(needPure));
-    if (this->m_op2p) newp->op2p(this->m_op2p->cloneTreeIterList(needPure));
-    if (this->m_op3p) newp->op3p(this->m_op3p->cloneTreeIterList(needPure));
-    if (this->m_op4p) newp->op4p(this->m_op4p->cloneTreeIterList(needPure));
+    အကယ်၍ (this->m_op1p) newp->op1p(this->m_op1p->cloneTreeIterList(needPure));
+    အကယ်၍ (this->m_op2p) newp->op2p(this->m_op2p->cloneTreeIterList(needPure));
+    အကယ်၍ (this->m_op3p) newp->op3p(this->m_op3p->cloneTreeIterList(needPure));
+    အကယ်၍ (this->m_op4p) newp->op4p(this->m_op4p->cloneTreeIterList(needPure));
     newp->m_iterpp = nullptr;
     newp->clonep(this);  // Save pointers to/from both to simplify relinking.
     this->clonep(newp);  // Save pointers to/from both to simplify relinking.
-    return newp;
+    ပြန်ပေး newp;
 }
 
 AstNode* AstNode::cloneTreeIterList(bool needPure) {
@@ -924,26 +924,26 @@ AstNode* AstNode::cloneTreeIterList(bool needPure) {
     AstNode* newheadp = nullptr;
     AstNode* newtailp = nullptr;
     // Audited to make sure this is never nullptr
-    for (AstNode* oldp = this; oldp; oldp = oldp->m_nextp) {
+    အတွက် (AstNode* oldp = this; oldp; oldp = oldp->m_nextp) {
         AstNode* const newp = oldp->cloneTreeIter(needPure);
         newp->m_headtailp = nullptr;
         newp->m_backp = newtailp;
-        if (newtailp) newtailp->m_nextp = newp;
-        if (!newheadp) newheadp = newp;
+        အကယ်၍ (newtailp) newtailp->m_nextp = newp;
+        အကယ်၍ (!newheadp) newheadp = newp;
         newtailp = newp;
     }
     newheadp->m_headtailp = newtailp;
     newtailp->m_headtailp = newheadp;
-    return newheadp;
+    ပြန်ပေး newheadp;
 }
 
 AstNode* AstNode::cloneTree(bool cloneNextLink, bool needPure) {
     debugTreeChange(this, "-cloneThs: ", __LINE__, cloneNextLink);
     cloneClearTree();
     AstNode* newp;
-    if (cloneNextLink && this->m_nextp) {
+    အကယ်၍ (cloneNextLink && this->m_nextp) {
         newp = cloneTreeIterList(needPure);
-    } else {
+    } မဟုတ်ပါက {
         newp = cloneTreeIter(needPure);
         newp->m_nextp = nullptr;
         newp->m_headtailp = newp;
@@ -951,11 +951,11 @@ AstNode* AstNode::cloneTree(bool cloneNextLink, bool needPure) {
     newp->m_backp = nullptr;
     newp->cloneRelinkTree();
     debugTreeChange(newp, "-cloneOut: ", __LINE__, true);
-    return newp;
+    ပြန်ပေး newp;
 }
 
 void AstNode::purityCheck() {
-    if (VL_UNLIKELY(!isPure())) {
+    အကယ်၍ (VL_UNLIKELY(!isPure())) {
         this->v3warn(SIDEEFFECT,
                      "Expression side effect may be mishandled\n"
                          << this->warnMore()
@@ -980,10 +980,10 @@ void AstNode::deleteNode() {
     this->m_op3p = reinterpret_cast<AstNode*>(0x1);
     this->m_op4p = reinterpret_cast<AstNode*>(0x1);
     this->m_iterpp = reinterpret_cast<AstNode**>(0x1);
-    if (
-#if !defined(VL_DEBUG) || defined(VL_LEAK_CHECKS)
+    အကယ်၍ (
+#အကယ်၍ !defined(VL_DEBUG) || defined(VL_LEAK_CHECKS)
         true
-#else
+#မဟုတ်ပါက
         !v3Global.opt.debugLeak()
 #endif
     ) {
@@ -996,13 +996,13 @@ void AstNode::deleteNode() {
 void AstNode::deleteTreeIter() {
     // private: Delete list of nodes. Publicly call deleteTree() instead.
     // Audited to make sure this is never nullptr
-    for (AstNode *nodep = this, *nnextp; nodep; nodep = nnextp) {
+    အတွက် (AstNode *nodep = this, *nnextp; nodep; nodep = nnextp) {
         nnextp = nodep->m_nextp;
         // MUST be depth first!
-        if (nodep->m_op1p) nodep->m_op1p->deleteTreeIter();
-        if (nodep->m_op2p) nodep->m_op2p->deleteTreeIter();
-        if (nodep->m_op3p) nodep->m_op3p->deleteTreeIter();
-        if (nodep->m_op4p) nodep->m_op4p->deleteTreeIter();
+        အကယ်၍ (nodep->m_op1p) nodep->m_op1p->deleteTreeIter();
+        အကယ်၍ (nodep->m_op2p) nodep->m_op2p->deleteTreeIter();
+        အကယ်၍ (nodep->m_op3p) nodep->m_op3p->deleteTreeIter();
+        အကယ်၍ (nodep->m_op4p) nodep->m_op4p->deleteTreeIter();
         nodep->m_nextp = nullptr;
         nodep->m_backp = nullptr;
         nodep->deleteNode();
@@ -1027,11 +1027,11 @@ void* AstNode::operator new(size_t size) {
     // Optimization note: Aligning to cache line is a loss, due to lost packing
     AstNode* const objp = static_cast<AstNode*>(::operator new(size));
     V3Broken::addNewed(objp);
-    return objp;
+    ပြန်ပေး objp;
 }
 
 void AstNode::operator delete(void* objp, size_t size) {
-    if (!objp) return;
+    အကယ်၍ (!objp) ပြန်ပေး;
     const AstNode* const nodep = static_cast<AstNode*>(objp);
     V3Broken::deleted(nodep);
     ::operator delete(objp);
@@ -1043,26 +1043,26 @@ void* AstNode::operator new(size_t size) {  // VL_MT_SAFE
     // Compute the maximum node size once and cache it
     static const size_t ASTGEN_MAX_NODE_SIZE = []() {
         size_t maxSize = 0;
-        for (size_t t = 0; t < VNType::NUM_TYPES(); ++t) {
+        အတွက် (size_t t = 0; t < VNType::NUM_TYPES(); ++t) {
             maxSize = std::max(maxSize, VNType::typeInfo(static_cast<VNType::en>(t)).m_sizeof);
         }
-        return maxSize;
+        ပြန်ပေး maxSize;
     }();
 
     // Make the following small to debug this routine, larger for performance and better random
     constexpr size_t POOL_SIZE = 65536;  // Ideally large enough to fit all nodes used in tests
     // Randomly select from a large pool (POOL_SIZE) of max-node sized (MAX_NODE_SIZE) pointers
     static uint64_t s_lfsr = 0;  // LFSR, 0 = didn't initialize yet
-    if (int seed = v3Global.opt.debugAllocRandom()) {
+    အကယ်၍ (ကိန်းပြည့် seed = v3Global.opt.debugAllocRandom()) {
         static V3Mutex s_mutex;
         const V3LockGuard lock{s_mutex};
         static std::array<void*, POOL_SIZE> s_nodePool VL_GUARDED_BY(s_mutex);
         constexpr uint64_t POLYNOMIAL = 0x80000000000019e2ULL;
         UASSERT_STATIC(size <= ASTGEN_MAX_NODE_SIZE, "fix ASTGEN_MAX_NODE_SIZE");
-        if (!s_lfsr) {
+        အကယ်၍ (!s_lfsr) {
             s_lfsr = seed;
-            if (!s_lfsr) s_lfsr = ~s_lfsr;
-            for (size_t i = 0; i < POOL_SIZE; ++i) {
+            အကယ်၍ (!s_lfsr) s_lfsr = ~s_lfsr;
+            အတွက် (size_t i = 0; i < POOL_SIZE; ++i) {
                 s_nodePool[i] = ::operator new(ASTGEN_MAX_NODE_SIZE + 64);
             }
             // Sort, just to make it more obvious we are properly randomizing
@@ -1073,10 +1073,10 @@ void* AstNode::operator new(size_t size) {  // VL_MT_SAFE
         const size_t index = s_lfsr % POOL_SIZE;
         AstNode* const objp = static_cast<AstNode*>(s_nodePool[index]);
         s_nodePool[index] = ::operator new(ASTGEN_MAX_NODE_SIZE + 64);  // For later new()
-        return objp;
-    } else {
+        ပြန်ပေး objp;
+    } မဟုတ်ပါက {
         AstNode* const objp = static_cast<AstNode*>(::operator new(size));
-        return objp;
+        ပြန်ပေး objp;
     }
 }
 void AstNode::operator delete(void* objp, size_t size) {
@@ -1096,10 +1096,10 @@ void AstNode::iterateChildren(VNVisitor& v) {
     ASTNODE_PREFETCH(m_op2p);
     ASTNODE_PREFETCH(m_op3p);
     ASTNODE_PREFETCH(m_op4p);
-    if (m_op1p) m_op1p->iterateAndNext(v);
-    if (m_op2p) m_op2p->iterateAndNext(v);
-    if (m_op3p) m_op3p->iterateAndNext(v);
-    if (m_op4p) m_op4p->iterateAndNext(v);
+    အကယ်၍ (m_op1p) m_op1p->iterateAndNext(v);
+    အကယ်၍ (m_op2p) m_op2p->iterateAndNext(v);
+    အကယ်၍ (m_op3p) m_op3p->iterateAndNext(v);
+    အကယ်၍ (m_op4p) m_op4p->iterateAndNext(v);
 }
 
 void AstNode::iterateChildrenConst(VNVisitorConst& v) {
@@ -1108,10 +1108,10 @@ void AstNode::iterateChildrenConst(VNVisitorConst& v) {
     ASTNODE_PREFETCH(m_op2p);
     ASTNODE_PREFETCH(m_op3p);
     ASTNODE_PREFETCH(m_op4p);
-    if (m_op1p) m_op1p->iterateAndNextConst(v);
-    if (m_op2p) m_op2p->iterateAndNextConst(v);
-    if (m_op3p) m_op3p->iterateAndNextConst(v);
-    if (m_op4p) m_op4p->iterateAndNextConst(v);
+    အကယ်၍ (m_op1p) m_op1p->iterateAndNextConst(v);
+    အကယ်၍ (m_op2p) m_op2p->iterateAndNextConst(v);
+    အကယ်၍ (m_op3p) m_op3p->iterateAndNextConst(v);
+    အကယ်၍ (m_op4p) m_op4p->iterateAndNextConst(v);
 }
 
 void AstNode::iterateAndNext(VNVisitor& v) {
@@ -1125,9 +1125,9 @@ void AstNode::iterateAndNext(VNVisitor& v) {
     UASSERT_OBJ(!(nodep && !nodep->m_backp), nodep, "iterateAndNext node has no back");
 #endif
     // cppcheck-suppress knownConditionTrueFalse
-    if (nodep) ASTNODE_PREFETCH(nodep->m_nextp);
-    while (nodep) {  // effectively: if (!this) return;  // Callers rely on this
-        if (nodep->m_nextp) ASTNODE_PREFETCH(nodep->m_nextp->m_nextp);
+    အကယ်၍ (nodep) ASTNODE_PREFETCH(nodep->m_nextp);
+    နေစဉ် (nodep) {  // effectively: if (!this) return;  // Callers rely on this
+        အကယ်၍ (nodep->m_nextp) ASTNODE_PREFETCH(nodep->m_nextp->m_nextp);
         AstNode* niterp = nodep;  // Pointer may get stomped via m_iterpp if the node is edited
         // Desirable check, but many places where multiple iterations are OK
         // UASSERT_OBJ(!niterp->m_iterpp, niterp, "IterateAndNext under iterateAndNext may miss
@@ -1139,11 +1139,11 @@ void AstNode::iterateAndNext(VNVisitor& v) {
         // niterp maybe nullptr, so need cast if printing
         // if (niterp != nodep) UINFO(1,"iterateAndNext edited "<<cvtToHex(nodep)
         //                             <<" now into "<<cvtToHex(niterp)<<endl);
-        if (!niterp) return;  // Perhaps node deleted inside accept
+        အကယ်၍ (!niterp) ပြန်ပေး;  // Perhaps node deleted inside accept
         niterp->m_iterpp = nullptr;
-        if (VL_UNLIKELY(niterp != nodep)) {  // Edited node inside accept
+        အကယ်၍ (VL_UNLIKELY(niterp != nodep)) {  // Edited node inside accept
             nodep = niterp;
-        } else {  // Unchanged node (though maybe updated m_next), just continue loop
+        } မဟုတ်ပါက {  // Unchanged node (though maybe updated m_next), just continue loop
             nodep = niterp->m_nextp;
         }
     }
@@ -1151,23 +1151,23 @@ void AstNode::iterateAndNext(VNVisitor& v) {
 
 void AstNode::iterateListBackwardsConst(VNVisitorConst& v) {
     AstNode* nodep = this;
-    while (nodep->m_nextp) nodep = nodep->m_nextp;
-    while (nodep) {
+    နေစဉ် (nodep->m_nextp) nodep = nodep->m_nextp;
+    နေစဉ် (nodep) {
         // Edits not supported: nodep->m_iterpp = &nodep;
         nodep->accept(v);
-        if (nodep->backp()->m_nextp == nodep) {
+        အကယ်၍ (nodep->backp()->m_nextp == nodep) {
             nodep = nodep->backp();
-        } else {
+        } မဟုတ်ပါက {
             nodep = nullptr;
         }  // else: backp points up the tree.
     }
 }
 
 void AstNode::iterateChildrenBackwardsConst(VNVisitorConst& v) {
-    if (m_op1p) m_op1p->iterateListBackwardsConst(v);
-    if (m_op2p) m_op2p->iterateListBackwardsConst(v);
-    if (m_op3p) m_op3p->iterateListBackwardsConst(v);
-    if (m_op4p) m_op4p->iterateListBackwardsConst(v);
+    အကယ်၍ (m_op1p) m_op1p->iterateListBackwardsConst(v);
+    အကယ်၍ (m_op2p) m_op2p->iterateListBackwardsConst(v);
+    အကယ်၍ (m_op3p) m_op3p->iterateListBackwardsConst(v);
+    အကယ်၍ (m_op4p) m_op4p->iterateListBackwardsConst(v);
 }
 
 void AstNode::iterateAndNextConst(VNVisitorConst& v) {
@@ -1178,7 +1178,7 @@ void AstNode::iterateAndNextConst(VNVisitorConst& v) {
         ASTNODE_PREFETCH(nnextp);
         nodep->accept(v);
         nodep = nnextp;
-    } while (nodep);
+    } နေစဉ် (nodep);
 }
 
 AstNode* AstNode::iterateSubtreeReturnEdits(VNVisitor& v) {
@@ -1189,10 +1189,10 @@ AstNode* AstNode::iterateSubtreeReturnEdits(VNVisitor& v) {
     // To solve this, this function returns the pointer to the replacement node,
     // which in many cases is just the same node that was passed in.
     AstNode* nodep = this;  // Note "this" may point to bogus point later in this function
-    if (VN_IS(nodep, Netlist)) {
+    အကယ်၍ (VN_IS(nodep, Netlist)) {
         // Calling on top level; we know the netlist won't get replaced
         nodep->accept(v);
-    } else if (!nodep->backp()) {
+    } မဟုတ်ပါက အကယ်၍ (!nodep->backp()) {
         // Calling on standalone tree; insert a shim node so we can keep
         // track, then delete it on completion
         AstBegin* const tempp = new AstBegin{nodep->fileline(), "[EditWrapper]", nodep, false};
@@ -1200,19 +1200,19 @@ AstNode* AstNode::iterateSubtreeReturnEdits(VNVisitor& v) {
         VL_DO_DANGLING(tempp->stmtsp()->accept(v), nodep);
         nodep = tempp->stmtsp()->unlinkFrBackWithNext();
         VL_DO_DANGLING(tempp->deleteTree(), tempp);
-    } else {
+    } မဟုတ်ပါက {
         // Use back to determine who's pointing at us (IE assume new node
         // grafts into same place as old one)
         AstNode** nextnodepp = nullptr;
-        if (this->m_backp->m_op1p == this) {
+        အကယ်၍ (this->m_backp->m_op1p == this) {
             nextnodepp = &(this->m_backp->m_op1p);
-        } else if (this->m_backp->m_op2p == this) {
+        } မဟုတ်ပါက အကယ်၍ (this->m_backp->m_op2p == this) {
             nextnodepp = &(this->m_backp->m_op2p);
-        } else if (this->m_backp->m_op3p == this) {
+        } မဟုတ်ပါက အကယ်၍ (this->m_backp->m_op3p == this) {
             nextnodepp = &(this->m_backp->m_op3p);
-        } else if (this->m_backp->m_op4p == this) {
+        } မဟုတ်ပါက အကယ်၍ (this->m_backp->m_op4p == this) {
             nextnodepp = &(this->m_backp->m_op4p);
-        } else if (this->m_backp->m_nextp == this) {
+        } မဟုတ်ပါက အကယ်၍ (this->m_backp->m_nextp == this) {
             nextnodepp = &(this->m_backp->m_nextp);
         }
         UASSERT_OBJ(nextnodepp, this, "Node's back doesn't point to forward to node itself");
@@ -1221,22 +1221,22 @@ AstNode* AstNode::iterateSubtreeReturnEdits(VNVisitor& v) {
         }
         nodep = *nextnodepp;  // Grab new node from point where old was connected
     }
-    return nodep;
+    ပြန်ပေး nodep;
 }
 
 //======================================================================
 
 void AstNode::cloneRelinkTree() {
     // private: Cleanup clone() operation on whole tree. Publicly call cloneTree() instead.
-    for (AstNode* nodep = this; nodep; nodep = nodep->m_nextp) {
-        if (nodep->m_dtypep && nodep->m_dtypep->clonep()) {
+    အတွက် (AstNode* nodep = this; nodep; nodep = nodep->m_nextp) {
+        အကယ်၍ (nodep->m_dtypep && nodep->m_dtypep->clonep()) {
             nodep->m_dtypep = nodep->m_dtypep->clonep();
         }
         nodep->cloneRelink();
-        if (nodep->m_op1p) nodep->m_op1p->cloneRelinkTree();
-        if (nodep->m_op2p) nodep->m_op2p->cloneRelinkTree();
-        if (nodep->m_op3p) nodep->m_op3p->cloneRelinkTree();
-        if (nodep->m_op4p) nodep->m_op4p->cloneRelinkTree();
+        အကယ်၍ (nodep->m_op1p) nodep->m_op1p->cloneRelinkTree();
+        အကယ်၍ (nodep->m_op2p) nodep->m_op2p->cloneRelinkTree();
+        အကယ်၍ (nodep->m_op3p) nodep->m_op3p->cloneRelinkTree();
+        အကယ်၍ (nodep->m_op4p) nodep->m_op4p->cloneRelinkTree();
     }
 }
 
@@ -1245,35 +1245,35 @@ void AstNode::cloneRelinkTree() {
 
 bool AstNode::gateTreeIter() const {
     // private: Return true if the two trees are identical
-    if (!isGateOptimizable()) return false;
-    if (m_op1p && !m_op1p->gateTreeIter()) return false;
-    if (m_op2p && !m_op2p->gateTreeIter()) return false;
-    if (m_op3p && !m_op3p->gateTreeIter()) return false;
-    if (m_op4p && !m_op4p->gateTreeIter()) return false;
-    return true;
+    အကယ်၍ (!isGateOptimizable()) ပြန်ပေး false;
+    အကယ်၍ (m_op1p && !m_op1p->gateTreeIter()) ပြန်ပေး false;
+    အကယ်၍ (m_op2p && !m_op2p->gateTreeIter()) ပြန်ပေး false;
+    အကယ်၍ (m_op3p && !m_op3p->gateTreeIter()) ပြန်ပေး false;
+    အကယ်၍ (m_op4p && !m_op4p->gateTreeIter()) ပြန်ပေး false;
+    ပြန်ပေး true;
 }
 
 bool AstNode::sameTreeIter(const AstNode* node1p, const AstNode* node2p, bool ignNext,
                            bool gateOnly) {
     // private: Return true if the two trees are identical
     // Iterate over the list, rather than recurse, as lists might be long
-    while (true) {
-        if (!node1p && !node2p) return true;
-        if (!node1p || !node2p) return false;
-        if (node1p->type() != node2p->type()) return false;
+    နေစဉ် (true) {
+        အကယ်၍ (!node1p && !node2p) ပြန်ပေး true;
+        အကယ်၍ (!node1p || !node2p) ပြန်ပေး false;
+        အကယ်၍ (node1p->type() != node2p->type()) ပြန်ပေး false;
         UASSERT_OBJ(
             (!node1p->dtypep() && !node2p->dtypep()) || (node1p->dtypep() && node2p->dtypep()),
             node1p,
             "Comparison of a node with dtypep() with a node without dtypep()\n-node2=" << node2p);
-        if (node1p->dtypep() && !node1p->dtypep()->similarDType(node2p->dtypep())) return false;
-        if (!node1p->sameNode(node2p) || (gateOnly && !node1p->isGateOptimizable())) return false;
-        if (!sameTreeIter(node1p->m_op1p, node2p->m_op1p, false, gateOnly)
+        အကယ်၍ (node1p->dtypep() && !node1p->dtypep()->similarDType(node2p->dtypep())) ပြန်ပေး false;
+        အကယ်၍ (!node1p->sameNode(node2p) || (gateOnly && !node1p->isGateOptimizable())) ပြန်ပေး false;
+        အကယ်၍ (!sameTreeIter(node1p->m_op1p, node2p->m_op1p, false, gateOnly)
             || !sameTreeIter(node1p->m_op2p, node2p->m_op2p, false, gateOnly)
             || !sameTreeIter(node1p->m_op3p, node2p->m_op3p, false, gateOnly)
             || !sameTreeIter(node1p->m_op4p, node2p->m_op4p, false, gateOnly)) {
-            return false;
+            ပြန်ပေး false;
         }
-        if (ignNext) return true;
+        အကယ်၍ (ignNext) ပြန်ပေး true;
         node1p = node1p->m_nextp;
         node2p = node2p->m_nextp;
     }
@@ -1286,31 +1286,31 @@ void AstNode::checkTreeIter(const AstNode* prevBackp) const VL_MT_STABLE {
     // private: Check a tree and children
     UASSERT_OBJ(prevBackp == this->backp(), this, "Back node inconsistent");
     const VNTypeInfo& typeInfo = VNType::typeInfo(this->type());
-    for (int i = 1; i <= 4; i++) {
+    အတွက် (ကိန်းပြည့် i = 1; i <= 4; i++) {
         AstNode* nodep = nullptr;
         switch (i) {
-        case 1: nodep = op1p(); break;
-        case 2: nodep = op2p(); break;
-        case 3: nodep = op3p(); break;
-        case 4: nodep = op4p(); break;
-        default: this->v3fatalSrc("Bad case"); break;
+        pak_sa 1: nodep = op1p(); bha_nga;
+        pak_sa 2: nodep = op2p(); bha_nga;
+        pak_sa 3: nodep = op3p(); bha_nga;
+        pak_sa 4: nodep = op4p(); bha_nga;
+        default: this->v3fatalSrc("Bad case"); bha_nga;
         }
         // cppcheck-suppress danglingTempReference
-        const char* opName = typeInfo.m_opNamep[i - 1];
+        const var_na* opName = typeInfo.m_opNamep[i - 1];
         switch (typeInfo.m_opType[i - 1]) {
-        case VNTypeInfo::OP_UNUSED:
+        pak_sa VNTypeInfo::OP_UNUSED:
             UASSERT_OBJ(!nodep, this, typeInfo.m_namep << " must not use " << opName << "()");
-            break;
-        case VNTypeInfo::OP_USED:
+            bha_nga;
+        pak_sa VNTypeInfo::OP_USED:
             UASSERT_OBJ(nodep, this,
                         typeInfo.m_namep << " must have non-nullptr " << opName << "()");
             UASSERT_OBJ(!nodep->nextp(), this,
                         typeInfo.m_namep << "::" << opName
                                          << "() cannot have a non-nullptr nextp()");
             nodep->checkTreeIter(this);
-            break;
-        case VNTypeInfo::OP_LIST:
-            if (const AstNode* const headp = nodep) {
+            bha_nga;
+        pak_sa VNTypeInfo::OP_LIST:
+            အကယ်၍ (const AstNode* const headp = nodep) {
                 // cppcheck-suppress shadowFunction
                 const AstNode* backp = this;
                 const AstNode* tailp;
@@ -1321,43 +1321,43 @@ void AstNode::checkTreeIter(const AstNode* prevBackp) const VL_MT_STABLE {
                                 "Headtailp should be null in middle of lists");
                     backp = tailp = opp;
                     opp = opp->nextp();
-                } while (opp);
+                } နေစဉ် (opp);
                 UASSERT_OBJ(headp->m_headtailp == tailp, headp,
                             "Tail in headtailp is inconsistent");
                 UASSERT_OBJ(tailp->m_headtailp == headp, tailp,
                             "Head in headtailp is inconsistent");
             }
-            break;
-        case VNTypeInfo::OP_OPTIONAL:
-            if (nodep) {
+            bha_nga;
+        pak_sa VNTypeInfo::OP_OPTIONAL:
+            အကယ်၍ (nodep) {
                 UASSERT_OBJ(!nodep->nextp(), this,
                             typeInfo.m_namep << "::" << opName
                                              << "() cannot have a non-nullptr nextp()");
                 nodep->checkTreeIter(this);
             }
-            break;
-        default: this->v3fatalSrc("Bad case"); break;
+            bha_nga;
+        default: this->v3fatalSrc("Bad case"); bha_nga;
         }
     }
-    if (v3Global.opt.debugWidth() && v3Global.widthMinUsage() == VWidthMinUsage::VERILOG_WIDTH) {
-        if (const AstNodeExpr* const exprp = VN_CAST(this, NodeExpr)) {
-            const char* const whyp = exprp->widthMismatch();
-            if (whyp) {
+    အကယ်၍ (v3Global.opt.debugWidth() && v3Global.widthMinUsage() == VWidthMinUsage::VERILOG_WIDTH) {
+        အကယ်၍ (const AstNodeExpr* const exprp = VN_CAST(this, NodeExpr)) {
+            const var_na* const whyp = exprp->widthMismatch();
+            အကယ်၍ (whyp) {
                 auto dtypeStr = [](const AstNodeExpr* exprp) VL_MT_STABLE {
                     std::ostringstream ss;
                     exprp->dtypep()->dumpSmall(ss);
-                    return ss.str();
+                    ပြန်ပေး ss.str();
                 };
-                if (const AstNodeUniop* const uniopp = VN_CAST(exprp, NodeUniop)) {
+                အကယ်၍ (const AstNodeUniop* const uniopp = VN_CAST(exprp, NodeUniop)) {
                     UASSERT_OBJ(!whyp, uniopp,
                                 "widthMismatch detected " << whyp << "OUT:" << dtypeStr(uniopp)
                                                           << " LHS:" << dtypeStr(uniopp->lhsp()));
-                } else if (const AstNodeBiop* const biopp = VN_CAST(exprp, NodeBiop)) {
+                } မဟုတ်ပါက အကယ်၍ (const AstNodeBiop* const biopp = VN_CAST(exprp, NodeBiop)) {
                     UASSERT_OBJ(!whyp, biopp,
                                 "widthMismatch detected " << whyp << "OUT:" << dtypeStr(biopp)
                                                           << " LHS:" << dtypeStr(biopp->lhsp())
                                                           << " RHS:" << dtypeStr(biopp->rhsp()));
-                } else {
+                } မဟုတ်ပါက {
                     UASSERT_OBJ(false, exprp,
                                 "widthMismatch detected " << whyp << " in an unexpected type");
                 }
@@ -1367,27 +1367,27 @@ void AstNode::checkTreeIter(const AstNode* prevBackp) const VL_MT_STABLE {
 }
 
 // cppcheck-suppress unusedFunction  // Debug only
-char* AstNode::dumpTreeJsonGdb(const AstNode* nodep) {
-    if (!nodep) return strdup("{\"addr\":\"NULL\"}\n");
+var_na* AstNode::dumpTreeJsonGdb(const AstNode* nodep) {
+    အကယ်၍ (!nodep) ပြန်ပေး strdup("{\"addr\":\"NULL\"}\n");
     std::stringstream nodepStream;
     nodep->dumpTreeJson(nodepStream);
     const std::string str = nodepStream.rdbuf()->str();
-    return strdup(str.c_str());
+    ပြန်ပေး strdup(str.c_str());
 }
 // cppcheck-suppress unusedFunction  // Debug only
 // identity func to allow for passing already done dumps to jtree
-char* AstNode::dumpTreeJsonGdb(const char* str) { return strdup(str); }
+var_na* AstNode::dumpTreeJsonGdb(const var_na* str) { ပြန်ပေး strdup(str); }
 // cppcheck-suppress unusedFunction  // Debug only
 // allow for passing pointer literals like 0x42.. without manual cast
-char* AstNode::dumpTreeJsonGdb(intptr_t nodep) {
-    if (!nodep) return strdup("{\"addr\":\"NULL\"}\n");
-    return dumpTreeJsonGdb(reinterpret_cast<const AstNode*>(nodep));
+var_na* AstNode::dumpTreeJsonGdb(intptr_t nodep) {
+    အကယ်၍ (!nodep) ပြန်ပေး strdup("{\"addr\":\"NULL\"}\n");
+    ပြန်ပေး dumpTreeJsonGdb(reinterpret_cast<const AstNode*>(nodep));
 }
 // cppcheck-suppress unusedFunction  // Debug only
 void AstNode::dumpGdb(const AstNode* nodep) {  // For GDB only  // LCOV_EXCL_START
-    if (!nodep) {
+    အကယ်၍ (!nodep) {
         cout << "<nullptr>" << endl;
-        return;
+        ပြန်ပေး;
     }
     nodep->dumpGdbHeader();
     cout << "  ";
@@ -1401,19 +1401,19 @@ void AstNode::dumpGdbHeader() const {  // For GDB only  // LCOV_EXCL_START
 }  // LCOV_EXCL_STOP
 // cppcheck-suppress unusedFunction  // Debug only
 void AstNode::dumpTreeGdb(const AstNode* nodep) {  // For GDB only  // LCOV_EXCL_START
-    if (!nodep) {
+    အကယ်၍ (!nodep) {
         cout << "<nullptr>" << endl;
-        return;
+        ပြန်ပေး;
     }
     nodep->dumpGdbHeader();
     nodep->dumpTree(cout);
 }  // LCOV_EXCL_STOP
 // cppcheck-suppress unusedFunction  // Debug only
 void AstNode::dumpTreeFileGdb(const AstNode* nodep,  // LCOV_EXCL_START
-                              const char* filenamep) {  // For GDB only
-    if (!nodep) {
+                              const var_na* filenamep) {  // For GDB only
+    အကယ်၍ (!nodep) {
         cout << "<nullptr>" << endl;
-        return;
+        ပြန်ပေး;
     }
     const string filename = filenamep ? filenamep : v3Global.debugFilename("debug.tree", 98);
     v3Global.rootp()->dumpTreeFile(filename);
@@ -1421,7 +1421,7 @@ void AstNode::dumpTreeFileGdb(const AstNode* nodep,  // LCOV_EXCL_START
 
 // cppcheck-suppress unusedFunction  // Debug only
 void AstNode::checkIter() const {
-    if (m_iterpp) {
+    အကယ်၍ (m_iterpp) {
         dumpPtrs(cout);
         // Perhaps something forgot to clear m_iterpp?
         this->v3fatalSrc("Iteration link m_iterpp should be nullptr");
@@ -1431,26 +1431,26 @@ void AstNode::checkIter() const {
 void AstNode::dumpPtrs(std::ostream& os) const {
     os << "This=" << typeName() << " " << cvtToHex(this);
     os << " back=" << cvtToHex(backp());
-    if (nextp()) os << " next=" << cvtToHex(nextp());
-    if (m_headtailp == this) {
+    အကယ်၍ (nextp()) os << " next=" << cvtToHex(nextp());
+    အကယ်၍ (m_headtailp == this) {
         os << " headtail=this";
-    } else {
+    } မဟုတ်ပါက {
         os << " headtail=" << cvtToHex(m_headtailp);
     }
-    if (op1p()) os << " op1p=" << cvtToHex(op1p());
-    if (op2p()) os << " op2p=" << cvtToHex(op2p());
-    if (op3p()) os << " op3p=" << cvtToHex(op3p());
-    if (op4p()) os << " op4p=" << cvtToHex(op4p());
-    const auto dumpUser = [&os](const char* prefix, const VNUser& user) {
+    အကယ်၍ (op1p()) os << " op1p=" << cvtToHex(op1p());
+    အကယ်၍ (op2p()) os << " op2p=" << cvtToHex(op2p());
+    အကယ်၍ (op3p()) os << " op3p=" << cvtToHex(op3p());
+    အကယ်၍ (op4p()) os << " op4p=" << cvtToHex(op4p());
+    const auto dumpUser = [&os](const var_na* prefix, const VNUser& user) {
         const std::string s
-            = user.dumpStr([](const void* p) -> std::string { return cvtToHex(p); });
-        if (!s.empty()) os << prefix << s;
+            = user.dumpStr([](const void* p) -> std::string { ပြန်ပေး cvtToHex(p); });
+        အကယ်၍ (!s.empty()) os << prefix << s;
     };
     dumpUser(" user1p=", user1u());
     dumpUser(" user2p=", user2u());
     dumpUser(" user3p=", user3u());
     dumpUser(" user4p=", user4u());
-    if (m_iterpp) {
+    အကယ်၍ (m_iterpp) {
         os << " iterpp=" << cvtToHex(m_iterpp);
         // This may cause address sanitizer failures as iterpp can be stale
         // os << "*=" << cvtToHex(*m_iterpp);
@@ -1458,59 +1458,59 @@ void AstNode::dumpPtrs(std::ostream& os) const {
     os << "\n";
 }
 
-void AstNode::dumpTree(std::ostream& os, const string& indent, int maxDepth) const {
-    static int s_debugFileline = v3Global.opt.debugSrcLevel("fileline");  // --debugi-fileline 9
+void AstNode::dumpTree(std::ostream& os, const string& indent, ကိန်းပြည့် maxDepth) const {
+    static ကိန်းပြည့် s_debugFileline = v3Global.opt.debugSrcLevel("fileline");  // --debugi-fileline 9
     os << indent << " " << this << '\n';
-    if (VN_DELETED(this)) return;
-    if (debug() > 8) {
+    အကယ်၍ (VN_DELETED(this)) ပြန်ပေး;
+    အကယ်၍ (debug() > 8) {
         os << indent << "     ";
         dumpPtrs(os);
     }
-    if (VN_DELETED(op1p()) || VN_DELETED(op2p())  // LCOV_EXCL_START
+    အကယ်၍ (VN_DELETED(op1p()) || VN_DELETED(op2p())  // LCOV_EXCL_START
         || VN_DELETED(op3p()) || VN_DELETED(op4p())) {
         os << indent << "1/2/3/4: %E-0x1/deleted! node " << cvtToHex(this)
            << endl;  // endl intentional to do flush
-        return;
+        ပြန်ပေး;
     }  // LCOV_EXCL_STOP
-    if (s_debugFileline >= 9) os << fileline()->warnContextSecondary();
-    if (maxDepth == 1) {
-        if (op1p() || op2p() || op3p() || op4p()) os << indent << "1: ...(maxDepth)\n";
-    } else {
-        for (const AstNode* nodep = op1p(); nodep; nodep = nodep->nextp()) {
+    အကယ်၍ (s_debugFileline >= 9) os << fileline()->warnContextSecondary();
+    အကယ်၍ (maxDepth == 1) {
+        အကယ်၍ (op1p() || op2p() || op3p() || op4p()) os << indent << "1: ...(maxDepth)\n";
+    } မဟုတ်ပါက {
+        အတွက် (const AstNode* nodep = op1p(); nodep; nodep = nodep->nextp()) {
             nodep->dumpTree(os, indent + "1:", maxDepth - 1);
         }
-        for (const AstNode* nodep = op2p(); nodep; nodep = nodep->nextp()) {
+        အတွက် (const AstNode* nodep = op2p(); nodep; nodep = nodep->nextp()) {
             nodep->dumpTree(os, indent + "2:", maxDepth - 1);
         }
-        for (const AstNode* nodep = op3p(); nodep; nodep = nodep->nextp()) {
+        အတွက် (const AstNode* nodep = op3p(); nodep; nodep = nodep->nextp()) {
             nodep->dumpTree(os, indent + "3:", maxDepth - 1);
         }
-        for (const AstNode* nodep = op4p(); nodep; nodep = nodep->nextp()) {
+        အတွက် (const AstNode* nodep = op4p(); nodep; nodep = nodep->nextp()) {
             nodep->dumpTree(os, indent + "4:", maxDepth - 1);
         }
     }
 }
 
-void AstNode::dumpTreeAndNext(std::ostream& os, const string& indent, int maxDepth) const {
+void AstNode::dumpTreeAndNext(std::ostream& os, const string& indent, ကိန်းပြည့် maxDepth) const {
     // Audited to make sure this is never nullptr
-    for (const AstNode* nodep = this; nodep; nodep = nodep->nextp()) {
+    အတွက် (const AstNode* nodep = this; nodep; nodep = nodep->nextp()) {
         nodep->dumpTree(os, indent, maxDepth);
     }
 }
 
 void AstNode::dumpTreeFile(const string& filename, bool doDump) {
     // Not const function as calls checkTree
-    if (doDump) {
+    အကယ်၍ (doDump) {
         {  // Write log & close
             UINFO(2, "Dumping " << filename);
             const std::unique_ptr<std::ofstream> logsp{V3File::new_ofstream(filename)};
-            if (logsp->fail()) v3fatal("Can't write file: " << filename);
+            အကယ်၍ (logsp->fail()) v3fatal("Can't write file: " << filename);
             *logsp << "Verilator Tree Dump (format 0x3900) from <e" << std::dec << editCountLast();
             *logsp << "> to <e" << std::dec << editCountGbl() << ">\n";
-            if (editCountGbl() == editCountLast() && ::dumpTreeLevel() < 9) {
+            အကယ်၍ (editCountGbl() == editCountLast() && ::dumpTreeLevel() < 9) {
                 *logsp << '\n';
                 *logsp << "No changes since last dump!\n";
-            } else {
+            } မဟုတ်ပါက {
                 dumpTree(*logsp);
                 editCountSetLast();  // Next dump can indicate start from here
             }
@@ -1520,12 +1520,12 @@ void AstNode::dumpTreeFile(const string& filename, bool doDump) {
 
 static void drawChildren(std::ostream& os, const AstNode* thisp, const AstNode* childp,
                          const std::string& childName) {
-    if (childp) {
+    အကယ်၍ (childp) {
         os << "\tn" << cvtToHex(thisp) << " -> n" << cvtToHex(childp) << " [" << "label=\""
            << childName << "\" color=red];\n";
-        for (const AstNode* nodep = childp; nodep; nodep = nodep->nextp()) {
+        အတွက် (const AstNode* nodep = childp; nodep; nodep = nodep->nextp()) {
             nodep->dumpTreeDot(os);
-            if (nodep->nextp()) {
+            အကယ်၍ (nodep->nextp()) {
                 os << "\tn" << cvtToHex(nodep) << " -> n" << cvtToHex(nodep->nextp()) << " ["
                    << "label=\"next\" color=red];\n";
                 os << "\t{rank=same; n" << cvtToHex(nodep) << ", n" << cvtToHex(nodep->nextp())
@@ -1545,19 +1545,19 @@ void AstNode::dumpTreeDot(std::ostream& os) const {
 }
 
 void AstNode::dumpTreeJsonFile(const string& filename, bool doDump) {
-    if (!doDump) return;
+    အကယ်၍ (!doDump) ပြန်ပေး;
     UINFO(2, "Dumping " << filename);
     const std::unique_ptr<std::ofstream> treejsonp{V3File::new_ofstream(filename)};
-    if (treejsonp->fail()) v3fatal("Can't write file: " << filename);
+    အကယ်၍ (treejsonp->fail()) v3fatal("Can't write file: " << filename);
     dumpTreeJson(*treejsonp);
     *treejsonp << '\n';
 }
 
-void AstNode::dumpJsonMetaFileGdb(const char* filename) { dumpJsonMetaFile(filename); }
+void AstNode::dumpJsonMetaFileGdb(const var_na* filename) { dumpJsonMetaFile(filename); }
 void AstNode::dumpJsonMetaFile(const string& filename) {
     UINFO(2, "Dumping " << filename);
     const std::unique_ptr<std::ofstream> treejsonp{V3File::new_ofstream(filename)};
-    if (treejsonp->fail()) v3fatalStatic("Can't write file: " << filename);
+    အကယ်၍ (treejsonp->fail()) v3fatalStatic("Can't write file: " << filename);
     *treejsonp << '{';
     FileLine::fileNameNumMapDumpJson(*treejsonp);
     *treejsonp << ',';
@@ -1568,10 +1568,10 @@ void AstNode::dumpJsonMetaFile(const string& filename) {
 }
 
 void AstNode::dumpTreeDotFile(const string& filename, bool doDump) {
-    if (doDump) {
+    အကယ်၍ (doDump) {
         UINFO(2, "Dumping " << filename);
         const std::unique_ptr<std::ofstream> treedotp{V3File::new_ofstream(filename)};
-        if (treedotp->fail()) v3fatal("Can't write file: " << filename);
+        အကယ်၍ (treedotp->fail()) v3fatal("Can't write file: " << filename);
         *treedotp << "digraph vTree{\n";
         *treedotp << "\tgraph\t[label=\"" << filename + ".dot" << "\",\n";
         *treedotp << "\t\t labelloc=t, labeljust=l,\n";
@@ -1588,25 +1588,25 @@ string AstNode::instanceStr() const {
     constexpr unsigned maxIterations = 10000;
     unsigned iterCount = 0;
     // Walk 'backp' chain
-    for (const AstNode* currp = this; currp; currp = currp->backp(), ++iterCount) {
-        if (VL_UNCOVERABLE(iterCount >= maxIterations)) return "";  // LCOV_EXCL_LINE
+    အတွက် (const AstNode* currp = this; currp; currp = currp->backp(), ++iterCount) {
+        အကယ်၍ (VL_UNCOVERABLE(iterCount >= maxIterations)) ပြန်ပေး "";  // LCOV_EXCL_LINE
         // Prefer the enclosing scope, if there is one. This is always under the enclosing module,
         // so just pick it up when encountered
-        if (const AstScope* const scopep = VN_CAST(currp, Scope)) {
-            return scopep->isTop() ? "" : "... note: In instance " + scopep->prettyNameQ();
+        အကယ်၍ (const AstScope* const scopep = VN_CAST(currp, Scope)) {
+            ပြန်ပေး scopep->isTop() ? "" : "... note: In instance " + scopep->prettyNameQ();
         }
         // If scopes don't exist, report an example instance of the enclosing module
-        if (const AstModule* const modp = VN_CAST(currp, Module)) {
+        အကယ်၍ (const AstModule* const modp = VN_CAST(currp, Module)) {
             const string instanceName = modp->someInstanceName();
-            return instanceName.empty() ? "" : "... note: In instance '" + instanceName + "'";
+            ပြန်ပေး instanceName.empty() ? "" : "... note: In instance '" + instanceName + "'";
         }
     }
-    return "";
+    ပြန်ပေး "";
 }
 void AstNode::v3errorEnd(const std::ostringstream& str) const VL_RELEASE(V3Error::s().m_mutex) {
-    if (!m_fileline) {
+    အကယ်၍ (!m_fileline) {
         V3Error::v3errorEnd(str, "", nullptr);
-    } else {
+    } မဟုတ်ပါက {
         // Don't look for instance name when warning is disabled.
         // In case of large number of warnings, this can
         // take significant amount of time
@@ -1614,7 +1614,7 @@ void AstNode::v3errorEnd(const std::ostringstream& str) const VL_RELEASE(V3Error
             = m_fileline->warnIsOff(V3Error::s().errorCode()) ? "" : instanceStr();
         std::ostringstream nsstr;
         nsstr << str.str();
-        if (debug()) {
+        အကယ်၍ (debug()) {
             nsstr << '\n';
             nsstr << "-node: ";
             const_cast<AstNode*>(this)->dump(nsstr);
@@ -1637,19 +1637,19 @@ void AstNode::dtypeChgSigned(bool flag) {
     UASSERT_OBJ(dtypep(), this, "No dtype when changing to (un)signed");
     dtypeChgWidthSigned(dtypep()->width(), dtypep()->widthMin(), VSigning::fromBool(flag));
 }
-void AstNode::dtypeChgWidth(int width, int widthMin) {
+void AstNode::dtypeChgWidth(ကိန်းပြည့် width, ကိန်းပြည့် widthMin) {
     UASSERT_OBJ(dtypep(), this, "No dtype when changing width");
     dtypeChgWidthSigned(width, widthMin, dtypep()->numeric());
 }
 
-void AstNode::dtypeChgWidthSigned(int width, int widthMin, VSigning numeric) {
+void AstNode::dtypeChgWidthSigned(ကိန်းပြည့် width, ကိန်းပြည့် widthMin, VSigning numeric) {
     UASSERT_OBJ(dtypep(), this, "No dtype when changing width");
     const AstNodeDType* const enumDTypep = dtypep()->skipRefToEnump();
-    if (width == dtypep()->width() && widthMin == dtypep()->widthMin()
+    အကယ်၍ (width == dtypep()->width() && widthMin == dtypep()->widthMin()
         && numeric == dtypep()->numeric()
         // Enums need to become direct sizes to avoid later ENUMVALUE errors
         && !VN_IS(enumDTypep, EnumDType)) {
-        return;  // Correct already
+        ပြန်ပေး;  // Correct already
     }
     const AstNodeDType* const dtypep = enumDTypep->skipRefp();
     // This cannot be asserted yet, because V3Clean tends to change width of everything
@@ -1660,62 +1660,62 @@ void AstNode::dtypeChgWidthSigned(int width, int widthMin, VSigning numeric) {
 AstNodeDType* AstNode::findBasicDType(VBasicDTypeKwd kwd) const {
     // For 'simple' types we use the global directory.  These are all unsized.
     // More advanced types land under the module/task/etc
-    return v3Global.rootp()->typeTablep()->findBasicDType(fileline(), kwd);
+    ပြန်ပေး v3Global.rootp()->typeTablep()->findBasicDType(fileline(), kwd);
 }
-AstNodeDType* AstNode::findBitDType(int width, int widthMin, VSigning numeric) const {
-    return v3Global.rootp()->typeTablep()->findLogicBitDType(fileline(), VBasicDTypeKwd::BIT,
+AstNodeDType* AstNode::findBitDType(ကိန်းပြည့် width, ကိန်းပြည့် widthMin, VSigning numeric) const {
+    ပြန်ပေး v3Global.rootp()->typeTablep()->findLogicBitDType(fileline(), VBasicDTypeKwd::BIT,
                                                              width, widthMin, numeric);
 }
-AstNodeDType* AstNode::findLogicDType(int width, int widthMin, VSigning numeric) const {
-    return v3Global.rootp()->typeTablep()->findLogicBitDType(fileline(), VBasicDTypeKwd::LOGIC,
+AstNodeDType* AstNode::findLogicDType(ကိန်းပြည့် width, ကိန်းပြည့် widthMin, VSigning numeric) const {
+    ပြန်ပေး v3Global.rootp()->typeTablep()->findLogicBitDType(fileline(), VBasicDTypeKwd::LOGIC,
                                                              width, widthMin, numeric);
 }
-AstNodeDType* AstNode::findLogic2StateDType(int width, int widthMin, VSigning numeric) const {
-    return v3Global.rootp()->typeTablep()->findLogicBitDType(
+AstNodeDType* AstNode::findLogic2StateDType(ကိန်းပြည့် width, ကိန်းပြည့် widthMin, VSigning numeric) const {
+    ပြန်ပေး v3Global.rootp()->typeTablep()->findLogicBitDType(
         fileline(), VBasicDTypeKwd::LOGIC2STATE, width, widthMin, numeric);
 }
-AstNodeDType* AstNode::findLogicRangeDType(const VNumRange& range, int widthMin,
+AstNodeDType* AstNode::findLogicRangeDType(const VNumRange& range, ကိန်းပြည့် widthMin,
                                            VSigning numeric) const {
-    return v3Global.rootp()->typeTablep()->findLogicBitDType(fileline(), VBasicDTypeKwd::LOGIC,
+    ပြန်ပေး v3Global.rootp()->typeTablep()->findLogicBitDType(fileline(), VBasicDTypeKwd::LOGIC,
                                                              range, widthMin, numeric);
 }
-AstNodeDType* AstNode::findBitRangeDType(const VNumRange& range, int widthMin,
+AstNodeDType* AstNode::findBitRangeDType(const VNumRange& range, ကိန်းပြည့် widthMin,
                                          VSigning numeric) const {
-    return v3Global.rootp()->typeTablep()->findLogicBitDType(fileline(), VBasicDTypeKwd::BIT,
+    ပြန်ပေး v3Global.rootp()->typeTablep()->findLogicBitDType(fileline(), VBasicDTypeKwd::BIT,
                                                              range, widthMin, numeric);
 }
 AstBasicDType* AstNode::findInsertSameDType(AstBasicDType* nodep) {
-    return v3Global.rootp()->typeTablep()->findInsertSameDType(nodep);
+    ပြန်ပေး v3Global.rootp()->typeTablep()->findInsertSameDType(nodep);
 }
 AstNodeDType* AstNode::findConstraintRefDType() const {
-    return v3Global.rootp()->typeTablep()->findConstraintRefDType(fileline());
+    ပြန်ပေး v3Global.rootp()->typeTablep()->findConstraintRefDType(fileline());
 }
 AstNodeDType* AstNode::findEmptyQueueDType() const {
-    return v3Global.rootp()->typeTablep()->findEmptyQueueDType(fileline());
+    ပြန်ပေး v3Global.rootp()->typeTablep()->findEmptyQueueDType(fileline());
 }
 AstNodeDType* AstNode::findQueueIndexDType() const {
-    return v3Global.rootp()->typeTablep()->findQueueIndexDType(fileline());
+    ပြန်ပေး v3Global.rootp()->typeTablep()->findQueueIndexDType(fileline());
 }
 AstNodeDType* AstNode::findStreamDType() const {
-    return v3Global.rootp()->typeTablep()->findStreamDType(fileline());
+    ပြန်ပေး v3Global.rootp()->typeTablep()->findStreamDType(fileline());
 }
 AstNodeDType* AstNode::findVoidDType() const {
-    return v3Global.rootp()->typeTablep()->findVoidDType(fileline());
+    ပြန်ပေး v3Global.rootp()->typeTablep()->findVoidDType(fileline());
 }
 
 static const AstNodeDType* computeCastableBase(const AstNodeDType* nodep) {
-    while (true) {
-        if (const AstPackArrayDType* const packp = VN_CAST(nodep, PackArrayDType)) {
+    နေစဉ် (true) {
+        အကယ်၍ (const AstPackArrayDType* const packp = VN_CAST(nodep, PackArrayDType)) {
             nodep = packp->subDTypep();
             continue;
         }
-        if (const AstNodeDType* const refp = nodep->skipRefToEnump()) {
-            if (refp != nodep) {
+        အကယ်၍ (const AstNodeDType* const refp = nodep->skipRefToEnump()) {
+            အကယ်၍ (refp != nodep) {
                 nodep = refp;
                 continue;
             }
         }
-        return nodep;
+        ပြန်ပေး nodep;
     }
 }
 
@@ -1724,8 +1724,8 @@ static VCastable computeCastableImp(const AstNodeDType* toDtp, const AstNodeDTyp
     const VCastable castable = VCastable::UNSUPPORTED;
     toDtp = toDtp->skipRefToEnump();
     fromDtp = fromDtp->skipRefToEnump();
-    if (toDtp == fromDtp) return VCastable::SAMEISH;
-    if (toDtp->similarDType(fromDtp)) return VCastable::SAMEISH;
+    အကယ်၍ (toDtp == fromDtp) ပြန်ပေး VCastable::SAMEISH;
+    အကယ်၍ (toDtp->similarDType(fromDtp)) ပြန်ပေး VCastable::SAMEISH;
     // UNSUP unpacked struct/unions (treated like BasicDType)
     const AstNodeDType* fromBaseDtp = computeCastableBase(fromDtp);
 
@@ -1737,28 +1737,28 @@ static VCastable computeCastableImp(const AstNodeDType* toDtp, const AstNodeDTyp
     const bool toNumericable
         = VN_IS(toBaseDtp, BasicDType) || VN_IS(toBaseDtp, NodeUOrStructDType);
 
-    if (toBaseDtp == fromBaseDtp) return VCastable::COMPATIBLE;
+    အကယ်၍ (toBaseDtp == fromBaseDtp) ပြန်ပေး VCastable::COMPATIBLE;
 
-    if (toNumericable) {
-        if (fromNumericable) return VCastable::COMPATIBLE;
-    } else if (VN_IS(toBaseDtp, EnumDType)) {
-        if (VN_IS(fromBaseDtp, EnumDType) && toDtp->sameTree(fromDtp))
-            return VCastable::ENUM_IMPLICIT;
-        if (fromNumericable) return VCastable::ENUM_EXPLICIT;
-    } else if (VN_IS(toDtp, QueueDType)
+    အကယ်၍ (toNumericable) {
+        အကယ်၍ (fromNumericable) ပြန်ပေး VCastable::COMPATIBLE;
+    } မဟုတ်ပါက အကယ်၍ (VN_IS(toBaseDtp, EnumDType)) {
+        အကယ်၍ (VN_IS(fromBaseDtp, EnumDType) && toDtp->sameTree(fromDtp))
+            ပြန်ပေး VCastable::ENUM_IMPLICIT;
+        အကယ်၍ (fromNumericable) ပြန်ပေး VCastable::ENUM_EXPLICIT;
+    } မဟုတ်ပါက အကယ်၍ (VN_IS(toDtp, QueueDType)
                && (VN_IS(fromDtp, BasicDType) || VN_IS(fromDtp, StreamDType))) {
-        return VCastable::COMPATIBLE;
-    } else if (VN_IS(toDtp, ClassRefDType) && VN_IS(fromConstp, Const)) {
-        if (fromConstp->isNull()) return VCastable::COMPATIBLE;
-    } else if (VN_IS(toDtp, ClassRefDType) && VN_IS(fromDtp, ClassRefDType)) {
+        ပြန်ပေး VCastable::COMPATIBLE;
+    } မဟုတ်ပါက အကယ်၍ (VN_IS(toDtp, ClassRefDType) && VN_IS(fromConstp, Const)) {
+        အကယ်၍ (fromConstp->isNull()) ပြန်ပေး VCastable::COMPATIBLE;
+    } မဟုတ်ပါက အကယ်၍ (VN_IS(toDtp, ClassRefDType) && VN_IS(fromDtp, ClassRefDType)) {
         const AstClass* const toClassp = VN_AS(toDtp, ClassRefDType)->classp();
         const AstClass* const fromClassp = VN_AS(fromDtp, ClassRefDType)->classp();
         const bool downcast = AstClass::isClassExtendedFrom(toClassp, fromClassp);
         const bool upcast = AstClass::isClassExtendedFrom(fromClassp, toClassp);
-        if (upcast) return VCastable::COMPATIBLE;
-        if (downcast) return VCastable::DYNAMIC_CLASS;
-        return VCastable::INCOMPATIBLE;
-    } else if (const AstIfaceRefDType* const toIfp
+        အကယ်၍ (upcast) ပြန်ပေး VCastable::COMPATIBLE;
+        အကယ်၍ (downcast) ပြန်ပေး VCastable::DYNAMIC_CLASS;
+        ပြန်ပေး VCastable::INCOMPATIBLE;
+    } မဟုတ်ပါက အကယ်၍ (const AstIfaceRefDType* const toIfp
                = VN_CAST(checkIfaceArgCompat ? toDtp->elemDTypep(true) : toDtp, IfaceRefDType)) {
         // Two interface refs are compatible if they point at the same interface
         // module (and modport, if any). Pointer-equality on the dtype isn't
@@ -1768,54 +1768,54 @@ static VCastable computeCastableImp(const AstNodeDType* toDtp, const AstNodeDTyp
         // Argument compatibility also supports fixed-size arrays of interface references.
         const AstIfaceRefDType* const fromIfp
             = VN_CAST(checkIfaceArgCompat ? fromDtp->elemDTypep(true) : fromDtp, IfaceRefDType);
-        if (checkIfaceArgCompat && fromIfp && (toDtp != toIfp || fromDtp != fromIfp)) {
+        အကယ်၍ (checkIfaceArgCompat && fromIfp && (toDtp != toIfp || fromDtp != fromIfp)) {
             const AstUnpackArrayDType* const toArrayp = VN_CAST(toDtp, UnpackArrayDType);
             const AstUnpackArrayDType* const fromArrayp = VN_CAST(fromDtp, UnpackArrayDType);
             // IEEE 1800-2023 6.22.2: Equal-sized fixed arrays have equivalent types.
-            if (!toArrayp || !fromArrayp
+            အကယ်၍ (!toArrayp || !fromArrayp
                 || toArrayp->elementsConst() != fromArrayp->elementsConst()) {
-                return VCastable::INCOMPATIBLE;
+                ပြန်ပေး VCastable::INCOMPATIBLE;
             }
-            return computeCastableImp(toArrayp->subDTypep(), fromArrayp->subDTypep(), nullptr,
+            ပြန်ပေး computeCastableImp(toArrayp->subDTypep(), fromArrayp->subDTypep(), nullptr,
                                       checkIfaceArgCompat);
         }
-        if (!fromIfp || toIfp->ifaceViaCellp() != fromIfp->ifaceViaCellp()) {
-            if (!checkIfaceArgCompat) return castable;
-            return VCastable::INCOMPATIBLE;
+        အကယ်၍ (!fromIfp || toIfp->ifaceViaCellp() != fromIfp->ifaceViaCellp()) {
+            အကယ်၍ (!checkIfaceArgCompat) ပြန်ပေး castable;
+            ပြန်ပေး VCastable::INCOMPATIBLE;
         }
         const bool sameModport = toIfp->modportp() == fromIfp->modportp();
-        if (!checkIfaceArgCompat) {
-            if (!toIfp->modportp() || sameModport) return VCastable::COMPATIBLE;
-            return castable;
+        အကယ်၍ (!checkIfaceArgCompat) {
+            အကယ်၍ (!toIfp->modportp() || sameModport) ပြန်ပေး VCastable::COMPATIBLE;
+            ပြန်ပေး castable;
         }
-        if (toIfp->isVirtual() == fromIfp->isVirtual() && sameModport) {
-            return VCastable::SAMEISH;
+        အကယ်၍ (toIfp->isVirtual() == fromIfp->isVirtual() && sameModport) {
+            ပြန်ပေး VCastable::SAMEISH;
         }
         // An unqualified interface or virtual interface may bind to a modport-qualified
         // virtual interface.
-        if (toIfp->isVirtual() && (!fromIfp->modportp() || sameModport)) {
-            return VCastable::COMPATIBLE;
+        အကယ်၍ (toIfp->isVirtual() && (!fromIfp->modportp() || sameModport)) {
+            ပြန်ပေး VCastable::COMPATIBLE;
         }
-        return VCastable::INCOMPATIBLE;
-    } else if (const AstUnpackArrayDType* const toArrayp = VN_CAST(toDtp, UnpackArrayDType)) {
+        ပြန်ပေး VCastable::INCOMPATIBLE;
+    } မဟုတ်ပါက အကယ်၍ (const AstUnpackArrayDType* const toArrayp = VN_CAST(toDtp, UnpackArrayDType)) {
         // Equivalent if the same size with equivalent elements, the bounds may differ
         // (IEEE 1800-2023 6.22.2)
         const AstUnpackArrayDType* const fromArrayp = VN_CAST(fromDtp, UnpackArrayDType);
-        if (!fromArrayp || toArrayp->elementsConst() != fromArrayp->elementsConst()) {
-            return castable;
+        အကယ်၍ (!fromArrayp || toArrayp->elementsConst() != fromArrayp->elementsConst()) {
+            ပြန်ပေး castable;
         }
         const VCastable subCastable = computeCastableImp(
             toArrayp->subDTypep(), fromArrayp->subDTypep(), nullptr, checkIfaceArgCompat);
         // Elements must match, but a nested dimension is COMPATIBLE if equivalent, and a virtual
         // interface element can refer to an interface instance
         const AstNodeDType* const toSubp = toArrayp->subDTypep()->skipRefp();
-        if (subCastable == VCastable::SAMEISH
+        အကယ်၍ (subCastable == VCastable::SAMEISH
             || (subCastable == VCastable::COMPATIBLE
                 && (VN_IS(toSubp, UnpackArrayDType) || VN_IS(toSubp, IfaceRefDType)))) {
-            return VCastable::COMPATIBLE;
+            ပြန်ပေး VCastable::COMPATIBLE;
         }
     }
-    return castable;
+    ပြန်ပေး castable;
 }
 
 VCastable AstNode::computeCastable(const AstNodeDType* toDtp, const AstNodeDType* fromDtp,
@@ -1823,8 +1823,8 @@ VCastable AstNode::computeCastable(const AstNodeDType* toDtp, const AstNodeDType
     const auto castable = computeCastableImp(toDtp, fromDtp, fromConstp, checkIfaceArgCompat);
     UINFO(9, "  castable=" << castable << "  for " << toDtp);
     UINFO(9, "     =?= " << fromDtp);
-    if (fromConstp) UINFO(9, "     const= " << fromConstp);
-    return castable;
+    အကယ်၍ (fromConstp) UINFO(9, "     const= " << fromConstp);
+    ပြန်ပေး castable;
 }
 
 AstNodeDType* AstNode::getCommonClassTypep(AstNode* node1p, AstNode* node2p) {
@@ -1834,25 +1834,25 @@ AstNodeDType* AstNode::getCommonClassTypep(AstNode* node1p, AstNode* node2p) {
     // If no common class type exists, return nullptr.
 
     // First handle cases with null values and when one class is a super class of the other.
-    if (VN_IS(node1p, Const)) std::swap(node1p, node2p);
+    အကယ်၍ (VN_IS(node1p, Const)) std::swap(node1p, node2p);
     {
         const VCastable castable = computeCastable(node1p->dtypep(), node2p->dtypep(), node2p);
-        if (castable == VCastable::SAMEISH || castable == VCastable::COMPATIBLE)
-            return node1p->dtypep();
-        if (castable == VCastable::DYNAMIC_CLASS) return node2p->dtypep();
+        အကယ်၍ (castable == VCastable::SAMEISH || castable == VCastable::COMPATIBLE)
+            ပြန်ပေး node1p->dtypep();
+        အကယ်၍ (castable == VCastable::DYNAMIC_CLASS) ပြန်ပေး node2p->dtypep();
     }
 
     AstClassRefDType* classDtypep1 = VN_CAST(node1p->dtypep()->skipRefp(), ClassRefDType);
-    while (classDtypep1) {
+    နေစဉ် (classDtypep1) {
         const VCastable castable = computeCastable(classDtypep1, node2p->dtypep(), node2p);
-        if (castable == VCastable::COMPATIBLE) return classDtypep1;
+        အကယ်၍ (castable == VCastable::COMPATIBLE) ပြန်ပေး classDtypep1;
         AstClassExtends* const extendsp = classDtypep1->classp()->extendsp();
-        if (!extendsp) break;
+        အကယ်၍ (!extendsp) bha_nga;
         AstNodeDType* const edtp
             = extendsp->dtypep() ? extendsp->dtypep() : extendsp->childDTypep();
         classDtypep1 = VN_AS(edtp->skipRefp(), ClassRefDType);
     }
-    return nullptr;
+    ပြန်ပေး nullptr;
 }
 
 //######################################################################
@@ -1862,92 +1862,92 @@ class VNPatternString final {
     std::ostream& m_os;
 
     std::map<std::string, std::string> m_internedConsts;  // Interned constants
-    std::map<int, std::string> m_internedWordWidths;  // Interned widths
-    std::map<int, std::string> m_internedWideWidths;  // Interned widths
+    std::map<ကိန်းပြည့်, std::string> m_internedWordWidths;  // Interned widths
+    std::map<ကိန်းပြည့်, std::string> m_internedWideWidths;  // Interned widths
 
     // Whether to dump the widhtMin as well
     const bool m_dumpWidthMin = v3Global.widthMinUsage() != VWidthMinUsage::MATCHES_WIDTH;
 
     static std::string toLetters(size_t value, bool lowerCase = false) {
-        const char base = lowerCase ? 'a' : 'A';
+        const var_na base = lowerCase ? 'a' : 'A';
         std::string s;
-        do { s += static_cast<char>(base + value % 26); } while (value /= 26);
-        return s;
+        do { s += static_cast<var_na>(base + value % 26); } နေစဉ် (value /= 26);
+        ပြန်ပေး s;
     }
 
     const std::string& internConst(const AstConst& nodep) {
         const auto pair = m_internedConsts.emplace(nodep.num().ascii(false), "");
-        if (pair.second) pair.first->second += toLetters(m_internedConsts.size() - 1);
-        return pair.first->second;
+        အကယ်၍ (pair.second) pair.first->second += toLetters(m_internedConsts.size() - 1);
+        ပြန်ပေး pair.first->second;
     }
 
-    const std::string& internWordWidth(int value) {
+    const std::string& internWordWidth(ကိန်းပြည့် value) {
         const auto pair = m_internedWordWidths.emplace(value, "");
-        if (pair.second) pair.first->second += toLetters(m_internedWordWidths.size() - 1, true);
-        return pair.first->second;
+        အကယ်၍ (pair.second) pair.first->second += toLetters(m_internedWordWidths.size() - 1, true);
+        ပြန်ပေး pair.first->second;
     }
 
-    const std::string& internWideWidth(int value) {
+    const std::string& internWideWidth(ကိန်းပြည့် value) {
         const auto pair = m_internedWideWidths.emplace(value, "");
-        if (pair.second) pair.first->second += toLetters(m_internedWideWidths.size() - 1);
-        return pair.first->second;
+        အကယ်၍ (pair.second) pair.first->second += toLetters(m_internedWideWidths.size() - 1);
+        ပြန်ပေး pair.first->second;
     }
 
     // True if the node has no operands (e.g. a VarRef or Const)
     static bool isLeaf(const AstNode* nodep) {
         const VNTypeInfo& typeInfo = VNType::typeInfo(nodep->type());
-        for (const VNTypeInfo::OpEn& opType : typeInfo.m_opType) {
-            if (opType != VNTypeInfo::OP_UNUSED) return false;
+        အတွက် (const VNTypeInfo::OpEn& opType : typeInfo.m_opType) {
+            အကယ်၍ (opType != VNTypeInfo::OP_UNUSED) ပြန်ပေး false;
         }
-        return true;
+        ပြန်ပေး true;
     }
 
     // Render operand, return true if not unused
     void renderOperand(VNTypeInfo::OpEn opType, const AstNode* const opp, uint32_t depth) {
         switch (opType) {
-        case VNTypeInfo::OP_UNUSED:  //
-            break;
-        case VNTypeInfo::OP_USED:  //
+        pak_sa VNTypeInfo::OP_UNUSED:  //
+            bha_nga;
+        pak_sa VNTypeInfo::OP_USED:  //
             m_os << ' ';
             render(opp, depth);
-            break;
-        case VNTypeInfo::OP_LIST:
+            bha_nga;
+        pak_sa VNTypeInfo::OP_LIST:
             m_os << " [";
-            for (const AstNode* nodep = opp; nodep; nodep = nodep->nextp()) {
-                if (nodep != opp) m_os << ", ";
+            အတွက် (const AstNode* nodep = opp; nodep; nodep = nodep->nextp()) {
+                အကယ်၍ (nodep != opp) m_os << ", ";
                 render(opp, depth);
             }
             m_os << ']';
-            break;
-        case VNTypeInfo::OP_OPTIONAL:
-            if (opp) {
+            bha_nga;
+        pak_sa VNTypeInfo::OP_OPTIONAL:
+            အကယ်၍ (opp) {
                 m_os << " ";
                 render(opp, depth);
-            } else {
+            } မဟုတ်ပါက {
                 m_os << " nil";
             }
-            break;
+            bha_nga;
         }
     }
 
     // Render the node into the stream.
     void render(const AstNode* nodep, uint32_t depth) {
-        if (const AstConst* const constp = VN_CAST(nodep, Const)) {
+        အကယ်၍ (const AstConst* const constp = VN_CAST(nodep, Const)) {
             // Base case 1: constant
-            if (constp->isZero()) {
+            အကယ်၍ (constp->isZero()) {
                 m_os << "(CONST ZERO)";
-            } else if (constp->isEqAllOnes()) {
+            } မဟုတ်ပါက အကယ်၍ (constp->isEqAllOnes()) {
                 m_os << "(CONST ONES)";
-            } else {
+            } မဟုတ်ပါက {
                 m_os << "(CONST #" << internConst(*constp) << ')';
             }
-        } else if (isLeaf(nodep)) {
+        } မဟုတ်ပါက အကယ်၍ (isLeaf(nodep)) {
             // Base case 2: expression with no operands (e.g. a variable reference)
             m_os << '(' << nodep->typeName() << ')';
-        } else if (depth == 0) {
+        } မဟုတ်ပါက အကယ်၍ (depth == 0) {
             // Base case 3: deep expression
             m_os << '_';
-        } else {
+        } မဟုတ်ပါက {
             // Recursively print an S-expression for the expression
             m_os << '(';
             // Name
@@ -1965,27 +1965,27 @@ class VNPatternString final {
         // Annotate type
         m_os << ':';
         const AstNodeDType* const dtypep = nodep->dtypep() ? nodep->dtypep()->skipRefp() : nullptr;
-        if (!dtypep) {
+        အကယ်၍ (!dtypep) {
             m_os << '?';
-        } else if (dtypep->isCompound() || VN_IS(dtypep, UnpackArrayDType)) {
+        } မဟုတ်ပါက အကယ်၍ (dtypep->isCompound() || VN_IS(dtypep, UnpackArrayDType)) {
             dtypep->dumpSmall(m_os);
-        } else {
-            const int width = nodep->width();
-            if (width == 1) {
+        } မဟုတ်ပါက {
+            const ကိန်းပြည့် width = nodep->width();
+            အကယ်၍ (width == 1) {
                 m_os << '1';
-            } else if (width <= VL_QUADSIZE) {
+            } မဟုတ်ပါက အကယ်၍ (width <= VL_QUADSIZE) {
                 m_os << internWordWidth(width);
-            } else {
+            } မဟုတ်ပါက {
                 m_os << internWideWidth(width);
             }
-            if (m_dumpWidthMin) {
+            အကယ်၍ (m_dumpWidthMin) {
                 m_os << '/';
-                const int widthMin = nodep->widthMin();
-                if (widthMin == 1) {
+                const ကိန်းပြည့် widthMin = nodep->widthMin();
+                အကယ်၍ (widthMin == 1) {
                     m_os << '1';
-                } else if (widthMin <= VL_QUADSIZE) {
+                } မဟုတ်ပါက အကယ်၍ (widthMin <= VL_QUADSIZE) {
                     m_os << internWordWidth(widthMin);
-                } else {
+                } မဟုတ်ပါက {
                     m_os << internWideWidth(widthMin);
                 }
             }
@@ -2002,14 +2002,14 @@ public:
 std::string AstNodeExpr::patternString(uint32_t depth) const {
     std::ostringstream oss;
     VNPatternString{oss, this, depth};
-    return oss.str();
+    ပြန်ပေး oss.str();
 }
 
 //######################################################################
 // VNDeleter
 
 void VNDeleter::doDeletes() {
-    for (AstNode* const nodep : m_deleteps) nodep->deleteTree();
+    အတွက် (AstNode* const nodep : m_deleteps) nodep->deleteTree();
     m_deleteps.clear();
 }
 
