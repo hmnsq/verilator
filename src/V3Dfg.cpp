@@ -14,106 +14,106 @@
 //
 //*************************************************************************
 
-#include "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
+#অন্তর্ভাব "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
 
-#include "V3Dfg.h"
+#অন্তর্ভাব "V3Dfg.h"
 
-#include "V3Ast.h"
-#include "V3DfgContext.h"
-#include "V3EmitV.h"
-#include "V3File.h"
+#অন্তর্ভাব "V3Ast.h"
+#অন্তর্ভাব "V3DfgContext.h"
+#অন্তর্ভাব "V3EmitV.h"
+#অন্তর্ভাব "V3File.h"
 
 VL_DEFINE_DEBUG_FUNCTIONS;
 
 //------------------------------------------------------------------------------
 // DfgGraph
 
-DfgGraph::DfgGraph(V3DfgContext& ctx, const string& name)
+DfgGraph::DfgGraph(V3DfgContext& ctx, ধ্রুবক string& name)
     : m_ctx{ctx}
     , m_name{name} {}
 
 DfgGraph::~DfgGraph() {
-    forEachVertex([&](DfgVertex& vtx) { vtx.unlinkDelete(*this); });
+    forEachVertex([&](DfgVertex& vtx) { vtx.unlinkDelete(*এই); });
 }
 
-void DfgGraph::mergeGraphs(std::vector<std::unique_ptr<DfgGraph>>&& otherps) {
-    if (otherps.empty()) return;
+শূন্য DfgGraph::mergeGraphs(std::vector<std::unique_ptr<DfgGraph>>&& otherps) {
+    যদি (otherps.empty()) ফেরত;
 
     // NODE STATE
     // AstVarScope::user2p() -> corresponding DfgVertexVar* in 'this' graph
-    const VNUser2InUse user2InUse;
+    ধ্রুবক VNUser2InUse user2InUse;
 
     // Set up Ast Variable -> DfgVertexVar map for 'this' graph
-    for (DfgVertexVar& vtx : m_varVertices) vtx.vscp()->user2p(&vtx);
+    জন্য (DfgVertexVar& vtx : m_varVertices) vtx.vscp()->user2p(&vtx);
 
     // Merge in each of the other graphs
-    for (const std::unique_ptr<DfgGraph>& otherp : otherps) {
+    জন্য (ধ্রুবক std::unique_ptr<DfgGraph>& otherp : otherps) {
         // Process variables
-        for (DfgVertexVar* const vtxp : otherp->m_varVertices.unlinkable()) {
+        জন্য (DfgVertexVar* ধ্রুবক vtxp : otherp->m_varVertices.unlinkable()) {
             // Variabels that are present in 'this', make them use the DfgVertexVar in 'this'.
-            if (DfgVertexVar* const altp = vtxp->vscp()->user2u().to<DfgVertexVar*>()) {
-                DfgVertex* const srcp = vtxp->srcp();
-                DfgVertex* const defaultp = vtxp->defaultp();
+            যদি (DfgVertexVar* ধ্রুবক altp = vtxp->vscp()->user2u().to<DfgVertexVar*>()) {
+                DfgVertex* ধ্রুবক srcp = vtxp->srcp();
+                DfgVertex* ধ্রুবক defaultp = vtxp->defaultp();
                 UASSERT_OBJ(!(srcp || defaultp) || (!altp->srcp() && !altp->defaultp()), vtxp,
                             "At most one alias should be driven");
                 vtxp->replaceWith(altp);
-                if (srcp) altp->srcp(srcp);
-                if (defaultp) altp->defaultp(defaultp);
+                যদি (srcp) altp->srcp(srcp);
+                যদি (defaultp) altp->defaultp(defaultp);
                 VL_DO_DANGLING(vtxp->unlinkDelete(*otherp), vtxp);
-                continue;
+                চালু;
             }
             // Otherwise they will be moved
             vtxp->vscp()->user2p(vtxp);
             vtxp->m_userGeneration = 0;
 #ifdef VL_DEBUG
-            vtxp->m_dfgp = this;
+            vtxp->m_dfgp = এই;
 #endif
         }
         m_varVertices.splice(m_varVertices.end(), otherp->m_varVertices);
         // Process Ast references
-        for (DfgVertexAst* const vtxp : otherp->m_astVertices.unlinkable()) {
+        জন্য (DfgVertexAst* ধ্রুবক vtxp : otherp->m_astVertices.unlinkable()) {
             vtxp->m_userGeneration = 0;
 #ifdef VL_DEBUG
-            vtxp->m_dfgp = this;
+            vtxp->m_dfgp = এই;
 #endif
         }
         m_astVertices.splice(m_astVertices.end(), otherp->m_astVertices);
         // Process constants
-        for (DfgConst& vtx : otherp->m_constVertices) {
+        জন্য (DfgConst& vtx : otherp->m_constVertices) {
             vtx.m_userGeneration = 0;
 #ifdef VL_DEBUG
-            vtx.m_dfgp = this;
+            vtx.m_dfgp = এই;
 #endif
         }
         m_constVertices.splice(m_constVertices.end(), otherp->m_constVertices);
         // Process operations
-        for (DfgVertex& vtx : otherp->m_opVertices) {
+        জন্য (DfgVertex& vtx : otherp->m_opVertices) {
             vtx.m_userGeneration = 0;
 #ifdef VL_DEBUG
-            vtx.m_dfgp = this;
+            vtx.m_dfgp = এই;
 #endif
         }
         m_opVertices.splice(m_opVertices.end(), otherp->m_opVertices);
         // Update graph sizes
-        m_size += otherp->m_size;
-        otherp->m_size = 0;
+        m_আকার += otherp->m_আকার;
+        otherp->m_আকার = 0;
     }
 }
 
-DfgVertexVar* DfgGraph::makeNewVar(FileLine* flp, const std::string& prefix,
-                                   const DfgDataType& dtype, AstScope* scopep) {
-    AstVarScope* const vscp = m_ctx.m_sharedTmps.make(flp, scopep, dtype.astDtypep(), prefix);
+DfgVertexVar* DfgGraph::makeNewVar(File_সারি* flp, ধ্রুবক std::string& prefix,
+                                   ধ্রুবক Dfg_তথ্য_Type& dtype, AstScope* scopep) {
+    AstVarScope* ধ্রুবক vscp = m_ctx.m_sharedTmps.make(flp, scopep, dtype.astDtypep(), prefix);
     // Create and return the corresponding variable vertex
-    if (dtype.isArray()) return new DfgVarArray{*this, vscp};
-    return new DfgVarPacked{*this, vscp};
+    যদি (dtype.isArray()) ফেরত নতুন DfgVarArray{*এই, vscp};
+    ফেরত নতুন DfgVarPacked{*এই, vscp};
 }
 
-static const std::string toDotId(const DfgVertex& vtx) { return '"' + cvtToHex(&vtx) + '"'; }
+স্থির ধ্রুবক std::string toDotId(ধ্রুবক DfgVertex& vtx) { ফেরত '"' + cvtToHex(&vtx) + '"'; }
 
 // Dump one DfgVertex in Graphviz format
-static void dumpDotVertex(std::ostream& os, const DfgVertex& vtx) {
-    if (const DfgVertexVar* const varVtxp = vtx.cast<DfgVertexVar>()) {
-        const AstVarScope* const vscp = varVtxp->vscp();
+স্থির শূন্য dumpDotVertex(std::ostream& os, ধ্রুবক DfgVertex& vtx) {
+    যদি (ধ্রুবক DfgVertexVar* ধ্রুবক varVtxp = vtx.cast<DfgVertexVar>()) {
+        ধ্রুবক AstVarScope* ধ্রুবক vscp = varVtxp->vscp();
         os << toDotId(vtx);
         // Begin attributes
         os << " [";
@@ -124,8 +124,8 @@ static void dumpDotVertex(std::ostream& os, const DfgVertex& vtx) {
         // Address
         os << '\n' << cvtToHex(varVtxp);
         // Original variable, if any
-        if (const AstVarScope* const tmpForp = varVtxp->tmpForp()) {
-            if (tmpForp != vscp) os << "\ntemporary for: " << tmpForp->prettyName();
+        যদি (ধ্রুবক AstVarScope* ধ্রুবক tmpForp = varVtxp->tmpForp()) {
+            যদি (tmpForp != vscp) os << "\ntemporary for: " << tmpForp->prettyName();
         }
         // Type and fanout
         os << '\n';
@@ -133,22 +133,22 @@ static void dumpDotVertex(std::ostream& os, const DfgVertex& vtx) {
         os << " / F" << varVtxp->fanout();
         // Reference flags
         os << " / ";
-        static const char* const rwmn[2][2] = {{"_", "W"}, {"R", "M"}};
+        স্থির ধ্রুবক অক্ষর* ধ্রুবক rwmn[2][2] = {{"_", "W"}, {"R", "M"}};
         os << rwmn[varVtxp->hasExtRdRefs()][varVtxp->hasExtWrRefs()];
-        os << rwmn[false][varVtxp->hasModWrRefs()];
+        os << rwmn[মিথ্যা][varVtxp->hasModWrRefs()];
         os << (varVtxp->hasDfgRefs() ? "D" : "_");
         // End 'label'
         os << '"';
         // Shape
-        if (varVtxp->is<DfgVarPacked>()) {
+        যদি (varVtxp->is<DfgVarPacked>()) {
             os << ", shape=box";
-        } else if (varVtxp->is<DfgVarArray>()) {
+        } অন্যথা যদি (varVtxp->is<DfgVarArray>()) {
             os << ", shape=box3d";
-        } else {
+        } অন্যথা {
             varVtxp->v3fatalSrc("Unhandled DfgVertexVar sub-type");
         }
         // Color
-        const char* const colorp = varVtxp->hasExtRefs()     ? "firebrick2"  // Red
+        ধ্রুবক অক্ষর* ধ্রুবক colorp = varVtxp->hasExtRefs()     ? "firebrick2"  // Red
                                    : varVtxp->hasModWrRefs() ? "darkorange1"  // Orange
                                    : varVtxp->hasDfgRefs()   ? "gold2"  // Yellow
                                    : varVtxp->tmpForp()      ? "gray95"  // Gray
@@ -157,11 +157,11 @@ static void dumpDotVertex(std::ostream& os, const DfgVertex& vtx) {
         os << ", fillcolor=\"" << colorp << "\"";
         // End attributes
         os << "]\n";
-        return;
+        ফেরত;
     }
 
-    if (const DfgPrev* const prevVtxp = vtx.cast<DfgPrev>()) {
-        const AstVarScope* const vscp = prevVtxp->vscp();
+    যদি (ধ্রুবক Dfg_পূর্ব* ধ্রুবক পূর্ব_Vtxp = vtx.cast<Dfg_পূর্ব>()) {
+        ধ্রুবক AstVarScope* ধ্রুবক vscp = পূর্ব_Vtxp->vscp();
         os << toDotId(vtx);
         // Begin attributes
         os << " [";
@@ -170,89 +170,89 @@ static void dumpDotVertex(std::ostream& os, const DfgVertex& vtx) {
         // Name
         os << vscp->prettyName();
         // Address
-        os << '\n' << cvtToHex(prevVtxp);
+        os << '\n' << cvtToHex(পূর্ব_Vtxp);
         // Type and fanout
         os << '\n';
-        prevVtxp->dtype().astDtypep()->dumpSmall(os);
-        os << " / F" << prevVtxp->fanout();
+        পূর্ব_Vtxp->dtype().astDtypep()->dumpSmall(os);
+        os << " / F" << পূর্ব_Vtxp->fanout();
         // End 'label'
         os << '"';
         // Shape
-        if (prevVtxp->isPacked()) {
+        যদি (পূর্ব_Vtxp->isPacked()) {
             os << ", shape=box";
-        } else if (prevVtxp->isArray()) {
+        } অন্যথা যদি (পূর্ব_Vtxp->isArray()) {
             os << ", shape=box3d";
-        } else {
-            prevVtxp->v3fatalSrc("Unhandled variable type");
+        } অন্যথা {
+            পূর্ব_Vtxp->v3fatalSrc("Unhandled variable type");
         }
         // Color
-        const char* const colorp = "mediumorchid1";  // Purple
+        ধ্রুবক অক্ষর* ধ্রুবক colorp = "mediumorchid1";  // Purple
         os << ", style=filled";
         os << ", fillcolor=\"" << colorp << "\"";
         // End attributes
         os << "]\n";
-        return;
+        ফেরত;
     }
 
-    if (const DfgConst* const constVtxp = vtx.cast<DfgConst>()) {
-        const V3Number& num = constVtxp->num();
+    যদি (ধ্রুবক DfgConst* ধ্রুবক constVtxp = vtx.cast<DfgConst>()) {
+        ধ্রুবক V3_সংখ্যা& অঙ্ক = constVtxp->অঙ্ক();
 
         os << toDotId(vtx);
         os << " [label=\"";
-        if (num.width() <= 32 && !num.isSigned()) {
-            os << constVtxp->width() << "'d" << num.toUInt() << '\n';
-            os << constVtxp->width() << "'h" << std::hex << num.toUInt() << std::dec << '\n';
-        } else {
-            os << num.ascii() << '\n';
+        যদি (অঙ্ক.width() <= 32 && !অঙ্ক.isSigned()) {
+            os << constVtxp->width() << "'d" << অঙ্ক.toUInt() << '\n';
+            os << constVtxp->width() << "'h" << std::hex << অঙ্ক.toUInt() << std::dec << '\n';
+        } অন্যথা {
+            os << অঙ্ক.ascii() << '\n';
         }
         os << cvtToHex(constVtxp) << '\n';
         os << '"';
         os << ", shape=plain";
         os << "]\n";
-        return;
+        ফেরত;
     }
 
-    if (const DfgSel* const selVtxp = vtx.cast<DfgSel>()) {
-        const uint32_t lsb = selVtxp->lsb();
-        const uint32_t msb = lsb + selVtxp->width() - 1;
+    যদি (ধ্রুবক DfgSel* ধ্রুবক selVtxp = vtx.cast<DfgSel>()) {
+        ধ্রুবক uint32_t lsb = selVtxp->lsb();
+        ধ্রুবক uint32_t msb = lsb + selVtxp->width() - 1;
         os << toDotId(vtx);
         os << " [label=\"SEL _[" << msb << ":" << lsb << "]\n";
         os << cvtToHex(selVtxp) << '\n';
         vtx.dtype().astDtypep()->dumpSmall(os);
         os << " / F" << vtx.fanout() << '"';
-        if (vtx.hasMultipleSinks()) {
+        যদি (vtx.hasMultipleSinks()) {
             os << ", shape=doublecircle";
-        } else {
+        } অন্যথা {
             os << ", shape=circle";
         }
         os << "]\n";
-        return;
+        ফেরত;
     }
 
-    if (vtx.is<DfgVertexSplice>() || vtx.is<DfgUnitArray>() || vtx.is<DfgUnresolved>()) {
+    যদি (vtx.is<DfgVertexSplice>() || vtx.is<DfgUnitArray>() || vtx.is<DfgUnresolved>()) {
         os << toDotId(vtx);
         os << " [label=\"" << vtx.typeName() << '\n';
         os << cvtToHex(&vtx) << '\n';
         vtx.dtype().astDtypep()->dumpSmall(os);
         os << " / F" << vtx.fanout() << '"';
-        if (vtx.hasMultipleSinks()) {
+        যদি (vtx.hasMultipleSinks()) {
             os << ", shape=doubleoctagon";
-        } else {
+        } অন্যথা {
             os << ", shape=octagon";
         }
         os << "]\n";
-        return;
+        ফেরত;
     }
 
-    if (const DfgLogic* const logicp = vtx.cast<DfgLogic>()) {
+    যদি (ধ্রুবক DfgLogic* ধ্রুবক logicp = vtx.cast<DfgLogic>()) {
         os << toDotId(vtx);
         std::stringstream ss;
-        V3EmitV::debugVerilogForTree(logicp->nodep(), ss);
+        V3EmitV::debug_Verilog_For_বৃক্ষ(logicp->nodep(), ss);
         std::string str = "AstNode: " + cvtToHex(logicp->nodep()) + "\n" + ss.str();
         str = VString::quoteBackslash(str);
         str = VString::quoteAny(str, '"', '\\');
         str = VString::replaceSubstr(str, "\n", "\\l");
-        const char* const colorp = !logicp->selectedForSynthesis() ? "#d0d0ff"  // Pale Blue
+        ধ্রুবক অক্ষর* ধ্রুবক colorp = !logicp->selectedForSynthesis() ? "#d0d0ff"  // Pale Blue
                                    : logicp->nonSynthesizable()    ? "#ffd0d0"  // Pale Red
                                    : logicp->reverted()            ? "#faffd0"  // Pale Yellow
                                                                    : "#d0ffd0";  // Pale Green
@@ -264,19 +264,19 @@ static void dumpDotVertex(std::ostream& os, const DfgVertex& vtx) {
         os << ", shape=box, style=\"rounded,filled\", nojustify=true";
         os << ", fillcolor=\"" << colorp << "\"";
         os << "]\n";
-        return;
+        ফেরত;
     }
 
-    if (const DfgVertexAst* const astVtxp = vtx.cast<DfgVertexAst>()) {
+    যদি (ধ্রুবক DfgVertexAst* ধ্রুবক astVtxp = vtx.cast<DfgVertexAst>()) {
         os << toDotId(vtx);
         std::stringstream ss;
-        V3EmitV::debugVerilogForTree(astVtxp->exprp(), ss);
+        V3EmitV::debug_Verilog_For_বৃক্ষ(astVtxp->exprp(), ss);
         std::string str = "AstNode: " + cvtToHex(astVtxp->exprp()) + "\n" + ss.str() + "\n";
         str = VString::quoteBackslash(str);
         str = VString::quoteAny(str, '"', '\\');
         str = VString::replaceSubstr(str, "\n", "\\l");
-        const DfgAstRd* const astRdVtxp = astVtxp->cast<DfgAstRd>();
-        const char* const colorp = astRdVtxp ? "#80ff80"  // Green
+        ধ্রুবক DfgAstRd* ধ্রুবক astRdVtxp = astVtxp->cast<DfgAstRd>();
+        ধ্রুবক অক্ষর* ধ্রুবক colorp = astRdVtxp ? "#80ff80"  // Green
                                              : "#ffff80";  // Yellow
         os << " [label=\"";
         os << str;
@@ -289,7 +289,7 @@ static void dumpDotVertex(std::ostream& os, const DfgVertex& vtx) {
         os << ", shape=box, style=\"rounded,filled\", nojustify=true";
         os << ", fillcolor=\"" << colorp << "\"";
         os << "]\n";
-        return;
+        ফেরত;
     }
 
     os << toDotId(vtx);
@@ -297,16 +297,16 @@ static void dumpDotVertex(std::ostream& os, const DfgVertex& vtx) {
     os << cvtToHex(&vtx) << '\n';
     vtx.dtype().astDtypep()->dumpSmall(os);
     os << " / F" << vtx.fanout() << '"';
-    if (vtx.hasMultipleSinks()) {
+    যদি (vtx.hasMultipleSinks()) {
         os << ", shape=doublecircle";
-    } else {
+    } অন্যথা {
         os << ", shape=circle";
     }
     os << "]\n";
 }
 
-void DfgGraph::dumpDot(std::ostream& os, const std::string& label,
-                       std::function<bool(const DfgVertex&)> p) const {
+শূন্য DfgGraph::dumpDot(std::ostream& os, ধ্রুবক std::string& label,
+                       std::function<যৌক্তিক(ধ্রুবক DfgVertex&)> p) ধ্রুবক {
     // This generates a graphviz dump, https://www.graphviz.org
 
     // Header
@@ -314,38 +314,38 @@ void DfgGraph::dumpDot(std::ostream& os, const std::string& label,
     os << "rankdir=LR\n";
 
     // If predicate not given, dump everything
-    if (!p) p = [](const DfgVertex&) { return true; };
+    যদি (!p) p = [](ধ্রুবক DfgVertex&) { ফেরত সত্য; };
 
-    std::unordered_set<const DfgVertex*> emitted;
+    std::unordered_set<ধ্রুবক DfgVertex*> emitted;
     // Emit all vertices associated with a DfgLogic
-    forEachVertex([&](const DfgVertex& vtx) {
-        const DfgLogic* const logicp = vtx.cast<DfgLogic>();
-        if (!logicp) return;
-        if (logicp->synth().empty()) return;
-        if (!p(vtx)) return;
+    forEachVertex([&](ধ্রুবক DfgVertex& vtx) {
+        ধ্রুবক DfgLogic* ধ্রুবক logicp = vtx.cast<DfgLogic>();
+        যদি (!logicp) ফেরত;
+        যদি (logicp->synth().empty()) ফেরত;
+        যদি (!p(vtx)) ফেরত;
         os << "subgraph cluster_" << cvtToHex(logicp) << " {\n";
         dumpDotVertex(os, *logicp);
-        emitted.insert(logicp);
-        for (DfgVertex* const vtxp : logicp->synth()) {
-            if (!p(*vtxp)) continue;
+        emitted.ঢোকাও(logicp);
+        জন্য (DfgVertex* ধ্রুবক vtxp : logicp->synth()) {
+            যদি (!p(*vtxp)) চালু;
             dumpDotVertex(os, *vtxp);
-            emitted.insert(vtxp);
+            emitted.ঢোকাও(vtxp);
         }
         os << "}\n";
     });
     // Emit all remaining vertices
-    forEachVertex([&](const DfgVertex& vtx) {
-        if (emitted.count(&vtx)) return;
-        if (!p(vtx)) return;
+    forEachVertex([&](ধ্রুবক DfgVertex& vtx) {
+        যদি (emitted.গুনতি(&vtx)) ফেরত;
+        যদি (!p(vtx)) ফেরত;
         dumpDotVertex(os, vtx);
     });
     // Emit all edges
-    forEachVertex([&](const DfgVertex& vtx) {
-        if (!p(vtx)) return;
-        for (size_t i = 0; i < vtx.nInputs(); ++i) {
-            DfgVertex* const srcp = vtx.inputp(i);
-            if (!srcp) continue;
-            if (!p(*srcp)) continue;
+    forEachVertex([&](ধ্রুবক DfgVertex& vtx) {
+        যদি (!p(vtx)) ফেরত;
+        জন্য (আকার_t i = 0; i < vtx.nInputs(); ++i) {
+            DfgVertex* ধ্রুবক srcp = vtx.inputp(i);
+            যদি (!srcp) চালু;
+            যদি (!p(*srcp)) চালু;
             os << toDotId(*srcp) << " -> " << toDotId(vtx);
             os << " [headlabel=\"" << vtx.srcName(i) << "\"]";
             os << '\n';
@@ -359,606 +359,606 @@ void DfgGraph::dumpDot(std::ostream& os, const std::string& label,
     os << "}\n";
 }
 
-std::string DfgGraph::dumpDotString(const std::string& label,
-                                    std::function<bool(const DfgVertex&)> p) const {
+std::string DfgGraph::dumpDotString(ধ্রুবক std::string& label,
+                                    std::function<যৌক্তিক(ধ্রুবক DfgVertex&)> p) ধ্রুবক {
     std::stringstream ss;
     dumpDot(ss, label, p);
-    return ss.str();
+    ফেরত ss.str();
 }
 
-void DfgGraph::dumpDotFile(const std::string& filename, const std::string& label,
-                           std::function<bool(const DfgVertex&)> p) const {
-    const std::unique_ptr<std::ofstream> os{V3File::new_ofstream(filename)};
-    if (os->fail()) v3fatal("Can't write file: " << filename);
+শূন্য DfgGraph::dumpDotFile(ধ্রুবক std::string& filename, ধ্রুবক std::string& label,
+                           std::function<যৌক্তিক(ধ্রুবক DfgVertex&)> p) ধ্রুবক {
+    ধ্রুবক std::unique_ptr<std::ofstream> os{V3File::new_ofstream(filename)};
+    যদি (os->fail()) v3fatal("Can't write file: " << filename);
     dumpDot(*os.get(), label, p);
     os->close();
 }
 
-void DfgGraph::dumpDotFilePrefixed(const std::string& label,
-                                   std::function<bool(const DfgVertex&)> p) const {
+শূন্য DfgGraph::dumpDotFilePrefixed(ধ্রুবক std::string& label,
+                                   std::function<যৌক্তিক(ধ্রুবক DfgVertex&)> p) ধ্রুবক {
     std::string filename = name();
-    if (!label.empty()) filename += "-" + label;
+    যদি (!label.empty()) filename += "-" + label;
     dumpDotFile(v3Global.debugFilename(filename) + ".dot", label, p);
 }
 
-template <bool T_SinksNotSources>
-static std::unique_ptr<std::unordered_set<const DfgVertex*>>
-dfgGraphCollectCone(const std::vector<const DfgVertex*>& vtxps) {
+template <যৌক্তিক T_SinksNotSources>
+স্থির std::unique_ptr<std::unordered_set<ধ্রুবক DfgVertex*>>
+dfgGraphCollectCone(ধ্রুবক std::vector<ধ্রুবক DfgVertex*>& vtxps) {
     // Work queue for traversal starting from all the seed vertices
-    std::vector<const DfgVertex*> queue = vtxps;
+    std::vector<ধ্রুবক DfgVertex*> queue = vtxps;
     // Set of already visited vertices
-    std::unique_ptr<std::unordered_set<const DfgVertex*>> resp{
-        new std::unordered_set<const DfgVertex*>{}};
+    std::unique_ptr<std::unordered_set<ধ্রুবক DfgVertex*>> resp{
+        নতুন std::unordered_set<ধ্রুবক DfgVertex*>{}};
     // Depth first traversal
-    while (!queue.empty()) {
+    যখন (!queue.empty()) {
         // Pop next work item
-        const DfgVertex* const vtxp = queue.back();
-        queue.pop_back();
+        ধ্রুবক DfgVertex* ধ্রুবক vtxp = queue.back();
+        queue.বের_করো_back();
         // Mark vertex as visited, move on if already visited
-        if (!resp->insert(vtxp).second) continue;
+        যদি (!resp->ঢোকাও(vtxp).second) চালু;
         // Enqueue all siblings of this vertex.
-        if VL_CONSTEXPR_CXX17 (T_SinksNotSources) {
-            vtxp->foreachSink([&](const DfgVertex& sink) {
-                queue.push_back(&sink);
-                return false;
+        যদি VL_CONSTEXPR_CXX17 (T_SinksNotSources) {
+            vtxp->foreachSink([&](ধ্রুবক DfgVertex& sink) {
+                queue.ঠেলো_back(&sink);
+                ফেরত মিথ্যা;
             });
-        } else {
-            vtxp->foreachSource([&](const DfgVertex& src) {
-                queue.push_back(&src);
-                return false;
+        } অন্যথা {
+            vtxp->foreachSource([&](ধ্রুবক DfgVertex& src) {
+                queue.ঠেলো_back(&src);
+                ফেরত মিথ্যা;
             });
         }
     }
     // Done
-    return resp;
+    ফেরত resp;
 }
 
-std::unique_ptr<std::unordered_set<const DfgVertex*>>
-DfgGraph::sourceCone(const std::vector<const DfgVertex*>& vtxps) const {
-    return dfgGraphCollectCone<false>(vtxps);
+std::unique_ptr<std::unordered_set<ধ্রুবক DfgVertex*>>
+DfgGraph::sourceCone(ধ্রুবক std::vector<ধ্রুবক DfgVertex*>& vtxps) ধ্রুবক {
+    ফেরত dfgGraphCollectCone<মিথ্যা>(vtxps);
 }
 
-std::unique_ptr<std::unordered_set<const DfgVertex*>>
-DfgGraph::sinkCone(const std::vector<const DfgVertex*>& vtxps) const {
-    return dfgGraphCollectCone<true>(vtxps);
+std::unique_ptr<std::unordered_set<ধ্রুবক DfgVertex*>>
+DfgGraph::sinkCone(ধ্রুবক std::vector<ধ্রুবক DfgVertex*>& vtxps) ধ্রুবক {
+    ফেরত dfgGraphCollectCone<সত্য>(vtxps);
 }
 
-std::unique_ptr<std::unordered_set<const DfgVertex*>>
-DfgGraph::neighborhood(const std::vector<const DfgVertex*>& vtxps, size_t n) const {
+std::unique_ptr<std::unordered_set<ধ্রুবক DfgVertex*>>
+DfgGraph::neighborhood(ধ্রুবক std::vector<ধ্রুবক DfgVertex*>& vtxps, আকার_t n) ধ্রুবক {
     // Neighborhood
-    std::vector<const DfgVertex*> vec = vtxps;
+    std::vector<ধ্রুবক DfgVertex*> vec = vtxps;
     // Set of already visited vertices
-    std::unordered_set<const DfgVertex*> res{vec.begin(), vec.end()};
+    std::unordered_set<ধ্রুবক DfgVertex*> res{vec.begin(), vec.end()};
     // Expand neihborhood by 'n' hops
-    size_t begin = 0;
-    size_t end = vec.size();
-    for (size_t hops = 1; hops <= n; ++hops) {
-        for (size_t i = begin; i < end; ++i) {
-            const DfgVertex* const vtxp = vec[i];
-            vtxp->foreachSink([&](const DfgVertex& dst) {
-                if (res.insert(&dst).second) vec.push_back(&dst);
-                return false;
+    আকার_t begin = 0;
+    আকার_t end = vec.আকার_2();
+    জন্য (আকার_t hops = 1; hops <= n; ++hops) {
+        জন্য (আকার_t i = begin; i < end; ++i) {
+            ধ্রুবক DfgVertex* ধ্রুবক vtxp = vec[i];
+            vtxp->foreachSink([&](ধ্রুবক DfgVertex& dst) {
+                যদি (res.ঢোকাও(&dst).second) vec.ঠেলো_back(&dst);
+                ফেরত মিথ্যা;
             });
-            vtxp->foreachSource([&](const DfgVertex& src) {
-                if (res.insert(&src).second) vec.push_back(&src);
-                return false;
+            vtxp->foreachSource([&](ধ্রুবক DfgVertex& src) {
+                যদি (res.ঢোকাও(&src).second) vec.ঠেলো_back(&src);
+                ফেরত মিথ্যা;
             });
         }
         begin = end;
-        end = vec.size();
+        end = vec.আকার_2();
     }
     // Move out the results
-    return std::make_unique<std::unordered_set<const DfgVertex*>>(std::move(res));
+    ফেরত std::make_unique<std::unordered_set<ধ্রুবক DfgVertex*>>(std::move(res));
 }
 
 //------------------------------------------------------------------------------
 // DfgVertex
 
-DfgVertex::DfgVertex(DfgGraph& dfg, VDfgType type, FileLine* flp, const DfgDataType& dt,
+DfgVertex::DfgVertex(DfgGraph& dfg, VDfgType type, File_সারি* flp, ধ্রুবক Dfg_তথ্য_Type& dt,
                      DfgEdge* inlineInputsp, uint32_t nInputs)
     : m_inlineInputsp{inlineInputsp}
     , m_nInputs{nInputs}
     , m_filelinep{flp}
     , m_dtype{dt}
     , m_type{type} {
-    dfg.addVertex(*this);
+    dfg.addVertex(*এই);
 }
 
-bool DfgVertex::unsafe() const {
-    if (is<DfgMux>()) return true;
-    if (is<DfgArraySel>()) return !as<DfgArraySel>()->bitp()->is<DfgConst>();
-    return false;
+যৌক্তিক DfgVertex::unsafe() ধ্রুবক {
+    যদি (is<DfgMux>()) ফেরত সত্য;
+    যদি (is<DfgArraySel>()) ফেরত !as<DfgArraySel>()->bitp()->is<DfgConst>();
+    ফেরত মিথ্যা;
 }
 
-void DfgVertex::typeCheck(const DfgGraph& dfg) const {
+শূন্য DfgVertex::typeCheck(ধ্রুবক DfgGraph& dfg) ধ্রুবক {
 
-#define CHECK(cond, msg) \
-    UASSERT_OBJ(cond, this, \
+#define CHECK(cond, বার্তা) \
+    UASSERT_OBJ(cond, এই, \
                 "Dfg type error for vertex " << typeName() << " in " << dfg.name() << ": " \
-                                             << msg);
-    switch (type()) {
-    case VDfgType::Const: {
+                                             << বার্তা);
+    নির্বাচন (type()) {
+    ক্ষেত্র VDfgType::Const: {
         CHECK(isPacked(), "Should be Packed type");
-        return;
+        ফেরত;
     }
-    case VDfgType::CReset: {
+    ক্ষেত্র VDfgType::CReset: {
         CHECK(isPacked() || isArray(), "Should be Packed or Array type");
-        return;
+        ফেরত;
     }
-    case VDfgType::AstRd: {
-        const DfgAstRd& v = *as<DfgAstRd>();
+    ক্ষেত্র VDfgType::AstRd: {
+        ধ্রুবক DfgAstRd& v = *as<DfgAstRd>();
         CHECK(v.isPacked() || v.isArray(), "Should be Packed or Array type");
-        return;
+        ফেরত;
     }
-    case VDfgType::VarArray:
-    case VDfgType::VarPacked: {
-        const DfgVertexVar& v = *as<DfgVertexVar>();
+    ক্ষেত্র VDfgType::VarArray:
+    ক্ষেত্র VDfgType::VarPacked: {
+        ধ্রুবক DfgVertexVar& v = *as<DfgVertexVar>();
         CHECK(!v.defaultp() || v.defaultp()->dtype() == v.dtype(), "'defaultp' should match");
         CHECK(!v.srcp() || v.srcp()->dtype() == v.dtype(), "'srcp' should match");
-        return;
+        ফেরত;
     }
-    case VDfgType::Prev: {
+    ক্ষেত্র VDfgType::পূর্ব: {
         CHECK(isPacked() || isArray(), "Should be Packed or Array type");
-        return;
+        ফেরত;
     }
-    case VDfgType::SpliceArray:
-    case VDfgType::SplicePacked: {
-        const DfgVertexSplice& v = *as<DfgVertexSplice>();
-        v.foreachDriver([&](const DfgVertex& src, uint32_t lo) {
-            CHECK(src.dtype() == DfgDataType::select(v.dtype(), lo, src.size()), "driver");
-            return false;
+    ক্ষেত্র VDfgType::SpliceArray:
+    ক্ষেত্র VDfgType::SplicePacked: {
+        ধ্রুবক DfgVertexSplice& v = *as<DfgVertexSplice>();
+        v.foreachDriver([&](ধ্রুবক DfgVertex& src, uint32_t lo) {
+            CHECK(src.dtype() == Dfg_তথ্য_Type::select(v.dtype(), lo, src.আকার_2()), "driver");
+            ফেরত মিথ্যা;
         });
-        return;
+        ফেরত;
     }
-    case VDfgType::Logic: {
+    ক্ষেত্র VDfgType::Logic: {
         CHECK(dtype().isNull(), "Should be Null type");
-        return;
+        ফেরত;
     }
-    case VDfgType::Unresolved: {
+    ক্ষেত্র VDfgType::Unresolved: {
         CHECK(!dtype().isNull(), "Should not be Null type");
-        return;
+        ফেরত;
     }
-    case VDfgType::UnitArray: {
-        const DfgUnitArray& v = *as<DfgUnitArray>();
+    ক্ষেত্র VDfgType::UnitArray: {
+        ধ্রুবক DfgUnitArray& v = *as<DfgUnitArray>();
         CHECK(v.isArray(), "Should be Array type");
-        CHECK(v.size() == 1, "Should be one element");
+        CHECK(v.আকার_2() == 1, "Should be one element");
         CHECK(v.srcp()->dtype() == v.dtype().elemDtype(), "Input should be the element type");
-        return;
+        ফেরত;
     }
-    case VDfgType::Sel: {
-        const DfgSel& v = *as<DfgSel>();
+    ক্ষেত্র VDfgType::Sel: {
+        ধ্রুবক DfgSel& v = *as<DfgSel>();
         CHECK(v.isPacked(), "Should be Packed type");
-        CHECK(v.dtype() == DfgDataType::select(v.srcp()->dtype(), v.lsb(), v.size()), "sel");
-        return;
+        CHECK(v.dtype() == Dfg_তথ্য_Type::select(v.srcp()->dtype(), v.lsb(), v.আকার_2()), "sel");
+        ফেরত;
     }
-    case VDfgType::MatchMasked: {
-        const DfgMatchMasked& v = *as<DfgMatchMasked>();
+    ক্ষেত্র VDfgType::MatchMasked: {
+        ধ্রুবক DfgMatchMasked& v = *as<DfgMatchMasked>();
         CHECK(v.isPacked(), "Should be Packed type");
-        CHECK(v.size() == 32U, "Should yield a 32-bit result");
+        CHECK(v.আকার_2() == 32U, "Should yield a 32-bit result");
         CHECK(v.lhsp()->isPacked(), "Lhs should be packed");
         CHECK(v.matchp()->isPacked(), "Match should be Packed type");
         CHECK(v.matchp()->is<DfgVertexVar>(), "Match should be a variable");
-        return;
+        ফেরত;
     }
-    case VDfgType::Mux: {
-        const DfgMux& v = *as<DfgMux>();
+    ক্ষেত্র VDfgType::Mux: {
+        ধ্রুবক DfgMux& v = *as<DfgMux>();
         CHECK(v.isPacked(), "Should be Packed type");
         CHECK(v.fromp()->isPacked(), "Source operand should be Packed type");
-        CHECK(v.fromp()->size() >= v.size(), "Source operand should not be narrower");
+        CHECK(v.fromp()->আকার_2() >= v.আকার_2(), "Source operand should not be narrower");
         CHECK(v.lsbp()->isPacked(), "Index should be Packed type");
-        return;
+        ফেরত;
     }
-    case VDfgType::ArraySel: {
-        const DfgArraySel& v = *as<DfgArraySel>();
+    ক্ষেত্র VDfgType::ArraySel: {
+        ধ্রুবক DfgArraySel& v = *as<DfgArraySel>();
         CHECK(v.dtype() == v.fromp()->dtype().elemDtype(), "Element type should match");
         CHECK(v.bitp()->isPacked(), "Index should be Packed type");
-        return;
+        ফেরত;
     }
 
-    case VDfgType::Add:
-    case VDfgType::And:
-    case VDfgType::Div:
-    case VDfgType::DivS:
-    case VDfgType::ModDiv:
-    case VDfgType::ModDivS:
-    case VDfgType::Mul:
-    case VDfgType::MulS:
-    case VDfgType::Or:
-    case VDfgType::Sub:
-    case VDfgType::Xor: {
+    ক্ষেত্র VDfgType::Add:
+    ক্ষেত্র VDfgType::And:
+    ক্ষেত্র VDfgType::Div:
+    ক্ষেত্র VDfgType::DivS:
+    ক্ষেত্র VDfgType::ModDiv:
+    ক্ষেত্র VDfgType::ModDivS:
+    ক্ষেত্র VDfgType::Mul:
+    ক্ষেত্র VDfgType::MulS:
+    ক্ষেত্র VDfgType::Or:
+    ক্ষেত্র VDfgType::Sub:
+    ক্ষেত্র VDfgType::Xor: {
         CHECK(isPacked(), "Should be Packed type");
         CHECK(inputp(0)->dtype() == dtype(), "LHS should be same type");
         CHECK(inputp(1)->dtype() == dtype(), "RHS should be same type");
-        return;
+        ফেরত;
     }
 
-    case VDfgType::Negate:
-    case VDfgType::Not: {
+    ক্ষেত্র VDfgType::Negate:
+    ক্ষেত্র VDfgType::Not: {
         CHECK(isPacked(), "Should be Packed type");
         CHECK(inputp(0)->dtype() == dtype(), "Input should be same type");
-        return;
+        ফেরত;
     }
 
-    case VDfgType::ShiftL:
-    case VDfgType::ShiftR:
-    case VDfgType::ShiftRS: {
+    ক্ষেত্র VDfgType::ShiftL:
+    ক্ষেত্র VDfgType::ShiftR:
+    ক্ষেত্র VDfgType::ShiftRS: {
         CHECK(isPacked(), "Should be Packed type");
         CHECK(inputp(0)->dtype() == dtype(), "LHS should be same type");
         CHECK(inputp(1)->isPacked(), "RHS should be Packed type");
-        return;
+        ফেরত;
     }
 
-    case VDfgType::Concat: {
-        const DfgConcat& v = *as<DfgConcat>();
+    ক্ষেত্র VDfgType::Concat: {
+        ধ্রুবক DfgConcat& v = *as<DfgConcat>();
         CHECK(v.isPacked(), "Should be Packed type");
         CHECK(v.lhsp()->isPacked(), "LHS should be Packed type");
         CHECK(v.rhsp()->isPacked(), "RHS should be Packed type");
-        CHECK(v.size() == v.rhsp()->size() + v.lhsp()->size(), "Concat result mismatch");
-        return;
+        CHECK(v.আকার_2() == v.rhsp()->আকার_2() + v.lhsp()->আকার_2(), "Concat result mismatch");
+        ফেরত;
     }
 
-    case VDfgType::Rep: {
-        const DfgRep& v = *as<DfgRep>();
+    ক্ষেত্র VDfgType::Rep: {
+        ধ্রুবক DfgRep& v = *as<DfgRep>();
         CHECK(v.isPacked(), "Should be Packed type");
         CHECK(v.srcp()->isPacked(), "'srcp' should be same type");
-        CHECK(v.size() % v.srcp()->size() == 0, "Not a replicate");
-        return;
+        CHECK(v.আকার_2() % v.srcp()->আকার_2() == 0, "Not a replicate");
+        ফেরত;
     }
 
-    case VDfgType::StreamL:
-    case VDfgType::StreamR: {
+    ক্ষেত্র VDfgType::StreamL:
+    ক্ষেত্র VDfgType::StreamR: {
         // TODO: model these without an explicit slice size which is always constant (?)
         CHECK(isPacked(), "Should be Packed type");
         CHECK(inputp(0)->dtype() == dtype(), "LHS should be same type");
         CHECK(inputp(1)->isPacked(), "Slice size should be Packed type");
-        return;
+        ফেরত;
     }
 
-    case VDfgType::Eq:
-    case VDfgType::EqCase:
-    case VDfgType::EqWild:
-    case VDfgType::Neq:
-    case VDfgType::NeqCase:
-    case VDfgType::NeqWild:
-    case VDfgType::Gt:
-    case VDfgType::GtS:
-    case VDfgType::Gte:
-    case VDfgType::GteS:
-    case VDfgType::Lt:
-    case VDfgType::LtS:
-    case VDfgType::Lte:
-    case VDfgType::LteS: {
-        CHECK(dtype() == DfgDataType::packed(1), "Should be 1-bit");
+    ক্ষেত্র VDfgType::Eq:
+    ক্ষেত্র VDfgType::EqCase:
+    ক্ষেত্র VDfgType::EqWild:
+    ক্ষেত্র VDfgType::Neq:
+    ক্ষেত্র VDfgType::NeqCase:
+    ক্ষেত্র VDfgType::NeqWild:
+    ক্ষেত্র VDfgType::Gt:
+    ক্ষেত্র VDfgType::GtS:
+    ক্ষেত্র VDfgType::Gte:
+    ক্ষেত্র VDfgType::GteS:
+    ক্ষেত্র VDfgType::Lt:
+    ক্ষেত্র VDfgType::LtS:
+    ক্ষেত্র VDfgType::Lte:
+    ক্ষেত্র VDfgType::LteS: {
+        CHECK(dtype() == Dfg_তথ্য_Type::packed(1), "Should be 1-bit");
         CHECK(inputp(0)->dtype() == inputp(1)->dtype(), "Sides should match");
-        return;
+        ফেরত;
     }
 
-    case VDfgType::Extend:
-    case VDfgType::ExtendS: {
+    ক্ষেত্র VDfgType::Extend:
+    ক্ষেত্র VDfgType::ExtendS: {
         CHECK(isPacked(), "Should be Packed type");
         CHECK(inputp(0)->isPacked(), "Operand should be same type");
-        CHECK(inputp(0)->size() < size(), "Operand should be narrower");
-        return;
+        CHECK(inputp(0)->আকার_2() < আকার_2(), "Operand should be narrower");
+        ফেরত;
     }
 
-    case VDfgType::LogAnd:
-    case VDfgType::LogEq:
-    case VDfgType::LogIf:
-    case VDfgType::LogOr: {
-        CHECK(dtype() == DfgDataType::packed(1), "Should be 1-bit");
+    ক্ষেত্র VDfgType::LogAnd:
+    ক্ষেত্র VDfgType::LogEq:
+    ক্ষেত্র VDfgType::LogIf:
+    ক্ষেত্র VDfgType::LogOr: {
+        CHECK(dtype() == Dfg_তথ্য_Type::packed(1), "Should be 1-bit");
         CHECK(inputp(0)->isPacked(), "LHS should be Packed type");
         CHECK(inputp(1)->isPacked(), "RHS should be Packed type");
-        return;
+        ফেরত;
     }
 
-    case VDfgType::LogNot:
-    case VDfgType::RedAnd:
-    case VDfgType::RedOr:
-    case VDfgType::RedXor:
-    case VDfgType::OneHot:
-    case VDfgType::OneHot0: {
-        CHECK(dtype() == DfgDataType::packed(1), "Should be 1-bit");
+    ক্ষেত্র VDfgType::LogNot:
+    ক্ষেত্র VDfgType::RedAnd:
+    ক্ষেত্র VDfgType::RedOr:
+    ক্ষেত্র VDfgType::RedXor:
+    ক্ষেত্র VDfgType::OneHot:
+    ক্ষেত্র VDfgType::OneHot0: {
+        CHECK(dtype() == Dfg_তথ্য_Type::packed(1), "Should be 1-bit");
         CHECK(inputp(0)->isPacked(), "Operand should be Packed type");
-        return;
+        ফেরত;
     }
 
-    case VDfgType::Cond: {
-        const DfgCond& v = *as<DfgCond>();
+    ক্ষেত্র VDfgType::Cond: {
+        ধ্রুবক DfgCond& v = *as<DfgCond>();
         CHECK(v.isPacked(), "Should be Packed type");
         CHECK(v.condp()->isPacked(), "Condition should be Packed type");
         CHECK(v.thenp()->dtype() == v.dtype(), "Then should be same type");
         CHECK(v.elsep()->dtype() == v.dtype(), "Else should be same type");
-        return;
+        ফেরত;
     }
 
-    case VDfgType::CountOnes: {
-        const DfgCountOnes& v = *as<DfgCountOnes>();
+    ক্ষেত্র VDfgType::গুনতি_Ones_2: {
+        ধ্রুবক Dfg_গুনতি_Ones& v = *as<Dfg_গুনতি_Ones>();
         CHECK(v.isPacked(), "Should be Packed type");
         CHECK(v.srcp()->isPacked(), "Source should be Packed type");
-        CHECK(v.size() == 32U, "Should yield a 32-bit result");
-        return;
+        CHECK(v.আকার_2() == 32U, "Should yield a 32-bit result");
+        ফেরত;
     }
 
-    case VDfgType::Pow:
-    case VDfgType::PowSS:
-    case VDfgType::PowSU:
-    case VDfgType::PowUS: {
+    ক্ষেত্র VDfgType::Pow:
+    ক্ষেত্র VDfgType::PowSS:
+    ক্ষেত্র VDfgType::PowSU:
+    ক্ষেত্র VDfgType::PowUS: {
         CHECK(isPacked(), "Should be Packed type");
         CHECK(inputp(0)->dtype() == dtype(), "LHS should be same type");
         CHECK(inputp(1)->isPacked(), "RHS should be Packed type");
-        return;
+        ফেরত;
     }
     }
 #undef CHECK
 }
 
-uint32_t DfgVertex::fanout() const {
-    uint32_t result = 0;
-    foreachSink([&](const DfgVertex&) {
-        ++result;
-        return false;
+uint32_t DfgVertex::fanout() ধ্রুবক {
+    uint32_t ফলাফল = 0;
+    foreachSink([&](ধ্রুবক DfgVertex&) {
+        ++ফলাফল;
+        ফেরত মিথ্যা;
     });
-    return result;
+    ফেরত ফলাফল;
 }
 
-DfgVertexVar* DfgVertex::getResultVar() {
+DfgVertexVar* DfgVertex::get_ফলাফল_Var() {
     // It's easy if the vertex is already a variable ...
-    if (DfgVertexVar* const varp = this->cast<DfgVertexVar>()) return varp;
+    যদি (DfgVertexVar* ধ্রুবক varp = এই->cast<DfgVertexVar>()) ফেরত varp;
 
     // Inspect existing variables written by this vertex, and choose one
     DfgVertexVar* resp = nullptr;
     // cppcheck-has-bug-suppress constParameter
-    this->foreachSink([&resp](DfgVertex& sink) {
-        DfgVertexVar* const varp = sink.cast<DfgVertexVar>();
-        if (!varp) return false;
+    এই->foreachSink([&resp](DfgVertex& sink) {
+        DfgVertexVar* ধ্রুবক varp = sink.cast<DfgVertexVar>();
+        যদি (!varp) ফেরত মিথ্যা;
 
         // Do not use it if value might differ from its drivers
-        if (varp->isVolatile()) return false;
+        যদি (varp->isVolatile()) ফেরত মিথ্যা;
 
         // First variable found
-        if (!resp) {
+        যদি (!resp) {
             resp = varp;
-            return false;
+            ফেরত মিথ্যা;
         }
 
         // Prefer those variables that must be kept anyway
-        if (resp->hasExtRdRefs() != varp->hasExtRdRefs()) {
-            if (!resp->hasExtRdRefs()) resp = varp;
-            return false;
+        যদি (resp->hasExtRdRefs() != varp->hasExtRdRefs()) {
+            যদি (!resp->hasExtRdRefs()) resp = varp;
+            ফেরত মিথ্যা;
         }
-        if (resp->hasDfgRefs() != varp->hasDfgRefs()) {
-            if (!resp->hasDfgRefs()) resp = varp;
-            return false;
+        যদি (resp->hasDfgRefs() != varp->hasDfgRefs()) {
+            যদি (!resp->hasDfgRefs()) resp = varp;
+            ফেরত মিথ্যা;
         }
 
         // Prefer real variables over temporaries
-        const bool resIsTemp = resp->vscp()->varp()->isTemp();
-        const bool varIsTemp = varp->vscp()->varp()->isTemp();
-        if (resIsTemp != varIsTemp) {
-            if (resIsTemp) resp = varp;
-            return false;
+        ধ্রুবক যৌক্তিক res_Is_অস্থায়ী = resp->vscp()->varp()->is_অস্থায়ী();
+        ধ্রুবক যৌক্তিক var_Is_অস্থায়ী = varp->vscp()->varp()->is_অস্থায়ী();
+        যদি (res_Is_অস্থায়ী != var_Is_অস্থায়ী) {
+            যদি (res_Is_অস্থায়ী) resp = varp;
+            ফেরত মিথ্যা;
         }
-        if (!resp->tmpForp() != !varp->tmpForp()) {
-            if (resp->tmpForp()) resp = varp;
-            return false;
+        যদি (!resp->tmpForp() != !varp->tmpForp()) {
+            যদি (resp->tmpForp()) resp = varp;
+            ফেরত মিথ্যা;
         }
 
         // Prefer the earlier one in source order
-        const FileLine& oldFlp = *(resp->fileline());
-        const FileLine& newFlp = *(varp->fileline());
-        if (const int cmp = oldFlp.operatorCompare(newFlp)) {
-            if (cmp > 0) resp = varp;
-            return false;
+        ধ্রুবক File_সারি& oldFlp = *(resp->fileline());
+        ধ্রুবক File_সারি& newFlp = *(varp->fileline());
+        যদি (ধ্রুবক পূর্ণসংখ্যা cmp = oldFlp.operatorCompare(newFlp)) {
+            যদি (cmp > 0) resp = varp;
+            ফেরত মিথ্যা;
         }
         // Prefer the one with the lexically smaller name
-        if (const int cmp = resp->vscp()->name().compare(varp->vscp()->name())) {
-            if (cmp > 0) resp = varp;
-            return false;
+        যদি (ধ্রুবক পূর্ণসংখ্যা cmp = resp->vscp()->name().compare(varp->vscp()->name())) {
+            যদি (cmp > 0) resp = varp;
+            ফেরত মিথ্যা;
         }
         // 'resp' and 'varp' are all the same, keep using the existing 'resp'
-        return false;
+        ফেরত মিথ্যা;
     });
-    return resp;
+    ফেরত resp;
 }
 
-AstScope* DfgVertex::scopep(ScopeCache& cache, bool tryResultVar) VL_MT_DISABLED {
+AstScope* DfgVertex::scopep(ScopeCache& cache, যৌক্তিক try_ফলাফল_Var) VL_MT_DISABLED {
     // If this is a variable, we are done
-    if (const DfgVertexVar* const varp = this->cast<DfgVertexVar>()) {
-        return varp->vscp()->scopep();
+    যদি (ধ্রুবক DfgVertexVar* ধ্রুবক varp = এই->cast<DfgVertexVar>()) {
+        ফেরত varp->vscp()->scopep();
     }
 
     // Try the result var first if instructed (usully only in the recursive case)
-    if (tryResultVar) {
-        if (const DfgVertexVar* const varp = this->getResultVar()) {
-            return varp->vscp()->scopep();
+    যদি (try_ফলাফল_Var) {
+        যদি (ধ্রুবক DfgVertexVar* ধ্রুবক varp = এই->get_ফলাফল_Var()) {
+            ফেরত varp->vscp()->scopep();
         }
     }
 
-    AstScope* const rootp = v3Global.rootp()->topScopep()->scopep();
+    AstScope* ধ্রুবক rootp = v3Global.rootp()->শীর্ষ_Scopep()->scopep();
 
     // Note: the recursive invocation can cause a re-hash but that will not invalidate references
-    AstScope*& resultr = cache[this];
-    if (!resultr) {
+    AstScope*& resultr = cache[এই];
+    যদি (!resultr) {
         // Mark to prevent infinite recursion on circular graphs - should never be called on such
         resultr = reinterpret_cast<AstScope*>(1);
         // Find scope based on sources, falling back on the root scope. Never use a package
         // scope, including the constant pool, so new variables are not created in packages.
         AstScope* foundp = nullptr;
         foreachSource([&](DfgVertex& src) {
-            AstScope* const scp = src.scopep(cache, true);
-            if (scp != rootp && !VN_IS(scp->modp(), Package)) {
+            AstScope* ধ্রুবক scp = src.scopep(cache, সত্য);
+            যদি (scp != rootp && !VN_IS(scp->modp(), Package)) {
                 foundp = scp;
-                return true;
+                ফেরত সত্য;
             }
-            return false;
+            ফেরত মিথ্যা;
         });
         resultr = foundp ? foundp : rootp;
     }
 
     // Die on a graph circular through operation vertices
-    UASSERT_OBJ(resultr != reinterpret_cast<AstScope*>(1), this,
+    UASSERT_OBJ(resultr != reinterpret_cast<AstScope*>(1), এই,
                 "DfgVertex::scopep called on graph with circular operations");
 
     // Done
-    return resultr;
+    ফেরত resultr;
 }
 
-void DfgVertex::unlinkDelete(DfgGraph& dfg) {
+শূন্য DfgVertex::unlinkDelete(DfgGraph& dfg) {
     // Unlink sink edges
-    while (!m_sinks.empty()) m_sinks.frontp()->unlinkSrcp();
+    যখন (!m_sinks.empty()) m_sinks.frontp()->unlinkSrcp();
     // Remove from graph
-    dfg.removeVertex(*this);
+    dfg.removeVertex(*এই);
     // Delete - this will unlink sources
-    delete this;
+    delete এই;
 }
 
 //------------------------------------------------------------------------------
 // DfgVertexVar
 
-std::pair<DfgVertex*, uint32_t> DfgVertexVar::driverOfRange(uint32_t lo, uint32_t size) {
-    DfgVertex* const srcp = this->srcp();
+std::pair<DfgVertex*, uint32_t> DfgVertexVar::driverOfRange(uint32_t lo, uint32_t আকার_2) {
+    DfgVertex* ধ্রুবক srcp = এই->srcp();
     // Not driven at all
-    if (!srcp) return {nullptr, 0};
+    যদি (!srcp) ফেরত {nullptr, 0};
     // If volatile, can have other drivers
-    if (isVolatile()) return {nullptr, 0};
+    যদি (isVolatile()) ফেরত {nullptr, 0};
     // Don't inline CReset
-    if (srcp->is<DfgCReset>()) return {nullptr, 0};
+    যদি (srcp->is<DfgCReset>()) ফেরত {nullptr, 0};
 
     // If not driven via a splice, then it is driven whole, at the same offsets
-    DfgVertexSplice* const splicep = srcp->cast<DfgVertexSplice>();
-    if (!splicep) return {srcp, lo};
+    DfgVertexSplice* ধ্রুবক splicep = srcp->cast<DfgVertexSplice>();
+    যদি (!splicep) ফেরত {srcp, lo};
 
     // Find the driver that covers the whole searched range, if there is a single one
-    const uint32_t hi = lo + size - 1;
+    ধ্রুবক uint32_t hi = lo + আকার_2 - 1;
     DfgVertex* driverp = nullptr;
     uint32_t driverLo = 0;
-    bool useDefault = defaultp();
-    splicep->foreachDriver([&](DfgVertex& src, const uint32_t dLo) {
-        const uint32_t dHi = dLo + src.size() - 1;
+    যৌক্তিক useDefault = defaultp();
+    splicep->foreachDriver([&](DfgVertex& src, ধ্রুবক uint32_t dLo) {
+        ধ্রুবক uint32_t dHi = dLo + src.আকার_2() - 1;
         // Note whether it overlaps the searched range, so the default cannot be used
-        if (dLo <= hi && lo <= dHi) useDefault = false;
+        যদি (dLo <= hi && lo <= dHi) useDefault = মিথ্যা;
         // If it does not cover the whole searched range, move on
-        if (lo < dLo || dHi < hi) return false;
+        যদি (lo < dLo || dHi < hi) ফেরত মিথ্যা;
         // Save the driver that covers the whole searched range
         driverp = &src;
         driverLo = dLo;
-        return true;
+        ফেরত সত্য;
     });
 
     // If a single driver covers the searched range, it is the one
-    if (driverp) return {driverp, lo - driverLo};
+    যদি (driverp) ফেরত {driverp, lo - driverLo};
     // Otherwise the default driver is responsible for it, if nothing else overlaps it
-    if (useDefault) return {defaultp(), lo};
+    যদি (useDefault) ফেরত {defaultp(), lo};
     // Not driven by a single vertex
-    return {nullptr, 0};
+    ফেরত {nullptr, 0};
 }
 
 //######################################################################
 // Renders the canonical pattern S-expression for a single DfgVertex
 
-class DfgPatternString final {
+শ্রেণী DfgPatternString final {
     std::ostream& m_os;
 
     std::map<std::string, std::string> m_internedConsts;  // Interned constants
     std::map<uint32_t, std::string> m_internedSelLsbs;  // Interned lsb value for selects
     std::map<uint32_t, std::string> m_internedWordWidths;  // Interned widths
     std::map<uint32_t, std::string> m_internedWideWidths;  // Interned widths
-    std::map<const DfgVertex*, std::string> m_internedVertices;  // Interned vertices
+    std::map<ধ্রুবক DfgVertex*, std::string> m_internedVertices;  // Interned vertices
     // Multiplicity and depth of vertices
-    std::map<const DfgVertex*, std::pair<uint32_t, uint32_t>> m_multiplicityAndDepth;
+    std::map<ধ্রুবক DfgVertex*, std::pair<uint32_t, uint32_t>> m_multiplicityAndDepth;
 
-    static std::string toLetters(size_t value, bool lowerCase = false) {
-        const char base = lowerCase ? 'a' : 'A';
+    স্থির std::string toLetters(আকার_t মান, যৌক্তিক lowerCase = মিথ্যা) {
+        ধ্রুবক অক্ষর base = lowerCase ? 'a' : 'A';
         std::string s;
-        do { s += static_cast<char>(base + value % 26); } while (value /= 26);
-        return s;
+        করো { s += static_cast<অক্ষর>(base + মান % 26); } যখন (মান /= 26);
+        ফেরত s;
     }
 
-    const std::string& internConst(const DfgConst& vtx) {
-        const auto pair = m_internedConsts.emplace(vtx.num().ascii(false), "");
-        if (pair.second) pair.first->second += toLetters(m_internedConsts.size() - 1);
-        return pair.first->second;
+    ধ্রুবক std::string& internConst(ধ্রুবক DfgConst& vtx) {
+        ধ্রুবক auto pair = m_internedConsts.emplace(vtx.অঙ্ক().ascii(মিথ্যা), "");
+        যদি (pair.second) pair.first->second += toLetters(m_internedConsts.আকার_2() - 1);
+        ফেরত pair.first->second;
     }
 
-    const std::string& internSelLsb(uint32_t value) {
-        const auto pair = m_internedSelLsbs.emplace(value, "");
-        if (pair.second) pair.first->second += toLetters(m_internedSelLsbs.size() - 1);
-        return pair.first->second;
+    ধ্রুবক std::string& internSelLsb(uint32_t মান) {
+        ধ্রুবক auto pair = m_internedSelLsbs.emplace(মান, "");
+        যদি (pair.second) pair.first->second += toLetters(m_internedSelLsbs.আকার_2() - 1);
+        ফেরত pair.first->second;
     }
 
-    const std::string& internWordWidth(uint32_t value) {
-        const auto pair = m_internedWordWidths.emplace(value, "");
-        if (pair.second) pair.first->second += toLetters(m_internedWordWidths.size() - 1, true);
-        return pair.first->second;
+    ধ্রুবক std::string& internWordWidth(uint32_t মান) {
+        ধ্রুবক auto pair = m_internedWordWidths.emplace(মান, "");
+        যদি (pair.second) pair.first->second += toLetters(m_internedWordWidths.আকার_2() - 1, সত্য);
+        ফেরত pair.first->second;
     }
 
-    const std::string& internWideWidth(uint32_t value) {
-        const auto pair = m_internedWideWidths.emplace(value, "");
-        if (pair.second) pair.first->second += toLetters(m_internedWideWidths.size() - 1);
-        return pair.first->second;
+    ধ্রুবক std::string& internWideWidth(uint32_t মান) {
+        ধ্রুবক auto pair = m_internedWideWidths.emplace(মান, "");
+        যদি (pair.second) pair.first->second += toLetters(m_internedWideWidths.আকার_2() - 1);
+        ফেরত pair.first->second;
     }
 
-    const std::string& internVertex(const DfgVertex& vtx) {
-        const auto pair = m_internedVertices.emplace(&vtx, "");
-        if (pair.second) pair.first->second += toLetters(m_internedVertices.size() - 1);
-        return pair.first->second;
+    ধ্রুবক std::string& internVertex(ধ্রুবক DfgVertex& vtx) {
+        ধ্রুবক auto pair = m_internedVertices.emplace(&vtx, "");
+        যদি (pair.second) pair.first->second += toLetters(m_internedVertices.আকার_2() - 1);
+        ফেরত pair.first->second;
     }
 
-    void recordMultiplicityAndDepth(const DfgVertex& vtx, uint32_t depth) {
-        std::pair<uint32_t, uint32_t>& value = m_multiplicityAndDepth
+    শূন্য recordMultiplicityAndDepth(ধ্রুবক DfgVertex& vtx, uint32_t depth) {
+        std::pair<uint32_t, uint32_t>& মান = m_multiplicityAndDepth
                                                    .emplace(std::piecewise_construct,  //
                                                             std::forward_as_tuple(&vtx),  //
                                                             std::forward_as_tuple(0, depth))
                                                    .first->second;
-        value.first += 1;
-        value.second = std::max(value.second, depth);
-        if (!depth) return;
-        vtx.foreachSource([&](const DfgVertex& src) {
+        মান.first += 1;
+        মান.second = std::max(মান.second, depth);
+        যদি (!depth) ফেরত;
+        vtx.foreachSource([&](ধ্রুবক DfgVertex& src) {
             recordMultiplicityAndDepth(src, depth - 1);
-            return false;
+            ফেরত মিথ্যা;
         });
     }
 
     // Render the vertx into ss, and return true if the recursion reached the given depth,
     // meaning an S-expression with that nesting level has been rendered.
-    void render(const DfgVertex& vtx, uint32_t depth, bool isRoot = true) {
-        if (const DfgConst* const constp = vtx.cast<DfgConst>()) {
+    শূন্য render(ধ্রুবক DfgVertex& vtx, uint32_t depth, যৌক্তিক is_মূল_2 = সত্য) {
+        যদি (ধ্রুবক DfgConst* ধ্রুবক constp = vtx.cast<DfgConst>()) {
             // Base case 1: constant
-            if (constp->isZero()) {
+            যদি (constp->isZero()) {
                 m_os << "(CONST ZERO)";
-            } else if (constp->isOnes()) {
+            } অন্যথা যদি (constp->isOnes()) {
                 m_os << "(CONST ONES)";
-            } else {
+            } অন্যথা {
                 m_os << "(CONST #" << internConst(*constp) << ')';
             }
-        } else if (!isRoot && m_multiplicityAndDepth.at(&vtx).first > 1) {
+        } অন্যথা যদি (!is_মূল_2 && m_multiplicityAndDepth.at(&vtx).first > 1) {
             // Base case 2: vertex appearing multiple times
             m_os << internVertex(vtx);
-        } else if (!vtx.foreachSource([&](const DfgVertex&) { return true; })) {
+        } অন্যথা যদি (!vtx.foreachSource([&](ধ্রুবক DfgVertex&) { ফেরত সত্য; })) {
             // Base case 3: vertex with no inputs (input variable)
             m_os << '(' << vtx.typeName() << ')';
-        } else if (depth == 0) {
+        } অন্যথা যদি (depth == 0) {
             // Base case 4: deep vertex (apperaing only once)
             m_os << "_";
-        } else {
+        } অন্যথা {
             // Recursively print an S-expression for the vertex
             m_os << '(';
             // Name
             m_os << vtx.typeName();
             // Specials
-            if (const DfgSel* const selp = vtx.cast<DfgSel>()) {
+            যদি (ধ্রুবক DfgSel* ধ্রুবক selp = vtx.cast<DfgSel>()) {
                 m_os << '@';
-                if (selp->lsb() == 0) {
+                যদি (selp->lsb() == 0) {
                     m_os << '0';
-                } else {
+                } অন্যথা {
                     m_os << internSelLsb(selp->lsb());
                 }
             }
             // Operands
-            vtx.foreachSource([&](const DfgVertex& src) {
+            vtx.foreachSource([&](ধ্রুবক DfgVertex& src) {
                 m_os << ' ';
-                render(src, depth - 1, false);
-                return false;
+                render(src, depth - 1, মিথ্যা);
+                ফেরত মিথ্যা;
             });
             // S-expression end
             m_os << ')';
@@ -966,51 +966,51 @@ class DfgPatternString final {
 
         // Annotate type
         m_os << ':';
-        if (!vtx.dtype().isPacked()) {
+        যদি (!vtx.dtype().isPacked()) {
             vtx.dtype().astDtypep()->dumpSmall(m_os);
-        } else {
-            const uint32_t width = vtx.size();
-            if (width == 1) {
+        } অন্যথা {
+            ধ্রুবক uint32_t width = vtx.আকার_2();
+            যদি (width == 1) {
                 m_os << '1';
-            } else if (width <= VL_QUADSIZE) {
+            } অন্যথা যদি (width <= VL_QUADSIZE) {
                 m_os << internWordWidth(width);
-            } else {
+            } অন্যথা {
                 m_os << internWideWidth(width);
             }
         }
 
         // Mark it if it has multiple sinks
-        if (vtx.hasMultipleSinks()) m_os << '*';
+        যদি (vtx.hasMultipleSinks()) m_os << '*';
     }
 
-public:
-    DfgPatternString(std::ostream& os, const DfgVertex& vtx, uint32_t depth)
+সর্বজনীন:
+    DfgPatternString(std::ostream& os, ধ্রুবক DfgVertex& vtx, uint32_t depth)
         : m_os{os} {
         recordMultiplicityAndDepth(vtx, depth);
-        render(vtx, depth, false);
-        using Pair = std::pair<std::string, const DfgVertex*>;
+        render(vtx, depth, মিথ্যা);
+        using Pair = std::pair<std::string, ধ্রুবক DfgVertex*>;
         std::vector<Pair> vertices;
-        for (const auto& pair : m_multiplicityAndDepth) {
-            if (pair.second.first == 1) continue;
+        জন্য (ধ্রুবক auto& pair : m_multiplicityAndDepth) {
+            যদি (pair.second.first == 1) চালু;
             vertices.emplace_back(internVertex(*pair.first), pair.first);
         }
-        std::sort(vertices.begin(), vertices.end(), [](const Pair& a, const Pair& b) {  //
-            return a.first < b.first;
+        std::sort(vertices.begin(), vertices.end(), [](ধ্রুবক Pair& a, ধ্রুবক Pair& b) {  //
+            ফেরত a.first < b.first;
         });
-        for (const Pair& pair : vertices) {
+        জন্য (ধ্রুবক Pair& pair : vertices) {
             m_os << " | " << pair.first << " is ";
             render(*pair.second, m_multiplicityAndDepth.at(pair.second).second);
         }
     }
 };
 
-std::string DfgVertex::patternString(uint32_t depth) const {
+std::string DfgVertex::patternString(uint32_t depth) ধ্রুবক {
     std::ostringstream oss;
-    DfgPatternString{oss, *this, depth};
-    return oss.str();
+    DfgPatternString{oss, *এই, depth};
+    ফেরত oss.str();
 }
 
 //------------------------------------------------------------------------------
 // DfgVisitor
 
-#include "V3Dfg__gen_visitor_defns.h"  // From ./astgen
+#অন্তর্ভাব "V3Dfg__gen_visitor_defns.h"  // From ./astgen

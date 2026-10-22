@@ -22,91 +22,91 @@
 //
 //*************************************************************************
 
-#include "V3PchAstMT.h"
+#অন্তর্ভাব "V3PchAstMT.h"
 
-#include "V3Broken.h"
+#অন্তর্ভাব "V3Broken.h"
 
-#include "V3ConstPool.h"
+#অন্তর্ভাব "V3ConstPool.h"
 
-#include <unordered_set>
+#অন্তর্ভাব <unordered_set>
 
 VL_DEFINE_DEBUG_FUNCTIONS;
 
 //######################################################################
 // Generation counter for AstNode::m_brokenState
 
-static class BrokenCntGlobal {
+স্থির শ্রেণী BrokenCntGlobal {
     // This is a 7 bit generation counter, stored in the bottom 7 bits of AstNode::m_brokenState,
     // used to mark a node as being present under the root AstNetlist in the current traversal. A
     // value 0 is invalid, as the AstNode constructor uses that to initialize m_brokenState
-    static constexpr uint8_t MIN_VALUE = 1;
-    static constexpr uint8_t MAX_VALUE = 127;
+    স্থির constexpr uint8_t MIN_মান = 1;
+    স্থির constexpr uint8_t MAX_মান = 127;
 
-    uint8_t m_count = MIN_VALUE;
+    uint8_t m_গুনতি = MIN_মান;
 
-public:
-    uint8_t get() const VL_MT_SAFE {
-        UASSERT(MIN_VALUE <= m_count && m_count <= MAX_VALUE, "Invalid generation number");
-        return m_count;
+সর্বজনীন:
+    uint8_t get() ধ্রুবক VL_MT_SAFE {
+        UASSERT(MIN_মান <= m_গুনতি && m_গুনতি <= MAX_মান, "Invalid generation number");
+        ফেরত m_গুনতি;
     }
 
-    void inc() {
-        ++m_count;
-        if (m_count > MAX_VALUE) m_count = MIN_VALUE;
+    শূন্য inc() {
+        ++m_গুনতি;
+        যদি (m_গুনতি > MAX_মান) m_গুনতি = MIN_মান;
     }
 } s_brokenCntGlobal;
 
-static bool s_brokenAllowMidvisitorCheck = false;
+স্থির যৌক্তিক s_brokenAllowMidvisitorCheck = মিথ্যা;
 
 //######################################################################
 // Table of allocated AstNode pointers
 
-static class AllocTable final {
-    friend class V3Broken;
+স্থির শ্রেণী AllocTable final {
+    friend শ্রেণী V3Broken;
     // MEMBERS
     V3Mutex m_mutex;  // Mutex for m_allocated
     // Set of all nodes allocated but not freed
-    std::unordered_set<const AstNode*> m_allocated VL_GUARDED_BY(m_mutex);
+    std::unordered_set<ধ্রুবক Ast_গ্রন্থি*> m_allocated VL_GUARDED_BY(m_mutex);
 
-public:
+সর্বজনীন:
     // METHODS
-    void addNewed(const AstNode* nodep) VL_MT_SAFE_EXCLUDES(m_mutex) {
+    শূন্য addNewed(ধ্রুবক Ast_গ্রন্থি* nodep) VL_MT_SAFE_EXCLUDES(m_mutex) {
         // Called by operator new on any node - only if VL_LEAK_CHECKS
         // LCOV_EXCL_START
-        const V3LockGuard lock{m_mutex};
-        if (VL_UNCOVERABLE(!m_allocated.emplace(nodep).second)) {
+        ধ্রুবক V3LockGuard lock{m_mutex};
+        যদি (VL_UNCOVERABLE(!m_allocated.emplace(nodep).second)) {
             nodep->v3fatalSrc("Newing AstNode object that is already allocated");
         }
         // LCOV_EXCL_STOP
     }
-    void deleted(const AstNode* nodep) VL_MT_SAFE_EXCLUDES(m_mutex) {
+    শূন্য deleted(ধ্রুবক Ast_গ্রন্থি* nodep) VL_MT_SAFE_EXCLUDES(m_mutex) {
         // Called by operator delete on any node - only if VL_LEAK_CHECKS
         // LCOV_EXCL_START
-        const V3LockGuard lock{m_mutex};
-        if (VL_UNCOVERABLE(m_allocated.erase(nodep) == 0)) {
+        ধ্রুবক V3LockGuard lock{m_mutex};
+        যদি (VL_UNCOVERABLE(m_allocated.erase(nodep) == 0)) {
             nodep->v3fatalSrc("Deleting AstNode object that was not allocated or already freed");
         }
         // LCOV_EXCL_STOP
     }
 
-private:  // for V3Broken only
+ব্যক্তিগত:  // for V3Broken only
     // cppcheck-suppress unusedPrivateFunction
-    bool isAllocated(const AstNode* nodep) const VL_REQUIRES(m_mutex) {
-        return m_allocated.count(nodep) != 0;
+    যৌক্তিক isAllocated(ধ্রুবক Ast_গ্রন্থি* nodep) ধ্রুবক VL_REQUIRES(m_mutex) {
+        ফেরত m_allocated.গুনতি(nodep) != 0;
     }
-    void checkForLeaks() VL_REQUIRES(m_mutex) {
-        if (!v3Global.opt.debugCheck()) return;
+    শূন্য checkForLeaks() VL_REQUIRES(m_mutex) {
+        যদি (!v3Global.opt.debugCheck()) ফেরত;
 
-        const uint8_t brokenCntCurrent = s_brokenCntGlobal.get();
+        ধ্রুবক uint8_t brokenCntCurrent = s_brokenCntGlobal.get();
 
         // Those with backp() are probably under a parent that was leaked and has no backp()
-        for (const bool withBack : {false, true}) {
-            for (const AstNode* const nodep : m_allocated) {
+        জন্য (ধ্রুবক যৌক্তিক withBack : {মিথ্যা, সত্য}) {
+            জন্য (ধ্রুবক Ast_গ্রন্থি* ধ্রুবক nodep : m_allocated) {
                 // LCOV_EXCL_START
                 // Most likely not leaked, so check that first
-                if (VL_UNCOVERABLE(nodep->brokenState() != brokenCntCurrent)) {
-                    const bool hasBack = nodep->backp() != nullptr;
-                    if (hasBack != withBack) continue;
+                যদি (VL_UNCOVERABLE(nodep->brokenState() != brokenCntCurrent)) {
+                    ধ্রুবক যৌক্তিক hasBack = nodep->backp() != nullptr;
+                    যদি (hasBack != withBack) চালু;
                     // Use only AstNode::dump instead of the virtual one, as there
                     // may be varp() and other cross links that are bad.
                     // When get this message, find what forgot to delete the
@@ -116,7 +116,7 @@ private:  // for V3Broken only
                     //    bt
                     std::cerr << "%Error: LeakedNode"
                               << (withBack ? " with back pointer: " : ": ");
-                    nodep->AstNode::dump(std::cerr);
+                    nodep->Ast_গ্রন্থি::dump(std::cerr);
                     std::cerr << endl;
                     V3Error::incErrors();
                 }
@@ -126,142 +126,142 @@ private:  // for V3Broken only
     }
 } s_allocTable;
 
-void V3Broken::addNewed(const AstNode* nodep) { s_allocTable.addNewed(nodep); }
-void V3Broken::deleted(const AstNode* nodep) { s_allocTable.deleted(nodep); }
+শূন্য V3Broken::addNewed(ধ্রুবক Ast_গ্রন্থি* nodep) { s_allocTable.addNewed(nodep); }
+শূন্য V3Broken::deleted(ধ্রুবক Ast_গ্রন্থি* nodep) { s_allocTable.deleted(nodep); }
 
 //######################################################################
 // Table of AstNode pointers that can be linked to via member pointers
 
-static class LinkableTable final {
+স্থির শ্রেণী LinkableTable final {
     // MEMBERS
-    std::unordered_set<const AstNode*> m_linkable;  // Set of all nodes allocated but not freed
+    std::unordered_set<ধ্রুবক Ast_গ্রন্থি*> m_linkable;  // Set of all nodes allocated but not freed
 
-public:
+সর্বজনীন:
     // METHODS
-    void clear() { m_linkable.clear(); }
-    void addLinkable(const AstNode* nodep) { m_linkable.emplace(nodep); }
-    bool isLinkable(const AstNode* nodep) const { return m_linkable.count(nodep) != 0; }
+    শূন্য clear() { m_linkable.clear(); }
+    শূন্য addLinkable(ধ্রুবক Ast_গ্রন্থি* nodep) { m_linkable.emplace(nodep); }
+    যৌক্তিক isLinkable(ধ্রুবক Ast_গ্রন্থি* nodep) ধ্রুবক { ফেরত m_linkable.গুনতি(nodep) != 0; }
 } s_linkableTable;
 
-bool V3Broken::isLinkable(const AstNode* nodep) { return s_linkableTable.isLinkable(nodep); }
+যৌক্তিক V3Broken::isLinkable(ধ্রুবক Ast_গ্রন্থি* nodep) { ফেরত s_linkableTable.isLinkable(nodep); }
 
 //######################################################################
 // Check every node in tree
 
-class BrokenCheckVisitor final : public VNVisitorConst {
+শ্রেণী BrokenCheckVisitor final : সর্বজনীন VNVisitorConst {
     // Constants for marking we are under/not under a node
-    const uint8_t m_brokenCntCurrentNotUnder = s_brokenCntGlobal.get();  // Top bit is clear
-    const uint8_t m_brokenCntCurrentUnder = m_brokenCntCurrentNotUnder | 0x80;  // Top bit is set
+    ধ্রুবক uint8_t m_brokenCntCurrentNotUnder = s_brokenCntGlobal.get();  // Top bit is clear
+    ধ্রুবক uint8_t m_brokenCntCurrentUnder = m_brokenCntCurrentNotUnder | 0x80;  // Top bit is set
 
     // STATE - across all visitors
     // All local variables declared in current function
-    std::set<const AstVar*> m_localVars;
+    std::set<ধ্রুবক AstVar*> m_localVars;
     // Variable references in current function that do not reference an in-scope local
-    std::map<const AstVar*, const AstNodeVarRef*> m_suspectRefs;
+    std::map<ধ্রুবক AstVar*, ধ্রুবক Ast_গ্রন্থি_Var_Ref*> m_suspectRefs;
     // Local variables declared in the scope of the current statement
-    std::vector<std::unordered_set<const AstVar*>> m_localsStack;
+    std::vector<std::unordered_set<ধ্রুবক AstVar*>> m_locals_স্তূপ;
     // Number of write references encountered
-    size_t m_nWriteRefs = 0;
+    আকার_t m_nWriteRefs = 0;
     // Number of function calls encountered
-    size_t m_nCalls = 0;
+    আকার_t m_nCalls = 0;
 
     // STATE - for current visit position (use VL_RESTORER)
-    const AstCFunc* m_cfuncp = nullptr;  // Current CFunc, if any
-    bool m_inScope = false;  // Under AstScope
+    ধ্রুবক AstCFunc* m_cfuncp = nullptr;  // Current CFunc, if any
+    যৌক্তিক m_inScope = মিথ্যা;  // Under AstScope
     std::set<std::string> m_cFuncNames;  // CFunc by name in current class/module
 
-private:
+ব্যক্তিগত:
     // METHODS
-    static void checkWidthMin(const AstNode* nodep) {
+    স্থির শূন্য checkWidthMin(ধ্রুবক Ast_গ্রন্থি* nodep) {
         UASSERT_OBJ(nodep->width() == nodep->widthMin()
                         || v3Global.widthMinUsage() != VWidthMinUsage::MATCHES_WIDTH,
                     nodep, "Width != WidthMin");
     }
 
-    void processEnter(AstNode* nodep) {
+    শূন্য processEnter(Ast_গ্রন্থি* nodep) {
         nodep->brokenState(m_brokenCntCurrentUnder);
-        const char* const whyp = nodep->brokenGen();
+        ধ্রুবক অক্ষর* ধ্রুবক whyp = nodep->brokenGen();
         UASSERT_OBJ(!whyp, nodep,
                     "Broken link in node (or something without maybePointedTo): " << whyp);
-        if (!s_brokenAllowMidvisitorCheck) nodep->checkIter();
-        if (nodep->dtypep()) {
+        যদি (!s_brokenAllowMidvisitorCheck) nodep->checkIter();
+        যদি (nodep->dtypep()) {
             UASSERT_OBJ(nodep->dtypep()->brokeExists(), nodep,
                         "Broken link in node->dtypep() to " << cvtToHex(nodep->dtypep()));
             UASSERT_OBJ(nodep->dtypep(), nodep,
                         "Non-dtype link in node->dtypep() to " << cvtToHex(nodep->dtypep()));
         }
-        if (v3Global.assertDTypesResolved()) {
-            if (nodep->hasDType()) {
-            } else {
-                UASSERT_OBJ(!VN_IS(nodep, NodeExpr), nodep,
+        যদি (v3Global.assertDTypesResolved()) {
+            যদি (nodep->hasDType()) {
+            } অন্যথা {
+                UASSERT_OBJ(!VN_IS(nodep, গ্রন্থি_রাশিমালা), nodep,
                             "All AstNodeExpr must have a dtype post V3WidthCommit");
                 UASSERT_OBJ(!nodep->dtypep(), nodep,
                             "DType on node without hasDType(): " << nodep->prettyTypeName());
             }
             UASSERT_OBJ(!nodep->getChildDTypep(), nodep,
                         "childDTypep() non-null on node after should have removed");
-            if (const AstNodeDType* const dnodep = VN_CAST(nodep, NodeDType))
+            যদি (ধ্রুবক Ast_গ্রন্থি_DType* ধ্রুবক dnodep = VN_CAST(nodep, গ্রন্থি_DType))
                 checkWidthMin(dnodep);
         }
         checkWidthMin(nodep);
     }
-    void processExit(AstNode* nodep) { nodep->brokenState(m_brokenCntCurrentNotUnder); }
-    void processAndIterate(AstNode* nodep) {
+    শূন্য processExit(Ast_গ্রন্থি* nodep) { nodep->brokenState(m_brokenCntCurrentNotUnder); }
+    শূন্য processAndIterate(Ast_গ্রন্থি* nodep) {
         processEnter(nodep);
         iterateChildrenConst(nodep);
         processExit(nodep);
     }
-    void processAndIterateList(AstNode* nodep) {
-        while (nodep) {
+    শূন্য processAndIterateList(Ast_গ্রন্থি* nodep) {
+        যখন (nodep) {
             processAndIterate(nodep);
             nodep = nodep->nextp();
         }
     }
-    void pushLocalScope() {
-        if (m_cfuncp) m_localsStack.emplace_back();
+    শূন্য ঠেলো_Local_Scope() {
+        যদি (m_cfuncp) m_locals_স্তূপ.emplace_back();
     }
-    void popLocalScope() {
-        if (m_cfuncp) m_localsStack.pop_back();
+    শূন্য বের_করো_Local_Scope() {
+        যদি (m_cfuncp) m_locals_স্তূপ.বের_করো_back();
     }
-    bool isInScopeLocal(const AstVar* varp) const {
-        for (const auto& set : m_localsStack) {
-            if (set.count(varp)) return true;
+    যৌক্তিক isInScopeLocal(ধ্রুবক AstVar* varp) ধ্রুবক {
+        জন্য (ধ্রুবক auto& set : m_locals_স্তূপ) {
+            যদি (set.গুনতি(varp)) ফেরত সত্য;
         }
-        return false;
+        ফেরত মিথ্যা;
     }
-    static void checkArgRefs(AstNodeExpr* nodep, const char* descrp, AstNodeExpr* argsp) {
-        if (!std::strcmp(descrp, "TODO")) return;  // Skip if not yet checked
+    স্থির শূন্য checkArgRefs(Ast_গ্রন্থি_রাশিমালা* nodep, ধ্রুবক অক্ষর* descrp, Ast_গ্রন্থি_রাশিমালা* argsp) {
+        যদি (!std::strcmp(descrp, "TODO")) ফেরত;  // Skip if not yet checked
 
         // Check each argument
-        const char* dp = descrp;
-        for (AstNodeExpr* argp = argsp; argp; argp = VN_AS(argp->nextp(), NodeExpr)) {
-            if (argp->fileline()->erroringOn()) return;  // Intentionally skip all checks
-            const AstNodeExpr* const lvalp = argp->getVAccessTargetRecurse();
-            const VAccess access
+        ধ্রুবক অক্ষর* dp = descrp;
+        জন্য (Ast_গ্রন্থি_রাশিমালা* argp = argsp; argp; argp = VN_AS(argp->nextp(), গ্রন্থি_রাশিমালা)) {
+            যদি (argp->fileline()->erroringOn()) ফেরত;  // Intentionally skip all checks
+            ধ্রুবক Ast_গ্রন্থি_রাশিমালা* ধ্রুবক lvalp = argp->getVAccessTargetRecurse();
+            ধ্রুবক VAccess access
                 = lvalp ? lvalp->getVAccessRecurse()  // Since we call it on a result of above call
                                                       // there should be no recursion at all
                         : VAccess{VAccess::READ};
-            if (dp[0] == '+') --dp;  // Repeats the entry before it
-            switch (dp[0]) {
-            case 'r':
+            যদি (dp[0] == '+') --dp;  // Repeats the entry before it
+            নির্বাচন (dp[0]) {
+            ক্ষেত্র 'r':
                 UASSERT_OBJ(access.isReadOnly(), argp,
                             "Input argument of library call is not a read-only expression");
-                break;
-            case 'w':
+                বিরতি;
+            ক্ষেত্র 'w':
                 UASSERT_OBJ(lvalp, argp,  //
                             "Output argument of library call is not a valid C++ LValue");
                 UASSERT_OBJ(access.isWriteOnly(), argp,
                             "Output argument of library call is not write-only");
-                break;
-            case 'm':
+                বিরতি;
+            ক্ষেত্র 'm':
                 UASSERT_OBJ(lvalp, argp,  //
                             "Inout argument of library call is not a valid C++ LValue");
                 UASSERT_OBJ(access.isRW(), argp,
                             "Inout argument of library call is not read-write");
-                break;
-            default:
+                বিরতি;
+            পূর্বনির্ধারিত:
                 UASSERT_OBJ(dp[0], argp, "Unexpected trailing arguments to library call");
-                break;  // LCOV_EXCL_LINE
+                বিরতি;  // LCOV_EXCL_LINE
             }
             ++dp;
         }
@@ -269,42 +269,42 @@ private:
     }
 
     // VISITORS
-    void visit(AstNodeAssign* nodep) override {
+    শূন্য visit(Ast_গ্রন্থি_Assign* nodep) override {
         processEnter(nodep);
         iterateConst(nodep->rhsp());
-        const size_t nWriteRefs = m_nWriteRefs;
-        const size_t nCalls = m_nCalls;
+        ধ্রুবক আকার_t nWriteRefs = m_nWriteRefs;
+        ধ্রুবক আকার_t nCalls = m_nCalls;
         iterateConst(nodep->lhsp());
         // Only check if there are no calls on the LHS, as calls might return an LValue
-        if (v3Global.assertDTypesResolved() && m_nCalls == nCalls) {
+        যদি (v3Global.assertDTypesResolved() && m_nCalls == nCalls) {
             UASSERT_OBJ(m_nWriteRefs > nWriteRefs, nodep, "No write refs on LHS of assignment");
         }
         processExit(nodep);
-        UASSERT_OBJ(!(v3Global.assertDTypesResolved() && VN_IS(nodep->lhsp(), NodeVarRef)
-                      && !VN_AS(nodep->lhsp(), NodeVarRef)->access().isWriteOrRW()),
+        UASSERT_OBJ(!(v3Global.assertDTypesResolved() && VN_IS(nodep->lhsp(), গ্রন্থি_Var_Ref)
+                      && !VN_AS(nodep->lhsp(), গ্রন্থি_Var_Ref)->access().isWriteOrRW()),
                     nodep, "Assignment LHS is not an lvalue");
     }
-    void visit(AstRelease* nodep) override {
+    শূন্য visit(AstRelease* nodep) override {
         processAndIterate(nodep);
-        UASSERT_OBJ(!(v3Global.assertDTypesResolved() && VN_IS(nodep->lhsp(), NodeVarRef)
-                      && !VN_AS(nodep->lhsp(), NodeVarRef)->access().isWriteOrRW()),
+        UASSERT_OBJ(!(v3Global.assertDTypesResolved() && VN_IS(nodep->lhsp(), গ্রন্থি_Var_Ref)
+                      && !VN_AS(nodep->lhsp(), গ্রন্থি_Var_Ref)->access().isWriteOrRW()),
                     nodep, "Release LHS is not an lvalue");
     }
-    void visit(AstScope* nodep) override {
+    শূন্য visit(AstScope* nodep) override {
         VL_RESTORER(m_inScope);
-        m_inScope = true;
+        m_inScope = সত্য;
         VL_RESTORER_CLEAR(m_cFuncNames);
         processAndIterate(nodep);
     }
-    void visit(AstNodeModule* nodep) override {
+    শূন্য visit(Ast_গ্রন্থি_Module* nodep) override {
         VL_RESTORER_CLEAR(m_cFuncNames);
         processAndIterate(nodep);
     }
-    void visit(AstNodeUOrStructDType* nodep) override {
+    শূন্য visit(Ast_গ্রন্থি_UOr_Struct_DType* nodep) override {
         VL_RESTORER_CLEAR(m_cFuncNames);
         processAndIterate(nodep);
     }
-    void visit(AstNodeVarRef* nodep) override {
+    শূন্য visit(Ast_গ্রন্থি_Var_Ref* nodep) override {
         processAndIterate(nodep);
         // m_inScope because some Vars have initial variable references without scopes
         // This might false fire with some debug flags, as not certain we don't have temporary
@@ -314,156 +314,156 @@ private:
             "VarRef missing VarScope pointer");
         UASSERT_OBJ(!v3Global.assertScoped() || !nodep->classOrPackagep(), nodep,
                     "VarRef classOrPackagep must be nullptr after V3Scope");
-        if (m_cfuncp) {
+        যদি (m_cfuncp) {
             // Check if variable is an in-scope local, otherwise mark as suspect
-            if (const AstVar* const varp = nodep->varp()) {
-                if (!isInScopeLocal(varp)) {
+            যদি (ধ্রুবক AstVar* ধ্রুবক varp = nodep->varp()) {
+                যদি (!isInScopeLocal(varp)) {
                     // This only stores the first ref for each Var, which is what we want
                     m_suspectRefs.emplace(varp, nodep);
                 }
             }
         }
-        if (nodep->access().isWriteOrRW()) ++m_nWriteRefs;
+        যদি (nodep->access().isWriteOrRW()) ++m_nWriteRefs;
     }
-    void visit(AstNodeCCall* nodep) override {
+    শূন্য visit(Ast_গ্রন্থি_CCall* nodep) override {
         ++m_nCalls;
         processAndIterate(nodep);
     }
-    void visit(AstCMethodHard* nodep) override {
+    শূন্য visit(AstCMethodHard* nodep) override {
         ++m_nCalls;
         processAndIterate(nodep);
         checkArgRefs(nodep, nodep->method().args(), nodep->pinsp());
     }
-    void visit(AstCFuncHard* nodep) override {
+    শূন্য visit(AstCFuncHard* nodep) override {
         ++m_nCalls;
         processAndIterate(nodep);
         checkArgRefs(nodep, nodep->function().args(), nodep->pinsp());
     }
-    void visit(AstNodeFTaskRef* nodep) override {
+    শূন্য visit(Ast_গ্রন্থি_FTask_Ref* nodep) override {
         ++m_nCalls;
         processAndIterate(nodep);
     }
-    void visit(AstCFunc* nodep) override {
+    শূন্য visit(AstCFunc* nodep) override {
         UASSERT_OBJ(!m_cfuncp, nodep, "Nested AstCFunc");
         VL_RESTORER(m_cfuncp);
         m_cfuncp = nodep;
         m_localVars.clear();
         m_suspectRefs.clear();
-        m_localsStack.clear();
-        pushLocalScope();
+        m_locals_স্তূপ.clear();
+        ঠেলো_Local_Scope();
 
         // Check for duplicate names, otherwise linker might just ignore them
         string nameArgs = nodep->name();
-        if (!nodep->argTypes().empty()) nameArgs += "(" + nodep->argTypes() + ")";
+        যদি (!nodep->argTypes().empty()) nameArgs += "(" + nodep->argTypes() + ")";
         UASSERT_OBJ(m_cFuncNames.emplace(nameArgs).second, nodep,
                     "Duplicate cfunc name: '" << nameArgs << "'");
 
         processAndIterate(nodep);
 
         // Check suspect references are all to non-locals
-        for (const auto& pair : m_suspectRefs) {
-            UASSERT_OBJ(m_localVars.count(pair.first) == 0, pair.second,
+        জন্য (ধ্রুবক auto& pair : m_suspectRefs) {
+            UASSERT_OBJ(m_localVars.গুনতি(pair.first) == 0, pair.second,
                         "Local variable not in scope where referenced: " << pair.first);
         }
     }
-    void visit(AstNodeIf* nodep) override {
+    শূন্য visit(Ast_গ্রন্থি_If* nodep) override {
         // Each branch is a separate local variable scope
-        pushLocalScope();
+        ঠেলো_Local_Scope();
         processEnter(nodep);
         processAndIterate(nodep->condp());
-        if (AstNode* const thensp = nodep->thensp()) {
-            pushLocalScope();
+        যদি (Ast_গ্রন্থি* ধ্রুবক thensp = nodep->thensp()) {
+            ঠেলো_Local_Scope();
             processAndIterateList(thensp);
-            popLocalScope();
+            বের_করো_Local_Scope();
         }
-        if (AstNode* const elsesp = nodep->elsesp()) {
-            pushLocalScope();
+        যদি (Ast_গ্রন্থি* ধ্রুবক elsesp = nodep->elsesp()) {
+            ঠেলো_Local_Scope();
             processAndIterateList(elsesp);
-            popLocalScope();
+            বের_করো_Local_Scope();
         }
         processExit(nodep);
-        popLocalScope();
+        বের_করো_Local_Scope();
     }
-    void visit(AstNodeStmt* nodep) override {
+    শূন্য visit(Ast_গ্রন্থি_Stmt* nodep) override {
         // For local variable checking act as if any statement introduces a new scope.
         // This is aggressive but conservatively correct.
-        pushLocalScope();
+        ঠেলো_Local_Scope();
         processAndIterate(nodep);
-        popLocalScope();
+        বের_করো_Local_Scope();
     }
-    void visit(AstVar* nodep) override {
+    শূন্য visit(AstVar* nodep) override {
         processAndIterate(nodep);
-        if (m_cfuncp) {
-            m_localVars.insert(nodep);
-            m_localsStack.back().insert(nodep);
+        যদি (m_cfuncp) {
+            m_localVars.ঢোকাও(nodep);
+            m_locals_স্তূপ.back().ঢোকাও(nodep);
         }
     }
-    void visit(AstNode* nodep) override {
+    শূন্য visit(Ast_গ্রন্থি* nodep) override {
         // Process not just iterate
         processAndIterate(nodep);
     }
 
-public:
+সর্বজনীন:
     // CONSTRUCTORS
     explicit BrokenCheckVisitor(AstNetlist* nodep) { iterateConstNull(nodep); }
-    ~BrokenCheckVisitor() override = default;
+    ~BrokenCheckVisitor() override = পূর্বনির্ধারিত;
 };
 
 //######################################################################
 // Broken check entry point
 
-void V3Broken::brokenAll(AstNetlist* nodep) {
+শূন্য V3Broken::brokenAll(AstNetlist* nodep) {
     // UINFO(9, __FUNCTION__ << ": ");
-    static bool s_inBroken = false;
-    if (VL_UNCOVERABLE(s_inBroken)) {
+    স্থির যৌক্তিক s_inBroken = মিথ্যা;
+    যদি (VL_UNCOVERABLE(s_inBroken)) {
         // A error called by broken can recurse back into broken; avoid this
         UINFO(1, "Broken called under broken, skipping recursion.");  // LCOV_EXCL_LINE
-    } else {
-        s_inBroken = true;
+    } অন্যথা {
+        s_inBroken = সত্য;
 
-        const V3LockGuard lock{s_allocTable.m_mutex};
+        ধ্রুবক V3LockGuard lock{s_allocTable.m_mutex};
 
         // Mark every node in the tree
-        const uint8_t brokenCntCurrent = s_brokenCntGlobal.get();
-        nodep->foreach([brokenCntCurrent](AstNode* nodep) VL_NO_THREAD_SAFETY_ANALYSIS {
+        ধ্রুবক uint8_t brokenCntCurrent = s_brokenCntGlobal.get();
+        nodep->foreach([brokenCntCurrent](Ast_গ্রন্থি* nodep) VL_NO_THREAD_SAFETY_ANALYSIS {
 #ifdef VL_LEAK_CHECKS
             UASSERT_OBJ(s_allocTable.isAllocated(nodep), nodep,
                         "AstNode is in tree, but not allocated");
 #endif
             UASSERT_OBJ(nodep->brokenState() != brokenCntCurrent, nodep,
                         "AstNode is already in tree at another location");
-            if (nodep->maybePointedTo()) s_linkableTable.addLinkable(nodep);
+            যদি (nodep->maybePointedTo()) s_linkableTable.addLinkable(nodep);
             nodep->brokenState(brokenCntCurrent);
         });
 
         // Check every node in tree
-        const BrokenCheckVisitor cvisitor{nodep};
+        ধ্রুবক BrokenCheckVisitor cvisitor{nodep};
 
         // Check the constant pool lookup cache refers only to nodes in the tree
-        const char* const whyp = V3ConstPool::broken();
+        ধ্রুবক অক্ষর* ধ্রুবক whyp = V3ConstPool::broken();
         UASSERT_OBJ(!whyp, nodep, "Broken constant pool cache: " << whyp);
 
         s_allocTable.checkForLeaks();
         s_linkableTable.clear();
         s_brokenCntGlobal.inc();
-        s_inBroken = false;
+        s_inBroken = মিথ্যা;
     }
 }
 
-void V3Broken::allowMidvisitorCheck(bool flag) { s_brokenAllowMidvisitorCheck = flag; }
+শূন্য V3Broken::allowMidvisitorCheck(যৌক্তিক flag) { s_brokenAllowMidvisitorCheck = flag; }
 
 //######################################################################
 // Self test
 
-void V3Broken::selfTest() {
+শূন্য V3Broken::selfTest() {
     // Exercise addNewed and deleted for coverage, as otherwise only used with VL_LEAK_CHECKS
-    FileLine* const fl = new FileLine{FileLine::commandLineFilename()};
-    AstNode* const newp = new AstBegin{fl, "[EditWrapper]", nullptr, false};
+    File_সারি* ধ্রুবক fl = নতুন File_সারি{File_সারি::command_সারি_Filename()};
+    Ast_গ্রন্থি* ধ্রুবক newp = নতুন AstBegin{fl, "[EditWrapper]", nullptr, মিথ্যা};
     // Don't actually do it with VL_LEAK_CHECKS, when new/delete calls these.
     // Otherwise you call addNewed twice on the same address, which is an error.
 #ifndef VL_LEAK_CHECKS
     addNewed(newp);
     deleted(newp);
 #endif
-    VL_DO_DANGLING(newp->deleteTree(), newp);
+    VL_DO_DANGLING(newp->delete_বৃক্ষ(), newp);
 }

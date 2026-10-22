@@ -63,41 +63,41 @@
 #ifndef VERILATOR_V3HASHTABLE_H_
 #define VERILATOR_V3HASHTABLE_H_
 
-#include "config_build.h"
-#include "verilatedos.h"
+#অন্তর্ভাব "config_build.h"
+#অন্তর্ভাব "verilatedos.h"
 
-#include "V3Error.h"
-#include "V3StdFuture.h"
+#অন্তর্ভাব "V3Error.h"
+#অন্তর্ভাব "V3StdFuture.h"
 
-#include <functional>
-#include <memory>
-#include <new>
-#include <tuple>
-#include <type_traits>
-#include <utility>
+#অন্তর্ভাব <functional>
+#অন্তর্ভাব <memory>
+#অন্তর্ভাব <new>
+#অন্তর্ভাব <tuple>
+#অন্তর্ভাব <type_traits>
+#অন্তর্ভাব <utility>
 
 namespace V3HashTableInternals {
 
-constexpr size_t MIN_CAPACITY = 16;  // Smallest table allocated
-constexpr size_t LOAD_FACTOR_NUM = 3;  // Numerator of the maximum load factor
-constexpr size_t LOAD_FACTOR_DEN = 4;  // Denominator of the maximum load factor
+constexpr আকার_t MIN_CAPACITY = 16;  // Smallest table allocated
+constexpr আকার_t LOAD_FACTOR_অঙ্ক = 3;  // Numerator of the maximum load factor
+constexpr আকার_t LOAD_FACTOR_DEN = 4;  // Denominator of the maximum load factor
 
 // Key extractor for a table whose entries are their own keys, that is, a set
-template <typename T_Key>
-struct V3HashTableKeyIsEntry final {
-    using Key = T_Key;  // What it yields, so the table need not deduce it
-    const T_Key& operator()(const T_Key& entry) const { return entry; }
+template <typename T_চাবি>
+কাঠামো V3_Hash_Table_চাবি_Is_Entry final {
+    using চাবি_2 = T_চাবি;  // What it yields, so the table need not deduce it
+    ধ্রুবক T_চাবি& operator()(ধ্রুবক T_চাবি& entry) ধ্রুবক { ফেরত entry; }
 };
 
 // Key extractor for a table whose entries are pairs keyed by the first, that is, a map
-template <typename T_Key, typename T_Val>
-struct V3HashTableKeyIsFirst final {
-    using Key = T_Key;  // What it yields, so the table need not deduce it
-    const T_Key& operator()(const std::pair<T_Key, T_Val>& entry) const { return entry.first; }
-    static T_Val& valueOf(std::pair<T_Key, T_Val>& entry) { return entry.second; }
+template <typename T_চাবি, typename T_Val>
+কাঠামো V3_Hash_Table_চাবি_Is_First final {
+    using চাবি_2 = T_চাবি;  // What it yields, so the table need not deduce it
+    ধ্রুবক T_চাবি& operator()(ধ্রুবক std::pair<T_চাবি, T_Val>& entry) ধ্রুবক { ফেরত entry.first; }
+    স্থির T_Val& মান_Of(std::pair<T_চাবি, T_Val>& entry) { ফেরত entry.second; }
 };
 
-void selfTest();
+শূন্য selfTest();
 
 }  // namespace V3HashTableInternals
 
@@ -106,44 +106,44 @@ void selfTest();
 //  T_Hash   Hashes a lookup key
 //  T_Equal  Compares a key to a lookup key
 //  T_KeyOf  Yields the key of an entry
-template <typename T_Entry, typename T_Hash, typename T_Equal, typename T_KeyOf>
+template <typename T_Entry, typename T_Hash, typename T_Equal, typename T_চাবি_Of>
 class V3HashTable VL_NOT_FINAL {
-public:
+সর্বজনীন:
     // TYPES
     using Entry = T_Entry;  // What is stored
-    using Key = typename T_KeyOf::Key;  // What entries are looked up by
+    using চাবি_2 = typename T_চাবি_Of::চাবি_2;  // What entries are looked up by
 
-private:
+ব্যক্তিগত:
     // TYPES
     // Holds if the hash accepts a lookup key spelled as the given arguments
     template <typename... T_Args>
-    using ValidHash = vlstd::is_invocable_r<size_t, const T_Hash&, const T_Args&...>;
+    using ValidHash = vlstd::is_invocable_r<আকার_t, ধ্রুবক T_Hash&, ধ্রুবক T_Args&...>;
 
     // Holds if the equality accepts a key and such a lookup key
     template <typename... T_Args>
-    using ValidEqual = vlstd::is_invocable_r<bool, const T_Equal&, const Key&, const T_Args&...>;
+    using ValidEqual = vlstd::is_invocable_r<bool, ধ্রুবক T_Equal&, ধ্রুবক চাবি_2&, ধ্রুবক T_Args&...>;
 
     // The Key must itself be a valid lookup key, as every lookup ends in comparing one
     // against a stored entry. Asserted separately, so the failure names the functor.
-    static_assert(ValidHash<Key>::value, "The 'Hash' functor must accept the 'Key'");
-    static_assert(ValidEqual<Key>::value, "The 'Equal' functor must accept two 'Key's");
+    static_assert(ValidHash<চাবি_2>::মান, "The 'Hash' functor must accept the 'Key'");
+    static_assert(ValidEqual<চাবি_2>::মান, "The 'Equal' functor must accept two 'Key's");
 
     // A table slot
-    struct Slot final {
+    কাঠামো Slot final {
         // The entry comes first, so it starts the slot whatever its alignment.
         // It is a union so it is alive only while the slot is occupied.
-        union {
+        সংঘ {
             Entry m_entry;  // Stored entry; alive only while the slot is occupied
         };
-        size_t m_hash = 0;  // Hash of the entry, or zero when the slot is free
+        আকার_t m_hash = 0;  // Hash of the entry, or zero when the slot is free
 
         Slot() {}  // Leaves 'm_entry' uninitialized, as the slot is free
         ~Slot() {
-            if (!isFree()) destroy();
+            যদি (!isFree()) destroy();
         }
-        Slot(const Slot&) = delete;
+        Slot(ধ্রুবক Slot&) = delete;
         Slot(Slot&&) = delete;
-        const Slot& operator=(const Slot&) = delete;
+        ধ্রুবক Slot& operator=(ধ্রুবক Slot&) = delete;
         Slot& operator=(Slot&& that) {
             UDEBUGONLY(UASSERT(this != &that, "Moving a slot onto itself"););
             UDEBUGONLY(UASSERT(!that.isFree(), "Moving from a free slot"););
@@ -151,26 +151,26 @@ private:
             new (&m_entry) Entry{std::move(that.m_entry)};
             m_hash = that.m_hash;
             that.destroy();
-            return *this;
+            ফেরত *this;
         }
 
-        bool isFree() const { return !m_hash; }
+        bool isFree() ধ্রুবক { ফেরত !m_hash; }
 
         // Construct the entry of this free slot from the given entry
-        void construct(size_t hash, Entry&& entry) {
+        শূন্য construct(আকার_t hash, Entry&& entry) {
             UDEBUGONLY(UASSERT(isFree(), "Constructing the entry of an occupied slot"););
             new (&m_entry) Entry{std::move(entry)};
             m_hash = hash;
         }
         // Destroy the entry of this occupied slot, leaving it free
-        void destroy() {
+        শূন্য destroy() {
             UDEBUGONLY(UASSERT(!isFree(), "Destroying the entry of a free slot"););
             m_entry.~Entry();
             m_hash = 0;
         }
     };
 
-public:
+সর্বজনীন:
     // Iterator over the entries, see the file header on invalidation
     class iterator final {
         friend class V3HashTable;
@@ -182,205 +182,205 @@ public:
             : m_slotp{slotp}
             , m_endp{endp} {}
 
-    public:
-        iterator() = default;
+    সর্বজনীন:
+        iterator() = পূর্বনির্ধারিত;
         // As opposed to the STL, this always returns a const reference so an
         // entry is not mutable through an iterator alone. This is required
         // because entries must be movable, hence can't be const, but the key
         // of a map must not be modified. See 'value()' for the mapped value.
-        const Entry& operator*() const { return m_slotp->m_entry; }
-        const Entry* operator->() const { return &m_slotp->m_entry; }
+        ধ্রুবক Entry& operator*() ধ্রুবক { ফেরত m_slotp->m_entry; }
+        ধ্রুবক Entry* operator->() ধ্রুবক { ফেরত &m_slotp->m_entry; }
         // Mutable reference to the mapped value, for a V3HashMap only, as in a set
         // the entry is the key. Changing it is safe, as it takes no part in the lookup.
-        auto& value() const { return T_KeyOf::valueOf(m_slotp->m_entry); }
+        auto& মান() ধ্রুবক { ফেরত T_চাবি_Of::মান_Of(m_slotp->m_entry); }
         // Pre-increment, skipping the free slots
         iterator& operator++() {
-            while (++m_slotp != m_endp && m_slotp->isFree()) {}
-            return *this;
+            যখন (++m_slotp != m_endp && m_slotp->isFree()) {}
+            ফেরত *this;
         }
-        bool operator==(const iterator& that) const { return m_slotp == that.m_slotp; }
-        bool operator!=(const iterator& that) const { return m_slotp != that.m_slotp; }
+        bool operator==(ধ্রুবক iterator& that) ধ্রুবক { ফেরত m_slotp == that.m_slotp; }
+        bool operator!=(ধ্রুবক iterator& that) ধ্রুবক { ফেরত m_slotp != that.m_slotp; }
     };
 
-private:
+ব্যক্তিগত:
     // STATE
     std::unique_ptr<Slot[]> m_table;  // The table, null when unallocated
-    size_t m_capacity = 0;  // Number of slots in the table, a power of two, or zero
-    size_t m_size = 0;  // Number of occupied slots
+    আকার_t m_capacity = 0;  // Number of slots in the table, a power of two, or zero
+    আকার_t m_আকার = 0;  // Number of occupied slots
     VL_NO_UNIQUE_ADDRESS_CXX20 T_Hash m_hash;  // Hashes a lookup key
     VL_NO_UNIQUE_ADDRESS_CXX20 T_Equal m_equal;  // Compares a key to a lookup key
-    VL_NO_UNIQUE_ADDRESS_CXX20 T_KeyOf m_keyOf;  // Yields the lookup key of an entry
+    VL_NO_UNIQUE_ADDRESS_CXX20 T_চাবি_Of m_চাবি_Of;  // Yields the lookup key of an entry
 
     // METHODS
 
     // The hash of the given entry or lookup key, as stored in a slot
     template <typename... T_Args>
-    size_t hashOf(const T_Args&... args) const {
+    আকার_t hashOf(ধ্রুবক T_Args&... args) ধ্রুবক {
         // A free slot is one with a zero hash, so force the high bit into every hash.
-        constexpr size_t USED_BIT = size_t{1} << (sizeof(size_t) * 8 - 1);
-        return static_cast<size_t>(m_hash(args...)) | USED_BIT;
+        constexpr আকার_t USED_BIT = আকার_t{1} << (আকার(আকার_t) * 8 - 1);
+        ফেরত static_cast<আকার_t>(m_hash(args...)) | USED_BIT;
     }
 
     // Index of the free slot the given hash probes to. There must always be one.
-    size_t freeSlot(size_t hash) const {
-        const size_t mask = m_capacity - 1;
-        size_t i = hash & mask;
-        while (!m_table[i].isFree()) i = (i + 1) & mask;
-        return i;
+    আকার_t freeSlot(আকার_t hash) ধ্রুবক {
+        ধ্রুবক আকার_t mask = m_capacity - 1;
+        আকার_t i = hash & mask;
+        যখন (!m_table[i].isFree()) i = (i + 1) & mask;
+        ফেরত i;
     }
 
     // Resize to the given number of slots, which must fit all entries
-    void resize(size_t count) {
-        UDEBUGONLY(UASSERT(count && !(count & (count - 1)), "Capacity not a power of 2"););
-        const std::unique_ptr<Slot[]> oldTable{std::move(m_table)};
-        const size_t oldCapacity = m_capacity;
-        m_table = std::make_unique<Slot[]>(count);
-        m_capacity = count;
+    শূন্য resize(আকার_t গুনতি) {
+        UDEBUGONLY(UASSERT(গুনতি && !(গুনতি & (গুনতি - 1)), "Capacity not a power of 2"););
+        ধ্রুবক std::unique_ptr<Slot[]> oldTable{std::move(m_table)};
+        ধ্রুবক আকার_t oldCapacity = m_capacity;
+        m_table = std::make_unique<Slot[]>(গুনতি);
+        m_capacity = গুনতি;
         // Reinsert the entries. 'freeSlot' appends to the probe run of each, so the runs
         // come out contiguous whatever order this visits the old slots in.
-        for (size_t i = 0; i < oldCapacity; ++i) {
+        জন্য (আকার_t i = 0; i < oldCapacity; ++i) {
             Slot& slot = oldTable[i];
-            if (!slot.isFree()) m_table[freeSlot(slot.m_hash)] = std::move(slot);
+            যদি (!slot.isFree()) m_table[freeSlot(slot.m_hash)] = std::move(slot);
         }
     }
 
     // Index of the slot holding the entry equal to the given key, or of the free slot its
     // probe sequence ends at. The table must not be empty.
     template <typename... T_Args>
-    size_t probe(size_t hash, const T_Args&... args) const {
+    আকার_t probe(আকার_t hash, ধ্রুবক T_Args&... args) ধ্রুবক {
         UDEBUGONLY(UASSERT(m_table, "Table must be allocated"););
-        const size_t mask = m_capacity - 1;
-        size_t i = hash & mask;
-        while (!m_table[i].isFree()) {
-            const Slot& slot = m_table[i];
-            if (slot.m_hash == hash && m_equal(m_keyOf(slot.m_entry), args...)) break;
+        ধ্রুবক আকার_t mask = m_capacity - 1;
+        আকার_t i = hash & mask;
+        যখন (!m_table[i].isFree()) {
+            ধ্রুবক Slot& slot = m_table[i];
+            যদি (slot.m_hash == hash && m_equal(m_চাবি_Of(slot.m_entry), args...)) বিরতি;
             i = (i + 1) & mask;
         }
-        return i;
+        ফেরত i;
     }
 
     // Implementation of 'insertLazy' below. 'all' holds the key arguments, followed by
     // the callable that creates the entry, so 'N_Key' indexes the key.
-    template <size_t... N_Key, typename T_All>
-    std::pair<iterator, bool> insertLazyImpl(std::index_sequence<N_Key...>, T_All&& all) {
-        static_assert(ValidHash<std::tuple_element_t<N_Key, T_All>...>::value,
+    template <আকার_t... N_চাবি, typename T_All>
+    std::pair<iterator, bool> ঢোকাও_Lazy_Impl(std::সূচক_sequence<N_চাবি...>, T_All&& all) {
+        static_assert(ValidHash<std::tuple_element_t<N_চাবি, T_All>...>::মান,
                       "The 'Hash' functor does not accept a lookup key spelled like this");
-        static_assert(ValidEqual<std::tuple_element_t<N_Key, T_All>...>::value,
+        static_assert(ValidEqual<std::tuple_element_t<N_চাবি, T_All>...>::মান,
                       "The 'Equal' functor does not accept a lookup key spelled like this");
-        const size_t hash = hashOf(std::get<N_Key>(all)...);
+        ধ্রুবক আকার_t hash = hashOf(std::get<N_চাবি>(all)...);
         // Allocate on the first insertion
-        if (VL_UNLIKELY(!m_capacity)) resize(V3HashTableInternals::MIN_CAPACITY);
+        যদি (VL_UNLIKELY(!m_capacity)) resize(V3HashTableInternals::MIN_CAPACITY);
         // Find the slot for the entry
-        Slot* slotp = m_table.get() + probe(hash, std::get<N_Key>(all)...);
+        Slot* slotp = m_table.get() + probe(hash, std::get<N_চাবি>(all)...);
         // If occupied, it's the equivalent, and we are done
-        if (!slotp->isFree()) return {iterator{slotp, m_table.get() + m_capacity}, false};
+        যদি (!slotp->isFree()) ফেরত {iterator{slotp, m_table.get() + m_capacity}, false};
         // Table is growing
-        ++m_size;
+        ++m_আকার;
         // Increase if necessary by load factor
-        if (VL_UNLIKELY(m_size * V3HashTableInternals::LOAD_FACTOR_DEN
-                        > m_capacity * V3HashTableInternals::LOAD_FACTOR_NUM)) {
+        যদি (VL_UNLIKELY(m_আকার * V3HashTableInternals::LOAD_FACTOR_DEN
+                        > m_capacity * V3HashTableInternals::LOAD_FACTOR_অঙ্ক)) {
             resize(m_capacity * 2);
             slotp = m_table.get() + freeSlot(hash);
         }
         // Construct the entry via the user provided callable (last item in 'all')
-        slotp->construct(hash, std::get<sizeof...(N_Key)>(all)());
+        slotp->construct(hash, std::get<আকার...(N_চাবি)>(all)());
         // The key of the created entry must both hash and compare as the key looked up
 #ifdef VL_DEBUG
-        const Key& key = m_keyOf(slotp->m_entry);
-        UASSERT(hashOf(key) == hash,
+        ধ্রুবক চাবি_2& চাবি = m_চাবি_Of(slotp->m_entry);
+        UASSERT(hashOf(চাবি) == hash,
                 "Created entry does not hash as the key it was looked up with");
-        UASSERT(m_equal(key, std::get<N_Key>(all)...),
+        UASSERT(m_equal(চাবি, std::get<N_চাবি>(all)...),
                 "Created entry does not match the key it was looked up with");
 #endif
         // Return newly create entry
-        return {iterator{slotp, m_table.get() + m_capacity}, true};
+        ফেরত {iterator{slotp, m_table.get() + m_capacity}, true};
     }
 
-protected:
+সুরক্ষিত:
     // CONSTRUCTORS
-    V3HashTable() = default;
+    V3HashTable() = পূর্বনির্ধারিত;
     V3HashTable(T_Hash hash, T_Equal equal)
         : m_hash{std::move(hash)}
         , m_equal{std::move(equal)} {}
-    ~V3HashTable() = default;
+    ~V3HashTable() = পূর্বনির্ধারিত;
     VL_UNCOPYABLE(V3HashTable);
     // Movable, as the table is just a pointer. The source is left empty rather than
     // merely unspecified, so it remains a usable, empty table.
     V3HashTable(V3HashTable&& that)
         : m_table{std::move(that.m_table)}
         , m_capacity{that.m_capacity}
-        , m_size{that.m_size}
+        , m_আকার{that.m_আকার}
         , m_hash{std::move(that.m_hash)}
         , m_equal{std::move(that.m_equal)}
-        , m_keyOf{std::move(that.m_keyOf)} {
+        , m_চাবি_Of{std::move(that.m_চাবি_Of)} {
         that.m_capacity = 0;
-        that.m_size = 0;
+        that.m_আকার = 0;
     }
     V3HashTable& operator=(V3HashTable&& that) {
         m_table = std::move(that.m_table);  // Frees the table this held, if any
         m_capacity = that.m_capacity;
-        m_size = that.m_size;
+        m_আকার = that.m_আকার;
         m_hash = std::move(that.m_hash);
         m_equal = std::move(that.m_equal);
-        m_keyOf = std::move(that.m_keyOf);
+        m_চাবি_Of = std::move(that.m_চাবি_Of);
         that.m_capacity = 0;
-        that.m_size = 0;
-        return *this;
+        that.m_আকার = 0;
+        ফেরত *this;
     }
 
-public:
+সর্বজনীন:
     // METHODS
-    size_t size() const { return m_size; }
-    bool empty() const { return !m_size; }
+    আকার_t আকার_2() ধ্রুবক { ফেরত m_আকার; }
+    bool empty() ধ্রুবক { ফেরত !m_আকার; }
 
-    iterator begin() const {
-        Slot* const endp = m_table.get() + m_capacity;
+    iterator begin() ধ্রুবক {
+        Slot* ধ্রুবক endp = m_table.get() + m_capacity;
         Slot* slotp = m_table.get();
-        while (slotp != endp && slotp->isFree()) ++slotp;
-        return iterator{slotp, endp};
+        যখন (slotp != endp && slotp->isFree()) ++slotp;
+        ফেরত iterator{slotp, endp};
     }
-    iterator end() const {
-        Slot* const endp = m_table.get() + m_capacity;
-        return iterator{endp, endp};
+    iterator end() ধ্রুবক {
+        Slot* ধ্রুবক endp = m_table.get() + m_capacity;
+        ফেরত iterator{endp, endp};
     }
 
     // Make room for the given number of entries, so inserting that many will not resize
-    void reserve(size_t count) {
-        size_t capacity = V3HashTableInternals::MIN_CAPACITY;
-        while (capacity * V3HashTableInternals::LOAD_FACTOR_NUM
-               < count * V3HashTableInternals::LOAD_FACTOR_DEN)
+    শূন্য reserve(আকার_t গুনতি) {
+        আকার_t capacity = V3HashTableInternals::MIN_CAPACITY;
+        যখন (capacity * V3HashTableInternals::LOAD_FACTOR_অঙ্ক
+               < গুনতি * V3HashTableInternals::LOAD_FACTOR_DEN)
             capacity *= 2;
-        if (capacity > m_capacity) resize(capacity);
+        যদি (capacity > m_capacity) resize(capacity);
     }
 
     // Remove all entries. The table stays allocated. Invalidates every iterator.
-    void clear() {
-        for (size_t i = 0; i < m_capacity; ++i) {
-            if (!m_table[i].isFree()) m_table[i].destroy();
+    শূন্য clear() {
+        জন্য (আকার_t i = 0; i < m_capacity; ++i) {
+            যদি (!m_table[i].isFree()) m_table[i].destroy();
         }
-        m_size = 0;
+        m_আকার = 0;
     }
 
     // Return iterator to the entry equal to the given key, or 'end()' if there
     // is none. The key is whatever T_Hash and T_Equal accept, spelled as any
     // number of arguments. Same as STL containers.
     template <typename... T_Args>
-    iterator find(const T_Args&... args) const {
-        static_assert(ValidHash<T_Args...>::value,
+    iterator find(ধ্রুবক T_Args&... args) ধ্রুবক {
+        static_assert(ValidHash<T_Args...>::মান,
                       "The 'Hash' functor does not accept a lookup key spelled like this");
-        static_assert(ValidEqual<T_Args...>::value,
+        static_assert(ValidEqual<T_Args...>::মান,
                       "The 'Equal' functor does not accept a lookup key spelled like this");
-        if (!m_size) return end();  // Nothing to find, and this also covers there being no table
-        Slot* const slotp = m_table.get() + probe(hashOf(args...), args...);
-        return slotp->isFree() ? end() : iterator{slotp, m_table.get() + m_capacity};
+        যদি (!m_আকার) ফেরত end();  // Nothing to find, and this also covers there being no table
+        Slot* ধ্রুবক slotp = m_table.get() + probe(hashOf(args...), args...);
+        ফেরত slotp->isFree() ? end() : iterator{slotp, m_table.get() + m_capacity};
     }
 
     // Add the given entry, unless an equal one is in the table already. Return
     // iterator to the entry and true if insertion happened. Same as STL containers.
-    std::pair<iterator, bool> insert(const Entry& entry) {
-        static_assert(std::is_copy_constructible<Entry>::value,
+    std::pair<iterator, bool> ঢোকাও(ধ্রুবক Entry& entry) {
+        static_assert(std::is_copy_constructible<Entry>::মান,
                       "'Entry' must be copy constructible to use 'insert'");
-        return insertLazy(m_keyOf(entry), [&entry]() -> Entry { return entry; });
+        ফেরত ঢোকাও_Lazy(m_চাবি_Of(entry), [&entry]() -> Entry { ফেরত entry; });
     }
 
     // As 'insert', but the entry is only made when needed: all but the last argument spell
@@ -388,50 +388,50 @@ public:
     // must hash and compare equal to the key, and the call must not touch the container, as this
     // holds the slot the entry will go in.
     template <typename... T_Args>
-    std::pair<iterator, bool> insertLazy(T_Args&&... args) {
-        static_assert(sizeof...(T_Args) >= 2,
+    std::pair<iterator, bool> ঢোকাও_Lazy(T_Args&&... args) {
+        static_assert(আকার...(T_Args) >= 2,
                       "'insertLazy' needs a lookup key, then a callable to create the entry");
-        using Callable = std::tuple_element_t<sizeof...(T_Args) - 1, std::tuple<T_Args...>>;
-        static_assert(vlstd::is_invocable_r<Entry, Callable>::value,
+        using Callable = std::tuple_element_t<আকার...(T_Args) - 1, std::tuple<T_Args...>>;
+        static_assert(vlstd::is_invocable_r<Entry, Callable>::মান,
                       "The last argument of 'insertLazy' must be a callable that takes no "
                       "arguments and returns an 'Entry'");
-        return insertLazyImpl(std::make_index_sequence<sizeof...(T_Args) - 1>{},
+        ফেরত ঢোকাও_Lazy_Impl(std::make_সূচক_sequence<আকার...(T_Args) - 1>{},
                               std::forward_as_tuple(std::forward<T_Args>(args)...));
     }
 
     // Whether an entry equal to the given key is in the table. The key is spelled as for 'find'.
     template <typename... T_Args>
-    bool contains(const T_Args&... args) const {
-        return find(args...) != end();
+    bool contains(ধ্রুবক T_Args&... args) ধ্রুবক {
+        ফেরত find(args...) != end();
     }
 
     // Remove the entry equal to the given key, and return whether there was one.
     template <typename... T_Args>
-    bool erase(const T_Args&... args) {
-        const iterator it = find(args...);
-        if (it == end()) return false;
+    bool erase(ধ্রুবক T_Args&... args) {
+        ধ্রুবক iterator it = find(args...);
+        যদি (it == end()) ফেরত false;
         erase(it);
-        return true;
+        ফেরত true;
     }
 
     // Remove the entry the given iterator refers to, which must not be 'end()'. Note that
     // unlike STL erase this returns nothing, as every iterator is invalidated on deletion.
-    void erase(iterator it) {
+    শূন্য erase(iterator it) {
         UDEBUGONLY(UASSERT(it != end() && !it.m_slotp->isFree(), "Erasing a bad iterator"););
-        const size_t mask = m_capacity - 1;
-        size_t i = static_cast<size_t>(it.m_slotp - m_table.get());
+        ধ্রুবক আকার_t mask = m_capacity - 1;
+        আকার_t i = static_cast<আকার_t>(it.m_slotp - m_table.get());
         // Destroy the entry
         m_table[i].destroy();
         // The entry is gone, so slot 'i' is now a hole
-        --m_size;
+        --m_আকার;
         // Backward shift deletion: move back the entries whose probing the hole breaks
-        size_t j = i;
-        while (true) {
+        আকার_t j = i;
+        যখন (true) {
             j = (j + 1) & mask;
             Slot& slot = m_table[j];
-            if (slot.isFree()) break;
+            যদি (slot.isFree()) বিরতি;
             // Move back if its home position does not lie in the cyclic range (i, j]
-            if (((j - (slot.m_hash & mask)) & mask) >= ((j - i) & mask)) {
+            যদি (((j - (slot.m_hash & mask)) & mask) >= ((j - i) & mask)) {
                 m_table[i] = std::move(slot);  // Frees 'slot', which is then the hole
                 i = j;
             }
@@ -439,45 +439,45 @@ public:
     }
 };
 
-template <typename T_Key, typename T_Hash = std::hash<T_Key>,
-          typename T_Equal = std::equal_to<T_Key>>
-class V3HashSet final : public V3HashTable<T_Key, T_Hash, T_Equal,
-                                           V3HashTableInternals::V3HashTableKeyIsEntry<T_Key>> {
+template <typename T_চাবি, typename T_Hash = std::hash<T_চাবি>,
+          typename T_Equal = std::equal_to<T_চাবি>>
+class V3HashSet final : সর্বজনীন V3HashTable<T_চাবি, T_Hash, T_Equal,
+                                           V3HashTableInternals::V3_Hash_Table_চাবি_Is_Entry<T_চাবি>> {
     using Super
-        = V3HashTable<T_Key, T_Hash, T_Equal, V3HashTableInternals::V3HashTableKeyIsEntry<T_Key>>;
+        = V3HashTable<T_চাবি, T_Hash, T_Equal, V3HashTableInternals::V3_Hash_Table_চাবি_Is_Entry<T_চাবি>>;
 
     // Entries are only ever moved. Note 'insert' additionally needs copy construction.
-    static_assert(std::is_move_constructible<T_Key>::value, "'T_Key' must be move constructible");
-    static_assert(std::is_destructible<T_Key>::value, "'T_Key' must be destructible");
+    static_assert(std::is_move_constructible<T_চাবি>::মান, "'T_Key' must be move constructible");
+    static_assert(std::is_destructible<T_চাবি>::মান, "'T_Key' must be destructible");
 
-public:
+সর্বজনীন:
     // CONSTRUCTORS
-    V3HashSet() = default;
+    V3HashSet() = পূর্বনির্ধারিত;
     V3HashSet(T_Hash hash, T_Equal equal)
         : Super{std::move(hash), std::move(equal)} {}
 };
 
-template <typename T_Key, typename T_Val, typename T_Hash = std::hash<T_Key>,
-          typename T_Equal = std::equal_to<T_Key>>
+template <typename T_চাবি, typename T_Val, typename T_Hash = std::hash<T_চাবি>,
+          typename T_Equal = std::equal_to<T_চাবি>>
 class V3HashMap final
-    : public V3HashTable<std::pair<T_Key, T_Val>, T_Hash, T_Equal,
-                         V3HashTableInternals::V3HashTableKeyIsFirst<T_Key, T_Val>> {
-    using Super = V3HashTable<std::pair<T_Key, T_Val>, T_Hash, T_Equal,
-                              V3HashTableInternals::V3HashTableKeyIsFirst<T_Key, T_Val>>;
+    : সর্বজনীন V3HashTable<std::pair<T_চাবি, T_Val>, T_Hash, T_Equal,
+                         V3HashTableInternals::V3_Hash_Table_চাবি_Is_First<T_চাবি, T_Val>> {
+    using Super = V3HashTable<std::pair<T_চাবি, T_Val>, T_Hash, T_Equal,
+                              V3HashTableInternals::V3_Hash_Table_চাবি_Is_First<T_চাবি, T_Val>>;
 
     // Entries are only ever moved. Note 'insert' additionally needs copy construction.
     // Asserted separately, so the failure names the one at fault.
-    static_assert(std::is_move_constructible<T_Key>::value, "'T_Key' must be move constructible");
-    static_assert(std::is_destructible<T_Key>::value, "'T_Key' must be destructible");
-    static_assert(std::is_move_constructible<T_Val>::value, "'T_Val' must be move constructible");
-    static_assert(std::is_destructible<T_Val>::value, "'T_Val' must be destructible");
+    static_assert(std::is_move_constructible<T_চাবি>::মান, "'T_Key' must be move constructible");
+    static_assert(std::is_destructible<T_চাবি>::মান, "'T_Key' must be destructible");
+    static_assert(std::is_move_constructible<T_Val>::মান, "'T_Val' must be move constructible");
+    static_assert(std::is_destructible<T_Val>::মান, "'T_Val' must be destructible");
 
-public:
+সর্বজনীন:
     // TYPES
-    using Value = T_Val;  // What a key maps to
+    using মান_2 = T_Val;  // What a key maps to
 
     // CONSTRUCTORS
-    V3HashMap() = default;
+    V3HashMap() = পূর্বনির্ধারিত;
     V3HashMap(T_Hash hash, T_Equal equal)
         : Super{std::move(hash), std::move(equal)} {}
 };

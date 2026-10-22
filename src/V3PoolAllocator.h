@@ -17,28 +17,28 @@
 #ifndef VERILATOR_V3POOLALLOCATOR_H_
 #define VERILATOR_V3POOLALLOCATOR_H_
 
-#include "config_build.h"
-#include "verilatedos.h"
+#অন্তর্ভাব "config_build.h"
+#অন্তর্ভাব "verilatedos.h"
 
-#include <cstddef>
-#include <memory>
-#include <new>
-#include <utility>
-#include <vector>
+#অন্তর্ভাব <cstddef>
+#অন্তর্ভাব <memory>
+#অন্তর্ভাব <new>
+#অন্তর্ভাব <utility>
+#অন্তর্ভাব <vector>
 
 // Hands out elements of a single type, allocated 'N_ChunkSize' at a time for
 // efficiency. Released elements are recycled via a free list stored in the
 // same storage. All memory is released when the pool is destroyed, so the
 // elements it handed out must not be used beyond its lifetime, and must all
 // have been released by then.
-template <typename T_Elem, size_t N_ChunkSize = 128>
+template <typename T_Elem, আকার_t N_Chunk_আকার = 128>
 class PoolAllocator final {
-    static_assert(N_ChunkSize > 0, "Chunk size must be non-zero");
+    static_assert(N_Chunk_আকার > 0, "Chunk size must be non-zero");
 
     // A slot of storage, holding either a live element, or a link in the free list.
-    union Slot final {
+    সংঘ Slot final {
         T_Elem m_elem;  // Storage for the allocated element
-        Slot* m_nextFreep;  // Link to the next free slot
+        Slot* m_পরবর্তী_Freep;  // Link to the next free slot
         Slot() {}
         ~Slot() {}
     };
@@ -47,9 +47,9 @@ class PoolAllocator final {
     Slot* m_freep = nullptr;  // Head of the free list
     std::vector<std::unique_ptr<Slot[]>> m_allocated;  // The allocated chunks
 
-public:
+সর্বজনীন:
     // CONSTRUCTORS
-    PoolAllocator() = default;
+    PoolAllocator() = পূর্বনির্ধারিত;
     VL_UNCOPYABLE(PoolAllocator);
     VL_UNMOVABLE(PoolAllocator);
 
@@ -58,26 +58,26 @@ public:
     template <typename... Args>
     T_Elem* alloc(Args&&... args) {
         // If no free slots available, then make some
-        if (!m_freep) {
+        যদি (!m_freep) {
             // Allocate in chunks for efficiency
-            m_allocated.emplace_back(new Slot[N_ChunkSize]);
+            m_allocated.emplace_back(new Slot[N_Chunk_আকার]);
             // Chain the new slots into the free list
-            Slot* const chunkp = m_allocated.back().get();
-            for (size_t i = 1; i < N_ChunkSize; ++i) chunkp[i - 1].m_nextFreep = &chunkp[i];
-            chunkp[N_ChunkSize - 1].m_nextFreep = nullptr;
+            Slot* ধ্রুবক chunkp = m_allocated.back().get();
+            জন্য (আকার_t i = 1; i < N_Chunk_আকার; ++i) chunkp[i - 1].m_পরবর্তী_Freep = &chunkp[i];
+            chunkp[N_Chunk_আকার - 1].m_পরবর্তী_Freep = nullptr;
             m_freep = chunkp;
         }
         // Free slots are available, pick up the first one
-        Slot* const slotp = m_freep;
-        m_freep = slotp->m_nextFreep;
-        return new (&slotp->m_elem) T_Elem{std::forward<Args>(args)...};
+        Slot* ধ্রুবক slotp = m_freep;
+        m_freep = slotp->m_পরবর্তী_Freep;
+        ফেরত new (&slotp->m_elem) T_Elem{std::forward<Args>(args)...};
     }
 
     // Destroy an element, and return its slot for future allocation
-    void free(T_Elem* elemp) {
+    শূন্য মুক্ত(T_Elem* elemp) {
         elemp->~T_Elem();
-        Slot* const slotp = reinterpret_cast<Slot*>(elemp);
-        slotp->m_nextFreep = m_freep;
+        Slot* ধ্রুবক slotp = reinterpret_cast<Slot*>(elemp);
+        slotp->m_পরবর্তী_Freep = m_freep;
         m_freep = slotp;
     }
 };

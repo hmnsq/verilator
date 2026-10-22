@@ -17,15 +17,15 @@
 #ifndef VERILATOR_V3ORDERINTERNAL_H_
 #define VERILATOR_V3ORDERINTERNAL_H_
 
-#include "config_build.h"
-#include "verilatedos.h"
+#অন্তর্ভাব "config_build.h"
+#অন্তর্ভাব "verilatedos.h"
 
-#include "V3Order.h"
-#include "V3OrderGraph.h"
-#include "V3OrderMoveGraph.h"
+#অন্তর্ভাব "V3Order.h"
+#অন্তর্ভাব "V3OrderGraph.h"
+#অন্তর্ভাব "V3OrderMoveGraph.h"
 
-#include <string>
-#include <vector>
+#অন্তর্ভাব <string>
+#অন্তর্ভাব <vector>
 
 class AstVarScope;
 
@@ -37,21 +37,21 @@ class LogicByScope;
 
 namespace V3Order {
 
-std::unique_ptr<OrderGraph> buildOrderGraph(const V3Sched::TriggerKit& trigKit,  //
+std::unique_ptr<OrderGraph> buildOrderGraph(ধ্রুবক V3Sched::TriggerKit& trigKit,  //
                                             AstVarScope* trigVscp,  //
-                                            const std::vector<V3Sched::LogicByScope*>& coll,  //
-                                            const V3Sched::CovergroupRefBindings& cgRefBindings,
+                                            ধ্রুবক std::vector<V3Sched::LogicByScope*>& coll,  //
+                                            ধ্রুবক V3Sched::CovergroupRefBindings& cgRefBindings,
                                             bool parallel);
 
-void orderOrderGraph(OrderGraph& graph, const std::string& tag);
+শূন্য orderOrderGraph(OrderGraph& graph, ধ্রুবক std::string& tag);
 
-void processDomains(OrderGraph& graph,  //
-                    const std::string& tag,  //
-                    const ExternalTriggersProvider& externalTriggers);
+শূন্য processDomains(OrderGraph& graph,  //
+                    ধ্রুবক std::string& tag,  //
+                    ধ্রুবক ExternalTriggersProvider& externalTriggers);
 
-AstNodeStmt* createSerial(OrderMoveGraph& moveGraph, const std::string& tag, bool slow);
+Ast_গ্রন্থি_Stmt* createSerial(OrderMoveGraph& moveGraph, ধ্রুবক std::string& tag, bool slow);
 
-AstNodeStmt* createParallel(OrderMoveGraph& moveGraph, const std::string& tag, bool slow);
+Ast_গ্রন্থি_Stmt* createParallel(OrderMoveGraph& moveGraph, ধ্রুবক std::string& tag, bool slow);
 
 };  // namespace V3Order
 

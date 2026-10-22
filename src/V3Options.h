@@ -17,74 +17,74 @@
 #ifndef VERILATOR_V3OPTIONS_H_
 #define VERILATOR_V3OPTIONS_H_
 
-#include "config_build.h"
-#include "verilatedos.h"
+#অন্তর্ভাব "config_build.h"
+#অন্তর্ভাব "verilatedos.h"
 
-#include "V3Error.h"
-#include "V3LangCode.h"
+#অন্তর্ভাব "V3Error.h"
+#অন্তর্ভাব "V3LangCode.h"
 
-#include <list>
-#include <map>
-#include <set>
-#include <string>
-#include <vector>
+#অন্তর্ভাব <list>
+#অন্তর্ভাব <map>
+#অন্তর্ভাব <set>
+#অন্তর্ভাব <string>
+#অন্তর্ভাব <vector>
 
 class V3OptionsImp;
-class FileLine;
+class File_সারি;
 
 //######################################################################
 
 class VOptionBool final {
     // Class to track options that are either not specified (and default
     // true/false), versus user setting the option to true or false
-public:
-    enum en : uint8_t { OPT_DEFAULT_FALSE = 0, OPT_DEFAULT_TRUE, OPT_TRUE, OPT_FALSE };
-    enum en m_e;
+সর্বজনীন:
+    গণনা en : uint8_t { OPT_DEFAULT_FALSE = 0, OPT_DEFAULT_TRUE, OPT_TRUE, OPT_FALSE };
+    গণনা en m_e;
     VOptionBool()
         : m_e{OPT_DEFAULT_FALSE} {}
     // cppcheck-suppress noExplicitConstructor
     constexpr VOptionBool(en _e)
         : m_e{_e} {}
-    explicit VOptionBool(int _e)
+    explicit VOptionBool(পূর্ণসংখ্যা _e)
         : m_e(static_cast<en>(_e)) {}  // Need () or GCC 4.8 false warning
-    constexpr operator en() const { return m_e; }
-    const char* ascii() const {
-        static const char* const names[]
+    constexpr operator en() ধ্রুবক { ফেরত m_e; }
+    ধ্রুবক অক্ষর* ascii() ধ্রুবক {
+        স্থির ধ্রুবক অক্ষর* ধ্রুবক names[]
             = {"DEFAULT_FALSE", "DEFAULT_TRUE", "OPT_TRUE", "OPT_FALSE"};
-        return names[m_e];
+        ফেরত names[m_e];
     }
-    bool isDefault() const { return m_e == OPT_DEFAULT_FALSE || m_e == OPT_DEFAULT_TRUE; }
-    bool isTrue() const { return m_e == OPT_TRUE || m_e == OPT_DEFAULT_TRUE; }
-    bool isSetTrue() const { return m_e == OPT_TRUE; }
-    bool isSetFalse() const { return m_e == OPT_FALSE; }
-    void setTrueOrFalse(bool flag) { m_e = flag ? OPT_TRUE : OPT_FALSE; }
+    bool isDefault() ধ্রুবক { ফেরত m_e == OPT_DEFAULT_FALSE || m_e == OPT_DEFAULT_TRUE; }
+    bool isTrue() ধ্রুবক { ফেরত m_e == OPT_TRUE || m_e == OPT_DEFAULT_TRUE; }
+    bool isSetTrue() ধ্রুবক { ফেরত m_e == OPT_TRUE; }
+    bool isSetFalse() ধ্রুবক { ফেরত m_e == OPT_FALSE; }
+    শূন্য setTrueOrFalse(bool flag) { m_e = flag ? OPT_TRUE : OPT_FALSE; }
 };
-constexpr bool operator==(const VOptionBool& lhs, const VOptionBool& rhs) {
-    return lhs.m_e == rhs.m_e;
+constexpr bool operator==(ধ্রুবক VOptionBool& lhs, ধ্রুবক VOptionBool& rhs) {
+    ফেরত lhs.m_e == rhs.m_e;
 }
-constexpr bool operator==(const VOptionBool& lhs, VOptionBool::en rhs) { return lhs.m_e == rhs; }
-constexpr bool operator==(VOptionBool::en lhs, const VOptionBool& rhs) { return lhs == rhs.m_e; }
+constexpr bool operator==(ধ্রুবক VOptionBool& lhs, VOptionBool::en rhs) { ফেরত lhs.m_e == rhs; }
+constexpr bool operator==(VOptionBool::en lhs, ধ্রুবক VOptionBool& rhs) { ফেরত lhs == rhs.m_e; }
 
 //######################################################################
 
 class VFileLibName final {
     // Filename and libname pair
-    const string m_filename;  // Filename
-    const string m_libname;  // Libname
-public:
-    VFileLibName(const string& filename, const string& libname)
+    ধ্রুবক string m_filename;  // Filename
+    ধ্রুবক string m_libname;  // Libname
+সর্বজনীন:
+    VFileLibName(ধ্রুবক string& filename, ধ্রুবক string& libname)
         : m_filename{filename}
         , m_libname{libname} {}
-    VFileLibName(const VFileLibName& rhs) = default;
-    string filename() const { return m_filename; }
-    string libname() const { return m_libname; }
-    bool operator==(const VFileLibName& rhs) const {
-        return m_filename == rhs.m_filename && m_libname == rhs.m_libname;
+    VFileLibName(ধ্রুবক VFileLibName& rhs) = পূর্বনির্ধারিত;
+    string filename() ধ্রুবক { ফেরত m_filename; }
+    string libname() ধ্রুবক { ফেরত m_libname; }
+    bool operator==(ধ্রুবক VFileLibName& rhs) ধ্রুবক {
+        ফেরত m_filename == rhs.m_filename && m_libname == rhs.m_libname;
     }
-    bool operator<(const VFileLibName& rhs) const {
-        if (m_filename < rhs.m_filename) return true;
-        if (m_filename > rhs.m_filename) return false;
-        return m_libname < rhs.m_libname;
+    bool operator<(ধ্রুবক VFileLibName& rhs) ধ্রুবক {
+        যদি (m_filename < rhs.m_filename) ফেরত true;
+        যদি (m_filename > rhs.m_filename) ফেরত false;
+        ফেরত m_libname < rhs.m_libname;
     }
 };
 
@@ -94,8 +94,8 @@ using VFileLibSet = std::set<VFileLibName>;
 // ######################################################################
 
 class VTimescale final {
-public:
-    enum en : uint8_t {
+সর্বজনীন:
+    গণনা en : uint8_t {
         // clang-format off
         TS_100S = 0, TS_10S = 1, TS_1S = 2,
         TS_100MS = 3, TS_10MS = 4, TS_1MS = 5,
@@ -107,66 +107,66 @@ public:
         NONE = 18,
         _ENUM_END
     };
-    enum : uint8_t { TS_DEFAULT = TS_1PS };
-    enum en m_e;
+    গণনা : uint8_t { TS_DEFAULT = TS_1PS };
+    গণনা en m_e;
     // CONSTRUCTOR
     VTimescale()
         : m_e{NONE} {}
     // cppcheck-suppress noExplicitConstructor
     constexpr VTimescale(en _e)
         : m_e{_e} {}
-    explicit VTimescale(int _e)
+    explicit VTimescale(পূর্ণসংখ্যা _e)
         : m_e(static_cast<en>(_e)) {}  // Need () or GCC 4.8 false warning
     // Construct from string
-    VTimescale(const string& value, bool& badr);
-    VTimescale(double value, bool& badr) {
+    VTimescale(ধ্রুবক string& মান, bool& badr);
+    VTimescale(দ্বিগুণ মান, bool& badr) {
         badr = false;
-        for (int i = TS_100S; i < _ENUM_END; ++i) {
+        জন্য (পূর্ণসংখ্যা i = TS_100S; i < _ENUM_END; ++i) {
             m_e = static_cast<en>(i);
-            if (multiplier() == value) break;
+            যদি (multiplier() == মান) বিরতি;
         }
-        if (multiplier() != value) {
+        যদি (multiplier() != মান) {
             m_e = NONE;
             badr = true;
         }
     }
-    bool isNone() const { return m_e == NONE; }
+    bool isNone() ধ্রুবক { ফেরত m_e == NONE; }
     // Parse a "unit/precision" string into two VTimescales, with error checking
-    static void parseSlashed(FileLine* fl, const char* textp, VTimescale& unitr, VTimescale& precr,
+    স্থির শূন্য parseSlashed(File_সারি* fl, ধ্রুবক অক্ষর* textp, VTimescale& unitr, VTimescale& precr,
                              bool allowEmpty = false);
-    const char* ascii() const {
-        static const char* const names[]
+    ধ্রুবক অক্ষর* ascii() ধ্রুবক {
+        স্থির ধ্রুবক অক্ষর* ধ্রুবক names[]
             = {"100s", "10s", "1s",    "100ms", "10ms", "1ms",   "100us", "10us", "1us", "100ns",
                "10ns", "1ns", "100ps", "10ps",  "1ps",  "100fs", "10fs",  "1fs",  "NONE"};
-        return names[m_e];
+        ফেরত names[m_e];
     }
-    int powerOfTen() const { return 2 - static_cast<int>(m_e); }
-    double multiplier() const {
-        static const double values[]
+    পূর্ণসংখ্যা powerOfTen() ধ্রুবক { ফেরত 2 - static_cast<পূর্ণসংখ্যা>(m_e); }
+    দ্বিগুণ multiplier() ধ্রুবক {
+        স্থির ধ্রুবক দ্বিগুণ মানসমূহ[]
             = {100,  10,   1,     1e-1,  1e-2,  1e-3,  1e-4,  1e-5,  1e-6, 1e-7,
                1e-8, 1e-9, 1e-10, 1e-11, 1e-12, 1e-13, 1e-14, 1e-15, 0};
-        return values[m_e];
+        ফেরত মানসমূহ[m_e];
     }
 };
-constexpr bool operator==(const VTimescale& lhs, const VTimescale& rhs) {
-    return lhs.m_e == rhs.m_e;
+constexpr bool operator==(ধ্রুবক VTimescale& lhs, ধ্রুবক VTimescale& rhs) {
+    ফেরত lhs.m_e == rhs.m_e;
 }
-constexpr bool operator==(const VTimescale& lhs, VTimescale::en rhs) { return lhs.m_e == rhs; }
-constexpr bool operator==(VTimescale::en lhs, const VTimescale& rhs) { return lhs == rhs.m_e; }
+constexpr bool operator==(ধ্রুবক VTimescale& lhs, VTimescale::en rhs) { ফেরত lhs.m_e == rhs; }
+constexpr bool operator==(VTimescale::en lhs, ধ্রুবক VTimescale& rhs) { ফেরত lhs == rhs.m_e; }
 // Comparisons are based on time, not enum values, so seconds > milliseconds
-constexpr bool operator<(const VTimescale& lhs, const VTimescale& rhs) {
-    return lhs.m_e > rhs.m_e;
+constexpr bool operator<(ধ্রুবক VTimescale& lhs, ধ্রুবক VTimescale& rhs) {
+    ফেরত lhs.m_e > rhs.m_e;
 }
-inline std::ostream& operator<<(std::ostream& os, const VTimescale& rhs) {
-    return os << rhs.ascii();
+অন্তঃরেখ std::ostream& operator<<(std::ostream& os, ধ্রুবক VTimescale& rhs) {
+    ফেরত os << rhs.ascii();
 }
 
 // ######################################################################
 
 class VFsmExpandType final {
     // Defined here since it is used in V3Options which does not include V3Ast.h
-public:
-    enum en : uint8_t {
+সর্বজনীন:
+    গণনা en : uint8_t {
         DEFAULT = 0,  // Use the global default expansion type
         AUTO,  // Expands only reset and default
         AUTO_EXPAND,  // Expands transitions between all possible states
@@ -177,36 +177,36 @@ public:
     // cppcheck-suppress noExplicitConstructor
     constexpr VFsmExpandType(en _e)
         : m_e{_e} {}
-    explicit VFsmExpandType(int _e)
+    explicit VFsmExpandType(পূর্ণসংখ্যা _e)
         : m_e(static_cast<en>(_e)) {}  // Need () or GCC 4.8 false warning
-    constexpr operator en() const { return m_e; }
-    constexpr const char* ascii() const {
-        constexpr const char* const names[] = {"DEFAULT", "AUTO", "AUTO_EXPAND", "FULL"};
-        return names[m_e];
+    constexpr operator en() ধ্রুবক { ফেরত m_e; }
+    constexpr ধ্রুবক অক্ষর* ascii() ধ্রুবক {
+        constexpr ধ্রুবক অক্ষর* ধ্রুবক names[] = {"DEFAULT", "AUTO", "AUTO_EXPAND", "FULL"};
+        ফেরত names[m_e];
     }
 };
-constexpr bool operator==(const VFsmExpandType& lhs, const VFsmExpandType& rhs) VL_MT_SAFE {
-    return lhs.m_e == rhs.m_e;
+constexpr bool operator==(ধ্রুবক VFsmExpandType& lhs, ধ্রুবক VFsmExpandType& rhs) VL_MT_SAFE {
+    ফেরত lhs.m_e == rhs.m_e;
 }
-constexpr bool operator==(const VFsmExpandType& lhs, VFsmExpandType::en rhs) VL_MT_SAFE {
-    return lhs.m_e == rhs;
+constexpr bool operator==(ধ্রুবক VFsmExpandType& lhs, VFsmExpandType::en rhs) VL_MT_SAFE {
+    ফেরত lhs.m_e == rhs;
 }
-constexpr bool operator==(VFsmExpandType::en lhs, const VFsmExpandType& rhs) VL_MT_SAFE {
-    return lhs == rhs.m_e;
+constexpr bool operator==(VFsmExpandType::en lhs, ধ্রুবক VFsmExpandType& rhs) VL_MT_SAFE {
+    ফেরত lhs == rhs.m_e;
 }
-inline std::ostream& operator<<(std::ostream& os, const VFsmExpandType& rhs) VL_MT_SAFE {
-    return os << rhs.ascii();
+অন্তঃরেখ std::ostream& operator<<(std::ostream& os, ধ্রুবক VFsmExpandType& rhs) VL_MT_SAFE {
+    ফেরত os << rhs.ascii();
 }
 
 // ######################################################################
 
 // Information given by --hierarchical-block option
 class V3HierarchicalBlockOption final {
-public:
+সর্বজনীন:
     // key:parameter name, value:value (as string)
-    using ParamStrMap = std::map<const std::string, std::string>;
+    using ParamStrMap = std::map<ধ্রুবক std::string, std::string>;
 
-private:
+ব্যক্তিগত:
     string m_origName;  // module name
     // module name after uniquified
     // same as m_origName for non-parameterized module
@@ -214,23 +214,23 @@ private:
     // overriding parameter values specified by -G option
     ParamStrMap m_parameters;
 
-public:
-    explicit V3HierarchicalBlockOption(const string& optstring);
-    const string& origName() const { return m_origName; }
-    const string& mangledName() const { return m_mangledName; }
-    const ParamStrMap params() const { return m_parameters; }
+সর্বজনীন:
+    explicit V3HierarchicalBlockOption(ধ্রুবক string& optstring);
+    ধ্রুবক string& origName() ধ্রুবক { ফেরত m_origName; }
+    ধ্রুবক string& mangledName() ধ্রুবক { ফেরত m_mangledName; }
+    ধ্রুবক ParamStrMap params() ধ্রুবক { ফেরত m_parameters; }
 };
 
-using V3HierBlockOptSet = std::map<const std::string, V3HierarchicalBlockOption>;
+using V3HierBlockOptSet = std::map<ধ্রুবক std::string, V3HierarchicalBlockOption>;
 
 //######################################################################
 // V3Options - Command line options
 
 class V3Options final {
-public:
-private:
+সর্বজনীন:
+ব্যক্তিগত:
     // TYPES
-    using DebugLevelMap = std::map<const std::string, unsigned>;
+    using DebugLevelMap = std::map<ধ্রুবক std::string, unsigned>;
 
     // MEMBERS (general options)
     V3OptionsImp* m_impp;  // Slow hidden options
@@ -252,26 +252,26 @@ private:
     VStringList m_forceIncs;   // argument: -FI
     DebugLevelMap m_debugLevel; // argument: --debugi-<srcfile/tag> <level>
     DebugLevelMap m_dumpLevel;  // argument: --dumpi-<srcfile/tag> <level>
-    std::map<const string, string> m_parameters;  // Parameters
-    std::map<const string, V3HierarchicalBlockOption> m_hierBlocks;  // main switch: --hierarchical-block
+    std::map<ধ্রুবক string, string> m_parameters;  // Parameters
+    std::map<ধ্রুবক string, V3HierarchicalBlockOption> m_hierBlocks;  // main switch: --hierarchical-block
     VStringSet m_fDfgPeepholeDisabled; // argument: -f[no-]dfg-peephole-<name>
 
     bool m_preprocOnly = false;     // main switch: -E
     bool m_preprocResolve = false;  // main switch: --preproc-resolve
     bool m_makePhony = false;       // main switch: -MP
-    bool m_preprocNoLine = false;   // main switch: -P
+    bool m_preproc_No_সারি = false;   // main switch: -P
     bool m_assert = true;           // main switch: --assert
     bool m_assertCase = true;       // main switch: --assert-case
     bool m_autoflush = false;       // main switch: --autoflush
     bool m_bboxSys = false;         // main switch: --bbox-sys
     bool m_bboxUnsup = false;       // main switch: --bbox-unsup
-    bool m_binary = false;          // main switch: --binary
+    bool m_দ্বিমিক = false;          // main switch: --binary
     bool m_build = false;           // main switch: --build
     bool m_context = true;          // main switch: --Wcontext
     bool m_coverageBranch = false;  // main switch: --coverage-branch
-    bool m_coverageExpr = false;    // main switch: --coverage-expr
+    bool m_coverage_রাশিমালা = false;    // main switch: --coverage-expr
     bool m_coverageFsm = false;     // main switch: --coverage-fsm
-    bool m_coverageLine = false;    // main switch: --coverage-block
+    bool m_coverage_সারি = false;    // main switch: --coverage-block
     bool m_coverageMergeInstances = false;  // main switch: --coverage-merge-instances
     bool m_coveragePerInstance = false;  // main switch: --coverage-per-instance
     bool m_coverageToggle = false;  // main switch: --coverage-toggle
@@ -289,8 +289,8 @@ private:
     bool m_debugPreprocPassthru = false;  // main switch: --debug-preproc-passthru
     bool m_debugProtect = false;    // main switch: --debug-protect
     bool m_debugSelfTest = false;   // main switch: --debug-self-test
-    bool m_debugStackCheck = false;  // main switch: --debug-stack-check
-    int m_debugRuntimeTimeout = 0;  // main switch: --debug-runtime-timeout <n>
+    bool m_debug_স্তূপ_Check = false;  // main switch: --debug-stack-check
+    পূর্ণসংখ্যা m_debugRuntimeTimeout = 0;  // main switch: --debug-runtime-timeout <n>
     bool m_debugWidth = false;      // main switch: --debug-width
     bool m_decoration = true;       // main switch: --decoration
     bool m_decorationNodes = false;  // main switch: --decoration=nodes
@@ -348,7 +348,7 @@ private:
     bool m_traceEnabledVcd = false;  // main switch: --trace-vcd
     bool m_traceParams = true;      // main switch: --trace-params
     bool m_traceStructs = false;    // main switch: --trace-structs
-    bool m_noTraceTop = false;      // main switch: --no-trace-top
+    bool m_no_Trace_শীর্ষ = false;      // main switch: --no-trace-top
     bool m_traceUnderscore = false; // main switch: --trace-underscore
     bool m_underlineZero = false;   // main switch: --underline-zero; undocumented old Verilator 2
     bool m_verilate = true;         // main switch: --verilate
@@ -356,61 +356,61 @@ private:
     bool m_waiverMultiline = false;  // main switch: --waiver-multiline
     bool m_xInitialEdge = false;    // main switch: --x-initial-edge
 
-    int         m_buildJobs = -1;    // main switch: --build-jobs, -j
-    int         m_coverageExprMax = 32;    // main switch: --coverage-expr-max
+    পূর্ণসংখ্যা         m_buildJobs = -1;    // main switch: --build-jobs, -j
+    পূর্ণসংখ্যা         m_coverage_রাশিমালা_Max = 32;    // main switch: --coverage-expr-max
     VFsmExpandType m_coverageFsmExpand;  // main switch: --coverage-fsm-expand <mode>
-    int         m_coverageFsmMaxArcs = 4096;  // main switch: --coverage-fsm-max-arcs
-    int         m_convergeLimit = 10000;  // main switch: --converge-limit
+    পূর্ণসংখ্যা         m_coverageFsmMaxArcs = 4096;  // main switch: --coverage-fsm-max-arcs
+    পূর্ণসংখ্যা         m_convergeLimit = 10000;  // main switch: --converge-limit
     uint32_t    m_coverageMaxBins = 1024;  // main switch: --coverage-max-bins
     uint32_t    m_coverageMaxRealBins = 1024;  // main switch: --coverage-max-real-bins
-    int         m_coverageMaxWidth = 256; // main switch: --coverage-max-width
-    int         m_debugAllocRandom = 0;  // main switch: --debug-alloc-random <seed>
-    int         m_expandLimit = 256;  // main switch: --expand-limit
-    int         m_gateStmts = 100;    // main switch: --gate-stmts
-    int         m_hierChild = 0;      // main switch: --hierarchical-child
-    int         m_hierThreads = 0;      // main switch: --hierarchical-threads
-    int         m_ifDepth = 0;      // main switch: --if-depth
-    int         m_inlineCFuncs = 20;   // main switch: --inline-cfuncs
-    int         m_inlineCFuncsProduct = 200;   // main switch: --inline-cfuncs-product
-    int         m_inlineMult = 2000;   // main switch: --inline-mult
-    int         m_instrCountDpi = 200;   // main switch: --instr-count-dpi
+    পূর্ণসংখ্যা         m_coverageMaxWidth = 256; // main switch: --coverage-max-width
+    পূর্ণসংখ্যা         m_debugAllocRandom = 0;  // main switch: --debug-alloc-random <seed>
+    পূর্ণসংখ্যা         m_expandLimit = 256;  // main switch: --expand-limit
+    পূর্ণসংখ্যা         m_gateStmts = 100;    // main switch: --gate-stmts
+    পূর্ণসংখ্যা         m_hierChild = 0;      // main switch: --hierarchical-child
+    পূর্ণসংখ্যা         m_hierThreads = 0;      // main switch: --hierarchical-threads
+    পূর্ণসংখ্যা         m_ifDepth = 0;      // main switch: --if-depth
+    পূর্ণসংখ্যা         m_inlineCFuncs = 20;   // main switch: --inline-cfuncs
+    পূর্ণসংখ্যা         m_inlineCFuncsProduct = 200;   // main switch: --inline-cfuncs-product
+    পূর্ণসংখ্যা         m_inlineMult = 2000;   // main switch: --inline-mult
+    পূর্ণসংখ্যা         m_instr_গুনতি_Dpi = 200;   // main switch: --instr-count-dpi
     bool        m_jsonEditNums = true; // main switch: --no-json-edit-nums
     bool        m_jsonIds = true; // main switch: --no-json-ids
-    int         m_localizeMaxSize = 1024;  // main switch: --localize-max-size
+    পূর্ণসংখ্যা         m_localize_Max_আকার = 1024;  // main switch: --localize-max-size
     VOptionBool m_makeDepend;  // main switch: -MMD
-    int         m_maxNumWidth = 65536;  // main switch: --max-num-width
-    int         m_funcRecursion = 1000;  // main switch: --func-recursion-depth
-    int         m_moduleRecursion = 100;  // main switch: --module-recursion-depth
-    int         m_outputGroups = -1;  // main switch: --output-groups
-    int64_t     m_outputGroupsSize = 512 * 1024 * 1024;  // main switch: --output-groups-size
-    int         m_outputSplit = 20000;  // main switch: --output-split
-    int         m_outputSplitCFuncs = -1;  // main switch: --output-split-cfuncs
-    int         m_outputSplitCTrace = -1;  // main switch: --output-split-ctrace
-    int         m_pinsBv = 65;       // main switch: --pins-bv
-    int         m_preprocTokenLimit = 40000; // main switch: --preproc-token-limit
-    int         m_publicDepth = 0;   // main switch: --public-depth
-    int         m_reloopLimit = 40; // main switch: --reloop-limit
-    int         m_replicationLimit = 8192; // main switch: --replication-limit
+    পূর্ণসংখ্যা         m_max_অঙ্ক_Width = 65536;  // main switch: --max-num-width
+    পূর্ণসংখ্যা         m_funcRecursion = 1000;  // main switch: --func-recursion-depth
+    পূর্ণসংখ্যা         m_moduleRecursion = 100;  // main switch: --module-recursion-depth
+    পূর্ণসংখ্যা         m_outputGroups = -1;  // main switch: --output-groups
+    int64_t     m_output_Groups_আকার = 512 * 1024 * 1024;  // main switch: --output-groups-size
+    পূর্ণসংখ্যা         m_outputSplit = 20000;  // main switch: --output-split
+    পূর্ণসংখ্যা         m_outputSplitCFuncs = -1;  // main switch: --output-split-cfuncs
+    পূর্ণসংখ্যা         m_outputSplitCTrace = -1;  // main switch: --output-split-ctrace
+    পূর্ণসংখ্যা         m_pinsBv = 65;       // main switch: --pins-bv
+    পূর্ণসংখ্যা         m_preprocTokenLimit = 40000; // main switch: --preproc-token-limit
+    পূর্ণসংখ্যা         m_publicDepth = 0;   // main switch: --public-depth
+    পূর্ণসংখ্যা         m_reloopLimit = 40; // main switch: --reloop-limit
+    পূর্ণসংখ্যা         m_replicationLimit = 8192; // main switch: --replication-limit
     VOptionBool m_skipIdentical;  // main switch: --skip-identical
     bool        m_stopFail = true;  // main switch: --stop-fail
-    int         m_threads = 1;      // main switch: --threads
-    int         m_threadsMaxMTasks = 0;  // main switch: --threads-max-mtasks
+    পূর্ণসংখ্যা         m_threads = 1;      // main switch: --threads
+    পূর্ণসংখ্যা         m_threadsMaxMTasks = 0;  // main switch: --threads-max-mtasks
     VTimescale  m_timeDefaultPrec;  // main switch: --timescale
     VTimescale  m_timeDefaultUnit;  // main switch: --timescale
     VTimescale  m_timeOverridePrec;  // main switch: --timescale-override
     VTimescale  m_timeOverrideUnit;  // main switch: --timescale-override
-    int         m_traceDepth = 0;   // main switch: --trace-depth
-    int         m_traceMaxArray = 32;  // main switch: --trace-max-array
-    int         m_traceMaxWidth = 4096; // main switch: --trace-max-width
-    int         m_unrollCount = 64;  // main switch: --unroll-count
-    int         m_unrollLimit = 16384;  // main switch: --unroll-limit
-    int         m_unrollStmts = 30000;  // main switch: --unroll-stmts
-    int         m_constraintArrayLimit = 64;  // main switch: --constraint-array-limit
-    int         m_verilateJobs = -1;  // main switch: --verilate-jobs
+    পূর্ণসংখ্যা         m_traceDepth = 0;   // main switch: --trace-depth
+    পূর্ণসংখ্যা         m_traceMaxArray = 32;  // main switch: --trace-max-array
+    পূর্ণসংখ্যা         m_traceMaxWidth = 4096; // main switch: --trace-max-width
+    পূর্ণসংখ্যা         m_unroll_গুনতি = 64;  // main switch: --unroll-count
+    পূর্ণসংখ্যা         m_unrollLimit = 16384;  // main switch: --unroll-limit
+    পূর্ণসংখ্যা         m_unrollStmts = 30000;  // main switch: --unroll-stmts
+    পূর্ণসংখ্যা         m_constraintArrayLimit = 64;  // main switch: --constraint-array-limit
+    পূর্ণসংখ্যা         m_verilateJobs = -1;  // main switch: --verilate-jobs
 
-    int         m_compLimitBlocks = 0;  // compiler selection; number of nested blocks
-    int         m_compLimitMembers = 64;  // compiler selection; number of members in struct before make anon array
-    int         m_compLimitParens = 240;  // compiler selection; number of nested parens
+    পূর্ণসংখ্যা         m_compLimitBlocks = 0;  // compiler selection; number of nested blocks
+    পূর্ণসংখ্যা         m_compLimitMembers = 64;  // compiler selection; number of members in struct before make anon array
+    পূর্ণসংখ্যা         m_compLimitParens = 240;  // compiler selection; number of nested parens
 
     string      m_buildDepBin;  // main switch: --build-dep-bin {filename}
     string      m_diagnosticsSarifOutput;  // main switch: --diagnostics-sarif-output
@@ -420,13 +420,13 @@ private:
     string      m_jsonOnlyMetaOutput;    // main switch: --json-only-meta-output
     string      m_l2Name;       // main switch: --l2name; "" for top-module's name
     string      m_libCreate;    // main switch: --lib-create {lib_name}
-    string      m_mainTopName;  // main switch: --main-top-name
+    string      m_main_শীর্ষ_Name;  // main switch: --main-top-name
     string      m_makeDir;      // main switch: -Mdir
     string      m_modPrefix;    // main switch: --mod-prefix
     string      m_pipeFilter;   // main switch: --pipe-filter
     string      m_prefix;       // main switch: --prefix
-    string      m_protectKey;   // main switch: --protect-key
-    string      m_topModule;    // main switch: --top-module
+    string      m_protect_চাবি;   // main switch: --protect-key
+    string      m_শীর্ষ_Module;    // main switch: --top-module
     string      m_unusedRegexp; // main switch: --unused-regexp
     string      m_waiverOutput;  // main switch: --waiver-output {filename}
     string      m_work = "work";  // main switch: --work {libname}
@@ -444,15 +444,15 @@ private:
     bool m_fBitblast;    // main switch: -fno-bitblast: split packed variables into bit ranges
     bool m_fCaseDecoder; // main switch: -fno-case-decoder: case decoder conversion
     bool m_fCaseTable;   // main switch: -fno-case-table: case table conversion
-    bool m_fCaseTree;    // main switch: -fno-case-tree: case tree conversion
+    bool m_f_Case_বৃক্ষ;    // main switch: -fno-case-tree: case tree conversion
     bool m_fCombine;     // main switch: -fno-combine: common icode packing
     bool m_fConst;       // main switch: -fno-const: constant folding
     bool m_fConstBeforeDfg = true;  // main switch: -fno-const-before-dfg for testing only!
-    bool m_fConstBitOpTree;  // main switch: -fno-const-bit-op-tree constant bit op tree
+    bool m_f_Const_Bit_Op_বৃক্ষ;  // main switch: -fno-const-bit-op-tree constant bit op tree
     bool m_fConstEager = true;  // main switch: -fno-const-eagerly run V3Const during passes
     bool m_fDedupe;      // main switch: -fno-dedupe: logic deduplication
     bool m_fDfgPeephole = true; // main switch: -fno-dfg-peephole
-    bool m_fDfgPushDownSels = true; // main switch: -fno-dfg-push-down-sels
+    bool m_f_Dfg_ঠেলো_Down_Sels = true; // main switch: -fno-dfg-push-down-sels
     bool m_fDfg;         // main switch: -fno-dfg
     bool m_fDfgSynthesizeAll = false;  // main switch: -fdfg-synthesize-all
     bool m_fDeadAssigns;     // main switch: -fno-dead-assigns: remove dead assigns
@@ -478,7 +478,7 @@ private:
     bool m_fReloop;      // main switch: -fno-reloop: reform loops
     bool m_fReorder;     // main switch: -fno-reorder: reorder assignments in blocks
     bool m_fSlice = true;  // main switch: -fno-slice: array assignment slicing
-    int  m_fSliceElementLimit = 256;  // main switch: --fslice-element-limit
+    পূর্ণসংখ্যা  m_fSliceElementLimit = 256;  // main switch: --fslice-element-limit
     bool m_fSplit;       // main switch: -fno-split: always assignment splitting
     bool m_fSubst;       // main switch: -fno-subst: substitute expression temp values
     bool m_fSubstConst;  // main switch: -fno-subst-const: final constant substitution
@@ -489,420 +489,420 @@ private:
     bool m_available = false;  // Set to true at the end of option parsing
 
     // METHODS
-    void addArg(char** argv, size_t count, bool isForRerun);
-    void addArg(const std::string& arg, bool isForRerun);
-    void addLineArg(const string& arg);
-    void addDefine(const string& defline, bool allowPlus) VL_MT_DISABLED;
-    void addFuture(const string& flag);
-    void addFuture0(const string& flag);
-    void addFuture1(const string& flag);
-    void addIncDirUser(const string& incdir);  // User requested
-    void addIncDirFallback(const string& incdir);  // Low priority if not found otherwise
-    void addParameter(const string& paramline, bool allowPlus);
-    void addLangExt(const string& langext, const V3LangCode& lc);
-    void addLibExtV(const string& libext);
-    void optimize(int level);
-    void showVersion(bool verbose);
-    void coverage(bool flag) {
-        m_coverageLine = m_coverageBranch = m_coverageToggle = m_coverageExpr = m_coverageFsm
+    শূন্য addArg(অক্ষর** argv, আকার_t গুনতি, bool isForRerun);
+    শূন্য addArg(ধ্রুবক std::string& arg, bool isForRerun);
+    শূন্য add_সারি_Arg(ধ্রুবক string& arg);
+    শূন্য addDefine(ধ্রুবক string& defline, bool allowPlus) VL_MT_DISABLED;
+    শূন্য addFuture(ধ্রুবক string& flag);
+    শূন্য addFuture0(ধ্রুবক string& flag);
+    শূন্য addFuture1(ধ্রুবক string& flag);
+    শূন্য addIncDirUser(ধ্রুবক string& incdir);  // User requested
+    শূন্য addIncDirFallback(ধ্রুবক string& incdir);  // Low priority if not found otherwise
+    শূন্য addParameter(ধ্রুবক string& paramline, bool allowPlus);
+    শূন্য addLangExt(ধ্রুবক string& langext, ধ্রুবক V3LangCode& lc);
+    শূন্য addLibExtV(ধ্রুবক string& libext);
+    শূন্য optimize(পূর্ণসংখ্যা level);
+    শূন্য showVersion(bool verbose);
+    শূন্য coverage(bool flag) {
+        m_coverage_সারি = m_coverageBranch = m_coverageToggle = m_coverage_রাশিমালা = m_coverageFsm
             = m_coverageUser = flag;
     }
-    static bool suffixed(const string& sw, const char* arg);
-    static string parseFileArg(const string& optdir, const string& relfilename);
-    string filePathCheckOneDir(const string& modname, const string& dirname);
-    static int stripOptionsForChildRun(const string& opt, bool forTop);
-    void validateIdentifier(FileLine* fl, const string& arg, const string& opt);
+    স্থির bool suffixed(ধ্রুবক string& sw, ধ্রুবক অক্ষর* arg);
+    স্থির string parseFileArg(ধ্রুবক string& optdir, ধ্রুবক string& relfilename);
+    string filePathCheckOneDir(ধ্রুবক string& modname, ধ্রুবক string& dirname);
+    স্থির পূর্ণসংখ্যা stripOptionsForChildRun(ধ্রুবক string& opt, bool for_শীর্ষ);
+    শূন্য validateIdentifier(File_সারি* fl, ধ্রুবক string& arg, ধ্রুবক string& opt);
 
     // CONSTRUCTORS
     VL_UNCOPYABLE(V3Options);
 
-public:
+সর্বজনীন:
     V3Options();
     ~V3Options();
-    void setDebugMode(int level);
-    unsigned debugLevel(const string& tag) const VL_MT_SAFE;
-    unsigned debugSrcLevel(const string& srcfile_path) const VL_MT_SAFE;
-    unsigned dumpLevel(const string& tag) const VL_MT_SAFE;
-    unsigned dumpSrcLevel(const string& srcfile_path) const VL_MT_SAFE;
+    শূন্য setDebugMode(পূর্ণসংখ্যা level);
+    unsigned debugLevel(ধ্রুবক string& tag) ধ্রুবক VL_MT_SAFE;
+    unsigned debugSrcLevel(ধ্রুবক string& srcfile_path) ধ্রুবক VL_MT_SAFE;
+    unsigned dumpLevel(ধ্রুবক string& tag) ধ্রুবক VL_MT_SAFE;
+    unsigned dumpSrcLevel(ধ্রুবক string& srcfile_path) ধ্রুবক VL_MT_SAFE;
 
     // METHODS
-    void addCppFile(const string& filename);
-    void addCFlags(const string& filename);
-    void addCompilerIncludes(const string& filename);
-    void addLdLibFile(const string& filename);
-    void addLdLibs(const string& filename);
-    void addMakeFlags(const string& filename);
-    void addLibMapFile(const string& filename);
-    void addLibraryFile(const string& filename, const string& libname);
-    void addVFile(const string& filename, const string& libname);
-    void addVltFile(const string& filename, const string& libname);
-    void addForceInc(const string& filename);
-    bool available() const VL_MT_SAFE { return m_available; }
-    void ccSet();
-    void decorations(FileLine* fl, const string& filename);
-    void notify() VL_MT_DISABLED;
+    শূন্য addCppFile(ধ্রুবক string& filename);
+    শূন্য addCFlags(ধ্রুবক string& filename);
+    শূন্য addCompilerIncludes(ধ্রুবক string& filename);
+    শূন্য addLdLibFile(ধ্রুবক string& filename);
+    শূন্য addLdLibs(ধ্রুবক string& filename);
+    শূন্য addMakeFlags(ধ্রুবক string& filename);
+    শূন্য addLibMapFile(ধ্রুবক string& filename);
+    শূন্য addLibraryFile(ধ্রুবক string& filename, ধ্রুবক string& libname);
+    শূন্য addVFile(ধ্রুবক string& filename, ধ্রুবক string& libname);
+    শূন্য addVltFile(ধ্রুবক string& filename, ধ্রুবক string& libname);
+    শূন্য addForceInc(ধ্রুবক string& filename);
+    bool available() ধ্রুবক VL_MT_SAFE { ফেরত m_available; }
+    শূন্য ccSet();
+    শূন্য decorations(File_সারি* fl, ধ্রুবক string& filename);
+    শূন্য notify() VL_MT_DISABLED;
 
     // ACCESSORS (options)
-    bool preprocOnly() const { return m_preprocOnly; }
-    bool makePhony() const { return m_makePhony; }
-    bool preprocNoLine() const { return m_preprocNoLine; }
-    bool preprocResolve() const { return m_preprocResolve; }
-    int preprocTokenLimit() const { return m_preprocTokenLimit; }
-    bool underlineZero() const { return m_underlineZero; }
-    bool systemC() const VL_MT_SAFE { return m_systemC; }
-    bool savable() const VL_MT_SAFE { return m_savable; }
-    VOptionBool schedZeroDelay() const { return m_schedZeroDelay; }
-    bool stats() const { return m_stats; }
-    bool statsVars() const { return m_statsVars; }
-    bool stdPackage() const { return m_stdPackage; }
-    bool stdWaiver() const { return m_stdWaiver; }
-    bool assertOn() const { return m_assert; }  // assertOn as __FILE__ may be defined
-    bool assertCase() const { return m_assertCase; }
-    bool autoflush() const { return m_autoflush; }
-    bool bboxSys() const { return m_bboxSys; }
-    bool bboxUnsup() const { return m_bboxUnsup; }
-    bool build() const { return m_build; }
-    string buildDepBin() const { return m_buildDepBin; }
-    void buildDepBin(const string& flag) { m_buildDepBin = flag; }
-    bool context() const VL_MT_SAFE { return m_context; }
-    bool coverage() const VL_MT_SAFE {
+    bool preprocOnly() ধ্রুবক { ফেরত m_preprocOnly; }
+    bool makePhony() ধ্রুবক { ফেরত m_makePhony; }
+    bool preproc_No_সারি() ধ্রুবক { ফেরত m_preproc_No_সারি; }
+    bool preprocResolve() ধ্রুবক { ফেরত m_preprocResolve; }
+    পূর্ণসংখ্যা preprocTokenLimit() ধ্রুবক { ফেরত m_preprocTokenLimit; }
+    bool underlineZero() ধ্রুবক { ফেরত m_underlineZero; }
+    bool systemC() ধ্রুবক VL_MT_SAFE { ফেরত m_systemC; }
+    bool savable() ধ্রুবক VL_MT_SAFE { ফেরত m_savable; }
+    VOptionBool schedZeroDelay() ধ্রুবক { ফেরত m_schedZeroDelay; }
+    bool stats() ধ্রুবক { ফেরত m_stats; }
+    bool statsVars() ধ্রুবক { ফেরত m_statsVars; }
+    bool stdPackage() ধ্রুবক { ফেরত m_stdPackage; }
+    bool stdWaiver() ধ্রুবক { ফেরত m_stdWaiver; }
+    bool assertOn() ধ্রুবক { ফেরত m_assert; }  // assertOn as __FILE__ may be defined
+    bool assertCase() ধ্রুবক { ফেরত m_assertCase; }
+    bool autoflush() ধ্রুবক { ফেরত m_autoflush; }
+    bool bboxSys() ধ্রুবক { ফেরত m_bboxSys; }
+    bool bboxUnsup() ধ্রুবক { ফেরত m_bboxUnsup; }
+    bool build() ধ্রুবক { ফেরত m_build; }
+    string buildDepBin() ধ্রুবক { ফেরত m_buildDepBin; }
+    শূন্য buildDepBin(ধ্রুবক string& flag) { m_buildDepBin = flag; }
+    bool context() ধ্রুবক VL_MT_SAFE { ফেরত m_context; }
+    bool coverage() ধ্রুবক VL_MT_SAFE {
         // Any enabled coverage kind, including FSM coverage. Code generation
         // and runtime support should generally query this accessor.
-        return m_coverageLine || m_coverageBranch || m_coverageToggle || m_coverageExpr
+        ফেরত m_coverage_সারি || m_coverageBranch || m_coverageToggle || m_coverage_রাশিমালা
                || m_coverageUser || m_coverageFsm;
     }
-    bool coverageNonFsm() const VL_MT_SAFE {
+    bool coverageNonFsm() ধ্রুবক VL_MT_SAFE {
         // The broad line/toggle/expr/user coverage transforms use this
         // accessor. FSM coverage shares the overall coverage umbrella, but its
         // extraction still happens through a separate early-recognition path.
-        return m_coverageLine || m_coverageBranch || m_coverageToggle || m_coverageExpr
+        ফেরত m_coverage_সারি || m_coverageBranch || m_coverageToggle || m_coverage_রাশিমালা
                || m_coverageUser;
     }
-    bool coverageBranch() const { return m_coverageBranch; }
-    bool coverageExpr() const { return m_coverageExpr; }
-    bool coverageFsm() const { return m_coverageFsm; }
-    VFsmExpandType coverageFsmExpand() const { return m_coverageFsmExpand; }
-    int coverageFsmMaxArcs() const { return m_coverageFsmMaxArcs; }
-    bool coverageLine() const { return m_coverageLine; }
-    bool coverageMergeInstances() const { return m_coverageMergeInstances; }
-    bool coveragePerInstance() const { return m_coveragePerInstance; }
-    bool coverageToggle() const { return m_coverageToggle; }
-    bool coverageUnderscore() const { return m_coverageUnderscore; }
-    bool coverageUser() const { return m_coverageUser; }
-    bool debugCheck() const VL_MT_SAFE { return m_debugCheck; }
-    bool debugCollision() const { return m_debugCollision; }
-    bool debugEmitV() const VL_MT_SAFE { return m_debugEmitV; }
-    bool debugExitElab() const { return m_debugExitElab; }
-    bool debugExitParse() const { return m_debugExitParse; }
-    bool debugLeak() const { return m_debugLeak; }
-    bool debugNondeterminism() const { return m_debugNondeterminism; }
-    bool debugPartition() const { return m_debugPartition; }
-    bool debugPreprocPassthru() const VL_MT_SAFE { return m_debugPreprocPassthru; }
-    bool debugProtect() const VL_MT_SAFE { return m_debugProtect; }
-    int debugRuntimeTimeout() const { return m_debugRuntimeTimeout; }
-    bool debugSelfTest() const { return m_debugSelfTest; }
-    bool debugStackCheck() const { return m_debugStackCheck; }
-    bool debugWidth() const VL_PURE { return m_debugWidth; }
-    bool decoration() const VL_MT_SAFE { return m_decoration; }
-    bool decorationNodes() const VL_MT_SAFE { return m_decorationNodes; }
-    bool diagnosticsSarif() const VL_MT_SAFE { return m_diagnosticsSarif; }
-    bool dpiHdrOnly() const { return m_dpiHdrOnly; }
-    bool dumpAstPatterns() const {
-        return m_dumpLevel.count("ast-patterns") && m_dumpLevel.at("ast-patterns");
+    bool coverageBranch() ধ্রুবক { ফেরত m_coverageBranch; }
+    bool coverage_রাশিমালা() ধ্রুবক { ফেরত m_coverage_রাশিমালা; }
+    bool coverageFsm() ধ্রুবক { ফেরত m_coverageFsm; }
+    VFsmExpandType coverageFsmExpand() ধ্রুবক { ফেরত m_coverageFsmExpand; }
+    পূর্ণসংখ্যা coverageFsmMaxArcs() ধ্রুবক { ফেরত m_coverageFsmMaxArcs; }
+    bool coverage_সারি() ধ্রুবক { ফেরত m_coverage_সারি; }
+    bool coverageMergeInstances() ধ্রুবক { ফেরত m_coverageMergeInstances; }
+    bool coveragePerInstance() ধ্রুবক { ফেরত m_coveragePerInstance; }
+    bool coverageToggle() ধ্রুবক { ফেরত m_coverageToggle; }
+    bool coverageUnderscore() ধ্রুবক { ফেরত m_coverageUnderscore; }
+    bool coverageUser() ধ্রুবক { ফেরত m_coverageUser; }
+    bool debugCheck() ধ্রুবক VL_MT_SAFE { ফেরত m_debugCheck; }
+    bool debugCollision() ধ্রুবক { ফেরত m_debugCollision; }
+    bool debugEmitV() ধ্রুবক VL_MT_SAFE { ফেরত m_debugEmitV; }
+    bool debugExitElab() ধ্রুবক { ফেরত m_debugExitElab; }
+    bool debugExitParse() ধ্রুবক { ফেরত m_debugExitParse; }
+    bool debugLeak() ধ্রুবক { ফেরত m_debugLeak; }
+    bool debugNondeterminism() ধ্রুবক { ফেরত m_debugNondeterminism; }
+    bool debugPartition() ধ্রুবক { ফেরত m_debugPartition; }
+    bool debugPreprocPassthru() ধ্রুবক VL_MT_SAFE { ফেরত m_debugPreprocPassthru; }
+    bool debugProtect() ধ্রুবক VL_MT_SAFE { ফেরত m_debugProtect; }
+    পূর্ণসংখ্যা debugRuntimeTimeout() ধ্রুবক { ফেরত m_debugRuntimeTimeout; }
+    bool debugSelfTest() ধ্রুবক { ফেরত m_debugSelfTest; }
+    bool debug_স্তূপ_Check() ধ্রুবক { ফেরত m_debug_স্তূপ_Check; }
+    bool debugWidth() ধ্রুবক VL_PURE { ফেরত m_debugWidth; }
+    bool decoration() ধ্রুবক VL_MT_SAFE { ফেরত m_decoration; }
+    bool decorationNodes() ধ্রুবক VL_MT_SAFE { ফেরত m_decorationNodes; }
+    bool diagnosticsSarif() ধ্রুবক VL_MT_SAFE { ফেরত m_diagnosticsSarif; }
+    bool dpiHdrOnly() ধ্রুবক { ফেরত m_dpiHdrOnly; }
+    bool dumpAstPatterns() ধ্রুবক {
+        ফেরত m_dumpLevel.গুনতি("ast-patterns") && m_dumpLevel.at("ast-patterns");
     }
-    bool dumpDefines() const { return m_dumpLevel.count("defines") && m_dumpLevel.at("defines"); }
-    bool dumpDfgPatterns() const {
-        return m_dumpLevel.count("dfg-patterns") && m_dumpLevel.at("dfg-patterns");
+    bool dumpDefines() ধ্রুবক { ফেরত m_dumpLevel.গুনতি("defines") && m_dumpLevel.at("defines"); }
+    bool dumpDfgPatterns() ধ্রুবক {
+        ফেরত m_dumpLevel.গুনতি("dfg-patterns") && m_dumpLevel.at("dfg-patterns");
     }
-    bool dumpTreeDot() const {
-        return m_dumpLevel.count("tree-dot") && m_dumpLevel.at("tree-dot");
+    bool dump_বৃক্ষ_Dot() ধ্রুবক {
+        ফেরত m_dumpLevel.গুনতি("tree-dot") && m_dumpLevel.at("tree-dot");
     }
-    bool emitAccessors() const { return m_emitAccessors; }
-    bool exe() const { return m_exe; }
-    bool flatten() const { return m_flatten; }
-    bool fourstate() const { return m_fourstate; }
-    bool gmake() const { return m_gmake; }
-    bool makeJson() const { return m_makeJson; }
-    bool threadsDpiPure() const { return m_threadsDpiPure; }
-    bool threadsDpiUnpure() const { return m_threadsDpiUnpure; }
-    bool threadsCoarsen() const { return m_threadsCoarsen; }
-    VOptionBool timing() const { return m_timing; }
-    bool trace() const { return m_trace; }
-    bool traceCoverage() const { return m_traceCoverage; }
-    bool traceEnabledFst() const { return m_traceEnabledFst; }
-    bool traceEnabledSaif() const { return m_traceEnabledSaif; }
-    bool traceEnabledVcd() const { return m_traceEnabledVcd; }
-    bool traceParams() const { return m_traceParams; }
-    bool traceStructs() const { return m_traceStructs; }
-    bool traceUnderscore() const { return m_traceUnderscore; }
-    bool main() const { return m_main; }
-    bool outFormatOk() const { return m_outFormatOk; }
-    bool jsonOnly() const { return m_jsonOnly; }
-    bool keepTempFiles() const { return (V3Error::debugDefault() != 0); }
-    bool pedantic() const { return m_pedantic; }
-    bool pinsInoutEnables() const { return m_pinsInoutEnables; }
-    bool pinsScUint() const { return m_pinsScUint; }
-    bool pinsScUintBool() const { return m_pinsScUintBool; }
-    bool pinsScBigUint() const VL_MT_SAFE { return m_pinsScBigUint; }
-    bool pinsUint8() const { return m_pinsUint8; }
-    bool preprocComments() const { return m_preprocComments; }
-    bool preprocDefines() const { return m_preprocDefines; }
-    bool profC() const { return m_profC; }
-    bool profCFuncs() const { return m_profCFuncs; }
-    bool profExec() const { return m_profExec; }
-    bool profPgo() const { return m_profPgo; }
-    bool usesProfiler() const { return profExec() || profPgo(); }
-    bool protectIds() const VL_MT_SAFE { return m_protectIds; }
-    bool allPublic() const { return m_public; }
-    bool publicParams() const { return m_publicParams; }
-    bool publicOff() const { return m_publicIgnore; }
-    bool publicFlatRW() const { return m_publicFlatRW; }
-    int publicDepth() const { return m_publicDepth; }
-    bool anyPublicFlat() const { return m_publicParams || m_publicFlatRW || m_publicDepth; }
-    bool lintOnly() const VL_MT_SAFE { return m_lintOnly; }
-    bool ignc() const { return m_ignc; }
-    bool quietBuild() const VL_MT_SAFE { return m_quietBuild; }
-    bool quietExit() const VL_MT_SAFE { return m_quietExit; }
-    bool quietStats() const VL_MT_SAFE { return m_quietStats; }
-    bool reportUnoptflat() const { return m_reportUnoptflat; }
-    bool verilate() const { return m_verilate; }
-    bool vpi() const { return m_vpi.isTrue(); }
-    bool waiverMultiline() const { return m_waiverMultiline; }
-    bool xInitialEdge() const { return m_xInitialEdge; }
-    bool serializeOnly() const { return m_jsonOnly; }
-    bool topIfacesSupported() const { return lintOnly() && !hierarchical(); }
+    bool emitAccessors() ধ্রুবক { ফেরত m_emitAccessors; }
+    bool exe() ধ্রুবক { ফেরত m_exe; }
+    bool flatten() ধ্রুবক { ফেরত m_flatten; }
+    bool fourstate() ধ্রুবক { ফেরত m_fourstate; }
+    bool gmake() ধ্রুবক { ফেরত m_gmake; }
+    bool makeJson() ধ্রুবক { ফেরত m_makeJson; }
+    bool threadsDpiPure() ধ্রুবক { ফেরত m_threadsDpiPure; }
+    bool threadsDpiUnpure() ধ্রুবক { ফেরত m_threadsDpiUnpure; }
+    bool threadsCoarsen() ধ্রুবক { ফেরত m_threadsCoarsen; }
+    VOptionBool timing() ধ্রুবক { ফেরত m_timing; }
+    bool trace() ধ্রুবক { ফেরত m_trace; }
+    bool traceCoverage() ধ্রুবক { ফেরত m_traceCoverage; }
+    bool traceEnabledFst() ধ্রুবক { ফেরত m_traceEnabledFst; }
+    bool traceEnabledSaif() ধ্রুবক { ফেরত m_traceEnabledSaif; }
+    bool traceEnabledVcd() ধ্রুবক { ফেরত m_traceEnabledVcd; }
+    bool traceParams() ধ্রুবক { ফেরত m_traceParams; }
+    bool traceStructs() ধ্রুবক { ফেরত m_traceStructs; }
+    bool traceUnderscore() ধ্রুবক { ফেরত m_traceUnderscore; }
+    bool প্রধান() ধ্রুবক { ফেরত m_main; }
+    bool outFormatOk() ধ্রুবক { ফেরত m_outFormatOk; }
+    bool jsonOnly() ধ্রুবক { ফেরত m_jsonOnly; }
+    bool keep_অস্থায়ী_Files() ধ্রুবক { ফেরত (V3Error::debugDefault() != 0); }
+    bool pedantic() ধ্রুবক { ফেরত m_pedantic; }
+    bool pinsInoutEnables() ধ্রুবক { ফেরত m_pinsInoutEnables; }
+    bool pinsScUint() ধ্রুবক { ফেরত m_pinsScUint; }
+    bool pinsScUintBool() ধ্রুবক { ফেরত m_pinsScUintBool; }
+    bool pinsScBigUint() ধ্রুবক VL_MT_SAFE { ফেরত m_pinsScBigUint; }
+    bool pinsUint8() ধ্রুবক { ফেরত m_pinsUint8; }
+    bool preprocComments() ধ্রুবক { ফেরত m_preprocComments; }
+    bool preprocDefines() ধ্রুবক { ফেরত m_preprocDefines; }
+    bool profC() ধ্রুবক { ফেরত m_profC; }
+    bool profCFuncs() ধ্রুবক { ফেরত m_profCFuncs; }
+    bool profExec() ধ্রুবক { ফেরত m_profExec; }
+    bool profPgo() ধ্রুবক { ফেরত m_profPgo; }
+    bool usesProfiler() ধ্রুবক { ফেরত profExec() || profPgo(); }
+    bool protectIds() ধ্রুবক VL_MT_SAFE { ফেরত m_protectIds; }
+    bool allPublic() ধ্রুবক { ফেরত m_public; }
+    bool publicParams() ধ্রুবক { ফেরত m_publicParams; }
+    bool publicOff() ধ্রুবক { ফেরত m_publicIgnore; }
+    bool publicFlatRW() ধ্রুবক { ফেরত m_publicFlatRW; }
+    পূর্ণসংখ্যা publicDepth() ধ্রুবক { ফেরত m_publicDepth; }
+    bool anyPublicFlat() ধ্রুবক { ফেরত m_publicParams || m_publicFlatRW || m_publicDepth; }
+    bool lintOnly() ধ্রুবক VL_MT_SAFE { ফেরত m_lintOnly; }
+    bool ignc() ধ্রুবক { ফেরত m_ignc; }
+    bool quietBuild() ধ্রুবক VL_MT_SAFE { ফেরত m_quietBuild; }
+    bool quietExit() ধ্রুবক VL_MT_SAFE { ফেরত m_quietExit; }
+    bool quietStats() ধ্রুবক VL_MT_SAFE { ফেরত m_quietStats; }
+    bool reportUnoptflat() ধ্রুবক { ফেরত m_reportUnoptflat; }
+    bool verilate() ধ্রুবক { ফেরত m_verilate; }
+    bool vpi() ধ্রুবক { ফেরত m_vpi.isTrue(); }
+    bool waiverMultiline() ধ্রুবক { ফেরত m_waiverMultiline; }
+    bool xInitialEdge() ধ্রুবক { ফেরত m_xInitialEdge; }
+    bool serializeOnly() ধ্রুবক { ফেরত m_jsonOnly; }
+    bool শীর্ষ_Ifaces_Supported() ধ্রুবক { ফেরত lintOnly() && !hierarchical(); }
 
-    int buildJobs() const VL_MT_SAFE { return m_buildJobs; }
-    int convergeLimit() const { return m_convergeLimit; }
-    int coverageExprMax() const { return m_coverageExprMax; }
-    uint32_t coverageMaxBins() const { return m_coverageMaxBins; }
-    uint32_t coverageMaxRealBins() const { return m_coverageMaxRealBins; }
-    int coverageMaxWidth() const { return m_coverageMaxWidth; }
-    int debugAllocRandom() const { return m_debugAllocRandom; }
-    bool dumpTreeAddrids() const VL_MT_SAFE;
-    int expandLimit() const { return m_expandLimit; }
-    int gateStmts() const { return m_gateStmts; }
-    int ifDepth() const { return m_ifDepth; }
-    int inlineCFuncs() const { return m_inlineCFuncs; }
-    int inlineCFuncsProduct() const { return m_inlineCFuncsProduct; }
-    int inlineMult() const { return m_inlineMult; }
-    int instrCountDpi() const { return m_instrCountDpi; }
-    int localizeMaxSize() const { return m_localizeMaxSize; }
-    bool jsonEditNums() const { return m_jsonEditNums; }
-    bool jsonIds() const { return m_jsonIds; }
-    VOptionBool makeDepend() const { return m_makeDepend; }
-    int maxNumWidth() const { return m_maxNumWidth; }
-    int funcRecursionDepth() const { return m_funcRecursion; }
-    int moduleRecursionDepth() const { return m_moduleRecursion; }
-    int outputSplit() const { return m_outputSplit; }
-    int outputSplitCFuncs() const { return m_outputSplitCFuncs; }
-    int outputSplitCTrace() const { return m_outputSplitCTrace; }
-    int outputGroups() const { return m_outputGroups; }
-    int64_t outputGroupsSize() const { return m_outputGroupsSize; }
-    int pinsBv() const VL_MT_SAFE { return m_pinsBv; }
-    int reloopLimit() const { return m_reloopLimit; }
-    int replicationLimit() const { return m_replicationLimit; }
-    VOptionBool skipIdentical() const { return m_skipIdentical; }
-    bool stopFail() const { return m_stopFail; }
-    int threads() const VL_MT_SAFE { return m_threads; }
-    int threadsMaxMTasks() const { return m_threadsMaxMTasks; }
-    bool mtasks() const VL_MT_SAFE { return (m_threads > 1); }
-    VTimescale timeDefaultPrec() const { return m_timeDefaultPrec; }
-    VTimescale timeDefaultUnit() const { return m_timeDefaultUnit; }
-    VTimescale timeOverridePrec() const { return m_timeOverridePrec; }
-    VTimescale timeOverrideUnit() const { return m_timeOverrideUnit; }
-    VTimescale timeComputePrec(const VTimescale& flag) const;
-    VTimescale timeComputeUnit(const VTimescale& flag) const;
-    int traceDepth() const { return m_traceDepth; }
-    int traceMaxArray() const { return m_traceMaxArray; }
-    int traceMaxWidth() const { return m_traceMaxWidth; }
-    bool useTraceParallel() const {
-        return trace() && traceEnabledVcd() && (threads() > 1 || hierChild() > 1);
+    পূর্ণসংখ্যা buildJobs() ধ্রুবক VL_MT_SAFE { ফেরত m_buildJobs; }
+    পূর্ণসংখ্যা convergeLimit() ধ্রুবক { ফেরত m_convergeLimit; }
+    পূর্ণসংখ্যা coverage_রাশিমালা_Max() ধ্রুবক { ফেরত m_coverage_রাশিমালা_Max; }
+    uint32_t coverageMaxBins() ধ্রুবক { ফেরত m_coverageMaxBins; }
+    uint32_t coverageMaxRealBins() ধ্রুবক { ফেরত m_coverageMaxRealBins; }
+    পূর্ণসংখ্যা coverageMaxWidth() ধ্রুবক { ফেরত m_coverageMaxWidth; }
+    পূর্ণসংখ্যা debugAllocRandom() ধ্রুবক { ফেরত m_debugAllocRandom; }
+    bool dump_বৃক্ষ_Addrids() ধ্রুবক VL_MT_SAFE;
+    পূর্ণসংখ্যা expandLimit() ধ্রুবক { ফেরত m_expandLimit; }
+    পূর্ণসংখ্যা gateStmts() ধ্রুবক { ফেরত m_gateStmts; }
+    পূর্ণসংখ্যা ifDepth() ধ্রুবক { ফেরত m_ifDepth; }
+    পূর্ণসংখ্যা inlineCFuncs() ধ্রুবক { ফেরত m_inlineCFuncs; }
+    পূর্ণসংখ্যা inlineCFuncsProduct() ধ্রুবক { ফেরত m_inlineCFuncsProduct; }
+    পূর্ণসংখ্যা inlineMult() ধ্রুবক { ফেরত m_inlineMult; }
+    পূর্ণসংখ্যা instr_গুনতি_Dpi() ধ্রুবক { ফেরত m_instr_গুনতি_Dpi; }
+    পূর্ণসংখ্যা localize_Max_আকার() ধ্রুবক { ফেরত m_localize_Max_আকার; }
+    bool jsonEditNums() ধ্রুবক { ফেরত m_jsonEditNums; }
+    bool jsonIds() ধ্রুবক { ফেরত m_jsonIds; }
+    VOptionBool makeDepend() ধ্রুবক { ফেরত m_makeDepend; }
+    পূর্ণসংখ্যা max_অঙ্ক_Width() ধ্রুবক { ফেরত m_max_অঙ্ক_Width; }
+    পূর্ণসংখ্যা funcRecursionDepth() ধ্রুবক { ফেরত m_funcRecursion; }
+    পূর্ণসংখ্যা moduleRecursionDepth() ধ্রুবক { ফেরত m_moduleRecursion; }
+    পূর্ণসংখ্যা outputSplit() ধ্রুবক { ফেরত m_outputSplit; }
+    পূর্ণসংখ্যা outputSplitCFuncs() ধ্রুবক { ফেরত m_outputSplitCFuncs; }
+    পূর্ণসংখ্যা outputSplitCTrace() ধ্রুবক { ফেরত m_outputSplitCTrace; }
+    পূর্ণসংখ্যা outputGroups() ধ্রুবক { ফেরত m_outputGroups; }
+    int64_t output_Groups_আকার() ধ্রুবক { ফেরত m_output_Groups_আকার; }
+    পূর্ণসংখ্যা pinsBv() ধ্রুবক VL_MT_SAFE { ফেরত m_pinsBv; }
+    পূর্ণসংখ্যা reloopLimit() ধ্রুবক { ফেরত m_reloopLimit; }
+    পূর্ণসংখ্যা replicationLimit() ধ্রুবক { ফেরত m_replicationLimit; }
+    VOptionBool skipIdentical() ধ্রুবক { ফেরত m_skipIdentical; }
+    bool stopFail() ধ্রুবক { ফেরত m_stopFail; }
+    পূর্ণসংখ্যা threads() ধ্রুবক VL_MT_SAFE { ফেরত m_threads; }
+    পূর্ণসংখ্যা threadsMaxMTasks() ধ্রুবক { ফেরত m_threadsMaxMTasks; }
+    bool mtasks() ধ্রুবক VL_MT_SAFE { ফেরত (m_threads > 1); }
+    VTimescale timeDefaultPrec() ধ্রুবক { ফেরত m_timeDefaultPrec; }
+    VTimescale timeDefaultUnit() ধ্রুবক { ফেরত m_timeDefaultUnit; }
+    VTimescale timeOverridePrec() ধ্রুবক { ফেরত m_timeOverridePrec; }
+    VTimescale timeOverrideUnit() ধ্রুবক { ফেরত m_timeOverrideUnit; }
+    VTimescale timeComputePrec(ধ্রুবক VTimescale& flag) ধ্রুবক;
+    VTimescale timeComputeUnit(ধ্রুবক VTimescale& flag) ধ্রুবক;
+    পূর্ণসংখ্যা traceDepth() ধ্রুবক { ফেরত m_traceDepth; }
+    পূর্ণসংখ্যা traceMaxArray() ধ্রুবক { ফেরত m_traceMaxArray; }
+    পূর্ণসংখ্যা traceMaxWidth() ধ্রুবক { ফেরত m_traceMaxWidth; }
+    bool useTraceParallel() ধ্রুবক {
+        ফেরত trace() && traceEnabledVcd() && (threads() > 1 || hierChild() > 1);
     }
-    int unrollCount() const { return m_unrollCount; }
-    int unrollLimit() const { return m_unrollLimit; }
-    int unrollStmts() const { return m_unrollStmts; }
-    int constraintArrayLimit() const { return m_constraintArrayLimit; }
-    int verilateJobs() const { return m_verilateJobs; }
+    পূর্ণসংখ্যা unroll_গুনতি() ধ্রুবক { ফেরত m_unroll_গুনতি; }
+    পূর্ণসংখ্যা unrollLimit() ধ্রুবক { ফেরত m_unrollLimit; }
+    পূর্ণসংখ্যা unrollStmts() ধ্রুবক { ফেরত m_unrollStmts; }
+    পূর্ণসংখ্যা constraintArrayLimit() ধ্রুবক { ফেরত m_constraintArrayLimit; }
+    পূর্ণসংখ্যা verilateJobs() ধ্রুবক { ফেরত m_verilateJobs; }
 
-    int compLimitBlocks() const { return m_compLimitBlocks; }
-    int compLimitMembers() const VL_MT_SAFE { return m_compLimitMembers; }
-    int compLimitParens() const { return m_compLimitParens; }
+    পূর্ণসংখ্যা compLimitBlocks() ধ্রুবক { ফেরত m_compLimitBlocks; }
+    পূর্ণসংখ্যা compLimitMembers() ধ্রুবক VL_MT_SAFE { ফেরত m_compLimitMembers; }
+    পূর্ণসংখ্যা compLimitParens() ধ্রুবক { ফেরত m_compLimitParens; }
 
-    string diagnosticsSarifOutput() const VL_MT_SAFE {
-        return m_diagnosticsSarifOutput.empty() ? makeDir() + "/" + prefix() + ".sarif"
+    string diagnosticsSarifOutput() ধ্রুবক VL_MT_SAFE {
+        ফেরত m_diagnosticsSarifOutput.empty() ? makeDir() + "/" + prefix() + ".sarif"
                                                 : m_diagnosticsSarifOutput;
     }
-    string exeName() const { return m_exeName != "" ? m_exeName : prefix(); }
-    VFileLibList hierParamFile() const { return m_hierParamsFile; }
-    string jsonOnlyOutput() const { return m_jsonOnlyOutput; }
-    string jsonOnlyMetaOutput() const { return m_jsonOnlyMetaOutput; }
-    string l2Name() const { return m_l2Name; }
-    string libCreate() const { return m_libCreate; }
-    string libCreateName(bool shared) const {
+    string exeName() ধ্রুবক { ফেরত m_exeName != "" ? m_exeName : prefix(); }
+    VFileLibList hierParamFile() ধ্রুবক { ফেরত m_hierParamsFile; }
+    string jsonOnlyOutput() ধ্রুবক { ফেরত m_jsonOnlyOutput; }
+    string jsonOnlyMetaOutput() ধ্রুবক { ফেরত m_jsonOnlyMetaOutput; }
+    string l2Name() ধ্রুবক { ফেরত m_l2Name; }
+    string libCreate() ধ্রুবক { ফেরত m_libCreate; }
+    string libCreateName(bool shared) ধ্রুবক {
         string libName = "lib" + libCreate();
-        if (shared) {
+        যদি (shared) {
             libName += ".so";
-        } else {
+        } অন্যথা {
             libName += ".a";
         }
-        return libName;
+        ফেরত libName;
     }
-    string mainTopName() const { return m_mainTopName; }
-    string makeDir() const VL_MT_SAFE { return m_makeDir; }
-    string modPrefix() const VL_MT_SAFE { return m_modPrefix; }
-    string pipeFilter() const { return m_pipeFilter; }
-    string prefix() const VL_MT_SAFE { return m_prefix; }
+    string main_শীর্ষ_Name() ধ্রুবক { ফেরত m_main_শীর্ষ_Name; }
+    string makeDir() ধ্রুবক VL_MT_SAFE { ফেরত m_makeDir; }
+    string modPrefix() ধ্রুবক VL_MT_SAFE { ফেরত m_modPrefix; }
+    string pipeFilter() ধ্রুবক { ফেরত m_pipeFilter; }
+    string prefix() ধ্রুবক VL_MT_SAFE { ফেরত m_prefix; }
     // Not just called protectKey() to avoid bugs of not using protectKeyDefaulted()
-    bool protectKeyProvided() const { return !m_protectKey.empty(); }
-    string protectKeyDefaulted() VL_MT_SAFE;  // Set default key if not set by user
-    string topModule() const { return m_topModule; }  // As AstNode::encodeName()
-    bool noTraceTop() const { return m_noTraceTop; }
-    string unusedRegexp() const { return m_unusedRegexp; }
-    string waiverOutput() const { return m_waiverOutput; }
-    string work() const { return m_work; }
-    bool isWaiverOutput() const { return !m_waiverOutput.empty(); }
-    string xAssign() const { return m_xAssign; }
-    string xInitial() const { return m_xInitial; }
+    bool protect_চাবি_Provided() ধ্রুবক { ফেরত !m_protect_চাবি.empty(); }
+    string protect_চাবি_Defaulted() VL_MT_SAFE;  // Set default key if not set by user
+    string শীর্ষ_Module() ধ্রুবক { ফেরত m_শীর্ষ_Module; }  // As AstNode::encodeName()
+    bool no_Trace_শীর্ষ() ধ্রুবক { ফেরত m_no_Trace_শীর্ষ; }
+    string unusedRegexp() ধ্রুবক { ফেরত m_unusedRegexp; }
+    string waiverOutput() ধ্রুবক { ফেরত m_waiverOutput; }
+    string work() ধ্রুবক { ফেরত m_work; }
+    bool isWaiverOutput() ধ্রুবক { ফেরত !m_waiverOutput.empty(); }
+    string xAssign() ধ্রুবক { ফেরত m_xAssign; }
+    string xInitial() ধ্রুবক { ফেরত m_xInitial; }
 
-    const VStringSet& cppFiles() const { return m_cppFiles; }
-    const VStringList& cFlags() const { return m_cFlags; }
-    const VStringSet& compilerIncludes() const { return m_compilerIncludes; }
-    const VStringList& ldLibFiles() const { return m_ldLibFiles; }
-    const VStringList& ldLibs() const { return m_ldLibs; }
-    const VStringList& makeFlags() const { return m_makeFlags; }
-    const VFileLibSet& libraryFiles() const { return m_libraryFiles; }
-    const VStringSet& libmapFiles() const { return m_libmapFiles; }
-    const VFileLibList& vFiles() const { return m_vFiles; }
-    const VFileLibSet& vltFiles() const { return m_vltFiles; }
-    const VStringList& forceIncs() const { return m_forceIncs; }
+    ধ্রুবক VStringSet& cppFiles() ধ্রুবক { ফেরত m_cppFiles; }
+    ধ্রুবক VStringList& cFlags() ধ্রুবক { ফেরত m_cFlags; }
+    ধ্রুবক VStringSet& compilerIncludes() ধ্রুবক { ফেরত m_compilerIncludes; }
+    ধ্রুবক VStringList& ldLibFiles() ধ্রুবক { ফেরত m_ldLibFiles; }
+    ধ্রুবক VStringList& ldLibs() ধ্রুবক { ফেরত m_ldLibs; }
+    ধ্রুবক VStringList& makeFlags() ধ্রুবক { ফেরত m_makeFlags; }
+    ধ্রুবক VFileLibSet& libraryFiles() ধ্রুবক { ফেরত m_libraryFiles; }
+    ধ্রুবক VStringSet& libmapFiles() ধ্রুবক { ফেরত m_libmapFiles; }
+    ধ্রুবক VFileLibList& vFiles() ধ্রুবক { ফেরত m_vFiles; }
+    ধ্রুবক VFileLibSet& vltFiles() ধ্রুবক { ফেরত m_vltFiles; }
+    ধ্রুবক VStringList& forceIncs() ধ্রুবক { ফেরত m_forceIncs; }
 
-    bool hasParameter(const string& name);
-    string parameter(const string& name);
-    void checkParameters();
+    bool hasParameter(ধ্রুবক string& name);
+    string parameter(ধ্রুবক string& name);
+    শূন্য checkParameters();
 
-    bool isFuture(const string& flag) const;
-    bool isFuture0(const string& flag) const;
-    bool isFuture1(const string& flag) const;
-    bool isLibraryFile(const string& filename, const string& libname) const;
+    bool isFuture(ধ্রুবক string& flag) ধ্রুবক;
+    bool isFuture0(ধ্রুবক string& flag) ধ্রুবক;
+    bool isFuture1(ধ্রুবক string& flag) ধ্রুবক;
+    bool isLibraryFile(ধ্রুবক string& filename, ধ্রুবক string& libname) ধ্রুবক;
 
     // ACCESSORS (optimization options)
-    bool fAcycSimp() const { return m_fAcycSimp; }
-    bool fAssemble() const { return m_fAssemble; }
-    bool fBitScanLoops() const { return m_fBitScanLoops; }
-    bool fBitblast() const { return m_fBitblast; }
-    bool fCaseDecoder() const { return m_fCaseDecoder; }
-    bool fCaseTable() const { return m_fCaseTable; }
-    bool fCaseTree() const { return m_fCaseTree; }
-    bool fCombine() const { return m_fCombine; }
-    bool fConst() const { return m_fConst; }
-    bool fConstBeforeDfg() const { return m_fConstBeforeDfg; }
-    bool fConstBitOpTree() const { return m_fConstBitOpTree; }
-    bool fConstEager() const { return m_fConstEager; }
-    bool fDedupe() const { return m_fDedupe; }
-    bool fDfg() const { return m_fDfg; }
-    bool fDfgPeephole() const { return m_fDfgPeephole; }
-    bool fDfgPushDownSels() const { return m_fDfgPushDownSels; }
-    bool fDfgSynthesizeAll() const { return m_fDfgSynthesizeAll; }
-    bool fDfgPeepholeEnabled(const std::string& name) const {
-        return !m_fDfgPeepholeDisabled.count(name);
+    bool fAcycSimp() ধ্রুবক { ফেরত m_fAcycSimp; }
+    bool fAssemble() ধ্রুবক { ফেরত m_fAssemble; }
+    bool fBitScanLoops() ধ্রুবক { ফেরত m_fBitScanLoops; }
+    bool fBitblast() ধ্রুবক { ফেরত m_fBitblast; }
+    bool fCaseDecoder() ধ্রুবক { ফেরত m_fCaseDecoder; }
+    bool fCaseTable() ধ্রুবক { ফেরত m_fCaseTable; }
+    bool f_Case_বৃক্ষ() ধ্রুবক { ফেরত m_f_Case_বৃক্ষ; }
+    bool fCombine() ধ্রুবক { ফেরত m_fCombine; }
+    bool fConst() ধ্রুবক { ফেরত m_fConst; }
+    bool fConstBeforeDfg() ধ্রুবক { ফেরত m_fConstBeforeDfg; }
+    bool f_Const_Bit_Op_বৃক্ষ() ধ্রুবক { ফেরত m_f_Const_Bit_Op_বৃক্ষ; }
+    bool fConstEager() ধ্রুবক { ফেরত m_fConstEager; }
+    bool fDedupe() ধ্রুবক { ফেরত m_fDedupe; }
+    bool fDfg() ধ্রুবক { ফেরত m_fDfg; }
+    bool fDfgPeephole() ধ্রুবক { ফেরত m_fDfgPeephole; }
+    bool f_Dfg_ঠেলো_Down_Sels() ধ্রুবক { ফেরত m_f_Dfg_ঠেলো_Down_Sels; }
+    bool fDfgSynthesizeAll() ধ্রুবক { ফেরত m_fDfgSynthesizeAll; }
+    bool fDfgPeepholeEnabled(ধ্রুবক std::string& name) ধ্রুবক {
+        ফেরত !m_fDfgPeepholeDisabled.গুনতি(name);
     }
-    bool fDeadAssigns() const { return m_fDeadAssigns; }
-    bool fDeadCells() const { return m_fDeadCells; }
-    bool fDeadMethods() const { return m_fDeadMethods; }
-    bool fDecompose() const { return m_fDecomposePacked || m_fDecomposeUnpacked; }
-    bool fDecomposePacked() const { return m_fDecomposePacked; }
-    bool fDecomposeUnpacked() const { return m_fDecomposeUnpacked; }
-    bool fExpand() const { return m_fExpand; }
-    bool fFuncBalanceCat() const { return m_fFuncBalanceCat; }
-    bool fFuncSplitCat() const { return m_fFuncSplitCat; }
-    bool fFunc() const { return fFuncSplitCat() || fFuncBalanceCat(); }
-    bool fGate() const { return m_fGate; }
-    VOptionBool fIcoChangeDetect() const { return m_fIcoChangeDetect; }
-    bool fInline() const { return m_fInline; }
-    bool fInlineCFuncs() const { return m_fInlineCFuncs; }
-    bool fInlineFuncs() const { return m_fInlineFuncs; }
-    bool fInlineFuncsEager() const { return m_fInlineFuncsEager; }
-    bool fLife() const { return m_fLife; }
-    bool fLifePost() const { return m_fLifePost; }
-    bool fLocalize() const { return m_fLocalize; }
-    bool fMergeCond() const { return m_fMergeCond; }
-    bool fMergeCondMotion() const { return m_fMergeCondMotion; }
-    bool fReloop() const { return m_fReloop; }
-    bool fReorder() const { return m_fReorder; }
-    bool fSlice() const { return m_fSlice; }
-    int fSliceElementLimit() const { return m_fSliceElementLimit; }
-    bool fSplit() const { return m_fSplit; }
-    bool fSubst() const { return m_fSubst; }
-    bool fSubstConst() const { return m_fSubstConst; }
-    bool fTable() const { return m_fTable; }
-    bool fTaskifyAll() const { return m_fTaskifyAll; }
+    bool fDeadAssigns() ধ্রুবক { ফেরত m_fDeadAssigns; }
+    bool fDeadCells() ধ্রুবক { ফেরত m_fDeadCells; }
+    bool fDeadMethods() ধ্রুবক { ফেরত m_fDeadMethods; }
+    bool fDecompose() ধ্রুবক { ফেরত m_fDecomposePacked || m_fDecomposeUnpacked; }
+    bool fDecomposePacked() ধ্রুবক { ফেরত m_fDecomposePacked; }
+    bool fDecomposeUnpacked() ধ্রুবক { ফেরত m_fDecomposeUnpacked; }
+    bool fExpand() ধ্রুবক { ফেরত m_fExpand; }
+    bool fFuncBalanceCat() ধ্রুবক { ফেরত m_fFuncBalanceCat; }
+    bool fFuncSplitCat() ধ্রুবক { ফেরত m_fFuncSplitCat; }
+    bool fFunc() ধ্রুবক { ফেরত fFuncSplitCat() || fFuncBalanceCat(); }
+    bool fGate() ধ্রুবক { ফেরত m_fGate; }
+    VOptionBool fIcoChangeDetect() ধ্রুবক { ফেরত m_fIcoChangeDetect; }
+    bool fInline() ধ্রুবক { ফেরত m_fInline; }
+    bool fInlineCFuncs() ধ্রুবক { ফেরত m_fInlineCFuncs; }
+    bool fInlineFuncs() ধ্রুবক { ফেরত m_fInlineFuncs; }
+    bool fInlineFuncsEager() ধ্রুবক { ফেরত m_fInlineFuncsEager; }
+    bool fLife() ধ্রুবক { ফেরত m_fLife; }
+    bool fLifePost() ধ্রুবক { ফেরত m_fLifePost; }
+    bool fLocalize() ধ্রুবক { ফেরত m_fLocalize; }
+    bool fMergeCond() ধ্রুবক { ফেরত m_fMergeCond; }
+    bool fMergeCondMotion() ধ্রুবক { ফেরত m_fMergeCondMotion; }
+    bool fReloop() ধ্রুবক { ফেরত m_fReloop; }
+    bool fReorder() ধ্রুবক { ফেরত m_fReorder; }
+    bool fSlice() ধ্রুবক { ফেরত m_fSlice; }
+    পূর্ণসংখ্যা fSliceElementLimit() ধ্রুবক { ফেরত m_fSliceElementLimit; }
+    bool fSplit() ধ্রুবক { ফেরত m_fSplit; }
+    bool fSubst() ধ্রুবক { ফেরত m_fSubst; }
+    bool fSubstConst() ধ্রুবক { ফেরত m_fSubstConst; }
+    bool fTable() ধ্রুবক { ফেরত m_fTable; }
+    bool fTaskifyAll() ধ্রুবক { ফেরত m_fTaskifyAll; }
 
-    std::string traceClassBase() const VL_MT_SAFE;  // Deprecated
-    std::string traceClassLang() const VL_MT_SAFE;  // Deprecated
-    std::vector<std::string> traceClassBases() const VL_MT_SAFE;
-    std::vector<std::string> traceClassLangs() const VL_MT_SAFE;
-    std::vector<std::string> traceSourceBases() const VL_MT_SAFE;
-    std::vector<std::string> traceSourceLangs() const VL_MT_SAFE;
+    std::string traceClassBase() ধ্রুবক VL_MT_SAFE;  // Deprecated
+    std::string traceClassLang() ধ্রুবক VL_MT_SAFE;  // Deprecated
+    std::vector<std::string> traceClassBases() ধ্রুবক VL_MT_SAFE;
+    std::vector<std::string> traceClassLangs() ধ্রুবক VL_MT_SAFE;
+    std::vector<std::string> traceSourceBases() ধ্রুবক VL_MT_SAFE;
+    std::vector<std::string> traceSourceLangs() ধ্রুবক VL_MT_SAFE;
 
-    bool hierarchical() const { return m_hierarchical; }
-    int hierChild() const VL_MT_SAFE { return m_hierChild; }
-    int hierThreads() const VL_MT_SAFE { return m_hierThreads == 0 ? m_threads : m_hierThreads; }
-    bool hierTop() const VL_MT_SAFE { return !m_hierChild && !m_hierBlocks.empty(); }
-    const V3HierBlockOptSet& hierBlocks() const { return m_hierBlocks; }
+    bool hierarchical() ধ্রুবক { ফেরত m_hierarchical; }
+    পূর্ণসংখ্যা hierChild() ধ্রুবক VL_MT_SAFE { ফেরত m_hierChild; }
+    পূর্ণসংখ্যা hierThreads() ধ্রুবক VL_MT_SAFE { ফেরত m_hierThreads == 0 ? m_threads : m_hierThreads; }
+    bool hier_শীর্ষ() ধ্রুবক VL_MT_SAFE { ফেরত !m_hierChild && !m_hierBlocks.empty(); }
+    ধ্রুবক V3HierBlockOptSet& hierBlocks() ধ্রুবক { ফেরত m_hierBlocks; }
     // Directory to save .tree, .dot, .dat, .vpp for hierarchical block top
     // Returns makeDir() unless top module of hierarchical Verilation.
-    string hierTopDataDir() const VL_MT_SAFE {
-        return hierTop() ? (makeDir() + '/' + prefix() + "__hier.dir") : makeDir();
+    string hier_শীর্ষ_তথ্য_Dir() ধ্রুবক VL_MT_SAFE {
+        ফেরত hier_শীর্ষ() ? (makeDir() + '/' + prefix() + "__hier.dir") : makeDir();
     }
 
     // METHODS (from main)
-    static string version() VL_PURE;
-    static string argString(int argc, char** argv);  ///< Return list of arguments as simple string
-    string allArgsString() const VL_MT_SAFE;  ///< Return all passed arguments as simple string
-    const std::list<std::pair<std::list<std::string>, bool>>& allArgs() const;
+    স্থির string version() VL_PURE;
+    স্থির string argString(পূর্ণসংখ্যা argc, অক্ষর** argv);  ///< Return list of arguments as simple string
+    string allArgsString() ধ্রুবক VL_MT_SAFE;  ///< Return all passed arguments as simple string
+    ধ্রুবক std::list<std::pair<std::list<std::string>, bool>>& allArgs() ধ্রুবক;
     // Return options for child hierarchical blocks when forTop==false, otherwise returns args for
     // the top module.
-    string allArgsStringForHierBlock(bool forTop) const;
-    void parseOpts(FileLine* fl, int argc, char** argv) VL_MT_DISABLED;
-    void parseOptsList(FileLine* fl, const string& optdir, int argc, char** argv) VL_MT_DISABLED;
-    void parseOptsFile(FileLine* fl, const string& filename, bool rel) VL_MT_DISABLED;
+    string allArgsStringForHierBlock(bool for_শীর্ষ) ধ্রুবক;
+    শূন্য parseOpts(File_সারি* fl, পূর্ণসংখ্যা argc, অক্ষর** argv) VL_MT_DISABLED;
+    শূন্য parseOptsList(File_সারি* fl, ধ্রুবক string& optdir, পূর্ণসংখ্যা argc, অক্ষর** argv) VL_MT_DISABLED;
+    শূন্য parseOptsFile(File_সারি* fl, ধ্রুবক string& filename, bool rel) VL_MT_DISABLED;
 
     // METHODS (environment)
     // Most of these may be built into the executable with --enable-defenv,
     // see the README.  If adding new variables, also see src/Makefile_obj.in
     // Also add to V3Options::showVersion()
-    static string getenvBuiltins(const string& var);
-    static string getenvMAKE();
-    static string getenvMAKEFLAGS();
-    static string getenvPERL();
-    static string getenvPYTHON3();
-    static string getenvSYSTEMC();
-    static string getenvSYSTEMC_ARCH();
-    static string getenvSYSTEMC_INCLUDE();
-    static string getenvSYSTEMC_LIBDIR();
-    static string getenvVERILATOR_ROOT();
-    static string getenvVERILATOR_SOLVER();
-    static string getStdPackagePath();
-    static string getStdWaiverPath();
-    static string getSupported(const string& var);
-    static bool systemCSystemWide();
-    static bool systemCFound();  // SystemC installed, or environment points to it
-    static bool coroutineSupport();  // Configured C++ compiler supports coroutines
-    static bool devAsan();  // 'verilator_bin' built with AddressSanitizer
-    static bool devGcov();  // 'verilator_bin' built with code coverage for gcov
-    static bool tsanSupport();  // Configured C++ compiler supports ThreadSanitizer
+    স্থির string getenvBuiltins(ধ্রুবক string& var);
+    স্থির string getenvMAKE();
+    স্থির string getenvMAKEFLAGS();
+    স্থির string getenvPERL();
+    স্থির string getenvPYTHON3();
+    স্থির string getenvSYSTEMC();
+    স্থির string getenvSYSTEMC_ARCH();
+    স্থির string getenvSYSTEMC_INCLUDE();
+    স্থির string getenvSYSTEMC_LIBDIR();
+    স্থির string getenv_VERILATOR_মূল();
+    স্থির string getenvVERILATOR_SOLVER();
+    স্থির string getStdPackagePath();
+    স্থির string getStdWaiverPath();
+    স্থির string getSupported(ধ্রুবক string& var);
+    স্থির bool systemCSystemWide();
+    স্থির bool systemCFound();  // SystemC installed, or environment points to it
+    স্থির bool coroutineSupport();  // Configured C++ compiler supports coroutines
+    স্থির bool devAsan();  // 'verilator_bin' built with AddressSanitizer
+    স্থির bool devGcov();  // 'verilator_bin' built with code coverage for gcov
+    স্থির bool tsanSupport();  // Configured C++ compiler supports ThreadSanitizer
 
     // METHODS (file utilities using these options)
-    string fileExists(const string& filename);
-    string filePath(FileLine* fl, const string& modname, const string& lastpath,
-                    const string& errmsg);
-    string filePathLookedMsg(FileLine* fl, const string& modname);
-    V3LangCode fileLanguage(const string& filename);
-    static bool fileStatNormal(const string& filename);
+    string fileExists(ধ্রুবক string& filename);
+    string filePath(File_সারি* fl, ধ্রুবক string& modname, ধ্রুবক string& lastpath,
+                    ধ্রুবক string& errmsg);
+    string file_Path_Looked_বার্তা(File_সারি* fl, ধ্রুবক string& modname);
+    V3LangCode fileLanguage(ধ্রুবক string& filename);
+    স্থির bool fileStatNormal(ধ্রুবক string& filename);
 
     // METHODS (other OS)
-    static void throwSigsegv();
+    স্থির শূন্য throwSigsegv();
 };
 
 //######################################################################

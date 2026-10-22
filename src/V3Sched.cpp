@@ -38,44 +38,44 @@
 //
 //*************************************************************************
 
-#include "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
+#অন্তর্ভাব "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
 
-#include "V3Sched.h"
+#অন্তর্ভাব "V3Sched.h"
 
-#include "V3Const.h"
-#include "V3EmitCBase.h"
-#include "V3EmitV.h"
-#include "V3Order.h"
-#include "V3SenExprBuilder.h"
-#include "V3Stats.h"
+#অন্তর্ভাব "V3Const.h"
+#অন্তর্ভাব "V3EmitCBase.h"
+#অন্তর্ভাব "V3EmitV.h"
+#অন্তর্ভাব "V3Order.h"
+#অন্তর্ভাব "V3SenExprBuilder.h"
+#অন্তর্ভাব "V3Stats.h"
 
 VL_DEFINE_DEBUG_FUNCTIONS;
 
-namespace V3Sched {
+নামাকাশ V3Sched {
 
-namespace {
+নামাকাশ {
 
 //============================================================================
 // Utility functions
 
-std::vector<const AstSenTree*> getSenTreesUsedBy(const std::vector<const LogicByScope*>& lbsps) {
-    const VNUser1InUse user1InUse;
-    std::vector<const AstSenTree*> result;
-    for (const LogicByScope* const lbsp : lbsps) {
-        for (const auto& entry : *lbsp) {
-            AstActive* const activep = entry.m_activep;
-            AstSenTree* const senTreep = activep->sentreep();
-            if (senTreep->user1SetOnce()) continue;
-            if (senTreep->hasClocked() || senTreep->hasHybrid()) result.push_back(senTreep);
+std::vector<ধ্রুবক Ast_Sen_বৃক্ষ*> getSenTreesUsedBy(ধ্রুবক std::vector<ধ্রুবক LogicByScope*>& lbsps) {
+    ধ্রুবক VNUser1InUse user1InUse;
+    std::vector<ধ্রুবক Ast_Sen_বৃক্ষ*> ফলাফল;
+    জন্য (ধ্রুবক LogicByScope* ধ্রুবক lbsp : lbsps) {
+        জন্য (ধ্রুবক auto& entry : *lbsp) {
+            AstActive* ধ্রুবক activep = entry.m_activep;
+            Ast_Sen_বৃক্ষ* ধ্রুবক senTreep = activep->sentreep();
+            যদি (senTreep->user1SetOnce()) চালু;
+            যদি (senTreep->hasClocked() || senTreep->hasHybrid()) ফলাফল.ঠেলো_back(senTreep);
         }
     }
-    return result;
+    ফেরত ফলাফল;
 }
 
-void addTriggerIndices(LogicByScope& lbs, const TriggerKit& trigKit, bool pre) {
-    for (LogicByScope::Entry& entry : lbs) {
-        AstSenTree* const senTreep = entry.m_activep->sentreep();
-        if (senTreep->hasCombo()) continue;
+শূন্য addTriggerIndices(LogicByScope& lbs, ধ্রুবক TriggerKit& trigKit, যৌক্তিক pre) {
+    জন্য (LogicByScope::Entry& entry : lbs) {
+        Ast_Sen_বৃক্ষ* ধ্রুবক senTreep = entry.m_activep->sentreep();
+        যদি (senTreep->hasCombo()) চালু;
         entry.m_triggers = trigKit.triggerIndices(senTreep, pre);
     }
 }
@@ -83,21 +83,21 @@ void addTriggerIndices(LogicByScope& lbs, const TriggerKit& trigKit, bool pre) {
 // Add the VIF triggers that a given VarScope should be sensitive to.
 // Case 2 (non-virtual interface read): sensitive to that specific VarScope's trigger only
 // Case 3 (virtual interface read): sensitive to all member triggers of the same interface type
-void addTriggeredIface(const AstVarScope* vscp, const VirtIfaceTriggers::VscpTrigMap& vscpToTrig,
-                       const VirtIfaceTriggers& virtIfaceTriggers, std::set<uint32_t>& triggers) {
-    if (vscp->varp()->isVirtIface()) {
+শূন্য addTriggeredIface(ধ্রুবক AstVarScope* vscp, ধ্রুবক VirtIfaceTriggers::VscpTrigMap& vscpToTrig,
+                       ধ্রুবক VirtIfaceTriggers& virtIfaceTriggers, std::set<uint32_t>& triggers) {
+    যদি (vscp->varp()->isVirtIface()) {
         // Virtual interface variable -- sensitive to all member triggers of this interface type
-        const AstIface* const ifacep = VN_AS(vscp->varp()->dtypep(), IfaceRefDType)->ifacep();
-        for (const auto& entry : virtIfaceTriggers.m_triggers) {
-            if (entry.m_ifacep == ifacep) {
-                const auto it = vscpToTrig.find(entry.m_vscp);
-                if (it != vscpToTrig.end()) triggers.insert(it->second);
+        ধ্রুবক AstIface* ধ্রুবক ifacep = VN_AS(vscp->varp()->dtypep(), IfaceRefDType)->ifacep();
+        জন্য (ধ্রুবক auto& entry : virtIfaceTriggers.m_triggers) {
+            যদি (entry.m_ifacep == ifacep) {
+                ধ্রুবক auto it = vscpToTrig.find(entry.m_vscp);
+                যদি (it != vscpToTrig.end()) triggers.ঢোকাও(it->second);
             }
         }
-    } else {
+    } অন্যথা {
         // Non-virtual interface member -- sensitive to this VarScope's trigger only
-        const auto it = vscpToTrig.find(vscp);
-        if (it != vscpToTrig.end()) triggers.insert(it->second);
+        ধ্রুবক auto it = vscpToTrig.find(vscp);
+        যদি (it != vscpToTrig.end()) triggers.ঢোকাও(it->second);
     }
     // May add none if sensIfacep() is set but no VIF write targets this member
 }
@@ -110,20 +110,20 @@ void addTriggeredIface(const AstVarScope* vscp, const VirtIfaceTriggers::VscpTri
 // invokes this function once per iteration of the region's loop via a virtual
 // method on the model (see V3EmitCModel). The function returns true if the
 // region did any work, in which case the loop iterates again.
-void createEvalRegion(
+শূন্য createEvalRegion(
     AstNetlist* netlistp,  //
     VEval eval,  // The entry point of the current region
     // Index of the region's 'first iteration' extra trigger, if it has one, otherwise ignored
     uint32_t firstIterTrigger,
-    const TriggerKit& trigKit,  // The trigger kit
+    ধ্রুবক TriggerKit& trigKit,  // The trigger kit
     AstVarScope* trigp,  // The trigger vector - may be nullptr if no triggers or using 'condp'
-    AstNodeExpr* condp,  // Explicit condition that must be true to run 'phaseWorkp'
-    AstNodeStmt* phasePrepp,  // Prep statements run before checking triggers
-    AstNodeStmt* phaseWorkp,  // The work to do if anything triggered
+    Ast_গ্রন্থি_রাশিমালা* condp,  // Explicit condition that must be true to run 'phaseWorkp'
+    Ast_গ্রন্থি_Stmt* phasePrepp,  // Prep statements run before checking triggers
+    Ast_গ্রন্থি_Stmt* phaseWorkp,  // The work to do if anything triggered
     // Extra statements to run after the work, even if no triggers fired. This function is
     // passed a variable, which must be set to true if we must continue and loop again,
     // and must be unmodified otherwise.
-    std::function<AstNodeStmt*(AstVarScope*)> phaseExtra = [](AstVarScope*) { return nullptr; }  //
+    std::function<Ast_গ্রন্থি_Stmt*(AstVarScope*)> phaseExtra = [](AstVarScope*) { ফেরত nullptr; }  //
 ) {
     UASSERT(!trigp || !condp, "Cannot use both 'trigp' and 'condp' in 'createEvalRegion'");
     UASSERT(!eval.firstIteration() || trigp,
@@ -132,22 +132,22 @@ void createEvalRegion(
     // All work is under a trigger or condition, so with neither the region has
     // nothing to evaluate, and what we create below reduces to a no-op function.
 
-    const std::string tag = eval.tag();
-    AstTopScope* const topScopep = netlistp->topScopep();
-    FileLine* const flp = netlistp->fileline();
+    ধ্রুবক std::string tag = eval.tag();
+    Ast_শীর্ষ_Scope* ধ্রুবক শীর্ষ_Scopep = netlistp->শীর্ষ_Scopep();
+    File_সারি* ধ্রুবক flp = netlistp->fileline();
 
     // Populate the trigger dump entry point function
-    if (trigp) {
-        netlistp->dumpTriggersFuncp(eval)->addStmtsp(trigKit.newDumpCall(trigp, tag, false));
+    যদি (trigp) {
+        netlistp->dumpTriggersFuncp(eval)->addStmtsp(trigKit.newDumpCall(trigp, tag, মিথ্যা));
     }
 
-    AstCFunc* const funcp = netlistp->evalFuncp(eval);
+    AstCFunc* ধ্রুবক funcp = netlistp->evalFuncp(eval);
 
     // A flag is passed from the run-time eval loop if this is the first iteration of the
     // current loop
-    if (eval.firstIteration()) {
-        AstVarScope* const firstIterArgp = util::newArgument(funcp, netlistp->findBitDType(),
-                                                             "firstIteration", VDirection::INPUT);
+    যদি (eval.firstIteration()) {
+        AstVarScope* ধ্রুবক firstIterArgp = util::newArgument(funcp, netlistp->findBitDType(),
+                                                             "firstIteration", VDirection::প্রবেশ);
 
         // Set the region's 'first iteration' trigger straight from the argument
         funcp->addStmtsp(trigKit.newExtraTriggerAssignment(firstIterArgp, firstIterTrigger));
@@ -156,12 +156,12 @@ void createEvalRegion(
         // it directly (see V3Timing). Those reads can be anywhere in the design,
         // hence module level. Always created, even if nothing reads it.
         // TODO: get rid of this special case
-        if (eval == VEval::STL) {
-            AstVarScope* const firstIterp = netlistp->stlFirstIterationp();
-            firstIterp->varp()->noReset(true);
-            firstIterp->varp()->isInternal(true);
-            funcp->addStmtsp(new AstAssign{flp, new AstVarRef{flp, firstIterp, VAccess::WRITE},
-                                           new AstVarRef{flp, firstIterArgp, VAccess::READ}});
+        যদি (eval == VEval::STL) {
+            AstVarScope* ধ্রুবক firstIterp = netlistp->stlFirstIterationp();
+            firstIterp->varp()->noReset(সত্য);
+            firstIterp->varp()->isInternal(সত্য);
+            funcp->addStmtsp(নতুন AstAssign{flp, নতুন AstVarRef{flp, firstIterp, VAccess::WRITE},
+                                           নতুন AstVarRef{flp, firstIterArgp, VAccess::READ}});
         }
     }
 
@@ -170,33 +170,33 @@ void createEvalRegion(
         funcp->addStmtsp(phasePrepp);
 
         // The execute flag
-        AstVarScope* const executeFlagp = topScopep->createTemp("__V" + tag + "Execute", 1);
-        executeFlagp->varp()->noReset(true);
+        AstVarScope* ধ্রুবক executeFlagp = শীর্ষ_Scopep->create_অস্থায়ী("__V" + tag + "Execute", 1);
+        executeFlagp->varp()->noReset(সত্য);
 
         // If there is work in this region, execute it if any triggers fired
-        if (phaseWorkp) {
-            AstNodeExpr* const lhsp = new AstVarRef{flp, executeFlagp, VAccess::WRITE};
+        যদি (phaseWorkp) {
+            Ast_গ্রন্থি_রাশিমালা* ধ্রুবক lhsp = নতুন AstVarRef{flp, executeFlagp, VAccess::WRITE};
             // If using explicit condition, that directly determines whether to execute,
             // otherwise check if any triggers are fired
-            AstNodeExpr* const rhsp = condp ? condp : trigKit.newAnySetCall(trigp);
-            funcp->addStmtsp(new AstAssign{flp, lhsp, rhsp});
+            Ast_গ্রন্থি_রাশিমালা* ধ্রুবক rhsp = condp ? condp : trigKit.newAnySetCall(trigp);
+            funcp->addStmtsp(নতুন AstAssign{flp, lhsp, rhsp});
 
             // Add the work
-            AstIf* const ifp = new AstIf{flp, new AstVarRef{flp, executeFlagp, VAccess::READ}};
+            AstIf* ধ্রুবক ifp = নতুন AstIf{flp, নতুন AstVarRef{flp, executeFlagp, VAccess::READ}};
             ifp->addThensp(phaseWorkp);
             funcp->addStmtsp(ifp);
         }
 
         // Construct the extra statements
-        AstNodeStmt* const extraWorkp = phaseExtra(executeFlagp);
-        if (extraWorkp) funcp->addStmtsp(extraWorkp);
+        Ast_গ্রন্থি_Stmt* ধ্রুবক extraWorkp = phaseExtra(executeFlagp);
+        যদি (extraWorkp) funcp->addStmtsp(extraWorkp);
 
         // The function returns true iff it did run work
-        AstNodeExpr* const retp
+        Ast_গ্রন্থি_রাশিমালা* ধ্রুবক retp
             = phaseWorkp || extraWorkp
-                  ? static_cast<AstNodeExpr*>(new AstVarRef{flp, executeFlagp, VAccess::READ})
-                  : static_cast<AstNodeExpr*>(new AstConst{flp, AstConst::BitFalse{}});
-        funcp->addStmtsp(new AstCReturn{flp, retp});
+                  ? static_cast<Ast_গ্রন্থি_রাশিমালা*>(নতুন AstVarRef{flp, executeFlagp, VAccess::READ})
+                  : static_cast<Ast_গ্রন্থি_রাশিমালা*>(নতুন AstConst{flp, AstConst::BitFalse{}});
+        funcp->addStmtsp(নতুন AstCReturn{flp, retp});
     }
 }
 
@@ -204,113 +204,113 @@ void createEvalRegion(
 // Collect and classify all logic in the design
 
 LogicClasses gatherLogicClasses(AstNetlist* netlistp) {
-    LogicClasses result;
+    LogicClasses ফলাফল;
 
     netlistp->foreach([&](AstScope* scopep) {
         scopep->foreach([&](AstActive* activep) {
-            AstSenTree* const senTreep = activep->sentreep();
-            if (senTreep->hasStatic()) {
+            Ast_Sen_বৃক্ষ* ধ্রুবক senTreep = activep->sentreep();
+            যদি (senTreep->hasStatic()) {
                 UASSERT_OBJ(!senTreep->sensesp()->nextp(), activep,
                             "static initializer with additional sensitivities");
-                result.m_static.add(scopep, activep);
-            } else if (senTreep->hasInitial()) {
+                ফলাফল.m_static.add(scopep, activep);
+            } অন্যথা যদি (senTreep->hasInitial()) {
                 UASSERT_OBJ(!senTreep->sensesp()->nextp(), activep,
                             "'initial' logic with additional sensitivities");
-                result.m_initial.add(scopep, activep);
-            } else if (senTreep->hasFinal()) {
+                ফলাফল.m_initial.add(scopep, activep);
+            } অন্যথা যদি (senTreep->hasFinal()) {
                 UASSERT_OBJ(!senTreep->sensesp()->nextp(), activep,
                             "'final' logic with additional sensitivities");
-                result.m_final.add(scopep, activep);
-            } else if (senTreep->hasCombo()) {
+                ফলাফল.m_final.add(scopep, activep);
+            } অন্যথা যদি (senTreep->hasCombo()) {
                 UASSERT_OBJ(!senTreep->sensesp()->nextp(), activep,
                             "combinational logic with additional sensitivities");
-                if (VN_IS(activep->stmtsp(), AlwaysPostponed)) {
-                    result.m_postponed.add(scopep, activep);
-                } else {
-                    result.m_comb.add(scopep, activep);
+                যদি (VN_IS(activep->stmtsp(), AlwaysPostponed)) {
+                    ফলাফল.m_postponed.add(scopep, activep);
+                } অন্যথা {
+                    ফলাফল.m_comb.add(scopep, activep);
                 }
-            } else {
+            } অন্যথা {
                 UASSERT_OBJ(senTreep->hasClocked(), activep, "What else could it be?");
-                if (VN_IS(activep->stmtsp(), AlwaysObserved)) {
-                    result.m_observed.add(scopep, activep);
-                } else if (VN_IS(activep->stmtsp(), AlwaysReactive)) {
-                    result.m_reactive.add(scopep, activep);
-                } else {
-                    result.m_clocked.add(scopep, activep);
+                যদি (VN_IS(activep->stmtsp(), AlwaysObserved)) {
+                    ফলাফল.m_observed.add(scopep, activep);
+                } অন্যথা যদি (VN_IS(activep->stmtsp(), AlwaysReactive)) {
+                    ফলাফল.m_reactive.add(scopep, activep);
+                } অন্যথা {
+                    ফলাফল.m_clocked.add(scopep, activep);
                 }
             }
         });
     });
 
-    return result;
+    ফেরত ফলাফল;
 }
 
 //============================================================================
 // Simple ordering in source order
 
-void orderSequentially(AstCFunc* funcp, const LogicByScope& lbs) {
+শূন্য orderSequentially(AstCFunc* funcp, ধ্রুবক LogicByScope& lbs) {
     // Create new subfunc for scope
-    const auto createNewSubFuncp = [&](AstScope* const scopep) {
-        const string subName{funcp->name() + "__" + scopep->nameDotless()};
-        AstCFunc* const subFuncp = new AstCFunc{scopep->fileline(), subName, scopep};
-        subFuncp->isLoose(true);
-        subFuncp->isConst(false);
-        subFuncp->declPrivate(true);
+    ধ্রুবক auto createNewSubFuncp = [&](AstScope* ধ্রুবক scopep) {
+        ধ্রুবক string subName{funcp->name() + "__" + scopep->nameDotless()};
+        AstCFunc* ধ্রুবক subFuncp = নতুন AstCFunc{scopep->fileline(), subName, scopep};
+        subFuncp->isLoose(সত্য);
+        subFuncp->isConst(মিথ্যা);
+        subFuncp->declPrivate(সত্য);
         subFuncp->slow(funcp->slow());
         scopep->addBlocksp(subFuncp);
         // Call it from the top function
         funcp->addStmtsp(util::callVoidFunc(subFuncp));
-        return subFuncp;
+        ফেরত subFuncp;
     };
-    const VNUser1InUse user1InUse;  // AstScope -> AstCFunc: the sub-function for the scope
-    const VNUser2InUse user2InUse;  // AstScope -> int: sub-function counter used for names
-    for (const auto& entry : lbs) {
-        AstScope* const scopep = entry.m_scopep;
-        AstActive* const activep = entry.m_activep;
+    ধ্রুবক VNUser1InUse user1InUse;  // AstScope -> AstCFunc: the sub-function for the scope
+    ধ্রুবক VNUser2InUse user2InUse;  // AstScope -> int: sub-function counter used for names
+    জন্য (ধ্রুবক auto& entry : lbs) {
+        AstScope* ধ্রুবক scopep = entry.m_scopep;
+        AstActive* ধ্রুবক activep = entry.m_activep;
         // Create a sub-function per scope so we can V3Combine them later
-        if (!scopep->user1p()) scopep->user1p(createNewSubFuncp(scopep));
+        যদি (!scopep->user1p()) scopep->user1p(createNewSubFuncp(scopep));
         // Add statements to sub-function
-        for (AstNode *logicp = activep->stmtsp(), *nextp; logicp; logicp = nextp) {
+        জন্য (Ast_গ্রন্থি *logicp = activep->stmtsp(), *nextp; logicp; logicp = nextp) {
             auto* subFuncp = VN_AS(scopep->user1p(), CFunc);
             nextp = logicp->nextp();
-            if (AstNodeProcedure* const procp = VN_CAST(logicp, NodeProcedure)) {
-                if (AstNode* bodyp = procp->stmtsp()) {
-                    bodyp->unlinkFrBackWithNext();
+            যদি (Ast_গ্রন্থি_Procedure* ধ্রুবক procp = VN_CAST(logicp, গ্রন্থি_Procedure)) {
+                যদি (Ast_গ্রন্থি* bodyp = procp->stmtsp()) {
+                    bodyp->unlink_Fr_Back_With_পরবর্তী();
                     // If the process is suspendable, we need a separate function (a coroutine)
-                    if (procp->isSuspendable()) {
-                        funcp->slow(false);
+                    যদি (procp->isSuspendable()) {
+                        funcp->slow(মিথ্যা);
                         subFuncp = createNewSubFuncp(scopep);
                         subFuncp->name(subFuncp->name() + "__Vtiming__"
                                        + cvtToStr(scopep->user2Inc()));
                         subFuncp->rtnType("VlCoroutine");
-                        if (VN_IS(procp, Always)) {
-                            subFuncp->slow(false);
-                            FileLine* const flp = procp->fileline();
-                            AstNodeExpr* const condp = new AstCExpr{
+                        যদি (VN_IS(procp, Always)) {
+                            subFuncp->slow(মিথ্যা);
+                            File_সারি* ধ্রুবক flp = procp->fileline();
+                            Ast_গ্রন্থি_রাশিমালা* ধ্রুবক condp = নতুন AstCExpr{
                                 flp, "VL_LIKELY(!vlSymsp->_vm_contextp__->gotFinish())", 1};
-                            AstLoop* const loopp = new AstLoop{flp};
-                            loopp->addStmtsp(new AstLoopTest{flp, loopp, condp});
+                            AstLoop* ধ্রুবক loopp = নতুন AstLoop{flp};
+                            loopp->addStmtsp(নতুন AstLoopTest{flp, loopp, condp});
                             loopp->addStmtsp(bodyp);
                             bodyp = loopp;
                         }
                     }
                     subFuncp->addStmtsp(bodyp);
-                    if (procp->needProcess()) subFuncp->setNeedProcess();
+                    যদি (procp->needProcess()) subFuncp->setNeedProcess();
                     // A coroutine holds a single process, so it is complete here
-                    if (procp->isSuspendable()) util::splitCheck(subFuncp);
+                    যদি (procp->isSuspendable()) util::splitCheck(subFuncp);
                 }
-            } else {
+            } অন্যথা {
                 logicp->unlinkFrBack();
                 subFuncp->addStmtsp(logicp);
             }
         }
-        if (activep->backp()) activep->unlinkFrBack();
-        VL_DO_DANGLING(activep->deleteTree(), activep);
+        যদি (activep->backp()) activep->unlinkFrBack();
+        VL_DO_DANGLING(activep->delete_বৃক্ষ(), activep);
     }
     // Split sub-functions once complete
-    for (const auto& entry : lbs) {
-        AstScope* const scopep = entry.m_scopep;
-        if (AstCFunc* const subFuncp = VN_AS(scopep->user1p(), CFunc)) {
+    জন্য (ধ্রুবক auto& entry : lbs) {
+        AstScope* ধ্রুবক scopep = entry.m_scopep;
+        যদি (AstCFunc* ধ্রুবক subFuncp = VN_AS(scopep->user1p(), CFunc)) {
             util::splitCheck(subFuncp);
             scopep->user1p(nullptr);
         }
@@ -320,53 +320,53 @@ void orderSequentially(AstCFunc* funcp, const LogicByScope& lbs) {
 //============================================================================
 // Create simply ordered functions
 
-AstCFunc* createStatic(AstNetlist* netlistp, const LogicClasses& logicClasses) {
-    AstCFunc* const funcp = netlistp->evalFuncp(VEval::STATIC);
+AstCFunc* createStatic(AstNetlist* netlistp, ধ্রুবক LogicClasses& logicClasses) {
+    AstCFunc* ধ্রুবক funcp = netlistp->evalFuncp(VEval::STATIC);
 
-    const LogicByScope& orig = logicClasses.m_static;
-    if (orig.size() <= 1) {
+    ধ্রুবক LogicByScope& orig = logicClasses.m_static;
+    যদি (orig.আকার_2() <= 1) {
         orderSequentially(funcp, orig);
-        return funcp;
+        ফেরত funcp;
     }
 
     // Level-based module sorting can reorder packages so that an importing
     // package runs before the imported one.  Re-sort package entries by source
     // file position to restore compilation order (IEEE 1800-2023 26.3).
-    std::vector<size_t> indices(orig.size());
-    for (size_t i = 0; i < orig.size(); ++i) indices[i] = i;
-    std::stable_sort(indices.begin(), indices.end(), [&](size_t a, size_t b) {
-        const AstNodeModule* const modA = orig[a].m_scopep->modp();
-        const AstNodeModule* const modB = orig[b].m_scopep->modp();
-        const bool isPkgA = VN_IS(modA, Package);
-        const bool isPkgB = VN_IS(modB, Package);
-        if (isPkgA != isPkgB) return isPkgA;  // Packages before non-packages
-        if (isPkgA && isPkgB) {
+    std::vector<আকার_t> indices(orig.আকার_2());
+    জন্য (আকার_t i = 0; i < orig.আকার_2(); ++i) indices[i] = i;
+    std::stable_sort(indices.begin(), indices.end(), [&](আকার_t a, আকার_t b) {
+        ধ্রুবক Ast_গ্রন্থি_Module* ধ্রুবক modA = orig[a].m_scopep->modp();
+        ধ্রুবক Ast_গ্রন্থি_Module* ধ্রুবক modB = orig[b].m_scopep->modp();
+        ধ্রুবক যৌক্তিক isPkgA = VN_IS(modA, Package);
+        ধ্রুবক যৌক্তিক isPkgB = VN_IS(modB, Package);
+        যদি (isPkgA != isPkgB) ফেরত isPkgA;  // Packages before non-packages
+        যদি (isPkgA && isPkgB) {
             // Sort packages by source file position (compilation order)
-            return modA->fileline()->operatorCompare(*modB->fileline()) < 0;
+            ফেরত modA->fileline()->operatorCompare(*modB->fileline()) < 0;
         }
-        return false;  // Both non-package: preserve original order
+        ফেরত মিথ্যা;  // Both non-package: preserve original order
     });
     LogicByScope sorted;
-    for (const size_t i : indices) sorted.add(orig[i].m_scopep, orig[i].m_activep);
+    জন্য (ধ্রুবক আকার_t i : indices) sorted.add(orig[i].m_scopep, orig[i].m_activep);
 
     orderSequentially(funcp, sorted);
-    return funcp;  // Not splitting yet as it is not final
+    ফেরত funcp;  // Not splitting yet as it is not final
 }
 
-void createInitial(AstNetlist* netlistp, const LogicClasses& logicClasses) {
-    AstCFunc* const funcp = netlistp->evalFuncp(VEval::INITIAL);
+শূন্য createInitial(AstNetlist* netlistp, ধ্রুবক LogicClasses& logicClasses) {
+    AstCFunc* ধ্রুবক funcp = netlistp->evalFuncp(VEval::INITIAL);
     orderSequentially(funcp, logicClasses.m_initial);
     util::splitCheck(funcp);
 }
 
-void createPostponed(AstNetlist* netlistp, const LogicClasses& logicClasses) {
-    AstCFunc* const funcp = netlistp->evalFuncp(VEval::POSTPONED);
+শূন্য createPostponed(AstNetlist* netlistp, ধ্রুবক LogicClasses& logicClasses) {
+    AstCFunc* ধ্রুবক funcp = netlistp->evalFuncp(VEval::POSTPONED);
     orderSequentially(funcp, logicClasses.m_postponed);
     util::splitCheck(funcp);
 }
 
-void createFinal(AstNetlist* netlistp, const LogicClasses& logicClasses) {
-    AstCFunc* const funcp = netlistp->evalFuncp(VEval::FINAL);
+শূন্য createFinal(AstNetlist* netlistp, ধ্রুবক LogicClasses& logicClasses) {
+    AstCFunc* ধ্রুবক funcp = netlistp->evalFuncp(VEval::FINAL);
     orderSequentially(funcp, logicClasses.m_final);
     util::splitCheck(funcp);
 }
@@ -374,42 +374,42 @@ void createFinal(AstNetlist* netlistp, const LogicClasses& logicClasses) {
 //============================================================================
 // Helper that creates virtual interface value-change triggers
 
-void addVirtIfaceTriggerAssignments(AstNetlist* netlistp, AstCFunc* initFuncp,
-                                    const VirtIfaceTriggers& virtIfaceTriggers,
-                                    uint32_t firstIndex, const TriggerKit& trigKit) {
-    uint32_t index = firstIndex;
-    for (const auto& entry : virtIfaceTriggers.m_triggers) {
-        trigKit.addValueChangeTriggerAssignment(netlistp, initFuncp, entry.m_vscp, index);
-        ++index;
+শূন্য addVirtIfaceTriggerAssignments(AstNetlist* netlistp, AstCFunc* initFuncp,
+                                    ধ্রুবক VirtIfaceTriggers& virtIfaceTriggers,
+                                    uint32_t first_সূচক, ধ্রুবক TriggerKit& trigKit) {
+    uint32_t সূচক = first_সূচক;
+    জন্য (ধ্রুবক auto& entry : virtIfaceTriggers.m_triggers) {
+        trigKit.add_মান_Change_Trigger_Assignment(netlistp, initFuncp, entry.m_vscp, সূচক);
+        ++সূচক;
     }
 }
 
 // Order the combinational logic to create the 'stl' region
-void createSettle(AstNetlist* netlistp, AstCFunc* const initFuncp, SenExprBuilder& senExprBulider,
-                  LogicClasses& logicClasses, const CovergroupRefBindings& cgRefBindings) {
+শূন্য createSettle(AstNetlist* netlistp, AstCFunc* ধ্রুবক initFuncp, Sen_রাশিমালা_Builder& sen_রাশিমালা_Bulider,
+                  LogicClasses& logicClasses, ধ্রুবক CovergroupRefBindings& cgRefBindings) {
     // Clone, because ordering is destructive, but we still need them for the other regions
     LogicByScope comb = logicClasses.m_comb.clone();
     LogicByScope hybrid = logicClasses.m_hybrid.clone();
 
     // We have an extra trigger denoting this is the first iteration of the settle loop
     TriggerKit::ExtraTriggers extraTriggers;
-    const uint32_t firstIterationTrigger = extraTriggers.allocate("first iteration");
+    ধ্রুবক uint32_t firstIterationTrigger = extraTriggers.allocate("first iteration");
 
     // Gather the relevant sensitivity expressions and create the trigger kit
-    const auto& senTreeps = getSenTreesUsedBy({&comb, &hybrid});
-    const TriggerKit trigKit = TriggerKit::create(netlistp, initFuncp, senExprBulider, {},
-                                                  senTreeps, "stl", extraTriggers, true, false);
+    ধ্রুবক auto& senTreeps = getSenTreesUsedBy({&comb, &hybrid});
+    ধ্রুবক TriggerKit trigKit = TriggerKit::create(netlistp, initFuncp, sen_রাশিমালা_Bulider, {},
+                                                  senTreeps, "stl", extraTriggers, সত্য, মিথ্যা);
 
     // Add trigger indices (comb has none, so only do the hybrid)
-    addTriggerIndices(hybrid, trigKit, false);
+    addTriggerIndices(hybrid, trigKit, মিথ্যা);
 
     // First trigger is for pure combinational triggers (first iteration)
-    const uint32_t inputChanged = trigKit.extraTriggerIndex(firstIterationTrigger);
+    ধ্রুবক uint32_t প্রবেশ_Changed = trigKit.extra_Trigger_সূচক(firstIterationTrigger);
 
     // Create and the body function
-    AstCFunc* const stlFuncp = V3Order::order(
-        {&comb, &hybrid}, trigKit, trigKit.vscp(), cgRefBindings, "stl", false, true,
-        [=](const AstVarScope*, std::set<uint32_t>& triggers) { triggers.insert(inputChanged); });
+    AstCFunc* ধ্রুবক stlFuncp = V3Order::order(
+        {&comb, &hybrid}, trigKit, trigKit.vscp(), cgRefBindings, "stl", মিথ্যা, সত্য,
+        [=](ধ্রুবক AstVarScope*, std::set<uint32_t>& triggers) { triggers.ঢোকাও(প্রবেশ_Changed); });
     util::splitCheck(stlFuncp);
 
     // Create the region evaluation function
@@ -420,9 +420,9 @@ void createSettle(AstNetlist* netlistp, AstCFunc* const initFuncp, SenExprBuilde
         // Explicit condition
         // Prep statements: Compute the current 'stl' triggers
         [&trigKit] {
-            AstNodeStmt* const stmtp = trigKit.newCompBaseCall();
-            if (stmtp) stmtp->addNext(trigKit.newDumpCall(trigKit.vscp(), trigKit.name(), true));
-            return stmtp;
+            Ast_গ্রন্থি_Stmt* ধ্রুবক stmtp = trigKit.newCompBaseCall();
+            যদি (stmtp) stmtp->add_পরবর্তী(trigKit.newDumpCall(trigKit.vscp(), trigKit.name(), সত্য));
+            ফেরত stmtp;
         }(),
         // Work statements: Invoke the 'stl' function
         util::callVoidFunc(stlFuncp));
@@ -431,34 +431,34 @@ void createSettle(AstNetlist* netlistp, AstCFunc* const initFuncp, SenExprBuilde
 //============================================================================
 // Order the replicated combinational logic to create the 'ico' region
 
-void createIcoRegion(AstNetlist* netlistp, AstCFunc* const initFuncp,
-                     SenExprBuilder& senExprBuilder, LogicByScope& logic,
-                     const VirtIfaceTriggers& virtIfaceTriggers,
-                     const CovergroupRefBindings& cgRefBindings) {
+শূন্য createIcoRegion(AstNetlist* netlistp, AstCFunc* ধ্রুবক initFuncp,
+                     Sen_রাশিমালা_Builder& sen_রাশিমালা_Builder, LogicByScope& logic,
+                     ধ্রুবক VirtIfaceTriggers& virtIfaceTriggers,
+                     ধ্রুবক CovergroupRefBindings& cgRefBindings) {
     // SystemC only: Any top level inputs feeding a combinational logic must be marked,
     // so we can make them sc_sensitive
-    if (v3Global.opt.systemC()) {
-        logic.foreachLogic([](AstNode* logicp) {
+    যদি (v3Global.opt.systemC()) {
+        logic.foreachLogic([](Ast_গ্রন্থি* logicp) {
             logicp->foreach([](AstVarRef* refp) {
-                if (refp->access().isWriteOnly()) return;
-                AstVarScope* const vscp = refp->varScopep();
-                if (vscp->scopep()->isTop() && vscp->varp()->isNonOutput()) {
-                    vscp->varp()->scSensitive(true);
+                যদি (refp->access().isWriteOnly()) ফেরত;
+                AstVarScope* ধ্রুবক vscp = refp->varScopep();
+                যদি (vscp->scopep()->is_শীর্ষ() && vscp->varp()->isNonOutput()) {
+                    vscp->varp()->scSensitive(সত্য);
                 }
             });
         });
     }
 
     // We have some extra trigger denoting external conditions
-    AstVarScope* const dpiExportTriggerVscp = netlistp->dpiExportTriggerp();
+    AstVarScope* ধ্রুবক dpiExportTriggerVscp = netlistp->dpiExportTriggerp();
 
     TriggerKit::ExtraTriggers extraTriggers;
-    const uint32_t firstIterationTrigger = extraTriggers.allocate("first iteration");
-    const uint32_t dpiExportTriggerIndex = dpiExportTriggerVscp
+    ধ্রুবক uint32_t firstIterationTrigger = extraTriggers.allocate("first iteration");
+    ধ্রুবক uint32_t dpi_Export_Trigger_সূচক = dpiExportTriggerVscp
                                                ? extraTriggers.allocate("DPI export trigger")
                                                : std::numeric_limits<uint32_t>::max();
-    const uint32_t firstVifTriggerIndex = extraTriggers.size();
-    for (const auto& entry : virtIfaceTriggers.m_triggers) {
+    ধ্রুবক uint32_t first_Vif_Trigger_সূচক = extraTriggers.আকার_2();
+    জন্য (ধ্রুবক auto& entry : virtIfaceTriggers.m_triggers) {
         extraTriggers.allocate("virtual interface member: " + entry.m_ifacep->name() + "."
                                + entry.m_memberp->name());
     }
@@ -473,72 +473,72 @@ void createIcoRegion(AstNetlist* netlistp, AstCFunc* const initFuncp,
     // Also omit a SenTree for types that don't have the required '!=' operator.
     // Any signal that does not have an explicit change detect trigger will fall back to
     // using the 'first iteration' trigger, same as if this optimization was disabled.
-    std::unordered_map<const AstVarScope*, AstSenTree*> inp2changedp;
-    std::vector<AstSenTree*> icoChangeSenTreeps;
-    if (v3Global.opt.fIcoChangeDetect().isTrue()) {
-        FileLine* const flp = netlistp->fileline();
-        AstScope* const scopep = netlistp->topScopep()->scopep();
-        for (AstVarScope* vscp = scopep->varsp(); vscp; vscp = VN_AS(vscp->nextp(), VarScope)) {
+    std::unordered_map<ধ্রুবক AstVarScope*, Ast_Sen_বৃক্ষ*> inp2changedp;
+    std::vector<Ast_Sen_বৃক্ষ*> icoChangeSenTreeps;
+    যদি (v3Global.opt.fIcoChangeDetect().isTrue()) {
+        File_সারি* ধ্রুবক flp = netlistp->fileline();
+        AstScope* ধ্রুবক scopep = netlistp->শীর্ষ_Scopep()->scopep();
+        জন্য (AstVarScope* vscp = scopep->varsp(); vscp; vscp = VN_AS(vscp->nextp(), VarScope)) {
             // Only for top level ports, assume outputs don't change externally
-            if (!vscp->varp()->isPrimaryInish()) continue;
+            যদি (!vscp->varp()->isPrimaryInish()) চালু;
             // Don't do if written by the design - wouldn't update the change detect 'prev' value
-            if (vscp->varp()->icoMaybeWritten()) continue;
+            যদি (vscp->varp()->icoMaybeWritten()) চালু;
             // Don't do if forceable, as we can't see the actual value - this is belt and braces
-            if (vscp->varp()->isForced()) continue;
+            যদি (vscp->varp()->isForced()) চালু;
             // Can't handle unpacked arrays (they have special types when primary input)
-            if (VN_IS(vscp->dtypep()->skipRefp(), UnpackArrayDType)) continue;
+            যদি (VN_IS(vscp->dtypep()->skipRefp(), UnpackArrayDType)) চালু;
             // Similarly to arrays, can't handle SystemC types
-            if (vscp->varp()->isSc()) continue;
+            যদি (vscp->varp()->isSc()) চালু;
             // Create a sen tree triggered when this input changes
-            AstSenTree*& senTreepr = inp2changedp[vscp];
+            Ast_Sen_বৃক্ষ*& senTreepr = inp2changedp[vscp];
             UASSERT_OBJ(!senTreepr, vscp, "Duplicate input change detect trigger");
-            AstVarRef* const refp = new AstVarRef{flp, vscp, VAccess::READ};
-            AstSenItem* const senItemp = new AstSenItem{flp, VEdgeType::ET_CHANGED, refp};
-            senTreepr = new AstSenTree{flp, senItemp};
-            icoChangeSenTreeps.push_back(senTreepr);
+            AstVarRef* ধ্রুবক refp = নতুন AstVarRef{flp, vscp, VAccess::READ};
+            AstSenItem* ধ্রুবক senItemp = নতুন AstSenItem{flp, VEdgeType::ET_CHANGED, refp};
+            senTreepr = নতুন Ast_Sen_বৃক্ষ{flp, senItemp};
+            icoChangeSenTreeps.ঠেলো_back(senTreepr);
         }
     }
-    V3Stats::addStat("Scheduling, 'ico' change detect triggers", icoChangeSenTreeps.size());
+    V3Stats::addStat("Scheduling, 'ico' change detect triggers", icoChangeSenTreeps.আকার_2());
 
     // Gather the relevant sensitivity expressions and create the trigger kit
-    std::vector<const AstSenTree*> senTreeps = getSenTreesUsedBy({&logic});
-    senTreeps.insert(senTreeps.end(), icoChangeSenTreeps.begin(), icoChangeSenTreeps.end());
-    const TriggerKit trigKit = TriggerKit::create(netlistp, initFuncp, senExprBuilder, {},
-                                                  senTreeps, "ico", extraTriggers, false, false);
-    std::ignore = senExprBuilder.getAndClearResults();
+    std::vector<ধ্রুবক Ast_Sen_বৃক্ষ*> senTreeps = getSenTreesUsedBy({&logic});
+    senTreeps.ঢোকাও(senTreeps.end(), icoChangeSenTreeps.begin(), icoChangeSenTreeps.end());
+    ধ্রুবক TriggerKit trigKit = TriggerKit::create(netlistp, initFuncp, sen_রাশিমালা_Builder, {},
+                                                  senTreeps, "ico", extraTriggers, মিথ্যা, মিথ্যা);
+    std::ignore = sen_রাশিমালা_Builder.getAndClearResults();
 
-    if (dpiExportTriggerVscp) {
-        trigKit.addExtraTriggerAssignment(dpiExportTriggerVscp, dpiExportTriggerIndex);
+    যদি (dpiExportTriggerVscp) {
+        trigKit.addExtraTriggerAssignment(dpiExportTriggerVscp, dpi_Export_Trigger_সূচক);
     }
-    addVirtIfaceTriggerAssignments(netlistp, initFuncp, virtIfaceTriggers, firstVifTriggerIndex,
+    addVirtIfaceTriggerAssignments(netlistp, initFuncp, virtIfaceTriggers, first_Vif_Trigger_সূচক,
                                    trigKit);
 
     // Add trigger indices
-    addTriggerIndices(logic, trigKit, false);
+    addTriggerIndices(logic, trigKit, মিথ্যা);
 
     // The 'first iteration' trigger for top level inputs
-    const uint32_t firstIterTrigger = trigKit.extraTriggerIndex(firstIterationTrigger);
+    ধ্রুবক uint32_t firstIterTrigger = trigKit.extra_Trigger_সূচক(firstIterationTrigger);
 
-    const auto& vifVscpToTrigIco
-        = virtIfaceTriggers.makeVscpToTrigMap(trigKit, firstVifTriggerIndex);
+    ধ্রুবক auto& vifVscpToTrigIco
+        = virtIfaceTriggers.makeVscpToTrigMap(trigKit, first_Vif_Trigger_সূচক);
 
     // Create and Order the body function
-    AstCFunc* const icoFuncp = V3Order::order(
-        {&logic}, trigKit, trigKit.vscp(), cgRefBindings, "ico", false, false,
-        [&](const AstVarScope* vscp, std::set<uint32_t>& triggers) {
-            AstVar* const varp = vscp->varp();
+    AstCFunc* ধ্রুবক icoFuncp = V3Order::order(
+        {&logic}, trigKit, trigKit.vscp(), cgRefBindings, "ico", মিথ্যা, মিথ্যা,
+        [&](ধ্রুবক AstVarScope* vscp, std::set<uint32_t>& triggers) {
+            AstVar* ধ্রুবক varp = vscp->varp();
             // If it has an explicit change detect trigger, use that,
             // otherwise fall back to using the 'first iteration' trigger
             auto it = inp2changedp.find(vscp);
-            if (it != inp2changedp.end()) {
-                triggers.insert(trigKit.senItem2TrigIdx(it->second->sensesp()));
-            } else if (varp->isPrimaryInish() || varp->isSigUserRWPublic() || varp->sampled()) {
-                triggers.insert(firstIterTrigger);
+            যদি (it != inp2changedp.end()) {
+                triggers.ঢোকাও(trigKit.senItem2TrigIdx(it->second->sensesp()));
+            } অন্যথা যদি (varp->isPrimaryInish() || varp->isSigUserRWPublic() || varp->sampled()) {
+                triggers.ঢোকাও(firstIterTrigger);
             }
             // Add other triggers
-            if (varp->isWrittenByDpi())
-                triggers.insert(trigKit.extraTriggerIndex(dpiExportTriggerIndex));
-            if (vscp->varp()->sensIfacep() || vscp->varp()->isVirtIface()) {
+            যদি (varp->isWrittenByDpi())
+                triggers.ঢোকাও(trigKit.extra_Trigger_সূচক(dpi_Export_Trigger_সূচক));
+            যদি (vscp->varp()->sensIfacep() || vscp->varp()->isVirtIface()) {
                 addTriggeredIface(vscp, vifVscpToTrigIco, virtIfaceTriggers, triggers);
             }
         });
@@ -551,50 +551,50 @@ void createIcoRegion(AstNetlist* netlistp, AstCFunc* const initFuncp,
         trigKit.vscp(), nullptr,
         // Prep statements: Compute the current 'ico' triggers
         [&trigKit] {
-            AstNodeStmt* const stmtp = trigKit.newCompBaseCall();
-            if (stmtp) stmtp->addNext(trigKit.newDumpCall(trigKit.vscp(), trigKit.name(), true));
-            return stmtp;
+            Ast_গ্রন্থি_Stmt* ধ্রুবক stmtp = trigKit.newCompBaseCall();
+            যদি (stmtp) stmtp->add_পরবর্তী(trigKit.newDumpCall(trigKit.vscp(), trigKit.name(), সত্য));
+            ফেরত stmtp;
         }(),
         // Work statements: Invoke the 'ico' function
         util::callVoidFunc(icoFuncp));
 
     // Release temporary input change detect SenTrees
-    for (AstSenTree* const senTreep : icoChangeSenTreeps)
-        VL_DO_DANGLING(senTreep->deleteTree(), senTreep);
+    জন্য (Ast_Sen_বৃক্ষ* ধ্রুবক senTreep : icoChangeSenTreeps)
+        VL_DO_DANGLING(senTreep->delete_বৃক্ষ(), senTreep);
     icoChangeSenTreeps.clear();
 }
 
 //============================================================================
 // EvalKit groups items that have to be passed to createEval() for a given eval region
 
-struct EvalKit final {
+কাঠামো EvalKit final {
     // The AstVarScope representing the region's trigger vector
-    AstVarScope* const m_vscp = nullptr;
+    AstVarScope* ধ্রুবক m_vscp = nullptr;
     // The AstCFunc that evaluates the region's logic
-    AstCFunc* const m_funcp = nullptr;
+    AstCFunc* ধ্রুবক m_funcp = nullptr;
     // Is this kit used/required?
-    bool empty() const { return !m_funcp; }
+    যৌক্তিক empty() ধ্রুবক { ফেরত !m_funcp; }
 };
 
 //============================================================================
 // Create the evaluation function of each region of a time step
 
-void createEval(AstNetlist* netlistp,  //
-                const TriggerKit& trigKit,  //
-                const EvalKit& actKit,  //
-                const EvalKit& nbaKit,  //
-                const EvalKit& obsKit,  //
-                const EvalKit& reactKit,  //
+শূন্য createEval(AstNetlist* netlistp,  //
+                ধ্রুবক TriggerKit& trigKit,  //
+                ধ্রুবক EvalKit& actKit,  //
+                ধ্রুবক EvalKit& nbaKit,  //
+                ধ্রুবক EvalKit& obsKit,  //
+                ধ্রুবক EvalKit& reactKit,  //
                 TimingKit& timingKit  //
 ) {
-    FileLine* const flp = netlistp->fileline();
+    File_সারি* ধ্রুবক flp = netlistp->fileline();
 
     // Grab the delay scheduler variable, if any
-    AstVarScope* const delaySchedVscp = timingKit.getDelayScheduler(netlistp);
+    AstVarScope* ধ্রুবক delaySchedVscp = timingKit.getDelayScheduler(netlistp);
 
     // 'createResume' consumes the contents that 'createReady' needs, so do the right order
-    AstCCall* const timingReadyp = timingKit.createReady(trigKit.vscp());
-    AstCCall* const timingResumep = timingKit.createResume(trigKit.vscp());
+    AstCCall* ধ্রুবক timingReadyp = timingKit.createReady(trigKit.vscp());
+    AstCCall* ধ্রুবক timingResumep = timingKit.createResume(trigKit.vscp());
 
     // Create the 'act' region
     createEvalRegion(  //
@@ -604,37 +604,37 @@ void createEval(AstNetlist* netlistp,  //
         // Prep statements
         [&]() {
             // Compute the current 'act' triggers - the NBA triggers are the latched value
-            AstNodeStmt* stmtsp = trigKit.newCompBaseCall();
-            AstNodeStmt* const dumpp
-                = stmtsp ? trigKit.newDumpCall(trigKit.vscp(), trigKit.name(), true) : nullptr;
+            Ast_গ্রন্থি_Stmt* stmtsp = trigKit.newCompBaseCall();
+            Ast_গ্রন্থি_Stmt* ধ্রুবক dumpp
+                = stmtsp ? trigKit.newDumpCall(trigKit.vscp(), trigKit.name(), সত্য) : nullptr;
             // Mark as ready for triggered awaits
-            if (timingReadyp) stmtsp = AstNode::addNext(stmtsp, timingReadyp->makeStmt());
-            if (AstVarScope* const vscAccp = trigKit.vscAccp()) {
-                stmtsp = AstNode::addNext(stmtsp, trigKit.newOrIntoCall(actKit.m_vscp, vscAccp));
+            যদি (timingReadyp) stmtsp = Ast_গ্রন্থি::add_পরবর্তী(stmtsp, timingReadyp->makeStmt());
+            যদি (AstVarScope* ধ্রুবক vscAccp = trigKit.vscAccp()) {
+                stmtsp = Ast_গ্রন্থি::add_পরবর্তী(stmtsp, trigKit.newOrIntoCall(actKit.m_vscp, vscAccp));
             }
-            stmtsp = AstNode::addNext(stmtsp, trigKit.newCompExtCall(nbaKit.m_vscp));
-            stmtsp = AstNode::addNext(stmtsp, dumpp);
+            stmtsp = Ast_গ্রন্থি::add_পরবর্তী(stmtsp, trigKit.newCompExtCall(nbaKit.m_vscp));
+            stmtsp = Ast_গ্রন্থি::add_পরবর্তী(stmtsp, dumpp);
             // Latch the 'act' triggers under the 'nba' triggers
-            stmtsp = AstNode::addNext(stmtsp, trigKit.newOrIntoCall(nbaKit.m_vscp, actKit.m_vscp));
+            stmtsp = Ast_গ্রন্থি::add_পরবর্তী(stmtsp, trigKit.newOrIntoCall(nbaKit.m_vscp, actKit.m_vscp));
             //
-            return stmtsp;
+            ফেরত stmtsp;
         }(),
         // Work statements
         [&]() {
-            AstNodeStmt* workp = nullptr;
-            if (AstVarScope* const actAccp = trigKit.vscAccp()) {
-                AstCMethodHard* const cCallp = new AstCMethodHard{
-                    flp, new AstVarRef{flp, actAccp, VAccess::WRITE}, VCMethod::UNPACKED_FILL,
-                    new AstConst{flp, AstConst::Unsized64{}, 0}};
+            Ast_গ্রন্থি_Stmt* workp = nullptr;
+            যদি (AstVarScope* ধ্রুবক actAccp = trigKit.vscAccp()) {
+                AstCMethodHard* ধ্রুবক cCallp = নতুন AstCMethodHard{
+                    flp, নতুন AstVarRef{flp, actAccp, VAccess::WRITE}, VCMethod::UNPACKED_FILL,
+                    নতুন AstConst{flp, AstConst::Unsized64{}, 0}};
                 cCallp->dtypeSetVoid();
-                workp = AstNode::addNext(workp, cCallp->makeStmt());
+                workp = Ast_গ্রন্থি::add_পরবর্তী(workp, cCallp->makeStmt());
             }
             // Resume triggered timing schedulers
-            if (timingResumep) workp = AstNode::addNext(workp, timingResumep->makeStmt());
+            যদি (timingResumep) workp = Ast_গ্রন্থি::add_পরবর্তী(workp, timingResumep->makeStmt());
             // Invoke the 'act' function
-            workp = AstNode::addNext(workp, util::callVoidFunc(actKit.m_funcp));
+            workp = Ast_গ্রন্থি::add_পরবর্তী(workp, util::callVoidFunc(actKit.m_funcp));
             //
-            return workp;
+            ফেরত workp;
         }());
 
     // Create the 'inact' region
@@ -642,41 +642,41 @@ void createEval(AstNetlist* netlistp,  //
         netlistp, VEval::INACT, 0, trigKit,
         // Use explicit condition
         nullptr,
-        [&]() -> AstNodeExpr* {
-            if (!delaySchedVscp) return nullptr;
+        [&]() -> Ast_গ্রন্থি_রাশিমালা* {
+            যদি (!delaySchedVscp) ফেরত nullptr;
             // Run if any zero delays are pending
-            AstNodeExpr* const callp
-                = new AstCMethodHard{flp, new AstVarRef{flp, delaySchedVscp, VAccess::READ},
+            Ast_গ্রন্থি_রাশিমালা* ধ্রুবক callp
+                = নতুন AstCMethodHard{flp, নতুন AstVarRef{flp, delaySchedVscp, VAccess::READ},
                                      VCMethod::SCHED_AWAITING_ZERO_DELAY};
             callp->dtypeSetBit();
-            return callp;
+            ফেরত callp;
         }(),
         // Prep statements
         nullptr,
         // Work statements
-        [&]() -> AstNodeStmt* {
-            if (!delaySchedVscp) {
+        [&]() -> Ast_গ্রন্থি_Stmt* {
+            যদি (!delaySchedVscp) {
                 // Nothing to do if there are no delays at all in the design
-                return nullptr;
-            } else if (v3Global.usesZeroDelay()) {
+                ফেরত nullptr;
+            } অন্যথা যদি (v3Global.usesZeroDelay()) {
                 // Resume processes watiting for #0 delay
-                AstCMethodHard* const callp = new AstCMethodHard{
-                    flp, new AstVarRef{flp, delaySchedVscp, VAccess::READWRITE},
+                AstCMethodHard* ধ্রুবক callp = নতুন AstCMethodHard{
+                    flp, নতুন AstVarRef{flp, delaySchedVscp, VAccess::READWRITE},
                     VCMethod::SCHED_RESUME_ZERO_DELAY};
                 callp->dtypeSetVoid();
-                return callp->makeStmt();
-            } else {
+                ফেরত callp->makeStmt();
+            } অন্যথা {
                 // Assumption was that the design doesn't use #0 delays.
                 // Die at run-time if it does.
-                AstCStmt* const stmtp = new AstCStmt{flp};
-                const FileLine* const locp = netlistp->topModulep()->fileline();
-                const std::string& file = VIdProtect::protect(locp->filename());
-                const std::string& line = std::to_string(locp->lineno());
+                AstCStmt* ধ্রুবক stmtp = নতুন AstCStmt{flp};
+                ধ্রুবক File_সারি* ধ্রুবক locp = netlistp->শীর্ষ_Modulep()->fileline();
+                ধ্রুবক std::string& file = VIdProtect::protect(locp->filename());
+                ধ্রুবক std::string& সারি = std::to_string(locp->lineno());
                 stmtp->add("VL_FATAL_MT(\"" + V3OutFormatter::quoteNameControls(file) + "\", "
-                           + line
+                           + সারি
                            + ", \"\", \"ZERODLY: Design Verilated with '--no-sched-zero-delay', "
                            + "but #0 delay executed at runtime\");");
-                return stmtp;
+                ফেরত stmtp;
             }
         }());
 
@@ -689,39 +689,39 @@ void createEval(AstNetlist* netlistp,  //
         nullptr,
         // Work statements
         [&]() {
-            AstNodeStmt* workp = nullptr;
+            Ast_গ্রন্থি_Stmt* workp = nullptr;
             // Latch the 'nba' trigger flags under the following region's trigger flags
-            if (!obsKit.empty()) {
+            যদি (!obsKit.empty()) {
                 workp = trigKit.newOrIntoCall(obsKit.m_vscp, nbaKit.m_vscp);
-            } else if (!reactKit.empty()) {
+            } অন্যথা যদি (!reactKit.empty()) {
                 workp = trigKit.newOrIntoCall(reactKit.m_vscp, nbaKit.m_vscp);
             }
             // Invoke the 'nba' function
-            workp = AstNode::addNext(workp, util::callVoidFunc(nbaKit.m_funcp));
+            workp = Ast_গ্রন্থি::add_পরবর্তী(workp, util::callVoidFunc(nbaKit.m_funcp));
             // Clear the 'nba' triggers
-            workp = AstNode::addNext(workp, trigKit.newClearCall(nbaKit.m_vscp));
+            workp = Ast_গ্রন্থি::add_পরবর্তী(workp, trigKit.newClearCall(nbaKit.m_vscp));
             //
-            return workp;
+            ফেরত workp;
         }(),
         // Extra work (not conditional on having had a fired trigger)
-        [&](AstVarScope* continuep) -> AstNodeStmt* {
+        [&](AstVarScope* continuep) -> Ast_গ্রন্থি_Stmt* {
             // Check if any dynamic NBAs are pending, if there are any in the design
-            if (!netlistp->nbaEventp()) return nullptr;
-            AstVarScope* const nbaEventp = netlistp->nbaEventp();
-            AstVarScope* const nbaEventTriggerp = netlistp->nbaEventTriggerp();
+            যদি (!netlistp->nbaEventp()) ফেরত nullptr;
+            AstVarScope* ধ্রুবক nbaEventp = netlistp->nbaEventp();
+            AstVarScope* ধ্রুবক nbaEventTriggerp = netlistp->nbaEventTriggerp();
             UASSERT(nbaEventTriggerp, "NBA event trigger var should exist");
             netlistp->nbaEventp(nullptr);
             netlistp->nbaEventTriggerp(nullptr);
 
             // If a dynamic NBA is pending, clear the pending flag and fire the ready event
-            AstIf* const ifp = new AstIf{flp, new AstVarRef{flp, nbaEventTriggerp, VAccess::READ}};
+            AstIf* ধ্রুবক ifp = নতুন AstIf{flp, নতুন AstVarRef{flp, nbaEventTriggerp, VAccess::READ}};
             ifp->addThensp(util::setVar(continuep, 1));
             ifp->addThensp(util::setVar(nbaEventTriggerp, 0));
-            AstCMethodHard* const firep = new AstCMethodHard{
-                flp, new AstVarRef{flp, nbaEventp, VAccess::WRITE}, VCMethod::EVENT_FIRE};
+            AstCMethodHard* ধ্রুবক firep = নতুন AstCMethodHard{
+                flp, নতুন AstVarRef{flp, nbaEventp, VAccess::WRITE}, VCMethod::EVENT_FIRE};
             firep->dtypeSetVoid();
             ifp->addThensp(firep->makeStmt());
-            return ifp;
+            ফেরত ifp;
         });
 
     // Create the 'obs' region
@@ -732,19 +732,19 @@ void createEval(AstNetlist* netlistp,  //
         // Prep statements
         nullptr,
         // Work statements
-        [&]() -> AstNodeStmt* {
-            if (obsKit.empty()) return nullptr;
-            AstNodeStmt* workp = nullptr;
+        [&]() -> Ast_গ্রন্থি_Stmt* {
+            যদি (obsKit.empty()) ফেরত nullptr;
+            Ast_গ্রন্থি_Stmt* workp = nullptr;
             // Latch the Observed trigger flags under the Reactive trigger flags
-            if (!reactKit.empty()) {
+            যদি (!reactKit.empty()) {
                 workp = trigKit.newOrIntoCall(reactKit.m_vscp, obsKit.m_vscp);
             }
             // Invoke the 'obs' function
-            workp = AstNode::addNext(workp, util::callVoidFunc(obsKit.m_funcp));
+            workp = Ast_গ্রন্থি::add_পরবর্তী(workp, util::callVoidFunc(obsKit.m_funcp));
             // Clear the 'obs' triggers
-            workp = AstNode::addNext(workp, trigKit.newClearCall(obsKit.m_vscp));
+            workp = Ast_গ্রন্থি::add_পরবর্তী(workp, trigKit.newClearCall(obsKit.m_vscp));
             //
-            return workp;
+            ফেরত workp;
         }());
 
     // Create the 'react' region
@@ -755,13 +755,13 @@ void createEval(AstNetlist* netlistp,  //
         // Prep statements
         nullptr,
         // Work statements
-        [&]() -> AstNodeStmt* {
-            if (reactKit.empty()) return nullptr;
+        [&]() -> Ast_গ্রন্থি_Stmt* {
+            যদি (reactKit.empty()) ফেরত nullptr;
             // Invoke the 'react' function
-            AstNodeStmt* workp = util::callVoidFunc(reactKit.m_funcp);
+            Ast_গ্রন্থি_Stmt* workp = util::callVoidFunc(reactKit.m_funcp);
             // Clear the 'react' triggers
-            workp = AstNode::addNext(workp, trigKit.newClearCall(reactKit.m_vscp));
-            return workp;
+            workp = Ast_গ্রন্থি::add_পরবর্তী(workp, trigKit.newClearCall(reactKit.m_vscp));
+            ফেরত workp;
         }());
 }
 
@@ -770,75 +770,75 @@ void createEval(AstNetlist* netlistp,  //
 //============================================================================
 // Helper that builds virtual interface trigger sentrees
 
-VirtIfaceTriggers::VscpTrigMap VirtIfaceTriggers::makeVscpToTrigMap(const TriggerKit& trigKit,
-                                                                    uint32_t firstIndex) const {
+VirtIfaceTriggers::VscpTrigMap VirtIfaceTriggers::makeVscpToTrigMap(ধ্রুবক TriggerKit& trigKit,
+                                                                    uint32_t first_সূচক) ধ্রুবক {
     VscpTrigMap map;
-    uint32_t index = firstIndex;
-    for (const auto& entry : m_triggers) {
-        map.emplace(entry.m_vscp, trigKit.extraTriggerIndex(index));
-        ++index;
+    uint32_t সূচক = first_সূচক;
+    জন্য (ধ্রুবক auto& entry : m_triggers) {
+        map.emplace(entry.m_vscp, trigKit.extra_Trigger_সূচক(সূচক));
+        ++সূচক;
     }
-    return map;
+    ফেরত map;
 }
 
 //============================================================================
 // Top level entry-point to scheduling
 
-void schedule(AstNetlist* netlistp) {
-    const auto addSizeStat = [](const string& name, const LogicByScope& lbs) {
-        uint64_t size = 0;
-        lbs.foreachLogic([&](AstNode* nodep) { size += nodep->nodeCount(); });
-        V3Stats::addStat("Scheduling, " + name, size);
+শূন্য schedule(AstNetlist* netlistp) {
+    ধ্রুবক auto add_আকার_Stat = [](ধ্রুবক string& name, ধ্রুবক LogicByScope& lbs) {
+        uint64_t আকার_2 = 0;
+        lbs.foreachLogic([&](Ast_গ্রন্থি* nodep) { আকার_2 += nodep->গ্রন্থি_গুনতি(); });
+        V3Stats::addStat("Scheduling, " + name, আকার_2);
     };
 
     // Step 2: Prepare external domains for timing and virtual interfaces
     // Create extra triggers for virtual interfaces
-    const auto& virtIfaceTriggers = makeVirtIfaceTriggers(netlistp);
+    ধ্রুবক auto& virtIfaceTriggers = makeVirtIfaceTriggers(netlistp);
     // Resolve what covergroup reference formal arguments are bound to, which is visible here
     // but not from V3Order, where the reads through them must be modeled
-    const CovergroupRefBindings& cgRefBindings = makeCovergroupRefBindings(netlistp);
+    ধ্রুবক CovergroupRefBindings& cgRefBindings = makeCovergroupRefBindings(netlistp);
     // Prepare timing-related logic and external domains
     TimingKit timingKit = prepareTiming(netlistp);
 
     // Step 3: Gather and classify all logic in the design
     LogicClasses logicClasses = gatherLogicClasses(netlistp);
 
-    if (v3Global.opt.stats()) {
+    যদি (v3Global.opt.stats()) {
         V3Stats::statsStage("sched-gather");
-        addSizeStat("size of class: static", logicClasses.m_static);
-        addSizeStat("size of class: initial", logicClasses.m_initial);
-        addSizeStat("size of class: final", logicClasses.m_final);
+        add_আকার_Stat("size of class: static", logicClasses.m_static);
+        add_আকার_Stat("size of class: initial", logicClasses.m_initial);
+        add_আকার_Stat("size of class: final", logicClasses.m_final);
     }
 
     // Step 4: Schedule static, initial and final logic classes in source order
-    AstCFunc* const staticp = createStatic(netlistp, logicClasses);
-    if (v3Global.opt.stats()) V3Stats::statsStage("sched-static");
+    AstCFunc* ধ্রুবক staticp = createStatic(netlistp, logicClasses);
+    যদি (v3Global.opt.stats()) V3Stats::statsStage("sched-static");
 
     createInitial(netlistp, logicClasses);
-    if (v3Global.opt.stats()) V3Stats::statsStage("sched-initial");
+    যদি (v3Global.opt.stats()) V3Stats::statsStage("sched-initial");
 
     createFinal(netlistp, logicClasses);
-    if (v3Global.opt.stats()) V3Stats::statsStage("sched-final");
+    যদি (v3Global.opt.stats()) V3Stats::statsStage("sched-final");
 
     // Step 5: Break combinational cycles by introducing hybrid logic
     // Note: breakCycles also removes corresponding logic from logicClasses.m_comb;
     logicClasses.m_hybrid = breakCycles(netlistp, logicClasses.m_comb);
-    if (v3Global.opt.stats()) {
-        addSizeStat("size of class: clocked", logicClasses.m_clocked);
-        addSizeStat("size of class: combinational", logicClasses.m_comb);
-        addSizeStat("size of class: hybrid", logicClasses.m_hybrid);
+    যদি (v3Global.opt.stats()) {
+        add_আকার_Stat("size of class: clocked", logicClasses.m_clocked);
+        add_আকার_Stat("size of class: combinational", logicClasses.m_comb);
+        add_আকার_Stat("size of class: hybrid", logicClasses.m_hybrid);
         V3Stats::statsStage("sched-break-cycles");
     }
 
     // We pass around a single SenExprBuilder instance, as we only need one set of 'prev' variables
     // for edge/change detection in sensitivity expressions, which this keeps track of.
-    AstTopScope* const topScopep = netlistp->topScopep();
-    AstScope* const scopeTopp = topScopep->scopep();
-    SenExprBuilder senExprBuilder{scopeTopp};
+    Ast_শীর্ষ_Scope* ধ্রুবক শীর্ষ_Scopep = netlistp->শীর্ষ_Scopep();
+    AstScope* ধ্রুবক scopeTopp = শীর্ষ_Scopep->scopep();
+    Sen_রাশিমালা_Builder sen_রাশিমালা_Builder{scopeTopp};
 
     // Step 6: Create 'settle' region that restores the combinational invariant
-    createSettle(netlistp, staticp, senExprBuilder, logicClasses, cgRefBindings);
-    if (v3Global.opt.stats()) V3Stats::statsStage("sched-settle");
+    createSettle(netlistp, staticp, sen_রাশিমালা_Builder, logicClasses, cgRefBindings);
+    যদি (v3Global.opt.stats()) V3Stats::statsStage("sched-settle");
 
     // Step 7: Partition the clocked and combinational (including hybrid) logic into pre/act/nba.
     // All clocks (signals referenced in an AstSenTree) generated via a blocking assignment
@@ -847,65 +847,65 @@ void schedule(AstNetlist* netlistp) {
         = partition(logicClasses.m_clocked, logicClasses.m_comb, logicClasses.m_hybrid);
     logicRegions.m_obs = logicClasses.m_observed;
     logicRegions.m_react = logicClasses.m_reactive;
-    if (v3Global.opt.stats()) {
-        addSizeStat("size of region: Active Pre", logicRegions.m_pre);
-        addSizeStat("size of region: Active", logicRegions.m_act);
-        addSizeStat("size of region: NBA", logicRegions.m_nba);
-        addSizeStat("size of region: Observed", logicRegions.m_obs);
-        addSizeStat("size of region: Reactive", logicRegions.m_react);
+    যদি (v3Global.opt.stats()) {
+        add_আকার_Stat("size of region: Active Pre", logicRegions.m_pre);
+        add_আকার_Stat("size of region: Active", logicRegions.m_act);
+        add_আকার_Stat("size of region: NBA", logicRegions.m_nba);
+        add_আকার_Stat("size of region: Observed", logicRegions.m_obs);
+        add_আকার_Stat("size of region: Reactive", logicRegions.m_react);
         V3Stats::statsStage("sched-partition");
     }
 
     // Step 8: Replicate combinational logic
     LogicReplicas logicReplicas = replicateLogic(logicRegions);
-    if (v3Global.opt.stats()) {
-        addSizeStat("size of replicated logic: Input", logicReplicas.m_ico);
-        addSizeStat("size of replicated logic: Active", logicReplicas.m_act);
-        addSizeStat("size of replicated logic: NBA", logicReplicas.m_nba);
-        addSizeStat("size of replicated logic: Observed", logicReplicas.m_obs);
-        addSizeStat("size of replicated logic: Reactive", logicReplicas.m_react);
+    যদি (v3Global.opt.stats()) {
+        add_আকার_Stat("size of replicated logic: Input", logicReplicas.m_ico);
+        add_আকার_Stat("size of replicated logic: Active", logicReplicas.m_act);
+        add_আকার_Stat("size of replicated logic: NBA", logicReplicas.m_nba);
+        add_আকার_Stat("size of replicated logic: Observed", logicReplicas.m_obs);
+        add_আকার_Stat("size of replicated logic: Reactive", logicReplicas.m_react);
         V3Stats::statsStage("sched-replicate");
     }
 
     // Step 9: Create the input combinational logic
-    createIcoRegion(netlistp, staticp, senExprBuilder, logicReplicas.m_ico, virtIfaceTriggers,
+    createIcoRegion(netlistp, staticp, sen_রাশিমালা_Builder, logicReplicas.m_ico, virtIfaceTriggers,
                     cgRefBindings);
-    if (v3Global.opt.stats()) V3Stats::statsStage("sched-create-ico");
+    যদি (v3Global.opt.stats()) V3Stats::statsStage("sched-create-ico");
 
     // Step 10: Create the triggers
-    AstVarScope* const dpiExportTriggerVscp = netlistp->dpiExportTriggerp();
+    AstVarScope* ধ্রুবক dpiExportTriggerVscp = netlistp->dpiExportTriggerp();
     netlistp->dpiExportTriggerp(nullptr);  // Finished with this here
 
     // We may have an extra trigger for variable updated in DPI exports
     TriggerKit::ExtraTriggers extraTriggers;
-    const uint32_t dpiExportTriggerIndex = dpiExportTriggerVscp
+    ধ্রুবক uint32_t dpi_Export_Trigger_সূচক = dpiExportTriggerVscp
                                                ? extraTriggers.allocate("DPI export trigger")
                                                : std::numeric_limits<uint32_t>::max();
-    const uint32_t firstVifTriggerIndex = extraTriggers.size();
-    for (const auto& entry : virtIfaceTriggers.m_triggers) {
+    ধ্রুবক uint32_t first_Vif_Trigger_সূচক = extraTriggers.আকার_2();
+    জন্য (ধ্রুবক auto& entry : virtIfaceTriggers.m_triggers) {
         extraTriggers.allocate("virtual interface member: " + entry.m_ifacep->name() + "."
                                + entry.m_memberp->name());
     }
 
-    const auto& preTreeps = getSenTreesUsedBy({&logicRegions.m_pre});
-    const auto& senTreeps = getSenTreesUsedBy({&logicRegions.m_act,  //
+    ধ্রুবক auto& preTreeps = getSenTreesUsedBy({&logicRegions.m_pre});
+    ধ্রুবক auto& senTreeps = getSenTreesUsedBy({&logicRegions.m_act,  //
                                                &logicRegions.m_nba,  //
                                                &logicRegions.m_obs,  //
                                                &logicRegions.m_react,  //
                                                &timingKit.m_lbs});
-    const TriggerKit trigKit
-        = TriggerKit::create(netlistp, staticp, senExprBuilder, preTreeps, senTreeps, "act",
-                             extraTriggers, false, v3Global.usesTiming());
+    ধ্রুবক TriggerKit trigKit
+        = TriggerKit::create(netlistp, staticp, sen_রাশিমালা_Builder, preTreeps, senTreeps, "act",
+                             extraTriggers, মিথ্যা, v3Global.usesTiming());
 
     // Add post updates from the timing kit
-    if (timingKit.m_postUpdates) trigKit.compBasep()->addStmtsp(timingKit.m_postUpdates);
+    যদি (timingKit.m_postUpdates) trigKit.compBasep()->addStmtsp(timingKit.m_postUpdates);
 
-    if (dpiExportTriggerVscp) {
-        trigKit.addExtraTriggerAssignment(dpiExportTriggerVscp, dpiExportTriggerIndex);
+    যদি (dpiExportTriggerVscp) {
+        trigKit.addExtraTriggerAssignment(dpiExportTriggerVscp, dpi_Export_Trigger_সূচক);
     }
-    addVirtIfaceTriggerAssignments(netlistp, staticp, virtIfaceTriggers, firstVifTriggerIndex,
+    addVirtIfaceTriggerAssignments(netlistp, staticp, virtIfaceTriggers, first_Vif_Trigger_সূচক,
                                    trigKit);
-    if (v3Global.opt.stats()) V3Stats::statsStage("sched-create-triggers");
+    যদি (v3Global.opt.stats()) V3Stats::statsStage("sched-create-triggers");
 
     // Note: Experiments so far show that running the Act (or Ico) regions on
     // multiple threads is always a net loss, so only use multi-threading for
@@ -915,72 +915,72 @@ void schedule(AstNetlist* netlistp) {
     // Step 11: Create the 'act' region evaluation function
 
     // Add the trigger indices of the input logic
-    addTriggerIndices(logicRegions.m_pre, trigKit, true);
-    addTriggerIndices(logicRegions.m_act, trigKit, false);
-    addTriggerIndices(logicReplicas.m_act, trigKit, false);
-    addTriggerIndices(timingKit.m_lbs, trigKit, false);
+    addTriggerIndices(logicRegions.m_pre, trigKit, সত্য);
+    addTriggerIndices(logicRegions.m_act, trigKit, মিথ্যা);
+    addTriggerIndices(logicReplicas.m_act, trigKit, মিথ্যা);
+    addTriggerIndices(timingKit.m_lbs, trigKit, মিথ্যা);
 
     // External triggers of variables. Trigger indices are the same in all regions, so share.
-    const std::map<const AstVarScope*, std::vector<uint32_t>> timingTriggers
+    ধ্রুবক std::map<ধ্রুবক AstVarScope*, std::vector<uint32_t>> timingTriggers
         = timingKit.externalTriggerIndices(trigKit);
-    const auto& vifVscpToTrig = virtIfaceTriggers.makeVscpToTrigMap(trigKit, firstVifTriggerIndex);
-    const V3Order::ExternalTriggersProvider externalTriggers
-        = [&](const AstVarScope* vscp, std::set<uint32_t>& triggers) {
+    ধ্রুবক auto& vifVscpToTrig = virtIfaceTriggers.makeVscpToTrigMap(trigKit, first_Vif_Trigger_সূচক);
+    ধ্রুবক V3Order::ExternalTriggersProvider externalTriggers
+        = [&](ধ্রুবক AstVarScope* vscp, std::set<uint32_t>& triggers) {
               auto it = timingTriggers.find(vscp);
-              if (it != timingTriggers.end())
-                  triggers.insert(it->second.begin(), it->second.end());
-              if (vscp->varp()->isWrittenByDpi()) {
-                  triggers.insert(trigKit.extraTriggerIndex(dpiExportTriggerIndex));
+              যদি (it != timingTriggers.end())
+                  triggers.ঢোকাও(it->second.begin(), it->second.end());
+              যদি (vscp->varp()->isWrittenByDpi()) {
+                  triggers.ঢোকাও(trigKit.extra_Trigger_সূচক(dpi_Export_Trigger_সূচক));
               }
-              if (vscp->varp()->sensIfacep() || vscp->varp()->isVirtIface()) {
+              যদি (vscp->varp()->sensIfacep() || vscp->varp()->isVirtIface()) {
                   addTriggeredIface(vscp, vifVscpToTrig, virtIfaceTriggers, triggers);
               }
           };
 
-    AstCFunc* const actFuncp
+    AstCFunc* ধ্রুবক actFuncp
         = V3Order::order({&logicRegions.m_pre, &logicRegions.m_act, &logicReplicas.m_act}, trigKit,
-                         trigKit.vscp(), cgRefBindings, "act", false, false, externalTriggers);
+                         trigKit.vscp(), cgRefBindings, "act", মিথ্যা, মিথ্যা, externalTriggers);
     util::splitCheck(actFuncp);
-    if (v3Global.opt.stats()) V3Stats::statsStage("sched-create-act");
+    যদি (v3Global.opt.stats()) V3Stats::statsStage("sched-create-act");
 
-    const EvalKit actKit{trigKit.vscp(), actFuncp};
+    ধ্রুবক EvalKit actKit{trigKit.vscp(), actFuncp};
 
     // Orders a region's logic and creates the region eval function
-    const auto order = [&](const std::string& name,
-                           const std::vector<V3Sched::LogicByScope*>& logic) -> EvalKit {
-        UINFO(2, "Scheduling " << name << " #logic = " << logic.size());
-        AstVarScope* const trigVscp = trigKit.newTrigVec(name);
+    ধ্রুবক auto order = [&](ধ্রুবক std::string& name,
+                           ধ্রুবক std::vector<V3Sched::LogicByScope*>& logic) -> EvalKit {
+        UINFO(2, "Scheduling " << name << " #logic = " << logic.আকার_2());
+        AstVarScope* ধ্রুবক trigVscp = trigKit.newTrigVec(name);
         // Add the trigger indices of the input logic
-        for (LogicByScope* lbs : logic) addTriggerIndices(*lbs, trigKit, false);
+        জন্য (LogicByScope* lbs : logic) addTriggerIndices(*lbs, trigKit, মিথ্যা);
 
-        AstCFunc* const funcp
+        AstCFunc* ধ্রুবক funcp
             = V3Order::order(logic, trigKit, trigVscp, cgRefBindings, name,
-                             name == "nba" && v3Global.opt.mtasks(), false, externalTriggers);
+                             name == "nba" && v3Global.opt.mtasks(), মিথ্যা, externalTriggers);
 
-        return {trigVscp, funcp};
+        ফেরত {trigVscp, funcp};
     };
 
     // Step 12: Create the 'nba' region evaluation function
-    const EvalKit nbaKit = order("nba", {&logicRegions.m_nba, &logicReplicas.m_nba});
+    ধ্রুবক EvalKit nbaKit = order("nba", {&logicRegions.m_nba, &logicReplicas.m_nba});
     util::splitCheck(nbaKit.m_funcp);
-    if (v3Global.opt.stats()) V3Stats::statsStage("sched-create-nba");
+    যদি (v3Global.opt.stats()) V3Stats::statsStage("sched-create-nba");
 
     // Orders a region's logic and creates the region eval function (only if there is any logic in
     // the region)
-    const auto orderIfNonEmpty
-        = [&](const std::string& name, const std::vector<LogicByScope*>& logic) -> EvalKit {
-        if (logic[0]->empty())
-            return {};  // if region is empty, replica is supposed to be empty as well
-        const auto& kit = order(name, logic);
-        if (v3Global.opt.stats()) V3Stats::statsStage("sched-create-" + name);
-        return kit;
+    ধ্রুবক auto orderIfNonEmpty
+        = [&](ধ্রুবক std::string& name, ধ্রুবক std::vector<LogicByScope*>& logic) -> EvalKit {
+        যদি (logic[0]->empty())
+            ফেরত {};  // if region is empty, replica is supposed to be empty as well
+        ধ্রুবক auto& kit = order(name, logic);
+        যদি (v3Global.opt.stats()) V3Stats::statsStage("sched-create-" + name);
+        ফেরত kit;
     };
 
     // Step 13: Create the 'obs' region evaluation function
-    const EvalKit obsKit = orderIfNonEmpty("obs", {&logicRegions.m_obs, &logicReplicas.m_obs});
+    ধ্রুবক EvalKit obsKit = orderIfNonEmpty("obs", {&logicRegions.m_obs, &logicReplicas.m_obs});
 
     // Step 14: Create the 'react' region evaluation function
-    const EvalKit reactKit
+    ধ্রুবক EvalKit reactKit
         = orderIfNonEmpty("react", {&logicRegions.m_react, &logicReplicas.m_react});
 
     // Step 15: Create the 'postponed' region evaluation function
@@ -990,52 +990,52 @@ void schedule(AstNetlist* netlistp) {
     createEval(netlistp, trigKit, actKit, nbaKit, obsKit, reactKit, timingKit);
 
     // Step 17: Add neccessary evaluation before awaits
-    if (AstCCall* const readyp = timingKit.createReady(trigKit.vscp())) {
+    যদি (AstCCall* ধ্রুবক readyp = timingKit.createReady(trigKit.vscp())) {
         staticp->addStmtsp(readyp->makeStmt());
-        beforeTrigVisitor(netlistp, senExprBuilder, trigKit);
-    } else {
+        beforeTrigVisitor(netlistp, sen_রাশিমালা_Builder, trigKit);
+    } অন্যথা {
         // beforeTrigVisitor clears Sentree pointers in AstCAwaits (as these sentrees will get
         // deleted later) if there was no need to call it, SenTrees have to be cleaned manually
-        netlistp->foreach([](AstCAwait* const cAwaitp) { cAwaitp->clearSentreep(); });
+        netlistp->foreach([](AstCAwait* ধ্রুবক cAwaitp) { cAwaitp->clearSentreep(); });
     }
-    if (AstVarScope* const trigAccp = trigKit.vscAccp()) {
+    যদি (AstVarScope* ধ্রুবক trigAccp = trigKit.vscAccp()) {
         // Copy trigger vector to accumulator at the end of static initialziation so,
         // triggers fired during initialization persist to the first resume.
-        const AstUnpackArrayDType* const trigAccDTypep
+        ধ্রুবক AstUnpackArrayDType* ধ্রুবক trigAccDTypep
             = VN_AS(trigAccp->dtypep(), UnpackArrayDType);
         UASSERT_OBJ(
-            trigAccDTypep->right() == 0, trigAccp,
+            trigAccDTypep->ডান() == 0, trigAccp,
             "Expected that trigger vector and accumulator start elements enumeration from 0");
-        UASSERT_OBJ(trigAccDTypep->left() >= 0, trigAccp,
+        UASSERT_OBJ(trigAccDTypep->বাম() >= 0, trigAccp,
                     "Expected that trigger vector and accumulator has no negative indexes");
-        FileLine* const flp = trigAccp->fileline();
-        AstVarScope* const vscp = netlistp->topScopep()->createTemp("__Vi", 32);
-        AstLoop* const loopp = new AstLoop{flp};
+        File_সারি* ধ্রুবক flp = trigAccp->fileline();
+        AstVarScope* ধ্রুবক vscp = netlistp->শীর্ষ_Scopep()->create_অস্থায়ী("__Vi", 32);
+        AstLoop* ধ্রুবক loopp = নতুন AstLoop{flp};
         loopp->addStmtsp(
-            new AstAssign{flp,
-                          new AstArraySel{flp, new AstVarRef{flp, trigAccp, VAccess::WRITE},
-                                          new AstVarRef{flp, vscp, VAccess::READ}},
-                          new AstArraySel{flp, new AstVarRef{flp, actKit.m_vscp, VAccess::READ},
-                                          new AstVarRef{flp, vscp, VAccess::READ}}});
+            নতুন AstAssign{flp,
+                          নতুন AstArraySel{flp, নতুন AstVarRef{flp, trigAccp, VAccess::WRITE},
+                                          নতুন AstVarRef{flp, vscp, VAccess::READ}},
+                          নতুন AstArraySel{flp, নতুন AstVarRef{flp, actKit.m_vscp, VAccess::READ},
+                                          নতুন AstVarRef{flp, vscp, VAccess::READ}}});
         loopp->addStmtsp(util::incrementVar(vscp));
-        loopp->addStmtsp(new AstLoopTest{
+        loopp->addStmtsp(নতুন AstLoopTest{
             flp, loopp,
-            new AstLte{flp, new AstVarRef{flp, vscp, VAccess::READ},
-                       new AstConst{flp, AstConst::WidthedValue{}, 32,
-                                    static_cast<uint32_t>(trigAccDTypep->left())}}});
+            নতুন AstLte{flp, নতুন AstVarRef{flp, vscp, VAccess::READ},
+                       নতুন AstConst{flp, AstConst::Widthed_মান{}, 32,
+                                    static_cast<uint32_t>(trigAccDTypep->বাম())}}});
         staticp->addStmtsp(loopp);
     }
 
     // Step 18: Clean up
     netlistp->clearStlFirstIterationp();
 
-    if (v3Global.opt.stats()) {
+    যদি (v3Global.opt.stats()) {
         // A sample() call resolved to the union over its covergroup's constructions reads more
         // than it can, which orders it against more logic than necessary
         V3Stats::addStat("Scheduling, covergroup ref sample calls, per instance",
-                         cgRefBindings.numExactCalls());
+                         cgRefBindings.অঙ্ক_Exact_Calls());
         V3Stats::addStat("Scheduling, covergroup ref sample calls, per type",
-                         cgRefBindings.numUnionCalls());
+                         cgRefBindings.অঙ্ক_Union_Calls());
     }
 
     // Haven't split static initializer yet
@@ -1045,7 +1045,7 @@ void schedule(AstNetlist* netlistp) {
     netlistp->addEvalStats("sched");
 
     // Dump
-    V3Global::dumpCheckGlobalTree("sched", 0, dumpTreeEitherLevel() >= 3);
+    V3Global::dump_Check_Global_বৃক্ষ("sched", 0, dump_বৃক্ষ_Either_Level() >= 3);
 }
 
 }  // namespace V3Sched

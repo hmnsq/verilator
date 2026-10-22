@@ -21,58 +21,58 @@
 #ifndef VERILATOR_V3ORDERCFUNCEMITTER_H_
 #define VERILATOR_V3ORDERCFUNCEMITTER_H_
 
-#include "config_build.h"
-#include "verilatedos.h"
+#অন্তর্ভাব "config_build.h"
+#অন্তর্ভাব "verilatedos.h"
 
-#include "V3Ast.h"
-#include "V3Graph.h"
-#include "V3OrderGraph.h"
-#include "V3Sched.h"
+#অন্তর্ভাব "V3Ast.h"
+#অন্তর্ভাব "V3Graph.h"
+#অন্তর্ভাব "V3OrderGraph.h"
+#অন্তর্ভাব "V3Sched.h"
 
-#include <limits>
-#include <map>
-#include <vector>
+#অন্তর্ভাব <limits>
+#অন্তর্ভাব <map>
+#অন্তর্ভাব <vector>
 
 class V3OrderCFuncEmitter final {
     // The trigger vector the ordered logic is sensitive to
-    AstVarScope* const m_trigVscp;
+    AstVarScope* ধ্রুবক m_trigVscp;
     // Name component to add to function - must be unique
-    const std::string m_tag;
+    ধ্রুবক std::string m_tag;
     // True if creating slow functions
-    const bool m_slow;
+    ধ্রুবক bool m_slow;
     // Whether to split functions
-    const bool m_split = v3Global.opt.outputSplitCFuncs();
+    ধ্রুবক bool m_split = v3Global.opt.outputSplitCFuncs();
     // Size of code emitted so in the current function - for splitting
-    size_t m_size = 0;
+    আকার_t m_আকার = 0;
     // Maximum size of code per function
-    const size_t m_splitSize = []() -> size_t {
+    ধ্রুবক আকার_t m_split_আকার = []() -> আকার_t {
         // Don't want to split with procCFuncs
-        if (v3Global.opt.profCFuncs()) return std::numeric_limits<size_t>::max();
+        যদি (v3Global.opt.profCFuncs()) ফেরত std::numeric_limits<আকার_t>::max();
         // Otherwise split at the specified size (- 1, so we can do >= comparison)
-        if (const size_t limit = v3Global.opt.outputSplitCFuncs()) return limit - 1;
-        return std::numeric_limits<size_t>::max();
+        যদি (ধ্রুবক আকার_t limit = v3Global.opt.outputSplitCFuncs()) ফেরত limit - 1;
+        ফেরত std::numeric_limits<আকার_t>::max();
     }();
     // Current function being populated
     AstCFunc* m_funcp = nullptr;
     // Function ordinals to ensure unique names
-    std::map<std::pair<AstNodeModule*, std::string>, unsigned> m_funcNums;
+    std::map<std::pair<Ast_গ্রন্থি_Module*, std::string>, unsigned> m_funcNums;
     // The resulting ordered CFuncs with the trigger conditions needed to call them
-    std::vector<std::pair<AstCFunc*, const OrderDomain*>> m_result;
+    std::vector<std::pair<AstCFunc*, ধ্রুবক OrderDomain*>> m_ফলাফল;
 
     // Create a unique name for a new function
-    std::string cfuncName(FileLine* flp, AstScope* scopep, AstNodeModule* modp,
-                          const OrderLogicVertex* lVtxp) {
+    std::string cfuncName(File_সারি* flp, AstScope* scopep, Ast_গ্রন্থি_Module* modp,
+                          ধ্রুবক OrderLogicVertex* lVtxp) {
         std::string name = "_" + m_tag;
         name += lVtxp->hybridp() ? "_hybrid" : lVtxp->comb() ? "_comb" : "_sequent";
         name += "__" + scopep->nameDotless();
         name += "__" + std::to_string(m_funcNums[{modp, name}]++);
-        if (v3Global.opt.profCFuncs()) name += "__PROF__" + flp->profileFuncname();
-        return name;
+        যদি (v3Global.opt.profCFuncs()) name += "__PROF__" + flp->profileFuncname();
+        ফেরত name;
     }
 
-public:
+সর্বজনীন:
     // CONSTRUCTOR
-    V3OrderCFuncEmitter(AstVarScope* trigVscp, const std::string& tag, bool slow)
+    V3OrderCFuncEmitter(AstVarScope* trigVscp, ধ্রুবক std::string& tag, bool slow)
         : m_trigVscp{trigVscp}
         , m_tag{tag}
         , m_slow{slow} {}
@@ -80,8 +80,8 @@ public:
     VL_UNMOVABLE(V3OrderCFuncEmitter);
 
     // Force the creation of a new function
-    void forceNewFunction() {
-        m_size = 0;
+    শূন্য forceNewFunction() {
+        m_আকার = 0;
         m_funcp = nullptr;
     }
 
@@ -92,100 +92,100 @@ public:
         // Current AstIf doing the trigger condition check
         AstIf* currp = nullptr;
         // The domain of the previously emitted logic
-        const OrderDomain* prevDomainp = nullptr;
+        ধ্রুবক OrderDomain* পূর্ব_Domainp = nullptr;
         // Call each function under an AstIf that checks for the trigger condition
-        for (const auto& pair : m_result) {
-            AstCFunc* const cfuncp = pair.first;
-            const OrderDomain* const domainp = pair.second;
+        জন্য (ধ্রুবক auto& pair : m_ফলাফল) {
+            AstCFunc* ধ্রুবক cfuncp = pair.first;
+            ধ্রুবক OrderDomain* ধ্রুবক domainp = pair.second;
             // Create a new AstIf if the trigger is different
-            if (domainp != prevDomainp) {
-                prevDomainp = domainp;
-                FileLine* const flp = m_trigVscp->fileline();
-                const std::set<uint32_t>& triggers = domainp->triggers();
-                AstTriggered* const condp
+            যদি (domainp != পূর্ব_Domainp) {
+                পূর্ব_Domainp = domainp;
+                File_সারি* ধ্রুবক flp = m_trigVscp->fileline();
+                ধ্রুবক std::set<uint32_t>& triggers = domainp->triggers();
+                AstTriggered* ধ্রুবক condp
                     = new AstTriggered{flp, m_trigVscp, {triggers.begin(), triggers.end()}};
                 currp = new AstIf{flp, condp};
-                stmtsp = AstNode::addNext(stmtsp, currp);
+                stmtsp = Ast_গ্রন্থি::add_পরবর্তী(stmtsp, currp);
             }
             // Call function when triggered
-            AstCCall* const callp = new AstCCall{cfuncp->fileline(), cfuncp};
+            AstCCall* ধ্রুবক callp = new AstCCall{cfuncp->fileline(), cfuncp};
             callp->dtypeSetVoid();
             currp->addThensp(callp->makeStmt());
         }
         // Result is now spent, reset the emitter state
-        m_result.clear();
+        m_ফলাফল.clear();
         forceNewFunction();
         // Return the list of statements
-        return stmtsp;
+        ফেরত stmtsp;
     }
 
     // Emit one logic vertex
-    void emitLogic(const OrderLogicVertex* lVtxp) {
+    শূন্য emitLogic(ধ্রুবক OrderLogicVertex* lVtxp) {
         // Sensitivity domain of logic we are emitting
-        const OrderDomain* const domainp = lVtxp->domainp();
+        ধ্রুবক OrderDomain* ধ্রুবক domainp = lVtxp->domainp();
         // We are move the logic into a CFunc
-        AstNode* const logicp = lVtxp->nodep();
+        Ast_গ্রন্থি* ধ্রুবক logicp = lVtxp->nodep();
         // If the logic is a procedure, we need to do a few special things
-        AstNodeProcedure* const procp = VN_CAST(logicp, NodeProcedure);
+        Ast_গ্রন্থি_Procedure* ধ্রুবক procp = VN_CAST(logicp, গ্রন্থি_Procedure);
 
         // Some properties to consider
-        const bool suspendable = procp && procp->isSuspendable();
-        const bool needProcess = procp && procp->needProcess();
+        ধ্রুবক bool suspendable = procp && procp->isSuspendable();
+        ধ্রুবক bool needProcess = procp && procp->needProcess();
         // TODO: This is a bit muddy: 'initial forever @(posedge clk) begin ... end' is a fancy
         //       way of saying always @(posedge clk), so it might be quite hot...
         //       Also, if m_funcp is slow, but this one isn't we should force a new function
-        const bool slow = m_slow && !(suspendable && VN_IS(procp, Always));
+        ধ্রুবক bool slow = m_slow && !(suspendable && VN_IS(procp, Always));
 
         // Put suspendable processes into individual functions on their own
-        if (suspendable) forceNewFunction();
+        যদি (suspendable) forceNewFunction();
         // When profCFuncs, create a new function for each logic vertex
-        if (v3Global.opt.profCFuncs()) forceNewFunction();
+        যদি (v3Global.opt.profCFuncs()) forceNewFunction();
         // If the new domain is different, force a new function as it needs to
         // be called under different trigger conditions
-        if (!m_result.empty() && m_result.back().second != domainp) forceNewFunction();
+        যদি (!m_ফলাফল.empty() && m_ফলাফল.back().second != domainp) forceNewFunction();
 
         // Process procedures per statement, so we can split CFuncs within procedures.
         // Everything else is handled as a unit.
-        AstNode* const headp = [&]() -> AstNode* {
-            if (!procp) return logicp->unlinkFrBack();  // Not a procedure, handle as a unit
-            AstNode* const stmtsp = procp->stmtsp();
+        Ast_গ্রন্থি* ধ্রুবক headp = [&]() -> Ast_গ্রন্থি* {
+            যদি (!procp) ফেরত logicp->unlinkFrBack();  // Not a procedure, handle as a unit
+            Ast_গ্রন্থি* ধ্রুবক stmtsp = procp->stmtsp();
             UASSERT_OBJ(stmtsp, procp, "Empty process should have been deleted earlier");
-            stmtsp->unlinkFrBackWithNext();
+            stmtsp->unlink_Fr_Back_With_পরবর্তী();
             // 'procp' is no longer needed but the OrderGraph still references
             // it (for debug dump). It will get deleted when deleting the
             // AstActives in V3Order.
-            return stmtsp;
+            ফেরত stmtsp;
         }();
         // Process each statement in the list starting at headp
-        for (AstNode *currp = headp, *nextp; currp; currp = nextp) {
+        জন্য (Ast_গ্রন্থি *currp = headp, *nextp; currp; currp = nextp) {
             nextp = currp->nextp();
             // Unlink the current statement from the next statement (if any)
-            if (nextp) nextp->unlinkFrBackWithNext();
+            যদি (nextp) nextp->unlink_Fr_Back_With_পরবর্তী();
             // Split the function if too large, but don't split suspendable processes
-            if (!suspendable && m_size >= m_splitSize) forceNewFunction();
+            যদি (!suspendable && m_আকার >= m_split_আকার) forceNewFunction();
             // Create a new function if we don't have a current one
-            if (!m_funcp) {
-                UASSERT_OBJ(!m_size, currp, "Should have used forceNewFunction");
-                FileLine* const flp = currp->fileline();
-                AstScope* const scopep = lVtxp->scopep();
-                AstNodeModule* const modp = scopep->modp();
-                const std::string name = cfuncName(flp, scopep, modp, lVtxp);
+            যদি (!m_funcp) {
+                UASSERT_OBJ(!m_আকার, currp, "Should have used forceNewFunction");
+                File_সারি* ধ্রুবক flp = currp->fileline();
+                AstScope* ধ্রুবক scopep = lVtxp->scopep();
+                Ast_গ্রন্থি_Module* ধ্রুবক modp = scopep->modp();
+                ধ্রুবক std::string name = cfuncName(flp, scopep, modp, lVtxp);
                 m_funcp = new AstCFunc{flp, name, scopep, suspendable ? "VlCoroutine" : ""};
-                if (needProcess) m_funcp->setNeedProcess();
+                যদি (needProcess) m_funcp->setNeedProcess();
                 m_funcp->isStatic(false);
                 m_funcp->isLoose(true);
                 m_funcp->slow(slow);
                 scopep->addBlocksp(m_funcp);
                 // Record function and sensitivity to call it with
-                m_result.emplace_back(m_funcp, domainp);
+                m_ফলাফল.emplace_back(m_funcp, domainp);
             }
             // Add the code to the current function
             m_funcp->addStmtsp(currp);
             // If splitting, add in the size of the code we just added
-            if (m_split) m_size += currp->nodeCount();
+            যদি (m_split) m_আকার += currp->গ্রন্থি_গুনতি();
         }
         // Put suspendable processes into individual functions on their own
-        if (suspendable) forceNewFunction();
+        যদি (suspendable) forceNewFunction();
     }
 };
 

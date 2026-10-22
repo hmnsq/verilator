@@ -17,12 +17,12 @@
 #ifndef VERILATOR_V3OPTION_PARSER_H_
 #define VERILATOR_V3OPTION_PARSER_H_
 
-#include "config_build.h"
-#include "verilatedos.h"
+#অন্তর্ভাব "config_build.h"
+#অন্তর্ভাব "verilatedos.h"
 
-#include <functional>
-#include <memory>
-#include <string>
+#অন্তর্ভাব <functional>
+#অন্তর্ভাব <memory>
+#অন্তর্ভাব <string>
 
 // Not to include V3Option.h here so that VlcMain or other executables can use this file easily.
 #ifndef V3OPTION_PARSER_NO_VOPTION_BOOL
@@ -52,37 +52,37 @@ class VOptionBool;
 // V3 OptionParser
 
 class V3OptionParser final {
-public:
+সর্বজনীন:
     // TYPES
     class ActionIfs;
     // Functor to register options to V3OptionParser
     class AppendHelper;
-    struct Impl;
+    কাঠামো Impl;
 
-private:
+ব্যক্তিগত:
     // MEMBERS
-    const std::unique_ptr<Impl> m_pimpl;  // Implementation class
+    ধ্রুবক std::unique_ptr<Impl> m_pimpl;  // Implementation class
 
     // METHODS
-    ActionIfs* find(const char* optp) VL_MT_DISABLED;
+    ActionIfs* find(ধ্রুবক অক্ষর* optp) VL_MT_DISABLED;
     template <typename T_Act, typename T_Arg>
-    ActionIfs& add(const string& opt, T_Arg arg) VL_MT_DISABLED;
+    ActionIfs& add(ধ্রুবক string& opt, T_Arg arg) VL_MT_DISABLED;
     // Returns true if strp starts with "-fno"
-    static bool hasPrefixFNo(const char* strp) VL_MT_DISABLED;
+    স্থির bool hasPrefixFNo(ধ্রুবক অক্ষর* strp) VL_MT_DISABLED;
     // Returns true if strp starts with "-no"
-    static bool hasPrefixNo(const char* strp) VL_MT_DISABLED;
+    স্থির bool hasPrefixNo(ধ্রুবক অক্ষর* strp) VL_MT_DISABLED;
 
-public:
+সর্বজনীন:
     // METHODS
     // Returns how many args are consumed. 0 means not match.
     // Also bool, true iff option is needed for rerun with --dump-inputs
-    std::pair<int, bool> parse(int idx, int argc, char* argv[]) VL_MT_DISABLED;
+    std::pair<পূর্ণসংখ্যা, bool> parse(পূর্ণসংখ্যা idx, পূর্ণসংখ্যা argc, অক্ষর* argv[]) VL_MT_DISABLED;
     // Find the most similar option
-    string getSuggestion(const char* str) const VL_MT_DISABLED;
-    void addSuggestionCandidate(const string& s) VL_MT_DISABLED;
+    string getSuggestion(ধ্রুবক অক্ষর* str) ধ্রুবক VL_MT_DISABLED;
+    শূন্য addSuggestionCandidate(ধ্রুবক string& s) VL_MT_DISABLED;
     // Call this function after all options are registered.
-    void finalize() VL_MT_DISABLED;
-    void dumpOptions() VL_MT_DISABLED;
+    শূন্য finalize() VL_MT_DISABLED;
+    শূন্য dumpOptions() VL_MT_DISABLED;
 
     // CONSTRUCTORS
     V3OptionParser() VL_MT_DISABLED;
@@ -90,71 +90,71 @@ public:
 };
 
 class V3OptionParser::ActionIfs VL_NOT_FINAL {
-public:
-    virtual ~ActionIfs() = default;
-    virtual bool isValueNeeded() const = 0;  // Need val of "-opt val"
-    virtual bool isFOnOffAllowed() const = 0;  // true if "-fno-opt" is allowed
-    virtual bool isNotForRerun() const = 0;  // Will not be dumped with --dump-inputs
-    virtual bool isOnOffAllowed() const = 0;  // true if "-no-opt" is allowed
-    virtual bool isPartialMatchAllowed() const = 0;  // true if "-Wno-" matches "-Wno-fatal"
-    virtual bool isUndocumented() const = 0;  // Will not be suggested in typo
+সর্বজনীন:
+    আভাসী ~ActionIfs() = পূর্বনির্ধারিত;
+    আভাসী bool is_মান_Needed() ধ্রুবক = 0;  // Need val of "-opt val"
+    আভাসী bool isFOnOffAllowed() ধ্রুবক = 0;  // true if "-fno-opt" is allowed
+    আভাসী bool isNotForRerun() ধ্রুবক = 0;  // Will not be dumped with --dump-inputs
+    আভাসী bool isOnOffAllowed() ধ্রুবক = 0;  // true if "-no-opt" is allowed
+    আভাসী bool isPartialMatchAllowed() ধ্রুবক = 0;  // true if "-Wno-" matches "-Wno-fatal"
+    আভাসী bool isUndocumented() ধ্রুবক = 0;  // Will not be suggested in typo
     // Set a value or run callback
-    virtual void exec(const char* optp, const char* valp) = 0;
+    আভাসী শূন্য exec(ধ্রুবক অক্ষর* optp, ধ্রুবক অক্ষর* valp) = 0;
     // Mark this option undocumented. (Exclude this option from suggestion list).
-    virtual ActionIfs& undocumented() = 0;
+    আভাসী ActionIfs& undocumented() = 0;
     // Mark this as not needed for rerunning with preprocessed sources
-    virtual ActionIfs& notForRerun() = 0;
+    আভাসী ActionIfs& notForRerun() = 0;
 };
 
 // A helper class to register options
 class V3OptionParser::AppendHelper final {
-public:
+সর্বজনীন:
     // TYPES
     // Tag to specify which operator() to call
-    struct FOnOff {};  // For ActionFOnOff
-    struct OnOff {};  // For ActionOnOff
-    struct Set {};  // For ActionSet
+    কাঠামো FOnOff {};  // For ActionFOnOff
+    কাঠামো OnOff {};  // For ActionOnOff
+    কাঠামো Set {};  // For ActionSet
 
-    struct CbCall {};  // For ActionCbCall
-    struct CbFOnOff {};  // For ActionCbFOnOff
-    struct CbOnOff {};  // For ActionCbOnOff
-    struct CbPartialMatch {};  // For ActionCbPartialMatch
-    struct CbPartialMatchVal {};  // For ActionCbPartialMatchVal
-    struct CbVal {};  // For ActionCbVal
+    কাঠামো CbCall {};  // For ActionCbCall
+    কাঠামো CbFOnOff {};  // For ActionCbFOnOff
+    কাঠামো CbOnOff {};  // For ActionCbOnOff
+    কাঠামো CbPartialMatch {};  // For ActionCbPartialMatch
+    কাঠামো CbPartialMatchVal {};  // For ActionCbPartialMatchVal
+    কাঠামো CbVal {};  // For ActionCbVal
 
-private:
+ব্যক্তিগত:
     // MEMBERS
     V3OptionParser& m_parser;  // The actual option registry
 
-public:
+সর্বজনীন:
     // METHODS
-    ActionIfs& operator()(const char* optp, Set, bool*) const VL_MT_DISABLED;
+    ActionIfs& operator()(ধ্রুবক অক্ষর* optp, Set, bool*) ধ্রুবক VL_MT_DISABLED;
 #ifndef V3OPTION_PARSER_NO_VOPTION_BOOL
-    ActionIfs& operator()(const char* optp, Set, VOptionBool*) const VL_MT_DISABLED;
+    ActionIfs& operator()(ধ্রুবক অক্ষর* optp, Set, VOptionBool*) ধ্রুবক VL_MT_DISABLED;
 #endif
-    ActionIfs& operator()(const char* optp, Set, int*) const VL_MT_DISABLED;
-    ActionIfs& operator()(const char* optp, Set, string*) const VL_MT_DISABLED;
+    ActionIfs& operator()(ধ্রুবক অক্ষর* optp, Set, পূর্ণসংখ্যা*) ধ্রুবক VL_MT_DISABLED;
+    ActionIfs& operator()(ধ্রুবক অক্ষর* optp, Set, string*) ধ্রুবক VL_MT_DISABLED;
 
-    ActionIfs& operator()(const char* optp, FOnOff, bool*) const VL_MT_DISABLED;
-    ActionIfs& operator()(const char* optp, OnOff, bool*) const VL_MT_DISABLED;
+    ActionIfs& operator()(ধ্রুবক অক্ষর* optp, FOnOff, bool*) ধ্রুবক VL_MT_DISABLED;
+    ActionIfs& operator()(ধ্রুবক অক্ষর* optp, OnOff, bool*) ধ্রুবক VL_MT_DISABLED;
 #ifndef V3OPTION_PARSER_NO_VOPTION_BOOL
-    ActionIfs& operator()(const char* optp, OnOff, VOptionBool*) const VL_MT_DISABLED;
+    ActionIfs& operator()(ধ্রুবক অক্ষর* optp, OnOff, VOptionBool*) ধ্রুবক VL_MT_DISABLED;
 #endif
 
-    ActionIfs& operator()(const char* optp, CbCall,
-                          std::function<void(void)>) const VL_MT_DISABLED;
-    ActionIfs& operator()(const char* optp, CbFOnOff,
-                          std::function<void(bool)>) const VL_MT_DISABLED;
-    ActionIfs& operator()(const char* optp, CbOnOff,
-                          std::function<void(bool)>) const VL_MT_DISABLED;
-    ActionIfs& operator()(const char* optp, CbVal, std::function<void(int)>) const VL_MT_DISABLED;
-    ActionIfs& operator()(const char* optp, CbVal,
-                          std::function<void(const char*)>) const VL_MT_DISABLED;
+    ActionIfs& operator()(ধ্রুবক অক্ষর* optp, CbCall,
+                          std::function<শূন্য(শূন্য)>) ধ্রুবক VL_MT_DISABLED;
+    ActionIfs& operator()(ধ্রুবক অক্ষর* optp, CbFOnOff,
+                          std::function<শূন্য(bool)>) ধ্রুবক VL_MT_DISABLED;
+    ActionIfs& operator()(ধ্রুবক অক্ষর* optp, CbOnOff,
+                          std::function<শূন্য(bool)>) ধ্রুবক VL_MT_DISABLED;
+    ActionIfs& operator()(ধ্রুবক অক্ষর* optp, CbVal, std::function<শূন্য(পূর্ণসংখ্যা)>) ধ্রুবক VL_MT_DISABLED;
+    ActionIfs& operator()(ধ্রুবক অক্ষর* optp, CbVal,
+                          std::function<শূন্য(ধ্রুবক অক্ষর*)>) ধ্রুবক VL_MT_DISABLED;
 
-    ActionIfs& operator()(const char* optp, CbPartialMatch,
-                          std::function<void(const char*)>) const VL_MT_DISABLED;
-    ActionIfs& operator()(const char* optp, CbPartialMatchVal,
-                          std::function<void(const char*, const char*)>) const VL_MT_DISABLED;
+    ActionIfs& operator()(ধ্রুবক অক্ষর* optp, CbPartialMatch,
+                          std::function<শূন্য(ধ্রুবক অক্ষর*)>) ধ্রুবক VL_MT_DISABLED;
+    ActionIfs& operator()(ধ্রুবক অক্ষর* optp, CbPartialMatchVal,
+                          std::function<শূন্য(ধ্রুবক অক্ষর*, ধ্রুবক অক্ষর*)>) ধ্রুবক VL_MT_DISABLED;
 
     // CONSTRUCTORS
     explicit AppendHelper(V3OptionParser& parser)
@@ -162,16 +162,16 @@ public:
 };
 
 #define V3OPTION_PARSER_DECL_TAGS \
-    const auto Set VL_ATTR_UNUSED = V3OptionParser::AppendHelper::Set{}; \
-    const auto FOnOff VL_ATTR_UNUSED = V3OptionParser::AppendHelper::FOnOff{}; \
-    const auto OnOff VL_ATTR_UNUSED = V3OptionParser::AppendHelper::OnOff{}; \
-    const auto CbCall VL_ATTR_UNUSED = V3OptionParser::AppendHelper::CbCall{}; \
-    const auto CbFOnOff VL_ATTR_UNUSED = V3OptionParser::AppendHelper::CbFOnOff{}; \
-    const auto CbOnOff VL_ATTR_UNUSED = V3OptionParser::AppendHelper::CbOnOff{}; \
-    const auto CbPartialMatch VL_ATTR_UNUSED = V3OptionParser::AppendHelper::CbPartialMatch{}; \
-    const auto CbPartialMatchVal VL_ATTR_UNUSED \
+    ধ্রুবক auto Set VL_ATTR_UNUSED = V3OptionParser::AppendHelper::Set{}; \
+    ধ্রুবক auto FOnOff VL_ATTR_UNUSED = V3OptionParser::AppendHelper::FOnOff{}; \
+    ধ্রুবক auto OnOff VL_ATTR_UNUSED = V3OptionParser::AppendHelper::OnOff{}; \
+    ধ্রুবক auto CbCall VL_ATTR_UNUSED = V3OptionParser::AppendHelper::CbCall{}; \
+    ধ্রুবক auto CbFOnOff VL_ATTR_UNUSED = V3OptionParser::AppendHelper::CbFOnOff{}; \
+    ধ্রুবক auto CbOnOff VL_ATTR_UNUSED = V3OptionParser::AppendHelper::CbOnOff{}; \
+    ধ্রুবক auto CbPartialMatch VL_ATTR_UNUSED = V3OptionParser::AppendHelper::CbPartialMatch{}; \
+    ধ্রুবক auto CbPartialMatchVal VL_ATTR_UNUSED \
         = V3OptionParser::AppendHelper::CbPartialMatchVal{}; \
-    const auto CbVal VL_ATTR_UNUSED = V3OptionParser::AppendHelper::CbVal{};
+    ধ্রুবক auto CbVal VL_ATTR_UNUSED = V3OptionParser::AppendHelper::CbVal{};
 
 //######################################################################
 

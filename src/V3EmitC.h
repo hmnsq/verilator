@@ -17,22 +17,22 @@
 #ifndef VERILATOR_V3EMITC_H_
 #define VERILATOR_V3EMITC_H_
 
-#include "config_build.h"
-#include "verilatedos.h"
+#অন্তর্ভাব "config_build.h"
+#অন্তর্ভাব "verilatedos.h"
 
 //============================================================================
 
 class V3EmitC final {
-public:
-    static void emitcConstPool() VL_MT_DISABLED;
-    static void emitcExecGraph() VL_MT_DISABLED;
-    static void emitcFiles() VL_MT_DISABLED;
-    static void emitcHeaders() VL_MT_DISABLED;
-    static void emitcImp();
-    static void emitcInlines() VL_MT_DISABLED;
-    static void emitcModel() VL_MT_DISABLED;
-    static void emitcPch() VL_MT_DISABLED;
-    static void emitcSyms(bool dpiHdrOnly = false) VL_MT_DISABLED;
+সর্বজনীন:
+    স্থির শূন্য emitcConstPool() VL_MT_DISABLED;
+    স্থির শূন্য emitcExecGraph() VL_MT_DISABLED;
+    স্থির শূন্য emitcFiles() VL_MT_DISABLED;
+    স্থির শূন্য emitcHeaders() VL_MT_DISABLED;
+    স্থির শূন্য emitcImp();
+    স্থির শূন্য emitcInlines() VL_MT_DISABLED;
+    স্থির শূন্য emitcModel() VL_MT_DISABLED;
+    স্থির শূন্য emitcPch() VL_MT_DISABLED;
+    স্থির শূন্য emitcSyms(bool dpiHdrOnly = false) VL_MT_DISABLED;
 };
 
 #endif  // Guard

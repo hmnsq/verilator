@@ -16,25 +16,25 @@
 
 #define VL_MT_DISABLED_CODE_UNIT 1
 
-#include "VlcTop.h"
+#অন্তর্ভাব "VlcTop.h"
 
-#include "V3Error.h"
-#include "V3Os.h"
+#অন্তর্ভাব "V3Error.h"
+#অন্তর্ভাব "V3Os.h"
 
-#include "VlcOptions.h"
+#অন্তর্ভাব "VlcOptions.h"
 
-#include <algorithm>
-#include <fstream>
-#include <iomanip>
-#include <map>
-#include <set>
-#include <sstream>
-#include <string>
-#include <vector>
+#অন্তর্ভাব <algorithm>
+#অন্তর্ভাব <fstream>
+#অন্তর্ভাব <iomanip>
+#অন্তর্ভাব <map>
+#অন্তর্ভাব <set>
+#অন্তর্ভাব <sstream>
+#অন্তর্ভাব <string>
+#অন্তর্ভাব <vector>
 
 //######################################################################
 
-namespace {
+নামাকাশ {
 
 // Report helpers only.  They keep the flat summary and hierarchy report using
 // the same hit/total accounting and output formatting.  These helpers read the
@@ -43,66 +43,66 @@ namespace {
 
 // Coverage of a report row: its covered and total points, and for covergroups, their
 // coverage, which weights coverpoints and crosses rather than counting bins
-class Tally final {
+শ্রেণী Tally final {
     // MEMBERS
     uint64_t m_hit = 0;  // Covered points
-    uint64_t m_total = 0;  // Points
-    bool m_scored = false;  // Coverage is m_score, not the ratio of the points
-    double m_score = 0.0;  // Percent coverage, if m_scored
+    uint64_t m_যোগ = 0;  // Points
+    যৌক্তিক m_scored = মিথ্যা;  // Coverage is m_score, not the ratio of the points
+    দ্বিগুণ m_score = 0.0;  // Percent coverage, if m_scored
 
-public:
+সর্বজনীন:
     // ACCESSORS
-    uint64_t hit() const { return m_hit; }
-    uint64_t total() const { return m_total; }
-    bool scored() const { return m_scored; }
-    double score() const { return m_score; }
-    void score(double value) {
-        m_scored = true;
-        m_score = value;
+    uint64_t hit() ধ্রুবক { ফেরত m_hit; }
+    uint64_t যোগ() ধ্রুবক { ফেরত m_যোগ; }
+    যৌক্তিক scored() ধ্রুবক { ফেরত m_scored; }
+    দ্বিগুণ score() ধ্রুবক { ফেরত m_score; }
+    শূন্য score(দ্বিগুণ মান) {
+        m_scored = সত্য;
+        m_score = মান;
     }
     // METHODS
-    void addPoint(bool covered) {
-        if (covered) ++m_hit;
-        ++m_total;
+    শূন্য addPoint(যৌক্তিক covered) {
+        যদি (covered) ++m_hit;
+        ++m_যোগ;
     }
-    void addPoints(const Tally& other) {
+    শূন্য addPoints(ধ্রুবক Tally& other) {
         m_hit += other.m_hit;
-        m_total += other.m_total;
+        m_যোগ += other.m_যোগ;
     }
 };
 
 // Map coverage type to its tally.
 using TypeTally = std::map<std::string, Tally>;
 
-static constexpr const char* const s_orderedTypes[]
+স্থির constexpr ধ্রুবক অক্ষর* ধ্রুবক s_orderedTypes[]
     = {"line", "toggle", "branch", "expr", "fsm_state", "fsm_arc"};
-static constexpr const char* const s_covergroupType = "covergroup";
-static constexpr size_t s_summaryIndent = 2;
-static constexpr size_t s_reportRowIndent = 4;
+স্থির constexpr ধ্রুবক অক্ষর* ধ্রুবক s_covergroupType = "covergroup";
+স্থির constexpr আকার_t s_summaryIndent = 2;
+স্থির constexpr আকার_t s_reportRowIndent = 4;
 
-string displayType(const VlcPoint& point) {
-    const string type = point.type();
-    return type.empty() ? "point" : type;
+string displayType(ধ্রুবক VlcPoint& point) {
+    ধ্রুবক string type = point.type();
+    ফেরত type.empty() ? "point" : type;
 }
 
-bool isCollapsedHier(const string& hier) {
-    return hier.find('*') != string::npos || hier.find('?') != string::npos;
+যৌক্তিক isCollapsedHier(ধ্রুবক string& hier) {
+    ফেরত hier.find('*') != string::npos || hier.find('?') != string::npos;
 }
 
-bool isOrderedType(const string& type) {
-    for (const char* const typep : s_orderedTypes) {
-        if (type == typep) return true;
+যৌক্তিক isOrderedType(ধ্রুবক string& type) {
+    জন্য (ধ্রুবক অক্ষর* ধ্রুবক typep : s_orderedTypes) {
+        যদি (type == typep) ফেরত সত্য;
     }
-    return false;
+    ফেরত মিথ্যা;
 }
 
-string reportHier(const VlcPoint& point) {
+string reportHier(ধ্রুবক VlcPoint& point) {
     // FSM records currently have useful instance scope in Fv.
-    if (point.isFsmState() || point.isFsmArc()) {
-        const string fsmVar = point.fsmVarName();
-        return fsmVar.substr(0, fsmVar.rfind('.'));
+    যদি (point.isFsmState() || point.isFsmArc()) {
+        ধ্রুবক string fsmVar = point.fsmVarName();
+        ফেরত fsmVar.substr(0, fsmVar.rfind('.'));
     }
-    return point.hier();
+    ফেরত point.hier();
 }
 
 // The components of a hierarchy, split at its dots.  A covergroup's is the name of its type, as
@@ -112,73 +112,73 @@ string reportHier(const VlcPoint& point) {
 // within, which V3OutFormatter::quoteNameControls() escapes, as VString::quotedEnd() finds the
 // end of.  A name whose identifiers, parentheses, or quotes do not end is not as $typename writes
 // a type, so splits at each dot.
-std::vector<string> splitHier(const string& hier) {
+std::vector<string> splitHier(ধ্রুবক string& hier) {
     std::vector<string> parts;
-    string::size_type start = 0;
-    int depth = 0;  // Of the parentheses of the values of parameters
-    string::size_type pos = 0;
-    while (pos < hier.size()) {
-        const char c = hier[pos];
-        if (c == '\\') {
+    string::আকার_type start = 0;
+    পূর্ণসংখ্যা depth = 0;  // Of the parentheses of the values of parameters
+    string::আকার_type pos = 0;
+    যখন (pos < hier.আকার_2()) {
+        ধ্রুবক অক্ষর c = hier[pos];
+        যদি (c == '\\') {
             pos = hier.find(' ', pos);  // npos if not ended
-            continue;
-        } else if (!depth && hier.compare(pos, 2, "#(") == 0) {
+            চালু;
+        } অন্যথা যদি (!depth && hier.compare(pos, 2, "#(") == 0) {
             depth = 1;
             ++pos;
-        } else if (!depth && c == '.') {
-            parts.push_back(hier.substr(start, pos - start));
+        } অন্যথা যদি (!depth && c == '.') {
+            parts.ঠেলো_back(hier.substr(start, pos - start));
             start = pos + 1;
-        } else if (depth && c == '"') {
+        } অন্যথা যদি (depth && c == '"') {
             pos = VString::quotedEnd(hier, pos);  // npos if not terminated
-            continue;
-        } else if (depth && c == '(') {
+            চালু;
+        } অন্যথা যদি (depth && c == '(') {
             ++depth;
-        } else if (depth && c == ')') {
+        } অন্যথা যদি (depth && c == ')') {
             --depth;
         }
         ++pos;
     }
-    if (depth || pos != hier.size()) {  // Unbalanced
+    যদি (depth || pos != hier.আকার_2()) {  // Unbalanced
         parts.clear();
         start = 0;
-        for (string::size_type dot; (dot = hier.find('.', start)) != string::npos;
+        জন্য (string::আকার_type dot; (dot = hier.find('.', start)) != string::npos;
              start = dot + 1) {
-            parts.push_back(hier.substr(start, dot - start));
+            parts.ঠেলো_back(hier.substr(start, dot - start));
         }
     }
-    parts.push_back(hier.substr(start));
-    return parts;
+    parts.ঠেলো_back(hier.substr(start));
+    ফেরত parts;
 }
 
-string duName(const VlcPoint& point) {
+string duName(ধ্রুবক VlcPoint& point) {
     // Pages are emitted as v_<type>/<design-unit> for RTL coverage.  Use the
     // suffix as the design-unit summary key.
-    const string page = point.page();
-    return page.substr(page.find('/') + 1);
+    ধ্রুবক string page = point.page();
+    ফেরত page.substr(page.find('/') + 1);
 }
 
-void tallyPoint(TypeTally& tally, const string& type, uint64_t count) {
-    tally[type].addPoint(count > 0);
+শূন্য tallyPoint(TypeTally& tally, ধ্রুবক string& type, uint64_t গুনতি) {
+    tally[type].addPoint(গুনতি > 0);
 }
 
 // Keep the percentage calculation in one place so flat summaries and hierarchy
 // reports cannot drift in zero-total handling.
-double pct(uint64_t hit, uint64_t total) {
-    return total ? (100.0 * static_cast<double>(hit) / static_cast<double>(total)) : 0.0;
+দ্বিগুণ pct(uint64_t hit, uint64_t যোগ) {
+    ফেরত যোগ ? (100.0 * static_cast<দ্বিগুণ>(hit) / static_cast<দ্বিগুণ>(যোগ)) : 0.0;
 }
 
 // Return a percentage as a string, handling 100%: coverage not complete shows below it.
-string pctValueString(double value, bool complete) {
-    if (!complete && value > 99.9) value = 99.9;  // Presumes precision 1
+string pct_মান_String(দ্বিগুণ মান, যৌক্তিক complete) {
+    যদি (!complete && মান > 99.9) মান = 99.9;  // Presumes precision 1
     std::stringstream os;
     os << std::fixed << std::setprecision(1)  // 1 matters, see above
-       << value << "%";
-    return os.str();
+       << মান << "%";
+    ফেরত os.str();
 }
 
 // Return percentage as a string, handling 100%, and protecting from div zero.
-string pctString(uint64_t hit, uint64_t total) {
-    return pctValueString(pct(hit, total), hit >= total);
+string pctString(uint64_t hit, uint64_t যোগ) {
+    ফেরত pct_মান_String(pct(hit, যোগ), hit >= যোগ);
 }
 
 // Covergroup coverage (IEEE 1800-2023 19.11).  An item, a coverpoint or cross, covers the
@@ -190,244 +190,244 @@ string pctString(uint64_t hit, uint64_t total) {
 // for a single instance.
 
 // A coverable bin of a coverpoint or cross, of all its records
-class CgBin final {
+শ্রেণী CgBin final {
     // MEMBERS
     string m_name;  // Name of the bin
-    uint64_t m_count = 0;  // Hits, of all the records
+    uint64_t m_গুনতি = 0;  // Hits, of all the records
     uint64_t m_atLeast = 0;  // option.at_least, the largest of the records
 
-public:
+সর্বজনীন:
     // ACCESSORS
-    const string& name() const { return m_name; }
-    bool covered() const { return m_count >= m_atLeast; }
+    ধ্রুবক string& name() ধ্রুবক { ফেরত m_name; }
+    যৌক্তিক covered() ধ্রুবক { ফেরত m_গুনতি >= m_atLeast; }
     // METHODS
-    void addRecord(const string& name, uint64_t count, uint64_t atLeast) {
+    শূন্য addRecord(ধ্রুবক string& name, uint64_t গুনতি, uint64_t atLeast) {
         m_name = name;
-        m_count += count;
+        m_গুনতি += গুনতি;
         m_atLeast = std::max(m_atLeast, atLeast);
     }
 };
 
 // A coverpoint or cross
-class CgItem final {
+শ্রেণী CgItem final {
     // MEMBERS
     uint64_t m_weight = 0;  // The weight of the records, the largest
     std::map<string, CgBin> m_bins;  // Coverable bins, by binIdentity()
 
-public:
+সর্বজনীন:
     // ACCESSORS
-    uint64_t weight() const { return m_weight; }
-    const std::map<string, CgBin>& bins() const { return m_bins; }
+    uint64_t weight() ধ্রুবক { ফেরত m_weight; }
+    ধ্রুবক std::map<string, CgBin>& bins() ধ্রুবক { ফেরত m_bins; }
     // METHODS
-    void addRecord(uint64_t weight) { m_weight = std::max(m_weight, weight); }
-    CgBin& findNewBin(const string& identity) { return m_bins[identity]; }
+    শূন্য addRecord(uint64_t weight) { m_weight = std::max(m_weight, weight); }
+    CgBin& findNewBin(ধ্রুবক string& identity) { ফেরত m_bins[identity]; }
 };
 
 // A covergroup
-class CgGroup final {
+শ্রেণী CgGroup final {
     // MEMBERS
     string m_hier;  // Hierarchy above the items
     uint64_t m_weight = 0;  // type_option.weight, the largest of the records
-    std::map<string, CgItem> m_items;  // By hierarchy
+    std::map<string, CgItem> m_বস্তুসমূহ;  // By hierarchy
 
-public:
+সর্বজনীন:
     // ACCESSORS
-    const string& hier() const { return m_hier; }
-    uint64_t weight() const { return m_weight; }
-    const std::map<string, CgItem>& items() const { return m_items; }
+    ধ্রুবক string& hier() ধ্রুবক { ফেরত m_hier; }
+    uint64_t weight() ধ্রুবক { ফেরত m_weight; }
+    ধ্রুবক std::map<string, CgItem>& বস্তুসমূহ() ধ্রুবক { ফেরত m_বস্তুসমূহ; }
     // METHODS
-    void addRecord(const string& hier, uint64_t weight) {
+    শূন্য addRecord(ধ্রুবক string& hier, uint64_t weight) {
         m_hier = hier;
         m_weight = std::max(m_weight, weight);
     }
-    CgItem& findNewItem(const string& hier) { return m_items[hier]; }
+    CgItem& findNewItem(ধ্রুবক string& hier) { ফেরত m_বস্তুসমূহ[hier]; }
 };
 using CgGroups = std::map<string, CgGroup>;  // By page
 
 // A number of a record, or 1 if the record leaves it out
-uint64_t keyNumber(const string& value) {
-    return value.empty() ? 1 : std::strtoull(value.c_str(), nullptr, 10);
+uint64_t চাবি_সংখ্যা(ধ্রুবক string& মান) {
+    ফেরত মান.empty() ? 1 : std::strtoull(মান.c_str(), nullptr, 10);
 }
 
 // If a field of a record's name, '\001<key>\002<value>', has a key of the coverage computation
-bool isScoreField(const string& field) {
-    for (const char* const keyp : {VL_CIK_THRESH, VL_CIK_WEIGHT, VL_CIK_GROUP_WEIGHT}) {
-        const string prefix = string{"\001"} + keyp + "\002";
-        if (field.compare(0, prefix.size(), prefix) == 0) return true;
+যৌক্তিক isScoreField(ধ্রুবক string& field) {
+    জন্য (ধ্রুবক অক্ষর* ধ্রুবক keyp : {VL_CIK_THRESH, VL_CIK_WEIGHT, VL_CIK_GROUP_WEIGHT}) {
+        ধ্রুবক string prefix = string{"\001"} + keyp + "\002";
+        যদি (field.compare(0, prefix.আকার_2(), prefix) == 0) ফেরত সত্য;
     }
-    return false;
+    ফেরত মিথ্যা;
 }
 
 // The name of a bin's record without the keys of the coverage computation, which the records of
 // a bin may differ in, so identifying the bin.  Its name does not: covergroups of distinct scopes
 // may share a name.
-string binIdentity(const string& recordName) {
+string binIdentity(ধ্রুবক string& recordName) {
     string identity;
-    string::size_type start = 0;
-    while (start < recordName.size()) {
-        string::size_type end = recordName.find('\001', start + 1);
-        if (end == string::npos) end = recordName.size();
-        const string field = recordName.substr(start, end - start);
-        if (!isScoreField(field)) identity += field;
+    string::আকার_type start = 0;
+    যখন (start < recordName.আকার_2()) {
+        string::আকার_type end = recordName.find('\001', start + 1);
+        যদি (end == string::npos) end = recordName.আকার_2();
+        ধ্রুবক string field = recordName.substr(start, end - start);
+        যদি (!isScoreField(field)) identity += field;
         start = end;
     }
-    return identity;
+    ফেরত identity;
 }
 
-bool isCovergroup(const VlcPoint& point) { return point.type() == s_covergroupType; }
+যৌক্তিক isCovergroup(ধ্রুবক VlcPoint& point) { ফেরত point.type() == s_covergroupType; }
 
 CgGroups covergroups(VlcPoints& points) {
     CgGroups groups;
-    for (const VlcPoints::ByName::value_type& i : points) {
-        const VlcPoint& pt = points.pointNumber(i.second);
-        if (!isCovergroup(pt)) continue;
+    জন্য (ধ্রুবক VlcPoints::ByName::মান_type& i : points) {
+        ধ্রুবক VlcPoint& pt = points.point_সংখ্যা(i.second);
+        যদি (!isCovergroup(pt)) চালু;
         // Named '<covergroup>.<item>.<bin>', where only the bin, of its own key, may have dots
-        const string hier = pt.hier();
+        ধ্রুবক string hier = pt.hier();
         string bin = pt.bin();
-        if (bin.empty() || bin.size() >= hier.size()) bin = hier.substr(hier.rfind('.') + 1);
-        const string itemHier
-            = hier.substr(0, hier.size() - std::min(hier.size(), bin.size() + 1));
+        যদি (bin.empty() || bin.আকার_2() >= hier.আকার_2()) bin = hier.substr(hier.rfind('.') + 1);
+        ধ্রুবক string itemHier
+            = hier.substr(0, hier.আকার_2() - std::min(hier.আকার_2(), bin.আকার_2() + 1));
         CgGroup& group = groups[pt.page()];
-        group.addRecord(itemHier.substr(0, itemHier.rfind('.')), keyNumber(pt.groupWeight()));
+        group.addRecord(itemHier.substr(0, itemHier.rfind('.')), চাবি_সংখ্যা(pt.groupWeight()));
         CgItem& item = group.findNewItem(itemHier);
-        item.addRecord(keyNumber(pt.weight()));
-        if (!pt.binType().empty()) continue;  // Not coverable
-        item.findNewBin(binIdentity(pt.name())).addRecord(bin, pt.count(), keyNumber(pt.thresh()));
+        item.addRecord(চাবি_সংখ্যা(pt.weight()));
+        যদি (!pt.binType().empty()) চালু;  // Not coverable
+        item.findNewBin(binIdentity(pt.name())).addRecord(bin, pt.গুনতি(), চাবি_সংখ্যা(pt.thresh()));
     }
-    return groups;
+    ফেরত groups;
 }
 
-Tally itemTally(const CgItem& item) {
+Tally itemTally(ধ্রুবক CgItem& item) {
     Tally tally;
-    for (const std::pair<const string, CgBin>& bin : item.bins()) {
+    জন্য (ধ্রুবক std::pair<ধ্রুবক string, CgBin>& bin : item.bins()) {
         tally.addPoint(bin.second.covered());
     }
     // Without bins, 0.0, or 100.0 if of zero weight (IEEE 1800-2023 19.11.1)
-    tally.score(tally.total() ? pct(tally.hit(), tally.total()) : item.weight() ? 0.0 : 100.0);
-    return tally;
+    tally.score(tally.যোগ() ? pct(tally.hit(), tally.যোগ()) : item.weight() ? 0.0 : 100.0);
+    ফেরত tally;
 }
 
 // The tally of a covergroup; contributesp, if its items have weight and bins, so that it counts
 // in the coverage of covergroups together
-Tally groupTally(const CgGroup& group, bool* contributesp = nullptr) {
+Tally groupTally(ধ্রুবক CgGroup& group, যৌক্তিক* contributesp = nullptr) {
     Tally tally;
-    double weighted = 0.0;
-    double weights = 0.0;
-    for (const std::pair<const string, CgItem>& it : group.items()) {
-        const Tally item = itemTally(it.second);
+    দ্বিগুণ weighted = 0.0;
+    দ্বিগুণ weights = 0.0;
+    জন্য (ধ্রুবক std::pair<ধ্রুবক string, CgItem>& it : group.বস্তুসমূহ()) {
+        ধ্রুবক Tally item = itemTally(it.second);
         tally.addPoints(item);
-        if (!item.total()) continue;  // Excluded from both sums
-        weighted += static_cast<double>(it.second.weight()) * item.score();
-        weights += static_cast<double>(it.second.weight());
+        যদি (!item.যোগ()) চালু;  // Excluded from both sums
+        weighted += static_cast<দ্বিগুণ>(it.second.weight()) * item.score();
+        weights += static_cast<দ্বিগুণ>(it.second.weight());
     }
-    if (contributesp) *contributesp = weights != 0.0;
+    যদি (contributesp) *contributesp = weights != 0.0;
     // Without items of weight and bins, 0.0, or 100.0 if of zero weight
     tally.score(weights != 0.0 ? weighted / weights : group.weight() ? 0.0 : 100.0);
-    return tally;
+    ফেরত tally;
 }
 
-Tally groupsTally(const std::vector<const CgGroup*>& groups) {
+Tally groupsTally(ধ্রুবক std::vector<ধ্রুবক CgGroup*>& groups) {
     Tally tally;
-    double weighted = 0.0;
-    double weights = 0.0;
-    bool anyWeight = false;
-    for (const CgGroup* const groupp : groups) {
-        bool contributes = false;
-        const Tally group = groupTally(*groupp, &contributes);
+    দ্বিগুণ weighted = 0.0;
+    দ্বিগুণ weights = 0.0;
+    যৌক্তিক anyWeight = মিথ্যা;
+    জন্য (ধ্রুবক CgGroup* ধ্রুবক groupp : groups) {
+        যৌক্তিক contributes = মিথ্যা;
+        ধ্রুবক Tally group = groupTally(*groupp, &contributes);
         tally.addPoints(group);
-        if (groupp->weight()) anyWeight = true;
-        if (!contributes) continue;
-        weighted += static_cast<double>(groupp->weight()) * group.score();
-        weights += static_cast<double>(groupp->weight());
+        যদি (groupp->weight()) anyWeight = সত্য;
+        যদি (!contributes) চালু;
+        weighted += static_cast<দ্বিগুণ>(groupp->weight()) * group.score();
+        weights += static_cast<দ্বিগুণ>(groupp->weight());
     }
     // Without covergroups of weight that contribute, 0.0, or 100.0 if all have zero weight
     tally.score(weights != 0.0 ? weighted / weights : anyWeight ? 0.0 : 100.0);
-    return tally;
+    ফেরত tally;
 }
 
 // The tallies of covergroups, of their coverpoints and crosses, and of the coverable bins of
 // those, by name; a covergroup of a dotted name also tallies in each node of its name
-std::map<string, Tally> covergroupTallies(const CgGroups& groups) {
+std::map<string, Tally> covergroupTallies(ধ্রুবক CgGroups& groups) {
     std::map<string, Tally> tallies;
-    std::map<string, std::vector<const CgGroup*>> nodeGroups;
-    for (const CgGroups::value_type& it : groups) {
-        const CgGroup& group = it.second;
+    std::map<string, std::vector<ধ্রুবক CgGroup*>> গ্রন্থি_Groups;
+    জন্য (ধ্রুবক CgGroups::মান_type& it : groups) {
+        ধ্রুবক CgGroup& group = it.second;
         string path;
-        for (const string& part : splitHier(group.hier())) {
+        জন্য (ধ্রুবক string& part : splitHier(group.hier())) {
             path = path.empty() ? part : path + "." + part;
-            nodeGroups[path].push_back(&group);
+            গ্রন্থি_Groups[path].ঠেলো_back(&group);
         }
-        for (const std::pair<const string, CgItem>& item : group.items()) {
+        জন্য (ধ্রুবক std::pair<ধ্রুবক string, CgItem>& item : group.বস্তুসমূহ()) {
             tallies[item.first] = itemTally(item.second);
-            for (const std::pair<const string, CgBin>& bin : item.second.bins()) {
+            জন্য (ধ্রুবক std::pair<ধ্রুবক string, CgBin>& bin : item.second.bins()) {
                 // Of the bins of the name
                 tallies[item.first + "." + bin.second.name()].addPoint(bin.second.covered());
             }
         }
     }
-    for (const std::pair<const string, std::vector<const CgGroup*>>& it : nodeGroups) {
+    জন্য (ধ্রুবক std::pair<ধ্রুবক string, std::vector<ধ্রুবক CgGroup*>>& it : গ্রন্থি_Groups) {
         tallies[it.first]
-            = it.second.size() == 1 ? groupTally(*it.second.front()) : groupsTally(it.second);
+            = it.second.আকার_2() == 1 ? groupTally(*it.second.front()) : groupsTally(it.second);
     }
-    return tallies;
+    ফেরত tallies;
 }
 
 // Shared row formatter.  The callers choose which rows to print; this only keeps
 // the text layout identical between the flat and hierarchy reports.
-void printIndent(size_t indent) {
-    for (size_t i = 0; i < indent; ++i) std::cout << ' ';
+শূন্য printIndent(আকার_t indent) {
+    জন্য (আকার_t i = 0; i < indent; ++i) std::cout << ' ';
 }
 
-void printTallyRow(const string& type, const Tally& tally, size_t indent, size_t typeWidth,
-                   size_t countWidth) {
+শূন্য printTallyRow(ধ্রুবক string& type, ধ্রুবক Tally& tally, আকার_t indent, আকার_t typeWidth,
+                   আকার_t গুনতি_Width) {
     printIndent(indent);
     // A score is complete at 100%, which it may reach with bins of no weight uncovered
-    const string percent = tally.scored() ? pctValueString(tally.score(), tally.score() >= 100.0)
-                                          : pctString(tally.hit(), tally.total());
+    ধ্রুবক string percent = tally.scored() ? pct_মান_String(tally.score(), tally.score() >= 100.0)
+                                          : pctString(tally.hit(), tally.যোগ());
     // Right-align percentages to the width of "100.0%", so that rows line up
-    std::cout << std::left << std::setw(typeWidth) << type << " : " << std::right << std::fixed
-              << std::setw(6) << percent << " (" << std::setw(countWidth) << tally.hit() << "/"
-              << std::setw(countWidth) << tally.total() << ")\n";
+    std::cout << std::বাম << std::setw(typeWidth) << type << " : " << std::ডান << std::fixed
+              << std::setw(6) << percent << " (" << std::setw(গুনতি_Width) << tally.hit() << "/"
+              << std::setw(গুনতি_Width) << tally.যোগ() << ")\n";
 }
 
-size_t countWidth(const TypeTally& tally) {
-    size_t width = cvtToStr(0).size();
-    for (TypeTally::const_iterator it = tally.begin(); it != tally.end(); ++it) {
-        width = std::max(width, cvtToStr(it->second.hit()).size());
-        width = std::max(width, cvtToStr(it->second.total()).size());
+আকার_t গুনতি_Width(ধ্রুবক TypeTally& tally) {
+    আকার_t width = cvtToStr(0).আকার_2();
+    জন্য (TypeTally::const_iterator it = tally.begin(); it != tally.end(); ++it) {
+        width = std::max(width, cvtToStr(it->second.hit()).আকার_2());
+        width = std::max(width, cvtToStr(it->second.যোগ()).আকার_2());
     }
-    return width;
+    ফেরত width;
 }
 
-size_t typeWidth(const TypeTally& tally) {
-    size_t typeWidth = 0;
-    for (const char* const typep : s_orderedTypes) {
-        const string type = typep;
-        typeWidth = std::max(typeWidth, type.size());
+আকার_t typeWidth(ধ্রুবক TypeTally& tally) {
+    আকার_t typeWidth = 0;
+    জন্য (ধ্রুবক অক্ষর* ধ্রুবক typep : s_orderedTypes) {
+        ধ্রুবক string type = typep;
+        typeWidth = std::max(typeWidth, type.আকার_2());
     }
-    for (TypeTally::const_iterator it = tally.begin(); it != tally.end(); ++it) {
-        typeWidth = std::max(typeWidth, it->first.size());
+    জন্য (TypeTally::const_iterator it = tally.begin(); it != tally.end(); ++it) {
+        typeWidth = std::max(typeWidth, it->first.আকার_2());
     }
-    return typeWidth;
+    ফেরত typeWidth;
 }
 
-void printTypeTally(const TypeTally& tally, size_t indent, bool includeMissingOrdered) {
+শূন্য printTypeTally(ধ্রুবক TypeTally& tally, আকার_t indent, যৌক্তিক includeMissingOrdered) {
     // Print standard coverage types first for stable output.  When requested,
     // missing standard rows are printed with zero counts for compatibility with
     // the historical flat summary output.
-    const size_t typWidth = typeWidth(tally);
-    const size_t cntWidth = countWidth(tally);
-    for (const char* const typep : s_orderedTypes) {
-        const string type = typep;
-        const TypeTally::const_iterator it = tally.find(type);
-        if (it != tally.end()) {
+    ধ্রুবক আকার_t typWidth = typeWidth(tally);
+    ধ্রুবক আকার_t cntWidth = গুনতি_Width(tally);
+    জন্য (ধ্রুবক অক্ষর* ধ্রুবক typep : s_orderedTypes) {
+        ধ্রুবক string type = typep;
+        ধ্রুবক TypeTally::const_iterator it = tally.find(type);
+        যদি (it != tally.end()) {
             printTallyRow(type, it->second, indent, typWidth, cntWidth);
-        } else if (includeMissingOrdered) {
+        } অন্যথা যদি (includeMissingOrdered) {
             printTallyRow(type, Tally{}, indent, typWidth, cntWidth);
         }
     }
-    for (TypeTally::const_iterator it = tally.begin(); it != tally.end(); ++it) {
-        if (!isOrderedType(it->first)) {
+    জন্য (TypeTally::const_iterator it = tally.begin(); it != tally.end(); ++it) {
+        যদি (!isOrderedType(it->first)) {
             printTallyRow(it->first, it->second, indent, typWidth, cntWidth);
         }
     }
@@ -435,93 +435,93 @@ void printTypeTally(const TypeTally& tally, size_t indent, bool includeMissingOr
 
 // Print covergroups, coverpoints, crosses, and bins one per line, so that searching for a name
 // shows its coverage
-void printCovergroupTallies(const std::map<string, Tally>& tallies, int levels) {
+শূন্য printCovergroupTallies(ধ্রুবক std::map<string, Tally>& tallies, পূর্ণসংখ্যা levels) {
     std::map<string, Tally> shown;
-    size_t nameWidth = 0;
-    for (const std::pair<const string, Tally>& it : tallies) {
-        if (levels >= 0 && static_cast<int>(splitHier(it.first).size()) > levels + 1) continue;
-        shown.insert(it);
-        nameWidth = std::max(nameWidth, it.first.size());
+    আকার_t nameWidth = 0;
+    জন্য (ধ্রুবক std::pair<ধ্রুবক string, Tally>& it : tallies) {
+        যদি (levels >= 0 && static_cast<পূর্ণসংখ্যা>(splitHier(it.first).আকার_2()) > levels + 1) চালু;
+        shown.ঢোকাও(it);
+        nameWidth = std::max(nameWidth, it.first.আকার_2());
     }
-    const size_t cntWidth = countWidth(shown);
+    ধ্রুবক আকার_t cntWidth = গুনতি_Width(shown);
     std::cout << "Covergroup Coverage Summary:\n";
-    for (const std::pair<const string, Tally>& it : shown) {
+    জন্য (ধ্রুবক std::pair<ধ্রুবক string, Tally>& it : shown) {
         printTallyRow(it.first, it.second, s_summaryIndent, nameWidth, cntWidth);
     }
 }
 
 }  // namespace
 
-void VlcTop::readCoverage(const string& filename, bool nonfatal) {
+শূন্য Vlc_শীর্ষ::readCoverage(ধ্রুবক string& filename, যৌক্তিক nonfatal) {
     UINFO(2, "readCoverage " << filename);
 
     std::ifstream is{filename.c_str()};
-    if (!is) {
-        if (!nonfatal) v3fatal("Can't read coverage file: " << filename);
-        return;
+    যদি (!is) {
+        যদি (!nonfatal) v3fatal("Can't read coverage file: " << filename);
+        ফেরত;
     }
 
     // Testrun and computrons argument unsupported as yet
-    VlcTest* const testp = tests().newTest(filename, 0, 0);
+    VlcTest* ধ্রুবক testp = tests().newTest(filename, 0, 0);
 
     uint64_t lineno = 0;
-    while (!is.eof()) {
-        const string line = V3Os::getline(is);
+    যখন (!is.eof()) {
+        ধ্রুবক string সারি = V3Os::getline(is);
         ++lineno;
         // UINFO(9, " got " << line);
-        if (line[0] == 'C') {
+        যদি (সারি[0] == 'C') {
             // The count follows the last "' ": a point may hold one too, as does a covergroup
             // type named with the value of a string parameter
-            const string::size_type secspace = line.rfind("' ");
-            if (secspace == string::npos || secspace < 3) {
+            ধ্রুবক string::আকার_type secspace = সারি.rfind("' ");
+            যদি (secspace == string::npos || secspace < 3) {
                 v3error("Malformed coverage point, without a count: " << filename << ":"
                                                                       << lineno);
-                continue;
+                চালু;
             }
-            const string point = line.substr(3, secspace - 3);
-            if (!opt.isTypeMatch(point.c_str())) continue;
+            ধ্রুবক string point = সারি.substr(3, secspace - 3);
+            যদি (!opt.isTypeMatch(point.c_str())) চালু;
 
-            const uint64_t hits = std::atoll(line.c_str() + secspace + 1);
+            ধ্রুবক uint64_t hits = std::atoll(সারি.c_str() + secspace + 1);
             // UINFO(9, "   point '" << point << "'" << " " << hits);
 
-            const uint64_t pointnum = points().findAddPoint(point, hits);
-            if (opt.rank()) {  // Only if ranking - uses a lot of memory
+            ধ্রুবক uint64_t pointnum = points().findAddPoint(point, hits);
+            যদি (opt.rank()) {  // Only if ranking - uses a lot of memory
                 // A test covers a point with a threshold (option.at_least) when its own hits
                 // reach it
-                const uint64_t needed = std::max(
-                    VlcBuckets::sufficient(), keyNumber(points().pointNumber(pointnum).thresh()));
-                if (hits >= needed) {
-                    points().pointNumber(pointnum).testsCoveringInc();
-                    testp->buckets().addData(pointnum, hits);
+                ধ্রুবক uint64_t needed = std::max(
+                    VlcBuckets::sufficient(), চাবি_সংখ্যা(points().point_সংখ্যা(pointnum).thresh()));
+                যদি (hits >= needed) {
+                    points().point_সংখ্যা(pointnum).testsCoveringInc();
+                    testp->buckets().add_তথ্য(pointnum, hits);
                 }
             }
         }
     }
 }
 
-void VlcTop::writeCoverage(const string& filename) {
+শূন্য Vlc_শীর্ষ::writeCoverage(ধ্রুবক string& filename) {
     UINFO(2, "writeCoverage " << filename);
 
     std::ofstream os{filename.c_str()};
-    if (!os) {
+    যদি (!os) {
         v3fatal("Can't write file: " << filename);
-        return;
+        ফেরত;
     }
 
     os << "# SystemC::Coverage-3\n";
-    for (const auto& i : m_points) {
-        const VlcPoint& point = m_points.pointNumber(i.second);
-        os << "C '" << point.name() << "' " << point.count() << '\n';
+    জন্য (ধ্রুবক auto& i : m_points) {
+        ধ্রুবক VlcPoint& point = m_points.point_সংখ্যা(i.second);
+        os << "C '" << point.name() << "' " << point.গুনতি() << '\n';
     }
 }
 
-void VlcTop::writeInfo(const string& filename) {
+শূন্য Vlc_শীর্ষ::writeInfo(ধ্রুবক string& filename) {
     UINFO(2, "writeInfo " << filename);
 
     std::ofstream os{filename.c_str()};
-    if (!os) {
+    যদি (!os) {
         v3fatal("Can't write file: " << filename);
-        return;
+        ফেরত;
     }
 
     annotateCalc();
@@ -546,42 +546,42 @@ void VlcTop::writeInfo(const string& filename) {
     //   end_of_record
 
     os << "TN:verilator_coverage\n";
-    for (auto& si : m_sources) {
+    জন্য (auto& si : m_sources) {
         VlcSource& source = si.second;
         os << "SF:" << source.name() << '\n';
-        VlcSource::LinenoMap& lines = source.lines();
-        int branchesFound = 0;
-        int branchesHit = 0;
-        for (auto& li : lines) {
-            VlcSourceCount& sc = li.second;
-            uint64_t daCount = 0;
-            std::vector<const VlcPoint*> infoPoints;
-            for (const auto& point : sc.points()) {
-                daCount = std::max(daCount, point->count());
-                infoPoints.push_back(point);
+        VlcSource::LinenoMap& সারিগুলি = source.সারিগুলি();
+        পূর্ণসংখ্যা branchesFound = 0;
+        পূর্ণসংখ্যা branchesHit = 0;
+        জন্য (auto& li : সারিগুলি) {
+            Vlc_Source_গুনতি& sc = li.second;
+            uint64_t da_গুনতি = 0;
+            std::vector<ধ্রুবক VlcPoint*> infoPoints;
+            জন্য (ধ্রুবক auto& point : sc.points()) {
+                da_গুনতি = std::max(da_গুনতি, point->গুনতি());
+                infoPoints.ঠেলো_back(point);
             }
-            os << "DA:" << sc.lineno() << "," << daCount << "\n";
-            if (infoPoints.size() <= 1) continue;
-            branchesFound += static_cast<int>(infoPoints.size());
-            int point_num = 0;
-            for (const VlcPoint* point : infoPoints) {
+            os << "DA:" << sc.lineno() << "," << da_গুনতি << "\n";
+            যদি (infoPoints.আকার_2() <= 1) চালু;
+            branchesFound += static_cast<পূর্ণসংখ্যা>(infoPoints.আকার_2());
+            পূর্ণসংখ্যা point_অঙ্ক_2 = 0;
+            জন্য (ধ্রুবক VlcPoint* point : infoPoints) {
                 os << "BRDA:" << sc.lineno() << ",";
-                if (point->isFsmArc()) {
+                যদি (point->isFsmArc()) {
                     os << "2,";
                     os << point->fsmFromState() << "->" << point->fsmToState();
-                } else if (point->comment().empty()) {
+                } অন্যথা যদি (point->comment().empty()) {
                     os << "0,";
-                    os << point_num;
-                } else {
+                    os << point_অঙ্ক_2;
+                } অন্যথা {
                     os << (point->isFsmState() ? '1' : '0') << ',';
                     std::string comment(point->comment());
                     std::replace(comment.begin(), comment.end(), ',', '_');
                     os << comment;
                 }
-                os << "," << point->count() << "\n";
+                os << "," << point->গুনতি() << "\n";
 
-                branchesHit += opt.countOk(point->count());
-                ++point_num;
+                branchesHit += opt.গুনতি_Ok(point->গুনতি());
+                ++point_অঙ্ক_2;
             }
         }
         os << "BRF:" << branchesFound << '\n';
@@ -593,98 +593,98 @@ void VlcTop::writeInfo(const string& filename) {
 
 //********************************************************************
 
-struct CmpComputrons final {
-    bool operator()(const VlcTest* lhsp, const VlcTest* rhsp) const {
-        if (lhsp->computrons() != rhsp->computrons()) {
-            return lhsp->computrons() < rhsp->computrons();
+কাঠামো CmpComputrons final {
+    যৌক্তিক operator()(ধ্রুবক VlcTest* lhsp, ধ্রুবক VlcTest* rhsp) ধ্রুবক {
+        যদি (lhsp->computrons() != rhsp->computrons()) {
+            ফেরত lhsp->computrons() < rhsp->computrons();
         }
-        return lhsp->bucketsCovered() > rhsp->bucketsCovered();
+        ফেরত lhsp->bucketsCovered() > rhsp->bucketsCovered();
     }
 };
 
-void VlcTop::rank() {
+শূন্য Vlc_শীর্ষ::rank() {
     UINFO(2, "rank...");
     uint64_t nextrank = 1;
 
     // Sort by computrons, so fast tests get selected first
     std::vector<VlcTest*> bytime;
-    for (const auto& testp : m_tests) {
-        if (testp->bucketsCovered()) {  // else no points, so can't help us
-            bytime.push_back(testp);
+    জন্য (ধ্রুবক auto& testp : m_tests) {
+        যদি (testp->bucketsCovered()) {  // else no points, so can't help us
+            bytime.ঠেলো_back(testp);
         }
     }
     sort(bytime.begin(), bytime.end(), CmpComputrons());  // Sort the vector
 
     VlcBuckets remaining;
-    for (const auto& i : m_points) {
-        const VlcPoint* const pointp = &points().pointNumber(i.second);
+    জন্য (ধ্রুবক auto& i : m_points) {
+        ধ্রুবক VlcPoint* ধ্রুবক pointp = &points().point_সংখ্যা(i.second);
         // If any tests hit this point, then we'll need to cover it.
-        if (pointp->testsCovering()) remaining.addData(pointp->pointNum(), 1);
+        যদি (pointp->testsCovering()) remaining.add_তথ্য(pointp->point_অঙ্ক(), 1);
     }
 
     // Additional Greedy algorithm
     // O(n^2) Ouch.  Probably the thing to do is randomize the order of data
     // then hierarchically solve a small subset of tests, and take resulting
     // solution and move up to larger subset of tests.  (Aka quick sort.)
-    while (true) {
-        if (debug() >= 9) {
+    যখন (সত্য) {
+        যদি (debug() >= 9) {
             UINFO_PREFIX("Left on iter" << nextrank << ": ");  // LCOV_EXCL_LINE
             remaining.dump();  // LCOV_EXCL_LINE
         }
         VlcTest* bestTestp = nullptr;
         uint64_t bestRemain = 0;
-        for (const auto& testp : bytime) {
-            if (!testp->rank()) {
-                const uint64_t remain = testp->buckets().dataPopCount(remaining);
-                if (remain > bestRemain) {
+        জন্য (ধ্রুবক auto& testp : bytime) {
+            যদি (!testp->rank()) {
+                ধ্রুবক uint64_t remain = testp->buckets().তথ্য_বের_করো_গুনতি(remaining);
+                যদি (remain > bestRemain) {
                     bestTestp = testp;
                     bestRemain = remain;
                 }
             }
         }
-        if (VlcTest* const testp = bestTestp) {
+        যদি (VlcTest* ধ্রুবক testp = bestTestp) {
             testp->rank(nextrank++);
             testp->rankPoints(bestRemain);
-            remaining.orData(bestTestp->buckets());
-        } else {
-            break;  // No test covering more stuff found
+            remaining.or_তথ্য(bestTestp->buckets());
+        } অন্যথা {
+            বিরতি;  // No test covering more stuff found
         }
     }
 }
 
-void VlcTop::annotateCalc() {
+শূন্য Vlc_শীর্ষ::annotateCalc() {
     // Calculate per-line information into filedata structure
-    for (const auto& i : m_points) {
-        const VlcPoint& point = m_points.pointNumber(i.second);
-        const string filename = point.filename();
-        const int lineno = point.lineno();
-        if (!filename.empty() && lineno != 0) {
+    জন্য (ধ্রুবক auto& i : m_points) {
+        ধ্রুবক VlcPoint& point = m_points.point_সংখ্যা(i.second);
+        ধ্রুবক string filename = point.filename();
+        ধ্রুবক পূর্ণসংখ্যা lineno = point.lineno();
+        যদি (!filename.empty() && lineno != 0) {
             VlcSource& source = sources().findNewSource(filename);
             UINFO(9, "AnnoCalc count " << filename << ":" << lineno << ":" << point.column() << " "
-                                       << point.count() << " " << point.linescov());
+                                       << point.গুনতি() << " " << point.linescov());
             // Base coverage
-            source.insertPoint(lineno, &point);
+            source.ঢোকাও_Point(lineno, &point);
             // Additional lines covered by this statement
-            bool range = false;
-            int start = 0;
-            int end = 0;
-            const string linescov = point.linescov();
-            for (const char* covp = linescov.c_str(); true; ++covp) {
-                if (!*covp || *covp == ',') {  // Ending
-                    for (int lni = start; start && lni <= end; ++lni) {
-                        source.insertPoint(lni, &point);
+            যৌক্তিক range = মিথ্যা;
+            পূর্ণসংখ্যা start = 0;
+            পূর্ণসংখ্যা end = 0;
+            ধ্রুবক string linescov = point.linescov();
+            জন্য (ধ্রুবক অক্ষর* covp = linescov.c_str(); সত্য; ++covp) {
+                যদি (!*covp || *covp == ',') {  // Ending
+                    জন্য (পূর্ণসংখ্যা lni = start; start && lni <= end; ++lni) {
+                        source.ঢোকাও_Point(lni, &point);
                     }
-                    if (!*covp) break;
+                    যদি (!*covp) বিরতি;
                     start = 0;  // Prep for next
                     end = 0;
-                    range = false;
-                } else if (*covp == '-') {
-                    range = true;
-                } else if (std::isdigit(*covp)) {
-                    const char* const digitsp = covp;
-                    while (std::isdigit(*covp)) ++covp;
+                    range = মিথ্যা;
+                } অন্যথা যদি (*covp == '-') {
+                    range = সত্য;
+                } অন্যথা যদি (std::isdigit(*covp)) {
+                    ধ্রুবক অক্ষর* ধ্রুবক digitsp = covp;
+                    যখন (std::isdigit(*covp)) ++covp;
                     --covp;  // Will inc in for loop
-                    if (!range) start = std::atoi(digitsp);
+                    যদি (!range) start = std::atoi(digitsp);
                     end = std::atoi(digitsp);
                 }
             }
@@ -692,103 +692,103 @@ void VlcTop::annotateCalc() {
     }
 }
 
-void VlcTop::annotateCalcNeeded() {
+শূন্য Vlc_শীর্ষ::annotateCalcNeeded() {
     // Compute which files are needed.  A file isn't needed if it has appropriate
     // coverage in all categories
-    int totCases = 0;
-    int totOk = 0;
-    for (auto& si : m_sources) {
+    পূর্ণসংখ্যা totCases = 0;
+    পূর্ণসংখ্যা totOk = 0;
+    জন্য (auto& si : m_sources) {
         VlcSource& source = si.second;
         // UINFO(1, "Source " << source.name());
-        if (opt.annotateAll()) source.needed(true);
-        const VlcSource::LinenoMap& lines = source.lines();
-        for (auto& li : lines) {
-            const VlcSourceCount& sc = li.second;
+        যদি (opt.annotateAll()) source.needed(সত্য);
+        ধ্রুবক VlcSource::LinenoMap& সারিগুলি = source.সারিগুলি();
+        জন্য (auto& li : সারিগুলি) {
+            ধ্রুবক Vlc_Source_গুনতি& sc = li.second;
             // UINFO(0, "Source " << source.name() << ":" << sc.lineno() << ":" << sc.column());
             ++totCases;
-            if (opt.countOk(sc.minCount())) {
+            যদি (opt.গুনতি_Ok(sc.min_গুনতি())) {
                 ++totOk;
-            } else {
-                source.needed(true);
+            } অন্যথা {
+                source.needed(সত্য);
             }
         }
     }
     std::cout << "Annotation Summary:\n";
     std::cout << "  lines with all attached points covered : ";
     std::cout << pctString(totOk, totCases) << "  (" << totOk << "/" << totCases << ")\n";
-    if (totOk != totCases) cout << "See lines with '%00' in " << opt.annotateOut() << '\n';
+    যদি (totOk != totCases) cout << "See lines with '%00' in " << opt.annotateOut() << '\n';
 }
 
-void VlcTop::annotateOutputFiles(const string& dirname) {
+শূন্য Vlc_শীর্ষ::annotateOutputFiles(ধ্রুবক string& dirname) {
     // Create if uncreated, ignore errors
     V3Os::createDir(dirname);
-    for (auto& si : m_sources) {
+    জন্য (auto& si : m_sources) {
         VlcSource& source = si.second;
-        if (!source.needed()) continue;
-        const string filename = source.name();
-        const string outfilename = dirname + "/" + V3Os::filenameNonDir(filename);
+        যদি (!source.needed()) চালু;
+        ধ্রুবক string filename = source.name();
+        ধ্রুবক string outfilename = dirname + "/" + V3Os::filenameNonDir(filename);
 
         UINFO(1, "annotateOutputFile " << filename << " -> " << outfilename);
 
         std::ifstream is{filename.c_str()};
-        if (!is) {
+        যদি (!is) {
             v3error("Can't read annotation file: " << filename);
-            return;
+            ফেরত;
         }
 
         std::ofstream os{outfilename.c_str()};
-        if (!os) {
+        যদি (!os) {
             v3error("Can't write file: " << outfilename);
-            return;
+            ফেরত;
         }
 
         os << "//      // verilator_coverage annotation\n";
 
-        int lineno = 0;
-        while (!is.eof()) {
+        পূর্ণসংখ্যা lineno = 0;
+        যখন (!is.eof()) {
             lineno++;
-            const std::string line = V3Os::getline(is);
+            ধ্রুবক std::string সারি = V3Os::getline(is);
 
-            VlcSource::LinenoMap& lines = source.lines();
-            const auto lit = lines.find(lineno);
-            if (lit == lines.end()) {
-                os << "        " << line << '\n';
-            } else {
-                VlcSourceCount& sc = lit->second;
+            VlcSource::LinenoMap& সারিগুলি = source.সারিগুলি();
+            ধ্রুবক auto lit = সারিগুলি.find(lineno);
+            যদি (lit == সারিগুলি.end()) {
+                os << "        " << সারি << '\n';
+            } অন্যথা {
+                Vlc_Source_গুনতি& sc = lit->second;
                 // UINFO(0, "Source " << source.name() << ":" << sc.lineno() << ":" <<
                 // sc.column());
-                const bool minOk = opt.countOk(sc.minCount());
-                const bool maxOk = opt.countOk(sc.maxCount());
-                if (minOk) {
+                ধ্রুবক যৌক্তিক minOk = opt.গুনতি_Ok(sc.min_গুনতি());
+                ধ্রুবক যৌক্তিক maxOk = opt.গুনতি_Ok(sc.max_গুনতি());
+                যদি (minOk) {
                     os << " ";
-                } else if (maxOk) {
+                } অন্যথা যদি (maxOk) {
                     os << "~";
-                } else {
+                } অন্যথা {
                     os << "%";
                 }
-                os << std::setfill('0') << std::setw(6) << sc.maxCount() << " " << line << '\n';
+                os << std::setfill('0') << std::setw(6) << sc.max_গুনতি() << " " << সারি << '\n';
 
-                if (opt.annotatePoints()) {
-                    for (const auto& pit : sc.points()) pit->dumpAnnotate(os, opt.annotateMin());
+                যদি (opt.annotatePoints()) {
+                    জন্য (ধ্রুবক auto& pit : sc.points()) pit->dumpAnnotate(os, opt.annotateMin());
                 }
-                bool printedFsmHeader = false;
-                for (const auto& pit : sc.points()) {
-                    if (!pit->isFsmState() && !pit->isFsmArc()) continue;
-                    if (!printedFsmHeader) {
+                যৌক্তিক printedFsmHeader = মিথ্যা;
+                জন্য (ধ্রুবক auto& pit : sc.points()) {
+                    যদি (!pit->isFsmState() && !pit->isFsmArc()) চালু;
+                    যদি (!printedFsmHeader) {
                         os << "        // [FSM coverage]\n";
-                        printedFsmHeader = true;
+                        printedFsmHeader = সত্য;
                     }
-                    os << (opt.countOk(pit->count()) ? " " : "%");
-                    os << std::setfill('0') << std::setw(6) << pit->count() << "        ";
-                    if (pit->isFsmState()) {
+                    os << (opt.গুনতি_Ok(pit->গুনতি()) ? " " : "%");
+                    os << std::setfill('0') << std::setw(6) << pit->গুনতি() << "        ";
+                    যদি (pit->isFsmState()) {
                         os << "// [fsm_state " << pit->comment() << "]";
-                        if (pit->count() == 0) os << " *** UNCOVERED ***";
+                        যদি (pit->গুনতি() == 0) os << " *** UNCOVERED ***";
                         os << "\n";
-                    } else if (pit->isFsmDefaultArc()) {
+                    } অন্যথা যদি (pit->isFsmDefaultArc()) {
                         os << "// [SYNTHETIC DEFAULT ARC: " << pit->comment() << "]\n";
-                    } else {
+                    } অন্যথা {
                         os << "// [fsm_arc " << pit->comment() << "]";
-                        if (pit->fsmIsReset() && !opt.includeResetArcs()) {
+                        যদি (pit->fsmIsReset() && !opt.includeResetArcs()) {
                             os << " [reset arc, excluded from %]";
                         }
                         os << "\n";
@@ -799,91 +799,91 @@ void VlcTop::annotateOutputFiles(const string& dirname) {
     }
 }
 
-void VlcTop::annotate(const string& dirname) {
+শূন্য Vlc_শীর্ষ::annotate(ধ্রুবক string& dirname) {
     // Calculate per-line information into filedata structure
     annotateCalc();
     annotateCalcNeeded();
     annotateOutputFiles(dirname);
 }
 
-void VlcTop::printTypeSummary() {
+শূন্য Vlc_শীর্ষ::printTypeSummary() {
     TypeTally tally;
-    for (VlcPoints::ByName::value_type& i : m_points) {
-        const VlcPoint& pt = m_points.pointNumber(i.second);
-        if (isCovergroup(pt)) continue;  // Tallied below, by covergroup
-        tallyPoint(tally, displayType(pt), pt.count());
+    জন্য (VlcPoints::ByName::মান_type& i : m_points) {
+        ধ্রুবক VlcPoint& pt = m_points.point_সংখ্যা(i.second);
+        যদি (isCovergroup(pt)) চালু;  // Tallied below, by covergroup
+        tallyPoint(tally, displayType(pt), pt.গুনতি());
     }
-    const CgGroups groups = covergroups(m_points);
-    if (!groups.empty()) {
-        std::vector<const CgGroup*> groupps;
-        for (const CgGroups::value_type& it : groups) groupps.push_back(&it.second);
+    ধ্রুবক CgGroups groups = covergroups(m_points);
+    যদি (!groups.empty()) {
+        std::vector<ধ্রুবক CgGroup*> groupps;
+        জন্য (ধ্রুবক CgGroups::মান_type& it : groups) groupps.ঠেলো_back(&it.second);
         tally[s_covergroupType] = groupsTally(groupps);
     }
-    if (tally.empty()) return;
+    যদি (tally.empty()) ফেরত;
     std::cout << "Coverage Summary:\n";
     // Keep the legacy summary behavior of showing standard coverage types even
     // when the input has no points of that type.
-    printTypeTally(tally, s_summaryIndent, true);
+    printTypeTally(tally, s_summaryIndent, সত্য);
 }
 
-void VlcTop::printHierarchyReport() {
+শূন্য Vlc_শীর্ষ::printHierarchyReport() {
     std::map<string, TypeTally> hierTallies;
     std::map<string, TypeTally> duTallies;
-    bool hasHier = false;
-    bool hasCollapsedHier = false;
-    for (VlcPoints::ByName::value_type& i : m_points) {
-        const VlcPoint& pt = m_points.pointNumber(i.second);
-        if (isCovergroup(pt)) continue;  // Reported below, by covergroup
-        const string hier = reportHier(pt);
-        if (hier.empty()) continue;
-        hasHier = true;
-        if (isCollapsedHier(hier)) hasCollapsedHier = true;
-        const string type = displayType(pt);
-        const std::vector<string> parts = splitHier(hier);
+    যৌক্তিক hasHier = মিথ্যা;
+    যৌক্তিক hasCollapsedHier = মিথ্যা;
+    জন্য (VlcPoints::ByName::মান_type& i : m_points) {
+        ধ্রুবক VlcPoint& pt = m_points.point_সংখ্যা(i.second);
+        যদি (isCovergroup(pt)) চালু;  // Reported below, by covergroup
+        ধ্রুবক string hier = reportHier(pt);
+        যদি (hier.empty()) চালু;
+        hasHier = সত্য;
+        যদি (isCollapsedHier(hier)) hasCollapsedHier = সত্য;
+        ধ্রুবক string type = displayType(pt);
+        ধ্রুবক std::vector<string> parts = splitHier(hier);
         string path;
-        for (std::vector<string>::const_iterator it = parts.begin(); it != parts.end(); ++it) {
+        জন্য (std::vector<string>::const_iterator it = parts.begin(); it != parts.end(); ++it) {
             path = path.empty() ? *it : path + "." + *it;
-            tallyPoint(hierTallies[path], type, pt.count());
+            tallyPoint(hierTallies[path], type, pt.গুনতি());
         }
-        tallyPoint(duTallies[duName(pt)], type, pt.count());
+        tallyPoint(duTallies[duName(pt)], type, pt.গুনতি());
     }
-    const std::map<string, Tally> cgTallies = covergroupTallies(covergroups(m_points));
+    ধ্রুবক std::map<string, Tally> cgTallies = covergroupTallies(covergroups(m_points));
 
-    if (!hasHier && !cgTallies.empty()) {
+    যদি (!hasHier && !cgTallies.empty()) {
         printCovergroupTallies(cgTallies, opt.reportLevels());
-        return;
+        ফেরত;
     }
-    if (!hasHier) {
+    যদি (!hasHier) {
         std::cout << "%Warning: --report hierarchy input has no hierarchy fields; "
                   << "printing flat summary instead.\n";
         printTypeSummary();
-        return;
+        ফেরত;
     }
 
-    const int levels = opt.reportLevels();
-    if (hasCollapsedHier) {
+    ধ্রুবক পূর্ণসংখ্যা levels = opt.reportLevels();
+    যদি (hasCollapsedHier) {
         std::cout << "Note: hierarchy report contains collapsed hierarchy paths; "
                   << "it is not precise per-instance coverage.\n";
     }
     std::cout << "Hierarchy Coverage Summary:\n";
-    for (std::map<string, TypeTally>::const_iterator it = hierTallies.begin();
+    জন্য (std::map<string, TypeTally>::const_iterator it = hierTallies.begin();
          it != hierTallies.end(); ++it) {
-        const std::vector<string> parts = splitHier(it->first);
-        if (levels >= 0 && static_cast<int>(parts.size()) > levels + 1) continue;
+        ধ্রুবক std::vector<string> parts = splitHier(it->first);
+        যদি (levels >= 0 && static_cast<পূর্ণসংখ্যা>(parts.আকার_2()) > levels + 1) চালু;
         printIndent(s_summaryIndent);
         std::cout << it->first << "\n";
         // Hierarchy nodes can be numerous, so only print coverage types present
         // under this node instead of repeating absent zero-count rows.
-        printTypeTally(it->second, s_reportRowIndent, false);
+        printTypeTally(it->second, s_reportRowIndent, মিথ্যা);
     }
     std::cout << "Design Unit Coverage Summary:\n";
-    for (std::map<string, TypeTally>::const_iterator it = duTallies.begin(); it != duTallies.end();
+    জন্য (std::map<string, TypeTally>::const_iterator it = duTallies.begin(); it != duTallies.end();
          ++it) {
         printIndent(s_summaryIndent);
         std::cout << it->first << "\n";
         // Design-unit summaries follow the hierarchy report style: present
         // types only, but in the same stable order as the flat summary.
-        printTypeTally(it->second, s_reportRowIndent, false);
+        printTypeTally(it->second, s_reportRowIndent, মিথ্যা);
     }
-    if (!cgTallies.empty()) printCovergroupTallies(cgTallies, levels);
+    যদি (!cgTallies.empty()) printCovergroupTallies(cgTallies, levels);
 }

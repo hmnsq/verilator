@@ -17,71 +17,71 @@
 #ifndef VERILATOR_V3HASH_H_
 #define VERILATOR_V3HASH_H_
 
-#include "verilatedos.h"
+#অন্তর্ভাব "verilatedos.h"
 
-#include <cstdint>
-#include <string>
+#অন্তর্ভাব <cstdint>
+#অন্তর্ভাব <string>
 
 //######################################################################
 // V3Hash -- Generic hashing
 
 class V3Hash final {
-    uint32_t m_value;  // The 32-bit hash value.
+    uint32_t m_মান;  // The 32-bit hash value.
 
-    static uint32_t combine(uint32_t a, uint32_t b) {
-        return a ^ (b + 0x9e3779b9 + (a << 6) + (a >> 2));
+    স্থির uint32_t combine(uint32_t a, uint32_t b) {
+        ফেরত a ^ (b + 0x9e3779b9 + (a << 6) + (a >> 2));
     }
 
-public:
+সর্বজনীন:
     // CONSTRUCTORS
     V3Hash()
-        : m_value{0} {}
+        : m_মান{0} {}
     explicit V3Hash(uint32_t val)
-        : m_value{val} {}
+        : m_মান{val} {}
     explicit V3Hash(uint64_t val)
-        : m_value{combine(static_cast<uint32_t>(val), static_cast<uint32_t>(val >> 32))} {}
-    explicit V3Hash(const std::string& val);
-    explicit V3Hash(double val);
+        : m_মান{combine(static_cast<uint32_t>(val), static_cast<uint32_t>(val >> 32))} {}
+    explicit V3Hash(ধ্রুবক std::string& val);
+    explicit V3Hash(দ্বিগুণ val);
 
     explicit V3Hash(int32_t val)
         : V3Hash{static_cast<uint32_t>(val)} {}
     explicit V3Hash(int64_t val)
         : V3Hash{static_cast<uint64_t>(val)} {}
-    explicit V3Hash(const void* val)
+    explicit V3Hash(ধ্রুবক শূন্য* val)
         : V3Hash{static_cast<uint64_t>(reinterpret_cast<uintptr_t>(val))} {}
 
     // METHODS
-    uint32_t value() const VL_MT_SAFE { return m_value; }
-    std::string toString() const VL_MT_SAFE;
+    uint32_t মান() ধ্রুবক VL_MT_SAFE { ফেরত m_মান; }
+    std::string toString() ধ্রুবক VL_MT_SAFE;
 
     // OPERATORS
     // Comparisons
-    bool operator==(const V3Hash& rh) const { return m_value == rh.m_value; }
-    bool operator!=(const V3Hash& rh) const { return m_value != rh.m_value; }
-    bool operator<(const V3Hash& rh) const { return m_value < rh.m_value; }
+    bool operator==(ধ্রুবক V3Hash& rh) ধ্রুবক { ফেরত m_মান == rh.m_মান; }
+    bool operator!=(ধ্রুবক V3Hash& rh) ধ্রুবক { ফেরত m_মান != rh.m_মান; }
+    bool operator<(ধ্রুবক V3Hash& rh) ধ্রুবক { ফেরত m_মান < rh.m_মান; }
 
     // '+' combines hashes
     template <typename T>
-    V3Hash operator+(T that) const {
-        return V3Hash{combine(m_value, V3Hash{that}.m_value)};
+    V3Hash operator+(T that) ধ্রুবক {
+        ফেরত V3Hash{combine(m_মান, V3Hash{that}.m_মান)};
     }
-    V3Hash operator+(const std::string& that) const {
-        return V3Hash{combine(m_value, V3Hash{that}.m_value)};
+    V3Hash operator+(ধ্রুবক std::string& that) ধ্রুবক {
+        ফেরত V3Hash{combine(m_মান, V3Hash{that}.m_মান)};
     }
 
     // '+=' combines in place
     template <typename T>
     V3Hash& operator+=(T that) {
-        return *this = *this + that;
+        ফেরত *this = *this + that;
     }
-    V3Hash& operator+=(const std::string& that) { return *this = *this + that; }
+    V3Hash& operator+=(ধ্রুবক std::string& that) { ফেরত *this = *this + that; }
 };
 
-std::ostream& operator<<(std::ostream& os, const V3Hash& rhs) VL_MT_SAFE;
+std::ostream& operator<<(std::ostream& os, ধ্রুবক V3Hash& rhs) VL_MT_SAFE;
 
 template <>
-struct std::hash<V3Hash> {
-    std::size_t operator()(const V3Hash& h) const noexcept { return h.value(); }
+কাঠামো std::hash<V3Hash> {
+    std::আকার_t operator()(ধ্রুবক V3Hash& h) ধ্রুবক noexcept { ফেরত h.মান(); }
 };
 
 #endif  // Guard

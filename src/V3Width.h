@@ -17,28 +17,28 @@
 #ifndef VERILATOR_V3WIDTH_H_
 #define VERILATOR_V3WIDTH_H_
 
-#include "config_build.h"
-#include "verilatedos.h"
+#অন্তর্ভাব "config_build.h"
+#অন্তর্ভাব "verilatedos.h"
 
 class AstNetlist;
-class AstNode;
-class AstNodeAssign;
-class AstNodeDType;
+class Ast_গ্রন্থি;
+class Ast_গ্রন্থি_Assign;
+class Ast_গ্রন্থি_DType;
 
 //============================================================================
 
 class V3Width final {
-public:
-    static void width(AstNetlist* nodep) VL_MT_DISABLED;
-    static AstNode* widthParamsEdit(AstNode* nodep) VL_MT_DISABLED;
-    static AstNode* widthGenerateParamsEdit(AstNode* nodep) VL_MT_DISABLED;
-    static AstNode* selectNonConstantRecurse(AstNode* nodep, bool inSel = false) VL_MT_DISABLED;
-    static void streamAssignLowerEdit(AstNodeAssign* nodep) VL_MT_DISABLED;
+সর্বজনীন:
+    স্থির শূন্য width(AstNetlist* nodep) VL_MT_DISABLED;
+    স্থির Ast_গ্রন্থি* widthParamsEdit(Ast_গ্রন্থি* nodep) VL_MT_DISABLED;
+    স্থির Ast_গ্রন্থি* widthGenerateParamsEdit(Ast_গ্রন্থি* nodep) VL_MT_DISABLED;
+    স্থির Ast_গ্রন্থি* selectNonConstantRecurse(Ast_গ্রন্থি* nodep, bool inSel = false) VL_MT_DISABLED;
+    স্থির শূন্য streamAssignLowerEdit(Ast_গ্রন্থি_Assign* nodep) VL_MT_DISABLED;
 
     // For use only in WidthVisitor
     // Replace AstSelBit, etc with AstSel/AstArraySel
     // Returns replacement node if nodep was deleted, or null if none.
-    static AstNode* widthSelNoIterEdit(AstNode* nodep) VL_MT_DISABLED;
+    স্থির Ast_গ্রন্থি* widthSelNoIterEdit(Ast_গ্রন্থি* nodep) VL_MT_DISABLED;
 };
 
 #endif  // Guard

@@ -49,7 +49,7 @@
 //      LinkResolve:
 //          #10: Unlink modports, not needed later except for JSON/Lint
 //*************************************************************************
-// TOP
+//শীর্ষ
 //      {name-of-top-modulename}
 //      a          (VSymEnt->AstCell)
 //        {name-of-cell}
@@ -61,115 +61,115 @@
 //      b          (VSymEnt->AstCell)
 //*************************************************************************
 
-#include "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
+#অন্তর্ভাব "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
 
-#include "V3LinkDot.h"
+#অন্তর্ভাব "V3LinkDot.h"
 
-#include "V3Global.h"
-#include "V3Graph.h"
-#include "V3LinkDotIfaceCapture.h"
-#include "V3MemberMap.h"
-#include "V3Parse.h"
-#include "V3Randomize.h"
-#include "V3Stats.h"
-#include "V3String.h"
-#include "V3SymTable.h"
+#অন্তর্ভাব "V3Global.h"
+#অন্তর্ভাব "V3Graph.h"
+#অন্তর্ভাব "V3LinkDotIfaceCapture.h"
+#অন্তর্ভাব "V3MemberMap.h"
+#অন্তর্ভাব "V3Parse.h"
+#অন্তর্ভাব "V3Randomize.h"
+#অন্তর্ভাব "V3Stats.h"
+#অন্তর্ভাব "V3String.h"
+#অন্তর্ভাব "V3SymTable.h"
 
-#include <algorithm>
-#include <cstdlib>
-#include <vector>
+#অন্তর্ভাব <algorithm>
+#অন্তর্ভাব <cstdlib>
+#অন্তর্ভাব <vector>
 
 VL_DEFINE_DEBUG_FUNCTIONS;
 
-static string extractDottedPath(AstNode* nodep, bool& hasPartSelect) {
-    if (AstParseRef* const refp = VN_CAST(nodep, ParseRef)) {
-        return refp->name();
-    } else if (AstVarRef* const refp = VN_CAST(nodep, VarRef)) {
-        return refp->name();
-    } else if (AstDot* const dotp = VN_CAST(nodep, Dot)) {
-        const string lhs = extractDottedPath(dotp->lhsp(), hasPartSelect);
-        const string rhs = extractDottedPath(dotp->rhsp(), hasPartSelect);
-        return VString::dot(lhs, ".", rhs);
-    } else if (VN_IS(nodep, SelBit) || VN_IS(nodep, SelExtract) || VN_IS(nodep, SelPlus)
+স্থির string extractDottedPath(Ast_গ্রন্থি* nodep, যৌক্তিক& hasPartSelect) {
+    যদি (AstParseRef* ধ্রুবক refp = VN_CAST(nodep, ParseRef)) {
+        ফেরত refp->name();
+    } অন্যথা যদি (AstVarRef* ধ্রুবক refp = VN_CAST(nodep, VarRef)) {
+        ফেরত refp->name();
+    } অন্যথা যদি (AstDot* ধ্রুবক dotp = VN_CAST(nodep, Dot)) {
+        ধ্রুবক string lhs = extractDottedPath(dotp->lhsp(), hasPartSelect);
+        ধ্রুবক string rhs = extractDottedPath(dotp->rhsp(), hasPartSelect);
+        ফেরত VString::dot(lhs, ".", rhs);
+    } অন্যথা যদি (VN_IS(nodep, SelBit) || VN_IS(nodep, SelExtract) || VN_IS(nodep, SelPlus)
                || VN_IS(nodep, SelMinus)) {
-        hasPartSelect = true;
-        return "";
+        hasPartSelect = সত্য;
+        ফেরত "";
     }
-    return "";
+    ফেরত "";
 }
-static string lexicalDisablePath(AstNode* const targetp) {
+স্থির string lexicalDisablePath(Ast_গ্রন্থি* ধ্রুবক targetp) {
     std::vector<string> names;
-    for (AstNode* curp = targetp; curp; curp = curp->aboveLoopp()) {
-        if (AstNodeBlock* const blockp = VN_CAST(curp, NodeBlock)) {
-            if (blockp->name() != "") names.push_back(blockp->name());
-        } else if (AstNodeFTask* const ftaskp = VN_CAST(curp, NodeFTask)) {
-            names.push_back(ftaskp->name());
-        } else if (VN_IS(curp, NodeModule)) {
-            break;
+    জন্য (Ast_গ্রন্থি* curp = targetp; curp; curp = curp->aboveLoopp()) {
+        যদি (Ast_গ্রন্থি_Block* ধ্রুবক blockp = VN_CAST(curp, গ্রন্থি_Block)) {
+            যদি (blockp->name() != "") names.ঠেলো_back(blockp->name());
+        } অন্যথা যদি (Ast_গ্রন্থি_FTask* ধ্রুবক ftaskp = VN_CAST(curp, গ্রন্থি_FTask)) {
+            names.ঠেলো_back(ftaskp->name());
+        } অন্যথা যদি (VN_IS(curp, গ্রন্থি_Module)) {
+            বিরতি;
         }
     }
     string path;
-    for (auto it = names.crbegin(); it != names.crend(); ++it) {
+    জন্য (auto it = names.crbegin(); it != names.crend(); ++it) {
         path = VString::dot(path, ".", *it);
     }
-    return path;
+    ফেরত path;
 }
-static string targetInstancePath(AstNode* const targetp, const string& targetPath) {
-    const string lexicalPath = lexicalDisablePath(targetp);
-    if (lexicalPath == "" || targetPath == lexicalPath) return "";
-    const string suffix = "." + lexicalPath;
-    if (!VString::endsWith(targetPath, suffix)) return "";
-    return targetPath.substr(0, targetPath.size() - suffix.size());
+স্থির string targetInstancePath(Ast_গ্রন্থি* ধ্রুবক targetp, ধ্রুবক string& targetPath) {
+    ধ্রুবক string lexicalPath = lexicalDisablePath(targetp);
+    যদি (lexicalPath == "" || targetPath == lexicalPath) ফেরত "";
+    ধ্রুবক string suffix = "." + lexicalPath;
+    যদি (!VString::endsWith(targetPath, suffix)) ফেরত "";
+    ফেরত targetPath.substr(0, targetPath.আকার_2() - suffix.আকার_2());
 }
 
 // ######################################################################
 //  Matcher classes (for suggestion matching)
 
-class LinkNodeMatcherClassOrPackage final : public VNodeMatcher {
-public:
-    bool nodeMatch(const AstNode* nodep) const override {
-        return VN_IS(nodep, Class) || VN_IS(nodep, Package);
+শ্রেণী Link_গ্রন্থি_Matcher_Class_Or_Package final : সর্বজনীন VNodeMatcher {
+সর্বজনীন:
+    যৌক্তিক গ্রন্থি_Match(ধ্রুবক Ast_গ্রন্থি* nodep) ধ্রুবক override {
+        ফেরত VN_IS(nodep, Class) || VN_IS(nodep, Package);
     }
 };
-class LinkNodeMatcherFTask final : public VNodeMatcher {
-public:
-    bool nodeMatch(const AstNode* nodep) const override { return VN_IS(nodep, NodeFTask); }
+শ্রেণী Link_গ্রন্থি_Matcher_FTask final : সর্বজনীন VNodeMatcher {
+সর্বজনীন:
+    যৌক্তিক গ্রন্থি_Match(ধ্রুবক Ast_গ্রন্থি* nodep) ধ্রুবক override { ফেরত VN_IS(nodep, গ্রন্থি_FTask); }
 };
-class LinkNodeMatcherModport final : public VNodeMatcher {
-public:
-    bool nodeMatch(const AstNode* nodep) const override { return VN_IS(nodep, Modport); }
+শ্রেণী Link_গ্রন্থি_Matcher_Modport final : সর্বজনীন VNodeMatcher {
+সর্বজনীন:
+    যৌক্তিক গ্রন্থি_Match(ধ্রুবক Ast_গ্রন্থি* nodep) ধ্রুবক override { ফেরত VN_IS(nodep, Modport); }
 };
-class LinkNodeMatcherProd final : public VNodeMatcher {
-public:
-    bool nodeMatch(const AstNode* nodep) const override { return VN_IS(nodep, RSProd); }
+শ্রেণী Link_গ্রন্থি_Matcher_Prod final : সর্বজনীন VNodeMatcher {
+সর্বজনীন:
+    যৌক্তিক গ্রন্থি_Match(ধ্রুবক Ast_গ্রন্থি* nodep) ধ্রুবক override { ফেরত VN_IS(nodep, RSProd); }
 };
-class LinkNodeMatcherVar final : public VNodeMatcher {
-public:
-    bool nodeMatch(const AstNode* nodep) const override {
-        return VN_IS(nodep, Var) || VN_IS(nodep, LambdaArgRef);
+শ্রেণী Link_গ্রন্থি_Matcher_Var final : সর্বজনীন VNodeMatcher {
+সর্বজনীন:
+    যৌক্তিক গ্রন্থি_Match(ধ্রুবক Ast_গ্রন্থি* nodep) ধ্রুবক override {
+        ফেরত VN_IS(nodep, Var) || VN_IS(nodep, LambdaArgRef);
     }
 };
-class LinkNodeMatcherVarIO final : public VNodeMatcher {
-public:
-    bool nodeMatch(const AstNode* nodep) const override {
-        const AstVar* const varp = VN_CAST(nodep, Var);
-        if (!varp) return false;
-        return varp->isIO();
+শ্রেণী Link_গ্রন্থি_Matcher_Var_IO final : সর্বজনীন VNodeMatcher {
+সর্বজনীন:
+    যৌক্তিক গ্রন্থি_Match(ধ্রুবক Ast_গ্রন্থি* nodep) ধ্রুবক override {
+        ধ্রুবক AstVar* ধ্রুবক varp = VN_CAST(nodep, Var);
+        যদি (!varp) ফেরত মিথ্যা;
+        ফেরত varp->isIO();
     }
 };
-class LinkNodeMatcherVarParam final : public VNodeMatcher {
-public:
-    bool nodeMatch(const AstNode* nodep) const override {
-        const AstVar* const varp = VN_CAST(nodep, Var);
-        if (!varp) return false;
-        return varp->isParam();
+শ্রেণী Link_গ্রন্থি_Matcher_Var_Param final : সর্বজনীন VNodeMatcher {
+সর্বজনীন:
+    যৌক্তিক গ্রন্থি_Match(ধ্রুবক Ast_গ্রন্থি* nodep) ধ্রুবক override {
+        ধ্রুবক AstVar* ধ্রুবক varp = VN_CAST(nodep, Var);
+        যদি (!varp) ফেরত মিথ্যা;
+        ফেরত varp->isParam();
     }
 };
 
 //######################################################################
 // LinkDot state, as a visitor of each AstNode
 
-class LinkDotState final {
+শ্রেণী LinkDotState final {
     // NODE STATE
     // Cleared on Netlist
     //  AstNodeModule::user1p()         // VSymEnt*.      Last symbol created for this node
@@ -183,21 +183,21 @@ class LinkDotState final {
     //  AstVar::user4()                 // bool.          True if port set for this variable
     //  AstNodeBlock::user4()           // bool.          Did name processing
     //  AstNodeModule::user4()          // bool.          Live module
-    const VNUser1InUse m_inuser1;
-    const VNUser2InUse m_inuser2;
-    const VNUser4InUse m_inuser4;
+    ধ্রুবক VNUser1InUse m_inuser1;
+    ধ্রুবক VNUser2InUse m_inuser2;
+    ধ্রুবক VNUser4InUse m_inuser4;
 
-public:
+সর্বজনীন:
     // ENUMS
     // In order of priority, compute first ... compute last
-    enum SAMNum : uint8_t { SAMN_MODPORT, SAMN_IFTOP, SAMN__MAX };  // Values for m_scopeAliasMap
+    গণনা SAMNum : uint8_t { SAMN_MODPORT, SAMN_IFTOP, SAMN__MAX };  // Values for m_scopeAliasMap
 
-private:
+ব্যক্তিগত:
     // TYPES
     using ScopeAliasMap = std::unordered_map<VSymEnt*, VSymEnt*>;
     using IfaceModSyms = std::vector<std::pair<AstIface*, VSymEnt*>>;
 
-    static LinkDotState* s_errorThisp;  // Last self, for error reporting only
+    স্থির LinkDotState* s_errorThisp;  // Last self, for error reporting only
 
     // MEMBERS
     VSymGraph m_syms;  // Symbol table by hierarchy
@@ -205,34 +205,34 @@ private:
     VSymEnt* m_dunitEntp = nullptr;  // $unit entry
     std::multimap<std::string, VSymEnt*>
         m_nameScopeSymMap;  // Map of scope referenced by non-pretty textual name
-    std::set<std::pair<AstNodeModule*, std::string>>
+    std::set<std::pair<Ast_গ্রন্থি_Module*, std::string>>
         m_implicitNameSet;  // For [module][signalname] if we can implicitly create it
     std::array<ScopeAliasMap, SAMN__MAX> m_scopeAliasMap;  // Map of <lhs,rhs> aliases
     std::vector<VSymEnt*> m_ifaceVarSyms;  // List of AstIfaceRefDType's to be imported
     IfaceModSyms m_ifaceModSyms;  // List of AstIface+Symbols to be processed
-    const VLinkDotStep m_step;  // Operational step
+    ধ্রুবক VLinkDotStep m_step;  // Operational step
 
-public:
+সর্বজনীন:
     // METHODS
 
-    void dumpSelf(const string& nameComment, bool force = false) {
-        if (debug() >= 6 || dumpLevel() >= 6 || force) {
-            const string filename = v3Global.debugFilename(nameComment) + ".txt";
+    শূন্য dumpSelf(ধ্রুবক string& nameComment, যৌক্তিক force = মিথ্যা) {
+        যদি (debug() >= 6 || dumpLevel() >= 6 || force) {
+            ধ্রুবক string filename = v3Global.debugFilename(nameComment) + ".txt";
             UINFO(4, "Dumping " << filename);
-            const std::unique_ptr<std::ofstream> logp{V3File::new_ofstream(filename)};
-            if (logp->fail()) v3fatal("Can't write file: " << filename);
+            ধ্রুবক std::unique_ptr<std::ofstream> logp{V3File::new_ofstream(filename)};
+            যদি (logp->fail()) v3fatal("Can't write file: " << filename);
             std::ostream& os = *logp;
             // TODO the symbol table has node pointers which may be
             // dangling, as we call deleteTree in these visitors without
             // pushing for later deletion (or deleting from the symbol table)
             // So, only completely safe to call this when under --debug or --debug-leak.
             m_syms.dumpSelf(os);
-            bool first = true;
-            for (int samn = 0; samn < SAMN__MAX; ++samn) {
-                if (!m_scopeAliasMap[samn].empty()) {
-                    if (first) os << "\nScopeAliasMap:\n";
-                    first = false;
-                    for (ScopeAliasMap::iterator it = m_scopeAliasMap[samn].begin();
+            যৌক্তিক first = সত্য;
+            জন্য (পূর্ণসংখ্যা samn = 0; samn < SAMN__MAX; ++samn) {
+                যদি (!m_scopeAliasMap[samn].empty()) {
+                    যদি (first) os << "\nScopeAliasMap:\n";
+                    first = মিথ্যা;
+                    জন্য (ScopeAliasMap::iterator it = m_scopeAliasMap[samn].begin();
                          it != m_scopeAliasMap[samn].end(); ++it) {
                         // left side is what we will import into
                         os << "\t" << samn << "\t" << it->first << " ("
@@ -243,15 +243,15 @@ public:
             }
         }
     }
-    static void preErrorDumpHandler() {
-        if (s_errorThisp) s_errorThisp->preErrorDump();
+    স্থির শূন্য preErrorDumpHandler() {
+        যদি (s_errorThisp) s_errorThisp->preErrorDump();
     }
-    void preErrorDump() {
-        static bool s_diddump = false;
-        if (!s_diddump && dumpTreeLevel()) {
-            s_diddump = true;
-            dumpSelf("linkdot-preerr", true);
-            v3Global.rootp()->dumpTreeFile(v3Global.debugFilename("linkdot-preerr.tree"));
+    শূন্য preErrorDump() {
+        স্থির যৌক্তিক s_diddump = মিথ্যা;
+        যদি (!s_diddump && dump_বৃক্ষ_Level()) {
+            s_diddump = সত্য;
+            dumpSelf("linkdot-preerr", সত্য);
+            v3Global.rootp()->dump_বৃক্ষ_File(v3Global.debugFilename("linkdot-preerr.tree"));
         }
     }
 
@@ -261,7 +261,7 @@ public:
         , m_mods{rootp}
         , m_step{step} {
         UINFO(4, __FUNCTION__ << ": ");
-        s_errorThisp = this;
+        s_errorThisp = এই;
         V3Error::errorExitCb(preErrorDumpHandler);  // If get error, dump self
         readModNames();
     }
@@ -271,66 +271,66 @@ public:
     }
 
     // ACCESSORS
-    VSymGraph* symsp() { return &m_syms; }
-    int stepNumber() const { return static_cast<int>(m_step); }
-    bool forPrimary() const { return m_step == LDS_PRIMARY; }
-    bool forParamed() const { return m_step == LDS_PARAMED; }
-    bool forScopeCreation() const { return m_step == LDS_SCOPED; }
+    VSymGraph* symsp() { ফেরত &m_syms; }
+    পূর্ণসংখ্যা step_সংখ্যা() ধ্রুবক { ফেরত static_cast<পূর্ণসংখ্যা>(m_step); }
+    যৌক্তিক forPrimary() ধ্রুবক { ফেরত m_step == LDS_PRIMARY; }
+    যৌক্তিক forParamed() ধ্রুবক { ফেরত m_step == LDS_PARAMED; }
+    যৌক্তিক forScopeCreation() ধ্রুবক { ফেরত m_step == LDS_SCOPED; }
 
     // METHODS
-    static string nodeTextType(AstNode* nodep) {
-        if (const AstVar* const varp = VN_CAST(nodep, Var)) {
-            if (varp->isIO() || varp->isIfaceRef()) {
-                return "port";
-            } else if (varp->isGParam()) {
-                return "parameter";
-            } else if (varp->varType() == VVarType::LPARAM) {
-                return "local parameter";
-            } else {
-                return "variable";
+    স্থির string গ্রন্থি_Text_Type(Ast_গ্রন্থি* nodep) {
+        যদি (ধ্রুবক AstVar* ধ্রুবক varp = VN_CAST(nodep, Var)) {
+            যদি (varp->isIO() || varp->isIfaceRef()) {
+                ফেরত "port";
+            } অন্যথা যদি (varp->isGParam()) {
+                ফেরত "parameter";
+            } অন্যথা যদি (varp->varType() == VVarType::LPARAM) {
+                ফেরত "local parameter";
+            } অন্যথা {
+                ফেরত "variable";
             }
-        } else if (const AstParamTypeDType* const dtypep = VN_CAST(nodep, ParamTypeDType)) {
-            if (dtypep->isGParam()) {
-                return "type parameter";
-            } else {
-                return "local type parameter";
+        } অন্যথা যদি (ধ্রুবক AstParamTypeDType* ধ্রুবক dtypep = VN_CAST(nodep, ParamTypeDType)) {
+            যদি (dtypep->isGParam()) {
+                ফেরত "type parameter";
+            } অন্যথা {
+                ফেরত "local type parameter";
             }
-        } else if (VN_IS(nodep, Begin)) {
-            return "block";
-        } else if (VN_IS(nodep, Cell)) {
-            return "instance";
-        } else if (VN_IS(nodep, Constraint)) {
-            return "constraint";
-        } else if (VN_IS(nodep, Func)) {
-            return "function";
-        } else if (VN_IS(nodep, GenBlock)) {
-            return "generate block";
-        } else if (VN_IS(nodep, Iface)) {
-            return "interface";
-        } else if (VN_IS(nodep, RSProd)) {
-            return "randsequence production";
-        } else if (VN_IS(nodep, Task)) {
-            return "task";
-        } else {
-            return nodep->prettyTypeName();
+        } অন্যথা যদি (VN_IS(nodep, Begin)) {
+            ফেরত "block";
+        } অন্যথা যদি (VN_IS(nodep, Cell)) {
+            ফেরত "instance";
+        } অন্যথা যদি (VN_IS(nodep, Constraint)) {
+            ফেরত "constraint";
+        } অন্যথা যদি (VN_IS(nodep, Func)) {
+            ফেরত "function";
+        } অন্যথা যদি (VN_IS(nodep, GenBlock)) {
+            ফেরত "generate block";
+        } অন্যথা যদি (VN_IS(nodep, Iface)) {
+            ফেরত "interface";
+        } অন্যথা যদি (VN_IS(nodep, RSProd)) {
+            ফেরত "randsequence production";
+        } অন্যথা যদি (VN_IS(nodep, Task)) {
+            ফেরত "task";
+        } অন্যথা {
+            ফেরত nodep->prettyTypeName();
         }
     }
 
-    AstNodeModule* findModuleSym(const string& modName) {
-        const VSymEnt* const foundp = m_mods.rootp()->findIdFallback(modName);
-        return foundp ? VN_AS(foundp->nodep(), NodeModule) : nullptr;
+    Ast_গ্রন্থি_Module* findModuleSym(ধ্রুবক string& modName) {
+        ধ্রুবক VSymEnt* ধ্রুবক foundp = m_mods.rootp()->findIdFallback(modName);
+        ফেরত foundp ? VN_AS(foundp->nodep(), গ্রন্থি_Module) : nullptr;
     }
-    void readModNames() {
+    শূন্য readModNames() {
         // Look at all modules, and store pointers to all module names
-        for (AstNodeModule *nextp, *nodep = v3Global.rootp()->modulesp(); nodep; nodep = nextp) {
-            nextp = VN_AS(nodep->nextp(), NodeModule);
-            m_mods.rootp()->insert(nodep->name(), new VSymEnt{&m_mods, nodep});
+        জন্য (Ast_গ্রন্থি_Module *nextp, *nodep = v3Global.rootp()->modulesp(); nodep; nodep = nextp) {
+            nextp = VN_AS(nodep->nextp(), গ্রন্থি_Module);
+            m_mods.rootp()->ঢোকাও(nodep->name(), নতুন VSymEnt{&m_mods, nodep});
         }
     }
 
-    VSymEnt* rootEntp() const { return m_syms.rootp(); }
-    VSymEnt* dunitEntp() const { return m_dunitEntp; }
-    void checkDuplicate(VSymEnt* lookupSymp, AstNode* nodep, const string& name) {
+    VSymEnt* মূল_Entp() ধ্রুবক { ফেরত m_syms.rootp(); }
+    VSymEnt* dunitEntp() ধ্রুবক { ফেরত m_dunitEntp; }
+    শূন্য checkDuplicate(VSymEnt* lookupSymp, Ast_গ্রন্থি* nodep, ধ্রুবক string& name) {
         // Lookup the given name under current symbol table
         // Insert if not found
         // Report error if there's a duplicate
@@ -338,13 +338,13 @@ public:
         // Note we only check for conflicts at the same level; it's ok if one block hides another
         // We also wouldn't want to not insert it even though it's lower down
 
-        const VSymEnt* const foundp = lookupSymp->findIdFlat(name);
-        AstNode* const fnodep = foundp ? foundp->nodep() : nullptr;
-        if (!fnodep) {
+        ধ্রুবক VSymEnt* ধ্রুবক foundp = lookupSymp->findIdFlat(name);
+        Ast_গ্রন্থি* ধ্রুবক fnodep = foundp ? foundp->nodep() : nullptr;
+        যদি (!fnodep) {
             // Not found, will add in a moment.
-            if (forPrimary() && VSymEnt::checkSimilarname(nodep)) {
-                const VSymEnt* const alt = lookupSymp->findSimilarIdFlat(name);
-                if (alt) {
+            যদি (forPrimary() && VSymEnt::checkSimilarname(nodep)) {
+                ধ্রুবক VSymEnt* ধ্রুবক alt = lookupSymp->findSimilarIdFlat(name);
+                যদি (alt) {
                     nodep->v3warn(SIMILARNAME, "Declaration overlaps another with different case: "
                                                    << nodep->prettyNameQ() << '\n'
                                                    << nodep->warnContextPrimary() << '\n'
@@ -353,107 +353,107 @@ public:
                                                    << alt->nodep()->warnContextSecondary());
                 }
             }
-        } else if (nodep == fnodep) {  // Already inserted.
+        } অন্যথা যদি (nodep == fnodep) {  // Already inserted.
             // Good.
-        } else if (foundp->imported()) {  // From package
+        } অন্যথা যদি (foundp->imported()) {  // From package
             // We don't throw VARHIDDEN as if the import is later the symbol
             // table's import wouldn't warn
-        } else if (forPrimary() && VN_IS(nodep, GenBlock)
+        } অন্যথা যদি (forPrimary() && VN_IS(nodep, GenBlock)
                    && (VN_IS(fnodep, Begin) || VN_IS(fnodep, GenBlock))) {
             // Begin: ... blocks often replicate under genif/genfor, so
             // suppress duplicate checks.  See t_gen_forif.v for an example.
-        } else {
+        } অন্যথা {
             UINFO(4, "name " << name);  // Not always same as nodep->name
             UINFO(4, "Var1 " << nodep);
             UINFO(4, "Var2 " << fnodep);
             // Quote the node's own name as for messages, if it is the symbol's
-            const string nameQ
-                = fnodep->name() == name ? fnodep->prettyNameQ() : AstNode::prettyNameQ(name);
-            if (nodep->type() == fnodep->type()) {
+            ধ্রুবক string nameQ
+                = fnodep->name() == name ? fnodep->prettyNameQ() : Ast_গ্রন্থি::prettyNameQ(name);
+            যদি (nodep->type() == fnodep->type()) {
                 nodep->v3error("Duplicate declaration of "
-                               << nodeTextType(fnodep) << ": " << nameQ << '\n'
+                               << গ্রন্থি_Text_Type(fnodep) << ": " << nameQ << '\n'
                                << nodep->warnContextPrimary() << '\n'
                                << fnodep->warnOther() << "... Location of original declaration\n"
                                << fnodep->warnContextSecondary());
-                nodep->declTokenNumSetMin(0);  // Disable checking forward typedefs
-                fnodep->declTokenNumSetMin(0);  // Disable checking forward typedefs
-            } else {
+                nodep->decl_Token_অঙ্ক_Set_Min(0);  // Disable checking forward typedefs
+                fnodep->decl_Token_অঙ্ক_Set_Min(0);  // Disable checking forward typedefs
+            } অন্যথা {
                 nodep->v3error("Unsupported in C: "
-                               << ucfirst(nodeTextType(nodep)) << " has the same name as "
-                               << nodeTextType(fnodep) << ": " << nameQ << '\n'
+                               << ucfirst(গ্রন্থি_Text_Type(nodep)) << " has the same name as "
+                               << গ্রন্থি_Text_Type(fnodep) << ": " << nameQ << '\n'
                                << nodep->warnContextPrimary() << '\n'
                                << fnodep->warnOther() << "... Location of original declaration\n"
                                << fnodep->warnContextSecondary());
             }
         }
     }
-    void insertDUnit(AstNetlist* nodep) {
+    শূন্য ঢোকাও_DUnit(AstNetlist* nodep) {
         // $unit on top scope
-        VSymEnt* const symp = new VSymEnt{&m_syms, nodep};
+        VSymEnt* ধ্রুবক symp = নতুন VSymEnt{&m_syms, nodep};
         UINFO(9, "      INSERTdunit se" << cvtToHex(symp));
-        symp->parentp(rootEntp());  // Needed so backward search can find name of top module
+        symp->parentp(মূল_Entp());  // Needed so backward search can find name of top module
         symp->fallbackp(nullptr);
-        rootEntp()->insert("$unit ", symp);  // Space so can never name conflict with user code
+        মূল_Entp()->ঢোকাও("$unit ", symp);  // Space so can never name conflict with user code
         //
         UASSERT_OBJ(!m_dunitEntp, nodep, "Call insertDUnit only once");
         m_dunitEntp = symp;
     }
-    VSymEnt* insertTopCell(AstNodeModule* nodep, const string& scopename) {
+    VSymEnt* ঢোকাও_শীর্ষ_Cell(Ast_গ্রন্থি_Module* nodep, ধ্রুবক string& scopename) {
         // Only called on the module at the very top of the hierarchy
-        VSymEnt* const symp = new VSymEnt{&m_syms, nodep};
+        VSymEnt* ধ্রুবক symp = নতুন VSymEnt{&m_syms, nodep};
         UINFO(9, "      INSERTtop se" << cvtToHex(symp) << "  " << scopename << " " << nodep);
-        symp->parentp(rootEntp());  // Needed so backward search can find name of top module
+        symp->parentp(মূল_Entp());  // Needed so backward search can find name of top module
         symp->fallbackp(dunitEntp());  // Needed so can find $unit stuff
         nodep->user1p(symp);
-        checkDuplicate(rootEntp(), nodep, nodep->origName());
-        rootEntp()->insert(nodep->origName(), symp);
-        if (forScopeCreation()) m_nameScopeSymMap.emplace(scopename, symp);
-        return symp;
+        checkDuplicate(মূল_Entp(), nodep, nodep->origName());
+        মূল_Entp()->ঢোকাও(nodep->origName(), symp);
+        যদি (forScopeCreation()) m_nameScopeSymMap.emplace(scopename, symp);
+        ফেরত symp;
     }
-    VSymEnt* insertTopIface(AstCell* nodep, const string& scopename) {
-        VSymEnt* const symp = new VSymEnt{&m_syms, nodep};
+    VSymEnt* ঢোকাও_শীর্ষ_Iface(AstCell* nodep, ধ্রুবক string& scopename) {
+        VSymEnt* ধ্রুবক symp = নতুন VSymEnt{&m_syms, nodep};
         UINFO(9, "      INSERTtopiface se" << cvtToHex(symp) << "  " << scopename << " " << nodep);
-        symp->parentp(rootEntp());  // Needed so backward search can find name of top module
+        symp->parentp(মূল_Entp());  // Needed so backward search can find name of top module
         symp->fallbackp(dunitEntp());  // Needed so can find $unit stuff
         nodep->user1p(symp);
-        if (nodep->modp()) nodep->modp()->user1p(symp);
-        checkDuplicate(rootEntp(), nodep, nodep->origName());
-        rootEntp()->insert(nodep->origName(), symp);
-        if (forScopeCreation()) m_nameScopeSymMap.emplace(scopename, symp);
-        return symp;
+        যদি (nodep->modp()) nodep->modp()->user1p(symp);
+        checkDuplicate(মূল_Entp(), nodep, nodep->origName());
+        মূল_Entp()->ঢোকাও(nodep->origName(), symp);
+        যদি (forScopeCreation()) m_nameScopeSymMap.emplace(scopename, symp);
+        ফেরত symp;
     }
-    VSymEnt* insertCell(VSymEnt* abovep, VSymEnt* modSymp, AstCell* nodep,
-                        const string& scopename) {
+    VSymEnt* ঢোকাও_Cell(VSymEnt* abovep, VSymEnt* modSymp, AstCell* nodep,
+                        ধ্রুবক string& scopename) {
         UASSERT_OBJ(abovep, nodep, "Null symbol table inserting node");
-        VSymEnt* const symp = new VSymEnt{&m_syms, nodep};
+        VSymEnt* ধ্রুবক symp = নতুন VSymEnt{&m_syms, nodep};
         UINFO(9, "      INSERTcel se" << cvtToHex(symp) << "  " << scopename << " above=se"
                                       << cvtToHex(abovep) << " mods=se" << cvtToHex(modSymp)
                                       << " node=" << nodep);
         symp->parentp(abovep);
         symp->fallbackp(dunitEntp());  // Needed so can find $unit stuff
         nodep->user1p(symp);
-        if (nodep->modp()) nodep->modp()->user1p(symp);
+        যদি (nodep->modp()) nodep->modp()->user1p(symp);
         checkDuplicate(abovep, nodep, nodep->origName());
         abovep->reinsert(nodep->origName(), symp);
-        if (forScopeCreation() && abovep != modSymp && !modSymp->findIdFlat(nodep->name())) {
+        যদি (forScopeCreation() && abovep != modSymp && !modSymp->findIdFlat(nodep->name())) {
             // If it's foo_DOT_bar, we need to be able to find it under "foo_DOT_bar" too.
             // Duplicates are possible, as until resolve generates might
             // have 2 same cells under an if
             modSymp->reinsert(nodep->name(), symp);
         }
-        if (forScopeCreation()) m_nameScopeSymMap.emplace(scopename, symp);
-        return symp;
+        যদি (forScopeCreation()) m_nameScopeSymMap.emplace(scopename, symp);
+        ফেরত symp;
     }
-    void insertMap(VSymEnt* symp, const string& scopename) {
-        if (forScopeCreation()) m_nameScopeSymMap.emplace(scopename, symp);
+    শূন্য ঢোকাও_Map(VSymEnt* symp, ধ্রুবক string& scopename) {
+        যদি (forScopeCreation()) m_nameScopeSymMap.emplace(scopename, symp);
     }
 
-    VSymEnt* insertInline(VSymEnt* abovep, VSymEnt* modSymp, AstCellInline* nodep,
-                          const string& basename) {
+    VSymEnt* ঢোকাও_Inline(VSymEnt* abovep, VSymEnt* modSymp, AstCellInline* nodep,
+                          ধ্রুবক string& basename) {
         // A fake point in the hierarchy, corresponding to a named block flattened by V3Begin.
         // Names are looked up in the module with the block's flattened prefix.
         UASSERT_OBJ(abovep, nodep, "Null symbol table inserting node");
-        VSymEnt* const symp = new VSymEnt{&m_syms, nodep};
+        VSymEnt* ধ্রুবক symp = নতুন VSymEnt{&m_syms, nodep};
         UINFO(9, "      INSERTinl se" << cvtToHex(symp) << "  " << basename << " above=se"
                                       << cvtToHex(abovep) << " mods=se" << cvtToHex(modSymp)
                                       << " node=" << nodep);
@@ -463,20 +463,20 @@ public:
         nodep->user1p(symp);
         checkDuplicate(abovep, nodep, nodep->name());
         abovep->reinsert(basename, symp);
-        if (abovep != modSymp && !modSymp->findIdFlat(nodep->name())) {
+        যদি (abovep != modSymp && !modSymp->findIdFlat(nodep->name())) {
             // If it's foo_DOT_bar, we need to be able to find it under that too.
             modSymp->reinsert(nodep->name(), symp);
         }
-        return symp;
+        ফেরত symp;
     }
-    VSymEnt* insertBlock(VSymEnt* abovep, const string& name, AstNode* nodep,
-                         AstNodeModule* classOrPackagep) {
+    VSymEnt* ঢোকাও_Block(VSymEnt* abovep, ধ্রুবক string& name, Ast_গ্রন্থি* nodep,
+                         Ast_গ্রন্থি_Module* classOrPackagep) {
         // A fake point in the hierarchy, corresponding to a begin or function/task block
         // After we remove begins these will go away
         // Note we fallback to the symbol table of the parent, as we want to find variables there
         // However, cells walk the graph, so cells will appear under the begin/ftask itself
         UASSERT_OBJ(abovep, nodep, "Null symbol table inserting node");
-        VSymEnt* const symp = new VSymEnt{&m_syms, nodep};
+        VSymEnt* ধ্রুবক symp = নতুন VSymEnt{&m_syms, nodep};
         UINFO(9, "      INSERTblk se" << cvtToHex(symp) << "  above=se" << cvtToHex(abovep)
                                       << " pkg=" << cvtToHex(classOrPackagep)
                                       << "  node=" << nodep);
@@ -484,15 +484,15 @@ public:
         symp->classOrPackagep(classOrPackagep);
         symp->fallbackp(abovep);
         nodep->user1p(symp);
-        if (name != "") checkDuplicate(abovep, nodep, name);
+        যদি (name != "") checkDuplicate(abovep, nodep, name);
         // Duplicates are possible, as until resolve generates might have 2 same cells under an if
         abovep->reinsert(name, symp);
-        return symp;
+        ফেরত symp;
     }
-    VSymEnt* insertSym(VSymEnt* abovep, const string& name, AstNode* nodep,
-                       AstNodeModule* classOrPackagep) {
+    VSymEnt* ঢোকাও_Sym(VSymEnt* abovep, ধ্রুবক string& name, Ast_গ্রন্থি* nodep,
+                       Ast_গ্রন্থি_Module* classOrPackagep) {
         UASSERT_OBJ(abovep, nodep, "Null symbol table inserting node");
-        VSymEnt* const symp = new VSymEnt{&m_syms, nodep};
+        VSymEnt* ধ্রুবক symp = নতুন VSymEnt{&m_syms, nodep};
         UINFO(9, "      INSERTsym se" << cvtToHex(symp) << "  name='" << name << "' above=se"
                                       << cvtToHex(abovep) << " pkg=" << cvtToHex(classOrPackagep)
                                       << "  node=" << nodep);
@@ -504,161 +504,161 @@ public:
         nodep->user1p(symp);
         checkDuplicate(abovep, nodep, name);
         abovep->reinsert(name, symp);
-        return symp;
+        ফেরত symp;
     }
-    static bool existsNodeSym(AstNode* nodep) { return nodep->user1p() != nullptr; }
-    static VSymEnt* getNodeSym(AstNode* nodep) {
+    স্থির যৌক্তিক exists_গ্রন্থি_Sym(Ast_গ্রন্থি* nodep) { ফেরত nodep->user1p() != nullptr; }
+    স্থির VSymEnt* get_গ্রন্থি_Sym(Ast_গ্রন্থি* nodep) {
         // Don't use this in ResolveVisitor, as we need to pick up the proper
         // reference under each SCOPE
-        VSymEnt* const symp = nodep->user1u().toSymEnt();
+        VSymEnt* ধ্রুবক symp = nodep->user1u().toSymEnt();
         UASSERT_OBJ(symp, nodep, "Module/etc never assigned a symbol entry?");
-        return symp;
+        ফেরত symp;
     }
     VSymEnt* getScopeSym(AstScope* nodep) {
-        const auto it = m_nameScopeSymMap.find(nodep->name());
+        ধ্রুবক auto it = m_nameScopeSymMap.find(nodep->name());
         UASSERT_OBJ(it != m_nameScopeSymMap.end(), nodep,
                     "Scope never assigned a symbol entry '" << nodep->name() << "'");
-        return it->second;
+        ফেরত it->second;
     }
-    void implicitOkAdd(AstNodeModule* nodep, const string& varname) {
+    শূন্য implicitOkAdd(Ast_গ্রন্থি_Module* nodep, ধ্রুবক string& varname) {
         // Mark the given variable name as being allowed to be implicitly declared
-        if (nodep) {
-            const auto it = m_implicitNameSet.find(std::make_pair(nodep, varname));
-            if (it == m_implicitNameSet.end()) m_implicitNameSet.emplace(nodep, varname);
+        যদি (nodep) {
+            ধ্রুবক auto it = m_implicitNameSet.find(std::make_pair(nodep, varname));
+            যদি (it == m_implicitNameSet.end()) m_implicitNameSet.emplace(nodep, varname);
         }
     }
-    bool implicitOk(AstNodeModule* nodep, const string& varname) {
-        return nodep
+    যৌক্তিক implicitOk(Ast_গ্রন্থি_Module* nodep, ধ্রুবক string& varname) {
+        ফেরত nodep
                && (m_implicitNameSet.find(std::make_pair(nodep, varname))
                    != m_implicitNameSet.end());
     }
 
     // Track and later recurse interface modules
-    void insertIfaceModSym(AstIface* nodep, VSymEnt* symp) {
+    শূন্য ঢোকাও_Iface_Mod_Sym(AstIface* nodep, VSymEnt* symp) {
         m_ifaceModSyms.emplace_back(nodep, symp);
     }
-    void computeIfaceModSyms();
+    শূন্য computeIfaceModSyms();
 
     // Track and later insert interface references
-    void insertIfaceVarSym(VSymEnt* symp) {  // Where sym is for a VAR of dtype IFACEREFDTYPE
-        m_ifaceVarSyms.push_back(symp);
+    শূন্য ঢোকাও_Iface_Var_Sym(VSymEnt* symp) {  // Where sym is for a VAR of dtype IFACEREFDTYPE
+        m_ifaceVarSyms.ঠেলো_back(symp);
     }
     // Iface for a raw or arrayed iface; peels nested array layers for multi-dim arrays.
-    static AstIfaceRefDType* ifaceRefFromArray(AstNodeDType* nodep) {
-        while (nodep) {
-            if (AstIfaceRefDType* const ifp = VN_CAST(nodep, IfaceRefDType)) return ifp;
-            if (const AstBracketArrayDType* const arrp = VN_CAST(nodep, BracketArrayDType)) {
+    স্থির AstIfaceRefDType* ifaceRefFromArray(Ast_গ্রন্থি_DType* nodep) {
+        যখন (nodep) {
+            যদি (AstIfaceRefDType* ধ্রুবক ifp = VN_CAST(nodep, IfaceRefDType)) ফেরত ifp;
+            যদি (ধ্রুবক AstBracketArrayDType* ধ্রুবক arrp = VN_CAST(nodep, BracketArrayDType)) {
                 nodep = arrp->subDTypep();
-            } else if (const AstUnpackArrayDType* const arrp = VN_CAST(nodep, UnpackArrayDType)) {
+            } অন্যথা যদি (ধ্রুবক AstUnpackArrayDType* ধ্রুবক arrp = VN_CAST(nodep, UnpackArrayDType)) {
                 nodep = arrp->subDTypep();
-            } else {
-                return nullptr;
+            } অন্যথা {
+                ফেরত nullptr;
             }
         }
-        return nullptr;
+        ফেরত nullptr;
     }
     // Given a pin expression, resolve it to a live AstIface* (or nullptr).
     // Handles both simple VarRef and dotted VarXRef pin connections.
-    AstIface* liveIfaceFromPinExpr(AstNode* exprp, VSymEnt* parentSymp) {
+    AstIface* live_Iface_From_Pin_রাশিমালা(Ast_গ্রন্থি* exprp, VSymEnt* parentSymp) {
         AstVar* resolvedVarp = nullptr;
-        if (AstVarRef* const refp = VN_CAST(exprp, VarRef)) {
+        যদি (AstVarRef* ধ্রুবক refp = VN_CAST(exprp, VarRef)) {
             resolvedVarp = refp->varp();
-        } else if (AstVarXRef* const xrefp = VN_CAST(exprp, VarXRef)) {
-            VSymEnt* const lookupSymp = parentSymp ? parentSymp->parentp() : nullptr;
-            if (lookupSymp) {
+        } অন্যথা যদি (AstVarXRef* ধ্রুবক xrefp = VN_CAST(exprp, VarXRef)) {
+            VSymEnt* ধ্রুবক lookupSymp = parentSymp ? parentSymp->parentp() : nullptr;
+            যদি (lookupSymp) {
                 string baddot;
                 VSymEnt* okSymp = nullptr;
-                const string dotpath = xrefp->dotted() + "." + xrefp->name();
-                VSymEnt* const dotSymp
-                    = findDotted(xrefp->fileline(), lookupSymp, dotpath, baddot, okSymp, true);
-                if (dotSymp) resolvedVarp = VN_CAST(dotSymp->nodep(), Var);
+                ধ্রুবক string dotpath = xrefp->dotted() + "." + xrefp->name();
+                VSymEnt* ধ্রুবক dotSymp
+                    = findDotted(xrefp->fileline(), lookupSymp, dotpath, baddot, okSymp, সত্য);
+                যদি (dotSymp) resolvedVarp = VN_CAST(dotSymp->nodep(), Var);
             }
         }
         AstIface* resultp = nullptr;
-        if (resolvedVarp) {
-            AstIfaceRefDType* const irefp = ifaceRefFromArray(resolvedVarp->subDTypep());
-            if (irefp && irefp->ifaceViaCellp() && !irefp->ifaceViaCellp()->dead()) {
+        যদি (resolvedVarp) {
+            AstIfaceRefDType* ধ্রুবক irefp = ifaceRefFromArray(resolvedVarp->subDTypep());
+            যদি (irefp && irefp->ifaceViaCellp() && !irefp->ifaceViaCellp()->dead()) {
                 resultp = irefp->ifaceViaCellp();
             }
         }
-        return resultp;
+        ফেরত resultp;
     }
 
     // Attempt to repair a port's AstIfaceRefDType by tracing through the
     // parent cell's pin connection to find the correct live interface.
     // Returns true if repaired or already correct; false if unresolvable.
-    bool repairIfaceRef(VSymEnt* varSymp, AstVar* varp, AstIfaceRefDType* ifacerefp, bool isDead) {
+    যৌক্তিক repairIfaceRef(VSymEnt* varSymp, AstVar* varp, AstIfaceRefDType* ifacerefp, যৌক্তিক isDead) {
         // Walk up symbol-table parents to find the enclosing AstCell
         VSymEnt* parentSymp = varSymp->parentp();
         AstCell* parentCellp = nullptr;
-        for (int depth = 0; parentSymp && depth < 20; ++depth) {
-            if (AstCell* const cp = VN_CAST(parentSymp->nodep(), Cell)) {
+        জন্য (পূর্ণসংখ্যা depth = 0; parentSymp && depth < 20; ++depth) {
+            যদি (AstCell* ধ্রুবক cp = VN_CAST(parentSymp->nodep(), Cell)) {
                 parentCellp = cp;
-                break;
+                বিরতি;
             }
             parentSymp = parentSymp->parentp();
         }
-        if (!parentCellp) return false;
+        যদি (!parentCellp) ফেরত মিথ্যা;
         // Scan pins to find the one connected to this port variable
-        for (AstPin* pinp = parentCellp->pinsp(); pinp; pinp = VN_AS(pinp->nextp(), Pin)) {
-            if (pinp->modVarp() != varp && pinp->name() != varp->name()) continue;
-            AstNode* const exprp = pinp->exprp();
-            if (!exprp) return false;
-            AstIface* const newIfacep = liveIfaceFromPinExpr(exprp, parentSymp);
-            if (newIfacep && newIfacep != ifacerefp->ifaceViaCellp()) {
+        জন্য (AstPin* pinp = parentCellp->pinsp(); pinp; pinp = VN_AS(pinp->nextp(), Pin)) {
+            যদি (pinp->modVarp() != varp && pinp->name() != varp->name()) চালু;
+            Ast_গ্রন্থি* ধ্রুবক exprp = pinp->exprp();
+            যদি (!exprp) ফেরত মিথ্যা;
+            AstIface* ধ্রুবক newIfacep = live_Iface_From_Pin_রাশিমালা(exprp, parentSymp);
+            যদি (newIfacep && newIfacep != ifacerefp->ifaceViaCellp()) {
                 UINFO(4, "  REPAIR-IFACE-REF var=" << varp->prettyNameQ()
                                                    << " old=" << ifacerefp->ifacep()->prettyNameQ()
                                                    << " new=" << newIfacep->prettyNameQ());
                 ifacerefp->ifacep(newIfacep);
-                return true;
+                ফেরত সত্য;
             }
-            if (newIfacep) return !isDead;  // Same interface - OK if live
-            return false;
+            যদি (newIfacep) ফেরত !isDead;  // Same interface - OK if live
+            ফেরত মিথ্যা;
         }
-        return false;
+        ফেরত মিথ্যা;
     }
 
-    void computeIfaceVarSyms() {
-        for (VSymEnt* varSymp : m_ifaceVarSyms) {
-            AstVar* const varp = varSymp ? VN_AS(varSymp->nodep(), Var) : nullptr;
+    শূন্য computeIfaceVarSyms() {
+        জন্য (VSymEnt* varSymp : m_ifaceVarSyms) {
+            AstVar* ধ্রুবক varp = varSymp ? VN_AS(varSymp->nodep(), Var) : nullptr;
             UINFO(9, "  insAllIface se" << cvtToHex(varSymp) << " " << varp);
-            AstIfaceRefDType* const ifacerefp = ifaceRefFromArray(varp->subDTypep());
+            AstIfaceRefDType* ধ্রুবক ifacerefp = ifaceRefFromArray(varp->subDTypep());
             UASSERT_OBJ(ifacerefp, varp, "Non-ifacerefs on list!");
-            if (!ifacerefp->cellp() && !ifacerefp->isVirtual() && (varp->pinNum() == 0)) {
+            যদি (!ifacerefp->cellp() && !ifacerefp->isVirtual() && (varp->pin_অঙ্ক() == 0)) {
                 varp->v3error("Interface port declaration "
                               << varp->prettyNameQ() << " doesn't have corresponding port\n"
                               << varp->warnMore()
                                      + "... Perhaps intended an interface instantiation but "
                                        "are missing parenthesis (IEEE 1800-2023 25.3)?");
             }
-            if (!ifacerefp->ifaceViaCellp()) {
-                if (!ifacerefp->cellp()) {  // Probably a NotFoundModule, or a normal module if
+            যদি (!ifacerefp->ifaceViaCellp()) {
+                যদি (!ifacerefp->cellp()) {  // Probably a NotFoundModule, or a normal module if
                                             // made mistake
-                    UINFO(1, "Associated cell " << AstNode::prettyNameQ(ifacerefp->cellName()));
+                    UINFO(1, "Associated cell " << Ast_গ্রন্থি::prettyNameQ(ifacerefp->cellName()));
                     ifacerefp->v3error("Cannot find file containing interface: "
-                                       << AstNode::prettyNameQ(ifacerefp->ifaceName()));
-                    continue;
-                } else {
+                                       << Ast_গ্রন্থি::prettyNameQ(ifacerefp->ifaceName()));
+                    চালু;
+                } অন্যথা {
                     ifacerefp->v3fatalSrc("Unlinked interface");
                 }
-            } else if (varp->isIfaceRef() && !ifacerefp->cellp() && ifacerefp->ifaceViaCellp()) {
+            } অন্যথা যদি (varp->isIfaceRef() && !ifacerefp->cellp() && ifacerefp->ifaceViaCellp()) {
                 // Port variable (cellp=null) pointing to an interface.
                 // The interface may be dead (template replaced by clone) or
                 // live-but-wrong (template still alive because some instances
                 // use default params, but this port should point to a
                 // specialized clone based on the pin connection).
-                const bool isDead = ifacerefp->ifaceViaCellp()->dead();
-                if (isDead && forPrimary() && !varp->isIfaceParent()
-                    && !v3Global.opt.topIfacesSupported()) {
+                ধ্রুবক যৌক্তিক isDead = ifacerefp->ifaceViaCellp()->dead();
+                যদি (isDead && forPrimary() && !varp->isIfaceParent()
+                    && !v3Global.opt.শীর্ষ_Ifaces_Supported()) {
                     varp->v3warn(E_UNSUPPORTED,
                                  "Unsupported: Interfaced port on top level module");
                 }
                 // Attempt repair: trace through parent cell's pin to find
                 // the correct live interface for this port variable
-                const bool repaired = repairIfaceRef(varSymp, varp, ifacerefp, isDead);
-                if (!repaired && isDead) {
+                ধ্রুবক যৌক্তিক repaired = repairIfaceRef(varSymp, varp, ifacerefp, isDead);
+                যদি (!repaired && isDead) {
                     ifacerefp->v3error(
-                        "Interface " << AstNode::prettyNameQ(ifacerefp->ifaceName())
+                        "Interface " << Ast_গ্রন্থি::prettyNameQ(ifacerefp->ifaceName())
                                      << " not connected as parent's interface not connected\n"
                                      << ifacerefp->warnMore()
                                      << "... Perhaps caused by another error on the parent "
@@ -666,31 +666,31 @@ public:
                                      << ifacerefp->warnMore()
                                      << "... Or, perhaps intended an interface instantiation but "
                                         "are missing parenthesis (IEEE 1800-2023 25.3)?");
-                    continue;
+                    চালু;
                 }
-            } else if (ifacerefp->ifaceViaCellp()->dead()
-                       || !existsNodeSym(ifacerefp->ifaceViaCellp())) {
+            } অন্যথা যদি (ifacerefp->ifaceViaCellp()->dead()
+                       || !exists_গ্রন্থি_Sym(ifacerefp->ifaceViaCellp())) {
                 ifacerefp->ifaceViaCellp()->v3fatalSrc(
                     "Interface referenced by virtual iface is dead. "
                     "Dead interfaces have required linking steps skipped");
             }
-            VSymEnt* const ifaceSymp = getNodeSym(ifacerefp->ifaceViaCellp());
+            VSymEnt* ধ্রুবক ifaceSymp = get_গ্রন্থি_Sym(ifacerefp->ifaceViaCellp());
             VSymEnt* ifOrPortSymp = ifaceSymp;
             // Link Modport names to the Modport Node under the Interface
-            if (ifacerefp->isModport()) {
-                VSymEnt* const foundp = ifaceSymp->findIdFallback(ifacerefp->modportName());
-                bool ok = false;
-                if (foundp) {
-                    if (AstModport* const modportp = VN_CAST(foundp->nodep(), Modport)) {
+            যদি (ifacerefp->isModport()) {
+                VSymEnt* ধ্রুবক foundp = ifaceSymp->findIdFallback(ifacerefp->modportName());
+                যৌক্তিক ok = মিথ্যা;
+                যদি (foundp) {
+                    যদি (AstModport* ধ্রুবক modportp = VN_CAST(foundp->nodep(), Modport)) {
                         UINFO(4, "Link Modport: " << modportp);
                         ifacerefp->modportp(modportp);
                         ifOrPortSymp = foundp;
-                        ok = true;
+                        ok = সত্য;
                     }
                 }
-                if (!ok) {
-                    const string suggest = suggestSymFallback(ifaceSymp, ifacerefp->modportName(),
-                                                              LinkNodeMatcherModport{});
+                যদি (!ok) {
+                    ধ্রুবক string suggest = suggestSymFallback(ifaceSymp, ifacerefp->modportName(),
+                                                              Link_গ্রন্থি_Matcher_Modport{});
                     ifacerefp->modportFileline()->v3error(
                         "Modport not found under interface "
                         << ifacerefp->prettyNameQ(ifacerefp->ifaceName()) << ": "
@@ -699,12 +699,12 @@ public:
                 }
             }
             // Alias won't expand until interfaces and modport names are known; see notes at top
-            insertScopeAlias(SAMN_IFTOP, varSymp, ifOrPortSymp);
+            ঢোকাও_Scope_Alias(SAMN_IFTOP, varSymp, ifOrPortSymp);
         }
         m_ifaceVarSyms.clear();
     }
 
-    void insertScopeAlias(SAMNum samn, VSymEnt* lhsp, VSymEnt* rhsp) {
+    শূন্য ঢোকাও_Scope_Alias(SAMNum samn, VSymEnt* lhsp, VSymEnt* rhsp) {
         // Track and later insert scope aliases; an interface referenced by
         // a child cell connecting to that interface
         // Typically lhsp=VAR w/dtype IFACEREF, rhsp=IFACE cell
@@ -714,20 +714,20 @@ public:
             rhsp->nodep(), "Got a non-IFACE alias RHS");
         m_scopeAliasMap[samn].emplace(lhsp, rhsp);
     }
-    void computeScopeAliases() {
+    শূন্য computeScopeAliases() {
         UINFO(9, "computeIfaceAliases");
-        for (int samn = 0; samn < SAMN__MAX; ++samn) {
-            for (ScopeAliasMap::iterator it = m_scopeAliasMap[samn].begin();
+        জন্য (পূর্ণসংখ্যা samn = 0; samn < SAMN__MAX; ++samn) {
+            জন্য (ScopeAliasMap::iterator it = m_scopeAliasMap[samn].begin();
                  it != m_scopeAliasMap[samn].end(); ++it) {
-                VSymEnt* const lhsp = it->first;
+                VSymEnt* ধ্রুবক lhsp = it->first;
                 VSymEnt* srcp = lhsp;
-                while (true) {  // Follow chain of aliases up to highest level non-alias
-                    const auto it2 = m_scopeAliasMap[samn].find(srcp);
-                    if (it2 != m_scopeAliasMap[samn].end()) {
+                যখন (সত্য) {  // Follow chain of aliases up to highest level non-alias
+                    ধ্রুবক auto it2 = m_scopeAliasMap[samn].find(srcp);
+                    যদি (it2 != m_scopeAliasMap[samn].end()) {
                         srcp = it2->second;
-                        continue;
-                    } else {
-                        break;
+                        চালু;
+                    } অন্যথা {
+                        বিরতি;
                     }
                 }
                 UINFO(9, "  iiasa: Insert alias se" << lhsp << " (" << lhsp->nodep()->typeName()
@@ -736,176 +736,176 @@ public:
                 // import
                 lhsp->importFromIface(symsp(), srcp);
                 // Allow access to objects not permissible to be listed in a modport
-                if (VN_IS(srcp->nodep(), Modport)) {
-                    lhsp->importFromIface(symsp(), srcp->parentp(), true);
+                যদি (VN_IS(srcp->nodep(), Modport)) {
+                    lhsp->importFromIface(symsp(), srcp->parentp(), সত্য);
                 }
             }
             // m_scopeAliasMap[samn].clear();  // Done with it, but put into debug file
         }
     }
 
-private:
-    VSymEnt* findWithAltFallback(VSymEnt* symp, const string& name, const string& altname) {
+ব্যক্তিগত:
+    VSymEnt* findWithAltFallback(VSymEnt* symp, ধ্রুবক string& name, ধ্রুবক string& altname) {
         VSymEnt* findp = symp->findIdFallback(name);
-        if (findp) return findp;
-        if (altname != "") {
+        যদি (findp) ফেরত findp;
+        যদি (altname != "") {
             UINFO(8, "     alt fallback");
             findp = symp->findIdFallback(altname);
         }
-        return findp;
+        ফেরত findp;
     }
 
-    VSymEnt* findWithAltFlat(VSymEnt* symp, const string& name, const string& altname) {
+    VSymEnt* findWithAltFlat(VSymEnt* symp, ধ্রুবক string& name, ধ্রুবক string& altname) {
         VSymEnt* findp = symp->findIdFlat(name);
-        if (findp) return findp;
-        if (altname != "") {
+        যদি (findp) ফেরত findp;
+        যদি (altname != "") {
             UINFO(8, "     alt flat");
             findp = symp->findIdFlat(altname);
         }
-        return findp;
+        ফেরত findp;
     }
 
-public:
-    VSymEnt* findDotted(FileLine* refLocationp, VSymEnt* lookupSymp, const string& dotname,
-                        string& baddot, VSymEnt*& okSymp, bool firstId) {
+সর্বজনীন:
+    VSymEnt* findDotted(File_সারি* refLocationp, VSymEnt* lookupSymp, ধ্রুবক string& dotname,
+                        string& baddot, VSymEnt*& okSymp, যৌক্তিক firstId) {
         // Given a dotted hierarchy name, return where in scope it is
         // Note when dotname=="" we just fall through and return lookupSymp
         UINFO(8, "    dottedFind se" << cvtToHex(lookupSymp) << " '" << dotname << "'");
         string leftname = dotname;
         okSymp = lookupSymp;  // So can list bad scopes
-        while (leftname != "") {  // foreach dotted part of xref name
-            string::size_type pos = leftname.find('.');
+        যখন (leftname != "") {  // foreach dotted part of xref name
+            string::আকার_type pos = leftname.find('.');
             string ident;
-            if (pos != string::npos) {
+            যদি (pos != string::npos) {
                 ident = leftname.substr(0, pos);
                 leftname = leftname.substr(pos + 1);
-            } else {
+            } অন্যথা {
                 ident = leftname;
                 leftname = "";
             }
             baddot = ident;  // So user can see where they botched it
             okSymp = lookupSymp;
             string altIdent;
-            if (!forScopeCreation()) {
+            যদি (!forScopeCreation()) {
                 // GENFOR Begin is foo__BRA__##__KET__ after we've genloop unrolled,
                 // but presently should be just "foo".
                 // Likewise cell foo__[array] before we've expanded arrays is just foo.
                 // Multi-dim iface arrays append multiple __BRA__..__KET__ suffixes; strip them
                 // all.
                 altIdent = ident;
-                while (VString::endsWith(altIdent, "__KET__")) {
-                    const auto braPos = altIdent.rfind("__BRA__");
-                    if (braPos == string::npos) break;
+                যখন (VString::endsWith(altIdent, "__KET__")) {
+                    ধ্রুবক auto braPos = altIdent.rfind("__BRA__");
+                    যদি (braPos == string::npos) বিরতি;
                     altIdent = altIdent.substr(0, braPos);
                 }
-                if (altIdent == ident) altIdent.clear();
+                যদি (altIdent == ident) altIdent.clear();
             }
             UINFO(8, "         id " << ident << " alt " << altIdent << " left " << leftname
                                     << " at se" << lookupSymp);
             // Spec says; Look at existing module (cellnames then modname),
             // then look up (inst name or modname)
-            if (firstId) {
+            যদি (firstId) {
                 // Check this module - subcellnames
-                const AstCell* cellp = lookupSymp ? VN_CAST(lookupSymp->nodep(), Cell)
+                ধ্রুবক AstCell* cellp = lookupSymp ? VN_CAST(lookupSymp->nodep(), Cell)
                                                   : nullptr;  // Replicated below
-                if (VSymEnt* const findSymp = findWithAltFallback(lookupSymp, ident, altIdent)) {
+                যদি (VSymEnt* ধ্রুবক findSymp = findWithAltFallback(lookupSymp, ident, altIdent)) {
                     lookupSymp = findSymp;
                 }
 
                 // Check this module - cur modname
-                else if (cellp && cellp->modp()->origName() == ident) {
+                অন্যথা যদি (cellp && cellp->modp()->origName() == ident) {
                 }
                 // $root we walk up to Netlist
-                else if (ident == "$root") {
-                    lookupSymp = rootEntp();
+                অন্যথা যদি (ident == "$root") {
+                    lookupSymp = মূল_Entp();
                     // We've added the '$root' module, now everything else is one lower
-                    if (forScopeCreation()) {
+                    যদি (forScopeCreation()) {
                         lookupSymp = lookupSymp->findIdFlat(ident);
                         UASSERT(lookupSymp, "Cannot find $root module under netlist");
                     }
                 }
                 // Move up and check cellname + modname
-                else {
-                    bool crossedCell = false;  // Crossed a cell boundary
-                    while (lookupSymp) {
+                অন্যথা {
+                    যৌক্তিক crossedCell = মিথ্যা;  // Crossed a cell boundary
+                    যখন (lookupSymp) {
                         lookupSymp = lookupSymp->parentp();
                         cellp = lookupSymp ? VN_CAST(lookupSymp->nodep(), Cell)
                                            : nullptr;  // Replicated above
-                        if (lookupSymp) {
+                        যদি (lookupSymp) {
                             UINFO(9, "    Up to " << lookupSymp);
-                            if (cellp || VN_IS(lookupSymp->nodep(), CellInline)) {
-                                crossedCell = true;
+                            যদি (cellp || VN_IS(lookupSymp->nodep(), CellInline)) {
+                                crossedCell = সত্য;
                             }
-                            if (cellp && cellp->modp()->origName() == ident) {
-                                break;
-                            } else if (VSymEnt* const findSym2p
+                            যদি (cellp && cellp->modp()->origName() == ident) {
+                                বিরতি;
+                            } অন্যথা যদি (VSymEnt* ধ্রুবক findSym2p
                                        = findWithAltFallback(lookupSymp, ident, altIdent)) {
                                 lookupSymp = findSym2p;
-                                if (crossedCell && VN_IS(lookupSymp->nodep(), Var)) {
+                                যদি (crossedCell && VN_IS(lookupSymp->nodep(), Var)) {
                                     UINFO(9, "    Not found but matches var name in parent "
                                                  << lookupSymp);
-                                    return nullptr;
+                                    ফেরত nullptr;
                                 }
-                                break;
+                                বিরতি;
                             }
-                        } else {
-                            break;
+                        } অন্যথা {
+                            বিরতি;
                         }
                     }
-                    if (!lookupSymp) return nullptr;  // Not found
+                    যদি (!lookupSymp) ফেরত nullptr;  // Not found
                 }
-            } else {  // Searching for middle path component, must be a cell or interface port
+            } অন্যথা {  // Searching for middle path component, must be a cell or interface port
                 VSymEnt* findSymp = findWithAltFlat(lookupSymp, ident, altIdent);
-                if (findSymp) {
+                যদি (findSymp) {
                     lookupSymp = findSymp;
-                } else {
+                } অন্যথা {
                     // Try prefixed lookup for interface ports accessed through hierarchy
                     // (e.g., slave_inst.bus.data where bus is an interface port)
                     // After inlining, interface ports have prefixed names like
                     // top__DOT__slave_inst__DOT__bus
                     UINFO(8, "     middle-path: trying prefixed lookup for '" << ident << "'\n");
                     string baddot;
-                    findSymp = findSymPrefixed(lookupSymp, ident, baddot, /*fallback=*/true);
+                    findSymp = findSymPrefixed(lookupSymp, ident, baddot, /*fallback=*/সত্য);
                     UINFO(8, "     middle-path: prefixed lookup result: "
                                  << (findSymp ? "found" : "not found") << "\n");
-                    if (findSymp) {
+                    যদি (findSymp) {
                         // Check if this is an interface reference variable
-                        const AstVar* varp = VN_CAST(findSymp->nodep(), Var);
-                        if (!varp) {
-                            if (const AstVarScope* vscp = VN_CAST(findSymp->nodep(), VarScope)) {
+                        ধ্রুবক AstVar* varp = VN_CAST(findSymp->nodep(), Var);
+                        যদি (!varp) {
+                            যদি (ধ্রুবক AstVarScope* vscp = VN_CAST(findSymp->nodep(), VarScope)) {
                                 varp = vscp->varp();
                             }
                         }
-                        if (varp && varp->isIfaceRef()) {
+                        যদি (varp && varp->isIfaceRef()) {
                             // Found an interface port - use findSymp directly
                             // computeScopeAliases has already imported interface members
                             // into this symbol entry, so we use it instead of redirecting
                             // to the shared modport definition (which would cause all
                             // instances to resolve to the same symbols - bug #2656)
                             lookupSymp = findSymp;
-                        } else {
+                        } অন্যথা {
                             // Non-interface symbol in middle path must be a cell (module instance)
                             // to continue hierarchical resolution
-                            if (VN_IS(findSymp->nodep(), Cell)) {
+                            যদি (VN_IS(findSymp->nodep(), Cell)) {
                                 lookupSymp = findSymp;
-                            } else {
+                            } অন্যথা {
                                 // Reject non-cell, non-interface symbols found via fallback
                                 // to prevent accidental resolution to unrelated symbols
                                 UINFO(8, "     middle-path: rejecting non-cell symbol\n");
-                                return nullptr;
+                                ফেরত nullptr;
                             }
                         }
-                    } else {
-                        return nullptr;  // Not found
+                    } অন্যথা {
+                        ফেরত nullptr;  // Not found
                     }
                 }
             }
-            if (lookupSymp) {
-                if (const AstCell* const cellp = VN_CAST(lookupSymp->nodep(), Cell)) {
-                    if (const AstNodeModule* const modp = cellp->modp()) {
-                        if (modp->hierBlock() && !leftname.empty()) {
+            যদি (lookupSymp) {
+                যদি (ধ্রুবক AstCell* ধ্রুবক cellp = VN_CAST(lookupSymp->nodep(), Cell)) {
+                    যদি (ধ্রুবক Ast_গ্রন্থি_Module* ধ্রুবক modp = cellp->modp()) {
+                        যদি (modp->hierBlock() && !leftname.empty()) {
                             refLocationp->v3error("Cannot access scope inside hierarchical block");
-                        } else if (VN_IS(modp, NotFoundModule)) {
+                        } অন্যথা যদি (VN_IS(modp, NotFoundModule)) {
                             refLocationp->v3error("Dotted reference to instance that refers to "
                                                   "missing module/interface: "
                                                   << modp->prettyNameQ());
@@ -913,74 +913,74 @@ public:
                     }
                 }
                 // Follow scope alias for nested interface port access
-                if (!leftname.empty()) {
-                    const auto aliasIt = m_scopeAliasMap[SAMN_IFTOP].find(lookupSymp);
-                    if (aliasIt != m_scopeAliasMap[SAMN_IFTOP].end()) {
+                যদি (!leftname.empty()) {
+                    ধ্রুবক auto aliasIt = m_scopeAliasMap[SAMN_IFTOP].find(lookupSymp);
+                    যদি (aliasIt != m_scopeAliasMap[SAMN_IFTOP].end()) {
                         lookupSymp = aliasIt->second;
                         // Alias may point to __Viftop VarScope; find corresponding Cell
-                        if (const AstVarScope* const vscp
+                        যদি (ধ্রুবক AstVarScope* ধ্রুবক vscp
                             = VN_CAST(lookupSymp->nodep(), VarScope)) {
-                            const string varName = vscp->varp()->name();
-                            static constexpr const char* const VIFTOP_SUFFIX = "__Viftop";
-                            if (VString::endsWith(varName, VIFTOP_SUFFIX)) {
-                                const string cellName
-                                    = varName.substr(0, varName.size() - strlen(VIFTOP_SUFFIX));
-                                VSymEnt* const parentSymp = lookupSymp->parentp();
-                                if (parentSymp) {
-                                    VSymEnt* const cellSymp = parentSymp->findIdFlat(cellName);
-                                    if (cellSymp && VN_IS(cellSymp->nodep(), Cell)) {
+                            ধ্রুবক string varName = vscp->varp()->name();
+                            স্থির constexpr ধ্রুবক অক্ষর* ধ্রুবক VIFTOP_SUFFIX = "__Viftop";
+                            যদি (VString::endsWith(varName, VIFTOP_SUFFIX)) {
+                                ধ্রুবক string cellName
+                                    = varName.substr(0, varName.আকার_2() - strlen(VIFTOP_SUFFIX));
+                                VSymEnt* ধ্রুবক parentSymp = lookupSymp->parentp();
+                                যদি (parentSymp) {
+                                    VSymEnt* ধ্রুবক cellSymp = parentSymp->findIdFlat(cellName);
+                                    যদি (cellSymp && VN_IS(cellSymp->nodep(), Cell)) {
                                         lookupSymp = cellSymp;  // Use Cell for member lookup
                                     }
                                 }
                             }
                         }
-                    } else {
+                    } অন্যথা {
                         // No alias; try following IfaceRefDType to interface cell
-                        const AstVar* varp = VN_CAST(lookupSymp->nodep(), Var);
-                        if (!varp) {
-                            if (const AstVarScope* const vscp
+                        ধ্রুবক AstVar* varp = VN_CAST(lookupSymp->nodep(), Var);
+                        যদি (!varp) {
+                            যদি (ধ্রুবক AstVarScope* ধ্রুবক vscp
                                 = VN_CAST(lookupSymp->nodep(), VarScope)) {
                                 varp = vscp->varp();
                             }
                         }
-                        if (varp && varp->isIfaceRef()) {
-                            if (const AstIfaceRefDType* const ifaceRefp
+                        যদি (varp && varp->isIfaceRef()) {
+                            যদি (ধ্রুবক AstIfaceRefDType* ধ্রুবক ifaceRefp
                                 = ifaceRefFromArray(varp->dtypep())) {
-                                if (ifaceRefp->cellp() && existsNodeSym(ifaceRefp->cellp())) {
-                                    lookupSymp = getNodeSym(ifaceRefp->cellp());
-                                } else if (ifaceRefp->ifaceViaCellp()
-                                           && existsNodeSym(ifaceRefp->ifaceViaCellp())) {
-                                    lookupSymp = getNodeSym(ifaceRefp->ifaceViaCellp());
-                                } else if (ifaceRefp->ifacep()
-                                           && existsNodeSym(ifaceRefp->ifacep())) {
-                                    lookupSymp = getNodeSym(ifaceRefp->ifacep());
+                                যদি (ifaceRefp->cellp() && exists_গ্রন্থি_Sym(ifaceRefp->cellp())) {
+                                    lookupSymp = get_গ্রন্থি_Sym(ifaceRefp->cellp());
+                                } অন্যথা যদি (ifaceRefp->ifaceViaCellp()
+                                           && exists_গ্রন্থি_Sym(ifaceRefp->ifaceViaCellp())) {
+                                    lookupSymp = get_গ্রন্থি_Sym(ifaceRefp->ifaceViaCellp());
+                                } অন্যথা যদি (ifaceRefp->ifacep()
+                                           && exists_গ্রন্থি_Sym(ifaceRefp->ifacep())) {
+                                    lookupSymp = get_গ্রন্থি_Sym(ifaceRefp->ifacep());
                                 }
                             }
                         }
                     }
                 }
             }
-            firstId = false;
+            firstId = মিথ্যা;
         }
-        return lookupSymp;
+        ফেরত lookupSymp;
     }
 
-    static string removeLastInlineScope(const string& name) {
+    স্থির string removeLastInlineScope(ধ্রুবক string& name) {
         string out = name;
-        const string dot = "__DOT__";
-        const size_t dotPos = out.rfind(dot, out.size() - dot.length() - 1);
-        if (dotPos == string::npos) {
-            return "";
-        } else {
-            return out.erase(dotPos + dot.length(), string::npos);
+        ধ্রুবক string dot = "__DOT__";
+        ধ্রুবক আকার_t dotPos = out.rfind(dot, out.আকার_2() - dot.দৈর্ঘ্য() - 1);
+        যদি (dotPos == string::npos) {
+            ফেরত "";
+        } অন্যথা {
+            ফেরত out.erase(dotPos + dot.দৈর্ঘ্য(), string::npos);
         }
     }
 
-    VSymEnt* findSymPrefixed(VSymEnt* lookupSymp, const string& dotname, string& baddot,
-                             bool fallback) {
+    VSymEnt* findSymPrefixed(VSymEnt* lookupSymp, ধ্রুবক string& dotname, string& baddot,
+                             যৌক্তিক fallback) {
         // Find symbol in given point in hierarchy, allowing prefix (post-Inline)
         // For simplicity lookupSymp may be passed nullptr result from findDotted
-        if (!lookupSymp) return nullptr;
+        যদি (!lookupSymp) ফেরত nullptr;
         UINFO(8, "    findSymPrefixed "
                      << dotname << " under se" << cvtToHex(lookupSymp)
                      << ((lookupSymp->symPrefix() == "") ? "" : " as ")
@@ -988,112 +988,112 @@ public:
                      << "  at se" << lookupSymp << " fallback=" << fallback);
         string prefix = lookupSymp->symPrefix();
         VSymEnt* foundp = nullptr;
-        while (!foundp) {
-            if (fallback) {
+        যখন (!foundp) {
+            যদি (fallback) {
                 foundp = lookupSymp->findIdFallback(prefix + dotname);  // Might be nullptr
-            } else {
+            } অন্যথা {
                 foundp = lookupSymp->findIdFlat(prefix + dotname);  // Might be nullptr
             }
-            if (prefix.empty()) break;
-            const string nextPrefix = removeLastInlineScope(prefix);
-            if (prefix == nextPrefix) break;
-            prefix = nextPrefix;
+            যদি (prefix.empty()) বিরতি;
+            ধ্রুবক string পরবর্তী_Prefix = removeLastInlineScope(prefix);
+            যদি (prefix == পরবর্তী_Prefix) বিরতি;
+            prefix = পরবর্তী_Prefix;
         }
-        if (!foundp) baddot = dotname;
-        return foundp;
+        যদি (!foundp) baddot = dotname;
+        ফেরত foundp;
     }
-    static bool checkIfClassOrPackage(const VSymEnt* const symp) {
-        if (VN_IS(symp->nodep(), Class) || VN_IS(symp->nodep(), Package)) return true;
+    স্থির যৌক্তিক checkIfClassOrPackage(ধ্রুবক VSymEnt* ধ্রুবক symp) {
+        যদি (VN_IS(symp->nodep(), Class) || VN_IS(symp->nodep(), Package)) ফেরত সত্য;
 
         // Helper: check if a RefDType might resolve to a class later.
-        const auto isPotentialClassRef = [](const AstRefDType* refp) -> bool {
-            return refp && !refp->typeofp()
+        ধ্রুবক auto isPotentialClassRef = [](ধ্রুবক AstRefDType* refp) -> যৌক্তিক {
+            ফেরত refp && !refp->typeofp()
                    && (!refp->classOrPackageOpp()
                        || VN_IS(refp->classOrPackageOpp(), ClassOrPackageRef));
         };
 
         // Helper: allow types that can represent a class/package handle or an unresolved ref.
         // BasicDType is allowed here only for null/object handles.
-        const auto isValidTypeNode = [](const AstNode* nodep) -> bool {
-            return VN_IS(nodep, VoidDType) || VN_IS(nodep, BasicDType)
+        ধ্রুবক auto is_Valid_Type_গ্রন্থি = [](ধ্রুবক Ast_গ্রন্থি* nodep) -> যৌক্তিক {
+            ফেরত VN_IS(nodep, VoidDType) || VN_IS(nodep, BasicDType)
                    || VN_IS(nodep, ClassRefDType) || VN_IS(nodep, ParseRef);
         };
 
-        if (const AstTypedef* const typedefp = VN_CAST(symp->nodep(), Typedef)) {
-            const AstNodeDType* dtypep = typedefp->subDTypep();
-            if (!dtypep) dtypep = typedefp->childDTypep();
-            if (VN_IS(dtypep, ClassRefDType)) return true;
-            if (isPotentialClassRef(VN_CAST(dtypep, RefDType))) return true;
-        } else if (const AstParamTypeDType* const paramTypep
+        যদি (ধ্রুবক AstTypedef* ধ্রুবক typedefp = VN_CAST(symp->nodep(), Typedef)) {
+            ধ্রুবক Ast_গ্রন্থি_DType* dtypep = typedefp->subDTypep();
+            যদি (!dtypep) dtypep = typedefp->childDTypep();
+            যদি (VN_IS(dtypep, ClassRefDType)) ফেরত সত্য;
+            যদি (isPotentialClassRef(VN_CAST(dtypep, RefDType))) ফেরত সত্য;
+        } অন্যথা যদি (ধ্রুবক AstParamTypeDType* ধ্রুবক paramTypep
                    = VN_CAST(symp->nodep(), ParamTypeDType)) {
             // Before V3Param the declared default is in childDTypep (possibly
             // wrapped in a RequireDType); after V3Param it is consumed and the
             // bound type is the resolved data type, e.g. a type parameter
             // inherited from a specialized base class (REQ #(Item) -> class Item).
-            AstNode* childp = paramTypep->childDTypep();
-            if (const AstRequireDType* const reqp = VN_CAST(childp, RequireDType)) {
+            Ast_গ্রন্থি* childp = paramTypep->childDTypep();
+            যদি (ধ্রুবক AstRequireDType* ধ্রুবক reqp = VN_CAST(childp, RequireDType)) {
                 childp = reqp->lhsp();
             }
-            const AstNode* const checkp = childp ? childp : paramTypep->skipRefp();
-            if (isValidTypeNode(checkp) || isPotentialClassRef(VN_CAST(checkp, RefDType))) {
-                return true;
+            ধ্রুবক Ast_গ্রন্থি* ধ্রুবক checkp = childp ? childp : paramTypep->skipRefp();
+            যদি (is_Valid_Type_গ্রন্থি(checkp) || isPotentialClassRef(VN_CAST(checkp, RefDType))) {
+                ফেরত সত্য;
             }
         }
-        return false;
+        ফেরত মিথ্যা;
     }
-    VSymEnt* resolveClassOrPackage(VSymEnt* lookSymp, AstClassOrPackageRef* nodep, bool fallback,
-                                   bool classOnly, const string& forWhat,
-                                   bool deferIfUnresolved = false) {
-        if (nodep->classOrPackageSkipp()) return getNodeSym(nodep->classOrPackageSkipp());
+    VSymEnt* resolveClassOrPackage(VSymEnt* lookSymp, AstClassOrPackageRef* nodep, যৌক্তিক fallback,
+                                   যৌক্তিক classOnly, ধ্রুবক string& forWhat,
+                                   যৌক্তিক deferIfUnresolved = মিথ্যা) {
+        যদি (nodep->classOrPackageSkipp()) ফেরত get_গ্রন্থি_Sym(nodep->classOrPackageSkipp());
         VSymEnt* foundp;
-        VSymEnt* searchSymp = lookSymp;
-        if (VL_UNCOVERABLE(searchSymp && VN_IS(searchSymp->nodep(), ParamTypeDType))) {
-            searchSymp->nodep()->v3fatalSrc(  // LCOV_EXCL_LINE
+        VSymEnt* অনুসন্ধান_Symp = lookSymp;
+        যদি (VL_UNCOVERABLE(অনুসন্ধান_Symp && VN_IS(অনুসন্ধান_Symp->nodep(), ParamTypeDType))) {
+            অনুসন্ধান_Symp->nodep()->v3fatalSrc(  // LCOV_EXCL_LINE
                 "resolveClassOrPackage: unexpected ParamTypeDType lookup");
         }
-        if (fallback) {
-            VSymEnt* currentLookSymp = searchSymp;
-            do {
+        যদি (fallback) {
+            VSymEnt* currentLookSymp = অনুসন্ধান_Symp;
+            করো {
                 foundp = currentLookSymp->findIdFlat(nodep->name());
-                if (foundp && !checkIfClassOrPackage(foundp)) foundp = nullptr;
-                if (!foundp) currentLookSymp = currentLookSymp->fallbackp();
-            } while (!foundp && currentLookSymp);
-        } else {
-            foundp = searchSymp->findIdFlat(nodep->name());
-            if (foundp && !checkIfClassOrPackage(foundp)) foundp = nullptr;
+                যদি (foundp && !checkIfClassOrPackage(foundp)) foundp = nullptr;
+                যদি (!foundp) currentLookSymp = currentLookSymp->fallbackp();
+            } যখন (!foundp && currentLookSymp);
+        } অন্যথা {
+            foundp = অনুসন্ধান_Symp->findIdFlat(nodep->name());
+            যদি (foundp && !checkIfClassOrPackage(foundp)) foundp = nullptr;
         }
-        if (!foundp && v3Global.rootp()->stdPackagep()) {  // Look under implied std::
-            foundp = getNodeSym(v3Global.rootp()->stdPackagep())->findIdFlat(nodep->name());
+        যদি (!foundp && v3Global.rootp()->stdPackagep()) {  // Look under implied std::
+            foundp = get_গ্রন্থি_Sym(v3Global.rootp()->stdPackagep())->findIdFlat(nodep->name());
         }
-        if (foundp) {
+        যদি (foundp) {
             nodep->classOrPackageNodep(foundp->nodep());
-            return foundp;
+            ফেরত foundp;
         }
-        if (deferIfUnresolved) return nullptr;
-        const string suggest
-            = suggestSymFallback(lookSymp, nodep->name(), LinkNodeMatcherClassOrPackage{});
+        যদি (deferIfUnresolved) ফেরত nullptr;
+        ধ্রুবক string suggest
+            = suggestSymFallback(lookSymp, nodep->name(), Link_গ্রন্থি_Matcher_Class_Or_Package{});
         nodep->v3error((classOnly ? "Class" : "Package/class")
                        << " for '" << forWhat  // extends/implements
                        << "' not found: " << nodep->prettyNameQ() << '\n'
                        << (suggest.empty() ? "" : nodep->warnMore() + suggest));
-        return nullptr;
+        ফেরত nullptr;
     }
-    string suggestSymFallback(VSymEnt* lookupSymp, const string& name,
-                              const VNodeMatcher& matcher) {
+    string suggestSymFallback(VSymEnt* lookupSymp, ধ্রুবক string& name,
+                              ধ্রুবক VNodeMatcher& matcher) {
         // Suggest alternative symbol in given point in hierarchy
         // Does not support inline, as we find user-level errors before inlining
         // For simplicity lookupSymp may be passed nullptr result from findDotted
-        if (!lookupSymp) return "";
+        যদি (!lookupSymp) ফেরত "";
         VSpellCheck speller;
         lookupSymp->candidateIdFallback(&speller, &matcher);
-        return speller.bestCandidateMsg(name);
+        ফেরত speller.best_Candidate_বার্তা(name);
     }
-    string suggestSymFlat(VSymEnt* lookupSymp, const string& name, const VNodeMatcher& matcher,
-                          bool includeType) {
-        if (!lookupSymp) return "";
+    string suggestSymFlat(VSymEnt* lookupSymp, ধ্রুবক string& name, ধ্রুবক VNodeMatcher& matcher,
+                          যৌক্তিক includeType) {
+        যদি (!lookupSymp) ফেরত "";
         VSpellCheck speller;
         lookupSymp->candidateIdFlat(&speller, &matcher, includeType);
-        return speller.bestCandidateMsg(name);
+        ফেরত speller.best_Candidate_বার্তা(name);
     }
 };
 
@@ -1101,18 +1101,18 @@ LinkDotState* LinkDotState::s_errorThisp = nullptr;
 
 //======================================================================
 
-class LinkDotFindVisitor final : public VNVisitor {
+শ্রেণী LinkDotFindVisitor final : সর্বজনীন VNVisitor {
     // NODE STATE
     // Cleared on global
     //  *::user1p()             -> See LinkDotState
     //  *::user2p()             -> See LinkDotState
     //  *::user3()              // bool. Node stored in m_virtualIfaces
     //  *::user4()              -> See LinkDotState
-    const VNUser3InUse m_inuser3;
+    ধ্রুবক VNUser3InUse m_inuser3;
 
     // STATE
-    LinkDotState* const m_statep;  // State to pass between visitors, including symbol table
-    AstNodeModule* m_classOrPackagep = nullptr;  // Current package
+    LinkDotState* ধ্রুবক m_statep;  // State to pass between visitors, including symbol table
+    Ast_গ্রন্থি_Module* m_classOrPackagep = nullptr;  // Current package
     AstClocking* m_clockingp = nullptr;  // Current clocking block
     std::vector<AstScope*> m_scopes;  // Scopes detached during repeated module visits
     uint64_t m_statScopeVisits = 0;  // Non-top scopes encountered while finding instance symbols
@@ -1121,73 +1121,73 @@ class LinkDotFindVisitor final : public VNVisitor {
     string
         m_hierParamsName;  // Name of module with hierarchical type parameters, empty when not used
     string m_scope;  // Scope text
-    const AstNodeFTask* m_ftaskp = nullptr;  // Current function/task
-    bool m_inRecursion = false;  // Inside a recursive module
-    int m_paramNum = 0;  // Parameter number, for position based connection
-    bool m_explicitNew = false;  // Hit a "new" function
-    int m_modBlockNum = 0;  // Begin block number in module, 0=none seen
-    int m_modWithNum = 0;  // With block number, 0=none seen
-    int m_modArgNum = 0;  // Arg block number for randomize(), 0=none seen
+    ধ্রুবক Ast_গ্রন্থি_FTask* m_ftaskp = nullptr;  // Current function/task
+    যৌক্তিক m_inRecursion = মিথ্যা;  // Inside a recursive module
+    পূর্ণসংখ্যা m_param_অঙ্ক = 0;  // Parameter number, for position based connection
+    যৌক্তিক m_explicitNew = মিথ্যা;  // Hit a "new" function
+    পূর্ণসংখ্যা m_mod_Block_অঙ্ক = 0;  // Begin block number in module, 0=none seen
+    পূর্ণসংখ্যা m_mod_With_অঙ্ক = 0;  // With block number, 0=none seen
+    পূর্ণসংখ্যা m_mod_Arg_অঙ্ক = 0;  // Arg block number for randomize(), 0=none seen
     std::vector<AstIface*> m_virtIfaces;  // interfaces used as virtual,
                                           // needed for handleUnvisitedVirtIfaces()
 
     // METHODS
-    void makeImplicitNew(AstClass* nodep) {
-        AstFunc* const newp = new AstFunc{nodep->fileline(), "new", nullptr, nullptr};
+    শূন্য makeImplicitNew(AstClass* nodep) {
+        AstFunc* ধ্রুবক newp = নতুন AstFunc{nodep->fileline(), "new", nullptr, nullptr};
         // If needed, super.new() call is added the 2nd pass of V3LinkDotResolve,
         // because base classes are already resolved there.
-        newp->isConstructor(true);
+        newp->isConstructor(সত্য);
         nodep->addMembersp(newp);
         UINFO(8, "Made implicit new for " << nodep->name() << ": " << nodep);
-        m_statep->insertBlock(m_curSymp, newp->name(), newp, m_classOrPackagep);
+        m_statep->ঢোকাও_Block(m_curSymp, newp->name(), newp, m_classOrPackagep);
     }
 
-    static bool isHierBlockWrapper(const string& name) {
-        const V3HierBlockOptSet& hierBlocks = v3Global.opt.hierBlocks();
-        return hierBlocks.find(name) != hierBlocks.end();
+    স্থির যৌক্তিক isHierBlockWrapper(ধ্রুবক string& name) {
+        ধ্রুবক V3HierBlockOptSet& hierBlocks = v3Global.opt.hierBlocks();
+        ফেরত hierBlocks.find(name) != hierBlocks.end();
     }
 
-    void moveExternFuncDecl(AstNodeFTask* nodep, AstClass* classp) {
+    শূন্য moveExternFuncDecl(Ast_গ্রন্থি_FTask* nodep, AstClass* classp) {
         // Move an 'extern function|task' to inside a class or, from an outer to inner-class
-        if (nodep->isExternDef()) return;
+        যদি (nodep->isExternDef()) ফেরত;
         // Move it to proper spot under the target class
         nodep->unlinkFrBack();
         classp->addStmtsp(nodep);
-        nodep->isExternDef(true);  // So we check there's a matching extern
-        nodep->classOrPackagep()->unlinkFrBack()->deleteTree();
+        nodep->isExternDef(সত্য);  // So we check there's a matching extern
+        nodep->classOrPackagep()->unlinkFrBack()->delete_বৃক্ষ();
         // Any "Type::" reference in the function's IO are really "MovedToClass::" references
-        if (nodep->fvarp()) moveExternFuncDeclRefs(nodep->fvarp(), classp);
-        for (AstNode* stmtp = nodep->stmtsp(); stmtp; stmtp = stmtp->nextp()) {
-            if (AstVar* const portp = VN_CAST(stmtp, Var)) {
-                if (portp->isIO()) moveExternFuncDeclRefs(portp, classp);
+        যদি (nodep->fvarp()) moveExternFuncDeclRefs(nodep->fvarp(), classp);
+        জন্য (Ast_গ্রন্থি* stmtp = nodep->stmtsp(); stmtp; stmtp = stmtp->nextp()) {
+            যদি (AstVar* ধ্রুবক portp = VN_CAST(stmtp, Var)) {
+                যদি (portp->isIO()) moveExternFuncDeclRefs(portp, classp);
             }
         }
     }
-    void moveExternFuncDeclRefs(AstNode* nodep, AstClass* classp) {
-        nodep->foreach([this, classp](AstClassOrPackageRef* refp) {  //
-            if (refp->name() == classp->name() && !refp->paramsp()) {
+    শূন্য moveExternFuncDeclRefs(Ast_গ্রন্থি* nodep, AstClass* classp) {
+        nodep->foreach([এই, classp](AstClassOrPackageRef* refp) {  //
+            যদি (refp->name() == classp->name() && !refp->paramsp()) {
                 UINFO(9, "Cleaning up external function type for class " << refp);
-                AstDot* const dotp = VN_CAST(refp->backp(), Dot);
-                if (dotp && dotp->lhsp() == refp) {
+                AstDot* ধ্রুবক dotp = VN_CAST(refp->backp(), Dot);
+                যদি (dotp && dotp->lhsp() == refp) {
                     // If had DOT(CLASSREF this, ...) the DOT can go away
                     dotp->replaceWith(dotp->rhsp()->unlinkFrBack());
-                    VL_DO_DANGLING2(pushDeletep(dotp), dotp, refp);
-                } else {
-                    VL_DO_DANGLING(pushDeletep(refp->unlinkFrBack()), refp);
+                    VL_DO_DANGLING2(ঠেলো_Deletep(dotp), dotp, refp);
+                } অন্যথা {
+                    VL_DO_DANGLING(ঠেলো_Deletep(refp->unlinkFrBack()), refp);
                 }
             }
         });
     }
 
     // VISITORS
-    void visit(AstNetlist* nodep) override {  // FindVisitor::
+    শূন্য visit(AstNetlist* nodep) override {  // FindVisitor::
         // Process $unit or other packages
         // Not needed - dotted references not allowed from inside packages
         // for (AstNodeModule* nodep = v3Global.rootp()->modulesp();
         //     nodep; nodep=VN_AS(nodep->nextp(), NodeModule)) {
         //    if (VN_IS(nodep, Package)) {}}
 
-        m_statep->insertDUnit(nodep);
+        m_statep->ঢোকাও_DUnit(nodep);
 
         // First back iterate, to find all packages. Backward as must do base
         // packages before using packages
@@ -1199,54 +1199,54 @@ class LinkDotFindVisitor final : public VNVisitor {
         // wrapTop may have not been created yet.
         // $unit and the constant pool always exist, so nothing else, and nothing in $unit,
         // means nothing was given
-        AstNodeModule* const modulesp = nodep->modulesp();
+        Ast_গ্রন্থি_Module* ধ্রুবক modulesp = nodep->modulesp();
         UASSERT_OBJ(modulesp, nodep, "$unit should always be in the netlist");
-        if (m_statep->forPrimary()) {
-            const bool onlyBuiltins = [&]() {
-                for (AstNodeModule* modp = modulesp; modp;
-                     modp = VN_AS(modp->nextp(), NodeModule)) {
-                    if (!modp->isDollarUnit() && !modp->isConstPool()) return false;
+        যদি (m_statep->forPrimary()) {
+            ধ্রুবক যৌক্তিক onlyBuiltins = [&]() {
+                জন্য (Ast_গ্রন্থি_Module* modp = modulesp; modp;
+                     modp = VN_AS(modp->nextp(), গ্রন্থি_Module)) {
+                    যদি (!modp->isDollarUnit() && !modp->isConstPool()) ফেরত মিথ্যা;
                 }
-                return true;
+                ফেরত সত্য;
             }();
-            if (onlyBuiltins && !v3Global.rootp()->dollarUnitPkgp()->stmtsp()) {
+            যদি (onlyBuiltins && !v3Global.rootp()->dollarUnitPkgp()->stmtsp()) {
                 nodep->v3error("No top level module found");
             }
         }
-        for (AstNodeModule* modp = nodep->modulesp(); modp && modp->isTop();
-             modp = VN_AS(modp->nextp(), NodeModule)) {
+        জন্য (Ast_গ্রন্থি_Module* modp = nodep->modulesp(); modp && modp->is_শীর্ষ();
+             modp = VN_AS(modp->nextp(), গ্রন্থি_Module)) {
             UINFO(8, "Top Module: " << modp);
             m_scope = "TOP";
 
-            if (!m_statep->forScopeCreation() && v3Global.opt.topIfacesSupported()) {
-                for (AstNode* subnodep = modp->stmtsp(); subnodep; subnodep = subnodep->nextp()) {
-                    if (AstVar* const varp = VN_CAST(subnodep, Var)) {
-                        if (varp->isIfaceRef()) {
-                            const AstNodeDType* const subtypep = varp->subDTypep();
-                            const AstIfaceRefDType* ifacerefp = nullptr;
-                            if (VN_IS(subtypep, IfaceRefDType)) {
+            যদি (!m_statep->forScopeCreation() && v3Global.opt.শীর্ষ_Ifaces_Supported()) {
+                জন্য (Ast_গ্রন্থি* subnodep = modp->stmtsp(); subnodep; subnodep = subnodep->nextp()) {
+                    যদি (AstVar* ধ্রুবক varp = VN_CAST(subnodep, Var)) {
+                        যদি (varp->isIfaceRef()) {
+                            ধ্রুবক Ast_গ্রন্থি_DType* ধ্রুবক subtypep = varp->subDTypep();
+                            ধ্রুবক AstIfaceRefDType* ifacerefp = nullptr;
+                            যদি (VN_IS(subtypep, IfaceRefDType)) {
                                 ifacerefp = VN_AS(varp->subDTypep(), IfaceRefDType);
-                            } else if (VN_IS(subtypep, BracketArrayDType)) {
-                                const AstBracketArrayDType* const arrp
+                            } অন্যথা যদি (VN_IS(subtypep, BracketArrayDType)) {
+                                ধ্রুবক AstBracketArrayDType* ধ্রুবক arrp
                                     = VN_AS(subtypep, BracketArrayDType);
-                                const AstNodeDType* const arrsubtypep = arrp->subDTypep();
-                                if (VN_IS(arrsubtypep, IfaceRefDType)) {
+                                ধ্রুবক Ast_গ্রন্থি_DType* ধ্রুবক arrsubtypep = arrp->subDTypep();
+                                যদি (VN_IS(arrsubtypep, IfaceRefDType)) {
                                     ifacerefp = VN_AS(arrsubtypep, IfaceRefDType);
                                 }
-                            } else if (VN_IS(subtypep, UnpackArrayDType)) {
-                                const AstUnpackArrayDType* const arrp
+                            } অন্যথা যদি (VN_IS(subtypep, UnpackArrayDType)) {
+                                ধ্রুবক AstUnpackArrayDType* ধ্রুবক arrp
                                     = VN_AS(subtypep, UnpackArrayDType);
-                                const AstNodeDType* const arrsubtypep = arrp->subDTypep();
-                                if (VN_IS(arrsubtypep, IfaceRefDType)) {
+                                ধ্রুবক Ast_গ্রন্থি_DType* ধ্রুবক arrsubtypep = arrp->subDTypep();
+                                যদি (VN_IS(arrsubtypep, IfaceRefDType)) {
                                     ifacerefp = VN_AS(arrsubtypep, IfaceRefDType);
                                 }
                             }
 
-                            if (ifacerefp && !ifacerefp->cellp()) {
+                            যদি (ifacerefp && !ifacerefp->cellp()) {
                                 // A dummy cell to keep the top level interface alive and correctly
                                 // optimized for default parameter values
                                 AstCell* ifacecellp
-                                    = new AstCell{nodep->fileline(),
+                                    = নতুন AstCell{nodep->fileline(),
                                                   nodep->fileline(),
                                                   modp->name() + "__02E" + varp->name(),
                                                   ifacerefp->ifaceName(),
@@ -1255,111 +1255,111 @@ class LinkDotFindVisitor final : public VNVisitor {
                                                   nullptr};
                                 ifacecellp->modp(ifacerefp->ifacep());
                                 m_curSymp = m_modSymp
-                                    = m_statep->insertTopIface(ifacecellp, m_scope);
+                                    = m_statep->ঢোকাও_শীর্ষ_Iface(ifacecellp, m_scope);
                                 iterate(ifacecellp);
-                                VL_DO_DANGLING(pushDeletep(ifacecellp), ifacecellp);
+                                VL_DO_DANGLING(ঠেলো_Deletep(ifacecellp), ifacecellp);
                             }
                         }
                     }
                 }
             }
 
-            m_curSymp = m_modSymp = m_statep->insertTopCell(modp, m_scope);
+            m_curSymp = m_modSymp = m_statep->ঢোকাও_শীর্ষ_Cell(modp, m_scope);
             { iterate(modp); }
 
             m_scope = "";
             m_curSymp = m_modSymp = nullptr;
         }
     }
-    void visit(AstTypeTable*) override {}  // FindVisitor::
-    void visit(AstIfaceRefDType* nodep) override {  // FindVisitor::
-        if (!m_statep->forScopeCreation() && nodep->isVirtual() && nodep->ifacep()
+    শূন্য visit(AstTypeTable*) override {}  // FindVisitor::
+    শূন্য visit(AstIfaceRefDType* nodep) override {  // FindVisitor::
+        যদি (!m_statep->forScopeCreation() && nodep->isVirtual() && nodep->ifacep()
             && !nodep->ifacep()->user3()) {
-            m_virtIfaces.push_back(nodep->ifacep());
-            nodep->ifacep()->user3(true);
+            m_virtIfaces.ঠেলো_back(nodep->ifacep());
+            nodep->ifacep()->user3(সত্য);
         }
         iterateChildren(nodep);
     }
-    void visit(AstNodeModule* nodep) override {  // FindVisitor::
+    শূন্য visit(Ast_গ্রন্থি_Module* nodep) override {  // FindVisitor::
         // Called on top module from Netlist, other modules from the cell creating them,
         // and packages
         UINFO(8, "   " << nodep);
         // m_curSymp/m_modSymp maybe nullptr for packages and non-top modules
         // Packages will be under top after the initial phases, but until then
         // need separate handling
-        const bool standalonePkg
+        ধ্রুবক যৌক্তিক standalonePkg
             = !m_modSymp && !m_statep->forScopeCreation() && VN_IS(nodep, Package);
-        const bool doit = (m_modSymp || standalonePkg);
+        ধ্রুবক যৌক্তিক doit = (m_modSymp || standalonePkg);
         VL_RESTORER_COPY(m_scope);
         VL_RESTORER(m_classOrPackagep);
         VL_RESTORER(m_modSymp);
         VL_RESTORER(m_curSymp);
-        VL_RESTORER(m_paramNum);
-        VL_RESTORER(m_modBlockNum);
-        VL_RESTORER(m_modWithNum);
-        VL_RESTORER(m_modArgNum);
-        if (doit && nodep->user2()) {
+        VL_RESTORER(m_param_অঙ্ক);
+        VL_RESTORER(m_mod_Block_অঙ্ক);
+        VL_RESTORER(m_mod_With_অঙ্ক);
+        VL_RESTORER(m_mod_Arg_অঙ্ক);
+        যদি (doit && nodep->user2()) {
             nodep->v3warn(E_UNSUPPORTED,
                           "Unsupported: Identically recursive module (module instantiates "
                           "itself, without changing parameters): "
-                              << AstNode::prettyNameQ(nodep->origName()));
-        } else if (doit) {
+                              << Ast_গ্রন্থি::prettyNameQ(nodep->origName()));
+        } অন্যথা যদি (doit) {
             UINFO(4, "     Link Module: " << nodep);
             UASSERT_OBJ(!nodep->dead(), nodep, "Module in instance tree mislabeled as dead?");
-            AstPackage* const pkgp = VN_CAST(nodep, Package);
+            AstPackage* ধ্রুবক pkgp = VN_CAST(nodep, Package);
             m_classOrPackagep = pkgp;
-            if (standalonePkg) {
-                if (pkgp->isDollarUnit()) {
+            যদি (standalonePkg) {
+                যদি (pkgp->isDollarUnit()) {
                     m_curSymp = m_modSymp = m_statep->dunitEntp();
                     nodep->user1p(m_curSymp);
-                } else {
-                    VSymEnt* const upperSymp = m_statep->dunitEntp();
+                } অন্যথা {
+                    VSymEnt* ধ্রুবক upperSymp = m_statep->dunitEntp();
                     m_scope = nodep->name();
-                    m_curSymp = m_modSymp = m_statep->insertBlock(upperSymp, nodep->name(), nodep,
+                    m_curSymp = m_modSymp = m_statep->ঢোকাও_Block(upperSymp, nodep->name(), nodep,
                                                                   m_classOrPackagep);
                     UINFO(9, "New module scope " << m_curSymp);
                 }
             }
             //
-            m_paramNum = 0;
-            m_modBlockNum = 0;
-            m_modWithNum = 0;
-            m_modArgNum = 0;
+            m_param_অঙ্ক = 0;
+            m_mod_Block_অঙ্ক = 0;
+            m_mod_With_অঙ্ক = 0;
+            m_mod_Arg_অঙ্ক = 0;
             // m_modSymp/m_curSymp for non-packages set by AstCell above this module
             // Iterate
-            nodep->user2(true);
+            nodep->user2(সত্য);
             iterateChildren(nodep);
-            nodep->user2(false);
-            nodep->user4(true);
+            nodep->user2(মিথ্যা);
+            nodep->user4(সত্য);
             // Interfaces need another pass when signals are resolved. When creating
             // scopes this is done from the AstScopes in LinkDotScopeVisitor instead, as
             // only those entries hold the AstVarScopes the modport items resolve against.
-            if (!m_statep->forScopeCreation()) {
-                if (AstIface* const ifacep = VN_CAST(nodep, Iface)) {
-                    m_statep->insertIfaceModSym(ifacep, m_curSymp);
+            যদি (!m_statep->forScopeCreation()) {
+                যদি (AstIface* ধ্রুবক ifacep = VN_CAST(nodep, Iface)) {
+                    m_statep->ঢোকাও_Iface_Mod_Sym(ifacep, m_curSymp);
                 }
             }
-        } else if (isHierBlockWrapper(nodep->name())) {
+        } অন্যথা যদি (isHierBlockWrapper(nodep->name())) {
             UINFO(5, "Module is hierarchical block, must not be dead: " << nodep);
             m_scope = nodep->name();
-            VSymEnt* const upperSymp = m_curSymp ? m_curSymp : m_statep->rootEntp();
+            VSymEnt* ধ্রুবক upperSymp = m_curSymp ? m_curSymp : m_statep->মূল_Entp();
             m_curSymp = m_modSymp
-                = m_statep->insertBlock(upperSymp, nodep->name() + "::", nodep, m_classOrPackagep);
+                = m_statep->ঢোকাও_Block(upperSymp, nodep->name() + "::", nodep, m_classOrPackagep);
             iterateChildren(nodep);
-            nodep->user4(true);
-        } else {  // !doit
-            if (nodep->hierParams()) {
+            nodep->user4(সত্য);
+        } অন্যথা {  // !doit
+            যদি (nodep->hierParams()) {
                 UINFO(1, "Found module with hier type parameters");
                 m_hierParamsName = nodep->name();
-                for (const AstNode* stmtp = nodep->stmtsp(); stmtp; stmtp = stmtp->nextp()) {
-                    if (const AstTypedef* const tdef = VN_CAST(stmtp, Typedef)) {
+                জন্য (ধ্রুবক Ast_গ্রন্থি* stmtp = nodep->stmtsp(); stmtp; stmtp = stmtp->nextp()) {
+                    যদি (ধ্রুবক AstTypedef* ধ্রুবক tdef = VN_CAST(stmtp, Typedef)) {
                         UINFO(1, "Inserting hier type parameter typedef: " << tdef);
-                        VSymEnt* const upperSymp = m_curSymp ? m_curSymp : m_statep->rootEntp();
-                        m_curSymp = m_modSymp = m_statep->insertBlock(upperSymp, nodep->name(),
+                        VSymEnt* ধ্রুবক upperSymp = m_curSymp ? m_curSymp : m_statep->মূল_Entp();
+                        m_curSymp = m_modSymp = m_statep->ঢোকাও_Block(upperSymp, nodep->name(),
                                                                       nodep, m_classOrPackagep);
                     }
                 }
-            } else {
+            } অন্যথা {
                 // Will be optimized away later
                 // Can't remove now, as our backwards iterator will throw up
                 UINFO(5, "Module not under any CELL or top - dead module: " << nodep);
@@ -1367,194 +1367,194 @@ class LinkDotFindVisitor final : public VNVisitor {
         }
     }
 
-    void visit(AstClass* nodep) override {  // FindVisitor::
+    শূন্য visit(AstClass* nodep) override {  // FindVisitor::
         UASSERT_OBJ(m_curSymp, nodep, "Class not under module/package/$unit");
         UINFO(8, "   " << nodep);
         VL_RESTORER_COPY(m_scope);
         VL_RESTORER(m_classOrPackagep);
         VL_RESTORER(m_modSymp);
         VL_RESTORER(m_curSymp);
-        VL_RESTORER(m_paramNum);
-        VL_RESTORER(m_modBlockNum);
-        VL_RESTORER(m_modWithNum);
-        VL_RESTORER(m_modArgNum);
+        VL_RESTORER(m_param_অঙ্ক);
+        VL_RESTORER(m_mod_Block_অঙ্ক);
+        VL_RESTORER(m_mod_With_অঙ্ক);
+        VL_RESTORER(m_mod_Arg_অঙ্ক);
         VL_RESTORER(m_explicitNew);
         {
             UINFO(4, "     Link Class: " << nodep);
-            VSymEnt* const upperSymp = m_curSymp;
+            VSymEnt* ধ্রুবক upperSymp = m_curSymp;
             m_scope = m_scope + "." + nodep->name();
             m_classOrPackagep = nodep;
             m_curSymp = m_modSymp
-                = m_statep->insertBlock(upperSymp, nodep->name(), nodep, m_classOrPackagep);
-            m_statep->insertMap(m_curSymp, m_scope);
+                = m_statep->ঢোকাও_Block(upperSymp, nodep->name(), nodep, m_classOrPackagep);
+            m_statep->ঢোকাও_Map(m_curSymp, m_scope);
             UINFO(9, "New module scope " << m_curSymp);
             //
-            m_paramNum = 0;
-            m_modBlockNum = 0;
-            m_modWithNum = 0;
-            m_modArgNum = 0;
-            m_explicitNew = false;
+            m_param_অঙ্ক = 0;
+            m_mod_Block_অঙ্ক = 0;
+            m_mod_With_অঙ্ক = 0;
+            m_mod_Arg_অঙ্ক = 0;
+            m_explicitNew = মিথ্যা;
             // m_modSymp/m_curSymp for non-packages set by AstCell above this module
             // Iterate
             iterateChildren(nodep);
-            nodep->user4(true);
+            nodep->user4(সত্য);
             // Implicit new needed?
-            if (!m_explicitNew && m_statep->forPrimary()) makeImplicitNew(nodep);
+            যদি (!m_explicitNew && m_statep->forPrimary()) makeImplicitNew(nodep);
         }
     }
-    void visit(AstClassOrPackageRef* nodep) override {  // FindVisitor::
-        if (!nodep->classOrPackageNodep() && nodep->name() == "$unit") {
+    শূন্য visit(AstClassOrPackageRef* nodep) override {  // FindVisitor::
+        যদি (!nodep->classOrPackageNodep() && nodep->name() == "$unit") {
             nodep->classOrPackageNodep(v3Global.rootp()->dollarUnitPkgp());
         }
         iterateChildren(nodep);
     }
-    void visit(AstScope* nodep) override {  // FindVisitor::
+    শূন্য visit(AstScope* nodep) override {  // FindVisitor::
         UASSERT_OBJ(m_statep->forScopeCreation(), nodep,
                     "Scopes should only exist right after V3Scope");
         // Detach on first encounter, will re add at the end.
         // Otherwise would be visited O(cells^2) time after V3Scope
-        if (!nodep->isTop()) {
+        যদি (!nodep->is_শীর্ষ()) {
             ++m_statScopeVisits;
             nodep->unlinkFrBack();
-            m_scopes.push_back(nodep);
+            m_scopes.ঠেলো_back(nodep);
         }
     }
-    void visit(AstCell* nodep) override {  // FindVisitor::
+    শূন্য visit(AstCell* nodep) override {  // FindVisitor::
         UINFO(5, "   CELL under " << m_scope << " is " << nodep);
         // Process XREFs/etc inside pins
-        if (nodep->recursive() && m_inRecursion) return;
+        যদি (nodep->recursive() && m_inRecursion) ফেরত;
         iterateChildren(nodep);
         // Recurse in, preserving state
         VL_RESTORER_COPY(m_scope);
         VL_RESTORER(m_modSymp);
         VL_RESTORER(m_curSymp);
-        VL_RESTORER(m_paramNum);
+        VL_RESTORER(m_param_অঙ্ক);
         VL_RESTORER(m_inRecursion);
         // Where do we add it?
         VSymEnt* aboveSymp = m_curSymp;
-        const string origname = AstNode::dedotName(nodep->name());
-        string::size_type pos = origname.rfind('.');
-        if (pos != string::npos) {
+        ধ্রুবক string origname = Ast_গ্রন্থি::dedotName(nodep->name());
+        string::আকার_type pos = origname.rfind('.');
+        যদি (pos != string::npos) {
             // Flattened, find what CellInline it should live under
-            const string scope = origname.substr(0, pos);
+            ধ্রুবক string scope = origname.substr(0, pos);
             string baddot;
             VSymEnt* okSymp;
             aboveSymp
-                = m_statep->findDotted(nodep->fileline(), aboveSymp, scope, baddot, okSymp, false);
+                = m_statep->findDotted(nodep->fileline(), aboveSymp, scope, baddot, okSymp, মিথ্যা);
             UASSERT_OBJ(aboveSymp, nodep,
                         "Can't find instance insertion point at "
-                            << AstNode::prettyNameQ(baddot) << " in: " << nodep->prettyNameQ());
+                            << Ast_গ্রন্থি::prettyNameQ(baddot) << " in: " << nodep->prettyNameQ());
         }
         {
             m_scope = m_scope + "." + nodep->name();
-            m_curSymp = m_modSymp = m_statep->insertCell(aboveSymp, m_modSymp, nodep, m_scope);
+            m_curSymp = m_modSymp = m_statep->ঢোকাও_Cell(aboveSymp, m_modSymp, nodep, m_scope);
             m_inRecursion = nodep->recursive();
             // We don't report NotFoundModule, as may be a unused module in a generate
-            if (nodep->modp()) iterate(nodep->modp());
+            যদি (nodep->modp()) iterate(nodep->modp());
         }
     }
-    void visit(AstCellInline* nodep) override {  // FindVisitor::
+    শূন্য visit(AstCellInline* nodep) override {  // FindVisitor::
         UINFO(5, "   CELLINLINE under " << m_scope << " is " << nodep);
         VSymEnt* aboveSymp = m_curSymp;
         std::string ident = nodep->name();
         // If baz__DOT__foo__DOT__bar, we need to find baz__DOT__foo and add bar to it.
-        const std::string::size_type pos = ident.rfind("__DOT__");
-        if (pos != std::string::npos) {
-            const std::string dotted = ident.substr(0, pos);
+        ধ্রুবক std::string::আকার_type pos = ident.rfind("__DOT__");
+        যদি (pos != std::string::npos) {
+            ধ্রুবক std::string dotted = ident.substr(0, pos);
             ident = ident.substr(pos + std::strlen("__DOT__"));
             std::string baddot;
             VSymEnt* okSymp;
             aboveSymp = m_statep->findDotted(nodep->fileline(), aboveSymp, dotted, baddot, okSymp,
-                                             false);
+                                             মিথ্যা);
             UASSERT_OBJ(aboveSymp, nodep,
                         "Can't find cellinline insertion point at "
-                            << AstNode::prettyNameQ(baddot) << " in: " << nodep->prettyNameQ());
+                            << Ast_গ্রন্থি::prettyNameQ(baddot) << " in: " << nodep->prettyNameQ());
         }
-        m_statep->insertInline(aboveSymp, m_modSymp, nodep, ident);
+        m_statep->ঢোকাও_Inline(aboveSymp, m_modSymp, nodep, ident);
     }
-    void visit(AstDefParam* nodep) override {  // FindVisitor::
+    শূন্য visit(AstDefParam* nodep) override {  // FindVisitor::
         nodep->user1p(m_curSymp);
         iterateChildren(nodep);
     }
-    void visit(AstRefDType* nodep) override {  // FindVisitor::
+    শূন্য visit(AstRefDType* nodep) override {  // FindVisitor::
         nodep->user1p(m_curSymp);
         iterateChildren(nodep);
     }
-    void visit(AstGenBlock* nodep) override {  // FindVisitor::
+    শূন্য visit(AstGenBlock* nodep) override {  // FindVisitor::
         UINFO(5, "   " << nodep);
-        if (nodep->name() == "" && nodep->unnamed()) {
+        যদি (nodep->name() == "" && nodep->unnamed()) {
             // Unnamed blocks are only important when they contain var
             // decls, so search for them. (Otherwise adding all the
             // unnamed#'s would just confuse tracing variables in
             // places such as tasks, where "task ...; begin ... end"
             // are common.
-            for (AstNode* itemp = nodep->itemsp(); itemp; itemp = itemp->nextp()) {
-                if (VN_IS(itemp, Var) || VN_IS(itemp, Foreach)) {
+            জন্য (Ast_গ্রন্থি* itemp = nodep->itemsp(); itemp; itemp = itemp->nextp()) {
+                যদি (VN_IS(itemp, Var) || VN_IS(itemp, Foreach)) {
                     std::string name;
-                    const std::string stepStr = m_statep->forPrimary()
+                    ধ্রুবক std::string stepStr = m_statep->forPrimary()
                                                     ? ""
-                                                    : std::to_string(m_statep->stepNumber()) + "_";
-                    do {
-                        ++m_modBlockNum;
-                        name = "unnamedblk" + stepStr + cvtToStr(m_modBlockNum);
+                                                    : std::to_string(m_statep->step_সংখ্যা()) + "_";
+                    করো {
+                        ++m_mod_Block_অঙ্ক;
+                        name = "unnamedblk" + stepStr + cvtToStr(m_mod_Block_অঙ্ক);
                         // Increment again if earlier pass of V3LinkDot claimed this name
-                    } while (m_curSymp->findIdFlat(name));
+                    } যখন (m_curSymp->findIdFlat(name));
                     nodep->name(name);
-                    break;
+                    বিরতি;
                 }
             }
         }
-        if (nodep->name() == "") {
+        যদি (nodep->name() == "") {
             iterateChildren(nodep);
-        } else {
+        } অন্যথা {
             VL_RESTORER(m_curSymp);
             {
                 m_curSymp
-                    = m_statep->insertBlock(m_curSymp, nodep->name(), nodep, m_classOrPackagep);
-                m_curSymp->fallbackp(VL_RESTORER_PREV(m_curSymp));
+                    = m_statep->ঢোকাও_Block(m_curSymp, nodep->name(), nodep, m_classOrPackagep);
+                m_curSymp->fallbackp(VL_RESTORER_পূর্ব(m_curSymp));
                 // Iterate
                 iterateChildren(nodep);
             }
         }
     }
-    void visit(AstNodeBlock* nodep) override {  // FindVisitor::
+    শূন্য visit(Ast_গ্রন্থি_Block* nodep) override {  // FindVisitor::
         UINFO(5, "   " << nodep);
-        if (nodep->name() == "" && nodep->unnamed()) {
+        যদি (nodep->name() == "" && nodep->unnamed()) {
             // Unnamed blocks are only important when they contain var
             // decls, so search for them. (Otherwise adding all the
             // unnamed#'s would just confuse tracing variables in
             // places such as tasks, where "task ...; begin ... end"
             // are common.
-            const auto containsDecl = [](const AstNode* nodesp) -> bool {
-                for (const AstNode* np = nodesp; np; np = np->nextp()) {
-                    if (VN_IS(np, Var) || VN_IS(np, Foreach)) return true;
+            ধ্রুবক auto containsDecl = [](ধ্রুবক Ast_গ্রন্থি* nodesp) -> যৌক্তিক {
+                জন্য (ধ্রুবক Ast_গ্রন্থি* np = nodesp; np; np = np->nextp()) {
+                    যদি (VN_IS(np, Var) || VN_IS(np, Foreach)) ফেরত সত্য;
                 }
-                return false;
+                ফেরত মিথ্যা;
             };
-            bool needName = nodep->declsp() || containsDecl(nodep->stmtsp());
-            if (const AstFork* const forkp = VN_CAST(nodep, Fork)) {
+            যৌক্তিক needName = nodep->declsp() || containsDecl(nodep->stmtsp());
+            যদি (ধ্রুবক AstFork* ধ্রুবক forkp = VN_CAST(nodep, Fork)) {
                 needName = needName || containsDecl(forkp->forksp());
             }
-            if (needName) {
-                const std::string stepStr
-                    = m_statep->forPrimary() ? "" : std::to_string(m_statep->stepNumber()) + "_";
+            যদি (needName) {
+                ধ্রুবক std::string stepStr
+                    = m_statep->forPrimary() ? "" : std::to_string(m_statep->step_সংখ্যা()) + "_";
                 std::string name;
-                do {
-                    ++m_modBlockNum;
-                    name = "unnamedblk" + stepStr + cvtToStr(m_modBlockNum);
+                করো {
+                    ++m_mod_Block_অঙ্ক;
+                    name = "unnamedblk" + stepStr + cvtToStr(m_mod_Block_অঙ্ক);
                     // Increment again if earlier pass of V3LinkDot claimed this name
-                } while (m_curSymp->findIdFlat(name));
+                } যখন (m_curSymp->findIdFlat(name));
                 nodep->name(name);
             }
         }
-        if (nodep->name() == "") {
+        যদি (nodep->name() == "") {
             iterateChildren(nodep);
-        } else {
+        } অন্যথা {
             VL_RESTORER(m_curSymp);
             {
                 m_curSymp
-                    = m_statep->insertBlock(m_curSymp, nodep->name(), nodep, m_classOrPackagep);
-                m_curSymp->fallbackp(VL_RESTORER_PREV(m_curSymp));
+                    = m_statep->ঢোকাও_Block(m_curSymp, nodep->name(), nodep, m_classOrPackagep);
+                m_curSymp->fallbackp(VL_RESTORER_পূর্ব(m_curSymp));
                 // Iterate
                 iterateChildren(nodep);
             }
@@ -1563,137 +1563,137 @@ class LinkDotFindVisitor final : public VNVisitor {
     // Handle out-of-block interface method definition (IEEE 1800-2023 25.7)
     // Move task body from module into the interface's prototype task,
     // rewriting port-prefixed references in the body.
-    void moveIfaceExportBody(AstNodeFTask* nodep) {
-        const string& portName = nodep->ifacePortName();
+    শূন্য moveIfaceExportBody(Ast_গ্রন্থি_FTask* nodep) {
+        ধ্রুবক string& portName = nodep->ifacePortName();
         UINFO(5, "   moveIfaceExportBody: port=" << portName << " task=" << nodep->name());
         // Look up the interface port variable in the module's symbol table
-        VSymEnt* const portSymp = m_modSymp->findIdFallback(portName);
-        if (!portSymp) {
+        VSymEnt* ধ্রুবক portSymp = m_modSymp->findIdFallback(portName);
+        যদি (!portSymp) {
             nodep->v3error("Interface port not found for out-of-block definition: '"
                            << portName << "' (IEEE 1800-2023 25.7)");
             nodep->unlinkFrBack();
-            VL_DO_DANGLING(pushDeletep(nodep), nodep);
-            return;
+            VL_DO_DANGLING(ঠেলো_Deletep(nodep), nodep);
+            ফেরত;
         }
-        AstVar* const portp = VN_CAST(portSymp->nodep(), Var);
-        if (!portp) {
+        AstVar* ধ্রুবক portp = VN_CAST(portSymp->nodep(), Var);
+        যদি (!portp) {
             nodep->v3fatalSrc("Out-of-block definition port is not a variable: " << portName);
-            return;
+            ফেরত;
         }
         // Get the interface name from the port's type
         // At this stage dtypep() may not be set yet; check childDTypep() too
         AstIfaceRefDType* ifaceRefDtp = nullptr;
-        if (portp->dtypep()) { ifaceRefDtp = VN_CAST(portp->dtypep(), IfaceRefDType); }
-        if (!ifaceRefDtp && portp->childDTypep()) {
+        যদি (portp->dtypep()) { ifaceRefDtp = VN_CAST(portp->dtypep(), IfaceRefDType); }
+        যদি (!ifaceRefDtp && portp->childDTypep()) {
             ifaceRefDtp = VN_CAST(portp->childDTypep(), IfaceRefDType);
         }
-        if (!ifaceRefDtp) {
+        যদি (!ifaceRefDtp) {
             nodep->v3error("Out-of-block definition port is not an interface port: '"
                            << portName << "' (IEEE 1800-2023 25.7)");
             nodep->unlinkFrBack();
-            VL_DO_DANGLING(pushDeletep(nodep), nodep);
-            return;
+            VL_DO_DANGLING(ঠেলো_Deletep(nodep), nodep);
+            ফেরত;
         }
-        const string ifaceName = ifaceRefDtp->ifaceName();
+        ধ্রুবক string ifaceName = ifaceRefDtp->ifaceName();
         UINFO(5, "   moveIfaceExportBody: iface=" << ifaceName);
         // Find the interface module by name
-        AstNodeModule* const ifaceModp = m_statep->findModuleSym(ifaceName);
-        if (!ifaceModp) {
+        Ast_গ্রন্থি_Module* ধ্রুবক ifaceModp = m_statep->findModuleSym(ifaceName);
+        যদি (!ifaceModp) {
             nodep->v3fatalSrc("Interface not found for out-of-block definition: " << ifaceName);
-            return;
+            ফেরত;
         }
         // Find the prototype task in the interface
-        AstNodeFTask* protoTaskp = nullptr;
-        for (AstNode* itemp = ifaceModp->stmtsp(); itemp; itemp = itemp->nextp()) {
-            if (AstNodeFTask* const ftaskp = VN_CAST(itemp, NodeFTask)) {
-                if (ftaskp->name() == nodep->name() && ftaskp->prototype()) {
+        Ast_গ্রন্থি_FTask* protoTaskp = nullptr;
+        জন্য (Ast_গ্রন্থি* itemp = ifaceModp->stmtsp(); itemp; itemp = itemp->nextp()) {
+            যদি (Ast_গ্রন্থি_FTask* ধ্রুবক ftaskp = VN_CAST(itemp, গ্রন্থি_FTask)) {
+                যদি (ftaskp->name() == nodep->name() && ftaskp->prototype()) {
                     protoTaskp = ftaskp;
-                    break;
+                    বিরতি;
                 }
             }
         }
-        if (!protoTaskp) {
+        যদি (!protoTaskp) {
             nodep->v3error("No matching export prototype found in interface "
                            << ifaceName << " for task " << nodep->prettyNameQ()
                            << " (IEEE 1800-2023 25.7)");
             nodep->unlinkFrBack();
-            VL_DO_DANGLING(pushDeletep(nodep), nodep);
-            return;
+            VL_DO_DANGLING(ঠেলো_Deletep(nodep), nodep);
+            ফেরত;
         }
         // Move body statements (non-port declarations) from the out-of-block task
         // to the prototype task. Rewrite port.X references to just X in the body.
-        for (AstNode* stmtp = nodep->stmtsp(); stmtp;) {
-            AstNode* const nextp = stmtp->nextp();
+        জন্য (Ast_গ্রন্থি* stmtp = nodep->stmtsp(); stmtp;) {
+            Ast_গ্রন্থি* ধ্রুবক nextp = stmtp->nextp();
             // Skip port declarations -- they already exist in the prototype
-            if (const AstVar* const varp = VN_CAST(stmtp, Var)) {
-                if (varp->isIO()) {
+            যদি (ধ্রুবক AstVar* ধ্রুবক varp = VN_CAST(stmtp, Var)) {
+                যদি (varp->isIO()) {
                     stmtp = nextp;
-                    continue;
+                    চালু;
                 }
             }
             // Clone this statement and rewrite port references
-            AstNode* const newStmtp = stmtp->cloneTree(false);
+            Ast_গ্রন্থি* ধ্রুবক newStmtp = stmtp->clone_বৃক্ষ(মিথ্যা);
             rewriteIfacePortRefsSingle(newStmtp, portName);
             protoTaskp->addStmtsp(newStmtp);
             stmtp = nextp;
         }
         // Mark prototype as no longer prototype (it has a body now)
-        protoTaskp->prototype(false);
+        protoTaskp->prototype(মিথ্যা);
         // Delete the out-of-block task from the module
         nodep->unlinkFrBack();
-        VL_DO_DANGLING(pushDeletep(nodep), nodep);
+        VL_DO_DANGLING(ঠেলো_Deletep(nodep), nodep);
     }
 
     // Rewrite AstDot nodes where lhsp is AstParseRef with the port name
     // to just the rhsp (stripping the port prefix).
-    static void rewriteIfacePortRefsSingle(AstNode* nodep, const string& portName) {
-        if (!nodep) return;
+    স্থির শূন্য rewriteIfacePortRefsSingle(Ast_গ্রন্থি* nodep, ধ্রুবক string& portName) {
+        যদি (!nodep) ফেরত;
         // Check if this is a non-colon Dot with lhs matching portName
-        if (AstDot* const dotp = VN_CAST(nodep, Dot)) {
-            if (!dotp->colon()) {
-                const AstParseRef* const lhsRefp = VN_CAST(dotp->lhsp(), ParseRef);
-                if (lhsRefp && lhsRefp->name() == portName) {
+        যদি (AstDot* ধ্রুবক dotp = VN_CAST(nodep, Dot)) {
+            যদি (!dotp->colon()) {
+                ধ্রুবক AstParseRef* ধ্রুবক lhsRefp = VN_CAST(dotp->lhsp(), ParseRef);
+                যদি (lhsRefp && lhsRefp->name() == portName) {
                     UINFO(5, "   rewriteIfacePortRefs: stripping port prefix from " << dotp);
-                    AstNode* const rhsp = dotp->rhsp()->unlinkFrBack();
+                    Ast_গ্রন্থি* ধ্রুবক rhsp = dotp->rhsp()->unlinkFrBack();
                     dotp->replaceWith(rhsp);
-                    VL_DO_DANGLING(dotp->deleteTree(), dotp);
+                    VL_DO_DANGLING(dotp->delete_বৃক্ষ(), dotp);
                     rewriteIfacePortRefsSingle(rhsp, portName);
-                    return;
+                    ফেরত;
                 }
             }
         }
         // Recurse into all children
-        for (AstNode* childp : {nodep->op1p(), nodep->op2p(), nodep->op3p(), nodep->op4p()}) {
-            while (childp) {
-                AstNode* const nextp = childp->nextp();
+        জন্য (Ast_গ্রন্থি* childp : {nodep->op1p(), nodep->op2p(), nodep->op3p(), nodep->op4p()}) {
+            যখন (childp) {
+                Ast_গ্রন্থি* ধ্রুবক nextp = childp->nextp();
                 rewriteIfacePortRefsSingle(childp, portName);
                 childp = nextp;
             }
         }
     }
 
-    void visit(AstNodeFTask* nodep) override {  // FindVisitor::
+    শূন্য visit(Ast_গ্রন্থি_FTask* nodep) override {  // FindVisitor::
         // NodeTask: Remember its name for later resolution
         UINFO(5, "   " << nodep);
         UASSERT_OBJ(m_curSymp && m_modSymp, nodep, "Function/Task not under module?");
-        if (nodep->name() == "new") m_explicitNew = true;
+        যদি (nodep->name() == "new") m_explicitNew = সত্য;
         // Handle out-of-block interface method definition (IEEE 25.8)
-        if (!nodep->ifacePortName().empty() && m_statep->forPrimary()) {
+        যদি (!nodep->ifacePortName().empty() && m_statep->forPrimary()) {
             moveIfaceExportBody(nodep);
-            return;  // Task has been deleted
+            ফেরত;  // Task has been deleted
         }
         // Remember the existing symbol table scope
         VL_RESTORER(m_classOrPackagep);
         VL_RESTORER(m_curSymp);
         VSymEnt* upSymp = m_curSymp;
 
-        if (VN_IS(m_curSymp->nodep(), Class)) {
-            if (VN_AS(m_curSymp->nodep(), Class)->isInterfaceClass() && !nodep->pureVirtual()
+        যদি (VN_IS(m_curSymp->nodep(), Class)) {
+            যদি (VN_AS(m_curSymp->nodep(), Class)->isInterfaceClass() && !nodep->pureVirtual()
                 && !nodep->isConstructor()) {
                 nodep->v3error("Interface class functions must be pure virtual"
                                << " (IEEE 1800-2023 8.26): " << nodep->prettyNameQ());
             }
-            if (m_statep->forPrimary()
+            যদি (m_statep->forPrimary()
                 && (nodep->name() == "randomize" || nodep->name() == "srandom")) {
                 nodep->v3error(nodep->prettyNameQ()
                                << " is a predefined class method; redefinition not allowed"
@@ -1701,199 +1701,199 @@ class LinkDotFindVisitor final : public VNVisitor {
             }
         }
         // Change to appropriate package if extern declaration (vs definition)
-        if (nodep->classOrPackagep()) {
+        যদি (nodep->classOrPackagep()) {
             // class-in-class
-            AstDot* const dotp = VN_CAST(nodep->classOrPackagep(), Dot);
-            AstClassOrPackageRef* const cpackagerefp
+            AstDot* ধ্রুবক dotp = VN_CAST(nodep->classOrPackagep(), Dot);
+            AstClassOrPackageRef* ধ্রুবক cpackagerefp
                 = VN_CAST(nodep->classOrPackagep(), ClassOrPackageRef);
-            if (dotp) {
-                AstClassOrPackageRef* const lhsp = VN_AS(dotp->lhsp(), ClassOrPackageRef);
-                m_statep->resolveClassOrPackage(m_curSymp, lhsp, true, false,
+            যদি (dotp) {
+                AstClassOrPackageRef* ধ্রুবক lhsp = VN_AS(dotp->lhsp(), ClassOrPackageRef);
+                m_statep->resolveClassOrPackage(m_curSymp, lhsp, সত্য, মিথ্যা,
                                                 "External definition :: reference");
-                AstClass* const lhsclassp = VN_CAST(lhsp->classOrPackageSkipp(), Class);
-                if (!lhsclassp) {
+                AstClass* ধ্রুবক lhsclassp = VN_CAST(lhsp->classOrPackageSkipp(), Class);
+                যদি (!lhsclassp) {
                     nodep->v3error("Extern declaration's scope is not a defined class");
-                } else {
-                    m_curSymp = m_statep->getNodeSym(lhsclassp);
+                } অন্যথা {
+                    m_curSymp = m_statep->get_গ্রন্থি_Sym(lhsclassp);
                     upSymp = m_curSymp;
-                    AstClassOrPackageRef* const rhsp = VN_AS(dotp->rhsp(), ClassOrPackageRef);
-                    m_statep->resolveClassOrPackage(m_curSymp, rhsp, true, false,
+                    AstClassOrPackageRef* ধ্রুবক rhsp = VN_AS(dotp->rhsp(), ClassOrPackageRef);
+                    m_statep->resolveClassOrPackage(m_curSymp, rhsp, সত্য, মিথ্যা,
                                                     "External definition :: reference");
-                    AstClass* const rhsclassp = VN_CAST(rhsp->classOrPackageSkipp(), Class);
-                    if (!rhsclassp) {
+                    AstClass* ধ্রুবক rhsclassp = VN_CAST(rhsp->classOrPackageSkipp(), Class);
+                    যদি (!rhsclassp) {
                         nodep->v3error("Extern declaration's scope is not a defined class");
-                    } else {
-                        m_curSymp = m_statep->getNodeSym(rhsclassp);
+                    } অন্যথা {
+                        m_curSymp = m_statep->get_গ্রন্থি_Sym(rhsclassp);
                         upSymp = m_curSymp;
                         moveExternFuncDecl(nodep, rhsclassp);
                     }
                 }
-            } else if (cpackagerefp) {
-                if (!cpackagerefp->classOrPackageSkipp()) {
-                    m_statep->resolveClassOrPackage(m_curSymp, cpackagerefp, true, false,
+            } অন্যথা যদি (cpackagerefp) {
+                যদি (!cpackagerefp->classOrPackageSkipp()) {
+                    m_statep->resolveClassOrPackage(m_curSymp, cpackagerefp, সত্য, মিথ্যা,
                                                     "External definition :: reference");
                 }
-                AstClass* const classp = VN_CAST(cpackagerefp->classOrPackageSkipp(), Class);
-                if (!classp) {
+                AstClass* ধ্রুবক classp = VN_CAST(cpackagerefp->classOrPackageSkipp(), Class);
+                যদি (!classp) {
                     nodep->v3error("Extern declaration's scope is not a defined class");
-                } else {
-                    m_curSymp = m_statep->getNodeSym(classp);
+                } অন্যথা {
+                    m_curSymp = m_statep->get_গ্রন্থি_Sym(classp);
                     upSymp = m_curSymp;
                     moveExternFuncDecl(nodep, classp);
                 }
-            } else {
+            } অন্যথা {
                 v3fatalSrc("Unhandled extern function definition package");
             }
         }
         // Set the class as package for iteration
-        if (VN_IS(m_curSymp->nodep(), Class)) {
+        যদি (VN_IS(m_curSymp->nodep(), Class)) {
             m_classOrPackagep = VN_AS(m_curSymp->nodep(), Class);
         }
         // Create symbol table for the task's vars
-        const string name = (nodep->isExternProto() ? "extern "s : ""s) + nodep->name();
-        m_curSymp = m_statep->insertBlock(m_curSymp, name, nodep, m_classOrPackagep);
+        ধ্রুবক string name = (nodep->isExternProto() ? "extern "s : ""s) + nodep->name();
+        m_curSymp = m_statep->ঢোকাও_Block(m_curSymp, name, nodep, m_classOrPackagep);
         m_curSymp->fallbackp(upSymp);
         // Convert the func's range to the output variable
         // This should probably be done in the Parser instead, as then we could
         // just attach normal signal attributes to it.
-        if (!nodep->isExternProto() && nodep->fvarp() && !VN_IS(nodep->fvarp(), Var)) {
-            AstNodeDType* dtypep = VN_CAST(nodep->fvarp(), NodeDType);
+        যদি (!nodep->isExternProto() && nodep->fvarp() && !VN_IS(nodep->fvarp(), Var)) {
+            Ast_গ্রন্থি_DType* dtypep = VN_CAST(nodep->fvarp(), গ্রন্থি_DType);
             // If unspecified, function returns one bit; however when we
             // support NEW() it could also return the class reference.
-            if (dtypep) {
+            যদি (dtypep) {
                 dtypep->unlinkFrBack();
-            } else {
-                dtypep = new AstBasicDType{nodep->fileline(), VBasicDTypeKwd::LOGIC};
+            } অন্যথা {
+                dtypep = নতুন AstBasicDType{nodep->fileline(), VBasicDTypeKwd::LOGIC};
             }
-            AstVar* const newvarp
-                = new AstVar{nodep->fileline(), VVarType::VAR, nodep->name(), VFlagChildDType{},
+            AstVar* ধ্রুবক newvarp
+                = নতুন AstVar{nodep->fileline(), VVarType::VAR, nodep->name(), VFlagChildDType{},
                              dtypep};  // Not dtype resolved yet
             newvarp->direction(VDirection::OUTPUT);
             newvarp->lifetime(VLifetime::AUTOMATIC_EXPLICIT);
-            newvarp->funcReturn(true);
-            newvarp->trace(false);  // Not user visible
+            newvarp->funcReturn(সত্য);
+            newvarp->trace(মিথ্যা);  // Not user visible
             nodep->fvarp(newvarp);
             // Explicit insert required, as the var name shadows the upper level's task name
-            m_statep->insertSym(m_curSymp, newvarp->name(), newvarp, nullptr /*classOrPackagep*/);
+            m_statep->ঢোকাও_Sym(m_curSymp, newvarp->name(), newvarp, nullptr /*classOrPackagep*/);
         }
         VL_RESTORER(m_ftaskp);
         m_ftaskp = nodep;
         iterateChildren(nodep);
     }
-    void visit(AstClocking* nodep) override {  // FindVisitor::
+    শূন্য visit(AstClocking* nodep) override {  // FindVisitor::
         VL_RESTORER(m_clockingp);
         m_clockingp = nodep;
         iterate(nodep->sentreep());
-        iterateAndNextNull(nodep->itemsp());
+        iterate_And_পরবর্তী_Null(nodep->itemsp());
         // If the block has no name, one cannot reference the clockvars
         VSymEnt* itSymp = nullptr;
-        if (nodep->isGlobal()  //
+        যদি (nodep->isGlobal()  //
             && m_statep->forPrimary()) {  // else flattening may see two globals
             m_statep->checkDuplicate(m_curSymp, nodep, "__024global_clock");
             itSymp
-                = m_statep->insertBlock(m_curSymp, "__024global_clock", nodep, m_classOrPackagep);
+                = m_statep->ঢোকাও_Block(m_curSymp, "__024global_clock", nodep, m_classOrPackagep);
             itSymp->fallbackp(nullptr);
         }
-        if (!nodep->name().empty()) {
-            itSymp = m_statep->insertBlock(m_curSymp, nodep->name(), nodep, m_classOrPackagep);
+        যদি (!nodep->name().empty()) {
+            itSymp = m_statep->ঢোকাও_Block(m_curSymp, nodep->name(), nodep, m_classOrPackagep);
             itSymp->fallbackp(nullptr);
         }
-        if (itSymp) {
+        যদি (itSymp) {
             VL_RESTORER(m_curSymp);
             m_curSymp = itSymp;
-            iterateAndNextNull(nodep->itemsp());
+            iterate_And_পরবর্তী_Null(nodep->itemsp());
         }
     }
-    void visit(AstClockingItem* nodep) override {  // FindVisitor::
-        if (nodep->varp()) {
-            if (m_curSymp->nodep() == m_clockingp) iterate(nodep->varp());
-            return;
+    শূন্য visit(AstClockingItem* nodep) override {  // FindVisitor::
+        যদি (nodep->varp()) {
+            যদি (m_curSymp->nodep() == m_clockingp) iterate(nodep->varp());
+            ফেরত;
         }
         std::string varname;
-        AstNodeDType* dtypep;
-        if (AstAssign* const assignp = nodep->assignp()) {
-            AstNodeExpr* const rhsp = assignp->rhsp()->unlinkFrBack();
-            dtypep = new AstRefDType{nodep->fileline(), AstRefDType::FlagTypeOfExpr{},
-                                     rhsp->cloneTree(false)};
+        Ast_গ্রন্থি_DType* dtypep;
+        যদি (AstAssign* ধ্রুবক assignp = nodep->assignp()) {
+            Ast_গ্রন্থি_রাশিমালা* ধ্রুবক rhsp = assignp->rhsp()->unlinkFrBack();
+            dtypep = নতুন AstRefDType{nodep->fileline(), AstRefDType::Flag_Type_Of_রাশিমালা{},
+                                     rhsp->clone_বৃক্ষ(মিথ্যা)};
             nodep->exprp(rhsp);
             varname = assignp->lhsp()->name();
-            VL_DO_DANGLING(assignp->unlinkFrBack()->deleteTree(), assignp);
-        } else {
-            AstNodeExpr* const refp = nodep->exprp();
-            const VSymEnt* foundp = m_curSymp->findIdFallback(refp->name());
-            if (!foundp || !foundp->nodep()) {
+            VL_DO_DANGLING(assignp->unlinkFrBack()->delete_বৃক্ষ(), assignp);
+        } অন্যথা {
+            Ast_গ্রন্থি_রাশিমালা* ধ্রুবক refp = nodep->exprp();
+            ধ্রুবক VSymEnt* foundp = m_curSymp->findIdFallback(refp->name());
+            যদি (!foundp || !foundp->nodep()) {
                 refp->v3error("Corresponding variable " << refp->prettyNameQ()
                                                         << " does not exist");
-                VL_DO_DANGLING(nodep->unlinkFrBack()->deleteTree(), nodep);
-                return;
+                VL_DO_DANGLING(nodep->unlinkFrBack()->delete_বৃক্ষ(), nodep);
+                ফেরত;
             }
             varname = refp->name();
-            dtypep = VN_AS(foundp->nodep(), Var)->childDTypep()->cloneTree(false);
+            dtypep = VN_AS(foundp->nodep(), Var)->childDTypep()->clone_বৃক্ষ(মিথ্যা);
         }
-        AstVar* const newvarp = new AstVar{nodep->fileline(), VVarType::MODULETEMP, varname,
+        AstVar* ধ্রুবক newvarp = নতুন AstVar{nodep->fileline(), VVarType::MODULETEMP, varname,
                                            VFlagChildDType{}, dtypep};
         newvarp->lifetime(VLifetime::STATIC_EXPLICIT);
         nodep->varp(newvarp);
         iterate(nodep->exprp());
     }
-    void visit(AstConstraint* nodep) override {  // FindVisitor::
+    শূন্য visit(AstConstraint* nodep) override {  // FindVisitor::
         VL_RESTORER(m_curSymp);
         // Change to appropriate package if extern declaration (vs definition)
         VSymEnt* upSymp = m_curSymp;
-        if (nodep->classOrPackagep()) {
-            AstClassOrPackageRef* const cpackagerefp
+        যদি (nodep->classOrPackagep()) {
+            AstClassOrPackageRef* ধ্রুবক cpackagerefp
                 = VN_CAST(nodep->classOrPackagep(), ClassOrPackageRef);
-            if (!cpackagerefp) {
+            যদি (!cpackagerefp) {
                 nodep->v3warn(E_UNSUPPORTED,
                               "Unsupported: extern constraint definition with class-in-class");
-            } else {
-                if (!cpackagerefp->classOrPackageSkipp()) {
-                    m_statep->resolveClassOrPackage(m_curSymp, cpackagerefp, true, false,
+            } অন্যথা {
+                যদি (!cpackagerefp->classOrPackageSkipp()) {
+                    m_statep->resolveClassOrPackage(m_curSymp, cpackagerefp, সত্য, মিথ্যা,
                                                     "External definition :: reference");
                 }
-                AstClass* const classp = VN_CAST(cpackagerefp->classOrPackageSkipp(), Class);
-                if (!classp) {
+                AstClass* ধ্রুবক classp = VN_CAST(cpackagerefp->classOrPackageSkipp(), Class);
+                যদি (!classp) {
                     nodep->v3error("Extern declaration's scope is not a defined class");
-                } else {
-                    m_curSymp = m_statep->getNodeSym(classp);
+                } অন্যথা {
+                    m_curSymp = m_statep->get_গ্রন্থি_Sym(classp);
                     upSymp = m_curSymp;
                     // Move it to proper spot under the target class
                     nodep->unlinkFrBack();
                     classp->addStmtsp(nodep);
-                    nodep->classOrPackagep()->unlinkFrBack()->deleteTree();
+                    nodep->classOrPackagep()->unlinkFrBack()->delete_বৃক্ষ();
                 }
             }
         }
         // Set the class as package for iteration
-        const string name = (nodep->isExternProto() ? "extern "s : ""s) + nodep->name();
-        m_curSymp = m_statep->insertBlock(upSymp, name, nodep, m_classOrPackagep);
+        ধ্রুবক string name = (nodep->isExternProto() ? "extern "s : ""s) + nodep->name();
+        m_curSymp = m_statep->ঢোকাও_Block(upSymp, name, nodep, m_classOrPackagep);
         iterateChildren(nodep);
     }
-    void visit(AstVar* nodep) override {  // FindVisitor::
+    শূন্য visit(AstVar* nodep) override {  // FindVisitor::
         // Var: Remember its name for later resolution
         UASSERT_OBJ(m_curSymp && m_modSymp, nodep, "Var not under module?");
         iterateChildren(nodep);
-        if (VN_IS(m_curSymp->nodep(), Class)
+        যদি (VN_IS(m_curSymp->nodep(), Class)
             && VN_AS(m_curSymp->nodep(), Class)->isInterfaceClass() && !nodep->isParam()) {
             nodep->v3error("Interface class cannot contain non-parameter members"
                            << " (IEEE 1800-2023 8.26): " << nodep->prettyNameQ());
         }
-        if (!m_statep->forScopeCreation()) {
+        যদি (!m_statep->forScopeCreation()) {
             // Find under either a task or the module's vars
-            const VSymEnt* foundp = m_curSymp->findIdFallback(nodep->name());
-            if (!foundp && m_modSymp && nodep->name() == m_modSymp->nodep()->name()) {
+            ধ্রুবক VSymEnt* foundp = m_curSymp->findIdFallback(nodep->name());
+            যদি (!foundp && m_modSymp && nodep->name() == m_modSymp->nodep()->name()) {
                 foundp = m_modSymp;  // Conflicts with modname?
             }
-            AstVar* const findvarp = foundp ? VN_CAST(foundp->nodep(), Var) : nullptr;
+            AstVar* ধ্রুবক findvarp = foundp ? VN_CAST(foundp->nodep(), Var) : nullptr;
             // clocking items can have duplicate names (inout)
-            if (findvarp && VN_IS(findvarp->backp(), ClockingItem)
+            যদি (findvarp && VN_IS(findvarp->backp(), ClockingItem)
                 && VN_IS(nodep->backp(), ClockingItem)) {
-                AstClockingItem* const itemp = VN_AS(nodep->backp(), ClockingItem);
-                AstClockingItem* const finditemp = VN_AS(findvarp->backp(), ClockingItem);
+                AstClockingItem* ধ্রুবক itemp = VN_AS(nodep->backp(), ClockingItem);
+                AstClockingItem* ধ্রুবক finditemp = VN_AS(findvarp->backp(), ClockingItem);
                 UINFO(4, "ClockCompl: " << itemp << " ;; " << finditemp);
                 UINFO(4, "ClockCompV: " << nodep << " ;; " << findvarp);
-                if (*itemp->exprp()->fileline() == *finditemp->exprp()->fileline()) {
-                    UASSERT_OBJ(finditemp->direction() == VDirection::INPUT
+                যদি (*itemp->exprp()->fileline() == *finditemp->exprp()->fileline()) {
+                    UASSERT_OBJ(finditemp->direction() == VDirection::প্রবেশ
                                     && itemp->direction() == VDirection::OUTPUT,
                                 itemp, "Input after output?");
                     // pretend nothing found and rename
@@ -1902,35 +1902,35 @@ class LinkDotFindVisitor final : public VNVisitor {
                     finditemp->outputp(itemp);
                 }
             }
-            bool ins = false;
-            if (!foundp) {
-                ins = true;
-            } else if (!findvarp && m_curSymp->findIdFlat(nodep->name()) && !foundp->imported()) {
+            যৌক্তিক ins = মিথ্যা;
+            যদি (!foundp) {
+                ins = সত্য;
+            } অন্যথা যদি (!findvarp && m_curSymp->findIdFlat(nodep->name()) && !foundp->imported()) {
                 nodep->v3error("Unsupported in C: Variable has same name as "
-                               << LinkDotState::nodeTextType(foundp->nodep()) << ": "
+                               << LinkDotState::গ্রন্থি_Text_Type(foundp->nodep()) << ": "
                                << nodep->prettyNameQ());
-            } else if (findvarp != nodep) {
+            } অন্যথা যদি (findvarp != nodep) {
                 UINFO(4, "DupVar: " << nodep << " ;; " << foundp->nodep());
                 UINFO(4, "    found  cur=se" << cvtToHex(m_curSymp) << " ;; parent=se"
                                              << cvtToHex(foundp->parentp()));
-                if (foundp->parentp() == m_curSymp  // Only when on same level
+                যদি (foundp->parentp() == m_curSymp  // Only when on same level
                     && !foundp->imported()) {  // and not from package
-                    if (VN_IS(m_curSymp->nodep(), Clocking)) {
+                    যদি (VN_IS(m_curSymp->nodep(), Clocking)) {
                         nodep->v3error("Multiple clockvars with the same name not allowed");
-                        return;
+                        ফেরত;
                     }
-                    const bool nansiBad
+                    ধ্রুবক যৌক্তিক nansiBad
                         = (((findvarp->isDeclTyped() || findvarp->isNet())
                             && (nodep->isDeclTyped() || nodep->isNet()))
                            || (findvarp->isIO() && nodep->isIO())  // e.g. !(output && output)
                            || findvarp->gotNansiType());  // e.g. int x && int x
-                    const bool ansiBad
+                    ধ্রুবক যৌক্তিক ansiBad
                         = findvarp->isAnsi() || nodep->isAnsi();  // dup illegal with ANSI
-                    if (ansiBad || nansiBad) {
-                        bool ansiWarn = ansiBad && !nansiBad;
-                        if (ansiWarn) {
-                            static int s_didAnsiWarn = false;
-                            if (s_didAnsiWarn++) ansiWarn = false;
+                    যদি (ansiBad || nansiBad) {
+                        যৌক্তিক ansiWarn = ansiBad && !nansiBad;
+                        যদি (ansiWarn) {
+                            স্থির পূর্ণসংখ্যা s_didAnsiWarn = মিথ্যা;
+                            যদি (s_didAnsiWarn++) ansiWarn = মিথ্যা;
                         }
                         nodep->v3error("Duplicate declaration of signal: "
                                        << nodep->prettyNameQ() << '\n'
@@ -1946,40 +1946,40 @@ class LinkDotFindVisitor final : public VNVisitor {
                         // Combining most likely reduce other errors
                         findvarp->combineType(nodep);
                         findvarp->fileline()->modifyStateInherit(nodep->fileline());
-                    } else {
+                    } অন্যথা {
                         findvarp->combineType(nodep);
                         findvarp->fileline()->modifyStateInherit(nodep->fileline());
-                        findvarp->gotNansiType(true);
+                        findvarp->gotNansiType(সত্য);
                         UASSERT_OBJ(nodep->subDTypep(), nodep, "Var has no type");
-                        if (nodep->subDTypep()->numeric().isSigned()
+                        যদি (nodep->subDTypep()->numeric().isSigned()
                             && !findvarp->subDTypep()->numeric().isSigned()) {
-                            findvarp->subDTypep()->numeric(VSigning{true});
+                            findvarp->subDTypep()->numeric(VSigning{সত্য});
                         }
-                        AstNodeDType* const varDtp = findvarp->subDTypep();
-                        AstNodeDType* const otherDtp = nodep->subDTypep();
-                        if (varDtp
+                        Ast_গ্রন্থি_DType* ধ্রুবক varDtp = findvarp->subDTypep();
+                        Ast_গ্রন্থি_DType* ধ্রুবক otherDtp = nodep->subDTypep();
+                        যদি (varDtp
                             && (VN_IS(varDtp, BasicDType)
                                 && VN_AS(varDtp, BasicDType)->implicit())) {
                             // Then have "input foo" and "real foo" so the
                             // dtype comes from the other side.
-                            VL_DO_DANGLING(varDtp->unlinkFrBack()->deleteTree(), varDtp);
+                            VL_DO_DANGLING(varDtp->unlinkFrBack()->delete_বৃক্ষ(), varDtp);
                             findvarp->childDTypep(otherDtp->unlinkFrBack());
-                        } else if (!m_statep->forScopeCreation() && otherDtp && varDtp
+                        } অন্যথা যদি (!m_statep->forScopeCreation() && otherDtp && varDtp
                                    && !(VN_IS(otherDtp, BasicDType)
                                         && VN_AS(otherDtp, BasicDType)->implicit())) {
                             // otherDtp and varDtp both non-nullptr and neither are implicit
                             // Can't compare dtypes now as might contain parameters,
                             // defer to V3Width
-                            AstAttrOf* const newp
-                                = new AstAttrOf{otherDtp->fileline(), VAttrType::VAR_PORT_DTYPE,
+                            AstAttrOf* ধ্রুবক newp
+                                = নতুন AstAttrOf{otherDtp->fileline(), VAttrType::VAR_PORT_DTYPE,
                                                 otherDtp->unlinkFrBack()};
                             findvarp->addAttrsp(newp);
                         }
                     }
-                    VL_DO_DANGLING(nodep->unlinkFrBack()->deleteTree(), nodep);
-                } else {
+                    VL_DO_DANGLING(nodep->unlinkFrBack()->delete_বৃক্ষ(), nodep);
+                } অন্যথা {
                     // User can disable the message at either point
-                    if (!(m_ftaskp && m_ftaskp->dpiImport())
+                    যদি (!(m_ftaskp && m_ftaskp->dpiImport())
                         && (!m_ftaskp || m_ftaskp != foundp->nodep())  // Not the function's
                                                                        // variable hiding function
                         && !nodep->fileline()->warnIsOff(V3ErrorCode::VARHIDDEN)
@@ -1992,115 +1992,115 @@ class LinkDotFindVisitor final : public VNVisitor {
                                           << "... Location of original declaration\n"
                                           << foundp->nodep()->warnContextSecondary());
                     }
-                    ins = true;
+                    ins = সত্য;
                 }
             }
-            if (ins) {
-                if (m_statep->forPrimary() && nodep->isGParam()
+            যদি (ins) {
+                যদি (m_statep->forPrimary() && nodep->isGParam()
                     && VN_IS(m_modSymp->nodep(), Module)
-                    && (m_statep->rootEntp()->nodep() == m_modSymp->parentp()->nodep())) {
+                    && (m_statep->মূল_Entp()->nodep() == m_modSymp->parentp()->nodep())) {
                     // This is the toplevel module. Check for command line overwrites of parameters
                     // We first search if the parameter is overwritten and then replace it with a
                     // new value.
-                    if (v3Global.opt.hasParameter(nodep->name())) {
-                        const string svalue = v3Global.opt.parameter(nodep->name());
-                        if (AstConst* const valuep
+                    যদি (v3Global.opt.hasParameter(nodep->name())) {
+                        ধ্রুবক string svalue = v3Global.opt.parameter(nodep->name());
+                        যদি (AstConst* ধ্রুবক valuep
                             = AstConst::parseParamLiteral(nodep->fileline(), svalue)) {
                             UINFO(9, "       replace parameter " << nodep);
                             UINFO(9, "       with " << valuep);
-                            if (nodep->valuep()) pushDeletep(nodep->valuep()->unlinkFrBack());
+                            যদি (nodep->valuep()) ঠেলো_Deletep(nodep->valuep()->unlinkFrBack());
                             nodep->valuep(valuep);
                             // Do not warn ENUMVALUE when overriding an enum param from the cli.
-                            nodep->fileline()->warnOff(V3ErrorCode::ENUMVALUE, true);
+                            nodep->fileline()->warnOff(V3ErrorCode::ENUMVALUE, সত্য);
                         }
                     }
                 }
-                m_statep->insertSym(m_curSymp, nodep->name(), nodep, m_classOrPackagep);
-                if (m_statep->forPrimary() && nodep->isGParam()) {
-                    ++m_paramNum;
-                    VSymEnt* const symp
-                        = m_statep->insertSym(m_curSymp, "__paramNumber" + cvtToStr(m_paramNum),
+                m_statep->ঢোকাও_Sym(m_curSymp, nodep->name(), nodep, m_classOrPackagep);
+                যদি (m_statep->forPrimary() && nodep->isGParam()) {
+                    ++m_param_অঙ্ক;
+                    VSymEnt* ধ্রুবক symp
+                        = m_statep->ঢোকাও_Sym(m_curSymp, "__paramNumber" + cvtToStr(m_param_অঙ্ক),
                                               nodep, m_classOrPackagep);
-                    symp->exported(false);
+                    symp->exported(মিথ্যা);
                 }
             }
         }
     }
-    void visit(AstTypedef* nodep) override {  // FindVisitor::
+    শূন্য visit(AstTypedef* nodep) override {  // FindVisitor::
         UASSERT_OBJ(m_curSymp, nodep, "Typedef not under module/package/$unit");
-        if (VN_IS(m_classOrPackagep, Class)) nodep->isUnderClass(true);
+        যদি (VN_IS(m_classOrPackagep, Class)) nodep->isUnderClass(সত্য);
         iterateChildren(nodep);
-        m_statep->insertSym(m_curSymp, nodep->name(), nodep, m_classOrPackagep);
+        m_statep->ঢোকাও_Sym(m_curSymp, nodep->name(), nodep, m_classOrPackagep);
     }
-    void visit(AstTypedefFwd* nodep) override {  // FindVisitor::
+    শূন্য visit(AstTypedefFwd* nodep) override {  // FindVisitor::
         UASSERT_OBJ(m_curSymp, nodep, "Typedef not under module/package/$unit");
         iterateChildren(nodep);
         // No need to insert, only the real typedef matters, but need to track for errors
         nodep->user1p(m_curSymp);
     }
-    void visit(AstNodeUOrStructDType* nodep) override {  // FindVisitor::
+    শূন্য visit(Ast_গ্রন্থি_UOr_Struct_DType* nodep) override {  // FindVisitor::
         UASSERT_OBJ(m_curSymp, nodep, "Struct/union dtype not under module/package/$unit");
         VL_RESTORER(m_curSymp);
-        m_curSymp = m_statep->insertBlock(m_curSymp, "__Vdtype" + cvtToStr(nodep->uniqueNum()),
+        m_curSymp = m_statep->ঢোকাও_Block(m_curSymp, "__Vdtype" + cvtToStr(nodep->unique_অঙ্ক()),
                                           nodep, m_classOrPackagep);
         iterateChildren(nodep);
     }
-    void visit(AstMemberDType* nodep) override {  // FindVisitor::
+    শূন্য visit(AstMemberDType* nodep) override {  // FindVisitor::
         iterateChildren(nodep);
-        m_statep->insertSym(m_curSymp, nodep->name(), nodep, m_classOrPackagep);
+        m_statep->ঢোকাও_Sym(m_curSymp, nodep->name(), nodep, m_classOrPackagep);
     }
-    void visit(AstParamTypeDType* nodep) override {  // FindVisitor::
+    শূন্য visit(AstParamTypeDType* nodep) override {  // FindVisitor::
         UASSERT_OBJ(m_curSymp, nodep, "Parameter type not under module/package/$unit");
 
         // Replace missing param types with provided hierarchical type params.
-        if (!m_hierParamsName.empty()) {
-            if (const VSymEnt* const typedefEntp = m_curSymp->findIdFallback(m_hierParamsName)) {
-                const AstModule* modp = VN_CAST(typedefEntp->nodep(), Module);
+        যদি (!m_hierParamsName.empty()) {
+            যদি (ধ্রুবক VSymEnt* ধ্রুবক typedefEntp = m_curSymp->findIdFallback(m_hierParamsName)) {
+                ধ্রুবক AstModule* modp = VN_CAST(typedefEntp->nodep(), Module);
 
-                for (const AstNode* stmtp = modp ? modp->stmtsp() : nullptr; stmtp;
+                জন্য (ধ্রুবক Ast_গ্রন্থি* stmtp = modp ? modp->stmtsp() : nullptr; stmtp;
                      stmtp = stmtp->nextp()) {
-                    const AstTypedef* tdefp = VN_CAST(stmtp, Typedef);
+                    ধ্রুবক AstTypedef* tdefp = VN_CAST(stmtp, Typedef);
 
-                    if (tdefp && tdefp->name() == nodep->name() && m_statep->forPrimary()) {
+                    যদি (tdefp && tdefp->name() == nodep->name() && m_statep->forPrimary()) {
                         UINFO(8, "Replacing type of" << nodep << "  -->with " << tdefp);
-                        AstNodeDType* const newDtp = tdefp->childDTypep();
-                        AstNodeDType* const oldDtp = nodep->childDTypep();
+                        Ast_গ্রন্থি_DType* ধ্রুবক newDtp = tdefp->childDTypep();
+                        Ast_গ্রন্থি_DType* ধ্রুবক oldDtp = nodep->childDTypep();
 
-                        oldDtp->replaceWith(newDtp->cloneTree(false));
-                        VL_DO_DANGLING(oldDtp->deleteTree(), oldDtp);
+                        oldDtp->replaceWith(newDtp->clone_বৃক্ষ(মিথ্যা));
+                        VL_DO_DANGLING(oldDtp->delete_বৃক্ষ(), oldDtp);
                     }
                 }
             }
         }
 
         iterateChildren(nodep);
-        m_statep->insertSym(m_curSymp, nodep->name(), nodep, m_classOrPackagep);
-        if (m_statep->forPrimary() && nodep->isGParam()) {
-            ++m_paramNum;
-            VSymEnt* const symp = m_statep->insertSym(
-                m_curSymp, "__paramNumber" + cvtToStr(m_paramNum), nodep, m_classOrPackagep);
-            symp->exported(false);
+        m_statep->ঢোকাও_Sym(m_curSymp, nodep->name(), nodep, m_classOrPackagep);
+        যদি (m_statep->forPrimary() && nodep->isGParam()) {
+            ++m_param_অঙ্ক;
+            VSymEnt* ধ্রুবক symp = m_statep->ঢোকাও_Sym(
+                m_curSymp, "__paramNumber" + cvtToStr(m_param_অঙ্ক), nodep, m_classOrPackagep);
+            symp->exported(মিথ্যা);
         }
     }
-    void visit(AstCFunc* nodep) override {  // FindVisitor::
+    শূন্য visit(AstCFunc* nodep) override {  // FindVisitor::
         // For dotted resolution, ignore all AstVars under functions, otherwise shouldn't exist
         UASSERT_OBJ(!m_statep->forScopeCreation(), nodep, "No CFuncs expected in tree yet");
     }
-    void visit(AstEnumItem* nodep) override {  // FindVisitor::
+    শূন্য visit(AstEnumItem* nodep) override {  // FindVisitor::
         // EnumItem: Remember its name for later resolution
         iterateChildren(nodep);
         // Find under either a task or the module's vars
-        const VSymEnt* foundp = m_curSymp->findIdFallback(nodep->name());
-        if (!foundp && m_modSymp && nodep->name() == m_modSymp->nodep()->name()) {
+        ধ্রুবক VSymEnt* foundp = m_curSymp->findIdFallback(nodep->name());
+        যদি (!foundp && m_modSymp && nodep->name() == m_modSymp->nodep()->name()) {
             foundp = m_modSymp;  // Conflicts with modname?
         }
-        AstEnumItem* const findvarp = foundp ? VN_CAST(foundp->nodep(), EnumItem) : nullptr;
-        bool ins = false;
-        if (!foundp) {
-            ins = true;
-        } else if (findvarp != nodep) {
+        AstEnumItem* ধ্রুবক findvarp = foundp ? VN_CAST(foundp->nodep(), EnumItem) : nullptr;
+        যৌক্তিক ins = মিথ্যা;
+        যদি (!foundp) {
+            ins = সত্য;
+        } অন্যথা যদি (findvarp != nodep) {
             UINFO(4, "DupVar: " << nodep << " ;; " << foundp);
-            if (foundp->parentp() == m_curSymp  // Only when on same level
+            যদি (foundp->parentp() == m_curSymp  // Only when on same level
                 && !foundp->imported()) {  // and not from package
                 nodep->v3error("Duplicate declaration of enum value: "
                                << nodep->prettyName() << '\n'
@@ -2108,9 +2108,9 @@ class LinkDotFindVisitor final : public VNVisitor {
                                << foundp->nodep()->warnOther()
                                << "... Location of original declaration\n"
                                << foundp->nodep()->warnContextSecondary());
-            } else {
+            } অন্যথা {
                 // User can disable the message at either point
-                if (!nodep->fileline()->warnIsOff(V3ErrorCode::VARHIDDEN)
+                যদি (!nodep->fileline()->warnIsOff(V3ErrorCode::VARHIDDEN)
                     && !foundp->nodep()->fileline()->warnIsOff(V3ErrorCode::VARHIDDEN)) {
                     nodep->v3warn(VARHIDDEN,
                                   "Declaration of enum value hides declaration in upper scope: "
@@ -2120,45 +2120,45 @@ class LinkDotFindVisitor final : public VNVisitor {
                                       << "... Location of original declaration\n"
                                       << foundp->nodep()->warnContextSecondary());
                 }
-                ins = true;
+                ins = সত্য;
             }
         }
-        if (ins) m_statep->insertSym(m_curSymp, nodep->name(), nodep, m_classOrPackagep);
+        যদি (ins) m_statep->ঢোকাও_Sym(m_curSymp, nodep->name(), nodep, m_classOrPackagep);
     }
-    void visit(AstPackageImport* nodep) override {  // FindVisitor::
+    শূন্য visit(AstPackageImport* nodep) override {  // FindVisitor::
         UINFO(4, "  Link: " << nodep);
-        if (!nodep->packagep()) return;  // Errored in V3LinkCells
-        VSymEnt* const srcp = m_statep->getNodeSym(nodep->packagep());
-        if (nodep->name() == "*") {
-            if (nodep->packagep() != v3Global.rootp()->stdPackagep()) {
-                if (m_curSymp == m_statep->dunitEntp()) {
+        যদি (!nodep->packagep()) ফেরত;  // Errored in V3LinkCells
+        VSymEnt* ধ্রুবক srcp = m_statep->get_গ্রন্থি_Sym(nodep->packagep());
+        যদি (nodep->name() == "*") {
+            যদি (nodep->packagep() != v3Global.rootp()->stdPackagep()) {
+                যদি (m_curSymp == m_statep->dunitEntp()) {
                     nodep->v3warn(IMPORTSTAR,
                                   "'import::*' in $unit scope may pollute global namespace");
                 }
             }
-        } else if (!nodep->resolvedClassp()) {
-            VSymEnt* const impp = srcp->findIdFlat(nodep->name());
-            if (!impp) {
+        } অন্যথা যদি (!nodep->resolvedClassp()) {
+            VSymEnt* ধ্রুবক impp = srcp->findIdFlat(nodep->name());
+            যদি (!impp) {
                 nodep->v3error("Import object not found: " << nodep->prettyPkgNameQ());
-            } else if (nodep->resolvedClassp()) {
+            } অন্যথা যদি (nodep->resolvedClassp()) {
                 UASSERT_OBJ(nodep->resolvedClassp()->classOrPackageSkipp() == impp->nodep(), nodep,
                             "Import should resolve to the same node");
-            } else if (AstClass* const classp = VN_CAST(impp->nodep(), Class)) {
+            } অন্যথা যদি (AstClass* ধ্রুবক classp = VN_CAST(impp->nodep(), Class)) {
                 nodep->resolvedClassp(
-                    new AstClassOrPackageRef{nodep->fileline(), classp->name(), classp, nullptr});
+                    নতুন AstClassOrPackageRef{nodep->fileline(), classp->name(), classp, nullptr});
             }
         }
         m_curSymp->importFromPackage(m_statep->symsp(), srcp, nodep->name());
         UINFO(9, "    Link Done: " << nodep);
         // No longer needed, but can't delete until any multi-instantiated modules are expanded
     }
-    void visit(AstPackageExport* nodep) override {  // FindVisitor::
+    শূন্য visit(AstPackageExport* nodep) override {  // FindVisitor::
         UINFO(9, "  Link: " << nodep);
-        if (!nodep->packagep()) return;  // Errored in V3LinkCells
-        VSymEnt* const srcp = m_statep->getNodeSym(nodep->packagep());
-        if (nodep->name() != "*") {
-            VSymEnt* const impp = srcp->findIdFlat(nodep->name());
-            if (!impp) {
+        যদি (!nodep->packagep()) ফেরত;  // Errored in V3LinkCells
+        VSymEnt* ধ্রুবক srcp = m_statep->get_গ্রন্থি_Sym(nodep->packagep());
+        যদি (nodep->name() != "*") {
+            VSymEnt* ধ্রুবক impp = srcp->findIdFlat(nodep->name());
+            যদি (!impp) {
                 nodep->v3error("Export object not found: '" << nodep->packagep()->prettyName()
                                                             << "::" << nodep->prettyName() << "'");
             }
@@ -2167,40 +2167,40 @@ class LinkDotFindVisitor final : public VNVisitor {
         UINFO(9, "    Link Done: " << nodep);
         // No longer needed, but can't delete until any multi-instantiated modules are expanded
     }
-    void visit(AstPackageExportStarStar* nodep) override {  // FindVisitor::
+    শূন্য visit(AstPackageExportStarStar* nodep) override {  // FindVisitor::
         UINFO(4, "  Link: " << nodep);
         m_curSymp->exportStarStar(m_statep->symsp());
         // No longer needed, but can't delete until any multi-instantiated modules are expanded
     }
 
-    void visit(AstNodeForeach* nodep) override {  // FindVisitor::
+    শূন্য visit(Ast_গ্রন্থি_Foreach* nodep) override {  // FindVisitor::
         // Symbol table needs nodep->name() as the index variable's name
         VL_RESTORER(m_curSymp);
         {
-            ++m_modWithNum;
-            m_curSymp = m_statep->insertBlock(m_curSymp, "__Vforeach" + cvtToStr(m_modWithNum),
+            ++m_mod_With_অঙ্ক;
+            m_curSymp = m_statep->ঢোকাও_Block(m_curSymp, "__Vforeach" + cvtToStr(m_mod_With_অঙ্ক),
                                               nodep, m_classOrPackagep);
-            m_curSymp->fallbackp(VL_RESTORER_PREV(m_curSymp));
-            for (AstNode *nextp, *argp = nodep->headerp()->elementsp(); argp; argp = nextp) {
+            m_curSymp->fallbackp(VL_RESTORER_পূর্ব(m_curSymp));
+            জন্য (Ast_গ্রন্থি *nextp, *argp = nodep->headerp()->elementsp(); argp; argp = nextp) {
                 nextp = argp->nextp();
                 AstVar* argrefp = nullptr;
-                if (AstParseRef* const parserefp = VN_CAST(argp, ParseRef)) {
+                যদি (AstParseRef* ধ্রুবক parserefp = VN_CAST(argp, ParseRef)) {
                     // IEEE 1800-2023 12.7.3: foreach loop variable type shall be int (2-state)
                     // This might get changed in V3Width when types resolve (e.g., for assoc
                     // arrays)
-                    argrefp = new AstVar{parserefp->fileline(), VVarType::BLOCKTEMP,
+                    argrefp = নতুন AstVar{parserefp->fileline(), VVarType::BLOCKTEMP,
                                          parserefp->name(), argp->findIntDType()};
                     argrefp->lifetime(VLifetime::AUTOMATIC_EXPLICIT);
                     parserefp->replaceWith(argrefp);
-                    VL_DO_DANGLING2(parserefp->deleteTree(), parserefp, argp);
+                    VL_DO_DANGLING2(parserefp->delete_বৃক্ষ(), parserefp, argp);
                     // Insert argref's name into symbol table
-                    m_statep->insertSym(m_curSymp, argrefp->name(), argrefp, nullptr);
-                } else if (const auto largrefp = VN_CAST(argp, Var)) {
+                    m_statep->ঢোকাও_Sym(m_curSymp, argrefp->name(), argrefp, nullptr);
+                } অন্যথা যদি (ধ্রুবক auto largrefp = VN_CAST(argp, Var)) {
                     argrefp = largrefp;
                     // Insert argref's name into symbol table
-                    m_statep->insertSym(m_curSymp, argrefp->name(), argrefp, nullptr);
-                } else if (VN_IS(argp, Empty)) {
-                } else {
+                    m_statep->ঢোকাও_Sym(m_curSymp, argrefp->name(), argrefp, nullptr);
+                } অন্যথা যদি (VN_IS(argp, Empty)) {
+                } অন্যথা {
                     argp->v3error("'foreach' loop variable expects simple variable name");
                 }
             }
@@ -2208,147 +2208,147 @@ class LinkDotFindVisitor final : public VNVisitor {
         }
     }
 
-    void visit(AstRandSequence* nodep) override {
+    শূন্য visit(AstRandSequence* nodep) override {
         VL_RESTORER(m_curSymp);
-        m_curSymp = m_statep->insertBlock(m_curSymp, nodep->name(), nodep, m_classOrPackagep);
+        m_curSymp = m_statep->ঢোকাও_Block(m_curSymp, nodep->name(), nodep, m_classOrPackagep);
         iterateChildren(nodep);
     }
-    void visit(AstRSProd* nodep) override {
+    শূন্য visit(AstRSProd* nodep) override {
         VL_RESTORER(m_curSymp);
-        m_curSymp = m_statep->insertBlock(m_curSymp, nodep->name(), nodep, m_classOrPackagep);
-        if (nodep->fvarp())
+        m_curSymp = m_statep->ঢোকাও_Block(m_curSymp, nodep->name(), nodep, m_classOrPackagep);
+        যদি (nodep->fvarp())
             nodep->fvarp()->v3warn(E_UNSUPPORTED,
                                    "Unsupported: randsequence production function variable");
         // Mark formal ports as port-checked so the primary resolve pass does not
         // flag them with "does not appear in port list" -- V3RandSequence will
         // later move them onto the generated task as real input ports.
-        for (AstNode* itp = nodep->portsp(); itp; itp = itp->nextp()) {
-            VN_AS(itp, Var)->user4(true);
+        জন্য (Ast_গ্রন্থি* itp = nodep->portsp(); itp; itp = itp->nextp()) {
+            VN_AS(itp, Var)->user4(সত্য);
         }
         iterateChildren(nodep);
     }
 
-    void visit(AstWithParse* nodep) override {  // FindVisitor::
+    শূন্য visit(AstWithParse* nodep) override {  // FindVisitor::
         // Change WITHPARSE(FUNCREF, equation) to FUNCREF(WITH(equation))
-        AstNodeFTaskRef* funcrefp = VN_CAST(nodep->funcrefp(), NodeFTaskRef);
-        if (const AstDot* const dotp = VN_CAST(nodep->funcrefp(), Dot))
-            funcrefp = VN_CAST(dotp->rhsp(), NodeFTaskRef);
+        Ast_গ্রন্থি_FTask_Ref* funcrefp = VN_CAST(nodep->funcrefp(), গ্রন্থি_FTask_Ref);
+        যদি (ধ্রুবক AstDot* ধ্রুবক dotp = VN_CAST(nodep->funcrefp(), Dot))
+            funcrefp = VN_CAST(dotp->rhsp(), গ্রন্থি_FTask_Ref);
         UASSERT_OBJ(funcrefp, nodep, "'with' only can operate on a function/task");
         string name = funcrefp->name() == "randomize" ? "__Vrandwith_obj" : "item";
-        FileLine* argFl = nodep->fileline();
-        AstArg* const argsp = funcrefp->argsp();
-        if (argsp) {
-            argsp->unlinkFrBackWithNext();
-            if (funcrefp->name() != "randomize") {
-                if (const auto parserefp = VN_CAST(argsp->exprp(), ParseRef)) {
+        File_সারি* argFl = nodep->fileline();
+        AstArg* ধ্রুবক argsp = funcrefp->argsp();
+        যদি (argsp) {
+            argsp->unlink_Fr_Back_With_পরবর্তী();
+            যদি (funcrefp->name() != "randomize") {
+                যদি (ধ্রুবক auto parserefp = VN_CAST(argsp->exprp(), ParseRef)) {
                     name = parserefp->name();
                     argFl = parserefp->fileline();
-                } else {
+                } অন্যথা {
                     argsp->v3error("'with' function expects simple variable name");
                 }
-                if (argsp->nextp()) {
+                যদি (argsp->nextp()) {
                     argsp->nextp()->v3error("'with' function expects only up to one argument");
                 }
-                VL_DO_DANGLING(argsp->deleteTree(), argsp);
+                VL_DO_DANGLING(argsp->delete_বৃক্ষ(), argsp);
             }
         }
         // Type depends on the method used, let V3Width figure it out later
         // 'with (...) { ... }' constraint_block form is randomize-only
         // (IEEE 1800-2023 7.12 vs. 18.7); array methods take 'with (expr)'.
-        if (nodep->restricted() && funcrefp->name() != "randomize") {
+        যদি (nodep->restricted() && funcrefp->name() != "randomize") {
             nodep->v3error("'with (...) { ... }' constraint block is only valid for"
                            " randomize() (IEEE 1800-2023 18.7)");
             funcrefp->addArgsp(argsp);
             nodep->replaceWith(nodep->funcrefp()->unlinkFrBack());
-            VL_DO_DANGLING(nodep->deleteTree(), nodep);
-            return;
+            VL_DO_DANGLING(nodep->delete_বৃক্ষ(), nodep);
+            ফেরত;
         }
-        const bool restrictedRandomize = nodep->restricted();
-        if (nodep->exprsp() || nodep->constraintsp()
+        ধ্রুবক যৌক্তিক restrictedRandomize = nodep->restricted();
+        যদি (nodep->exprsp() || nodep->constraintsp()
             || restrictedRandomize) {  // Else empty expression and pretend no "with"
-            AstLambdaArgRef* const indexArgRefp
-                = new AstLambdaArgRef{argFl, name + "__DOT__index", true};
-            AstLambdaArgRef* const valueArgRefp = new AstLambdaArgRef{argFl, name, false};
-            AstWith* const newp
-                = new AstWith{nodep->fileline(), indexArgRefp, valueArgRefp, nullptr};
+            AstLambdaArgRef* ধ্রুবক সূচক_Arg_Refp
+                = নতুন AstLambdaArgRef{argFl, name + "__DOT__index", সত্য};
+            AstLambdaArgRef* ধ্রুবক মান_Arg_Refp = নতুন AstLambdaArgRef{argFl, name, মিথ্যা};
+            AstWith* ধ্রুবক newp
+                = নতুন AstWith{nodep->fileline(), সূচক_Arg_Refp, মান_Arg_Refp, nullptr};
             // Harvest the identifier_list into AstWith; grammar guarantees AstParseRef.
-            if (restrictedRandomize) {
-                newp->restricted(true);
-                while (AstNode* const itemp = nodep->exprsp()) {
+            যদি (restrictedRandomize) {
+                newp->restricted(সত্য);
+                যখন (Ast_গ্রন্থি* ধ্রুবক itemp = nodep->exprsp()) {
                     newp->addRestrictedName(VN_AS(itemp, ParseRef)->name());
                     itemp->unlinkFrBack();
-                    VL_DO_DANGLING(pushDeletep(itemp), itemp);
+                    VL_DO_DANGLING(ঠেলো_Deletep(itemp), itemp);
                 }
             }
-            AstNode* exprOrConstraintsp = nullptr;
-            if (nodep->exprsp()) exprOrConstraintsp = nodep->exprsp()->unlinkFrBackWithNext();
-            if (nodep->constraintsp())
-                exprOrConstraintsp = AstNode::addNext(
-                    exprOrConstraintsp, nodep->constraintsp()->unlinkFrBackWithNext());
-            newp->addExprp(exprOrConstraintsp);  // addExprp() tolerates nullptr
+            Ast_গ্রন্থি* রাশিমালা_Or_Constraintsp = nullptr;
+            যদি (nodep->exprsp()) রাশিমালা_Or_Constraintsp = nodep->exprsp()->unlink_Fr_Back_With_পরবর্তী();
+            যদি (nodep->constraintsp())
+                রাশিমালা_Or_Constraintsp = Ast_গ্রন্থি::add_পরবর্তী(
+                    রাশিমালা_Or_Constraintsp, nodep->constraintsp()->unlink_Fr_Back_With_পরবর্তী());
+            newp->addExprp(রাশিমালা_Or_Constraintsp);  // addExprp() tolerates nullptr
             funcrefp->withp(newp);
         }
         funcrefp->addArgsp(argsp);
         nodep->replaceWith(nodep->funcrefp()->unlinkFrBack());
-        VL_DO_DANGLING(nodep->deleteTree(), nodep);
+        VL_DO_DANGLING(nodep->delete_বৃক্ষ(), nodep);
     }
-    void visit(AstWith* nodep) override {  // FindVisitor::
+    শূন্য visit(AstWith* nodep) override {  // FindVisitor::
         // Symbol table needs nodep->name() as the index variable's name
         // Iteration will pickup the AstVar we made under AstWith
         VL_RESTORER(m_curSymp);
-        ++m_modWithNum;
-        m_curSymp = m_statep->insertBlock(m_curSymp, "__Vwith" + cvtToStr(m_modWithNum), nodep,
+        ++m_mod_With_অঙ্ক;
+        m_curSymp = m_statep->ঢোকাও_Block(m_curSymp, "__Vwith" + cvtToStr(m_mod_With_অঙ্ক), nodep,
                                           m_classOrPackagep);
-        m_curSymp->fallbackp(VL_RESTORER_PREV(m_curSymp));
-        UASSERT_OBJ(nodep->indexArgRefp(), nodep, "Missing lambda argref");
-        UASSERT_OBJ(nodep->valueArgRefp(), nodep, "Missing lambda argref");
+        m_curSymp->fallbackp(VL_RESTORER_পূর্ব(m_curSymp));
+        UASSERT_OBJ(nodep->সূচক_Arg_Refp(), nodep, "Missing lambda argref");
+        UASSERT_OBJ(nodep->মান_Arg_Refp(), nodep, "Missing lambda argref");
         // Insert argref's name into symbol table
-        m_statep->insertSym(m_curSymp, nodep->valueArgRefp()->name(), nodep->valueArgRefp(),
+        m_statep->ঢোকাও_Sym(m_curSymp, nodep->মান_Arg_Refp()->name(), nodep->মান_Arg_Refp(),
                             nullptr);
         iterateChildren(nodep);
     }
-    void visit(AstCoverWith* nodep) override {  // FindVisitor::
+    শূন্য visit(AstCoverWith* nodep) override {  // FindVisitor::
         // The range list is outside the scope of the filter, which declares 'item'
-        iterateAndNextNull(nodep->subp());
+        iterate_And_পরবর্তী_Null(nodep->subp());
         VL_RESTORER(m_curSymp);
-        ++m_modWithNum;
-        m_curSymp = m_statep->insertBlock(m_curSymp, "__VcoverWith" + cvtToStr(m_modWithNum),
+        ++m_mod_With_অঙ্ক;
+        m_curSymp = m_statep->ঢোকাও_Block(m_curSymp, "__VcoverWith" + cvtToStr(m_mod_With_অঙ্ক),
                                           nodep, m_classOrPackagep);
-        m_curSymp->fallbackp(VL_RESTORER_PREV(m_curSymp));
-        iterateAndNextNull(nodep->itemp());
-        iterateAndNextNull(nodep->filterp());
+        m_curSymp->fallbackp(VL_RESTORER_পূর্ব(m_curSymp));
+        iterate_And_পরবর্তী_Null(nodep->itemp());
+        iterate_And_পরবর্তী_Null(nodep->filterp());
     }
-    void visit(AstCoverCrossWith* nodep) override {  // FindVisitor::
+    শূন্য visit(AstCoverCrossWith* nodep) override {  // FindVisitor::
         // The selection, the 'matches' count, and the cross items' types, of their coverpoints'
         // expressions with any nested scopes, are outside the filter's scope, which declares the
         // items.  As visit(AstVar) would resolve a type in the scope declaring its variable, the
         // items, generated and unique, are inserted directly.
-        iterateAndNextNull(nodep->selectp());
-        iterateAndNextNull(nodep->countp());
-        for (AstVar* varp = nodep->varsp(); varp; varp = VN_AS(varp->nextp(), Var)) {
-            iterateAndNextNull(varp->childDTypep());
+        iterate_And_পরবর্তী_Null(nodep->selectp());
+        iterate_And_পরবর্তী_Null(nodep->countp());
+        জন্য (AstVar* varp = nodep->varsp(); varp; varp = VN_AS(varp->nextp(), Var)) {
+            iterate_And_পরবর্তী_Null(varp->childDTypep());
         }
         VL_RESTORER(m_curSymp);
-        ++m_modWithNum;
-        m_curSymp = m_statep->insertBlock(m_curSymp, "__VcoverWith" + cvtToStr(m_modWithNum),
+        ++m_mod_With_অঙ্ক;
+        m_curSymp = m_statep->ঢোকাও_Block(m_curSymp, "__VcoverWith" + cvtToStr(m_mod_With_অঙ্ক),
                                           nodep, m_classOrPackagep);
-        m_curSymp->fallbackp(VL_RESTORER_PREV(m_curSymp));
-        for (AstVar* varp = nodep->varsp(); varp; varp = VN_AS(varp->nextp(), Var)) {
-            m_statep->insertSym(m_curSymp, varp->name(), varp, m_classOrPackagep);
+        m_curSymp->fallbackp(VL_RESTORER_পূর্ব(m_curSymp));
+        জন্য (AstVar* varp = nodep->varsp(); varp; varp = VN_AS(varp->nextp(), Var)) {
+            m_statep->ঢোকাও_Sym(m_curSymp, varp->name(), varp, m_classOrPackagep);
         }
-        iterateAndNextNull(nodep->filterp());
+        iterate_And_পরবর্তী_Null(nodep->filterp());
     }
 
-    void visit(AstNode* nodep) override { iterateChildren(nodep); }  // FindVisitor::
+    শূন্য visit(Ast_গ্রন্থি* nodep) override { iterateChildren(nodep); }  // FindVisitor::
 
-    void handleUnvisitedVirtIfaces() {
-        AstNodeModule* const top = v3Global.rootp()->modulesp();
-        m_curSymp = m_statep->getNodeSym(top);
-        for (AstIface* ifacep : m_virtIfaces) {
-            if (!ifacep->user4()) {  // virtual interface never assigned any actual interface
+    শূন্য handleUnvisitedVirtIfaces() {
+        Ast_গ্রন্থি_Module* ধ্রুবক শীর্ষ = v3Global.rootp()->modulesp();
+        m_curSymp = m_statep->get_গ্রন্থি_Sym(শীর্ষ);
+        জন্য (AstIface* ifacep : m_virtIfaces) {
+            যদি (!ifacep->user4()) {  // virtual interface never assigned any actual interface
                 // Create dummy cell to keep the virtual interface alive
                 // (later stages assume that non-dead interface has associated cell)
-                AstCell* const ifacecellp = new AstCell{ifacep->fileline(),
+                AstCell* ধ্রুবক ifacecellp = নতুন AstCell{ifacep->fileline(),
                                                         ifacep->fileline(),
                                                         "__VdummyInstOf" + ifacep->name(),
                                                         ifacep->name(),
@@ -2356,133 +2356,133 @@ class LinkDotFindVisitor final : public VNVisitor {
                                                         nullptr,
                                                         nullptr};
                 ifacecellp->modp(ifacep);
-                top->addStmtsp(ifacecellp);
+                শীর্ষ->addStmtsp(ifacecellp);
 
                 iterate(ifacecellp);
             }
         }
     }
 
-public:
+সর্বজনীন:
     // CONSTRUCTORS
     LinkDotFindVisitor(AstNetlist* rootp, LinkDotState* statep)
         : m_statep{statep} {
         UINFO(4, __FUNCTION__ << ": ");
         iterate(rootp);
 
-        if (!m_virtIfaces.empty()) handleUnvisitedVirtIfaces();
-        for (AstScope* const scopep : m_scopes) scopep->modp()->addStmtsp(scopep);
-        if (m_statep->forScopeCreation()) {
+        যদি (!m_virtIfaces.empty()) handleUnvisitedVirtIfaces();
+        জন্য (AstScope* ধ্রুবক scopep : m_scopes) scopep->modp()->addStmtsp(scopep);
+        যদি (m_statep->forScopeCreation()) {
             V3Stats::addStat("LinkDot, Scope visits", m_statScopeVisits);
         }
     }
-    ~LinkDotFindVisitor() override = default;
+    ~LinkDotFindVisitor() override = পূর্বনির্ধারিত;
 };
 
 //======================================================================
 
-class LinkDotFindIfaceVisitor final : public VNVisitor {
+শ্রেণী LinkDotFindIfaceVisitor final : সর্বজনীন VNVisitor {
     // NODE STATE
     //  *::user1p()             -> See LinkDotState
 
     // STATE - for current visit position (use VL_RESTORER)
-    LinkDotState* const m_statep;  // State to pass between visitors, including symbol table
-    AstNode* m_declp = nullptr;  // Current declaring object that may soon contain IfaceRefDType
+    LinkDotState* ধ্রুবক m_statep;  // State to pass between visitors, including symbol table
+    Ast_গ্রন্থি* m_declp = nullptr;  // Current declaring object that may soon contain IfaceRefDType
 
     // METHODS
-    const VSymEnt* findNonDeclSym(VSymEnt* symp, const string& name) {
+    ধ্রুবক VSymEnt* findNonDeclSym(VSymEnt* symp, ধ্রুবক string& name) {
         // Find if there is a symbol of given name, ignoring the node that is declaring
         // it (m_declp) itself.  Thus if searching for "ifc" (an interface):
         //
         // module x;  // Finishes here and finds the typedef
         //   typedef foo ifc;
         //   ifc ifc;   // symp starts pointing here, but matches m_declp
-        while (symp) {
-            const VSymEnt* const foundp = symp->findIdFlat(name);
-            if (foundp && foundp->nodep() != m_declp) return foundp;
+        যখন (symp) {
+            ধ্রুবক VSymEnt* ধ্রুবক foundp = symp->findIdFlat(name);
+            যদি (foundp && foundp->nodep() != m_declp) ফেরত foundp;
             symp = symp->fallbackp();
         }
-        return nullptr;
+        ফেরত nullptr;
     }
 
     // VISITORS
-    void visit(AstRefDType* nodep) override {  // FindIfaceVisitor::
-        if (m_statep->forPrimary() && !nodep->classOrPackagep()) {
+    শূন্য visit(AstRefDType* nodep) override {  // FindIfaceVisitor::
+        যদি (m_statep->forPrimary() && !nodep->classOrPackagep()) {
             UINFO(9, "  FindIfc: " << nodep);
             // If under a var, ignore the var itself as might be e.g. "intf intf;"
             // Critical tests:
             //   t_interface_param_genblk.v  // Checks this does make interface
             //   t_interface_hidden.v  // Checks this doesn't making interface when hidden
-            if (m_statep->existsNodeSym(nodep)) {
-                VSymEnt* symp = m_statep->getNodeSym(nodep);
-                const VSymEnt* foundp = findNonDeclSym(symp, nodep->name());
-                AstNode* foundNodep = nullptr;
+            যদি (m_statep->exists_গ্রন্থি_Sym(nodep)) {
+                VSymEnt* symp = m_statep->get_গ্রন্থি_Sym(nodep);
+                ধ্রুবক VSymEnt* foundp = findNonDeclSym(symp, nodep->name());
+                Ast_গ্রন্থি* foundNodep = nullptr;
                 // This: v4make test_regress/t/t_interface_param_genblk.py --debug
                 // --debugi-V3LinkDot 9 Passes with this commented out:
-                if (foundp) foundNodep = foundp->nodep();
-                if (!foundNodep) foundNodep = m_statep->findModuleSym(nodep->name());
-                if (foundNodep) UINFO(9, "    Ifc foundNodep " << foundNodep);
-                if (AstIface* const defp = VN_CAST(foundNodep, Iface)) {
+                যদি (foundp) foundNodep = foundp->nodep();
+                যদি (!foundNodep) foundNodep = m_statep->findModuleSym(nodep->name());
+                যদি (foundNodep) UINFO(9, "    Ifc foundNodep " << foundNodep);
+                যদি (AstIface* ধ্রুবক defp = VN_CAST(foundNodep, Iface)) {
                     // Must be found as module name, and not hidden/ by normal symbol (foundp)
-                    AstIfaceRefDType* const newp
-                        = new AstIfaceRefDType{nodep->fileline(), "", nodep->name()};
-                    if (nodep->paramsp())
-                        newp->addParamsp(nodep->paramsp()->unlinkFrBackWithNext());
+                    AstIfaceRefDType* ধ্রুবক newp
+                        = নতুন AstIfaceRefDType{nodep->fileline(), "", nodep->name()};
+                    যদি (nodep->paramsp())
+                        newp->addParamsp(nodep->paramsp()->unlink_Fr_Back_With_পরবর্তী());
                     newp->ifacep(defp);
                     newp->user1u(nodep->user1u());
                     UINFO(9, "    Resolved interface " << nodep << "  =>  " << defp);
                     nodep->replaceWith(newp);
-                    VL_DO_DANGLING(pushDeletep(nodep), nodep);
-                    return;
+                    VL_DO_DANGLING(ঠেলো_Deletep(nodep), nodep);
+                    ফেরত;
                 }
             }
         }
         iterateChildren(nodep);
     }
-    void visit(AstVar* nodep) override {  // FindIfaceVisitor::
+    শূন্য visit(AstVar* nodep) override {  // FindIfaceVisitor::
         VL_RESTORER(m_declp);
         m_declp = nodep;
         iterateChildren(nodep);
-        AstIfaceRefDType* const ifacerefp = LinkDotState::ifaceRefFromArray(nodep->subDTypep());
-        if (ifacerefp && m_statep->existsNodeSym(nodep)) {
+        AstIfaceRefDType* ধ্রুবক ifacerefp = LinkDotState::ifaceRefFromArray(nodep->subDTypep());
+        যদি (ifacerefp && m_statep->exists_গ্রন্থি_Sym(nodep)) {
             // Can't resolve until interfaces and modport names are
             // known; see notes at top
             UINFO(9, "  FindIfc Var IfaceRef " << ifacerefp);
-            if (!ifacerefp->isVirtual()) nodep->setIfaceRef();
-            VSymEnt* const symp = m_statep->getNodeSym(nodep);
-            m_statep->insertIfaceVarSym(symp);
+            যদি (!ifacerefp->isVirtual()) nodep->setIfaceRef();
+            VSymEnt* ধ্রুবক symp = m_statep->get_গ্রন্থি_Sym(nodep);
+            m_statep->ঢোকাও_Iface_Var_Sym(symp);
         }
     }
-    void visit(AstNode* nodep) override { iterateChildren(nodep); }  // FindIfaceVisitor::
+    শূন্য visit(Ast_গ্রন্থি* nodep) override { iterateChildren(nodep); }  // FindIfaceVisitor::
 
-public:
+সর্বজনীন:
     // CONSTRUCTORS
     LinkDotFindIfaceVisitor(AstNetlist* rootp, LinkDotState* statep)
         : m_statep{statep} {
         UINFO(4, __FUNCTION__ << ": ");
         iterate(rootp);
     }
-    ~LinkDotFindIfaceVisitor() override = default;
+    ~LinkDotFindIfaceVisitor() override = পূর্বনির্ধারিত;
 };
 
 //======================================================================
 
-class LinkDotParamVisitor final : public VNVisitor {
+শ্রেণী LinkDotParamVisitor final : সর্বজনীন VNVisitor {
     // NODE STATE
     //  *::user1p()             -> See LinkDotState
     //  *::user2p()             -> See LinkDotState
     //  *::user4()              -> See LinkDotState
 
     // STATE
-    LinkDotState* const m_statep;  // State to pass between visitors, including symbol table
-    AstNodeModule* m_modp = nullptr;  // Current module
+    LinkDotState* ধ্রুবক m_statep;  // State to pass between visitors, including symbol table
+    Ast_গ্রন্থি_Module* m_modp = nullptr;  // Current module
 
-    void pinImplicitExprRecurse(AstNode* nodep) {
+    শূন্য pin_Implicit_রাশিমালা_Recurse(Ast_গ্রন্থি* nodep) {
         // Under a pin, Check interconnect expression for a pin reference or a concat.
         // Create implicit variable as needed
-        if (VN_IS(nodep, Dot)) {  // Not creating a simple implied type,
+        যদি (VN_IS(nodep, Dot)) {  // Not creating a simple implied type,
             // and implying something else would just confuse later errors
-        } else if (VN_IS(nodep, VarRef) || VN_IS(nodep, ParseRef)) {
+        } অন্যথা যদি (VN_IS(nodep, VarRef) || VN_IS(nodep, ParseRef)) {
             // To prevent user errors, we should only do single bit
             // implicit vars, however some netlists (MIPS) expect single
             // bit implicit wires to get created with range 0:0 etc.
@@ -2490,21 +2490,21 @@ class LinkDotParamVisitor final : public VNVisitor {
         }
         // These are perhaps a little too generous, as a SELect of siga[sigb]
         // perhaps shouldn't create an implicit variable.  But, we've warned...
-        else {
-            if (AstNode* const refp = nodep->op1p()) pinImplicitExprRecurse(refp);
-            if (AstNode* const refp = nodep->op2p()) pinImplicitExprRecurse(refp);
-            if (AstNode* const refp = nodep->op3p()) pinImplicitExprRecurse(refp);
-            if (AstNode* const refp = nodep->op4p()) pinImplicitExprRecurse(refp);
+        অন্যথা {
+            যদি (Ast_গ্রন্থি* ধ্রুবক refp = nodep->op1p()) pin_Implicit_রাশিমালা_Recurse(refp);
+            যদি (Ast_গ্রন্থি* ধ্রুবক refp = nodep->op2p()) pin_Implicit_রাশিমালা_Recurse(refp);
+            যদি (Ast_গ্রন্থি* ধ্রুবক refp = nodep->op3p()) pin_Implicit_রাশিমালা_Recurse(refp);
+            যদি (Ast_গ্রন্থি* ধ্রুবক refp = nodep->op4p()) pin_Implicit_রাশিমালা_Recurse(refp);
         }
         // Continue along a list (e.g. the terminals under AstImplicit), also after a reference
-        if (AstNode* const refp = nodep->nextp()) pinImplicitExprRecurse(refp);
+        যদি (Ast_গ্রন্থি* ধ্রুবক refp = nodep->nextp()) pin_Implicit_রাশিমালা_Recurse(refp);
     }
 
     // VISITORS
-    void visit(AstTypeTable*) override {}  // ParamVisitor::
-    void visit(AstNodeModule* nodep) override {  // ParamVisitor::
+    শূন্য visit(AstTypeTable*) override {}  // ParamVisitor::
+    শূন্য visit(Ast_গ্রন্থি_Module* nodep) override {  // ParamVisitor::
         UINFO(5, "   " << nodep);
-        if ((nodep->dead() || !nodep->user4()) && !nodep->hierParams()) {
+        যদি ((nodep->dead() || !nodep->user4()) && !nodep->hierParams()) {
             UINFO(4, "Mark dead module " << nodep);
             UASSERT_OBJ(!m_statep->forScopeCreation(), nodep,
                         "Dead module persisted past where should have removed");
@@ -2512,110 +2512,110 @@ class LinkDotParamVisitor final : public VNVisitor {
             // parameterized modules with VARXREFs into the deleted module
             // region.  V3Dead should cleanup.
             // Downstream visitors up until V3Dead need to check for nodep->dead.
-            nodep->dead(true);
-            return;
+            nodep->dead(সত্য);
+            ফেরত;
         }
         VL_RESTORER(m_modp);
         m_modp = nodep;
         iterateChildren(nodep);
     }
-    void visit(AstPin* nodep) override {  // ParamVisitor::
+    শূন্য visit(AstPin* nodep) override {  // ParamVisitor::
         // Pin: Link to submodule's port
         // Deal with implicit definitions - do before Resolve visitor as may
         // be referenced above declaration
-        if (nodep->exprp()  // Else specifically unconnected pin
+        যদি (nodep->exprp()  // Else specifically unconnected pin
             && !nodep->svImplicit()) {  // SV 19.11.3: .name pins don't allow implicit decls
-            pinImplicitExprRecurse(nodep->exprp());
+            pin_Implicit_রাশিমালা_Recurse(nodep->exprp());
         }
     }
-    void visit(AstDefParam* nodep) override {  // ParamVisitor::
+    শূন্য visit(AstDefParam* nodep) override {  // ParamVisitor::
         iterateChildren(nodep);
         nodep->v3warn(DEFPARAM, "defparam is deprecated (IEEE 1800-2023 C.4.1)\n"
                                     << nodep->warnMore()
                                     << "... Suggest use instantiation with #(."
                                     << nodep->prettyName() << "(...etc...))");
-        bool hasPartSelect = false;
-        const string path = extractDottedPath(nodep->pathp(), hasPartSelect);
+        যৌক্তিক hasPartSelect = মিথ্যা;
+        ধ্রুবক string path = extractDottedPath(nodep->pathp(), hasPartSelect);
         UASSERT_OBJ(!hasPartSelect && !path.empty(), nodep, "Unexpected defparam path shape");
         string baddot;
         VSymEnt* okSymp = nullptr;
-        VSymEnt* const foundp = m_statep->findDotted(
-            nodep->fileline(), m_statep->getNodeSym(nodep), path, baddot, okSymp, true);
-        AstCell* const cellp = foundp ? VN_AS(foundp->nodep(), Cell) : nullptr;
-        if (!cellp) {
+        VSymEnt* ধ্রুবক foundp = m_statep->findDotted(
+            nodep->fileline(), m_statep->get_গ্রন্থি_Sym(nodep), path, baddot, okSymp, সত্য);
+        AstCell* ধ্রুবক cellp = foundp ? VN_AS(foundp->nodep(), Cell) : nullptr;
+        যদি (!cellp) {
             nodep->v3error("In defparam, instance " << path << " never declared");
-        } else {
-            AstNodeExpr* const exprp = nodep->rhsp()->unlinkFrBack();
+        } অন্যথা {
+            Ast_গ্রন্থি_রাশিমালা* ধ্রুবক exprp = nodep->rhsp()->unlinkFrBack();
             UINFO(9, "Defparam cell " << path << "." << nodep->name() << " attach-to " << cellp
                                       << "  <= " << exprp);
             // Don't need to check the name of the defparam exists.  V3Param does.
-            AstPin* const pinp = new AstPin{nodep->fileline(),
+            AstPin* ধ্রুবক pinp = নতুন AstPin{nodep->fileline(),
                                             -1,  // Pin# not relevant
                                             nodep->name(), exprp};
-            pinp->param(true);
+            pinp->param(সত্য);
             pinp->paramPath(path);
             cellp->addParamsp(pinp);
         }
-        VL_DO_DANGLING(nodep->unlinkFrBack()->deleteTree(), nodep);
+        VL_DO_DANGLING(nodep->unlinkFrBack()->delete_বৃক্ষ(), nodep);
     }
-    void visit(AstPort* nodep) override {  // ParamVisitor::
+    শূন্য visit(AstPort* nodep) override {  // ParamVisitor::
         // Port: Stash the pin number
         // Need to set pin numbers after varnames are created
         // But before we do the final resolution based on names
-        VSymEnt* const foundp = m_statep->getNodeSym(m_modp)->findIdFlat(nodep->name());
-        AstVar* const refp = foundp ? VN_CAST(foundp->nodep(), Var) : nullptr;
-        if (!foundp) {
+        VSymEnt* ধ্রুবক foundp = m_statep->get_গ্রন্থি_Sym(m_modp)->findIdFlat(nodep->name());
+        AstVar* ধ্রুবক refp = foundp ? VN_CAST(foundp->nodep(), Var) : nullptr;
+        যদি (!foundp) {
             nodep->v3error(
                 "Input/output/inout declaration not found for port: " << nodep->prettyNameQ());
-        } else if (!refp || (!refp->isIO() && !refp->isIfaceRef())) {
+        } অন্যথা যদি (!refp || (!refp->isIO() && !refp->isIfaceRef())) {
             nodep->v3error("Pin is not an in/out/inout/interface: " << nodep->prettyNameQ());
-        } else {
-            if (refp->user4()) {
+        } অন্যথা {
+            যদি (refp->user4()) {
                 nodep->v3error("Duplicate declaration of port: "
                                << nodep->prettyNameQ() << '\n'
                                << nodep->warnContextPrimary() << '\n'
                                << refp->warnOther() << "... Location of original declaration\n"
                                << refp->warnContextSecondary());
             }
-            refp->user4(true);
-            VSymEnt* const symp = m_statep->insertSym(m_statep->getNodeSym(m_modp),
-                                                      "__pinNumber" + cvtToStr(nodep->pinNum()),
+            refp->user4(সত্য);
+            VSymEnt* ধ্রুবক symp = m_statep->ঢোকাও_Sym(m_statep->get_গ্রন্থি_Sym(m_modp),
+                                                      "__pinNumber" + cvtToStr(nodep->pin_অঙ্ক()),
                                                       refp, nullptr /*classOrPackagep*/);
-            symp->exported(false);
-            refp->pinNum(nodep->pinNum());
+            symp->exported(মিথ্যা);
+            refp->pin_অঙ্ক(nodep->pin_অঙ্ক());
             // Put the variable where the port is, so that variables stay
             // in pin number sorted order. Otherwise hierarchical or JSON
             // may botch by-position instances.
-            nodep->addHereThisAsNext(refp->unlinkFrBack());
+            nodep->add_Here_This_As_পরবর্তী(refp->unlinkFrBack());
         }
         // Ports not needed any more
-        VL_DO_DANGLING(nodep->unlinkFrBack()->deleteTree(), nodep);
+        VL_DO_DANGLING(nodep->unlinkFrBack()->delete_বৃক্ষ(), nodep);
     }
-    void visit(AstAssignW* nodep) override {  // ParamVisitor::
+    শূন্য visit(AstAssignW* nodep) override {  // ParamVisitor::
         // Deal with implicit definitions
         // We used to nodep->allowImplicit() here, but it turns out
         // normal "assigns" can also make implicit wires.  Yuk.
-        pinImplicitExprRecurse(nodep->lhsp());
+        pin_Implicit_রাশিমালা_Recurse(nodep->lhsp());
         iterateChildren(nodep);
     }
 
-    void visit(AstImplicit* nodep) override {  // ParamVisitor::
+    শূন্য visit(AstImplicit* nodep) override {  // ParamVisitor::
         // Unsupported gates need implicit creation
-        pinImplicitExprRecurse(nodep->exprsp());
+        pin_Implicit_রাশিমালা_Recurse(nodep->exprsp());
         // We're done with implicit gates
-        VL_DO_DANGLING(nodep->unlinkFrBack()->deleteTree(), nodep);
+        VL_DO_DANGLING(nodep->unlinkFrBack()->delete_বৃক্ষ(), nodep);
     }
-    void visit(AstClassOrPackageRef* nodep) override {  // ParamVisitor::
-        if (auto* const fwdp = VN_CAST(nodep->classOrPackageNodep(), TypedefFwd)) {
+    শূন্য visit(AstClassOrPackageRef* nodep) override {  // ParamVisitor::
+        যদি (auto* ধ্রুবক fwdp = VN_CAST(nodep->classOrPackageNodep(), TypedefFwd)) {
             // Relink forward definitions to the "real" definition
-            VSymEnt* const foundp = m_statep->getNodeSym(fwdp)->findIdFallback(fwdp->name());
-            if (foundp && (VN_IS(foundp->nodep(), Class) || VN_IS(foundp->nodep(), Package))) {
-                nodep->classOrPackagep(VN_AS(foundp->nodep(), NodeModule));
-            } else if (foundp && VN_IS(foundp->nodep(), ParamTypeDType)) {
+            VSymEnt* ধ্রুবক foundp = m_statep->get_গ্রন্থি_Sym(fwdp)->findIdFallback(fwdp->name());
+            যদি (foundp && (VN_IS(foundp->nodep(), Class) || VN_IS(foundp->nodep(), Package))) {
+                nodep->classOrPackagep(VN_AS(foundp->nodep(), গ্রন্থি_Module));
+            } অন্যথা যদি (foundp && VN_IS(foundp->nodep(), ParamTypeDType)) {
                 UASSERT(m_statep->forPrimary(), "Param types should have been resolved");
                 nodep->classOrPackageNodep(VN_AS(foundp->nodep(), ParamTypeDType));
-            } else {
-                if (foundp) UINFO(1, "found nodep = " << foundp->nodep());
+            } অন্যথা {
+                যদি (foundp) UINFO(1, "found nodep = " << foundp->nodep());
                 nodep->v3error(
                     "Forward typedef used as class/package does not resolve to class/package: "
                     << nodep->prettyNameQ() << '\n'
@@ -2627,22 +2627,22 @@ class LinkDotParamVisitor final : public VNVisitor {
         }
         iterateChildren(nodep);
     }
-    void visit(AstPull* nodep) override {  // ParamVisitor::
+    শূন্য visit(AstPull* nodep) override {  // ParamVisitor::
         // Deal with implicit definitions
         // We used to nodep->allowImplicit() here, but it turns out
         // normal "assigns" can also make implicit wires.  Yuk.
-        pinImplicitExprRecurse(nodep->lhsp());
+        pin_Implicit_রাশিমালা_Recurse(nodep->lhsp());
         iterateChildren(nodep);
     }
-    void visit(AstTypedefFwd* nodep) override {  // ParamVisitor::
-        VSymEnt* const foundp = m_statep->getNodeSym(nodep)->findIdFallback(nodep->name());
-        if (foundp) {
+    শূন্য visit(AstTypedefFwd* nodep) override {  // ParamVisitor::
+        VSymEnt* ধ্রুবক foundp = m_statep->get_গ্রন্থি_Sym(nodep)->findIdFallback(nodep->name());
+        যদি (foundp) {
             // If the typedef was earlier in source order (tokenNum), then remember that earlier
             // point to avoid error something wasn't declared
             // Might be forward declaring something odd (with declTokenNumSetMin not implemented,
             // but should be harmless to ignore as this is just for error detection
-            foundp->nodep()->declTokenNumSetMin(nodep->fileline()->tokenNum());
-        } else if (v3Global.opt.pedantic()) {
+            foundp->nodep()->decl_Token_অঙ্ক_Set_Min(nodep->fileline()->token_অঙ্ক());
+        } অন্যথা যদি (v3Global.opt.pedantic()) {
             // We only check it was ever really defined in pedantic mode, as it
             // might have been in a header file referring to a module we never
             // needed so there are false positives
@@ -2652,50 +2652,50 @@ class LinkDotParamVisitor final : public VNVisitor {
         }
         // We only needed the forward declaration in order to parse correctly.
         // Delete later as may be ClassOrPackageRef's still pointing to it
-        VL_DO_DANGLING(pushDeletep(nodep->unlinkFrBack()), nodep);
+        VL_DO_DANGLING(ঠেলো_Deletep(nodep->unlinkFrBack()), nodep);
     }
 
-    void visit(AstNode* nodep) override { iterateChildren(nodep); }  // ParamVisitor::
+    শূন্য visit(Ast_গ্রন্থি* nodep) override { iterateChildren(nodep); }  // ParamVisitor::
 
-public:
+সর্বজনীন:
     // CONSTRUCTORS
     LinkDotParamVisitor(AstNetlist* rootp, LinkDotState* statep)
         : m_statep{statep} {
         UINFO(4, __FUNCTION__ << ": ");
         iterate(rootp);
     }
-    ~LinkDotParamVisitor() override = default;
+    ~LinkDotParamVisitor() override = পূর্বনির্ধারিত;
 };
 
 //======================================================================
 
-class LinkDotScopeVisitor final : public VNVisitor {
+শ্রেণী LinkDotScopeVisitor final : সর্বজনীন VNVisitor {
 
     // STATE
-    LinkDotState* const m_statep;  // State to pass between visitors, including symbol table
-    const AstScope* m_scopep = nullptr;  // The current scope
+    LinkDotState* ধ্রুবক m_statep;  // State to pass between visitors, including symbol table
+    ধ্রুবক AstScope* m_scopep = nullptr;  // The current scope
     VSymEnt* m_modSymp = nullptr;  // Symbol entry for current module
     // Deferred AliasScope processing - must be done outer-to-inner for correct alias resolution
     std::vector<std::pair<AstAliasScope*, VSymEnt*>> m_deferredAliasScopes;
 
     // METHODS
-public:
+সর্বজনীন:
     // getAlias with setVarAlias and setIfaceAlias implement disjoint-set data structure.
     // This algorithm is needed for the case when multiple alias statements
     // reference partially the same variables.
-    static AstVarScope* getAlias(AstVarScope* const vscp) {
-        if (vscp->user2p() && vscp != vscp->user2p()) {
-            AstVarScope* const aliasp = getAlias(VN_AS(vscp->user2p(), VarScope));
+    স্থির AstVarScope* getAlias(AstVarScope* ধ্রুবক vscp) {
+        যদি (vscp->user2p() && vscp != vscp->user2p()) {
+            AstVarScope* ধ্রুবক aliasp = getAlias(VN_AS(vscp->user2p(), VarScope));
             vscp->user2p(aliasp);
-            return aliasp;
-        } else {
-            return vscp;
+            ফেরত aliasp;
+        } অন্যথা {
+            ফেরত vscp;
         }
     }
 
-private:
+ব্যক্তিগত:
     // Alias an interface reference to the interface it is connected to
-    void setIfaceAlias(AstVarScope* const vscp, AstVarScope* const aliasp) {
+    শূন্য setIfaceAlias(AstVarScope* ধ্রুবক vscp, AstVarScope* ধ্রুবক aliasp) {
         UASSERT_OBJ(vscp->varp()->isIfaceRef(), vscp, "Interface alias of non-interface");
         UASSERT_OBJ(aliasp->varp()->isIfaceRef(), aliasp, "Interface alias of non-interface");
         getAlias(vscp)->user2p(getAlias(aliasp));
@@ -2703,46 +2703,46 @@ private:
 
     // Alias two variables. An output port in the lower scope survives, unless the other
     // must keep its own storage.
-    void setVarAlias(AstVarScope* ap, AstVarScope* bp) {
+    শূন্য setVarAlias(AstVarScope* ap, AstVarScope* bp) {
         UASSERT_OBJ(!ap->varp()->isIfaceRef(), ap, "Variable alias of interface");
         UASSERT_OBJ(!bp->varp()->isIfaceRef(), bp, "Variable alias of interface");
         ap = getAlias(ap);
         bp = getAlias(bp);
-        if (ap == bp) return;
-        const bool aWins = [&]() {
-            const AstVar* const aVarp = ap->varp();
-            const AstVar* const bVarp = bp->varp();
+        যদি (ap == bp) ফেরত;
+        ধ্রুবক যৌক্তিক aWins = [&]() {
+            ধ্রুবক AstVar* ধ্রুবক aVarp = ap->varp();
+            ধ্রুবক AstVar* ধ্রুবক bVarp = bp->varp();
             // A primary IO is accessed directly by the user of the model, so must survive
             UASSERT_OBJ(!aVarp->isPrimaryIO() || !bVarp->isPrimaryIO(), ap,
                         "Alias of two primary IOs");
-            if (bVarp->isPrimaryIO()) return false;
-            if (aVarp->isPrimaryIO()) return true;
+            যদি (bVarp->isPrimaryIO()) ফেরত মিথ্যা;
+            যদি (aVarp->isPrimaryIO()) ফেরত সত্য;
             // A forced or public variable must keep its own storage. If both are, either works.
-            if (aVarp->isForced() != bVarp->isForced()) return aVarp->isForced();
-            if (aVarp->isSigPublic() != bVarp->isSigPublic()) return aVarp->isSigPublic();
+            যদি (aVarp->isForced() != bVarp->isForced()) ফেরত aVarp->isForced();
+            যদি (aVarp->isSigPublic() != bVarp->isSigPublic()) ফেরত aVarp->isSigPublic();
             // Otherwise prefer an output port in the lower scope. This enables better V3Combine
             // due to having fewer upward hierarchical references (which prevent combining).
-            if (aVarp->direction() != VDirection::OUTPUT) return false;
+            যদি (aVarp->direction() != VDirection::OUTPUT) ফেরত মিথ্যা;
             // Is 'ap' strictly below 'bp' in the hierarchy
-            for (const AstScope* scopep = ap->scopep()->aboveScopep(); scopep;
+            জন্য (ধ্রুবক AstScope* scopep = ap->scopep()->aboveScopep(); scopep;
                  scopep = scopep->aboveScopep()) {
-                if (scopep == bp->scopep()) return true;
+                যদি (scopep == bp->scopep()) ফেরত সত্য;
             }
-            return false;
+            ফেরত মিথ্যা;
         }();
-        if (aWins) {
+        যদি (aWins) {
             bp->user2p(ap);
-        } else {
+        } অন্যথা {
             ap->user2p(bp);
         }
     }
 
     // VISITORS
-    void visit(AstNetlist* nodep) override {  // ScopeVisitor::
+    শূন্য visit(AstNetlist* nodep) override {  // ScopeVisitor::
         // Recurse..., backward as must do packages before using packages
         iterateChildrenBackwardsConst(nodep);
     }
-    void visit(AstScope* nodep) override {  // ScopeVisitor::
+    শূন্য visit(AstScope* nodep) override {  // ScopeVisitor::
         UINFO(8, "  SCOPE " << nodep);
         UASSERT_OBJ(m_statep->forScopeCreation(), nodep,
                     "Scopes should only exist right after V3Scope");
@@ -2753,37 +2753,37 @@ private:
         m_modSymp = m_statep->getScopeSym(nodep);
         // Interfaces need another pass when signals are resolved. Register the scope's
         // entry, as that is the one holding the AstVarScopes.
-        if (AstIface* const ifacep = VN_CAST(nodep->modp(), Iface)) {
-            m_statep->insertIfaceModSym(ifacep, m_modSymp);
+        যদি (AstIface* ধ্রুবক ifacep = VN_CAST(nodep->modp(), Iface)) {
+            m_statep->ঢোকাও_Iface_Mod_Sym(ifacep, m_modSymp);
         }
         m_scopep = nodep;
         iterateChildren(nodep);
     }
-    void visit(AstVarScope* nodep) override {  // ScopeVisitor::
-        if (!nodep->varp()->isFuncLocal() && !nodep->varp()->isClassMember()) {
-            VSymEnt* const varSymp
-                = m_statep->insertSym(m_modSymp, nodep->varp()->name(), nodep, nullptr);
-            if (nodep->varp()->isIfaceRef()) {
-                AstIfaceRefDType* const dtypep
+    শূন্য visit(AstVarScope* nodep) override {  // ScopeVisitor::
+        যদি (!nodep->varp()->isFuncLocal() && !nodep->varp()->isClassMember()) {
+            VSymEnt* ধ্রুবক varSymp
+                = m_statep->ঢোকাও_Sym(m_modSymp, nodep->varp()->name(), nodep, nullptr);
+            যদি (nodep->varp()->isIfaceRef()) {
+                AstIfaceRefDType* ধ্রুবক dtypep
                     = LinkDotState::ifaceRefFromArray(nodep->varp()->dtypep());
                 UASSERT_OBJ(dtypep, nodep, "Non AstIfaceRefDType on isIfaceRef() var");
-                if (nodep->varp()->isIfaceParent()) {
+                যদি (nodep->varp()->isIfaceParent()) {
                     UINFO(9, "Iface parent ref var " << nodep->varp()->name() << " " << nodep);
                     // Find the interface cell the var references
                     UINFO(9, "Iface parent dtype " << dtypep);
-                    const string ifcellname = dtypep->cellName();
+                    ধ্রুবক string ifcellname = dtypep->cellName();
                     string baddot;
                     VSymEnt* okSymp;
                     VSymEnt* cellSymp = m_statep->findDotted(nodep->fileline(), m_modSymp,
-                                                             ifcellname, baddot, okSymp, false);
+                                                             ifcellname, baddot, okSymp, মিথ্যা);
                     UASSERT_OBJ(
                         cellSymp, nodep,
                         "No symbol for interface instance: " << nodep->prettyNameQ(ifcellname));
                     UINFO(5, "       Found interface instance: se" << cvtToHex(cellSymp) << " "
                                                                    << cellSymp->nodep());
-                    if (dtypep->modportName() != "") {
+                    যদি (dtypep->modportName() != "") {
                         // Look up the modport within the interface cell's symbol table
-                        VSymEnt* const mpSymp = cellSymp->findIdFallback(dtypep->modportName());
+                        VSymEnt* ধ্রুবক mpSymp = cellSymp->findIdFallback(dtypep->modportName());
                         UASSERT_OBJ(mpSymp, nodep,
                                     "No symbol for interface modport: "
                                         << nodep->prettyNameQ(dtypep->modportName()));
@@ -2794,89 +2794,89 @@ private:
                     // Interface reference; need to put whole thing into
                     // symtable, but can't clone it now as we may have a later
                     // alias for it.
-                    m_statep->insertScopeAlias(LinkDotState::SAMN_IFTOP, varSymp, cellSymp);
+                    m_statep->ঢোকাও_Scope_Alias(LinkDotState::SAMN_IFTOP, varSymp, cellSymp);
                 }
             }
         }
     }
-    void visit(AstNodeFTask* nodep) override {  // ScopeVisitor::
-        VSymEnt* const symp = m_statep->insertBlock(m_modSymp, nodep->name(), nodep, nullptr);
+    শূন্য visit(Ast_গ্রন্থি_FTask* nodep) override {  // ScopeVisitor::
+        VSymEnt* ধ্রুবক symp = m_statep->ঢোকাও_Block(m_modSymp, nodep->name(), nodep, nullptr);
         symp->fallbackp(m_modSymp);
         iterateChildren(nodep);
     }
-    void visit(AstNodeForeach* nodep) override {  // ScopeVisitor::
-        VSymEnt* const symp = m_statep->insertBlock(m_modSymp, nodep->name(), nodep, nullptr);
+    শূন্য visit(Ast_গ্রন্থি_Foreach* nodep) override {  // ScopeVisitor::
+        VSymEnt* ধ্রুবক symp = m_statep->ঢোকাও_Block(m_modSymp, nodep->name(), nodep, nullptr);
         symp->fallbackp(m_modSymp);
         // No recursion, we don't want to pick up variables
     }
-    void visit(AstConstraintForeach* nodep) override {  // ScopeVisitor::
+    শূন্য visit(AstConstraintForeach* nodep) override {  // ScopeVisitor::
         iterateChildren(nodep);
     }
-    void visit(AstWith* nodep) override {  // ScopeVisitor::
-        VSymEnt* const symp = m_statep->insertBlock(m_modSymp, nodep->name(), nodep, nullptr);
+    শূন্য visit(AstWith* nodep) override {  // ScopeVisitor::
+        VSymEnt* ধ্রুবক symp = m_statep->ঢোকাও_Block(m_modSymp, nodep->name(), nodep, nullptr);
         symp->fallbackp(m_modSymp);
         iterateChildren(nodep);
     }
-    void visit(AstAlias* nodep) override {  // ScopeVisitor::
+    শূন্য visit(AstAlias* nodep) override {  // ScopeVisitor::
         // Track aliases
         UINFOTREE(9, nodep, "", "alias");
         AstVarScope* aliasVscp = nullptr;
-        for (AstNode* itemp = nodep->itemsp(); itemp; itemp = itemp->nextp()) {
+        জন্য (Ast_গ্রন্থি* itemp = nodep->itemsp(); itemp; itemp = itemp->nextp()) {
             AstVarScope* vscp = nullptr;
-            if (const AstVarRef* const refp = VN_CAST(itemp, VarRef)) {
+            যদি (ধ্রুবক AstVarRef* ধ্রুবক refp = VN_CAST(itemp, VarRef)) {
                 vscp = refp->varScopep();
-            } else {
+            } অন্যথা {
                 // Reaches into the scope of an instance, look it up by name
-                const AstVarXRef* const xrefp = VN_AS(itemp, VarXRef);
-                const string scopename = xrefp->dotted() + "." + xrefp->name();
+                ধ্রুবক AstVarXRef* ধ্রুবক xrefp = VN_AS(itemp, VarXRef);
+                ধ্রুবক string scopename = xrefp->dotted() + "." + xrefp->name();
                 string baddot;
                 VSymEnt* okSymp;
-                VSymEnt* const symp = m_statep->findDotted(xrefp->fileline(), m_modSymp, scopename,
-                                                           baddot, okSymp, false);
+                VSymEnt* ধ্রুবক symp = m_statep->findDotted(xrefp->fileline(), m_modSymp, scopename,
+                                                           baddot, okSymp, মিথ্যা);
                 UASSERT_OBJ(symp, nodep, "No symbol for alias item: " << scopename);
                 vscp = VN_CAST(symp->nodep(), VarScope);
             }
             UASSERT_OBJ(vscp, nodep, "VarScope unset");
-            if (aliasVscp) {
+            যদি (aliasVscp) {
                 setVarAlias(aliasVscp, vscp);
-            } else {
+            } অন্যথা {
                 aliasVscp = vscp;
             }
         }
         iterateChildren(nodep);
-        VL_DO_DANGLING(pushDeletep(nodep->unlinkFrBack()), nodep);
+        VL_DO_DANGLING(ঠেলো_Deletep(nodep->unlinkFrBack()), nodep);
     }
-    void visit(AstAliasScope* nodep) override {  // ScopeVisitor::
+    শূন্য visit(AstAliasScope* nodep) override {  // ScopeVisitor::
         // Defer AliasScope processing - must process outer scopes before inner ones
         // so that nested interface port alias resolution works correctly
         UINFO(5, "ALIASSCOPE (deferred) " << nodep);
         m_deferredAliasScopes.emplace_back(nodep, m_modSymp);
     }
-    void processAliasScope(AstAliasScope* nodep, VSymEnt* modSymp) {
+    শূন্য processAliasScope(AstAliasScope* nodep, VSymEnt* modSymp) {
         UINFO(5, "ALIASSCOPE  " << nodep);
         UINFOTREE(9, nodep, "", "avs");
         VSymEnt* rhsSymp;
         {
-            AstVarRef* const refp = VN_CAST(nodep->rhsp(), VarRef);
-            AstVarXRef* const xrefp = VN_CAST(nodep->rhsp(), VarXRef);
+            AstVarRef* ধ্রুবক refp = VN_CAST(nodep->rhsp(), VarRef);
+            AstVarXRef* ধ্রুবক xrefp = VN_CAST(nodep->rhsp(), VarXRef);
             UASSERT_OBJ(refp || xrefp, nodep,
                         "Unsupported: Non Var(X)Ref attached to interface pin");
             string inl
-                = ((xrefp && xrefp->inlinedDots().size()) ? (xrefp->inlinedDots() + "__DOT__")
+                = ((xrefp && xrefp->inlinedDots().আকার_2()) ? (xrefp->inlinedDots() + "__DOT__")
                                                           : "");
-            const string dottedPath
+            ধ্রুবক string dottedPath
                 = (xrefp && !xrefp->dotted().empty()) ? (xrefp->dotted() + ".") : "";
             VSymEnt* symp = nullptr;
             string scopename;
-            while (!symp) {
+            যখন (!symp) {
                 scopename = refp ? refp->name()
-                                 : (inl.size() ? (inl + dottedPath + xrefp->name())
+                                 : (inl.আকার_2() ? (inl + dottedPath + xrefp->name())
                                                : (dottedPath + xrefp->name()));
                 string baddot;
                 VSymEnt* okSymp;
                 symp = m_statep->findDotted(nodep->rhsp()->fileline(), modSymp, scopename, baddot,
-                                            okSymp, true);
-                if (inl == "") break;
+                                            okSymp, সত্য);
+                যদি (inl == "") বিরতি;
                 inl = LinkDotState::removeLastInlineScope(inl);
             }
             UASSERT_OBJ(symp, nodep, "No symbol for interface alias rhs");
@@ -2886,17 +2886,17 @@ private:
         }
         VSymEnt* lhsSymp;
         {
-            const AstVarXRef* const xrefp = VN_CAST(nodep->lhsp(), VarXRef);
-            const AstVarRef* const refp = VN_CAST(nodep->lhsp(), VarRef);
+            ধ্রুবক AstVarXRef* ধ্রুবক xrefp = VN_CAST(nodep->lhsp(), VarXRef);
+            ধ্রুবক AstVarRef* ধ্রুবক refp = VN_CAST(nodep->lhsp(), VarRef);
 
             UASSERT_OBJ(refp || xrefp, nodep,
                         "Unsupported: Non Var(X)Ref attached to interface pin");
-            const string scopename
+            ধ্রুবক string scopename
                 = refp ? refp->varp()->name() : xrefp->dotted() + "." + xrefp->name();
             string baddot;
             VSymEnt* okSymp;
-            VSymEnt* const symp = m_statep->findDotted(nodep->lhsp()->fileline(), modSymp,
-                                                       scopename, baddot, okSymp, false);
+            VSymEnt* ধ্রুবক symp = m_statep->findDotted(nodep->lhsp()->fileline(), modSymp,
+                                                       scopename, baddot, okSymp, মিথ্যা);
             UASSERT_OBJ(symp, nodep, "No symbol for interface alias lhs");
             UINFO(5, "       Found a linked scope LHS: " << scopename << "  se" << cvtToHex(symp)
                                                          << " " << symp->nodep());
@@ -2904,45 +2904,45 @@ private:
         }
         // Remember the alias - can't do it yet because we may have additional symbols to be added,
         // or maybe an alias of an alias
-        m_statep->insertScopeAlias(LinkDotState::SAMN_IFTOP, lhsSymp, rhsSymp);
-        AstVarScope* const lhsVscp = VN_CAST(lhsSymp->nodep(), VarScope);
-        AstVarScope* const rhsVscp = VN_CAST(rhsSymp->nodep(), VarScope);
+        m_statep->ঢোকাও_Scope_Alias(LinkDotState::SAMN_IFTOP, lhsSymp, rhsSymp);
+        AstVarScope* ধ্রুবক lhsVscp = VN_CAST(lhsSymp->nodep(), VarScope);
+        AstVarScope* ধ্রুবক rhsVscp = VN_CAST(rhsSymp->nodep(), VarScope);
         UASSERT_OBJ(lhsVscp && rhsVscp, nodep, "Interface alias missing variable scope");
         setIfaceAlias(lhsVscp, rhsVscp);
         // We have stored the link, we don't need these any more
-        VL_DO_DANGLING(nodep->unlinkFrBack()->deleteTree(), nodep);
+        VL_DO_DANGLING(nodep->unlinkFrBack()->delete_বৃক্ষ(), nodep);
     }
-    void processDeferredAliasScopes() {
+    শূন্য processDeferredAliasScopes() {
         // Sort by hierarchy depth (shallower first) so outer aliases are resolved before inner
         // Pre-compute depth map to avoid O(N log N * D) complexity in sort comparisons
-        std::unordered_map<VSymEnt*, int> depthMap;
-        for (const auto& pair : m_deferredAliasScopes) {
-            VSymEnt* const symp = pair.second;
-            if (depthMap.find(symp) == depthMap.end()) {
-                int depth = 0;
-                for (VSymEnt* p = symp; p; p = p->parentp()) ++depth;
+        std::unordered_map<VSymEnt*, পূর্ণসংখ্যা> depthMap;
+        জন্য (ধ্রুবক auto& pair : m_deferredAliasScopes) {
+            VSymEnt* ধ্রুবক symp = pair.second;
+            যদি (depthMap.find(symp) == depthMap.end()) {
+                পূর্ণসংখ্যা depth = 0;
+                জন্য (VSymEnt* p = symp; p; p = p->parentp()) ++depth;
                 depthMap[symp] = depth;
             }
         }
         std::stable_sort(m_deferredAliasScopes.begin(), m_deferredAliasScopes.end(),
-                         [&depthMap](const std::pair<AstAliasScope*, VSymEnt*>& a,
-                                     const std::pair<AstAliasScope*, VSymEnt*>& b) {
-                             return depthMap.at(a.second) < depthMap.at(b.second);
+                         [&depthMap](ধ্রুবক std::pair<AstAliasScope*, VSymEnt*>& a,
+                                     ধ্রুবক std::pair<AstAliasScope*, VSymEnt*>& b) {
+                             ফেরত depthMap.at(a.second) < depthMap.at(b.second);
                          });
         // Process in sorted order
-        for (auto& pair : m_deferredAliasScopes) { processAliasScope(pair.first, pair.second); }
+        জন্য (auto& pair : m_deferredAliasScopes) { processAliasScope(pair.first, pair.second); }
         m_deferredAliasScopes.clear();
     }
-    void visit(AstNodeGen* nodep) override {  // ScopeVisitor::  // LCOV_EXCL_LINE
+    শূন্য visit(Ast_গ্রন্থি_Gen* nodep) override {  // ScopeVisitor::  // LCOV_EXCL_LINE
         nodep->v3fatalSrc("Generate constructs should have been reduced out");
     }
     // For speed, don't recurse things that can't have scope
     // Note we allow AstNodeStmt's as generates may be under them
-    void visit(AstCell*) override {}  // ScopeVisitor::
-    void visit(AstVar*) override {}  // ScopeVisitor::
-    void visit(AstNode* nodep) override { iterateChildren(nodep); }  // ScopeVisitor::
+    শূন্য visit(AstCell*) override {}  // ScopeVisitor::
+    শূন্য visit(AstVar*) override {}  // ScopeVisitor::
+    শূন্য visit(Ast_গ্রন্থি* nodep) override { iterateChildren(nodep); }  // ScopeVisitor::
 
-public:
+সর্বজনীন:
     // CONSTRUCTORS
     LinkDotScopeVisitor(AstNetlist* rootp, LinkDotState* statep)
         : m_statep{statep} {
@@ -2951,49 +2951,49 @@ public:
         // Process deferred AliasScopes in outer-to-inner order
         processDeferredAliasScopes();
     }
-    ~LinkDotScopeVisitor() override = default;
+    ~LinkDotScopeVisitor() override = পূর্বনির্ধারিত;
 };
 
 //======================================================================
 
 // Iterate an interface to resolve modports
-class LinkDotIfaceVisitor final : public VNVisitor {
+শ্রেণী LinkDotIfaceVisitor final : সর্বজনীন VNVisitor {
     // STATE
-    LinkDotState* const m_statep;  // State to pass between visitors, including symbol table
+    LinkDotState* ধ্রুবক m_statep;  // State to pass between visitors, including symbol table
     VSymEnt* m_curSymp;  // Symbol Entry for current table, where to lookup/insert
 
     // VISITORS
-    void visit(AstModport* nodep) override {  // IfaceVisitor::
+    শূন্য visit(AstModport* nodep) override {  // IfaceVisitor::
         // Modport: Remember its name for later resolution
         UINFO(5, "   fiv: " << nodep);
         VL_RESTORER(m_curSymp);
         {
             // Create symbol table for the vars
-            m_curSymp = m_statep->insertBlock(m_curSymp, nodep->name(), nodep, nullptr);
-            m_curSymp->fallbackp(VL_RESTORER_PREV(m_curSymp));
+            m_curSymp = m_statep->ঢোকাও_Block(m_curSymp, nodep->name(), nodep, nullptr);
+            m_curSymp->fallbackp(VL_RESTORER_পূর্ব(m_curSymp));
             iterateChildren(nodep);
         }
     }
-    void visit(AstModportFTaskRef* nodep) override {  // IfaceVisitor::
+    শূন্য visit(AstModportFTaskRef* nodep) override {  // IfaceVisitor::
         UINFO(5, "   fif: " << nodep);
         iterateChildren(nodep);
-        VSymEnt* const symp = m_curSymp->findIdFallback(nodep->name());
-        if (!symp) {
+        VSymEnt* ধ্রুবক symp = m_curSymp->findIdFallback(nodep->name());
+        যদি (!symp) {
             nodep->v3error("Modport item not found: " << nodep->prettyNameQ());
-        } else if (AstNodeFTask* const ftaskp = VN_CAST(symp->nodep(), NodeFTask)) {
+        } অন্যথা যদি (Ast_গ্রন্থি_FTask* ধ্রুবক ftaskp = VN_CAST(symp->nodep(), গ্রন্থি_FTask)) {
             // Make symbol under modport that points at the _interface_'s var, not the modport.
             nodep->ftaskp(ftaskp);
-            VSymEnt* const subSymp
-                = m_statep->insertSym(m_curSymp, nodep->name(), ftaskp, nullptr /*package*/);
-            m_statep->insertScopeAlias(LinkDotState::SAMN_MODPORT, subSymp, symp);
-        } else {
+            VSymEnt* ধ্রুবক subSymp
+                = m_statep->ঢোকাও_Sym(m_curSymp, nodep->name(), ftaskp, nullptr /*package*/);
+            m_statep->ঢোকাও_Scope_Alias(LinkDotState::SAMN_MODPORT, subSymp, symp);
+        } অন্যথা {
             nodep->v3error("Modport item is not a function/task: " << nodep->prettyNameQ());
         }
-        if (m_statep->forScopeCreation()) {
+        যদি (m_statep->forScopeCreation()) {
             // Done with AstModportFTaskRef.
             // Delete to prevent problems if we dead-delete pointed to ftask
             nodep->unlinkFrBack();
-            VL_DO_DANGLING(pushDeletep(nodep), nodep);
+            VL_DO_DANGLING(ঠেলো_Deletep(nodep), nodep);
         }
     }
 
@@ -3002,49 +3002,49 @@ class LinkDotIfaceVisitor final : public VNVisitor {
     // this follows the interface type to resolve the remaining path.
     // Returns the resolved symbol, or nullptr if not found.
     // On success, clears baddot; on partial match of multi-level path, updates baddot.
-    VSymEnt* resolveNestedInterfacePath(FileLine* fl, VSymEnt* okSymp, string& baddot) {
-        if (!okSymp || baddot.empty()) return nullptr;
+    VSymEnt* resolveNestedInterfacePath(File_সারি* fl, VSymEnt* okSymp, string& baddot) {
+        যদি (!okSymp || baddot.empty()) ফেরত nullptr;
 
-        static constexpr int MAX_NESTING_DEPTH = 64;
+        স্থির constexpr পূর্ণসংখ্যা MAX_NESTING_DEPTH = 64;
         VSymEnt* curOkSymp = okSymp;
 
-        for (int depth = 0; depth < MAX_NESTING_DEPTH; ++depth) {
+        জন্য (পূর্ণসংখ্যা depth = 0; depth < MAX_NESTING_DEPTH; ++depth) {
             // Try to get interface from the partially-matched symbol
             AstIface* ifacep = nullptr;
-            if (const AstCell* const cellp = VN_CAST(curOkSymp->nodep(), Cell)) {
+            যদি (ধ্রুবক AstCell* ধ্রুবক cellp = VN_CAST(curOkSymp->nodep(), Cell)) {
                 ifacep = VN_CAST(cellp->modp(), Iface);
-            } else if (const AstVar* const varp = VN_CAST(curOkSymp->nodep(), Var)) {
-                if (varp->isIfaceRef()) {
-                    if (const AstIfaceRefDType* const ifaceRefp
+            } অন্যথা যদি (ধ্রুবক AstVar* ধ্রুবক varp = VN_CAST(curOkSymp->nodep(), Var)) {
+                যদি (varp->isIfaceRef()) {
+                    যদি (ধ্রুবক AstIfaceRefDType* ধ্রুবক ifaceRefp
                         = LinkDotState::ifaceRefFromArray(varp->dtypep())) {
                         ifacep = ifaceRefp->ifaceViaCellp();
                     }
                 }
             }
 
-            if (!ifacep || !m_statep->existsNodeSym(ifacep)) return nullptr;
+            যদি (!ifacep || !m_statep->exists_গ্রন্থি_Sym(ifacep)) ফেরত nullptr;
 
-            VSymEnt* const ifaceSymp = m_statep->getNodeSym(ifacep);
+            VSymEnt* ধ্রুবক ifaceSymp = m_statep->get_গ্রন্থি_Sym(ifacep);
 
-            if (baddot.find('.') == string::npos) {
+            যদি (baddot.find('.') == string::npos) {
                 // Simple identifier - direct lookup
-                VSymEnt* const symp = ifaceSymp->findIdFallback(baddot);
-                if (symp) baddot.clear();
-                return symp;
+                VSymEnt* ধ্রুবক symp = ifaceSymp->findIdFallback(baddot);
+                যদি (symp) baddot.clear();
+                ফেরত symp;
             }
 
             // Multi-level path - use findDotted for partial resolution
             string remainingBaddot;
             VSymEnt* remainingOkSymp = nullptr;
-            VSymEnt* const symp = m_statep->findDotted(fl, ifaceSymp, baddot, remainingBaddot,
-                                                       remainingOkSymp, true);
-            if (symp) {
+            VSymEnt* ধ্রুবক symp = m_statep->findDotted(fl, ifaceSymp, baddot, remainingBaddot,
+                                                       remainingOkSymp, সত্য);
+            যদি (symp) {
                 baddot = remainingBaddot;
-                return symp;
+                ফেরত symp;
             }
 
             // findDotted partially matched - check progress
-            if (remainingBaddot == baddot || !remainingOkSymp) return nullptr;
+            যদি (remainingBaddot == baddot || !remainingOkSymp) ফেরত nullptr;
 
             // Continue resolving with updated state
             baddot = remainingBaddot;
@@ -3052,155 +3052,155 @@ class LinkDotIfaceVisitor final : public VNVisitor {
         }
 
         UINFO(1, "Nested interface resolution depth limit exceeded at " << fl);
-        return nullptr;
+        ফেরত nullptr;
     }
 
     // Resolve a modport expression to find the referenced symbol
-    VSymEnt* resolveModportExpression(FileLine* fl, AstNodeExpr* exprp) {
+    VSymEnt* resolveModportExpression(File_সারি* fl, Ast_গ্রন্থি_রাশিমালা* exprp) {
         UINFO(5, "     resolveModportExpression: " << exprp);
         VSymEnt* symp = nullptr;
-        if (AstParseRef* const refp = VN_CAST(exprp, ParseRef)) {
+        যদি (AstParseRef* ধ্রুবক refp = VN_CAST(exprp, ParseRef)) {
             // Simple variable reference: modport mp(input .a(sig_a))
             symp = m_curSymp->findIdFallback(refp->name());
-        } else if (AstVarRef* const refp = VN_CAST(exprp, VarRef)) {
+        } অন্যথা যদি (AstVarRef* ধ্রুবক refp = VN_CAST(exprp, VarRef)) {
             // Already resolved VarRef (can happen if iterateChildren resolved it)
-            if (refp->varScopep()) {
+            যদি (refp->varScopep()) {
                 // During scope creation, VarRef may have VarScope already linked
-                symp = m_statep->getNodeSym(refp->varScopep());
-            } else if (refp->varp()) {
+                symp = m_statep->get_গ্রন্থি_Sym(refp->varScopep());
+            } অন্যথা যদি (refp->varp()) {
                 symp = m_curSymp->findIdFallback(refp->varp()->name());
             }
-        } else if (AstVarXRef* const refp = VN_CAST(exprp, VarXRef)) {
+        } অন্যথা যদি (AstVarXRef* ধ্রুবক refp = VN_CAST(exprp, VarXRef)) {
             // Resolved VarXRef (dotted reference resolved by earlier pass)
-            if (refp->varp()) {
+            যদি (refp->varp()) {
                 // For nested interfaces, the var is in a different scope
                 // First try to find the symbol via the var itself
-                if (m_statep->existsNodeSym(refp->varp())) {
-                    symp = m_statep->getNodeSym(refp->varp());
-                } else {
+                যদি (m_statep->exists_গ্রন্থি_Sym(refp->varp())) {
+                    symp = m_statep->get_গ্রন্থি_Sym(refp->varp());
+                } অন্যথা {
                     // Fallback: look up in current scope
                     symp = m_curSymp->findIdFallback(refp->varp()->name());
                 }
-            } else if (!refp->dotted().empty()) {
+            } অন্যথা যদি (!refp->dotted().empty()) {
                 // varp not set yet - use dotted path to find the symbol
                 // The dotted part (e.g., "base") is the interface cell, and name is the member
-                const string fullPath = refp->dotted() + "." + refp->name();
+                ধ্রুবক string fullPath = refp->dotted() + "." + refp->name();
                 string baddot;
                 VSymEnt* okSymp = nullptr;
-                symp = m_statep->findDotted(fl, m_curSymp, fullPath, baddot, okSymp, true);
+                symp = m_statep->findDotted(fl, m_curSymp, fullPath, baddot, okSymp, সত্য);
                 // Handle nested interface path when findDotted had partial match
-                if (okSymp && !baddot.empty()) {
-                    VSymEnt* const resolved = resolveNestedInterfacePath(fl, okSymp, baddot);
-                    if (resolved) symp = resolved;
+                যদি (okSymp && !baddot.empty()) {
+                    VSymEnt* ধ্রুবক resolved = resolveNestedInterfacePath(fl, okSymp, baddot);
+                    যদি (resolved) symp = resolved;
                 }
             }
-        } else if (AstDot* const dotp = VN_CAST(exprp, Dot)) {
+        } অন্যথা যদি (AstDot* ধ্রুবক dotp = VN_CAST(exprp, Dot)) {
             // Dotted path: modport mp(input .a(inner.sig))
-            bool hasPartSelect = false;
-            const string dottedPath = extractDottedPath(dotp, hasPartSelect);
-            if (hasPartSelect) {
+            যৌক্তিক hasPartSelect = মিথ্যা;
+            ধ্রুবক string dottedPath = extractDottedPath(dotp, hasPartSelect);
+            যদি (hasPartSelect) {
                 fl->v3warn(
                     E_UNSUPPORTED,
                     "Unsupported: Modport expression with part select (IEEE 1800-2023 25.5.4)");
-            } else {
+            } অন্যথা {
                 string baddot;
                 VSymEnt* okSymp = nullptr;
-                symp = m_statep->findDotted(fl, m_curSymp, dottedPath, baddot, okSymp, true);
+                symp = m_statep->findDotted(fl, m_curSymp, dottedPath, baddot, okSymp, সত্য);
 
                 // Handle nested interface path when findDotted had partial match
-                if (okSymp && !baddot.empty()) {
-                    VSymEnt* const resolved = resolveNestedInterfacePath(fl, okSymp, baddot);
-                    if (resolved) symp = resolved;
+                যদি (okSymp && !baddot.empty()) {
+                    VSymEnt* ধ্রুবক resolved = resolveNestedInterfacePath(fl, okSymp, baddot);
+                    যদি (resolved) symp = resolved;
                 }
 
-                if (!symp || !baddot.empty()) {
+                যদি (!symp || !baddot.empty()) {
                     fl->v3error("Can't find modport expression target: "
-                                << AstNode::prettyNameQ(dottedPath));
+                                << Ast_গ্রন্থি::prettyNameQ(dottedPath));
                     symp = nullptr;
                 }
             }
-        } else if (VN_IS(exprp, SelBit) || VN_IS(exprp, SelExtract)) {
+        } অন্যথা যদি (VN_IS(exprp, SelBit) || VN_IS(exprp, SelExtract)) {
             // Part select expressions not yet supported
             fl->v3warn(E_UNSUPPORTED,
                        "Unsupported: Modport expression with part select (IEEE 1800-2023 25.5.4)");
-        } else {
+        } অন্যথা {
             // Other expression types not supported
             fl->v3warn(E_UNSUPPORTED,
                        "Unsupported: Complex modport expression (IEEE 1800-2023 25.5.4)");
         }
-        return symp;
+        ফেরত symp;
     }
 
-    void visit(AstModportVarRef* nodep) override {  // IfaceVisitor::
+    শূন্য visit(AstModportVarRef* nodep) override {  // IfaceVisitor::
         UINFO(5, "   fiv: " << nodep);
         iterateChildren(nodep);
         VSymEnt* symp = nullptr;
-        if (nodep->exprp()) {
+        যদি (nodep->exprp()) {
             // Modport expression syntax: modport mp(input .port_name(expression))
             symp = resolveModportExpression(nodep->fileline(), nodep->exprp());
-        } else {
+        } অন্যথা {
             symp = m_curSymp->findIdFallback(nodep->name());
         }
-        if (!symp) {
+        যদি (!symp) {
             nodep->v3error("Modport item not found: " << nodep->prettyNameQ());
-        } else if (AstVar* const varp = VN_CAST(symp->nodep(), Var)) {
+        } অন্যথা যদি (AstVar* ধ্রুবক varp = VN_CAST(symp->nodep(), Var)) {
             // Make symbol under modport that points at the _interface_'s var via the modport.
             // (Need modport still to test input/output markings)
             nodep->varp(varp);
-            if (nodep->exprp()) {
+            যদি (nodep->exprp()) {
                 // For modport expressions, insert symbol pointing to the underlying var (not the
                 // ModportVarRef which will be deleted during scope creation). The virtual port
                 // name maps to the real signal's var.
-                VSymEnt* const subSymp
-                    = m_statep->insertSym(m_curSymp, nodep->name(), varp, nullptr /*package*/);
-                m_statep->insertScopeAlias(LinkDotState::SAMN_MODPORT, subSymp, symp);
-            } else {
+                VSymEnt* ধ্রুবক subSymp
+                    = m_statep->ঢোকাও_Sym(m_curSymp, nodep->name(), varp, nullptr /*package*/);
+                m_statep->ঢোকাও_Scope_Alias(LinkDotState::SAMN_MODPORT, subSymp, symp);
+            } অন্যথা {
                 // For regular modport items, insert symbol pointing to ModportVarRef for
                 // input/output marking tests.
-                m_statep->insertSym(m_curSymp, nodep->name(), nodep, nullptr /*package*/);
+                m_statep->ঢোকাও_Sym(m_curSymp, nodep->name(), nodep, nullptr /*package*/);
             }
-        } else if (AstVarScope* const vscp = VN_CAST(symp->nodep(), VarScope)) {
+        } অন্যথা যদি (AstVarScope* ধ্রুবক vscp = VN_CAST(symp->nodep(), VarScope)) {
             // Make symbol under modport that points at the _interface_'s var, not the modport.
             nodep->varp(vscp->varp());
             // Only insert symbol for modport expression virtual ports (exprp set).
             // For regular modport items, don't insert into the shared modport table because
             // each instance would overwrite the previous one, causing wrong VarScope lookups.
             // Regular items are found via the modport's fallback to the interface.
-            if (nodep->exprp()) {
-                VSymEnt* const subSymp
-                    = m_statep->insertSym(m_curSymp, nodep->name(), vscp, nullptr /*package*/);
-                m_statep->insertScopeAlias(LinkDotState::SAMN_MODPORT, subSymp, symp);
+            যদি (nodep->exprp()) {
+                VSymEnt* ধ্রুবক subSymp
+                    = m_statep->ঢোকাও_Sym(m_curSymp, nodep->name(), vscp, nullptr /*package*/);
+                m_statep->ঢোকাও_Scope_Alias(LinkDotState::SAMN_MODPORT, subSymp, symp);
             }
-        } else {
+        } অন্যথা {
             nodep->v3error("Modport item is not a variable: " << nodep->prettyNameQ());
         }
-        if (m_statep->forScopeCreation()) {
+        যদি (m_statep->forScopeCreation()) {
             // Done with AstModportVarRef.
             // Delete to prevent problems if we dead-delete pointed to variable
             nodep->unlinkFrBack();
-            VL_DO_DANGLING(pushDeletep(nodep), nodep);
+            VL_DO_DANGLING(ঠেলো_Deletep(nodep), nodep);
         }
     }
-    void visit(AstModportClockingRef* nodep) override {  // IfaceVisitor::
+    শূন্য visit(AstModportClockingRef* nodep) override {  // IfaceVisitor::
         UINFO(5, "   fic: " << nodep);
         iterateChildren(nodep);
-        VSymEnt* const symp = m_curSymp->findIdFallback(nodep->name());
-        if (!symp) {
+        VSymEnt* ধ্রুবক symp = m_curSymp->findIdFallback(nodep->name());
+        যদি (!symp) {
             nodep->v3error("Modport item not found: " << nodep->prettyNameQ());
-        } else if (AstClocking* const clockingp = VN_CAST(symp->nodep(), Clocking)) {
+        } অন্যথা যদি (AstClocking* ধ্রুবক clockingp = VN_CAST(symp->nodep(), Clocking)) {
             nodep->clockingp(clockingp);
-            m_statep->insertSym(m_curSymp, nodep->name(), nodep, nullptr /*package*/);
-        } else {
+            m_statep->ঢোকাও_Sym(m_curSymp, nodep->name(), nodep, nullptr /*package*/);
+        } অন্যথা {
             nodep->v3error("Modport item is not a clocking block: " << nodep->prettyNameQ());
         }
     }
-    void visit(AstScope* nodep) override {  // IfaceVisitor::
-        if (nodep->user3SetOnce()) return;
+    শূন্য visit(AstScope* nodep) override {  // IfaceVisitor::
+        যদি (nodep->user3SetOnce()) ফেরত;
         iterateChildren(nodep);
     }
-    void visit(AstNode* nodep) override { iterateChildren(nodep); }  // IfaceVisitor::
+    শূন্য visit(Ast_গ্রন্থি* nodep) override { iterateChildren(nodep); }  // IfaceVisitor::
 
-public:
+সর্বজনীন:
     // CONSTRUCTORS
     LinkDotIfaceVisitor(AstIface* nodep, VSymEnt* curSymp, LinkDotState* statep)
         : m_statep{statep}
@@ -3208,33 +3208,33 @@ public:
         UINFO(4, __FUNCTION__ << ": ");
         iterate(nodep);
     }
-    ~LinkDotIfaceVisitor() override = default;
+    ~LinkDotIfaceVisitor() override = পূর্বনির্ধারিত;
 };
 
-void LinkDotState::computeIfaceModSyms() {
+শূন্য LinkDotState::computeIfaceModSyms() {
     //  AstScope::user3()  // bool. Already iterated by a LinkDotIfaceVisitor
-    const VNUser3InUse user3InUse;
-    for (const auto& itr : m_ifaceModSyms) {
-        AstIface* const nodep = itr.first;
-        VSymEnt* const symp = itr.second;
-        LinkDotIfaceVisitor{nodep, symp, this};
+    ধ্রুবক VNUser3InUse user3InUse;
+    জন্য (ধ্রুবক auto& itr : m_ifaceModSyms) {
+        AstIface* ধ্রুবক nodep = itr.first;
+        VSymEnt* ধ্রুবক symp = itr.second;
+        LinkDotIfaceVisitor{nodep, symp, এই};
     }
     m_ifaceModSyms.clear();
 }
 
 //======================================================================
 
-class LinkDotResolveVisitor final : public VNVisitor {
+শ্রেণী LinkDotResolveVisitor final : সর্বজনীন VNVisitor {
     // NODE STATE
     // Cleared on global
     //  *::user1p()             -> See LinkDotState
     //  *::user2p()             -> See LinkDotState
     //  *::user3()              // bool. Processed
     //  *::user4()              -> See LinkDotState
-    const VNUser3InUse m_inuser3;
+    ধ্রুবক VNUser3InUse m_inuser3;
 
     // TYPES
-    enum DotPosition : uint8_t {
+    গণনা DotPosition : uint8_t {
         // Must match ascii() method below
         DP_NONE = 0,  // Not under a DOT
         DP_PACKAGE,  // {package-or-class}:: DOT
@@ -3245,99 +3245,99 @@ class LinkDotResolveVisitor final : public VNVisitor {
     };
 
     // STATE
-    LinkDotState* const m_statep;  // State, including dotted symbol table
+    LinkDotState* ধ্রুবক m_statep;  // State, including dotted symbol table
     VSymEnt* m_curSymp = nullptr;  // SymEnt for current lookup point
     VSymEnt* m_modSymp = nullptr;  // SymEnt for current module
     VSymEnt* m_pinSymp = nullptr;  // SymEnt for pin lookups
     VSymEnt* m_randSymp = nullptr;  // SymEnt for randomize target class's lookups
-    const AstCell* m_cellp = nullptr;  // Current cell
-    AstNodeModule* m_modp = nullptr;  // Current module
-    AstNodeFTask* m_ftaskp = nullptr;  // Current function/task
+    ধ্রুবক AstCell* m_cellp = nullptr;  // Current cell
+    Ast_গ্রন্থি_Module* m_modp = nullptr;  // Current module
+    Ast_গ্রন্থি_FTask* m_ftaskp = nullptr;  // Current function/task
     AstMethodCall* m_randMethodCallp = nullptr;  // Current randomize() method call
-    int m_modportNum = 0;  // Uniqueify modport numbers
-    int m_indent = 0;  // Indentation (tree depth) for debug
-    bool m_inSens = false;  // True if in senitem
-    const AstWith* m_currentWithp = nullptr;  // Enclosing 'with' (nullptr if none)
+    পূর্ণসংখ্যা m_modport_অঙ্ক = 0;  // Uniqueify modport numbers
+    পূর্ণসংখ্যা m_indent = 0;  // Indentation (tree depth) for debug
+    যৌক্তিক m_inSens = মিথ্যা;  // True if in senitem
+    ধ্রুবক AstWith* m_currentWithp = nullptr;  // Enclosing 'with' (nullptr if none)
     std::set<std::string>
         m_restrictedNamesUsed;  // Names from current 'with (id_list)' that resolved into target
-    bool m_genericIfaceModule = false;  // True if in module containing generic interface
-    std::map<std::string, AstNode*> m_ifClassImpNames;  // Names imported from interface class
+    যৌক্তিক m_genericIfaceModule = মিথ্যা;  // True if in module containing generic interface
+    std::map<std::string, Ast_গ্রন্থি*> m_ifClassImpNames;  // Names imported from interface class
     // Inherited interface implementations needing a forward in the current class, by name
-    std::map<std::string, const VSymEnt*> m_ifForwards;
+    std::map<std::string, ধ্রুবক VSymEnt*> m_ifForwards;
     std::set<AstClass*> m_extendsParam;  // Classes that have a parameterized super class
                                          // (except the default instances)
                                          // They are added to the set only in linkDotPrimary.
-    bool m_insideClassExtParam = false;  // Inside a class from m_extendsParam
+    যৌক্তিক m_insideClassExtParam = মিথ্যা;  // Inside a class from m_extendsParam
     AstNew* m_explicitSuperNewp = nullptr;  // Hit a "super.new" call inside a "new" function
-    std::map<AstNode*, AstPin*> m_usedPins;  // Pin used in this cell, map to duplicate
-    std::map<AstNode*, std::map<std::string, AstPin*>> m_usedDefParamPins;
+    std::map<Ast_গ্রন্থি*, AstPin*> m_usedPins;  // Pin used in this cell, map to duplicate
+    std::map<Ast_গ্রন্থি*, std::map<std::string, AstPin*>> m_usedDefParamPins;
     // Defparam pins used for a given formal, by hierarchical path
-    std::map<std::string, AstNodeModule*> m_modulesToRevisit;  // Modules to revisit a second time
-    AstNode* m_lastDeferredp = nullptr;  // Last node which requested a revisit of its module
-    AstNodeDType* m_packedArrayDtp = nullptr;  // Datatype reference for packed array
-    bool m_inPackedArray = false;  // Currently traversing a packed array tree
-    bool m_replaceWithAlias
-        = true;  // Replace VarScope with an alias. Used in the handling of AstAlias
-    bool m_isParam = false;  // Specifies whether currently visiting param variable
-    bool m_resolvingTypedef = false;  // Currently traversing a Typedef tree
+    std::map<std::string, Ast_গ্রন্থি_Module*> m_modulesToRevisit;  // Modules to revisit a second time
+    Ast_গ্রন্থি* m_lastDeferredp = nullptr;  // Last node which requested a revisit of its module
+    Ast_গ্রন্থি_DType* m_packedArrayDtp = nullptr;  // Datatype reference for packed array
+    যৌক্তিক m_inPackedArray = মিথ্যা;  // Currently traversing a packed array tree
+    যৌক্তিক m_replaceWithAlias
+        = সত্য;  // Replace VarScope with an alias. Used in the handling of AstAlias
+    যৌক্তিক m_isParam = মিথ্যা;  // Specifies whether currently visiting param variable
+    যৌক্তিক m_resolvingTypedef = মিথ্যা;  // Currently traversing a Typedef tree
 
-    struct DotStates final {
+    কাঠামো DotStates final {
         DotPosition m_dotPos;  // Scope part of dotted resolution
         VSymEnt* m_dotSymp;  // SymEnt for dotted AstParse lookup
-        const AstDot* m_dotp;  // Current dot
-        bool m_super;  // Starts with super reference
-        bool m_unresolvedCell;  // Unresolved cell, needs help from V3Param
-        bool m_unresolvedClass;  // Unresolved class reference, needs help from V3Param
-        bool m_unresolvedGenericIface;  // Unresolved generic interface, needs help from V3Param
-        bool m_genBlk;  // Contains gen block reference
-        AstNode* m_unlinkedScopep;  // Unresolved scope, needs corresponding VarXRef
+        ধ্রুবক AstDot* m_dotp;  // Current dot
+        যৌক্তিক m_super;  // Starts with super reference
+        যৌক্তিক m_unresolvedCell;  // Unresolved cell, needs help from V3Param
+        যৌক্তিক m_unresolvedClass;  // Unresolved class reference, needs help from V3Param
+        যৌক্তিক m_unresolvedGenericIface;  // Unresolved generic interface, needs help from V3Param
+        যৌক্তিক m_genBlk;  // Contains gen block reference
+        Ast_গ্রন্থি* m_unlinkedScopep;  // Unresolved scope, needs corresponding VarXRef
         AstDisable* m_disablep;  // Disable statement under which the reference is
-        bool m_dotErr;  // Error found in dotted resolution, ignore upwards
+        যৌক্তিক m_dotErr;  // Error found in dotted resolution, ignore upwards
         string m_dotText;  // String of dotted names found in below parseref
         DotStates() { init(nullptr); }
-        ~DotStates() = default;
-        void init(VSymEnt* curSymp, bool unresolvedClass = false) {
+        ~DotStates() = পূর্বনির্ধারিত;
+        শূন্য init(VSymEnt* curSymp, যৌক্তিক unresolvedClass = মিথ্যা) {
             m_dotPos = DP_NONE;
             m_dotSymp = curSymp;
             m_dotp = nullptr;
-            m_super = false;
-            m_dotErr = false;
+            m_super = মিথ্যা;
+            m_dotErr = মিথ্যা;
             m_dotText = "";
-            m_unresolvedCell = false;
+            m_unresolvedCell = মিথ্যা;
             m_unresolvedClass = unresolvedClass;
-            m_unresolvedGenericIface = false;
-            m_genBlk = false;
+            m_unresolvedGenericIface = মিথ্যা;
+            m_genBlk = মিথ্যা;
             m_unlinkedScopep = nullptr;
             m_disablep = nullptr;
         }
-        string ascii() const {
-            static const char* const names[]
+        string ascii() ধ্রুবক {
+            স্থির ধ্রুবক অক্ষর* ধ্রুবক names[]
                 = {"DP_NONE", "DP_PACKAGE", "DP_FIRST", "DP_SCOPE", "DP_FINAL", "DP_MEMBER"};
             std::ostringstream sstr;
             sstr << "ds=" << names[m_dotPos];
             sstr << "  dse" << cvtToHex(m_dotSymp);
-            const string dsname = m_dotSymp->nodep()->name().substr(0, 8);
+            ধ্রুবক string dsname = m_dotSymp->nodep()->name().substr(0, 8);
             sstr << "(" << m_dotSymp->nodep()->typeName() << (dsname.empty() ? "" : ":") << dsname
                  << ")";
-            if (m_dotErr) sstr << "  [dotErr]";
-            if (m_super) sstr << "  [super]";
-            if (m_unresolvedCell) sstr << "  [unrCell]";
-            if (m_unresolvedClass) sstr << "  [unrClass]";
-            if (m_unresolvedGenericIface) sstr << "  [unrGIface]";
-            if (m_genBlk) sstr << "  [genBlk]";
+            যদি (m_dotErr) sstr << "  [dotErr]";
+            যদি (m_super) sstr << "  [super]";
+            যদি (m_unresolvedCell) sstr << "  [unrCell]";
+            যদি (m_unresolvedClass) sstr << "  [unrClass]";
+            যদি (m_unresolvedGenericIface) sstr << "  [unrGIface]";
+            যদি (m_genBlk) sstr << "  [genBlk]";
             sstr << "  txt=" << m_dotText;
-            return sstr.str();
+            ফেরত sstr.str();
         }
     } m_ds;  // State to preserve across recursions
 
     // METHODS - Variables
-    AstVar* createImplicitVar(VSymEnt* /*lookupSymp*/, AstParseRef* nodep, AstNodeModule* modp,
-                              VSymEnt* moduleSymp, bool noWarn) {
+    AstVar* createImplicitVar(VSymEnt* /*lookupSymp*/, AstParseRef* nodep, Ast_গ্রন্থি_Module* modp,
+                              VSymEnt* moduleSymp, যৌক্তিক noWarn) {
         // Create implicit after warning
-        if (!noWarn) {
-            if (nodep->fileline()->warnIsOff(V3ErrorCode::I_DEF_NETTYPE_WIRE)) {
-                const string suggest = m_statep->suggestSymFallback(moduleSymp, nodep->name(),
-                                                                    LinkNodeMatcherVar{});
+        যদি (!noWarn) {
+            যদি (nodep->fileline()->warnIsOff(V3ErrorCode::I_DEF_NETTYPE_WIRE)) {
+                ধ্রুবক string suggest = m_statep->suggestSymFallback(moduleSymp, nodep->name(),
+                                                                    Link_গ্রন্থি_Matcher_Var{});
                 nodep->v3error("Signal definition not found, and implicit disabled with "
                                "`default_nettype: "
                                << nodep->prettyNameQ() << '\n'
@@ -3346,40 +3346,40 @@ class LinkDotResolveVisitor final : public VNVisitor {
             }
             // Bypass looking for suggestions if IMPLICIT is turned off
             // as there could be thousands of these suppressed in large netlists
-            else if (!nodep->fileline()->warnIsOff(V3ErrorCode::IMPLICIT)) {
-                const string suggest = m_statep->suggestSymFallback(moduleSymp, nodep->name(),
-                                                                    LinkNodeMatcherVar{});
+            অন্যথা যদি (!nodep->fileline()->warnIsOff(V3ErrorCode::IMPLICIT)) {
+                ধ্রুবক string suggest = m_statep->suggestSymFallback(moduleSymp, nodep->name(),
+                                                                    Link_গ্রন্থি_Matcher_Var{});
                 nodep->v3warn(IMPLICIT,
                               "Signal definition not found, creating implicitly: "
                                   << nodep->prettyNameQ() << '\n'
                                   << (suggest.empty() ? "" : nodep->warnMore() + suggest));
             }
         }
-        AstVar* const newp
-            = new AstVar{nodep->fileline(), VVarType::WIRE, nodep->name(), VFlagLogicPacked{}, 1};
+        AstVar* ধ্রুবক newp
+            = নতুন AstVar{nodep->fileline(), VVarType::WIRE, nodep->name(), VFlagLogicPacked{}, 1};
         newp->lifetime(VLifetime::STATIC_IMPLICIT);
         newp->trace(modp->modTrace());
         modp->addStmtsp(newp);
         // Link it to signal list, must add the variable under the module;
         // current scope might be lower now
-        m_statep->insertSym(moduleSymp, newp->name(), newp, nullptr /*classOrPackagep*/);
-        return newp;
+        m_statep->ঢোকাও_Sym(moduleSymp, newp->name(), newp, nullptr /*classOrPackagep*/);
+        ফেরত newp;
     }
-    AstVar* foundToVarp(const VSymEnt* symp, AstNode* nodep, VAccess access) {
+    AstVar* foundToVarp(ধ্রুবক VSymEnt* symp, Ast_গ্রন্থি* nodep, VAccess access) {
         // Return a variable if possible, auto converting a modport to variable
-        if (!symp) {
-            return nullptr;
-        } else if (VN_IS(symp->nodep(), Var)) {
-            return VN_AS(symp->nodep(), Var);
-        } else if (VN_IS(symp->nodep(), ModportVarRef)) {
-            AstModportVarRef* const snodep = VN_AS(symp->nodep(), ModportVarRef);
-            AstVar* const varp = snodep->varp();
-            if (access.isWriteOrRW() && snodep->direction().isReadOnly()) {
+        যদি (!symp) {
+            ফেরত nullptr;
+        } অন্যথা যদি (VN_IS(symp->nodep(), Var)) {
+            ফেরত VN_AS(symp->nodep(), Var);
+        } অন্যথা যদি (VN_IS(symp->nodep(), ModportVarRef)) {
+            AstModportVarRef* ধ্রুবক snodep = VN_AS(symp->nodep(), ModportVarRef);
+            AstVar* ধ্রুবক varp = snodep->varp();
+            যদি (access.isWriteOrRW() && snodep->direction().isReadOnly()) {
                 nodep->v3error("Attempt to drive input-only modport: " << nodep->prettyNameQ());
             }  // else other simulators don't warn about reading, and IEEE doesn't say illegal
-            return varp;
-        } else {
-            return nullptr;
+            ফেরত varp;
+        } অন্যথা {
+            ফেরত nullptr;
         }
     }
 
@@ -3387,93 +3387,93 @@ class LinkDotResolveVisitor final : public VNVisitor {
     // When a dotted reference uses a modport with expression syntax, the virtual port name
     // maps to the real signal. This helper resolves that mapping during scope creation.
     // Returns the VarScope for the real signal, or nullptr if not found.
-    AstVarScope* findVirtualPortVarScope(VSymEnt* dotSymp, const string& portName) {
-        const AstVarScope* const dotVscp = VN_CAST(dotSymp->nodep(), VarScope);
-        const AstVar* const dotVarp = dotVscp ? dotVscp->varp() : nullptr;
-        if (!dotVarp) return nullptr;
+    AstVarScope* findVirtualPortVarScope(VSymEnt* dotSymp, ধ্রুবক string& portName) {
+        ধ্রুবক AstVarScope* ধ্রুবক dotVscp = VN_CAST(dotSymp->nodep(), VarScope);
+        ধ্রুবক AstVar* ধ্রুবক dotVarp = dotVscp ? dotVscp->varp() : nullptr;
+        যদি (!dotVarp) ফেরত nullptr;
 
-        AstNodeDType* dtypep = dotVarp->childDTypep();
-        if (!dtypep) dtypep = dotVarp->subDTypep();
-        if (!dtypep) return nullptr;
-        const AstIfaceRefDType* const ifaceRefp = VN_CAST(dtypep, IfaceRefDType);
-        if (!ifaceRefp || !ifaceRefp->modportp() || !ifaceRefp->ifaceViaCellp()) return nullptr;
+        Ast_গ্রন্থি_DType* dtypep = dotVarp->childDTypep();
+        যদি (!dtypep) dtypep = dotVarp->subDTypep();
+        যদি (!dtypep) ফেরত nullptr;
+        ধ্রুবক AstIfaceRefDType* ধ্রুবক ifaceRefp = VN_CAST(dtypep, IfaceRefDType);
+        যদি (!ifaceRefp || !ifaceRefp->modportp() || !ifaceRefp->ifaceViaCellp()) ফেরত nullptr;
 
         // Get the interface cell's symbol table
-        VSymEnt* const ifaceCellSymp = m_statep->getNodeSym(ifaceRefp->ifaceViaCellp());
+        VSymEnt* ধ্রুবক ifaceCellSymp = m_statep->get_গ্রন্থি_Sym(ifaceRefp->ifaceViaCellp());
 
         // Look up modport by name in interface cell
-        VSymEnt* const modportSymp = ifaceCellSymp->findIdFallback(ifaceRefp->modportp()->name());
-        if (!modportSymp) return nullptr;
+        VSymEnt* ধ্রুবক modportSymp = ifaceCellSymp->findIdFallback(ifaceRefp->modportp()->name());
+        যদি (!modportSymp) ফেরত nullptr;
 
         // Look up virtual port name in modport symbol table
         string baddot;
-        VSymEnt* const virtPortp = m_statep->findSymPrefixed(modportSymp, portName, baddot, true);
-        if (!virtPortp) return nullptr;
+        VSymEnt* ধ্রুবক virtPortp = m_statep->findSymPrefixed(modportSymp, portName, baddot, সত্য);
+        যদি (!virtPortp) ফেরত nullptr;
 
         // Symbol may point to VarScope or Var
-        if (AstVarScope* vscp = VN_CAST(virtPortp->nodep(), VarScope)) return vscp;
+        যদি (AstVarScope* vscp = VN_CAST(virtPortp->nodep(), VarScope)) ফেরত vscp;
 
         // Symbol points to Var - look up VarScope by name in interface cell
-        if (const AstVar* const realVarp = VN_CAST(virtPortp->nodep(), Var)) {
-            VSymEnt* const realFoundp
-                = m_statep->findSymPrefixed(ifaceCellSymp, realVarp->name(), baddot, true);
-            return realFoundp ? VN_CAST(realFoundp->nodep(), VarScope) : nullptr;
+        যদি (ধ্রুবক AstVar* ধ্রুবক realVarp = VN_CAST(virtPortp->nodep(), Var)) {
+            VSymEnt* ধ্রুবক realFoundp
+                = m_statep->findSymPrefixed(ifaceCellSymp, realVarp->name(), baddot, সত্য);
+            ফেরত realFoundp ? VN_CAST(realFoundp->nodep(), VarScope) : nullptr;
         }
-        return nullptr;
+        ফেরত nullptr;
     }
 
     // Capture a ParamTypeDType reference for interface typedef retargeting.
     // Called when a RefDType resolves to a ParamTypeDType owned by an interface.
-    void captureIfaceParamType(AstRefDType* nodep, AstParamTypeDType* defp) {
-        if (!V3LinkDotIfaceCapture::enabled() || !m_statep->forPrimary()) return;
-        AstNodeModule* const defOwnerModp = V3LinkDotIfaceCapture::findOwnerModule(defp);
-        if (!defOwnerModp || !VN_IS(defOwnerModp, Iface)) return;
-        AstCell* const cellForCapture
+    শূন্য captureIfaceParamType(AstRefDType* nodep, AstParamTypeDType* defp) {
+        যদি (!V3LinkDotIfaceCapture::enabled() || !m_statep->forPrimary()) ফেরত;
+        Ast_গ্রন্থি_Module* ধ্রুবক defOwnerModp = V3LinkDotIfaceCapture::findOwnerModule(defp);
+        যদি (!defOwnerModp || !VN_IS(defOwnerModp, Iface)) ফেরত;
+        AstCell* ধ্রুবক cellForCapture
             = m_ds.m_dotSymp ? VN_CAST(m_ds.m_dotSymp->nodep(), Cell) : nullptr;
-        if (!cellForCapture) return;
+        যদি (!cellForCapture) ফেরত;
         UINFO(9, indent() << "iface capture add paramtype " << nodep
                           << " iface=" << defOwnerModp->prettyNameQ());
         V3LinkDotIfaceCapture::addParamType(nodep, cellForCapture->name(), m_modp, defp,
                                             defOwnerModp->name());
     }
 
-    AstNodeStmt* addImplicitSuperNewCall(AstFunc* const nodep,
-                                         const AstClassExtends* const classExtendsp) {
+    Ast_গ্রন্থি_Stmt* addImplicitSuperNewCall(AstFunc* ধ্রুবক nodep,
+                                         ধ্রুবক AstClassExtends* ধ্রুবক classExtendsp) {
         // Returns the added node
-        FileLine* const fl = nodep->fileline();
+        File_সারি* ধ্রুবক fl = nodep->fileline();
         AstArg* argsp = nullptr;
-        if (classExtendsp->argsp()) argsp = classExtendsp->argsp()->cloneTree(true);
-        AstNew* const newExprp = new AstNew{fl, argsp};
-        newExprp->isImplicit(true);
-        AstDot* const superNewp = new AstDot{fl, false, new AstParseRef{fl, "super"}, newExprp};
-        AstNodeStmt* const superNewStmtp = superNewp->makeStmt();
-        for (AstNode* stmtp = nodep->stmtsp(); stmtp; stmtp = stmtp->nextp()) {
+        যদি (classExtendsp->argsp()) argsp = classExtendsp->argsp()->clone_বৃক্ষ(সত্য);
+        AstNew* ধ্রুবক newExprp = নতুন AstNew{fl, argsp};
+        newExprp->isImplicit(সত্য);
+        AstDot* ধ্রুবক superNewp = নতুন AstDot{fl, মিথ্যা, নতুন AstParseRef{fl, "super"}, newExprp};
+        Ast_গ্রন্থি_Stmt* ধ্রুবক superNewStmtp = superNewp->makeStmt();
+        জন্য (Ast_গ্রন্থি* stmtp = nodep->stmtsp(); stmtp; stmtp = stmtp->nextp()) {
             // super.new shall be the first statement (IEEE 1800-2023 8.15)
             // but some nodes (such as variable declarations and typedefs) should stay before
-            if (VN_IS(stmtp, NodeStmt)) {
-                stmtp->addHereThisAsNext(superNewStmtp);
-                return superNewStmtp;
+            যদি (VN_IS(stmtp, গ্রন্থি_Stmt)) {
+                stmtp->add_Here_This_As_পরবর্তী(superNewStmtp);
+                ফেরত superNewStmtp;
             }
         }
         // There were no statements
         nodep->addStmtsp(superNewStmtp);
-        return superNewStmtp;
+        ফেরত superNewStmtp;
     }
-    void checkNoDot(AstNode* nodep) {
-        if (VL_UNLIKELY(!nodep)) {
+    শূন্য checkNoDot(Ast_গ্রন্থি* nodep) {
+        যদি (VL_UNLIKELY(!nodep)) {
             UINFO(9, indent() << "iface capture null node passed to checkNoDot; dot state="
                               << m_ds.ascii());
-            m_ds.m_dotErr = true;
-            return;
+            m_ds.m_dotErr = সত্য;
+            ফেরত;
         }
-        if (VL_UNLIKELY(m_ds.m_dotPos != DP_NONE)) {
+        যদি (VL_UNLIKELY(m_ds.m_dotPos != DP_NONE)) {
             UINFO(9, indent() << "ds=" << m_ds.ascii());
             UINFO(9, indent() << "iface capture checkNoDot hit node=" << nodep
                               << " dotState=" << m_ds.ascii());
-            if (VL_UNLIKELY(!m_ds.m_dotp)) {
+            যদি (VL_UNLIKELY(!m_ds.m_dotp)) {
                 nodep->v3error("Syntax error: Not expecting " << nodep->type()
                                                               << " here (missing dot context)");
-            } else {
+            } অন্যথা {
                 nodep->v3error("Syntax error: Not expecting "
                                << nodep->type() << " under a " << nodep->backp()->type()
                                << " in dotted expression\n"
@@ -3481,269 +3481,269 @@ class LinkDotResolveVisitor final : public VNVisitor {
                                << "... Resolving this reference\n"
                                << m_ds.m_dotp->warnContextSecondary());
             }
-            m_ds.m_dotErr = true;
+            m_ds.m_dotErr = সত্য;
         }
     }
-    AstVar* findIfaceTopVarp(AstNode* nodep, VSymEnt* parentEntp, const string& name) {
-        const string findName = name + "__Viftop";
-        VSymEnt* const ifaceSymp = parentEntp->findIdFallback(findName);
-        AstVar* const ifaceTopVarp = ifaceSymp ? VN_AS(ifaceSymp->nodep(), Var) : nullptr;
-        UASSERT_OBJ(ifaceTopVarp, nodep, "Can't find interface var ref: " << findName);
-        return ifaceTopVarp;
+    AstVar* find_Iface_শীর্ষ_Varp(Ast_গ্রন্থি* nodep, VSymEnt* parentEntp, ধ্রুবক string& name) {
+        ধ্রুবক string findName = name + "__Viftop";
+        VSymEnt* ধ্রুবক ifaceSymp = parentEntp->findIdFallback(findName);
+        AstVar* ধ্রুবক iface_শীর্ষ_Varp = ifaceSymp ? VN_AS(ifaceSymp->nodep(), Var) : nullptr;
+        UASSERT_OBJ(iface_শীর্ষ_Varp, nodep, "Can't find interface var ref: " << findName);
+        ফেরত iface_শীর্ষ_Varp;
     }
-    AstRSProd* findProd(AstNode* nodep, VSymEnt* parentEntp, const string& name) {
-        const VSymEnt* const foundp = parentEntp->findIdFallback(name);
+    AstRSProd* findProd(Ast_গ্রন্থি* nodep, VSymEnt* parentEntp, ধ্রুবক string& name) {
+        ধ্রুবক VSymEnt* ধ্রুবক foundp = parentEntp->findIdFallback(name);
         AstRSProd* foundNodep = foundp ? VN_CAST(foundp->nodep(), RSProd) : nullptr;
-        if (!foundNodep) {
+        যদি (!foundNodep) {
             VSpellCheck speller;
-            LinkNodeMatcherProd matcher;
-            parentEntp->candidateIdFlat(&speller, &matcher, false);
-            const string suggest = speller.bestCandidateMsg(name);
+            Link_গ্রন্থি_Matcher_Prod matcher;
+            parentEntp->candidateIdFlat(&speller, &matcher, মিথ্যা);
+            ধ্রুবক string suggest = speller.best_Candidate_বার্তা(name);
             UINFO(1, "   ErrParseRef curSymp=se" << cvtToHex(parentEntp));
-            nodep->v3error("Production " << AstNode::prettyNameQ(name) << " not found\n"
+            nodep->v3error("Production " << Ast_গ্রন্থি::prettyNameQ(name) << " not found\n"
                                          << (suggest.empty() ? "" : nodep->warnMore() + suggest));
-            return nullptr;
+            ফেরত nullptr;
         }
-        return foundNodep;
+        ফেরত foundNodep;
     }
-    void duplicatePinError(AstPin* nodep, AstNode* origp, const char* whatp) {
+    শূন্য duplicatePinError(AstPin* nodep, Ast_গ্রন্থি* origp, ধ্রুবক অক্ষর* whatp) {
         nodep->v3error("Duplicate " << whatp << " connection: " << nodep->prettyNameQ() << '\n'
                                     << nodep->warnContextPrimary() << '\n'
                                     << origp->warnOther() << "... Location of original " << whatp
                                     << " connection\n"
                                     << origp->warnContextSecondary());
     }
-    void markAndCheckPinDup(AstPin* nodep, AstNode* refp, const char* whatp) {
-        const auto pair = m_usedPins.emplace(refp, nodep);
-        if (pair.second) {
-            if (!nodep->paramPath().empty())
+    শূন্য markAndCheckPinDup(AstPin* nodep, Ast_গ্রন্থি* refp, ধ্রুবক অক্ষর* whatp) {
+        ধ্রুবক auto pair = m_usedPins.emplace(refp, nodep);
+        যদি (pair.second) {
+            যদি (!nodep->paramPath().empty())
                 m_usedDefParamPins[refp].emplace(nodep->paramPath(), nodep);
-            return;
-        } else {
-            AstNode* const origp = pair.first->second;
-            if (nodep->paramPath().empty() || VN_AS(origp, Pin)->paramPath().empty()) {
+            ফেরত;
+        } অন্যথা {
+            Ast_গ্রন্থি* ধ্রুবক origp = pair.first->second;
+            যদি (nodep->paramPath().empty() || VN_AS(origp, Pin)->paramPath().empty()) {
                 duplicatePinError(nodep, origp, whatp);
-                return;
+                ফেরত;
             }
         }
 
         auto& defParamPins = m_usedDefParamPins[refp];
-        const auto defParamIt = defParamPins.find(nodep->paramPath());
-        if (defParamIt != defParamPins.end()) {
+        ধ্রুবক auto defParamIt = defParamPins.find(nodep->paramPath());
+        যদি (defParamIt != defParamPins.end()) {
             duplicatePinError(nodep, defParamIt->second, whatp);
-            return;
+            ফেরত;
         }
         defParamPins.emplace(nodep->paramPath(), nodep);
     }
-    static bool extendsClass(const AstClass* classp, const AstClass* targetp) {
+    স্থির যৌক্তিক extendsClass(ধ্রুবক AstClass* classp, ধ্রুবক AstClass* targetp) {
         // Return true if classp inherits from targetp through already resolved extends
         // If performance of this becomes a problem, use just a counter to check
         // exceeds some number of iterations then perform the more expensive analysis
-        std::set<const AstClass*> visited;
-        std::vector<const AstClass*> todo{classp};
-        while (!todo.empty()) {
-            const AstClass* const currp = todo.back();
-            todo.pop_back();
-            if (currp == targetp) return true;
-            if (!visited.insert(currp).second) continue;
-            for (const AstClassExtends* cextp = currp->extendsp(); cextp;
+        std::set<ধ্রুবক AstClass*> visited;
+        std::vector<ধ্রুবক AstClass*> todo{classp};
+        যখন (!todo.empty()) {
+            ধ্রুবক AstClass* ধ্রুবক currp = todo.back();
+            todo.বের_করো_back();
+            যদি (currp == targetp) ফেরত সত্য;
+            যদি (!visited.ঢোকাও(currp).second) চালু;
+            জন্য (ধ্রুবক AstClassExtends* cextp = currp->extendsp(); cextp;
                  cextp = VN_AS(cextp->nextp(), ClassExtends)) {
-                if (const AstClass* const basep = cextp->classOrNullp()) todo.push_back(basep);
+                যদি (ধ্রুবক AstClass* ধ্রুবক basep = cextp->classOrNullp()) todo.ঠেলো_back(basep);
             }
         }
-        return false;
+        ফেরত মিথ্যা;
     }
-    static AstClocking* sensClockingp(AstNode* nodep) {
+    স্থির AstClocking* sensClockingp(Ast_গ্রন্থি* nodep) {
         // Return the clocking block referenced by nodep, either directly or through a modport
-        if (AstClocking* const clockingp = VN_CAST(nodep, Clocking)) return clockingp;
-        if (const AstModportClockingRef* const clockingRefp = VN_CAST(nodep, ModportClockingRef))
-            return clockingRefp->clockingp();
-        return nullptr;
+        যদি (AstClocking* ধ্রুবক clockingp = VN_CAST(nodep, Clocking)) ফেরত clockingp;
+        যদি (ধ্রুবক AstModportClockingRef* ধ্রুবক clockingRefp = VN_CAST(nodep, ModportClockingRef))
+            ফেরত clockingRefp->clockingp();
+        ফেরত nullptr;
     }
     VSymEnt* getCreateClockingEventSymEnt(AstClocking* clockingp) {
-        AstVar* const eventp = clockingp->ensureEventp(true);
-        if (!eventp->user1p()) eventp->user1p(new VSymEnt{m_statep->symsp(), eventp});
-        return reinterpret_cast<VSymEnt*>(eventp->user1p());
+        AstVar* ধ্রুবক eventp = clockingp->ensureEventp(সত্য);
+        যদি (!eventp->user1p()) eventp->user1p(নতুন VSymEnt{m_statep->symsp(), eventp});
+        ফেরত reinterpret_cast<VSymEnt*>(eventp->user1p());
     }
-    VSymEnt* findInlinedDotsSym(AstNode* nodep, const string& inlinedDots) {
+    VSymEnt* findInlinedDotsSym(Ast_গ্রন্থি* nodep, ধ্রুবক string& inlinedDots) {
         // Return scope that applies for searching, given renaming due to module inlining.
         // Dotted lookup is always relative to module, as maybe variable
         // name lower down with same scope name we want to ignore (t_math_divw)
         VSymEnt* dotSymp = m_modSymp;
-        const string inl = AstNode::dedotName(inlinedDots);
+        ধ্রুবক string inl = Ast_গ্রন্থি::dedotName(inlinedDots);
         string baddot;
         VSymEnt* okSymp = nullptr;
-        dotSymp = m_statep->findDotted(nodep->fileline(), dotSymp, inl, baddot, okSymp, false);
+        dotSymp = m_statep->findDotted(nodep->fileline(), dotSymp, inl, baddot, okSymp, মিথ্যা);
         UASSERT_OBJ(dotSymp, nodep,
-                    "Couldn't resolve inlined scope " << AstNode::prettyNameQ(baddot)
+                    "Couldn't resolve inlined scope " << Ast_গ্রন্থি::prettyNameQ(baddot)
                                                       << " in: " << inlinedDots);
         UINFO(9, indent() << "findInlinedDotsSym " << dotSymp
                           << " search start due to inlinedDots=" << inlinedDots);
-        return dotSymp;
+        ফেরত dotSymp;
     }
-    VSymEnt* findDottedRefSymp(AstNode* nodep, VSymEnt* lookupSymp, const string& dotted,
-                               string& baddot, VSymEnt*& okSymp, bool* modportp = nullptr) {
+    VSymEnt* findDottedRefSymp(Ast_গ্রন্থি* nodep, VSymEnt* lookupSymp, ধ্রুবক string& dotted,
+                               string& baddot, VSymEnt*& okSymp, যৌক্তিক* modportp = nullptr) {
         // Return scope to search for a relinked hierarchical reference
         // (AstVarXRef or AstEnumItemRef), or nullptr after error if not found
         // If modportp is given, set true when the reference went through a modport
-        if (modportp) *modportp = false;
+        যদি (modportp) *modportp = মিথ্যা;
         VSymEnt* dotSymp = m_statep->findDotted(nodep->fileline(), lookupSymp, dotted, baddot,
-                                                okSymp, true);  // Maybe nullptr
-        if (!dotSymp) {
+                                                okSymp, সত্য);  // Maybe nullptr
+        যদি (!dotSymp) {
             nodep->v3error(
                 "Can't find definition of "
-                << (!baddot.empty() ? AstNode::prettyNameQ(baddot) : nodep->prettyNameQ()) << '\n'
+                << (!baddot.empty() ? Ast_গ্রন্থি::prettyNameQ(baddot) : nodep->prettyNameQ()) << '\n'
                 << nodep->warnContextPrimary());
-            return nullptr;
+            ফেরত nullptr;
         }
-        if (const AstVar* const varp = VN_CAST(dotSymp->nodep(), Var)) {
-            if (const AstIfaceRefDType* const ifaceRefp
+        যদি (ধ্রুবক AstVar* ধ্রুবক varp = VN_CAST(dotSymp->nodep(), Var)) {
+            যদি (ধ্রুবক AstIfaceRefDType* ধ্রুবক ifaceRefp
                 = VN_CAST(varp->childDTypep(), IfaceRefDType)) {
-                if (ifaceRefp->modportp()) {
-                    dotSymp = m_statep->getNodeSym(ifaceRefp->modportp());
-                    if (modportp) *modportp = true;
-                } else {
-                    dotSymp = m_statep->getNodeSym(ifaceRefp->ifacep());
+                যদি (ifaceRefp->modportp()) {
+                    dotSymp = m_statep->get_গ্রন্থি_Sym(ifaceRefp->modportp());
+                    যদি (modportp) *modportp = সত্য;
+                } অন্যথা {
+                    dotSymp = m_statep->get_গ্রন্থি_Sym(ifaceRefp->ifacep());
                 }
             }
-        } else if (const AstModportClockingRef* const clockingRefp
+        } অন্যথা যদি (ধ্রুবক AstModportClockingRef* ধ্রুবক clockingRefp
                    = VN_CAST(dotSymp->nodep(), ModportClockingRef)) {
-            dotSymp = m_statep->getNodeSym(clockingRefp->clockingp());
+            dotSymp = m_statep->get_গ্রন্থি_Sym(clockingRefp->clockingp());
         }
-        return dotSymp;
+        ফেরত dotSymp;
     }
 
-    static bool isParamedClassRefDType(const AstNode* classp) {
-        while (const AstRefDType* const refp = VN_CAST(classp, RefDType))
+    স্থির যৌক্তিক isParamedClassRefDType(ধ্রুবক Ast_গ্রন্থি* classp) {
+        যখন (ধ্রুবক AstRefDType* ধ্রুবক refp = VN_CAST(classp, RefDType))
             classp = refp->subDTypep();
-        return (VN_IS(classp, ClassRefDType) && VN_AS(classp, ClassRefDType)->paramsp())
+        ফেরত (VN_IS(classp, ClassRefDType) && VN_AS(classp, ClassRefDType)->paramsp())
                || VN_IS(classp, ParamTypeDType);
     }
-    bool isParamedClassRef(const AstNode* nodep) {
+    যৌক্তিক isParamedClassRef(ধ্রুবক Ast_গ্রন্থি* nodep) {
         // Is this a parameterized reference to a class, or a reference to class parameter
-        if (const auto* classRefp = VN_CAST(nodep, ClassOrPackageRef)) {
-            if (classRefp->paramsp()) return true;
-            const auto* classp = classRefp->classOrPackageNodep();
-            while (const auto* typedefp = VN_CAST(classp, Typedef)) classp = typedefp->subDTypep();
-            return isParamedClassRefDType(classp);
+        যদি (ধ্রুবক auto* classRefp = VN_CAST(nodep, ClassOrPackageRef)) {
+            যদি (classRefp->paramsp()) ফেরত সত্য;
+            ধ্রুবক auto* classp = classRefp->classOrPackageNodep();
+            যখন (ধ্রুবক auto* typedefp = VN_CAST(classp, Typedef)) classp = typedefp->subDTypep();
+            ফেরত isParamedClassRefDType(classp);
         }
-        return isParamedClassRefDType(nodep);
+        ফেরত isParamedClassRefDType(nodep);
     }
     VSymEnt* getThisClassSymp() {
         VSymEnt* classSymp = m_ds.m_dotSymp;
-        while (classSymp && !VN_IS(classSymp->nodep(), Class)) {
+        যখন (classSymp && !VN_IS(classSymp->nodep(), Class)) {
             classSymp = classSymp->parentp();
         }
-        return classSymp;
+        ফেরত classSymp;
     }
     // Is the current scope within the given class, including within its nested classes
-    bool insideClass(const AstClass* classp) const {
-        for (const VSymEnt* symp = m_curSymp; symp; symp = symp->parentp()) {
-            if (symp->nodep() == classp) return true;
+    যৌক্তিক insideClass(ধ্রুবক AstClass* classp) ধ্রুবক {
+        জন্য (ধ্রুবক VSymEnt* symp = m_curSymp; symp; symp = symp->parentp()) {
+            যদি (symp->nodep() == classp) ফেরত সত্য;
         }
-        return false;
+        ফেরত মিথ্যা;
     }
     // 'randomize() with' target class not yet specialized; defer to post-V3Param pass
-    bool randTargetUnresolved() const {
-        return m_statep->forPrimary() && m_currentWithp && m_randMethodCallp && !m_randSymp;
+    যৌক্তিক randTargetUnresolved() ধ্রুবক {
+        ফেরত m_statep->forPrimary() && m_currentWithp && m_randMethodCallp && !m_randSymp;
     }
     // Is 'funcp' of 'classp' virtual, directly or by overriding a virtual method of a base
     // class (IEEE 1800-2023 8.20)
-    bool isVirtualMethod(const AstNodeFTask* funcp, const AstClass* classp) const {
-        if (funcp->isVirtual()) return true;
-        for (const AstClassExtends* cextp = classp->extendsp(); cextp;
+    যৌক্তিক isVirtualMethod(ধ্রুবক Ast_গ্রন্থি_FTask* funcp, ধ্রুবক AstClass* classp) ধ্রুবক {
+        যদি (funcp->isVirtual()) ফেরত সত্য;
+        জন্য (ধ্রুবক AstClassExtends* cextp = classp->extendsp(); cextp;
              cextp = VN_AS(cextp->nextp(), ClassExtends)) {
-            AstClass* const basep = cextp->classOrNullp();
-            if (!basep) continue;
-            const VSymEnt* const foundp = m_statep->getNodeSym(basep)->findIdFlat(funcp->name());
-            const AstNodeFTask* const baseFuncp
-                = foundp ? VN_CAST(foundp->nodep(), NodeFTask) : nullptr;
-            const AstClass* const baseClassp = foundp && foundp->parentp()
+            AstClass* ধ্রুবক basep = cextp->classOrNullp();
+            যদি (!basep) চালু;
+            ধ্রুবক VSymEnt* ধ্রুবক foundp = m_statep->get_গ্রন্থি_Sym(basep)->findIdFlat(funcp->name());
+            ধ্রুবক Ast_গ্রন্থি_FTask* ধ্রুবক baseFuncp
+                = foundp ? VN_CAST(foundp->nodep(), গ্রন্থি_FTask) : nullptr;
+            ধ্রুবক AstClass* ধ্রুবক baseClassp = foundp && foundp->parentp()
                                                    ? VN_CAST(foundp->parentp()->nodep(), Class)
                                                    : nullptr;
-            if (baseFuncp && baseClassp && isVirtualMethod(baseFuncp, baseClassp)) return true;
+            যদি (baseFuncp && baseClassp && isVirtualMethod(baseFuncp, baseClassp)) ফেরত সত্য;
         }
-        return false;
+        ফেরত মিথ্যা;
     }
     // Is imported 'implp' an implementation of interface method 'ifSymp' (IEEE 1800-2023
     // 8.26.2)? If its class does not derive from the interface class, it needs a forwarding
     // override in the derived class to be reachable through the interface.
-    bool inheritedImplements(const VSymEnt* implp, const VSymEnt* ifSymp, bool& needForwardr) {
-        needForwardr = false;
-        const AstNodeFTask* const implFuncp = VN_CAST(implp->nodep(), NodeFTask);
-        if (!implFuncp || implFuncp->pureVirtual() || implFuncp->isStatic()) return false;
-        const AstClass* const implClassp
+    যৌক্তিক inheritedImplements(ধ্রুবক VSymEnt* implp, ধ্রুবক VSymEnt* ifSymp, যৌক্তিক& needForwardr) {
+        needForwardr = মিথ্যা;
+        ধ্রুবক Ast_গ্রন্থি_FTask* ধ্রুবক implFuncp = VN_CAST(implp->nodep(), গ্রন্থি_FTask);
+        যদি (!implFuncp || implFuncp->pureVirtual() || implFuncp->isStatic()) ফেরত মিথ্যা;
+        ধ্রুবক AstClass* ধ্রুবক implClassp
             = implp->parentp() ? VN_CAST(implp->parentp()->nodep(), Class) : nullptr;
-        const AstClass* const ifClassp
+        ধ্রুবক AstClass* ধ্রুবক ifClassp
             = ifSymp->parentp() ? VN_CAST(ifSymp->parentp()->nodep(), Class) : nullptr;
-        if (!implClassp || !ifClassp) return false;
-        if (extendsClass(implClassp, ifClassp)) return true;
-        if (!isVirtualMethod(implFuncp, implClassp)) return false;
-        needForwardr = true;
-        return true;
+        যদি (!implClassp || !ifClassp) ফেরত মিথ্যা;
+        যদি (extendsClass(implClassp, ifClassp)) ফেরত সত্য;
+        যদি (!isVirtualMethod(implFuncp, implClassp)) ফেরত মিথ্যা;
+        needForwardr = সত্য;
+        ফেরত সত্য;
     }
     // Add 'implp' override to 'classp' that calls super.implp, so the C++ method of an
     // implemented interface class is overridden
-    void addInterfaceForward(AstClass* classp, AstNodeFTask* implp, AstClass* implClassp) {
-        FileLine* const flp = implp->fileline();
+    শূন্য addInterfaceForward(AstClass* classp, Ast_গ্রন্থি_FTask* implp, AstClass* implClassp) {
+        File_সারি* ধ্রুবক flp = implp->fileline();
         AstVar* fvarp = nullptr;
-        AstNodeFTask* newp;
-        if (AstFunc* const implFuncp = VN_CAST(implp, Func)) {
-            fvarp = VN_AS(implFuncp->fvarp(), Var)->cloneTree(false);
-            newp = new AstFunc{flp, implp->name(), nullptr, fvarp};
-        } else {
-            newp = new AstTask{flp, implp->name(), nullptr};
+        Ast_গ্রন্থি_FTask* newp;
+        যদি (AstFunc* ধ্রুবক implFuncp = VN_CAST(implp, Func)) {
+            fvarp = VN_AS(implFuncp->fvarp(), Var)->clone_বৃক্ষ(মিথ্যা);
+            newp = নতুন AstFunc{flp, implp->name(), nullptr, fvarp};
+        } অন্যথা {
+            newp = নতুন AstTask{flp, implp->name(), nullptr};
         }
-        newp->classMethod(true);
-        newp->isVirtual(true);
+        newp->classMethod(সত্য);
+        newp->isVirtual(সত্য);
         newp->lifetime(implp->lifetime());
         AstArg* argsp = nullptr;
-        for (AstNode* stmtp = implp->stmtsp(); stmtp; stmtp = stmtp->nextp()) {
-            AstVar* const portp = VN_CAST(stmtp, Var);
-            if (!portp || !portp->isIO()) continue;
-            AstVar* const newPortp = portp->cloneTree(false);
+        জন্য (Ast_গ্রন্থি* stmtp = implp->stmtsp(); stmtp; stmtp = stmtp->nextp()) {
+            AstVar* ধ্রুবক portp = VN_CAST(stmtp, Var);
+            যদি (!portp || !portp->isIO()) চালু;
+            AstVar* ধ্রুবক newPortp = portp->clone_বৃক্ষ(মিথ্যা);
             newp->addStmtsp(newPortp);
-            argsp = AstNode::addNext(
-                argsp, new AstArg{flp, "", new AstVarRef{flp, newPortp, VAccess::READ}});
+            argsp = Ast_গ্রন্থি::add_পরবর্তী(
+                argsp, নতুন AstArg{flp, "", নতুন AstVarRef{flp, newPortp, VAccess::READ}});
         }
-        AstNodeFTaskRef* callp;
-        if (AstFunc* const implFuncp = VN_CAST(implp, Func)) {
-            callp = new AstFuncRef{flp, implFuncp, argsp};
-        } else {
-            callp = new AstTaskRef{flp, VN_AS(implp, Task), argsp};
+        Ast_গ্রন্থি_FTask_Ref* callp;
+        যদি (AstFunc* ধ্রুবক implFuncp = VN_CAST(implp, Func)) {
+            callp = নতুন AstFuncRef{flp, implFuncp, argsp};
+        } অন্যথা {
+            callp = নতুন AstTaskRef{flp, VN_AS(implp, Task), argsp};
         }
         callp->classOrPackagep(implClassp);
-        callp->superReference(true);
-        if (fvarp) {
-            newp->addStmtsp(new AstAssign{flp, new AstVarRef{flp, fvarp, VAccess::WRITE}, callp});
-        } else {
+        callp->superReference(সত্য);
+        যদি (fvarp) {
+            newp->addStmtsp(নতুন AstAssign{flp, নতুন AstVarRef{flp, fvarp, VAccess::WRITE}, callp});
+        } অন্যথা {
             newp->addStmtsp(callp->makeStmt());
         }
         UINFO(9, indent() << "Interface forward " << newp);
         classp->addMembersp(newp);
     }
-    void importDerivedClass(AstClass* derivedClassp, VSymEnt* baseSymp, AstClass* baseClassp) {
+    শূন্য importDerivedClass(AstClass* derivedClassp, VSymEnt* baseSymp, AstClass* baseClassp) {
         // Also used for standard 'extends' from a base class
         UINFO(8, indent() << "importDerivedClass to " << derivedClassp << " from " << baseClassp);
-        for (VSymEnt::const_iterator it = baseSymp->begin(); it != baseSymp->end(); ++it) {
-            if (AstNode* baseSubp = it->second->nodep()) {
+        জন্য (VSymEnt::const_iterator it = baseSymp->begin(); it != baseSymp->end(); ++it) {
+            যদি (Ast_গ্রন্থি* baseSubp = it->second->nodep()) {
                 UINFO(8, indent() << "  SymFunc " << baseSubp);
-                const string impOrExtends
+                ধ্রুবক string impOrExtends
                     = baseClassp->isInterfaceClass() ? " implements " : " extends ";
-                if (VN_IS(baseSubp, NodeFTask)) {
-                    const VSymEnt* const foundp = m_curSymp->findIdFlat(baseSubp->name());
-                    const AstNodeFTask* const baseFuncp = VN_CAST(baseSubp, NodeFTask);
-                    if (!baseFuncp || !baseFuncp->pureVirtual()) continue;
-                    bool needForward = false;
-                    const bool existsInDerived
+                যদি (VN_IS(baseSubp, গ্রন্থি_FTask)) {
+                    ধ্রুবক VSymEnt* ধ্রুবক foundp = m_curSymp->findIdFlat(baseSubp->name());
+                    ধ্রুবক Ast_গ্রন্থি_FTask* ধ্রুবক baseFuncp = VN_CAST(baseSubp, গ্রন্থি_FTask);
+                    যদি (!baseFuncp || !baseFuncp->pureVirtual()) চালু;
+                    যৌক্তিক needForward = মিথ্যা;
+                    ধ্রুবক যৌক্তিক existsInDerived
                         = foundp
                           && (!foundp->imported()
                               || inheritedImplements(foundp, it->second, needForward));
-                    if (needForward && m_statep->forPrimary()
+                    যদি (needForward && m_statep->forPrimary()
                         && !derivedClassp->isInterfaceClass()) {
                         m_ifForwards.emplace(baseSubp->name(), foundp);
                     }
-                    if (m_statep->forPrimary() && !existsInDerived
+                    যদি (m_statep->forPrimary() && !existsInDerived
                         && !derivedClassp->isInterfaceClass() && !derivedClassp->isVirtual()) {
                         derivedClassp->v3error(
                             "Class " << derivedClassp->prettyNameQ() << impOrExtends
@@ -3755,8 +3755,8 @@ class LinkDotResolveVisitor final : public VNVisitor {
                                      << "... Location of interface class's function\n"
                                      << baseSubp->warnContextSecondary());
                     }
-                    const auto itn = m_ifClassImpNames.find(baseSubp->name());
-                    if (m_statep->forPrimary() && !existsInDerived
+                    ধ্রুবক auto itn = m_ifClassImpNames.find(baseSubp->name());
+                    যদি (m_statep->forPrimary() && !existsInDerived
                         && itn != m_ifClassImpNames.end()
                         && itn->second != baseSubp) {  // Not exact same function from diamond
                         derivedClassp->v3error(
@@ -3771,12 +3771,12 @@ class LinkDotResolveVisitor final : public VNVisitor {
                     }
                     m_ifClassImpNames.emplace(baseSubp->name(), baseSubp);
                 }
-                if (VN_IS(baseSubp, Constraint)) {
-                    const VSymEnt* const foundp = m_curSymp->findIdFlat(baseSubp->name());
-                    const AstConstraint* const baseFuncp = VN_CAST(baseSubp, Constraint);
-                    if (!baseFuncp || !baseFuncp->isKwdPure()) continue;
-                    const bool existsInDerived = foundp && !foundp->imported();
-                    if (m_statep->forPrimary() && !existsInDerived
+                যদি (VN_IS(baseSubp, Constraint)) {
+                    ধ্রুবক VSymEnt* ধ্রুবক foundp = m_curSymp->findIdFlat(baseSubp->name());
+                    ধ্রুবক AstConstraint* ধ্রুবক baseFuncp = VN_CAST(baseSubp, Constraint);
+                    যদি (!baseFuncp || !baseFuncp->isKwdPure()) চালু;
+                    ধ্রুবক যৌক্তিক existsInDerived = foundp && !foundp->imported();
+                    যদি (m_statep->forPrimary() && !existsInDerived
                         && !derivedClassp->isInterfaceClass() && !derivedClassp->isVirtual()) {
                         derivedClassp->v3error(
                             "Class " << derivedClassp->prettyNameQ() << impOrExtends
@@ -3792,25 +3792,25 @@ class LinkDotResolveVisitor final : public VNVisitor {
             }
         }
     }
-    void importSymbolsFromExtended(AstClass* const nodep, AstClassExtends* const cextp) {
-        AstClass* const baseClassp = cextp->classp();
-        VSymEnt* const srcp = m_statep->getNodeSym(baseClassp);
+    শূন্য importSymbolsFromExtended(AstClass* ধ্রুবক nodep, AstClassExtends* ধ্রুবক cextp) {
+        AstClass* ধ্রুবক baseClassp = cextp->classp();
+        VSymEnt* ধ্রুবক srcp = m_statep->get_গ্রন্থি_Sym(baseClassp);
         importDerivedClass(nodep, srcp, baseClassp);
-        if (!cextp->isImplements()) m_curSymp->importFromClass(m_statep->symsp(), srcp);
+        যদি (!cextp->isImplements()) m_curSymp->importFromClass(m_statep->symsp(), srcp);
     }
-    void classExtendImport(AstClass* nodep) {
+    শূন্য classExtendImport(AstClass* nodep) {
         // A class reference might be to a class that is later in Ast due to
         // e.g. parameterization or referring to a "class (type T) extends T"
         // Resolve it so later Class:: references into its base classes work
-        symIterateNull(nodep, m_statep->getNodeSym(nodep));
+        symIterateNull(nodep, m_statep->get_গ্রন্থি_Sym(nodep));
     }
 
-    void checkDeclOrder(AstNode* nodep, AstNode* declp) {
-        const uint32_t declTokenNum = declp->declTokenNum();
-        if (!declTokenNum) return;  // Not implemented/valid on this object
-        if (nodep->fileline()->tokenNum() < declTokenNum) {
-            UINFO(1, "Related node " << nodep->fileline()->tokenNum() << " " << nodep);
-            UINFO(1, "Related decl " << declTokenNum << " " << declp);
+    শূন্য checkDeclOrder(Ast_গ্রন্থি* nodep, Ast_গ্রন্থি* declp) {
+        ধ্রুবক uint32_t decl_Token_অঙ্ক = declp->decl_Token_অঙ্ক();
+        যদি (!decl_Token_অঙ্ক) ফেরত;  // Not implemented/valid on this object
+        যদি (nodep->fileline()->token_অঙ্ক() < decl_Token_অঙ্ক) {
+            UINFO(1, "Related node " << nodep->fileline()->token_অঙ্ক() << " " << nodep);
+            UINFO(1, "Related decl " << decl_Token_অঙ্ক << " " << declp);
             nodep->v3error("Reference to "
                            << nodep->prettyNameQ() << " before declaration (IEEE 1800-2023 6.18)\n"
                            << nodep->warnMore()
@@ -3821,11 +3821,11 @@ class LinkDotResolveVisitor final : public VNVisitor {
                            << declp->warnContextSecondary());
         }
     }
-    void checkMemberDeclOrder(AstNode* nodep, AstMemberDType* declp) {
-        const uint32_t declTokenNum = declp->fileline()->tokenNum();
-        if (nodep->fileline()->tokenNum() < declTokenNum) {
-            UINFO(1, "Related node " << nodep->fileline()->tokenNum() << " " << nodep);
-            UINFO(1, "Related decl " << declTokenNum << " " << declp);
+    শূন্য checkMemberDeclOrder(Ast_গ্রন্থি* nodep, AstMemberDType* declp) {
+        ধ্রুবক uint32_t decl_Token_অঙ্ক = declp->fileline()->token_অঙ্ক();
+        যদি (nodep->fileline()->token_অঙ্ক() < decl_Token_অঙ্ক) {
+            UINFO(1, "Related node " << nodep->fileline()->token_অঙ্ক() << " " << nodep);
+            UINFO(1, "Related decl " << decl_Token_অঙ্ক << " " << declp);
             nodep->v3error("Reference to "
                            << nodep->prettyNameQ() << " before declaration (IEEE 1800-2023 6.18)\n"
                            << nodep->warnMore()
@@ -3836,50 +3836,50 @@ class LinkDotResolveVisitor final : public VNVisitor {
         }
     }
 
-    void replaceWithCheckBreak(AstNode* oldp, AstNodeDType* newp) {
+    শূন্য replaceWithCheckBreak(Ast_গ্রন্থি* oldp, Ast_গ্রন্থি_DType* newp) {
         // Flag now to avoid V3Broken throwing an internal error
-        if (oldp->wouldBreak(newp)) {
+        যদি (oldp->wouldBreak(newp)) {
             newp->v3error(
                 "Data type used where a non-data type is expected: " << newp->prettyNameQ());
-            oldp->replaceWith(new AstConst{newp->fileline(), AstConst::BitFalseErroring{}});
-        } else {
+            oldp->replaceWith(নতুন AstConst{newp->fileline(), AstConst::BitFalseErroring{}});
+        } অন্যথা {
             oldp->replaceWith(newp);
         }
     }
 
     // Marks the current module to be revisited after the initial AST iteration
-    void revisitLater(AstNode* deferredNodep) {
+    শূন্য revisitLater(Ast_গ্রন্থি* deferredNodep) {
         // Need to revisit entire module to build up all the necessary context
         m_lastDeferredp = deferredNodep;
-        m_modulesToRevisit.insert(std::make_pair(m_modp->name(), m_modp));
+        m_modulesToRevisit.ঢোকাও(std::make_pair(m_modp->name(), m_modp));
     }
 
-    void updateVarUse(AstVar* nodep) {
+    শূন্য updateVarUse(AstVar* nodep) {
         // Avoid dotted.PARAM false positive when in a parameter block
         // that is if ()'ed off by same dotted name as another block
-        if (nodep && nodep->isParam()) nodep->usedParam(true);
+        যদি (nodep && nodep->isParam()) nodep->usedParam(সত্য);
     }
 
-    static VSymEnt* findIdFallbackSkipMemberDType(VSymEnt* lookp, const string& name) {
+    স্থির VSymEnt* findIdFallbackSkipMemberDType(VSymEnt* lookp, ধ্রুবক string& name) {
         VSymEnt* shadowEntp = nullptr;  // Shadowing variable: not a type, kept for error report
-        while (lookp) {
-            VSymEnt* const foundp = lookp->findIdFlat(name);
-            if (foundp && !VN_IS(foundp->nodep(), MemberDType)) {
+        যখন (lookp) {
+            VSymEnt* ধ্রুবক foundp = lookp->findIdFlat(name);
+            যদি (foundp && !VN_IS(foundp->nodep(), MemberDType)) {
                 // Non-type entries are not type candidates
                 // (IEEE 1800-2023 6.18); skip them so an enclosing
                 // type is found, but keep one to preserve the "found: ..." error.
-                if (VN_IS(foundp->nodep(), Typedef) || VN_IS(foundp->nodep(), ParamTypeDType)
+                যদি (VN_IS(foundp->nodep(), Typedef) || VN_IS(foundp->nodep(), ParamTypeDType)
                     || VN_IS(foundp->nodep(), Class)) {
-                    return foundp;
+                    ফেরত foundp;
                 }
-                if (!shadowEntp) shadowEntp = foundp;
+                যদি (!shadowEntp) shadowEntp = foundp;
             }
             lookp = lookp->fallbackp();
         }
-        return shadowEntp;
+        ফেরত shadowEntp;
     }
 
-    void symIterateChildren(AstNode* nodep, VSymEnt* symp) {
+    শূন্য symIterateChildren(Ast_গ্রন্থি* nodep, VSymEnt* symp) {
         // Iterate children, changing to given context, with restore to old context
         VL_RESTORER_COPY(m_ds);
         VL_RESTORER(m_curSymp);
@@ -3887,7 +3887,7 @@ class LinkDotResolveVisitor final : public VNVisitor {
         m_ds.init(m_curSymp);
         iterateChildren(nodep);
     }
-    void symIterateNull(AstNode* nodep, VSymEnt* symp) {
+    শূন্য symIterateNull(Ast_গ্রন্থি* nodep, VSymEnt* symp) {
         // Iterate node, changing to given context, with restore to old context
         VL_RESTORER_COPY(m_ds);
         VL_RESTORER(m_curSymp);
@@ -3895,83 +3895,83 @@ class LinkDotResolveVisitor final : public VNVisitor {
         m_ds.init(m_curSymp);
         iterateNull(nodep);
     }
-    static const AstNodeDType* getExprDTypep(const AstNodeExpr* selp) {
-        while (const AstNodePreSel* const sp = VN_CAST(selp, NodePreSel)) selp = sp->fromp();
-        if (const AstMemberSel* const sp = VN_CAST(selp, MemberSel)) {
-            if (const AstNodeDType* dtypep = getExprDTypep(sp->fromp())) {
-                if (const AstClassRefDType* const classRefp = VN_CAST(dtypep, ClassRefDType)) {
-                    const AstClass* const classp = classRefp->classp();
-                    const bool found = classp->existsMember(
-                        [&dtypep, name = selp->name()](const AstClass*, const AstVar* nodep) {
+    স্থির ধ্রুবক Ast_গ্রন্থি_DType* get_রাশিমালা_DTypep(ধ্রুবক Ast_গ্রন্থি_রাশিমালা* selp) {
+        যখন (ধ্রুবক Ast_গ্রন্থি_Pre_Sel* ধ্রুবক sp = VN_CAST(selp, গ্রন্থি_Pre_Sel)) selp = sp->fromp();
+        যদি (ধ্রুবক AstMemberSel* ধ্রুবক sp = VN_CAST(selp, MemberSel)) {
+            যদি (ধ্রুবক Ast_গ্রন্থি_DType* dtypep = get_রাশিমালা_DTypep(sp->fromp())) {
+                যদি (ধ্রুবক AstClassRefDType* ধ্রুবক classRefp = VN_CAST(dtypep, ClassRefDType)) {
+                    ধ্রুবক AstClass* ধ্রুবক classp = classRefp->classp();
+                    ধ্রুবক যৌক্তিক found = classp->existsMember(
+                        [&dtypep, name = selp->name()](ধ্রুবক AstClass*, ধ্রুবক AstVar* nodep) {
                             dtypep = nodep->childDTypep();
-                            return nodep->name() == name;
+                            ফেরত nodep->name() == name;
                         });
-                    if (found) return dtypep->elemDTypep();
+                    যদি (found) ফেরত dtypep->elemDTypep();
                     selp->v3error("Class " << classRefp->prettyNameQ()
                                            << " does not contain field " << selp->prettyNameQ());
-                } else {
+                } অন্যথা {
                     selp->v3fatalSrc("Member selection on expression of type "
                                      << dtypep->prettyDTypeNameQ()
                                      << ", which is not a class type");
                 }
             }
-        } else if (const AstNodeVarRef* const varRefp = VN_CAST(selp, NodeVarRef)) {
-            return varRefp->varp()->childDTypep()->elemDTypep();
+        } অন্যথা যদি (ধ্রুবক Ast_গ্রন্থি_Var_Ref* ধ্রুবক varRefp = VN_CAST(selp, গ্রন্থি_Var_Ref)) {
+            ফেরত varRefp->varp()->childDTypep()->elemDTypep();
         }
-        return nullptr;
+        ফেরত nullptr;
     }
-    static const AstVar* getNextVarp(const AstNode* stmtsp) {
+    স্থির ধ্রুবক AstVar* get_পরবর্তী_Varp(ধ্রুবক Ast_গ্রন্থি* stmtsp) {
         // Only IO ports, as parameters are on paramsp(), not the pinsp() list paired here
-        while (stmtsp) {
-            if (const AstVar* const varp = VN_CAST(stmtsp, Var)) {
-                if (varp->isIO()) return varp;
+        যখন (stmtsp) {
+            যদি (ধ্রুবক AstVar* ধ্রুবক varp = VN_CAST(stmtsp, Var)) {
+                যদি (varp->isIO()) ফেরত varp;
             }
             stmtsp = stmtsp->nextp();
         }
-        return nullptr;
+        ফেরত nullptr;
     }
     // Introduce implicit parameters for modules with generic interafeces
-    void addImplicitParametersOfGenericIface(AstCell* const nodep, const AstModule* const modp) {
+    শূন্য addImplicitParametersOfGenericIface(AstCell* ধ্রুবক nodep, ধ্রুবক AstModule* ধ্রুবক modp) {
         // Get Param number
-        int paramNum = 1;
-        for (AstPin* paramp = nodep->paramsp(); paramp; paramp = VN_CAST(paramp->nextp(), Pin)) {
-            ++paramNum;
+        পূর্ণসংখ্যা param_অঙ্ক = 1;
+        জন্য (AstPin* paramp = nodep->paramsp(); paramp; paramp = VN_CAST(paramp->nextp(), Pin)) {
+            ++param_অঙ্ক;
         }
 
         // Add each implicit parameter type
-        const AstVar* modIfaceVarp = getNextVarp(modp->stmtsp());
-        for (const AstPin* pinp = nodep->pinsp(); pinp && modIfaceVarp;
+        ধ্রুবক AstVar* modIfaceVarp = get_পরবর্তী_Varp(modp->stmtsp());
+        জন্য (ধ্রুবক AstPin* pinp = nodep->pinsp(); pinp && modIfaceVarp;
              pinp = VN_CAST(pinp->nextp(), Pin),
-                           modIfaceVarp = getNextVarp(modIfaceVarp->nextp())) {
-            if (modIfaceVarp->varType() != VVarType::IFACEREF
+                           modIfaceVarp = get_পরবর্তী_Varp(modIfaceVarp->nextp())) {
+            যদি (modIfaceVarp->varType() != VVarType::IFACEREF
                 || !VN_IS(modIfaceVarp->childDTypep()->elemDTypep(), IfaceGenericDType)) {
-                continue;
+                চালু;
             }
-            AstNode* exprp = pinp->exprp();
-            if (!exprp) {
+            Ast_গ্রন্থি* exprp = pinp->exprp();
+            যদি (!exprp) {
                 modIfaceVarp->v3error("Interface port "
                                       << modIfaceVarp->prettyNameQ()
                                       << " is not connected to interface/modport pin expression");
-                continue;
+                চালু;
             }
-            while (const AstNodePreSel* const preSelp = VN_CAST(exprp, NodePreSel)) {
+            যখন (ধ্রুবক Ast_গ্রন্থি_Pre_Sel* ধ্রুবক preSelp = VN_CAST(exprp, গ্রন্থি_Pre_Sel)) {
                 exprp = preSelp->fromp();
             }
             // Resolve pin expression to the enclosing module's port Var. At primary
             // LinkDot the expression may still be an AstParseRef, so also look up by name.
             AstVar* enclosingVarp = nullptr;
-            const AstVarRef* const varRefp = VN_CAST(exprp, VarRef);
-            if (varRefp) {
+            ধ্রুবক AstVarRef* ধ্রুবক varRefp = VN_CAST(exprp, VarRef);
+            যদি (varRefp) {
                 enclosingVarp = varRefp->varp();
-            } else if (const AstParseRef* const parseRefp = VN_CAST(exprp, ParseRef)) {
-                if (m_modp) {
-                    if (VSymEnt* const symp
-                        = m_statep->getNodeSym(m_modp)->findIdFlat(parseRefp->name())) {
+            } অন্যথা যদি (ধ্রুবক AstParseRef* ধ্রুবক parseRefp = VN_CAST(exprp, ParseRef)) {
+                যদি (m_modp) {
+                    যদি (VSymEnt* ধ্রুবক symp
+                        = m_statep->get_গ্রন্থি_Sym(m_modp)->findIdFlat(parseRefp->name())) {
                         enclosingVarp = VN_CAST(symp->nodep(), Var);
                     }
                 }
             }
-            if (enclosingVarp && enclosingVarp->varType() == VVarType::IFACEREF
+            যদি (enclosingVarp && enclosingVarp->varType() == VVarType::IFACEREF
                 && VN_IS(enclosingVarp->childDTypep()->skipRefp(), IfaceGenericDType)) {
                 // Nested generic-iface forwarding (#7454): enclosing port is itself still
                 // generic, so emit a placeholder __VGIfaceParam pin carrying a VarRef to
@@ -3979,109 +3979,109 @@ class LinkDotResolveVisitor final : public VNVisitor {
                 // the enclosing module is specialized (see
                 // ParamProcessor::resolveGenericIfaceForwardingPins for the ordering
                 // constraint that keeps the rewrite inside V3Param).
-                AstVarRef* const fwdRefp
-                    = new AstVarRef{exprp->fileline(), enclosingVarp, VAccess::READ};
-                AstPin* const newPinp = new AstPin{
-                    pinp->fileline(), paramNum, "__VGIfaceParam" + modIfaceVarp->name(), fwdRefp};
-                newPinp->param(true);
+                AstVarRef* ধ্রুবক fwdRefp
+                    = নতুন AstVarRef{exprp->fileline(), enclosingVarp, VAccess::READ};
+                AstPin* ধ্রুবক newPinp = নতুন AstPin{
+                    pinp->fileline(), param_অঙ্ক, "__VGIfaceParam" + modIfaceVarp->name(), fwdRefp};
+                newPinp->param(সত্য);
                 visit(newPinp);
                 nodep->addParamsp(newPinp);
-            } else if (varRefp) {
-                const AstVar* const varp = varRefp->varp();
-                if (const AstIfaceRefDType* const refp
+            } অন্যথা যদি (varRefp) {
+                ধ্রুবক AstVar* ধ্রুবক varp = varRefp->varp();
+                যদি (ধ্রুবক AstIfaceRefDType* ধ্রুবক refp
                     = VN_CAST(varp->childDTypep()->elemDTypep(), IfaceRefDType)) {
-                    AstIface* const ifacep = VN_AS(refp->cellp()->modp(), Iface);
+                    AstIface* ধ্রুবক ifacep = VN_AS(refp->cellp()->modp(), Iface);
                     AstIfaceRefDType* newIfaceRefp;
-                    if (refp->modportp()) {
-                        newIfaceRefp = new AstIfaceRefDType{
+                    যদি (refp->modportp()) {
+                        newIfaceRefp = নতুন AstIfaceRefDType{
                             refp->fileline(), refp->modportFileline(), m_modp->name(),
                             ifacep->name(), refp->modportName()};
-                    } else {
-                        newIfaceRefp = new AstIfaceRefDType{refp->fileline(), m_modp->name(),
+                    } অন্যথা {
+                        newIfaceRefp = নতুন AstIfaceRefDType{refp->fileline(), m_modp->name(),
                                                             ifacep->name()};
                     }
                     newIfaceRefp->ifacep(ifacep);
-                    if (refp->cellp()->paramsp()) {
-                        newIfaceRefp->addParamsp(refp->cellp()->paramsp()->cloneTree(true));
+                    যদি (refp->cellp()->paramsp()) {
+                        newIfaceRefp->addParamsp(refp->cellp()->paramsp()->clone_বৃক্ষ(সত্য));
                     }
                     UASSERT_OBJ(pinp->name().find("__pinNumber") == 0
                                     || pinp->name() == modIfaceVarp->name(),
                                 pinp, "Not found interface with such name");
-                    AstPin* const newPinp
-                        = new AstPin{pinp->fileline(), paramNum,
+                    AstPin* ধ্রুবক newPinp
+                        = নতুন AstPin{pinp->fileline(), param_অঙ্ক,
                                      "__VGIfaceParam" + modIfaceVarp->name(), newIfaceRefp};
-                    newPinp->param(true);
+                    newPinp->param(সত্য);
                     visit(newPinp);
                     nodep->addParamsp(newPinp);
-                } else {
+                } অন্যথা {
                     varRefp->v3error("Generic interfaces can only connect to an interface and "
                                      << varp->prettyNameQ() << " is "
                                      << (varp->childDTypep()
                                              ? "of type " + varp->childDTypep()->prettyDTypeNameQ()
                                              : "not an interface"));
                 }
-            } else {
+            } অন্যথা {
                 exprp->v3error("Expected an interface but " << exprp->prettyNameQ()
                                                             << " is not an interface");
             }
-            ++paramNum;
+            ++param_অঙ্ক;
         }
     }
 
     // Returns true and issues error iff 'varp' cannot be accesed with a VarXRef
     // in a hier_block given by 'scopeSymp'
-    bool errorHierNonPort(AstVarXRef* refp, AstVar* varp, VSymEnt* scopeSymp) {
+    যৌক্তিক errorHierNonPort(AstVarXRef* refp, AstVar* varp, VSymEnt* scopeSymp) {
         // OK to access ports on hier_block
-        if (varp->isIO()) return false;
+        যদি (varp->isIO()) ফেরত মিথ্যা;
         // OK if not an instance
-        const AstCell* const cellp = VN_CAST(scopeSymp->nodep(), Cell);
-        if (!cellp) return false;
+        ধ্রুবক AstCell* ধ্রুবক cellp = VN_CAST(scopeSymp->nodep(), Cell);
+        যদি (!cellp) ফেরত মিথ্যা;
         // Ok if not a hier_block
-        const AstNodeModule* const modp = cellp->modp();
-        if (!modp->hierBlock()) return false;
+        ধ্রুবক Ast_গ্রন্থি_Module* ধ্রুবক modp = cellp->modp();
+        যদি (!modp->hierBlock()) ফেরত মিথ্যা;
         // Bad
         refp->v3error("Cannot access non-port symbols inside hierarchical block");
-        return true;
+        ফেরত সত্য;
     }
 
 #define LINKDOT_VISIT_START() \
     VL_RESTORER(m_indent); \
     ++m_indent;
 
-    string indent() const {
-        string result = "";
-        result.insert(0, m_indent, ':');
-        return result + " ";
+    string indent() ধ্রুবক {
+        string ফলাফল = "";
+        ফলাফল.ঢোকাও(0, m_indent, ':');
+        ফেরত ফলাফল + " ";
     }
 
     // VISITORS
-    void visit(AstNetlist* nodep) override {
+    শূন্য visit(AstNetlist* nodep) override {
         // Recurse..., backward as must do packages before using packages
         iterateChildrenBackwardsConst(nodep);
     }
-    void visit(AstTypeTable*) override {}
-    void visit(AstNodeModule* nodep) override {
-        if (nodep->dead()) return;
+    শূন্য visit(AstTypeTable*) override {}
+    শূন্য visit(Ast_গ্রন্থি_Module* nodep) override {
+        যদি (nodep->dead()) ফেরত;
         LINKDOT_VISIT_START();
         UINFO(8, indent() << "visit " << nodep);
         VL_RESTORER(m_genericIfaceModule);
-        if (const AstModule* const modp = VN_CAST(nodep, Module)) {
+        যদি (ধ্রুবক AstModule* ধ্রুবক modp = VN_CAST(nodep, Module)) {
             m_genericIfaceModule = modp->hasGenericIface();
         }
         checkNoDot(nodep);
         m_ds.init(m_curSymp);
         m_ds.m_dotSymp = m_curSymp = m_modSymp
-            = m_statep->getNodeSym(nodep);  // Until overridden by a SCOPE
+            = m_statep->get_গ্রন্থি_Sym(nodep);  // Until overridden by a SCOPE
         m_cellp = nullptr;
         m_modp = nodep;
-        m_modportNum = 0;
+        m_modport_অঙ্ক = 0;
         iterateChildren(nodep);
         m_modp = nullptr;
         m_ds.m_dotSymp = m_curSymp = m_modSymp = nullptr;
         m_ds.m_dotPos = DP_NONE;
-        m_ds.m_dotErr = false;
+        m_ds.m_dotErr = মিথ্যা;
     }
-    void visit(AstScope* nodep) override {
+    শূন্য visit(AstScope* nodep) override {
         LINKDOT_VISIT_START();
         UINFO(8, indent() << "visit " << nodep);
         checkNoDot(nodep);
@@ -4091,13 +4091,13 @@ class LinkDotResolveVisitor final : public VNVisitor {
         iterateChildren(nodep);
         m_ds.m_dotSymp = m_curSymp = m_modSymp = nullptr;
     }
-    void visit(AstCellInline* nodep) override {
+    শূন্য visit(AstCellInline* nodep) override {
         LINKDOT_VISIT_START();
         checkNoDot(nodep);
         UASSERT_OBJ(m_statep->forScopeCreation(), nodep, "CellInline should not exist yet");
-        VL_DO_DANGLING(pushDeletep(nodep->unlinkFrBack()), nodep);
+        VL_DO_DANGLING(ঠেলো_Deletep(nodep->unlinkFrBack()), nodep);
     }
-    void visit(AstCell* nodep) override {
+    শূন্য visit(AstCell* nodep) override {
         // Cell: Recurse inside or cleanup not founds
         LINKDOT_VISIT_START();
         UINFO(5, indent() << "visit " << nodep);
@@ -4110,24 +4110,24 @@ class LinkDotResolveVisitor final : public VNVisitor {
         VL_RESTORER(m_pinSymp);
         {
             m_cellp = nodep;
-            if (VN_IS(nodep->modp(), NotFoundModule)) {
+            যদি (VN_IS(nodep->modp(), NotFoundModule)) {
                 // Prevent warnings about missing pin connects
-                if (nodep->pinsp()) nodep->pinsp()->unlinkFrBackWithNext()->deleteTree();
-                if (nodep->paramsp()) nodep->paramsp()->unlinkFrBackWithNext()->deleteTree();
+                যদি (nodep->pinsp()) nodep->pinsp()->unlink_Fr_Back_With_পরবর্তী()->delete_বৃক্ষ();
+                যদি (nodep->paramsp()) nodep->paramsp()->unlink_Fr_Back_With_পরবর্তী()->delete_বৃক্ষ();
             }
             // Need to pass the module info to this cell, so we can link up the pin names
             // However can't use m_curSymp as pin connections need to use the
             // instantiator's symbols
-            else {
-                m_pinSymp = m_statep->getNodeSym(nodep->modp());
+            অন্যথা {
+                m_pinSymp = m_statep->get_গ্রন্থি_Sym(nodep->modp());
                 UINFO(4, indent() << "(Backto) visit " << nodep);
                 // UINFOTREE(1, nodep, "", "linkcell");
                 // UINFOTREE(1, nodep->modp(), "", "linkcemd");
                 iterateChildren(nodep);
 
-                if (m_statep->forPrimary())
-                    if (const AstModule* const modp = VN_CAST(nodep->modp(), Module)) {
-                        if (modp->hasGenericIface())
+                যদি (m_statep->forPrimary())
+                    যদি (ধ্রুবক AstModule* ধ্রুবক modp = VN_CAST(nodep->modp(), Module)) {
+                        যদি (modp->hasGenericIface())
                             addImplicitParametersOfGenericIface(nodep, modp);
                     }
             }
@@ -4135,7 +4135,7 @@ class LinkDotResolveVisitor final : public VNVisitor {
         // Parent module inherits child's publicity
         // This is done bottom up in the LinkBotupVisitor stage
     }
-    void visit(AstClassRefDType* nodep) override {
+    শূন্য visit(AstClassRefDType* nodep) override {
         // Cell: Recurse inside or cleanup not founds
         LINKDOT_VISIT_START();
         UINFO(5, indent() << "visit " << nodep);
@@ -4143,46 +4143,46 @@ class LinkDotResolveVisitor final : public VNVisitor {
         VL_RESTORER_CLEAR(m_usedPins);
         VL_RESTORER_CLEAR(m_usedDefParamPins);
         UASSERT_OBJ(nodep->classp(), nodep, "ClassRef has unlinked class");
-        UASSERT_OBJ(m_statep->forPrimary() || !nodep->paramsp() || V3Error::errorCount(), nodep,
+        UASSERT_OBJ(m_statep->forPrimary() || !nodep->paramsp() || V3Error::error_গুনতি(), nodep,
                     "class reference parameter not removed by V3Param");
         VL_RESTORER(m_pinSymp);
         {
             // ClassRef's have pins, so track
-            m_pinSymp = m_statep->getNodeSym(nodep->classp());
+            m_pinSymp = m_statep->get_গ্রন্থি_Sym(nodep->classp());
             UINFO(4, indent() << "(Backto) visit " << nodep);
             // UINFOTREE(1, nodep, "", "linkcell");
             // UINFOTREE(1, nodep->modp(), "", "linkcemd");
             iterateChildren(nodep);
         }
     }
-    void visit(AstPin* nodep) override {
+    শূন্য visit(AstPin* nodep) override {
         // Pin: Link to submodule's port
         LINKDOT_VISIT_START();
         checkNoDot(nodep);
         iterateChildren(nodep);
-        if (!nodep->modVarp()) {
+        যদি (!nodep->modVarp()) {
             UASSERT_OBJ(m_pinSymp, nodep, "Pin not under instance?");
-            VSymEnt* const foundp = m_pinSymp->findIdFlat(nodep->name());
-            const char* const whatp = nodep->param() ? "parameter" : "pin";
-            if (!foundp) {
-                if (m_cellp && VN_IS(m_cellp->modp(), Primitive)
+            VSymEnt* ধ্রুবক foundp = m_pinSymp->findIdFlat(nodep->name());
+            ধ্রুবক অক্ষর* ধ্রুবক whatp = nodep->param() ? "parameter" : "pin";
+            যদি (!foundp) {
+                যদি (m_cellp && VN_IS(m_cellp->modp(), Primitive)
                     && (nodep->name() == "__paramNumber1" || nodep->name() == "__paramNumber2")) {
                     // Primitive parameter is really a delay2 we can just ignore
-                    VL_DO_DANGLING(pushDeletep(nodep->unlinkFrBack()), nodep);
-                    return;
-                } else if (nodep->param() && !nodep->exprp() && !nodep->svDotName()) {
+                    VL_DO_DANGLING(ঠেলো_Deletep(nodep->unlinkFrBack()), nodep);
+                    ফেরত;
+                } অন্যথা যদি (nodep->param() && !nodep->exprp() && !nodep->svDotName()) {
                     // Placeholder pin the parser makes for an empty '#()', to signal
                     // the user did type the '#()'. No further use, deleting.
-                    VL_DO_DANGLING(pushDeletep(nodep->unlinkFrBack()), nodep);
-                    return;
-                } else {
-                    const std::string suggest
+                    VL_DO_DANGLING(ঠেলো_Deletep(nodep->unlinkFrBack()), nodep);
+                    ফেরত;
+                } অন্যথা {
+                    ধ্রুবক std::string suggest
                         = (nodep->param()
                                ? m_statep->suggestSymFlat(m_pinSymp, nodep->name(),
-                                                          LinkNodeMatcherVarParam{}, false)
+                                                          Link_গ্রন্থি_Matcher_Var_Param{}, মিথ্যা)
                                : m_statep->suggestSymFlat(m_pinSymp, nodep->name(),
-                                                          LinkNodeMatcherVarIO{}, false));
-                    const std::string decl
+                                                          Link_গ্রন্থি_Matcher_Var_IO{}, মিথ্যা));
+                    ধ্রুবক std::string decl
                         = ((m_cellp && m_cellp->modp())
                                ? "\n"s + nodep->warnMore() + "... Location of instance's "
                                      + m_cellp->modp()->verilogKwd() + " declaration\n"
@@ -4194,66 +4194,66 @@ class LinkDotResolveVisitor final : public VNVisitor {
                                       << (suggest.empty() ? "" : nodep->warnMore() + suggest)
                                       << '\n'
                                       << nodep->warnContextPrimary() << decl);
-                    VL_DO_DANGLING(pushDeletep(nodep->unlinkFrBack()), nodep);
-                    return;
+                    VL_DO_DANGLING(ঠেলো_Deletep(nodep->unlinkFrBack()), nodep);
+                    ফেরত;
                 }
             }
             VVarType refVarType = VVarType::UNKNOWN;
-            bool wrongPinType = false;
-            if (AstVar* const varp = VN_CAST(foundp->nodep(), Var)) {
-                if (varp->isIO() || varp->isParam() || varp->isIfaceRef()) {
+            যৌক্তিক wrongPinType = মিথ্যা;
+            যদি (AstVar* ধ্রুবক varp = VN_CAST(foundp->nodep(), Var)) {
+                যদি (varp->isIO() || varp->isParam() || varp->isIfaceRef()) {
                     refVarType = varp->varType();
                     nodep->modVarp(varp);
-                } else {
-                    wrongPinType = true;
+                } অন্যথা {
+                    wrongPinType = সত্য;
                 }
-            } else if (AstParamTypeDType* const typep = VN_CAST(foundp->nodep(), ParamTypeDType)) {
+            } অন্যথা যদি (AstParamTypeDType* ধ্রুবক typep = VN_CAST(foundp->nodep(), ParamTypeDType)) {
                 refVarType = typep->varType();
                 nodep->modPTypep(typep);
-            } else {
-                wrongPinType = true;
+            } অন্যথা {
+                wrongPinType = সত্য;
             }
             // Don't connect parameter pin to module ports or vice versa
-            if (nodep->param() != (refVarType == VVarType::GPARAM)) wrongPinType = true;
-            if (wrongPinType) {
-                string targetType = LinkDotState::nodeTextType(foundp->nodep());
+            যদি (nodep->param() != (refVarType == VVarType::GPARAM)) wrongPinType = সত্য;
+            যদি (wrongPinType) {
+                string targetType = LinkDotState::গ্রন্থি_Text_Type(foundp->nodep());
                 targetType = VString::aOrAn(targetType) + ' ' + targetType;
-                if (nodep->param()) {
+                যদি (nodep->param()) {
                     nodep->v3error("Instance attempts to override "
                                    << nodep->prettyNameQ() << " as a " << whatp << ", but it is "
                                    << targetType);
-                } else {
+                } অন্যথা {
                     nodep->v3error("Instance attempts to connect to "
                                    << nodep->prettyNameQ() << ", but it is " << targetType);
                 }
-                return;
+                ফেরত;
             }
             markAndCheckPinDup(nodep, foundp->nodep(), whatp);
         }
         // Early return() above when deleted
     }
 
-    static bool isDotThisReference(const AstDot* nodep) {
-        return VN_IS(nodep->lhsp(), ParseRef) && nodep->lhsp()->name() == "this";
+    স্থির যৌক্তিক isDotThisReference(ধ্রুবক AstDot* nodep) {
+        ফেরত VN_IS(nodep->lhsp(), ParseRef) && nodep->lhsp()->name() == "this";
     }
 
-    void visit(AstDot* nodep) override {
+    শূন্য visit(AstDot* nodep) override {
         // Legal under a DOT: AstDot, AstParseRef, AstPackageRef, AstNodeSel, AstPackArrayDType
         //    also a DOT can be part of an expression, but only above plus
         //    AstFTaskRef are legal children
         // Dot(PackageRef, ParseRef(text))
         // Dot(Dot(ClassOrPackageRef,ClassOrPackageRef), ParseRef(text))
         // Dot(Dot(Dot(ParseRef(text), ...
-        if (nodep->user3SetOnce()) return;
+        যদি (nodep->user3SetOnce()) ফেরত;
         LINKDOT_VISIT_START();
         UINFO(8, indent() << "visit " << nodep);
         UINFO(8, indent() << m_ds.ascii());
-        const DotStates lastStates = m_ds;
-        const bool start = (m_ds.m_dotPos == DP_NONE);  // Save, as m_dotp will be changed
-        const DotPosition initialDotPos = m_ds.m_dotPos;
+        ধ্রুবক DotStates lastStates = m_ds;
+        ধ্রুবক যৌক্তিক start = (m_ds.m_dotPos == DP_NONE);  // Save, as m_dotp will be changed
+        ধ্রুবক DotPosition initialDotPos = m_ds.m_dotPos;
         VL_RESTORER(m_randSymp);
         {
-            if (start) {  // Starting dot sequence
+            যদি (start) {  // Starting dot sequence
                 UINFOTREE(9, nodep, "", "dot-in");
                 // Keep deferral from visit(AstMethodCall) for unspecialized rand target
                 m_ds.init(m_curSymp, m_ds.m_unresolvedClass && randTargetUnresolved());
@@ -4261,329 +4261,329 @@ class LinkDotResolveVisitor final : public VNVisitor {
             m_ds.m_dotp = nodep;  // Always, not just at start
             m_ds.m_dotPos = DP_FIRST;
 
-            if (isDotThisReference(nodep)) {
+            যদি (isDotThisReference(nodep)) {
                 VSymEnt* classSymp = getThisClassSymp();
                 // In 'randomize() with { this.member }', 'this' refers to randomized
                 // object, not the calling class (IEEE 1800-2023 18.7)
-                if (m_randSymp && m_currentWithp) classSymp = m_randSymp;
-                if (!classSymp && randTargetUnresolved()) {
+                যদি (m_randSymp && m_currentWithp) classSymp = m_randSymp;
+                যদি (!classSymp && randTargetUnresolved()) {
                     // Bind 'this' in post-V3Param pass
-                } else if (!classSymp) {
+                } অন্যথা যদি (!classSymp) {
                     nodep->v3error("'this' used outside class (IEEE 1800-2023 8.11)");
-                    m_ds.m_dotErr = true;
-                } else {
+                    m_ds.m_dotErr = সত্য;
+                } অন্যথা {
                     m_ds.m_dotSymp = classSymp;
                     UINFO(8, indent() << "this. " << m_ds.ascii());
                 }
-            } else if (VN_IS(nodep->lhsp(), ParseRef) && nodep->lhsp()->name() == "super") {
-                const VSymEnt* classSymp = getThisClassSymp();
-                if (!classSymp) {
+            } অন্যথা যদি (VN_IS(nodep->lhsp(), ParseRef) && nodep->lhsp()->name() == "super") {
+                ধ্রুবক VSymEnt* classSymp = getThisClassSymp();
+                যদি (!classSymp) {
                     nodep->v3error("'super' used outside class (IEEE 1800-2023 8.15)");
-                    m_ds.m_dotErr = true;
-                } else {
-                    const auto classp = VN_AS(classSymp->nodep(), Class);
-                    const auto cextp = classp->extendsp();
-                    if (!cextp) {
+                    m_ds.m_dotErr = সত্য;
+                } অন্যথা {
+                    ধ্রুবক auto classp = VN_AS(classSymp->nodep(), Class);
+                    ধ্রুবক auto cextp = classp->extendsp();
+                    যদি (!cextp) {
                         nodep->v3error("'super' used on non-extended class (IEEE 1800-2023 8.15)");
-                        m_ds.m_dotErr = true;
-                    } else {
-                        if (m_statep->forPrimary()
+                        m_ds.m_dotErr = সত্য;
+                    } অন্যথা {
+                        যদি (m_statep->forPrimary()
                             && m_extendsParam.find(classp) != m_extendsParam.end()) {
                             UINFO(9, indent()
                                          << "deferring until post-V3Param: " << nodep->lhsp());
-                            m_ds.m_unresolvedClass = true;
-                        } else {
-                            const auto baseClassp = cextp->classp();
+                            m_ds.m_unresolvedClass = সত্য;
+                        } অন্যথা {
+                            ধ্রুবক auto baseClassp = cextp->classp();
                             UASSERT_OBJ(baseClassp, nodep, "Bad superclass");
-                            m_ds.m_dotSymp = m_statep->getNodeSym(baseClassp);
-                            m_ds.m_super = true;
+                            m_ds.m_dotSymp = m_statep->get_গ্রন্থি_Sym(baseClassp);
+                            m_ds.m_super = সত্য;
                             UINFO(8, indent() << "super. " << m_ds.ascii());
                         }
                     }
                 }
-            } else if (AstClassOrPackageRef* const lhsp
+            } অন্যথা যদি (AstClassOrPackageRef* ধ্রুবক lhsp
                        = VN_CAST(nodep->lhsp(), ClassOrPackageRef)) {
                 // m_ds.m_dotText communicates the cell prefix between stages
                 UINFO(8, indent() << "iter.lhs   " << m_ds.ascii() << " " << nodep);
-                iterateAndNextNull(lhsp);
-                if (!lhsp->classOrPackageSkipp() && lhsp->name() != "local::") {
+                iterate_And_পরবর্তী_Null(lhsp);
+                যদি (!lhsp->classOrPackageSkipp() && lhsp->name() != "local::") {
                     revisitLater(nodep);
                     m_ds = lastStates;
                     // Resolve function args before bailing
-                    if (AstNodeFTaskRef* const ftaskrefp = VN_CAST(nodep->rhsp(), NodeFTaskRef)) {
-                        iterateAndNextNull(ftaskrefp->argsp());
+                    যদি (Ast_গ্রন্থি_FTask_Ref* ধ্রুবক ftaskrefp = VN_CAST(nodep->rhsp(), গ্রন্থি_FTask_Ref)) {
+                        iterate_And_পরবর্তী_Null(ftaskrefp->argsp());
                     }
-                    return;
+                    ফেরত;
                 }
                 m_ds.m_dotPos = DP_PACKAGE;
                 // nodep->lhsp() may be a new node
-                if (AstClassOrPackageRef* const classOrPackageRefp
+                যদি (AstClassOrPackageRef* ধ্রুবক classOrPackageRefp
                     = VN_CAST(nodep->lhsp(), ClassOrPackageRef)) {
-                    if (AstNode* const classOrPackageNodep
+                    যদি (Ast_গ্রন্থি* ধ্রুবক classOrPackageNodep
                         = classOrPackageRefp->classOrPackageSkipp()) {
-                        m_ds.m_dotSymp = m_statep->getNodeSym(classOrPackageNodep);
+                        m_ds.m_dotSymp = m_statep->get_গ্রন্থি_Sym(classOrPackageNodep);
                     }
                 }
                 UINFO(8, indent() << "iter.ldone " << m_ds.ascii() << " " << nodep);
-            } else if (VN_IS(nodep->lhsp(), Dot) && VN_AS(nodep->lhsp(), Dot)->colon()) {
+            } অন্যথা যদি (VN_IS(nodep->lhsp(), Dot) && VN_AS(nodep->lhsp(), Dot)->colon()) {
                 // m_ds.m_dotText communicates the cell prefix between stages
                 UINFO(8, indent() << "iter.lhs   " << m_ds.ascii() << " " << nodep);
                 m_ds.m_dotPos = DP_PACKAGE;
-                iterateAndNextNull(nodep->lhsp());
+                iterate_And_পরবর্তী_Null(nodep->lhsp());
                 // nodep->lhsp() may be a new node
-                if (AstClassOrPackageRef* const crefp
+                যদি (AstClassOrPackageRef* ধ্রুবক crefp
                     = VN_CAST(nodep->lhsp(), ClassOrPackageRef)) {
-                    if (!crefp->classOrPackageSkipp()) {
+                    যদি (!crefp->classOrPackageSkipp()) {
                         revisitLater(nodep);
                         m_ds = lastStates;
                         // Resolve function args before bailing
-                        if (AstNodeFTaskRef* const ftaskrefp
-                            = VN_CAST(nodep->rhsp(), NodeFTaskRef)) {
-                            iterateAndNextNull(ftaskrefp->argsp());
+                        যদি (Ast_গ্রন্থি_FTask_Ref* ধ্রুবক ftaskrefp
+                            = VN_CAST(nodep->rhsp(), গ্রন্থি_FTask_Ref)) {
+                            iterate_And_পরবর্তী_Null(ftaskrefp->argsp());
                         }
-                        return;
+                        ফেরত;
                     }
                 }
-                if (m_lastDeferredp == nodep->lhsp()) {
+                যদি (m_lastDeferredp == nodep->lhsp()) {
                     // LHS got deferred, so this node won't be resolved. Defer it too
                     m_ds = lastStates;
                     // Resolve function args before bailing
-                    if (AstNodeFTaskRef* const ftaskrefp = VN_CAST(nodep->rhsp(), NodeFTaskRef)) {
-                        iterateAndNextNull(ftaskrefp->argsp());
+                    যদি (Ast_গ্রন্থি_FTask_Ref* ধ্রুবক ftaskrefp = VN_CAST(nodep->rhsp(), গ্রন্থি_FTask_Ref)) {
+                        iterate_And_পরবর্তী_Null(ftaskrefp->argsp());
                     }
-                    return;
+                    ফেরত;
                 }
                 UINFO(8, indent() << "iter.ldone " << m_ds.ascii() << " " << nodep);
-            } else {
+            } অন্যথা {
                 m_ds.m_dotPos = DP_FIRST;
-                m_ds.m_unresolvedGenericIface = false;
+                m_ds.m_unresolvedGenericIface = মিথ্যা;
                 UINFO(8, indent() << "iter.lhs   " << m_ds.ascii() << " " << nodep);
-                iterateAndNextNull(nodep->lhsp());
+                iterate_And_পরবর্তী_Null(nodep->lhsp());
                 UINFO(8, indent() << "iter.ldone " << m_ds.ascii() << " " << nodep);
-                if (m_ds.m_unresolvedGenericIface) {
+                যদি (m_ds.m_unresolvedGenericIface) {
                     m_ds.m_dotPos = initialDotPos;
-                    return;
+                    ফেরত;
                 }
                 // UINFOTREE(9, nodep, "", "dot-lho");
             }
-            if (m_statep->forPrimary() && isParamedClassRef(nodep->lhsp())) {
+            যদি (m_statep->forPrimary() && isParamedClassRef(nodep->lhsp())) {
                 // Dots of paramed classes will be linked after deparameterization
                 UINFO(9, indent() << "deferring until post-V3Param: " << nodep->lhsp());
-                m_ds.m_unresolvedClass = true;
+                m_ds.m_unresolvedClass = সত্য;
             }
-            if (m_ds.m_unresolvedCell
+            যদি (m_ds.m_unresolvedCell
                 && (VN_IS(nodep->lhsp(), CellRef) || VN_IS(nodep->lhsp(), CellArrayRef))) {
                 m_ds.m_unlinkedScopep = nodep->lhsp();
             }
-            if (m_ds.m_dotPos == DP_FIRST) m_ds.m_dotPos = DP_SCOPE;
-            if (!m_ds.m_dotErr) {  // Once something wrong, give up
+            যদি (m_ds.m_dotPos == DP_FIRST) m_ds.m_dotPos = DP_SCOPE;
+            যদি (!m_ds.m_dotErr) {  // Once something wrong, give up
                 // Top 'final' dot RHS is final RHS, else it's a
                 // DOT(DOT(x,*here*),real-rhs) which we consider a RHS
-                if (start && m_ds.m_dotPos == DP_SCOPE) m_ds.m_dotPos = DP_FINAL;
+                যদি (start && m_ds.m_dotPos == DP_SCOPE) m_ds.m_dotPos = DP_FINAL;
                 UINFO(8, indent() << "iter.rhs   " << m_ds.ascii() << " " << nodep);
                 // m_ds.m_dotSymp points at lhsp()'s symbol table, so resolve RHS under that
-                iterateAndNextNull(nodep->rhsp());
+                iterate_And_পরবর্তী_Null(nodep->rhsp());
                 UINFO(8, indent() << "iter.rdone " << m_ds.ascii() << " " << nodep);
                 // UINFOTREE(9, nodep, "", "dot-rho");
             }
-            if (!m_ds.m_unresolvedClass) {
-                if (start) {
-                    AstNode* newp;
-                    if (m_ds.m_dotErr) {
-                        newp = new AstConst{nodep->fileline(), AstConst::BitFalse{}};
-                    } else {
+            যদি (!m_ds.m_unresolvedClass) {
+                যদি (start) {
+                    Ast_গ্রন্থি* newp;
+                    যদি (m_ds.m_dotErr) {
+                        newp = নতুন AstConst{nodep->fileline(), AstConst::BitFalse{}};
+                    } অন্যথা {
                         newp = nodep->rhsp()->unlinkFrBack();
                     }
                     UINFOTREE(9, newp, "", "dot-out");
                     nodep->replaceWith(newp);
-                    VL_DO_DANGLING(pushDeletep(nodep), nodep);
-                } else {  // Dot midpoint
-                    AstNode* newp = nodep->rhsp()->unlinkFrBack();
-                    if (m_ds.m_unresolvedCell) {
-                        AstCellRef* const crp = new AstCellRef{
+                    VL_DO_DANGLING(ঠেলো_Deletep(nodep), nodep);
+                } অন্যথা {  // Dot midpoint
+                    Ast_গ্রন্থি* newp = nodep->rhsp()->unlinkFrBack();
+                    যদি (m_ds.m_unresolvedCell) {
+                        AstCellRef* ধ্রুবক crp = নতুন AstCellRef{
                             nodep->fileline(), nodep->name(), nodep->lhsp()->unlinkFrBack(), newp};
                         newp = crp;
                     }
                     nodep->replaceWith(newp);
-                    VL_DO_DANGLING(pushDeletep(nodep), nodep);
+                    VL_DO_DANGLING(ঠেলো_Deletep(nodep), nodep);
                 }
             }
         }
-        if (start) {
+        যদি (start) {
             m_ds = lastStates;
-        } else {
-            const bool unresolvedClass = m_ds.m_unresolvedClass;
+        } অন্যথা {
+            ধ্রুবক যৌক্তিক unresolvedClass = m_ds.m_unresolvedClass;
             m_ds.m_dotp = lastStates.m_dotp;
             m_ds.m_unresolvedClass |= unresolvedClass;
         }
         UINFO(8, indent() << "done " << m_ds.ascii() << " " << nodep);
     }
-    void visit(AstDefaultClocking* nodep) override {
-        if (VSymEnt* const foundp = m_curSymp->findIdFallback(nodep->name())) {
-            if (AstClocking* const clockingp = VN_CAST(foundp->nodep(), Clocking)) {
+    শূন্য visit(AstDefaultClocking* nodep) override {
+        যদি (VSymEnt* ধ্রুবক foundp = m_curSymp->findIdFallback(nodep->name())) {
+            যদি (AstClocking* ধ্রুবক clockingp = VN_CAST(foundp->nodep(), Clocking)) {
                 clockingp->makeDefault();
-                VL_DO_DANGLING(nodep->unlinkFrBack()->deleteTree(), nodep);
-            } else {
+                VL_DO_DANGLING(nodep->unlinkFrBack()->delete_বৃক্ষ(), nodep);
+            } অন্যথা {
                 nodep->v3error(nodep->prettyNameQ() << " is not a clocking identifier");
             }
-        } else {
+        } অন্যথা {
             nodep->v3error("Can't find definition of clocking: " << nodep->prettyNameQ());
         }
     }
-    void visit(AstSenItem* nodep) override {
+    শূন্য visit(AstSenItem* nodep) override {
         LINKDOT_VISIT_START();
         VL_RESTORER(m_inSens);
-        m_inSens = true;
+        m_inSens = সত্য;
         iterateChildren(nodep);
     }
-    void visit(AstPatMember* nodep) override {
+    শূন্য visit(AstPatMember* nodep) override {
         LINKDOT_VISIT_START();
-        if (nodep->varrefp()) return;  // only do this mapping once
+        যদি (nodep->varrefp()) ফেরত;  // only do this mapping once
         // If we have a TEXT token as our key, lookup if it's a LPARAM
-        if (AstText* const textp = VN_CAST(nodep->keyp(), Text)) {
+        যদি (AstText* ধ্রুবক textp = VN_CAST(nodep->keyp(), Text)) {
             UINFO(9, indent() << "visit " << nodep);
             UINFO(9, indent() << "      " << textp);
             // Lookup
-            if (VSymEnt* const foundp = m_curSymp->findIdFallback(textp->text())) {
-                if (AstVar* const varp = VN_CAST(foundp->nodep(), Var)) {
-                    if (varp->isParam() || varp->isGenVar()) {
+            যদি (VSymEnt* ধ্রুবক foundp = m_curSymp->findIdFallback(textp->text())) {
+                যদি (AstVar* ধ্রুবক varp = VN_CAST(foundp->nodep(), Var)) {
+                    যদি (varp->isParam() || varp->isGenVar()) {
                         // Attach found Text reference to PatMember
                         nodep->varrefp(
-                            new AstVarRef{nodep->fileline(),
+                            নতুন AstVarRef{nodep->fileline(),
                                           foundp->imported() ? foundp->classOrPackagep() : nullptr,
                                           varp, VAccess::READ});
                         UINFO(9, indent() << " new " << nodep->varrefp());
                     }
                 }
-                if (AstEnumItem* const itemp = VN_CAST(foundp->nodep(), EnumItem)) {
+                যদি (AstEnumItem* ধ্রুবক itemp = VN_CAST(foundp->nodep(), EnumItem)) {
                     // Attach enum item value to PatMember
                     nodep->varrefp(
-                        new AstEnumItemRef{nodep->fileline(), itemp, foundp->classOrPackagep()});
+                        নতুন AstEnumItemRef{nodep->fileline(), itemp, foundp->classOrPackagep()});
                     UINFO(9, indent() << " new " << itemp);
                 }
             }
         }
         iterateChildren(nodep);
     }
-    void visit(AstParseRef* nodep) override {
-        if (nodep->user3SetOnce()) return;
+    শূন্য visit(AstParseRef* nodep) override {
+        যদি (nodep->user3SetOnce()) ফেরত;
         LINKDOT_VISIT_START();
         UINFO(9, indent() << "visit " << nodep);
         UINFO(9, indent() << m_ds.ascii());
-        if (m_ds.m_unresolvedClass) return;
+        যদি (m_ds.m_unresolvedClass) ফেরত;
         // m_curSymp is symbol table of outer expression
         // m_ds.m_dotSymp is symbol table relative to "."'s above now
         UASSERT_OBJ(m_ds.m_dotSymp, nodep, "nullptr lookup symbol table");
         // Generally resolved during Primary, but might be at param time under AstUnlinkedRef
         UASSERT_OBJ(!m_statep->forScopeCreation(), nodep, "ParseRefs should no longer exist");
-        const DotStates lastStates = m_ds;
-        const bool start = (m_ds.m_dotPos == DP_NONE);  // Save, as m_dotp will be changed
-        bool first = start || m_ds.m_dotPos == DP_FIRST;
+        ধ্রুবক DotStates lastStates = m_ds;
+        ধ্রুবক যৌক্তিক start = (m_ds.m_dotPos == DP_NONE);  // Save, as m_dotp will be changed
+        যৌক্তিক first = start || m_ds.m_dotPos == DP_FIRST;
 
-        if (start) {
+        যদি (start) {
             m_ds.init(m_curSymp);
             // Note m_ds.m_dotp remains nullptr; this is a reference not under a dot
         }
-        if (nodep->name() == "super") {
+        যদি (nodep->name() == "super") {
             nodep->v3warn(E_UNSUPPORTED, "Unsupported: super");
-            m_ds.m_dotErr = true;
+            m_ds.m_dotErr = সত্য;
         }
-        if (nodep->name() == "this") {
+        যদি (nodep->name() == "this") {
             iterateChildren(nodep);
-            if (m_statep->forPrimary()) return;  // The class might be parameterized somewhere
-            const VSymEnt* classSymp = getThisClassSymp();
-            if (!classSymp) {
+            যদি (m_statep->forPrimary()) ফেরত;  // The class might be parameterized somewhere
+            ধ্রুবক VSymEnt* classSymp = getThisClassSymp();
+            যদি (!classSymp) {
                 nodep->v3error("'this' used outside class (IEEE 1800-2023 8.11)");
-                return;
+                ফেরত;
             }
-            AstClass* const classp = VN_AS(classSymp->nodep(), Class);
-            AstClassRefDType* const dtypep
-                = new AstClassRefDType{nodep->fileline(), classp, nullptr};
-            AstThisRef* const newp = new AstThisRef{nodep->fileline(), VFlagChildDType{}, dtypep};
+            AstClass* ধ্রুবক classp = VN_AS(classSymp->nodep(), Class);
+            AstClassRefDType* ধ্রুবক dtypep
+                = নতুন AstClassRefDType{nodep->fileline(), classp, nullptr};
+            AstThisRef* ধ্রুবক newp = নতুন AstThisRef{nodep->fileline(), VFlagChildDType{}, dtypep};
             nodep->replaceWith(newp);
-            VL_DO_DANGLING(pushDeletep(nodep), nodep);
-            return;
+            VL_DO_DANGLING(ঠেলো_Deletep(nodep), nodep);
+            ফেরত;
         }
-        if (m_ds.m_dotPos == DP_MEMBER && VN_IS(m_ds.m_dotp->lhsp(), LambdaArgRef)
+        যদি (m_ds.m_dotPos == DP_MEMBER && VN_IS(m_ds.m_dotp->lhsp(), LambdaArgRef)
             && nodep->name() == "index") {
             // 'with' statement's 'item.index'
             // m_ds.dotp->lhsp() was checked to know if `index` is directly after lambda arg ref.
             // If not, treat it as normal member select
             iterateChildren(nodep);
-            AstLambdaArgRef* const newp = new AstLambdaArgRef{
-                nodep->fileline(), m_ds.m_dotp->lhsp()->name() + "__DOT__index", true};
+            AstLambdaArgRef* ধ্রুবক newp = নতুন AstLambdaArgRef{
+                nodep->fileline(), m_ds.m_dotp->lhsp()->name() + "__DOT__index", সত্য};
             nodep->replaceWith(newp);
-            VL_DO_DANGLING(pushDeletep(nodep), nodep);
-            return;
-        } else if (m_ds.m_dotPos == DP_MEMBER) {
+            VL_DO_DANGLING(ঠেলো_Deletep(nodep), nodep);
+            ফেরত;
+        } অন্যথা যদি (m_ds.m_dotPos == DP_MEMBER) {
             // Found a Var, everything following is membership.  {scope}.{var}.HERE {member}
-            if (m_ds.m_dotErr) {
+            যদি (m_ds.m_dotErr) {
                 nodep->unlinkFrBack();  // Avoid circular node loop on errors
-            } else {
-                AstNodeExpr* const varEtcp = VN_AS(m_ds.m_dotp->lhsp()->unlinkFrBack(), NodeExpr);
-                AstNodeExpr* const newp = new AstMemberSel{nodep->fileline(), varEtcp,  //
+            } অন্যথা {
+                Ast_গ্রন্থি_রাশিমালা* ধ্রুবক varEtcp = VN_AS(m_ds.m_dotp->lhsp()->unlinkFrBack(), গ্রন্থি_রাশিমালা);
+                Ast_গ্রন্থি_রাশিমালা* ধ্রুবক newp = নতুন AstMemberSel{nodep->fileline(), varEtcp,  //
                                                            VFlagChildDType{}, nodep->name()};
                 nodep->replaceWith(newp);
             }
-            VL_DO_DANGLING(pushDeletep(nodep), nodep);
-        } else {
+            VL_DO_DANGLING(ঠেলো_Deletep(nodep), nodep);
+        } অন্যথা {
             //
             string expectWhat;
-            bool allowScope = false;
-            bool allowVar = false;
-            bool allowFTask = false;
-            bool staticAccess = false;
-            if (m_ds.m_disablep) {
-                allowScope = true;
-                allowFTask = true;
+            যৌক্তিক allowScope = মিথ্যা;
+            যৌক্তিক allowVar = মিথ্যা;
+            যৌক্তিক allowFTask = মিথ্যা;
+            যৌক্তিক staticAccess = মিথ্যা;
+            যদি (m_ds.m_disablep) {
+                allowScope = সত্য;
+                allowFTask = সত্য;
                 expectWhat = "block/task";
-            } else if (m_ds.m_dotPos == DP_PACKAGE) {
+            } অন্যথা যদি (m_ds.m_dotPos == DP_PACKAGE) {
                 // {package-or-class}::{a}
-                AstNodeModule* classOrPackagep = nullptr;
+                Ast_গ্রন্থি_Module* classOrPackagep = nullptr;
                 expectWhat = "scope/variable/func";
-                allowScope = true;
-                allowVar = true;
-                allowFTask = true;
-                staticAccess = true;
+                allowScope = সত্য;
+                allowVar = সত্য;
+                allowFTask = সত্য;
+                staticAccess = সত্য;
                 UINFO(9, "chk pkg " << m_ds.ascii() << " lhsp=" << m_ds.m_dotp->lhsp());
                 UASSERT_OBJ(VN_IS(m_ds.m_dotp->lhsp(), ClassOrPackageRef), m_ds.m_dotp->lhsp(),
                             "Bad package link");
-                AstClassOrPackageRef* const cpackagerefp
+                AstClassOrPackageRef* ধ্রুবক cpackagerefp
                     = VN_AS(m_ds.m_dotp->lhsp(), ClassOrPackageRef);
-                if (cpackagerefp->name() == "local::") {
+                যদি (cpackagerefp->name() == "local::") {
                     m_randSymp = nullptr;
-                    first = true;
-                } else if (!cpackagerefp->classOrPackageSkipp()) {
-                    VSymEnt* const foundp = m_statep->resolveClassOrPackage(
-                        m_ds.m_dotSymp, cpackagerefp, true, false, ":: reference");
-                    if (!foundp) return;
+                    first = সত্য;
+                } অন্যথা যদি (!cpackagerefp->classOrPackageSkipp()) {
+                    VSymEnt* ধ্রুবক foundp = m_statep->resolveClassOrPackage(
+                        m_ds.m_dotSymp, cpackagerefp, সত্য, মিথ্যা, ":: reference");
+                    যদি (!foundp) ফেরত;
                     classOrPackagep = cpackagerefp->classOrPackageSkipp();
-                    if (classOrPackagep) {
-                        m_ds.m_dotSymp = m_statep->getNodeSym(classOrPackagep);
-                    } else {
+                    যদি (classOrPackagep) {
+                        m_ds.m_dotSymp = m_statep->get_গ্রন্থি_Sym(classOrPackagep);
+                    } অন্যথা {
                         m_ds = lastStates;
-                        return;
+                        ফেরত;
                     }
-                } else {
+                } অন্যথা {
                     classOrPackagep = cpackagerefp->classOrPackageSkipp();
                     UASSERT_OBJ(classOrPackagep, m_ds.m_dotp->lhsp(), "Bad package link");
-                    m_ds.m_dotSymp = m_statep->getNodeSym(classOrPackagep);
+                    m_ds.m_dotSymp = m_statep->get_গ্রন্থি_Sym(classOrPackagep);
                 }
                 m_ds.m_dotPos = DP_SCOPE;
-            } else if (m_ds.m_dotPos == DP_SCOPE || m_ds.m_dotPos == DP_FIRST) {
+            } অন্যথা যদি (m_ds.m_dotPos == DP_SCOPE || m_ds.m_dotPos == DP_FIRST) {
                 // {a}.{b}, where {a} maybe a module name
                 // or variable, where dotting into structure member
                 expectWhat = "scope/variable";
-                allowScope = true;
-                allowVar = true;
-            } else if (m_ds.m_dotPos == DP_NONE) {
+                allowScope = সত্য;
+                allowVar = সত্য;
+            } অন্যথা যদি (m_ds.m_dotPos == DP_NONE) {
                 expectWhat = "variable";
-                allowVar = true;
-            } else if (m_ds.m_dotPos == DP_FINAL) {
+                allowVar = সত্য;
+            } অন্যথা যদি (m_ds.m_dotPos == DP_FINAL) {
                 expectWhat = "variable/method";
-                allowFTask = true;
-                allowVar = true;
-            } else {
+                allowFTask = সত্য;
+                allowVar = সত্য;
+            } অন্যথা {
                 UINFO(1, "ds=" << m_ds.ascii());
                 nodep->v3fatalSrc("Unhandled DotPosition");
             }
@@ -4592,66 +4592,66 @@ class LinkDotResolveVisitor final : public VNVisitor {
             string baddot;
             VSymEnt* okSymp = nullptr;
             // Restricted 'with (id_list)': only id_list names bind into target class.
-            if (m_randSymp
+            যদি (m_randSymp
                 && (!m_currentWithp || m_currentWithp->nameResolvesToTarget(nodep->name()))) {
                 foundp = m_randSymp->findIdFlat(nodep->name());
-                if (foundp) {
-                    if (m_currentWithp && m_currentWithp->restricted()) {
-                        m_restrictedNamesUsed.insert(nodep->name());
+                যদি (foundp) {
+                    যদি (m_currentWithp && m_currentWithp->restricted()) {
+                        m_restrictedNamesUsed.ঢোকাও(nodep->name());
                     }
-                    if (!start) m_ds.m_dotPos = DP_MEMBER;
-                    if (!m_currentWithp) {
+                    যদি (!start) m_ds.m_dotPos = DP_MEMBER;
+                    যদি (!m_currentWithp) {
                         UASSERT_OBJ(m_randMethodCallp, nodep, "Expected to be under randomize()");
                         // This will start failing once complex expressions are allowed on the LHS
                         // of randomize() with args
                         UASSERT_OBJ(VN_IS(m_randMethodCallp->fromp(), VarRef), m_randMethodCallp,
                                     "Expected simple randomize target");
                         // A ParseRef is used here so that the dot RHS gets resolved
-                        AstMemberSel* const newp = new AstMemberSel{
-                            nodep->fileline(), m_randMethodCallp->fromp()->cloneTree(false),
+                        AstMemberSel* ধ্রুবক newp = নতুন AstMemberSel{
+                            nodep->fileline(), m_randMethodCallp->fromp()->clone_বৃক্ষ(মিথ্যা),
                             VFlagChildDType{}, nodep->name()};
                         nodep->replaceWith(newp);
-                        VL_DO_DANGLING(pushDeletep(nodep), nodep);
-                        return;
+                        VL_DO_DANGLING(ঠেলো_Deletep(nodep), nodep);
+                        ফেরত;
                     }
                     UINFO(9, indent() << "randomize-with fromSym " << foundp->nodep());
-                    AstLambdaArgRef* const lambdaRefp
-                        = new AstLambdaArgRef{nodep->fileline(), "__Vrandwith_obj", false};
-                    AstMemberSel* newp = new AstMemberSel{nodep->fileline(), lambdaRefp,
+                    AstLambdaArgRef* ধ্রুবক lambdaRefp
+                        = নতুন AstLambdaArgRef{nodep->fileline(), "__Vrandwith_obj", মিথ্যা};
+                    AstMemberSel* newp = নতুন AstMemberSel{nodep->fileline(), lambdaRefp,
                                                           VFlagChildDType{}, nodep->name()};
                     nodep->replaceWith(newp);
-                    VL_DO_DANGLING(pushDeletep(nodep), nodep);
-                    return;
+                    VL_DO_DANGLING(ঠেলো_Deletep(nodep), nodep);
+                    ফেরত;
                 }
             }
-            if (allowScope) {
+            যদি (allowScope) {
                 foundp = m_statep->findDotted(nodep->fileline(), m_ds.m_dotSymp, nodep->name(),
                                               baddot, okSymp, first);  // Maybe nullptr
-            } else if (first) {
+            } অন্যথা যদি (first) {
                 foundp = m_ds.m_dotSymp->findIdFallback(nodep->name());
-            } else {
+            } অন্যথা {
                 foundp = m_ds.m_dotSymp->findIdFlat(nodep->name());
             }
-            if (!foundp && m_ds.m_dotp && isDotThisReference(m_ds.m_dotp)) {
-                const AstClass* const classp = VN_CAST(m_ds.m_dotSymp->nodep(), Class);
-                if (classp && classp->isCovergroup() && classp->covergroupEnclosingClassp()) {
-                    VSymEnt* const enclosingClassSymp
-                        = m_statep->getNodeSym(classp->covergroupEnclosingClassp());
+            যদি (!foundp && m_ds.m_dotp && isDotThisReference(m_ds.m_dotp)) {
+                ধ্রুবক AstClass* ধ্রুবক classp = VN_CAST(m_ds.m_dotSymp->nodep(), Class);
+                যদি (classp && classp->isCovergroup() && classp->covergroupEnclosingClassp()) {
+                    VSymEnt* ধ্রুবক enclosingClassSymp
+                        = m_statep->get_গ্রন্থি_Sym(classp->covergroupEnclosingClassp());
                     foundp = enclosingClassSymp->findIdFallback(nodep->name());
-                    if (foundp) m_ds.m_dotSymp = enclosingClassSymp;
+                    যদি (foundp) m_ds.m_dotSymp = enclosingClassSymp;
                 }
             }
             // If not found in modport, check interface fallback for parameters and typedefs.
             // Parameters and typedefs are always visible through a modport (IEEE 1800-2023 25.5).
             // This mirrors the VarXRef modport parameter fallback in visit(AstVarXRef).
-            if (!foundp && VN_IS(m_ds.m_dotSymp->nodep(), Modport)
+            যদি (!foundp && VN_IS(m_ds.m_dotSymp->nodep(), Modport)
                 && m_ds.m_dotSymp->fallbackp()) {
-                VSymEnt* const ifaceFallbackp = m_ds.m_dotSymp->fallbackp();
-                VSymEnt* const ifaceFoundp = ifaceFallbackp->findIdFlat(nodep->name());
-                if (ifaceFoundp) {
-                    if (const AstVar* const varp = VN_CAST(ifaceFoundp->nodep(), Var)) {
-                        if (varp->isParam()) foundp = ifaceFoundp;
-                    } else if (VN_IS(ifaceFoundp->nodep(), Typedef)
+                VSymEnt* ধ্রুবক ifaceFallbackp = m_ds.m_dotSymp->fallbackp();
+                VSymEnt* ধ্রুবক ifaceFoundp = ifaceFallbackp->findIdFlat(nodep->name());
+                যদি (ifaceFoundp) {
+                    যদি (ধ্রুবক AstVar* ধ্রুবক varp = VN_CAST(ifaceFoundp->nodep(), Var)) {
+                        যদি (varp->isParam()) foundp = ifaceFoundp;
+                    } অন্যথা যদি (VN_IS(ifaceFoundp->nodep(), Typedef)
                                || VN_IS(ifaceFoundp->nodep(), ParamTypeDType)) {
                         // Redirect dotSymp to the interface cell so that downstream
                         // typedef/ParamTypeDType handlers see the correct context
@@ -4663,190 +4663,190 @@ class LinkDotResolveVisitor final : public VNVisitor {
             }
             // When flat lookup in modport fails, provide dotSymp for error diagnostics
             // so the "Known scopes under..." hint appears (restores pre-routing behavior)
-            if (!foundp && !okSymp && VN_IS(m_ds.m_dotSymp->nodep(), Modport)) {
+            যদি (!foundp && !okSymp && VN_IS(m_ds.m_dotSymp->nodep(), Modport)) {
                 okSymp = m_ds.m_dotSymp;
             }
-            if (foundp) {
+            যদি (foundp) {
                 UINFO(9, indent() << "found=se" << cvtToHex(foundp) << "  exp=" << expectWhat
                                   << "  n=" << foundp->nodep());
             }
             // What fell out?
-            bool ok = false;
+            যৌক্তিক ok = মিথ্যা;
             // Special case: waiting on clocking event
-            if (m_inSens && foundp && m_ds.m_dotPos != DP_SCOPE && m_ds.m_dotPos != DP_FIRST) {
-                if (AstClocking* const clockingp = sensClockingp(foundp->nodep())) {
+            যদি (m_inSens && foundp && m_ds.m_dotPos != DP_SCOPE && m_ds.m_dotPos != DP_FIRST) {
+                যদি (AstClocking* ধ্রুবক clockingp = sensClockingp(foundp->nodep())) {
                     foundp = getCreateClockingEventSymEnt(clockingp);
                 }
             }
-            if (!foundp) {
-            } else if (VN_IS(foundp->nodep(), Cell) || VN_IS(foundp->nodep(), NodeBlock)
+            যদি (!foundp) {
+            } অন্যথা যদি (VN_IS(foundp->nodep(), Cell) || VN_IS(foundp->nodep(), গ্রন্থি_Block)
                        || VN_IS(foundp->nodep(), GenBlock)
                        || VN_IS(foundp->nodep(), Netlist)  // for $root
                        || VN_IS(foundp->nodep(), Module)) {  // if top
-                if (allowScope) {
-                    ok = true;
+                যদি (allowScope) {
+                    ok = সত্য;
                     m_ds.m_dotText = VString::dot(m_ds.m_dotText, ".", nodep->name());
                     m_ds.m_dotSymp = foundp;
                     m_ds.m_dotPos = DP_SCOPE;
-                    if (m_ds.m_disablep && VN_IS(foundp->nodep(), NodeBlock)) {
+                    যদি (m_ds.m_disablep && VN_IS(foundp->nodep(), গ্রন্থি_Block)) {
                         // Possibly it is not the final link. If we are under dot and not in its
                         // last component, `targetp()` field will be overwritten by next components
                         m_ds.m_disablep->targetp(foundp->nodep());
                     }
-                    if (VN_IS(foundp->nodep(), GenBlock)) {
-                        m_ds.m_genBlk = true;
-                        if (m_ds.m_disablep) {
+                    যদি (VN_IS(foundp->nodep(), GenBlock)) {
+                        m_ds.m_genBlk = সত্য;
+                        যদি (m_ds.m_disablep) {
                             m_ds.m_disablep->v3warn(
                                 E_UNSUPPORTED,
                                 "Unsupported: Generate block referenced by disable");
                         }
                     }
                     // Upper AstDot visitor will handle it from here
-                } else if (VN_IS(foundp->nodep(), Cell) && allowVar) {
-                    AstCell* const cellp = VN_AS(foundp->nodep(), Cell);
-                    if (VN_IS(cellp->modp(), Iface)) {
+                } অন্যথা যদি (VN_IS(foundp->nodep(), Cell) && allowVar) {
+                    AstCell* ধ্রুবক cellp = VN_AS(foundp->nodep(), Cell);
+                    যদি (VN_IS(cellp->modp(), Iface)) {
                         // Interfaces can be referenced like a variable for interconnect
-                        VSymEnt* const cellEntp = m_statep->getNodeSym(cellp);
+                        VSymEnt* ধ্রুবক cellEntp = m_statep->get_গ্রন্থি_Sym(cellp);
                         UASSERT_OBJ(cellEntp, nodep, "No interface sym entry");
-                        VSymEnt* const parentEntp
+                        VSymEnt* ধ্রুবক parentEntp
                             = cellEntp->parentp();  // Container of the var; probably a module or
                                                     // generate begin
-                        AstVar* const ifaceRefVarp
-                            = findIfaceTopVarp(nodep, parentEntp, nodep->name());
+                        AstVar* ধ্রুবক ifaceRefVarp
+                            = find_Iface_শীর্ষ_Varp(nodep, parentEntp, nodep->name());
                         //
-                        ok = true;
+                        ok = সত্য;
                         m_ds.m_dotSymp = foundp;
                         m_ds.m_dotPos = DP_SCOPE;
                         UINFO(9, indent() << " cell -> iface varref " << foundp->nodep());
-                        AstNodeExpr* newp;
-                        if (m_ds.m_dotText != "") {
-                            newp = new AstVarXRef{nodep->fileline(), ifaceRefVarp, m_ds.m_dotText,
+                        Ast_গ্রন্থি_রাশিমালা* newp;
+                        যদি (m_ds.m_dotText != "") {
+                            newp = নতুন AstVarXRef{nodep->fileline(), ifaceRefVarp, m_ds.m_dotText,
                                                   VAccess::READ};
-                            if (m_ds.m_unresolvedCell && m_ds.m_unlinkedScopep) {
-                                newp = new AstUnlinkedRef{nodep->fileline(), newp, newp->name(),
+                            যদি (m_ds.m_unresolvedCell && m_ds.m_unlinkedScopep) {
+                                newp = নতুন AstUnlinkedRef{nodep->fileline(), newp, newp->name(),
                                                           m_ds.m_unlinkedScopep->unlinkFrBack()};
                                 m_ds.m_unlinkedScopep = nullptr;
-                                m_ds.m_unresolvedCell = false;
+                                m_ds.m_unresolvedCell = মিথ্যা;
                                 m_ds.m_dotText = "";
                             }
-                        } else {
-                            AstVarRef* const refp
-                                = new AstVarRef{nodep->fileline(), ifaceRefVarp, VAccess::READ};
+                        } অন্যথা {
+                            AstVarRef* ধ্রুবক refp
+                                = নতুন AstVarRef{nodep->fileline(), ifaceRefVarp, VAccess::READ};
                             newp = refp;
                         }
                         nodep->replaceWith(newp);
-                        VL_DO_DANGLING(pushDeletep(nodep), nodep);
-                    } else if (VN_IS(cellp->modp(), NotFoundModule)) {
+                        VL_DO_DANGLING(ঠেলো_Deletep(nodep), nodep);
+                    } অন্যথা যদি (VN_IS(cellp->modp(), NotFoundModule)) {
                         cellp->modNameFileline()->v3error("Cannot find file containing interface: "
                                                           << cellp->modp()->prettyNameQ());
                     }
                 }
-            } else if (allowScope && !allowFTask && VN_IS(foundp->nodep(), NodeFTask)) {
+            } অন্যথা যদি (allowScope && !allowFTask && VN_IS(foundp->nodep(), গ্রন্থি_FTask)) {
                 // Function/task used as scope for static variable access (IEEE std 1800-2017 6.21)
                 // Don't set m_dotText so the static variable resolves as a VarRef rather than
                 // VarXRef. This is so that V3Begin won't move it out of the function/task's scope.
-                ok = true;
+                ok = সত্য;
                 m_ds.m_dotSymp = foundp;
                 m_ds.m_dotPos = DP_SCOPE;
-            } else if (allowFTask && VN_IS(foundp->nodep(), NodeFTask)) {
-                AstNodeFTaskRef* taskrefp;
-                if (VN_IS(foundp->nodep(), Task)) {
-                    taskrefp = new AstTaskRef{nodep->fileline(), nodep->name()};
-                } else {
-                    taskrefp = new AstFuncRef{nodep->fileline(), nodep->name()};
+            } অন্যথা যদি (allowFTask && VN_IS(foundp->nodep(), গ্রন্থি_FTask)) {
+                Ast_গ্রন্থি_FTask_Ref* taskrefp;
+                যদি (VN_IS(foundp->nodep(), Task)) {
+                    taskrefp = নতুন AstTaskRef{nodep->fileline(), nodep->name()};
+                } অন্যথা {
+                    taskrefp = নতুন AstFuncRef{nodep->fileline(), nodep->name()};
                 }
                 nodep->replaceWith(taskrefp);
-                VL_DO_DANGLING(pushDeletep(nodep), nodep);
+                VL_DO_DANGLING(ঠেলো_Deletep(nodep), nodep);
                 m_ds = lastStates;
-                return;
-            } else if (AstVar* const varp = foundToVarp(foundp, nodep, VAccess::READ)) {
+                ফেরত;
+            } অন্যথা যদি (AstVar* ধ্রুবক varp = foundToVarp(foundp, nodep, VAccess::READ)) {
                 // Preserve explicit 'this' references to members inherited from
                 // generic classes until after specialization.
-                if (m_statep->forPrimary() && m_ds.m_dotp && isDotThisReference(m_ds.m_dotp)
+                যদি (m_statep->forPrimary() && m_ds.m_dotp && isDotThisReference(m_ds.m_dotp)
                     && foundp->classOrPackagep() != m_modp
                     && VN_IS(foundp->classOrPackagep(), Class)
                     && foundp->classOrPackagep()->hasGParam()) {
-                    m_ds.m_unresolvedClass = true;
-                    return;
+                    m_ds.m_unresolvedClass = সত্য;
+                    ফেরত;
                 }
-                AstIfaceRefDType* const ifacerefp
+                AstIfaceRefDType* ধ্রুবক ifacerefp
                     = LinkDotState::ifaceRefFromArray(varp->subDTypep());
-                if (varp->isIfaceRef() && m_genericIfaceModule
+                যদি (varp->isIfaceRef() && m_genericIfaceModule
                     && VN_IS(varp->childDTypep(), IfaceGenericDType) && !start) {
                     // Defer only dotted member access ('d.PARAM'), as V3Param must specialize
                     // first; a standalone ref ('.x(d)') resolves via allowVar below now
-                    ok = true;
-                    m_ds.m_unresolvedGenericIface = true;
-                } else if (ifacerefp && varp->isIfaceRef()) {
+                    ok = সত্য;
+                    m_ds.m_unresolvedGenericIface = সত্য;
+                } অন্যথা যদি (ifacerefp && varp->isIfaceRef()) {
                     UASSERT_OBJ(ifacerefp->ifaceViaCellp(), ifacerefp, "Unlinked interface");
                     // Really this is a scope reference into an interface
                     UINFO(9, indent() << "varref-ifaceref " << m_ds.m_dotText << "  " << nodep);
                     m_ds.m_dotText = VString::dot(m_ds.m_dotText, ".", nodep->name());
                     // If modport specified, use modport symbol table for lookup of virtual ports
-                    if (ifacerefp->modportp() && m_statep->existsNodeSym(ifacerefp->modportp())) {
-                        m_ds.m_dotSymp = m_statep->getNodeSym(ifacerefp->modportp());
-                    } else {
-                        m_ds.m_dotSymp = m_statep->getNodeSym(ifacerefp->ifaceViaCellp());
+                    যদি (ifacerefp->modportp() && m_statep->exists_গ্রন্থি_Sym(ifacerefp->modportp())) {
+                        m_ds.m_dotSymp = m_statep->get_গ্রন্থি_Sym(ifacerefp->modportp());
+                    } অন্যথা {
+                        m_ds.m_dotSymp = m_statep->get_গ্রন্থি_Sym(ifacerefp->ifaceViaCellp());
                     }
                     m_ds.m_dotPos = DP_SCOPE;
-                    ok = true;
+                    ok = সত্য;
 
-                    AstVarRef* const refp = new AstVarRef{nodep->fileline(), varp, VAccess::READ};
+                    AstVarRef* ধ্রুবক refp = নতুন AstVarRef{nodep->fileline(), varp, VAccess::READ};
                     nodep->replaceWith(refp);
 
-                    VL_DO_DANGLING(pushDeletep(nodep), nodep);
-                } else if (allowVar) {
-                    AstNode* newp;
-                    if (m_ds.m_dotText != "") {
-                        AstVarXRef* const refp
-                            = new AstVarXRef{nodep->fileline(), nodep->name(), m_ds.m_dotText,
+                    VL_DO_DANGLING(ঠেলো_Deletep(nodep), nodep);
+                } অন্যথা যদি (allowVar) {
+                    Ast_গ্রন্থি* newp;
+                    যদি (m_ds.m_dotText != "") {
+                        AstVarXRef* ধ্রুবক refp
+                            = নতুন AstVarXRef{nodep->fileline(), nodep->name(), m_ds.m_dotText,
                                              VAccess::READ};  // lvalue'ness computed later
                         refp->varp(varp);
                         // Not linked again after V3LinkLValue, so that reports writing it
-                        if (const AstModportVarRef* const mvarp
+                        যদি (ধ্রুবক AstModportVarRef* ধ্রুবক mvarp
                             = VN_CAST(foundp->nodep(), ModportVarRef)) {
-                            if (m_statep->forParamed() && mvarp->direction().isReadOnly()) {
-                                refp->readOnlyModport(true);
+                            যদি (m_statep->forParamed() && mvarp->direction().isReadOnly()) {
+                                refp->readOnlyModport(সত্য);
                             }
                         }
                         refp->containsGenBlock(m_ds.m_genBlk);
                         m_ds.m_dotText = "";
-                        if (m_ds.m_unresolvedCell && m_ds.m_unlinkedScopep) {
-                            const string dotted = refp->dotted();
-                            const size_t pos = dotted.find("__BRA__??__KET__");
+                        যদি (m_ds.m_unresolvedCell && m_ds.m_unlinkedScopep) {
+                            ধ্রুবক string dotted = refp->dotted();
+                            ধ্রুবক আকার_t pos = dotted.find("__BRA__??__KET__");
                             // Arrays of interfaces all have the same parameters
-                            if (pos != string::npos && varp->isParam()
+                            যদি (pos != string::npos && varp->isParam()
                                 && VN_IS(m_ds.m_unlinkedScopep, CellArrayRef)) {
                                 refp->dotted(dotted.substr(0, pos));
                                 newp = refp;
-                            } else {
+                            } অন্যথা {
                                 UINFO(9, indent() << "deferring until post-V3Param: " << refp);
-                                newp = new AstUnlinkedRef{nodep->fileline(), refp, refp->name(),
+                                newp = নতুন AstUnlinkedRef{nodep->fileline(), refp, refp->name(),
                                                           m_ds.m_unlinkedScopep->unlinkFrBack()};
                                 m_ds.m_unlinkedScopep = nullptr;
-                                m_ds.m_unresolvedCell = false;
+                                m_ds.m_unresolvedCell = মিথ্যা;
                             }
-                        } else {
+                        } অন্যথা {
                             newp = refp;
                         }
-                    } else {
-                        if (staticAccess && !varp->lifetime().isStatic() && !varp->isParam()) {
+                    } অন্যথা {
+                        যদি (staticAccess && !varp->lifetime().isStatic() && !varp->isParam()) {
                             // TODO bug4077
                             // nodep->v3error("Static access to non-static member variable "
                             //                << varp->prettyNameQ() << endl);
                         }
-                        AstVarRef* const refp = new AstVarRef{
+                        AstVarRef* ধ্রুবক refp = নতুন AstVarRef{
                             nodep->fileline(), varp, VAccess::READ};  // lvalue'ness computed later
                         refp->classOrPackagep(foundp->classOrPackagep());
                         newp = refp;
                     }
                     UINFO(9, indent() << "new " << newp);
                     nodep->replaceWith(newp);
-                    VL_DO_DANGLING(pushDeletep(nodep), nodep);
+                    VL_DO_DANGLING(ঠেলো_Deletep(nodep), nodep);
                     m_ds.m_dotPos = DP_MEMBER;
-                    ok = true;
+                    ok = সত্য;
                 }
-            } else if (const AstModport* const modportp = VN_CAST(foundp->nodep(), Modport)) {
+            } অন্যথা যদি (ধ্রুবক AstModport* ধ্রুবক modportp = VN_CAST(foundp->nodep(), Modport)) {
                 // A scope reference into an interface's modport (not
                 // necessarily at a pin connection)
                 UINFO(9, indent() << "cell-ref-to-modport " << m_ds.m_dotText << "  " << nodep);
@@ -4854,142 +4854,142 @@ class LinkDotResolveVisitor final : public VNVisitor {
                 UINFO(9,
                       indent() << "dotSymp " << m_ds.m_dotSymp << " " << m_ds.m_dotSymp->nodep());
                 // Iface was the previously dotted component
-                if (!m_ds.m_dotSymp || !VN_IS(m_ds.m_dotSymp->nodep(), Cell)
+                যদি (!m_ds.m_dotSymp || !VN_IS(m_ds.m_dotSymp->nodep(), Cell)
                     || !VN_AS(m_ds.m_dotSymp->nodep(), Cell)->modp()
                     || !VN_IS(VN_AS(m_ds.m_dotSymp->nodep(), Cell)->modp(), Iface)) {
                     nodep->v3error("Modport not referenced as <interface>."
                                    << modportp->prettyNameQ());
-                } else if (!VN_AS(m_ds.m_dotSymp->nodep(), Cell)->modp()
+                } অন্যথা যদি (!VN_AS(m_ds.m_dotSymp->nodep(), Cell)->modp()
                            || !VN_IS(VN_AS(m_ds.m_dotSymp->nodep(), Cell)->modp(), Iface)) {
                     nodep->v3error("Modport not referenced from underneath an interface: "
                                    << modportp->prettyNameQ());
-                } else {
-                    AstCell* const cellp = VN_AS(m_ds.m_dotSymp->nodep(), Cell);
+                } অন্যথা {
+                    AstCell* ধ্রুবক cellp = VN_AS(m_ds.m_dotSymp->nodep(), Cell);
                     UASSERT_OBJ(cellp, nodep, "Modport not referenced from an instance");
-                    VSymEnt* const cellEntp = m_statep->getNodeSym(cellp);
+                    VSymEnt* ধ্রুবক cellEntp = m_statep->get_গ্রন্থি_Sym(cellp);
                     UASSERT_OBJ(cellEntp, nodep, "No interface sym entry");
-                    VSymEnt* const parentEntp
+                    VSymEnt* ধ্রুবক parentEntp
                         = cellEntp->parentp();  // Container of the var; probably a
                                                 // module or generate begin
                     // We drop __BRA__??__KET__ as cells don't have that naming yet
-                    AstVar* const ifaceRefVarp
-                        = findIfaceTopVarp(nodep, parentEntp, cellp->name());
+                    AstVar* ধ্রুবক ifaceRefVarp
+                        = find_Iface_শীর্ষ_Varp(nodep, parentEntp, cellp->name());
                     //
-                    ok = true;
+                    ok = সত্য;
                     m_ds.m_dotText = VString::dot(m_ds.m_dotText, ".", nodep->name());
                     m_ds.m_dotSymp = foundp;
                     m_ds.m_dotPos = DP_SCOPE;
                     UINFO(9, indent() << "modport -> iface varref " << foundp->nodep());
                     // We lose the modport name here, so we cannot detect mismatched modports.
-                    AstVarRef* const refp
-                        = new AstVarRef{nodep->fileline(), ifaceRefVarp, VAccess::READ};
-                    AstNodeExpr* newp = refp;
+                    AstVarRef* ধ্রুবক refp
+                        = নতুন AstVarRef{nodep->fileline(), ifaceRefVarp, VAccess::READ};
+                    Ast_গ্রন্থি_রাশিমালা* newp = refp;
 
-                    auto* const cellarrayrefp = VN_CAST(m_ds.m_unlinkedScopep, CellArrayRef);
-                    if (cellarrayrefp) {
+                    auto* ধ্রুবক cellarrayrefp = VN_CAST(m_ds.m_unlinkedScopep, CellArrayRef);
+                    যদি (cellarrayrefp) {
                         // iface[vec].modport became CellArrayRef(iface, lsb)
                         // Convert back to SelBit(iface, lsb)
                         UINFO(9, indent() << "Array modport to SelBit " << cellarrayrefp);
-                        newp = new AstSelBit{cellarrayrefp->fileline(), newp,
+                        newp = নতুন AstSelBit{cellarrayrefp->fileline(), newp,
                                              cellarrayrefp->selp()->unlinkFrBack()};
-                        newp->user3(true);  // Don't process again
-                        VL_DO_DANGLING(pushDeletep(cellarrayrefp->unlinkFrBack()), cellarrayrefp);
+                        newp->user3(সত্য);  // Don't process again
+                        VL_DO_DANGLING(ঠেলো_Deletep(cellarrayrefp->unlinkFrBack()), cellarrayrefp);
                         m_ds.m_unlinkedScopep = nullptr;
                     }
                     nodep->replaceWith(newp);
-                    VL_DO_DANGLING(pushDeletep(nodep), nodep);
+                    VL_DO_DANGLING(ঠেলো_Deletep(nodep), nodep);
                 }
-            } else if (AstConstraint* const defp = VN_CAST(foundp->nodep(), Constraint)) {
-                AstNode* const newp = new AstConstraintRef{nodep->fileline(), nullptr, defp};
+            } অন্যথা যদি (AstConstraint* ধ্রুবক defp = VN_CAST(foundp->nodep(), Constraint)) {
+                Ast_গ্রন্থি* ধ্রুবক newp = নতুন AstConstraintRef{nodep->fileline(), nullptr, defp};
                 nodep->replaceWith(newp);
-                VL_DO_DANGLING(pushDeletep(nodep), nodep);
-                ok = true;
+                VL_DO_DANGLING(ঠেলো_Deletep(nodep), nodep);
+                ok = সত্য;
                 m_ds.m_dotPos = DP_MEMBER;
                 m_ds.m_dotText = "";
-            } else if (AstClass* const defp = VN_CAST(foundp->nodep(), Class)) {
-                if (allowVar) {
-                    if (m_ds.m_dotPos == DP_SCOPE && !staticAccess) {
+            } অন্যথা যদি (AstClass* ধ্রুবক defp = VN_CAST(foundp->nodep(), Class)) {
+                যদি (allowVar) {
+                    যদি (m_ds.m_dotPos == DP_SCOPE && !staticAccess) {
                         // Continue hierarchical lookup in the class scope.
                         m_ds.m_dotSymp = foundp;
-                    } else {
-                        AstRefDType* const newp
-                            = new AstRefDType{nodep->fileline(), nodep->name()};
+                    } অন্যথা {
+                        AstRefDType* ধ্রুবক newp
+                            = নতুন AstRefDType{nodep->fileline(), nodep->name()};
                         replaceWithCheckBreak(nodep, newp);
-                        VL_DO_DANGLING(pushDeletep(nodep), nodep);
+                        VL_DO_DANGLING(ঠেলো_Deletep(nodep), nodep);
                     }
-                    ok = true;
+                    ok = সত্য;
                     m_ds.m_dotText = "";
-                } else {
-                    (void)defp;  // Prevent unused variable warning
+                } অন্যথা {
+                    (শূন্য)defp;  // Prevent unused variable warning
                 }
-            } else if (AstMemberDType* const defp = VN_CAST(foundp->nodep(), MemberDType)) {
-                if (allowVar) {
+            } অন্যথা যদি (AstMemberDType* ধ্রুবক defp = VN_CAST(foundp->nodep(), MemberDType)) {
+                যদি (allowVar) {
                     checkMemberDeclOrder(nodep, defp);
-                    AstRefDType* const refp = new AstRefDType{nodep->fileline(), nodep->name()};
+                    AstRefDType* ধ্রুবক refp = নতুন AstRefDType{nodep->fileline(), nodep->name()};
                     refp->refDTypep(defp);
                     replaceWithCheckBreak(nodep, refp);
-                    VL_DO_DANGLING(pushDeletep(nodep), nodep);
-                    ok = true;
+                    VL_DO_DANGLING(ঠেলো_Deletep(nodep), nodep);
+                    ok = সত্য;
                     m_ds.m_dotText = "";
                 }
-            } else if (AstEnumItem* const valuep = VN_CAST(foundp->nodep(), EnumItem)) {
-                if (allowVar) {
-                    AstEnumItemRef* const refp
-                        = new AstEnumItemRef{nodep->fileline(), valuep, foundp->classOrPackagep()};
-                    AstNode* newp = refp;
+            } অন্যথা যদি (AstEnumItem* ধ্রুবক valuep = VN_CAST(foundp->nodep(), EnumItem)) {
+                যদি (allowVar) {
+                    AstEnumItemRef* ধ্রুবক refp
+                        = নতুন AstEnumItemRef{nodep->fileline(), valuep, foundp->classOrPackagep()};
+                    Ast_গ্রন্থি* newp = refp;
                     // Hierarchical reference, relinked after V3Param as the referenced
                     // module may be specialized, similar to AstVarXRef
                     refp->dotted(m_ds.m_dotText);
                     refp->containsGenBlock(m_ds.m_genBlk);
-                    if (m_ds.m_unresolvedCell && m_ds.m_unlinkedScopep) {
+                    যদি (m_ds.m_unresolvedCell && m_ds.m_unlinkedScopep) {
                         UINFO(9, indent() << "deferring until post-V3Param: " << refp);
-                        newp = new AstUnlinkedRef{nodep->fileline(), refp, refp->name(),
+                        newp = নতুন AstUnlinkedRef{nodep->fileline(), refp, refp->name(),
                                                   m_ds.m_unlinkedScopep->unlinkFrBack()};
                         m_ds.m_unlinkedScopep = nullptr;
-                        m_ds.m_unresolvedCell = false;
+                        m_ds.m_unresolvedCell = মিথ্যা;
                     }
                     nodep->replaceWith(newp);
-                    VL_DO_DANGLING(pushDeletep(nodep), nodep);
-                    ok = true;
+                    VL_DO_DANGLING(ঠেলো_Deletep(nodep), nodep);
+                    ok = সত্য;
                     m_ds.m_dotText = "";
                 }
-            } else if (const AstLambdaArgRef* const argrefp
+            } অন্যথা যদি (ধ্রুবক AstLambdaArgRef* ধ্রুবক argrefp
                        = VN_CAST(foundp->nodep(), LambdaArgRef)) {
-                if (allowVar) {
-                    AstNode* const newp
-                        = new AstLambdaArgRef{nodep->fileline(), argrefp->name(), false};
+                যদি (allowVar) {
+                    Ast_গ্রন্থি* ধ্রুবক newp
+                        = নতুন AstLambdaArgRef{nodep->fileline(), argrefp->name(), মিথ্যা};
                     nodep->replaceWith(newp);
-                    VL_DO_DANGLING(pushDeletep(nodep), nodep);
-                    ok = true;
+                    VL_DO_DANGLING(ঠেলো_Deletep(nodep), nodep);
+                    ok = সত্য;
                     m_ds.m_dotPos = DP_MEMBER;
                     m_ds.m_dotText = "";
                 }
-            } else if (VN_IS(foundp->nodep(), Clocking)) {
+            } অন্যথা যদি (VN_IS(foundp->nodep(), Clocking)) {
                 m_ds.m_dotSymp = foundp;
-                if (m_ds.m_dotText != "") m_ds.m_dotText += "." + nodep->name();
+                যদি (m_ds.m_dotText != "") m_ds.m_dotText += "." + nodep->name();
                 ok = m_ds.m_dotPos == DP_SCOPE || m_ds.m_dotPos == DP_FIRST;
-            } else if (const AstModportClockingRef* const clockingRefp
+            } অন্যথা যদি (ধ্রুবক AstModportClockingRef* ধ্রুবক clockingRefp
                        = VN_CAST(foundp->nodep(), ModportClockingRef)) {
                 // Clocking block accessed through a modport - redirect to actual clocking
-                m_ds.m_dotSymp = m_statep->getNodeSym(clockingRefp->clockingp());
-                if (m_ds.m_dotText != "") m_ds.m_dotText += "." + nodep->name();
+                m_ds.m_dotSymp = m_statep->get_গ্রন্থি_Sym(clockingRefp->clockingp());
+                যদি (m_ds.m_dotText != "") m_ds.m_dotText += "." + nodep->name();
                 ok = m_ds.m_dotPos == DP_SCOPE || m_ds.m_dotPos == DP_FIRST;
-            } else if (const AstNodeFTask* const ftaskp = VN_CAST(foundp->nodep(), NodeFTask)) {
-                if (!ftaskp->isFunction() || ftaskp->classMethod()) {
+            } অন্যথা যদি (ধ্রুবক Ast_গ্রন্থি_FTask* ধ্রুবক ftaskp = VN_CAST(foundp->nodep(), গ্রন্থি_FTask)) {
+                যদি (!ftaskp->isFunction() || ftaskp->classMethod()) {
                     ok = m_ds.m_dotPos == DP_NONE;
-                    if (ok) {
+                    যদি (ok) {
                         // The condition is true for tasks,
                         // properties and void functions.
                         // In these cases, the parentheses may be skipped.
                         // Also SV class methods can be called without parens
-                        AstFuncRef* const funcRefp
-                            = new AstFuncRef{nodep->fileline(), nodep->name()};
+                        AstFuncRef* ধ্রুবক funcRefp
+                            = নতুন AstFuncRef{nodep->fileline(), nodep->name()};
                         nodep->replaceWith(funcRefp);
-                        VL_DO_DANGLING(pushDeletep(nodep), nodep);
+                        VL_DO_DANGLING(ঠেলো_Deletep(nodep), nodep);
                     }
                 }
-            } else if (AstTypedef* const defp = VN_CAST(foundp->nodep(), Typedef)) {
-                const bool ifaceFinalSegmentAllowed
+            } অন্যথা যদি (AstTypedef* ধ্রুবক defp = VN_CAST(foundp->nodep(), Typedef)) {
+                ধ্রুবক যৌক্তিক ifaceFinalSegmentAllowed
                     = (m_ds.m_dotPos == DP_FINAL) && m_ds.m_dotSymp
                       && (VN_IS(m_ds.m_dotSymp->nodep(), Modport)
                           || (VN_IS(m_ds.m_dotSymp->nodep(), Cell)
@@ -4999,109 +4999,109 @@ class LinkDotResolveVisitor final : public VNVisitor {
                 // The dependency graph handles resolution when IfaceCapture is disabled
                 ok = (m_ds.m_dotPos == DP_NONE || m_ds.m_dotPos == DP_SCOPE
                       || ifaceFinalSegmentAllowed);
-                if (ifaceFinalSegmentAllowed) {
+                যদি (ifaceFinalSegmentAllowed) {
                     UINFO(9, indent() << "allow final-segment typedef name="
                                       << nodep->prettyNameQ() << " dotText='" << m_ds.m_dotText
                                       << "' dotSym=" << m_ds.m_dotSymp);
                 }
-                if (ok) {
-                    AstRefDType* const refp = new AstRefDType{nodep->fileline(), nodep->name()};
+                যদি (ok) {
+                    AstRefDType* ধ্রুবক refp = নতুন AstRefDType{nodep->fileline(), nodep->name()};
                     // Don't check if typedef is to a <type T>::<reference> as might not be
                     // resolved yet
-                    if (m_ds.m_dotPos == DP_NONE) checkDeclOrder(nodep, defp);
+                    যদি (m_ds.m_dotPos == DP_NONE) checkDeclOrder(nodep, defp);
                     refp->typedefp(defp);
 
                     V3LinkDotIfaceCapture::captureTypedefContext(
-                        refp, "typedef", static_cast<int>(m_ds.m_dotPos), m_ds.m_dotText,
-                        m_ds.m_dotSymp, m_modp, [this]() { return indent(); });
+                        refp, "typedef", static_cast<পূর্ণসংখ্যা>(m_ds.m_dotPos), m_ds.m_dotText,
+                        m_ds.m_dotSymp, m_modp, [এই]() { ফেরত indent(); });
 
-                    if (VN_IS(nodep->backp(), SelExtract)) {
+                    যদি (VN_IS(nodep->backp(), SelExtract)) {
                         m_packedArrayDtp = refp;
-                    } else {
+                    } অন্যথা {
                         replaceWithCheckBreak(nodep, refp);
-                        VL_DO_DANGLING(pushDeletep(nodep), nodep);
+                        VL_DO_DANGLING(ঠেলো_Deletep(nodep), nodep);
                     }
                 }
-            } else if (AstParamTypeDType* const defp = VN_CAST(foundp->nodep(), ParamTypeDType)) {
+            } অন্যথা যদি (AstParamTypeDType* ধ্রুবক defp = VN_CAST(foundp->nodep(), ParamTypeDType)) {
                 ok = (m_ds.m_dotPos == DP_NONE || m_ds.m_dotPos == DP_SCOPE
                       || m_ds.m_dotPos == DP_FINAL);
-                if (ok) {
-                    AstRefDType* const refp = new AstRefDType{nodep->fileline(), nodep->name()};
+                যদি (ok) {
+                    AstRefDType* ধ্রুবক refp = নতুন AstRefDType{nodep->fileline(), nodep->name()};
                     refp->refDTypep(defp);
 
                     V3LinkDotIfaceCapture::captureTypedefContext(
-                        refp, "paramtype", static_cast<int>(m_ds.m_dotPos), m_ds.m_dotText,
-                        m_ds.m_dotSymp, m_modp, [this]() { return indent(); });
+                        refp, "paramtype", static_cast<পূর্ণসংখ্যা>(m_ds.m_dotPos), m_ds.m_dotText,
+                        m_ds.m_dotSymp, m_modp, [এই]() { ফেরত indent(); });
 
-                    if (VN_IS(nodep->backp(), SelExtract)) {
+                    যদি (VN_IS(nodep->backp(), SelExtract)) {
                         m_packedArrayDtp = refp;
-                    } else {
+                    } অন্যথা {
                         replaceWithCheckBreak(nodep, refp);
-                        VL_DO_DANGLING(pushDeletep(nodep), nodep);
+                        VL_DO_DANGLING(ঠেলো_Deletep(nodep), nodep);
                     }
                 }
             }
-            if (!ok) {
-                if (m_insideClassExtParam) {
+            যদি (!ok) {
+                যদি (m_insideClassExtParam) {
                     // Don't throw error if the reference is inside a class that extends a param,
                     // because some members can't be linked in such a case. m_insideClassExtParam
                     // may be true only in the first stage of linking.
                     // Mark that the Dot statement can't be resolved.
-                    m_ds.m_unresolvedClass = true;
+                    m_ds.m_unresolvedClass = সত্য;
                     // If the symbol was a scope name, it would be resolved.
                     m_ds.m_dotPos = DP_MEMBER;
-                } else {
+                } অন্যথা {
                     // Cells/interfaces can't be implicit
-                    const bool checkImplicit
+                    ধ্রুবক যৌক্তিক checkImplicit
                         = (!m_ds.m_dotp && m_ds.m_dotText == "" && !m_ds.m_disablep && !foundp);
-                    const bool err
+                    ধ্রুবক যৌক্তিক err
                         = !(checkImplicit && m_statep->implicitOk(m_modp, nodep->name()));
-                    if (err) {
-                        if (foundp) {
+                    যদি (err) {
+                        যদি (foundp) {
                             nodep->v3error("Found definition of '"
                                            << m_ds.m_dotText << (m_ds.m_dotText == "" ? "" : ".")
                                            << nodep->prettyName() << "'" << " as a "
                                            << foundp->nodep()->typeName() << " but expected a "
                                            << expectWhat);
-                        } else if (m_ds.m_dotText == "") {
+                        } অন্যথা যদি (m_ds.m_dotText == "") {
                             UINFO(1, "   ErrParseRef curSymp=se" << cvtToHex(m_curSymp)
                                                                  << " ds=" << m_ds.ascii());
-                            const string suggest = m_statep->suggestSymFallback(
+                            ধ্রুবক string suggest = m_statep->suggestSymFallback(
                                 m_ds.m_dotSymp, nodep->name(), VNodeMatcher{});
                             nodep->v3error(
                                 "Can't find definition of "
                                 << expectWhat << ": " << nodep->prettyNameQ() << '\n'
                                 << (suggest.empty() ? "" : nodep->warnMore() + suggest));
-                        } else {
+                        } অন্যথা {
                             nodep->v3error(
                                 "Can't find definition of "
-                                << (!baddot.empty() ? AstNode::prettyNameQ(baddot)
+                                << (!baddot.empty() ? Ast_গ্রন্থি::prettyNameQ(baddot)
                                                     : nodep->prettyNameQ())
                                 << " in dotted " << expectWhat << ": '"
                                 << m_ds.m_dotText + "." + nodep->prettyName() << "'\n"
                                 << nodep->warnContextPrimary()
                                 << (okSymp ? okSymp->cellErrorScopes(
-                                                 nodep, AstNode::prettyName(m_ds.m_dotText))
+                                                 nodep, Ast_গ্রন্থি::prettyName(m_ds.m_dotText))
                                            : ""));
                         }
-                        m_ds.m_dotErr = true;
+                        m_ds.m_dotErr = সত্য;
                     }
-                    if (checkImplicit) {
+                    যদি (checkImplicit) {
                         // Create if implicit, and also if error (so only complain once)
                         // Else if a scope is allowed, making a signal won't help error cascade
-                        AstVar* const varp
+                        AstVar* ধ্রুবক varp
                             = createImplicitVar(m_curSymp, nodep, m_modp, m_modSymp, err);
-                        AstVarRef* const newp
-                            = new AstVarRef{nodep->fileline(), varp, VAccess::READ};
+                        AstVarRef* ধ্রুবক newp
+                            = নতুন AstVarRef{nodep->fileline(), varp, VAccess::READ};
                         nodep->replaceWith(newp);
-                        VL_DO_DANGLING(pushDeletep(nodep), nodep);
+                        VL_DO_DANGLING(ঠেলো_Deletep(nodep), nodep);
                     }
                 }
             }
         }
-        if (start) m_ds = lastStates;
+        যদি (start) m_ds = lastStates;
     }
-    void visit(AstClassOrPackageRef* nodep) override {
+    শূন্য visit(AstClassOrPackageRef* nodep) override {
         // Class: Recurse inside or cleanup not founds
         // checkNoDot not appropriate, can be under a dot
         LINKDOT_VISIT_START();
@@ -5115,25 +5115,25 @@ class LinkDotResolveVisitor final : public VNVisitor {
             VL_RESTORER_COPY(m_ds);
             VL_RESTORER(m_pinSymp);
 
-            if (!nodep->classOrPackageSkipp() && !nodep->classOrPackageNodep()
+            যদি (!nodep->classOrPackageSkipp() && !nodep->classOrPackageNodep()
                 && nodep->name() != "local::") {
-                const bool deferIfUnresolved = m_statep->forPrimary() && m_insideClassExtParam;
+                ধ্রুবক যৌক্তিক deferIfUnresolved = m_statep->forPrimary() && m_insideClassExtParam;
                 m_statep->resolveClassOrPackage(m_ds.m_dotSymp, nodep, m_ds.m_dotPos != DP_PACKAGE,
-                                                false, ":: reference", deferIfUnresolved);
+                                                মিথ্যা, ":: reference", deferIfUnresolved);
             }
 
             // ClassRef's have pins, so track
-            if (nodep->classOrPackageSkipp()) {
-                m_pinSymp = m_statep->getNodeSym(nodep->classOrPackageSkipp());
-            } else if (nodep->name() != "local::") {
-                return;
+            যদি (nodep->classOrPackageSkipp()) {
+                m_pinSymp = m_statep->get_গ্রন্থি_Sym(nodep->classOrPackageSkipp());
+            } অন্যথা যদি (nodep->name() != "local::") {
+                ফেরত;
             }
 
-            AstClass* const refClassp = VN_CAST(nodep->classOrPackageSkipp(), Class);
+            AstClass* ধ্রুবক refClassp = VN_CAST(nodep->classOrPackageSkipp(), Class);
             // Make sure any extends() are properly imported within referenced class
-            if (refClassp && !m_statep->forPrimary()) classExtendImport(refClassp);
+            যদি (refClassp && !m_statep->forPrimary()) classExtendImport(refClassp);
 
-            if (m_statep->forPrimary() && refClassp && !nodep->paramsp()
+            যদি (m_statep->forPrimary() && refClassp && !nodep->paramsp()
                 && nodep->classOrPackageSkipp()->hasGParam()
                 // Don't warn on typedefs, which are hard to know if there's a param somewhere
                 // buried
@@ -5148,8 +5148,8 @@ class LinkDotResolveVisitor final : public VNVisitor {
                         << nodep->classOrPackageNodep()->prettyName() << "#()'");
                 // As other simulators do, use the default specialization. Add the same
                 // placeholder pin V3LinkCells makes for '#()' so it is linked below.
-                AstPin* const pinp = new AstPin{nodep->fileline(), 1, "__paramNumber1", nullptr};
-                pinp->param(true);
+                AstPin* ধ্রুবক pinp = নতুন AstPin{nodep->fileline(), 1, "__paramNumber1", nullptr};
+                pinp->param(সত্য);
                 nodep->addParamsp(pinp);
             }
 
@@ -5158,77 +5158,77 @@ class LinkDotResolveVisitor final : public VNVisitor {
             iterateChildren(nodep);
         }
 
-        if (nodep->name() == "local::") {
-            if (!m_randSymp && !m_randMethodCallp) {
+        যদি (nodep->name() == "local::") {
+            যদি (!m_randSymp && !m_randMethodCallp) {
                 nodep->v3error("Illegal 'local::' outside 'randomize() with'"
                                " (IEEE 1800-2023 18.7.1)");
-                m_ds.m_dotErr = true;
-                return;
+                m_ds.m_dotErr = সত্য;
+                ফেরত;
             }
         }
-        if (m_ds.m_dotPos == DP_PACKAGE && nodep->classOrPackageSkipp()) {
-            m_ds.m_dotSymp = m_statep->getNodeSym(nodep->classOrPackageSkipp());
+        যদি (m_ds.m_dotPos == DP_PACKAGE && nodep->classOrPackageSkipp()) {
+            m_ds.m_dotSymp = m_statep->get_গ্রন্থি_Sym(nodep->classOrPackageSkipp());
             UINFO(9, indent() << "set sym " << m_ds.ascii());
         }
     }
-    void visit(AstConstraint* nodep) override {
+    শূন্য visit(AstConstraint* nodep) override {
         LINKDOT_VISIT_START();
         UINFO(5, indent() << "visit " << nodep);
         checkNoDot(nodep);
-        if (nodep->isExternDef()) {
-            if (const VSymEnt* const foundp
+        যদি (nodep->isExternDef()) {
+            যদি (ধ্রুবক VSymEnt* ধ্রুবক foundp
                 = m_curSymp->findIdFallback("extern " + nodep->name())) {
-                const AstConstraint* const protop = VN_AS(foundp->nodep(), Constraint);
+                ধ্রুবক AstConstraint* ধ্রুবক protop = VN_AS(foundp->nodep(), Constraint);
                 // Copy specifiers.
                 // External definition cannot have any specifiers, so no value will be overwritten.
                 nodep->isStatic(protop->isStatic());
-            } else {
+            } অন্যথা {
                 nodep->v3error("extern not found that declares " + nodep->prettyNameQ());
             }
         }
-        if (nodep->isExternProto()) {
-            if (!m_curSymp->findIdFallback(nodep->name()) && nodep->isExternExplicit()) {
+        যদি (nodep->isExternProto()) {
+            যদি (!m_curSymp->findIdFallback(nodep->name()) && nodep->isExternExplicit()) {
                 nodep->v3warn(PROTOTYPEMIS, "Definition not found for extern prototype "
                                                 << nodep->prettyNameQ());
             }
         }
         VL_RESTORER(m_curSymp);
         VL_RESTORER_COPY(m_ds);
-        m_ds.m_dotSymp = m_curSymp = m_statep->getNodeSym(nodep);
+        m_ds.m_dotSymp = m_curSymp = m_statep->get_গ্রন্থি_Sym(nodep);
         iterateChildren(nodep);
     }
-    void visit(AstConstraintRef* nodep) override {
-        if (nodep->user3SetOnce()) return;
+    শূন্য visit(AstConstraintRef* nodep) override {
+        যদি (nodep->user3SetOnce()) ফেরত;
         LINKDOT_VISIT_START();
         UINFO(8, indent() << "visit " << nodep);
         UINFO(8, indent() << m_ds.ascii());
         // No children defined
     }
-    void visit(AstVarRef* nodep) override {
+    শূন্য visit(AstVarRef* nodep) override {
         // VarRef: Resolve its reference
         // ParseRefs are used the first pass (forPrimary) so we shouldn't get can't find
         // errors here now that we have a VarRef.
         // No checkNoDot; created and iterated from a parseRef
         LINKDOT_VISIT_START();
         iterateChildren(nodep);
-        if (!nodep->varp()) {
+        যদি (!nodep->varp()) {
             UINFO(9, indent() << "linkVarRef se" << cvtToHex(m_curSymp) << "  n=" << nodep);
             UASSERT_OBJ(m_curSymp, nodep, "nullptr lookup symbol table");
-            VSymEnt* const foundp = m_curSymp->findIdFallback(nodep->name());
-            if (AstVar* const varp
+            VSymEnt* ধ্রুবক foundp = m_curSymp->findIdFallback(nodep->name());
+            যদি (AstVar* ধ্রুবক varp
                 = foundp ? foundToVarp(foundp, nodep, nodep->access()) : nullptr) {
                 nodep->varp(varp);
                 updateVarUse(nodep->varp());
                 // Generally set by parse, but might be an import
                 nodep->classOrPackagep(foundp->classOrPackagep());
             }
-            if (VL_UNCOVERABLE(!nodep->varp())) {
+            যদি (VL_UNCOVERABLE(!nodep->varp())) {
                 nodep->v3error("Can't find definition of signal, again: "  // LCOV_EXCL_LINE
                                << nodep->prettyNameQ());
             }
         }
         AstVarScope* vscp = nodep->varScopep();
-        if (vscp && vscp->user2p() != vscp && m_replaceWithAlias) {
+        যদি (vscp && vscp->user2p() != vscp && m_replaceWithAlias) {
             vscp = LinkDotScopeVisitor::getAlias(vscp);
             nodep->varp(vscp->varp());
             nodep->varScopep(vscp);
@@ -5236,92 +5236,92 @@ class LinkDotResolveVisitor final : public VNVisitor {
             UINFO(7, indent() << "Resolved " << nodep);  // Also prints taskp
         }
     }
-    void visit(AstVarXRef* nodep) override {
+    শূন্য visit(AstVarXRef* nodep) override {
         // VarRef: Resolve its reference
         // We always link even if varp() is set, because the module we choose may change
         // due to creating new modules, flattening, etc.
-        if (nodep->user3SetOnce()) return;
+        যদি (nodep->user3SetOnce()) ফেরত;
         LINKDOT_VISIT_START();
         UINFO(8, indent() << "visit " << nodep);
         // No checkNoDot; created and iterated from a parseRef
-        if (!m_modSymp) {
+        যদি (!m_modSymp) {
             // Module that is not in hierarchy.  We'll be dead code eliminating it later.
             UINFO(9, "Dead module for " << nodep);
             nodep->varp(nullptr);
-        } else {
+        } অন্যথা {
             VSymEnt* lookupSymp = m_curSymp;  // Start search at current scope
-            if (nodep->inlinedDots() != "") {  // Correct for current post-inlined scope
+            যদি (nodep->inlinedDots() != "") {  // Correct for current post-inlined scope
                 lookupSymp = findInlinedDotsSym(nodep, nodep->inlinedDots());
             }
             string baddot;
             VSymEnt* okSymp;
-            bool modport;
-            VSymEnt* const dotSymp
+            যৌক্তিক modport;
+            VSymEnt* ধ্রুবক dotSymp
                 = findDottedRefSymp(nodep, lookupSymp, nodep->dotted(), baddot, okSymp, &modport);
-            if (!dotSymp) return;
+            যদি (!dotSymp) ফেরত;
 
-            if (!m_statep->forScopeCreation()) {
+            যদি (!m_statep->forScopeCreation()) {
                 VSymEnt* foundp = nullptr;
-                if (modport) {
+                যদি (modport) {
                     // This is a copy of findSymPrefixed with few modifications.
                     // This searches without a fallback like findSymPrefixed but if lookup fails it
                     // will check one fallback (fallback of modport shall be interface) and take
                     // only L and G PARAMs since they should be visible from a modport always.
                     string prefix = dotSymp->symPrefix();
-                    while (!foundp) {
+                    যখন (!foundp) {
                         foundp = dotSymp->findIdFlat(prefix + nodep->name());
-                        if (foundp) break;
+                        যদি (foundp) বিরতি;
                         UASSERT_OBJ(dotSymp->fallbackp(), nodep, "Modports shall have fallback");
                         foundp = dotSymp->fallbackp()->findIdFlat(prefix + nodep->name());
-                        if (const AstVar* const varp
+                        যদি (ধ্রুবক AstVar* ধ্রুবক varp
                             = foundToVarp(foundp, nodep, nodep->access())) {
-                            if (!varp->isParam()) foundp = nullptr;
+                            যদি (!varp->isParam()) foundp = nullptr;
                         }
-                        if (prefix.empty()) break;
-                        string nextPrefix = LinkDotState::removeLastInlineScope(prefix);
-                        if (prefix == nextPrefix) break;
-                        prefix = std::move(nextPrefix);
+                        যদি (prefix.empty()) বিরতি;
+                        string পরবর্তী_Prefix = LinkDotState::removeLastInlineScope(prefix);
+                        যদি (prefix == পরবর্তী_Prefix) বিরতি;
+                        prefix = std::move(পরবর্তী_Prefix);
                     }
                     baddot = nodep->name();
-                } else {
-                    foundp = m_statep->findSymPrefixed(dotSymp, nodep->name(), baddot, true);
+                } অন্যথা {
+                    foundp = m_statep->findSymPrefixed(dotSymp, nodep->name(), baddot, সত্য);
                 }
-                if (m_inSens && foundp) {
-                    if (AstClocking* const clockingp = sensClockingp(foundp->nodep())) {
+                যদি (m_inSens && foundp) {
+                    যদি (AstClocking* ধ্রুবক clockingp = sensClockingp(foundp->nodep())) {
                         foundp = getCreateClockingEventSymEnt(clockingp);
                     }
                 }
-                AstVar* const varp
+                AstVar* ধ্রুবক varp
                     = foundp ? foundToVarp(foundp, nodep, nodep->access()) : nullptr;
                 nodep->varp(varp);
                 updateVarUse(nodep->varp());
                 UINFO(7, indent() << "Resolved " << nodep);  // Also prints varp
                 // If found, check if it's ok to access in case it's in a hier_block
-                if (nodep->varp() && errorHierNonPort(nodep, nodep->varp(), dotSymp)) return;
-                if (!nodep->varp()) {
+                যদি (nodep->varp() && errorHierNonPort(nodep, nodep->varp(), dotSymp)) ফেরত;
+                যদি (!nodep->varp()) {
                     nodep->v3error("Can't find definition of "
-                                   << AstNode::prettyNameQ(baddot) << " in dotted signal: '"
+                                   << Ast_গ্রন্থি::prettyNameQ(baddot) << " in dotted signal: '"
                                    << nodep->dotted() + "." + nodep->prettyName() << "'\n"
                                    << nodep->warnContextPrimary()
                                    << okSymp->cellErrorScopes(nodep));
-                    return;
+                    ফেরত;
                 }
-            } else {
-                VSymEnt* const foundp
-                    = m_statep->findSymPrefixed(dotSymp, nodep->name(), baddot, true);
+            } অন্যথা {
+                VSymEnt* ধ্রুবক foundp
+                    = m_statep->findSymPrefixed(dotSymp, nodep->name(), baddot, সত্য);
                 AstVarScope* vscp = foundp ? VN_CAST(foundp->nodep(), VarScope) : nullptr;
                 // Handle modport expression virtual ports
-                if (!vscp) vscp = findVirtualPortVarScope(dotSymp, nodep->name());
+                যদি (!vscp) vscp = findVirtualPortVarScope(dotSymp, nodep->name());
                 // If found, check if it's ok to access in case it's in a hier_block
-                if (vscp && errorHierNonPort(nodep, vscp->varp(), dotSymp)) return;
-                if (!vscp) {
+                যদি (vscp && errorHierNonPort(nodep, vscp->varp(), dotSymp)) ফেরত;
+                যদি (!vscp) {
                     nodep->v3error("Can't find varpin scope of "
-                                   << AstNode::prettyNameQ(baddot) << " in dotted signal: '"
+                                   << Ast_গ্রন্থি::prettyNameQ(baddot) << " in dotted signal: '"
                                    << nodep->dotted() + "." + nodep->prettyName() << "'\n"
                                    << nodep->warnContextPrimary()
                                    << okSymp->cellErrorScopes(nodep));
-                } else {
-                    if (vscp->user2p() && m_replaceWithAlias) {
+                } অন্যথা {
+                    যদি (vscp->user2p() && m_replaceWithAlias) {
                         vscp = LinkDotScopeVisitor::getAlias(vscp);
                     }
                     // Convert the VarXRef to a VarRef, so we don't need
@@ -5330,70 +5330,70 @@ class LinkDotResolveVisitor final : public VNVisitor {
                     nodep->varScopep(vscp);
                     updateVarUse(nodep->varp());
                     UINFO(7, indent() << "Resolved " << nodep);  // Also prints taskp
-                    AstVarRef* const newvscp
-                        = new AstVarRef{nodep->fileline(), vscp, nodep->access()};
+                    AstVarRef* ধ্রুবক newvscp
+                        = নতুন AstVarRef{nodep->fileline(), vscp, nodep->access()};
                     nodep->replaceWith(newvscp);
-                    VL_DO_DANGLING(pushDeletep(nodep), nodep);
+                    VL_DO_DANGLING(ঠেলো_Deletep(nodep), nodep);
                     UINFO(9, indent() << "new " << newvscp);  // Also prints taskp
                 }
             }
         }
     }
-    void visit(AstEnumDType* nodep) override {
+    শূন্য visit(AstEnumDType* nodep) override {
         LINKDOT_VISIT_START();
         iterateChildren(nodep);
-        AstRefDType* const refdtypep = VN_CAST(nodep->subDTypep(), RefDType);
-        if (refdtypep && (nodep == refdtypep->subDTypep())) {
+        AstRefDType* ধ্রুবক refdtypep = VN_CAST(nodep->subDTypep(), RefDType);
+        যদি (refdtypep && (nodep == refdtypep->subDTypep())) {
             refdtypep->v3error("Self-referential enumerated type definition");
         }
     }
-    void visit(AstNodeUOrStructDType* nodep) override {
+    শূন্য visit(Ast_গ্রন্থি_UOr_Struct_DType* nodep) override {
         LINKDOT_VISIT_START();
-        symIterateChildren(nodep, m_statep->getNodeSym(nodep));
+        symIterateChildren(nodep, m_statep->get_গ্রন্থি_Sym(nodep));
     }
-    void visit(AstEnumItemRef* nodep) override {
+    শূন্য visit(AstEnumItemRef* nodep) override {
         // Resolve its reference
         // EnumItemRefs are created by the first pass, but V3Param may regenerate due to
         // a parameterized class/module, so we shouldn't get can't find errors.
         // No checkNoDot; created and iterated from a parseRef
-        if (nodep->user3SetOnce()) return;
+        যদি (nodep->user3SetOnce()) ফেরত;
         LINKDOT_VISIT_START();
-        if (m_statep->forParamed() && !nodep->dotted().empty() && m_modSymp) {
+        যদি (m_statep->forParamed() && !nodep->dotted().empty() && m_modSymp) {
             // Hierarchical reference, relink as V3Param may have specialized the module
             string baddot;
             VSymEnt* okSymp = nullptr;
-            VSymEnt* const dotSymp
+            VSymEnt* ধ্রুবক dotSymp
                 = findDottedRefSymp(nodep, m_curSymp, nodep->dotted(), baddot, okSymp);
-            if (!dotSymp) return;
-            VSymEnt* const foundp
-                = m_statep->findSymPrefixed(dotSymp, nodep->name(), baddot, true);
-            AstEnumItem* const itemp = foundp ? VN_CAST(foundp->nodep(), EnumItem) : nullptr;
-            if (!itemp) {
+            যদি (!dotSymp) ফেরত;
+            VSymEnt* ধ্রুবক foundp
+                = m_statep->findSymPrefixed(dotSymp, nodep->name(), baddot, সত্য);
+            AstEnumItem* ধ্রুবক itemp = foundp ? VN_CAST(foundp->nodep(), EnumItem) : nullptr;
+            যদি (!itemp) {
                 nodep->v3error("Enum item " << nodep->prettyNameQ() << " not found in "
-                                            << AstNode::prettyNameQ(nodep->dotted()) << '\n'
+                                            << Ast_গ্রন্থি::prettyNameQ(nodep->dotted()) << '\n'
                                             << nodep->warnContextPrimary());
-                return;
+                ফেরত;
             }
             nodep->itemp(itemp);
             UINFO(9, indent() << " relinked " << nodep);
         }
-        if (!nodep->itemp()) {
+        যদি (!nodep->itemp()) {
             UINFO(9, indent() << "linkEnumRef se" << cvtToHex(m_curSymp) << "  n=" << nodep);
             UASSERT_OBJ(m_curSymp, nodep, "nullptr lookup symbol table");
-            VSymEnt* const foundp = m_curSymp->findIdFallback(nodep->name());
-            if (AstEnumItem* const itemp = foundp ? VN_CAST(foundp->nodep(), EnumItem) : nullptr) {
+            VSymEnt* ধ্রুবক foundp = m_curSymp->findIdFallback(nodep->name());
+            যদি (AstEnumItem* ধ্রুবক itemp = foundp ? VN_CAST(foundp->nodep(), EnumItem) : nullptr) {
                 nodep->itemp(itemp);
                 nodep->classOrPackagep(foundp->classOrPackagep());
                 UINFO(9, indent() << " resolved " << nodep);
             }
-            if (VL_UNCOVERABLE(!nodep->itemp())) {
+            যদি (VL_UNCOVERABLE(!nodep->itemp())) {
                 nodep->v3error("Can't find definition of enum item, again: "  // LCOV_EXCL_LINE
                                << nodep->prettyNameQ());
             }
         }
         iterateChildren(nodep);
     }
-    void visit(AstMethodCall* nodep) override {
+    শূন্য visit(AstMethodCall* nodep) override {
         // Created here so should already be resolved.
         LINKDOT_VISIT_START();
         UINFO(5, indent() << "visit " << nodep);
@@ -5402,264 +5402,264 @@ class LinkDotResolveVisitor final : public VNVisitor {
         VL_RESTORER(m_randMethodCallp);
         {
             m_ds.init(m_curSymp);
-            if (nodep->name() == "randomize" && (nodep->argsp() || nodep->withp())) {
+            যদি (nodep->name() == "randomize" && (nodep->argsp() || nodep->withp())) {
                 m_randMethodCallp = nodep;
-                const AstNodeDType* fromDtp = nodep->fromp()->dtypep();
-                if (!fromDtp) {
-                    if (const AstNodeVarRef* const varRefp = VN_CAST(nodep->fromp(), NodeVarRef)) {
+                ধ্রুবক Ast_গ্রন্থি_DType* fromDtp = nodep->fromp()->dtypep();
+                যদি (!fromDtp) {
+                    যদি (ধ্রুবক Ast_গ্রন্থি_Var_Ref* ধ্রুবক varRefp = VN_CAST(nodep->fromp(), গ্রন্থি_Var_Ref)) {
                         fromDtp = varRefp->varp()->subDTypep();
-                    } else {
-                        fromDtp = getExprDTypep(nodep->fromp());
+                    } অন্যথা {
+                        fromDtp = get_রাশিমালা_DTypep(nodep->fromp());
                     }
-                    if (!fromDtp) {
-                        if (nodep->withp()) {
+                    যদি (!fromDtp) {
+                        যদি (nodep->withp()) {
                             nodep->v3warn(
                                 E_UNSUPPORTED,
                                 "Unsupported: 'randomize() with' on complex expressions");
-                        } else {
+                        } অন্যথা {
                             nodep->v3warn(E_UNSUPPORTED,
                                           "Unsupported: Inline random variable control with "
                                           "'randomize()' called on complex expressions");
                         }
                     }
                 }
-                if (m_statep->forPrimary() && isParamedClassRefDType(fromDtp)) {
-                    m_ds.m_unresolvedClass = true;
-                } else if (fromDtp) {
-                    const AstClassRefDType* const classDtp
+                যদি (m_statep->forPrimary() && isParamedClassRefDType(fromDtp)) {
+                    m_ds.m_unresolvedClass = সত্য;
+                } অন্যথা যদি (fromDtp) {
+                    ধ্রুবক AstClassRefDType* ধ্রুবক classDtp
                         = VN_CAST(fromDtp->skipRefp(), ClassRefDType);
-                    if (!classDtp)
+                    যদি (!classDtp)
                         nodep->v3error("'randomize() with' on a non-class-instance "
                                        << fromDtp->prettyNameQ());
-                    else if (m_statep->forPrimary() && m_extendsParam.count(classDtp->classp())) {
+                    অন্যথা যদি (m_statep->forPrimary() && m_extendsParam.গুনতি(classDtp->classp())) {
                         // Inherited members are unavailable until the base class is specialized.
                         // Defer lookup rather than incorrectly binding names in the caller.
-                        m_ds.m_unresolvedClass = true;
-                    } else {
-                        m_randSymp = m_statep->getNodeSym(classDtp->classp());
+                        m_ds.m_unresolvedClass = সত্য;
+                    } অন্যথা {
+                        m_randSymp = m_statep->get_গ্রন্থি_Sym(classDtp->classp());
                     }
                 }
             }
             iterateChildren(nodep);
         }
     }
-    void visit(AstVar* nodep) override {
+    শূন্য visit(AstVar* nodep) override {
         LINKDOT_VISIT_START();
         checkNoDot(nodep);
         VL_RESTORER(m_isParam);
         m_isParam = nodep->varType().isParam();
         iterateChildren(nodep);
-        if (m_statep->forPrimary() && nodep->isIO() && !m_ftaskp && !nodep->user4()) {
+        যদি (m_statep->forPrimary() && nodep->isIO() && !m_ftaskp && !nodep->user4()) {
             nodep->v3error(
                 "Input/output/inout does not appear in port list: " << nodep->prettyNameQ());
         }
     }
-    void visit(AstVarScope* nodep) override {
+    শূন্য visit(AstVarScope* nodep) override {
         LINKDOT_VISIT_START();
         checkNoDot(nodep);
         iterateChildren(nodep);
         AstVarScope* aliasp = LinkDotScopeVisitor::getAlias(nodep);
-        if (aliasp && aliasp != nodep && !nodep->varp()->isIfaceRef()) {
+        যদি (aliasp && aliasp != nodep && !nodep->varp()->isIfaceRef()) {
             // Aliased variable might still be references from outside,
             // eg through the VPI, and is traced, so we need the value to propagate.
             // TODO: this means external writes to the LHS (e.g.: through the VPI) don't work
-            AstAssignW* const assignp = new AstAssignW{
-                nodep->fileline(), new AstVarRef{nodep->fileline(), nodep, VAccess::WRITE},
-                new AstVarRef{nodep->fileline(), aliasp, VAccess::READ}};
-            assignp->user2(true);
-            nodep->scopep()->addBlocksp(new AstAlways{assignp});
+            AstAssignW* ধ্রুবক assignp = নতুন AstAssignW{
+                nodep->fileline(), নতুন AstVarRef{nodep->fileline(), nodep, VAccess::WRITE},
+                নতুন AstVarRef{nodep->fileline(), aliasp, VAccess::READ}};
+            assignp->user2(সত্য);
+            nodep->scopep()->addBlocksp(নতুন AstAlways{assignp});
             // Propagate attributes and lint state of the replaced variable,
             // because all references to it are replaced with references to the alias variable
             aliasp->varp()->propagateAttrFrom(nodep->varp());
             aliasp->varp()->fileline()->modifyStateInherit(nodep->varp()->fileline());
         }
     }
-    void visit(AstNodeFTaskRef* nodep) override {
-        if (nodep->user3SetOnce()) return;
+    শূন্য visit(Ast_গ্রন্থি_FTask_Ref* nodep) override {
+        যদি (nodep->user3SetOnce()) ফেরত;
         LINKDOT_VISIT_START();
         UINFO(8, indent() << "visit " << nodep);
         UINFO(8, indent() << m_ds.ascii());
-        if (m_ds.m_dotPos != DP_MEMBER || nodep->name() != "randomize") {
+        যদি (m_ds.m_dotPos != DP_MEMBER || nodep->name() != "randomize") {
             // Visit arguments at the beginning.
             // They may be visitted even if the current node can't be linked now.
             symIterateChildren(nodep, m_curSymp);
         }
 
-        if (m_ds.m_super) {
-            if (AstFuncRef* const funcRefp = VN_CAST(nodep, FuncRef)) {
-                funcRefp->superReference(true);
-            } else if (AstTaskRef* const taskRefp = VN_CAST(nodep, TaskRef)) {
-                taskRefp->superReference(true);
+        যদি (m_ds.m_super) {
+            যদি (AstFuncRef* ধ্রুবক funcRefp = VN_CAST(nodep, FuncRef)) {
+                funcRefp->superReference(সত্য);
+            } অন্যথা যদি (AstTaskRef* ধ্রুবক taskRefp = VN_CAST(nodep, TaskRef)) {
+                taskRefp->superReference(সত্য);
             }
         }
 
         VL_RESTORER(m_randSymp);
 
-        bool first = !m_ds.m_dotp || m_ds.m_dotPos == DP_FIRST;
-        bool staticAccess = false;
-        if (m_ds.m_unresolvedClass) {
+        যৌক্তিক first = !m_ds.m_dotp || m_ds.m_dotPos == DP_FIRST;
+        যৌক্তিক staticAccess = মিথ্যা;
+        যদি (m_ds.m_unresolvedClass) {
             // Unable to link before V3Param
-            return;
-        } else if (m_ds.m_unresolvedCell && m_ds.m_dotPos == DP_FINAL && m_ds.m_unlinkedScopep) {
-            AstNodeFTaskRef* const newftaskp = nodep->cloneTree(false);
+            ফেরত;
+        } অন্যথা যদি (m_ds.m_unresolvedCell && m_ds.m_dotPos == DP_FINAL && m_ds.m_unlinkedScopep) {
+            Ast_গ্রন্থি_FTask_Ref* ধ্রুবক newftaskp = nodep->clone_বৃক্ষ(মিথ্যা);
             newftaskp->dotted(m_ds.m_dotText);
-            AstNode* const newp = new AstUnlinkedRef{nodep->fileline(), newftaskp, nodep->name(),
+            Ast_গ্রন্থি* ধ্রুবক newp = নতুন AstUnlinkedRef{nodep->fileline(), newftaskp, nodep->name(),
                                                      m_ds.m_unlinkedScopep->unlinkFrBack()};
             m_ds.m_unlinkedScopep = nullptr;
-            m_ds.m_unresolvedCell = false;
+            m_ds.m_unresolvedCell = মিথ্যা;
             nodep->replaceWith(newp);
-            VL_DO_DANGLING(pushDeletep(nodep), nodep);
-            return;
-        } else if (m_ds.m_dotp && m_ds.m_dotPos == DP_PACKAGE) {
+            VL_DO_DANGLING(ঠেলো_Deletep(nodep), nodep);
+            ফেরত;
+        } অন্যথা যদি (m_ds.m_dotp && m_ds.m_dotPos == DP_PACKAGE) {
             UASSERT_OBJ(VN_IS(m_ds.m_dotp->lhsp(), ClassOrPackageRef), m_ds.m_dotp->lhsp(),
                         "Bad package link");
-            staticAccess = true;
-            AstClassOrPackageRef* const cpackagerefp
+            staticAccess = সত্য;
+            AstClassOrPackageRef* ধ্রুবক cpackagerefp
                 = VN_AS(m_ds.m_dotp->lhsp(), ClassOrPackageRef);
-            if (cpackagerefp->name() == "local::") {
+            যদি (cpackagerefp->name() == "local::") {
                 m_randSymp = nullptr;
-                first = true;
-            } else if (!cpackagerefp->classOrPackageSkipp()) {
-                VSymEnt* const foundp = m_statep->resolveClassOrPackage(
-                    m_ds.m_dotSymp, cpackagerefp, true, false, ":: reference");
-                if (foundp) nodep->classOrPackagep(cpackagerefp->classOrPackageSkipp());
-            } else {
+                first = সত্য;
+            } অন্যথা যদি (!cpackagerefp->classOrPackageSkipp()) {
+                VSymEnt* ধ্রুবক foundp = m_statep->resolveClassOrPackage(
+                    m_ds.m_dotSymp, cpackagerefp, সত্য, মিথ্যা, ":: reference");
+                যদি (foundp) nodep->classOrPackagep(cpackagerefp->classOrPackageSkipp());
+            } অন্যথা {
                 nodep->classOrPackagep(cpackagerefp->classOrPackageSkipp());
             }
             // Class/package :: HERE function() . method_called_on_function_return_value()
             m_ds.m_dotPos = DP_MEMBER;
-        } else if (m_ds.m_dotp && m_ds.m_dotPos == DP_FINAL) {
+        } অন্যথা যদি (m_ds.m_dotp && m_ds.m_dotPos == DP_FINAL) {
             nodep->dotted(m_ds.m_dotText);  // Maybe ""
             // Only flag FTaskRefs under generate-if/case blocks that may be
             // pruned.  GenFor and plain begin-blocks won't be pruned by V3Param.
             // A generate-case block's parent is the GenCaseItem, not the GenCase.
             // VarXRef uses the broader m_genBlk flag (set for all GenBlocks)
             // because genfor unrolling also removes variables.
-            if (m_ds.m_genBlk && m_ds.m_dotSymp) {
-                const AstNode* const blkp = m_ds.m_dotSymp->nodep();
-                if (VN_IS(blkp, GenBlock)
+            যদি (m_ds.m_genBlk && m_ds.m_dotSymp) {
+                ধ্রুবক Ast_গ্রন্থি* ধ্রুবক blkp = m_ds.m_dotSymp->nodep();
+                যদি (VN_IS(blkp, GenBlock)
                     && (VN_IS(blkp->backp(), GenIf) || VN_IS(blkp->backp(), GenCaseItem))) {
-                    nodep->containsGenBlock(true);
+                    nodep->containsGenBlock(সত্য);
                 }
             }
-        } else if (m_ds.m_dotp && m_ds.m_dotPos == DP_MEMBER) {
+        } অন্যথা যদি (m_ds.m_dotp && m_ds.m_dotPos == DP_MEMBER) {
             // Found a Var, everything following is method call.
             // {scope}.{var}.HERE {method} ( ARGS )
-            AstNodeExpr* const varEtcp = VN_AS(m_ds.m_dotp->lhsp()->unlinkFrBack(), NodeExpr);
-            AstArg* const argsp = nodep->argsp();
-            if (argsp) argsp->unlinkFrBackWithNext();
-            AstMethodCall* const newp = new AstMethodCall{nodep->fileline(), varEtcp,
+            Ast_গ্রন্থি_রাশিমালা* ধ্রুবক varEtcp = VN_AS(m_ds.m_dotp->lhsp()->unlinkFrBack(), গ্রন্থি_রাশিমালা);
+            AstArg* ধ্রুবক argsp = nodep->argsp();
+            যদি (argsp) argsp->unlink_Fr_Back_With_পরবর্তী();
+            AstMethodCall* ধ্রুবক newp = নতুন AstMethodCall{nodep->fileline(), varEtcp,
                                                           VFlagChildDType{}, nodep->name(), argsp};
-            if (AstWith* const withp = nodep->withp()) newp->withp(withp->unlinkFrBack());
+            যদি (AstWith* ধ্রুবক withp = nodep->withp()) newp->withp(withp->unlinkFrBack());
             nodep->replaceWith(newp);
-            VL_DO_DANGLING(pushDeletep(nodep), nodep);
-            return;
-        } else if (m_ds.m_dotp && (m_ds.m_dotPos == DP_SCOPE || m_ds.m_dotPos == DP_FIRST)) {
+            VL_DO_DANGLING(ঠেলো_Deletep(nodep), nodep);
+            ফেরত;
+        } অন্যথা যদি (m_ds.m_dotp && (m_ds.m_dotPos == DP_SCOPE || m_ds.m_dotPos == DP_FIRST)) {
             // HERE function() . method_called_on_function_return_value()
             m_ds.m_dotPos = DP_MEMBER;
             m_ds.m_dotText = "";
-        } else if (!m_ds.m_disablep) {
+        } অন্যথা যদি (!m_ds.m_disablep) {
             // visit(AstDisable*) setup the dot handling
             checkNoDot(nodep);
         }
-        if (nodep->classOrPackagep() && nodep->taskp()) {
+        যদি (nodep->classOrPackagep() && nodep->taskp()) {
             // References into packages don't care about cell hierarchy.
-        } else if (!m_modSymp) {
+        } অন্যথা যদি (!m_modSymp) {
             // Module that is not in hierarchy.  We'll be dead code eliminating it later.
             UINFO(9, indent() << "Dead module for " << nodep);
             nodep->taskp(nullptr);
-        } else if (nodep->dotted() == "" && nodep->taskp()) {
+        } অন্যথা যদি (nodep->dotted() == "" && nodep->taskp()) {
             // Earlier should have setup the links
             // Might be under a BEGIN we're not processing, so don't relink it
-        } else {
+        } অন্যথা {
             string baddot;
             VSymEnt* okSymp = nullptr;
             VSymEnt* dotSymp;
-            if (nodep->dotted().empty()) {
+            যদি (nodep->dotted().empty()) {
                 // Non-'super.' dotted reference
                 dotSymp = m_ds.m_dotSymp;
-            } else {
+            } অন্যথা {
                 // Start search at module, as a variable of same name under a subtask isn't a
                 // relevant hit however a function under a begin/end is.  So we want begins, but
                 // not the function
                 dotSymp = m_curSymp;
             }
-            if (nodep->classOrPackagep()) {  // Look only in specified package
-                dotSymp = m_statep->getNodeSym(nodep->classOrPackagep());
+            যদি (nodep->classOrPackagep()) {  // Look only in specified package
+                dotSymp = m_statep->get_গ্রন্থি_Sym(nodep->classOrPackagep());
                 UINFO(8, indent() << "Override classOrPackage " << dotSymp);
-            } else {
-                if (nodep->inlinedDots() != "") {  // Correct for current post-inlined scope
+            } অন্যথা {
+                যদি (nodep->inlinedDots() != "") {  // Correct for current post-inlined scope
                     dotSymp = findInlinedDotsSym(nodep, nodep->inlinedDots());
                 }
                 dotSymp = m_statep->findDotted(nodep->fileline(), dotSymp, nodep->dotted(), baddot,
-                                               okSymp, true);  // Maybe nullptr
+                                               okSymp, সত্য);  // Maybe nullptr
             }
             // Restricted 'with (id_list)': only id_list names bind into target class.
-            if (m_randSymp
+            যদি (m_randSymp
                 && (!m_currentWithp || m_currentWithp->nameResolvesToTarget(nodep->name()))) {
-                VSymEnt* const foundp = m_randSymp->findIdFlat(nodep->name());
-                if (foundp && m_currentWithp) {
-                    if (m_currentWithp->restricted()) {
-                        m_restrictedNamesUsed.insert(nodep->name());
+                VSymEnt* ধ্রুবক foundp = m_randSymp->findIdFlat(nodep->name());
+                যদি (foundp && m_currentWithp) {
+                    যদি (m_currentWithp->restricted()) {
+                        m_restrictedNamesUsed.ঢোকাও(nodep->name());
                     }
                     UINFO(9, indent() << "randomize-with fromSym " << foundp->nodep());
                     AstArg* argsp = nullptr;
-                    if (nodep->argsp()) {
-                        iterateAndNextNull(nodep->argsp());
-                        argsp = nodep->argsp()->unlinkFrBackWithNext();
+                    যদি (nodep->argsp()) {
+                        iterate_And_পরবর্তী_Null(nodep->argsp());
+                        argsp = nodep->argsp()->unlink_Fr_Back_With_পরবর্তী();
                     }
-                    if (m_ds.m_dotPos != DP_NONE) m_ds.m_dotPos = DP_MEMBER;
-                    AstNode* const newp = new AstMethodCall{
+                    যদি (m_ds.m_dotPos != DP_NONE) m_ds.m_dotPos = DP_MEMBER;
+                    Ast_গ্রন্থি* ধ্রুবক newp = নতুন AstMethodCall{
                         nodep->fileline(),
-                        new AstLambdaArgRef{nodep->fileline(), "__Vrandwith_obj", false},
+                        নতুন AstLambdaArgRef{nodep->fileline(), "__Vrandwith_obj", মিথ্যা},
                         VFlagChildDType{}, nodep->name(), argsp};
                     nodep->replaceWith(newp);
-                    VL_DO_DANGLING(pushDeletep(nodep), nodep);
-                    return;
+                    VL_DO_DANGLING(ঠেলো_Deletep(nodep), nodep);
+                    ফেরত;
                 }
             }
-            if (first && nodep->name() == "randomize" && VN_IS(m_modp, Class)
+            যদি (first && nodep->name() == "randomize" && VN_IS(m_modp, Class)
                 && !VN_IS(nodep->classOrPackagep(), Package)) {
                 // need special handling to avoid falling back to std::randomize
                 // Skip if classOrPackagep is a Package (i.e. std::randomize resolved earlier)
                 VMemberMap memberMap;
-                AstFunc* const randFuncp = V3Randomize::newRandomizeFunc(
-                    memberMap, VN_AS(m_modp, Class), nodep->name(), true, true);
+                AstFunc* ধ্রুবক randFuncp = V3Randomize::newRandomizeFunc(
+                    memberMap, VN_AS(m_modp, Class), nodep->name(), সত্য, সত্য);
                 nodep->taskp(randFuncp);
                 nodep->classOrPackagep(VN_AS(m_modp, Class));
-                m_curSymp = m_statep->insertBlock(m_curSymp, nodep->name(), randFuncp, m_modp);
+                m_curSymp = m_statep->ঢোকাও_Block(m_curSymp, nodep->name(), randFuncp, m_modp);
                 // Already linked to the class randomize function; skip findSymPrefixed
                 // which may find std::randomize and overwrite classOrPackagep
-                return;
+                ফেরত;
             }
-            VSymEnt* const foundp
+            VSymEnt* ধ্রুবক foundp
                 = m_statep->findSymPrefixed(dotSymp, nodep->name(), baddot, first);
-            AstNodeFTask* const taskp = foundp ? VN_CAST(foundp->nodep(), NodeFTask) : nullptr;
-            AstNodeModule* const taskModulep = foundp ? foundp->classOrPackagep() : nullptr;
+            Ast_গ্রন্থি_FTask* ধ্রুবক taskp = foundp ? VN_CAST(foundp->nodep(), গ্রন্থি_FTask) : nullptr;
+            Ast_গ্রন্থি_Module* ধ্রুবক taskModulep = foundp ? foundp->classOrPackagep() : nullptr;
             // Ignore deferring linking of functions inside params of classes extending
             // parametric classes if referenced function can be linked in the first pass.
-            if (!m_isParam || !taskp
+            যদি (!m_isParam || !taskp
                 || (taskp->classMethod() && taskModulep && taskModulep->hasParameterList())) {
-                if (m_insideClassExtParam) {
+                যদি (m_insideClassExtParam) {
                     // The reference may point to a method declared in a super class, which is
                     // proved by a parameter. In such a case, it can't be linked at the first
                     // stage. Must not do any linking, because e.g. might find an extends of an
                     // upper class because the current class (under parent) isn't yet importing
                     // it's extended class symbols.
-                    return;
+                    ফেরত;
                 }
-                if (AstClass* const targetClassp = VN_CAST(dotSymp->nodep(), Class)) {
-                    if (m_extendsParam.count(targetClassp)) {
+                যদি (AstClass* ধ্রুবক targetClassp = VN_CAST(dotSymp->nodep(), Class)) {
+                    যদি (m_extendsParam.গুনতি(targetClassp)) {
                         // Target class has parameterized extends not yet resolved.
                         // Its inherited symbols (e.g. static functions from the base class)
                         // aren't imported yet - defer to linkDotParamed.
-                        return;
+                        ফেরত;
                     }
                 }
             }
 
-            if (taskp) {
-                if (staticAccess && !taskp->isStatic()) {
+            যদি (taskp) {
+                যদি (staticAccess && !taskp->isStatic()) {
                     // TODO bug4077
                     // nodep->v3error("Static access to non-static task/function "
                     //                << taskp->prettyNameQ() << endl);
@@ -5667,99 +5667,99 @@ class LinkDotResolveVisitor final : public VNVisitor {
                 nodep->taskp(taskp);
                 nodep->classOrPackagep(foundp->classOrPackagep());
                 UINFO(7, indent() << "Resolved " << nodep);  // Also prints taskp
-            } else {
+            } অন্যথা {
                 // Note ParseRef has similar error handling/message output
                 UINFO(7, indent() << "   ErrFtask curSymp=se" << cvtToHex(m_curSymp)
                                   << " dotSymp=se" << cvtToHex(dotSymp));
-                if (foundp) {
-                    if (VN_IS(foundp->nodep(), Var) && m_ds.m_dotText == "" && m_ftaskp
+                যদি (foundp) {
+                    যদি (VN_IS(foundp->nodep(), Var) && m_ds.m_dotText == "" && m_ftaskp
                         && m_ftaskp->name() == foundp->nodep()->name()) {
                         // This is a recursive reference to the function itself, not to the var
                         nodep->taskp(m_ftaskp);
                         nodep->classOrPackagep(foundp->classOrPackagep());
                         UINFO(7, indent() << "Resolved recursive " << nodep);  // Also prints taskp
-                    } else {
+                    } অন্যথা {
                         nodep->v3error("Found definition of '"
                                        << m_ds.m_dotText << (m_ds.m_dotText == "" ? "" : ".")
                                        << nodep->prettyName() << "'" << " as a "
                                        << foundp->nodep()->typeName()
                                        << " but expected a task/function");
                     }
-                } else if (VN_IS(nodep, New) && !m_statep->forScopeCreation()) {
+                } অন্যথা যদি (VN_IS(nodep, New) && !m_statep->forScopeCreation()) {
                     // Resolved in V3Width
-                } else if ((nodep->name() == "pre_randomize" || nodep->name() == "post_randomize")
+                } অন্যথা যদি ((nodep->name() == "pre_randomize" || nodep->name() == "post_randomize")
                            && VN_IS(dotSymp->nodep(), Class)) {
-                    AstClass* const classp = VN_AS(dotSymp->nodep(), Class);
+                    AstClass* ধ্রুবক classp = VN_AS(dotSymp->nodep(), Class);
                     // Functions that might be defined by user, but if not, they get empty
                     // definitions within referenced class.
                     // TODO perhaps cleaner to add to symbol table up-front with
                     // a lambda to construct them on a reference.
-                    AstFunc* const funcp
-                        = new AstFunc{nodep->fileline(), nodep->name(), nullptr, nullptr};
-                    funcp->classMethod(true);
+                    AstFunc* ধ্রুবক funcp
+                        = নতুন AstFunc{nodep->fileline(), nodep->name(), nullptr, nullptr};
+                    funcp->classMethod(সত্য);
                     funcp->dtypep(funcp->findVoidDType());
                     classp->addMembersp(funcp);
-                    m_statep->insertBlock(dotSymp, nodep->name(), funcp, classp);
+                    m_statep->ঢোকাও_Block(dotSymp, nodep->name(), funcp, classp);
                     nodep->taskp(funcp);
                     nodep->classOrPackagep(classp);
                     UINFO(9, indent() << " Auto-made " << funcp);
-                    return;
-                } else if (nodep->name() == "randomize" || nodep->name() == "srandom"
+                    ফেরত;
+                } অন্যথা যদি (nodep->name() == "randomize" || nodep->name() == "srandom"
                            || nodep->name() == "get_randstate" || nodep->name() == "set_randstate"
                            || nodep->name() == "rand_mode" || nodep->name() == "constraint_mode") {
-                    if (AstClass* const classp = VN_CAST(m_modp, Class)) {
+                    যদি (AstClass* ধ্রুবক classp = VN_CAST(m_modp, Class)) {
                         // Don't overwrite if already resolved to a package (e.g. std::randomize)
-                        if (!VN_IS(nodep->classOrPackagep(), Package))
+                        যদি (!VN_IS(nodep->classOrPackagep(), Package))
                             nodep->classOrPackagep(classp);
-                    } else if (nodep->name() == "randomize") {
+                    } অন্যথা যদি (nodep->name() == "randomize") {
                         // A std::randomize resolved in V3Width
                         nodep->classOrPackagep(v3Global.rootp()->stdPackagep());
-                    } else {
+                    } অন্যথা {
                         nodep->v3error("Calling implicit class method "
                                        << nodep->prettyNameQ() << " without being under class");
-                        nodep->replaceWith(new AstConst{nodep->fileline(), 0});
-                        VL_DO_DANGLING(pushDeletep(nodep), nodep);
-                        return;
+                        nodep->replaceWith(নতুন AstConst{nodep->fileline(), 0});
+                        VL_DO_DANGLING(ঠেলো_Deletep(nodep), nodep);
+                        ফেরত;
                     }
-                } else if (nodep->dotted() == "") {
-                    if (nodep->pli()) {
-                        if (v3Global.opt.bboxSys()) {
-                            AstNode* newp;
-                            if (VN_IS(nodep, FuncRef)) {
-                                newp = new AstConst{nodep->fileline(), AstConst::All0{}};
-                            } else {
-                                AstNodeExpr* outp = nullptr;
-                                while (AstArg* const argp = nodep->argsp()) {
-                                    outp = AstNode::addNext(outp, argp->exprp()->unlinkFrBack());
-                                    VL_DO_DANGLING(pushDeletep(argp->unlinkFrBack()), argp);
+                } অন্যথা যদি (nodep->dotted() == "") {
+                    যদি (nodep->pli()) {
+                        যদি (v3Global.opt.bboxSys()) {
+                            Ast_গ্রন্থি* newp;
+                            যদি (VN_IS(nodep, FuncRef)) {
+                                newp = নতুন AstConst{nodep->fileline(), AstConst::All0{}};
+                            } অন্যথা {
+                                Ast_গ্রন্থি_রাশিমালা* outp = nullptr;
+                                যখন (AstArg* ধ্রুবক argp = nodep->argsp()) {
+                                    outp = Ast_গ্রন্থি::add_পরবর্তী(outp, argp->exprp()->unlinkFrBack());
+                                    VL_DO_DANGLING(ঠেলো_Deletep(argp->unlinkFrBack()), argp);
                                 }
-                                newp = new AstSysIgnore{nodep->fileline(), outp};
+                                newp = নতুন AstSysIgnore{nodep->fileline(), outp};
                                 newp->dtypep(nodep->dtypep());
                             }
                             nodep->replaceWith(newp);
-                            VL_DO_DANGLING(pushDeletep(nodep), nodep);
-                            return;
-                        } else {
+                            VL_DO_DANGLING(ঠেলো_Deletep(nodep), nodep);
+                            ফেরত;
+                        } অন্যথা {
                             VSpellCheck speller;
                             V3Parse::candidatePli(&speller);
-                            const string suggest = speller.bestCandidateMsg(nodep->prettyName());
+                            ধ্রুবক string suggest = speller.best_Candidate_বার্তা(nodep->prettyName());
                             nodep->v3error(
                                 "Unsupported or unknown PLI call: "
                                 << nodep->prettyNameQ() << '\n'
                                 << (suggest.empty() ? "" : nodep->warnMore() + suggest));
                         }
-                    } else {
-                        const string suggest = m_statep->suggestSymFallback(
-                            dotSymp, nodep->name(), LinkNodeMatcherFTask{});
+                    } অন্যথা {
+                        ধ্রুবক string suggest = m_statep->suggestSymFallback(
+                            dotSymp, nodep->name(), Link_গ্রন্থি_Matcher_FTask{});
                         nodep->v3error("Can't find definition of task/function: "
                                        << nodep->prettyNameQ() << '\n'
                                        << (suggest.empty() ? "" : nodep->warnMore() + suggest));
                     }
-                } else {
-                    const string suggest = m_statep->suggestSymFallback(dotSymp, nodep->name(),
-                                                                        LinkNodeMatcherFTask{});
+                } অন্যথা {
+                    ধ্রুবক string suggest = m_statep->suggestSymFallback(dotSymp, nodep->name(),
+                                                                        Link_গ্রন্থি_Matcher_FTask{});
                     nodep->v3error("Can't find definition of "
-                                   << AstNode::prettyNameQ(baddot) << " in dotted task/function: '"
+                                   << Ast_গ্রন্থি::prettyNameQ(baddot) << " in dotted task/function: '"
                                    << nodep->dotted() + "." + nodep->prettyName() << "'\n"
                                    << (suggest.empty() ? "" : nodep->warnMore() + suggest) << '\n'
                                    << nodep->warnContextPrimary()
@@ -5768,141 +5768,141 @@ class LinkDotResolveVisitor final : public VNVisitor {
             }
         }
     }
-    void visit(AstSelBit* nodep) override {
-        if (nodep->user3SetOnce()) return;
+    শূন্য visit(AstSelBit* nodep) override {
+        যদি (nodep->user3SetOnce()) ফেরত;
         LINKDOT_VISIT_START();
-        iterateAndNextNull(nodep->fromp());
-        if (m_ds.m_unresolvedClass) {
+        iterate_And_পরবর্তী_Null(nodep->fromp());
+        যদি (m_ds.m_unresolvedClass) {
             UASSERT_OBJ(m_ds.m_dotPos != DP_SCOPE && m_ds.m_dotPos != DP_FIRST, nodep,
                         "Object of unresolved class on scope position in dotted reference");
             // The index does not depend on the class, and V3Param must see its class references
             symIterateNull(nodep->bitp(), m_curSymp);
             symIterateNull(nodep->attrp(), m_curSymp);
-            return;
+            ফেরত;
         }
-        if (m_ds.m_dotPos == DP_SCOPE
+        যদি (m_ds.m_dotPos == DP_SCOPE
             || m_ds.m_dotPos
                    == DP_FIRST) {  // Already under dot, so this is {modulepart} DOT {modulepart}
             UINFO(9, indent() << "deferring until after a V3Param pass: " << nodep);
             m_ds.m_dotText += "__BRA__??__KET__";
-            m_ds.m_unresolvedCell = true;
+            m_ds.m_unresolvedCell = সত্য;
             // And pass up m_ds.m_dotText
         }
         // Pass dot state down to only fromp()
-        iterateAndNextNull(nodep->fromp());
+        iterate_And_পরবর্তী_Null(nodep->fromp());
         symIterateNull(nodep->bitp(), m_curSymp);
         symIterateNull(nodep->attrp(), m_curSymp);
-        if (m_ds.m_unresolvedCell && (m_ds.m_dotPos == DP_SCOPE || m_ds.m_dotPos == DP_FIRST)) {
-            AstNodeExpr* const exprp = nodep->bitp()->unlinkFrBack();
-            if (AstCellArrayRef* const fromArrRefp = VN_CAST(nodep->fromp(), CellArrayRef)) {
+        যদি (m_ds.m_unresolvedCell && (m_ds.m_dotPos == DP_SCOPE || m_ds.m_dotPos == DP_FIRST)) {
+            Ast_গ্রন্থি_রাশিমালা* ধ্রুবক exprp = nodep->bitp()->unlinkFrBack();
+            যদি (AstCellArrayRef* ধ্রুবক fromArrRefp = VN_CAST(nodep->fromp(), CellArrayRef)) {
                 // Multi-dim iface array access: append this select to the existing chain
                 fromArrRefp->addSelp(exprp);
-                AstCellArrayRef* const movedp = fromArrRefp->unlinkFrBack();
+                AstCellArrayRef* ধ্রুবক movedp = fromArrRefp->unlinkFrBack();
                 nodep->replaceWith(movedp);
-                VL_DO_DANGLING(pushDeletep(nodep), nodep);
-            } else {
-                AstCellArrayRef* const newp
-                    = new AstCellArrayRef{nodep->fileline(), nodep->fromp()->name(), exprp};
+                VL_DO_DANGLING(ঠেলো_Deletep(nodep), nodep);
+            } অন্যথা {
+                AstCellArrayRef* ধ্রুবক newp
+                    = নতুন AstCellArrayRef{nodep->fileline(), nodep->fromp()->name(), exprp};
                 nodep->replaceWith(newp);
-                VL_DO_DANGLING(pushDeletep(nodep), nodep);
+                VL_DO_DANGLING(ঠেলো_Deletep(nodep), nodep);
             }
         }
     }
-    void visit(AstNodePreSel* nodep) override {
+    শূন্য visit(Ast_গ্রন্থি_Pre_Sel* nodep) override {
         // Excludes simple AstSelBit, see above
-        if (nodep->user3SetOnce()) return;
+        যদি (nodep->user3SetOnce()) ফেরত;
         LINKDOT_VISIT_START();
-        if (m_ds.m_dotPos == DP_SCOPE
+        যদি (m_ds.m_dotPos == DP_SCOPE
             || m_ds.m_dotPos
                    == DP_FIRST) {  // Already under dot, so this is {modulepart} DOT {modulepart}
             nodep->v3error("Syntax error: Range ':', '+:' etc are not allowed in the instance "
                            "part of a dotted reference");
-            m_ds.m_dotErr = true;
-            return;
+            m_ds.m_dotErr = সত্য;
+            ফেরত;
         }
-        AstNodeDType* packedArrayDtp = nullptr;  // Datatype reference for packed array
+        Ast_গ্রন্থি_DType* packedArrayDtp = nullptr;  // Datatype reference for packed array
         {
             VL_RESTORER(m_packedArrayDtp);
-            iterateAndNextNull(nodep->fromp());
+            iterate_And_পরবর্তী_Null(nodep->fromp());
             symIterateNull(nodep->rhsp(), m_curSymp);
             symIterateNull(nodep->thsp(), m_curSymp);
 
-            if (m_packedArrayDtp) {
-                AstRange* const newRangep
-                    = new AstRange(nodep->fileline(), nodep->rhsp()->unlinkFrBack(),
+            যদি (m_packedArrayDtp) {
+                AstRange* ধ্রুবক newRangep
+                    = নতুন AstRange(nodep->fileline(), nodep->rhsp()->unlinkFrBack(),
                                    nodep->thsp()->unlinkFrBack());
                 AstPackArrayDType* newArrayTypep
-                    = new AstPackArrayDType(nodep->fileline(), m_packedArrayDtp, newRangep);
+                    = নতুন AstPackArrayDType(nodep->fileline(), m_packedArrayDtp, newRangep);
                 newArrayTypep->childDTypep(m_packedArrayDtp);
                 newArrayTypep->refDTypep(nullptr);
-                if (VN_IS(nodep->backp(), SelExtract)) {
+                যদি (VN_IS(nodep->backp(), SelExtract)) {
                     packedArrayDtp = newArrayTypep;
-                } else {
+                } অন্যথা {
                     replaceWithCheckBreak(nodep, newArrayTypep);
-                    VL_DO_DANGLING(pushDeletep(nodep), nodep);
+                    VL_DO_DANGLING(ঠেলো_Deletep(nodep), nodep);
                 }
-            } else {
-                if (nodep->attrp()) {
-                    AstNode* const attrp = nodep->attrp()->unlinkFrBack();
-                    VL_DO_DANGLING(attrp->deleteTree(), attrp);
+            } অন্যথা {
+                যদি (nodep->attrp()) {
+                    Ast_গ্রন্থি* ধ্রুবক attrp = nodep->attrp()->unlinkFrBack();
+                    VL_DO_DANGLING(attrp->delete_বৃক্ষ(), attrp);
                 }
-                AstNode* const basefromp = nodep->baseFromp(false);
-                if (VN_IS(basefromp, Replicate)) {
+                Ast_গ্রন্থি* ধ্রুবক basefromp = nodep->baseFromp(মিথ্যা);
+                যদি (VN_IS(basefromp, Replicate)) {
                     // From {...}[...] syntax in IEEE 2017
-                    if (basefromp) UINFO(9, indent() << " Related node: " << basefromp);
-                } else {
-                    nodep->attrp(new AstAttrOf{nodep->fileline(), VAttrType::VAR_BASE,
-                                               basefromp->cloneTree(false)});
+                    যদি (basefromp) UINFO(9, indent() << " Related node: " << basefromp);
+                } অন্যথা {
+                    nodep->attrp(নতুন AstAttrOf{nodep->fileline(), VAttrType::VAR_BASE,
+                                               basefromp->clone_বৃক্ষ(মিথ্যা)});
                 }
             }
         }
 
-        if (packedArrayDtp) m_packedArrayDtp = packedArrayDtp;
+        যদি (packedArrayDtp) m_packedArrayDtp = packedArrayDtp;
     }
-    void visit(AstMemberSel* nodep) override {
+    শূন্য visit(AstMemberSel* nodep) override {
         // checkNoDot not appropriate, can be under a dot
         LINKDOT_VISIT_START();
         iterateChildren(nodep);
     }
-    void visit(AstGenBlock* nodep) override {
+    শূন্য visit(AstGenBlock* nodep) override {
         LINKDOT_VISIT_START();
         UINFO(5, indent() << "visit " << nodep);
         checkNoDot(nodep);
         {
             VL_RESTORER(m_curSymp);
             VL_RESTORER_COPY(m_ds);
-            if (nodep->name() != "") {
-                m_ds.m_dotSymp = m_curSymp = m_statep->getNodeSym(nodep);
+            যদি (nodep->name() != "") {
+                m_ds.m_dotSymp = m_curSymp = m_statep->get_গ্রন্থি_Sym(nodep);
                 UINFO(5, indent() << "cur=se" << cvtToHex(m_curSymp));
             }
             iterateChildren(nodep);
         }
         UINFO(5, indent() << "cur=se" << cvtToHex(m_curSymp));
     }
-    void visit(AstNodeBlock* nodep) override {
+    শূন্য visit(Ast_গ্রন্থি_Block* nodep) override {
         LINKDOT_VISIT_START();
         UINFO(5, indent() << "visit " << nodep);
         checkNoDot(nodep);
         {
             VL_RESTORER(m_curSymp);
             VL_RESTORER_COPY(m_ds);
-            if (nodep->name() != "") {
-                m_ds.m_dotSymp = m_curSymp = m_statep->getNodeSym(nodep);
+            যদি (nodep->name() != "") {
+                m_ds.m_dotSymp = m_curSymp = m_statep->get_গ্রন্থি_Sym(nodep);
                 UINFO(5, indent() << "cur=se" << cvtToHex(m_curSymp));
             }
             iterateChildren(nodep);
         }
         UINFO(5, indent() << "cur=se" << cvtToHex(m_curSymp));
     }
-    void visit(AstNodeFTask* nodep) override {
+    শূন্য visit(Ast_গ্রন্থি_FTask* nodep) override {
         LINKDOT_VISIT_START();
         UINFO(5, indent() << "visit " << nodep);
         checkNoDot(nodep);
-        if (nodep->isExternDef() && !nodep->didProto()) {
-            nodep->didProto(true);
-            if (const VSymEnt* const foundp
+        যদি (nodep->isExternDef() && !nodep->didProto()) {
+            nodep->didProto(সত্য);
+            যদি (ধ্রুবক VSymEnt* ধ্রুবক foundp
                 = m_curSymp->findIdFallback("extern " + nodep->name())) {
-                const AstNodeFTask* const protop = VN_AS(foundp->nodep(), NodeFTask);
+                ধ্রুবক Ast_গ্রন্থি_FTask* ধ্রুবক protop = VN_AS(foundp->nodep(), গ্রন্থি_FTask);
                 // Copy specifiers.
                 // External definition cannot have any specifiers, so no value will be overwritten.
                 nodep->isHideLocal(protop->isHideLocal());
@@ -5911,25 +5911,25 @@ class LinkDotResolveVisitor final : public VNVisitor {
                 nodep->isVirtual(protop->isVirtual());
                 nodep->lifetime(protop->lifetime());
                 // Always add an FUNC_RETURN_PROTO even if task, so we can locate the prototype
-                nodep->addStmtsp(new AstAttrOf{protop->fileline(), VAttrType::FUNC_RETURN_PROTO,
+                nodep->addStmtsp(নতুন AstAttrOf{protop->fileline(), VAttrType::FUNC_RETURN_PROTO,
                                                protop->fvarp()
-                                                   ? protop->fvarp()->cloneTree(false)
-                                                   : new AstVoidDType{protop->fileline()}});
-                for (AstNode* stmtp = protop->stmtsp(); stmtp; stmtp = stmtp->nextp()) {
-                    if (AstVar* const portp = VN_CAST(stmtp, Var)) {
-                        AstAttrOf* const attrp
-                            = new AstAttrOf{protop->fileline(), VAttrType::FUNC_ARG_PROTO,
-                                            portp->subDTypep()->cloneTree(false)};
+                                                   ? protop->fvarp()->clone_বৃক্ষ(মিথ্যা)
+                                                   : নতুন AstVoidDType{protop->fileline()}});
+                জন্য (Ast_গ্রন্থি* stmtp = protop->stmtsp(); stmtp; stmtp = stmtp->nextp()) {
+                    যদি (AstVar* ধ্রুবক portp = VN_CAST(stmtp, Var)) {
+                        AstAttrOf* ধ্রুবক attrp
+                            = নতুন AstAttrOf{protop->fileline(), VAttrType::FUNC_ARG_PROTO,
+                                            portp->subDTypep()->clone_বৃক্ষ(মিথ্যা)};
                         attrp->name(portp->name());
                         nodep->addStmtsp(attrp);
                     }
                 }
-            } else {
+            } অন্যথা {
                 nodep->v3error("extern not found that declares " + nodep->prettyNameQ());
             }
         }
-        if (nodep->isExternProto()) {
-            if (!m_curSymp->findIdFallback(nodep->name())) {
+        যদি (nodep->isExternProto()) {
+            যদি (!m_curSymp->findIdFallback(nodep->name())) {
                 nodep->v3warn(PROTOTYPEMIS,
                               "Definition not found for extern prototype " + nodep->prettyNameQ());
             }
@@ -5939,13 +5939,13 @@ class LinkDotResolveVisitor final : public VNVisitor {
         VL_RESTORER(m_explicitSuperNewp);
         {
             m_ftaskp = nodep;
-            m_ds.m_dotSymp = m_curSymp = m_statep->getNodeSym(nodep);
-            const bool isNew = nodep->name() == "new";
-            if (isNew) m_explicitSuperNewp = nullptr;
+            m_ds.m_dotSymp = m_curSymp = m_statep->get_গ্রন্থি_Sym(nodep);
+            ধ্রুবক যৌক্তিক isNew = nodep->name() == "new";
+            যদি (isNew) m_explicitSuperNewp = nullptr;
             iterateChildren(nodep);
-            if (isNew) {
-                const AstClassExtends* const classExtendsp = VN_AS(m_modp, Class)->extendsp();
-                if (m_explicitSuperNewp && !m_explicitSuperNewp->isImplicit() && classExtendsp
+            যদি (isNew) {
+                ধ্রুবক AstClassExtends* ধ্রুবক classExtendsp = VN_AS(m_modp, Class)->extendsp();
+                যদি (m_explicitSuperNewp && !m_explicitSuperNewp->isImplicit() && classExtendsp
                     && classExtendsp->argsp()) {
                     m_explicitSuperNewp->v3error(
                         "Explicit super.new not allowed with class "
@@ -5956,12 +5956,12 @@ class LinkDotResolveVisitor final : public VNVisitor {
                         << "... Location of extends argument(s)\n"
                         << classExtendsp->argsp()->warnContextSecondary());
                 }
-                if (classExtendsp && classExtendsp->classOrNullp()) {
-                    if (!m_explicitSuperNewp && m_statep->forParamed()
+                যদি (classExtendsp && classExtendsp->classOrNullp()) {
+                    যদি (!m_explicitSuperNewp && m_statep->forParamed()
                         && !VN_AS(classExtendsp->childDTypep()->skipRefp(), ClassRefDType)
                                 ->classp()
                                 ->isInterfaceClass()) {
-                        AstNodeStmt* const superNewp
+                        Ast_গ্রন্থি_Stmt* ধ্রুবক superNewp
                             = addImplicitSuperNewCall(VN_AS(nodep, Func), classExtendsp);
                         UINFO(9, "created super new " << superNewp);
                         iterate(superNewp);
@@ -5969,98 +5969,98 @@ class LinkDotResolveVisitor final : public VNVisitor {
                 }
             }
         }
-        m_ds.m_dotSymp = VL_RESTORER_PREV(m_curSymp);
+        m_ds.m_dotSymp = VL_RESTORER_পূর্ব(m_curSymp);
     }
-    void visit(AstNodeForeach* nodep) override {
+    শূন্য visit(Ast_গ্রন্থি_Foreach* nodep) override {
         LINKDOT_VISIT_START();
         UINFO(5, indent() << "visit " << nodep);
         checkNoDot(nodep);
-        symIterateChildren(nodep, m_statep->getNodeSym(nodep));
+        symIterateChildren(nodep, m_statep->get_গ্রন্থি_Sym(nodep));
     }
-    void visit(AstRandSequence* nodep) override {
+    শূন্য visit(AstRandSequence* nodep) override {
         LINKDOT_VISIT_START();
         UINFO(5, indent() << "visit " << nodep);
         checkNoDot(nodep);
-        if (!nodep->start().empty())
-            nodep->prodp(findProd(nodep, m_statep->getNodeSym(nodep), nodep->start()));
-        symIterateChildren(nodep, m_statep->getNodeSym(nodep));
+        যদি (!nodep->start().empty())
+            nodep->prodp(findProd(nodep, m_statep->get_গ্রন্থি_Sym(nodep), nodep->start()));
+        symIterateChildren(nodep, m_statep->get_গ্রন্থি_Sym(nodep));
     }
-    void visit(AstRSProd* nodep) override {
+    শূন্য visit(AstRSProd* nodep) override {
         LINKDOT_VISIT_START();
         UINFO(5, indent() << "visit " << nodep);
         checkNoDot(nodep);
-        symIterateChildren(nodep, m_statep->getNodeSym(nodep));
+        symIterateChildren(nodep, m_statep->get_গ্রন্থি_Sym(nodep));
     }
-    void visit(AstRSProdItem* nodep) override {
+    শূন্য visit(AstRSProdItem* nodep) override {
         LINKDOT_VISIT_START();
         UINFO(5, indent() << "visit " << nodep);
         checkNoDot(nodep);
         nodep->prodp(findProd(nodep, m_curSymp, nodep->name()));
         iterateChildren(nodep);
     }
-    void visit(AstCoverWith* nodep) override {
+    শূন্য visit(AstCoverWith* nodep) override {
         LINKDOT_VISIT_START();
         UINFO(5, indent() << "visit " << nodep);
         checkNoDot(nodep);
-        iterateAndNextNull(nodep->subp());
+        iterate_And_পরবর্তী_Null(nodep->subp());
         // The type of 'item' is that of the coverpoint expression, which may name 'item' too
-        iterateAndNextNull(nodep->itemp()->childDTypep());
+        iterate_And_পরবর্তী_Null(nodep->itemp()->childDTypep());
         VL_RESTORER(m_curSymp);
-        m_ds.m_dotSymp = m_curSymp = m_statep->getNodeSym(nodep);
-        iterateAndNextNull(nodep->itemp());
-        iterateAndNextNull(nodep->filterp());
-        m_ds.m_dotSymp = VL_RESTORER_PREV(m_curSymp);
+        m_ds.m_dotSymp = m_curSymp = m_statep->get_গ্রন্থি_Sym(nodep);
+        iterate_And_পরবর্তী_Null(nodep->itemp());
+        iterate_And_পরবর্তী_Null(nodep->filterp());
+        m_ds.m_dotSymp = VL_RESTORER_পূর্ব(m_curSymp);
     }
-    void visit(AstCoverCrossWith* nodep) override {
+    শূন্য visit(AstCoverCrossWith* nodep) override {
         LINKDOT_VISIT_START();
         UINFO(5, indent() << "visit " << nodep);
         checkNoDot(nodep);
-        iterateAndNextNull(nodep->selectp());
-        iterateAndNextNull(nodep->countp());
+        iterate_And_পরবর্তী_Null(nodep->selectp());
+        iterate_And_পরবর্তী_Null(nodep->countp());
         // The type of a cross item is that of its coverpoint's expression, which may name items
-        iterateAndNextNull(nodep->varsp());
+        iterate_And_পরবর্তী_Null(nodep->varsp());
         VL_RESTORER(m_curSymp);
-        m_ds.m_dotSymp = m_curSymp = m_statep->getNodeSym(nodep);
-        iterateAndNextNull(nodep->filterp());
-        m_ds.m_dotSymp = VL_RESTORER_PREV(m_curSymp);
+        m_ds.m_dotSymp = m_curSymp = m_statep->get_গ্রন্থি_Sym(nodep);
+        iterate_And_পরবর্তী_Null(nodep->filterp());
+        m_ds.m_dotSymp = VL_RESTORER_পূর্ব(m_curSymp);
     }
-    void visit(AstWith* nodep) override {
+    শূন্য visit(AstWith* nodep) override {
         LINKDOT_VISIT_START();
         UINFO(5, indent() << "visit " << nodep);
         checkNoDot(nodep);
-        if (m_ds.m_unresolvedClass) return;
+        যদি (m_ds.m_unresolvedClass) ফেরত;
         VL_RESTORER(m_curSymp);
         VL_RESTORER(m_currentWithp);
         VL_RESTORER_COPY(m_restrictedNamesUsed);
         {
-            m_ds.m_dotSymp = m_curSymp = m_statep->getNodeSym(nodep);
+            m_ds.m_dotSymp = m_curSymp = m_statep->get_গ্রন্থি_Sym(nodep);
             m_currentWithp = nodep;
             // Validate the identifier_list once per AstWith (m_validated travels
             // with cloneTree, so cloned witnesses skip the redundant check).
-            const bool firstVisit = !nodep->validated();
-            if (firstVisit) {
-                nodep->validated(true);
+            ধ্রুবক যৌক্তিক firstVisit = !nodep->validated();
+            যদি (firstVisit) {
+                nodep->validated(সত্য);
                 m_restrictedNamesUsed.clear();
                 // IEEE 1800-2023 18.7: each name in the identifier_list must designate
                 // a member of the randomize() target class.
-                if (nodep->restricted() && m_randSymp) {
-                    for (const std::string& n : nodep->restrictedNames()) {
-                        if (!m_randSymp->findIdFlat(n)) {
+                যদি (nodep->restricted() && m_randSymp) {
+                    জন্য (ধ্রুবক std::string& n : nodep->restrictedNames()) {
+                        যদি (!m_randSymp->findIdFlat(n)) {
                             nodep->v3error("Identifier '"
                                            << n
                                            << "' in 'with (...)' identifier list is not a"
                                               " member of the randomize() target class"
                                               " (IEEE 1800-2023 18.7)");
-                            m_restrictedNamesUsed.insert(n);
+                            m_restrictedNamesUsed.ঢোকাও(n);
                         }
                     }
                 }
             }
             iterateChildren(nodep);
             // Flag names that the user listed but never referenced in the constraint.
-            if (firstVisit && nodep->restricted()) {
-                for (const std::string& n : nodep->restrictedNames()) {
-                    if (!m_restrictedNamesUsed.count(n)) {
+            যদি (firstVisit && nodep->restricted()) {
+                জন্য (ধ্রুবক std::string& n : nodep->restrictedNames()) {
+                    যদি (!m_restrictedNamesUsed.গুনতি(n)) {
                         nodep->v3warn(UNUSED, "Identifier '"
                                                   << n
                                                   << "' in 'with (...)' identifier list is"
@@ -6070,131 +6070,131 @@ class LinkDotResolveVisitor final : public VNVisitor {
                 }
             }
         }
-        m_ds.m_dotSymp = VL_RESTORER_PREV(m_curSymp);
+        m_ds.m_dotSymp = VL_RESTORER_পূর্ব(m_curSymp);
     }
-    void visit(AstLambdaArgRef* nodep) override {
+    শূন্য visit(AstLambdaArgRef* nodep) override {
         LINKDOT_VISIT_START();
         UINFO(5, indent() << "visit " << nodep);
         // No checknodot(nodep), visit(AstScope) will check for LambdaArgRef
         iterateChildren(nodep);
     }
-    void visit(AstClassExtends* nodep) override {
+    শূন্য visit(AstClassExtends* nodep) override {
         // Resolve the symbol and get the class.
         // If it is a parameterized case, the class will be resolved after V3Param.cpp
-        if (nodep->user3SetOnce()) return;
+        যদি (nodep->user3SetOnce()) ফেরত;
         // If the class is resolved, there is nothing more to do
-        if (nodep->classOrNullp()) return;
+        যদি (nodep->classOrNullp()) ফেরত;
         LINKDOT_VISIT_START();
-        if (m_statep->forPrimary()) {
-            if (nodep->childDTypep()) return;
-            AstNode* cprp = nodep->classOrPkgsp();
+        যদি (m_statep->forPrimary()) {
+            যদি (nodep->childDTypep()) ফেরত;
+            Ast_গ্রন্থি* cprp = nodep->classOrPkgsp();
             VSymEnt* lookSymp = m_curSymp;
-            if (AstDot* const dotp = VN_CAST(cprp, Dot)) {
-                dotp->user3(true);
-                if (AstClassOrPackageRef* lookNodep = VN_CAST(dotp->lhsp(), ClassOrPackageRef)) {
+            যদি (AstDot* ধ্রুবক dotp = VN_CAST(cprp, Dot)) {
+                dotp->user3(সত্য);
+                যদি (AstClassOrPackageRef* lookNodep = VN_CAST(dotp->lhsp(), ClassOrPackageRef)) {
                     iterate(lookNodep);
                     cprp = dotp->rhsp();
-                    VSymEnt* const foundp = m_statep->resolveClassOrPackage(
-                        lookSymp, lookNodep, true, false, nodep->verilogKwd());
-                    if (!foundp) {
-                        VL_DO_DANGLING(pushDeletep(nodep->unlinkFrBack()), nodep);
-                        return;
+                    VSymEnt* ধ্রুবক foundp = m_statep->resolveClassOrPackage(
+                        lookSymp, lookNodep, সত্য, মিথ্যা, nodep->verilogKwd());
+                    যদি (!foundp) {
+                        VL_DO_DANGLING(ঠেলো_Deletep(nodep->unlinkFrBack()), nodep);
+                        ফেরত;
                     }
                     UASSERT_OBJ(lookNodep->classOrPackageSkipp(), nodep, "Bad package link");
-                    lookSymp = m_statep->getNodeSym(lookNodep->classOrPackageSkipp());
-                } else {
+                    lookSymp = m_statep->get_গ্রন্থি_Sym(lookNodep->classOrPackageSkipp());
+                } অন্যথা {
                     dotp->lhsp()->v3error("Attempting to extend"  // LCOV_EXCL_LINE
                                           " using non-class under dot");
                 }
             }
-            AstClassOrPackageRef* const cpackagerefp = VN_CAST(cprp, ClassOrPackageRef);
-            if (VL_UNCOVERABLE(!cpackagerefp)) {
+            AstClassOrPackageRef* ধ্রুবক cpackagerefp = VN_CAST(cprp, ClassOrPackageRef);
+            যদি (VL_UNCOVERABLE(!cpackagerefp)) {
                 // Linking the extend gives an error before this is hit
                 nodep->v3error("Attempting to extend using non-class");  // LCOV_EXCL_LINE
-                VL_DO_DANGLING(pushDeletep(nodep->unlinkFrBack()), nodep);
-                return;
+                VL_DO_DANGLING(ঠেলো_Deletep(nodep->unlinkFrBack()), nodep);
+                ফেরত;
             }
-            VSymEnt* const foundp = m_statep->resolveClassOrPackage(lookSymp, cpackagerefp, true,
-                                                                    true, nodep->verilogKwd());
-            if (!foundp) {
-                VL_DO_DANGLING(pushDeletep(nodep->unlinkFrBack()), nodep);
-                return;
+            VSymEnt* ধ্রুবক foundp = m_statep->resolveClassOrPackage(lookSymp, cpackagerefp, সত্য,
+                                                                    সত্য, nodep->verilogKwd());
+            যদি (!foundp) {
+                VL_DO_DANGLING(ঠেলো_Deletep(nodep->unlinkFrBack()), nodep);
+                ফেরত;
             }
-            if (AstClass* const classp = VN_CAST(foundp->nodep(), Class)) {
+            যদি (AstClass* ধ্রুবক classp = VN_CAST(foundp->nodep(), Class)) {
                 AstPin* paramsp = cpackagerefp->paramsp();
-                if (paramsp) {
-                    paramsp = paramsp->cloneTree(true);
-                    nodep->parameterized(true);
+                যদি (paramsp) {
+                    paramsp = paramsp->clone_বৃক্ষ(সত্য);
+                    nodep->parameterized(সত্য);
                 }
-                nodep->childDTypep(new AstClassRefDType{nodep->fileline(), classp, paramsp});
+                nodep->childDTypep(নতুন AstClassRefDType{nodep->fileline(), classp, paramsp});
                 // Link pins
                 iterate(nodep->childDTypep());
-            } else if (AstParamTypeDType* const paramp
+            } অন্যথা যদি (AstParamTypeDType* ধ্রুবক paramp
                        = VN_CAST(foundp->nodep(), ParamTypeDType)) {
-                AstRefDType* const refParamp = new AstRefDType{nodep->fileline(), paramp->name()};
+                AstRefDType* ধ্রুবক refParamp = নতুন AstRefDType{nodep->fileline(), paramp->name()};
                 refParamp->refDTypep(paramp);
                 nodep->childDTypep(refParamp);
-                nodep->parameterized(true);
-            } else if (AstTypedef* const typedefp = VN_CAST(foundp->nodep(), Typedef)) {
-                AstNodeDType* const unwrappedp = typedefp->subDTypep()->skipRefp();
-                if (AstClassRefDType* const classRefp = VN_CAST(unwrappedp, ClassRefDType)) {
+                nodep->parameterized(সত্য);
+            } অন্যথা যদি (AstTypedef* ধ্রুবক typedefp = VN_CAST(foundp->nodep(), Typedef)) {
+                Ast_গ্রন্থি_DType* ধ্রুবক unwrappedp = typedefp->subDTypep()->skipRefp();
+                যদি (AstClassRefDType* ধ্রুবক classRefp = VN_CAST(unwrappedp, ClassRefDType)) {
                     AstPin* paramsp = cpackagerefp->paramsp();
-                    if (!paramsp && classRefp->paramsp()) {
+                    যদি (!paramsp && classRefp->paramsp()) {
                         // No explicit #(...) on extends clause; carry over the
                         // typedef's type-parameter pins so V3Param sees them.
-                        paramsp = classRefp->paramsp()->cloneTree(true);
-                        nodep->parameterized(true);
-                    } else if (paramsp) {
-                        paramsp = paramsp->cloneTree(true);
-                        nodep->parameterized(true);
+                        paramsp = classRefp->paramsp()->clone_বৃক্ষ(সত্য);
+                        nodep->parameterized(সত্য);
+                    } অন্যথা যদি (paramsp) {
+                        paramsp = paramsp->clone_বৃক্ষ(সত্য);
+                        nodep->parameterized(সত্য);
                     }
                     nodep->childDTypep(
-                        new AstClassRefDType{nodep->fileline(), classRefp->classp(), paramsp});
+                        নতুন AstClassRefDType{nodep->fileline(), classRefp->classp(), paramsp});
                     iterate(nodep->childDTypep());
-                } else {
+                } অন্যথা {
                     nodep->v3warn(E_UNSUPPORTED,
                                   "Unsupported: " << foundp->nodep()->prettyTypeName()
                                                   << " in 'class extends'");
-                    return;
+                    ফেরত;
                 }
-            } else {
+            } অন্যথা {
                 nodep->v3warn(E_UNSUPPORTED, "Unsupported: " << foundp->nodep()->prettyTypeName()
                                                              << " in 'class extends'");
-                return;
+                ফেরত;
             }
-            if (!nodep->childDTypep()) nodep->v3error("Attempting to extend using non-class");
-            nodep->classOrPkgsp()->unlinkFrBack()->deleteTree();
-        } else {
+            যদি (!nodep->childDTypep()) nodep->v3error("Attempting to extend using non-class");
+            nodep->classOrPkgsp()->unlinkFrBack()->delete_বৃক্ষ();
+        } অন্যথা {
             // Probably a parameter
-            if (AstRefDType* const refp = VN_CAST(nodep->childDTypep(), RefDType)) {
-                if (AstClassRefDType* classRefp = VN_CAST(refp->skipRefp(), ClassRefDType)) {
+            যদি (AstRefDType* ধ্রুবক refp = VN_CAST(nodep->childDTypep(), RefDType)) {
+                যদি (AstClassRefDType* classRefp = VN_CAST(refp->skipRefp(), ClassRefDType)) {
                     // Resolved to a class reference.
-                    refp->replaceWith(classRefp->cloneTree(false));
-                    VL_DO_DANGLING(pushDeletep(refp), refp);
-                } else {
+                    refp->replaceWith(classRefp->clone_বৃক্ষ(মিথ্যা));
+                    VL_DO_DANGLING(ঠেলো_Deletep(refp), refp);
+                } অন্যথা {
                     // Unable to resolve the ref type to a class reference.
                     // Get the value of type parameter passed to the class instance,
                     // to print the helpful error message.
-                    const AstNodeDType* typep = refp->refDTypep();
-                    while (true) {
-                        if (const AstParamTypeDType* const atypep
+                    ধ্রুবক Ast_গ্রন্থি_DType* typep = refp->refDTypep();
+                    যখন (সত্য) {
+                        যদি (ধ্রুবক AstParamTypeDType* ধ্রুবক atypep
                             = VN_CAST(typep, ParamTypeDType)) {
                             typep = atypep->subDTypep();
-                            continue;
+                            চালু;
                         }
-                        if (const AstRequireDType* const atypep = VN_CAST(typep, RequireDType)) {
+                        যদি (ধ্রুবক AstRequireDType* ধ্রুবক atypep = VN_CAST(typep, RequireDType)) {
                             typep = atypep->subDTypep();
-                            continue;
+                            চালু;
                         }
-                        break;
+                        বিরতি;
                     }
                     typep->v3error("Attempting to extend using non-class");
                 }
             }
         }
     }
-    void visit(AstClass* nodep) override {
-        if (nodep->user3SetOnce()) return;
+    শূন্য visit(AstClass* nodep) override {
+        যদি (nodep->user3SetOnce()) ফেরত;
         LINKDOT_VISIT_START();
         UINFO(5, indent() << "visit " << nodep);
         checkNoDot(nodep);
@@ -6211,75 +6211,75 @@ class LinkDotResolveVisitor final : public VNVisitor {
                                     && m_extendsParam.find(nodep->covergroupEnclosingClassp())
                                            != m_extendsParam.end();
             // Until overridden by a SCOPE
-            m_ds.m_dotSymp = m_curSymp = m_modSymp = m_statep->getNodeSym(nodep);
+            m_ds.m_dotSymp = m_curSymp = m_modSymp = m_statep->get_গ্রন্থি_Sym(nodep);
             m_modp = nodep;
-            int next = 0;
-            for (AstClassExtends* cextp = nodep->extendsp(); cextp;
+            পূর্ণসংখ্যা পরবর্তী = 0;
+            জন্য (AstClassExtends* cextp = nodep->extendsp(); cextp;
                  cextp = VN_AS(cextp->nextp(), ClassExtends)) {
                 // Replace abstract reference with hard pointer
                 // Will need later resolution when deal with parameters
-                if (++next == 2 && !nodep->isInterfaceClass() && !cextp->isImplements()) {
+                যদি (++পরবর্তী == 2 && !nodep->isInterfaceClass() && !cextp->isImplements()) {
                     cextp->v3error("Multiple inheritance illegal on non-interface classes"
                                    " (IEEE 1800-2023 8.13)");
                 }
                 iterate(cextp);
-                if (m_statep->forPrimary()) {
-                    if (cextp->parameterized()) {
+                যদি (m_statep->forPrimary()) {
+                    যদি (cextp->parameterized()) {
                         // Parameters in extends statement.
                         // The class can't be resolved in the current pass.
-                        m_extendsParam.insert(nodep);
-                        m_insideClassExtParam = true;
+                        m_extendsParam.ঢোকাও(nodep);
+                        m_insideClassExtParam = সত্য;
                     }
-                    if (AstClassRefDType* const classRefp
+                    যদি (AstClassRefDType* ধ্রুবক classRefp
                         = VN_CAST(cextp->childDTypep(), ClassRefDType)) {
-                        AstClass* const classp = classRefp->classp();
-                        if (classp != nodep) iterate(classp);
-                        if (m_extendsParam.find(classp) != m_extendsParam.end()) {
+                        AstClass* ধ্রুবক classp = classRefp->classp();
+                        যদি (classp != nodep) iterate(classp);
+                        যদি (m_extendsParam.find(classp) != m_extendsParam.end()) {
                             // One of its super classes has parameters in extends statement.
                             // Some links may not be resolved in the first pass.
-                            m_extendsParam.insert(nodep);
-                            m_insideClassExtParam = true;
+                            m_extendsParam.ঢোকাও(nodep);
+                            m_insideClassExtParam = সত্য;
                         }
                     }
                 }
 
-                if (AstClass* const baseClassp = cextp->classOrNullp()) {
+                যদি (AstClass* ধ্রুবক baseClassp = cextp->classOrNullp()) {
                     // Already converted. Update symbol table to link unlinked members.
                     // Base class has to be visited in a case if its extends statement
                     // needs to be handled. Recursive inheritance was already checked.
                     // Must be here instead of in LinkDotParam to handle
                     // "class (type T) extends T".
-                    if (baseClassp == nodep) {
+                    যদি (baseClassp == nodep) {
                         cextp->v3error("Attempting to extend class " << nodep->prettyNameQ()
                                                                      << " from itself");
-                    } else if (extendsClass(baseClassp, nodep)) {
+                    } অন্যথা যদি (extendsClass(baseClassp, nodep)) {
                         cextp->v3error("Attempting to extend class "
                                        << nodep->prettyNameQ() << " from "
                                        << baseClassp->prettyNameQ()
                                        << ", which circularly inherits from it");
-                    } else if (cextp->isImplements() && !baseClassp->isInterfaceClass()) {
+                    } অন্যথা যদি (cextp->isImplements() && !baseClassp->isInterfaceClass()) {
                         cextp->v3error("Attempting to implement from non-interface class "
                                        << baseClassp->prettyNameQ() << '\n'
                                        << "... Suggest use 'extends'");
-                    } else if (!cextp->isImplements() && !nodep->isInterfaceClass()
+                    } অন্যথা যদি (!cextp->isImplements() && !nodep->isInterfaceClass()
                                && baseClassp->isInterfaceClass()) {
                         cextp->v3error("Attempting to extend from interface class "
                                        << baseClassp->prettyNameQ() << '\n'
                                        << "... Suggest use 'implements'");
                     }
-                    baseClassp->isExtended(true);
-                    nodep->isExtended(true);
+                    baseClassp->isExtended(সত্য);
+                    nodep->isExtended(সত্য);
                     iterate(baseClassp);
                     importSymbolsFromExtended(nodep, cextp);
-                    continue;
+                    চালু;
                 }
             }
             m_ds.m_dotSymp = m_curSymp;
 
             iterateChildren(nodep);
-            for (const auto& itr : m_ifForwards) {
-                const VSymEnt* const implSymp = itr.second;
-                addInterfaceForward(nodep, VN_AS(implSymp->nodep(), NodeFTask),
+            জন্য (ধ্রুবক auto& itr : m_ifForwards) {
+                ধ্রুবক VSymEnt* ধ্রুবক implSymp = itr.second;
+                addInterfaceForward(nodep, VN_AS(implSymp->nodep(), গ্রন্থি_FTask),
                                     VN_AS(implSymp->parentp()->nodep(), Class));
             }
         }
@@ -6287,32 +6287,32 @@ class LinkDotResolveVisitor final : public VNVisitor {
         // so add members pointing to appropriate enum values
         {
             VMemberMap memberMap;
-            for (VSymEnt::const_iterator it = m_curSymp->begin(); it != m_curSymp->end(); ++it) {
-                AstNode* const itemp = it->second->nodep();
-                if (!memberMap.findMember(nodep, it->first)) {
-                    if (AstEnumItem* const aitemp = VN_CAST(itemp, EnumItem)) {
-                        AstEnumItemRef* const newp = new AstEnumItemRef{
+            জন্য (VSymEnt::const_iterator it = m_curSymp->begin(); it != m_curSymp->end(); ++it) {
+                Ast_গ্রন্থি* ধ্রুবক itemp = it->second->nodep();
+                যদি (!memberMap.findMember(nodep, it->first)) {
+                    যদি (AstEnumItem* ধ্রুবক aitemp = VN_CAST(itemp, EnumItem)) {
+                        AstEnumItemRef* ধ্রুবক newp = নতুন AstEnumItemRef{
                             aitemp->fileline(), aitemp, it->second->classOrPackagep()};
                         UINFO(8, indent()
                                      << "Class import noderef '" << it->first << "' " << newp);
                         nodep->addMembersp(newp);
-                        memberMap.insert(nodep, newp);
+                        memberMap.ঢোকাও(nodep, newp);
                     }
                 }
             }
         }
-        m_ds.m_dotSymp = VL_RESTORER_PREV(m_curSymp);
+        m_ds.m_dotSymp = VL_RESTORER_পূর্ব(m_curSymp);
     }
 
     // Collect the ClassOrPackageRefs in a chained scope operand in source order.
     // The grammar builds a scope operand only from packageClassScopeItem, which
     // always yields a ClassOrPackageRef, nested in Dots, so nothing else appears.
-    static void collectScopeRefs(AstNode* nodep, std::vector<AstClassOrPackageRef*>& refps) {
-        if (AstClassOrPackageRef* const refp = VN_CAST(nodep, ClassOrPackageRef)) {
-            refps.push_back(refp);
-            return;
+    স্থির শূন্য collectScopeRefs(Ast_গ্রন্থি* nodep, std::vector<AstClassOrPackageRef*>& refps) {
+        যদি (AstClassOrPackageRef* ধ্রুবক refp = VN_CAST(nodep, ClassOrPackageRef)) {
+            refps.ঠেলো_back(refp);
+            ফেরত;
         }
-        AstDot* const dotp = VN_CAST(nodep, Dot);
+        AstDot* ধ্রুবক dotp = VN_CAST(nodep, Dot);
         UASSERT_OBJ(dotp, nodep, "Non-scope node in package/class scope operand");
         collectScopeRefs(dotp->lhsp(), refps);
         collectScopeRefs(dotp->rhsp(), refps);
@@ -6321,58 +6321,58 @@ class LinkDotResolveVisitor final : public VNVisitor {
     // Resolve a chained class-scope operand (`pkg::outer::inner` in
     // `pkg::outer::inner::t`) and reduce it to its innermost ClassOrPackageRef.
     // Returns false, having reported, if a segment could not be resolved.
-    bool reduceScopeDot(AstRefDType* nodep, AstDot* scopeDotp) {
+    যৌক্তিক reduceScopeDot(AstRefDType* nodep, AstDot* scopeDotp) {
         std::vector<AstClassOrPackageRef*> refps;
         collectScopeRefs(scopeDotp, refps);
 
         VSymEnt* scopeSymp = m_ds.m_dotSymp;
-        for (size_t i = 0; i < refps.size(); ++i) {
-            AstClassOrPackageRef* const refp = refps[i];
-            if (!refp->classOrPackageSkipp() && !refp->classOrPackageNodep()
-                && !m_statep->resolveClassOrPackage(scopeSymp, refp, i == 0, false,
+        জন্য (আকার_t i = 0; i < refps.আকার_2(); ++i) {
+            AstClassOrPackageRef* ধ্রুবক refp = refps[i];
+            যদি (!refp->classOrPackageSkipp() && !refp->classOrPackageNodep()
+                && !m_statep->resolveClassOrPackage(scopeSymp, refp, i == 0, মিথ্যা,
                                                     "class/package reference")) {
-                return false;  // Error already reported
+                ফেরত মিথ্যা;  // Error already reported
             }
-            if (i + 1 == refps.size()) break;
+            যদি (i + 1 == refps.আকার_2()) বিরতি;
             // A middle segment that resolved to a node with no reachable module
             // (e.g. a typedef alias of a not-yet-specialized parameterized class)
             // gives nothing to look the next segment up in.
-            AstNodeModule* const modp = refp->classOrPackageSkipp();
-            if (!modp) {
+            Ast_গ্রন্থি_Module* ধ্রুবক modp = refp->classOrPackageSkipp();
+            যদি (!modp) {
                 refp->v3warn(E_UNSUPPORTED, "Unsupported: Multiple '::' package/class reference");
-                return false;
+                ফেরত মিথ্যা;
             }
-            scopeSymp = m_statep->getNodeSym(modp);
+            scopeSymp = m_statep->get_গ্রন্থি_Sym(modp);
         }
-        AstClassOrPackageRef* const innerp = refps.back();
+        AstClassOrPackageRef* ধ্রুবক innerp = refps.back();
         innerp->unlinkFrBack();
-        VL_DO_DANGLING(pushDeletep(scopeDotp->unlinkFrBack()), scopeDotp);
+        VL_DO_DANGLING(ঠেলো_Deletep(scopeDotp->unlinkFrBack()), scopeDotp);
         nodep->classOrPackageOpp(innerp);
-        return true;
+        ফেরত সত্য;
     }
 
-    void visit(AstRefDType* nodep) override {
+    শূন্য visit(AstRefDType* nodep) override {
 
-        if (auto* const typeOfp = nodep->typeofp()) {
+        যদি (auto* ধ্রুবক typeOfp = nodep->typeofp()) {
             iterate(typeOfp);
             // After iteration, typeofp() may have been replaced with a resolved type
             // (e.g., DOT expression like if0.rq_t resolved to REFDTYPE)
             // If it's now a NodeDType, replace this RefDType with it
-            if (AstNodeDType* const resolvedDTypep = VN_CAST(nodep->typeofp(), NodeDType)) {
+            যদি (Ast_গ্রন্থি_DType* ধ্রুবক resolvedDTypep = VN_CAST(nodep->typeofp(), গ্রন্থি_DType)) {
                 UINFO(9,
                       indent() << "iface capture typeofp resolved to dtype, replacing RefDType\n");
                 resolvedDTypep->unlinkFrBack();
                 nodep->replaceWith(resolvedDTypep);
-                VL_DO_DANGLING(pushDeletep(nodep), nodep);
+                VL_DO_DANGLING(ঠেলো_Deletep(nodep), nodep);
                 // Originally (PR #6637) this block re-captured a resolved
                 // RefDType into the iface-capture ledger when user2p held a
                 // Cell, to ensure re-resolution during the paramed pass.
                 // In practice, the typeofp-resolved RefDType never carries a
                 // Cell in user2p: the capture happens earlier when the
                 // typedef is first linked.
-                if (V3LinkDotIfaceCapture::enabled()) {
-                    if (AstRefDType* const resolvedRefp = VN_CAST(resolvedDTypep, RefDType)) {
-                        if (VL_UNCOVERABLE(
+                যদি (V3LinkDotIfaceCapture::enabled()) {
+                    যদি (AstRefDType* ধ্রুবক resolvedRefp = VN_CAST(resolvedDTypep, RefDType)) {
+                        যদি (VL_UNCOVERABLE(
                                 VN_IS(resolvedRefp->user2p(), Cell))) {  // LCOV_EXCL_LINE
                             resolvedRefp->v3fatalSrc(  // LCOV_EXCL_LINE
                                 "typeofp resolved RefDType has Cell in user2p;"
@@ -6381,19 +6381,19 @@ class LinkDotResolveVisitor final : public VNVisitor {
                     }
                 }
             }
-            return;
+            ফেরত;
         }
 
         // Resolve its reference
-        if (m_statep->forParamed() && nodep->user3()) {
-            if (V3LinkDotIfaceCapture::enabled() && nodep->user2p()) {
+        যদি (m_statep->forParamed() && nodep->user3()) {
+            যদি (V3LinkDotIfaceCapture::enabled() && nodep->user2p()) {
                 UINFO(9, indent() << "iface capture clear user3 for captured typedef name="
                                   << nodep->name() << " cell=" << nodep->user2p());
             }
-            nodep->user3(false);
+            nodep->user3(মিথ্যা);
         }
-        if (nodep->user3SetOnce()) {
-            if (V3LinkDotIfaceCapture::enabled() && nodep->user2p()) {
+        যদি (nodep->user3SetOnce()) {
+            যদি (V3LinkDotIfaceCapture::enabled() && nodep->user2p()) {
                 UINFO(9, indent() << "iface capture skip revisit name=" << nodep->name()
                                   << " already user3 and captured cell=" << nodep->user2p());
             }
@@ -6405,56 +6405,56 @@ class LinkDotResolveVisitor final : public VNVisitor {
             // user3-revisit never carry a classOrPackageOpp in the paramed
             // pass: the class/package is resolved in the primary pass and
             // the skip pointer persists.
-            if (VL_UNCOVERABLE(m_statep->forParamed() && nodep->classOrPackageOpp())) {
+            যদি (VL_UNCOVERABLE(m_statep->forParamed() && nodep->classOrPackageOpp())) {
                 nodep->v3fatalSrc(  // LCOV_EXCL_LINE
                     "RefDType user3 revisit with classOrPackageOpp in paramed pass");
             }
-            return;
+            ফেরত;
         }
         LINKDOT_VISIT_START();
         UINFO(5, indent() << "visit " << nodep);
-        if (nodep->classOrPackageOpp()) {
+        যদি (nodep->classOrPackageOpp()) {
             // Resolve a chained scope (`pkg::cls::t`, `pkg::cls#(P)::t`) from outside in.
             // On failure reduceScopeDot has reported, so stop before using the operand.
-            if (AstDot* const scopeDotp = VN_CAST(nodep->classOrPackageOpp(), Dot)) {
-                if (!reduceScopeDot(nodep, scopeDotp)) return;
+            যদি (AstDot* ধ্রুবক scopeDotp = VN_CAST(nodep->classOrPackageOpp(), Dot)) {
+                যদি (!reduceScopeDot(nodep, scopeDotp)) ফেরত;
             }
             // Re-read: reduceScopeDot may have replaced the operand
-            AstNode* const cpackagep = nodep->classOrPackageOpp();
+            Ast_গ্রন্থি* ধ্রুবক cpackagep = nodep->classOrPackageOpp();
             UASSERT_OBJ(!VN_IS(cpackagep, Dot), cpackagep,
                         "Package/class scope operand should be reduced by now");
-            if (AstClassOrPackageRef* const cpackagerefp = VN_CAST(cpackagep, ClassOrPackageRef)) {
+            যদি (AstClassOrPackageRef* ধ্রুবক cpackagerefp = VN_CAST(cpackagep, ClassOrPackageRef)) {
                 iterate(cpackagerefp);
-                const AstClass* const clsp = VN_CAST(cpackagerefp->classOrPackageNodep(), Class);
-                if (clsp && clsp->hasGParam()) {
+                ধ্রুবক AstClass* ধ্রুবক clsp = VN_CAST(cpackagerefp->classOrPackageNodep(), Class);
+                যদি (clsp && clsp->hasGParam()) {
                     // Unable to link before the instantiation of parameter classes.
                     // The class reference node still has to be visited now to later link
                     // parameters.
                     iterate(cpackagep);
-                    return;
+                    ফেরত;
                 }
                 // Defer non-typedef references through typedef aliases of parameterized classes.
-                if (m_statep->forPrimary() && !VN_IS(nodep->backp(), Typedef)
+                যদি (m_statep->forPrimary() && !VN_IS(nodep->backp(), Typedef)
                     && isParamedClassRef(cpackagerefp)) {
                     iterate(cpackagep);
-                    return;
+                    ফেরত;
                 }
 
-                const bool doDefaultTypedef = !(m_resolvingTypedef && m_statep->forPrimary());
-                if (!cpackagerefp->classOrPackageSkipp(doDefaultTypedef)
+                ধ্রুবক যৌক্তিক doDefaultTypedef = !(m_resolvingTypedef && m_statep->forPrimary());
+                যদি (!cpackagerefp->classOrPackageSkipp(doDefaultTypedef)
                     && !cpackagerefp->classOrPackageNodep()) {
-                    VSymEnt* const foundp = m_statep->resolveClassOrPackage(
-                        m_ds.m_dotSymp, cpackagerefp, true, false, "class/package reference");
-                    if (!foundp) return;
+                    VSymEnt* ধ্রুবক foundp = m_statep->resolveClassOrPackage(
+                        m_ds.m_dotSymp, cpackagerefp, সত্য, মিথ্যা, "class/package reference");
+                    যদি (!foundp) ফেরত;
                 }
                 nodep->classOrPackagep(cpackagerefp->classOrPackageSkipp(doDefaultTypedef));
-                if (!VN_IS(nodep->classOrPackagep(), Class)
+                যদি (!VN_IS(nodep->classOrPackagep(), Class)
                     && !VN_IS(nodep->classOrPackagep(), Package)) {
-                    if (m_statep->forPrimary()) {
+                    যদি (m_statep->forPrimary()) {
                         // It may be a type that comes from parameter class that is not
                         // instantioned yet
                         iterate(cpackagep);
-                        return;
+                        ফেরত;
                     }
                     // Likely impossible, as error thrown earlier
                     cpackagerefp->v3error(  // LCOV_EXCL_LINE
@@ -6465,101 +6465,101 @@ class LinkDotResolveVisitor final : public VNVisitor {
                         << cpackagerefp->warnMore() + "... Suggest '.' instead of '::'");
                 }
             }
-            VL_DO_DANGLING(pushDeletep(cpackagep->unlinkFrBack()), cpackagep);
+            VL_DO_DANGLING(ঠেলো_Deletep(cpackagep->unlinkFrBack()), cpackagep);
         }
 
-        if (m_ds.m_dotp && (m_ds.m_dotPos == DP_PACKAGE || m_ds.m_dotPos == DP_SCOPE)) {
+        যদি (m_ds.m_dotp && (m_ds.m_dotPos == DP_PACKAGE || m_ds.m_dotPos == DP_SCOPE)) {
             UASSERT_OBJ(VN_IS(m_ds.m_dotp->lhsp(), ClassOrPackageRef), m_ds.m_dotp->lhsp(),
                         "Bad package link");
-            auto* const cpackagerefp = VN_CAST(m_ds.m_dotp->lhsp(), ClassOrPackageRef);
+            auto* ধ্রুবক cpackagerefp = VN_CAST(m_ds.m_dotp->lhsp(), ClassOrPackageRef);
             UASSERT_OBJ(cpackagerefp->classOrPackageSkipp(), m_ds.m_dotp->lhsp(),
                         "Bad package link");
             nodep->classOrPackagep(cpackagerefp->classOrPackageSkipp());
             m_ds.m_dotPos = DP_SCOPE;
-        } else {
+        } অন্যথা {
             // Allow REFDTYPE under DOT when referencing interface typedefs
             // This is needed for patterns like: typedef iface.a_t a_t;
             // The dependency graph handles resolution when IfaceCapture is disabled
-            const bool ifaceFinalSegmentAllowed
+            ধ্রুবক যৌক্তিক ifaceFinalSegmentAllowed
                 = (m_ds.m_dotPos == DP_FINAL) && m_ds.m_dotSymp
                   && VN_IS(m_ds.m_dotSymp->nodep(), Cell)
                   && VN_CAST(m_ds.m_dotSymp->nodep(), Cell)->modp()
                   && VN_IS(VN_CAST(m_ds.m_dotSymp->nodep(), Cell)->modp(), Iface);
-            if (!ifaceFinalSegmentAllowed) {
+            যদি (!ifaceFinalSegmentAllowed) {
                 checkNoDot(nodep);
-            } else {
+            } অন্যথা {
                 UINFO(9, indent() << "allow REFDTYPE under DOT for iface typedef name="
                                   << nodep->prettyNameQ() << " dotSym=" << m_ds.m_dotSymp);
                 // Clear the dot state so we don't propagate errors
                 m_ds.m_dotPos = DP_SCOPE;
             }
         }
-        if (!nodep->typedefp() && !nodep->subDTypep()) {
-            const VSymEnt* foundp;
-            if (nodep->classOrPackagep()) {
-                foundp = m_statep->getNodeSym(nodep->classOrPackagep())->findIdFlat(nodep->name());
-            } else if (m_ds.m_dotPos == DP_FIRST || m_ds.m_dotPos == DP_NONE) {
+        যদি (!nodep->typedefp() && !nodep->subDTypep()) {
+            ধ্রুবক VSymEnt* foundp;
+            যদি (nodep->classOrPackagep()) {
+                foundp = m_statep->get_গ্রন্থি_Sym(nodep->classOrPackagep())->findIdFlat(nodep->name());
+            } অন্যথা যদি (m_ds.m_dotPos == DP_FIRST || m_ds.m_dotPos == DP_NONE) {
                 foundp = findIdFallbackSkipMemberDType(m_curSymp, nodep->name());
-            } else {
+            } অন্যথা {
                 // Defensive: dotPos should be DP_FIRST/DP_NONE or classOrPackagep set.
                 v3fatalSrc("Unexpected dotPos="
-                           << static_cast<int>(m_ds.m_dotPos)  // LCOV_EXCL_LINE
+                           << static_cast<পূর্ণসংখ্যা>(m_ds.m_dotPos)  // LCOV_EXCL_LINE
                            << " in RefDType lookup for "
                            << nodep->prettyNameQ());  // LCOV_EXCL_LINE
                 foundp = nullptr;  // LCOV_EXCL_LINE
             }
             {
-                if (AstTypedef* const defp
+                যদি (AstTypedef* ধ্রুবক defp
                     = foundp ? VN_CAST(foundp->nodep(), Typedef) : nullptr) {
                     // Don't check if typedef is to a <type T>::<reference> as might not be
                     // resolved yet
-                    if (!nodep->classOrPackagep() && !defp->isUnderClass())
+                    যদি (!nodep->classOrPackagep() && !defp->isUnderClass())
                         checkDeclOrder(nodep, defp);
                     nodep->typedefp(defp);
                     nodep->classOrPackagep(foundp->classOrPackagep());
 
-                } else if (AstParamTypeDType* const defp
+                } অন্যথা যদি (AstParamTypeDType* ধ্রুবক defp
                            = foundp ? VN_CAST(foundp->nodep(), ParamTypeDType) : nullptr) {
                     // A PARAMTYPEDTYPE's child REFDTYPE referencing itself is the normal
                     // AST structure for type parameters (e.g., "type T = base" has a child
                     // REFDTYPE for the default type). Only error on true recursion where
                     // a TYPEDEF contains a reference back to itself.
-                    const bool isParamTypeChild = (defp == nodep->backp());
-                    const bool isTypedefRecursion
+                    ধ্রুবক যৌক্তিক isParamTypeChild = (defp == nodep->backp());
+                    ধ্রুবক যৌক্তিক isTypedefRecursion
                         = isParamTypeChild && VN_IS(defp->backp(), Typedef);
-                    if (isTypedefRecursion) {
+                    যদি (isTypedefRecursion) {
                         nodep->v3error("Reference to '"
                                        << m_ds.m_dotText << (m_ds.m_dotText == "" ? "" : ".")
                                        << nodep->prettyName() << "'"
                                        << " type would form a recursive definition");
                         nodep->refDTypep(nodep->findVoidDType());  // Try to reduce later errors
-                    } else {
+                    } অন্যথা {
                         nodep->refDTypep(defp);
                         nodep->classOrPackagep(foundp->classOrPackagep());
                         captureIfaceParamType(nodep, defp);
                     }
-                } else if (AstClass* const defp
+                } অন্যথা যদি (AstClass* ধ্রুবক defp
                            = foundp ? VN_CAST(foundp->nodep(), Class) : nullptr) {
                     // Don't check if typedef is to a <type T>::<reference> as might not be
                     // resolved yet
-                    if (!nodep->classOrPackagep()) checkDeclOrder(nodep, defp);
-                    AstPin* const paramsp = nodep->paramsp();
-                    if (paramsp) paramsp->unlinkFrBackWithNext();
-                    AstClassRefDType* const newp
-                        = new AstClassRefDType{nodep->fileline(), defp, paramsp};
+                    যদি (!nodep->classOrPackagep()) checkDeclOrder(nodep, defp);
+                    AstPin* ধ্রুবক paramsp = nodep->paramsp();
+                    যদি (paramsp) paramsp->unlink_Fr_Back_With_পরবর্তী();
+                    AstClassRefDType* ধ্রুবক newp
+                        = নতুন AstClassRefDType{nodep->fileline(), defp, paramsp};
                     newp->classOrPackagep(foundp->classOrPackagep());
                     nodep->replaceWith(newp);
-                    VL_DO_DANGLING(pushDeletep(nodep), nodep);
-                    return;
-                } else if (m_insideClassExtParam) {
-                    return;
-                } else {
-                    if (foundp) {
+                    VL_DO_DANGLING(ঠেলো_Deletep(nodep), nodep);
+                    ফেরত;
+                } অন্যথা যদি (m_insideClassExtParam) {
+                    ফেরত;
+                } অন্যথা {
+                    যদি (foundp) {
                         UINFO(1, "Found sym node: " << foundp->nodep());
                         nodep->v3error("Expecting a data type: "
                                        << nodep->prettyNameQ()
                                        << ", found: " << foundp->nodep()->prettyTypeName());
-                    } else {
+                    } অন্যথা {
                         nodep->v3error("Can't find typedef/interface: " << nodep->prettyNameQ());
                     }
                 }
@@ -6567,7 +6567,7 @@ class LinkDotResolveVisitor final : public VNVisitor {
         }
         iterateChildren(nodep);
     }
-    void visit(AstRequireDType* nodep) override {
+    শূন্য visit(AstRequireDType* nodep) override {
         // Handle type validation for localparam type assignments
         // Iterate child to resolve any ParseRef nodes
         iterateChildren(nodep);
@@ -6575,109 +6575,109 @@ class LinkDotResolveVisitor final : public VNVisitor {
         // Do NOT unwrap valid types here - leave that to V3Width.
         // Unwrapping here breaks type parameter resolution during cloning.
         // Allow Dot through to defer the handling until the dot expression is resolved.
-        if (nodep->lhsp() && !VN_IS(nodep->lhsp(), NodeDType) && !VN_IS(nodep->lhsp(), Dot)) {
+        যদি (nodep->lhsp() && !VN_IS(nodep->lhsp(), গ্রন্থি_DType) && !VN_IS(nodep->lhsp(), Dot)) {
             // Not a type - emit error
-            if (VN_IS(nodep->lhsp(), Const)) {
+            যদি (VN_IS(nodep->lhsp(), Const)) {
                 nodep->lhsp()->v3error("Expecting a data type, not a constant");
-            } else {
+            } অন্যথা {
                 nodep->lhsp()->v3error("Expecting a data type, not "
                                        << nodep->lhsp()->typeName() << ": '"
                                        << nodep->lhsp()->prettyName() << "'");
             }
             // Replace with void to keep AST valid and allow clean exit
-            nodep->replaceWith(new AstVoidDType{nodep->fileline()});
-            VL_DO_DANGLING(pushDeletep(nodep), nodep);
+            nodep->replaceWith(নতুন AstVoidDType{nodep->fileline()});
+            VL_DO_DANGLING(ঠেলো_Deletep(nodep), nodep);
         }
     }
-    void visit(AstDpiExport* nodep) override {
+    শূন্য visit(AstDpiExport* nodep) override {
         // AstDpiExport: Make sure the function referenced exists, then dump it
         LINKDOT_VISIT_START();
         iterateChildren(nodep);
         checkNoDot(nodep);
-        VSymEnt* const foundp = m_curSymp->findIdFallback(nodep->name());
-        AstNodeFTask* const taskp = foundp ? VN_AS(foundp->nodep(), NodeFTask) : nullptr;
-        if (!taskp) {
+        VSymEnt* ধ্রুবক foundp = m_curSymp->findIdFallback(nodep->name());
+        Ast_গ্রন্থি_FTask* ধ্রুবক taskp = foundp ? VN_AS(foundp->nodep(), গ্রন্থি_FTask) : nullptr;
+        যদি (!taskp) {
             nodep->v3error(
                 "Can't find definition of exported task/function: " << nodep->prettyNameQ());
-        } else if (taskp->dpiExport()) {
+        } অন্যথা যদি (taskp->dpiExport()) {
             nodep->v3error("Function was already DPI Exported, duplicate not allowed: "
                            << nodep->prettyNameQ());
-        } else {
-            taskp->dpiExport(true);
-            if (nodep->cname() != "") taskp->cname(nodep->cname());
+        } অন্যথা {
+            taskp->dpiExport(সত্য);
+            যদি (nodep->cname() != "") taskp->cname(nodep->cname());
         }
-        VL_DO_DANGLING(pushDeletep(nodep->unlinkFrBack()), nodep);
+        VL_DO_DANGLING(ঠেলো_Deletep(nodep->unlinkFrBack()), nodep);
     }
-    void visit(AstDisable* nodep) override {
+    শূন্য visit(AstDisable* nodep) override {
         LINKDOT_VISIT_START();
         checkNoDot(nodep);
-        bool hasPartSelect = false;
-        const string targetPath
+        যৌক্তিক hasPartSelect = মিথ্যা;
+        ধ্রুবক string targetPath
             = nodep->targetRefp() ? extractDottedPath(nodep->targetRefp(), hasPartSelect) : "";
         VL_RESTORER_COPY(m_ds);
         m_ds.init(m_curSymp);
         m_ds.m_dotPos = DP_FIRST;
         m_ds.m_disablep = nodep;
         iterateChildren(nodep);
-        if (nodep->targetRefp()) {
-            if (AstTaskRef* const taskRefp = VN_CAST(nodep->targetRefp(), TaskRef)) {
+        যদি (nodep->targetRefp()) {
+            যদি (AstTaskRef* ধ্রুবক taskRefp = VN_CAST(nodep->targetRefp(), TaskRef)) {
                 nodep->targetp(taskRefp->taskp());
-            } else if (!VN_IS(nodep->targetRefp(), ParseRef)) {
+            } অন্যথা যদি (!VN_IS(nodep->targetRefp(), ParseRef)) {
                 // If it is a ParseRef, either it couldn't be linked or it is linked to a block
                 nodep->v3warn(E_UNSUPPORTED, "Node of type "
                                                  << nodep->targetRefp()->prettyTypeName()
                                                  << " referenced by disable");
-                VL_DO_DANGLING(pushDeletep(nodep->unlinkFrBack()), nodep);
-                return;
+                VL_DO_DANGLING(ঠেলো_Deletep(nodep->unlinkFrBack()), nodep);
+                ফেরত;
             }
-            if (nodep->targetp()) {
-                nodep->targetRefp()->unlinkFrBack()->deleteTree();
-                if (!hasPartSelect) {
-                    const string instancePath = targetInstancePath(nodep->targetp(), targetPath);
-                    if (!instancePath.empty()) {
+            যদি (nodep->targetp()) {
+                nodep->targetRefp()->unlinkFrBack()->delete_বৃক্ষ();
+                যদি (!hasPartSelect) {
+                    ধ্রুবক string instancePath = targetInstancePath(nodep->targetp(), targetPath);
+                    যদি (!instancePath.empty()) {
                         // Keep only the instance prefix so V3LinkJump can reference the selected
                         // instance's process queue without reparsing the disable target.
                         nodep->targetRefp(
-                            new AstVarXRef{nodep->fileline(), "", instancePath, VAccess::READ});
+                            নতুন AstVarXRef{nodep->fileline(), "", instancePath, VAccess::READ});
                     }
                 }
             }
         }
     }
-    void visitPackageImportOrExport(AstNode* nodep) {
+    শূন্য visitPackageImportOrExport(Ast_গ্রন্থি* nodep) {
         // No longer needed
         LINKDOT_VISIT_START();
         checkNoDot(nodep);
-        if (m_statep->forParamed()) VL_DO_DANGLING(pushDeletep(nodep->unlinkFrBack()), nodep);
+        যদি (m_statep->forParamed()) VL_DO_DANGLING(ঠেলো_Deletep(nodep->unlinkFrBack()), nodep);
     }
-    void visit(AstPackageImport* nodep) override { visitPackageImportOrExport(nodep); }
-    void visit(AstPackageExport* nodep) override { visitPackageImportOrExport(nodep); }
-    void visit(AstPackageExportStarStar* nodep) override { visitPackageImportOrExport(nodep); }
-    void visit(AstCellRef* nodep) override {
+    শূন্য visit(AstPackageImport* nodep) override { visitPackageImportOrExport(nodep); }
+    শূন্য visit(AstPackageExport* nodep) override { visitPackageImportOrExport(nodep); }
+    শূন্য visit(AstPackageExportStarStar* nodep) override { visitPackageImportOrExport(nodep); }
+    শূন্য visit(AstCellRef* nodep) override {
         LINKDOT_VISIT_START();
         UINFO(5, indent() << "visit " << nodep);
         iterateChildren(nodep);
     }
-    void visit(AstCellArrayRef* nodep) override {
+    শূন্য visit(AstCellArrayRef* nodep) override {
         LINKDOT_VISIT_START();
         UINFO(5, indent() << "visit " << nodep);
         // Expression already iterated
     }
-    void visit(AstUnlinkedRef* nodep) override {
+    শূন্য visit(AstUnlinkedRef* nodep) override {
         LINKDOT_VISIT_START();
         UINFO(5, indent() << "visit " << nodep);
         // No need to iterate, if we have a UnlinkedVarXRef, we're already done
     }
-    void visit(AstStmtExpr* nodep) override {
+    শূন্য visit(Ast_Stmt_রাশিমালা* nodep) override {
         LINKDOT_VISIT_START();
         checkNoDot(nodep);
         // Check if nodep represents a super.new call;
-        if (AstNew* const newExprp = VN_CAST(nodep->exprp(), New)) {
+        যদি (AstNew* ধ্রুবক newExprp = VN_CAST(nodep->exprp(), New)) {
             // in this case it was already linked, so it doesn't have a super reference
             m_explicitSuperNewp = newExprp;
-        } else if (const AstDot* const dotp = VN_CAST(nodep->exprp(), Dot)) {
-            if (dotp->lhsp()->name() == "super") {
-                if (AstNew* const newExprp = VN_CAST(dotp->rhsp(), New)) {
+        } অন্যথা যদি (ধ্রুবক AstDot* ধ্রুবক dotp = VN_CAST(nodep->exprp(), Dot)) {
+            যদি (dotp->lhsp()->name() == "super") {
+                যদি (AstNew* ধ্রুবক newExprp = VN_CAST(dotp->rhsp(), New)) {
                     m_explicitSuperNewp = newExprp;
                 }
             }
@@ -6685,64 +6685,64 @@ class LinkDotResolveVisitor final : public VNVisitor {
         iterateChildren(nodep);
     }
 
-    void visit(AstIfaceRefDType* nodep) override {
-        if (nodep->user3SetOnce()) return;
+    শূন্য visit(AstIfaceRefDType* nodep) override {
+        যদি (nodep->user3SetOnce()) ফেরত;
         LINKDOT_VISIT_START();
-        if (nodep->paramsp()) {
+        যদি (nodep->paramsp()) {
             // If there is no parameters, there is no need to visit this node.
-            AstIface* const ifacep = nodep->ifacep();
+            AstIface* ধ্রুবক ifacep = nodep->ifacep();
             UASSERT_OBJ(ifacep, nodep, "Port parameters of AstIfaceRefDType without ifacep()");
-            if (ifacep->dead()) return;
+            যদি (ifacep->dead()) ফেরত;
             checkNoDot(nodep);
             VL_RESTORER_CLEAR(m_usedPins);
             VL_RESTORER_CLEAR(m_usedDefParamPins);
             VL_RESTORER(m_pinSymp);
-            m_pinSymp = m_statep->getNodeSym(ifacep);
-            iterateAndNextNull(nodep->paramsp());
+            m_pinSymp = m_statep->get_গ্রন্থি_Sym(ifacep);
+            iterate_And_পরবর্তী_Null(nodep->paramsp());
         }
     }
 
-    void visit(AstAttrOf* nodep) override { iterateChildren(nodep); }
-    void visit(AstCastParse* nodep) override {
-        if (nodep->user3SetOnce()) return;
+    শূন্য visit(AstAttrOf* nodep) override { iterateChildren(nodep); }
+    শূন্য visit(AstCastParse* nodep) override {
+        যদি (nodep->user3SetOnce()) ফেরত;
         LINKDOT_VISIT_START();
         // A cast may start a dotted expression: HERE type'(expr) . member_or_method
-        const bool dotLhs = m_ds.m_dotPos == DP_FIRST;
-        if (!dotLhs) checkNoDot(nodep);
+        ধ্রুবক যৌক্তিক dotLhs = m_ds.m_dotPos == DP_FIRST;
+        যদি (!dotLhs) checkNoDot(nodep);
         {
             VL_RESTORER_COPY(m_ds);
             m_ds.init(m_curSymp);
             iterateChildren(nodep);
         }
-        if (dotLhs) m_ds.m_dotPos = DP_MEMBER;
+        যদি (dotLhs) m_ds.m_dotPos = DP_MEMBER;
     }
 
-    void visit(AstAssignW* nodep) override {
+    শূন্য visit(AstAssignW* nodep) override {
         LINKDOT_VISIT_START();
         checkNoDot(nodep);
         VL_RESTORER(m_replaceWithAlias);
-        if (nodep->user2()) m_replaceWithAlias = false;
+        যদি (nodep->user2()) m_replaceWithAlias = মিথ্যা;
         iterateChildren(nodep);
     }
 
-    void visit(AstTypedef* nodep) override {
+    শূন্য visit(AstTypedef* nodep) override {
         VL_RESTORER(m_resolvingTypedef)
-        m_resolvingTypedef = true;
+        m_resolvingTypedef = সত্য;
         iterateChildren(nodep);
     }
 
-    void visit(AstNode* nodep) override {
+    শূন্য visit(Ast_গ্রন্থি* nodep) override {
         VL_RESTORER(m_inPackedArray);
-        if (VN_IS(nodep, PackArrayDType)) {
-            m_inPackedArray = true;
-        } else if (!m_inPackedArray) {
+        যদি (VN_IS(nodep, PackArrayDType)) {
+            m_inPackedArray = সত্য;
+        } অন্যথা যদি (!m_inPackedArray) {
             LINKDOT_VISIT_START();
             checkNoDot(nodep);
         }
         iterateChildren(nodep);
     }
 
-public:
+সর্বজনীন:
     // CONSTRUCTORS
     LinkDotResolveVisitor(AstNetlist* rootp, LinkDotState* statep)
         : m_statep{statep} {
@@ -6754,31 +6754,31 @@ public:
         // refp pointers to deleted AST nodes, so iterating it is unsafe.
 
         iterate(rootp);
-        const std::map<std::string, AstNodeModule*> modulesToRevisit
+        ধ্রুবক std::map<std::string, Ast_গ্রন্থি_Module*> modulesToRevisit
             = std::move(m_modulesToRevisit);
         m_lastDeferredp = nullptr;
-        for (auto& p : modulesToRevisit) {
-            AstNodeModule* const modp = p.second;
-            modp->foreach([](AstNode* const nodep) { nodep->user3(false); });
+        জন্য (auto& p : modulesToRevisit) {
+            Ast_গ্রন্থি_Module* ধ্রুবক modp = p.second;
+            modp->foreach([](Ast_গ্রন্থি* ধ্রুবক nodep) { nodep->user3(মিথ্যা); });
             iterate(modp);
         }
     }
-    ~LinkDotResolveVisitor() override = default;
+    ~LinkDotResolveVisitor() override = পূর্বনির্ধারিত;
 };
 
 //######################################################################
 // Link class functions
 
-void V3LinkDot::dumpSubstep(const string& name) {
-    if (dumpTreeEitherLevel() >= 9) {
-        V3Global::dumpCheckGlobalTree(name);
-    } else if (debug() >= 5) {  // on high dbg level, dump even if not explicitly told to
-        v3Global.rootp()->dumpTreeFile(v3Global.debugFilename(name + ".tree"));
+শূন্য V3LinkDot::dumpSubstep(ধ্রুবক string& name) {
+    যদি (dump_বৃক্ষ_Either_Level() >= 9) {
+        V3Global::dump_Check_Global_বৃক্ষ(name);
+    } অন্যথা যদি (debug() >= 5) {  // on high dbg level, dump even if not explicitly told to
+        v3Global.rootp()->dump_বৃক্ষ_File(v3Global.debugFilename(name + ".tree"));
     }
 }
 
-void V3LinkDot::linkDotGuts(AstNetlist* rootp, VLinkDotStep step) {
-    VIsCached::clearCacheTree();  // Avoid using any stale isPure
+শূন্য V3LinkDot::linkDotGuts(AstNetlist* rootp, VLinkDotStep step) {
+    VIsCached::clear_Cache_বৃক্ষ();  // Avoid using any stale isPure
     dumpSubstep("prelinkdot");
     LinkDotState state{rootp, step};
 
@@ -6788,13 +6788,13 @@ void V3LinkDot::linkDotGuts(AstNetlist* rootp, VLinkDotStep step) {
     { LinkDotFindIfaceVisitor{rootp, &state}; }
     dumpSubstep("prelinkdot-findiface");
 
-    if (step == LDS_SCOPED) {
+    যদি (step == LDS_SCOPED) {
         // Well after the initial link when we're ready to operate on the flat design,
         // process AstScope's.  This needs to be separate pass after whole hierarchy graph created.
         { LinkDotScopeVisitor{rootp, &state}; }
-        v3Global.assertScoped(true);
+        v3Global.assertScoped(সত্য);
         dumpSubstep("prelinkdot-scoped");
-    } else {
+    } অন্যথা {
         // Initial link stage, resolve parameters and interfaces
         { LinkDotParamVisitor{rootp, &state}; }
         dumpSubstep("prelinkdot-param");
@@ -6804,24 +6804,24 @@ void V3LinkDot::linkDotGuts(AstNetlist* rootp, VLinkDotStep step) {
     state.computeIfaceVarSyms();
     state.computeScopeAliases();
     state.dumpSelf("linkdot-preresolve");
-    const LinkDotResolveVisitor visitor{rootp, &state};
+    ধ্রুবক LinkDotResolveVisitor visitor{rootp, &state};
     state.dumpSelf("linkdot-done");
 }
 
-void V3LinkDot::linkDotPrimary(AstNetlist* nodep) {
+শূন্য V3LinkDot::linkDotPrimary(AstNetlist* nodep) {
     UINFO(2, __FUNCTION__ << ":");
     linkDotGuts(nodep, LDS_PRIMARY);
-    V3Global::dumpCheckGlobalTree("linkdot", 0, dumpTreeEitherLevel() >= 6);
+    V3Global::dump_Check_Global_বৃক্ষ("linkdot", 0, dump_বৃক্ষ_Either_Level() >= 6);
 }
 
-void V3LinkDot::linkDotParamed(AstNetlist* nodep) {
+শূন্য V3LinkDot::linkDotParamed(AstNetlist* nodep) {
     UINFO(2, __FUNCTION__ << ":");
     linkDotGuts(nodep, LDS_PARAMED);
-    V3Global::dumpCheckGlobalTree("linkdotparam", 0, dumpTreeEitherLevel() >= 3);
+    V3Global::dump_Check_Global_বৃক্ষ("linkdotparam", 0, dump_বৃক্ষ_Either_Level() >= 3);
 }
 
-void V3LinkDot::linkDotScope(AstNetlist* nodep) {
+শূন্য V3LinkDot::linkDotScope(AstNetlist* nodep) {
     UINFO(2, __FUNCTION__ << ":");
     linkDotGuts(nodep, LDS_SCOPED);
-    V3Global::dumpCheckGlobalTree("linkdot", 0, dumpTreeEitherLevel() >= 3);
+    V3Global::dump_Check_Global_বৃক্ষ("linkdot", 0, dump_বৃক্ষ_Either_Level() >= 3);
 }

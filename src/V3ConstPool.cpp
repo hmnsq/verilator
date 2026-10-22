@@ -14,136 +14,136 @@
 //
 //*************************************************************************
 
-#include "V3PchAstMT.h"
+#অন্তর্ভাব "V3PchAstMT.h"
 
-#include "V3ConstPool.h"
+#অন্তর্ভাব "V3ConstPool.h"
 
-#include "V3Hasher.h"
+#অন্তর্ভাব "V3Hasher.h"
 
 //######################################################################
 // V3ConstPool
 
-V3Hash V3ConstPool::hashValue(const AstNode* nodep) {
+V3Hash V3ConstPool::hash_মান(ধ্রুবক Ast_গ্রন্থি* nodep) {
     // Hash what 'equalValue' compares
     V3Hash hash{nodep->type().hash()};
-    hash += nodep->dtypep()->cType("", false, false);
-    if (const AstConst* const constp = VN_CAST(nodep, Const)) return hash + constp->num().toHash();
-    if (const AstConsArray* const consp = VN_CAST(nodep, ConsArray)) {
-        const uint64_t size
+    hash += nodep->dtypep()->cType("", মিথ্যা, মিথ্যা);
+    যদি (ধ্রুবক AstConst* ধ্রুবক constp = VN_CAST(nodep, Const)) ফেরত hash + constp->অঙ্ক().toHash();
+    যদি (ধ্রুবক AstConsArray* ধ্রুবক consp = VN_CAST(nodep, ConsArray)) {
+        ধ্রুবক uint64_t আকার_2
             = VN_AS(consp->dtypep()->skipRefp(), UnpackArrayDType)->elementsConst();
-        for (uint64_t n = 0; n < size; ++n) hash += hashValue(consp->valuep(n));
-        return hash;
+        জন্য (uint64_t n = 0; n < আকার_2; ++n) hash += hash_মান(consp->valuep(n));
+        ফেরত hash;
     }
-    return hash + V3Hasher::uncachedHash(nodep);
+    ফেরত hash + V3Hasher::uncachedHash(nodep);
 }
 
-bool V3ConstPool::equalValue(const AstNode* ap, const AstNode* bp) {
-    if (ap->type() != bp->type()) return false;
-    if (ap->dtypep()->cType("", false, false) != bp->dtypep()->cType("", false, false)) {
-        return false;
+যৌক্তিক V3ConstPool::equal_মান(ধ্রুবক Ast_গ্রন্থি* ap, ধ্রুবক Ast_গ্রন্থি* bp) {
+    যদি (ap->type() != bp->type()) ফেরত মিথ্যা;
+    যদি (ap->dtypep()->cType("", মিথ্যা, মিথ্যা) != bp->dtypep()->cType("", মিথ্যা, মিথ্যা)) {
+        ফেরত মিথ্যা;
     }
     // Compare constants by value, which also checks the width
-    if (const AstConst* const constp = VN_CAST(ap, Const)) {
-        return constp->num().isCaseEq(VN_AS(bp, Const)->num());
+    যদি (ধ্রুবক AstConst* ধ্রুবক constp = VN_CAST(ap, Const)) {
+        ফেরত constp->অঙ্ক().isCaseEq(VN_AS(bp, Const)->অঙ্ক());
     }
     // Compare unpacked arrays by element values, as equal arrays might differ in their range,
     // and in which elements are given or defaulted
-    if (const AstConsArray* const aConsp = VN_CAST(ap, ConsArray)) {
-        const AstConsArray* const bConsp = VN_AS(bp, ConsArray);
-        const uint64_t size
+    যদি (ধ্রুবক AstConsArray* ধ্রুবক aConsp = VN_CAST(ap, ConsArray)) {
+        ধ্রুবক AstConsArray* ধ্রুবক bConsp = VN_AS(bp, ConsArray);
+        ধ্রুবক uint64_t আকার_2
             = VN_AS(aConsp->dtypep()->skipRefp(), UnpackArrayDType)->elementsConst();
-        for (uint64_t n = 0; n < size; ++n) {
-            if (!equalValue(aConsp->valuep(n), bConsp->valuep(n))) return false;
+        জন্য (uint64_t n = 0; n < আকার_2; ++n) {
+            যদি (!equal_মান(aConsp->valuep(n), bConsp->valuep(n))) ফেরত মিথ্যা;
         }
-        return true;
+        ফেরত সত্য;
     }
-    return ap->sameTree(bp);
+    ফেরত ap->same_বৃক্ষ(bp);
 }
 
-void V3ConstPool::rebuildCache() {
-    m_cacheValid = true;
+শূন্য V3ConstPool::rebuildCache() {
+    m_cacheValid = সত্য;
     m_scopep = nullptr;
     m_entries.clear();
     m_varScopes.clear();
-    AstPackage* const pkgp = v3Global.rootp()->constPoolPkgp();
-    for (AstNode* nodep = pkgp->stmtsp(); nodep; nodep = nodep->nextp()) {
-        if (AstScope* const scopep = VN_CAST(nodep, Scope)) {
-            if (m_stage == Stage::SCOPED) m_scopep = scopep;
-            continue;
+    AstPackage* ধ্রুবক pkgp = v3Global.rootp()->constPoolPkgp();
+    জন্য (Ast_গ্রন্থি* nodep = pkgp->stmtsp(); nodep; nodep = nodep->nextp()) {
+        যদি (AstScope* ধ্রুবক scopep = VN_CAST(nodep, Scope)) {
+            যদি (m_stage == Stage::SCOPED) m_scopep = scopep;
+            চালু;
         }
         // Otherwise must be a variable
-        AstVar* const varp = VN_AS(nodep, Var);
+        AstVar* ধ্রুবক varp = VN_AS(nodep, Var);
         UASSERT_OBJ(varp->constPoolEntry(), varp, "Unmarked variable in constant pool");
-        m_entries.insert(varp);
+        m_entries.ঢোকাও(varp);
     }
-    if (m_scopep) {
-        for (AstVarScope* vscp = m_scopep->varsp(); vscp; vscp = VN_AS(vscp->nextp(), VarScope)) {
-            m_varScopes.insert({vscp->varp(), vscp});
+    যদি (m_scopep) {
+        জন্য (AstVarScope* vscp = m_scopep->varsp(); vscp; vscp = VN_AS(vscp->nextp(), VarScope)) {
+            m_varScopes.ঢোকাও({vscp->varp(), vscp});
         }
     }
 }
 
-AstVarRef* V3ConstPool::find(AstNodeExpr* initp) {
-    UASSERT_OBJ(initp->isConstantTree(), initp, "Const pool value is not constant");
+AstVarRef* V3ConstPool::find(Ast_গ্রন্থি_রাশিমালা* initp) {
+    UASSERT_OBJ(initp->is_Constant_বৃক্ষ(), initp, "Const pool value is not constant");
     V3ConstPool& self = instance();
-    if (VL_UNLIKELY(!self.m_cacheValid)) self.rebuildCache();
+    যদি (VL_UNLIKELY(!self.m_cacheValid)) self.rebuildCache();
 
-    FileLine* const flp = initp->fileline();
-    AstNodeDType* const dtypep = initp->dtypep();
+    File_সারি* ধ্রুবক flp = initp->fileline();
+    Ast_গ্রন্থি_DType* ধ্রুবক dtypep = initp->dtypep();
 
     // Look up/create the variable with this value
-    const auto pair = self.m_entries.insertLazy(initp, [&]() {
-        uint32_t& numberr = self.m_nextNumber[initp->type()];
-        const std::string name = std::string{initp->typeName()} + "_" + std::to_string(numberr++);
-        AstVar* const varp = new AstVar{flp, VVarType::MODULETEMP, name, dtypep};
+    ধ্রুবক auto pair = self.m_entries.ঢোকাও_Lazy(initp, [&]() {
+        uint32_t& numberr = self.m_পরবর্তী_সংখ্যা[initp->type()];
+        ধ্রুবক std::string name = std::string{initp->typeName()} + "_" + std::to_string(numberr++);
+        AstVar* ধ্রুবক varp = নতুন AstVar{flp, VVarType::MODULETEMP, name, dtypep};
         varp->setConstPoolEntry();
         varp->lifetime(VLifetime::STATIC_EXPLICIT);
-        varp->isConst(true);
-        varp->valuep(initp->cloneTree(false));
+        varp->isConst(সত্য);
+        varp->valuep(initp->clone_বৃক্ষ(মিথ্যা));
         v3Global.rootp()->constPoolPkgp()->addStmtsp(varp);
-        return varp;
+        ফেরত varp;
     });
-    AstVar* const varp = *pair.first;
+    AstVar* ধ্রুবক varp = *pair.first;
 
     // Create a read reference to the entry, of the right form for the current stage
     AstVarRef* refp = nullptr;
-    switch (self.m_stage) {
-    case Stage::UNSCOPED: {
+    নির্বাচন (self.m_stage) {
+    ক্ষেত্র Stage::UNSCOPED: {
         // Before V3Scope, reference via the package, as any other package variable
-        AstPackage* const pkgp = v3Global.rootp()->constPoolPkgp();
-        refp = new AstVarRef{flp, pkgp, varp, VAccess::READ};
-        break;
+        AstPackage* ধ্রুবক pkgp = v3Global.rootp()->constPoolPkgp();
+        refp = নতুন AstVarRef{flp, pkgp, varp, VAccess::READ};
+        বিরতি;
     }
-    case Stage::SCOPED: {
+    ক্ষেত্র Stage::SCOPED: {
         // While scoped, reference the VarScope, creating it for a new entry, or if removed
-        const auto vscpPair = self.m_varScopes.insertLazy(varp, [&]() {
-            AstVarScope* const vscp = new AstVarScope{varp->fileline(), self.m_scopep, varp};
+        ধ্রুবক auto vscpPair = self.m_varScopes.ঢোকাও_Lazy(varp, [&]() {
+            AstVarScope* ধ্রুবক vscp = নতুন AstVarScope{varp->fileline(), self.m_scopep, varp};
             self.m_scopep->addVarsp(vscp);
-            return std::pair<const AstVar*, AstVarScope*>{varp, vscp};
+            ফেরত std::pair<ধ্রুবক AstVar*, AstVarScope*>{varp, vscp};
         });
-        refp = new AstVarRef{flp, vscpPair.first->second, VAccess::READ};
-        break;
+        refp = নতুন AstVarRef{flp, vscpPair.first->second, VAccess::READ};
+        বিরতি;
     }
-    case Stage::DESCOPED: {
+    ক্ষেত্র Stage::DESCOPED: {
         // After V3Descope, no VarScope is needed
-        refp = new AstVarRef{flp, varp, VAccess::READ};
-        break;
+        refp = নতুন AstVarRef{flp, varp, VAccess::READ};
+        বিরতি;
     }
     }
 
     // The entry might have been created with a different, but compatible dtype
     refp->dtypep(dtypep);
-    return refp;
+    ফেরত refp;
 }
 
-const char* V3ConstPool::broken() {
-    const V3ConstPool& self = instance();
-    if (!self.m_cacheValid) return nullptr;
+ধ্রুবক অক্ষর* V3ConstPool::broken() {
+    ধ্রুবক V3ConstPool& self = instance();
+    যদি (!self.m_cacheValid) ফেরত nullptr;
     BROKEN_RTN(self.m_scopep && !self.m_scopep->brokeExists());
-    for (const AstVar* const varp : self.m_entries) BROKEN_RTN(!varp->brokeExists());
-    for (const auto& pair : self.m_varScopes) {
+    জন্য (ধ্রুবক AstVar* ধ্রুবক varp : self.m_entries) BROKEN_RTN(!varp->brokeExists());
+    জন্য (ধ্রুবক auto& pair : self.m_varScopes) {
         BROKEN_RTN(!pair.first->brokeExists());
         BROKEN_RTN(!pair.second->brokeExists());
     }
-    return nullptr;
+    ফেরত nullptr;
 }

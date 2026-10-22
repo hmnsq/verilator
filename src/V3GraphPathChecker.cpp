@@ -16,18 +16,18 @@
 
 #define VL_MT_DISABLED_CODE_UNIT 1
 
-#include "config_build.h"
-#include "verilatedos.h"
+#অন্তর্ভাব "config_build.h"
+#অন্তর্ভাব "verilatedos.h"
 
-#include "V3GraphPathChecker.h"
+#অন্তর্ভাব "V3GraphPathChecker.h"
 
-#include "V3Global.h"
-#include "V3GraphStream.h"
+#অন্তর্ভাব "V3Global.h"
+#অন্তর্ভাব "V3GraphStream.h"
 
 //######################################################################
 // GraphPCNode
 
-struct GraphPCNode final {
+কাঠামো GraphPCNode final {
     // User data for each node in GraphPathChecker.
     //
     // Like the LogicMTasks's, store before and after CPs for the nodes in
@@ -35,7 +35,7 @@ struct GraphPCNode final {
     //
     // Unlike the LogicMTasks's, we have no cost info for the generic graph
     // accepted by GraphPathChecker, so assume each node has unit cost.
-    std::array<uint32_t, GraphWay::NUM_WAYS> m_cp = {};
+    std::array<uint32_t, GraphWay::অঙ্ক_WAYS> m_cp = {};
 
     // Detect if we've seen this node before in a given recursive
     // operation. We'll use this in pathExistsInternal() to avoid checking
@@ -44,109 +44,109 @@ struct GraphPCNode final {
     uint64_t m_seenAtGeneration = 0;
 
     // CONSTRUCTORS
-    GraphPCNode() = default;
-    ~GraphPCNode() = default;
+    GraphPCNode() = পূর্বনির্ধারিত;
+    ~GraphPCNode() = পূর্বনির্ধারিত;
 };
 
 //######################################################################
 // GraphPathChecker implementation
 
 template <GraphWay::en N_Way>
-void GraphPathChecker::initHalfCriticalPaths(bool checkOnly) {
+শূন্য GraphPathChecker::initHalfCriticalPaths(যৌক্তিক checkOnly) {
     constexpr GraphWay way{N_Way};
     constexpr GraphWay rev = way.invert();
     GraphStreamUnordered order(m_graphp, way);
-    while (const V3GraphVertex* const vertexp = order.nextp()) {
+    যখন (ধ্রুবক V3GraphVertex* ধ্রুবক vertexp = order.nextp()) {
         unsigned critPathCost = 0;
-        for (const V3GraphEdge& edge : vertexp->edges<rev>()) {
-            if (!m_edgeFuncp(&edge)) continue;
+        জন্য (ধ্রুবক V3GraphEdge& edge : vertexp->edges<rev>()) {
+            যদি (!m_edgeFuncp(&edge)) চালু;
 
-            const V3GraphVertex* wrelativep = edge.furtherp<rev>();
-            const GraphPCNode* const wrelUserp = static_cast<GraphPCNode*>(wrelativep->userp());
+            ধ্রুবক V3GraphVertex* wrelativep = edge.furtherp<rev>();
+            ধ্রুবক GraphPCNode* ধ্রুবক wrelUserp = static_cast<GraphPCNode*>(wrelativep->userp());
             critPathCost = std::max(critPathCost, wrelUserp->m_cp[way] + 1);
         }
 
-        GraphPCNode* const ourUserp = static_cast<GraphPCNode*>(vertexp->userp());
-        if (checkOnly) {
+        GraphPCNode* ধ্রুবক ourUserp = static_cast<GraphPCNode*>(vertexp->userp());
+        যদি (checkOnly) {
             UASSERT_OBJ(ourUserp->m_cp[way] == critPathCost, vertexp,
                         "Validation of critical paths failed");
-        } else {
+        } অন্যথা {
             ourUserp->m_cp[way] = critPathCost;
         }
     }
 }
 
-template void GraphPathChecker::initHalfCriticalPaths<GraphWay::FORWARD>(bool);
-template void GraphPathChecker::initHalfCriticalPaths<GraphWay::REVERSE>(bool);
+template শূন্য GraphPathChecker::initHalfCriticalPaths<GraphWay::FORWARD>(যৌক্তিক);
+template শূন্য GraphPathChecker::initHalfCriticalPaths<GraphWay::REVERSE>(যৌক্তিক);
 
 GraphPathChecker::GraphPathChecker(V3Graph* graphp, V3EdgeFuncP edgeFuncp)
     : GraphAlg<V3Graph>{graphp, edgeFuncp} {
-    for (V3GraphVertex& vtx : graphp->vertices()) {
+    জন্য (V3GraphVertex& vtx : graphp->vertices()) {
         // Setup tracking structure for each node.  If delete a vertex
         // there would be a leak, but ok as accept only const V3Graph*'s.
-        vtx.userp(new GraphPCNode);
+        vtx.userp(নতুন GraphPCNode);
     }
     // Init critical paths in userp() for each vertex
-    initHalfCriticalPaths<GraphWay::FORWARD>(false);
-    initHalfCriticalPaths<GraphWay::REVERSE>(false);
+    initHalfCriticalPaths<GraphWay::FORWARD>(মিথ্যা);
+    initHalfCriticalPaths<GraphWay::REVERSE>(মিথ্যা);
 }
 
 GraphPathChecker::~GraphPathChecker() {
     // Free every GraphPCNode
-    for (V3GraphVertex& vtx : m_graphp->vertices()) {
-        const GraphPCNode* const nodep = static_cast<GraphPCNode*>(vtx.userp());
+    জন্য (V3GraphVertex& vtx : m_graphp->vertices()) {
+        ধ্রুবক GraphPCNode* ধ্রুবক nodep = static_cast<GraphPCNode*>(vtx.userp());
         VL_DO_DANGLING(delete nodep, nodep);
         vtx.userp(nullptr);
     }
 }
 
-bool GraphPathChecker::pathExistsInternal(const V3GraphVertex* ap, const V3GraphVertex* bp,
+যৌক্তিক GraphPathChecker::pathExistsInternal(ধ্রুবক V3GraphVertex* ap, ধ্রুবক V3GraphVertex* bp,
                                           unsigned* costp) {
-    GraphPCNode* const auserp = static_cast<GraphPCNode*>(ap->userp());
-    const GraphPCNode* const buserp = static_cast<GraphPCNode*>(bp->userp());
+    GraphPCNode* ধ্রুবক auserp = static_cast<GraphPCNode*>(ap->userp());
+    ধ্রুবক GraphPCNode* ধ্রুবক buserp = static_cast<GraphPCNode*>(bp->userp());
 
     // If have already searched this node on the current search, don't
     // recurse through it again. Since we're still searching, we must not
     // have found a path on the first go either.
-    if (auserp->m_seenAtGeneration == m_generation) {
-        if (costp) *costp = 0;
-        return false;
+    যদি (auserp->m_seenAtGeneration == m_generation) {
+        যদি (costp) *costp = 0;
+        ফেরত মিথ্যা;
     }
     auserp->m_seenAtGeneration = m_generation;
 
-    if (costp) *costp = 1;  // count 'a' toward the search cost
+    যদি (costp) *costp = 1;  // count 'a' toward the search cost
 
-    if (ap == bp) return true;
+    যদি (ap == bp) ফেরত সত্য;
 
     // Rule out an a->b path based on their CPs
-    if (auserp->m_cp[GraphWay::REVERSE] < buserp->m_cp[GraphWay::REVERSE] + 1) return false;
-    if (buserp->m_cp[GraphWay::FORWARD] < auserp->m_cp[GraphWay::FORWARD] + 1) return false;
+    যদি (auserp->m_cp[GraphWay::REVERSE] < buserp->m_cp[GraphWay::REVERSE] + 1) ফেরত মিথ্যা;
+    যদি (buserp->m_cp[GraphWay::FORWARD] < auserp->m_cp[GraphWay::FORWARD] + 1) ফেরত মিথ্যা;
 
     // Slow path; visit some extended family
-    bool foundPath = false;
-    for (const V3GraphEdge& edge : ap->outEdges()) {
-        if (!m_edgeFuncp(&edge)) continue;
+    যৌক্তিক foundPath = মিথ্যা;
+    জন্য (ধ্রুবক V3GraphEdge& edge : ap->outEdges()) {
+        যদি (!m_edgeFuncp(&edge)) চালু;
 
         unsigned childCost;
-        if (pathExistsInternal(edge.top(), bp, &childCost)) foundPath = true;
-        if (costp) *costp += childCost;
+        যদি (pathExistsInternal(edge.শীর্ষ(), bp, &childCost)) foundPath = সত্য;
+        যদি (costp) *costp += childCost;
     }
 
-    return foundPath;
+    ফেরত foundPath;
 }
 
-bool GraphPathChecker::pathExistsFrom(const V3GraphVertex* fromp, const V3GraphVertex* top) {
+যৌক্তিক GraphPathChecker::pathExistsFrom(ধ্রুবক V3GraphVertex* fromp, ধ্রুবক V3GraphVertex* শীর্ষ) {
     incGeneration();
-    return pathExistsInternal(fromp, top);
+    ফেরত pathExistsInternal(fromp, শীর্ষ);
 }
 
-bool GraphPathChecker::isTransitiveEdge(const V3GraphEdge* edgep) {
-    const V3GraphVertex* fromp = edgep->fromp();
-    const V3GraphVertex* top = edgep->top();
+যৌক্তিক GraphPathChecker::isTransitiveEdge(ধ্রুবক V3GraphEdge* edgep) {
+    ধ্রুবক V3GraphVertex* fromp = edgep->fromp();
+    ধ্রুবক V3GraphVertex* শীর্ষ = edgep->শীর্ষ();
     incGeneration();
-    for (const V3GraphEdge& fromOut : fromp->outEdges()) {
-        if (&fromOut == edgep) continue;
-        if (pathExistsInternal(fromOut.top(), top)) return true;
+    জন্য (ধ্রুবক V3GraphEdge& fromOut : fromp->outEdges()) {
+        যদি (&fromOut == edgep) চালু;
+        যদি (pathExistsInternal(fromOut.শীর্ষ(), শীর্ষ)) ফেরত সত্য;
     }
-    return false;
+    ফেরত মিথ্যা;
 }

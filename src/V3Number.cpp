@@ -14,82 +14,82 @@
 //
 //*************************************************************************
 
-#include "V3PchAstMT.h"
+#অন্তর্ভাব "V3PchAstMT.h"
 
-#include "V3Number.h"
+#অন্তর্ভাব "V3Number.h"
 
-#include "V3File.h"
+#অন্তর্ভাব "V3File.h"
 
-#include <algorithm>
-#include <cerrno>
-#include <cmath>
-#include <functional>
+#অন্তর্ভাব <algorithm>
+#অন্তর্ভাব <cerrno>
+#অন্তর্ভাব <cmath>
+#অন্তর্ভাব <functional>
 
 VL_DEFINE_DEBUG_FUNCTIONS;
 
-constexpr int MAX_SPRINTF_DOUBLE_SIZE
+constexpr পূর্ণসংখ্যা MAX_SPRINTF_DOUBLE_আকার
     = 1100;  // Maximum characters with a sprintf %e/%f/%g (really 1079)
 
 // Number operations build output in-place so can't call e.g. foo.opX(foo)
-#define NUM_ASSERT_OP_ARGS1(arg1) \
-    UASSERT((this != &(arg1)), "Number operation called with same source and dest")
-#define NUM_ASSERT_OP_ARGS2(arg1, arg2) \
-    UASSERT((this != &(arg1) && this != &(arg2)), \
+#define অঙ্ক_ASSERT_OP_ARGS1(arg1) \
+    UASSERT((এই != &(arg1)), "Number operation called with same source and dest")
+#define অঙ্ক_ASSERT_OP_ARGS2(arg1, arg2) \
+    UASSERT((এই != &(arg1) && এই != &(arg2)), \
             "Number operation called with same source and dest")
-#define NUM_ASSERT_OP_ARGS3(arg1, arg2, arg3) \
-    UASSERT((this != &(arg1) && this != &(arg2) && this != &(arg3)), \
+#define অঙ্ক_ASSERT_OP_ARGS3(arg1, arg2, arg3) \
+    UASSERT((এই != &(arg1) && এই != &(arg2) && এই != &(arg3)), \
             "Number operation called with same source and dest")
-#define NUM_ASSERT_OP_ARGS4(arg1, arg2, arg3, arg4) \
-    UASSERT((this != &(arg1) && this != &(arg2) && this != &(arg3) && this != &(arg4)), \
+#define অঙ্ক_ASSERT_OP_ARGS4(arg1, arg2, arg3, arg4) \
+    UASSERT((এই != &(arg1) && এই != &(arg2) && এই != &(arg3) && এই != &(arg4)), \
             "Number operation called with same source and dest")
 
-#define NUM_ASSERT_LOGIC_ARGS1(arg1) \
-    UASSERT(((arg1).dataType() == V3NumberData::V3NumberDataType::LOGIC), \
+#define অঙ্ক_ASSERT_LOGIC_ARGS1(arg1) \
+    UASSERT(((arg1).তথ্য_Type() == V3_সংখ্যা_তথ্য::V3_সংখ্যা_তথ্য_Type::LOGIC), \
             "Number operation called with non-logic (double or string) argument: '" << (arg1) \
                                                                                     << '"')
-#define NUM_ASSERT_LOGIC_ARGS2(arg1, arg2) \
-    NUM_ASSERT_LOGIC_ARGS1(arg1); \
-    NUM_ASSERT_LOGIC_ARGS1(arg2)
+#define অঙ্ক_ASSERT_LOGIC_ARGS2(arg1, arg2) \
+    অঙ্ক_ASSERT_LOGIC_ARGS1(arg1); \
+    অঙ্ক_ASSERT_LOGIC_ARGS1(arg2)
 
-#define NUM_ASSERT_LOGIC_ARGS4(arg1, arg2, arg3, arg4) \
-    NUM_ASSERT_LOGIC_ARGS1(arg1); \
-    NUM_ASSERT_LOGIC_ARGS1(arg2); \
-    NUM_ASSERT_LOGIC_ARGS1(arg3); \
-    NUM_ASSERT_LOGIC_ARGS1(arg4)
+#define অঙ্ক_ASSERT_LOGIC_ARGS4(arg1, arg2, arg3, arg4) \
+    অঙ্ক_ASSERT_LOGIC_ARGS1(arg1); \
+    অঙ্ক_ASSERT_LOGIC_ARGS1(arg2); \
+    অঙ্ক_ASSERT_LOGIC_ARGS1(arg3); \
+    অঙ্ক_ASSERT_LOGIC_ARGS1(arg4)
 
-#define NUM_ASSERT_STRING_ARGS1(arg1) \
+#define অঙ্ক_ASSERT_STRING_ARGS1(arg1) \
     UASSERT((arg1).isString(), \
             "Number operation called with non-string argument: '" << (arg1) << '"')
-#define NUM_ASSERT_STRING_ARGS2(arg1, arg2) \
-    NUM_ASSERT_STRING_ARGS1(arg1); \
-    NUM_ASSERT_STRING_ARGS1(arg2)
+#define অঙ্ক_ASSERT_STRING_ARGS2(arg1, arg2) \
+    অঙ্ক_ASSERT_STRING_ARGS1(arg1); \
+    অঙ্ক_ASSERT_STRING_ARGS1(arg2)
 
-#define NUM_ASSERT_DOUBLE_ARGS1(arg1) \
+#define অঙ্ক_ASSERT_DOUBLE_ARGS1(arg1) \
     UASSERT((arg1).isDouble(), \
             "Number operation called with non-double argument: '" << (arg1) << '"')
-#define NUM_ASSERT_DOUBLE_ARGS2(arg1, arg2) \
-    NUM_ASSERT_DOUBLE_ARGS1(arg1); \
-    NUM_ASSERT_DOUBLE_ARGS1(arg2)
+#define অঙ্ক_ASSERT_DOUBLE_ARGS2(arg1, arg2) \
+    অঙ্ক_ASSERT_DOUBLE_ARGS1(arg1); \
+    অঙ্ক_ASSERT_DOUBLE_ARGS1(arg2)
 
 //======================================================================
 // Errors
 
-void V3Number::v3errorEnd(const std::ostringstream& str) const VL_RELEASE(V3Error::s().m_mutex) {
+শূন্য V3_সংখ্যা::v3errorEnd(ধ্রুবক std::ostringstream& str) ধ্রুবক VL_RELEASE(V3Error::s().m_mutex) {
     std::ostringstream nsstr;
     nsstr << str.str();
-    if (m_nodep) {
+    যদি (m_nodep) {
         m_nodep->v3errorEnd(nsstr);
-    } else if (m_fileline) {
+    } অন্যথা যদি (m_fileline) {
         m_fileline->v3errorEnd(nsstr);
-    } else {
+    } অন্যথা {
         V3Error::v3errorEnd(nsstr, "", nullptr);
     }
 }
 
-void V3Number::v3errorEndFatal(const std::ostringstream& str) const
+শূন্য V3_সংখ্যা::v3errorEndFatal(ধ্রুবক std::ostringstream& str) ধ্রুবক
     VL_RELEASE(V3Error::s().m_mutex) {
     v3errorEnd(str);
-    assert(0);  // LCOV_EXCL_LINE
+    প্রতিজ্ঞা(0);  // LCOV_EXCL_LINE
     VL_UNREACHABLE;
 }
 
@@ -97,970 +97,970 @@ void V3Number::v3errorEndFatal(const std::ostringstream& str) const
 // Read class functions
 // CREATION
 
-V3Number::V3Number(AstNode* nodep, VerilogStringLiteral, const string& str) {
+V3_সংখ্যা::V3_সংখ্যা(Ast_গ্রন্থি* nodep, VerilogStringLiteral, ধ্রুবক string& str) {
     // Create a number using a verilog string as the value, thus 8 bits per character.
-    if (str.empty()) {  // IEEE 1800-2023 11.10.3 "" = "\000"
+    যদি (str.empty()) {  // IEEE 1800-2023 11.10.3 "" = "\000"
         init(nodep, 8);
-    } else {
-        init(nodep, std::max<int>(str.length() * 8, 1));
-        for (unsigned pos = 0; pos < str.length(); ++pos) {
-            const int topos = str.length() - 1 - pos;
-            ValueAndX& v = m_data.num()[topos / 4];
-            for (int bit = 0; bit < 8; ++bit) {
-                if (str[pos] & (1UL << bit)) v.m_value |= (1UL << (bit + (topos % 4) * 8));
+    } অন্যথা {
+        init(nodep, std::max<পূর্ণসংখ্যা>(str.দৈর্ঘ্য() * 8, 1));
+        জন্য (unsigned pos = 0; pos < str.দৈর্ঘ্য(); ++pos) {
+            ধ্রুবক পূর্ণসংখ্যা topos = str.দৈর্ঘ্য() - 1 - pos;
+            মান_And_X& v = m_তথ্য.অঙ্ক()[topos / 4];
+            জন্য (পূর্ণসংখ্যা bit = 0; bit < 8; ++bit) {
+                যদি (str[pos] & (1UL << bit)) v.m_মান |= (1UL << (bit + (topos % 4) * 8));
             }
         }
     }
-    m_data.m_fromString = true;
-    opCleanThis(true);
+    m_তথ্য.m_fromString = সত্য;
+    opCleanThis(সত্য);
 }
 
-V3Number::V3Number(AstNode* nodep, const AstNodeDType* nodedtypep) {
-    if (nodedtypep->isCHandle()) {
+V3_সংখ্যা::V3_সংখ্যা(Ast_গ্রন্থি* nodep, ধ্রুবক Ast_গ্রন্থি_DType* nodedtypep) {
+    যদি (nodedtypep->isCHandle()) {
         init(nodep);
         setNull();
-    } else if (nodedtypep->isDouble()) {
+    } অন্যথা যদি (nodedtypep->isDouble()) {
         init(nodep, 64);
         setDouble(0.0);
-    } else if (nodedtypep->isString()) {
+    } অন্যথা যদি (nodedtypep->isString()) {
         init(nodep);
         setString("");
-    } else {
+    } অন্যথা {
         init(nodep, nodedtypep->width(), nodedtypep->widthSized());
     }
 }
 
-void V3Number::create(const char* sourcep) {
-    m_data.setLogic();
-    const char* value_startp = sourcep;
-    for (const char* cp = sourcep; *cp; ++cp) {
-        if (*cp == '\'') {
-            value_startp = cp + 1;
-            break;
+শূন্য V3_সংখ্যা::create(ধ্রুবক অক্ষর* sourcep) {
+    m_তথ্য.setLogic();
+    ধ্রুবক অক্ষর* মান_startp = sourcep;
+    জন্য (ধ্রুবক অক্ষর* cp = sourcep; *cp; ++cp) {
+        যদি (*cp == '\'') {
+            মান_startp = cp + 1;
+            বিরতি;
         }
     }
 
-    bool userSized = false;
-    bool unbased = false;
-    char base = '\0';
-    if (value_startp != sourcep) {  // Has a '
+    যৌক্তিক userSized = মিথ্যা;
+    যৌক্তিক unbased = মিথ্যা;
+    অক্ষর base = '\0';
+    যদি (মান_startp != sourcep) {  // Has a '
         string widthn;
-        const char* cp = sourcep;
-        for (; *cp; ++cp) {
-            if (*cp == '\'') {
+        ধ্রুবক অক্ষর* cp = sourcep;
+        জন্য (; *cp; ++cp) {
+            যদি (*cp == '\'') {
                 ++cp;
-                break;
+                বিরতি;
             }
-            if (*cp != '_') widthn += *cp;
+            যদি (*cp != '_') widthn += *cp;
         }
-        while (*cp == '_') cp++;
-        if (*cp && std::tolower(*cp) == 's') {
+        যখন (*cp == '_') cp++;
+        যদি (*cp && std::tolower(*cp) == 's') {
             ++cp;
-            isSigned(true);
+            isSigned(সত্য);
         }
-        if (*cp) {
+        যদি (*cp) {
             base = *cp;
             ++cp;
         }
-        value_startp = cp;
+        মান_startp = cp;
 
-        userSized = widthn.length() != 0;
-        if (std::atoi(widthn.c_str())) {
-            if (std::atoi(widthn.c_str()) < 0
-                || std::atoi(widthn.c_str()) > v3Global.opt.maxNumWidth()) {
+        userSized = widthn.দৈর্ঘ্য() != 0;
+        যদি (std::atoi(widthn.c_str())) {
+            যদি (std::atoi(widthn.c_str()) < 0
+                || std::atoi(widthn.c_str()) > v3Global.opt.max_অঙ্ক_Width()) {
                 // atoi might convert large number to negative, so can't tell which
                 v3error("Unsupported: Width of number exceeds implementation limit: "
                         << sourcep << "  (IEEE 1800-2023 6.9.1)");
-                width(v3Global.opt.maxNumWidth(), true);
-            } else {
-                width(std::atoi(widthn.c_str()), true);
+                width(v3Global.opt.max_অঙ্ক_Width(), সত্য);
+            } অন্যথা {
+                width(std::atoi(widthn.c_str()), সত্য);
             }
         }
-    } else {
-        unbased = true;
+    } অন্যথা {
+        unbased = সত্য;
         base = 'd';
     }
 
-    for (int i = 0; i < words(); ++i) m_data.num()[i] = {0, 0};
+    জন্য (পূর্ণসংখ্যা i = 0; i < শব্দগুলি(); ++i) m_তথ্য.অঙ্ক()[i] = {0, 0};
 
     // Special SystemVerilog unsized constructs
-    if (base == '0') {
-        width(1, false);  // So we extend it
+    যদি (base == '0') {
+        width(1, মিথ্যা);  // So we extend it
         setBit(0, 0);
-        m_data.m_autoExtend = true;
-    } else if (base == '1') {
-        width(1, false);  // So we extend it
+        m_তথ্য.m_autoExtend = সত্য;
+    } অন্যথা যদি (base == '1') {
+        width(1, মিথ্যা);  // So we extend it
         setBit(0, 1);
-        m_data.m_autoExtend = true;
-    } else if (std::tolower(base) == 'z') {
-        width(1, false);  // So we extend it
+        m_তথ্য.m_autoExtend = সত্য;
+    } অন্যথা যদি (std::tolower(base) == 'z') {
+        width(1, মিথ্যা);  // So we extend it
         setBit(0, 'z');
-        m_data.m_autoExtend = true;
-    } else if (std::tolower(base) == 'x') {
-        width(1, false);  // So we extend it
+        m_তথ্য.m_autoExtend = সত্য;
+    } অন্যথা যদি (std::tolower(base) == 'x') {
+        width(1, মিথ্যা);  // So we extend it
         setBit(0, 'x');
-        m_data.m_autoExtend = true;
+        m_তথ্য.m_autoExtend = সত্য;
     }
     // Otherwise...
-    else if (!sized()) {
+    অন্যথা যদি (!sized()) {
         // We don't use v3Global.opt.maxNumWidth() here, as it can be arbitrarily large,
         // and cause extremely slow parsing. We will resize the value at the end anyway.
         // We just need a width big enough to fit the constant, so we use a conservative
         // upper bound to start from. Should never need more than 4 bits per digit.
-        const int widthBound = std::max<int>(32, std::strlen(value_startp) * 4);
-        width(widthBound, false);  // Will change width below
-        if (unbased) isSigned(true);  // Also says the spec.
+        ধ্রুবক পূর্ণসংখ্যা widthBound = std::max<পূর্ণসংখ্যা>(32, std::strlen(মান_startp) * 4);
+        width(widthBound, মিথ্যা);  // Will change width below
+        যদি (unbased) isSigned(সত্য);  // Also says the spec.
     }
 
     // Ignore leading blanks
-    while (*value_startp == '_' || std::isspace(*value_startp)) ++value_startp;
-    if (!*value_startp && !m_data.m_autoExtend) {
+    যখন (*মান_startp == '_' || std::isspace(*মান_startp)) ++মান_startp;
+    যদি (!*মান_startp && !m_তথ্য.m_autoExtend) {
         v3error("Number is missing value digits: " << sourcep);
     }
-    if (userSized && m_data.m_autoExtend) {
+    যদি (userSized && m_তথ্য.m_autoExtend) {
         v3error("Syntax error: size cannot be provided with '0/'1/'x/'z: "
                 << sourcep << " (IEEE 1800-2023 5.7.1)");
     }
 
-    int obit = 0;  // Start at LSB
-    int base_align = 1;
-    if (std::tolower(base) == 'd') {
+    পূর্ণসংখ্যা obit = 0;  // Start at LSB
+    পূর্ণসংখ্যা base_align = 1;
+    যদি (std::tolower(base) == 'd') {
         // Ignore leading zeros so we don't issue too many digit errors when lots of leading 0's
-        while (*value_startp == '_' || *value_startp == '0') ++value_startp;
+        যখন (*মান_startp == '_' || *মান_startp == '0') ++মান_startp;
         // Convert decimal number to hex
-        int olen = 0;
+        পূর্ণসংখ্যা olen = 0;
         uint32_t val = 0;
-        int got_x = 0;
-        int got_z = 0;
-        int got_01 = 0;
-        bool warnedTooMany = false;
-        for (const char* cp = value_startp; *cp; ++cp) {
-            switch (std::tolower(*cp)) {
-            case '0':  // FALLTHRU
-            case '1':  // FALLTHRU
-            case '2':  // FALLTHRU
-            case '3':  // FALLTHRU
-            case '4':  // FALLTHRU
-            case '5':  // FALLTHRU
-            case '6':  // FALLTHRU
-            case '7':  // FALLTHRU
-            case '8':  // FALLTHRU
-            case '9': {
-                if (olen <= 7) {  // 10000000 fits in 32 bits, so ok
+        পূর্ণসংখ্যা got_x = 0;
+        পূর্ণসংখ্যা got_z = 0;
+        পূর্ণসংখ্যা got_01 = 0;
+        যৌক্তিক warnedTooMany = মিথ্যা;
+        জন্য (ধ্রুবক অক্ষর* cp = মান_startp; *cp; ++cp) {
+            নির্বাচন (std::tolower(*cp)) {
+            ক্ষেত্র '0':  // FALLTHRU
+            ক্ষেত্র '1':  // FALLTHRU
+            ক্ষেত্র '2':  // FALLTHRU
+            ক্ষেত্র '3':  // FALLTHRU
+            ক্ষেত্র '4':  // FALLTHRU
+            ক্ষেত্র '5':  // FALLTHRU
+            ক্ষেত্র '6':  // FALLTHRU
+            ক্ষেত্র '7':  // FALLTHRU
+            ক্ষেত্র '8':  // FALLTHRU
+            ক্ষেত্র '9': {
+                যদি (olen <= 7) {  // 10000000 fits in 32 bits, so ok
                     // Constants are common, so for speed avoid wide math until we need it
                     val = val * 10 + (*cp - '0');
-                    m_data.num()[0].m_value = val;
-                } else {  // Wide; all previous digits are already in m_value[0]
+                    m_তথ্য.অঙ্ক()[0].m_মান = val;
+                } অন্যথা {  // Wide; all previous digits are already in m_value[0]
                     // this = (this * 10)/*product*/ + (*cp-'0')/*addend*/
                     // Assumed rare; lots of optimizations are possible here
-                    V3Number product(this, width() + 4);  // +4 for overflow detection
-                    const V3Number ten(this, width() + 4, 10);
-                    const V3Number addend(this, width(), (*cp - '0'));
-                    product.opMul(*this, ten);
+                    V3_সংখ্যা product(এই, width() + 4);  // +4 for overflow detection
+                    ধ্রুবক V3_সংখ্যা ten(এই, width() + 4, 10);
+                    ধ্রুবক V3_সংখ্যা addend(এই, width(), (*cp - '0'));
+                    product.opMul(*এই, ten);
                     opAdd(product, addend);
-                    if (!warnedTooMany && product.bitsValue(width(), 4)) {  // Overflowed
+                    যদি (!warnedTooMany && product.bits_মান(width(), 4)) {  // Overflowed
                         warnTooMany(sourcep);
-                        warnedTooMany = true;
+                        warnedTooMany = সত্য;
                     }
                 }
                 ++olen;
                 got_01 = 1;
-                break;
+                বিরতি;
             }
-            case 'z':
-            case '?': {
+            ক্ষেত্র 'z':
+            ক্ষেত্র '?': {
                 got_z = 1;
-                if (!userSized) width(32, false);
+                যদি (!userSized) width(32, মিথ্যা);
                 setAllBitsZ();
-                break;
+                বিরতি;
             }
-            case 'x': {
+            ক্ষেত্র 'x': {
                 got_x = 1;
-                if (!userSized) width(32, false);
+                যদি (!userSized) width(32, মিথ্যা);
                 setAllBitsX();
-                break;
+                বিরতি;
             }
-            case '_': break;
-            default: {  // LCOV_EXCL_START
+            ক্ষেত্র '_': বিরতি;
+            পূর্বনির্ধারিত: {  // LCOV_EXCL_START
                 // Likely impossible as parser prevents hitting it
                 v3error("Illegal character in decimal constant: " << *cp);
-                break;
+                বিরতি;
             }  // LCOV_EXCL_STOP
             }
         }
         obit = width();
-        if ((got_01 + got_x + got_z) > 1) {
-            v3error("Mixing X/Z/? with digits not legal in decimal constant: " << value_startp);
+        যদি ((got_01 + got_x + got_z) > 1) {
+            v3error("Mixing X/Z/? with digits not legal in decimal constant: " << মান_startp);
         }
-    } else {
+    } অন্যথা {
         // Convert bin/octal number to hex
-        for (const char* cp = value_startp + std::strlen(value_startp) - 1; cp >= value_startp;
+        জন্য (ধ্রুবক অক্ষর* cp = মান_startp + std::strlen(মান_startp) - 1; cp >= মান_startp;
              cp--) {
-            if (*cp != '_' && *cp != '0' && obit >= width()) {
+            যদি (*cp != '_' && *cp != '0' && obit >= width()) {
                 warnTooMany(sourcep);
-                break;
+                বিরতি;
             }
-            switch (std::tolower(base)) {
-            case 'b': {
+            নির্বাচন (std::tolower(base)) {
+            ক্ষেত্র 'b': {
                 base_align = 1;
-                switch (std::tolower(*cp)) {
-                case '0': setBit(obit++, 0); break;
-                case '1': setBit(obit++, 1); break;
-                case 'z':
-                case '?': setBit(obit++, 'z'); break;
-                case 'x': setBit(obit++, 'x'); break;
-                case '_': break;
-                default: v3error("Illegal character in binary constant: " << *cp);
+                নির্বাচন (std::tolower(*cp)) {
+                ক্ষেত্র '0': setBit(obit++, 0); বিরতি;
+                ক্ষেত্র '1': setBit(obit++, 1); বিরতি;
+                ক্ষেত্র 'z':
+                ক্ষেত্র '?': setBit(obit++, 'z'); বিরতি;
+                ক্ষেত্র 'x': setBit(obit++, 'x'); বিরতি;
+                ক্ষেত্র '_': বিরতি;
+                পূর্বনির্ধারিত: v3error("Illegal character in binary constant: " << *cp);
                 }
-                break;
+                বিরতি;
             }
 
-            case 'o':
-            case 'c': {
+            ক্ষেত্র 'o':
+            ক্ষেত্র 'c': {
                 base_align = 3;
-                switch (std::tolower(*cp)) {  // clang-format off
-                case '0': setBit(obit++, 0); setBit(obit++, 0);  setBit(obit++, 0);  break;
-                case '1': setBit(obit++, 1); setBit(obit++, 0);  setBit(obit++, 0);  break;
-                case '2': setBit(obit++, 0); setBit(obit++, 1);  setBit(obit++, 0);  break;
-                case '3': setBit(obit++, 1); setBit(obit++, 1);  setBit(obit++, 0);  break;
-                case '4': setBit(obit++, 0); setBit(obit++, 0);  setBit(obit++, 1);  break;
-                case '5': setBit(obit++, 1); setBit(obit++, 0);  setBit(obit++, 1);  break;
-                case '6': setBit(obit++, 0); setBit(obit++, 1);  setBit(obit++, 1);  break;
-                case '7': setBit(obit++, 1); setBit(obit++, 1);  setBit(obit++, 1);  break;
-                case 'z':
-                case '?': setBit(obit++, 'z'); setBit(obit++, 'z'); setBit(obit++, 'z'); break;
-                case 'x': setBit(obit++, 'x'); setBit(obit++, 'x'); setBit(obit++, 'x'); break;
-                case '_': break;
+                নির্বাচন (std::tolower(*cp)) {  // clang-format off
+                ক্ষেত্র '0': setBit(obit++, 0); setBit(obit++, 0);  setBit(obit++, 0);  বিরতি;
+                ক্ষেত্র '1': setBit(obit++, 1); setBit(obit++, 0);  setBit(obit++, 0);  বিরতি;
+                ক্ষেত্র '2': setBit(obit++, 0); setBit(obit++, 1);  setBit(obit++, 0);  বিরতি;
+                ক্ষেত্র '3': setBit(obit++, 1); setBit(obit++, 1);  setBit(obit++, 0);  বিরতি;
+                ক্ষেত্র '4': setBit(obit++, 0); setBit(obit++, 0);  setBit(obit++, 1);  বিরতি;
+                ক্ষেত্র '5': setBit(obit++, 1); setBit(obit++, 0);  setBit(obit++, 1);  বিরতি;
+                ক্ষেত্র '6': setBit(obit++, 0); setBit(obit++, 1);  setBit(obit++, 1);  বিরতি;
+                ক্ষেত্র '7': setBit(obit++, 1); setBit(obit++, 1);  setBit(obit++, 1);  বিরতি;
+                ক্ষেত্র 'z':
+                ক্ষেত্র '?': setBit(obit++, 'z'); setBit(obit++, 'z'); setBit(obit++, 'z'); বিরতি;
+                ক্ষেত্র 'x': setBit(obit++, 'x'); setBit(obit++, 'x'); setBit(obit++, 'x'); বিরতি;
+                ক্ষেত্র '_': বিরতি;
                 // clang-format on
-                default: v3error("Illegal character in octal constant");
+                পূর্বনির্ধারিত: v3error("Illegal character in octal constant");
                 }
-                break;
+                বিরতি;
             }
 
-            case 'h':  // FALLTHRU
-            case 'x': {
+            ক্ষেত্র 'h':  // FALLTHRU
+            ক্ষেত্র 'x': {
                 base_align = 4;
-                switch (std::tolower(*cp)) {  // clang-format off
-                case '0': setBit(obit++,0); setBit(obit++,0); setBit(obit++,0); setBit(obit++,0); break;
-                case '1': setBit(obit++,1); setBit(obit++,0); setBit(obit++,0); setBit(obit++,0); break;
-                case '2': setBit(obit++,0); setBit(obit++,1); setBit(obit++,0); setBit(obit++,0); break;
-                case '3': setBit(obit++,1); setBit(obit++,1); setBit(obit++,0); setBit(obit++,0); break;
-                case '4': setBit(obit++,0); setBit(obit++,0); setBit(obit++,1); setBit(obit++,0); break;
-                case '5': setBit(obit++,1); setBit(obit++,0); setBit(obit++,1); setBit(obit++,0); break;
-                case '6': setBit(obit++,0); setBit(obit++,1); setBit(obit++,1); setBit(obit++,0); break;
-                case '7': setBit(obit++,1); setBit(obit++,1); setBit(obit++,1); setBit(obit++,0); break;
-                case '8': setBit(obit++,0); setBit(obit++,0); setBit(obit++,0); setBit(obit++,1); break;
-                case '9': setBit(obit++,1); setBit(obit++,0); setBit(obit++,0); setBit(obit++,1); break;
-                case 'a': setBit(obit++,0); setBit(obit++,1); setBit(obit++,0); setBit(obit++,1); break;
-                case 'b': setBit(obit++,1); setBit(obit++,1); setBit(obit++,0); setBit(obit++,1); break;
-                case 'c': setBit(obit++,0); setBit(obit++,0); setBit(obit++,1); setBit(obit++,1); break;
-                case 'd': setBit(obit++,1); setBit(obit++,0); setBit(obit++,1); setBit(obit++,1); break;
-                case 'e': setBit(obit++,0); setBit(obit++,1); setBit(obit++,1); setBit(obit++,1); break;
-                case 'f': setBit(obit++,1); setBit(obit++,1); setBit(obit++,1); setBit(obit++,1); break;
-                case 'z':
-                case '?': setBit(obit++,'z'); setBit(obit++,'z'); setBit(obit++,'z'); setBit(obit++,'z'); break;
-                case 'x': setBit(obit++,'x'); setBit(obit++,'x'); setBit(obit++,'x'); setBit(obit++,'x'); break;
+                নির্বাচন (std::tolower(*cp)) {  // clang-format off
+                ক্ষেত্র '0': setBit(obit++,0); setBit(obit++,0); setBit(obit++,0); setBit(obit++,0); বিরতি;
+                ক্ষেত্র '1': setBit(obit++,1); setBit(obit++,0); setBit(obit++,0); setBit(obit++,0); বিরতি;
+                ক্ষেত্র '2': setBit(obit++,0); setBit(obit++,1); setBit(obit++,0); setBit(obit++,0); বিরতি;
+                ক্ষেত্র '3': setBit(obit++,1); setBit(obit++,1); setBit(obit++,0); setBit(obit++,0); বিরতি;
+                ক্ষেত্র '4': setBit(obit++,0); setBit(obit++,0); setBit(obit++,1); setBit(obit++,0); বিরতি;
+                ক্ষেত্র '5': setBit(obit++,1); setBit(obit++,0); setBit(obit++,1); setBit(obit++,0); বিরতি;
+                ক্ষেত্র '6': setBit(obit++,0); setBit(obit++,1); setBit(obit++,1); setBit(obit++,0); বিরতি;
+                ক্ষেত্র '7': setBit(obit++,1); setBit(obit++,1); setBit(obit++,1); setBit(obit++,0); বিরতি;
+                ক্ষেত্র '8': setBit(obit++,0); setBit(obit++,0); setBit(obit++,0); setBit(obit++,1); বিরতি;
+                ক্ষেত্র '9': setBit(obit++,1); setBit(obit++,0); setBit(obit++,0); setBit(obit++,1); বিরতি;
+                ক্ষেত্র 'a': setBit(obit++,0); setBit(obit++,1); setBit(obit++,0); setBit(obit++,1); বিরতি;
+                ক্ষেত্র 'b': setBit(obit++,1); setBit(obit++,1); setBit(obit++,0); setBit(obit++,1); বিরতি;
+                ক্ষেত্র 'c': setBit(obit++,0); setBit(obit++,0); setBit(obit++,1); setBit(obit++,1); বিরতি;
+                ক্ষেত্র 'd': setBit(obit++,1); setBit(obit++,0); setBit(obit++,1); setBit(obit++,1); বিরতি;
+                ক্ষেত্র 'e': setBit(obit++,0); setBit(obit++,1); setBit(obit++,1); setBit(obit++,1); বিরতি;
+                ক্ষেত্র 'f': setBit(obit++,1); setBit(obit++,1); setBit(obit++,1); setBit(obit++,1); বিরতি;
+                ক্ষেত্র 'z':
+                ক্ষেত্র '?': setBit(obit++,'z'); setBit(obit++,'z'); setBit(obit++,'z'); setBit(obit++,'z'); বিরতি;
+                ক্ষেত্র 'x': setBit(obit++,'x'); setBit(obit++,'x'); setBit(obit++,'x'); setBit(obit++,'x'); বিরতি;
                     // clang-format on
-                case '_': break;
-                default:  // LCOV_EXCL_START
+                ক্ষেত্র '_': বিরতি;
+                পূর্বনির্ধারিত:  // LCOV_EXCL_START
                     // Likely impossible as parser prevents hitting it
                     v3error("Illegal character in hex constant: " << *cp);
-                    break;
+                    বিরতি;
                 }  // LCOV_EXCL_STOP
-                break;
+                বিরতি;
             }
-            default:  // LCOV_EXCL_START
+            পূর্বনির্ধারিত:  // LCOV_EXCL_START
                 // Likely impossible as parser prevents hitting it
                 v3error("Illegal base character: " << base);
-                break;
+                বিরতি;
             }  // LCOV_EXCL_STOP
         }
     }
 
     // If was unsized, trim width per IEEE 1800-2023 5.7.1
-    if (!userSized && !m_data.m_autoExtend) {
-        width(std::max(32, base_align * ((widthToFit() + base_align - 1) / base_align)), false);
+    যদি (!userSized && !m_তথ্য.m_autoExtend) {
+        width(std::max(32, base_align * ((widthToFit() + base_align - 1) / base_align)), মিথ্যা);
     }
 
     // Z or X extend specific width values.  Spec says we don't 1 extend.
     // This fixes 2'bx to become 2'bxx.
-    while (obit <= width() && obit && bitIsXZ(obit - 1)) {
+    যখন (obit <= width() && obit && bitIsXZ(obit - 1)) {
         setBit(obit, bitIs(obit - 1));
         ++obit;
     }
-    opCleanThis(true);
+    opCleanThis(সত্য);
 
     // printf("Dump \"%s\"  CP \"%s\"  B '%c' %d W %d\n", sourcep, value_startp, base, width(),
     // m_value[0]);
 }
 
-void V3Number::warnTooMany(const string& value) {
-    v3warn(WIDTHDIGITS, "Too many digits for " << width() << " bit number: '" << value << "'");
+শূন্য V3_সংখ্যা::warnTooMany(ধ্রুবক string& মান) {
+    v3warn(WIDTHDIGITS, "Too many digits for " << width() << " bit number: '" << মান << "'");
 }
 
-void V3Number::nodep(AstNode* nodep) VL_MT_STABLE {
+শূন্য V3_সংখ্যা::nodep(Ast_গ্রন্থি* nodep) VL_MT_STABLE {
     m_nodep = nodep;
-    if (!nodep) return;
+    যদি (!nodep) ফেরত;
     m_fileline = nodep->fileline();
 }
 
 //======================================================================
 // Global
 
-bool V3Number::epsilonEqual(double a, double b) {
-    return std::fabs(a - b)
-           <= (std::numeric_limits<double>::epsilon() * std::max(1.0, std::max(a, b)));
+যৌক্তিক V3_সংখ্যা::epsilonEqual(দ্বিগুণ a, দ্বিগুণ b) {
+    ফেরত std::fabs(a - b)
+           <= (std::numeric_limits<দ্বিগুণ>::epsilon() * std::max(1.0, std::max(a, b)));
 }
 
-bool V3Number::epsilonIntegral(double a) {
-    const double dint = static_cast<double>(static_cast<int64_t>(a));
+যৌক্তিক V3_সংখ্যা::epsilonIntegral(দ্বিগুণ a) {
+    ধ্রুবক দ্বিগুণ dint = static_cast<দ্বিগুণ>(static_cast<int64_t>(a));
     // Check all the rounding possibilities, as we did truncation above rather than rounding
-    return epsilonEqual(a, dint) || epsilonEqual(a, dint - 1) || epsilonEqual(a, dint + 1);
+    ফেরত epsilonEqual(a, dint) || epsilonEqual(a, dint - 1) || epsilonEqual(a, dint + 1);
 }
 
-int V3Number::log2b(uint32_t num) {
+পূর্ণসংখ্যা V3_সংখ্যা::log2b(uint32_t অঙ্ক) {
     // See also opCLog2
-    for (int bit = 31; bit > 0; bit--) {
-        if (num & (1ULL << bit)) return bit;
+    জন্য (পূর্ণসংখ্যা bit = 31; bit > 0; bit--) {
+        যদি (অঙ্ক & (1ULL << bit)) ফেরত bit;
     }
-    return 0;
+    ফেরত 0;
 }
 
-int V3Number::log2bQuad(uint64_t num) {
-    if (num >> 32ULL) return 32 + log2b(num >> 32ULL);
-    return log2b(num);
+পূর্ণসংখ্যা V3_সংখ্যা::log2bQuad(uint64_t অঙ্ক) {
+    যদি (অঙ্ক >> 32ULL) ফেরত 32 + log2b(অঙ্ক >> 32ULL);
+    ফেরত log2b(অঙ্ক);
 }
 
 //======================================================================
 // Setters
 
-V3Number& V3Number::setZero() {
-    for (int i = 0; i < words(); ++i) m_data.num()[i] = {0, 0};
-    return *this;
+V3_সংখ্যা& V3_সংখ্যা::setZero() {
+    জন্য (পূর্ণসংখ্যা i = 0; i < শব্দগুলি(); ++i) m_তথ্য.অঙ্ক()[i] = {0, 0};
+    ফেরত *এই;
 }
-V3Number& V3Number::setQuad(uint64_t value) {
+V3_সংখ্যা& V3_সংখ্যা::setQuad(uint64_t মান) {
     setZero();
-    m_data.num()[0].m_value = value & 0xffffffffULL;
-    if (width() > 32) m_data.num()[1].m_value = (value >> 32ULL) & 0xffffffffULL;
+    m_তথ্য.অঙ্ক()[0].m_মান = মান & 0xffffffffULL;
+    যদি (width() > 32) m_তথ্য.অঙ্ক()[1].m_মান = (মান >> 32ULL) & 0xffffffffULL;
     opCleanThis();
-    return *this;
+    ফেরত *এই;
 }
-V3Number& V3Number::setLong(uint32_t value) {
+V3_সংখ্যা& V3_সংখ্যা::setLong(uint32_t মান) {
     setZero();
-    m_data.num()[0].m_value = value;
+    m_তথ্য.অঙ্ক()[0].m_মান = মান;
     opCleanThis();
-    return *this;
+    ফেরত *এই;
 }
-V3Number& V3Number::setLongS(int32_t value) {
+V3_সংখ্যা& V3_সংখ্যা::setLongS(int32_t মান) {
     setZero();
-    union {
+    সংঘ {
         uint32_t u;
         int32_t s;
     } u;
-    u.s = value;
-    (void)u.s;
-    m_data.num()[0].m_value = u.u;
+    u.s = মান;
+    (শূন্য)u.s;
+    m_তথ্য.অঙ্ক()[0].m_মান = u.u;
     opCleanThis();
-    return *this;
+    ফেরত *এই;
 }
-V3Number& V3Number::setDouble(double value) {
+V3_সংখ্যা& V3_সংখ্যা::setDouble(দ্বিগুণ মান) {
     UASSERT(width() == 64, "Real operation on wrong sized number");
-    m_data.setDouble();
-    union {
-        double d;
+    m_তথ্য.setDouble();
+    সংঘ {
+        দ্বিগুণ d;
         uint32_t u[2];
     } u;
-    u.d = value;
-    (void)u.d;
-    for (int i = 2; i < words(); ++i) m_data.num()[i] = {0, 0};
-    m_data.num()[0].m_value = u.u[0];
-    m_data.num()[1].m_value = u.u[1];
-    return *this;
+    u.d = মান;
+    (শূন্য)u.d;
+    জন্য (পূর্ণসংখ্যা i = 2; i < শব্দগুলি(); ++i) m_তথ্য.অঙ্ক()[i] = {0, 0};
+    m_তথ্য.অঙ্ক()[0].m_মান = u.u[0];
+    m_তথ্য.অঙ্ক()[1].m_মান = u.u[1];
+    ফেরত *এই;
 }
-V3Number& V3Number::setSingleBits(char value) {
-    for (int i = 1 /*upper*/; i < words(); ++i) m_data.num()[i] = {0, 0};
-    m_data.num()[0] = {(value == '1' || value == 'x' || value == 1 || value == 3),
-                       (value == 'z' || value == 'x' || value == 2 || value == 3)};
-    return *this;
+V3_সংখ্যা& V3_সংখ্যা::setSingleBits(অক্ষর মান) {
+    জন্য (পূর্ণসংখ্যা i = 1 /*upper*/; i < শব্দগুলি(); ++i) m_তথ্য.অঙ্ক()[i] = {0, 0};
+    m_তথ্য.অঙ্ক()[0] = {(মান == '1' || মান == 'x' || মান == 1 || মান == 3),
+                       (মান == 'z' || মান == 'x' || মান == 2 || মান == 3)};
+    ফেরত *এই;
 }
 
-V3Number& V3Number::setAllBits0() {
+V3_সংখ্যা& V3_সংখ্যা::setAllBits0() {
     setZero();
-    return *this;
+    ফেরত *এই;
 }
-V3Number& V3Number::setAllBits1() {
-    for (int i = 0; i < words(); ++i) m_data.num()[i] = {~0U, 0};
+V3_সংখ্যা& V3_সংখ্যা::setAllBits1() {
+    জন্য (পূর্ণসংখ্যা i = 0; i < শব্দগুলি(); ++i) m_তথ্য.অঙ্ক()[i] = {~0U, 0};
     opCleanThis();
-    return *this;
+    ফেরত *এই;
 }
-V3Number& V3Number::setAllBitsX() {
+V3_সংখ্যা& V3_সংখ্যা::setAllBitsX() {
     // Use setAllBitsXRemoved if calling this based on a non-X/Z input value such as divide by zero
-    for (int i = 0; i < words(); ++i) m_data.num()[i] = {~0U, ~0U};
+    জন্য (পূর্ণসংখ্যা i = 0; i < শব্দগুলি(); ++i) m_তথ্য.অঙ্ক()[i] = {~0U, ~0U};
     opCleanThis();
-    return *this;
+    ফেরত *এই;
 }
-V3Number& V3Number::setAllBitsZ() {
-    for (int i = 0; i < words(); ++i) m_data.num()[i] = {0, ~0U};
+V3_সংখ্যা& V3_সংখ্যা::setAllBitsZ() {
+    জন্য (পূর্ণসংখ্যা i = 0; i < শব্দগুলি(); ++i) m_তথ্য.অঙ্ক()[i] = {0, ~0U};
     opCleanThis();
-    return *this;
+    ফেরত *এই;
 }
-V3Number& V3Number::setAllBitsXRemoved() {
-    if (!v3Global.constRemoveXs()) {
-        return setAllBitsX();
-    } else {
+V3_সংখ্যা& V3_সংখ্যা::setAllBitsXRemoved() {
+    যদি (!v3Global.constRemoveXs()) {
+        ফেরত setAllBitsX();
+    } অন্যথা {
         // If we get a divide by zero we get Xs.
         // But after V3Unknown we have removed Xs, so use --x-assign to direct-insert 0/1
-        if (v3Global.opt.xAssign() == "1") {
-            return setAllBits1();
-        } else {
-            return setAllBits0();
+        যদি (v3Global.opt.xAssign() == "1") {
+            ফেরত setAllBits1();
+        } অন্যথা {
+            ফেরত setAllBits0();
         }
     }
 }
-V3Number& V3Number::setValue1() {
-    m_data.num()[0] = {1, 0};
-    for (int i = 1; i < words(); ++i) m_data.num()[i] = {0, 0};
-    return *this;
+V3_সংখ্যা& V3_সংখ্যা::setValue1() {
+    m_তথ্য.অঙ্ক()[0] = {1, 0};
+    জন্য (পূর্ণসংখ্যা i = 1; i < শব্দগুলি(); ++i) m_তথ্য.অঙ্ক()[i] = {0, 0};
+    ফেরত *এই;
 }
 
-void V3Number::setBitX0(int bit) {
+শূন্য V3_সংখ্যা::setBitX0(পূর্ণসংখ্যা bit) {
     // Selection beyond bounds after V3Premit needs to have 0s
     // in upper bits.  Contrast to setAllBitsXRemoved which honors xAssign
     setBit(bit, v3Global.constRemoveXs() ? 0 : 'x');
 }
 
-V3Number& V3Number::setMask(int nbits, int lsb) {
+V3_সংখ্যা& V3_সংখ্যা::setMask(পূর্ণসংখ্যা nbits, পূর্ণসংখ্যা lsb) {
     setZero();
     UASSERT(lsb >= 0, "Negative destination bit range");
     fillBits(lsb, std::max(0, std::min(nbits, width() - lsb)), 1);
-    return *this;
+    ফেরত *এই;
 }
 
 //======================================================================
 // ACCESSORS - as strings
 
-string V3Number::ascii(bool prefixed, bool cleanVerilog) const VL_MT_STABLE {
+string V3_সংখ্যা::ascii(যৌক্তিক prefixed, যৌক্তিক cleanVerilog) ধ্রুবক VL_MT_STABLE {
     // Correct number of zero bits/width matters
-    if (is1Step()) return "1step";
-    if (isNull()) return "null";
+    যদি (is1Step()) ফেরত "1step";
+    যদি (isNull()) ফেরত "null";
     std::ostringstream out;
-    if (isDouble()) {
+    যদি (isDouble()) {
         out.precision(17);
-        if (VL_UNCOVERABLE(width() != 64)) {
+        যদি (VL_UNCOVERABLE(width() != 64)) {
             out << "%E-bad-width-double";  // LCOV_EXCL_LINE
-        } else {
+        } অন্যথা {
             out << toDouble();
-            if (toDouble() == floor(toDouble())) out << ".0";
+            যদি (toDouble() == floor(toDouble())) out << ".0";
         }
-        return out.str();
-    } else if (isString()) {
-        return '"' + toString() + '"';
-    } else {
-        if (VL_UNCOVERABLE((m_data.num()[words() - 1].m_value | m_data.num()[words() - 1].m_valueX)
+        ফেরত out.str();
+    } অন্যথা যদি (isString()) {
+        ফেরত '"' + toString() + '"';
+    } অন্যথা {
+        যদি (VL_UNCOVERABLE((m_তথ্য.অঙ্ক()[শব্দগুলি() - 1].m_মান | m_তথ্য.অঙ্ক()[শব্দগুলি() - 1].m_মান_X)
                            & ~hiWordMask())) {
             out << "%E-hidden-bits";  // LCOV_EXCL_LINE
         }
     }
-    if (prefixed) {
-        if (sized()) {
+    যদি (prefixed) {
+        যদি (sized()) {
             out << width() << "'";
-        } else if (autoExtend() && width() == 1) {
+        } অন্যথা যদি (autoExtend() && width() == 1) {
             out << "'";
-            if (bitIs0(0)) {
+            যদি (bitIs0(0)) {
                 out << '0';
-            } else if (bitIs1(0)) {
+            } অন্যথা যদি (bitIs1(0)) {
                 out << '1';
-            } else if (bitIsZ(0)) {
+            } অন্যথা যদি (bitIsZ(0)) {
                 out << 'z';
-            } else {
+            } অন্যথা {
                 out << 'x';
             }
-            return out.str();
-        } else {
-            if (cleanVerilog) {
+            ফেরত out.str();
+        } অন্যথা {
+            যদি (cleanVerilog) {
                 out << "'";
-            } else {
+            } অন্যথা {
                 out << "?" << width() << "?";
             }
         }
-        if (isSigned()) out << "s";
+        যদি (isSigned()) out << "s";
     }
 
-    const bool binary = (isFourState()
-#ifdef V3NUMBER_ASCII_BINARY
+    ধ্রুবক যৌক্তিক দ্বিমিক = (isFourState()
+#ifdef V3_সংখ্যা_ASCII_দ্বিমিক
                          // cppcheck-suppress konwnConditionTrueFalse
-                         || true
+                         || সত্য
 #endif
     );
     // out<<"-"<<hex<<m_value[0]<<"-";
 
     // cppcheck-suppress konwnConditionTrueFalse
-    if (binary) {
+    যদি (দ্বিমিক) {
         out << "b";
         out << displayed("%0b");
-    } else {
-        if (prefixed) out << "h";
+    } অন্যথা {
+        যদি (prefixed) out << "h";
         // Always deal with 4 bits at once.  Note no 4-state, it's above.
         out << displayed("%0h");
     }
-    if (isNull()) {
-        if (VL_UNCOVERABLE(!isEqZero())) {
+    যদি (isNull()) {
+        যদি (VL_UNCOVERABLE(!isEqZero())) {
             out << "-%E-null-not-zero";  // LCOV_EXCL_LINE
-        } else {
+        } অন্যথা {
             out << " [null]";
         }
     }
-    return out.str();
+    ফেরত out.str();
 }
 
-bool V3Number::displayedFmtHasArg(char format, bool isScan) {
+যৌক্তিক V3_সংখ্যা::displayedFmtHasArg(অক্ষর format, যৌক্তিক isScan) {
     // Is this a format letter that takes an argument in runtime?
-    (void)isScan;
-    switch (std::tolower(format)) {
-    case 'b': return true;  // Binary
-    case 'c': return true;  // Character
-    case 'd': return true;  // Decimal
-    case 'e': return true;  // Floating
-    case 'f': return true;  // Floating
-    case 'g': return true;  // Floating
-    case 'h': return true;  // Hex
-    case 'o': return true;  // Octal
-    case 'p': return true;  // Pattern
-    case 's': return true;  // String
-    case 't': return true;  // Time
-    case 'u': return true;  // Packed 2-state
-    case 'v': return true;  // Strength
-    case 'x': return true;  // Hex
-    case 'z': return true;  // Packed 4-state
-    case '?': return true;  // Internal: Compute format in V3Width based on data type
-    default: return false;
+    (শূন্য)isScan;
+    নির্বাচন (std::tolower(format)) {
+    ক্ষেত্র 'b': ফেরত সত্য;  //দ্বিমিক
+    ক্ষেত্র 'c': ফেরত সত্য;  // Character
+    ক্ষেত্র 'd': ফেরত সত্য;  // Decimal
+    ক্ষেত্র 'e': ফেরত সত্য;  // Floating
+    ক্ষেত্র 'f': ফেরত সত্য;  // Floating
+    ক্ষেত্র 'g': ফেরত সত্য;  // Floating
+    ক্ষেত্র 'h': ফেরত সত্য;  // Hex
+    ক্ষেত্র 'o': ফেরত সত্য;  // Octal
+    ক্ষেত্র 'p': ফেরত সত্য;  // Pattern
+    ক্ষেত্র 's': ফেরত সত্য;  // String
+    ক্ষেত্র 't': ফেরত সত্য;  // Time
+    ক্ষেত্র 'u': ফেরত সত্য;  // Packed 2-state
+    ক্ষেত্র 'v': ফেরত সত্য;  // Strength
+    ক্ষেত্র 'x': ফেরত সত্য;  // Hex
+    ক্ষেত্র 'z': ফেরত সত্য;  // Packed 4-state
+    ক্ষেত্র '?': ফেরত সত্য;  // Internal: Compute format in V3Width based on data type
+    পূর্বনির্ধারিত: ফেরত মিথ্যা;
     }
     // 'l'                  // Library - precomputed front string, so no arg
     // 'm'                  // Module - precomputed front string, so no arg
     // '*'                  // $scan ignore argument
 }
 
-string V3Number::displayPad(size_t fmtsize, char pad, bool left, const string& in) VL_PURE {
+string V3_সংখ্যা::displayPad(আকার_t fmtsize, অক্ষর pad, যৌক্তিক বাম, ধ্রুবক string& in) VL_PURE {
     string padding;
-    if (in.length() < fmtsize) padding = string(fmtsize - in.length(), pad);
-    return left ? (in + padding) : (padding + in);
+    যদি (in.দৈর্ঘ্য() < fmtsize) padding = string(fmtsize - in.দৈর্ঘ্য(), pad);
+    ফেরত বাম ? (in + padding) : (padding + in);
 }
 
-string V3Number::displayedEnumName(const AstEnumItem* itemp) {
-    const string name = VIdProtect::protect(itemp->prettyName());
-    return VString::isIdentifier(name) && !std::isdigit(static_cast<unsigned char>(name[0]))
+string V3_সংখ্যা::displayedEnumName(ধ্রুবক AstEnumItem* itemp) {
+    ধ্রুবক string name = VIdProtect::protect(itemp->prettyName());
+    ফেরত VString::isIdentifier(name) && !std::isdigit(static_cast<unsigned অক্ষর>(name[0]))
                ? name
                : "\\" + name + " ";
 }
 
-string V3Number::displayedEnumName(const AstEnumDType* dtypep) const VL_MT_STABLE {
-    V3Number value{this, dtypep->width()};
-    value.opAssign(*this);
-    for (const AstEnumItem* itemp = dtypep->itemsp(); itemp;
+string V3_সংখ্যা::displayedEnumName(ধ্রুবক AstEnumDType* dtypep) ধ্রুবক VL_MT_STABLE {
+    V3_সংখ্যা মান{এই, dtypep->width()};
+    মান.opAssign(*এই);
+    জন্য (ধ্রুবক AstEnumItem* itemp = dtypep->itemsp(); itemp;
          itemp = VN_AS(itemp->nextp(), EnumItem)) {
-        const AstConst* const constp = VN_AS(itemp->valuep(), Const);
-        if (!constp->num().isAnyXZ() && value.isCaseEq(constp->num()))
-            return displayedEnumName(itemp);
+        ধ্রুবক AstConst* ধ্রুবক constp = VN_AS(itemp->valuep(), Const);
+        যদি (!constp->অঙ্ক().isAnyXZ() && মান.isCaseEq(constp->অঙ্ক()))
+            ফেরত displayedEnumName(itemp);
     }
-    return "";
+    ফেরত "";
 }
 
-string V3Number::displayedEnum(const AstSFormatArg* argp,
-                               const string& vformat) const VL_MT_STABLE {
-    const AstEnumDType* const dtypep = VN_AS(argp->dtypep()->skipRefToEnump(), EnumDType);
-    V3Number value{this, dtypep->width()};
-    value.opAssign(*this);
-    const VFormatAttr numericAttr
+string V3_সংখ্যা::displayedEnum(ধ্রুবক AstSFormatArg* argp,
+                               ধ্রুবক string& vformat) ধ্রুবক VL_MT_STABLE {
+    ধ্রুবক AstEnumDType* ধ্রুবক dtypep = VN_AS(argp->dtypep()->skipRefToEnump(), EnumDType);
+    V3_সংখ্যা মান{এই, dtypep->width()};
+    মান.opAssign(*এই);
+    ধ্রুবক VFormatAttr numericAttr
         = dtypep->isSigned() ? VFormatAttr::SIGNED : VFormatAttr::UNSIGNED;
-    const char fmt = std::tolower(vformat.back());
-    if (fmt != 'p' && fmt != 's') return value.displayed(argp, vformat, numericAttr);
-    string name = value.displayedEnumName(dtypep);
-    if (name.empty()) name = value.displayed(argp, fmt == 'p' ? vformat : "%0d", numericAttr);
-    V3Number nameNum{this};
-    nameNum.setString(name);
-    return nameNum.displayed(argp, vformat, VFormatAttr::COMPLEX);
+    ধ্রুবক অক্ষর fmt = std::tolower(vformat.back());
+    যদি (fmt != 'p' && fmt != 's') ফেরত মান.displayed(argp, vformat, numericAttr);
+    string name = মান.displayedEnumName(dtypep);
+    যদি (name.empty()) name = মান.displayed(argp, fmt == 'p' ? vformat : "%0d", numericAttr);
+    V3_সংখ্যা name_অঙ্ক{এই};
+    name_অঙ্ক.setString(name);
+    ফেরত name_অঙ্ক.displayed(argp, vformat, VFormatAttr::COMPLEX);
 }
 
-string V3Number::displayed(const AstNode* nodep, const string& vformat,
-                           const VFormatAttr& formatAttr) const VL_MT_STABLE {
-    return displayed(nodep->fileline(), vformat, formatAttr);
+string V3_সংখ্যা::displayed(ধ্রুবক Ast_গ্রন্থি* nodep, ধ্রুবক string& vformat,
+                           ধ্রুবক VFormatAttr& formatAttr) ধ্রুবক VL_MT_STABLE {
+    ফেরত displayed(nodep->fileline(), vformat, formatAttr);
 }
 
-string V3Number::displayed(FileLine* fl, const string& vformat,
-                           const VFormatAttr& formatAttr) const VL_MT_STABLE {
+string V3_সংখ্যা::displayed(File_সারি* fl, ধ্রুবক string& vformat,
+                           ধ্রুবক VFormatAttr& formatAttr) ধ্রুবক VL_MT_STABLE {
     // Similar code flow in verilated.cpp _vl_vsformat
     // Correct number of zero bits/width matters
     // UINFO(9, "displayed(\"" << vformat << "\", formatAttr=" << formatAttr);
     auto pos = vformat.cbegin();
     UASSERT(pos != vformat.cend() && pos[0] == '%',
-            "$display-like function with non-format argument " << *this);
+            "$display-like function with non-format argument " << *এই);
     ++pos;
-    bool left = false;
-    if (pos[0] == '-') {
-        left = true;
+    যৌক্তিক বাম = মিথ্যা;
+    যদি (pos[0] == '-') {
+        বাম = সত্য;
         ++pos;
     }
     string fmtsize;
-    for (; pos != vformat.cend() && (std::isdigit(pos[0]) || pos[0] == '.'); ++pos) {
+    জন্য (; pos != vformat.cend() && (std::isdigit(pos[0]) || pos[0] == '.'); ++pos) {
         fmtsize += pos[0];
     }
     string str;
 
-    char fmt = std::tolower(pos[0]);
+    অক্ষর fmt = std::tolower(pos[0]);
 
     // Override user's code for certain data-type determined arguments
-    if (formatAttr.isComplex()) {
-        if (fmt != 'p') fmt = 's';  // override
-    } else if (formatAttr.isString()) {
-        if (fmt == 'h' || fmt == 'x') {
+    যদি (formatAttr.isComplex()) {
+        যদি (fmt != 'p') fmt = 's';  // override
+    } অন্যথা যদি (formatAttr.isString()) {
+        যদি (fmt == 'h' || fmt == 'x') {
             // V3Width errors on const %x of string, but V3Randomize may make a %x on a
             // string, or may have a runtime format
-            V3Number strwide{fl, static_cast<int>(toString().length()) * 8, 0};
-            strwide.opNToI(*this);
-            return strwide.displayed(fl, vformat, VFormatAttr::UNSIGNED);
+            V3_সংখ্যা strwide{fl, static_cast<পূর্ণসংখ্যা>(toString().দৈর্ঘ্য()) * 8, 0};
+            strwide.opNToI(*এই);
+            ফেরত strwide.displayed(fl, vformat, VFormatAttr::UNSIGNED);
         }
-        if (fmt != 'p') fmt = 's';  // override
-    } else if (formatAttr.isSigned() || formatAttr.isUnsigned()) {
-        if (fmt == 'p') {
-            if (fmtsize == "0") {  // For %0p, IEEE our choice, use 'h%0h
+        যদি (fmt != 'p') fmt = 's';  // override
+    } অন্যথা যদি (formatAttr.isSigned() || formatAttr.isUnsigned()) {
+        যদি (fmt == 'p') {
+            যদি (fmtsize == "0") {  // For %0p, IEEE our choice, use 'h%0h
                 str += "'h";
                 fmt = 'h';
-            } else {  // UVM tests require %0d
+            } অন্যথা {  // UVM tests require %0d
                 fmtsize = "0";
                 fmt = 'd';
             }
         }
-    } else if (formatAttr.isDouble()) {
+    } অন্যথা যদি (formatAttr.isDouble()) {
         // 'p' not converted to 'g' here as vformat string can't be easily changed
-        if (!(fmt == 'e' || fmt == 'f' || fmt == 'g' || fmt == 'p'
+        যদি (!(fmt == 'e' || fmt == 'f' || fmt == 'g' || fmt == 'p'
               || VL_UNCOVERABLE(fmt == 't'))) {
             // A non-float format with a float, must convert to integer then format
-            V3Number nonfloat{fl, 64, 0};
-            nonfloat.opRToIRoundS(*this);
-            return nonfloat.displayed(fl, vformat, VFormatAttr::SIGNED);
+            V3_সংখ্যা nonfloat{fl, 64, 0};
+            nonfloat.opRToIRoundS(*এই);
+            ফেরত nonfloat.displayed(fl, vformat, VFormatAttr::SIGNED);
         }
     }
 
-    switch (fmt) {
-    case 'c': {
-        if (width() > 8)
+    নির্বাচন (fmt) {
+    ক্ষেত্র 'c': {
+        যদি (width() > 8)
             fl->v3warn(WIDTHTRUNC, "$display-like format of %c format of > 8 bit value");
-        const unsigned int v = bitsValue(0, 8);
-        str.push_back(static_cast<char>(v));
-        return str;
+        ধ্রুবক unsigned পূর্ণসংখ্যা v = bits_মান(0, 8);
+        str.ঠেলো_back(static_cast<অক্ষর>(v));
+        ফেরত str;
     }
-    case 'e':  // FALLTHRU
-    case 'f':  // FALLTHRU
-    case 'g': {
-        const double n = formatAttr.isDouble()   ? toDouble()
+    ক্ষেত্র 'e':  // FALLTHRU
+    ক্ষেত্র 'f':  // FALLTHRU
+    ক্ষেত্র 'g': {
+        ধ্রুবক দ্বিগুণ n = formatAttr.isDouble()   ? toDouble()
                          : formatAttr.isSigned() ? toSQuad()
                                                  : toUQuad();
-        char tmp[MAX_SPRINTF_DOUBLE_SIZE];
-        (void)VL_SNPRINTF(tmp, MAX_SPRINTF_DOUBLE_SIZE, vformat.c_str(), n);
-        return tmp;
+        অক্ষর tmp[MAX_SPRINTF_DOUBLE_আকার];
+        (শূন্য)VL_SNPRINTF(tmp, MAX_SPRINTF_DOUBLE_আকার, vformat.c_str(), n);
+        ফেরত tmp;
     }
-    case 's': {
-        if (formatAttr.isString() || formatAttr.isComplex()) {
+    ক্ষেত্র 's': {
+        যদি (formatAttr.isString() || formatAttr.isComplex()) {
             str = toString();
-        } else {
+        } অন্যথা {
             // Spec says always drop leading zeros, this isn't quite right, we space pad.
-            int bit = width() - 1;
-            bool start = true;
-            while ((bit % 8) != 7) ++bit;
-            for (; bit >= 0; bit -= 8) {
-                const int v = bitsValue(bit - 7, 8);
-                if (!start || v) {
-                    str += static_cast<char>((v == 0) ? ' ' : v);
-                    start = false;  // Drop leading 0s
-                } else {
-                    if (fmtsize != "0") str += ' ';
+            পূর্ণসংখ্যা bit = width() - 1;
+            যৌক্তিক start = সত্য;
+            যখন ((bit % 8) != 7) ++bit;
+            জন্য (; bit >= 0; bit -= 8) {
+                ধ্রুবক পূর্ণসংখ্যা v = bits_মান(bit - 7, 8);
+                যদি (!start || v) {
+                    str += static_cast<অক্ষর>((v == 0) ? ' ' : v);
+                    start = মিথ্যা;  // Drop leading 0s
+                } অন্যথা {
+                    যদি (fmtsize != "0") str += ' ';
                 }
             }
         }
-        const size_t fmtsizen = static_cast<size_t>(std::atoi(fmtsize.c_str()));
-        str = displayPad(fmtsizen, ' ', left, str);
-        return str;
+        ধ্রুবক আকার_t fmtsizen = static_cast<আকার_t>(std::atoi(fmtsize.c_str()));
+        str = displayPad(fmtsizen, ' ', বাম, str);
+        ফেরত str;
     }
-    case 'p': {  // Pattern
+    ক্ষেত্র 'p': {  // Pattern
         // 'p' with NUMBER was earlier converted to 'd'
-        if (formatAttr.isDouble()) {
-            const double n = formatAttr.isDouble()   ? toDouble()
+        যদি (formatAttr.isDouble()) {
+            ধ্রুবক দ্বিগুণ n = formatAttr.isDouble()   ? toDouble()
                              : formatAttr.isSigned() ? toSQuad()
                                                      : toUQuad();
-            char tmp[MAX_SPRINTF_DOUBLE_SIZE];
-            (void)VL_SNPRINTF(tmp, MAX_SPRINTF_DOUBLE_SIZE, "%g", n);
-            return tmp;
+            অক্ষর tmp[MAX_SPRINTF_DOUBLE_আকার];
+            (শূন্য)VL_SNPRINTF(tmp, MAX_SPRINTF_DOUBLE_আকার, "%g", n);
+            ফেরত tmp;
         }
-        if (formatAttr.isString())
-            return '"' + V3OutFormatter::quoteNameControls(toString()) + '"';
-        if (formatAttr.isComplex()) return toString();
-        return "%p";
+        যদি (formatAttr.isString())
+            ফেরত '"' + V3OutFormatter::quoteNameControls(toString()) + '"';
+        যদি (formatAttr.isComplex()) ফেরত toString();
+        ফেরত "%p";
     }
-    case 'b':  // FALLTHRU
-    case 'o':  // FALLTHRU
-    case 'h':  // FALLTHRU
-    case 'x': {
-        int bit = width() - 1;
-        if (left || !fmtsize.empty()) {
-            while (bit && bitIs0(bit)) --bit;
+    ক্ষেত্র 'b':  // FALLTHRU
+    ক্ষেত্র 'o':  // FALLTHRU
+    ক্ষেত্র 'h':  // FALLTHRU
+    ক্ষেত্র 'x': {
+        পূর্ণসংখ্যা bit = width() - 1;
+        যদি (বাম || !fmtsize.empty()) {
+            যখন (bit && bitIs0(bit)) --bit;
         }
-        switch (fmt) {
-        case 'b': {
-            for (; bit >= 0; --bit) {
-                if (bitIs0(bit)) {
+        নির্বাচন (fmt) {
+        ক্ষেত্র 'b': {
+            জন্য (; bit >= 0; --bit) {
+                যদি (bitIs0(bit)) {
                     str += '0';
-                } else if (bitIs1(bit)) {
+                } অন্যথা যদি (bitIs1(bit)) {
                     str += '1';
-                } else if (bitIsZ(bit)) {
+                } অন্যথা যদি (bitIsZ(bit)) {
                     str += 'z';
-                } else {
+                } অন্যথা {
                     str += 'x';
                 }
             }
-            break;
+            বিরতি;
         }
-        case 'o': {
-            while ((bit % 3) != 2) ++bit;
-            for (; bit > 0; bit -= 3) {
-                const int numX = countX(bit - 2, 3);
-                const int numZ = countZ(bit - 2, 3);
-                if (numX == 3 || numX == width() - (bit - 2)) {
+        ক্ষেত্র 'o': {
+            যখন ((bit % 3) != 2) ++bit;
+            জন্য (; bit > 0; bit -= 3) {
+                ধ্রুবক পূর্ণসংখ্যা অঙ্ক_X = গুনতি_X(bit - 2, 3);
+                ধ্রুবক পূর্ণসংখ্যা অঙ্ক_Z = গুনতি_Z(bit - 2, 3);
+                যদি (অঙ্ক_X == 3 || অঙ্ক_X == width() - (bit - 2)) {
                     str += 'x';
-                    continue;
+                    চালু;
                 }
-                if (numZ == 3 || numZ == width() - (bit - 2)) {
+                যদি (অঙ্ক_Z == 3 || অঙ্ক_Z == width() - (bit - 2)) {
                     str += 'z';
-                    continue;
+                    চালু;
                 }
-                if (numX > 0) {
+                যদি (অঙ্ক_X > 0) {
                     str += 'X';
-                    continue;
+                    চালু;
                 }
-                if (numZ > 0) {
+                যদি (অঙ্ক_Z > 0) {
                     str += 'Z';
-                    continue;
+                    চালু;
                 }
-                const int v = bitsValue(bit - 2, 3);
-                str += static_cast<char>('0' + v);
+                ধ্রুবক পূর্ণসংখ্যা v = bits_মান(bit - 2, 3);
+                str += static_cast<অক্ষর>('0' + v);
             }
-            break;
+            বিরতি;
         }
-        default: {  // h/x
-            while ((bit % 4) != 3) ++bit;
-            for (; bit > 0; bit -= 4) {
-                const int numX = countX(bit - 3, 4);
-                const int numZ = countZ(bit - 3, 4);
-                if (numX == 4 || numX == width() - (bit - 3)) {
+        পূর্বনির্ধারিত: {  // h/x
+            যখন ((bit % 4) != 3) ++bit;
+            জন্য (; bit > 0; bit -= 4) {
+                ধ্রুবক পূর্ণসংখ্যা অঙ্ক_X = গুনতি_X(bit - 3, 4);
+                ধ্রুবক পূর্ণসংখ্যা অঙ্ক_Z = গুনতি_Z(bit - 3, 4);
+                যদি (অঙ্ক_X == 4 || অঙ্ক_X == width() - (bit - 3)) {
                     str += 'x';
-                    continue;
+                    চালু;
                 }
-                if (numZ == 4 || numZ == width() - (bit - 3)) {
+                যদি (অঙ্ক_Z == 4 || অঙ্ক_Z == width() - (bit - 3)) {
                     str += 'z';
-                    continue;
+                    চালু;
                 }
-                if (numX > 0) {
+                যদি (অঙ্ক_X > 0) {
                     str += 'X';
-                    continue;
+                    চালু;
                 }
-                if (numZ > 0) {
+                যদি (অঙ্ক_Z > 0) {
                     str += 'Z';
-                    continue;
+                    চালু;
                 }
-                const int v = bitsValue(bit - 3, 4);
-                if (v >= 10) {
-                    str += static_cast<char>('a' + v - 10);
-                } else {
-                    str += static_cast<char>('0' + v);
+                ধ্রুবক পূর্ণসংখ্যা v = bits_মান(bit - 3, 4);
+                যদি (v >= 10) {
+                    str += static_cast<অক্ষর>('a' + v - 10);
+                } অন্যথা {
+                    str += static_cast<অক্ষর>('0' + v);
                 }
             }
-            break;
+            বিরতি;
         }
         }  // switch
-        const size_t fmtsizen = static_cast<size_t>(std::atoi(fmtsize.c_str()));
-        str = displayPad(fmtsizen, (left ? ' ' : '0'), left, str);
-        return str;
+        ধ্রুবক আকার_t fmtsizen = static_cast<আকার_t>(std::atoi(fmtsize.c_str()));
+        str = displayPad(fmtsizen, (বাম ? ' ' : '0'), বাম, str);
+        ফেরত str;
     }  // case b/d/x/o
-    case 't':  // Time
-    case 'd': {  // Unsigned decimal
-        const bool issigned = formatAttr.isSigned();
-        if (fmtsize == "" && !left) {
-            const double mantissabits = width() - (issigned ? 1 : 0);
+    ক্ষেত্র 't':  // Time
+    ক্ষেত্র 'd': {  // Unsigned decimal
+        ধ্রুবক যৌক্তিক issigned = formatAttr.isSigned();
+        যদি (fmtsize == "" && !বাম) {
+            ধ্রুবক দ্বিগুণ mantissabits = width() - (issigned ? 1 : 0);
             // To get the number of digits required, we want to compute
             // log10(2**mantissabits) and round it up. To be able to handle
             // a very wide mantissa, we use log2(2**mantissabits)/log2(10),
             // which is (+1.0 is for rounding bias):
-            double dchars = mantissabits / 3.321928094887362 + 1.0;
-            if (issigned) ++dchars;  // space for sign
-            fmtsize = cvtToStr(static_cast<int>(dchars));
+            দ্বিগুণ dchars = mantissabits / 3.321928094887362 + 1.0;
+            যদি (issigned) ++dchars;  // space for sign
+            fmtsize = cvtToStr(static_cast<পূর্ণসংখ্যা>(dchars));
         }
-        bool hasXZ = false;
-        if (isAllX()) {
+        যৌক্তিক hasXZ = মিথ্যা;
+        যদি (isAllX()) {
             str = "x";
-            hasXZ = true;
-        } else if (isAllZ()) {
+            hasXZ = সত্য;
+        } অন্যথা যদি (isAllZ()) {
             str = "z";
-            hasXZ = true;
-        } else if (isAnyX()) {
+            hasXZ = সত্য;
+        } অন্যথা যদি (isAnyX()) {
             str = "X";
-            hasXZ = true;
-        } else if (isAnyZ()) {
+            hasXZ = সত্য;
+        } অন্যথা যদি (isAnyZ()) {
             str = "Z";
-            hasXZ = true;
+            hasXZ = সত্য;
         }
-        if (!hasXZ) {
-            if (issigned) {
-                if (width() > 64) {
+        যদি (!hasXZ) {
+            যদি (issigned) {
+                যদি (width() > 64) {
                     str = toDecimalS();
-                } else {
+                } অন্যথা {
                     str = cvtToStr(toSQuad());
                 }
-            } else {
-                if (width() > 64) {
+            } অন্যথা {
+                যদি (width() > 64) {
                     str = toDecimalU();
-                } else {
+                } অন্যথা {
                     str = cvtToStr(toUQuad());
                 }
             }
         }
-        const bool zeropad = fmtsize.length() > 0 && fmtsize[0] == '0' && !left;
+        ধ্রুবক যৌক্তিক zeropad = fmtsize.দৈর্ঘ্য() > 0 && fmtsize[0] == '0' && !বাম;
         // fmtsize might have changed since we parsed the %fmtsize
-        const size_t fmtsizen = static_cast<size_t>(std::atoi(fmtsize.c_str()));
-        str = displayPad(fmtsizen, (zeropad ? '0' : ' '), left, str);
-        return str;
+        ধ্রুবক আকার_t fmtsizen = static_cast<আকার_t>(std::atoi(fmtsize.c_str()));
+        str = displayPad(fmtsizen, (zeropad ? '0' : ' '), বাম, str);
+        ফেরত str;
     }
     // 'l'   // Library - converted to text by V3LinkResolve
-    case 'u': {  // Packed 2-state
-        for (int i = 0; i < words(); ++i) {
-            const uint32_t v = m_data.num()[i].m_value;
-            str += static_cast<char>((v >> 0) & 0xff);
-            str += static_cast<char>((v >> 8) & 0xff);
-            str += static_cast<char>((v >> 16) & 0xff);
-            str += static_cast<char>((v >> 24) & 0xff);
+    ক্ষেত্র 'u': {  // Packed 2-state
+        জন্য (পূর্ণসংখ্যা i = 0; i < শব্দগুলি(); ++i) {
+            ধ্রুবক uint32_t v = m_তথ্য.অঙ্ক()[i].m_মান;
+            str += static_cast<অক্ষর>((v >> 0) & 0xff);
+            str += static_cast<অক্ষর>((v >> 8) & 0xff);
+            str += static_cast<অক্ষর>((v >> 16) & 0xff);
+            str += static_cast<অক্ষর>((v >> 24) & 0xff);
         }
-        return str;
+        ফেরত str;
     }
-    case 'z': {  // Packed 4-state
-        for (int i = 0; i < words(); ++i) {
-            const ValueAndX v = m_data.num()[i];
-            str += static_cast<char>((v.m_value >> 0) & 0xff);
-            str += static_cast<char>((v.m_value >> 8) & 0xff);
-            str += static_cast<char>((v.m_value >> 16) & 0xff);
-            str += static_cast<char>((v.m_value >> 24) & 0xff);
-            str += static_cast<char>((v.m_valueX >> 0) & 0xff);
-            str += static_cast<char>((v.m_valueX >> 8) & 0xff);
-            str += static_cast<char>((v.m_valueX >> 16) & 0xff);
-            str += static_cast<char>((v.m_valueX >> 24) & 0xff);
+    ক্ষেত্র 'z': {  // Packed 4-state
+        জন্য (পূর্ণসংখ্যা i = 0; i < শব্দগুলি(); ++i) {
+            ধ্রুবক মান_And_X v = m_তথ্য.অঙ্ক()[i];
+            str += static_cast<অক্ষর>((v.m_মান >> 0) & 0xff);
+            str += static_cast<অক্ষর>((v.m_মান >> 8) & 0xff);
+            str += static_cast<অক্ষর>((v.m_মান >> 16) & 0xff);
+            str += static_cast<অক্ষর>((v.m_মান >> 24) & 0xff);
+            str += static_cast<অক্ষর>((v.m_মান_X >> 0) & 0xff);
+            str += static_cast<অক্ষর>((v.m_মান_X >> 8) & 0xff);
+            str += static_cast<অক্ষর>((v.m_মান_X >> 16) & 0xff);
+            str += static_cast<অক্ষর>((v.m_মান_X >> 24) & 0xff);
         }
-        return str;
+        ফেরত str;
     }
-    case 'v': {  // Strength
-        int bit = width() - 1;
-        for (; bit >= 0; bit--) {
-            if (bitIs0(bit)) {
+    ক্ষেত্র 'v': {  // Strength
+        পূর্ণসংখ্যা bit = width() - 1;
+        জন্য (; bit >= 0; bit--) {
+            যদি (bitIs0(bit)) {
                 str += "St0 ";
             }  // Yes, always a space even for bit 0
-            else if (bitIs1(bit)) {
+            অন্যথা যদি (bitIs1(bit)) {
                 str += "St1 ";
-            } else if (bitIsZ(bit)) {
+            } অন্যথা যদি (bitIsZ(bit)) {
                 str += "StZ ";
-            } else {
+            } অন্যথা {
                 str += "StX";
             }
         }
-        return str;
+        ফেরত str;
     }
-    default: fl->v3fatalSrc("Unknown $display-like format code for number: %" << pos[0]);
+    পূর্বনির্ধারিত: fl->v3fatalSrc("Unknown $display-like format code for number: %" << pos[0]);
     }
 }
 
-string V3Number::emitC() const VL_MT_STABLE {
-    constexpr size_t bufsize = 1000;
-    char sbuf[bufsize];
-    string result;
-    if (isNull()) {
-        return "VlNull{}";
-    } else if (isDouble()) {
-        const double dnum = toDouble();
-        if (std::isinf(dnum)) {
-            if (std::signbit(dnum)) result += '-';
-            result += "std::numeric_limits<double>::infinity()";
-        } else if (std::isnan(dnum)) {
-            if (std::signbit(dnum)) result += '-';
-            result += "std::numeric_limits<double>::quiet_NaN()";
-        } else {
-            const char* const fmt = (static_cast<int>(dnum) == dnum && -1000 < dnum && dnum < 1000)
+string V3_সংখ্যা::emitC() ধ্রুবক VL_MT_STABLE {
+    constexpr আকার_t bufsize = 1000;
+    অক্ষর sbuf[bufsize];
+    string ফলাফল;
+    যদি (isNull()) {
+        ফেরত "VlNull{}";
+    } অন্যথা যদি (isDouble()) {
+        ধ্রুবক দ্বিগুণ dnum = toDouble();
+        যদি (std::isinf(dnum)) {
+            যদি (std::signbit(dnum)) ফলাফল += '-';
+            ফলাফল += "std::numeric_limits<double>::infinity()";
+        } অন্যথা যদি (std::isnan(dnum)) {
+            যদি (std::signbit(dnum)) ফলাফল += '-';
+            ফলাফল += "std::numeric_limits<double>::quiet_NaN()";
+        } অন্যথা {
+            ধ্রুবক অক্ষর* ধ্রুবক fmt = (static_cast<পূর্ণসংখ্যা>(dnum) == dnum && -1000 < dnum && dnum < 1000)
                                         ? "%3.1f"  // Force decimal point
                                         : "%.17e";  // %e always yields a float literal
-            (void)VL_SNPRINTF(sbuf, bufsize, fmt, dnum);
-            return sbuf;
+            (শূন্য)VL_SNPRINTF(sbuf, bufsize, fmt, dnum);
+            ফেরত sbuf;
         }
-    } else if (isString()) {
-        const string strg = toString();
-        const string quoted
+    } অন্যথা যদি (isString()) {
+        ধ্রুবক string strg = toString();
+        ধ্রুবক string quoted
             = V3OutFormatter::quoteNameControls(strg, V3OutFormatter::Language::LA_C);
         // Note: putsQuoted does not track indentation, so we use this instead
-        return '"' + quoted + "\"s";
-    } else if (words() > 2) {
+        ফেরত '"' + quoted + "\"s";
+    } অন্যথা যদি (শব্দগুলি() > 2) {
         // Note the double {{ initializer. The first { starts the initializer of the VlWide,
         // and the second starts the initializer of m_storage within the VlWide.
         // Alternative is to have constructor with std::initializer_list
-        result = "::VlWide<" + std::to_string(words()) + ">{{";
-        if (words() > 4) result += '\n';
-        for (int n = 0; n < words(); ++n) {
-            if (n) result += ((n % 4) ? ", " : ",\n");
-            (void)VL_SNPRINTF(sbuf, bufsize, "0x%08" PRIx32, edataWord(n));
-            result += sbuf;
+        ফলাফল = "::VlWide<" + std::to_string(শব্দগুলি()) + ">{{";
+        যদি (শব্দগুলি() > 4) ফলাফল += '\n';
+        জন্য (পূর্ণসংখ্যা n = 0; n < শব্দগুলি(); ++n) {
+            যদি (n) ফলাফল += ((n % 4) ? ", " : ",\n");
+            (শূন্য)VL_SNPRINTF(sbuf, bufsize, "0x%08" PRIx32, edataWord(n));
+            ফলাফল += sbuf;
         }
-        if (words() > 4) result += '\n';
-        result += "}}";
-    } else if (words() == 2) {  // Quad
-        const uint64_t qnum = static_cast<uint64_t>(toUQuad());
-        const char* const fmt = (qnum < 10) ? ("%" PRIx64 "ULL") : ("0x%016" PRIx64 "ULL");
+        যদি (শব্দগুলি() > 4) ফলাফল += '\n';
+        ফলাফল += "}}";
+    } অন্যথা যদি (শব্দগুলি() == 2) {  // Quad
+        ধ্রুবক uint64_t qnum = static_cast<uint64_t>(toUQuad());
+        ধ্রুবক অক্ষর* ধ্রুবক fmt = (qnum < 10) ? ("%" PRIx64 "ULL") : ("0x%016" PRIx64 "ULL");
         // cppcheck-suppress wrongPrintfScanfArgNum
-        (void)VL_SNPRINTF(sbuf, bufsize, fmt, qnum);
-        return sbuf;
-    } else {
+        (শূন্য)VL_SNPRINTF(sbuf, bufsize, fmt, qnum);
+        ফেরত sbuf;
+    } অন্যথা {
         // Always emit unsigned, if signed, will call correct signed functions
         // The 'U' must be here, to avoid <= comparisons etc ending up signed
-        const uint32_t unum = toUInt();
-        const char* const fmt = (unum < 10)      ? ("%" PRIu32 "U")
+        ধ্রুবক uint32_t unum = toUInt();
+        ধ্রুবক অক্ষর* ধ্রুবক fmt = (unum < 10)      ? ("%" PRIu32 "U")
                                 : (width() > 16) ? ("0x%08" PRIx32 "U")
                                 : (width() > 8)  ? ("0x%04" PRIx32 "U")
                                                  : ("0x%02" PRIx32 "U");
         // cppcheck-suppress wrongPrintfScanfArgNum
-        (void)VL_SNPRINTF(sbuf, bufsize, fmt, unum);
-        return sbuf;
+        (শূন্য)VL_SNPRINTF(sbuf, bufsize, fmt, unum);
+        ফেরত sbuf;
     }
-    return result;
+    ফেরত ফলাফল;
 }
 
-string V3Number::toDecimalS() const VL_MT_STABLE {
+string V3_সংখ্যা::toDecimalS() ধ্রুবক VL_MT_STABLE {
     // Correct number of zero bits/width matters
-    if (isNegative()) {
-        V3Number lhsNoSign = *this;
-        lhsNoSign.opNegate(*this);
-        return "-"s + lhsNoSign.toDecimalU();
-    } else {
-        return toDecimalU();
+    যদি (isNegative()) {
+        V3_সংখ্যা lhsNoSign = *এই;
+        lhsNoSign.opNegate(*এই);
+        ফেরত "-"s + lhsNoSign.toDecimalU();
+    } অন্যথা {
+        ফেরত toDecimalU();
     }
 }
 
-string V3Number::toDecimalU() const VL_MT_STABLE {
-    const int maxdecwidth = (width() + 3) * 4 / 3;
+string V3_সংখ্যা::toDecimalU() ধ্রুবক VL_MT_STABLE {
+    ধ্রুবক পূর্ণসংখ্যা maxdecwidth = (width() + 3) * 4 / 3;
 
     // Or (maxdecwidth+7)/8], but can't have more than 4 BCD bits per word
-    V3Number bcd(this, maxdecwidth + 4);
-    V3Number tmp(this, maxdecwidth + 4);
-    V3Number tmp2(this, maxdecwidth + 4);
+    V3_সংখ্যা bcd(এই, maxdecwidth + 4);
+    V3_সংখ্যা tmp(এই, maxdecwidth + 4);
+    V3_সংখ্যা tmp2(এই, maxdecwidth + 4);
 
-    int from_bit = width() - 1;
+    পূর্ণসংখ্যা from_bit = width() - 1;
     // Skip all leading zeros
-    for (; from_bit >= 0 && bitIs0(from_bit); --from_bit) {}
+    জন্য (; from_bit >= 0 && bitIs0(from_bit); --from_bit) {}
     // Double-dabble algorithm
-    for (; from_bit >= 0; --from_bit) {
+    জন্য (; from_bit >= 0; --from_bit) {
         // Any digits >= 5 need an add 3 (via tmp)
-        for (int nibble_bit = 0; nibble_bit < maxdecwidth; nibble_bit += 4) {
-            if (bcd.bitsValue(nibble_bit, 4) >= 5) {
+        জন্য (পূর্ণসংখ্যা nibble_bit = 0; nibble_bit < maxdecwidth; nibble_bit += 4) {
+            যদি (bcd.bits_মান(nibble_bit, 4) >= 5) {
                 tmp2.setAllBits0();
                 tmp2.setBit(nibble_bit, 1);  // Add 3, decomposed as two bits
                 tmp2.setBit(nibble_bit + 1, 1);
@@ -1070,751 +1070,751 @@ string V3Number::toDecimalU() const VL_MT_STABLE {
         }
         // Shift; bcd = bcd << 1
         tmp.opAssign(bcd);
-        bcd.opShiftL(tmp, V3Number(this, 32, 1));
+        bcd.opShiftL(tmp, V3_সংখ্যা(এই, 32, 1));
         // bcd[0] = this[from_bit]
-        if (bitIs1(from_bit)) bcd.setBit(0, 1);
+        যদি (bitIs1(from_bit)) bcd.setBit(0, 1);
     }
 
     string output;
-    int lsb = (maxdecwidth - 1) & ~3;
-    for (; lsb > 0; lsb -= 4) {  // Skip leading zeros
-        if (bcd.bitsValue(lsb, 4)) break;
+    পূর্ণসংখ্যা lsb = (maxdecwidth - 1) & ~3;
+    জন্য (; lsb > 0; lsb -= 4) {  // Skip leading zeros
+        যদি (bcd.bits_মান(lsb, 4)) বিরতি;
     }
-    for (; lsb >= 0; lsb -= 4) {
-        output += static_cast<char>('0' + bcd.bitsValue(lsb, 4));  // 0..9
+    জন্য (; lsb >= 0; lsb -= 4) {
+        output += static_cast<অক্ষর>('0' + bcd.bits_মান(lsb, 4));  // 0..9
     }
-    return output;
+    ফেরত output;
 }
 
-string V3Number::toRealString() const VL_MT_STABLE {
-    const double value = toDouble();
+string V3_সংখ্যা::toRealString() ধ্রুবক VL_MT_STABLE {
+    ধ্রুবক দ্বিগুণ মান = toDouble();
     // 15 digits suffice for most values, 17 digits for every value
     std::ostringstream out;
     out.precision(15);
-    out << value;
-    string result = out.str();
-    if (std::strtod(result.c_str(), nullptr) != value) {
+    out << মান;
+    string ফলাফল = out.str();
+    যদি (std::strtod(ফলাফল.c_str(), nullptr) != মান) {
         out.str("");
         out.precision(17);
-        out << value;
-        result = out.str();
+        out << মান;
+        ফলাফল = out.str();
     }
     // A real, as in Verilog, unless has an exponent, or is infinite or not-a-number
-    if (result.find_first_of(".en") == string::npos) result += ".0";
-    return result;
+    যদি (ফলাফল.find_first_of(".en") == string::npos) ফলাফল += ".0";
+    ফেরত ফলাফল;
 }
 
 //======================================================================
 // ACCESSORS - as numbers
 
-bool V3Number::fitsInUInt() const VL_MT_SAFE {
-    if (isFourState()) return false;
+যৌক্তিক V3_সংখ্যা::fitsInUInt() ধ্রুবক VL_MT_SAFE {
+    যদি (isFourState()) ফেরত মিথ্যা;
     // We allow wide numbers that represent values <= 32 bits
-    for (int i = 1; i < words(); ++i) {
-        if (m_data.num()[i].m_value) return false;
+    জন্য (পূর্ণসংখ্যা i = 1; i < শব্দগুলি(); ++i) {
+        যদি (m_তথ্য.অঙ্ক()[i].m_মান) ফেরত মিথ্যা;
     }
-    return true;
+    ফেরত সত্য;
 }
-uint32_t V3Number::toUInt() const VL_MT_SAFE {
-    UASSERT(!isFourState(), "toUInt with 4-state " << *this);
+uint32_t V3_সংখ্যা::toUInt() ধ্রুবক VL_MT_SAFE {
+    UASSERT(!isFourState(), "toUInt with 4-state " << *এই);
     // We allow wide numbers that represent values <= 32 bits
-    if (VL_UNCOVERABLE(!fitsInUInt())) {
+    যদি (VL_UNCOVERABLE(!fitsInUInt())) {
         v3error("Value too wide for 32-bits expected in this context "  // LCOV_EXCL_LINE
-                << *this);
+                << *এই);
     }
-    return m_data.num()[0].m_value;
+    ফেরত m_তথ্য.অঙ্ক()[0].m_মান;
 }
 
-double V3Number::toDouble() const VL_MT_SAFE {
+দ্বিগুণ V3_সংখ্যা::toDouble() ধ্রুবক VL_MT_SAFE {
     UASSERT(isDouble() && width() == 64, "Real operation on wrong sized/non-real number");
-    union {
-        double d;
+    সংঘ {
+        দ্বিগুণ d;
         uint32_t u[2];
     } u;
-    u.u[0] = m_data.num()[0].m_value;
-    u.u[1] = m_data.num()[1].m_value;
-    return u.d;
+    u.u[0] = m_তথ্য.অঙ্ক()[0].m_মান;
+    u.u[1] = m_তথ্য.অঙ্ক()[1].m_মান;
+    ফেরত u.d;
 }
 
-int32_t V3Number::toSInt() const VL_MT_SAFE {
-    if (isSigned()) {
-        const uint32_t v = toUInt();
-        const uint32_t signExtend = (-(v & (1UL << (width() - 1))));
-        const uint32_t extended = v | signExtend;
-        return static_cast<int32_t>(extended);
-    } else {
+int32_t V3_সংখ্যা::toSInt() ধ্রুবক VL_MT_SAFE {
+    যদি (isSigned()) {
+        ধ্রুবক uint32_t v = toUInt();
+        ধ্রুবক uint32_t signExtend = (-(v & (1UL << (width() - 1))));
+        ধ্রুবক uint32_t extended = v | signExtend;
+        ফেরত static_cast<int32_t>(extended);
+    } অন্যথা {
         // Where we use this (widths, etc) and care about signedness,
         // we can reasonably assume the MSB isn't set on unsigned numbers.
-        return static_cast<int32_t>(toUInt());
+        ফেরত static_cast<int32_t>(toUInt());
     }
 }
 
-uint64_t V3Number::toUQuad() const VL_MT_SAFE {
-    UASSERT(!isFourState(), "toUQuad with 4-state " << *this);
+uint64_t V3_সংখ্যা::toUQuad() ধ্রুবক VL_MT_SAFE {
+    UASSERT(!isFourState(), "toUQuad with 4-state " << *এই);
     // We allow wide numbers that represent values <= 64 bits
-    if (isDouble()) return static_cast<uint64_t>(toDouble());
-    for (int i = 2; i < words(); ++i) {
-        if (m_data.num()[i].m_value) {
-            v3error("Value too wide for 64-bits expected in this context " << *this);
-            break;
+    যদি (isDouble()) ফেরত static_cast<uint64_t>(toDouble());
+    জন্য (পূর্ণসংখ্যা i = 2; i < শব্দগুলি(); ++i) {
+        যদি (m_তথ্য.অঙ্ক()[i].m_মান) {
+            v3error("Value too wide for 64-bits expected in this context " << *এই);
+            বিরতি;
         }
     }
-    if (width() <= 32) return (static_cast<uint64_t>(toUInt()));
-    return ((static_cast<uint64_t>(m_data.num()[1].m_value) << 32ULL)
-            | (static_cast<uint64_t>(m_data.num()[0].m_value)));
+    যদি (width() <= 32) ফেরত (static_cast<uint64_t>(toUInt()));
+    ফেরত ((static_cast<uint64_t>(m_তথ্য.অঙ্ক()[1].m_মান) << 32ULL)
+            | (static_cast<uint64_t>(m_তথ্য.অঙ্ক()[0].m_মান)));
 }
 
-int64_t V3Number::toSQuad() const {
-    if (isDouble()) return static_cast<int64_t>(toDouble());
-    const uint64_t v = toUQuad();
-    const uint64_t signExtend = (-(v & (1ULL << (width() - 1))));
-    const uint64_t extended = v | signExtend;
-    return static_cast<int64_t>(extended);
+int64_t V3_সংখ্যা::toSQuad() ধ্রুবক {
+    যদি (isDouble()) ফেরত static_cast<int64_t>(toDouble());
+    ধ্রুবক uint64_t v = toUQuad();
+    ধ্রুবক uint64_t signExtend = (-(v & (1ULL << (width() - 1))));
+    ধ্রুবক uint64_t extended = v | signExtend;
+    ফেরত static_cast<int64_t>(extended);
 }
 
-string V3Number::toString() const {
-    UASSERT(!isFourState(), "toString with 4-state " << *this);
+string V3_সংখ্যা::toString() ধ্রুবক {
+    UASSERT(!isFourState(), "toString with 4-state " << *এই);
     // IEEE says \000 are removed
     // If used to print a %s space padding is still required after call to here
-    if (isString()) return m_data.str();
-    int bit = width() - 1;
-    while ((bit % 8) != 7) ++bit;
+    যদি (isString()) ফেরত m_তথ্য.str();
+    পূর্ণসংখ্যা bit = width() - 1;
+    যখন ((bit % 8) != 7) ++bit;
     std::string str;
-    for (; bit >= 0; bit -= 8) {
-        const int v = bitsValue(bit - 7, 8);
-        if (v) str += static_cast<char>(v);
+    জন্য (; bit >= 0; bit -= 8) {
+        ধ্রুবক পূর্ণসংখ্যা v = bits_মান(bit - 7, 8);
+        যদি (v) str += static_cast<অক্ষর>(v);
     }
-    return str;
+    ফেরত str;
 }
 
-uint32_t V3Number::edataWord(int eword) const {
-    UASSERT(!isFourState(), "edataWord with 4-state " << *this);
-    return m_data.num()[eword].m_value;
+uint32_t V3_সংখ্যা::edataWord(পূর্ণসংখ্যা eword) ধ্রুবক {
+    UASSERT(!isFourState(), "edataWord with 4-state " << *এই);
+    ফেরত m_তথ্য.অঙ্ক()[eword].m_মান;
 }
 
-uint8_t V3Number::dataByte(int byte) const {
-    return (edataWord(byte / (VL_EDATASIZE / 8)) >> ((byte * 8) % VL_EDATASIZE)) & 0xff;
+uint8_t V3_সংখ্যা::তথ্য_Byte(পূর্ণসংখ্যা byte) ধ্রুবক {
+    ফেরত (edataWord(byte / (VL_EDATASIZE / 8)) >> ((byte * 8) % VL_EDATASIZE)) & 0xff;
 }
 
-bool V3Number::isAllZ() const VL_MT_SAFE {
-    if (isDouble() || isString()) return false;
-    for (int i = 0; i < words(); ++i) {
-        const ValueAndX v = m_data.num()[i];
-        const uint32_t mask = i == words() - 1 ? hiWordMask() : ~0U;
-        if (((~v.m_value & v.m_valueX) & mask) != mask) return false;
+যৌক্তিক V3_সংখ্যা::isAllZ() ধ্রুবক VL_MT_SAFE {
+    যদি (isDouble() || isString()) ফেরত মিথ্যা;
+    জন্য (পূর্ণসংখ্যা i = 0; i < শব্দগুলি(); ++i) {
+        ধ্রুবক মান_And_X v = m_তথ্য.অঙ্ক()[i];
+        ধ্রুবক uint32_t mask = i == শব্দগুলি() - 1 ? hiWordMask() : ~0U;
+        যদি (((~v.m_মান & v.m_মান_X) & mask) != mask) ফেরত মিথ্যা;
     }
-    return true;
+    ফেরত সত্য;
 }
-bool V3Number::isAllX() const VL_MT_SAFE {
-    if (isDouble() || isString()) return false;
+যৌক্তিক V3_সংখ্যা::isAllX() ধ্রুবক VL_MT_SAFE {
+    যদি (isDouble() || isString()) ফেরত মিথ্যা;
     uint32_t mask = hiWordMask();
-    for (int i = words() - 1; i >= 0; --i) {
-        const ValueAndX v = m_data.num()[i];
-        if ((v.m_value & v.m_valueX) ^ mask) return false;
+    জন্য (পূর্ণসংখ্যা i = শব্দগুলি() - 1; i >= 0; --i) {
+        ধ্রুবক মান_And_X v = m_তথ্য.অঙ্ক()[i];
+        যদি ((v.m_মান & v.m_মান_X) ^ mask) ফেরত মিথ্যা;
         mask = ~0U;
     }
-    return true;
+    ফেরত সত্য;
 }
-bool V3Number::isEqZero() const VL_MT_SAFE {
-    if (isString()) return m_data.str().empty();
-    for (int i = 0; i < words(); ++i) {
-        const ValueAndX v = m_data.num()[i];
-        if (v.m_value || v.m_valueX) return false;
+যৌক্তিক V3_সংখ্যা::isEqZero() ধ্রুবক VL_MT_SAFE {
+    যদি (isString()) ফেরত m_তথ্য.str().empty();
+    জন্য (পূর্ণসংখ্যা i = 0; i < শব্দগুলি(); ++i) {
+        ধ্রুবক মান_And_X v = m_তথ্য.অঙ্ক()[i];
+        যদি (v.m_মান || v.m_মান_X) ফেরত মিথ্যা;
     }
-    return true;
+    ফেরত সত্য;
 }
-bool V3Number::isNeqZero() const {
-    if (isString()) return !m_data.str().empty();
-    for (int i = 0; i < words(); ++i) {
-        const ValueAndX v = m_data.num()[i];
-        if (v.m_value & ~v.m_valueX) return true;
+যৌক্তিক V3_সংখ্যা::isNeqZero() ধ্রুবক {
+    যদি (isString()) ফেরত !m_তথ্য.str().empty();
+    জন্য (পূর্ণসংখ্যা i = 0; i < শব্দগুলি(); ++i) {
+        ধ্রুবক মান_And_X v = m_তথ্য.অঙ্ক()[i];
+        যদি (v.m_মান & ~v.m_মান_X) ফেরত সত্য;
     }
-    return false;
+    ফেরত মিথ্যা;
 }
-bool V3Number::isBitsZero(int msb, int lsb) const {
-    for (int i = lsb; i <= msb; ++i) {
-        if (VL_UNLIKELY(!bitIs0(i))) return false;
+যৌক্তিক V3_সংখ্যা::isBitsZero(পূর্ণসংখ্যা msb, পূর্ণসংখ্যা lsb) ধ্রুবক {
+    জন্য (পূর্ণসংখ্যা i = lsb; i <= msb; ++i) {
+        যদি (VL_UNLIKELY(!bitIs0(i))) ফেরত মিথ্যা;
     }
-    return true;
+    ফেরত সত্য;
 }
-bool V3Number::isEqOne() const {
-    if (m_data.num()[0].m_value != 1 || m_data.num()[0].m_valueX) return false;
-    for (int i = 1; i < words(); ++i) {
-        const ValueAndX v = m_data.num()[i];
-        if (v.m_value || v.m_valueX) return false;
+যৌক্তিক V3_সংখ্যা::isEqOne() ধ্রুবক {
+    যদি (m_তথ্য.অঙ্ক()[0].m_মান != 1 || m_তথ্য.অঙ্ক()[0].m_মান_X) ফেরত মিথ্যা;
+    জন্য (পূর্ণসংখ্যা i = 1; i < শব্দগুলি(); ++i) {
+        ধ্রুবক মান_And_X v = m_তথ্য.অঙ্ক()[i];
+        যদি (v.m_মান || v.m_মান_X) ফেরত মিথ্যা;
     }
-    return true;
+    ফেরত সত্য;
 }
-bool V3Number::isEqAllOnes(int optwidth) const {
+যৌক্তিক V3_সংখ্যা::isEqAllOnes(পূর্ণসংখ্যা optwidth) ধ্রুবক {
     // Correct number of zero bits/width matters
-    if (!optwidth) optwidth = width();
-    for (int bit = 0; bit < optwidth; ++bit) {
-        if (!bitIs1(bit)) return false;
+    যদি (!optwidth) optwidth = width();
+    জন্য (পূর্ণসংখ্যা bit = 0; bit < optwidth; ++bit) {
+        যদি (!bitIs1(bit)) ফেরত মিথ্যা;
     }
-    return true;
+    ফেরত সত্য;
 }
-bool V3Number::isFourState() const VL_MT_SAFE {
-    if (isDouble() || isString()) return false;
-    for (int i = 0; i < words(); ++i) {
-        if (m_data.num()[i].m_valueX) return true;
+যৌক্তিক V3_সংখ্যা::isFourState() ধ্রুবক VL_MT_SAFE {
+    যদি (isDouble() || isString()) ফেরত মিথ্যা;
+    জন্য (পূর্ণসংখ্যা i = 0; i < শব্দগুলি(); ++i) {
+        যদি (m_তথ্য.অঙ্ক()[i].m_মান_X) ফেরত সত্য;
     }
-    return false;
+    ফেরত মিথ্যা;
 }
-bool V3Number::isAnyX() const VL_MT_SAFE {
-    if (isDouble() || isString()) return false;
-    for (int i = 0; i < words(); ++i) {
-        const ValueAndX v = m_data.num()[i];
-        if (v.m_value & v.m_valueX) return true;
+যৌক্তিক V3_সংখ্যা::isAnyX() ধ্রুবক VL_MT_SAFE {
+    যদি (isDouble() || isString()) ফেরত মিথ্যা;
+    জন্য (পূর্ণসংখ্যা i = 0; i < শব্দগুলি(); ++i) {
+        ধ্রুবক মান_And_X v = m_তথ্য.অঙ্ক()[i];
+        যদি (v.m_মান & v.m_মান_X) ফেরত সত্য;
     }
-    return false;
+    ফেরত মিথ্যা;
 }
-bool V3Number::isAnyXZ() const {
-    if (isDouble() || isString()) return false;
-    for (int i = 0; i < words(); ++i) {
-        if (m_data.num()[i].m_valueX) return true;
+যৌক্তিক V3_সংখ্যা::isAnyXZ() ধ্রুবক {
+    যদি (isDouble() || isString()) ফেরত মিথ্যা;
+    জন্য (পূর্ণসংখ্যা i = 0; i < শব্দগুলি(); ++i) {
+        যদি (m_তথ্য.অঙ্ক()[i].m_মান_X) ফেরত সত্য;
     }
-    return false;
+    ফেরত মিথ্যা;
 }
-bool V3Number::isAnyZ() const VL_MT_SAFE {
-    if (isDouble() || isString()) return false;
-    for (int i = 0; i < words(); ++i) {
-        const ValueAndX v = m_data.num()[i];
-        if (~v.m_value & v.m_valueX) return true;
+যৌক্তিক V3_সংখ্যা::isAnyZ() ধ্রুবক VL_MT_SAFE {
+    যদি (isDouble() || isString()) ফেরত মিথ্যা;
+    জন্য (পূর্ণসংখ্যা i = 0; i < শব্দগুলি(); ++i) {
+        ধ্রুবক মান_And_X v = m_তথ্য.অঙ্ক()[i];
+        যদি (~v.m_মান & v.m_মান_X) ফেরত সত্য;
     }
-    return false;
+    ফেরত মিথ্যা;
 }
-bool V3Number::isLtXZ(const V3Number& rhs) const {
+যৌক্তিক V3_সংখ্যা::isLtXZ(ধ্রুবক V3_সংখ্যা& rhs) ধ্রুবক {
     // Include X/Z in comparisons for sort ordering
-    if (isString()) return toString() < rhs.toString();
-    if (isDouble()) return toDouble() < rhs.toDouble();
-    for (int bit = 0; bit < std::max(width(), rhs.width()); ++bit) {
-        if (bitIs1(bit) && rhs.bitIs0(bit)) return true;
-        if (rhs.bitIs1(bit) && bitIs0(bit)) return false;
-        if (bitIsXZ(bit)) return true;
-        if (rhs.bitIsXZ(bit)) return false;
+    যদি (isString()) ফেরত toString() < rhs.toString();
+    যদি (isDouble()) ফেরত toDouble() < rhs.toDouble();
+    জন্য (পূর্ণসংখ্যা bit = 0; bit < std::max(width(), rhs.width()); ++bit) {
+        যদি (bitIs1(bit) && rhs.bitIs0(bit)) ফেরত সত্য;
+        যদি (rhs.bitIs1(bit) && bitIs0(bit)) ফেরত মিথ্যা;
+        যদি (bitIsXZ(bit)) ফেরত সত্য;
+        যদি (rhs.bitIsXZ(bit)) ফেরত মিথ্যা;
     }
-    return false;
+    ফেরত মিথ্যা;
 }
-int V3Number::countX(int lsb, int nbits) const VL_MT_SAFE {
-    int count = 0;
-    for (int bitn = 0; bitn < nbits; ++bitn) {
-        if (lsb + bitn >= width()) return count;
-        if (bitIsX(lsb + bitn)) ++count;
+পূর্ণসংখ্যা V3_সংখ্যা::গুনতি_X(পূর্ণসংখ্যা lsb, পূর্ণসংখ্যা nbits) ধ্রুবক VL_MT_SAFE {
+    পূর্ণসংখ্যা গুনতি = 0;
+    জন্য (পূর্ণসংখ্যা bitn = 0; bitn < nbits; ++bitn) {
+        যদি (lsb + bitn >= width()) ফেরত গুনতি;
+        যদি (bitIsX(lsb + bitn)) ++গুনতি;
     }
-    return count;
+    ফেরত গুনতি;
 }
-int V3Number::countZ(int lsb, int nbits) const VL_MT_SAFE {
-    int count = 0;
-    for (int bitn = 0; bitn < nbits; ++bitn) {
-        if (lsb + bitn >= width()) return count;
-        if (bitIsZ(lsb + bitn)) ++count;
+পূর্ণসংখ্যা V3_সংখ্যা::গুনতি_Z(পূর্ণসংখ্যা lsb, পূর্ণসংখ্যা nbits) ধ্রুবক VL_MT_SAFE {
+    পূর্ণসংখ্যা গুনতি = 0;
+    জন্য (পূর্ণসংখ্যা bitn = 0; bitn < nbits; ++bitn) {
+        যদি (lsb + bitn >= width()) ফেরত গুনতি;
+        যদি (bitIsZ(lsb + bitn)) ++গুনতি;
     }
-    return count;
-}
-
-int V3Number::widthToFit() const {
-    for (int bit = width() - 1; bit > 0; bit--) {
-        if (!bitIs0(bit)) return bit + 1;
-    }
-    return 1;  // one bit even if number is == 0
+    ফেরত গুনতি;
 }
 
-uint32_t V3Number::countBits(const V3Number& ctrl) const {
+পূর্ণসংখ্যা V3_সংখ্যা::widthToFit() ধ্রুবক {
+    জন্য (পূর্ণসংখ্যা bit = width() - 1; bit > 0; bit--) {
+        যদি (!bitIs0(bit)) ফেরত bit + 1;
+    }
+    ফেরত 1;  // one bit even if number is == 0
+}
+
+uint32_t V3_সংখ্যা::গুনতি_Bits(ধ্রুবক V3_সংখ্যা& ctrl) ধ্রুবক {
     // Correct number of zero bits/width matters
-    int n = 0;
-    for (int bit = 0; bit < width(); ++bit) {
-        switch (ctrl.bitIs(0)) {
-        case '0':
-            if (bitIs0(bit)) ++n;
-            break;
-        case '1':
-            if (bitIs1(bit)) ++n;
-            break;
-        case 'x':
-            if (bitIsX(bit)) ++n;
-            break;
-        case 'z':
-            if (bitIsZ(bit)) ++n;
-            break;
+    পূর্ণসংখ্যা n = 0;
+    জন্য (পূর্ণসংখ্যা bit = 0; bit < width(); ++bit) {
+        নির্বাচন (ctrl.bitIs(0)) {
+        ক্ষেত্র '0':
+            যদি (bitIs0(bit)) ++n;
+            বিরতি;
+        ক্ষেত্র '1':
+            যদি (bitIs1(bit)) ++n;
+            বিরতি;
+        ক্ষেত্র 'x':
+            যদি (bitIsX(bit)) ++n;
+            বিরতি;
+        ক্ষেত্র 'z':
+            যদি (bitIsZ(bit)) ++n;
+            বিরতি;
         }
     }
-    return n;
+    ফেরত n;
 }
 
-uint32_t V3Number::countBits(const V3Number& ctrl1, const V3Number& ctrl2,
-                             const V3Number& ctrl3) const {
+uint32_t V3_সংখ্যা::গুনতি_Bits(ধ্রুবক V3_সংখ্যা& ctrl1, ধ্রুবক V3_সংখ্যা& ctrl2,
+                             ধ্রুবক V3_সংখ্যা& ctrl3) ধ্রুবক {
     // Correct number of zero bits/width matters
-    int n = countBits(ctrl1);
-    if (ctrl2.bitIs(0) != ctrl1.bitIs(0)) n += countBits(ctrl2);
-    if ((ctrl3.bitIs(0) != ctrl1.bitIs(0)) && (ctrl3.bitIs(0) != ctrl2.bitIs(0))) {
-        n += countBits(ctrl3);
+    পূর্ণসংখ্যা n = গুনতি_Bits(ctrl1);
+    যদি (ctrl2.bitIs(0) != ctrl1.bitIs(0)) n += গুনতি_Bits(ctrl2);
+    যদি ((ctrl3.bitIs(0) != ctrl1.bitIs(0)) && (ctrl3.bitIs(0) != ctrl2.bitIs(0))) {
+        n += গুনতি_Bits(ctrl3);
     }
-    return n;
+    ফেরত n;
 }
 
-uint32_t V3Number::countOnes() const {
-    int n = 0;
-    for (int bit = 0; bit < width(); ++bit) {
-        if (bitIs1(bit)) ++n;
+uint32_t V3_সংখ্যা::গুনতি_Ones() ধ্রুবক {
+    পূর্ণসংখ্যা n = 0;
+    জন্য (পূর্ণসংখ্যা bit = 0; bit < width(); ++bit) {
+        যদি (bitIs1(bit)) ++n;
     }
-    return n;
+    ফেরত n;
 }
 
-uint32_t V3Number::mostSetBitP1() const {
-    for (int bit = width() - 1; bit >= 0; bit--) {
-        if (!bitIs0(bit)) return bit + 1;
+uint32_t V3_সংখ্যা::mostSetBitP1() ধ্রুবক {
+    জন্য (পূর্ণসংখ্যা bit = width() - 1; bit >= 0; bit--) {
+        যদি (!bitIs0(bit)) ফেরত bit + 1;
     }
-    return 0;
+    ফেরত 0;
 }
 
-uint32_t V3Number::leastSetBitP1() const {
-    for (int bit = 0; bit < width(); ++bit) {
-        if (!bitIs0(bit)) return bit + 1;
+uint32_t V3_সংখ্যা::leastSetBitP1() ধ্রুবক {
+    জন্য (পূর্ণসংখ্যা bit = 0; bit < width(); ++bit) {
+        যদি (!bitIs0(bit)) ফেরত bit + 1;
     }
-    return 0;
+    ফেরত 0;
 }
 
 //======================================================================
 
-V3Number& V3Number::opBitsNonXZ(const V3Number& lhs) {  // 0/1->1, X/Z->0
+V3_সংখ্যা& V3_সংখ্যা::opBitsNonXZ(ধ্রুবক V3_সংখ্যা& lhs) {  // 0/1->1, X/Z->0
     // Correct number of zero bits/width matters
     // op i, L(lhs) bit return
-    NUM_ASSERT_OP_ARGS1(lhs);
-    NUM_ASSERT_LOGIC_ARGS1(lhs);
+    অঙ্ক_ASSERT_OP_ARGS1(lhs);
+    অঙ্ক_ASSERT_LOGIC_ARGS1(lhs);
     setZero();
-    for (int bit = 0; bit < width(); ++bit) {
-        if (lhs.bitIs0(bit) || lhs.bitIs1(bit)) setBit(bit, 1);
+    জন্য (পূর্ণসংখ্যা bit = 0; bit < width(); ++bit) {
+        যদি (lhs.bitIs0(bit) || lhs.bitIs1(bit)) setBit(bit, 1);
     }
-    return *this;
+    ফেরত *এই;
 }
-V3Number& V3Number::opBitsOne(const V3Number& lhs) {  // 1->1, 0/X/Z->0
+V3_সংখ্যা& V3_সংখ্যা::opBitsOne(ধ্রুবক V3_সংখ্যা& lhs) {  // 1->1, 0/X/Z->0
     // op i, L(lhs) bit return
-    NUM_ASSERT_OP_ARGS1(lhs);
-    NUM_ASSERT_LOGIC_ARGS1(lhs);
+    অঙ্ক_ASSERT_OP_ARGS1(lhs);
+    অঙ্ক_ASSERT_LOGIC_ARGS1(lhs);
     setZero();
-    for (int bit = 0; bit < width(); ++bit) {
-        if (lhs.bitIs1(bit)) setBit(bit, 1);
+    জন্য (পূর্ণসংখ্যা bit = 0; bit < width(); ++bit) {
+        যদি (lhs.bitIs1(bit)) setBit(bit, 1);
     }
-    return *this;
+    ফেরত *এই;
 }
-V3Number& V3Number::opBitsXZ(const V3Number& lhs) {  // 0/1->1, X/Z->0
+V3_সংখ্যা& V3_সংখ্যা::opBitsXZ(ধ্রুবক V3_সংখ্যা& lhs) {  // 0/1->1, X/Z->0
     // op i, L(lhs) bit return
-    NUM_ASSERT_OP_ARGS1(lhs);
-    NUM_ASSERT_LOGIC_ARGS1(lhs);
+    অঙ্ক_ASSERT_OP_ARGS1(lhs);
+    অঙ্ক_ASSERT_LOGIC_ARGS1(lhs);
     setZero();
-    for (int bit = 0; bit < width(); ++bit) {
-        if (lhs.bitIsXZ(bit)) setBit(bit, 1);
+    জন্য (পূর্ণসংখ্যা bit = 0; bit < width(); ++bit) {
+        যদি (lhs.bitIsXZ(bit)) setBit(bit, 1);
     }
-    return *this;
+    ফেরত *এই;
 }
-V3Number& V3Number::opBitsZ(const V3Number& lhs) {  // 0/1->1, X/Z->0
+V3_সংখ্যা& V3_সংখ্যা::opBitsZ(ধ্রুবক V3_সংখ্যা& lhs) {  // 0/1->1, X/Z->0
     // op i, L(lhs) bit return
-    NUM_ASSERT_OP_ARGS1(lhs);
-    NUM_ASSERT_LOGIC_ARGS1(lhs);
+    অঙ্ক_ASSERT_OP_ARGS1(lhs);
+    অঙ্ক_ASSERT_LOGIC_ARGS1(lhs);
     setZero();
-    for (int bit = 0; bit < width(); ++bit) {
-        if (lhs.bitIsZ(bit)) setBit(bit, 1);
+    জন্য (পূর্ণসংখ্যা bit = 0; bit < width(); ++bit) {
+        যদি (lhs.bitIsZ(bit)) setBit(bit, 1);
     }
-    return *this;
+    ফেরত *এই;
 }
 
 //======================================================================
 // Operators - Simple per-bit logical ops
 
-V3Number& V3Number::opRedOr(const V3Number& lhs) {
+V3_সংখ্যা& V3_সংখ্যা::opRedOr(ধ্রুবক V3_সংখ্যা& lhs) {
     // op i, 1 bit return
-    NUM_ASSERT_OP_ARGS1(lhs);
-    NUM_ASSERT_LOGIC_ARGS1(lhs);
-    char outc = 0;
-    for (int bit = 0; bit < lhs.width(); ++bit) {
-        if (lhs.bitIs1(bit)) {
-            return setSingleBits(1);
-        } else if (lhs.bitIs0(bit)) {
-        } else {
+    অঙ্ক_ASSERT_OP_ARGS1(lhs);
+    অঙ্ক_ASSERT_LOGIC_ARGS1(lhs);
+    অক্ষর outc = 0;
+    জন্য (পূর্ণসংখ্যা bit = 0; bit < lhs.width(); ++bit) {
+        যদি (lhs.bitIs1(bit)) {
+            ফেরত setSingleBits(1);
+        } অন্যথা যদি (lhs.bitIs0(bit)) {
+        } অন্যথা {
             outc = 'x';
         }
     }
-    return setSingleBits(outc);
+    ফেরত setSingleBits(outc);
 }
 
-V3Number& V3Number::opRedAnd(const V3Number& lhs) {
+V3_সংখ্যা& V3_সংখ্যা::opRedAnd(ধ্রুবক V3_সংখ্যা& lhs) {
     // Correct number of zero bits/width matters
     // op i, 1 bit return
-    NUM_ASSERT_OP_ARGS1(lhs);
-    NUM_ASSERT_LOGIC_ARGS1(lhs);
-    char outc = 1;
-    for (int bit = 0; bit < lhs.width(); ++bit) {
-        if (lhs.bitIs0(bit)) {
-            return setSingleBits(0);
-        } else if (lhs.bitIs1(bit)) {
-        } else {
+    অঙ্ক_ASSERT_OP_ARGS1(lhs);
+    অঙ্ক_ASSERT_LOGIC_ARGS1(lhs);
+    অক্ষর outc = 1;
+    জন্য (পূর্ণসংখ্যা bit = 0; bit < lhs.width(); ++bit) {
+        যদি (lhs.bitIs0(bit)) {
+            ফেরত setSingleBits(0);
+        } অন্যথা যদি (lhs.bitIs1(bit)) {
+        } অন্যথা {
             outc = 'x';
         }
     }
-    return setSingleBits(outc);
+    ফেরত setSingleBits(outc);
 }
 
-V3Number& V3Number::opRedXor(const V3Number& lhs) {
+V3_সংখ্যা& V3_সংখ্যা::opRedXor(ধ্রুবক V3_সংখ্যা& lhs) {
     // op i, 1 bit return
-    NUM_ASSERT_OP_ARGS1(lhs);
-    NUM_ASSERT_LOGIC_ARGS1(lhs);
-    char outc = 0;
-    for (int bit = 0; bit < lhs.width(); ++bit) {
-        if (lhs.bitIs1(bit)) {
-            if (outc == 1) {
+    অঙ্ক_ASSERT_OP_ARGS1(lhs);
+    অঙ্ক_ASSERT_LOGIC_ARGS1(lhs);
+    অক্ষর outc = 0;
+    জন্য (পূর্ণসংখ্যা bit = 0; bit < lhs.width(); ++bit) {
+        যদি (lhs.bitIs1(bit)) {
+            যদি (outc == 1) {
                 outc = 0;
-            } else if (outc == 0) {
+            } অন্যথা যদি (outc == 0) {
                 outc = 1;
             }
-        } else if (lhs.bitIs0(bit)) {
-        } else {
+        } অন্যথা যদি (lhs.bitIs0(bit)) {
+        } অন্যথা {
             outc = 'x';
         }
     }
-    return setSingleBits(outc);
+    ফেরত setSingleBits(outc);
 }
 
-V3Number& V3Number::opCountBits(const V3Number& expr, const V3Number& ctrl1, const V3Number& ctrl2,
-                                const V3Number& ctrl3) {
+V3_সংখ্যা& V3_সংখ্যা::op_গুনতি_Bits(ধ্রুবক V3_সংখ্যা& রাশিমালা, ধ্রুবক V3_সংখ্যা& ctrl1, ধ্রুবক V3_সংখ্যা& ctrl2,
+                                ধ্রুবক V3_সংখ্যা& ctrl3) {
     // Correct number of zero bits/width matters
-    NUM_ASSERT_OP_ARGS4(expr, ctrl1, ctrl2, ctrl3);
-    NUM_ASSERT_LOGIC_ARGS4(expr, ctrl1, ctrl2, ctrl3);
+    অঙ্ক_ASSERT_OP_ARGS4(রাশিমালা, ctrl1, ctrl2, ctrl3);
+    অঙ্ক_ASSERT_LOGIC_ARGS4(রাশিমালা, ctrl1, ctrl2, ctrl3);
     setZero();
-    m_data.num()[0].m_value = expr.countBits(ctrl1, ctrl2, ctrl3);
+    m_তথ্য.অঙ্ক()[0].m_মান = রাশিমালা.গুনতি_Bits(ctrl1, ctrl2, ctrl3);
     opCleanThis();
-    return *this;
+    ফেরত *এই;
 }
-V3Number& V3Number::opCountOnes(const V3Number& lhs) {
-    NUM_ASSERT_OP_ARGS1(lhs);
-    NUM_ASSERT_LOGIC_ARGS1(lhs);
-    if (lhs.isFourState()) return setAllBitsX();
+V3_সংখ্যা& V3_সংখ্যা::op_গুনতি_Ones(ধ্রুবক V3_সংখ্যা& lhs) {
+    অঙ্ক_ASSERT_OP_ARGS1(lhs);
+    অঙ্ক_ASSERT_LOGIC_ARGS1(lhs);
+    যদি (lhs.isFourState()) ফেরত setAllBitsX();
     setZero();
-    m_data.num()[0].m_value = lhs.countOnes();
+    m_তথ্য.অঙ্ক()[0].m_মান = lhs.গুনতি_Ones();
     opCleanThis();
-    return *this;
+    ফেরত *এই;
 }
-V3Number& V3Number::opIsUnknown(const V3Number& lhs) {
-    NUM_ASSERT_OP_ARGS1(lhs);
-    return setSingleBits(lhs.isAnyXZ());
+V3_সংখ্যা& V3_সংখ্যা::opIsUnknown(ধ্রুবক V3_সংখ্যা& lhs) {
+    অঙ্ক_ASSERT_OP_ARGS1(lhs);
+    ফেরত setSingleBits(lhs.isAnyXZ());
 }
-V3Number& V3Number::opOneHot(const V3Number& lhs) {
-    NUM_ASSERT_OP_ARGS1(lhs);
-    if (lhs.isFourState()) return setAllBitsX();
-    return setSingleBits(lhs.countOnes() == 1);
+V3_সংখ্যা& V3_সংখ্যা::opOneHot(ধ্রুবক V3_সংখ্যা& lhs) {
+    অঙ্ক_ASSERT_OP_ARGS1(lhs);
+    যদি (lhs.isFourState()) ফেরত setAllBitsX();
+    ফেরত setSingleBits(lhs.গুনতি_Ones() == 1);
 }
-V3Number& V3Number::opOneHot0(const V3Number& lhs) {
-    NUM_ASSERT_OP_ARGS1(lhs);
-    if (lhs.isFourState()) return setAllBitsX();
-    return setSingleBits(lhs.countOnes() <= 1);
+V3_সংখ্যা& V3_সংখ্যা::opOneHot0(ধ্রুবক V3_সংখ্যা& lhs) {
+    অঙ্ক_ASSERT_OP_ARGS1(lhs);
+    যদি (lhs.isFourState()) ফেরত setAllBitsX();
+    ফেরত setSingleBits(lhs.গুনতি_Ones() <= 1);
 }
-V3Number& V3Number::opCLog2(const V3Number& lhs) {
-    NUM_ASSERT_OP_ARGS1(lhs);
-    NUM_ASSERT_LOGIC_ARGS1(lhs);
-    if (lhs.isFourState()) return setAllBitsX();
+V3_সংখ্যা& V3_সংখ্যা::opCLog2(ধ্রুবক V3_সংখ্যা& lhs) {
+    অঙ্ক_ASSERT_OP_ARGS1(lhs);
+    অঙ্ক_ASSERT_LOGIC_ARGS1(lhs);
+    যদি (lhs.isFourState()) ফেরত setAllBitsX();
     // IE if 4, this algorithm didn't pre-subtract 1, so we need to post-correct now
-    const int adjust = (lhs.countOnes() == 1) ? 0 : 1;
-    for (int bit = lhs.width() - 1; bit >= 0; bit--) {
-        if (lhs.bitIs1(bit)) {
+    ধ্রুবক পূর্ণসংখ্যা adjust = (lhs.গুনতি_Ones() == 1) ? 0 : 1;
+    জন্য (পূর্ণসংখ্যা bit = lhs.width() - 1; bit >= 0; bit--) {
+        যদি (lhs.bitIs1(bit)) {
             setLong(bit + adjust);
-            return *this;
+            ফেরত *এই;
         }
     }
     setZero();
-    return *this;
+    ফেরত *এই;
 }
-V3Number& V3Number::opMostSetBitP1(const V3Number& lhs) {
+V3_সংখ্যা& V3_সংখ্যা::opMostSetBitP1(ধ্রুবক V3_সংখ্যা& lhs) {
     // Most-significant set bit plus one (bit-width / find-last-set); 0 if value is zero
-    NUM_ASSERT_OP_ARGS1(lhs);
-    NUM_ASSERT_LOGIC_ARGS1(lhs);
-    if (lhs.isFourState()) return setAllBitsX();
-    for (int bit = lhs.width() - 1; bit >= 0; bit--) {
-        if (lhs.bitIs1(bit)) {
+    অঙ্ক_ASSERT_OP_ARGS1(lhs);
+    অঙ্ক_ASSERT_LOGIC_ARGS1(lhs);
+    যদি (lhs.isFourState()) ফেরত setAllBitsX();
+    জন্য (পূর্ণসংখ্যা bit = lhs.width() - 1; bit >= 0; bit--) {
+        যদি (lhs.bitIs1(bit)) {
             setLong(bit + 1);
-            return *this;
+            ফেরত *এই;
         }
     }
     setZero();
-    return *this;
+    ফেরত *এই;
 }
 
-V3Number& V3Number::opLogNot(const V3Number& lhs) {
-    NUM_ASSERT_OP_ARGS1(lhs);
-    NUM_ASSERT_LOGIC_ARGS1(lhs);
+V3_সংখ্যা& V3_সংখ্যা::opLogNot(ধ্রুবক V3_সংখ্যা& lhs) {
+    অঙ্ক_ASSERT_OP_ARGS1(lhs);
+    অঙ্ক_ASSERT_LOGIC_ARGS1(lhs);
     // op i, 1 bit return
-    char outc = 1;
-    for (int bit = 0; bit < lhs.width(); ++bit) {
-        if (lhs.bitIs1(bit)) {
+    অক্ষর outc = 1;
+    জন্য (পূর্ণসংখ্যা bit = 0; bit < lhs.width(); ++bit) {
+        যদি (lhs.bitIs1(bit)) {
             outc = 0;
-            goto last;
-        } else if (lhs.bitIs0(bit)) {
-        } else {
+            যাও last;
+        } অন্যথা যদি (lhs.bitIs0(bit)) {
+        } অন্যথা {
             outc = 'x';
         }
     }
 last:
-    return setSingleBits(outc);
+    ফেরত setSingleBits(outc);
 }
 
-V3Number& V3Number::opNot(const V3Number& lhs) {
+V3_সংখ্যা& V3_সংখ্যা::opNot(ধ্রুবক V3_সংখ্যা& lhs) {
     // Correct number of zero bits/width matters
-    NUM_ASSERT_OP_ARGS1(lhs);
-    NUM_ASSERT_LOGIC_ARGS1(lhs);
+    অঙ্ক_ASSERT_OP_ARGS1(lhs);
+    অঙ্ক_ASSERT_LOGIC_ARGS1(lhs);
     // op i, L(lhs) bit return
     setZero();
-    for (int bit = 0; bit < width(); ++bit) {
-        if (lhs.bitIs0(bit)) {
+    জন্য (পূর্ণসংখ্যা bit = 0; bit < width(); ++bit) {
+        যদি (lhs.bitIs0(bit)) {
             setBit(bit, 1);
-        } else if (lhs.bitIsXZ(bit)) {
+        } অন্যথা যদি (lhs.bitIsXZ(bit)) {
             setBit(bit, 'x');
         }
     }
-    return *this;
+    ফেরত *এই;
 }
 
-V3Number& V3Number::opAnd(const V3Number& lhs, const V3Number& rhs) {
-    NUM_ASSERT_OP_ARGS2(lhs, rhs);
-    NUM_ASSERT_LOGIC_ARGS2(lhs, rhs);
+V3_সংখ্যা& V3_সংখ্যা::opAnd(ধ্রুবক V3_সংখ্যা& lhs, ধ্রুবক V3_সংখ্যা& rhs) {
+    অঙ্ক_ASSERT_OP_ARGS2(lhs, rhs);
+    অঙ্ক_ASSERT_LOGIC_ARGS2(lhs, rhs);
     // i op j, max(L(lhs),L(rhs)) bit return, careful need to X/Z extend.
     setZero();
-    for (int bit = 0; bit < width(); ++bit) {
-        if (lhs.bitIs1(bit) && rhs.bitIs1(bit)) {
+    জন্য (পূর্ণসংখ্যা bit = 0; bit < width(); ++bit) {
+        যদি (lhs.bitIs1(bit) && rhs.bitIs1(bit)) {
             setBit(bit, 1);
-        } else if (lhs.bitIs0(bit) || rhs.bitIs0(bit)) {  // 0
-        } else {
+        } অন্যথা যদি (lhs.bitIs0(bit) || rhs.bitIs0(bit)) {  // 0
+        } অন্যথা {
             setBit(bit, 'x');
         }
     }
-    return *this;
+    ফেরত *এই;
 }
 
-V3Number& V3Number::opOr(const V3Number& lhs, const V3Number& rhs) {
-    NUM_ASSERT_OP_ARGS2(lhs, rhs);
-    NUM_ASSERT_LOGIC_ARGS2(lhs, rhs);
+V3_সংখ্যা& V3_সংখ্যা::opOr(ধ্রুবক V3_সংখ্যা& lhs, ধ্রুবক V3_সংখ্যা& rhs) {
+    অঙ্ক_ASSERT_OP_ARGS2(lhs, rhs);
+    অঙ্ক_ASSERT_LOGIC_ARGS2(lhs, rhs);
     // i op j, max(L(lhs),L(rhs)) bit return, careful need to X/Z extend.
     setZero();
-    for (int bit = 0; bit < width(); ++bit) {
-        if (lhs.bitIs1(bit) || rhs.bitIs1(bit)) {
+    জন্য (পূর্ণসংখ্যা bit = 0; bit < width(); ++bit) {
+        যদি (lhs.bitIs1(bit) || rhs.bitIs1(bit)) {
             setBit(bit, 1);
-        } else if (lhs.bitIs0(bit) && rhs.bitIs0(bit)) {
+        } অন্যথা যদি (lhs.bitIs0(bit) && rhs.bitIs0(bit)) {
             // 0
-        } else {
+        } অন্যথা {
             setBit(bit, 'x');
         }
     }
-    return *this;
+    ফেরত *এই;
 }
 
-V3Number& V3Number::opXor(const V3Number& lhs, const V3Number& rhs) {
+V3_সংখ্যা& V3_সংখ্যা::opXor(ধ্রুবক V3_সংখ্যা& lhs, ধ্রুবক V3_সংখ্যা& rhs) {
     // i op j, max(L(lhs),L(rhs)) bit return, careful need to X/Z extend.
-    NUM_ASSERT_OP_ARGS2(lhs, rhs);
-    NUM_ASSERT_LOGIC_ARGS2(lhs, rhs);
+    অঙ্ক_ASSERT_OP_ARGS2(lhs, rhs);
+    অঙ্ক_ASSERT_LOGIC_ARGS2(lhs, rhs);
     setZero();
-    for (int bit = 0; bit < width(); ++bit) {
-        if (lhs.bitIs1(bit) && rhs.bitIs0(bit)) {
+    জন্য (পূর্ণসংখ্যা bit = 0; bit < width(); ++bit) {
+        যদি (lhs.bitIs1(bit) && rhs.bitIs0(bit)) {
             setBit(bit, 1);
-        } else if (lhs.bitIs0(bit) && rhs.bitIs1(bit)) {
+        } অন্যথা যদি (lhs.bitIs0(bit) && rhs.bitIs1(bit)) {
             setBit(bit, 1);
-        } else if (lhs.bitIsXZ(bit) || rhs.bitIsXZ(bit)) {
+        } অন্যথা যদি (lhs.bitIsXZ(bit) || rhs.bitIsXZ(bit)) {
             setBit(bit, 'x');
         }
         // else zero
     }
-    return *this;
+    ফেরত *এই;
 }
 
-void V3Number::fillBits(int destLsb, int width, char value) {
+শূন্য V3_সংখ্যা::fillBits(পূর্ণসংখ্যা destLsb, পূর্ণসংখ্যা width, অক্ষর মান) {
     UASSERT(destLsb >= 0 && width >= 0, "Negative bit range");
-    if (!width) return;
-    UASSERT(width <= this->width() - destLsb, "Destination bit range exceeds number width");
+    যদি (!width) ফেরত;
+    UASSERT(width <= এই->width() - destLsb, "Destination bit range exceeds number width");
 
-    const uint32_t valueWord = value == '1' || value == 'x' || value == 1 || value == 3 ? ~0U : 0;
-    const uint32_t xWord = value == 'z' || value == 'x' || value == 2 || value == 3 ? ~0U : 0;
-    const int firstWord = VL_BITWORD_E(destLsb);
-    const int lastWord = VL_BITWORD_E(destLsb + width - 1);
-    for (int word = firstWord; word <= lastWord; ++word) {
-        const int wordLsb = word == firstWord ? VL_BITBIT_E(destLsb) : 0;
-        const int wordMsb = word == lastWord ? VL_BITBIT_E(destLsb + width - 1) : VL_SIZEBITS_E;
-        const uint32_t mask = VL_MASK_E(wordMsb - wordLsb + 1) << wordLsb;
-        ValueAndX& dest = m_data.num()[word];
-        dest.m_value = (dest.m_value & ~mask) | (valueWord & mask);
-        dest.m_valueX = (dest.m_valueX & ~mask) | (xWord & mask);
+    ধ্রুবক uint32_t মান_Word = মান == '1' || মান == 'x' || মান == 1 || মান == 3 ? ~0U : 0;
+    ধ্রুবক uint32_t xWord = মান == 'z' || মান == 'x' || মান == 2 || মান == 3 ? ~0U : 0;
+    ধ্রুবক পূর্ণসংখ্যা firstWord = VL_BITWORD_E(destLsb);
+    ধ্রুবক পূর্ণসংখ্যা lastWord = VL_BITWORD_E(destLsb + width - 1);
+    জন্য (পূর্ণসংখ্যা word = firstWord; word <= lastWord; ++word) {
+        ধ্রুবক পূর্ণসংখ্যা wordLsb = word == firstWord ? VL_BITBIT_E(destLsb) : 0;
+        ধ্রুবক পূর্ণসংখ্যা wordMsb = word == lastWord ? VL_BITBIT_E(destLsb + width - 1) : VL_SIZEBITS_E;
+        ধ্রুবক uint32_t mask = VL_MASK_E(wordMsb - wordLsb + 1) << wordLsb;
+        মান_And_X& dest = m_তথ্য.অঙ্ক()[word];
+        dest.m_মান = (dest.m_মান & ~mask) | (মান_Word & mask);
+        dest.m_মান_X = (dest.m_মান_X & ~mask) | (xWord & mask);
     }
 }
 
-void V3Number::copyBits(int destLsb, const V3Number& source, int sourceLsb, int width) {
+শূন্য V3_সংখ্যা::copyBits(পূর্ণসংখ্যা destLsb, ধ্রুবক V3_সংখ্যা& source, পূর্ণসংখ্যা sourceLsb, পূর্ণসংখ্যা width) {
     UASSERT(destLsb >= 0 && sourceLsb >= 0 && width >= 0, "Negative bit range");
-    if (!width) return;
-    UASSERT(width <= this->width() - destLsb, "Destination bit range exceeds number width");
+    যদি (!width) ফেরত;
+    UASSERT(width <= এই->width() - destLsb, "Destination bit range exceeds number width");
     UASSERT(width <= source.width() - sourceLsb, "Source bit range exceeds number width");
 
-    const int firstWord = VL_BITWORD_E(destLsb);
-    const int lastWord = VL_BITWORD_E(destLsb + width - 1);
-    for (int destWord = firstWord; destWord <= lastWord; ++destWord) {
-        const int destBit = std::max(destLsb, destWord * VL_EDATASIZE);
-        const int destOffset = VL_BITBIT_E(destBit);
-        const int sourceBit = sourceLsb + destBit - destLsb;
-        const int sourceWord = VL_BITWORD_E(sourceBit);
-        const int sourceOffset = VL_BITBIT_E(sourceBit);
-        const int copyWidth = std::min(width - (destBit - destLsb), VL_EDATASIZE - destOffset);
-        const uint32_t mask = VL_MASK_E(copyWidth) << destOffset;
+    ধ্রুবক পূর্ণসংখ্যা firstWord = VL_BITWORD_E(destLsb);
+    ধ্রুবক পূর্ণসংখ্যা lastWord = VL_BITWORD_E(destLsb + width - 1);
+    জন্য (পূর্ণসংখ্যা destWord = firstWord; destWord <= lastWord; ++destWord) {
+        ধ্রুবক পূর্ণসংখ্যা destBit = std::max(destLsb, destWord * VL_EDATASIZE);
+        ধ্রুবক পূর্ণসংখ্যা destOffset = VL_BITBIT_E(destBit);
+        ধ্রুবক পূর্ণসংখ্যা sourceBit = sourceLsb + destBit - destLsb;
+        ধ্রুবক পূর্ণসংখ্যা sourceWord = VL_BITWORD_E(sourceBit);
+        ধ্রুবক পূর্ণসংখ্যা sourceOffset = VL_BITBIT_E(sourceBit);
+        ধ্রুবক পূর্ণসংখ্যা copyWidth = std::min(width - (destBit - destLsb), VL_EDATASIZE - destOffset);
+        ধ্রুবক uint32_t mask = VL_MASK_E(copyWidth) << destOffset;
 
-        const ValueAndX& sourceLo = source.m_data.num()[sourceWord];
-        uint32_t value = sourceLo.m_value >> sourceOffset;
-        uint32_t valueX = sourceLo.m_valueX >> sourceOffset;
-        if (sourceOffset && copyWidth > VL_EDATASIZE - sourceOffset) {
-            const ValueAndX& sourceHi = source.m_data.num()[sourceWord + 1];
-            value |= sourceHi.m_value << (VL_EDATASIZE - sourceOffset);
-            valueX |= sourceHi.m_valueX << (VL_EDATASIZE - sourceOffset);
+        ধ্রুবক মান_And_X& sourceLo = source.m_তথ্য.অঙ্ক()[sourceWord];
+        uint32_t মান = sourceLo.m_মান >> sourceOffset;
+        uint32_t মান_X = sourceLo.m_মান_X >> sourceOffset;
+        যদি (sourceOffset && copyWidth > VL_EDATASIZE - sourceOffset) {
+            ধ্রুবক মান_And_X& sourceHi = source.m_তথ্য.অঙ্ক()[sourceWord + 1];
+            মান |= sourceHi.m_মান << (VL_EDATASIZE - sourceOffset);
+            মান_X |= sourceHi.m_মান_X << (VL_EDATASIZE - sourceOffset);
         }
 
-        ValueAndX& dest = m_data.num()[destWord];
-        dest.m_value = (dest.m_value & ~mask) | ((value << destOffset) & mask);
-        dest.m_valueX = (dest.m_valueX & ~mask) | ((valueX << destOffset) & mask);
+        মান_And_X& dest = m_তথ্য.অঙ্ক()[destWord];
+        dest.m_মান = (dest.m_মান & ~mask) | ((মান << destOffset) & mask);
+        dest.m_মান_X = (dest.m_মান_X & ~mask) | ((মান_X << destOffset) & mask);
     }
 }
 
-V3Number& V3Number::opConcat(const V3Number& lhs, const V3Number& rhs) {
+V3_সংখ্যা& V3_সংখ্যা::opConcat(ধ্রুবক V3_সংখ্যা& lhs, ধ্রুবক V3_সংখ্যা& rhs) {
     // Correct number of zero bits/width matters
-    NUM_ASSERT_OP_ARGS2(lhs, rhs);
-    NUM_ASSERT_LOGIC_ARGS2(lhs, rhs);
+    অঙ্ক_ASSERT_OP_ARGS2(lhs, rhs);
+    অঙ্ক_ASSERT_LOGIC_ARGS2(lhs, rhs);
     setZero();
     // See also error in V3Width
-    if (!lhs.sized() || !rhs.sized()) {
+    যদি (!lhs.sized() || !rhs.sized()) {
         v3warn(WIDTHCONCAT, "Unsized numbers/parameters not allowed in concatenations.");
     }
     copyBits(0, rhs, 0, rhs.width());
     copyBits(rhs.width(), lhs, 0, lhs.width());
-    return *this;
+    ফেরত *এই;
 }
 
-V3Number& V3Number::opLenN(const V3Number& lhs) {
-    NUM_ASSERT_OP_ARGS1(lhs);
-    NUM_ASSERT_STRING_ARGS1(lhs);
-    setQuad(lhs.toString().length());
-    return *this;
+V3_সংখ্যা& V3_সংখ্যা::opLenN(ধ্রুবক V3_সংখ্যা& lhs) {
+    অঙ্ক_ASSERT_OP_ARGS1(lhs);
+    অঙ্ক_ASSERT_STRING_ARGS1(lhs);
+    setQuad(lhs.toString().দৈর্ঘ্য());
+    ফেরত *এই;
 }
 
-V3Number& V3Number::opRepl(const V3Number& lhs,
-                           const V3Number& rhs) {  // rhs is # of times to replicate
+V3_সংখ্যা& V3_সংখ্যা::opRepl(ধ্রুবক V3_সংখ্যা& lhs,
+                           ধ্রুবক V3_সংখ্যা& rhs) {  // rhs is # of times to replicate
     // Hopefully the using routine has a error check to, &rhso.
     // See also error in V3Width
-    NUM_ASSERT_OP_ARGS1(lhs);
-    NUM_ASSERT_LOGIC_ARGS2(lhs, rhs);
-    if (!lhs.sized()) {
+    অঙ্ক_ASSERT_OP_ARGS1(lhs);
+    অঙ্ক_ASSERT_LOGIC_ARGS2(lhs, rhs);
+    যদি (!lhs.sized()) {
         v3warn(WIDTHCONCAT, "Unsized numbers/parameters not allowed in replications.");
     }
-    return opRepl(lhs, rhs.toUInt());
+    ফেরত opRepl(lhs, rhs.toUInt());
 }
 
-V3Number& V3Number::opRepl(const V3Number& lhs,
+V3_সংখ্যা& V3_সংখ্যা::opRepl(ধ্রুবক V3_সংখ্যা& lhs,
                            uint32_t rhsval) {  // rhs is # of times to replicate
     // i op repl, L(i)*value(rhs) bit return
-    NUM_ASSERT_OP_ARGS1(lhs);
-    NUM_ASSERT_LOGIC_ARGS1(lhs);
-    if (v3Global.opt.replicationLimit()
+    অঙ্ক_ASSERT_OP_ARGS1(lhs);
+    অঙ্ক_ASSERT_LOGIC_ARGS1(lhs);
+    যদি (v3Global.opt.replicationLimit()
         && rhsval > static_cast<uint32_t>(v3Global.opt.replicationLimit())) {
         v3warn(WIDTHCONCAT, "Replication of more that --replication-limit "
                                 << v3Global.opt.replicationLimit() << " is suspect: " << rhsval);
     }
     setZero();
-    for (unsigned times = 0; times < rhsval; ++times) {
-        const uint64_t destLsb = uint64_t{times} * lhs.width();
-        if (destLsb >= static_cast<uint32_t>(width())) break;
-        copyBits(static_cast<int>(destLsb), lhs, 0,
-                 std::min(lhs.width(), width() - static_cast<int>(destLsb)));
+    জন্য (unsigned times = 0; times < rhsval; ++times) {
+        ধ্রুবক uint64_t destLsb = uint64_t{times} * lhs.width();
+        যদি (destLsb >= static_cast<uint32_t>(width())) বিরতি;
+        copyBits(static_cast<পূর্ণসংখ্যা>(destLsb), lhs, 0,
+                 std::min(lhs.width(), width() - static_cast<পূর্ণসংখ্যা>(destLsb)));
     }
-    return *this;
+    ফেরত *এই;
 }
 
-V3Number& V3Number::opStreamL(const V3Number& lhs, const V3Number& rhs) {
-    NUM_ASSERT_OP_ARGS2(lhs, rhs);
-    NUM_ASSERT_LOGIC_ARGS2(lhs, rhs);
+V3_সংখ্যা& V3_সংখ্যা::opStreamL(ধ্রুবক V3_সংখ্যা& lhs, ধ্রুবক V3_সংখ্যা& rhs) {
+    অঙ্ক_ASSERT_OP_ARGS2(lhs, rhs);
+    অঙ্ক_ASSERT_LOGIC_ARGS2(lhs, rhs);
     setZero();
     // See also error in V3Width
-    if (!lhs.sized()) {
+    যদি (!lhs.sized()) {
         v3warn(WIDTHCONCAT, "Unsized numbers/parameters not allowed in streams.");
     }
     // Slice size should never exceed the lhs width
-    const int ssize = std::min(rhs.toUInt(), static_cast<unsigned>(lhs.width()));
-    for (int istart = 0; istart < lhs.width(); istart += ssize) {
-        const int ostart = std::max(0, lhs.width() - ssize - istart);
+    ধ্রুবক পূর্ণসংখ্যা ssize = std::min(rhs.toUInt(), static_cast<unsigned>(lhs.width()));
+    জন্য (পূর্ণসংখ্যা istart = 0; istart < lhs.width(); istart += ssize) {
+        ধ্রুবক পূর্ণসংখ্যা ostart = std::max(0, lhs.width() - ssize - istart);
         copyBits(ostart, lhs, istart, std::min(ssize, lhs.width() - istart));
     }
-    return *this;
+    ফেরত *এই;
 }
 
-V3Number& V3Number::opLogAnd(const V3Number& lhs, const V3Number& rhs) {
+V3_সংখ্যা& V3_সংখ্যা::opLogAnd(ধ্রুবক V3_সংখ্যা& lhs, ধ্রুবক V3_সংখ্যা& rhs) {
     // i op j, 1 bit return, max(L(lhs),L(rhs)) calculation
-    NUM_ASSERT_OP_ARGS2(lhs, rhs);
-    NUM_ASSERT_LOGIC_ARGS2(lhs, rhs);
-    char loutc = 0;
-    char routc = 0;
-    for (int bit = 0; bit < lhs.width(); ++bit) {
-        if (lhs.bitIs1(bit)) {
+    অঙ্ক_ASSERT_OP_ARGS2(lhs, rhs);
+    অঙ্ক_ASSERT_LOGIC_ARGS2(lhs, rhs);
+    অক্ষর loutc = 0;
+    অক্ষর routc = 0;
+    জন্য (পূর্ণসংখ্যা bit = 0; bit < lhs.width(); ++bit) {
+        যদি (lhs.bitIs1(bit)) {
             loutc = 1;
-            break;
+            বিরতি;
         }
-        if (lhs.bitIsXZ(bit) && loutc == 0) loutc = 'x';
+        যদি (lhs.bitIsXZ(bit) && loutc == 0) loutc = 'x';
     }
-    for (int bit = 0; bit < rhs.width(); ++bit) {
-        if (rhs.bitIs1(bit)) {
+    জন্য (পূর্ণসংখ্যা bit = 0; bit < rhs.width(); ++bit) {
+        যদি (rhs.bitIs1(bit)) {
             routc = 1;
-            break;
+            বিরতি;
         }
-        if (rhs.bitIsXZ(bit) && routc == 0) routc = 'x';
+        যদি (rhs.bitIsXZ(bit) && routc == 0) routc = 'x';
     }
-    char outc = 'x';
-    if (routc == 1 && loutc == 1) outc = 1;
-    if (routc == 0 || loutc == 0) outc = 0;
-    return setSingleBits(outc);
+    অক্ষর outc = 'x';
+    যদি (routc == 1 && loutc == 1) outc = 1;
+    যদি (routc == 0 || loutc == 0) outc = 0;
+    ফেরত setSingleBits(outc);
 }
 
-V3Number& V3Number::opLogOr(const V3Number& lhs, const V3Number& rhs) {
+V3_সংখ্যা& V3_সংখ্যা::opLogOr(ধ্রুবক V3_সংখ্যা& lhs, ধ্রুবক V3_সংখ্যা& rhs) {
     // i op j, 1 bit return, max(L(lhs),L(rhs)) calculation, careful need to X/Z extend.
-    NUM_ASSERT_OP_ARGS2(lhs, rhs);
-    NUM_ASSERT_LOGIC_ARGS2(lhs, rhs);
-    char outc = 0;
-    for (int bit = 0; bit < lhs.width(); ++bit) {
-        if (lhs.bitIs1(bit)) {
+    অঙ্ক_ASSERT_OP_ARGS2(lhs, rhs);
+    অঙ্ক_ASSERT_LOGIC_ARGS2(lhs, rhs);
+    অক্ষর outc = 0;
+    জন্য (পূর্ণসংখ্যা bit = 0; bit < lhs.width(); ++bit) {
+        যদি (lhs.bitIs1(bit)) {
             outc = 1;
-            goto last;
+            যাও last;
         }
-        if (lhs.bitIsXZ(bit) && outc == 0) outc = 'x';
+        যদি (lhs.bitIsXZ(bit) && outc == 0) outc = 'x';
     }
-    for (int bit = 0; bit < rhs.width(); ++bit) {
-        if (rhs.bitIs1(bit)) {
+    জন্য (পূর্ণসংখ্যা bit = 0; bit < rhs.width(); ++bit) {
+        যদি (rhs.bitIs1(bit)) {
             outc = 1;
-            goto last;
+            যাও last;
         }
-        if (rhs.bitIsXZ(bit) && outc == 0) outc = 'x';
+        যদি (rhs.bitIsXZ(bit) && outc == 0) outc = 'x';
     }
 last:
-    return setSingleBits(outc);
+    ফেরত setSingleBits(outc);
 }
 
-V3Number& V3Number::opLogIf(const V3Number& lhs, const V3Number& rhs) {
+V3_সংখ্যা& V3_সংখ্যা::opLogIf(ধ্রুবক V3_সংখ্যা& lhs, ধ্রুবক V3_সংখ্যা& rhs) {
     // i op j, 1 bit return, max(L(lhs),L(rhs)) calculation, careful need to
     // X/Z extend. Use definition in IEEE to do this for us.
-    NUM_ASSERT_OP_ARGS2(lhs, rhs);
-    V3Number lnot = lhs;
+    অঙ্ক_ASSERT_OP_ARGS2(lhs, rhs);
+    V3_সংখ্যা lnot = lhs;
     lnot.opLogNot(lhs);
-    return opLogOr(lnot, rhs);
+    ফেরত opLogOr(lnot, rhs);
 }
 
-V3Number& V3Number::opLogEq(const V3Number& lhs, const V3Number& rhs) {
+V3_সংখ্যা& V3_সংখ্যা::opLogEq(ধ্রুবক V3_সংখ্যা& lhs, ধ্রুবক V3_সংখ্যা& rhs) {
     // i op j, 1 bit return, max(L(lhs),L(rhs)) calculation, careful need to
     // X/Z extend. Use definition in IEEE to do this for us.
-    NUM_ASSERT_OP_ARGS2(lhs, rhs);
-    V3Number ifa = lhs;
+    অঙ্ক_ASSERT_OP_ARGS2(lhs, rhs);
+    V3_সংখ্যা ifa = lhs;
     ifa.opLogIf(lhs, rhs);
-    V3Number ifb = rhs;
+    V3_সংখ্যা ifb = rhs;
     ifb.opLogIf(rhs, lhs);
-    return opLogAnd(ifa, ifb);
+    ফেরত opLogAnd(ifa, ifb);
 }
 
-V3Number& V3Number::opAtoN(const V3Number& lhs, int base) {
-    NUM_ASSERT_OP_ARGS1(lhs);
-    NUM_ASSERT_STRING_ARGS1(lhs);
+V3_সংখ্যা& V3_সংখ্যা::opAtoN(ধ্রুবক V3_সংখ্যা& lhs, পূর্ণসংখ্যা base) {
+    অঙ্ক_ASSERT_OP_ARGS1(lhs);
+    অঙ্ক_ASSERT_STRING_ARGS1(lhs);
     UASSERT(base == AstAtoN::ATOREAL || base == 2 || base == 8 || base == 10 || base == 16,
             "base must be one of AstAtoN::ATOREAL, 2, 8, 10, or 16.");
 
@@ -1823,578 +1823,578 @@ V3Number& V3Number::opAtoN(const V3Number& lhs, int base) {
     // IEEE 1800-2023 6.16.9 says '_' may exist.
     str.erase(std::remove(str.begin(), str.end(), '_'), str.end());
 
-    if (base == AstAtoN::ATOREAL) return setDouble(std::atof(str.c_str()));
+    যদি (base == AstAtoN::ATOREAL) ফেরত setDouble(std::atof(str.c_str()));
 
     errno = 0;
     auto v = std::strtol(str.c_str(), nullptr, base);
-    if (errno != 0) v = 0;
-    return setLongS(static_cast<int32_t>(v));
+    যদি (errno != 0) v = 0;
+    ফেরত setLongS(static_cast<int32_t>(v));
 }
 
-V3Number& V3Number::opPutcN(const V3Number& lhs, const V3Number& rhs, const V3Number& ths) {
-    NUM_ASSERT_OP_ARGS3(lhs, rhs, ths);
-    NUM_ASSERT_STRING_ARGS1(lhs);
+V3_সংখ্যা& V3_সংখ্যা::opPutcN(ধ্রুবক V3_সংখ্যা& lhs, ধ্রুবক V3_সংখ্যা& rhs, ধ্রুবক V3_সংখ্যা& ths) {
+    অঙ্ক_ASSERT_OP_ARGS3(lhs, rhs, ths);
+    অঙ্ক_ASSERT_STRING_ARGS1(lhs);
     string lstring = lhs.toString();
-    const int32_t i = rhs.toSInt();
-    const int32_t c = ths.toSInt() & 0xFF;
+    ধ্রুবক int32_t i = rhs.toSInt();
+    ধ্রুবক int32_t c = ths.toSInt() & 0xFF;
     // 6.16.2:str.putc(i, c) does not change the value when i < 0 || i >= str.len() || c == 0
     // when evaluating the second condition, i must be positive.
-    if (0 <= i && static_cast<uint32_t>(i) < lstring.length() && c != 0) lstring[i] = c;
-    return setString(lstring);
+    যদি (0 <= i && static_cast<uint32_t>(i) < lstring.দৈর্ঘ্য() && c != 0) lstring[i] = c;
+    ফেরত setString(lstring);
 }
 
-V3Number& V3Number::opGetcN(const V3Number& lhs, const V3Number& rhs) {
-    NUM_ASSERT_OP_ARGS2(lhs, rhs);
-    NUM_ASSERT_STRING_ARGS1(lhs);
-    const string lstring = lhs.toString();
-    const int32_t i = rhs.toSInt();
+V3_সংখ্যা& V3_সংখ্যা::opGetcN(ধ্রুবক V3_সংখ্যা& lhs, ধ্রুবক V3_সংখ্যা& rhs) {
+    অঙ্ক_ASSERT_OP_ARGS2(lhs, rhs);
+    অঙ্ক_ASSERT_STRING_ARGS1(lhs);
+    ধ্রুবক string lstring = lhs.toString();
+    ধ্রুবক int32_t i = rhs.toSInt();
     int32_t v = 0;
     // 6.16.3:str.getc(i) returns 0 if i < 0 || i >= str.len()
     // when evaluating the second condition, i must be positive.
-    if (0 <= i && static_cast<uint32_t>(i) < lstring.length()) v = lstring[i];
-    return setLong(v);
+    যদি (0 <= i && static_cast<uint32_t>(i) < lstring.দৈর্ঘ্য()) v = lstring[i];
+    ফেরত setLong(v);
 }
 
-V3Number& V3Number::opSubstrN(const V3Number& lhs, const V3Number& rhs, const V3Number& ths) {
-    NUM_ASSERT_OP_ARGS3(lhs, rhs, ths);
-    NUM_ASSERT_STRING_ARGS1(lhs);
-    const string lstring = lhs.toString();
-    const int32_t i = rhs.toSInt();
-    const int32_t j = ths.toSInt();
+V3_সংখ্যা& V3_সংখ্যা::opSubstrN(ধ্রুবক V3_সংখ্যা& lhs, ধ্রুবক V3_সংখ্যা& rhs, ধ্রুবক V3_সংখ্যা& ths) {
+    অঙ্ক_ASSERT_OP_ARGS3(lhs, rhs, ths);
+    অঙ্ক_ASSERT_STRING_ARGS1(lhs);
+    ধ্রুবক string lstring = lhs.toString();
+    ধ্রুবক int32_t i = rhs.toSInt();
+    ধ্রুবক int32_t j = ths.toSInt();
     // 6.16.8:str.substr(i, j) returns an empty string when i < 0 || j < i || j >= str.len()
     // when evaluating the third condition, j must be positive because 0 <= i <= j is guaranteed by
     // the former two conditions.
-    if (i < 0 || j < i || static_cast<uint32_t>(j) >= lstring.length()) return setString("");
+    যদি (i < 0 || j < i || static_cast<uint32_t>(j) >= lstring.দৈর্ঘ্য()) ফেরত setString("");
     // The second parameter of std::string::substr(i, n) is length, not position as SystemVerilog.
-    return setString(lstring.substr(i, j - i + 1));
+    ফেরত setString(lstring.substr(i, j - i + 1));
 }
 
-V3Number& V3Number::opCompareNN(const V3Number& lhs, const V3Number& rhs, bool ignoreCase) {
-    NUM_ASSERT_OP_ARGS2(lhs, rhs);
-    NUM_ASSERT_STRING_ARGS2(lhs, rhs);
+V3_সংখ্যা& V3_সংখ্যা::opCompareNN(ধ্রুবক V3_সংখ্যা& lhs, ধ্রুবক V3_সংখ্যা& rhs, যৌক্তিক ignoreCase) {
+    অঙ্ক_ASSERT_OP_ARGS2(lhs, rhs);
+    অঙ্ক_ASSERT_STRING_ARGS2(lhs, rhs);
     // SystemVerilog Language Standard does not allow a string variable to contain '\0'.
     // So C functions such as strcmp() can correctly compare strings.
-    int result;
-    const string lstring = lhs.toString();
-    const string rstring = rhs.toString();
-    if (ignoreCase) {
-        result = VL_STRCASECMP(lstring.c_str(), rstring.c_str());
-    } else {
-        result = std::strcmp(lstring.c_str(), rstring.c_str());
+    পূর্ণসংখ্যা ফলাফল;
+    ধ্রুবক string lstring = lhs.toString();
+    ধ্রুবক string rstring = rhs.toString();
+    যদি (ignoreCase) {
+        ফলাফল = VL_STRCASECMP(lstring.c_str(), rstring.c_str());
+    } অন্যথা {
+        ফলাফল = std::strcmp(lstring.c_str(), rstring.c_str());
     }
-    return setLongS(result);
+    ফেরত setLongS(ফলাফল);
 }
 
-V3Number& V3Number::opEq(const V3Number& lhs, const V3Number& rhs) {
+V3_সংখ্যা& V3_সংখ্যা::opEq(ধ্রুবক V3_সংখ্যা& lhs, ধ্রুবক V3_সংখ্যা& rhs) {
     // i op j, 1 bit return, max(L(lhs),L(rhs)) calculation, careful need to X/Z extend.
-    NUM_ASSERT_OP_ARGS2(lhs, rhs);
-    if (lhs.isString()) return opEqN(lhs, rhs);
-    if (lhs.isDouble()) return opEqD(lhs, rhs);
-    char outc = 1;
-    for (int bit = 0; bit < std::max(lhs.width(), rhs.width()); ++bit) {
-        if (lhs.bitIs1(bit) && rhs.bitIs0(bit)) {
+    অঙ্ক_ASSERT_OP_ARGS2(lhs, rhs);
+    যদি (lhs.isString()) ফেরত opEqN(lhs, rhs);
+    যদি (lhs.isDouble()) ফেরত opEqD(lhs, rhs);
+    অক্ষর outc = 1;
+    জন্য (পূর্ণসংখ্যা bit = 0; bit < std::max(lhs.width(), rhs.width()); ++bit) {
+        যদি (lhs.bitIs1(bit) && rhs.bitIs0(bit)) {
             outc = 0;
-            goto last;
+            যাও last;
         }
-        if (lhs.bitIs0(bit) && rhs.bitIs1(bit)) {
+        যদি (lhs.bitIs0(bit) && rhs.bitIs1(bit)) {
             outc = 0;
-            goto last;
+            যাও last;
         }
-        if (lhs.bitIsXZ(bit)) outc = 'x';
-        if (rhs.bitIsXZ(bit)) outc = 'x';
+        যদি (lhs.bitIsXZ(bit)) outc = 'x';
+        যদি (rhs.bitIsXZ(bit)) outc = 'x';
     }
 last:
-    return setSingleBits(outc);
+    ফেরত setSingleBits(outc);
 }
 
-V3Number& V3Number::opNeq(const V3Number& lhs, const V3Number& rhs) {
+V3_সংখ্যা& V3_সংখ্যা::opNeq(ধ্রুবক V3_সংখ্যা& lhs, ধ্রুবক V3_সংখ্যা& rhs) {
     // i op j, 1 bit return, max(L(lhs),L(rhs)) calculation, careful need to X/Z extend.
-    NUM_ASSERT_OP_ARGS2(lhs, rhs);
-    if (lhs.isString()) return opNeqN(lhs, rhs);
-    if (lhs.isDouble()) return opNeqD(lhs, rhs);
-    char outc = 0;
-    for (int bit = 0; bit < std::max(lhs.width(), rhs.width()); ++bit) {
-        if (lhs.bitIs1(bit) && rhs.bitIs0(bit)) {
+    অঙ্ক_ASSERT_OP_ARGS2(lhs, rhs);
+    যদি (lhs.isString()) ফেরত opNeqN(lhs, rhs);
+    যদি (lhs.isDouble()) ফেরত opNeqD(lhs, rhs);
+    অক্ষর outc = 0;
+    জন্য (পূর্ণসংখ্যা bit = 0; bit < std::max(lhs.width(), rhs.width()); ++bit) {
+        যদি (lhs.bitIs1(bit) && rhs.bitIs0(bit)) {
             outc = 1;
-            goto last;
+            যাও last;
         }
-        if (lhs.bitIs0(bit) && rhs.bitIs1(bit)) {
+        যদি (lhs.bitIs0(bit) && rhs.bitIs1(bit)) {
             outc = 1;
-            goto last;
+            যাও last;
         }
-        if (lhs.bitIsXZ(bit)) outc = 'x';
-        if (rhs.bitIsXZ(bit)) outc = 'x';
+        যদি (lhs.bitIsXZ(bit)) outc = 'x';
+        যদি (rhs.bitIsXZ(bit)) outc = 'x';
     }
 last:
-    return setSingleBits(outc);
+    ফেরত setSingleBits(outc);
 }
 
-V3Hash V3Number::toHash() const {
+V3Hash V3_সংখ্যা::toHash() ধ্রুবক {
     // Shouldmatch isCaseEq
-    if (isString()) return V3Hash{toString()};
-    if (isDouble()) return V3Hash{toDouble()};
+    যদি (isString()) ফেরত V3Hash{toString()};
+    যদি (isDouble()) ফেরত V3Hash{toDouble()};
     V3Hash hash{width()};
-    for (int i = 0; i < words(); ++i) hash += m_data.num()[i].m_value;
-    return hash;
+    জন্য (পূর্ণসংখ্যা i = 0; i < শব্দগুলি(); ++i) hash += m_তথ্য.অঙ্ক()[i].m_মান;
+    ফেরত hash;
 }
 
-bool V3Number::isCaseEq(const V3Number& rhs) const {
+যৌক্তিক V3_সংখ্যা::isCaseEq(ধ্রুবক V3_সংখ্যা& rhs) ধ্রুবক {
     // Should match toHash
     // i op j, 1 bit return, max(L(lhs),L(rhs)) calculation, careful need to X/Z extend.
-    if (isString()) return toString() == rhs.toString();
-    if (isDouble()) return toDouble() == rhs.toDouble();
-    if (width() != rhs.width()) return false;
-    for (int i = 0; i < words(); ++i) {
-        if (!(m_data.num()[i] == rhs.m_data.num()[i])) return false;
+    যদি (isString()) ফেরত toString() == rhs.toString();
+    যদি (isDouble()) ফেরত toDouble() == rhs.toDouble();
+    যদি (width() != rhs.width()) ফেরত মিথ্যা;
+    জন্য (পূর্ণসংখ্যা i = 0; i < শব্দগুলি(); ++i) {
+        যদি (!(m_তথ্য.অঙ্ক()[i] == rhs.m_তথ্য.অঙ্ক()[i])) ফেরত মিথ্যা;
     }
-    return true;
+    ফেরত সত্য;
 }
 
-V3Number& V3Number::opCaseEq(const V3Number& lhs, const V3Number& rhs) {
-    NUM_ASSERT_OP_ARGS2(lhs, rhs);
-    return setSingleBits(lhs.isCaseEq(rhs) ? 1 : 0);
+V3_সংখ্যা& V3_সংখ্যা::opCaseEq(ধ্রুবক V3_সংখ্যা& lhs, ধ্রুবক V3_সংখ্যা& rhs) {
+    অঙ্ক_ASSERT_OP_ARGS2(lhs, rhs);
+    ফেরত setSingleBits(lhs.isCaseEq(rhs) ? 1 : 0);
 }
 
-V3Number& V3Number::opCaseNeq(const V3Number& lhs, const V3Number& rhs) {
+V3_সংখ্যা& V3_সংখ্যা::opCaseNeq(ধ্রুবক V3_সংখ্যা& lhs, ধ্রুবক V3_সংখ্যা& rhs) {
     // i op j, 1 bit return, max(L(lhs),L(rhs)) calculation, careful need to X/Z extend.
-    NUM_ASSERT_OP_ARGS2(lhs, rhs);
-    char outc = 0;
-    if (lhs.isString()) {
-        return opNeqN(lhs, rhs);
-    } else if (lhs.isDouble()) {
-        return opNeqD(lhs, rhs);
+    অঙ্ক_ASSERT_OP_ARGS2(lhs, rhs);
+    অক্ষর outc = 0;
+    যদি (lhs.isString()) {
+        ফেরত opNeqN(lhs, rhs);
+    } অন্যথা যদি (lhs.isDouble()) {
+        ফেরত opNeqD(lhs, rhs);
     }
-    for (int bit = 0; bit < std::max(lhs.width(), rhs.width()); ++bit) {
-        if (lhs.bitIs(bit) != rhs.bitIs(bit)) {
+    জন্য (পূর্ণসংখ্যা bit = 0; bit < std::max(lhs.width(), rhs.width()); ++bit) {
+        যদি (lhs.bitIs(bit) != rhs.bitIs(bit)) {
             outc = 1;
-            goto last;
+            যাও last;
         }
     }
 last:
-    return setSingleBits(outc);
+    ফেরত setSingleBits(outc);
 }
 
-V3Number& V3Number::opWildEq(const V3Number& lhs, const V3Number& rhs) {
-    NUM_ASSERT_OP_ARGS2(lhs, rhs);
-    NUM_ASSERT_LOGIC_ARGS2(lhs, rhs);
-    char outc = 1;
-    for (int bit = 0; bit < std::max(lhs.width(), rhs.width()); ++bit) {
-        if (!rhs.bitIsXZ(bit)) {
-            if (lhs.bitIsXZ(bit)) {
+V3_সংখ্যা& V3_সংখ্যা::opWildEq(ধ্রুবক V3_সংখ্যা& lhs, ধ্রুবক V3_সংখ্যা& rhs) {
+    অঙ্ক_ASSERT_OP_ARGS2(lhs, rhs);
+    অঙ্ক_ASSERT_LOGIC_ARGS2(lhs, rhs);
+    অক্ষর outc = 1;
+    জন্য (পূর্ণসংখ্যা bit = 0; bit < std::max(lhs.width(), rhs.width()); ++bit) {
+        যদি (!rhs.bitIsXZ(bit)) {
+            যদি (lhs.bitIsXZ(bit)) {
                 outc = 'x';
-                goto last;
+                যাও last;
             }
-            if (lhs.bitIs(bit) != rhs.bitIs(bit)) {
+            যদি (lhs.bitIs(bit) != rhs.bitIs(bit)) {
                 outc = 0;
-                goto last;
+                যাও last;
             }
         }
     }
 last:
-    return setSingleBits(outc);
+    ফেরত setSingleBits(outc);
 }
 
-V3Number& V3Number::opWildNeq(const V3Number& lhs, const V3Number& rhs) {
-    NUM_ASSERT_OP_ARGS2(lhs, rhs);
-    NUM_ASSERT_LOGIC_ARGS2(lhs, rhs);
-    char outc = 0;
-    for (int bit = 0; bit < std::max(lhs.width(), rhs.width()); ++bit) {
-        if (!rhs.bitIsXZ(bit)) {
-            if (lhs.bitIsXZ(bit)) {
+V3_সংখ্যা& V3_সংখ্যা::opWildNeq(ধ্রুবক V3_সংখ্যা& lhs, ধ্রুবক V3_সংখ্যা& rhs) {
+    অঙ্ক_ASSERT_OP_ARGS2(lhs, rhs);
+    অঙ্ক_ASSERT_LOGIC_ARGS2(lhs, rhs);
+    অক্ষর outc = 0;
+    জন্য (পূর্ণসংখ্যা bit = 0; bit < std::max(lhs.width(), rhs.width()); ++bit) {
+        যদি (!rhs.bitIsXZ(bit)) {
+            যদি (lhs.bitIsXZ(bit)) {
                 outc = 'x';
-                goto last;
+                যাও last;
             }
-            if (lhs.bitIs(bit) != rhs.bitIs(bit)) {
+            যদি (lhs.bitIs(bit) != rhs.bitIs(bit)) {
                 outc = 1;
-                goto last;
+                যাও last;
             }
         }
     }
 last:
-    return setSingleBits(outc);
+    ফেরত setSingleBits(outc);
 }
 
-V3Number& V3Number::opGt(const V3Number& lhs, const V3Number& rhs) {
+V3_সংখ্যা& V3_সংখ্যা::opGt(ধ্রুবক V3_সংখ্যা& lhs, ধ্রুবক V3_সংখ্যা& rhs) {
     // i op j, 1 bit return, max(L(lhs),L(rhs)) calculation, careful need to X/Z extend.
-    NUM_ASSERT_OP_ARGS2(lhs, rhs);
-    NUM_ASSERT_LOGIC_ARGS2(lhs, rhs);
-    char outc = 0;
-    for (int bit = 0; bit < std::max(lhs.width(), rhs.width()); ++bit) {
-        if (lhs.bitIs1(bit) && rhs.bitIs0(bit)) outc = 1;
-        if (rhs.bitIs1(bit) && lhs.bitIs0(bit)) outc = 0;
-        if (lhs.bitIsXZ(bit)) outc = 'x';
-        if (rhs.bitIsXZ(bit)) outc = 'x';
+    অঙ্ক_ASSERT_OP_ARGS2(lhs, rhs);
+    অঙ্ক_ASSERT_LOGIC_ARGS2(lhs, rhs);
+    অক্ষর outc = 0;
+    জন্য (পূর্ণসংখ্যা bit = 0; bit < std::max(lhs.width(), rhs.width()); ++bit) {
+        যদি (lhs.bitIs1(bit) && rhs.bitIs0(bit)) outc = 1;
+        যদি (rhs.bitIs1(bit) && lhs.bitIs0(bit)) outc = 0;
+        যদি (lhs.bitIsXZ(bit)) outc = 'x';
+        যদি (rhs.bitIsXZ(bit)) outc = 'x';
     }
-    return setSingleBits(outc);
+    ফেরত setSingleBits(outc);
 }
 
-V3Number& V3Number::opGtS(const V3Number& lhs, const V3Number& rhs) {
+V3_সংখ্যা& V3_সংখ্যা::opGtS(ধ্রুবক V3_সংখ্যা& lhs, ধ্রুবক V3_সংখ্যা& rhs) {
     // i op j, 1 bit return, max(L(lhs),L(rhs)) calculation, careful need to X/Z extend.
-    NUM_ASSERT_OP_ARGS2(lhs, rhs);
-    NUM_ASSERT_LOGIC_ARGS2(lhs, rhs);
-    char outc = 0;
+    অঙ্ক_ASSERT_OP_ARGS2(lhs, rhs);
+    অঙ্ক_ASSERT_LOGIC_ARGS2(lhs, rhs);
+    অক্ষর outc = 0;
     {
-        const int mbit = std::max(lhs.width() - 1, rhs.width() - 1);
-        if (lhs.bitIsXZ(mbit)) {
+        ধ্রুবক পূর্ণসংখ্যা mbit = std::max(lhs.width() - 1, rhs.width() - 1);
+        যদি (lhs.bitIsXZ(mbit)) {
             outc = 'x';
-        } else if (rhs.bitIsXZ(mbit)) {
+        } অন্যথা যদি (rhs.bitIsXZ(mbit)) {
             outc = 'x';
-        } else if (lhs.bitIs0(mbit) && rhs.bitIs1Extend(mbit)) {
+        } অন্যথা যদি (lhs.bitIs0(mbit) && rhs.bitIs1Extend(mbit)) {
             outc = 1;  // + > -
-        } else if (lhs.bitIs1Extend(mbit) && rhs.bitIs0(mbit)) {
+        } অন্যথা যদি (lhs.bitIs1Extend(mbit) && rhs.bitIs0(mbit)) {
             outc = 0;  // - !> +
-        } else {
+        } অন্যথা {
             // both positive or negative, normal >
-            for (int bit = 0; bit < std::max(lhs.width() - 1, rhs.width() - 1); ++bit) {
-                if (lhs.bitIs1Extend(bit) && rhs.bitIs0(bit)) outc = 1;
-                if (rhs.bitIs1Extend(bit) && lhs.bitIs0(bit)) outc = 0;
-                if (lhs.bitIsXZ(bit)) outc = 'x';
-                if (rhs.bitIsXZ(bit)) outc = 'x';
+            জন্য (পূর্ণসংখ্যা bit = 0; bit < std::max(lhs.width() - 1, rhs.width() - 1); ++bit) {
+                যদি (lhs.bitIs1Extend(bit) && rhs.bitIs0(bit)) outc = 1;
+                যদি (rhs.bitIs1Extend(bit) && lhs.bitIs0(bit)) outc = 0;
+                যদি (lhs.bitIsXZ(bit)) outc = 'x';
+                যদি (rhs.bitIsXZ(bit)) outc = 'x';
             }
         }
     }
-    return setSingleBits(outc);
+    ফেরত setSingleBits(outc);
 }
 
-V3Number& V3Number::opGte(const V3Number& lhs, const V3Number& rhs) {
+V3_সংখ্যা& V3_সংখ্যা::opGte(ধ্রুবক V3_সংখ্যা& lhs, ধ্রুবক V3_সংখ্যা& rhs) {
     // i op j, 1 bit return, max(L(lhs),L(rhs)) calculation, careful need to X/Z extend.
-    NUM_ASSERT_OP_ARGS2(lhs, rhs);
-    V3Number& eq = opEq(lhs, rhs);
-    if (eq.isNeqZero()) return eq;  // Return true
-    return opGt(lhs, rhs);
+    অঙ্ক_ASSERT_OP_ARGS2(lhs, rhs);
+    V3_সংখ্যা& eq = opEq(lhs, rhs);
+    যদি (eq.isNeqZero()) ফেরত eq;  // Return true
+    ফেরত opGt(lhs, rhs);
 }
 
-V3Number& V3Number::opGteS(const V3Number& lhs, const V3Number& rhs) {
+V3_সংখ্যা& V3_সংখ্যা::opGteS(ধ্রুবক V3_সংখ্যা& lhs, ধ্রুবক V3_সংখ্যা& rhs) {
     // i op j, 1 bit return, max(L(lhs),L(rhs)) calculation, careful need to X/Z extend.
-    NUM_ASSERT_OP_ARGS2(lhs, rhs);
-    V3Number& eq = opEq(lhs, rhs);
-    if (eq.isNeqZero()) return eq;  // Return true
-    return opGtS(lhs, rhs);
+    অঙ্ক_ASSERT_OP_ARGS2(lhs, rhs);
+    V3_সংখ্যা& eq = opEq(lhs, rhs);
+    যদি (eq.isNeqZero()) ফেরত eq;  // Return true
+    ফেরত opGtS(lhs, rhs);
 }
 
-V3Number& V3Number::opLt(const V3Number& lhs, const V3Number& rhs) { return opGt(rhs, lhs); }
-V3Number& V3Number::opLte(const V3Number& lhs, const V3Number& rhs) { return opGte(rhs, lhs); }
-V3Number& V3Number::opLtS(const V3Number& lhs, const V3Number& rhs) { return opGtS(rhs, lhs); }
-V3Number& V3Number::opLteS(const V3Number& lhs, const V3Number& rhs) { return opGteS(rhs, lhs); }
+V3_সংখ্যা& V3_সংখ্যা::opLt(ধ্রুবক V3_সংখ্যা& lhs, ধ্রুবক V3_সংখ্যা& rhs) { ফেরত opGt(rhs, lhs); }
+V3_সংখ্যা& V3_সংখ্যা::opLte(ধ্রুবক V3_সংখ্যা& lhs, ধ্রুবক V3_সংখ্যা& rhs) { ফেরত opGte(rhs, lhs); }
+V3_সংখ্যা& V3_সংখ্যা::opLtS(ধ্রুবক V3_সংখ্যা& lhs, ধ্রুবক V3_সংখ্যা& rhs) { ফেরত opGtS(rhs, lhs); }
+V3_সংখ্যা& V3_সংখ্যা::opLteS(ধ্রুবক V3_সংখ্যা& lhs, ধ্রুবক V3_সংখ্যা& rhs) { ফেরত opGteS(rhs, lhs); }
 
-V3Number& V3Number::opShiftR(const V3Number& lhs, const V3Number& rhs) {
+V3_সংখ্যা& V3_সংখ্যা::opShiftR(ধ্রুবক V3_সংখ্যা& lhs, ধ্রুবক V3_সংখ্যা& rhs) {
     // L(lhs) bit return
-    NUM_ASSERT_OP_ARGS2(lhs, rhs);
-    NUM_ASSERT_LOGIC_ARGS2(lhs, rhs);
-    if (rhs.isFourState()) return setAllBitsX();
+    অঙ্ক_ASSERT_OP_ARGS2(lhs, rhs);
+    অঙ্ক_ASSERT_LOGIC_ARGS2(lhs, rhs);
+    যদি (rhs.isFourState()) ফেরত setAllBitsX();
     setZero();
-    if (rhs.width() > 32 && !rhs.isBitsZero(rhs.width() - 1, 32)) return *this;
-    const uint32_t rhsval = rhs.toUInt();
-    if (rhsval < static_cast<uint32_t>(lhs.width())) {
-        copyBits(0, lhs, static_cast<int>(rhsval),
-                 std::min(width(), lhs.width() - static_cast<int>(rhsval)));
+    যদি (rhs.width() > 32 && !rhs.isBitsZero(rhs.width() - 1, 32)) ফেরত *এই;
+    ধ্রুবক uint32_t rhsval = rhs.toUInt();
+    যদি (rhsval < static_cast<uint32_t>(lhs.width())) {
+        copyBits(0, lhs, static_cast<পূর্ণসংখ্যা>(rhsval),
+                 std::min(width(), lhs.width() - static_cast<পূর্ণসংখ্যা>(rhsval)));
     }
-    return *this;
+    ফেরত *এই;
 }
 
-V3Number& V3Number::opShiftRS(const V3Number& lhs, const V3Number& rhs, uint32_t lbits) {
+V3_সংখ্যা& V3_সংখ্যা::opShiftRS(ধ্রুবক V3_সংখ্যা& lhs, ধ্রুবক V3_সংখ্যা& rhs, uint32_t lbits) {
     // Correct number of zero bits/width matters (hence lbits passed)
     // L(lhs) bit return
     // The spec says a unsigned >>> still acts as a normal >>.
     // We presume it is signed; as that's V3Width's job to convert to opShiftR
-    NUM_ASSERT_OP_ARGS2(lhs, rhs);
-    NUM_ASSERT_LOGIC_ARGS2(lhs, rhs);
-    if (rhs.isFourState()) return setAllBitsX();
+    অঙ্ক_ASSERT_OP_ARGS2(lhs, rhs);
+    অঙ্ক_ASSERT_LOGIC_ARGS2(lhs, rhs);
+    যদি (rhs.isFourState()) ফেরত setAllBitsX();
     setZero();
-    const bool overflow = rhs.width() > 32 && !rhs.isBitsZero(rhs.width() - 1, 32);
-    if (!overflow) {
-        const uint32_t rhsval = rhs.toUInt();
-        if (rhsval < lbits) {
-            const int copyWidth = std::min(width(), static_cast<int>(lbits - rhsval));
-            copyBits(0, lhs, static_cast<int>(rhsval), copyWidth);
+    ধ্রুবক যৌক্তিক overflow = rhs.width() > 32 && !rhs.isBitsZero(rhs.width() - 1, 32);
+    যদি (!overflow) {
+        ধ্রুবক uint32_t rhsval = rhs.toUInt();
+        যদি (rhsval < lbits) {
+            ধ্রুবক পূর্ণসংখ্যা copyWidth = std::min(width(), static_cast<পূর্ণসংখ্যা>(lbits - rhsval));
+            copyBits(0, lhs, static_cast<পূর্ণসংখ্যা>(rhsval), copyWidth);
             fillBits(copyWidth, width() - copyWidth, lhs.bitIs(lbits - 1));
-            return *this;
+            ফেরত *এই;
         }
     }
     fillBits(0, width(), lhs.bitIs(lbits - 1));  // '0/'1/'x/'z
-    return *this;
+    ফেরত *এই;
 }
 
-V3Number& V3Number::opShiftL(const V3Number& lhs, const V3Number& rhs) {
+V3_সংখ্যা& V3_সংখ্যা::opShiftL(ধ্রুবক V3_সংখ্যা& lhs, ধ্রুবক V3_সংখ্যা& rhs) {
     // L(lhs) bit return
-    NUM_ASSERT_OP_ARGS2(lhs, rhs);
-    NUM_ASSERT_LOGIC_ARGS2(lhs, rhs);
-    if (rhs.isFourState()) return setAllBitsX();
+    অঙ্ক_ASSERT_OP_ARGS2(lhs, rhs);
+    অঙ্ক_ASSERT_LOGIC_ARGS2(lhs, rhs);
+    যদি (rhs.isFourState()) ফেরত setAllBitsX();
     setZero();
-    if (rhs.width() > 32 && !rhs.isBitsZero(rhs.width() - 1, 32)) return *this;
-    const uint32_t rhsval = rhs.toUInt();
-    if (rhsval < static_cast<uint32_t>(width())) {
-        copyBits(static_cast<int>(rhsval), lhs, 0,
-                 std::min(width() - static_cast<int>(rhsval), lhs.width()));
+    যদি (rhs.width() > 32 && !rhs.isBitsZero(rhs.width() - 1, 32)) ফেরত *এই;
+    ধ্রুবক uint32_t rhsval = rhs.toUInt();
+    যদি (rhsval < static_cast<uint32_t>(width())) {
+        copyBits(static_cast<পূর্ণসংখ্যা>(rhsval), lhs, 0,
+                 std::min(width() - static_cast<পূর্ণসংখ্যা>(rhsval), lhs.width()));
     }
-    return *this;
+    ফেরত *এই;
 }
 
 //======================================================================
 // Ops - Arithmetic
 
-V3Number& V3Number::opNegate(const V3Number& lhs) {
+V3_সংখ্যা& V3_সংখ্যা::opNegate(ধ্রুবক V3_সংখ্যা& lhs) {
     // Correct number of zero bits/width matters
     // op i, L(lhs) bit return
-    NUM_ASSERT_OP_ARGS1(lhs);
-    NUM_ASSERT_LOGIC_ARGS1(lhs);
-    if (lhs.isFourState()) return setAllBitsX();
-    V3Number notlhs(&lhs, width());
+    অঙ্ক_ASSERT_OP_ARGS1(lhs);
+    অঙ্ক_ASSERT_LOGIC_ARGS1(lhs);
+    যদি (lhs.isFourState()) ফেরত setAllBitsX();
+    V3_সংখ্যা notlhs(&lhs, width());
     notlhs.opNot(lhs);
-    const V3Number one(&lhs, width(), 1);
+    ধ্রুবক V3_সংখ্যা one(&lhs, width(), 1);
     opAdd(notlhs, one);
-    return *this;
+    ফেরত *এই;
 }
-V3Number& V3Number::opAdd(const V3Number& lhs, const V3Number& rhs) {
+V3_সংখ্যা& V3_সংখ্যা::opAdd(ধ্রুবক V3_সংখ্যা& lhs, ধ্রুবক V3_সংখ্যা& rhs) {
     // i op j, max(L(lhs),L(rhs)) bit return, if any 4-state, 4-state return
-    NUM_ASSERT_OP_ARGS2(lhs, rhs);
-    NUM_ASSERT_LOGIC_ARGS2(lhs, rhs);
-    if (lhs.isFourState() || rhs.isFourState()) return setAllBitsX();
+    অঙ্ক_ASSERT_OP_ARGS2(lhs, rhs);
+    অঙ্ক_ASSERT_LOGIC_ARGS2(lhs, rhs);
+    যদি (lhs.isFourState() || rhs.isFourState()) ফেরত setAllBitsX();
     setZero();
     // Addem
     uint64_t carry = 0;
-    for (int word = 0; word < words(); ++word) {
-        const uint64_t lwordval = lhs.m_data.num()[word].m_value;
-        const uint64_t rwordval = rhs.m_data.num()[word].m_value;
-        const uint64_t sum = lwordval + rwordval + carry;
-        m_data.num()[word].m_value = sum & 0xffffffffULL;
-        carry = sum > 0xffffffffULL;
+    জন্য (পূর্ণসংখ্যা word = 0; word < শব্দগুলি(); ++word) {
+        ধ্রুবক uint64_t lwordval = lhs.m_তথ্য.অঙ্ক()[word].m_মান;
+        ধ্রুবক uint64_t rwordval = rhs.m_তথ্য.অঙ্ক()[word].m_মান;
+        ধ্রুবক uint64_t যোগ_2 = lwordval + rwordval + carry;
+        m_তথ্য.অঙ্ক()[word].m_মান = যোগ_2 & 0xffffffffULL;
+        carry = যোগ_2 > 0xffffffffULL;
     }
     opCleanThis();  // Just in case it produced extra bits in result
-    return *this;
+    ফেরত *এই;
 }
-V3Number& V3Number::opSub(const V3Number& lhs, const V3Number& rhs) {
+V3_সংখ্যা& V3_সংখ্যা::opSub(ধ্রুবক V3_সংখ্যা& lhs, ধ্রুবক V3_সংখ্যা& rhs) {
     // Correct number of zero bits/width matters
     // i op j, max(L(lhs),L(rhs)) bit return, if any 4-state, 4-state return
-    NUM_ASSERT_OP_ARGS2(lhs, rhs);
-    NUM_ASSERT_LOGIC_ARGS2(lhs, rhs);
-    if (lhs.isFourState() || rhs.isFourState()) return setAllBitsX();
-    V3Number negrhs(&rhs, width());
+    অঙ্ক_ASSERT_OP_ARGS2(lhs, rhs);
+    অঙ্ক_ASSERT_LOGIC_ARGS2(lhs, rhs);
+    যদি (lhs.isFourState() || rhs.isFourState()) ফেরত setAllBitsX();
+    V3_সংখ্যা negrhs(&rhs, width());
     negrhs.opNegate(rhs);
-    return opAdd(lhs, negrhs);
+    ফেরত opAdd(lhs, negrhs);
 }
-V3Number& V3Number::opMul(const V3Number& lhs, const V3Number& rhs) {
+V3_সংখ্যা& V3_সংখ্যা::opMul(ধ্রুবক V3_সংখ্যা& lhs, ধ্রুবক V3_সংখ্যা& rhs) {
     // i op j, max(L(lhs),L(rhs)) bit return, if any 4-state, 4-state return
-    NUM_ASSERT_OP_ARGS2(lhs, rhs);
-    NUM_ASSERT_LOGIC_ARGS2(lhs, rhs);
-    if (lhs.isFourState() || rhs.isFourState()) return setAllBitsX();
+    অঙ্ক_ASSERT_OP_ARGS2(lhs, rhs);
+    অঙ্ক_ASSERT_LOGIC_ARGS2(lhs, rhs);
+    যদি (lhs.isFourState() || rhs.isFourState()) ফেরত setAllBitsX();
     setZero();
-    if (width() <= 64) {
+    যদি (width() <= 64) {
         setQuad(lhs.toUQuad() * rhs.toUQuad());
         opCleanThis();  // Mult produces extra bits in result
-    } else {
-        for (int lword = 0; lword < lhs.words(); ++lword) {
-            const uint64_t lwordval = static_cast<uint64_t>(lhs.m_data.num()[lword].m_value);
-            if (lwordval == 0) continue;
-            for (int rword = 0; rword < rhs.words(); ++rword) {
-                const uint64_t rwordval = static_cast<uint64_t>(rhs.m_data.num()[rword].m_value);
-                if (rwordval == 0) continue;
+    } অন্যথা {
+        জন্য (পূর্ণসংখ্যা lword = 0; lword < lhs.শব্দগুলি(); ++lword) {
+            ধ্রুবক uint64_t lwordval = static_cast<uint64_t>(lhs.m_তথ্য.অঙ্ক()[lword].m_মান);
+            যদি (lwordval == 0) চালু;
+            জন্য (পূর্ণসংখ্যা rword = 0; rword < rhs.শব্দগুলি(); ++rword) {
+                ধ্রুবক uint64_t rwordval = static_cast<uint64_t>(rhs.m_তথ্য.অঙ্ক()[rword].m_মান);
+                যদি (rwordval == 0) চালু;
                 uint64_t mul = lwordval * rwordval;
-                for (int qword = lword + rword; qword < words(); ++qword) {
-                    mul += static_cast<uint64_t>(m_data.num()[qword].m_value);
-                    m_data.num()[qword].m_value = (mul & 0xffffffffULL);
+                জন্য (পূর্ণসংখ্যা qword = lword + rword; qword < শব্দগুলি(); ++qword) {
+                    mul += static_cast<uint64_t>(m_তথ্য.অঙ্ক()[qword].m_মান);
+                    m_তথ্য.অঙ্ক()[qword].m_মান = (mul & 0xffffffffULL);
                     mul = (mul >> 32ULL) & 0xffffffffULL;
-                    if (mul == 0) break;
+                    যদি (mul == 0) বিরতি;
                 }
             }
         }
         opCleanThis();  // Mult produces extra bits in result
     }
-    return *this;
+    ফেরত *এই;
 }
-V3Number& V3Number::opMulS(const V3Number& lhs, const V3Number& rhs) {
+V3_সংখ্যা& V3_সংখ্যা::opMulS(ধ্রুবক V3_সংখ্যা& lhs, ধ্রুবক V3_সংখ্যা& rhs) {
     // Signed multiply
     // Correct number of zero bits/width matters
-    NUM_ASSERT_OP_ARGS2(lhs, rhs);
-    NUM_ASSERT_LOGIC_ARGS2(lhs, rhs);
-    if (lhs.isFourState() || rhs.isFourState()) return setAllBitsX();
-    V3Number lhsNoSign = lhs;
-    if (lhs.isNegative()) lhsNoSign.opNegate(lhs);
-    V3Number rhsNoSign = rhs;
-    if (rhs.isNegative()) rhsNoSign.opNegate(rhs);
-    const V3Number qNoSign = opMul(lhsNoSign, rhsNoSign);
-    if ((lhs.isNegative() && !rhs.isNegative()) || (!lhs.isNegative() && rhs.isNegative())) {
+    অঙ্ক_ASSERT_OP_ARGS2(lhs, rhs);
+    অঙ্ক_ASSERT_LOGIC_ARGS2(lhs, rhs);
+    যদি (lhs.isFourState() || rhs.isFourState()) ফেরত setAllBitsX();
+    V3_সংখ্যা lhsNoSign = lhs;
+    যদি (lhs.isNegative()) lhsNoSign.opNegate(lhs);
+    V3_সংখ্যা rhsNoSign = rhs;
+    যদি (rhs.isNegative()) rhsNoSign.opNegate(rhs);
+    ধ্রুবক V3_সংখ্যা qNoSign = opMul(lhsNoSign, rhsNoSign);
+    যদি ((lhs.isNegative() && !rhs.isNegative()) || (!lhs.isNegative() && rhs.isNegative())) {
         opNegate(qNoSign);
-    } else {
+    } অন্যথা {
         opAssign(qNoSign);
     }
-    return *this;
+    ফেরত *এই;
 }
-V3Number& V3Number::opDiv(const V3Number& lhs, const V3Number& rhs) {
+V3_সংখ্যা& V3_সংখ্যা::opDiv(ধ্রুবক V3_সংখ্যা& lhs, ধ্রুবক V3_সংখ্যা& rhs) {
     // i op j, max(L(lhs),L(rhs)) bit return, if any 4-state, 4-state return
-    NUM_ASSERT_OP_ARGS2(lhs, rhs);
-    NUM_ASSERT_LOGIC_ARGS2(lhs, rhs);
+    অঙ্ক_ASSERT_OP_ARGS2(lhs, rhs);
+    অঙ্ক_ASSERT_LOGIC_ARGS2(lhs, rhs);
     // UINFO(9, "opdiv " << lhs << " " << rhs);
-    if (lhs.isFourState() || rhs.isFourState()) return setAllBitsX();
-    if (rhs.isEqZero()) return setAllBitsXRemoved();
-    if (lhs.width() <= 64) {
+    যদি (lhs.isFourState() || rhs.isFourState()) ফেরত setAllBitsX();
+    যদি (rhs.isEqZero()) ফেরত setAllBitsXRemoved();
+    যদি (lhs.width() <= 64) {
         setQuad(lhs.toUQuad() / rhs.toUQuad());
-        return *this;
-    } else {
+        ফেরত *এই;
+    } অন্যথা {
         // Wide division
-        return opModDivGuts(lhs, rhs, false);
+        ফেরত opModDivGuts(lhs, rhs, মিথ্যা);
     }
 }
-V3Number& V3Number::opDivS(const V3Number& lhs, const V3Number& rhs) {
+V3_সংখ্যা& V3_সংখ্যা::opDivS(ধ্রুবক V3_সংখ্যা& lhs, ধ্রুবক V3_সংখ্যা& rhs) {
     // Signed divide
     // Correct number of zero bits/width matters
     // UINFO(9, ">>divs-start " << lhs << " " << rhs);
-    NUM_ASSERT_OP_ARGS2(lhs, rhs);
-    NUM_ASSERT_LOGIC_ARGS2(lhs, rhs);
-    if (lhs.isFourState() || rhs.isFourState()) return setAllBitsX();
-    if (rhs.isEqZero()) return setAllBitsXRemoved();
-    V3Number lhsNoSign = lhs;
-    if (lhs.isNegative()) lhsNoSign.opNegate(lhs);
-    V3Number rhsNoSign = rhs;
-    if (rhs.isNegative()) rhsNoSign.opNegate(rhs);
-    const V3Number qNoSign = opDiv(lhsNoSign, rhsNoSign);
+    অঙ্ক_ASSERT_OP_ARGS2(lhs, rhs);
+    অঙ্ক_ASSERT_LOGIC_ARGS2(lhs, rhs);
+    যদি (lhs.isFourState() || rhs.isFourState()) ফেরত setAllBitsX();
+    যদি (rhs.isEqZero()) ফেরত setAllBitsXRemoved();
+    V3_সংখ্যা lhsNoSign = lhs;
+    যদি (lhs.isNegative()) lhsNoSign.opNegate(lhs);
+    V3_সংখ্যা rhsNoSign = rhs;
+    যদি (rhs.isNegative()) rhsNoSign.opNegate(rhs);
+    ধ্রুবক V3_সংখ্যা qNoSign = opDiv(lhsNoSign, rhsNoSign);
     // UINFO(9, " >divs-mid " << lhs << " " << rhs << " " << qNoSign);
-    if ((lhs.isNegative() && !rhs.isNegative()) || (!lhs.isNegative() && rhs.isNegative())) {
+    যদি ((lhs.isNegative() && !rhs.isNegative()) || (!lhs.isNegative() && rhs.isNegative())) {
         opNegate(qNoSign);
-    } else {
+    } অন্যথা {
         opAssign(qNoSign);
     }
-    UINFO(9, " <divs-out " << lhs << " " << rhs << " =" << *this);
-    return *this;
+    UINFO(9, " <divs-out " << lhs << " " << rhs << " =" << *এই);
+    ফেরত *এই;
 }
-V3Number& V3Number::opModDiv(const V3Number& lhs, const V3Number& rhs) {
+V3_সংখ্যা& V3_সংখ্যা::opModDiv(ধ্রুবক V3_সংখ্যা& lhs, ধ্রুবক V3_সংখ্যা& rhs) {
     // i op j, max(L(lhs),L(rhs)) bit return, if any 4-state, 4-state return
-    NUM_ASSERT_OP_ARGS2(lhs, rhs);
-    NUM_ASSERT_LOGIC_ARGS2(lhs, rhs);
-    if (lhs.isFourState() || rhs.isFourState()) return setAllBitsX();
-    if (rhs.isEqZero()) return setAllBitsXRemoved();
-    if (lhs.width() <= 64) {
+    অঙ্ক_ASSERT_OP_ARGS2(lhs, rhs);
+    অঙ্ক_ASSERT_LOGIC_ARGS2(lhs, rhs);
+    যদি (lhs.isFourState() || rhs.isFourState()) ফেরত setAllBitsX();
+    যদি (rhs.isEqZero()) ফেরত setAllBitsXRemoved();
+    যদি (lhs.width() <= 64) {
         setQuad(lhs.toUQuad() % rhs.toUQuad());
-        return *this;
-    } else {
+        ফেরত *এই;
+    } অন্যথা {
         // Wide modulus
-        return opModDivGuts(lhs, rhs, true);
+        ফেরত opModDivGuts(lhs, rhs, সত্য);
     }
 }
-V3Number& V3Number::opModDivS(const V3Number& lhs, const V3Number& rhs) {
+V3_সংখ্যা& V3_সংখ্যা::opModDivS(ধ্রুবক V3_সংখ্যা& lhs, ধ্রুবক V3_সংখ্যা& rhs) {
     // Signed moddiv
     // Correct number of zero bits/width matters
-    NUM_ASSERT_OP_ARGS2(lhs, rhs);
-    NUM_ASSERT_LOGIC_ARGS2(lhs, rhs);
-    if (lhs.isFourState() || rhs.isFourState()) return setAllBitsX();
-    if (rhs.isEqZero()) return setAllBitsXRemoved();
-    V3Number lhsNoSign = lhs;
-    if (lhs.isNegative()) lhsNoSign.opNegate(lhs);
-    V3Number rhsNoSign = rhs;
-    if (rhs.isNegative()) rhsNoSign.opNegate(rhs);
-    const V3Number qNoSign = opModDiv(lhsNoSign, rhsNoSign);
-    if (lhs.isNegative()) {  // Just lhs' sign  (*DIFFERENT FROM PERL, which uses rhs sign*)
+    অঙ্ক_ASSERT_OP_ARGS2(lhs, rhs);
+    অঙ্ক_ASSERT_LOGIC_ARGS2(lhs, rhs);
+    যদি (lhs.isFourState() || rhs.isFourState()) ফেরত setAllBitsX();
+    যদি (rhs.isEqZero()) ফেরত setAllBitsXRemoved();
+    V3_সংখ্যা lhsNoSign = lhs;
+    যদি (lhs.isNegative()) lhsNoSign.opNegate(lhs);
+    V3_সংখ্যা rhsNoSign = rhs;
+    যদি (rhs.isNegative()) rhsNoSign.opNegate(rhs);
+    ধ্রুবক V3_সংখ্যা qNoSign = opModDiv(lhsNoSign, rhsNoSign);
+    যদি (lhs.isNegative()) {  // Just lhs' sign  (*DIFFERENT FROM PERL, which uses rhs sign*)
         opNegate(qNoSign);
-    } else {
+    } অন্যথা {
         opAssign(qNoSign);
     }
-    return *this;
+    ফেরত *এই;
 }
-V3Number& V3Number::opModDivGuts(const V3Number& lhs, const V3Number& rhs, bool is_modulus) {
+V3_সংখ্যা& V3_সংখ্যা::opModDivGuts(ধ্রুবক V3_সংখ্যা& lhs, ধ্রুবক V3_সংখ্যা& rhs, যৌক্তিক is_modulus) {
     // See Knuth Algorithm D.  Computes u/v = q.r
     // This isn't massively tuned, as wide division is rare
-    NUM_ASSERT_OP_ARGS2(lhs, rhs);
-    NUM_ASSERT_LOGIC_ARGS2(lhs, rhs);
+    অঙ্ক_ASSERT_OP_ARGS2(lhs, rhs);
+    অঙ্ক_ASSERT_LOGIC_ARGS2(lhs, rhs);
     setZero();
     // Find MSB and check for zero.
-    const int lWords = lhs.words();
-    const int umsbp1 = lhs.mostSetBitP1();  // dividend
-    const int vmsbp1 = rhs.mostSetBitP1();  // divisor
-    if (VL_UNLIKELY(vmsbp1 == 0)  // rwp==0 so division by zero.  Return 0.
+    ধ্রুবক পূর্ণসংখ্যা l_শব্দগুলি = lhs.শব্দগুলি();
+    ধ্রুবক পূর্ণসংখ্যা umsbp1 = lhs.mostSetBitP1();  // dividend
+    ধ্রুবক পূর্ণসংখ্যা vmsbp1 = rhs.mostSetBitP1();  //ভাজক
+    যদি (VL_UNLIKELY(vmsbp1 == 0)  // rwp==0 so division by zero.  Return 0.
         || VL_UNLIKELY(umsbp1 == 0)) {  // 0/x so short circuit and return 0
-        UINFO(9, "  opmoddiv-zero " << lhs << " " << rhs << " now=" << *this);
-        return *this;
+        UINFO(9, "  opmoddiv-zero " << lhs << " " << rhs << " now=" << *এই);
+        ফেরত *এই;
     }
 
-    const int uw = (umsbp1 + 31) / 32;  // aka "m" in the algorithm
-    const int vw = (vmsbp1 + 31) / 32;  // aka "n" in the algorithm
+    ধ্রুবক পূর্ণসংখ্যা uw = (umsbp1 + 31) / 32;  // aka "m" in the algorithm
+    ধ্রুবক পূর্ণসংখ্যা vw = (vmsbp1 + 31) / 32;  // aka "n" in the algorithm
 
-    if (vw == 1) {  // Single divisor word breaks rest of algorithm
+    যদি (vw == 1) {  // Single divisor word breaks rest of algorithm
         uint64_t k = 0;
-        for (int j = uw - 1; j >= 0; j--) {
-            const uint64_t unw64
-                = ((k << 32ULL) + static_cast<uint64_t>(lhs.m_data.num()[j].m_value));
-            m_data.num()[j].m_value = unw64 / static_cast<uint64_t>(rhs.m_data.num()[0].m_value);
+        জন্য (পূর্ণসংখ্যা j = uw - 1; j >= 0; j--) {
+            ধ্রুবক uint64_t unw64
+                = ((k << 32ULL) + static_cast<uint64_t>(lhs.m_তথ্য.অঙ্ক()[j].m_মান));
+            m_তথ্য.অঙ্ক()[j].m_মান = unw64 / static_cast<uint64_t>(rhs.m_তথ্য.অঙ্ক()[0].m_মান);
             k = unw64
-                - (static_cast<uint64_t>(m_data.num()[j].m_value)
-                   * static_cast<uint64_t>(rhs.m_data.num()[0].m_value));
+                - (static_cast<uint64_t>(m_তথ্য.অঙ্ক()[j].m_মান)
+                   * static_cast<uint64_t>(rhs.m_তথ্য.অঙ্ক()[0].m_মান));
         }
-        UINFO(9, "  opmoddiv-1w  " << lhs << " " << rhs << " q=" << *this << " rem=0x" << std::hex
+        UINFO(9, "  opmoddiv-1w  " << lhs << " " << rhs << " q=" << *এই << " rem=0x" << std::hex
                                    << k << std::dec);
-        if (is_modulus) {
+        যদি (is_modulus) {
             setZero();
-            m_data.num()[0].m_value = k;
+            m_তথ্য.অঙ্ক()[0].m_মান = k;
         }
         opCleanThis();
-        return *this;
+        ফেরত *এই;
     }
 
     // +1 word as we may shift during normalization
-    uint32_t un[VL_MULS_MAX_WORDS + 1];  // Fixed size, as MSVC++ doesn't allow [words] here
-    uint32_t vn[VL_MULS_MAX_WORDS + 1];  // v normalized
+    uint32_t un[VL_MULS_MAX_শব্দগুলি + 1];  // Fixed size, as MSVC++ doesn't allow [words] here
+    uint32_t vn[VL_MULS_MAX_শব্দগুলি + 1];  // v normalized
 
     // Zero for ease of debugging and to save having to zero for shifts
-    for (int i = 0; i < lWords; ++i) m_data.num()[i].m_value = 0;
-    for (int i = 0; i < lWords + 1; ++i) { un[i] = vn[i] = 0; }  // +1 as vn may get extra word
+    জন্য (পূর্ণসংখ্যা i = 0; i < l_শব্দগুলি; ++i) m_তথ্য.অঙ্ক()[i].m_মান = 0;
+    জন্য (পূর্ণসংখ্যা i = 0; i < l_শব্দগুলি + 1; ++i) { un[i] = vn[i] = 0; }  // +1 as vn may get extra word
 
     // Algorithm requires divisor MSB to be set
     // Copy and shift to normalize divisor so MSB of vn[vw-1] is set
-    const int s = 31 - ((vmsbp1 - 1) & 31);  // shift amount (0...31)
-    const uint32_t shift_mask = s ? 0xffffffff : 0;  // otherwise >> 32 won't mask the value
-    for (int i = vw - 1; i > 0; i--) {
-        vn[i] = (rhs.m_data.num()[i].m_value << s)
-                | (shift_mask & (rhs.m_data.num()[i - 1].m_value >> (32 - s)));
+    ধ্রুবক পূর্ণসংখ্যা s = 31 - ((vmsbp1 - 1) & 31);  // shift amount (0...31)
+    ধ্রুবক uint32_t shift_mask = s ? 0xffffffff : 0;  // otherwise >> 32 won't mask the value
+    জন্য (পূর্ণসংখ্যা i = vw - 1; i > 0; i--) {
+        vn[i] = (rhs.m_তথ্য.অঙ্ক()[i].m_মান << s)
+                | (shift_mask & (rhs.m_তথ্য.অঙ্ক()[i - 1].m_মান >> (32 - s)));
     }
-    vn[0] = rhs.m_data.num()[0].m_value << s;
+    vn[0] = rhs.m_তথ্য.অঙ্ক()[0].m_মান << s;
 
     // Copy and shift dividend by same amount; may set new upper word
-    if (s) {
-        un[uw] = lhs.m_data.num()[uw - 1].m_value >> (32 - s);
-    } else {
+    যদি (s) {
+        un[uw] = lhs.m_তথ্য.অঙ্ক()[uw - 1].m_মান >> (32 - s);
+    } অন্যথা {
         un[uw] = 0;
     }
-    for (int i = uw - 1; i > 0; i--) {
-        un[i] = (lhs.m_data.num()[i].m_value << s)
-                | (shift_mask & (lhs.m_data.num()[i - 1].m_value >> (32 - s)));
+    জন্য (পূর্ণসংখ্যা i = uw - 1; i > 0; i--) {
+        un[i] = (lhs.m_তথ্য.অঙ্ক()[i].m_মান << s)
+                | (shift_mask & (lhs.m_তথ্য.অঙ্ক()[i - 1].m_মান >> (32 - s)));
     }
-    un[0] = lhs.m_data.num()[0].m_value << s;
+    un[0] = lhs.m_তথ্য.অঙ্ক()[0].m_মান << s;
 
     // printf("  un="); for (int i=5; i>=0; i--) printf(" %08x",un[i]); printf("\n");
     // printf("  vn="); for (int i=5; i>=0; i--) printf(" %08x",vn[i]); printf("\n");
     // printf("  mv="); for (int i=5; i>=0; i--) printf(" %08x",m_value[i]); printf("\n");
 
     // Main loop
-    for (int j = uw - vw; j >= 0; j--) {
+    জন্য (পূর্ণসংখ্যা j = uw - vw; j >= 0; j--) {
         // Estimate
-        const uint64_t unw64
+        ধ্রুবক uint64_t unw64
             = (static_cast<uint64_t>(un[j + vw]) << 32ULL | static_cast<uint64_t>(un[j + vw - 1]));
         uint64_t qhat = unw64 / static_cast<uint64_t>(vn[vw - 1]);
         uint64_t rhat = unw64 - qhat * static_cast<uint64_t>(vn[vw - 1]);
 
     again:
-        if (qhat >= 0x100000000ULL || ((qhat * vn[vw - 2]) > ((rhat << 32ULL) + un[j + vw - 2]))) {
+        যদি (qhat >= 0x100000000ULL || ((qhat * vn[vw - 2]) > ((rhat << 32ULL) + un[j + vw - 2]))) {
             qhat = qhat - 1;
             rhat = rhat + vn[vw - 1];
-            if (rhat < 0x100000000ULL) goto again;
+            যদি (rhat < 0x100000000ULL) যাও again;
         }
 
         int64_t t = 0;  // Must be signed
         uint64_t k = 0;
-        for (int i = 0; i < vw; ++i) {
-            const uint64_t p = qhat * vn[i];  // Multiply by estimate
+        জন্য (পূর্ণসংখ্যা i = 0; i < vw; ++i) {
+            ধ্রুবক uint64_t p = qhat * vn[i];  // Multiply by estimate
             t = un[i + j] - k - (p & 0xFFFFFFFFULL);  // Subtract
             un[i + j] = t;
             k = (p >> 32ULL) - (t >> 32ULL);
         }
         t = un[j + vw] - k;
         un[j + vw] = t;
-        m_data.num()[j].m_value = qhat;  // Save quotient digit
+        m_তথ্য.অঙ্ক()[j].m_মান = qhat;  // Save quotient digit
 
-        if (t < 0) {
+        যদি (t < 0) {
             // Over subtracted; correct by adding back
-            m_data.num()[j].m_value--;
+            m_তথ্য.অঙ্ক()[j].m_মান--;
             k = 0;
-            for (int i = 0; i < vw; ++i) {
+            জন্য (পূর্ণসংখ্যা i = 0; i < vw; ++i) {
                 t = static_cast<uint64_t>(un[i + j]) + static_cast<uint64_t>(vn[i]) + k;
                 un[i + j] = t;
                 k = t >> 32ULL;
@@ -2407,475 +2407,475 @@ V3Number& V3Number::opModDivGuts(const V3Number& lhs, const V3Number& rhs, bool 
     // printf("  vn="); for (int i=5; i>=0; i--) printf(" %08x",vn[i]); printf("\n");
     // printf("  mv="); for (int i=5; i>=0; i--) printf(" %08x",m_value[i]); printf("\n");
 
-    if (is_modulus) {  // modulus
+    যদি (is_modulus) {  // modulus
         // Need to reverse normalization on copy to output
-        for (int i = 0; i < vw; ++i) {
-            m_data.num()[i].m_value = (un[i] >> s) | (shift_mask & (un[i + 1] << (32 - s)));
+        জন্য (পূর্ণসংখ্যা i = 0; i < vw; ++i) {
+            m_তথ্য.অঙ্ক()[i].m_মান = (un[i] >> s) | (shift_mask & (un[i + 1] << (32 - s)));
         }
-        for (int i = vw; i < lWords; ++i) m_data.num()[i].m_value = 0;
+        জন্য (পূর্ণসংখ্যা i = vw; i < l_শব্দগুলি; ++i) m_তথ্য.অঙ্ক()[i].m_মান = 0;
         opCleanThis();
-        UINFO(9, "  opmoddiv-mod " << lhs << " " << rhs << " now=" << *this);
-        return *this;
-    } else {  // division
+        UINFO(9, "  opmoddiv-mod " << lhs << " " << rhs << " now=" << *এই);
+        ফেরত *এই;
+    } অন্যথা {  // division
         opCleanThis();
-        UINFO(9, "  opmoddiv-div " << lhs << " " << rhs << " now=" << *this);
-        return *this;
+        UINFO(9, "  opmoddiv-div " << lhs << " " << rhs << " now=" << *এই);
+        ফেরত *এই;
     }
 }
 
-V3Number& V3Number::opPow(const V3Number& lhs, const V3Number& rhs, bool lsign, bool rsign) {
+V3_সংখ্যা& V3_সংখ্যা::opPow(ধ্রুবক V3_সংখ্যা& lhs, ধ্রুবক V3_সংখ্যা& rhs, যৌক্তিক lsign, যৌক্তিক rsign) {
     // Correct number of zero bits/width matters
     // L(i) bit return, if any 4-state, 4-state return
-    NUM_ASSERT_OP_ARGS2(lhs, rhs);
-    NUM_ASSERT_LOGIC_ARGS2(lhs, rhs);
-    if (lhs.isFourState() || rhs.isFourState()) return setAllBitsX();
-    if (rhs.isEqZero()) return setValue1();  // Overrides lhs 0 -> return 1
+    অঙ্ক_ASSERT_OP_ARGS2(lhs, rhs);
+    অঙ্ক_ASSERT_LOGIC_ARGS2(lhs, rhs);
+    যদি (lhs.isFourState() || rhs.isFourState()) ফেরত setAllBitsX();
+    যদি (rhs.isEqZero()) ফেরত setValue1();  // Overrides lhs 0 -> return 1
     // We may want to special case when the lhs is 2, so we can get larger outputs
-    if (rsign && rhs.isNegative()) {
-        if (lhs.isEqZero()) {
-            return setAllBitsXRemoved();
-        } else if (lhs.isEqOne()) {
-            return setValue1();
-        } else if (lsign && lhs.isEqAllOnes()) {
-            if (rhs.bitIs1(0)) {
-                return setAllBits1();  // -1^odd=-1
-            } else {
-                return setValue1();  // -1^even=1
+    যদি (rsign && rhs.isNegative()) {
+        যদি (lhs.isEqZero()) {
+            ফেরত setAllBitsXRemoved();
+        } অন্যথা যদি (lhs.isEqOne()) {
+            ফেরত setValue1();
+        } অন্যথা যদি (lsign && lhs.isEqAllOnes()) {
+            যদি (rhs.bitIs1(0)) {
+                ফেরত setAllBits1();  // -1^odd=-1
+            } অন্যথা {
+                ফেরত setValue1();  // -1^even=1
             }
         }
-        return setZero();
+        ফেরত setZero();
     }
-    if (lhs.isEqZero()) return setZero();
+    যদি (lhs.isEqZero()) ফেরত setZero();
     setZero();
-    m_data.num()[0].m_value = 1;
-    V3Number power(&lhs, width());
+    m_তথ্য.অঙ্ক()[0].m_মান = 1;
+    V3_সংখ্যা power(&lhs, width());
     power.opAssign(lhs);
-    for (int bit = 0; bit < rhs.width(); ++bit) {
-        if (bit > 0) {  // power = power*power
-            V3Number lastPower(&lhs, width());
+    জন্য (পূর্ণসংখ্যা bit = 0; bit < rhs.width(); ++bit) {
+        যদি (bit > 0) {  // power = power*power
+            V3_সংখ্যা lastPower(&lhs, width());
             lastPower.opAssign(power);
             power.opMul(lastPower, lastPower);
         }
-        if (rhs.bitIs1(bit)) {  // out *= power
-            V3Number lastOut(&lhs, width());
-            lastOut.opAssign(*this);
+        যদি (rhs.bitIs1(bit)) {  // out *= power
+            V3_সংখ্যা lastOut(&lhs, width());
+            lastOut.opAssign(*এই);
             opMul(lastOut, power);
             // UINFO(0, "pow "<<lhs<<" "<<rhs<<" b"<<bit<<" pow="<<power<<" now="<<*this);
         }
     }
-    return *this;
+    ফেরত *এই;
 }
-V3Number& V3Number::opPowSU(const V3Number& lhs, const V3Number& rhs) {
+V3_সংখ্যা& V3_সংখ্যা::opPowSU(ধ্রুবক V3_সংখ্যা& lhs, ধ্রুবক V3_সংখ্যা& rhs) {
     // Correct number of zero bits/width matters
-    return opPow(lhs, rhs, true, false);
+    ফেরত opPow(lhs, rhs, সত্য, মিথ্যা);
 }
-V3Number& V3Number::opPowSS(const V3Number& lhs, const V3Number& rhs) {
+V3_সংখ্যা& V3_সংখ্যা::opPowSS(ধ্রুবক V3_সংখ্যা& lhs, ধ্রুবক V3_সংখ্যা& rhs) {
     // Correct number of zero bits/width matters
-    return opPow(lhs, rhs, true, true);
+    ফেরত opPow(lhs, rhs, সত্য, সত্য);
 }
-V3Number& V3Number::opPowUS(const V3Number& lhs, const V3Number& rhs) {
+V3_সংখ্যা& V3_সংখ্যা::opPowUS(ধ্রুবক V3_সংখ্যা& lhs, ধ্রুবক V3_সংখ্যা& rhs) {
     // Correct number of zero bits/width matters
-    return opPow(lhs, rhs, false, true);
+    ফেরত opPow(lhs, rhs, মিথ্যা, সত্য);
 }
 
-V3Number& V3Number::opBufIf1(const V3Number& ens, const V3Number& if1s) {
-    NUM_ASSERT_OP_ARGS2(ens, if1s);
-    NUM_ASSERT_LOGIC_ARGS2(ens, if1s);
+V3_সংখ্যা& V3_সংখ্যা::opBufIf1(ধ্রুবক V3_সংখ্যা& ens, ধ্রুবক V3_সংখ্যা& if1s) {
+    অঙ্ক_ASSERT_OP_ARGS2(ens, if1s);
+    অঙ্ক_ASSERT_LOGIC_ARGS2(ens, if1s);
     setZero();
-    for (int bit = 0; bit < width(); ++bit) {
-        if (ens.bitIs1(bit)) {
+    জন্য (পূর্ণসংখ্যা bit = 0; bit < width(); ++bit) {
+        যদি (ens.bitIs1(bit)) {
             setBit(bit, if1s.bitIs(bit));
-        } else {
+        } অন্যথা {
             setBit(bit, 'z');
         }
     }
-    return *this;
+    ফেরত *এই;
 }
 
 // Sets all bits in range to the given value
-V3Number& V3Number::opSetRange(uint32_t lsb, uint32_t width, char bitValue) {
-    if (lsb < static_cast<uint32_t>(this->width())) {
-        fillBits(static_cast<int>(lsb),
-                 static_cast<int>(std::min(width, static_cast<uint32_t>(this->width()) - lsb)),
-                 bitValue);
+V3_সংখ্যা& V3_সংখ্যা::opSetRange(uint32_t lsb, uint32_t width, অক্ষর bit_মান) {
+    যদি (lsb < static_cast<uint32_t>(এই->width())) {
+        fillBits(static_cast<পূর্ণসংখ্যা>(lsb),
+                 static_cast<পূর্ণসংখ্যা>(std::min(width, static_cast<uint32_t>(এই->width()) - lsb)),
+                 bit_মান);
     }
-    return *this;
+    ফেরত *এই;
 }
 
-V3Number& V3Number::opAssign(const V3Number& lhs) { return opAssignNonXZ(lhs, false); }
-V3Number& V3Number::opAssignNonXZ(const V3Number& lhs, bool ignoreXZ) {
+V3_সংখ্যা& V3_সংখ্যা::opAssign(ধ্রুবক V3_সংখ্যা& lhs) { ফেরত opAssignNonXZ(lhs, মিথ্যা); }
+V3_সংখ্যা& V3_সংখ্যা::opAssignNonXZ(ধ্রুবক V3_সংখ্যা& lhs, যৌক্তিক ignoreXZ) {
     // Note may be a width change during the assign.
     // Special case: opAssign unlike other ops, allows this an assignment
     // to itself; V3Simulate does this when hits "foo=foo;"
     // So no: NUM_ASSERT_OP_ARGS1(lhs);
-    if (this != &lhs) {
-        if (VL_UNLIKELY(lhs.isNull())) {
-            m_data.m_isNull = true;
-        } else if (isString()) {
-            if (VL_UNLIKELY(!lhs.isString())) {
+    যদি (এই != &lhs) {
+        যদি (VL_UNLIKELY(lhs.isNull())) {
+            m_তথ্য.m_isNull = সত্য;
+        } অন্যথা যদি (isString()) {
+            যদি (VL_UNLIKELY(!lhs.isString())) {
                 // Numbers can still be strings
-                m_data.str() = lhs.toString();
-            } else {
-                m_data.str() = lhs.m_data.str();
+                m_তথ্য.str() = lhs.toString();
+            } অন্যথা {
+                m_তথ্য.str() = lhs.m_তথ্য.str();
             }
-        } else if (VL_UNLIKELY(lhs.isString())) {
+        } অন্যথা যদি (VL_UNLIKELY(lhs.isString())) {
             // Non-compatible types, see also opAToN()
             setZero();
-        } else if (lhs.isDouble()) {
+        } অন্যথা যদি (lhs.isDouble()) {
             setDouble(lhs.toDouble());
-        } else if (!ignoreXZ) {
+        } অন্যথা যদি (!ignoreXZ) {
             setZero();
             copyBits(0, lhs, 0, std::min(width(), lhs.width()));
-        } else {
-            for (int word = 0; word < words(); ++word) {
-                const uint32_t value = word < lhs.words() ? lhs.m_data.num()[word].m_value
-                                                                & ~lhs.m_data.num()[word].m_valueX
+        } অন্যথা {
+            জন্য (পূর্ণসংখ্যা word = 0; word < শব্দগুলি(); ++word) {
+                ধ্রুবক uint32_t মান = word < lhs.শব্দগুলি() ? lhs.m_তথ্য.অঙ্ক()[word].m_মান
+                                                                & ~lhs.m_তথ্য.অঙ্ক()[word].m_মান_X
                                                           : 0;
-                m_data.num()[word] = {value, 0};
+                m_তথ্য.অঙ্ক()[word] = {মান, 0};
             }
             opCleanThis();
         }
     }
-    return *this;
+    ফেরত *এই;
 }
 
-V3Number& V3Number::opNToI(const V3Number& lhs) {
+V3_সংখ্যা& V3_সংখ্যা::opNToI(ধ্রুবক V3_সংখ্যা& lhs) {
     // String to packed number
-    NUM_ASSERT_OP_ARGS1(lhs);
-    NUM_ASSERT_STRING_ARGS1(lhs);
+    অঙ্ক_ASSERT_OP_ARGS1(lhs);
+    অঙ্ক_ASSERT_STRING_ARGS1(lhs);
     setZero();
-    const string& str = lhs.toString();
-    for (size_t n = 0; n < str.length(); ++n) {
-        const char c = str[str.length() - 1 - n];
-        for (size_t cbit = 0; cbit < 8; ++cbit) {
-            const std::bitset<8> sbit{static_cast<unsigned long long>(c)};
+    ধ্রুবক string& str = lhs.toString();
+    জন্য (আকার_t n = 0; n < str.দৈর্ঘ্য(); ++n) {
+        ধ্রুবক অক্ষর c = str[str.দৈর্ঘ্য() - 1 - n];
+        জন্য (আকার_t cbit = 0; cbit < 8; ++cbit) {
+            ধ্রুবক std::bitset<8> sbit{static_cast<unsigned long long>(c)};
             setBit(n * 8 + cbit, sbit.test(cbit) ? 1 : 0);
         }
     }
-    return *this;
+    ফেরত *এই;
 }
 
-V3Number& V3Number::opExtendS(const V3Number& lhs, uint32_t lbits) {
+V3_সংখ্যা& V3_সংখ্যা::opExtendS(ধ্রুবক V3_সংখ্যা& lhs, uint32_t lbits) {
     // Note may be a width change during the sign extension
-    NUM_ASSERT_OP_ARGS1(lhs);
-    NUM_ASSERT_LOGIC_ARGS1(lhs);
+    অঙ্ক_ASSERT_OP_ARGS1(lhs);
+    অঙ্ক_ASSERT_LOGIC_ARGS1(lhs);
     setZero();
-    const int copyWidth = std::min(width(), static_cast<int>(lbits));
+    ধ্রুবক পূর্ণসংখ্যা copyWidth = std::min(width(), static_cast<পূর্ণসংখ্যা>(lbits));
     copyBits(0, lhs, 0, copyWidth);
     fillBits(copyWidth, width() - copyWidth, lhs.bitIs(lbits - 1));
-    return *this;
+    ফেরত *এই;
 }
 
-V3Number& V3Number::opExtendXZ(const V3Number& lhs, uint32_t lbits) {
+V3_সংখ্যা& V3_সংখ্যা::opExtendXZ(ধ্রুবক V3_সংখ্যা& lhs, uint32_t lbits) {
     // Note may be a width change during the X/Z extension
-    NUM_ASSERT_OP_ARGS1(lhs);
-    NUM_ASSERT_LOGIC_ARGS1(lhs);
+    অঙ্ক_ASSERT_OP_ARGS1(lhs);
+    অঙ্ক_ASSERT_LOGIC_ARGS1(lhs);
     setZero();
-    const int copyWidth = std::min(width(), static_cast<int>(lbits));
+    ধ্রুবক পূর্ণসংখ্যা copyWidth = std::min(width(), static_cast<পূর্ণসংখ্যা>(lbits));
     copyBits(0, lhs, 0, copyWidth);
     fillBits(copyWidth, width() - copyWidth, lhs.bitIs(lbits - 1));
-    return *this;
+    ফেরত *এই;
 }
 
-V3Number& V3Number::opClean(const V3Number& lhs, uint32_t bits) { return opSel(lhs, bits - 1, 0); }
+V3_সংখ্যা& V3_সংখ্যা::opClean(ধ্রুবক V3_সংখ্যা& lhs, uint32_t bits) { ফেরত opSel(lhs, bits - 1, 0); }
 
-void V3Number::opCleanThis(bool warnOnTruncation) {
+শূন্য V3_সংখ্যা::opCleanThis(যৌক্তিক warnOnTruncation) {
     // Clean MSB of number
-    NUM_ASSERT_LOGIC_ARGS1(*this);
-    const ValueAndX v = m_data.num()[words() - 1];
-    const uint32_t newValueMsb = v.m_value & hiWordMask();
-    const uint32_t newValueXMsb = v.m_valueX & hiWordMask();
-    if (warnOnTruncation && (newValueMsb != v.m_value || newValueXMsb != v.m_valueX)) {
+    অঙ্ক_ASSERT_LOGIC_ARGS1(*এই);
+    ধ্রুবক মান_And_X v = m_তথ্য.অঙ্ক()[শব্দগুলি() - 1];
+    ধ্রুবক uint32_t new_মান_Msb = v.m_মান & hiWordMask();
+    ধ্রুবক uint32_t new_মান_XMsb = v.m_মান_X & hiWordMask();
+    যদি (warnOnTruncation && (new_মান_Msb != v.m_মান || new_মান_XMsb != v.m_মান_X)) {
         // Displaying in decimal avoids hiWordMask truncation
         v3warn(WIDTHTRUNC,
                "Value too large for " << width() << " bit number: " << displayed("%d"));
     }
-    m_data.num()[words() - 1] = {newValueMsb, newValueXMsb};
+    m_তথ্য.অঙ্ক()[শব্দগুলি() - 1] = {new_মান_Msb, new_মান_XMsb};
 }
 
-V3Number& V3Number::opSel(const V3Number& lhs, const V3Number& msb, const V3Number& lsb) {
-    NUM_ASSERT_OP_ARGS3(lhs, msb, lsb);
-    NUM_ASSERT_LOGIC_ARGS1(lhs);
-    NUM_ASSERT_LOGIC_ARGS2(msb, lsb);
-    if (lsb.isFourState() || msb.isFourState()) return setAllBitsX();
-    return opSel(lhs, msb.toUInt(), lsb.toUInt());
+V3_সংখ্যা& V3_সংখ্যা::opSel(ধ্রুবক V3_সংখ্যা& lhs, ধ্রুবক V3_সংখ্যা& msb, ধ্রুবক V3_সংখ্যা& lsb) {
+    অঙ্ক_ASSERT_OP_ARGS3(lhs, msb, lsb);
+    অঙ্ক_ASSERT_LOGIC_ARGS1(lhs);
+    অঙ্ক_ASSERT_LOGIC_ARGS2(msb, lsb);
+    যদি (lsb.isFourState() || msb.isFourState()) ফেরত setAllBitsX();
+    ফেরত opSel(lhs, msb.toUInt(), lsb.toUInt());
 }
 
-V3Number& V3Number::opSel(const V3Number& lhs, uint32_t msbval, uint32_t lsbval) {
-    NUM_ASSERT_OP_ARGS1(lhs);
-    NUM_ASSERT_LOGIC_ARGS1(lhs);
+V3_সংখ্যা& V3_সংখ্যা::opSel(ধ্রুবক V3_সংখ্যা& lhs, uint32_t msbval, uint32_t lsbval) {
+    অঙ্ক_ASSERT_OP_ARGS1(lhs);
+    অঙ্ক_ASSERT_LOGIC_ARGS1(lhs);
     setZero();
-    int copyWidth = 0;
-    if (lsbval <= msbval && lsbval < static_cast<uint32_t>(lhs.width())) {
-        const uint64_t selectedWidth = uint64_t{msbval} - lsbval + 1;
-        copyWidth = static_cast<int>(
+    পূর্ণসংখ্যা copyWidth = 0;
+    যদি (lsbval <= msbval && lsbval < static_cast<uint32_t>(lhs.width())) {
+        ধ্রুবক uint64_t selectedWidth = uint64_t{msbval} - lsbval + 1;
+        copyWidth = static_cast<পূর্ণসংখ্যা>(
             std::min({static_cast<uint64_t>(width()), static_cast<uint64_t>(lhs.width()) - lsbval,
                       selectedWidth}));
     }
-    copyBits(0, lhs, copyWidth ? static_cast<int>(lsbval) : 0, copyWidth);
+    copyBits(0, lhs, copyWidth ? static_cast<পূর্ণসংখ্যা>(lsbval) : 0, copyWidth);
     fillBits(copyWidth, width() - copyWidth, v3Global.constRemoveXs() ? 0 : 'x');
     // UINFO(0, "RANGE " << lhs << " " << msb << " " << lsb << " = " << *this);
-    return *this;
+    ফেরত *এই;
 }
 
-V3Number& V3Number::opSelInto(const V3Number& lhs, const V3Number& lsb, int width) {
-    return opSelInto(lhs, lsb.toSInt(), width);
+V3_সংখ্যা& V3_সংখ্যা::opSelInto(ধ্রুবক V3_সংখ্যা& lhs, ধ্রুবক V3_সংখ্যা& lsb, পূর্ণসংখ্যা width) {
+    ফেরত opSelInto(lhs, lsb.toSInt(), width);
 }
 
-V3Number& V3Number::opSelInto(const V3Number& lhs, int lsbval, int width) {
+V3_সংখ্যা& V3_সংখ্যা::opSelInto(ধ্রুবক V3_সংখ্যা& lhs, পূর্ণসংখ্যা lsbval, পূর্ণসংখ্যা width) {
     // this[lsbval+width-1 : lsbval] = lhs;  Other bits of this are not affected
-    NUM_ASSERT_OP_ARGS1(lhs);
-    NUM_ASSERT_LOGIC_ARGS1(lhs);
+    অঙ্ক_ASSERT_OP_ARGS1(lhs);
+    অঙ্ক_ASSERT_LOGIC_ARGS1(lhs);
     UASSERT(lsbval >= 0, "Negative destination bit range");
-    const int copyWidth = std::max(0, std::min({width, lhs.width(), this->width() - lsbval}));
+    ধ্রুবক পূর্ণসংখ্যা copyWidth = std::max(0, std::min({width, lhs.width(), এই->width() - lsbval}));
     copyBits(lsbval, lhs, 0, copyWidth);
-    const int fillWidth
-        = std::max(0, std::min(width - copyWidth, this->width() - lsbval - copyWidth));
+    ধ্রুবক পূর্ণসংখ্যা fillWidth
+        = std::max(0, std::min(width - copyWidth, এই->width() - lsbval - copyWidth));
     fillBits(lsbval + copyWidth, fillWidth, v3Global.constRemoveXs() ? 0 : 'x');
-    return *this;
+    ফেরত *এই;
 }
 
 //======================================================================
 // Ops - Floating point
 
-V3Number& V3Number::opIToRD(const V3Number& lhs, bool isSigned) {
+V3_সংখ্যা& V3_সংখ্যা::opIToRD(ধ্রুবক V3_সংখ্যা& lhs, যৌক্তিক isSigned) {
     // Correct number of zero bits/width matters
-    NUM_ASSERT_OP_ARGS1(lhs);
-    NUM_ASSERT_LOGIC_ARGS1(lhs);
+    অঙ্ক_ASSERT_OP_ARGS1(lhs);
+    অঙ্ক_ASSERT_LOGIC_ARGS1(lhs);
     // IEEE says we ignore x/z in real conversions
-    V3Number noxz(lhs);
+    V3_সংখ্যা noxz(lhs);
     noxz.opAssignNonXZ(lhs);
-    double d = 0;
-    const bool negate = isSigned && noxz.isNegative();
-    if (negate) {
-        const V3Number noxz_signed = noxz;
+    দ্বিগুণ d = 0;
+    ধ্রুবক যৌক্তিক negate = isSigned && noxz.isNegative();
+    যদি (negate) {
+        ধ্রুবক V3_সংখ্যা noxz_signed = noxz;
         noxz.opNegate(noxz_signed);
     }
-    for (int bit = noxz.width() - 1; bit >= 0; bit--) {
+    জন্য (পূর্ণসংখ্যা bit = noxz.width() - 1; bit >= 0; bit--) {
         // Some precision might be lost in this add, that's what we want
-        if (noxz.bitIs1(bit)) d += exp2(bit);
+        যদি (noxz.bitIs1(bit)) d += exp2(bit);
     }
-    if (negate) d = -d;
-    return setDouble(d);
+    যদি (negate) d = -d;
+    ফেরত setDouble(d);
 }
-V3Number& V3Number::opRToIS(const V3Number& lhs) {
-    NUM_ASSERT_OP_ARGS1(lhs);
-    NUM_ASSERT_DOUBLE_ARGS1(lhs);
-    const double v = VL_TRUNC(lhs.toDouble());
-    const int32_t i = static_cast<int32_t>(v);  // C converts from double to int32_t
-    return setLongS(i);
+V3_সংখ্যা& V3_সংখ্যা::opRToIS(ধ্রুবক V3_সংখ্যা& lhs) {
+    অঙ্ক_ASSERT_OP_ARGS1(lhs);
+    অঙ্ক_ASSERT_DOUBLE_ARGS1(lhs);
+    ধ্রুবক দ্বিগুণ v = VL_TRUNC(lhs.toDouble());
+    ধ্রুবক int32_t i = static_cast<int32_t>(v);  // C converts from double to int32_t
+    ফেরত setLongS(i);
 }
-V3Number& V3Number::opRToIRoundS(const V3Number& lhs) {
-    NUM_ASSERT_OP_ARGS1(lhs);
-    NUM_ASSERT_DOUBLE_ARGS1(lhs);
-    const double v = VL_ROUND(lhs.toDouble());
+V3_সংখ্যা& V3_সংখ্যা::opRToIRoundS(ধ্রুবক V3_সংখ্যা& lhs) {
+    অঙ্ক_ASSERT_OP_ARGS1(lhs);
+    অঙ্ক_ASSERT_DOUBLE_ARGS1(lhs);
+    ধ্রুবক দ্বিগুণ v = VL_ROUND(lhs.toDouble());
     setZero();
-    union {
-        double d;
+    সংঘ {
+        দ্বিগুণ d;
         uint64_t q;
     } u;
     u.d = v;
-    (void)u.d;
+    (শূন্য)u.d;
 
-    const int exp = static_cast<int>((u.q >> 52ULL) & VL_MASK_Q(11)) - 1023;
-    const int lsb = exp - 52;
-    const uint64_t mantissa = (u.q & VL_MASK_Q(52)) | (1ULL << 52);
-    if (v != 0) {
+    ধ্রুবক পূর্ণসংখ্যা exp = static_cast<পূর্ণসংখ্যা>((u.q >> 52ULL) & VL_MASK_Q(11)) - 1023;
+    ধ্রুবক পূর্ণসংখ্যা lsb = exp - 52;
+    ধ্রুবক uint64_t mantissa = (u.q & VL_MASK_Q(52)) | (1ULL << 52);
+    যদি (v != 0) {
         // IEEE format: [63]=sign [62:52]=exp+1023 [51:0]=mantissa
         // This does not need to support subnormals as they are sub-integral
-        for (int bit = 0; bit <= 52; ++bit) {
-            if (mantissa & (1ULL << bit)) {
-                const int outbit = bit + lsb;
-                if (outbit >= 0) setBit(outbit, 1);
+        জন্য (পূর্ণসংখ্যা bit = 0; bit <= 52; ++bit) {
+            যদি (mantissa & (1ULL << bit)) {
+                ধ্রুবক পূর্ণসংখ্যা outbit = bit + lsb;
+                যদি (outbit >= 0) setBit(outbit, 1);
             }
         }
-        if (v < 0) {
-            const V3Number noSign = *this;
+        যদি (v < 0) {
+            ধ্রুবক V3_সংখ্যা noSign = *এই;
             opNegate(noSign);
         }
     }
-    return *this;
+    ফেরত *এই;
 }
-V3Number& V3Number::opRealToBits(const V3Number& lhs) {
-    NUM_ASSERT_OP_ARGS1(lhs);
-    NUM_ASSERT_DOUBLE_ARGS1(lhs);
+V3_সংখ্যা& V3_সংখ্যা::opRealToBits(ধ্রুবক V3_সংখ্যা& lhs) {
+    অঙ্ক_ASSERT_OP_ARGS1(lhs);
+    অঙ্ক_ASSERT_DOUBLE_ARGS1(lhs);
     UASSERT(lhs.width() == 64 && width() == 64, "Real operation on wrong sized number");
-    union {
-        double m_d;
+    সংঘ {
+        দ্বিগুণ m_d;
         uint64_t m_v;
     } u;
     u.m_d = lhs.toDouble();
-    return setQuad(u.m_v);
+    ফেরত setQuad(u.m_v);
 }
-V3Number& V3Number::opBitsToRealD(const V3Number& lhs) {
-    NUM_ASSERT_OP_ARGS1(lhs);
+V3_সংখ্যা& V3_সংখ্যা::opBitsToRealD(ধ্রুবক V3_সংখ্যা& lhs) {
+    অঙ্ক_ASSERT_OP_ARGS1(lhs);
     UASSERT(lhs.width() == 64 && width() == 64, "Real operation on wrong sized number");
-    union {
-        double m_d;
+    সংঘ {
+        দ্বিগুণ m_d;
         uint64_t m_v;
     } u;
     u.m_v = lhs.toUQuad();
-    return setDouble(u.m_d);
+    ফেরত setDouble(u.m_d);
 }
-V3Number& V3Number::opNegateD(const V3Number& lhs) {
-    NUM_ASSERT_OP_ARGS1(lhs);
-    NUM_ASSERT_DOUBLE_ARGS1(lhs);
-    return setDouble(-lhs.toDouble());
+V3_সংখ্যা& V3_সংখ্যা::opNegateD(ধ্রুবক V3_সংখ্যা& lhs) {
+    অঙ্ক_ASSERT_OP_ARGS1(lhs);
+    অঙ্ক_ASSERT_DOUBLE_ARGS1(lhs);
+    ফেরত setDouble(-lhs.toDouble());
 }
-V3Number& V3Number::opAddD(const V3Number& lhs, const V3Number& rhs) {
-    NUM_ASSERT_OP_ARGS2(lhs, rhs);
-    NUM_ASSERT_DOUBLE_ARGS2(lhs, rhs);
-    return setDouble(lhs.toDouble() + rhs.toDouble());
+V3_সংখ্যা& V3_সংখ্যা::opAddD(ধ্রুবক V3_সংখ্যা& lhs, ধ্রুবক V3_সংখ্যা& rhs) {
+    অঙ্ক_ASSERT_OP_ARGS2(lhs, rhs);
+    অঙ্ক_ASSERT_DOUBLE_ARGS2(lhs, rhs);
+    ফেরত setDouble(lhs.toDouble() + rhs.toDouble());
 }
-V3Number& V3Number::opSubD(const V3Number& lhs, const V3Number& rhs) {
-    NUM_ASSERT_OP_ARGS2(lhs, rhs);
-    NUM_ASSERT_DOUBLE_ARGS2(lhs, rhs);
-    return setDouble(lhs.toDouble() - rhs.toDouble());
+V3_সংখ্যা& V3_সংখ্যা::opSubD(ধ্রুবক V3_সংখ্যা& lhs, ধ্রুবক V3_সংখ্যা& rhs) {
+    অঙ্ক_ASSERT_OP_ARGS2(lhs, rhs);
+    অঙ্ক_ASSERT_DOUBLE_ARGS2(lhs, rhs);
+    ফেরত setDouble(lhs.toDouble() - rhs.toDouble());
 }
-V3Number& V3Number::opMulD(const V3Number& lhs, const V3Number& rhs) {
-    NUM_ASSERT_OP_ARGS2(lhs, rhs);
-    NUM_ASSERT_DOUBLE_ARGS2(lhs, rhs);
-    return setDouble(lhs.toDouble() * rhs.toDouble());
+V3_সংখ্যা& V3_সংখ্যা::opMulD(ধ্রুবক V3_সংখ্যা& lhs, ধ্রুবক V3_সংখ্যা& rhs) {
+    অঙ্ক_ASSERT_OP_ARGS2(lhs, rhs);
+    অঙ্ক_ASSERT_DOUBLE_ARGS2(lhs, rhs);
+    ফেরত setDouble(lhs.toDouble() * rhs.toDouble());
 }
-V3Number& V3Number::opDivD(const V3Number& lhs, const V3Number& rhs) {
+V3_সংখ্যা& V3_সংখ্যা::opDivD(ধ্রুবক V3_সংখ্যা& lhs, ধ্রুবক V3_সংখ্যা& rhs) {
     // On exceptions, we just generate 'inf' through floating point
     // IEEE says it's implementation defined what happens
-    NUM_ASSERT_OP_ARGS2(lhs, rhs);
-    NUM_ASSERT_DOUBLE_ARGS2(lhs, rhs);
-    return setDouble(lhs.toDouble() / rhs.toDouble());
+    অঙ্ক_ASSERT_OP_ARGS2(lhs, rhs);
+    অঙ্ক_ASSERT_DOUBLE_ARGS2(lhs, rhs);
+    ফেরত setDouble(lhs.toDouble() / rhs.toDouble());
 }
-V3Number& V3Number::opPowD(const V3Number& lhs, const V3Number& rhs) {
+V3_সংখ্যা& V3_সংখ্যা::opPowD(ধ্রুবক V3_সংখ্যা& lhs, ধ্রুবক V3_সংখ্যা& rhs) {
     // On exceptions, we just generate 'inf' through floating point
     // IEEE says it's implementation defined what happens
-    NUM_ASSERT_OP_ARGS2(lhs, rhs);
-    NUM_ASSERT_DOUBLE_ARGS2(lhs, rhs);
-    return setDouble(pow(lhs.toDouble(), rhs.toDouble()));
+    অঙ্ক_ASSERT_OP_ARGS2(lhs, rhs);
+    অঙ্ক_ASSERT_DOUBLE_ARGS2(lhs, rhs);
+    ফেরত setDouble(pow(lhs.toDouble(), rhs.toDouble()));
 }
-V3Number& V3Number::opEqD(const V3Number& lhs, const V3Number& rhs) {
-    NUM_ASSERT_OP_ARGS2(lhs, rhs);
-    NUM_ASSERT_DOUBLE_ARGS2(lhs, rhs);
-    return setSingleBits(lhs.toDouble() == rhs.toDouble());
+V3_সংখ্যা& V3_সংখ্যা::opEqD(ধ্রুবক V3_সংখ্যা& lhs, ধ্রুবক V3_সংখ্যা& rhs) {
+    অঙ্ক_ASSERT_OP_ARGS2(lhs, rhs);
+    অঙ্ক_ASSERT_DOUBLE_ARGS2(lhs, rhs);
+    ফেরত setSingleBits(lhs.toDouble() == rhs.toDouble());
 }
-V3Number& V3Number::opNeqD(const V3Number& lhs, const V3Number& rhs) {
-    NUM_ASSERT_OP_ARGS2(lhs, rhs);
-    NUM_ASSERT_DOUBLE_ARGS2(lhs, rhs);
-    return setSingleBits(lhs.toDouble() != rhs.toDouble());
+V3_সংখ্যা& V3_সংখ্যা::opNeqD(ধ্রুবক V3_সংখ্যা& lhs, ধ্রুবক V3_সংখ্যা& rhs) {
+    অঙ্ক_ASSERT_OP_ARGS2(lhs, rhs);
+    অঙ্ক_ASSERT_DOUBLE_ARGS2(lhs, rhs);
+    ফেরত setSingleBits(lhs.toDouble() != rhs.toDouble());
 }
-V3Number& V3Number::opGtD(const V3Number& lhs, const V3Number& rhs) {
-    NUM_ASSERT_OP_ARGS2(lhs, rhs);
-    NUM_ASSERT_DOUBLE_ARGS2(lhs, rhs);
-    return setSingleBits(lhs.toDouble() > rhs.toDouble());
+V3_সংখ্যা& V3_সংখ্যা::opGtD(ধ্রুবক V3_সংখ্যা& lhs, ধ্রুবক V3_সংখ্যা& rhs) {
+    অঙ্ক_ASSERT_OP_ARGS2(lhs, rhs);
+    অঙ্ক_ASSERT_DOUBLE_ARGS2(lhs, rhs);
+    ফেরত setSingleBits(lhs.toDouble() > rhs.toDouble());
 }
-V3Number& V3Number::opGteD(const V3Number& lhs, const V3Number& rhs) {
-    NUM_ASSERT_OP_ARGS2(lhs, rhs);
-    NUM_ASSERT_DOUBLE_ARGS2(lhs, rhs);
-    return setSingleBits(lhs.toDouble() >= rhs.toDouble());
+V3_সংখ্যা& V3_সংখ্যা::opGteD(ধ্রুবক V3_সংখ্যা& lhs, ধ্রুবক V3_সংখ্যা& rhs) {
+    অঙ্ক_ASSERT_OP_ARGS2(lhs, rhs);
+    অঙ্ক_ASSERT_DOUBLE_ARGS2(lhs, rhs);
+    ফেরত setSingleBits(lhs.toDouble() >= rhs.toDouble());
 }
-V3Number& V3Number::opLtD(const V3Number& lhs, const V3Number& rhs) {
-    NUM_ASSERT_OP_ARGS2(lhs, rhs);
-    NUM_ASSERT_DOUBLE_ARGS2(lhs, rhs);
-    return setSingleBits(lhs.toDouble() < rhs.toDouble());
+V3_সংখ্যা& V3_সংখ্যা::opLtD(ধ্রুবক V3_সংখ্যা& lhs, ধ্রুবক V3_সংখ্যা& rhs) {
+    অঙ্ক_ASSERT_OP_ARGS2(lhs, rhs);
+    অঙ্ক_ASSERT_DOUBLE_ARGS2(lhs, rhs);
+    ফেরত setSingleBits(lhs.toDouble() < rhs.toDouble());
 }
-V3Number& V3Number::opLteD(const V3Number& lhs, const V3Number& rhs) {
-    NUM_ASSERT_OP_ARGS2(lhs, rhs);
-    NUM_ASSERT_DOUBLE_ARGS2(lhs, rhs);
-    return setSingleBits(lhs.toDouble() <= rhs.toDouble());
+V3_সংখ্যা& V3_সংখ্যা::opLteD(ধ্রুবক V3_সংখ্যা& lhs, ধ্রুবক V3_সংখ্যা& rhs) {
+    অঙ্ক_ASSERT_OP_ARGS2(lhs, rhs);
+    অঙ্ক_ASSERT_DOUBLE_ARGS2(lhs, rhs);
+    ফেরত setSingleBits(lhs.toDouble() <= rhs.toDouble());
 }
 
 //======================================================================
 // Ops - String
 
-V3Number& V3Number::opConcatN(const V3Number& lhs, const V3Number& rhs) {
-    NUM_ASSERT_OP_ARGS2(lhs, rhs);
-    NUM_ASSERT_STRING_ARGS2(lhs, rhs);
-    return setString(lhs.toString() + rhs.toString());
+V3_সংখ্যা& V3_সংখ্যা::opConcatN(ধ্রুবক V3_সংখ্যা& lhs, ধ্রুবক V3_সংখ্যা& rhs) {
+    অঙ্ক_ASSERT_OP_ARGS2(lhs, rhs);
+    অঙ্ক_ASSERT_STRING_ARGS2(lhs, rhs);
+    ফেরত setString(lhs.toString() + rhs.toString());
 }
-V3Number& V3Number::opReplN(const V3Number& lhs, const V3Number& rhs) {
-    NUM_ASSERT_STRING_ARGS1(lhs);
-    NUM_ASSERT_LOGIC_ARGS1(rhs);
-    return opReplN(lhs, rhs.toUInt());
+V3_সংখ্যা& V3_সংখ্যা::opReplN(ধ্রুবক V3_সংখ্যা& lhs, ধ্রুবক V3_সংখ্যা& rhs) {
+    অঙ্ক_ASSERT_STRING_ARGS1(lhs);
+    অঙ্ক_ASSERT_LOGIC_ARGS1(rhs);
+    ফেরত opReplN(lhs, rhs.toUInt());
 }
-V3Number& V3Number::opReplN(const V3Number& lhs, uint32_t rhsval) {
-    NUM_ASSERT_OP_ARGS1(lhs);
-    NUM_ASSERT_STRING_ARGS1(lhs);
+V3_সংখ্যা& V3_সংখ্যা::opReplN(ধ্রুবক V3_সংখ্যা& lhs, uint32_t rhsval) {
+    অঙ্ক_ASSERT_OP_ARGS1(lhs);
+    অঙ্ক_ASSERT_STRING_ARGS1(lhs);
     string out;
-    out.reserve(lhs.toString().length() * rhsval);
-    for (unsigned times = 0; times < rhsval; ++times) out += lhs.toString();
-    return setString(out);
+    out.reserve(lhs.toString().দৈর্ঘ্য() * rhsval);
+    জন্য (unsigned times = 0; times < rhsval; ++times) out += lhs.toString();
+    ফেরত setString(out);
 }
-V3Number& V3Number::opCvtPackString(const V3Number& lhs) {
-    NUM_ASSERT_OP_ARGS1(lhs);
-    return setString(lhs.toString());
+V3_সংখ্যা& V3_সংখ্যা::opCvtPackString(ধ্রুবক V3_সংখ্যা& lhs) {
+    অঙ্ক_ASSERT_OP_ARGS1(lhs);
+    ফেরত setString(lhs.toString());
 }
-V3Number& V3Number::opToLowerN(const V3Number& lhs) {
-    NUM_ASSERT_OP_ARGS1(lhs);
-    NUM_ASSERT_STRING_ARGS1(lhs);
-    const std::string out = VString::downcase(lhs.toString());
-    return setString(out);
+V3_সংখ্যা& V3_সংখ্যা::opToLowerN(ধ্রুবক V3_সংখ্যা& lhs) {
+    অঙ্ক_ASSERT_OP_ARGS1(lhs);
+    অঙ্ক_ASSERT_STRING_ARGS1(lhs);
+    ধ্রুবক std::string out = VString::downcase(lhs.toString());
+    ফেরত setString(out);
 }
-V3Number& V3Number::opToUpperN(const V3Number& lhs) {
-    NUM_ASSERT_OP_ARGS1(lhs);
-    NUM_ASSERT_STRING_ARGS1(lhs);
-    const std::string out = VString::upcase(lhs.toString());
-    return setString(out);
+V3_সংখ্যা& V3_সংখ্যা::opToUpperN(ধ্রুবক V3_সংখ্যা& lhs) {
+    অঙ্ক_ASSERT_OP_ARGS1(lhs);
+    অঙ্ক_ASSERT_STRING_ARGS1(lhs);
+    ধ্রুবক std::string out = VString::upcase(lhs.toString());
+    ফেরত setString(out);
 }
 
-V3Number& V3Number::opEqN(const V3Number& lhs, const V3Number& rhs) {
-    NUM_ASSERT_OP_ARGS2(lhs, rhs);
-    NUM_ASSERT_STRING_ARGS2(lhs, rhs);
-    return setSingleBits(lhs.toString() == rhs.toString());
+V3_সংখ্যা& V3_সংখ্যা::opEqN(ধ্রুবক V3_সংখ্যা& lhs, ধ্রুবক V3_সংখ্যা& rhs) {
+    অঙ্ক_ASSERT_OP_ARGS2(lhs, rhs);
+    অঙ্ক_ASSERT_STRING_ARGS2(lhs, rhs);
+    ফেরত setSingleBits(lhs.toString() == rhs.toString());
 }
-V3Number& V3Number::opNeqN(const V3Number& lhs, const V3Number& rhs) {
-    NUM_ASSERT_OP_ARGS2(lhs, rhs);
-    NUM_ASSERT_STRING_ARGS2(lhs, rhs);
-    return setSingleBits(lhs.toString() != rhs.toString());
+V3_সংখ্যা& V3_সংখ্যা::opNeqN(ধ্রুবক V3_সংখ্যা& lhs, ধ্রুবক V3_সংখ্যা& rhs) {
+    অঙ্ক_ASSERT_OP_ARGS2(lhs, rhs);
+    অঙ্ক_ASSERT_STRING_ARGS2(lhs, rhs);
+    ফেরত setSingleBits(lhs.toString() != rhs.toString());
 }
-V3Number& V3Number::opGtN(const V3Number& lhs, const V3Number& rhs) {
-    NUM_ASSERT_OP_ARGS2(lhs, rhs);
-    NUM_ASSERT_STRING_ARGS2(lhs, rhs);
-    return setSingleBits(lhs.toString() > rhs.toString());
+V3_সংখ্যা& V3_সংখ্যা::opGtN(ধ্রুবক V3_সংখ্যা& lhs, ধ্রুবক V3_সংখ্যা& rhs) {
+    অঙ্ক_ASSERT_OP_ARGS2(lhs, rhs);
+    অঙ্ক_ASSERT_STRING_ARGS2(lhs, rhs);
+    ফেরত setSingleBits(lhs.toString() > rhs.toString());
 }
-V3Number& V3Number::opGteN(const V3Number& lhs, const V3Number& rhs) {
-    NUM_ASSERT_OP_ARGS2(lhs, rhs);
-    NUM_ASSERT_STRING_ARGS2(lhs, rhs);
-    return setSingleBits(lhs.toString() >= rhs.toString());
+V3_সংখ্যা& V3_সংখ্যা::opGteN(ধ্রুবক V3_সংখ্যা& lhs, ধ্রুবক V3_সংখ্যা& rhs) {
+    অঙ্ক_ASSERT_OP_ARGS2(lhs, rhs);
+    অঙ্ক_ASSERT_STRING_ARGS2(lhs, rhs);
+    ফেরত setSingleBits(lhs.toString() >= rhs.toString());
 }
-V3Number& V3Number::opLtN(const V3Number& lhs, const V3Number& rhs) {
-    NUM_ASSERT_OP_ARGS2(lhs, rhs);
-    NUM_ASSERT_STRING_ARGS2(lhs, rhs);
-    return setSingleBits(lhs.toString() < rhs.toString());
+V3_সংখ্যা& V3_সংখ্যা::opLtN(ধ্রুবক V3_সংখ্যা& lhs, ধ্রুবক V3_সংখ্যা& rhs) {
+    অঙ্ক_ASSERT_OP_ARGS2(lhs, rhs);
+    অঙ্ক_ASSERT_STRING_ARGS2(lhs, rhs);
+    ফেরত setSingleBits(lhs.toString() < rhs.toString());
 }
-V3Number& V3Number::opLteN(const V3Number& lhs, const V3Number& rhs) {
-    NUM_ASSERT_OP_ARGS2(lhs, rhs);
-    NUM_ASSERT_STRING_ARGS2(lhs, rhs);
-    return setSingleBits(lhs.toString() <= rhs.toString());
+V3_সংখ্যা& V3_সংখ্যা::opLteN(ধ্রুবক V3_সংখ্যা& lhs, ধ্রুবক V3_সংখ্যা& rhs) {
+    অঙ্ক_ASSERT_OP_ARGS2(lhs, rhs);
+    অঙ্ক_ASSERT_STRING_ARGS2(lhs, rhs);
+    ফেরত setSingleBits(lhs.toString() <= rhs.toString());
 }
 
 //======================================================================
 
-void V3Number::selfTest() {
+শূন্য V3_সংখ্যা::selfTest() {
     UINFO(2, __FUNCTION__ << ":");
-    FileLine* const fl = new FileLine{FileLine::builtInFilename()};
-    V3Number num{fl, 32, 0};
-    num.selfTestThis();
+    File_সারি* ধ্রুবক fl = নতুন File_সারি{File_সারি::builtInFilename()};
+    V3_সংখ্যা অঙ্ক{fl, 32, 0};
+    অঙ্ক.selfTestThis();
 }
 
-void V3Number::selfTestThis() {
+শূন্য V3_সংখ্যা::selfTestThis() {
     // The self test has a "this" so UASSERT_SELFTEST/errorEndFatal works correctly
 
-    UASSERT_SELFTEST(V3Number::epsilonEqual(0, 0), true);
-    UASSERT_SELFTEST(V3Number::epsilonEqual(1e19, 1e19), true);
-    UASSERT_SELFTEST(V3Number::epsilonEqual(9, 0.0001), false);
-    UASSERT_SELFTEST(V3Number::epsilonEqual(1, 1 + std::numeric_limits<double>::epsilon()), true);
-    UASSERT_SELFTEST(V3Number::epsilonEqual(0.009, 0.00899999999999999931998839741709), true);
+    UASSERT_SELFTEST(V3_সংখ্যা::epsilonEqual(0, 0), সত্য);
+    UASSERT_SELFTEST(V3_সংখ্যা::epsilonEqual(1e19, 1e19), সত্য);
+    UASSERT_SELFTEST(V3_সংখ্যা::epsilonEqual(9, 0.0001), মিথ্যা);
+    UASSERT_SELFTEST(V3_সংখ্যা::epsilonEqual(1, 1 + std::numeric_limits<দ্বিগুণ>::epsilon()), সত্য);
+    UASSERT_SELFTEST(V3_সংখ্যা::epsilonEqual(0.009, 0.00899999999999999931998839741709), সত্য);
 
-    UASSERT_SELFTEST(V3Number::epsilonIntegral(0), true);
-    UASSERT_SELFTEST(V3Number::epsilonIntegral(1), true);
-    UASSERT_SELFTEST(V3Number::epsilonIntegral(-1), true);
-    UASSERT_SELFTEST(V3Number::epsilonIntegral(1.0001), false);
-    UASSERT_SELFTEST(V3Number::epsilonIntegral(0.9999), false);
-    UASSERT_SELFTEST(V3Number::epsilonIntegral(-1.0001), false);
-    UASSERT_SELFTEST(V3Number::epsilonIntegral(-0.9999), false);
+    UASSERT_SELFTEST(V3_সংখ্যা::epsilonIntegral(0), সত্য);
+    UASSERT_SELFTEST(V3_সংখ্যা::epsilonIntegral(1), সত্য);
+    UASSERT_SELFTEST(V3_সংখ্যা::epsilonIntegral(-1), সত্য);
+    UASSERT_SELFTEST(V3_সংখ্যা::epsilonIntegral(1.0001), মিথ্যা);
+    UASSERT_SELFTEST(V3_সংখ্যা::epsilonIntegral(0.9999), মিথ্যা);
+    UASSERT_SELFTEST(V3_সংখ্যা::epsilonIntegral(-1.0001), মিথ্যা);
+    UASSERT_SELFTEST(V3_সংখ্যা::epsilonIntegral(-0.9999), মিথ্যা);
 
     UASSERT_SELFTEST(log2b(0), 0);
     UASSERT_SELFTEST(log2b(1), 0);

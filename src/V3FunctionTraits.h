@@ -17,40 +17,40 @@
 #ifndef VERILATOR_V3FUNCTIONTRAITS_H_
 #define VERILATOR_V3FUNCTIONTRAITS_H_
 
-#include "verilatedos.h"
+#অন্তর্ভাব "verilatedos.h"
 
-#include <cstddef>
-#include <tuple>
-#include <type_traits>
+#অন্তর্ভাব <cstddef>
+#অন্তর্ভাব <tuple>
+#অন্তর্ভাব <type_traits>
 
 template <typename T>
-struct FunctionTraits;
+কাঠামো FunctionTraits;
 
 // For generic types, directly use the result of the signature of its 'operator()'
 template <typename T>
-struct FunctionTraits final
-    : public FunctionTraits<decltype(&std::remove_reference<T>::type::operator())> {};
+কাঠামো FunctionTraits final
+    : সর্বজনীন FunctionTraits<decltype(&std::remove_reference<T>::type::operator())> {};
 
 // Specialization for pointers to member function
 template <typename T_ClassType, typename T_ReturnType, typename... Args>
-struct FunctionTraits<T_ReturnType (T_ClassType::*)(Args...) const> VL_NOT_FINAL {
+কাঠামো FunctionTraits<T_ReturnType (T_ClassType::*)(Args...) ধ্রুবক> VL_NOT_FINAL {
     // Number of arguments
-    static constexpr size_t arity = sizeof...(Args);
+    স্থির constexpr আকার_t arity = আকার...(Args);
 
     // Type of result
-    using result_type = T_ReturnType;
+    using ফলাফল_type = T_ReturnType;
 
     // Type of arguments
-    template <std::size_t N>
-    struct arg final {
+    template <std::আকার_t N>
+    কাঠামো arg final {
         using type = typename std::tuple_element<N, std::tuple<Args...>>::type;
     };
 };
 
-template <typename T_Callable, size_t N_Index>
-struct FunctionArgNoPointerNoCV final {
+template <typename T_Callable, আকার_t N_সূচক>
+কাঠামো FunctionArgNoPointerNoCV final {
     using Traits = FunctionTraits<T_Callable>;
-    using T_Arg = typename Traits::template arg<N_Index>::type;
+    using T_Arg = typename Traits::template arg<N_সূচক>::type;
     using T_ArgNoPtr = typename std::remove_pointer<T_Arg>::type;
     using type = typename std::remove_cv<T_ArgNoPtr>::type;
 };

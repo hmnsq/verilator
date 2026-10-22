@@ -31,11 +31,11 @@
 #ifndef VERILATOR_V3MUTEX_H_
 #define VERILATOR_V3MUTEX_H_ 1
 
-#include "verilatedos.h"
+#অন্তর্ভাব "verilatedos.h"
 
-#include <cstdlib>
-#include <functional>
-#include <mutex>
+#অন্তর্ভাব <cstdlib>
+#অন্তর্ভাব <functional>
+#অন্তর্ভাব <mutex>
 
 #define VL_LOCK_SPINS 50000  /// Number of times to spin for a mutex before yielding
 
@@ -49,28 +49,28 @@ class V3MutexConfig final {
     bool m_enable = false;  // Allows locking on mutexes, default don't lock mutexes
     bool m_lockConfig = false;  // After set, configuration cannot be changed
 
-    V3MutexConfig() = default;
-    ~V3MutexConfig() = default;
+    V3MutexConfig() = পূর্বনির্ধারিত;
+    ~V3MutexConfig() = পূর্বনির্ধারিত;
 
-public:
-    static V3MutexConfig& s() VL_MT_SAFE {
-        static V3MutexConfig s{};
-        return s;
+সর্বজনীন:
+    স্থির V3MutexConfig& s() VL_MT_SAFE {
+        স্থির V3MutexConfig s{};
+        ফেরত s;
     }
 
     // configures class
-    void configure(bool enable) VL_MT_UNSAFE {
-        if (!s().m_lockConfig) {
+    শূন্য configure(bool enable) VL_MT_UNSAFE {
+        যদি (!s().m_lockConfig) {
             s().m_enable = enable;
             s().m_lockConfig = true;
-        } else {
+        } অন্যথা {
             // requires <iostream>
             // avoided to reduce compile time
             // std::cerr << "%Error: V3Mutex already configured." << std::endl;
             std::abort();  // LCOV_EXCL_LINE
         }
     }
-    bool enable() const VL_MT_SAFE { return m_enable; }
+    bool enable() ধ্রুবক VL_MT_SAFE { ফেরত m_enable; }
 };
 
 /// Mutex, wrapped to allow -fthread_safety checks
@@ -78,20 +78,20 @@ template <typename T>
 class VL_CAPABILITY("mutex") V3MutexImp final {
     T m_mutex;  // Mutex
 
-public:
+সর্বজনীন:
     /// Construct mutex (without locking it)
-    V3MutexImp() = default;
-    ~V3MutexImp() = default;
+    V3MutexImp() = পূর্বনির্ধারিত;
+    ~V3MutexImp() = পূর্বনির্ধারিত;
     VL_UNCOPYABLE(V3MutexImp);
-    const V3MutexImp& operator!() const { return *this; }  // For -fthread_safety
+    ধ্রুবক V3MutexImp& operator!() ধ্রুবক { ফেরত *this; }  // For -fthread_safety
     /// Acquire/lock mutex
-    void lock() VL_ACQUIRE() VL_MT_SAFE {
-        if (V3MutexConfig::s().enable()) {
+    শূন্য lock() VL_ACQUIRE() VL_MT_SAFE {
+        যদি (V3MutexConfig::s().enable()) {
             // Try to acquire the lock by spinning.  If the wait is short,
             // avoids a trap to the OS plus OS scheduler overhead.
-            if (VL_LIKELY(try_lock())) return;  // Short circuit loop
-            for (int i = 0; i < VL_LOCK_SPINS; ++i) {
-                if (VL_LIKELY(try_lock())) return;
+            যদি (VL_LIKELY(try_lock())) ফেরত;  // Short circuit loop
+            জন্য (পূর্ণসংখ্যা i = 0; i < VL_LOCK_SPINS; ++i) {
+                যদি (VL_LIKELY(try_lock())) ফেরত;
                 VL_CPU_RELAX();
             }
             // Spinning hasn't worked, pay the cost of blocking.
@@ -99,17 +99,17 @@ public:
         }
     }
     /// Release/unlock mutex
-    void unlock() VL_RELEASE() VL_MT_SAFE {
-        if (V3MutexConfig::s().enable()) m_mutex.unlock();
+    শূন্য unlock() VL_RELEASE() VL_MT_SAFE {
+        যদি (V3MutexConfig::s().enable()) m_mutex.unlock();
     }
     /// Try to acquire mutex.  Returns true on success, and false on failure.
     bool try_lock() VL_TRY_ACQUIRE(true) VL_MT_SAFE {
-        return V3MutexConfig::s().enable() ? m_mutex.try_lock() : true;
+        ফেরত V3MutexConfig::s().enable() ? m_mutex.try_lock() : true;
     }
     /// Assume that the mutex is already held. Purely for Clang thread safety analyzer.
-    void assumeLocked() VL_ASSERT_CAPABILITY(this) VL_MT_SAFE {}
+    শূন্য assumeLocked() VL_ASSERT_CAPABILITY(this) VL_MT_SAFE {}
     /// Pretend that the mutex is being unlocked. Purely for Clang thread safety analyzer.
-    void pretendUnlock() VL_RELEASE() VL_MT_SAFE {}
+    শূন্য pretendUnlock() VL_RELEASE() VL_MT_SAFE {}
 };
 
 /// Lock guard for mutex (ala std::unique_lock), wrapped to allow -fthread_safety checks
@@ -117,10 +117,10 @@ template <typename T>
 class VL_SCOPED_CAPABILITY V3LockGuardImp final {
     VL_UNCOPYABLE(V3LockGuardImp);
 
-private:
+ব্যক্তিগত:
     T& m_mutexr;
 
-public:
+সর্বজনীন:
     /// Lock given mutex and hold it for the object lifetime.
     explicit V3LockGuardImp(T& mutexr) VL_ACQUIRE(mutexr) VL_MT_SAFE
         : m_mutexr(mutexr) {  // Need () or GCC 4.8 false warning

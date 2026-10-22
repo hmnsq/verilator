@@ -14,44 +14,44 @@
 //
 //*************************************************************************
 
-#include "config_build.h"
-#include "verilatedos.h"
+#অন্তর্ভাব "config_build.h"
+#অন্তর্ভাব "verilatedos.h"
 
-#include "V3Ast.h"
-#include "V3EmitCBase.h"
-#include "V3Error.h"
+#অন্তর্ভাব "V3Ast.h"
+#অন্তর্ভাব "V3EmitCBase.h"
+#অন্তর্ভাব "V3Error.h"
 
-#include <cinttypes>
+#অন্তর্ভাব <cinttypes>
 
 //######################################################################
 // Emitter that can emit NodeCons expressions
 
-class EmitCConstInit VL_NOT_FINAL : public EmitCBaseVisitorConst {
+class EmitCConstInit VL_NOT_FINAL : সর্বজনীন EmitCBaseVisitorConst {
     // METHODS
-    static uint32_t tabModulus(const AstNodeDType* dtypep) {
-        const uint32_t elemBytes = dtypep->widthTotalBytes();
-        return dtypep->isString() ? 1  // String
+    স্থির uint32_t tabModulus(ধ্রুবক Ast_গ্রন্থি_DType* dtypep) {
+        ধ্রুবক uint32_t elemBytes = dtypep->width_যোগ_Bytes();
+        ফেরত dtypep->isString() ? 1  // String
                : elemBytes <= 2   ? 8  // CData, SData
                : elemBytes <= 4   ? 4  // IData
                : elemBytes <= 8   ? 2  // QData
                                   : 1;
     }
 
-    void emitConsArray(AstConsArray* nodep) {
-        const AstUnpackArrayDType* const dtypep
+    শূন্য emitConsArray(AstConsArray* nodep) {
+        ধ্রুবক AstUnpackArrayDType* ধ্রুবক dtypep
             = VN_AS(nodep->dtypep()->skipRefp(), UnpackArrayDType);
-        const uint64_t size = dtypep->elementsConst();
+        ধ্রুবক uint64_t আকার_2 = dtypep->elementsConst();
         uint32_t tabMod = tabModulus(dtypep->subDTypep());
-        if (nodep->defaultp() && !VN_IS(nodep->defaultp(), Const)) tabMod = 1;
-        for (const AstConsArrayItem* itemp = nodep->itemsp(); itemp;
+        যদি (nodep->defaultp() && !VN_IS(nodep->defaultp(), Const)) tabMod = 1;
+        জন্য (ধ্রুবক AstConsArrayItem* itemp = nodep->itemsp(); itemp;
              itemp = VN_AS(itemp->nextp(), ConsArrayItem)) {
-            if (!VN_IS(itemp->valuep(), Const)) tabMod = 1;
+            যদি (!VN_IS(itemp->valuep(), Const)) tabMod = 1;
         }
         ofp()->putsNoTracking("{");
         puts("\n");
-        for (uint64_t n = 0; n < size; ++n) {
-            if (n) puts((n % tabMod) ? ", " : ",\n");
-            emitValue(nodep->valuep(n));
+        জন্য (uint64_t n = 0; n < আকার_2; ++n) {
+            যদি (n) puts((n % tabMod) ? ", " : ",\n");
+            emit_মান(nodep->valuep(n));
         }
         puts("\n");
         ofp()->putsNoTracking("}");
@@ -60,21 +60,21 @@ class EmitCConstInit VL_NOT_FINAL : public EmitCBaseVisitorConst {
     // 'size, default, {{key, value}, ...}', where the size and default are optional, or nothing
     // if empty
     template <typename T_Item>
-    void emitKeyedConsItems(AstNodeExpr* sizep, AstNodeExpr* defaultp, T_Item* itemsp) {
-        if (!sizep && !defaultp && !itemsp) return;
+    শূন্য emit_Keyed_Cons_বস্তুসমূহ(Ast_গ্রন্থি_রাশিমালা* sizep, Ast_গ্রন্থি_রাশিমালা* defaultp, T_Item* itemsp) {
+        যদি (!sizep && !defaultp && !itemsp) ফেরত;
         puts("\n");
-        for (AstNodeExpr* const valuep : {sizep, defaultp}) {
-            if (!valuep) continue;
-            emitValue(valuep);
+        জন্য (Ast_গ্রন্থি_রাশিমালা* ধ্রুবক valuep : {sizep, defaultp}) {
+            যদি (!valuep) চালু;
+            emit_মান(valuep);
             puts(",\n");
         }
         puts("{");
-        for (T_Item* itemp = itemsp; itemp; itemp = AstNode::as<T_Item>(itemp->nextp())) {
-            if (itemp != itemsp) puts(",");
+        জন্য (T_Item* itemp = itemsp; itemp; itemp = Ast_গ্রন্থি::as<T_Item>(itemp->nextp())) {
+            যদি (itemp != itemsp) puts(",");
             puts("\n{");
-            emitValue(itemp->keyp());
+            emit_মান(itemp->keyp());
             puts(", ");
-            emitValue(itemp->valuep());
+            emit_মান(itemp->valuep());
             puts("}");
         }
         puts("\n}");
@@ -83,128 +83,128 @@ class EmitCConstInit VL_NOT_FINAL : public EmitCBaseVisitorConst {
 
     // The items, 'tabMod' per line if all are constants, otherwise one per line
     template <typename T_Item>
-    void emitUnkeyedConsItems(T_Item* itemsp, uint32_t tabMod) {
-        if (!itemsp) return;
-        for (T_Item* itemp = itemsp; itemp; itemp = AstNode::as<T_Item>(itemp->nextp())) {
-            if (!VN_IS(itemp->valuep(), Const)) tabMod = 1;
+    শূন্য emit_Unkeyed_Cons_বস্তুসমূহ(T_Item* itemsp, uint32_t tabMod) {
+        যদি (!itemsp) ফেরত;
+        জন্য (T_Item* itemp = itemsp; itemp; itemp = Ast_গ্রন্থি::as<T_Item>(itemp->nextp())) {
+            যদি (!VN_IS(itemp->valuep(), Const)) tabMod = 1;
         }
         puts("\n");
         uint64_t n = 0;
-        for (T_Item* itemp = itemsp; itemp; itemp = AstNode::as<T_Item>(itemp->nextp())) {
-            if (n) puts((n % tabMod) ? ", " : ",\n");
-            emitValue(itemp->valuep());
+        জন্য (T_Item* itemp = itemsp; itemp; itemp = Ast_গ্রন্থি::as<T_Item>(itemp->nextp())) {
+            যদি (n) puts((n % tabMod) ? ", " : ",\n");
+            emit_মান(itemp->valuep());
             ++n;
         }
         puts("\n");
     }
 
     // Emit a value
-    void emitValue(AstNodeExpr* nodep) {
+    শূন্য emit_মান(Ast_গ্রন্থি_রাশিমালা* nodep) {
         // Either a value constructor
-        if (AstNodeCons* const consp = VN_CAST(nodep, NodeCons)) {
+        যদি (Ast_গ্রন্থি_Cons* ধ্রুবক consp = VN_CAST(nodep, গ্রন্থি_Cons)) {
             emitValCons(consp);
-            return;
+            ফেরত;
         }
         // Or a constant
-        if (const AstConst* const constp = VN_CAST(nodep, Const)) {
-            const V3Number& num = constp->num();
-            UASSERT_OBJ(!num.isFourState(), constp, "4-state value in emitted constant");
+        যদি (ধ্রুবক AstConst* ধ্রুবক constp = VN_CAST(nodep, Const)) {
+            ধ্রুবক V3_সংখ্যা& অঙ্ক = constp->অঙ্ক();
+            UASSERT_OBJ(!অঙ্ক.isFourState(), constp, "4-state value in emitted constant");
             // A narrow constant is a literal, which converts implicitly wherever a value is used
             // (This also covers string, double and null, which don't need type prefix)
-            if (!constp->isWide()) {
-                putns(constp, num.emitC());
-                return;
+            যদি (!constp->isWide()) {
+                putns(constp, অঙ্ক.emitC());
+                ফেরত;
             }
             // Otherwise need the type prefix (naked braced lists cannot be deduced by templates)
             putnbs(constp, constp->dtypep()->cType("", false, false));
             emitInitializer(nodep);
-            return;
+            ফেরত;
         }
         // Or an arbitrary expression, emitted via the derived visitor
         iterateConst(nodep);
     }
 
-    void emitInitializerBody(AstNodeExpr* nodep) {
-        if (AstConsArray* const arrayp = VN_CAST(nodep, ConsArray)) {
+    শূন্য emitInitializerBody(Ast_গ্রন্থি_রাশিমালা* nodep) {
+        যদি (AstConsArray* ধ্রুবক arrayp = VN_CAST(nodep, ConsArray)) {
             emitConsArray(arrayp);
-            return;
+            ফেরত;
         }
-        if (AstConsAssoc* const assocp = VN_CAST(nodep, ConsAssoc)) {
-            emitKeyedConsItems(nullptr, assocp->defaultp(), assocp->itemsp());
-            return;
+        যদি (AstConsAssoc* ধ্রুবক assocp = VN_CAST(nodep, ConsAssoc)) {
+            emit_Keyed_Cons_বস্তুসমূহ(nullptr, assocp->defaultp(), assocp->itemsp());
+            ফেরত;
         }
-        if (AstConsWildcard* const wildp = VN_CAST(nodep, ConsWildcard)) {
-            emitKeyedConsItems(nullptr, wildp->defaultp(), wildp->itemsp());
-            return;
+        যদি (AstConsWildcard* ধ্রুবক wildp = VN_CAST(nodep, ConsWildcard)) {
+            emit_Keyed_Cons_বস্তুসমূহ(nullptr, wildp->defaultp(), wildp->itemsp());
+            ফেরত;
         }
-        AstConsDynArray* const dynp = VN_CAST(nodep, ConsDynArray);
-        if (dynp && dynp->sizep()) {
-            emitKeyedConsItems(dynp->sizep(), dynp->defaultp(), dynp->itemsp());
-            return;
+        AstConsDynArray* ধ্রুবক dynp = VN_CAST(nodep, ConsDynArray);
+        যদি (dynp && dynp->sizep()) {
+            emit_Keyed_Cons_বস্তুসমূহ(dynp->sizep(), dynp->defaultp(), dynp->itemsp());
+            ফেরত;
         }
-        if (dynp) {
-            emitUnkeyedConsItems(dynp->itemsp(),
+        যদি (dynp) {
+            emit_Unkeyed_Cons_বস্তুসমূহ(dynp->itemsp(),
                                  tabModulus(dynp->dtypep()->skipRefp()->subDTypep()));
-            return;
+            ফেরত;
         }
-        if (AstConsQueue* const queuep = VN_CAST(nodep, ConsQueue)) {
-            emitUnkeyedConsItems(queuep->itemsp(),
+        যদি (AstConsQueue* ধ্রুবক queuep = VN_CAST(nodep, ConsQueue)) {
+            emit_Unkeyed_Cons_বস্তুসমূহ(queuep->itemsp(),
                                  tabModulus(queuep->dtypep()->skipRefp()->subDTypep()));
-            return;
+            ফেরত;
         }
-        if (AstConsStruct* const structp = VN_CAST(nodep, ConsStruct)) {
-            emitUnkeyedConsItems(structp->itemsp(), 1);  // Members of mixed types
-            return;
+        যদি (AstConsStruct* ধ্রুবক structp = VN_CAST(nodep, ConsStruct)) {
+            emit_Unkeyed_Cons_বস্তুসমূহ(structp->itemsp(), 1);  // Members of mixed types
+            ফেরত;
         }
-        if (VN_IS(nodep, Unbounded)) {
+        যদি (VN_IS(nodep, Unbounded)) {
             // A public parameter's '$', which is only special during elaboration, so use zero
             puts("0");
-            return;
+            ফেরত;
         }
-        if (const AstConst* const constp = VN_CAST(nodep, Const)) {
-            const V3Number& num = constp->num();
-            UASSERT_OBJ(!num.isFourState(), constp, "4-state value in emitted constant");
-            if (!constp->isWide()) {
-                puts(num.emitC());
-                return;
+        যদি (ধ্রুবক AstConst* ধ্রুবক constp = VN_CAST(nodep, Const)) {
+            ধ্রুবক V3_সংখ্যা& অঙ্ক = constp->অঙ্ক();
+            UASSERT_OBJ(!অঙ্ক.isFourState(), constp, "4-state value in emitted constant");
+            যদি (!constp->isWide()) {
+                puts(অঙ্ক.emitC());
+                ফেরত;
             }
 
             ofp()->putsNoTracking("{");  // The initializer of m_storage within the VlWide
-            const int words = constp->widthWords();
-            const int tabMod = 4;
-            if (words > tabMod) puts("\n");
-            for (int n = 0; n < words; ++n) {
-                if (n) puts((n % tabMod) ? ", " : ",\n");
-                ofp()->printf("0x%08" PRIx32, num.edataWord(n));
+            ধ্রুবক পূর্ণসংখ্যা শব্দগুলি = constp->width_শব্দগুলি();
+            ধ্রুবক পূর্ণসংখ্যা tabMod = 4;
+            যদি (শব্দগুলি > tabMod) puts("\n");
+            জন্য (পূর্ণসংখ্যা n = 0; n < শব্দগুলি; ++n) {
+                যদি (n) puts((n % tabMod) ? ", " : ",\n");
+                ofp()->printf("0x%08" PRIx32, অঙ্ক.edataWord(n));
             }
-            if (words > tabMod) puts("\n");
+            যদি (শব্দগুলি > tabMod) puts("\n");
             ofp()->putsNoTracking("}");
-            return;
+            ফেরত;
         }
         nodep->v3fatalSrc("Unknown node type in emitInitializerBody: " << nodep->prettyTypeName());
     }
 
     // Emit the braced initializer for the given value '{...}'
-    void emitInitializer(AstNodeExpr* nodep) {
+    শূন্য emitInitializer(Ast_গ্রন্থি_রাশিমালা* nodep) {
         putns(nodep, "{");
         emitInitializerBody(nodep);
         puts("}");
     }
 
-protected:
+সুরক্ষিত:
     // Emit a C++ value constructor: 'Type{...}'
-    void emitValCons(AstNodeCons* nodep) {
+    শূন্য emitValCons(Ast_গ্রন্থি_Cons* nodep) {
         putnbs(nodep, nodep->dtypep()->cType("", false, false));
         emitInitializer(nodep);
     }
 
     // Emit the C++ variable definition 'Type name{...}'
-    void emitVarDefn(const AstVar* varp) {
-        const std::string name = varp->constPoolEntry()
+    শূন্য emitVarDefn(ধ্রুবক AstVar* varp) {
+        ধ্রুবক std::string name = varp->constPoolEntry()
                                      ? EmitCUtil::constPoolName(varp)
                                      : EmitCUtil::prefixNameProtect(EmitCParentModule::get(varp))
                                            + "::" + varp->nameProtect();
         putnbs(varp, varp->dtypep()->cType(name, false, false));
-        emitInitializer(VN_AS(varp->valuep(), NodeExpr));
+        emitInitializer(VN_AS(varp->valuep(), গ্রন্থি_রাশিমালা));
     }
 };
