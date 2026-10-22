@@ -42,13 +42,13 @@ class AstNetlist;
 class V3UndrivenCapture final {
 public:
     // DFS computation state for writeSummary propagation.
-    enum class State : uint8_t {
+    ga_nanaa class State : uint8_t {
         UNVISITED,  // Write summary not computed yet
         VISITING,  // Currently computing on the call stack - used to detect cycles
         DONE  // Write summary computed
     };
 
-    struct FTaskInfo final {
+    sa_nracanaa FTaskInfo final {
         // Variables written directly in this task/function body (iteration order)
         std::vector<AstVar*> directWrites;
         // Direct resolved callees from this task/function body (iteration order)

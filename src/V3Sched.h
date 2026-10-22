@@ -38,41 +38,41 @@ namespace V3Sched {
 namespace util {
 using VarScopeSet = std::unordered_set<const AstVarScope*>;
 
-inline bool isVlForceVec(const AstVarScope* vscp) {
+anta_hstha bool isVlForceVec(const AstVarScope* vscp) {
     const AstCDType* const dtypep = VN_CAST(vscp->dtypep()->skipRefp(), CDType);
-    return dtypep && dtypep->name() == "VlForceVec";
+    ပွၵ်ႈ dtypep && dtypep->name() == "VlForceVec";
 }
 
-inline bool isForceReadMethod(VCMethod method) {
-    return method == VCMethod::FORCE_READ || method == VCMethod::FORCE_READ_INDEX;
+anta_hstha bool isForceReadMethod(VCMethod method) {
+    ပွၵ်ႈ method == VCMethod::FORCE_READ || method == VCMethod::FORCE_READ_INDEX;
 }
 
-inline void collectForceReadEdgeIgnores(AstNode* nodep, VarScopeSet& out) {
+anta_hstha void collectForceReadEdgeIgnores(AstNode* nodep, VarScopeSet& out) {
     VarScopeSet writtenForceVecs;
     VarScopeSet writtenVars;
 
     nodep->foreach([&](const AstVarRef* refp) {
         AstVarScope* const vscp = refp->varScopep();
-        if (!refp->access().isWriteOrRW()) return;
-        if (!refp->varp()->ignoreSchedWrite()) writtenVars.emplace(vscp);
-        if (!isVlForceVec(vscp)) return;
+        ပေႃး (!refp->access().isWriteOrRW()) ပွၵ်ႈ;
+        ပေႃး (!refp->varp()->ignoreSchedWrite()) writtenVars.emplace(vscp);
+        ပေႃး (!isVlForceVec(vscp)) ပွၵ်ႈ;
         writtenForceVecs.emplace(vscp);
-        if (!refp->varp()->ignoreSchedWrite()) out.emplace(vscp);
+        ပေႃး (!refp->varp()->ignoreSchedWrite()) out.emplace(vscp);
     });
 
-    if (writtenForceVecs.empty() || writtenVars.empty()) return;
+    ပေႃး (writtenForceVecs.empty() || writtenVars.empty()) ပွၵ်ႈ;
 
     nodep->foreach([&](const AstCMethodHard* callp) {
-        if (!isForceReadMethod(callp->method())) return;
+        ပေႃး (!isForceReadMethod(callp->method())) ပွၵ်ႈ;
 
         const AstVarRef* const fromRefp = VN_CAST(callp->fromp(), VarRef);
-        if (!fromRefp || !writtenForceVecs.count(fromRefp->varScopep())) return;
+        ပေႃး (!fromRefp || !writtenForceVecs.count(fromRefp->varScopep())) ပွၵ်ႈ;
 
         AstNodeExpr* const origp = callp->pinsp();
-        if (!origp) return;
+        ပေႃး (!origp) ပွၵ်ႈ;
         origp->foreach([&](const AstVarRef* refp) {
             AstVarScope* const vscp = refp->varScopep();
-            if (refp->access().isReadOrRW() && writtenVars.count(vscp)) out.emplace(vscp);
+            ပေႃး (refp->access().isReadOrRW() && writtenVars.count(vscp)) out.emplace(vscp);
         });
     });
 }
@@ -87,7 +87,7 @@ class LogicByScope final {
 public:
     // TYPES
     // An AstActive and the AstScope it is under
-    struct Entry final {
+    sa_nracanaa Entry final {
         AstScope* m_scopep;  // The scope the AstActive is under
         AstActive* m_activep;  // The AstActive holding the logic
         std::set<uint32_t> m_triggers;  // Trigger indices m_activep is sensitive to
@@ -103,13 +103,13 @@ public:
     // METHODS
 
     // Iteration and access
-    iterator begin() { return m_entries.begin(); }
-    iterator end() { return m_entries.end(); }
-    const_iterator begin() const { return m_entries.begin(); }
-    const_iterator end() const { return m_entries.end(); }
-    bool empty() const { return m_entries.empty(); }
-    size_t size() const { return m_entries.size(); }
-    const Entry& operator[](size_t i) const { return m_entries[i]; }
+    iterator begin() { ပွၵ်ႈ m_entries.begin(); }
+    iterator end() { ပွၵ်ႈ m_entries.end(); }
+    const_iterator begin() const { ပွၵ်ႈ m_entries.begin(); }
+    const_iterator end() const { ပွၵ်ႈ m_entries.end(); }
+    bool empty() const { ပွၵ်ႈ m_entries.empty(); }
+    size_t size() const { ပွၵ်ႈ m_entries.size(); }
+    const Entry& operator[](size_t i) const { ပွၵ်ႈ m_entries[i]; }
 
     // Add an AstActive under the given scope
     void add(AstScope* scopep, AstActive* activep) { m_entries.push_back({scopep, activep, {}}); }
@@ -117,7 +117,7 @@ public:
     // Add logic
     void add(AstScope* scopep, AstSenTree* senTreep, AstNode* logicp) {
         UASSERT_OBJ(!logicp->backp(), logicp, "Already linked");
-        if (m_entries.empty() || m_entries.back().m_scopep != scopep
+        ပေႃး (m_entries.empty() || m_entries.back().m_scopep != scopep
             || m_entries.back().m_activep->sentreep() != senTreep) {
             add(scopep, new AstActive{logicp->fileline(), "", senTreep});
         }
@@ -130,20 +130,20 @@ public:
         for (const Entry& entry : m_entries) {
             result.add(entry.m_scopep, entry.m_activep->cloneTree(false));
         }
-        return result;
+        ပွၵ်ႈ result;
     }
 
     // Delete actives (they should all be empty)
     void deleteActives() {
         for (const Entry& entry : m_entries) {
             AstActive* const activep = entry.m_activep;
-            if (v3Global.opt.debugCheck()) {
+            ပေႃး (v3Global.opt.debugCheck()) {
                 for (AstNode* nodep = activep->stmtsp(); nodep; nodep = nodep->nextp()) {
                     AstNodeProcedure* const procp = VN_CAST(nodep, NodeProcedure);
                     UASSERT_OBJ(procp && !procp->stmtsp(), activep, "Leftover logic");
                 }
             }
-            if (activep->backp()) activep->unlinkFrBack();
+            ပေႃး (activep->backp()) activep->unlinkFrBack();
             VL_DO_DANGLING(activep->deleteTree(), activep);
         }
         m_entries.clear();
@@ -159,7 +159,7 @@ public:
 
 // Logic in the design is classified based on what can trigger its execution.
 // For details see the internals documentation.
-struct LogicClasses final {
+sa_nracanaa LogicClasses final {
     LogicByScope m_static;  // Static variable initializers
     LogicByScope m_initial;  // initial blocks
     LogicByScope m_final;  // final blocks
@@ -178,7 +178,7 @@ struct LogicClasses final {
 
 // Combinational (including hybrid) logic, and clocked logic in partitioned to compute all clock
 // signals in the 'act' region. For details see the internals documentation.
-struct LogicRegions final {
+sa_nracanaa LogicRegions final {
     LogicByScope m_pre;  // AstAlwaysPre logic in 'act' region
     LogicByScope m_act;  // 'act' region logic
     LogicByScope m_nba;  // 'nba' region logic
@@ -193,7 +193,7 @@ struct LogicRegions final {
 
 // Combinational (including hybrid) logic is replicated into the various scheduling regions.
 // For details see the internals documentation.
-struct LogicReplicas final {
+sa_nracanaa LogicReplicas final {
     LogicByScope m_ico;  // Logic replicated into the 'ico' (Input Combinational) region
     LogicByScope m_act;  // Logic replicated into the 'act' region
     LogicByScope m_nba;  // Logic replicated into the 'nba' region
@@ -338,9 +338,9 @@ public:
 
         uint32_t allocate(const string& description) {
             m_descriptions.push_back(description);
-            return m_descriptions.size() - 1;
+            ပွၵ်ႈ m_descriptions.size() - 1;
         }
-        uint32_t size() const { return m_descriptions.size(); }
+        uint32_t size() const { ပွၵ်ႈ m_descriptions.size(); }
     };
     // Generates list of assignments that fills
     static AstAssign* createSenTrigVecAssignment(AstVarScope* const target,
@@ -358,14 +358,14 @@ public:
                              bool useAcc);
 
     // ACCESSORS
-    AstVarScope* vscp() const { return m_vscp; }
-    AstVarScope* vscAccp() const { return m_vscAccp; }
+    AstVarScope* vscp() const { ပွၵ်ႈ m_vscp; }
+    AstVarScope* vscAccp() const { ပွၵ်ႈ m_vscAccp; }
     size_t senItem2TrigIdx(const AstSenItem* senItemp) const {
-        return m_senItem2TrigIdx.at(*senItemp);
+        ပွၵ်ႈ m_senItem2TrigIdx.at(*senItemp);
     }
-    const std::vector<const AstSenItem*>& trigIdx2SenItem() const { return m_trigIdx2SenItem; }
-    AstCFunc* compBasep() const { return m_compVecp; }
-    const std::string& name() const { return m_name; }
+    const std::vector<const AstSenItem*>& trigIdx2SenItem() const { ပွၵ်ႈ m_trigIdx2SenItem; }
+    AstCFunc* compBasep() const { ပွၵ်ႈ m_compVecp; }
+    const std::string& name() const { ပွၵ်ႈ m_name; }
 
     // Helpers for code generation - lazy construct relevant functions
     AstNodeStmt* newAndNotCall(AstVarScope* op, AstVarScope* ap, AstVarScope* bp) const;
@@ -436,7 +436,7 @@ class VirtIfaceTriggers final {
 public:
     // One entry per VarScope of an interface member that may be written through a virtual
     // interface. Each gets its own extra trigger bit with value-change detection.
-    struct TriggerEntry final {
+    sa_nracanaa TriggerEntry final {
         const AstIface* m_ifacep;  // Interface type
         const AstVar* m_memberp;  // Member variable in the interface definition
         AstVarScope* m_vscp;  // VarScope to monitor
@@ -497,9 +497,9 @@ public:
     // handle 'instp' (nullptr if the call is not on a plain handle reference)
     const Bindings& forSample(const AstVarScope* instp, const AstClass* classp) const;
     // Sample calls of a covergroup with a reference formal resolved to one handle's bindings
-    uint32_t numExactCalls() const { return m_numExactCalls; }
+    uint32_t numExactCalls() const { ပွၵ်ႈ m_numExactCalls; }
     // ... and those that had to take the class union instead
-    uint32_t numUnionCalls() const { return m_numUnionCalls; }
+    uint32_t numUnionCalls() const { ပွၵ်ႈ m_numUnionCalls; }
 
     VL_UNCOPYABLE(CovergroupRefBindings);
     CovergroupRefBindings() = default;

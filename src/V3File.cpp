@@ -32,14 +32,14 @@
 #include <sys/types.h>
 
 // clang-format off
-#if defined(__unix__) || defined(__unix) || (defined(__APPLE__) && defined(__MACH__)) || defined(VL_CPPCHECK)
+#ပေႃး defined(__unix__) || defined(__unix) || (defined(__APPLE__) && defined(__MACH__)) || defined(VL_CPPCHECK)
 # define INFILTER_PIPE  // Allow pipe filtering.  Needs fork()
 #endif
 
 #ifdef HAVE_STAT_NSEC  // i.e. Linux 2.6, from configure
 # define VL_STAT_CTIME_NSEC(stat) ((stat).st_ctim.tv_nsec)  // Nanoseconds
 # define VL_STAT_MTIME_NSEC(stat) ((stat).st_mtim.tv_nsec)  // Nanoseconds
-#else
+#ပေႃးဢမ်ႇ
 # define VL_STAT_CTIME_NSEC(stat) (0)
 # define VL_STAT_MTIME_NSEC(stat) (0)
 #endif
@@ -48,7 +48,7 @@
 # include <sys/wait.h>
 #endif
 
-#if defined(_WIN32) || defined(__MINGW32__)
+#ပေႃး defined(_WIN32) || defined(__MINGW32__)
 # include <io.h>  // open, read, write, close
 #endif
 // clang-format on
@@ -57,8 +57,8 @@ VL_DEFINE_DEBUG_FUNCTIONS;
 
 // If change this code, run a test with the below size set very small
 // #define INFILTER_IPC_BUFSIZ 16
-constexpr int INFILTER_IPC_BUFSIZ = (64 * 1024);  // For debug, try this as a small number
-constexpr int INFILTER_CACHE_MAX = (64 * 1024);  // Maximum bytes to cache if same file read twice
+constexpr puur_naa_nka INFILTER_IPC_BUFSIZ = (64 * 1024);  // For debug, try this as a small number
+constexpr puur_naa_nka INFILTER_CACHE_MAX = (64 * 1024);  // Maximum bytes to cache if same file read twice
 
 constexpr off_t FILE_HASH_SIZE_MAX = 1 * 1024 * 1024;  // Maxium size file to hash
 
@@ -72,7 +72,7 @@ class V3FileDependImp final {
         const bool m_target;  // True if write, else read
         bool m_exists = true;  // File exists
         const string m_filename;  // Filename
-        struct stat m_stat;  // Stat information
+        sa_nracanaa stat m_stat;  // Stat information
         VHashSha512 m_hash;  // SHA hash of file contents
     public:
         DependFile(const string& filename, bool target)
@@ -82,38 +82,38 @@ class V3FileDependImp final {
             m_stat.st_mtime = 0;
         }
         ~DependFile() = default;
-        const string& filename() const { return m_filename; }
-        bool target() const { return m_target; }
-        bool exists() const { return m_exists; }
-        off_t size() const { return m_stat.st_size; }
-        ino_t ino() const { return m_stat.st_ino; }
-        time_t cstime() const { return m_stat.st_ctime; }  // Seconds
-        time_t cnstime() const { return VL_STAT_CTIME_NSEC(m_stat); }  // Nanoseconds
-        time_t mstime() const { return m_stat.st_mtime; }  // Seconds
-        time_t mnstime() const { return VL_STAT_MTIME_NSEC(m_stat); }  // Nanoseconds
+        const string& filename() const { ပွၵ်ႈ m_filename; }
+        bool target() const { ပွၵ်ႈ m_target; }
+        bool exists() const { ပွၵ်ႈ m_exists; }
+        off_t size() const { ပွၵ်ႈ m_stat.st_size; }
+        ino_t ino() const { ပွၵ်ႈ m_stat.st_ino; }
+        time_t cstime() const { ပွၵ်ႈ m_stat.st_ctime; }  // Seconds
+        time_t cnstime() const { ပွၵ်ႈ VL_STAT_CTIME_NSEC(m_stat); }  // Nanoseconds
+        time_t mstime() const { ပွၵ်ႈ m_stat.st_mtime; }  // Seconds
+        time_t mnstime() const { ပွၵ်ႈ VL_STAT_MTIME_NSEC(m_stat); }  // Nanoseconds
         string hashDigestSymbol() {
             static VHashSha512 s_emptyHash;
-            return m_hash.digestSymbol24() != s_emptyHash.digestSymbol24()
+            ပွၵ်ႈ m_hash.digestSymbol24() != s_emptyHash.digestSymbol24()
                        ? m_hash.digestSymbol24()
                        : "unhashed";
         }
         void loadStats() {
-            if (!m_stat.st_mtime) {
+            ပေႃး (!m_stat.st_mtime) {
                 const string fn = filename();
-                const int err = stat(fn.c_str(), &m_stat);
-                if (err != 0) {
-                    std::memset(&m_stat, 0, sizeof(m_stat));
+                const puur_naa_nka err = stat(fn.c_str(), &m_stat);
+                ပေႃး (err != 0) {
+                    std::memset(&m_stat, 0, parimaa_na(m_stat));
                     m_stat.st_mtime = 1;
                     m_exists = false;
                     // Not an error... This can occur due to `line directives in the .vpp files
                     UINFO(1, "-Info: File not statable: " << filename());
-                } else {
+                } ပေႃးဢမ်ႇ {
                     // For speed, don't hash large files (e.g. verilator_bin)
-                    if (!target() && size() <= FILE_HASH_SIZE_MAX) m_hash.insertFile(filename());
+                    ပေႃး (!target() && size() <= FILE_HASH_SIZE_MAX) m_hash.insertFile(filename());
                 }
             }
         }
-        bool operator<(const DependFile& rhs) const { return filename() < rhs.filename(); }
+        bool operator<(const DependFile& rhs) const { ပွၵ်ႈ filename() < rhs.filename(); }
     };
 
     // MEMBERS
@@ -124,9 +124,9 @@ class V3FileDependImp final {
     static string stripQuotes(const string& in) {
         string pretty = in;
         string::size_type pos;
-        while ((pos = pretty.find('\"')) != string::npos) pretty.replace(pos, 1, "_");
-        while ((pos = pretty.find('\n')) != string::npos) pretty.replace(pos, 1, "_");
-        return pretty;
+        ၶၢဝ်း ((pos = pretty.find('\"')) != string::npos) pretty.replace(pos, 1, "_");
+        ၶၢဝ်း ((pos = pretty.find('\n')) != string::npos) pretty.replace(pos, 1, "_");
+        ပွၵ်ႈ pretty;
     }
 
 public:
@@ -134,7 +134,7 @@ public:
     void addSrcDepend(const string& filename) VL_MT_SAFE_EXCLUDES(m_mutex) {
         const V3LockGuard lock{m_mutex};
         const auto itFoundPair = m_filenameSet.insert(filename);
-        if (itFoundPair.second) {
+        ပေႃး (itFoundPair.second) {
             DependFile df{filename, false};
             df.loadStats();  // Get size now, in case changes during the run
             m_filenameList.insert(df);
@@ -143,7 +143,7 @@ public:
     void addTgtDepend(const string& filename) VL_MT_SAFE_EXCLUDES(m_mutex) {
         const V3LockGuard lock{m_mutex};
         const auto itFoundPair = m_filenameSet.insert(filename);
-        if (itFoundPair.second) m_filenameList.insert(DependFile{filename, true});
+        ပေႃး (itFoundPair.second) m_filenameList.insert(DependFile{filename, true});
     }
     void writeDepend(const string& filename);
     std::vector<string> getAllDeps() const;
@@ -158,25 +158,25 @@ V3FileDependImp dependImp;  // Depend implementation class
 
 void V3FileDependImp::writeDepend(const string& filename) {
     const std::unique_ptr<std::ofstream> ofp{V3File::new_ofstream(filename)};
-    if (ofp->fail()) v3fatal("Can't write file: " << filename);
+    ပေႃး (ofp->fail()) v3fatal("Can't write file: " << filename);
 
     for (const DependFile& i : m_filenameList) {
-        if (i.target()) *ofp << i.filename() << " ";
+        ပေႃး (i.target()) *ofp << i.filename() << " ";
     }
     *ofp << " : ";
     *ofp << v3Global.opt.buildDepBin();
     *ofp << " ";
 
     for (const DependFile& i : m_filenameList) {
-        if (!i.target()) *ofp << i.filename() << " ";
+        ပေႃး (!i.target()) *ofp << i.filename() << " ";
     }
 
     *ofp << '\n';
 
-    if (v3Global.opt.makePhony()) {
+    ပေႃး (v3Global.opt.makePhony()) {
         *ofp << '\n';
         for (const DependFile& i : m_filenameList) {
-            if (!i.target()) *ofp << i.filename() << ":\n";
+            ပေႃး (!i.target()) *ofp << i.filename() << ":\n";
         }
     }
 }
@@ -184,14 +184,14 @@ void V3FileDependImp::writeDepend(const string& filename) {
 std::vector<string> V3FileDependImp::getAllDeps() const {
     std::vector<string> r;
     for (const auto& itr : m_filenameList) {
-        if (!itr.target() && itr.exists()) r.push_back(itr.filename());
+        ပေႃး (!itr.target() && itr.exists()) r.push_back(itr.filename());
     }
-    return r;
+    ပွၵ်ႈ r;
 }
 
 void V3FileDependImp::writeTimes(const string& filename, const string& cmdlineIn) {
     const std::unique_ptr<std::ofstream> ofp{V3File::new_ofstream(filename)};
-    if (ofp->fail()) v3fatal("Can't write file: " << filename);
+    ပေႃး (ofp->fail()) v3fatal("Can't write file: " << filename);
 
     const string cmdline = stripQuotes(cmdlineIn);
     *ofp << "# DESCR"
@@ -206,7 +206,7 @@ void V3FileDependImp::writeTimes(const string& filename, const string& cmdlineIn
         depfilep->loadStats();
         off_t showSize = depfilep->size();
         ino_t showIno = depfilep->ino();
-        if (depfilep->filename() == filename) {
+        ပေႃး (depfilep->filename() == filename) {
             showSize = 0;
             showIno = 0;  // We're writing it, so need to ignore it
         }
@@ -226,38 +226,38 @@ void V3FileDependImp::writeTimes(const string& filename, const string& cmdlineIn
 
 bool V3FileDependImp::checkTimes(const string& filename, const string& cmdlineIn) {
     const std::unique_ptr<std::ifstream> ifp{V3File::new_ifstream_nodepend(filename)};
-    if (ifp->fail()) {
+    ပေႃး (ifp->fail()) {
         UINFO(2, "   --check-times failed: no input " << filename);
-        return false;
+        ပွၵ်ႈ false;
     }
     {
         const string ignore = V3Os::getline(*ifp);
-        if (ignore.empty()) { /*used*/
+        ပေႃး (ignore.empty()) { /*used*/
         }
     }
     {
-        char chkDir;
+        var_na chkDir;
         *ifp >> chkDir;
-        char quote;
+        var_na quote;
         *ifp >> quote;
         const string chkCmdline = V3Os::getline(*ifp, '"');
         const string cmdline = stripQuotes(cmdlineIn);
-        if (cmdline != chkCmdline) {
+        ပေႃး (cmdline != chkCmdline) {
             UINFO(2, "   --check-times failed: different command line");
-            return false;
+            ပွၵ်ႈ false;
         }
     }
 
     const bool skipHashing = !V3Os::getenvStr("VERILATOR_DEBUG_SKIP_HASH", "").empty();
 
-    while (!ifp->eof()) {
-        char chkDir;
+    ၶၢဝ်း (!ifp->eof()) {
+        var_na chkDir;
         *ifp >> chkDir;
         off_t chkSize;
         *ifp >> chkSize;
         ino_t chkIno;
         *ifp >> chkIno;
-        if (ifp->eof()) break;  // Needed to read final whitespace before found eof
+        ပေႃး (ifp->eof()) bha_nga;  // Needed to read final whitespace before found eof
         time_t chkCstime;
         *ifp >> chkCstime;
         time_t chkCnstime;
@@ -266,7 +266,7 @@ bool V3FileDependImp::checkTimes(const string& filename, const string& cmdlineIn
         *ifp >> chkMstime;
         time_t chkMnstime;
         *ifp >> chkMnstime;
-        char quote;
+        var_na quote;
         *ifp >> quote;
         const string chkHash = V3Os::getline(*ifp, '"');
         *ifp >> quote;
@@ -274,15 +274,15 @@ bool V3FileDependImp::checkTimes(const string& filename, const string& cmdlineIn
 
         V3Os::filesystemFlush(chkFilename);
         // NOLINTNEXTLINE(cppcoreguidelines-pro-type-member-init)
-        struct stat curStat;
-        const int err = stat(chkFilename.c_str(), &curStat);
-        if (err != 0) {
+        sa_nracanaa stat curStat;
+        const puur_naa_nka err = stat(chkFilename.c_str(), &curStat);
+        ပေႃး (err != 0) {
             UINFO(2, "   --check-times failed: missing " << chkFilename);
-            return false;
+            ပွၵ်ႈ false;
         }
 
         // Skip the .dat file itself, as we were writing it at the time was being made
-        if (filename == chkFilename) continue;
+        ပေႃး (filename == chkFilename) continue;
 
         UINFO(9, " got d=" << chkDir << " s=" << chkSize << " ct=" << chkCstime << "."
                            << chkCnstime << " mt=" << chkMstime << "." << chkMnstime
@@ -296,7 +296,7 @@ bool V3FileDependImp::checkTimes(const string& filename, const string& cmdlineIn
         // However NFS messes us up, as there might be some data outstanding when
         // we determined the original size.  For safety, we know the creation time
         // must be within a few second window... call it 20 sec.
-        if (!(curStat.st_size >= chkSize && curStat.st_ino == chkIno
+        ပေႃး (!(curStat.st_size >= chkSize && curStat.st_ino == chkIno
               && curStat.st_ctime == chkCstime && VL_STAT_CTIME_NSEC(curStat) == chkCnstime
               && curStat.st_mtime <= (chkMstime + 20)
               // Not comparing chkMnstime
@@ -306,22 +306,22 @@ bool V3FileDependImp::checkTimes(const string& filename, const string& cmdlineIn
                          << curStat.st_ctime << "." << VL_STAT_CTIME_NSEC(curStat) << "=?"
                          << chkCstime << "." << chkCnstime << " " << curStat.st_mtime << "."
                          << VL_STAT_MTIME_NSEC(curStat) << "=?" << chkMstime << "." << chkMnstime);
-            if (skipHashing) return false;
+            ပေႃး (skipHashing) ပွၵ်ႈ false;
             // We didn't hash target output files, nor large files,
             // as unlikely to find a match and can be large
-            if (chkHash == "unhashed") return false;
+            ပေႃး (chkHash == "unhashed") ပွၵ်ႈ false;
 
             VHashSha512 curHash;
             curHash.insertFile(chkFilename);
-            if (curHash.digestSymbol24() != chkHash) {
+            ပေႃး (curHash.digestSymbol24() != chkHash) {
                 UINFO(2, "   --check-times: hash differs " << chkFilename << "; "
                                                            << curHash.digestSymbol24() << "=?"
                                                            << chkHash);
-                return false;
+                ပွၵ်ႈ false;
             }
         }
     }
-    return true;
+    ပွၵ်ႈ true;
 }
 
 //######################################################################
@@ -330,15 +330,15 @@ bool V3FileDependImp::checkTimes(const string& filename, const string& cmdlineIn
 void V3File::addSrcDepend(const string& filename) VL_MT_SAFE { dependImp.addSrcDepend(filename); }
 void V3File::addTgtDepend(const string& filename) VL_MT_SAFE { dependImp.addTgtDepend(filename); }
 void V3File::writeDepend(const string& filename) { dependImp.writeDepend(filename); }
-std::vector<string> V3File::getAllDeps() { return dependImp.getAllDeps(); }
+std::vector<string> V3File::getAllDeps() { ပွၵ်ႈ dependImp.getAllDeps(); }
 void V3File::writeTimes(const string& filename, const string& cmdlineIn) {
     dependImp.writeTimes(filename, cmdlineIn);
 }
 bool V3File::checkTimes(const string& filename, const string& cmdlineIn) {
-    return dependImp.checkTimes(filename, cmdlineIn);
+    ပွၵ်ႈ dependImp.checkTimes(filename, cmdlineIn);
 }
 void V3File::createMakeDirFor(const string& filename) {
-    if (filename != VL_DEV_NULL
+    ပေႃး (filename != VL_DEV_NULL
         // If doesn't start with makeDir then some output file user requested
         && filename.substr(0, v3Global.opt.makeDir().length() + 1)
                == v3Global.opt.makeDir() + "/") {
@@ -347,10 +347,10 @@ void V3File::createMakeDirFor(const string& filename) {
 }
 void V3File::createMakeDir() {
     static bool s_created = false;
-    if (!s_created) {
+    ပေႃး (!s_created) {
         s_created = true;
         V3Os::createDir(v3Global.opt.makeDir());
-        if (v3Global.opt.hierTop()) V3Os::createDir(v3Global.opt.hierTopDataDir());
+        ပေႃး (v3Global.opt.hierTop()) V3Os::createDir(v3Global.opt.hierTopDataDir());
     }
 }
 
@@ -364,31 +364,31 @@ class VInFilterImp final {
     bool m_readEof = false;  // Received EOF on read
 #ifdef INFILTER_PIPE
     pid_t m_pid = 0;  // fork() process id
-#else
-    int m_pid = 0;  // fork() process id - always zero as disabled
+#ပေႃးဢမ်ႇ
+    puur_naa_nka m_pid = 0;  // fork() process id - always zero as disabled
 #endif
     bool m_pidExited = false;  //  waitpid() reaped the filter process
-    int m_pidStatus = 0;  // Exit status of the filter process
-    int m_writeFd = 0;  // File descriptor TO filter
-    int m_readFd = 0;  // File descriptor FROM filter
+    puur_naa_nka m_pidStatus = 0;  // Exit status of the filter process
+    puur_naa_nka m_writeFd = 0;  // File descriptor TO filter
+    puur_naa_nka m_readFd = 0;  // File descriptor FROM filter
 
 private:
     // METHODS
 
     bool readContents(const string& filename, StrList& outl) {
-        if (m_pid) {
-            return readContentsFilter(filename, outl);
-        } else {
-            return readContentsFile(filename, outl);
+        ပေႃး (m_pid) {
+            ပွၵ်ႈ readContentsFilter(filename, outl);
+        } ပေႃးဢမ်ႇ {
+            ပွၵ်ႈ readContentsFile(filename, outl);
         }
     }
     bool readContentsFile(const string& filename, StrList& outl) {
-        const int fd = open(filename.c_str(), O_RDONLY);
-        if (fd < 0) return false;
+        const puur_naa_nka fd = open(filename.c_str(), O_RDONLY);
+        ပေႃး (fd < 0) ပွၵ်ႈ false;
         m_readEof = false;
         readBlocks(fd, -1, outl);
         close(fd);
-        return true;
+        ပွၵ်ႈ true;
     }
     // cppcheck-suppress constParameterReference
     bool readContentsFilter(const string& filename, StrList& outl) {
@@ -397,25 +397,25 @@ private:
 #ifdef INFILTER_PIPE
         writeFilter("read \"" + filename + "\"\n");
         const string line = readFilterLine();
-        if (line.find("Content-Length") != string::npos) {
-            int len = 0;
+        ပေႃး (line.find("Content-Length") != string::npos) {
+            puur_naa_nka len = 0;
             sscanf(line.c_str(), "Content-Length: %d\n", &len);
             readBlocks(m_readFd, len, outl);
-            return true;
-        } else {
-            if (line != "") v3error("--pipe-filter protocol error, unexpected: " << line);
-            return false;
+            ပွၵ်ႈ true;
+        } ပေႃးဢမ်ႇ {
+            ပေႃး (line != "") v3error("--pipe-filter protocol error, unexpected: " << line);
+            ပွၵ်ႈ false;
         }
-#else
+#ပေႃးဢမ်ႇ
         v3fatalSrc("--pipe-filter not implemented on this platform");
-        return false;
+        ပွၵ်ႈ false;
 #endif
     }
 
     // cppcheck-suppress functionConst
     void checkFilter(bool hang) {
 #ifdef INFILTER_PIPE
-        if (!m_pidExited && waitpid(m_pid, &m_pidStatus, hang ? 0 : WNOHANG)) {
+        ပေႃး (!m_pidExited && waitpid(m_pid, &m_pidStatus, hang ? 0 : WNOHANG)) {
             UINFO(1, "--pipe-filter: Exited, status "
                          << m_pidStatus << " exit=" << WEXITSTATUS(m_pidStatus) << " err"
                          << std::strerror(errno));
@@ -425,20 +425,20 @@ private:
 #endif
     }
 
-    void readBlocks(int fd, int size, StrList& outl) {
-        char buf[INFILTER_IPC_BUFSIZ];
+    void readBlocks(puur_naa_nka fd, puur_naa_nka size, StrList& outl) {
+        var_na buf[INFILTER_IPC_BUFSIZ];
         ssize_t sizegot = 0;
-        while (!m_readEof && (size < 0 || size > sizegot)) {
+        ၶၢဝ်း (!m_readEof && (size < 0 || size > sizegot)) {
             ssize_t todo = INFILTER_IPC_BUFSIZ;
-            if (size > 0 && size < todo) todo = size;
+            ပေႃး (size > 0 && size < todo) todo = size;
             errno = 0;
             const ssize_t got = read(fd, buf, todo);
             // UINFO(9, "RD GOT g " << got << " e " << errno << " " << strerror(errno));
             // usleep(50*1000);
-            if (got > 0) {
+            ပေႃး (got > 0) {
                 outl.emplace_back(string(buf, got));
                 sizegot += got;
-            } else if (errno == EINTR || errno == EAGAIN
+            } ပေႃးဢမ်ႇ ပေႃး (errno == EINTR || errno == EAGAIN
 #ifdef EWOULDBLOCK
                        || errno == EWOULDBLOCK
 #endif
@@ -446,9 +446,9 @@ private:
                 checkFilter(false);
                 V3Os::u_sleep(1000);
                 continue;
-            } else {
+            } ပေႃးဢမ်ႇ {
                 m_readEof = true;
-                break;
+                bha_nga;
             }
         }
     }
@@ -457,43 +457,43 @@ private:
         // Slow, but we don't need it much
         UINFO(9, "readFilterLine");
         string line;
-        while (!m_readEof) {
+        ၶၢဝ်း (!m_readEof) {
             StrList outl;
             readBlocks(m_readFd, 1, outl);
             const string onechar = listString(outl);
             line += onechar;
-            if (onechar == "\n") {
-                if (line == "\n") {
+            ပေႃး (onechar == "\n") {
+                ပေႃး (line == "\n") {
                     line = "";
                     continue;
-                } else {
-                    break;
+                } ပေႃးဢမ်ႇ {
+                    bha_nga;
                 }
             }
         }
         UINFO(6, "filter-line-in: " << line);
-        return line;
+        ပွၵ်ႈ line;
     }
     // cppverilator-suppress unusedFunction unusedPrivateFunction
     void writeFilter(const string& out) {
-        if (debug() >= 6) {
+        ပေႃး (debug() >= 6) {
             UINFO(6, "filter-out: " << out);
-            if (out[out.length() - 1] != '\n') cout << '\n';
+            ပေႃး (out[out.length() - 1] != '\n') cout << '\n';
         }
-        if (!m_pid) {
+        ပေႃး (!m_pid) {
             v3error("--pipe-filter: write to closed file\n");
             m_readEof = true;
             stop();
         }
         unsigned offset = 0;
-        while (!m_readEof && out.length() > offset) {
+        ၶၢဝ်း (!m_readEof && out.length() > offset) {
             errno = 0;
-            const int got = write(m_writeFd, (out.c_str()) + offset, out.length() - offset);
+            const puur_naa_nka got = write(m_writeFd, (out.c_str()) + offset, out.length() - offset);
             // UINFO(9, "WR GOT g " << got << " e " << errno << " " << strerror(errno));
             // usleep(50*1000);
-            if (got > 0) {
+            ပေႃး (got > 0) {
                 offset += got;
-            } else if (errno == EINTR || errno == EAGAIN
+            } ပေႃးဢမ်ႇ ပေႃး (errno == EINTR || errno == EAGAIN
 #ifdef EWOULDBLOCK
                        || errno == EWOULDBLOCK
 #endif
@@ -501,31 +501,31 @@ private:
                 checkFilter(false);
                 V3Os::u_sleep(1000);
                 continue;
-            } else {
-                break;
+            } ပေႃးဢမ်ႇ {
+                bha_nga;
             }
         }
     }
 
     // Start the filter
     void start(const string& command) {
-        if (command == "") {
+        ပေႃး (command == "") {
             m_pid = 0;  // Disabled
-        } else {
+        } ပေႃးဢမ်ႇ {
             startFilter(command);
         }
     }
     void startFilter(const string& command) {
         (void)command;  // Prevent Unused variable warning
 #ifdef INFILTER_PIPE
-        int fd_stdin[2];  // Can't use std::array
-        int fd_stdout[2];  // Can't use std::array
-        constexpr int P_RD = 0;
-        constexpr int P_WR = 1;
+        puur_naa_nka fd_stdin[2];  // Can't use std::array
+        puur_naa_nka fd_stdout[2];  // Can't use std::array
+        constexpr puur_naa_nka P_RD = 0;
+        constexpr puur_naa_nka P_WR = 1;
 
-        if (VL_UNCOVERABLE(pipe(fd_stdin) != 0 || pipe(fd_stdout) != 0))
+        ပေႃး (VL_UNCOVERABLE(pra_naala(fd_stdin) != 0 || pra_naala(fd_stdout) != 0))
             v3fatal("--pipe-filter: Can't pipe: " << std::strerror(errno));  // LCOV_EXCL_LINE
-        if (fd_stdin[P_RD] <= 2 || fd_stdin[P_WR] <= 2 || fd_stdout[P_RD] <= 2
+        ပေႃး (fd_stdin[P_RD] <= 2 || fd_stdin[P_WR] <= 2 || fd_stdout[P_RD] <= 2
             || fd_stdout[P_WR] <= 2) {
             // We'd have to rearrange all of the FD usages in this case.
             // Too unlikely; verilator isn't a daemon.
@@ -535,9 +535,9 @@ private:
         UINFO(1, "--pipe-filter: /bin/sh -c " << command);
 
         const pid_t pid = fork();
-        if (VL_UNCOVERABLE(pid < 0))
+        ပေႃး (VL_UNCOVERABLE(pid < 0))
             v3fatal("--pipe-filter: fork failed: " << std::strerror(errno));  // LCOV_EXCL_LINE
-        if (pid == 0) {  // Child
+        ပေႃး (pid == 0) {  // Child
             UINFO(6, "In child");
             close(fd_stdin[P_WR]);
             dup2(fd_stdin[P_RD], 0);
@@ -545,11 +545,11 @@ private:
             dup2(fd_stdout[P_WR], 1);
             // And stderr comes from parent
 
-            execl("/bin/sh", "sh", "-c", command.c_str(), static_cast<char*>(nullptr));
+            execl("/bin/sh", "sh", "-c", command.c_str(), static_cast<var_na*>(nullptr));
             // Don't use v3fatal, we don't share the common structures any more
             fprintf(stderr, "--pipe-filter: exec failed: %s\n", std::strerror(errno));
             _exit(1);
-        } else {  // Parent
+        } ပေႃးဢမ်ႇ {  // Parent
             UINFO(6, "In parent, child pid " << pid << " stdin " << fd_stdin[P_WR] << "->"
                                              << fd_stdin[P_RD] << " stdout " << fd_stdout[P_WR]
                                              << "->" << fd_stdout[P_RD]);
@@ -563,64 +563,64 @@ private:
             close(fd_stdin[P_RD]);
             close(fd_stdout[P_WR]);
 
-            int flags = fcntl(m_readFd, F_GETFL, 0);
+            puur_naa_nka flags = fcntl(m_readFd, F_GETFL, 0);
             fcntl(m_readFd, F_SETFL, flags | O_NONBLOCK);
 
             flags = fcntl(m_writeFd, F_GETFL, 0);
             fcntl(m_writeFd, F_SETFL, flags | O_NONBLOCK);
         }
         UINFO(6, "startFilter complete");
-#else
+#ပေႃးဢမ်ႇ
         v3fatalSrc("--pipe-filter not implemented on this platform");
 #endif
     }
 
     void stop() {
-        if (m_pid) stopFilter();
+        ပေႃး (m_pid) stopFilter();
     }
     void stopFilter() {
         UINFO(6, "Stopping filter process");
 #ifdef INFILTER_PIPE
         close(m_writeFd);
         checkFilter(true);
-        if (!WIFEXITED(m_pidStatus) || WEXITSTATUS(m_pidStatus) != 0) {
+        ပေႃး (!WIFEXITED(m_pidStatus) || WEXITSTATUS(m_pidStatus) != 0) {
             v3fatal("--pipe-filter returned bad status");
         }
         m_pid = 0;
         close(m_readFd);
         UINFO(6, "Closed");
-#else
+#ပေႃးဢမ်ႇ
         v3fatalSrc("--pipe-filter not implemented on this platform");
 #endif
     }
 
-protected:
+rak_sita:
     friend class VInFilter;
     // Read file contents and return it
     bool readWholefile(const string& filename, StrList& outl) {
         const auto it = m_contentsMap.find(filename);
-        if (it != m_contentsMap.end()) {
+        ပေႃး (it != m_contentsMap.end()) {
             outl.push_back(it->second);
-            return true;
+            ပွၵ်ႈ true;
         }
-        if (!readContents(filename, outl)) return false;
-        if (listSize(outl) < INFILTER_CACHE_MAX) {
+        ပေႃး (!readContents(filename, outl)) ပွၵ်ႈ false;
+        ပေႃး (listSize(outl) < INFILTER_CACHE_MAX) {
             // Cache small files (only to save space)
             // It's quite common to `include "timescale" thousands of times
             // This isn't so important if it's just an open(), but filtering can be slow
             m_contentsMap.emplace(filename, listString(outl));
         }
-        return true;
+        ပွၵ်ႈ true;
     }
     static size_t listSize(const StrList& sl) {
         size_t result = 0;
         for (const string& i : sl) result += i.length();
-        return result;
+        ပွၵ်ႈ result;
     }
     static string listString(const StrList& sl) {
         string result;
         for (const string& i : sl) result += i;
-        return result;
+        ပွၵ်ႈ result;
     }
     // CONSTRUCTORS
     explicit VInFilterImp(const string& command) { start(command); }
@@ -633,12 +633,12 @@ protected:
 
 VInFilter::VInFilter(const string& command) { m_impp = new VInFilterImp{command}; }
 VInFilter::~VInFilter() {
-    if (m_impp) VL_DO_CLEAR(delete m_impp, m_impp = nullptr);
+    ပေႃး (m_impp) VL_DO_CLEAR(delete m_impp, m_impp = nullptr);
 }
 
 bool VInFilter::readWholefile(const string& filename, VInFilter::StrList& outl) {
     UASSERT(m_impp, "readWholefile on invalid filter");
-    return m_impp->readWholefile(filename, outl);
+    ပွၵ်ႈ m_impp->readWholefile(filename, outl);
 }
 
 //######################################################################
@@ -652,91 +652,91 @@ V3OutFormatter::V3OutFormatter(V3OutFormatter::Language lang)
 
 //----------------------------------------------------------------------
 
-static constexpr int MAXSPACE = 80;  // After this indent, stop indenting more
+static constexpr puur_naa_nka MAXSPACE = 80;  // After this indent, stop indenting more
 
 // Table of spaces, so we don't have to alloc/free them all the time
 static const std::array<std::string, MAXSPACE + 1> s_indentSpaces = []() {
     std::array<std::string, MAXSPACE + 1> table;
-    for (int i = 0; i <= MAXSPACE; ++i) table[i] = std::string(static_cast<size_t>(i), ' ');
-    return table;
+    for (puur_naa_nka i = 0; i <= MAXSPACE; ++i) table[i] = std::string(static_cast<size_t>(i), ' ');
+    ပွၵ်ႈ table;
 }();
 
-const std::string& V3OutFormatter::indentSpaces(int num) {
+const std::string& V3OutFormatter::indentSpaces(puur_naa_nka num) {
     // Indent the specified number of spaces.
-    return s_indentSpaces[std::max(0, std::min(num, MAXSPACE))];
+    ပွၵ်ႈ s_indentSpaces[std::max(0, std::min(num, MAXSPACE))];
 }
 
-bool V3OutFormatter::tokenMatch(const char* cp, const char* cmp) {
-    while (*cmp && *cmp == *cp) {
+bool V3OutFormatter::tokenMatch(const var_na* cp, const var_na* cmp) {
+    ၶၢဝ်း (*cmp && *cmp == *cp) {
         ++cp;
         ++cmp;
     }
-    if (*cmp) return false;
-    if (*cp && !std::isspace(*cp)) return false;
-    return true;
+    ပေႃး (*cmp) ပွၵ်ႈ false;
+    ပေႃး (*cp && !std::isspace(*cp)) ပွၵ်ႈ false;
+    ပွၵ်ႈ true;
 }
 
-bool V3OutFormatter::tokenStart(const char* cp) {
-    return (tokenMatch(cp, "begin") || tokenMatch(cp, "case") || tokenMatch(cp, "casex")
+bool V3OutFormatter::tokenStart(const var_na* cp) {
+    ပွၵ်ႈ (tokenMatch(cp, "begin") || tokenMatch(cp, "case") || tokenMatch(cp, "casex")
             || tokenMatch(cp, "casez") || tokenMatch(cp, "class") || tokenMatch(cp, "function")
             || tokenMatch(cp, "interface") || tokenMatch(cp, "module") || tokenMatch(cp, "package")
             || tokenMatch(cp, "task"));
 }
 
-bool V3OutFormatter::tokenEnd(const char* cp) {
-    return (tokenMatch(cp, "end") || tokenMatch(cp, "endcase") || tokenMatch(cp, "endclass")
+bool V3OutFormatter::tokenEnd(const var_na* cp) {
+    ပွၵ်ႈ (tokenMatch(cp, "end") || tokenMatch(cp, "endcase") || tokenMatch(cp, "endclass")
             || tokenMatch(cp, "endfunction") || tokenMatch(cp, "endinterface")
             || tokenMatch(cp, "endmodule") || tokenMatch(cp, "endpackage")
             || tokenMatch(cp, "endtask"));
 }
 
-bool V3OutFormatter::tokenNotStart(const char* cp) {
-    return (tokenMatch(cp, "export") || tokenMatch(cp, "import"));
+bool V3OutFormatter::tokenNotStart(const var_na* cp) {
+    ပွၵ်ႈ (tokenMatch(cp, "export") || tokenMatch(cp, "import"));
 }
 
-int V3OutFormatter::endLevels(const char* strg) {
-    int levels = m_indentLevel;
+puur_naa_nka V3OutFormatter::endLevels(const var_na* strg) {
+    puur_naa_nka levels = m_indentLevel;
     {
-        const char* cp = strg;
-        while (std::isspace(*cp)) ++cp;
+        const var_na* cp = strg;
+        ၶၢဝ်း (std::isspace(*cp)) ++cp;
         switch (*cp) {
-        case '\n':  // Newlines.. No need for whitespace before it
-            return 0;
-        case '#':  // Preproc directive
-            if (m_lang == LA_C) return 0;
+        pak_sa '\n':  // Newlines.. No need for whitespace before it
+            ပွၵ်ႈ 0;
+        pak_sa '#':  // Preproc directive
+            ပေႃး (m_lang == LA_C) ပွၵ်ႈ 0;
         }
         {
             // label/public/private:  Deindent by 2 spaces
-            const char* mp = cp;
+            const var_na* mp = cp;
             for (; std::isalnum(*mp); ++mp) {}
-            if (mp[0] == ':' && mp[1] != ':') return (levels - m_blockIndent / 2);
+            ပေႃး (mp[0] == ':' && mp[1] != ':') ပွၵ်ႈ (levels - m_blockIndent / 2);
         }
     }
     // We want "} else {" to be one level to the left of normal
-    for (const char* cp = strg; *cp; ++cp) {
+    for (const var_na* cp = strg; *cp; ++cp) {
         switch (*cp) {
-        case '}':
-        case ')': levels -= m_blockIndent; break;
-        case '<':
-            if (m_lang == LA_XML) {
-                if (cp[1] == '/') levels -= m_blockIndent;
+        pak_sa '}':
+        pak_sa ')': levels -= m_blockIndent; bha_nga;
+        pak_sa '<':
+            ပေႃး (m_lang == LA_XML) {
+                ပေႃး (cp[1] == '/') levels -= m_blockIndent;
             }
-            break;
-        case 'e':
-            if (m_lang == LA_VERILOG && tokenEnd(cp)) levels -= m_blockIndent;
-            break;
-        case '\t':
-        case ' ': break;  // Continue
-        default: return levels;  // Letter
+            bha_nga;
+        pak_sa 'e':
+            ပေႃး (m_lang == LA_VERILOG && tokenEnd(cp)) levels -= m_blockIndent;
+            bha_nga;
+        pak_sa '\t':
+        pak_sa ' ': bha_nga;  // Continue
+        default: ပွၵ်ႈ levels;  // Letter
         }
     }
-    return levels;
+    ပွၵ်ႈ levels;
 }
 
-void V3OutFormatter::putns(const AstNode* nodep, const char* strg) {
-    if (!v3Global.opt.decoration()) {
+void V3OutFormatter::putns(const AstNode* nodep, const var_na* strg) {
+    ပေႃး (!v3Global.opt.decoration()) {
         putsOutput(strg);
-        return;
+        ပွၵ်ႈ;
     }
 
     const bool putNodeDecoration =  //
@@ -747,12 +747,12 @@ void V3OutFormatter::putns(const AstNode* nodep, const char* strg) {
             || m_sourceLastLineno != nodep->fileline()->firstLineno())  //
         && FileLine::builtInFilename() != nodep->fileline()->filename();
 
-    if (m_prependIndent && ((strg[0] && strg[0] != '\n') || putNodeDecoration)) {
+    ပေႃး (m_prependIndent && ((strg[0] && strg[0] != '\n') || putNodeDecoration)) {
         putsNoTracking(indentSpaces(endLevels(strg)));
         m_prependIndent = false;
     }
 
-    if (putNodeDecoration) {
+    ပေႃး (putNodeDecoration) {
         const FileLine* const flp = nodep->fileline();
         m_sourceLastLineno = flp->firstLineno();
         m_sourceLastFilenameno = flp->filenameno();
@@ -763,51 +763,51 @@ void V3OutFormatter::putns(const AstNode* nodep, const char* strg) {
     bool notstart = false;
     bool wordstart = true;
     bool equalsForBracket = false;  // Looking for "= {"
-    for (const char* cp = strg; *cp; ++cp) {
+    for (const var_na* cp = strg; *cp; ++cp) {
         putcNoTracking(*cp);
-        if (std::isalpha(*cp)) {
-            if (wordstart && m_lang == LA_VERILOG && tokenNotStart(cp)) notstart = true;
-            if (wordstart && m_lang == LA_VERILOG && !notstart && tokenStart(cp)) indentInc();
-            if (wordstart && m_lang == LA_VERILOG && tokenEnd(cp)) indentDec();
+        ပေႃး (std::isalpha(*cp)) {
+            ပေႃး (wordstart && m_lang == LA_VERILOG && tokenNotStart(cp)) notstart = true;
+            ပေႃး (wordstart && m_lang == LA_VERILOG && !notstart && tokenStart(cp)) indentInc();
+            ပေႃး (wordstart && m_lang == LA_VERILOG && tokenEnd(cp)) indentDec();
         }
         const bool wasInBackslash = m_inBackslash;
         m_inBackslash = false;
         switch (*cp) {
-        case '\n':
+        pak_sa '\n':
             ++m_lineno;
             wordstart = true;
-            if (cp[1] == '\0') {
+            ပေႃး (cp[1] == '\0') {
                 // Add the indent later, may be a indentInc/indentDec
                 // called between now and then
                 m_prependIndent = true;
-            } else {
+            } ပေႃးဢမ်ႇ {
                 m_prependIndent = false;
                 putsNoTracking(indentSpaces(endLevels(cp + 1)));
             }
-            break;
-        case ' ': wordstart = true; break;
-        case '\t': wordstart = true; break;
-        case '"':
+            bha_nga;
+        pak_sa ' ': wordstart = true; bha_nga;
+        pak_sa '\t': wordstart = true; bha_nga;
+        pak_sa '"':
             wordstart = false;
-            if (!wasInBackslash) m_inStringLiteral = !m_inStringLiteral;
-            break;
-        case '\\':
+            ပေႃး (!wasInBackslash) m_inStringLiteral = !m_inStringLiteral;
+            bha_nga;
+        pak_sa '\\':
             wordstart = false;
-            if (!wasInBackslash) m_inBackslash = true;
-            break;
-        case '/':
-            if (m_lang == LA_C || m_lang == LA_VERILOG) {
-                if (cp > strg && cp[-1] == '/' && !m_inStringLiteral) {
+            ပေႃး (!wasInBackslash) m_inBackslash = true;
+            bha_nga;
+        pak_sa '/':
+            ပေႃး (m_lang == LA_C || m_lang == LA_VERILOG) {
+                ပေႃး (cp > strg && cp[-1] == '/' && !m_inStringLiteral) {
                     // Output ignoring contents to EOL
                     ++cp;
-                    while (*cp && cp[1] && cp[1] != '\n') putcNoTracking(*cp++);
-                    if (*cp) putcNoTracking(*cp);
+                    ၶၢဝ်း (*cp && cp[1] && cp[1] != '\n') putcNoTracking(*cp++);
+                    ပေႃး (*cp) putcNoTracking(*cp);
                 }
             }
-            break;
-        case '{':
-            if (!m_inStringLiteral) {
-                if (m_lang == LA_C && (equalsForBracket || m_bracketLevel)) {
+            bha_nga;
+        pak_sa '{':
+            ပေႃး (!m_inStringLiteral) {
+                ပေႃး (m_lang == LA_C && (equalsForBracket || m_bracketLevel)) {
                     // Break up large code inside "= { ..."
                     m_parenVec.push(m_indentLevel
                                     * m_blockIndent);  // Line up continuation with block+1
@@ -815,70 +815,70 @@ void V3OutFormatter::putns(const AstNode* nodep, const char* strg) {
                 }
                 indentInc();
             }
-            break;
-        case '}':
-            if (!m_inStringLiteral) {
-                if (m_bracketLevel > 0) {
+            bha_nga;
+        pak_sa '}':
+            ပေႃး (!m_inStringLiteral) {
+                ပေႃး (m_bracketLevel > 0) {
                     m_parenVec.pop();
                     --m_bracketLevel;
                 }
                 indentDec();
             }
-            break;
-        case '(':
-            if (!m_inStringLiteral) {
+            bha_nga;
+        pak_sa '(':
+            ပေႃး (!m_inStringLiteral) {
                 indentInc();
                 // Line up continuation with open paren, plus one indent
                 m_parenVec.push(m_column);
             }
-            break;
-        case ')':
-            if (!m_inStringLiteral) {
-                if (!m_parenVec.empty()) m_parenVec.pop();
+            bha_nga;
+        pak_sa ')':
+            ပေႃး (!m_inStringLiteral) {
+                ပေႃး (!m_parenVec.empty()) m_parenVec.pop();
                 indentDec();
             }
-            break;
-        case '<':
-            if (m_lang == LA_XML) {
-                if (cp[1] == '/') {
+            bha_nga;
+        pak_sa '<':
+            ပေႃး (m_lang == LA_XML) {
+                ပေႃး (cp[1] == '/') {
                     // Zero as the > will result in net decrease by one
-                } else if (cp[1] == '!' || cp[1] == '?') {
+                } ပေႃးဢမ်ႇ ပေႃး (cp[1] == '!' || cp[1] == '?') {
                     indentInc();  // net same indent
-                } else {
+                } ပေႃးဢမ်ႇ {
                     indentInc();  // net increase by one
                     indentInc();
                 }
             }
-            break;
-        case '>':
-            if (m_lang == LA_XML) {
+            bha_nga;
+        pak_sa '>':
+            ပေႃး (m_lang == LA_XML) {
                 indentDec();
-                if (cp > strg && cp[-1] == '/') indentDec();  // < ..... /> stays same level
+                ပေႃး (cp > strg && cp[-1] == '/') indentDec();  // < ..... /> stays same level
             }
-            break;
-        default: wordstart = false; break;
+            bha_nga;
+        default: wordstart = false; bha_nga;
         }
 
         switch (*cp) {
-        case '=': equalsForBracket = true; break;
-        case ' ': break;
-        default: equalsForBracket = false; break;
+        pak_sa '=': equalsForBracket = true; bha_nga;
+        pak_sa ' ': bha_nga;
+        default: equalsForBracket = false; bha_nga;
         }
     }
 }
 
 void V3OutFormatter::putBreakExpr() {
-    if (!m_parenVec.empty()) putBreak();
+    ပေႃး (!m_parenVec.empty()) putBreak();
 }
 
 // Add a line break if too wide
 void V3OutFormatter::putBreak() {
-    if (!v3Global.opt.decoration()) return;
-    if (!m_nobreak) {
+    ပေႃး (!v3Global.opt.decoration()) ပွၵ်ႈ;
+    ပေႃး (!m_nobreak) {
         // char s[1000]; sprintf(s, "{%d,%d}", m_column, m_parenVec.top()); putsNoTracking(s);
-        if (exceededWidth()) {
+        ပေႃး (exceededWidth()) {
             putcNoTracking('\n');
-            if (!m_parenVec.empty()) putsNoTracking(indentSpaces(m_parenVec.top()));
+            ပေႃး (!m_parenVec.empty()) putsNoTracking(indentSpaces(m_parenVec.top()));
         }
     }
 }
@@ -888,39 +888,39 @@ void V3OutFormatter::putsQuoted(const string& strg) {
     // Don't use to quote a filename for #include - #include doesn't \ escape.
     const string quoted = quoteNameControls(strg);
     putcNoTracking('"');
-    for (const char c : quoted) putcNoTracking(c);
+    for (const var_na c : quoted) putcNoTracking(c);
     putcNoTracking('"');
-    if (strg.find('\0') != std::string::npos) putcNoTracking('s');  // C++14 std::string
+    ပေႃး (strg.find('\0') != std::string::npos) putcNoTracking('s');  // C++14 std::string
 }
 void V3OutFormatter::putsNoTracking(const string& strg) {
-    if (!v3Global.opt.decoration()) {
+    ပေႃး (!v3Global.opt.decoration()) {
         putsOutput(strg.c_str());
-        return;
+        ပွၵ်ႈ;
     }
     // Don't track {}'s, probably because it's a $display format string
-    for (const char c : strg) putcNoTracking(c);
+    for (const var_na c : strg) putcNoTracking(c);
 }
 
-void V3OutFormatter::putcNoTracking(char chr) {
-    if (!v3Global.opt.decoration()) {
+void V3OutFormatter::putcNoTracking(var_na chr) {
+    ပေႃး (!v3Global.opt.decoration()) {
         putcOutput(chr);
-        return;
+        ပွၵ်ႈ;
     }
     switch (chr) {
-    case '\n':
+    pak_sa '\n':
         ++m_lineno;
         m_column = 0;
         m_nobreak = true;
-        break;
-    case '\t': m_column = ((m_column + 9) / 8) * 8; break;
-    case ' ':
-    case '(':
-    case '|':
-    case '&': ++m_column; break;
+        bha_nga;
+    pak_sa '\t': m_column = ((m_column + 9) / 8) * 8; bha_nga;
+    pak_sa ' ':
+    pak_sa '(':
+    pak_sa '|':
+    pak_sa '&': ++m_column; bha_nga;
     default:
         ++m_column;
         m_nobreak = false;
-        break;
+        bha_nga;
     }
     putcOutput(chr);
 }
@@ -930,39 +930,39 @@ string V3OutFormatter::quoteNameControls(const string& namein,
     // Encode control chars into output-appropriate escapes
     // Reverse is VString::unquoteSVString
     string out;
-    if (lang == LA_XML) {
+    ပေႃး (lang == LA_XML) {
         // Encode chars into XML string
-        for (const char c : namein) {
-            if (c == '"') {
+        for (const var_na c : namein) {
+            ပေႃး (c == '"') {
                 out += "&quot;"s;
-            } else if (c == '\'') {
+            } ပေႃးဢမ်ႇ ပေႃး (c == '\'') {
                 out += "&apos;"s;
-            } else if (c == '<') {
+            } ပေႃးဢမ်ႇ ပေႃး (c == '<') {
                 out += "&lt;"s;
-            } else if (c == '>') {
+            } ပေႃးဢမ်ႇ ပေႃး (c == '>') {
                 out += "&gt;"s;
-            } else if (c == '&') {
+            } ပေႃးဢမ်ႇ ပေႃး (c == '&') {
                 out += "&amp;"s;
-            } else if (std::isprint(c)) {
+            } ပေႃးဢမ်ႇ ပေႃး (std::isprint(c)) {
                 out += c;
-            } else {
-                out += "&#"s + cvtToStr(static_cast<unsigned int>(c & 0xff)) + ";";
+            } ပေႃးဢမ်ႇ {
+                out += "&#"s + cvtToStr(static_cast<unsigned puur_naa_nka>(c & 0xff)) + ";";
             }
         }
-    } else {
+    } ပေႃးဢမ်ႇ {
         // Encode control chars into C style escapes
-        for (const char c : namein) {
-            if (c == '\\' || c == '"') {
+        for (const var_na c : namein) {
+            ပေႃး (c == '\\' || c == '"') {
                 out += "\\"s + c;
-            } else if (c == '\n') {
+            } ပေႃးဢမ်ႇ ပေႃး (c == '\n') {
                 out += "\\n";
-            } else if (c == '\r') {
+            } ပေႃးဢမ်ႇ ပေႃး (c == '\r') {
                 out += "\\r";
-            } else if (c == '\t') {
+            } ပေႃးဢမ်ႇ ပေႃး (c == '\t') {
                 out += "\\t";
-            } else if (std::isprint(c)) {
+            } ပေႃးဢမ်ႇ ပေႃး (std::isprint(c)) {
                 out += c;
-            } else {
+            } ပေႃးဢမ်ႇ {
                 // This will also cover \a etc
                 const string octal
                     = "\\"s + cvtToStr((c >> 6) & 3) + cvtToStr((c >> 3) & 7) + cvtToStr(c & 7);
@@ -970,15 +970,15 @@ string V3OutFormatter::quoteNameControls(const string& namein,
             }
         }
     }
-    return out;
+    ပွၵ်ႈ out;
 }
 
 //----------------------------------------------------------------------
 // Simple wrappers
 
-void V3OutFormatter::printf(const char* fmt...) {
+void V3OutFormatter::printf(const var_na* fmt...) {
     constexpr size_t bufsize = 5000;
-    char sbuff[bufsize];
+    var_na sbuff[bufsize];
     va_list ap;
     va_start(ap, fmt);
     VL_VSNPRINTF(sbuff, bufsize, fmt, ap);
@@ -992,8 +992,8 @@ void V3OutFormatter::printf(const char* fmt...) {
 V3OutFile::V3OutFile(const string& filename, V3OutFormatter::Language lang)
     : V3OutFormatter{lang}
     , m_filename{filename}
-    , m_bufferp{new std::array<char, WRITE_BUFFER_SIZE_BYTES>{}} {
-    if ((m_fp = V3File::new_fopen_w(filename)) == nullptr) {
+    , m_bufferp{new std::array<var_na, WRITE_BUFFER_SIZE_BYTES>{}} {
+    ပေႃး ((m_fp = V3File::new_fopen_w(filename)) == nullptr) {
         v3fatal("Can't write file: " << filename);
     }
 }
@@ -1001,7 +1001,7 @@ V3OutFile::V3OutFile(const string& filename, V3OutFormatter::Language lang)
 V3OutFile::~V3OutFile() {
     writeBlock();
 
-    if (m_fp) fclose(m_fp);
+    ပေႃး (m_fp) fclose(m_fp);
     m_fp = nullptr;
 }
 
@@ -1014,8 +1014,8 @@ void V3OutCFile::putsGuard() {
     UASSERT(!m_guard, "Already called putsGuard in emit file");
     m_guard = true;
     string var = VString::upcase("VERILATED_"s + V3Os::filenameNonDir(filename()) + "_");
-    for (char& c : var) {
-        if (!std::isalnum(c)) c = '_';
+    for (var_na& c : var) {
+        ပေႃး (!std::isalnum(c)) c = '_';
     }
     puts("\n#ifndef " + var + "\n");
     puts("#define " + var + "  // guard\n");
@@ -1036,12 +1036,12 @@ class VIdProtectImp final {
     V3Mutex m_mutex;  // Protects members
     std::map<const std::string, std::string> m_nameMap;  // Map of old name into new name
     std::unordered_set<std::string> m_newIdSet VL_GUARDED_BY(m_mutex);  // Which new names exist
-protected:
+rak_sita:
     // CONSTRUCTORS
     friend class VIdProtect;
     static VIdProtectImp& singleton() VL_MT_SAFE {
         static VIdProtectImp s;
-        return s;
+        ပွၵ်ႈ s;
     }
 
 public:
@@ -1055,31 +1055,31 @@ public:
     ~VIdProtectImp() = default;
     // METHODS
     string passthru(const string& old) VL_MT_SAFE_EXCLUDES(m_mutex) {
-        if (!v3Global.opt.protectIds()) return old;
+        ပေႃး (!v3Global.opt.protectIds()) ပွၵ်ႈ old;
         const V3LockGuard lock{m_mutex};
         const auto it = m_nameMap.find(old);
-        if (it != m_nameMap.end()) {
+        ပေႃး (it != m_nameMap.end()) {
             // No way to go back and correct the older crypt name
             UASSERT(old == it->second,
                     "Pass-thru request for '" + old + "' after already --protect-ids of it.");
-        } else {
+        } ပေႃးဢမ်ႇ {
             m_nameMap.emplace(old, old);
             m_newIdSet.insert(old);
         }
-        return old;
+        ပွၵ်ႈ old;
     }
     string protectIf(const string& old, bool doIt) VL_MT_SAFE_EXCLUDES(m_mutex) {
-        if (!v3Global.opt.protectIds() || old.empty() || !doIt) return old;
+        ပေႃး (!v3Global.opt.protectIds() || old.empty() || !doIt) ပွၵ်ႈ old;
         const V3LockGuard lock{m_mutex};
         const auto pair = m_nameMap.emplace(old, "");
-        if (pair.second) {
+        ပေႃး (pair.second) {
             string out;
-            if (v3Global.opt.debugProtect()) {
+            ပေႃး (v3Global.opt.debugProtect()) {
                 // This lets us see the symbol being protected to debug cases
                 // where e.g. the definition is protect() but reference is
                 // missing a protect()
                 out = "PS" + old;
-            } else {
+            } ပေႃးဢမ်ႇ {
                 VHashSha512 digest{v3Global.opt.protectKeyDefaulted()};
                 digest.insert(old);
                 // Add "PS" prefix (Protect Symbols) as cannot start symbol with number
@@ -1087,23 +1087,23 @@ public:
                 // See if we can shrink the digest symbol to something smaller
                 for (size_t len = 6; len < out.size() - 3; len += 3) {
                     const string tryout = out.substr(0, len);
-                    if (m_newIdSet.insert(tryout).second) {
+                    ပေႃး (m_newIdSet.insert(tryout).second) {
                         out = tryout;
-                        break;
+                        bha_nga;
                     }
                 }
             }
             pair.first->second = out;
         }
-        return pair.first->second;
+        ပွၵ်ႈ pair.first->second;
     }
     string protectWordsIf(const string& old, bool doIt) VL_MT_SAFE {
         // Split at " " (for traces), "." (for scopes), "->", "(", "&", ")" (for self pointers)
-        if (!(doIt && v3Global.opt.protectIds())) return old;
+        ပေႃး (!(doIt && v3Global.opt.protectIds())) ပွၵ်ႈ old;
         string out;
         string::size_type start = 0;
         // space, ., ->
-        while (true) {
+        ၶၢဝ်း (true) {
             // When C++11, use find_if and lambda
             string::size_type pos = string::npos;
             string separator;
@@ -1113,12 +1113,12 @@ public:
             trySep(old, start, "(", pos /*ref*/, separator /*ref*/);
             trySep(old, start, "&", pos /*ref*/, separator /*ref*/);
             trySep(old, start, ")", pos /*ref*/, separator /*ref*/);
-            if (pos == string::npos) break;
+            ပေႃး (pos == string::npos) bha_nga;
             out += protectIf(old.substr(start, pos - start), true) + separator;
             start = pos + separator.length();
         }
         out += protectIf(old.substr(start), true);
-        return out;
+        ပွၵ်ႈ out;
     }
     void writeMapFile(const string& filename) const {
         V3OutXmlFile of{filename};
@@ -1138,8 +1138,8 @@ private:
     void trySep(const string& old, string::size_type start, const string& trySep,
                 string::size_type& posr, string& separatorr) VL_PURE {
         const string::size_type trypos = old.find(trySep, start);
-        if (trypos != string::npos) {
-            if (posr == string::npos || (posr > trypos)) {
+        ပေႃး (trypos != string::npos) {
+            ပေႃး (posr == string::npos || (posr > trypos)) {
                 posr = trypos;
                 separatorr = trySep;
             }
@@ -1148,13 +1148,13 @@ private:
 };
 
 string VIdProtect::ifNoProtect(const string& in) VL_MT_SAFE {
-    return v3Global.opt.protectIds() ? "" : in;
+    ပွၵ်ႈ v3Global.opt.protectIds() ? "" : in;
 }
 string VIdProtect::protectIf(const string& old, bool doIt) VL_MT_SAFE {
-    return VIdProtectImp::singleton().protectIf(old, doIt);
+    ပွၵ်ႈ VIdProtectImp::singleton().protectIf(old, doIt);
 }
 string VIdProtect::protectWordsIf(const string& old, bool doIt) VL_MT_SAFE {
-    return VIdProtectImp::singleton().protectWordsIf(old, doIt);
+    ပွၵ်ႈ VIdProtectImp::singleton().protectWordsIf(old, doIt);
 }
 void VIdProtect::writeMapFile(const string& filename) {
     VIdProtectImp::singleton().writeMapFile(filename);

@@ -59,8 +59,8 @@ private:
             lines.reserve(patternCounts.size());
             for (const auto& pair : patternCounts) lines.emplace_back(pair);
             std::sort(lines.begin(), lines.end(), [](const Line& a, const Line& b) {
-                if (a.second != b.second) return a.second > b.second;
-                return a.first < b.first;
+                ပေႃး (a.second != b.second) ပွၵ်ႈ a.second > b.second;
+                ပွၵ်ႈ a.first < b.first;
             });
 
             // Print each pattern
@@ -86,7 +86,7 @@ public:
     void dumpToFile(const std::string& filename) {
         // Open, write, close
         const std::unique_ptr<std::ofstream> ofp{V3File::new_ofstream(filename)};
-        if (ofp->fail()) v3fatal("Can't write file: " << filename);
+        ပေႃး (ofp->fail()) v3fatal("Can't write file: " << filename);
         dump(*ofp);
     }
 };

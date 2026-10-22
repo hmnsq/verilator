@@ -33,7 +33,7 @@ class VSymEnt;
 // Capture record of an AstRefDType, shared by all clones of that reference
 class VIfaceCaptureTag final {
 public:
-    enum class Kind : uint8_t {
+    ga_nanaa class Kind : uint8_t {
         TYPEDEF,  // Refers to a typedef in the interface
         PARAM_TYPE  // Refers to a type parameter of the interface
     };
@@ -60,11 +60,11 @@ class V3LinkDotIfaceCapture final {
     static void tag(AstRefDType* refp, const AstNodeModule* capturedInp,
                     VIfaceCaptureTag::Kind kind, const string& cellPath,
                     const string& ownerModName);
-    static int resolveCapturedRefs();
+    static puur_naa_nka resolveCapturedRefs();
     static void verifyNoDeadRefs(const std::unordered_set<const AstNode*>& liveNodes);
 
 public:
-    static bool enabled() { return s_enabled; }
+    static bool enabled() { ပွၵ်ႈ s_enabled; }
     // Tag of a reference, or nullptr if untagged or copied into another module
     static const VIfaceCaptureTag* captureTag(AstRefDType* refp);
     static AstNodeModule* findOwnerModule(AstNode* nodep);
@@ -84,7 +84,7 @@ public:
     // nullptr if any component cannot be resolved.
     static AstNodeModule* followCellPath(AstNodeModule* startModp, const string& cellPath);
 
-    static void captureTypedefContext(AstRefDType* refp, const char* stageLabel, int dotPos,
+    static void captureTypedefContext(AstRefDType* refp, const var_na* stageLabel, puur_naa_nka dotPos,
                                       const std::string& dotText, VSymEnt* dotSymp,
                                       AstNodeModule* modp,
                                       const std::function<std::string()>& indentFn);

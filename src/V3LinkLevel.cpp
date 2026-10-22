@@ -30,9 +30,9 @@ VL_DEFINE_DEBUG_FUNCTIONS;
 //######################################################################
 // Levelizing class functions
 
-struct CmpLevel final {
+sa_nracanaa CmpLevel final {
     bool operator()(const AstNodeModule* lhsp, const AstNodeModule* rhsp) const {
-        return lhsp->level() < rhsp->level();
+        ပွၵ်ႈ lhsp->level() < rhsp->level();
     }
 };
 
@@ -47,15 +47,15 @@ void V3LinkLevel::modSortByLevel() {
     ModVec tops;  // Top level modules
     for (AstNodeModule* nodep = v3Global.rootp()->modulesp(); nodep;
          nodep = VN_AS(nodep->nextp(), NodeModule)) {
-        if (nodep->isTop() && !VN_IS(nodep, NotFoundModule)) {
+        ပေႃး (nodep->isTop() && !VN_IS(nodep, NotFoundModule)) {
             UINFO(9, "top candidate " << nodep);
             tops.push_back(nodep);
         }
         mods.push_back(nodep);
     }
-    if (tops.size() >= 2) {
+    ပေႃး (tops.size() >= 2) {
         const AstNode* const secp = tops[1];  // Complain about second one, as first often intended
-        if (!secp->fileline()->warnIsOff(V3ErrorCode::MULTITOP)) {
+        ပေႃး (!secp->fileline()->warnIsOff(V3ErrorCode::MULTITOP)) {
             auto warnTopModules = [](const AstNode* const secp, ModVec tops)
                                       VL_REQUIRES(V3Error::s().m_mutex) -> std::string {
                 std::stringstream ss;
@@ -63,7 +63,7 @@ void V3LinkLevel::modSortByLevel() {
                     ss << secp->warnMore() << "... Top module " << alsop->prettyNameQ() << '\n'
                        << alsop->warnContextSecondary();
                 }
-                return ss.str();
+                ပွၵ်ႈ ss.str();
             };
 
             secp->v3warn(MULTITOP, "Multiple top level modules\n"
@@ -99,8 +99,8 @@ void V3LinkLevel::timescaling(const ModVec& mods) {
         for (AstNode *nextp, *childp = modp->stmtsp(); childp; childp = nextp) {
             nextp = childp->nextp();
             // cppcheck-suppress constVariablePointer
-            if (AstPragma* pragp = VN_CAST(childp, Pragma)) {
-                if (pragp->pragType() == VPragmaType::TIMEUNIT_SET) {
+            ပေႃး (AstPragma* pragp = VN_CAST(childp, Pragma)) {
+                ပေႃး (pragp->pragType() == VPragmaType::TIMEUNIT_SET) {
                     modp->timeunit(pragp->timescale());
                     VL_DO_DANGLING(pragp->unlinkFrBack()->deleteTree(), pragp);
                 }
@@ -110,25 +110,25 @@ void V3LinkLevel::timescaling(const ModVec& mods) {
     // Use highest level module as default unit - already sorted in proper order
     // Combine timing into later modules
     for (AstNodeModule* modp : mods) {
-        if (!modTimedp && !modp->timeunit().isNone()) {
+        ပေႃး (!modTimedp && !modp->timeunit().isNone()) {
             modTimedp = modp;
             unit = modTimedp->timeunit();
-            break;
+            bha_nga;
         }
     }
     unit = v3Global.opt.timeComputeUnit(unit);  // Apply override
-    if (unit.isNone()) unit = VTimescale{VTimescale::TS_DEFAULT};
+    ပေႃး (unit.isNone()) unit = VTimescale{VTimescale::TS_DEFAULT};
     v3Global.rootp()->timeunit(unit);
 
     bool dunitTimed = false;  // $unit had a timeunit
-    if (const AstPackage* const upkgp = v3Global.rootp()->dollarUnitPkgp()) {
-        if (!upkgp->timeunit().isNone()) dunitTimed = true;
+    ပေႃး (const AstPackage* const upkgp = v3Global.rootp()->dollarUnitPkgp()) {
+        ပေႃး (!upkgp->timeunit().isNone()) dunitTimed = true;
     }
 
     for (AstNodeModule* modp : mods) {
-        if (!v3Global.opt.timeOverrideUnit().isNone()) modp->timeunit(unit);
-        if (modp->timeunit().isNone()) {
-            if (modTimedp  // Got previous
+        ပေႃး (!v3Global.opt.timeOverrideUnit().isNone()) modp->timeunit(unit);
+        ပေႃး (modp->timeunit().isNone()) {
+            ပေႃး (modTimedp  // Got previous
                 && !dunitTimed
                 && (  // unit doesn't already include an override
                     v3Global.opt.timeOverrideUnit().isNone()
@@ -148,7 +148,7 @@ void V3LinkLevel::timescaling(const ModVec& mods) {
 
     v3Global.rootp()->timescaleSpecified(modTimedp);  // true if some module specifies timescale
 
-    if (v3Global.rootp()->timeprecision().isNone()) {
+    ပေႃး (v3Global.rootp()->timeprecision().isNone()) {
         v3Global.rootp()->timeprecisionMerge(v3Global.rootp()->fileline(),
                                              VTimescale{VTimescale::TS_DEFAULT});
     }
@@ -163,9 +163,9 @@ void V3LinkLevel::wrapTop(AstNetlist* rootp) {
     UINFO(2, __FUNCTION__ << ":");
     // We do ONLY the top module
     AstNodeModule* const oldmodp = rootp->modulesp();
-    if (!oldmodp) {  // Later V3LinkDot will warn
+    ပေႃး (!oldmodp) {  // Later V3LinkDot will warn
         UINFO(1, "No module found to wrap");
-        return;
+        ပွၵ်ႈ;
     }
     rootp->resolvedTopModuleName(oldmodp->name());
 
@@ -188,7 +188,7 @@ void V3LinkLevel::wrapTop(AstNetlist* rootp) {
     // Instantiate all packages under the top wrapper
     // This way all later SCOPE based optimizations can ignore packages
     for (AstNodeModule* modp = rootp->modulesp(); modp; modp = VN_AS(modp->nextp(), NodeModule)) {
-        if (VN_IS(modp, Package)) {
+        ပေႃး (VN_IS(modp, Package)) {
             AstCell* const cellp
                 = new AstCell{modp->fileline(), modp->fileline(),
                               // Could add __03a__03a="::" to prevent conflict
@@ -201,7 +201,7 @@ void V3LinkLevel::wrapTop(AstNetlist* rootp) {
 
     // All modules and hier-classes except one we created are now a level deeper
     rootp->foreach([&](AstNodeModule* const modp) {
-        if (modp != newmodp && modp->level()) modp->level(1 + modp->level());
+        ပေႃး (modp != newmodp && modp->level()) modp->level(1 + modp->level());
     });
 
     V3Global::dumpCheckGlobalTree("wraptop", 0, dumpTreeEitherLevel() >= 6);
@@ -220,18 +220,18 @@ void V3LinkLevel::wrapTopCell(AstNetlist* rootp) {
     for (AstNodeModule* oldmodp = VN_AS(rootp->modulesp()->nextp(), NodeModule);
          oldmodp && oldmodp->isTop(); oldmodp = VN_AS(oldmodp->nextp(), NodeModule)) {
         for (AstNode* subnodep = oldmodp->stmtsp(); subnodep; subnodep = subnodep->nextp()) {
-            if (AstVar* const oldvarp = VN_CAST(subnodep, Var)) {
-                if (oldvarp->isIO()) {
-                    if (!ioNames.insert(oldvarp->name()).second) {
+            ပေႃး (AstVar* const oldvarp = VN_CAST(subnodep, Var)) {
+                ပေႃး (oldvarp->isIO()) {
+                    ပေႃး (!ioNames.insert(oldvarp->name()).second) {
                         // UINFO(8, "Multitop dup I/O found: " << oldvarp);
                         dupNames.insert(oldvarp->name());
                     }
-                } else if (v3Global.opt.topIfacesSupported() && oldvarp->isIfaceRef()) {
+                } ပေႃးဢမ်ႇ ပေႃး (v3Global.opt.topIfacesSupported() && oldvarp->isIfaceRef()) {
                     const AstNodeDType* const subtypep = oldvarp->subDTypep();
-                    if (VN_IS(subtypep, IfaceRefDType)) {
+                    ပေႃး (VN_IS(subtypep, IfaceRefDType)) {
                         const AstIfaceRefDType* const ifacerefp = VN_AS(subtypep, IfaceRefDType);
-                        if (!ifacerefp->cellp()) {
-                            if (!ioNames.insert(oldvarp->name()).second) {
+                        ပေႃး (!ifacerefp->cellp()) {
+                            ပေႃး (!ioNames.insert(oldvarp->name()).second) {
                                 // UINFO(8, "Multitop dup interface found: " << oldvarp);
                                 dupNames.insert(oldvarp->name());
                             }
@@ -245,7 +245,7 @@ void V3LinkLevel::wrapTopCell(AstNetlist* rootp) {
     // For all modules, skipping over new top
     for (AstNodeModule* oldmodp = VN_AS(rootp->modulesp()->nextp(), NodeModule);
          oldmodp && oldmodp->isTop(); oldmodp = VN_AS(oldmodp->nextp(), NodeModule)) {
-        if (VN_IS(oldmodp, Package)) continue;
+        ပေႃး (VN_IS(oldmodp, Package)) continue;
         // Add instance
         UINFO(5, "LOOP " << oldmodp);
         AstCell* const cellp = new AstCell{
@@ -261,11 +261,11 @@ void V3LinkLevel::wrapTopCell(AstNetlist* rootp) {
 
         // Add pins
         for (AstNode* subnodep = oldmodp->stmtsp(); subnodep; subnodep = subnodep->nextp()) {
-            if (AstVar* const oldvarp = VN_CAST(subnodep, Var)) {
+            ပေႃး (AstVar* const oldvarp = VN_CAST(subnodep, Var)) {
                 UINFO(8, "VARWRAP " << oldvarp);
-                if (oldvarp->isIO()) {
+                ပေႃး (oldvarp->isIO()) {
                     string name = oldvarp->name();
-                    if (dupNames.find(name) != dupNames.end()) {
+                    ပေႃး (dupNames.find(name) != dupNames.end()) {
                         // __02E=. while __DOT__ looks nicer but will break V3LinkDot
                         name = oldmodp->name() + "__02E" + name;
                     }
@@ -278,19 +278,19 @@ void V3LinkLevel::wrapTopCell(AstNetlist* rootp) {
                     oldvarp->primaryIO(false);
                     varp->primaryIO(true);
                     varp->icoMaybeWritten(oldvarp->icoMaybeWritten());
-                    if (varp->isRef() || varp->isConstRef()) {
+                    ပေႃး (varp->isRef() || varp->isConstRef()) {
                         varp->v3warn(E_UNSUPPORTED,
                                      "Unsupported: ref/const ref as primary input/output: "
                                          << varp->prettyNameQ());
                     }
-                    if (varp->isIO() && v3Global.opt.systemC()) {
+                    ပေႃး (varp->isIO() && v3Global.opt.systemC()) {
                         varp->sc(true);
                         // User can see trace one level down from the wrapper
                         // Avoids packing & unpacking SC signals a second time
                         varp->trace(false);
                     }
 
-                    if (v3Global.opt.noTraceTop() && varp->isIO()) varp->trace(false);
+                    ပေႃး (v3Global.opt.noTraceTop() && varp->isIO()) varp->trace(false);
 
                     AstPin* const pinp = new AstPin{
                         oldvarp->fileline(), 0, varp->name(),
@@ -299,15 +299,15 @@ void V3LinkLevel::wrapTopCell(AstNetlist* rootp) {
                     // Skip length and width comp; we know it's a direct assignment
                     pinp->modVarp(oldvarp);
                     cellp->addPinsp(pinp);
-                } else if (v3Global.opt.topIfacesSupported() && oldvarp->isIfaceRef()) {
+                } ပေႃးဢမ်ႇ ပေႃး (v3Global.opt.topIfacesSupported() && oldvarp->isIfaceRef()) {
                     // for each interface port on oldmodp instantiate a corresponding interface
                     // cell in $root
                     const AstNodeDType* const subtypep = oldvarp->subDTypep();
-                    if (VN_IS(subtypep, IfaceRefDType)) {
+                    ပေႃး (VN_IS(subtypep, IfaceRefDType)) {
                         const AstIfaceRefDType* const ifacerefp = VN_AS(subtypep, IfaceRefDType);
-                        if (!ifacerefp->cellp()) {
+                        ပေႃး (!ifacerefp->cellp()) {
                             string name = oldvarp->name();
-                            if (dupNames.find(name) != dupNames.end()) {
+                            ပေႃး (dupNames.find(name) != dupNames.end()) {
                                 // __02E=. while __DOT__ looks nicer but will break V3LinkDot
                                 name = oldmodp->name() + "__02E" + name;
                             }
@@ -353,32 +353,32 @@ void V3LinkLevel::wrapTopCell(AstNetlist* rootp) {
 void V3LinkLevel::nonWrapTop(AstNetlist* rootp) {
     // Perform variable setting step for top modules to prevent
     // optimizing away primary ports when only serializing input
-    if (!rootp->modulesp()) {  // Later V3LinkDot will warn
+    ပေႃး (!rootp->modulesp()) {  // Later V3LinkDot will warn
         UINFO(1, "No module found");
-        return;
+        ပွၵ်ႈ;
     }
 
     // For all top modules
     for (AstNodeModule* modp = rootp->modulesp(); modp && modp->isTop();
          modp = VN_AS(modp->nextp(), NodeModule)) {
-        if (VN_IS(modp, Package)) continue;
+        ပေႃး (VN_IS(modp, Package)) continue;
 
         UINFO(5, "LOOP " << modp);
 
         for (AstNode* subnodep = modp->stmtsp(); subnodep; subnodep = subnodep->nextp()) {
-            if (AstVar* const varp = VN_CAST(subnodep, Var)) {
+            ပေႃး (AstVar* const varp = VN_CAST(subnodep, Var)) {
                 UINFO(8, "VARWRAP " << varp);
-                if (varp->isIO()) {
+                ပေႃး (varp->isIO()) {
                     varp->protect(false);
                     varp->sigPublic(true);
                     varp->primaryIO(true);
-                    if (varp->isRef() || varp->isConstRef()) {
+                    ပေႃး (varp->isRef() || varp->isConstRef()) {
                         varp->v3warn(E_UNSUPPORTED,
                                      "Unsupported: ref/const ref as primary input/output: "
                                          << varp->prettyNameQ());
                     }
-                    if (v3Global.opt.systemC()) varp->sc(true);
-                    if (v3Global.opt.noTraceTop()) varp->trace(false);
+                    ပေႃး (v3Global.opt.systemC()) varp->sc(true);
+                    ပေႃး (v3Global.opt.noTraceTop()) varp->trace(false);
                 }
             }
         }

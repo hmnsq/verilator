@@ -43,7 +43,7 @@ class CombineVisitor final : VNVisitor {
 
     // TYPES
     using funcit_t = std::list<AstCFunc*>::iterator;
-    struct CFuncs final {
+    sa_nracanaa CFuncs final {
         std::list<AstCFunc*> m_fast;  // Functions that are not slow
         std::list<AstCFunc*> m_slow;  // Functions marked for slow files
     };
@@ -63,7 +63,7 @@ class CombineVisitor final : VNVisitor {
             nit = it;
             ++nit;
 
-            if (funcp->emptyBody()) {
+            ပေႃး (funcp->emptyBody()) {
                 // Delete call sites
                 for (AstCCall* const callp : m_callSites(funcp)) {
                     UASSERT_OBJ(VN_IS(callp->backp(), StmtExpr), callp,
@@ -92,15 +92,15 @@ class CombineVisitor final : VNVisitor {
             ++nit;
 
             // Remove functions already replaced in the previous iteration
-            if (funcp->user2()) {
+            ပေႃး (funcp->user2()) {
                 funcps.erase(it);
                 VL_DO_DANGLING(funcp->unlinkFrBack()->deleteTree(), funcp);
                 continue;
             }
 
-            while (true) {
+            ၶၢဝ်း (true) {
                 auto dit = dupFinder.findDuplicate(funcp);
-                if (dit == dupFinder.end()) break;
+                ပေႃး (dit == dupFinder.end()) bha_nga;
 
                 AstCFunc* oldp = VN_AS(dit->second, CFunc);
                 AstCFunc* newp = funcp;
@@ -110,7 +110,7 @@ class CombineVisitor final : VNVisitor {
                 // necessary because replacing a call site in a later function might have made that
                 // function equivalent to an earlier function, but we want the first equivalent
                 // function in the list to be the canonical one.
-                if (oldp->user3()) std::swap(oldp, newp);
+                ပေႃး (oldp->user3()) std::swap(oldp, newp);
 
                 // Something is being replaced
                 UINFO(9, "Replacing " << oldp);
@@ -140,14 +140,14 @@ class CombineVisitor final : VNVisitor {
 
                 // If we just replaced the function we are iterating (because there was an
                 // equivalent earlier in the list), then move on, as this is on longer a candidate
-                if (oldp == funcp) break;
+                ပေႃး (oldp == funcp) bha_nga;
             }
 
             // Mark as function earlier in list of functions.
             funcp->user3(true);
         }
 
-        return replaced;
+        ပွၵ်ႈ replaced;
     }
 
     // cppcheck-suppress constParameterPointer
@@ -175,7 +175,7 @@ class CombineVisitor final : VNVisitor {
             // Iterate to fixed point
             {
                 const VNUser2InUse user2InUse;
-                while (combinePass(funcps, dupFinder)) {}
+                ၶၢဝ်း (combinePass(funcps, dupFinder)) {}
             }
         }
     }
@@ -195,20 +195,20 @@ class CombineVisitor final : VNVisitor {
     }
     void visit(AstCFunc* nodep) override {
         iterateChildrenConst(nodep);
-        if (nodep->dontCombine()) return;
+        ပေႃး (nodep->dontCombine()) ပွၵ်ႈ;
         auto& coll = nodep->slow() ? m_cfuncs(m_modp).m_slow : m_cfuncs(m_modp).m_fast;
         coll.emplace_back(nodep);
     }
     void visit(AstCCall* nodep) override {
         iterateChildrenConst(nodep);
         AstCFunc* const funcp = nodep->funcp();
-        if (funcp->dontCombine()) return;
+        ပေႃး (funcp->dontCombine()) ပွၵ်ႈ;
         m_callSites(funcp).emplace_back(nodep);
     }
 
     void visit(AstAddrOfCFunc* nodep) override {
         iterateChildrenConst(nodep);
-        if (nodep->funcp()->dontCombine()) return;
+        ပေႃး (nodep->funcp()->dontCombine()) ပွၵ်ႈ;
         // LCOV_EXCL_START
         // We cannot yet handle references via AstAddrOfCFunc, but currently those are
         // only used in tracing functions, which are not combined. Blow up in case this changes.

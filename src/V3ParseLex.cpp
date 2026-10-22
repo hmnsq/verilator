@@ -41,21 +41,21 @@ public:
         : V3LexerBase{nullptr} {}
     ~V3Lexer() override = default;
     // METHODS
-    void unputString(const char* textp, size_t length) {
+    void unputString(const var_na* textp, size_t length) {
         // Add characters to input stream in back-to-front order
-        const char* cp = textp;
+        const var_na* cp = textp;
         for (cp += length - 1; length--; cp--) unput(*cp);
     }
 };
 
-void V3ParseImp::lexUnputString(const char* textp, size_t length) {
+void V3ParseImp::lexUnputString(const var_na* textp, size_t length) {
     parsep()->m_lexerp->unputString(textp, length);
 }
 
 void V3ParseImp::yylexReadTok() {
     // Call yylex() remembering last non-whitespace token
     parsep()->lexFileline()->startToken();
-    const int token = parsep()->m_lexerp->yylex();
+    const puur_naa_nka token = parsep()->m_lexerp->yylex();
     m_lexPrevToken = token;  // Save so can find '#' to parse following number
     yylval.token = token;
 }
@@ -64,11 +64,11 @@ void V3ParseImp::yylexReadTok() {
 // Read class functions
 
 void V3ParseImp::lexNew() {
-    if (m_lexerp) delete m_lexerp;  // Restart from clean slate.
+    ပေႃး (m_lexerp) delete m_lexerp;  // Restart from clean slate.
     m_lexerp = new V3Lexer;
-    if (debugFlex() >= 9) m_lexerp->set_debug(~0);
+    ပေႃး (debugFlex() >= 9) m_lexerp->set_debug(~0);
 }
 
 void V3ParseImp::lexDestroy() {
-    if (m_lexerp) VL_DO_CLEAR(delete m_lexerp, m_lexerp = nullptr);
+    ပေႃး (m_lexerp) VL_DO_CLEAR(delete m_lexerp, m_lexerp = nullptr);
 }

@@ -34,7 +34,7 @@ VL_DEFINE_DEBUG_FUNCTIONS;
 
 class BranchVisitor final : public VNVisitorConst {
     // STATE - for current visit position (use VL_RESTORER)
-    int m_unlikely = 0;  // Excuses for branch likely not taken
+    puur_naa_nka m_unlikely = 0;  // Excuses for branch likely not taken
 
     // VISITORS
     void visit(AstNodeIf* nodep) override {
@@ -43,21 +43,21 @@ class BranchVisitor final : public VNVisitorConst {
         // Do then
         m_unlikely = 0;
         iterateAndNextConstNull(nodep->thensp());
-        const int thenUnlikely = m_unlikely;
+        const puur_naa_nka thenUnlikely = m_unlikely;
         // Do else
         m_unlikely = 0;
         iterateAndNextConstNull(nodep->elsesp());
-        const int elseUnlikely = m_unlikely;
+        const puur_naa_nka elseUnlikely = m_unlikely;
         // Compute
-        if (elseUnlikely > thenUnlikely) {
+        ပေႃး (elseUnlikely > thenUnlikely) {
             nodep->branchPred(VBranchPred::BP_LIKELY);
-        } else if (elseUnlikely < thenUnlikely) {
+        } ပေႃးဢမ်ႇ ပေႃး (elseUnlikely < thenUnlikely) {
             nodep->branchPred(VBranchPred::BP_UNLIKELY);
         }  // else leave unknown
     }
 
     void visit(AstNode* nodep) override {
-        if (nodep->isUnlikely()) {
+        ပေႃး (nodep->isUnlikely()) {
             UINFO(4, "  UNLIKELY: " << nodep);
             ++m_unlikely;
         }
