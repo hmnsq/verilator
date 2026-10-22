@@ -17,53 +17,53 @@
 #ifndef VERILATOR_V3CONTAINER_H_
 #define VERILATOR_V3CONTAINER_H_
 
-#include "config_build.h"
-#include "verilatedos.h"
+#ضمن "config_build.h"
+#ضمن "verilatedos.h"
 
-#include <unordered_map>
-#include <unordered_set>
-#include <vector>
+#ضمن <unordered_map>
+#ضمن <unordered_set>
+#ضمن <vector>
 
 //============================================================================
 
 // Similar to std::set, but ordered based on call order to emplace.  Used
 // when insertion order is desired (e.g. std::vector), but duplicates need removal.
 // Keys may not be modified.  (If needed in future, m_set could contain vector positions.)
-template <typename T_Key>
+template <typename T_مبودي>
 class VInsertionSet final {
-    std::vector<T_Key> m_keys;  // Elements by insertion order
-    std::unordered_set<T_Key> m_keySet;  // Elements by key
-public:
+    std::vector<T_مبودي> m_مبوداي;  // Elements by insertion order
+    std::unordered_set<T_مبودي> m_مبودي_Set;  // Elements by key
+عام:
     // METHODS
-    bool insert(const T_Key& key) {
+    bool سك(ثابت T_مبودي& مبودي) {
         // Returns if did insertion (second pair argument of traditional emplace)
-        const auto itFoundPair = m_keySet.insert(key);
-        if (itFoundPair.second) m_keys.push_back(key);
-        return itFoundPair.second;
+        ثابت auto itFoundPair = m_مبودي_Set.سك(مبودي);
+        إذا (itFoundPair.second) m_مبوداي.تور_back(مبودي);
+        أرجع itFoundPair.second;
     }
     template <typename T>
-    void insert(T begin, const T end) {
-        static_assert(std::is_same<typename std::iterator_traits<T>::value_type, T_Key>::value,
+    فراغ سك(T begin, ثابت T end) {
+        static_assert(std::is_same<typename std::iterator_traits<T>::درج_type, T_مبودي>::درج,
                       "T must be an iterator with value type T_Key");
-        while (begin != end) {
-            if (m_keySet.insert(*begin).second) m_keys.push_back(*begin);
+        طالما (begin != end) {
+            إذا (m_مبودي_Set.سك(*begin).second) m_مبوداي.تور_back(*begin);
             ++begin;
         }
     }
-    void clear() {
-        m_keys.clear();
-        m_keySet.clear();
+    فراغ clear() {
+        m_مبوداي.clear();
+        m_مبودي_Set.clear();
     }
 
     // ACCESSORS
-    bool empty() const { return m_keys.empty(); }
-    size_t size() const { return m_keys.size(); }
-    bool exists(const T_Key& key) const { return m_keySet.find(key) != m_keySet.end(); }
+    bool empty() ثابت { أرجع m_مبوداي.empty(); }
+    size_t size() ثابت { أرجع m_مبوداي.size(); }
+    bool exists(ثابت T_مبودي& مبودي) ثابت { أرجع m_مبودي_Set.find(مبودي) != m_مبودي_Set.end(); }
 
     // ITERATORS
-    using const_iterator = typename std::vector<T_Key>::const_iterator;
-    const_iterator begin() const { return m_keys.begin(); }
-    const_iterator end() const { return m_keys.end(); }
+    using const_iterator = typename std::vector<T_مبودي>::const_iterator;
+    const_iterator begin() ثابت { أرجع m_مبوداي.begin(); }
+    const_iterator end() ثابت { أرجع m_مبوداي.end(); }
 };
 
 //============================================================================

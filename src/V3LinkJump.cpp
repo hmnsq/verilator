@@ -29,365 +29,365 @@
 //
 //*************************************************************************
 
-#include "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
+#ضمن "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
 
-#include "V3LinkJump.h"
+#ضمن "V3LinkJump.h"
 
-#include "V3AstUserAllocator.h"
-#include "V3Error.h"
-#include "V3UniqueNames.h"
+#ضمن "V3AstUserAllocator.h"
+#ضمن "V3Error.h"
+#ضمن "V3UniqueNames.h"
 
-#include <unordered_map>
-#include <vector>
+#ضمن <unordered_map>
+#ضمن <vector>
 
 VL_DEFINE_DEBUG_FUNCTIONS;
 
 //######################################################################
 
-class LinkJumpVisitor final : public VNVisitor {
+صنف LinkJumpVisitor final : عام VNVisitor {
     // NODE STATE
     //  AstBegin/etc::user1()  -> AstJumpBlock*, for body of this loop
     //  AstFinish::user1()     -> bool, processed
     //  AstNode::user2()       -> AstJumpBlock*, for this block
     //  AstNodeBegin::user3()  -> bool, true if contains a fork
-    const VNUser1InUse m_user1InUse;
-    const VNUser2InUse m_user2InUse;
-    const VNUser3InUse m_user3InUse;
+    ثابت VNUser1InUse m_user1InUse;
+    ثابت VNUser2InUse m_user2InUse;
+    ثابت VNUser3InUse m_user3InUse;
 
     // STATE
-    AstNodeModule* m_modp = nullptr;  // Current module
-    AstNodeFTask* m_ftaskp = nullptr;  // Current function/task
-    AstNode* m_loopp = nullptr;  // Current loop
+    Ast_كلي_Module* m_modp = nullptr;  // Current module
+    Ast_كلي_FTask* m_ftaskp = nullptr;  // Current function/task
+    Ast_كلي* m_loopp = nullptr;  // Current loop
     AstRandSequence* m_randsequencep = nullptr;  // Current randsequence
-    bool m_loopInc = false;  // In loop increment
-    bool m_inFork = false;  // Under fork
-    int m_modRepeatNum = 0;  // Repeat counter
+    منطقي m_loopInc = خطأ;  // In loop increment
+    منطقي m_inFork = خطأ;  // Under fork
+    صحيح m_mod_Repeat_لمب = 0;  // Repeat counter
     VOptionBool m_unrollFull;  // Pragma full, disable, or default unrolling
-    std::vector<AstNodeBlock*> m_blockStack;  // All begin blocks above current node
+    std::vector<Ast_كلي_Block*> m_block_تر;  // All begin blocks above current node
     V3UniqueNames m_queueNames{
         "__VprocessQueue"};  // Names for queues needed for 'disable' handling
-    std::unordered_map<const AstTask*, AstVar*> m_taskDisableQueues;  // Per-task process queues
-    std::unordered_map<const AstBegin*, AstVar*> m_beginDisableQueues;  // Per-begin process queues
-    std::unordered_map<const AstFork*, AstVar*> m_forkDisableQueues;  // Per-fork process queues
-    std::unordered_map<const AstTask*, AstBegin*>
+    std::unordered_map<ثابت AstTask*, AstVar*> m_taskDisableQueues;  // Per-task process queues
+    std::unordered_map<ثابت AstBegin*, AstVar*> m_beginDisableQueues;  // Per-begin process queues
+    std::unordered_map<ثابت AstFork*, AstVar*> m_forkDisableQueues;  // Per-fork process queues
+    std::unordered_map<ثابت AstTask*, AstBegin*>
         m_taskDisableBegins;  // Per-task process wrappers
-    std::unordered_map<const AstBegin*, AstBegin*>
+    std::unordered_map<ثابت AstBegin*, AstBegin*>
         m_beginDisableBegins;  // Per-begin process wrappers
 
     // METHODS
     // Get (and create if necessary) the JumpBlock for this statement
-    AstJumpBlock* getJumpBlock(AstNode* nodep, bool endOfIter) {
+    AstJumpBlock* getJumpBlock(Ast_كلي* nodep, منطقي endOfIter) {
         // Wrap 'nodep' in JumpBlock. If loop, wrap the body instead if endOfIter is true
         UINFO(4, "Create JumpBlock for " << nodep);
 
         // Made it previously?  We always jump to the end, so this works out
-        if (endOfIter) {
-            if (nodep->user1p()) return VN_AS(nodep->user1p(), JumpBlock);
-        } else {
-            if (nodep->user2p()) return VN_AS(nodep->user2p(), JumpBlock);
+        إذا (endOfIter) {
+            إذا (nodep->user1p()) أرجع VN_AS(nodep->user1p(), JumpBlock);
+        } وإلا {
+            إذا (nodep->user2p()) أرجع VN_AS(nodep->user2p(), JumpBlock);
         }
 
-        AstNode* underp = nullptr;
-        bool under_and_next = true;
-        if (AstBegin* const blockp = VN_CAST(nodep, Begin)) {
+        Ast_كلي* underp = nullptr;
+        منطقي under_and_next = true;
+        إذا (AstBegin* ثابت blockp = VN_CAST(nodep, Begin)) {
             UASSERT_OBJ(!endOfIter, nodep, "No endOfIter for Begin");
             underp = blockp->stmtsp();
-        } else if (AstNodeFTask* const fTaskp = VN_CAST(nodep, NodeFTask)) {
+        } وإلا إذا (Ast_كلي_FTask* ثابت fTaskp = VN_CAST(nodep, كلي_FTask)) {
             UASSERT_OBJ(!endOfIter, nodep, "No endOfIter for FTask");
             underp = fTaskp->stmtsp();
-        } else if (AstForeach* const foreachp = VN_CAST(nodep, Foreach)) {
-            if (endOfIter) {
+        } وإلا إذا (AstForeach* ثابت foreachp = VN_CAST(nodep, Foreach)) {
+            إذا (endOfIter) {
                 underp = foreachp->bodyp();
                 // Keep a LoopTest **at the front** outside the jump block
-                if (VN_IS(underp, LoopTest)) underp = underp->nextp();
-            } else {
+                إذا (VN_IS(underp, LoopTest)) underp = underp->nextp();
+            } وإلا {
                 underp = nodep;
-                under_and_next = false;  // IE we skip the entire foreach
+                under_and_next = خطأ;  // IE we skip the entire foreach
             }
-        } else if (AstLoop* const loopp = VN_CAST(nodep, Loop)) {
-            if (endOfIter) {
+        } وإلا إذا (AstLoop* ثابت loopp = VN_CAST(nodep, Loop)) {
+            إذا (endOfIter) {
                 underp = loopp->stmtsp();
-            } else {
+            } وإلا {
                 underp = nodep;
-                under_and_next = false;  // IE we skip the entire loop
+                under_and_next = خطأ;  // IE we skip the entire loop
             }
-        } else {
+        } وإلا {
             nodep->v3fatalSrc("Unknown jump point for break/disable/continue");
-            return nullptr;
+            أرجع nullptr;
         }
         // Skip over variables as we'll just move them in a moment
         // Also this would otherwise prevent us from using a label twice
         // see t_func_return test.
-        while (underp && VN_IS(underp, Var)) underp = underp->nextp();
+        طالما (underp && VN_IS(underp, Var)) underp = underp->nextp();
         UASSERT_OBJ(underp, nodep, "Break/disable/continue not under expected statement");
         UINFO(5, "  Underpoint is " << underp);
 
         // If already wrapped, we are done ...
-        if (!underp->nextp() || !under_and_next) {
-            if (AstJumpBlock* const blockp = VN_CAST(underp, JumpBlock)) return blockp;
+        إذا (!underp->nextp() || !under_and_next) {
+            إذا (AstJumpBlock* ثابت blockp = VN_CAST(underp, JumpBlock)) أرجع blockp;
         }
 
         // Move underp stuff to be under a new AstJumpBlock
         VNRelinker repHandle;
-        if (under_and_next) {
+        إذا (under_and_next) {
             underp->unlinkFrBackWithNext(&repHandle);
-        } else {
+        } وإلا {
             underp->unlinkFrBack(&repHandle);
         }
-        AstJumpBlock* const blockp = new AstJumpBlock{nodep->fileline(), underp};
-        if (endOfIter) {
+        AstJumpBlock* ثابت blockp = جديد AstJumpBlock{nodep->fileline(), underp};
+        إذا (endOfIter) {
             nodep->user1p(blockp);
-        } else {
+        } وإلا {
             nodep->user2p(blockp);
         }
         repHandle.relink(blockp);
 
         // Keep any AstVars under the function not under the new JumpLabel
-        for (AstNode *nextp, *varp = underp; varp; varp = nextp) {
+        لكل (Ast_كلي *nextp, *varp = underp; varp; varp = nextp) {
             nextp = varp->nextp();
-            if (VN_IS(varp, Var)) blockp->addHereThisAsNext(varp->unlinkFrBack());
+            إذا (VN_IS(varp, Var)) blockp->addHereThisAsNext(varp->unlinkFrBack());
         }
-        return blockp;
+        أرجع blockp;
     }
-    void addPrefixToBlocksRecurse(const std::string& prefix, AstNode* const nodep) {
+    فراغ addPrefixToBlocksRecurse(ثابت std::string& prefix, Ast_كلي* ثابت nodep) {
         // Add a prefix to blocks
         // Used to not have blocks with duplicated names
-        if (AstBegin* const beginp = VN_CAST(nodep, Begin)) {
-            if (beginp->name() != "") beginp->name(prefix + beginp->name());
+        إذا (AstBegin* ثابت beginp = VN_CAST(nodep, Begin)) {
+            إذا (beginp->name() != "") beginp->name(prefix + beginp->name());
         }
 
-        if (AstNode* const refp = nodep->op1p()) addPrefixToBlocksRecurse(prefix, refp);
-        if (AstNode* const refp = nodep->op2p()) addPrefixToBlocksRecurse(prefix, refp);
-        if (AstNode* const refp = nodep->op3p()) addPrefixToBlocksRecurse(prefix, refp);
-        if (AstNode* const refp = nodep->op4p()) addPrefixToBlocksRecurse(prefix, refp);
-        if (AstNode* const refp = nodep->nextp()) addPrefixToBlocksRecurse(prefix, refp);
+        إذا (Ast_كلي* ثابت refp = nodep->op1p()) addPrefixToBlocksRecurse(prefix, refp);
+        إذا (Ast_كلي* ثابت refp = nodep->op2p()) addPrefixToBlocksRecurse(prefix, refp);
+        إذا (Ast_كلي* ثابت refp = nodep->op3p()) addPrefixToBlocksRecurse(prefix, refp);
+        إذا (Ast_كلي* ثابت refp = nodep->op4p()) addPrefixToBlocksRecurse(prefix, refp);
+        إذا (Ast_كلي* ثابت refp = nodep->nextp()) addPrefixToBlocksRecurse(prefix, refp);
     }
-    bool existsBlockAbove(const std::string& name) const {
-        for (const AstNodeBlock* const stackp : vlstd::reverse_view(m_blockStack)) {
-            if (stackp->name() == name) return true;
+    منطقي existsBlockAbove(ثابت std::string& name) ثابت {
+        لكل (ثابت Ast_كلي_Block* ثابت stackp : vlstd::reverse_view(m_block_تر)) {
+            إذا (stackp->name() == name) أرجع true;
         }
-        return false;
+        أرجع خطأ;
     }
-    static AstNodeModule* findOwnerModulep(AstNode* nodep) {
-        for (AstNode* curp = nodep; curp; curp = curp->aboveLoopp()) {
-            if (AstNodeModule* const modp = VN_CAST(curp, NodeModule)) return modp;
+    ساكن Ast_كلي_Module* findOwnerModulep(Ast_كلي* nodep) {
+        لكل (Ast_كلي* curp = nodep; curp; curp = curp->aboveLoopp()) {
+            إذا (Ast_كلي_Module* ثابت modp = VN_CAST(curp, كلي_Module)) أرجع modp;
         }
         nodep->v3fatalSrc("Disable target is not under a module");
-        return nullptr;  // LCOV_EXCL_LINE
+        أرجع nullptr;  // LCOV_EXCL_LINE
     }
-    static std::string targetInstancePath(const AstDisable* const nodep) {
-        if (const AstVarXRef* const xrefp = VN_CAST(nodep->targetRefp(), VarXRef)) {
-            return xrefp->dotted();
+    ساكن std::string targetInstancePath(ثابت AstDisable* ثابت nodep) {
+        إذا (ثابت AstVarXRef* ثابت xrefp = VN_CAST(nodep->targetRefp(), VarXRef)) {
+            أرجع xrefp->dotted();
         }
-        return "";
+        أرجع "";
     }
-    static std::string queueDotted(const AstDisable* const nodep,
-                                   const AstVar* const processQueuep) {
-        return processQueuep->isTemp() ? targetInstancePath(nodep) : "";
+    ساكن std::string queueDotted(ثابت AstDisable* ثابت nodep,
+                                   ثابت AstVar* ثابت processQueuep) {
+        أرجع processQueuep->isTemp() ? targetInstancePath(nodep) : "";
     }
-    AstBegin* innerForkBranchp(const AstNodeBlock* const targetp) const {
+    AstBegin* innerForkBranchp(ثابت Ast_كلي_Block* ثابت targetp) ثابت {
         AstBegin* innerForkBranchp = nullptr;
-        AstNodeBlock* prevBlockp = nullptr;
-        for (AstNodeBlock* const blockp : vlstd::reverse_view(m_blockStack)) {
-            if (!innerForkBranchp && VN_IS(blockp, Fork)) {
+        Ast_كلي_Block* prevBlockp = nullptr;
+        لكل (Ast_كلي_Block* ثابت blockp : vlstd::reverse_view(m_block_تر)) {
+            إذا (!innerForkBranchp && VN_IS(blockp, Fork)) {
                 innerForkBranchp = VN_CAST(prevBlockp, Begin);
             }
-            if (blockp == targetp) return innerForkBranchp;
+            إذا (blockp == targetp) أرجع innerForkBranchp;
             prevBlockp = blockp;
         }
-        return nullptr;
+        أرجع nullptr;
     }
-    static AstStmtExpr* getQueuePushProcessSelfp(AstVarRef* const queueRefp) {
+    ساكن Ast_Stmt_فرچ* get_Queue_تور_Process_Selfp(AstVarRef* ثابت queueRefp) {
         // Constructs queue.push_back(std::process::self()) statement
-        FileLine* const flp = queueRefp->fileline();
-        return new AstStmtExpr{
+        File_لي* ثابت flp = queueRefp->fileline();
+        أرجع جديد Ast_Stmt_فرچ{
             flp,
-            new AstMethodCall{flp, queueRefp, "push_back",
-                              new AstArg{flp, "", v3Global.rootp()->stdPackageProcessSelfp(flp)}}};
+            جديد AstMethodCall{flp, queueRefp, "push_back",
+                              جديد AstArg{flp, "", v3Global.rootp()->stdPackageProcessSelfp(flp)}}};
     }
-    static AstNodeVarRef* newQueueRefp(FileLine* const fl, AstVar* const processQueuep,
-                                       const VAccess& access, const std::string& dotted = "") {
-        if (dotted != "") return new AstVarXRef{fl, processQueuep, dotted, access};
-        if (!processQueuep->lifetime().isStatic() || processQueuep->isTemp()) {
-            return new AstVarRef{fl, processQueuep, access};
+    ساكن Ast_كلي_Var_Ref* newQueueRefp(File_لي* ثابت fl, AstVar* ثابت processQueuep,
+                                       ثابت VAccess& access, ثابت std::string& dotted = "") {
+        إذا (dotted != "") أرجع جديد AstVarXRef{fl, processQueuep, dotted, access};
+        إذا (!processQueuep->lifetime().isStatic() || processQueuep->isTemp()) {
+            أرجع جديد AstVarRef{fl, processQueuep, access};
         }
-        AstPackage* const topPkgp = v3Global.rootp()->dollarUnitPkgp();
-        return new AstVarRef{fl, topPkgp, processQueuep, access};
+        AstPackage* ثابت كولي_Pkgp = v3Global.rootp()->dollarUnitPkgp();
+        أرجع جديد AstVarRef{fl, كولي_Pkgp, processQueuep, access};
     }
-    static AstStmtExpr* getQueuePushProcessSelfp(FileLine* const fl, AstVar* const processQueuep) {
-        AstVarRef* const queueWriteRefp
+    ساكن Ast_Stmt_فرچ* get_Queue_تور_Process_Selfp(File_لي* ثابت fl, AstVar* ثابت processQueuep) {
+        AstVarRef* ثابت queueWriteRefp
             = VN_AS(newQueueRefp(fl, processQueuep, VAccess::WRITE), VarRef);
-        return getQueuePushProcessSelfp(queueWriteRefp);
+        أرجع get_Queue_تور_Process_Selfp(queueWriteRefp);
     }
-    static AstStmtExpr* getQueueKillStmtp(FileLine* const fl, AstVar* const processQueuep,
-                                          const std::string& dotted = "") {
-        AstNodeVarRef* const queueRefp
+    ساكن Ast_Stmt_فرچ* getQueueKillStmtp(File_لي* ثابت fl, AstVar* ثابت processQueuep,
+                                          ثابت std::string& dotted = "") {
+        Ast_كلي_Var_Ref* ثابت queueRefp
             = newQueueRefp(fl, processQueuep, VAccess::READWRITE, dotted);
         AstTaskRef* killQueueCall = nullptr;
-        for (AstNode* itemp = v3Global.rootp()->stdPackageProcessp()->stmtsp(); itemp;
+        لكل (Ast_كلي* itemp = v3Global.rootp()->stdPackageProcessp()->stmtsp(); itemp;
              itemp = itemp->nextp()) {
-            if (itemp->name() == "killQueue") {
+            إذا (itemp->name() == "killQueue") {
                 killQueueCall
-                    = new AstTaskRef{fl, VN_AS(itemp, Task), new AstArg{fl, "", queueRefp}};
-                break;
+                    = جديد AstTaskRef{fl, VN_AS(itemp, Task), جديد AstArg{fl, "", queueRefp}};
+                اكسر;
             }
         }
         UASSERT(killQueueCall, "Should be found");
         killQueueCall->classOrPackagep(v3Global.rootp()->stdPackageProcessp());
-        return new AstStmtExpr{fl, killQueueCall};
+        أرجع جديد Ast_Stmt_فرچ{fl, killQueueCall};
     }
-    AstBegin* getOrCreateTaskDisableBeginp(AstTask* const taskp, FileLine* const fl) {
-        const auto it = m_taskDisableBegins.find(taskp);
-        if (it != m_taskDisableBegins.end()) return it->second;
+    AstBegin* getOrCreateTaskDisableBeginp(AstTask* ثابت taskp, File_لي* ثابت fl) {
+        ثابت auto it = m_taskDisableBegins.find(taskp);
+        إذا (it != m_taskDisableBegins.end()) أرجع it->second;
 
-        AstBegin* const taskBodyp = new AstBegin{fl, "", nullptr, false};
+        AstBegin* ثابت taskBodyp = جديد AstBegin{fl, "", nullptr, خطأ};
         // Disable-by-name rewrites kill this detached task-body process, so mark it as process
         // backed to ensure fork/join kill-accounting hooks are always emitted.
         taskBodyp->setNeedProcess();
         v3Global.setUsesTiming();
         // Ports stay in the task so calls see them
-        for (AstNode* stmtp = taskp->stmtsp(); stmtp;) {
-            AstNode* const nextp = stmtp->nextp();
-            const AstVar* const varp = VN_CAST(stmtp, Var);
-            if (!varp || !varp->isIO()) taskBodyp->addStmtsp(stmtp->unlinkFrBack());
+        لكل (Ast_كلي* stmtp = taskp->stmtsp(); stmtp;) {
+            Ast_كلي* ثابت nextp = stmtp->nextp();
+            ثابت AstVar* ثابت varp = VN_CAST(stmtp, Var);
+            إذا (!varp || !varp->isIO()) taskBodyp->addStmtsp(stmtp->unlinkFrBack());
             stmtp = nextp;
         }
 
-        AstFork* const forkp = new AstFork{fl, VJoinType::JOIN};
+        AstFork* ثابت forkp = جديد AstFork{fl, VJoinType::JOIN};
         forkp->addForksp(taskBodyp);
         taskp->addStmtsp(forkp);
 
         m_taskDisableBegins.emplace(taskp, taskBodyp);
-        return taskBodyp;
+        أرجع taskBodyp;
     }
-    AstVar* newProcessQueuep(AstNode* const nodep, FileLine* const fl, const VVarType& varType) {
-        AstVar* const processQueuep = new AstVar{
+    AstVar* newProcessQueuep(Ast_كلي* ثابت nodep, File_لي* ثابت fl, ثابت VVarType& varType) {
+        AstVar* ثابت processQueuep = جديد AstVar{
             fl, varType, m_queueNames.get(nodep->name()), VFlagChildDType{},
-            new AstQueueDType{
+            جديد AstQueueDType{
                 fl, VFlagChildDType{},
-                new AstClassRefDType{fl, v3Global.rootp()->stdPackageProcessp(), nullptr},
+                جديد AstClassRefDType{fl, v3Global.rootp()->stdPackageProcessp(), nullptr},
                 nullptr}};
         processQueuep->processQueue(true);
         processQueuep->setIgnoreSchedWrite();
-        return processQueuep;
+        أرجع processQueuep;
     }
-    AstVar* getProcessQueuep(AstNode* const nodep, FileLine* const fl) {
-        AstNodeModule* const ownerp = findOwnerModulep(nodep);
+    AstVar* getProcessQueuep(Ast_كلي* ثابت nodep, File_لي* ثابت fl) {
+        Ast_كلي_Module* ثابت ownerp = findOwnerModulep(nodep);
 
-        if (VN_IS(ownerp, Package) || VN_IS(ownerp, Class)) {
-            AstPackage* const topPkgp = v3Global.rootp()->dollarUnitPkgp();
-            AstVar* const processQueuep = newProcessQueuep(nodep, fl, VVarType::VAR);
+        إذا (VN_IS(ownerp, Package) || VN_IS(ownerp, Class)) {
+            AstPackage* ثابت كولي_Pkgp = v3Global.rootp()->dollarUnitPkgp();
+            AstVar* ثابت processQueuep = newProcessQueuep(nodep, fl, VVarType::VAR);
             processQueuep->lifetime(VLifetime::STATIC_EXPLICIT);
-            topPkgp->addStmtsp(processQueuep);
-            return processQueuep;
+            كولي_Pkgp->addStmtsp(processQueuep);
+            أرجع processQueuep;
         }
 
-        AstVar* const processQueuep = newProcessQueuep(nodep, fl, VVarType::MODULETEMP);
+        AstVar* ثابت processQueuep = newProcessQueuep(nodep, fl, VVarType::MODULETEMP);
         processQueuep->lifetime(VLifetime::STATIC_EXPLICIT);
         ownerp->addStmtsp(processQueuep);
-        return processQueuep;
+        أرجع processQueuep;
     }
-    AstVar* getOrCreateTaskDisableQueuep(AstTask* const taskp, FileLine* const fl) {
-        const auto it = m_taskDisableQueues.find(taskp);
-        if (it != m_taskDisableQueues.end()) return it->second;
+    AstVar* getOrCreateTaskDisableQueuep(AstTask* ثابت taskp, File_لي* ثابت fl) {
+        ثابت auto it = m_taskDisableQueues.find(taskp);
+        إذا (it != m_taskDisableQueues.end()) أرجع it->second;
 
-        AstVar* const processQueuep = getProcessQueuep(taskp, fl);
-        AstStmtExpr* const pushCurrentProcessp = getQueuePushProcessSelfp(fl, processQueuep);
-        AstBegin* const taskBodyp = getOrCreateTaskDisableBeginp(taskp, fl);
-        taskBodyp->prependStmtsp(pushCurrentProcessp);
+        AstVar* ثابت processQueuep = getProcessQueuep(taskp, fl);
+        Ast_Stmt_فرچ* ثابت تور_Current_Processp = get_Queue_تور_Process_Selfp(fl, processQueuep);
+        AstBegin* ثابت taskBodyp = getOrCreateTaskDisableBeginp(taskp, fl);
+        taskBodyp->prependStmtsp(تور_Current_Processp);
         m_taskDisableQueues.emplace(taskp, processQueuep);
-        return processQueuep;
+        أرجع processQueuep;
     }
-    AstBegin* getOrCreateBeginDisableBeginp(AstBegin* const beginp, FileLine* const fl) {
-        const auto it = m_beginDisableBegins.find(beginp);
-        if (it != m_beginDisableBegins.end()) return it->second;
+    AstBegin* getOrCreateBeginDisableBeginp(AstBegin* ثابت beginp, File_لي* ثابت fl) {
+        ثابت auto it = m_beginDisableBegins.find(beginp);
+        إذا (it != m_beginDisableBegins.end()) أرجع it->second;
 
-        AstBegin* const beginBodyp = new AstBegin{fl, "", nullptr, false};
+        AstBegin* ثابت beginBodyp = جديد AstBegin{fl, "", nullptr, خطأ};
         // Disable-by-name rewrites kill this detached block-body process, so mark it as process
         // backed to ensure fork/join kill-accounting hooks are always emitted.
         beginBodyp->setNeedProcess();
         v3Global.setUsesTiming();
-        if (beginp->stmtsp()) beginBodyp->addStmtsp(beginp->stmtsp()->unlinkFrBackWithNext());
+        إذا (beginp->stmtsp()) beginBodyp->addStmtsp(beginp->stmtsp()->unlinkFrBackWithNext());
 
-        AstFork* const forkp = new AstFork{fl, VJoinType::JOIN};
+        AstFork* ثابت forkp = جديد AstFork{fl, VJoinType::JOIN};
         forkp->addForksp(beginBodyp);
         beginp->addStmtsp(forkp);
 
         m_beginDisableBegins.emplace(beginp, beginBodyp);
-        return beginBodyp;
+        أرجع beginBodyp;
     }
-    void prependForkBranchQueuePushes(AstFork* const forkp, AstVar* const processQueuep,
-                                      FileLine* const fl, bool needProcess) {
-        for (AstBegin* branchp = forkp->forksp(); branchp;
+    فراغ prependForkBranchQueuePushes(AstFork* ثابت forkp, AstVar* ثابت processQueuep,
+                                      File_لي* ثابت fl, منطقي needProcess) {
+        لكل (AstBegin* branchp = forkp->forksp(); branchp;
              branchp = VN_AS(branchp->nextp(), Begin)) {
-            if (needProcess) branchp->setNeedProcess();
-            branchp->prependStmtsp(getQueuePushProcessSelfp(fl, processQueuep));
+            إذا (needProcess) branchp->setNeedProcess();
+            branchp->prependStmtsp(get_Queue_تور_Process_Selfp(fl, processQueuep));
         }
     }
-    void prependNestedForkBranchQueuePushes(AstNode* const nodep, AstVar* const processQueuep,
-                                            FileLine* const fl, bool needProcess) {
-        nodep->foreach([&](AstFork* const forkp) {
+    فراغ prependNestedForkBranchQueuePushes(Ast_كلي* ثابت nodep, AstVar* ثابت processQueuep,
+                                            File_لي* ثابت fl, منطقي needProcess) {
+        nodep->foreach([&](AstFork* ثابت forkp) {
             prependForkBranchQueuePushes(forkp, processQueuep, fl, needProcess);
         });
     }
-    AstVar* getOrCreateBeginDisableQueuep(AstBegin* const beginp, FileLine* const fl) {
-        const auto it = m_beginDisableQueues.find(beginp);
-        if (it != m_beginDisableQueues.end()) return it->second;
+    AstVar* getOrCreateBeginDisableQueuep(AstBegin* ثابت beginp, File_لي* ثابت fl) {
+        ثابت auto it = m_beginDisableQueues.find(beginp);
+        إذا (it != m_beginDisableQueues.end()) أرجع it->second;
 
-        AstVar* const processQueuep = getProcessQueuep(beginp, fl);
-        AstStmtExpr* const pushCurrentProcessp = getQueuePushProcessSelfp(fl, processQueuep);
-        AstBegin* const beginBodyp = getOrCreateBeginDisableBeginp(beginp, fl);
-        beginBodyp->prependStmtsp(pushCurrentProcessp);
+        AstVar* ثابت processQueuep = getProcessQueuep(beginp, fl);
+        Ast_Stmt_فرچ* ثابت تور_Current_Processp = get_Queue_تور_Process_Selfp(fl, processQueuep);
+        AstBegin* ثابت beginBodyp = getOrCreateBeginDisableBeginp(beginp, fl);
+        beginBodyp->prependStmtsp(تور_Current_Processp);
 
         // Named-block disable must also terminate detached descendants created by forks
         // under the block, so track each fork branch process in the same queue.
-        prependNestedForkBranchQueuePushes(beginBodyp, processQueuep, fl, false);
+        prependNestedForkBranchQueuePushes(beginBodyp, processQueuep, fl, خطأ);
         m_beginDisableQueues.emplace(beginp, processQueuep);
-        return processQueuep;
+        أرجع processQueuep;
     }
-    AstVar* getOrCreateForkDisableQueuep(AstFork* const forkp, FileLine* const fl) {
-        const auto it = m_forkDisableQueues.find(forkp);
-        if (it != m_forkDisableQueues.end()) return it->second;
+    AstVar* getOrCreateForkDisableQueuep(AstFork* ثابت forkp, File_لي* ثابت fl) {
+        ثابت auto it = m_forkDisableQueues.find(forkp);
+        إذا (it != m_forkDisableQueues.end()) أرجع it->second;
 
-        AstVar* const processQueuep = getProcessQueuep(forkp, fl);
+        AstVar* ثابت processQueuep = getProcessQueuep(forkp, fl);
         prependForkBranchQueuePushes(forkp, processQueuep, fl, true);
         // Disabling a fork must also terminate detached descendants created by nested forks
         // under each branch, so track nested fork branch processes in the same queue.
-        for (AstBegin* branchp = forkp->forksp(); branchp;
+        لكل (AstBegin* branchp = forkp->forksp(); branchp;
              branchp = VN_AS(branchp->nextp(), Begin)) {
             prependNestedForkBranchQueuePushes(branchp, processQueuep, fl, true);
         }
         m_forkDisableQueues.emplace(forkp, processQueuep);
-        return processQueuep;
+        أرجع processQueuep;
     }
-    AstStmtExpr* insertKillStmtp(AstDisable* const nodep, AstVar* const processQueuep) {
-        FileLine* const fl = nodep->fileline();
-        AstStmtExpr* const killStmtp
+    Ast_Stmt_فرچ* سك_Kill_Stmtp(AstDisable* ثابت nodep, AstVar* ثابت processQueuep) {
+        File_لي* ثابت fl = nodep->fileline();
+        Ast_Stmt_فرچ* ثابت killStmtp
             = getQueueKillStmtp(fl, processQueuep, queueDotted(nodep, processQueuep));
         nodep->addNextHere(killStmtp);
-        return killStmtp;
+        أرجع killStmtp;
     }
-    void addJumpAfterKill(AstStmtExpr* const killStmtp, AstNode* const targetp) {
-        AstJumpBlock* const jmpBlockp = getJumpBlock(targetp, false);
-        killStmtp->addNextHere(new AstJumpGo{killStmtp->fileline(), jmpBlockp});
+    فراغ addJumpAfterKill(Ast_Stmt_فرچ* ثابت killStmtp, Ast_كلي* ثابت targetp) {
+        AstJumpBlock* ثابت jmpBlockp = getJumpBlock(targetp, خطأ);
+        killStmtp->addNextHere(جديد AstJumpGo{killStmtp->fileline(), jmpBlockp});
     }
-    void handleDisableOnFork(AstDisable* const nodep) {
+    فراغ handleDisableOnFork(AstDisable* ثابت nodep) {
         // The support utilizes the process::kill()` method. For each disabled fork a queue of
         // processes is declared. At the beginning of each fork branch (and each nested fork
         // branch) its process handle is pushed to the queue. The `disable` statement is replaced
         // with calling `kill()` on each element of the queue.
-        FileLine* const fl = nodep->fileline();
-        AstFork* const targetp = VN_AS(nodep->targetp(), Fork);
-        if (m_ftaskp) {
-            if (!m_ftaskp->exists(
-                    [targetp](const AstNodeBlock* blockp) -> bool { return blockp == targetp; })) {
+        File_لي* ثابت fl = nodep->fileline();
+        AstFork* ثابت targetp = VN_AS(nodep->targetp(), Fork);
+        إذا (m_ftaskp) {
+            إذا (!m_ftaskp->exists(
+                    [targetp](ثابت Ast_كلي_Block* blockp) -> منطقي { أرجع blockp == targetp; })) {
                 // Disabling a fork, which is within the same task, is not a problem
                 nodep->v3warn(E_UNSUPPORTED, "Unsupported: disabling fork from task / function");
             }
         }
 
-        AstVar* const processQueuep = getOrCreateForkDisableQueuep(targetp, fl);
-        AstStmtExpr* const killStmtp = insertKillStmtp(nodep, processQueuep);
+        AstVar* ثابت processQueuep = getOrCreateForkDisableQueuep(targetp, fl);
+        Ast_Stmt_فرچ* ثابت killStmtp = سك_Kill_Stmtp(nodep, processQueuep);
 
         // 'process::kill' does not immediately kill the current process executing the disable
         // statement (because it's in the running state). If the disable runs under the target
@@ -396,262 +396,262 @@ class LinkJumpVisitor final : public VNVisitor {
         // branch keeps the jump inside a single emitted coroutine even when the disable sits in a
         // nested sub-fork; targeting the outer target fork's branch would cross a coroutine
         // boundary once forks are split into separate functions.
-        if (AstBegin* const branchp = innerForkBranchp(targetp)) {
+        إذا (AstBegin* ثابت branchp = innerForkBranchp(targetp)) {
             addJumpAfterKill(killStmtp, branchp);
         }
     }
     // VISITORS
-    void visit(AstNodeModule* nodep) override {
-        if (nodep->dead()) return;
+    فراغ visit(Ast_كلي_Module* nodep) override {
+        إذا (nodep->dead()) أرجع;
         VL_RESTORER(m_modp);
-        VL_RESTORER(m_modRepeatNum);
+        VL_RESTORER(m_mod_Repeat_لمب);
         m_modp = nodep;
-        m_modRepeatNum = 0;
+        m_mod_Repeat_لمب = 0;
         iterateChildren(nodep);
     }
-    void visit(AstNodeFTask* nodep) override {
+    فراغ visit(Ast_كلي_FTask* nodep) override {
         VL_RESTORER(m_ftaskp);
         m_ftaskp = nodep;
         iterateChildren(nodep);
     }
-    void visit(AstBegin* nodep) override {
+    فراغ visit(AstBegin* nodep) override {
         UINFO(8, "  " << nodep);
         VL_RESTORER(m_unrollFull);
-        m_blockStack.push_back(nodep);
+        m_block_تر.تور_back(nodep);
         iterateChildren(nodep);
-        m_blockStack.pop_back();
+        m_block_تر.چرو_back();
     }
-    void visit(AstFork* nodep) override {
+    فراغ visit(AstFork* nodep) override {
         UINFO(8, "  " << nodep);
         VL_RESTORER(m_unrollFull);
         VL_RESTORER(m_inFork);
         m_inFork = true;
         // Mark all upper blocks, can stop once see one set to avoid O(n^2)
-        for (AstNodeBlock* const blockp : vlstd::reverse_view(m_blockStack)) {
-            if (blockp->user3SetOnce()) break;
+        لكل (Ast_كلي_Block* ثابت blockp : vlstd::reverse_view(m_block_تر)) {
+            إذا (blockp->user3SetOnce()) اكسر;
         }
-        m_blockStack.push_back(nodep);
+        m_block_تر.تور_back(nodep);
         iterateChildren(nodep);
-        m_blockStack.pop_back();
+        m_block_تر.چرو_back();
     }
-    void visit(AstStmtPragma* nodep) override {
-        if (nodep->pragp()->pragType() == VPragmaType::UNROLL_DISABLE) {
+    فراغ visit(AstStmtPragma* nodep) override {
+        إذا (nodep->pragp()->pragType() == VPragmaType::UNROLL_DISABLE) {
             m_unrollFull = VOptionBool::OPT_FALSE;
-            VL_DO_DANGLING(pushDeletep(nodep->unlinkFrBack()), nodep);
-        } else if (nodep->pragp()->pragType() == VPragmaType::UNROLL_FULL) {
+            VL_DO_DANGLING(تور_Deletep(nodep->unlinkFrBack()), nodep);
+        } وإلا إذا (nodep->pragp()->pragType() == VPragmaType::UNROLL_FULL) {
             m_unrollFull = VOptionBool::OPT_TRUE;
-            VL_DO_DANGLING(pushDeletep(nodep->unlinkFrBack()), nodep);
-        } else {
+            VL_DO_DANGLING(تور_Deletep(nodep->unlinkFrBack()), nodep);
+        } وإلا {
             iterateChildren(nodep);
         }
     }
-    void visit(AstRandSequence* nodep) override {
+    فراغ visit(AstRandSequence* nodep) override {
         VL_RESTORER(m_randsequencep);
         m_randsequencep = nodep;
         iterateChildren(nodep);
     }
-    void visit(AstRepeat* nodep) override {
+    فراغ visit(AstRepeat* nodep) override {
         // So later optimizations don't need to deal with them,
         //    REPEAT(count,body) -> loop=count,WHILE(loop>0) { body, loop-- }
         // Note var can be signed or unsigned based on original number.
-        AstNodeExpr* const countp = nodep->countp()->unlinkFrBackWithNext();
-        const string name = "__Vrepeat"s + cvtToStr(m_modRepeatNum++);
-        AstBegin* const beginp = new AstBegin{nodep->fileline(), "", nullptr, true};
+        Ast_كلي_فرچ* ثابت countp = nodep->countp()->unlinkFrBackWithNext();
+        ثابت string name = "__Vrepeat"s + cvtToStr(m_mod_Repeat_لمب++);
+        AstBegin* ثابت beginp = جديد AstBegin{nodep->fileline(), "", nullptr, true};
         // Spec says value is integral, if negative is ignored
-        AstVar* const varp
-            = new AstVar{nodep->fileline(), VVarType::BLOCKTEMP, name, nodep->findIntDType()};
+        AstVar* ثابت varp
+            = جديد AstVar{nodep->fileline(), VVarType::BLOCKTEMP, name, nodep->findIntDType()};
         varp->lifetime(VLifetime::AUTOMATIC_EXPLICIT);
         varp->usedLoopIdx(true);
         beginp->addStmtsp(varp);
-        AstNode* initsp = new AstAssign{
-            nodep->fileline(), new AstVarRef{nodep->fileline(), varp, VAccess::WRITE}, countp};
-        AstNode* const decp = new AstAssign{
-            nodep->fileline(), new AstVarRef{nodep->fileline(), varp, VAccess::WRITE},
-            new AstSub{nodep->fileline(), new AstVarRef{nodep->fileline(), varp, VAccess::READ},
-                       new AstConst{nodep->fileline(), 1}}};
-        AstNodeExpr* const zerosp = new AstConst{nodep->fileline(), AstConst::Signed32{}, 0};
-        AstNodeExpr* const condp = new AstGtS{
-            nodep->fileline(), new AstVarRef{nodep->fileline(), varp, VAccess::READ}, zerosp};
-        AstNode* const bodysp = nodep->stmtsp();
-        if (bodysp) bodysp->unlinkFrBackWithNext();
-        FileLine* const flp = nodep->fileline();
-        AstLoop* const loopp = new AstLoop{flp};
-        loopp->addStmtsp(new AstLoopTest{flp, loopp, condp});
+        Ast_كلي* initsp = جديد AstAssign{
+            nodep->fileline(), جديد AstVarRef{nodep->fileline(), varp, VAccess::WRITE}, countp};
+        Ast_كلي* ثابت decp = جديد AstAssign{
+            nodep->fileline(), جديد AstVarRef{nodep->fileline(), varp, VAccess::WRITE},
+            جديد AstSub{nodep->fileline(), جديد AstVarRef{nodep->fileline(), varp, VAccess::READ},
+                       جديد AstConst{nodep->fileline(), 1}}};
+        Ast_كلي_فرچ* ثابت zerosp = جديد AstConst{nodep->fileline(), AstConst::Signed32{}, 0};
+        Ast_كلي_فرچ* ثابت condp = جديد AstGtS{
+            nodep->fileline(), جديد AstVarRef{nodep->fileline(), varp, VAccess::READ}, zerosp};
+        Ast_كلي* ثابت bodysp = nodep->stmtsp();
+        إذا (bodysp) bodysp->unlinkFrBackWithNext();
+        File_لي* ثابت flp = nodep->fileline();
+        AstLoop* ثابت loopp = جديد AstLoop{flp};
+        loopp->addStmtsp(جديد AstLoopTest{flp, loopp, condp});
         loopp->addStmtsp(bodysp);
         loopp->addContsp(decp);
-        if (!m_unrollFull.isDefault()) loopp->unroll(m_unrollFull);
+        إذا (!m_unrollFull.isDefault()) loopp->unroll(m_unrollFull);
         m_unrollFull = VOptionBool::OPT_DEFAULT_FALSE;
         beginp->addStmtsp(initsp);
         beginp->addStmtsp(loopp);
         // Replacement AstBegin will be iterated next
         nodep->replaceWith(beginp);
-        VL_DO_DANGLING(nodep->deleteTree(), nodep);
+        VL_DO_DANGLING(nodep->delete_بشيا(), nodep);
     }
-    void visit(AstLoop* nodep) override {
-        if (!m_unrollFull.isDefault()) nodep->unroll(m_unrollFull);
-        if (m_modp->hasParameterList() || m_modp->hasGParam()) {
+    فراغ visit(AstLoop* nodep) override {
+        إذا (!m_unrollFull.isDefault()) nodep->unroll(m_unrollFull);
+        إذا (m_modp->hasParameterList() || m_modp->hasGParam()) {
             nodep->fileline()->modifyWarnOff(V3ErrorCode::UNUSEDLOOP, true);
         }
         m_unrollFull = VOptionBool::OPT_DEFAULT_FALSE;
         VL_RESTORER(m_loopp);
         VL_RESTORER(m_loopInc);
         m_loopp = nodep;
-        m_loopInc = false;
+        m_loopInc = خطأ;
         iterateAndNextNull(nodep->stmtsp());
         m_loopInc = true;
         iterateAndNextNull(nodep->contsp());
         // Move contsp into stmtsp, no longer needed to keep separately
-        if (nodep->contsp()) nodep->addStmtsp(nodep->contsp()->unlinkFrBackWithNext());
+        إذا (nodep->contsp()) nodep->addStmtsp(nodep->contsp()->unlinkFrBackWithNext());
     }
-    void visit(AstNodeForeach* nodep) override {
+    فراغ visit(Ast_كلي_Foreach* nodep) override {
         VL_RESTORER(m_loopp);
         m_loopp = nodep;
         iterateAndNextNull(nodep->bodyp());
     }
-    void visit(AstReturn* nodep) override {
+    فراغ visit(AstReturn* nodep) override {
         iterateChildren(nodep);
-        const AstFunc* const funcp = VN_CAST(m_ftaskp, Func);
-        if (m_randsequencep) {
-            nodep->replaceWith(new AstRSReturn{nodep->fileline()});
-            VL_DO_DANGLING(pushDeletep(nodep), nodep);
-            return;
-        } else if (m_inFork) {
+        ثابت AstFunc* ثابت funcp = VN_CAST(m_ftaskp, Func);
+        إذا (m_randsequencep) {
+            nodep->replaceWith(جديد AstRSReturn{nodep->fileline()});
+            VL_DO_DANGLING(تور_Deletep(nodep), nodep);
+            أرجع;
+        } وإلا إذا (m_inFork) {
             nodep->v3error("Return isn't legal under fork (IEEE 1800-2023 9.2.3)");
-            VL_DO_DANGLING(pushDeletep(nodep->unlinkFrBack()), nodep);
-            return;
-        } else if (!m_ftaskp) {
+            VL_DO_DANGLING(تور_Deletep(nodep->unlinkFrBack()), nodep);
+            أرجع;
+        } وإلا إذا (!m_ftaskp) {
             nodep->v3error("Return isn't underneath a task or function");
-        } else if (funcp && !nodep->lhsp() && !funcp->isConstructor()) {
+        } وإلا إذا (funcp && !nodep->lhsp() && !funcp->isConstructor()) {
             nodep->v3error("Return underneath a function should have return value");
-        } else if (!funcp && nodep->lhsp()) {
+        } وإلا إذا (!funcp && nodep->lhsp()) {
             nodep->v3error("Return underneath a task shouldn't have return value");
-        } else {
-            if (funcp && nodep->lhsp()) {
+        } وإلا {
+            إذا (funcp && nodep->lhsp()) {
                 // Set output variable to return value
-                nodep->addHereThisAsNext(new AstAssign{
+                nodep->addHereThisAsNext(جديد AstAssign{
                     nodep->fileline(),
-                    new AstVarRef{nodep->fileline(), VN_AS(funcp->fvarp(), Var), VAccess::WRITE},
+                    جديد AstVarRef{nodep->fileline(), VN_AS(funcp->fvarp(), Var), VAccess::WRITE},
                     nodep->lhsp()->unlinkFrBackWithNext()});
             }
             // Jump to the end of the function call
-            AstJumpBlock* const blockp = getJumpBlock(m_ftaskp, false);
-            nodep->addHereThisAsNext(new AstJumpGo{nodep->fileline(), blockp});
+            AstJumpBlock* ثابت blockp = getJumpBlock(m_ftaskp, خطأ);
+            nodep->addHereThisAsNext(جديد AstJumpGo{nodep->fileline(), blockp});
         }
         nodep->unlinkFrBack();
-        VL_DO_DANGLING(pushDeletep(nodep), nodep);
+        VL_DO_DANGLING(تور_Deletep(nodep), nodep);
     }
-    void visit(AstBreak* nodep) override {
+    فراغ visit(AstBreak* nodep) override {
         iterateChildren(nodep);
-        if (!m_loopp && m_randsequencep) {
-            nodep->replaceWith(new AstRSBreak{nodep->fileline()});
-            VL_DO_DANGLING(pushDeletep(nodep), nodep);
-            return;
-        } else if (!m_loopp) {
+        إذا (!m_loopp && m_randsequencep) {
+            nodep->replaceWith(جديد AstRSBreak{nodep->fileline()});
+            VL_DO_DANGLING(تور_Deletep(nodep), nodep);
+            أرجع;
+        } وإلا إذا (!m_loopp) {
             nodep->v3error("break isn't underneath a loop");
-        } else {
+        } وإلا {
             // Jump to the end of the loop
-            AstJumpBlock* const blockp = getJumpBlock(m_loopp, false);
-            nodep->addNextHere(new AstJumpGo{nodep->fileline(), blockp});
+            AstJumpBlock* ثابت blockp = getJumpBlock(m_loopp, خطأ);
+            nodep->addNextHere(جديد AstJumpGo{nodep->fileline(), blockp});
         }
         nodep->unlinkFrBack();
-        VL_DO_DANGLING(pushDeletep(nodep), nodep);
+        VL_DO_DANGLING(تور_Deletep(nodep), nodep);
     }
-    void visit(AstContinue* nodep) override {
+    فراغ visit(AstContinue* nodep) override {
         iterateChildren(nodep);
-        if (!m_loopp) {
+        إذا (!m_loopp) {
             nodep->v3error("continue isn't underneath a loop");
-        } else {
+        } وإلا {
             // Jump to the end of this iteration
             // If a "for" loop then need to still do the post-loop increment
-            AstJumpBlock* const blockp = getJumpBlock(m_loopp, true);
-            nodep->addNextHere(new AstJumpGo{nodep->fileline(), blockp});
+            AstJumpBlock* ثابت blockp = getJumpBlock(m_loopp, true);
+            nodep->addNextHere(جديد AstJumpGo{nodep->fileline(), blockp});
         }
         nodep->unlinkFrBack();
-        VL_DO_DANGLING(pushDeletep(nodep), nodep);
+        VL_DO_DANGLING(تور_Deletep(nodep), nodep);
     }
-    void visit(AstDisable* nodep) override {
+    فراغ visit(AstDisable* nodep) override {
         UINFO(8, "   DISABLE " << nodep);
-        AstNode* const targetp = nodep->targetp();
-        if (!targetp) {
+        Ast_كلي* ثابت targetp = nodep->targetp();
+        إذا (!targetp) {
             // Linking errors on the disable target are already reported upstream.
             // Drop this node to avoid cascading into an internal assertion.
-            VL_DO_DANGLING(pushDeletep(nodep->unlinkFrBack()), nodep);
-            return;
+            VL_DO_DANGLING(تور_Deletep(nodep->unlinkFrBack()), nodep);
+            أرجع;
         }
-        if (AstTask* const taskp = VN_CAST(targetp, Task)) {
-            AstVar* const processQueuep = getOrCreateTaskDisableQueuep(taskp, nodep->fileline());
-            AstStmtExpr* const killStmtp = insertKillStmtp(nodep, processQueuep);
+        إذا (AstTask* ثابت taskp = VN_CAST(targetp, Task)) {
+            AstVar* ثابت processQueuep = getOrCreateTaskDisableQueuep(taskp, nodep->fileline());
+            Ast_Stmt_فرچ* ثابت killStmtp = سك_Kill_Stmtp(nodep, processQueuep);
 
             // process::kill does not terminate the currently running process immediately.
             // If we disable the current task by name from inside itself, jump to its end.
-            if (m_ftaskp == taskp) {
-                AstNode* jumpTargetp = taskp;
-                const auto it = m_taskDisableBegins.find(taskp);
-                if (it != m_taskDisableBegins.end()) jumpTargetp = it->second;
+            إذا (m_ftaskp == taskp) {
+                Ast_كلي* jumpTargetp = taskp;
+                ثابت auto it = m_taskDisableBegins.find(taskp);
+                إذا (it != m_taskDisableBegins.end()) jumpTargetp = it->second;
                 addJumpAfterKill(killStmtp, jumpTargetp);
             }
-        } else if (VN_IS(targetp, Fork)) {
+        } وإلا إذا (VN_IS(targetp, Fork)) {
             handleDisableOnFork(nodep);
-        } else if (AstBegin* const beginp = VN_CAST(targetp, Begin)) {
-            if (existsBlockAbove(beginp->name())) {
-                if (!beginp->user3()) {
+        } وإلا إذا (AstBegin* ثابت beginp = VN_CAST(targetp, Begin)) {
+            إذا (existsBlockAbove(beginp->name())) {
+                إذا (!beginp->user3()) {
                     // Jump to the end of the named block
-                    AstJumpBlock* const blockp = getJumpBlock(beginp, false);
-                    nodep->addNextHere(new AstJumpGo{nodep->fileline(), blockp});
-                } else {
-                    AstVar* const processQueuep
+                    AstJumpBlock* ثابت blockp = getJumpBlock(beginp, خطأ);
+                    nodep->addNextHere(جديد AstJumpGo{nodep->fileline(), blockp});
+                } وإلا {
+                    AstVar* ثابت processQueuep
                         = getOrCreateBeginDisableQueuep(beginp, nodep->fileline());
-                    AstStmtExpr* const killStmtp = insertKillStmtp(nodep, processQueuep);
+                    Ast_Stmt_فرچ* ثابت killStmtp = سك_Kill_Stmtp(nodep, processQueuep);
 
                     // process::kill does not terminate the currently running process immediately.
                     // If disable executes inside a fork branch of this named block, jump to the
                     // end of that branch to prevent statements after disable from executing.
-                    AstBegin* const branchp = innerForkBranchp(beginp);
-                    AstBegin* const jumpTargetp
+                    AstBegin* ثابت branchp = innerForkBranchp(beginp);
+                    AstBegin* ثابت jumpTargetp
                         = branchp ? branchp : m_beginDisableBegins.at(beginp);
                     addJumpAfterKill(killStmtp, jumpTargetp);
                 }
-            } else {
-                AstVar* const processQueuep
+            } وإلا {
+                AstVar* ثابت processQueuep
                     = getOrCreateBeginDisableQueuep(beginp, nodep->fileline());
-                insertKillStmtp(nodep, processQueuep);
+                سك_Kill_Stmtp(nodep, processQueuep);
             }
-        } else {
+        } وإلا {
             nodep->v3fatalSrc("Disable linked with node of unhandled type "
                               << targetp->prettyTypeName());
         }
         nodep->unlinkFrBack();
-        VL_DO_DANGLING(pushDeletep(nodep), nodep);
+        VL_DO_DANGLING(تور_Deletep(nodep), nodep);
     }
-    void visit(AstFinish* nodep) override {
-        if (nodep->user1SetOnce()) return;  // Process once
+    فراغ visit(AstFinish* nodep) override {
+        إذا (nodep->user1SetOnce()) أرجع;  // Process once
         iterateChildren(nodep);
-        if (m_inFork) {
-            nodep->replaceWith(new AstFinishFork{nodep->fileline()});
-            VL_DO_DANGLING(nodep->deleteTree(), nodep);
-        } else if (m_loopp) {
+        إذا (m_inFork) {
+            nodep->replaceWith(جديد AstFinishFork{nodep->fileline()});
+            VL_DO_DANGLING(nodep->delete_بشيا(), nodep);
+        } وإلا إذا (m_loopp) {
             // Jump to the end of the loop (post-finish)
-            AstJumpBlock* const blockp = getJumpBlock(m_loopp, false);
-            nodep->addNextHere(new AstJumpGo{nodep->fileline(), blockp});
+            AstJumpBlock* ثابت blockp = getJumpBlock(m_loopp, خطأ);
+            nodep->addNextHere(جديد AstJumpGo{nodep->fileline(), blockp});
         }
     }
-    void visit(AstVarRef* nodep) override {
-        if (m_loopInc && nodep->varp()) nodep->varp()->usedLoopIdx(true);
+    فراغ visit(AstVarRef* nodep) override {
+        إذا (m_loopInc && nodep->varp()) nodep->varp()->usedLoopIdx(true);
     }
-    void visit(AstConst*) override {}
-    void visit(AstNode* nodep) override { iterateChildren(nodep); }
+    فراغ visit(AstConst*) override {}
+    فراغ visit(Ast_كلي* nodep) override { iterateChildren(nodep); }
 
-public:
+عام:
     // CONSTRUCTORS
     explicit LinkJumpVisitor(AstNetlist* nodep) { iterate(nodep); }
-    ~LinkJumpVisitor() override = default;
+    ~LinkJumpVisitor() override = افتراضي;
 };
 
 //######################################################################
 // Task class functions
 
-void V3LinkJump::linkJump(AstNetlist* nodep) {
+فراغ V3LinkJump::linkJump(AstNetlist* nodep) {
     UINFO(2, __FUNCTION__ << ":");
     { LinkJumpVisitor{nodep}; }  // Destruct before checking
-    V3Global::dumpCheckGlobalTree("linkjump", 0, dumpTreeEitherLevel() >= 3);
+    V3Global::dump_Check_Global_بشيا("linkjump", 0, dump_بشيا_Either_Level() >= 3);
 }

@@ -22,16 +22,16 @@
 #ifndef VERILATOR_V3DFGCONTEXT_H_
 #define VERILATOR_V3DFGCONTEXT_H_
 
-#include "config_build.h"
-#include "verilatedos.h"
+#ضمن "config_build.h"
+#ضمن "verilatedos.h"
 
-#include "V3Ast.h"
-#include "V3DfgPeepholePatterns.h"
-#include "V3Error.h"
-#include "V3File.h"
-#include "V3Global.h"
-#include "V3SharedTmps.h"
-#include "V3Stats.h"
+#ضمن "V3Ast.h"
+#ضمن "V3DfgPeepholePatterns.h"
+#ضمن "V3Error.h"
+#ضمن "V3File.h"
+#ضمن "V3Global.h"
+#ضمن "V3SharedTmps.h"
+#ضمن "V3Stats.h"
 
 class V3DfgContext;
 
@@ -39,27 +39,27 @@ class V3DfgContext;
 // Base class for all context objects
 
 class V3DfgSubContext VL_NOT_FINAL {
-    const std::string m_name;  // Pass/algorithm name, to be used in statistics
+    ثابت std::string m_name;  // Pass/algorithm name, to be used in statistics
 
-protected:
+محمي:
     VL_DEFINE_DEBUG_FUNCTIONS;
 
-    V3DfgSubContext(const std::string& name)
+    V3DfgSubContext(ثابت std::string& name)
         : m_name{name} {}
 
-    void addStat(const std::string& what, double value) {
-        V3Stats::addStat("Optimizations, DFG, " + m_name + ", " + what, value);
+    فراغ addStat(ثابت std::string& what, مزدوج درج) {
+        V3Stats::addStat("Optimizations, DFG, " + m_name + ", " + what, درج);
     }
 };
 
 //######################################################################
 // Contexts for various algorithms - keep sorted
 
-class V3DfgAstToDfgContext final : public V3DfgSubContext {
+class V3DfgAstToDfgContext final : عام V3DfgSubContext {
     // Only V3DfgContext can create an instance
     friend class V3DfgContext;
 
-public:
+عام:
     // STATE
     VDouble0 m_inputs;  // Number of input processes (logic constructs)
     VDouble0 m_representable;  // Number of combinational equations representable
@@ -67,7 +67,7 @@ public:
     VDouble0 m_nonRepLive;  // Non-representable due to failing liveness analysis
     VDouble0 m_nonRepVar;  // Non-representable due to unsupported variable properties
 
-private:
+خاص:
     V3DfgAstToDfgContext()
         : V3DfgSubContext{"AstToDfg"} {}
     ~V3DfgAstToDfgContext() {
@@ -81,24 +81,24 @@ private:
                 "Inconsistent statistics");
     }
 };
-class V3DfgBinToOneHotContext final : public V3DfgSubContext {
+class V3DfgBinToOneHotContext final : عام V3DfgSubContext {
     // Only V3DfgContext can create an instance
     friend class V3DfgContext;
 
-public:
+عام:
     // STATE
     VDouble0 m_decodersCreated;  // Number of bianry to one-hot decoders created
 
-private:
+خاص:
     V3DfgBinToOneHotContext()
         : V3DfgSubContext{"BinToOneHot"} {}
     ~V3DfgBinToOneHotContext() { addStat("decoders created", m_decodersCreated); }
 };
-class V3DfgBreakCyclesContext final : public V3DfgSubContext {
+class V3DfgBreakCyclesContext final : عام V3DfgSubContext {
     // Only V3DfgContext can create an instance
     friend class V3DfgContext;
 
-public:
+عام:
     // STATE
     VDouble0 m_nFixed;  // Number of graphs that became acyclic
     VDouble0 m_nImproved;  // Number of graphs that were improved but still cyclic
@@ -106,7 +106,7 @@ public:
     VDouble0 m_nImprovements;  // Number of changes made to graphs
     VDouble0 m_nPrevInserted;  // Number of Prev vertices inserted
 
-private:
+خاص:
     V3DfgBreakCyclesContext()
         : V3DfgSubContext{"BreakCycles"} {}
     ~V3DfgBreakCyclesContext() {
@@ -117,25 +117,25 @@ private:
         addStat("prev vertices inserted", m_nPrevInserted);
     }
 };
-class V3DfgCseContext final : public V3DfgSubContext {
+class V3DfgCseContext final : عام V3DfgSubContext {
     // Only V3DfgContext can create an instance
     friend class V3DfgContext;
 
-public:
+عام:
     // STATE
     VDouble0 m_eliminated;  // Number of common sub-expressions eliminated
 
-private:
-    explicit V3DfgCseContext(const std::string& label)
+خاص:
+    explicit V3DfgCseContext(ثابت std::string& label)
         : V3DfgSubContext{"CSE " + label} {}
     ~V3DfgCseContext() { addStat("expressions eliminated", m_eliminated); }
 };
 
-class V3DfgDfgToAstContext final : public V3DfgSubContext {
+class V3DfgDfgToAstContext final : عام V3DfgSubContext {
     // Only V3DfgContext can create an instance
     friend class V3DfgContext;
 
-public:
+عام:
     // STATE
     VDouble0 m_outputVariables;  // Number of output variables
     VDouble0 m_outputVariablesWithDefault;  // Number of outptu variables with a default driver
@@ -143,7 +143,7 @@ public:
     VDouble0 m_expressionsInlined;  // Number of expressions inlined directly into the Ast
     VDouble0 m_varRefsSubstituted;  // Number of variable references substituted in the Ast
 
-private:
+خاص:
     V3DfgDfgToAstContext()
         : V3DfgSubContext{"DfgToAst"} {}
     ~V3DfgDfgToAstContext() {
@@ -154,25 +154,25 @@ private:
         addStat("var refs substituted", m_varRefsSubstituted);
     }
 };
-class V3DfgPeepholeContext final : public V3DfgSubContext {
+class V3DfgPeepholeContext final : عام V3DfgSubContext {
     // Only V3DfgContext can create an instance
     friend class V3DfgContext;
 
-public:
+عام:
     // STATE
     // Enable flags for each optimization
     std::array<bool, VDfgPeepholePattern::_ENUM_END> m_enabled;
     // Count of applications for each optimization (for statistics)
-    std::array<VDouble0, VDfgPeepholePattern::_ENUM_END> m_count;
-    std::vector<AstNode*> m_deleteps;  // AstVar/AstVarScope that can be deleted at the end
+    std::array<VDouble0, VDfgPeepholePattern::_ENUM_END> m_كدي;
+    std::vector<Ast_كلي*> m_deleteps;  // AstVar/AstVarScope that can be deleted at the end
 
-private:
+خاص:
     V3DfgPeepholeContext()
         : V3DfgSubContext{"Peephole"} {
-        const auto checkEnabled = [this](VDfgPeepholePattern id) {
+        ثابت auto checkEnabled = [this](VDfgPeepholePattern id) {
             std::string str{id.ascii()};
-            std::transform(str.begin(), str.end(), str.begin(), [](unsigned char c) {  //
-                return c == '_' ? '-' : std::tolower(c);
+            std::transform(str.begin(), str.end(), str.begin(), [](unsigned حرف c) {  //
+                أرجع c == '_' ? '-' : std::tolower(c);
             });
             m_enabled[id] = v3Global.opt.fDfgPeepholeEnabled(str);
         };
@@ -181,70 +181,70 @@ private:
 #undef OPTIMIZATION_CHECK_ENABLED
     }
     ~V3DfgPeepholeContext() {
-        for (AstNode* const nodep : m_deleteps) {
-            VL_DO_DANGLING(nodep->unlinkFrBack()->deleteTree(), nodep);
+        لكل (Ast_كلي* ثابت nodep : m_deleteps) {
+            VL_DO_DANGLING(nodep->unlinkFrBack()->delete_بشيا(), nodep);
         }
-        const auto emitStat = [this](VDfgPeepholePattern id) {
+        ثابت auto emitStat = [this](VDfgPeepholePattern id) {
             std::string str{id.ascii()};
-            std::transform(str.begin(), str.end(), str.begin(), [](unsigned char c) {  //
-                return c == '_' ? ' ' : std::tolower(c);
+            std::transform(str.begin(), str.end(), str.begin(), [](unsigned حرف c) {  //
+                أرجع c == '_' ? ' ' : std::tolower(c);
             });
-            addStat(str, m_count[id]);
+            addStat(str, m_كدي[id]);
         };
 #define OPTIMIZATION_EMIT_STATS(id, name) emitStat(VDfgPeepholePattern::id);
         FOR_EACH_DFG_PEEPHOLE_OPTIMIZATION(OPTIMIZATION_EMIT_STATS)
 #undef OPTIMIZATION_EMIT_STATS
     }
 };
-class V3DfgPushDownSelsContext final : public V3DfgSubContext {
+class V3_Dfg_تور_Down_Sels_Context final : عام V3DfgSubContext {
     // Only V3DfgContext can create an instance
     friend class V3DfgContext;
 
-public:
+عام:
     // STATE
     size_t m_pushedDown = 0;  // Number of selects pushed down through concatenations
     size_t m_wouldBeCyclic = 0;  // Number of selects not pushed due to cycle
-private:
-    V3DfgPushDownSelsContext()
+خاص:
+    V3_Dfg_تور_Down_Sels_Context()
         : V3DfgSubContext{"PushDownSels"} {}
-    ~V3DfgPushDownSelsContext() {
+    ~V3_Dfg_تور_Down_Sels_Context() {
         addStat("sels pushed down", m_pushedDown);
         addStat("would be cyclic", m_wouldBeCyclic);
     }
 };
-class V3DfgRegularizeContext final : public V3DfgSubContext {
+class V3DfgRegularizeContext final : عام V3DfgSubContext {
     // Only V3DfgContext can create an instance
     friend class V3DfgContext;
 
-public:
+عام:
     // STATE
-    std::vector<AstNode*> m_deleteps;  // AstVar/AstVarScope that can be deleted at the end
+    std::vector<Ast_كلي*> m_deleteps;  // AstVar/AstVarScope that can be deleted at the end
     VDouble0 m_usedVarsInlined;  // Number of used variables inlined
     VDouble0 m_unusedRemoved;  // Number of unused vertices remoevd
     VDouble0 m_temporariesIntroduced;  // Number of temporaries introduced for reuse
 
-private:
+خاص:
     V3DfgRegularizeContext()
         : V3DfgSubContext{"Regularize"} {}
     ~V3DfgRegularizeContext() {
-        for (AstNode* const nodep : m_deleteps) {
-            VL_DO_DANGLING(nodep->unlinkFrBack()->deleteTree(), nodep);
+        لكل (Ast_كلي* ثابت nodep : m_deleteps) {
+            VL_DO_DANGLING(nodep->unlinkFrBack()->delete_بشيا(), nodep);
         }
         addStat("used variables inlined", m_usedVarsInlined);
         addStat("unused vertices removed", m_unusedRemoved);
         addStat("temporaries introduced", m_temporariesIntroduced);
     }
 };
-class V3DfgRemoveSelectsContext final : public V3DfgSubContext {
+class V3DfgRemoveSelectsContext final : عام V3DfgSubContext {
     // Only V3DfgContext can create an instance
     friend class V3DfgContext;
 
-public:
+عام:
     // STATE
     VDouble0 m_removedFullWidth;  // Number of full width selects removed
     VDouble0 m_replacedWithSelFromDriver;  // Number of selects replaced with sel from a driver
     VDouble0 m_replacedWithWholeDriver;  // Number of selects replaced with a whole driver
-private:
+خاص:
     V3DfgRemoveSelectsContext()
         : V3DfgSubContext{"RemoveSelects"} {}
     ~V3DfgRemoveSelectsContext() {
@@ -253,18 +253,18 @@ private:
         addStat("replaced with whole driver", m_replacedWithWholeDriver);
     }
 };
-class V3DfgRemoveUnobservableContext final : public V3DfgSubContext {
+class V3DfgRemoveUnobservableContext final : عام V3DfgSubContext {
     // Only V3DfgContext can create an instance
     friend class V3DfgContext;
 
-public:
+عام:
     // STATE
     VDouble0 m_varsRemoved;  // Number of variables removed from the Dfg
     VDouble0 m_varsDeleted;  // Number of variables removed from the Dfg and the Ast
     VDouble0 m_logicRemoved;  // Number of logic blocks removed from the Dfg
     VDouble0 m_logicDeleted;  // Number of logic blocks removed from the Dfg and the Ast
 
-private:
+خاص:
     V3DfgRemoveUnobservableContext()
         : V3DfgSubContext{"RemoveUnobservable"} {}
     ~V3DfgRemoveUnobservableContext() {
@@ -274,18 +274,18 @@ private:
         addStat("logic deleted", m_logicDeleted);
     }
 };
-class V3DfgSynthesisContext final : public V3DfgSubContext {
+class V3DfgSynthesisContext final : عام V3DfgSubContext {
     // Only V3DfgContext can create an instance
     friend class V3DfgContext;
 
-public:
+عام:
     // STATE
 
     // Stats for conversion
-    struct {
+    بنية {
         // Inputs
-        VDouble0 inputAssignments;  // Number of input assignments
-        VDouble0 inputExpressions;  // Number of input equations
+        VDouble0 شغرو_Assignments;  // Number of input assignments
+        VDouble0 شغرو_Expressions;  // Number of input equations
         // Successful
         VDouble0 representable;  // Number of representable constructs
         // Unsuccessful
@@ -294,15 +294,15 @@ public:
         VDouble0 nonRepLValue;  // Non representable: unsupported LValue form
         VDouble0 nonRepVarRef;  // Non representable: unsupported var reference
         VDouble0 nonRepOOBSel;  // Non representable: out of bounds select
-        VDouble0 nonRepNode;  // Non representable: unsupported AstNode type
+        VDouble0 non_Rep_كلي;  // Non representable: unsupported AstNode type
         VDouble0 nonRepUnknown;  // Non representable: unhandled AstNode type
     } m_conv;
 
     // Stats for synthesis
-    struct {
+    بنية {
         // Inputs
-        VDouble0 inputAlways;  // Number of always blocks attempted
-        VDouble0 inputAssign;  // Number of continuous assignments attempted
+        VDouble0 شغرو_Always;  // Number of always blocks attempted
+        VDouble0 شغرو_Assign;  // Number of continuous assignments attempted
         // Successful
         VDouble0 synthAlways;  // Number of always blocks successfully synthesized
         VDouble0 synthAssign;  // Number of continuous assignments successfully synthesized
@@ -314,7 +314,7 @@ public:
         VDouble0 nonSynMultidrive;  // Non-synthesizable: multidriven value within statement
         VDouble0 nonSynArray;  // Non-synthesizable: array type unhandled
         VDouble0 nonSynLatch;  // Non-synthesizable: maybe latch
-        VDouble0 nonSynJoinInput;  // Non-synthesizable: needing to join input variable
+        VDouble0 non_Syn_Join_شغرو;  // Non-synthesizable: needing to join input variable
         VDouble0 nonSynFalseWrite;  // Non-synthesizable: does not write output
         // Reverted
         VDouble0 revertNonSyn;  // Reverted due to being driven from non-synthesizable vertex
@@ -328,20 +328,20 @@ public:
         VDouble0 joinUsingBranchCondition;  // Num Control flow joins using dominating branch cond
     } m_synt;
 
-private:
+خاص:
     V3DfgSynthesisContext()
         : V3DfgSubContext{"Synthesis"} {}
     ~V3DfgSynthesisContext() {
         // Conversion statistics
-        addStat("conv / input assignments", m_conv.inputAssignments);
-        addStat("conv / input expressions", m_conv.inputExpressions);
+        addStat("conv / input assignments", m_conv.شغرو_Assignments);
+        addStat("conv / input expressions", m_conv.شغرو_Expressions);
         addStat("conv / representable inputs", m_conv.representable);
         addStat("conv / non-representable (impure)", m_conv.nonRepImpure);
         addStat("conv / non-representable (dtype)", m_conv.nonRepDType);
         addStat("conv / non-representable (lhs)", m_conv.nonRepLValue);
         addStat("conv / non-representable (varref)", m_conv.nonRepVarRef);
         addStat("conv / non-representable (oobsel)", m_conv.nonRepOOBSel);
-        addStat("conv / non-representable (node)", m_conv.nonRepNode);
+        addStat("conv / non-representable (node)", m_conv.non_Rep_كلي);
         addStat("conv / non-representable (unknown)", m_conv.nonRepUnknown);
         VDouble0 nConvNonRep;
         nConvNonRep += m_conv.nonRepImpure;
@@ -349,18 +349,18 @@ private:
         nConvNonRep += m_conv.nonRepLValue;
         nConvNonRep += m_conv.nonRepVarRef;
         nConvNonRep += m_conv.nonRepOOBSel;
-        nConvNonRep += m_conv.nonRepNode;
+        nConvNonRep += m_conv.non_Rep_كلي;
         nConvNonRep += m_conv.nonRepUnknown;
         VDouble0 nConvExpect;
-        nConvExpect += m_conv.inputAssignments;
-        nConvExpect += m_conv.inputExpressions;
+        nConvExpect += m_conv.شغرو_Assignments;
+        nConvExpect += m_conv.شغرو_Expressions;
         nConvExpect -= m_conv.representable;
         UASSERT(nConvNonRep == nConvExpect, "Inconsistent statistics / conv");
 
         // Synthesis statistics
-        addStat("synt / always blocks considered", m_synt.inputAlways);
+        addStat("synt / always blocks considered", m_synt.شغرو_Always);
         addStat("synt / always blocks synthesized", m_synt.synthAlways);
-        addStat("synt / continuous assignments considered", m_synt.inputAssign);
+        addStat("synt / continuous assignments considered", m_synt.شغرو_Assign);
         addStat("synt / continuous assignments synthesized", m_synt.synthAssign);
         addStat("synt / non-synthesizable (conv)", m_synt.nonSynConv);
         addStat("synt / non-synthesizable (ext write)", m_synt.nonSynExtWrite);
@@ -369,7 +369,7 @@ private:
         addStat("synt / non-synthesizable (multidrive)", m_synt.nonSynMultidrive);
         addStat("synt / non-synthesizable (array)", m_synt.nonSynArray);
         addStat("synt / non-synthesizable (latch)", m_synt.nonSynLatch);
-        addStat("synt / non-synthesizable (join input)", m_synt.nonSynJoinInput);
+        addStat("synt / non-synthesizable (join input)", m_synt.non_Syn_Join_شغرو);
         addStat("synt / non-synthesizable (false write)", m_synt.nonSynFalseWrite);
         addStat("synt / reverted (non-synthesizable)", m_synt.revertNonSyn);
         addStat("synt / reverted (multidrive)", m_synt.revertMultidrive);
@@ -382,11 +382,11 @@ private:
         nSyntNonSyn += m_synt.nonSynMultidrive;
         nSyntNonSyn += m_synt.nonSynArray;
         nSyntNonSyn += m_synt.nonSynLatch;
-        nSyntNonSyn += m_synt.nonSynJoinInput;
+        nSyntNonSyn += m_synt.non_Syn_Join_شغرو;
         nSyntNonSyn += m_synt.nonSynFalseWrite;
         VDouble0 nSyntExpect;
-        nSyntExpect += m_synt.inputAlways;
-        nSyntExpect += m_synt.inputAssign;
+        nSyntExpect += m_synt.شغرو_Always;
+        nSyntExpect += m_synt.شغرو_Assign;
         nSyntExpect -= m_synt.synthAlways;
         nSyntExpect -= m_synt.synthAssign;
         UASSERT(nSyntNonSyn == nSyntExpect, "Inconsistent statistics / synt");
@@ -405,7 +405,7 @@ private:
 // Top level V3DfgContext
 
 class V3DfgContext final {
-public:
+عام:
     // STATE
 
     // Sub contexts - keep sorted by type
@@ -416,7 +416,7 @@ public:
     V3DfgCseContext m_cseContext1{"2nd"};  // Statistics context for CSE stage 2
     V3DfgDfgToAstContext m_dfg2AstContext;  // Statistics context for V3DfgDfgToAst
     V3DfgPeepholeContext m_peepholeContext;  // Statistics context for V3DfgPeephole
-    V3DfgPushDownSelsContext m_pushDownSelsContext;  // Statistics context for V3DfgPushDownSels
+    V3_Dfg_تور_Down_Sels_Context m_تور_Down_Sels_Context;  // Statistics context for V3DfgPushDownSels
     V3DfgRegularizeContext m_regularizeContext;  // Statistics context for V3DfgRegularize
     V3DfgRemoveSelectsContext m_removeSelectsContext;  // Stats context for V3DfgRemoveSelects
     V3DfgRemoveUnobservableContext
@@ -427,7 +427,7 @@ public:
     V3SharedTmps m_sharedTmps{"__Vdfg", VVarType::MODULETEMP};
 
     // CONSTRUCTOR
-    V3DfgContext() = default;
+    V3DfgContext() = افتراضي;
     ~V3DfgContext() {
         V3Stats::addStat("Optimizations, DFG, temporary declarations reused",
                          m_sharedTmps.nReused());

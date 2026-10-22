@@ -16,22 +16,22 @@
 
 #define VL_MT_DISABLED_CODE_UNIT 1
 
-#include "config_build.h"
-#include "verilatedos.h"
+#ضمن "config_build.h"
+#ضمن "verilatedos.h"
 
-#include "V3GraphAlg.h"
+#ضمن "V3GraphAlg.h"
 
-#include "V3Global.h"
-#include "V3GraphPathChecker.h"
-#include "V3GraphStream.h"
-#include "V3Stats.h"
+#ضمن "V3Global.h"
+#ضمن "V3GraphPathChecker.h"
+#ضمن "V3GraphStream.h"
+#ضمن "V3Stats.h"
 
-#include <algorithm>
-#include <limits>
-#include <list>
-#include <map>
-#include <numeric>
-#include <vector>
+#ضمن <algorithm>
+#ضمن <limits>
+#ضمن <list>
+#ضمن <map>
+#ضمن <numeric>
+#ضمن <vector>
 
 VL_DEFINE_DEBUG_FUNCTIONS;
 
@@ -40,42 +40,42 @@ VL_DEFINE_DEBUG_FUNCTIONS;
 // Algorithms - Remove redundancies
 // Changes user() and weight()
 
-class GraphRemoveRedundant final : GraphAlg<> {
-    const bool m_sumWeights;  // Sum, rather then maximize weights
-private:
-    void main() {
-        for (V3GraphVertex& vertex : m_graphp->vertices()) vertexIterate(&vertex);
+صنف GraphRemoveRedundant final : GraphAlg<> {
+    ثابت منطقي m_sumWeights;  // Sum, rather then maximize weights
+خاص:
+    فراغ main() {
+        لكل (V3GraphVertex& vertex : m_graphp->vertices()) vertexIterate(&vertex);
     }
-    void vertexIterate(V3GraphVertex* vertexp) {
+    فراغ vertexIterate(V3GraphVertex* vertexp) {
         // Clear marks
-        for (V3GraphEdge& edge : vertexp->outEdges()) edge.top()->userp(nullptr);
+        لكل (V3GraphEdge& edge : vertexp->outEdges()) edge.كولي()->userp(nullptr);
 
         // Mark edges and detect duplications
 
-        for (V3GraphEdge* const edgep : vertexp->outEdges().unlinkable()) {
-            if (followEdge(edgep)) {
-                V3GraphVertex* outVertexp = edgep->top();
+        لكل (V3GraphEdge* ثابت edgep : vertexp->outEdges().unlinkable()) {
+            إذا (followEdge(edgep)) {
+                V3GraphVertex* outVertexp = edgep->كولي();
                 V3GraphEdge* prevEdgep = static_cast<V3GraphEdge*>(outVertexp->userp());
-                if (!prevEdgep) {  // No previous assignment
+                إذا (!prevEdgep) {  // No previous assignment
                     outVertexp->userp(edgep);
-                } else {  // Duplicate
-                    bool saveOld = true;
-                    if (prevEdgep->cutable() && !edgep->cutable()) {
-                        saveOld = false;  // new !cutable more important than old
-                    } else if (!prevEdgep->cutable() && edgep->cutable()) {
+                } وإلا {  // Duplicate
+                    منطقي saveOld = true;
+                    إذا (prevEdgep->cutable() && !edgep->cutable()) {
+                        saveOld = خطأ;  // new !cutable more important than old
+                    } وإلا إذا (!prevEdgep->cutable() && edgep->cutable()) {
                         saveOld = true;  // old !cutable more important than new
-                    } else {
+                    } وإلا {
                         saveOld = true;
-                        if (!m_sumWeights
+                        إذا (!m_sumWeights
                             && (prevEdgep->weight() < edgep->weight())) {  // Keep max weight
                             prevEdgep->weight(edgep->weight());
                         }
                     }
-                    if (saveOld) {
-                        if (m_sumWeights) prevEdgep->weight(prevEdgep->weight() + edgep->weight());
+                    إذا (saveOld) {
+                        إذا (m_sumWeights) prevEdgep->weight(prevEdgep->weight() + edgep->weight());
                         VL_DO_DANGLING(edgep->unlinkDelete(), edgep);
-                    } else {
-                        if (m_sumWeights) edgep->weight(prevEdgep->weight() + edgep->weight());
+                    } وإلا {
+                        إذا (m_sumWeights) edgep->weight(prevEdgep->weight() + edgep->weight());
                         VL_DO_DANGLING(prevEdgep->unlinkDelete(), prevEdgep);
                         outVertexp->userp(edgep);
                     }
@@ -84,97 +84,97 @@ private:
         }
     }
 
-public:
-    GraphRemoveRedundant(V3Graph* graphp, V3EdgeFuncP edgeFuncp, bool sumWeights)
+عام:
+    GraphRemoveRedundant(V3Graph* graphp, V3EdgeFuncP edgeFuncp, منطقي sumWeights)
         : GraphAlg<>{graphp, edgeFuncp}
         , m_sumWeights{sumWeights} {
         main();
     }
-    ~GraphRemoveRedundant() = default;
+    ~GraphRemoveRedundant() = افتراضي;
 };
 
-void V3Graph::removeRedundantEdgesMax(V3EdgeFuncP edgeFuncp) {
-    GraphRemoveRedundant{this, edgeFuncp, false};
+فراغ V3Graph::removeRedundantEdgesMax(V3EdgeFuncP edgeFuncp) {
+    GraphRemoveRedundant{هذا, edgeFuncp, خطأ};
 }
-void V3Graph::removeRedundantEdgesSum(V3EdgeFuncP edgeFuncp) {
-    GraphRemoveRedundant{this, edgeFuncp, true};
+فراغ V3Graph::removeRedundantEdgesSum(V3EdgeFuncP edgeFuncp) {
+    GraphRemoveRedundant{هذا, edgeFuncp, true};
 }
 
 //######################################################################
 //######################################################################
 // Algorithms - remove transitive
 
-class GraphAlgRemoveTransitiveEdges final : GraphAlg<> {
-public:
+صنف GraphAlgRemoveTransitiveEdges final : GraphAlg<> {
+عام:
     explicit GraphAlgRemoveTransitiveEdges(V3Graph* graphp)
         : GraphAlg<>(graphp, nullptr) {}
-    void go() {
+    فراغ go() {
         GraphPathChecker checker{m_graphp};
-        for (V3GraphVertex& vtx : m_graphp->vertices()) {
+        لكل (V3GraphVertex& vtx : m_graphp->vertices()) {
             V3GraphEdge* deletep = nullptr;
-            for (V3GraphEdge& edge : vtx.outEdges()) {
-                if (deletep) VL_DO_CLEAR(deletep->unlinkDelete(), deletep = nullptr);
+            لكل (V3GraphEdge& edge : vtx.outEdges()) {
+                إذا (deletep) VL_DO_CLEAR(deletep->unlinkDelete(), deletep = nullptr);
                 // It should be safe to modify the graph, despite using
                 // the GraphPathChecker, as none of the modifications will
                 // change what can be reached from what, nor should they
                 // change the rank or CP of any node.
-                if (checker.isTransitiveEdge(&edge)) deletep = &edge;
+                إذا (checker.isTransitiveEdge(&edge)) deletep = &edge;
             }
-            if (deletep) VL_DO_DANGLING(deletep->unlinkDelete(), deletep);
+            إذا (deletep) VL_DO_DANGLING(deletep->unlinkDelete(), deletep);
         }
     }
 
-private:
+خاص:
     VL_UNCOPYABLE(GraphAlgRemoveTransitiveEdges);
 };
 
-void V3Graph::removeTransitiveEdges() { GraphAlgRemoveTransitiveEdges{this}.go(); }
+فراغ V3Graph::removeTransitiveEdges() { GraphAlgRemoveTransitiveEdges{هذا}.go(); }
 
 //######################################################################
 //######################################################################
 // Algorithms - weakly connected components
 // Changes color()
 
-class GraphAlgWeakly final : GraphAlg<> {
+صنف GraphAlgWeakly final : GraphAlg<> {
     // Sentinel color, meaning not colored yet. Colors themselves are 0 .. m_numColors-1.
-    static constexpr uint32_t UNCOLORED = std::numeric_limits<uint32_t>::max();
+    ساكن constexpr uint32_t UNCOLORED = std::numeric_limits<uint32_t>::max();
 
-    uint32_t m_numColors = 0;  // Number of colors assigned
+    uint32_t m_لمب_Colors = 0;  // Number of colors assigned
 
-    void main() {
+    فراغ main() {
         // Initialize state
-        for (V3GraphVertex& vertex : m_graphp->vertices()) vertex.color(UNCOLORED);
+        لكل (V3GraphVertex& vertex : m_graphp->vertices()) vertex.color(UNCOLORED);
         // Color graph, without gaps
-        for (V3GraphVertex& vertex : m_graphp->vertices()) {
-            if (vertex.color() == UNCOLORED) vertexIterate(&vertex, m_numColors++);
+        لكل (V3GraphVertex& vertex : m_graphp->vertices()) {
+            إذا (vertex.color() == UNCOLORED) vertexIterate(&vertex, m_لمب_Colors++);
         }
     }
 
-    void vertexIterate(V3GraphVertex* vertexp, uint32_t currentColor) {
+    فراغ vertexIterate(V3GraphVertex* vertexp, uint32_t currentColor) {
         // Assign new color to each unvisited node
         // then visit each of its edges, giving them the same color
-        if (vertexp->color() != UNCOLORED) return;  // Already colored it
+        إذا (vertexp->color() != UNCOLORED) أرجع;  // Already colored it
         vertexp->color(currentColor);
-        for (V3GraphEdge& edge : vertexp->outEdges()) {
-            if (followEdge(&edge)) vertexIterate(edge.top(), currentColor);
+        لكل (V3GraphEdge& edge : vertexp->outEdges()) {
+            إذا (followEdge(&edge)) vertexIterate(edge.كولي(), currentColor);
         }
-        for (V3GraphEdge& edge : vertexp->inEdges()) {
-            if (followEdge(&edge)) vertexIterate(edge.fromp(), currentColor);
+        لكل (V3GraphEdge& edge : vertexp->inEdges()) {
+            إذا (followEdge(&edge)) vertexIterate(edge.fromp(), currentColor);
         }
     }
 
-public:
+عام:
     GraphAlgWeakly(V3Graph* graphp, V3EdgeFuncP edgeFuncp)
         : GraphAlg<>(graphp, edgeFuncp) {
         main();
     }
-    ~GraphAlgWeakly() = default;
+    ~GraphAlgWeakly() = افتراضي;
 
-    uint32_t numColors() const { return m_numColors; }
+    uint32_t لمب_Colors() ثابت { أرجع m_لمب_Colors; }
 };
 
 uint32_t V3Graph::weaklyConnected(V3EdgeFuncP edgeFuncp) {
-    return GraphAlgWeakly{this, edgeFuncp}.numColors();
+    أرجع GraphAlgWeakly{هذا, edgeFuncp}.لمب_Colors();
 }
 
 //######################################################################
@@ -182,11 +182,11 @@ uint32_t V3Graph::weaklyConnected(V3EdgeFuncP edgeFuncp) {
 // Algorithms - strongly connected components
 // Changes user() and color()
 
-class GraphAlgStrongly final : GraphAlg<> {
+صنف GraphAlgStrongly final : GraphAlg<> {
     uint32_t m_currentDfs = 0;  // DFS count
     std::vector<V3GraphVertex*> m_callTrace;  // List of everything we hit processing so far
 
-    void main() {
+    فراغ main() {
         // Use Pearce's algorithm to color the strongly connected components. For reference see
         // "An Improved Algorithm for Finding the Strongly Connected Components of a Directed
         // Graph", David J.Pearce, 2005
@@ -196,185 +196,185 @@ class GraphAlgStrongly final : GraphAlg<> {
         //     Vertex::color    // Output subtree number (fully processed)
 
         // Clear info
-        for (V3GraphVertex& vertex : m_graphp->vertices()) {
+        لكل (V3GraphVertex& vertex : m_graphp->vertices()) {
             vertex.color(0);
             vertex.user(0);
         }
         // Color graph
-        for (V3GraphVertex& vertex : m_graphp->vertices()) {
-            if (!vertex.user()) {
+        لكل (V3GraphVertex& vertex : m_graphp->vertices()) {
+            إذا (!vertex.user()) {
                 m_currentDfs++;
                 vertexIterate(&vertex);
             }
         }
         // If there's a single vertex of a color, it doesn't need a subgraph
         // This simplifies the consumer's code, and reduces graph debugging clutter
-        for (V3GraphVertex& vertex : m_graphp->vertices()) {
-            bool onecolor = true;
-            for (V3GraphEdge& edge : vertex.outEdges()) {
-                if (followEdge(&edge)) {
-                    if (vertex.color() == edge.top()->color()) {
-                        onecolor = false;
-                        break;
+        لكل (V3GraphVertex& vertex : m_graphp->vertices()) {
+            منطقي onecolor = true;
+            لكل (V3GraphEdge& edge : vertex.outEdges()) {
+                إذا (followEdge(&edge)) {
+                    إذا (vertex.color() == edge.كولي()->color()) {
+                        onecolor = خطأ;
+                        اكسر;
                     }
                 }
             }
-            if (onecolor) vertex.color(0);
+            إذا (onecolor) vertex.color(0);
         }
     }
 
-    void vertexIterate(V3GraphVertex* vertexp) {
-        const uint32_t thisDfsNum = m_currentDfs++;
-        vertexp->user(thisDfsNum);
+    فراغ vertexIterate(V3GraphVertex* vertexp) {
+        ثابت uint32_t this_Dfs_لمب = m_currentDfs++;
+        vertexp->user(this_Dfs_لمب);
         vertexp->color(0);
-        for (V3GraphEdge& edge : vertexp->outEdges()) {
-            if (followEdge(&edge)) {
-                V3GraphVertex* top = edge.top();
-                if (!top->user()) {  // Dest not computed yet
-                    vertexIterate(top);
+        لكل (V3GraphEdge& edge : vertexp->outEdges()) {
+            إذا (followEdge(&edge)) {
+                V3GraphVertex* كولي = edge.كولي();
+                إذا (!كولي->user()) {  // Dest not computed yet
+                    vertexIterate(كولي);
                 }
-                if (!top->color()) {  // Dest not in a component
-                    if (vertexp->user() > top->user()) vertexp->user(top->user());
+                إذا (!كولي->color()) {  // Dest not in a component
+                    إذا (vertexp->user() > كولي->user()) vertexp->user(كولي->user());
                 }
             }
         }
-        if (vertexp->user() == thisDfsNum) {  // New head of subtree
-            vertexp->color(thisDfsNum);  // Mark as component
-            while (!m_callTrace.empty()) {
-                V3GraphVertex* popVertexp = m_callTrace.back();
-                if (popVertexp->user() >= thisDfsNum) {  // Lower node is part of this subtree
-                    m_callTrace.pop_back();
-                    popVertexp->color(thisDfsNum);
-                } else {
-                    break;
+        إذا (vertexp->user() == this_Dfs_لمب) {  // New head of subtree
+            vertexp->color(this_Dfs_لمب);  // Mark as component
+            طالما (!m_callTrace.empty()) {
+                V3GraphVertex* چرو_Vertexp = m_callTrace.back();
+                إذا (چرو_Vertexp->user() >= this_Dfs_لمب) {  // Lower node is part of this subtree
+                    m_callTrace.چرو_back();
+                    چرو_Vertexp->color(this_Dfs_لمب);
+                } وإلا {
+                    اكسر;
                 }
             }
-        } else {  // In another subtree (maybe...)
-            m_callTrace.push_back(vertexp);
+        } وإلا {  // In another subtree (maybe...)
+            m_callTrace.تور_back(vertexp);
         }
     }
 
-public:
+عام:
     GraphAlgStrongly(V3Graph* graphp, V3EdgeFuncP edgeFuncp)
         : GraphAlg<>{graphp, edgeFuncp} {
         main();
     }
-    ~GraphAlgStrongly() = default;
+    ~GraphAlgStrongly() = افتراضي;
 };
 
-void V3Graph::stronglyConnected(V3EdgeFuncP edgeFuncp) { GraphAlgStrongly{this, edgeFuncp}; }
+فراغ V3Graph::stronglyConnected(V3EdgeFuncP edgeFuncp) { GraphAlgStrongly{هذا, edgeFuncp}; }
 
 //######################################################################
 //######################################################################
 // Algorithms - ranking
 // Changes user() and rank()
 
-class GraphAlgRank final : GraphAlg<> {
-    void main() {
+صنف GraphAlgRank final : GraphAlg<> {
+    فراغ main() {
         // Rank each vertex, ignoring cutable edges
         // Vertex::m_user begin: 1 indicates processing, 2 indicates completed
         // Clear existing ranks
-        for (V3GraphVertex& vertex : m_graphp->vertices()) {
+        لكل (V3GraphVertex& vertex : m_graphp->vertices()) {
             vertex.rank(0);
             vertex.user(0);
         }
-        for (V3GraphVertex& vertex : m_graphp->vertices()) {
-            if (!vertex.user()) vertexIterate(&vertex, 1);
+        لكل (V3GraphVertex& vertex : m_graphp->vertices()) {
+            إذا (!vertex.user()) vertexIterate(&vertex, 1);
         }
     }
-    void vertexIterate(V3GraphVertex* vertexp, uint32_t currentRank) {
+    فراغ vertexIterate(V3GraphVertex* vertexp, uint32_t currentRank) {
         // Assign rank to each unvisited node
         // If larger rank is found, assign it and loop back through
         // If we hit a back node make a list of all loops
-        if (vertexp->user() == 1) {
+        إذا (vertexp->user() == 1) {
             m_graphp->loopsMessageCb(vertexp, m_edgeFuncp);
-            return;  // LCOV_EXCL_LINE  // gcc gprof bug misses this return
+            أرجع;  // LCOV_EXCL_LINE  // gcc gprof bug misses this return
         }
-        if (vertexp->rank() >= currentRank) return;  // Already processed it
+        إذا (vertexp->rank() >= currentRank) أرجع;  // Already processed it
         vertexp->user(1);
         vertexp->rank(currentRank);
-        for (V3GraphEdge& edge : vertexp->outEdges()) {
-            if (followEdge(&edge)) vertexIterate(edge.top(), currentRank + vertexp->rankAdder());
+        لكل (V3GraphEdge& edge : vertexp->outEdges()) {
+            إذا (followEdge(&edge)) vertexIterate(edge.كولي(), currentRank + vertexp->rankAdder());
         }
         vertexp->user(2);
     }
 
-public:
+عام:
     GraphAlgRank(V3Graph* graphp, V3EdgeFuncP edgeFuncp)
         : GraphAlg<>{graphp, edgeFuncp} {
         main();
     }
-    ~GraphAlgRank() = default;
+    ~GraphAlgRank() = افتراضي;
 };
 
-void V3Graph::rank() { rank(&V3GraphEdge::followAlwaysTrue); }
-void V3Graph::rank(V3EdgeFuncP edgeFuncp) { GraphAlgRank{this, edgeFuncp}; }
+فراغ V3Graph::rank() { rank(&V3GraphEdge::followAlwaysTrue); }
+فراغ V3Graph::rank(V3EdgeFuncP edgeFuncp) { GraphAlgRank{هذا, edgeFuncp}; }
 
 //######################################################################
 //######################################################################
 // Algorithms - ranking min
 // Changes user() and rank()
 
-class GraphAlgRankMin final : GraphAlg<> {
-    void main() {
+صنف GraphAlgRankMin final : GraphAlg<> {
+    فراغ main() {
         // Rank each vertex, ignoring cutable edges
         // Vertex::m_user begin: 1 indicates processing, 2 indicates completed
         // Clear existing ranks
-        for (V3GraphVertex& vertex : m_graphp->vertices()) {
+        لكل (V3GraphVertex& vertex : m_graphp->vertices()) {
             vertex.rank(0);
             vertex.user(0);
         }
-        for (V3GraphVertex& vertex : m_graphp->vertices()) {
-            if (!vertex.user()) vertexIterate(&vertex);
+        لكل (V3GraphVertex& vertex : m_graphp->vertices()) {
+            إذا (!vertex.user()) vertexIterate(&vertex);
         }
     }
     uint32_t vertexIterate(V3GraphVertex* vertexp) {
         // Assign rank to each unvisited node
         // If we hit a back node make a list of all loops
-        if (vertexp->user() == 1) {
+        إذا (vertexp->user() == 1) {
             m_graphp->loopsMessageCb(vertexp, m_edgeFuncp);
-            return vertexp->rank();
+            أرجع vertexp->rank();
         }
-        if (vertexp->user()) return vertexp->rank();  // Done earlier
+        إذا (vertexp->user()) أرجع vertexp->rank();  // Done earlier
         vertexp->user(1);
         vertexp->rank(1);  // In case loop
         // If no input edges, then rank 1 (+ adder)
         // Otherwise, get minimum from following all inputs.
         uint32_t minrank = ~0U;
-        for (V3GraphEdge& edge : vertexp->inEdges()) {
-            if (followEdge(&edge)) {
-                const uint32_t nrank = vertexIterate(edge.fromp());
+        لكل (V3GraphEdge& edge : vertexp->inEdges()) {
+            إذا (followEdge(&edge)) {
+                ثابت uint32_t nrank = vertexIterate(edge.fromp());
                 minrank = std::min(minrank, nrank);
             }
         }
-        if (minrank == ~0U) minrank = 0;
+        إذا (minrank == ~0U) minrank = 0;
         vertexp->rank(minrank + vertexp->rankAdder());
         vertexp->user(2);
-        return vertexp->rank();
+        أرجع vertexp->rank();
     }
 
-public:
+عام:
     GraphAlgRankMin(V3Graph* graphp, V3EdgeFuncP edgeFuncp)
         : GraphAlg<>{graphp, edgeFuncp} {
         main();
     }
-    ~GraphAlgRankMin() = default;
+    ~GraphAlgRankMin() = افتراضي;
 };
 
-void V3Graph::rankMin() { rankMin(&V3GraphEdge::followAlwaysTrue); }
-void V3Graph::rankMin(V3EdgeFuncP edgeFuncp) { GraphAlgRankMin{this, edgeFuncp}; }
+فراغ V3Graph::rankMin() { rankMin(&V3GraphEdge::followAlwaysTrue); }
+فراغ V3Graph::rankMin(V3EdgeFuncP edgeFuncp) { GraphAlgRankMin{هذا, edgeFuncp}; }
 
 //######################################################################
 //######################################################################
 // Algorithms - report loops
 // Changes user()
 
-class GraphAlgRLoops final : GraphAlg<> {
+صنف GraphAlgRLoops final : GraphAlg<> {
     std::vector<V3GraphVertex*> m_callTrace;  // List of everything we hit processing so far
     std::vector<string> m_msgs;  // Output messages
-    bool m_done = false;  // Exit algorithm
+    منطقي m_done = خطأ;  // Exit algorithm
 
-    void main(V3GraphVertex* vertexp) {
+    فراغ main(V3GraphVertex* vertexp) {
         // Vertex::m_user begin: 1 indicates processing, 2 indicates completed
         // Clear existing ranks
         m_graphp->userClearVertices();
@@ -382,42 +382,42 @@ class GraphAlgRLoops final : GraphAlg<> {
         vertexIterate(vertexp, 0);
     }
 
-    void vertexIterate(V3GraphVertex* vertexp, uint32_t currentRank) {
+    فراغ vertexIterate(V3GraphVertex* vertexp, uint32_t currentRank) {
         // Assign rank to each unvisited node
         // When we hit ourself again, return the list of all loops
-        if (m_done) return;
+        إذا (m_done) أرجع;
 
         // Can't just reserve(), unless we modify size() before setting array directly
-        while (m_callTrace.size() <= currentRank) m_callTrace.push_back(vertexp);
+        طالما (m_callTrace.size() <= currentRank) m_callTrace.تور_back(vertexp);
         m_callTrace[currentRank++] = vertexp;
 
-        if (vertexp->user() == 1) {
-            for (unsigned i = 0; i < currentRank; i++)
+        إذا (vertexp->user() == 1) {
+            لكل (unsigned i = 0; i < currentRank; i++)
                 m_msgs.emplace_back(m_graphp->loopsVertexCb(m_callTrace[i]));
             m_done = true;
-            return;
+            أرجع;
         }
-        if (vertexp->user() == 2) return;  // Already processed it
+        إذا (vertexp->user() == 2) أرجع;  // Already processed it
         vertexp->user(1);
-        for (V3GraphEdge& edge : vertexp->outEdges()) {
-            if (followEdge(&edge)) vertexIterate(edge.top(), currentRank);
+        لكل (V3GraphEdge& edge : vertexp->outEdges()) {
+            إذا (followEdge(&edge)) vertexIterate(edge.كولي(), currentRank);
         }
         vertexp->user(2);
     }
 
-public:
+عام:
     GraphAlgRLoops(V3Graph* graphp, V3EdgeFuncP edgeFuncp, V3GraphVertex* vertexp)
         : GraphAlg<>{graphp, edgeFuncp} {
         main(vertexp);
     }
-    ~GraphAlgRLoops() = default;
-    string message() const {
-        return std::accumulate(m_msgs.begin(), m_msgs.end(), std::string{""});
+    ~GraphAlgRLoops() = افتراضي;
+    string message() ثابت {
+        أرجع std::accumulate(m_msgs.begin(), m_msgs.end(), std::string{""});
     }
 };
 
 string V3Graph::reportLoops(V3EdgeFuncP edgeFuncp, V3GraphVertex* vertexp) {
-    return GraphAlgRLoops{this, edgeFuncp, vertexp}.message();
+    أرجع GraphAlgRLoops{هذا, edgeFuncp, vertexp}.message();
 }
 
 //######################################################################
@@ -425,32 +425,32 @@ string V3Graph::reportLoops(V3EdgeFuncP edgeFuncp, V3GraphVertex* vertexp) {
 // Algorithms - subtrees
 // Changes user()
 
-class GraphAlgSubtrees final : GraphAlg<> {
-    V3Graph* const m_loopGraphp;
+صنف GraphAlgSubtrees final : GraphAlg<> {
+    V3Graph* ثابت m_loopGraphp;
 
     //! Iterate through all connected nodes of a graph with a loop or loops.
     V3GraphVertex* vertexIterateAll(V3GraphVertex* vertexp) {
-        if (V3GraphVertex* newVertexp = static_cast<V3GraphVertex*>(vertexp->userp())) {
-            return newVertexp;
-        } else {
+        إذا (V3GraphVertex* newVertexp = static_cast<V3GraphVertex*>(vertexp->userp())) {
+            أرجع newVertexp;
+        } وإلا {
             newVertexp = vertexp->clone(m_loopGraphp);
             vertexp->userp(newVertexp);
 
-            for (V3GraphEdge& edge : vertexp->outEdges()) {
-                if (followEdge(&edge)) {
+            لكل (V3GraphEdge& edge : vertexp->outEdges()) {
+                إذا (followEdge(&edge)) {
                     V3GraphEdge* newEdgep = static_cast<V3GraphEdge*>(edge.userp());
-                    if (!newEdgep) {
-                        V3GraphVertex* newTop = vertexIterateAll(edge.top());
-                        newEdgep = edge.clone(m_loopGraphp, newVertexp, newTop);
+                    إذا (!newEdgep) {
+                        V3GraphVertex* new_كولي = vertexIterateAll(edge.كولي());
+                        newEdgep = edge.clone(m_loopGraphp, newVertexp, new_كولي);
                         edge.userp(newEdgep);
                     }
                 }
             }
-            return newVertexp;
+            أرجع newVertexp;
         }
     }
 
-public:
+عام:
     GraphAlgSubtrees(V3Graph* graphp, V3Graph* loopGraphp, V3EdgeFuncP edgeFuncp,
                      V3GraphVertex* vertexp)
         : GraphAlg<>{graphp, edgeFuncp}
@@ -459,48 +459,48 @@ public:
         // Edge::m_userp - New edge if we have seen this edge already
         m_graphp->userClearVertices();
         m_graphp->userClearEdges();
-        (void)vertexIterateAll(vertexp);
+        (فراغ)vertexIterateAll(vertexp);
     }
-    ~GraphAlgSubtrees() = default;
+    ~GraphAlgSubtrees() = افتراضي;
 };
 
 //! Report the entire connected graph with a loop or loops
-void V3Graph::subtreeLoops(V3EdgeFuncP edgeFuncp, V3GraphVertex* vertexp, V3Graph* loopGraphp) {
-    GraphAlgSubtrees{this, loopGraphp, edgeFuncp, vertexp};
+فراغ V3Graph::subtreeLoops(V3EdgeFuncP edgeFuncp, V3GraphVertex* vertexp, V3Graph* loopGraphp) {
+    GraphAlgSubtrees{هذا, loopGraphp, edgeFuncp, vertexp};
 }
 
 //######################################################################
 //######################################################################
 // Algorithms - sorting
 
-void V3Graph::sortVertices() {
+فراغ V3Graph::sortVertices() {
     // Sort list of vertices by rank, then fanout
     std::vector<V3GraphVertex*> vertexps;
-    for (V3GraphVertex& vertex : m_vertices) vertexps.push_back(&vertex);
+    لكل (V3GraphVertex& vertex : m_vertices) vertexps.تور_back(&vertex);
     std::stable_sort(vertexps.begin(), vertexps.end(),
-                     [](const V3GraphVertex* lhsp, const V3GraphVertex* rhsp) {  //
-                         return lhsp->sortCmp(rhsp) < 0;
+                     [](ثابت V3GraphVertex* lhsp, ثابت V3GraphVertex* rhsp) {  //
+                         أرجع lhsp->sortCmp(rhsp) < 0;
                      });
     // Re-insert in sorted order
-    for (V3GraphVertex* const vertexp : vertexps) {
+    لكل (V3GraphVertex* ثابت vertexp : vertexps) {
         m_vertices.unlink(vertexp);
         m_vertices.linkBack(vertexp);
     }
 }
 
-void V3Graph::sortEdges() {
+فراغ V3Graph::sortEdges() {
     // Sort edges by rank then fanout of node they point to
     std::vector<V3GraphEdge*> edges;
-    for (V3GraphVertex& vertex : vertices()) {
+    لكل (V3GraphVertex& vertex : vertices()) {
         // Make a vector
-        for (V3GraphEdge& edge : vertex.outEdges()) edges.push_back(&edge);
+        لكل (V3GraphEdge& edge : vertex.outEdges()) edges.تور_back(&edge);
         // Sort
         std::stable_sort(edges.begin(), edges.end(),
-                         [](const V3GraphEdge* lhsp, const V3GraphEdge* rhsp) {  //
-                             return lhsp->sortCmp(rhsp) < 0;
+                         [](ثابت V3GraphEdge* lhsp, ثابت V3GraphEdge* rhsp) {  //
+                             أرجع lhsp->sortCmp(rhsp) < 0;
                          });
         // Relink edges in specified order
-        for (V3GraphEdge* const edgep : edges) edgep->relinkFromp(&vertex);
+        لكل (V3GraphEdge* ثابت edgep : edges) edgep->relinkFromp(&vertex);
         // Prep for next
         edges.clear();
     }
@@ -514,7 +514,7 @@ void V3Graph::sortEdges() {
 //          Visit edges and assign ranks to keep minimal crossings
 //              (Results in better dcache packing.)
 
-void V3Graph::order() {
+فراغ V3Graph::order() {
     UINFO(2, "Order:");
 
     // Compute rankings again
@@ -522,12 +522,12 @@ void V3Graph::order() {
     orderPreRanked();
 }
 
-void V3Graph::orderPreRanked() {
+فراغ V3Graph::orderPreRanked() {
     // Compute fanouts
     // Vertex::m_user begin: 1 indicates processing, 2 indicates completed
     userClearVertices();
-    for (V3GraphVertex& vertex : vertices()) {
-        if (!vertex.user()) orderDFSIterate(&vertex);
+    لكل (V3GraphVertex& vertex : vertices()) {
+        إذا (!vertex.user()) orderDFSIterate(&vertex);
     }
 
     // Sort list of vertices by rank, then fanout. Fanout is a bit of a
@@ -538,49 +538,49 @@ void V3Graph::orderPreRanked() {
     sortEdges();
 }
 
-double V3Graph::orderDFSIterate(V3GraphVertex* vertexp) {
+مزدوج V3Graph::orderDFSIterate(V3GraphVertex* vertexp) {
     // Compute fanouts of each node
     // If forward edge, don't double count that fanout
-    if (vertexp->user() == 2) return vertexp->fanout();  // Already processed it
+    إذا (vertexp->user() == 2) أرجع vertexp->fanout();  // Already processed it
     UASSERT_OBJ(vertexp->user() != 1, vertexp, "Loop found, backward edges should be dead");
     vertexp->user(1);
-    double fanout = 0;
-    for (V3GraphEdge& edge : vertexp->outEdges()) {
-        if (edge.weight()) fanout += orderDFSIterate(edge.top());
+    مزدوج fanout = 0;
+    لكل (V3GraphEdge& edge : vertexp->outEdges()) {
+        إذا (edge.weight()) fanout += orderDFSIterate(edge.كولي());
     }
     // Just count inbound edges
-    for (V3GraphEdge& edge : vertexp->inEdges()) {
-        if (edge.weight()) ++fanout;
+    لكل (V3GraphEdge& edge : vertexp->inEdges()) {
+        إذا (edge.weight()) ++fanout;
     }
     vertexp->fanout(fanout);
     vertexp->user(2);
-    return vertexp->fanout();
+    أرجع vertexp->fanout();
 }
 
 //######################################################################
 //######################################################################
 // Algorithms - parallelism report
 
-class GraphAlgParallelismReport final {
+صنف GraphAlgParallelismReport final {
     // MEMBERS
     V3Graph& m_graph;  // The graph
-    const std::function<uint64_t(const V3GraphVertex*)> m_vertexCost;  // vertex cost function
+    ثابت std::function<uint64_t(ثابت V3GraphVertex*)> m_vertexCost;  // vertex cost function
     V3Graph::ParallelismReport m_report;  // The result report
 
     // CONSTRUCTORS
     explicit GraphAlgParallelismReport(V3Graph& graph,
-                                       std::function<uint64_t(const V3GraphVertex*)> vertexCost)
+                                       std::function<uint64_t(ثابت V3GraphVertex*)> vertexCost)
         : m_graph{graph}
         , m_vertexCost{vertexCost} {
         // For each node, record the critical path cost from the start
         // of the graph through the end of the node.
-        std::unordered_map<const V3GraphVertex*, uint64_t> critPaths;
+        std::unordered_map<ثابت V3GraphVertex*, uint64_t> critPaths;
         GraphStreamUnordered serialize{&m_graph};
-        for (const V3GraphVertex* vertexp; (vertexp = serialize.nextp());) {
-            ++m_report.m_vertexCount;
+        لكل (ثابت V3GraphVertex* vertexp; (vertexp = serialize.nextp());) {
+            ++m_report.m_vertex_كدي;
             uint64_t cpCostToHere = 0;
-            for (const V3GraphEdge& edge : vertexp->inEdges()) {
-                ++m_report.m_edgeCount;
+            لكل (ثابت V3GraphEdge& edge : vertexp->inEdges()) {
+                ++m_report.m_edge_كدي;
                 // For each upstream item, add its critical path cost to
                 // the cost of this edge, to form a new candidate critical
                 // path cost to the current node. Whichever is largest is
@@ -597,18 +597,18 @@ class GraphAlgParallelismReport final {
             m_report.m_totalGraphCost += m_vertexCost(vertexp);
         }
     }
-    ~GraphAlgParallelismReport() = default;
+    ~GraphAlgParallelismReport() = افتراضي;
     VL_UNCOPYABLE(GraphAlgParallelismReport);
     VL_UNMOVABLE(GraphAlgParallelismReport);
 
-public:
-    static V3Graph::ParallelismReport
-    apply(V3Graph& graph, std::function<uint32_t(const V3GraphVertex*)> vertexCost) {
-        return GraphAlgParallelismReport(graph, vertexCost).m_report;
+عام:
+    ساكن V3Graph::ParallelismReport
+    apply(V3Graph& graph, std::function<uint32_t(ثابت V3GraphVertex*)> vertexCost) {
+        أرجع GraphAlgParallelismReport(graph, vertexCost).m_report;
     }
 };
 
 V3Graph::ParallelismReport
-V3Graph::parallelismReport(std::function<uint64_t(const V3GraphVertex*)> vertexCost) {
-    return GraphAlgParallelismReport::apply(*this, vertexCost);
+V3Graph::parallelismReport(std::function<uint64_t(ثابت V3GraphVertex*)> vertexCost) {
+    أرجع GraphAlgParallelismReport::apply(*هذا, vertexCost);
 }

@@ -17,16 +17,16 @@
 #ifndef VERILATOR_V3REORDER_H_
 #define VERILATOR_V3REORDER_H_
 
-#include "config_build.h"
-#include "verilatedos.h"
+#ضمن "config_build.h"
+#ضمن "verilatedos.h"
 
 class AstNetlist;
 
 //============================================================================
 
 class V3Reorder final {
-public:
-    static void reorderAll(AstNetlist* nodep) VL_MT_DISABLED;
+عام:
+    ساكن فراغ reorderAll(AstNetlist* nodep) VL_MT_DISABLED;
 };
 
 #endif  // Guard

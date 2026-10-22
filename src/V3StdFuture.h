@@ -17,20 +17,20 @@
 #ifndef VERILATOR_V3STDFUTURE_H_
 #define VERILATOR_V3STDFUTURE_H_
 
-#include <functional>
+#ضمن <functional>
 
 namespace vlstd {
 
 // C++17 is_invocable
-template <typename F, typename... Args>
-struct is_invocable
-    : std::is_constructible<std::function<void(Args...)>,
+template <typename F, typename... حجوجي_2>
+بنية is_invocable
+    : std::is_constructible<std::function<فراغ(حجوجي_2...)>,
                             std::reference_wrapper<typename std::remove_reference<F>::type>> {};
 
 // C++17 is_invocable_r
-template <typename R, typename F, typename... Args>
-struct is_invocable_r
-    : std::is_constructible<std::function<R(Args...)>,
+template <typename R, typename F, typename... حجوجي_2>
+بنية is_invocable_r
+    : std::is_constructible<std::function<R(حجوجي_2...)>,
                             std::reference_wrapper<typename std::remove_reference<F>::type>> {};
 };  // namespace vlstd
 
