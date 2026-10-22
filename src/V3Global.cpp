@@ -14,73 +14,73 @@
 //
 //*************************************************************************
 
-#include "V3PchAstMT.h"
+#ضمن "V3PchAstMT.h"
 
-#include "V3Global.h"
+#ضمن "V3Global.h"
 
-#include "V3ConstPool.h"
-#include "V3EmitV.h"
-#include "V3Error.h"
-#include "V3File.h"
-#include "V3HierBlock.h"
-#include "V3LibMap.h"
-#include "V3LinkCells.h"
-#include "V3Parse.h"
-#include "V3ParseImp.h"
-#include "V3PreShell.h"
-#include "V3Stats.h"
-#include "V3ThreadPool.h"
+#ضمن "V3ConstPool.h"
+#ضمن "V3EmitV.h"
+#ضمن "V3Error.h"
+#ضمن "V3File.h"
+#ضمن "V3HierBlock.h"
+#ضمن "V3LibMap.h"
+#ضمن "V3LinkCells.h"
+#ضمن "V3Parse.h"
+#ضمن "V3ParseImp.h"
+#ضمن "V3PreShell.h"
+#ضمن "V3Stats.h"
+#ضمن "V3ThreadPool.h"
 
 VL_DEFINE_DEBUG_FUNCTIONS;
 
 //######################################################################
 // AddressSanitizer default options
 
-#ifdef VL_ASAN
-extern "C" const char* __asan_default_options() {
+#جيڪڏهن_وصف_ٿيل VL_ASAN
+خارجي "C" ثابت حرف* __asan_default_options() {
     // See https://github.com/google/sanitizers/wiki/SanitizerCommonFlags
     // or 'env ASAN_OPTIONS=help=1 ./verilator_bin'
-    return ""
-#ifndef VL_LEAK_CHECKS
+    أرجع ""
+#جيڪڏهن_وصف_نه_ٿيل VL_LEAK_CHECKS
            ":detect_leaks=0"
-#endif
+#جيڪڏهن_پورو
         ;
 }
-#endif
+#جيڪڏهن_پورو
 
 //######################################################################
 // V3Global
 
-void V3Global::boot() {
+فراغ V3Global::boot() {
     UASSERT(!m_rootp, "call once");
-    m_rootp = new AstNetlist;
-    m_constPoolp = new V3ConstPool;
-    m_libMapp = new V3LibMap;
+    m_rootp = جديد AstNetlist;
+    m_constPoolp = جديد V3ConstPool;
+    m_libMapp = جديد V3LibMap;
 }
 
-void V3Global::shutdown() {
+فراغ V3Global::shutdown() {
     V3PreShell::shutdown();
-    VL_DO_CLEAR(delete m_hierGraphp, m_hierGraphp = nullptr);  // delete nullptr is safe
-    VL_DO_CLEAR(delete m_threadPoolp, m_threadPoolp = nullptr);  // delete nullptr is safe
-    VL_DO_CLEAR(delete m_libMapp, m_libMapp = nullptr);  // delete nullptr is safe
-    VL_DO_CLEAR(delete m_constPoolp, m_constPoolp = nullptr);  // delete nullptr is safe
-#ifdef VL_LEAK_CHECKS
-    if (m_rootp) VL_DO_CLEAR(m_rootp->deleteTree(), m_rootp = nullptr);
-#endif
-    FileLine::deleteAllRemaining();
+    VL_DO_CLEAR(ميٽيو m_hierGraphp, m_hierGraphp = خالي_اشارو);  // delete nullptr is safe
+    VL_DO_CLEAR(ميٽيو m_threadPoolp, m_threadPoolp = خالي_اشارو);  // delete nullptr is safe
+    VL_DO_CLEAR(ميٽيو m_libMapp, m_libMapp = خالي_اشارو);  // delete nullptr is safe
+    VL_DO_CLEAR(ميٽيو m_constPoolp, m_constPoolp = خالي_اشارو);  // delete nullptr is safe
+#جيڪڏهن_وصف_ٿيل VL_LEAK_CHECKS
+    إذا (m_rootp) VL_DO_CLEAR(m_rootp->delete_وڻ(), m_rootp = خالي_اشارو);
+#جيڪڏهن_پورو
+    File_سٽ::delete_All_بچيل();
 }
 
-void V3Global::vlExit(int status) {
+فراغ V3Global::vlExit(صحيح حالت) {
     shutdown();
-    std::exit(status);
+    std::ٻاهر_نڪرو(حالت);
 }
 
-void V3Global::checkTree() const { rootp()->checkTree(); }
+فراغ V3Global::check_وڻ() ثابت { rootp()->check_وڻ(); }
 
-void V3Global::readFiles() {
+فراغ V3Global::readFiles() {
     // NODE STATE
     //   AstNode::user4p()      // VSymEnt*    Package and typedef symbol names
-    const VNUser4InUse inuser4;
+    ثابت VNUser4_اندريون_Use inuser4;
 
     VInFilter filter{v3Global.opt.pipeFilter()};
 
@@ -88,57 +88,57 @@ void V3Global::readFiles() {
         V3Parse parser{v3Global.rootp(), &filter};
 
         // Parse the std waivers
-        if (v3Global.opt.stdWaiver()) {
+        إذا (v3Global.opt.stdWaiver()) {
             parser.parseFile(
-                new FileLine{V3Options::getStdWaiverPath()}, V3Options::getStdWaiverPath(), false,
-                false, "work",
+                جديد File_سٽ{V3Options::get_Std_Waiver_رستو()}, V3Options::get_Std_Waiver_رستو(), خطأ,
+                خطأ, "work",
                 "Cannot find verilated_std_waiver.vlt containing built-in lint waivers: ");
         }
         // Read .vlt files
-        for (const VFileLibName& filelib : v3Global.opt.vltFiles()) {
-            parser.parseFile(new FileLine{FileLine::commandLineFilename()}, filelib.filename(),
-                             false, false, filelib.libname(),
+        لكل (ثابت VFileLibName& filelib : v3Global.opt.vltFiles()) {
+            parser.parseFile(جديد File_سٽ{File_سٽ::command_سٽ_Filename()}, filelib.filename(),
+                             خطأ, خطأ, filelib.libname(),
                              "Cannot find file containing .vlt file: ");
         }
 
         // Parse the std package
-        if (v3Global.opt.stdPackage()) {
+        إذا (v3Global.opt.stdPackage()) {
             parser.parseFile(
-                new FileLine{V3Options::getStdPackagePath()}, V3Options::getStdPackagePath(),
-                false, false, "work",
+                جديد File_سٽ{V3Options::get_Std_Package_رستو()}, V3Options::get_Std_Package_رستو(),
+                خطأ, خطأ, "work",
                 "Cannot find verilated_std.sv containing built-in std:: definitions: ");
         }
 
         // Parse libmap files
-        for (const string& filename : v3Global.opt.libmapFiles()) {
-            parser.parseFile(new FileLine{FileLine::commandLineFilename()}, filename, false, true,
+        لكل (ثابت string& filename : v3Global.opt.libmapFiles()) {
+            parser.parseFile(جديد File_سٽ{File_سٽ::command_سٽ_Filename()}, filename, خطأ, سچ,
                              "work", "Cannot find file containing libmap definitions: ");
         }
         // Create library mapping
         V3LibMap::map(v3Global.rootp());
 
         // Read top module
-        for (const auto& filelib : v3Global.opt.vFiles()) {
-            const string& libname = filelib.libname() == "work"
-                                        ? v3Global.libMapp()->matchMapping(filelib.filename())
+        لكل (ثابت خودڪار& filelib : v3Global.opt.vFiles()) {
+            ثابت string& libname = filelib.libname() == "work"
+                                        ? v3Global.libMapp()->ميلاپ_Mapping(filelib.filename())
                                         : filelib.libname();
-            parser.parseFile(new FileLine{FileLine::commandLineFilename()}, filelib.filename(),
-                             false, false, libname, "Cannot find file containing module: ");
+            parser.parseFile(جديد File_سٽ{File_سٽ::command_سٽ_Filename()}, filelib.filename(),
+                             خطأ, خطأ, libname, "Cannot find file containing module: ");
         }
 
         // Read libraries
         // To be compatible with other simulators,
         // this needs to be done after the top file is read
-        for (const auto& filelib : v3Global.opt.libraryFiles()) {
-            parser.parseFile(new FileLine{FileLine::commandLineFilename()}, filelib.filename(),
-                             true, false, filelib.libname(),
+        لكل (ثابت خودڪار& filelib : v3Global.opt.libraryFiles()) {
+            parser.parseFile(جديد File_سٽ{File_سٽ::command_سٽ_Filename()}, filelib.filename(),
+                             سچ, خطأ, filelib.libname(),
                              "Cannot find file containing library module: ");
         }
 
         // Read hierarchical type parameter file
-        for (const auto& filelib : v3Global.opt.hierParamFile()) {
-            parser.parseFile(new FileLine{FileLine::commandLineFilename()}, filelib.filename(),
-                             false, false, filelib.libname(),
+        لكل (ثابت خودڪار& filelib : v3Global.opt.hierParamFile()) {
+            parser.parseFile(جديد File_سٽ{File_سٽ::command_سٽ_Filename()}, filelib.filename(),
+                             خطأ, خطأ, filelib.libname(),
                              "Cannot open file containing hierarchical parameter declarations: ");
         }
     }
@@ -146,116 +146,116 @@ void V3Global::readFiles() {
     // v3Global.rootp()->dumpTreeFile(v3Global.debugFilename("parse.tree"));
     V3Error::abortIfErrors();
 
-    if (!v3Global.opt.preprocOnly() || v3Global.opt.preprocResolve()) {
+    إذا (!v3Global.opt.preprocOnly() || v3Global.opt.preprocResolve()) {
         // Resolve all modules cells refer to
         V3LinkCells::link(v3Global.rootp(), &filter);
     }
 
-    V3Global::dumpCheckGlobalTree("cells", false, dumpTreeEitherLevel() >= 9);
+    V3Global::dump_Check_Global_وڻ("cells", خطأ, dump_وڻ_Either_Level() >= 9);
 }
 
-void V3Global::removeStd() {
+فراغ V3Global::removeStd() {
     // Delete the std package if unused
-    if (!usesStdPackage()) {
+    إذا (!استعمال_ڪري_Std_Package()) {
         UINFO(3, "Removing unused std:: package");
-        if (AstNodeModule* stdp = v3Global.rootp()->stdPackagep()) {
-            v3Global.rootp()->stdPackagep(nullptr);
-            v3Global.rootp()->stdPackageProcessp(nullptr);
-            VL_DO_DANGLING(stdp->unlinkFrBack()->deleteTree(), stdp);
+        إذا (Ast_ڳنڍ_Module* stdp = v3Global.rootp()->stdPackagep()) {
+            v3Global.rootp()->stdPackagep(خالي_اشارو);
+            v3Global.rootp()->stdPackageProcessp(خالي_اشارو);
+            VL_DO_DANGLING(stdp->unlink_Fr_پٺ()->delete_وڻ(), stdp);
         }
     }
 }
 
-string V3Global::debugFilename(const string& nameComment, int newNumber) {
-    ++m_debugFileNumber;
-    if (newNumber) m_debugFileNumber = newNumber;
-    return opt.hierTopDataDir() + "/" + opt.prefix() + "_" + digitsFilename(m_debugFileNumber)
+string V3Global::debugFilename(ثابت string& nameComment, صحيح new_عدد) {
+    ++m_debug_File_عدد;
+    إذا (new_عدد) m_debug_File_عدد = new_عدد;
+    أرجع opt.hier_چوٽي_معلومات_Dir() + "/" + opt.اڳياڙي() + "_" + digitsFilename(m_debug_File_عدد)
            + "_" + nameComment;
 }
-string V3Global::digitsFilename(int number) {
+string V3Global::digitsFilename(صحيح عدد) {
     std::stringstream ss;
-    ss << std::setfill('0') << std::setw(3) << number;
-    return ss.str();
+    ss << std::setfill('0') << std::setw(3) << عدد;
+    أرجع ss.str();
 }
 
-void V3Global::dumpCheckGlobalTree(const string& stagename, int newNumber, bool doDump,
-                                   bool doCheck) {
-    const string treeFilename = v3Global.debugFilename(stagename + ".tree", newNumber);
-    if (dumpTreeLevel()) v3Global.rootp()->dumpTreeFile(treeFilename, doDump);
-    if (dumpTreeJsonLevel()) {
-        v3Global.rootp()->dumpTreeJsonFile(treeFilename + ".json", doDump);
+فراغ V3Global::dump_Check_Global_وڻ(ثابت string& stagename, صحيح new_عدد, منطقي doDump,
+                                   منطقي doCheck) {
+    ثابت string وڻ_Filename = v3Global.debugFilename(stagename + ".tree", new_عدد);
+    إذا (dump_وڻ_Level()) v3Global.rootp()->dump_وڻ_File(وڻ_Filename, doDump);
+    إذا (dump_وڻ_Json_Level()) {
+        v3Global.rootp()->dump_وڻ_Json_File(وڻ_Filename + ".json", doDump);
     }
-    if (v3Global.opt.dumpTreeDot()) {
-        v3Global.rootp()->dumpTreeDotFile(treeFilename + ".dot", doDump);
+    إذا (v3Global.opt.dump_وڻ_Dot()) {
+        v3Global.rootp()->dump_وڻ_Dot_File(وڻ_Filename + ".dot", doDump);
     }
-    if (v3Global.opt.stats()) V3Stats::statsStage(stagename);
+    إذا (v3Global.opt.stats()) V3Stats::statsStage(stagename);
 
-    if (doDump && v3Global.opt.debugEmitV()) V3EmitV::debugEmitV(treeFilename + ".v");
-    if (doCheck && (v3Global.opt.debugCheck() || dumpTreeEitherLevel())) {
+    إذا (doDump && v3Global.opt.debugEmitV()) V3EmitV::debugEmitV(وڻ_Filename + ".v");
+    إذا (doCheck && (v3Global.opt.debugCheck() || dump_وڻ_Either_Level())) {
         // Error check
-        v3Global.rootp()->checkTree();
+        v3Global.rootp()->check_وڻ();
         // Broken isn't part of check tree because it can munge iterp's
         // set by other steps if it is called in the middle of other operations
         V3Broken::brokenAll(v3Global.rootp());
     }
 }
 
-void V3Global::idPtrMapDumpJson(std::ostream& os) {
+فراغ V3Global::idPtrMapDumpJson(std::ostream& os) {
     std::string sep = "\n  ";
     os << "\"pointers\": {";
-    for (const auto& itr : m_ptrToId) {
-        os << sep << '"' << itr.second << "\": \"" << cvtToHex(itr.first) << '"';
+    لكل (ثابت خودڪار& itr : m_ptr_منزل_Id) {
+        os << sep << '"' << itr.ٻيو << "\": \"" << cvt_منزل_Hex(itr.پهريون) << '"';
         sep = ",\n  ";
     }
     os << "\n }";
 }
 
-void V3Global::saveJsonPtrFieldName(const std::string& fieldName) {
-    m_jsonPtrNames.insert(fieldName);
+فراغ V3Global::save_Json_Ptr_ميدان_Name(ثابت std::string& ميدان_Name) {
+    m_json_Ptr_نالا.وجهو(ميدان_Name);
 }
 
-void V3Global::ptrNamesDumpJson(std::ostream& os) {
+فراغ V3Global::ptr_نالا_Dump_Json(std::ostream& os) {
     std::string sep = "\n  ";
     os << "\"ptrFieldNames\": [";
-    for (const auto& itr : m_jsonPtrNames) {
+    لكل (ثابت خودڪار& itr : m_json_Ptr_نالا) {
         os << sep << '"' << itr << '"';
         sep = ",\n  ";
     }
     os << "\n ]";
 }
 
-const std::string& V3Global::ptrToId(const void* p) {
-    const auto pair = m_ptrToId.emplace(p, "");
-    if (pair.second) {
+ثابت std::string& V3Global::ptr_منزل_Id(ثابت فراغ* p) {
+    ثابت خودڪار pair = m_ptr_منزل_Id.emplace(p, "");
+    إذا (pair.ٻيو) {
         std::ostringstream os;
-        if (p) {
+        إذا (p) {
             os << "(";
-            unsigned id = m_ptrToId.size();
-            do { os << static_cast<char>('A' + id % 26); } while (id /= 26);
+            بنانشان id = m_ptr_منزل_Id.سائيز();
+            افعل { os << static_cast<حرف>('A' + id % 26); } طالما (id /= 26);
             os << ")";
-        } else {
+        } وإلا {
             os << "0";
         }
-        pair.first->second = os.str();
+        pair.پهريون->ٻيو = os.str();
     }
-    return pair.first->second;
+    أرجع pair.پهريون->ٻيو;
 }
 
-std::vector<std::string> V3Global::verilatedCppFiles() {
-    std::vector<std::string> result;
-    result.emplace_back("verilated.cpp");
-    if (v3Global.dpi()) result.emplace_back("verilated_dpi.cpp");
-    if (v3Global.opt.vpi()) result.emplace_back("verilated_vpi.cpp");
-    if (v3Global.opt.savable()) result.emplace_back("verilated_save.cpp");
-    if (v3Global.opt.coverage()) result.emplace_back("verilated_cov.cpp");
-    if (v3Global.opt.coverage() || v3Global.useCovergroup())
-        result.emplace_back("verilated_covergroup.cpp");
-    for (const string& base : v3Global.opt.traceSourceBases())
-        result.emplace_back(base + "_c.cpp");
-    if (v3Global.usesProbDist()) result.emplace_back("verilated_probdist.cpp");
-    if (v3Global.usesTiming()) result.emplace_back("verilated_timing.cpp");
-    if (v3Global.useRandomizeMethods()) result.emplace_back("verilated_random.cpp");
-    result.emplace_back("verilated_threads.cpp");
-    if (v3Global.opt.usesProfiler()) result.emplace_back("verilated_profiler.cpp");
-    return result;
+std::ويڪٽر<std::string> V3Global::verilatedCppFiles() {
+    std::ويڪٽر<std::string> نتيجو;
+    نتيجو.emplace_پٺ("verilated.cpp");
+    إذا (v3Global.dpi()) نتيجو.emplace_پٺ("verilated_dpi.cpp");
+    إذا (v3Global.opt.vpi()) نتيجو.emplace_پٺ("verilated_vpi.cpp");
+    إذا (v3Global.opt.savable()) نتيجو.emplace_پٺ("verilated_save.cpp");
+    إذا (v3Global.opt.coverage()) نتيجو.emplace_پٺ("verilated_cov.cpp");
+    إذا (v3Global.opt.coverage() || v3Global.useCovergroup())
+        نتيجو.emplace_پٺ("verilated_covergroup.cpp");
+    لكل (ثابت string& بنياد : v3Global.opt.trace_ذريعو_Bases())
+        نتيجو.emplace_پٺ(بنياد + "_c.cpp");
+    إذا (v3Global.استعمال_ڪري_Prob_Dist()) نتيجو.emplace_پٺ("verilated_probdist.cpp");
+    إذا (v3Global.استعمال_ڪري_Timing()) نتيجو.emplace_پٺ("verilated_timing.cpp");
+    إذا (v3Global.useRandomizeMethods()) نتيجو.emplace_پٺ("verilated_random.cpp");
+    نتيجو.emplace_پٺ("verilated_threads.cpp");
+    إذا (v3Global.opt.استعمال_ڪري_Profiler()) نتيجو.emplace_پٺ("verilated_profiler.cpp");
+    أرجع نتيجو;
 }

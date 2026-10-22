@@ -14,31 +14,31 @@
 //
 //*************************************************************************
 
-#ifndef VERILATOR_V3WIDTH_H_
-#define VERILATOR_V3WIDTH_H_
+#جيڪڏهن_وصف_نه_ٿيل VERILATOR_V3_ويڪر_H
+#وصف_ڪريو VERILATOR_V3_ويڪر_H
 
-#include "config_build.h"
-#include "verilatedos.h"
+#ضمن "config_build.h"
+#ضمن "verilatedos.h"
 
 class AstNetlist;
-class AstNode;
-class AstNodeAssign;
-class AstNodeDType;
+class Ast_ڳنڍ;
+class Ast_ڳنڍ_سونپيو;
+class Ast_ڳنڍ_DType;
 
 //============================================================================
 
-class V3Width final {
-public:
-    static void width(AstNetlist* nodep) VL_MT_DISABLED;
-    static AstNode* widthParamsEdit(AstNode* nodep) VL_MT_DISABLED;
-    static AstNode* widthGenerateParamsEdit(AstNode* nodep) VL_MT_DISABLED;
-    static AstNode* selectNonConstantRecurse(AstNode* nodep, bool inSel = false) VL_MT_DISABLED;
-    static void streamAssignLowerEdit(AstNodeAssign* nodep) VL_MT_DISABLED;
+class V3_ويڪر final {
+عام:
+    ساكن فراغ ويڪر(AstNetlist* nodep) VL_MT_DISABLED;
+    ساكن Ast_ڳنڍ* ويڪر_Params_Edit(Ast_ڳنڍ* nodep) VL_MT_DISABLED;
+    ساكن Ast_ڳنڍ* ويڪر_Generate_Params_Edit(Ast_ڳنڍ* nodep) VL_MT_DISABLED;
+    ساكن Ast_ڳنڍ* selectNonConstantRecurse(Ast_ڳنڍ* nodep, bool اندريون_Sel = false) VL_MT_DISABLED;
+    ساكن فراغ وهڪرو_سونپيو_هيٺاهون_Edit(Ast_ڳنڍ_سونپيو* nodep) VL_MT_DISABLED;
 
     // For use only in WidthVisitor
     // Replace AstSelBit, etc with AstSel/AstArraySel
     // Returns replacement node if nodep was deleted, or null if none.
-    static AstNode* widthSelNoIterEdit(AstNode* nodep) VL_MT_DISABLED;
+    ساكن Ast_ڳنڍ* ويڪر_Sel_No_Iter_Edit(Ast_ڳنڍ* nodep) VL_MT_DISABLED;
 };
 
-#endif  // Guard
+#جيڪڏهن_پورو  // Guard

@@ -18,62 +18,62 @@
 //
 //*************************************************************************
 
-#ifndef VERILATOR_V3ORDERMOVEGRAPH_H_
-#define VERILATOR_V3ORDERMOVEGRAPH_H_
+#جيڪڏهن_وصف_نه_ٿيل VERILATOR_V3ORDERMOVEGRAPH_H_
+#وصف_ڪريو VERILATOR_V3ORDERMOVEGRAPH_H_
 
-#include "config_build.h"
-#include "verilatedos.h"
+#ضمن "config_build.h"
+#ضمن "verilatedos.h"
 
-#include "V3Ast.h"
-#include "V3Graph.h"
-#include "V3Order.h"
-#include "V3OrderGraph.h"
+#ضمن "V3Ast.h"
+#ضمن "V3Graph.h"
+#ضمن "V3Order.h"
+#ضمن "V3OrderGraph.h"
 
-class OrderMoveDomScope;
-class OrderMoveGraph;
+class ترتيب_Move_Dom_Scope;
+class ترتيب_Move_گراف;
 
 //======================================================================
 // Vertex types
 
-class OrderMoveVertex final : public V3GraphVertex {
-    VL_RTTI_IMPL(OrderMoveVertex, V3GraphVertex)
+class ترتيب_Move_راس final : عام V3_گراف_راس {
+    VL_RTTI_IMPL(ترتيب_Move_راس, V3_گراف_راس)
 
     // The corresponding logic vertex, or nullptr if this MoveVertex stands for a variable vertex.
-    OrderLogicVertex* const m_logicp;
-    OrderMoveDomScope& m_domScope;  // DomScope this vertex is under
-    V3ListLinks<OrderMoveVertex> m_links;  // List links to store instances of this class
+    ترتيب_Logic_راس* ثابت m_logicp;
+    ترتيب_Move_Dom_Scope& m_domScope;  // DomScope this vertex is under
+    V3ListLinks<ترتيب_Move_راس> m_links;  // List links to store instances of this class
 
     // METHODS
-    std::string dotColor() const override { return logicp() ? logicp()->dotColor() : "yellow"; }
+    std::string dotColor() ثابت override { أرجع logicp() ? logicp()->dotColor() : "yellow"; }
 
-    std::string name() const override VL_MT_STABLE {
+    std::string name() ثابت override VL_MT_STABLE {
         std::string nm;
-        if (!logicp()) {
+        إذا (!logicp()) {
             nm = "var";
-        } else {
+        } وإلا {
             nm = logicp()->name() + "\\n";
             nm += "MV:";
-            nm += +" d=" + cvtToHex(logicp()->domainp());
-            nm += +" s=" + cvtToHex(logicp()->scopep());
+            nm += +" d=" + cvt_منزل_Hex(logicp()->domainp());
+            nm += +" s=" + cvt_منزل_Hex(logicp()->scopep());
         }
-        if (userp()) nm += "\nu=" + cvtToHex(userp());
-        return nm;
+        إذا (userp()) nm += "\nu=" + cvt_منزل_Hex(userp());
+        أرجع nm;
     }
 
-    V3ListLinks<OrderMoveVertex>& links() { return m_links; }
+    V3ListLinks<ترتيب_Move_راس>& links() { أرجع m_links; }
 
-public:
+عام:
     // List type to store instances of this class
-    using List = V3List<OrderMoveVertex, &OrderMoveVertex::links>;
+    using List = V3List<ترتيب_Move_راس, &ترتيب_Move_راس::links>;
 
     // CONSTRUCTORS
-    OrderMoveVertex(OrderMoveGraph& graph, OrderLogicVertex* lVtxp,
-                    const OrderDomain* domainp) VL_MT_DISABLED;
-    ~OrderMoveVertex() override = default;
-    VL_UNCOPYABLE(OrderMoveVertex);
+    ترتيب_Move_راس(ترتيب_Move_گراف& گراف, ترتيب_Logic_راس* lVtxp,
+                    ثابت ترتيب_Domain* domainp) VL_MT_DISABLED;
+    ~ترتيب_Move_راس() override = افتراضي;
+    VL_UNCOPYABLE(ترتيب_Move_راس);
 
-    OrderLogicVertex* logicp() const VL_MT_STABLE { return m_logicp; }
-    OrderMoveDomScope& domScope() const { return m_domScope; }
+    ترتيب_Logic_راس* logicp() ثابت VL_MT_STABLE { أرجع m_logicp; }
+    ترتيب_Move_Dom_Scope& domScope() ثابت { أرجع m_domScope; }
 };
 
 //======================================================================
@@ -81,17 +81,17 @@ public:
 
 // OrderMoveGraph is constructed from the fine-grained OrderGraph.
 // It is a slightly coarsened representation of dependencies used to drive serialization.
-class OrderMoveGraph final : public V3Graph {
-    OrderGraph& m_orderGraph;  // The OrderGraph this move graph was built from
+class ترتيب_Move_گراف final : عام V3_گراف {
+    ترتيب_گراف& m_ترتيب_گراف;  // The OrderGraph this move graph was built from
 
-public:
-    explicit OrderMoveGraph(OrderGraph& orderGraph)
-        : m_orderGraph{orderGraph} {}
+عام:
+    explicit ترتيب_Move_گراف(ترتيب_گراف& ترتيب_گراف_2)
+        : m_ترتيب_گراف{ترتيب_گراف_2} {}
 
-    OrderGraph& orderGraph() const { return m_orderGraph; }
+    ترتيب_گراف& ترتيب_گراف_2() ثابت { أرجع m_ترتيب_گراف; }
 
     // Build an OrderMoveGraph from an OrderGraph
-    static std::unique_ptr<OrderMoveGraph> build(OrderGraph&);
+    ساكن std::unique_ptr<ترتيب_Move_گراف> build(ترتيب_گراف&);
 };
 
 //======================================================================
@@ -100,173 +100,173 @@ public:
 // Information stored for each unique (domain, scope) pair. Mainly a list of ready vertices under
 // that (domain, scope). OrderMoveDomScope instances are themselves organized into a global ready
 // list if they have ready vertices.
-class OrderMoveDomScope final {
+class ترتيب_Move_Dom_Scope final {
     // STATE
-    OrderMoveVertex::List m_readyVertices;  // Ready vertices in this domain/scope
-    V3ListLinks<OrderMoveDomScope> m_links;  // List links to store instances of this class
+    ترتيب_Move_راس::List m_readyVertices;  // Ready vertices in this domain/scope
+    V3ListLinks<ترتيب_Move_Dom_Scope> m_links;  // List links to store instances of this class
     bool m_isOnList = false;  // True if DomScope is already on a list through m_listEnt
-    const OrderDomain* const m_domainp;  // Domain the vertices belong to
-    const AstScope* const m_scopep;  // Scope the vertices belong to
+    ثابت ترتيب_Domain* ثابت m_domainp;  // Domain the vertices belong to
+    ثابت AstScope* ثابت m_scopep;  // Scope the vertices belong to
 
     // Key type for map below
-    class DomScopeMapKey final {
-        const OrderDomain* const m_domainp;  // Domain the vertices belong to
-        const AstScope* const m_scopep;  // Scope the vertices belong to
+    class Dom_Scope_Map_ڪنجي final {
+        ثابت ترتيب_Domain* ثابت m_domainp;  // Domain the vertices belong to
+        ثابت AstScope* ثابت m_scopep;  // Scope the vertices belong to
 
-    public:
-        DomScopeMapKey(const OrderDomain* domainp, const AstScope* scopep)
+    عام:
+        Dom_Scope_Map_ڪنجي(ثابت ترتيب_Domain* domainp, ثابت AstScope* scopep)
             : m_domainp{domainp}
             , m_scopep{scopep} {}
 
-        struct Hash final {
-            size_t operator()(const DomScopeMapKey& key) const {
+        بنية Hash final {
+            سائيز_t عامل()(ثابت Dom_Scope_Map_ڪنجي& ڪنجي) ثابت {
                 // cppcheck-suppress unreadVariable  // cppcheck bug
-                V3Hash hash{key.m_domainp};
-                hash += key.m_scopep;
-                return hash.value();
+                V3Hash hash{ڪنجي.m_domainp};
+                hash += ڪنجي.m_scopep;
+                أرجع hash.قدر();
             }
         };
 
-        struct Equal final {
-            bool operator()(const DomScopeMapKey& a, const DomScopeMapKey& b) const {
-                return a.m_domainp == b.m_domainp && a.m_scopep == b.m_scopep;
+        بنية Equal final {
+            bool عامل()(ثابت Dom_Scope_Map_ڪنجي& a, ثابت Dom_Scope_Map_ڪنجي& b) ثابت {
+                أرجع a.m_domainp == b.m_domainp && a.m_scopep == b.m_scopep;
             }
         };
     };
 
-    using DomScopeMap = std::unordered_map<DomScopeMapKey, OrderMoveDomScope, DomScopeMapKey::Hash,
-                                           DomScopeMapKey::Equal>;
+    using DomScopeMap = std::unordered_map<Dom_Scope_Map_ڪنجي, ترتيب_Move_Dom_Scope, Dom_Scope_Map_ڪنجي::Hash,
+                                           Dom_Scope_Map_ڪنجي::Equal>;
     // Map from Domain/Scope to the corresponding DomScope instance
-    static DomScopeMap s_dsMap;
+    ساكن DomScopeMap s_dsMap;
 
-    V3ListLinks<OrderMoveDomScope>& links() { return m_links; }
+    V3ListLinks<ترتيب_Move_Dom_Scope>& links() { أرجع m_links; }
 
-public:
+عام:
     // List type to store instances of this class
-    using List = V3List<OrderMoveDomScope, &OrderMoveDomScope::links>;
+    using List = V3List<ترتيب_Move_Dom_Scope, &ترتيب_Move_Dom_Scope::links>;
 
     // STATIC MEMBERS
-    static OrderMoveDomScope& getOrCreate(const OrderDomain* domainp, const AstScope* scopep) {
-        return s_dsMap
+    ساكن ترتيب_Move_Dom_Scope& getOrCreate(ثابت ترتيب_Domain* domainp, ثابت AstScope* scopep) {
+        أرجع s_dsMap
             .emplace(std::piecewise_construct,  //
                      std::forward_as_tuple(domainp, scopep),  //
                      std::forward_as_tuple(domainp, scopep))
-            .first->second;
+            .پهريون->ٻيو;
     }
-    static void clear() { s_dsMap.clear(); }
+    ساكن فراغ clear() { s_dsMap.clear(); }
 
     // CONSTRUCTOR
-    OrderMoveDomScope(const OrderDomain* domainp, const AstScope* scopep)
+    ترتيب_Move_Dom_Scope(ثابت ترتيب_Domain* domainp, ثابت AstScope* scopep)
         : m_domainp{domainp}
         , m_scopep{scopep} {}
-    ~OrderMoveDomScope() = default;
-    VL_UNCOPYABLE(OrderMoveDomScope);
-    VL_UNMOVABLE(OrderMoveDomScope);
+    ~ترتيب_Move_Dom_Scope() = افتراضي;
+    VL_UNCOPYABLE(ترتيب_Move_Dom_Scope);
+    VL_UNMOVABLE(ترتيب_Move_Dom_Scope);
 
     // MEMBERS
-    OrderMoveVertex::List& readyVertices() { return m_readyVertices; }
-    const OrderDomain* domainp() const { return m_domainp; }
-    const AstScope* scopep() const { return m_scopep; }
+    ترتيب_Move_راس::List& readyVertices() { أرجع m_readyVertices; }
+    ثابت ترتيب_Domain* domainp() ثابت { أرجع m_domainp; }
+    ثابت AstScope* scopep() ثابت { أرجع m_scopep; }
 
-    bool isOnList() const { return m_isOnList; }
-    void isOnList(bool value) { m_isOnList = value; }
+    bool isOnList() ثابت { أرجع m_isOnList; }
+    فراغ isOnList(bool قدر) { m_isOnList = قدر; }
 };
 
 //======================================================================
 // Serializer for OrderMoveGraph
 
-class OrderMoveGraphSerializer final {
+class ترتيب_Move_گراف_Serializer final {
     // STATE
-    OrderMoveDomScope::List m_readyDomScopeps;  // List of DomScopes which have ready vertices
-    OrderMoveDomScope* m_nextDomScopep = nullptr;  // Next DomScope to yield from
+    ترتيب_Move_Dom_Scope::List m_readyDomScopeps;  // List of DomScopes which have ready vertices
+    ترتيب_Move_Dom_Scope* m_ايندڙ_Dom_Scopep = nullptr;  // Next DomScope to yield from
 
     // METHODS
 
-    void ready(OrderMoveVertex* vtxp) {
+    فراغ ready(ترتيب_Move_راس* vtxp) {
         UASSERT_OBJ(!vtxp->user(), vtxp, "'ready' called on vertex with pending dependencies");
-        if (vtxp->logicp()) {
+        إذا (vtxp->logicp()) {
             // Add this vertex to the ready list of its DomScope
-            OrderMoveDomScope& domScope = vtxp->domScope();
-            domScope.readyVertices().linkBack(vtxp);
+            ترتيب_Move_Dom_Scope& domScope = vtxp->domScope();
+            domScope.readyVertices().link_پٺ(vtxp);
             // Add the DomScope to the global ready list if not there yet
-            if (!domScope.isOnList()) {
+            إذا (!domScope.isOnList()) {
                 domScope.isOnList(true);
-                m_readyDomScopeps.linkBack(&domScope);
+                m_readyDomScopeps.link_پٺ(&domScope);
             }
-        } else {  // This is a bit nonsense at this point, but equivalent to the old version
+        } وإلا {  // This is a bit nonsense at this point, but equivalent to the old version
             // Remove dependency on vertex we are returning. This might add vertices to
             // currReadyList.
-            for (V3GraphEdge& edge : vtxp->outEdges()) {
+            لكل (V3_گراف_ڪنارو& ڪنارو : vtxp->ٻاهريون_ڪنارا()) {
                 // The dependent variable
-                OrderMoveVertex* const dVtxp = edge.top()->as<OrderMoveVertex>();
+                ترتيب_Move_راس* ثابت dVtxp = ڪنارو.چوٽي()->as<ترتيب_Move_راس>();
                 // Update number of dependencies
-                const uint32_t nDeps = dVtxp->user() - 1;
+                ثابت uint32_t nDeps = dVtxp->user() - 1;
                 dVtxp->user(nDeps);
                 // If no more dependencies, mark it ready
-                if (!nDeps) ready(dVtxp);
+                إذا (!nDeps) ready(dVtxp);
             }
         }
     }
 
-public:
+عام:
     // CONSTRUCTOR
-    explicit OrderMoveGraphSerializer(OrderMoveGraph& moveGraph) {
+    explicit ترتيب_Move_گراف_Serializer(ترتيب_Move_گراف& move_گراف) {
         // Set V3GraphVertex::user() to the number of incoming edges (upstream dependencies)
-        for (V3GraphVertex& vtx : moveGraph.vertices()) {
-            const uint32_t nDeps = vtx.inEdges().size();
+        لكل (V3_گراف_راس& vtx : move_گراف.vertices()) {
+            ثابت uint32_t nDeps = vtx.اندريون_ڪنارا().سائيز();
             vtx.user(nDeps);
         }
     }
-    ~OrderMoveGraphSerializer() = default;
-    VL_UNCOPYABLE(OrderMoveGraphSerializer);
+    ~ترتيب_Move_گراف_Serializer() = افتراضي;
+    VL_UNCOPYABLE(ترتيب_Move_گراف_Serializer);
 
     // Add a seed vertex to the ready lists
-    void addSeed(OrderMoveVertex* vtxp) { ready(vtxp); }
+    فراغ جوڙيو_ٻج(ترتيب_Move_راس* vtxp) { ready(vtxp); }
 
-    OrderMoveVertex* getNext() {
-        if (!m_nextDomScopep) m_nextDomScopep = m_readyDomScopeps.frontp();
+    ترتيب_Move_راس* get_ايندڙ() {
+        إذا (!m_ايندڙ_Dom_Scopep) m_ايندڙ_Dom_Scopep = m_readyDomScopeps.frontp();
         // If nothing is ready, we are done
-        if (!m_nextDomScopep) return nullptr;
-        OrderMoveDomScope& currDomScope = *m_nextDomScopep;
+        إذا (!m_ايندڙ_Dom_Scopep) أرجع nullptr;
+        ترتيب_Move_Dom_Scope& currDomScope = *m_ايندڙ_Dom_Scopep;
 
-        OrderMoveVertex::List& currReadyList = currDomScope.readyVertices();
-        UASSERT(!currReadyList.empty(), "DomScope on ready list, but has no ready vertices");
+        ترتيب_Move_راس::List& currReadyList = currDomScope.readyVertices();
+        UASSERT(!currReadyList.خالي_جايون(), "DomScope on ready list, but has no ready vertices");
 
         // Remove vertex from ready list under the DomScope. This is the vertex we are returning.
-        OrderMoveVertex* mVtxp = currReadyList.unlinkFront();
+        ترتيب_Move_راس* mVtxp = currReadyList.unlinkFront();
 
         // Nonsesne, but what we used to do
-        if (currReadyList.empty()) {
+        إذا (currReadyList.خالي_جايون()) {
             currDomScope.isOnList(false);
             m_readyDomScopeps.unlink(&currDomScope);
         }
 
         // Remove dependency on vertex we are returning. This might add vertices to currReadyList.
-        for (V3GraphEdge& edge : mVtxp->outEdges()) {
+        لكل (V3_گراف_ڪنارو& ڪنارو : mVtxp->ٻاهريون_ڪنارا()) {
             // The dependent variable
-            OrderMoveVertex* const dVtxp = edge.top()->as<OrderMoveVertex>();
+            ترتيب_Move_راس* ثابت dVtxp = ڪنارو.چوٽي()->as<ترتيب_Move_راس>();
             // Update number of dependencies
-            const uint32_t nDeps = dVtxp->user() - 1;
+            ثابت uint32_t nDeps = dVtxp->user() - 1;
             dVtxp->user(nDeps);
             // If no more dependencies, mark it ready
-            if (!nDeps) ready(dVtxp);
+            إذا (!nDeps) ready(dVtxp);
         }
 
         // If no more ready vertices in the current DomScope, prefer to continue with a new scope
         // under the same domain.
-        if (currReadyList.empty()) {
-            m_nextDomScopep = nullptr;
-            for (OrderMoveDomScope& domScope : m_readyDomScopeps) {
-                if (domScope.domainp() == currDomScope.domainp()) {
-                    m_nextDomScopep = &domScope;
-                    break;
+        إذا (currReadyList.خالي_جايون()) {
+            m_ايندڙ_Dom_Scopep = nullptr;
+            لكل (ترتيب_Move_Dom_Scope& domScope : m_readyDomScopeps) {
+                إذا (domScope.domainp() == currDomScope.domainp()) {
+                    m_ايندڙ_Dom_Scopep = &domScope;
+                    اكسر;
                 }
             }
         }
 
         // Finally yield the selected vertex
-        return mVtxp;
+        أرجع mVtxp;
     }
 };
 
-#endif  // Guard
+#جيڪڏهن_پورو  // Guard

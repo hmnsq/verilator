@@ -14,19 +14,19 @@
 //
 //*************************************************************************
 
-#ifndef VERILATOR_V3LIFEPOST_H_
-#define VERILATOR_V3LIFEPOST_H_
+#جيڪڏهن_وصف_نه_ٿيل VERILATOR_V3LIFEPOST_H_
+#وصف_ڪريو VERILATOR_V3LIFEPOST_H_
 
-#include "config_build.h"
-#include "verilatedos.h"
+#ضمن "config_build.h"
+#ضمن "verilatedos.h"
 
 class AstNetlist;
 
 //============================================================================
 
 class V3LifePost final {
-public:
-    static void lifepostAll(AstNetlist* nodep) VL_MT_DISABLED;
+عام:
+    ساكن فراغ lifepostAll(AstNetlist* nodep) VL_MT_DISABLED;
 };
 
-#endif  // Guard
+#جيڪڏهن_پورو  // Guard

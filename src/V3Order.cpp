@@ -71,95 +71,95 @@
 //
 //*************************************************************************
 
-#include "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
+#ضمن "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
 
-#include "V3OrderInternal.h"
-#include "V3Sched.h"
+#ضمن "V3OrderInternal.h"
+#ضمن "V3Sched.h"
 
-#include <memory>
-#include <vector>
+#ضمن <memory>
+#ضمن <vector>
 
 VL_DEFINE_DEBUG_FUNCTIONS;
 
-void V3Order::orderOrderGraph(OrderGraph& graph, const std::string& tag) {
+فراغ V3_ترتيب::ترتيب_ترتيب_گراف(ترتيب_گراف& گراف, ثابت std::string& ٽيگ) {
     // Dump data
-    if (dumpGraphLevel()) graph.dumpDotFilePrefixed(tag + "_orderg_pre");
+    إذا (dump_گراف_Level()) گراف.dumpDotFilePrefixed(ٽيگ + "_orderg_pre");
 
     // Break cycles. Note that the OrderGraph only contains cuttable cycles
     // (soft constraints). Actual logic loops must have been eliminated by
     // the introduction of Hybid sensitivity expressions, before invoking
     // ordering (e.g. in V3SchedAcyclic).
-    graph.acyclic(&V3GraphEdge::followAlwaysTrue);
-    if (dumpGraphLevel()) graph.dumpDotFilePrefixed(tag + "_orderg_acyc");
+    گراف.acyclic(&V3_گراف_ڪنارو::followAlwaysTrue);
+    إذا (dump_گراف_Level()) گراف.dumpDotFilePrefixed(ٽيگ + "_orderg_acyc");
 
     // Assign ranks so we know what to follow, then sort vertices and edges by that ordering
-    graph.order();
-    if (dumpGraphLevel()) graph.dumpDotFilePrefixed(tag + "_orderg_order");
+    گراف.ترتيب();
+    إذا (dump_گراف_Level()) گراف.dumpDotFilePrefixed(ٽيگ + "_orderg_order");
 }
 
 //######################################################################
 
-AstCFunc* V3Order::order(const std::vector<V3Sched::LogicByScope*>& logic,  //
-                         const V3Sched::TriggerKit& trigKit,  //
+AstCFunc* V3_ترتيب::ترتيب(ثابت std::ويڪٽر<V3Sched::LogicByScope*>& logic,  //
+                         ثابت V3Sched::TriggerKit& trigKit,  //
                          AstVarScope* trigVscp,  //
-                         const V3Sched::CovergroupRefBindings& cgRefBindings,
-                         const string& tag,  //
-                         bool parallel,  //
-                         bool slow,  //
-                         const ExternalTriggersProvider& externalTriggers) {
+                         ثابت V3Sched::CovergroupRefBindings& cgRefBindings,
+                         ثابت string& ٽيگ,  //
+                         منطقي parallel,  //
+                         منطقي slow,  //
+                         ثابت ExternalTriggersProvider& externalTriggers) {
     // Build the OrderGraph
-    const std::unique_ptr<OrderGraph> graph
-        = buildOrderGraph(trigKit, trigVscp, logic, cgRefBindings, parallel);
+    ثابت std::unique_ptr<ترتيب_گراف> گراف
+        = build_ترتيب_گراف(trigKit, trigVscp, logic, cgRefBindings, parallel);
     // Order it
-    orderOrderGraph(*graph, tag);
+    ترتيب_ترتيب_گراف(*گراف, ٽيگ);
     // Assign sensitivity domains to combinational logic
-    processDomains(*graph, tag, externalTriggers);
+    processDomains(*گراف, ٽيگ, externalTriggers);
     // Build the move graph
-    OrderMoveDomScope::clear();
-    const std::unique_ptr<OrderMoveGraph> moveGraphp = OrderMoveGraph::build(*graph);
-    if (dumpGraphLevel() >= 9) moveGraphp->dumpDotFilePrefixed(tag + "_ordermv");
+    ترتيب_Move_Dom_Scope::clear();
+    ثابت std::unique_ptr<ترتيب_Move_گراف> moveGraphp = ترتيب_Move_گراف::build(*گراف);
+    إذا (dump_گراف_Level() >= 9) moveGraphp->dumpDotFilePrefixed(ٽيگ + "_ordermv");
 
     // The ordered statements, if there are any
-    AstNodeStmt* stmtsp = nullptr;
-    if (!moveGraphp->empty()) {
-        if (parallel) {
-            stmtsp = createParallel(*moveGraphp, tag, slow);
-        } else {
-            stmtsp = createSerial(*moveGraphp, tag, slow);
+    Ast_ڳنڍ_Stmt* stmtsp = خالي_اشارو;
+    إذا (!moveGraphp->خالي_جايون()) {
+        إذا (parallel) {
+            stmtsp = createParallel(*moveGraphp, ٽيگ, slow);
+        } وإلا {
+            stmtsp = createSerial(*moveGraphp, ٽيگ, slow);
         }
         // Should have consumed all vertices
-        UASSERT(moveGraphp->empty(), "Unconsumed vertices remain in OrderMoveGraph");
+        UASSERT(moveGraphp->خالي_جايون(), "Unconsumed vertices remain in OrderMoveGraph");
     }
-    OrderMoveDomScope::clear();
+    ترتيب_Move_Dom_Scope::clear();
 
     // Dump data
-    if (dumpGraphLevel()) graph->dumpDotFilePrefixed(tag + "_orderg_done");
+    إذا (dump_گراف_Level()) گراف->dumpDotFilePrefixed(ٽيگ + "_orderg_done");
 
     // Dispose of the remnants of the inputs
-    for (auto* const lbsp : logic) lbsp->deleteActives();
+    لكل (خودڪار* ثابت lbsp : logic) lbsp->deleteActives();
 
     // If there is no resulting logic, then don't create an empty function
-    if (!stmtsp) return nullptr;
+    إذا (!stmtsp) أرجع خالي_اشارو;
 
     // Create the result function
-    AstNetlist* const netlistp = v3Global.rootp();
-    FileLine* const flp = netlistp->fileline();
-    AstCFunc* const funcp = [&]() {
-        AstScope* const scopeTopp = netlistp->topScopep()->scopep();
-        AstCFunc* const resp = new AstCFunc{flp, "_eval_body__" + tag, scopeTopp, ""};
-        resp->dontCombine(true);
-        resp->isStatic(false);
-        resp->isLoose(true);
+    AstNetlist* ثابت netlistp = v3Global.rootp();
+    File_سٽ* ثابت flp = netlistp->fileline();
+    AstCFunc* ثابت funcp = [&]() {
+        AstScope* ثابت scopeTopp = netlistp->چوٽي_Scopep()->scopep();
+        AstCFunc* ثابت resp = جديد AstCFunc{flp, "_eval_body__" + ٽيگ, scopeTopp, ""};
+        resp->dontCombine(سچ);
+        resp->isStatic(خطأ);
+        resp->isLoose(سچ);
         resp->slow(slow);
-        resp->isConst(false);
-        resp->declPrivate(true);
-        scopeTopp->addBlocksp(resp);
-        return resp;
+        resp->isConst(خطأ);
+        resp->decl_ذاتي(سچ);
+        scopeTopp->جوڙيو_Blocksp(resp);
+        أرجع resp;
     }();
 
     // Assemble the body
-    funcp->addStmtsp(stmtsp);
+    funcp->جوڙيو_Stmtsp(stmtsp);
 
-    // Done
-    return funcp;
+    //پورو
+    أرجع funcp;
 }

@@ -14,19 +14,19 @@
 //
 //*************************************************************************
 
-#ifndef VERILATOR_V3VARIABLEORDER_H_
-#define VERILATOR_V3VARIABLEORDER_H_
+#جيڪڏهن_وصف_نه_ٿيل VERILATOR_V3VARIABLEORDER_H_
+#وصف_ڪريو VERILATOR_V3VARIABLEORDER_H_
 
-#include "config_build.h"
-#include "verilatedos.h"
+#ضمن "config_build.h"
+#ضمن "verilatedos.h"
 
 class AstNetlist;
 
 //============================================================================
 
-class V3VariableOrder final {
-public:
-    static void orderAll(AstNetlist*);
+class V3_Variable_ترتيب final {
+عام:
+    ساكن فراغ ترتيب_All(AstNetlist*);
 };
 
-#endif  // Guard
+#جيڪڏهن_پورو  // Guard

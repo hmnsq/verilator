@@ -17,105 +17,105 @@
 //      If two COVERTOGGLEs have same VARSCOPE, combine them
 //*************************************************************************
 
-#include "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
+#ضمن "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
 
-#include "V3CoverageJoin.h"
+#ضمن "V3CoverageJoin.h"
 
-#include "V3DupFinder.h"
-#include "V3Stats.h"
+#ضمن "V3DupFinder.h"
+#ضمن "V3Stats.h"
 
-#include <vector>
+#ضمن <vector>
 
 VL_DEFINE_DEBUG_FUNCTIONS;
 
 //######################################################################
 // CoverageJoin state, as a visitor of each AstNode
 
-class CoverageJoinVisitor final : public VNVisitor {
+صنف CoverageJoinVisitor final : عام VNVisitor {
     // NODE STATE
     // VNUser4InUse     In V3Hasher via V3DupFinder
 
     // STATE - per active
-    std::vector<AstCoverToggle*> m_toggleps;  // List of of all AstCoverToggle's
+    std::ويڪٽر<AstCoverToggle*> m_toggleps;  // List of of all AstCoverToggle's
 
     // STATE - Statistic tracking
     VDouble0 m_statToggleJoins;  // Statistic tracking
 
     // METHODS
 
-    void detectDuplicates() {
+    فراغ detectDuplicates() {
         UINFO(9, "Finding duplicates");
         // Note uses user4
         V3DupFinder dupFinder;  // Duplicate code detection
         // Hash all of the original signals we toggle cover
-        for (const AstCoverToggle* const nodep : m_toggleps) dupFinder.insert(nodep->origp());
-        if (dumpLevel() || debug() >= 9)
-            dupFinder.dumpFile(v3Global.debugFilename("coveragejoin") + ".hash", false);
+        لكل (ثابت AstCoverToggle* ثابت nodep : m_toggleps) dupFinder.وجهو(nodep->origp());
+        إذا (dumpLevel() || debug() >= 9)
+            dupFinder.dumpFile(v3Global.debugFilename("coveragejoin") + ".hash", خطأ);
         // Find if there are any duplicates
-        for (AstCoverToggle* nodep : m_toggleps) {
+        لكل (AstCoverToggle* nodep : m_toggleps) {
             // nodep->backp() is null if we already detected it's a duplicate and unlinked earlier
-            if (!nodep->backp()) continue;
+            إذا (!nodep->backp()) استمر;
             // Want to choose a base node, and keep finding duplicates that are identical.
             // This prevents making chains where a->b, then c->d, then b->c, as we'll
             // find a->b, a->c, a->d directly.
-            while (true) {
-                const auto dupit = dupFinder.findDuplicate(nodep->origp());
-                if (dupit == dupFinder.end()) break;
-                const AstNode* const duporigp = dupit->second;
+            طالما (سچ) {
+                ثابت خودڪار dupit = dupFinder.ڳوليو_Duplicate(nodep->origp());
+                إذا (dupit == dupFinder.پڇاڙي()) اكسر;
+                ثابت Ast_ڳنڍ* ثابت duporigp = dupit->ٻيو;
                 // Remove node from comparison so don't hit it again
                 dupFinder.erase(dupit);
                 //
                 // Note dupFinder will point to the original toggle-increment equation (what's
                 // duplicated), not the covertoggle, but we need to get back to the
                 // covertoggle which is immediately above, so:
-                AstCoverToggle* const removep = VN_AS(duporigp->backp(), CoverToggle);
+                AstCoverToggle* ثابت removep = VN_AS(duporigp->backp(), CoverToggle);
                 UASSERT_OBJ(removep, nodep, "CoverageJoin duplicate of wrong type");
                 UINFO(8, "  Orig " << nodep << " -->> " << nodep->incp()->declp());
                 UINFO(8, "   dup " << removep << " -->> " << removep->incp()->declp());
                 // The CoverDecl the duplicate pointed to now needs to point to the
                 // original's data. I.e. the duplicate will get the coverage number
                 // from the non-duplicate
-                AstNodeCoverDecl* const datadeclp = nodep->incp()->declp()->dataDeclThisp();
-                removep->incp()->declp()->dataDeclp(datadeclp);
+                Ast_ڳنڍ_Cover_Decl* ثابت datadeclp = nodep->incp()->declp()->معلومات_Decl_Thisp();
+                removep->incp()->declp()->معلومات_Declp(datadeclp);
                 UINFO(8, "   new " << removep->incp()->declp());
                 // Mark the found node as a duplicate of the first node
                 // (Not vice-versa as we have the iterator for the found node)
-                removep->unlinkFrBack();
-                VL_DO_DANGLING(pushDeletep(removep), removep);
+                removep->unlink_Fr_پٺ();
+                VL_DO_DANGLING(ڌڪو_Deletep(removep), removep);
                 ++m_statToggleJoins;
             }
         }
     }
 
     // VISITORS
-    void visit(AstActive* nodep) override {
+    فراغ گهمو(Ast_سرگرم* nodep) override {
         m_toggleps.clear();
         // Find all Coverage's
         iterateChildren(nodep);
         // Simplify
         detectDuplicates();
     }
-    void visit(AstCoverToggle* nodep) override {
-        m_toggleps.push_back(nodep);
+    فراغ گهمو(AstCoverToggle* nodep) override {
+        m_toggleps.ڌڪو_پٺ(nodep);
         iterateChildren(nodep);
     }
     //--------------------
-    void visit(AstNodeExpr*) override {}  // Accelerate
-    void visit(AstNode* nodep) override { iterateChildren(nodep); }
+    فراغ گهمو(Ast_ڳنڍ_اظهار*) override {}  // Accelerate
+    فراغ گهمو(Ast_ڳنڍ* nodep) override { iterateChildren(nodep); }
 
-public:
+عام:
     // CONSTRUCTORS
-    explicit CoverageJoinVisitor(AstNetlist* nodep) { iterate(nodep); }
+    واضح CoverageJoinVisitor(AstNetlist* nodep) { iterate(nodep); }
     ~CoverageJoinVisitor() override {
-        V3Stats::addStat("Coverage, Toggle points joined", m_statToggleJoins);
+        V3Stats::جوڙيو_Stat("Coverage, Toggle points joined", m_statToggleJoins);
     }
 };
 
 //######################################################################
 // Coverage class functions
 
-void V3CoverageJoin::coverageJoin(AstNetlist* rootp) {
+فراغ V3CoverageJoin::coverageJoin(AstNetlist* rootp) {
     UINFO(2, __FUNCTION__ << ":");
     { CoverageJoinVisitor{rootp}; }  // Destruct before checking
-    V3Global::dumpCheckGlobalTree("coveragejoin", 0, dumpTreeEitherLevel() >= 3);
+    V3Global::dump_Check_Global_وڻ("coveragejoin", 0, dump_وڻ_Either_Level() >= 3);
 }

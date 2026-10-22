@@ -14,25 +14,25 @@
 //
 //*************************************************************************
 
-#ifndef VERILATOR_V3WAIVER_H_
-#define VERILATOR_V3WAIVER_H_
+#جيڪڏهن_وصف_نه_ٿيل VERILATOR_V3WAIVER_H_
+#وصف_ڪريو VERILATOR_V3WAIVER_H_
 
-#include "V3Error.h"
-#include "V3Mutex.h"
+#ضمن "V3Error.h"
+#ضمن "V3Mutex.h"
 
-#include <string>
-#include <vector>
+#ضمن <string>
+#ضمن <vector>
 
 class V3Waiver final {
     // TYPES
-    using WaiverList = std::vector<std::string>;
-    static V3Mutex s_mutex;  // Protect members
-    static WaiverList s_waiverList VL_GUARDED_BY(s_mutex);
+    using WaiverList = std::ويڪٽر<std::string>;
+    ساكن V3Mutex s_mutex;  // Protect members
+    ساكن WaiverList s_waiverList VL_GUARDED_BY(s_mutex);
 
-public:
-    static void addEntry(V3ErrorCode errorCode, const string& filename, const std::string& msg)
-        VL_MT_SAFE_EXCLUDES(s_mutex);
-    static void write(const std::string& filename) VL_MT_SAFE_EXCLUDES(s_mutex);
+عام:
+    ساكن فراغ جوڙيو_داخلا_2(V3_Error_ڪوڊ error_ڪوڊ, ثابت string& filename, ثابت std::string& نياپو)
+        VL_MT_محفوظ_EXCLUDES(s_mutex);
+    ساكن فراغ اكتب(ثابت std::string& filename) VL_MT_محفوظ_EXCLUDES(s_mutex);
 };
 
-#endif  // Guard
+#جيڪڏهن_پورو  // Guard

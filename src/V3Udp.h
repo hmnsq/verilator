@@ -14,19 +14,19 @@
 //
 //*************************************************************************
 
-#ifndef VERILATOR_V3UDP_H_
-#define VERILATOR_V3UDP_H_
+#جيڪڏهن_وصف_نه_ٿيل VERILATOR_V3UDP_H_
+#وصف_ڪريو VERILATOR_V3UDP_H_
 
-#include "config_build.h"
-#include "verilatedos.h"
+#ضمن "config_build.h"
+#ضمن "verilatedos.h"
 
 class AstNetlist;
 
 //============================================================================
 
 class V3Udp final {
-public:
-    static void udpResolve(AstNetlist* rootp) VL_MT_DISABLED;
+عام:
+    ساكن فراغ udpResolve(AstNetlist* rootp) VL_MT_DISABLED;
 };
 
-#endif  // Guard
+#جيڪڏهن_پورو  // Guard

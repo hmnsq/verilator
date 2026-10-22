@@ -14,56 +14,56 @@
 //
 //*************************************************************************
 
-#ifndef VERILATOR_V3CONTAINER_H_
-#define VERILATOR_V3CONTAINER_H_
+#جيڪڏهن_وصف_نه_ٿيل VERILATOR_V3CONTAINER_H_
+#وصف_ڪريو VERILATOR_V3CONTAINER_H_
 
-#include "config_build.h"
-#include "verilatedos.h"
+#ضمن "config_build.h"
+#ضمن "verilatedos.h"
 
-#include <unordered_map>
-#include <unordered_set>
-#include <vector>
+#ضمن <unordered_map>
+#ضمن <unordered_set>
+#ضمن <vector>
 
 //============================================================================
 
 // Similar to std::set, but ordered based on call order to emplace.  Used
 // when insertion order is desired (e.g. std::vector), but duplicates need removal.
 // Keys may not be modified.  (If needed in future, m_set could contain vector positions.)
-template <typename T_Key>
-class VInsertionSet final {
-    std::vector<T_Key> m_keys;  // Elements by insertion order
-    std::unordered_set<T_Key> m_keySet;  // Elements by key
-public:
+سانچو <typename T_ڪنجي>
+class VInsertion_سيٽ final {
+    std::ويڪٽر<T_ڪنجي> m_ڪنجيون;  // Elements by insertion order
+    std::unordered_سيٽ<T_ڪنجي> m_ڪنجي_سيٽ;  // Elements by key
+عام:
     // METHODS
-    bool insert(const T_Key& key) {
+    bool وجهو(ثابت T_ڪنجي& ڪنجي) {
         // Returns if did insertion (second pair argument of traditional emplace)
-        const auto itFoundPair = m_keySet.insert(key);
-        if (itFoundPair.second) m_keys.push_back(key);
-        return itFoundPair.second;
+        ثابت خودڪار it_مليو_Pair = m_ڪنجي_سيٽ.وجهو(ڪنجي);
+        إذا (it_مليو_Pair.ٻيو) m_ڪنجيون.ڌڪو_پٺ(ڪنجي);
+        أرجع it_مليو_Pair.ٻيو;
     }
-    template <typename T>
-    void insert(T begin, const T end) {
-        static_assert(std::is_same<typename std::iterator_traits<T>::value_type, T_Key>::value,
+    سانچو <typename T>
+    فراغ وجهو(T begin, ثابت T پڇاڙي) {
+        static_assert(std::is_same<typename std::iterator_traits<T>::قدر_type, T_ڪنجي>::قدر,
                       "T must be an iterator with value type T_Key");
-        while (begin != end) {
-            if (m_keySet.insert(*begin).second) m_keys.push_back(*begin);
+        طالما (begin != پڇاڙي) {
+            إذا (m_ڪنجي_سيٽ.وجهو(*begin).ٻيو) m_ڪنجيون.ڌڪو_پٺ(*begin);
             ++begin;
         }
     }
-    void clear() {
-        m_keys.clear();
-        m_keySet.clear();
+    فراغ clear() {
+        m_ڪنجيون.clear();
+        m_ڪنجي_سيٽ.clear();
     }
 
     // ACCESSORS
-    bool empty() const { return m_keys.empty(); }
-    size_t size() const { return m_keys.size(); }
-    bool exists(const T_Key& key) const { return m_keySet.find(key) != m_keySet.end(); }
+    bool خالي_جايون() ثابت { أرجع m_ڪنجيون.خالي_جايون(); }
+    سائيز_t سائيز() ثابت { أرجع m_ڪنجيون.سائيز(); }
+    bool exists(ثابت T_ڪنجي& ڪنجي) ثابت { أرجع m_ڪنجي_سيٽ.ڳوليو(ڪنجي) != m_ڪنجي_سيٽ.پڇاڙي(); }
 
     // ITERATORS
-    using const_iterator = typename std::vector<T_Key>::const_iterator;
-    const_iterator begin() const { return m_keys.begin(); }
-    const_iterator end() const { return m_keys.end(); }
+    using const_iterator = typename std::ويڪٽر<T_ڪنجي>::const_iterator;
+    const_iterator begin() ثابت { أرجع m_ڪنجيون.begin(); }
+    const_iterator پڇاڙي() ثابت { أرجع m_ڪنجيون.پڇاڙي(); }
 };
 
 //============================================================================
@@ -72,4 +72,4 @@ public:
 // when insertion order is desired (e.g. std::vector), but duplicates need removal.
 // Values may be modified.
 
-#endif  // Guard
+#جيڪڏهن_پورو  // Guard

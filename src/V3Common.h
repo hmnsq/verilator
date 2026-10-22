@@ -14,20 +14,20 @@
 //
 //*************************************************************************
 
-#ifndef VERILATOR_V3COMMON_H_
-#define VERILATOR_V3COMMON_H_
+#جيڪڏهن_وصف_نه_ٿيل VERILATOR_V3COMMON_H_
+#وصف_ڪريو VERILATOR_V3COMMON_H_
 
-#include "config_build.h"
-#include "verilatedos.h"
+#ضمن "config_build.h"
+#ضمن "verilatedos.h"
 
-class AstNodeDType;
+class Ast_ڳنڍ_DType;
 
 //============================================================================
 
 class V3Common final {
-public:
-    static void commonAll() VL_MT_DISABLED;
-    static string makeToStringCall(AstNodeDType* nodep, const std::string& lhs);
+عام:
+    ساكن فراغ commonAll() VL_MT_DISABLED;
+    ساكن string make_منزل_String_Call(Ast_ڳنڍ_DType* nodep, ثابت std::string& lhs);
 };
 
-#endif  // Guard
+#جيڪڏهن_پورو  // Guard

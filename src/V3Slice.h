@@ -14,19 +14,19 @@
 //
 //*************************************************************************
 
-#ifndef VERILATOR_V3SLICE_H_
-#define VERILATOR_V3SLICE_H_
+#جيڪڏهن_وصف_نه_ٿيل VERILATOR_V3_ٽڪرو_H
+#وصف_ڪريو VERILATOR_V3_ٽڪرو_H
 
-#include "config_build.h"
-#include "verilatedos.h"
+#ضمن "config_build.h"
+#ضمن "verilatedos.h"
 
 class AstNetlist;
 
 //============================================================================
 
-class V3Slice final {
-public:
-    static void sliceAll(AstNetlist* nodep) VL_MT_DISABLED;
+class V3_ٽڪرو final {
+عام:
+    ساكن فراغ ٽڪرو_All(AstNetlist* nodep) VL_MT_DISABLED;
 };
 
-#endif  // Guard
+#جيڪڏهن_پورو  // Guard

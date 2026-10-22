@@ -35,155 +35,155 @@
 // simplified to look primarily for SLICESELs.
 //*************************************************************************
 
-#include "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
+#ضمن "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
 
-#include "V3Slice.h"
+#ضمن "V3Slice.h"
 
-#include "V3Stats.h"
+#ضمن "V3Stats.h"
 
 VL_DEFINE_DEBUG_FUNCTIONS;
 
 //*************************************************************************
 
-class SliceVisitor final : public VNVisitor {
+صنف ٽڪرو_Visitor final : عام VNVisitor {
     // NODE STATE
     // Cleared on netlist
     //  AstNodeAssign::user1()      -> bool.  True if find is complete
     //  AstNodeUniop::user1()       -> bool.  True if find is complete
     //  AstArraySel::user1p()       -> AstVarRef. The VarRef that the final ArraySel points to
-    const VNUser1InUse m_inuser1;
+    ثابت VNUser1_اندريون_Use m_inuser1;
 
     // STATE - across all visitors
     VDouble0 m_statAssigns;  // Statistic tracking
-    VDouble0 m_statSliceElementSkips;  // Statistic tracking
+    VDouble0 m_stat_ٽڪرو_Element_Skips;  // Statistic tracking
 
     // STATE - for current visit position (use VL_RESTORER)
-    AstNode* m_assignp = nullptr;  // Assignment we are under
-    bool m_assignError = false;  // True if the current assign already has an error
-    bool m_okConsArray = false;  // Allow ConsArray children
+    Ast_ڳنڍ* m_assignp = خالي_اشارو;  // Assignment we are under
+    منطقي m_سونپيو_Error = خطأ;  // True if the current assign already has an error
+    منطقي m_okConsArray = خطأ;  // Allow ConsArray children
 
     // METHODS
-    AstNodeExpr* cloneAndSel(AstNodeExpr* const nodep, uint64_t elements, uint64_t elemIdx,
-                             const bool needPure) {
+    Ast_ڳنڍ_اظهار* cloneAndSel(Ast_ڳنڍ_اظهار* ثابت nodep, uint64_t elements, uint64_t elemIdx,
+                             ثابت منطقي need_خالص) {
         // Insert an ArraySel, except for a few special cases
-        const AstUnpackArrayDType* const arrayp
+        ثابت AstUnpackArrayDType* ثابت arrayp
             = VN_CAST(nodep->dtypep()->skipRefp(), UnpackArrayDType);
-        if (!arrayp) {  // V3Width should have complained, but...
-            if (!m_assignError) {
+        إذا (!arrayp) {  // V3Width should have complained, but...
+            إذا (!m_سونپيو_Error) {
                 nodep->v3error(
                     nodep->prettyTypeName()
                     << " is not an unpacked array, but is in an unpacked array context");
-            } else {
+            } وإلا {
                 V3Error::incErrors();  // Otherwise might infinite loop
             }
-            m_assignError = true;
+            m_سونپيو_Error = سچ;
             // Likely will cause downstream errors
-            return nodep->cloneTree(false, needPure);
+            أرجع nodep->clone_وڻ(خطأ, need_خالص);
         }
-        if (static_cast<uint64_t>(arrayp->rangep()->elementsConst()) != elements) {
-            if (!m_assignError) {
+        إذا (static_cast<uint64_t>(arrayp->rangep()->elementsConst()) != elements) {
+            إذا (!m_سونپيو_Error) {
                 nodep->v3error(
                     "Slices of arrays in assignments have different unpacked dimensions, "
                     << elements << " versus " << arrayp->rangep()->elementsConst());
             }
-            m_assignError = true;
+            m_سونپيو_Error = سچ;
             elements = 1;
             elemIdx = 0;
         }
-        AstNodeExpr* newp;
-        if (AstConsArray* const consp = VN_CAST(nodep, ConsArray)) {
+        Ast_ڳنڍ_اظهار* newp;
+        إذا (AstConsArray* ثابت consp = VN_CAST(nodep, ConsArray)) {
             UINFO(9, "  cloneConsArray(" << elements << "," << elemIdx << ") " << nodep);
-            const uint64_t index
+            ثابت uint64_t اشاريو
                 = arrayp->rangep()->ascending() ? elemIdx : elements - 1 - elemIdx;
-            newp = consp->valuep(index)->cloneTree(false, needPure);
-        } else if (const AstCvtUnpackToUnpack* const cvtp = VN_CAST(nodep, CvtUnpackToUnpack)) {
+            newp = consp->valuep(اشاريو)->clone_وڻ(خطأ, need_خالص);
+        } وإلا إذا (ثابت Ast_Cvt_Unpack_منزل_Unpack* ثابت cvtp = VN_CAST(nodep, Cvt_Unpack_منزل_Unpack)) {
             UINFO(9, "  cloneCvtUnpackToUnpack(" << elements << "," << elemIdx << ") " << nodep);
             // The element in the same left-to-right position of the source
-            AstNodeExpr* const elemp = cloneAndSel(cvtp->fromp(), elements, elemIdx, needPure);
-            AstNodeDType* const subDTypep = arrayp->subDTypep();
-            const AstUnpackArrayDType* const subArrayp
+            Ast_ڳنڍ_اظهار* ثابت elemp = cloneAndSel(cvtp->fromp(), elements, elemIdx, need_خالص);
+            Ast_ڳنڍ_DType* ثابت subDTypep = arrayp->subDTypep();
+            ثابت AstUnpackArrayDType* ثابت subArrayp
                 = VN_CAST(subDTypep->skipRefp(), UnpackArrayDType);
-            if (!subArrayp || !subArrayp->isReverseOf(elemp->dtypep())) return elemp;
-            return new AstCvtUnpackToUnpack{nodep->fileline(), elemp, subDTypep};
-        } else if (AstCond* const snodep = VN_CAST(nodep, Cond)) {
+            إذا (!subArrayp || !subArrayp->is_ابتو_جو(elemp->dtypep())) أرجع elemp;
+            أرجع جديد Ast_Cvt_Unpack_منزل_Unpack{nodep->fileline(), elemp, subDTypep};
+        } وإلا إذا (AstCond* ثابت snodep = VN_CAST(nodep, Cond)) {
             UINFO(9, "  cloneCond(" << elements << "," << elemIdx << ") " << nodep);
-            return new AstCond{snodep->fileline(), snodep->condp()->cloneTree(false, needPure),
-                               cloneAndSel(snodep->thenp(), elements, elemIdx, needPure),
-                               cloneAndSel(snodep->elsep(), elements, elemIdx, needPure)};
-        } else if (const AstSliceSel* const snodep = VN_CAST(nodep, SliceSel)) {
+            أرجع جديد AstCond{snodep->fileline(), snodep->condp()->clone_وڻ(خطأ, need_خالص),
+                               cloneAndSel(snodep->thenp(), elements, elemIdx, need_خالص),
+                               cloneAndSel(snodep->elsep(), elements, elemIdx, need_خالص)};
+        } وإلا إذا (ثابت Ast_ٽڪرو_Sel* ثابت snodep = VN_CAST(nodep, ٽڪرو_Sel)) {
             UINFO(9, "  cloneSliceSel(" << elements << "," << elemIdx << ") " << nodep);
-            const int leOffset = (snodep->declRange().lo()
+            ثابت صحيح le_وٿي = (snodep->declRange().lo()
                                   + (!snodep->declRange().ascending()
                                          ? snodep->declRange().elements() - 1 - elemIdx
                                          : elemIdx));
-            newp = new AstArraySel{nodep->fileline(), snodep->fromp()->cloneTree(false, needPure),
-                                   leOffset};
-        } else if (const AstSampled* const snodep = VN_CAST(nodep, Sampled)) {
+            newp = جديد AstArraySel{nodep->fileline(), snodep->fromp()->clone_وڻ(خطأ, need_خالص),
+                                   le_وٿي};
+        } وإلا إذا (ثابت AstSampled* ثابت snodep = VN_CAST(nodep, Sampled)) {
             UINFO(9, "  cloneSliceSel(" << elements << "," << elemIdx << ") " << nodep);
-            AstNodeExpr* const exprp = VN_AS(snodep->exprp(), NodeExpr);
-            AstNodeExpr* const selp = cloneAndSel(exprp, elements, elemIdx, needPure);
-            return new AstSampled{nodep->fileline(), selp, selp->dtypep(), snodep->internal()};
-        } else if (AstExprStmt* const snodep = VN_CAST(nodep, ExprStmt)) {
+            Ast_ڳنڍ_اظهار* ثابت exprp = VN_AS(snodep->exprp(), ڳنڍ_اظهار);
+            Ast_ڳنڍ_اظهار* ثابت selp = cloneAndSel(exprp, elements, elemIdx, need_خالص);
+            أرجع جديد AstSampled{nodep->fileline(), selp, selp->dtypep(), snodep->اندروني_2()};
+        } وإلا إذا (Ast_اظهار_Stmt* ثابت snodep = VN_CAST(nodep, اظهار_Stmt)) {
             UINFO(9, "  cloneExprStmt(" << elements << "," << elemIdx << ") " << nodep);
-            AstNodeExpr* const resultSelp
-                = cloneAndSel(snodep->resultp(), elements, elemIdx, needPure);
-            if (snodep->stmtsp()) {
-                return new AstExprStmt{nodep->fileline(), snodep->stmtsp()->unlinkFrBackWithNext(),
-                                       resultSelp};
-            } else {
-                return resultSelp;
+            Ast_ڳنڍ_اظهار* ثابت نتيجو_Selp
+                = cloneAndSel(snodep->resultp(), elements, elemIdx, need_خالص);
+            إذا (snodep->stmtsp()) {
+                أرجع جديد Ast_اظهار_Stmt{nodep->fileline(), snodep->stmtsp()->unlink_Fr_پٺ_With_ايندڙ(),
+                                       نتيجو_Selp};
+            } وإلا {
+                أرجع نتيجو_Selp;
             }
-        } else if (VN_IS(nodep, NodeVarRef) || VN_IS(nodep, NodeSel) || VN_IS(nodep, CMethodHard)
+        } وإلا إذا (VN_IS(nodep, ڳنڍ_Var_Ref) || VN_IS(nodep, ڳنڍ_Sel) || VN_IS(nodep, CMethodHard)
                    || VN_IS(nodep, MemberSel) || VN_IS(nodep, StructSel)) {
             UINFO(9, "  cloneSel(" << elements << "," << elemIdx << ") " << nodep);
-            const int leOffset = !arrayp->rangep()->ascending()
+            ثابت صحيح le_وٿي = !arrayp->rangep()->ascending()
                                      ? arrayp->rangep()->elementsConst() - 1 - elemIdx
                                      : elemIdx;
-            newp = new AstArraySel{nodep->fileline(), nodep->cloneTree(false, needPure), leOffset};
-        } else {
-            if (!m_assignError) {
+            newp = جديد AstArraySel{nodep->fileline(), nodep->clone_وڻ(خطأ, need_خالص), le_وٿي};
+        } وإلا {
+            إذا (!m_سونپيو_Error) {
                 nodep->v3error(nodep->prettyTypeName()
                                << " unexpected in assignment to unpacked array");
             }
-            m_assignError = true;
+            m_سونپيو_Error = سچ;
             // Likely will cause downstream errors
-            newp = nodep->cloneTree(false, needPure);
+            newp = nodep->clone_وڻ(خطأ, need_خالص);
         }
-        return newp;
+        أرجع newp;
     }
 
-    bool assignOptimize(AstNodeAssign* nodep) {
+    منطقي سونپيو_Optimize(Ast_ڳنڍ_سونپيو* nodep) {
         // Return true if did optimization
-        AstNodeDType* const dtp = nodep->lhsp()->dtypep()->skipRefp();
-        AstNode* stp = nodep->rhsp();
-        const AstUnpackArrayDType* const arrayp = VN_CAST(dtp, UnpackArrayDType);
-        if (!arrayp) return false;
-        if (VN_IS(stp, CvtPackedToArray)) return false;
-        if (VN_IS(stp, CReset)) return false;
+        Ast_ڳنڍ_DType* ثابت dtp = nodep->lhsp()->dtypep()->skipRefp();
+        Ast_ڳنڍ* stp = nodep->rhsp();
+        ثابت AstUnpackArrayDType* ثابت arrayp = VN_CAST(dtp, UnpackArrayDType);
+        إذا (!arrayp) أرجع خطأ;
+        إذا (VN_IS(stp, Cvt_Packed_منزل_Array)) أرجع خطأ;
+        إذا (VN_IS(stp, CReset)) أرجع خطأ;
 
         // Any isSc variables must be expanded regardless of --fno-slice
-        const bool hasSc
-            = nodep->exists([&](const AstVarRef* refp) -> bool { return refp->varp()->isSc(); });
-        if (!hasSc && !v3Global.opt.fSlice()) {
-            m_okConsArray = true;  // VL_RESTORER in visit(AstNodeAssign)
-            return false;
+        ثابت منطقي hasSc
+            = nodep->exists([&](ثابت AstVarRef* refp) -> منطقي { أرجع refp->varp()->isSc(); });
+        إذا (!hasSc && !v3Global.opt.f_ٽڪرو()) {
+            m_okConsArray = سچ;  // VL_RESTORER in visit(AstNodeAssign)
+            أرجع خطأ;
         }
 
         // Skip optimization if array is too large
-        const int elements = arrayp->rangep()->elementsConst();
-        const int elementLimit = v3Global.opt.fSliceElementLimit();
-        if (elements > elementLimit && elementLimit > 0) {
-            ++m_statSliceElementSkips;
-            m_okConsArray = true;  // VL_RESTORER in visit(AstNodeAssign)
-            return false;
+        ثابت صحيح elements = arrayp->rangep()->elementsConst();
+        ثابت صحيح element_حد_بندي = v3Global.opt.f_ٽڪرو_Element_حد_بندي();
+        إذا (elements > element_حد_بندي && element_حد_بندي > 0) {
+            ++m_stat_ٽڪرو_Element_Skips;
+            m_okConsArray = سچ;  // VL_RESTORER in visit(AstNodeAssign)
+            أرجع خطأ;
         }
 
         // Skip if this is a simple a = b assignment of identical arrays
-        if (AstVarRef* const lhsp = VN_CAST(nodep->lhsp(), VarRef)) {
-            if (AstVarRef* const rhsp = VN_CAST(nodep->rhsp(), VarRef)) {
-                if (!hasSc && lhsp->dtypep()->skipRefp()->sameTree(rhsp->dtypep()->skipRefp())) {
-                    m_okConsArray = true;  // VL_RESTORER in visit(AstNodeAssign)
-                    return false;
+        إذا (AstVarRef* ثابت lhsp = VN_CAST(nodep->lhsp(), VarRef)) {
+            إذا (AstVarRef* ثابت rhsp = VN_CAST(nodep->rhsp(), VarRef)) {
+                إذا (!hasSc && lhsp->dtypep()->skipRefp()->same_وڻ(rhsp->dtypep()->skipRefp())) {
+                    m_okConsArray = سچ;  // VL_RESTORER in visit(AstNodeAssign)
+                    أرجع خطأ;
                 }
             }
         }
@@ -195,129 +195,129 @@ class SliceVisitor final : public VNVisitor {
         // but #elements is common and all variables are realigned to start at zero
         // Assign of an ascending range slice to a descending range one must reverse
         // the elements
-        AstNodeAssign* newlistp = nullptr;
-        for (uint64_t elemIdx = 0; elemIdx < static_cast<uint64_t>(elements); ++elemIdx) {
+        Ast_ڳنڍ_سونپيو* newlistp = خالي_اشارو;
+        لكل (uint64_t elemIdx = 0; elemIdx < static_cast<uint64_t>(elements); ++elemIdx) {
             // Original node is replaced, so it is safe to copy it one time even if it is impure.
-            AstNodeAssign* const newp
+            Ast_ڳنڍ_سونپيو* ثابت newp
                 = nodep->cloneType(cloneAndSel(nodep->lhsp(), elements, elemIdx, elemIdx != 0),
                                    cloneAndSel(nodep->rhsp(), elements, elemIdx, elemIdx != 0));
             UINFOTREE(9, newp, "", "new");
-            newlistp = AstNode::addNext(newlistp, newp);
+            newlistp = Ast_ڳنڍ::جوڙيو_ايندڙ(newlistp, newp);
         }
         UINFOTREE(9, nodep, "", "Deslice-Dn");
         nodep->replaceWith(newlistp);
-        VL_DO_DANGLING(nodep->deleteTree(), nodep);
+        VL_DO_DANGLING(nodep->delete_وڻ(), nodep);
         // Normal edit iterator will now iterate on all of the expansion assignments
         // This will potentially call this function again to resolve next level of slicing
-        return true;
+        أرجع سچ;
     }
 
-    void visit(AstNodeAssign* nodep) override {
+    فراغ گهمو(Ast_ڳنڍ_سونپيو* nodep) override {
         // Called recursively on newly created assignments
-        if (nodep->user1SetOnce()) return;  // Process once
+        إذا (nodep->user1_سيٽ_Once()) أرجع;  // Process once
         UINFOTREE(9, nodep, "", "Deslice-In");
-        VL_RESTORER(m_assignError);
+        VL_RESTORER(m_سونپيو_Error);
         VL_RESTORER(m_assignp);
         VL_RESTORER(m_okConsArray);  // Set in assignOptimize
-        m_assignError = false;
+        m_سونپيو_Error = خطأ;
         m_assignp = nodep;
-        if (assignOptimize(nodep)) return;
+        إذا (سونپيو_Optimize(nodep)) أرجع;
         iterateChildren(nodep);
     }
 
-    void visit(AstNodeCons* nodep) override {
+    فراغ گهمو(Ast_ڳنڍ_Cons* nodep) override {
         VL_RESTORER(m_okConsArray);
-        m_okConsArray = true;
+        m_okConsArray = سچ;
         iterateChildren(nodep);
     }
-    void visit(AstConsArray* nodep) override {
+    فراغ گهمو(AstConsArray* nodep) override {
         UASSERT_OBJ(!m_assignp || m_okConsArray, nodep,
                     "Array initialization should have been removed earlier");
     }
 
-    template <typename T_NodeBiop>
-    void expandBiOp(T_NodeBiop* biopp) {
-        AstNodeBiop* nodep = biopp;
-        if (nodep->user1SetOnce()) return;  // Process once
+    سانچو <قسم_نالو T_ڳنڍ_Biop>
+    فراغ expandBiOp(T_ڳنڍ_Biop* biopp) {
+        Ast_ڳنڍ_Biop* nodep = biopp;
+        إذا (nodep->user1_سيٽ_Once()) أرجع;  // Process once
         UINFO(9, "  Bi-Eq/Neq expansion " << nodep);
 
         // Only expand if lhs is an unpacked array (we assume type checks already passed)
-        const AstNodeDType* const fromDtp = nodep->lhsp()->dtypep()->skipRefp();
-        if (const AstUnpackArrayDType* const adtypep = VN_CAST(fromDtp, UnpackArrayDType)) {
-            AstNodeBiop* logp = nullptr;
+        ثابت Ast_ڳنڍ_DType* ثابت fromDtp = nodep->lhsp()->dtypep()->skipRefp();
+        إذا (ثابت AstUnpackArrayDType* ثابت adtypep = VN_CAST(fromDtp, UnpackArrayDType)) {
+            Ast_ڳنڍ_Biop* logp = خالي_اشارو;
 
-            const int elements = adtypep->rangep()->elementsConst();
-            for (int elemIdx = 0; elemIdx < elements; ++elemIdx) {
+            ثابت صحيح elements = adtypep->rangep()->elementsConst();
+            لكل (صحيح elemIdx = 0; elemIdx < elements; ++elemIdx) {
                 // EQ(a,b) -> LOGAND(EQ(ARRAYSEL(a,0), ARRAYSEL(b,0)), ...[1])
                 // Original node is replaced, so it is safe to copy it one time even if it is
                 // impure.
-                T_NodeBiop* const clonep = new T_NodeBiop{
+                T_ڳنڍ_Biop* ثابت clonep = جديد T_ڳنڍ_Biop{
                     nodep->fileline(), cloneAndSel(nodep->lhsp(), elements, elemIdx, elemIdx != 0),
                     cloneAndSel(nodep->rhsp(), elements, elemIdx, elemIdx != 0)};
-                if (!logp) {
+                إذا (!logp) {
                     logp = clonep;
-                } else {
-                    switch (nodep->type()) {
-                    case VNType::Eq:  // FALLTHRU
-                    case VNType::EqCase:
-                        logp = new AstLogAnd{nodep->fileline(), logp, clonep};
-                        break;
-                    case VNType::Neq:  // FALLTHRU
-                    case VNType::NeqCase:
-                        logp = new AstLogOr{nodep->fileline(), logp, clonep};
-                        break;
-                    default: nodep->v3fatalSrc("Unknown node type processing array slice"); break;
+                } وإلا {
+                    بدل (nodep->type()) {
+                    حالة VNType::Eq:  // FALLTHRU
+                    حالة VNType::EqCase:
+                        logp = جديد AstLogAnd{nodep->fileline(), logp, clonep};
+                        اكسر;
+                    حالة VNType::Neq:  // FALLTHRU
+                    حالة VNType::NeqCase:
+                        logp = جديد AstLogOr{nodep->fileline(), logp, clonep};
+                        اكسر;
+                    افتراضي: nodep->v3fatalSrc("Unknown node type processing array slice"); اكسر;
                     }
                 }
             }
             UASSERT_OBJ(logp, nodep, "Unpacked array with empty indices range");
             nodep->replaceWith(logp);
-            VL_DO_DANGLING(pushDeletep(nodep), nodep);
+            VL_DO_DANGLING(ڌڪو_Deletep(nodep), nodep);
             nodep = logp;
         }
 
         iterateChildren(nodep);
     }
 
-    void visit(AstEq* nodep) override { expandBiOp(nodep); }
-    void visit(AstNeq* nodep) override { expandBiOp(nodep); }
-    void visit(AstEqCase* nodep) override { expandBiOp(nodep); }
-    void visit(AstNeqCase* nodep) override { expandBiOp(nodep); }
+    فراغ گهمو(AstEq* nodep) override { expandBiOp(nodep); }
+    فراغ گهمو(AstNeq* nodep) override { expandBiOp(nodep); }
+    فراغ گهمو(AstEqCase* nodep) override { expandBiOp(nodep); }
+    فراغ گهمو(AstNeqCase* nodep) override { expandBiOp(nodep); }
 
-    void visit(AstSliceSel* nodep) override {
+    فراغ گهمو(Ast_ٽڪرو_Sel* nodep) override {
         // Slice used as a bare value, e.g. a $display argument. Build it via
         // VlUnpacked::slice<N_Out>(loIdx), as DYN_SLICE already does for Queues.
         iterateChildren(nodep);
-        AstNodeExpr* const fromp = nodep->fromp()->unlinkFrBack();
-        AstConst* const lop = new AstConst{nodep->fileline(), AstConst::WidthedValue{}, 32,
+        Ast_ڳنڍ_اظهار* ثابت fromp = nodep->fromp()->unlink_Fr_پٺ();
+        AstConst* ثابت lop = جديد AstConst{nodep->fileline(), AstConst::Widthed_قدر{}, 32,
                                            static_cast<uint32_t>(nodep->declRange().lo())};
-        AstCMethodHard* const newp
-            = new AstCMethodHard{nodep->fileline(), fromp, VCMethod::ARRAY_SLICE};
-        newp->addPinsp(lop);
+        AstCMethodHard* ثابت newp
+            = جديد AstCMethodHard{nodep->fileline(), fromp, VCMethod::ARRAY_ٽڪرو};
+        newp->جوڙيو_Pinsp(lop);
         newp->dtypeFrom(nodep);  // Reuse the already-correct sliced array dtype
-        newp->didWidth(true);
-        newp->protect(false);
+        newp->did_ويڪر(سچ);
+        newp->protect(خطأ);
         nodep->replaceWith(newp);
-        VL_DO_DANGLING(pushDeletep(nodep), nodep);
+        VL_DO_DANGLING(ڌڪو_Deletep(nodep), nodep);
     }
 
-    void visit(AstNode* nodep) override { iterateChildren(nodep); }
+    فراغ گهمو(Ast_ڳنڍ* nodep) override { iterateChildren(nodep); }
 
-public:
+عام:
     // CONSTRUCTORS
-    explicit SliceVisitor(AstNetlist* nodep) { iterate(nodep); }
-    ~SliceVisitor() override {
-        V3Stats::addStat("Optimizations, Slice array assignments", m_statAssigns);
-        V3Stats::addStat("Optimizations, Slice array skips due to size limit",
-                         m_statSliceElementSkips);
+    واضح ٽڪرو_Visitor(AstNetlist* nodep) { iterate(nodep); }
+    ~ٽڪرو_Visitor() override {
+        V3Stats::جوڙيو_Stat("Optimizations, Slice array assignments", m_statAssigns);
+        V3Stats::جوڙيو_Stat("Optimizations, Slice array skips due to size limit",
+                         m_stat_ٽڪرو_Element_Skips);
     }
 };
 
 //######################################################################
 // Link class functions
 
-void V3Slice::sliceAll(AstNetlist* nodep) {
+فراغ V3_ٽڪرو::ٽڪرو_All(AstNetlist* nodep) {
     UINFO(2, __FUNCTION__ << ":");
-    { SliceVisitor{nodep}; }  // Destruct before checking
-    V3Global::dumpCheckGlobalTree("slice", 0, dumpTreeEitherLevel() >= 3);
+    { ٽڪرو_Visitor{nodep}; }  // Destruct before checking
+    V3Global::dump_Check_Global_وڻ("slice", 0, dump_وڻ_Either_Level() >= 3);
 }

@@ -14,72 +14,72 @@
 //
 //*************************************************************************
 
-#ifndef VERILATOR_V3EXECGRAPH_H_
-#define VERILATOR_V3EXECGRAPH_H_
+#جيڪڏهن_وصف_نه_ٿيل VERILATOR_V3EXECGRAPH_H_
+#وصف_ڪريو VERILATOR_V3EXECGRAPH_H_
 
-#include "config_build.h"
-#include "verilatedos.h"
+#ضمن "config_build.h"
+#ضمن "verilatedos.h"
 
-#include "V3Graph.h"
+#ضمن "V3Graph.h"
 
-#include <atomic>
+#ضمن <atomic>
 
 class AstNetlist;
 class AstCFunc;
-class AstExecGraph;
-class AstNodeStmt;
+class Ast_Exec_گراف;
+class Ast_ڳنڍ_Stmt;
 class AstScope;
 
 //*************************************************************************
 // MTasks and graph structures
 
-class ExecMTask final : public V3GraphVertex {
-    VL_RTTI_IMPL(ExecMTask, V3GraphVertex)
-private:
-    const uint32_t m_id;  // Unique ID of this ExecMTask.
-    static std::atomic<uint32_t> s_nextId;  // Next ID to use
-    AstCFunc* const m_funcp;  // The function that contains the task body
-    const std::string m_hashName;  // Hashed name based on body for profile-driven optimization
+class ExecMTask final : عام V3_گراف_راس {
+    VL_RTTI_IMPL(ExecMTask, V3_گراف_راس)
+خاص:
+    ثابت uint32_t m_id;  // Unique ID of this ExecMTask.
+    ساكن std::atomic<uint32_t> s_ايندڙ_Id;  // Next ID to use
+    AstCFunc* ثابت m_funcp;  // The function that contains the task body
+    ثابت std::string m_hashName;  // Hashed name based on body for profile-driven optimization
     // Predicted critical path from the start of this mtask to the ends of the graph that are
     // reachable from this mtask. In abstract time units.
-    uint32_t m_priority = 0;
+    uint32_t m_ترجيح = 0;
     // Predicted runtime of this mtask, in the same abstract time units as priority().
-    uint32_t m_cost = 0;
-    uint64_t m_predictStart = 0;  // Predicted start time of task
-    int m_threads = 1;  // Threads used by this mtask
+    uint32_t m_لاڳت = 0;
+    uint64_t m_predict_شروعات = 0;  // Predicted start time of task
+    صحيح m_ڌاڳا = 1;  // Threads used by this mtask
     VL_UNCOPYABLE(ExecMTask);
 
-    static AstCFunc* createCFunc(AstExecGraph* execGraphp, AstScope* scopep, AstNodeStmt* stmtsp,
+    ساكن AstCFunc* createCFunc(Ast_Exec_گراف* execGraphp, AstScope* scopep, Ast_ڳنڍ_Stmt* stmtsp,
                                  uint32_t id);
 
-public:
-    ExecMTask(AstExecGraph* execGraphp, AstScope* scopep, AstNodeStmt* stmtsp) VL_MT_DISABLED;
-    AstCFunc* funcp() const { return m_funcp; }
-    uint32_t id() const VL_MT_SAFE { return m_id; }
-    uint32_t priority() const { return m_priority; }
-    void priority(uint32_t pri) { m_priority = pri; }
-    uint32_t cost() const { return m_cost; }
-    void cost(uint32_t cost) { m_cost = cost; }
-    uint64_t predictStart() const { return m_predictStart; }
-    void predictStart(uint64_t time) { m_predictStart = time; }
-    string name() const override VL_MT_STABLE { return "mt"s + std::to_string(id()); }
-    string hashName() const { return m_hashName; }
-    void threads(int threads) { m_threads = threads; }
-    int threads() const { return m_threads; }
-    void dump(std::ostream& str) const;
+عام:
+    ExecMTask(Ast_Exec_گراف* execGraphp, AstScope* scopep, Ast_ڳنڍ_Stmt* stmtsp) VL_MT_DISABLED;
+    AstCFunc* funcp() ثابت { أرجع m_funcp; }
+    uint32_t id() ثابت VL_MT_محفوظ { أرجع m_id; }
+    uint32_t ترجيح_2() ثابت { أرجع m_ترجيح; }
+    فراغ ترجيح_2(uint32_t pri) { m_ترجيح = pri; }
+    uint32_t لاڳت() ثابت { أرجع m_لاڳت; }
+    فراغ لاڳت(uint32_t لاڳت) { m_لاڳت = لاڳت; }
+    uint64_t predict_شروعات() ثابت { أرجع m_predict_شروعات; }
+    فراغ predict_شروعات(uint64_t وقت_2) { m_predict_شروعات = وقت_2; }
+    string name() ثابت override VL_MT_STABLE { أرجع "mt"s + std::منزل_string(id()); }
+    string hashName() ثابت { أرجع m_hashName; }
+    فراغ ڌاڳا(صحيح ڌاڳا) { m_ڌاڳا = ڌاڳا; }
+    صحيح ڌاڳا() ثابت { أرجع m_ڌاڳا; }
+    فراغ dump(std::ostream& str) ثابت;
 
-    static uint32_t numUsedIds() VL_MT_SAFE { return s_nextId; }
+    ساكن uint32_t انگ_استعمال_ٿيل_Ids() VL_MT_محفوظ { أرجع s_ايندڙ_Id; }
 };
 
-inline std::ostream& operator<<(std::ostream& os, const ExecMTask& rhs) {
+مضمن std::ostream& عامل<<(std::ostream& os, ثابت ExecMTask& rhs) {
     rhs.dump(os);
-    return os;
+    أرجع os;
 }
 
-namespace V3ExecGraph {
-void implement(AstNetlist*) VL_MT_DISABLED;
+namespace V3_Exec_گراف {
+فراغ implement(AstNetlist*) VL_MT_DISABLED;
 
-void selfTest() VL_MT_DISABLED;
+فراغ selfTest() VL_MT_DISABLED;
 }  //namespace V3ExecGraph
 
-#endif  // Guard
+#جيڪڏهن_پورو  // Guard

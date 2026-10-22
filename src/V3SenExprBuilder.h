@@ -14,339 +14,339 @@
 //
 //*************************************************************************
 
-#ifndef VERILATOR_V3SENEXPRBUILDER_H_
-#define VERILATOR_V3SENEXPRBUILDER_H_
+#جيڪڏهن_وصف_نه_ٿيل VERILATOR_V3SENEXPRBUILDER_H_
+#وصف_ڪريو VERILATOR_V3SENEXPRBUILDER_H_
 
-#include "config_build.h"
-#include "verilatedos.h"
+#ضمن "config_build.h"
+#ضمن "verilatedos.h"
 
-#include "V3Ast.h"
-#include "V3UniqueNames.h"
+#ضمن "V3Ast.h"
+#ضمن "V3UniqueNames.h"
 
 //######################################################################
 // SenExprBuilder constructs the expressions used to compute if an
 // AstSenTree have triggered
 
-class SenExprBuilder final {
-public:
+class Sen_اظهار_Builder final {
+عام:
     // TYPES
-    struct Results final {
-        std::vector<AstNodeStmt*> m_inits;  // Initialization statements for previous values
-        std::vector<AstNodeStmt*> m_preUpdates;  // Pre update assignments
-        std::vector<AstNodeStmt*> m_postUpdates;  // Post update assignments
+    بنية Results final {
+        std::ويڪٽر<Ast_ڳنڍ_Stmt*> m_inits;  // Initialization statements for previous values
+        std::ويڪٽر<Ast_ڳنڍ_Stmt*> m_preUpdates;  // Pre update assignments
+        std::ويڪٽر<Ast_ڳنڍ_Stmt*> m_postUpdates;  // Post update assignments
         // Aliases of destructive post updates (for example event clearFired) that may need
         // to run once before entering a fresh dynamic wait loop.
-        std::vector<AstNodeStmt*> m_destructivePostUpdates;
-        std::vector<AstVar*> m_vars;  // Created temporary variables
+        std::ويڪٽر<Ast_ڳنڍ_Stmt*> m_destructivePostUpdates;
+        std::ويڪٽر<AstVar*> m_vars;  // Created temporary variables
     };
 
-private:
+خاص:
     // STATE
-    AstScope* const m_scopep;  // The scope
+    AstScope* ثابت m_scopep;  // The scope
 
     Results m_results;  // The builder result
 
-    std::unordered_map<VNRef<AstNode>, AstVarScope*> m_prev;  // The 'previous value' signals
-    std::unordered_map<VNRef<AstNode>, AstVarScope*> m_curr;  // The 'current value' signals
-    std::unordered_set<VNRef<AstNode>> m_hasPreUpdate;  // Whether the given sen expression already
+    std::unordered_map<VNRef<Ast_ڳنڍ>, AstVarScope*> m_prev;  // The 'previous value' signals
+    std::unordered_map<VNRef<Ast_ڳنڍ>, AstVarScope*> m_curr;  // The 'current value' signals
+    std::unordered_سيٽ<VNRef<Ast_ڳنڍ>> m_hasPreUpdate;  // Whether the given sen expression already
                                                         // has an update statement in m_preUpdates
-    std::unordered_set<VNRef<AstNode>> m_hasPostUpdate;  // Likewise for m_postUpdates
+    std::unordered_سيٽ<VNRef<Ast_ڳنڍ>> m_hasPostUpdate;  // Likewise for m_postUpdates
 
-    V3UniqueNames m_prevNames{"__Vtrigprevexpr"};  // For generating unique temporary names
+    V3_Unique_نالا m_prev_نالا{"__Vtrigprevexpr"};  // For generating unique temporary names
 
-    static bool isSupportedDType(AstNodeDType* dtypep) {
+    ساكن bool isSupportedDType(Ast_ڳنڍ_DType* dtypep) {
         dtypep = dtypep->skipRefp();
-        if (VN_IS(dtypep, BasicDType)) return true;
-        if (VN_IS(dtypep, PackArrayDType)) return true;
-        if (VN_IS(dtypep, UnpackArrayDType)) return isSupportedDType(dtypep->subDTypep());
-        if (VN_IS(dtypep, NodeUOrStructDType)) return true;  // All are packed at the moment
+        إذا (VN_IS(dtypep, BasicDType)) أرجع true;
+        إذا (VN_IS(dtypep, PackArrayDType)) أرجع true;
+        إذا (VN_IS(dtypep, UnpackArrayDType)) أرجع isSupportedDType(dtypep->subDTypep());
+        إذا (VN_IS(dtypep, ڳنڍ_UOr_Struct_DType)) أرجع true;  // All are packed at the moment
         // Per IEEE, detects reference object pointer changes, not contents of the class changes
-        if (VN_IS(dtypep, ClassRefDType)) return true;
-        return false;
+        إذا (VN_IS(dtypep, ClassRefDType)) أرجع true;
+        أرجع false;
     }
 
-    static bool isSimpleExpr(const AstNode* const exprp) {
-        return exprp->forall([](const AstNode* const nodep) {
-            return VN_IS(nodep, Const) || VN_IS(nodep, NodeVarRef) || VN_IS(nodep, Sel)
-                   || VN_IS(nodep, NodeSel) || VN_IS(nodep, MemberSel)
+    ساكن bool is_Simple_اظهار(ثابت Ast_ڳنڍ* ثابت exprp) {
+        أرجع exprp->forall([](ثابت Ast_ڳنڍ* ثابت nodep) {
+            أرجع VN_IS(nodep, Const) || VN_IS(nodep, ڳنڍ_Var_Ref) || VN_IS(nodep, Sel)
+                   || VN_IS(nodep, ڳنڍ_Sel) || VN_IS(nodep, MemberSel)
                    || VN_IS(nodep, CMethodHard);
         });
     }
 
     // Whether a reference may be null: a class reference or a virtual interface
-    static bool isNullableRef(const AstNodeExpr* const refp) {
-        if (!refp->dtypep()) return false;
-        const AstNodeDType* const dtypep = refp->dtypep()->skipRefp();
-        const AstIfaceRefDType* const ifaceDtypep = VN_CAST(dtypep, IfaceRefDType);
-        return VN_IS(dtypep, ClassRefDType) || (ifaceDtypep && ifaceDtypep->isVirtual());
+    ساكن bool isNullableRef(ثابت Ast_ڳنڍ_اظهار* ثابت refp) {
+        إذا (!refp->dtypep()) أرجع false;
+        ثابت Ast_ڳنڍ_DType* ثابت dtypep = refp->dtypep()->skipRefp();
+        ثابت AstIfaceRefDType* ثابت ifaceDtypep = VN_CAST(dtypep, IfaceRefDType);
+        أرجع VN_IS(dtypep, ClassRefDType) || (ifaceDtypep && ifaceDtypep->isVirtual());
     }
 
     // Check if expression contains a member access through a reference that could be null
     // (e.g., accessing an event through a class reference that may not be initialized)
-    static bool hasNullableMemberAccess(const AstNode* const exprp) {
-        return exprp && exprp->exists([](const AstNode* const nodep) {
-            const AstMemberSel* const mselp = VN_CAST(nodep, MemberSel);
-            return mselp && isNullableRef(mselp->fromp());
+    ساكن bool hasNullableMemberAccess(ثابت Ast_ڳنڍ* ثابت exprp) {
+        أرجع exprp && exprp->exists([](ثابت Ast_ڳنڍ* ثابت nodep) {
+            ثابت AstMemberSel* ثابت mselp = VN_CAST(nodep, MemberSel);
+            أرجع mselp && isNullableRef(mselp->fromp());
         });
     }
 
     // Get the base reference expression from a member selection chain
     // Returns the outermost reference that needs to be null-checked
     // Note: Returns a pointer into the original tree - caller must clone if needed
-    static const AstNodeExpr* getBaseNullableRef(const AstNodeExpr* exprp) {
-        while (exprp) {
-            if (const AstMemberSel* const mselp = VN_CAST(exprp, MemberSel)) {
-                const AstNodeExpr* const fromp = mselp->fromp();
-                if (isNullableRef(fromp)) {
+    ساكن ثابت Ast_ڳنڍ_اظهار* get_بنياد_Nullable_Ref(ثابت Ast_ڳنڍ_اظهار* exprp) {
+        طالما (exprp) {
+            إذا (ثابت AstMemberSel* ثابت mselp = VN_CAST(exprp, MemberSel)) {
+                ثابت Ast_ڳنڍ_اظهار* ثابت fromp = mselp->fromp();
+                إذا (isNullableRef(fromp)) {
                     // Check if the base itself has a member access through a nullable reference
-                    if (hasNullableMemberAccess(fromp)) {
+                    إذا (hasNullableMemberAccess(fromp)) {
                         exprp = fromp;
-                        continue;
+                        استمر;
                     }
-                    return fromp;
+                    أرجع fromp;
                 }
                 exprp = fromp;
-            } else {
-                return nullptr;
+            } وإلا {
+                أرجع nullptr;
             }
         }
-        return nullptr;
+        أرجع nullptr;
     }
 
     // METHODS
-    AstVarScope* crateTemp(AstNodeExpr* exprp) {
+    AstVarScope* crate_عارضي(Ast_ڳنڍ_اظهار* exprp) {
         // For readability, use the scoped signal name if the trigger is a simple AstVarRef
         string name;
-        if (AstVarRef* const refp = VN_CAST(exprp, VarRef)) {
-            AstVarScope* const vscp = refp->varScopep();
+        إذا (AstVarRef* ثابت refp = VN_CAST(exprp, VarRef)) {
+            AstVarScope* ثابت vscp = refp->varScopep();
             name = "__" + vscp->scopep()->nameDotless() + "__" + vscp->varp()->name();
-            name = m_prevNames.get(name);
-        } else {
-            name = m_prevNames.get(exprp);
+            name = m_prev_نالا.get(name);
+        } وإلا {
+            name = m_prev_نالا.get(exprp);
         }
         // Not shared between instances, as the users might move the variables into processes
-        FileLine* const flp = m_scopep->fileline();
-        AstVar* const varp = new AstVar{flp, VVarType::MODULETEMP, name, exprp->dtypep()};
-        varp->isInternal(true);
-        m_scopep->modp()->addStmtsp(varp);
-        AstVarScope* const vscp = new AstVarScope{flp, m_scopep, varp};
-        m_scopep->addVarsp(vscp);
-        m_results.m_vars.push_back(varp);
-        return vscp;
+        File_سٽ* ثابت flp = m_scopep->fileline();
+        AstVar* ثابت varp = new AstVar{flp, VVarType::MODULETEMP, name, exprp->dtypep()};
+        varp->is_اندروني(true);
+        m_scopep->modp()->جوڙيو_Stmtsp(varp);
+        AstVarScope* ثابت vscp = new AstVarScope{flp, m_scopep, varp};
+        m_scopep->جوڙيو_Varsp(vscp);
+        m_results.m_vars.ڌڪو_پٺ(varp);
+        أرجع vscp;
     }
 
     // Helper to wrap a statement with a null check: if (baseRef != null) stmt
-    AstNodeStmt* wrapStmtWithNullCheck(FileLine* flp, AstNodeStmt* stmtp,
-                                       const AstNodeExpr* baseRefp) {
-        if (!baseRefp) return stmtp;
-        AstNodeExpr* const nullp = new AstConst{flp, AstConst::Null{}};
+    Ast_ڳنڍ_Stmt* wrapStmtWithNullCheck(File_سٽ* flp, Ast_ڳنڍ_Stmt* stmtp,
+                                       ثابت Ast_ڳنڍ_اظهار* بنياد_Refp) {
+        إذا (!بنياد_Refp) أرجع stmtp;
+        Ast_ڳنڍ_اظهار* ثابت nullp = new AstConst{flp, AstConst::Null{}};
         // const_cast safe: cloneTree doesn't modify the source
-        AstNodeExpr* const checkp
-            = new AstNeq{flp, const_cast<AstNodeExpr*>(baseRefp)->cloneTree(false), nullp};
-        return new AstIf{flp, checkp, stmtp};
+        Ast_ڳنڍ_اظهار* ثابت checkp
+            = new AstNeq{flp, const_cast<Ast_ڳنڍ_اظهار*>(بنياد_Refp)->clone_وڻ(false), nullp};
+        أرجع new AstIf{flp, checkp, stmtp};
     }
 
     // Helper to wrap a trigger expression with a null check if needed
     // Returns the expression wrapped in: (baseRef != null) ? expr : 0
-    AstNodeExpr* wrapExprWithNullCheck(FileLine* flp, AstNodeExpr* exprp,
-                                       const AstNodeExpr* baseRefp) {
-        if (!baseRefp) return exprp;
-        AstNodeExpr* const nullp = new AstConst{flp, AstConst::Null{}};
+    Ast_ڳنڍ_اظهار* wrap_اظهار_With_Null_Check(File_سٽ* flp, Ast_ڳنڍ_اظهار* exprp,
+                                       ثابت Ast_ڳنڍ_اظهار* بنياد_Refp) {
+        إذا (!بنياد_Refp) أرجع exprp;
+        Ast_ڳنڍ_اظهار* ثابت nullp = new AstConst{flp, AstConst::Null{}};
         // const_cast safe: cloneTree doesn't modify the source
-        AstNodeExpr* const checkp
-            = new AstNeq{flp, const_cast<AstNodeExpr*>(baseRefp)->cloneTree(false), nullp};
-        AstNodeExpr* const falsep = new AstConst{flp, AstConst::BitFalse{}};
-        AstNodeExpr* const condp = new AstCond{flp, checkp, exprp, falsep};
-        condp->dtypeSetBit();
-        return condp;
+        Ast_ڳنڍ_اظهار* ثابت checkp
+            = new AstNeq{flp, const_cast<Ast_ڳنڍ_اظهار*>(بنياد_Refp)->clone_وڻ(false), nullp};
+        Ast_ڳنڍ_اظهار* ثابت falsep = new AstConst{flp, AstConst::ٻٽو_انگ_False{}};
+        Ast_ڳنڍ_اظهار* ثابت condp = new AstCond{flp, checkp, exprp, falsep};
+        condp->dtype_سيٽ_ٻٽو_انگ();
+        أرجع condp;
     }
 
-    AstNodeExpr* getCurr(AstNodeExpr* exprp) {
+    Ast_ڳنڍ_اظهار* getCurr(Ast_ڳنڍ_اظهار* exprp) {
         // For simple expressions like varrefs or selects, just use them directly
-        if (isSimpleExpr(exprp)) return exprp->cloneTree(false);
+        إذا (is_Simple_اظهار(exprp)) أرجع exprp->clone_وڻ(false);
 
         // Create the 'current value' variable
-        FileLine* const flp = exprp->fileline();
-        auto result = m_curr.emplace(*exprp, nullptr);
-        if (result.second) result.first->second = crateTemp(exprp);
-        AstVarScope* const currp = result.first->second;
+        File_سٽ* ثابت flp = exprp->fileline();
+        خودڪار نتيجو = m_curr.emplace(*exprp, nullptr);
+        إذا (نتيجو.ٻيو) نتيجو.پهريون->ٻيو = crate_عارضي(exprp);
+        AstVarScope* ثابت currp = نتيجو.پهريون->ٻيو;
 
         // Check if we need null guards for a member access through a nullable reference
-        const AstNodeExpr* const baseRefp
-            = hasNullableMemberAccess(exprp) ? getBaseNullableRef(exprp) : nullptr;
+        ثابت Ast_ڳنڍ_اظهار* ثابت بنياد_Refp
+            = hasNullableMemberAccess(exprp) ? get_بنياد_Nullable_Ref(exprp) : nullptr;
 
         // Add pre update if it does not exist yet in this round
-        if (m_hasPreUpdate.emplace(*currp).second) {
-            m_results.m_preUpdates.push_back(
+        إذا (m_hasPreUpdate.emplace(*currp).ٻيو) {
+            m_results.m_preUpdates.ڌڪو_پٺ(
                 wrapStmtWithNullCheck(flp,
-                                      new AstAssign{flp, new AstVarRef{flp, currp, VAccess::WRITE},
-                                                    exprp->cloneTree(false)},
-                                      baseRefp));
+                                      new Ast_سونپيو{flp, new AstVarRef{flp, currp, VAccess::WRITE},
+                                                    exprp->clone_وڻ(false)},
+                                      بنياد_Refp));
         }
-        return new AstVarRef{flp, currp, VAccess::READ};
+        أرجع new AstVarRef{flp, currp, VAccess::READ};
     }
 
-    AstVarScope* getPrev(AstNodeExpr* exprp) {
-        FileLine* const flp = exprp->fileline();
-        const auto rdCurr = [this, exprp]() { return getCurr(exprp); };
+    AstVarScope* getPrev(Ast_ڳنڍ_اظهار* exprp) {
+        File_سٽ* ثابت flp = exprp->fileline();
+        ثابت خودڪار rdCurr = [this, exprp]() { أرجع getCurr(exprp); };
 
         // Check if we need null guards for a member access through a nullable reference
-        const AstNodeExpr* const baseRefp
-            = hasNullableMemberAccess(exprp) ? getBaseNullableRef(exprp) : nullptr;
+        ثابت Ast_ڳنڍ_اظهار* ثابت بنياد_Refp
+            = hasNullableMemberAccess(exprp) ? get_بنياد_Nullable_Ref(exprp) : nullptr;
 
-        AstNode* scopeExprp = exprp;
-        if (AstVarRef* const refp = VN_CAST(exprp, VarRef)) scopeExprp = refp->varScopep();
+        Ast_ڳنڍ* scopeExprp = exprp;
+        إذا (AstVarRef* ثابت refp = VN_CAST(exprp, VarRef)) scopeExprp = refp->varScopep();
         // Create the 'previous value' variable
-        const auto pair = m_prev.emplace(*scopeExprp, nullptr);
-        if (pair.second) {
-            AstVarScope* const prevp = crateTemp(exprp);
-            pair.first->second = prevp;
+        ثابت خودڪار pair = m_prev.emplace(*scopeExprp, nullptr);
+        إذا (pair.ٻيو) {
+            AstVarScope* ثابت prevp = crate_عارضي(exprp);
+            pair.پهريون->ٻيو = prevp;
             // Add the initializer init (guarded if through a nullable reference)
-            AstAssign* const initp = new AstAssign{flp, new AstVarRef{flp, prevp, VAccess::WRITE},
-                                                   exprp->cloneTree(false)};
-            m_results.m_inits.push_back(wrapStmtWithNullCheck(flp, initp, baseRefp));
+            Ast_سونپيو* ثابت initp = new Ast_سونپيو{flp, new AstVarRef{flp, prevp, VAccess::WRITE},
+                                                   exprp->clone_وڻ(false)};
+            m_results.m_inits.ڌڪو_پٺ(wrapStmtWithNullCheck(flp, initp, بنياد_Refp));
         }
 
-        AstVarScope* const prevp = pair.first->second;
+        AstVarScope* ثابت prevp = pair.پهريون->ٻيو;
 
-        const auto wrPrev = [=]() { return new AstVarRef{flp, prevp, VAccess::WRITE}; };
+        ثابت خودڪار wrPrev = [=]() { أرجع new AstVarRef{flp, prevp, VAccess::WRITE}; };
 
         // Add post update if it does not exist yet
-        if (m_hasPostUpdate.emplace(*exprp).second) {
-            AstNodeDType* const exprDtp = exprp->dtypep()->skipRefp();
-            if (!isSupportedDType(exprDtp)) {
+        إذا (m_hasPostUpdate.emplace(*exprp).ٻيو) {
+            Ast_ڳنڍ_DType* ثابت اظهار_Dtp = exprp->dtypep()->skipRefp();
+            إذا (!isSupportedDType(اظهار_Dtp)) {
                 exprp->v3warn(
                     E_UNSUPPORTED,
                     "Unsupported: Cannot detect changes on expression of complex type "
-                        << exprDtp->prettyDTypeNameQ() << "\n"
-                        << exprp->warnMore()
+                        << اظهار_Dtp->prettyDTypeNameQ() << "\n"
+                        << exprp->warn_وڌيڪ()
                         << "... May be caused by combinational cycles reported with UNOPTFLAT");
-                return prevp;
+                أرجع prevp;
             }
-            if (VN_IS(exprDtp, UnpackArrayDType)) {
-                AstCMethodHard* const cmhp
-                    = new AstCMethodHard{flp, wrPrev(), VCMethod::UNPACKED_ASSIGN, rdCurr()};
-                cmhp->dtypeSetVoid();
-                m_results.m_postUpdates.push_back(
-                    wrapStmtWithNullCheck(flp, cmhp->makeStmt(), baseRefp));
-            } else {
-                m_results.m_postUpdates.push_back(
-                    wrapStmtWithNullCheck(flp, new AstAssign{flp, wrPrev(), rdCurr()}, baseRefp));
+            إذا (VN_IS(اظهار_Dtp, UnpackArrayDType)) {
+                AstCMethodHard* ثابت cmhp
+                    = new AstCMethodHard{flp, wrPrev(), VCMethod::UNPACKED_سونپيو, rdCurr()};
+                cmhp->dtype_سيٽ_Void();
+                m_results.m_postUpdates.ڌڪو_پٺ(
+                    wrapStmtWithNullCheck(flp, cmhp->makeStmt(), بنياد_Refp));
+            } وإلا {
+                m_results.m_postUpdates.ڌڪو_پٺ(
+                    wrapStmtWithNullCheck(flp, new Ast_سونپيو{flp, wrPrev(), rdCurr()}, بنياد_Refp));
             }
         }
 
-        return prevp;
+        أرجع prevp;
     }
 
-    std::pair<AstNodeExpr*, bool> createTerm(const AstSenItem* senItemp) {
-        FileLine* const flp = senItemp->fileline();
-        AstNodeExpr* const senp = senItemp->sensp();
+    std::pair<Ast_ڳنڍ_اظهار*, bool> create_رڪن(ثابت Ast_Sen_شي* senItemp) {
+        File_سٽ* ثابت flp = senItemp->fileline();
+        Ast_ڳنڍ_اظهار* ثابت senp = senItemp->sensp();
 
         // Check if the sensitivity expression involves accessing through a class reference
         // that may be null (e.g., DynScope handles created in fork blocks, or class member
         // virtual interfaces). If so, we need to guard against null pointer dereference.
-        const AstNodeExpr* const baseRefp
-            = hasNullableMemberAccess(senp) ? getBaseNullableRef(senp) : nullptr;
+        ثابت Ast_ڳنڍ_اظهار* ثابت بنياد_Refp
+            = hasNullableMemberAccess(senp) ? get_بنياد_Nullable_Ref(senp) : nullptr;
 
-        const auto currp = [this, senp]() { return getCurr(senp); };
-        const auto prevp
-            = [this, flp, senp]() { return new AstVarRef{flp, getPrev(senp), VAccess::READ}; };
-        const auto lsb = [=](AstNodeExpr* opp) { return new AstSel{flp, opp, 0, 1}; };
+        ثابت خودڪار currp = [this, senp]() { أرجع getCurr(senp); };
+        ثابت خودڪار prevp
+            = [this, flp, senp]() { أرجع new AstVarRef{flp, getPrev(senp), VAccess::READ}; };
+        ثابت خودڪار lsb = [=](Ast_ڳنڍ_اظهار* opp) { أرجع new AstSel{flp, opp, 0, 1}; };
 
         // All event signals should be 1-bit at this point
-        switch (senItemp->edgeType()) {
-        case VEdgeType::ET_CHANGED:
-        case VEdgeType::ET_HYBRID:  //
-            if (VN_IS(senp->dtypep()->skipRefp(), UnpackArrayDType)) {
+        بدل (senItemp->ڪنارو_Type()) {
+        حالة VEdgeType::ET_بدليو:
+        حالة VEdgeType::ET_HYBRID:  //
+            إذا (VN_IS(senp->dtypep()->skipRefp(), UnpackArrayDType)) {
                 // operand order reversed to avoid calling neq() method on non-VlUnpacked type, see
                 // issue #5125
-                AstCMethodHard* const resultp
+                AstCMethodHard* ثابت resultp
                     = new AstCMethodHard{flp, prevp(), VCMethod::UNPACKED_NEQ, currp()};
-                resultp->dtypeSetBit();
-                return {wrapExprWithNullCheck(flp, resultp, baseRefp), true};
+                resultp->dtype_سيٽ_ٻٽو_انگ();
+                أرجع {wrap_اظهار_With_Null_Check(flp, resultp, بنياد_Refp), true};
             }
-            return {wrapExprWithNullCheck(flp, new AstNeq{flp, currp(), prevp()}, baseRefp), true};
-        case VEdgeType::ET_BOTHEDGE:  //
-            return {wrapExprWithNullCheck(flp, lsb(new AstXor{flp, currp(), prevp()}), baseRefp),
+            أرجع {wrap_اظهار_With_Null_Check(flp, new AstNeq{flp, currp(), prevp()}, بنياد_Refp), true};
+        حالة VEdgeType::ET_BOTHEDGE:  //
+            أرجع {wrap_اظهار_With_Null_Check(flp, lsb(new AstXor{flp, currp(), prevp()}), بنياد_Refp),
                     false};
-        case VEdgeType::ET_POSEDGE:  //
-            return {wrapExprWithNullCheck(
-                        flp, lsb(new AstAnd{flp, currp(), new AstNot{flp, prevp()}}), baseRefp),
+        حالة VEdgeType::ET_POSEDGE:  //
+            أرجع {wrap_اظهار_With_Null_Check(
+                        flp, lsb(new AstAnd{flp, currp(), new AstNot{flp, prevp()}}), بنياد_Refp),
                     false};
-        case VEdgeType::ET_NEGEDGE:  //
-            return {wrapExprWithNullCheck(
-                        flp, lsb(new AstAnd{flp, new AstNot{flp, currp()}, prevp()}), baseRefp),
+        حالة VEdgeType::ET_NEGEDGE:  //
+            أرجع {wrap_اظهار_With_Null_Check(
+                        flp, lsb(new AstAnd{flp, new AstNot{flp, currp()}, prevp()}), بنياد_Refp),
                     false};
-        case VEdgeType::ET_EVENT: {
+        حالة VEdgeType::ET_EVENT: {
             UASSERT_OBJ(v3Global.hasEvents(), senItemp, "Inconsistent");
 
             // Clear 'fired' state when done (guarded if through a nullable reference)
             // The event is modified, so the select (e.g. assoc array) must be an lvalue
-            AstNodeExpr* const clearFromp = currp();
-            if (AstNodeVarRef* const refp
-                = VN_CAST(clearFromp->getVAccessTargetRecurse(), NodeVarRef)) {
+            Ast_ڳنڍ_اظهار* ثابت clearFromp = currp();
+            إذا (Ast_ڳنڍ_Var_Ref* ثابت refp
+                = VN_CAST(clearFromp->get_VAccess_هدف_Recurse(), ڳنڍ_Var_Ref)) {
                 refp->access(VAccess::WRITE);
             }
-            AstCMethodHard* const clearp
+            AstCMethodHard* ثابت clearp
                 = new AstCMethodHard{flp, clearFromp, VCMethod::EVENT_CLEAR_FIRED};
-            clearp->dtypeSetVoid();
-            AstNodeStmt* const clearStmtp
-                = wrapStmtWithNullCheck(flp, clearp->makeStmt(), baseRefp);
-            m_results.m_postUpdates.push_back(clearStmtp);
-            m_results.m_destructivePostUpdates.push_back(clearStmtp);
+            clearp->dtype_سيٽ_Void();
+            Ast_ڳنڍ_Stmt* ثابت clearStmtp
+                = wrapStmtWithNullCheck(flp, clearp->makeStmt(), بنياد_Refp);
+            m_results.m_postUpdates.ڌڪو_پٺ(clearStmtp);
+            m_results.m_destructivePostUpdates.ڌڪو_پٺ(clearStmtp);
 
             // Get 'fired' state
-            AstCMethodHard* const callp
+            AstCMethodHard* ثابت callp
                 = new AstCMethodHard{flp, currp(), VCMethod::EVENT_IS_FIRED};
-            callp->dtypeSetBit();
-            AstNodeExpr* const firedp = wrapExprWithNullCheck(flp, callp, baseRefp);
-            if (const AstVarRef* const refp = VN_CAST(senp, VarRef)) {
+            callp->dtype_سيٽ_ٻٽو_انگ();
+            Ast_ڳنڍ_اظهار* ثابت firedp = wrap_اظهار_With_Null_Check(flp, callp, بنياد_Refp);
+            إذا (ثابت AstVarRef* ثابت refp = VN_CAST(senp, VarRef)) {
                 // The private NBA event must run so pending assignments finish settling.
-                if (refp->varScopep() == v3Global.rootp()->nbaEventp()) return {firedp, false};
+                إذا (refp->varScopep() == v3Global.rootp()->nbaEventp()) أرجع {firedp, false};
             }
             // Do not trigger user named-event processes after $finish.
-            AstNodeExpr* const notFinishp
+            Ast_ڳنڍ_اظهار* ثابت notFinishp
                 = new AstCExpr{flp,
                                "VL_LIKELY(!vlSymsp->_vm_contextp__->gotFinish() && "
                                "!vlSymsp->_vm_contextp__->finishPending())",
                                1};
-            return {new AstLogAnd{flp, notFinishp, firedp}, false};
+            أرجع {new AstLogAnd{flp, notFinishp, firedp}, false};
         }
-        case VEdgeType::ET_TRUE:  //
-            return {currp(), false};
-        case VEdgeType::ET_INITIAL_NBA:  //
-            return {new AstConst{flp, AstConst::BitFalse{}}, true};
-        default:  // LCOV_EXCL_START
+        حالة VEdgeType::ET_TRUE:  //
+            أرجع {currp(), false};
+        حالة VEdgeType::ET_INITIAL_NBA:  //
+            أرجع {new AstConst{flp, AstConst::ٻٽو_انگ_False{}}, true};
+        افتراضي:  // LCOV_EXCL_START
             senItemp->v3fatalSrc("Unknown edge type");
-            return {nullptr, false};
+            أرجع {nullptr, false};
         }  // LCOV_EXCL_STOP
     }
 
-public:
+عام:
     // Returns the expression computing the trigger, and a bool indicating that
     // this trigger should be fired on the first evaluation (at initialization)
-    std::pair<AstNodeExpr*, bool> build(const AstSenItem* senItemp) {
-        auto term = createTerm(senItemp);
-        if (AstNodeExpr* const condp = senItemp->condp()) {
-            term.first = new AstAnd{senItemp->fileline(), condp->cloneTreePure(false), term.first};
+    std::pair<Ast_ڳنڍ_اظهار*, bool> build(ثابت Ast_Sen_شي* senItemp) {
+        خودڪار رڪن = create_رڪن(senItemp);
+        إذا (Ast_ڳنڍ_اظهار* ثابت condp = senItemp->condp()) {
+            رڪن.پهريون = new AstAnd{senItemp->fileline(), condp->clone_وڻ_خالص(false), رڪن.پهريون};
         }
-        return term;
+        أرجع رڪن;
     }
 
     // Like above, but for a whole SenTree
-    std::pair<AstNodeExpr*, bool> build(const AstSenTree* senTreep) {
-        FileLine* const flp = senTreep->fileline();
-        AstNodeExpr* resultp = nullptr;
+    std::pair<Ast_ڳنڍ_اظهار*, bool> build(ثابت Ast_Sen_وڻ* senTreep) {
+        File_سٽ* ثابت flp = senTreep->fileline();
+        Ast_ڳنڍ_اظهار* resultp = nullptr;
         bool firedAtInitialization = false;
-        for (AstSenItem* senItemp = senTreep->sensesp(); senItemp;
-             senItemp = VN_AS(senItemp->nextp(), SenItem)) {
-            const auto& pair = build(senItemp);
-            if (AstNodeExpr* termp = pair.first) {
+        لكل (Ast_Sen_شي* senItemp = senTreep->sensesp(); senItemp;
+             senItemp = VN_AS(senItemp->nextp(), Sen_شي)) {
+            ثابت خودڪار& pair = build(senItemp);
+            إذا (Ast_ڳنڍ_اظهار* termp = pair.پهريون) {
                 resultp = resultp ? new AstOr{flp, resultp, termp} : termp;
-                firedAtInitialization |= pair.second;
+                firedAtInitialization |= pair.ٻيو;
             }
         }
-        return {resultp, firedAtInitialization};
+        أرجع {resultp, firedAtInitialization};
     }
 
     Results getResultsAndClearUpdates() {
@@ -354,7 +354,7 @@ public:
         m_hasPostUpdate.clear();
         Results ans = std::move(m_results);
         m_results = {};
-        return ans;
+        أرجع ans;
     }
 
     Results getAndClearResults() {
@@ -362,12 +362,12 @@ public:
         m_prev.clear();
         m_hasPreUpdate.clear();
         m_hasPostUpdate.clear();
-        return std::move(m_results);
+        أرجع std::move(m_results);
     }
 
     // CONSTRUCTOR
-    explicit SenExprBuilder(AstScope* scopep)
+    explicit Sen_اظهار_Builder(AstScope* scopep)
         : m_scopep{scopep} {}
 };
 
-#endif  // Guard
+#جيڪڏهن_پورو  // Guard

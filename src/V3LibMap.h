@@ -14,13 +14,13 @@
 //
 //*************************************************************************
 
-#ifndef VERILATOR_V3LIBMAP_H_
-#define VERILATOR_V3LIBMAP_H_
+#جيڪڏهن_وصف_نه_ٿيل VERILATOR_V3LIBMAP_H_
+#وصف_ڪريو VERILATOR_V3LIBMAP_H_
 
-#include "config_build.h"
-#include "verilatedos.h"
+#ضمن "config_build.h"
+#ضمن "verilatedos.h"
 
-#include <vector>
+#ضمن <vector>
 
 class AstNetlist;
 class VInFilter;
@@ -30,38 +30,38 @@ class V3ParseSym;
 
 // State to pass between config parsing and cell linking visitors.
 class LibMapping final {
-    const string m_pattern;  // Pattern to match
-    const string m_libname;  // Library name
-    const string m_base;  // Relative path of the libmap file
+    ثابت string m_نمونو;  // Pattern to match
+    ثابت string m_libname;  // Library name
+    ثابت string m_بنياد;  // Relative path of the libmap file
 
-public:
-    LibMapping(const string& pattern_, const string& libname_, const string& base_)
-        : m_pattern{pattern_}
+عام:
+    LibMapping(ثابت string& نمونو_3, ثابت string& libname_, ثابت string& بنياد_2)
+        : m_نمونو{نمونو_3}
         , m_libname{libname_}
-        , m_base{base_} {}
-    string pattern() const { return m_pattern; }
-    string libname() const { return m_libname; }
-    string base() const { return m_base; }
+        , m_بنياد{بنياد_2} {}
+    string نمونو_2() ثابت { أرجع m_نمونو; }
+    string libname() ثابت { أرجع m_libname; }
+    string بنياد() ثابت { أرجع m_بنياد; }
 };
 
 class V3LibMap final {
-private:
+خاص:
     // STATE
     // 33.3.1.1 File path resolution
     //   If a file name potentially matches multiple file path specifications, the path
     //   specifications shall be resolved in the following order: a) File path specifications that
     //   end with an explicit file name b) File path specifications that end with a wildcarded file
     //   name c) File path specifications that end with a directory name
-    std::vector<LibMapping> m_explicitMappings;
-    std::vector<LibMapping> m_wildcardMappings;
-    std::vector<LibMapping> m_directoryMappings;
+    std::ويڪٽر<LibMapping> m_explicitMappings;
+    std::ويڪٽر<LibMapping> m_wildcardMappings;
+    std::ويڪٽر<LibMapping> m_directoryMappings;
 
     // METHODS
-public:
-    string matchMapping(const string& filename);
-    void addPattern(const string& pattern, const string& libname, const string& base);
+عام:
+    string ميلاپ_Mapping(ثابت string& filename);
+    فراغ جوڙيو_نمونو(ثابت string& نمونو_2, ثابت string& libname, ثابت string& بنياد);
 
-    static void map(AstNetlist* nodep) VL_MT_DISABLED;
+    ساكن فراغ map(AstNetlist* nodep) VL_MT_DISABLED;
 };
 
-#endif  // Guard
+#جيڪڏهن_پورو  // Guard

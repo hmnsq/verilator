@@ -14,118 +14,118 @@
 //
 //*************************************************************************
 
-#include "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
+#ضمن "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
 
-#include "V3Dfg.h"
+#ضمن "V3Dfg.h"
 
-#include "V3Ast.h"
-#include "V3DfgContext.h"
-#include "V3EmitV.h"
-#include "V3File.h"
+#ضمن "V3Ast.h"
+#ضمن "V3DfgContext.h"
+#ضمن "V3EmitV.h"
+#ضمن "V3File.h"
 
 VL_DEFINE_DEBUG_FUNCTIONS;
 
 //------------------------------------------------------------------------------
 // DfgGraph
 
-DfgGraph::DfgGraph(V3DfgContext& ctx, const string& name)
+Dfg_گراف::Dfg_گراف(V3DfgContext& ctx, ثابت string& name)
     : m_ctx{ctx}
     , m_name{name} {}
 
-DfgGraph::~DfgGraph() {
-    forEachVertex([&](DfgVertex& vtx) { vtx.unlinkDelete(*this); });
+Dfg_گراف::~Dfg_گراف() {
+    for_Each_راس([&](Dfg_راس& vtx) { vtx.unlinkDelete(*هذا); });
 }
 
-void DfgGraph::mergeGraphs(std::vector<std::unique_ptr<DfgGraph>>&& otherps) {
-    if (otherps.empty()) return;
+فراغ Dfg_گراف::ملايو_Graphs(std::ويڪٽر<std::unique_ptr<Dfg_گراف>>&& otherps) {
+    إذا (otherps.خالي_جايون()) أرجع;
 
     // NODE STATE
     // AstVarScope::user2p() -> corresponding DfgVertexVar* in 'this' graph
-    const VNUser2InUse user2InUse;
+    ثابت VNUser2_اندريون_Use user2_اندريون_Use;
 
     // Set up Ast Variable -> DfgVertexVar map for 'this' graph
-    for (DfgVertexVar& vtx : m_varVertices) vtx.vscp()->user2p(&vtx);
+    لكل (Dfg_راس_Var& vtx : m_varVertices) vtx.vscp()->user2p(&vtx);
 
     // Merge in each of the other graphs
-    for (const std::unique_ptr<DfgGraph>& otherp : otherps) {
+    لكل (ثابت std::unique_ptr<Dfg_گراف>& otherp : otherps) {
         // Process variables
-        for (DfgVertexVar* const vtxp : otherp->m_varVertices.unlinkable()) {
+        لكل (Dfg_راس_Var* ثابت vtxp : otherp->m_varVertices.unlinkable()) {
             // Variabels that are present in 'this', make them use the DfgVertexVar in 'this'.
-            if (DfgVertexVar* const altp = vtxp->vscp()->user2u().to<DfgVertexVar*>()) {
-                DfgVertex* const srcp = vtxp->srcp();
-                DfgVertex* const defaultp = vtxp->defaultp();
+            إذا (Dfg_راس_Var* ثابت altp = vtxp->vscp()->user2u().منزل<Dfg_راس_Var*>()) {
+                Dfg_راس* ثابت srcp = vtxp->srcp();
+                Dfg_راس* ثابت defaultp = vtxp->defaultp();
                 UASSERT_OBJ(!(srcp || defaultp) || (!altp->srcp() && !altp->defaultp()), vtxp,
                             "At most one alias should be driven");
                 vtxp->replaceWith(altp);
-                if (srcp) altp->srcp(srcp);
-                if (defaultp) altp->defaultp(defaultp);
+                إذا (srcp) altp->srcp(srcp);
+                إذا (defaultp) altp->defaultp(defaultp);
                 VL_DO_DANGLING(vtxp->unlinkDelete(*otherp), vtxp);
-                continue;
+                استمر;
             }
             // Otherwise they will be moved
             vtxp->vscp()->user2p(vtxp);
             vtxp->m_userGeneration = 0;
-#ifdef VL_DEBUG
-            vtxp->m_dfgp = this;
-#endif
+#جيڪڏهن_وصف_ٿيل VL_DEBUG
+            vtxp->m_dfgp = هذا;
+#جيڪڏهن_پورو
         }
-        m_varVertices.splice(m_varVertices.end(), otherp->m_varVertices);
+        m_varVertices.splice(m_varVertices.پڇاڙي(), otherp->m_varVertices);
         // Process Ast references
-        for (DfgVertexAst* const vtxp : otherp->m_astVertices.unlinkable()) {
+        لكل (Dfg_راس_Ast* ثابت vtxp : otherp->m_astVertices.unlinkable()) {
             vtxp->m_userGeneration = 0;
-#ifdef VL_DEBUG
-            vtxp->m_dfgp = this;
-#endif
+#جيڪڏهن_وصف_ٿيل VL_DEBUG
+            vtxp->m_dfgp = هذا;
+#جيڪڏهن_پورو
         }
-        m_astVertices.splice(m_astVertices.end(), otherp->m_astVertices);
+        m_astVertices.splice(m_astVertices.پڇاڙي(), otherp->m_astVertices);
         // Process constants
-        for (DfgConst& vtx : otherp->m_constVertices) {
+        لكل (DfgConst& vtx : otherp->m_constVertices) {
             vtx.m_userGeneration = 0;
-#ifdef VL_DEBUG
-            vtx.m_dfgp = this;
-#endif
+#جيڪڏهن_وصف_ٿيل VL_DEBUG
+            vtx.m_dfgp = هذا;
+#جيڪڏهن_پورو
         }
-        m_constVertices.splice(m_constVertices.end(), otherp->m_constVertices);
+        m_constVertices.splice(m_constVertices.پڇاڙي(), otherp->m_constVertices);
         // Process operations
-        for (DfgVertex& vtx : otherp->m_opVertices) {
+        لكل (Dfg_راس& vtx : otherp->m_opVertices) {
             vtx.m_userGeneration = 0;
-#ifdef VL_DEBUG
-            vtx.m_dfgp = this;
-#endif
+#جيڪڏهن_وصف_ٿيل VL_DEBUG
+            vtx.m_dfgp = هذا;
+#جيڪڏهن_پورو
         }
-        m_opVertices.splice(m_opVertices.end(), otherp->m_opVertices);
+        m_opVertices.splice(m_opVertices.پڇاڙي(), otherp->m_opVertices);
         // Update graph sizes
-        m_size += otherp->m_size;
-        otherp->m_size = 0;
+        m_سائيز += otherp->m_سائيز;
+        otherp->m_سائيز = 0;
     }
 }
 
-DfgVertexVar* DfgGraph::makeNewVar(FileLine* flp, const std::string& prefix,
-                                   const DfgDataType& dtype, AstScope* scopep) {
-    AstVarScope* const vscp = m_ctx.m_sharedTmps.make(flp, scopep, dtype.astDtypep(), prefix);
+Dfg_راس_Var* Dfg_گراف::makeNewVar(File_سٽ* flp, ثابت std::string& اڳياڙي,
+                                   ثابت Dfg_معلومات_Type& dtype, AstScope* scopep) {
+    AstVarScope* ثابت vscp = m_ctx.m_sharedTmps.make(flp, scopep, dtype.astDtypep(), اڳياڙي);
     // Create and return the corresponding variable vertex
-    if (dtype.isArray()) return new DfgVarArray{*this, vscp};
-    return new DfgVarPacked{*this, vscp};
+    إذا (dtype.isArray()) أرجع جديد DfgVarArray{*هذا, vscp};
+    أرجع جديد DfgVarPacked{*هذا, vscp};
 }
 
-static const std::string toDotId(const DfgVertex& vtx) { return '"' + cvtToHex(&vtx) + '"'; }
+ساكن ثابت std::string منزل_Dot_Id(ثابت Dfg_راس& vtx) { أرجع '"' + cvt_منزل_Hex(&vtx) + '"'; }
 
 // Dump one DfgVertex in Graphviz format
-static void dumpDotVertex(std::ostream& os, const DfgVertex& vtx) {
-    if (const DfgVertexVar* const varVtxp = vtx.cast<DfgVertexVar>()) {
-        const AstVarScope* const vscp = varVtxp->vscp();
-        os << toDotId(vtx);
+ساكن فراغ dump_Dot_راس(std::ostream& os, ثابت Dfg_راس& vtx) {
+    إذا (ثابت Dfg_راس_Var* ثابت varVtxp = vtx.cast<Dfg_راس_Var>()) {
+        ثابت AstVarScope* ثابت vscp = varVtxp->vscp();
+        os << منزل_Dot_Id(vtx);
         // Begin attributes
         os << " [";
         // Begin 'label'
         os << "label=\"";
         // Name
         os << vscp->prettyName();
-        // Address
-        os << '\n' << cvtToHex(varVtxp);
+        //پتو
+        os << '\n' << cvt_منزل_Hex(varVtxp);
         // Original variable, if any
-        if (const AstVarScope* const tmpForp = varVtxp->tmpForp()) {
-            if (tmpForp != vscp) os << "\ntemporary for: " << tmpForp->prettyName();
+        إذا (ثابت AstVarScope* ثابت tmpForp = varVtxp->tmpForp()) {
+            إذا (tmpForp != vscp) os << "\ntemporary for: " << tmpForp->prettyName();
         }
         // Type and fanout
         os << '\n';
@@ -133,44 +133,44 @@ static void dumpDotVertex(std::ostream& os, const DfgVertex& vtx) {
         os << " / F" << varVtxp->fanout();
         // Reference flags
         os << " / ";
-        static const char* const rwmn[2][2] = {{"_", "W"}, {"R", "M"}};
+        ساكن ثابت حرف* ثابت rwmn[2][2] = {{"_", "W"}, {"R", "M"}};
         os << rwmn[varVtxp->hasExtRdRefs()][varVtxp->hasExtWrRefs()];
-        os << rwmn[false][varVtxp->hasModWrRefs()];
+        os << rwmn[خطأ][varVtxp->hasModWrRefs()];
         os << (varVtxp->hasDfgRefs() ? "D" : "_");
         // End 'label'
         os << '"';
         // Shape
-        if (varVtxp->is<DfgVarPacked>()) {
+        إذا (varVtxp->is<DfgVarPacked>()) {
             os << ", shape=box";
-        } else if (varVtxp->is<DfgVarArray>()) {
+        } وإلا إذا (varVtxp->is<DfgVarArray>()) {
             os << ", shape=box3d";
-        } else {
+        } وإلا {
             varVtxp->v3fatalSrc("Unhandled DfgVertexVar sub-type");
         }
         // Color
-        const char* const colorp = varVtxp->hasExtRefs()     ? "firebrick2"  // Red
+        ثابت حرف* ثابت colorp = varVtxp->hasExtRefs()     ? "firebrick2"  // Red
                                    : varVtxp->hasModWrRefs() ? "darkorange1"  // Orange
                                    : varVtxp->hasDfgRefs()   ? "gold2"  // Yellow
-                                   : varVtxp->tmpForp()      ? "gray95"  // Gray
+                                   : varVtxp->tmpForp()      ? "gray95"  //ناسي
                                                              : "white";
         os << ", style=filled";
         os << ", fillcolor=\"" << colorp << "\"";
         // End attributes
         os << "]\n";
-        return;
+        أرجع;
     }
 
-    if (const DfgPrev* const prevVtxp = vtx.cast<DfgPrev>()) {
-        const AstVarScope* const vscp = prevVtxp->vscp();
-        os << toDotId(vtx);
+    إذا (ثابت DfgPrev* ثابت prevVtxp = vtx.cast<DfgPrev>()) {
+        ثابت AstVarScope* ثابت vscp = prevVtxp->vscp();
+        os << منزل_Dot_Id(vtx);
         // Begin attributes
         os << " [";
         // Begin 'label'
         os << "label=\"";
         // Name
         os << vscp->prettyName();
-        // Address
-        os << '\n' << cvtToHex(prevVtxp);
+        //پتو
+        os << '\n' << cvt_منزل_Hex(prevVtxp);
         // Type and fanout
         os << '\n';
         prevVtxp->dtype().astDtypep()->dumpSmall(os);
@@ -178,787 +178,787 @@ static void dumpDotVertex(std::ostream& os, const DfgVertex& vtx) {
         // End 'label'
         os << '"';
         // Shape
-        if (prevVtxp->isPacked()) {
+        إذا (prevVtxp->isPacked()) {
             os << ", shape=box";
-        } else if (prevVtxp->isArray()) {
+        } وإلا إذا (prevVtxp->isArray()) {
             os << ", shape=box3d";
-        } else {
+        } وإلا {
             prevVtxp->v3fatalSrc("Unhandled variable type");
         }
         // Color
-        const char* const colorp = "mediumorchid1";  // Purple
+        ثابت حرف* ثابت colorp = "mediumorchid1";  // Purple
         os << ", style=filled";
         os << ", fillcolor=\"" << colorp << "\"";
         // End attributes
         os << "]\n";
-        return;
+        أرجع;
     }
 
-    if (const DfgConst* const constVtxp = vtx.cast<DfgConst>()) {
-        const V3Number& num = constVtxp->num();
+    إذا (ثابت DfgConst* ثابت constVtxp = vtx.cast<DfgConst>()) {
+        ثابت V3_عدد& انگ = constVtxp->انگ();
 
-        os << toDotId(vtx);
+        os << منزل_Dot_Id(vtx);
         os << " [label=\"";
-        if (num.width() <= 32 && !num.isSigned()) {
-            os << constVtxp->width() << "'d" << num.toUInt() << '\n';
-            os << constVtxp->width() << "'h" << std::hex << num.toUInt() << std::dec << '\n';
-        } else {
-            os << num.ascii() << '\n';
+        إذا (انگ.ويڪر() <= 32 && !انگ.isSigned()) {
+            os << constVtxp->ويڪر() << "'d" << انگ.منزل_UInt() << '\n';
+            os << constVtxp->ويڪر() << "'h" << std::hex << انگ.منزل_UInt() << std::dec << '\n';
+        } وإلا {
+            os << انگ.ascii() << '\n';
         }
-        os << cvtToHex(constVtxp) << '\n';
+        os << cvt_منزل_Hex(constVtxp) << '\n';
         os << '"';
         os << ", shape=plain";
         os << "]\n";
-        return;
+        أرجع;
     }
 
-    if (const DfgSel* const selVtxp = vtx.cast<DfgSel>()) {
-        const uint32_t lsb = selVtxp->lsb();
-        const uint32_t msb = lsb + selVtxp->width() - 1;
-        os << toDotId(vtx);
+    إذا (ثابت DfgSel* ثابت selVtxp = vtx.cast<DfgSel>()) {
+        ثابت uint32_t lsb = selVtxp->lsb();
+        ثابت uint32_t msb = lsb + selVtxp->ويڪر() - 1;
+        os << منزل_Dot_Id(vtx);
         os << " [label=\"SEL _[" << msb << ":" << lsb << "]\n";
-        os << cvtToHex(selVtxp) << '\n';
+        os << cvt_منزل_Hex(selVtxp) << '\n';
         vtx.dtype().astDtypep()->dumpSmall(os);
         os << " / F" << vtx.fanout() << '"';
-        if (vtx.hasMultipleSinks()) {
+        إذا (vtx.has_گڻو_Sinks()) {
             os << ", shape=doublecircle";
-        } else {
+        } وإلا {
             os << ", shape=circle";
         }
         os << "]\n";
-        return;
+        أرجع;
     }
 
-    if (vtx.is<DfgVertexSplice>() || vtx.is<DfgUnitArray>() || vtx.is<DfgUnresolved>()) {
-        os << toDotId(vtx);
+    إذا (vtx.is<Dfg_راس_Splice>() || vtx.is<DfgUnitArray>() || vtx.is<DfgUnresolved>()) {
+        os << منزل_Dot_Id(vtx);
         os << " [label=\"" << vtx.typeName() << '\n';
-        os << cvtToHex(&vtx) << '\n';
+        os << cvt_منزل_Hex(&vtx) << '\n';
         vtx.dtype().astDtypep()->dumpSmall(os);
         os << " / F" << vtx.fanout() << '"';
-        if (vtx.hasMultipleSinks()) {
+        إذا (vtx.has_گڻو_Sinks()) {
             os << ", shape=doubleoctagon";
-        } else {
+        } وإلا {
             os << ", shape=octagon";
         }
         os << "]\n";
-        return;
+        أرجع;
     }
 
-    if (const DfgLogic* const logicp = vtx.cast<DfgLogic>()) {
-        os << toDotId(vtx);
+    إذا (ثابت DfgLogic* ثابت logicp = vtx.cast<DfgLogic>()) {
+        os << منزل_Dot_Id(vtx);
         std::stringstream ss;
-        V3EmitV::debugVerilogForTree(logicp->nodep(), ss);
-        std::string str = "AstNode: " + cvtToHex(logicp->nodep()) + "\n" + ss.str();
+        V3EmitV::debug_Verilog_For_وڻ(logicp->nodep(), ss);
+        std::string str = "AstNode: " + cvt_منزل_Hex(logicp->nodep()) + "\n" + ss.str();
         str = VString::quoteBackslash(str);
         str = VString::quoteAny(str, '"', '\\');
         str = VString::replaceSubstr(str, "\n", "\\l");
-        const char* const colorp = !logicp->selectedForSynthesis() ? "#d0d0ff"  // Pale Blue
+        ثابت حرف* ثابت colorp = !logicp->selectedForSynthesis() ? "#d0d0ff"  // Pale Blue
                                    : logicp->nonSynthesizable()    ? "#ffd0d0"  // Pale Red
                                    : logicp->reverted()            ? "#faffd0"  // Pale Yellow
                                                                    : "#d0ffd0";  // Pale Green
 
         os << " [label=\"";
         os << str;
-        os << '\n' << vtx.typeName() << '\n' << cvtToHex(&vtx);
+        os << '\n' << vtx.typeName() << '\n' << cvt_منزل_Hex(&vtx);
         os << "\"\n";
         os << ", shape=box, style=\"rounded,filled\", nojustify=true";
         os << ", fillcolor=\"" << colorp << "\"";
         os << "]\n";
-        return;
+        أرجع;
     }
 
-    if (const DfgVertexAst* const astVtxp = vtx.cast<DfgVertexAst>()) {
-        os << toDotId(vtx);
+    إذا (ثابت Dfg_راس_Ast* ثابت astVtxp = vtx.cast<Dfg_راس_Ast>()) {
+        os << منزل_Dot_Id(vtx);
         std::stringstream ss;
-        V3EmitV::debugVerilogForTree(astVtxp->exprp(), ss);
-        std::string str = "AstNode: " + cvtToHex(astVtxp->exprp()) + "\n" + ss.str() + "\n";
+        V3EmitV::debug_Verilog_For_وڻ(astVtxp->exprp(), ss);
+        std::string str = "AstNode: " + cvt_منزل_Hex(astVtxp->exprp()) + "\n" + ss.str() + "\n";
         str = VString::quoteBackslash(str);
         str = VString::quoteAny(str, '"', '\\');
         str = VString::replaceSubstr(str, "\n", "\\l");
-        const DfgAstRd* const astRdVtxp = astVtxp->cast<DfgAstRd>();
-        const char* const colorp = astRdVtxp ? "#80ff80"  // Green
+        ثابت DfgAstRd* ثابت astRdVtxp = astVtxp->cast<DfgAstRd>();
+        ثابت حرف* ثابت colorp = astRdVtxp ? "#80ff80"  // Green
                                              : "#ffff80";  // Yellow
         os << " [label=\"";
         os << str;
-        os << '\n' << vtx.typeName() << '\n' << cvtToHex(&vtx) << '\n';
+        os << '\n' << vtx.typeName() << '\n' << cvt_منزل_Hex(&vtx) << '\n';
         vtx.dtype().astDtypep()->dumpSmall(os);
         os << " / ";
-        os << "_S"[astRdVtxp->inSenItem()];
-        os << "_L"[astRdVtxp->inLoop()];
+        os << "_S"[astRdVtxp->اندريون_Sen_شي()];
+        os << "_L"[astRdVtxp->اندريون_Loop()];
         os << "\"\n";
         os << ", shape=box, style=\"rounded,filled\", nojustify=true";
         os << ", fillcolor=\"" << colorp << "\"";
         os << "]\n";
-        return;
+        أرجع;
     }
 
-    os << toDotId(vtx);
+    os << منزل_Dot_Id(vtx);
     os << " [label=\"" << vtx.typeName() << '\n';
-    os << cvtToHex(&vtx) << '\n';
+    os << cvt_منزل_Hex(&vtx) << '\n';
     vtx.dtype().astDtypep()->dumpSmall(os);
     os << " / F" << vtx.fanout() << '"';
-    if (vtx.hasMultipleSinks()) {
+    إذا (vtx.has_گڻو_Sinks()) {
         os << ", shape=doublecircle";
-    } else {
+    } وإلا {
         os << ", shape=circle";
     }
     os << "]\n";
 }
 
-void DfgGraph::dumpDot(std::ostream& os, const std::string& label,
-                       std::function<bool(const DfgVertex&)> p) const {
+فراغ Dfg_گراف::dumpDot(std::ostream& os, ثابت std::string& label,
+                       std::function<منطقي(ثابت Dfg_راس&)> p) ثابت {
     // This generates a graphviz dump, https://www.graphviz.org
 
-    // Header
+    //سرو
     os << "digraph dfg {\n";
     os << "rankdir=LR\n";
 
     // If predicate not given, dump everything
-    if (!p) p = [](const DfgVertex&) { return true; };
+    إذا (!p) p = [](ثابت Dfg_راس&) { أرجع سچ; };
 
-    std::unordered_set<const DfgVertex*> emitted;
+    std::unordered_سيٽ<ثابت Dfg_راس*> emitted;
     // Emit all vertices associated with a DfgLogic
-    forEachVertex([&](const DfgVertex& vtx) {
-        const DfgLogic* const logicp = vtx.cast<DfgLogic>();
-        if (!logicp) return;
-        if (logicp->synth().empty()) return;
-        if (!p(vtx)) return;
-        os << "subgraph cluster_" << cvtToHex(logicp) << " {\n";
-        dumpDotVertex(os, *logicp);
-        emitted.insert(logicp);
-        for (DfgVertex* const vtxp : logicp->synth()) {
-            if (!p(*vtxp)) continue;
-            dumpDotVertex(os, *vtxp);
-            emitted.insert(vtxp);
+    for_Each_راس([&](ثابت Dfg_راس& vtx) {
+        ثابت DfgLogic* ثابت logicp = vtx.cast<DfgLogic>();
+        إذا (!logicp) أرجع;
+        إذا (logicp->synth().خالي_جايون()) أرجع;
+        إذا (!p(vtx)) أرجع;
+        os << "subgraph cluster_" << cvt_منزل_Hex(logicp) << " {\n";
+        dump_Dot_راس(os, *logicp);
+        emitted.وجهو(logicp);
+        لكل (Dfg_راس* ثابت vtxp : logicp->synth()) {
+            إذا (!p(*vtxp)) استمر;
+            dump_Dot_راس(os, *vtxp);
+            emitted.وجهو(vtxp);
         }
         os << "}\n";
     });
     // Emit all remaining vertices
-    forEachVertex([&](const DfgVertex& vtx) {
-        if (emitted.count(&vtx)) return;
-        if (!p(vtx)) return;
-        dumpDotVertex(os, vtx);
+    for_Each_راس([&](ثابت Dfg_راس& vtx) {
+        إذا (emitted.ڳڻپ(&vtx)) أرجع;
+        إذا (!p(vtx)) أرجع;
+        dump_Dot_راس(os, vtx);
     });
     // Emit all edges
-    forEachVertex([&](const DfgVertex& vtx) {
-        if (!p(vtx)) return;
-        for (size_t i = 0; i < vtx.nInputs(); ++i) {
-            DfgVertex* const srcp = vtx.inputp(i);
-            if (!srcp) continue;
-            if (!p(*srcp)) continue;
-            os << toDotId(*srcp) << " -> " << toDotId(vtx);
+    for_Each_راس([&](ثابت Dfg_راس& vtx) {
+        إذا (!p(vtx)) أرجع;
+        لكل (سائيز_t i = 0; i < vtx.nInputs(); ++i) {
+            Dfg_راس* ثابت srcp = vtx.inputp(i);
+            إذا (!srcp) استمر;
+            إذا (!p(*srcp)) استمر;
+            os << منزل_Dot_Id(*srcp) << " -> " << منزل_Dot_Id(vtx);
             os << " [headlabel=\"" << vtx.srcName(i) << "\"]";
             os << '\n';
         }
     });
 
     // Footer
-    os << "label=\"" << name() + (label.empty() ? "" : "-" + label) << "\"\n";
+    os << "label=\"" << name() + (label.خالي_جايون() ? "" : "-" + label) << "\"\n";
     os << "labelloc=t\n";
     os << "labeljust=l\n";
     os << "}\n";
 }
 
-std::string DfgGraph::dumpDotString(const std::string& label,
-                                    std::function<bool(const DfgVertex&)> p) const {
+std::string Dfg_گراف::dumpDotString(ثابت std::string& label,
+                                    std::function<منطقي(ثابت Dfg_راس&)> p) ثابت {
     std::stringstream ss;
     dumpDot(ss, label, p);
-    return ss.str();
+    أرجع ss.str();
 }
 
-void DfgGraph::dumpDotFile(const std::string& filename, const std::string& label,
-                           std::function<bool(const DfgVertex&)> p) const {
-    const std::unique_ptr<std::ofstream> os{V3File::new_ofstream(filename)};
-    if (os->fail()) v3fatal("Can't write file: " << filename);
+فراغ Dfg_گراف::dumpDotFile(ثابت std::string& filename, ثابت std::string& label,
+                           std::function<منطقي(ثابت Dfg_راس&)> p) ثابت {
+    ثابت std::unique_ptr<std::ofstream> os{V3File::new_ofstream(filename)};
+    إذا (os->fail()) v3fatal("Can't write file: " << filename);
     dumpDot(*os.get(), label, p);
     os->close();
 }
 
-void DfgGraph::dumpDotFilePrefixed(const std::string& label,
-                                   std::function<bool(const DfgVertex&)> p) const {
+فراغ Dfg_گراف::dumpDotFilePrefixed(ثابت std::string& label,
+                                   std::function<منطقي(ثابت Dfg_راس&)> p) ثابت {
     std::string filename = name();
-    if (!label.empty()) filename += "-" + label;
+    إذا (!label.خالي_جايون()) filename += "-" + label;
     dumpDotFile(v3Global.debugFilename(filename) + ".dot", label, p);
 }
 
-template <bool T_SinksNotSources>
-static std::unique_ptr<std::unordered_set<const DfgVertex*>>
-dfgGraphCollectCone(const std::vector<const DfgVertex*>& vtxps) {
+سانچو <منطقي T_SinksNotSources>
+ساكن std::unique_ptr<std::unordered_سيٽ<ثابت Dfg_راس*>>
+dfg_گراف_Collect_Cone(ثابت std::ويڪٽر<ثابت Dfg_راس*>& vtxps) {
     // Work queue for traversal starting from all the seed vertices
-    std::vector<const DfgVertex*> queue = vtxps;
+    std::ويڪٽر<ثابت Dfg_راس*> قطار = vtxps;
     // Set of already visited vertices
-    std::unique_ptr<std::unordered_set<const DfgVertex*>> resp{
-        new std::unordered_set<const DfgVertex*>{}};
+    std::unique_ptr<std::unordered_سيٽ<ثابت Dfg_راس*>> resp{
+        جديد std::unordered_سيٽ<ثابت Dfg_راس*>{}};
     // Depth first traversal
-    while (!queue.empty()) {
+    طالما (!قطار.خالي_جايون()) {
         // Pop next work item
-        const DfgVertex* const vtxp = queue.back();
-        queue.pop_back();
+        ثابت Dfg_راس* ثابت vtxp = قطار.پٺ();
+        قطار.ڪڍو_پٺ();
         // Mark vertex as visited, move on if already visited
-        if (!resp->insert(vtxp).second) continue;
+        إذا (!resp->وجهو(vtxp).ٻيو) استمر;
         // Enqueue all siblings of this vertex.
-        if VL_CONSTEXPR_CXX17 (T_SinksNotSources) {
-            vtxp->foreachSink([&](const DfgVertex& sink) {
-                queue.push_back(&sink);
-                return false;
+        إذا VL_CONSTEXPR_CXX17 (T_SinksNotSources) {
+            vtxp->foreachSink([&](ثابت Dfg_راس& sink) {
+                قطار.ڌڪو_پٺ(&sink);
+                أرجع خطأ;
             });
-        } else {
-            vtxp->foreachSource([&](const DfgVertex& src) {
-                queue.push_back(&src);
-                return false;
+        } وإلا {
+            vtxp->foreach_ذريعو([&](ثابت Dfg_راس& src) {
+                قطار.ڌڪو_پٺ(&src);
+                أرجع خطأ;
             });
         }
     }
-    // Done
-    return resp;
+    //پورو
+    أرجع resp;
 }
 
-std::unique_ptr<std::unordered_set<const DfgVertex*>>
-DfgGraph::sourceCone(const std::vector<const DfgVertex*>& vtxps) const {
-    return dfgGraphCollectCone<false>(vtxps);
+std::unique_ptr<std::unordered_سيٽ<ثابت Dfg_راس*>>
+Dfg_گراف::ذريعو_Cone(ثابت std::ويڪٽر<ثابت Dfg_راس*>& vtxps) ثابت {
+    أرجع dfg_گراف_Collect_Cone<خطأ>(vtxps);
 }
 
-std::unique_ptr<std::unordered_set<const DfgVertex*>>
-DfgGraph::sinkCone(const std::vector<const DfgVertex*>& vtxps) const {
-    return dfgGraphCollectCone<true>(vtxps);
+std::unique_ptr<std::unordered_سيٽ<ثابت Dfg_راس*>>
+Dfg_گراف::sinkCone(ثابت std::ويڪٽر<ثابت Dfg_راس*>& vtxps) ثابت {
+    أرجع dfg_گراف_Collect_Cone<سچ>(vtxps);
 }
 
-std::unique_ptr<std::unordered_set<const DfgVertex*>>
-DfgGraph::neighborhood(const std::vector<const DfgVertex*>& vtxps, size_t n) const {
+std::unique_ptr<std::unordered_سيٽ<ثابت Dfg_راس*>>
+Dfg_گراف::neighborhood(ثابت std::ويڪٽر<ثابت Dfg_راس*>& vtxps, سائيز_t n) ثابت {
     // Neighborhood
-    std::vector<const DfgVertex*> vec = vtxps;
+    std::ويڪٽر<ثابت Dfg_راس*> vec = vtxps;
     // Set of already visited vertices
-    std::unordered_set<const DfgVertex*> res{vec.begin(), vec.end()};
+    std::unordered_سيٽ<ثابت Dfg_راس*> res{vec.begin(), vec.پڇاڙي()};
     // Expand neihborhood by 'n' hops
-    size_t begin = 0;
-    size_t end = vec.size();
-    for (size_t hops = 1; hops <= n; ++hops) {
-        for (size_t i = begin; i < end; ++i) {
-            const DfgVertex* const vtxp = vec[i];
-            vtxp->foreachSink([&](const DfgVertex& dst) {
-                if (res.insert(&dst).second) vec.push_back(&dst);
-                return false;
+    سائيز_t begin = 0;
+    سائيز_t پڇاڙي = vec.سائيز();
+    لكل (سائيز_t hops = 1; hops <= n; ++hops) {
+        لكل (سائيز_t i = begin; i < پڇاڙي; ++i) {
+            ثابت Dfg_راس* ثابت vtxp = vec[i];
+            vtxp->foreachSink([&](ثابت Dfg_راس& dst) {
+                إذا (res.وجهو(&dst).ٻيو) vec.ڌڪو_پٺ(&dst);
+                أرجع خطأ;
             });
-            vtxp->foreachSource([&](const DfgVertex& src) {
-                if (res.insert(&src).second) vec.push_back(&src);
-                return false;
+            vtxp->foreach_ذريعو([&](ثابت Dfg_راس& src) {
+                إذا (res.وجهو(&src).ٻيو) vec.ڌڪو_پٺ(&src);
+                أرجع خطأ;
             });
         }
-        begin = end;
-        end = vec.size();
+        begin = پڇاڙي;
+        پڇاڙي = vec.سائيز();
     }
     // Move out the results
-    return std::make_unique<std::unordered_set<const DfgVertex*>>(std::move(res));
+    أرجع std::make_unique<std::unordered_سيٽ<ثابت Dfg_راس*>>(std::move(res));
 }
 
 //------------------------------------------------------------------------------
 // DfgVertex
 
-DfgVertex::DfgVertex(DfgGraph& dfg, VDfgType type, FileLine* flp, const DfgDataType& dt,
-                     DfgEdge* inlineInputsp, uint32_t nInputs)
+Dfg_راس::Dfg_راس(Dfg_گراف& dfg, VDfgType type, File_سٽ* flp, ثابت Dfg_معلومات_Type& dt,
+                     Dfg_ڪنارو* inlineInputsp, uint32_t nInputs)
     : m_inlineInputsp{inlineInputsp}
     , m_nInputs{nInputs}
     , m_filelinep{flp}
     , m_dtype{dt}
     , m_type{type} {
-    dfg.addVertex(*this);
+    dfg.جوڙيو_راس(*هذا);
 }
 
-bool DfgVertex::unsafe() const {
-    if (is<DfgMux>()) return true;
-    if (is<DfgArraySel>()) return !as<DfgArraySel>()->bitp()->is<DfgConst>();
-    return false;
+منطقي Dfg_راس::unsafe() ثابت {
+    إذا (is<DfgMux>()) أرجع سچ;
+    إذا (is<DfgArraySel>()) أرجع !as<DfgArraySel>()->bitp()->is<DfgConst>();
+    أرجع خطأ;
 }
 
-void DfgVertex::typeCheck(const DfgGraph& dfg) const {
+فراغ Dfg_راس::typeCheck(ثابت Dfg_گراف& dfg) ثابت {
 
-#define CHECK(cond, msg) \
-    UASSERT_OBJ(cond, this, \
+#وصف_ڪريو CHECK(cond, نياپو) \
+    UASSERT_OBJ(cond, هذا, \
                 "Dfg type error for vertex " << typeName() << " in " << dfg.name() << ": " \
-                                             << msg);
-    switch (type()) {
-    case VDfgType::Const: {
+                                             << نياپو);
+    بدل (type()) {
+    حالة VDfgType::Const: {
         CHECK(isPacked(), "Should be Packed type");
-        return;
+        أرجع;
     }
-    case VDfgType::CReset: {
+    حالة VDfgType::CReset: {
         CHECK(isPacked() || isArray(), "Should be Packed or Array type");
-        return;
+        أرجع;
     }
-    case VDfgType::AstRd: {
-        const DfgAstRd& v = *as<DfgAstRd>();
+    حالة VDfgType::AstRd: {
+        ثابت DfgAstRd& v = *as<DfgAstRd>();
         CHECK(v.isPacked() || v.isArray(), "Should be Packed or Array type");
-        return;
+        أرجع;
     }
-    case VDfgType::VarArray:
-    case VDfgType::VarPacked: {
-        const DfgVertexVar& v = *as<DfgVertexVar>();
+    حالة VDfgType::VarArray:
+    حالة VDfgType::VarPacked: {
+        ثابت Dfg_راس_Var& v = *as<Dfg_راس_Var>();
         CHECK(!v.defaultp() || v.defaultp()->dtype() == v.dtype(), "'defaultp' should match");
         CHECK(!v.srcp() || v.srcp()->dtype() == v.dtype(), "'srcp' should match");
-        return;
+        أرجع;
     }
-    case VDfgType::Prev: {
+    حالة VDfgType::Prev: {
         CHECK(isPacked() || isArray(), "Should be Packed or Array type");
-        return;
+        أرجع;
     }
-    case VDfgType::SpliceArray:
-    case VDfgType::SplicePacked: {
-        const DfgVertexSplice& v = *as<DfgVertexSplice>();
-        v.foreachDriver([&](const DfgVertex& src, uint32_t lo) {
-            CHECK(src.dtype() == DfgDataType::select(v.dtype(), lo, src.size()), "driver");
-            return false;
+    حالة VDfgType::SpliceArray:
+    حالة VDfgType::SplicePacked: {
+        ثابت Dfg_راس_Splice& v = *as<Dfg_راس_Splice>();
+        v.foreachDriver([&](ثابت Dfg_راس& src, uint32_t lo) {
+            CHECK(src.dtype() == Dfg_معلومات_Type::select(v.dtype(), lo, src.سائيز()), "driver");
+            أرجع خطأ;
         });
-        return;
+        أرجع;
     }
-    case VDfgType::Logic: {
+    حالة VDfgType::Logic: {
         CHECK(dtype().isNull(), "Should be Null type");
-        return;
+        أرجع;
     }
-    case VDfgType::Unresolved: {
+    حالة VDfgType::Unresolved: {
         CHECK(!dtype().isNull(), "Should not be Null type");
-        return;
+        أرجع;
     }
-    case VDfgType::UnitArray: {
-        const DfgUnitArray& v = *as<DfgUnitArray>();
+    حالة VDfgType::UnitArray: {
+        ثابت DfgUnitArray& v = *as<DfgUnitArray>();
         CHECK(v.isArray(), "Should be Array type");
-        CHECK(v.size() == 1, "Should be one element");
+        CHECK(v.سائيز() == 1, "Should be one element");
         CHECK(v.srcp()->dtype() == v.dtype().elemDtype(), "Input should be the element type");
-        return;
+        أرجع;
     }
-    case VDfgType::Sel: {
-        const DfgSel& v = *as<DfgSel>();
+    حالة VDfgType::Sel: {
+        ثابت DfgSel& v = *as<DfgSel>();
         CHECK(v.isPacked(), "Should be Packed type");
-        CHECK(v.dtype() == DfgDataType::select(v.srcp()->dtype(), v.lsb(), v.size()), "sel");
-        return;
+        CHECK(v.dtype() == Dfg_معلومات_Type::select(v.srcp()->dtype(), v.lsb(), v.سائيز()), "sel");
+        أرجع;
     }
-    case VDfgType::MatchMasked: {
-        const DfgMatchMasked& v = *as<DfgMatchMasked>();
+    حالة VDfgType::ميلاپ_Masked: {
+        ثابت Dfg_ميلاپ_Masked& v = *as<Dfg_ميلاپ_Masked>();
         CHECK(v.isPacked(), "Should be Packed type");
-        CHECK(v.size() == 32U, "Should yield a 32-bit result");
+        CHECK(v.سائيز() == 32U, "Should yield a 32-bit result");
         CHECK(v.lhsp()->isPacked(), "Lhs should be packed");
         CHECK(v.matchp()->isPacked(), "Match should be Packed type");
-        CHECK(v.matchp()->is<DfgVertexVar>(), "Match should be a variable");
-        return;
+        CHECK(v.matchp()->is<Dfg_راس_Var>(), "Match should be a variable");
+        أرجع;
     }
-    case VDfgType::Mux: {
-        const DfgMux& v = *as<DfgMux>();
+    حالة VDfgType::Mux: {
+        ثابت DfgMux& v = *as<DfgMux>();
         CHECK(v.isPacked(), "Should be Packed type");
         CHECK(v.fromp()->isPacked(), "Source operand should be Packed type");
-        CHECK(v.fromp()->size() >= v.size(), "Source operand should not be narrower");
+        CHECK(v.fromp()->سائيز() >= v.سائيز(), "Source operand should not be narrower");
         CHECK(v.lsbp()->isPacked(), "Index should be Packed type");
-        return;
+        أرجع;
     }
-    case VDfgType::ArraySel: {
-        const DfgArraySel& v = *as<DfgArraySel>();
+    حالة VDfgType::ArraySel: {
+        ثابت DfgArraySel& v = *as<DfgArraySel>();
         CHECK(v.dtype() == v.fromp()->dtype().elemDtype(), "Element type should match");
         CHECK(v.bitp()->isPacked(), "Index should be Packed type");
-        return;
+        أرجع;
     }
 
-    case VDfgType::Add:
-    case VDfgType::And:
-    case VDfgType::Div:
-    case VDfgType::DivS:
-    case VDfgType::ModDiv:
-    case VDfgType::ModDivS:
-    case VDfgType::Mul:
-    case VDfgType::MulS:
-    case VDfgType::Or:
-    case VDfgType::Sub:
-    case VDfgType::Xor: {
+    حالة VDfgType::جوڙيو_2:
+    حالة VDfgType::And:
+    حالة VDfgType::Div:
+    حالة VDfgType::DivS:
+    حالة VDfgType::ModDiv:
+    حالة VDfgType::ModDivS:
+    حالة VDfgType::Mul:
+    حالة VDfgType::MulS:
+    حالة VDfgType::Or:
+    حالة VDfgType::Sub:
+    حالة VDfgType::Xor: {
         CHECK(isPacked(), "Should be Packed type");
         CHECK(inputp(0)->dtype() == dtype(), "LHS should be same type");
         CHECK(inputp(1)->dtype() == dtype(), "RHS should be same type");
-        return;
+        أرجع;
     }
 
-    case VDfgType::Negate:
-    case VDfgType::Not: {
+    حالة VDfgType::Negate:
+    حالة VDfgType::Not: {
         CHECK(isPacked(), "Should be Packed type");
         CHECK(inputp(0)->dtype() == dtype(), "Input should be same type");
-        return;
+        أرجع;
     }
 
-    case VDfgType::ShiftL:
-    case VDfgType::ShiftR:
-    case VDfgType::ShiftRS: {
+    حالة VDfgType::سرڪايو_L:
+    حالة VDfgType::سرڪايو_R:
+    حالة VDfgType::سرڪايو_RS: {
         CHECK(isPacked(), "Should be Packed type");
         CHECK(inputp(0)->dtype() == dtype(), "LHS should be same type");
         CHECK(inputp(1)->isPacked(), "RHS should be Packed type");
-        return;
+        أرجع;
     }
 
-    case VDfgType::Concat: {
-        const DfgConcat& v = *as<DfgConcat>();
+    حالة VDfgType::Concat: {
+        ثابت DfgConcat& v = *as<DfgConcat>();
         CHECK(v.isPacked(), "Should be Packed type");
         CHECK(v.lhsp()->isPacked(), "LHS should be Packed type");
         CHECK(v.rhsp()->isPacked(), "RHS should be Packed type");
-        CHECK(v.size() == v.rhsp()->size() + v.lhsp()->size(), "Concat result mismatch");
-        return;
+        CHECK(v.سائيز() == v.rhsp()->سائيز() + v.lhsp()->سائيز(), "Concat result mismatch");
+        أرجع;
     }
 
-    case VDfgType::Rep: {
-        const DfgRep& v = *as<DfgRep>();
+    حالة VDfgType::Rep: {
+        ثابت DfgRep& v = *as<DfgRep>();
         CHECK(v.isPacked(), "Should be Packed type");
         CHECK(v.srcp()->isPacked(), "'srcp' should be same type");
-        CHECK(v.size() % v.srcp()->size() == 0, "Not a replicate");
-        return;
+        CHECK(v.سائيز() % v.srcp()->سائيز() == 0, "Not a replicate");
+        أرجع;
     }
 
-    case VDfgType::StreamL:
-    case VDfgType::StreamR: {
+    حالة VDfgType::وهڪرو_L:
+    حالة VDfgType::وهڪرو_R: {
         // TODO: model these without an explicit slice size which is always constant (?)
         CHECK(isPacked(), "Should be Packed type");
         CHECK(inputp(0)->dtype() == dtype(), "LHS should be same type");
         CHECK(inputp(1)->isPacked(), "Slice size should be Packed type");
-        return;
+        أرجع;
     }
 
-    case VDfgType::Eq:
-    case VDfgType::EqCase:
-    case VDfgType::EqWild:
-    case VDfgType::Neq:
-    case VDfgType::NeqCase:
-    case VDfgType::NeqWild:
-    case VDfgType::Gt:
-    case VDfgType::GtS:
-    case VDfgType::Gte:
-    case VDfgType::GteS:
-    case VDfgType::Lt:
-    case VDfgType::LtS:
-    case VDfgType::Lte:
-    case VDfgType::LteS: {
-        CHECK(dtype() == DfgDataType::packed(1), "Should be 1-bit");
+    حالة VDfgType::Eq:
+    حالة VDfgType::EqCase:
+    حالة VDfgType::EqWild:
+    حالة VDfgType::Neq:
+    حالة VDfgType::NeqCase:
+    حالة VDfgType::NeqWild:
+    حالة VDfgType::Gt:
+    حالة VDfgType::GtS:
+    حالة VDfgType::Gte:
+    حالة VDfgType::GteS:
+    حالة VDfgType::Lt:
+    حالة VDfgType::LtS:
+    حالة VDfgType::Lte:
+    حالة VDfgType::LteS: {
+        CHECK(dtype() == Dfg_معلومات_Type::packed(1), "Should be 1-bit");
         CHECK(inputp(0)->dtype() == inputp(1)->dtype(), "Sides should match");
-        return;
+        أرجع;
     }
 
-    case VDfgType::Extend:
-    case VDfgType::ExtendS: {
+    حالة VDfgType::Extend:
+    حالة VDfgType::ExtendS: {
         CHECK(isPacked(), "Should be Packed type");
         CHECK(inputp(0)->isPacked(), "Operand should be same type");
-        CHECK(inputp(0)->size() < size(), "Operand should be narrower");
-        return;
+        CHECK(inputp(0)->سائيز() < سائيز(), "Operand should be narrower");
+        أرجع;
     }
 
-    case VDfgType::LogAnd:
-    case VDfgType::LogEq:
-    case VDfgType::LogIf:
-    case VDfgType::LogOr: {
-        CHECK(dtype() == DfgDataType::packed(1), "Should be 1-bit");
+    حالة VDfgType::LogAnd:
+    حالة VDfgType::LogEq:
+    حالة VDfgType::LogIf:
+    حالة VDfgType::LogOr: {
+        CHECK(dtype() == Dfg_معلومات_Type::packed(1), "Should be 1-bit");
         CHECK(inputp(0)->isPacked(), "LHS should be Packed type");
         CHECK(inputp(1)->isPacked(), "RHS should be Packed type");
-        return;
+        أرجع;
     }
 
-    case VDfgType::LogNot:
-    case VDfgType::RedAnd:
-    case VDfgType::RedOr:
-    case VDfgType::RedXor:
-    case VDfgType::OneHot:
-    case VDfgType::OneHot0: {
-        CHECK(dtype() == DfgDataType::packed(1), "Should be 1-bit");
+    حالة VDfgType::LogNot:
+    حالة VDfgType::RedAnd:
+    حالة VDfgType::RedOr:
+    حالة VDfgType::RedXor:
+    حالة VDfgType::OneHot:
+    حالة VDfgType::OneHot0: {
+        CHECK(dtype() == Dfg_معلومات_Type::packed(1), "Should be 1-bit");
         CHECK(inputp(0)->isPacked(), "Operand should be Packed type");
-        return;
+        أرجع;
     }
 
-    case VDfgType::Cond: {
-        const DfgCond& v = *as<DfgCond>();
+    حالة VDfgType::Cond: {
+        ثابت DfgCond& v = *as<DfgCond>();
         CHECK(v.isPacked(), "Should be Packed type");
         CHECK(v.condp()->isPacked(), "Condition should be Packed type");
         CHECK(v.thenp()->dtype() == v.dtype(), "Then should be same type");
         CHECK(v.elsep()->dtype() == v.dtype(), "Else should be same type");
-        return;
+        أرجع;
     }
 
-    case VDfgType::CountOnes: {
-        const DfgCountOnes& v = *as<DfgCountOnes>();
+    حالة VDfgType::ڳڻپ_Ones_2: {
+        ثابت Dfg_ڳڻپ_Ones& v = *as<Dfg_ڳڻپ_Ones>();
         CHECK(v.isPacked(), "Should be Packed type");
         CHECK(v.srcp()->isPacked(), "Source should be Packed type");
-        CHECK(v.size() == 32U, "Should yield a 32-bit result");
-        return;
+        CHECK(v.سائيز() == 32U, "Should yield a 32-bit result");
+        أرجع;
     }
 
-    case VDfgType::Pow:
-    case VDfgType::PowSS:
-    case VDfgType::PowSU:
-    case VDfgType::PowUS: {
+    حالة VDfgType::Pow:
+    حالة VDfgType::PowSS:
+    حالة VDfgType::PowSU:
+    حالة VDfgType::PowUS: {
         CHECK(isPacked(), "Should be Packed type");
         CHECK(inputp(0)->dtype() == dtype(), "LHS should be same type");
         CHECK(inputp(1)->isPacked(), "RHS should be Packed type");
-        return;
+        أرجع;
     }
     }
-#undef CHECK
+#وصف_رد CHECK
 }
 
-uint32_t DfgVertex::fanout() const {
-    uint32_t result = 0;
-    foreachSink([&](const DfgVertex&) {
-        ++result;
-        return false;
+uint32_t Dfg_راس::fanout() ثابت {
+    uint32_t نتيجو = 0;
+    foreachSink([&](ثابت Dfg_راس&) {
+        ++نتيجو;
+        أرجع خطأ;
     });
-    return result;
+    أرجع نتيجو;
 }
 
-DfgVertexVar* DfgVertex::getResultVar() {
+Dfg_راس_Var* Dfg_راس::get_نتيجو_Var() {
     // It's easy if the vertex is already a variable ...
-    if (DfgVertexVar* const varp = this->cast<DfgVertexVar>()) return varp;
+    إذا (Dfg_راس_Var* ثابت varp = هذا->cast<Dfg_راس_Var>()) أرجع varp;
 
     // Inspect existing variables written by this vertex, and choose one
-    DfgVertexVar* resp = nullptr;
+    Dfg_راس_Var* resp = خالي_اشارو;
     // cppcheck-has-bug-suppress constParameter
-    this->foreachSink([&resp](DfgVertex& sink) {
-        DfgVertexVar* const varp = sink.cast<DfgVertexVar>();
-        if (!varp) return false;
+    هذا->foreachSink([&resp](Dfg_راس& sink) {
+        Dfg_راس_Var* ثابت varp = sink.cast<Dfg_راس_Var>();
+        إذا (!varp) أرجع خطأ;
 
         // Do not use it if value might differ from its drivers
-        if (varp->isVolatile()) return false;
+        إذا (varp->isVolatile()) أرجع خطأ;
 
         // First variable found
-        if (!resp) {
+        إذا (!resp) {
             resp = varp;
-            return false;
+            أرجع خطأ;
         }
 
         // Prefer those variables that must be kept anyway
-        if (resp->hasExtRdRefs() != varp->hasExtRdRefs()) {
-            if (!resp->hasExtRdRefs()) resp = varp;
-            return false;
+        إذا (resp->hasExtRdRefs() != varp->hasExtRdRefs()) {
+            إذا (!resp->hasExtRdRefs()) resp = varp;
+            أرجع خطأ;
         }
-        if (resp->hasDfgRefs() != varp->hasDfgRefs()) {
-            if (!resp->hasDfgRefs()) resp = varp;
-            return false;
+        إذا (resp->hasDfgRefs() != varp->hasDfgRefs()) {
+            إذا (!resp->hasDfgRefs()) resp = varp;
+            أرجع خطأ;
         }
 
         // Prefer real variables over temporaries
-        const bool resIsTemp = resp->vscp()->varp()->isTemp();
-        const bool varIsTemp = varp->vscp()->varp()->isTemp();
-        if (resIsTemp != varIsTemp) {
-            if (resIsTemp) resp = varp;
-            return false;
+        ثابت منطقي res_Is_عارضي = resp->vscp()->varp()->is_عارضي();
+        ثابت منطقي var_Is_عارضي = varp->vscp()->varp()->is_عارضي();
+        إذا (res_Is_عارضي != var_Is_عارضي) {
+            إذا (res_Is_عارضي) resp = varp;
+            أرجع خطأ;
         }
-        if (!resp->tmpForp() != !varp->tmpForp()) {
-            if (resp->tmpForp()) resp = varp;
-            return false;
+        إذا (!resp->tmpForp() != !varp->tmpForp()) {
+            إذا (resp->tmpForp()) resp = varp;
+            أرجع خطأ;
         }
 
         // Prefer the earlier one in source order
-        const FileLine& oldFlp = *(resp->fileline());
-        const FileLine& newFlp = *(varp->fileline());
-        if (const int cmp = oldFlp.operatorCompare(newFlp)) {
-            if (cmp > 0) resp = varp;
-            return false;
+        ثابت File_سٽ& oldFlp = *(resp->fileline());
+        ثابت File_سٽ& newFlp = *(varp->fileline());
+        إذا (ثابت صحيح cmp = oldFlp.operatorCompare(newFlp)) {
+            إذا (cmp > 0) resp = varp;
+            أرجع خطأ;
         }
         // Prefer the one with the lexically smaller name
-        if (const int cmp = resp->vscp()->name().compare(varp->vscp()->name())) {
-            if (cmp > 0) resp = varp;
-            return false;
+        إذا (ثابت صحيح cmp = resp->vscp()->name().compare(varp->vscp()->name())) {
+            إذا (cmp > 0) resp = varp;
+            أرجع خطأ;
         }
         // 'resp' and 'varp' are all the same, keep using the existing 'resp'
-        return false;
+        أرجع خطأ;
     });
-    return resp;
+    أرجع resp;
 }
 
-AstScope* DfgVertex::scopep(ScopeCache& cache, bool tryResultVar) VL_MT_DISABLED {
+AstScope* Dfg_راس::scopep(ScopeCache& cache, منطقي try_نتيجو_Var) VL_MT_DISABLED {
     // If this is a variable, we are done
-    if (const DfgVertexVar* const varp = this->cast<DfgVertexVar>()) {
-        return varp->vscp()->scopep();
+    إذا (ثابت Dfg_راس_Var* ثابت varp = هذا->cast<Dfg_راس_Var>()) {
+        أرجع varp->vscp()->scopep();
     }
 
     // Try the result var first if instructed (usully only in the recursive case)
-    if (tryResultVar) {
-        if (const DfgVertexVar* const varp = this->getResultVar()) {
-            return varp->vscp()->scopep();
+    إذا (try_نتيجو_Var) {
+        إذا (ثابت Dfg_راس_Var* ثابت varp = هذا->get_نتيجو_Var()) {
+            أرجع varp->vscp()->scopep();
         }
     }
 
-    AstScope* const rootp = v3Global.rootp()->topScopep()->scopep();
+    AstScope* ثابت rootp = v3Global.rootp()->چوٽي_Scopep()->scopep();
 
     // Note: the recursive invocation can cause a re-hash but that will not invalidate references
-    AstScope*& resultr = cache[this];
-    if (!resultr) {
+    AstScope*& resultr = cache[هذا];
+    إذا (!resultr) {
         // Mark to prevent infinite recursion on circular graphs - should never be called on such
         resultr = reinterpret_cast<AstScope*>(1);
         // Find scope based on sources, falling back on the root scope. Never use a package
         // scope, including the constant pool, so new variables are not created in packages.
-        AstScope* foundp = nullptr;
-        foreachSource([&](DfgVertex& src) {
-            AstScope* const scp = src.scopep(cache, true);
-            if (scp != rootp && !VN_IS(scp->modp(), Package)) {
+        AstScope* foundp = خالي_اشارو;
+        foreach_ذريعو([&](Dfg_راس& src) {
+            AstScope* ثابت scp = src.scopep(cache, سچ);
+            إذا (scp != rootp && !VN_IS(scp->modp(), Package)) {
                 foundp = scp;
-                return true;
+                أرجع سچ;
             }
-            return false;
+            أرجع خطأ;
         });
         resultr = foundp ? foundp : rootp;
     }
 
     // Die on a graph circular through operation vertices
-    UASSERT_OBJ(resultr != reinterpret_cast<AstScope*>(1), this,
+    UASSERT_OBJ(resultr != reinterpret_cast<AstScope*>(1), هذا,
                 "DfgVertex::scopep called on graph with circular operations");
 
-    // Done
-    return resultr;
+    //پورو
+    أرجع resultr;
 }
 
-void DfgVertex::unlinkDelete(DfgGraph& dfg) {
+فراغ Dfg_راس::unlinkDelete(Dfg_گراف& dfg) {
     // Unlink sink edges
-    while (!m_sinks.empty()) m_sinks.frontp()->unlinkSrcp();
+    طالما (!m_sinks.خالي_جايون()) m_sinks.frontp()->unlinkSrcp();
     // Remove from graph
-    dfg.removeVertex(*this);
+    dfg.remove_راس(*هذا);
     // Delete - this will unlink sources
-    delete this;
+    ميٽيو هذا;
 }
 
 //------------------------------------------------------------------------------
 // DfgVertexVar
 
-std::pair<DfgVertex*, uint32_t> DfgVertexVar::driverOfRange(uint32_t lo, uint32_t size) {
-    DfgVertex* const srcp = this->srcp();
+std::pair<Dfg_راس*, uint32_t> Dfg_راس_Var::driver_جو_Range(uint32_t lo, uint32_t سائيز) {
+    Dfg_راس* ثابت srcp = هذا->srcp();
     // Not driven at all
-    if (!srcp) return {nullptr, 0};
+    إذا (!srcp) أرجع {خالي_اشارو, 0};
     // If volatile, can have other drivers
-    if (isVolatile()) return {nullptr, 0};
+    إذا (isVolatile()) أرجع {خالي_اشارو, 0};
     // Don't inline CReset
-    if (srcp->is<DfgCReset>()) return {nullptr, 0};
+    إذا (srcp->is<DfgCReset>()) أرجع {خالي_اشارو, 0};
 
     // If not driven via a splice, then it is driven whole, at the same offsets
-    DfgVertexSplice* const splicep = srcp->cast<DfgVertexSplice>();
-    if (!splicep) return {srcp, lo};
+    Dfg_راس_Splice* ثابت splicep = srcp->cast<Dfg_راس_Splice>();
+    إذا (!splicep) أرجع {srcp, lo};
 
     // Find the driver that covers the whole searched range, if there is a single one
-    const uint32_t hi = lo + size - 1;
-    DfgVertex* driverp = nullptr;
+    ثابت uint32_t hi = lo + سائيز - 1;
+    Dfg_راس* driverp = خالي_اشارو;
     uint32_t driverLo = 0;
-    bool useDefault = defaultp();
-    splicep->foreachDriver([&](DfgVertex& src, const uint32_t dLo) {
-        const uint32_t dHi = dLo + src.size() - 1;
+    منطقي useDefault = defaultp();
+    splicep->foreachDriver([&](Dfg_راس& src, ثابت uint32_t dLo) {
+        ثابت uint32_t dHi = dLo + src.سائيز() - 1;
         // Note whether it overlaps the searched range, so the default cannot be used
-        if (dLo <= hi && lo <= dHi) useDefault = false;
+        إذا (dLo <= hi && lo <= dHi) useDefault = خطأ;
         // If it does not cover the whole searched range, move on
-        if (lo < dLo || dHi < hi) return false;
+        إذا (lo < dLo || dHi < hi) أرجع خطأ;
         // Save the driver that covers the whole searched range
         driverp = &src;
         driverLo = dLo;
-        return true;
+        أرجع سچ;
     });
 
     // If a single driver covers the searched range, it is the one
-    if (driverp) return {driverp, lo - driverLo};
+    إذا (driverp) أرجع {driverp, lo - driverLo};
     // Otherwise the default driver is responsible for it, if nothing else overlaps it
-    if (useDefault) return {defaultp(), lo};
+    إذا (useDefault) أرجع {defaultp(), lo};
     // Not driven by a single vertex
-    return {nullptr, 0};
+    أرجع {خالي_اشارو, 0};
 }
 
 //######################################################################
 // Renders the canonical pattern S-expression for a single DfgVertex
 
-class DfgPatternString final {
+صنف Dfg_نمونو_String final {
     std::ostream& m_os;
 
     std::map<std::string, std::string> m_internedConsts;  // Interned constants
     std::map<uint32_t, std::string> m_internedSelLsbs;  // Interned lsb value for selects
-    std::map<uint32_t, std::string> m_internedWordWidths;  // Interned widths
+    std::map<uint32_t, std::string> m_interned_لفظ_Widths;  // Interned widths
     std::map<uint32_t, std::string> m_internedWideWidths;  // Interned widths
-    std::map<const DfgVertex*, std::string> m_internedVertices;  // Interned vertices
+    std::map<ثابت Dfg_راس*, std::string> m_internedVertices;  // Interned vertices
     // Multiplicity and depth of vertices
-    std::map<const DfgVertex*, std::pair<uint32_t, uint32_t>> m_multiplicityAndDepth;
+    std::map<ثابت Dfg_راس*, std::pair<uint32_t, uint32_t>> m_multiplicity_And_اونهائي;
 
-    static std::string toLetters(size_t value, bool lowerCase = false) {
-        const char base = lowerCase ? 'a' : 'A';
+    ساكن std::string منزل_Letters(سائيز_t قدر, منطقي هيٺاهون_Case = خطأ) {
+        ثابت حرف بنياد = هيٺاهون_Case ? 'a' : 'A';
         std::string s;
-        do { s += static_cast<char>(base + value % 26); } while (value /= 26);
-        return s;
+        افعل { s += static_cast<حرف>(بنياد + قدر % 26); } طالما (قدر /= 26);
+        أرجع s;
     }
 
-    const std::string& internConst(const DfgConst& vtx) {
-        const auto pair = m_internedConsts.emplace(vtx.num().ascii(false), "");
-        if (pair.second) pair.first->second += toLetters(m_internedConsts.size() - 1);
-        return pair.first->second;
+    ثابت std::string& internConst(ثابت DfgConst& vtx) {
+        ثابت خودڪار pair = m_internedConsts.emplace(vtx.انگ().ascii(خطأ), "");
+        إذا (pair.ٻيو) pair.پهريون->ٻيو += منزل_Letters(m_internedConsts.سائيز() - 1);
+        أرجع pair.پهريون->ٻيو;
     }
 
-    const std::string& internSelLsb(uint32_t value) {
-        const auto pair = m_internedSelLsbs.emplace(value, "");
-        if (pair.second) pair.first->second += toLetters(m_internedSelLsbs.size() - 1);
-        return pair.first->second;
+    ثابت std::string& internSelLsb(uint32_t قدر) {
+        ثابت خودڪار pair = m_internedSelLsbs.emplace(قدر, "");
+        إذا (pair.ٻيو) pair.پهريون->ٻيو += منزل_Letters(m_internedSelLsbs.سائيز() - 1);
+        أرجع pair.پهريون->ٻيو;
     }
 
-    const std::string& internWordWidth(uint32_t value) {
-        const auto pair = m_internedWordWidths.emplace(value, "");
-        if (pair.second) pair.first->second += toLetters(m_internedWordWidths.size() - 1, true);
-        return pair.first->second;
+    ثابت std::string& intern_لفظ_ويڪر(uint32_t قدر) {
+        ثابت خودڪار pair = m_interned_لفظ_Widths.emplace(قدر, "");
+        إذا (pair.ٻيو) pair.پهريون->ٻيو += منزل_Letters(m_interned_لفظ_Widths.سائيز() - 1, سچ);
+        أرجع pair.پهريون->ٻيو;
     }
 
-    const std::string& internWideWidth(uint32_t value) {
-        const auto pair = m_internedWideWidths.emplace(value, "");
-        if (pair.second) pair.first->second += toLetters(m_internedWideWidths.size() - 1);
-        return pair.first->second;
+    ثابت std::string& intern_Wide_ويڪر(uint32_t قدر) {
+        ثابت خودڪار pair = m_internedWideWidths.emplace(قدر, "");
+        إذا (pair.ٻيو) pair.پهريون->ٻيو += منزل_Letters(m_internedWideWidths.سائيز() - 1);
+        أرجع pair.پهريون->ٻيو;
     }
 
-    const std::string& internVertex(const DfgVertex& vtx) {
-        const auto pair = m_internedVertices.emplace(&vtx, "");
-        if (pair.second) pair.first->second += toLetters(m_internedVertices.size() - 1);
-        return pair.first->second;
+    ثابت std::string& intern_راس(ثابت Dfg_راس& vtx) {
+        ثابت خودڪار pair = m_internedVertices.emplace(&vtx, "");
+        إذا (pair.ٻيو) pair.پهريون->ٻيو += منزل_Letters(m_internedVertices.سائيز() - 1);
+        أرجع pair.پهريون->ٻيو;
     }
 
-    void recordMultiplicityAndDepth(const DfgVertex& vtx, uint32_t depth) {
-        std::pair<uint32_t, uint32_t>& value = m_multiplicityAndDepth
+    فراغ رڪارڊ_Multiplicity_And_اونهائي(ثابت Dfg_راس& vtx, uint32_t اونهائي) {
+        std::pair<uint32_t, uint32_t>& قدر = m_multiplicity_And_اونهائي
                                                    .emplace(std::piecewise_construct,  //
                                                             std::forward_as_tuple(&vtx),  //
-                                                            std::forward_as_tuple(0, depth))
-                                                   .first->second;
-        value.first += 1;
-        value.second = std::max(value.second, depth);
-        if (!depth) return;
-        vtx.foreachSource([&](const DfgVertex& src) {
-            recordMultiplicityAndDepth(src, depth - 1);
-            return false;
+                                                            std::forward_as_tuple(0, اونهائي))
+                                                   .پهريون->ٻيو;
+        قدر.پهريون += 1;
+        قدر.ٻيو = std::max(قدر.ٻيو, اونهائي);
+        إذا (!اونهائي) أرجع;
+        vtx.foreach_ذريعو([&](ثابت Dfg_راس& src) {
+            رڪارڊ_Multiplicity_And_اونهائي(src, اونهائي - 1);
+            أرجع خطأ;
         });
     }
 
     // Render the vertx into ss, and return true if the recursion reached the given depth,
     // meaning an S-expression with that nesting level has been rendered.
-    void render(const DfgVertex& vtx, uint32_t depth, bool isRoot = true) {
-        if (const DfgConst* const constp = vtx.cast<DfgConst>()) {
+    فراغ render(ثابت Dfg_راس& vtx, uint32_t اونهائي, منطقي is_پاڙ_2 = سچ) {
+        إذا (ثابت DfgConst* ثابت constp = vtx.cast<DfgConst>()) {
             // Base case 1: constant
-            if (constp->isZero()) {
+            إذا (constp->isZero()) {
                 m_os << "(CONST ZERO)";
-            } else if (constp->isOnes()) {
+            } وإلا إذا (constp->isOnes()) {
                 m_os << "(CONST ONES)";
-            } else {
+            } وإلا {
                 m_os << "(CONST #" << internConst(*constp) << ')';
             }
-        } else if (!isRoot && m_multiplicityAndDepth.at(&vtx).first > 1) {
+        } وإلا إذا (!is_پاڙ_2 && m_multiplicity_And_اونهائي.at(&vtx).پهريون > 1) {
             // Base case 2: vertex appearing multiple times
-            m_os << internVertex(vtx);
-        } else if (!vtx.foreachSource([&](const DfgVertex&) { return true; })) {
+            m_os << intern_راس(vtx);
+        } وإلا إذا (!vtx.foreach_ذريعو([&](ثابت Dfg_راس&) { أرجع سچ; })) {
             // Base case 3: vertex with no inputs (input variable)
             m_os << '(' << vtx.typeName() << ')';
-        } else if (depth == 0) {
+        } وإلا إذا (اونهائي == 0) {
             // Base case 4: deep vertex (apperaing only once)
             m_os << "_";
-        } else {
+        } وإلا {
             // Recursively print an S-expression for the vertex
             m_os << '(';
             // Name
             m_os << vtx.typeName();
             // Specials
-            if (const DfgSel* const selp = vtx.cast<DfgSel>()) {
+            إذا (ثابت DfgSel* ثابت selp = vtx.cast<DfgSel>()) {
                 m_os << '@';
-                if (selp->lsb() == 0) {
+                إذا (selp->lsb() == 0) {
                     m_os << '0';
-                } else {
+                } وإلا {
                     m_os << internSelLsb(selp->lsb());
                 }
             }
             // Operands
-            vtx.foreachSource([&](const DfgVertex& src) {
+            vtx.foreach_ذريعو([&](ثابت Dfg_راس& src) {
                 m_os << ' ';
-                render(src, depth - 1, false);
-                return false;
+                render(src, اونهائي - 1, خطأ);
+                أرجع خطأ;
             });
             // S-expression end
             m_os << ')';
@@ -966,51 +966,51 @@ class DfgPatternString final {
 
         // Annotate type
         m_os << ':';
-        if (!vtx.dtype().isPacked()) {
+        إذا (!vtx.dtype().isPacked()) {
             vtx.dtype().astDtypep()->dumpSmall(m_os);
-        } else {
-            const uint32_t width = vtx.size();
-            if (width == 1) {
+        } وإلا {
+            ثابت uint32_t ويڪر = vtx.سائيز();
+            إذا (ويڪر == 1) {
                 m_os << '1';
-            } else if (width <= VL_QUADSIZE) {
-                m_os << internWordWidth(width);
-            } else {
-                m_os << internWideWidth(width);
+            } وإلا إذا (ويڪر <= VL_QUADSIZE) {
+                m_os << intern_لفظ_ويڪر(ويڪر);
+            } وإلا {
+                m_os << intern_Wide_ويڪر(ويڪر);
             }
         }
 
         // Mark it if it has multiple sinks
-        if (vtx.hasMultipleSinks()) m_os << '*';
+        إذا (vtx.has_گڻو_Sinks()) m_os << '*';
     }
 
-public:
-    DfgPatternString(std::ostream& os, const DfgVertex& vtx, uint32_t depth)
+عام:
+    Dfg_نمونو_String(std::ostream& os, ثابت Dfg_راس& vtx, uint32_t اونهائي)
         : m_os{os} {
-        recordMultiplicityAndDepth(vtx, depth);
-        render(vtx, depth, false);
-        using Pair = std::pair<std::string, const DfgVertex*>;
-        std::vector<Pair> vertices;
-        for (const auto& pair : m_multiplicityAndDepth) {
-            if (pair.second.first == 1) continue;
-            vertices.emplace_back(internVertex(*pair.first), pair.first);
+        رڪارڊ_Multiplicity_And_اونهائي(vtx, اونهائي);
+        render(vtx, اونهائي, خطأ);
+        استعمال Pair = std::pair<std::string, ثابت Dfg_راس*>;
+        std::ويڪٽر<Pair> vertices;
+        لكل (ثابت خودڪار& pair : m_multiplicity_And_اونهائي) {
+            إذا (pair.ٻيو.پهريون == 1) استمر;
+            vertices.emplace_پٺ(intern_راس(*pair.پهريون), pair.پهريون);
         }
-        std::sort(vertices.begin(), vertices.end(), [](const Pair& a, const Pair& b) {  //
-            return a.first < b.first;
+        std::ترتيب_ڏيو(vertices.begin(), vertices.پڇاڙي(), [](ثابت Pair& a, ثابت Pair& b) {  //
+            أرجع a.پهريون < b.پهريون;
         });
-        for (const Pair& pair : vertices) {
-            m_os << " | " << pair.first << " is ";
-            render(*pair.second, m_multiplicityAndDepth.at(pair.second).second);
+        لكل (ثابت Pair& pair : vertices) {
+            m_os << " | " << pair.پهريون << " is ";
+            render(*pair.ٻيو, m_multiplicity_And_اونهائي.at(pair.ٻيو).ٻيو);
         }
     }
 };
 
-std::string DfgVertex::patternString(uint32_t depth) const {
+std::string Dfg_راس::نمونو_String(uint32_t اونهائي) ثابت {
     std::ostringstream oss;
-    DfgPatternString{oss, *this, depth};
-    return oss.str();
+    Dfg_نمونو_String{oss, *هذا, اونهائي};
+    أرجع oss.str();
 }
 
 //------------------------------------------------------------------------------
 // DfgVisitor
 
-#include "V3Dfg__gen_visitor_defns.h"  // From ./astgen
+#ضمن "V3Dfg__gen_visitor_defns.h"  // From ./astgen

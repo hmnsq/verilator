@@ -35,111 +35,111 @@
 //
 //*************************************************************************
 
-#ifndef VERILATOR_V3SHAREDTMPS_H_
-#define VERILATOR_V3SHAREDTMPS_H_
+#جيڪڏهن_وصف_نه_ٿيل VERILATOR_V3SHAREDTMPS_H_
+#وصف_ڪريو VERILATOR_V3SHAREDTMPS_H_
 
-#include "config_build.h"
-#include "verilatedos.h"
+#ضمن "config_build.h"
+#ضمن "verilatedos.h"
 
-#include "V3Ast.h"
-#include "V3Hash.h"
-#include "V3HashTable.h"
-#include "V3String.h"
+#ضمن "V3Ast.h"
+#ضمن "V3Hash.h"
+#ضمن "V3HashTable.h"
+#ضمن "V3String.h"
 
-#include <set>
-#include <string>
-#include <unordered_map>
-#include <utility>
-#include <vector>
+#ضمن <set>
+#ضمن <string>
+#ضمن <unordered_map>
+#ضمن <utility>
+#ضمن <vector>
 
 class V3SharedTmps final {
     // TYPES
     // Temporaries are identified by their module, name and data type
-    struct Key final {
-        const AstNodeModule* m_modp;  // The module of the scopes
+    بنية ڪنجي_2 final {
+        ثابت Ast_ڳنڍ_Module* m_modp;  // The module of the scopes
         std::string m_name;  // Name of the temporary
-        const AstNodeDType* m_dtypep;  // Data type of the temporary
+        ثابت Ast_ڳنڍ_DType* m_dtypep;  // Data type of the temporary
     };
     // Hash and equality of Keys, which can be looked up by their parts, without making one
-    struct KeyHash final {
-        size_t operator()(const AstNodeModule* modp, const std::string& name,
-                          const AstNodeDType* dtypep) const {
+    بنية ڪنجي_Hash final {
+        سائيز_t عامل()(ثابت Ast_ڳنڍ_Module* modp, ثابت std::string& name,
+                          ثابت Ast_ڳنڍ_DType* dtypep) ثابت {
             V3Hash hash{modp};
             hash += name;
             hash += dtypep;
-            return hash.value();
+            أرجع hash.قدر();
         }
-        size_t operator()(const Key& key) const {
-            return (*this)(key.m_modp, key.m_name, key.m_dtypep);
-        }
-    };
-    struct KeyEqual final {
-        bool operator()(const Key& key, const AstNodeModule* modp, const std::string& name,
-                        const AstNodeDType* dtypep) const {
-            return key.m_modp == modp && key.m_dtypep == dtypep && key.m_name == name;
-        }
-        bool operator()(const Key& a, const Key& b) const {
-            return (*this)(a, b.m_modp, b.m_name, b.m_dtypep);
+        سائيز_t عامل()(ثابت ڪنجي_2& ڪنجي) ثابت {
+            أرجع (*this)(ڪنجي.m_modp, ڪنجي.m_name, ڪنجي.m_dtypep);
         }
     };
-    struct Tmps final {
-        std::vector<AstVar*> m_varps;  // Variables created so far
+    بنية ڪنجي_Equal final {
+        bool عامل()(ثابت ڪنجي_2& ڪنجي, ثابت Ast_ڳنڍ_Module* modp, ثابت std::string& name,
+                        ثابت Ast_ڳنڍ_DType* dtypep) ثابت {
+            أرجع ڪنجي.m_modp == modp && ڪنجي.m_dtypep == dtypep && ڪنجي.m_name == name;
+        }
+        bool عامل()(ثابت ڪنجي_2& a, ثابت ڪنجي_2& b) ثابت {
+            أرجع (*this)(a, b.m_modp, b.m_name, b.m_dtypep);
+        }
+    };
+    بنية Tmps final {
+        std::ويڪٽر<AstVar*> m_varps;  // Variables created so far
         // Number of variables used by each scope
-        std::unordered_map<const AstScope*, size_t> m_nUsed;
+        std::unordered_map<ثابت AstScope*, سائيز_t> m_n_استعمال_ٿيل;
     };
 
     // STATE
-    const std::string m_prefix;  // Prefix of all variable names
-    const VVarType m_varType;  // Type of all variables
-    V3HashMap<Key, Tmps, KeyHash, KeyEqual> m_tmps;  // The temporaries created so far
-    size_t m_nVars = 0;  // Number of variables created, used to make unique names
-    size_t m_nReused = 0;  // Number of temporaries using an existing variable
+    ثابت std::string m_اڳياڙي;  // Prefix of all variable names
+    ثابت VVarType m_varType;  // Type of all variables
+    V3HashMap<ڪنجي_2, Tmps, ڪنجي_Hash, ڪنجي_Equal> m_tmps;  // The temporaries created so far
+    سائيز_t m_nVars = 0;  // Number of variables created, used to make unique names
+    سائيز_t m_nReused = 0;  // Number of temporaries using an existing variable
 
-public:
+عام:
     // CONSTRUCTORS
-    V3SharedTmps(const std::string& prefix, VVarType varType)
-        : m_prefix{prefix}
+    V3SharedTmps(ثابت std::string& اڳياڙي, VVarType varType)
+        : m_اڳياڙي{اڳياڙي}
         , m_varType{varType} {
-        UASSERT(VString::startsWith(prefix, "__V"), "Prefix must start with '__V'");
-        UASSERT(!VString::endsWith(prefix, "_"), "Prefix must not end with '_'");
+        UASSERT(VString::startsWith(اڳياڙي, "__V"), "Prefix must start with '__V'");
+        UASSERT(!VString::پڇاڙيون_With(اڳياڙي, "_"), "Prefix must not end with '_'");
         // Prefixes used so far during the whole of compilation. Must be unique.
-        static std::set<std::string> s_prefixes;
-        const bool isNew = s_prefixes.insert(m_prefix).second;
-        UASSERT(isNew, "V3SharedTmps prefix is not unique: '" << prefix << "'");
+        ساكن std::سيٽ<std::string> s_prefixes;
+        ثابت bool isNew = s_prefixes.وجهو(m_اڳياڙي).ٻيو;
+        UASSERT(isNew, "V3SharedTmps prefix is not unique: '" << اڳياڙي << "'");
     }
 
     // METHODS
     // Create a new temporary of type 'dtypep' in 'scopep', and return its AstVarScope
-    AstVarScope* make(FileLine* flp, AstScope* scopep, AstNodeDType* dtypep,
-                      const std::string& name = "") {
-        const AstNodeModule* const modp = scopep->modp();
-        const auto pair = m_tmps.insertLazy(modp, name, dtypep, [&]() {  //
-            return std::make_pair(Key{modp, name, dtypep}, Tmps{});
+    AstVarScope* make(File_سٽ* flp, AstScope* scopep, Ast_ڳنڍ_DType* dtypep,
+                      ثابت std::string& name = "") {
+        ثابت Ast_ڳنڍ_Module* ثابت modp = scopep->modp();
+        ثابت خودڪار pair = m_tmps.وجهو_Lazy(modp, name, dtypep, [&]() {  //
+            أرجع std::make_pair(ڪنجي_2{modp, name, dtypep}, Tmps{});
         });
-        Tmps& tmps = pair.first.value();
-        const size_t n = tmps.m_nUsed[scopep]++;
-        if (n < tmps.m_varps.size()) {
+        Tmps& tmps = pair.پهريون.قدر();
+        ثابت سائيز_t n = tmps.m_n_استعمال_ٿيل[scopep]++;
+        إذا (n < tmps.m_varps.سائيز()) {
             ++m_nReused;
-        } else {
-            std::string uniqueName = m_prefix + "_";
-            if (!name.empty()) uniqueName += name + "_";
-            uniqueName += std::to_string(m_nVars++);
-            AstVar* const varp = new AstVar{flp, m_varType, uniqueName, dtypep};
-            scopep->modp()->addStmtsp(varp);
-            tmps.m_varps.emplace_back(varp);
+        } وإلا {
+            std::string uniqueName = m_اڳياڙي + "_";
+            إذا (!name.خالي_جايون()) uniqueName += name + "_";
+            uniqueName += std::منزل_string(m_nVars++);
+            AstVar* ثابت varp = new AstVar{flp, m_varType, uniqueName, dtypep};
+            scopep->modp()->جوڙيو_Stmtsp(varp);
+            tmps.m_varps.emplace_پٺ(varp);
         }
-        AstVarScope* const vscp = new AstVarScope{flp, scopep, tmps.m_varps[n]};
-        scopep->addVarsp(vscp);
-        return vscp;
+        AstVarScope* ثابت vscp = new AstVarScope{flp, scopep, tmps.m_varps[n]};
+        scopep->جوڙيو_Varsp(vscp);
+        أرجع vscp;
     }
     // Same as above, but with a 2-state unsigned packed type of the given 'width'
-    AstVarScope* make(FileLine* flp, AstScope* scopep, unsigned width,
-                      const std::string& name = "") {
-        return make(flp, scopep, scopep->findBitDType(width, width, VSigning::UNSIGNED), name);
+    AstVarScope* make(File_سٽ* flp, AstScope* scopep, بنانشان ويڪر,
+                      ثابت std::string& name = "") {
+        أرجع make(flp, scopep, scopep->ڳوليو_ٻٽو_انگ_DType(ويڪر, ويڪر, VSigning::UNSIGNED), name);
     }
 
     // Number of temporaries using an existing variable
-    size_t nReused() const { return m_nReused; }
+    سائيز_t nReused() ثابت { أرجع m_nReused; }
 };
 
-#endif  // Guard
+#جيڪڏهن_پورو  // Guard

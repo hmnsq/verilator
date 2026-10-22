@@ -14,19 +14,19 @@
 //
 //*************************************************************************
 
-#ifndef VERILATOR_V3CLOCK_H_
-#define VERILATOR_V3CLOCK_H_
+#جيڪڏهن_وصف_نه_ٿيل VERILATOR_V3CLOCK_H_
+#وصف_ڪريو VERILATOR_V3CLOCK_H_
 
-#include "config_build.h"
-#include "verilatedos.h"
+#ضمن "config_build.h"
+#ضمن "verilatedos.h"
 
 class AstNetlist;
 
 //============================================================================
 
 class V3Clock final {
-public:
-    static void clockAll(AstNetlist* nodep) VL_MT_DISABLED;
+عام:
+    ساكن فراغ clockAll(AstNetlist* nodep) VL_MT_DISABLED;
 };
 
-#endif  // Guard
+#جيڪڏهن_پورو  // Guard

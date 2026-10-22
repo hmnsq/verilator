@@ -14,9 +14,9 @@
 //
 //*************************************************************************
 
-#include "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
+#ضمن "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
 
-#include "V3StackCount.h"
+#ضمن "V3StackCount.h"
 
 VL_DEFINE_DEBUG_FUNCTIONS;
 
@@ -24,171 +24,171 @@ VL_DEFINE_DEBUG_FUNCTIONS;
 /// given AST node. This is very rough, only for warning when stack is too
 /// small.
 
-class StackCountVisitor final : public VNVisitorConst {
+صنف ڍير_ڳڻپ_Visitor final : عام VNVisitorConst {
     // NODE STATE
     //  AstNode::user2()        -> uint64_t.  Path cost + 1,
-    const VNUser2InUse m_inuser2;
+    ثابت VNUser2_اندريون_Use m_inuser2;
 
     // MEMBERS
-    uint64_t m_stackSize = 0;  // Running count of local bytes in the current function
+    uint64_t m_ڍير_سائيز = 0;  // Running count of local bytes in the current function
     uint64_t m_callMax = 0;  // Largest callee cost called from the current function
-    bool m_tracingCall = false;  // Iterating into a CCall to a CFunc
-    bool m_ignoreRemaining = false;  // Ignore remaining statements in the block
-    bool m_inCFunc = false;  // Inside function
+    منطقي m_tracingCall = خطأ;  // Iterating into a CCall to a CFunc
+    منطقي m_ignore_بچيل = خطأ;  // Ignore remaining statements in the block
+    منطقي m_اندريون_CFunc = خطأ;  // Inside function
 
     // TYPES
     // Little class to cleanly call startVisitBase/endVisitBase
-    class VisitBase final {
+    صنف گهمو_بنياد final {
         // MEMBERS
-        uint64_t m_savedCount;  // Count before visit applied
-        AstNode* const m_nodep;  // Node this RAII helper is visiting
-        StackCountVisitor* const m_visitor;  // Visitor whose start/endVisitBase are called
+        uint64_t m_saved_ڳڻپ;  // Count before visit applied
+        Ast_ڳنڍ* ثابت m_nodep;  // Node this RAII helper is visiting
+        ڍير_ڳڻپ_Visitor* ثابت m_visitor;  // Visitor whose start/endVisitBase are called
 
-    public:
+    عام:
         // CONSTRUCTORS
-        VisitBase(StackCountVisitor* visitor, AstNode* nodep)
+        گهمو_بنياد(ڍير_ڳڻپ_Visitor* visitor, Ast_ڳنڍ* nodep)
             : m_nodep{nodep}
             , m_visitor{visitor} {
-            m_savedCount = m_visitor->startVisitBase(nodep);
+            m_saved_ڳڻپ = m_visitor->شروعات_گهمو_بنياد(nodep);
         }
-        ~VisitBase() { m_visitor->endVisitBase(m_savedCount, m_nodep); }
+        ~گهمو_بنياد() { m_visitor->پڇاڙي_گهمو_بنياد(m_saved_ڳڻپ, m_nodep); }
 
-    private:
-        VL_UNCOPYABLE(VisitBase);
+    خاص:
+        VL_UNCOPYABLE(گهمو_بنياد);
     };
 
-public:
+عام:
     // CONSTRUCTORS
-    explicit StackCountVisitor(AstNode* nodep) { iterateConstNull(nodep); }
-    ~StackCountVisitor() override = default;
+    واضح ڍير_ڳڻپ_Visitor(Ast_ڳنڍ* nodep) { iterateConstNull(nodep); }
+    ~ڍير_ڳڻپ_Visitor() override = افتراضي;
 
     // METHODS
-    uint64_t stackSize() const { return m_stackSize + m_callMax; }
+    uint64_t ڍير_سائيز() ثابت { أرجع m_ڍير_سائيز + m_callMax; }
 
-private:
-    void reset() {
-        m_stackSize = 0;
-        m_ignoreRemaining = false;
+خاص:
+    فراغ reset() {
+        m_ڍير_سائيز = 0;
+        m_ignore_بچيل = خطأ;
     }
-    uint64_t startVisitBase(AstNode* nodep) {
-        UASSERT_OBJ(!m_ignoreRemaining, nodep, "Should not reach here if ignoring");
+    uint64_t شروعات_گهمو_بنياد(Ast_ڳنڍ* nodep) {
+        UASSERT_OBJ(!m_ignore_بچيل, nodep, "Should not reach here if ignoring");
 
         // Save the count, and add it back in during ~VisitBase This allows
         // debug prints to show local cost of each subtree, so we can see a
         // hierarchical view of the cost when in debug mode.
-        const uint64_t savedCount = m_stackSize;
-        m_stackSize = 0;
-        return savedCount;
+        ثابت uint64_t saved_ڳڻپ = m_ڍير_سائيز;
+        m_ڍير_سائيز = 0;
+        أرجع saved_ڳڻپ;
     }
-    void endVisitBase(uint64_t savedCount, const AstNode* nodep) {
-        UINFO(8, "cost " << std::setw(6) << std::left << m_stackSize << "  " << nodep);
-        if (!m_ignoreRemaining) m_stackSize += savedCount;
+    فراغ پڇاڙي_گهمو_بنياد(uint64_t saved_ڳڻپ, ثابت Ast_ڳنڍ* nodep) {
+        UINFO(8, "cost " << std::setw(6) << std::کاٻي << m_ڍير_سائيز << "  " << nodep);
+        إذا (!m_ignore_بچيل) m_ڍير_سائيز += saved_ڳڻپ;
     }
 
     // VISITORS
-    void visit(AstNodeIf* nodep) override {
-        if (m_ignoreRemaining) return;
-        const VisitBase vb{this, nodep};
-        iterateAndNextConstNull(nodep->condp());
-        const uint64_t savedCount = m_stackSize;
+    فراغ گهمو(Ast_ڳنڍ_If* nodep) override {
+        إذا (m_ignore_بچيل) أرجع;
+        ثابت گهمو_بنياد vb{هذا, nodep};
+        iterate_And_ايندڙ_Const_Null(nodep->condp());
+        ثابت uint64_t saved_ڳڻپ = m_ڍير_سائيز;
 
         UINFO(8, "thensp:");
         reset();
-        iterateAndNextConstNull(nodep->thensp());
-        uint64_t ifCount = m_stackSize;
-        if (nodep->branchPred().unlikely()) ifCount = 0;
+        iterate_And_ايندڙ_Const_Null(nodep->thensp());
+        uint64_t if_ڳڻپ = m_ڍير_سائيز;
+        إذا (nodep->branchPred().unlikely()) if_ڳڻپ = 0;
 
         UINFO(8, "elsesp:");
         reset();
-        iterateAndNextConstNull(nodep->elsesp());
-        uint64_t elseCount = m_stackSize;
-        if (nodep->branchPred().likely()) elseCount = 0;
+        iterate_And_ايندڙ_Const_Null(nodep->elsesp());
+        uint64_t else_ڳڻپ = m_ڍير_سائيز;
+        إذا (nodep->branchPred().likely()) else_ڳڻپ = 0;
 
         reset();
-        if (ifCount >= elseCount) {
-            m_stackSize = savedCount + ifCount;
-            if (nodep->elsesp()) nodep->elsesp()->user2(0);  // Don't dump it
-        } else {
-            m_stackSize = savedCount + elseCount;
-            if (nodep->thensp()) nodep->thensp()->user2(0);  // Don't dump it
+        إذا (if_ڳڻپ >= else_ڳڻپ) {
+            m_ڍير_سائيز = saved_ڳڻپ + if_ڳڻپ;
+            إذا (nodep->elsesp()) nodep->elsesp()->user2(0);  // Don't dump it
+        } وإلا {
+            m_ڍير_سائيز = saved_ڳڻپ + else_ڳڻپ;
+            إذا (nodep->thensp()) nodep->thensp()->user2(0);  // Don't dump it
         }
     }
-    void visit(AstCond* nodep) override {
-        if (m_ignoreRemaining) return;
+    فراغ گهمو(AstCond* nodep) override {
+        إذا (m_ignore_بچيل) أرجع;
         // Just like if/else above, the ternary operator only evaluates
         // one of the two expressions, so only count the max.
-        const VisitBase vb{this, nodep};
-        iterateAndNextConstNull(nodep->condp());
-        const uint64_t savedCount = m_stackSize;
+        ثابت گهمو_بنياد vb{هذا, nodep};
+        iterate_And_ايندڙ_Const_Null(nodep->condp());
+        ثابت uint64_t saved_ڳڻپ = m_ڍير_سائيز;
 
         UINFO(8, "?");
         reset();
-        iterateAndNextConstNull(nodep->thenp());
-        const uint64_t ifCount = m_stackSize;
+        iterate_And_ايندڙ_Const_Null(nodep->thenp());
+        ثابت uint64_t if_ڳڻپ = m_ڍير_سائيز;
 
         UINFO(8, ":");
         reset();
-        iterateAndNextConstNull(nodep->elsep());
-        const uint64_t elseCount = m_stackSize;
+        iterate_And_ايندڙ_Const_Null(nodep->elsep());
+        ثابت uint64_t else_ڳڻپ = m_ڍير_سائيز;
 
         reset();
-        if (ifCount >= elseCount) {
-            m_stackSize = savedCount + ifCount;
-            if (nodep->elsep()) nodep->elsep()->user2(0);  // Don't dump it
-        } else {
-            m_stackSize = savedCount + elseCount;
-            if (nodep->thenp()) nodep->thenp()->user2(0);  // Don't dump it
+        إذا (if_ڳڻپ >= else_ڳڻپ) {
+            m_ڍير_سائيز = saved_ڳڻپ + if_ڳڻپ;
+            إذا (nodep->elsep()) nodep->elsep()->user2(0);  // Don't dump it
+        } وإلا {
+            m_ڍير_سائيز = saved_ڳڻپ + else_ڳڻپ;
+            إذا (nodep->thenp()) nodep->thenp()->user2(0);  // Don't dump it
         }
     }
-    void visit(AstFork* nodep) override { nodep->v3fatalSrc("Fork removed earlier"); }
-    void visit(AstNodeCCall* nodep) override {
-        if (m_ignoreRemaining) return;
-        const VisitBase vb{this, nodep};
+    فراغ گهمو(AstFork* nodep) override { nodep->v3fatalSrc("Fork removed earlier"); }
+    فراغ گهمو(Ast_ڳنڍ_CCall* nodep) override {
+        إذا (m_ignore_بچيل) أرجع;
+        ثابت گهمو_بنياد vb{هذا, nodep};
         iterateChildrenConst(nodep);
-        m_tracingCall = true;
+        m_tracingCall = سچ;
         iterateConst(nodep->funcp());
         UASSERT_OBJ(!m_tracingCall, nodep, "visit(AstCFunc) should have cleared m_tracingCall.");
     }
-    void visit(AstCFunc* nodep) override {
+    فراغ گهمو(AstCFunc* nodep) override {
         // Don't count a CFunc other than by tracing a call or counting it
         // from the root
-        if (!m_tracingCall && !nodep->entryPoint()) return;
-        m_tracingCall = false;
-        if (nodep->recursive()) return;
-        if (!nodep->user2()) {  // Short circuit
-            VL_RESTORER(m_ignoreRemaining);
-            VL_RESTORER(m_stackSize);
+        إذا (!m_tracingCall && !nodep->داخلا_نقطو()) أرجع;
+        m_tracingCall = خطأ;
+        إذا (nodep->recursive()) أرجع;
+        إذا (!nodep->user2()) {  // Short circuit
+            VL_RESTORER(m_ignore_بچيل);
+            VL_RESTORER(m_ڍير_سائيز);
             VL_RESTORER(m_callMax);
-            VL_RESTORER(m_inCFunc);
-            m_tracingCall = false;
-            m_stackSize = 0;
+            VL_RESTORER(m_اندريون_CFunc);
+            m_tracingCall = خطأ;
+            m_ڍير_سائيز = 0;
             m_callMax = 0;
-            m_inCFunc = true;
-            const VisitBase vb{this, nodep};
+            m_اندريون_CFunc = سچ;
+            ثابت گهمو_بنياد vb{هذا, nodep};
             iterateChildrenConst(nodep);
-            nodep->user2(m_stackSize + m_callMax + 1);
+            nodep->user2(m_ڍير_سائيز + m_callMax + 1);
         }
         // Sequential calls reuse the same stack, so only the deepest counts
         m_callMax = std::max(m_callMax, nodep->user2() - 1);
-        m_tracingCall = false;
+        m_tracingCall = خطأ;
     }
-    void visit(AstVar* nodep) override {
-        if (!m_inCFunc) return;
-        m_stackSize += nodep->isRef() ? sizeof(void*) : nodep->dtypep()->widthTotalBytes();
+    فراغ گهمو(AstVar* nodep) override {
+        إذا (!m_اندريون_CFunc) أرجع;
+        m_ڍير_سائيز += nodep->isRef() ? حجم(فراغ*) : nodep->dtypep()->ويڪر_ڪل_بائيٽون();
         iterateChildrenConst(nodep);
     }
 
-    void visit(AstNodeExpr* nodep) override {}  // Short-circuit
-    void visit(AstNode* nodep) override {
-        if (m_ignoreRemaining) return;
-        const VisitBase vb{this, nodep};
+    فراغ گهمو(Ast_ڳنڍ_اظهار* nodep) override {}  // Short-circuit
+    فراغ گهمو(Ast_ڳنڍ* nodep) override {
+        إذا (m_ignore_بچيل) أرجع;
+        ثابت گهمو_بنياد vb{هذا, nodep};
         iterateChildrenConst(nodep);
     }
 
-    VL_UNCOPYABLE(StackCountVisitor);
+    VL_UNCOPYABLE(ڍير_ڳڻپ_Visitor);
 };
 
-uint64_t V3StackCount::count(AstNode* nodep) {
-    const StackCountVisitor visitor{nodep};
-    return visitor.stackSize();
+uint64_t V3_ڍير_ڳڻپ::ڳڻپ(Ast_ڳنڍ* nodep) {
+    ثابت ڍير_ڳڻپ_Visitor visitor{nodep};
+    أرجع visitor.ڍير_سائيز();
 }

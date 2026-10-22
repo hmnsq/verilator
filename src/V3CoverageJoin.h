@@ -14,20 +14,20 @@
 //
 //*************************************************************************
 
-#ifndef VERILATOR_V3COVERAGEJOIN_H_
-#define VERILATOR_V3COVERAGEJOIN_H_
+#جيڪڏهن_وصف_نه_ٿيل VERILATOR_V3COVERAGEJOIN_H_
+#وصف_ڪريو VERILATOR_V3COVERAGEJOIN_H_
 
-#include "config_build.h"
-#include "verilatedos.h"
+#ضمن "config_build.h"
+#ضمن "verilatedos.h"
 
 class AstNetlist;
 
 //============================================================================
 
 class V3CoverageJoin final {
-public:
+عام:
     // CONSTRUCTORS
-    static void coverageJoin(AstNetlist* rootp) VL_MT_DISABLED;
+    ساكن فراغ coverageJoin(AstNetlist* rootp) VL_MT_DISABLED;
 };
 
-#endif  // Guard
+#جيڪڏهن_پورو  // Guard

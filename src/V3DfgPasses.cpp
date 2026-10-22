@@ -14,148 +14,148 @@
 //
 //*************************************************************************
 
-#include "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
+#ضمن "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
 
-#include "V3DfgPasses.h"
+#ضمن "V3DfgPasses.h"
 
-#include "V3Ast.h"
-#include "V3Dfg.h"
-#include "V3File.h"
-#include "V3Global.h"
-#include "V3String.h"
+#ضمن "V3Ast.h"
+#ضمن "V3Dfg.h"
+#ضمن "V3File.h"
+#ضمن "V3Global.h"
+#ضمن "V3String.h"
 
 VL_DEFINE_DEBUG_FUNCTIONS;
 
-void V3DfgPasses::removeUnobservable(DfgGraph& dfg, V3DfgContext& dfgCtx) {
+فراغ V3DfgPasses::removeUnobservable(Dfg_گراف& dfg, V3DfgContext& dfgCtx) {
     V3DfgRemoveUnobservableContext& ctx = dfgCtx.m_removeUnobservableContext;
 
     // Enqueue all DfgLogic vertices to work list
     DfgWorklist workList{dfg};
-    for (DfgVertex& vtx : dfg.opVertices()) {
-        if (vtx.is<DfgLogic>()) workList.push_front(vtx);
+    لكل (Dfg_راس& vtx : dfg.opVertices()) {
+        إذا (vtx.is<DfgLogic>()) workList.ڌڪو_front(vtx);
     }
 
     // Remove all logic that only drives unobservable variables
-    workList.foreach([&](DfgVertex& vtx) {
-        DfgLogic* const logicp = vtx.as<DfgLogic>();
+    workList.foreach([&](Dfg_راس& vtx) {
+        DfgLogic* ثابت logicp = vtx.as<DfgLogic>();
         // Check all variables driven by this logic are removable
-        const bool used = logicp->foreachSink([&](DfgVertex& snk) {
-            DfgUnresolved* const uVtxp = snk.as<DfgUnresolved>();
-            DfgVertexVar* const vVtxp = uVtxp->firtsSinkp()->as<DfgVertexVar>();
-            if (vVtxp->hasSinks()) return true;
-            if (vVtxp->isObserved()) return true;
-            return false;
+        ثابت منطقي استعمال_ٿيل = logicp->foreachSink([&](Dfg_راس& snk) {
+            DfgUnresolved* ثابت uVtxp = snk.as<DfgUnresolved>();
+            Dfg_راس_Var* ثابت vVtxp = uVtxp->firtsSinkp()->as<Dfg_راس_Var>();
+            إذا (vVtxp->hasSinks()) أرجع سچ;
+            إذا (vVtxp->isObserved()) أرجع سچ;
+            أرجع خطأ;
         });
         // If some are used, the logic must stay in the Ast
-        if (used) return;
+        إذا (استعمال_ٿيل) أرجع;
         // If impure, it must stay in the Ast
-        if (!logicp->isPure()) return;
+        إذا (!logicp->is_خالص()) أرجع;
         // Enqueue logic driving the inputs of this logic we are about to delete
-        logicp->foreachSource([&](DfgVertex& src) {
-            DfgVertexVar* const varp = src.as<DfgVertexVar>();
-            if (!varp->srcp()) return false;
-            varp->srcp()->as<DfgUnresolved>()->foreachSource([&](DfgVertex& driver) {
-                workList.push_front(*driver.as<DfgLogic>());
-                return false;
+        logicp->foreach_ذريعو([&](Dfg_راس& src) {
+            Dfg_راس_Var* ثابت varp = src.as<Dfg_راس_Var>();
+            إذا (!varp->srcp()) أرجع خطأ;
+            varp->srcp()->as<DfgUnresolved>()->foreach_ذريعو([&](Dfg_راس& driver) {
+                workList.ڌڪو_front(*driver.as<DfgLogic>());
+                أرجع خطأ;
             });
-            return false;
+            أرجع خطأ;
         });
         // Delete this logic both from the Dfg and the Ast
-        AstNode* const nodep = logicp->nodep();
+        Ast_ڳنڍ* ثابت nodep = logicp->nodep();
         VL_DO_DANGLING(logicp->unlinkDelete(dfg), logicp);
-        VL_DO_DANGLING(nodep->unlinkFrBack()->deleteTree(), nodep);
+        VL_DO_DANGLING(nodep->unlink_Fr_پٺ()->delete_وڻ(), nodep);
         ++ctx.m_logicDeleted;
     });
 
     // Remove unobservable variables
-    for (DfgVertexVar* const vVtxp : dfg.varVertices().unlinkable()) {
-        if (vVtxp->hasSinks()) continue;
-        if (vVtxp->isObserved()) continue;
-        DfgVertex* const srcp = vVtxp->srcp();  // Must be a DfgUnresolved or nullptr
-        AstVarScope* const vscp = vVtxp->vscp();
+    لكل (Dfg_راس_Var* ثابت vVtxp : dfg.varVertices().unlinkable()) {
+        إذا (vVtxp->hasSinks()) استمر;
+        إذا (vVtxp->isObserved()) استمر;
+        Dfg_راس* ثابت srcp = vVtxp->srcp();  // Must be a DfgUnresolved or nullptr
+        AstVarScope* ثابت vscp = vVtxp->vscp();
         // Can delete the Ast variable too if it has no other references
-        const bool delAst = (!srcp || !srcp->nInputs())  //
+        ثابت منطقي delAst = (!srcp || !srcp->nInputs())  //
                             && !vVtxp->hasExtWrRefs()  //
                             && !vVtxp->hasModWrRefs();
         VL_DO_DANGLING(vVtxp->unlinkDelete(dfg), vVtxp);
-        if (srcp) {
-            srcp->foreachSource([&](DfgVertex& src) {
-                src.as<DfgLogic>()->setDrivesUnusedVars();
-                return false;
+        إذا (srcp) {
+            srcp->foreach_ذريعو([&](Dfg_راس& src) {
+                src.as<DfgLogic>()->سيٽ_Drives_اڻ_استعمال_ٿيل_Vars();
+                أرجع خطأ;
             });
             VL_DO_DANGLING(srcp->unlinkDelete(dfg), srcp);
         }
-        if (delAst) {
-            VL_DO_DANGLING(vscp->unlinkFrBack()->deleteTree(), vscp);
+        إذا (delAst) {
+            VL_DO_DANGLING(vscp->unlink_Fr_پٺ()->delete_وڻ(), vscp);
             ++ctx.m_varsDeleted;
-        } else {
+        } وإلا {
             ++ctx.m_varsRemoved;
         }
     }
 
     // Finally remove logic from the Dfg if it drives no variables in the graph.
     // These should only be those with side effects.
-    for (DfgVertex* const vtxp : dfg.opVertices().unlinkable()) {
-        DfgLogic* const logicp = vtxp->cast<DfgLogic>();
-        if (!logicp) continue;
-        if (logicp->hasSinks()) continue;
+    لكل (Dfg_راس* ثابت vtxp : dfg.opVertices().unlinkable()) {
+        DfgLogic* ثابت logicp = vtxp->cast<DfgLogic>();
+        إذا (!logicp) استمر;
+        إذا (logicp->hasSinks()) استمر;
         // Input variables will be read in Ast code, add Ast reference vertices
         // AstVar/AstVarScope::user2p() -> corresponding DfgVertexVar* in the graph
-        const VNUser2InUse m_user2InUse;
-        logicp->foreachSource([](DfgVertex& src) {
-            src.as<DfgVertexVar>()->vscp()->user2p(&src);
-            return false;
+        ثابت VNUser2_اندريون_Use m_user2_اندريون_Use;
+        logicp->foreach_ذريعو([](Dfg_راس& src) {
+            src.as<Dfg_راس_Var>()->vscp()->user2p(&src);
+            أرجع خطأ;
         });
-        V3DfgPasses::addAstRefs(dfg, logicp->nodep(), [](AstNode* varp) {  //
-            return varp->user2u().to<DfgVertexVar*>();
+        V3DfgPasses::جوڙيو_Ast_Refs(dfg, logicp->nodep(), [](Ast_ڳنڍ* varp) {  //
+            أرجع varp->user2u().منزل<Dfg_راس_Var*>();
         });
         VL_DO_DANGLING(logicp->unlinkDelete(dfg), logicp);
         ++ctx.m_logicRemoved;
     }
 }
 
-void V3DfgPasses::removeSelects(DfgGraph& dfg, V3DfgRemoveSelectsContext& ctx) {
+فراغ V3DfgPasses::removeSelects(Dfg_گراف& dfg, V3DfgRemoveSelectsContext& ctx) {
 
-    std::vector<DfgSel*> selps;
-    for (DfgVertex& vtx : dfg.opVertices()) {
-        DfgSel* const selp = vtx.cast<DfgSel>();
-        if (!selp) continue;
-        selps.push_back(selp);
+    std::ويڪٽر<DfgSel*> selps;
+    لكل (Dfg_راس& vtx : dfg.opVertices()) {
+        DfgSel* ثابت selp = vtx.cast<DfgSel>();
+        إذا (!selp) استمر;
+        selps.ڌڪو_پٺ(selp);
     }
 
-    for (DfgSel* const selp : selps) {
-        FileLine* const flp = selp->fileline();
-        const DfgDataType& dtype = selp->dtype();
+    لكل (DfgSel* ثابت selp : selps) {
+        File_سٽ* ثابت flp = selp->fileline();
+        ثابت Dfg_معلومات_Type& dtype = selp->dtype();
 
         // Remove full width selects
-        if (selp->fromp()->dtype() == dtype) {
-            ++ctx.m_removedFullWidth;
+        إذا (selp->fromp()->dtype() == dtype) {
+            ++ctx.m_removed_ڀريل_ويڪر;
             selp->replaceWith(selp->fromp());
             VL_DO_DANGLING(selp->unlinkDelete(dfg), selp);
-            continue;
+            استمر;
         }
 
         // Push selects through synthesis temporaries only
-        DfgVarPacked* const varp = selp->fromp()->cast<DfgVarPacked>();
-        if (!varp || !varp->tmpForp()) continue;
+        DfgVarPacked* ثابت varp = selp->fromp()->cast<DfgVarPacked>();
+        إذا (!varp || !varp->tmpForp()) استمر;
 
         // Find the driver of this range
-        const auto pair = varp->driverOfRange(selp->lsb(), selp->width());
-        DfgVertex* const driverp = pair.first;
-        const uint32_t driverLsb = pair.second;
-        if (!driverp) continue;
+        ثابت خودڪار pair = varp->driver_جو_Range(selp->lsb(), selp->ويڪر());
+        Dfg_راس* ثابت driverp = pair.پهريون;
+        ثابت uint32_t driverLsb = pair.ٻيو;
+        إذا (!driverp) استمر;
 
         // If partial driver is the whole thing we are looking for, just replace with that
-        if (driverp->dtype() == dtype) {
-            ++ctx.m_replacedWithWholeDriver;
+        إذا (driverp->dtype() == dtype) {
+            ++ctx.m_replaced_With_سڄو_Driver;
             selp->replaceWith(driverp);
             VL_DO_DANGLING(selp->unlinkDelete(dfg), selp);
-            continue;
+            استمر;
         }
 
         // Otherwise create a new select from the partial driver
         ++ctx.m_replacedWithSelFromDriver;
-        DfgSel* const newSelp = new DfgSel{dfg, flp, dtype};
+        DfgSel* ثابت newSelp = جديد DfgSel{dfg, flp, dtype};
         newSelp->lsb(driverLsb);
         newSelp->fromp(driverp);
         selp->replaceWith(newSelp);
@@ -163,200 +163,200 @@ void V3DfgPasses::removeSelects(DfgGraph& dfg, V3DfgRemoveSelectsContext& ctx) {
     }
 }
 
-void V3DfgPasses::inlineVars(DfgGraph& dfg) {
-    for (DfgVertexVar& vtx : dfg.varVertices()) {
+فراغ V3DfgPasses::inlineVars(Dfg_گراف& dfg) {
+    لكل (Dfg_راس_Var& vtx : dfg.varVertices()) {
         // Nothing to inline it into
-        if (!vtx.hasSinks()) continue;
+        إذا (!vtx.hasSinks()) استمر;
         // Nohting to inline
-        DfgVertex* const srcp = vtx.srcp();
-        if (!srcp) continue;
+        Dfg_راس* ثابت srcp = vtx.srcp();
+        إذا (!srcp) استمر;
         // Value can differ from driver
-        if (vtx.isVolatile()) continue;
+        إذا (vtx.isVolatile()) استمر;
         // Partial driver cannot be inlined
-        if (srcp->is<DfgVertexSplice>()) continue;
-        if (srcp->is<DfgUnitArray>()) continue;
+        إذا (srcp->is<Dfg_راس_Splice>()) استمر;
+        إذا (srcp->is<DfgUnitArray>()) استمر;
         // Don't inline CReset
-        if (srcp->is<DfgCReset>()) continue;
+        إذا (srcp->is<DfgCReset>()) استمر;
         // Okie dokie, here we go ...
         vtx.replaceWith(srcp);
     }
 }
 
-void V3DfgPasses::removeUnused(DfgGraph& dfg) {
+فراغ V3DfgPasses::remove_اڻ_استعمال_ٿيل(Dfg_گراف& dfg) {
     // Worklist based algoritm
     DfgWorklist workList{dfg};
 
     // Add all unused operation vertices to the work list
-    for (DfgVertex& vtx : dfg.opVertices()) {
-        if (vtx.hasSinks()) continue;
+    لكل (Dfg_راس& vtx : dfg.opVertices()) {
+        إذا (vtx.hasSinks()) استمر;
         // This vertex is unused. Add to work list.
-        workList.push_front(vtx);
+        workList.ڌڪو_front(vtx);
     }
 
     // Also add all unused temporaries created during synthesis
-    for (DfgVertexVar& vtx : dfg.varVertices()) {
-        if (!vtx.tmpForp()) continue;
-        if (vtx.hasSinks()) continue;
-        if (vtx.hasDfgRefs()) continue;
+    لكل (Dfg_راس_Var& vtx : dfg.varVertices()) {
+        إذا (!vtx.tmpForp()) استمر;
+        إذا (vtx.hasSinks()) استمر;
+        إذا (vtx.hasDfgRefs()) استمر;
         // This vertex is unused. Add to work list.
-        workList.push_front(vtx);
+        workList.ڌڪو_front(vtx);
     }
 
     // Process the work list
-    workList.foreach([&](DfgVertex& vtx) {
+    workList.foreach([&](Dfg_راس& vtx) {
         // DfgLogic should have been synthesized or removed
         UASSERT_OBJ(!vtx.is<DfgLogic>(), &vtx, "Should not be DfgLogic");
         // If used, then nothing to do, so move on
-        if (vtx.hasSinks()) return;
+        إذا (vtx.hasSinks()) أرجع;
         // If temporary used in another graph, we need to keep it
-        if (const DfgVertexVar* const varp = vtx.cast<DfgVertexVar>()) {
+        إذا (ثابت Dfg_راس_Var* ثابت varp = vtx.cast<Dfg_راس_Var>()) {
             UASSERT_OBJ(varp->tmpForp(), varp, "Non-temporary variable should not be visited");
-            if (varp->hasDfgRefs()) return;
+            إذا (varp->hasDfgRefs()) أرجع;
         }
         // Add sources of unused vertex to work list
-        vtx.foreachSource([&](DfgVertex& src) {
+        vtx.foreach_ذريعو([&](Dfg_راس& src) {
             // We only remove actual operation vertices and synthesis temporaries in this loop
-            if (src.is<DfgConst>()) return false;
-            const DfgVertexVar* const varp = src.cast<DfgVertexVar>();
-            if (varp && !varp->tmpForp()) return false;
+            إذا (src.is<DfgConst>()) أرجع خطأ;
+            ثابت Dfg_راس_Var* ثابت varp = src.cast<Dfg_راس_Var>();
+            إذا (varp && !varp->tmpForp()) أرجع خطأ;
             // Add source to workList
-            workList.push_front(src);
-            return false;
+            workList.ڌڪو_front(src);
+            أرجع خطأ;
         });
         // Remove the unused vertex
         vtx.unlinkDelete(dfg);
     });
 
     // Remove unused and undriven variable vertices
-    for (DfgVertexVar* const vtxp : dfg.varVertices().unlinkable()) {
-        if (!vtxp->hasSinks() && !vtxp->srcp()) VL_DO_DANGLING(vtxp->unlinkDelete(dfg), vtxp);
+    لكل (Dfg_راس_Var* ثابت vtxp : dfg.varVertices().unlinkable()) {
+        إذا (!vtxp->hasSinks() && !vtxp->srcp()) VL_DO_DANGLING(vtxp->unlinkDelete(dfg), vtxp);
     }
 
     // Finally remove unused constants
-    for (DfgConst* const vtxp : dfg.constVertices().unlinkable()) {
-        if (!vtxp->hasSinks()) VL_DO_DANGLING(vtxp->unlinkDelete(dfg), vtxp);
+    لكل (DfgConst* ثابت vtxp : dfg.constVertices().unlinkable()) {
+        إذا (!vtxp->hasSinks()) VL_DO_DANGLING(vtxp->unlinkDelete(dfg), vtxp);
     }
 }
 
-void V3DfgPasses::binToOneHot(DfgGraph& dfg, V3DfgBinToOneHotContext& ctx) {
+فراغ V3DfgPasses::bin_منزل_One_Hot(Dfg_گراف& dfg, V3_Dfg_Bin_منزل_One_Hot_Context& ctx) {
     // Structure to keep track of comparison details
-    struct Term final {
-        DfgVertex* m_vtxp = nullptr;  // Vertex to replace
-        bool m_inv = false;  // '!=', instead of '=='
-        Term() = default;
-        Term(DfgVertex* vtxp, bool inv)
+    بنية رڪن_2 final {
+        Dfg_راس* m_vtxp = خالي_اشارو;  // Vertex to replace
+        منطقي m_inv = خطأ;  // '!=', instead of '=='
+        رڪن_2() = افتراضي;
+        رڪن_2(Dfg_راس* vtxp, منطقي inv)
             : m_vtxp{vtxp}
             , m_inv{inv} {}
     };
 
     // List of vertices that are used as sources
-    std::vector<DfgVertex*> srcps;
+    std::ويڪٽر<Dfg_راس*> srcps;
 
     // Map from 'vertices' -> 'value beign compared' -> 'terms'
-    using Val2Terms = std::map<uint32_t, std::vector<Term>>;
+    استعمال Val2Terms = std::map<uint32_t, std::ويڪٽر<رڪن_2>>;
     DfgUserMap<Val2Terms> vtx2Val2Terms = dfg.makeUserMap<Val2Terms>();
 
     // Only consider input variables from a reasonable range:
     // - not too big to avoid huge tables, you are doomed anyway at that point..
     // - not too small, as it's probably not worth it
-    constexpr uint32_t WIDTH_MIN = 7;
-    constexpr uint32_t WIDTH_MAX = 20;
-    const auto widthOk = [](const DfgVertex* vtxp) {
-        const uint32_t width = vtxp->width();
-        return WIDTH_MIN <= width && width <= WIDTH_MAX;
+    constexpr uint32_t ويڪر_MIN = 7;
+    constexpr uint32_t ويڪر_MAX = 20;
+    ثابت خودڪار ويڪر_Ok = [](ثابت Dfg_راس* vtxp) {
+        ثابت uint32_t ويڪر = vtxp->ويڪر();
+        أرجع ويڪر_MIN <= ويڪر && ويڪر <= ويڪر_MAX;
     };
 
     // Do not convert terms that look like they are in a Cond tree
     // the C++ compiler can generate jump tables for these
-    const std::function<bool(const DfgVertex*, bool)> useOk
-        = [&](const DfgVertex* vtxp, bool inv) -> bool {
+    ثابت std::function<منطقي(ثابت Dfg_راس*, منطقي)> useOk
+        = [&](ثابت Dfg_راس* vtxp, منطقي inv) -> منطقي {
         // Go past a single 'Not' sink, which is common
-        if (DfgVertex* const sinkp = vtxp->singleSink()) {
-            if (sinkp->is<DfgNot>()) return useOk(sinkp, !inv);
+        إذا (Dfg_راس* ثابت sinkp = vtxp->singleSink()) {
+            إذا (sinkp->is<DfgNot>()) أرجع useOk(sinkp, !inv);
         }
-        const bool condTree = vtxp->foreachSink([&](const DfgVertex& sink) {
-            const DfgCond* const condp = sink.cast<DfgCond>();
-            if (!condp) return false;
-            if (condp->condp() != vtxp) return false;
-            return inv ? condp->thenp()->is<DfgCond>() : condp->elsep()->is<DfgCond>();
+        ثابت منطقي cond_وڻ = vtxp->foreachSink([&](ثابت Dfg_راس& sink) {
+            ثابت DfgCond* ثابت condp = sink.cast<DfgCond>();
+            إذا (!condp) أرجع خطأ;
+            إذا (condp->condp() != vtxp) أرجع خطأ;
+            أرجع inv ? condp->thenp()->is<DfgCond>() : condp->elsep()->is<DfgCond>();
         });
-        return !condTree;
+        أرجع !cond_وڻ;
     };
 
     // Look at all comparison nodes and build the 'Val2Terms' map for each source vertex
     uint32_t nTerms = 0;
-    for (DfgVertex& vtx : dfg.opVertices()) {
-        DfgVertex* srcp = nullptr;
+    لكل (Dfg_راس& vtx : dfg.opVertices()) {
+        Dfg_راس* srcp = خالي_اشارو;
         uint32_t val = 0;
-        bool inv = false;
-        if (DfgEq* const eqp = vtx.cast<DfgEq>()) {
-            DfgConst* const constp = eqp->lhsp()->cast<DfgConst>();
-            if (!constp || !widthOk(constp) || !useOk(eqp, false)) continue;
+        منطقي inv = خطأ;
+        إذا (DfgEq* ثابت eqp = vtx.cast<DfgEq>()) {
+            DfgConst* ثابت constp = eqp->lhsp()->cast<DfgConst>();
+            إذا (!constp || !ويڪر_Ok(constp) || !useOk(eqp, خطأ)) استمر;
             srcp = eqp->rhsp();
-            val = constp->toU32();
-            inv = false;
-        } else if (DfgNeq* const neqp = vtx.cast<DfgNeq>()) {
-            DfgConst* const constp = neqp->lhsp()->cast<DfgConst>();
-            if (!constp || !widthOk(constp) || !useOk(neqp, true)) continue;
+            val = constp->منزل_U32();
+            inv = خطأ;
+        } وإلا إذا (DfgNeq* ثابت neqp = vtx.cast<DfgNeq>()) {
+            DfgConst* ثابت constp = neqp->lhsp()->cast<DfgConst>();
+            إذا (!constp || !ويڪر_Ok(constp) || !useOk(neqp, سچ)) استمر;
             srcp = neqp->rhsp();
-            val = constp->toU32();
-            inv = true;
-        } else if (DfgRedAnd* const redAndp = vtx.cast<DfgRedAnd>()) {
+            val = constp->منزل_U32();
+            inv = سچ;
+        } وإلا إذا (DfgRedAnd* ثابت redAndp = vtx.cast<DfgRedAnd>()) {
             srcp = redAndp->srcp();
-            if (!widthOk(srcp) || !useOk(redAndp, false)) continue;
-            val = (1U << srcp->width()) - 1;
-            inv = false;
-        } else if (DfgRedOr* const redOrp = vtx.cast<DfgRedOr>()) {
+            إذا (!ويڪر_Ok(srcp) || !useOk(redAndp, خطأ)) استمر;
+            val = (1U << srcp->ويڪر()) - 1;
+            inv = خطأ;
+        } وإلا إذا (DfgRedOr* ثابت redOrp = vtx.cast<DfgRedOr>()) {
             srcp = redOrp->srcp();
-            if (!widthOk(srcp) || !useOk(redOrp, true)) continue;
+            إذا (!ويڪر_Ok(srcp) || !useOk(redOrp, سچ)) استمر;
             val = 0;
-            inv = true;
-        } else if (DfgSel* const selp = vtx.cast<DfgSel>()) {
+            inv = سچ;
+        } وإلا إذا (DfgSel* ثابت selp = vtx.cast<DfgSel>()) {
             // Special case: Sel(ShiftL(1, src),lsb,width=1)
-            if (selp->width() != 1) continue;
-            DfgShiftL* const shiftLp = selp->fromp()->cast<DfgShiftL>();
-            if (!shiftLp) continue;
-            const DfgConst* const constp = shiftLp->lhsp()->cast<DfgConst>();
-            if (!constp || !useOk(selp, false)) continue;
-            if (!constp->hasValue(1)) continue;
-            srcp = shiftLp->rhsp();
-            if (!widthOk(srcp)) continue;
+            إذا (selp->ويڪر() != 1) استمر;
+            Dfg_سرڪايو_L* ثابت سرڪايو_Lp = selp->fromp()->cast<Dfg_سرڪايو_L>();
+            إذا (!سرڪايو_Lp) استمر;
+            ثابت DfgConst* ثابت constp = سرڪايو_Lp->lhsp()->cast<DfgConst>();
+            إذا (!constp || !useOk(selp, خطأ)) استمر;
+            إذا (!constp->has_قدر(1)) استمر;
+            srcp = سرڪايو_Lp->rhsp();
+            إذا (!ويڪر_Ok(srcp)) استمر;
             val = selp->lsb();
-            inv = false;
-        } else {
+            inv = خطأ;
+        } وإلا {
             // Not a comparison-like vertex
-            continue;
+            استمر;
         }
         // Grab Val2Terms for this vertex
         Val2Terms& val2Terms = vtx2Val2Terms[srcp];
         // Remeber and on first encounter
-        if (val2Terms.empty()) srcps.emplace_back(srcp);
+        إذا (val2Terms.خالي_جايون()) srcps.emplace_پٺ(srcp);
         // Record term
-        val2Terms[val].emplace_back(&vtx, inv);
+        val2Terms[val].emplace_پٺ(&vtx, inv);
         ++nTerms;
     }
 
     // Somewhat arbitrarily, only apply if more than 64 unique comparisons are required
-    constexpr uint32_t TERM_LIMIT = 65;
+    constexpr uint32_t رڪن_حد_بندي = 65;
     // This should hold, otherwise we do redundant work gathering terms that will never be used
-    static_assert((1U << WIDTH_MIN) >= TERM_LIMIT, "TERM_LIMIT too big relative to 2**WIDTH_MIN");
+    static_assert((1U << ويڪر_MIN) >= رڪن_حد_بندي, "TERM_LIMIT too big relative to 2**WIDTH_MIN");
 
     // Fast path exit if we surely don't need to convet anything
-    if (nTerms < TERM_LIMIT) return;
+    إذا (nTerms < رڪن_حد_بندي) أرجع;
 
-    DfgVertex::ScopeCache scopeCache;
+    Dfg_راس::ScopeCache scopeCache;
 
     // Create decoders for each srcp
-    for (DfgVertex* const srcp : srcps) {
-        const Val2Terms& val2Terms = vtx2Val2Terms[srcp];
+    لكل (Dfg_راس* ثابت srcp : srcps) {
+        ثابت Val2Terms& val2Terms = vtx2Val2Terms[srcp];
 
         // If not enough terms in this vertex, ignore
-        if (val2Terms.size() < TERM_LIMIT) continue;
+        إذا (val2Terms.سائيز() < رڪن_حد_بندي) استمر;
 
         // Width of the decoded binary value
-        const uint32_t width = srcp->width();
+        ثابت uint32_t ويڪر = srcp->ويڪر();
         // Number of bits in the input operand
-        const uint32_t nBits = 1U << width;
+        ثابت uint32_t n_بٽ = 1U << ويڪر;
 
         // Construct the decoder by converting many "const == vtx" by:
         // - Adding a single decoder block, where 'tab' is zero initialized:
@@ -372,146 +372,146 @@ void V3DfgPasses::binToOneHot(DfgGraph& dfg, V3DfgBinToOneHotContext& ctx) {
         //   all the others are always zero.
         // - and replace the comparisons with 'tab[const]'
 
-        FileLine* const flp = srcp->fileline();
-        AstScope* const scopep = srcp->scopep(scopeCache, true);
+        File_سٽ* ثابت flp = srcp->fileline();
+        AstScope* ثابت scopep = srcp->scopep(scopeCache, سچ);
 
-        AstActive* const staticActivep = [scopep]() {
+        Ast_سرگرم* ثابت staticActivep = [scopep]() {
             // Try to find the existing static AstActive
-            for (AstNode* nodep = scopep->blocksp(); nodep; nodep = nodep->nextp()) {
-                AstActive* const activep = VN_CAST(nodep, Active);
-                if (!activep) continue;
-                if (activep->sentreep()->hasStatic()) return activep;
+            لكل (Ast_ڳنڍ* nodep = scopep->blocksp(); nodep; nodep = nodep->nextp()) {
+                Ast_سرگرم* ثابت activep = VN_CAST(nodep, سرگرم);
+                إذا (!activep) استمر;
+                إذا (activep->sentreep()->hasStatic()) أرجع activep;
             }
             // If there isn't one, create a new one
-            FileLine* const flp = scopep->fileline();
-            AstSenTree* const stp = new AstSenTree{flp, new AstSenItem{flp, AstSenItem::Static{}}};
-            AstActive* const activep = new AstActive{flp, "", stp};
-            activep->senTreeStorep(stp);
-            scopep->addBlocksp(activep);
-            return activep;
+            File_سٽ* ثابت flp = scopep->fileline();
+            Ast_Sen_وڻ* ثابت stp = جديد Ast_Sen_وڻ{flp, جديد Ast_Sen_شي{flp, Ast_Sen_شي::Static{}}};
+            Ast_سرگرم* ثابت activep = جديد Ast_سرگرم{flp, "", stp};
+            activep->sen_وڻ_Storep(stp);
+            scopep->جوڙيو_Blocksp(activep);
+            أرجع activep;
         }();
-        AstActive* const combActivep = [scopep]() {
+        Ast_سرگرم* ثابت combActivep = [scopep]() {
             // Try to find the existing combinational AstActive
-            for (AstNode* nodep = scopep->blocksp(); nodep; nodep = nodep->nextp()) {
-                AstActive* const activep = VN_CAST(nodep, Active);
-                if (!activep) continue;
-                if (activep->sentreep()->hasCombo()) return activep;
+            لكل (Ast_ڳنڍ* nodep = scopep->blocksp(); nodep; nodep = nodep->nextp()) {
+                Ast_سرگرم* ثابت activep = VN_CAST(nodep, سرگرم);
+                إذا (!activep) استمر;
+                إذا (activep->sentreep()->hasCombo()) أرجع activep;
             }
             // If there isn't one, create a new one
-            FileLine* const flp = scopep->fileline();
-            AstSenTree* const stp = new AstSenTree{flp, new AstSenItem{flp, AstSenItem::Combo{}}};
-            AstActive* const activep = new AstActive{flp, "", stp};
-            activep->senTreeStorep(stp);
-            scopep->addBlocksp(activep);
-            return activep;
+            File_سٽ* ثابت flp = scopep->fileline();
+            Ast_Sen_وڻ* ثابت stp = جديد Ast_Sen_وڻ{flp, جديد Ast_Sen_شي{flp, Ast_Sen_شي::Combo{}}};
+            Ast_سرگرم* ثابت activep = جديد Ast_سرگرم{flp, "", stp};
+            activep->sen_وڻ_Storep(stp);
+            scopep->جوڙيو_Blocksp(activep);
+            أرجع activep;
         }();
 
         // Required data types
-        const DfgDataType& idxDType = srcp->dtype();
-        const DfgDataType& bitDType = DfgDataType::packed(1);
-        const DfgDataType& tabDType = DfgDataType::array(bitDType, nBits);
+        ثابت Dfg_معلومات_Type& idxDType = srcp->dtype();
+        ثابت Dfg_معلومات_Type& ٻٽو_انگ_DType = Dfg_معلومات_Type::packed(1);
+        ثابت Dfg_معلومات_Type& tabDType = Dfg_معلومات_Type::array(ٻٽو_انگ_DType, n_بٽ);
 
         // The index variable
         DfgVarPacked* idxVtxp = [&]() {
             // If there is an existing result variable, use that
-            if (DfgVertexVar* const vp = srcp->getResultVar()) return vp->as<DfgVarPacked>();
+            إذا (Dfg_راس_Var* ثابت vp = srcp->get_نتيجو_Var()) أرجع vp->as<DfgVarPacked>();
             // Otherwise create a new variable
-            DfgVertexVar* const vtxp = dfg.makeNewVar(flp, "BinToOneHot_Idx", idxDType, scopep);
-            vtxp->vscp()->varp()->isInternal(true);
+            Dfg_راس_Var* ثابت vtxp = dfg.makeNewVar(flp, "BinToOneHot_Idx", idxDType, scopep);
+            vtxp->vscp()->varp()->is_اندروني(سچ);
             vtxp->srcp(srcp);
-            return vtxp->as<DfgVarPacked>();
+            أرجع vtxp->as<DfgVarPacked>();
         }();
-        AstVarScope* const idxVscp = idxVtxp->vscp();
+        AstVarScope* ثابت idxVscp = idxVtxp->vscp();
         // The previous index variable - we don't need a vertex for this
-        AstVarScope* const preVscp = [&]() {
-            DfgVertexVar* const vtxp = dfg.makeNewVar(flp, "BinToOneHot_Pre", idxDType, scopep);
-            AstVarScope* const vscp = vtxp->vscp();
+        AstVarScope* ثابت preVscp = [&]() {
+            Dfg_راس_Var* ثابت vtxp = dfg.makeNewVar(flp, "BinToOneHot_Pre", idxDType, scopep);
+            AstVarScope* ثابت vscp = vtxp->vscp();
             VL_DO_DANGLING(vtxp->unlinkDelete(dfg), vtxp);
-            vscp->varp()->isInternal(true);
-            vscp->varp()->noReset(true);
-            vscp->varp()->setIgnoreSchedWrite();
-            return vscp;
+            vscp->varp()->is_اندروني(سچ);
+            vscp->varp()->noReset(سچ);
+            vscp->varp()->سيٽ_Ignore_Sched_Write();
+            أرجع vscp;
         }();
         // The table variable
-        DfgVarArray* const tabVtxp = [&]() {
-            DfgVertexVar* const varp = dfg.makeNewVar(flp, "BinToOneHot_Tab", tabDType, scopep);
-            varp->vscp()->varp()->isInternal(true);
-            varp->vscp()->varp()->noReset(true);
-            varp->setHasModWrRefs();
-            return varp->as<DfgVarArray>();
+        DfgVarArray* ثابت tabVtxp = [&]() {
+            Dfg_راس_Var* ثابت varp = dfg.makeNewVar(flp, "BinToOneHot_Tab", tabDType, scopep);
+            varp->vscp()->varp()->is_اندروني(سچ);
+            varp->vscp()->varp()->noReset(سچ);
+            varp->سيٽ_Has_Mod_Wr_Refs();
+            أرجع varp->as<DfgVarArray>();
         }();
 
         ++ctx.m_decodersCreated;
 
         // Initialize 'tab' and 'pre' variables statically
-        AstInitialStatic* const initp = new AstInitialStatic{flp, nullptr};
-        staticActivep->addStmtsp(initp);
+        AstInitialStatic* ثابت initp = جديد AstInitialStatic{flp, خالي_اشارو};
+        staticActivep->جوڙيو_Stmtsp(initp);
         {  // pre = 0
-            initp->addStmtsp(new AstAssign{
+            initp->جوڙيو_Stmtsp(جديد Ast_سونپيو{
                 flp,  //
-                new AstVarRef{flp, preVscp, VAccess::WRITE},  //
-                new AstConst{flp, AstConst::WidthedValue{}, static_cast<int>(width), 0}});
+                جديد AstVarRef{flp, preVscp, VAccess::WRITE},  //
+                جديد AstConst{flp, AstConst::Widthed_قدر{}, static_cast<صحيح>(ويڪر), 0}});
         }
         {  // tab.fill(0)
-            AstCMethodHard* const callp = new AstCMethodHard{
-                flp, new AstVarRef{flp, tabVtxp->vscp(), VAccess::WRITE}, VCMethod::UNPACKED_FILL};
-            callp->addPinsp(new AstConst{flp, AstConst::BitFalse{}});
-            callp->dtypeSetVoid();
-            initp->addStmtsp(callp->makeStmt());
+            AstCMethodHard* ثابت callp = جديد AstCMethodHard{
+                flp, جديد AstVarRef{flp, tabVtxp->vscp(), VAccess::WRITE}, VCMethod::UNPACKED_FILL};
+            callp->جوڙيو_Pinsp(جديد AstConst{flp, AstConst::ٻٽو_انگ_False{}});
+            callp->dtype_سيٽ_Void();
+            initp->جوڙيو_Stmtsp(callp->makeStmt());
         }
 
         // Build the decoder logic
-        AstAlways* const logicp = new AstAlways{flp, VAlwaysKwd::ALWAYS_COMB, nullptr, nullptr};
-        combActivep->addStmtsp(logicp);
+        AstAlways* ثابت logicp = جديد AstAlways{flp, VAlwaysKwd::ALWAYS_COMB, خالي_اشارو, خالي_اشارو};
+        combActivep->جوڙيو_Stmtsp(logicp);
         {  // tab[pre] = 0;
-            logicp->addStmtsp(new AstAssign{
+            logicp->جوڙيو_Stmtsp(جديد Ast_سونپيو{
                 flp,  //
-                new AstArraySel{flp, new AstVarRef{flp, tabVtxp->vscp(), VAccess::WRITE},
-                                new AstVarRef{flp, preVscp, VAccess::READ}},  //
-                new AstConst{flp, AstConst::BitFalse{}}});
+                جديد AstArraySel{flp, جديد AstVarRef{flp, tabVtxp->vscp(), VAccess::WRITE},
+                                جديد AstVarRef{flp, preVscp, VAccess::READ}},  //
+                جديد AstConst{flp, AstConst::ٻٽو_انگ_False{}}});
         }
         {  // tab[idx] = 1
-            AstVarRef* const idxRefp = new AstVarRef{flp, idxVscp, VAccess::READ};
-            logicp->addStmtsp(new AstAssign{
+            AstVarRef* ثابت idxRefp = جديد AstVarRef{flp, idxVscp, VAccess::READ};
+            logicp->جوڙيو_Stmtsp(جديد Ast_سونپيو{
                 flp,  //
-                new AstArraySel{flp, new AstVarRef{flp, tabVtxp->vscp(), VAccess::WRITE},
+                جديد AstArraySel{flp, جديد AstVarRef{flp, tabVtxp->vscp(), VAccess::WRITE},
                                 idxRefp},  //
-                new AstConst{flp, AstConst::BitTrue{}}});
-            DfgAstRd* const astRdp = new DfgAstRd{dfg, idxRefp, false, false};
+                جديد AstConst{flp, AstConst::ٻٽو_انگ_True{}}});
+            DfgAstRd* ثابت astRdp = جديد DfgAstRd{dfg, idxRefp, خطأ, خطأ};
             astRdp->srcp(idxVtxp);
         }
         {  // pre = idx
-            AstVarRef* const idxRefp = new AstVarRef{flp, idxVscp, VAccess::READ};
-            logicp->addStmtsp(new AstAssign{flp,  //
-                                            new AstVarRef{flp, preVscp, VAccess::WRITE},  //
+            AstVarRef* ثابت idxRefp = جديد AstVarRef{flp, idxVscp, VAccess::READ};
+            logicp->جوڙيو_Stmtsp(جديد Ast_سونپيو{flp,  //
+                                            جديد AstVarRef{flp, preVscp, VAccess::WRITE},  //
                                             idxRefp});
-            DfgAstRd* const astRdp = new DfgAstRd{dfg, idxRefp, false, false};
+            DfgAstRd* ثابت astRdp = جديد DfgAstRd{dfg, idxRefp, خطأ, خطأ};
             astRdp->srcp(idxVtxp);
         }
 
         // Replace terms with ArraySels
-        for (const auto& pair : val2Terms) {
-            const uint32_t val = pair.first;
-            const std::vector<Term>& terms = pair.second;
+        لكل (ثابت خودڪار& pair : val2Terms) {
+            ثابت uint32_t val = pair.پهريون;
+            ثابت std::ويڪٽر<رڪن_2>& terms = pair.ٻيو;
             // Create the ArraySel
-            FileLine* const aflp = terms.front().m_vtxp->fileline();
-            DfgArraySel* const aselp = new DfgArraySel{dfg, aflp, bitDType};
+            File_سٽ* ثابت aflp = terms.front().m_vtxp->fileline();
+            DfgArraySel* ثابت aselp = جديد DfgArraySel{dfg, aflp, ٻٽو_انگ_DType};
             aselp->fromp(tabVtxp);
-            aselp->bitp(new DfgConst{dfg, aflp, width, val});
+            aselp->bitp(جديد DfgConst{dfg, aflp, ويڪر, val});
             // The inverted value, if needed
-            DfgNot* notp = nullptr;
+            DfgNot* notp = خالي_اشارو;
             // Repalce the terms
-            for (const Term& term : terms) {
-                if (term.m_inv) {
-                    if (!notp) {
-                        notp = new DfgNot{dfg, aflp, bitDType};
+            لكل (ثابت رڪن_2& رڪن : terms) {
+                إذا (رڪن.m_inv) {
+                    إذا (!notp) {
+                        notp = جديد DfgNot{dfg, aflp, ٻٽو_انگ_DType};
                         notp->srcp(aselp);
                     }
-                    term.m_vtxp->replaceWith(notp);
-                } else {
-                    term.m_vtxp->replaceWith(aselp);
+                    رڪن.m_vtxp->replaceWith(notp);
+                } وإلا {
+                    رڪن.m_vtxp->replaceWith(aselp);
                 }
-                VL_DO_DANGLING(term.m_vtxp->unlinkDelete(dfg), term.m_vtxp);
+                VL_DO_DANGLING(رڪن.m_vtxp->unlinkDelete(dfg), رڪن.m_vtxp);
             }
         }
     }

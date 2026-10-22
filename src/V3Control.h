@@ -14,82 +14,82 @@
 //
 //*************************************************************************
 
-#ifndef VERILATOR_V3CONFIG_H_
-#define VERILATOR_V3CONFIG_H_
+#جيڪڏهن_وصف_نه_ٿيل VERILATOR_V3CONFIG_H_
+#وصف_ڪريو VERILATOR_V3CONFIG_H_
 
-#include "config_build.h"
-#include "verilatedos.h"
+#ضمن "config_build.h"
+#ضمن "verilatedos.h"
 
-#include "V3Ast.h"
-#include "V3Error.h"
-#include "V3FileLine.h"
-#include "V3Mutex.h"
+#ضمن "V3Ast.h"
+#ضمن "V3Error.h"
+#ضمن "V3FileLine.h"
+#ضمن "V3Mutex.h"
 
 //######################################################################
 
 class V3Control final {
-public:
-    struct FsmRegisterWrapper final {
+عام:
+    بنية Fsm_رجسٽر_Wrapper final {
         string moduleName;
         string d;
         string q;
         string clock;
         string reset;
-        string resetValue;
+        string reset_قدر;
     };
 
-    enum class VarSpecKind : uint8_t {
+    تعداد class Var_Spec_قسم : uint8_t {
         PARAM,  // Select only matching parameters
-        PORT,  // Select only matching ports
+        پورٽ,  // Select only matching ports
         VAR  // Select any matching AstVar (including params and ports)
     };
 
-    static void addCaseFull(const string& file, int lineno);
-    static void addCaseParallel(const string& file, int lineno);
-    static void addCoverageBlockOff(const string& file, int lineno);
-    static void addCoverageBlockOff(const string& module, const string& blockname);
-    static void addHierWorkers(FileLine* fl, const string& model, int workers);
-    static void addFsmRegisterWrapper(FileLine* fl, const string& module, const string& d,
-                                      const string& q, const string& clock, const string& reset,
-                                      const string& resetValue);
-    static void addIgnore(V3ErrorCode code, bool on, const string& filename, int min, int max);
-    static void addIgnoreMatch(V3ErrorCode code, const string& filename, const string& contents,
-                               const string& match);
-    static void addInline(FileLine* fl, const string& module, const string& ftask, bool on);
-    static void addModulePragma(const string& module, VPragmaType pragma);
-    static void addProfileData(FileLine* fl, const string& hierDpi, uint64_t cost);
-    static void addProfileData(FileLine* fl, const string& model, const string& key,
-                               uint64_t cost);
-    static void addScopeTraceOn(bool on, const string& scope, int levels);
-    static void addVarAttr(FileLine* fl, const string& module, const string& ftask,
-                           VarSpecKind kind, const string& pattern, VAttrType type,
-                           AstSenTree* nodep);
+    ساكن فراغ جوڙيو_Case_ڀريل(ثابت string& file, صحيح lineno);
+    ساكن فراغ جوڙيو_Case_Parallel(ثابت string& file, صحيح lineno);
+    ساكن فراغ جوڙيو_Coverage_بلاڪ_Off(ثابت string& file, صحيح lineno);
+    ساكن فراغ جوڙيو_Coverage_بلاڪ_Off(ثابت string& module, ثابت string& blockname);
+    ساكن فراغ جوڙيو_Hier_Workers(File_سٽ* fl, ثابت string& model, صحيح workers);
+    ساكن فراغ جوڙيو_Fsm_رجسٽر_Wrapper(File_سٽ* fl, ثابت string& module, ثابت string& d,
+                                      ثابت string& q, ثابت string& clock, ثابت string& reset,
+                                      ثابت string& reset_قدر);
+    ساكن فراغ جوڙيو_Ignore(V3_Error_ڪوڊ ڪوڊ, bool on, ثابت string& filename, صحيح min, صحيح max);
+    ساكن فراغ جوڙيو_Ignore_ميلاپ(V3_Error_ڪوڊ ڪوڊ, ثابت string& filename, ثابت string& contents,
+                               ثابت string& ميلاپ);
+    ساكن فراغ جوڙيو_Inline(File_سٽ* fl, ثابت string& module, ثابت string& ftask, bool on);
+    ساكن فراغ جوڙيو_Module_Pragma(ثابت string& module, VPragmaType pragma);
+    ساكن فراغ جوڙيو_Profile_معلومات(File_سٽ* fl, ثابت string& hierDpi, uint64_t لاڳت);
+    ساكن فراغ جوڙيو_Profile_معلومات(File_سٽ* fl, ثابت string& model, ثابت string& ڪنجي,
+                               uint64_t لاڳت);
+    ساكن فراغ جوڙيو_Scope_Trace_On(bool on, ثابت string& scope, صحيح سطحون);
+    ساكن فراغ جوڙيو_Var_Attr(File_سٽ* fl, ثابت string& module, ثابت string& ftask,
+                           Var_Spec_قسم قسم, ثابت string& نمونو_2, VAttrType type,
+                           Ast_Sen_وڻ* nodep);
 
-    static void applyCase(AstCase* nodep);
-    static void applyCoverageBlock(AstNodeModule* modulep, AstBegin* nodep);
-    static void applyCoverageBlock(AstNodeModule* modulep, AstGenBlock* nodep);
-    static void applyFTask(AstNodeModule* modulep, AstNodeFTask* ftaskp);
-    static void applyIgnores(FileLine* filelinep);
-    static void applyModule(AstNodeModule* modulep);
-    static void applyVarAttr(const AstNodeModule* modulep, const AstNodeFTask* ftaskp,
+    ساكن فراغ applyCase(AstCase* nodep);
+    ساكن فراغ apply_Coverage_بلاڪ(Ast_ڳنڍ_Module* modulep, AstBegin* nodep);
+    ساكن فراغ apply_Coverage_بلاڪ(Ast_ڳنڍ_Module* modulep, Ast_Gen_بلاڪ* nodep);
+    ساكن فراغ applyFTask(Ast_ڳنڍ_Module* modulep, Ast_ڳنڍ_FTask* ftaskp);
+    ساكن فراغ applyIgnores(File_سٽ* filelinep);
+    ساكن فراغ applyModule(Ast_ڳنڍ_Module* modulep);
+    ساكن فراغ applyVarAttr(ثابت Ast_ڳنڍ_Module* modulep, ثابت Ast_ڳنڍ_FTask* ftaskp,
                              AstVar* varp);
 
-    static int getHierWorkers(const string& model);
-    static FileLine* getHierWorkersFileLine(const string& model);
-    static const FsmRegisterWrapper* getFsmRegisterWrapper(const string& module);
-    static uint64_t getProfileData(const string& hierDpi);
-    static uint64_t getProfileData(const string& model, const string& key);
-    static FileLine* getProfileDataFileLine();
-    static bool getScopeTraceOn(const string& scope);
+    ساكن صحيح getHierWorkers(ثابت string& model);
+    ساكن File_سٽ* get_Hier_Workers_File_سٽ(ثابت string& model);
+    ساكن ثابت Fsm_رجسٽر_Wrapper* get_Fsm_رجسٽر_Wrapper(ثابت string& module);
+    ساكن uint64_t get_Profile_معلومات(ثابت string& hierDpi);
+    ساكن uint64_t get_Profile_معلومات(ثابت string& model, ثابت string& ڪنجي);
+    ساكن File_سٽ* get_Profile_معلومات_File_سٽ();
+    ساكن bool getScopeTraceOn(ثابت string& scope);
 
-    static void contentsPushText(const string& text);
+    ساكن فراغ contents_ڌڪو_متن(ثابت string& متن);
 
-    static bool containsMTaskProfileData();
-    static uint64_t getCurrentHierBlockCost();
+    ساكن bool شامل_آهي_MTask_Profile_معلومات();
+    ساكن uint64_t get_Current_Hier_بلاڪ_لاڳت();
 
-    static bool waive(const FileLine* filelinep, V3ErrorCode code, const string& message);
+    ساكن bool waive(ثابت File_سٽ* filelinep, V3_Error_ڪوڊ ڪوڊ, ثابت string& پيغام);
 
-    static void selfTest();
+    ساكن فراغ selfTest();
 };
 
-#endif  // Guard
+#جيڪڏهن_پورو  // Guard

@@ -23,82 +23,82 @@
 //              Link to module that instantiates it
 //*************************************************************************
 
-#include "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
+#ضمن "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
 
-#include "V3LinkCells.h"
+#ضمن "V3LinkCells.h"
 
-#include "V3Graph.h"
-#include "V3Parse.h"
-#include "V3SymTable.h"
+#ضمن "V3Graph.h"
+#ضمن "V3Parse.h"
+#ضمن "V3SymTable.h"
 
-#include <unordered_set>
-#include <vector>
+#ضمن <unordered_set>
+#ضمن <vector>
 
 VL_DEFINE_DEBUG_FUNCTIONS;
 
 //######################################################################
 // Graph subclasses
 
-class LinkCellsGraph final : public V3Graph {
-public:
-    LinkCellsGraph() = default;
-    ~LinkCellsGraph() override = default;
-    void loopsMessageCb(V3GraphVertex* vertexp, V3EdgeFuncP edgeFuncp) override;
+صنف Link_Cells_گراف final : عام V3_گراف {
+عام:
+    Link_Cells_گراف() = افتراضي;
+    ~Link_Cells_گراف() override = افتراضي;
+    فراغ loops_پيغام_Cb(V3_گراف_راس* vertexp, V3_ڪنارو_Func_P ڪنارو_Funcp) override;
 };
 
-class LinkCellsVertex final : public V3GraphVertex {
-    VL_RTTI_IMPL(LinkCellsVertex, V3GraphVertex)
-    AstNodeModule* const m_modp;
+صنف Link_Cells_راس final : عام V3_گراف_راس {
+    VL_RTTI_IMPL(Link_Cells_راس, V3_گراف_راس)
+    Ast_ڳنڍ_Module* ثابت m_modp;
 
-public:
-    LinkCellsVertex(V3Graph* graphp, AstNodeModule* modp)
-        : V3GraphVertex{graphp}
+عام:
+    Link_Cells_راس(V3_گراف* graphp, Ast_ڳنڍ_Module* modp)
+        : V3_گراف_راس{graphp}
         , m_modp{modp} {}
-    ~LinkCellsVertex() override = default;
-    AstNodeModule* modp() const VL_MT_STABLE { return m_modp; }
-    string name() const override VL_MT_STABLE { return cvtToHex(modp()) + ' ' + modp()->name(); }
-    FileLine* fileline() const override { return modp()->fileline(); }
+    ~Link_Cells_راس() override = افتراضي;
+    Ast_ڳنڍ_Module* modp() ثابت VL_MT_STABLE { أرجع m_modp; }
+    string name() ثابت override VL_MT_STABLE { أرجع cvt_منزل_Hex(modp()) + ' ' + modp()->name(); }
+    File_سٽ* fileline() ثابت override { أرجع modp()->fileline(); }
     // Recursive modules get space for maximum recursion
-    uint32_t rankAdder() const override {
-        return m_modp->recursiveClone() ? (1 + v3Global.opt.moduleRecursionDepth()) : 1;
+    uint32_t rankAdder() ثابت override {
+        أرجع m_modp->recursiveClone() ? (1 + v3Global.opt.module_Recursion_اونهائي()) : 1;
     }
 };
 
-class LibraryVertex final : public V3GraphVertex {
-    VL_RTTI_IMPL(LibraryVertex, V3GraphVertex)
-public:
-    explicit LibraryVertex(V3Graph* graphp)
-        : V3GraphVertex{graphp} {}
-    ~LibraryVertex() override = default;
-    string name() const override VL_MT_STABLE { return "*LIBRARY*"; }
+صنف Library_راس final : عام V3_گراف_راس {
+    VL_RTTI_IMPL(Library_راس, V3_گراف_راس)
+عام:
+    واضح Library_راس(V3_گراف* graphp)
+        : V3_گراف_راس{graphp} {}
+    ~Library_راس() override = افتراضي;
+    string name() ثابت override VL_MT_STABLE { أرجع "*LIBRARY*"; }
 };
 
-class CellEdge final : public V3GraphEdge {
-    VL_RTTI_IMPL(CellEdge, V3GraphEdge)
-    AstCell* const m_cellp;
+صنف Cell_ڪنارو final : عام V3_گراف_ڪنارو {
+    VL_RTTI_IMPL(Cell_ڪنارو, V3_گراف_ڪنارو)
+    AstCell* ثابت m_cellp;
 
-public:
-    CellEdge(V3Graph* graphp, V3GraphVertex* fromp, V3GraphVertex* top, int weight, bool cutable,
+عام:
+    Cell_ڪنارو(V3_گراف* graphp, V3_گراف_راس* fromp, V3_گراف_راس* چوٽي, صحيح وزن_2, منطقي cutable,
              AstCell* cellp)
-        : V3GraphEdge{graphp, fromp, top, weight, cutable}
+        : V3_گراف_ڪنارو{graphp, fromp, چوٽي, وزن_2, cutable}
         , m_cellp{cellp} {}
-    AstCell* cellp() const { return m_cellp; }
-    string name() const override VL_MT_STABLE {
-        return cellp() ? cvtToHex(cellp()) + ' ' + cellp()->name() : "";
+    AstCell* cellp() ثابت { أرجع m_cellp; }
+    string name() ثابت override VL_MT_STABLE {
+        أرجع cellp() ? cvt_منزل_Hex(cellp()) + ' ' + cellp()->name() : "";
     }
 };
 
-void LinkCellsGraph::loopsMessageCb(V3GraphVertex* vertexp, V3EdgeFuncP edgeFuncp) {
-    if (const LinkCellsVertex* const vvertexp = vertexp->cast<LinkCellsVertex>()) {
+فراغ Link_Cells_گراف::loops_پيغام_Cb(V3_گراف_راس* vertexp, V3_ڪنارو_Func_P ڪنارو_Funcp) {
+    إذا (ثابت Link_Cells_راس* ثابت vvertexp = vertexp->cast<Link_Cells_راس>()) {
         vvertexp->modp()->v3warn(E_UNSUPPORTED,
                                  "Unsupported: Recursive multiple modules (module instantiates "
                                  "something leading back to itself): "
                                      << vvertexp->modp()->prettyNameQ() << '\n'
-                                     << vvertexp->modp()->warnMore()
+                                     << vvertexp->modp()->warn_وڌيڪ()
                                      << "... note: self-recursion (module instantiating itself "
                                         "directly) is supported.");
         V3Error::abortIfErrors();
-    } else {  // Everything should match above, but...
+    } وإلا {  // Everything should match above, but...
         v3fatalSrc("Recursive instantiations");
     }
 }
@@ -107,111 +107,111 @@ void LinkCellsGraph::loopsMessageCb(V3GraphVertex* vertexp, V3EdgeFuncP edgeFunc
 // Link state, as a visitor of each AstNode
 
 // State to pass between config parsing and cell linking visitors.
-struct LinkCellsState final {
+بنية LinkCellsState final {
     // Set of possible top module names from command line and configs
-    std::vector<std::pair<std::string, std::string>> m_designs;
+    std::ويڪٽر<std::pair<std::string, std::string>> m_designs;
     // Default library lists to search
-    std::vector<std::string> m_liblistDefault;
+    std::ويڪٽر<std::string> m_liblistDefault;
     // Library lists for specific cells
-    std::unordered_map<std::string, std::vector<std::string>> m_liblistCell;
+    std::unordered_map<std::string, std::ويڪٽر<std::string>> m_liblistCell;
     // Use list for specific cells (libname, cellname)
-    std::unordered_map<std::string, std::vector<std::pair<std::string, std::string>>>
+    std::unordered_map<std::string, std::ويڪٽر<std::pair<std::string, std::string>>>
         m_uselistCell;
     // Library lists for specific insts
-    std::unordered_map<std::string, std::vector<std::string>> m_liblistInst;
+    std::unordered_map<std::string, std::ويڪٽر<std::string>> m_liblistInst;
     // Use list for specific insts (libname, cellname)
-    std::unordered_map<std::string, std::vector<std::pair<std::string, std::string>>>
+    std::unordered_map<std::string, std::ويڪٽر<std::pair<std::string, std::string>>>
         m_uselistInst;
 };
 
-class LinkConfigsVisitor final : public VNVisitor {
+صنف LinkConfigsVisitor final : عام VNVisitor {
     // STATE
     LinkCellsState& m_state;  // Context for linking cells
-    bool m_isTop = false;  // Whether we're in the top-level config
-    bool m_isDefault = false;  // Whether we're currently in a default clause
+    منطقي m_is_چوٽي = خطأ;  // Whether we're in the top-level config
+    منطقي m_isDefault = خطأ;  // Whether we're currently in a default clause
     string m_cell;  // Current cell being processed
     string m_hierInst;  // Current hierarchical instance being processed
-    AstDot* m_dotp = nullptr;  // Current dot being processed
+    AstDot* m_dotp = خالي_اشارو;  // Current dot being processed
 
     // VISITORS
-    void visit(AstConfig* nodep) override {
-        VL_RESTORER(m_isTop);
-        const auto& fullName
+    فراغ گهمو(AstConfig* nodep) override {
+        VL_RESTORER(m_is_چوٽي);
+        ثابت خودڪار& ڀريل_Name
             = std::pair<std::string, std::string>{nodep->libname(), nodep->configname()};
-        m_isTop = std::find(m_state.m_designs.begin(), m_state.m_designs.end(), fullName)
-                  != m_state.m_designs.end();
+        m_is_چوٽي = std::ڳوليو(m_state.m_designs.begin(), m_state.m_designs.پڇاڙي(), ڀريل_Name)
+                  != m_state.m_designs.پڇاڙي();
         m_state.m_designs.erase(
-            std::remove(m_state.m_designs.begin(), m_state.m_designs.end(), fullName),
-            m_state.m_designs.end());
+            std::remove(m_state.m_designs.begin(), m_state.m_designs.پڇاڙي(), ڀريل_Name),
+            m_state.m_designs.پڇاڙي());
         iterateChildren(nodep);
-        VL_DO_DANGLING(pushDeletep(nodep->unlinkFrBack()), nodep);
+        VL_DO_DANGLING(ڌڪو_Deletep(nodep->unlink_Fr_پٺ()), nodep);
     }
 
-    void visit(AstConfigCell* nodep) override {
-        if (m_isTop) m_state.m_designs.emplace_back(nodep->libname(), nodep->cellname());
+    فراغ گهمو(AstConfigCell* nodep) override {
+        إذا (m_is_چوٽي) m_state.m_designs.emplace_پٺ(nodep->libname(), nodep->cellname());
     }
 
-    void visit(AstConfigRule* nodep) override {
-        if (!nodep->cellp()) {
+    فراغ گهمو(Ast_Config_قاعدو* nodep) override {
+        إذا (!nodep->cellp()) {
             VL_RESTORER(m_isDefault);
-            m_isDefault = true;
-            iterateAndNextNull(nodep->usep());
-        } else if (nodep->isCell()) {
+            m_isDefault = سچ;
+            iterate_And_ايندڙ_Null(nodep->usep());
+        } وإلا إذا (nodep->isCell()) {
             VL_RESTORER_CLEAR(m_cell);
             m_cell = nodep->cellp()->name();
-            iterateAndNextNull(nodep->usep());
-        } else {
+            iterate_And_ايندڙ_Null(nodep->usep());
+        } وإلا {
             VL_RESTORER_COPY(m_hierInst);
             {
                 VL_RESTORER(m_dotp);
                 m_dotp = VN_AS(nodep->cellp(), Dot);
-                iterateAndNextNull(nodep->cellp());
+                iterate_And_ايندڙ_Null(nodep->cellp());
             }
-            iterateAndNextNull(nodep->usep());
+            iterate_And_ايندڙ_Null(nodep->usep());
         }
     }
 
-    void visit(AstDot* nodep) override { iterateChildren(nodep); }
+    فراغ گهمو(AstDot* nodep) override { iterateChildren(nodep); }
 
-    void visit(AstParseRef* nodep) override {
-        if (m_isDefault) {
-            m_state.m_liblistDefault.emplace_back(nodep->name());
-        } else if (!m_cell.empty()) {
-            m_state.m_liblistCell[m_cell].emplace_back(nodep->name());
-        } else if (m_dotp) {
-            m_hierInst += m_hierInst.empty() ? nodep->name() : '.' + nodep->name();
-        } else if (!m_hierInst.empty()) {
-            m_state.m_liblistInst[m_hierInst].emplace_back(nodep->name());
+    فراغ گهمو(AstParseRef* nodep) override {
+        إذا (m_isDefault) {
+            m_state.m_liblistDefault.emplace_پٺ(nodep->name());
+        } وإلا إذا (!m_cell.خالي_جايون()) {
+            m_state.m_liblistCell[m_cell].emplace_پٺ(nodep->name());
+        } وإلا إذا (m_dotp) {
+            m_hierInst += m_hierInst.خالي_جايون() ? nodep->name() : '.' + nodep->name();
+        } وإلا إذا (!m_hierInst.خالي_جايون()) {
+            m_state.m_liblistInst[m_hierInst].emplace_پٺ(nodep->name());
         }
     }
 
-    void visit(AstConfigUse* nodep) override {
-        if (nodep->isConfig()) {
+    فراغ گهمو(AstConfigUse* nodep) override {
+        إذا (nodep->isConfig()) {
             nodep->v3warn(E_UNSUPPORTED, "Unsupported: hierarchical config rule");
-        } else if (!m_cell.empty()) {
-            m_state.m_uselistCell[m_cell].emplace_back(nodep->libname(), nodep->cellname());
-        } else if (m_dotp) {
-            m_hierInst += m_hierInst.empty() ? nodep->name() : '.' + nodep->name();
-        } else if (!m_hierInst.empty()) {
-            m_state.m_uselistInst[m_hierInst].emplace_back(nodep->libname(), nodep->cellname());
+        } وإلا إذا (!m_cell.خالي_جايون()) {
+            m_state.m_uselistCell[m_cell].emplace_پٺ(nodep->libname(), nodep->cellname());
+        } وإلا إذا (m_dotp) {
+            m_hierInst += m_hierInst.خالي_جايون() ? nodep->name() : '.' + nodep->name();
+        } وإلا إذا (!m_hierInst.خالي_جايون()) {
+            m_state.m_uselistInst[m_hierInst].emplace_پٺ(nodep->libname(), nodep->cellname());
         }
     }
 
-    void visit(AstNode* nodep) override { iterateChildren(nodep); }
+    فراغ گهمو(Ast_ڳنڍ* nodep) override { iterateChildren(nodep); }
 
-public:
+عام:
     // CONSTRUCTORS
     LinkConfigsVisitor(AstNetlist* nodep, LinkCellsState& state)
         : m_state{state} {
         // Initialize top module from command line option
-        if (!m_state.m_designs.size() && !v3Global.opt.topModule().empty()) {
-            m_state.m_designs.emplace_back(v3Global.opt.work(), v3Global.opt.topModule());
+        إذا (!m_state.m_designs.سائيز() && !v3Global.opt.چوٽي_Module().خالي_جايون()) {
+            m_state.m_designs.emplace_پٺ(v3Global.opt.work(), v3Global.opt.چوٽي_Module());
         }
         iterate(nodep);
     }
 };
 
-class LinkCellsVisitor final : public VNVisitor {
+صنف LinkCellsVisitor final : عام VNVisitor {
     // NODE STATE
     //  Entire netlist:
     //   AstNodeModule::user1p()        // V3GraphVertex*    Vertex describing this module
@@ -220,399 +220,399 @@ class LinkCellsVisitor final : public VNVisitor {
     //   AstCell::user2()               // bool   clone renaming completed
     //  Allocated across all readFiles in V3Global::readFiles:
     //   AstNode::user4p()      // VSymEnt*    Package and typedef symbol names
-    const VNUser1InUse m_inuser1;
-    const VNUser2InUse m_inuser2;
+    ثابت VNUser1_اندريون_Use m_inuser1;
+    ثابت VNUser2_اندريون_Use m_inuser2;
 
     // STATE
-    VInFilter* const m_filterp;  // Parser filter
+    VInFilter* ثابت m_filterp;  // Parser filter
     LinkCellsState& m_state;  // State for linking cells
 
     // Below state needs to be preserved between each module call.
-    AstNodeModule* m_modp = nullptr;  // Current module
-    AstVar* m_varp = nullptr;  // Current variable
-    VSymGraph m_mods;  // Symbol table of all module names
-    LinkCellsGraph m_graph;  // Linked graph of all cell interconnects
-    LibraryVertex* m_libVertexp = nullptr;  // Vertex at root of all libraries
-    const V3GraphVertex* m_topVertexp = nullptr;  // Vertex of top module
-    std::unordered_set<string> m_declfnWarned;  // Files we issued DECLFILENAME on
-    string m_origTopModuleName;  // original name of the top module
-    int m_modDepth = 0;  // Depth of the current module
+    Ast_ڳنڍ_Module* m_modp = خالي_اشارو;  // Current module
+    AstVar* m_varp = خالي_اشارو;  // Current variable
+    VSym_گراف m_mods;  // Symbol table of all module names
+    Link_Cells_گراف m_گراف;  // Linked graph of all cell interconnects
+    Library_راس* m_libVertexp = خالي_اشارو;  // Vertex at root of all libraries
+    ثابت V3_گراف_راس* m_چوٽي_Vertexp = خالي_اشارو;  // Vertex of top module
+    std::unordered_سيٽ<string> m_declfnWarned;  // Files we issued DECLFILENAME on
+    string m_orig_چوٽي_Module_Name;  // original name of the top module
+    صحيح m_mod_اونهائي = 0;  // Depth of the current module
 
     // METHODS
-    V3GraphVertex* vertex(AstNodeModule* nodep) {
+    V3_گراف_راس* راس(Ast_ڳنڍ_Module* nodep) {
         // Return corresponding vertex for this module
-        if (!nodep->user1p()) nodep->user1p(new LinkCellsVertex{&m_graph, nodep});
-        return nodep->user1u().toGraphVertex();
+        إذا (!nodep->user1p()) nodep->user1p(جديد Link_Cells_راس{&m_گراف, nodep});
+        أرجع nodep->user1u().منزل_گراف_راس();
     }
-    void newEdge(V3GraphVertex* fromp, V3GraphVertex* top, int weight, bool cuttable) {
-        const V3GraphEdge* const edgep = new V3GraphEdge{&m_graph, fromp, top, weight, cuttable};
-        UINFO(9, "    newEdge " << edgep << " " << fromp->name() << " -> " << top->name());
+    فراغ new_ڪنارو(V3_گراف_راس* fromp, V3_گراف_راس* چوٽي, صحيح وزن_2, منطقي cuttable) {
+        ثابت V3_گراف_ڪنارو* ثابت edgep = جديد V3_گراف_ڪنارو{&m_گراف, fromp, چوٽي, وزن_2, cuttable};
+        UINFO(9, "    newEdge " << edgep << " " << fromp->name() << " -> " << چوٽي->name());
     }
-    void cellEdge(V3GraphVertex* fromp, V3GraphVertex* top, int weight, bool cuttable,
+    فراغ cell_ڪنارو(V3_گراف_راس* fromp, V3_گراف_راس* چوٽي, صحيح وزن_2, منطقي cuttable,
                   AstCell* cellp) {
-        const V3GraphEdge* const edgep
-            = new CellEdge{&m_graph, fromp, top, weight, cuttable, cellp};
-        UINFO(9, "    cellEdge " << edgep << " " << fromp->name() << " -> " << top->name());
+        ثابت V3_گراف_ڪنارو* ثابت edgep
+            = جديد Cell_ڪنارو{&m_گراف, fromp, چوٽي, وزن_2, cuttable, cellp};
+        UINFO(9, "    cellEdge " << edgep << " " << fromp->name() << " -> " << چوٽي->name());
     }
-    void insertModInLib(const string& name, const string& libname, AstNodeModule* nodep) {
+    فراغ وجهو_Mod_اندريون_Lib(ثابت string& name, ثابت string& libname, Ast_ڳنڍ_Module* nodep) {
         // Be able to find the module under it's library using the name it was given
-        VSymEnt* libSymp = m_mods.rootp()->findIdFlat(libname);
-        if (!libSymp)
-            libSymp = m_mods.rootp()->insert(libname, new VSymEnt{&m_mods, v3Global.rootp()});
-        libSymp->insert(name, new VSymEnt{&m_mods, nodep});
+        VSymEnt* libSymp = m_mods.rootp()->ڳوليو_Id_Flat(libname);
+        إذا (!libSymp)
+            libSymp = m_mods.rootp()->وجهو(libname, جديد VSymEnt{&m_mods, v3Global.rootp()});
+        libSymp->وجهو(name, جديد VSymEnt{&m_mods, nodep});
     }
 
-    AstNodeModule* findModuleLibSym(const string& modName, const string& libname) {
+    Ast_ڳنڍ_Module* ڳوليو_Module_Lib_Sym(ثابت string& modName, ثابت string& libname) {
         // Given module name and library name, find within that exact library
-        const VSymEnt* const libSymp = m_mods.rootp()->findIdFallback(libname);
-        if (!libSymp) return nullptr;
-        const VSymEnt* const foundp = libSymp->findIdFallback(modName);
-        return foundp ? VN_AS(foundp->nodep(), NodeModule) : nullptr;
+        ثابت VSymEnt* ثابت libSymp = m_mods.rootp()->ڳوليو_Id_Fallback(libname);
+        إذا (!libSymp) أرجع خالي_اشارو;
+        ثابت VSymEnt* ثابت foundp = libSymp->ڳوليو_Id_Fallback(modName);
+        أرجع foundp ? VN_AS(foundp->nodep(), ڳنڍ_Module) : خالي_اشارو;
     }
-    AstNodeModule* findModuleSym(const string& modName, const string& libname) {
+    Ast_ڳنڍ_Module* ڳوليو_Module_Sym(ثابت string& modName, ثابت string& libname) {
         // Given module and library to start search in, resolve using config library choices
-        AstNodeModule* foundp;
-        const std::string fullName = libname + "." + modName;
+        Ast_ڳنڍ_Module* foundp;
+        ثابت std::string ڀريل_Name = libname + "." + modName;
         // First search cell-specific use list
-        const auto itCellUseList = m_state.m_uselistCell.find(fullName);
-        if (itCellUseList != m_state.m_uselistCell.end()) {
-            for (auto const& u : itCellUseList->second) {
-                foundp = findModuleLibSym(u.second, u.first);
-                if (foundp) return foundp;
+        ثابت خودڪار itCellUseList = m_state.m_uselistCell.ڳوليو(ڀريل_Name);
+        إذا (itCellUseList != m_state.m_uselistCell.پڇاڙي()) {
+            لكل (خودڪار ثابت& u : itCellUseList->ٻيو) {
+                foundp = ڳوليو_Module_Lib_Sym(u.ٻيو, u.پهريون);
+                إذا (foundp) أرجع foundp;
             }
         }
         // Then search cell-specific library list
-        const auto itCellLibList = m_state.m_liblistCell.find(fullName);
-        if (itCellLibList != m_state.m_liblistCell.end()) {
-            for (auto const& l : itCellLibList->second) {
-                foundp = findModuleLibSym(modName, l);
-                if (foundp) return foundp;
+        ثابت خودڪار itCellLibList = m_state.m_liblistCell.ڳوليو(ڀريل_Name);
+        إذا (itCellLibList != m_state.m_liblistCell.پڇاڙي()) {
+            لكل (خودڪار ثابت& l : itCellLibList->ٻيو) {
+                foundp = ڳوليو_Module_Lib_Sym(modName, l);
+                إذا (foundp) أرجع foundp;
             }
         }
         // Then search IEEE config default liblist
-        for (auto const& l : m_state.m_liblistDefault) {
-            foundp = findModuleLibSym(modName, l);
-            if (foundp) return foundp;
+        لكل (خودڪار ثابت& l : m_state.m_liblistDefault) {
+            foundp = ڳوليو_Module_Lib_Sym(modName, l);
+            إذا (foundp) أرجع foundp;
         }
         // Then search local library
-        foundp = findModuleLibSym(modName, libname);
-        if (foundp) return foundp;
+        foundp = ڳوليو_Module_Lib_Sym(modName, libname);
+        إذا (foundp) أرجع foundp;
         // Then search global
-        foundp = findModuleLibSym(modName, "__GLOBAL");
-        return foundp;
+        foundp = ڳوليو_Module_Lib_Sym(modName, "__GLOBAL");
+        أرجع foundp;
     }
 
-    AstNodeModule* resolveModule(AstNode* nodep, const string& modName, const string& libname) {
-        AstNodeModule* modp = findModuleSym(modName, libname);
-        if (!modp) {
+    Ast_ڳنڍ_Module* resolveModule(Ast_ڳنڍ* nodep, ثابت string& modName, ثابت string& libname) {
+        Ast_ڳنڍ_Module* modp = ڳوليو_Module_Sym(modName, libname);
+        إذا (!modp) {
             // Read-subfile
             // If file not found, make AstNotFoundModule, rather than error out.
             // We'll throw the error when we know the module will really be needed.
-            const string prettyName = AstNode::prettyName(modName);
+            ثابت string prettyName = Ast_ڳنڍ::prettyName(modName);
             V3Parse parser{v3Global.rootp(), m_filterp};
             // true below -> other simulators treat modules in link-found files as library cells
-            parser.parseFile(nodep->fileline(), prettyName, true, false, m_modp->libname(), "",
+            parser.parseFile(nodep->fileline(), prettyName, سچ, خطأ, m_modp->libname(), "",
                              modName);
             V3Error::abortIfErrors();
             // We've read new modules, grab new pointers to their names
-            readModNames();
+            read_Mod_نالا();
             // Check again
-            modp = findModuleSym(modName, libname);
-            if (!modp) {
+            modp = ڳوليو_Module_Sym(modName, libname);
+            إذا (!modp) {
                 // This shouldn't throw a message as parseFile will create
                 // a AstNotFoundModule for us
                 nodep->v3error("Can't resolve module reference: '" << prettyName << "'");
             }
         }
-        return modp;
+        أرجع modp;
     }
 
-    static void removeLibFlag() {
+    ساكن فراغ removeLibFlag() {
         // If the only NodeModules are in libraries, then presumably user
         // wants to check the library, so clear library flag
-        if (!v3Global.opt.topModule().empty()) return;
-        for (AstNodeModule* nodep = v3Global.rootp()->modulesp(); nodep;
-             nodep = VN_AS(nodep->nextp(), NodeModule)) {
-            if (!nodep->inLibrary()) return;
+        إذا (!v3Global.opt.چوٽي_Module().خالي_جايون()) أرجع;
+        لكل (Ast_ڳنڍ_Module* nodep = v3Global.rootp()->modulesp(); nodep;
+             nodep = VN_AS(nodep->nextp(), ڳنڍ_Module)) {
+            إذا (!nodep->اندريون_Library()) أرجع;
         }
-        for (AstNodeModule* nodep = v3Global.rootp()->modulesp(); nodep;
-             nodep = VN_AS(nodep->nextp(), NodeModule)) {
-            nodep->inLibrary(false);
+        لكل (Ast_ڳنڍ_Module* nodep = v3Global.rootp()->modulesp(); nodep;
+             nodep = VN_AS(nodep->nextp(), ڳنڍ_Module)) {
+            nodep->اندريون_Library(خطأ);
         }
     }
 
-    AstCell* findCellByHier(AstNetlist* nodep, const std::string& hierPath) {
-        std::stringstream ss(hierPath);
-        std::string top;
-        bool topFound = false;
-        std::getline(ss, top, '.');
-        for (auto const& pair : m_state.m_designs) {
-            if (top == pair.second) {
-                topFound = true;
-                break;
+    AstCell* ڳوليو_Cell_By_Hier(AstNetlist* nodep, ثابت std::string& hier_رستو) {
+        std::stringstream ss(hier_رستو);
+        std::string چوٽي;
+        منطقي چوٽي_مليو = خطأ;
+        std::getline(ss, چوٽي, '.');
+        لكل (خودڪار ثابت& pair : m_state.m_designs) {
+            إذا (چوٽي == pair.ٻيو) {
+                چوٽي_مليو = سچ;
+                اكسر;
             }
         }
-        if (!topFound) {
-            nodep->v3error("Can't find top-level module for instance path: '" << hierPath << "'");
+        إذا (!چوٽي_مليو) {
+            nodep->v3error("Can't find top-level module for instance path: '" << hier_رستو << "'");
             V3Error::abortIfErrors();
-            return nullptr;
+            أرجع خالي_اشارو;
         }
 
-        const V3GraphVertex* vtx = m_topVertexp;
-        const CellEdge* finalEdgep = nullptr;
+        ثابت V3_گراف_راس* vtx = m_چوٽي_Vertexp;
+        ثابت Cell_ڪنارو* finalEdgep = خالي_اشارو;
         std::string seg;
-        while (std::getline(ss, seg, '.')) {
-            finalEdgep = nullptr;
-            for (const V3GraphEdge& edge : vtx->outEdges()) {
-                if (const CellEdge* const cedgep = edge.cast<CellEdge>()) {
-                    if (cedgep->cellp()->name() == seg) {
-                        vtx = cedgep->top();
+        طالما (std::getline(ss, seg, '.')) {
+            finalEdgep = خالي_اشارو;
+            لكل (ثابت V3_گراف_ڪنارو& ڪنارو : vtx->ٻاهريون_ڪنارا()) {
+                إذا (ثابت Cell_ڪنارو* ثابت cedgep = ڪنارو.cast<Cell_ڪنارو>()) {
+                    إذا (cedgep->cellp()->name() == seg) {
+                        vtx = cedgep->چوٽي();
                         finalEdgep = cedgep;
-                        break;
+                        اكسر;
                     }
                 }
             }
-            if (!finalEdgep) return nullptr;
+            إذا (!finalEdgep) أرجع خالي_اشارو;
         }
 
-        return finalEdgep->cellp();
+        أرجع finalEdgep->cellp();
     }
 
-    void assignParamNumbers(AstPin* const firstPinp) {
-        for (AstPin* pinp = firstPinp; pinp; pinp = VN_AS(pinp->nextp(), Pin)) {
-            pinp->param(true);
-            if (pinp->name() == "") pinp->name("__paramNumber" + cvtToStr(pinp->pinNum()));
+    فراغ سونپيو_Param_Numbers(AstPin* ثابت پهريون_Pinp) {
+        لكل (AstPin* pinp = پهريون_Pinp; pinp; pinp = VN_AS(pinp->nextp(), Pin)) {
+            pinp->param(سچ);
+            إذا (pinp->name() == "") pinp->name("__paramNumber" + cvt_منزل_Str(pinp->pin_انگ()));
         }
     }
 
     // VISITORS
-    void visit(AstNetlist* nodep) override {
-        readModNames();
+    فراغ گهمو(AstNetlist* nodep) override {
+        read_Mod_نالا();
         iterateChildren(nodep);
 
         // Replace instance module pointers based on config
-        AstNodeModule* modp = nullptr;
-        AstCell* cellp = nullptr;
+        Ast_ڳنڍ_Module* modp = خالي_اشارو;
+        AstCell* cellp = خالي_اشارو;
 
         // Search liblists for each instance
-        for (auto const& pair : m_state.m_liblistInst) {
-            cellp = findCellByHier(nodep, pair.first);
-            if (!cellp) continue;
-            for (auto const& libname : pair.second) {
-                modp = findModuleLibSym(cellp->modName(), libname);
-                if (modp) {
+        لكل (خودڪار ثابت& pair : m_state.m_liblistInst) {
+            cellp = ڳوليو_Cell_By_Hier(nodep, pair.پهريون);
+            إذا (!cellp) استمر;
+            لكل (خودڪار ثابت& libname : pair.ٻيو) {
+                modp = ڳوليو_Module_Lib_Sym(cellp->modName(), libname);
+                إذا (modp) {
                     cellp->modp(modp);
-                    break;
+                    اكسر;
                 }
             }
         }
 
         // Search uselists for each instance
-        for (auto const& pair : m_state.m_uselistInst) {
-            cellp = findCellByHier(nodep, pair.first);
-            for (auto const& u : pair.second) {
-                modp = findModuleLibSym(u.second, u.first);
-                if (modp) {
+        لكل (خودڪار ثابت& pair : m_state.m_uselistInst) {
+            cellp = ڳوليو_Cell_By_Hier(nodep, pair.پهريون);
+            لكل (خودڪار ثابت& u : pair.ٻيو) {
+                modp = ڳوليو_Module_Lib_Sym(u.ٻيو, u.پهريون);
+                إذا (modp) {
                     cellp->modp(modp);
-                    break;
+                    اكسر;
                 }
             }
         }
 
         // Find levels in graph
-        m_graph.removeRedundantEdgesMax(&V3GraphEdge::followAlwaysTrue);
-        if (dumpGraphLevel()) m_graph.dumpDotFilePrefixed("linkcells");
-        m_graph.rank();
-        for (V3GraphVertex& vtx : m_graph.vertices()) {
-            if (const LinkCellsVertex* const vvertexp = vtx.cast<LinkCellsVertex>()) {
-                AstNodeModule* const vmodp = vvertexp->modp();
+        m_گراف.remove_Redundant_ڪنارا_Max(&V3_گراف_ڪنارو::followAlwaysTrue);
+        إذا (dump_گراف_Level()) m_گراف.dumpDotFilePrefixed("linkcells");
+        m_گراف.rank();
+        لكل (V3_گراف_راس& vtx : m_گراف.vertices()) {
+            إذا (ثابت Link_Cells_راس* ثابت vvertexp = vtx.cast<Link_Cells_راس>()) {
+                Ast_ڳنڍ_Module* ثابت vmodp = vvertexp->modp();
                 vmodp->level(vvertexp->rank());
             }
         }
-        m_graph.rankMin();
-        for (V3GraphVertex& vtx : m_graph.vertices()) {
-            if (const LinkCellsVertex* const vvertexp = vtx.cast<LinkCellsVertex>()) {
+        m_گراف.rankMin();
+        لكل (V3_گراف_راس& vtx : m_گراف.vertices()) {
+            إذا (ثابت Link_Cells_راس* ثابت vvertexp = vtx.cast<Link_Cells_راس>()) {
                 // +1 so we leave level 1 for the new wrapper we'll make in a moment
-                AstNodeModule* const vmodp = vvertexp->modp();
-                vmodp->depth(vvertexp->rank() + 1);
+                Ast_ڳنڍ_Module* ثابت vmodp = vvertexp->modp();
+                vmodp->اونهائي(vvertexp->rank() + 1);
             }
         }
-        if (v3Global.opt.topModule() != "" && !m_topVertexp) {
+        إذا (v3Global.opt.چوٽي_Module() != "" && !m_چوٽي_Vertexp) {
             VSpellCheck spell;
-            for (V3GraphVertex& vtx : m_graph.vertices()) {
-                if (const LinkCellsVertex* const vvertexp = vtx.cast<LinkCellsVertex>()) {
-                    AstNodeModule* const vmodp = vvertexp->modp();
-                    if (VN_IS(vmodp, Module)) spell.pushCandidate(vmodp->prettyName());
+            لكل (V3_گراف_راس& vtx : m_گراف.vertices()) {
+                إذا (ثابت Link_Cells_راس* ثابت vvertexp = vtx.cast<Link_Cells_راس>()) {
+                    Ast_ڳنڍ_Module* ثابت vmodp = vvertexp->modp();
+                    إذا (VN_IS(vmodp, Module)) spell.ڌڪو_Candidate(vmodp->prettyName());
                 }
             }
-            const string suggest
-                = spell.bestCandidateMsg(AstNode::prettyName(v3Global.opt.topModule()));
+            ثابت string suggest
+                = spell.بهترين_Candidate_نياپو(Ast_ڳنڍ::prettyName(v3Global.opt.چوٽي_Module()));
             v3error("Specified --top-module '"
-                    << AstNode::prettyName(v3Global.opt.topModule())
+                    << Ast_ڳنڍ::prettyName(v3Global.opt.چوٽي_Module())
                     << "' was not found in design.\n"
-                    << (suggest.empty() ? "" : V3Error::warnMore() + suggest));
+                    << (suggest.خالي_جايون() ? "" : V3Error::warn_وڌيڪ() + suggest));
         }
     }
-    void visit(AstNodeModule* nodep) override {
+    فراغ گهمو(Ast_ڳنڍ_Module* nodep) override {
         // Module: Pick up modnames, so we can resolve cells later
-        VL_RESTORER(m_modDepth);
+        VL_RESTORER(m_mod_اونهائي);
         VL_RESTORER(m_modp);
         {
             // For nested modules/classes, child below parent
-            if (m_modp) newEdge(vertex(m_modp), vertex(nodep), 1, false);
+            إذا (m_modp) new_ڪنارو(راس(m_modp), راس(nodep), 1, خطأ);
             m_modp = nodep;
             // Need vertex to levelize even if no edges
-            vertex(m_modp);
-            ++m_modDepth;
+            راس(m_modp);
+            ++m_mod_اونهائي;
             UINFO(4, "Link Module: " << nodep);
-            if (nodep->fileline()->filebasenameNoExt() != nodep->prettyName()
+            إذا (nodep->fileline()->filebasenameNoExt() != nodep->prettyName()
                 && !v3Global.opt.isLibraryFile(nodep->fileline()->filename(), nodep->libname())
-                && !VN_IS(nodep, NotFoundModule) && !nodep->recursiveClone()
-                && !nodep->isDollarUnit() && !nodep->isConstPool() && m_modDepth == 1) {
+                && !VN_IS(nodep, Not_مليو_Module) && !nodep->recursiveClone()
+                && !nodep->isDollarUnit() && !nodep->isConstPool() && m_mod_اونهائي == 1) {
                 // We only complain once per file, otherwise library-like files
                 // have a huge mess of warnings
-                const auto itFoundPair = m_declfnWarned.insert(nodep->fileline()->filename());
-                if (itFoundPair.second) {
+                ثابت خودڪار it_مليو_Pair = m_declfnWarned.وجهو(nodep->fileline()->filename());
+                إذا (it_مليو_Pair.ٻيو) {
                     nodep->v3warn(DECLFILENAME, "Filename '"
                                                     << nodep->fileline()->filebasenameNoExt()
                                                     << "' does not match " << nodep->typeName()
                                                     << " name: " << nodep->prettyNameQ());
                 }
             }
-            if (VN_IS(nodep, Iface) || VN_IS(nodep, Package)) {
-                nodep->inLibrary(true);  // Interfaces can't be at top, unless asked
+            إذا (VN_IS(nodep, Iface) || VN_IS(nodep, Package)) {
+                nodep->اندريون_Library(سچ);  // Interfaces can't be at top, unless asked
             }
 
-            auto const& fullName
+            خودڪار ثابت& ڀريل_Name
                 = std::pair<std::string, std::string>(nodep->libname(), nodep->name());
-            const bool topMatch
-                = std::find(m_state.m_designs.begin(), m_state.m_designs.end(), fullName)
-                  != m_state.m_designs.end();
-            if (topMatch) {
-                m_topVertexp = vertex(nodep);
+            ثابت منطقي چوٽي_ميلاپ
+                = std::ڳوليو(m_state.m_designs.begin(), m_state.m_designs.پڇاڙي(), ڀريل_Name)
+                  != m_state.m_designs.پڇاڙي();
+            إذا (چوٽي_ميلاپ) {
+                m_چوٽي_Vertexp = راس(nodep);
                 UINFO(2, "Link --top-module: " << nodep);
-                nodep->inLibrary(false);  // Safer to make sure it doesn't disappear
+                nodep->اندريون_Library(خطأ);  // Safer to make sure it doesn't disappear
             }
-            if (v3Global.opt.topModule().empty()
-                    ? nodep->inLibrary()  // Library cells are lower
-                    : !topMatch) {  // Any non-specified module is lower
+            إذا (v3Global.opt.چوٽي_Module().خالي_جايون()
+                    ? nodep->اندريون_Library()  // Library cells are lower
+                    : !چوٽي_ميلاپ) {  // Any non-specified module is lower
                 // Put under a fake vertex so that the graph ranking won't indicate
                 // this is a top level module
-                if (!m_libVertexp) m_libVertexp = new LibraryVertex{&m_graph};
-                newEdge(m_libVertexp, vertex(nodep), 1, false);
+                إذا (!m_libVertexp) m_libVertexp = جديد Library_راس{&m_گراف};
+                new_ڪنارو(m_libVertexp, راس(nodep), 1, خطأ);
             }
             // Note AstBind also has iteration on cells
             iterateChildren(nodep);
-            nodep->checkTree();
+            nodep->check_وڻ();
         }
     }
 
-    void visit(AstIfaceRefDType* nodep) override {
+    فراغ گهمو(AstIfaceRefDType* nodep) override {
         // Cell: Resolve its filename.  If necessary, parse it.
         UINFO(4, "Link IfaceRef: " << nodep);
         // Use findIdUpward instead of findIdFlat; it doesn't matter for now
         // but we might support modules-under-modules someday.
-        AstNodeModule* const modp = resolveModule(nodep, nodep->ifaceName(), m_modp->libname());
-        if (modp) {
-            if (VN_IS(modp, Iface)) {
+        Ast_ڳنڍ_Module* ثابت modp = resolveModule(nodep, nodep->ifaceName(), m_modp->libname());
+        إذا (modp) {
+            إذا (VN_IS(modp, Iface)) {
                 // Track module depths, so can sort list from parent down to children
-                if (!nodep->isVirtual()) newEdge(vertex(m_modp), vertex(modp), 1, false);
-                if (!nodep->cellp()) nodep->ifacep(VN_AS(modp, Iface));
-            } else if (VN_IS(modp, NotFoundModule)) {  // Will error out later
-            } else {
+                إذا (!nodep->isVirtual()) new_ڪنارو(راس(m_modp), راس(modp), 1, خطأ);
+                إذا (!nodep->cellp()) nodep->ifacep(VN_AS(modp, Iface));
+            } وإلا إذا (VN_IS(modp, Not_مليو_Module)) {  // Will error out later
+            } وإلا {
                 nodep->v3error("Non-interface used as an interface: "
                                << nodep->ifaceNameQ() << "\n"
-                               << nodep->warnMore()
+                               << nodep->warn_وڌيڪ()
                                       + "... Perhaps intended an instantiation but "
                                         "are missing parenthesis (IEEE 1800-2023 23.3.2)?");
             }
         }
         iterateChildren(nodep);
-        assignParamNumbers(nodep->paramsp());
+        سونپيو_Param_Numbers(nodep->paramsp());
         // Parser didn't know what was interface, resolve now
         // For historical reasons virtual interface reference variables remain VARs
-        if (m_varp && !nodep->isVirtual()) m_varp->setIfaceRef();
+        إذا (m_varp && !nodep->isVirtual()) m_varp->سيٽ_Iface_Ref();
         // Note cannot do modport resolution here; modports are allowed underneath generates
         UINFO(4, "Link IfaceRef done: " << nodep);
     }
 
-    void visit(AstPackageExport* nodep) override {
+    فراغ گهمو(AstPackageExport* nodep) override {
         // Package Import: We need to do the package before the use of a package
         iterateChildren(nodep);
-        if (!nodep->packagep()) {
-            AstNodeModule* const modp = resolveModule(nodep, nodep->pkgName(), m_modp->libname());
-            if (AstPackage* const pkgp = VN_CAST(modp, Package)) nodep->packagep(pkgp);
-            if (!nodep->packagep()) {
+        إذا (!nodep->packagep()) {
+            Ast_ڳنڍ_Module* ثابت modp = resolveModule(nodep, nodep->pkgName(), m_modp->libname());
+            إذا (AstPackage* ثابت pkgp = VN_CAST(modp, Package)) nodep->packagep(pkgp);
+            إذا (!nodep->packagep()) {
                 nodep->v3error("Export package not found: " << nodep->prettyPkgNameQ());
-                return;
+                أرجع;
             }
         }
     }
-    void visit(AstPackageImport* nodep) override {
+    فراغ گهمو(AstPackageImport* nodep) override {
         // Package Import: We need to do the package before the use of a package
         iterateChildren(nodep);
-        if (!nodep->packagep()) {
-            AstNodeModule* const modp = resolveModule(nodep, nodep->pkgName(), m_modp->libname());
-            if (AstPackage* const pkgp = VN_CAST(modp, Package)) nodep->packagep(pkgp);
+        إذا (!nodep->packagep()) {
+            Ast_ڳنڍ_Module* ثابت modp = resolveModule(nodep, nodep->pkgName(), m_modp->libname());
+            إذا (AstPackage* ثابت pkgp = VN_CAST(modp, Package)) nodep->packagep(pkgp);
             // If not found, V3LinkDot will report errors
-            if (!nodep->packagep()) {
+            إذا (!nodep->packagep()) {
                 nodep->v3error("Import package not found: " << nodep->prettyPkgNameQ());
-                return;
+                أرجع;
             }
         }
-        newEdge(vertex(m_modp), vertex(nodep->packagep()), 1, false);
+        new_ڪنارو(راس(m_modp), راس(nodep->packagep()), 1, خطأ);
     }
 
-    void visit(AstBind* nodep) override {
+    فراغ گهمو(AstBind* nodep) override {
         // Bind: Has cells underneath that need to be put into the new
         // module, and cells which need resolution
         // TODO this doesn't allow bind to dotted hier names, that would require
         // this move to post param, which would mean we do not auto-read modules
         // and means we cannot compute module levels until later.
         UINFO(4, "Link Bind: " << nodep);
-        AstNodeModule* const modp = resolveModule(nodep, nodep->name(), m_modp->libname());
-        if (modp) {
-            AstNode* const cellsp = nodep->cellsp()->unlinkFrBackWithNext();
+        Ast_ڳنڍ_Module* ثابت modp = resolveModule(nodep, nodep->name(), m_modp->libname());
+        إذا (modp) {
+            Ast_ڳنڍ* ثابت cellsp = nodep->cellsp()->unlink_Fr_پٺ_With_ايندڙ();
             // Module may have already linked, so need to pick up these new cells
             VL_RESTORER(m_modp);
             m_modp = modp;
             // Important that this adds to end, as next iterate assumes does all cells
-            modp->addStmtsp(cellsp);
-            iterateAndNextNull(cellsp);
+            modp->جوڙيو_Stmtsp(cellsp);
+            iterate_And_ايندڙ_Null(cellsp);
         }
-        VL_DO_DANGLING(pushDeletep(nodep->unlinkFrBack()), nodep);
+        VL_DO_DANGLING(ڌڪو_Deletep(nodep->unlink_Fr_پٺ()), nodep);
     }
 
-    void visit(AstCell* nodep) override {
+    فراغ گهمو(AstCell* nodep) override {
         // Cell: Resolve its filename.  If necessary, parse it.
         // Execute only once.  Complication is that cloning may result in
         // user1 being set (for pre-clone) so check if user1() matches the
         // m_mod, if 0 never did it, if !=, it is an unprocessed clone
-        const bool cloned = (nodep->user1p() && nodep->user1p() != m_modp);
-        if (nodep->user1p() == m_modp) return;  // AstBind and AstNodeModule may call a cell twice
-        if (nodep->modName() == m_origTopModuleName) {
-            if (v3Global.opt.hierChild() && nodep->modName() == m_modp->origName()) {
+        ثابت منطقي cloned = (nodep->user1p() && nodep->user1p() != m_modp);
+        إذا (nodep->user1p() == m_modp) أرجع;  // AstBind and AstNodeModule may call a cell twice
+        إذا (nodep->modName() == m_orig_چوٽي_Module_Name) {
+            إذا (v3Global.opt.hier_ٻار() && nodep->modName() == m_modp->origName()) {
                 // Only the root of the recursive instantiation can be a hierarchical block.
                 nodep->modName(m_modp->name());
-            } else {
+            } وإلا {
                 // non-top module will be the top module of this run
-                VL_DO_DANGLING(pushDeletep(nodep->unlinkFrBack()), nodep);
-                return;
+                VL_DO_DANGLING(ڌڪو_Deletep(nodep->unlink_Fr_پٺ()), nodep);
+                أرجع;
             }
         }
         nodep->user1p(m_modp);
         //
-        if (!nodep->modp() || cloned) {
+        إذا (!nodep->modp() || cloned) {
             UINFO(4, "Link Cell: " << nodep);
             // Use findIdFallback instead of findIdFlat; it doesn't matter for now
             // but we might support modules-under-modules someday.
-            AstNodeModule* cellmodp = resolveModule(nodep, nodep->modName(), m_modp->libname());
-            if (cellmodp) {
-                if (cellmodp == m_modp || cellmodp->user2p() == m_modp) {
+            Ast_ڳنڍ_Module* cellmodp = resolveModule(nodep, nodep->modName(), m_modp->libname());
+            إذا (cellmodp) {
+                إذا (cellmodp == m_modp || cellmodp->user2p() == m_modp) {
                     UINFO(1, "Self-recursive module " << cellmodp);
-                    cellmodp->recursive(true);
-                    nodep->recursive(true);
-                    if (!cellmodp->recursiveClone()) {
+                    cellmodp->recursive(سچ);
+                    nodep->recursive(سچ);
+                    إذا (!cellmodp->recursiveClone()) {
                         // In the non-Vrcm, which needs to point to Vrcm flavor
                         //
                         // Make a clone which this cell points to
@@ -620,101 +620,101 @@ class LinkCellsVisitor final : public VNVisitor {
                         // This lets us link the XREFs between the (uncloned) children so
                         // they don't point to the same module which would
                         // break parameter resolution.
-                        AstNodeModule* otherModp = VN_CAST(cellmodp->user2p(), NodeModule);
-                        if (!otherModp) {
-                            otherModp = cellmodp->cloneTree(false);
+                        Ast_ڳنڍ_Module* otherModp = VN_CAST(cellmodp->user2p(), ڳنڍ_Module);
+                        إذا (!otherModp) {
+                            otherModp = cellmodp->clone_وڻ(خطأ);
                             otherModp->name(otherModp->name() + "__Vrcm");
-                            otherModp->user1p(nullptr);  // Need new vertex
+                            otherModp->user1p(خالي_اشارو);  // Need new vertex
                             otherModp->user2p(cellmodp);
-                            otherModp->recursiveClone(true);
+                            otherModp->recursiveClone(سچ);
                             // user1 etc will retain its pre-clone value
                             cellmodp->user2p(otherModp);
-                            v3Global.rootp()->addModulesp(otherModp);
-                            newEdge(vertex(cellmodp), vertex(otherModp), 1, false);
+                            v3Global.rootp()->جوڙيو_Modulesp(otherModp);
+                            new_ڪنارو(راس(cellmodp), راس(otherModp), 1, خطأ);
                         }
                         cellmodp = otherModp;
                         nodep->modp(cellmodp);
-                    } else {
+                    } وإلا {
                         // In the Vrcm, which needs to point back to Vrcm flavor
                         // The cell already has the correct resolution (to Vrcm)
                         nodep->modp(cellmodp);
                         // We don't create a V3GraphEdge (as it would be circular)
                     }
-                } else {  // Non-recursive
+                } وإلا {  // Non-recursive
                     // Track module depths, so can sort list from parent down to children
                     nodep->modp(cellmodp);
-                    cellEdge(vertex(m_modp), vertex(cellmodp), 1, false, nodep);
+                    cell_ڪنارو(راس(m_modp), راس(cellmodp), 1, خطأ, nodep);
                 }
             }
         }
         // Remove AstCell(AstPin("",nullptr)), it's a side effect of how we parse "()"
         // the empty middle is identical to the empty rule that must find pins in "(,)".
-        if (nodep->pinsp() && !nodep->pinsp()->nextp() && nodep->pinsp()->name() == ""
+        إذا (nodep->pinsp() && !nodep->pinsp()->nextp() && nodep->pinsp()->name() == ""
             && !nodep->pinsp()->exprp()) {
-            pushDeletep(nodep->pinsp()->unlinkFrBackWithNext());
+            ڌڪو_Deletep(nodep->pinsp()->unlink_Fr_پٺ_With_ايندڙ());
         }
-        if (nodep->paramsp() && !nodep->paramsp()->nextp() && nodep->paramsp()->name() == ""
+        إذا (nodep->paramsp() && !nodep->paramsp()->nextp() && nodep->paramsp()->name() == ""
             && !nodep->paramsp()->exprp()) {
-            pushDeletep(nodep->paramsp()->unlinkFrBackWithNext());
+            ڌڪو_Deletep(nodep->paramsp()->unlink_Fr_پٺ_With_ايندڙ());
         }
         // Convert .* to list of pins
-        bool pinStar = false;
-        bool pinDotName = false;
-        for (AstPin *nextp, *pinp = nodep->pinsp(); pinp; pinp = nextp) {
+        منطقي pin_تارو = خطأ;
+        منطقي pinDotName = خطأ;
+        لكل (AstPin *nextp, *pinp = nodep->pinsp(); pinp; pinp = nextp) {
             nextp = VN_AS(pinp->nextp(), Pin);
-            if (pinp->svDotName()) pinDotName = true;
-            if (pinp->dotStar()) {
-                if (pinStar) pinp->v3error("Duplicate .* in an instance (IEEE 1800-2023 23.3.2)");
-                pinStar = true;
+            إذا (pinp->svDotName()) pinDotName = سچ;
+            إذا (pinp->dot_تارو()) {
+                إذا (pin_تارو) pinp->v3error("Duplicate .* in an instance (IEEE 1800-2023 23.3.2)");
+                pin_تارو = سچ;
                 // Done with this fake pin
-                VL_DO_DANGLING(pinp->unlinkFrBack()->deleteTree(), pinp);
+                VL_DO_DANGLING(pinp->unlink_Fr_پٺ()->delete_وڻ(), pinp);
             }
         }
         // Convert unnamed pins to pin number based assignments
-        for (AstPin* pinp = nodep->pinsp(); pinp; pinp = VN_AS(pinp->nextp(), Pin)) {
-            if (pinp->name() == "") pinp->name("__pinNumber" + cvtToStr(pinp->pinNum()));
+        لكل (AstPin* pinp = nodep->pinsp(); pinp; pinp = VN_AS(pinp->nextp(), Pin)) {
+            إذا (pinp->name() == "") pinp->name("__pinNumber" + cvt_منزل_Str(pinp->pin_انگ()));
         }
-        assignParamNumbers(nodep->paramsp());
-        if (nodep->modp()) {
+        سونپيو_Param_Numbers(nodep->paramsp());
+        إذا (nodep->modp()) {
             nodep->modName(nodep->modp()->name());
             // Note what pins exist
-            std::unordered_set<string> ports;  // Symbol table of all connected port names
-            for (AstPin* pinp = nodep->pinsp(); pinp; pinp = VN_AS(pinp->nextp(), Pin)) {
-                if ((pinStar || pinDotName) && pinp->name().substr(0, 11) == "__pinNumber") {
+            std::unordered_سيٽ<string> ports;  // Symbol table of all connected port names
+            لكل (AstPin* pinp = nodep->pinsp(); pinp; pinp = VN_AS(pinp->nextp(), Pin)) {
+                إذا ((pin_تارو || pinDotName) && pinp->name().substr(0, 11) == "__pinNumber") {
                     pinp->v3error("Mixing positional and .*/named instantiation connection"
                                   " (IEEE 1800-2023 23.3.2)");
                 }
-                if (!pinp->exprp()) {
-                    if (pinp->name().substr(0, 11) == "__pinNumber") {
+                إذا (!pinp->exprp()) {
+                    إذا (pinp->name().substr(0, 11) == "__pinNumber") {
                         pinp->v3warn(PINNOCONNECT,
                                      "Instance pin is not connected: " << pinp->prettyNameQ());
-                    } else {
+                    } وإلا {
                         pinp->v3warn(PINCONNECTEMPTY,
                                      "Instance pin connected by name with empty reference: "
                                          << pinp->prettyNameQ());
                     }
                 }
-                ports.insert(pinp->name());
+                ports.وجهو(pinp->name());
             }
             // We search ports, rather than in/out declarations as they aren't resolved yet,
             // and it's easier to do it now than in V3LinkDot when we'd need to repeat steps.
-            for (AstNode* portnodep = nodep->modp()->stmtsp(); portnodep;
+            لكل (Ast_ڳنڍ* portnodep = nodep->modp()->stmtsp(); portnodep;
                  portnodep = portnodep->nextp()) {
-                if (const AstPort* const portp = VN_CAST(portnodep, Port)) {
+                إذا (ثابت Ast_پورٽ* ثابت portp = VN_CAST(portnodep, پورٽ_2)) {
 
-                    if (ports.find(portp->name()) == ports.end()
-                        && ports.find("__pinNumber" + cvtToStr(portp->pinNum())) == ports.end()) {
-                        if (pinStar) {
+                    إذا (ports.ڳوليو(portp->name()) == ports.پڇاڙي()
+                        && ports.ڳوليو("__pinNumber" + cvt_منزل_Str(portp->pin_انگ())) == ports.پڇاڙي()) {
+                        إذا (pin_تارو) {
                             UINFO(9, "    need .* PORT  " << portp);
                             // Create any not already connected
-                            AstPin* const newp
-                                = new AstPin{nodep->fileline(), 0, portp->name(),
-                                             new AstParseRef{nodep->fileline(), portp->name(),
-                                                             nullptr, nullptr}};
-                            newp->svDotName(true);
-                            newp->svImplicit(true);
-                            nodep->addPinsp(newp);
-                        } else {  // warn on the CELL that needs it, not the port
+                            AstPin* ثابت newp
+                                = جديد AstPin{nodep->fileline(), 0, portp->name(),
+                                             جديد AstParseRef{nodep->fileline(), portp->name(),
+                                                             خالي_اشارو, خالي_اشارو}};
+                            newp->svDotName(سچ);
+                            newp->svImplicit(سچ);
+                            nodep->جوڙيو_Pinsp(newp);
+                        } وإلا {  // warn on the CELL that needs it, not the port
 
                             // We *might* not want to warn on this port, if it happened to be
                             // an input with a default value in the module declaration. Our
@@ -725,28 +725,28 @@ class LinkCellsVisitor final : public VNVisitor {
 
                             // Get the AstVar for this AstPort, if it exists, using this
                             // inefficient O(n) lookup to match the port name.
-                            const AstVar* portp_varp = nullptr;
-                            for (AstNode* module_stmtsp = nodep->modp()->stmtsp(); module_stmtsp;
+                            ثابت AstVar* portp_varp = خالي_اشارو;
+                            لكل (Ast_ڳنڍ* module_stmtsp = nodep->modp()->stmtsp(); module_stmtsp;
                                  module_stmtsp = module_stmtsp->nextp()) {
-                                if (const AstVar* const varp = VN_CAST(module_stmtsp, Var)) {
-                                    if (!varp->isParam() && varp->name() == portp->name()) {
+                                إذا (ثابت AstVar* ثابت varp = VN_CAST(module_stmtsp, Var)) {
+                                    إذا (!varp->isParam() && varp->name() == portp->name()) {
                                         // not a parameter, same name, break, this is our varp
                                         // (AstVar*)
                                         portp_varp = varp;
-                                        break;
+                                        اكسر;
                                     }
                                 }
                             }
 
                             // Is the matching Module port: an INPUT, with default value (in
                             // valuep):
-                            if (portp_varp && portp_varp->isInput() && portp_varp->valuep()) {
+                            إذا (portp_varp && portp_varp->is_داخلا() && portp_varp->valuep()) {
                                 // Do not warn
                                 // Create b/c not already connected, and it does exist.
-                                AstPin* const newp
-                                    = new AstPin{nodep->fileline(), 0, portp->name(), nullptr};
-                                nodep->addPinsp(newp);
-                            } else {
+                                AstPin* ثابت newp
+                                    = جديد AstPin{nodep->fileline(), 0, portp->name(), خالي_اشارو};
+                                nodep->جوڙيو_Pinsp(newp);
+                            } وإلا {
                                 nodep->v3warn(PINMISSING,
                                               "Instance has missing pin: "
                                                   << portp->prettyNameQ() << '\n'
@@ -754,121 +754,121 @@ class LinkCellsVisitor final : public VNVisitor {
                                                   << portp->warnOther()
                                                   << "... Location of port declaration\n"
                                                   << portp->warnContextSecondary());
-                                AstPin* const newp
-                                    = new AstPin{nodep->fileline(), 0, portp->name(), nullptr};
-                                nodep->addPinsp(newp);
+                                AstPin* ثابت newp
+                                    = جديد AstPin{nodep->fileline(), 0, portp->name(), خالي_اشارو};
+                                nodep->جوڙيو_Pinsp(newp);
                             }
                         }
                     }
                 }
             }
         }
-        if (VN_IS(nodep->modp(), Iface)) {
+        إذا (VN_IS(nodep->modp(), Iface)) {
             // Cell really is the parent's instantiation of an interface, not a normal module
             // Make sure we have a variable to refer to this cell, so can <ifacename>.<innermember>
             // in the same way that a child does.  Rename though to avoid conflict with cell.
             // This is quite similar to how classes work; when unpacked
             // classes are better supported may remap interfaces to be more
             // like a class.
-            if (!nodep->hasIfaceVar()) {
-                const string varName
+            إذا (!nodep->hasIfaceVar()) {
+                ثابت string varName
                     = nodep->name() + "__Viftop";  // V3LinkDot looks for this naming
-                AstIfaceRefDType* const idtypep = new AstIfaceRefDType{
+                AstIfaceRefDType* ثابت idtypep = جديد AstIfaceRefDType{
                     nodep->fileline(), nodep->name(), nodep->modp()->name()};
-                idtypep->ifacep(nullptr);  // cellp overrides
+                idtypep->ifacep(خالي_اشارو);  // cellp overrides
                 idtypep->cellp(nodep);  // Only set when real parent cell known.
                 AstVar* varp;
-                if (nodep->rangep()) {
+                إذا (nodep->rangep()) {
                     // Multi-dim arrays wrap one UnpackArrayDType per range, innermost first.
-                    std::vector<AstRange*> rangesp;
-                    for (AstRange* rp = nodep->rangep(); rp; rp = VN_CAST(rp->nextp(), Range)) {
-                        rangesp.push_back(rp);
+                    std::ويڪٽر<AstRange*> rangesp;
+                    لكل (AstRange* rp = nodep->rangep(); rp; rp = VN_CAST(rp->nextp(), Range)) {
+                        rangesp.ڌڪو_پٺ(rp);
                     }
-                    AstNodeDType* dtp = idtypep;
-                    for (auto it = rangesp.rbegin(); it != rangesp.rend(); ++it) {
-                        dtp = new AstUnpackArrayDType{nodep->fileline(), VFlagChildDType{}, dtp,
-                                                      (*it)->cloneTree(false)};
+                    Ast_ڳنڍ_DType* dtp = idtypep;
+                    لكل (خودڪار it = rangesp.rbegin(); it != rangesp.rend(); ++it) {
+                        dtp = جديد AstUnpackArrayDType{nodep->fileline(), VFlag_ٻار_DType{}, dtp,
+                                                      (*it)->clone_وڻ(خطأ)};
                     }
-                    varp = new AstVar{nodep->fileline(), VVarType::IFACEREF, varName,
-                                      VFlagChildDType{}, dtp};
-                } else {
-                    varp = new AstVar{nodep->fileline(), VVarType::IFACEREF, varName,
-                                      VFlagChildDType{}, idtypep};
+                    varp = جديد AstVar{nodep->fileline(), VVarType::IFACEREF, varName,
+                                      VFlag_ٻار_DType{}, dtp};
+                } وإلا {
+                    varp = جديد AstVar{nodep->fileline(), VVarType::IFACEREF, varName,
+                                      VFlag_ٻار_DType{}, idtypep};
                 }
-                varp->isIfaceParent(true);
-                nodep->addNextHere(varp);
-                nodep->hasIfaceVar(true);
+                varp->is_Iface_والد(سچ);
+                nodep->جوڙيو_ايندڙ_هتي(varp);
+                nodep->hasIfaceVar(سچ);
             }
         }
-        if (nodep->modp()) {  //
+        إذا (nodep->modp()) {  //
             iterateChildren(nodep);
         }
         UINFO(4, " Link Cell done: " << nodep);
     }
 
-    void visit(AstRefDType* nodep) override {
+    فراغ گهمو(AstRefDType* nodep) override {
         iterateChildren(nodep);
-        assignParamNumbers(nodep->paramsp());
-        if (m_varp) {  // Parser didn't know what was interface, resolve now
-            AstNodeModule* const varModp = findModuleSym(nodep->name(), m_modp->libname());
-            if (AstIface* const ifacep = VN_CAST(varModp, Iface)) {
+        سونپيو_Param_Numbers(nodep->paramsp());
+        إذا (m_varp) {  // Parser didn't know what was interface, resolve now
+            Ast_ڳنڍ_Module* ثابت varModp = ڳوليو_Module_Sym(nodep->name(), m_modp->libname());
+            إذا (AstIface* ثابت ifacep = VN_CAST(varModp, Iface)) {
                 // Might be an interface, but might also not really be due to interface being
                 // hidden by another declaration.  Assume it is relevant and order as-if.
                 // This is safe because an interface cannot instantiate a module, so false
                 // module->interface edges are harmless.
-                newEdge(vertex(m_modp), vertex(ifacep), 1, false);
+                new_ڪنارو(راس(m_modp), راس(ifacep), 1, خطأ);
             }
         }
     }
-    void visit(AstClassOrPackageRef* nodep) override {
+    فراغ گهمو(AstClassOrPackageRef* nodep) override {
         iterateChildren(nodep);
-        assignParamNumbers(nodep->paramsp());
+        سونپيو_Param_Numbers(nodep->paramsp());
         // Inside a class, an extends or reference to another class
         // Note we don't add a V3GraphEdge{vertex(m_modp), vertex(nodep->classOrPackagep()}
         // We could for an extends, but for another reference we cannot, as
         // it is legal to have classes both with parameters that link to each other
     }
 
-    void visit(AstVar* nodep) override {
+    فراغ گهمو(AstVar* nodep) override {
         {
             VL_RESTORER(m_varp);
             m_varp = nodep;
-            iterateAndNextNull(nodep->childDTypep());
+            iterate_And_ايندڙ_Null(nodep->ٻار_DTypep());
         }
-        iterateAndNextNull(nodep->delayp());
-        iterateAndNextNull(nodep->valuep());
-        iterateAndNextNull(nodep->attrsp());
+        iterate_And_ايندڙ_Null(nodep->delayp());
+        iterate_And_ايندڙ_Null(nodep->valuep());
+        iterate_And_ايندڙ_Null(nodep->attrsp());
     }
 
-    void visit(AstNode* nodep) override { iterateChildren(nodep); }
+    فراغ گهمو(Ast_ڳنڍ* nodep) override { iterateChildren(nodep); }
 
     // METHODS
-    void readModNames() {
+    فراغ read_Mod_نالا() {
         // mangled_name, BlockOptions
-        const V3HierBlockOptSet& hierBlocks = v3Global.opt.hierBlocks();
-        const auto hierIt = vlstd::as_const(hierBlocks).find(v3Global.opt.topModule());
-        UASSERT((hierIt != hierBlocks.end()) == !!v3Global.opt.hierChild(),
+        ثابت V3_Hier_بلاڪ_Opt_سيٽ& hier_بلاڪون = v3Global.opt.hier_بلاڪون();
+        ثابت خودڪار hierIt = vlstd::as_const(hier_بلاڪون).ڳوليو(v3Global.opt.چوٽي_Module());
+        UASSERT((hierIt != hier_بلاڪون.پڇاڙي()) == !!v3Global.opt.hier_ٻار(),
                 "information of the top module must exist if --hierarchical-child is set");
         // Look at all modules, and store pointers to all module names
-        for (AstNodeModule *nextp, *nodep = v3Global.rootp()->modulesp(); nodep; nodep = nextp) {
-            nextp = VN_AS(nodep->nextp(), NodeModule);
-            if (v3Global.opt.hierChild() && nodep->origName() == hierIt->second.origName()) {
-                nodep->name(hierIt->first);  // Change name of this module to be mangled name
+        لكل (Ast_ڳنڍ_Module *nextp, *nodep = v3Global.rootp()->modulesp(); nodep; nodep = nextp) {
+            nextp = VN_AS(nodep->nextp(), ڳنڍ_Module);
+            إذا (v3Global.opt.hier_ٻار() && nodep->origName() == hierIt->ٻيو.origName()) {
+                nodep->name(hierIt->پهريون);  // Change name of this module to be mangled name
                                              // considering parameter
             }
-            const AstNodeModule* const libFoundp
-                = findModuleLibSym(nodep->origName(), nodep->libname());
-            const AstNodeModule* const globalFoundp = findModuleLibSym(nodep->name(), "__GLOBAL");
-            if (libFoundp && libFoundp == nodep) {
+            ثابت Ast_ڳنڍ_Module* ثابت libFoundp
+                = ڳوليو_Module_Lib_Sym(nodep->origName(), nodep->libname());
+            ثابت Ast_ڳنڍ_Module* ثابت globalFoundp = ڳوليو_Module_Lib_Sym(nodep->name(), "__GLOBAL");
+            إذا (libFoundp && libFoundp == nodep) {
                 // Ok
-            } else if (libFoundp && !globalFoundp) {
+            } وإلا إذا (libFoundp && !globalFoundp) {
                 // Clones are locally made and don't need to user-resolve globally
                 UASSERT_OBJ(nodep->recursiveClone(), nodep,
                             "Module should be found globally if inserted in lib");
-            } else if (libFoundp) {
-                if (!(libFoundp->fileline()->warnIsOff(V3ErrorCode::MODDUP)
-                      || nodep->fileline()->warnIsOff(V3ErrorCode::MODDUP)
-                      || hierBlocks.find(nodep->name()) != hierBlocks.end())) {
+            } وإلا إذا (libFoundp) {
+                إذا (!(libFoundp->fileline()->warnIsOff(V3_Error_ڪوڊ::MODDUP)
+                      || nodep->fileline()->warnIsOff(V3_Error_ڪوڊ::MODDUP)
+                      || hier_بلاڪون.ڳوليو(nodep->name()) != hier_بلاڪون.پڇاڙي())) {
                     nodep->v3warn(MODDUP, "Duplicate declaration of "
                                               << nodep->verilogKwd() << ": "
                                               << nodep->prettyNameQ() << '\n'
@@ -877,53 +877,53 @@ class LinkCellsVisitor final : public VNVisitor {
                                               << "... Location of original declaration\n"
                                               << libFoundp->warnContextSecondary());
                 }
-                nodep->unlinkFrBack();
-                VL_DO_DANGLING(pushDeletep(nodep), nodep);
-            } else if (globalFoundp && globalFoundp != nodep) {
+                nodep->unlink_Fr_پٺ();
+                VL_DO_DANGLING(ڌڪو_Deletep(nodep), nodep);
+            } وإلا إذا (globalFoundp && globalFoundp != nodep) {
                 // ...__LIB__ stripped by prettyName
-                const string newName = nodep->libname() + "__LIB__" + nodep->origName();
+                ثابت string newName = nodep->libname() + "__LIB__" + nodep->origName();
                 UINFO(9, "Module rename as in multiple libraries " << newName << " <- " << nodep);
-                insertModInLib(nodep->origName(), nodep->libname(), nodep);  // Original name
+                وجهو_Mod_اندريون_Lib(nodep->origName(), nodep->libname(), nodep);  // Original name
                 nodep->name(newName);
-                insertModInLib(nodep->name(), "__GLOBAL", nodep);
-            } else {
-                insertModInLib(nodep->origName(), nodep->libname(), nodep);
-                insertModInLib(nodep->name(), "__GLOBAL", nodep);
+                وجهو_Mod_اندريون_Lib(nodep->name(), "__GLOBAL", nodep);
+            } وإلا {
+                وجهو_Mod_اندريون_Lib(nodep->origName(), nodep->libname(), nodep);
+                وجهو_Mod_اندريون_Lib(nodep->name(), "__GLOBAL", nodep);
             }
         }
         // if (debug() >= 9) m_mods.dump(cout, "-syms: ");
     }
 
-public:
+عام:
     // CONSTRUCTORS
     LinkCellsVisitor(AstNetlist* nodep, VInFilter* filterp, LinkCellsState& state)
         : m_filterp{filterp}
         , m_state{state}
         , m_mods{nodep} {
-        if (v3Global.opt.hierChild()) {
-            const V3HierBlockOptSet& hierBlocks = v3Global.opt.hierBlocks();
-            UASSERT(!v3Global.opt.topModule().empty(),
+        إذا (v3Global.opt.hier_ٻار()) {
+            ثابت V3_Hier_بلاڪ_Opt_سيٽ& hier_بلاڪون = v3Global.opt.hier_بلاڪون();
+            UASSERT(!v3Global.opt.چوٽي_Module().خالي_جايون(),
                     "top module must be explicitly specified in hierarchical mode");
-            const V3HierBlockOptSet::const_iterator hierIt
-                = hierBlocks.find(v3Global.opt.topModule());
-            UASSERT(hierIt != hierBlocks.end(),
+            ثابت V3_Hier_بلاڪ_Opt_سيٽ::const_iterator hierIt
+                = hier_بلاڪون.ڳوليو(v3Global.opt.چوٽي_Module());
+            UASSERT(hierIt != hier_بلاڪون.پڇاڙي(),
                     "top module must be listed in --hierarchical-block");
-            m_origTopModuleName = hierIt->second.origName();
-        } else {
-            m_origTopModuleName = v3Global.opt.topModule();
+            m_orig_چوٽي_Module_Name = hierIt->ٻيو.origName();
+        } وإلا {
+            m_orig_چوٽي_Module_Name = v3Global.opt.چوٽي_Module();
         }
         removeLibFlag();
         iterate(nodep);
     }
     ~LinkCellsVisitor() override {
-        if (debug() >= 5 || dumpGraphLevel() >= 5) { m_mods.dumpFilePrefixed("linkcells"); }
+        إذا (debug() >= 5 || dump_گراف_Level() >= 5) { m_mods.dumpFilePrefixed("linkcells"); }
     }
 };
 
 //######################################################################
 // Link class functions
 
-void V3LinkCells::link(AstNetlist* nodep, VInFilter* filterp) {
+فراغ V3LinkCells::link(AstNetlist* nodep, VInFilter* filterp) {
     UINFO(4, __FUNCTION__ << ": ");
     // Configs must be parsed first because they determine the library search order for linking
     LinkCellsState state;
