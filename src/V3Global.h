@@ -18,24 +18,24 @@
 #define VERILATOR_V3GLOBAL_H_
 
 // clang-format off
-#include "config_build.h"
+#ضمن "config_build.h"
 #ifndef HAVE_CONFIG_PACKAGE
 # error "Something failed during ./configure as config_package.h is incomplete. Perhaps you used autoreconf, don't."
 #endif
 // clang-format on
 
-#include "verilatedos.h"
+#ضمن "verilatedos.h"
 
-#include "V3Error.h"
-#include "V3FileLine.h"
-#include "V3Mutex.h"
-#include "V3Options.h"
+#ضمن "V3Error.h"
+#ضمن "V3FileLine.h"
+#ضمن "V3Mutex.h"
+#ضمن "V3Options.h"
 
-#include <string>
-#include <thread>
-#include <type_traits>
-#include <unordered_map>
-#include <unordered_set>
+#ضمن <string>
+#ضمن <thread>
+#ضمن <type_traits>
+#ضمن <unordered_map>
+#ضمن <unordered_set>
 
 class AstNetlist;
 class V3ConstPool;
@@ -52,18 +52,18 @@ class V3ThreadPool;
 // Only usable for trivially copyable types; use VL_RESTORER_COPY/VL_RESTORER_CLEAR for
 // non-trivially copyable types, which are more efficient.
 #define VL_RESTORER(var) \
-    const VRestorerTrivial<typename std::decay_t<decltype(var)>> restorer_##var(var);
+    ثابت VRestorerTrivial<typename std::decay_t<decltype(var)>> restorer_##var(var);
 
 // This is the equivalent of VL_RESTORER for non-trivially copyable types. Still more efficient
 // than VL_RESTORER as uses move to restore.
 #define VL_RESTORER_COPY(var) \
-    const VRestorerCopy<typename std::decay_t<decltype(var)>> restorer_##var(var);
+    ثابت VRestorerCopy<typename std::decay_t<decltype(var)>> restorer_##var(var);
 
 // Swap 'var' with a no-args constructed object of the same type, effectively clearing it, then
 // swap back at end-of-scope. No copying involved. Use this e.g. for std containers where they
 // would be .clear()'d right after the VL_RESTORER instance.
 #define VL_RESTORER_CLEAR(var) \
-    const VRestorerClear<typename std::decay_t<decltype(var)>> restorer_##var(var);
+    ثابت VRestorerClear<typename std::decay_t<decltype(var)>> restorer_##var(var);
 
 // Get const reference to the saved copy
 #define VL_RESTORER_PREV(var) restorer_##var.saved()
@@ -74,19 +74,19 @@ class VRestorerTrivial final {
     static_assert(std::is_trivially_copyable<T>::value,
                   "Use VL_RESTORER_{COPY,CLEAR} for non trivially copyable types");
     T& m_ref;  // Reference to object we're saving and restoring
-    const T m_saved;  // Value saved, for later restore
+    ثابت T m_saved;  // Value saved, for later restore
 
-public:
+عام:
     explicit VRestorerTrivial(T& val)
         : m_ref{val}
         , m_saved{val} {}
     ~VRestorerTrivial() { m_ref = m_saved; }
     VL_UNCOPYABLE(VRestorerTrivial);
     // Must be stack allocated
-    void* operator new(size_t) = delete;
-    void operator delete(void*) = delete;
+    فراغ* operator new(size_t) = delete;
+    فراغ operator delete(فراغ*) = delete;
 
-    const T& saved() const { return m_saved; }
+    ثابت T& saved() ثابت { أرجع m_saved; }
 };
 
 // Implementation of VL_RESTORER_COPY
@@ -97,17 +97,17 @@ class VRestorerCopy final {
     T& m_ref;  // Reference to object we're saving and restoring
     T m_saved;  // Value saved, for later restore
 
-public:
+عام:
     explicit VRestorerCopy(T& val)
         : m_ref{val}
         , m_saved{val} {}
     ~VRestorerCopy() { m_ref = std::move(m_saved); }
     VL_UNCOPYABLE(VRestorerCopy);
     // Must be stack allocated
-    void* operator new(size_t) = delete;
-    void operator delete(void*) = delete;
+    فراغ* operator new(size_t) = delete;
+    فراغ operator delete(فراغ*) = delete;
 
-    const T& saved() const { return m_saved; }
+    ثابت T& saved() ثابت { أرجع m_saved; }
 };
 
 // Implementation of VL_RESTORER_CLEAR.
@@ -118,7 +118,7 @@ class VRestorerClear final {
     T& m_ref;  // Reference to object we're saving and restoring
     T m_saved{};  // Owns the swapped-out value; starts empty
 
-public:
+عام:
     explicit VRestorerClear(T& val)
         : m_ref{val} {
         std::swap(m_ref, m_saved);
@@ -126,36 +126,36 @@ public:
     ~VRestorerClear() { std::swap(m_ref, m_saved); }
     VL_UNCOPYABLE(VRestorerClear);
     // Must be stack allocated
-    void* operator new(size_t) = delete;
-    void operator delete(void*) = delete;
+    فراغ* operator new(size_t) = delete;
+    فراغ operator delete(فراغ*) = delete;
 
-    const T& saved() const { return m_saved; }
+    ثابت T& saved() ثابت { أرجع m_saved; }
 };
 
 //######################################################################
 
 class VWidthMinUsage final {
-public:
-    enum en : uint8_t { LINT_WIDTH, MATCHES_WIDTH, VERILOG_WIDTH };
-    enum en m_e;
+عام:
+    تعداد en : uint8_t { LINT_WIDTH, MATCHES_WIDTH, VERILOG_WIDTH };
+    تعداد en m_e;
     VWidthMinUsage()
         : m_e{LINT_WIDTH} {}
     // cppcheck-suppress noExplicitConstructor
     constexpr VWidthMinUsage(en _e) VL_PURE : m_e{_e} {}
-    constexpr VWidthMinUsage(const VWidthMinUsage& _e) VL_PURE = default;
-    explicit VWidthMinUsage(int _e)
+    constexpr VWidthMinUsage(ثابت VWidthMinUsage& _e) VL_PURE = افتراضي;
+    explicit VWidthMinUsage(صحيح _e)
         : m_e(static_cast<en>(_e)) {}  // Need () or GCC 4.8 false warning
-    constexpr operator en() const { return m_e; }
-    constexpr VWidthMinUsage& operator=(const VWidthMinUsage& _e) VL_PURE = default;
+    constexpr operator en() ثابت { أرجع m_e; }
+    constexpr VWidthMinUsage& operator=(ثابت VWidthMinUsage& _e) VL_PURE = افتراضي;
 };
-constexpr bool operator==(const VWidthMinUsage& lhs, const VWidthMinUsage& rhs) {
-    return lhs.m_e == rhs.m_e;
+constexpr bool operator==(ثابت VWidthMinUsage& lhs, ثابت VWidthMinUsage& rhs) {
+    أرجع lhs.m_e == rhs.m_e;
 }
-constexpr bool operator==(const VWidthMinUsage& lhs, VWidthMinUsage::en rhs) VL_PURE {
-    return lhs.m_e == rhs;
+constexpr bool operator==(ثابت VWidthMinUsage& lhs, VWidthMinUsage::en rhs) VL_PURE {
+    أرجع lhs.m_e == rhs;
 }
-constexpr bool operator==(VWidthMinUsage::en lhs, const VWidthMinUsage& rhs) {
-    return lhs == rhs.m_e;
+constexpr bool operator==(VWidthMinUsage::en lhs, ثابت VWidthMinUsage& rhs) {
+    أرجع lhs == rhs.m_e;
 }
 
 //######################################################################
@@ -205,108 +205,108 @@ class V3Global final {
     uint64_t m_currentHierBlockCost = 0;  // Total cost of this hier block, used for scheduling
 
     // Memory address to short string mapping (for debug)
-    std::unordered_map<const void*, std::string>
+    std::unordered_map<ثابت فراغ*, std::string>
         m_ptrToId;  // The actual 'address' <=> 'short string' bijection
 
     // Names of fields that were dumped by dumpJsonPtr()
     std::unordered_set<std::string> m_jsonPtrNames;
 
     // Id of the main thread
-    const std::thread::id m_mainThreadId = std::this_thread::get_id();
+    ثابت std::thread::id m_mainThreadId = std::this_thread::get_id();
 
-public:
+عام:
     // Options
     V3Options opt;  // All options; let user see them directly
 
     // CONSTRUCTORS
-    V3Global() = default;
-    void boot();
-    void shutdown();  // Release allocated resources
+    V3Global() = افتراضي;
+    فراغ boot();
+    فراغ shutdown();  // Release allocated resources
 
-    void vlExit(int status);
+    فراغ vlExit(صحيح status);
 
     // ACCESSORS (general)
-    AstNetlist* rootp() const VL_MT_SAFE { return m_rootp; }
+    AstNetlist* rootp() ثابت VL_MT_SAFE { أرجع m_rootp; }
     // Use V3ConstPool:: static methods instead
-    V3ConstPool* constPoolp() const VL_PURE { return m_constPoolp; }
-    V3LibMap* libMapp() const VL_PURE { return m_libMapp; }
-    V3ThreadPool* threadPoolp() const VL_PURE { return m_threadPoolp; }
-    void threadPoolp(V3ThreadPool* threadPoolp) {
+    V3ConstPool* constPoolp() ثابت VL_PURE { أرجع m_constPoolp; }
+    V3LibMap* libMapp() ثابت VL_PURE { أرجع m_libMapp; }
+    V3ThreadPool* threadPoolp() ثابت VL_PURE { أرجع m_threadPoolp; }
+    فراغ threadPoolp(V3ThreadPool* threadPoolp) {
         UASSERT(!m_threadPoolp, "attempted to create multiple threadPool singletons");
         m_threadPoolp = threadPoolp;
     }
-    VWidthMinUsage widthMinUsage() const VL_PURE { return m_widthMinUsage; }
-    bool assertDTypesResolved() const { return m_assertDTypesResolved; }
-    bool assertScoped() const { return m_assertScoped; }
-    bool staticsLifted() const { return m_staticsLifted; }
+    VWidthMinUsage widthMinUsage() ثابت VL_PURE { أرجع m_widthMinUsage; }
+    bool assertDTypesResolved() ثابت { أرجع m_assertDTypesResolved; }
+    bool assertScoped() ثابت { أرجع m_assertScoped; }
+    bool staticsLifted() ثابت { أرجع m_staticsLifted; }
 
     // METHODS
-    void readFiles() VL_MT_DISABLED;
-    void removeStd() VL_MT_DISABLED;
-    void checkTree() const;
-    static void dumpCheckGlobalTree(const string& stagename, int newNumber = 0, bool doDump = true,
+    فراغ readFiles() VL_MT_DISABLED;
+    فراغ removeStd() VL_MT_DISABLED;
+    فراغ checkTree() ثابت;
+    ساكن فراغ dumpCheckGlobalTree(ثابت string& stagename, صحيح newNumber = 0, bool doDump = true,
                                     bool doCheck = true);
-    void assertDTypesResolved(bool flag) { m_assertDTypesResolved = flag; }
-    void assertScoped(bool flag) { m_assertScoped = flag; }
-    void staticsLifted(bool flag) { m_staticsLifted = flag; }
-    void widthMinUsage(const VWidthMinUsage& flag) { m_widthMinUsage = flag; }
-    bool constRemoveXs() const { return m_constRemoveXs; }
-    void constRemoveXs(bool flag) { m_constRemoveXs = flag; }
-    string debugFilename(const string& nameComment, int newNumber = 0);
-    static string digitsFilename(int number);
-    bool needTraceDumper() const { return m_needTraceDumper; }
-    void needTraceDumper(bool flag) { m_needTraceDumper = flag; }
-    bool dpi() const VL_MT_SAFE { return m_dpi; }
-    void dpi(bool flag) { m_dpi = flag; }
-    bool assignsEvents() const { return m_assignsEvents; }
-    void setAssignsEvents() { m_assignsEvents = true; }
-    bool hasEvents() const { return m_hasEvents; }
-    void setHasEvents() { m_hasEvents = true; }
-    bool hasClasses() const { return m_hasClasses; }
-    void setHasClasses() { m_hasClasses = true; }
-    bool hasSampled() const { return m_hasSampled; }
-    void setHasSampled() { m_hasSampled = true; }
-    bool hasTable() const { return m_hasTable; }
-    void setHasTable() { m_hasTable = true; }
-    bool hasVirtIfaces() const { return m_hasVirtIfaces; }
-    void setHasVirtIfaces() { m_hasVirtIfaces = true; }
-    bool usesProbDist() const { return m_usesProbDist; }
-    void setUsesProbDist() { m_usesProbDist = true; }
-    bool usesStdPackage() const { return m_usesStdPackage; }
-    void setUsesStdPackage() { m_usesStdPackage = true; }
-    bool usesTiming() const { return m_usesTiming; }
-    void setUsesTiming() { m_usesTiming = true; }
-    bool usesZeroDelay() const { return m_usesZeroDelay; }
-    void setUsesZeroDelay() { m_usesZeroDelay = true; }
-    bool hasForceableSignals() const { return m_hasForceableSignals; }
-    void setHasForceableSignals() { m_hasForceableSignals = true; }
-    bool hasAssignDeassign() const { return m_hasAssignDeassign; }
-    void setHasAssignDeassign() { m_hasAssignDeassign = true; }
-    bool usesForce() const { return m_usesForce; }
-    void setUsesForce() { m_usesForce = true; }
-    V3HierGraph* hierGraphp() const { return m_hierGraphp; }
-    void hierGraphp(V3HierGraph* graphp) { m_hierGraphp = graphp; }
-    bool useParallelBuild() const { return m_useParallelBuild; }
-    void useParallelBuild(bool flag) { m_useParallelBuild = flag; }
-    bool useRandSequence() const { return m_useRandSequence; }
-    void useRandSequence(bool flag) { m_useRandSequence = flag; }
-    bool useCovergroup() const { return m_useCovergroup; }
-    void useCovergroup(bool flag) { m_useCovergroup = flag; }
-    bool useRandomizeMethods() const { return m_useRandomizeMethods; }
-    void useRandomizeMethods(bool flag) { m_useRandomizeMethods = flag; }
-    bool hasPrintedObjects() const { return m_hasPrintedObjects; }
-    void hasPrintedObjects(bool flag) { m_hasPrintedObjects = flag; }
-    void saveJsonPtrFieldName(const std::string& fieldName);
-    void ptrNamesDumpJson(std::ostream& os);
-    void idPtrMapDumpJson(std::ostream& os);
-    const std::string& ptrToId(const void* p);
-    std::thread::id mainThreadId() const { return m_mainThreadId; }
-    static std::vector<std::string> verilatedCppFiles();
-    uint64_t currentHierBlockCost() const { return m_currentHierBlockCost; }
-    void currentHierBlockCost(uint64_t cost) { m_currentHierBlockCost = cost; }
+    فراغ assertDTypesResolved(bool flag) { m_assertDTypesResolved = flag; }
+    فراغ assertScoped(bool flag) { m_assertScoped = flag; }
+    فراغ staticsLifted(bool flag) { m_staticsLifted = flag; }
+    فراغ widthMinUsage(ثابت VWidthMinUsage& flag) { m_widthMinUsage = flag; }
+    bool constRemoveXs() ثابت { أرجع m_constRemoveXs; }
+    فراغ constRemoveXs(bool flag) { m_constRemoveXs = flag; }
+    string debugFilename(ثابت string& nameComment, صحيح newNumber = 0);
+    ساكن string digitsFilename(صحيح number);
+    bool needTraceDumper() ثابت { أرجع m_needTraceDumper; }
+    فراغ needTraceDumper(bool flag) { m_needTraceDumper = flag; }
+    bool dpi() ثابت VL_MT_SAFE { أرجع m_dpi; }
+    فراغ dpi(bool flag) { m_dpi = flag; }
+    bool assignsEvents() ثابت { أرجع m_assignsEvents; }
+    فراغ setAssignsEvents() { m_assignsEvents = true; }
+    bool hasEvents() ثابت { أرجع m_hasEvents; }
+    فراغ setHasEvents() { m_hasEvents = true; }
+    bool hasClasses() ثابت { أرجع m_hasClasses; }
+    فراغ setHasClasses() { m_hasClasses = true; }
+    bool hasSampled() ثابت { أرجع m_hasSampled; }
+    فراغ setHasSampled() { m_hasSampled = true; }
+    bool hasTable() ثابت { أرجع m_hasTable; }
+    فراغ setHasTable() { m_hasTable = true; }
+    bool hasVirtIfaces() ثابت { أرجع m_hasVirtIfaces; }
+    فراغ setHasVirtIfaces() { m_hasVirtIfaces = true; }
+    bool usesProbDist() ثابت { أرجع m_usesProbDist; }
+    فراغ setUsesProbDist() { m_usesProbDist = true; }
+    bool usesStdPackage() ثابت { أرجع m_usesStdPackage; }
+    فراغ setUsesStdPackage() { m_usesStdPackage = true; }
+    bool usesTiming() ثابت { أرجع m_usesTiming; }
+    فراغ setUsesTiming() { m_usesTiming = true; }
+    bool usesZeroDelay() ثابت { أرجع m_usesZeroDelay; }
+    فراغ setUsesZeroDelay() { m_usesZeroDelay = true; }
+    bool hasForceableSignals() ثابت { أرجع m_hasForceableSignals; }
+    فراغ setHasForceableSignals() { m_hasForceableSignals = true; }
+    bool hasAssignDeassign() ثابت { أرجع m_hasAssignDeassign; }
+    فراغ setHasAssignDeassign() { m_hasAssignDeassign = true; }
+    bool usesForce() ثابت { أرجع m_usesForce; }
+    فراغ setUsesForce() { m_usesForce = true; }
+    V3HierGraph* hierGraphp() ثابت { أرجع m_hierGraphp; }
+    فراغ hierGraphp(V3HierGraph* graphp) { m_hierGraphp = graphp; }
+    bool useParallelBuild() ثابت { أرجع m_useParallelBuild; }
+    فراغ useParallelBuild(bool flag) { m_useParallelBuild = flag; }
+    bool useRandSequence() ثابت { أرجع m_useRandSequence; }
+    فراغ useRandSequence(bool flag) { m_useRandSequence = flag; }
+    bool useCovergroup() ثابت { أرجع m_useCovergroup; }
+    فراغ useCovergroup(bool flag) { m_useCovergroup = flag; }
+    bool useRandomizeMethods() ثابت { أرجع m_useRandomizeMethods; }
+    فراغ useRandomizeMethods(bool flag) { m_useRandomizeMethods = flag; }
+    bool hasPrintedObjects() ثابت { أرجع m_hasPrintedObjects; }
+    فراغ hasPrintedObjects(bool flag) { m_hasPrintedObjects = flag; }
+    فراغ saveJsonPtrFieldName(ثابت std::string& fieldName);
+    فراغ ptrNamesDumpJson(std::ostream& os);
+    فراغ idPtrMapDumpJson(std::ostream& os);
+    ثابت std::string& ptrToId(ثابت فراغ* p);
+    std::thread::id mainThreadId() ثابت { أرجع m_mainThreadId; }
+    ساكن std::vector<std::string> verilatedCppFiles();
+    uint64_t currentHierBlockCost() ثابت { أرجع m_currentHierBlockCost; }
+    فراغ currentHierBlockCost(uint64_t cost) { m_currentHierBlockCost = cost; }
 };
 
-extern V3Global v3Global;
+خارجي V3Global v3Global;
 
 //######################################################################
 

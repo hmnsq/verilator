@@ -17,43 +17,43 @@
 #ifndef VERILATOR_V3LANGUAGEWORDS_H_
 #define VERILATOR_V3LANGUAGEWORDS_H_
 
-#include "config_build.h"
-#include "verilatedos.h"
+#ضمن "config_build.h"
+#ضمن "verilatedos.h"
 
-#include <map>
+#ضمن <map>
 
 //============================================================================
 
 class V3LanguageWords final {
     // List of common reserved keywords
-private:
-    using KeywordMap = std::map<const string, std::string>;
-    struct Singleton final {
+خاص:
+    using KeywordMap = std::map<ثابت string, std::string>;
+    بنية Singleton final {
         KeywordMap s_kwdMap;  // List of keywords, and what language applies
         Singleton() { init(); }
-        void addKwd(const string& kwd, const string& why) { s_kwdMap.emplace(kwd, why); }
-        void init();
+        فراغ addKwd(ثابت string& kwd, ثابت string& why) { s_kwdMap.emplace(kwd, why); }
+        فراغ init();
     };
 
-public:
+عام:
     using const_iterator = KeywordMap::const_iterator;
     // METHODS
-    static const_iterator begin() { return s().s_kwdMap.begin(); }
-    static const_iterator end() { return s().s_kwdMap.end(); }
-    static string isKeyword(const string& kwd) {
-        const auto it = vlstd::as_const(s().s_kwdMap).find(kwd);
-        if (it == s().s_kwdMap.end()) return "";
-        return it->second;
+    ساكن const_iterator begin() { أرجع s().s_kwdMap.begin(); }
+    ساكن const_iterator end() { أرجع s().s_kwdMap.end(); }
+    ساكن string isKeyword(ثابت string& kwd) {
+        ثابت auto it = vlstd::as_const(s().s_kwdMap).find(kwd);
+        𐤀𐤌 (it == s().s_kwdMap.end()) أرجع "";
+        أرجع it->second;
     }
 
-private:
-    static Singleton& s() {
-        static Singleton s_s;  // LCOV_EXCL_BR_LINE
-        return s_s;
+خاص:
+    ساكن Singleton& s() {
+        ساكن Singleton s_s;  // LCOV_EXCL_BR_LINE
+        أرجع s_s;
     }
 };
 
-inline void V3LanguageWords::Singleton::init() {
+مضمن فراغ V3LanguageWords::Singleton::init() {
     // C++ keywords
     // clang-format off
     addKwd("abort",                 "C++ common word");

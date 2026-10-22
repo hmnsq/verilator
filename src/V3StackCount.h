@@ -18,19 +18,19 @@
 #ifndef VERILATOR_V3STACKCOUNT_H_
 #define VERILATOR_V3STACKCOUNT_H_
 
-#include "config_build.h"
-#include "verilatedos.h"
+#ضمن "config_build.h"
+#ضمن "verilatedos.h"
 
 class AstNode;
 
 class V3StackCount final {
-public:
+عام:
     // Return the estimate count of bytes needed in stack we'd incur while
     // running code in and under nodep.
     //
     // This is a rough estimate; we don't know what path we'll take through
     // conditionals in nodep, so we assume we take the longest path.
-    static uint64_t count(AstNode* nodep) VL_MT_DISABLED;
+    ساكن uint64_t count(AstNode* nodep) VL_MT_DISABLED;
 };
 
 #endif  // guard

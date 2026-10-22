@@ -17,25 +17,25 @@
 #ifndef VERILATOR_V3PREEXPR_H_
 #define VERILATOR_V3PREEXPR_H_
 
-#include "config_build.h"
-#include "verilatedos.h"
+#ضمن "config_build.h"
+#ضمن "verilatedos.h"
 
-#include "V3FileLine.h"
-#include "V3Global.h"
+#ضمن "V3FileLine.h"
+#ضمن "V3Global.h"
 
-#include <deque>
+#ضمن <deque>
 
 class V3PreExprToken final {
-public:
+عام:
     // TYPES
     // Order of enum must match token table
-    enum token_t : uint8_t { ZERO, ONE, END, BRA, KET, LNOT, LAND, LOR, IMP, EQV, MAX };
+    تعداد token_t : uint8_t { ZERO, ONE, END, BRA, KET, LNOT, LAND, LOR, IMP, EQV, MAX };
 
-private:
+خاص:
     // MEMBERS
-    FileLine* const m_fileline;  // Token fileline
-    token_t const m_token;  // Token value
-public:
+    FileLine* ثابت m_fileline;  // Token fileline
+    token_t ثابت m_token;  // Token value
+عام:
     // METHODS
     V3PreExprToken(FileLine* fileline, token_t token)
         : m_fileline{fileline}
@@ -43,17 +43,17 @@ public:
     V3PreExprToken(FileLine* fileline, bool value)
         : m_fileline{fileline}
         , m_token{value ? ONE : ZERO} {}
-    ~V3PreExprToken() = default;
-    const char* ascii() const {
-        static const char* names[] = {"0", "1", "$", "(", ")", "!", "&&", "||", "->", "<->"};
-        return names[m_token];
+    ~V3PreExprToken() = افتراضي;
+    ثابت حرف* ascii() ثابت {
+        ساكن ثابت حرف* names[] = {"0", "1", "$", "(", ")", "!", "&&", "||", "->", "<->"};
+        أرجع names[m_token];
     }
-    FileLine* fileline() const { return m_fileline; }
-    token_t token() const { return m_token; }
-    bool isValue() const { return m_token == ZERO || m_token == ONE; }
-    bool value() const {
+    FileLine* fileline() ثابت { أرجع m_fileline; }
+    token_t token() ثابت { أرجع m_token; }
+    bool isValue() ثابت { أرجع m_token == ZERO || m_token == ONE; }
+    bool value() ثابت {
         UASSERT(isValue(), "preproc expr fetch of non-value");
-        return m_token == ONE;
+        أرجع m_token == ONE;
     }
 };
 
@@ -67,16 +67,16 @@ class V3PreExpr final {
     VL_DEFINE_DEBUG_FUNCTIONS;
 
     // PARSER DEFINITION
-    enum action_t : uint8_t {
+    تعداد action_t : uint8_t {
         VV,  // Value
         AA,  // Accept
         RR,  // Reduce
         SS,  // Shift
         EE  // Error
     };
-    static const char* actionAscii(action_t en) {
-        static constexpr const char* names[] = {"VV", "AA", "RR", "SS", "EE"};
-        return names[en];
+    ساكن ثابت حرف* actionAscii(action_t en) {
+        ساكن constexpr ثابت حرف* names[] = {"VV", "AA", "RR", "SS", "EE"};
+        أرجع names[en];
     }
 
     //  Operators  Associativity  Precedence
@@ -104,7 +104,7 @@ class V3PreExpr final {
         /* ->  */ {VV, VV, RR, SS, RR, SS, SS, SS, RR, RR},
         /* <-> */ {VV, VV, RR, SS, RR, SS, SS, SS, RR, RR}};
 
-    static void selfTestImp() {
+    ساكن فراغ selfTestImp() {
         selfTestOne("0", false);
         selfTestOne("1", true);
         selfTestOne("! 0", true);
@@ -131,161 +131,161 @@ class V3PreExpr final {
         selfTestOne("! 0 && ! 0", true);
     }
 
-    static void selfTestOne(const string& expr, bool expect) {
+    ساكن فراغ selfTestOne(ثابت string& expr, bool expect) {
         // This hacky self-test parser just looks at first character of
         // operator, and requires space separation of operators/values
         UINFO(9, "V3PreExpr selfTestOne " << expr);
-        FileLine* const flp = nullptr;
+        FileLine* ثابت flp = nullptr;
         V3PreExpr parser;
         parser.reset(flp);
         bool tstart = true;
-        for (const char* cp = expr.c_str(); *cp; ++cp) {
-            if (tstart) {
+        لكل (ثابت حرف* cp = expr.c_str(); *cp; ++cp) {
+            𐤀𐤌 (tstart) {
                 tstart = false;
-                switch (*cp) {
-                case '0': parser.pushInput(V3PreExprToken{flp, V3PreExprToken::ZERO}); break;
-                case '1': parser.pushInput(V3PreExprToken{flp, V3PreExprToken::ONE}); break;
-                case '!': parser.pushInput(V3PreExprToken{flp, V3PreExprToken::LNOT}); break;
-                case '|': parser.pushInput(V3PreExprToken{flp, V3PreExprToken::LOR}); break;
-                case '&': parser.pushInput(V3PreExprToken{flp, V3PreExprToken::LAND}); break;
-                case '-': parser.pushInput(V3PreExprToken{flp, V3PreExprToken::IMP}); break;
-                case '<': parser.pushInput(V3PreExprToken{flp, V3PreExprToken::EQV}); break;
-                case '(': parser.pushInput(V3PreExprToken{flp, V3PreExprToken::BRA}); break;
-                case ')': parser.pushInput(V3PreExprToken{flp, V3PreExprToken::KET}); break;
-                default: break;
+                بدل (*cp) {
+                حالة '0': parser.pushInput(V3PreExprToken{flp, V3PreExprToken::ZERO}); اكسر;
+                حالة '1': parser.pushInput(V3PreExprToken{flp, V3PreExprToken::ONE}); اكسر;
+                حالة '!': parser.pushInput(V3PreExprToken{flp, V3PreExprToken::LNOT}); اكسر;
+                حالة '|': parser.pushInput(V3PreExprToken{flp, V3PreExprToken::LOR}); اكسر;
+                حالة '&': parser.pushInput(V3PreExprToken{flp, V3PreExprToken::LAND}); اكسر;
+                حالة '-': parser.pushInput(V3PreExprToken{flp, V3PreExprToken::IMP}); اكسر;
+                حالة '<': parser.pushInput(V3PreExprToken{flp, V3PreExprToken::EQV}); اكسر;
+                حالة '(': parser.pushInput(V3PreExprToken{flp, V3PreExprToken::BRA}); اكسر;
+                حالة ')': parser.pushInput(V3PreExprToken{flp, V3PreExprToken::KET}); اكسر;
+                افتراضي: اكسر;
                 }
-            } else if (*cp == ' ') {
+            } وإلا 𐤀𐤌 (*cp == ' ') {
                 tstart = true;
             }
         }
-        const bool got = parser.result();
+        ثابت bool got = parser.result();
         UASSERT_SELFTEST(got, expect);
     }
 
     // METHODS
-    void pushOp(const V3PreExprToken& token) {
+    فراغ pushOp(ثابت V3PreExprToken& token) {
         // UINFO(9, "  pushOp " << token.ascii());
         m_ops.push_back(token);
     }
-    void pushValue(const V3PreExprToken& token) {
+    فراغ pushValue(ثابت V3PreExprToken& token) {
         // UINFO(9, "  pushValue " << token.ascii());
         m_values.push_back(token);
     }
     V3PreExprToken popValue() {
-        if (m_values.empty()) {
+        𐤀𐤌 (m_values.empty()) {
             m_firstFileline->v3error("Syntax error in `ifdef () expression");
-            return V3PreExprToken{m_firstFileline, false};
+            أرجع V3PreExprToken{m_firstFileline, false};
         }
-        const V3PreExprToken tok = m_values.back();
+        ثابت V3PreExprToken tok = m_values.back();
         m_values.pop_back();
         // UINFO(9, "  popValue " << tok.ascii());
-        return tok;
+        أرجع tok;
     }
-    void reduce() {
+    فراغ reduce() {
         UASSERT(!m_ops.empty(), "lost op stack beginning END");
-        const V3PreExprToken tok = m_ops.back();
+        ثابت V3PreExprToken tok = m_ops.back();
         // UINFO(9, "Reduce " << tok.ascii());
         m_ops.pop_back();
-        switch (tok.token()) {
-        case V3PreExprToken::KET: {
-            while (m_ops.back().token() != V3PreExprToken::END
+        بدل (tok.token()) {
+        حالة V3PreExprToken::KET: {
+            طالما (m_ops.back().token() != V3PreExprToken::END
                    && m_ops.back().token() != V3PreExprToken::BRA)
                 reduce();
-            if (m_ops.back().token() == V3PreExprToken::BRA) {
+            𐤀𐤌 (m_ops.back().token() == V3PreExprToken::BRA) {
                 m_ops.pop_back();
-            } else {
+            } وإلا {
                 tok.fileline()->v3error("Syntax error in `ifdef () expression:"  // LCOV_EXCL_LINE
                                         " ) without matching )");
-                return;
+                أرجع;
             }
-            break;
+            اكسر;
         }
-        case V3PreExprToken::LNOT: {
-            const V3PreExprToken lhs = popValue();
+        حالة V3PreExprToken::LNOT: {
+            ثابت V3PreExprToken lhs = popValue();
             pushValue(V3PreExprToken{tok.fileline(), !lhs.value()});
-            break;
+            اكسر;
         }
-        case V3PreExprToken::LAND: {
-            const V3PreExprToken rhs = popValue();
-            const V3PreExprToken lhs = popValue();
+        حالة V3PreExprToken::LAND: {
+            ثابت V3PreExprToken rhs = popValue();
+            ثابت V3PreExprToken lhs = popValue();
             pushValue(V3PreExprToken{tok.fileline(), lhs.value() && rhs.value()});
-            break;
+            اكسر;
         }
-        case V3PreExprToken::LOR: {
-            const V3PreExprToken rhs = popValue();
-            const V3PreExprToken lhs = popValue();
+        حالة V3PreExprToken::LOR: {
+            ثابت V3PreExprToken rhs = popValue();
+            ثابت V3PreExprToken lhs = popValue();
             pushValue(V3PreExprToken{tok.fileline(), lhs.value() || rhs.value()});
-            break;
+            اكسر;
         }
-        case V3PreExprToken::IMP: {
-            const V3PreExprToken rhs = popValue();
-            const V3PreExprToken lhs = popValue();
+        حالة V3PreExprToken::IMP: {
+            ثابت V3PreExprToken rhs = popValue();
+            ثابت V3PreExprToken lhs = popValue();
             pushValue(V3PreExprToken{tok.fileline(), !lhs.value() || rhs.value()});
-            break;
+            اكسر;
         }
-        case V3PreExprToken::EQV: {
-            const V3PreExprToken rhs = popValue();
-            const V3PreExprToken lhs = popValue();
+        حالة V3PreExprToken::EQV: {
+            ثابت V3PreExprToken rhs = popValue();
+            ثابت V3PreExprToken lhs = popValue();
             pushValue(V3PreExprToken{tok.fileline(), lhs.value() == rhs.value()});
-            break;
+            اكسر;
         }
-        default: {
+        افتراضي: {
             v3fatalSrc("bad case on operand stack");
-            break;
+            اكسر;
         }
         }
     }
-    void parse() {
-        while (!m_inputs.empty()) {
-            const V3PreExprToken tok = m_inputs.front();
+    فراغ parse() {
+        طالما (!m_inputs.empty()) {
+            ثابت V3PreExprToken tok = m_inputs.front();
             m_inputs.pop_front();
             UINFO(9, "input read " << tok.ascii());
-            if (tok.isValue()) {
+            𐤀𐤌 (tok.isValue()) {
                 pushValue(tok);
-                continue;
+                استمر;
             }
 
             UASSERT(!m_ops.empty(), "lost op stack beginning END");
-            const V3PreExprToken topTok = m_ops.back();
+            ثابت V3PreExprToken topTok = m_ops.back();
             auto action = parseTable[topTok.token()][tok.token()];
             UINFO(9, "pop action " << actionAscii(action) << " from parseTable[" << topTok.ascii()
                                    << "][" << tok.ascii() << "]");
-            switch (action) {
-            case RR:  // Reduce
+            بدل (action) {
+            حالة RR:  // Reduce
                 reduce();
-                break;
-            case SS:  // Shift
+                اكسر;
+            حالة SS:  // Shift
                 m_ops.push_back(tok);
-                break;
-            case AA:  // Accept
-                break;
-            default: tok.fileline()->v3error("Syntax error in `ifdef () expression"); return;
+                اكسر;
+            حالة AA:  // Accept
+                اكسر;
+            افتراضي: tok.fileline()->v3error("Syntax error in `ifdef () expression"); أرجع;
             }
         }
     }
 
-public:
+عام:
     // METHODS
-    V3PreExpr() = default;
-    ~V3PreExpr() = default;
-    void reset(FileLine* flp) {
+    V3PreExpr() = افتراضي;
+    ~V3PreExpr() = افتراضي;
+    فراغ reset(FileLine* flp) {
         m_inputs.clear();
         m_values.clear();
         m_ops.clear();
         m_firstFileline = flp;
         pushOp(V3PreExprToken{flp, V3PreExprToken::END});
     }
-    void pushInput(const V3PreExprToken& token) {
-        if (!m_firstFileline) m_firstFileline = token.fileline();
+    فراغ pushInput(ثابت V3PreExprToken& token) {
+        𐤀𐤌 (!m_firstFileline) m_firstFileline = token.fileline();
         UINFO(9, "pushInput " << token.ascii());
         m_inputs.push_back(token);
     }
     bool result() {
         pushInput(V3PreExprToken{m_firstFileline, V3PreExprToken::END});
         parse();
-        return popValue().value();
+        أرجع popValue().value();
     }
-    static void selfTest() VL_MT_DISABLED { selfTestImp(); }
+    ساكن فراغ selfTest() VL_MT_DISABLED { selfTestImp(); }
 };
 
 #endif  // Guard
