@@ -55,40 +55,40 @@ class VSymEnt final {
     bool m_imported = false;  // Was imported
 #ifdef VL_DEBUG
     VL_DEFINE_DEBUG_FUNCTIONS;
-#else
-    static constexpr int debug() { return 0; }  // NOT runtime, too hot of a function
+#否则
+    static constexpr 整数 debug() { 返回 0; }  // NOT runtime, too hot of a function
 #endif
 public:
     using const_iterator = IdNameMap::const_iterator;
-    const_iterator begin() const { return m_idNameMap.begin(); }
-    const_iterator end() const { return m_idNameMap.end(); }
+    const_iterator begin() const { 返回 m_idNameMap.begin(); }
+    const_iterator end() const { 返回 m_idNameMap.end(); }
 
     void dumpIterate(std::ostream& os, VSymConstMap& doneSymsr, const string& indent,
-                     int numLevels, const string& searchName) const {
+                     整数 numLevels, const string& searchName) const {
         os << indent << "+ " << std::left << std::setw(30) << ("'"s + searchName + "'"s)
            << std::setw(0) << std::right;
         os << "  se" << cvtToHex(this) << std::setw(0);
         os << "  fallb=se" << cvtToHex(m_fallbackp);
-        if (m_imported || m_exported) {
+        如果 (m_imported || m_exported) {
             os << "  ";
-            if (m_imported) os << "[I]";
-            if (m_exported) os << "[E]";
+            如果 (m_imported) os << "[I]";
+            如果 (m_exported) os << "[E]";
         }
-        if (m_symPrefix != "") os << "  symPrefix=" << m_symPrefix;
-        if (nodep()) os << "  n=" << nodep();
+        如果 (m_symPrefix != "") os << "  symPrefix=" << m_symPrefix;
+        如果 (nodep()) os << "  n=" << nodep();
         os << '\n';
-        if (VL_UNCOVERABLE(!doneSymsr.insert(this).second)) {
+        如果 (VL_UNCOVERABLE(!doneSymsr.insert(this).second)) {
             os << indent << "| ^ duplicate, so no children printed\n";  // LCOV_EXCL_LINE
-        } else {
-            for (auto it = m_idNameMap.begin(); it != m_idNameMap.end(); ++it) {
-                if (numLevels >= 1) {
+        } 否则 {
+            为 (auto it = m_idNameMap.begin(); it != m_idNameMap.end(); ++it) {
+                如果 (numLevels >= 1) {
                     it->second->dumpIterate(os, doneSymsr, indent + "| ", numLevels - 1,
                                             it->first);
                 }
             }
         }
     }
-    void dumpSelf(std::ostream& os, const string& indent = "", int numLevels = 1) const {
+    void dumpSelf(std::ostream& os, const string& indent = "", 整数 numLevels = 1) const {
         VSymConstMap doneSyms;
         dumpIterate(os, doneSyms, indent, numLevels, "TOP");
     }
@@ -105,54 +105,54 @@ public:
         m_classOrPackagep = reinterpret_cast<AstNodeModule*>(1);
 #endif
     }
-#if (defined(VL_DEBUG) || defined(VL_ALLOC_RANDOM_CHECKS)) && !defined(VL_LEAK_CHECKS)
+#如果 (defined(VL_DEBUG) || defined(VL_ALLOC_RANDOM_CHECKS)) && !defined(VL_LEAK_CHECKS)
     // For testing, leak so above destructor 1 assignments work
-    void* operator new(size_t size) { return std::malloc(size); }
+    void* operator new(size_t size) { 返回 std::malloc(size); }
     void operator delete(void* objp, size_t size) {}
 #endif
     void fallbackp(VSymEnt* entp) { m_fallbackp = entp; }
-    VSymEnt* fallbackp() const { return m_fallbackp; }
+    VSymEnt* fallbackp() const { 返回 m_fallbackp; }
     void parentp(VSymEnt* entp) { m_parentp = entp; }
-    VSymEnt* parentp() const { return m_parentp; }
+    VSymEnt* parentp() const { 返回 m_parentp; }
     void classOrPackagep(AstNodeModule* entp) { m_classOrPackagep = entp; }
-    AstNodeModule* classOrPackagep() const { return m_classOrPackagep; }
-    AstNode* nodep() const { return m_nodep; }
-    string symPrefix() const { return m_symPrefix; }
+    AstNodeModule* classOrPackagep() const { 返回 m_classOrPackagep; }
+    AstNode* nodep() const { 返回 m_nodep; }
+    string symPrefix() const { 返回 m_symPrefix; }
     void symPrefix(const string& name) { m_symPrefix = name; }
-    bool exported() const { return m_exported; }
+    bool exported() const { 返回 m_exported; }
     void exported(bool flag) { m_exported = flag; }
-    bool imported() const { return m_imported; }
+    bool imported() const { 返回 m_imported; }
     void imported(bool flag) { m_imported = flag; }
     VSymEnt* insert(const string& name, VSymEnt* entp) {
         UINFO(9, "     SymInsert se" << cvtToHex(this) << " '" << name << "' se" << cvtToHex(entp)
                                      << "  " << entp->nodep());
-        if (name != "" && m_idNameMap.find(name) != m_idNameMap.end()) {
+        如果 (name != "" && m_idNameMap.find(name) != m_idNameMap.end()) {
             // If didn't already report warning
-            if (!V3Error::errorCount()) {  // LCOV_EXCL_START
-                if (debug() >= 9 || V3Error::debugDefault())
+            如果 (!V3Error::errorCount()) {  // LCOV_EXCL_START
+                如果 (debug() >= 9 || V3Error::debugDefault())
                     dumpSelf(std::cout, "- err-dump: ", 1);
                 entp->nodep()->v3fatalSrc("Inserting two symbols with same name: " << name);
             }  // LCOV_EXCL_STOP
-        } else {
+        } 否则 {
             m_idNameMap.emplace(name, entp);
         }
-        if (!name.empty() && name.find("__DOT__") == std::string::npos  // ignore hierarchical
+        如果 (!name.empty() && name.find("__DOT__") == std::string::npos  // ignore hierarchical
             && checkSimilarname(entp->nodep())) {
             string lc = name;
-            for (auto& c : lc) c = (char)tolower(c);
-            if (m_idNameSimilarMap.find(lc) == m_idNameSimilarMap.end())
+            为 (auto& c : lc) c = (char)tolower(c);
+            如果 (m_idNameSimilarMap.find(lc) == m_idNameSimilarMap.end())
                 m_idNameSimilarMap.insert(lc);
         }
 
-        return entp;
+        返回 entp;
     }
     void reinsert(const string& name, VSymEnt* entp) {
         const auto it = m_idNameMap.find(name);
-        if (name != "" && it != m_idNameMap.end()) {
+        如果 (name != "" && it != m_idNameMap.end()) {
             UINFO(9, "     SymReinsert se" << cvtToHex(this) << " '" << name << "' se"
                                            << cvtToHex(entp) << "  " << entp->nodep());
             it->second = entp;  // Replace
-        } else {
+        } 否则 {
             insert(name, entp);
         }
     }
@@ -165,16 +165,16 @@ public:
                      << (it == m_idNameMap.end() ? "NONE"
                                                  : "se" + cvtToHex(it->second)
                                                        + " n=" + cvtToHex(it->second->nodep())));
-        if (it != m_idNameMap.end()) return it->second;
-        return nullptr;
+        如果 (it != m_idNameMap.end()) 返回 it->second;
+        返回 nullptr;
     }
     static bool checkSimilarname(const AstNode* nodep) {
         // Only declarations that can contribute a name to the netlist handed
         // to a backend tool.
-        if (const AstVar* const varp = VN_CAST(nodep, Var)) {
-            return !varp->isParam() && !varp->isGenVar();
+        如果 (const AstVar* const varp = VN_CAST(nodep, Var)) {
+            返回 !varp->isParam() && !varp->isGenVar();
         }
-        return VN_IS(nodep, Cell)  //
+        返回 VN_IS(nodep, Cell)  //
                || VN_IS(nodep, NodeBlock)  //
                || VN_IS(nodep, GenBlock)  //
                || VN_IS(nodep, Func)  // Note: not AstNodeFTask (Property/Sequence)
@@ -184,39 +184,39 @@ public:
         // Find identifier without looking upward through symbol hierarchy
         // Were looking for symbols that are the same when compared without
         // caring about case, but that are not the same name
-        if (name.find("__DOT__") != std::string::npos)  // ignore hierarchical equivalents
-            return nullptr;
+        如果 (name.find("__DOT__") != std::string::npos)  // ignore hierarchical equivalents
+            返回 nullptr;
         string s = name;
-        for (auto& c : s) c = (char)tolower(c);
-        if (m_idNameSimilarMap.find(s) == m_idNameSimilarMap.end()) return nullptr;
-        for (auto it = m_idNameMap.begin(); it != m_idNameMap.end(); ++it) {
+        为 (auto& c : s) c = (char)tolower(c);
+        如果 (m_idNameSimilarMap.find(s) == m_idNameSimilarMap.end()) 返回 nullptr;
+        为 (auto it = m_idNameMap.begin(); it != m_idNameMap.end(); ++it) {
             // Only report a declaration that is itself checked, otherwise we
             // might point at e.g. a localparam that merely sorts first
-            if (!checkSimilarname(it->second->nodep())) continue;
+            如果 (!checkSimilarname(it->second->nodep())) continue;
             string t = it->first;
-            for (auto& c : t) c = (char)tolower(c);
-            if (t == s && name != it->first) { return it->second; }
+            为 (auto& c : t) c = (char)tolower(c);
+            如果 (t == s && name != it->first) { 返回 it->second; }
         }
-        return nullptr;
+        返回 nullptr;
     }
     VSymEnt* findIdFallback(const string& name) const {
         // Find identifier looking upward through symbol hierarchy
         // First, scan this begin/end block or module for the name
-        if (VSymEnt* const entp = findIdFlat(name)) return entp;
+        如果 (VSymEnt* const entp = findIdFlat(name)) 返回 entp;
         // Then scan the upper begin/end block or module for the name
-        if (m_fallbackp) return m_fallbackp->findIdFallback(name);
-        return nullptr;
+        如果 (m_fallbackp) 返回 m_fallbackp->findIdFallback(name);
+        返回 nullptr;
     }
     void candidateIdFlat(VSpellCheck* spellerp, const VNodeMatcher* matcherp,
                          bool includeType) const {
         // Suggest alternative symbol candidates without looking upward through symbol
         // hierarchy
-        for (IdNameMap::const_iterator it = m_idNameMap.begin(); it != m_idNameMap.end(); ++it) {
+        为 (IdNameMap::const_iterator it = m_idNameMap.begin(); it != m_idNameMap.end(); ++it) {
             const AstNode* const itemp = it->second->nodep();
-            if (itemp && (!matcherp || matcherp->nodeMatch(itemp))) {
-                if (includeType) {
+            如果 (itemp && (!matcherp || matcherp->nodeMatch(itemp))) {
+                如果 (includeType) {
                     spellerp->pushCandidate(itemp->prettyName(), itemp->prettyTypeName());
-                } else {
+                } 否则 {
                     spellerp->pushCandidate(itemp->prettyName());
                 }
             }
@@ -227,13 +227,13 @@ public:
         // Note VSpellCheck wants the most important (closest) items pushed first
         candidateIdFlat(spellerp, matcherp, false);
         // Then suggest the upper begin/end block or module
-        if (m_fallbackp) m_fallbackp->candidateIdFallback(spellerp, matcherp);
+        如果 (m_fallbackp) m_fallbackp->candidateIdFallback(spellerp, matcherp);
     }
 
 private:
     void importOneSymbol(VSymGraph* graphp, const string& name, const VSymEnt* srcp,
                          bool honorExport) {
-        if ((!honorExport || srcp->exported())
+        如果 ((!honorExport || srcp->exported())
             && !findIdFlat(name)) {  // Don't insert over existing entry
             VSymEnt* const symp = new VSymEnt{graphp, srcp};
             symp->exported(false);  // Can't reimport an import without an export
@@ -242,9 +242,9 @@ private:
         }
     }
     void exportOneSymbol(VSymGraph* /*graphp*/, const string& name, const VSymEnt* srcp) const {
-        if (srcp->exported()) {
-            if (VSymEnt* const symp = findIdFlat(name)) {  // Should already exist in current table
-                if (!symp->exported()) symp->exported(true);
+        如果 (srcp->exported()) {
+            如果 (VSymEnt* const symp = findIdFlat(name)) {  // Should already exist in current table
+                如果 (!symp->exported()) symp->exported(true);
             }
         }
     }
@@ -258,25 +258,25 @@ public:
         // But ok for "extern foo" and "foo" to both come from base (so must check before
         // insert)
         std::unordered_set<std::string> haveExterns;
-        for (IdNameMap::const_iterator it = srcp->m_idNameMap.begin();
+        为 (IdNameMap::const_iterator it = srcp->m_idNameMap.begin();
              it != srcp->m_idNameMap.end(); ++it) {
-            if (m_idNameMap.count("extern " + it->first)) haveExterns.emplace(it->first);
+            如果 (m_idNameMap.count("extern " + it->first)) haveExterns.emplace(it->first);
         }
-        for (IdNameMap::const_iterator it = srcp->m_idNameMap.begin();
+        为 (IdNameMap::const_iterator it = srcp->m_idNameMap.begin();
              it != srcp->m_idNameMap.end(); ++it) {
-            if (!haveExterns.count(it->first))
+            如果 (!haveExterns.count(it->first))
                 importOneSymbol(graphp, it->first, it->second, false);
         }
     }
     void importFromPackage(VSymGraph* graphp, const VSymEnt* srcp, const string& id_or_star) {
         // Import tokens from source symbol table into this symbol table
-        if (id_or_star != "*") {
+        如果 (id_or_star != "*") {
             const auto it = srcp->m_idNameMap.find(id_or_star);
-            if (it != srcp->m_idNameMap.end()) {
+            如果 (it != srcp->m_idNameMap.end()) {
                 importOneSymbol(graphp, it->first, it->second, true);
             }
-        } else {
-            for (IdNameMap::const_iterator it = srcp->m_idNameMap.begin();
+        } 否则 {
+            为 (IdNameMap::const_iterator it = srcp->m_idNameMap.begin();
                  it != srcp->m_idNameMap.end(); ++it) {
                 importOneSymbol(graphp, it->first, it->second, true);
             }
@@ -284,11 +284,11 @@ public:
     }
     void exportFromPackage(VSymGraph* graphp, const VSymEnt* srcp, const string& id_or_star) {
         // Export tokens from source symbol table into this symbol table
-        if (id_or_star != "*") {
+        如果 (id_or_star != "*") {
             const auto it = vlstd::as_const(srcp->m_idNameMap).find(id_or_star);
-            if (it != srcp->m_idNameMap.end()) exportOneSymbol(graphp, it->first, it->second);
-        } else {
-            for (IdNameMap::const_iterator it = srcp->m_idNameMap.begin();
+            如果 (it != srcp->m_idNameMap.end()) exportOneSymbol(graphp, it->first, it->second);
+        } 否则 {
+            为 (IdNameMap::const_iterator it = srcp->m_idNameMap.begin();
                  it != srcp->m_idNameMap.end(); ++it) {
                 exportOneSymbol(graphp, it->first, it->second);
             }
@@ -296,20 +296,20 @@ public:
     }
     void exportStarStar(VSymGraph* /*graphp*/) {
         // Export *:*: Export all tokens from imported packages
-        for (IdNameMap::const_iterator it = m_idNameMap.begin(); it != m_idNameMap.end(); ++it) {
+        为 (IdNameMap::const_iterator it = m_idNameMap.begin(); it != m_idNameMap.end(); ++it) {
             VSymEnt* const symp = it->second;
-            if (!symp->exported()) symp->exported(true);
+            如果 (!symp->exported()) symp->exported(true);
         }
     }
     void importFromIface(VSymGraph* graphp, const VSymEnt* srcp, bool onlyUnmodportable = false) {
         // Import interface tokens from source symbol table into this symbol table, recursively
         UINFO(9, "     importIf  se" << cvtToHex(this) << " from se" << cvtToHex(srcp));
-        for (IdNameMap::const_iterator it = srcp->m_idNameMap.begin();
+        为 (IdNameMap::const_iterator it = srcp->m_idNameMap.begin();
              it != srcp->m_idNameMap.end(); ++it) {
             const string& name = it->first;
             VSymEnt* const subSrcp = it->second;
             const AstVar* const varp = VN_CAST(subSrcp->nodep(), Var);
-            if (!onlyUnmodportable || (varp && varp->isParam())) {
+            如果 (!onlyUnmodportable || (varp && varp->isParam())) {
                 VSymEnt* const subSymp = new VSymEnt{graphp, subSrcp};
                 reinsert(name, subSymp);
                 // And recurse to create children
@@ -318,18 +318,18 @@ public:
         }
     }
     string cellErrorScopes(const AstNode* lookp, string prettyName = "") {
-        if (prettyName == "") prettyName = lookp->prettyName();
+        如果 (prettyName == "") prettyName = lookp->prettyName();
         string scopes;
-        for (IdNameMap::iterator it = m_idNameMap.begin(); it != m_idNameMap.end(); ++it) {
+        为 (IdNameMap::iterator it = m_idNameMap.begin(); it != m_idNameMap.end(); ++it) {
             const AstNode* const itemp = it->second->nodep();
-            if (VN_IS(itemp, Cell) || (VN_IS(itemp, Module) && VN_AS(itemp, Module)->isTop())) {
-                if (scopes != "") scopes += ", ";
+            如果 (VN_IS(itemp, Cell) || (VN_IS(itemp, Module) && VN_AS(itemp, Module)->isTop())) {
+                如果 (scopes != "") scopes += ", ";
                 scopes += AstNode::prettyName(it->first);
             }
         }
-        if (scopes == "") scopes = "<no instances found>";
-        if (debug()) dumpSelf(std::cerr, "       KnownScope: ", 1);
-        return V3Error::warnMore() + "... Known scopes under '" + prettyName + "': " + scopes
+        如果 (scopes == "") scopes = "<no instances found>";
+        如果 (debug()) dumpSelf(std::cerr, "       KnownScope: ", 1);
+        返回 V3Error::warnMore() + "... Known scopes under '" + prettyName + "': " + scopes
                + '\n';
     }
 };
@@ -354,20 +354,20 @@ class VSymGraph final {
 public:
     explicit VSymGraph(AstNetlist* nodep) { m_symRootp = new VSymEnt{this, nodep}; }
     ~VSymGraph() {
-        for (const VSymEnt* entp : m_symsp) delete entp;
+        为 (const VSymEnt* entp : m_symsp) delete entp;
     }
 
     // METHODS
-    VSymEnt* rootp() const { return m_symRootp; }
+    VSymEnt* rootp() const { 返回 m_symRootp; }
     // Debug
     void dumpSelf(std::ostream& os, const string& indent = "") {
         VSymConstMap doneSyms;
         os << "SymEnt Dump:\n";
         m_symRootp->dumpIterate(os, doneSyms, indent, 9999, "$root");
         bool first = true;
-        for (SymStack::iterator it = m_symsp.begin(); it != m_symsp.end(); ++it) {
-            if (doneSyms.find(*it) == doneSyms.end()) {
-                if (first) {
+        为 (SymStack::iterator it = m_symsp.begin(); it != m_symsp.end(); ++it) {
+            如果 (doneSyms.find(*it) == doneSyms.end()) {
+                如果 (first) {
                     first = false;
                     os << "%%Warning: SymEnt Orphans:\n";
                 }
@@ -376,11 +376,11 @@ public:
         }
     }
     void dumpFilePrefixed(const string& nameComment) {
-        if (dumpTreeLevel()) {
+        如果 (dumpTreeLevel()) {
             const string filename = v3Global.debugFilename(nameComment) + ".txt";
             UINFO(2, "Dumping " << filename);
             const std::unique_ptr<std::ofstream> logp{V3File::new_ofstream(filename)};
-            if (logp->fail()) v3fatal("Can't write file: " << filename);
+            如果 (logp->fail()) v3fatal("Can't write file: " << filename);
             dumpSelf(*logp, "");
         }
     }

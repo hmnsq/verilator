@@ -49,9 +49,9 @@ public:
     ~VlcTop() = default;
 
     // ACCESSORS
-    VlcTests& tests() { return m_tests; }
-    VlcPoints& points() { return m_points; }
-    VlcSources& sources() { return m_sources; }
+    VlcTests& tests() { 返回 m_tests; }
+    VlcPoints& points() { 返回 m_points; }
+    VlcSources& sources() { 返回 m_sources; }
 
     // METHODS
     void annotate(const string& dirname);

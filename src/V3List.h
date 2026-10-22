@@ -77,7 +77,7 @@ class V3List final {
     // Given the T_Base, return the Links. The links are always mutable, even in const elements.
     VL_ATTR_ALWINLINE
     static V3ListLinks<T_Base>& toLinks(const T_Base* elementp) {
-        return (const_cast<T_Base*>(elementp)->*LinksGetter)();
+        返回 (const_cast<T_Base*>(elementp)->*LinksGetter)();
     }
 
     VL_ATTR_ALWINLINE
@@ -109,10 +109,10 @@ class V3List final {
 
         VL_ATTR_ALWINLINE
         static T_Base* step(T_Base* currp) {
-            if VL_CONSTEXPR_CXX17 (N_Reverse) {
-                return toLinks(currp).m_prevp;
-            } else {
-                return toLinks(currp).m_nextp;
+            如果 VL_CONSTEXPR_CXX17 (N_Reverse) {
+                返回 toLinks(currp).m_prevp;
+            } 否则 {
+                返回 toLinks(currp).m_nextp;
             }
         }
 
@@ -122,31 +122,31 @@ class V3List final {
         T_IteratorElement& operator*() const {
             UDEBUGONLY(UASSERT(m_currp, "Dereferencing end of list iterator"););
             prefetch(step(m_currp), m_currp);
-            return *static_cast<T_IteratorElement*>(m_currp);
+            返回 *static_cast<T_IteratorElement*>(m_currp);
         }
         // Pre increment
         VL_ATTR_ALWINLINE
         IteratorType& operator++() {
             UDEBUGONLY(UASSERT(m_currp, "Pre-incrementing end of list iterator"););
             m_currp = step(m_currp);
-            return *this;
+            返回 *this;
         }
         // Post increment
         VL_ATTR_ALWINLINE
-        IteratorType operator++(int) {
+        IteratorType operator++(整数) {
             UDEBUGONLY(UASSERT(m_currp, "Post-incrementing end of list iterator"););
             T_Base* const elementp = m_currp;
             m_currp = step(m_currp);
-            return IteratorType{elementp};
+            返回 IteratorType{elementp};
         }
         VL_ATTR_ALWINLINE
-        bool operator==(const IteratorType& other) const { return m_currp == other.m_currp; }
+        bool operator==(const IteratorType& other) const { 返回 m_currp == other.m_currp; }
         VL_ATTR_ALWINLINE
-        bool operator!=(const IteratorType& other) const { return m_currp != other.m_currp; }
+        bool operator!=(const IteratorType& other) const { 返回 m_currp != other.m_currp; }
         // Convert to const iterator
         VL_ATTR_ALWINLINE
         operator SimpleItertatorImpl<const T_IteratorElement, N_Reverse>() const {
-            return SimpleItertatorImpl<const T_IteratorElement, N_Reverse>{m_currp};
+            返回 SimpleItertatorImpl<const T_IteratorElement, N_Reverse>{m_currp};
         }
     };
 
@@ -193,7 +193,7 @@ class V3List final {
             T_IteratorElement* operator*() const {
                 UDEBUGONLY(UASSERT(m_currp, "Dereferencing end of list iterator"););
                 prefetch(m_nextp, m_currp);
-                return static_cast<T_IteratorElement*>(m_currp);
+                返回 static_cast<T_IteratorElement*>(m_currp);
             }
             // Pre increment - Keeps hold of current next pointer.
             VL_ATTR_ALWINLINE
@@ -201,23 +201,23 @@ class V3List final {
                 UDEBUGONLY(UASSERT(m_currp, "Pre-incrementing end of list iterator"););
                 m_currp = m_nextp;
                 m_nextp = m_currp ? toLinks(m_currp).m_nextp : nullptr;
-                return *this;
+                返回 *this;
             }
             VL_ATTR_ALWINLINE
-            bool operator!=(const IteratorType& other) const { return m_currp != other.m_currp; }
+            bool operator!=(const IteratorType& other) const { 返回 m_currp != other.m_currp; }
         };
 
     public:
         using iterator = UnlinkableItertatorImpl<T_Element>;
         using const_iterator = UnlinkableItertatorImpl<const T_Element>;
         iterator begin() {  //
-            return m_list.m_headp ? iterator{m_list.m_headp} : end();
+            返回 m_list.m_headp ? iterator{m_list.m_headp} : end();
         }
         const_iterator begin() const {
-            return m_list.m_headp ? const_iterator{m_list.m_headp} : end();
+            返回 m_list.m_headp ? const_iterator{m_list.m_headp} : end();
         }
-        iterator end() { return iterator{nullptr}; }
-        const_iterator end() const { return const_iterator{nullptr}; }
+        iterator end() { 返回 iterator{nullptr}; }
+        const_iterator end() const { 返回 const_iterator{nullptr}; }
     };
 
 public:
@@ -238,42 +238,42 @@ public:
     VL_UNMOVABLE(V3List);
 
     // METHDOS
-    bool empty() const { return !m_headp; }
-    bool hasSingleElement() const { return m_headp && m_headp == m_lastp; }
-    bool hasMultipleElements() const { return m_headp && m_headp != m_lastp; }
-    bool hasTwoElements() const { return m_headp && toLinks(m_headp).m_nextp == m_lastp; }
+    bool empty() const { 返回 !m_headp; }
+    bool hasSingleElement() const { 返回 m_headp && m_headp == m_lastp; }
+    bool hasMultipleElements() const { 返回 m_headp && m_headp != m_lastp; }
+    bool hasTwoElements() const { 返回 m_headp && toLinks(m_headp).m_nextp == m_lastp; }
 
     // These return pointers, as we often want to unlink/delete them, and can also signal empty
-    T_Element* frontp() { return static_cast<T_Element*>(m_headp); }
-    const T_Element* frontp() const { return static_cast<T_Element*>(m_headp); }
-    T_Element* backp() { return static_cast<T_Element*>(m_lastp); }
-    const T_Element* backp() const { return static_cast<T_Element*>(m_lastp); }
+    T_Element* frontp() { 返回 static_cast<T_Element*>(m_headp); }
+    const T_Element* frontp() const { 返回 static_cast<T_Element*>(m_headp); }
+    T_Element* backp() { 返回 static_cast<T_Element*>(m_lastp); }
+    const T_Element* backp() const { 返回 static_cast<T_Element*>(m_lastp); }
 
     // Standard iterators. The iterator is only invalidated if the element it points to is
     // unlinked. Other list operations do not invalidate the itartor. If you want to be able to
     // unlink the currently iterated element, use 'unlinkable()' below.
-    iterator begin() { return iterator{m_headp}; }
-    const_iterator begin() const { return const_iterator{m_headp}; }
-    iterator end() { return iterator{nullptr}; }
-    const_iterator end() const { return const_iterator{nullptr}; }
-    reverse_iterator rbegin() { return reverse_iterator{m_lastp}; }
-    const_reverse_iterator rbegin() const { return const_reverse_iterator{m_lastp}; }
-    reverse_iterator rend() { return reverse_iterator{nullptr}; }
-    const_reverse_iterator rend() const { return const_reverse_iterator{nullptr}; }
+    iterator begin() { 返回 iterator{m_headp}; }
+    const_iterator begin() const { 返回 const_iterator{m_headp}; }
+    iterator end() { 返回 iterator{nullptr}; }
+    const_iterator end() const { 返回 const_iterator{nullptr}; }
+    reverse_iterator rbegin() { 返回 reverse_iterator{m_lastp}; }
+    const_reverse_iterator rbegin() const { 返回 const_reverse_iterator{m_lastp}; }
+    reverse_iterator rend() { 返回 reverse_iterator{nullptr}; }
+    const_reverse_iterator rend() const { 返回 const_reverse_iterator{nullptr}; }
 
     // Handle to create unlinkable iterators, which allows unlinking the currently iterated
     // element without invalidating the iterator. However, every other operation that mutates
     // the list invalidates the unlinkable iterator!
-    UnlinkableProxy unlinkable() { return UnlinkableProxy{*this}; }
+    UnlinkableProxy unlinkable() { 返回 UnlinkableProxy{*this}; }
 
     // Link (insert) existing element at front
     void linkFront(const T_Element* elementp) {
         auto& links = toLinks(elementp);
         links.m_nextp = m_headp;
         links.m_prevp = nullptr;
-        if (m_headp) toLinks(m_headp).m_prevp = const_cast<T_Element*>(elementp);
+        如果 (m_headp) toLinks(m_headp).m_prevp = const_cast<T_Element*>(elementp);
         m_headp = const_cast<T_Element*>(elementp);
-        if (!m_lastp) m_lastp = m_headp;
+        如果 (!m_lastp) m_lastp = m_headp;
     }
 
     // Link (insert) existing element at back
@@ -281,32 +281,32 @@ public:
         auto& links = toLinks(elementp);
         links.m_nextp = nullptr;
         links.m_prevp = m_lastp;
-        if (m_lastp) toLinks(m_lastp).m_nextp = const_cast<T_Element*>(elementp);
+        如果 (m_lastp) toLinks(m_lastp).m_nextp = const_cast<T_Element*>(elementp);
         m_lastp = const_cast<T_Element*>(elementp);
-        if (!m_headp) m_headp = m_lastp;
+        如果 (!m_headp) m_headp = m_lastp;
     }
 
     // Unlink (remove) and return element at the front. Returns 'nullptr' if the list is empty.
     T_Element* unlinkFront() {
         T_Element* const headp = m_headp;
-        if (headp) unlink(headp);
-        return headp;
+        如果 (headp) unlink(headp);
+        返回 headp;
     }
 
     // Unlink (remove) and return element at the back. Returns 'nullptr' if the list is empty.
     T_Element* unlinkBack() {
         T_Element* const lastp = m_lastp;
-        if (lastp) unlink(lastp);
-        return lastp;
+        如果 (lastp) unlink(lastp);
+        返回 lastp;
     }
 
     // Unlink (remove) the given element.
     void unlink(const T_Element* elementp) {
         auto& links = toLinks(elementp);
-        if (links.m_nextp) toLinks(links.m_nextp).m_prevp = links.m_prevp;
-        if (links.m_prevp) toLinks(links.m_prevp).m_nextp = links.m_nextp;
-        if (m_headp == elementp) m_headp = links.m_nextp;
-        if (m_lastp == elementp) m_lastp = links.m_prevp;
+        如果 (links.m_nextp) toLinks(links.m_nextp).m_prevp = links.m_prevp;
+        如果 (links.m_prevp) toLinks(links.m_prevp).m_nextp = links.m_nextp;
+        如果 (m_headp == elementp) m_headp = links.m_nextp;
+        如果 (m_lastp == elementp) m_lastp = links.m_prevp;
         links.m_prevp = nullptr;
         links.m_nextp = nullptr;
     }
@@ -319,11 +319,11 @@ public:
 
     // Take elements from 'other' and link (insert) them all before the given position.
     void splice(const_iterator pos, ListType& other) {
-        if (empty()) {
+        如果 (empty()) {
             swap(other);
-        } else if (other.empty()) {
-            return;
-        } else {
+        } 否则 如果 (other.empty()) {
+            返回;
+        } 否则 {
             UASSERT(pos == end(), "Sorry, only splicing at the end is implemented at the moment");
             toLinks(m_lastp).m_nextp = other.m_headp;
             toLinks(other.m_headp).m_prevp = m_lastp;
@@ -336,8 +336,8 @@ public:
     // This is O(n)!
     size_t size() const {
         size_t result = 0;
-        for (auto it = begin(); it != end(); ++it) ++result;
-        return result;
+        为 (auto it = begin(); it != end(); ++it) ++result;
+        返回 result;
     }
 };
 

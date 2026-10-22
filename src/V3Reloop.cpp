@@ -69,14 +69,14 @@ class ReloopVisitor final : public VNVisitor {
         AstVar* const varp
             = new AstVar{fl, VVarType::STMTTEMP, newvarname, VFlagLogicPacked{}, 32};
         cfuncp->addVarsp(varp);
-        return varp;
+        返回 varp;
     }
     void mergeEnd() {
-        if (!m_mgAssignps.empty()) {
+        如果 (!m_mgAssignps.empty()) {
             const uint32_t items = m_mgIndexHi - m_mgIndexLo + 1;
             UINFO(9, "End merge iter=" << items << " " << m_mgIndexHi << ":" << m_mgIndexLo << " "
                                        << m_mgOffset << " " << m_mgAssignps[0]);
-            if (items >= static_cast<uint32_t>(v3Global.opt.reloopLimit())) {
+            如果 (items >= static_cast<uint32_t>(v3Global.opt.reloopLimit())) {
                 UINFO(6, "Reloop merging items=" << items << " " << m_mgIndexHi << ":"
                                                  << m_mgIndexLo << " " << m_mgOffset << " "
                                                  << m_mgAssignps[0]);
@@ -89,7 +89,7 @@ class ReloopVisitor final : public VNVisitor {
                 FileLine* const fl = bodyp->fileline();
                 AstVar* const itp = createVarTemp(fl, m_mgCfuncp);
 
-                if (m_mgOffset > 0) {
+                如果 (m_mgOffset > 0) {
                     UASSERT_OBJ(m_mgIndexLo >= m_mgOffset, bodyp,
                                 "Reloop iteration starts at negative index");
                     m_mgIndexLo -= m_mgOffset;
@@ -117,7 +117,7 @@ class ReloopVisitor final : public VNVisitor {
                 AstNodeExpr* const lvrefp = new AstVarRef{fl, itp, VAccess::READ};
                 lbitp->replaceWith(m_mgOffset > 0 ? new AstAdd{fl, lvrefp, offsetp} : lvrefp);
                 VL_DO_DANGLING(lbitp->deleteTree(), lbitp);
-                if (m_mgSelRp) {  // else constant and no replace
+                如果 (m_mgSelRp) {  // else constant and no replace
                     AstNodeExpr* const rbitp = m_mgSelRp->bitp();
                     AstNodeExpr* const rvrefp = new AstVarRef{fl, itp, VAccess::READ};
                     rbitp->replaceWith(m_mgOffset < 0 ? new AstAdd{fl, rvrefp, offsetp} : rvrefp);
@@ -127,8 +127,8 @@ class ReloopVisitor final : public VNVisitor {
                 UINFOTREE(9, loopp, "", "new");
 
                 // Remove remaining assigns
-                for (AstNodeAssign* assp : m_mgAssignps) {
-                    if (assp != bodyp) {
+                为 (AstNodeAssign* assp : m_mgAssignps) {
+                    如果 (assp != bodyp) {
                         VL_DO_DANGLING(assp->unlinkFrBack()->deleteTree(), assp);
                     }
                 }
@@ -152,30 +152,30 @@ class ReloopVisitor final : public VNVisitor {
         mergeEnd();  // Finish last pending merge, if any
     }
     void visit(AstNodeAssign* nodep) override {
-        if (!m_cfuncp) return;
+        如果 (!m_cfuncp) 返回;
 
         // Left select WordSel or ArraySel
         AstNodeSel* const lselp = VN_CAST(nodep->lhsp(), NodeSel);
-        if (!lselp) {  // Not ever merged
+        如果 (!lselp) {  // Not ever merged
             mergeEnd();
-            return;
+            返回;
         }
         // Of a constant index
         const AstConst* const lbitp = VN_CAST(lselp->bitp(), Const);
-        if (!lbitp) {
+        如果 (!lbitp) {
             mergeEnd();
-            return;
+            返回;
         }
-        if (lbitp->width() > 32) {  // Assoc arrays can do this
+        如果 (lbitp->width() > 32) {  // Assoc arrays can do this
             mergeEnd();
-            return;
+            返回;
         }
         const uint32_t lindex = lbitp->toUInt();
         // Of variable
         const AstNodeVarRef* const lvarrefp = VN_CAST(lselp->fromp(), NodeVarRef);
-        if (!lvarrefp) {
+        如果 (!lvarrefp) {
             mergeEnd();
-            return;
+            返回;
         }
 
         // RHS is a constant or a select
@@ -183,22 +183,22 @@ class ReloopVisitor final : public VNVisitor {
         const AstNodeSel* const rselp = VN_CAST(nodep->rhsp(), NodeSel);
         const AstNodeVarRef* rvarrefp = nullptr;
         uint32_t rindex = lindex;
-        if (rconstp) {  // Ok
-        } else if (rselp) {
+        如果 (rconstp) {  // Ok
+        } 否则 如果 (rselp) {
             const AstConst* const rbitp = VN_CAST(rselp->bitp(), Const);
             rvarrefp = VN_CAST(rselp->fromp(), NodeVarRef);
-            if (!rbitp || !rvarrefp || lvarrefp->varp() == rvarrefp->varp()) {
+            如果 (!rbitp || !rvarrefp || lvarrefp->varp() == rvarrefp->varp()) {
                 mergeEnd();
-                return;
+                返回;
             }
             rindex = rbitp->toUInt();
-        } else {
+        } 否则 {
             mergeEnd();
-            return;
+            返回;
         }
 
-        if (m_mgSelLp) {  // Old merge
-            if (m_mgCfuncp == m_cfuncp  // In same function
+        如果 (m_mgSelLp) {  // Old merge
+            如果 (m_mgCfuncp == m_cfuncp  // In same function
                 && m_mgNextp == nodep  // Consecutive node
                 && m_mgVarrefLp->isSame(lvarrefp)  // Same array on left hand side
                 && (m_mgConstRp  // On the right hand side either ...
@@ -208,17 +208,17 @@ class ReloopVisitor final : public VNVisitor {
                 && (m_mgConstRp || lindex == rindex + m_mgOffset)  // Same right index offset
             ) {
                 // Sequentially next to last assign; continue merge
-                if (lindex == m_mgIndexLo - 1) {
+                如果 (lindex == m_mgIndexLo - 1) {
                     m_mgIndexLo = lindex;
-                } else if (lindex == m_mgIndexHi + 1) {
+                } 否则 如果 (lindex == m_mgIndexHi + 1) {
                     m_mgIndexHi = lindex;
                 }
                 UINFO(9, "Continue merge i=" << lindex << " " << m_mgIndexHi << ":" << m_mgIndexLo
                                              << " " << nodep);
                 m_mgAssignps.push_back(nodep);
                 m_mgNextp = nodep->nextp();
-                return;
-            } else {
+                返回;
+            } 否则 {
                 UINFO(9, "End merge i=" << lindex << " " << m_mgIndexHi << ":" << m_mgIndexLo
                                         << " " << nodep);
                 // This assign doesn't merge with previous assign,

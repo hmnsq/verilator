@@ -52,25 +52,25 @@ class CleanVisitor final : public VNVisitor {
     // METHODS
 
     // Width resetting
-    int cppWidth(const AstNode* nodep) {
-        if (nodep->width() <= VL_IDATASIZE) {
-            return VL_IDATASIZE;
-        } else if (nodep->width() <= VL_QUADSIZE) {
-            return VL_QUADSIZE;
-        } else {
-            return nodep->widthWords() * VL_EDATASIZE;
+    整数 cppWidth(const AstNode* nodep) {
+        如果 (nodep->width() <= VL_IDATASIZE) {
+            返回 VL_IDATASIZE;
+        } 否则 如果 (nodep->width() <= VL_QUADSIZE) {
+            返回 VL_QUADSIZE;
+        } 否则 {
+            返回 nodep->widthWords() * VL_EDATASIZE;
         }
     }
     void setCppWidth(AstNode* nodep) {
         nodep->user2(true);  // Don't resize it again
         AstNodeDType* const old_dtypep = nodep->dtypep();
-        const int width = cppWidth(nodep);  // widthMin is unchanged
-        if (old_dtypep->width() != width) {
+        const 整数 width = cppWidth(nodep);  // widthMin is unchanged
+        如果 (old_dtypep->width() != width) {
             // Since any given dtype's cppWidth() is the same, we can just
             // remember one conversion for each, and reuse it
-            if (AstNodeDType* const new_dtypep = VN_CAST(old_dtypep->user3p(), NodeDType)) {
+            如果 (AstNodeDType* const new_dtypep = VN_CAST(old_dtypep->user3p(), NodeDType)) {
                 nodep->dtypep(new_dtypep);
-            } else {
+            } 否则 {
                 nodep->dtypeChgWidth(width, nodep->widthMin());
                 AstNodeDType* const new_dtypep2 = nodep->dtypep();
                 UASSERT_OBJ(new_dtypep2 != old_dtypep, nodep,
@@ -80,8 +80,8 @@ class CleanVisitor final : public VNVisitor {
         }
     }
     void computeCppWidth(AstNode* nodep) {
-        if (!nodep->user2() && nodep->hasDType()) {
-            if (VN_IS(nodep, Var)  //
+        如果 (!nodep->user2() && nodep->hasDType()) {
+            如果 (VN_IS(nodep, Var)  //
                 || VN_IS(nodep, NodeDType)  // Don't want to change variable widths!
                 || VN_IS(nodep, NodeSel)  // Array selects should reflect variable widths
                 || VN_IS(nodep, SFormatArg)  // Retain the logical argument type, not storage width
@@ -95,10 +95,10 @@ class CleanVisitor final : public VNVisitor {
                 || VN_IS(nodep->dtypep()->skipRefp(), CoverCrossDType)
                 || VN_IS(nodep->dtypep()->skipRefp(), CoverpointDType)
                 || VN_IS(nodep->dtypep()->skipRefp(), VoidDType)) {
-            } else {
+            } 否则 {
                 const AstNodeUOrStructDType* const dtypep
                     = VN_CAST(nodep->dtypep()->skipRefp(), NodeUOrStructDType);
-                if (!dtypep || dtypep->packed()) setCppWidth(nodep);
+                如果 (!dtypep || dtypep->packed()) setCppWidth(nodep);
             }
         }
     }
@@ -106,14 +106,14 @@ class CleanVisitor final : public VNVisitor {
     // Store the clean state in the userp on each node
     void setCleanState(AstNode* nodep, CleanState clean) { nodep->user1(clean); }
     CleanState getCleanState(const AstNode* nodep) {
-        return static_cast<CleanState>(nodep->user1());
+        返回 static_cast<CleanState>(nodep->user1());
     }
     bool isClean(AstNode* nodep) {
         const CleanState clstate = getCleanState(nodep);
-        if (clstate == CS_CLEAN) return true;
-        if (clstate == CS_DIRTY) return false;
+        如果 (clstate == CS_CLEAN) 返回 true;
+        如果 (clstate == CS_DIRTY) 返回 false;
         nodep->v3fatalSrc("Unknown clean state on node: " + nodep->prettyTypeName());
-        return false;
+        返回 false;
     }
     void setClean(AstNode* nodep, bool isClean) {
         computeCppWidth(nodep);  // Just to be sure it's in widthMin
@@ -139,13 +139,13 @@ class CleanVisitor final : public VNVisitor {
     }
     void ensureClean(AstNodeExpr* nodep) {
         computeCppWidth(nodep);
-        if (!isClean(nodep)) insertClean(nodep);
+        如果 (!isClean(nodep)) insertClean(nodep);
     }
     void ensureCleanAndNext(AstNode* nodep) {
         // Editing list, careful looping!
-        for (AstNode* argp = nodep; argp;) {
+        为 (AstNode* argp = nodep; argp;) {
             AstNode* const nextp = argp->nextp();
-            if (AstNodeExpr* const exprp = VN_CAST(argp, NodeExpr)) ensureClean(exprp);
+            如果 (AstNodeExpr* const exprp = VN_CAST(argp, NodeExpr)) ensureClean(exprp);
             argp = nextp;
         }
     }
@@ -154,25 +154,25 @@ class CleanVisitor final : public VNVisitor {
     void operandBiop(AstNodeBiop* nodep) {
         iterateChildren(nodep);
         computeCppWidth(nodep);
-        if (nodep->cleanLhs()) ensureClean(nodep->lhsp());
-        if (nodep->cleanRhs()) ensureClean(nodep->rhsp());
+        如果 (nodep->cleanLhs()) ensureClean(nodep->lhsp());
+        如果 (nodep->cleanRhs()) ensureClean(nodep->rhsp());
         // no setClean.. must do it in each user routine.
     }
     void operandTriop(AstNodeTriop* nodep) {
         iterateChildren(nodep);
         computeCppWidth(nodep);
-        if (nodep->cleanLhs()) ensureClean(nodep->lhsp());
-        if (nodep->cleanRhs()) ensureClean(nodep->rhsp());
-        if (nodep->cleanThs()) ensureClean(nodep->thsp());
+        如果 (nodep->cleanLhs()) ensureClean(nodep->lhsp());
+        如果 (nodep->cleanRhs()) ensureClean(nodep->rhsp());
+        如果 (nodep->cleanThs()) ensureClean(nodep->thsp());
         // no setClean.. must do it in each user routine.
     }
     void operandQuadop(AstNodeQuadop* nodep) {
         iterateChildren(nodep);
         computeCppWidth(nodep);
-        if (nodep->cleanLhs()) ensureClean(nodep->lhsp());
-        if (nodep->cleanRhs()) ensureClean(nodep->rhsp());
-        if (nodep->cleanThs()) ensureClean(nodep->thsp());
-        if (nodep->cleanFhs()) ensureClean(nodep->fhsp());
+        如果 (nodep->cleanLhs()) ensureClean(nodep->lhsp());
+        如果 (nodep->cleanRhs()) ensureClean(nodep->rhsp());
+        如果 (nodep->cleanThs()) ensureClean(nodep->thsp());
+        如果 (nodep->cleanFhs()) ensureClean(nodep->fhsp());
         // no setClean.. must do it in each user routine.
     }
 
@@ -185,7 +185,7 @@ class CleanVisitor final : public VNVisitor {
     void visit(AstNodeUniop* nodep) override {
         iterateChildren(nodep);
         computeCppWidth(nodep);
-        if (nodep->cleanLhs()) ensureClean(nodep->lhsp());
+        如果 (nodep->cleanLhs()) ensureClean(nodep->lhsp());
         setClean(nodep, nodep->cleanOut());
     }
     void visit(AstNodeBiop* nodep) override {
@@ -221,7 +221,7 @@ class CleanVisitor final : public VNVisitor {
     void visit(AstNodeAssign* nodep) override {
         iterateChildren(nodep);
         computeCppWidth(nodep);
-        if (nodep->cleanRhs()) ensureClean(nodep->rhsp());
+        如果 (nodep->cleanRhs()) ensureClean(nodep->rhsp());
     }
     void visit(AstScopeName* nodep) override {  //
         setClean(nodep, true);
@@ -233,17 +233,17 @@ class CleanVisitor final : public VNVisitor {
     // Constructor values are stored, so must be clean
     void visit(AstConsAssoc* nodep) override {
         iterateChildren(nodep);
-        if (nodep->defaultp()) ensureClean(nodep->defaultp());
+        如果 (nodep->defaultp()) ensureClean(nodep->defaultp());
         setClean(nodep, true);
     }
     void visit(AstConsDynArray* nodep) override {
         iterateChildren(nodep);
-        if (nodep->defaultp()) ensureClean(nodep->defaultp());
+        如果 (nodep->defaultp()) ensureClean(nodep->defaultp());
         setClean(nodep, true);
     }
     void visit(AstConsWildcard* nodep) override {
         iterateChildren(nodep);
-        if (nodep->defaultp()) ensureClean(nodep->defaultp());
+        如果 (nodep->defaultp()) ensureClean(nodep->defaultp());
         setClean(nodep, true);
     }
     void visit(AstNodeConsItem* nodep) override {
@@ -264,7 +264,7 @@ class CleanVisitor final : public VNVisitor {
         computeCppWidth(nodep);
         setClean(nodep, false);
         // We always clean, as we don't trust those pesky users.
-        if (!VN_IS(nodep->backp(), And)) insertClean(nodep);
+        如果 (!VN_IS(nodep->backp(), And)) insertClean(nodep);
         ensureCleanAndNext(nodep->nodesp());
     }
     void visit(AstTraceDecl* nodep) override {}  // Nothing to do here

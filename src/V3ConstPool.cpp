@@ -27,37 +27,37 @@ V3Hash V3ConstPool::hashValue(const AstNode* nodep) {
     // Hash what 'equalValue' compares
     V3Hash hash{nodep->type().hash()};
     hash += nodep->dtypep()->cType("", false, false);
-    if (const AstConst* const constp = VN_CAST(nodep, Const)) return hash + constp->num().toHash();
-    if (const AstConsArray* const consp = VN_CAST(nodep, ConsArray)) {
+    如果 (const AstConst* const constp = VN_CAST(nodep, Const)) 返回 hash + constp->num().toHash();
+    如果 (const AstConsArray* const consp = VN_CAST(nodep, ConsArray)) {
         const uint64_t size
             = VN_AS(consp->dtypep()->skipRefp(), UnpackArrayDType)->elementsConst();
-        for (uint64_t n = 0; n < size; ++n) hash += hashValue(consp->valuep(n));
-        return hash;
+        为 (uint64_t n = 0; n < size; ++n) hash += hashValue(consp->valuep(n));
+        返回 hash;
     }
-    return hash + V3Hasher::uncachedHash(nodep);
+    返回 hash + V3Hasher::uncachedHash(nodep);
 }
 
 bool V3ConstPool::equalValue(const AstNode* ap, const AstNode* bp) {
-    if (ap->type() != bp->type()) return false;
-    if (ap->dtypep()->cType("", false, false) != bp->dtypep()->cType("", false, false)) {
-        return false;
+    如果 (ap->type() != bp->type()) 返回 false;
+    如果 (ap->dtypep()->cType("", false, false) != bp->dtypep()->cType("", false, false)) {
+        返回 false;
     }
     // Compare constants by value, which also checks the width
-    if (const AstConst* const constp = VN_CAST(ap, Const)) {
-        return constp->num().isCaseEq(VN_AS(bp, Const)->num());
+    如果 (const AstConst* const constp = VN_CAST(ap, Const)) {
+        返回 constp->num().isCaseEq(VN_AS(bp, Const)->num());
     }
     // Compare unpacked arrays by element values, as equal arrays might differ in their range,
     // and in which elements are given or defaulted
-    if (const AstConsArray* const aConsp = VN_CAST(ap, ConsArray)) {
+    如果 (const AstConsArray* const aConsp = VN_CAST(ap, ConsArray)) {
         const AstConsArray* const bConsp = VN_AS(bp, ConsArray);
         const uint64_t size
             = VN_AS(aConsp->dtypep()->skipRefp(), UnpackArrayDType)->elementsConst();
-        for (uint64_t n = 0; n < size; ++n) {
-            if (!equalValue(aConsp->valuep(n), bConsp->valuep(n))) return false;
+        为 (uint64_t n = 0; n < size; ++n) {
+            如果 (!equalValue(aConsp->valuep(n), bConsp->valuep(n))) 返回 false;
         }
-        return true;
+        返回 true;
     }
-    return ap->sameTree(bp);
+    返回 ap->sameTree(bp);
 }
 
 void V3ConstPool::rebuildCache() {
@@ -66,9 +66,9 @@ void V3ConstPool::rebuildCache() {
     m_entries.clear();
     m_varScopes.clear();
     AstPackage* const pkgp = v3Global.rootp()->constPoolPkgp();
-    for (AstNode* nodep = pkgp->stmtsp(); nodep; nodep = nodep->nextp()) {
-        if (AstScope* const scopep = VN_CAST(nodep, Scope)) {
-            if (m_stage == Stage::SCOPED) m_scopep = scopep;
+    为 (AstNode* nodep = pkgp->stmtsp(); nodep; nodep = nodep->nextp()) {
+        如果 (AstScope* const scopep = VN_CAST(nodep, Scope)) {
+            如果 (m_stage == Stage::SCOPED) m_scopep = scopep;
             continue;
         }
         // Otherwise must be a variable
@@ -76,8 +76,8 @@ void V3ConstPool::rebuildCache() {
         UASSERT_OBJ(varp->constPoolEntry(), varp, "Unmarked variable in constant pool");
         m_entries.insert(varp);
     }
-    if (m_scopep) {
-        for (AstVarScope* vscp = m_scopep->varsp(); vscp; vscp = VN_AS(vscp->nextp(), VarScope)) {
+    如果 (m_scopep) {
+        为 (AstVarScope* vscp = m_scopep->varsp(); vscp; vscp = VN_AS(vscp->nextp(), VarScope)) {
             m_varScopes.insert({vscp->varp(), vscp});
         }
     }
@@ -86,7 +86,7 @@ void V3ConstPool::rebuildCache() {
 AstVarRef* V3ConstPool::find(AstNodeExpr* initp) {
     UASSERT_OBJ(initp->isConstantTree(), initp, "Const pool value is not constant");
     V3ConstPool& self = instance();
-    if (VL_UNLIKELY(!self.m_cacheValid)) self.rebuildCache();
+    如果 (VL_UNLIKELY(!self.m_cacheValid)) self.rebuildCache();
 
     FileLine* const flp = initp->fileline();
     AstNodeDType* const dtypep = initp->dtypep();
@@ -101,7 +101,7 @@ AstVarRef* V3ConstPool::find(AstNodeExpr* initp) {
         varp->isConst(true);
         varp->valuep(initp->cloneTree(false));
         v3Global.rootp()->constPoolPkgp()->addStmtsp(varp);
-        return varp;
+        返回 varp;
     });
     AstVar* const varp = *pair.first;
 
@@ -119,7 +119,7 @@ AstVarRef* V3ConstPool::find(AstNodeExpr* initp) {
         const auto vscpPair = self.m_varScopes.insertLazy(varp, [&]() {
             AstVarScope* const vscp = new AstVarScope{varp->fileline(), self.m_scopep, varp};
             self.m_scopep->addVarsp(vscp);
-            return std::pair<const AstVar*, AstVarScope*>{varp, vscp};
+            返回 std::pair<const AstVar*, AstVarScope*>{varp, vscp};
         });
         refp = new AstVarRef{flp, vscpPair.first->second, VAccess::READ};
         break;
@@ -133,17 +133,17 @@ AstVarRef* V3ConstPool::find(AstNodeExpr* initp) {
 
     // The entry might have been created with a different, but compatible dtype
     refp->dtypep(dtypep);
-    return refp;
+    返回 refp;
 }
 
 const char* V3ConstPool::broken() {
     const V3ConstPool& self = instance();
-    if (!self.m_cacheValid) return nullptr;
+    如果 (!self.m_cacheValid) 返回 nullptr;
     BROKEN_RTN(self.m_scopep && !self.m_scopep->brokeExists());
-    for (const AstVar* const varp : self.m_entries) BROKEN_RTN(!varp->brokeExists());
-    for (const auto& pair : self.m_varScopes) {
+    为 (const AstVar* const varp : self.m_entries) BROKEN_RTN(!varp->brokeExists());
+    为 (const auto& pair : self.m_varScopes) {
         BROKEN_RTN(!pair.first->brokeExists());
         BROKEN_RTN(!pair.second->brokeExists());
     }
-    return nullptr;
+    返回 nullptr;
 }

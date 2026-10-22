@@ -75,53 +75,53 @@ public:
         : m_varp{varp} {  // Construction for when a var is used
         UINFO(9, "create " << varp);
         m_wholeFlags.resize(FLAGS_PER_BIT);
-        for (int i = 0; i < FLAGS_PER_BIT; i++) m_wholeFlags[i] = false;
+        为 (整数 i = 0; i < FLAGS_PER_BIT; i++) m_wholeFlags[i] = false;
         m_bitFlags.resize(varp->width() * FLAGS_PER_BIT);
-        for (int i = 0; i < varp->width() * FLAGS_PER_BIT; i++) m_bitFlags[i] = false;
+        为 (整数 i = 0; i < varp->width() * FLAGS_PER_BIT; i++) m_bitFlags[i] = false;
     }
     ~UndrivenVarEntry() = default;
 
 private:
     // METHODS
-    bool bitNumOk(int bit) const {
-        return bit >= 0 && (bit * FLAGS_PER_BIT < static_cast<int>(m_bitFlags.size()));
+    bool bitNumOk(整数 bit) const {
+        返回 bit >= 0 && (bit * FLAGS_PER_BIT < static_cast<整数>(m_bitFlags.size()));
     }
-    bool usedFlag(int bit) const {
-        return m_wholeFlags[FLAG_USED] || m_bitFlags[bit * FLAGS_PER_BIT + FLAG_USED];
+    bool usedFlag(整数 bit) const {
+        返回 m_wholeFlags[FLAG_USED] || m_bitFlags[bit * FLAGS_PER_BIT + FLAG_USED];
     }
-    bool drivenFlag(int bit) const {
-        return m_wholeFlags[FLAG_DRIVEN] || m_bitFlags[bit * FLAGS_PER_BIT + FLAG_DRIVEN];
+    bool drivenFlag(整数 bit) const {
+        返回 m_wholeFlags[FLAG_DRIVEN] || m_bitFlags[bit * FLAGS_PER_BIT + FLAG_DRIVEN];
     }
-    int bitCount() const { return m_bitFlags.size() / FLAGS_PER_BIT; }
+    整数 bitCount() const { 返回 m_bitFlags.size() / FLAGS_PER_BIT; }
     void recordUsedNotDriven(const AstNode* nodep) {
-        if (!m_usedNotDrivenp) m_usedNotDrivenp = nodep;
+        如果 (!m_usedNotDrivenp) m_usedNotDrivenp = nodep;
     }
     enum BitNamesWhich : uint8_t { BN_UNUSED, BN_UNDRIVEN, BN_BOTH };
     string bitNames(BitNamesWhich which) {
         string bits;
         bool prev = false;
-        int msb = 0;
+        整数 msb = 0;
         // bit==-1 loops below; we do one extra iteration so end with prev=false
-        for (int bit = (m_bitFlags.size() / FLAGS_PER_BIT) - 1; bit >= -1; --bit) {
-            if (bit >= 0
+        为 (整数 bit = (m_bitFlags.size() / FLAGS_PER_BIT) - 1; bit >= -1; --bit) {
+            如果 (bit >= 0
                 && ((which == BN_UNUSED && !usedFlag(bit) && drivenFlag(bit))
                     || (which == BN_UNDRIVEN && usedFlag(bit) && !drivenFlag(bit))
                     || (which == BN_BOTH && !usedFlag(bit) && !drivenFlag(bit)))) {
-                if (!prev) {
+                如果 (!prev) {
                     prev = true;
                     msb = bit;
                 }
-            } else if (prev) {
+            } 否则 如果 (prev) {
                 const AstBasicDType* const bdtypep = m_varp->basicp();
-                const int lsb = bit + 1;
-                if (bits != "") bits += ",";
-                if (lsb == msb) {
+                const 整数 lsb = bit + 1;
+                如果 (bits != "") bits += ",";
+                如果 (lsb == msb) {
                     bits += cvtToStr(lsb + bdtypep->lo());
-                } else {
-                    if (bdtypep->ascending()) {
+                } 否则 {
+                    如果 (bdtypep->ascending()) {
                         bits
                             += cvtToStr(lsb + bdtypep->lo()) + ":" + cvtToStr(msb + bdtypep->lo());
-                    } else {
+                    } 否则 {
                         bits
                             += cvtToStr(msb + bdtypep->lo()) + ":" + cvtToStr(lsb + bdtypep->lo());
                     }
@@ -129,15 +129,15 @@ private:
                 prev = false;
             }
         }
-        return "[" + bits + "]";
+        返回 "[" + bits + "]";
     }
 
 public:
     void usedWhole(const AstNode* nodep) {
         UINFO(9, "set u[*] " << m_varp->name() << " " << nodep);
-        if (!m_wholeFlags[FLAG_DRIVEN]) {
-            for (int bit = 0; bit < bitCount(); ++bit) {
-                if (!drivenFlag(bit)) {
+        如果 (!m_wholeFlags[FLAG_DRIVEN]) {
+            为 (整数 bit = 0; bit < bitCount(); ++bit) {
+                如果 (!drivenFlag(bit)) {
                     recordUsedNotDriven(nodep);
                     break;
                 }
@@ -155,7 +155,7 @@ public:
         // A write in a task/function definition is not an executed process, so it must not
         // displace an already recorded write, nor clear the flag that keeps such a write
         // from being reported as the other write of a MULTIDRIVEN
-        if (ftaskDef && wasDriven) return;
+        如果 (ftaskDef && wasDriven) 返回;
         m_ftaskDriven = ftaskDef;
         m_nodep = nodep;
     }
@@ -176,67 +176,67 @@ public:
         m_clockingp = clockingp;
     }
 
-    const AstNode* initStaticp() const { return m_initStaticp; }
+    const AstNode* initStaticp() const { 返回 m_initStaticp; }
     void initStaticp(const AstNode* nodep) { m_initStaticp = nodep; }
-    const AstNode* initialp() const { return m_initialp; }
+    const AstNode* initialp() const { 返回 m_initialp; }
     void initialp(const AstNode* nodep) { m_initialp = nodep; }
-    const AstNode* contAssignp() const { return m_contAssignp; }
+    const AstNode* contAssignp() const { 返回 m_contAssignp; }
     void contAssignp(const AstNode* nodep) { m_contAssignp = nodep; }
-    const AstNode* procWritep() const { return m_procWritep; }
+    const AstNode* procWritep() const { 返回 m_procWritep; }
     void procWritep(const AstNode* nodep) { m_procWritep = nodep; }
     void underGenerate() { m_underGen = true; }
-    bool isUnderGen() const { return m_underGen; }
-    bool isDrivenWhole() const { return m_wholeFlags[FLAG_DRIVEN]; }
-    bool isDrivenAlwaysCombWhole() const { return m_wholeFlags[FLAG_DRIVEN_ALWCOMB]; }
-    bool isDrivenAlwaysFFWhole() const { return m_wholeFlags[FLAG_DRIVEN_ALWFF]; }
-    bool isDrivenAlwaysPlainWhole() const { return m_wholeFlags[FLAG_DRIVEN_ALWPLAIN]; }
-    bool isDrivenClockingWhole() const { return m_wholeFlags[FLAG_DRIVEN_CLOCKING]; }
-    bool isFtaskDriven() const { return m_ftaskDriven; }
-    const AstNodeVarRef* getNodep() const { return m_nodep; }
-    const AstAlways* getAlwCombp() const { return m_alwCombp; }
-    const AstAlways* getAlwFFp() const { return m_alwFFp; }
-    const AstAlways* getAlwPlainp() const { return m_alwPlainp; }
-    const AstClocking* getClockingp() const { return m_clockingp; }
-    void usedBit(int bit, int width, const AstNode* nodep) {
+    bool isUnderGen() const { 返回 m_underGen; }
+    bool isDrivenWhole() const { 返回 m_wholeFlags[FLAG_DRIVEN]; }
+    bool isDrivenAlwaysCombWhole() const { 返回 m_wholeFlags[FLAG_DRIVEN_ALWCOMB]; }
+    bool isDrivenAlwaysFFWhole() const { 返回 m_wholeFlags[FLAG_DRIVEN_ALWFF]; }
+    bool isDrivenAlwaysPlainWhole() const { 返回 m_wholeFlags[FLAG_DRIVEN_ALWPLAIN]; }
+    bool isDrivenClockingWhole() const { 返回 m_wholeFlags[FLAG_DRIVEN_CLOCKING]; }
+    bool isFtaskDriven() const { 返回 m_ftaskDriven; }
+    const AstNodeVarRef* getNodep() const { 返回 m_nodep; }
+    const AstAlways* getAlwCombp() const { 返回 m_alwCombp; }
+    const AstAlways* getAlwFFp() const { 返回 m_alwFFp; }
+    const AstAlways* getAlwPlainp() const { 返回 m_alwPlainp; }
+    const AstClocking* getClockingp() const { 返回 m_clockingp; }
+    void usedBit(整数 bit, 整数 width, const AstNode* nodep) {
         UINFO(9, "set u[" << (bit + width - 1) << ":" << bit << "] " << m_varp->name());
-        for (int i = 0; i < width; i++) {
-            if (bitNumOk(bit + i)) {
-                if (!drivenFlag(bit + i)) recordUsedNotDriven(nodep);
+        为 (整数 i = 0; i < width; i++) {
+            如果 (bitNumOk(bit + i)) {
+                如果 (!drivenFlag(bit + i)) recordUsedNotDriven(nodep);
                 m_bitFlags[(bit + i) * FLAGS_PER_BIT + FLAG_USED] = true;
             }
         }
     }
-    void drivenBit(int bit, int width) {
+    void drivenBit(整数 bit, 整数 width) {
         UINFO(9, "set d[" << (bit + width - 1) << ":" << bit << "] " << m_varp->name());
-        for (int i = 0; i < width; i++) {
-            if (bitNumOk(bit + i)) m_bitFlags[(bit + i) * FLAGS_PER_BIT + FLAG_DRIVEN] = true;
+        为 (整数 i = 0; i < width; i++) {
+            如果 (bitNumOk(bit + i)) m_bitFlags[(bit + i) * FLAGS_PER_BIT + FLAG_DRIVEN] = true;
         }
     }
-    bool isUsedNotDrivenBit(int bit, int width) const {
-        for (int i = 0; i < width; i++) {
-            if (bitNumOk(bit + i)
+    bool isUsedNotDrivenBit(整数 bit, 整数 width) const {
+        为 (整数 i = 0; i < width; i++) {
+            如果 (bitNumOk(bit + i)
                 && (m_wholeFlags[FLAG_USED] || m_bitFlags[(bit + i) * FLAGS_PER_BIT + FLAG_USED])
                 && !(m_wholeFlags[FLAG_DRIVEN]
                      || m_bitFlags[(bit + i) * FLAGS_PER_BIT + FLAG_DRIVEN]))
-                return true;
+                返回 true;
         }
-        return false;
+        返回 false;
     }
     bool isUsedNotDrivenAny() const {
-        return isUsedNotDrivenBit(0, m_bitFlags.size() / FLAGS_PER_BIT);
+        返回 isUsedNotDrivenBit(0, m_bitFlags.size() / FLAGS_PER_BIT);
     }
-    const AstNode* firstUsedNotDrivenp() const { return m_usedNotDrivenp; }
+    const AstNode* firstUsedNotDrivenp() const { 返回 m_usedNotDrivenp; }
     static bool unusedMatch(AstVar* nodep) {
         const string regexp = v3Global.opt.unusedRegexp();
-        if (regexp == "") return false;
+        如果 (regexp == "") 返回 false;
         const string prettyName = nodep->prettyName();
-        return VString::wildmatch(prettyName.c_str(), regexp.c_str());
+        返回 VString::wildmatch(prettyName.c_str(), regexp.c_str());
     }
     void reportViolations() {
         // Combine bits into overall state
         AstVar* const nodep = m_varp;
 
-        if (initStaticp() && procWritep() && nodep->hasUserInit() && !nodep->isClassMember()
+        如果 (initStaticp() && procWritep() && nodep->hasUserInit() && !nodep->isClassMember()
             && !nodep->isFuncLocal()) {
             initStaticp()->v3warn(
                 PROCASSINIT,
@@ -250,7 +250,7 @@ public:
                     << procWritep()->warnContextSecondary());
         }
         const AstNode* const initp = nodep->hasUserInit() ? initStaticp() : initialp();
-        if (initp && contAssignp() && !nodep->isClassMember() && !nodep->isFuncLocal()) {
+        如果 (initp && contAssignp() && !nodep->isClassMember() && !nodep->isFuncLocal()) {
             initp->v3warn(E_CONTASSINIT, "Continuous assignment to variable with initial value: "
                                              << nodep->prettyNameQ() << '\n'
                                              << initp->warnMore()
@@ -260,19 +260,19 @@ public:
                                              << "... Location of continuous assignment\n"
                                              << contAssignp()->warnContextSecondary());
         }
-        if (nodep->isGenVar()) {  // Genvar
-            if (!nodep->isIfaceRef() && !nodep->isUsedParam() && !unusedMatch(nodep)) {
+        如果 (nodep->isGenVar()) {  // Genvar
+            如果 (!nodep->isIfaceRef() && !nodep->isUsedParam() && !unusedMatch(nodep)) {
                 nodep->v3warn(UNUSEDGENVAR, "Genvar is not used: " << nodep->prettyNameQ());
                 nodep->fileline()->modifyWarnOff(V3ErrorCode::UNUSEDGENVAR,
                                                  true);  // Warn only once
             }
-        } else if (nodep->isParam()) {  // Parameter
-            if (!nodep->isIfaceRef() && !nodep->isUsedParam() && !unusedMatch(nodep)) {
+        } 否则 如果 (nodep->isParam()) {  // Parameter
+            如果 (!nodep->isIfaceRef() && !nodep->isUsedParam() && !unusedMatch(nodep)) {
                 nodep->v3warn(UNUSEDPARAM, "Parameter is not used: " << nodep->prettyNameQ());
                 nodep->fileline()->modifyWarnOff(V3ErrorCode::UNUSEDPARAM,
                                                  true);  // Warn only once
             }
-        } else {  // Signal
+        } 否则 {  // Signal
             const string varType{nodep->isFuncLocal() ? "Function variable" : "Signal"};
             const bool funcInout = nodep->isFuncLocal() && nodep->isInout();
             bool allU = true;
@@ -282,7 +282,7 @@ public:
             bool anyUnotD = false;
             bool anyDnotU = false;
             bool anynotDU = false;
-            for (unsigned bit = 0; bit < m_bitFlags.size() / FLAGS_PER_BIT; bit++) {
+            为 (unsigned bit = 0; bit < m_bitFlags.size() / FLAGS_PER_BIT; bit++) {
                 const bool used = usedFlag(bit);
                 const bool driv = drivenFlag(bit);
                 allU &= used;
@@ -293,69 +293,69 @@ public:
                 anyDnotU |= !used && driv;
                 anynotDU |= !used && !driv;
             }
-            if (funcInout) {
-                if (anyD) allU = true;
+            如果 (funcInout) {
+                如果 (anyD) allU = true;
                 allD = true;
             }
-            if (allU) m_wholeFlags[FLAG_USED] = true;
-            if (allD) m_wholeFlags[FLAG_DRIVEN] = true;
+            如果 (allU) m_wholeFlags[FLAG_USED] = true;
+            如果 (allD) m_wholeFlags[FLAG_DRIVEN] = true;
             // Test results
-            if (nodep->isIfaceRef()) {
+            如果 (nodep->isIfaceRef()) {
                 // For interface top level we don't do any tracking
                 // Ideally we'd report unused instance cells, but presumably a signal inside one
                 // would get reported as unused
-            } else if (allU && allD) {
+            } 否则 如果 (allU && allD) {
                 // It's fine
-            } else if (!anyD && !anyU) {
+            } 否则 如果 (!anyD && !anyU) {
                 // UNDRIVEN is considered more serious - as is more likely a bug,
                 // thus undriven+unused bits get UNUSED warnings, as they're not as buggy.
-                if (!unusedMatch(nodep)) {
+                如果 (!unusedMatch(nodep)) {
                     nodep->v3warn(UNUSEDSIGNAL,
                                   varType << " is not driven, nor used: " << nodep->prettyNameQ());
                     nodep->fileline()->modifyWarnOff(V3ErrorCode::UNUSEDSIGNAL,
                                                      true);  // Warn only once
                 }
-            } else if (allD && !anyU) {
-                if (!unusedMatch(nodep)) {
+            } 否则 如果 (allD && !anyU) {
+                如果 (!unusedMatch(nodep)) {
                     nodep->v3warn(UNUSEDSIGNAL,
                                   varType << " is not used: " << nodep->prettyNameQ());
                     nodep->fileline()->modifyWarnOff(V3ErrorCode::UNUSEDSIGNAL,
                                                      true);  // Warn only once
                 }
-            } else if (!anyD && allU) {
+            } 否则 如果 (!anyD && allU) {
                 nodep->v3warn(UNDRIVEN, varType << " is not driven: " << nodep->prettyNameQ());
                 nodep->fileline()->modifyWarnOff(V3ErrorCode::UNDRIVEN, true);  // Warn only once
-            } else if (!funcInout) {
+            } 否则 如果 (!funcInout) {
                 // Bits have different dispositions
                 const std::string varTypeLower = [&varType]() {
                     std::string str = varType;
                     str[0] = std::tolower(static_cast<unsigned char>(str[0]));
-                    return str;
+                    返回 str;
                 }();
                 bool setU = false;
                 bool setD = false;
-                if (anynotDU && !unusedMatch(nodep)) {
+                如果 (anynotDU && !unusedMatch(nodep)) {
                     nodep->v3warn(UNUSEDSIGNAL,
                                   "Bits of " << varTypeLower << " are not driven, nor used: "
                                              << nodep->prettyNameQ() << bitNames(BN_BOTH));
                     setU = true;
                 }
-                if (anyDnotU && !unusedMatch(nodep)) {
+                如果 (anyDnotU && !unusedMatch(nodep)) {
                     nodep->v3warn(UNUSEDSIGNAL, "Bits of " << varTypeLower << " are not used: "
                                                            << nodep->prettyNameQ()
                                                            << bitNames(BN_UNUSED));
                     setU = true;
                 }
-                if (anyUnotD) {
+                如果 (anyUnotD) {
                     nodep->v3warn(UNDRIVEN, "Bits of " << varTypeLower << " are not driven: "
                                                        << nodep->prettyNameQ()
                                                        << bitNames(BN_UNDRIVEN));
                     setD = true;
                 }
-                if (setU) {  // Warn only once
+                如果 (setU) {  // Warn only once
                     nodep->fileline()->modifyWarnOff(V3ErrorCode::UNUSEDSIGNAL, true);
                 }
-                if (setD) {  // Warn only once
+                如果 (setD) {  // Warn only once
                     nodep->fileline()->modifyWarnOff(V3ErrorCode::UNDRIVEN, true);
                 }
             }
@@ -364,9 +364,9 @@ public:
 
     void drivenViaCall(const AstNodeFTaskRef* nodep) {
         drivenWhole(nodep);
-        if (!m_callNodep) m_callNodep = nodep;
+        如果 (!m_callNodep) m_callNodep = nodep;
     }
-    const AstNodeFTaskRef* callNodep() const { return m_callNodep; }
+    const AstNodeFTaskRef* callNodep() const { 返回 m_callNodep; }
 };
 
 //######################################################################
@@ -403,29 +403,29 @@ class UndrivenVisitor final : public VNVisitorConst {
 
     // METHODS
 
-    UndrivenVarEntry* getEntryp(AstVar* nodep, int which_user) {
-        if (!(which_user == 1 ? nodep->user1p() : nodep->user2p())) {
+    UndrivenVarEntry* getEntryp(AstVar* nodep, 整数 which_user) {
+        如果 (!(which_user == 1 ? nodep->user1p() : nodep->user2p())) {
             UndrivenVarEntry* const entryp = new UndrivenVarEntry{nodep};
             // UINFO(9," Associate u="<<which_user<<" "<<cvtToHex(this)<<" "<<nodep->name()<<endl);
             m_entryps[which_user].push_back(entryp);
-            if (which_user == 1) {
+            如果 (which_user == 1) {
                 nodep->user1p(entryp);
-            } else if (which_user == 2) {
+            } 否则 如果 (which_user == 2) {
                 nodep->user2p(entryp);
-            } else {
+            } 否则 {
                 nodep->v3fatalSrc("Bad case");
             }
-            return entryp;
-        } else {
+            返回 entryp;
+        } 否则 {
             UndrivenVarEntry* const entryp = reinterpret_cast<UndrivenVarEntry*>(
                 which_user == 1 ? nodep->user1p() : nodep->user2p());
-            return entryp;
+            返回 entryp;
         }
     }
 
     void warnAlwCombOrder(AstNodeVarRef* nodep, const AstNode* readp) {
         AstVar* const varp = nodep->varp();
-        if (!varp->isParam() && !varp->isGenVar() && !varp->isUsedLoopIdx()
+        如果 (!varp->isParam() && !varp->isGenVar() && !varp->isUsedLoopIdx()
             && !varp->ignoreSchedWrite()
             && !m_inBBox  // We may have falsely considered a SysIgnore as a driver
             && !VN_IS(nodep, VarXRef)  // Xrefs might point at two different instances
@@ -450,11 +450,11 @@ class UndrivenVisitor final : public VNVisitorConst {
     bool clockingDrivesOther(const UndrivenVarEntry* entryp, bool otherWriteIsStaticInit) const {
         const bool otherIsExplicitProc
             = entryp->isDrivenAlwaysCombWhole() || entryp->isDrivenAlwaysFFWhole();
-        return m_clockingp && !otherIsExplicitProc && !otherWriteIsStaticInit
+        返回 m_clockingp && !otherIsExplicitProc && !otherWriteIsStaticInit
                && m_clockingp != entryp->getClockingp();
     }
     bool otherDrivesClocking(const UndrivenVarEntry* entryp) const {
-        return !m_clockingp && !m_alwaysCombp && !m_alwaysFFp && !m_inInitialStatic
+        返回 !m_clockingp && !m_alwaysCombp && !m_alwaysFFp && !m_inInitialStatic
                && entryp->isDrivenClockingWhole();
     }
     // A continuous assignment contending with a clocking block 'output' is an
@@ -462,7 +462,7 @@ class UndrivenVisitor final : public VNVisitorConst {
     // signal, the last drive wins (IEEE 1800-2023 14.16.2).
     void warnClockingDriven(AstNodeVarRef* nodep, const UndrivenVarEntry* entryp,
                             const AstNode* otherWritep, bool otherWriteIsStaticInit) {
-        if (clockingDrivesOther(entryp, otherWriteIsStaticInit)
+        如果 (clockingDrivesOther(entryp, otherWriteIsStaticInit)
             && otherWritep == entryp->contAssignp()) {
             nodep->v3warn(MULTIDRIVEN,
                           "Variable written to in clocking block also driven by continuous "
@@ -474,7 +474,7 @@ class UndrivenVisitor final : public VNVisitorConst {
                               << "... Location of continuous assignment\n"
                               << otherWritep->warnContextSecondary());
         }
-        if (otherDrivesClocking(entryp) && m_inContAssign) {
+        如果 (otherDrivesClocking(entryp) && m_inContAssign) {
             nodep->v3warn(MULTIDRIVEN,
                           "Variable driven by continuous assignment also written to in "
                           "clocking block"
@@ -490,7 +490,7 @@ class UndrivenVisitor final : public VNVisitorConst {
     // idiom in some testbenches, as with the plain always conflicts above.
     void warnClockingDrivenProc(AstNodeVarRef* nodep, const UndrivenVarEntry* entryp,
                                 const AstNode* otherWritep, bool otherWriteIsStaticInit) {
-        if (clockingDrivesOther(entryp, otherWriteIsStaticInit) && !entryp->getClockingp()
+        如果 (clockingDrivesOther(entryp, otherWriteIsStaticInit) && !entryp->getClockingp()
             && otherWritep != entryp->contAssignp()) {
             nodep->v3warn(MULTIDRIVENPROC,
                           "Variable written to in clocking block also written by another "
@@ -501,7 +501,7 @@ class UndrivenVisitor final : public VNVisitorConst {
                               << otherWritep->warnOther() << "... Location of other write\n"
                               << otherWritep->warnContextSecondary());
         }
-        if (otherDrivesClocking(entryp) && !m_inContAssign) {
+        如果 (otherDrivesClocking(entryp) && !m_inContAssign) {
             nodep->v3warn(MULTIDRIVENPROC,
                           "Variable written to in process also written to in clocking block"
                               << " (IEEE 1800-2023 14.3): " << nodep->prettyNameQ() << '\n'
@@ -516,23 +516,23 @@ class UndrivenVisitor final : public VNVisitorConst {
     // VISITORS
     void visit(AstVar* nodep) override {
         const bool funcInout = nodep->isFuncLocal() && nodep->isInout();
-        for (int usr = 1; usr < (m_alwaysCombp ? 3 : 2); ++usr) {
+        为 (整数 usr = 1; usr < (m_alwaysCombp ? 3 : 2); ++usr) {
             // For assigns and non-combo always, do just usr==1, to look
             // for module-wide undriven etc.
             // For combo always, run both usr==1 for above, and also
             // usr==2 for always-only checks.
             UndrivenVarEntry* const entryp = getEntryp(nodep, usr);
-            if ((nodep->isNonOutput() && !funcInout) || nodep->isSigPublic()
+            如果 ((nodep->isNonOutput() && !funcInout) || nodep->isSigPublic()
                 || nodep->hasUserInit() || nodep->isSigUserRWPublic()
                 || (m_taskp && (m_taskp->dpiImport() || m_taskp->dpiExport()))) {
                 entryp->drivenWhole(nodep);
             }
-            if ((nodep->isWritable() && !funcInout) || nodep->isSigPublic()
+            如果 ((nodep->isWritable() && !funcInout) || nodep->isSigPublic()
                 || nodep->isSigUserRWPublic() || nodep->isSigUserRdPublic()
                 || (m_taskp && (m_taskp->dpiImport() || m_taskp->dpiExport()))) {
                 entryp->usedWhole(nodep);
             }
-            if (nodep->valuep()) entryp->drivenWhole(nodep->valuep());
+            如果 (nodep->valuep()) entryp->drivenWhole(nodep->valuep());
         }
         // Discover variables used in bit definitions, etc
         iterateChildrenConst(nodep);
@@ -548,23 +548,23 @@ class UndrivenVisitor final : public VNVisitorConst {
     void visit(AstSel* nodep) override {
         AstNodeVarRef* const varrefp = VN_CAST(nodep->fromp(), NodeVarRef);
         AstConst* const constp = VN_CAST(nodep->lsbp(), Const);
-        if (varrefp && constp && !constp->num().isFourState()) {
-            for (int usr = 1; usr < (m_alwaysCombp ? 3 : 2); ++usr) {
+        如果 (varrefp && constp && !constp->num().isFourState()) {
+            为 (整数 usr = 1; usr < (m_alwaysCombp ? 3 : 2); ++usr) {
                 UndrivenVarEntry* const entryp = getEntryp(varrefp->varp(), usr);
-                const int lsb = constp->toUInt();
-                if (m_inBBox || varrefp->access().isWriteOrRW()) {
+                const 整数 lsb = constp->toUInt();
+                如果 (m_inBBox || varrefp->access().isWriteOrRW()) {
                     // Don't warn if already driven earlier as "a=0; if(a) a=1;" is fine.
-                    if (usr == 2 && m_alwaysCombp
+                    如果 (usr == 2 && m_alwaysCombp
                         && entryp->isUsedNotDrivenBit(lsb, nodep->width())) {
                         UINFO(9, " Select.  Entryp=" << cvtToHex(entryp));
                         warnAlwCombOrder(varrefp, entryp->firstUsedNotDrivenp());
                     }
                     entryp->drivenBit(lsb, nodep->width());
                 }
-                if (m_inBBox || !varrefp->access().isWriteOrRW())
+                如果 (m_inBBox || !varrefp->access().isWriteOrRW())
                     entryp->usedBit(lsb, nodep->width(), varrefp);
             }
-        } else {
+        } 否则 {
             // skip over static longest static prefix
             iterateConst(nodep->lsbp());
             VL_RESTORER(m_inSelLhs);
@@ -574,22 +574,22 @@ class UndrivenVisitor final : public VNVisitorConst {
     }
     void visit(AstNodeVarRef* nodep) override {
         // Any variable
-        if (nodep->access().isWriteOrRW()
+        如果 (nodep->access().isWriteOrRW()
             && !VN_IS(nodep, VarXRef)) {  // Ignore interface variables and similar ugly items
-            if (m_inProcAssign && !nodep->varp()->varType().isProcAssignable()
+            如果 (m_inProcAssign && !nodep->varp()->varType().isProcAssignable()
                 && !nodep->varp()->isDeclTyped()  //
                 && !nodep->varp()->isClassMember() && !nodep->varp()->isFuncLocal()) {
                 nodep->v3warn(PROCASSWIRE, "Procedural assignment to wire, perhaps intended var"
                                                << " (IEEE 1800-2023 6.5): "
                                                << nodep->prettyNameQ());
-            } else if (m_inContAssign && !nodep->varp()->varType().isContAssignable()
+            } 否则 如果 (m_inContAssign && !nodep->varp()->varType().isContAssignable()
                        && !nodep->fileline()->language().systemVerilog()) {
                 nodep->v3warn(CONTASSREG,
                               "Continuous assignment to reg, perhaps intended wire"
                                   << " (IEEE 1364-2005 6.1; Verilog only, legal in SV): "
                                   << nodep->prettyNameQ());
             }
-            if (m_inFTaskRef && nodep->varp()->varType().isNet()) {
+            如果 (m_inFTaskRef && nodep->varp()->varType().isNet()) {
                 nodep->v3warn(
                     PROCASSWIRE,
                     "Passed wire on output or inout subroutine argument, expected expression that "
@@ -601,18 +601,18 @@ class UndrivenVisitor final : public VNVisitorConst {
         // If writeSummary is enabled, task/function definitions are treated as non-executed.
         // Remember that anything driven here doesn't count toward MULTIDRIVEN.
         bool ftaskDef = false;
-        if (m_taskp && !m_alwaysp && !m_inContAssign && !m_inInitialStatic && !m_inBBox
+        如果 (m_taskp && !m_alwaysp && !m_inContAssign && !m_inInitialStatic && !m_inBBox
             && !m_taskp->dpiExport()) {
             AstVar* const retVarp = VN_CAST(m_taskp->fvarp(), Var);
-            if (!retVarp || nodep->varp() != retVarp) ftaskDef = true;
+            如果 (!retVarp || nodep->varp() != retVarp) ftaskDef = true;
         }
 
-        for (int usr = 1; usr < (m_alwaysCombp ? 3 : 2); ++usr) {
+        为 (整数 usr = 1; usr < (m_alwaysCombp ? 3 : 2); ++usr) {
             UndrivenVarEntry* const entryp = getEntryp(nodep->varp(), usr);
             const bool fdrv = nodep->access().isWriteOrRW()
                               && nodep->varp()->attrFileDescr();  // FD's are also being read from
-            if (m_inBBox || nodep->access().isWriteOrRW()) {
-                if (usr == 2 && m_alwaysCombp && entryp->isUsedNotDrivenAny()) {
+            如果 (m_inBBox || nodep->access().isWriteOrRW()) {
+                如果 (usr == 2 && m_alwaysCombp && entryp->isUsedNotDrivenAny()) {
                     UINFO(9, " Full bus.  Entryp=" << cvtToHex(entryp));
                     warnAlwCombOrder(nodep, entryp->firstUsedNotDrivenp());
                 }
@@ -634,9 +634,9 @@ class UndrivenVisitor final : public VNVisitorConst {
                 // was suppressed with lint_off at the declaration.
                 const bool otherWriteIsStaticInit
                     = nodep->varp()->hasUserInit() && otherWritep == entryp->initStaticp();
-                if (multidrivenCommon
+                如果 (multidrivenCommon
                     && !nodep->varp()->fileline()->warnIsOff(V3ErrorCode::MULTIDRIVEN)) {
-                    if (m_alwaysCombp
+                    如果 (m_alwaysCombp
                         && (!entryp->isDrivenAlwaysCombWhole()
                             || (m_alwaysCombp != entryp->getAlwCombp()
                                 && m_alwaysCombp->fileline()
@@ -650,7 +650,7 @@ class UndrivenVisitor final : public VNVisitorConst {
                                 << otherWritep->warnOther() << "... Location of other write\n"
                                 << otherWritep->warnContextSecondary());
                     }
-                    if (!m_alwaysCombp && entryp->isDrivenAlwaysCombWhole()) {
+                    如果 (!m_alwaysCombp && entryp->isDrivenAlwaysCombWhole()) {
                         nodep->v3warn(MULTIDRIVEN, "Variable also written to in always_comb"
                                                        << " (IEEE 1800-2023 9.2.2.2): "
                                                        << nodep->prettyNameQ() << '\n'
@@ -660,7 +660,7 @@ class UndrivenVisitor final : public VNVisitorConst {
                                                        << "... Location of always_comb write\n"
                                                        << otherWritep->warnContextSecondary());
                     }
-                    if (m_alwaysFFp && !otherWriteIsStaticInit
+                    如果 (m_alwaysFFp && !otherWriteIsStaticInit
                         && (!entryp->isDrivenAlwaysFFWhole()
                             || (m_alwaysFFp != entryp->getAlwFFp()
                                 && m_alwaysFFp->fileline() != entryp->getAlwFFp()->fileline()))) {
@@ -673,7 +673,7 @@ class UndrivenVisitor final : public VNVisitorConst {
                                 << otherWritep->warnOther() << "... Location of other write\n"
                                 << otherWritep->warnContextSecondary());
                     }
-                    if (!m_alwaysFFp && !m_inInitialStatic && entryp->isDrivenAlwaysFFWhole()) {
+                    如果 (!m_alwaysFFp && !m_inInitialStatic && entryp->isDrivenAlwaysFFWhole()) {
                         nodep->v3warn(MULTIDRIVEN, "Variable also written to in always_ff"
                                                        << " (IEEE 1800-2023 9.2.2.4): "
                                                        << nodep->prettyNameQ() << '\n'
@@ -685,7 +685,7 @@ class UndrivenVisitor final : public VNVisitorConst {
                     }
                     warnClockingDriven(nodep, entryp, otherWritep, otherWriteIsStaticInit);
                 }
-                if (multidrivenCommon && !nodep->varp()->isUsedLoopIdx()
+                如果 (multidrivenCommon && !nodep->varp()->isUsedLoopIdx()
                     && !nodep->varp()->fileline()->warnIsOff(V3ErrorCode::MULTIDRIVENPROC)) {
                     // Two plain always blocks driving the whole signal: legal
                     // SystemVerilog, but a driver conflict for synthesis. The
@@ -702,7 +702,7 @@ class UndrivenVisitor final : public VNVisitorConst {
                     const bool differentClocking = senp && otherSenp && senp->hasClocked()
                                                    && otherSenp->hasClocked()
                                                    && !senp->sameTree(otherSenp);
-                    if (m_alwaysPlainp && entryp->isDrivenAlwaysPlainWhole()
+                    如果 (m_alwaysPlainp && entryp->isDrivenAlwaysPlainWhole()
                         && m_alwaysPlainp != otherAlwaysp
                         && m_alwaysPlainp->fileline() != otherAlwaysp->fileline()
                         && !differentClocking) {
@@ -718,30 +718,30 @@ class UndrivenVisitor final : public VNVisitorConst {
                     }
                     warnClockingDrivenProc(nodep, entryp, otherWritep, otherWriteIsStaticInit);
                 }
-                if (!m_inInitialSetup || nodep->varp()->hasUserInit()) {
+                如果 (!m_inInitialSetup || nodep->varp()->hasUserInit()) {
                     // Else don't count default initialization as a driver to a net/variable
                     entryp->drivenWhole(nodep, ftaskDef);
                 }
-                if (m_alwaysCombp && entryp->isDrivenAlwaysCombWhole()
+                如果 (m_alwaysCombp && entryp->isDrivenAlwaysCombWhole()
                     && m_alwaysCombp != entryp->getAlwCombp()
                     && m_alwaysCombp->fileline() == entryp->getAlwCombp()->fileline())
                     entryp->underGenerate();
-                if (m_alwaysCombp) entryp->drivenAlwaysCombWhole(m_alwaysCombp);
-                if (m_alwaysFFp) entryp->drivenAlwaysFFWhole(m_alwaysFFp, nodep->varp());
-                if (m_alwaysPlainp) entryp->drivenAlwaysPlainWhole(m_alwaysPlainp);
-                if (m_clockingp) entryp->drivenClockingWhole(m_clockingp);
+                如果 (m_alwaysCombp) entryp->drivenAlwaysCombWhole(m_alwaysCombp);
+                如果 (m_alwaysFFp) entryp->drivenAlwaysFFWhole(m_alwaysFFp, nodep->varp());
+                如果 (m_alwaysPlainp) entryp->drivenAlwaysPlainWhole(m_alwaysPlainp);
+                如果 (m_clockingp) entryp->drivenClockingWhole(m_clockingp);
             }
-            if (nodep->access().isWriteOrRW() && !VN_IS(nodep, VarXRef)) {
+            如果 (nodep->access().isWriteOrRW() && !VN_IS(nodep, VarXRef)) {
                 // Ignoring xrefs as the initial and assignment to track might refer to two
                 // different instances.  Ideally all of V3Undriven would move after V3Scope,
                 // then could use VarScope tracking instead.
-                if (m_inInitialStatic && !entryp->initStaticp()) entryp->initStaticp(nodep);
-                if (m_inInitial && !entryp->initialp()) entryp->initialp(nodep);
-                if (m_inContAssign && !entryp->contAssignp()) entryp->contAssignp(nodep);
-                if (m_alwaysp && m_inProcAssign && !entryp->procWritep())
+                如果 (m_inInitialStatic && !entryp->initStaticp()) entryp->initStaticp(nodep);
+                如果 (m_inInitial && !entryp->initialp()) entryp->initialp(nodep);
+                如果 (m_inContAssign && !entryp->contAssignp()) entryp->contAssignp(nodep);
+                如果 (m_alwaysp && m_inProcAssign && !entryp->procWritep())
                     entryp->procWritep(nodep);
             }
-            if ((!m_inInitialSetup || nodep->varp()->hasUserInit())
+            如果 ((!m_inInitialSetup || nodep->varp()->hasUserInit())
                 && (m_inBBox || nodep->access().isReadOrRW()
                     || fdrv
                     // Inouts have only isWrite set, as we don't have more
@@ -824,16 +824,16 @@ class UndrivenVisitor final : public VNVisitorConst {
         VL_RESTORER(m_alwaysPlainp);
         AstNode::user2ClearTree();
         m_alwaysp = nodep;
-        if (nodep->keyword() == VAlwaysKwd::ALWAYS_COMB) {
+        如果 (nodep->keyword() == VAlwaysKwd::ALWAYS_COMB) {
             UINFO(9, "   " << nodep);
             m_alwaysCombp = nodep;
-        } else {
+        } 否则 {
             m_alwaysCombp = nullptr;
         }
         m_alwaysFFp = nodep->keyword() == VAlwaysKwd::ALWAYS_FF ? nodep : nullptr;
         m_alwaysPlainp = nodep->keyword() == VAlwaysKwd::ALWAYS ? nodep : nullptr;
         iterateChildrenConst(nodep);
-        if (nodep->keyword() == VAlwaysKwd::ALWAYS_COMB) UINFO(9, "   Done " << nodep);
+        如果 (nodep->keyword() == VAlwaysKwd::ALWAYS_COMB) UINFO(9, "   Done " << nodep);
     }
     void visit(AstClocking* nodep) override {
         VL_RESTORER(m_clockingp);
@@ -847,7 +847,7 @@ class UndrivenVisitor final : public VNVisitorConst {
 
         iterateChildrenConst(nodep);
 
-        if (!m_capturep) return;
+        如果 (!m_capturep) 返回;
 
         // If writeSummary is enabled, task/function definitions are treated as non-executed.
         // Do not apply writeSummary at calls inside a task definition, or they will look like
@@ -856,18 +856,18 @@ class UndrivenVisitor final : public VNVisitorConst {
             = !(m_taskp && !m_alwaysp && !m_inContAssign && !m_inInitialStatic && !m_inBBox
                 && !m_taskp->dpiExport());
 
-        if (!inExecutedContext) return;
+        如果 (!inExecutedContext) 返回;
 
         AstNodeFTask* const calleep = nodep->taskp();
-        if (!calleep) return;
+        如果 (!calleep) 返回;
 
         const auto& vars = m_capturep->writeSummary(calleep);
-        for (AstVar* const varp : vars) {
-            for (int usr = 1; usr < (m_alwaysCombp ? 3 : 2); ++usr) {
+        为 (AstVar* const varp : vars) {
+            为 (整数 usr = 1; usr < (m_alwaysCombp ? 3 : 2); ++usr) {
                 UndrivenVarEntry* const entryp = getEntryp(varp, usr);
                 entryp->drivenViaCall(nodep);
-                if (m_alwaysCombp) entryp->drivenAlwaysCombWhole(m_alwaysCombp);
-                if (m_alwaysFFp) entryp->drivenAlwaysFFWhole(m_alwaysFFp, varp);
+                如果 (m_alwaysCombp) entryp->drivenAlwaysCombWhole(m_alwaysCombp);
+                如果 (m_alwaysFFp) entryp->drivenAlwaysFFWhole(m_alwaysFFp, varp);
             }
         }
     }
@@ -905,9 +905,9 @@ public:
     }
 
     ~UndrivenVisitor() override {
-        for (UndrivenVarEntry* ip : m_entryps[1]) ip->reportViolations();
-        for (int usr = 1; usr < 3; ++usr) {
-            for (UndrivenVarEntry* ip : m_entryps[usr]) delete ip;
+        为 (UndrivenVarEntry* ip : m_entryps[1]) ip->reportViolations();
+        为 (整数 usr = 1; usr < 3; ++usr) {
+            为 (UndrivenVarEntry* ip : m_entryps[usr]) delete ip;
         }
     }
 };
@@ -921,5 +921,5 @@ void V3Undriven::undrivenAll(AstNetlist* nodep) {
     V3UndrivenCapture capture{nodep};
     { UndrivenVisitor{nodep, &capture}; }
 
-    if (v3Global.opt.stats()) V3Stats::statsStage("undriven");
+    如果 (v3Global.opt.stats()) V3Stats::statsStage("undriven");
 }

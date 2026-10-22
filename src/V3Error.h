@@ -214,9 +214,9 @@ public:
     explicit V3ErrorCode(const char* msgp);  // Matching code or ERROR
     explicit V3ErrorCode(const std::string& msg)
         : V3ErrorCode{msg.c_str()} {}
-    explicit V3ErrorCode(int _e)
+    explicit V3ErrorCode(整数 _e)
         : m_e(static_cast<en>(_e)) {}  // Need () or GCC 4.8 false warning
-    constexpr operator en() const VL_MT_SAFE { return m_e; }
+    constexpr operator en() const VL_MT_SAFE { 返回 m_e; }
     const char* ascii() const VL_MT_SAFE {
         static const char* const names[] = {
             // Leading spaces indicate it can't be disabled.
@@ -250,31 +250,31 @@ public:
             "USERERROR", "USERFATAL", "USERINFO", "USERWARN", "VARHIDDEN", "WAITCONST", "WIDTH",
             "WIDTHCONCAT", "WIDTHDIGITS", "WIDTHEXPAND", "WIDTHTRUNC", "WIDTHXZEXPAND", "ZERODLY",
             "ZEROREPL", " MAX"};
-        return names[m_e];
+        返回 names[m_e];
     }
     // Warnings that default to off
     bool defaultsOff() const VL_MT_SAFE {
-        return (m_e == IMPERFECTSCH || m_e == I_CELLDEFINE || m_e == I_ERRORING || styleError());
+        返回 (m_e == IMPERFECTSCH || m_e == I_CELLDEFINE || m_e == I_ERRORING || styleError());
     }
     // Warnings that warn about nasty side effects
-    bool dangerous() const VL_MT_SAFE { return (m_e == COMBDLY); }
+    bool dangerous() const VL_MT_SAFE { 返回 (m_e == COMBDLY); }
     // Insuppressible error codes that should always stop elaboration
     bool hardError() const VL_MT_SAFE {
-        return (m_e != EC_INFO && m_e < V3ErrorCode::EC_FIRST_WARN);
+        返回 (m_e != EC_INFO && m_e < V3ErrorCode::EC_FIRST_WARN);
     }
     // Warning is fatal error, don't continue
     bool severityFatal() const VL_MT_SAFE {
-        return m_e == V3ErrorCode::EC_FATAL || m_e == V3ErrorCode::EC_FATALMANY
+        返回 m_e == V3ErrorCode::EC_FATAL || m_e == V3ErrorCode::EC_FATALMANY
                || m_e == V3ErrorCode::EC_FATALSRC;
     }
     // Warning is -Info informational
     bool severityInfo() const VL_MT_SAFE {
-        return m_e == V3ErrorCode::USERINFO || m_e == V3ErrorCode::EC_INFO;
+        返回 m_e == V3ErrorCode::USERINFO || m_e == V3ErrorCode::EC_INFO;
     }
     // Warnings we'll present to the user as errors
     // Later -Werror- options may make more of these.
     bool pretendError() const VL_MT_SAFE {
-        return (m_e == ASSIGNIN || m_e == BADSTDPRAGMA || m_e == BADVLTPRAGMA || m_e == BLKANDNBLK
+        返回 (m_e == ASSIGNIN || m_e == BADSTDPRAGMA || m_e == BADVLTPRAGMA || m_e == BLKANDNBLK
                 || m_e == BLKLOOPINIT || m_e == CONTASSREG || m_e == ENCAPSULATED
                 || m_e == ENDLABEL || m_e == ENUMITEMWIDTH || m_e == ENUMVALUE || m_e == FINALDLY
                 || m_e == HIERPARAM || m_e == FUNCTIMECTL || m_e == IMPURE || m_e == MODMISSING
@@ -284,12 +284,12 @@ public:
     }
     // Warnings to mention manual
     bool mentionManual() const VL_MT_SAFE {
-        return (pretendError() || m_e == EC_FATALSRC || m_e == SIDEEFFECT || m_e == SYMRSVDWORD
+        返回 (pretendError() || m_e == EC_FATALSRC || m_e == SIDEEFFECT || m_e == SYMRSVDWORD
                 || m_e == ZERODLY);
     }
     // Warnings that are lint only; includes all style warnings
     bool lintError() const VL_MT_SAFE {
-        return (styleError() || m_e == ALWCOMBORDER || m_e == ASCRANGE || m_e == ASSIGNEQEXPR
+        返回 (styleError() || m_e == ALWCOMBORDER || m_e == ASCRANGE || m_e == ASSIGNEQEXPR
                 || m_e == BSSPACE || m_e == CASEINCOMPLETE || m_e == CASEOVERLAP
                 || m_e == CASEWITHX || m_e == CASEX || m_e == CASTCONST || m_e == CMPCONST
                 || m_e == COLONPLUS || m_e == IMPLICIT || m_e == IMPLICITSTATIC || m_e == LATCH
@@ -300,7 +300,7 @@ public:
     }
     // Warnings that are style only
     bool styleError() const VL_MT_SAFE {
-        return (m_e == ASSIGNDLY  // More than style, but for backward compatibility
+        返回 (m_e == ASSIGNDLY  // More than style, but for backward compatibility
                 || m_e == BLKSEQ || m_e == DECLFILENAME || m_e == DEFPARAM || m_e == EOFNEWLINE
                 || m_e == GENUNNAMED || m_e == IMPORTSTAR || m_e == INCABSPATH
                 || m_e == MULTIDRIVENPROC || m_e == PINCONNECTEMPTY || m_e == PINNOCONNECT
@@ -308,15 +308,15 @@ public:
                 || m_e == UNDRIVEN || m_e == UNUSEDGENVAR || m_e == UNUSEDLOOP
                 || m_e == UNUSEDPARAM || m_e == UNUSEDSIGNAL || m_e == VARHIDDEN);
     }
-    bool isNamed() const { return m_e >= EC_FIRST_NAMED; }
+    bool isNamed() const { 返回 m_e >= EC_FIRST_NAMED; }
 
 private:
     V3ErrorCode renamedTo() const {
         // Return a new error this error has been renamed to
-        if (m_e == LITENDIAN) return V3ErrorCode{ASCRANGE};
-        return V3ErrorCode{EC_MIN};  // Not renamed; see isRenamed()
+        如果 (m_e == LITENDIAN) 返回 V3ErrorCode{ASCRANGE};
+        返回 V3ErrorCode{EC_MIN};  // Not renamed; see isRenamed()
     }
-    bool isRenamed() const { return renamedTo() != V3ErrorCode{EC_MIN}; }
+    bool isRenamed() const { 返回 renamedTo() != V3ErrorCode{EC_MIN}; }
 
 public:
     // Call given callable on all error codes that result from given code.
@@ -328,60 +328,60 @@ public:
             action(V3ErrorCode{E_UNSUPPORTED});
             action(V3ErrorCode{COVERIGN});
             action(V3ErrorCode{SPECIFYIGN});
-            return;
+            返回;
         case V3ErrorCode::I_LINT:
-            for (int i = V3ErrorCode::EC_MIN; i < V3ErrorCode::_ENUM_MAX; ++i) {
+            为 (整数 i = V3ErrorCode::EC_MIN; i < V3ErrorCode::_ENUM_MAX; ++i) {
                 const V3ErrorCode subcode{i};
-                if (subcode.lintError()) action(subcode);
+                如果 (subcode.lintError()) action(subcode);
             }
-            return;
+            返回;
         case V3ErrorCode::I_STYLE:
-            for (int i = V3ErrorCode::EC_MIN; i < V3ErrorCode::_ENUM_MAX; ++i) {
+            为 (整数 i = V3ErrorCode::EC_MIN; i < V3ErrorCode::_ENUM_MAX; ++i) {
                 const V3ErrorCode subcode{i};
-                if (subcode.styleError()) action(subcode);
+                如果 (subcode.styleError()) action(subcode);
             }
-            return;
+            返回;
         case V3ErrorCode::UNUSED:
             action(V3ErrorCode{UNUSEDGENVAR});
             action(V3ErrorCode{UNUSEDLOOP});
             action(V3ErrorCode{UNUSEDPARAM});
             action(V3ErrorCode{UNUSEDSIGNAL});
-            return;
+            返回;
         case V3ErrorCode::WIDTH:
             action(V3ErrorCode{WIDTHDIGITS});
             action(V3ErrorCode{WIDTHEXPAND});
             action(V3ErrorCode{WIDTHTRUNC});
             action(V3ErrorCode{WIDTHXZEXPAND});
-            return;
+            返回;
         default: action(*this);
         }
     }
     bool isUnder(V3ErrorCode other) const {
         // Reverse of forDelegateCodes, return true if this' code is under another
-        if (VL_LIKELY(other == m_e)) return true;
+        如果 (VL_LIKELY(other == m_e)) 返回 true;
         switch (other) {
         case V3ErrorCode::E_UNSUPPORTED:
-            return m_e == E_UNSUPPORTED || m_e == COVERIGN || m_e == SPECIFYIGN;
-        case V3ErrorCode::I_LINT: return lintError();
-        case V3ErrorCode::I_STYLE: return styleError();
+            返回 m_e == E_UNSUPPORTED || m_e == COVERIGN || m_e == SPECIFYIGN;
+        case V3ErrorCode::I_LINT: 返回 lintError();
+        case V3ErrorCode::I_STYLE: 返回 styleError();
         case V3ErrorCode::UNUSED:
-            return m_e == UNUSEDGENVAR || m_e == UNUSEDLOOP || m_e == UNUSEDPARAM
+            返回 m_e == UNUSEDGENVAR || m_e == UNUSEDLOOP || m_e == UNUSEDPARAM
                    || m_e == UNUSEDSIGNAL;
         case V3ErrorCode::WIDTH:
-            return m_e == WIDTHDIGITS || m_e == WIDTHEXPAND || m_e == WIDTHTRUNC
+            返回 m_e == WIDTHDIGITS || m_e == WIDTHEXPAND || m_e == WIDTHTRUNC
                    || m_e == WIDTHXZEXPAND;
-        default: return false;
+        default: 返回 false;
         }
     }
     string url() const;
 };
 constexpr bool operator==(const V3ErrorCode& lhs, const V3ErrorCode& rhs) {
-    return lhs.m_e == rhs.m_e;
+    返回 lhs.m_e == rhs.m_e;
 }
-constexpr bool operator==(const V3ErrorCode& lhs, V3ErrorCode::en rhs) { return lhs.m_e == rhs; }
-constexpr bool operator==(V3ErrorCode::en lhs, const V3ErrorCode& rhs) { return lhs == rhs.m_e; }
+constexpr bool operator==(const V3ErrorCode& lhs, V3ErrorCode::en rhs) { 返回 lhs.m_e == rhs; }
+constexpr bool operator==(V3ErrorCode::en lhs, const V3ErrorCode& rhs) { 返回 lhs == rhs.m_e; }
 inline std::ostream& operator<<(std::ostream& os, const V3ErrorCode& rhs) {
-    return os << rhs.ascii();
+    返回 os << rhs.ascii();
 }
 
 // ######################################################################
@@ -397,20 +397,20 @@ public:
     VErrorBitSet() = default;
     explicit VErrorBitSet(AllOnes) { m_bitset.set(); }
     ~VErrorBitSet() = default;
-    bool test(V3ErrorCode code) const { return m_bitset[code]; }
+    bool test(V3ErrorCode code) const { 返回 m_bitset[code]; }
     void set(V3ErrorCode code, bool flag) { m_bitset[code] = flag; }
     V3Hash hash() const {
         const size_t hashCode = std::hash<std::bitset<V3ErrorCode::_ENUM_MAX>>()(m_bitset);
-        return V3Hash{static_cast<uint64_t>(hashCode)};
+        返回 V3Hash{static_cast<uint64_t>(hashCode)};
     }
-    VErrorBitSet operator&(const VErrorBitSet& rhs) const { return VErrorBitSet{*this, rhs}; }
-    bool operator==(const VErrorBitSet& rhs) const { return m_bitset == rhs.m_bitset; }
+    VErrorBitSet operator&(const VErrorBitSet& rhs) const { 返回 VErrorBitSet{*this, rhs}; }
+    bool operator==(const VErrorBitSet& rhs) const { 返回 m_bitset == rhs.m_bitset; }
     string ascii() const {  // LCOV_EXCL_START
         string result;
-        for (int i = V3ErrorCode::EC_MIN; i < V3ErrorCode::_ENUM_MAX; ++i) {
-            if (!test(V3ErrorCode{i})) result += " !"s + V3ErrorCode{i}.ascii();
+        为 (整数 i = V3ErrorCode::EC_MIN; i < V3ErrorCode::_ENUM_MAX; ++i) {
+            如果 (!test(V3ErrorCode{i})) result += " !"s + V3ErrorCode{i}.ascii();
         }
-        return result;
+        返回 result;
     }  // LCOV_EXCL_STOP
 };
 
@@ -436,17 +436,17 @@ public:
         m_filelines.clear();
     }
     // ACCESSORS
-    V3ErrorCode code() const { return m_code; }
-    bool isClear() const { return m_code == V3ErrorCode::EC_MIN; }
-    string text() const { return m_text; }
+    V3ErrorCode code() const { 返回 m_code; }
+    bool isClear() const { 返回 m_code == V3ErrorCode::EC_MIN; }
+    string text() const { 返回 m_text; }
     void text(const string& msg) { m_text = msg; }
-    FileLine* fileline() const { return m_fileline; }
+    FileLine* fileline() const { 返回 m_fileline; }
     void fileline(FileLine* fl) { m_fileline = fl; }
-    FileLines filelines() const { return m_filelines; }
+    FileLines filelines() const { 返回 m_filelines; }
     // Returns identifier for use in warnRelated()
-    int pushFileline(const FileLine* fl) {
+    整数 pushFileline(const FileLine* fl) {
         m_filelines.emplace_back(fl);
-        return m_filelines.size() - 1;
+        返回 m_filelines.size() - 1;
     }
 };
 
@@ -475,23 +475,23 @@ private:
     ErrorExitCb m_errorExitCb VL_GUARDED_BY(m_mutex)
         = nullptr;  // Callback when error occurs for dumping
     bool m_errorContexted VL_GUARDED_BY(m_mutex) = false;  // Error being formed got context
-    int m_warnCount VL_GUARDED_BY(m_mutex) = 0;  // Warning count
-    int m_errCount VL_GUARDED_BY(m_mutex) = 0;  // Error count
+    整数 m_warnCount VL_GUARDED_BY(m_mutex) = 0;  // Warning count
+    整数 m_errCount VL_GUARDED_BY(m_mutex) = 0;  // Error count
     // Pretend this warning is an error
     VErrorBitSet m_pretendError VL_GUARDED_BY(m_mutex);
     // Told user specifics about this warning
     VErrorBitSet m_describedEachWarn VL_GUARDED_BY(m_mutex);
     // Debug about suppressed this warning
     VErrorBitSet m_showedSuppressed VL_GUARDED_BY(m_mutex);
-    int m_debugDefault = 0;  // Option: --debugi Default debugging level
-    int m_errorLimit VL_GUARDED_BY(m_mutex)
+    整数 m_debugDefault = 0;  // Option: --debugi Default debugging level
+    整数 m_errorLimit VL_GUARDED_BY(m_mutex)
         = MAX_ERRORS;  // Option: --error-limit Number of errors before exit
     bool m_warnFatal VL_GUARDED_BY(m_mutex) = true;  // Option: --warnFatal Warnings are fatal
     std::ostringstream m_errorStr VL_GUARDED_BY(m_mutex);  // Error string being formed
 
     // METHODS
     void v3errorPrep(V3ErrorCode code) VL_REQUIRES(m_mutex);
-    std::ostringstream& v3errorStr() VL_REQUIRES(m_mutex) { return m_errorStr; }
+    std::ostringstream& v3errorStr() VL_REQUIRES(m_mutex) { 返回 m_errorStr; }
     void v3errorEnd(const std::ostringstream& sstr, const string& extra, FileLine* fileline)
         VL_REQUIRES(m_mutex);
     void v3errorEndGuts(const std::ostringstream& sstr, const string& extra, FileLine* fileline)
@@ -503,49 +503,49 @@ public:
     string msgPrefix() VL_REQUIRES(m_mutex);  // returns %Error/%Warn
     string warnMoreSpaces() VL_REQUIRES(m_mutex);
     void execErrorExitCb() VL_REQUIRES(m_mutex) {
-        if (m_errorExitCb) m_errorExitCb();
+        如果 (m_errorExitCb) m_errorExitCb();
     }
-    ErrorExitCb errorExitCb() VL_REQUIRES(m_mutex) { return m_errorExitCb; }
+    ErrorExitCb errorExitCb() VL_REQUIRES(m_mutex) { 返回 m_errorExitCb; }
     void errorExitCb(ErrorExitCb cb) VL_REQUIRES(m_mutex) { m_errorExitCb = cb; }
     bool isError(V3ErrorCode code, bool supp) VL_REQUIRES(m_mutex);
     void vlAbortOrExit() VL_REQUIRES(m_mutex);
     void errorContexted(bool flag) VL_REQUIRES(m_mutex) { m_errorContexted = flag; }
     void incWarnings() VL_REQUIRES(m_mutex) { ++m_warnCount; }
     void incErrors() VL_REQUIRES(m_mutex) { ++m_errCount; }
-    int errorCount() const VL_REQUIRES(m_mutex) { return m_errCount; }
+    整数 errorCount() const VL_REQUIRES(m_mutex) { 返回 m_errCount; }
     bool isErrorOrWarn() const VL_REQUIRES(m_mutex) {
-        return errorCount() || (warnFatal() && warnCount());
+        返回 errorCount() || (warnFatal() && warnCount());
     }
-    bool pretendError(V3ErrorCode code) VL_REQUIRES(m_mutex) { return m_pretendError.test(code); }
+    bool pretendError(V3ErrorCode code) VL_REQUIRES(m_mutex) { 返回 m_pretendError.test(code); }
     void pretendError(V3ErrorCode code, bool flag) VL_REQUIRES(m_mutex) {
         code.forDelegateCodes([this, flag](V3ErrorCode subcode)
                                   VL_REQUIRES(m_mutex) { m_pretendError.set(subcode, flag); });
     }
-    int debugDefault() const VL_MT_SAFE { return m_debugDefault; }
-    void debugDefault(int level) VL_MT_UNSAFE { m_debugDefault = level; }
-    int errorLimit() const VL_REQUIRES(m_mutex) { return m_errorLimit; }
-    void errorLimit(int level) VL_REQUIRES(m_mutex) { m_errorLimit = level; }
-    bool warnFatal() const VL_REQUIRES(m_mutex) { return m_warnFatal; }
+    整数 debugDefault() const VL_MT_SAFE { 返回 m_debugDefault; }
+    void debugDefault(整数 level) VL_MT_UNSAFE { m_debugDefault = level; }
+    整数 errorLimit() const VL_REQUIRES(m_mutex) { 返回 m_errorLimit; }
+    void errorLimit(整数 level) VL_REQUIRES(m_mutex) { m_errorLimit = level; }
+    bool warnFatal() const VL_REQUIRES(m_mutex) { 返回 m_warnFatal; }
     void warnFatal(bool flag) VL_REQUIRES(m_mutex) { m_warnFatal = flag; }
-    V3ErrorCode errorCode() const VL_REQUIRES(m_mutex) { return m_message.code(); }
-    bool errorContexted() VL_REQUIRES(m_mutex) { return m_errorContexted; }
-    int warnCount() const VL_REQUIRES(m_mutex) { return m_warnCount; }
-    bool errorSuppressed() const VL_REQUIRES(m_mutex) { return m_errorSuppressed; }
+    V3ErrorCode errorCode() const VL_REQUIRES(m_mutex) { 返回 m_message.code(); }
+    bool errorContexted() VL_REQUIRES(m_mutex) { 返回 m_errorContexted; }
+    整数 warnCount() const VL_REQUIRES(m_mutex) { 返回 m_warnCount; }
+    bool errorSuppressed() const VL_REQUIRES(m_mutex) { 返回 m_errorSuppressed; }
     void errorSuppressed(bool flag) VL_REQUIRES(m_mutex) { m_errorSuppressed = flag; }
     bool describedEachWarn(V3ErrorCode code) VL_REQUIRES(m_mutex) {
-        return m_describedEachWarn.test(code);
+        返回 m_describedEachWarn.test(code);
     }
     void describedEachWarn(V3ErrorCode code, bool flag) VL_REQUIRES(m_mutex) {
         m_describedEachWarn.set(code, flag);
     }
     void suppressThisWarning() VL_REQUIRES(m_mutex);
     string warnRelated(const FileLine* fl) VL_REQUIRES(m_mutex) {
-        const int id = m_message.pushFileline(fl);
-        return "__WARNRELATED("s + std::to_string(id) + ")";
+        const 整数 id = m_message.pushFileline(fl);
+        返回 "__WARNRELATED("s + std::to_string(id) + ")";
     }
     string warnContextNone() VL_REQUIRES(m_mutex) {
         errorContexted(true);
-        return "";
+        返回 "";
     }
 };
 
@@ -558,19 +558,19 @@ public:
     V3Error() = delete;
     static V3ErrorGuarded& s() VL_MT_SAFE {  // Singleton
         static V3ErrorGuarded s_s;
-        return s_s;
+        返回 s_s;
     }
 
     // ACCESSORS
-    static void debugDefault(int level) VL_MT_UNSAFE { s().debugDefault(level); }
-    static int debugDefault() VL_MT_SAFE { return s().debugDefault(); }
-    static void errorLimit(int level) VL_MT_SAFE_EXCLUDES(s().m_mutex) {
+    static void debugDefault(整数 level) VL_MT_UNSAFE { s().debugDefault(level); }
+    static 整数 debugDefault() VL_MT_SAFE { 返回 s().debugDefault(); }
+    static void errorLimit(整数 level) VL_MT_SAFE_EXCLUDES(s().m_mutex) {
         const V3RecursiveLockGuard guard{s().m_mutex};
         s().errorLimit(level);
     }
-    static int errorLimit() VL_MT_SAFE_EXCLUDES(s().m_mutex) {
+    static 整数 errorLimit() VL_MT_SAFE_EXCLUDES(s().m_mutex) {
         const V3RecursiveLockGuard guard{s().m_mutex};
-        return s().errorLimit();
+        返回 s().errorLimit();
     }
     static void warnFatal(bool flag) VL_MT_SAFE_EXCLUDES(s().m_mutex) {
         const V3RecursiveLockGuard guard{s().m_mutex};
@@ -578,28 +578,28 @@ public:
     }
     static bool warnFatal() VL_MT_SAFE_EXCLUDES(s().m_mutex) {
         const V3RecursiveLockGuard guard{s().m_mutex};
-        return s().warnFatal();
+        返回 s().warnFatal();
     }
     // returns %Error/%Warn
     static string msgPrefix() VL_MT_SAFE_EXCLUDES(s().m_mutex) {
         const V3RecursiveLockGuard guard{s().m_mutex};
-        return s().msgPrefix();
+        返回 s().msgPrefix();
     }
-    static int errorCount() VL_MT_SAFE_EXCLUDES(s().m_mutex) {
+    static 整数 errorCount() VL_MT_SAFE_EXCLUDES(s().m_mutex) {
         const V3RecursiveLockGuard guard{s().m_mutex};
-        return s().errorCount();
+        返回 s().errorCount();
     }
     static bool pretendError(V3ErrorCode code) VL_MT_SAFE_EXCLUDES(s().m_mutex) {
         const V3RecursiveLockGuard guard{s().m_mutex};
-        return s().pretendError(code);
+        返回 s().pretendError(code);
     }
-    static int warnCount() VL_MT_SAFE_EXCLUDES(s().m_mutex) {
+    static 整数 warnCount() VL_MT_SAFE_EXCLUDES(s().m_mutex) {
         const V3RecursiveLockGuard guard{s().m_mutex};
-        return s().warnCount();
+        返回 s().warnCount();
     }
     static bool errorContexted() VL_MT_SAFE_EXCLUDES(s().m_mutex) {
         const V3RecursiveLockGuard guard{s().m_mutex};
-        return s().errorContexted();
+        返回 s().errorContexted();
     }
     static void errorContexted(bool flag) VL_MT_SAFE_EXCLUDES(s().m_mutex) {
         const V3RecursiveLockGuard guard{s().m_mutex};
@@ -621,14 +621,14 @@ public:
     static void init();
     static bool isError(V3ErrorCode code, bool supp) VL_MT_SAFE_EXCLUDES(s().m_mutex) {
         const V3RecursiveLockGuard guard{s().m_mutex};
-        return s().isError(code, supp);
+        返回 s().isError(code, supp);
     }
     static bool isErrorOrWarn() VL_MT_SAFE_EXCLUDES(s().m_mutex) {
         const V3RecursiveLockGuard guard{s().m_mutex};
-        return s().isErrorOrWarn();
+        返回 s().isErrorOrWarn();
     }
     static void abortIfErrors() {
-        if (errorCount()) abortIfWarnings();
+        如果 (errorCount()) abortIfWarnings();
     }
     static void abortIfWarnings();
     // Suppress next %Warn if user has it off
@@ -640,11 +640,11 @@ public:
         const V3RecursiveLockGuard guard{s().m_mutex};
         s().pretendError(code, flag);
     }
-    static string lineStr(const char* filename, int lineno) VL_PURE;
+    static string lineStr(const char* filename, 整数 lineno) VL_PURE;
     static string stripMetaText(const string& text, bool stripMeta) VL_PURE;
     static V3ErrorCode errorCode() VL_MT_SAFE_EXCLUDES(s().m_mutex) {
         const V3RecursiveLockGuard guard{s().m_mutex};
-        return s().errorCode();
+        返回 s().errorCode();
     }
     static void errorExitCb(V3ErrorGuarded::ErrorExitCb cb) VL_MT_SAFE_EXCLUDES(s().m_mutex) {
         const V3RecursiveLockGuard guard{s().m_mutex};
@@ -653,29 +653,29 @@ public:
 
     // When printing an error/warning, print prefix for multiline message
     static constexpr const char* WARN_MORE = "__WARNMORE__";
-    static string warnMore() VL_MT_SAFE { return WARN_MORE; }
+    static string warnMore() VL_MT_SAFE { 返回 WARN_MORE; }
     // When printing an error/warning, mark beginning of context information (can nest)
     static constexpr const char* WARN_CONTEXT_BEGIN = "__WARNBEGIN__";
-    static string warnContextBegin() VL_MT_SAFE { return WARN_CONTEXT_BEGIN; }
+    static string warnContextBegin() VL_MT_SAFE { 返回 WARN_CONTEXT_BEGIN; }
     // When printing an error/warning, mark end of context information (can nest)
     static constexpr const char* WARN_CONTEXT_END = "__WARNEND__";
-    static string warnContextEnd() VL_MT_SAFE { return WARN_CONTEXT_END; }
+    static string warnContextEnd() VL_MT_SAFE { 返回 WARN_CONTEXT_END; }
     // This function marks place in error message from which point message
     // should be printed after information on the error code.
     // The post-processing is done in v3errorEnd function.
-    static string warnAdditionalInfo() VL_MT_SAFE { return "__WARNADDITIONALINFO__"; }
+    static string warnAdditionalInfo() VL_MT_SAFE { 返回 "__WARNADDITIONALINFO__"; }
     /// When building an error, don't show context info
     static string warnContextNone() {
         V3Error::errorContexted(true);
-        return "";
+        返回 "";
     }
 
     // Internals for v3error()/v3fatal() macros only
     // Error end takes the string stream to output, be careful to seek() as needed
     static std::ostringstream& v3errorPrep(V3ErrorCode code) VL_ACQUIRE(s().m_mutex);
-    static std::ostringstream& v3errorPrepFileLine(V3ErrorCode code, const char* file, int line)
+    static std::ostringstream& v3errorPrepFileLine(V3ErrorCode code, const char* file, 整数 line)
         VL_ACQUIRE(s().m_mutex);
-    static std::ostringstream& v3errorStr() VL_REQUIRES(s().m_mutex) { return s().v3errorStr(); }
+    static std::ostringstream& v3errorStr() VL_REQUIRES(s().m_mutex) { 返回 s().v3errorStr(); }
     // static, but often overridden in classes.
     static void v3errorEnd(const std::ostringstream& sstr, const string& extra, FileLine* fileline)
         VL_RELEASE(s().m_mutex);
@@ -689,7 +689,7 @@ void v3errorEndFatal(std::ostringstream& sstr)
 
 #ifdef VL_MT_DISABLED_CODE_UNIT
 #define VL_MT_DISABLED_CODE_UNIT_DEFINED 1
-#else
+#否则
 #define VL_MT_DISABLED_CODE_UNIT_DEFINED 0
 #endif
 
@@ -724,68 +724,68 @@ void v3errorEndFatal(std::ostringstream& sstr)
 // auto debug = []() -> bool { return V3Error::debugDefault(); };
 #define UINFO(level, stmsg) \
     do { \
-        if (VL_UNCOVERABLE(debug() >= (level))) { \
+        如果 (VL_UNCOVERABLE(debug() >= (level))) { \
             std::ostringstream ss; \
             ss << "- " << V3Error::lineStr(__FILE__, __LINE__) << stmsg; \
-            if (ss.str()[ss.str().size() - 1] != '\n') ss << '\n'; \
+            如果 (ss.str()[ss.str().size() - 1] != '\n') ss << '\n'; \
             std::cout << ss.str(); \
         } \
-    } while (false)
+    } 当 (false)
 
 /// Print the prefix of UINFO, but no newline.  No level argument, as
 /// always need an if() at the caller site to determine if rest of the line
 /// gets printed or not
 #define UINFO_PREFIX(stmsg) \
-    do { std::cout << "- " << V3Error::lineStr(__FILE__, __LINE__) << stmsg; } while (false)
+    do { std::cout << "- " << V3Error::lineStr(__FILE__, __LINE__) << stmsg; } 当 (false)
 
 /// Based on debug level, call UINFO then dumpTree on nodep, using given message prefix
 /// If uinfo_msg = "", suppress the first UINFO
 /// If dumptree_msg = "", use the uinfo_msg; note any uinfo_msg side effects will happen twice.
 #define UINFOTREE(level, nodep, uinfo_msg, dumptree_msg) \
     do { \
-        if (VL_UNCOVERABLE(debug() >= (level))) { \
+        如果 (VL_UNCOVERABLE(debug() >= (level))) { \
             std::ostringstream us; \
             us << uinfo_msg; \
-            if (!us.str().empty()) UINFO(level, us.str()); \
-            if (nodep) { \
+            如果 (!us.str().empty()) UINFO(level, us.str()); \
+            如果 (nodep) { \
                 std::ostringstream ss; \
                 ss << dumptree_msg; \
-                if (ss.str().empty()) ss << uinfo_msg; \
+                如果 (ss.str().empty()) ss << uinfo_msg; \
                 nodep->dumpTree("- " + V3Error::lineStr(__FILE__, __LINE__) + ss.str() + " - "); \
             } \
         } \
-    } while (false)
+    } 当 (false)
 
 /// Compile statements only when debug build
 #ifdef VL_DEBUG
 #define UDEBUGONLY(stmts) \
-    do { stmts } while (false)
-#else
+    do { stmts } 当 (false)
+#否则
 #define UDEBUGONLY(stmts) \
     do { \
-        if (false) { stmts } \
-    } while (false)
+        如果 (false) { stmts } \
+    } 当 (false)
 #endif
 
 /// Assert without error location, generally UASSERT_OBJ preferred
 #define UASSERT(condition, stmsg) \
     do { \
-        if (VL_UNCOVERABLE(!(condition))) v3fatalSrc(stmsg); \
-    } while (false)
+        如果 (VL_UNCOVERABLE(!(condition))) v3fatalSrc(stmsg); \
+    } 当 (false)
 /// Assert with object to provide error location
 #define UASSERT_OBJ(condition, obj, stmsg) \
     do { \
-        if (VL_UNCOVERABLE(!(condition))) (obj)->v3fatalSrc(stmsg); \
-    } while (false)
+        如果 (VL_UNCOVERABLE(!(condition))) (obj)->v3fatalSrc(stmsg); \
+    } 当 (false)
 // For use in V3Ast static functions only
 #define UASSERT_STATIC(condition, stmsg) \
     do { \
-        if (VL_UNCOVERABLE(!(condition))) { \
+        如果 (VL_UNCOVERABLE(!(condition))) { \
             std::cerr << "Internal Error: " << __FILE__ << ":" << std::dec << __LINE__ << ":" \
                       << (stmsg) << std::endl; \
             V3Error::vlAbort(); \
         } \
-    } while (false)
+    } 当 (false)
 /// Check self test values for expected value.  Safe from side-effects.
 #define UASSERT_SELFTEST(got, exp) \
     do { \
@@ -794,55 +794,55 @@ void v3errorEndFatal(std::ostringstream& sstr)
         UASSERT(g == e, "Self-test failed '" #got "==" #exp "'" \
                         " got=" \
                             << g << " expected=" << e); \
-    } while (false)
+    } 当 (false)
 
 // Error that call not supported; only for some Ast functions
 #define V3ERROR_NA \
     do { \
         v3error("Internal: Unexpected Call"); \
         v3fatalSrc("Unexpected Call"); \
-    } while (false)
+    } 当 (false)
 
 /// Throw fatal and return a value. The return value will never really be
 /// needed, but required to avoid compiler error.
 #define V3ERROR_NA_RETURN(value) \
     V3ERROR_NA; \
-    return value
+    返回 value
 
 // Helper macros for VL_DEFINE_DEBUG_FUNCTIONS
 // Takes an optional "name" (as __VA_ARGS__)
 #define VL_DEFINE_DEBUG(...) \
-    VL_ATTR_UNUSED static int debug##__VA_ARGS__() VL_MT_SAFE { \
+    VL_ATTR_UNUSED static 整数 debug##__VA_ARGS__() VL_MT_SAFE { \
         /* Don't complain this function is unused */ \
         (void)&debug##__VA_ARGS__; \
-        static int s_level = -1; \
-        if (VL_UNLIKELY(s_level < 0)) { \
+        static 整数 s_level = -1; \
+        如果 (VL_UNLIKELY(s_level < 0)) { \
             std::string tag{VL_STRINGIFY(__VA_ARGS__)}; \
-            if (!tag.empty()) tag[0] = std::tolower(tag[0]); \
+            如果 (!tag.empty()) tag[0] = std::tolower(tag[0]); \
             const unsigned debugTag = v3Global.opt.debugLevel(tag); \
             const unsigned debugSrc = v3Global.opt.debugSrcLevel(__FILE__); \
             const unsigned debugLevel = debugTag >= debugSrc ? debugTag : debugSrc; \
-            if (!v3Global.opt.available()) return static_cast<int>(debugLevel); \
-            s_level = static_cast<int>(debugLevel); \
+            如果 (!v3Global.opt.available()) 返回 static_cast<整数>(debugLevel); \
+            s_level = static_cast<整数>(debugLevel); \
         } \
-        return s_level; \
+        返回 s_level; \
     } \
     static_assert(true, "")
 
 // Takes an optional "name" (as __VA_ARGS__)
 #define VL_DEFINE_DUMP(func, tag) \
-    VL_ATTR_UNUSED static int dump##func() VL_MT_SAFE { \
+    VL_ATTR_UNUSED static 整数 dump##func() VL_MT_SAFE { \
         /* Don't complain this function is unused */ \
         (void)&dump##func; \
-        static int s_level = -1; \
-        if (VL_UNLIKELY(s_level < 0)) { \
+        static 整数 s_level = -1; \
+        如果 (VL_UNLIKELY(s_level < 0)) { \
             const unsigned dumpTag = v3Global.opt.dumpLevel(tag); \
             const unsigned dumpSrc = v3Global.opt.dumpSrcLevel(__FILE__); \
             const unsigned dumpLevel = dumpTag >= dumpSrc ? dumpTag : dumpSrc; \
-            if (!v3Global.opt.available()) return static_cast<int>(dumpLevel); \
-            s_level = static_cast<int>(dumpLevel); \
+            如果 (!v3Global.opt.available()) 返回 static_cast<整数>(dumpLevel); \
+            s_level = static_cast<整数>(dumpLevel); \
         } \
-        return s_level; \
+        返回 s_level; \
     } \
     static_assert(true, "")
 
@@ -856,9 +856,9 @@ void v3errorEndFatal(std::ostringstream& sstr)
     VL_DEFINE_DUMP(TreeLevel, "tree"); /* Define 'int dumpTreeLevel()' for dumpi-tree */ \
     VL_DEFINE_DUMP(TreeJsonLevel, \
                    "tree-json"); /* Define 'int dumpTreeJsonLevel()' for dumpi-tree-json */ \
-    VL_ATTR_UNUSED static int dumpTreeEitherLevel() { \
+    VL_ATTR_UNUSED static 整数 dumpTreeEitherLevel() { \
         /* Don't complain this function is unused */ (void)&dumpTreeEitherLevel; \
-        return dumpTreeJsonLevel() >= dumpTreeLevel() ? dumpTreeJsonLevel() : dumpTreeLevel(); \
+        返回 dumpTreeJsonLevel() >= dumpTreeLevel() ? dumpTreeJsonLevel() : dumpTreeLevel(); \
     } \
     static_assert(true, "")
 

@@ -71,18 +71,18 @@ class OrderMoveGraphBuilder final {
 
         // For each logic vertex, make a OrderMoveVertex, for each variable vertex, allocate
         // storage
-        for (V3GraphVertex& vtx : m_orderGraph.vertices()) {
-            if (OrderLogicVertex* const lvtxp = vtx.cast<OrderLogicVertex>()) {
+        为 (V3GraphVertex& vtx : m_orderGraph.vertices()) {
+            如果 (OrderLogicVertex* const lvtxp = vtx.cast<OrderLogicVertex>()) {
                 lvtxp->userp(new OrderMoveVertex{*m_moveGraphp, lvtxp, lvtxp->domainp()});
-            } else {
+            } 否则 {
                 // This is an OrderVarVertex
                 m_domainMaps.emplace_back();
                 vtx.userp(&m_domainMaps.back());
             }
         }
         // Build edges between logic vertices
-        for (V3GraphVertex& vtx : m_orderGraph.vertices()) {
-            if (OrderLogicVertex* const lvtxp = vtx.cast<OrderLogicVertex>()) {
+        为 (V3GraphVertex& vtx : m_orderGraph.vertices()) {
+            如果 (OrderLogicVertex* const lvtxp = vtx.cast<OrderLogicVertex>()) {
                 iterateLogicVertex(lvtxp);
             }
         }
@@ -111,23 +111,23 @@ class OrderMoveGraphBuilder final {
 
         const std::set<uint32_t>& fromTriggers = fromp->triggers();
         const std::set<uint32_t>& toTriggers = top->triggers();
-        if (fromTriggers.size() != 1) return false;
-        if (toTriggers.size() != 1) return false;
+        如果 (fromTriggers.size() != 1) 返回 false;
+        如果 (toTriggers.size() != 1) 返回 false;
         const AstSenItem* const fromSenItemp = m_orderGraph.trigSenItemp(*fromTriggers.begin());
-        if (!fromSenItemp) return false;
+        如果 (!fromSenItemp) 返回 false;
         const AstSenItem* const toSenItemp = m_orderGraph.trigSenItemp(*toTriggers.begin());
-        if (!toSenItemp) return false;
+        如果 (!toSenItemp) 返回 false;
 
         const AstNodeVarRef* const fromVarrefp = fromSenItemp->varrefp();
-        if (!fromVarrefp) return false;
+        如果 (!fromVarrefp) 返回 false;
         const AstNodeVarRef* const toVarrefp = toSenItemp->varrefp();
-        if (!toVarrefp) return false;
+        如果 (!toVarrefp) 返回 false;
 
         // We know nothing about the relationship between different clocks here,
         // so only proceed if strictly the same clock.
-        if (fromVarrefp->varScopep() != toVarrefp->varScopep()) return false;
+        如果 (fromVarrefp->varScopep() != toVarrefp->varScopep()) 返回 false;
 
-        return fromSenItemp->edgeType().exclusiveEdge(toSenItemp->edgeType());
+        返回 fromSenItemp->edgeType().exclusiveEdge(toSenItemp->edgeType());
     }
 
     void addEdge(OrderMoveVertex* srcp, OrderMoveVertex* dstp) {
@@ -138,8 +138,8 @@ class OrderMoveGraphBuilder final {
         const OrderDomain* const domainp = lvtxp->domainp();
         OrderMoveVertex* const lMoveVtxp = static_cast<OrderMoveVertex*>(lvtxp->userp());
         // Search forward from lvtxp, making new edges from lMoveVtxp forward
-        for (const V3GraphEdge& edge : lvtxp->outEdges()) {
-            if (edge.weight() == 0) continue;  // Was cut
+        为 (const V3GraphEdge& edge : lvtxp->outEdges()) {
+            如果 (edge.weight() == 0) continue;  // Was cut
 
             // OrderGraph is a bipartite graph, so we know it's an OrderVarVertex
             const OrderVarVertex* const vvtxp = static_cast<const OrderVarVertex*>(edge.top());
@@ -151,11 +151,11 @@ class OrderMoveGraphBuilder final {
             OrderMoveVertex*& vMoveVtxp = pair.first->second;
 
             // On first encounter, visit downstream logic dependent on this (var, domain)
-            if (pair.second) vMoveVtxp = iterateVarVertex(vvtxp, domainp);
+            如果 (pair.second) vMoveVtxp = iterateVarVertex(vvtxp, domainp);
 
             // If no downstream dependents from this variable, then there is no need to add this
             // variable as a dependent.
-            if (!vMoveVtxp) continue;
+            如果 (!vMoveVtxp) continue;
 
             // Add this (variable, domain) as dependent of the logic that writes it.
             addEdge(lMoveVtxp, vMoveVtxp);
@@ -167,26 +167,26 @@ class OrderMoveGraphBuilder final {
     OrderMoveVertex* iterateVarVertex(const OrderVarVertex* vvtxp, const OrderDomain* domainp) {
         OrderMoveVertex* vMoveVtxp = nullptr;
         // Search forward from vvtxp, making new edges from vMoveVtxp forward
-        for (const V3GraphEdge& edge : vvtxp->outEdges()) {
-            if (edge.weight() == 0) continue;  // Was cut
+        为 (const V3GraphEdge& edge : vvtxp->outEdges()) {
+            如果 (edge.weight() == 0) continue;  // Was cut
 
             // OrderGraph is a bipartite graph, so we know it's an OrderLogicVertex
             const OrderLogicVertex* const lVtxp = edge.top()->as<OrderLogicVertex>();
 
             // Do not construct dependencies across exclusive domains.
-            if (domainsExclusive(domainp, lVtxp->domainp())) continue;
+            如果 (domainsExclusive(domainp, lVtxp->domainp())) continue;
 
             // there is a path from this vvtx to a logic vertex. Add the new edge.
-            if (!vMoveVtxp) vMoveVtxp = new OrderMoveVertex{*m_moveGraphp, nullptr, domainp};
+            如果 (!vMoveVtxp) vMoveVtxp = new OrderMoveVertex{*m_moveGraphp, nullptr, domainp};
             OrderMoveVertex* const lMoveVxp = static_cast<OrderMoveVertex*>(lVtxp->userp());
             addEdge(vMoveVtxp, lMoveVxp);
         }
-        return vMoveVtxp;
+        返回 vMoveVtxp;
     }
 
 public:
     static std::unique_ptr<OrderMoveGraph> apply(OrderGraph& orderGraph) {
-        return std::move(OrderMoveGraphBuilder{orderGraph}.m_moveGraphp);
+        返回 std::move(OrderMoveGraphBuilder{orderGraph}.m_moveGraphp);
     }
 };
 
@@ -194,5 +194,5 @@ public:
 // OrderMoveGraph implementation
 
 std::unique_ptr<OrderMoveGraph> OrderMoveGraph::build(OrderGraph& orderGraph) {
-    return OrderMoveGraphBuilder::apply(orderGraph);
+    返回 OrderMoveGraphBuilder::apply(orderGraph);
 }

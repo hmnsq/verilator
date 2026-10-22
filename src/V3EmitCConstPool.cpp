@@ -44,25 +44,25 @@ class EmitCConstPool final : public EmitCConstInit {
         UASSERT(!ofp(), "Output file should not be open");
 
         std::vector<const AstVar*> varps;
-        for (AstNode* nodep = poolp->stmtsp(); nodep; nodep = nodep->nextp()) {
-            if (const AstVar* const varp = VN_CAST(nodep, Var)) varps.push_back(varp);
+        为 (AstNode* nodep = poolp->stmtsp(); nodep; nodep = nodep->nextp()) {
+            如果 (const AstVar* const varp = VN_CAST(nodep, Var)) varps.push_back(varp);
         }
 
-        if (varps.empty()) return;  // Constant pool is empty, so we are done
+        如果 (varps.empty()) 返回;  // Constant pool is empty, so we are done
 
         stable_sort(varps.begin(), varps.end(), [](const AstVar* ap, const AstVar* bp) {  //
-            return ap->name() < bp->name();
+            返回 ap->name() < bp->name();
         });
 
-        for (const AstVar* varp : varps) {
-            if (splitNeeded()) {
+        为 (const AstVar* varp : varps) {
+            如果 (splitNeeded()) {
                 // Splitting file, so using parallel build.
                 v3Global.useParallelBuild(true);
                 // Close old file
                 closeOutputFile();
             }
 
-            if (!ofp()) {
+            如果 (!ofp()) {
                 openNewOutputSourceFile(m_uniqueNames.get(m_fileBaseName), true, false,
                                         "Constant pool");
                 puts("\n");
@@ -72,16 +72,16 @@ class EmitCConstPool final : public EmitCConstInit {
             puts("\n");
             putns(varp, "extern ");
             // Literal types should be constinit (no code generation needed)
-            if (varp->dtypep()->isLiteralType()) putns(varp, "VL_CONSTINIT_CXX20 ");
+            如果 (varp->dtypep()->isLiteralType()) putns(varp, "VL_CONSTINIT_CXX20 ");
             putns(varp, "const ");
             emitVarDefn(varp);
             // Account for file splitting
             varp->valuep()->foreach([this](const AstConst* constp) {
-                if (constp->num().isString()) {
+                如果 (constp->num().isString()) {
                     splitSizeInc(AstNode::INSTR_COUNT_STR);
-                } else if (constp->isWide()) {
+                } 否则 如果 (constp->isWide()) {
                     splitSizeInc(constp->widthWords());
-                } else {
+                } 否则 {
                     splitSizeInc(1);
                 }
             });
@@ -90,7 +90,7 @@ class EmitCConstPool final : public EmitCConstInit {
             ++m_emitted[varp->valuep()->type()];
         }
 
-        if (ofp()) closeOutputFile();
+        如果 (ofp()) closeOutputFile();
     }
 
     // VISITORS
@@ -105,7 +105,7 @@ public:
             V3Stats::addStat("ConstPool, "s + type.ascii() + " emitted", m_emitted[type]);
         };
         addStat(VNType::Const);
-        for (int t = VNType::firstNodeCons; t <= VNType::lastNodeCons; ++t) {
+        为 (整数 t = VNType::firstNodeCons; t <= VNType::lastNodeCons; ++t) {
             addStat(static_cast<VNType::en>(t));
         }
     }

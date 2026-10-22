@@ -77,15 +77,15 @@ class DfgDataType final {
 
     // METHODS
     static AstNodeDType* canonicalPackedDType(uint32_t width) {
-        return v3Global.rootp()->typeTablep()->findBitDType(width, width, VSigning::UNSIGNED);
+        返回 v3Global.rootp()->typeTablep()->findBitDType(width, width, VSigning::UNSIGNED);
     }
     static AstNodeDType* canonicalArrayDType(uint32_t size, const DfgDataType& elemType) {
         AstNodeDType* const elemDTypep = elemType.m_astDtypep;
         FileLine* const flp = elemDTypep->fileline();
-        AstRange* const rangep = new AstRange{flp, static_cast<int>(size - 1), 0};
+        AstRange* const rangep = new AstRange{flp, static_cast<整数>(size - 1), 0};
         AstNodeDType* const dtypep = new AstUnpackArrayDType{flp, elemDTypep, rangep};
         v3Global.rootp()->typeTablep()->addTypesp(dtypep);
-        return dtypep;
+        返回 dtypep;
     }
 
     // CONSTRUCTOR - use 'fromAst' instead
@@ -108,30 +108,30 @@ class DfgDataType final {
     VL_UNCOPYABLE(DfgDataType);
     VL_UNMOVABLE(DfgDataType);
     ~DfgDataType() {
-        for (const auto& pair : m_arrayTypes) VL_DO_DANGLING(delete pair.second, pair.second);
+        为 (const auto& pair : m_arrayTypes) VL_DO_DANGLING(delete pair.second, pair.second);
     }
 
 public:
     //-----------------------------------------------------------------------
     // Properties
 
-    bool isNull() const { return m_kind == Kind::Null; }
-    bool isPacked() const { return m_kind == Kind::Packed; }
-    bool isArray() const { return m_kind == Kind::Array; }
+    bool isNull() const { 返回 m_kind == Kind::Null; }
+    bool isPacked() const { 返回 m_kind == Kind::Packed; }
+    bool isArray() const { 返回 m_kind == Kind::Array; }
     // Size of type (this is 'width' for Ppacked, 'elements' for Array, 0 for Null)
-    uint32_t size() const { return m_size; }
-    AstNodeDType* astDtypep() const { return m_astDtypep; }
+    uint32_t size() const { 返回 m_size; }
+    AstNodeDType* astDtypep() const { 返回 m_astDtypep; }
 
     // Thanks to the interning, equality is identity
-    bool operator==(const DfgDataType& that) const { return this == &that; }
-    bool operator!=(const DfgDataType& that) const { return this != &that; }
+    bool operator==(const DfgDataType& that) const { 返回 this == &that; }
+    bool operator!=(const DfgDataType& that) const { 返回 this != &that; }
     // Similarly for hash
-    V3Hash hash() const { return V3Hash{this}; }
+    V3Hash hash() const { 返回 V3Hash{this}; }
 
     // Type of elements, for arrays only
     const DfgDataType& elemDtype() const {
         UASSERT(isArray(), "Non-array has no 'elemDType'");
-        return *m_elemDtypep;
+        返回 *m_elemDtypep;
     }
 
     //-----------------------------------------------------------------------
@@ -142,8 +142,8 @@ public:
         UASSERT(width > 0, "Width must be positive");
         // Find or create the right sized packed type
         const DfgDataType*& entryr = s_packedTypes[width];
-        if (!entryr) entryr = new DfgDataType{width};
-        return *entryr;
+        如果 (!entryr) entryr = new DfgDataType{width};
+        返回 *entryr;
     }
 
     // Returns an Array type of the given size with the given elements
@@ -151,14 +151,14 @@ public:
         UASSERT(elemType.isPacked(), "Cannot create multi-dimensional arrays yet");
         // Find or create the right sized array type with this as elements
         const DfgDataType*& entryr = elemType.m_arrayTypes[size];
-        if (!entryr) entryr = new DfgDataType{size, elemType};
-        return *entryr;
+        如果 (!entryr) entryr = new DfgDataType{size, elemType};
+        返回 *entryr;
     }
 
     // Returns the singleton Null type
     static const DfgDataType& null() {
-        if (!s_nullTypep) s_nullTypep = new DfgDataType{};
-        return *s_nullTypep;
+        如果 (!s_nullTypep) s_nullTypep = new DfgDataType{};
+        返回 *s_nullTypep;
     }
 
     // Returns the data type of selecting the range [lo + size - 1 : lo] from this type
@@ -166,11 +166,11 @@ public:
         switch (dtype.m_kind) {
         case Kind::Packed: {
             UASSERT(lo + size - 1 < dtype.size(), "Out of range");
-            return DfgDataType::packed(size);
+            返回 DfgDataType::packed(size);
         }
         case Kind::Array: {
             UASSERT(lo + size - 1 < dtype.size(), "Out of range");
-            return DfgDataType::array(dtype.elemDtype(), size);
+            返回 DfgDataType::array(dtype.elemDtype(), size);
         }
         case Kind::Null: v3fatal("Type cannot be selected from");  // LCOV_EXCL_LINE
         }
@@ -182,50 +182,50 @@ public:
     static const DfgDataType* fromAst(const AstNodeDType* dtypep) {
         dtypep = dtypep->skipRefp();
 
-        if (const AstUnpackArrayDType* const typep = VN_CAST(dtypep, UnpackArrayDType)) {
+        如果 (const AstUnpackArrayDType* const typep = VN_CAST(dtypep, UnpackArrayDType)) {
             // Convert the element type
             const DfgDataType* const elemp = fromAst(typep->subDTypep());
             // If element type is not supported, we cannot handle the array either
-            if (!elemp) return nullptr;
+            如果 (!elemp) 返回 nullptr;
             // Currently restricted to 1-dimensional arrays, just assumptions in the code
-            if (elemp->isArray()) return nullptr;
+            如果 (elemp->isArray()) 返回 nullptr;
             // Unpacked array maps to Array
-            return &array(*elemp, typep->elementsConst());
+            返回 &array(*elemp, typep->elementsConst());
         }
 
-        if (const AstPackArrayDType* const typep = VN_CAST(dtypep, PackArrayDType)) {
+        如果 (const AstPackArrayDType* const typep = VN_CAST(dtypep, PackArrayDType)) {
             // Packed array maps to Packed
-            return &packed(typep->width());
+            返回 &packed(typep->width());
         }
 
-        if (const AstStructDType* const typep = VN_CAST(dtypep, StructDType)) {
+        如果 (const AstStructDType* const typep = VN_CAST(dtypep, StructDType)) {
             // Unpacked structs currently not supported
-            if (!typep->packed()) return nullptr;
+            如果 (!typep->packed()) 返回 nullptr;
             // Packed struct maps to Packed
-            return &packed(typep->width());
+            返回 &packed(typep->width());
         }
 
-        if (const AstUnionDType* const typep = VN_CAST(dtypep, UnionDType)) {
+        如果 (const AstUnionDType* const typep = VN_CAST(dtypep, UnionDType)) {
             // Unpacked unions not supported
-            if (!typep->packed()) return nullptr;
+            如果 (!typep->packed()) 返回 nullptr;
             // Packed union maps to Packed
-            return &packed(typep->width());
+            返回 &packed(typep->width());
         }
 
-        if (const AstBasicDType* const typep = VN_CAST(dtypep, BasicDType)) {
+        如果 (const AstBasicDType* const typep = VN_CAST(dtypep, BasicDType)) {
             // Anything not resembling a binary encoded number is not supported
-            if (!typep->keyword().isIntNumeric()) return nullptr;
+            如果 (!typep->keyword().isIntNumeric()) 返回 nullptr;
             // Basic numeric types map to Packed
-            return &packed(typep->width());
+            返回 &packed(typep->width());
         }
 
         // Anything else is not representable
-        return nullptr;
+        返回 nullptr;
     }
 
     // Reset interned types
     static void reset() {
-        for (const auto& pair : s_packedTypes) VL_DO_DANGLING(delete pair.second, pair.second);
+        为 (const auto& pair : s_packedTypes) VL_DO_DANGLING(delete pair.second, pair.second);
         s_packedTypes.clear();
         delete s_nullTypep;
         s_nullTypep = nullptr;

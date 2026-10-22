@@ -97,7 +97,7 @@ public:
         , m_classp{classp} {}
     ~V3ClassGraphVertex() override = default;
 
-    std::string name() const override { return m_classp->name(); }
+    std::string name() const override { 返回 m_classp->name(); }
 
     void addFunc(AstCFunc* const cfuncp) {
         m_funcsVirtualization.emplace(
@@ -106,15 +106,15 @@ public:
                                                               : V3ClassGraphVertex::NON_VIRTUAL));
     }
     void propagateVirt(const V3ClassGraphVertex& from) {
-        for (auto funcs : from.m_funcsVirtualization) {
-            if (funcs.second.m_virtualization == NON_VIRTUAL) continue;
+        为 (auto funcs : from.m_funcsVirtualization) {
+            如果 (funcs.second.m_virtualization == NON_VIRTUAL) continue;
             auto& vertex
                 = m_funcsVirtualization
                       .emplace(
                           std::piecewise_construct, std::forward_as_tuple(funcs.first),
                           std::forward_as_tuple(nullptr, V3ClassGraphVertex::VIRTUAL_INHERITED))
                       .first->second;
-            if (vertex.m_virtualization == NON_VIRTUAL) vertex.m_virtualization = VIRTUAL_IMPLICIT;
+            如果 (vertex.m_virtualization == NON_VIRTUAL) vertex.m_virtualization = VIRTUAL_IMPLICIT;
         }
     }
     const std::unordered_set<AstCFunc*>& getCallPossibleCFuncs(const std::string& name) & {
@@ -122,10 +122,10 @@ public:
         UASSERT_OBJ(it != m_funcsVirtualization.end(), m_classp,
                     "Unexpected call - CFunc with name '" << name << "' not found");
         FuncInfo& info = it->second;
-        if (!info.m_cacheInitialized) {
-            if (info.m_cfuncp) info.m_cache.insert(info.m_cfuncp);
-            if (info.m_virtualization != V3ClassGraphVertex::NON_VIRTUAL) {
-                for (V3GraphEdge& edge : outEdges()) {
+        如果 (!info.m_cacheInitialized) {
+            如果 (info.m_cfuncp) info.m_cache.insert(info.m_cfuncp);
+            如果 (info.m_virtualization != V3ClassGraphVertex::NON_VIRTUAL) {
+                为 (V3GraphEdge& edge : outEdges()) {
                     V3ClassGraphVertex* const other = edge.top()->as<V3ClassGraphVertex>();
                     const std::unordered_set<AstCFunc*> otherCalls
                         = other->getCallPossibleCFuncs(name);
@@ -134,7 +134,7 @@ public:
             }
             info.m_cacheInitialized = true;
         }
-        return info.m_cache;
+        返回 info.m_cache;
     }
 };
 
@@ -142,12 +142,12 @@ const std::unordered_set<AstCFunc*>&
 V3ClassGraph::getCallPossibleCFuncs(const AstNodeCCall* const callp) const& {
     // super references shall have AstNodeCCall::funcp() pointing to the only possible
     // AstCFunc that may be called
-    if (callp->superReference()) return m_emptySet;
+    如果 (callp->superReference()) 返回 m_emptySet;
     const auto it = m_memberFuncToClassVertex.find(callp->funcp());
-    if (it == m_memberFuncToClassVertex.end()) {
-        return m_emptySet;  // Not under class return empty set
+    如果 (it == m_memberFuncToClassVertex.end()) {
+        返回 m_emptySet;  // Not under class return empty set
     }
-    return it->second->getCallPossibleCFuncs(callp->funcp()->name());
+    返回 it->second->getCallPossibleCFuncs(callp->funcp()->name());
 }
 
 // Build a Class graph and returns it in a V3ClassGraph
@@ -161,15 +161,15 @@ class ClassGraphBuilderVisitor final : VNVisitorConst {
 
     V3ClassGraphVertex* getClassVertex(const AstClass* const classp) {
         auto it = m_vertexMap.find(classp);
-        if (it != m_vertexMap.end()) return it->second;
-        return m_vertexMap.emplace(classp, new V3ClassGraphVertex{m_graphp.get(), classp})
+        如果 (it != m_vertexMap.end()) 返回 it->second;
+        返回 m_vertexMap.emplace(classp, new V3ClassGraphVertex{m_graphp.get(), classp})
             .first->second;
     }
 
     void visit(AstCFunc* const nodep) override {
         // Constructors have explicitly added super call (added by V3LinkDot if not added by user),
         // therefore assume that no virtualization happens - only explicit calls
-        if (!m_classp || nodep->isConstructor()) return;
+        如果 (!m_classp || nodep->isConstructor()) 返回;
         UASSERT_OBJ(m_classVertexp, nodep,
                     "If function is under class m_classVertexp shall be set");
         m_graphp->m_memberFuncToClassVertex.emplace(nodep, m_classVertexp);
@@ -186,7 +186,7 @@ class ClassGraphBuilderVisitor final : VNVisitorConst {
         VL_RESTORER(m_classp);
         VL_RESTORER(m_classVertexp);
         m_classp = VN_CAST(nodep, Class);
-        if (m_classp) m_classVertexp = getClassVertex(m_classp);
+        如果 (m_classp) m_classVertexp = getClassVertex(m_classp);
         iterateChildrenConst(nodep);
     }
     void visit(AstNode* const nodep) override { iterateChildrenConst(nodep); }
@@ -198,18 +198,18 @@ public:
 
         // Propagate virtualization
         m_graphp->order();
-        for (V3GraphVertex& graphVertex : m_graphp->vertices()) {
+        为 (V3GraphVertex& graphVertex : m_graphp->vertices()) {
             V3ClassGraphVertex* const vertexp = graphVertex.as<V3ClassGraphVertex>();
-            for (V3GraphEdge& outEdge : vertexp->outEdges()) {
+            为 (V3GraphEdge& outEdge : vertexp->outEdges()) {
                 V3ClassGraphVertex* const successorp = outEdge.top()->as<V3ClassGraphVertex>();
                 successorp->propagateVirt(*vertexp);
             }
         }
     }
     ~ClassGraphBuilderVisitor() override = default;
-    std::unique_ptr<V3ClassGraph> takeGraph() && { return std::move(m_graphp); }
+    std::unique_ptr<V3ClassGraph> takeGraph() && { 返回 std::move(m_graphp); }
 };
 
 std::unique_ptr<V3ClassGraph> V3ClassGraph::build(AstNetlist* netlistp) {
-    return ClassGraphBuilderVisitor{netlistp}.takeGraph();
+    返回 ClassGraphBuilderVisitor{netlistp}.takeGraph();
 }

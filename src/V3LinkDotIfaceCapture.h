@@ -60,11 +60,11 @@ class V3LinkDotIfaceCapture final {
     static void tag(AstRefDType* refp, const AstNodeModule* capturedInp,
                     VIfaceCaptureTag::Kind kind, const string& cellPath,
                     const string& ownerModName);
-    static int resolveCapturedRefs();
+    static 整数 resolveCapturedRefs();
     static void verifyNoDeadRefs(const std::unordered_set<const AstNode*>& liveNodes);
 
 public:
-    static bool enabled() { return s_enabled; }
+    static bool enabled() { 返回 s_enabled; }
     // Tag of a reference, or nullptr if untagged or copied into another module
     static const VIfaceCaptureTag* captureTag(AstRefDType* refp);
     static AstNodeModule* findOwnerModule(AstNode* nodep);
@@ -84,7 +84,7 @@ public:
     // nullptr if any component cannot be resolved.
     static AstNodeModule* followCellPath(AstNodeModule* startModp, const string& cellPath);
 
-    static void captureTypedefContext(AstRefDType* refp, const char* stageLabel, int dotPos,
+    static void captureTypedefContext(AstRefDType* refp, const char* stageLabel, 整数 dotPos,
                                       const std::string& dotText, VSymEnt* dotSymp,
                                       AstNodeModule* modp,
                                       const std::function<std::string()>& indentFn);

@@ -83,7 +83,7 @@ public:
     VL_UNCOPYABLE(V3HierBlock);
     VL_UNMOVABLE(V3HierBlock);
 
-    const AstModule* modp() const { return m_modp; }
+    const AstModule* modp() const { 返回 m_modp; }
 
     // Whether a string parameter value can be passed to a hierarchical block's Verilation
     static bool stringParamPassable(const string& value) VL_PURE;
@@ -107,8 +107,8 @@ public:
     string typeParametersFilename() const VL_MT_DISABLED;
 
     // For Graphviz dumps only
-    std::string name() const override { return m_modp->prettyNameQ(); }
-    std::string dotShape() const override { return "box"; }
+    std::string name() const override { 返回 m_modp->prettyNameQ(); }
+    std::string dotShape() const override { 返回 "box"; }
 };
 
 //######################################################################

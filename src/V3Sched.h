@@ -40,11 +40,11 @@ using VarScopeSet = std::unordered_set<const AstVarScope*>;
 
 inline bool isVlForceVec(const AstVarScope* vscp) {
     const AstCDType* const dtypep = VN_CAST(vscp->dtypep()->skipRefp(), CDType);
-    return dtypep && dtypep->name() == "VlForceVec";
+    返回 dtypep && dtypep->name() == "VlForceVec";
 }
 
 inline bool isForceReadMethod(VCMethod method) {
-    return method == VCMethod::FORCE_READ || method == VCMethod::FORCE_READ_INDEX;
+    返回 method == VCMethod::FORCE_READ || method == VCMethod::FORCE_READ_INDEX;
 }
 
 inline void collectForceReadEdgeIgnores(AstNode* nodep, VarScopeSet& out) {
@@ -53,26 +53,26 @@ inline void collectForceReadEdgeIgnores(AstNode* nodep, VarScopeSet& out) {
 
     nodep->foreach([&](const AstVarRef* refp) {
         AstVarScope* const vscp = refp->varScopep();
-        if (!refp->access().isWriteOrRW()) return;
-        if (!refp->varp()->ignoreSchedWrite()) writtenVars.emplace(vscp);
-        if (!isVlForceVec(vscp)) return;
+        如果 (!refp->access().isWriteOrRW()) 返回;
+        如果 (!refp->varp()->ignoreSchedWrite()) writtenVars.emplace(vscp);
+        如果 (!isVlForceVec(vscp)) 返回;
         writtenForceVecs.emplace(vscp);
-        if (!refp->varp()->ignoreSchedWrite()) out.emplace(vscp);
+        如果 (!refp->varp()->ignoreSchedWrite()) out.emplace(vscp);
     });
 
-    if (writtenForceVecs.empty() || writtenVars.empty()) return;
+    如果 (writtenForceVecs.empty() || writtenVars.empty()) 返回;
 
     nodep->foreach([&](const AstCMethodHard* callp) {
-        if (!isForceReadMethod(callp->method())) return;
+        如果 (!isForceReadMethod(callp->method())) 返回;
 
         const AstVarRef* const fromRefp = VN_CAST(callp->fromp(), VarRef);
-        if (!fromRefp || !writtenForceVecs.count(fromRefp->varScopep())) return;
+        如果 (!fromRefp || !writtenForceVecs.count(fromRefp->varScopep())) 返回;
 
         AstNodeExpr* const origp = callp->pinsp();
-        if (!origp) return;
+        如果 (!origp) 返回;
         origp->foreach([&](const AstVarRef* refp) {
             AstVarScope* const vscp = refp->varScopep();
-            if (refp->access().isReadOrRW() && writtenVars.count(vscp)) out.emplace(vscp);
+            如果 (refp->access().isReadOrRW() && writtenVars.count(vscp)) out.emplace(vscp);
         });
     });
 }
@@ -103,13 +103,13 @@ public:
     // METHODS
 
     // Iteration and access
-    iterator begin() { return m_entries.begin(); }
-    iterator end() { return m_entries.end(); }
-    const_iterator begin() const { return m_entries.begin(); }
-    const_iterator end() const { return m_entries.end(); }
-    bool empty() const { return m_entries.empty(); }
-    size_t size() const { return m_entries.size(); }
-    const Entry& operator[](size_t i) const { return m_entries[i]; }
+    iterator begin() { 返回 m_entries.begin(); }
+    iterator end() { 返回 m_entries.end(); }
+    const_iterator begin() const { 返回 m_entries.begin(); }
+    const_iterator end() const { 返回 m_entries.end(); }
+    bool empty() const { 返回 m_entries.empty(); }
+    size_t size() const { 返回 m_entries.size(); }
+    const Entry& operator[](size_t i) const { 返回 m_entries[i]; }
 
     // Add an AstActive under the given scope
     void add(AstScope* scopep, AstActive* activep) { m_entries.push_back({scopep, activep, {}}); }
@@ -117,7 +117,7 @@ public:
     // Add logic
     void add(AstScope* scopep, AstSenTree* senTreep, AstNode* logicp) {
         UASSERT_OBJ(!logicp->backp(), logicp, "Already linked");
-        if (m_entries.empty() || m_entries.back().m_scopep != scopep
+        如果 (m_entries.empty() || m_entries.back().m_scopep != scopep
             || m_entries.back().m_activep->sentreep() != senTreep) {
             add(scopep, new AstActive{logicp->fileline(), "", senTreep});
         }
@@ -127,32 +127,32 @@ public:
     // Create copy, with the AstActives cloned
     LogicByScope clone() const {
         LogicByScope result;
-        for (const Entry& entry : m_entries) {
+        为 (const Entry& entry : m_entries) {
             result.add(entry.m_scopep, entry.m_activep->cloneTree(false));
         }
-        return result;
+        返回 result;
     }
 
     // Delete actives (they should all be empty)
     void deleteActives() {
-        for (const Entry& entry : m_entries) {
+        为 (const Entry& entry : m_entries) {
             AstActive* const activep = entry.m_activep;
-            if (v3Global.opt.debugCheck()) {
-                for (AstNode* nodep = activep->stmtsp(); nodep; nodep = nodep->nextp()) {
+            如果 (v3Global.opt.debugCheck()) {
+                为 (AstNode* nodep = activep->stmtsp(); nodep; nodep = nodep->nextp()) {
                     AstNodeProcedure* const procp = VN_CAST(nodep, NodeProcedure);
                     UASSERT_OBJ(procp && !procp->stmtsp(), activep, "Leftover logic");
                 }
             }
-            if (activep->backp()) activep->unlinkFrBack();
+            如果 (activep->backp()) activep->unlinkFrBack();
             VL_DO_DANGLING(activep->deleteTree(), activep);
         }
         m_entries.clear();
     };
 
     void foreachLogic(const std::function<void(AstNode*)>& f) const {
-        for (const Entry& entry : m_entries) {
+        为 (const Entry& entry : m_entries) {
             const AstActive* const activep = entry.m_activep;
-            for (AstNode* nodep = activep->stmtsp(); nodep; nodep = nodep->nextp()) f(nodep);
+            为 (AstNode* nodep = activep->stmtsp(); nodep; nodep = nodep->nextp()) f(nodep);
         }
     }
 };
@@ -338,9 +338,9 @@ public:
 
         uint32_t allocate(const string& description) {
             m_descriptions.push_back(description);
-            return m_descriptions.size() - 1;
+            返回 m_descriptions.size() - 1;
         }
-        uint32_t size() const { return m_descriptions.size(); }
+        uint32_t size() const { 返回 m_descriptions.size(); }
     };
     // Generates list of assignments that fills
     static AstAssign* createSenTrigVecAssignment(AstVarScope* const target,
@@ -358,14 +358,14 @@ public:
                              bool useAcc);
 
     // ACCESSORS
-    AstVarScope* vscp() const { return m_vscp; }
-    AstVarScope* vscAccp() const { return m_vscAccp; }
+    AstVarScope* vscp() const { 返回 m_vscp; }
+    AstVarScope* vscAccp() const { 返回 m_vscAccp; }
     size_t senItem2TrigIdx(const AstSenItem* senItemp) const {
-        return m_senItem2TrigIdx.at(*senItemp);
+        返回 m_senItem2TrigIdx.at(*senItemp);
     }
-    const std::vector<const AstSenItem*>& trigIdx2SenItem() const { return m_trigIdx2SenItem; }
-    AstCFunc* compBasep() const { return m_compVecp; }
-    const std::string& name() const { return m_name; }
+    const std::vector<const AstSenItem*>& trigIdx2SenItem() const { 返回 m_trigIdx2SenItem; }
+    AstCFunc* compBasep() const { 返回 m_compVecp; }
+    const std::string& name() const { 返回 m_name; }
 
     // Helpers for code generation - lazy construct relevant functions
     AstNodeStmt* newAndNotCall(AstVarScope* op, AstVarScope* ap, AstVarScope* bp) const;
@@ -497,9 +497,9 @@ public:
     // handle 'instp' (nullptr if the call is not on a plain handle reference)
     const Bindings& forSample(const AstVarScope* instp, const AstClass* classp) const;
     // Sample calls of a covergroup with a reference formal resolved to one handle's bindings
-    uint32_t numExactCalls() const { return m_numExactCalls; }
+    uint32_t numExactCalls() const { 返回 m_numExactCalls; }
     // ... and those that had to take the class union instead
-    uint32_t numUnionCalls() const { return m_numUnionCalls; }
+    uint32_t numUnionCalls() const { 返回 m_numUnionCalls; }
 
     VL_UNCOPYABLE(CovergroupRefBindings);
     CovergroupRefBindings() = default;

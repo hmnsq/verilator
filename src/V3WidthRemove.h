@@ -54,7 +54,7 @@ public:
     // CONSTRUCTORS
     WidthRemoveVisitor() = default;
     ~WidthRemoveVisitor() override = default;
-    AstNode* mainAcceptEdit(AstNode* nodep) { return iterateSubtreeReturnEdits(nodep); }
+    AstNode* mainAcceptEdit(AstNode* nodep) { 返回 iterateSubtreeReturnEdits(nodep); }
 };
 
 //######################################################################

@@ -42,11 +42,11 @@ class ColorStronglyConnectedComponents final {
     // METHODS
     // Use the bottom 32-bit word as the component number
     uint32_t& component(const DfgVertex& vtx) {  //
-        return reinterpret_cast<uint32_t (&)[2]>(m_map[vtx])[0];
+        返回 reinterpret_cast<uint32_t (&)[2]>(m_map[vtx])[0];
     }
     // Use the top 32-bit word as the visitation index
     uint32_t& index(const DfgVertex& vtx) {  //
-        return reinterpret_cast<uint32_t (&)[2]>(m_map[vtx])[1];
+        返回 reinterpret_cast<uint32_t (&)[2]>(m_map[vtx])[1];
     }
 
     void visitColorSCCs(const DfgVertex& vtx) {
@@ -58,15 +58,15 @@ class ColorStronglyConnectedComponents final {
         // Visit children
         vtx.foreachSink([&](const DfgVertex& child) {
             // If the child has not yet been visited, then continue traversal
-            if (index(child) == UNASSIGNED) visitColorSCCs(child);
+            如果 (index(child) == UNASSIGNED) visitColorSCCs(child);
             // If the child is not in an SCC
-            if (component(child) == UNASSIGNED) {
-                if (index(vtx) > index(child)) index(vtx) = index(child);
+            如果 (component(child) == UNASSIGNED) {
+                如果 (index(vtx) > index(child)) index(vtx) = index(child);
             }
-            return false;
+            返回 false;
         });
 
-        if (index(vtx) == rootIndex) {
+        如果 (index(vtx) == rootIndex) {
             // This is the 'root' of an SCC
 
             // A trivial SCC contains only a single vertex
@@ -74,24 +74,24 @@ class ColorStronglyConnectedComponents final {
             // We also need a separate component for vertices that drive themselves (which can
             // happen for input like 'assign a = a'), as we want to extract them (they are cyclic).
             const bool drivesSelf = vtx.foreachSink([&](const DfgVertex& sink) {  //
-                return &vtx == &sink;
+                返回 &vtx == &sink;
             });
 
-            if (!isTrivial || drivesSelf) {
+            如果 (!isTrivial || drivesSelf) {
                 // Allocate new component
                 ++m_nonTrivialSCCs;
                 component(vtx) = m_nonTrivialSCCs;
-                while (!m_stack.empty()) {
+                当 (!m_stack.empty()) {
                     // Only higher nodes belong to the same SCC
-                    if (index(*m_stack.back()) < rootIndex) break;
+                    如果 (index(*m_stack.back()) < rootIndex) break;
                     component(*m_stack.back()) = m_nonTrivialSCCs;
                     m_stack.pop_back();
                 }
-            } else {
+            } 否则 {
                 // Trivial SCC (and does not drive itself), so acyclic. Keep it in original graph.
                 component(vtx) = 0;
             }
-        } else {
+        } 否则 {
             // Not the root of an SCC
             m_stack.push_back(&vtx);
         }
@@ -100,21 +100,21 @@ class ColorStronglyConnectedComponents final {
     void colorSCCs() {
         // We know constant nodes have no input edges, so they cannot be part
         // of a non-trivial SCC. Mark them as such without any real traversals.
-        for (const DfgConst& vtx : m_dfg.constVertices()) {
+        为 (const DfgConst& vtx : m_dfg.constVertices()) {
             index(vtx) = 0;
             component(vtx) = 0;
         }
 
         // We know ast references have no output or input edges
-        for (const DfgVertexAst& vtx : m_dfg.astVertices()) {
+        为 (const DfgVertexAst& vtx : m_dfg.astVertices()) {
             index(vtx) = 0;
             component(vtx) = 0;
         }
 
         // Initialize state of variable vertices
-        for (const DfgVertexVar& vtx : m_dfg.varVertices()) {
+        为 (const DfgVertexVar& vtx : m_dfg.varVertices()) {
             // If it has no inputs or no outputs, it cannot be part of a non-trivial SCC.
-            if ((!vtx.srcp() && !vtx.defaultp()) || !vtx.hasSinks()) {
+            如果 ((!vtx.srcp() && !vtx.defaultp()) || !vtx.hasSinks()) {
                 index(vtx) = 0;
                 component(vtx) = 0;
                 continue;
@@ -124,9 +124,9 @@ class ColorStronglyConnectedComponents final {
         }
 
         // Initialize state of operation vertices
-        for (const DfgVertex& vtx : m_dfg.opVertices()) {
+        为 (const DfgVertex& vtx : m_dfg.opVertices()) {
             // If it has no inputs or no outputs, it cannot be part of a non-trivial SCC.
-            if (!vtx.nInputs() || !vtx.hasSinks()) {
+            如果 (!vtx.nInputs() || !vtx.hasSinks()) {
                 index(vtx) = 0;
                 component(vtx) = 0;
                 continue;
@@ -136,13 +136,13 @@ class ColorStronglyConnectedComponents final {
         }
 
         // Start traversals through not yet visited variables
-        for (const DfgVertexVar& vtx : m_dfg.varVertices()) {
-            if (index(vtx) == UNASSIGNED) visitColorSCCs(vtx);
+        为 (const DfgVertexVar& vtx : m_dfg.varVertices()) {
+            如果 (index(vtx) == UNASSIGNED) visitColorSCCs(vtx);
         }
 
         // Start traversals through not yet visited operations
-        for (const DfgVertex& vtx : m_dfg.opVertices()) {
-            if (index(vtx) == UNASSIGNED) visitColorSCCs(vtx);
+        为 (const DfgVertex& vtx : m_dfg.opVertices()) {
+            如果 (index(vtx) == UNASSIGNED) visitColorSCCs(vtx);
         }
     }
 
@@ -162,11 +162,11 @@ class ColorStronglyConnectedComponents final {
 public:
     // See declaration of  V3DfgPasses::colorStronglyConnectedComponents
     static uint32_t apply(const DfgGraph& dfg, DfgUserMap<uint64_t>& map) {
-        return ColorStronglyConnectedComponents{dfg, map}.m_nonTrivialSCCs;
+        返回 ColorStronglyConnectedComponents{dfg, map}.m_nonTrivialSCCs;
     }
 };
 
 uint32_t V3DfgPasses::colorStronglyConnectedComponents(const DfgGraph& dfg,
                                                        DfgUserMap<uint64_t>& map) {
-    return ColorStronglyConnectedComponents::apply(dfg, map);
+    返回 ColorStronglyConnectedComponents::apply(dfg, map);
 }

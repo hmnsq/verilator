@@ -42,17 +42,17 @@ VL_DEFINE_DEBUG_FUNCTIONS;
 // FileLineSingleton class functions
 
 string FileLineSingleton::filenameLetters(fileNameIdx_t fileno) VL_PURE {
-    constexpr int size
+    constexpr 整数 size
         = 1 + (64 / 4);  // Each letter retires more than 4 bits of a > 64 bit number
     char out[size];
     char* op = out + size - 1;
     *--op = '\0';  // We build backwards
-    int num = fileno;
+    整数 num = fileno;
     do {
         *--op = 'a' + num % 26;
         num /= 26;
-    } while (num);
-    return op;
+    } 当 (num);
+    返回 op;
 }
 
 //! Convert filenames to a filenameno
@@ -66,7 +66,7 @@ string FileLineSingleton::filenameLetters(fileNameIdx_t fileno) VL_PURE {
 FileLineSingleton::fileNameIdx_t FileLineSingleton::nameToNumber(const string& filename) {
     const auto pair = m_namemap.emplace(filename, 0);
     fileNameIdx_t& idx = pair.first->second;
-    if (pair.second) {
+    如果 (pair.second) {
         const size_t nextIdx = m_names.size();
         UASSERT(nextIdx <= std::numeric_limits<fileNameIdx_t>::max(),
                 "Too many input files (" + cvtToStr(nextIdx) + "+).");
@@ -74,17 +74,17 @@ FileLineSingleton::fileNameIdx_t FileLineSingleton::nameToNumber(const string& f
         m_names.push_back(filename);
         m_languages.push_back(V3LangCode::mostRecent());
     }
-    return idx;
+    返回 idx;
 }
 
 void FileLineSingleton::fileNameNumMapDumpJson(std::ostream& os) {
     std::string sep = "\n  ";
     os << "\"files\": {";
-    for (const auto& itr : m_namemap) {
+    为 (const auto& itr : m_namemap) {
         std::string filename = itr.first;
-        if (filename == V3Options::getStdPackagePath()) {
+        如果 (filename == V3Options::getStdPackagePath()) {
             filename = "<verilated_std>";
-        } else if (filename == V3Options::getStdWaiverPath()) {
+        } 否则 如果 (filename == V3Options::getStdWaiverPath()) {
             filename = "<verilated_std_waiver>";
         }
         os << sep << '"' << filenameLetters(itr.second) << '"' << ": {\"filename\":\"" << filename
@@ -101,19 +101,19 @@ FileLineSingleton::msgEnSetIdx_t FileLineSingleton::addMsgEnBitSet(const MsgEnBi
     const V3LockGuard lock{m_mutex};
     const auto pair = m_internedMsgEnIdxs.emplace(bitSet, 0);
     msgEnSetIdx_t& idx = pair.first->second;
-    if (pair.second) {
+    如果 (pair.second) {
         const size_t nextIdx = m_internedMsgEns.size();
         UASSERT(nextIdx <= std::numeric_limits<msgEnSetIdx_t>::max(),
                 "Too many unique message enable sets (" + cvtToStr(nextIdx) + "+).");
         idx = static_cast<msgEnSetIdx_t>(nextIdx);
         m_internedMsgEns.push_back(bitSet);
     }
-    return idx;
+    返回 idx;
 }
 
 FileLineSingleton::msgEnSetIdx_t FileLineSingleton::defaultMsgEnIndex() VL_MT_SAFE {
     MsgEnBitSet msgEnBitSet;
-    for (int i = V3ErrorCode::EC_MIN; i < V3ErrorCode::_ENUM_MAX; ++i) {
+    为 (整数 i = V3ErrorCode::EC_MIN; i < V3ErrorCode::_ENUM_MAX; ++i) {
         const V3ErrorCode code{i};
         // "-Wall" and the like only adjust the code subset, so use default enablement there
         msgEnBitSet.set(MsgEnBitSet::Subset::CODE, code, !code.defaultsOff());
@@ -121,7 +121,7 @@ FileLineSingleton::msgEnSetIdx_t FileLineSingleton::defaultMsgEnIndex() VL_MT_SA
         // default.  (V3Control also likewise creates with this)
         msgEnBitSet.set(MsgEnBitSet::Subset::CTRL, code, true);
     }
-    return addMsgEnBitSet(msgEnBitSet);
+    返回 addMsgEnBitSet(msgEnBitSet);
 }
 
 FileLineSingleton::msgEnSetIdx_t FileLineSingleton::msgEnSetBit(msgEnSetIdx_t setIdx,
@@ -130,24 +130,24 @@ FileLineSingleton::msgEnSetIdx_t FileLineSingleton::msgEnSetBit(msgEnSetIdx_t se
     // See if state matches existing
     bool same = true;
     code.forDelegateCodes([&](V3ErrorCode subcode) {
-        if (msgEn(setIdx).test(subset, subcode) != value) same = false;
+        如果 (msgEn(setIdx).test(subset, subcode) != value) same = false;
     });
-    if (same) return setIdx;
+    如果 (same) 返回 setIdx;
     // Make new mask of all delegated codes at once (to avoid extra indices if looped above this)
     MsgEnBitSet msgEnBitSet{msgEn(setIdx)};
     code.forDelegateCodes([&](V3ErrorCode subcode) { msgEnBitSet.set(subset, subcode, value); });
-    return addMsgEnBitSet(msgEnBitSet);
+    返回 addMsgEnBitSet(msgEnBitSet);
 }
 
 FileLineSingleton::msgEnSetIdx_t FileLineSingleton::msgSetCtrlBitSet(msgEnSetIdx_t setIdx,
                                                                      const VErrorBitSet& bitset) {
     const MsgEnBitSet::Subset subset = MsgEnBitSet::Subset::CTRL;
     // See if state matches existing
-    if (msgEn(setIdx).getAll(subset) == bitset) return setIdx;
+    如果 (msgEn(setIdx).getAll(subset) == bitset) 返回 setIdx;
     // Make new mask of all delegated codes at once (to avoid extra indices if looped above this)
     MsgEnBitSet msgEnBitSet{msgEn(setIdx)};
     msgEnBitSet.setAll(subset, bitset);
-    return addMsgEnBitSet(msgEnBitSet);
+    返回 addMsgEnBitSet(msgEnBitSet);
 }
 
 FileLineSingleton::msgEnSetIdx_t FileLineSingleton::msgEnAnd(msgEnSetIdx_t lhsIdx,
@@ -155,9 +155,9 @@ FileLineSingleton::msgEnSetIdx_t FileLineSingleton::msgEnAnd(msgEnSetIdx_t lhsId
     const MsgEnBitSet& lhs = msgEn(lhsIdx);
     const MsgEnBitSet& rhs = msgEn(rhsIdx);
     const MsgEnBitSet intersection{lhs, rhs};
-    if (intersection == lhs) return lhsIdx;
-    if (intersection == rhs) return rhsIdx;
-    return addMsgEnBitSet(intersection);
+    如果 (intersection == lhs) 返回 lhsIdx;
+    如果 (intersection == rhs) 返回 rhsIdx;
+    返回 addMsgEnBitSet(intersection);
 }
 
 // ######################################################################
@@ -165,7 +165,7 @@ FileLineSingleton::msgEnSetIdx_t FileLineSingleton::msgEnAnd(msgEnSetIdx_t lhsId
 
 void VFileContent::pushText(const string& text) {
     // Similar code in WildcardContents::pushText()
-    if (m_lines.size() == 0) {
+    如果 (m_lines.size() == 0) {
         m_lines.emplace_back("");  // no such thing as line [0]
         m_lines.emplace_back("");  // start with no leftover
     }
@@ -176,14 +176,14 @@ void VFileContent::pushText(const string& text) {
 
     // Insert line-by-line
     string::size_type line_start = 0;
-    while (true) {
+    当 (true) {
         const string::size_type line_end = leftover.find('\n', line_start);
-        if (line_end != string::npos) {
+        如果 (line_end != string::npos) {
             const string oneline(leftover, line_start, line_end - line_start + 1);
             m_lines.push_back(oneline);  // Keeps newline
             UINFO(9, "PushStream[ct" << m_id << "+" << (m_lines.size() - 1) << "]: " << oneline);
             line_start = line_end + 1;
-        } else {
+        } 否则 {
             break;
         }
     }
@@ -191,107 +191,107 @@ void VFileContent::pushText(const string& text) {
     m_lines.emplace_back(string(leftover, line_start));  // Might be ""
 }
 
-string VFileContent::getLine(int lineno) const VL_MT_SAFE {
+string VFileContent::getLine(整数 lineno) const VL_MT_SAFE {
     // Return error text rather than asserting so the user isn't left without a message
     // cppcheck-suppress negativeContainerIndex
-    if (VL_UNCOVERABLE(lineno < 0 || lineno >= (int)m_lines.size())) {
-        if (debug() || v3Global.opt.debugCheck()) {
-            return ("%Error-internal-contents-bad-ct" + cvtToStr(m_id) + "-ln" + cvtToStr(lineno));
-        } else {
-            return "";
+    如果 (VL_UNCOVERABLE(lineno < 0 || lineno >= (整数)m_lines.size())) {
+        如果 (debug() || v3Global.opt.debugCheck()) {
+            返回 ("%Error-internal-contents-bad-ct" + cvtToStr(m_id) + "-ln" + cvtToStr(lineno));
+        } 否则 {
+            返回 "";
         }
     }
     string text = m_lines[lineno];
     UINFO(9, "Get Stream[ct" << m_id << "+" << lineno << "]: " << text);
-    return text;
+    返回 text;
 }
 
 std::ostream& operator<<(std::ostream& os, VFileContent* contentp) {
-    if (!contentp) {
+    如果 (!contentp) {
         os << "ct0";
-    } else {
+    } 否则 {
         os << contentp->ascii();
     }
-    return os;
+    返回 os;
 }
 
 // ######################################################################
 //  FileLine class functions
 
 FileLine::~FileLine() {
-    if (m_contentp) VL_DO_DANGLING(m_contentp->refDec(), m_contentp);
+    如果 (m_contentp) VL_DO_DANGLING(m_contentp->refDec(), m_contentp);
 }
 
 void FileLine::newContent() {
-    if (m_contentp) VL_DO_DANGLING(m_contentp->refDec(), m_contentp);
+    如果 (m_contentp) VL_DO_DANGLING(m_contentp->refDec(), m_contentp);
     m_contentp = new VFileContent;
     m_contentp->refInc();
     m_contentLineno = 1;
 }
 
-string FileLine::lineDirectiveStrg(int enterExit) const {
-    return "`line "s + cvtToStr(lastLineno()) + " \""
+string FileLine::lineDirectiveStrg(整数 enterExit) const {
+    返回 "`line "s + cvtToStr(lastLineno()) + " \""
            + V3OutFormatter::quoteNameControls(filename()) + "\" " + cvtToStr(enterExit) + '\n';
 }
 
-void FileLine::lineDirective(const char* textp, int& enterExitRef) {
+void FileLine::lineDirective(const char* textp, 整数& enterExitRef) {
     string newFilename;
-    int newLineno = -1;
+    整数 newLineno = -1;
     lineDirectiveParse(textp, newFilename /*ref*/, newLineno /*ref*/, enterExitRef);
-    if (enterExitRef != -1) {
+    如果 (enterExitRef != -1) {
         filename(newFilename);
         lineno(newLineno);
-    } else {  // Advance line number to account for bogus `line
+    } 否则 {  // Advance line number to account for bogus `line
         linenoInc();
     }
 }
 
-void FileLine::lineDirectiveParse(const char* textp, string& filenameRef, int& linenoRef,
-                                  int& enterExitRef) {
+void FileLine::lineDirectiveParse(const char* textp, string& filenameRef, 整数& linenoRef,
+                                  整数& enterExitRef) {
     // Handle `line directive
     // Does not parse streamNumber/streamLineno as the next input token
     // will come from the same stream as the previous line.
     do {
         // Skip `line
-        while (*textp && std::isspace(*textp)) ++textp;
-        while (*textp && !std::isspace(*textp)) ++textp;
-        while (*textp && std::isspace(*textp)) ++textp;
+        当 (*textp && std::isspace(*textp)) ++textp;
+        当 (*textp && !std::isspace(*textp)) ++textp;
+        当 (*textp && std::isspace(*textp)) ++textp;
 
         // Grab linenumber
-        int lineNo;
+        整数 lineNo;
         const char* const ln = textp;
-        while (*textp && !std::isspace(*textp)) ++textp;
-        if (0 == strncmp(ln, "`__LINE__", textp - ln)) {
+        当 (*textp && !std::isspace(*textp)) ++textp;
+        如果 (0 == strncmp(ln, "`__LINE__", textp - ln)) {
             // Special case - see docs - don't change other than accounting for `line itself
             lineNo = lineno() + 1;
-        } else if (std::isdigit(*ln)) {
+        } 否则 如果 (std::isdigit(*ln)) {
             lineNo = std::atoi(ln);
-        } else {
+        } 否则 {
             break;  // Fail
         }
-        while (*textp && (std::isspace(*textp))) ++textp;
+        当 (*textp && (std::isspace(*textp))) ++textp;
 
         // Grab filename
-        if (*textp != '"') break;  // Fail
+        如果 (*textp != '"') break;  // Fail
         const char* const fn = ++textp;
-        while (*textp && *textp != '"') ++textp;
-        if (*textp != '"') break;  // Fail
+        当 (*textp && *textp != '"') ++textp;
+        如果 (*textp != '"') break;  // Fail
         string errMsg;
         const string& parsedFilename = VString::unquoteSVString(string{fn, textp}, errMsg);
-        if (!errMsg.empty()) this->v3error(errMsg.c_str());
+        如果 (!errMsg.empty()) this->v3error(errMsg.c_str());
         ++textp;
-        while (*textp && std::isspace(*textp)) ++textp;
+        当 (*textp && std::isspace(*textp)) ++textp;
 
         // Grab level
-        if (!std::isdigit(*textp)) break;  // Fail
-        const int level = std::atoi(textp);
-        if (level < 0 || level >= 3) break;  // Fail
+        如果 (!std::isdigit(*textp)) break;  // Fail
+        const 整数 level = std::atoi(textp);
+        如果 (level < 0 || level >= 3) break;  // Fail
 
         linenoRef = lineNo;
         filenameRef = parsedFilename;
         enterExitRef = level;
-        return;
-    } while (false);
+        返回;
+    } 当 (false);
 
     // Fail
     v3error("`line was not properly formed with '`line number \"filename\" level'\n");
@@ -299,14 +299,14 @@ void FileLine::lineDirectiveParse(const char* textp, string& filenameRef, int& l
 }
 
 void FileLine::forwardToken(const char* textp, size_t size, bool trackLines) {
-    static int s_tokenNum = 1;
+    static 整数 s_tokenNum = 1;
     m_tokenNum = s_tokenNum++;
-    for (const char* sp = textp; size && *sp; ++sp, --size) {
-        if (*sp == '\n') {
-            if (trackLines) linenoInc();
+    为 (const char* sp = textp; size && *sp; ++sp, --size) {
+        如果 (*sp == '\n') {
+            如果 (trackLines) linenoInc();
             m_lastColumn = 1;
-        } else if (VL_UNCOVERABLE(*sp == '\r')) {  // Generally stripped by preproc
-        } else {  // Tabs are considered one column; hence column means number of chars
+        } 否则 如果 (VL_UNCOVERABLE(*sp == '\r')) {  // Generally stripped by preproc
+        } 否则 {  // Tabs are considered one column; hence column means number of chars
             ++m_lastColumn;
         }
     }
@@ -320,7 +320,7 @@ void FileLine::applyIgnores() {
 
 FileLine* FileLine::copyOrSameFileLineApplied() {
     applyIgnores();
-    return copyOrSameFileLine();
+    返回 copyOrSameFileLine();
 }
 
 FileLine* FileLine::copyOrSameFileLine() {
@@ -329,69 +329,69 @@ FileLine* FileLine::copyOrSameFileLine() {
     // There are often more than one token per line, thus we use the
     // same pointer as long as we're on the same line, file & warn state.
     static FileLine* s_lastNewp = nullptr;
-    if (s_lastNewp && *s_lastNewp == *this) {  // Compares lineno, filename, etc
-        return s_lastNewp;
+    如果 (s_lastNewp && *s_lastNewp == *this) {  // Compares lineno, filename, etc
+        返回 s_lastNewp;
     }
     FileLine* const newp = new FileLine{this};
     s_lastNewp = newp;
-    return newp;
+    返回 newp;
 }
 
-string FileLine::filebasename() const VL_MT_SAFE { return V3Os::filenameNonDir(filename()); }
+string FileLine::filebasename() const VL_MT_SAFE { 返回 V3Os::filenameNonDir(filename()); }
 
-string FileLine::filebasenameNoExt() const { return V3Os::filenameNonDirExt(filename()); }
+string FileLine::filebasenameNoExt() const { 返回 V3Os::filenameNonDirExt(filename()); }
 
 string FileLine::firstColumnLetters() const VL_MT_SAFE {
     const char a = ((firstColumn() / 26) % 26) + 'a';
     const char b = (firstColumn() % 26) + 'a';
-    return string(1, a) + string(1, b);
+    返回 string(1, a) + string(1, b);
 }
 
 string FileLine::profileFuncname() const {
     // Return string that is OK as a function name - for profiling
     string name = filebasenameNoExt();
     string::size_type pos;
-    while ((pos = name.find_first_not_of(
+    当 ((pos = name.find_first_not_of(
                 "abcdefghijlkmnopqrstuvwxyzABCDEFGHIJLKMNOPQRSTUVWXYZ0123456789_"))
            != string::npos) {
         name.replace(pos, 1, "_");
     }
     name += "__l" + cvtToStr(lastLineno());
-    return name;
+    返回 name;
 }
 
 string FileLine::asciiLineCol() const {
-    return (cvtToStr(firstLineno()) + "-" + cvtToStr(lastLineno()) + ":" + cvtToStr(firstColumn())
+    返回 (cvtToStr(firstLineno()) + "-" + cvtToStr(lastLineno()) + ":" + cvtToStr(firstColumn())
             + "-" + cvtToStr(lastColumn()) + "[" + (m_contentp ? m_contentp->ascii() : "ct0") + "+"
             + cvtToStr(m_contentLineno) + "]");
 }
 string FileLine::ascii() const {
     // For most errors especially in the parser the lastLineno is more accurate than firstLineno
-    return filename() + ":" + cvtToStr(lastLineno()) + ":" + cvtToStr(firstColumn());
+    返回 filename() + ":" + cvtToStr(lastLineno()) + ":" + cvtToStr(firstColumn());
 }
 std::ostream& operator<<(std::ostream& os, FileLine* fileline) {
     os << fileline->ascii() << ": " << std::hex;
-    return (os);
+    返回 (os);
 }
 
 string FileLine::warnOffParse(const string& msgs, bool turnOff) {
     string result;
-    for (const string& msg : VString::split(msgs, ',')) {
+    为 (const string& msg : VString::split(msgs, ',')) {
         const V3ErrorCode code{msg};
-        if (!code.hardError()) {
+        如果 (!code.hardError()) {
             warnOff(code, turnOff);
             continue;
         }
         // Error if not suppressed
-        if (!v3Global.opt.isFuture(msg)) result = VString::dot(result, ",", msg);
+        如果 (!v3Global.opt.isFuture(msg)) result = VString::dot(result, ",", msg);
     }
-    return result;
+    返回 result;
 }
 
 bool FileLine::warnIsOff(V3ErrorCode code) const {
-    if (!msgEn().enabled(code)) return true;
-    if (!defaultFileLine().msgEn().enabled(code)) return true;  // Global overrides local
-    return false;
+    如果 (!msgEn().enabled(code)) 返回 true;
+    如果 (!defaultFileLine().msgEn().enabled(code)) 返回 true;  // Global overrides local
+    返回 false;
 }
 
 // cppverilator-suppress constParameter
@@ -401,29 +401,29 @@ void FileLine::v3errorEnd(std::ostringstream& sstr, const string& extra)
     // duplicate messages. Currently used for reporting instance name.
     std::ostringstream nsstr;  // sstr with fileline prefix and context
     std::ostringstream wsstr;  // sstr for waiver (no fileline) with context
-    if (lastLineno()) nsstr << V3Error::warnContextBegin() << this << V3Error::warnContextEnd();
+    如果 (lastLineno()) nsstr << V3Error::warnContextBegin() << this << V3Error::warnContextEnd();
     nsstr << sstr.str();
     wsstr << sstr.str();
     nsstr << '\n';
     wsstr << '\n';
     std::ostringstream extrass;  // extra spaced out for prefix
-    if (!extra.empty()) {
+    如果 (!extra.empty()) {
         extrass << V3Error::warnContextBegin() << std::setw(ascii().length()) << " " << ": "
                 << V3Error::warnContextEnd() << extra;
     }
-    if (warnIsOff(V3Error::s().errorCode())) {
+    如果 (warnIsOff(V3Error::s().errorCode())) {
         V3Error::s().suppressThisWarning();
-    } else {
-        if (!V3Error::s().errorContexted()) {
+    } 否则 {
+        如果 (!V3Error::s().errorContexted()) {
             const string add = warnContextPrimary();
             wsstr << add;
             nsstr << add;
         }
         const string waiverText = V3Error::stripMetaText(wsstr.str(), false);
         m_waive = V3Control::waive(this, V3Error::s().errorCode(), waiverText);
-        if (m_waive) {
+        如果 (m_waive) {
             V3Error::s().suppressThisWarning();
-        } else {
+        } 否则 {
             V3Waiver::addEntry(V3Error::s().errorCode(), filename(), waiverText);
         }
     }
@@ -431,81 +431,81 @@ void FileLine::v3errorEnd(std::ostringstream& sstr, const string& extra)
 }
 
 string FileLine::warnMore() const VL_REQUIRES(V3Error::s().m_mutex) {
-    if (lastLineno()) {
-        return V3Error::warnContextBegin() + V3Error::warnMore() + string(ascii().size(), ' ')
+    如果 (lastLineno()) {
+        返回 V3Error::warnContextBegin() + V3Error::warnMore() + string(ascii().size(), ' ')
                + ": " + V3Error::warnContextEnd();
-    } else {
-        return V3Error::warnMore();
+    } 否则 {
+        返回 V3Error::warnMore();
     }
 }
 string FileLine::warnOther() const VL_REQUIRES(V3Error::s().m_mutex) {
-    if (lastLineno()) {
-        return V3Error::s().warnRelated(this) + V3Error::warnContextBegin() + V3Error::warnMore()
+    如果 (lastLineno()) {
+        返回 V3Error::s().warnRelated(this) + V3Error::warnContextBegin() + V3Error::warnMore()
                + ascii() + ": " + V3Error::warnContextEnd();
-    } else {
-        return V3Error::warnMore();
+    } 否则 {
+        返回 V3Error::warnMore();
     }
 };
 
 string FileLine::source() const VL_MT_SAFE {
-    if (VL_UNCOVERABLE(!m_contentp)) {  // LCOV_EXCL_START
-        if (debug() || v3Global.opt.debugCheck()) {
+    如果 (VL_UNCOVERABLE(!m_contentp)) {  // LCOV_EXCL_START
+        如果 (debug() || v3Global.opt.debugCheck()) {
             // The newline here is to work around the " <line#> | "
-            return "\n%Error: internal tracking of file contents failed";
-        } else {
-            return "";
+            返回 "\n%Error: internal tracking of file contents failed";
+        } 否则 {
+            返回 "";
         }
     }  // LCOV_EXCL_STOP
-    return m_contentp->getLine(m_contentLineno);
+    返回 m_contentp->getLine(m_contentLineno);
 }
-string FileLine::sourcePrefix(int toColumn) const VL_MT_SAFE {
+string FileLine::sourcePrefix(整数 toColumn) const VL_MT_SAFE {
     const std::string src = source();
-    if (toColumn > static_cast<int>(src.length())) toColumn = static_cast<int>(src.length());
-    if (toColumn < 1) return "";
-    return src.substr(0, toColumn - 1);
+    如果 (toColumn > static_cast<整数>(src.length())) toColumn = static_cast<整数>(src.length());
+    如果 (toColumn < 1) 返回 "";
+    返回 src.substr(0, toColumn - 1);
 }
 string FileLine::prettySource() const VL_MT_SAFE {
     string out = source();
     // Drop ignore trailing newline
     const string::size_type pos = out.find('\n');
-    if (pos != string::npos) out = string(out, 0, pos);
+    如果 (pos != string::npos) out = string(out, 0, pos);
     // Column tracking counts tabs = 1, so match that when print source
-    return VString::spaceUnprintable(out);
+    返回 VString::spaceUnprintable(out);
 }
 
 string FileLine::warnContext() const {
-    if (!v3Global.opt.context()) return "";
-    if (firstLineno() == lastLineno() && firstColumn()) {
+    如果 (!v3Global.opt.context()) 返回 "";
+    如果 (firstLineno() == lastLineno() && firstColumn()) {
         const string sourceLine = prettySource();
         string out;
         // Don't show super-long lines as can fill screen and unlikely to help user
-        if (!sourceLine.empty() && sourceLine.length() < SHOW_SOURCE_MAX_LENGTH
+        如果 (!sourceLine.empty() && sourceLine.length() < SHOW_SOURCE_MAX_LENGTH
             && sourceLine.length() >= static_cast<size_t>(lastColumn() - 1)) {
             string linestr = cvtToStr(firstLineno());
-            while (linestr.size() < 5) linestr = ' ' + linestr;
+            当 (linestr.size() < 5) linestr = ' ' + linestr;
             out += linestr + " | " + sourceLine + '\n';
             out += std::string(linestr.size(), ' ') + " | ";
             out += string((firstColumn() - 1), ' ') + '^';
             // Can't use UASSERT_OBJ used in warnings already inside the error end handler
-            if (lastColumn() > firstColumn()) {
+            如果 (lastColumn() > firstColumn()) {
                 // Note lastColumn() can be <= firstColumn() in some weird preproc expansions
                 out += string((lastColumn() - firstColumn() - 1), '~');
             }
             out += '\n';
         }
-        return V3Error::warnContextBegin() + out + V3Error::warnContextEnd();
+        返回 V3Error::warnContextBegin() + out + V3Error::warnContextEnd();
     }
-    return "";
+    返回 "";
 }
 
 string FileLine::warnContextParent() const VL_REQUIRES(V3Error::s().m_mutex) {
     string result;
-    for (FileLine* parentFl = parent(); parentFl; parentFl = parentFl->parent()) {
-        if (parentFl->filenameIsGlobal()) break;
+    为 (FileLine* parentFl = parent(); parentFl; parentFl = parentFl->parent()) {
+        如果 (parentFl->filenameIsGlobal()) break;
         result += parentFl->warnOther() + "... note: In file included from '"
                   + parentFl->filebasename() + "'\n";
     }
-    return result;
+    返回 result;
 }
 
 #ifdef VL_LEAK_CHECKS
@@ -514,16 +514,16 @@ std::unordered_set<FileLine*> fileLineLeakChecks;
 void* FileLine::operator new(size_t size) {
     FileLine* const objp = static_cast<FileLine*>(::operator new(size));
     fileLineLeakChecks.insert(objp);
-    return objp;
+    返回 objp;
 }
 
 void FileLine::operator delete(void* objp, size_t size) {
-    if (!objp) return;
+    如果 (!objp) 返回;
     FileLine* const flp = static_cast<FileLine*>(objp);
     const auto it = fileLineLeakChecks.find(flp);
-    if (it != fileLineLeakChecks.end()) {
+    如果 (it != fileLineLeakChecks.end()) {
         fileLineLeakChecks.erase(it);
-    } else {
+    } 否则 {
         flp->v3fatalSrc("Deleting FileLine object that was never tracked");
     }
     ::operator delete(objp);
@@ -547,9 +547,9 @@ void FileLine::deleteAllRemaining() {
     // FileLines are allocated, but never nicely freed, as it's much faster
     // that way.  Unfortunately this makes our leak checking a big mess, so
     // only when leak checking we'll track them all and cleanup.
-    while (true) {
+    当 (true) {
         const auto it = fileLineLeakChecks.begin();
-        if (it == fileLineLeakChecks.end()) break;
+        如果 (it == fileLineLeakChecks.end()) break;
         delete *it;
         // Operator delete will remove the iterated object from the list.
         // Eventually the list will be empty and terminate the loop.
