@@ -17,16 +17,16 @@
 #ifndef VERILATOR_V3PREPROC_H_
 #define VERILATOR_V3PREPROC_H_
 
-#include "config_build.h"
-#include "verilatedos.h"
+#अन्तर्भाव "config_build.h"
+#अन्तर्भाव "verilatedos.h"
 
-#include "V3Error.h"
-#include "V3FileLine.h"
-#include "V3Global.h"
+#अन्तर्भाव "V3Error.h"
+#अन्तर्भाव "V3FileLine.h"
+#अन्तर्भाव "V3Global.h"
 
-#include <iostream>
-#include <list>
-#include <map>
+#अन्तर्भाव <iostream>
+#अन्तर्भाव <list>
+#अन्तर्भाव <map>
 
 class VInFilter;
 class VSpellCheck;
@@ -35,12 +35,12 @@ class V3PreProc VL_NOT_FINAL {
     // This defines a preprocessor.  Functions are virtual so implementation can be hidden.
     // After creating, call open(), then getline() in a loop.  The class will to the rest...
 
-protected:
+रक्षित:
     VL_DEFINE_DEBUG_FUNCTIONS;
 
-public:
+सार्वजनिक:
     // CONSTANTS
-    enum MiscConsts : int {
+    गणना MiscConsts : पूर्णाङ्क {
         DEFINE_RECURSION_LEVEL_MAX = 1000,  // How many `def substitutions before an error
         INCLUDE_DEPTH_MAX = 500,  // How many `includes deep before an error
         // Streams deep (sometimes `def deep) before an error.
@@ -51,51 +51,51 @@ public:
 
     // ACCESSORS
     // Insert given file into this point in input stream
-    virtual void openFile(FileLine* fileline, VInFilter* filterp, const string& filename) = 0;
-    virtual string getline() = 0;  // Return next line/lines. (Null if done.)
-    virtual bool isEof() const = 0;  // Return true on EOF.
-    virtual void insertUnreadback(const string& text) = 0;
+    आभास शून्य openFile(File_पंक्ति* fileline, VInFilter* filterp, ध्रुव string& filename) = 0;
+    आभास string getline() = 0;  // Return next line/lines. (Null if done.)
+    आभास bool isEof() ध्रुव = 0;  // Return true on EOF.
+    आभास शून्य जोड़ो_Unreadback(ध्रुव string& text) = 0;
 
-    FileLine* fileline() VL_MT_DISABLED;  ///< File/Line number for last getline call
+    File_पंक्ति* fileline() VL_MT_DISABLED;  ///< File/Line number for last getline call
 
     // CONTROL METHODS
     // These options control how the parsing proceeds
-    static int keepComments() { return 2; }  // Return comments, 0=no, 1=yes, 2=callback
-    static bool keepWhitespace() { return false; }
-    static bool lineDirectives() {  // Insert `line directives
-        return !(v3Global.opt.preprocOnly() && v3Global.opt.preprocNoLine());
+    स्थिर पूर्णाङ्क keepComments() { प्रत्यागम 2; }  // Return comments, 0=no, 1=yes, 2=callback
+    स्थिर bool keepWhitespace() { प्रत्यागम false; }
+    स्थिर bool पंक्ति_Directives() {  // Insert `line directives
+        प्रत्यागम !(v3Global.opt.preprocOnly() && v3Global.opt.preproc_No_पंक्ति());
     }
-    static bool pedantic() { return false; }  // Obey standard; Don't substitute `error
+    स्थिर bool pedantic() { प्रत्यागम false; }  // Obey standard; Don't substitute `error
 
     // CALLBACK METHODS
     // This probably will want to be overridden for given child users of this class.
-    virtual void comment(const string& cmt) = 0;  // Comment detected (if keepComments==2)
-    virtual void include(const string& filename) = 0;  // Request a include file be processed
+    आभास शून्य comment(ध्रुव string& cmt) = 0;  // Comment detected (if keepComments==2)
+    आभास शून्य include(ध्रुव string& filename) = 0;  // Request a include file be processed
 
-    virtual void undef(const string& name) = 0;  // Remove a definition
-    virtual void define(FileLine* fileline, const string& name, const string& value,
-                        const string& params = "",
+    आभास शून्य undef(ध्रुव string& name) = 0;  // Remove a definition
+    आभास शून्य define(File_पंक्ति* fileline, ध्रुव string& name, ध्रुव string& मूल्य,
+                        ध्रुव string& params = "",
                         bool cmdline = false)
         = 0;  // `define without any parameters
-    virtual void defineCmdLine(FileLine* fileline, const string& name,
-                               const string& value) {  // `define without any parameters
-        define(fileline, name, value, "", true);
+    आभास शून्य define_Cmd_पंक्ति(File_पंक्ति* fileline, ध्रुव string& name,
+                               ध्रुव string& मूल्य) {  // `define without any parameters
+        define(fileline, name, मूल्य, "", true);
     }
-    virtual string removeDefines(const string& text) = 0;  // Remove defines in a text string
+    आभास string removeDefines(ध्रुव string& text) = 0;  // Remove defines in a text string
 
     // UTILITIES
-    virtual void dumpDefines(std::ostream& os) = 0;  ///< Print list of `defines
-    virtual void candidateDefines(VSpellCheck* spellerp) = 0;  ///< Spell check candidate defines
+    आभास शून्य dumpDefines(std::ostream& os) = 0;  ///< Print list of `defines
+    आभास शून्य candidateDefines(VSpellCheck* spellerp) = 0;  ///< Spell check candidate defines
 
-protected:
+रक्षित:
     // CONSTRUCTORS
     V3PreProc() {}
-    void configure(FileLine* fl);
+    शून्य configure(File_पंक्ति* fl);
 
-public:
-    static V3PreProc* createPreProc(FileLine* fl) VL_MT_DISABLED;
-    virtual ~V3PreProc() = default;  // LCOV_EXCL_LINE  // Persistent
-    static void selfTest() VL_MT_DISABLED;
+सार्वजनिक:
+    स्थिर V3PreProc* createPreProc(File_पंक्ति* fl) VL_MT_DISABLED;
+    आभास ~V3PreProc() = स्वभाव;  // LCOV_EXCL_LINE  // Persistent
+    स्थिर शून्य selfTest() VL_MT_DISABLED;
 };
 
 #endif  // Guard
