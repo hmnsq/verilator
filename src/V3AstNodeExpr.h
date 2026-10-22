@@ -30,196 +30,196 @@
 //
 //*************************************************************************
 
-#ifndef VERILATOR_V3ASTNODEEXPR_H_
-#define VERILATOR_V3ASTNODEEXPR_H_
+#నిర్వచితం_కాకపోతే VERILATOR_V3ASTNODEEXPR_H_
+#నిర్వచించు VERILATOR_V3ASTNODEEXPR_H_
 
-#ifndef VERILATOR_V3AST_H_
-#error "Use V3Ast.h as the include"
-#include "V3Ast.h"  // This helps code analysis tools pick up symbols in V3Ast.h
-#define VL_NOT_FINAL  // This #define fixes broken code folding in the CLion IDE
-#endif
+#నిర్వచితం_కాకపోతే VERILATOR_V3AST_H_
+#దోషం "Use V3Ast.h as the include"
+#అన్తర్భావ "V3Ast.h"  // This helps code analysis tools pick up symbols in V3Ast.h
+#నిర్వచించు VL_NOT_FINAL  // This #define fixes broken code folding in the CLion IDE
+#అయితే_ముగింపు
 
 // === Abstract base node types (AstNode*) =====================================
 
-class AstNodeExpr VL_NOT_FINAL : public AstNode {
+class Ast_కణుపు_సమాసం VL_NOT_FINAL : బహిరంగ Ast_కణుపు {
     // An expression tree node
-protected:
-    AstNodeExpr(VNType t, FileLine* fl)
-        : AstNode{t, fl} {}
+రక్షిత:
+    Ast_కణుపు_సమాసం(VNType t, File_పంక్తి* fl)
+        : Ast_కణుపు{t, fl} {}
 
-public:
-    ASTGEN_MEMBERS_AstNodeExpr;
+బహిరంగ:
+    ASTGEN_MEMBERS_Ast_కణుపు_సమాసం;
     // METHODS
-    void dump(std::ostream& str) const override;
-    void dumpJson(std::ostream& str) const override;
+    శూన్య dump(std::ostream& str) స్థిరరాశి override;
+    శూన్య dumpJson(std::ostream& str) స్థిరరాశి override;
     // Every expression must have a data type after V3Width
-    bool hasDType() const override final VL_MT_SAFE { return true; }
-    virtual string emitVerilog() = 0;  /// Format string for verilog writing; see V3EmitV
+    bool hasDType() స్థిరరాశి override final VL_MT_సురక్షిత { తిరిగి true; }
+    మాయా string emitVerilog() = 0;  /// Format string for verilog writing; see V3EmitV
     // For documentation on emitC format see EmitCFunc::emitOpName
-    virtual string emitC() = 0;
-    virtual string emitSMT() const { return ""; };
-    virtual string emitSimpleOperator() { return ""; }  // "" means not ok to use
-    virtual bool emitCheckMaxWords() { return false; }  // Check VL_MULS_MAX_WORDS
-    virtual bool cleanOut() const = 0;  // True if output has extra upper bits zero
+    మాయా string emitC() = 0;
+    మాయా string emitSMT() స్థిరరాశి { తిరిగి ""; };
+    మాయా string emitSimpleOperator() { తిరిగి ""; }  // "" means not ok to use
+    మాయా bool emit_Check_Max_పదాలు() { తిరిగి false; }  // Check VL_MULS_MAX_WORDS
+    మాయా bool clean_బహిర్గతం() స్థిరరాశి = 0;  // True if output has extra upper bits zero
     // True for SVA multi-cycle sequence nodes (SExpr, SConsRep, etc.)
-    virtual bool isMultiCycleSva() const { return false; }
-    const AstNodeExpr* getVAccessTargetRecurse() const;
-    AstNodeExpr* getVAccessTargetRecurse() {
-        return const_cast<AstNodeExpr*>(  // casting constness away is safe since this function is
+    మాయా bool is_Multi_చక్రం_Sva() స్థిరరాశి { తిరిగి false; }
+    స్థిరరాశి Ast_కణుపు_సమాసం* get_VAccess_లక్ష్యం_Recurse() స్థిరరాశి;
+    Ast_కణుపు_సమాసం* get_VAccess_లక్ష్యం_Recurse() {
+        తిరిగి const_cast<Ast_కణుపు_సమాసం*>(  // casting constness away is safe since this function is
                                           // non-const itself therefore, caller guarantees that
                                           // this object is non-const
-            static_cast<const AstNodeExpr*>(this)->getVAccessTargetRecurse());
+            static_cast<స్థిరరాశి Ast_కణుపు_సమాసం*>(this)->get_VAccess_లక్ష్యం_Recurse());
     }
-    VAccess getVAccessRecurse() const;
+    VAccess getVAccessRecurse() స్థిరరాశి;
     // TODO: this actually means it's a write or RW, not that it's an LValue
-    bool isLValue() const { return getVAccessRecurse().isWriteOrRW(); }
+    bool isLValue() స్థిరరాశి { తిరిగి getVAccessRecurse().isWriteOrRW(); }
     // A constant value known at compile time: a Const, or a NodeCons of only constants
-    bool isConstantTree() const;
+    bool is_Constant_వృక్షం() స్థిరరాశి;
     // Return base var (or const) nodep dereferences
-    AstNode* baseFromp(bool overMembers);
+    Ast_కణుపు* పునాది_Fromp(bool overMembers);
 
     // Wrap This expression into an AstStmtExpr to denote it occurs in statement position
-    inline AstStmtExpr* makeStmt();
+    అంతఃవరుస Ast_Stmt_సమాసం* makeStmt();
     // Returns an error message if widthMin() is not correct otherwise returns nullptr like
     // broken()
-    virtual const char* widthMismatch() const VL_MT_STABLE { return nullptr; }
+    మాయా స్థిరరాశి అక్షరం* వెడల్పు_Mismatch() స్థిరరాశి VL_MT_STABLE { తిరిగి nullptr; }
 
     // S-expression inspired dump of node and operands for debugging
-    std::string patternString(uint32_t depth = 0) const;
-    bool isFourstateOrNoDtype() const {
-        if (!dtypep()) return true;
-        return dtypep()->skipRefp()->isFourstate();
+    std::string నమూనా_String(uint32_t లోతు = 0) స్థిరరాశి;
+    bool isFourstateOrNoDtype() స్థిరరాశి {
+        ఒకవేళ (!dtypep()) తిరిగి true;
+        తిరిగి dtypep()->skipRefp()->isFourstate();
     }
-    static bool isFourstateOrNoDtype(const AstNodeExpr* const expr1p) {
-        return expr1p->isFourstateOrNoDtype();
+    స్థిర bool isFourstateOrNoDtype(స్థిరరాశి Ast_కణుపు_సమాసం* స్థిరరాశి expr1p) {
+        తిరిగి expr1p->isFourstateOrNoDtype();
     }
-    static bool isFourstateOrNoDtype(const AstNodeExpr* const expr1p,
-                                     const AstNodeExpr* const expr2p) {
-        return expr1p->isFourstateOrNoDtype() || expr2p->isFourstateOrNoDtype();
+    స్థిర bool isFourstateOrNoDtype(స్థిరరాశి Ast_కణుపు_సమాసం* స్థిరరాశి expr1p,
+                                     స్థిరరాశి Ast_కణుపు_సమాసం* స్థిరరాశి expr2p) {
+        తిరిగి expr1p->isFourstateOrNoDtype() || expr2p->isFourstateOrNoDtype();
     }
-    static bool isFourstateOrNoDtype(const AstNodeExpr* const expr1p,
-                                     const AstNodeExpr* const expr2p,
-                                     const AstNodeExpr* const expr3p) {
-        return isFourstateOrNoDtype(expr1p, expr2p) || isFourstateOrNoDtype(expr3p);
+    స్థిర bool isFourstateOrNoDtype(స్థిరరాశి Ast_కణుపు_సమాసం* స్థిరరాశి expr1p,
+                                     స్థిరరాశి Ast_కణుపు_సమాసం* స్థిరరాశి expr2p,
+                                     స్థిరరాశి Ast_కణుపు_సమాసం* స్థిరరాశి expr3p) {
+        తిరిగి isFourstateOrNoDtype(expr1p, expr2p) || isFourstateOrNoDtype(expr3p);
     }
-    static bool isFourstateOrNoDtype(const AstNodeExpr* const expr1p,
-                                     const AstNodeExpr* const expr2p,
-                                     const AstNodeExpr* const expr3p,
-                                     const AstNodeExpr* const expr4p) {
-        return isFourstateOrNoDtype(expr1p, expr2p) || isFourstateOrNoDtype(expr3p, expr4p);
+    స్థిర bool isFourstateOrNoDtype(స్థిరరాశి Ast_కణుపు_సమాసం* స్థిరరాశి expr1p,
+                                     స్థిరరాశి Ast_కణుపు_సమాసం* స్థిరరాశి expr2p,
+                                     స్థిరరాశి Ast_కణుపు_సమాసం* స్థిరరాశి expr3p,
+                                     స్థిరరాశి Ast_కణుపు_సమాసం* స్థిరరాశి expr4p) {
+        తిరిగి isFourstateOrNoDtype(expr1p, expr2p) || isFourstateOrNoDtype(expr3p, expr4p);
     }
 };
-class AstNodeBiop VL_NOT_FINAL : public AstNodeExpr {
+class Ast_కణుపు_Biop VL_NOT_FINAL : బహిరంగ Ast_కణుపు_సమాసం {
     // Binary expression
     // @astgen op1 := lhsp : AstNodeExpr
     // @astgen op2 := rhsp : AstNodeExpr
     VIsCached m_purity;  // Pure state
 
-protected:
-    AstNodeBiop(VNType t, FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp)
-        : AstNodeExpr{t, fl} {
+రక్షిత:
+    Ast_కణుపు_Biop(VNType t, File_పంక్తి* fl, Ast_కణుపు_సమాసం* lhsp, Ast_కణుపు_సమాసం* rhsp)
+        : Ast_కణుపు_సమాసం{t, fl} {
         this->lhsp(lhsp);
         this->rhsp(rhsp);
     }
 
-public:
-    ASTGEN_MEMBERS_AstNodeBiop;
+బహిరంగ:
+    ASTGEN_MEMBERS_Ast_కణుపు_Biop;
     // METHODS
     // Set out to evaluation of a AstConst'ed
-    virtual void numberOperate(V3Number& out, const V3Number& lhs, const V3Number& rhs) = 0;
-    virtual bool cleanLhs() const = 0;  // True if LHS must have extra upper bits zero
-    virtual bool cleanRhs() const = 0;  // True if RHS must have extra upper bits zero
-    virtual bool sizeMattersLhs() const = 0;  // True if output result depends on lhs size
-    virtual bool sizeMattersRhs() const = 0;  // True if output result depends on rhs size
-    virtual bool doubleFlavor() const { return false; }  // D flavor of nodes with both flavors?
+    మాయా శూన్య సంఖ్య_నిర్వహించు(V3_సంఖ్య& బహిర్గతం, స్థిరరాశి V3_సంఖ్య& lhs, స్థిరరాశి V3_సంఖ్య& rhs) = 0;
+    మాయా bool cleanLhs() స్థిరరాశి = 0;  // True if LHS must have extra upper bits zero
+    మాయా bool cleanRhs() స్థిరరాశి = 0;  // True if RHS must have extra upper bits zero
+    మాయా bool కొలత_Matters_Lhs() స్థిరరాశి = 0;  // True if output result depends on lhs size
+    మాయా bool కొలత_Matters_Rhs() స్థిరరాశి = 0;  // True if output result depends on rhs size
+    మాయా bool doubleFlavor() స్థిరరాశి { తిరిగి false; }  // D flavor of nodes with both flavors?
     // Signed flavor of nodes with both flavors?
-    virtual bool signedFlavor() const { return false; }
-    virtual bool stringFlavor() const { return false; }  // N flavor of nodes with both flavors?
-    int instrCount() const override { return widthInstrs(); }
-    bool sameNode(const AstNode*) const override { return true; }
-    bool isPure() override;
-    const char* broken() const override;
+    మాయా bool signedFlavor() స్థిరరాశి { తిరిగి false; }
+    మాయా bool stringFlavor() స్థిరరాశి { తిరిగి false; }  // N flavor of nodes with both flavors?
+    పూర్ణాంకం instr_లెక్క() స్థిరరాశి override { తిరిగి వెడల్పు_Instrs(); }
+    bool same_కణుపు(స్థిరరాశి Ast_కణుపు*) స్థిరరాశి override { తిరిగి true; }
+    bool is_శుద్ధ() override;
+    స్థిరరాశి అక్షరం* broken() స్థిరరాశి override;
 
-private:
-    bool getPurityRecurse() const { return lhsp()->isPure() && rhsp()->isPure(); }
+అంతరంగ:
+    bool getPurityRecurse() స్థిరరాశి { తిరిగి lhsp()->is_శుద్ధ() && rhsp()->is_శుద్ధ(); }
 };
-class AstNodeBiCom VL_NOT_FINAL : public AstNodeBiop {
+class Ast_కణుపు_Bi_Com VL_NOT_FINAL : బహిరంగ Ast_కణుపు_Biop {
     // Binary expr with commutative properties
-protected:
-    AstNodeBiCom(VNType t, FileLine* fl, AstNodeExpr* lhs, AstNodeExpr* rhs)
-        : AstNodeBiop{t, fl, lhs, rhs} {}
+రక్షిత:
+    Ast_కణుపు_Bi_Com(VNType t, File_పంక్తి* fl, Ast_కణుపు_సమాసం* lhs, Ast_కణుపు_సమాసం* rhs)
+        : Ast_కణుపు_Biop{t, fl, lhs, rhs} {}
 
-public:
-    ASTGEN_MEMBERS_AstNodeBiCom;
+బహిరంగ:
+    ASTGEN_MEMBERS_Ast_కణుపు_Bi_Com;
 };
-class AstNodeBiComAsv VL_NOT_FINAL : public AstNodeBiCom {
+class Ast_కణుపు_Bi_Com_Asv VL_NOT_FINAL : బహిరంగ Ast_కణుపు_Bi_Com {
     // Binary expr with commutative & associative properties
-protected:
-    AstNodeBiComAsv(VNType t, FileLine* fl, AstNodeExpr* lhs, AstNodeExpr* rhs)
-        : AstNodeBiCom{t, fl, lhs, rhs} {}
+రక్షిత:
+    Ast_కణుపు_Bi_Com_Asv(VNType t, File_పంక్తి* fl, Ast_కణుపు_సమాసం* lhs, Ast_కణుపు_సమాసం* rhs)
+        : Ast_కణుపు_Bi_Com{t, fl, lhs, rhs} {}
 
-public:
-    ASTGEN_MEMBERS_AstNodeBiComAsv;
+బహిరంగ:
+    ASTGEN_MEMBERS_Ast_కణుపు_Bi_Com_Asv;
 };
-class AstNodeDistBiop VL_NOT_FINAL : public AstNodeBiop {
-public:
-    AstNodeDistBiop(VNType t, FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp)
-        : AstNodeBiop{t, fl, lhsp, rhsp} {
-        dtypeSetInteger2State();
+class Ast_కణుపు_Dist_Biop VL_NOT_FINAL : బహిరంగ Ast_కణుపు_Biop {
+బహిరంగ:
+    Ast_కణుపు_Dist_Biop(VNType t, File_పంక్తి* fl, Ast_కణుపు_సమాసం* lhsp, Ast_కణుపు_సమాసం* rhsp)
+        : Ast_కణుపు_Biop{t, fl, lhsp, rhsp} {
+        dtype_సమితి_Integer2_State();
     }
-    ASTGEN_MEMBERS_AstNodeDistBiop;
-    bool cleanOut() const override { return false; }
-    bool cleanLhs() const override { return false; }
-    bool cleanRhs() const override { return false; }
-    bool sizeMattersLhs() const override { return false; }
-    bool sizeMattersRhs() const override { return false; }
-    bool isSystemFunc() const override { return true; }
-    int instrCount() const override { return INSTR_COUNT_DBL_TRIG; }
-    void numberOperate(V3Number&, const V3Number&, const V3Number&) override { V3ERROR_NA; }
+    ASTGEN_MEMBERS_Ast_కణుపు_Dist_Biop;
+    bool clean_బహిర్గతం() స్థిరరాశి override { తిరిగి false; }
+    bool cleanLhs() స్థిరరాశి override { తిరిగి false; }
+    bool cleanRhs() స్థిరరాశి override { తిరిగి false; }
+    bool కొలత_Matters_Lhs() స్థిరరాశి override { తిరిగి false; }
+    bool కొలత_Matters_Rhs() స్థిరరాశి override { తిరిగి false; }
+    bool isSystemFunc() స్థిరరాశి override { తిరిగి true; }
+    పూర్ణాంకం instr_లెక్క() స్థిరరాశి override { తిరిగి INSTR_లెక్క_DBL_TRIG; }
+    శూన్య సంఖ్య_నిర్వహించు(V3_సంఖ్య&, స్థిరరాశి V3_సంఖ్య&, స్థిరరాశి V3_సంఖ్య&) override { V3ERROR_NA; }
 };
-class AstNodeSel VL_NOT_FINAL : public AstNodeBiop {
+class Ast_కణుపు_Sel VL_NOT_FINAL : బహిరంగ Ast_కణుపు_Biop {
     // Single bit range extraction, perhaps with non-constant selection or array selection
     // @astgen alias op1 := fromp // Expression we are indexing into
     // @astgen alias op2 := bitp // The index // TODO: rename to idxp
-protected:
-    AstNodeSel(VNType t, FileLine* fl, AstNodeExpr* fromp, AstNodeExpr* bitp)
-        : AstNodeBiop{t, fl, fromp, bitp} {}
+రక్షిత:
+    Ast_కణుపు_Sel(VNType t, File_పంక్తి* fl, Ast_కణుపు_సమాసం* fromp, Ast_కణుపు_సమాసం* bitp)
+        : Ast_కణుపు_Biop{t, fl, fromp, bitp} {}
 
-public:
-    ASTGEN_MEMBERS_AstNodeSel;
-    int bitConst() const;
+బహిరంగ:
+    ASTGEN_MEMBERS_Ast_కణుపు_Sel;
+    పూర్ణాంకం బిట్టు_Const() స్థిరరాశి;
 };
-class AstNodeStream VL_NOT_FINAL : public AstNodeBiop {
+class Ast_కణుపు_ప్రవాహం VL_NOT_FINAL : బహిరంగ Ast_కణుపు_Biop {
     // Verilog {rhs{lhs}} - Note rhsp() is the slice size, not the lhsp()
-protected:
-    AstNodeStream(VNType t, FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp)
-        : AstNodeBiop{t, fl, lhsp, rhsp} {
-        if (lhsp->dtypep()) {
-            dtypeSetBitOrLogicUnsized(lhsp->width(), lhsp->widthMin(), VSigning::UNSIGNED,
+రక్షిత:
+    Ast_కణుపు_ప్రవాహం(VNType t, File_పంక్తి* fl, Ast_కణుపు_సమాసం* lhsp, Ast_కణుపు_సమాసం* rhsp)
+        : Ast_కణుపు_Biop{t, fl, lhsp, rhsp} {
+        ఒకవేళ (lhsp->dtypep()) {
+            dtype_సమితి_బిట్టు_Or_Logic_Unsized(lhsp->వెడల్పు(), lhsp->వెడల్పు_Min(), VSigning::UNSIGNED,
                                       isFourstateOrNoDtype(lhsp, rhsp));
         }
     }
 
-public:
-    ASTGEN_MEMBERS_AstNodeStream;
+బహిరంగ:
+    ASTGEN_MEMBERS_Ast_కణుపు_ప్రవాహం;
 };
-class AstNodeSystemBiopD VL_NOT_FINAL : public AstNodeBiop {
-public:
-    AstNodeSystemBiopD(VNType t, FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp)
-        : AstNodeBiop{t, fl, lhsp, rhsp} {
-        dtypeSetDouble();
+class Ast_కణుపు_System_Biop_D VL_NOT_FINAL : బహిరంగ Ast_కణుపు_Biop {
+బహిరంగ:
+    Ast_కణుపు_System_Biop_D(VNType t, File_పంక్తి* fl, Ast_కణుపు_సమాసం* lhsp, Ast_కణుపు_సమాసం* rhsp)
+        : Ast_కణుపు_Biop{t, fl, lhsp, rhsp} {
+        dtype_సమితి_Double();
     }
-    ASTGEN_MEMBERS_AstNodeSystemBiopD;
-    bool cleanOut() const override { return false; }
-    bool cleanLhs() const override { return false; }
-    bool cleanRhs() const override { return false; }
-    bool sizeMattersLhs() const override { return false; }
-    bool sizeMattersRhs() const override { return false; }
-    bool isSystemFunc() const override { return true; }
-    int instrCount() const override { return INSTR_COUNT_DBL_TRIG; }
-    bool doubleFlavor() const override { return true; }
+    ASTGEN_MEMBERS_Ast_కణుపు_System_Biop_D;
+    bool clean_బహిర్గతం() స్థిరరాశి override { తిరిగి false; }
+    bool cleanLhs() స్థిరరాశి override { తిరిగి false; }
+    bool cleanRhs() స్థిరరాశి override { తిరిగి false; }
+    bool కొలత_Matters_Lhs() స్థిరరాశి override { తిరిగి false; }
+    bool కొలత_Matters_Rhs() స్థిరరాశి override { తిరిగి false; }
+    bool isSystemFunc() స్థిరరాశి override { తిరిగి true; }
+    పూర్ణాంకం instr_లెక్క() స్థిరరాశి override { తిరిగి INSTR_లెక్క_DBL_TRIG; }
+    bool doubleFlavor() స్థిరరాశి override { తిరిగి true; }
 };
-class AstNodeCCall VL_NOT_FINAL : public AstNodeExpr {
+class Ast_కణుపు_CCall VL_NOT_FINAL : బహిరంగ Ast_కణుపు_సమాసం {
     // A call of a C++ function, perhaps a AstCFunc or perhaps globally named
     // @astgen op2 := argsp : List[AstNodeExpr]  // Note: op1 used by some sub-types only
     //
@@ -228,56 +228,56 @@ class AstNodeCCall VL_NOT_FINAL : public AstNodeExpr {
     string m_argTypes;
     bool m_superReference = false;  // Called with super reference
 
-protected:
-    AstNodeCCall(VNType t, FileLine* fl, AstCFunc* funcp, AstNodeExpr* argsp = nullptr)
-        : AstNodeExpr{t, fl}
+రక్షిత:
+    Ast_కణుపు_CCall(VNType t, File_పంక్తి* fl, AstCFunc* funcp, Ast_కణుపు_సమాసం* argsp = nullptr)
+        : Ast_కణుపు_సమాసం{t, fl}
         , m_funcp{funcp} {
-        addArgsp(argsp);
+        కూడు_Argsp(argsp);
     }
 
-public:
-    ASTGEN_MEMBERS_AstNodeCCall;
-    void dump(std::ostream& str = std::cout) const override;
-    void dumpJson(std::ostream& str = std::cout) const override;
-    int instrCount() const override { return INSTR_COUNT_CALL; }
-    bool sameNode(const AstNode* samep) const override {
-        const AstNodeCCall* const asamep = VN_DBG_AS(samep, NodeCCall);
-        return (funcp() == asamep->funcp() && argTypes() == asamep->argTypes());
+బహిరంగ:
+    ASTGEN_MEMBERS_Ast_కణుపు_CCall;
+    శూన్య dump(std::ostream& str = std::cout) స్థిరరాశి override;
+    శూన్య dumpJson(std::ostream& str = std::cout) స్థిరరాశి override;
+    పూర్ణాంకం instr_లెక్క() స్థిరరాశి override { తిరిగి INSTR_లెక్క_CALL; }
+    bool same_కణుపు(స్థిరరాశి Ast_కణుపు* samep) స్థిరరాశి override {
+        స్థిరరాశి Ast_కణుపు_CCall* స్థిరరాశి asamep = VN_DBG_AS(samep, కణుపు_CCall);
+        తిరిగి (funcp() == asamep->funcp() && argTypes() == asamep->argTypes());
     }
-    bool isGateOptimizable() const override { return false; }
-    bool isPredictOptimizable() const override { return false; }
-    bool isPure() override;
-    bool isOutputter() override { return !isPure(); }
-    AstCFunc* funcp() const { return m_funcp; }
-    void funcp(AstCFunc* funcp) { m_funcp = funcp; }
-    string argTypes() const { return m_argTypes; }
-    void argTypes(const string& str) { m_argTypes = str; }
-    bool isUnlikely() const override { return m_funcp && m_funcp->isUnlikely(); }
+    bool isGateOptimizable() స్థిరరాశి override { తిరిగి false; }
+    bool isPredictOptimizable() స్థిరరాశి override { తిరిగి false; }
+    bool is_శుద్ధ() override;
+    bool isOutputter() override { తిరిగి !is_శుద్ధ(); }
+    AstCFunc* funcp() స్థిరరాశి { తిరిగి m_funcp; }
+    శూన్య funcp(AstCFunc* funcp) { m_funcp = funcp; }
+    string argTypes() స్థిరరాశి { తిరిగి m_argTypes; }
+    శూన్య argTypes(స్థిరరాశి string& str) { m_argTypes = str; }
+    bool isUnlikely() స్థిరరాశి override { తిరిగి m_funcp && m_funcp->isUnlikely(); }
     string emitVerilog() final override { V3ERROR_NA_RETURN(""); }
     string emitC() final override { V3ERROR_NA_RETURN(""); }
-    bool cleanOut() const final override { return true; }
-    bool superReference() const { return m_superReference; }
-    void superReference(bool flag) { m_superReference = flag; }
+    bool clean_బహిర్గతం() స్థిరరాశి final override { తిరిగి true; }
+    bool superReference() స్థిరరాశి { తిరిగి m_superReference; }
+    శూన్య superReference(bool flag) { m_superReference = flag; }
 };
-class AstNodeCons VL_NOT_FINAL : public AstNodeExpr {
+class Ast_కణుపు_Cons VL_NOT_FINAL : బహిరంగ Ast_కణుపు_సమాసం {
     // Construct a value of an aggregate type
-    friend class AstNodeExpr;  // For m_knownConstantTree
-    mutable bool m_knownConstantTree = false;  // Known to be 'this->isConstantTree() == true'
+    మిత్ర class Ast_కణుపు_సమాసం;  // For m_knownConstantTree
+    mutable bool m_తెలిసిన_Constant_వృక్షం = false;  // Known to be 'this->isConstantTree() == true'
 
-protected:
-    AstNodeCons(VNType t, FileLine* fl)
-        : AstNodeExpr{t, fl} {}
+రక్షిత:
+    Ast_కణుపు_Cons(VNType t, File_పంక్తి* fl)
+        : Ast_కణుపు_సమాసం{t, fl} {}
 
-public:
-    ASTGEN_MEMBERS_AstNodeCons;
-    void dump(std::ostream& str) const override;
-    void dumpJson(std::ostream& str) const override;
+బహిరంగ:
+    ASTGEN_MEMBERS_Ast_కణుపు_Cons;
+    శూన్య dump(std::ostream& str) స్థిరరాశి override;
+    శూన్య dumpJson(std::ostream& str) స్థిరరాశి override;
     std::string emitVerilog() final override { V3ERROR_NA_RETURN(""); }
     std::string emitC() final override { V3ERROR_NA_RETURN(""); }
-    bool cleanOut() const final override { return true; }
-    int instrCount() const final override { return widthInstrs(); }
+    bool clean_బహిర్గతం() స్థిరరాశి final override { తిరిగి true; }
+    పూర్ణాంకం instr_లెక్క() స్థిరరాశి final override { తిరిగి వెడల్పు_Instrs(); }
 };
-class AstNodeFTaskRef VL_NOT_FINAL : public AstNodeExpr {
+class Ast_కణుపు_FTask_Ref VL_NOT_FINAL : బహిరంగ Ast_కణుపు_సమాసం {
     // A reference to a task (or function)
     // op1 used by some sub-types only
     // @astgen op2 := argsp : List[AstArg]
@@ -286,65 +286,65 @@ class AstNodeFTaskRef VL_NOT_FINAL : public AstNodeExpr {
     //
     // @astgen ptr := m_taskp : Optional[AstNodeFTask]  // [AfterLink] Pointer to task referenced
     // @astgen ptr := m_classOrPackagep : Optional[AstNodeModule]  // Class/package of the task
-    ASTGEN_MEMBERS_AstNodeFTaskRef;  // Gen pointers before other members for performance
-private:
+    ASTGEN_MEMBERS_Ast_కణుపు_FTask_Ref;  // Gen pointers before other members for performance
+అంతరంగ:
     string m_name;  // Name of variable
     string m_dotted;  // Dotted part of scope the name()ed task/func is under or ""
     string m_inlinedDots;  // Dotted hierarchy flattened out
-    bool m_containsGenBlock = false;  // Contains gen block reference
+    bool m_కలిగియుంది_Gen_ఖండం = false;  // Contains gen block reference
     bool m_pli = false;  // Pli system call ($name)
     bool m_superReference = false;  // Called with super reference
     VIsCached m_purity;  // Pure state
 
-protected:
-    AstNodeFTaskRef(VNType t, FileLine* fl, const string& name, AstArg* argsp)
-        : AstNodeExpr{t, fl}
+రక్షిత:
+    Ast_కణుపు_FTask_Ref(VNType t, File_పంక్తి* fl, స్థిరరాశి string& name, AstArg* argsp)
+        : Ast_కణుపు_సమాసం{t, fl}
         , m_name{name} {
-        addArgsp(argsp);
+        కూడు_Argsp(argsp);
     }
 
-public:
-    const char* broken() const override;
-    void dump(std::ostream& str = std::cout) const override;
-    void dumpJson(std::ostream& str = std::cout) const override;
-    string name() const override VL_MT_STABLE { return m_name; }  // * = Var name
-    bool isGateOptimizable() const override;
-    string dotted() const { return m_dotted; }  // * = Scope name or ""
-    string inlinedDots() const { return m_inlinedDots; }
-    void inlinedDots(const string& flag) { m_inlinedDots = flag; }
-    AstNodeFTask* taskp() const { return m_taskp; }  // [After Link] Pointer to variable
-    void taskp(AstNodeFTask* taskp) { m_taskp = taskp; }
-    void name(const string& name) override { m_name = name; }
-    void dotted(const string& name) { m_dotted = name; }
-    AstNodeModule* classOrPackagep() const { return m_classOrPackagep; }
-    void classOrPackagep(AstNodeModule* nodep) { m_classOrPackagep = nodep; }
-    bool containsGenBlock() const { return m_containsGenBlock; }
-    void containsGenBlock(const bool flag) { m_containsGenBlock = flag; }
-    bool pli() const { return m_pli; }
-    void pli(bool flag) { m_pli = flag; }
-    bool superReference() const { return m_superReference; }
-    void superReference(bool flag) { m_superReference = flag; }
-    bool isPure() override;
-    bool isUnlikely() const override { return m_taskp && m_taskp->isUnlikely(); }
-    bool sameNode(const AstNode* samep) const override {
-        const AstNodeFTaskRef* const asamep = VN_DBG_AS(samep, NodeFTaskRef);
-        return taskp() == asamep->taskp()  //
+బహిరంగ:
+    స్థిరరాశి అక్షరం* broken() స్థిరరాశి override;
+    శూన్య dump(std::ostream& str = std::cout) స్థిరరాశి override;
+    శూన్య dumpJson(std::ostream& str = std::cout) స్థిరరాశి override;
+    string name() స్థిరరాశి override VL_MT_STABLE { తిరిగి m_name; }  // * = Var name
+    bool isGateOptimizable() స్థిరరాశి override;
+    string dotted() స్థిరరాశి { తిరిగి m_dotted; }  // * = Scope name or ""
+    string inlinedDots() స్థిరరాశి { తిరిగి m_inlinedDots; }
+    శూన్య inlinedDots(స్థిరరాశి string& flag) { m_inlinedDots = flag; }
+    Ast_కణుపు_FTask* taskp() స్థిరరాశి { తిరిగి m_taskp; }  // [After Link] Pointer to variable
+    శూన్య taskp(Ast_కణుపు_FTask* taskp) { m_taskp = taskp; }
+    శూన్య name(స్థిరరాశి string& name) override { m_name = name; }
+    శూన్య dotted(స్థిరరాశి string& name) { m_dotted = name; }
+    Ast_కణుపు_Module* classOrPackagep() స్థిరరాశి { తిరిగి m_classOrPackagep; }
+    శూన్య classOrPackagep(Ast_కణుపు_Module* nodep) { m_classOrPackagep = nodep; }
+    bool కలిగియుంది_Gen_ఖండం() స్థిరరాశి { తిరిగి m_కలిగియుంది_Gen_ఖండం; }
+    శూన్య కలిగియుంది_Gen_ఖండం(స్థిరరాశి bool flag) { m_కలిగియుంది_Gen_ఖండం = flag; }
+    bool pli() స్థిరరాశి { తిరిగి m_pli; }
+    శూన్య pli(bool flag) { m_pli = flag; }
+    bool superReference() స్థిరరాశి { తిరిగి m_superReference; }
+    శూన్య superReference(bool flag) { m_superReference = flag; }
+    bool is_శుద్ధ() override;
+    bool isUnlikely() స్థిరరాశి override { తిరిగి m_taskp && m_taskp->isUnlikely(); }
+    bool same_కణుపు(స్థిరరాశి Ast_కణుపు* samep) స్థిరరాశి override {
+        స్థిరరాశి Ast_కణుపు_FTask_Ref* స్థిరరాశి asamep = VN_DBG_AS(samep, కణుపు_FTask_Ref);
+        తిరిగి taskp() == asamep->taskp()  //
                && classOrPackagep() == asamep->classOrPackagep()  //
                && name() == asamep->name()  //
                && dotted() == asamep->dotted()  //
                && inlinedDots() == asamep->inlinedDots()  //
                && pli() == asamep->pli()  //
-               && containsGenBlock() == asamep->containsGenBlock()
+               && కలిగియుంది_Gen_ఖండం() == asamep->కలిగియుంది_Gen_ఖండం()
                && superReference() == asamep->superReference();
     }
     string emitVerilog() final override { V3ERROR_NA_RETURN(""); }
     string emitC() final override { V3ERROR_NA_RETURN(""); }
-    bool cleanOut() const final override { V3ERROR_NA_RETURN(true); }
+    bool clean_బహిర్గతం() స్థిరరాశి final override { V3ERROR_NA_RETURN(true); }
 
-private:
-    bool getPurityRecurse() const;
+అంతరంగ:
+    bool getPurityRecurse() స్థిరరాశి;
 };
-class AstNodePreSel VL_NOT_FINAL : public AstNodeExpr {
+class Ast_కణుపు_Pre_Sel VL_NOT_FINAL : బహిరంగ Ast_కణుపు_సమాసం {
     // Something that becomes an AstSel
     // @astgen op1 := fromp : AstNodeExpr
     // @astgen op2 := rhsp : AstNodeExpr
@@ -352,31 +352,31 @@ class AstNodePreSel VL_NOT_FINAL : public AstNodeExpr {
     // @astgen op4 := attrp : Optional[AstAttrOf]
     VIsCached m_purity;  // Pure state
 
-protected:
-    AstNodePreSel(VNType t, FileLine* fl, AstNodeExpr* fromp, AstNodeExpr* rhsp, AstNodeExpr* thsp)
-        : AstNodeExpr{t, fl} {
+రక్షిత:
+    Ast_కణుపు_Pre_Sel(VNType t, File_పంక్తి* fl, Ast_కణుపు_సమాసం* fromp, Ast_కణుపు_సమాసం* rhsp, Ast_కణుపు_సమాసం* thsp)
+        : Ast_కణుపు_సమాసం{t, fl} {
         this->fromp(fromp);
         this->rhsp(rhsp);
         this->thsp(thsp);
     }
 
-public:
-    ASTGEN_MEMBERS_AstNodePreSel;
+బహిరంగ:
+    ASTGEN_MEMBERS_Ast_కణుపు_Pre_Sel;
     // METHODS
-    bool sameNode(const AstNode*) const override { return true; }
+    bool same_కణుపు(స్థిరరాశి Ast_కణుపు*) స్థిరరాశి override { తిరిగి true; }
 
     string emitVerilog() final override { V3ERROR_NA_RETURN(""); }
     string emitC() final override { V3ERROR_NA_RETURN(""); }
-    bool cleanOut() const final override { V3ERROR_NA_RETURN(true); }
-    bool isPure() override;
-    const char* broken() const override;
+    bool clean_బహిర్గతం() స్థిరరాశి final override { V3ERROR_NA_RETURN(true); }
+    bool is_శుద్ధ() override;
+    స్థిరరాశి అక్షరం* broken() స్థిరరాశి override;
 
-private:
-    bool getPurityRecurse() const {
-        return fromp()->isPure() && rhsp()->isPure() && (!thsp() || thsp()->isPure());
+అంతరంగ:
+    bool getPurityRecurse() స్థిరరాశి {
+        తిరిగి fromp()->is_శుద్ధ() && rhsp()->is_శుద్ధ() && (!thsp() || thsp()->is_శుద్ధ());
     }
 };
-class AstNodeQuadop VL_NOT_FINAL : public AstNodeExpr {
+class Ast_కణుపు_Quadop VL_NOT_FINAL : బహిరంగ Ast_కణుపు_సమాసం {
     // 4-ary expression
     // @astgen op1 := lhsp : AstNodeExpr
     // @astgen op2 := rhsp : AstNodeExpr
@@ -384,218 +384,218 @@ class AstNodeQuadop VL_NOT_FINAL : public AstNodeExpr {
     // @astgen op4 := fhsp : AstNodeExpr
     VIsCached m_purity;  // Pure state
 
-protected:
-    AstNodeQuadop(VNType t, FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp, AstNodeExpr* thsp,
-                  AstNodeExpr* fhsp)
-        : AstNodeExpr{t, fl} {
+రక్షిత:
+    Ast_కణుపు_Quadop(VNType t, File_పంక్తి* fl, Ast_కణుపు_సమాసం* lhsp, Ast_కణుపు_సమాసం* rhsp, Ast_కణుపు_సమాసం* thsp,
+                  Ast_కణుపు_సమాసం* fhsp)
+        : Ast_కణుపు_సమాసం{t, fl} {
         this->lhsp(lhsp);
         this->rhsp(rhsp);
         this->thsp(thsp);
         this->fhsp(fhsp);
     }
 
-public:
-    ASTGEN_MEMBERS_AstNodeQuadop;
+బహిరంగ:
+    ASTGEN_MEMBERS_Ast_కణుపు_Quadop;
     // METHODS
     // Set out to evaluation of a AstConst'ed
-    virtual void numberOperate(V3Number& out, const V3Number& lhs, const V3Number& rhs,
-                               const V3Number& ths, const V3Number& fhs)
+    మాయా శూన్య సంఖ్య_నిర్వహించు(V3_సంఖ్య& బహిర్గతం, స్థిరరాశి V3_సంఖ్య& lhs, స్థిరరాశి V3_సంఖ్య& rhs,
+                               స్థిరరాశి V3_సంఖ్య& ths, స్థిరరాశి V3_సంఖ్య& fhs)
         = 0;
-    virtual bool cleanLhs() const = 0;  // True if LHS must have extra upper bits zero
-    virtual bool cleanRhs() const = 0;  // True if RHS must have extra upper bits zero
-    virtual bool cleanThs() const = 0;  // True if THS must have extra upper bits zero
-    virtual bool cleanFhs() const = 0;  // True if THS must have extra upper bits zero
-    virtual bool sizeMattersLhs() const = 0;  // True if output result depends on lhs size
-    virtual bool sizeMattersRhs() const = 0;  // True if output result depends on rhs size
-    virtual bool sizeMattersThs() const = 0;  // True if output result depends on ths size
-    virtual bool sizeMattersFhs() const = 0;  // True if output result depends on ths size
-    int instrCount() const override { return widthInstrs(); }
-    bool sameNode(const AstNode*) const override { return true; }
-    bool isPure() override;
-    const char* broken() const override;
+    మాయా bool cleanLhs() స్థిరరాశి = 0;  // True if LHS must have extra upper bits zero
+    మాయా bool cleanRhs() స్థిరరాశి = 0;  // True if RHS must have extra upper bits zero
+    మాయా bool cleanThs() స్థిరరాశి = 0;  // True if THS must have extra upper bits zero
+    మాయా bool cleanFhs() స్థిరరాశి = 0;  // True if THS must have extra upper bits zero
+    మాయా bool కొలత_Matters_Lhs() స్థిరరాశి = 0;  // True if output result depends on lhs size
+    మాయా bool కొలత_Matters_Rhs() స్థిరరాశి = 0;  // True if output result depends on rhs size
+    మాయా bool కొలత_Matters_Ths() స్థిరరాశి = 0;  // True if output result depends on ths size
+    మాయా bool కొలత_Matters_Fhs() స్థిరరాశి = 0;  // True if output result depends on ths size
+    పూర్ణాంకం instr_లెక్క() స్థిరరాశి override { తిరిగి వెడల్పు_Instrs(); }
+    bool same_కణుపు(స్థిరరాశి Ast_కణుపు*) స్థిరరాశి override { తిరిగి true; }
+    bool is_శుద్ధ() override;
+    స్థిరరాశి అక్షరం* broken() స్థిరరాశి override;
 
-private:
-    bool getPurityRecurse() const {
-        return lhsp()->isPure() && rhsp()->isPure() && thsp()->isPure() && fhsp()->isPure();
+అంతరంగ:
+    bool getPurityRecurse() స్థిరరాశి {
+        తిరిగి lhsp()->is_శుద్ధ() && rhsp()->is_శుద్ధ() && thsp()->is_శుద్ధ() && fhsp()->is_శుద్ధ();
     }
 };
-class AstNodeTermop VL_NOT_FINAL : public AstNodeExpr {
+class Ast_కణుపు_Termop VL_NOT_FINAL : బహిరంగ Ast_కణుపు_సమాసం {
     // Terminal operator -- an operator with no "inputs"
-protected:
-    AstNodeTermop(VNType t, FileLine* fl)
-        : AstNodeExpr{t, fl} {}
+రక్షిత:
+    Ast_కణుపు_Termop(VNType t, File_పంక్తి* fl)
+        : Ast_కణుపు_సమాసం{t, fl} {}
 
-public:
-    ASTGEN_MEMBERS_AstNodeTermop;
-    bool isSystemFunc() const override { return true; }
+బహిరంగ:
+    ASTGEN_MEMBERS_Ast_కణుపు_Termop;
+    bool isSystemFunc() స్థిరరాశి override { తిరిగి true; }
 };
-class AstNodeTriop VL_NOT_FINAL : public AstNodeExpr {
+class Ast_కణుపు_Triop VL_NOT_FINAL : బహిరంగ Ast_కణుపు_సమాసం {
     // Ternary expression
     // @astgen op1 := lhsp : AstNodeExpr
     // @astgen op2 := rhsp : AstNodeExpr
     // @astgen op3 := thsp : AstNodeExpr
     VIsCached m_purity;  // Pure state
 
-protected:
-    AstNodeTriop(VNType t, FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp, AstNodeExpr* thsp)
-        : AstNodeExpr{t, fl} {
+రక్షిత:
+    Ast_కణుపు_Triop(VNType t, File_పంక్తి* fl, Ast_కణుపు_సమాసం* lhsp, Ast_కణుపు_సమాసం* rhsp, Ast_కణుపు_సమాసం* thsp)
+        : Ast_కణుపు_సమాసం{t, fl} {
         this->lhsp(lhsp);
         this->rhsp(rhsp);
         this->thsp(thsp);
     }
 
-public:
-    ASTGEN_MEMBERS_AstNodeTriop;
+బహిరంగ:
+    ASTGEN_MEMBERS_Ast_కణుపు_Triop;
     // METHODS
-    void dump(std::ostream& str) const override;
-    void dumpJson(std::ostream& str) const override;
+    శూన్య dump(std::ostream& str) స్థిరరాశి override;
+    శూన్య dumpJson(std::ostream& str) స్థిరరాశి override;
     // Set out to evaluation of a AstConst'ed
-    virtual void numberOperate(V3Number& out, const V3Number& lhs, const V3Number& rhs,
-                               const V3Number& ths)
+    మాయా శూన్య సంఖ్య_నిర్వహించు(V3_సంఖ్య& బహిర్గతం, స్థిరరాశి V3_సంఖ్య& lhs, స్థిరరాశి V3_సంఖ్య& rhs,
+                               స్థిరరాశి V3_సంఖ్య& ths)
         = 0;
-    virtual bool cleanLhs() const = 0;  // True if LHS must have extra upper bits zero
-    virtual bool cleanRhs() const = 0;  // True if RHS must have extra upper bits zero
-    virtual bool cleanThs() const = 0;  // True if THS must have extra upper bits zero
-    virtual bool sizeMattersLhs() const = 0;  // True if output result depends on lhs size
-    virtual bool sizeMattersRhs() const = 0;  // True if output result depends on rhs size
-    virtual bool sizeMattersThs() const = 0;  // True if output result depends on ths size
-    int instrCount() const override { return widthInstrs(); }
-    bool sameNode(const AstNode*) const override { return true; }
-    bool isPure() override;
-    const char* broken() const override;
+    మాయా bool cleanLhs() స్థిరరాశి = 0;  // True if LHS must have extra upper bits zero
+    మాయా bool cleanRhs() స్థిరరాశి = 0;  // True if RHS must have extra upper bits zero
+    మాయా bool cleanThs() స్థిరరాశి = 0;  // True if THS must have extra upper bits zero
+    మాయా bool కొలత_Matters_Lhs() స్థిరరాశి = 0;  // True if output result depends on lhs size
+    మాయా bool కొలత_Matters_Rhs() స్థిరరాశి = 0;  // True if output result depends on rhs size
+    మాయా bool కొలత_Matters_Ths() స్థిరరాశి = 0;  // True if output result depends on ths size
+    పూర్ణాంకం instr_లెక్క() స్థిరరాశి override { తిరిగి వెడల్పు_Instrs(); }
+    bool same_కణుపు(స్థిరరాశి Ast_కణుపు*) స్థిరరాశి override { తిరిగి true; }
+    bool is_శుద్ధ() override;
+    స్థిరరాశి అక్షరం* broken() స్థిరరాశి override;
 
-private:
-    bool getPurityRecurse() const {
-        return lhsp()->isPure() && rhsp()->isPure() && thsp()->isPure();
+అంతరంగ:
+    bool getPurityRecurse() స్థిరరాశి {
+        తిరిగి lhsp()->is_శుద్ధ() && rhsp()->is_శుద్ధ() && thsp()->is_శుద్ధ();
     }
 };
-class AstNodeDistTriop VL_NOT_FINAL : public AstNodeTriop {
-public:
-    AstNodeDistTriop(VNType t, FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp,
-                     AstNodeExpr* thsp)
-        : AstNodeTriop{t, fl, lhsp, rhsp, thsp} {
-        dtypeSetInteger2State();
+class Ast_కణుపు_Dist_Triop VL_NOT_FINAL : బహిరంగ Ast_కణుపు_Triop {
+బహిరంగ:
+    Ast_కణుపు_Dist_Triop(VNType t, File_పంక్తి* fl, Ast_కణుపు_సమాసం* lhsp, Ast_కణుపు_సమాసం* rhsp,
+                     Ast_కణుపు_సమాసం* thsp)
+        : Ast_కణుపు_Triop{t, fl, lhsp, rhsp, thsp} {
+        dtype_సమితి_Integer2_State();
     }
-    ASTGEN_MEMBERS_AstNodeDistTriop;
-    bool cleanOut() const override { return false; }
-    bool cleanLhs() const override { return false; }
-    bool cleanRhs() const override { return false; }
-    bool cleanThs() const override { return false; }
-    bool sizeMattersLhs() const override { return false; }
-    bool sizeMattersRhs() const override { return false; }
-    bool sizeMattersThs() const override { return false; }
-    bool isSystemFunc() const override { return true; }
-    int instrCount() const override { return INSTR_COUNT_DBL_TRIG; }
-    void numberOperate(V3Number& out, const V3Number& lhs, const V3Number& rhs,
-                       const V3Number& ths) override {
+    ASTGEN_MEMBERS_Ast_కణుపు_Dist_Triop;
+    bool clean_బహిర్గతం() స్థిరరాశి override { తిరిగి false; }
+    bool cleanLhs() స్థిరరాశి override { తిరిగి false; }
+    bool cleanRhs() స్థిరరాశి override { తిరిగి false; }
+    bool cleanThs() స్థిరరాశి override { తిరిగి false; }
+    bool కొలత_Matters_Lhs() స్థిరరాశి override { తిరిగి false; }
+    bool కొలత_Matters_Rhs() స్థిరరాశి override { తిరిగి false; }
+    bool కొలత_Matters_Ths() స్థిరరాశి override { తిరిగి false; }
+    bool isSystemFunc() స్థిరరాశి override { తిరిగి true; }
+    పూర్ణాంకం instr_లెక్క() స్థిరరాశి override { తిరిగి INSTR_లెక్క_DBL_TRIG; }
+    శూన్య సంఖ్య_నిర్వహించు(V3_సంఖ్య& బహిర్గతం, స్థిరరాశి V3_సంఖ్య& lhs, స్థిరరాశి V3_సంఖ్య& rhs,
+                       స్థిరరాశి V3_సంఖ్య& ths) override {
         V3ERROR_NA;
     }
 };
-class AstNodeUniop VL_NOT_FINAL : public AstNodeExpr {
+class Ast_కణుపు_Uniop VL_NOT_FINAL : బహిరంగ Ast_కణుపు_సమాసం {
     // Unary expression
     // @astgen op1 := lhsp : AstNodeExpr
     VIsCached m_purity;  // Pure state
 
-protected:
-    AstNodeUniop(VNType t, FileLine* fl, AstNodeExpr* lhsp)
-        : AstNodeExpr{t, fl} {
+రక్షిత:
+    Ast_కణుపు_Uniop(VNType t, File_పంక్తి* fl, Ast_కణుపు_సమాసం* lhsp)
+        : Ast_కణుపు_సమాసం{t, fl} {
         dtypeFrom(lhsp);
         this->lhsp(lhsp);
     }
 
-public:
-    ASTGEN_MEMBERS_AstNodeUniop;
+బహిరంగ:
+    ASTGEN_MEMBERS_Ast_కణుపు_Uniop;
     // METHODS
-    void dump(std::ostream& str) const override;
-    void dumpJson(std::ostream& str) const override;
+    శూన్య dump(std::ostream& str) స్థిరరాశి override;
+    శూన్య dumpJson(std::ostream& str) స్థిరరాశి override;
     // Set out to evaluation of a AstConst'ed lhs
-    virtual void numberOperate(V3Number& out, const V3Number& lhs) = 0;
-    virtual bool cleanLhs() const = 0;
-    virtual bool sizeMattersLhs() const = 0;  // True if output result depends on lhs size
-    virtual bool doubleFlavor() const { return false; }  // D flavor of nodes with both flavors?
+    మాయా శూన్య సంఖ్య_నిర్వహించు(V3_సంఖ్య& బహిర్గతం, స్థిరరాశి V3_సంఖ్య& lhs) = 0;
+    మాయా bool cleanLhs() స్థిరరాశి = 0;
+    మాయా bool కొలత_Matters_Lhs() స్థిరరాశి = 0;  // True if output result depends on lhs size
+    మాయా bool doubleFlavor() స్థిరరాశి { తిరిగి false; }  // D flavor of nodes with both flavors?
     // Signed flavor of nodes with both flavors?
-    virtual bool signedFlavor() const { return false; }
-    virtual bool stringFlavor() const { return false; }  // N flavor of nodes with both flavors?
-    int instrCount() const override { return widthInstrs(); }
-    bool sameNode(const AstNode*) const override { return true; }
-    bool isPure() override;
-    const char* broken() const override;
+    మాయా bool signedFlavor() స్థిరరాశి { తిరిగి false; }
+    మాయా bool stringFlavor() స్థిరరాశి { తిరిగి false; }  // N flavor of nodes with both flavors?
+    పూర్ణాంకం instr_లెక్క() స్థిరరాశి override { తిరిగి వెడల్పు_Instrs(); }
+    bool same_కణుపు(స్థిరరాశి Ast_కణుపు*) స్థిరరాశి override { తిరిగి true; }
+    bool is_శుద్ధ() override;
+    స్థిరరాశి అక్షరం* broken() స్థిరరాశి override;
 };
-class AstNodeSystemUniopD VL_NOT_FINAL : public AstNodeUniop {
-public:
-    AstNodeSystemUniopD(VNType t, FileLine* fl, AstNodeExpr* lhsp)
-        : AstNodeUniop{t, fl, lhsp} {
-        dtypeSetDouble();
+class Ast_కణుపు_System_Uniop_D VL_NOT_FINAL : బహిరంగ Ast_కణుపు_Uniop {
+బహిరంగ:
+    Ast_కణుపు_System_Uniop_D(VNType t, File_పంక్తి* fl, Ast_కణుపు_సమాసం* lhsp)
+        : Ast_కణుపు_Uniop{t, fl, lhsp} {
+        dtype_సమితి_Double();
     }
-    ASTGEN_MEMBERS_AstNodeSystemUniopD;
-    bool cleanOut() const override { return true; }
-    bool cleanLhs() const override { return false; }
-    bool sizeMattersLhs() const override { return false; }
-    bool isSystemFunc() const override { return true; }
-    int instrCount() const override { return INSTR_COUNT_DBL_TRIG; }
-    bool doubleFlavor() const override { return true; }
+    ASTGEN_MEMBERS_Ast_కణుపు_System_Uniop_D;
+    bool clean_బహిర్గతం() స్థిరరాశి override { తిరిగి true; }
+    bool cleanLhs() స్థిరరాశి override { తిరిగి false; }
+    bool కొలత_Matters_Lhs() స్థిరరాశి override { తిరిగి false; }
+    bool isSystemFunc() స్థిరరాశి override { తిరిగి true; }
+    పూర్ణాంకం instr_లెక్క() స్థిరరాశి override { తిరిగి INSTR_లెక్క_DBL_TRIG; }
+    bool doubleFlavor() స్థిరరాశి override { తిరిగి true; }
 };
-class AstNodeVarRef VL_NOT_FINAL : public AstNodeExpr {
+class Ast_కణుపు_Var_Ref VL_NOT_FINAL : బహిరంగ Ast_కణుపు_సమాసం {
     // An AstVarRef or AstVarXRef
     // @astgen ptr := m_varp : Optional[AstVar]  // [AfterLink] Pointer to variable itself
     // @astgen ptr := m_varScopep : Optional[AstVarScope]  // Varscope for hierarchy
     // @astgen ptr := m_classOrPackagep : Optional[AstNodeModule]  // Class/package of the variable
-    ASTGEN_MEMBERS_AstNodeVarRef;  // Gen pointers before other members for performance
-private:
+    ASTGEN_MEMBERS_Ast_కణుపు_Var_Ref;  // Gen pointers before other members for performance
+అంతరంగ:
     VAccess m_access;  // Left hand side assignment
-    VSelfPointerText m_selfPointer
-        = VSelfPointerText{VSelfPointerText::Empty()};  // Output code object
+    VSelf_సూచిక_పాఠ్యం m_self_సూచిక
+        = VSelf_సూచిక_పాఠ్యం{VSelf_సూచిక_పాఠ్యం::ఖాళీలు_2()};  // Output code object
                                                         // pointer (e.g.: 'this')
-protected:
-    AstNodeVarRef(VNType t, FileLine* fl, AstVar* varp, const VAccess& access)
-        : AstNodeExpr{t, fl}
+రక్షిత:
+    Ast_కణుపు_Var_Ref(VNType t, File_పంక్తి* fl, AstVar* varp, స్థిరరాశి VAccess& access)
+        : Ast_కణుపు_సమాసం{t, fl}
         , m_access{access} {
         // May have varp==nullptr
         this->varp(varp);
     }
 
-public:
-    void dump(std::ostream& str) const override;
-    void dumpJson(std::ostream& str) const override;
-    int instrCount() const override { return widthInstrs(); }
-    VAccess access() const { return m_access; }
-    void access(const VAccess& flag) { m_access = flag; }  // Avoid using this; Set in constructor
-    AstVar* varp() const VL_MT_STABLE { return m_varp; }  // [After Link] Pointer to variable
-    void varp(AstVar* varp) {
+బహిరంగ:
+    శూన్య dump(std::ostream& str) స్థిరరాశి override;
+    శూన్య dumpJson(std::ostream& str) స్థిరరాశి override;
+    పూర్ణాంకం instr_లెక్క() స్థిరరాశి override { తిరిగి వెడల్పు_Instrs(); }
+    VAccess access() స్థిరరాశి { తిరిగి m_access; }
+    శూన్య access(స్థిరరాశి VAccess& flag) { m_access = flag; }  // Avoid using this; Set in constructor
+    AstVar* varp() స్థిరరాశి VL_MT_STABLE { తిరిగి m_varp; }  // [After Link] Pointer to variable
+    శూన్య varp(AstVar* varp) {
         m_varp = varp;
-        dtypeFrom(reinterpret_cast<AstNode*>(varp));
+        dtypeFrom(reinterpret_cast<Ast_కణుపు*>(varp));
     }
-    AstVarScope* varScopep() const { return m_varScopep; }
-    void varScopep(AstVarScope* varscp) { m_varScopep = varscp; }
-    const VSelfPointerText& selfPointer() const { return m_selfPointer; }
-    void selfPointer(const VSelfPointerText& selfPointer) { m_selfPointer = selfPointer; }
-    string selfPointerProtect(bool useSelfForThis) const {
-        return selfPointer().protect(useSelfForThis, protect());
+    AstVarScope* varScopep() స్థిరరాశి { తిరిగి m_varScopep; }
+    శూన్య varScopep(AstVarScope* varscp) { m_varScopep = varscp; }
+    స్థిరరాశి VSelf_సూచిక_పాఠ్యం& self_సూచిక() స్థిరరాశి { తిరిగి m_self_సూచిక; }
+    శూన్య self_సూచిక(స్థిరరాశి VSelf_సూచిక_పాఠ్యం& self_సూచిక) { m_self_సూచిక = self_సూచిక; }
+    string self_సూచిక_Protect(bool useSelfForThis) స్థిరరాశి {
+        తిరిగి self_సూచిక().protect(useSelfForThis, protect());
     }
-    AstNodeModule* classOrPackagep() const { return m_classOrPackagep; }
-    void classOrPackagep(AstNodeModule* nodep) { m_classOrPackagep = nodep; }
+    Ast_కణుపు_Module* classOrPackagep() స్థిరరాశి { తిరిగి m_classOrPackagep; }
+    శూన్య classOrPackagep(Ast_కణుపు_Module* nodep) { m_classOrPackagep = nodep; }
 };
 
 // === Concrete node types =====================================================
 
 // === AstNode ===
-class AstArg final : public AstNode {
+class AstArg final : బహిరంగ Ast_కణుపు {
     // An argument to a function/task, which is either an expression, or is a placeholder for an
     // omitted argument.
     // @astgen op1 := exprp : Optional[AstNodeExpr] // nullptr if omitted
     std::string m_name;  // Argument name, or "" for number based interconnect
-public:
-    AstArg(FileLine* fl, const std::string& name, AstNodeExpr* exprp)
+బహిరంగ:
+    AstArg(File_పంక్తి* fl, స్థిరరాశి std::string& name, Ast_కణుపు_సమాసం* exprp)
         : ASTGEN_SUPER_Arg(fl)
         , m_name{name} {
         this->exprp(exprp);
     }
     ASTGEN_MEMBERS_AstArg;
-    std::string name() const override VL_MT_STABLE { return m_name; }
-    void name(const std::string& name) override { m_name = name; }
-    bool emptyConnectNoNext() const { return !exprp() && name() == "" && !nextp(); }
+    std::string name() స్థిరరాశి override VL_MT_STABLE { తిరిగి m_name; }
+    శూన్య name(స్థిరరాశి std::string& name) override { m_name = name; }
+    bool ఖాళీలు_Connect_No_తదుపరి() స్థిరరాశి { తిరిగి !exprp() && name() == "" && !nextp(); }
 };
-class AstWith final : public AstNode {
+class AstWith final : బహిరంగ Ast_కణుపు {
     // Similar to AstArg, but this is essentially a lambda passed to a call.
     // Not an AstNodeExpr as there is no concept of function values in Verilator
     // The dtypep() contains the with lambda's return dtype, not a function type.
@@ -607,360 +607,360 @@ class AstWith final : public AstNode {
     // @astgen op2 := valueArgRefp : AstLambdaArgRef
     // @astgen op3 := exprp : List[AstNode]  // Pins, expression and constraints
     // TODO: Separate expression and constraints
-private:
+అంతరంగ:
     // 'with (identifier_list) {...}' restricted form (IEEE 1800-2023 18.7).
     bool m_restricted = false;
     // dist-ast-dump-suppress  // V3LinkDot temporary use only
     bool m_validated = false;  // identifier_list typo / unused checks already run
-    std::set<std::string> m_restrictedNames;
+    std::సమితి<std::string> m_restricted_పేర్లు;
 
-public:
-    AstWith(FileLine* fl, AstLambdaArgRef* indexArgRefp, AstLambdaArgRef* valueArgRefp,
-            AstNode* exprp)
+బహిరంగ:
+    AstWith(File_పంక్తి* fl, AstLambdaArgRef* సూచీ_Arg_Refp, AstLambdaArgRef* విలువ_Arg_Refp,
+            Ast_కణుపు* exprp)
         : ASTGEN_SUPER_With(fl) {
-        this->indexArgRefp(indexArgRefp);
-        this->valueArgRefp(valueArgRefp);
-        addExprp(exprp);
+        this->సూచీ_Arg_Refp(సూచీ_Arg_Refp);
+        this->విలువ_Arg_Refp(విలువ_Arg_Refp);
+        కూడు_Exprp(exprp);
     }
     ASTGEN_MEMBERS_AstWith;
-    bool hasDType() const override { return true; }
-    bool sameNode(const AstNode* /*samep*/) const override { return true; }
-    const char* broken() const override {
-        BROKEN_RTN(!indexArgRefp());  // varp needed to know lambda's arg dtype
-        BROKEN_RTN(!valueArgRefp());  // varp needed to know lambda's arg dtype
-        return nullptr;
+    bool hasDType() స్థిరరాశి override { తిరిగి true; }
+    bool same_కణుపు(స్థిరరాశి Ast_కణుపు* /*samep*/) స్థిరరాశి override { తిరిగి true; }
+    స్థిరరాశి అక్షరం* broken() స్థిరరాశి override {
+        BROKEN_RTN(!సూచీ_Arg_Refp());  // varp needed to know lambda's arg dtype
+        BROKEN_RTN(!విలువ_Arg_Refp());  // varp needed to know lambda's arg dtype
+        తిరిగి nullptr;
     }
-    void dump(std::ostream& str) const override;
-    void dumpJson(std::ostream& str) const override;
-    void restricted(bool flag) { m_restricted = flag; }
-    bool restricted() const { return m_restricted; }
-    bool validated() const { return m_validated; }
-    void validated(bool flag) { m_validated = flag; }
-    void addRestrictedName(const std::string& name) { m_restrictedNames.insert(name); }
-    const std::set<std::string>& restrictedNames() const { return m_restrictedNames; }
+    శూన్య dump(std::ostream& str) స్థిరరాశి override;
+    శూన్య dumpJson(std::ostream& str) స్థిరరాశి override;
+    శూన్య restricted(bool flag) { m_restricted = flag; }
+    bool restricted() స్థిరరాశి { తిరిగి m_restricted; }
+    bool validated() స్థిరరాశి { తిరిగి m_validated; }
+    శూన్య validated(bool flag) { m_validated = flag; }
+    శూన్య కూడు_Restricted_Name(స్థిరరాశి std::string& name) { m_restricted_పేర్లు.చొప్పించు(name); }
+    స్థిరరాశి std::సమితి<std::string>& restricted_పేర్లు() స్థిరరాశి { తిరిగి m_restricted_పేర్లు; }
     // True if 'name' binds into the randomize() target class.
-    bool nameResolvesToTarget(const std::string& name) const {
-        return !m_restricted || m_restrictedNames.count(name);
+    bool name_Resolves_గమ్యం_లక్ష్యం(స్థిరరాశి std::string& name) స్థిరరాశి {
+        తిరిగి !m_restricted || m_restricted_పేర్లు.లెక్క(name);
     }
 };
 
 // === AstNodeExpr ===
-class AstAbortOn final : public AstNodeExpr {
+class AstAbortOn final : బహిరంగ Ast_కణుపు_సమాసం {
     // IEEE 1800-2023 16.12.14: accept_on/reject_on/sync_accept_on/sync_reject_on
     // (cond) prop. The four operators share an identical AST shape and lowering
     // scaffolding -- VAbortKind selects between Accept/Reject verdict and
     // Async/Sync sampling.
     // @astgen op1 := condp : AstNodeExpr
     // @astgen op2 := propp : AstNodeExpr
-    VAbortKind m_kind{VAbortKind::ACCEPT_ON};
+    VAbort_రకం m_రకం{VAbort_రకం::ACCEPT_ON};
 
-public:
-    AstAbortOn(FileLine* fl, VAbortKind kind, AstNodeExpr* condp, AstNodeExpr* propp)
+బహిరంగ:
+    AstAbortOn(File_పంక్తి* fl, VAbort_రకం రకం, Ast_కణుపు_సమాసం* condp, Ast_కణుపు_సమాసం* propp)
         : ASTGEN_SUPER_AbortOn(fl)
-        , m_kind{kind} {
+        , m_రకం{రకం} {
         this->condp(condp);
         this->propp(propp);
     }
     ASTGEN_MEMBERS_AstAbortOn;
-    void dump(std::ostream& str) const override;
-    void dumpJson(std::ostream& str) const override;
-    VAbortKind kind() const { return m_kind; }
+    శూన్య dump(std::ostream& str) స్థిరరాశి override;
+    శూన్య dumpJson(std::ostream& str) స్థిరరాశి override;
+    VAbort_రకం రకం() స్థిరరాశి { తిరిగి m_రకం; }
     string emitVerilog() override { V3ERROR_NA_RETURN(""); }
     string emitC() override { V3ERROR_NA_RETURN(""); }
     string emitSimpleOperator() override { V3ERROR_NA_RETURN(""); }
-    bool cleanOut() const override { V3ERROR_NA_RETURN(""); }
-    bool isMultiCycleSva() const override { return true; }
+    bool clean_బహిర్గతం() స్థిరరాశి override { V3ERROR_NA_RETURN(""); }
+    bool is_Multi_చక్రం_Sva() స్థిరరాశి override { తిరిగి true; }
 };
-class AstAddrOfCFunc final : public AstNodeExpr {
+class Ast_Addr_యొక్క_CFunc final : బహిరంగ Ast_కణుపు_సమాసం {
     // Get address of CFunc
     // @astgen ptr := m_funcp : AstCFunc  // Pointer to function itself
 
-public:
-    AstAddrOfCFunc(FileLine* fl, AstCFunc* funcp)
-        : ASTGEN_SUPER_AddrOfCFunc(fl)
+బహిరంగ:
+    Ast_Addr_యొక్క_CFunc(File_పంక్తి* fl, AstCFunc* funcp)
+        : ASTGEN_SUPER_Addr_యొక్క_CFunc(fl)
         , m_funcp{funcp} {
-        dtypep(findCHandleDType());
+        dtypep(కనుగొను_CHandle_DType());
     }
 
-    ASTGEN_MEMBERS_AstAddrOfCFunc;
-    void dump(std::ostream& str) const override;
+    ASTGEN_MEMBERS_Ast_Addr_యొక్క_CFunc;
+    శూన్య dump(std::ostream& str) స్థిరరాశి override;
     string emitVerilog() override { V3ERROR_NA_RETURN(""); }
     string emitC() override { V3ERROR_NA_RETURN(""); }
-    bool cleanOut() const override { return true; }
-    AstCFunc* funcp() const { return m_funcp; }
+    bool clean_బహిర్గతం() స్థిరరాశి override { తిరిగి true; }
+    AstCFunc* funcp() స్థిరరాశి { తిరిగి m_funcp; }
 };
-class AstAttrOf final : public AstNodeExpr {
+class Ast_Attr_యొక్క final : బహిరంగ Ast_కణుపు_సమాసం {
     // Return a value of a attribute, for example a LSB or array LSB of a signal
     // @astgen op1 := fromp : Optional[AstNode<AstNodeExpr|AstNodeDType>]
     // @astgen op2 := dimp : Optional[AstNodeExpr]
     VAttrType m_attrType;  // What sort of extraction
     string m_name;  // Name for some attributes
-public:
-    AstAttrOf(FileLine* fl, VAttrType attrtype, AstNode* fromp = nullptr,
-              AstNodeExpr* dimp = nullptr)
-        : ASTGEN_SUPER_AttrOf(fl) {
+బహిరంగ:
+    Ast_Attr_యొక్క(File_పంక్తి* fl, VAttrType attrtype, Ast_కణుపు* fromp = nullptr,
+              Ast_కణుపు_సమాసం* dimp = nullptr)
+        : ASTGEN_SUPER_Attr_యొక్క(fl) {
         this->fromp(fromp);
         this->dimp(dimp);
         m_attrType = attrtype;
     }
-    ASTGEN_MEMBERS_AstAttrOf;
-    string name() const override VL_MT_STABLE { return m_name; }  // * = Var name
-    void name(const string& name) override { m_name = name; }
-    VAttrType attrType() const { return m_attrType; }
-    void dump(std::ostream& str = std::cout) const override;
-    void dumpJson(std::ostream& str = std::cout) const override;
+    ASTGEN_MEMBERS_Ast_Attr_యొక్క;
+    string name() స్థిరరాశి override VL_MT_STABLE { తిరిగి m_name; }  // * = Var name
+    శూన్య name(స్థిరరాశి string& name) override { m_name = name; }
+    VAttrType attrType() స్థిరరాశి { తిరిగి m_attrType; }
+    శూన్య dump(std::ostream& str = std::cout) స్థిరరాశి override;
+    శూన్య dumpJson(std::ostream& str = std::cout) స్థిరరాశి override;
     string emitVerilog() override { V3ERROR_NA_RETURN(""); }
     string emitC() override { V3ERROR_NA_RETURN(""); }
-    bool cleanOut() const override { V3ERROR_NA_RETURN(true); }
+    bool clean_బహిర్గతం() స్థిరరాశి override { V3ERROR_NA_RETURN(true); }
 };
-class AstCExpr final : public AstNodeExpr {
+class AstCExpr final : బహిరంగ Ast_కణుపు_సమాసం {
     // C expression emitted into output, with some arbitrary nodes interspersed
     // @astgen op1 := nodesp : List[AstNode<AstNodeExpr|AstText>]
-    const bool m_pure;  // Pure optimizable
+    స్థిరరాశి bool m_శుద్ధ;  // Pure optimizable
 
-    void init(const string& text, int setwidth) {
-        if (!text.empty()) add(text);
-        if (setwidth) {
-            dtypeSetBitSized(setwidth, VSigning::UNSIGNED);
-        } else {
-            dtypeSetVoid();  // Caller to override if necessary
+    శూన్య init(స్థిరరాశి string& పాఠ్యం, పూర్ణాంకం setwidth) {
+        ఒకవేళ (!పాఠ్యం.ఖాళీలు()) కూడు(పాఠ్యం);
+        ఒకవేళ (setwidth) {
+            dtype_సమితి_బిట్టు_Sized(setwidth, VSigning::UNSIGNED);
+        } లేకపోతే {
+            dtype_సమితి_Void();  // Caller to override if necessary
         }
     }
 
-public:
-    class Pure {};
-    explicit AstCExpr(FileLine* fl, const string& text = "", int setwidth = 0)
+బహిరంగ:
+    class శుద్ధ {};
+    explicit AstCExpr(File_పంక్తి* fl, స్థిరరాశి string& పాఠ్యం = "", పూర్ణాంకం setwidth = 0)
         : ASTGEN_SUPER_CExpr(fl)
-        , m_pure{false} {
-        init(text, setwidth);
+        , m_శుద్ధ{false} {
+        init(పాఠ్యం, setwidth);
     }
-    AstCExpr(FileLine* fl, Pure, const string& text = "", int setwidth = 0)
+    AstCExpr(File_పంక్తి* fl, శుద్ధ, స్థిరరాశి string& పాఠ్యం = "", పూర్ణాంకం setwidth = 0)
         : ASTGEN_SUPER_CExpr(fl)
-        , m_pure{true} {
-        init(text, setwidth);
+        , m_శుద్ధ{true} {
+        init(పాఠ్యం, setwidth);
     }
     ASTGEN_MEMBERS_AstCExpr;
     // METHODS
-    void dump(std::ostream& str = std::cout) const override;
-    void dumpJson(std::ostream& str = std::cout) const override;
-    bool cleanOut() const override { return true; }
+    శూన్య dump(std::ostream& str = std::cout) స్థిరరాశి override;
+    శూన్య dumpJson(std::ostream& str = std::cout) స్థిరరాశి override;
+    bool clean_బహిర్గతం() స్థిరరాశి override { తిరిగి true; }
     std::string emitC() override { V3ERROR_NA_RETURN(""); }
     std::string emitVerilog() override { V3ERROR_NA_RETURN(""); }
-    bool isGateOptimizable() const override { return m_pure; }
-    bool isOutputter() override { return true; }
-    bool isPredictOptimizable() const override { return m_pure; }
-    bool isPure() override { return m_pure; }
-    bool sameNode(const AstNode* /*samep*/) const override { return true; }
+    bool isGateOptimizable() స్థిరరాశి override { తిరిగి m_శుద్ధ; }
+    bool isOutputter() override { తిరిగి true; }
+    bool isPredictOptimizable() స్థిరరాశి override { తిరిగి m_శుద్ధ; }
+    bool is_శుద్ధ() override { తిరిగి m_శుద్ధ; }
+    bool same_కణుపు(స్థిరరాశి Ast_కణుపు* /*samep*/) స్థిరరాశి override { తిరిగి true; }
     // Add some text, or a node to this expression
-    void add(const std::string& text) { addNodesp(new AstText{fileline(), text}); }
-    void add(AstNode* nodep) { addNodesp(nodep); }
+    శూన్య కూడు(స్థిరరాశి std::string& పాఠ్యం) { కూడు_Nodesp(new Ast_పాఠ్యం{fileline(), పాఠ్యం}); }
+    శూన్య కూడు(Ast_కణుపు* nodep) { కూడు_Nodesp(nodep); }
 };
-class AstCExprUser final : public AstNodeExpr {
+class AstCExprUser final : బహిరంగ Ast_కణుపు_సమాసం {
     // User '$c' or '$cpure' expression - Like AstCStmt, with text tracking and optimizations
     // disabled.
     //
     // Use AstCExpr instead, unless the text is from user input.
     //
     // @astgen op1 := nodesp : List[AstNode<AstNodeExpr|AstText>]
-    const bool m_pure;  // Whether the function is pure
-public:
-    class Pure {};
-    explicit AstCExprUser(FileLine* fl)
+    స్థిరరాశి bool m_శుద్ధ;  // Whether the function is pure
+బహిరంగ:
+    class శుద్ధ {};
+    explicit AstCExprUser(File_పంక్తి* fl)
         : ASTGEN_SUPER_CExprUser(fl)
-        , m_pure{false} {}
-    AstCExprUser(FileLine* fl, Pure)
+        , m_శుద్ధ{false} {}
+    AstCExprUser(File_పంక్తి* fl, శుద్ధ)
         : ASTGEN_SUPER_CExprUser(fl)
-        , m_pure{true} {}
+        , m_శుద్ధ{true} {}
     ASTGEN_MEMBERS_AstCExprUser;
     // METHODS
-    void dump(std::ostream& str = std::cout) const override;
-    void dumpJson(std::ostream& str = std::cout) const override;
-    bool cleanOut() const override { return false; }
+    శూన్య dump(std::ostream& str = std::cout) స్థిరరాశి override;
+    శూన్య dumpJson(std::ostream& str = std::cout) స్థిరరాశి override;
+    bool clean_బహిర్గతం() స్థిరరాశి override { తిరిగి false; }
     std::string emitC() override { V3ERROR_NA_RETURN(""); }
     std::string emitVerilog() override { V3ERROR_NA_RETURN(""); }
-    bool isGateOptimizable() const override { return m_pure; }
-    bool isOutputter() override { return true; }
-    bool isPredictOptimizable() const override { return m_pure; }
-    bool isPure() override { return m_pure; }
-    bool sameNode(const AstNode* /*samep*/) const override { return true; }
+    bool isGateOptimizable() స్థిరరాశి override { తిరిగి m_శుద్ధ; }
+    bool isOutputter() override { తిరిగి true; }
+    bool isPredictOptimizable() స్థిరరాశి override { తిరిగి m_శుద్ధ; }
+    bool is_శుద్ధ() override { తిరిగి m_శుద్ధ; }
+    bool same_కణుపు(స్థిరరాశి Ast_కణుపు* /*samep*/) స్థిరరాశి override { తిరిగి true; }
     // Add some text, or a node to this expression
-    void add(const std::string& text) { addNodesp(new AstText{fileline(), text}); }
-    void add(AstNode* nodep) { addNodesp(nodep); }
+    శూన్య కూడు(స్థిరరాశి std::string& పాఠ్యం) { కూడు_Nodesp(new Ast_పాఠ్యం{fileline(), పాఠ్యం}); }
+    శూన్య కూడు(Ast_కణుపు* nodep) { కూడు_Nodesp(nodep); }
 };
-class AstCFuncHard final : public AstNodeExpr {
+class AstCFuncHard final : బహిరంగ Ast_కణుపు_సమాసం {
     // A call to a C++ function in the runtime library (include/verilated*)
     // PARENTS: stmt/expr
     // @astgen op1 := pinsp : List[AstNodeExpr] // Arguments
     VIsCached m_purity;  // Pure optimizable
     VCFunction m_function;  // Which function to call
-public:
-    AstCFuncHard(FileLine* fl, VCFunction function, AstNodeExpr* pinsp = nullptr)
+బహిరంగ:
+    AstCFuncHard(File_పంక్తి* fl, VCFunction function, Ast_కణుపు_సమాసం* pinsp = nullptr)
         : ASTGEN_SUPER_CFuncHard(fl)
         , m_function{function} {
-        addPinsp(pinsp);
+        కూడు_Pinsp(pinsp);
     }
     ASTGEN_MEMBERS_AstCFuncHard;
-    void dump(std::ostream& str) const override;
-    void dumpJson(std::ostream& str) const override;
-    string name() const override VL_MT_STABLE { return function().ascii(); }
-    bool isPure() override {
-        if (!m_purity.isCached()) m_purity.set(getPurity());
-        return m_purity.get();
+    శూన్య dump(std::ostream& str) స్థిరరాశి override;
+    శూన్య dumpJson(std::ostream& str) స్థిరరాశి override;
+    string name() స్థిరరాశి override VL_MT_STABLE { తిరిగి function().ascii(); }
+    bool is_శుద్ధ() override {
+        ఒకవేళ (!m_purity.isCached()) m_purity.సమితి(getPurity());
+        తిరిగి m_purity.get();
     }
     string emitVerilog() override { V3ERROR_NA_RETURN(""); }
     string emitC() override { V3ERROR_NA_RETURN(""); }
-    bool cleanOut() const override { return true; }
-    VCFunction function() const VL_MT_STABLE { return m_function; }
+    bool clean_బహిర్గతం() స్థిరరాశి override { తిరిగి true; }
+    VCFunction function() స్థిరరాశి VL_MT_STABLE { తిరిగి m_function; }
 
-private:
+అంతరంగ:
     bool getPurity();
 };
-class AstCMethodHard final : public AstNodeExpr {
+class AstCMethodHard final : బహిరంగ Ast_కణుపు_సమాసం {
     // A reference to a "C" hardcoded member task (or function)
     // PARENTS: stmt/expr
     // @astgen op1 := fromp : AstNodeExpr // Subject of method call
     // @astgen op2 := pinsp : List[AstNodeExpr] // Arguments
     // @astgen op3 := withp : Optional[AstWith] // With clause
-    VCMethod m_method;  // Which method to call
+    VCMethod m_పద్ధతి;  // Which method to call
     VIsCached m_purity;  // Pure optimizable
     bool m_usePtr = false;  // Use '->' not '.'
-public:
-    AstCMethodHard(FileLine* fl, AstNodeExpr* fromp, VCMethod method, AstNodeExpr* pinsp = nullptr)
+బహిరంగ:
+    AstCMethodHard(File_పంక్తి* fl, Ast_కణుపు_సమాసం* fromp, VCMethod పద్ధతి, Ast_కణుపు_సమాసం* pinsp = nullptr)
         : ASTGEN_SUPER_CMethodHard(fl)
-        , m_method{method} {
+        , m_పద్ధతి{పద్ధతి} {
         this->fromp(fromp);
-        addPinsp(pinsp);
+        కూడు_Pinsp(pinsp);
     }
     ASTGEN_MEMBERS_AstCMethodHard;
-    void dump(std::ostream& str) const override;
-    void dumpJson(std::ostream& str) const override;
-    string name() const override VL_MT_STABLE { return method().ascii(); }
-    bool sameNode(const AstNode* samep) const override {
-        const AstCMethodHard* const asamep = VN_DBG_AS(samep, CMethodHard);
-        return (m_method == asamep->m_method);
+    శూన్య dump(std::ostream& str) స్థిరరాశి override;
+    శూన్య dumpJson(std::ostream& str) స్థిరరాశి override;
+    string name() స్థిరరాశి override VL_MT_STABLE { తిరిగి పద్ధతి().ascii(); }
+    bool same_కణుపు(స్థిరరాశి Ast_కణుపు* samep) స్థిరరాశి override {
+        స్థిరరాశి AstCMethodHard* స్థిరరాశి asamep = VN_DBG_AS(samep, CMethodHard);
+        తిరిగి (m_పద్ధతి == asamep->m_పద్ధతి);
     }
-    bool isPure() override {
-        if (!m_purity.isCached()) m_purity.set(getPurity());
-        return m_purity.get();
+    bool is_శుద్ధ() override {
+        ఒకవేళ (!m_purity.isCached()) m_purity.సమితి(getPurity());
+        తిరిగి m_purity.get();
     }
-    int instrCount() const override;
+    పూర్ణాంకం instr_లెక్క() స్థిరరాశి override;
     string emitVerilog() override { V3ERROR_NA_RETURN(""); }
     string emitC() override { V3ERROR_NA_RETURN(""); }
-    bool cleanOut() const override { return m_method.isClean(); }
-    bool usePtr() const { return m_usePtr; }
-    void usePtr(bool flag) { m_usePtr = flag; }
-    VCMethod method() const VL_MT_STABLE { return m_method; }
-    void method(VCMethod value) { m_method = value; }
+    bool clean_బహిర్గతం() స్థిరరాశి override { తిరిగి m_పద్ధతి.isClean(); }
+    bool usePtr() స్థిరరాశి { తిరిగి m_usePtr; }
+    శూన్య usePtr(bool flag) { m_usePtr = flag; }
+    VCMethod పద్ధతి() స్థిరరాశి VL_MT_STABLE { తిరిగి m_పద్ధతి; }
+    శూన్య పద్ధతి(VCMethod విలువ) { m_పద్ధతి = విలువ; }
 
-private:
+అంతరంగ:
     bool getPurity();
 };
-class AstCReset final : public AstNodeExpr {
+class AstCReset final : బహిరంగ Ast_కణుపు_సమాసం {
     // Reset variable at startup
-    const bool m_constructing;  // Previously cleared by constructor
-public:
-    AstCReset(FileLine* fl, AstVar* varp, bool constructing)
+    స్థిరరాశి bool m_constructing;  // Previously cleared by constructor
+బహిరంగ:
+    AstCReset(File_పంక్తి* fl, AstVar* varp, bool constructing)
         : ASTGEN_SUPER_CReset(fl)
         , m_constructing{constructing} {
         dtypeFrom(varp);
     }
     ASTGEN_MEMBERS_AstCReset;
-    void dump(std::ostream& str) const override;
-    void dumpJson(std::ostream& str) const override;
-    bool isPure() override { return true; }
-    int instrCount() const override { return widthInstrs(); }
+    శూన్య dump(std::ostream& str) స్థిరరాశి override;
+    శూన్య dumpJson(std::ostream& str) స్థిరరాశి override;
+    bool is_శుద్ధ() override { తిరిగి true; }
+    పూర్ణాంకం instr_లెక్క() స్థిరరాశి override { తిరిగి వెడల్పు_Instrs(); }
     string emitVerilog() override { V3ERROR_NA_RETURN(""); }
     string emitC() override { V3ERROR_NA_RETURN(""); }
-    bool cleanOut() const override { return true; }
-    const char* broken() const override {
-        BROKEN_RTN(!VN_IS(backp(), NodeAssign));  // V3Emit* assumption
-        return nullptr;
+    bool clean_బహిర్గతం() స్థిరరాశి override { తిరిగి true; }
+    స్థిరరాశి అక్షరం* broken() స్థిరరాశి override {
+        BROKEN_RTN(!VN_IS(backp(), కణుపు_కేటాయించు));  // V3Emit* assumption
+        తిరిగి nullptr;
     }
-    bool sameNode(const AstNode* samep) const override {
-        return constructing() == VN_DBG_AS(samep, CReset)->constructing();
+    bool same_కణుపు(స్థిరరాశి Ast_కణుపు* samep) స్థిరరాశి override {
+        తిరిగి constructing() == VN_DBG_AS(samep, CReset)->constructing();
     }
-    bool constructing() const { return m_constructing; }
+    bool constructing() స్థిరరాశి { తిరిగి m_constructing; }
 };
-class AstCast final : public AstNodeExpr {
+class AstCast final : బహిరంగ Ast_కణుపు_సమాసం {
     // Cast to appropriate data type
     // @astgen op1 := fromp : AstNodeExpr
     // @astgen op2 := childDTypep : Optional[AstNodeDType]
-public:
-    AstCast(FileLine* fl, AstNodeExpr* fromp, VFlagChildDType, AstNodeDType* dtp)
+బహిరంగ:
+    AstCast(File_పంక్తి* fl, Ast_కణుపు_సమాసం* fromp, VFlag_బిడ్డ_DType, Ast_కణుపు_DType* dtp)
         : ASTGEN_SUPER_Cast(fl) {
         this->fromp(fromp);
-        childDTypep(dtp);
+        బిడ్డ_DTypep(dtp);
         dtypeFrom(dtp);
     }
     // cppcheck-suppress constParameterPointer
     // cppcheck-suppress constParameterCallback
-    AstCast(FileLine* fl, AstNodeExpr* fromp, AstNodeDType* dtp)
+    AstCast(File_పంక్తి* fl, Ast_కణుపు_సమాసం* fromp, Ast_కణుపు_DType* dtp)
         : ASTGEN_SUPER_Cast(fl) {
         this->fromp(fromp);
         dtypeFrom(dtp);
     }
     ASTGEN_MEMBERS_AstCast;
-    string emitVerilog() override { return "((%d)'(%l))"; }
+    string emitVerilog() override { తిరిగి "((%d)'(%l))"; }
     string emitC() override { V3ERROR_NA_RETURN(""); }
-    bool cleanOut() const override { V3ERROR_NA_RETURN(true); }
-    AstNodeDType* getChildDTypep() const override { return childDTypep(); }
-    AstNodeDType* subDTypep() const VL_MT_STABLE { return dtypep() ? dtypep() : childDTypep(); }
+    bool clean_బహిర్గతం() స్థిరరాశి override { V3ERROR_NA_RETURN(true); }
+    Ast_కణుపు_DType* get_బిడ్డ_DTypep() స్థిరరాశి override { తిరిగి బిడ్డ_DTypep(); }
+    Ast_కణుపు_DType* subDTypep() స్థిరరాశి VL_MT_STABLE { తిరిగి dtypep() ? dtypep() : బిడ్డ_DTypep(); }
 };
-class AstCastParse final : public AstNodeExpr {
+class AstCastParse final : బహిరంగ Ast_కణుపు_సమాసం {
     // Cast to appropriate type, where we haven't determined yet what the data type is
     // @astgen op1 := lhsp : AstNodeExpr
     // @astgen op2 := dtp : AstNode
-public:
-    AstCastParse(FileLine* fl, AstNodeExpr* lhsp, AstNode* dtp)
+బహిరంగ:
+    AstCastParse(File_పంక్తి* fl, Ast_కణుపు_సమాసం* lhsp, Ast_కణుపు* dtp)
         : ASTGEN_SUPER_CastParse(fl) {
         this->lhsp(lhsp);
         this->dtp(dtp);
     }
     ASTGEN_MEMBERS_AstCastParse;
-    string emitVerilog() override { return "((%d)'(%l))"; }
+    string emitVerilog() override { తిరిగి "((%d)'(%l))"; }
     string emitC() override { V3ERROR_NA_RETURN(""); }
-    bool cleanOut() const override { V3ERROR_NA_RETURN(true); }
+    bool clean_బహిర్గతం() స్థిరరాశి override { V3ERROR_NA_RETURN(true); }
 };
-class AstCastSize final : public AstNodeExpr {
+class Ast_Cast_కొలత final : బహిరంగ Ast_కణుపు_సమాసం {
     // Cast to specific size; signed/twostate inherited from lower element per IEEE
     // @astgen op1 := lhsp : AstNodeExpr
     // @astgen op2 := rhsp : AstConst
-public:
-    AstCastSize(FileLine* fl, AstNodeExpr* lhsp, AstConst* rhsp)
-        : ASTGEN_SUPER_CastSize(fl) {
+బహిరంగ:
+    Ast_Cast_కొలత(File_పంక్తి* fl, Ast_కణుపు_సమాసం* lhsp, AstConst* rhsp)
+        : ASTGEN_SUPER_Cast_కొలత(fl) {
         this->lhsp(lhsp);
         this->rhsp(rhsp);
     }
-    ASTGEN_MEMBERS_AstCastSize;
-    string emitVerilog() override { return "((%r)'(%l))"; }
+    ASTGEN_MEMBERS_Ast_Cast_కొలత;
+    string emitVerilog() override { తిరిగి "((%r)'(%l))"; }
     string emitC() override { V3ERROR_NA_RETURN(""); }
-    bool cleanOut() const override { V3ERROR_NA_RETURN(true); }
+    bool clean_బహిర్గతం() స్థిరరాశి override { V3ERROR_NA_RETURN(true); }
 };
-class AstCellArrayRef final : public AstNodeExpr {
+class AstCellArrayRef final : బహిరంగ Ast_కణుపు_సమాసం {
     // As-of-yet unlinkable reference into an array of cells
     // @astgen op1 := selp : List[AstNodeExpr] // Select expression
     string m_name;  // Array name
-public:
-    AstCellArrayRef(FileLine* fl, const string& name, AstNodeExpr* selp)
+బహిరంగ:
+    AstCellArrayRef(File_పంక్తి* fl, స్థిరరాశి string& name, Ast_కణుపు_సమాసం* selp)
         : ASTGEN_SUPER_CellArrayRef(fl)
         , m_name{name} {
-        addSelp(selp);
+        కూడు_Selp(selp);
     }
     ASTGEN_MEMBERS_AstCellArrayRef;
     // ACCESSORS
-    string name() const override VL_MT_STABLE { return m_name; }  // * = Array name
+    string name() స్థిరరాశి override VL_MT_STABLE { తిరిగి m_name; }  // * = Array name
 
     string emitVerilog() override { V3ERROR_NA_RETURN(""); }
     string emitC() override { V3ERROR_NA_RETURN(""); }
-    bool cleanOut() const override { V3ERROR_NA_RETURN(true); }
+    bool clean_బహిర్గతం() స్థిరరాశి override { V3ERROR_NA_RETURN(true); }
 };
-class AstCellRef final : public AstNodeExpr {
+class AstCellRef final : బహిరంగ Ast_కణుపు_సమాసం {
     // As-of-yet unlinkable reference into a cell
     // @astgen op1 := cellp : AstNode
     // @astgen op2 := exprp : AstNode<AstNodeExpr|AstNodeDType>
     string m_name;  // Cell name
-public:
-    AstCellRef(FileLine* fl, const string& name, AstNode* cellp, AstNode* exprp)
+బహిరంగ:
+    AstCellRef(File_పంక్తి* fl, స్థిరరాశి string& name, Ast_కణుపు* cellp, Ast_కణుపు* exprp)
         : ASTGEN_SUPER_CellRef(fl)
         , m_name{name} {
         this->cellp(cellp);
@@ -968,332 +968,332 @@ public:
     }
     ASTGEN_MEMBERS_AstCellRef;
     // ACCESSORS
-    string name() const override VL_MT_STABLE { return m_name; }  // * = Array name
+    string name() స్థిరరాశి override VL_MT_STABLE { తిరిగి m_name; }  // * = Array name
 
     string emitVerilog() override { V3ERROR_NA_RETURN(""); }
     string emitC() override { V3ERROR_NA_RETURN(""); }
-    bool cleanOut() const override { V3ERROR_NA_RETURN(true); }
+    bool clean_బహిర్గతం() స్థిరరాశి override { V3ERROR_NA_RETURN(true); }
 };
-class AstClassOrPackageRef final : public AstNodeExpr {
+class AstClassOrPackageRef final : బహిరంగ Ast_కణుపు_సమాసం {
     // @astgen op1 := paramsp : List[AstPin]
     string m_name;
     // Node not NodeModule to appease some early parser usage
     // @astgen ptr := m_classOrPackageNodep : Optional[AstNode]  // Class/package referenced
-public:
-    AstClassOrPackageRef(FileLine* fl, const string& name, AstNode* classOrPackageNodep,
+బహిరంగ:
+    AstClassOrPackageRef(File_పంక్తి* fl, స్థిరరాశి string& name, Ast_కణుపు* classOrPackageNodep,
                          AstPin* paramsp)
         : ASTGEN_SUPER_ClassOrPackageRef(fl)
         , m_name{name}
         , m_classOrPackageNodep{classOrPackageNodep} {
-        addParamsp(paramsp);
+        కూడు_Paramsp(paramsp);
     }
     ASTGEN_MEMBERS_AstClassOrPackageRef;
     // METHODS
-    bool sameNode(const AstNode* samep) const override {
-        return (m_classOrPackageNodep
+    bool same_కణుపు(స్థిరరాశి Ast_కణుపు* samep) స్థిరరాశి override {
+        తిరిగి (m_classOrPackageNodep
                 == VN_DBG_AS(samep, ClassOrPackageRef)->m_classOrPackageNodep);
     }
-    void dump(std::ostream& str = std::cout) const override;
-    void dumpJson(std::ostream& str = std::cout) const override;
-    string name() const override VL_MT_STABLE { return m_name; }  // * = Var name
+    శూన్య dump(std::ostream& str = std::cout) స్థిరరాశి override;
+    శూన్య dumpJson(std::ostream& str = std::cout) స్థిరరాశి override;
+    string name() స్థిరరాశి override VL_MT_STABLE { తిరిగి m_name; }  // * = Var name
     // There's no classOrPackagep(); use classOrPackageNodep() to get Node,
     // or iterating to package with classOrPackageSkipp()
-    AstNodeModule* classOrPackageSkipp(const bool doRefs = true) const;
-    AstNode* classOrPackageNodep() const { return m_classOrPackageNodep; }
-    void classOrPackageNodep(AstNode* nodep) { m_classOrPackageNodep = nodep; }
-    void classOrPackagep(AstNodeModule* nodep) {
-        m_classOrPackageNodep = reinterpret_cast<AstNode*>(nodep);
+    Ast_కణుపు_Module* classOrPackageSkipp(స్థిరరాశి bool doRefs = true) స్థిరరాశి;
+    Ast_కణుపు* classOrPackageNodep() స్థిరరాశి { తిరిగి m_classOrPackageNodep; }
+    శూన్య classOrPackageNodep(Ast_కణుపు* nodep) { m_classOrPackageNodep = nodep; }
+    శూన్య classOrPackagep(Ast_కణుపు_Module* nodep) {
+        m_classOrPackageNodep = reinterpret_cast<Ast_కణుపు*>(nodep);
     }
     string emitVerilog() override { V3ERROR_NA_RETURN(""); }
     string emitC() override { V3ERROR_NA_RETURN(""); }
-    bool cleanOut() const override { V3ERROR_NA_RETURN(true); }
+    bool clean_బహిర్గతం() స్థిరరాశి override { V3ERROR_NA_RETURN(true); }
 };
-class AstConst final : public AstNodeExpr {
+class AstConst final : బహిరంగ Ast_కణుపు_సమాసం {
     // A constant
-    V3Number m_num;  // Constant value
-    void initWithNumber() {
-        if (m_num.isDouble()) {
-            dtypeSetDouble();
-        } else if (m_num.isString()) {
-            dtypeSetString();
-        } else {
-            dtypeSetBitOrLogicUnsized(m_num.width(), (m_num.sized() ? 0 : m_num.widthToFit()),
-                                      VSigning::fromBool(m_num.isSigned()), m_num.isAnyXZ());
+    V3_సంఖ్య m_అంకె;  // Constant value
+    శూన్య init_With_సంఖ్య() {
+        ఒకవేళ (m_అంకె.isDouble()) {
+            dtype_సమితి_Double();
+        } లేకపోతే ఒకవేళ (m_అంకె.isString()) {
+            dtype_సమితి_String();
+        } లేకపోతే {
+            dtype_సమితి_బిట్టు_Or_Logic_Unsized(m_అంకె.వెడల్పు(), (m_అంకె.sized() ? 0 : m_అంకె.వెడల్పు_గమ్యం_Fit()),
+                                      VSigning::fromBool(m_అంకె.isSigned()), m_అంకె.isAnyXZ());
         }
-        m_num.nodep(this);
+        m_అంకె.nodep(this);
     }
 
-public:
+బహిరంగ:
     ~AstConst() override;
-    AstConst(FileLine* fl, const V3Number& num)
+    AstConst(File_పంక్తి* fl, స్థిరరాశి V3_సంఖ్య& అంకె)
         : ASTGEN_SUPER_Const(fl)
-        , m_num{num} {
-        initWithNumber();
+        , m_అంకె{అంకె} {
+        init_With_సంఖ్య();
     }
-    class WidthedValue {};  // for creator type-overload selection
-    AstConst(FileLine* fl, WidthedValue, int width, uint32_t value)
+    class Widthed_విలువ {};  // for creator type-overload selection
+    AstConst(File_పంక్తి* fl, Widthed_విలువ, పూర్ణాంకం వెడల్పు, uint32_t విలువ)
         : ASTGEN_SUPER_Const(fl)
-        , m_num(this, width, value) {  // Need () constructor
-        initWithNumber();
+        , m_అంకె(this, వెడల్పు, విలువ) {  // Need () constructor
+        init_With_సంఖ్య();
     }
     class DTyped {};  // for creator type-overload selection
     // Zero/empty constant with a type matching nodetypep
-    AstConst(FileLine* fl, DTyped, const AstNodeDType* nodedtypep)
+    AstConst(File_పంక్తి* fl, DTyped, స్థిరరాశి Ast_కణుపు_DType* nodedtypep)
         : ASTGEN_SUPER_Const(fl)
-        , m_num{this, nodedtypep} {
-        initWithNumber();
+        , m_అంకె{this, nodedtypep} {
+        init_With_సంఖ్య();
     }
-    class StringToParse {};  // for creator type-overload selection
-    AstConst(FileLine* fl, StringToParse, const char* sourcep)
+    class String_గమ్యం_Parse {};  // for creator type-overload selection
+    AstConst(File_పంక్తి* fl, String_గమ్యం_Parse, స్థిరరాశి అక్షరం* sourcep)
         : ASTGEN_SUPER_Const(fl)
-        , m_num{this, V3Number::VerilogNumberLiteral{}, sourcep} {
-        initWithNumber();
+        , m_అంకె{this, V3_సంఖ్య::Verilog_సంఖ్య_Literal{}, sourcep} {
+        init_With_సంఖ్య();
     }
     class VerilogStringLiteral {};  // for creator type-overload selection
-    AstConst(FileLine* fl, VerilogStringLiteral, const string& str)
+    AstConst(File_పంక్తి* fl, VerilogStringLiteral, స్థిరరాశి string& str)
         : ASTGEN_SUPER_Const(fl)
-        , m_num{this, V3Number::VerilogStringLiteral{}, str} {
-        initWithNumber();
+        , m_అంకె{this, V3_సంఖ్య::VerilogStringLiteral{}, str} {
+        init_With_సంఖ్య();
     }
-    AstConst(FileLine* fl, uint32_t num)
+    AstConst(File_పంక్తి* fl, uint32_t అంకె)
         : ASTGEN_SUPER_Const(fl)
-        , m_num(this, 32, num) {  // Need () constructor
-        dtypeSetBitUnsized(m_num.width(), 0, VSigning::UNSIGNED);
+        , m_అంకె(this, 32, అంకె) {  // Need () constructor
+        dtype_సమితి_బిట్టు_Unsized(m_అంకె.వెడల్పు(), 0, VSigning::UNSIGNED);
     }
     class Unsized32 {};  // for creator type-overload selection
-    AstConst(FileLine* fl, Unsized32, uint32_t num)  // Unsized 32-bit integer of specified value
+    AstConst(File_పంక్తి* fl, Unsized32, uint32_t అంకె)  // Unsized 32-bit integer of specified value
         : ASTGEN_SUPER_Const(fl)
-        , m_num(this, 32, num) {  // Need () constructor
-        m_num.width(32, false);
-        dtypeSetBitUnsized(32, m_num.widthToFit(), VSigning::UNSIGNED);
+        , m_అంకె(this, 32, అంకె) {  // Need () constructor
+        m_అంకె.వెడల్పు(32, false);
+        dtype_సమితి_బిట్టు_Unsized(32, m_అంకె.వెడల్పు_గమ్యం_Fit(), VSigning::UNSIGNED);
     }
     class Signed32 {};  // for creator type-overload selection
-    AstConst(FileLine* fl, Signed32, int32_t num)  // Signed 32-bit integer of specified value
+    AstConst(File_పంక్తి* fl, Signed32, int32_t అంకె)  // Signed 32-bit integer of specified value
         : ASTGEN_SUPER_Const(fl)
-        , m_num(this, 32, num) {  // Need () constructor
-        m_num.width(32, true);
-        dtypeSetBitUnsized(32, m_num.widthToFit(), VSigning::SIGNED);
+        , m_అంకె(this, 32, అంకె) {  // Need () constructor
+        m_అంకె.వెడల్పు(32, true);
+        dtype_సమితి_బిట్టు_Unsized(32, m_అంకె.వెడల్పు_గమ్యం_Fit(), VSigning::SIGNED);
     }
     class Unsized64 {};  // for creator type-overload selection
-    AstConst(FileLine* fl, Unsized64, uint64_t num)
+    AstConst(File_పంక్తి* fl, Unsized64, uint64_t అంకె)
         : ASTGEN_SUPER_Const(fl)
-        , m_num(this, 64, 0) {  // Need () constructor
-        m_num.setQuad(num);
-        dtypeSetBitSized(64, VSigning::UNSIGNED);
+        , m_అంకె(this, 64, 0) {  // Need () constructor
+        m_అంకె.సమితి_Quad(అంకె);
+        dtype_సమితి_బిట్టు_Sized(64, VSigning::UNSIGNED);
     }
     class SizedEData {};  // for creator type-overload selection
-    AstConst(FileLine* fl, SizedEData, uint64_t num)
+    AstConst(File_పంక్తి* fl, SizedEData, uint64_t అంకె)
         : ASTGEN_SUPER_Const(fl)
-        , m_num(this, VL_EDATASIZE, 0) {  // Need () constructor
-        m_num.setQuad(num);
-        dtypeSetBitSized(VL_EDATASIZE, VSigning::UNSIGNED);
+        , m_అంకె(this, VL_EDATASIZE, 0) {  // Need () constructor
+        m_అంకె.సమితి_Quad(అంకె);
+        dtype_సమితి_బిట్టు_Sized(VL_EDATASIZE, VSigning::UNSIGNED);
     }
     class RealDouble {};  // for creator type-overload selection
-    AstConst(FileLine* fl, RealDouble, double num)
+    AstConst(File_పంక్తి* fl, RealDouble, ద్విగుణ అంకె)
         : ASTGEN_SUPER_Const(fl)
-        , m_num(this, 64) {  // Need () constructor
-        m_num.setDouble(num);
-        dtypeSetDouble();
+        , m_అంకె(this, 64) {  // Need () constructor
+        m_అంకె.సమితి_Double(అంకె);
+        dtype_సమితి_Double();
     }
     class String {};  // for creator type-overload selection
-    AstConst(FileLine* fl, String, const string& num)
+    AstConst(File_పంక్తి* fl, String, స్థిరరాశి string& అంకె)
         : ASTGEN_SUPER_Const(fl)
-        , m_num{this, V3Number::String{}, num} {
-        dtypeSetString();
+        , m_అంకె{this, V3_సంఖ్య::String{}, అంకె} {
+        dtype_సమితి_String();
     }
-    class BitFalse {};
-    AstConst(FileLine* fl, BitFalse)  // Shorthand const 0, dtype should be a bit of size 1
+    class బిట్టు_False {};
+    AstConst(File_పంక్తి* fl, బిట్టు_False)  // Shorthand const 0, dtype should be a bit of size 1
         : ASTGEN_SUPER_Const(fl)
-        , m_num(this, 1, 0) {  // Need () constructor
-        dtypeSetBit();
+        , m_అంకె(this, 1, 0) {  // Need () constructor
+        dtype_సమితి_బిట్టు();
     }
     // False but created due to reporting earlier error; suppress some later errors
-    class BitFalseErroring {};
-    AstConst(FileLine* fl, BitFalseErroring)
+    class బిట్టు_False_Erroring {};
+    AstConst(File_పంక్తి* fl, బిట్టు_False_Erroring)
         : ASTGEN_SUPER_Const(fl)
-        , m_num(this, 1, 0) {  // Need () constructor
-        dtypeSetBit();
-        FileLine* const newfl = new FileLine{fileline()};
+        , m_అంకె(this, 1, 0) {  // Need () constructor
+        dtype_సమితి_బిట్టు();
+        File_పంక్తి* స్థిరరాశి newfl = new File_పంక్తి{fileline()};
         newfl->erroringOn(true);
         fileline(newfl);
     }
     // Shorthand const 1 (or with argument 0/1), dtype should be a bit of size 1
-    class BitTrue {};
-    AstConst(FileLine* fl, BitTrue, bool on = true)
+    class బిట్టు_True {};
+    AstConst(File_పంక్తి* fl, బిట్టు_True, bool on = true)
         : ASTGEN_SUPER_Const(fl)
-        , m_num(this, 1, on) {  // Need () constructor
-        dtypeSetBit();
+        , m_అంకె(this, 1, on) {  // Need () constructor
+        dtype_సమితి_బిట్టు();
     }
     class All0 {};
-    AstConst(FileLine* fl, All0)
+    AstConst(File_పంక్తి* fl, All0)
         : ASTGEN_SUPER_Const(fl)
-        , m_num{this, V3Number::VerilogNumberLiteral{}, "'0"} {
-        initWithNumber();
-        fl->warnOff(V3ErrorCode::NEWERSTD, true);
+        , m_అంకె{this, V3_సంఖ్య::Verilog_సంఖ్య_Literal{}, "'0"} {
+        init_With_సంఖ్య();
+        fl->warnOff(V3_Error_సంకేతం::NEWERSTD, true);
     }
     class All1 {};
-    AstConst(FileLine* fl, All1)
+    AstConst(File_పంక్తి* fl, All1)
         : ASTGEN_SUPER_Const(fl)
-        , m_num{this, V3Number::VerilogNumberLiteral{}, "'1"} {
-        initWithNumber();
-        fl->warnOff(V3ErrorCode::NEWERSTD, true);
+        , m_అంకె{this, V3_సంఖ్య::Verilog_సంఖ్య_Literal{}, "'1"} {
+        init_With_సంఖ్య();
+        fl->warnOff(V3_Error_సంకేతం::NEWERSTD, true);
     }
     class Null {};
-    AstConst(FileLine* fl, Null)
+    AstConst(File_పంక్తి* fl, Null)
         : ASTGEN_SUPER_Const(fl)
-        , m_num{this, V3Number::Null{}} {
-        dtypep(findNullDType());
-        initWithNumber();
+        , m_అంకె{this, V3_సంఖ్య::Null{}} {
+        dtypep(కనుగొను_Null_DType());
+        init_With_సంఖ్య();
     }
-    class OneStep {};
-    AstConst(FileLine* fl, OneStep)
+    class One_అడుగు {};
+    AstConst(File_పంక్తి* fl, One_అడుగు)
         : ASTGEN_SUPER_Const(fl)
-        , m_num{this, V3Number::OneStep{}} {
-        dtypeSetBitSized(64, VSigning::UNSIGNED);
-        initWithNumber();
+        , m_అంకె{this, V3_సంఖ్య::One_అడుగు{}} {
+        dtype_సమితి_బిట్టు_Sized(64, VSigning::UNSIGNED);
+        init_With_సంఖ్య();
     }
     ASTGEN_MEMBERS_AstConst;
-    string name() const override VL_MT_STABLE { return num().ascii(); }  // * = Value
-    const V3Number& num() const VL_MT_SAFE { return m_num; }  // * = Value
-    V3Number& num() { return m_num; }  // * = Value
-    string origParamName() const;
-    void origParamName(const string& name);
-    uint32_t toUInt() const { return num().toUInt(); }
-    int32_t toSInt() const VL_MT_SAFE { return num().toSInt(); }
-    uint64_t toUQuad() const { return num().toUQuad(); }
+    string name() స్థిరరాశి override VL_MT_STABLE { తిరిగి అంకె().ascii(); }  // * = Value
+    స్థిరరాశి V3_సంఖ్య& అంకె() స్థిరరాశి VL_MT_సురక్షిత { తిరిగి m_అంకె; }  // * = Value
+    V3_సంఖ్య& అంకె() { తిరిగి m_అంకె; }  // * = Value
+    string origParamName() స్థిరరాశి;
+    శూన్య origParamName(స్థిరరాశి string& name);
+    uint32_t గమ్యం_UInt() స్థిరరాశి { తిరిగి అంకె().గమ్యం_UInt(); }
+    int32_t గమ్యం_SInt() స్థిరరాశి VL_MT_సురక్షిత { తిరిగి అంకె().గమ్యం_SInt(); }
+    uint64_t గమ్యం_UQuad() స్థిరరాశి { తిరిగి అంకె().గమ్యం_UQuad(); }
     string emitVerilog() override { V3ERROR_NA_RETURN(""); }
     string emitC() override { V3ERROR_NA_RETURN(""); }
-    bool cleanOut() const override { return true; }
-    void dump(std::ostream& str) const override;
-    void dumpJson(std::ostream& str) const override;
-    bool sameNode(const AstNode* samep) const override {
-        const AstConst* const sp = VN_DBG_AS(samep, Const);
-        return num().isCaseEq(sp->num());
+    bool clean_బహిర్గతం() స్థిరరాశి override { తిరిగి true; }
+    శూన్య dump(std::ostream& str) స్థిరరాశి override;
+    శూన్య dumpJson(std::ostream& str) స్థిరరాశి override;
+    bool same_కణుపు(స్థిరరాశి Ast_కణుపు* samep) స్థిరరాశి override {
+        స్థిరరాశి AstConst* స్థిరరాశి sp = VN_DBG_AS(samep, Const);
+        తిరిగి అంకె().isCaseEq(sp->అంకె());
     }
-    void cloneRelink() override;
-    const char* broken() const override {
-        BROKEN_RTN(m_num.nodep() && m_num.nodep() != this);
-        return nullptr;
+    శూన్య cloneRelink() override;
+    స్థిరరాశి అక్షరం* broken() స్థిరరాశి override {
+        BROKEN_RTN(m_అంకె.nodep() && m_అంకె.nodep() != this);
+        తిరిగి nullptr;
     }
-    int instrCount() const override { return widthInstrs(); }
-    bool isEqAllOnes() const { return num().isEqAllOnes(width()); }
-    bool isEqAllOnesV() const { return num().isEqAllOnes(widthMinV()); }
+    పూర్ణాంకం instr_లెక్క() స్థిరరాశి override { తిరిగి వెడల్పు_Instrs(); }
+    bool isEqAllOnes() స్థిరరాశి { తిరిగి అంకె().isEqAllOnes(వెడల్పు()); }
+    bool isEqAllOnesV() స్థిరరాశి { తిరిగి అంకె().isEqAllOnes(వెడల్పు_Min_V()); }
     // Whether a parameter declared without a data type takes the same type from this value
     // as from 'samep': both real, both string, or both integral with the same width and
     // signedness. Unlike AstNodeDType::similarDType, ignores whether two-state or four-state.
-    bool sameValueType(const AstConst* samep) const;
+    bool same_విలువ_Type(స్థిరరాశి AstConst* samep) స్థిరరాశి;
     // Parse string and create appropriate type of AstConst.
     // May return nullptr on parse failure.
-    static AstConst* parseParamLiteral(FileLine* fl, const string& literal);
+    స్థిర AstConst* parseParamLiteral(File_పంక్తి* fl, స్థిరరాశి string& literal);
 };
-class AstConstraintRef final : public AstNodeExpr {
+class AstConstraintRef final : బహిరంగ Ast_కణుపు_సమాసం {
     // A reference to a constraint identifier
     // @astgen op1 := fromp : Optional[AstNodeExpr]
     //
     // @astgen ptr := m_constrp : AstConstraint  // The constraint pointed to
     // @astgen ptr := m_classOrPackagep : Optional[AstNodeModule]  // Class/package of constraint
 
-public:
-    AstConstraintRef(FileLine* fl, AstNodeExpr* fromp, AstConstraint* constrp)
+బహిరంగ:
+    AstConstraintRef(File_పంక్తి* fl, Ast_కణుపు_సమాసం* fromp, AstConstraint* constrp)
         : ASTGEN_SUPER_ConstraintRef(fl) {
         this->fromp(fromp);
         this->constrp(constrp);
-        dtypep(findConstraintRefDType());
+        dtypep(కనుగొను_Constraint_Ref_DType());
     }
     ASTGEN_MEMBERS_AstConstraintRef;
-    string name() const override VL_MT_STABLE;
-    AstConstraint* constrp() const VL_MT_STABLE { return m_constrp; }
-    void constrp(AstConstraint* nodep) { m_constrp = nodep; }
-    AstNodeModule* classOrPackagep() const VL_MT_STABLE { return m_classOrPackagep; }
+    string name() స్థిరరాశి override VL_MT_STABLE;
+    AstConstraint* constrp() స్థిరరాశి VL_MT_STABLE { తిరిగి m_constrp; }
+    శూన్య constrp(AstConstraint* nodep) { m_constrp = nodep; }
+    Ast_కణుపు_Module* classOrPackagep() స్థిరరాశి VL_MT_STABLE { తిరిగి m_classOrPackagep; }
     // TODO: this setter is unused
-    void classOrPackagep(AstNodeModule* nodep) { m_classOrPackagep = nodep; }
+    శూన్య classOrPackagep(Ast_కణుపు_Module* nodep) { m_classOrPackagep = nodep; }
 
     string emitVerilog() final override { V3ERROR_NA_RETURN(""); }
     string emitC() final override { V3ERROR_NA_RETURN(""); }
-    bool cleanOut() const final override { V3ERROR_NA_RETURN(true); }
+    bool clean_బహిర్గతం() స్థిరరాశి final override { V3ERROR_NA_RETURN(true); }
 };
-class AstCvtArrayToArray final : public AstNodeExpr {
+class Ast_Cvt_Array_గమ్యం_Array final : బహిరంగ Ast_కణుపు_సమాసం {
     // Copy/Cast from dynamic/unpacked types to dynamic/unpacked types
     // @astgen op1 := fromp : AstNodeExpr
-private:
-    const bool m_reverse;  // whether ordering gets reversed in this operation (ex: {<<{expr}})
-    const int m_blockSize;  // num bits per block in a streaming operation (ex: 4 in {<<4{expr}}))
-    const int m_dstElementBits;  // num bits in lhs (ex: 8 if to byte-queue, 1 if to bit-queue)
-    const int m_srcElementBits;  // num bits in rhs (ex 8 if from byte-queue, 1 if from bit-queue)
+అంతరంగ:
+    స్థిరరాశి bool m_తిరగేయి;  // whether ordering gets reversed in this operation (ex: {<<{expr}})
+    స్థిరరాశి పూర్ణాంకం m_ఖండం_కొలత;  // num bits per block in a streaming operation (ex: 4 in {<<4{expr}}))
+    స్థిరరాశి పూర్ణాంకం m_dst_Element_బిట్లు;  // num bits in lhs (ex: 8 if to byte-queue, 1 if to bit-queue)
+    స్థిరరాశి పూర్ణాంకం m_src_Element_బిట్లు;  // num bits in rhs (ex 8 if from byte-queue, 1 if from bit-queue)
 
-public:
+బహిరంగ:
     // cppcheck-suppress constParameterPointer
     // cppcheck-suppress constParameterCallback
-    AstCvtArrayToArray(FileLine* fl, AstNodeExpr* fromp, AstNodeDType* dtp, bool reverse,
-                       int blockSize, int dstElementBits, int srcElementBits)
-        : ASTGEN_SUPER_CvtArrayToArray(fl)
-        , m_reverse{reverse}
-        , m_blockSize{blockSize}
-        , m_dstElementBits{dstElementBits}
-        , m_srcElementBits{srcElementBits} {
+    Ast_Cvt_Array_గమ్యం_Array(File_పంక్తి* fl, Ast_కణుపు_సమాసం* fromp, Ast_కణుపు_DType* dtp, bool తిరగేయి,
+                       పూర్ణాంకం ఖండం_కొలత, పూర్ణాంకం dst_Element_బిట్లు, పూర్ణాంకం src_Element_బిట్లు)
+        : ASTGEN_SUPER_Cvt_Array_గమ్యం_Array(fl)
+        , m_తిరగేయి{తిరగేయి}
+        , m_ఖండం_కొలత{ఖండం_కొలత}
+        , m_dst_Element_బిట్లు{dst_Element_బిట్లు}
+        , m_src_Element_బిట్లు{src_Element_బిట్లు} {
         this->fromp(fromp);
         dtypeFrom(dtp);
     }
-    ASTGEN_MEMBERS_AstCvtArrayToArray;
-    void dump(std::ostream& str) const override;
-    void dumpJson(std::ostream& str) const override;
+    ASTGEN_MEMBERS_Ast_Cvt_Array_గమ్యం_Array;
+    శూన్య dump(std::ostream& str) స్థిరరాశి override;
+    శూన్య dumpJson(std::ostream& str) స్థిరరాశి override;
     string emitVerilog() override { V3ERROR_NA_RETURN(""); }
     string emitC() override { V3ERROR_NA_RETURN(""); }
-    bool cleanOut() const override { return true; }
-    bool reverse() const { return m_reverse; }
-    int blockSize() const { return m_blockSize; }
-    int dstElementBits() const { return m_dstElementBits; }
-    int srcElementBits() const { return m_srcElementBits; }
+    bool clean_బహిర్గతం() స్థిరరాశి override { తిరిగి true; }
+    bool తిరగేయి() స్థిరరాశి { తిరిగి m_తిరగేయి; }
+    పూర్ణాంకం ఖండం_కొలత() స్థిరరాశి { తిరిగి m_ఖండం_కొలత; }
+    పూర్ణాంకం dst_Element_బిట్లు() స్థిరరాశి { తిరిగి m_dst_Element_బిట్లు; }
+    పూర్ణాంకం src_Element_బిట్లు() స్థిరరాశి { తిరిగి m_src_Element_బిట్లు; }
 };
-class AstCvtArrayToPacked final : public AstNodeExpr {
+class Ast_Cvt_Array_గమ్యం_Packed final : బహిరంగ Ast_కణుపు_సమాసం {
     // Cast from dynamic queue data type to packed array
     // @astgen op1 := fromp : AstNodeExpr
-public:
+బహిరంగ:
     // cppcheck-suppress constParameterPointer
     // cppcheck-suppress constParameterCallback
-    AstCvtArrayToPacked(FileLine* fl, AstNodeExpr* fromp, AstNodeDType* dtp)
-        : ASTGEN_SUPER_CvtArrayToPacked(fl) {
+    Ast_Cvt_Array_గమ్యం_Packed(File_పంక్తి* fl, Ast_కణుపు_సమాసం* fromp, Ast_కణుపు_DType* dtp)
+        : ASTGEN_SUPER_Cvt_Array_గమ్యం_Packed(fl) {
         this->fromp(fromp);
         dtypeFrom(dtp);
     }
-    ASTGEN_MEMBERS_AstCvtArrayToPacked;
+    ASTGEN_MEMBERS_Ast_Cvt_Array_గమ్యం_Packed;
     string emitVerilog() override { V3ERROR_NA_RETURN(""); }
     string emitC() override { V3ERROR_NA_RETURN(""); }
-    bool cleanOut() const override { return true; }
+    bool clean_బహిర్గతం() స్థిరరాశి override { తిరిగి true; }
 };
-class AstCvtPackedToArray final : public AstNodeExpr {
+class Ast_Cvt_Packed_గమ్యం_Array final : బహిరంగ Ast_కణుపు_సమాసం {
     // Cast from packed array to dynamic/unpacked queue data type
     // @astgen op1 := fromp : AstNodeExpr
-public:
+బహిరంగ:
     // cppcheck-suppress constParameterPointer
     // cppcheck-suppress constParameterCallback
-    AstCvtPackedToArray(FileLine* fl, AstNodeExpr* fromp, AstNodeDType* dtp)
-        : ASTGEN_SUPER_CvtPackedToArray(fl) {
+    Ast_Cvt_Packed_గమ్యం_Array(File_పంక్తి* fl, Ast_కణుపు_సమాసం* fromp, Ast_కణుపు_DType* dtp)
+        : ASTGEN_SUPER_Cvt_Packed_గమ్యం_Array(fl) {
         this->fromp(fromp);
         dtypeFrom(dtp);
     }
-    ASTGEN_MEMBERS_AstCvtPackedToArray;
+    ASTGEN_MEMBERS_Ast_Cvt_Packed_గమ్యం_Array;
     string emitVerilog() override { V3ERROR_NA_RETURN(""); }
     string emitC() override { V3ERROR_NA_RETURN(""); }
-    bool cleanOut() const override { return true; }
+    bool clean_బహిర్గతం() స్థిరరాశి override { తిరిగి true; }
 };
-class AstCvtUnpackToQueue final : public AstNodeExpr {
+class Ast_Cvt_Unpack_గమ్యం_వరుస final : బహిరంగ Ast_కణుపు_సమాసం {
     // Cast from unpacked array to dynamic/unpacked queue data type
     // @astgen op1 := fromp : AstNodeExpr
-public:
+బహిరంగ:
     // cppcheck-suppress constParameterPointer
     // cppcheck-suppress constParameterCallback
-    AstCvtUnpackToQueue(FileLine* fl, AstNodeExpr* fromp, AstNodeDType* dtp)
-        : ASTGEN_SUPER_CvtUnpackToQueue(fl) {
+    Ast_Cvt_Unpack_గమ్యం_వరుస(File_పంక్తి* fl, Ast_కణుపు_సమాసం* fromp, Ast_కణుపు_DType* dtp)
+        : ASTGEN_SUPER_Cvt_Unpack_గమ్యం_వరుస(fl) {
         this->fromp(fromp);
         dtypeFrom(dtp);
     }
-    ASTGEN_MEMBERS_AstCvtUnpackToQueue;
+    ASTGEN_MEMBERS_Ast_Cvt_Unpack_గమ్యం_వరుస;
     string emitVerilog() override { V3ERROR_NA_RETURN(""); }
-    string emitC() override { return "VL_CVT_UNPACK_TO_Q(%P, %li)"; }
-    bool cleanOut() const override { return true; }
+    string emitC() override { తిరిగి "VL_CVT_UNPACK_TO_Q(%P, %li)"; }
+    bool clean_బహిర్గతం() స్థిరరాశి override { తిరిగి true; }
 };
-class AstCvtUnpackToUnpack final : public AstNodeExpr {
+class Ast_Cvt_Unpack_గమ్యం_Unpack final : బహిరంగ Ast_కణుపు_సమాసం {
     // Convert an unpacked array to one with the same shape but different ascending/descending
     // direction in at least one dimension (IEEE 1800-2023 7.6).
     // Any combination of dimensions is reversed by the one conversion, which dimensions follow
@@ -1302,62 +1302,62 @@ class AstCvtUnpackToUnpack final : public AstNodeExpr {
     // outer one. A conversion of an inner dimension is not inserted lower down instead, which
     // would need the arrays split into elements.
     // @astgen op1 := fromp : AstNodeExpr
-public:
-    AstCvtUnpackToUnpack(FileLine* fl, AstNodeExpr* fromp, AstNodeDType* dtp)
-        : ASTGEN_SUPER_CvtUnpackToUnpack(fl) {
+బహిరంగ:
+    Ast_Cvt_Unpack_గమ్యం_Unpack(File_పంక్తి* fl, Ast_కణుపు_సమాసం* fromp, Ast_కణుపు_DType* dtp)
+        : ASTGEN_SUPER_Cvt_Unpack_గమ్యం_Unpack(fl) {
         this->fromp(fromp);
         dtypeFrom(dtp);
     }
-    ASTGEN_MEMBERS_AstCvtUnpackToUnpack;
+    ASTGEN_MEMBERS_Ast_Cvt_Unpack_గమ్యం_Unpack;
     string emitVerilog() override { V3ERROR_NA_RETURN(""); }
     string emitC() override { V3ERROR_NA_RETURN(""); }
-    bool cleanOut() const override { return true; }
+    bool clean_బహిర్గతం() స్థిరరాశి override { తిరిగి true; }
 };
-class AstDist final : public AstNodeExpr {
+class AstDist final : బహిరంగ Ast_కణుపు_సమాసం {
     // @astgen op1 := exprp : AstNodeExpr
     // @astgen op2 := itemsp : List[AstDistItem]
-public:
-    AstDist(FileLine* fl, AstNodeExpr* exprp, AstDistItem* itemsp)
+బహిరంగ:
+    AstDist(File_పంక్తి* fl, Ast_కణుపు_సమాసం* exprp, Ast_Dist_అంశం* itemsp)
         : ASTGEN_SUPER_Dist(fl) {
         this->exprp(exprp);
-        addItemsp(itemsp);
-        dtypeSetBit();
+        కూడు_Itemsp(itemsp);
+        dtype_సమితి_బిట్టు();
     }
     ASTGEN_MEMBERS_AstDist;
-    string emitVerilog() override { return "%l dist { %r }"; }
+    string emitVerilog() override { తిరిగి "%l dist { %r }"; }
     string emitC() override { V3ERROR_NA_RETURN(""); }
-    bool cleanOut() const override { return false; }  // NA
+    bool clean_బహిర్గతం() స్థిరరాశి override { తిరిగి false; }  // NA
 };
-class AstDistItem final : public AstNodeExpr {
+class Ast_Dist_అంశం final : బహిరంగ Ast_కణుపు_సమాసం {
     // Constraint distribution item
     // @astgen op1 := rangep : AstNodeExpr
     // @astgen op2 := weightp : AstNodeExpr
-    bool m_isWhole = false;  // True for weight ':/', false for ':='
-public:
-    AstDistItem(FileLine* fl, AstNodeExpr* rangep, AstNodeExpr* weightp)
-        : ASTGEN_SUPER_DistItem(fl) {
+    bool m_is_సంపూర్ణ = false;  // True for weight ':/', false for ':='
+బహిరంగ:
+    Ast_Dist_అంశం(File_పంక్తి* fl, Ast_కణుపు_సమాసం* rangep, Ast_కణుపు_సమాసం* weightp)
+        : ASTGEN_SUPER_Dist_అంశం(fl) {
         this->rangep(rangep);
         this->weightp(weightp);
     }
-    ASTGEN_MEMBERS_AstDistItem;
-    void dump(std::ostream& str) const override;
-    void dumpJson(std::ostream& str) const override;
-    string emitVerilog() override { return "%l "s + (m_isWhole ? ":/" : ":=") + " %r"; }
+    ASTGEN_MEMBERS_Ast_Dist_అంశం;
+    శూన్య dump(std::ostream& str) స్థిరరాశి override;
+    శూన్య dumpJson(std::ostream& str) స్థిరరాశి override;
+    string emitVerilog() override { తిరిగి "%l "s + (m_is_సంపూర్ణ ? ":/" : ":=") + " %r"; }
     string emitC() override { V3ERROR_NA_RETURN(""); }
-    bool cleanOut() const override { return false; }  // NA
-    void isWhole(bool flag) { m_isWhole = flag; }
-    bool isWhole() const { return m_isWhole; }
+    bool clean_బహిర్గతం() స్థిరరాశి override { తిరిగి false; }  // NA
+    శూన్య is_సంపూర్ణ(bool flag) { m_is_సంపూర్ణ = flag; }
+    bool is_సంపూర్ణ() స్థిరరాశి { తిరిగి m_is_సంపూర్ణ; }
 };
-class AstDot final : public AstNodeExpr {
+class AstDot final : బహిరంగ Ast_కణుపు_సమాసం {
     // A dot separating paths in an AstVarXRef, AstFuncRef or AstTaskRef
     // These are eliminated in the link stage
     // @astgen op1 := lhsp : AstNode<AstNodeExpr|AstNodeDType>
     // @astgen op2 := rhsp : AstNode<AstNodeExpr|AstNodeDType>
     //
     // We don't have a list of elements as it's probably legal to do '(foo.bar).(baz.bap)'
-    const bool m_colon;  // Is a "::" instead of a "." (lhs must be package/class)
-public:
-    AstDot(FileLine* fl, bool colon, AstNodeExpr* lhsp, AstNodeExpr* rhsp)
+    స్థిరరాశి bool m_colon;  // Is a "::" instead of a "." (lhs must be package/class)
+బహిరంగ:
+    AstDot(File_పంక్తి* fl, bool colon, Ast_కణుపు_సమాసం* lhsp, Ast_కణుపు_సమాసం* rhsp)
         : ASTGEN_SUPER_Dot(fl)
         , m_colon{colon} {
         this->lhsp(lhsp);
@@ -1365,382 +1365,382 @@ public:
     }
     ASTGEN_MEMBERS_AstDot;
     // For parser, make only if non-null package
-    static AstNodeExpr* newIfPkg(FileLine* fl, AstNodeExpr* packageOrClassp, AstNodeExpr* rhsp) {
-        if (!packageOrClassp) return rhsp;
-        return new AstDot{fl, true, packageOrClassp, rhsp};
+    స్థిర Ast_కణుపు_సమాసం* newIfPkg(File_పంక్తి* fl, Ast_కణుపు_సమాసం* packageOrClassp, Ast_కణుపు_సమాసం* rhsp) {
+        ఒకవేళ (!packageOrClassp) తిరిగి rhsp;
+        తిరిగి new AstDot{fl, true, packageOrClassp, rhsp};
     }
-    void dump(std::ostream& str) const override;
-    void dumpJson(std::ostream& str) const override;
-    bool colon() const { return m_colon; }
+    శూన్య dump(std::ostream& str) స్థిరరాశి override;
+    శూన్య dumpJson(std::ostream& str) స్థిరరాశి override;
+    bool colon() స్థిరరాశి { తిరిగి m_colon; }
 
     string emitVerilog() override { V3ERROR_NA_RETURN(""); }
     string emitC() override { V3ERROR_NA_RETURN(""); }
-    bool cleanOut() const override { V3ERROR_NA_RETURN(true); }
+    bool clean_బహిర్గతం() స్థిరరాశి override { V3ERROR_NA_RETURN(true); }
 };
-class AstEmptyQueue final : public AstNodeExpr {
-public:
-    explicit AstEmptyQueue(FileLine* fl)
-        : ASTGEN_SUPER_EmptyQueue(fl) {}
-    ASTGEN_MEMBERS_AstEmptyQueue;
+class Ast_ఖాళీలు_వరుస final : బహిరంగ Ast_కణుపు_సమాసం {
+బహిరంగ:
+    explicit Ast_ఖాళీలు_వరుస(File_పంక్తి* fl)
+        : ASTGEN_SUPER_ఖాళీలు_వరుస(fl) {}
+    ASTGEN_MEMBERS_Ast_ఖాళీలు_వరుస;
     string emitC() override { V3ERROR_NA_RETURN(""); }
-    string emitVerilog() override { return "{}"; }
-    bool sameNode(const AstNode* /*samep*/) const override { return true; }
-    bool cleanOut() const override { return true; }
+    string emitVerilog() override { తిరిగి "{}"; }
+    bool same_కణుపు(స్థిరరాశి Ast_కణుపు* /*samep*/) స్థిరరాశి override { తిరిగి true; }
+    bool clean_బహిర్గతం() స్థిరరాశి override { తిరిగి true; }
 };
-class AstEnumItemRef final : public AstNodeExpr {
+class Ast_Enum_అంశం_Ref final : బహిరంగ Ast_కణుపు_సమాసం {
     // @astgen ptr := m_itemp : Optional[AstEnumItem]  // [AfterLink] Pointer to item
     // @astgen ptr := m_classOrPackagep : Optional[AstNodeModule]  // Class/package defined in
     string m_name;  // Name of enum (for param relink)
     string m_dotted;  // Dotted part of scope the name()'ed reference is under or ""
-    bool m_containsGenBlock = false;  // Contains gen block reference
-public:
-    AstEnumItemRef(FileLine* fl, AstEnumItem* itemp, AstNodeModule* classOrPackagep)
-        : ASTGEN_SUPER_EnumItemRef(fl)
+    bool m_కలిగియుంది_Gen_ఖండం = false;  // Contains gen block reference
+బహిరంగ:
+    Ast_Enum_అంశం_Ref(File_పంక్తి* fl, Ast_Enum_అంశం* itemp, Ast_కణుపు_Module* classOrPackagep)
+        : ASTGEN_SUPER_Enum_అంశం_Ref(fl)
         , m_name{itemp->name()}
         , m_itemp{itemp}
         , m_classOrPackagep{classOrPackagep} {
         dtypeFrom(m_itemp);
     }
-    ASTGEN_MEMBERS_AstEnumItemRef;
-    void dump(std::ostream& str) const override;
-    void dumpJson(std::ostream& str) const override;
-    const char* broken() const override;
-    string name() const override VL_MT_STABLE { return itemp() ? itemp()->name() : m_name; }
-    int instrCount() const override { return 0; }
-    bool sameNode(const AstNode* samep) const override {
-        const AstEnumItemRef* const sp = VN_DBG_AS(samep, EnumItemRef);
-        return itemp() == sp->itemp() && dotted() == sp->dotted()
-               && containsGenBlock() == sp->containsGenBlock();
+    ASTGEN_MEMBERS_Ast_Enum_అంశం_Ref;
+    శూన్య dump(std::ostream& str) స్థిరరాశి override;
+    శూన్య dumpJson(std::ostream& str) స్థిరరాశి override;
+    స్థిరరాశి అక్షరం* broken() స్థిరరాశి override;
+    string name() స్థిరరాశి override VL_MT_STABLE { తిరిగి itemp() ? itemp()->name() : m_name; }
+    పూర్ణాంకం instr_లెక్క() స్థిరరాశి override { తిరిగి 0; }
+    bool same_కణుపు(స్థిరరాశి Ast_కణుపు* samep) స్థిరరాశి override {
+        స్థిరరాశి Ast_Enum_అంశం_Ref* స్థిరరాశి sp = VN_DBG_AS(samep, Enum_అంశం_Ref);
+        తిరిగి itemp() == sp->itemp() && dotted() == sp->dotted()
+               && కలిగియుంది_Gen_ఖండం() == sp->కలిగియుంది_Gen_ఖండం();
     }
-    AstEnumItem* itemp() const VL_MT_STABLE { return m_itemp; }
-    void itemp(AstEnumItem* nodep) { m_itemp = nodep; }
-    string dotted() const { return m_dotted; }
-    void dotted(const string& dotted) { m_dotted = dotted; }
-    bool containsGenBlock() const { return m_containsGenBlock; }
-    void containsGenBlock(const bool flag) { m_containsGenBlock = flag; }
+    Ast_Enum_అంశం* itemp() స్థిరరాశి VL_MT_STABLE { తిరిగి m_itemp; }
+    శూన్య itemp(Ast_Enum_అంశం* nodep) { m_itemp = nodep; }
+    string dotted() స్థిరరాశి { తిరిగి m_dotted; }
+    శూన్య dotted(స్థిరరాశి string& dotted) { m_dotted = dotted; }
+    bool కలిగియుంది_Gen_ఖండం() స్థిరరాశి { తిరిగి m_కలిగియుంది_Gen_ఖండం; }
+    శూన్య కలిగియుంది_Gen_ఖండం(స్థిరరాశి bool flag) { m_కలిగియుంది_Gen_ఖండం = flag; }
     string emitVerilog() override { V3ERROR_NA_RETURN(""); }
     string emitC() override { V3ERROR_NA_RETURN(""); }
-    bool cleanOut() const override { return true; }
-    AstNodeModule* classOrPackagep() const { return m_classOrPackagep; }
-    void classOrPackagep(AstNodeModule* nodep) { m_classOrPackagep = nodep; }
+    bool clean_బహిర్గతం() స్థిరరాశి override { తిరిగి true; }
+    Ast_కణుపు_Module* classOrPackagep() స్థిరరాశి { తిరిగి m_classOrPackagep; }
+    శూన్య classOrPackagep(Ast_కణుపు_Module* nodep) { m_classOrPackagep = nodep; }
 };
-class AstExprStmt final : public AstNodeExpr {
+class Ast_సమాసం_Stmt final : బహిరంగ Ast_కణుపు_సమాసం {
     // Perform a statement, often assignment inside an expression node,
     // the parent gets passed the 'resultp()'.
     // resultp is evaluated AFTER the statement(s).
     // @astgen op1 := stmtsp : List[AstNode]
     // @astgen op2 := resultp : AstNodeExpr
-private:
-    bool m_hasResult = true;  // Returns result via resultp()
+అంతరంగ:
+    bool m_has_ఫలితం = true;  // Returns result via resultp()
 
-public:
-    AstExprStmt(FileLine* fl, AstNode* stmtsp, AstNodeExpr* resultp)
-        : ASTGEN_SUPER_ExprStmt(fl) {
-        addStmtsp(stmtsp);
+బహిరంగ:
+    Ast_సమాసం_Stmt(File_పంక్తి* fl, Ast_కణుపు* stmtsp, Ast_కణుపు_సమాసం* resultp)
+        : ASTGEN_SUPER_సమాసం_Stmt(fl) {
+        కూడు_Stmtsp(stmtsp);
         this->resultp(resultp);
         dtypeFrom(resultp);
     }
-    ASTGEN_MEMBERS_AstExprStmt;
+    ASTGEN_MEMBERS_Ast_సమాసం_Stmt;
     // METHODS
-    void dump(std::ostream& str) const override;
-    void dumpJson(std::ostream& str) const override;
+    శూన్య dump(std::ostream& str) స్థిరరాశి override;
+    శూన్య dumpJson(std::ostream& str) స్థిరరాశి override;
     string emitVerilog() override { V3ERROR_NA_RETURN(""); }
     string emitC() override { V3ERROR_NA_RETURN(""); }
-    bool cleanOut() const override { return true; }
-    bool isPure() override {
-        if (AstNode::afterCommentp(stmtsp())) return false;
-        return resultp()->isPure();
+    bool clean_బహిర్గతం() స్థిరరాశి override { తిరిగి true; }
+    bool is_శుద్ధ() override {
+        ఒకవేళ (Ast_కణుపు::afterCommentp(stmtsp())) తిరిగి false;
+        తిరిగి resultp()->is_శుద్ధ();
     }
-    bool sameNode(const AstNode*) const override { return true; }
-    bool hasResult() const { return m_hasResult; }
-    void hasResult(bool flag) { m_hasResult = flag; }
+    bool same_కణుపు(స్థిరరాశి Ast_కణుపు*) స్థిరరాశి override { తిరిగి true; }
+    bool has_ఫలితం() స్థిరరాశి { తిరిగి m_has_ఫలితం; }
+    శూన్య has_ఫలితం(bool flag) { m_has_ఫలితం = flag; }
 };
-class AstFError final : public AstNodeExpr {
+class AstFError final : బహిరంగ Ast_కణుపు_సమాసం {
     // @astgen op1 := filep : AstNodeExpr
     // @astgen op2 := strp : AstNodeExpr
-public:
-    AstFError(FileLine* fl, AstNodeExpr* filep, AstNodeExpr* strp)
+బహిరంగ:
+    AstFError(File_పంక్తి* fl, Ast_కణుపు_సమాసం* filep, Ast_కణుపు_సమాసం* strp)
         : ASTGEN_SUPER_FError(fl) {
         this->filep(filep);
         this->strp(strp);
-        dtypeSetLogic2StateUnsized(
-            32, v3Global.widthMinUsage() == VWidthMinUsage::MATCHES_WIDTH ? 32 : 1,
+        dtype_సమితి_Logic2_State_Unsized(
+            32, v3Global.వెడల్పు_Min_Usage() == VWidthMinUsage::MATCHES_వెడల్పు ? 32 : 1,
             VSigning::SIGNED);  // Spec says integer return
     }
     ASTGEN_MEMBERS_AstFError;
-    string emitVerilog() override { return "%f$ferror(%l, %r)"; }
+    string emitVerilog() override { తిరిగి "%f$ferror(%l, %r)"; }
     string emitC() override { V3ERROR_NA_RETURN(""); }
-    bool cleanOut() const override { return true; }
-    int instrCount() const override { return widthInstrs() * 64; }
-    bool isPredictOptimizable() const override { return false; }
-    bool isPure() override { return false; }  // SPECIAL: $display has 'visual' ordering
-    bool isSystemFunc() const override { return true; }
-    bool sameNode(const AstNode* /*samep*/) const override { return true; }
+    bool clean_బహిర్గతం() స్థిరరాశి override { తిరిగి true; }
+    పూర్ణాంకం instr_లెక్క() స్థిరరాశి override { తిరిగి వెడల్పు_Instrs() * 64; }
+    bool isPredictOptimizable() స్థిరరాశి override { తిరిగి false; }
+    bool is_శుద్ధ() override { తిరిగి false; }  // SPECIAL: $display has 'visual' ordering
+    bool isSystemFunc() స్థిరరాశి override { తిరిగి true; }
+    bool same_కణుపు(స్థిరరాశి Ast_కణుపు* /*samep*/) స్థిరరాశి override { తిరిగి true; }
 };
-class AstFOpen final : public AstNodeExpr {
+class AstFOpen final : బహిరంగ Ast_కణుపు_సమాసం {
     // @astgen op2 := filenamep : AstNodeExpr
     // @astgen op3 := modep : AstNodeExpr
-public:
-    AstFOpen(FileLine* fl, AstNodeExpr* filenamep, AstNodeExpr* modep)
+బహిరంగ:
+    AstFOpen(File_పంక్తి* fl, Ast_కణుపు_సమాసం* filenamep, Ast_కణుపు_సమాసం* modep)
         : ASTGEN_SUPER_FOpen(fl) {
         this->filenamep(filenamep);
         this->modep(modep);
-        dtypeSetLogic2StateUnsized(
-            32, v3Global.widthMinUsage() == VWidthMinUsage::MATCHES_WIDTH ? 32 : 1,
+        dtype_సమితి_Logic2_State_Unsized(
+            32, v3Global.వెడల్పు_Min_Usage() == VWidthMinUsage::MATCHES_వెడల్పు ? 32 : 1,
             VSigning::SIGNED);  // Spec says integer return
     }
     ASTGEN_MEMBERS_AstFOpen;
     string emitVerilog() override { V3ERROR_NA_RETURN(""); }
     string emitC() override { V3ERROR_NA_RETURN(""); }
-    bool cleanOut() const override { return true; }
-    string verilogKwd() const override { return "$fopen"; }
-    bool isGateOptimizable() const override { return false; }
-    bool isPredictOptimizable() const override { return false; }
-    bool isPure() override { return false; }
-    bool isOutputter() override { return true; }
-    bool isUnlikely() const override { return true; }
-    bool sameNode(const AstNode* /*samep*/) const override { return true; }
-    bool isSystemFunc() const override { return true; }
+    bool clean_బహిర్గతం() స్థిరరాశి override { తిరిగి true; }
+    string verilogKwd() స్థిరరాశి override { తిరిగి "$fopen"; }
+    bool isGateOptimizable() స్థిరరాశి override { తిరిగి false; }
+    bool isPredictOptimizable() స్థిరరాశి override { తిరిగి false; }
+    bool is_శుద్ధ() override { తిరిగి false; }
+    bool isOutputter() override { తిరిగి true; }
+    bool isUnlikely() స్థిరరాశి override { తిరిగి true; }
+    bool same_కణుపు(స్థిరరాశి Ast_కణుపు* /*samep*/) స్థిరరాశి override { తిరిగి true; }
+    bool isSystemFunc() స్థిరరాశి override { తిరిగి true; }
 };
-class AstFOpenMcd final : public AstNodeExpr {
+class AstFOpenMcd final : బహిరంగ Ast_కణుపు_సమాసం {
     // @astgen op2 := filenamep : AstNodeExpr
-public:
-    AstFOpenMcd(FileLine* fl, AstNodeExpr* filenamep)
+బహిరంగ:
+    AstFOpenMcd(File_పంక్తి* fl, Ast_కణుపు_సమాసం* filenamep)
         : ASTGEN_SUPER_FOpenMcd(fl) {
         this->filenamep(filenamep);
-        dtypeSetLogic2StateUnsized(
-            32, v3Global.widthMinUsage() == VWidthMinUsage::MATCHES_WIDTH ? 32 : 1,
+        dtype_సమితి_Logic2_State_Unsized(
+            32, v3Global.వెడల్పు_Min_Usage() == VWidthMinUsage::MATCHES_వెడల్పు ? 32 : 1,
             VSigning::SIGNED);  // Spec says integer return
     }
     ASTGEN_MEMBERS_AstFOpenMcd;
     string emitVerilog() override { V3ERROR_NA_RETURN(""); }
     string emitC() override { V3ERROR_NA_RETURN(""); }
-    bool cleanOut() const override { return true; }
-    string verilogKwd() const override { return "$fopen"; }
-    bool isGateOptimizable() const override { return false; }
-    bool isPredictOptimizable() const override { return false; }
-    bool isPure() override { return false; }
-    bool isOutputter() override { return true; }
-    bool isUnlikely() const override { return true; }
-    bool sameNode(const AstNode* /*samep*/) const override { return true; }
+    bool clean_బహిర్గతం() స్థిరరాశి override { తిరిగి true; }
+    string verilogKwd() స్థిరరాశి override { తిరిగి "$fopen"; }
+    bool isGateOptimizable() స్థిరరాశి override { తిరిగి false; }
+    bool isPredictOptimizable() స్థిరరాశి override { తిరిగి false; }
+    bool is_శుద్ధ() override { తిరిగి false; }
+    bool isOutputter() override { తిరిగి true; }
+    bool isUnlikely() స్థిరరాశి override { తిరిగి true; }
+    bool same_కణుపు(స్థిరరాశి Ast_కణుపు* /*samep*/) స్థిరరాశి override { తిరిగి true; }
 };
-class AstFRead final : public AstNodeExpr {
+class AstFRead final : బహిరంగ Ast_కణుపు_సమాసం {
     // @astgen op1 := memp : AstNodeExpr // VarRef for result
     // @astgen op2 := filep : AstNodeExpr // file (must be a VarRef)
     // @astgen op3 := startp : Optional[AstNodeExpr] // Offset
     // @astgen op4 := countp : Optional[AstNodeExpr] // Size
-public:
-    AstFRead(FileLine* fl, AstNodeExpr* memp, AstNodeExpr* filep, AstNodeExpr* startp,
-             AstNodeExpr* countp)
+బహిరంగ:
+    AstFRead(File_పంక్తి* fl, Ast_కణుపు_సమాసం* memp, Ast_కణుపు_సమాసం* filep, Ast_కణుపు_సమాసం* startp,
+             Ast_కణుపు_సమాసం* countp)
         : ASTGEN_SUPER_FRead(fl) {
         this->memp(memp);
         this->filep(filep);
         this->startp(startp);
         this->countp(countp);
-        dtypeSetInteger2State();  // Spec says integer return
+        dtype_సమితి_Integer2_State();  // Spec says integer return
     }
     ASTGEN_MEMBERS_AstFRead;
-    string verilogKwd() const override { return "$fread"; }
+    string verilogKwd() స్థిరరాశి override { తిరిగి "$fread"; }
     string emitVerilog() override { V3ERROR_NA_RETURN(""); }
     string emitC() override { V3ERROR_NA_RETURN(""); }
-    bool isGateOptimizable() const override { return false; }
-    bool isPredictOptimizable() const override { return false; }
-    bool isPure() override { return false; }  // SPECIAL: has 'visual' ordering
-    bool isOutputter() override { return true; }  // SPECIAL: makes output
-    bool cleanOut() const override { return false; }
-    bool sameNode(const AstNode* /*samep*/) const override { return true; }
-    bool isSystemFunc() const override { return true; }
+    bool isGateOptimizable() స్థిరరాశి override { తిరిగి false; }
+    bool isPredictOptimizable() స్థిరరాశి override { తిరిగి false; }
+    bool is_శుద్ధ() override { తిరిగి false; }  // SPECIAL: has 'visual' ordering
+    bool isOutputter() override { తిరిగి true; }  // SPECIAL: makes output
+    bool clean_బహిర్గతం() స్థిరరాశి override { తిరిగి false; }
+    bool same_కణుపు(స్థిరరాశి Ast_కణుపు* /*samep*/) స్థిరరాశి override { తిరిగి true; }
+    bool isSystemFunc() స్థిరరాశి override { తిరిగి true; }
 };
-class AstFRewind final : public AstNodeExpr {
+class AstFRewind final : బహిరంగ Ast_కణుపు_సమాసం {
     // @astgen op1 := filep : Optional[AstNodeExpr]
-public:
-    AstFRewind(FileLine* fl, AstNodeExpr* filep)
+బహిరంగ:
+    AstFRewind(File_పంక్తి* fl, Ast_కణుపు_సమాసం* filep)
         : ASTGEN_SUPER_FRewind(fl) {
         this->filep(filep);
-        dtypeSetLogic2StateUnsized(
-            32, v3Global.widthMinUsage() == VWidthMinUsage::MATCHES_WIDTH ? 32 : 1,
+        dtype_సమితి_Logic2_State_Unsized(
+            32, v3Global.వెడల్పు_Min_Usage() == VWidthMinUsage::MATCHES_వెడల్పు ? 32 : 1,
             VSigning::SIGNED);  // Spec says integer return
     }
     ASTGEN_MEMBERS_AstFRewind;
-    string verilogKwd() const override { return "$frewind"; }
+    string verilogKwd() స్థిరరాశి override { తిరిగి "$frewind"; }
     string emitVerilog() override { V3ERROR_NA_RETURN(""); }
     string emitC() override { V3ERROR_NA_RETURN(""); }
-    bool isGateOptimizable() const override { return false; }
-    bool isPredictOptimizable() const override { return false; }
-    bool isPure() override { return false; }
-    bool isOutputter() override { return true; }
-    bool isUnlikely() const override { return true; }
-    bool cleanOut() const override { return false; }
-    bool sameNode(const AstNode* /*samep*/) const override { return true; }
+    bool isGateOptimizable() స్థిరరాశి override { తిరిగి false; }
+    bool isPredictOptimizable() స్థిరరాశి override { తిరిగి false; }
+    bool is_శుద్ధ() override { తిరిగి false; }
+    bool isOutputter() override { తిరిగి true; }
+    bool isUnlikely() స్థిరరాశి override { తిరిగి true; }
+    bool clean_బహిర్గతం() స్థిరరాశి override { తిరిగి false; }
+    bool same_కణుపు(స్థిరరాశి Ast_కణుపు* /*samep*/) స్థిరరాశి override { తిరిగి true; }
 };
-class AstFScanF final : public AstNodeExpr {
+class AstFScanF final : బహిరంగ Ast_కణుపు_సమాసం {
     // @astgen op1 := exprsp : List[AstNodeExpr] // VarRefs for results
     // @astgen op2 := filep : Optional[AstNodeExpr] // file (must be a VarRef)
-    string m_text;
+    string m_పాఠ్యం;
 
-public:
-    AstFScanF(FileLine* fl, const string& text, AstNodeExpr* filep, AstNodeExpr* exprsp)
+బహిరంగ:
+    AstFScanF(File_పంక్తి* fl, స్థిరరాశి string& పాఠ్యం, Ast_కణుపు_సమాసం* filep, Ast_కణుపు_సమాసం* exprsp)
         : ASTGEN_SUPER_FScanF(fl)
-        , m_text{text} {
-        addExprsp(exprsp);
+        , m_పాఠ్యం{పాఠ్యం} {
+        కూడు_Exprsp(exprsp);
         this->filep(filep);
-        dtypeSetInteger2State();  // Spec says integer return
+        dtype_సమితి_Integer2_State();  // Spec says integer return
     }
     ASTGEN_MEMBERS_AstFScanF;
-    string name() const override VL_MT_STABLE { return m_text; }
-    string verilogKwd() const override { return "$fscanf"; }
+    string name() స్థిరరాశి override VL_MT_STABLE { తిరిగి m_పాఠ్యం; }
+    string verilogKwd() స్థిరరాశి override { తిరిగి "$fscanf"; }
     string emitVerilog() override { V3ERROR_NA_RETURN(""); }
     string emitC() override { V3ERROR_NA_RETURN(""); }
-    bool isGateOptimizable() const override { return false; }
-    bool isPredictOptimizable() const override { return false; }
-    bool isPure() override { return false; }  // SPECIAL: has 'visual' ordering
-    bool isOutputter() override { return true; }  // SPECIAL: makes output
-    bool cleanOut() const override { return false; }
-    bool sameNode(const AstNode* samep) const override {
-        return text() == VN_DBG_AS(samep, FScanF)->text();
+    bool isGateOptimizable() స్థిరరాశి override { తిరిగి false; }
+    bool isPredictOptimizable() స్థిరరాశి override { తిరిగి false; }
+    bool is_శుద్ధ() override { తిరిగి false; }  // SPECIAL: has 'visual' ordering
+    bool isOutputter() override { తిరిగి true; }  // SPECIAL: makes output
+    bool clean_బహిర్గతం() స్థిరరాశి override { తిరిగి false; }
+    bool same_కణుపు(స్థిరరాశి Ast_కణుపు* samep) స్థిరరాశి override {
+        తిరిగి పాఠ్యం() == VN_DBG_AS(samep, FScanF)->పాఠ్యం();
     }
-    string text() const { return m_text; }  // * = Text to display
-    void text(const string& text) { m_text = text; }
-    bool isSystemFunc() const override { return true; }
+    string పాఠ్యం() స్థిరరాశి { తిరిగి m_పాఠ్యం; }  // * = Text to display
+    శూన్య పాఠ్యం(స్థిరరాశి string& పాఠ్యం) { m_పాఠ్యం = పాఠ్యం; }
+    bool isSystemFunc() స్థిరరాశి override { తిరిగి true; }
 };
-class AstFSeek final : public AstNodeExpr {
+class AstFSeek final : బహిరంగ Ast_కణుపు_సమాసం {
     // @astgen op1 := filep : AstNodeExpr // file (must be a VarRef)
     // @astgen op2 := offset : Optional[AstNodeExpr]
     // @astgen op3 := operation : Optional[AstNodeExpr]
-public:
-    AstFSeek(FileLine* fl, AstNodeExpr* filep, AstNodeExpr* offset, AstNodeExpr* operation)
+బహిరంగ:
+    AstFSeek(File_పంక్తి* fl, Ast_కణుపు_సమాసం* filep, Ast_కణుపు_సమాసం* స్థానభ్రంశం, Ast_కణుపు_సమాసం* operation)
         : ASTGEN_SUPER_FSeek(fl) {
         this->filep(filep);
-        this->offset(offset);
+        this->స్థానభ్రంశం(స్థానభ్రంశం);
         this->operation(operation);
-        dtypeSetLogic2StateUnsized(
-            32, v3Global.widthMinUsage() == VWidthMinUsage::MATCHES_WIDTH ? 32 : 1,
+        dtype_సమితి_Logic2_State_Unsized(
+            32, v3Global.వెడల్పు_Min_Usage() == VWidthMinUsage::MATCHES_వెడల్పు ? 32 : 1,
             VSigning::SIGNED);  // Spec says integer return
     }
     ASTGEN_MEMBERS_AstFSeek;
-    string verilogKwd() const override { return "$fseek"; }
+    string verilogKwd() స్థిరరాశి override { తిరిగి "$fseek"; }
     string emitVerilog() override { V3ERROR_NA_RETURN(""); }
     string emitC() override { V3ERROR_NA_RETURN(""); }
-    bool isGateOptimizable() const override { return false; }
-    bool isPredictOptimizable() const override { return false; }
-    bool isPure() override { return false; }  // SPECIAL: has 'visual' ordering
-    bool isOutputter() override { return true; }  // SPECIAL: makes output
-    bool cleanOut() const override { return false; }
-    bool sameNode(const AstNode* /*samep*/) const override { return true; }
-    bool isSystemFunc() const override { return true; }
+    bool isGateOptimizable() స్థిరరాశి override { తిరిగి false; }
+    bool isPredictOptimizable() స్థిరరాశి override { తిరిగి false; }
+    bool is_శుద్ధ() override { తిరిగి false; }  // SPECIAL: has 'visual' ordering
+    bool isOutputter() override { తిరిగి true; }  // SPECIAL: makes output
+    bool clean_బహిర్గతం() స్థిరరాశి override { తిరిగి false; }
+    bool same_కణుపు(స్థిరరాశి Ast_కణుపు* /*samep*/) స్థిరరాశి override { తిరిగి true; }
+    bool isSystemFunc() స్థిరరాశి override { తిరిగి true; }
 };
-class AstFTell final : public AstNodeExpr {
+class AstFTell final : బహిరంగ Ast_కణుపు_సమాసం {
     // @astgen op1 := filep : AstNodeExpr // file (must be a VarRef)
-public:
-    AstFTell(FileLine* fl, AstNodeExpr* filep)
+బహిరంగ:
+    AstFTell(File_పంక్తి* fl, Ast_కణుపు_సమాసం* filep)
         : ASTGEN_SUPER_FTell(fl) {
         this->filep(filep);
-        dtypeSetLogic2StateUnsized(
-            32, v3Global.widthMinUsage() == VWidthMinUsage::MATCHES_WIDTH ? 32 : 1,
+        dtype_సమితి_Logic2_State_Unsized(
+            32, v3Global.వెడల్పు_Min_Usage() == VWidthMinUsage::MATCHES_వెడల్పు ? 32 : 1,
             VSigning::SIGNED);  // Spec says integer return
     }
     ASTGEN_MEMBERS_AstFTell;
-    string verilogKwd() const override { return "$ftell"; }
+    string verilogKwd() స్థిరరాశి override { తిరిగి "$ftell"; }
     string emitVerilog() override { V3ERROR_NA_RETURN(""); }
     string emitC() override { V3ERROR_NA_RETURN(""); }
-    bool isGateOptimizable() const override { return false; }
-    bool isPredictOptimizable() const override { return false; }
-    bool isPure() override { return false; }
-    bool isOutputter() override { return true; }
-    bool isUnlikely() const override { return true; }
-    bool cleanOut() const override { return false; }
-    bool sameNode(const AstNode* /*samep*/) const override { return true; }
-    bool isSystemFunc() const override { return true; }
+    bool isGateOptimizable() స్థిరరాశి override { తిరిగి false; }
+    bool isPredictOptimizable() స్థిరరాశి override { తిరిగి false; }
+    bool is_శుద్ధ() override { తిరిగి false; }
+    bool isOutputter() override { తిరిగి true; }
+    bool isUnlikely() స్థిరరాశి override { తిరిగి true; }
+    bool clean_బహిర్గతం() స్థిరరాశి override { తిరిగి false; }
+    bool same_కణుపు(స్థిరరాశి Ast_కణుపు* /*samep*/) స్థిరరాశి override { తిరిగి true; }
+    bool isSystemFunc() స్థిరరాశి override { తిరిగి true; }
 };
-class AstFalling final : public AstNodeExpr {
+class AstFalling final : బహిరంగ Ast_కణుపు_సమాసం {
     // Verilog $falling_gclk
     // @astgen op1 := exprp : AstNodeExpr
-public:
-    AstFalling(FileLine* fl, AstNodeExpr* exprp)
+బహిరంగ:
+    AstFalling(File_పంక్తి* fl, Ast_కణుపు_సమాసం* exprp)
         : ASTGEN_SUPER_Falling(fl) {
         this->exprp(exprp);
     }
     ASTGEN_MEMBERS_AstFalling;
-    string emitVerilog() override { return "$falling_gclk(%l)"; }
+    string emitVerilog() override { తిరిగి "$falling_gclk(%l)"; }
     string emitC() override { V3ERROR_NA_RETURN(""); }
     string emitSimpleOperator() override { V3ERROR_NA_RETURN(""); }
-    bool cleanOut() const override { V3ERROR_NA_RETURN(""); }
-    int instrCount() const override { return widthInstrs(); }
-    bool sameNode(const AstNode* /*samep*/) const override { return true; }
-    bool isSystemFunc() const override { return true; }
+    bool clean_బహిర్గతం() స్థిరరాశి override { V3ERROR_NA_RETURN(""); }
+    పూర్ణాంకం instr_లెక్క() స్థిరరాశి override { తిరిగి వెడల్పు_Instrs(); }
+    bool same_కణుపు(స్థిరరాశి Ast_కణుపు* /*samep*/) స్థిరరాశి override { తిరిగి true; }
+    bool isSystemFunc() స్థిరరాశి override { తిరిగి true; }
 };
-class AstFell final : public AstNodeExpr {
+class AstFell final : బహిరంగ Ast_కణుపు_సమాసం {
     // Verilog $fell
     // @astgen op1 := exprp : AstNodeExpr
     // @astgen op2 := sentreep : Optional[AstSenTree]
-public:
-    AstFell(FileLine* fl, AstNodeExpr* exprp, AstSenTree* sentreep)
+బహిరంగ:
+    AstFell(File_పంక్తి* fl, Ast_కణుపు_సమాసం* exprp, Ast_Sen_వృక్షం* sentreep)
         : ASTGEN_SUPER_Fell(fl) {
         this->exprp(exprp);
         this->sentreep(sentreep);
     }
     ASTGEN_MEMBERS_AstFell;
-    string emitVerilog() override { return "$fell(%l)"; }
+    string emitVerilog() override { తిరిగి "$fell(%l)"; }
     string emitC() override { V3ERROR_NA_RETURN(""); }
     string emitSimpleOperator() override { V3ERROR_NA_RETURN(""); }
-    bool cleanOut() const override { V3ERROR_NA_RETURN(""); }
-    int instrCount() const override { return widthInstrs(); }
-    bool sameNode(const AstNode* /*samep*/) const override { return true; }
-    bool isSystemFunc() const override { return true; }
+    bool clean_బహిర్గతం() స్థిరరాశి override { V3ERROR_NA_RETURN(""); }
+    పూర్ణాంకం instr_లెక్క() స్థిరరాశి override { తిరిగి వెడల్పు_Instrs(); }
+    bool same_కణుపు(స్థిరరాశి Ast_కణుపు* /*samep*/) స్థిరరాశి override { తిరిగి true; }
+    bool isSystemFunc() స్థిరరాశి override { తిరిగి true; }
 };
-class AstFuture final : public AstNodeExpr {
+class AstFuture final : బహిరంగ Ast_కణుపు_సమాసం {
     // Verilog $future_gclk
     // @astgen op1 := exprp : AstNodeExpr
     // @astgen op2 := sentreep : Optional[AstSenTree]
-public:
-    AstFuture(FileLine* fl, AstNodeExpr* exprp, AstSenTree* sentreep)
+బహిరంగ:
+    AstFuture(File_పంక్తి* fl, Ast_కణుపు_సమాసం* exprp, Ast_Sen_వృక్షం* sentreep)
         : ASTGEN_SUPER_Future(fl) {
         this->exprp(exprp);
         this->sentreep(sentreep);
     }
     ASTGEN_MEMBERS_AstFuture;
-    string emitVerilog() override { return "$future_gclk(%l)"; }
+    string emitVerilog() override { తిరిగి "$future_gclk(%l)"; }
     string emitC() override { V3ERROR_NA_RETURN(""); }
     string emitSimpleOperator() override { V3ERROR_NA_RETURN(""); }
-    bool cleanOut() const override { V3ERROR_NA_RETURN(""); }
-    int instrCount() const override { return widthInstrs(); }
-    bool sameNode(const AstNode* /*samep*/) const override { return true; }
-    bool isSystemFunc() const override { return true; }
+    bool clean_బహిర్గతం() స్థిరరాశి override { V3ERROR_NA_RETURN(""); }
+    పూర్ణాంకం instr_లెక్క() స్థిరరాశి override { తిరిగి వెడల్పు_Instrs(); }
+    bool same_కణుపు(స్థిరరాశి Ast_కణుపు* /*samep*/) స్థిరరాశి override { తిరిగి true; }
+    bool isSystemFunc() స్థిరరాశి override { తిరిగి true; }
 };
-class AstGatePin final : public AstNodeExpr {
+class AstGatePin final : బహిరంగ Ast_కణుపు_సమాసం {
     // Possibly expand a gate primitive input pin value to match the range of the gate primitive
     // @astgen op1 := exprp : AstNodeExpr // Pin expression
     // @astgen op2 := rangep : AstRange // Range of pin
-public:
-    AstGatePin(FileLine* fl, AstNodeExpr* exprp, AstRange* rangep)
+బహిరంగ:
+    AstGatePin(File_పంక్తి* fl, Ast_కణుపు_సమాసం* exprp, AstRange* rangep)
         : ASTGEN_SUPER_GatePin(fl) {
         this->exprp(exprp);
         this->rangep(rangep);
     }
     ASTGEN_MEMBERS_AstGatePin;
-    string emitVerilog() override { return "%l"; }
+    string emitVerilog() override { తిరిగి "%l"; }
     string emitC() override { V3ERROR_NA_RETURN(""); }
-    bool cleanOut() const override { return true; }
+    bool clean_బహిర్గతం() స్థిరరాశి override { తిరిగి true; }
 };
-class AstGetInitialRandomSeed final : public AstNodeExpr {
+class Ast_Get_Initial_Random_విత్తనం final : బహిరంగ Ast_కణుపు_సమాసం {
     // Verilog $get_initial_random_seed()
-public:
-    explicit AstGetInitialRandomSeed(FileLine* fl)
-        : ASTGEN_SUPER_GetInitialRandomSeed(fl) {
-        dtypeSetInt();
+బహిరంగ:
+    explicit Ast_Get_Initial_Random_విత్తనం(File_పంక్తి* fl)
+        : ASTGEN_SUPER_Get_Initial_Random_విత్తనం(fl) {
+        dtype_సమితి_Int();
     }
-    ASTGEN_MEMBERS_AstGetInitialRandomSeed;
-    string emitVerilog() override { return "$get_initial_random_seed()"; }
+    ASTGEN_MEMBERS_Ast_Get_Initial_Random_విత్తనం;
+    string emitVerilog() override { తిరిగి "$get_initial_random_seed()"; }
     string emitC() final override { V3ERROR_NA_RETURN(""); }
-    bool cleanOut() const override { return true; }
-    bool isGateOptimizable() const override { return false; }
-    bool isPredictOptimizable() const override { return true; }
-    bool isPure() override { return true; }
-    bool isSystemFunc() const override { return true; }
-    int instrCount() const override { return INSTR_COUNT_PLI; }
-    bool sameNode(const AstNode* /*samep*/) const override { return true; }
+    bool clean_బహిర్గతం() స్థిరరాశి override { తిరిగి true; }
+    bool isGateOptimizable() స్థిరరాశి override { తిరిగి false; }
+    bool isPredictOptimizable() స్థిరరాశి override { తిరిగి true; }
+    bool is_శుద్ధ() override { తిరిగి true; }
+    bool isSystemFunc() స్థిరరాశి override { తిరిగి true; }
+    పూర్ణాంకం instr_లెక్క() స్థిరరాశి override { తిరిగి INSTR_లెక్క_PLI; }
+    bool same_కణుపు(స్థిరరాశి Ast_కణుపు* /*samep*/) స్థిరరాశి override { తిరిగి true; }
 };
-class AstImplication final : public AstNodeExpr {
+class AstImplication final : బహిరంగ Ast_కణుపు_సమాసం {
     // Implication |-> |=> (IEEE 1800-2023 16.12.7) and followed-by #-# #=#
     // (IEEE 1800-2023 16.12.9). Antecedent-miss is vacuous-pass for implication
     // and non-vacuous-fail for followed-by, hence the separate flag.
@@ -1748,12 +1748,12 @@ class AstImplication final : public AstNodeExpr {
     // @astgen op2 := rhsp : AstNodeExpr
     // @astgen op3 := sentreep : Optional[AstSenTree]
 
-private:
-    const bool m_isOverlapped;  // True if overlapped form (|-> / #-#)
-    const bool m_isFollowedBy;  // True if followed-by (#-# / #=#) rather than implication
+అంతరంగ:
+    స్థిరరాశి bool m_isOverlapped;  // True if overlapped form (|-> / #-#)
+    స్థిరరాశి bool m_isFollowedBy;  // True if followed-by (#-# / #=#) rather than implication
 
-public:
-    AstImplication(FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp, bool isOverlapped,
+బహిరంగ:
+    AstImplication(File_పంక్తి* fl, Ast_కణుపు_సమాసం* lhsp, Ast_కణుపు_సమాసం* rhsp, bool isOverlapped,
                    bool isFollowedBy = false)
         : ASTGEN_SUPER_Implication(fl)
         , m_isOverlapped{isOverlapped}
@@ -1762,74 +1762,74 @@ public:
         this->rhsp(rhsp);
     }
     ASTGEN_MEMBERS_AstImplication;
-    void dump(std::ostream& str) const override;
-    void dumpJson(std::ostream& str) const override;
+    శూన్య dump(std::ostream& str) స్థిరరాశి override;
+    శూన్య dumpJson(std::ostream& str) స్థిరరాశి override;
     string emitVerilog() override { V3ERROR_NA_RETURN(""); }
     string emitC() override { V3ERROR_NA_RETURN(""); }
     string emitSimpleOperator() override { V3ERROR_NA_RETURN(""); }
-    bool cleanOut() const override { V3ERROR_NA_RETURN(""); }
-    int instrCount() const override { return widthInstrs(); }
-    bool isMultiCycleSva() const override { return m_isFollowedBy || !m_isOverlapped; }
-    bool isOverlapped() const { return m_isOverlapped; }
-    bool isFollowedBy() const { return m_isFollowedBy; }
+    bool clean_బహిర్గతం() స్థిరరాశి override { V3ERROR_NA_RETURN(""); }
+    పూర్ణాంకం instr_లెక్క() స్థిరరాశి override { తిరిగి వెడల్పు_Instrs(); }
+    bool is_Multi_చక్రం_Sva() స్థిరరాశి override { తిరిగి m_isFollowedBy || !m_isOverlapped; }
+    bool isOverlapped() స్థిరరాశి { తిరిగి m_isOverlapped; }
+    bool isFollowedBy() స్థిరరాశి { తిరిగి m_isFollowedBy; }
 };
-class AstInside final : public AstNodeExpr {
+class AstInside final : బహిరంగ Ast_కణుపు_సమాసం {
     // @astgen op1 := exprp : AstNodeExpr
     // @astgen op2 := itemsp : List[AstNodeExpr]
-public:
-    AstInside(FileLine* fl, AstNodeExpr* exprp, AstNodeExpr* itemsp)
+బహిరంగ:
+    AstInside(File_పంక్తి* fl, Ast_కణుపు_సమాసం* exprp, Ast_కణుపు_సమాసం* itemsp)
         : ASTGEN_SUPER_Inside(fl) {
         this->exprp(exprp);
-        addItemsp(itemsp);
-        dtypeSetBit();
+        కూడు_Itemsp(itemsp);
+        dtype_సమితి_బిట్టు();
     }
     ASTGEN_MEMBERS_AstInside;
-    string emitVerilog() override { return "%l inside { %r }"; }
+    string emitVerilog() override { తిరిగి "%l inside { %r }"; }
     string emitC() override { V3ERROR_NA_RETURN(""); }
-    bool cleanOut() const override { return false; }  // NA
+    bool clean_బహిర్గతం() స్థిరరాశి override { తిరిగి false; }  // NA
 };
-class AstInsideRange final : public AstNodeExpr {
+class AstInsideRange final : బహిరంగ Ast_కణుపు_సమాసం {
     // @astgen op1 := lhsp : AstNodeExpr
     // @astgen op2 := rhsp : AstNodeExpr
-public:
-    AstInsideRange(FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp)
+బహిరంగ:
+    AstInsideRange(File_పంక్తి* fl, Ast_కణుపు_సమాసం* lhsp, Ast_కణుపు_సమాసం* rhsp)
         : ASTGEN_SUPER_InsideRange(fl) {
         this->lhsp(lhsp);
         this->rhsp(rhsp);
     }
     ASTGEN_MEMBERS_AstInsideRange;
-    string emitVerilog() override { return "[%l:%r]"; }
+    string emitVerilog() override { తిరిగి "[%l:%r]"; }
     string emitC() override { V3ERROR_NA_RETURN(""); }
-    bool cleanOut() const override { return false; }  // NA
+    bool clean_బహిర్గతం() స్థిరరాశి override { తిరిగి false; }  // NA
     // Create AstAnd(AstGte(...), AstLte(...))
-    AstNodeExpr* newAndFromInside(AstNodeExpr* exprp, AstNodeExpr* lhsp, AstNodeExpr* rhsp);
+    Ast_కణుపు_సమాసం* newAndFromInside(Ast_కణుపు_సమాసం* exprp, Ast_కణుపు_సమాసం* lhsp, Ast_కణుపు_సమాసం* rhsp);
 };
-class AstLambdaArgRef final : public AstNodeExpr {
+class AstLambdaArgRef final : బహిరంగ Ast_కణుపు_సమాసం {
     // Lambda argument usage
     // These are not AstVarRefs because we need to be able to delete/clone lambdas during
     // optimizations and AstVar's are painful to remove.
     string m_name;  // Name of variable
-    bool m_index;  // Index, not value
+    bool m_సూచీ;  // Index, not value
 
-public:
-    AstLambdaArgRef(FileLine* fl, const string& name, bool index)
+బహిరంగ:
+    AstLambdaArgRef(File_పంక్తి* fl, స్థిరరాశి string& name, bool సూచీ)
         : ASTGEN_SUPER_LambdaArgRef(fl)
         , m_name{name}
-        , m_index{index} {}
+        , m_సూచీ{సూచీ} {}
     ASTGEN_MEMBERS_AstLambdaArgRef;
-    void dump(std::ostream& str) const override;
-    void dumpJson(std::ostream& str) const override;
-    bool sameNode(const AstNode* /*samep*/) const override { return true; }
-    string emitVerilog() override { return name(); }
+    శూన్య dump(std::ostream& str) స్థిరరాశి override;
+    శూన్య dumpJson(std::ostream& str) స్థిరరాశి override;
+    bool same_కణుపు(స్థిరరాశి Ast_కణుపు* /*samep*/) స్థిరరాశి override { తిరిగి true; }
+    string emitVerilog() override { తిరిగి name(); }
     string emitC() override { V3ERROR_NA_RETURN(""); }
-    bool cleanOut() const override { return true; }
-    int instrCount() const override { return widthInstrs(); }
-    string name() const override VL_MT_STABLE { return m_name; }  // * = Var name
-    void name(const string& name) override { m_name = name; }
-    bool index() const { return m_index; }
-    bool isExprCoverageEligible() const override { return false; }
+    bool clean_బహిర్గతం() స్థిరరాశి override { తిరిగి true; }
+    పూర్ణాంకం instr_లెక్క() స్థిరరాశి override { తిరిగి వెడల్పు_Instrs(); }
+    string name() స్థిరరాశి override VL_MT_STABLE { తిరిగి m_name; }  // * = Var name
+    శూన్య name(స్థిరరాశి string& name) override { m_name = name; }
+    bool సూచీ() స్థిరరాశి { తిరిగి m_సూచీ; }
+    bool is_సమాసం_Coverage_Eligible() స్థిరరాశి override { తిరిగి false; }
 };
-class AstMatchMasked final : public AstNodeExpr {
+class Ast_సరిపోలిక_Masked final : బహిరంగ Ast_కణుపు_సమాసం {
     // This is a non-source construct, created internally to represent
     // some case statements. It is a '(mask & _) == bits' matching loop
     // where {mask, bits} pairs are packed into a single wide 'matchp',
@@ -1837,106 +1837,106 @@ class AstMatchMasked final : public AstNodeExpr {
     // See VL_DECODER_* runtime functions.
     // @astgen op1 := lhsp : AstNodeExpr
     // @astgen op2 := matchp : AstVarRef
-public:
-    inline AstMatchMasked(FileLine* fl, AstNodeExpr* lhsp, AstVarRef* matchp);
-    ASTGEN_MEMBERS_AstMatchMasked;
+బహిరంగ:
+    అంతఃవరుస Ast_సరిపోలిక_Masked(File_పంక్తి* fl, Ast_కణుపు_సమాసం* lhsp, AstVarRef* matchp);
+    ASTGEN_MEMBERS_Ast_సరిపోలిక_Masked;
     string emitVerilog() override { V3ERROR_NA_RETURN(""); }
-    string emitC() override { return "VL_MATCHMASKED_%lq(%lw, %li, %ri)"; }
-    bool cleanOut() const override { return true; }
-    static uint32_t fold(const V3Number& lhs, AstVar* matchVarp);
+    string emitC() override { తిరిగి "VL_MATCHMASKED_%lq(%lw, %li, %ri)"; }
+    bool clean_బహిర్గతం() స్థిరరాశి override { తిరిగి true; }
+    స్థిర uint32_t fold(స్థిరరాశి V3_సంఖ్య& lhs, AstVar* సరిపోలిక_Varp);
 };
-class AstMatches final : public AstNodeExpr {
+class AstMatches final : బహిరంగ Ast_కణుపు_సమాసం {
     // "matches" operator: "expr matches pattern"
     // @astgen op1 := lhsp : AstNodeExpr  // Expression to match
     // @astgen op2 := patternp : AstNode  // Pattern to match against
-public:
-    AstMatches(FileLine* fl, AstNodeExpr* lhsp, AstNode* patternp)
+బహిరంగ:
+    AstMatches(File_పంక్తి* fl, Ast_కణుపు_సమాసం* lhsp, Ast_కణుపు* patternp)
         : ASTGEN_SUPER_Matches(fl) {
         this->lhsp(lhsp);
         this->patternp(patternp);
     }
     ASTGEN_MEMBERS_AstMatches;
-    string emitVerilog() override { return "%l matches %r"; }
+    string emitVerilog() override { తిరిగి "%l matches %r"; }
     string emitC() override { V3ERROR_NA_RETURN(""); }
-    bool cleanOut() const override { return false; }
-    bool sameNode(const AstNode* /*samep*/) const override { return true; }
+    bool clean_బహిర్గతం() స్థిరరాశి override { తిరిగి false; }
+    bool same_కణుపు(స్థిరరాశి Ast_కణుపు* /*samep*/) స్థిరరాశి override { తిరిగి true; }
 };
-class AstMemberSel final : public AstNodeExpr {
+class AstMemberSel final : బహిరంగ Ast_కణుపు_సమాసం {
     // @astgen op1 := fromp : AstNodeExpr
     //
     // @astgen ptr := m_varp : Optional[AstVar]  // Post link, variable in class that is selecting
     // Don't need the class we are extracting from, as the "fromp()"'s datatype can get us to it
     string m_name;
     VAccess m_access;  // Read or write, as in AstNodeVarRef
-public:
-    AstMemberSel(FileLine* fl, AstNodeExpr* fromp, VFlagChildDType, const string& name)
+బహిరంగ:
+    AstMemberSel(File_పంక్తి* fl, Ast_కణుపు_సమాసం* fromp, VFlag_బిడ్డ_DType, స్థిరరాశి string& name)
         : ASTGEN_SUPER_MemberSel(fl)
         , m_name{name} {
         this->fromp(fromp);
         dtypep(nullptr);  // V3Width will resolve
     }
-    AstMemberSel(FileLine* fl, AstNodeExpr* fromp, AstVar* varp);
+    AstMemberSel(File_పంక్తి* fl, Ast_కణుపు_సమాసం* fromp, AstVar* varp);
     ASTGEN_MEMBERS_AstMemberSel;
-    void dump(std::ostream& str) const override;
-    void dumpJson(std::ostream& str) const override;
-    string name() const override VL_MT_STABLE { return m_name; }
-    void name(const string& name) override { m_name = name; }
-    VAccess access() const { return m_access; }
-    void access(const VAccess& flag) { m_access = flag; }
+    శూన్య dump(std::ostream& str) స్థిరరాశి override;
+    శూన్య dumpJson(std::ostream& str) స్థిరరాశి override;
+    string name() స్థిరరాశి override VL_MT_STABLE { తిరిగి m_name; }
+    శూన్య name(స్థిరరాశి string& name) override { m_name = name; }
+    VAccess access() స్థిరరాశి { తిరిగి m_access; }
+    శూన్య access(స్థిరరాశి VAccess& flag) { m_access = flag; }
     string emitVerilog() override { V3ERROR_NA_RETURN(""); }
     string emitC() override { V3ERROR_NA_RETURN(""); }
-    bool cleanOut() const override { return true; }
-    bool sameNode(const AstNode* samep) const override;
-    int instrCount() const override { return widthInstrs(); }
-    AstVar* varp() const { return m_varp; }
-    void varp(AstVar* nodep) { m_varp = nodep; }
+    bool clean_బహిర్గతం() స్థిరరాశి override { తిరిగి true; }
+    bool same_కణుపు(స్థిరరాశి Ast_కణుపు* samep) స్థిరరాశి override;
+    పూర్ణాంకం instr_లెక్క() స్థిరరాశి override { తిరిగి వెడల్పు_Instrs(); }
+    AstVar* varp() స్థిరరాశి { తిరిగి m_varp; }
+    శూన్య varp(AstVar* nodep) { m_varp = nodep; }
 };
-class AstNewCopy final : public AstNodeExpr {
+class AstNewCopy final : బహిరంగ Ast_కణుపు_సమాసం {
     // New as shallow copy
     // @astgen op1 := rhsp : AstNodeExpr
-public:
-    AstNewCopy(FileLine* fl, AstNodeExpr* rhsp)
+బహిరంగ:
+    AstNewCopy(File_పంక్తి* fl, Ast_కణుపు_సమాసం* rhsp)
         : ASTGEN_SUPER_NewCopy(fl) {
         dtypeFrom(rhsp);  // otherwise V3Width will resolve
         this->rhsp(rhsp);
     }
     ASTGEN_MEMBERS_AstNewCopy;
-    string emitVerilog() override { return "new"; }
+    string emitVerilog() override { తిరిగి "new"; }
     string emitC() override { V3ERROR_NA_RETURN(""); }
-    bool cleanOut() const override { return true; }
-    bool sameNode(const AstNode* /*samep*/) const override { return true; }
-    int instrCount() const override { return widthInstrs(); }
+    bool clean_బహిర్గతం() స్థిరరాశి override { తిరిగి true; }
+    bool same_కణుపు(స్థిరరాశి Ast_కణుపు* /*samep*/) స్థిరరాశి override { తిరిగి true; }
+    పూర్ణాంకం instr_లెక్క() స్థిరరాశి override { తిరిగి వెడల్పు_Instrs(); }
 };
-class AstNewDynamic final : public AstNodeExpr {
+class AstNewDynamic final : బహిరంగ Ast_కణుపు_సమాసం {
     // New for dynamic array
     // @astgen op1 := sizep : AstNodeExpr
     // @astgen op2 := rhsp : Optional[AstNodeExpr]
-public:
-    AstNewDynamic(FileLine* fl, AstNodeExpr* sizep, AstNodeExpr* rhsp)
+బహిరంగ:
+    AstNewDynamic(File_పంక్తి* fl, Ast_కణుపు_సమాసం* sizep, Ast_కణుపు_సమాసం* rhsp)
         : ASTGEN_SUPER_NewDynamic(fl) {
         dtypeFrom(rhsp);  // otherwise V3Width will resolve
         this->sizep(sizep);
         this->rhsp(rhsp);
     }
     ASTGEN_MEMBERS_AstNewDynamic;
-    string emitVerilog() override { return "new"; }
+    string emitVerilog() override { తిరిగి "new"; }
     string emitC() override { V3ERROR_NA_RETURN(""); }
-    bool cleanOut() const override { return true; }
-    bool sameNode(const AstNode* /*samep*/) const override { return true; }
-    int instrCount() const override { return widthInstrs(); }
+    bool clean_బహిర్గతం() స్థిరరాశి override { తిరిగి true; }
+    bool same_కణుపు(స్థిరరాశి Ast_కణుపు* /*samep*/) స్థిరరాశి override { తిరిగి true; }
+    పూర్ణాంకం instr_లెక్క() స్థిరరాశి override { తిరిగి వెడల్పు_Instrs(); }
 };
-class AstPExpr final : public AstNodeExpr {
+class AstPExpr final : బహిరంగ Ast_కణుపు_సమాసం {
     // Property expression
     // @astgen op1 := bodyp : AstBegin
     // @astgen op2 := finalp : Optional[AstNodeStmt]
-public:
-    explicit AstPExpr(FileLine* fl, AstBegin* bodyp, AstNodeDType* dtypep)
+బహిరంగ:
+    explicit AstPExpr(File_పంక్తి* fl, AstBegin* bodyp, Ast_కణుపు_DType* dtypep)
         : ASTGEN_SUPER_PExpr(fl) {
         this->bodyp(bodyp);
         this->finalp(nullptr);
         this->dtypep(dtypep);
     }
-    explicit AstPExpr(FileLine* fl, AstBegin* bodyp, AstNodeStmt* finalp, AstNodeDType* dtypep)
+    explicit AstPExpr(File_పంక్తి* fl, AstBegin* bodyp, Ast_కణుపు_Stmt* finalp, Ast_కణుపు_DType* dtypep)
         : ASTGEN_SUPER_PExpr(fl) {
         this->bodyp(bodyp);
         this->finalp(finalp);
@@ -1945,21 +1945,21 @@ public:
     ASTGEN_MEMBERS_AstPExpr;
     string emitVerilog() override { V3ERROR_NA_RETURN(""); }
     string emitC() override { V3ERROR_NA_RETURN(""); }
-    bool cleanOut() const override { V3ERROR_NA_RETURN(""); }
-    int instrCount() const override { return widthInstrs(); }
+    bool clean_బహిర్గతం() స్థిరరాశి override { V3ERROR_NA_RETURN(""); }
+    పూర్ణాంకం instr_లెక్క() స్థిరరాశి override { తిరిగి వెడల్పు_Instrs(); }
 };
-class AstParseHolder final : public AstNodeExpr {
+class AstParseHolder final : బహిరంగ Ast_కణుపు_సమాసం {
     // A reference to something soon to replace, used in a select at parse time
     // that needs conversion to pull the upper lvalue later
-public:
-    explicit AstParseHolder(FileLine* fl)
+బహిరంగ:
+    explicit AstParseHolder(File_పంక్తి* fl)
         : ASTGEN_SUPER_ParseHolder(fl) {}
     ASTGEN_MEMBERS_AstParseHolder;
     string emitVerilog() override { V3ERROR_NA_RETURN(""); }
     string emitC() override { V3ERROR_NA_RETURN(""); }
-    bool cleanOut() const override { V3ERROR_NA_RETURN(true); }
+    bool clean_బహిర్గతం() స్థిరరాశి override { V3ERROR_NA_RETURN(true); }
 };
-class AstParseRef final : public AstNodeExpr {
+class AstParseRef final : బహిరంగ Ast_కణుపు_సమాసం {
     // A reference to a variable, function or task
     // We don't know which at parse time due to bison constraints
     // The link stages will replace this with AstVarRef, or AstTaskRef, etc.
@@ -1968,27 +1968,27 @@ class AstParseRef final : public AstNodeExpr {
 
     string m_name;  // Name of the variable/function/task
 
-public:
-    AstParseRef(FileLine* fl, const string& name, AstNodeExpr* lhsp = nullptr,
-                AstNodeFTaskRef* ftaskrefp = nullptr)
+బహిరంగ:
+    AstParseRef(File_పంక్తి* fl, స్థిరరాశి string& name, Ast_కణుపు_సమాసం* lhsp = nullptr,
+                Ast_కణుపు_FTask_Ref* ftaskrefp = nullptr)
         : ASTGEN_SUPER_ParseRef(fl)
         , m_name{name} {
         this->lhsp(lhsp);
         this->ftaskrefp(ftaskrefp);
     }
     ASTGEN_MEMBERS_AstParseRef;
-    string name() const override VL_MT_STABLE { return m_name; }  // * = Var name
-    void name(const string& name) override { m_name = name; }
-    bool sameNode(const AstNode* samep) const override {
-        const AstParseRef* const asamep = VN_DBG_AS(samep, ParseRef);
-        return m_name == asamep->m_name;
+    string name() స్థిరరాశి override VL_MT_STABLE { తిరిగి m_name; }  // * = Var name
+    శూన్య name(స్థిరరాశి string& name) override { m_name = name; }
+    bool same_కణుపు(స్థిరరాశి Ast_కణుపు* samep) స్థిరరాశి override {
+        స్థిరరాశి AstParseRef* స్థిరరాశి asamep = VN_DBG_AS(samep, ParseRef);
+        తిరిగి m_name == asamep->m_name;
     }
 
     string emitVerilog() override { V3ERROR_NA_RETURN(""); }
     string emitC() override { V3ERROR_NA_RETURN(""); }
-    bool cleanOut() const override { V3ERROR_NA_RETURN(true); }
+    bool clean_బహిర్గతం() స్థిరరాశి override { V3ERROR_NA_RETURN(true); }
 };
-class AstPast final : public AstNodeExpr {
+class AstPast final : బహిరంగ Ast_కణుపు_సమాసం {
     // Verilog $past
     // @astgen op1 := exprp : AstNodeExpr
     // @astgen op2 := ticksp : Optional[AstNodeExpr]
@@ -1999,9 +1999,9 @@ class AstPast final : public AstNodeExpr {
     // functions such as $rose/$fell must remain false so they receive default initialization.
     bool m_propertyTiming : 1;
 
-public:
-    AstPast(FileLine* fl, AstNodeExpr* exprp, AstNodeExpr* ticksp = nullptr,
-            AstSenTree* sentreep = nullptr, bool propertyTiming = false)
+బహిరంగ:
+    AstPast(File_పంక్తి* fl, Ast_కణుపు_సమాసం* exprp, Ast_కణుపు_సమాసం* ticksp = nullptr,
+            Ast_Sen_వృక్షం* sentreep = nullptr, bool propertyTiming = false)
         : ASTGEN_SUPER_Past(fl)
         , m_propertyTiming{propertyTiming} {
         this->exprp(exprp);
@@ -2009,20 +2009,20 @@ public:
         this->sentreep(sentreep);
     }
     ASTGEN_MEMBERS_AstPast;
-    void dump(std::ostream& str) const override;
-    void dumpJson(std::ostream& str) const override;
+    శూన్య dump(std::ostream& str) స్థిరరాశి override;
+    శూన్య dumpJson(std::ostream& str) స్థిరరాశి override;
     string emitVerilog() override { V3ERROR_NA_RETURN(""); }
     string emitC() override { V3ERROR_NA_RETURN(""); }
     string emitSimpleOperator() override { V3ERROR_NA_RETURN(""); }
-    bool cleanOut() const override { V3ERROR_NA_RETURN(""); }
-    int instrCount() const override { return widthInstrs(); }
-    bool sameNode(const AstNode* samep) const override {
-        return m_propertyTiming == VN_DBG_AS(samep, Past)->m_propertyTiming;
+    bool clean_బహిర్గతం() స్థిరరాశి override { V3ERROR_NA_RETURN(""); }
+    పూర్ణాంకం instr_లెక్క() స్థిరరాశి override { తిరిగి వెడల్పు_Instrs(); }
+    bool same_కణుపు(స్థిరరాశి Ast_కణుపు* samep) స్థిరరాశి override {
+        తిరిగి m_propertyTiming == VN_DBG_AS(samep, Past)->m_propertyTiming;
     }
-    bool propertyTiming() const { return m_propertyTiming; }
-    bool isSystemFunc() const override { return true; }
+    bool propertyTiming() స్థిరరాశి { తిరిగి m_propertyTiming; }
+    bool isSystemFunc() స్థిరరాశి override { తిరిగి true; }
 };
-class AstPatMember final : public AstNodeExpr {
+class AstPatMember final : బహిరంగ Ast_కణుపు_సమాసం {
     // Verilog '{a} or '{a{b}}
     // Parents: AstPattern
     // Children: expression, AstPattern, replication count, decoded nodep if TEXT
@@ -2034,82 +2034,82 @@ class AstPatMember final : public AstNodeExpr {
     bool m_isDefault = false;  // Has default
     bool m_isConcat = false;  // From concatenate
 
-public:
-    AstPatMember(FileLine* fl, AstNodeExpr* lhssp, AstNode* keyp, AstNodeExpr* repp)
+బహిరంగ:
+    AstPatMember(File_పంక్తి* fl, Ast_కణుపు_సమాసం* lhssp, Ast_కణుపు* keyp, Ast_కణుపు_సమాసం* repp)
         : ASTGEN_SUPER_PatMember(fl) {
-        addLhssp(lhssp);
+        కూడు_Lhssp(lhssp);
         this->keyp(keyp);
         this->repp(repp);
     }
     ASTGEN_MEMBERS_AstPatMember;
-    string emitVerilog() override { return lhssp() ? "%f{%r{%k%l}}" : "%l"; }
+    string emitVerilog() override { తిరిగి lhssp() ? "%f{%r{%k%l}}" : "%l"; }
     string emitC() override { V3ERROR_NA_RETURN(""); }
     string emitSimpleOperator() override { V3ERROR_NA_RETURN(""); }
-    bool cleanOut() const override { V3ERROR_NA_RETURN(""); }
-    int instrCount() const override { return widthInstrs() * 2; }
-    void dump(std::ostream& str = std::cout) const override;
-    void dumpJson(std::ostream& str = std::cout) const override;
-    bool isConcat() const { return m_isConcat; }
-    void isConcat(bool flag) { m_isConcat = flag; }
-    bool isDefault() const { return m_isDefault; }
-    void isDefault(bool flag) { m_isDefault = flag; }
-    AstNodeExpr* keyExprp() const { return varrefp() ? varrefp() : VN_CAST(keyp(), NodeExpr); }
+    bool clean_బహిర్గతం() స్థిరరాశి override { V3ERROR_NA_RETURN(""); }
+    పూర్ణాంకం instr_లెక్క() స్థిరరాశి override { తిరిగి వెడల్పు_Instrs() * 2; }
+    శూన్య dump(std::ostream& str = std::cout) స్థిరరాశి override;
+    శూన్య dumpJson(std::ostream& str = std::cout) స్థిరరాశి override;
+    bool isConcat() స్థిరరాశి { తిరిగి m_isConcat; }
+    శూన్య isConcat(bool flag) { m_isConcat = flag; }
+    bool isDefault() స్థిరరాశి { తిరిగి m_isDefault; }
+    శూన్య isDefault(bool flag) { m_isDefault = flag; }
+    Ast_కణుపు_సమాసం* కీలకం_Exprp() స్థిరరాశి { తిరిగి varrefp() ? varrefp() : VN_CAST(keyp(), కణుపు_సమాసం); }
 };
-class AstPattern final : public AstNodeExpr {
+class Ast_నమూనా final : బహిరంగ Ast_కణుపు_సమాసం {
     // Verilog '{a,b,c,d...}
     // Parents: AstNodeAssign, AstPattern, ...
     // Children: expression, AstPattern, AstPatReplicate
     // @astgen op1 := childDTypep : Optional[AstNodeDType]
     // @astgen op2 := itemsp : List[AstNode] // AstPatReplicate, AstPatMember, etc
-public:
-    AstPattern(FileLine* fl, AstNode* itemsp)
-        : ASTGEN_SUPER_Pattern(fl) {
-        addItemsp(itemsp);
+బహిరంగ:
+    Ast_నమూనా(File_పంక్తి* fl, Ast_కణుపు* itemsp)
+        : ASTGEN_SUPER_నమూనా(fl) {
+        కూడు_Itemsp(itemsp);
     }
-    ASTGEN_MEMBERS_AstPattern;
+    ASTGEN_MEMBERS_Ast_నమూనా;
     string emitVerilog() override { V3ERROR_NA_RETURN(""); }
     string emitC() override { V3ERROR_NA_RETURN(""); }
     string emitSimpleOperator() override { V3ERROR_NA_RETURN(""); }
-    bool cleanOut() const override { V3ERROR_NA_RETURN(""); }
-    int instrCount() const override { return widthInstrs(); }
-    AstNodeDType* getChildDTypep() const override { return childDTypep(); }
-    AstNodeDType* subDTypep() const VL_MT_STABLE { return dtypep() ? dtypep() : childDTypep(); }
+    bool clean_బహిర్గతం() స్థిరరాశి override { V3ERROR_NA_RETURN(""); }
+    పూర్ణాంకం instr_లెక్క() స్థిరరాశి override { తిరిగి వెడల్పు_Instrs(); }
+    Ast_కణుపు_DType* get_బిడ్డ_DTypep() స్థిరరాశి override { తిరిగి బిడ్డ_DTypep(); }
+    Ast_కణుపు_DType* subDTypep() స్థిరరాశి VL_MT_STABLE { తిరిగి dtypep() ? dtypep() : బిడ్డ_DTypep(); }
 };
-class AstPatternStar final : public AstNodeExpr {
+class Ast_నమూనా_నక్షత్రం final : బహిరంగ Ast_కణుపు_సమాసం {
     // Pattern wildcard: ".*"
-public:
-    explicit AstPatternStar(FileLine* fl)
-        : ASTGEN_SUPER_PatternStar(fl) {}
-    ASTGEN_MEMBERS_AstPatternStar;
-    string emitVerilog() override { return ".*"; }
+బహిరంగ:
+    explicit Ast_నమూనా_నక్షత్రం(File_పంక్తి* fl)
+        : ASTGEN_SUPER_నమూనా_నక్షత్రం(fl) {}
+    ASTGEN_MEMBERS_Ast_నమూనా_నక్షత్రం;
+    string emitVerilog() override { తిరిగి ".*"; }
     string emitC() override { V3ERROR_NA_RETURN(""); }
-    bool cleanOut() const override { return false; }
-    bool sameNode(const AstNode* /*samep*/) const override { return true; }
+    bool clean_బహిర్గతం() స్థిరరాశి override { తిరిగి false; }
+    bool same_కణుపు(స్థిరరాశి Ast_కణుపు* /*samep*/) స్థిరరాశి override { తిరిగి true; }
 };
-class AstPatternVar final : public AstNodeExpr {
+class Ast_నమూనా_Var final : బహిరంగ Ast_కణుపు_సమాసం {
     // Pattern variable binding: ".variable"
     string m_name;  // Variable name
-public:
-    AstPatternVar(FileLine* fl, const string& name)
-        : ASTGEN_SUPER_PatternVar(fl)
+బహిరంగ:
+    Ast_నమూనా_Var(File_పంక్తి* fl, స్థిరరాశి string& name)
+        : ASTGEN_SUPER_నమూనా_Var(fl)
         , m_name{name} {}
-    ASTGEN_MEMBERS_AstPatternVar;
-    string emitVerilog() override { return ".%k"; }
+    ASTGEN_MEMBERS_Ast_నమూనా_Var;
+    string emitVerilog() override { తిరిగి ".%k"; }
     string emitC() override { V3ERROR_NA_RETURN(""); }
-    bool cleanOut() const override { return false; }
-    bool sameNode(const AstNode* samep) const override {
-        return m_name == VN_DBG_AS(samep, PatternVar)->m_name;
+    bool clean_బహిర్గతం() స్థిరరాశి override { తిరిగి false; }
+    bool same_కణుపు(స్థిరరాశి Ast_కణుపు* samep) స్థిరరాశి override {
+        తిరిగి m_name == VN_DBG_AS(samep, నమూనా_Var)->m_name;
     }
-    string name() const override VL_MT_STABLE { return m_name; }
+    string name() స్థిరరాశి override VL_MT_STABLE { తిరిగి m_name; }
 };
-class AstPropAlways final : public AstNodeExpr {
+class AstPropAlways final : బహిరంగ Ast_కణుపు_సమాసం {
     // always[m:n] / s_always[m:n] (IEEE 1800-2023 16.12.11)
     // @astgen op1 := propp : AstNodeExpr
     // @astgen op2 := loBoundp : AstNodeExpr
     // @astgen op3 := hiBoundp : AstNodeExpr
-    const bool m_isStrong = false;  // s_always
-public:
-    AstPropAlways(FileLine* fl, AstNodeExpr* propp, AstNodeExpr* loBoundp, AstNodeExpr* hiBoundp,
+    స్థిరరాశి bool m_isStrong = false;  // s_always
+బహిరంగ:
+    AstPropAlways(File_పంక్తి* fl, Ast_కణుపు_సమాసం* propp, Ast_కణుపు_సమాసం* loBoundp, Ast_కణుపు_సమాసం* hiBoundp,
                   bool isStrong)
         : ASTGEN_SUPER_PropAlways(fl)
         , m_isStrong{isStrong} {
@@ -2118,126 +2118,126 @@ public:
         this->hiBoundp(hiBoundp);
     }
     ASTGEN_MEMBERS_AstPropAlways;
-    void dump(std::ostream& str) const override;
-    void dumpJson(std::ostream& str) const override;
+    శూన్య dump(std::ostream& str) స్థిరరాశి override;
+    శూన్య dumpJson(std::ostream& str) స్థిరరాశి override;
     string emitVerilog() override { V3ERROR_NA_RETURN(""); }
     string emitC() override { V3ERROR_NA_RETURN(""); }
     string emitSimpleOperator() override { V3ERROR_NA_RETURN(""); }
-    bool cleanOut() const override { V3ERROR_NA_RETURN(""); }
-    int instrCount() const override { V3ERROR_NA_RETURN(0); }
-    bool isStrong() const { return m_isStrong; }
-    bool isMultiCycleSva() const override { return true; }
+    bool clean_బహిర్గతం() స్థిరరాశి override { V3ERROR_NA_RETURN(""); }
+    పూర్ణాంకం instr_లెక్క() స్థిరరాశి override { V3ERROR_NA_RETURN(0); }
+    bool isStrong() స్థిరరాశి { తిరిగి m_isStrong; }
+    bool is_Multi_చక్రం_Sva() స్థిరరాశి override { తిరిగి true; }
 };
-class AstRand final : public AstNodeExpr {
+class AstRand final : బహిరంగ Ast_కణుపు_సమాసం {
     // $random/$random(seed) or $urandom/$urandom(seed)
     // Return a random number, based upon width()
     // @astgen op1 := seedp : Optional[AstNodeExpr]
-    const bool m_urandom;  // $urandom vs $random
-public:
+    స్థిరరాశి bool m_urandom;  // $urandom vs $random
+బహిరంగ:
     class Reset {};
-    AstRand(FileLine* fl, AstNodeExpr* seedp, bool urandom)
+    AstRand(File_పంక్తి* fl, Ast_కణుపు_సమాసం* seedp, bool urandom)
         : ASTGEN_SUPER_Rand(fl)
         , m_urandom{urandom} {
         this->seedp(seedp);
     }
     class SRandomU32 {};
-    AstRand(FileLine* fl, SRandomU32)
+    AstRand(File_పంక్తి* fl, SRandomU32)
         : ASTGEN_SUPER_Rand(fl)
         , m_urandom{true} {
-        dtypeSetUInt32();
+        dtype_సమితి_UInt32();
     }
     ASTGEN_MEMBERS_AstRand;
-    void dump(std::ostream& str) const override;
-    void dumpJson(std::ostream& str) const override;
+    శూన్య dump(std::ostream& str) స్థిరరాశి override;
+    శూన్య dumpJson(std::ostream& str) స్థిరరాశి override;
     string emitVerilog() override {
-        return seedp() ? (m_urandom ? "%f$urandom(%l)" : "%f$random(%l)")
+        తిరిగి seedp() ? (m_urandom ? "%f$urandom(%l)" : "%f$random(%l)")
                        : (m_urandom ? "%f$urandom()" : "%f$random()");
     }
     string emitC() override {
-        if (seedp()) {
-            if (urandom()) return "VL_URANDOM_SEEDED_%nq%lq(%li)";
-            return "VL_RANDOM_SEEDED_%nq%lq(%li)";
+        ఒకవేళ (seedp()) {
+            ఒకవేళ (urandom()) తిరిగి "VL_URANDOM_SEEDED_%nq%lq(%li)";
+            తిరిగి "VL_RANDOM_SEEDED_%nq%lq(%li)";
         }
-        if (isWide()) return "VL_RANDOM_%nq(%nw, %P)";
-        return "VL_RANDOM_%nq()";
+        ఒకవేళ (isWide()) తిరిగి "VL_RANDOM_%nq(%nw, %P)";
+        తిరిగి "VL_RANDOM_%nq()";
     }
-    bool cleanOut() const override { return false; }
-    bool isGateOptimizable() const override { return false; }
-    bool isPredictOptimizable() const override { return false; }
-    bool isPure() override { return !seedp(); }
-    bool isSystemFunc() const override { return true; }
-    int instrCount() const override { return INSTR_COUNT_PLI; }
-    bool sameNode(const AstNode* /*samep*/) const override { return true; }
-    bool combinable(const AstRand* samep) const {
-        return !seedp() && !samep->seedp() && urandom() == samep->urandom();
+    bool clean_బహిర్గతం() స్థిరరాశి override { తిరిగి false; }
+    bool isGateOptimizable() స్థిరరాశి override { తిరిగి false; }
+    bool isPredictOptimizable() స్థిరరాశి override { తిరిగి false; }
+    bool is_శుద్ధ() override { తిరిగి !seedp(); }
+    bool isSystemFunc() స్థిరరాశి override { తిరిగి true; }
+    పూర్ణాంకం instr_లెక్క() స్థిరరాశి override { తిరిగి INSTR_లెక్క_PLI; }
+    bool same_కణుపు(స్థిరరాశి Ast_కణుపు* /*samep*/) స్థిరరాశి override { తిరిగి true; }
+    bool combinable(స్థిరరాశి AstRand* samep) స్థిరరాశి {
+        తిరిగి !seedp() && !samep->seedp() && urandom() == samep->urandom();
     }
-    bool urandom() const { return m_urandom; }
+    bool urandom() స్థిరరాశి { తిరిగి m_urandom; }
 };
-class AstRandRNG final : public AstNodeExpr {
+class AstRandRNG final : బహిరంగ Ast_కణుపు_సమాసం {
     // Random used in a class using VlRNG
     // Return a random number, based upon width()
-public:
-    AstRandRNG(FileLine* fl, AstNodeDType* dtp)
+బహిరంగ:
+    AstRandRNG(File_పంక్తి* fl, Ast_కణుపు_DType* dtp)
         : ASTGEN_SUPER_RandRNG(fl) {
         dtypep(dtp);
     }
     ASTGEN_MEMBERS_AstRandRNG;
-    string emitVerilog() override { return "%f$rngrandom()"; }
+    string emitVerilog() override { తిరిగి "%f$rngrandom()"; }
     string emitC() override {
-        return isWide() ? "VL_RANDOM_RNG_%nq(__Vm_rng, %nw, %P)"  //
+        తిరిగి isWide() ? "VL_RANDOM_RNG_%nq(__Vm_rng, %nw, %P)"  //
                         : "VL_RANDOM_RNG_%nq(__Vm_rng)";
     }
-    bool cleanOut() const override { return false; }
-    bool isGateOptimizable() const override { return false; }
-    bool isPredictOptimizable() const override { return false; }
-    bool isSystemFunc() const override { return true; }
-    int instrCount() const override { return INSTR_COUNT_PLI; }
-    bool sameNode(const AstNode* /*samep*/) const override { return true; }
+    bool clean_బహిర్గతం() స్థిరరాశి override { తిరిగి false; }
+    bool isGateOptimizable() స్థిరరాశి override { తిరిగి false; }
+    bool isPredictOptimizable() స్థిరరాశి override { తిరిగి false; }
+    bool isSystemFunc() స్థిరరాశి override { తిరిగి true; }
+    పూర్ణాంకం instr_లెక్క() స్థిరరాశి override { తిరిగి INSTR_లెక్క_PLI; }
+    bool same_కణుపు(స్థిరరాశి Ast_కణుపు* /*samep*/) స్థిరరాశి override { తిరిగి true; }
 };
-class AstRising final : public AstNodeExpr {
+class AstRising final : బహిరంగ Ast_కణుపు_సమాసం {
     // Verilog $rising_gclk
     // @astgen op1 := exprp : AstNodeExpr
-public:
-    AstRising(FileLine* fl, AstNodeExpr* exprp)
+బహిరంగ:
+    AstRising(File_పంక్తి* fl, Ast_కణుపు_సమాసం* exprp)
         : ASTGEN_SUPER_Rising(fl) {
         this->exprp(exprp);
     }
     ASTGEN_MEMBERS_AstRising;
-    string emitVerilog() override { return "$rising_gclk(%l)"; }
+    string emitVerilog() override { తిరిగి "$rising_gclk(%l)"; }
     string emitC() override { V3ERROR_NA_RETURN(""); }
     string emitSimpleOperator() override { V3ERROR_NA_RETURN(""); }
-    bool cleanOut() const override { V3ERROR_NA_RETURN(""); }
-    int instrCount() const override { return widthInstrs(); }
-    bool sameNode(const AstNode* /*samep*/) const override { return true; }
-    bool isSystemFunc() const override { return true; }
+    bool clean_బహిర్గతం() స్థిరరాశి override { V3ERROR_NA_RETURN(""); }
+    పూర్ణాంకం instr_లెక్క() స్థిరరాశి override { తిరిగి వెడల్పు_Instrs(); }
+    bool same_కణుపు(స్థిరరాశి Ast_కణుపు* /*samep*/) స్థిరరాశి override { తిరిగి true; }
+    bool isSystemFunc() స్థిరరాశి override { తిరిగి true; }
 };
-class AstRose final : public AstNodeExpr {
+class AstRose final : బహిరంగ Ast_కణుపు_సమాసం {
     // Verilog $rose
     // @astgen op1 := exprp : AstNodeExpr
     // @astgen op2 := sentreep : Optional[AstSenTree]
-public:
-    AstRose(FileLine* fl, AstNodeExpr* exprp, AstSenTree* sentreep)
+బహిరంగ:
+    AstRose(File_పంక్తి* fl, Ast_కణుపు_సమాసం* exprp, Ast_Sen_వృక్షం* sentreep)
         : ASTGEN_SUPER_Rose(fl) {
         this->exprp(exprp);
         this->sentreep(sentreep);
     }
     ASTGEN_MEMBERS_AstRose;
-    string emitVerilog() override { return "$rose(%l)"; }
+    string emitVerilog() override { తిరిగి "$rose(%l)"; }
     string emitC() override { V3ERROR_NA_RETURN(""); }
     string emitSimpleOperator() override { V3ERROR_NA_RETURN(""); }
-    bool cleanOut() const override { V3ERROR_NA_RETURN(""); }
-    int instrCount() const override { return widthInstrs(); }
-    bool sameNode(const AstNode* /*samep*/) const override { return true; }
-    bool isSystemFunc() const override { return true; }
+    bool clean_బహిర్గతం() స్థిరరాశి override { V3ERROR_NA_RETURN(""); }
+    పూర్ణాంకం instr_లెక్క() స్థిరరాశి override { తిరిగి వెడల్పు_Instrs(); }
+    bool same_కణుపు(స్థిరరాశి Ast_కణుపు* /*samep*/) స్థిరరాశి override { తిరిగి true; }
+    bool isSystemFunc() స్థిరరాశి override { తిరిగి true; }
 };
-class AstSClocked final : public AstNodeExpr {
+class AstSClocked final : బహిరంగ Ast_కణుపు_సమాసం {
     // Sequence expression with an explicit leading clocking event
     // IEEE 1800-2023 16.7: sequence_expr ::= clocking_event sequence_expr
     // The clocking event is hoisted to the enclosing assertion clock by V3AssertNfa.
     // @astgen op1 := sensesp : AstSenItem
     // @astgen op2 := exprp : AstNodeExpr
-public:
-    AstSClocked(FileLine* fl, AstSenItem* sensesp, AstNodeExpr* exprp)
+బహిరంగ:
+    AstSClocked(File_పంక్తి* fl, Ast_Sen_అంశం* sensesp, Ast_కణుపు_సమాసం* exprp)
         : ASTGEN_SUPER_SClocked(fl) {
         this->sensesp(sensesp);
         this->exprp(exprp);
@@ -2245,9 +2245,9 @@ public:
     ASTGEN_MEMBERS_AstSClocked;
     string emitVerilog() override { V3ERROR_NA_RETURN(""); }
     string emitC() override { V3ERROR_NA_RETURN(""); }
-    bool cleanOut() const override { V3ERROR_NA_RETURN(false); }
+    bool clean_బహిర్గతం() స్థిరరాశి override { V3ERROR_NA_RETURN(false); }
 };
-class AstSConsRep final : public AstNodeExpr {
+class AstSConsRep final : బహిరంగ Ast_కణుపు_సమాసం {
     // Consecutive repetition [*N], [*N:M], [*N:$], [+], [*] (IEEE 1800-2023 16.9.2)
     // op1 := exprp -- the repeated expression
     // op2 := countp -- min repetition count (N); always a non-negative constant after V3Width
@@ -2266,16 +2266,16 @@ class AstSConsRep final : public AstNodeExpr {
     // @astgen op1 := exprp : AstNodeExpr
     // @astgen op2 := countp : AstNodeExpr
     // @astgen op3 := maxCountp : Optional[AstNodeExpr]
-    const bool m_unbounded = false;  // True when the upper bound is $
-public:
+    స్థిరరాశి bool m_unbounded = false;  // True when the upper bound is $
+బహిరంగ:
     // Exact [*N]
-    AstSConsRep(FileLine* fl, AstNodeExpr* exprp, AstNodeExpr* countp)
+    AstSConsRep(File_పంక్తి* fl, Ast_కణుపు_సమాసం* exprp, Ast_కణుపు_సమాసం* countp)
         : ASTGEN_SUPER_SConsRep(fl) {
         this->exprp(exprp);
         this->countp(countp);
     }
     // Range [*N:M] or unbounded [*N:$]/[+]/[*]
-    AstSConsRep(FileLine* fl, AstNodeExpr* exprp, AstNodeExpr* countp, AstNodeExpr* maxCountp,
+    AstSConsRep(File_పంక్తి* fl, Ast_కణుపు_సమాసం* exprp, Ast_కణుపు_సమాసం* countp, Ast_కణుపు_సమాసం* maxCountp,
                 bool unbounded)
         : ASTGEN_SUPER_SConsRep(fl)
         , m_unbounded{unbounded} {
@@ -2284,45 +2284,45 @@ public:
         this->maxCountp(maxCountp);
     }
     ASTGEN_MEMBERS_AstSConsRep;
-    void dump(std::ostream& str) const override;
-    void dumpJson(std::ostream& str) const override;
+    శూన్య dump(std::ostream& str) స్థిరరాశి override;
+    శూన్య dumpJson(std::ostream& str) స్థిరరాశి override;
     string emitVerilog() override { V3ERROR_NA_RETURN(""); }
     string emitC() override { V3ERROR_NA_RETURN(""); }
     string emitSimpleOperator() override { V3ERROR_NA_RETURN(""); }
-    bool cleanOut() const override { V3ERROR_NA_RETURN(""); }
-    int instrCount() const override { V3ERROR_NA_RETURN(0); }
-    bool sameNode(const AstNode* samep) const override {  // LCOV_EXCL_LINE
-        return m_unbounded == VN_DBG_AS(samep, SConsRep)->m_unbounded;  // LCOV_EXCL_LINE
+    bool clean_బహిర్గతం() స్థిరరాశి override { V3ERROR_NA_RETURN(""); }
+    పూర్ణాంకం instr_లెక్క() స్థిరరాశి override { V3ERROR_NA_RETURN(0); }
+    bool same_కణుపు(స్థిరరాశి Ast_కణుపు* samep) స్థిరరాశి override {  // LCOV_EXCL_LINE
+        తిరిగి m_unbounded == VN_DBG_AS(samep, SConsRep)->m_unbounded;  // LCOV_EXCL_LINE
     }
-    bool unbounded() const { return m_unbounded; }
-    bool isMultiCycleSva() const override { return true; }
+    bool unbounded() స్థిరరాశి { తిరిగి m_unbounded; }
+    bool is_Multi_చక్రం_Sva() స్థిరరాశి override { తిరిగి true; }
 };
-class AstSEventually final : public AstNodeExpr {
+class AstSEventually final : బహిరంగ Ast_కణుపు_సమాసం {
     // s_eventually
     // @astgen op1 := exprp : AstNodeExpr
-public:
-    explicit AstSEventually(FileLine* fl, AstNodeExpr* exprp)
+బహిరంగ:
+    explicit AstSEventually(File_పంక్తి* fl, Ast_కణుపు_సమాసం* exprp)
         : ASTGEN_SUPER_SEventually(fl) {
         this->exprp(exprp);
     }
     ASTGEN_MEMBERS_AstSEventually;
     string emitVerilog() override { V3ERROR_NA_RETURN(""); }
     string emitC() override { V3ERROR_NA_RETURN(""); }
-    bool cleanOut() const override { V3ERROR_NA_RETURN(""); }
+    bool clean_బహిర్గతం() స్థిరరాశి override { V3ERROR_NA_RETURN(""); }
 };
-class AstSExpr final : public AstNodeExpr {
+class AstSExpr final : బహిరంగ Ast_కణుపు_సమాసం {
     // Sequence expression
     // @astgen op1 := preExprp: Optional[AstNodeExpr]
     // @astgen op2 := delayp : AstNodeStmt<AstDelay|AstBegin>
     // @astgen op3 := exprp : AstNodeExpr
-public:
-    explicit AstSExpr(FileLine* fl, AstNodeExpr* preExprp, AstNodeStmt* delayp, AstNodeExpr* exprp)
+బహిరంగ:
+    explicit AstSExpr(File_పంక్తి* fl, Ast_కణుపు_సమాసం* preExprp, Ast_కణుపు_Stmt* delayp, Ast_కణుపు_సమాసం* exprp)
         : ASTGEN_SUPER_SExpr(fl) {
         this->preExprp(preExprp);
         this->delayp(delayp);
         this->exprp(exprp);
     }
-    explicit AstSExpr(FileLine* fl, AstNodeStmt* delayp, AstNodeExpr* exprp)
+    explicit AstSExpr(File_పంక్తి* fl, Ast_కణుపు_Stmt* delayp, Ast_కణుపు_సమాసం* exprp)
         : ASTGEN_SUPER_SExpr(fl) {
         this->preExprp(nullptr);
         this->delayp(delayp);
@@ -2331,11 +2331,11 @@ public:
     ASTGEN_MEMBERS_AstSExpr;
     string emitVerilog() override { V3ERROR_NA_RETURN(""); }
     string emitC() override { V3ERROR_NA_RETURN(""); }
-    bool cleanOut() const override { V3ERROR_NA_RETURN(""); }
-    int instrCount() const override { return widthInstrs(); }
-    bool isMultiCycleSva() const override { return true; }
+    bool clean_బహిర్గతం() స్థిరరాశి override { V3ERROR_NA_RETURN(""); }
+    పూర్ణాంకం instr_లెక్క() స్థిరరాశి override { తిరిగి వెడల్పు_Instrs(); }
+    bool is_Multi_చక్రం_Sva() స్థిరరాశి override { తిరిగి true; }
 };
-class AstSFormatArg final : public AstNodeExpr {
+class AstSFormatArg final : బహిరంగ Ast_కణుపు_సమాసం {
     // Information for formatting each argument to AstSFormat,
     // used to pass to (potentially) runtime decoding of format arguments
     // PARENT: SFormatF (or next list of expressions)
@@ -2343,114 +2343,114 @@ class AstSFormatArg final : public AstNodeExpr {
     // @astgen op2 := namep : Optional[AstNodeExpr] // Runtime enum name lookup
     VFormatAttr m_formatAttr;  // How to format expression
 
-public:
-    AstSFormatArg(FileLine* fl, VFormatAttr formatAttr, AstNodeExpr* exprp)
+బహిరంగ:
+    AstSFormatArg(File_పంక్తి* fl, VFormatAttr formatAttr, Ast_కణుపు_సమాసం* exprp)
         : ASTGEN_SUPER_SFormatArg(fl)
         , m_formatAttr{formatAttr} {
         dtypeFrom(exprp);
         this->exprp(exprp);
     }
     ASTGEN_MEMBERS_AstSFormatArg;
-    void dump(std::ostream& str = std::cout) const override;
-    void dumpJson(std::ostream& str = std::cout) const override;
-    int instrCount() const override { return 0; }
-    bool sameNode(const AstNode* samep) const override {
-        return formatAttr() == VN_DBG_AS(samep, SFormatArg)->formatAttr();
+    శూన్య dump(std::ostream& str = std::cout) స్థిరరాశి override;
+    శూన్య dumpJson(std::ostream& str = std::cout) స్థిరరాశి override;
+    పూర్ణాంకం instr_లెక్క() స్థిరరాశి override { తిరిగి 0; }
+    bool same_కణుపు(స్థిరరాశి Ast_కణుపు* samep) స్థిరరాశి override {
+        తిరిగి formatAttr() == VN_DBG_AS(samep, SFormatArg)->formatAttr();
     }
-    string verilogKwd() const override { return "$sformatarg"; }
-    string emitVerilog() override { return "%l"; }
+    string verilogKwd() స్థిరరాశి override { తిరిగి "$sformatarg"; }
+    string emitVerilog() override { తిరిగి "%l"; }
     string emitC() override { V3ERROR_NA_RETURN(""); }
-    bool cleanOut() const override { return true; }
-    const char* broken() const override {
-        BROKEN_RTN(!VN_IS(backp(), SFormatF) && firstAbovep());  // In list under SFormatF
+    bool clean_బహిర్గతం() స్థిరరాశి override { తిరిగి true; }
+    స్థిరరాశి అక్షరం* broken() స్థిరరాశి override {
+        BROKEN_RTN(!VN_IS(backp(), SFormatF) && మొదటి_Abovep());  // In list under SFormatF
         BROKEN_RTN(formatAttr().isEnum() != static_cast<bool>(namep()));
-        return nullptr;
+        తిరిగి nullptr;
     }
-    VFormatAttr formatAttr() const { return m_formatAttr; }
-    void formatAttr(const VFormatAttr& formatAttr) { m_formatAttr = formatAttr; }
-    static VFormatAttr formatAttrDefauled(const AstSFormatArg* nodep, const AstNodeDType* dtypep);
+    VFormatAttr formatAttr() స్థిరరాశి { తిరిగి m_formatAttr; }
+    శూన్య formatAttr(స్థిరరాశి VFormatAttr& formatAttr) { m_formatAttr = formatAttr; }
+    స్థిర VFormatAttr formatAttrDefauled(స్థిరరాశి AstSFormatArg* nodep, స్థిరరాశి Ast_కణుపు_DType* dtypep);
 };
-class AstSFormatF final : public AstNodeExpr {
+class AstSFormatF final : బహిరంగ Ast_కణుపు_సమాసం {
     // Convert format to string, generally under an AstDisplay or AstSFormat
     // Also used as "real" function for /*verilator sformat*/ functions
     // exprsp() once past parsing may be AstSFormatArgs
     // @astgen op1 := exprsp : List[AstNodeExpr]
     // @astgen op2 := scopeNamep : Optional[AstScopeName]
-    string m_text;
+    string m_పాఠ్యం;
     bool m_hidden;  // Under display, etc
-    bool m_exprFormat
+    bool m_సమాసం_Format
         = false;  // Runtime Node* format, false = text() format code, false = possibly r
     bool m_optionalFormat
         = false;  // With exprFormat, first argument is either format or format-implied
-    const char m_missingArgChar;  // Format code when argument without format, 'h'/'o'/'b'
+    స్థిరరాశి అక్షరం m_missingArgChar;  // Format code when argument without format, 'h'/'o'/'b'
     VTimescale m_timeunit;  // Parent module time unit
-public:
-    class ExprFormat {};
-    AstSFormatF(FileLine* fl, const string& text, bool hidden, AstNodeExpr* exprsp,
-                char missingArgChar = 'd')
+బహిరంగ:
+    class సమాసం_Format {};
+    AstSFormatF(File_పంక్తి* fl, స్థిరరాశి string& పాఠ్యం, bool hidden, Ast_కణుపు_సమాసం* exprsp,
+                అక్షరం missingArgChar = 'd')
         : ASTGEN_SUPER_SFormatF(fl)
-        , m_text{text}
+        , m_పాఠ్యం{పాఠ్యం}
         , m_hidden{hidden}
         , m_missingArgChar{missingArgChar} {
-        dtypeSetString();
-        addExprsp(exprsp);
+        dtype_సమితి_String();
+        కూడు_Exprsp(exprsp);
     }
-    AstSFormatF(FileLine* fl, ExprFormat, AstNodeExpr* exprsp, char missingArgChar = 'd',
+    AstSFormatF(File_పంక్తి* fl, సమాసం_Format, Ast_కణుపు_సమాసం* exprsp, అక్షరం missingArgChar = 'd',
                 bool hidden = true)
         : ASTGEN_SUPER_SFormatF(fl)
-        , m_text{""}
+        , m_పాఠ్యం{""}
         , m_hidden{hidden}
-        , m_exprFormat{true}
+        , m_సమాసం_Format{true}
         , m_missingArgChar{missingArgChar} {
-        dtypeSetString();
-        addExprsp(exprsp);
+        dtype_సమితి_String();
+        కూడు_Exprsp(exprsp);
     }
     ASTGEN_MEMBERS_AstSFormatF;
-    void dump(std::ostream& str = std::cout) const override;
-    void dumpJson(std::ostream& str = std::cout) const override;
-    string name() const override VL_MT_STABLE { return m_text; }
-    void name(const string& name) override { m_text = name; }
-    int instrCount() const override { return INSTR_COUNT_PLI; }
-    bool sameNode(const AstNode* samep) const override {
-        return text() == VN_DBG_AS(samep, SFormatF)->text();
+    శూన్య dump(std::ostream& str = std::cout) స్థిరరాశి override;
+    శూన్య dumpJson(std::ostream& str = std::cout) స్థిరరాశి override;
+    string name() స్థిరరాశి override VL_MT_STABLE { తిరిగి m_పాఠ్యం; }
+    శూన్య name(స్థిరరాశి string& name) override { m_పాఠ్యం = name; }
+    పూర్ణాంకం instr_లెక్క() స్థిరరాశి override { తిరిగి INSTR_లెక్క_PLI; }
+    bool same_కణుపు(స్థిరరాశి Ast_కణుపు* samep) స్థిరరాశి override {
+        తిరిగి పాఠ్యం() == VN_DBG_AS(samep, SFormatF)->పాఠ్యం();
     }
-    string verilogKwd() const override { return "$sformatf"; }
-    string text() const { return m_text; }  // * = Text to display
-    void text(const string& text) { m_text = text; }
-    const char* broken() const override {
-        BROKEN_RTN(text() != "" && exprFormat());  // Expr format means no literal format
-        return nullptr;
+    string verilogKwd() స్థిరరాశి override { తిరిగి "$sformatf"; }
+    string పాఠ్యం() స్థిరరాశి { తిరిగి m_పాఠ్యం; }  // * = Text to display
+    శూన్య పాఠ్యం(స్థిరరాశి string& పాఠ్యం) { m_పాఠ్యం = పాఠ్యం; }
+    స్థిరరాశి అక్షరం* broken() స్థిరరాశి override {
+        BROKEN_RTN(పాఠ్యం() != "" && సమాసం_Format_2());  // Expr format means no literal format
+        తిరిగి nullptr;
     }
-    bool formatScopeTracking() const {  // Track scopeNamep();  Ok if false positive
-        if (exprFormat() || name().find("%m") != string::npos || name().find("%M") != string::npos)
-            return true;
-        for (const AstNode* exprp = this->exprsp(); exprp; exprp = exprp->nextp()) {
-            if (const AstConst* const fmtp = VN_CAST(exprp, Const)) {
-                if (fmtp->num().isFromString()) {
-                    const string str = fmtp->num().toString();
-                    if (str.find("%m") != string::npos || str.find("%M") != string::npos)
-                        return true;
+    bool formatScopeTracking() స్థిరరాశి {  // Track scopeNamep();  Ok if false positive
+        ఒకవేళ (సమాసం_Format_2() || name().కనుగొను("%m") != string::npos || name().కనుగొను("%M") != string::npos)
+            తిరిగి true;
+        కొరకు (స్థిరరాశి Ast_కణుపు* exprp = this->exprsp(); exprp; exprp = exprp->nextp()) {
+            ఒకవేళ (స్థిరరాశి AstConst* స్థిరరాశి fmtp = VN_CAST(exprp, Const)) {
+                ఒకవేళ (fmtp->అంకె().isFromString()) {
+                    స్థిరరాశి string str = fmtp->అంకె().గమ్యం_String();
+                    ఒకవేళ (str.కనుగొను("%m") != string::npos || str.కనుగొను("%M") != string::npos)
+                        తిరిగి true;
                 }
             }
         }
-        return false;
+        తిరిగి false;
     }
-    bool hidden() const { return m_hidden; }
-    void hidden(bool flag) { m_hidden = flag; }
-    bool exprFormat() const { return m_exprFormat; }
-    void exprFormat(bool flag) { m_exprFormat = flag; }
-    bool optionalFormat() const { return m_optionalFormat; }
-    void optionalFormat(bool flag) { m_optionalFormat = flag; }
-    char missingArgChar() const { return m_missingArgChar; }
-    VTimescale timeunit() const { return m_timeunit; }
-    void timeunit(const VTimescale& flag) { m_timeunit = flag; }
+    bool hidden() స్థిరరాశి { తిరిగి m_hidden; }
+    శూన్య hidden(bool flag) { m_hidden = flag; }
+    bool సమాసం_Format_2() స్థిరరాశి { తిరిగి m_సమాసం_Format; }
+    శూన్య సమాసం_Format_2(bool flag) { m_సమాసం_Format = flag; }
+    bool optionalFormat() స్థిరరాశి { తిరిగి m_optionalFormat; }
+    శూన్య optionalFormat(bool flag) { m_optionalFormat = flag; }
+    అక్షరం missingArgChar() స్థిరరాశి { తిరిగి m_missingArgChar; }
+    VTimescale timeunit() స్థిరరాశి { తిరిగి m_timeunit; }
+    శూన్య timeunit(స్థిరరాశి VTimescale& flag) { m_timeunit = flag; }
 
     string emitVerilog() override { V3ERROR_NA_RETURN(""); }
     string emitC() override { V3ERROR_NA_RETURN(""); }
-    bool cleanOut() const override { V3ERROR_NA_RETURN(true); }
-    bool isSystemFunc() const override { return true; }
+    bool clean_బహిర్గతం() స్థిరరాశి override { V3ERROR_NA_RETURN(true); }
+    bool isSystemFunc() స్థిరరాశి override { తిరిగి true; }
 };
-class AstSGotoRep final : public AstNodeExpr {
+class AstSGotoRep final : బహిరంగ Ast_కణుపు_సమాసం {
     // Goto repetition: expr [-> count] or [-> count : maxCount]
     // IEEE 1800-2023 16.9.2
     // op1 := exprp -- the repeated expression
@@ -2459,15 +2459,15 @@ class AstSGotoRep final : public AstNodeExpr {
     // @astgen op1 := exprp : AstNodeExpr
     // @astgen op2 := countp : AstNodeExpr
     // @astgen op3 := maxCountp : Optional[AstNodeExpr]
-public:
+బహిరంగ:
     // Exact [->N]
-    AstSGotoRep(FileLine* fl, AstNodeExpr* exprp, AstNodeExpr* countp)
+    AstSGotoRep(File_పంక్తి* fl, Ast_కణుపు_సమాసం* exprp, Ast_కణుపు_సమాసం* countp)
         : ASTGEN_SUPER_SGotoRep(fl) {
         this->exprp(exprp);
         this->countp(countp);
     }
     // Range [->M:N]
-    AstSGotoRep(FileLine* fl, AstNodeExpr* exprp, AstNodeExpr* countp, AstNodeExpr* maxCountp)
+    AstSGotoRep(File_పంక్తి* fl, Ast_కణుపు_సమాసం* exprp, Ast_కణుపు_సమాసం* countp, Ast_కణుపు_సమాసం* maxCountp)
         : ASTGEN_SUPER_SGotoRep(fl) {
         this->exprp(exprp);
         this->countp(countp);
@@ -2476,10 +2476,10 @@ public:
     ASTGEN_MEMBERS_AstSGotoRep;
     string emitVerilog() override { V3ERROR_NA_RETURN(""); }
     string emitC() override { V3ERROR_NA_RETURN(""); }
-    bool cleanOut() const override { V3ERROR_NA_RETURN(""); }
-    bool isMultiCycleSva() const override { return true; }
+    bool clean_బహిర్గతం() స్థిరరాశి override { V3ERROR_NA_RETURN(""); }
+    bool is_Multi_చక్రం_Sva() స్థిరరాశి override { తిరిగి true; }
 };
-class AstSNonConsRep final : public AstNodeExpr {
+class AstSNonConsRep final : బహిరంగ Ast_కణుపు_సమాసం {
     // Nonconsecutive repetition: expr [= count] or [= count : maxCount]
     // IEEE 1800-2023 16.9.2
     // op1 := exprp -- the repeated expression
@@ -2488,15 +2488,15 @@ class AstSNonConsRep final : public AstNodeExpr {
     // @astgen op1 := exprp : AstNodeExpr
     // @astgen op2 := countp : AstNodeExpr
     // @astgen op3 := maxCountp : Optional[AstNodeExpr]
-public:
+బహిరంగ:
     // Exact [=N]
-    AstSNonConsRep(FileLine* fl, AstNodeExpr* exprp, AstNodeExpr* countp)
+    AstSNonConsRep(File_పంక్తి* fl, Ast_కణుపు_సమాసం* exprp, Ast_కణుపు_సమాసం* countp)
         : ASTGEN_SUPER_SNonConsRep(fl) {
         this->exprp(exprp);
         this->countp(countp);
     }
     // Range [=M:N]
-    AstSNonConsRep(FileLine* fl, AstNodeExpr* exprp, AstNodeExpr* countp, AstNodeExpr* maxCountp)
+    AstSNonConsRep(File_పంక్తి* fl, Ast_కణుపు_సమాసం* exprp, Ast_కణుపు_సమాసం* countp, Ast_కణుపు_సమాసం* maxCountp)
         : ASTGEN_SUPER_SNonConsRep(fl) {
         this->exprp(exprp);
         this->countp(countp);
@@ -2505,89 +2505,89 @@ public:
     ASTGEN_MEMBERS_AstSNonConsRep;
     string emitVerilog() override { V3ERROR_NA_RETURN(""); }
     string emitC() override { V3ERROR_NA_RETURN(""); }
-    bool cleanOut() const override { V3ERROR_NA_RETURN(""); }
-    bool isMultiCycleSva() const override { return true; }
+    bool clean_బహిర్గతం() స్థిరరాశి override { V3ERROR_NA_RETURN(""); }
+    bool is_Multi_చక్రం_Sva() స్థిరరాశి override { తిరిగి true; }
 };
-class AstSScanF final : public AstNodeExpr {
+class AstSScanF final : బహిరంగ Ast_కణుపు_సమాసం {
     // @astgen op1 := exprsp : List[AstNodeExpr] // VarRefs for results
     // @astgen op2 := fromp : AstNodeExpr
-    string m_text;
+    string m_పాఠ్యం;
     VTimescale m_timeunit;  // Parent module time unit
 
-public:
-    AstSScanF(FileLine* fl, const string& text, AstNodeExpr* fromp, AstNodeExpr* exprsp)
+బహిరంగ:
+    AstSScanF(File_పంక్తి* fl, స్థిరరాశి string& పాఠ్యం, Ast_కణుపు_సమాసం* fromp, Ast_కణుపు_సమాసం* exprsp)
         : ASTGEN_SUPER_SScanF(fl)
-        , m_text{text} {
-        addExprsp(exprsp);
+        , m_పాఠ్యం{పాఠ్యం} {
+        కూడు_Exprsp(exprsp);
         this->fromp(fromp);
-        dtypeSetInteger2State();  // Spec says integer return
+        dtype_సమితి_Integer2_State();  // Spec says integer return
     }
     ASTGEN_MEMBERS_AstSScanF;
-    string name() const override VL_MT_STABLE { return m_text; }
-    string verilogKwd() const override { return "$sscanf"; }
+    string name() స్థిరరాశి override VL_MT_STABLE { తిరిగి m_పాఠ్యం; }
+    string verilogKwd() స్థిరరాశి override { తిరిగి "$sscanf"; }
     string emitVerilog() override { V3ERROR_NA_RETURN(""); }
     string emitC() override { V3ERROR_NA_RETURN(""); }
-    bool isGateOptimizable() const override { return false; }
-    bool isPredictOptimizable() const override { return false; }
-    bool isPure() override { return false; }  // SPECIAL: has 'visual' ordering
-    bool isOutputter() override { return true; }  // SPECIAL: makes output
-    bool cleanOut() const override { return false; }
-    bool sameNode(const AstNode* samep) const override {
-        const AstSScanF* const asamep = VN_DBG_AS(samep, SScanF);
-        return text() == asamep->text() && timeunit() == asamep->timeunit();
+    bool isGateOptimizable() స్థిరరాశి override { తిరిగి false; }
+    bool isPredictOptimizable() స్థిరరాశి override { తిరిగి false; }
+    bool is_శుద్ధ() override { తిరిగి false; }  // SPECIAL: has 'visual' ordering
+    bool isOutputter() override { తిరిగి true; }  // SPECIAL: makes output
+    bool clean_బహిర్గతం() స్థిరరాశి override { తిరిగి false; }
+    bool same_కణుపు(స్థిరరాశి Ast_కణుపు* samep) స్థిరరాశి override {
+        స్థిరరాశి AstSScanF* స్థిరరాశి asamep = VN_DBG_AS(samep, SScanF);
+        తిరిగి పాఠ్యం() == asamep->పాఠ్యం() && timeunit() == asamep->timeunit();
     }
-    string text() const { return m_text; }  // * = Text to display
-    VTimescale timeunit() const { return m_timeunit; }
-    void timeunit(const VTimescale& flag) { m_timeunit = flag; }
-    bool isSystemFunc() const override { return true; }
+    string పాఠ్యం() స్థిరరాశి { తిరిగి m_పాఠ్యం; }  // * = Text to display
+    VTimescale timeunit() స్థిరరాశి { తిరిగి m_timeunit; }
+    శూన్య timeunit(స్థిరరాశి VTimescale& flag) { m_timeunit = flag; }
+    bool isSystemFunc() స్థిరరాశి override { తిరిగి true; }
 };
-class AstSampled final : public AstNodeExpr {
+class AstSampled final : బహిరంగ Ast_కణుపు_సమాసం {
     // Verilog $sampled
     // @astgen op1 := exprp : AstNode<AstNodeExpr|AstPropSpec>
-    bool m_internal : 1;  // Internally created, not from a source $sampled
-public:
-    AstSampled(FileLine* fl, AstNode* exprp, AstNodeDType* dtypep, bool internal = false)
+    bool m_అంతర్గత : 1;  // Internally created, not from a source $sampled
+బహిరంగ:
+    AstSampled(File_పంక్తి* fl, Ast_కణుపు* exprp, Ast_కణుపు_DType* dtypep, bool అంతర్గత_2 = false)
         : ASTGEN_SUPER_Sampled(fl)
-        , m_internal{internal} {
+        , m_అంతర్గత{అంతర్గత_2} {
         this->exprp(exprp);
         this->dtypep(dtypep);
     }
     ASTGEN_MEMBERS_AstSampled;
-    void dump(std::ostream& str) const override;
-    void dumpJson(std::ostream& str) const override;
-    string emitVerilog() override { return "$sampled(%l)"; }
+    శూన్య dump(std::ostream& str) స్థిరరాశి override;
+    శూన్య dumpJson(std::ostream& str) స్థిరరాశి override;
+    string emitVerilog() override { తిరిగి "$sampled(%l)"; }
     string emitC() override { V3ERROR_NA_RETURN(""); }
     string emitSimpleOperator() override { V3ERROR_NA_RETURN(""); }
-    bool cleanOut() const override { V3ERROR_NA_RETURN(""); }
-    int instrCount() const override { return 0; }
-    bool sameNode(const AstNode* samep) const override {
-        return m_internal == VN_DBG_AS(samep, Sampled)->m_internal;
+    bool clean_బహిర్గతం() స్థిరరాశి override { V3ERROR_NA_RETURN(""); }
+    పూర్ణాంకం instr_లెక్క() స్థిరరాశి override { తిరిగి 0; }
+    bool same_కణుపు(స్థిరరాశి Ast_కణుపు* samep) స్థిరరాశి override {
+        తిరిగి m_అంతర్గత == VN_DBG_AS(samep, Sampled)->m_అంతర్గత;
     }
-    bool internal() const { return m_internal; }
-    bool isSystemFunc() const override { return true; }
+    bool అంతర్గత_2() స్థిరరాశి { తిరిగి m_అంతర్గత; }
+    bool isSystemFunc() స్థిరరాశి override { తిరిగి true; }
 };
-class AstScopeName final : public AstNodeExpr {
+class AstScopeName final : బహిరంగ Ast_కణుపు_సమాసం {
     // For display %m and DPI context imports
     // Parents:  AstSFormatF, AstNodeFTaskRef, AstNodeFTask, AstScope
     std::string m_scopeAttr;
     std::string m_scopeEntr;  // Scope path for the DPI import/export context name
     bool m_dpiExport = false;  // Is for dpiExport
     bool m_selfRelative = false;  // scopeAttr is the pretty path below the running instance
-    const bool m_forFormat;  // Is for a format %m
-    static std::string scopeNameFormatter(const std::string& text);
-    static std::string scopePrettyNameFormatter(const std::string& text);
+    స్థిరరాశి bool m_forFormat;  // Is for a format %m
+    స్థిర std::string scopeNameFormatter(స్థిరరాశి std::string& పాఠ్యం);
+    స్థిర std::string scopePrettyNameFormatter(స్థిరరాశి std::string& పాఠ్యం);
 
-public:
+బహిరంగ:
     class ForFormat {};
-    AstScopeName(FileLine* fl, bool forFormat)
+    AstScopeName(File_పంక్తి* fl, bool forFormat)
         : ASTGEN_SUPER_ScopeName(fl)
         , m_forFormat{forFormat} {
-        dtypeSetUInt64();
+        dtype_సమితి_UInt64();
     }
     ASTGEN_MEMBERS_AstScopeName;
-    bool sameNode(const AstNode* samep) const override {
-        const AstScopeName* const sp = VN_DBG_AS(samep, ScopeName);
-        return m_scopeAttr == sp->m_scopeAttr  //
+    bool same_కణుపు(స్థిరరాశి Ast_కణుపు* samep) స్థిరరాశి override {
+        స్థిరరాశి AstScopeName* స్థిరరాశి sp = VN_DBG_AS(samep, ScopeName);
+        తిరిగి m_scopeAttr == sp->m_scopeAttr  //
                && m_scopeEntr == sp->m_scopeEntr  //
                && m_dpiExport == sp->m_dpiExport  //
                && m_selfRelative == sp->m_selfRelative  //
@@ -2595,305 +2595,305 @@ public:
     }
     string emitVerilog() override { V3ERROR_NA_RETURN(""); }
     string emitC() override { V3ERROR_NA_RETURN(""); }
-    bool cleanOut() const override { return true; }
-    void dump(std::ostream& str = std::cout) const override;
-    void dumpJson(std::ostream& str = std::cout) const override;
+    bool clean_బహిర్గతం() స్థిరరాశి override { తిరిగి true; }
+    శూన్య dump(std::ostream& str = std::cout) స్థిరరాశి override;
+    శూన్య dumpJson(std::ostream& str = std::cout) స్థిరరాశి override;
     // ACCESSORS
-    const std::string& scopeAttr() const { return m_scopeAttr; }
-    void scopeAttr(const std::string& val) { m_scopeAttr = val; }
-    const std::string& scopeEntr() const { return m_scopeEntr; }
-    void scopeEntr(const std::string& val) { m_scopeEntr = val; }
-    bool dpiExport() const { return m_dpiExport; }
-    void dpiExport(bool flag) { m_dpiExport = flag; }
-    bool selfRelative() const { return m_selfRelative; }
-    void selfRelative(bool flag) { m_selfRelative = flag; }
-    bool forFormat() const { return m_forFormat; }
+    స్థిరరాశి std::string& scopeAttr() స్థిరరాశి { తిరిగి m_scopeAttr; }
+    శూన్య scopeAttr(స్థిరరాశి std::string& val) { m_scopeAttr = val; }
+    స్థిరరాశి std::string& scopeEntr() స్థిరరాశి { తిరిగి m_scopeEntr; }
+    శూన్య scopeEntr(స్థిరరాశి std::string& val) { m_scopeEntr = val; }
+    bool dpiExport() స్థిరరాశి { తిరిగి m_dpiExport; }
+    శూన్య dpiExport(bool flag) { m_dpiExport = flag; }
+    bool selfRelative() స్థిరరాశి { తిరిగి m_selfRelative; }
+    శూన్య selfRelative(bool flag) { m_selfRelative = flag; }
+    bool forFormat() స్థిరరాశి { తిరిగి m_forFormat; }
     // Name for __Vscopep variable including children
-    string scopeSymName() const { return scopeNameFormatter(m_scopeAttr); }
+    string scopeSymName() స్థిరరాశి { తిరిగి scopeNameFormatter(m_scopeAttr); }
     // Name for DPI import scope
-    string scopeDpiName() const { return scopeNameFormatter(m_scopeEntr); }
+    string scopeDpiName() స్థిరరాశి { తిరిగి scopeNameFormatter(m_scopeEntr); }
     // Name for __Vscopep variable including children
-    string scopePrettySymName() const { return scopePrettyNameFormatter(m_scopeAttr); }
+    string scopePrettySymName() స్థిరరాశి { తిరిగి scopePrettyNameFormatter(m_scopeAttr); }
     // Name for __Vscopep variable including children
-    string scopePrettyDpiName() const { return scopePrettyNameFormatter(m_scopeEntr); }
+    string scopePrettyDpiName() స్థిరరాశి { తిరిగి scopePrettyNameFormatter(m_scopeEntr); }
 };
-class AstStable final : public AstNodeExpr {
+class AstStable final : బహిరంగ Ast_కణుపు_సమాసం {
     // Verilog $stable
     // @astgen op1 := exprp : AstNodeExpr
     // @astgen op2 := sentreep : Optional[AstSenTree]
-public:
-    AstStable(FileLine* fl, AstNodeExpr* exprp, AstSenTree* sentreep)
+బహిరంగ:
+    AstStable(File_పంక్తి* fl, Ast_కణుపు_సమాసం* exprp, Ast_Sen_వృక్షం* sentreep)
         : ASTGEN_SUPER_Stable(fl) {
         this->exprp(exprp);
         this->sentreep(sentreep);
     }
     ASTGEN_MEMBERS_AstStable;
-    string emitVerilog() override { return "$stable(%l)"; }
+    string emitVerilog() override { తిరిగి "$stable(%l)"; }
     string emitC() override { V3ERROR_NA_RETURN(""); }
     string emitSimpleOperator() override { V3ERROR_NA_RETURN(""); }
-    bool cleanOut() const override { V3ERROR_NA_RETURN(""); }
-    int instrCount() const override { return widthInstrs(); }
-    bool sameNode(const AstNode* /*samep*/) const override { return true; }
-    bool isSystemFunc() const override { return true; }
+    bool clean_బహిర్గతం() స్థిరరాశి override { V3ERROR_NA_RETURN(""); }
+    పూర్ణాంకం instr_లెక్క() స్థిరరాశి override { తిరిగి వెడల్పు_Instrs(); }
+    bool same_కణుపు(స్థిరరాశి Ast_కణుపు* /*samep*/) స్థిరరాశి override { తిరిగి true; }
+    bool isSystemFunc() స్థిరరాశి override { తిరిగి true; }
 };
-class AstStackTraceF final : public AstNodeExpr {
+class Ast_దొంతర_Trace_F final : బహిరంగ Ast_కణుపు_సమాసం {
     // $stacktrace used as function
-public:
-    explicit AstStackTraceF(FileLine* fl)
-        : ASTGEN_SUPER_StackTraceF(fl) {
-        dtypeSetString();
+బహిరంగ:
+    explicit Ast_దొంతర_Trace_F(File_పంక్తి* fl)
+        : ASTGEN_SUPER_దొంతర_Trace_F(fl) {
+        dtype_సమితి_String();
     }
-    ASTGEN_MEMBERS_AstStackTraceF;
-    string verilogKwd() const override { return "$stacktrace"; }
-    string emitVerilog() override { return verilogKwd(); }
-    string emitC() override { return "VL_STACKTRACE_N()"; }
-    bool isGateOptimizable() const override { return false; }
-    bool isPredictOptimizable() const override { return false; }
-    bool isPure() override { return false; }
-    bool isOutputter() override { return true; }
-    bool isUnlikely() const override { return true; }
-    bool cleanOut() const override { return true; }
-    bool sameNode(const AstNode* /*samep*/) const override { return true; }
+    ASTGEN_MEMBERS_Ast_దొంతర_Trace_F;
+    string verilogKwd() స్థిరరాశి override { తిరిగి "$stacktrace"; }
+    string emitVerilog() override { తిరిగి verilogKwd(); }
+    string emitC() override { తిరిగి "VL_STACKTRACE_N()"; }
+    bool isGateOptimizable() స్థిరరాశి override { తిరిగి false; }
+    bool isPredictOptimizable() స్థిరరాశి override { తిరిగి false; }
+    bool is_శుద్ధ() override { తిరిగి false; }
+    bool isOutputter() override { తిరిగి true; }
+    bool isUnlikely() స్థిరరాశి override { తిరిగి true; }
+    bool clean_బహిర్గతం() స్థిరరాశి override { తిరిగి true; }
+    bool same_కణుపు(స్థిరరాశి Ast_కణుపు* /*samep*/) స్థిరరాశి override { తిరిగి true; }
 };
-class AstSteady final : public AstNodeExpr {
+class AstSteady final : బహిరంగ Ast_కణుపు_సమాసం {
     // Verilog $steady_gclk
     // @astgen op1 := exprp : AstNodeExpr
-public:
-    AstSteady(FileLine* fl, AstNodeExpr* exprp)
+బహిరంగ:
+    AstSteady(File_పంక్తి* fl, Ast_కణుపు_సమాసం* exprp)
         : ASTGEN_SUPER_Steady(fl) {
         this->exprp(exprp);
     }
     ASTGEN_MEMBERS_AstSteady;
-    string emitVerilog() override { return "$steady_gclk(%l)"; }
+    string emitVerilog() override { తిరిగి "$steady_gclk(%l)"; }
     string emitC() override { V3ERROR_NA_RETURN(""); }
     string emitSimpleOperator() override { V3ERROR_NA_RETURN(""); }
-    bool cleanOut() const override { V3ERROR_NA_RETURN(""); }
-    int instrCount() const override { return widthInstrs(); }
-    bool sameNode(const AstNode* /*samep*/) const override { return true; }
-    bool isSystemFunc() const override { return true; }
+    bool clean_బహిర్గతం() స్థిరరాశి override { V3ERROR_NA_RETURN(""); }
+    పూర్ణాంకం instr_లెక్క() స్థిరరాశి override { తిరిగి వెడల్పు_Instrs(); }
+    bool same_కణుపు(స్థిరరాశి Ast_కణుపు* /*samep*/) స్థిరరాశి override { తిరిగి true; }
+    bool isSystemFunc() స్థిరరాశి override { తిరిగి true; }
 };
-class AstStructSel final : public AstNodeExpr {
+class AstStructSel final : బహిరంగ Ast_కణుపు_సమాసం {
     // Unpacked struct/union member access
     // Parents: math|stmt
     // Children: varref, math
     // @astgen op1 := fromp : AstNodeExpr
     string m_name;  // Name of the member
-public:
-    AstStructSel(FileLine* fl, AstNodeExpr* fromp, const string& name)
+బహిరంగ:
+    AstStructSel(File_పంక్తి* fl, Ast_కణుపు_సమాసం* fromp, స్థిరరాశి string& name)
         : ASTGEN_SUPER_StructSel(fl)
         , m_name{name} {
         this->fromp(fromp);
         dtypep(nullptr);  // V3Width will resolve
     }
     ASTGEN_MEMBERS_AstStructSel;
-    string name() const override VL_MT_STABLE { return m_name; }
-    void name(const string& name) override { m_name = name; }
+    string name() స్థిరరాశి override VL_MT_STABLE { తిరిగి m_name; }
+    శూన్య name(స్థిరరాశి string& name) override { m_name = name; }
     string emitVerilog() override { V3ERROR_NA_RETURN(""); }
     string emitC() override { V3ERROR_NA_RETURN(""); }
-    bool cleanOut() const override {
+    bool clean_బహిర్గతం() స్థిరరాశి override {
         // Not a union
-        return VN_IS(fromp()->dtypep()->skipRefp(), StructDType);
+        తిరిగి VN_IS(fromp()->dtypep()->skipRefp(), StructDType);
     }
-    bool sameNode(const AstNode* samep) const override {
-        const AstStructSel* const sp = VN_DBG_AS(samep, StructSel);
-        return m_name == sp->m_name;
+    bool same_కణుపు(స్థిరరాశి Ast_కణుపు* samep) స్థిరరాశి override {
+        స్థిరరాశి AstStructSel* స్థిరరాశి sp = VN_DBG_AS(samep, StructSel);
+        తిరిగి m_name == sp->m_name;
     }
-    int instrCount() const override { return widthInstrs(); }
+    పూర్ణాంకం instr_లెక్క() స్థిరరాశి override { తిరిగి వెడల్పు_Instrs(); }
 };
-class AstSysIgnore final : public AstNodeExpr {
+class AstSysIgnore final : బహిరంగ Ast_కణుపు_సమాసం {
     // @astgen op1 := exprsp : List[AstNodeExpr] // Expressions to output (???)
-public:
-    AstSysIgnore(FileLine* fl, AstNodeExpr* exprsp)
+బహిరంగ:
+    AstSysIgnore(File_పంక్తి* fl, Ast_కణుపు_సమాసం* exprsp)
         : ASTGEN_SUPER_SysIgnore(fl) {
-        addExprsp(exprsp);
+        కూడు_Exprsp(exprsp);
     }
     ASTGEN_MEMBERS_AstSysIgnore;
-    string verilogKwd() const override { return "$ignored"; }
-    bool isGateOptimizable() const override { return false; }  // Though deleted before opt
-    bool isPredictOptimizable() const override { return false; }  // Though deleted before opt
-    bool isPure() override { return false; }  // Though deleted before opt
-    bool isOutputter() override { return true; }  // Though deleted before opt
-    int instrCount() const override { return INSTR_COUNT_PLI; }
+    string verilogKwd() స్థిరరాశి override { తిరిగి "$ignored"; }
+    bool isGateOptimizable() స్థిరరాశి override { తిరిగి false; }  // Though deleted before opt
+    bool isPredictOptimizable() స్థిరరాశి override { తిరిగి false; }  // Though deleted before opt
+    bool is_శుద్ధ() override { తిరిగి false; }  // Though deleted before opt
+    bool isOutputter() override { తిరిగి true; }  // Though deleted before opt
+    పూర్ణాంకం instr_లెక్క() స్థిరరాశి override { తిరిగి INSTR_లెక్క_PLI; }
 
     string emitVerilog() override { V3ERROR_NA_RETURN(""); }
     string emitC() override { V3ERROR_NA_RETURN(""); }
-    bool cleanOut() const override { V3ERROR_NA_RETURN(true); }
+    bool clean_బహిర్గతం() స్థిరరాశి override { V3ERROR_NA_RETURN(true); }
 };
-class AstSystemF final : public AstNodeExpr {
+class AstSystemF final : బహిరంగ Ast_కణుపు_సమాసం {
     // $system used as function
     // @astgen op1 := lhsp : AstNodeExpr
-public:
-    AstSystemF(FileLine* fl, AstNodeExpr* lhsp)
+బహిరంగ:
+    AstSystemF(File_పంక్తి* fl, Ast_కణుపు_సమాసం* lhsp)
         : ASTGEN_SUPER_SystemF(fl) {
         this->lhsp(lhsp);
-        dtypeSetInteger2State();  // Spec says integer return
+        dtype_సమితి_Integer2_State();  // Spec says integer return
     }
     ASTGEN_MEMBERS_AstSystemF;
-    string verilogKwd() const override { return "$system"; }
-    string emitVerilog() override { return verilogKwd(); }
-    string emitC() override { return "VL_SYSTEM_%nq(%lw, %P)"; }
-    bool isGateOptimizable() const override { return false; }
-    bool isPredictOptimizable() const override { return false; }
-    bool isPure() override { return false; }
-    bool isOutputter() override { return true; }
-    bool isUnlikely() const override { return true; }
-    bool cleanOut() const override { return true; }
-    bool sameNode(const AstNode* /*samep*/) const override { return true; }
-    bool isSystemFunc() const override { return true; }
+    string verilogKwd() స్థిరరాశి override { తిరిగి "$system"; }
+    string emitVerilog() override { తిరిగి verilogKwd(); }
+    string emitC() override { తిరిగి "VL_SYSTEM_%nq(%lw, %P)"; }
+    bool isGateOptimizable() స్థిరరాశి override { తిరిగి false; }
+    bool isPredictOptimizable() స్థిరరాశి override { తిరిగి false; }
+    bool is_శుద్ధ() override { తిరిగి false; }
+    bool isOutputter() override { తిరిగి true; }
+    bool isUnlikely() స్థిరరాశి override { తిరిగి true; }
+    bool clean_బహిర్గతం() స్థిరరాశి override { తిరిగి true; }
+    bool same_కణుపు(స్థిరరాశి Ast_కణుపు* /*samep*/) స్థిరరాశి override { తిరిగి true; }
+    bool isSystemFunc() స్థిరరాశి override { తిరిగి true; }
 };
-class AstTaggedExpr final : public AstNodeExpr {
+class Ast_Tagged_సమాసం final : బహిరంగ Ast_కణుపు_సమాసం {
     // Tagged union expression: "tagged MemberName [expr]"
     // @astgen op1 := exprp : Optional[AstNodeExpr] // Optional value expression
     string m_name;  // Member identifier name
-public:
-    AstTaggedExpr(FileLine* fl, const string& name, AstNodeExpr* exprp)
-        : ASTGEN_SUPER_TaggedExpr(fl)
+బహిరంగ:
+    Ast_Tagged_సమాసం(File_పంక్తి* fl, స్థిరరాశి string& name, Ast_కణుపు_సమాసం* exprp)
+        : ASTGEN_SUPER_Tagged_సమాసం(fl)
         , m_name{name} {
         this->exprp(exprp);
     }
-    ASTGEN_MEMBERS_AstTaggedExpr;
-    string emitVerilog() override { return "tagged %k"; }
+    ASTGEN_MEMBERS_Ast_Tagged_సమాసం;
+    string emitVerilog() override { తిరిగి "tagged %k"; }
     string emitC() override { V3ERROR_NA_RETURN(""); }
-    bool cleanOut() const override { return false; }
-    bool sameNode(const AstNode* samep) const override {
-        return m_name == VN_DBG_AS(samep, TaggedExpr)->m_name;
+    bool clean_బహిర్గతం() స్థిరరాశి override { తిరిగి false; }
+    bool same_కణుపు(స్థిరరాశి Ast_కణుపు* samep) స్థిరరాశి override {
+        తిరిగి m_name == VN_DBG_AS(samep, Tagged_సమాసం)->m_name;
     }
-    string name() const override VL_MT_STABLE { return m_name; }
+    string name() స్థిరరాశి override VL_MT_STABLE { తిరిగి m_name; }
 };
-class AstTaggedPattern final : public AstNodeExpr {
+class Ast_Tagged_నమూనా final : బహిరంగ Ast_కణుపు_సమాసం {
     // Tagged pattern for matches: "tagged MemberName [pattern]"
     // @astgen op1 := patternp : Optional[AstNode]  // Optional nested pattern
     string m_name;  // Member identifier name
-public:
-    AstTaggedPattern(FileLine* fl, const string& name, AstNode* patternp)
-        : ASTGEN_SUPER_TaggedPattern(fl)
+బహిరంగ:
+    Ast_Tagged_నమూనా(File_పంక్తి* fl, స్థిరరాశి string& name, Ast_కణుపు* patternp)
+        : ASTGEN_SUPER_Tagged_నమూనా(fl)
         , m_name{name} {
         this->patternp(patternp);
     }
-    ASTGEN_MEMBERS_AstTaggedPattern;
-    string emitVerilog() override { return "tagged %k"; }
+    ASTGEN_MEMBERS_Ast_Tagged_నమూనా;
+    string emitVerilog() override { తిరిగి "tagged %k"; }
     string emitC() override { V3ERROR_NA_RETURN(""); }
-    bool cleanOut() const override { return false; }
-    bool sameNode(const AstNode* samep) const override {
-        return m_name == VN_DBG_AS(samep, TaggedPattern)->m_name;
+    bool clean_బహిర్గతం() స్థిరరాశి override { తిరిగి false; }
+    bool same_కణుపు(స్థిరరాశి Ast_కణుపు* samep) స్థిరరాశి override {
+        తిరిగి m_name == VN_DBG_AS(samep, Tagged_నమూనా)->m_name;
     }
-    string name() const override VL_MT_STABLE { return m_name; }
+    string name() స్థిరరాశి override VL_MT_STABLE { తిరిగి m_name; }
 };
-class AstTestPlusArgs final : public AstNodeExpr {
+class Ast_Test_Plus_వాదనలు final : బహిరంగ Ast_కణుపు_సమాసం {
     // Search expression. If nullptr then this is a $test$plusargs instead of $value$plusargs.
     // @astgen op1 := searchp : Optional[AstNodeExpr]
-public:
-    AstTestPlusArgs(FileLine* fl, AstNodeExpr* searchp)
-        : ASTGEN_SUPER_TestPlusArgs(fl) {
+బహిరంగ:
+    Ast_Test_Plus_వాదనలు(File_పంక్తి* fl, Ast_కణుపు_సమాసం* searchp)
+        : ASTGEN_SUPER_Test_Plus_వాదనలు(fl) {
         this->searchp(searchp);
-        dtypeSetLogic2StateUnsized(
-            32, v3Global.widthMinUsage() == VWidthMinUsage::MATCHES_WIDTH ? 32 : 1,
+        dtype_సమితి_Logic2_State_Unsized(
+            32, v3Global.వెడల్పు_Min_Usage() == VWidthMinUsage::MATCHES_వెడల్పు ? 32 : 1,
             VSigning::SIGNED);  // Spec says integer return
     }
-    ASTGEN_MEMBERS_AstTestPlusArgs;
-    string verilogKwd() const override { return "$test$plusargs"; }
-    string emitVerilog() override { return verilogKwd(); }
-    string emitC() override { return "VL_VALUEPLUSARGS_%nq(%lw, %P, nullptr)"; }
-    bool isGateOptimizable() const override { return false; }
-    bool isPredictOptimizable() const override { return false; }
+    ASTGEN_MEMBERS_Ast_Test_Plus_వాదనలు;
+    string verilogKwd() స్థిరరాశి override { తిరిగి "$test$plusargs"; }
+    string emitVerilog() override { తిరిగి verilogKwd(); }
+    string emitC() override { తిరిగి "VL_VALUEPLUSARGS_%nq(%lw, %P, nullptr)"; }
+    bool isGateOptimizable() స్థిరరాశి override { తిరిగి false; }
+    bool isPredictOptimizable() స్థిరరాశి override { తిరిగి false; }
     // but isPure() true
-    bool isSystemFunc() const override { return true; }
-    bool cleanOut() const override { return true; }
-    bool sameNode(const AstNode* /*samep*/) const override { return true; }
+    bool isSystemFunc() స్థిరరాశి override { తిరిగి true; }
+    bool clean_బహిర్గతం() స్థిరరాశి override { తిరిగి true; }
+    bool same_కణుపు(స్థిరరాశి Ast_కణుపు* /*samep*/) స్థిరరాశి override { తిరిగి true; }
 };
-class AstThisRef final : public AstNodeExpr {
+class AstThisRef final : బహిరంగ Ast_కణుపు_సమాసం {
     // Reference to 'this'.
     // @astgen op1 := childDTypep : Optional[AstClassRefDType] // dtype of the node
-public:
-    AstThisRef(FileLine* fl, VFlagChildDType, AstClassRefDType* dtypep)
+బహిరంగ:
+    AstThisRef(File_పంక్తి* fl, VFlag_బిడ్డ_DType, AstClassRefDType* dtypep)
         : ASTGEN_SUPER_ThisRef(fl) {
-        childDTypep(dtypep);
+        బిడ్డ_DTypep(dtypep);
     }
-    AstThisRef(FileLine* fl, AstClassRefDType* dtypep)
+    AstThisRef(File_పంక్తి* fl, AstClassRefDType* dtypep)
         : ASTGEN_SUPER_ThisRef(fl) {
         this->dtypep(dtypep);
     }
     ASTGEN_MEMBERS_AstThisRef;
-    string emitC() override { return "this"; }
-    string emitVerilog() override { return "this"; }
-    bool sameNode(const AstNode* /*samep*/) const override { return true; }
-    bool cleanOut() const override { return true; }
-    AstNodeDType* getChildDTypep() const override { return childDTypep(); }
+    string emitC() override { తిరిగి "this"; }
+    string emitVerilog() override { తిరిగి "this"; }
+    bool same_కణుపు(స్థిరరాశి Ast_కణుపు* /*samep*/) స్థిరరాశి override { తిరిగి true; }
+    bool clean_బహిర్గతం() స్థిరరాశి override { తిరిగి true; }
+    Ast_కణుపు_DType* get_బిడ్డ_DTypep() స్థిరరాశి override { తిరిగి బిడ్డ_DTypep(); }
 };
-class AstTimePrecision final : public AstNodeExpr {
+class Ast_సమయం_Precision final : బహిరంగ Ast_కణుపు_సమాసం {
     // Verilog $timeprecision
-public:
-    explicit AstTimePrecision(FileLine* fl)
-        : ASTGEN_SUPER_TimePrecision(fl) {
-        dtypeSetInteger2State();
+బహిరంగ:
+    explicit Ast_సమయం_Precision(File_పంక్తి* fl)
+        : ASTGEN_SUPER_సమయం_Precision(fl) {
+        dtype_సమితి_Integer2_State();
     }
-    ASTGEN_MEMBERS_AstTimePrecision;
-    string emitVerilog() override { return "$timeprecision"; }
+    ASTGEN_MEMBERS_Ast_సమయం_Precision;
+    string emitVerilog() override { తిరిగి "$timeprecision"; }
     string emitC() override { V3ERROR_NA_RETURN(""); }
     string emitSimpleOperator() override { V3ERROR_NA_RETURN(""); }
-    bool cleanOut() const override { return true; }
-    bool isSystemFunc() const override { return true; }
-    int instrCount() const override { return widthInstrs(); }
-    bool sameNode(const AstNode* /*samep*/) const override { return true; }
+    bool clean_బహిర్గతం() స్థిరరాశి override { తిరిగి true; }
+    bool isSystemFunc() స్థిరరాశి override { తిరిగి true; }
+    పూర్ణాంకం instr_లెక్క() స్థిరరాశి override { తిరిగి వెడల్పు_Instrs(); }
+    bool same_కణుపు(స్థిరరాశి Ast_కణుపు* /*samep*/) స్థిరరాశి override { తిరిగి true; }
 };
-class AstTimeUnit final : public AstNodeExpr {
+class Ast_సమయం_Unit final : బహిరంగ Ast_కణుపు_సమాసం {
     VTimescale m_timeunit;  // Parent module time unit
     // Verilog $timeunit
-public:
-    explicit AstTimeUnit(FileLine* fl)
-        : ASTGEN_SUPER_TimeUnit(fl) {
-        dtypeSetInteger2State();
+బహిరంగ:
+    explicit Ast_సమయం_Unit(File_పంక్తి* fl)
+        : ASTGEN_SUPER_సమయం_Unit(fl) {
+        dtype_సమితి_Integer2_State();
     }
-    ASTGEN_MEMBERS_AstTimeUnit;
-    string emitVerilog() override { return "$timeunit"; }
+    ASTGEN_MEMBERS_Ast_సమయం_Unit;
+    string emitVerilog() override { తిరిగి "$timeunit"; }
     string emitC() override { V3ERROR_NA_RETURN(""); }
     string emitSimpleOperator() override { V3ERROR_NA_RETURN(""); }
-    bool cleanOut() const override { return true; }
-    bool isSystemFunc() const override { return true; }
-    int instrCount() const override { return widthInstrs(); }
-    bool sameNode(const AstNode* /*samep*/) const override { return true; }
-    VTimescale timeunit() const { return m_timeunit; }
-    void timeunit(const VTimescale& flag) { m_timeunit = flag; }
+    bool clean_బహిర్గతం() స్థిరరాశి override { తిరిగి true; }
+    bool isSystemFunc() స్థిరరాశి override { తిరిగి true; }
+    పూర్ణాంకం instr_లెక్క() స్థిరరాశి override { తిరిగి వెడల్పు_Instrs(); }
+    bool same_కణుపు(స్థిరరాశి Ast_కణుపు* /*samep*/) స్థిరరాశి override { తిరిగి true; }
+    VTimescale timeunit() స్థిరరాశి { తిరిగి m_timeunit; }
+    శూన్య timeunit(స్థిరరాశి VTimescale& flag) { m_timeunit = flag; }
 };
-class AstTriggered final : public AstNodeExpr {
+class AstTriggered final : బహిరంగ Ast_కణుపు_సమాసం {
     // True if any of the triggers at 'm_indices' are set in 'trigRefp'.
     // Explicit form of the trigger check, so the triggers tested can be recovered directly.
     // @astgen op1 := trigRefp : AstVarRef  // Reference to the trigger vector
-    const std::vector<uint32_t> m_indices;  // Indices of the triggers tested
-public:
-    AstTriggered(FileLine* fl, AstVarScope* trigVscp, const std::vector<uint32_t>& indices);
+    స్థిరరాశి std::సదిశ<uint32_t> m_indices;  // Indices of the triggers tested
+బహిరంగ:
+    AstTriggered(File_పంక్తి* fl, AstVarScope* trigVscp, స్థిరరాశి std::సదిశ<uint32_t>& indices);
     ASTGEN_MEMBERS_AstTriggered;
-    void dump(std::ostream& str) const override;
-    void dumpJson(std::ostream& str) const override;
+    శూన్య dump(std::ostream& str) స్థిరరాశి override;
+    శూన్య dumpJson(std::ostream& str) స్థిరరాశి override;
     string emitVerilog() override { V3ERROR_NA_RETURN(""); }
     string emitC() override { V3ERROR_NA_RETURN(""); }
-    bool cleanOut() const override { return true; }
-    bool sameNode(const AstNode* samep) const override {
-        return m_indices == VN_DBG_AS(samep, Triggered)->m_indices;
+    bool clean_బహిర్గతం() స్థిరరాశి override { తిరిగి true; }
+    bool same_కణుపు(స్థిరరాశి Ast_కణుపు* samep) స్థిరరాశి override {
+        తిరిగి m_indices == VN_DBG_AS(samep, Triggered)->m_indices;
     }
-    const std::vector<uint32_t>& indices() const { return m_indices; }
+    స్థిరరాశి std::సదిశ<uint32_t>& indices() స్థిరరాశి { తిరిగి m_indices; }
 };
-class AstUnbounded final : public AstNodeExpr {
+class AstUnbounded final : బహిరంగ Ast_కణుపు_సమాసం {
     // A $ in the parser, used for unbounded and queues
     // Due to where is used, treated as int
-public:
-    explicit AstUnbounded(FileLine* fl)
+బహిరంగ:
+    explicit AstUnbounded(File_పంక్తి* fl)
         : ASTGEN_SUPER_Unbounded(fl) {
-        dtypeSetInt();
+        dtype_సమితి_Int();
     }
     ASTGEN_MEMBERS_AstUnbounded;
-    string emitVerilog() override { return "$"; }
+    string emitVerilog() override { తిరిగి "$"; }
     string emitC() override { V3ERROR_NA_RETURN(""); }
-    bool cleanOut() const override { return true; }
+    bool clean_బహిర్గతం() స్థిరరాశి override { తిరిగి true; }
 };
-class AstUnlinkedRef final : public AstNodeExpr {
+class AstUnlinkedRef final : బహిరంగ Ast_కణుపు_సమాసం {
     // As-of-yet unlinkable Ref
     // @astgen op1 := refp : AstNode
     // @astgen op2 := cellrefp : AstNode
 
     string m_name;  // Var name // TODO: There is no way to access this, fix or remove
-public:
-    AstUnlinkedRef(FileLine* fl, AstNode* refp, const string& name, AstNode* cellrefp)
+బహిరంగ:
+    AstUnlinkedRef(File_పంక్తి* fl, Ast_కణుపు* refp, స్థిరరాశి string& name, Ast_కణుపు* cellrefp)
         : ASTGEN_SUPER_UnlinkedRef(fl)
         , m_name{name} {
         this->refp(refp);
@@ -2903,17 +2903,17 @@ public:
 
     string emitVerilog() override { V3ERROR_NA_RETURN(""); }
     string emitC() override { V3ERROR_NA_RETURN(""); }
-    bool cleanOut() const override { V3ERROR_NA_RETURN(true); }
+    bool clean_బహిర్గతం() స్థిరరాశి override { V3ERROR_NA_RETURN(true); }
 };
-class AstUntil final : public AstNodeExpr {
+class AstUntil final : బహిరంగ Ast_కణుపు_సమాసం {
     // The until property expression
     // @astgen op1 := lhsp : AstNodeExpr
     // @astgen op2 := rhsp : AstNodeExpr
 
-    const bool m_strong;  // 's_' preffix
-    const bool m_overlapping;  // '_with` suffix
-public:
-    AstUntil(FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp, bool strong, bool overlapping)
+    స్థిరరాశి bool m_strong;  // 's_' preffix
+    స్థిరరాశి bool m_overlapping;  // '_with` suffix
+బహిరంగ:
+    AstUntil(File_పంక్తి* fl, Ast_కణుపు_సమాసం* lhsp, Ast_కణుపు_సమాసం* rhsp, bool strong, bool overlapping)
         : ASTGEN_SUPER_Until(fl)
         , m_strong{strong}
         , m_overlapping{overlapping} {
@@ -2921,46 +2921,46 @@ public:
         this->rhsp(rhsp);
     }
     ASTGEN_MEMBERS_AstUntil;
-    void dump(std::ostream& str) const override;
-    void dumpJson(std::ostream& str) const override;
+    శూన్య dump(std::ostream& str) స్థిరరాశి override;
+    శూన్య dumpJson(std::ostream& str) స్థిరరాశి override;
     string emitVerilog() override { V3ERROR_NA_RETURN(""); }
     string emitC() override { V3ERROR_NA_RETURN(""); }
     string emitSimpleOperator() override { V3ERROR_NA_RETURN(""); }
-    string verilogKwd() const override {
-        return (isStrong() ? "s_" : string()) + "until" + (isOverlapping() ? "_with" : "");
+    string verilogKwd() స్థిరరాశి override {
+        తిరిగి (isStrong() ? "s_" : string()) + "until" + (isOverlapping() ? "_with" : "");
     }
-    bool cleanOut() const override { V3ERROR_NA_RETURN(""); }
-    int instrCount() const override { return widthInstrs(); }
-    bool sameNode(const AstNode* /*samep*/) const override { return true; }
-    bool isMultiCycleSva() const override { return true; }
-    bool isStrong() const { return m_strong; }
-    bool isOverlapping() const { return m_overlapping; }
+    bool clean_బహిర్గతం() స్థిరరాశి override { V3ERROR_NA_RETURN(""); }
+    పూర్ణాంకం instr_లెక్క() స్థిరరాశి override { తిరిగి వెడల్పు_Instrs(); }
+    bool same_కణుపు(స్థిరరాశి Ast_కణుపు* /*samep*/) స్థిరరాశి override { తిరిగి true; }
+    bool is_Multi_చక్రం_Sva() స్థిరరాశి override { తిరిగి true; }
+    bool isStrong() స్థిరరాశి { తిరిగి m_strong; }
+    bool isOverlapping() స్థిరరాశి { తిరిగి m_overlapping; }
 };
-class AstValuePlusArgs final : public AstNodeExpr {
+class Ast_విలువ_Plus_వాదనలు final : బహిరంగ Ast_కణుపు_సమాసం {
     // Search expression. If nullptr then this is a $test$plusargs instead of $value$plusargs.
     // @astgen op1 := searchp : Optional[AstNodeExpr]
     // @astgen op2 := outp : AstNodeExpr // VarRef for result
-public:
-    AstValuePlusArgs(FileLine* fl, AstNodeExpr* searchp, AstNodeExpr* outp)
-        : ASTGEN_SUPER_ValuePlusArgs(fl) {
+బహిరంగ:
+    Ast_విలువ_Plus_వాదనలు(File_పంక్తి* fl, Ast_కణుపు_సమాసం* searchp, Ast_కణుపు_సమాసం* outp)
+        : ASTGEN_SUPER_విలువ_Plus_వాదనలు(fl) {
         this->searchp(searchp);
         this->outp(outp);
-        dtypeSetLogic2StateUnsized(
-            32, v3Global.widthMinUsage() == VWidthMinUsage::MATCHES_WIDTH ? 32 : 1,
+        dtype_సమితి_Logic2_State_Unsized(
+            32, v3Global.వెడల్పు_Min_Usage() == VWidthMinUsage::MATCHES_వెడల్పు ? 32 : 1,
             VSigning::SIGNED);  // Spec says integer return
     }
-    ASTGEN_MEMBERS_AstValuePlusArgs;
-    string verilogKwd() const override { return "$value$plusargs"; }
-    string emitVerilog() override { return "%f$value$plusargs(%l, %k%r)"; }
+    ASTGEN_MEMBERS_Ast_విలువ_Plus_వాదనలు;
+    string verilogKwd() స్థిరరాశి override { తిరిగి "$value$plusargs"; }
+    string emitVerilog() override { తిరిగి "%f$value$plusargs(%l, %k%r)"; }
     string emitC() override { V3ERROR_NA_RETURN(""); }
-    bool isGateOptimizable() const override { return false; }
-    bool isPredictOptimizable() const override { return false; }
-    bool isPure() override { return !outp(); }
-    bool isSystemFunc() const override { return true; }
-    bool cleanOut() const override { return true; }
-    bool sameNode(const AstNode* /*samep*/) const override { return true; }
+    bool isGateOptimizable() స్థిరరాశి override { తిరిగి false; }
+    bool isPredictOptimizable() స్థిరరాశి override { తిరిగి false; }
+    bool is_శుద్ధ() override { తిరిగి !outp(); }
+    bool isSystemFunc() స్థిరరాశి override { తిరిగి true; }
+    bool clean_బహిర్గతం() స్థిరరాశి override { తిరిగి true; }
+    bool same_కణుపు(స్థిరరాశి Ast_కణుపు* /*samep*/) స్థిరరాశి override { తిరిగి true; }
 };
-class AstWithParse final : public AstNodeExpr {
+class AstWithParse final : బహిరంగ Ast_కణుపు_సమాసం {
     // In early parse, FUNC(index) WITH equation-using-index
     // Replaced with AstWith
     // Parents: expr|stmt
@@ -2968,54 +2968,54 @@ class AstWithParse final : public AstNodeExpr {
     // @astgen op1 := funcrefp : AstNodeExpr
     // @astgen op3 := exprsp : List[AstNodeExpr]  // With's parenthesis part
     // @astgen op4 := constraintsp : List[AstNode]  // With's braces part
-private:
+అంతరంగ:
     // True for the 'with (identifier_list) {...}' form, including 'with () {...}'.
     bool m_restricted = false;
 
-public:
-    AstWithParse(FileLine* fl, AstNodeExpr* funcrefp, AstNodeExpr* exprsp,
-                 AstNode* constraintsp = nullptr)
+బహిరంగ:
+    AstWithParse(File_పంక్తి* fl, Ast_కణుపు_సమాసం* funcrefp, Ast_కణుపు_సమాసం* exprsp,
+                 Ast_కణుపు* constraintsp = nullptr)
         : ASTGEN_SUPER_WithParse(fl) {
         this->funcrefp(funcrefp);
-        addExprsp(exprsp);
-        addConstraintsp(constraintsp);
+        కూడు_Exprsp(exprsp);
+        కూడు_Constraintsp(constraintsp);
     }
     ASTGEN_MEMBERS_AstWithParse;
-    void dump(std::ostream& str) const override;
-    void dumpJson(std::ostream& str) const override;
-    bool sameNode(const AstNode* /*samep*/) const override { return true; }
-    bool restricted() const { return m_restricted; }
-    void restricted(bool flag) { m_restricted = flag; }
+    శూన్య dump(std::ostream& str) స్థిరరాశి override;
+    శూన్య dumpJson(std::ostream& str) స్థిరరాశి override;
+    bool same_కణుపు(స్థిరరాశి Ast_కణుపు* /*samep*/) స్థిరరాశి override { తిరిగి true; }
+    bool restricted() స్థిరరాశి { తిరిగి m_restricted; }
+    శూన్య restricted(bool flag) { m_restricted = flag; }
 
     string emitVerilog() override { V3ERROR_NA_RETURN(""); }
     string emitC() override { V3ERROR_NA_RETURN(""); }
-    bool cleanOut() const override { V3ERROR_NA_RETURN(true); }
+    bool clean_బహిర్గతం() స్థిరరాశి override { V3ERROR_NA_RETURN(true); }
 };
 
 // === AstNodeBiop ===
-class AstBufIf1 final : public AstNodeBiop {
+class AstBufIf1 final : బహిరంగ Ast_కణుపు_Biop {
     // lhs is enable, rhs is data to drive
     // Note unlike the Verilog bufif1() UDP, this allows any width; each lhsp
     // bit enables respective rhsp bit
-public:
-    AstBufIf1(FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp)
+బహిరంగ:
+    AstBufIf1(File_పంక్తి* fl, Ast_కణుపు_సమాసం* lhsp, Ast_కణుపు_సమాసం* rhsp)
         : ASTGEN_SUPER_BufIf1(fl, lhsp, rhsp) {
         dtypeFrom(lhsp);
     }
     ASTGEN_MEMBERS_AstBufIf1;
-    void numberOperate(V3Number& out, const V3Number& lhs, const V3Number& rhs) override {
-        out.opBufIf1(lhs, rhs);
+    శూన్య సంఖ్య_నిర్వహించు(V3_సంఖ్య& బహిర్గతం, స్థిరరాశి V3_సంఖ్య& lhs, స్థిరరాశి V3_సంఖ్య& rhs) override {
+        బహిర్గతం.opBufIf1(lhs, rhs);
     }
-    string emitVerilog() override { return "bufif(%r,%l)"; }
+    string emitVerilog() override { తిరిగి "bufif(%r,%l)"; }
     string emitC() override { V3ERROR_NA_RETURN(""); }  // Lclean || Rclean
     string emitSimpleOperator() override { V3ERROR_NA_RETURN(""); }  // Lclean || Rclean
-    bool cleanOut() const override { V3ERROR_NA_RETURN(""); }  // Lclean || Rclean
-    bool cleanLhs() const override { return false; }
-    bool cleanRhs() const override { return false; }
-    bool sizeMattersLhs() const override { return false; }
-    bool sizeMattersRhs() const override { return false; }
+    bool clean_బహిర్గతం() స్థిరరాశి override { V3ERROR_NA_RETURN(""); }  // Lclean || Rclean
+    bool cleanLhs() స్థిరరాశి override { తిరిగి false; }
+    bool cleanRhs() స్థిరరాశి override { తిరిగి false; }
+    bool కొలత_Matters_Lhs() స్థిరరాశి override { తిరిగి false; }
+    bool కొలత_Matters_Rhs() స్థిరరాశి override { తిరిగి false; }
 };
-class AstCastDynamic final : public AstNodeBiop {
+class AstCastDynamic final : బహిరంగ Ast_కణుపు_Biop {
     // Verilog $cast used as a function
     // Task usage of $cast is converted during parse to assert($cast(...))
     // lhsp() is value (we are converting FROM) to match AstCCast etc, this
@@ -3023,3524 +3023,3524 @@ class AstCastDynamic final : public AstNodeBiop {
     // value reading from.  Suggest use fromp()/top() instead of lhsp/rhsp().
     // @astgen alias op1 := fromp
     // @astgen alias op2 := top
-public:
-    AstCastDynamic(FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp)
+బహిరంగ:
+    AstCastDynamic(File_పంక్తి* fl, Ast_కణుపు_సమాసం* lhsp, Ast_కణుపు_సమాసం* rhsp)
         : ASTGEN_SUPER_CastDynamic(fl, lhsp, rhsp) {
-        dtypeSetBitUnsized(32, v3Global.widthMinUsage() == VWidthMinUsage::MATCHES_WIDTH ? 32 : 1,
+        dtype_సమితి_బిట్టు_Unsized(32, v3Global.వెడల్పు_Min_Usage() == VWidthMinUsage::MATCHES_వెడల్పు ? 32 : 1,
                            VSigning::SIGNED);  // Spec says int return
     }
     ASTGEN_MEMBERS_AstCastDynamic;
-    void numberOperate(V3Number& out, const V3Number& lhs, const V3Number& rhs) override {
+    శూన్య సంఖ్య_నిర్వహించు(V3_సంఖ్య& బహిర్గతం, స్థిరరాశి V3_సంఖ్య& lhs, స్థిరరాశి V3_సంఖ్య& rhs) override {
         V3ERROR_NA;
     }
-    string emitVerilog() override { return "%f$cast(%r, %l)"; }
-    string emitC() override { return "VL_DYNAMIC_CAST(%r, %l)"; }
-    bool cleanOut() const override { return true; }
-    bool cleanLhs() const override { return true; }
-    bool cleanRhs() const override { return true; }
-    bool sizeMattersLhs() const override { return false; }
-    bool sizeMattersRhs() const override { return false; }
-    bool isSystemFunc() const override { return true; }
-    int instrCount() const override { return widthInstrs() * 20; }
-    bool isPure() override { return false; }
+    string emitVerilog() override { తిరిగి "%f$cast(%r, %l)"; }
+    string emitC() override { తిరిగి "VL_DYNAMIC_CAST(%r, %l)"; }
+    bool clean_బహిర్గతం() స్థిరరాశి override { తిరిగి true; }
+    bool cleanLhs() స్థిరరాశి override { తిరిగి true; }
+    bool cleanRhs() స్థిరరాశి override { తిరిగి true; }
+    bool కొలత_Matters_Lhs() స్థిరరాశి override { తిరిగి false; }
+    bool కొలత_Matters_Rhs() స్థిరరాశి override { తిరిగి false; }
+    bool isSystemFunc() స్థిరరాశి override { తిరిగి true; }
+    పూర్ణాంకం instr_లెక్క() స్థిరరాశి override { తిరిగి వెడల్పు_Instrs() * 20; }
+    bool is_శుద్ధ() override { తిరిగి false; }
 };
-class AstCompareNN final : public AstNodeBiop {
+class AstCompareNN final : బహిరంగ Ast_కణుపు_Biop {
     // Verilog str.compare() and str.icompare()
-    const bool m_ignoreCase;  // True for str.icompare()
-public:
-    AstCompareNN(FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp, bool ignoreCase)
+    స్థిరరాశి bool m_ignoreCase;  // True for str.icompare()
+బహిరంగ:
+    AstCompareNN(File_పంక్తి* fl, Ast_కణుపు_సమాసం* lhsp, Ast_కణుపు_సమాసం* rhsp, bool ignoreCase)
         : ASTGEN_SUPER_CompareNN(fl, lhsp, rhsp)
         , m_ignoreCase{ignoreCase} {
-        dtypeSetInt();
+        dtype_సమితి_Int();
     }
     ASTGEN_MEMBERS_AstCompareNN;
-    void dump(std::ostream& str) const override;
-    void dumpJson(std::ostream& str) const override;
-    void numberOperate(V3Number& out, const V3Number& lhs, const V3Number& rhs) override {
-        out.opCompareNN(lhs, rhs, m_ignoreCase);
+    శూన్య dump(std::ostream& str) స్థిరరాశి override;
+    శూన్య dumpJson(std::ostream& str) స్థిరరాశి override;
+    శూన్య సంఖ్య_నిర్వహించు(V3_సంఖ్య& బహిర్గతం, స్థిరరాశి V3_సంఖ్య& lhs, స్థిరరాశి V3_సంఖ్య& rhs) override {
+        బహిర్గతం.opCompareNN(lhs, rhs, m_ignoreCase);
     }
-    string name() const override VL_MT_STABLE { return m_ignoreCase ? "icompare" : "compare"; }
+    string name() స్థిరరాశి override VL_MT_STABLE { తిరిగి m_ignoreCase ? "icompare" : "compare"; }
     string emitVerilog() override {
-        return m_ignoreCase ? "%k(%l.icompare(%r))" : "%k(%l.compare(%r))";
+        తిరిగి m_ignoreCase ? "%k(%l.icompare(%r))" : "%k(%l.compare(%r))";
     }
     string emitC() override {
-        return m_ignoreCase ? "VL_CMP_NN(%li,%ri,true)" : "VL_CMP_NN(%li,%ri,false)";
+        తిరిగి m_ignoreCase ? "VL_CMP_NN(%li,%ri,true)" : "VL_CMP_NN(%li,%ri,false)";
     }
-    string emitSimpleOperator() override { return ""; }
-    bool cleanOut() const override { return true; }
-    bool cleanLhs() const override { return true; }
-    bool cleanRhs() const override { return true; }
-    bool sizeMattersLhs() const override { return false; }
-    bool sizeMattersRhs() const override { return false; }
-    bool ignoreCase() const { return m_ignoreCase; }
+    string emitSimpleOperator() override { తిరిగి ""; }
+    bool clean_బహిర్గతం() స్థిరరాశి override { తిరిగి true; }
+    bool cleanLhs() స్థిరరాశి override { తిరిగి true; }
+    bool cleanRhs() స్థిరరాశి override { తిరిగి true; }
+    bool కొలత_Matters_Lhs() స్థిరరాశి override { తిరిగి false; }
+    bool కొలత_Matters_Rhs() స్థిరరాశి override { తిరిగి false; }
+    bool ignoreCase() స్థిరరాశి { తిరిగి m_ignoreCase; }
 };
-class AstConcat final : public AstNodeBiop {
+class AstConcat final : బహిరంగ Ast_కణుపు_Biop {
     // If you're looking for {#{}}, see AstReplicate
     // @astgen makeDfgVertex
-public:
-    AstConcat(FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp)
+బహిరంగ:
+    AstConcat(File_పంక్తి* fl, Ast_కణుపు_సమాసం* lhsp, Ast_కణుపు_సమాసం* rhsp)
         : ASTGEN_SUPER_Concat(fl, lhsp, rhsp) {
-        if (lhsp->dtypep() && rhsp->dtypep()) {
-            dtypeSetBitOrLogicSized(lhsp->dtypep()->width() + rhsp->dtypep()->width(),
+        ఒకవేళ (lhsp->dtypep() && rhsp->dtypep()) {
+            dtype_సమితి_బిట్టు_Or_Logic_Sized(lhsp->dtypep()->వెడల్పు() + rhsp->dtypep()->వెడల్పు(),
                                     VSigning::UNSIGNED, isFourstateOrNoDtype(lhsp, rhsp));
         }
     }
     ASTGEN_MEMBERS_AstConcat;
-    string emitVerilog() override { return "%f{%l, %k%r}"; }
-    void numberOperate(V3Number& out, const V3Number& lhs, const V3Number& rhs) override {
-        out.opConcat(lhs, rhs);
+    string emitVerilog() override { తిరిగి "%f{%l, %k%r}"; }
+    శూన్య సంఖ్య_నిర్వహించు(V3_సంఖ్య& బహిర్గతం, స్థిరరాశి V3_సంఖ్య& lhs, స్థిరరాశి V3_సంఖ్య& rhs) override {
+        బహిర్గతం.opConcat(lhs, rhs);
     }
-    string emitC() override { return "VL_CONCAT_%nq%lq%rq(%nw,%lw,%rw, %P, %li, %ri)"; }
-    string emitSMT() const override { return "(concat %l %r)"; }
-    bool cleanOut() const override { return true; }
-    bool cleanLhs() const override { return true; }
-    bool cleanRhs() const override { return true; }
-    bool sizeMattersLhs() const override { return false; }
-    bool sizeMattersRhs() const override { return false; }
-    int instrCount() const override { return widthInstrs() * 2; }
+    string emitC() override { తిరిగి "VL_CONCAT_%nq%lq%rq(%nw,%lw,%rw, %P, %li, %ri)"; }
+    string emitSMT() స్థిరరాశి override { తిరిగి "(concat %l %r)"; }
+    bool clean_బహిర్గతం() స్థిరరాశి override { తిరిగి true; }
+    bool cleanLhs() స్థిరరాశి override { తిరిగి true; }
+    bool cleanRhs() స్థిరరాశి override { తిరిగి true; }
+    bool కొలత_Matters_Lhs() స్థిరరాశి override { తిరిగి false; }
+    bool కొలత_Matters_Rhs() స్థిరరాశి override { తిరిగి false; }
+    పూర్ణాంకం instr_లెక్క() స్థిరరాశి override { తిరిగి వెడల్పు_Instrs() * 2; }
 };
-class AstConcatN final : public AstNodeBiop {
+class AstConcatN final : బహిరంగ Ast_కణుపు_Biop {
     // String concatenate
-public:
-    AstConcatN(FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp)
+బహిరంగ:
+    AstConcatN(File_పంక్తి* fl, Ast_కణుపు_సమాసం* lhsp, Ast_కణుపు_సమాసం* rhsp)
         : ASTGEN_SUPER_ConcatN(fl, lhsp, rhsp) {
-        dtypeSetString();
+        dtype_సమితి_String();
     }
     ASTGEN_MEMBERS_AstConcatN;
-    string emitVerilog() override { return "%f{%l, %k%r}"; }
-    void numberOperate(V3Number& out, const V3Number& lhs, const V3Number& rhs) override {
-        out.opConcatN(lhs, rhs);
+    string emitVerilog() override { తిరిగి "%f{%l, %k%r}"; }
+    శూన్య సంఖ్య_నిర్వహించు(V3_సంఖ్య& బహిర్గతం, స్థిరరాశి V3_సంఖ్య& lhs, స్థిరరాశి V3_సంఖ్య& rhs) override {
+        బహిర్గతం.opConcatN(lhs, rhs);
     }
-    string emitC() override { return "VL_CONCATN_NNN(%li, %ri)"; }
-    bool cleanOut() const override { return true; }
-    bool cleanLhs() const override { return true; }
-    bool cleanRhs() const override { return true; }
-    bool sizeMattersLhs() const override { return false; }
-    bool sizeMattersRhs() const override { return false; }
-    int instrCount() const override { return INSTR_COUNT_STR; }
-    bool stringFlavor() const override { return true; }
+    string emitC() override { తిరిగి "VL_CONCATN_NNN(%li, %ri)"; }
+    bool clean_బహిర్గతం() స్థిరరాశి override { తిరిగి true; }
+    bool cleanLhs() స్థిరరాశి override { తిరిగి true; }
+    bool cleanRhs() స్థిరరాశి override { తిరిగి true; }
+    bool కొలత_Matters_Lhs() స్థిరరాశి override { తిరిగి false; }
+    bool కొలత_Matters_Rhs() స్థిరరాశి override { తిరిగి false; }
+    పూర్ణాంకం instr_లెక్క() స్థిరరాశి override { తిరిగి INSTR_లెక్క_STR; }
+    bool stringFlavor() స్థిరరాశి override { తిరిగి true; }
 };
-class AstDiv final : public AstNodeBiop {
+class AstDiv final : బహిరంగ Ast_కణుపు_Biop {
     // @astgen makeDfgVertex
-public:
-    AstDiv(FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp)
+బహిరంగ:
+    AstDiv(File_పంక్తి* fl, Ast_కణుపు_సమాసం* lhsp, Ast_కణుపు_సమాసం* rhsp)
         : ASTGEN_SUPER_Div(fl, lhsp, rhsp) {
         dtypeFrom(lhsp);
     }
     ASTGEN_MEMBERS_AstDiv;
-    void numberOperate(V3Number& out, const V3Number& lhs, const V3Number& rhs) override {
-        out.opDiv(lhs, rhs);
+    శూన్య సంఖ్య_నిర్వహించు(V3_సంఖ్య& బహిర్గతం, స్థిరరాశి V3_సంఖ్య& lhs, స్థిరరాశి V3_సంఖ్య& rhs) override {
+        బహిర్గతం.opDiv(lhs, rhs);
     }
-    string emitVerilog() override { return "%k(%l %f/ %r)"; }
-    string emitC() override { return "VL_DIV_%nq%lq%rq(%lw, %P, %li, %ri)"; }
-    string emitSMT() const override { return "(bvudiv %l %r)"; }
-    bool emitCheckMaxWords() override { return true; }
-    bool cleanOut() const override { return false; }
-    bool cleanLhs() const override { return true; }
-    bool cleanRhs() const override { return true; }
-    bool sizeMattersLhs() const override { return true; }
-    bool sizeMattersRhs() const override { return true; }
-    int instrCount() const override { return widthInstrs() * INSTR_COUNT_INT_DIV; }
+    string emitVerilog() override { తిరిగి "%k(%l %f/ %r)"; }
+    string emitC() override { తిరిగి "VL_DIV_%nq%lq%rq(%lw, %P, %li, %ri)"; }
+    string emitSMT() స్థిరరాశి override { తిరిగి "(bvudiv %l %r)"; }
+    bool emit_Check_Max_పదాలు() override { తిరిగి true; }
+    bool clean_బహిర్గతం() స్థిరరాశి override { తిరిగి false; }
+    bool cleanLhs() స్థిరరాశి override { తిరిగి true; }
+    bool cleanRhs() స్థిరరాశి override { తిరిగి true; }
+    bool కొలత_Matters_Lhs() స్థిరరాశి override { తిరిగి true; }
+    bool కొలత_Matters_Rhs() స్థిరరాశి override { తిరిగి true; }
+    పూర్ణాంకం instr_లెక్క() స్థిరరాశి override { తిరిగి వెడల్పు_Instrs() * INSTR_లెక్క_INT_DIV; }
 };
-class AstDivD final : public AstNodeBiop {
-public:
-    AstDivD(FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp)
+class AstDivD final : బహిరంగ Ast_కణుపు_Biop {
+బహిరంగ:
+    AstDivD(File_పంక్తి* fl, Ast_కణుపు_సమాసం* lhsp, Ast_కణుపు_సమాసం* rhsp)
         : ASTGEN_SUPER_DivD(fl, lhsp, rhsp) {
-        dtypeSetDouble();
+        dtype_సమితి_Double();
     }
     ASTGEN_MEMBERS_AstDivD;
-    void numberOperate(V3Number& out, const V3Number& lhs, const V3Number& rhs) override {
-        out.opDivD(lhs, rhs);
+    శూన్య సంఖ్య_నిర్వహించు(V3_సంఖ్య& బహిర్గతం, స్థిరరాశి V3_సంఖ్య& lhs, స్థిరరాశి V3_సంఖ్య& rhs) override {
+        బహిర్గతం.opDivD(lhs, rhs);
     }
-    string emitVerilog() override { return "%k(%l %f/ %r)"; }
+    string emitVerilog() override { తిరిగి "%k(%l %f/ %r)"; }
     string emitC() override { V3ERROR_NA_RETURN(""); }
-    string emitSimpleOperator() override { return "/"; }
-    bool cleanOut() const override { return true; }
-    bool cleanLhs() const override { return false; }
-    bool cleanRhs() const override { return false; }
-    bool sizeMattersLhs() const override { return false; }
-    bool sizeMattersRhs() const override { return false; }
-    int instrCount() const override { return INSTR_COUNT_DBL_DIV; }
-    bool doubleFlavor() const override { return true; }
+    string emitSimpleOperator() override { తిరిగి "/"; }
+    bool clean_బహిర్గతం() స్థిరరాశి override { తిరిగి true; }
+    bool cleanLhs() స్థిరరాశి override { తిరిగి false; }
+    bool cleanRhs() స్థిరరాశి override { తిరిగి false; }
+    bool కొలత_Matters_Lhs() స్థిరరాశి override { తిరిగి false; }
+    bool కొలత_Matters_Rhs() స్థిరరాశి override { తిరిగి false; }
+    పూర్ణాంకం instr_లెక్క() స్థిరరాశి override { తిరిగి INSTR_లెక్క_DBL_DIV; }
+    bool doubleFlavor() స్థిరరాశి override { తిరిగి true; }
 };
-class AstDivS final : public AstNodeBiop {
+class AstDivS final : బహిరంగ Ast_కణుపు_Biop {
     // @astgen makeDfgVertex
-public:
-    AstDivS(FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp)
+బహిరంగ:
+    AstDivS(File_పంక్తి* fl, Ast_కణుపు_సమాసం* lhsp, Ast_కణుపు_సమాసం* rhsp)
         : ASTGEN_SUPER_DivS(fl, lhsp, rhsp) {
         dtypeFrom(lhsp);
     }
     ASTGEN_MEMBERS_AstDivS;
-    void numberOperate(V3Number& out, const V3Number& lhs, const V3Number& rhs) override {
-        out.opDivS(lhs, rhs);
+    శూన్య సంఖ్య_నిర్వహించు(V3_సంఖ్య& బహిర్గతం, స్థిరరాశి V3_సంఖ్య& lhs, స్థిరరాశి V3_సంఖ్య& rhs) override {
+        బహిర్గతం.opDivS(lhs, rhs);
     }
-    string emitVerilog() override { return "%k(%l %f/ %r)"; }
-    string emitC() override { return "VL_DIVS_%nq%lq%rq(%lw, %P, %li, %ri)"; }
-    string emitSMT() const override { return "(bvsdiv %l %r)"; }
-    bool emitCheckMaxWords() override { return true; }
-    bool cleanOut() const override { return false; }
-    bool cleanLhs() const override { return true; }
-    bool cleanRhs() const override { return true; }
-    bool sizeMattersLhs() const override { return true; }
-    bool sizeMattersRhs() const override { return true; }
-    int instrCount() const override { return widthInstrs() * INSTR_COUNT_INT_DIV; }
-    bool signedFlavor() const override { return true; }
+    string emitVerilog() override { తిరిగి "%k(%l %f/ %r)"; }
+    string emitC() override { తిరిగి "VL_DIVS_%nq%lq%rq(%lw, %P, %li, %ri)"; }
+    string emitSMT() స్థిరరాశి override { తిరిగి "(bvsdiv %l %r)"; }
+    bool emit_Check_Max_పదాలు() override { తిరిగి true; }
+    bool clean_బహిర్గతం() స్థిరరాశి override { తిరిగి false; }
+    bool cleanLhs() స్థిరరాశి override { తిరిగి true; }
+    bool cleanRhs() స్థిరరాశి override { తిరిగి true; }
+    bool కొలత_Matters_Lhs() స్థిరరాశి override { తిరిగి true; }
+    bool కొలత_Matters_Rhs() స్థిరరాశి override { తిరిగి true; }
+    పూర్ణాంకం instr_లెక్క() స్థిరరాశి override { తిరిగి వెడల్పు_Instrs() * INSTR_లెక్క_INT_DIV; }
+    bool signedFlavor() స్థిరరాశి override { తిరిగి true; }
 };
-class AstEqWild final : public AstNodeBiop {
+class AstEqWild final : బహిరంగ Ast_కణుపు_Biop {
     // Note wildcard operator rhs differs from lhs
     // @astgen makeDfgVertex
-public:
-    AstEqWild(FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp)
+బహిరంగ:
+    AstEqWild(File_పంక్తి* fl, Ast_కణుపు_సమాసం* lhsp, Ast_కణుపు_సమాసం* rhsp)
         : ASTGEN_SUPER_EqWild(fl, lhsp, rhsp) {
-        dtypeSetBitOrLogic(lhsp->isFourstateOrNoDtype());
+        dtype_సమితి_బిట్టు_Or_Logic(lhsp->isFourstateOrNoDtype());
     }
     ASTGEN_MEMBERS_AstEqWild;
     // Return AstEqWild/AstEqD
-    static AstNodeBiop* newTyped(FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp);
-    void numberOperate(V3Number& out, const V3Number& lhs, const V3Number& rhs) override {
-        out.opWildEq(lhs, rhs);
+    స్థిర Ast_కణుపు_Biop* newTyped(File_పంక్తి* fl, Ast_కణుపు_సమాసం* lhsp, Ast_కణుపు_సమాసం* rhsp);
+    శూన్య సంఖ్య_నిర్వహించు(V3_సంఖ్య& బహిర్గతం, స్థిరరాశి V3_సంఖ్య& lhs, స్థిరరాశి V3_సంఖ్య& rhs) override {
+        బహిర్గతం.opWildEq(lhs, rhs);
     }
-    string emitVerilog() override { return "%k(%l %f==? %r)"; }
+    string emitVerilog() override { తిరిగి "%k(%l %f==? %r)"; }
     string emitC() override {
-        if (v3Global.opt.fourstate()) {
+        ఒకవేళ (v3Global.opt.fourstate()) {
             V3ERROR_NA_RETURN("");
-        } else {
-            return "VL_EQ_%lq(%lW, %P, %li, %ri)";
+        } లేకపోతే {
+            తిరిగి "VL_EQ_%lq(%lW, %P, %li, %ri)";
         }
     }
-    string emitSMT() const override { return "(__Vbv (= %l %r))"; }
+    string emitSMT() స్థిరరాశి override { తిరిగి "(__Vbv (= %l %r))"; }
     string emitSimpleOperator() override {
-        if (v3Global.opt.fourstate()) {
+        ఒకవేళ (v3Global.opt.fourstate()) {
             V3ERROR_NA_RETURN("");
-        } else {
-            return "==";
+        } లేకపోతే {
+            తిరిగి "==";
         }
     }
-    bool cleanOut() const override { return true; }
-    bool cleanLhs() const override { return true; }
-    bool cleanRhs() const override { return true; }
-    bool sizeMattersLhs() const override { return false; }
-    bool sizeMattersRhs() const override { return false; }
+    bool clean_బహిర్గతం() స్థిరరాశి override { తిరిగి true; }
+    bool cleanLhs() స్థిరరాశి override { తిరిగి true; }
+    bool cleanRhs() స్థిరరాశి override { తిరిగి true; }
+    bool కొలత_Matters_Lhs() స్థిరరాశి override { తిరిగి false; }
+    bool కొలత_Matters_Rhs() స్థిరరాశి override { తిరిగి false; }
 };
-class AstFGetS final : public AstNodeBiop {
+class AstFGetS final : బహిరంగ Ast_కణుపు_Biop {
     // @astgen alias op1 := strgp
     // @astgen alias op2 := filep
-public:
-    AstFGetS(FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp)
+బహిరంగ:
+    AstFGetS(File_పంక్తి* fl, Ast_కణుపు_సమాసం* lhsp, Ast_కణుపు_సమాసం* rhsp)
         : ASTGEN_SUPER_FGetS(fl, lhsp, rhsp) {
-        dtypeSetInteger2State();  // Spec says integer return
+        dtype_సమితి_Integer2_State();  // Spec says integer return
     }
     ASTGEN_MEMBERS_AstFGetS;
-    void numberOperate(V3Number&, const V3Number&, const V3Number&) override { V3ERROR_NA; }
-    string emitVerilog() override { return "%f$fgets(%l,%r)"; }
+    శూన్య సంఖ్య_నిర్వహించు(V3_సంఖ్య&, స్థిరరాశి V3_సంఖ్య&, స్థిరరాశి V3_సంఖ్య&) override { V3ERROR_NA; }
+    string emitVerilog() override { తిరిగి "%f$fgets(%l,%r)"; }
     string emitC() override {
-        return strgp()->dtypep()->basicp()->isString() ? "VL_FGETS_NI(%li, %ri)"
+        తిరిగి strgp()->dtypep()->basicp()->isString() ? "VL_FGETS_NI(%li, %ri)"
                                                        : "VL_FGETS_%nqX%rq(%lw, %P, &(%li), %ri)";
     }
-    bool cleanOut() const override { return false; }
-    bool cleanLhs() const override { return true; }
-    bool cleanRhs() const override { return true; }
-    bool sizeMattersLhs() const override { return false; }
-    bool sizeMattersRhs() const override { return false; }
-    bool isSystemFunc() const override { return true; }
-    int instrCount() const override { return widthInstrs() * 64; }
-    bool isPure() override { return false; }  // SPECIAL: $display has 'visual' ordering
+    bool clean_బహిర్గతం() స్థిరరాశి override { తిరిగి false; }
+    bool cleanLhs() స్థిరరాశి override { తిరిగి true; }
+    bool cleanRhs() స్థిరరాశి override { తిరిగి true; }
+    bool కొలత_Matters_Lhs() స్థిరరాశి override { తిరిగి false; }
+    bool కొలత_Matters_Rhs() స్థిరరాశి override { తిరిగి false; }
+    bool isSystemFunc() స్థిరరాశి override { తిరిగి true; }
+    పూర్ణాంకం instr_లెక్క() స్థిరరాశి override { తిరిగి వెడల్పు_Instrs() * 64; }
+    bool is_శుద్ధ() override { తిరిగి false; }  // SPECIAL: $display has 'visual' ordering
 };
-class AstFUngetC final : public AstNodeBiop {
-public:
-    AstFUngetC(FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp)
+class AstFUngetC final : బహిరంగ Ast_కణుపు_Biop {
+బహిరంగ:
+    AstFUngetC(File_పంక్తి* fl, Ast_కణుపు_సమాసం* lhsp, Ast_కణుపు_సమాసం* rhsp)
         : ASTGEN_SUPER_FUngetC(fl, lhsp, rhsp) {
-        dtypeSetLogic2StateUnsized(
-            32, v3Global.widthMinUsage() == VWidthMinUsage::MATCHES_WIDTH ? 32 : 8,
+        dtype_సమితి_Logic2_State_Unsized(
+            32, v3Global.వెడల్పు_Min_Usage() == VWidthMinUsage::MATCHES_వెడల్పు ? 32 : 8,
             VSigning::SIGNED);  // Spec says integer return
     }
     ASTGEN_MEMBERS_AstFUngetC;
-    void numberOperate(V3Number&, const V3Number&, const V3Number&) override { V3ERROR_NA; }
-    string emitVerilog() override { return "%f$ungetc(%r, %l)"; }
+    శూన్య సంఖ్య_నిర్వహించు(V3_సంఖ్య&, స్థిరరాశి V3_సంఖ్య&, స్థిరరాశి V3_సంఖ్య&) override { V3ERROR_NA; }
+    string emitVerilog() override { తిరిగి "%f$ungetc(%r, %l)"; }
     // Non-existent filehandle returns EOF
     string emitC() override {
-        return "(%li ? (ungetc(%ri, VL_CVT_I_FP(%li)) >= 0 ? 0 : -1) : -1)";
+        తిరిగి "(%li ? (ungetc(%ri, VL_CVT_I_FP(%li)) >= 0 ? 0 : -1) : -1)";
     }
-    bool cleanOut() const override { return false; }
-    bool cleanLhs() const override { return true; }
-    bool cleanRhs() const override { return true; }
-    bool sizeMattersLhs() const override { return false; }
-    bool sizeMattersRhs() const override { return false; }
-    bool isSystemFunc() const override { return true; }
-    int instrCount() const override { return widthInstrs() * 64; }
-    bool isPredictOptimizable() const override { return false; }
-    bool isPure() override { return false; }  // SPECIAL: $display has 'visual' ordering
-    AstNode* filep() const { return lhsp(); }
-    AstNode* charp() const { return rhsp(); }
+    bool clean_బహిర్గతం() స్థిరరాశి override { తిరిగి false; }
+    bool cleanLhs() స్థిరరాశి override { తిరిగి true; }
+    bool cleanRhs() స్థిరరాశి override { తిరిగి true; }
+    bool కొలత_Matters_Lhs() స్థిరరాశి override { తిరిగి false; }
+    bool కొలత_Matters_Rhs() స్థిరరాశి override { తిరిగి false; }
+    bool isSystemFunc() స్థిరరాశి override { తిరిగి true; }
+    పూర్ణాంకం instr_లెక్క() స్థిరరాశి override { తిరిగి వెడల్పు_Instrs() * 64; }
+    bool isPredictOptimizable() స్థిరరాశి override { తిరిగి false; }
+    bool is_శుద్ధ() override { తిరిగి false; }  // SPECIAL: $display has 'visual' ordering
+    Ast_కణుపు* filep() స్థిరరాశి { తిరిగి lhsp(); }
+    Ast_కణుపు* charp() స్థిరరాశి { తిరిగి rhsp(); }
 };
-class AstGetcN final : public AstNodeBiop {
+class AstGetcN final : బహిరంగ Ast_కణుపు_Biop {
     // Verilog string.getc()
-public:
-    AstGetcN(FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp)
+బహిరంగ:
+    AstGetcN(File_పంక్తి* fl, Ast_కణుపు_సమాసం* lhsp, Ast_కణుపు_సమాసం* rhsp)
         : ASTGEN_SUPER_GetcN(fl, lhsp, rhsp) {
-        dtypeSetBitSized(8, VSigning::UNSIGNED);
+        dtype_సమితి_బిట్టు_Sized(8, VSigning::UNSIGNED);
     }
     ASTGEN_MEMBERS_AstGetcN;
-    void numberOperate(V3Number& out, const V3Number& lhs, const V3Number& rhs) override {
-        out.opGetcN(lhs, rhs);
+    శూన్య సంఖ్య_నిర్వహించు(V3_సంఖ్య& బహిర్గతం, స్థిరరాశి V3_సంఖ్య& lhs, స్థిరరాశి V3_సంఖ్య& rhs) override {
+        బహిర్గతం.opGetcN(lhs, rhs);
     }
-    string name() const override VL_MT_STABLE { return "getc"; }
-    string emitVerilog() override { return "%k(%l.getc(%r))"; }
-    string emitC() override { return "VL_GETC_N(%li,%ri)"; }
-    string emitSimpleOperator() override { return ""; }
-    bool cleanOut() const override { return true; }
-    bool cleanLhs() const override { return true; }
-    bool cleanRhs() const override { return true; }
-    bool sizeMattersLhs() const override { return false; }
-    bool sizeMattersRhs() const override { return false; }
+    string name() స్థిరరాశి override VL_MT_STABLE { తిరిగి "getc"; }
+    string emitVerilog() override { తిరిగి "%k(%l.getc(%r))"; }
+    string emitC() override { తిరిగి "VL_GETC_N(%li,%ri)"; }
+    string emitSimpleOperator() override { తిరిగి ""; }
+    bool clean_బహిర్గతం() స్థిరరాశి override { తిరిగి true; }
+    bool cleanLhs() స్థిరరాశి override { తిరిగి true; }
+    bool cleanRhs() స్థిరరాశి override { తిరిగి true; }
+    bool కొలత_Matters_Lhs() స్థిరరాశి override { తిరిగి false; }
+    bool కొలత_Matters_Rhs() స్థిరరాశి override { తిరిగి false; }
 };
-class AstGetcRefN final : public AstNodeBiop {
+class AstGetcRefN final : బహిరంగ Ast_కణుపు_Biop {
     // Verilog string[#] on the left-hand-side of assignment
     // Spec says is of type byte (not string of single character)
-public:
-    AstGetcRefN(FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp)
+బహిరంగ:
+    AstGetcRefN(File_పంక్తి* fl, Ast_కణుపు_సమాసం* lhsp, Ast_కణుపు_సమాసం* rhsp)
         : ASTGEN_SUPER_GetcRefN(fl, lhsp, rhsp) {
-        dtypeSetBitSized(8, VSigning::UNSIGNED);
+        dtype_సమితి_బిట్టు_Sized(8, VSigning::UNSIGNED);
     }
     ASTGEN_MEMBERS_AstGetcRefN;
-    void numberOperate(V3Number&, const V3Number&, const V3Number&) override { V3ERROR_NA; }
-    string emitVerilog() override { return "%k%l[%r]"; }
+    శూన్య సంఖ్య_నిర్వహించు(V3_సంఖ్య&, స్థిరరాశి V3_సంఖ్య&, స్థిరరాశి V3_సంఖ్య&) override { V3ERROR_NA; }
+    string emitVerilog() override { తిరిగి "%k%l[%r]"; }
     string emitC() override { V3ERROR_NA_RETURN(""); }
-    string emitSimpleOperator() override { return ""; }
-    bool cleanOut() const override { return true; }
-    bool cleanLhs() const override { return true; }
-    bool cleanRhs() const override { return true; }
-    bool sizeMattersLhs() const override { return false; }
-    bool sizeMattersRhs() const override { return false; }
+    string emitSimpleOperator() override { తిరిగి ""; }
+    bool clean_బహిర్గతం() స్థిరరాశి override { తిరిగి true; }
+    bool cleanLhs() స్థిరరాశి override { తిరిగి true; }
+    bool cleanRhs() స్థిరరాశి override { తిరిగి true; }
+    bool కొలత_Matters_Lhs() స్థిరరాశి override { తిరిగి false; }
+    bool కొలత_Matters_Rhs() స్థిరరాశి override { తిరిగి false; }
 };
-class AstGt final : public AstNodeBiop {
+class AstGt final : బహిరంగ Ast_కణుపు_Biop {
     // @astgen makeDfgVertex
-public:
-    AstGt(FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp)
+బహిరంగ:
+    AstGt(File_పంక్తి* fl, Ast_కణుపు_సమాసం* lhsp, Ast_కణుపు_సమాసం* rhsp)
         : ASTGEN_SUPER_Gt(fl, lhsp, rhsp) {
-        dtypeSetBitOrLogic(isFourstateOrNoDtype(lhsp, rhsp));
+        dtype_సమితి_బిట్టు_Or_Logic(isFourstateOrNoDtype(lhsp, rhsp));
     }
     ASTGEN_MEMBERS_AstGt;
-    void numberOperate(V3Number& out, const V3Number& lhs, const V3Number& rhs) override {
-        out.opGt(lhs, rhs);
+    శూన్య సంఖ్య_నిర్వహించు(V3_సంఖ్య& బహిర్గతం, స్థిరరాశి V3_సంఖ్య& lhs, స్థిరరాశి V3_సంఖ్య& rhs) override {
+        బహిర్గతం.opGt(lhs, rhs);
     }
-    string emitVerilog() override { return "%k(%l %f> %r)"; }
-    string emitC() override { return "VL_GT_%lq(%lW, %P, %li, %ri)"; }
-    string emitSMT() const override { return "(__Vbv (bvugt %l %r))"; }
-    string emitSimpleOperator() override { return ">"; }
-    bool cleanOut() const override { return true; }
-    bool cleanLhs() const override { return true; }
-    bool cleanRhs() const override { return true; }
-    bool sizeMattersLhs() const override { return false; }
-    bool sizeMattersRhs() const override { return false; }
+    string emitVerilog() override { తిరిగి "%k(%l %f> %r)"; }
+    string emitC() override { తిరిగి "VL_GT_%lq(%lW, %P, %li, %ri)"; }
+    string emitSMT() స్థిరరాశి override { తిరిగి "(__Vbv (bvugt %l %r))"; }
+    string emitSimpleOperator() override { తిరిగి ">"; }
+    bool clean_బహిర్గతం() స్థిరరాశి override { తిరిగి true; }
+    bool cleanLhs() స్థిరరాశి override { తిరిగి true; }
+    bool cleanRhs() స్థిరరాశి override { తిరిగి true; }
+    bool కొలత_Matters_Lhs() స్థిరరాశి override { తిరిగి false; }
+    bool కొలత_Matters_Rhs() స్థిరరాశి override { తిరిగి false; }
 };
-class AstGtD final : public AstNodeBiop {
-public:
-    AstGtD(FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp)
+class AstGtD final : బహిరంగ Ast_కణుపు_Biop {
+బహిరంగ:
+    AstGtD(File_పంక్తి* fl, Ast_కణుపు_సమాసం* lhsp, Ast_కణుపు_సమాసం* rhsp)
         : ASTGEN_SUPER_GtD(fl, lhsp, rhsp) {
-        dtypeSetBit();
+        dtype_సమితి_బిట్టు();
     }
     ASTGEN_MEMBERS_AstGtD;
-    void numberOperate(V3Number& out, const V3Number& lhs, const V3Number& rhs) override {
-        out.opGtD(lhs, rhs);
+    శూన్య సంఖ్య_నిర్వహించు(V3_సంఖ్య& బహిర్గతం, స్థిరరాశి V3_సంఖ్య& lhs, స్థిరరాశి V3_సంఖ్య& rhs) override {
+        బహిర్గతం.opGtD(lhs, rhs);
     }
-    string emitVerilog() override { return "%k(%l %f> %r)"; }
+    string emitVerilog() override { తిరిగి "%k(%l %f> %r)"; }
     string emitC() override { V3ERROR_NA_RETURN(""); }
-    string emitSimpleOperator() override { return ">"; }
-    bool cleanOut() const override { return true; }
-    bool cleanLhs() const override { return false; }
-    bool cleanRhs() const override { return false; }
-    bool sizeMattersLhs() const override { return false; }
-    bool sizeMattersRhs() const override { return false; }
-    int instrCount() const override { return INSTR_COUNT_DBL; }
-    bool doubleFlavor() const override { return true; }
+    string emitSimpleOperator() override { తిరిగి ">"; }
+    bool clean_బహిర్గతం() స్థిరరాశి override { తిరిగి true; }
+    bool cleanLhs() స్థిరరాశి override { తిరిగి false; }
+    bool cleanRhs() స్థిరరాశి override { తిరిగి false; }
+    bool కొలత_Matters_Lhs() స్థిరరాశి override { తిరిగి false; }
+    bool కొలత_Matters_Rhs() స్థిరరాశి override { తిరిగి false; }
+    పూర్ణాంకం instr_లెక్క() స్థిరరాశి override { తిరిగి INSTR_లెక్క_DBL; }
+    bool doubleFlavor() స్థిరరాశి override { తిరిగి true; }
 };
-class AstGtN final : public AstNodeBiop {
-public:
-    AstGtN(FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp)
+class AstGtN final : బహిరంగ Ast_కణుపు_Biop {
+బహిరంగ:
+    AstGtN(File_పంక్తి* fl, Ast_కణుపు_సమాసం* lhsp, Ast_కణుపు_సమాసం* rhsp)
         : ASTGEN_SUPER_GtN(fl, lhsp, rhsp) {
-        dtypeSetBit();
+        dtype_సమితి_బిట్టు();
     }
     ASTGEN_MEMBERS_AstGtN;
-    void numberOperate(V3Number& out, const V3Number& lhs, const V3Number& rhs) override {
-        out.opGtN(lhs, rhs);
+    శూన్య సంఖ్య_నిర్వహించు(V3_సంఖ్య& బహిర్గతం, స్థిరరాశి V3_సంఖ్య& lhs, స్థిరరాశి V3_సంఖ్య& rhs) override {
+        బహిర్గతం.opGtN(lhs, rhs);
     }
-    string emitVerilog() override { return "%k(%l %f> %r)"; }
+    string emitVerilog() override { తిరిగి "%k(%l %f> %r)"; }
     string emitC() override { V3ERROR_NA_RETURN(""); }
-    string emitSimpleOperator() override { return ">"; }
-    bool cleanOut() const override { return true; }
-    bool cleanLhs() const override { return false; }
-    bool cleanRhs() const override { return false; }
-    bool sizeMattersLhs() const override { return false; }
-    bool sizeMattersRhs() const override { return false; }
-    int instrCount() const override { return INSTR_COUNT_STR; }
-    bool stringFlavor() const override { return true; }
+    string emitSimpleOperator() override { తిరిగి ">"; }
+    bool clean_బహిర్గతం() స్థిరరాశి override { తిరిగి true; }
+    bool cleanLhs() స్థిరరాశి override { తిరిగి false; }
+    bool cleanRhs() స్థిరరాశి override { తిరిగి false; }
+    bool కొలత_Matters_Lhs() స్థిరరాశి override { తిరిగి false; }
+    bool కొలత_Matters_Rhs() స్థిరరాశి override { తిరిగి false; }
+    పూర్ణాంకం instr_లెక్క() స్థిరరాశి override { తిరిగి INSTR_లెక్క_STR; }
+    bool stringFlavor() స్థిరరాశి override { తిరిగి true; }
 };
-class AstGtS final : public AstNodeBiop {
+class AstGtS final : బహిరంగ Ast_కణుపు_Biop {
     // @astgen makeDfgVertex
-public:
-    AstGtS(FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp)
+బహిరంగ:
+    AstGtS(File_పంక్తి* fl, Ast_కణుపు_సమాసం* lhsp, Ast_కణుపు_సమాసం* rhsp)
         : ASTGEN_SUPER_GtS(fl, lhsp, rhsp) {
-        dtypeSetBitOrLogic(isFourstateOrNoDtype(lhsp, rhsp));
+        dtype_సమితి_బిట్టు_Or_Logic(isFourstateOrNoDtype(lhsp, rhsp));
     }
     ASTGEN_MEMBERS_AstGtS;
-    void numberOperate(V3Number& out, const V3Number& lhs, const V3Number& rhs) override {
-        out.opGtS(lhs, rhs);
+    శూన్య సంఖ్య_నిర్వహించు(V3_సంఖ్య& బహిర్గతం, స్థిరరాశి V3_సంఖ్య& lhs, స్థిరరాశి V3_సంఖ్య& rhs) override {
+        బహిర్గతం.opGtS(lhs, rhs);
     }
-    string emitVerilog() override { return "%k(%l %f> %r)"; }
-    string emitC() override { return "VL_GTS_%nq%lq%rq(%lw, %P, %li, %ri)"; }
-    string emitSMT() const override { return "(__Vbv (bvsgt %l %r))"; }
-    string emitSimpleOperator() override { return ""; }
-    bool cleanOut() const override { return true; }
-    bool cleanLhs() const override { return true; }
-    bool cleanRhs() const override { return true; }
-    bool sizeMattersLhs() const override { return false; }
-    bool sizeMattersRhs() const override { return false; }
-    bool signedFlavor() const override { return true; }
+    string emitVerilog() override { తిరిగి "%k(%l %f> %r)"; }
+    string emitC() override { తిరిగి "VL_GTS_%nq%lq%rq(%lw, %P, %li, %ri)"; }
+    string emitSMT() స్థిరరాశి override { తిరిగి "(__Vbv (bvsgt %l %r))"; }
+    string emitSimpleOperator() override { తిరిగి ""; }
+    bool clean_బహిర్గతం() స్థిరరాశి override { తిరిగి true; }
+    bool cleanLhs() స్థిరరాశి override { తిరిగి true; }
+    bool cleanRhs() స్థిరరాశి override { తిరిగి true; }
+    bool కొలత_Matters_Lhs() స్థిరరాశి override { తిరిగి false; }
+    bool కొలత_Matters_Rhs() స్థిరరాశి override { తిరిగి false; }
+    bool signedFlavor() స్థిరరాశి override { తిరిగి true; }
 };
-class AstGte final : public AstNodeBiop {
+class AstGte final : బహిరంగ Ast_కణుపు_Biop {
     // @astgen makeDfgVertex
-public:
-    AstGte(FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp)
+బహిరంగ:
+    AstGte(File_పంక్తి* fl, Ast_కణుపు_సమాసం* lhsp, Ast_కణుపు_సమాసం* rhsp)
         : ASTGEN_SUPER_Gte(fl, lhsp, rhsp) {
-        dtypeSetBitOrLogic(isFourstateOrNoDtype(lhsp, rhsp));
+        dtype_సమితి_బిట్టు_Or_Logic(isFourstateOrNoDtype(lhsp, rhsp));
     }
     ASTGEN_MEMBERS_AstGte;
-    void numberOperate(V3Number& out, const V3Number& lhs, const V3Number& rhs) override {
-        out.opGte(lhs, rhs);
+    శూన్య సంఖ్య_నిర్వహించు(V3_సంఖ్య& బహిర్గతం, స్థిరరాశి V3_సంఖ్య& lhs, స్థిరరాశి V3_సంఖ్య& rhs) override {
+        బహిర్గతం.opGte(lhs, rhs);
     }
-    string emitVerilog() override { return "%k(%l %f>= %r)"; }
-    string emitC() override { return "VL_GTE_%lq(%lW, %P, %li, %ri)"; }
-    string emitSMT() const override { return "(__Vbv (bvuge %l %r))"; }
-    string emitSimpleOperator() override { return ">="; }
-    bool cleanOut() const override { return true; }
-    bool cleanLhs() const override { return true; }
-    bool cleanRhs() const override { return true; }
-    bool sizeMattersLhs() const override { return false; }
-    bool sizeMattersRhs() const override { return false; }
+    string emitVerilog() override { తిరిగి "%k(%l %f>= %r)"; }
+    string emitC() override { తిరిగి "VL_GTE_%lq(%lW, %P, %li, %ri)"; }
+    string emitSMT() స్థిరరాశి override { తిరిగి "(__Vbv (bvuge %l %r))"; }
+    string emitSimpleOperator() override { తిరిగి ">="; }
+    bool clean_బహిర్గతం() స్థిరరాశి override { తిరిగి true; }
+    bool cleanLhs() స్థిరరాశి override { తిరిగి true; }
+    bool cleanRhs() స్థిరరాశి override { తిరిగి true; }
+    bool కొలత_Matters_Lhs() స్థిరరాశి override { తిరిగి false; }
+    bool కొలత_Matters_Rhs() స్థిరరాశి override { తిరిగి false; }
 };
-class AstGteD final : public AstNodeBiop {
-public:
-    AstGteD(FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp)
+class AstGteD final : బహిరంగ Ast_కణుపు_Biop {
+బహిరంగ:
+    AstGteD(File_పంక్తి* fl, Ast_కణుపు_సమాసం* lhsp, Ast_కణుపు_సమాసం* rhsp)
         : ASTGEN_SUPER_GteD(fl, lhsp, rhsp) {
-        dtypeSetBit();
+        dtype_సమితి_బిట్టు();
     }
     ASTGEN_MEMBERS_AstGteD;
-    void numberOperate(V3Number& out, const V3Number& lhs, const V3Number& rhs) override {
-        out.opGteD(lhs, rhs);
+    శూన్య సంఖ్య_నిర్వహించు(V3_సంఖ్య& బహిర్గతం, స్థిరరాశి V3_సంఖ్య& lhs, స్థిరరాశి V3_సంఖ్య& rhs) override {
+        బహిర్గతం.opGteD(lhs, rhs);
     }
-    string emitVerilog() override { return "%k(%l %f>= %r)"; }
+    string emitVerilog() override { తిరిగి "%k(%l %f>= %r)"; }
     string emitC() override { V3ERROR_NA_RETURN(""); }
-    string emitSimpleOperator() override { return ">="; }
-    bool cleanOut() const override { return true; }
-    bool cleanLhs() const override { return false; }
-    bool cleanRhs() const override { return false; }
-    bool sizeMattersLhs() const override { return false; }
-    bool sizeMattersRhs() const override { return false; }
-    int instrCount() const override { return INSTR_COUNT_DBL; }
-    bool doubleFlavor() const override { return true; }
+    string emitSimpleOperator() override { తిరిగి ">="; }
+    bool clean_బహిర్గతం() స్థిరరాశి override { తిరిగి true; }
+    bool cleanLhs() స్థిరరాశి override { తిరిగి false; }
+    bool cleanRhs() స్థిరరాశి override { తిరిగి false; }
+    bool కొలత_Matters_Lhs() స్థిరరాశి override { తిరిగి false; }
+    bool కొలత_Matters_Rhs() స్థిరరాశి override { తిరిగి false; }
+    పూర్ణాంకం instr_లెక్క() స్థిరరాశి override { తిరిగి INSTR_లెక్క_DBL; }
+    bool doubleFlavor() స్థిరరాశి override { తిరిగి true; }
 };
-class AstGteN final : public AstNodeBiop {
-public:
-    AstGteN(FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp)
+class AstGteN final : బహిరంగ Ast_కణుపు_Biop {
+బహిరంగ:
+    AstGteN(File_పంక్తి* fl, Ast_కణుపు_సమాసం* lhsp, Ast_కణుపు_సమాసం* rhsp)
         : ASTGEN_SUPER_GteN(fl, lhsp, rhsp) {
-        dtypeSetBit();
+        dtype_సమితి_బిట్టు();
     }
     ASTGEN_MEMBERS_AstGteN;
-    void numberOperate(V3Number& out, const V3Number& lhs, const V3Number& rhs) override {
-        out.opGteN(lhs, rhs);
+    శూన్య సంఖ్య_నిర్వహించు(V3_సంఖ్య& బహిర్గతం, స్థిరరాశి V3_సంఖ్య& lhs, స్థిరరాశి V3_సంఖ్య& rhs) override {
+        బహిర్గతం.opGteN(lhs, rhs);
     }
-    string emitVerilog() override { return "%k(%l %f>= %r)"; }
+    string emitVerilog() override { తిరిగి "%k(%l %f>= %r)"; }
     string emitC() override { V3ERROR_NA_RETURN(""); }
-    string emitSimpleOperator() override { return ">="; }
-    bool cleanOut() const override { return true; }
-    bool cleanLhs() const override { return false; }
-    bool cleanRhs() const override { return false; }
-    bool sizeMattersLhs() const override { return false; }
-    bool sizeMattersRhs() const override { return false; }
-    int instrCount() const override { return INSTR_COUNT_STR; }
-    bool stringFlavor() const override { return true; }
+    string emitSimpleOperator() override { తిరిగి ">="; }
+    bool clean_బహిర్గతం() స్థిరరాశి override { తిరిగి true; }
+    bool cleanLhs() స్థిరరాశి override { తిరిగి false; }
+    bool cleanRhs() స్థిరరాశి override { తిరిగి false; }
+    bool కొలత_Matters_Lhs() స్థిరరాశి override { తిరిగి false; }
+    bool కొలత_Matters_Rhs() స్థిరరాశి override { తిరిగి false; }
+    పూర్ణాంకం instr_లెక్క() స్థిరరాశి override { తిరిగి INSTR_లెక్క_STR; }
+    bool stringFlavor() స్థిరరాశి override { తిరిగి true; }
 };
-class AstGteS final : public AstNodeBiop {
+class AstGteS final : బహిరంగ Ast_కణుపు_Biop {
     // @astgen makeDfgVertex
-public:
-    AstGteS(FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp)
+బహిరంగ:
+    AstGteS(File_పంక్తి* fl, Ast_కణుపు_సమాసం* lhsp, Ast_కణుపు_సమాసం* rhsp)
         : ASTGEN_SUPER_GteS(fl, lhsp, rhsp) {
-        dtypeSetBitOrLogic(isFourstateOrNoDtype(lhsp, rhsp));
+        dtype_సమితి_బిట్టు_Or_Logic(isFourstateOrNoDtype(lhsp, rhsp));
     }
     ASTGEN_MEMBERS_AstGteS;
-    void numberOperate(V3Number& out, const V3Number& lhs, const V3Number& rhs) override {
-        out.opGteS(lhs, rhs);
+    శూన్య సంఖ్య_నిర్వహించు(V3_సంఖ్య& బహిర్గతం, స్థిరరాశి V3_సంఖ్య& lhs, స్థిరరాశి V3_సంఖ్య& rhs) override {
+        బహిర్గతం.opGteS(lhs, rhs);
     }
-    string emitVerilog() override { return "%k(%l %f>= %r)"; }
-    string emitC() override { return "VL_GTES_%nq%lq%rq(%lw, %P, %li, %ri)"; }
-    string emitSMT() const override { return "(__Vbv (bvsge %l %r))"; }
-    string emitSimpleOperator() override { return ""; }
-    bool cleanOut() const override { return true; }
-    bool cleanLhs() const override { return true; }
-    bool cleanRhs() const override { return true; }
-    bool sizeMattersLhs() const override { return false; }
-    bool sizeMattersRhs() const override { return false; }
-    bool signedFlavor() const override { return true; }
+    string emitVerilog() override { తిరిగి "%k(%l %f>= %r)"; }
+    string emitC() override { తిరిగి "VL_GTES_%nq%lq%rq(%lw, %P, %li, %ri)"; }
+    string emitSMT() స్థిరరాశి override { తిరిగి "(__Vbv (bvsge %l %r))"; }
+    string emitSimpleOperator() override { తిరిగి ""; }
+    bool clean_బహిర్గతం() స్థిరరాశి override { తిరిగి true; }
+    bool cleanLhs() స్థిరరాశి override { తిరిగి true; }
+    bool cleanRhs() స్థిరరాశి override { తిరిగి true; }
+    bool కొలత_Matters_Lhs() స్థిరరాశి override { తిరిగి false; }
+    bool కొలత_Matters_Rhs() స్థిరరాశి override { తిరిగి false; }
+    bool signedFlavor() స్థిరరాశి override { తిరిగి true; }
 };
-class AstLogAnd final : public AstNodeBiop {
+class AstLogAnd final : బహిరంగ Ast_కణుపు_Biop {
     // @astgen makeDfgVertex
-public:
-    AstLogAnd(FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp)
+బహిరంగ:
+    AstLogAnd(File_పంక్తి* fl, Ast_కణుపు_సమాసం* lhsp, Ast_కణుపు_సమాసం* rhsp)
         : ASTGEN_SUPER_LogAnd(fl, lhsp, rhsp) {
-        dtypeSetBitOrLogic(isFourstateOrNoDtype(lhsp, rhsp));
+        dtype_సమితి_బిట్టు_Or_Logic(isFourstateOrNoDtype(lhsp, rhsp));
     }
     ASTGEN_MEMBERS_AstLogAnd;
-    void numberOperate(V3Number& out, const V3Number& lhs, const V3Number& rhs) override {
-        out.opLogAnd(lhs, rhs);
+    శూన్య సంఖ్య_నిర్వహించు(V3_సంఖ్య& బహిర్గతం, స్థిరరాశి V3_సంఖ్య& lhs, స్థిరరాశి V3_సంఖ్య& rhs) override {
+        బహిర్గతం.opLogAnd(lhs, rhs);
     }
-    string emitVerilog() override { return "%k(%l %f&& %r)"; }
-    string emitC() override { return "VL_LOGAND_%nq%lq%rq(%nw,%lw,%rw, %P, %li, %ri)"; }
-    string emitSMT() const override { return "(bvand %l %r)"; }
-    string emitSimpleOperator() override { return "&&"; }
-    bool cleanOut() const override { return true; }
-    bool cleanLhs() const override { return true; }
-    bool cleanRhs() const override { return true; }
-    bool sizeMattersLhs() const override { return false; }
-    bool sizeMattersRhs() const override { return false; }
-    int instrCount() const override { return widthInstrs() + INSTR_COUNT_BRANCH; }
+    string emitVerilog() override { తిరిగి "%k(%l %f&& %r)"; }
+    string emitC() override { తిరిగి "VL_LOGAND_%nq%lq%rq(%nw,%lw,%rw, %P, %li, %ri)"; }
+    string emitSMT() స్థిరరాశి override { తిరిగి "(bvand %l %r)"; }
+    string emitSimpleOperator() override { తిరిగి "&&"; }
+    bool clean_బహిర్గతం() స్థిరరాశి override { తిరిగి true; }
+    bool cleanLhs() స్థిరరాశి override { తిరిగి true; }
+    bool cleanRhs() స్థిరరాశి override { తిరిగి true; }
+    bool కొలత_Matters_Lhs() స్థిరరాశి override { తిరిగి false; }
+    bool కొలత_Matters_Rhs() స్థిరరాశి override { తిరిగి false; }
+    పూర్ణాంకం instr_లెక్క() స్థిరరాశి override { తిరిగి వెడల్పు_Instrs() + INSTR_లెక్క_BRANCH; }
 };
-class AstLogIf final : public AstNodeBiop {
+class AstLogIf final : బహిరంగ Ast_కణుపు_Biop {
     // @astgen makeDfgVertex
-public:
-    AstLogIf(FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp)
+బహిరంగ:
+    AstLogIf(File_పంక్తి* fl, Ast_కణుపు_సమాసం* lhsp, Ast_కణుపు_సమాసం* rhsp)
         : ASTGEN_SUPER_LogIf(fl, lhsp, rhsp) {
-        dtypeSetBitOrLogic(isFourstateOrNoDtype(lhsp, rhsp));
+        dtype_సమితి_బిట్టు_Or_Logic(isFourstateOrNoDtype(lhsp, rhsp));
     }
     ASTGEN_MEMBERS_AstLogIf;
-    void numberOperate(V3Number& out, const V3Number& lhs, const V3Number& rhs) override {
-        out.opLogIf(lhs, rhs);
+    శూన్య సంఖ్య_నిర్వహించు(V3_సంఖ్య& బహిర్గతం, స్థిరరాశి V3_సంఖ్య& lhs, స్థిరరాశి V3_సంఖ్య& rhs) override {
+        బహిర్గతం.opLogIf(lhs, rhs);
     }
-    string emitVerilog() override { return "%k(%l %f-> %r)"; }
-    string emitC() override { return "VL_LOGIF_%nq%lq%rq(%nw,%lw,%rw, %P, %li, %ri)"; }
-    string emitSMT() const override { return "(__Vbv (=> (__Vbool %l) (__Vbool %r)))"; }
-    string emitSimpleOperator() override { return "->"; }
-    bool cleanOut() const override { return true; }
-    bool cleanLhs() const override { return true; }
-    bool cleanRhs() const override { return true; }
-    bool sizeMattersLhs() const override { return false; }
-    bool sizeMattersRhs() const override { return false; }
-    int instrCount() const override { return widthInstrs() + INSTR_COUNT_BRANCH; }
+    string emitVerilog() override { తిరిగి "%k(%l %f-> %r)"; }
+    string emitC() override { తిరిగి "VL_LOGIF_%nq%lq%rq(%nw,%lw,%rw, %P, %li, %ri)"; }
+    string emitSMT() స్థిరరాశి override { తిరిగి "(__Vbv (=> (__Vbool %l) (__Vbool %r)))"; }
+    string emitSimpleOperator() override { తిరిగి "->"; }
+    bool clean_బహిర్గతం() స్థిరరాశి override { తిరిగి true; }
+    bool cleanLhs() స్థిరరాశి override { తిరిగి true; }
+    bool cleanRhs() స్థిరరాశి override { తిరిగి true; }
+    bool కొలత_Matters_Lhs() స్థిరరాశి override { తిరిగి false; }
+    bool కొలత_Matters_Rhs() స్థిరరాశి override { తిరిగి false; }
+    పూర్ణాంకం instr_లెక్క() స్థిరరాశి override { తిరిగి వెడల్పు_Instrs() + INSTR_లెక్క_BRANCH; }
 };
-class AstLogOr final : public AstNodeBiop {
+class AstLogOr final : బహిరంగ Ast_కణుపు_Biop {
     // @astgen makeDfgVertex
-public:
-    AstLogOr(FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp)
+బహిరంగ:
+    AstLogOr(File_పంక్తి* fl, Ast_కణుపు_సమాసం* lhsp, Ast_కణుపు_సమాసం* rhsp)
         : ASTGEN_SUPER_LogOr(fl, lhsp, rhsp) {
-        dtypeSetBitOrLogic(isFourstateOrNoDtype(lhsp, rhsp));
+        dtype_సమితి_బిట్టు_Or_Logic(isFourstateOrNoDtype(lhsp, rhsp));
     }
     ASTGEN_MEMBERS_AstLogOr;
-    void numberOperate(V3Number& out, const V3Number& lhs, const V3Number& rhs) override {
-        out.opLogOr(lhs, rhs);
+    శూన్య సంఖ్య_నిర్వహించు(V3_సంఖ్య& బహిర్గతం, స్థిరరాశి V3_సంఖ్య& lhs, స్థిరరాశి V3_సంఖ్య& rhs) override {
+        బహిర్గతం.opLogOr(lhs, rhs);
     }
-    string emitVerilog() override { return "%k(%l %f|| %r)"; }
-    string emitC() override { return "VL_LOGOR_%nq%lq%rq(%nw,%lw,%rw, %P, %li, %ri)"; }
-    string emitSMT() const override { return "(bvor %l %r)"; }
-    string emitSimpleOperator() override { return "||"; }
-    bool cleanOut() const override { return true; }
-    bool cleanLhs() const override { return true; }
-    bool cleanRhs() const override { return true; }
-    bool sizeMattersLhs() const override { return false; }
-    bool sizeMattersRhs() const override { return false; }
-    int instrCount() const override { return widthInstrs() + INSTR_COUNT_BRANCH; }
+    string emitVerilog() override { తిరిగి "%k(%l %f|| %r)"; }
+    string emitC() override { తిరిగి "VL_LOGOR_%nq%lq%rq(%nw,%lw,%rw, %P, %li, %ri)"; }
+    string emitSMT() స్థిరరాశి override { తిరిగి "(bvor %l %r)"; }
+    string emitSimpleOperator() override { తిరిగి "||"; }
+    bool clean_బహిర్గతం() స్థిరరాశి override { తిరిగి true; }
+    bool cleanLhs() స్థిరరాశి override { తిరిగి true; }
+    bool cleanRhs() స్థిరరాశి override { తిరిగి true; }
+    bool కొలత_Matters_Lhs() స్థిరరాశి override { తిరిగి false; }
+    bool కొలత_Matters_Rhs() స్థిరరాశి override { తిరిగి false; }
+    పూర్ణాంకం instr_లెక్క() స్థిరరాశి override { తిరిగి వెడల్పు_Instrs() + INSTR_లెక్క_BRANCH; }
 };
-class AstLt final : public AstNodeBiop {
+class AstLt final : బహిరంగ Ast_కణుపు_Biop {
     // @astgen makeDfgVertex
-public:
-    AstLt(FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp)
+బహిరంగ:
+    AstLt(File_పంక్తి* fl, Ast_కణుపు_సమాసం* lhsp, Ast_కణుపు_సమాసం* rhsp)
         : ASTGEN_SUPER_Lt(fl, lhsp, rhsp) {
-        dtypeSetBitOrLogic(isFourstateOrNoDtype(lhsp, rhsp));
+        dtype_సమితి_బిట్టు_Or_Logic(isFourstateOrNoDtype(lhsp, rhsp));
     }
     ASTGEN_MEMBERS_AstLt;
-    void numberOperate(V3Number& out, const V3Number& lhs, const V3Number& rhs) override {
-        out.opLt(lhs, rhs);
+    శూన్య సంఖ్య_నిర్వహించు(V3_సంఖ్య& బహిర్గతం, స్థిరరాశి V3_సంఖ్య& lhs, స్థిరరాశి V3_సంఖ్య& rhs) override {
+        బహిర్గతం.opLt(lhs, rhs);
     }
-    string emitVerilog() override { return "%k(%l %f< %r)"; }
-    string emitC() override { return "VL_LT_%lq(%lW, %P, %li, %ri)"; }
-    string emitSMT() const override { return "(__Vbv (bvult %l %r))"; }
-    string emitSimpleOperator() override { return "<"; }
-    bool cleanOut() const override { return true; }
-    bool cleanLhs() const override { return true; }
-    bool cleanRhs() const override { return true; }
-    bool sizeMattersLhs() const override { return false; }
-    bool sizeMattersRhs() const override { return false; }
+    string emitVerilog() override { తిరిగి "%k(%l %f< %r)"; }
+    string emitC() override { తిరిగి "VL_LT_%lq(%lW, %P, %li, %ri)"; }
+    string emitSMT() స్థిరరాశి override { తిరిగి "(__Vbv (bvult %l %r))"; }
+    string emitSimpleOperator() override { తిరిగి "<"; }
+    bool clean_బహిర్గతం() స్థిరరాశి override { తిరిగి true; }
+    bool cleanLhs() స్థిరరాశి override { తిరిగి true; }
+    bool cleanRhs() స్థిరరాశి override { తిరిగి true; }
+    bool కొలత_Matters_Lhs() స్థిరరాశి override { తిరిగి false; }
+    bool కొలత_Matters_Rhs() స్థిరరాశి override { తిరిగి false; }
 };
-class AstLtD final : public AstNodeBiop {
-public:
-    AstLtD(FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp)
+class AstLtD final : బహిరంగ Ast_కణుపు_Biop {
+బహిరంగ:
+    AstLtD(File_పంక్తి* fl, Ast_కణుపు_సమాసం* lhsp, Ast_కణుపు_సమాసం* rhsp)
         : ASTGEN_SUPER_LtD(fl, lhsp, rhsp) {
-        dtypeSetBit();
+        dtype_సమితి_బిట్టు();
     }
     ASTGEN_MEMBERS_AstLtD;
-    void numberOperate(V3Number& out, const V3Number& lhs, const V3Number& rhs) override {
-        out.opLtD(lhs, rhs);
+    శూన్య సంఖ్య_నిర్వహించు(V3_సంఖ్య& బహిర్గతం, స్థిరరాశి V3_సంఖ్య& lhs, స్థిరరాశి V3_సంఖ్య& rhs) override {
+        బహిర్గతం.opLtD(lhs, rhs);
     }
-    string emitVerilog() override { return "%k(%l %f< %r)"; }
+    string emitVerilog() override { తిరిగి "%k(%l %f< %r)"; }
     string emitC() override { V3ERROR_NA_RETURN(""); }
-    string emitSimpleOperator() override { return "<"; }
-    bool cleanOut() const override { return true; }
-    bool cleanLhs() const override { return false; }
-    bool cleanRhs() const override { return false; }
-    bool sizeMattersLhs() const override { return false; }
-    bool sizeMattersRhs() const override { return false; }
-    int instrCount() const override { return INSTR_COUNT_DBL; }
-    bool doubleFlavor() const override { return true; }
+    string emitSimpleOperator() override { తిరిగి "<"; }
+    bool clean_బహిర్గతం() స్థిరరాశి override { తిరిగి true; }
+    bool cleanLhs() స్థిరరాశి override { తిరిగి false; }
+    bool cleanRhs() స్థిరరాశి override { తిరిగి false; }
+    bool కొలత_Matters_Lhs() స్థిరరాశి override { తిరిగి false; }
+    bool కొలత_Matters_Rhs() స్థిరరాశి override { తిరిగి false; }
+    పూర్ణాంకం instr_లెక్క() స్థిరరాశి override { తిరిగి INSTR_లెక్క_DBL; }
+    bool doubleFlavor() స్థిరరాశి override { తిరిగి true; }
 };
-class AstLtN final : public AstNodeBiop {
-public:
-    AstLtN(FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp)
+class AstLtN final : బహిరంగ Ast_కణుపు_Biop {
+బహిరంగ:
+    AstLtN(File_పంక్తి* fl, Ast_కణుపు_సమాసం* lhsp, Ast_కణుపు_సమాసం* rhsp)
         : ASTGEN_SUPER_LtN(fl, lhsp, rhsp) {
-        dtypeSetBit();
+        dtype_సమితి_బిట్టు();
     }
     ASTGEN_MEMBERS_AstLtN;
-    void numberOperate(V3Number& out, const V3Number& lhs, const V3Number& rhs) override {
-        out.opLtN(lhs, rhs);
+    శూన్య సంఖ్య_నిర్వహించు(V3_సంఖ్య& బహిర్గతం, స్థిరరాశి V3_సంఖ్య& lhs, స్థిరరాశి V3_సంఖ్య& rhs) override {
+        బహిర్గతం.opLtN(lhs, rhs);
     }
-    string emitVerilog() override { return "%k(%l %f< %r)"; }
+    string emitVerilog() override { తిరిగి "%k(%l %f< %r)"; }
     string emitC() override { V3ERROR_NA_RETURN(""); }
-    string emitSimpleOperator() override { return "<"; }
-    bool cleanOut() const override { return true; }
-    bool cleanLhs() const override { return false; }
-    bool cleanRhs() const override { return false; }
-    bool sizeMattersLhs() const override { return false; }
-    bool sizeMattersRhs() const override { return false; }
-    int instrCount() const override { return INSTR_COUNT_STR; }
-    bool stringFlavor() const override { return true; }
+    string emitSimpleOperator() override { తిరిగి "<"; }
+    bool clean_బహిర్గతం() స్థిరరాశి override { తిరిగి true; }
+    bool cleanLhs() స్థిరరాశి override { తిరిగి false; }
+    bool cleanRhs() స్థిరరాశి override { తిరిగి false; }
+    bool కొలత_Matters_Lhs() స్థిరరాశి override { తిరిగి false; }
+    bool కొలత_Matters_Rhs() స్థిరరాశి override { తిరిగి false; }
+    పూర్ణాంకం instr_లెక్క() స్థిరరాశి override { తిరిగి INSTR_లెక్క_STR; }
+    bool stringFlavor() స్థిరరాశి override { తిరిగి true; }
 };
-class AstLtS final : public AstNodeBiop {
+class AstLtS final : బహిరంగ Ast_కణుపు_Biop {
     // @astgen makeDfgVertex
-public:
-    AstLtS(FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp)
+బహిరంగ:
+    AstLtS(File_పంక్తి* fl, Ast_కణుపు_సమాసం* lhsp, Ast_కణుపు_సమాసం* rhsp)
         : ASTGEN_SUPER_LtS(fl, lhsp, rhsp) {
-        dtypeSetBitOrLogic(isFourstateOrNoDtype(lhsp, rhsp));
+        dtype_సమితి_బిట్టు_Or_Logic(isFourstateOrNoDtype(lhsp, rhsp));
     }
     ASTGEN_MEMBERS_AstLtS;
-    void numberOperate(V3Number& out, const V3Number& lhs, const V3Number& rhs) override {
-        out.opLtS(lhs, rhs);
+    శూన్య సంఖ్య_నిర్వహించు(V3_సంఖ్య& బహిర్గతం, స్థిరరాశి V3_సంఖ్య& lhs, స్థిరరాశి V3_సంఖ్య& rhs) override {
+        బహిర్గతం.opLtS(lhs, rhs);
     }
-    string emitVerilog() override { return "%k(%l %f< %r)"; }
-    string emitC() override { return "VL_LTS_%nq%lq%rq(%lw, %P, %li, %ri)"; }
-    string emitSMT() const override { return "(__Vbv (bvslt %l %r))"; }
-    string emitSimpleOperator() override { return ""; }
-    bool cleanOut() const override { return true; }
-    bool cleanLhs() const override { return true; }
-    bool cleanRhs() const override { return true; }
-    bool sizeMattersLhs() const override { return false; }
-    bool sizeMattersRhs() const override { return false; }
-    bool signedFlavor() const override { return true; }
+    string emitVerilog() override { తిరిగి "%k(%l %f< %r)"; }
+    string emitC() override { తిరిగి "VL_LTS_%nq%lq%rq(%lw, %P, %li, %ri)"; }
+    string emitSMT() స్థిరరాశి override { తిరిగి "(__Vbv (bvslt %l %r))"; }
+    string emitSimpleOperator() override { తిరిగి ""; }
+    bool clean_బహిర్గతం() స్థిరరాశి override { తిరిగి true; }
+    bool cleanLhs() స్థిరరాశి override { తిరిగి true; }
+    bool cleanRhs() స్థిరరాశి override { తిరిగి true; }
+    bool కొలత_Matters_Lhs() స్థిరరాశి override { తిరిగి false; }
+    bool కొలత_Matters_Rhs() స్థిరరాశి override { తిరిగి false; }
+    bool signedFlavor() స్థిరరాశి override { తిరిగి true; }
 };
-class AstLte final : public AstNodeBiop {
+class AstLte final : బహిరంగ Ast_కణుపు_Biop {
     // @astgen makeDfgVertex
-public:
-    AstLte(FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp)
+బహిరంగ:
+    AstLte(File_పంక్తి* fl, Ast_కణుపు_సమాసం* lhsp, Ast_కణుపు_సమాసం* rhsp)
         : ASTGEN_SUPER_Lte(fl, lhsp, rhsp) {
-        dtypeSetBitOrLogic(isFourstateOrNoDtype(lhsp, rhsp));
+        dtype_సమితి_బిట్టు_Or_Logic(isFourstateOrNoDtype(lhsp, rhsp));
     }
     ASTGEN_MEMBERS_AstLte;
-    void numberOperate(V3Number& out, const V3Number& lhs, const V3Number& rhs) override {
-        out.opLte(lhs, rhs);
+    శూన్య సంఖ్య_నిర్వహించు(V3_సంఖ్య& బహిర్గతం, స్థిరరాశి V3_సంఖ్య& lhs, స్థిరరాశి V3_సంఖ్య& rhs) override {
+        బహిర్గతం.opLte(lhs, rhs);
     }
-    string emitVerilog() override { return "%k(%l %f<= %r)"; }
-    string emitC() override { return "VL_LTE_%lq(%lW, %P, %li, %ri)"; }
-    string emitSMT() const override { return "(__Vbv (bvule %l %r))"; }
-    string emitSimpleOperator() override { return "<="; }
-    bool cleanOut() const override { return true; }
-    bool cleanLhs() const override { return true; }
-    bool cleanRhs() const override { return true; }
-    bool sizeMattersLhs() const override { return false; }
-    bool sizeMattersRhs() const override { return false; }
+    string emitVerilog() override { తిరిగి "%k(%l %f<= %r)"; }
+    string emitC() override { తిరిగి "VL_LTE_%lq(%lW, %P, %li, %ri)"; }
+    string emitSMT() స్థిరరాశి override { తిరిగి "(__Vbv (bvule %l %r))"; }
+    string emitSimpleOperator() override { తిరిగి "<="; }
+    bool clean_బహిర్గతం() స్థిరరాశి override { తిరిగి true; }
+    bool cleanLhs() స్థిరరాశి override { తిరిగి true; }
+    bool cleanRhs() స్థిరరాశి override { తిరిగి true; }
+    bool కొలత_Matters_Lhs() స్థిరరాశి override { తిరిగి false; }
+    bool కొలత_Matters_Rhs() స్థిరరాశి override { తిరిగి false; }
 };
-class AstLteD final : public AstNodeBiop {
-public:
-    AstLteD(FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp)
+class AstLteD final : బహిరంగ Ast_కణుపు_Biop {
+బహిరంగ:
+    AstLteD(File_పంక్తి* fl, Ast_కణుపు_సమాసం* lhsp, Ast_కణుపు_సమాసం* rhsp)
         : ASTGEN_SUPER_LteD(fl, lhsp, rhsp) {
-        dtypeSetBit();
+        dtype_సమితి_బిట్టు();
     }
     ASTGEN_MEMBERS_AstLteD;
-    void numberOperate(V3Number& out, const V3Number& lhs, const V3Number& rhs) override {
-        out.opLteD(lhs, rhs);
+    శూన్య సంఖ్య_నిర్వహించు(V3_సంఖ్య& బహిర్గతం, స్థిరరాశి V3_సంఖ్య& lhs, స్థిరరాశి V3_సంఖ్య& rhs) override {
+        బహిర్గతం.opLteD(lhs, rhs);
     }
-    string emitVerilog() override { return "%k(%l %f<= %r)"; }
+    string emitVerilog() override { తిరిగి "%k(%l %f<= %r)"; }
     string emitC() override { V3ERROR_NA_RETURN(""); }
-    string emitSimpleOperator() override { return "<="; }
-    bool cleanOut() const override { return true; }
-    bool cleanLhs() const override { return false; }
-    bool cleanRhs() const override { return false; }
-    bool sizeMattersLhs() const override { return false; }
-    bool sizeMattersRhs() const override { return false; }
-    int instrCount() const override { return INSTR_COUNT_DBL; }
-    bool doubleFlavor() const override { return true; }
+    string emitSimpleOperator() override { తిరిగి "<="; }
+    bool clean_బహిర్గతం() స్థిరరాశి override { తిరిగి true; }
+    bool cleanLhs() స్థిరరాశి override { తిరిగి false; }
+    bool cleanRhs() స్థిరరాశి override { తిరిగి false; }
+    bool కొలత_Matters_Lhs() స్థిరరాశి override { తిరిగి false; }
+    bool కొలత_Matters_Rhs() స్థిరరాశి override { తిరిగి false; }
+    పూర్ణాంకం instr_లెక్క() స్థిరరాశి override { తిరిగి INSTR_లెక్క_DBL; }
+    bool doubleFlavor() స్థిరరాశి override { తిరిగి true; }
 };
-class AstLteN final : public AstNodeBiop {
-public:
-    AstLteN(FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp)
+class AstLteN final : బహిరంగ Ast_కణుపు_Biop {
+బహిరంగ:
+    AstLteN(File_పంక్తి* fl, Ast_కణుపు_సమాసం* lhsp, Ast_కణుపు_సమాసం* rhsp)
         : ASTGEN_SUPER_LteN(fl, lhsp, rhsp) {
-        dtypeSetBit();
+        dtype_సమితి_బిట్టు();
     }
     ASTGEN_MEMBERS_AstLteN;
-    void numberOperate(V3Number& out, const V3Number& lhs, const V3Number& rhs) override {
-        out.opLteN(lhs, rhs);
+    శూన్య సంఖ్య_నిర్వహించు(V3_సంఖ్య& బహిర్గతం, స్థిరరాశి V3_సంఖ్య& lhs, స్థిరరాశి V3_సంఖ్య& rhs) override {
+        బహిర్గతం.opLteN(lhs, rhs);
     }
-    string emitVerilog() override { return "%k(%l %f<= %r)"; }
+    string emitVerilog() override { తిరిగి "%k(%l %f<= %r)"; }
     string emitC() override { V3ERROR_NA_RETURN(""); }
-    string emitSimpleOperator() override { return "<="; }
-    bool cleanOut() const override { return true; }
-    bool cleanLhs() const override { return false; }
-    bool cleanRhs() const override { return false; }
-    bool sizeMattersLhs() const override { return false; }
-    bool sizeMattersRhs() const override { return false; }
-    int instrCount() const override { return INSTR_COUNT_STR; }
-    bool stringFlavor() const override { return true; }
+    string emitSimpleOperator() override { తిరిగి "<="; }
+    bool clean_బహిర్గతం() స్థిరరాశి override { తిరిగి true; }
+    bool cleanLhs() స్థిరరాశి override { తిరిగి false; }
+    bool cleanRhs() స్థిరరాశి override { తిరిగి false; }
+    bool కొలత_Matters_Lhs() స్థిరరాశి override { తిరిగి false; }
+    bool కొలత_Matters_Rhs() స్థిరరాశి override { తిరిగి false; }
+    పూర్ణాంకం instr_లెక్క() స్థిరరాశి override { తిరిగి INSTR_లెక్క_STR; }
+    bool stringFlavor() స్థిరరాశి override { తిరిగి true; }
 };
-class AstLteS final : public AstNodeBiop {
+class AstLteS final : బహిరంగ Ast_కణుపు_Biop {
     // @astgen makeDfgVertex
-public:
-    AstLteS(FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp)
+బహిరంగ:
+    AstLteS(File_పంక్తి* fl, Ast_కణుపు_సమాసం* lhsp, Ast_కణుపు_సమాసం* rhsp)
         : ASTGEN_SUPER_LteS(fl, lhsp, rhsp) {
-        dtypeSetBitOrLogic(isFourstateOrNoDtype(lhsp, rhsp));
+        dtype_సమితి_బిట్టు_Or_Logic(isFourstateOrNoDtype(lhsp, rhsp));
     }
     ASTGEN_MEMBERS_AstLteS;
-    void numberOperate(V3Number& out, const V3Number& lhs, const V3Number& rhs) override {
-        out.opLteS(lhs, rhs);
+    శూన్య సంఖ్య_నిర్వహించు(V3_సంఖ్య& బహిర్గతం, స్థిరరాశి V3_సంఖ్య& lhs, స్థిరరాశి V3_సంఖ్య& rhs) override {
+        బహిర్గతం.opLteS(lhs, rhs);
     }
-    string emitVerilog() override { return "%k(%l %f<= %r)"; }
-    string emitC() override { return "VL_LTES_%nq%lq%rq(%lw, %P, %li, %ri)"; }
-    string emitSMT() const override { return "(__Vbv (bvsle %l %r))"; }
-    string emitSimpleOperator() override { return ""; }
-    bool cleanOut() const override { return true; }
-    bool cleanLhs() const override { return true; }
-    bool cleanRhs() const override { return true; }
-    bool sizeMattersLhs() const override { return false; }
-    bool sizeMattersRhs() const override { return false; }
-    bool signedFlavor() const override { return true; }
+    string emitVerilog() override { తిరిగి "%k(%l %f<= %r)"; }
+    string emitC() override { తిరిగి "VL_LTES_%nq%lq%rq(%lw, %P, %li, %ri)"; }
+    string emitSMT() స్థిరరాశి override { తిరిగి "(__Vbv (bvsle %l %r))"; }
+    string emitSimpleOperator() override { తిరిగి ""; }
+    bool clean_బహిర్గతం() స్థిరరాశి override { తిరిగి true; }
+    bool cleanLhs() స్థిరరాశి override { తిరిగి true; }
+    bool cleanRhs() స్థిరరాశి override { తిరిగి true; }
+    bool కొలత_Matters_Lhs() స్థిరరాశి override { తిరిగి false; }
+    bool కొలత_Matters_Rhs() స్థిరరాశి override { తిరిగి false; }
+    bool signedFlavor() స్థిరరాశి override { తిరిగి true; }
 };
-class AstModDiv final : public AstNodeBiop {
+class AstModDiv final : బహిరంగ Ast_కణుపు_Biop {
     // @astgen makeDfgVertex
-public:
-    AstModDiv(FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp)
+బహిరంగ:
+    AstModDiv(File_పంక్తి* fl, Ast_కణుపు_సమాసం* lhsp, Ast_కణుపు_సమాసం* rhsp)
         : ASTGEN_SUPER_ModDiv(fl, lhsp, rhsp) {
         dtypeFrom(lhsp);
     }
     ASTGEN_MEMBERS_AstModDiv;
-    void numberOperate(V3Number& out, const V3Number& lhs, const V3Number& rhs) override {
-        out.opModDiv(lhs, rhs);
+    శూన్య సంఖ్య_నిర్వహించు(V3_సంఖ్య& బహిర్గతం, స్థిరరాశి V3_సంఖ్య& lhs, స్థిరరాశి V3_సంఖ్య& rhs) override {
+        బహిర్గతం.opModDiv(lhs, rhs);
     }
-    string emitVerilog() override { return "%k(%l %f%% %r)"; }
-    string emitC() override { return "VL_MODDIV_%nq%lq%rq(%lw, %P, %li, %ri)"; }
-    string emitSMT() const override { return "(bvurem %l %r)"; }
-    bool emitCheckMaxWords() override { return true; }
-    bool cleanOut() const override { return false; }
-    bool cleanLhs() const override { return true; }
-    bool cleanRhs() const override { return true; }
-    bool sizeMattersLhs() const override { return true; }
-    bool sizeMattersRhs() const override { return true; }
-    int instrCount() const override { return widthInstrs() * INSTR_COUNT_INT_DIV; }
+    string emitVerilog() override { తిరిగి "%k(%l %f%% %r)"; }
+    string emitC() override { తిరిగి "VL_MODDIV_%nq%lq%rq(%lw, %P, %li, %ri)"; }
+    string emitSMT() స్థిరరాశి override { తిరిగి "(bvurem %l %r)"; }
+    bool emit_Check_Max_పదాలు() override { తిరిగి true; }
+    bool clean_బహిర్గతం() స్థిరరాశి override { తిరిగి false; }
+    bool cleanLhs() స్థిరరాశి override { తిరిగి true; }
+    bool cleanRhs() స్థిరరాశి override { తిరిగి true; }
+    bool కొలత_Matters_Lhs() స్థిరరాశి override { తిరిగి true; }
+    bool కొలత_Matters_Rhs() స్థిరరాశి override { తిరిగి true; }
+    పూర్ణాంకం instr_లెక్క() స్థిరరాశి override { తిరిగి వెడల్పు_Instrs() * INSTR_లెక్క_INT_DIV; }
 };
-class AstModDivS final : public AstNodeBiop {
+class AstModDivS final : బహిరంగ Ast_కణుపు_Biop {
     // @astgen makeDfgVertex
-public:
-    AstModDivS(FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp)
+బహిరంగ:
+    AstModDivS(File_పంక్తి* fl, Ast_కణుపు_సమాసం* lhsp, Ast_కణుపు_సమాసం* rhsp)
         : ASTGEN_SUPER_ModDivS(fl, lhsp, rhsp) {
         dtypeFrom(lhsp);
     }
     ASTGEN_MEMBERS_AstModDivS;
-    void numberOperate(V3Number& out, const V3Number& lhs, const V3Number& rhs) override {
-        out.opModDivS(lhs, rhs);
+    శూన్య సంఖ్య_నిర్వహించు(V3_సంఖ్య& బహిర్గతం, స్థిరరాశి V3_సంఖ్య& lhs, స్థిరరాశి V3_సంఖ్య& rhs) override {
+        బహిర్గతం.opModDivS(lhs, rhs);
     }
-    string emitVerilog() override { return "%k(%l %f%% %r)"; }
-    string emitC() override { return "VL_MODDIVS_%nq%lq%rq(%lw, %P, %li, %ri)"; }
-    string emitSMT() const override { return "(bvsmod %l %r)"; }
-    bool emitCheckMaxWords() override { return true; }
-    bool cleanOut() const override { return false; }
-    bool cleanLhs() const override { return true; }
-    bool cleanRhs() const override { return true; }
-    bool sizeMattersLhs() const override { return true; }
-    bool sizeMattersRhs() const override { return true; }
-    int instrCount() const override { return widthInstrs() * INSTR_COUNT_INT_DIV; }
-    bool signedFlavor() const override { return true; }
+    string emitVerilog() override { తిరిగి "%k(%l %f%% %r)"; }
+    string emitC() override { తిరిగి "VL_MODDIVS_%nq%lq%rq(%lw, %P, %li, %ri)"; }
+    string emitSMT() స్థిరరాశి override { తిరిగి "(bvsmod %l %r)"; }
+    bool emit_Check_Max_పదాలు() override { తిరిగి true; }
+    bool clean_బహిర్గతం() స్థిరరాశి override { తిరిగి false; }
+    bool cleanLhs() స్థిరరాశి override { తిరిగి true; }
+    bool cleanRhs() స్థిరరాశి override { తిరిగి true; }
+    bool కొలత_Matters_Lhs() స్థిరరాశి override { తిరిగి true; }
+    bool కొలత_Matters_Rhs() స్థిరరాశి override { తిరిగి true; }
+    పూర్ణాంకం instr_లెక్క() స్థిరరాశి override { తిరిగి వెడల్పు_Instrs() * INSTR_లెక్క_INT_DIV; }
+    bool signedFlavor() స్థిరరాశి override { తిరిగి true; }
 };
-class AstNeqWild final : public AstNodeBiop {
+class AstNeqWild final : బహిరంగ Ast_కణుపు_Biop {
     // @astgen makeDfgVertex
-public:
-    AstNeqWild(FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp)
+బహిరంగ:
+    AstNeqWild(File_పంక్తి* fl, Ast_కణుపు_సమాసం* lhsp, Ast_కణుపు_సమాసం* rhsp)
         : ASTGEN_SUPER_NeqWild(fl, lhsp, rhsp) {
-        dtypeSetBitOrLogic(lhsp->isFourstateOrNoDtype());
+        dtype_సమితి_బిట్టు_Or_Logic(lhsp->isFourstateOrNoDtype());
     }
     ASTGEN_MEMBERS_AstNeqWild;
-    void numberOperate(V3Number& out, const V3Number& lhs, const V3Number& rhs) override {
-        out.opWildNeq(lhs, rhs);
+    శూన్య సంఖ్య_నిర్వహించు(V3_సంఖ్య& బహిర్గతం, స్థిరరాశి V3_సంఖ్య& lhs, స్థిరరాశి V3_సంఖ్య& rhs) override {
+        బహిర్గతం.opWildNeq(lhs, rhs);
     }
-    string emitVerilog() override { return "%k(%l %f!=? %r)"; }
+    string emitVerilog() override { తిరిగి "%k(%l %f!=? %r)"; }
     string emitC() override {
-        if (v3Global.opt.fourstate()) {
+        ఒకవేళ (v3Global.opt.fourstate()) {
             V3ERROR_NA_RETURN("");
-        } else {
-            return "VL_NEQ_%lq(%lW, %P, %li, %ri)";
+        } లేకపోతే {
+            తిరిగి "VL_NEQ_%lq(%lW, %P, %li, %ri)";
         }
     }
     string emitSimpleOperator() override {
-        if (v3Global.opt.fourstate()) {
+        ఒకవేళ (v3Global.opt.fourstate()) {
             V3ERROR_NA_RETURN("");
-        } else {
-            return "!=";
+        } లేకపోతే {
+            తిరిగి "!=";
         }
     }
-    bool cleanOut() const override { return true; }
-    bool cleanLhs() const override { return true; }
-    bool cleanRhs() const override { return true; }
-    bool sizeMattersLhs() const override { return false; }
-    bool sizeMattersRhs() const override { return false; }
+    bool clean_బహిర్గతం() స్థిరరాశి override { తిరిగి true; }
+    bool cleanLhs() స్థిరరాశి override { తిరిగి true; }
+    bool cleanRhs() స్థిరరాశి override { తిరిగి true; }
+    bool కొలత_Matters_Lhs() స్థిరరాశి override { తిరిగి false; }
+    bool కొలత_Matters_Rhs() స్థిరరాశి override { తిరిగి false; }
 };
-class AstPow final : public AstNodeBiop {
+class AstPow final : బహిరంగ Ast_కణుపు_Biop {
     // @astgen makeDfgVertex
-public:
-    AstPow(FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp)
+బహిరంగ:
+    AstPow(File_పంక్తి* fl, Ast_కణుపు_సమాసం* lhsp, Ast_కణుపు_సమాసం* rhsp)
         : ASTGEN_SUPER_Pow(fl, lhsp, rhsp) {
         dtypeFrom(lhsp);
     }
     ASTGEN_MEMBERS_AstPow;
-    void numberOperate(V3Number& out, const V3Number& lhs, const V3Number& rhs) override {
-        out.opPow(lhs, rhs);
+    శూన్య సంఖ్య_నిర్వహించు(V3_సంఖ్య& బహిర్గతం, స్థిరరాశి V3_సంఖ్య& lhs, స్థిరరాశి V3_సంఖ్య& rhs) override {
+        బహిర్గతం.opPow(lhs, rhs);
     }
-    string emitVerilog() override { return "%k(%l %f** %r)"; }
-    string emitC() override { return "VL_POW_%nq%lq%rq(%nw,%lw,%rw, %P, %li, %ri)"; }
-    bool emitCheckMaxWords() override { return true; }
-    bool cleanOut() const override { return false; }
-    bool cleanLhs() const override { return true; }
-    bool cleanRhs() const override { return true; }
-    bool sizeMattersLhs() const override { return true; }
-    bool sizeMattersRhs() const override { return false; }
-    int instrCount() const override { return widthInstrs() * INSTR_COUNT_INT_MUL * 10; }
+    string emitVerilog() override { తిరిగి "%k(%l %f** %r)"; }
+    string emitC() override { తిరిగి "VL_POW_%nq%lq%rq(%nw,%lw,%rw, %P, %li, %ri)"; }
+    bool emit_Check_Max_పదాలు() override { తిరిగి true; }
+    bool clean_బహిర్గతం() స్థిరరాశి override { తిరిగి false; }
+    bool cleanLhs() స్థిరరాశి override { తిరిగి true; }
+    bool cleanRhs() స్థిరరాశి override { తిరిగి true; }
+    bool కొలత_Matters_Lhs() స్థిరరాశి override { తిరిగి true; }
+    bool కొలత_Matters_Rhs() స్థిరరాశి override { తిరిగి false; }
+    పూర్ణాంకం instr_లెక్క() స్థిరరాశి override { తిరిగి వెడల్పు_Instrs() * INSTR_లెక్క_INT_MUL * 10; }
 };
-class AstPowD final : public AstNodeBiop {
-public:
-    AstPowD(FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp)
+class AstPowD final : బహిరంగ Ast_కణుపు_Biop {
+బహిరంగ:
+    AstPowD(File_పంక్తి* fl, Ast_కణుపు_సమాసం* lhsp, Ast_కణుపు_సమాసం* rhsp)
         : ASTGEN_SUPER_PowD(fl, lhsp, rhsp) {
-        dtypeSetDouble();
+        dtype_సమితి_Double();
     }
     ASTGEN_MEMBERS_AstPowD;
-    void numberOperate(V3Number& out, const V3Number& lhs, const V3Number& rhs) override {
-        out.opPowD(lhs, rhs);
+    శూన్య సంఖ్య_నిర్వహించు(V3_సంఖ్య& బహిర్గతం, స్థిరరాశి V3_సంఖ్య& lhs, స్థిరరాశి V3_సంఖ్య& rhs) override {
+        బహిర్గతం.opPowD(lhs, rhs);
     }
-    string emitVerilog() override { return "%k(%l %f** %r)"; }
-    string emitC() override { return "pow(%li,%ri)"; }
-    bool cleanOut() const override { return false; }
-    bool cleanLhs() const override { return false; }
-    bool cleanRhs() const override { return false; }
-    bool sizeMattersLhs() const override { return false; }
-    bool sizeMattersRhs() const override { return false; }
-    int instrCount() const override { return INSTR_COUNT_DBL_DIV * 5; }
-    bool doubleFlavor() const override { return true; }
+    string emitVerilog() override { తిరిగి "%k(%l %f** %r)"; }
+    string emitC() override { తిరిగి "pow(%li,%ri)"; }
+    bool clean_బహిర్గతం() స్థిరరాశి override { తిరిగి false; }
+    bool cleanLhs() స్థిరరాశి override { తిరిగి false; }
+    bool cleanRhs() స్థిరరాశి override { తిరిగి false; }
+    bool కొలత_Matters_Lhs() స్థిరరాశి override { తిరిగి false; }
+    bool కొలత_Matters_Rhs() స్థిరరాశి override { తిరిగి false; }
+    పూర్ణాంకం instr_లెక్క() స్థిరరాశి override { తిరిగి INSTR_లెక్క_DBL_DIV * 5; }
+    bool doubleFlavor() స్థిరరాశి override { తిరిగి true; }
 };
-class AstPowSS final : public AstNodeBiop {
+class AstPowSS final : బహిరంగ Ast_కణుపు_Biop {
     // @astgen makeDfgVertex
-public:
-    AstPowSS(FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp)
+బహిరంగ:
+    AstPowSS(File_పంక్తి* fl, Ast_కణుపు_సమాసం* lhsp, Ast_కణుపు_సమాసం* rhsp)
         : ASTGEN_SUPER_PowSS(fl, lhsp, rhsp) {
         dtypeFrom(lhsp);
     }
     ASTGEN_MEMBERS_AstPowSS;
-    void numberOperate(V3Number& out, const V3Number& lhs, const V3Number& rhs) override {
-        out.opPowSS(lhs, rhs);
+    శూన్య సంఖ్య_నిర్వహించు(V3_సంఖ్య& బహిర్గతం, స్థిరరాశి V3_సంఖ్య& lhs, స్థిరరాశి V3_సంఖ్య& rhs) override {
+        బహిర్గతం.opPowSS(lhs, rhs);
     }
-    string emitVerilog() override { return "%k(%l %f** %r)"; }
-    string emitC() override { return "VL_POWSS_%nq%lq%rq(%nw,%lw,%rw, %P, %li, %ri, 1,1)"; }
-    bool emitCheckMaxWords() override { return true; }
-    bool cleanOut() const override { return false; }
-    bool cleanLhs() const override { return true; }
-    bool cleanRhs() const override { return true; }
-    bool sizeMattersLhs() const override { return true; }
-    bool sizeMattersRhs() const override { return false; }
-    int instrCount() const override { return widthInstrs() * INSTR_COUNT_INT_MUL * 10; }
-    bool signedFlavor() const override { return true; }
+    string emitVerilog() override { తిరిగి "%k(%l %f** %r)"; }
+    string emitC() override { తిరిగి "VL_POWSS_%nq%lq%rq(%nw,%lw,%rw, %P, %li, %ri, 1,1)"; }
+    bool emit_Check_Max_పదాలు() override { తిరిగి true; }
+    bool clean_బహిర్గతం() స్థిరరాశి override { తిరిగి false; }
+    bool cleanLhs() స్థిరరాశి override { తిరిగి true; }
+    bool cleanRhs() స్థిరరాశి override { తిరిగి true; }
+    bool కొలత_Matters_Lhs() స్థిరరాశి override { తిరిగి true; }
+    bool కొలత_Matters_Rhs() స్థిరరాశి override { తిరిగి false; }
+    పూర్ణాంకం instr_లెక్క() స్థిరరాశి override { తిరిగి వెడల్పు_Instrs() * INSTR_లెక్క_INT_MUL * 10; }
+    bool signedFlavor() స్థిరరాశి override { తిరిగి true; }
 };
-class AstPowSU final : public AstNodeBiop {
+class AstPowSU final : బహిరంగ Ast_కణుపు_Biop {
     // @astgen makeDfgVertex
-public:
-    AstPowSU(FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp)
+బహిరంగ:
+    AstPowSU(File_పంక్తి* fl, Ast_కణుపు_సమాసం* lhsp, Ast_కణుపు_సమాసం* rhsp)
         : ASTGEN_SUPER_PowSU(fl, lhsp, rhsp) {
         dtypeFrom(lhsp);
     }
     ASTGEN_MEMBERS_AstPowSU;
-    void numberOperate(V3Number& out, const V3Number& lhs, const V3Number& rhs) override {
-        out.opPowSU(lhs, rhs);
+    శూన్య సంఖ్య_నిర్వహించు(V3_సంఖ్య& బహిర్గతం, స్థిరరాశి V3_సంఖ్య& lhs, స్థిరరాశి V3_సంఖ్య& rhs) override {
+        బహిర్గతం.opPowSU(lhs, rhs);
     }
-    string emitVerilog() override { return "%k(%l %f** %r)"; }
-    string emitC() override { return "VL_POWSS_%nq%lq%rq(%nw,%lw,%rw, %P, %li, %ri, 1,0)"; }
-    bool emitCheckMaxWords() override { return true; }
-    bool cleanOut() const override { return false; }
-    bool cleanLhs() const override { return true; }
-    bool cleanRhs() const override { return true; }
-    bool sizeMattersLhs() const override { return true; }
-    bool sizeMattersRhs() const override { return false; }
-    int instrCount() const override { return widthInstrs() * INSTR_COUNT_INT_MUL * 10; }
-    bool signedFlavor() const override { return true; }
+    string emitVerilog() override { తిరిగి "%k(%l %f** %r)"; }
+    string emitC() override { తిరిగి "VL_POWSS_%nq%lq%rq(%nw,%lw,%rw, %P, %li, %ri, 1,0)"; }
+    bool emit_Check_Max_పదాలు() override { తిరిగి true; }
+    bool clean_బహిర్గతం() స్థిరరాశి override { తిరిగి false; }
+    bool cleanLhs() స్థిరరాశి override { తిరిగి true; }
+    bool cleanRhs() స్థిరరాశి override { తిరిగి true; }
+    bool కొలత_Matters_Lhs() స్థిరరాశి override { తిరిగి true; }
+    bool కొలత_Matters_Rhs() స్థిరరాశి override { తిరిగి false; }
+    పూర్ణాంకం instr_లెక్క() స్థిరరాశి override { తిరిగి వెడల్పు_Instrs() * INSTR_లెక్క_INT_MUL * 10; }
+    bool signedFlavor() స్థిరరాశి override { తిరిగి true; }
 };
-class AstPowUS final : public AstNodeBiop {
+class AstPowUS final : బహిరంగ Ast_కణుపు_Biop {
     // @astgen makeDfgVertex
-public:
-    AstPowUS(FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp)
+బహిరంగ:
+    AstPowUS(File_పంక్తి* fl, Ast_కణుపు_సమాసం* lhsp, Ast_కణుపు_సమాసం* rhsp)
         : ASTGEN_SUPER_PowUS(fl, lhsp, rhsp) {
         dtypeFrom(lhsp);
     }
     ASTGEN_MEMBERS_AstPowUS;
-    void numberOperate(V3Number& out, const V3Number& lhs, const V3Number& rhs) override {
-        out.opPowUS(lhs, rhs);
+    శూన్య సంఖ్య_నిర్వహించు(V3_సంఖ్య& బహిర్గతం, స్థిరరాశి V3_సంఖ్య& lhs, స్థిరరాశి V3_సంఖ్య& rhs) override {
+        బహిర్గతం.opPowUS(lhs, rhs);
     }
-    string emitVerilog() override { return "%k(%l %f** %r)"; }
-    string emitC() override { return "VL_POWSS_%nq%lq%rq(%nw,%lw,%rw, %P, %li, %ri, 0,1)"; }
-    bool emitCheckMaxWords() override { return true; }
-    bool cleanOut() const override { return false; }
-    bool cleanLhs() const override { return true; }
-    bool cleanRhs() const override { return true; }
-    bool sizeMattersLhs() const override { return true; }
-    bool sizeMattersRhs() const override { return false; }
-    int instrCount() const override { return widthInstrs() * INSTR_COUNT_INT_MUL * 10; }
-    bool signedFlavor() const override { return true; }
+    string emitVerilog() override { తిరిగి "%k(%l %f** %r)"; }
+    string emitC() override { తిరిగి "VL_POWSS_%nq%lq%rq(%nw,%lw,%rw, %P, %li, %ri, 0,1)"; }
+    bool emit_Check_Max_పదాలు() override { తిరిగి true; }
+    bool clean_బహిర్గతం() స్థిరరాశి override { తిరిగి false; }
+    bool cleanLhs() స్థిరరాశి override { తిరిగి true; }
+    bool cleanRhs() స్థిరరాశి override { తిరిగి true; }
+    bool కొలత_Matters_Lhs() స్థిరరాశి override { తిరిగి true; }
+    bool కొలత_Matters_Rhs() స్థిరరాశి override { తిరిగి false; }
+    పూర్ణాంకం instr_లెక్క() స్థిరరాశి override { తిరిగి వెడల్పు_Instrs() * INSTR_లెక్క_INT_MUL * 10; }
+    bool signedFlavor() స్థిరరాశి override { తిరిగి true; }
 };
-class AstReplicate final : public AstNodeBiop {
+class AstReplicate final : బహిరంగ Ast_కణుపు_Biop {
     // Also used as a "Uniop" flavor of Concat, e.g. "{a}"
     // Verilog {rhs{lhs}} - Note rhsp() is the replicate value, not the lhsp()
     // @astgen alias op1 := srcp
     // @astgen alias op2 := countp
-public:
-    AstReplicate(FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp)
+బహిరంగ:
+    AstReplicate(File_పంక్తి* fl, Ast_కణుపు_సమాసం* lhsp, Ast_కణుపు_సమాసం* rhsp)
         : ASTGEN_SUPER_Replicate(fl, lhsp, rhsp) {
-        if (lhsp) {
-            if (const AstConst* const constp = VN_CAST(rhsp, Const)) {
-                if (constp->num().isFourState()
-                    || (constp->dtypep()->isSigned() && constp->num().isNegative())) {
-                    dtypeSetBitOrLogicSized(lhsp->width(), VSigning::UNSIGNED,
+        ఒకవేళ (lhsp) {
+            ఒకవేళ (స్థిరరాశి AstConst* స్థిరరాశి constp = VN_CAST(rhsp, Const)) {
+                ఒకవేళ (constp->అంకె().isFourState()
+                    || (constp->dtypep()->isSigned() && constp->అంకె().isNegative())) {
+                    dtype_సమితి_బిట్టు_Or_Logic_Sized(lhsp->వెడల్పు(), VSigning::UNSIGNED,
                                             lhsp->isFourstateOrNoDtype());  // V3Width warns
-                } else {
-                    dtypeSetBitOrLogicSized(lhsp->width() * constp->toSInt(), VSigning::UNSIGNED,
+                } లేకపోతే {
+                    dtype_సమితి_బిట్టు_Or_Logic_Sized(lhsp->వెడల్పు() * constp->గమ్యం_SInt(), VSigning::UNSIGNED,
                                             lhsp->isFourstateOrNoDtype());
                 }
             }
         }
     }
-    AstReplicate(FileLine* fl, AstNodeExpr* lhsp, uint32_t repCount)
-        : AstReplicate{fl, lhsp, new AstConst{fl, repCount}} {}
+    AstReplicate(File_పంక్తి* fl, Ast_కణుపు_సమాసం* lhsp, uint32_t rep_లెక్క)
+        : AstReplicate{fl, lhsp, new AstConst{fl, rep_లెక్క}} {}
     ASTGEN_MEMBERS_AstReplicate;
-    void numberOperate(V3Number& out, const V3Number& lhs, const V3Number& rhs) override {
-        out.opRepl(lhs, rhs);
+    శూన్య సంఖ్య_నిర్వహించు(V3_సంఖ్య& బహిర్గతం, స్థిరరాశి V3_సంఖ్య& lhs, స్థిరరాశి V3_సంఖ్య& rhs) override {
+        బహిర్గతం.opRepl(lhs, rhs);
     }
-    string emitVerilog() override { return "%f{%r{%k%l}}"; }
-    string emitC() override { return "VL_REPLICATE_%nq%lq%rq(%lw, %P, %li, %ri)"; }
-    string emitSMT() const override {
-        return "((_ repeat " + cvtToStr(width() / lhsp()->width()) + ") %l)";
+    string emitVerilog() override { తిరిగి "%f{%r{%k%l}}"; }
+    string emitC() override { తిరిగి "VL_REPLICATE_%nq%lq%rq(%lw, %P, %li, %ri)"; }
+    string emitSMT() స్థిరరాశి override {
+        తిరిగి "((_ repeat " + cvt_గమ్యం_Str(వెడల్పు() / lhsp()->వెడల్పు()) + ") %l)";
     }
-    bool cleanOut() const override { return false; }
-    bool cleanLhs() const override { return true; }
-    bool cleanRhs() const override { return true; }
-    bool sizeMattersLhs() const override { return false; }
-    bool sizeMattersRhs() const override { return false; }
-    int instrCount() const override { return widthInstrs() * 2; }
+    bool clean_బహిర్గతం() స్థిరరాశి override { తిరిగి false; }
+    bool cleanLhs() స్థిరరాశి override { తిరిగి true; }
+    bool cleanRhs() స్థిరరాశి override { తిరిగి true; }
+    bool కొలత_Matters_Lhs() స్థిరరాశి override { తిరిగి false; }
+    bool కొలత_Matters_Rhs() స్థిరరాశి override { తిరిగి false; }
+    పూర్ణాంకం instr_లెక్క() స్థిరరాశి override { తిరిగి వెడల్పు_Instrs() * 2; }
 };
-class AstReplicateN final : public AstNodeBiop {
+class AstReplicateN final : బహిరంగ Ast_కణుపు_Biop {
     // String replicate
-public:
-    AstReplicateN(FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp)
+బహిరంగ:
+    AstReplicateN(File_పంక్తి* fl, Ast_కణుపు_సమాసం* lhsp, Ast_కణుపు_సమాసం* rhsp)
         : ASTGEN_SUPER_ReplicateN(fl, lhsp, rhsp) {
-        dtypeSetString();
+        dtype_సమితి_String();
     }
     ASTGEN_MEMBERS_AstReplicateN;
-    void numberOperate(V3Number& out, const V3Number& lhs, const V3Number& rhs) override {
-        out.opReplN(lhs, rhs);
+    శూన్య సంఖ్య_నిర్వహించు(V3_సంఖ్య& బహిర్గతం, స్థిరరాశి V3_సంఖ్య& lhs, స్థిరరాశి V3_సంఖ్య& rhs) override {
+        బహిర్గతం.opReplN(lhs, rhs);
     }
-    string emitVerilog() override { return "%f{%r{%k%l}}"; }
-    string emitC() override { return "VL_REPLICATEN_NN%rq(%li, %ri)"; }
-    bool cleanOut() const override { return false; }
-    bool cleanLhs() const override { return true; }
-    bool cleanRhs() const override { return true; }
-    bool sizeMattersLhs() const override { return false; }
-    bool sizeMattersRhs() const override { return false; }
-    int instrCount() const override { return widthInstrs() * 2; }
-    bool stringFlavor() const override { return true; }
+    string emitVerilog() override { తిరిగి "%f{%r{%k%l}}"; }
+    string emitC() override { తిరిగి "VL_REPLICATEN_NN%rq(%li, %ri)"; }
+    bool clean_బహిర్గతం() స్థిరరాశి override { తిరిగి false; }
+    bool cleanLhs() స్థిరరాశి override { తిరిగి true; }
+    bool cleanRhs() స్థిరరాశి override { తిరిగి true; }
+    bool కొలత_Matters_Lhs() స్థిరరాశి override { తిరిగి false; }
+    bool కొలత_Matters_Rhs() స్థిరరాశి override { తిరిగి false; }
+    పూర్ణాంకం instr_లెక్క() స్థిరరాశి override { తిరిగి వెడల్పు_Instrs() * 2; }
+    bool stringFlavor() స్థిరరాశి override { తిరిగి true; }
 };
-class AstSAnd final : public AstNodeBiop {
+class AstSAnd final : బహిరంగ Ast_కణుపు_Biop {
     // Sequence 'and' (IEEE 1800-2023 16.9.5): both operand sequences must match.
     // Operates on match sets, not values. For boolean operands, lowered to AstLogAnd.
-    const bool m_propertyControl;  // Parser-generated property if/case branch conjunction
-public:
-    AstSAnd(FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp, bool propertyControl = false)
+    స్థిరరాశి bool m_propertyControl;  // Parser-generated property if/case branch conjunction
+బహిరంగ:
+    AstSAnd(File_పంక్తి* fl, Ast_కణుపు_సమాసం* lhsp, Ast_కణుపు_సమాసం* rhsp, bool propertyControl = false)
         : ASTGEN_SUPER_SAnd(fl, lhsp, rhsp)
         , m_propertyControl{propertyControl} {
-        dtypeSetBit();
+        dtype_సమితి_బిట్టు();
     }
     ASTGEN_MEMBERS_AstSAnd;
-    void dump(std::ostream& str) const override;
-    void dumpJson(std::ostream& str) const override;
-    void numberOperate(V3Number& out, const V3Number& lhs, const V3Number& rhs) override {
-        out.opLogAnd(lhs, rhs);
+    శూన్య dump(std::ostream& str) స్థిరరాశి override;
+    శూన్య dumpJson(std::ostream& str) స్థిరరాశి override;
+    శూన్య సంఖ్య_నిర్వహించు(V3_సంఖ్య& బహిర్గతం, స్థిరరాశి V3_సంఖ్య& lhs, స్థిరరాశి V3_సంఖ్య& rhs) override {
+        బహిర్గతం.opLogAnd(lhs, rhs);
     }
-    string emitVerilog() override { return "%k(%l %fand %r)"; }
+    string emitVerilog() override { తిరిగి "%k(%l %fand %r)"; }
     string emitC() override { V3ERROR_NA_RETURN(""); }
     string emitSimpleOperator() override { V3ERROR_NA_RETURN(""); }
-    bool cleanOut() const override { return true; }
-    bool cleanLhs() const override { return true; }
-    bool cleanRhs() const override { return true; }
-    bool sizeMattersLhs() const override { return false; }
-    bool sizeMattersRhs() const override { return false; }
-    int instrCount() const override { return widthInstrs() + INSTR_COUNT_BRANCH; }
-    bool isMultiCycleSva() const override { return true; }
-    bool sameNode(const AstNode* samep) const override {  // LCOV_EXCL_LINE
-        return m_propertyControl == VN_DBG_AS(samep, SAnd)->m_propertyControl;  // LCOV_EXCL_LINE
+    bool clean_బహిర్గతం() స్థిరరాశి override { తిరిగి true; }
+    bool cleanLhs() స్థిరరాశి override { తిరిగి true; }
+    bool cleanRhs() స్థిరరాశి override { తిరిగి true; }
+    bool కొలత_Matters_Lhs() స్థిరరాశి override { తిరిగి false; }
+    bool కొలత_Matters_Rhs() స్థిరరాశి override { తిరిగి false; }
+    పూర్ణాంకం instr_లెక్క() స్థిరరాశి override { తిరిగి వెడల్పు_Instrs() + INSTR_లెక్క_BRANCH; }
+    bool is_Multi_చక్రం_Sva() స్థిరరాశి override { తిరిగి true; }
+    bool same_కణుపు(స్థిరరాశి Ast_కణుపు* samep) స్థిరరాశి override {  // LCOV_EXCL_LINE
+        తిరిగి m_propertyControl == VN_DBG_AS(samep, SAnd)->m_propertyControl;  // LCOV_EXCL_LINE
     }
-    bool propertyControl() const { return m_propertyControl; }
+    bool propertyControl() స్థిరరాశి { తిరిగి m_propertyControl; }
 };
-class AstSIntersect final : public AstNodeBiop {
+class AstSIntersect final : బహిరంగ Ast_కణుపు_Biop {
     // Sequence 'intersect' (IEEE 1800-2023 16.9.6): both operands match with equal length.
     // AND with a length restriction. For boolean operands, lowered to AstLogAnd.
-public:
-    AstSIntersect(FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp)
+బహిరంగ:
+    AstSIntersect(File_పంక్తి* fl, Ast_కణుపు_సమాసం* lhsp, Ast_కణుపు_సమాసం* rhsp)
         : ASTGEN_SUPER_SIntersect(fl, lhsp, rhsp) {
-        dtypeSetBit();
+        dtype_సమితి_బిట్టు();
     }
     ASTGEN_MEMBERS_AstSIntersect;
     // LCOV_EXCL_START  // Lowered before these are ever called
-    void numberOperate(V3Number& out, const V3Number& lhs, const V3Number& rhs) override {
-        out.opLogAnd(lhs, rhs);
+    శూన్య సంఖ్య_నిర్వహించు(V3_సంఖ్య& బహిర్గతం, స్థిరరాశి V3_సంఖ్య& lhs, స్థిరరాశి V3_సంఖ్య& rhs) override {
+        బహిర్గతం.opLogAnd(lhs, rhs);
     }
-    string emitVerilog() override { return "%k(%l %fintersect %r)"; }
+    string emitVerilog() override { తిరిగి "%k(%l %fintersect %r)"; }
     string emitC() override { V3ERROR_NA_RETURN(""); }
     string emitSimpleOperator() override { V3ERROR_NA_RETURN(""); }
-    bool cleanOut() const override { return true; }
-    bool cleanLhs() const override { return true; }
-    bool cleanRhs() const override { return true; }
-    bool sizeMattersLhs() const override { return false; }
-    bool sizeMattersRhs() const override { return false; }
-    int instrCount() const override { return widthInstrs() + INSTR_COUNT_BRANCH; }
+    bool clean_బహిర్గతం() స్థిరరాశి override { తిరిగి true; }
+    bool cleanLhs() స్థిరరాశి override { తిరిగి true; }
+    bool cleanRhs() స్థిరరాశి override { తిరిగి true; }
+    bool కొలత_Matters_Lhs() స్థిరరాశి override { తిరిగి false; }
+    bool కొలత_Matters_Rhs() స్థిరరాశి override { తిరిగి false; }
+    పూర్ణాంకం instr_లెక్క() స్థిరరాశి override { తిరిగి వెడల్పు_Instrs() + INSTR_లెక్క_BRANCH; }
     // LCOV_EXCL_STOP
-    bool isMultiCycleSva() const override { return true; }
+    bool is_Multi_చక్రం_Sva() స్థిరరాశి override { తిరిగి true; }
 };
-class AstSOr final : public AstNodeBiop {
+class AstSOr final : బహిరంగ Ast_కణుపు_Biop {
     // Sequence 'or' (IEEE 1800-2023 16.9.7): at least one operand sequence must match.
     // Operates on match sets, not values. For boolean operands, lowered to AstLogOr.
-public:
-    AstSOr(FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp)
+బహిరంగ:
+    AstSOr(File_పంక్తి* fl, Ast_కణుపు_సమాసం* lhsp, Ast_కణుపు_సమాసం* rhsp)
         : ASTGEN_SUPER_SOr(fl, lhsp, rhsp) {
-        dtypeSetBit();
+        dtype_సమితి_బిట్టు();
     }
     ASTGEN_MEMBERS_AstSOr;
-    void numberOperate(V3Number& out, const V3Number& lhs, const V3Number& rhs) override {
-        out.opLogOr(lhs, rhs);
+    శూన్య సంఖ్య_నిర్వహించు(V3_సంఖ్య& బహిర్గతం, స్థిరరాశి V3_సంఖ్య& lhs, స్థిరరాశి V3_సంఖ్య& rhs) override {
+        బహిర్గతం.opLogOr(lhs, rhs);
     }
-    string emitVerilog() override { return "%k(%l %for %r)"; }
+    string emitVerilog() override { తిరిగి "%k(%l %for %r)"; }
     string emitC() override { V3ERROR_NA_RETURN(""); }
     string emitSimpleOperator() override { V3ERROR_NA_RETURN(""); }
-    bool cleanOut() const override { return true; }
-    bool cleanLhs() const override { return true; }
-    bool cleanRhs() const override { return true; }
-    bool sizeMattersLhs() const override { return false; }
-    bool sizeMattersRhs() const override { return false; }
-    int instrCount() const override { return widthInstrs() + INSTR_COUNT_BRANCH; }
-    bool isMultiCycleSva() const override { return true; }
+    bool clean_బహిర్గతం() స్థిరరాశి override { తిరిగి true; }
+    bool cleanLhs() స్థిరరాశి override { తిరిగి true; }
+    bool cleanRhs() స్థిరరాశి override { తిరిగి true; }
+    bool కొలత_Matters_Lhs() స్థిరరాశి override { తిరిగి false; }
+    bool కొలత_Matters_Rhs() స్థిరరాశి override { తిరిగి false; }
+    పూర్ణాంకం instr_లెక్క() స్థిరరాశి override { తిరిగి వెడల్పు_Instrs() + INSTR_లెక్క_BRANCH; }
+    bool is_Multi_చక్రం_Sva() స్థిరరాశి override { తిరిగి true; }
 };
-class AstSThroughout final : public AstNodeBiop {
+class AstSThroughout final : బహిరంగ Ast_కణుపు_Biop {
     // expr throughout seq (IEEE 1800-2023 16.9.9)
-public:
-    AstSThroughout(FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp)
+బహిరంగ:
+    AstSThroughout(File_పంక్తి* fl, Ast_కణుపు_సమాసం* lhsp, Ast_కణుపు_సమాసం* rhsp)
         : ASTGEN_SUPER_SThroughout(fl, lhsp, rhsp) {
-        dtypeSetBit();
+        dtype_సమితి_బిట్టు();
     }
     ASTGEN_MEMBERS_AstSThroughout;
     // LCOV_EXCL_START // Lowered in V3AssertProp before these are called
-    void numberOperate(V3Number& out, const V3Number& lhs, const V3Number& rhs) override {
-        out.opLogAnd(lhs, rhs);
+    శూన్య సంఖ్య_నిర్వహించు(V3_సంఖ్య& బహిర్గతం, స్థిరరాశి V3_సంఖ్య& lhs, స్థిరరాశి V3_సంఖ్య& rhs) override {
+        బహిర్గతం.opLogAnd(lhs, rhs);
     }
-    string emitVerilog() override { return "%k(%l %fthroughout %r)"; }
+    string emitVerilog() override { తిరిగి "%k(%l %fthroughout %r)"; }
     string emitC() override { V3ERROR_NA_RETURN(""); }
     string emitSimpleOperator() override { V3ERROR_NA_RETURN(""); }
-    bool cleanOut() const override { return true; }
-    bool cleanLhs() const override { return true; }
-    bool cleanRhs() const override { return true; }
-    bool sizeMattersLhs() const override { return false; }
-    bool sizeMattersRhs() const override { return false; }
+    bool clean_బహిర్గతం() స్థిరరాశి override { తిరిగి true; }
+    bool cleanLhs() స్థిరరాశి override { తిరిగి true; }
+    bool cleanRhs() స్థిరరాశి override { తిరిగి true; }
+    bool కొలత_Matters_Lhs() స్థిరరాశి override { తిరిగి false; }
+    bool కొలత_Matters_Rhs() స్థిరరాశి override { తిరిగి false; }
     // LCOV_EXCL_STOP
-    bool isMultiCycleSva() const override { return true; }
+    bool is_Multi_చక్రం_Sva() స్థిరరాశి override { తిరిగి true; }
 };
-class AstSWithin final : public AstNodeBiop {
+class AstSWithin final : బహిరంగ Ast_కణుపు_Biop {
     // seq1 within seq2 (IEEE 1800-2023 16.9.10)
-public:
-    AstSWithin(FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp)
+బహిరంగ:
+    AstSWithin(File_పంక్తి* fl, Ast_కణుపు_సమాసం* lhsp, Ast_కణుపు_సమాసం* rhsp)
         : ASTGEN_SUPER_SWithin(fl, lhsp, rhsp) {
-        dtypeSetBit();
+        dtype_సమితి_బిట్టు();
     }
     ASTGEN_MEMBERS_AstSWithin;
     // LCOV_EXCL_START  // Lowered in V3AssertNfa before these are called
-    void numberOperate(V3Number& out, const V3Number& lhs, const V3Number& rhs) override {
-        out.opLogAnd(lhs, rhs);
+    శూన్య సంఖ్య_నిర్వహించు(V3_సంఖ్య& బహిర్గతం, స్థిరరాశి V3_సంఖ్య& lhs, స్థిరరాశి V3_సంఖ్య& rhs) override {
+        బహిర్గతం.opLogAnd(lhs, rhs);
     }
-    string emitVerilog() override { return "%k(%l %fwithin %r)"; }
+    string emitVerilog() override { తిరిగి "%k(%l %fwithin %r)"; }
     string emitC() override { V3ERROR_NA_RETURN(""); }
     string emitSimpleOperator() override { V3ERROR_NA_RETURN(""); }
-    bool cleanOut() const override { return true; }
-    bool cleanLhs() const override { return true; }
-    bool cleanRhs() const override { return true; }
-    bool sizeMattersLhs() const override { return false; }
-    bool sizeMattersRhs() const override { return false; }
+    bool clean_బహిర్గతం() స్థిరరాశి override { తిరిగి true; }
+    bool cleanLhs() స్థిరరాశి override { తిరిగి true; }
+    bool cleanRhs() స్థిరరాశి override { తిరిగి true; }
+    bool కొలత_Matters_Lhs() స్థిరరాశి override { తిరిగి false; }
+    bool కొలత_Matters_Rhs() స్థిరరాశి override { తిరిగి false; }
     // LCOV_EXCL_STOP
-    bool isMultiCycleSva() const override { return true; }
+    bool is_Multi_చక్రం_Sva() స్థిరరాశి override { తిరిగి true; }
 };
-class AstSel final : public AstNodeBiop {
+class AstSel final : బహిరంగ Ast_కణుపు_Biop {
     // *Resolved* (tyep checked) multiple bit range extraction. Always const width
     // @astgen alias op1 := fromp
     // @astgen alias op2 := lsbp
     VNumRange m_declRange;  // Range of the 'from' array if isRanged() is set, else invalid
-    int m_declElWidth;  // If a packed array, the number of bits per element
+    పూర్ణాంకం m_decl_El_వెడల్పు;  // If a packed array, the number of bits per element
     // Selection width (!= this->width() from V3Clean onwards, != this->widthMin() in V3Width)
-    int m_widthConst;
+    పూర్ణాంకం m_వెడల్పు_Const;
 
-public:
-    AstSel(FileLine* fl, AstNodeExpr* fromp, AstNodeExpr* lsbp, int bitwidth)
+బహిరంగ:
+    AstSel(File_పంక్తి* fl, Ast_కణుపు_సమాసం* fromp, Ast_కణుపు_సమాసం* lsbp, పూర్ణాంకం bitwidth)
         : ASTGEN_SUPER_Sel(fl, fromp, lsbp)
-        , m_declElWidth{1}
-        , m_widthConst{bitwidth} {
-        dtypeSetBitOrLogicSized(bitwidth, VSigning::UNSIGNED, fromp->isFourstateOrNoDtype());
+        , m_decl_El_వెడల్పు{1}
+        , m_వెడల్పు_Const{bitwidth} {
+        dtype_సమితి_బిట్టు_Or_Logic_Sized(bitwidth, VSigning::UNSIGNED, fromp->isFourstateOrNoDtype());
     }
-    AstSel(FileLine* fl, AstNodeExpr* fromp, int lsb, int bitwidth, int bitwidthMin = 0)
+    AstSel(File_పంక్తి* fl, Ast_కణుపు_సమాసం* fromp, పూర్ణాంకం lsb, పూర్ణాంకం bitwidth, పూర్ణాంకం bitwidthMin = 0)
         : ASTGEN_SUPER_Sel(fl, fromp, new AstConst(fl, lsb))  // Need () constructor
-        , m_declElWidth{1}
-        , m_widthConst{bitwidth} {
-        dtypeSetBitOrLogicUnsized(bitwidth, bitwidthMin ? bitwidthMin : bitwidth,
+        , m_decl_El_వెడల్పు{1}
+        , m_వెడల్పు_Const{bitwidth} {
+        dtype_సమితి_బిట్టు_Or_Logic_Unsized(bitwidth, bitwidthMin ? bitwidthMin : bitwidth,
                                   VSigning::UNSIGNED, fromp->isFourstateOrNoDtype());
     }
     ASTGEN_MEMBERS_AstSel;
-    void dump(std::ostream& str) const override;
-    void dumpJson(std::ostream& str) const override;
-    void numberOperate(V3Number& out, const V3Number& from, const V3Number& bit) override {
-        out.opSel(from, bit.toUInt() + widthConst() - 1, bit.toUInt());
+    శూన్య dump(std::ostream& str) స్థిరరాశి override;
+    శూన్య dumpJson(std::ostream& str) స్థిరరాశి override;
+    శూన్య సంఖ్య_నిర్వహించు(V3_సంఖ్య& బహిర్గతం, స్థిరరాశి V3_సంఖ్య& from, స్థిరరాశి V3_సంఖ్య& బిట్టు_2) override {
+        బహిర్గతం.opSel(from, బిట్టు_2.గమ్యం_UInt() + వెడల్పు_Const() - 1, బిట్టు_2.గమ్యం_UInt());
     }
     string emitVerilog() override { V3ERROR_NA_RETURN(""); }
     string emitC() override {
-        return widthConst() == 1 ? "VL_BITSEL_%nq%lq%rqI(%lw, %P, %li, %ri)"
+        తిరిగి వెడల్పు_Const() == 1 ? "VL_BITSEL_%nq%lq%rqI(%lw, %P, %li, %ri)"
                : isWide()        ? "VL_SEL_%nq%lq%rqI(%nw, %lw, %P, %li, %ri, %nw)"
                                  : "VL_SEL_%nq%lq%rqI(%lw, %P, %li, %ri, %nw)";
     }
-    string emitSMT() const override { return "((_ extract %t %r) %l)"; }
-    bool cleanOut() const override { return false; }
-    bool cleanLhs() const override { return true; }
-    bool cleanRhs() const override { return true; }
-    bool sizeMattersLhs() const override { return false; }
-    bool sizeMattersRhs() const override { return false; }
-    bool sameNode(const AstNode* otherp) const override {
-        return widthConst() == VN_DBG_AS(otherp, Sel)->widthConst();
+    string emitSMT() స్థిరరాశి override { తిరిగి "((_ extract %t %r) %l)"; }
+    bool clean_బహిర్గతం() స్థిరరాశి override { తిరిగి false; }
+    bool cleanLhs() స్థిరరాశి override { తిరిగి true; }
+    bool cleanRhs() స్థిరరాశి override { తిరిగి true; }
+    bool కొలత_Matters_Lhs() స్థిరరాశి override { తిరిగి false; }
+    bool కొలత_Matters_Rhs() స్థిరరాశి override { తిరిగి false; }
+    bool same_కణుపు(స్థిరరాశి Ast_కణుపు* otherp) స్థిరరాశి override {
+        తిరిగి వెడల్పు_Const() == VN_DBG_AS(otherp, Sel)->వెడల్పు_Const();
     }
-    int instrCount() const override {
-        return widthInstrs() * (VN_CAST(lsbp(), Const) ? 3 : 10) + 1;
+    పూర్ణాంకం instr_లెక్క() స్థిరరాశి override {
+        తిరిగి వెడల్పు_Instrs() * (VN_CAST(lsbp(), Const) ? 3 : 10) + 1;
     }
-    int widthConst() const { return m_widthConst; }
-    void widthConst(int value) { m_widthConst = value; }
-    int lsbConst() const { return VN_AS(lsbp(), Const)->toSInt(); }
-    int msbConst() const { return lsbConst() + widthConst() - 1; }
-    VNumRange& declRange() VL_MT_STABLE { return m_declRange; }
-    const VNumRange& declRange() const VL_MT_STABLE { return m_declRange; }
-    void declRange(const VNumRange& flag) { m_declRange = flag; }
-    int declElWidth() const { return m_declElWidth; }
-    void declElWidth(int flag) { m_declElWidth = flag; }
+    పూర్ణాంకం వెడల్పు_Const() స్థిరరాశి { తిరిగి m_వెడల్పు_Const; }
+    శూన్య వెడల్పు_Const(పూర్ణాంకం విలువ) { m_వెడల్పు_Const = విలువ; }
+    పూర్ణాంకం lsbConst() స్థిరరాశి { తిరిగి VN_AS(lsbp(), Const)->గమ్యం_SInt(); }
+    పూర్ణాంకం msbConst() స్థిరరాశి { తిరిగి lsbConst() + వెడల్పు_Const() - 1; }
+    VNumRange& declRange() VL_MT_STABLE { తిరిగి m_declRange; }
+    స్థిరరాశి VNumRange& declRange() స్థిరరాశి VL_MT_STABLE { తిరిగి m_declRange; }
+    శూన్య declRange(స్థిరరాశి VNumRange& flag) { m_declRange = flag; }
+    పూర్ణాంకం decl_El_వెడల్పు() స్థిరరాశి { తిరిగి m_decl_El_వెడల్పు; }
+    శూన్య decl_El_వెడల్పు(పూర్ణాంకం flag) { m_decl_El_వెడల్పు = flag; }
 };
-class AstShiftL final : public AstNodeBiop {
+class Ast_జరుపు_L final : బహిరంగ Ast_కణుపు_Biop {
     // @astgen makeDfgVertex
-public:
-    AstShiftL(FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp, int setwidth = 0)
-        : ASTGEN_SUPER_ShiftL(fl, lhsp, rhsp) {
-        if (setwidth) {
-            dtypeSetBitOrLogicUnsized(setwidth, 0,
+బహిరంగ:
+    Ast_జరుపు_L(File_పంక్తి* fl, Ast_కణుపు_సమాసం* lhsp, Ast_కణుపు_సమాసం* rhsp, పూర్ణాంకం setwidth = 0)
+        : ASTGEN_SUPER_జరుపు_L(fl, lhsp, rhsp) {
+        ఒకవేళ (setwidth) {
+            dtype_సమితి_బిట్టు_Or_Logic_Unsized(setwidth, 0,
                                       lhsp->dtypep() ? lhsp->dtypep()->numeric()
                                                      : VSigning{VSigning::UNSIGNED},
                                       isFourstateOrNoDtype(lhsp, rhsp));
-        } else if (const AstNodeDType* const dtypep = lhsp->dtypep()) {
-            dtypeSetBitOrLogicUnsized(dtypep->width(), dtypep->widthMin(), dtypep->numeric(),
+        } లేకపోతే ఒకవేళ (స్థిరరాశి Ast_కణుపు_DType* స్థిరరాశి dtypep = lhsp->dtypep()) {
+            dtype_సమితి_బిట్టు_Or_Logic_Unsized(dtypep->వెడల్పు(), dtypep->వెడల్పు_Min(), dtypep->numeric(),
                                       isFourstateOrNoDtype(lhsp, rhsp));
         }
     }
-    ASTGEN_MEMBERS_AstShiftL;
-    void numberOperate(V3Number& out, const V3Number& lhs, const V3Number& rhs) override {
-        out.opShiftL(lhs, rhs);
+    ASTGEN_MEMBERS_Ast_జరుపు_L;
+    శూన్య సంఖ్య_నిర్వహించు(V3_సంఖ్య& బహిర్గతం, స్థిరరాశి V3_సంఖ్య& lhs, స్థిరరాశి V3_సంఖ్య& rhs) override {
+        బహిర్గతం.op_జరుపు_L(lhs, rhs);
     }
-    string emitVerilog() override { return "%k(%l %f<< %r)"; }
-    string emitC() override { return "VL_SHIFTL_%nq%lq%rq(%nw,%lw,%rw, %P, %li, %ri)"; }
-    string emitSMT() const override { return "(bvshl %l %r)"; }
+    string emitVerilog() override { తిరిగి "%k(%l %f<< %r)"; }
+    string emitC() override { తిరిగి "VL_SHIFTL_%nq%lq%rq(%nw,%lw,%rw, %P, %li, %ri)"; }
+    string emitSMT() స్థిరరాశి override { తిరిగి "(bvshl %l %r)"; }
     string emitSimpleOperator() override {
-        return (rhsp()->isWide() || rhsp()->isQuad()) ? "" : "<<";
+        తిరిగి (rhsp()->isWide() || rhsp()->isQuad()) ? "" : "<<";
     }
-    bool cleanOut() const override { return false; }
-    bool cleanLhs() const override { return false; }
-    bool cleanRhs() const override { return true; }
-    bool sizeMattersLhs() const override { return true; }
-    bool sizeMattersRhs() const override { return false; }
+    bool clean_బహిర్గతం() స్థిరరాశి override { తిరిగి false; }
+    bool cleanLhs() స్థిరరాశి override { తిరిగి false; }
+    bool cleanRhs() స్థిరరాశి override { తిరిగి true; }
+    bool కొలత_Matters_Lhs() స్థిరరాశి override { తిరిగి true; }
+    bool కొలత_Matters_Rhs() స్థిరరాశి override { తిరిగి false; }
 };
-class AstShiftLOvr final : public AstNodeBiop {
+class Ast_జరుపు_LOvr final : బహిరంగ Ast_కణుపు_Biop {
     // Like ShiftL but checks for an over shift and returns zeros
     // TODO: All Verilog shifts should start as these and later get demoted to AstShiftL
-public:
-    AstShiftLOvr(FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp, int setwidth = 0)
-        : ASTGEN_SUPER_ShiftLOvr(fl, lhsp, rhsp) {
-        if (setwidth) {
-            dtypeSetBitOrLogicUnsized(setwidth, 0,
+బహిరంగ:
+    Ast_జరుపు_LOvr(File_పంక్తి* fl, Ast_కణుపు_సమాసం* lhsp, Ast_కణుపు_సమాసం* rhsp, పూర్ణాంకం setwidth = 0)
+        : ASTGEN_SUPER_జరుపు_LOvr(fl, lhsp, rhsp) {
+        ఒకవేళ (setwidth) {
+            dtype_సమితి_బిట్టు_Or_Logic_Unsized(setwidth, 0,
                                       lhsp->dtypep() ? lhsp->dtypep()->numeric()
                                                      : VSigning{VSigning::UNSIGNED},
                                       isFourstateOrNoDtype(lhsp, rhsp));
-        } else {
-            const AstNodeDType* const dtypep = lhsp->dtypep();
+        } లేకపోతే {
+            స్థిరరాశి Ast_కణుపు_DType* స్థిరరాశి dtypep = lhsp->dtypep();
             UASSERT_OBJ(dtypep, this, "ShiftOvr should be created with lhs which has dtype");
-            dtypeSetBitOrLogicUnsized(dtypep->width(), dtypep->widthMin(), dtypep->numeric(),
+            dtype_సమితి_బిట్టు_Or_Logic_Unsized(dtypep->వెడల్పు(), dtypep->వెడల్పు_Min(), dtypep->numeric(),
                                       isFourstateOrNoDtype(lhsp, rhsp));
         }
     }
-    ASTGEN_MEMBERS_AstShiftLOvr;
-    void numberOperate(V3Number& out, const V3Number& lhs, const V3Number& rhs) override {
-        out.opShiftL(lhs, rhs);
+    ASTGEN_MEMBERS_Ast_జరుపు_LOvr;
+    శూన్య సంఖ్య_నిర్వహించు(V3_సంఖ్య& బహిర్గతం, స్థిరరాశి V3_సంఖ్య& lhs, స్థిరరాశి V3_సంఖ్య& rhs) override {
+        బహిర్గతం.op_జరుపు_L(lhs, rhs);
     }
-    string emitVerilog() override { return "%k(%l %f<< %r)"; }
-    string emitC() override { return "VL_SHIFTL_%nq%lq%rq(%nw,%lw,%rw, %P, %li, %ri)"; }
-    string emitSimpleOperator() override { return ""; }
-    bool cleanOut() const override { return false; }
-    bool cleanLhs() const override { return false; }
-    bool cleanRhs() const override { return true; }
-    bool sizeMattersLhs() const override { return true; }
-    bool sizeMattersRhs() const override { return false; }
+    string emitVerilog() override { తిరిగి "%k(%l %f<< %r)"; }
+    string emitC() override { తిరిగి "VL_SHIFTL_%nq%lq%rq(%nw,%lw,%rw, %P, %li, %ri)"; }
+    string emitSimpleOperator() override { తిరిగి ""; }
+    bool clean_బహిర్గతం() స్థిరరాశి override { తిరిగి false; }
+    bool cleanLhs() స్థిరరాశి override { తిరిగి false; }
+    bool cleanRhs() స్థిరరాశి override { తిరిగి true; }
+    bool కొలత_Matters_Lhs() స్థిరరాశి override { తిరిగి true; }
+    bool కొలత_Matters_Rhs() స్థిరరాశి override { తిరిగి false; }
 };
-class AstShiftR final : public AstNodeBiop {
+class Ast_జరుపు_R final : బహిరంగ Ast_కణుపు_Biop {
     // @astgen makeDfgVertex
-public:
-    AstShiftR(FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp, int setwidth = 0)
-        : ASTGEN_SUPER_ShiftR(fl, lhsp, rhsp) {
-        if (setwidth) {
-            dtypeSetBitOrLogicUnsized(setwidth, 0,
+బహిరంగ:
+    Ast_జరుపు_R(File_పంక్తి* fl, Ast_కణుపు_సమాసం* lhsp, Ast_కణుపు_సమాసం* rhsp, పూర్ణాంకం setwidth = 0)
+        : ASTGEN_SUPER_జరుపు_R(fl, lhsp, rhsp) {
+        ఒకవేళ (setwidth) {
+            dtype_సమితి_బిట్టు_Or_Logic_Unsized(setwidth, 0,
                                       lhsp->dtypep() ? lhsp->dtypep()->numeric()
                                                      : VSigning{VSigning::UNSIGNED},
                                       isFourstateOrNoDtype(lhsp, rhsp));
-        } else if (const AstNodeDType* const dtypep = lhsp->dtypep()) {
-            dtypeSetBitOrLogicUnsized(dtypep->width(), dtypep->widthMin(), dtypep->numeric(),
+        } లేకపోతే ఒకవేళ (స్థిరరాశి Ast_కణుపు_DType* స్థిరరాశి dtypep = lhsp->dtypep()) {
+            dtype_సమితి_బిట్టు_Or_Logic_Unsized(dtypep->వెడల్పు(), dtypep->వెడల్పు_Min(), dtypep->numeric(),
                                       isFourstateOrNoDtype(lhsp, rhsp));
         }
     }
-    ASTGEN_MEMBERS_AstShiftR;
-    void numberOperate(V3Number& out, const V3Number& lhs, const V3Number& rhs) override {
-        out.opShiftR(lhs, rhs);
+    ASTGEN_MEMBERS_Ast_జరుపు_R;
+    శూన్య సంఖ్య_నిర్వహించు(V3_సంఖ్య& బహిర్గతం, స్థిరరాశి V3_సంఖ్య& lhs, స్థిరరాశి V3_సంఖ్య& rhs) override {
+        బహిర్గతం.op_జరుపు_R(lhs, rhs);
     }
-    string emitVerilog() override { return "%k(%l %f>> %r)"; }
-    string emitC() override { return "VL_SHIFTR_%nq%lq%rq(%nw,%lw,%rw, %P, %li, %ri)"; }
-    string emitSMT() const override { return "(bvlshr %l %r)"; }
+    string emitVerilog() override { తిరిగి "%k(%l %f>> %r)"; }
+    string emitC() override { తిరిగి "VL_SHIFTR_%nq%lq%rq(%nw,%lw,%rw, %P, %li, %ri)"; }
+    string emitSMT() స్థిరరాశి override { తిరిగి "(bvlshr %l %r)"; }
     string emitSimpleOperator() override {
-        return (rhsp()->isWide() || rhsp()->isQuad()) ? "" : ">>";
+        తిరిగి (rhsp()->isWide() || rhsp()->isQuad()) ? "" : ">>";
     }
-    bool cleanOut() const override { return true; }
-    bool cleanLhs() const override { return true; }
-    bool cleanRhs() const override { return true; }
+    bool clean_బహిర్గతం() స్థిరరాశి override { తిరిగి true; }
+    bool cleanLhs() స్థిరరాశి override { తిరిగి true; }
+    bool cleanRhs() స్థిరరాశి override { తిరిగి true; }
     // LHS size might be > output size, so don't want to force size
-    bool sizeMattersLhs() const override { return false; }
-    bool sizeMattersRhs() const override { return false; }
+    bool కొలత_Matters_Lhs() స్థిరరాశి override { తిరిగి false; }
+    bool కొలత_Matters_Rhs() స్థిరరాశి override { తిరిగి false; }
 };
-class AstShiftROvr final : public AstNodeBiop {
+class Ast_జరుపు_ROvr final : బహిరంగ Ast_కణుపు_Biop {
     // Like ShiftR but checks for an over shift and returns zeros
     // TODO: All Verilog shifts should start as these and later get demoted to AstShiftR
-public:
-    AstShiftROvr(FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp, int setwidth = 0)
-        : ASTGEN_SUPER_ShiftROvr(fl, lhsp, rhsp) {
-        if (setwidth) {
-            dtypeSetBitOrLogicUnsized(setwidth, 0,
+బహిరంగ:
+    Ast_జరుపు_ROvr(File_పంక్తి* fl, Ast_కణుపు_సమాసం* lhsp, Ast_కణుపు_సమాసం* rhsp, పూర్ణాంకం setwidth = 0)
+        : ASTGEN_SUPER_జరుపు_ROvr(fl, lhsp, rhsp) {
+        ఒకవేళ (setwidth) {
+            dtype_సమితి_బిట్టు_Or_Logic_Unsized(setwidth, 0,
                                       lhsp->dtypep() ? lhsp->dtypep()->numeric()
                                                      : VSigning{VSigning::UNSIGNED},
                                       isFourstateOrNoDtype(lhsp, rhsp));
-        } else {
-            const AstNodeDType* const dtypep = lhsp->dtypep();
+        } లేకపోతే {
+            స్థిరరాశి Ast_కణుపు_DType* స్థిరరాశి dtypep = lhsp->dtypep();
             UASSERT_OBJ(dtypep, this, "ShiftOvr should be created with lhs which has dtype");
-            dtypeSetBitOrLogicUnsized(dtypep->width(), dtypep->widthMin(), dtypep->numeric(),
+            dtype_సమితి_బిట్టు_Or_Logic_Unsized(dtypep->వెడల్పు(), dtypep->వెడల్పు_Min(), dtypep->numeric(),
                                       isFourstateOrNoDtype(lhsp, rhsp));
         }
     }
-    ASTGEN_MEMBERS_AstShiftROvr;
-    void numberOperate(V3Number& out, const V3Number& lhs, const V3Number& rhs) override {
-        out.opShiftR(lhs, rhs);
+    ASTGEN_MEMBERS_Ast_జరుపు_ROvr;
+    శూన్య సంఖ్య_నిర్వహించు(V3_సంఖ్య& బహిర్గతం, స్థిరరాశి V3_సంఖ్య& lhs, స్థిరరాశి V3_సంఖ్య& rhs) override {
+        బహిర్గతం.op_జరుపు_R(lhs, rhs);
     }
-    string emitVerilog() override { return "%k(%l %f>> %r)"; }
-    string emitC() override { return "VL_SHIFTR_%nq%lq%rq(%nw,%lw,%rw, %P, %li, %ri)"; }
-    string emitSimpleOperator() override { return ""; }
-    bool cleanOut() const override { return true; }
-    bool cleanLhs() const override { return true; }
-    bool cleanRhs() const override { return true; }
+    string emitVerilog() override { తిరిగి "%k(%l %f>> %r)"; }
+    string emitC() override { తిరిగి "VL_SHIFTR_%nq%lq%rq(%nw,%lw,%rw, %P, %li, %ri)"; }
+    string emitSimpleOperator() override { తిరిగి ""; }
+    bool clean_బహిర్గతం() స్థిరరాశి override { తిరిగి true; }
+    bool cleanLhs() స్థిరరాశి override { తిరిగి true; }
+    bool cleanRhs() స్థిరరాశి override { తిరిగి true; }
     // LHS size might be > output size, so don't want to force size
-    bool sizeMattersLhs() const override { return false; }
-    bool sizeMattersRhs() const override { return false; }
+    bool కొలత_Matters_Lhs() స్థిరరాశి override { తిరిగి false; }
+    bool కొలత_Matters_Rhs() స్థిరరాశి override { తిరిగి false; }
 };
-class AstShiftRS final : public AstNodeBiop {
+class Ast_జరుపు_RS final : బహిరంగ Ast_కణుపు_Biop {
     // Shift right with sign extension, >>> operator
     // Output data type's width determines which bit is used for sign extension
     // @astgen makeDfgVertex
-public:
-    AstShiftRS(FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp, int setwidth = 0)
-        : ASTGEN_SUPER_ShiftRS(fl, lhsp, rhsp) {
-        if (setwidth) {
-            dtypeSetBitOrLogicUnsized(setwidth, 0, VSigning::SIGNED,
+బహిరంగ:
+    Ast_జరుపు_RS(File_పంక్తి* fl, Ast_కణుపు_సమాసం* lhsp, Ast_కణుపు_సమాసం* rhsp, పూర్ణాంకం setwidth = 0)
+        : ASTGEN_SUPER_జరుపు_RS(fl, lhsp, rhsp) {
+        ఒకవేళ (setwidth) {
+            dtype_సమితి_బిట్టు_Or_Logic_Unsized(setwidth, 0, VSigning::SIGNED,
                                       isFourstateOrNoDtype(lhsp, rhsp));
-        } else if (const AstNodeDType* const dtypep = lhsp->dtypep()) {
-            dtypeSetBitOrLogicUnsized(dtypep->width(), dtypep->widthMin(), VSigning::SIGNED,
+        } లేకపోతే ఒకవేళ (స్థిరరాశి Ast_కణుపు_DType* స్థిరరాశి dtypep = lhsp->dtypep()) {
+            dtype_సమితి_బిట్టు_Or_Logic_Unsized(dtypep->వెడల్పు(), dtypep->వెడల్పు_Min(), VSigning::SIGNED,
                                       isFourstateOrNoDtype(lhsp, rhsp));
         }
     }
-    ASTGEN_MEMBERS_AstShiftRS;
-    void numberOperate(V3Number& out, const V3Number& lhs, const V3Number& rhs) override {
-        out.opShiftRS(lhs, rhs, lhsp()->widthMinV());
+    ASTGEN_MEMBERS_Ast_జరుపు_RS;
+    శూన్య సంఖ్య_నిర్వహించు(V3_సంఖ్య& బహిర్గతం, స్థిరరాశి V3_సంఖ్య& lhs, స్థిరరాశి V3_సంఖ్య& rhs) override {
+        బహిర్గతం.op_జరుపు_RS(lhs, rhs, lhsp()->వెడల్పు_Min_V());
     }
-    string emitVerilog() override { return "%k(%l %f>>> %r)"; }
-    string emitSMT() const override { return "(bvashr %l %r)"; }
-    string emitC() override { return "VL_SHIFTRS_%nq%lq%rq(%nw,%lw,%rw, %P, %li, %ri)"; }
-    string emitSimpleOperator() override { return ""; }
-    bool cleanOut() const override { return false; }
-    bool cleanLhs() const override { return true; }
-    bool cleanRhs() const override { return true; }
-    bool sizeMattersLhs() const override { return false; }
-    bool sizeMattersRhs() const override { return false; }
-    bool signedFlavor() const override { return true; }
+    string emitVerilog() override { తిరిగి "%k(%l %f>>> %r)"; }
+    string emitSMT() స్థిరరాశి override { తిరిగి "(bvashr %l %r)"; }
+    string emitC() override { తిరిగి "VL_SHIFTRS_%nq%lq%rq(%nw,%lw,%rw, %P, %li, %ri)"; }
+    string emitSimpleOperator() override { తిరిగి ""; }
+    bool clean_బహిర్గతం() స్థిరరాశి override { తిరిగి false; }
+    bool cleanLhs() స్థిరరాశి override { తిరిగి true; }
+    bool cleanRhs() స్థిరరాశి override { తిరిగి true; }
+    bool కొలత_Matters_Lhs() స్థిరరాశి override { తిరిగి false; }
+    bool కొలత_Matters_Rhs() స్థిరరాశి override { తిరిగి false; }
+    bool signedFlavor() స్థిరరాశి override { తిరిగి true; }
 };
-class AstShiftRSOvr final : public AstNodeBiop {
+class Ast_జరుపు_RSOvr final : బహిరంగ Ast_కణుపు_Biop {
     // Shift right with sign extension, >>> operator, checks for an over shift and returns zeros
     // Output data type's width determines which bit is used for sign extension
     // TODO: All Verilog shifts should start as these and later get demoted to AstShiftRSOvr
-public:
-    AstShiftRSOvr(FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp, int setwidth = 0)
-        : ASTGEN_SUPER_ShiftRSOvr(fl, lhsp, rhsp) {
+బహిరంగ:
+    Ast_జరుపు_RSOvr(File_పంక్తి* fl, Ast_కణుపు_సమాసం* lhsp, Ast_కణుపు_సమాసం* rhsp, పూర్ణాంకం setwidth = 0)
+        : ASTGEN_SUPER_జరుపు_RSOvr(fl, lhsp, rhsp) {
         // Important that widthMin be correct, as opExtend requires it after V3Expand
-        if (setwidth) {
-            dtypeSetBitOrLogicUnsized(setwidth, 0, VSigning::SIGNED,
+        ఒకవేళ (setwidth) {
+            dtype_సమితి_బిట్టు_Or_Logic_Unsized(setwidth, 0, VSigning::SIGNED,
                                       isFourstateOrNoDtype(lhsp, rhsp));
-        } else {
-            const AstNodeDType* const dtypep = lhsp->dtypep();
+        } లేకపోతే {
+            స్థిరరాశి Ast_కణుపు_DType* స్థిరరాశి dtypep = lhsp->dtypep();
             UASSERT_OBJ(dtypep, this, "ShiftOvr should be created with lhs which has dtype");
-            dtypeSetBitOrLogicUnsized(dtypep->width(), dtypep->widthMin(), VSigning::SIGNED,
+            dtype_సమితి_బిట్టు_Or_Logic_Unsized(dtypep->వెడల్పు(), dtypep->వెడల్పు_Min(), VSigning::SIGNED,
                                       isFourstateOrNoDtype(lhsp, rhsp));
         }
     }
-    ASTGEN_MEMBERS_AstShiftRSOvr;
-    void numberOperate(V3Number& out, const V3Number& lhs, const V3Number& rhs) override {
-        out.opShiftRS(lhs, rhs, lhsp()->widthMinV());
+    ASTGEN_MEMBERS_Ast_జరుపు_RSOvr;
+    శూన్య సంఖ్య_నిర్వహించు(V3_సంఖ్య& బహిర్గతం, స్థిరరాశి V3_సంఖ్య& lhs, స్థిరరాశి V3_సంఖ్య& rhs) override {
+        బహిర్గతం.op_జరుపు_RS(lhs, rhs, lhsp()->వెడల్పు_Min_V());
     }
-    string emitVerilog() override { return "%k(%l %f>>> %r)"; }
-    string emitC() override { return "VL_SHIFTRS_%nq%lq%rq(%nw,%lw,%rw, %P, %li, %ri)"; }
-    string emitSimpleOperator() override { return ""; }
-    bool cleanOut() const override { return false; }
-    bool cleanLhs() const override { return true; }
-    bool cleanRhs() const override { return true; }
-    bool sizeMattersLhs() const override { return false; }
-    bool sizeMattersRhs() const override { return false; }
-    bool signedFlavor() const override { return true; }
+    string emitVerilog() override { తిరిగి "%k(%l %f>>> %r)"; }
+    string emitC() override { తిరిగి "VL_SHIFTRS_%nq%lq%rq(%nw,%lw,%rw, %P, %li, %ri)"; }
+    string emitSimpleOperator() override { తిరిగి ""; }
+    bool clean_బహిర్గతం() స్థిరరాశి override { తిరిగి false; }
+    bool cleanLhs() స్థిరరాశి override { తిరిగి true; }
+    bool cleanRhs() స్థిరరాశి override { తిరిగి true; }
+    bool కొలత_Matters_Lhs() స్థిరరాశి override { తిరిగి false; }
+    bool కొలత_Matters_Rhs() స్థిరరాశి override { తిరిగి false; }
+    bool signedFlavor() స్థిరరాశి override { తిరిగి true; }
 };
-class AstSub final : public AstNodeBiop {
+class AstSub final : బహిరంగ Ast_కణుపు_Biop {
     // @astgen makeDfgVertex
-public:
-    AstSub(FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp)
+బహిరంగ:
+    AstSub(File_పంక్తి* fl, Ast_కణుపు_సమాసం* lhsp, Ast_కణుపు_సమాసం* rhsp)
         : ASTGEN_SUPER_Sub(fl, lhsp, rhsp) {
         dtypeFrom(lhsp);
     }
     ASTGEN_MEMBERS_AstSub;
-    void numberOperate(V3Number& out, const V3Number& lhs, const V3Number& rhs) override {
-        out.opSub(lhs, rhs);
+    శూన్య సంఖ్య_నిర్వహించు(V3_సంఖ్య& బహిర్గతం, స్థిరరాశి V3_సంఖ్య& lhs, స్థిరరాశి V3_సంఖ్య& rhs) override {
+        బహిర్గతం.opSub(lhs, rhs);
     }
-    string emitVerilog() override { return "%k(%l %f- %r)"; }
-    string emitC() override { return "VL_SUB_%lq(%lW, %P, %li, %ri)"; }
-    string emitSMT() const override { return "(bvsub %l %r)"; }
-    string emitSimpleOperator() override { return "-"; }
-    bool cleanOut() const override { return false; }
-    bool cleanLhs() const override { return false; }
-    bool cleanRhs() const override { return false; }
-    bool sizeMattersLhs() const override { return true; }
-    bool sizeMattersRhs() const override { return true; }
+    string emitVerilog() override { తిరిగి "%k(%l %f- %r)"; }
+    string emitC() override { తిరిగి "VL_SUB_%lq(%lW, %P, %li, %ri)"; }
+    string emitSMT() స్థిరరాశి override { తిరిగి "(bvsub %l %r)"; }
+    string emitSimpleOperator() override { తిరిగి "-"; }
+    bool clean_బహిర్గతం() స్థిరరాశి override { తిరిగి false; }
+    bool cleanLhs() స్థిరరాశి override { తిరిగి false; }
+    bool cleanRhs() స్థిరరాశి override { తిరిగి false; }
+    bool కొలత_Matters_Lhs() స్థిరరాశి override { తిరిగి true; }
+    bool కొలత_Matters_Rhs() స్థిరరాశి override { తిరిగి true; }
 };
-class AstSubD final : public AstNodeBiop {
-public:
-    AstSubD(FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp)
+class AstSubD final : బహిరంగ Ast_కణుపు_Biop {
+బహిరంగ:
+    AstSubD(File_పంక్తి* fl, Ast_కణుపు_సమాసం* lhsp, Ast_కణుపు_సమాసం* rhsp)
         : ASTGEN_SUPER_SubD(fl, lhsp, rhsp) {
-        dtypeSetDouble();
+        dtype_సమితి_Double();
     }
     ASTGEN_MEMBERS_AstSubD;
-    void numberOperate(V3Number& out, const V3Number& lhs, const V3Number& rhs) override {
-        out.opSubD(lhs, rhs);
+    శూన్య సంఖ్య_నిర్వహించు(V3_సంఖ్య& బహిర్గతం, స్థిరరాశి V3_సంఖ్య& lhs, స్థిరరాశి V3_సంఖ్య& rhs) override {
+        బహిర్గతం.opSubD(lhs, rhs);
     }
-    string emitVerilog() override { return "%k(%l %f- %r)"; }
+    string emitVerilog() override { తిరిగి "%k(%l %f- %r)"; }
     string emitC() override { V3ERROR_NA_RETURN(""); }
-    string emitSimpleOperator() override { return "-"; }
-    bool cleanOut() const override { return true; }
-    bool cleanLhs() const override { return false; }
-    bool cleanRhs() const override { return false; }
-    bool sizeMattersLhs() const override { return false; }
-    bool sizeMattersRhs() const override { return false; }
-    int instrCount() const override { return INSTR_COUNT_DBL; }
-    bool doubleFlavor() const override { return true; }
+    string emitSimpleOperator() override { తిరిగి "-"; }
+    bool clean_బహిర్గతం() స్థిరరాశి override { తిరిగి true; }
+    bool cleanLhs() స్థిరరాశి override { తిరిగి false; }
+    bool cleanRhs() స్థిరరాశి override { తిరిగి false; }
+    bool కొలత_Matters_Lhs() స్థిరరాశి override { తిరిగి false; }
+    bool కొలత_Matters_Rhs() స్థిరరాశి override { తిరిగి false; }
+    పూర్ణాంకం instr_లెక్క() స్థిరరాశి override { తిరిగి INSTR_లెక్క_DBL; }
+    bool doubleFlavor() స్థిరరాశి override { తిరిగి true; }
 };
-class AstURandomRange final : public AstNodeBiop {
+class AstURandomRange final : బహిరంగ Ast_కణుపు_Biop {
     // $urandom_range
-public:
-    AstURandomRange(FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp)
+బహిరంగ:
+    AstURandomRange(File_పంక్తి* fl, Ast_కణుపు_సమాసం* lhsp, Ast_కణుపు_సమాసం* rhsp)
         : ASTGEN_SUPER_URandomRange(fl, lhsp, rhsp) {
-        dtypeSetUInt32();  // Says IEEE
+        dtype_సమితి_UInt32();  // Says IEEE
     }
     ASTGEN_MEMBERS_AstURandomRange;
-    void numberOperate(V3Number&, const V3Number&, const V3Number&) override { V3ERROR_NA; }
-    string emitVerilog() override { return "%f$urandom_range(%l, %r)"; }
-    string emitC() override { return "VL_URANDOM_RANGE_%nq(%li, %ri)"; }
-    bool cleanOut() const override { return true; }
-    bool cleanLhs() const override { return true; }
-    bool cleanRhs() const override { return true; }
-    bool sizeMattersLhs() const override { return false; }
-    bool sizeMattersRhs() const override { return false; }
-    bool isGateOptimizable() const override { return false; }
-    bool isPredictOptimizable() const override { return false; }
-    bool isPure() override { return false; }
-    bool isSystemFunc() const override { return true; }
-    int instrCount() const override { return INSTR_COUNT_PLI; }
+    శూన్య సంఖ్య_నిర్వహించు(V3_సంఖ్య&, స్థిరరాశి V3_సంఖ్య&, స్థిరరాశి V3_సంఖ్య&) override { V3ERROR_NA; }
+    string emitVerilog() override { తిరిగి "%f$urandom_range(%l, %r)"; }
+    string emitC() override { తిరిగి "VL_URANDOM_RANGE_%nq(%li, %ri)"; }
+    bool clean_బహిర్గతం() స్థిరరాశి override { తిరిగి true; }
+    bool cleanLhs() స్థిరరాశి override { తిరిగి true; }
+    bool cleanRhs() స్థిరరాశి override { తిరిగి true; }
+    bool కొలత_Matters_Lhs() స్థిరరాశి override { తిరిగి false; }
+    bool కొలత_Matters_Rhs() స్థిరరాశి override { తిరిగి false; }
+    bool isGateOptimizable() స్థిరరాశి override { తిరిగి false; }
+    bool isPredictOptimizable() స్థిరరాశి override { తిరిగి false; }
+    bool is_శుద్ధ() override { తిరిగి false; }
+    bool isSystemFunc() స్థిరరాశి override { తిరిగి true; }
+    పూర్ణాంకం instr_లెక్క() స్థిరరాశి override { తిరిగి INSTR_లెక్క_PLI; }
 };
 
 // === AstNodeBiCom ===
-class AstEq final : public AstNodeBiCom {
+class AstEq final : బహిరంగ Ast_కణుపు_Bi_Com {
     // @astgen makeDfgVertex
-public:
-    AstEq(FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp)
+బహిరంగ:
+    AstEq(File_పంక్తి* fl, Ast_కణుపు_సమాసం* lhsp, Ast_కణుపు_సమాసం* rhsp)
         : ASTGEN_SUPER_Eq(fl, lhsp, rhsp) {
-        dtypeSetBitOrLogic(isFourstateOrNoDtype(lhsp, rhsp));
+        dtype_సమితి_బిట్టు_Or_Logic(isFourstateOrNoDtype(lhsp, rhsp));
     }
     ASTGEN_MEMBERS_AstEq;
     // Return AstEq/AstEqD
-    static AstNodeBiop* newTyped(FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp);
-    void numberOperate(V3Number& out, const V3Number& lhs, const V3Number& rhs) override {
-        out.opEq(lhs, rhs);
+    స్థిర Ast_కణుపు_Biop* newTyped(File_పంక్తి* fl, Ast_కణుపు_సమాసం* lhsp, Ast_కణుపు_సమాసం* rhsp);
+    శూన్య సంఖ్య_నిర్వహించు(V3_సంఖ్య& బహిర్గతం, స్థిరరాశి V3_సంఖ్య& lhs, స్థిరరాశి V3_సంఖ్య& rhs) override {
+        బహిర్గతం.opEq(lhs, rhs);
     }
-    string emitVerilog() override { return "%k(%l %f== %r)"; }
-    string emitC() override { return "VL_EQ_%lq(%lW, %P, %li, %ri)"; }
-    string emitSMT() const override { return "(__Vbv (= %l %r))"; }
-    string emitSimpleOperator() override { return "=="; }
-    bool cleanOut() const override { return true; }
-    bool cleanLhs() const override { return true; }
-    bool cleanRhs() const override { return true; }
-    bool sizeMattersLhs() const override { return false; }
-    bool sizeMattersRhs() const override { return false; }
+    string emitVerilog() override { తిరిగి "%k(%l %f== %r)"; }
+    string emitC() override { తిరిగి "VL_EQ_%lq(%lW, %P, %li, %ri)"; }
+    string emitSMT() స్థిరరాశి override { తిరిగి "(__Vbv (= %l %r))"; }
+    string emitSimpleOperator() override { తిరిగి "=="; }
+    bool clean_బహిర్గతం() స్థిరరాశి override { తిరిగి true; }
+    bool cleanLhs() స్థిరరాశి override { తిరిగి true; }
+    bool cleanRhs() స్థిరరాశి override { తిరిగి true; }
+    bool కొలత_Matters_Lhs() స్థిరరాశి override { తిరిగి false; }
+    bool కొలత_Matters_Rhs() స్థిరరాశి override { తిరిగి false; }
 };
-class AstEqCase final : public AstNodeBiCom {
+class AstEqCase final : బహిరంగ Ast_కణుపు_Bi_Com {
     // @astgen makeDfgVertex
-public:
-    AstEqCase(FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp)
+బహిరంగ:
+    AstEqCase(File_పంక్తి* fl, Ast_కణుపు_సమాసం* lhsp, Ast_కణుపు_సమాసం* rhsp)
         : ASTGEN_SUPER_EqCase(fl, lhsp, rhsp) {
-        dtypeSetBit();
+        dtype_సమితి_బిట్టు();
     }
     ASTGEN_MEMBERS_AstEqCase;
-    void numberOperate(V3Number& out, const V3Number& lhs, const V3Number& rhs) override {
-        out.opCaseEq(lhs, rhs);
+    శూన్య సంఖ్య_నిర్వహించు(V3_సంఖ్య& బహిర్గతం, స్థిరరాశి V3_సంఖ్య& lhs, స్థిరరాశి V3_సంఖ్య& rhs) override {
+        బహిర్గతం.opCaseEq(lhs, rhs);
     }
-    string emitVerilog() override { return "%k(%l %f=== %r)"; }
-    string emitC() override { return "VL_EQ_%lq(%lW, %P, %li, %ri)"; }
-    string emitSimpleOperator() override { return "=="; }
-    bool cleanOut() const override { return true; }
-    bool cleanLhs() const override { return true; }
-    bool cleanRhs() const override { return true; }
-    bool sizeMattersLhs() const override { return false; }
-    bool sizeMattersRhs() const override { return false; }
+    string emitVerilog() override { తిరిగి "%k(%l %f=== %r)"; }
+    string emitC() override { తిరిగి "VL_EQ_%lq(%lW, %P, %li, %ri)"; }
+    string emitSimpleOperator() override { తిరిగి "=="; }
+    bool clean_బహిర్గతం() స్థిరరాశి override { తిరిగి true; }
+    bool cleanLhs() స్థిరరాశి override { తిరిగి true; }
+    bool cleanRhs() స్థిరరాశి override { తిరిగి true; }
+    bool కొలత_Matters_Lhs() స్థిరరాశి override { తిరిగి false; }
+    bool కొలత_Matters_Rhs() స్థిరరాశి override { తిరిగి false; }
 };
-class AstEqD final : public AstNodeBiCom {
-public:
-    AstEqD(FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp)
+class AstEqD final : బహిరంగ Ast_కణుపు_Bi_Com {
+బహిరంగ:
+    AstEqD(File_పంక్తి* fl, Ast_కణుపు_సమాసం* lhsp, Ast_కణుపు_సమాసం* rhsp)
         : ASTGEN_SUPER_EqD(fl, lhsp, rhsp) {
-        dtypeSetBit();
+        dtype_సమితి_బిట్టు();
     }
     ASTGEN_MEMBERS_AstEqD;
-    void numberOperate(V3Number& out, const V3Number& lhs, const V3Number& rhs) override {
-        out.opEqD(lhs, rhs);
+    శూన్య సంఖ్య_నిర్వహించు(V3_సంఖ్య& బహిర్గతం, స్థిరరాశి V3_సంఖ్య& lhs, స్థిరరాశి V3_సంఖ్య& rhs) override {
+        బహిర్గతం.opEqD(lhs, rhs);
     }
-    string emitVerilog() override { return "%k(%l %f== %r)"; }
+    string emitVerilog() override { తిరిగి "%k(%l %f== %r)"; }
     string emitC() override { V3ERROR_NA_RETURN(""); }
-    string emitSimpleOperator() override { return "=="; }
-    bool cleanOut() const override { return true; }
-    bool cleanLhs() const override { return false; }
-    bool cleanRhs() const override { return false; }
-    bool sizeMattersLhs() const override { return false; }
-    bool sizeMattersRhs() const override { return false; }
-    int instrCount() const override { return INSTR_COUNT_DBL; }
-    bool doubleFlavor() const override { return true; }
+    string emitSimpleOperator() override { తిరిగి "=="; }
+    bool clean_బహిర్గతం() స్థిరరాశి override { తిరిగి true; }
+    bool cleanLhs() స్థిరరాశి override { తిరిగి false; }
+    bool cleanRhs() స్థిరరాశి override { తిరిగి false; }
+    bool కొలత_Matters_Lhs() స్థిరరాశి override { తిరిగి false; }
+    bool కొలత_Matters_Rhs() స్థిరరాశి override { తిరిగి false; }
+    పూర్ణాంకం instr_లెక్క() స్థిరరాశి override { తిరిగి INSTR_లెక్క_DBL; }
+    bool doubleFlavor() స్థిరరాశి override { తిరిగి true; }
 };
-class AstEqN final : public AstNodeBiCom {
-public:
-    AstEqN(FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp)
+class AstEqN final : బహిరంగ Ast_కణుపు_Bi_Com {
+బహిరంగ:
+    AstEqN(File_పంక్తి* fl, Ast_కణుపు_సమాసం* lhsp, Ast_కణుపు_సమాసం* rhsp)
         : ASTGEN_SUPER_EqN(fl, lhsp, rhsp) {
-        dtypeSetBit();
+        dtype_సమితి_బిట్టు();
     }
     ASTGEN_MEMBERS_AstEqN;
-    void numberOperate(V3Number& out, const V3Number& lhs, const V3Number& rhs) override {
-        out.opEqN(lhs, rhs);
+    శూన్య సంఖ్య_నిర్వహించు(V3_సంఖ్య& బహిర్గతం, స్థిరరాశి V3_సంఖ్య& lhs, స్థిరరాశి V3_సంఖ్య& rhs) override {
+        బహిర్గతం.opEqN(lhs, rhs);
     }
-    string emitVerilog() override { return "%k(%l %f== %r)"; }
+    string emitVerilog() override { తిరిగి "%k(%l %f== %r)"; }
     string emitC() override { V3ERROR_NA_RETURN(""); }
-    string emitSimpleOperator() override { return "=="; }
-    bool cleanOut() const override { return true; }
-    bool cleanLhs() const override { return false; }
-    bool cleanRhs() const override { return false; }
-    bool sizeMattersLhs() const override { return false; }
-    bool sizeMattersRhs() const override { return false; }
-    int instrCount() const override { return INSTR_COUNT_STR; }
-    bool stringFlavor() const override { return true; }
+    string emitSimpleOperator() override { తిరిగి "=="; }
+    bool clean_బహిర్గతం() స్థిరరాశి override { తిరిగి true; }
+    bool cleanLhs() స్థిరరాశి override { తిరిగి false; }
+    bool cleanRhs() స్థిరరాశి override { తిరిగి false; }
+    bool కొలత_Matters_Lhs() స్థిరరాశి override { తిరిగి false; }
+    bool కొలత_Matters_Rhs() స్థిరరాశి override { తిరిగి false; }
+    పూర్ణాంకం instr_లెక్క() స్థిరరాశి override { తిరిగి INSTR_లెక్క_STR; }
+    bool stringFlavor() స్థిరరాశి override { తిరిగి true; }
 };
-class AstEqT final : public AstNodeBiCom {
+class AstEqT final : బహిరంగ Ast_కణుపు_Bi_Com {
     // Equal (==) for data types
-public:
-    AstEqT(FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp)
+బహిరంగ:
+    AstEqT(File_పంక్తి* fl, Ast_కణుపు_సమాసం* lhsp, Ast_కణుపు_సమాసం* rhsp)
         : ASTGEN_SUPER_EqT(fl, lhsp, rhsp) {
-        dtypeSetBit();
+        dtype_సమితి_బిట్టు();
     }
     ASTGEN_MEMBERS_AstEqT;
-    void numberOperate(V3Number&, const V3Number&, const V3Number&) override { V3ERROR_NA; }
-    string emitVerilog() override { return "%k(%l %f== %r)"; }
+    శూన్య సంఖ్య_నిర్వహించు(V3_సంఖ్య&, స్థిరరాశి V3_సంఖ్య&, స్థిరరాశి V3_సంఖ్య&) override { V3ERROR_NA; }
+    string emitVerilog() override { తిరిగి "%k(%l %f== %r)"; }
     string emitC() override { V3ERROR_NA_RETURN(""); }
-    string emitSimpleOperator() override { return "=="; }
-    bool cleanOut() const override { return true; }
-    bool cleanLhs() const override { return false; }
-    bool cleanRhs() const override { return false; }
-    bool sizeMattersLhs() const override { return false; }
-    bool sizeMattersRhs() const override { return false; }
-    int instrCount() const override { return INSTR_COUNT_STR; }
+    string emitSimpleOperator() override { తిరిగి "=="; }
+    bool clean_బహిర్గతం() స్థిరరాశి override { తిరిగి true; }
+    bool cleanLhs() స్థిరరాశి override { తిరిగి false; }
+    bool cleanRhs() స్థిరరాశి override { తిరిగి false; }
+    bool కొలత_Matters_Lhs() స్థిరరాశి override { తిరిగి false; }
+    bool కొలత_Matters_Rhs() స్థిరరాశి override { తిరిగి false; }
+    పూర్ణాంకం instr_లెక్క() స్థిరరాశి override { తిరిగి INSTR_లెక్క_STR; }
 };
-class AstLogEq final : public AstNodeBiCom {
+class AstLogEq final : బహిరంగ Ast_కణుపు_Bi_Com {
     // @astgen makeDfgVertex
-public:
-    AstLogEq(FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp)
+బహిరంగ:
+    AstLogEq(File_పంక్తి* fl, Ast_కణుపు_సమాసం* lhsp, Ast_కణుపు_సమాసం* rhsp)
         : ASTGEN_SUPER_LogEq(fl, lhsp, rhsp) {
-        dtypeSetBitOrLogic(isFourstateOrNoDtype(lhsp, rhsp));
+        dtype_సమితి_బిట్టు_Or_Logic(isFourstateOrNoDtype(lhsp, rhsp));
     }
     ASTGEN_MEMBERS_AstLogEq;
-    void numberOperate(V3Number& out, const V3Number& lhs, const V3Number& rhs) override {
-        out.opLogEq(lhs, rhs);
+    శూన్య సంఖ్య_నిర్వహించు(V3_సంఖ్య& బహిర్గతం, స్థిరరాశి V3_సంఖ్య& lhs, స్థిరరాశి V3_సంఖ్య& rhs) override {
+        బహిర్గతం.opLogEq(lhs, rhs);
     }
-    string emitVerilog() override { return "%k(%l %f<-> %r)"; }
-    string emitC() override { return "VL_LOGEQ_%nq%lq%rq(%nw,%lw,%rw, %P, %li, %ri)"; }
-    string emitSMT() const override { return "(bvxnor %l %r)"; }
-    string emitSimpleOperator() override { return "<->"; }
-    bool cleanOut() const override { return true; }
-    bool cleanLhs() const override { return true; }
-    bool cleanRhs() const override { return true; }
-    bool sizeMattersLhs() const override { return false; }
-    bool sizeMattersRhs() const override { return false; }
-    int instrCount() const override { return widthInstrs() + INSTR_COUNT_BRANCH; }
+    string emitVerilog() override { తిరిగి "%k(%l %f<-> %r)"; }
+    string emitC() override { తిరిగి "VL_LOGEQ_%nq%lq%rq(%nw,%lw,%rw, %P, %li, %ri)"; }
+    string emitSMT() స్థిరరాశి override { తిరిగి "(bvxnor %l %r)"; }
+    string emitSimpleOperator() override { తిరిగి "<->"; }
+    bool clean_బహిర్గతం() స్థిరరాశి override { తిరిగి true; }
+    bool cleanLhs() స్థిరరాశి override { తిరిగి true; }
+    bool cleanRhs() స్థిరరాశి override { తిరిగి true; }
+    bool కొలత_Matters_Lhs() స్థిరరాశి override { తిరిగి false; }
+    bool కొలత_Matters_Rhs() స్థిరరాశి override { తిరిగి false; }
+    పూర్ణాంకం instr_లెక్క() స్థిరరాశి override { తిరిగి వెడల్పు_Instrs() + INSTR_లెక్క_BRANCH; }
 };
-class AstNeq final : public AstNodeBiCom {
+class AstNeq final : బహిరంగ Ast_కణుపు_Bi_Com {
     // @astgen makeDfgVertex
-public:
-    AstNeq(FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp)
+బహిరంగ:
+    AstNeq(File_పంక్తి* fl, Ast_కణుపు_సమాసం* lhsp, Ast_కణుపు_సమాసం* rhsp)
         : ASTGEN_SUPER_Neq(fl, lhsp, rhsp) {
-        dtypeSetBitOrLogic(isFourstateOrNoDtype(lhsp, rhsp));
+        dtype_సమితి_బిట్టు_Or_Logic(isFourstateOrNoDtype(lhsp, rhsp));
     }
     ASTGEN_MEMBERS_AstNeq;
-    static AstNodeBiop* newTyped(FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp);
-    void numberOperate(V3Number& out, const V3Number& lhs, const V3Number& rhs) override {
-        out.opNeq(lhs, rhs);
+    స్థిర Ast_కణుపు_Biop* newTyped(File_పంక్తి* fl, Ast_కణుపు_సమాసం* lhsp, Ast_కణుపు_సమాసం* rhsp);
+    శూన్య సంఖ్య_నిర్వహించు(V3_సంఖ్య& బహిర్గతం, స్థిరరాశి V3_సంఖ్య& lhs, స్థిరరాశి V3_సంఖ్య& rhs) override {
+        బహిర్గతం.opNeq(lhs, rhs);
     }
-    string emitVerilog() override { return "%k(%l %f!= %r)"; }
-    string emitC() override { return "VL_NEQ_%lq(%lW, %P, %li, %ri)"; }
-    string emitSimpleOperator() override { return "!="; }
-    string emitSMT() const override { return "(__Vbv (not (= %l %r)))"; }
-    bool cleanOut() const override { return true; }
-    bool cleanLhs() const override { return true; }
-    bool cleanRhs() const override { return true; }
-    bool sizeMattersLhs() const override { return false; }
-    bool sizeMattersRhs() const override { return false; }
+    string emitVerilog() override { తిరిగి "%k(%l %f!= %r)"; }
+    string emitC() override { తిరిగి "VL_NEQ_%lq(%lW, %P, %li, %ri)"; }
+    string emitSimpleOperator() override { తిరిగి "!="; }
+    string emitSMT() స్థిరరాశి override { తిరిగి "(__Vbv (not (= %l %r)))"; }
+    bool clean_బహిర్గతం() స్థిరరాశి override { తిరిగి true; }
+    bool cleanLhs() స్థిరరాశి override { తిరిగి true; }
+    bool cleanRhs() స్థిరరాశి override { తిరిగి true; }
+    bool కొలత_Matters_Lhs() స్థిరరాశి override { తిరిగి false; }
+    bool కొలత_Matters_Rhs() స్థిరరాశి override { తిరిగి false; }
 };
-class AstNeqCase final : public AstNodeBiCom {
+class AstNeqCase final : బహిరంగ Ast_కణుపు_Bi_Com {
     // @astgen makeDfgVertex
-public:
-    AstNeqCase(FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp)
+బహిరంగ:
+    AstNeqCase(File_పంక్తి* fl, Ast_కణుపు_సమాసం* lhsp, Ast_కణుపు_సమాసం* rhsp)
         : ASTGEN_SUPER_NeqCase(fl, lhsp, rhsp) {
-        dtypeSetBit();
+        dtype_సమితి_బిట్టు();
     }
     ASTGEN_MEMBERS_AstNeqCase;
-    void numberOperate(V3Number& out, const V3Number& lhs, const V3Number& rhs) override {
-        out.opCaseNeq(lhs, rhs);
+    శూన్య సంఖ్య_నిర్వహించు(V3_సంఖ్య& బహిర్గతం, స్థిరరాశి V3_సంఖ్య& lhs, స్థిరరాశి V3_సంఖ్య& rhs) override {
+        బహిర్గతం.opCaseNeq(lhs, rhs);
     }
-    string emitVerilog() override { return "%k(%l %f!== %r)"; }
-    string emitC() override { return "VL_NEQ_%lq(%lW, %P, %li, %ri)"; }
-    string emitSimpleOperator() override { return "!="; }
-    bool cleanOut() const override { return true; }
-    bool cleanLhs() const override { return true; }
-    bool cleanRhs() const override { return true; }
-    bool sizeMattersLhs() const override { return false; }
-    bool sizeMattersRhs() const override { return false; }
+    string emitVerilog() override { తిరిగి "%k(%l %f!== %r)"; }
+    string emitC() override { తిరిగి "VL_NEQ_%lq(%lW, %P, %li, %ri)"; }
+    string emitSimpleOperator() override { తిరిగి "!="; }
+    bool clean_బహిర్గతం() స్థిరరాశి override { తిరిగి true; }
+    bool cleanLhs() స్థిరరాశి override { తిరిగి true; }
+    bool cleanRhs() స్థిరరాశి override { తిరిగి true; }
+    bool కొలత_Matters_Lhs() స్థిరరాశి override { తిరిగి false; }
+    bool కొలత_Matters_Rhs() స్థిరరాశి override { తిరిగి false; }
 };
-class AstNeqD final : public AstNodeBiCom {
-public:
-    AstNeqD(FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp)
+class AstNeqD final : బహిరంగ Ast_కణుపు_Bi_Com {
+బహిరంగ:
+    AstNeqD(File_పంక్తి* fl, Ast_కణుపు_సమాసం* lhsp, Ast_కణుపు_సమాసం* rhsp)
         : ASTGEN_SUPER_NeqD(fl, lhsp, rhsp) {
-        dtypeSetBit();
+        dtype_సమితి_బిట్టు();
     }
     ASTGEN_MEMBERS_AstNeqD;
-    void numberOperate(V3Number& out, const V3Number& lhs, const V3Number& rhs) override {
-        out.opNeqD(lhs, rhs);
+    శూన్య సంఖ్య_నిర్వహించు(V3_సంఖ్య& బహిర్గతం, స్థిరరాశి V3_సంఖ్య& lhs, స్థిరరాశి V3_సంఖ్య& rhs) override {
+        బహిర్గతం.opNeqD(lhs, rhs);
     }
-    string emitVerilog() override { return "%k(%l %f!= %r)"; }
+    string emitVerilog() override { తిరిగి "%k(%l %f!= %r)"; }
     string emitC() override { V3ERROR_NA_RETURN(""); }
-    string emitSimpleOperator() override { return "!="; }
-    bool cleanOut() const override { return true; }
-    bool cleanLhs() const override { return false; }
-    bool cleanRhs() const override { return false; }
-    bool sizeMattersLhs() const override { return false; }
-    bool sizeMattersRhs() const override { return false; }
-    int instrCount() const override { return INSTR_COUNT_DBL; }
-    bool doubleFlavor() const override { return true; }
+    string emitSimpleOperator() override { తిరిగి "!="; }
+    bool clean_బహిర్గతం() స్థిరరాశి override { తిరిగి true; }
+    bool cleanLhs() స్థిరరాశి override { తిరిగి false; }
+    bool cleanRhs() స్థిరరాశి override { తిరిగి false; }
+    bool కొలత_Matters_Lhs() స్థిరరాశి override { తిరిగి false; }
+    bool కొలత_Matters_Rhs() స్థిరరాశి override { తిరిగి false; }
+    పూర్ణాంకం instr_లెక్క() స్థిరరాశి override { తిరిగి INSTR_లెక్క_DBL; }
+    bool doubleFlavor() స్థిరరాశి override { తిరిగి true; }
 };
-class AstNeqN final : public AstNodeBiCom {
-public:
-    AstNeqN(FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp)
+class AstNeqN final : బహిరంగ Ast_కణుపు_Bi_Com {
+బహిరంగ:
+    AstNeqN(File_పంక్తి* fl, Ast_కణుపు_సమాసం* lhsp, Ast_కణుపు_సమాసం* rhsp)
         : ASTGEN_SUPER_NeqN(fl, lhsp, rhsp) {
-        dtypeSetBit();
+        dtype_సమితి_బిట్టు();
     }
     ASTGEN_MEMBERS_AstNeqN;
-    void numberOperate(V3Number& out, const V3Number& lhs, const V3Number& rhs) override {
-        out.opNeqN(lhs, rhs);
+    శూన్య సంఖ్య_నిర్వహించు(V3_సంఖ్య& బహిర్గతం, స్థిరరాశి V3_సంఖ్య& lhs, స్థిరరాశి V3_సంఖ్య& rhs) override {
+        బహిర్గతం.opNeqN(lhs, rhs);
     }
-    string emitVerilog() override { return "%k(%l %f!= %r)"; }
+    string emitVerilog() override { తిరిగి "%k(%l %f!= %r)"; }
     string emitC() override { V3ERROR_NA_RETURN(""); }
-    string emitSimpleOperator() override { return "!="; }
-    bool cleanOut() const override { return true; }
-    bool cleanLhs() const override { return false; }
-    bool cleanRhs() const override { return false; }
-    bool sizeMattersLhs() const override { return false; }
-    bool sizeMattersRhs() const override { return false; }
-    int instrCount() const override { return INSTR_COUNT_STR; }
-    bool stringFlavor() const override { return true; }
+    string emitSimpleOperator() override { తిరిగి "!="; }
+    bool clean_బహిర్గతం() స్థిరరాశి override { తిరిగి true; }
+    bool cleanLhs() స్థిరరాశి override { తిరిగి false; }
+    bool cleanRhs() స్థిరరాశి override { తిరిగి false; }
+    bool కొలత_Matters_Lhs() స్థిరరాశి override { తిరిగి false; }
+    bool కొలత_Matters_Rhs() స్థిరరాశి override { తిరిగి false; }
+    పూర్ణాంకం instr_లెక్క() స్థిరరాశి override { తిరిగి INSTR_లెక్క_STR; }
+    bool stringFlavor() స్థిరరాశి override { తిరిగి true; }
 };
-class AstNeqT final : public AstNodeBiCom {
+class AstNeqT final : బహిరంగ Ast_కణుపు_Bi_Com {
     // Not-equal (!=) for data types
-public:
-    AstNeqT(FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp)
+బహిరంగ:
+    AstNeqT(File_పంక్తి* fl, Ast_కణుపు_సమాసం* lhsp, Ast_కణుపు_సమాసం* rhsp)
         : ASTGEN_SUPER_NeqT(fl, lhsp, rhsp) {
-        dtypeSetBit();
+        dtype_సమితి_బిట్టు();
     }
     ASTGEN_MEMBERS_AstNeqT;
-    void numberOperate(V3Number&, const V3Number&, const V3Number&) override { V3ERROR_NA; }
-    string emitVerilog() override { return "%k(%l %f!= %r)"; }
+    శూన్య సంఖ్య_నిర్వహించు(V3_సంఖ్య&, స్థిరరాశి V3_సంఖ్య&, స్థిరరాశి V3_సంఖ్య&) override { V3ERROR_NA; }
+    string emitVerilog() override { తిరిగి "%k(%l %f!= %r)"; }
     string emitC() override { V3ERROR_NA_RETURN(""); }
-    string emitSimpleOperator() override { return "!="; }
-    bool cleanOut() const override { return true; }
-    bool cleanLhs() const override { return false; }
-    bool cleanRhs() const override { return false; }
-    bool sizeMattersLhs() const override { return false; }
-    bool sizeMattersRhs() const override { return false; }
-    int instrCount() const override { return INSTR_COUNT_STR; }
+    string emitSimpleOperator() override { తిరిగి "!="; }
+    bool clean_బహిర్గతం() స్థిరరాశి override { తిరిగి true; }
+    bool cleanLhs() స్థిరరాశి override { తిరిగి false; }
+    bool cleanRhs() స్థిరరాశి override { తిరిగి false; }
+    bool కొలత_Matters_Lhs() స్థిరరాశి override { తిరిగి false; }
+    bool కొలత_Matters_Rhs() స్థిరరాశి override { తిరిగి false; }
+    పూర్ణాంకం instr_లెక్క() స్థిరరాశి override { తిరిగి INSTR_లెక్క_STR; }
 };
 
 // === AstNodeBiComAsv ===
-class AstAdd final : public AstNodeBiComAsv {
+class Ast_కూడు final : బహిరంగ Ast_కణుపు_Bi_Com_Asv {
     // @astgen makeDfgVertex
-public:
-    AstAdd(FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp)
-        : ASTGEN_SUPER_Add(fl, lhsp, rhsp) {
+బహిరంగ:
+    Ast_కూడు(File_పంక్తి* fl, Ast_కణుపు_సమాసం* lhsp, Ast_కణుపు_సమాసం* rhsp)
+        : ASTGEN_SUPER_కూడు(fl, lhsp, rhsp) {
         dtypeFrom(lhsp);
     }
-    ASTGEN_MEMBERS_AstAdd;
-    void numberOperate(V3Number& out, const V3Number& lhs, const V3Number& rhs) override {
-        out.opAdd(lhs, rhs);
+    ASTGEN_MEMBERS_Ast_కూడు;
+    శూన్య సంఖ్య_నిర్వహించు(V3_సంఖ్య& బహిర్గతం, స్థిరరాశి V3_సంఖ్య& lhs, స్థిరరాశి V3_సంఖ్య& rhs) override {
+        బహిర్గతం.op_కూడు(lhs, rhs);
     }
-    string emitVerilog() override { return "%k(%l %f+ %r)"; }
-    string emitC() override { return "VL_ADD_%lq(%lW, %P, %li, %ri)"; }
-    string emitSMT() const override { return "(bvadd %l %r)"; }
-    string emitSimpleOperator() override { return "+"; }
-    bool cleanOut() const override { return false; }
-    bool cleanLhs() const override { return false; }
-    bool cleanRhs() const override { return false; }
-    bool sizeMattersLhs() const override { return true; }
-    bool sizeMattersRhs() const override { return true; }
+    string emitVerilog() override { తిరిగి "%k(%l %f+ %r)"; }
+    string emitC() override { తిరిగి "VL_ADD_%lq(%lW, %P, %li, %ri)"; }
+    string emitSMT() స్థిరరాశి override { తిరిగి "(bvadd %l %r)"; }
+    string emitSimpleOperator() override { తిరిగి "+"; }
+    bool clean_బహిర్గతం() స్థిరరాశి override { తిరిగి false; }
+    bool cleanLhs() స్థిరరాశి override { తిరిగి false; }
+    bool cleanRhs() స్థిరరాశి override { తిరిగి false; }
+    bool కొలత_Matters_Lhs() స్థిరరాశి override { తిరిగి true; }
+    bool కొలత_Matters_Rhs() స్థిరరాశి override { తిరిగి true; }
 };
-class AstAddD final : public AstNodeBiComAsv {
-public:
-    AstAddD(FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp)
-        : ASTGEN_SUPER_AddD(fl, lhsp, rhsp) {
-        dtypeSetDouble();
+class Ast_కూడు_D final : బహిరంగ Ast_కణుపు_Bi_Com_Asv {
+బహిరంగ:
+    Ast_కూడు_D(File_పంక్తి* fl, Ast_కణుపు_సమాసం* lhsp, Ast_కణుపు_సమాసం* rhsp)
+        : ASTGEN_SUPER_కూడు_D(fl, lhsp, rhsp) {
+        dtype_సమితి_Double();
     }
-    ASTGEN_MEMBERS_AstAddD;
-    void numberOperate(V3Number& out, const V3Number& lhs, const V3Number& rhs) override {
-        out.opAddD(lhs, rhs);
+    ASTGEN_MEMBERS_Ast_కూడు_D;
+    శూన్య సంఖ్య_నిర్వహించు(V3_సంఖ్య& బహిర్గతం, స్థిరరాశి V3_సంఖ్య& lhs, స్థిరరాశి V3_సంఖ్య& rhs) override {
+        బహిర్గతం.op_కూడు_D(lhs, rhs);
     }
-    string emitVerilog() override { return "%k(%l %f+ %r)"; }
+    string emitVerilog() override { తిరిగి "%k(%l %f+ %r)"; }
     string emitC() override { V3ERROR_NA_RETURN(""); }
-    string emitSimpleOperator() override { return "+"; }
-    bool cleanOut() const override { return true; }
-    bool cleanLhs() const override { return false; }
-    bool cleanRhs() const override { return false; }
-    bool sizeMattersLhs() const override { return false; }
-    bool sizeMattersRhs() const override { return false; }
-    int instrCount() const override { return INSTR_COUNT_DBL; }
-    bool doubleFlavor() const override { return true; }
+    string emitSimpleOperator() override { తిరిగి "+"; }
+    bool clean_బహిర్గతం() స్థిరరాశి override { తిరిగి true; }
+    bool cleanLhs() స్థిరరాశి override { తిరిగి false; }
+    bool cleanRhs() స్థిరరాశి override { తిరిగి false; }
+    bool కొలత_Matters_Lhs() స్థిరరాశి override { తిరిగి false; }
+    bool కొలత_Matters_Rhs() స్థిరరాశి override { తిరిగి false; }
+    పూర్ణాంకం instr_లెక్క() స్థిరరాశి override { తిరిగి INSTR_లెక్క_DBL; }
+    bool doubleFlavor() స్థిరరాశి override { తిరిగి true; }
 };
-class AstAnd final : public AstNodeBiComAsv {
+class AstAnd final : బహిరంగ Ast_కణుపు_Bi_Com_Asv {
     // @astgen makeDfgVertex
-public:
-    AstAnd(FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp)
+బహిరంగ:
+    AstAnd(File_పంక్తి* fl, Ast_కణుపు_సమాసం* lhsp, Ast_కణుపు_సమాసం* rhsp)
         : ASTGEN_SUPER_And(fl, lhsp, rhsp) {
         dtypeFrom(lhsp);
     }
     ASTGEN_MEMBERS_AstAnd;
-    void numberOperate(V3Number& out, const V3Number& lhs, const V3Number& rhs) override {
-        out.opAnd(lhs, rhs);
+    శూన్య సంఖ్య_నిర్వహించు(V3_సంఖ్య& బహిర్గతం, స్థిరరాశి V3_సంఖ్య& lhs, స్థిరరాశి V3_సంఖ్య& rhs) override {
+        బహిర్గతం.opAnd(lhs, rhs);
     }
-    string emitVerilog() override { return "%k(%l %f& %r)"; }
-    string emitC() override { return "VL_AND_%lq(%lW, %P, %li, %ri)"; }
-    string emitSMT() const override { return "(bvand %l %r)"; }
-    string emitSimpleOperator() override { return "&"; }
-    bool cleanOut() const override { V3ERROR_NA_RETURN(false); }
-    bool cleanLhs() const override { return false; }
-    bool cleanRhs() const override { return false; }
-    bool sizeMattersLhs() const override { return false; }
-    bool sizeMattersRhs() const override { return false; }
-    const char* widthMismatch() const override VL_MT_STABLE;
+    string emitVerilog() override { తిరిగి "%k(%l %f& %r)"; }
+    string emitC() override { తిరిగి "VL_AND_%lq(%lW, %P, %li, %ri)"; }
+    string emitSMT() స్థిరరాశి override { తిరిగి "(bvand %l %r)"; }
+    string emitSimpleOperator() override { తిరిగి "&"; }
+    bool clean_బహిర్గతం() స్థిరరాశి override { V3ERROR_NA_RETURN(false); }
+    bool cleanLhs() స్థిరరాశి override { తిరిగి false; }
+    bool cleanRhs() స్థిరరాశి override { తిరిగి false; }
+    bool కొలత_Matters_Lhs() స్థిరరాశి override { తిరిగి false; }
+    bool కొలత_Matters_Rhs() స్థిరరాశి override { తిరిగి false; }
+    స్థిరరాశి అక్షరం* వెడల్పు_Mismatch() స్థిరరాశి override VL_MT_STABLE;
 };
-class AstMul final : public AstNodeBiComAsv {
+class AstMul final : బహిరంగ Ast_కణుపు_Bi_Com_Asv {
     // @astgen makeDfgVertex
-public:
-    AstMul(FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp)
+బహిరంగ:
+    AstMul(File_పంక్తి* fl, Ast_కణుపు_సమాసం* lhsp, Ast_కణుపు_సమాసం* rhsp)
         : ASTGEN_SUPER_Mul(fl, lhsp, rhsp) {
         dtypeFrom(lhsp);
     }
     ASTGEN_MEMBERS_AstMul;
-    void numberOperate(V3Number& out, const V3Number& lhs, const V3Number& rhs) override {
-        out.opMul(lhs, rhs);
+    శూన్య సంఖ్య_నిర్వహించు(V3_సంఖ్య& బహిర్గతం, స్థిరరాశి V3_సంఖ్య& lhs, స్థిరరాశి V3_సంఖ్య& rhs) override {
+        బహిర్గతం.opMul(lhs, rhs);
     }
-    string emitVerilog() override { return "%k(%l %f* %r)"; }
-    string emitC() override { return "VL_MUL_%lq(%lW, %P, %li, %ri)"; }
-    string emitSMT() const override { return "(bvmul %l %r)"; }
-    string emitSimpleOperator() override { return "*"; }
-    bool cleanOut() const override { return false; }
-    bool cleanLhs() const override { return true; }
-    bool cleanRhs() const override { return true; }
-    bool sizeMattersLhs() const override { return true; }
-    bool sizeMattersRhs() const override { return true; }
-    int instrCount() const override { return widthInstrs() * INSTR_COUNT_INT_MUL; }
+    string emitVerilog() override { తిరిగి "%k(%l %f* %r)"; }
+    string emitC() override { తిరిగి "VL_MUL_%lq(%lW, %P, %li, %ri)"; }
+    string emitSMT() స్థిరరాశి override { తిరిగి "(bvmul %l %r)"; }
+    string emitSimpleOperator() override { తిరిగి "*"; }
+    bool clean_బహిర్గతం() స్థిరరాశి override { తిరిగి false; }
+    bool cleanLhs() స్థిరరాశి override { తిరిగి true; }
+    bool cleanRhs() స్థిరరాశి override { తిరిగి true; }
+    bool కొలత_Matters_Lhs() స్థిరరాశి override { తిరిగి true; }
+    bool కొలత_Matters_Rhs() స్థిరరాశి override { తిరిగి true; }
+    పూర్ణాంకం instr_లెక్క() స్థిరరాశి override { తిరిగి వెడల్పు_Instrs() * INSTR_లెక్క_INT_MUL; }
 };
-class AstMulD final : public AstNodeBiComAsv {
-public:
-    AstMulD(FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp)
+class AstMulD final : బహిరంగ Ast_కణుపు_Bi_Com_Asv {
+బహిరంగ:
+    AstMulD(File_పంక్తి* fl, Ast_కణుపు_సమాసం* lhsp, Ast_కణుపు_సమాసం* rhsp)
         : ASTGEN_SUPER_MulD(fl, lhsp, rhsp) {
-        dtypeSetDouble();
+        dtype_సమితి_Double();
     }
     ASTGEN_MEMBERS_AstMulD;
-    void numberOperate(V3Number& out, const V3Number& lhs, const V3Number& rhs) override {
-        out.opMulD(lhs, rhs);
+    శూన్య సంఖ్య_నిర్వహించు(V3_సంఖ్య& బహిర్గతం, స్థిరరాశి V3_సంఖ్య& lhs, స్థిరరాశి V3_సంఖ్య& rhs) override {
+        బహిర్గతం.opMulD(lhs, rhs);
     }
-    string emitVerilog() override { return "%k(%l %f* %r)"; }
+    string emitVerilog() override { తిరిగి "%k(%l %f* %r)"; }
     string emitC() override { V3ERROR_NA_RETURN(""); }
-    string emitSimpleOperator() override { return "*"; }
-    bool cleanOut() const override { return true; }
-    bool cleanLhs() const override { return false; }
-    bool cleanRhs() const override { return false; }
-    bool sizeMattersLhs() const override { return true; }
-    bool sizeMattersRhs() const override { return true; }
-    int instrCount() const override { return INSTR_COUNT_DBL; }
-    bool doubleFlavor() const override { return true; }
+    string emitSimpleOperator() override { తిరిగి "*"; }
+    bool clean_బహిర్గతం() స్థిరరాశి override { తిరిగి true; }
+    bool cleanLhs() స్థిరరాశి override { తిరిగి false; }
+    bool cleanRhs() స్థిరరాశి override { తిరిగి false; }
+    bool కొలత_Matters_Lhs() స్థిరరాశి override { తిరిగి true; }
+    bool కొలత_Matters_Rhs() స్థిరరాశి override { తిరిగి true; }
+    పూర్ణాంకం instr_లెక్క() స్థిరరాశి override { తిరిగి INSTR_లెక్క_DBL; }
+    bool doubleFlavor() స్థిరరాశి override { తిరిగి true; }
 };
-class AstMulS final : public AstNodeBiComAsv {
+class AstMulS final : బహిరంగ Ast_కణుపు_Bi_Com_Asv {
     // @astgen makeDfgVertex
-public:
-    AstMulS(FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp)
+బహిరంగ:
+    AstMulS(File_పంక్తి* fl, Ast_కణుపు_సమాసం* lhsp, Ast_కణుపు_సమాసం* rhsp)
         : ASTGEN_SUPER_MulS(fl, lhsp, rhsp) {
         dtypeFrom(lhsp);
     }
     ASTGEN_MEMBERS_AstMulS;
-    void numberOperate(V3Number& out, const V3Number& lhs, const V3Number& rhs) override {
-        out.opMulS(lhs, rhs);
+    శూన్య సంఖ్య_నిర్వహించు(V3_సంఖ్య& బహిర్గతం, స్థిరరాశి V3_సంఖ్య& lhs, స్థిరరాశి V3_సంఖ్య& rhs) override {
+        బహిర్గతం.opMulS(lhs, rhs);
     }
-    string emitVerilog() override { return "%k(%l %f* %r)"; }
-    string emitC() override { return "VL_MULS_%nq%lq%rq(%lw, %P, %li, %ri)"; }
-    string emitSMT() const override { return "(bvmul %l %r)"; }
-    string emitSimpleOperator() override { return ""; }
-    bool emitCheckMaxWords() override { return true; }
-    bool cleanOut() const override { return false; }
-    bool cleanLhs() const override { return true; }
-    bool cleanRhs() const override { return true; }
-    bool sizeMattersLhs() const override { return true; }
-    bool sizeMattersRhs() const override { return true; }
-    int instrCount() const override { return widthInstrs() * INSTR_COUNT_INT_MUL; }
-    bool signedFlavor() const override { return true; }
+    string emitVerilog() override { తిరిగి "%k(%l %f* %r)"; }
+    string emitC() override { తిరిగి "VL_MULS_%nq%lq%rq(%lw, %P, %li, %ri)"; }
+    string emitSMT() స్థిరరాశి override { తిరిగి "(bvmul %l %r)"; }
+    string emitSimpleOperator() override { తిరిగి ""; }
+    bool emit_Check_Max_పదాలు() override { తిరిగి true; }
+    bool clean_బహిర్గతం() స్థిరరాశి override { తిరిగి false; }
+    bool cleanLhs() స్థిరరాశి override { తిరిగి true; }
+    bool cleanRhs() స్థిరరాశి override { తిరిగి true; }
+    bool కొలత_Matters_Lhs() స్థిరరాశి override { తిరిగి true; }
+    bool కొలత_Matters_Rhs() స్థిరరాశి override { తిరిగి true; }
+    పూర్ణాంకం instr_లెక్క() స్థిరరాశి override { తిరిగి వెడల్పు_Instrs() * INSTR_లెక్క_INT_MUL; }
+    bool signedFlavor() స్థిరరాశి override { తిరిగి true; }
 };
-class AstOr final : public AstNodeBiComAsv {
+class AstOr final : బహిరంగ Ast_కణుపు_Bi_Com_Asv {
     // @astgen makeDfgVertex
-public:
-    AstOr(FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp)
+బహిరంగ:
+    AstOr(File_పంక్తి* fl, Ast_కణుపు_సమాసం* lhsp, Ast_కణుపు_సమాసం* rhsp)
         : ASTGEN_SUPER_Or(fl, lhsp, rhsp) {
         dtypeFrom(lhsp);
     }
     ASTGEN_MEMBERS_AstOr;
-    void numberOperate(V3Number& out, const V3Number& lhs, const V3Number& rhs) override {
-        out.opOr(lhs, rhs);
+    శూన్య సంఖ్య_నిర్వహించు(V3_సంఖ్య& బహిర్గతం, స్థిరరాశి V3_సంఖ్య& lhs, స్థిరరాశి V3_సంఖ్య& rhs) override {
+        బహిర్గతం.opOr(lhs, rhs);
     }
-    string emitVerilog() override { return "%k(%l %f| %r)"; }
-    string emitC() override { return "VL_OR_%lq(%lW, %P, %li, %ri)"; }
-    string emitSMT() const override { return "(bvor %l %r)"; }
-    string emitSimpleOperator() override { return "|"; }
-    bool cleanOut() const override { V3ERROR_NA_RETURN(false); }
-    bool cleanLhs() const override { return false; }
-    bool cleanRhs() const override { return false; }
-    bool sizeMattersLhs() const override { return false; }
-    bool sizeMattersRhs() const override { return false; }
-    const char* widthMismatch() const override VL_MT_STABLE;
+    string emitVerilog() override { తిరిగి "%k(%l %f| %r)"; }
+    string emitC() override { తిరిగి "VL_OR_%lq(%lW, %P, %li, %ri)"; }
+    string emitSMT() స్థిరరాశి override { తిరిగి "(bvor %l %r)"; }
+    string emitSimpleOperator() override { తిరిగి "|"; }
+    bool clean_బహిర్గతం() స్థిరరాశి override { V3ERROR_NA_RETURN(false); }
+    bool cleanLhs() స్థిరరాశి override { తిరిగి false; }
+    bool cleanRhs() స్థిరరాశి override { తిరిగి false; }
+    bool కొలత_Matters_Lhs() స్థిరరాశి override { తిరిగి false; }
+    bool కొలత_Matters_Rhs() స్థిరరాశి override { తిరిగి false; }
+    స్థిరరాశి అక్షరం* వెడల్పు_Mismatch() స్థిరరాశి override VL_MT_STABLE;
 };
-class AstXor final : public AstNodeBiComAsv {
+class AstXor final : బహిరంగ Ast_కణుపు_Bi_Com_Asv {
     // @astgen makeDfgVertex
-public:
-    AstXor(FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp)
+బహిరంగ:
+    AstXor(File_పంక్తి* fl, Ast_కణుపు_సమాసం* lhsp, Ast_కణుపు_సమాసం* rhsp)
         : ASTGEN_SUPER_Xor(fl, lhsp, rhsp) {
         dtypeFrom(lhsp);
     }
     ASTGEN_MEMBERS_AstXor;
-    void numberOperate(V3Number& out, const V3Number& lhs, const V3Number& rhs) override {
-        out.opXor(lhs, rhs);
+    శూన్య సంఖ్య_నిర్వహించు(V3_సంఖ్య& బహిర్గతం, స్థిరరాశి V3_సంఖ్య& lhs, స్థిరరాశి V3_సంఖ్య& rhs) override {
+        బహిర్గతం.opXor(lhs, rhs);
     }
-    string emitVerilog() override { return "%k(%l %f^ %r)"; }
-    string emitC() override { return "VL_XOR_%lq(%lW, %P, %li, %ri)"; }
-    string emitSMT() const override { return "(bvxor %l %r)"; }
-    string emitSimpleOperator() override { return "^"; }
-    bool cleanOut() const override { return false; }  // Lclean && Rclean
-    bool cleanLhs() const override { return false; }
-    bool cleanRhs() const override { return false; }
-    bool sizeMattersLhs() const override { return false; }
-    bool sizeMattersRhs() const override { return false; }
-    const char* widthMismatch() const override VL_MT_STABLE;
+    string emitVerilog() override { తిరిగి "%k(%l %f^ %r)"; }
+    string emitC() override { తిరిగి "VL_XOR_%lq(%lW, %P, %li, %ri)"; }
+    string emitSMT() స్థిరరాశి override { తిరిగి "(bvxor %l %r)"; }
+    string emitSimpleOperator() override { తిరిగి "^"; }
+    bool clean_బహిర్గతం() స్థిరరాశి override { తిరిగి false; }  // Lclean && Rclean
+    bool cleanLhs() స్థిరరాశి override { తిరిగి false; }
+    bool cleanRhs() స్థిరరాశి override { తిరిగి false; }
+    bool కొలత_Matters_Lhs() స్థిరరాశి override { తిరిగి false; }
+    bool కొలత_Matters_Rhs() స్థిరరాశి override { తిరిగి false; }
+    స్థిరరాశి అక్షరం* వెడల్పు_Mismatch() స్థిరరాశి override VL_MT_STABLE;
 };
 
 // === AstNodeDistBiop ===
-class AstDistChiSquare final : public AstNodeDistBiop {
-public:
-    AstDistChiSquare(FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp)
-        : ASTGEN_SUPER_DistChiSquare(fl, lhsp, rhsp) {}
-    ASTGEN_MEMBERS_AstDistChiSquare;
-    string emitVerilog() override { return "%f$dist_chi_square(%l, %r)"; }
-    string emitC() override { return "VL_DIST_CHI_SQUARE(%li, %ri)"; }
+class Ast_Dist_Chi_వర్గం final : బహిరంగ Ast_కణుపు_Dist_Biop {
+బహిరంగ:
+    Ast_Dist_Chi_వర్గం(File_పంక్తి* fl, Ast_కణుపు_సమాసం* lhsp, Ast_కణుపు_సమాసం* rhsp)
+        : ASTGEN_SUPER_Dist_Chi_వర్గం(fl, lhsp, rhsp) {}
+    ASTGEN_MEMBERS_Ast_Dist_Chi_వర్గం;
+    string emitVerilog() override { తిరిగి "%f$dist_chi_square(%l, %r)"; }
+    string emitC() override { తిరిగి "VL_DIST_CHI_SQUARE(%li, %ri)"; }
 };
-class AstDistExponential final : public AstNodeDistBiop {
-public:
-    AstDistExponential(FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp)
-        : ASTGEN_SUPER_DistExponential(fl, lhsp, rhsp) {}
-    ASTGEN_MEMBERS_AstDistExponential;
-    string emitVerilog() override { return "%f$dist_exponential(%l, %r)"; }
-    string emitC() override { return "VL_DIST_EXPONENTIAL(%li, %ri)"; }
+class Ast_Dist_ఘాతాంక final : బహిరంగ Ast_కణుపు_Dist_Biop {
+బహిరంగ:
+    Ast_Dist_ఘాతాంక(File_పంక్తి* fl, Ast_కణుపు_సమాసం* lhsp, Ast_కణుపు_సమాసం* rhsp)
+        : ASTGEN_SUPER_Dist_ఘాతాంక(fl, lhsp, rhsp) {}
+    ASTGEN_MEMBERS_Ast_Dist_ఘాతాంక;
+    string emitVerilog() override { తిరిగి "%f$dist_exponential(%l, %r)"; }
+    string emitC() override { తిరిగి "VL_DIST_EXPONENTIAL(%li, %ri)"; }
 };
-class AstDistPoisson final : public AstNodeDistBiop {
-public:
-    AstDistPoisson(FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp)
-        : ASTGEN_SUPER_DistPoisson(fl, lhsp, rhsp) {}
-    ASTGEN_MEMBERS_AstDistPoisson;
-    string emitVerilog() override { return "%f$dist_poisson(%l, %r)"; }
-    string emitC() override { return "VL_DIST_POISSON(%li, %ri)"; }
+class Ast_Dist_పాయిసాన్ final : బహిరంగ Ast_కణుపు_Dist_Biop {
+బహిరంగ:
+    Ast_Dist_పాయిసాన్(File_పంక్తి* fl, Ast_కణుపు_సమాసం* lhsp, Ast_కణుపు_సమాసం* rhsp)
+        : ASTGEN_SUPER_Dist_పాయిసాన్(fl, lhsp, rhsp) {}
+    ASTGEN_MEMBERS_Ast_Dist_పాయిసాన్;
+    string emitVerilog() override { తిరిగి "%f$dist_poisson(%l, %r)"; }
+    string emitC() override { తిరిగి "VL_DIST_POISSON(%li, %ri)"; }
 };
-class AstDistT final : public AstNodeDistBiop {
-public:
-    AstDistT(FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp)
+class AstDistT final : బహిరంగ Ast_కణుపు_Dist_Biop {
+బహిరంగ:
+    AstDistT(File_పంక్తి* fl, Ast_కణుపు_సమాసం* lhsp, Ast_కణుపు_సమాసం* rhsp)
         : ASTGEN_SUPER_DistT(fl, lhsp, rhsp) {}
     ASTGEN_MEMBERS_AstDistT;
-    string emitVerilog() override { return "%f$dist_t(%l, %r)"; }
-    string emitC() override { return "VL_DIST_T(%li, %ri)"; }
+    string emitVerilog() override { తిరిగి "%f$dist_t(%l, %r)"; }
+    string emitC() override { తిరిగి "VL_DIST_T(%li, %ri)"; }
 };
 
 // === AstNodeSel ===
-class AstArraySel final : public AstNodeSel {
+class AstArraySel final : బహిరంగ Ast_కణుపు_Sel {
     // @astgen makeDfgVertex
-    void init(const AstNode* fromp) {
-        if (fromp && VN_IS(fromp->dtypep()->skipRefp(), NodeArrayDType)) {
+    శూన్య init(స్థిరరాశి Ast_కణుపు* fromp) {
+        ఒకవేళ (fromp && VN_IS(fromp->dtypep()->skipRefp(), కణుపు_Array_DType)) {
             // Strip off array to find what array references
-            dtypeFrom(VN_AS(fromp->dtypep()->skipRefp(), NodeArrayDType)->subDTypep());
+            dtypeFrom(VN_AS(fromp->dtypep()->skipRefp(), కణుపు_Array_DType)->subDTypep());
         }
     }
 
-public:
-    AstArraySel(FileLine* fl, AstNodeExpr* fromp, AstNodeExpr* bitp)
+బహిరంగ:
+    AstArraySel(File_పంక్తి* fl, Ast_కణుపు_సమాసం* fromp, Ast_కణుపు_సమాసం* bitp)
         : ASTGEN_SUPER_ArraySel(fl, fromp, bitp) {
         init(fromp);
     }
-    AstArraySel(FileLine* fl, AstNodeExpr* fromp, int bit)
-        : ASTGEN_SUPER_ArraySel(fl, fromp, new AstConst(fl, bit)) {  // Need () constructor
+    AstArraySel(File_పంక్తి* fl, Ast_కణుపు_సమాసం* fromp, పూర్ణాంకం బిట్టు_2)
+        : ASTGEN_SUPER_ArraySel(fl, fromp, new AstConst(fl, బిట్టు_2)) {  // Need () constructor
         init(fromp);
     }
     ASTGEN_MEMBERS_AstArraySel;
-    void numberOperate(V3Number&, const V3Number&, const V3Number&) override { V3ERROR_NA; }
-    string emitVerilog() override { return "%k(%l%f[%r])"; }
+    శూన్య సంఖ్య_నిర్వహించు(V3_సంఖ్య&, స్థిరరాశి V3_సంఖ్య&, స్థిరరాశి V3_సంఖ్య&) override { V3ERROR_NA; }
+    string emitVerilog() override { తిరిగి "%k(%l%f[%r])"; }
     string emitC() override { V3ERROR_NA_RETURN(""); }  // Special cased
-    string emitSMT() const override { return "(select %l %r)"; }
-    bool cleanOut() const override { return true; }
-    bool cleanLhs() const override { return false; }
-    bool cleanRhs() const override { return true; }
-    bool sizeMattersLhs() const override { return false; }
-    bool sizeMattersRhs() const override { return false; }
-    bool isGateOptimizable() const override { return true; }  // esp for V3Const::ifSameAssign
-    bool isPredictOptimizable() const override { return true; }
-    bool sameNode(const AstNode* /*samep*/) const override { return true; }
-    int instrCount() const override { return widthInstrs(); }
+    string emitSMT() స్థిరరాశి override { తిరిగి "(select %l %r)"; }
+    bool clean_బహిర్గతం() స్థిరరాశి override { తిరిగి true; }
+    bool cleanLhs() స్థిరరాశి override { తిరిగి false; }
+    bool cleanRhs() స్థిరరాశి override { తిరిగి true; }
+    bool కొలత_Matters_Lhs() స్థిరరాశి override { తిరిగి false; }
+    bool కొలత_Matters_Rhs() స్థిరరాశి override { తిరిగి false; }
+    bool isGateOptimizable() స్థిరరాశి override { తిరిగి true; }  // esp for V3Const::ifSameAssign
+    bool isPredictOptimizable() స్థిరరాశి override { తిరిగి true; }
+    bool same_కణుపు(స్థిరరాశి Ast_కణుపు* /*samep*/) స్థిరరాశి override { తిరిగి true; }
+    పూర్ణాంకం instr_లెక్క() స్థిరరాశి override { తిరిగి వెడల్పు_Instrs(); }
 };
-class AstAssocSel final : public AstNodeSel {
-    void init(const AstNode* fromp) {
-        if (fromp && VN_IS(fromp->dtypep()->skipRefp(), AssocArrayDType)) {
+class AstAssocSel final : బహిరంగ Ast_కణుపు_Sel {
+    శూన్య init(స్థిరరాశి Ast_కణుపు* fromp) {
+        ఒకవేళ (fromp && VN_IS(fromp->dtypep()->skipRefp(), AssocArrayDType)) {
             // Strip off array to find what array references
             dtypeFrom(VN_AS(fromp->dtypep()->skipRefp(), AssocArrayDType)->subDTypep());
         }
     }
 
-public:
-    AstAssocSel(FileLine* fl, AstNodeExpr* fromp, AstNodeExpr* bitp)
+బహిరంగ:
+    AstAssocSel(File_పంక్తి* fl, Ast_కణుపు_సమాసం* fromp, Ast_కణుపు_సమాసం* bitp)
         : ASTGEN_SUPER_AssocSel(fl, fromp, bitp) {
         init(fromp);
     }
     ASTGEN_MEMBERS_AstAssocSel;
-    void numberOperate(V3Number&, const V3Number&, const V3Number&) override { V3ERROR_NA; }
-    string emitVerilog() override { return "%k(%l%f[%r])"; }
-    string emitC() override { return "%li%k[%ri]"; }
-    string emitSMT() const override { return "(select %l %r)"; }
-    bool cleanOut() const override { return true; }
-    bool cleanLhs() const override { return false; }
-    bool cleanRhs() const override { return true; }
-    bool sizeMattersLhs() const override { return false; }
-    bool sizeMattersRhs() const override { return false; }
-    bool isGateOptimizable() const override {
-        return !isLValue();  // AssocSel creates on miss
+    శూన్య సంఖ్య_నిర్వహించు(V3_సంఖ్య&, స్థిరరాశి V3_సంఖ్య&, స్థిరరాశి V3_సంఖ్య&) override { V3ERROR_NA; }
+    string emitVerilog() override { తిరిగి "%k(%l%f[%r])"; }
+    string emitC() override { తిరిగి "%li%k[%ri]"; }
+    string emitSMT() స్థిరరాశి override { తిరిగి "(select %l %r)"; }
+    bool clean_బహిర్గతం() స్థిరరాశి override { తిరిగి true; }
+    bool cleanLhs() స్థిరరాశి override { తిరిగి false; }
+    bool cleanRhs() స్థిరరాశి override { తిరిగి true; }
+    bool కొలత_Matters_Lhs() స్థిరరాశి override { తిరిగి false; }
+    bool కొలత_Matters_Rhs() స్థిరరాశి override { తిరిగి false; }
+    bool isGateOptimizable() స్థిరరాశి override {
+        తిరిగి !isLValue();  // AssocSel creates on miss
     }
-    bool isPredictOptimizable() const override { return false; }
-    bool isPure() override { return !isLValue(); }  // AssocSel creates on miss
-    bool sameNode(const AstNode* /*samep*/) const override { return true; }
-    int instrCount() const override { return widthInstrs(); }
+    bool isPredictOptimizable() స్థిరరాశి override { తిరిగి false; }
+    bool is_శుద్ధ() override { తిరిగి !isLValue(); }  // AssocSel creates on miss
+    bool same_కణుపు(స్థిరరాశి Ast_కణుపు* /*samep*/) స్థిరరాశి override { తిరిగి true; }
+    పూర్ణాంకం instr_లెక్క() స్థిరరాశి override { తిరిగి వెడల్పు_Instrs(); }
 };
-class AstWildcardSel final : public AstNodeSel {
-    void init(const AstNode* fromp) {
-        if (fromp && VN_IS(fromp->dtypep()->skipRefp(), WildcardArrayDType)) {
+class AstWildcardSel final : బహిరంగ Ast_కణుపు_Sel {
+    శూన్య init(స్థిరరాశి Ast_కణుపు* fromp) {
+        ఒకవేళ (fromp && VN_IS(fromp->dtypep()->skipRefp(), WildcardArrayDType)) {
             // Strip off array to find what array references
             dtypeFrom(VN_AS(fromp->dtypep()->skipRefp(), WildcardArrayDType)->subDTypep());
         }
     }
 
-public:
-    AstWildcardSel(FileLine* fl, AstNodeExpr* fromp, AstNodeExpr* bitp)
+బహిరంగ:
+    AstWildcardSel(File_పంక్తి* fl, Ast_కణుపు_సమాసం* fromp, Ast_కణుపు_సమాసం* bitp)
         : ASTGEN_SUPER_WildcardSel(fl, fromp, bitp) {
         init(fromp);
     }
     ASTGEN_MEMBERS_AstWildcardSel;
-    void numberOperate(V3Number&, const V3Number&, const V3Number&) override { V3ERROR_NA; }
-    string emitVerilog() override { return "%k(%l%f[%r])"; }
-    string emitC() override { return "%li%k[%ri]"; }
-    bool cleanOut() const override { return true; }
-    bool cleanLhs() const override { return false; }
-    bool cleanRhs() const override { return true; }
-    bool sizeMattersLhs() const override { return false; }
-    bool sizeMattersRhs() const override { return false; }
-    bool isGateOptimizable() const override { return true; }  // esp for V3Const::ifSameAssign
-    bool isPredictOptimizable() const override { return false; }
-    bool sameNode(const AstNode* /*samep*/) const override { return true; }
-    int instrCount() const override { return widthInstrs(); }
+    శూన్య సంఖ్య_నిర్వహించు(V3_సంఖ్య&, స్థిరరాశి V3_సంఖ్య&, స్థిరరాశి V3_సంఖ్య&) override { V3ERROR_NA; }
+    string emitVerilog() override { తిరిగి "%k(%l%f[%r])"; }
+    string emitC() override { తిరిగి "%li%k[%ri]"; }
+    bool clean_బహిర్గతం() స్థిరరాశి override { తిరిగి true; }
+    bool cleanLhs() స్థిరరాశి override { తిరిగి false; }
+    bool cleanRhs() స్థిరరాశి override { తిరిగి true; }
+    bool కొలత_Matters_Lhs() స్థిరరాశి override { తిరిగి false; }
+    bool కొలత_Matters_Rhs() స్థిరరాశి override { తిరిగి false; }
+    bool isGateOptimizable() స్థిరరాశి override { తిరిగి true; }  // esp for V3Const::ifSameAssign
+    bool isPredictOptimizable() స్థిరరాశి override { తిరిగి false; }
+    bool same_కణుపు(స్థిరరాశి Ast_కణుపు* /*samep*/) స్థిరరాశి override { తిరిగి true; }
+    పూర్ణాంకం instr_లెక్క() స్థిరరాశి override { తిరిగి వెడల్పు_Instrs(); }
 };
-class AstWordSel final : public AstNodeSel {
+class Ast_మాట_Sel final : బహిరంగ Ast_కణుపు_Sel {
     // Select a single word from a multi-word wide value
-public:
-    AstWordSel(FileLine* fl, AstNodeExpr* fromp, AstNodeExpr* bitp)
-        : ASTGEN_SUPER_WordSel(fl, fromp, bitp) {
-        dtypeSetUInt32();  // Always used on VlWide arrays so returns EData size
+బహిరంగ:
+    Ast_మాట_Sel(File_పంక్తి* fl, Ast_కణుపు_సమాసం* fromp, Ast_కణుపు_సమాసం* bitp)
+        : ASTGEN_SUPER_మాట_Sel(fl, fromp, bitp) {
+        dtype_సమితి_UInt32();  // Always used on VlWide arrays so returns EData size
     }
-    ASTGEN_MEMBERS_AstWordSel;
-    void numberOperate(V3Number&, const V3Number&, const V3Number&) override { V3ERROR_NA; }
-    string emitVerilog() override { return "%k(%l%f[%r])"; }
+    ASTGEN_MEMBERS_Ast_మాట_Sel;
+    శూన్య సంఖ్య_నిర్వహించు(V3_సంఖ్య&, స్థిరరాశి V3_సంఖ్య&, స్థిరరాశి V3_సంఖ్య&) override { V3ERROR_NA; }
+    string emitVerilog() override { తిరిగి "%k(%l%f[%r])"; }
     string emitC() override { V3ERROR_NA_RETURN(""); }  // Special cased
-    bool cleanOut() const override { return true; }
-    bool cleanLhs() const override { return true; }
-    bool cleanRhs() const override { return true; }
-    bool sizeMattersLhs() const override { return false; }
-    bool sizeMattersRhs() const override { return false; }
-    bool sameNode(const AstNode* /*samep*/) const override { return true; }
+    bool clean_బహిర్గతం() స్థిరరాశి override { తిరిగి true; }
+    bool cleanLhs() స్థిరరాశి override { తిరిగి true; }
+    bool cleanRhs() స్థిరరాశి override { తిరిగి true; }
+    bool కొలత_Matters_Lhs() స్థిరరాశి override { తిరిగి false; }
+    bool కొలత_Matters_Rhs() స్థిరరాశి override { తిరిగి false; }
+    bool same_కణుపు(స్థిరరాశి Ast_కణుపు* /*samep*/) స్థిరరాశి override { తిరిగి true; }
 };
 
 // === AstNodeStream ===
-class AstStreamL final : public AstNodeStream {
+class Ast_ప్రవాహం_L final : బహిరంగ Ast_కణుపు_ప్రవాహం {
     // Verilog {rhs{lhs}} - Note rhsp() is the slice size, not the lhsp()
     // @astgen makeDfgVertex
-public:
-    AstStreamL(FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp)
-        : ASTGEN_SUPER_StreamL(fl, lhsp, rhsp) {}
-    ASTGEN_MEMBERS_AstStreamL;
-    string emitVerilog() override { return "%f{ << %r %k{%l} }"; }
-    void numberOperate(V3Number& out, const V3Number& lhs, const V3Number& rhs) override {
-        out.opStreamL(lhs, rhs);
+బహిరంగ:
+    Ast_ప్రవాహం_L(File_పంక్తి* fl, Ast_కణుపు_సమాసం* lhsp, Ast_కణుపు_సమాసం* rhsp)
+        : ASTGEN_SUPER_ప్రవాహం_L(fl, lhsp, rhsp) {}
+    ASTGEN_MEMBERS_Ast_ప్రవాహం_L;
+    string emitVerilog() override { తిరిగి "%f{ << %r %k{%l} }"; }
+    శూన్య సంఖ్య_నిర్వహించు(V3_సంఖ్య& బహిర్గతం, స్థిరరాశి V3_సంఖ్య& lhs, స్థిరరాశి V3_సంఖ్య& rhs) override {
+        బహిర్గతం.op_ప్రవాహం_L(lhs, rhs);
     }
-    string emitC() override { return "VL_STREAML_%nq%lq%rq(%lw, %P, %li, %ri)"; }
-    bool cleanOut() const override { return true; }
-    bool cleanLhs() const override { return true; }
-    bool cleanRhs() const override { return true; }
-    bool sizeMattersLhs() const override { return false; }
-    bool sizeMattersRhs() const override { return false; }
-    int instrCount() const override { return widthInstrs() * 2; }
+    string emitC() override { తిరిగి "VL_STREAML_%nq%lq%rq(%lw, %P, %li, %ri)"; }
+    bool clean_బహిర్గతం() స్థిరరాశి override { తిరిగి true; }
+    bool cleanLhs() స్థిరరాశి override { తిరిగి true; }
+    bool cleanRhs() స్థిరరాశి override { తిరిగి true; }
+    bool కొలత_Matters_Lhs() స్థిరరాశి override { తిరిగి false; }
+    bool కొలత_Matters_Rhs() స్థిరరాశి override { తిరిగి false; }
+    పూర్ణాంకం instr_లెక్క() స్థిరరాశి override { తిరిగి వెడల్పు_Instrs() * 2; }
 };
-class AstStreamR final : public AstNodeStream {
+class Ast_ప్రవాహం_R final : బహిరంగ Ast_కణుపు_ప్రవాహం {
     // Verilog {rhs{lhs}} - Note rhsp() is the slice size, not the lhsp()
     // @astgen makeDfgVertex
-public:
-    AstStreamR(FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp)
-        : ASTGEN_SUPER_StreamR(fl, lhsp, rhsp) {}
-    ASTGEN_MEMBERS_AstStreamR;
-    string emitVerilog() override { return "%f{ >> %r %k{%l} }"; }
-    void numberOperate(V3Number& out, const V3Number& lhs, const V3Number& rhs) override {
-        out.opAssign(lhs);
+బహిరంగ:
+    Ast_ప్రవాహం_R(File_పంక్తి* fl, Ast_కణుపు_సమాసం* lhsp, Ast_కణుపు_సమాసం* rhsp)
+        : ASTGEN_SUPER_ప్రవాహం_R(fl, lhsp, rhsp) {}
+    ASTGEN_MEMBERS_Ast_ప్రవాహం_R;
+    string emitVerilog() override { తిరిగి "%f{ >> %r %k{%l} }"; }
+    శూన్య సంఖ్య_నిర్వహించు(V3_సంఖ్య& బహిర్గతం, స్థిరరాశి V3_సంఖ్య& lhs, స్థిరరాశి V3_సంఖ్య& rhs) override {
+        బహిర్గతం.op_కేటాయించు(lhs);
     }
-    string emitC() override { return isWide() ? "VL_ASSIGN_W(%nw, %P, %li)" : "%li"; }
-    bool cleanOut() const override { return false; }
-    bool cleanLhs() const override { return false; }
-    bool cleanRhs() const override { return false; }
-    bool sizeMattersLhs() const override { return false; }
-    bool sizeMattersRhs() const override { return false; }
-    int instrCount() const override { return widthInstrs() * 2; }
+    string emitC() override { తిరిగి isWide() ? "VL_ASSIGN_W(%nw, %P, %li)" : "%li"; }
+    bool clean_బహిర్గతం() స్థిరరాశి override { తిరిగి false; }
+    bool cleanLhs() స్థిరరాశి override { తిరిగి false; }
+    bool cleanRhs() స్థిరరాశి override { తిరిగి false; }
+    bool కొలత_Matters_Lhs() స్థిరరాశి override { తిరిగి false; }
+    bool కొలత_Matters_Rhs() స్థిరరాశి override { తిరిగి false; }
+    పూర్ణాంకం instr_లెక్క() స్థిరరాశి override { తిరిగి వెడల్పు_Instrs() * 2; }
 };
 
 // === AstNodeSystemBiopD ===
-class AstAtan2D final : public AstNodeSystemBiopD {
-public:
-    AstAtan2D(FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp)
+class AstAtan2D final : బహిరంగ Ast_కణుపు_System_Biop_D {
+బహిరంగ:
+    AstAtan2D(File_పంక్తి* fl, Ast_కణుపు_సమాసం* lhsp, Ast_కణుపు_సమాసం* rhsp)
         : ASTGEN_SUPER_Atan2D(fl, lhsp, rhsp) {}
     ASTGEN_MEMBERS_AstAtan2D;
-    void numberOperate(V3Number& out, const V3Number& lhs, const V3Number& rhs) override {
-        out.setDouble(std::atan2(lhs.toDouble(), rhs.toDouble()));
+    శూన్య సంఖ్య_నిర్వహించు(V3_సంఖ్య& బహిర్గతం, స్థిరరాశి V3_సంఖ్య& lhs, స్థిరరాశి V3_సంఖ్య& rhs) override {
+        బహిర్గతం.సమితి_Double(std::atan2(lhs.గమ్యం_Double(), rhs.గమ్యం_Double()));
     }
-    string emitVerilog() override { return "%f$atan2(%l,%r)"; }
-    string emitC() override { return "atan2(%li,%ri)"; }
+    string emitVerilog() override { తిరిగి "%f$atan2(%l,%r)"; }
+    string emitC() override { తిరిగి "atan2(%li,%ri)"; }
 };
-class AstHypotD final : public AstNodeSystemBiopD {
-public:
-    AstHypotD(FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp)
+class AstHypotD final : బహిరంగ Ast_కణుపు_System_Biop_D {
+బహిరంగ:
+    AstHypotD(File_పంక్తి* fl, Ast_కణుపు_సమాసం* lhsp, Ast_కణుపు_సమాసం* rhsp)
         : ASTGEN_SUPER_HypotD(fl, lhsp, rhsp) {}
     ASTGEN_MEMBERS_AstHypotD;
-    void numberOperate(V3Number& out, const V3Number& lhs, const V3Number& rhs) override {
-        out.setDouble(std::hypot(lhs.toDouble(), rhs.toDouble()));
+    శూన్య సంఖ్య_నిర్వహించు(V3_సంఖ్య& బహిర్గతం, స్థిరరాశి V3_సంఖ్య& lhs, స్థిరరాశి V3_సంఖ్య& rhs) override {
+        బహిర్గతం.సమితి_Double(std::hypot(lhs.గమ్యం_Double(), rhs.గమ్యం_Double()));
     }
-    string emitVerilog() override { return "%f$hypot(%l,%r)"; }
-    string emitC() override { return "hypot(%li,%ri)"; }
+    string emitVerilog() override { తిరిగి "%f$hypot(%l,%r)"; }
+    string emitC() override { తిరిగి "hypot(%li,%ri)"; }
 };
 
 // === AstNodeCCall ===
-class AstCCall final : public AstNodeCCall {
+class AstCCall final : బహిరంగ Ast_కణుపు_CCall {
     // C++ function call
-    VSelfPointerText m_selfPointer
-        = VSelfPointerText{VSelfPointerText::Empty()};  // Output code object
+    VSelf_సూచిక_పాఠ్యం m_self_సూచిక
+        = VSelf_సూచిక_పాఠ్యం{VSelf_సూచిక_పాఠ్యం::ఖాళీలు_2()};  // Output code object
                                                         // pointer (e.g.: 'this')
-public:
-    AstCCall(FileLine* fl, AstCFunc* funcp, AstNodeExpr* argsp = nullptr)
+బహిరంగ:
+    AstCCall(File_పంక్తి* fl, AstCFunc* funcp, Ast_కణుపు_సమాసం* argsp = nullptr)
         : ASTGEN_SUPER_CCall(fl, funcp, argsp) {
         UASSERT_OBJ(funcp, this, "CCall created calling null function");
     }
     ASTGEN_MEMBERS_AstCCall;
 
-    const VSelfPointerText& selfPointer() const { return m_selfPointer; }
-    void selfPointer(const VSelfPointerText& selfPointer) { m_selfPointer = selfPointer; }
-    string selfPointerProtect(bool useSelfForThis) const {
-        return selfPointer().protect(useSelfForThis, protect());
+    స్థిరరాశి VSelf_సూచిక_పాఠ్యం& self_సూచిక() స్థిరరాశి { తిరిగి m_self_సూచిక; }
+    శూన్య self_సూచిక(స్థిరరాశి VSelf_సూచిక_పాఠ్యం& self_సూచిక) { m_self_సూచిక = self_సూచిక; }
+    string self_సూచిక_Protect(bool useSelfForThis) స్థిరరాశి {
+        తిరిగి self_సూచిక().protect(useSelfForThis, protect());
     }
-    bool maybePointedTo() const override VL_MT_SAFE { return true; }
+    bool maybe_Pointed_గమ్యం() స్థిరరాశి override VL_MT_సురక్షిత { తిరిగి true; }
 };
-class AstCMethodCall final : public AstNodeCCall {
+class AstCMethodCall final : బహిరంగ Ast_కణుపు_CCall {
     // C++ method call
     // @astgen op1 := fromp : AstNodeExpr
-public:
-    AstCMethodCall(FileLine* fl, AstNodeExpr* fromp, AstCFunc* funcp, AstNodeExpr* argsp = nullptr)
+బహిరంగ:
+    AstCMethodCall(File_పంక్తి* fl, Ast_కణుపు_సమాసం* fromp, AstCFunc* funcp, Ast_కణుపు_సమాసం* argsp = nullptr)
         : ASTGEN_SUPER_CMethodCall(fl, funcp, argsp) {
         this->fromp(fromp);
         UASSERT_OBJ(funcp, this, "CMethodCall created calling null function");
     }
     ASTGEN_MEMBERS_AstCMethodCall;
 };
-class AstCNew final : public AstNodeCCall {
+class AstCNew final : బహిరంగ Ast_కణుపు_CCall {
     // C++ new() call
-public:
-    AstCNew(FileLine* fl, AstCFunc* funcp, AstNodeExpr* argsp = nullptr)
+బహిరంగ:
+    AstCNew(File_పంక్తి* fl, AstCFunc* funcp, Ast_కణుపు_సమాసం* argsp = nullptr)
         : ASTGEN_SUPER_CNew(fl, funcp, argsp) {}
     ASTGEN_MEMBERS_AstCNew;
 };
 
 // === AstNodeCons ===
-class AstConsArray final : public AstNodeCons {
+class AstConsArray final : బహిరంగ Ast_కణుపు_Cons {
     // Construct an unpacked array value, '{value, ...}, '{index: value, default: value}
     // If default is specified, the items may be sparse, and not provide each element.
     // Indices are C++ array style, with lo() at index 0
     // @astgen op1 := defaultp : Optional[AstNodeExpr] // Default, if sparse
     // @astgen op2 := itemsp : private List[AstConsArrayItem] // In increasing index order
     // dist-ast-dump-suppress  // Dumped by the itemsp list
-    std::map<uint64_t, AstConsArrayItem*> m_itemps;  // The item at each index given
+    std::map<uint64_t, Ast_Cons_Array_అంశం*> m_itemps;  // The item at each index given
 
-public:
-    AstConsArray(FileLine* fl, AstNodeDType* newDTypep, AstNodeExpr* defaultp = nullptr)
+బహిరంగ:
+    AstConsArray(File_పంక్తి* fl, Ast_కణుపు_DType* newDTypep, Ast_కణుపు_సమాసం* defaultp = nullptr)
         : ASTGEN_SUPER_ConsArray(fl) {
         dtypep(newDTypep);
         this->defaultp(defaultp);
     }
     ASTGEN_MEMBERS_AstConsArray;
-    const char* broken() const override;
-    void cloneRelink() override;
-    inline AstConsArrayItem* itemsp() const VL_MT_STABLE;
+    స్థిరరాశి అక్షరం* broken() స్థిరరాశి override;
+    శూన్య cloneRelink() override;
+    అంతఃవరుస Ast_Cons_Array_అంశం* itemsp() స్థిరరాశి VL_MT_STABLE;
     // The value at the index, or the default if not given
-    AstNodeExpr* valuep(uint64_t index) const;
+    Ast_కణుపు_సమాసం* valuep(uint64_t సూచీ) స్థిరరాశి;
     // Add the value of the element at the index, which must not be given yet
-    void valuep(uint64_t index, AstNodeExpr* newp);
+    శూన్య valuep(uint64_t సూచీ, Ast_కణుపు_సమాసం* newp);
     // Add the elements of the array 'arrayp', starting at the index
-    void spliceValues(uint64_t index, AstNodeExpr* arrayp);
+    శూన్య splice_విలువలు(uint64_t సూచీ, Ast_కణుపు_సమాసం* arrayp);
 };
-class AstConsAssoc final : public AstNodeCons {
+class AstConsAssoc final : బహిరంగ Ast_కణుపు_Cons {
     // Construct an associative array value, '{key: value, default: value}
     // @astgen op1 := defaultp : Optional[AstNodeExpr]
     // @astgen op2 := itemsp : List[AstConsAssocItem]
-public:
-    explicit AstConsAssoc(FileLine* fl, AstNodeExpr* defaultp = nullptr)
+బహిరంగ:
+    explicit AstConsAssoc(File_పంక్తి* fl, Ast_కణుపు_సమాసం* defaultp = nullptr)
         : ASTGEN_SUPER_ConsAssoc(fl) {
         this->defaultp(defaultp);
     }
     ASTGEN_MEMBERS_AstConsAssoc;
-    const char* broken() const override {
+    స్థిరరాశి అక్షరం* broken() స్థిరరాశి override {
         BROKEN_RTN(!VN_IS(dtypep()->skipRefp(), AssocArrayDType));
-        return nullptr;
+        తిరిగి nullptr;
     }
 };
-class AstConsDynArray final : public AstNodeCons {
+class AstConsDynArray final : బహిరంగ Ast_కణుపు_Cons {
     // Construct a dynamic array value, '{value, ...}, {value, array, ...},
     // or with 'sizep', new[size]('{index: value, default: value})
     // @astgen op1 := sizep : Optional[AstNodeExpr]
     // @astgen op2 := defaultp : Optional[AstNodeExpr] // Only with sizep
     // @astgen op3 := itemsp : List[AstConsDynArrayItem]
-public:
-    explicit AstConsDynArray(FileLine* fl)
+బహిరంగ:
+    explicit AstConsDynArray(File_పంక్తి* fl)
         : ASTGEN_SUPER_ConsDynArray(fl) {}
     ASTGEN_MEMBERS_AstConsDynArray;
-    const char* broken() const override;
+    స్థిరరాశి అక్షరం* broken() స్థిరరాశి override;
 };
-class AstConsQueue final : public AstNodeCons {
+class Ast_Cons_వరుస final : బహిరంగ Ast_కణుపు_Cons {
     // Construct a queue value, '{value, ...}, {value, array, ...}
     // @astgen op1 := itemsp : List[AstConsQueueItem]
-public:
-    explicit AstConsQueue(FileLine* fl)
-        : ASTGEN_SUPER_ConsQueue(fl) {}
-    ASTGEN_MEMBERS_AstConsQueue;
-    const char* broken() const override {
-        BROKEN_RTN(!VN_IS(dtypep()->skipRefp(), QueueDType));
-        return nullptr;
+బహిరంగ:
+    explicit Ast_Cons_వరుస(File_పంక్తి* fl)
+        : ASTGEN_SUPER_Cons_వరుస(fl) {}
+    ASTGEN_MEMBERS_Ast_Cons_వరుస;
+    స్థిరరాశి అక్షరం* broken() స్థిరరాశి override {
+        BROKEN_RTN(!VN_IS(dtypep()->skipRefp(), వరుస_DType));
+        తిరిగి nullptr;
     }
 };
-class AstConsStruct final : public AstNodeCons {
+class AstConsStruct final : బహిరంగ Ast_కణుపు_Cons {
     // Construct an unpacked struct value, '{member: value, ...}
     // @astgen op1 := itemsp : List[AstConsStructItem] // A value for each member, in order
-public:
-    AstConsStruct(FileLine* fl, AstStructDType* dtypep)
+బహిరంగ:
+    AstConsStruct(File_పంక్తి* fl, AstStructDType* dtypep)
         : ASTGEN_SUPER_ConsStruct(fl) {
         this->dtypep(dtypep);
     }
     ASTGEN_MEMBERS_AstConsStruct;
-    const char* broken() const override;
+    స్థిరరాశి అక్షరం* broken() స్థిరరాశి override;
     // The value of the member called 'name'
-    AstNodeExpr* memberValuep(const string& name) const;
+    Ast_కణుపు_సమాసం* memberValuep(స్థిరరాశి string& name) స్థిరరాశి;
 };
-class AstConsWildcard final : public AstNodeCons {
+class AstConsWildcard final : బహిరంగ Ast_కణుపు_Cons {
     // Construct a wildcard associative array value, '{key: value, default: value}
     // @astgen op1 := defaultp : Optional[AstNodeExpr]
     // @astgen op2 := itemsp : List[AstConsWildcardItem]
-public:
-    explicit AstConsWildcard(FileLine* fl, AstNodeExpr* defaultp = nullptr)
+బహిరంగ:
+    explicit AstConsWildcard(File_పంక్తి* fl, Ast_కణుపు_సమాసం* defaultp = nullptr)
         : ASTGEN_SUPER_ConsWildcard(fl) {
         this->defaultp(defaultp);
     }
     ASTGEN_MEMBERS_AstConsWildcard;
-    const char* broken() const override {
+    స్థిరరాశి అక్షరం* broken() స్థిరరాశి override {
         BROKEN_RTN(!VN_IS(dtypep()->skipRefp(), WildcardArrayDType));
-        return nullptr;
+        తిరిగి nullptr;
     }
 };
 
 // === AstNodeFTaskRef ===
-class AstFuncRef final : public AstNodeFTaskRef {
+class AstFuncRef final : బహిరంగ Ast_కణుపు_FTask_Ref {
     // A reference to a function
-public:
-    inline AstFuncRef(FileLine* fl, AstFunc* taskp, AstArg* argsp = nullptr);
-    AstFuncRef(FileLine* fl, const string& name, AstArg* argsp = nullptr)
+బహిరంగ:
+    అంతఃవరుస AstFuncRef(File_పంక్తి* fl, AstFunc* taskp, AstArg* argsp = nullptr);
+    AstFuncRef(File_పంక్తి* fl, స్థిరరాశి string& name, AstArg* argsp = nullptr)
         : ASTGEN_SUPER_FuncRef(fl, name, argsp) {}
     ASTGEN_MEMBERS_AstFuncRef;
 };
-class AstMethodCall final : public AstNodeFTaskRef {
+class Ast_పద్ధతి_Call final : బహిరంగ Ast_కణుపు_FTask_Ref {
     // A reference to a member task (or function)
     // Don't need the class we are extracting from, as the "fromp()"'s datatype can get us to it
     // @astgen op1 := fromp : AstNodeExpr
     //
-public:
-    AstMethodCall(FileLine* fl, AstNodeExpr* fromp, VFlagChildDType, const string& name,
+బహిరంగ:
+    Ast_పద్ధతి_Call(File_పంక్తి* fl, Ast_కణుపు_సమాసం* fromp, VFlag_బిడ్డ_DType, స్థిరరాశి string& name,
                   AstArg* argsp = nullptr)
-        : ASTGEN_SUPER_MethodCall(fl, name, argsp) {
+        : ASTGEN_SUPER_పద్ధతి_Call(fl, name, argsp) {
         this->fromp(fromp);
         dtypep(nullptr);  // V3Width will resolve
     }
-    AstMethodCall(FileLine* fl, AstNodeExpr* fromp, const string& name, AstArg* argsp = nullptr)
-        : ASTGEN_SUPER_MethodCall(fl, name, argsp) {
+    Ast_పద్ధతి_Call(File_పంక్తి* fl, Ast_కణుపు_సమాసం* fromp, స్థిరరాశి string& name, AstArg* argsp = nullptr)
+        : ASTGEN_SUPER_పద్ధతి_Call(fl, name, argsp) {
         this->fromp(fromp);
     }
-    ASTGEN_MEMBERS_AstMethodCall;
+    ASTGEN_MEMBERS_Ast_పద్ధతి_Call;
 };
-class AstNew final : public AstNodeFTaskRef {
+class AstNew final : బహిరంగ Ast_కణుపు_FTask_Ref {
     // New as constructor
     // Don't need the class we are extracting from, as the "fromp()"'s datatype can get us to it
     bool m_isImplicit = false;  // Implicitly generated from extends args
     bool m_isScoped = false;  // Had :: scope when parsed
-public:
-    AstNew(FileLine* fl, AstArg* argsp = nullptr, bool isScoped = false)
+బహిరంగ:
+    AstNew(File_పంక్తి* fl, AstArg* argsp = nullptr, bool isScoped = false)
         : ASTGEN_SUPER_New(fl, "new", argsp)
         , m_isScoped{isScoped} {}
     ASTGEN_MEMBERS_AstNew;
-    void dump(std::ostream& str = std::cout) const override;
-    void dumpJson(std::ostream& str = std::cout) const override;
-    int instrCount() const override { return widthInstrs(); }
-    bool isImplicit() const { return m_isImplicit; }
-    void isImplicit(bool flag) { m_isImplicit = flag; }
-    bool isScoped() const { return m_isScoped; }
-    void isScoped(bool flag) { m_isScoped = flag; }
-    bool isPure() override { return false; }
+    శూన్య dump(std::ostream& str = std::cout) స్థిరరాశి override;
+    శూన్య dumpJson(std::ostream& str = std::cout) స్థిరరాశి override;
+    పూర్ణాంకం instr_లెక్క() స్థిరరాశి override { తిరిగి వెడల్పు_Instrs(); }
+    bool isImplicit() స్థిరరాశి { తిరిగి m_isImplicit; }
+    శూన్య isImplicit(bool flag) { m_isImplicit = flag; }
+    bool isScoped() స్థిరరాశి { తిరిగి m_isScoped; }
+    శూన్య isScoped(bool flag) { m_isScoped = flag; }
+    bool is_శుద్ధ() override { తిరిగి false; }
 };
-class AstTaskRef final : public AstNodeFTaskRef {
+class AstTaskRef final : బహిరంగ Ast_కణుపు_FTask_Ref {
     // A reference to a task
-public:
-    inline AstTaskRef(FileLine* fl, AstTask* taskp, AstArg* argsp = nullptr);
-    AstTaskRef(FileLine* fl, const string& name, AstArg* argsp = nullptr)
+బహిరంగ:
+    అంతఃవరుస AstTaskRef(File_పంక్తి* fl, AstTask* taskp, AstArg* argsp = nullptr);
+    AstTaskRef(File_పంక్తి* fl, స్థిరరాశి string& name, AstArg* argsp = nullptr)
         : ASTGEN_SUPER_TaskRef(fl, name, argsp) {
-        dtypeSetVoid();
+        dtype_సమితి_Void();
     }
     ASTGEN_MEMBERS_AstTaskRef;
 };
 
 // === AstNodePreSel ===
-class AstSelBit final : public AstNodePreSel {
+class Ast_Sel_బిట్టు final : బహిరంగ Ast_కణుపు_Pre_Sel {
     // Single bit range extraction, perhaps with non-constant selection or array selection
     // Gets replaced during link with AstArraySel or AstSel
     // @astgen alias op2 := bitp
-private:
+అంతరంగ:
     VAccess m_access;  // Left hand side assignment
-public:
-    AstSelBit(FileLine* fl, AstNodeExpr* fromp, AstNodeExpr* bitp)
-        : ASTGEN_SUPER_SelBit(fl, fromp, bitp, nullptr) {
+బహిరంగ:
+    Ast_Sel_బిట్టు(File_పంక్తి* fl, Ast_కణుపు_సమాసం* fromp, Ast_కణుపు_సమాసం* bitp)
+        : ASTGEN_SUPER_Sel_బిట్టు(fl, fromp, bitp, nullptr) {
         UASSERT_OBJ(!v3Global.assertDTypesResolved(), this,
                     "not coded to create after dtypes resolved");
     }
-    ASTGEN_MEMBERS_AstSelBit;
-    void dump(std::ostream& str = std::cout) const override;
-    void dumpJson(std::ostream& str = std::cout) const override;
-    VAccess access() const { return m_access; }
-    void access(const VAccess& flag) { m_access = flag; }
+    ASTGEN_MEMBERS_Ast_Sel_బిట్టు;
+    శూన్య dump(std::ostream& str = std::cout) స్థిరరాశి override;
+    శూన్య dumpJson(std::ostream& str = std::cout) స్థిరరాశి override;
+    VAccess access() స్థిరరాశి { తిరిగి m_access; }
+    శూన్య access(స్థిరరాశి VAccess& flag) { m_access = flag; }
 };
-class AstSelExtract final : public AstNodePreSel {
+class Ast_Sel_వెలికితీయి final : బహిరంగ Ast_కణుపు_Pre_Sel {
     // Range extraction, gets replaced with AstSel
     // @astgen alias op2 := leftp
     // @astgen alias op3 := rightp
-public:
-    AstSelExtract(FileLine* fl, AstNodeExpr* fromp, AstNodeExpr* msbp, AstNodeExpr* lsbp)
-        : ASTGEN_SUPER_SelExtract(fl, fromp, msbp, lsbp) {}
-    ASTGEN_MEMBERS_AstSelExtract;
+బహిరంగ:
+    Ast_Sel_వెలికితీయి(File_పంక్తి* fl, Ast_కణుపు_సమాసం* fromp, Ast_కణుపు_సమాసం* msbp, Ast_కణుపు_సమాసం* lsbp)
+        : ASTGEN_SUPER_Sel_వెలికితీయి(fl, fromp, msbp, lsbp) {}
+    ASTGEN_MEMBERS_Ast_Sel_వెలికితీయి;
 };
-class AstSelMinus final : public AstNodePreSel {
+class AstSelMinus final : బహిరంగ Ast_కణుపు_Pre_Sel {
     // -: range extraction, perhaps with non-constant selection
     // Gets replaced during link with AstSel
     // @astgen alias op2 := bitp
     // @astgen alias op3 := widthp
-public:
-    AstSelMinus(FileLine* fl, AstNodeExpr* fromp, AstNodeExpr* bitp, AstNodeExpr* widthp)
+బహిరంగ:
+    AstSelMinus(File_పంక్తి* fl, Ast_కణుపు_సమాసం* fromp, Ast_కణుపు_సమాసం* bitp, Ast_కణుపు_సమాసం* widthp)
         : ASTGEN_SUPER_SelMinus(fl, fromp, bitp, widthp) {}
     ASTGEN_MEMBERS_AstSelMinus;
 };
-class AstSelPlus final : public AstNodePreSel {
+class AstSelPlus final : బహిరంగ Ast_కణుపు_Pre_Sel {
     // +: range extraction, perhaps with non-constant selection
     // Gets replaced during link with AstSel
     // @astgen alias op2 := bitp
     // @astgen alias op3 := widthp
-public:
-    AstSelPlus(FileLine* fl, AstNodeExpr* fromp, AstNodeExpr* bitp, AstNodeExpr* widthp)
+బహిరంగ:
+    AstSelPlus(File_పంక్తి* fl, Ast_కణుపు_సమాసం* fromp, Ast_కణుపు_సమాసం* bitp, Ast_కణుపు_సమాసం* widthp)
         : ASTGEN_SUPER_SelPlus(fl, fromp, bitp, widthp) {}
     ASTGEN_MEMBERS_AstSelPlus;
 };
 
 // === AstNodeQuadop ===
-class AstCountBits final : public AstNodeQuadop {
+class Ast_లెక్క_బిట్లు final : బహిరంగ Ast_కణుపు_Quadop {
     // Number of bits set in vector
-public:
-    AstCountBits(FileLine* fl, AstNodeExpr* exprp, AstNodeExpr* ctrl1p)
-        : ASTGEN_SUPER_CountBits(fl, exprp, ctrl1p, ctrl1p->cloneTreePure(false),
-                                 ctrl1p->cloneTreePure(false)) {
-        dtypeSetInt();
+బహిరంగ:
+    Ast_లెక్క_బిట్లు(File_పంక్తి* fl, Ast_కణుపు_సమాసం* exprp, Ast_కణుపు_సమాసం* ctrl1p)
+        : ASTGEN_SUPER_లెక్క_బిట్లు(fl, exprp, ctrl1p, ctrl1p->clone_వృక్షం_శుద్ధ(false),
+                                 ctrl1p->clone_వృక్షం_శుద్ధ(false)) {
+        dtype_సమితి_Int();
     }
-    AstCountBits(FileLine* fl, AstNodeExpr* exprp, AstNodeExpr* ctrl1p, AstNodeExpr* ctrl2p)
-        : ASTGEN_SUPER_CountBits(fl, exprp, ctrl1p, ctrl2p, ctrl2p->cloneTreePure(false)) {
-        dtypeSetInt();
+    Ast_లెక్క_బిట్లు(File_పంక్తి* fl, Ast_కణుపు_సమాసం* exprp, Ast_కణుపు_సమాసం* ctrl1p, Ast_కణుపు_సమాసం* ctrl2p)
+        : ASTGEN_SUPER_లెక్క_బిట్లు(fl, exprp, ctrl1p, ctrl2p, ctrl2p->clone_వృక్షం_శుద్ధ(false)) {
+        dtype_సమితి_Int();
     }
-    AstCountBits(FileLine* fl, AstNodeExpr* exprp, AstNodeExpr* ctrl1p, AstNodeExpr* ctrl2p,
-                 AstNodeExpr* ctrl3p)
-        : ASTGEN_SUPER_CountBits(fl, exprp, ctrl1p, ctrl2p, ctrl3p) {
-        dtypeSetInt();
+    Ast_లెక్క_బిట్లు(File_పంక్తి* fl, Ast_కణుపు_సమాసం* exprp, Ast_కణుపు_సమాసం* ctrl1p, Ast_కణుపు_సమాసం* ctrl2p,
+                 Ast_కణుపు_సమాసం* ctrl3p)
+        : ASTGEN_SUPER_లెక్క_బిట్లు(fl, exprp, ctrl1p, ctrl2p, ctrl3p) {
+        dtype_సమితి_Int();
     }
-    ASTGEN_MEMBERS_AstCountBits;
-    void numberOperate(V3Number& out, const V3Number& expr, const V3Number& ctrl1,
-                       const V3Number& ctrl2, const V3Number& ctrl3) override {
-        out.opCountBits(expr, ctrl1, ctrl2, ctrl3);
+    ASTGEN_MEMBERS_Ast_లెక్క_బిట్లు;
+    శూన్య సంఖ్య_నిర్వహించు(V3_సంఖ్య& బహిర్గతం, స్థిరరాశి V3_సంఖ్య& సమాసం, స్థిరరాశి V3_సంఖ్య& ctrl1,
+                       స్థిరరాశి V3_సంఖ్య& ctrl2, స్థిరరాశి V3_సంఖ్య& ctrl3) override {
+        బహిర్గతం.op_లెక్క_బిట్లు(సమాసం, ctrl1, ctrl2, ctrl3);
     }
-    string emitVerilog() override { return "%f$countbits(%l, %r, %f, %o)"; }
-    string emitC() override { return ""; }
-    bool cleanOut() const override { return false; }
-    bool cleanLhs() const override { return true; }
-    bool cleanRhs() const override { return true; }
-    bool cleanThs() const override { return true; }
-    bool cleanFhs() const override { return true; }
-    bool sizeMattersLhs() const override { return false; }
-    bool sizeMattersRhs() const override { return false; }
-    bool sizeMattersThs() const override { return false; }
-    bool sizeMattersFhs() const override { return false; }
-    bool isSystemFunc() const override { return true; }
-    int instrCount() const override { return widthInstrs() * 16; }
+    string emitVerilog() override { తిరిగి "%f$countbits(%l, %r, %f, %o)"; }
+    string emitC() override { తిరిగి ""; }
+    bool clean_బహిర్గతం() స్థిరరాశి override { తిరిగి false; }
+    bool cleanLhs() స్థిరరాశి override { తిరిగి true; }
+    bool cleanRhs() స్థిరరాశి override { తిరిగి true; }
+    bool cleanThs() స్థిరరాశి override { తిరిగి true; }
+    bool cleanFhs() స్థిరరాశి override { తిరిగి true; }
+    bool కొలత_Matters_Lhs() స్థిరరాశి override { తిరిగి false; }
+    bool కొలత_Matters_Rhs() స్థిరరాశి override { తిరిగి false; }
+    bool కొలత_Matters_Ths() స్థిరరాశి override { తిరిగి false; }
+    bool కొలత_Matters_Fhs() స్థిరరాశి override { తిరిగి false; }
+    bool isSystemFunc() స్థిరరాశి override { తిరిగి true; }
+    పూర్ణాంకం instr_లెక్క() స్థిరరాశి override { తిరిగి వెడల్పు_Instrs() * 16; }
 };
 
 // === AstNodeTermop ===
-class AstInferredDisable final : public AstNodeTermop {
-public:
-    explicit AstInferredDisable(FileLine* fl)
+class AstInferredDisable final : బహిరంగ Ast_కణుపు_Termop {
+బహిరంగ:
+    explicit AstInferredDisable(File_పంక్తి* fl)
         : ASTGEN_SUPER_InferredDisable(fl) {
-        dtypeSetBit();
+        dtype_సమితి_బిట్టు();
     }
     ASTGEN_MEMBERS_AstInferredDisable;
-    string emitVerilog() override { return "%f$inferred_disable"; }
+    string emitVerilog() override { తిరిగి "%f$inferred_disable"; }
     string emitC() override { V3ERROR_NA_RETURN(""); }
-    bool cleanOut() const override { return true; }
-    bool isSystemFunc() const override { return true; }
-    bool sameNode(const AstNode* /*samep*/) const override { return true; }
+    bool clean_బహిర్గతం() స్థిరరాశి override { తిరిగి true; }
+    bool isSystemFunc() స్థిరరాశి override { తిరిగి true; }
+    bool same_కణుపు(స్థిరరాశి Ast_కణుపు* /*samep*/) స్థిరరాశి override { తిరిగి true; }
 };
-class AstTime final : public AstNodeTermop {
+class Ast_సమయం final : బహిరంగ Ast_కణుపు_Termop {
     VTimescale m_timeunit;  // Parent module time unit
-public:
-    AstTime(FileLine* fl, const VTimescale& timeunit)
-        : ASTGEN_SUPER_Time(fl)
+బహిరంగ:
+    Ast_సమయం(File_పంక్తి* fl, స్థిరరాశి VTimescale& timeunit)
+        : ASTGEN_SUPER_సమయం(fl)
         , m_timeunit{timeunit} {
-        dtypeSetUInt64();
+        dtype_సమితి_UInt64();
     }
-    ASTGEN_MEMBERS_AstTime;
-    string emitVerilog() override { return "%f$time"; }
+    ASTGEN_MEMBERS_Ast_సమయం;
+    string emitVerilog() override { తిరిగి "%f$time"; }
     string emitC() override { V3ERROR_NA_RETURN(""); }
-    bool cleanOut() const override { return true; }
-    bool isGateOptimizable() const override { return false; }
-    bool isPredictOptimizable() const override { return false; }
-    bool isSystemFunc() const override { return true; }
-    int instrCount() const override { return INSTR_COUNT_TIME; }
-    bool sameNode(const AstNode* /*samep*/) const override { return true; }
-    void dump(std::ostream& str = std::cout) const override;
-    void dumpJson(std::ostream& str = std::cout) const override;
-    VTimescale timeunit() const { return m_timeunit; }
-    void timeunit(const VTimescale& flag) { m_timeunit = flag; }
+    bool clean_బహిర్గతం() స్థిరరాశి override { తిరిగి true; }
+    bool isGateOptimizable() స్థిరరాశి override { తిరిగి false; }
+    bool isPredictOptimizable() స్థిరరాశి override { తిరిగి false; }
+    bool isSystemFunc() స్థిరరాశి override { తిరిగి true; }
+    పూర్ణాంకం instr_లెక్క() స్థిరరాశి override { తిరిగి INSTR_లెక్క_సమయం; }
+    bool same_కణుపు(స్థిరరాశి Ast_కణుపు* /*samep*/) స్థిరరాశి override { తిరిగి true; }
+    శూన్య dump(std::ostream& str = std::cout) స్థిరరాశి override;
+    శూన్య dumpJson(std::ostream& str = std::cout) స్థిరరాశి override;
+    VTimescale timeunit() స్థిరరాశి { తిరిగి m_timeunit; }
+    శూన్య timeunit(స్థిరరాశి VTimescale& flag) { m_timeunit = flag; }
 };
-class AstTimeD final : public AstNodeTermop {
+class Ast_సమయం_D final : బహిరంగ Ast_కణుపు_Termop {
     VTimescale m_timeunit;  // Parent module time unit
-public:
-    AstTimeD(FileLine* fl, const VTimescale& timeunit)
-        : ASTGEN_SUPER_TimeD(fl)
+బహిరంగ:
+    Ast_సమయం_D(File_పంక్తి* fl, స్థిరరాశి VTimescale& timeunit)
+        : ASTGEN_SUPER_సమయం_D(fl)
         , m_timeunit{timeunit} {
-        dtypeSetDouble();
+        dtype_సమితి_Double();
     }
-    ASTGEN_MEMBERS_AstTimeD;
-    string emitVerilog() override { return "%f$realtime"; }
+    ASTGEN_MEMBERS_Ast_సమయం_D;
+    string emitVerilog() override { తిరిగి "%f$realtime"; }
     string emitC() override { V3ERROR_NA_RETURN(""); }
-    bool cleanOut() const override { return true; }
-    bool isGateOptimizable() const override { return false; }
-    bool isPredictOptimizable() const override { return false; }
-    bool isSystemFunc() const override { return true; }
-    int instrCount() const override { return INSTR_COUNT_TIME; }
-    bool sameNode(const AstNode* /*samep*/) const override { return true; }
-    void dump(std::ostream& str = std::cout) const override;
-    void dumpJson(std::ostream& str = std::cout) const override;
-    VTimescale timeunit() const { return m_timeunit; }
-    void timeunit(const VTimescale& flag) { m_timeunit = flag; }
+    bool clean_బహిర్గతం() స్థిరరాశి override { తిరిగి true; }
+    bool isGateOptimizable() స్థిరరాశి override { తిరిగి false; }
+    bool isPredictOptimizable() స్థిరరాశి override { తిరిగి false; }
+    bool isSystemFunc() స్థిరరాశి override { తిరిగి true; }
+    పూర్ణాంకం instr_లెక్క() స్థిరరాశి override { తిరిగి INSTR_లెక్క_సమయం; }
+    bool same_కణుపు(స్థిరరాశి Ast_కణుపు* /*samep*/) స్థిరరాశి override { తిరిగి true; }
+    శూన్య dump(std::ostream& str = std::cout) స్థిరరాశి override;
+    శూన్య dumpJson(std::ostream& str = std::cout) స్థిరరాశి override;
+    VTimescale timeunit() స్థిరరాశి { తిరిగి m_timeunit; }
+    శూన్య timeunit(స్థిరరాశి VTimescale& flag) { m_timeunit = flag; }
 };
 
 // === AstNodeTriop ===
 
-class AstCond final : public AstNodeTriop {
+class AstCond final : బహిరంగ Ast_కణుపు_Triop {
     // @astgen alias op1 := condp
     // @astgen alias op2 := thenp
     // @astgen alias op3 := elsep
     // @astgen makeDfgVertex
-public:
-    AstCond(FileLine* fl, AstNodeExpr* condp, AstNodeExpr* thenp, AstNodeExpr* elsep);
+బహిరంగ:
+    AstCond(File_పంక్తి* fl, Ast_కణుపు_సమాసం* condp, Ast_కణుపు_సమాసం* thenp, Ast_కణుపు_సమాసం* elsep);
     ASTGEN_MEMBERS_AstCond;
-    void numberOperate(V3Number& out, const V3Number& lhs, const V3Number& rhs,
-                       const V3Number& ths) override {
-        out.opAssign(lhs.isNeqZero() ? rhs : ths);
+    శూన్య సంఖ్య_నిర్వహించు(V3_సంఖ్య& బహిర్గతం, స్థిరరాశి V3_సంఖ్య& lhs, స్థిరరాశి V3_సంఖ్య& rhs,
+                       స్థిరరాశి V3_సంఖ్య& ths) override {
+        బహిర్గతం.op_కేటాయించు(lhs.isNeqZero() ? rhs : ths);
     }
-    string emitVerilog() override { return "%k(%l %f? %r %k: %t)"; }
-    string emitC() override { return "VL_COND_%nq%lq%rq%tq(%nw, %P, %li, %ri, %ti)"; }
-    string emitSMT() const override { return "(ite (__Vbool %l) %r %t)"; }
-    bool cleanOut() const override { return false; }  // clean if e1 & e2 clean
-    bool cleanLhs() const override { return true; }
-    bool cleanRhs() const override { return false; }
-    bool cleanThs() const override { return false; }  // Propagates up
-    bool sizeMattersLhs() const override { return false; }
-    bool sizeMattersRhs() const override { return false; }
-    bool sizeMattersThs() const override { return false; }
-    int instrCount() const override { return INSTR_COUNT_BRANCH; }
+    string emitVerilog() override { తిరిగి "%k(%l %f? %r %k: %t)"; }
+    string emitC() override { తిరిగి "VL_COND_%nq%lq%rq%tq(%nw, %P, %li, %ri, %ti)"; }
+    string emitSMT() స్థిరరాశి override { తిరిగి "(ite (__Vbool %l) %r %t)"; }
+    bool clean_బహిర్గతం() స్థిరరాశి override { తిరిగి false; }  // clean if e1 & e2 clean
+    bool cleanLhs() స్థిరరాశి override { తిరిగి true; }
+    bool cleanRhs() స్థిరరాశి override { తిరిగి false; }
+    bool cleanThs() స్థిరరాశి override { తిరిగి false; }  // Propagates up
+    bool కొలత_Matters_Lhs() స్థిరరాశి override { తిరిగి false; }
+    bool కొలత_Matters_Rhs() స్థిరరాశి override { తిరిగి false; }
+    bool కొలత_Matters_Ths() స్థిరరాశి override { తిరిగి false; }
+    పూర్ణాంకం instr_లెక్క() స్థిరరాశి override { తిరిగి INSTR_లెక్క_BRANCH; }
 };
-class AstPutcN final : public AstNodeTriop {
+class AstPutcN final : బహిరంగ Ast_కణుపు_Triop {
     // Verilog string.putc()
-public:
-    AstPutcN(FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp, AstNodeExpr* ths)
+బహిరంగ:
+    AstPutcN(File_పంక్తి* fl, Ast_కణుపు_సమాసం* lhsp, Ast_కణుపు_సమాసం* rhsp, Ast_కణుపు_సమాసం* ths)
         : ASTGEN_SUPER_PutcN(fl, lhsp, rhsp, ths) {
-        dtypeSetString();
+        dtype_సమితి_String();
     }
     ASTGEN_MEMBERS_AstPutcN;
-    void numberOperate(V3Number& out, const V3Number& lhs, const V3Number& rhs,
-                       const V3Number& ths) override {
-        out.opPutcN(lhs, rhs, ths);
+    శూన్య సంఖ్య_నిర్వహించు(V3_సంఖ్య& బహిర్గతం, స్థిరరాశి V3_సంఖ్య& lhs, స్థిరరాశి V3_సంఖ్య& rhs,
+                       స్థిరరాశి V3_సంఖ్య& ths) override {
+        బహిర్గతం.opPutcN(lhs, rhs, ths);
     }
-    string name() const override VL_MT_STABLE { return "putc"; }
-    string emitVerilog() override { return "%k(%l.putc(%r,%t))"; }
-    string emitC() override { return "VL_PUTC_N(%li,%ri,%ti)"; }
-    string emitSimpleOperator() override { return ""; }
-    bool cleanOut() const override { return true; }
-    bool cleanLhs() const override { return true; }
-    bool cleanRhs() const override { return true; }
-    bool cleanThs() const override { return true; }
-    bool sizeMattersLhs() const override { return false; }
-    bool sizeMattersRhs() const override { return false; }
-    bool sizeMattersThs() const override { return false; }
+    string name() స్థిరరాశి override VL_MT_STABLE { తిరిగి "putc"; }
+    string emitVerilog() override { తిరిగి "%k(%l.putc(%r,%t))"; }
+    string emitC() override { తిరిగి "VL_PUTC_N(%li,%ri,%ti)"; }
+    string emitSimpleOperator() override { తిరిగి ""; }
+    bool clean_బహిర్గతం() స్థిరరాశి override { తిరిగి true; }
+    bool cleanLhs() స్థిరరాశి override { తిరిగి true; }
+    bool cleanRhs() స్థిరరాశి override { తిరిగి true; }
+    bool cleanThs() స్థిరరాశి override { తిరిగి true; }
+    bool కొలత_Matters_Lhs() స్థిరరాశి override { తిరిగి false; }
+    bool కొలత_Matters_Rhs() స్థిరరాశి override { తిరిగి false; }
+    bool కొలత_Matters_Ths() స్థిరరాశి override { తిరిగి false; }
 };
-class AstSliceSel final : public AstNodeTriop {
+class Ast_ముక్క_Sel final : బహిరంగ Ast_కణుపు_Triop {
     // Multiple array element extraction
     // @astgen alias op1 := fromp
     VNumRange m_declRange;  // Range of the 'from' array if isRanged() is set, else invalid
-public:
-    AstSliceSel(FileLine* fl, AstNodeExpr* fromp, const VNumRange& declRange)
-        : ASTGEN_SUPER_SliceSel(fl, fromp,
+బహిరంగ:
+    Ast_ముక్క_Sel(File_పంక్తి* fl, Ast_కణుపు_సమాసం* fromp, స్థిరరాశి VNumRange& declRange)
+        : ASTGEN_SUPER_ముక్క_Sel(fl, fromp,
                                 new AstConst(fl, declRange.lo()),  // Need () constructor
                                 new AstConst(fl, declRange.elements()))  // Need () constructor
         , m_declRange{declRange} {}
-    ASTGEN_MEMBERS_AstSliceSel;
-    void dump(std::ostream& str) const override;
-    void dumpJson(std::ostream& str) const override;
-    void numberOperate(V3Number& out, const V3Number& from, const V3Number& lo,
-                       const V3Number& width) override {
+    ASTGEN_MEMBERS_Ast_ముక్క_Sel;
+    శూన్య dump(std::ostream& str) స్థిరరాశి override;
+    శూన్య dumpJson(std::ostream& str) స్థిరరాశి override;
+    శూన్య సంఖ్య_నిర్వహించు(V3_సంఖ్య& బహిర్గతం, స్థిరరాశి V3_సంఖ్య& from, స్థిరరాశి V3_సంఖ్య& lo,
+                       స్థిరరాశి V3_సంఖ్య& వెడల్పు) override {
         V3ERROR_NA;
     }
     string emitVerilog() override { V3ERROR_NA_RETURN(""); }
     string emitC() override { V3ERROR_NA_RETURN(""); }  // Removed before EmitC
-    bool cleanOut() const override { return false; }
-    bool cleanLhs() const override { return false; }
-    bool cleanRhs() const override { return true; }
-    bool cleanThs() const override { return true; }
-    bool sizeMattersLhs() const override { return false; }
-    bool sizeMattersRhs() const override { return false; }
-    bool sizeMattersThs() const override { return false; }
-    bool sameNode(const AstNode*) const override { return true; }
-    int instrCount() const override { return 10; }  // Removed before matters
+    bool clean_బహిర్గతం() స్థిరరాశి override { తిరిగి false; }
+    bool cleanLhs() స్థిరరాశి override { తిరిగి false; }
+    bool cleanRhs() స్థిరరాశి override { తిరిగి true; }
+    bool cleanThs() స్థిరరాశి override { తిరిగి true; }
+    bool కొలత_Matters_Lhs() స్థిరరాశి override { తిరిగి false; }
+    bool కొలత_Matters_Rhs() స్థిరరాశి override { తిరిగి false; }
+    bool కొలత_Matters_Ths() స్థిరరాశి override { తిరిగి false; }
+    bool same_కణుపు(స్థిరరాశి Ast_కణుపు*) స్థిరరాశి override { తిరిగి true; }
+    పూర్ణాంకం instr_లెక్క() స్థిరరాశి override { తిరిగి 10; }  // Removed before matters
     // For widthConst()/loConst etc, see declRange().elements() and other VNumRange methods
-    VNumRange& declRange() VL_MT_STABLE { return m_declRange; }
-    const VNumRange& declRange() const VL_MT_STABLE { return m_declRange; }
+    VNumRange& declRange() VL_MT_STABLE { తిరిగి m_declRange; }
+    స్థిరరాశి VNumRange& declRange() స్థిరరాశి VL_MT_STABLE { తిరిగి m_declRange; }
 };
-class AstSubstrN final : public AstNodeTriop {
+class AstSubstrN final : బహిరంగ Ast_కణుపు_Triop {
     // Verilog string.substr()
-public:
-    AstSubstrN(FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp, AstNodeExpr* ths)
+బహిరంగ:
+    AstSubstrN(File_పంక్తి* fl, Ast_కణుపు_సమాసం* lhsp, Ast_కణుపు_సమాసం* rhsp, Ast_కణుపు_సమాసం* ths)
         : ASTGEN_SUPER_SubstrN(fl, lhsp, rhsp, ths) {
-        dtypeSetString();
+        dtype_సమితి_String();
     }
     ASTGEN_MEMBERS_AstSubstrN;
-    void numberOperate(V3Number& out, const V3Number& lhs, const V3Number& rhs,
-                       const V3Number& ths) override {
-        out.opSubstrN(lhs, rhs, ths);
+    శూన్య సంఖ్య_నిర్వహించు(V3_సంఖ్య& బహిర్గతం, స్థిరరాశి V3_సంఖ్య& lhs, స్థిరరాశి V3_సంఖ్య& rhs,
+                       స్థిరరాశి V3_సంఖ్య& ths) override {
+        బహిర్గతం.opSubstrN(lhs, rhs, ths);
     }
-    string name() const override VL_MT_STABLE { return "substr"; }
-    string emitVerilog() override { return "%k(%l.substr(%r,%t))"; }
-    string emitC() override { return "VL_SUBSTR_N(%li,%ri,%ti)"; }
-    string emitSimpleOperator() override { return ""; }
-    bool cleanOut() const override { return true; }
-    bool cleanLhs() const override { return true; }
-    bool cleanRhs() const override { return true; }
-    bool cleanThs() const override { return true; }
-    bool sizeMattersLhs() const override { return false; }
-    bool sizeMattersRhs() const override { return false; }
-    bool sizeMattersThs() const override { return false; }
+    string name() స్థిరరాశి override VL_MT_STABLE { తిరిగి "substr"; }
+    string emitVerilog() override { తిరిగి "%k(%l.substr(%r,%t))"; }
+    string emitC() override { తిరిగి "VL_SUBSTR_N(%li,%ri,%ti)"; }
+    string emitSimpleOperator() override { తిరిగి ""; }
+    bool clean_బహిర్గతం() స్థిరరాశి override { తిరిగి true; }
+    bool cleanLhs() స్థిరరాశి override { తిరిగి true; }
+    bool cleanRhs() స్థిరరాశి override { తిరిగి true; }
+    bool cleanThs() స్థిరరాశి override { తిరిగి true; }
+    bool కొలత_Matters_Lhs() స్థిరరాశి override { తిరిగి false; }
+    bool కొలత_Matters_Rhs() స్థిరరాశి override { తిరిగి false; }
+    bool కొలత_Matters_Ths() స్థిరరాశి override { తిరిగి false; }
 };
 
 // === AstNodeDistTriop ===
-class AstDistErlang final : public AstNodeDistTriop {
-public:
-    AstDistErlang(FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp, AstNodeExpr* thsp)
+class AstDistErlang final : బహిరంగ Ast_కణుపు_Dist_Triop {
+బహిరంగ:
+    AstDistErlang(File_పంక్తి* fl, Ast_కణుపు_సమాసం* lhsp, Ast_కణుపు_సమాసం* rhsp, Ast_కణుపు_సమాసం* thsp)
         : ASTGEN_SUPER_DistErlang(fl, lhsp, rhsp, thsp) {}
     ASTGEN_MEMBERS_AstDistErlang;
-    string emitVerilog() override { return "%f$dist_erlang(%l, %r, %t)"; }
-    string emitC() override { return "VL_DIST_ERLANG(%li, %ri, %ti)"; }
+    string emitVerilog() override { తిరిగి "%f$dist_erlang(%l, %r, %t)"; }
+    string emitC() override { తిరిగి "VL_DIST_ERLANG(%li, %ri, %ti)"; }
 };
-class AstDistNormal final : public AstNodeDistTriop {
-public:
-    AstDistNormal(FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp, AstNodeExpr* thsp)
-        : ASTGEN_SUPER_DistNormal(fl, lhsp, rhsp, thsp) {}
-    ASTGEN_MEMBERS_AstDistNormal;
-    string emitVerilog() override { return "%f$dist_normal(%l, %r, %t)"; }
-    string emitC() override { return "VL_DIST_NORMAL(%li, %ri, %ti)"; }
+class Ast_Dist_సాధారణ final : బహిరంగ Ast_కణుపు_Dist_Triop {
+బహిరంగ:
+    Ast_Dist_సాధారణ(File_పంక్తి* fl, Ast_కణుపు_సమాసం* lhsp, Ast_కణుపు_సమాసం* rhsp, Ast_కణుపు_సమాసం* thsp)
+        : ASTGEN_SUPER_Dist_సాధారణ(fl, lhsp, rhsp, thsp) {}
+    ASTGEN_MEMBERS_Ast_Dist_సాధారణ;
+    string emitVerilog() override { తిరిగి "%f$dist_normal(%l, %r, %t)"; }
+    string emitC() override { తిరిగి "VL_DIST_NORMAL(%li, %ri, %ti)"; }
 };
-class AstDistUniform final : public AstNodeDistTriop {
-public:
-    AstDistUniform(FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp, AstNodeExpr* thsp)
-        : ASTGEN_SUPER_DistUniform(fl, lhsp, rhsp, thsp) {}
-    ASTGEN_MEMBERS_AstDistUniform;
-    string emitVerilog() override { return "%f$dist_uniform(%l, %r, %t)"; }
-    string emitC() override { return "VL_DIST_UNIFORM(%li, %ri, %ti)"; }
+class Ast_Dist_ఏకరీతి final : బహిరంగ Ast_కణుపు_Dist_Triop {
+బహిరంగ:
+    Ast_Dist_ఏకరీతి(File_పంక్తి* fl, Ast_కణుపు_సమాసం* lhsp, Ast_కణుపు_సమాసం* rhsp, Ast_కణుపు_సమాసం* thsp)
+        : ASTGEN_SUPER_Dist_ఏకరీతి(fl, lhsp, rhsp, thsp) {}
+    ASTGEN_MEMBERS_Ast_Dist_ఏకరీతి;
+    string emitVerilog() override { తిరిగి "%f$dist_uniform(%l, %r, %t)"; }
+    string emitC() override { తిరిగి "VL_DIST_UNIFORM(%li, %ri, %ti)"; }
 };
 
 // === AstNodeUniop ===
-class AstAtoN final : public AstNodeUniop {
+class AstAtoN final : బహిరంగ Ast_కణుపు_Uniop {
     // string.atoi(), atobin(), atohex(), atooct(), atoireal()
-public:
-    enum FmtType : int { ATOI = 10, ATOHEX = 16, ATOOCT = 8, ATOBIN = 2, ATOREAL = -1 };
+బహిరంగ:
+    గణన FmtType : పూర్ణాంకం { ATOI = 10, ATOHEX = 16, ATOOCT = 8, ATOBIN = 2, ATOREAL = -1 };
 
-private:
+అంతరంగ:
     // dist-ast-dump-suppress  // Part of name()
-    const FmtType m_fmtType;  // Operation type
-public:
-    AstAtoN(FileLine* fl, AstNodeExpr* lhsp, FmtType fmtType)
+    స్థిరరాశి FmtType m_fmtType;  // Operation type
+బహిరంగ:
+    AstAtoN(File_పంక్తి* fl, Ast_కణుపు_సమాసం* lhsp, FmtType fmtType)
         : ASTGEN_SUPER_AtoN(fl, lhsp)
         , m_fmtType{fmtType} {
-        fmtType == ATOREAL ? dtypeSetDouble() : dtypeSetInteger();
+        fmtType == ATOREAL ? dtype_సమితి_Double() : dtype_సమితి_Integer();
     }
     ASTGEN_MEMBERS_AstAtoN;
-    void numberOperate(V3Number& out, const V3Number& lhs) override { out.opAtoN(lhs, m_fmtType); }
-    string name() const override VL_MT_STABLE {
-        switch (m_fmtType) {
-        case ATOI: return "atoi";
-        case ATOHEX: return "atohex";
-        case ATOOCT: return "atooct";
-        case ATOBIN: return "atobin";
-        case ATOREAL: return "atoreal";
+    శూన్య సంఖ్య_నిర్వహించు(V3_సంఖ్య& బహిర్గతం, స్థిరరాశి V3_సంఖ్య& lhs) override { బహిర్గతం.opAtoN(lhs, m_fmtType); }
+    string name() స్థిరరాశి override VL_MT_STABLE {
+        ఎంపిక (m_fmtType) {
+        స్థితి ATOI: తిరిగి "atoi";
+        స్థితి ATOHEX: తిరిగి "atohex";
+        స్థితి ATOOCT: తిరిగి "atooct";
+        స్థితి ATOBIN: తిరిగి "atobin";
+        స్థితి ATOREAL: తిరిగి "atoreal";
         }
         V3ERROR_NA_RETURN("");
     }
-    string emitVerilog() override { return "%l." + name() + "()"; }
+    string emitVerilog() override { తిరిగి "%l." + name() + "()"; }
     string emitC() override {
-        switch (m_fmtType) {
-        case ATOI: return "VL_ATOI_N(%li, 10)";
-        case ATOHEX: return "VL_ATOI_N(%li, 16)";
-        case ATOOCT: return "VL_ATOI_N(%li, 8)";
-        case ATOBIN: return "VL_ATOI_N(%li, 2)";
-        case ATOREAL: return "VL_ATOREAL_N(%li)";
+        ఎంపిక (m_fmtType) {
+        స్థితి ATOI: తిరిగి "VL_ATOI_N(%li, 10)";
+        స్థితి ATOHEX: తిరిగి "VL_ATOI_N(%li, 16)";
+        స్థితి ATOOCT: తిరిగి "VL_ATOI_N(%li, 8)";
+        స్థితి ATOBIN: తిరిగి "VL_ATOI_N(%li, 2)";
+        స్థితి ATOREAL: తిరిగి "VL_ATOREAL_N(%li)";
         }
         V3ERROR_NA_RETURN("");
     }
-    bool cleanOut() const override { return true; }
-    bool cleanLhs() const override { return true; }
-    bool sizeMattersLhs() const override { return false; }
-    FmtType fmtType() const { return m_fmtType; }
+    bool clean_బహిర్గతం() స్థిరరాశి override { తిరిగి true; }
+    bool cleanLhs() స్థిరరాశి override { తిరిగి true; }
+    bool కొలత_Matters_Lhs() స్థిరరాశి override { తిరిగి false; }
+    FmtType fmtType() స్థిరరాశి { తిరిగి m_fmtType; }
 };
-class AstBitsToRealD final : public AstNodeUniop {
-public:
-    AstBitsToRealD(FileLine* fl, AstNodeExpr* lhsp)
-        : ASTGEN_SUPER_BitsToRealD(fl, lhsp) {
-        dtypeSetDouble();
+class Ast_బిట్లు_గమ్యం_Real_D final : బహిరంగ Ast_కణుపు_Uniop {
+బహిరంగ:
+    Ast_బిట్లు_గమ్యం_Real_D(File_పంక్తి* fl, Ast_కణుపు_సమాసం* lhsp)
+        : ASTGEN_SUPER_బిట్లు_గమ్యం_Real_D(fl, lhsp) {
+        dtype_సమితి_Double();
     }
-    ASTGEN_MEMBERS_AstBitsToRealD;
-    void numberOperate(V3Number& out, const V3Number& lhs) override { out.opBitsToRealD(lhs); }
-    string emitVerilog() override { return "%f$bitstoreal(%l)"; }
-    string emitC() override { return "VL_CVT_D_Q(%li)"; }
-    bool cleanOut() const override { return false; }
-    bool cleanLhs() const override { return false; }  // Eliminated before matters
-    bool sizeMattersLhs() const override { return false; }  // Eliminated before matters
-    int instrCount() const override { return INSTR_COUNT_DBL; }
-    bool isSystemFunc() const override { return true; }
+    ASTGEN_MEMBERS_Ast_బిట్లు_గమ్యం_Real_D;
+    శూన్య సంఖ్య_నిర్వహించు(V3_సంఖ్య& బహిర్గతం, స్థిరరాశి V3_సంఖ్య& lhs) override { బహిర్గతం.op_బిట్లు_గమ్యం_Real_D(lhs); }
+    string emitVerilog() override { తిరిగి "%f$bitstoreal(%l)"; }
+    string emitC() override { తిరిగి "VL_CVT_D_Q(%li)"; }
+    bool clean_బహిర్గతం() స్థిరరాశి override { తిరిగి false; }
+    bool cleanLhs() స్థిరరాశి override { తిరిగి false; }  // Eliminated before matters
+    bool కొలత_Matters_Lhs() స్థిరరాశి override { తిరిగి false; }  // Eliminated before matters
+    పూర్ణాంకం instr_లెక్క() స్థిరరాశి override { తిరిగి INSTR_లెక్క_DBL; }
+    bool isSystemFunc() స్థిరరాశి override { తిరిగి true; }
 };
-class AstCCast final : public AstNodeUniop {
+class AstCCast final : బహిరంగ Ast_కణుపు_Uniop {
     // Cast to C-based data type
-    int m_size;
+    పూర్ణాంకం m_కొలత;
 
-public:
-    AstCCast(FileLine* fl, AstNodeExpr* lhsp, int setwidth, int minwidth = -1)
+బహిరంగ:
+    AstCCast(File_పంక్తి* fl, Ast_కణుపు_సమాసం* lhsp, పూర్ణాంకం setwidth, పూర్ణాంకం minwidth = -1)
         : ASTGEN_SUPER_CCast(fl, lhsp) {
-        m_size = setwidth;
-        if (setwidth) {
-            if (minwidth == -1) minwidth = setwidth;
-            dtypeSetBitUnsized(setwidth, minwidth, VSigning::UNSIGNED);
+        m_కొలత = setwidth;
+        ఒకవేళ (setwidth) {
+            ఒకవేళ (minwidth == -1) minwidth = setwidth;
+            dtype_సమితి_బిట్టు_Unsized(setwidth, minwidth, VSigning::UNSIGNED);
         }
     }
     // cppcheck-suppress constParameterPointer
     // cppcheck-suppress constParameterCallback
-    AstCCast(FileLine* fl, AstNodeExpr* lhsp, AstNode* typeFromp)
+    AstCCast(File_పంక్తి* fl, Ast_కణుపు_సమాసం* lhsp, Ast_కణుపు* typeFromp)
         : ASTGEN_SUPER_CCast(fl, lhsp) {
         dtypeFrom(typeFromp);
-        m_size = width();
+        m_కొలత = వెడల్పు();
     }
     ASTGEN_MEMBERS_AstCCast;
-    void numberOperate(V3Number& out, const V3Number& lhs) override { out.opAssign(lhs); }
-    string emitVerilog() override { return "%f$_CAST(%l)"; }
-    string emitC() override { return "VL_CAST_%nq%lq(%nw,%lw, %P, %li)"; }
-    bool cleanOut() const override { return true; }
-    bool cleanLhs() const override { return true; }
-    bool sizeMattersLhs() const override { return false; }  // Special cased in V3Cast
-    bool sameNode(const AstNode* samep) const override {
-        return size() == VN_DBG_AS(samep, CCast)->size();
+    శూన్య సంఖ్య_నిర్వహించు(V3_సంఖ్య& బహిర్గతం, స్థిరరాశి V3_సంఖ్య& lhs) override { బహిర్గతం.op_కేటాయించు(lhs); }
+    string emitVerilog() override { తిరిగి "%f$_CAST(%l)"; }
+    string emitC() override { తిరిగి "VL_CAST_%nq%lq(%nw,%lw, %P, %li)"; }
+    bool clean_బహిర్గతం() స్థిరరాశి override { తిరిగి true; }
+    bool cleanLhs() స్థిరరాశి override { తిరిగి true; }
+    bool కొలత_Matters_Lhs() స్థిరరాశి override { తిరిగి false; }  // Special cased in V3Cast
+    bool same_కణుపు(స్థిరరాశి Ast_కణుపు* samep) స్థిరరాశి override {
+        తిరిగి కొలత() == VN_DBG_AS(samep, CCast)->కొలత();
     }
-    void dump(std::ostream& str = std::cout) const override;
-    void dumpJson(std::ostream& str = std::cout) const override;
+    శూన్య dump(std::ostream& str = std::cout) స్థిరరాశి override;
+    శూన్య dumpJson(std::ostream& str = std::cout) స్థిరరాశి override;
     //
-    int size() const { return m_size; }
+    పూర్ణాంకం కొలత() స్థిరరాశి { తిరిగి m_కొలత; }
 };
-class AstCLog2 final : public AstNodeUniop {
-public:
-    AstCLog2(FileLine* fl, AstNodeExpr* lhsp)
+class AstCLog2 final : బహిరంగ Ast_కణుపు_Uniop {
+బహిరంగ:
+    AstCLog2(File_పంక్తి* fl, Ast_కణుపు_సమాసం* lhsp)
         : ASTGEN_SUPER_CLog2(fl, lhsp) {
-        dtypeSetInteger2State();
+        dtype_సమితి_Integer2_State();
     }
     ASTGEN_MEMBERS_AstCLog2;
-    void numberOperate(V3Number& out, const V3Number& lhs) override { out.opCLog2(lhs); }
-    string emitVerilog() override { return "%f$clog2(%l)"; }
-    string emitC() override { return "VL_CLOG2_%lq(%lW, %P, %li)"; }
-    bool cleanOut() const override { return false; }
-    bool cleanLhs() const override { return true; }
-    bool sizeMattersLhs() const override { return false; }
-    int instrCount() const override { return widthInstrs() * 16; }
-    bool isSystemFunc() const override { return true; }
+    శూన్య సంఖ్య_నిర్వహించు(V3_సంఖ్య& బహిర్గతం, స్థిరరాశి V3_సంఖ్య& lhs) override { బహిర్గతం.opCLog2(lhs); }
+    string emitVerilog() override { తిరిగి "%f$clog2(%l)"; }
+    string emitC() override { తిరిగి "VL_CLOG2_%lq(%lW, %P, %li)"; }
+    bool clean_బహిర్గతం() స్థిరరాశి override { తిరిగి false; }
+    bool cleanLhs() స్థిరరాశి override { తిరిగి true; }
+    bool కొలత_Matters_Lhs() స్థిరరాశి override { తిరిగి false; }
+    పూర్ణాంకం instr_లెక్క() స్థిరరాశి override { తిరిగి వెడల్పు_Instrs() * 16; }
+    bool isSystemFunc() స్థిరరాశి override { తిరిగి true; }
 };
-class AstCastWrap final : public AstNodeUniop {
+class AstCastWrap final : బహిరంగ Ast_కణుపు_Uniop {
     // A cast which has been expanded and the LHSP does all the lifting
     // This remains until V3Width final commit pass to suppress ENUMVALUE warnings
-public:
-    AstCastWrap(FileLine* fl, AstNodeExpr* lhsp)
+బహిరంగ:
+    AstCastWrap(File_పంక్తి* fl, Ast_కణుపు_సమాసం* lhsp)
         : ASTGEN_SUPER_CastWrap(fl, lhsp) {}
     ASTGEN_MEMBERS_AstCastWrap;
-    void numberOperate(V3Number& out, const V3Number& lhs) override { out.opAssign(lhs); }
-    string emitVerilog() override { return "(%l)"; }
+    శూన్య సంఖ్య_నిర్వహించు(V3_సంఖ్య& బహిర్గతం, స్థిరరాశి V3_సంఖ్య& lhs) override { బహిర్గతం.op_కేటాయించు(lhs); }
+    string emitVerilog() override { తిరిగి "(%l)"; }
     string emitC() override { V3ERROR_NA_RETURN(""); }
-    bool cleanOut() const override { return false; }
-    bool cleanLhs() const override { return false; }
-    bool sizeMattersLhs() const override { return false; }
-    int instrCount() const override { return 0; }
+    bool clean_బహిర్గతం() స్థిరరాశి override { తిరిగి false; }
+    bool cleanLhs() స్థిరరాశి override { తిరిగి false; }
+    bool కొలత_Matters_Lhs() స్థిరరాశి override { తిరిగి false; }
+    పూర్ణాంకం instr_లెక్క() స్థిరరాశి override { తిరిగి 0; }
 };
-class AstCountOnes final : public AstNodeUniop {
+class Ast_లెక్క_Ones final : బహిరంగ Ast_కణుపు_Uniop {
     // Number of bits set in vector
     // @astgen makeDfgVertex
-public:
-    AstCountOnes(FileLine* fl, AstNodeExpr* lhsp)
-        : ASTGEN_SUPER_CountOnes(fl, lhsp) {
-        dtypeSetInt();
+బహిరంగ:
+    Ast_లెక్క_Ones(File_పంక్తి* fl, Ast_కణుపు_సమాసం* lhsp)
+        : ASTGEN_SUPER_లెక్క_Ones(fl, lhsp) {
+        dtype_సమితి_Int();
     }
-    ASTGEN_MEMBERS_AstCountOnes;
-    void numberOperate(V3Number& out, const V3Number& lhs) override { out.opCountOnes(lhs); }
-    string emitVerilog() override { return "%f$countones(%l)"; }
-    string emitC() override { return "VL_COUNTONES_%lq(%lW, %P, %li)"; }
-    bool cleanOut() const override { return false; }
-    bool cleanLhs() const override { return true; }
-    bool sizeMattersLhs() const override { return false; }
-    int instrCount() const override { return widthInstrs() * 16; }
-    bool isSystemFunc() const override { return true; }
+    ASTGEN_MEMBERS_Ast_లెక్క_Ones;
+    శూన్య సంఖ్య_నిర్వహించు(V3_సంఖ్య& బహిర్గతం, స్థిరరాశి V3_సంఖ్య& lhs) override { బహిర్గతం.op_లెక్క_Ones(lhs); }
+    string emitVerilog() override { తిరిగి "%f$countones(%l)"; }
+    string emitC() override { తిరిగి "VL_COUNTONES_%lq(%lW, %P, %li)"; }
+    bool clean_బహిర్గతం() స్థిరరాశి override { తిరిగి false; }
+    bool cleanLhs() స్థిరరాశి override { తిరిగి true; }
+    bool కొలత_Matters_Lhs() స్థిరరాశి override { తిరిగి false; }
+    పూర్ణాంకం instr_లెక్క() స్థిరరాశి override { తిరిగి వెడల్పు_Instrs() * 16; }
+    bool isSystemFunc() స్థిరరాశి override { తిరిగి true; }
 };
-class AstCvtPackString final : public AstNodeUniop {
+class AstCvtPackString final : బహిరంగ Ast_కణుపు_Uniop {
     // Convert to Verilator Packed String (aka verilog "string")
-public:
-    AstCvtPackString(FileLine* fl, AstNodeExpr* lhsp)
+బహిరంగ:
+    AstCvtPackString(File_పంక్తి* fl, Ast_కణుపు_సమాసం* lhsp)
         : ASTGEN_SUPER_CvtPackString(fl, lhsp) {
-        dtypeSetString();
+        dtype_సమితి_String();
     }
     ASTGEN_MEMBERS_AstCvtPackString;
-    void numberOperate(V3Number& out, const V3Number& lhs) override { out.opCvtPackString(lhs); }
+    శూన్య సంఖ్య_నిర్వహించు(V3_సంఖ్య& బహిర్గతం, స్థిరరాశి V3_సంఖ్య& lhs) override { బహిర్గతం.opCvtPackString(lhs); }
     string emitVerilog() override { V3ERROR_NA_RETURN(""); }
     string emitC() override { V3ERROR_NA_RETURN(""); }
-    bool cleanOut() const override { return true; }
-    bool cleanLhs() const override { return true; }
-    bool sizeMattersLhs() const override { return false; }
-    bool sameNode(const AstNode* /*samep*/) const override { return true; }
+    bool clean_బహిర్గతం() స్థిరరాశి override { తిరిగి true; }
+    bool cleanLhs() స్థిరరాశి override { తిరిగి true; }
+    bool కొలత_Matters_Lhs() స్థిరరాశి override { తిరిగి false; }
+    bool same_కణుపు(స్థిరరాశి Ast_కణుపు* /*samep*/) స్థిరరాశి override { తిరిగి true; }
 };
-class AstExtend final : public AstNodeUniop {
+class AstExtend final : బహిరంగ Ast_కణుపు_Uniop {
     // Expand a value into a wider entity by 0 extension.  Width is implied from nodep->width()
     // @astgen makeDfgVertex
-public:
-    AstExtend(FileLine* fl, AstNodeExpr* lhsp)
+బహిరంగ:
+    AstExtend(File_పంక్తి* fl, Ast_కణుపు_సమాసం* lhsp)
         : ASTGEN_SUPER_Extend(fl, lhsp) {}
-    AstExtend(FileLine* fl, AstNodeExpr* lhsp, int width, int widthMin = 0)
+    AstExtend(File_పంక్తి* fl, Ast_కణుపు_సమాసం* lhsp, పూర్ణాంకం వెడల్పు, పూర్ణాంకం వెడల్పు_Min = 0)
         : ASTGEN_SUPER_Extend(fl, lhsp) {
-        dtypeSetBitOrLogicUnsized(width, widthMin ? widthMin : width, VSigning::UNSIGNED,
+        dtype_సమితి_బిట్టు_Or_Logic_Unsized(వెడల్పు, వెడల్పు_Min ? వెడల్పు_Min : వెడల్పు, VSigning::UNSIGNED,
                                   lhsp->isFourstateOrNoDtype());
     }
     ASTGEN_MEMBERS_AstExtend;
-    void numberOperate(V3Number& out, const V3Number& lhs) override { out.opAssign(lhs); }
-    string emitVerilog() override { return "%l"; }
-    string emitC() override { return "VL_EXTEND_%nq%lq(%nw,%lw, %P, %li)"; }
-    string emitSMT() const override {
-        return "((_ zero_extend " + cvtToStr(width() - lhsp()->width()) + ") %l)";
+    శూన్య సంఖ్య_నిర్వహించు(V3_సంఖ్య& బహిర్గతం, స్థిరరాశి V3_సంఖ్య& lhs) override { బహిర్గతం.op_కేటాయించు(lhs); }
+    string emitVerilog() override { తిరిగి "%l"; }
+    string emitC() override { తిరిగి "VL_EXTEND_%nq%lq(%nw,%lw, %P, %li)"; }
+    string emitSMT() స్థిరరాశి override {
+        తిరిగి "((_ zero_extend " + cvt_గమ్యం_Str(వెడల్పు() - lhsp()->వెడల్పు()) + ") %l)";
     }
-    bool cleanOut() const override { return true; }
-    bool cleanLhs() const override { return true; }
-    bool sizeMattersLhs() const override {
-        return false;  // Because the EXTEND operator self-casts
+    bool clean_బహిర్గతం() స్థిరరాశి override { తిరిగి true; }
+    bool cleanLhs() స్థిరరాశి override { తిరిగి true; }
+    bool కొలత_Matters_Lhs() స్థిరరాశి override {
+        తిరిగి false;  // Because the EXTEND operator self-casts
     }
-    int instrCount() const override { return 0; }
+    పూర్ణాంకం instr_లెక్క() స్థిరరాశి override { తిరిగి 0; }
 };
-class AstExtendS final : public AstNodeUniop {
+class AstExtendS final : బహిరంగ Ast_కణుపు_Uniop {
     // Expand a value into a wider entity by sign extension.  Width is implied from nodep->width()
     // @astgen makeDfgVertex
-public:
-    AstExtendS(FileLine* fl, AstNodeExpr* lhsp)
+బహిరంగ:
+    AstExtendS(File_పంక్తి* fl, Ast_కణుపు_సమాసం* lhsp)
         : ASTGEN_SUPER_ExtendS(fl, lhsp) {}
-    AstExtendS(FileLine* fl, AstNodeExpr* lhsp, int width)
+    AstExtendS(File_పంక్తి* fl, Ast_కణుపు_సమాసం* lhsp, పూర్ణాంకం వెడల్పు)
         // Important that widthMin be correct, as opExtend requires it after V3Expand
         : ASTGEN_SUPER_ExtendS(fl, lhsp) {
-        dtypeSetBitOrLogicSized(width, VSigning::UNSIGNED, lhsp->isFourstateOrNoDtype());
+        dtype_సమితి_బిట్టు_Or_Logic_Sized(వెడల్పు, VSigning::UNSIGNED, lhsp->isFourstateOrNoDtype());
     }
     ASTGEN_MEMBERS_AstExtendS;
-    void numberOperate(V3Number& out, const V3Number& lhs) override {
-        out.opExtendS(lhs, lhsp()->widthMinV());
+    శూన్య సంఖ్య_నిర్వహించు(V3_సంఖ్య& బహిర్గతం, స్థిరరాశి V3_సంఖ్య& lhs) override {
+        బహిర్గతం.opExtendS(lhs, lhsp()->వెడల్పు_Min_V());
     }
-    string emitVerilog() override { return "%l"; }
-    string emitC() override { return "VL_EXTENDS_%nq%lq(%nw,%lw, %P, %li)"; }
-    string emitSMT() const override {
-        return "((_ sign_extend " + cvtToStr(width() - lhsp()->width()) + ") %l)";
+    string emitVerilog() override { తిరిగి "%l"; }
+    string emitC() override { తిరిగి "VL_EXTENDS_%nq%lq(%nw,%lw, %P, %li)"; }
+    string emitSMT() స్థిరరాశి override {
+        తిరిగి "((_ sign_extend " + cvt_గమ్యం_Str(వెడల్పు() - lhsp()->వెడల్పు()) + ") %l)";
     }
-    bool cleanOut() const override { return false; }
-    bool cleanLhs() const override { return true; }
-    bool sizeMattersLhs() const override {
-        return false;  // Because the EXTEND operator self-casts
+    bool clean_బహిర్గతం() స్థిరరాశి override { తిరిగి false; }
+    bool cleanLhs() స్థిరరాశి override { తిరిగి true; }
+    bool కొలత_Matters_Lhs() స్థిరరాశి override {
+        తిరిగి false;  // Because the EXTEND operator self-casts
     }
-    int instrCount() const override { return 0; }
-    bool signedFlavor() const override { return true; }
+    పూర్ణాంకం instr_లెక్క() స్థిరరాశి override { తిరిగి 0; }
+    bool signedFlavor() స్థిరరాశి override { తిరిగి true; }
 };
-class AstFEof final : public AstNodeUniop {
-public:
-    AstFEof(FileLine* fl, AstNodeExpr* lhsp)
+class AstFEof final : బహిరంగ Ast_కణుపు_Uniop {
+బహిరంగ:
+    AstFEof(File_పంక్తి* fl, Ast_కణుపు_సమాసం* lhsp)
         : ASTGEN_SUPER_FEof(fl, lhsp) {
-        dtypeSetLogic2StateUnsized(
-            32, v3Global.widthMinUsage() == VWidthMinUsage::MATCHES_WIDTH ? 32 : 1,
+        dtype_సమితి_Logic2_State_Unsized(
+            32, v3Global.వెడల్పు_Min_Usage() == VWidthMinUsage::MATCHES_వెడల్పు ? 32 : 1,
             VSigning::SIGNED);  // Spec says integer return
     }
     ASTGEN_MEMBERS_AstFEof;
-    void numberOperate(V3Number& out, const V3Number& lhs) override { V3ERROR_NA; }
-    string emitVerilog() override { return "%f$feof(%l)"; }
-    string emitC() override { return "(%li ? feof(VL_CVT_I_FP(%li)) : true)"; }
-    bool cleanOut() const override { return true; }
-    bool cleanLhs() const override { return true; }
-    bool sizeMattersLhs() const override { return false; }
-    int instrCount() const override { return widthInstrs() * 16; }
-    bool isPredictOptimizable() const override { return false; }
-    bool isPure() override { return false; }  // SPECIAL: $display has 'visual' ordering
-    bool isSystemFunc() const override { return true; }
-    AstNode* filep() const { return lhsp(); }
+    శూన్య సంఖ్య_నిర్వహించు(V3_సంఖ్య& బహిర్గతం, స్థిరరాశి V3_సంఖ్య& lhs) override { V3ERROR_NA; }
+    string emitVerilog() override { తిరిగి "%f$feof(%l)"; }
+    string emitC() override { తిరిగి "(%li ? feof(VL_CVT_I_FP(%li)) : true)"; }
+    bool clean_బహిర్గతం() స్థిరరాశి override { తిరిగి true; }
+    bool cleanLhs() స్థిరరాశి override { తిరిగి true; }
+    bool కొలత_Matters_Lhs() స్థిరరాశి override { తిరిగి false; }
+    పూర్ణాంకం instr_లెక్క() స్థిరరాశి override { తిరిగి వెడల్పు_Instrs() * 16; }
+    bool isPredictOptimizable() స్థిరరాశి override { తిరిగి false; }
+    bool is_శుద్ధ() override { తిరిగి false; }  // SPECIAL: $display has 'visual' ordering
+    bool isSystemFunc() స్థిరరాశి override { తిరిగి true; }
+    Ast_కణుపు* filep() స్థిరరాశి { తిరిగి lhsp(); }
 };
-class AstFGetC final : public AstNodeUniop {
-public:
-    AstFGetC(FileLine* fl, AstNodeExpr* lhsp)
+class AstFGetC final : బహిరంగ Ast_కణుపు_Uniop {
+బహిరంగ:
+    AstFGetC(File_పంక్తి* fl, Ast_కణుపు_సమాసం* lhsp)
         : ASTGEN_SUPER_FGetC(fl, lhsp) {
-        dtypeSetLogic2StateUnsized(
-            32, v3Global.widthMinUsage() == VWidthMinUsage::MATCHES_WIDTH ? 32 : 8,
+        dtype_సమితి_Logic2_State_Unsized(
+            32, v3Global.వెడల్పు_Min_Usage() == VWidthMinUsage::MATCHES_వెడల్పు ? 32 : 8,
             VSigning::SIGNED);  // Spec says integer return
     }
     ASTGEN_MEMBERS_AstFGetC;
-    void numberOperate(V3Number& out, const V3Number& lhs) override { V3ERROR_NA; }
-    string emitVerilog() override { return "%f$fgetc(%l)"; }
+    శూన్య సంఖ్య_నిర్వహించు(V3_సంఖ్య& బహిర్గతం, స్థిరరాశి V3_సంఖ్య& lhs) override { V3ERROR_NA; }
+    string emitVerilog() override { తిరిగి "%f$fgetc(%l)"; }
     // Non-existent filehandle returns EOF
-    string emitC() override { return "(%li ? fgetc(VL_CVT_I_FP(%li)) : -1)"; }
-    bool cleanOut() const override { return false; }
-    bool cleanLhs() const override { return true; }
-    bool sizeMattersLhs() const override { return false; }
-    int instrCount() const override { return widthInstrs() * 64; }
-    bool isPredictOptimizable() const override { return false; }
-    bool isPure() override { return false; }  // SPECIAL: $display has 'visual' ordering
-    AstNode* filep() const { return lhsp(); }
-    bool isSystemFunc() const override { return true; }
+    string emitC() override { తిరిగి "(%li ? fgetc(VL_CVT_I_FP(%li)) : -1)"; }
+    bool clean_బహిర్గతం() స్థిరరాశి override { తిరిగి false; }
+    bool cleanLhs() స్థిరరాశి override { తిరిగి true; }
+    bool కొలత_Matters_Lhs() స్థిరరాశి override { తిరిగి false; }
+    పూర్ణాంకం instr_లెక్క() స్థిరరాశి override { తిరిగి వెడల్పు_Instrs() * 64; }
+    bool isPredictOptimizable() స్థిరరాశి override { తిరిగి false; }
+    bool is_శుద్ధ() override { తిరిగి false; }  // SPECIAL: $display has 'visual' ordering
+    Ast_కణుపు* filep() స్థిరరాశి { తిరిగి lhsp(); }
+    bool isSystemFunc() స్థిరరాశి override { తిరిగి true; }
 };
-class AstISToRD final : public AstNodeUniop {
+class AstISToRD final : బహిరంగ Ast_కణుపు_Uniop {
     // $itor where lhs is signed
-public:
-    AstISToRD(FileLine* fl, AstNodeExpr* lhsp)
+బహిరంగ:
+    AstISToRD(File_పంక్తి* fl, Ast_కణుపు_సమాసం* lhsp)
         : ASTGEN_SUPER_ISToRD(fl, lhsp) {
-        dtypeSetDouble();
+        dtype_సమితి_Double();
     }
     ASTGEN_MEMBERS_AstISToRD;
-    void numberOperate(V3Number& out, const V3Number& lhs) override { out.opISToRD(lhs); }
-    string emitVerilog() override { return "%f$itor($signed(%l))"; }
-    string emitC() override { return "VL_ISTOR_D_%lq(%lw, %li)"; }
-    bool emitCheckMaxWords() override { return true; }
-    bool cleanOut() const override { return false; }
-    bool cleanLhs() const override { return true; }
-    bool sizeMattersLhs() const override { return false; }
-    int instrCount() const override { return INSTR_COUNT_DBL; }
-    bool isSystemFunc() const override { return true; }
+    శూన్య సంఖ్య_నిర్వహించు(V3_సంఖ్య& బహిర్గతం, స్థిరరాశి V3_సంఖ్య& lhs) override { బహిర్గతం.opISToRD(lhs); }
+    string emitVerilog() override { తిరిగి "%f$itor($signed(%l))"; }
+    string emitC() override { తిరిగి "VL_ISTOR_D_%lq(%lw, %li)"; }
+    bool emit_Check_Max_పదాలు() override { తిరిగి true; }
+    bool clean_బహిర్గతం() స్థిరరాశి override { తిరిగి false; }
+    bool cleanLhs() స్థిరరాశి override { తిరిగి true; }
+    bool కొలత_Matters_Lhs() స్థిరరాశి override { తిరిగి false; }
+    పూర్ణాంకం instr_లెక్క() స్థిరరాశి override { తిరిగి INSTR_లెక్క_DBL; }
+    bool isSystemFunc() స్థిరరాశి override { తిరిగి true; }
 };
-class AstIToRD final : public AstNodeUniop {
+class AstIToRD final : బహిరంగ Ast_కణుపు_Uniop {
     // $itor where lhs is unsigned
-public:
-    AstIToRD(FileLine* fl, AstNodeExpr* lhsp)
+బహిరంగ:
+    AstIToRD(File_పంక్తి* fl, Ast_కణుపు_సమాసం* lhsp)
         : ASTGEN_SUPER_IToRD(fl, lhsp) {
-        dtypeSetDouble();
+        dtype_సమితి_Double();
     }
     ASTGEN_MEMBERS_AstIToRD;
-    void numberOperate(V3Number& out, const V3Number& lhs) override { out.opIToRD(lhs); }
-    string emitVerilog() override { return "%f$itor(%l)"; }
-    string emitC() override { return "VL_ITOR_D_%lq(%lw, %li)"; }
-    bool cleanOut() const override { return false; }
-    bool cleanLhs() const override { return true; }
-    bool sizeMattersLhs() const override { return false; }
-    int instrCount() const override { return INSTR_COUNT_DBL; }
-    bool isSystemFunc() const override { return true; }
+    శూన్య సంఖ్య_నిర్వహించు(V3_సంఖ్య& బహిర్గతం, స్థిరరాశి V3_సంఖ్య& lhs) override { బహిర్గతం.opIToRD(lhs); }
+    string emitVerilog() override { తిరిగి "%f$itor(%l)"; }
+    string emitC() override { తిరిగి "VL_ITOR_D_%lq(%lw, %li)"; }
+    bool clean_బహిర్గతం() స్థిరరాశి override { తిరిగి false; }
+    bool cleanLhs() స్థిరరాశి override { తిరిగి true; }
+    bool కొలత_Matters_Lhs() స్థిరరాశి override { తిరిగి false; }
+    పూర్ణాంకం instr_లెక్క() స్థిరరాశి override { తిరిగి INSTR_లెక్క_DBL; }
+    bool isSystemFunc() స్థిరరాశి override { తిరిగి true; }
 };
-class AstIsUnbounded final : public AstNodeUniop {
+class AstIsUnbounded final : బహిరంగ Ast_కణుపు_Uniop {
     // True if is unbounded ($)
-public:
-    AstIsUnbounded(FileLine* fl, AstNodeExpr* lhsp)
+బహిరంగ:
+    AstIsUnbounded(File_పంక్తి* fl, Ast_కణుపు_సమాసం* lhsp)
         : ASTGEN_SUPER_IsUnbounded(fl, lhsp) {
-        dtypeSetBit();
+        dtype_సమితి_బిట్టు();
     }
     ASTGEN_MEMBERS_AstIsUnbounded;
-    void numberOperate(V3Number& out, const V3Number&) override {
+    శూన్య సంఖ్య_నిర్వహించు(V3_సంఖ్య& బహిర్గతం, స్థిరరాశి V3_సంఖ్య&) override {
         // Any constant isn't unbounded
-        out.setZero();
+        బహిర్గతం.సమితి_Zero();
     }
-    string emitVerilog() override { return "%f$isunbounded(%l)"; }
+    string emitVerilog() override { తిరిగి "%f$isunbounded(%l)"; }
     string emitC() override { V3ERROR_NA_RETURN(""); }
-    bool cleanOut() const override { return false; }
-    bool cleanLhs() const override { return false; }
-    bool sizeMattersLhs() const override { return false; }
-    bool isSystemFunc() const override { return true; }
+    bool clean_బహిర్గతం() స్థిరరాశి override { తిరిగి false; }
+    bool cleanLhs() స్థిరరాశి override { తిరిగి false; }
+    bool కొలత_Matters_Lhs() స్థిరరాశి override { తిరిగి false; }
+    bool isSystemFunc() స్థిరరాశి override { తిరిగి true; }
 };
-class AstIsUnknown final : public AstNodeUniop {
+class AstIsUnknown final : బహిరంగ Ast_కణుపు_Uniop {
     // True if any unknown bits
-public:
-    AstIsUnknown(FileLine* fl, AstNodeExpr* lhsp)
+బహిరంగ:
+    AstIsUnknown(File_పంక్తి* fl, Ast_కణుపు_సమాసం* lhsp)
         : ASTGEN_SUPER_IsUnknown(fl, lhsp) {
-        dtypeSetBit();
+        dtype_సమితి_బిట్టు();
     }
     ASTGEN_MEMBERS_AstIsUnknown;
-    void numberOperate(V3Number& out, const V3Number& lhs) override { out.opIsUnknown(lhs); }
-    string emitVerilog() override { return "%f$isunknown(%l)"; }
+    శూన్య సంఖ్య_నిర్వహించు(V3_సంఖ్య& బహిర్గతం, స్థిరరాశి V3_సంఖ్య& lhs) override { బహిర్గతం.opIsUnknown(lhs); }
+    string emitVerilog() override { తిరిగి "%f$isunknown(%l)"; }
     string emitC() override { V3ERROR_NA_RETURN(""); }
-    bool cleanOut() const override { return false; }
-    bool cleanLhs() const override { return false; }
-    bool sizeMattersLhs() const override { return false; }
-    bool isSystemFunc() const override { return true; }
+    bool clean_బహిర్గతం() స్థిరరాశి override { తిరిగి false; }
+    bool cleanLhs() స్థిరరాశి override { తిరిగి false; }
+    bool కొలత_Matters_Lhs() స్థిరరాశి override { తిరిగి false; }
+    bool isSystemFunc() స్థిరరాశి override { తిరిగి true; }
 };
-class AstLenN final : public AstNodeUniop {
+class AstLenN final : బహిరంగ Ast_కణుపు_Uniop {
     // Length of a string
-public:
-    AstLenN(FileLine* fl, AstNodeExpr* lhsp)
+బహిరంగ:
+    AstLenN(File_పంక్తి* fl, Ast_కణుపు_సమాసం* lhsp)
         : ASTGEN_SUPER_LenN(fl, lhsp) {
-        dtypeSetInt();
+        dtype_సమితి_Int();
     }
     ASTGEN_MEMBERS_AstLenN;
-    void numberOperate(V3Number& out, const V3Number& lhs) override { out.opLenN(lhs); }
-    string emitVerilog() override { return "%f(%l)"; }
-    string emitC() override { return "VL_LEN_IN(%li)"; }
-    bool cleanOut() const override { return true; }
-    bool cleanLhs() const override { return true; }
-    bool sizeMattersLhs() const override { return false; }
+    శూన్య సంఖ్య_నిర్వహించు(V3_సంఖ్య& బహిర్గతం, స్థిరరాశి V3_సంఖ్య& lhs) override { బహిర్గతం.opLenN(lhs); }
+    string emitVerilog() override { తిరిగి "%f(%l)"; }
+    string emitC() override { తిరిగి "VL_LEN_IN(%li)"; }
+    bool clean_బహిర్గతం() స్థిరరాశి override { తిరిగి true; }
+    bool cleanLhs() స్థిరరాశి override { తిరిగి true; }
+    bool కొలత_Matters_Lhs() స్థిరరాశి override { తిరిగి false; }
 };
-class AstLogNot final : public AstNodeUniop {
+class AstLogNot final : బహిరంగ Ast_కణుపు_Uniop {
     // @astgen makeDfgVertex
-private:
-    const bool m_fromProperty;  // True if from property 'not' keyword (IEEE 1800-2023 16.12.3),
+అంతరంగ:
+    స్థిరరాశి bool m_fromProperty;  // True if from property 'not' keyword (IEEE 1800-2023 16.12.3),
                                 // false for boolean '!' (IEEE 1800-2023 11.4.7)
-public:
-    AstLogNot(FileLine* fl, AstNodeExpr* lhsp, bool fromProperty = false)
+బహిరంగ:
+    AstLogNot(File_పంక్తి* fl, Ast_కణుపు_సమాసం* lhsp, bool fromProperty = false)
         : ASTGEN_SUPER_LogNot(fl, lhsp)
         , m_fromProperty{fromProperty} {
-        dtypeSetBitOrLogic(lhsp->isFourstateOrNoDtype());
+        dtype_సమితి_బిట్టు_Or_Logic(lhsp->isFourstateOrNoDtype());
     }
     ASTGEN_MEMBERS_AstLogNot;
-    void numberOperate(V3Number& out, const V3Number& lhs) override { out.opLogNot(lhs); }
-    string emitVerilog() override { return "%f(! %l)"; }
-    string emitC() override { return "VL_LOGNOT_%nq%lq(%nw,%lw, %P, %li)"; }
-    string emitSMT() const override { return "(__Vbv (not (__Vbool %l)))"; }
-    string emitSimpleOperator() override { return "!"; }
-    bool cleanOut() const override { return true; }
-    bool cleanLhs() const override { return true; }
-    bool sizeMattersLhs() const override { return false; }
-    bool fromProperty() const { return m_fromProperty; }
-    void dump(std::ostream& str) const override;
-    void dumpJson(std::ostream& str) const override;
+    శూన్య సంఖ్య_నిర్వహించు(V3_సంఖ్య& బహిర్గతం, స్థిరరాశి V3_సంఖ్య& lhs) override { బహిర్గతం.opLogNot(lhs); }
+    string emitVerilog() override { తిరిగి "%f(! %l)"; }
+    string emitC() override { తిరిగి "VL_LOGNOT_%nq%lq(%nw,%lw, %P, %li)"; }
+    string emitSMT() స్థిరరాశి override { తిరిగి "(__Vbv (not (__Vbool %l)))"; }
+    string emitSimpleOperator() override { తిరిగి "!"; }
+    bool clean_బహిర్గతం() స్థిరరాశి override { తిరిగి true; }
+    bool cleanLhs() స్థిరరాశి override { తిరిగి true; }
+    bool కొలత_Matters_Lhs() స్థిరరాశి override { తిరిగి false; }
+    bool fromProperty() స్థిరరాశి { తిరిగి m_fromProperty; }
+    శూన్య dump(std::ostream& str) స్థిరరాశి override;
+    శూన్య dumpJson(std::ostream& str) స్థిరరాశి override;
 };
-class AstMostSetBitP1 final : public AstNodeUniop {
+class Ast_Most_సమితి_బిట్టు_P1 final : బహిరంగ Ast_కణుపు_Uniop {
     // Most-significant set bit plus one (bit-width); 0 if value is zero
-public:
-    AstMostSetBitP1(FileLine* fl, AstNodeExpr* lhsp)
-        : ASTGEN_SUPER_MostSetBitP1(fl, lhsp) {
-        dtypeSetInteger2State();
+బహిరంగ:
+    Ast_Most_సమితి_బిట్టు_P1(File_పంక్తి* fl, Ast_కణుపు_సమాసం* lhsp)
+        : ASTGEN_SUPER_Most_సమితి_బిట్టు_P1(fl, lhsp) {
+        dtype_సమితి_Integer2_State();
     }
-    ASTGEN_MEMBERS_AstMostSetBitP1;
-    void numberOperate(V3Number& out, const V3Number& lhs) override { out.opMostSetBitP1(lhs); }
-    string emitVerilog() override { return "%f$mostsetbitp1(%l)"; }
-    string emitC() override { return "VL_MOSTSETBITP1_%lq(%lW, %P, %li)"; }
-    bool cleanOut() const override { return true; }
-    bool cleanLhs() const override { return true; }
-    bool sizeMattersLhs() const override { return false; }
-    int instrCount() const override { return widthInstrs() * 16; }
+    ASTGEN_MEMBERS_Ast_Most_సమితి_బిట్టు_P1;
+    శూన్య సంఖ్య_నిర్వహించు(V3_సంఖ్య& బహిర్గతం, స్థిరరాశి V3_సంఖ్య& lhs) override { బహిర్గతం.op_Most_సమితి_బిట్టు_P1(lhs); }
+    string emitVerilog() override { తిరిగి "%f$mostsetbitp1(%l)"; }
+    string emitC() override { తిరిగి "VL_MOSTSETBITP1_%lq(%lW, %P, %li)"; }
+    bool clean_బహిర్గతం() స్థిరరాశి override { తిరిగి true; }
+    bool cleanLhs() స్థిరరాశి override { తిరిగి true; }
+    bool కొలత_Matters_Lhs() స్థిరరాశి override { తిరిగి false; }
+    పూర్ణాంకం instr_లెక్క() స్థిరరాశి override { తిరిగి వెడల్పు_Instrs() * 16; }
 };
-class AstNToI final : public AstNodeUniop {
+class AstNToI final : బహిరంగ Ast_కణుపు_Uniop {
     // String to any-size integral
-public:
-    AstNToI(FileLine* fl, AstNodeExpr* lhsp, AstNodeDType* dtypep = nullptr)
+బహిరంగ:
+    AstNToI(File_పంక్తి* fl, Ast_కణుపు_సమాసం* lhsp, Ast_కణుపు_DType* dtypep = nullptr)
         : ASTGEN_SUPER_NToI(fl, lhsp) {
         this->dtypep(dtypep);
     }
     ASTGEN_MEMBERS_AstNToI;
-    void numberOperate(V3Number& out, const V3Number& lhs) override { out.opNToI(lhs); }
-    string emitVerilog() override { return "'(%l)"; }
-    string emitC() override { return "VL_NTOI_%nq(%nw, %P, %li)"; }
-    bool cleanOut() const override { return true; }
-    bool cleanLhs() const override { return true; }
-    bool sizeMattersLhs() const override { return false; }
+    శూన్య సంఖ్య_నిర్వహించు(V3_సంఖ్య& బహిర్గతం, స్థిరరాశి V3_సంఖ్య& lhs) override { బహిర్గతం.opNToI(lhs); }
+    string emitVerilog() override { తిరిగి "'(%l)"; }
+    string emitC() override { తిరిగి "VL_NTOI_%nq(%nw, %P, %li)"; }
+    bool clean_బహిర్గతం() స్థిరరాశి override { తిరిగి true; }
+    bool cleanLhs() స్థిరరాశి override { తిరిగి true; }
+    bool కొలత_Matters_Lhs() స్థిరరాశి override { తిరిగి false; }
 };
-class AstNegate final : public AstNodeUniop {
+class AstNegate final : బహిరంగ Ast_కణుపు_Uniop {
     // @astgen makeDfgVertex
-public:
-    AstNegate(FileLine* fl, AstNodeExpr* lhsp)
+బహిరంగ:
+    AstNegate(File_పంక్తి* fl, Ast_కణుపు_సమాసం* lhsp)
         : ASTGEN_SUPER_Negate(fl, lhsp) {
         dtypeFrom(lhsp);
     }
     ASTGEN_MEMBERS_AstNegate;
-    void numberOperate(V3Number& out, const V3Number& lhs) override { out.opNegate(lhs); }
-    string emitVerilog() override { return "%f(- %l)"; }
-    string emitC() override { return "VL_NEGATE_%lq(%lW, %P, %li)"; }
-    string emitSMT() const override { return "(bvneg %l)"; }
-    string emitSimpleOperator() override { return "-"; }
-    bool cleanOut() const override { return false; }
-    bool cleanLhs() const override { return false; }
-    bool sizeMattersLhs() const override { return true; }
+    శూన్య సంఖ్య_నిర్వహించు(V3_సంఖ్య& బహిర్గతం, స్థిరరాశి V3_సంఖ్య& lhs) override { బహిర్గతం.opNegate(lhs); }
+    string emitVerilog() override { తిరిగి "%f(- %l)"; }
+    string emitC() override { తిరిగి "VL_NEGATE_%lq(%lW, %P, %li)"; }
+    string emitSMT() స్థిరరాశి override { తిరిగి "(bvneg %l)"; }
+    string emitSimpleOperator() override { తిరిగి "-"; }
+    bool clean_బహిర్గతం() స్థిరరాశి override { తిరిగి false; }
+    bool cleanLhs() స్థిరరాశి override { తిరిగి false; }
+    bool కొలత_Matters_Lhs() స్థిరరాశి override { తిరిగి true; }
 };
-class AstNegateD final : public AstNodeUniop {
-public:
-    AstNegateD(FileLine* fl, AstNodeExpr* lhsp)
+class AstNegateD final : బహిరంగ Ast_కణుపు_Uniop {
+బహిరంగ:
+    AstNegateD(File_పంక్తి* fl, Ast_కణుపు_సమాసం* lhsp)
         : ASTGEN_SUPER_NegateD(fl, lhsp) {
-        dtypeSetDouble();
+        dtype_సమితి_Double();
     }
     ASTGEN_MEMBERS_AstNegateD;
-    void numberOperate(V3Number& out, const V3Number& lhs) override { out.opNegateD(lhs); }
-    string emitVerilog() override { return "%f(- %l)"; }
+    శూన్య సంఖ్య_నిర్వహించు(V3_సంఖ్య& బహిర్గతం, స్థిరరాశి V3_సంఖ్య& lhs) override { బహిర్గతం.opNegateD(lhs); }
+    string emitVerilog() override { తిరిగి "%f(- %l)"; }
     string emitC() override { V3ERROR_NA_RETURN(""); }
-    string emitSimpleOperator() override { return "-"; }
-    bool cleanOut() const override { return true; }
-    bool cleanLhs() const override { return false; }
-    bool sizeMattersLhs() const override { return false; }
-    int instrCount() const override { return INSTR_COUNT_DBL; }
-    bool doubleFlavor() const override { return true; }
+    string emitSimpleOperator() override { తిరిగి "-"; }
+    bool clean_బహిర్గతం() స్థిరరాశి override { తిరిగి true; }
+    bool cleanLhs() స్థిరరాశి override { తిరిగి false; }
+    bool కొలత_Matters_Lhs() స్థిరరాశి override { తిరిగి false; }
+    పూర్ణాంకం instr_లెక్క() స్థిరరాశి override { తిరిగి INSTR_లెక్క_DBL; }
+    bool doubleFlavor() స్థిరరాశి override { తిరిగి true; }
 };
-class AstNot final : public AstNodeUniop {
+class AstNot final : బహిరంగ Ast_కణుపు_Uniop {
     // @astgen makeDfgVertex
-public:
-    AstNot(FileLine* fl, AstNodeExpr* lhsp)
+బహిరంగ:
+    AstNot(File_పంక్తి* fl, Ast_కణుపు_సమాసం* lhsp)
         : ASTGEN_SUPER_Not(fl, lhsp) {
         dtypeFrom(lhsp);
     }
     ASTGEN_MEMBERS_AstNot;
-    void numberOperate(V3Number& out, const V3Number& lhs) override { out.opNot(lhs); }
-    string emitVerilog() override { return "%f(~ %l)"; }
-    string emitC() override { return "VL_NOT_%lq(%lW, %P, %li)"; }
-    string emitSMT() const override { return "(bvnot %l)"; }
-    string emitSimpleOperator() override { return "~"; }
-    bool cleanOut() const override { return false; }
-    bool cleanLhs() const override { return false; }
-    bool sizeMattersLhs() const override { return true; }
-    const char* widthMismatch() const override VL_MT_STABLE;
+    శూన్య సంఖ్య_నిర్వహించు(V3_సంఖ్య& బహిర్గతం, స్థిరరాశి V3_సంఖ్య& lhs) override { బహిర్గతం.opNot(lhs); }
+    string emitVerilog() override { తిరిగి "%f(~ %l)"; }
+    string emitC() override { తిరిగి "VL_NOT_%lq(%lW, %P, %li)"; }
+    string emitSMT() స్థిరరాశి override { తిరిగి "(bvnot %l)"; }
+    string emitSimpleOperator() override { తిరిగి "~"; }
+    bool clean_బహిర్గతం() స్థిరరాశి override { తిరిగి false; }
+    bool cleanLhs() స్థిరరాశి override { తిరిగి false; }
+    bool కొలత_Matters_Lhs() స్థిరరాశి override { తిరిగి true; }
+    స్థిరరాశి అక్షరం* వెడల్పు_Mismatch() స్థిరరాశి override VL_MT_STABLE;
 };
-class AstNullCheck final : public AstNodeUniop {
+class AstNullCheck final : బహిరంగ Ast_కణుపు_Uniop {
     // Return LHS after checking that LHS is non-null
-public:
-    AstNullCheck(FileLine* fl, AstNodeExpr* lhsp)
+బహిరంగ:
+    AstNullCheck(File_పంక్తి* fl, Ast_కణుపు_సమాసం* lhsp)
         : ASTGEN_SUPER_NullCheck(fl, lhsp) {
         dtypeFrom(lhsp);
     }
     ASTGEN_MEMBERS_AstNullCheck;
-    void numberOperate(V3Number& out, const V3Number& lhs) override { V3ERROR_NA; }
-    int instrCount() const override { return 1; }  // Rarely executes
-    string emitVerilog() override { return "%l"; }
+    శూన్య సంఖ్య_నిర్వహించు(V3_సంఖ్య& బహిర్గతం, స్థిరరాశి V3_సంఖ్య& lhs) override { V3ERROR_NA; }
+    పూర్ణాంకం instr_లెక్క() స్థిరరాశి override { తిరిగి 1; }  // Rarely executes
+    string emitVerilog() override { తిరిగి "%l"; }
     string emitC() override { V3ERROR_NA_RETURN(""); }
     string emitSimpleOperator() override { V3ERROR_NA_RETURN(""); }
-    bool cleanOut() const override { return true; }
-    bool cleanLhs() const override { return true; }
-    bool sizeMattersLhs() const override { return false; }
-    bool sameNode(const AstNode* samep) const override { return fileline() == samep->fileline(); }
+    bool clean_బహిర్గతం() స్థిరరాశి override { తిరిగి true; }
+    bool cleanLhs() స్థిరరాశి override { తిరిగి true; }
+    bool కొలత_Matters_Lhs() స్థిరరాశి override { తిరిగి false; }
+    bool same_కణుపు(స్థిరరాశి Ast_కణుపు* samep) స్థిరరాశి override { తిరిగి fileline() == samep->fileline(); }
 };
-class AstOneHot final : public AstNodeUniop {
+class AstOneHot final : బహిరంగ Ast_కణుపు_Uniop {
     // True if only single bit set in vector
     // @astgen makeDfgVertex
-public:
-    AstOneHot(FileLine* fl, AstNodeExpr* lhsp)
+బహిరంగ:
+    AstOneHot(File_పంక్తి* fl, Ast_కణుపు_సమాసం* lhsp)
         : ASTGEN_SUPER_OneHot(fl, lhsp) {
-        dtypeSetBit();
+        dtype_సమితి_బిట్టు();
     }
     ASTGEN_MEMBERS_AstOneHot;
-    void numberOperate(V3Number& out, const V3Number& lhs) override { out.opOneHot(lhs); }
-    string emitVerilog() override { return "%f$onehot(%l)"; }
-    string emitC() override { return "VL_ONEHOT_%lq(%lW, %P, %li)"; }
-    bool cleanOut() const override { return true; }
-    bool cleanLhs() const override { return true; }
-    bool sizeMattersLhs() const override { return false; }
-    int instrCount() const override { return widthInstrs() * 4; }
-    bool isSystemFunc() const override { return true; }
+    శూన్య సంఖ్య_నిర్వహించు(V3_సంఖ్య& బహిర్గతం, స్థిరరాశి V3_సంఖ్య& lhs) override { బహిర్గతం.opOneHot(lhs); }
+    string emitVerilog() override { తిరిగి "%f$onehot(%l)"; }
+    string emitC() override { తిరిగి "VL_ONEHOT_%lq(%lW, %P, %li)"; }
+    bool clean_బహిర్గతం() స్థిరరాశి override { తిరిగి true; }
+    bool cleanLhs() స్థిరరాశి override { తిరిగి true; }
+    bool కొలత_Matters_Lhs() స్థిరరాశి override { తిరిగి false; }
+    పూర్ణాంకం instr_లెక్క() స్థిరరాశి override { తిరిగి వెడల్పు_Instrs() * 4; }
+    bool isSystemFunc() స్థిరరాశి override { తిరిగి true; }
 };
-class AstOneHot0 final : public AstNodeUniop {
+class AstOneHot0 final : బహిరంగ Ast_కణుపు_Uniop {
     // True if only single bit, or no bits set in vector
     // @astgen makeDfgVertex
-public:
-    AstOneHot0(FileLine* fl, AstNodeExpr* lhsp)
+బహిరంగ:
+    AstOneHot0(File_పంక్తి* fl, Ast_కణుపు_సమాసం* lhsp)
         : ASTGEN_SUPER_OneHot0(fl, lhsp) {
-        dtypeSetBit();
+        dtype_సమితి_బిట్టు();
     }
     ASTGEN_MEMBERS_AstOneHot0;
-    void numberOperate(V3Number& out, const V3Number& lhs) override { out.opOneHot0(lhs); }
-    string emitVerilog() override { return "%f$onehot0(%l)"; }
-    string emitC() override { return "VL_ONEHOT0_%lq(%lW, %P, %li)"; }
-    bool cleanOut() const override { return true; }
-    bool cleanLhs() const override { return true; }
-    bool sizeMattersLhs() const override { return false; }
-    int instrCount() const override { return widthInstrs() * 3; }
-    bool isSystemFunc() const override { return true; }
+    శూన్య సంఖ్య_నిర్వహించు(V3_సంఖ్య& బహిర్గతం, స్థిరరాశి V3_సంఖ్య& lhs) override { బహిర్గతం.opOneHot0(lhs); }
+    string emitVerilog() override { తిరిగి "%f$onehot0(%l)"; }
+    string emitC() override { తిరిగి "VL_ONEHOT0_%lq(%lW, %P, %li)"; }
+    bool clean_బహిర్గతం() స్థిరరాశి override { తిరిగి true; }
+    bool cleanLhs() స్థిరరాశి override { తిరిగి true; }
+    bool కొలత_Matters_Lhs() స్థిరరాశి override { తిరిగి false; }
+    పూర్ణాంకం instr_లెక్క() స్థిరరాశి override { తిరిగి వెడల్పు_Instrs() * 3; }
+    bool isSystemFunc() స్థిరరాశి override { తిరిగి true; }
 };
-class AstPostDec final : public AstNodeUniop {
+class AstPostDec final : బహిరంగ Ast_కణుపు_Uniop {
     // Post-decrement/subtract
     // Children: lhsp: tree with AstVarRef to be decremented
-public:
-    AstPostDec(FileLine* fl, AstNodeExpr* lhsp)
+బహిరంగ:
+    AstPostDec(File_పంక్తి* fl, Ast_కణుపు_సమాసం* lhsp)
         : ASTGEN_SUPER_PostDec(fl, lhsp) {}
     ASTGEN_MEMBERS_AstPostDec;
-    void numberOperate(V3Number& out, const V3Number& lhs) override {
+    శూన్య సంఖ్య_నిర్వహించు(V3_సంఖ్య& బహిర్గతం, స్థిరరాశి V3_సంఖ్య& lhs) override {
         V3ERROR_NA;  // Need to modify lhs
     }
-    string emitVerilog() override { return "%k(%l--)"; }
+    string emitVerilog() override { తిరిగి "%k(%l--)"; }
     string emitC() override { V3ERROR_NA_RETURN(""); }
     string emitSimpleOperator() override { V3ERROR_NA_RETURN(""); }
-    bool cleanOut() const override { V3ERROR_NA_RETURN(false); }
-    bool cleanLhs() const override { V3ERROR_NA_RETURN(false); }
-    bool sizeMattersLhs() const override { V3ERROR_NA_RETURN(true); }
+    bool clean_బహిర్గతం() స్థిరరాశి override { V3ERROR_NA_RETURN(false); }
+    bool cleanLhs() స్థిరరాశి override { V3ERROR_NA_RETURN(false); }
+    bool కొలత_Matters_Lhs() స్థిరరాశి override { V3ERROR_NA_RETURN(true); }
 };
-class AstPostInc final : public AstNodeUniop {
+class AstPostInc final : బహిరంగ Ast_కణుపు_Uniop {
     // Post-increment/add
     // Children: lhsp: tree with AstVarRef to be incremented
-public:
-    AstPostInc(FileLine* fl, AstNodeExpr* lhsp)
+బహిరంగ:
+    AstPostInc(File_పంక్తి* fl, Ast_కణుపు_సమాసం* lhsp)
         : ASTGEN_SUPER_PostInc(fl, lhsp) {}
     ASTGEN_MEMBERS_AstPostInc;
-    void numberOperate(V3Number& out, const V3Number& lhs) override {
+    శూన్య సంఖ్య_నిర్వహించు(V3_సంఖ్య& బహిర్గతం, స్థిరరాశి V3_సంఖ్య& lhs) override {
         V3ERROR_NA;  // Need to modify lhs
     }
-    string emitVerilog() override { return "%k(%l++)"; }
+    string emitVerilog() override { తిరిగి "%k(%l++)"; }
     string emitC() override { V3ERROR_NA_RETURN(""); }
     string emitSimpleOperator() override { V3ERROR_NA_RETURN(""); }
-    bool cleanOut() const override { V3ERROR_NA_RETURN(false); }
-    bool cleanLhs() const override { V3ERROR_NA_RETURN(false); }
-    bool sizeMattersLhs() const override { V3ERROR_NA_RETURN(true); }
+    bool clean_బహిర్గతం() స్థిరరాశి override { V3ERROR_NA_RETURN(false); }
+    bool cleanLhs() స్థిరరాశి override { V3ERROR_NA_RETURN(false); }
+    bool కొలత_Matters_Lhs() స్థిరరాశి override { V3ERROR_NA_RETURN(true); }
 };
-class AstPreDec final : public AstNodeUniop {
+class AstPreDec final : బహిరంగ Ast_కణుపు_Uniop {
     // Pre-decrement/subtract
     // Children: lhsp: tree with AstVarRef to be decremented
-public:
-    AstPreDec(FileLine* fl, AstNodeExpr* lhsp)
+బహిరంగ:
+    AstPreDec(File_పంక్తి* fl, Ast_కణుపు_సమాసం* lhsp)
         : ASTGEN_SUPER_PreDec(fl, lhsp) {}
     ASTGEN_MEMBERS_AstPreDec;
-    void numberOperate(V3Number& out, const V3Number& lhs) override {
+    శూన్య సంఖ్య_నిర్వహించు(V3_సంఖ్య& బహిర్గతం, స్థిరరాశి V3_సంఖ్య& lhs) override {
         V3ERROR_NA;  // Need to modify lhs
     }
-    string emitVerilog() override { return "%k(--%l)"; }
+    string emitVerilog() override { తిరిగి "%k(--%l)"; }
     string emitC() override { V3ERROR_NA_RETURN(""); }
     string emitSimpleOperator() override { V3ERROR_NA_RETURN(""); }
-    bool cleanOut() const override { V3ERROR_NA_RETURN(false); }
-    bool cleanLhs() const override { V3ERROR_NA_RETURN(false); }
-    bool sizeMattersLhs() const override { V3ERROR_NA_RETURN(true); }
+    bool clean_బహిర్గతం() స్థిరరాశి override { V3ERROR_NA_RETURN(false); }
+    bool cleanLhs() స్థిరరాశి override { V3ERROR_NA_RETURN(false); }
+    bool కొలత_Matters_Lhs() స్థిరరాశి override { V3ERROR_NA_RETURN(true); }
 };
-class AstPreInc final : public AstNodeUniop {
+class AstPreInc final : బహిరంగ Ast_కణుపు_Uniop {
     // Pre-increment/add
     // Children: lhsp: tree with AstVarRef to be incremented
-public:
-    AstPreInc(FileLine* fl, AstNodeExpr* lhsp)
+బహిరంగ:
+    AstPreInc(File_పంక్తి* fl, Ast_కణుపు_సమాసం* lhsp)
         : ASTGEN_SUPER_PreInc(fl, lhsp) {}
     ASTGEN_MEMBERS_AstPreInc;
-    void numberOperate(V3Number& out, const V3Number& lhs) override {
+    శూన్య సంఖ్య_నిర్వహించు(V3_సంఖ్య& బహిర్గతం, స్థిరరాశి V3_సంఖ్య& lhs) override {
         V3ERROR_NA;  // Need to modify lhs
     }
-    string emitVerilog() override { return "%k(++%l)"; }
+    string emitVerilog() override { తిరిగి "%k(++%l)"; }
     string emitC() override { V3ERROR_NA_RETURN(""); }
     string emitSimpleOperator() override { V3ERROR_NA_RETURN(""); }
-    bool cleanOut() const override { V3ERROR_NA_RETURN(false); }
-    bool cleanLhs() const override { V3ERROR_NA_RETURN(false); }
-    bool sizeMattersLhs() const override { V3ERROR_NA_RETURN(true); }
+    bool clean_బహిర్గతం() స్థిరరాశి override { V3ERROR_NA_RETURN(false); }
+    bool cleanLhs() స్థిరరాశి override { V3ERROR_NA_RETURN(false); }
+    bool కొలత_Matters_Lhs() స్థిరరాశి override { V3ERROR_NA_RETURN(true); }
 };
-class AstRToIRoundS final : public AstNodeUniop {
+class AstRToIRoundS final : బహిరంగ Ast_కణుపు_Uniop {
     // Convert real to integer, with arbitrary sized output (not just "integer" format)
-public:
-    AstRToIRoundS(FileLine* fl, AstNodeExpr* lhsp)
+బహిరంగ:
+    AstRToIRoundS(File_పంక్తి* fl, Ast_కణుపు_సమాసం* lhsp)
         : ASTGEN_SUPER_RToIRoundS(fl, lhsp) {
-        dtypeSetInteger2State();
+        dtype_సమితి_Integer2_State();
     }
     ASTGEN_MEMBERS_AstRToIRoundS;
-    void numberOperate(V3Number& out, const V3Number& lhs) override { out.opRToIRoundS(lhs); }
-    string emitVerilog() override { return "%f$rtoi_rounded(%l)"; }
+    శూన్య సంఖ్య_నిర్వహించు(V3_సంఖ్య& బహిర్గతం, స్థిరరాశి V3_సంఖ్య& lhs) override { బహిర్గతం.opRToIRoundS(lhs); }
+    string emitVerilog() override { తిరిగి "%f$rtoi_rounded(%l)"; }
     string emitC() override {
-        return isWide() ? "VL_RTOIROUND_%nq_D(%nw, %P, %li)" : "VL_RTOIROUND_%nq_D(%li)";
+        తిరిగి isWide() ? "VL_RTOIROUND_%nq_D(%nw, %P, %li)" : "VL_RTOIROUND_%nq_D(%li)";
     }
-    bool cleanOut() const override { return false; }
-    bool cleanLhs() const override { return false; }
-    bool sizeMattersLhs() const override { return false; }
-    int instrCount() const override { return INSTR_COUNT_DBL; }
-    bool isSystemFunc() const override { return true; }
+    bool clean_బహిర్గతం() స్థిరరాశి override { తిరిగి false; }
+    bool cleanLhs() స్థిరరాశి override { తిరిగి false; }
+    bool కొలత_Matters_Lhs() స్థిరరాశి override { తిరిగి false; }
+    పూర్ణాంకం instr_లెక్క() స్థిరరాశి override { తిరిగి INSTR_లెక్క_DBL; }
+    bool isSystemFunc() స్థిరరాశి override { తిరిగి true; }
 };
-class AstRToIS final : public AstNodeUniop {
+class AstRToIS final : బహిరంగ Ast_కణుపు_Uniop {
     // $rtoi(lhs)
-public:
-    AstRToIS(FileLine* fl, AstNodeExpr* lhsp)
+బహిరంగ:
+    AstRToIS(File_పంక్తి* fl, Ast_కణుపు_సమాసం* lhsp)
         : ASTGEN_SUPER_RToIS(fl, lhsp) {
-        dtypeSetInteger2State();
+        dtype_సమితి_Integer2_State();
     }
     ASTGEN_MEMBERS_AstRToIS;
-    void numberOperate(V3Number& out, const V3Number& lhs) override { out.opRToIS(lhs); }
-    string emitVerilog() override { return "%f$rtoi(%l)"; }
-    string emitC() override { return "VL_RTOI_I_D(%li)"; }
-    bool cleanOut() const override { return false; }
-    bool cleanLhs() const override { return false; }  // Eliminated before matters
-    bool sizeMattersLhs() const override { return false; }  // Eliminated before matters
-    int instrCount() const override { return INSTR_COUNT_DBL; }
-    bool isSystemFunc() const override { return true; }
+    శూన్య సంఖ్య_నిర్వహించు(V3_సంఖ్య& బహిర్గతం, స్థిరరాశి V3_సంఖ్య& lhs) override { బహిర్గతం.opRToIS(lhs); }
+    string emitVerilog() override { తిరిగి "%f$rtoi(%l)"; }
+    string emitC() override { తిరిగి "VL_RTOI_I_D(%li)"; }
+    bool clean_బహిర్గతం() స్థిరరాశి override { తిరిగి false; }
+    bool cleanLhs() స్థిరరాశి override { తిరిగి false; }  // Eliminated before matters
+    bool కొలత_Matters_Lhs() స్థిరరాశి override { తిరిగి false; }  // Eliminated before matters
+    పూర్ణాంకం instr_లెక్క() స్థిరరాశి override { తిరిగి INSTR_లెక్క_DBL; }
+    bool isSystemFunc() స్థిరరాశి override { తిరిగి true; }
 };
-class AstRealToBits final : public AstNodeUniop {
-public:
-    AstRealToBits(FileLine* fl, AstNodeExpr* lhsp)
-        : ASTGEN_SUPER_RealToBits(fl, lhsp) {
-        dtypeSetUInt64();
+class Ast_Real_గమ్యం_బిట్లు final : బహిరంగ Ast_కణుపు_Uniop {
+బహిరంగ:
+    Ast_Real_గమ్యం_బిట్లు(File_పంక్తి* fl, Ast_కణుపు_సమాసం* lhsp)
+        : ASTGEN_SUPER_Real_గమ్యం_బిట్లు(fl, lhsp) {
+        dtype_సమితి_UInt64();
     }
-    ASTGEN_MEMBERS_AstRealToBits;
-    void numberOperate(V3Number& out, const V3Number& lhs) override { out.opRealToBits(lhs); }
-    string emitVerilog() override { return "%f$realtobits(%l)"; }
-    string emitC() override { return "VL_CVT_Q_D(%li)"; }
-    bool cleanOut() const override { return false; }
-    bool cleanLhs() const override { return false; }  // Eliminated before matters
-    bool sizeMattersLhs() const override { return false; }  // Eliminated before matters
-    int instrCount() const override { return INSTR_COUNT_DBL; }
-    bool isSystemFunc() const override { return true; }
+    ASTGEN_MEMBERS_Ast_Real_గమ్యం_బిట్లు;
+    శూన్య సంఖ్య_నిర్వహించు(V3_సంఖ్య& బహిర్గతం, స్థిరరాశి V3_సంఖ్య& lhs) override { బహిర్గతం.op_Real_గమ్యం_బిట్లు(lhs); }
+    string emitVerilog() override { తిరిగి "%f$realtobits(%l)"; }
+    string emitC() override { తిరిగి "VL_CVT_Q_D(%li)"; }
+    bool clean_బహిర్గతం() స్థిరరాశి override { తిరిగి false; }
+    bool cleanLhs() స్థిరరాశి override { తిరిగి false; }  // Eliminated before matters
+    bool కొలత_Matters_Lhs() స్థిరరాశి override { తిరిగి false; }  // Eliminated before matters
+    పూర్ణాంకం instr_లెక్క() స్థిరరాశి override { తిరిగి INSTR_లెక్క_DBL; }
+    bool isSystemFunc() స్థిరరాశి override { తిరిగి true; }
 };
-class AstRedAnd final : public AstNodeUniop {
+class AstRedAnd final : బహిరంగ Ast_కణుపు_Uniop {
     // @astgen makeDfgVertex
-public:
-    AstRedAnd(FileLine* fl, AstNodeExpr* lhsp)
+బహిరంగ:
+    AstRedAnd(File_పంక్తి* fl, Ast_కణుపు_సమాసం* lhsp)
         : ASTGEN_SUPER_RedAnd(fl, lhsp) {
-        dtypeSetBitOrLogic(lhsp->isFourstateOrNoDtype());
+        dtype_సమితి_బిట్టు_Or_Logic(lhsp->isFourstateOrNoDtype());
     }
     ASTGEN_MEMBERS_AstRedAnd;
-    void numberOperate(V3Number& out, const V3Number& lhs) override { out.opRedAnd(lhs); }
-    string emitVerilog() override { return "%f(& %l)"; }
-    string emitC() override { return "VL_REDAND_%nq%lq(%lw, %P, %li)"; }
-    bool cleanOut() const override { return true; }
-    bool cleanLhs() const override { return true; }
-    bool sizeMattersLhs() const override { return false; }
+    శూన్య సంఖ్య_నిర్వహించు(V3_సంఖ్య& బహిర్గతం, స్థిరరాశి V3_సంఖ్య& lhs) override { బహిర్గతం.opRedAnd(lhs); }
+    string emitVerilog() override { తిరిగి "%f(& %l)"; }
+    string emitC() override { తిరిగి "VL_REDAND_%nq%lq(%lw, %P, %li)"; }
+    bool clean_బహిర్గతం() స్థిరరాశి override { తిరిగి true; }
+    bool cleanLhs() స్థిరరాశి override { తిరిగి true; }
+    bool కొలత_Matters_Lhs() స్థిరరాశి override { తిరిగి false; }
 };
-class AstRedOr final : public AstNodeUniop {
+class AstRedOr final : బహిరంగ Ast_కణుపు_Uniop {
     // @astgen makeDfgVertex
-public:
-    AstRedOr(FileLine* fl, AstNodeExpr* lhsp)
+బహిరంగ:
+    AstRedOr(File_పంక్తి* fl, Ast_కణుపు_సమాసం* lhsp)
         : ASTGEN_SUPER_RedOr(fl, lhsp) {
-        dtypeSetBitOrLogic(lhsp->isFourstateOrNoDtype());
+        dtype_సమితి_బిట్టు_Or_Logic(lhsp->isFourstateOrNoDtype());
     }
     ASTGEN_MEMBERS_AstRedOr;
-    void numberOperate(V3Number& out, const V3Number& lhs) override { out.opRedOr(lhs); }
-    string emitVerilog() override { return "%f(| %l)"; }
-    string emitC() override { return "VL_REDOR_%lq(%lW, %P, %li)"; }
-    bool cleanOut() const override { return true; }
-    bool cleanLhs() const override { return true; }
-    bool sizeMattersLhs() const override { return false; }
+    శూన్య సంఖ్య_నిర్వహించు(V3_సంఖ్య& బహిర్గతం, స్థిరరాశి V3_సంఖ్య& lhs) override { బహిర్గతం.opRedOr(lhs); }
+    string emitVerilog() override { తిరిగి "%f(| %l)"; }
+    string emitC() override { తిరిగి "VL_REDOR_%lq(%lW, %P, %li)"; }
+    bool clean_బహిర్గతం() స్థిరరాశి override { తిరిగి true; }
+    bool cleanLhs() స్థిరరాశి override { తిరిగి true; }
+    bool కొలత_Matters_Lhs() స్థిరరాశి override { తిరిగి false; }
 };
-class AstRedXor final : public AstNodeUniop {
+class AstRedXor final : బహిరంగ Ast_కణుపు_Uniop {
     // @astgen makeDfgVertex
-public:
-    AstRedXor(FileLine* fl, AstNodeExpr* lhsp)
+బహిరంగ:
+    AstRedXor(File_పంక్తి* fl, Ast_కణుపు_సమాసం* lhsp)
         : ASTGEN_SUPER_RedXor(fl, lhsp) {
-        dtypeSetBitOrLogic(lhsp->isFourstateOrNoDtype());
+        dtype_సమితి_బిట్టు_Or_Logic(lhsp->isFourstateOrNoDtype());
     }
     ASTGEN_MEMBERS_AstRedXor;
-    void numberOperate(V3Number& out, const V3Number& lhs) override { out.opRedXor(lhs); }
-    string emitVerilog() override { return "%f(^ %l)"; }
-    string emitC() override { return "VL_REDXOR_%lq(%lW, %P, %li)"; }
-    bool cleanOut() const override { return false; }
-    bool cleanLhs() const override {
-        const int w = lhsp()->width();
-        return (w != 1 && w != 2 && w != 4 && w != 8 && w != 16);
+    శూన్య సంఖ్య_నిర్వహించు(V3_సంఖ్య& బహిర్గతం, స్థిరరాశి V3_సంఖ్య& lhs) override { బహిర్గతం.opRedXor(lhs); }
+    string emitVerilog() override { తిరిగి "%f(^ %l)"; }
+    string emitC() override { తిరిగి "VL_REDXOR_%lq(%lW, %P, %li)"; }
+    bool clean_బహిర్గతం() స్థిరరాశి override { తిరిగి false; }
+    bool cleanLhs() స్థిరరాశి override {
+        స్థిరరాశి పూర్ణాంకం w = lhsp()->వెడల్పు();
+        తిరిగి (w != 1 && w != 2 && w != 4 && w != 8 && w != 16);
     }
-    bool sizeMattersLhs() const override { return false; }
-    int instrCount() const override { return 1 + V3Number::log2b(width()); }
+    bool కొలత_Matters_Lhs() స్థిరరాశి override { తిరిగి false; }
+    పూర్ణాంకం instr_లెక్క() స్థిరరాశి override { తిరిగి 1 + V3_సంఖ్య::log2b(వెడల్పు()); }
 };
-class AstResizeLValue final : public AstNodeUniop {
+class AstResizeLValue final : బహిరంగ Ast_కణుపు_Uniop {
     // Resize a LValue into a wider/narrower entity at function argument boundry
     // Width and signness is implied from nodep->width()
-public:
-    AstResizeLValue(FileLine* fl, AstNodeExpr* lhsp)
+బహిరంగ:
+    AstResizeLValue(File_పంక్తి* fl, Ast_కణుపు_సమాసం* lhsp)
         : ASTGEN_SUPER_ResizeLValue(fl, lhsp) {}
     ASTGEN_MEMBERS_AstResizeLValue;
-    void numberOperate(V3Number& out, const V3Number& lhs) override { V3ERROR_NA; }
-    string emitVerilog() override { return "%l"; }
+    శూన్య సంఖ్య_నిర్వహించు(V3_సంఖ్య& బహిర్గతం, స్థిరరాశి V3_సంఖ్య& lhs) override { V3ERROR_NA; }
+    string emitVerilog() override { తిరిగి "%l"; }
     string emitC() final override { V3ERROR_NA_RETURN(""); }
-    bool cleanOut() const override { return true; }
-    bool cleanLhs() const override { return true; }
-    bool sizeMattersLhs() const override { return false; }
-    int instrCount() const override { return 0; }
+    bool clean_బహిర్గతం() స్థిరరాశి override { తిరిగి true; }
+    bool cleanLhs() స్థిరరాశి override { తిరిగి true; }
+    bool కొలత_Matters_Lhs() స్థిరరాశి override { తిరిగి false; }
+    పూర్ణాంకం instr_లెక్క() స్థిరరాశి override { తిరిగి 0; }
 };
-class AstSigned final : public AstNodeUniop {
+class AstSigned final : బహిరంగ Ast_కణుపు_Uniop {
     // $signed(lhs)
-public:
-    AstSigned(FileLine* fl, AstNodeExpr* lhsp)
+బహిరంగ:
+    AstSigned(File_పంక్తి* fl, Ast_కణుపు_సమాసం* lhsp)
         : ASTGEN_SUPER_Signed(fl, lhsp) {
         UASSERT_OBJ(!v3Global.assertDTypesResolved(), this,
                     "not coded to create after dtypes resolved");
     }
     ASTGEN_MEMBERS_AstSigned;
-    void numberOperate(V3Number& out, const V3Number& lhs) override {
-        out.opAssign(lhs);
-        out.isSigned(false);
+    శూన్య సంఖ్య_నిర్వహించు(V3_సంఖ్య& బహిర్గతం, స్థిరరాశి V3_సంఖ్య& lhs) override {
+        బహిర్గతం.op_కేటాయించు(lhs);
+        బహిర్గతం.isSigned(false);
     }
-    string emitVerilog() override { return "%f$signed(%l)"; }
+    string emitVerilog() override { తిరిగి "%f$signed(%l)"; }
     string emitC() override { V3ERROR_NA_RETURN(""); }
-    bool cleanOut() const override { return false; }
-    bool cleanLhs() const override { return false; }  // Eliminated before matters
-    bool sizeMattersLhs() const override { return true; }  // Eliminated before matters
-    int instrCount() const override { return 0; }
-    bool isSystemFunc() const override { return true; }
+    bool clean_బహిర్గతం() స్థిరరాశి override { తిరిగి false; }
+    bool cleanLhs() స్థిరరాశి override { తిరిగి false; }  // Eliminated before matters
+    bool కొలత_Matters_Lhs() స్థిరరాశి override { తిరిగి true; }  // Eliminated before matters
+    పూర్ణాంకం instr_లెక్క() స్థిరరాశి override { తిరిగి 0; }
+    bool isSystemFunc() స్థిరరాశి override { తిరిగి true; }
 };
-class AstTimeImport final : public AstNodeUniop {
+class Ast_సమయం_Import final : బహిరంగ Ast_కణుపు_Uniop {
     // Take a constant that represents a time and needs conversion based on time units
     VTimescale m_timeunit;  // Parent module time unit
-public:
-    AstTimeImport(FileLine* fl, AstNodeExpr* lhsp)
-        : ASTGEN_SUPER_TimeImport(fl, lhsp) {}
-    ASTGEN_MEMBERS_AstTimeImport;
-    void numberOperate(V3Number& out, const V3Number& lhs) override { V3ERROR_NA; }
-    string emitVerilog() override { return "%l"; }
+బహిరంగ:
+    Ast_సమయం_Import(File_పంక్తి* fl, Ast_కణుపు_సమాసం* lhsp)
+        : ASTGEN_SUPER_సమయం_Import(fl, lhsp) {}
+    ASTGEN_MEMBERS_Ast_సమయం_Import;
+    శూన్య సంఖ్య_నిర్వహించు(V3_సంఖ్య& బహిర్గతం, స్థిరరాశి V3_సంఖ్య& lhs) override { V3ERROR_NA; }
+    string emitVerilog() override { తిరిగి "%l"; }
     string emitC() override { V3ERROR_NA_RETURN(""); }
-    bool cleanOut() const override { return false; }
-    bool cleanLhs() const override { return false; }
-    bool sizeMattersLhs() const override { return false; }
-    void dump(std::ostream& str = std::cout) const override;
-    void dumpJson(std::ostream& str = std::cout) const override;
-    VTimescale timeunit() const { return m_timeunit; }
-    void timeunit(const VTimescale& flag) { m_timeunit = flag; }
+    bool clean_బహిర్గతం() స్థిరరాశి override { తిరిగి false; }
+    bool cleanLhs() స్థిరరాశి override { తిరిగి false; }
+    bool కొలత_Matters_Lhs() స్థిరరాశి override { తిరిగి false; }
+    శూన్య dump(std::ostream& str = std::cout) స్థిరరాశి override;
+    శూన్య dumpJson(std::ostream& str = std::cout) స్థిరరాశి override;
+    VTimescale timeunit() స్థిరరాశి { తిరిగి m_timeunit; }
+    శూన్య timeunit(స్థిరరాశి VTimescale& flag) { m_timeunit = flag; }
 };
-class AstToLowerN final : public AstNodeUniop {
+class Ast_గమ్యం_క్రింది_N final : బహిరంగ Ast_కణుపు_Uniop {
     // string.tolower()
-public:
-    AstToLowerN(FileLine* fl, AstNodeExpr* lhsp)
-        : ASTGEN_SUPER_ToLowerN(fl, lhsp) {
-        dtypeSetString();
+బహిరంగ:
+    Ast_గమ్యం_క్రింది_N(File_పంక్తి* fl, Ast_కణుపు_సమాసం* lhsp)
+        : ASTGEN_SUPER_గమ్యం_క్రింది_N(fl, lhsp) {
+        dtype_సమితి_String();
     }
-    ASTGEN_MEMBERS_AstToLowerN;
-    void numberOperate(V3Number& out, const V3Number& lhs) override { out.opToLowerN(lhs); }
-    string emitVerilog() override { return "%l.tolower()"; }
-    string emitC() override { return "VL_TOLOWER_NN(%li)"; }
-    bool cleanOut() const override { return true; }
-    bool cleanLhs() const override { return true; }
-    bool sizeMattersLhs() const override { return false; }
+    ASTGEN_MEMBERS_Ast_గమ్యం_క్రింది_N;
+    శూన్య సంఖ్య_నిర్వహించు(V3_సంఖ్య& బహిర్గతం, స్థిరరాశి V3_సంఖ్య& lhs) override { బహిర్గతం.op_గమ్యం_క్రింది_N(lhs); }
+    string emitVerilog() override { తిరిగి "%l.tolower()"; }
+    string emitC() override { తిరిగి "VL_TOLOWER_NN(%li)"; }
+    bool clean_బహిర్గతం() స్థిరరాశి override { తిరిగి true; }
+    bool cleanLhs() స్థిరరాశి override { తిరిగి true; }
+    bool కొలత_Matters_Lhs() స్థిరరాశి override { తిరిగి false; }
 };
-class AstToStringN final : public AstNodeUniop {
-public:
-    AstToStringN(FileLine* fl, AstNodeExpr* lhsp)
-        : ASTGEN_SUPER_ToStringN(fl, lhsp) {
-        dtypeSetString();
+class Ast_గమ్యం_String_N final : బహిరంగ Ast_కణుపు_Uniop {
+బహిరంగ:
+    Ast_గమ్యం_String_N(File_పంక్తి* fl, Ast_కణుపు_సమాసం* lhsp)
+        : ASTGEN_SUPER_గమ్యం_String_N(fl, lhsp) {
+        dtype_సమితి_String();
     }
-    ASTGEN_MEMBERS_AstToStringN;
-    void numberOperate(V3Number& out, const V3Number& lhs) override { V3ERROR_NA; }
-    string emitVerilog() override { return "$sformatf(\"%p\", %l)"; }
+    ASTGEN_MEMBERS_Ast_గమ్యం_String_N;
+    శూన్య సంఖ్య_నిర్వహించు(V3_సంఖ్య& బహిర్గతం, స్థిరరాశి V3_సంఖ్య& lhs) override { V3ERROR_NA; }
+    string emitVerilog() override { తిరిగి "$sformatf(\"%p\", %l)"; }
     string emitC() override {
-        return isWide() ? "VL_TO_STRING_W(%nw, %li)" : "VL_TO_STRING_DEREF(%li)";
+        తిరిగి isWide() ? "VL_TO_STRING_W(%nw, %li)" : "VL_TO_STRING_DEREF(%li)";
     }
-    bool cleanOut() const override { return true; }
-    bool cleanLhs() const override { return true; }
-    bool sizeMattersLhs() const override { return false; }
+    bool clean_బహిర్గతం() స్థిరరాశి override { తిరిగి true; }
+    bool cleanLhs() స్థిరరాశి override { తిరిగి true; }
+    bool కొలత_Matters_Lhs() స్థిరరాశి override { తిరిగి false; }
 };
-class AstToUpperN final : public AstNodeUniop {
+class Ast_గమ్యం_పై_N final : బహిరంగ Ast_కణుపు_Uniop {
     // string.toupper()
-public:
-    AstToUpperN(FileLine* fl, AstNodeExpr* lhsp)
-        : ASTGEN_SUPER_ToUpperN(fl, lhsp) {
-        dtypeSetString();
+బహిరంగ:
+    Ast_గమ్యం_పై_N(File_పంక్తి* fl, Ast_కణుపు_సమాసం* lhsp)
+        : ASTGEN_SUPER_గమ్యం_పై_N(fl, lhsp) {
+        dtype_సమితి_String();
     }
-    ASTGEN_MEMBERS_AstToUpperN;
-    void numberOperate(V3Number& out, const V3Number& lhs) override { out.opToUpperN(lhs); }
-    string emitVerilog() override { return "%l.toupper()"; }
-    string emitC() override { return "VL_TOUPPER_NN(%li)"; }
-    bool cleanOut() const override { return true; }
-    bool cleanLhs() const override { return true; }
-    bool sizeMattersLhs() const override { return false; }
+    ASTGEN_MEMBERS_Ast_గమ్యం_పై_N;
+    శూన్య సంఖ్య_నిర్వహించు(V3_సంఖ్య& బహిర్గతం, స్థిరరాశి V3_సంఖ్య& lhs) override { బహిర్గతం.op_గమ్యం_పై_N(lhs); }
+    string emitVerilog() override { తిరిగి "%l.toupper()"; }
+    string emitC() override { తిరిగి "VL_TOUPPER_NN(%li)"; }
+    bool clean_బహిర్గతం() స్థిరరాశి override { తిరిగి true; }
+    bool cleanLhs() స్థిరరాశి override { తిరిగి true; }
+    bool కొలత_Matters_Lhs() స్థిరరాశి override { తిరిగి false; }
 };
-class AstUnsigned final : public AstNodeUniop {
+class AstUnsigned final : బహిరంగ Ast_కణుపు_Uniop {
     // $unsigned(lhs)
-public:
-    AstUnsigned(FileLine* fl, AstNodeExpr* lhsp)
+బహిరంగ:
+    AstUnsigned(File_పంక్తి* fl, Ast_కణుపు_సమాసం* lhsp)
         : ASTGEN_SUPER_Unsigned(fl, lhsp) {
         UASSERT_OBJ(!v3Global.assertDTypesResolved(), this,
                     "not coded to create after dtypes resolved");
     }
     ASTGEN_MEMBERS_AstUnsigned;
-    void numberOperate(V3Number& out, const V3Number& lhs) override {
-        out.opAssign(lhs);
-        out.isSigned(false);
+    శూన్య సంఖ్య_నిర్వహించు(V3_సంఖ్య& బహిర్గతం, స్థిరరాశి V3_సంఖ్య& lhs) override {
+        బహిర్గతం.op_కేటాయించు(lhs);
+        బహిర్గతం.isSigned(false);
     }
-    string emitVerilog() override { return "%f$unsigned(%l)"; }
+    string emitVerilog() override { తిరిగి "%f$unsigned(%l)"; }
     string emitC() override { V3ERROR_NA_RETURN(""); }
-    bool cleanOut() const override { return false; }
-    bool cleanLhs() const override { return false; }  // Eliminated before matters
-    bool sizeMattersLhs() const override { return true; }  // Eliminated before matters
-    int instrCount() const override { return 0; }
-    bool isSystemFunc() const override { return true; }
+    bool clean_బహిర్గతం() స్థిరరాశి override { తిరిగి false; }
+    bool cleanLhs() స్థిరరాశి override { తిరిగి false; }  // Eliminated before matters
+    bool కొలత_Matters_Lhs() స్థిరరాశి override { తిరిగి true; }  // Eliminated before matters
+    పూర్ణాంకం instr_లెక్క() స్థిరరాశి override { తిరిగి 0; }
+    bool isSystemFunc() స్థిరరాశి override { తిరిగి true; }
 };
 
 // === AstNodeSystemUniopD ===
-class AstAcosD final : public AstNodeSystemUniopD {
-public:
-    AstAcosD(FileLine* fl, AstNodeExpr* lhsp)
+class AstAcosD final : బహిరంగ Ast_కణుపు_System_Uniop_D {
+బహిరంగ:
+    AstAcosD(File_పంక్తి* fl, Ast_కణుపు_సమాసం* lhsp)
         : ASTGEN_SUPER_AcosD(fl, lhsp) {}
     ASTGEN_MEMBERS_AstAcosD;
-    void numberOperate(V3Number& out, const V3Number& lhs) override {
-        out.setDouble(std::acos(lhs.toDouble()));
+    శూన్య సంఖ్య_నిర్వహించు(V3_సంఖ్య& బహిర్గతం, స్థిరరాశి V3_సంఖ్య& lhs) override {
+        బహిర్గతం.సమితి_Double(std::acos(lhs.గమ్యం_Double()));
     }
-    string emitVerilog() override { return "%f$acos(%l)"; }
-    string emitC() override { return "acos(%li)"; }
+    string emitVerilog() override { తిరిగి "%f$acos(%l)"; }
+    string emitC() override { తిరిగి "acos(%li)"; }
 };
-class AstAcoshD final : public AstNodeSystemUniopD {
-public:
-    AstAcoshD(FileLine* fl, AstNodeExpr* lhsp)
+class AstAcoshD final : బహిరంగ Ast_కణుపు_System_Uniop_D {
+బహిరంగ:
+    AstAcoshD(File_పంక్తి* fl, Ast_కణుపు_సమాసం* lhsp)
         : ASTGEN_SUPER_AcoshD(fl, lhsp) {}
     ASTGEN_MEMBERS_AstAcoshD;
-    void numberOperate(V3Number& out, const V3Number& lhs) override {
-        out.setDouble(std::acosh(lhs.toDouble()));
+    శూన్య సంఖ్య_నిర్వహించు(V3_సంఖ్య& బహిర్గతం, స్థిరరాశి V3_సంఖ్య& lhs) override {
+        బహిర్గతం.సమితి_Double(std::acosh(lhs.గమ్యం_Double()));
     }
-    string emitVerilog() override { return "%f$acosh(%l)"; }
-    string emitC() override { return "acosh(%li)"; }
+    string emitVerilog() override { తిరిగి "%f$acosh(%l)"; }
+    string emitC() override { తిరిగి "acosh(%li)"; }
 };
-class AstAsinD final : public AstNodeSystemUniopD {
-public:
-    AstAsinD(FileLine* fl, AstNodeExpr* lhsp)
+class AstAsinD final : బహిరంగ Ast_కణుపు_System_Uniop_D {
+బహిరంగ:
+    AstAsinD(File_పంక్తి* fl, Ast_కణుపు_సమాసం* lhsp)
         : ASTGEN_SUPER_AsinD(fl, lhsp) {}
     ASTGEN_MEMBERS_AstAsinD;
-    void numberOperate(V3Number& out, const V3Number& lhs) override {
-        out.setDouble(std::asin(lhs.toDouble()));
+    శూన్య సంఖ్య_నిర్వహించు(V3_సంఖ్య& బహిర్గతం, స్థిరరాశి V3_సంఖ్య& lhs) override {
+        బహిర్గతం.సమితి_Double(std::asin(lhs.గమ్యం_Double()));
     }
-    string emitVerilog() override { return "%f$asin(%l)"; }
-    string emitC() override { return "asin(%li)"; }
+    string emitVerilog() override { తిరిగి "%f$asin(%l)"; }
+    string emitC() override { తిరిగి "asin(%li)"; }
 };
-class AstAsinhD final : public AstNodeSystemUniopD {
-public:
-    AstAsinhD(FileLine* fl, AstNodeExpr* lhsp)
+class AstAsinhD final : బహిరంగ Ast_కణుపు_System_Uniop_D {
+బహిరంగ:
+    AstAsinhD(File_పంక్తి* fl, Ast_కణుపు_సమాసం* lhsp)
         : ASTGEN_SUPER_AsinhD(fl, lhsp) {}
     ASTGEN_MEMBERS_AstAsinhD;
-    void numberOperate(V3Number& out, const V3Number& lhs) override {
-        out.setDouble(std::asinh(lhs.toDouble()));
+    శూన్య సంఖ్య_నిర్వహించు(V3_సంఖ్య& బహిర్గతం, స్థిరరాశి V3_సంఖ్య& lhs) override {
+        బహిర్గతం.సమితి_Double(std::asinh(lhs.గమ్యం_Double()));
     }
-    string emitVerilog() override { return "%f$asinh(%l)"; }
-    string emitC() override { return "asinh(%li)"; }
+    string emitVerilog() override { తిరిగి "%f$asinh(%l)"; }
+    string emitC() override { తిరిగి "asinh(%li)"; }
 };
-class AstAtanD final : public AstNodeSystemUniopD {
-public:
-    AstAtanD(FileLine* fl, AstNodeExpr* lhsp)
+class AstAtanD final : బహిరంగ Ast_కణుపు_System_Uniop_D {
+బహిరంగ:
+    AstAtanD(File_పంక్తి* fl, Ast_కణుపు_సమాసం* lhsp)
         : ASTGEN_SUPER_AtanD(fl, lhsp) {}
     ASTGEN_MEMBERS_AstAtanD;
-    void numberOperate(V3Number& out, const V3Number& lhs) override {
-        out.setDouble(std::atan(lhs.toDouble()));
+    శూన్య సంఖ్య_నిర్వహించు(V3_సంఖ్య& బహిర్గతం, స్థిరరాశి V3_సంఖ్య& lhs) override {
+        బహిర్గతం.సమితి_Double(std::atan(lhs.గమ్యం_Double()));
     }
-    string emitVerilog() override { return "%f$atan(%l)"; }
-    string emitC() override { return "atan(%li)"; }
+    string emitVerilog() override { తిరిగి "%f$atan(%l)"; }
+    string emitC() override { తిరిగి "atan(%li)"; }
 };
-class AstAtanhD final : public AstNodeSystemUniopD {
-public:
-    AstAtanhD(FileLine* fl, AstNodeExpr* lhsp)
+class AstAtanhD final : బహిరంగ Ast_కణుపు_System_Uniop_D {
+బహిరంగ:
+    AstAtanhD(File_పంక్తి* fl, Ast_కణుపు_సమాసం* lhsp)
         : ASTGEN_SUPER_AtanhD(fl, lhsp) {}
     ASTGEN_MEMBERS_AstAtanhD;
-    void numberOperate(V3Number& out, const V3Number& lhs) override {
-        out.setDouble(std::atanh(lhs.toDouble()));
+    శూన్య సంఖ్య_నిర్వహించు(V3_సంఖ్య& బహిర్గతం, స్థిరరాశి V3_సంఖ్య& lhs) override {
+        బహిర్గతం.సమితి_Double(std::atanh(lhs.గమ్యం_Double()));
     }
-    string emitVerilog() override { return "%f$atanh(%l)"; }
-    string emitC() override { return "atanh(%li)"; }
+    string emitVerilog() override { తిరిగి "%f$atanh(%l)"; }
+    string emitC() override { తిరిగి "atanh(%li)"; }
 };
-class AstCeilD final : public AstNodeSystemUniopD {
-public:
-    AstCeilD(FileLine* fl, AstNodeExpr* lhsp)
+class AstCeilD final : బహిరంగ Ast_కణుపు_System_Uniop_D {
+బహిరంగ:
+    AstCeilD(File_పంక్తి* fl, Ast_కణుపు_సమాసం* lhsp)
         : ASTGEN_SUPER_CeilD(fl, lhsp) {}
     ASTGEN_MEMBERS_AstCeilD;
-    void numberOperate(V3Number& out, const V3Number& lhs) override {
-        out.setDouble(std::ceil(lhs.toDouble()));
+    శూన్య సంఖ్య_నిర్వహించు(V3_సంఖ్య& బహిర్గతం, స్థిరరాశి V3_సంఖ్య& lhs) override {
+        బహిర్గతం.సమితి_Double(std::ceil(lhs.గమ్యం_Double()));
     }
-    string emitVerilog() override { return "%f$ceil(%l)"; }
-    string emitC() override { return "ceil(%li)"; }
+    string emitVerilog() override { తిరిగి "%f$ceil(%l)"; }
+    string emitC() override { తిరిగి "ceil(%li)"; }
 };
-class AstCosD final : public AstNodeSystemUniopD {
-public:
-    AstCosD(FileLine* fl, AstNodeExpr* lhsp)
+class AstCosD final : బహిరంగ Ast_కణుపు_System_Uniop_D {
+బహిరంగ:
+    AstCosD(File_పంక్తి* fl, Ast_కణుపు_సమాసం* lhsp)
         : ASTGEN_SUPER_CosD(fl, lhsp) {}
     ASTGEN_MEMBERS_AstCosD;
-    void numberOperate(V3Number& out, const V3Number& lhs) override {
-        out.setDouble(std::cos(lhs.toDouble()));
+    శూన్య సంఖ్య_నిర్వహించు(V3_సంఖ్య& బహిర్గతం, స్థిరరాశి V3_సంఖ్య& lhs) override {
+        బహిర్గతం.సమితి_Double(std::కోజ్యా(lhs.గమ్యం_Double()));
     }
-    string emitVerilog() override { return "%f$cos(%l)"; }
-    string emitC() override { return "cos(%li)"; }
+    string emitVerilog() override { తిరిగి "%f$cos(%l)"; }
+    string emitC() override { తిరిగి "cos(%li)"; }
 };
-class AstCoshD final : public AstNodeSystemUniopD {
-public:
-    AstCoshD(FileLine* fl, AstNodeExpr* lhsp)
+class AstCoshD final : బహిరంగ Ast_కణుపు_System_Uniop_D {
+బహిరంగ:
+    AstCoshD(File_పంక్తి* fl, Ast_కణుపు_సమాసం* lhsp)
         : ASTGEN_SUPER_CoshD(fl, lhsp) {}
     ASTGEN_MEMBERS_AstCoshD;
-    void numberOperate(V3Number& out, const V3Number& lhs) override {
-        out.setDouble(std::cosh(lhs.toDouble()));
+    శూన్య సంఖ్య_నిర్వహించు(V3_సంఖ్య& బహిర్గతం, స్థిరరాశి V3_సంఖ్య& lhs) override {
+        బహిర్గతం.సమితి_Double(std::cosh(lhs.గమ్యం_Double()));
     }
-    string emitVerilog() override { return "%f$cosh(%l)"; }
-    string emitC() override { return "cosh(%li)"; }
+    string emitVerilog() override { తిరిగి "%f$cosh(%l)"; }
+    string emitC() override { తిరిగి "cosh(%li)"; }
 };
-class AstExpD final : public AstNodeSystemUniopD {
-public:
-    AstExpD(FileLine* fl, AstNodeExpr* lhsp)
+class AstExpD final : బహిరంగ Ast_కణుపు_System_Uniop_D {
+బహిరంగ:
+    AstExpD(File_పంక్తి* fl, Ast_కణుపు_సమాసం* lhsp)
         : ASTGEN_SUPER_ExpD(fl, lhsp) {}
     ASTGEN_MEMBERS_AstExpD;
-    void numberOperate(V3Number& out, const V3Number& lhs) override {
-        out.setDouble(std::exp(lhs.toDouble()));
+    శూన్య సంఖ్య_నిర్వహించు(V3_సంఖ్య& బహిర్గతం, స్థిరరాశి V3_సంఖ్య& lhs) override {
+        బహిర్గతం.సమితి_Double(std::ఘాతాంకం(lhs.గమ్యం_Double()));
     }
-    string emitVerilog() override { return "%f$exp(%l)"; }
-    string emitC() override { return "exp(%li)"; }
+    string emitVerilog() override { తిరిగి "%f$exp(%l)"; }
+    string emitC() override { తిరిగి "exp(%li)"; }
 };
-class AstFloorD final : public AstNodeSystemUniopD {
-public:
-    AstFloorD(FileLine* fl, AstNodeExpr* lhsp)
+class AstFloorD final : బహిరంగ Ast_కణుపు_System_Uniop_D {
+బహిరంగ:
+    AstFloorD(File_పంక్తి* fl, Ast_కణుపు_సమాసం* lhsp)
         : ASTGEN_SUPER_FloorD(fl, lhsp) {}
     ASTGEN_MEMBERS_AstFloorD;
-    void numberOperate(V3Number& out, const V3Number& lhs) override {
-        out.setDouble(std::floor(lhs.toDouble()));
+    శూన్య సంఖ్య_నిర్వహించు(V3_సంఖ్య& బహిర్గతం, స్థిరరాశి V3_సంఖ్య& lhs) override {
+        బహిర్గతం.సమితి_Double(std::floor(lhs.గమ్యం_Double()));
     }
-    string emitVerilog() override { return "%f$floor(%l)"; }
-    string emitC() override { return "floor(%li)"; }
+    string emitVerilog() override { తిరిగి "%f$floor(%l)"; }
+    string emitC() override { తిరిగి "floor(%li)"; }
 };
-class AstLog10D final : public AstNodeSystemUniopD {
-public:
-    AstLog10D(FileLine* fl, AstNodeExpr* lhsp)
+class AstLog10D final : బహిరంగ Ast_కణుపు_System_Uniop_D {
+బహిరంగ:
+    AstLog10D(File_పంక్తి* fl, Ast_కణుపు_సమాసం* lhsp)
         : ASTGEN_SUPER_Log10D(fl, lhsp) {}
     ASTGEN_MEMBERS_AstLog10D;
-    void numberOperate(V3Number& out, const V3Number& lhs) override {
-        out.setDouble(std::log10(lhs.toDouble()));
+    శూన్య సంఖ్య_నిర్వహించు(V3_సంఖ్య& బహిర్గతం, స్థిరరాశి V3_సంఖ్య& lhs) override {
+        బహిర్గతం.సమితి_Double(std::log10(lhs.గమ్యం_Double()));
     }
-    string emitVerilog() override { return "%f$log10(%l)"; }
-    string emitC() override { return "log10(%li)"; }
+    string emitVerilog() override { తిరిగి "%f$log10(%l)"; }
+    string emitC() override { తిరిగి "log10(%li)"; }
 };
-class AstLogD final : public AstNodeSystemUniopD {
-public:
-    AstLogD(FileLine* fl, AstNodeExpr* lhsp)
+class AstLogD final : బహిరంగ Ast_కణుపు_System_Uniop_D {
+బహిరంగ:
+    AstLogD(File_పంక్తి* fl, Ast_కణుపు_సమాసం* lhsp)
         : ASTGEN_SUPER_LogD(fl, lhsp) {}
     ASTGEN_MEMBERS_AstLogD;
-    void numberOperate(V3Number& out, const V3Number& lhs) override {
-        out.setDouble(std::log(lhs.toDouble()));
+    శూన్య సంఖ్య_నిర్వహించు(V3_సంఖ్య& బహిర్గతం, స్థిరరాశి V3_సంఖ్య& lhs) override {
+        బహిర్గతం.సమితి_Double(std::సంవర్గమానం(lhs.గమ్యం_Double()));
     }
-    string emitVerilog() override { return "%f$ln(%l)"; }
-    string emitC() override { return "log(%li)"; }
+    string emitVerilog() override { తిరిగి "%f$ln(%l)"; }
+    string emitC() override { తిరిగి "log(%li)"; }
 };
-class AstSinD final : public AstNodeSystemUniopD {
-public:
-    AstSinD(FileLine* fl, AstNodeExpr* lhsp)
+class AstSinD final : బహిరంగ Ast_కణుపు_System_Uniop_D {
+బహిరంగ:
+    AstSinD(File_పంక్తి* fl, Ast_కణుపు_సమాసం* lhsp)
         : ASTGEN_SUPER_SinD(fl, lhsp) {}
     ASTGEN_MEMBERS_AstSinD;
-    void numberOperate(V3Number& out, const V3Number& lhs) override {
-        out.setDouble(std::sin(lhs.toDouble()));
+    శూన్య సంఖ్య_నిర్వహించు(V3_సంఖ్య& బహిర్గతం, స్థిరరాశి V3_సంఖ్య& lhs) override {
+        బహిర్గతం.సమితి_Double(std::జ్యా(lhs.గమ్యం_Double()));
     }
-    string emitVerilog() override { return "%f$sin(%l)"; }
-    string emitC() override { return "sin(%li)"; }
+    string emitVerilog() override { తిరిగి "%f$sin(%l)"; }
+    string emitC() override { తిరిగి "sin(%li)"; }
 };
-class AstSinhD final : public AstNodeSystemUniopD {
-public:
-    AstSinhD(FileLine* fl, AstNodeExpr* lhsp)
+class AstSinhD final : బహిరంగ Ast_కణుపు_System_Uniop_D {
+బహిరంగ:
+    AstSinhD(File_పంక్తి* fl, Ast_కణుపు_సమాసం* lhsp)
         : ASTGEN_SUPER_SinhD(fl, lhsp) {}
     ASTGEN_MEMBERS_AstSinhD;
-    void numberOperate(V3Number& out, const V3Number& lhs) override {
-        out.setDouble(std::sinh(lhs.toDouble()));
+    శూన్య సంఖ్య_నిర్వహించు(V3_సంఖ్య& బహిర్గతం, స్థిరరాశి V3_సంఖ్య& lhs) override {
+        బహిర్గతం.సమితి_Double(std::sinh(lhs.గమ్యం_Double()));
     }
-    string emitVerilog() override { return "%f$sinh(%l)"; }
-    string emitC() override { return "sinh(%li)"; }
+    string emitVerilog() override { తిరిగి "%f$sinh(%l)"; }
+    string emitC() override { తిరిగి "sinh(%li)"; }
 };
-class AstSqrtD final : public AstNodeSystemUniopD {
-public:
-    AstSqrtD(FileLine* fl, AstNodeExpr* lhsp)
+class AstSqrtD final : బహిరంగ Ast_కణుపు_System_Uniop_D {
+బహిరంగ:
+    AstSqrtD(File_పంక్తి* fl, Ast_కణుపు_సమాసం* lhsp)
         : ASTGEN_SUPER_SqrtD(fl, lhsp) {}
     ASTGEN_MEMBERS_AstSqrtD;
-    void numberOperate(V3Number& out, const V3Number& lhs) override {
-        out.setDouble(std::sqrt(lhs.toDouble()));
+    శూన్య సంఖ్య_నిర్వహించు(V3_సంఖ్య& బహిర్గతం, స్థిరరాశి V3_సంఖ్య& lhs) override {
+        బహిర్గతం.సమితి_Double(std::వర్గమూలం(lhs.గమ్యం_Double()));
     }
-    string emitVerilog() override { return "%f$sqrt(%l)"; }
-    string emitC() override { return "sqrt(%li)"; }
+    string emitVerilog() override { తిరిగి "%f$sqrt(%l)"; }
+    string emitC() override { తిరిగి "sqrt(%li)"; }
 };
-class AstTanD final : public AstNodeSystemUniopD {
-public:
-    AstTanD(FileLine* fl, AstNodeExpr* lhsp)
+class AstTanD final : బహిరంగ Ast_కణుపు_System_Uniop_D {
+బహిరంగ:
+    AstTanD(File_పంక్తి* fl, Ast_కణుపు_సమాసం* lhsp)
         : ASTGEN_SUPER_TanD(fl, lhsp) {}
     ASTGEN_MEMBERS_AstTanD;
-    void numberOperate(V3Number& out, const V3Number& lhs) override {
-        out.setDouble(std::tan(lhs.toDouble()));
+    శూన్య సంఖ్య_నిర్వహించు(V3_సంఖ్య& బహిర్గతం, స్థిరరాశి V3_సంఖ్య& lhs) override {
+        బహిర్గతం.సమితి_Double(std::tan(lhs.గమ్యం_Double()));
     }
-    string emitVerilog() override { return "%f$tan(%l)"; }
-    string emitC() override { return "tan(%li)"; }
+    string emitVerilog() override { తిరిగి "%f$tan(%l)"; }
+    string emitC() override { తిరిగి "tan(%li)"; }
 };
-class AstTanhD final : public AstNodeSystemUniopD {
-public:
-    AstTanhD(FileLine* fl, AstNodeExpr* lhsp)
+class AstTanhD final : బహిరంగ Ast_కణుపు_System_Uniop_D {
+బహిరంగ:
+    AstTanhD(File_పంక్తి* fl, Ast_కణుపు_సమాసం* lhsp)
         : ASTGEN_SUPER_TanhD(fl, lhsp) {}
     ASTGEN_MEMBERS_AstTanhD;
-    void numberOperate(V3Number& out, const V3Number& lhs) override {
-        out.setDouble(std::tanh(lhs.toDouble()));
+    శూన్య సంఖ్య_నిర్వహించు(V3_సంఖ్య& బహిర్గతం, స్థిరరాశి V3_సంఖ్య& lhs) override {
+        బహిర్గతం.సమితి_Double(std::tanh(lhs.గమ్యం_Double()));
     }
-    string emitVerilog() override { return "%f$tanh(%l)"; }
-    string emitC() override { return "tanh(%li)"; }
+    string emitVerilog() override { తిరిగి "%f$tanh(%l)"; }
+    string emitC() override { తిరిగి "tanh(%li)"; }
 };
 
 // === AstNodeVarRef ===
-class AstVarRef final : public AstNodeVarRef {
+class AstVarRef final : బహిరంగ Ast_కణుపు_Var_Ref {
     // A reference to a variable (lvalue or rvalue)
     std::string m_name;  // Name of varref, though name() favors varp()->namep()
                          // if non-null pointer (e.g.: 'this')
-public:
+బహిరంగ:
     // This form only allowed post-link because output/wire compression may
     // lead to deletion of AstVar's
-    inline AstVarRef(FileLine* fl, AstVar* varp, const VAccess& access);
-    inline AstVarRef(FileLine* fl, AstNodeModule* classOrPackagep, AstVar* varp,
-                     const VAccess& access);
+    అంతఃవరుస AstVarRef(File_పంక్తి* fl, AstVar* varp, స్థిరరాశి VAccess& access);
+    అంతఃవరుస AstVarRef(File_పంక్తి* fl, Ast_కణుపు_Module* classOrPackagep, AstVar* varp,
+                     స్థిరరాశి VAccess& access);
     // This form only allowed post-link (see above)
-    inline AstVarRef(FileLine* fl, AstVarScope* varscp, const VAccess& access);
+    అంతఃవరుస AstVarRef(File_పంక్తి* fl, AstVarScope* varscp, స్థిరరాశి VAccess& access);
     ASTGEN_MEMBERS_AstVarRef;
-    std::string nameThis() const { return m_name; }
-    inline string name() const override;  // * = Var name
-    void name(const string& name) override { m_name = name; }
-    void dump(std::ostream& str) const override;
-    void dumpJson(std::ostream& str) const override;
-    const char* broken() const override;
-    bool sameNode(const AstNode* samep) const override;
-    inline bool sameNode(const AstVarRef* samep) const;
-    inline bool sameNoLvalue(const AstVarRef* samep) const;
-    int instrCount() const override;
+    std::string nameThis() స్థిరరాశి { తిరిగి m_name; }
+    అంతఃవరుస string name() స్థిరరాశి override;  // * = Var name
+    శూన్య name(స్థిరరాశి string& name) override { m_name = name; }
+    శూన్య dump(std::ostream& str) స్థిరరాశి override;
+    శూన్య dumpJson(std::ostream& str) స్థిరరాశి override;
+    స్థిరరాశి అక్షరం* broken() స్థిరరాశి override;
+    bool same_కణుపు(స్థిరరాశి Ast_కణుపు* samep) స్థిరరాశి override;
+    అంతఃవరుస bool same_కణుపు(స్థిరరాశి AstVarRef* samep) స్థిరరాశి;
+    అంతఃవరుస bool sameNoLvalue(స్థిరరాశి AstVarRef* samep) స్థిరరాశి;
+    పూర్ణాంకం instr_లెక్క() స్థిరరాశి override;
     string emitVerilog() override { V3ERROR_NA_RETURN(""); }
     string emitC() override { V3ERROR_NA_RETURN(""); }
-    bool cleanOut() const override { return true; }
+    bool clean_బహిర్గతం() స్థిరరాశి override { తిరిగి true; }
 };
-class AstVarXRef final : public AstNodeVarRef {
+class AstVarXRef final : బహిరంగ Ast_కణుపు_Var_Ref {
     // A VarRef to something in another module before AstScope.
     // Includes pin on a cell, as part of a ASSIGN statement to connect I/Os until AstScope
     string m_name;
     string m_dotted;  // Dotted part of scope the name()'ed reference is under or ""
     string m_inlinedDots;  // Dotted hierarchy flattened out
-    bool m_containsGenBlock = false;  // Contains gen block reference
+    bool m_కలిగియుంది_Gen_ఖండం = false;  // Contains gen block reference
     bool m_readOnlyModport = false;  // Linked via an input-only modport, until V3LinkLValue
-public:
-    AstVarXRef(FileLine* fl, const string& name, const string& dotted, const VAccess& access)
+బహిరంగ:
+    AstVarXRef(File_పంక్తి* fl, స్థిరరాశి string& name, స్థిరరాశి string& dotted, స్థిరరాశి VAccess& access)
         : ASTGEN_SUPER_VarXRef(fl, nullptr, access)
         , m_name{name}
         , m_dotted{dotted} {}
-    inline AstVarXRef(FileLine* fl, AstVar* varp, const string& dotted, const VAccess& access);
+    అంతఃవరుస AstVarXRef(File_పంక్తి* fl, AstVar* varp, స్థిరరాశి string& dotted, స్థిరరాశి VAccess& access);
     ASTGEN_MEMBERS_AstVarXRef;
-    string name() const override VL_MT_STABLE { return m_name; }  // * = Var name
-    void name(const std::string& name) override { m_name = name; }  // * = Var name
-    void dump(std::ostream& str) const override;
-    void dumpJson(std::ostream& str) const override;
-    string dotted() const { return m_dotted; }
-    void dotted(const string& dotted) { m_dotted = dotted; }
-    string inlinedDots() const { return m_inlinedDots; }
-    void inlinedDots(const string& flag) { m_inlinedDots = flag; }
-    bool containsGenBlock() const { return m_containsGenBlock; }
-    void containsGenBlock(const bool flag) { m_containsGenBlock = flag; }
-    bool readOnlyModport() const { return m_readOnlyModport; }
-    void readOnlyModport(const bool flag) { m_readOnlyModport = flag; }
+    string name() స్థిరరాశి override VL_MT_STABLE { తిరిగి m_name; }  // * = Var name
+    శూన్య name(స్థిరరాశి std::string& name) override { m_name = name; }  // * = Var name
+    శూన్య dump(std::ostream& str) స్థిరరాశి override;
+    శూన్య dumpJson(std::ostream& str) స్థిరరాశి override;
+    string dotted() స్థిరరాశి { తిరిగి m_dotted; }
+    శూన్య dotted(స్థిరరాశి string& dotted) { m_dotted = dotted; }
+    string inlinedDots() స్థిరరాశి { తిరిగి m_inlinedDots; }
+    శూన్య inlinedDots(స్థిరరాశి string& flag) { m_inlinedDots = flag; }
+    bool కలిగియుంది_Gen_ఖండం() స్థిరరాశి { తిరిగి m_కలిగియుంది_Gen_ఖండం; }
+    శూన్య కలిగియుంది_Gen_ఖండం(స్థిరరాశి bool flag) { m_కలిగియుంది_Gen_ఖండం = flag; }
+    bool readOnlyModport() స్థిరరాశి { తిరిగి m_readOnlyModport; }
+    శూన్య readOnlyModport(స్థిరరాశి bool flag) { m_readOnlyModport = flag; }
     string emitVerilog() override { V3ERROR_NA_RETURN(""); }
     string emitC() override { V3ERROR_NA_RETURN(""); }
-    bool cleanOut() const override { return true; }
-    int instrCount() const override { return widthInstrs(); }
-    bool sameNode(const AstNode* samep) const override {
-        const AstVarXRef* asamep = VN_DBG_AS(samep, VarXRef);
-        return (selfPointer() == asamep->selfPointer() && varp() == asamep->varp()
+    bool clean_బహిర్గతం() స్థిరరాశి override { తిరిగి true; }
+    పూర్ణాంకం instr_లెక్క() స్థిరరాశి override { తిరిగి వెడల్పు_Instrs(); }
+    bool same_కణుపు(స్థిరరాశి Ast_కణుపు* samep) స్థిరరాశి override {
+        స్థిరరాశి AstVarXRef* asamep = VN_DBG_AS(samep, VarXRef);
+        తిరిగి (self_సూచిక() == asamep->self_సూచిక() && varp() == asamep->varp()
                 && name() == asamep->name() && dotted() == asamep->dotted());
     }
 };
 
-#endif  // Guard
+#అయితే_ముగింపు  // Guard

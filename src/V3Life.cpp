@@ -23,105 +23,105 @@
 //
 //*************************************************************************
 
-#include "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
+#అన్తర్భావ "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
 
-#include "V3Life.h"
+#అన్తర్భావ "V3Life.h"
 
-#include "V3Const.h"
-#include "V3Stats.h"
+#అన్తర్భావ "V3Const.h"
+#అన్తర్భావ "V3Stats.h"
 
-#include <vector>
+#అన్తర్భావ <vector>
 
 VL_DEFINE_DEBUG_FUNCTIONS;
 
 //######################################################################
 // Structure for global state
 
-class LifeState final {
+తరగతి LifeState final {
     // NODE STATE
     //   See below
-    const VNUser1InUse m_inuser1;
+    స్థిరరాశి VNUser1_లోపల_Use m_inuser1;
 
     // STATE
-public:
+బహిరంగ:
     VDouble0 m_statAssnDel;  // Statistic tracking
     VDouble0 m_statAssnCon;  // Statistic tracking
 
     // CONSTRUCTORS
-    LifeState() = default;
+    LifeState() = అప్రమేయ;
     ~LifeState() {
-        V3Stats::addStatSum("Optimizations, Lifetime assign deletions", m_statAssnDel);
-        V3Stats::addStatSum("Optimizations, Lifetime constant prop", m_statAssnCon);
+        V3Stats::కూడు_Stat_కూడిక("Optimizations, Lifetime assign deletions", m_statAssnDel);
+        V3Stats::కూడు_Stat_కూడిక("Optimizations, Lifetime constant prop", m_statAssnCon);
     }
 };
 
 //######################################################################
 // Structure for each variable encountered
 
-class LifeVarEntry final {
+తరగతి Life_Var_నమోదు final {
     // Last assignment to this varscope, nullptr if no longer relevant
-    AstNodeStmt* m_assignp = nullptr;  // Last simple assignment
-    AstConst* m_constp = nullptr;  // Known constant value
-    bool m_isNew = true;  // Is just created
+    Ast_కణుపు_Stmt* m_assignp = శూన్యసూచిక;  // Last simple assignment
+    AstConst* m_constp = శూన్యసూచిక;  // Known constant value
+    తార్కిక m_isNew = నిజం;  // Is just created
     // First access was a set (and thus block above may have a set that can be deleted
-    bool m_setBeforeUse = false;
+    తార్కిక m_సమితి_Before_Use = అబద్ధం;
     // Was ever assigned (and thus above block may not preserve constant propagation)
-    bool m_everSet = false;
+    తార్కిక m_ever_సమితి = అబద్ధం;
 
-public:
-    LifeVarEntry() = default;
-    ~LifeVarEntry() = default;
+బహిరంగ:
+    Life_Var_నమోదు() = అప్రమేయ;
+    ~Life_Var_నమోదు() = అప్రమేయ;
 
-    void init(bool setBeforeUse) {
+    శూన్య init(తార్కిక సమితి_Before_Use) {
         UASSERT(m_isNew, "Not a new entry");
-        m_isNew = false;
-        m_setBeforeUse = setBeforeUse;
+        m_isNew = అబద్ధం;
+        m_సమితి_Before_Use = సమితి_Before_Use;
     }
-    string ascii() const {  // LCOV_EXCL_START
+    string ascii() స్థిరరాశి {  // LCOV_EXCL_START
         std::ostringstream os;
         os << "[Life ";
-        if (m_isNew) os << " isNew";
-        if (m_setBeforeUse) os << " setBeforeUse";
-        if (m_everSet) os << " everSet";
-        if (m_assignp) os << " assignp=" << AstNode::nodeAddr(m_assignp);
-        if (m_constp) os << " constp=" << AstNode::nodeAddr(m_constp);
+        ఒకవేళ (m_isNew) os << " isNew";
+        ఒకవేళ (m_సమితి_Before_Use) os << " setBeforeUse";
+        ఒకవేళ (m_ever_సమితి) os << " everSet";
+        ఒకవేళ (m_assignp) os << " assignp=" << Ast_కణుపు::కణుపు_Addr(m_assignp);
+        ఒకవేళ (m_constp) os << " constp=" << Ast_కణుపు::కణుపు_Addr(m_constp);
         os << "]";
-        return os.str();
+        తిరిగి os.str();
     }  // LCOV_EXCL_STOP
 
-    void simpleAssign(AstNodeStmt* nodep) {  // New simple A=.... assignment
+    శూన్య simple_కేటాయించు(Ast_కణుపు_Stmt* nodep) {  // New simple A=.... assignment
         UASSERT_OBJ(!m_isNew, nodep, "Uninitialized new entry");
         m_assignp = nodep;
-        m_constp = nullptr;
-        m_everSet = true;
-        if (AstNodeAssign* const assp = VN_CAST(nodep, Assign)) {
-            if (VN_IS(assp->rhsp(), Const)) {
+        m_constp = శూన్యసూచిక;
+        m_ever_సమితి = నిజం;
+        ఒకవేళ (Ast_కణుపు_కేటాయించు* స్థిరరాశి assp = VN_CAST(nodep, కేటాయించు)) {
+            ఒకవేళ (VN_IS(assp->rhsp(), Const)) {
                 m_constp = VN_AS(assp->rhsp(), Const);
                 UINFO(9, "assign-const " << assp->rhsp() << " = " << m_constp);
             }
         }
     }
-    void complexAssign() {  // A[x]=... or some complicated assignment
+    శూన్య complex_కేటాయించు() {  // A[x]=... or some complicated assignment
         UASSERT(!m_isNew, "Uninitialized new entry");
-        m_assignp = nullptr;
-        m_constp = nullptr;
-        m_everSet = true;
+        m_assignp = శూన్యసూచిక;
+        m_constp = శూన్యసూచిక;
+        m_ever_సమితి = నిజం;
     }
-    void consumed() {  // Rvalue read of A
+    శూన్య consumed() {  // Rvalue read of A
         UASSERT(!m_isNew, "Uninitialized new entry");
-        m_assignp = nullptr;
+        m_assignp = శూన్యసూచిక;
     }
-    AstNodeStmt* assignp() const { return m_assignp; }
-    AstConst* constNodep() const { return m_constp; }
-    bool isNew() const { return m_isNew; }
-    bool setBeforeUse() const { return m_setBeforeUse; }
-    bool everSet() const { return m_everSet; }
+    Ast_కణుపు_Stmt* assignp() స్థిరరాశి { తిరిగి m_assignp; }
+    AstConst* constNodep() స్థిరరాశి { తిరిగి m_constp; }
+    తార్కిక isNew() స్థిరరాశి { తిరిగి m_isNew; }
+    తార్కిక సమితి_Before_Use() స్థిరరాశి { తిరిగి m_సమితి_Before_Use; }
+    తార్కిక ever_సమితి() స్థిరరాశి { తిరిగి m_ever_సమితి; }
 };
 
 //######################################################################
 // Structure for all variables under a given meta-basic block
 
-class LifeBlock final {
+తరగతి Life_ఖండం final {
     // NODE STATE
     // Cleared each AstIf:
     //   AstVarScope::user1()   -> uint64_t.  Used in combining to detect duplicates
@@ -129,144 +129,144 @@ class LifeBlock final {
     // LIFE MAP
     // For each basic block, we'll make a new map of what variables that if/else is changing
     // Current active lifetime map for current scope
-    std::unordered_map<AstVarScope*, LifeVarEntry> m_map;
-    LifeBlock* const m_aboveLifep;  // Upper life, or nullptr
-    LifeState* const m_statep;  // Current global state
-    bool m_noopt = false;  // Opaque operation seen; invalidates the block above at exit
-    bool m_replacedVref = false;  // Replaced a variable reference since last clearing
+    std::unordered_map<AstVarScope*, Life_Var_నమోదు> m_map;
+    Life_ఖండం* స్థిరరాశి m_aboveLifep;  // Upper life, or nullptr
+    LifeState* స్థిరరాశి m_statep;  // Current global state
+    తార్కిక m_noopt = అబద్ధం;  // Opaque operation seen; invalidates the block above at exit
+    తార్కిక m_replacedVref = అబద్ధం;  // Replaced a variable reference since last clearing
     VNDeleter m_deleter;  // Used to delay deletion of nodes
 
-public:
-    LifeBlock(LifeBlock* aboveLifep, LifeState* statep)
+బహిరంగ:
+    Life_ఖండం(Life_ఖండం* aboveLifep, LifeState* statep)
         : m_aboveLifep{aboveLifep}  // Null if top
         , m_statep{statep} {}
-    ~LifeBlock() = default;
+    ~Life_ఖండం() = అప్రమేయ;
     // METHODS
-    void checkRemoveAssign(const AstVarScope* vscp, LifeVarEntry& entr) {
-        const AstVar* const varp = vscp->varp();
+    శూన్య check_Remove_కేటాయించు(స్థిరరాశి AstVarScope* vscp, Life_Var_నమోదు& entr) {
+        స్థిరరాశి AstVar* స్థిరరాశి varp = vscp->varp();
         // We don't optimize any public sigs
-        if (varp->isSigPublic()) return;
-        if (varp->isReadByDpi()) return;
-        if (varp->sensIfacep()) return;
+        ఒకవేళ (varp->is_Sig_ప్రజా()) తిరిగి;
+        ఒకవేళ (varp->isReadByDpi()) తిరిగి;
+        ఒకవేళ (varp->sensIfacep()) తిరిగి;
         // Check the var entry, and remove if appropriate
-        AstNodeStmt* const oldassp = entr.assignp();
-        if (!oldassp) return;
+        Ast_కణుపు_Stmt* స్థిరరాశి oldassp = entr.assignp();
+        ఒకవేళ (!oldassp) తిరిగి;
         UINFO(7, "       PREV: " << oldassp);
         // Redundant assignment, in same level block
         // Don't delete it now as it will confuse iteration since it maybe WAY
         // above our current iteration point.
         UINFOTREE(7, oldassp, "", "REMOVE/SAMEBLK");
-        entr.complexAssign();
-        oldassp->unlinkFrBack();
+        entr.complex_కేటాయించు();
+        oldassp->unlink_Fr_వెనుక();
         ++m_statep->m_statAssnDel;
-        VL_DO_DANGLING(m_deleter.pushDeletep(oldassp), oldassp);
+        VL_DO_DANGLING(m_deleter.నెట్టు_Deletep(oldassp), oldassp);
     }
-    void simpleAssign(AstVarScope* nodep, AstNodeStmt* assp) {
+    శూన్య simple_కేటాయించు(AstVarScope* nodep, Ast_కణుపు_Stmt* assp) {
         // Do we have a old assignment we can nuke?
         UINFO(4, "     ASSIGNof: " << nodep);
         UINFO(7, "       new: " << assp);
-        LifeVarEntry& entr = m_map[nodep];
-        if (entr.isNew()) {
-            entr.init(true);
-        } else {
-            checkRemoveAssign(nodep, entr);
+        Life_Var_నమోదు& entr = m_map[nodep];
+        ఒకవేళ (entr.isNew()) {
+            entr.init(నిజం);
+        } లేకపోతే {
+            check_Remove_కేటాయించు(nodep, entr);
         }
-        entr.simpleAssign(assp);
+        entr.simple_కేటాయించు(assp);
         // lifeDump();
     }
-    void complexAssign(AstVarScope* nodep) {
+    శూన్య complex_కేటాయించు(AstVarScope* nodep) {
         UINFO(4, "     clearof: " << nodep);
-        LifeVarEntry& entr = m_map[nodep];
-        if (entr.isNew()) entr.init(false);
-        entr.complexAssign();
+        Life_Var_నమోదు& entr = m_map[nodep];
+        ఒకవేళ (entr.isNew()) entr.init(అబద్ధం);
+        entr.complex_కేటాయించు();
     }
-    void clearReplaced() { m_replacedVref = false; }
-    bool replaced() const { return m_replacedVref; }
-    void varUsageReplace(AstVarScope* nodep, AstVarRef* varrefp) {
+    శూన్య clearReplaced() { m_replacedVref = అబద్ధం; }
+    తార్కిక replaced() స్థిరరాశి { తిరిగి m_replacedVref; }
+    శూన్య varUsageReplace(AstVarScope* nodep, AstVarRef* varrefp) {
         // Variable rvalue.  If it references a constant, we can replace it
-        LifeVarEntry& entr = m_map[nodep];
-        if (entr.isNew()) {
-            entr.init(false);
-        } else {
-            if (AstConst* const constp = entr.constNodep()) {
-                if (!varrefp->varp()->isSigPublic() && !varrefp->varp()->isWrittenByDpi()
+        Life_Var_నమోదు& entr = m_map[nodep];
+        ఒకవేళ (entr.isNew()) {
+            entr.init(అబద్ధం);
+        } లేకపోతే {
+            ఒకవేళ (AstConst* స్థిరరాశి constp = entr.constNodep()) {
+                ఒకవేళ (!varrefp->varp()->is_Sig_ప్రజా() && !varrefp->varp()->isWrittenByDpi()
                     && !varrefp->varp()->isVirtIface()) {
                     // Aha, variable is constant; substitute in.
                     // We'll later constant propagate
                     UINFO(4, "     replaceconst: " << varrefp);
                     UINFO(9, "     replaceval: " << constp);
-                    varrefp->replaceWith(constp->cloneTree(false));
-                    m_replacedVref = true;
-                    VL_DO_DANGLING(varrefp->deleteTree(), varrefp);
+                    varrefp->replaceWith(constp->clone_వృక్షం(అబద్ధం));
+                    m_replacedVref = నిజం;
+                    VL_DO_DANGLING(varrefp->delete_వృక్షం(), varrefp);
                     ++m_statep->m_statAssnCon;
-                    return;  // **DONE, no longer a var reference**
+                    తిరిగి;  // **DONE, no longer a var reference**
                 }
             }
             UINFO(4, "     usage: " << nodep);
         }
         entr.consumed();
     }
-    void complexAssignFind(AstVarScope* nodep) {
+    శూన్య complex_కేటాయించు_కనుగొను(AstVarScope* nodep) {
         UINFO(4, "     casfind: " << nodep);
-        LifeVarEntry& entr = m_map[nodep];
-        if (entr.isNew()) entr.init(false);
-        entr.complexAssign();
+        Life_Var_నమోదు& entr = m_map[nodep];
+        ఒకవేళ (entr.isNew()) entr.init(అబద్ధం);
+        entr.complex_కేటాయించు();
     }
-    void consumedFind(AstVarScope* nodep) {
-        LifeVarEntry& entr = m_map[nodep];
-        if (entr.isNew()) entr.init(false);
+    శూన్య consumed_కనుగొను(AstVarScope* nodep) {
+        Life_Var_నమోదు& entr = m_map[nodep];
+        ఒకవేళ (entr.isNew()) entr.init(అబద్ధం);
         entr.consumed();
     }
-    void lifeToAbove() {
+    శూన్య life_గమ్యం_Above() {
         // Any varrefs under a if/else branch affect statements outside and after the if/else
         UASSERT(m_aboveLifep, "Pushing life when already at the top level");
-        if (m_noopt) m_aboveLifep->noopt();
-        for (auto& itr : m_map) {
-            AstVarScope* const nodep = itr.first;
-            m_aboveLifep->complexAssignFind(nodep);
-            if (itr.second.everSet()) {
+        ఒకవేళ (m_noopt) m_aboveLifep->noopt();
+        కొరకు (స్వయంచాలక& itr : m_map) {
+            AstVarScope* స్థిరరాశి nodep = itr.మొదటి;
+            m_aboveLifep->complex_కేటాయించు_కనుగొను(nodep);
+            ఒకవేళ (itr.రెండవ.ever_సమితి()) {
                 // Record there may be an assignment, so we don't constant propagate across the if.
-                complexAssignFind(nodep);
-            } else {
+                complex_కేటాయించు_కనుగొను(nodep);
+            } లేకపోతే {
                 // Record consumption, so we don't eliminate earlier assignments
-                consumedFind(nodep);
+                consumed_కనుగొను(nodep);
             }
         }
     }
-    void dualBranch(LifeBlock* life1p, LifeBlock* life2p) {
+    శూన్య dualBranch(Life_ఖండం* life1p, Life_ఖండం* life2p) {
         // Find any common sets on both branches of IF and propagate upwards
         // life1p->lifeDump();
         // life2p->lifeDump();
-        AstNode::user1ClearTree();  // user1p() used on entire tree
-        for (auto& itr : life1p->m_map) {
+        Ast_కణుపు::user1_Clear_వృక్షం();  // user1p() used on entire tree
+        కొరకు (స్వయంచాలక& itr : life1p->m_map) {
             // When the if branch sets a var before it's used, mark that variable
-            if (itr.second.setBeforeUse()) itr.first->user1(1);
+            ఒకవేళ (itr.రెండవ.సమితి_Before_Use()) itr.మొదటి->user1(1);
         }
-        for (auto& itr : life2p->m_map) {
+        కొరకు (స్వయంచాలక& itr : life2p->m_map) {
             // When the else branch sets a var before it's used
-            AstVarScope* const nodep = itr.first;
-            if (itr.second.setBeforeUse() && nodep->user1()) {
+            AstVarScope* స్థిరరాశి nodep = itr.మొదటి;
+            ఒకవేళ (itr.రెండవ.సమితి_Before_Use() && nodep->user1()) {
                 // Both branches set the var, we can remove the assignment before the IF.
                 UINFO(4, "DUALBRANCH " << nodep);
-                const auto itab = m_map.find(nodep);
-                if (itab != m_map.end()) checkRemoveAssign(nodep, itab->second);
+                స్థిరరాశి స్వయంచాలక itab = m_map.కనుగొను(nodep);
+                ఒకవేళ (itab != m_map.చివర()) check_Remove_కేటాయించు(nodep, itab->రెండవ);
             }
         }
         // this->lifeDump();
     }
-    void noopt() {
+    శూన్య noopt() {
         // The block above is invalidated at exit, see lifeToAbove()
         m_map.clear();
-        m_noopt = true;
+        m_noopt = నిజం;
     }
     // DEBUG
-    void lifeDump() {
+    శూన్య lifeDump() {
         UINFO(5, "  LifeMap:");
-        for (const auto& itr : m_map) {
+        కొరకు (స్థిరరాశి స్వయంచాలక& itr : m_map) {
             UINFO(5,
-                  "     Ent:  " << (itr.second.setBeforeUse() ? "[F]  " : "     ") << itr.first);
-            if (itr.second.assignp()) {  //
-                UINFO(5, "       Ass: " << itr.second.assignp());
+                  "     Ent:  " << (itr.రెండవ.సమితి_Before_Use() ? "[F]  " : "     ") << itr.మొదటి);
+            ఒకవేళ (itr.రెండవ.assignp()) {  //
+                UINFO(5, "       Ass: " << itr.రెండవ.assignp());
             }
         }
     }
@@ -275,253 +275,253 @@ public:
 //######################################################################
 // Life state, as a visitor of each AstNode
 
-class LifeVisitor final : public VNVisitor {
+తరగతి LifeVisitor final : బహిరంగ VNVisitor {
     // STATE
-    LifeState* const m_statep;  // Current state
-    bool m_containsTiming = false;  // Statement contains timing control
-    bool m_sideEffect = false;  // Side effects discovered in assign RHS
-    bool m_noopt = false;  // Disable optimization of variables in this block
-    bool m_tracingCall = false;  // Iterating into a CCall to a CFunc
-    LifeBlock* m_lifep = nullptr;  // Current active lifetime map for current scope
+    LifeState* స్థిరరాశి m_statep;  // Current state
+    తార్కిక m_కలిగియుంది_Timing = అబద్ధం;  // Statement contains timing control
+    తార్కిక m_sideEffect = అబద్ధం;  // Side effects discovered in assign RHS
+    తార్కిక m_noopt = అబద్ధం;  // Disable optimization of variables in this block
+    తార్కిక m_tracingCall = అబద్ధం;  // Iterating into a CCall to a CFunc
+    Life_ఖండం* m_lifep = శూన్యసూచిక;  // Current active lifetime map for current scope
 
     // METHODS
-    void setNoopt(const char* reasonp) {
-        (void)reasonp;
+    శూన్య సమితి_Noopt(స్థిరరాశి అక్షరం* reasonp) {
+        (శూన్య)reasonp;
         // UINFO(9, "setNoopt " << reasonp);
-        m_noopt = true;
+        m_noopt = నిజం;
         m_lifep->noopt();
     }
 
-    void processAssignment(AstNodeStmt* nodep, AstNodeExpr* lhsp, AstNodeExpr* rhsp) {
+    శూన్య processAssignment(Ast_కణుపు_Stmt* nodep, Ast_కణుపు_సమాసం* lhsp, Ast_కణుపు_సమాసం* rhsp) {
         // Collect any used variables first, as lhs may also be on rhs
         // Similar code in V3Dead
         VL_RESTORER(m_sideEffect);
-        m_sideEffect = false;
+        m_sideEffect = అబద్ధం;
         m_lifep->clearReplaced();
-        rhsp = VN_AS(iterateSubtreeReturnEdits(rhsp), NodeExpr);
-        if (m_lifep->replaced()) {
+        rhsp = VN_AS(iterateSubtreeReturnEdits(rhsp), కణుపు_సమాసం);
+        ఒకవేళ (m_lifep->replaced()) {
             // We changed something, try to constant propagate, but don't delete the
             // assignment as we still need nodep to remain.
             V3Const::constifyEdit(rhsp);
             VL_DANGLING(rhsp);  // rhsp may change
         }
         // Has to be direct assignment without any EXTRACTing.
-        if (VN_IS(lhsp, VarRef) && !m_sideEffect && !m_noopt) {
-            AstVarScope* const vscp = VN_AS(lhsp, VarRef)->varScopep();
+        ఒకవేళ (VN_IS(lhsp, VarRef) && !m_sideEffect && !m_noopt) {
+            AstVarScope* స్థిరరాశి vscp = VN_AS(lhsp, VarRef)->varScopep();
             UASSERT_OBJ(vscp, nodep, "Scope lost on variable");
-            m_lifep->simpleAssign(vscp, nodep);
-        } else {
-            iterateAndNextNull(lhsp);
+            m_lifep->simple_కేటాయించు(vscp, nodep);
+        } లేకపోతే {
+            iterate_And_తదుపరి_Null(lhsp);
         }
     }
 
     // VISITORS
-    void visit(AstVarRef* nodep) override {
+    శూన్య సందర్శించు(AstVarRef* nodep) override {
         // Consumption/generation of a variable,
         // it's used so can't elim assignment before this use.
         UASSERT_OBJ(nodep->varScopep(), nodep, "nullptr");
         //
-        AstVarScope* const vscp = nodep->varScopep();
+        AstVarScope* స్థిరరాశి vscp = nodep->varScopep();
         UASSERT_OBJ(vscp, nodep, "Scope not assigned");
-        if (nodep->access().isWriteOrRW()) {
-            m_sideEffect = true;  // $sscanf etc may have RHS vars that are lvalues
-            m_lifep->complexAssign(vscp);
-        } else {
+        ఒకవేళ (nodep->access().isWriteOrRW()) {
+            m_sideEffect = నిజం;  // $sscanf etc may have RHS vars that are lvalues
+            m_lifep->complex_కేటాయించు(vscp);
+        } లేకపోతే {
             VL_DO_DANGLING(m_lifep->varUsageReplace(vscp, nodep), nodep);
         }
     }
-    void visit(AstNodeAssign* nodep) override {
-        if (nodep->isTimingControl() || VN_IS(nodep, AssignForce)) {
+    శూన్య సందర్శించు(Ast_కణుపు_కేటాయించు* nodep) override {
+        ఒకవేళ (nodep->isTimingControl() || VN_IS(nodep, కేటాయించు_Force)) {
             // V3Life doesn't understand time sense nor force assigns - don't optimize
-            setNoopt("timing|force");
-            if (nodep->isTimingControl()) m_containsTiming = true;
+            సమితి_Noopt("timing|force");
+            ఒకవేళ (nodep->isTimingControl()) m_కలిగియుంది_Timing = నిజం;
             iterateChildren(nodep);
-            return;
+            తిరిగి;
         }
         processAssignment(nodep, nodep->lhsp(), nodep->rhsp());
     }
-    void visit(AstSFormat* nodep) override {
+    శూన్య సందర్శించు(AstSFormat* nodep) override {
         // AstSFormat is just a special form of assignment
         processAssignment(nodep, nodep->lhsp(), nodep->fmtp());
     }
-    void visit(AstAssignDly* nodep) override {
+    శూన్య సందర్శించు(Ast_కేటాయించు_Dly* nodep) override {
         // V3Life doesn't understand time sense
-        if (nodep->isTimingControl()) {
+        ఒకవేళ (nodep->isTimingControl()) {
             // Don't optimize
-            setNoopt("assigndly");
-            m_containsTiming = true;
+            సమితి_Noopt("assigndly");
+            m_కలిగియుంది_Timing = నిజం;
         }
         // Don't treat as normal assign
         iterateChildren(nodep);
     }
 
     //---- Track control flow changes
-    void visit(AstNodeIf* nodep) override {
+    శూన్య సందర్శించు(Ast_కణుపు_If* nodep) override {
         UINFO(4, "   IF " << nodep);
         // Condition is part of PREVIOUS block
-        iterateAndNextNull(nodep->condp());
-        LifeBlock* const ifLifep = new LifeBlock{m_lifep, m_statep};
-        LifeBlock* const elseLifep = new LifeBlock{m_lifep, m_statep};
+        iterate_And_తదుపరి_Null(nodep->condp());
+        Life_ఖండం* స్థిరరాశి ifLifep = కొత్త Life_ఖండం{m_lifep, m_statep};
+        Life_ఖండం* స్థిరరాశి elseLifep = కొత్త Life_ఖండం{m_lifep, m_statep};
         {
             VL_RESTORER(m_lifep);
             m_lifep = ifLifep;
-            iterateAndNextNull(nodep->thensp());
+            iterate_And_తదుపరి_Null(nodep->thensp());
         }
         {
             VL_RESTORER(m_lifep);
             m_lifep = elseLifep;
-            iterateAndNextNull(nodep->elsesp());
+            iterate_And_తదుపరి_Null(nodep->elsesp());
         }
         UINFO(4, "   join " << nodep);
         // Find sets on both flows
         m_lifep->dualBranch(ifLifep, elseLifep);
         // For the next assignments, clear any variables that were read or written in the block
-        ifLifep->lifeToAbove();
-        elseLifep->lifeToAbove();
-        VL_DO_DANGLING(delete ifLifep, ifLifep);
-        VL_DO_DANGLING(delete elseLifep, elseLifep);
+        ifLifep->life_గమ్యం_Above();
+        elseLifep->life_గమ్యం_Above();
+        VL_DO_DANGLING(తొలగించు ifLifep, ifLifep);
+        VL_DO_DANGLING(తొలగించు elseLifep, elseLifep);
         UINFO(4, "   if-done " << nodep);
     }
-    void visit(AstLoop* nodep) override {
+    శూన్య సందర్శించు(AstLoop* nodep) override {
         // Similar problem to AstJumpBlock, don't optimize loop bodies - most are unrolled
         UASSERT_OBJ(!nodep->contsp(), nodep, "'contsp' only used before LinkJump");
-        VL_RESTORER(m_containsTiming);
+        VL_RESTORER(m_కలిగియుంది_Timing);
         {
             VL_RESTORER(m_noopt);
             VL_RESTORER(m_lifep);
-            m_lifep = new LifeBlock{m_lifep, m_statep};
+            m_lifep = కొత్త Life_ఖండం{m_lifep, m_statep};
             // Disable optimization in the body, but don't flag the block:
             // a pure body must not invalidate tracking above
-            m_noopt = true;
-            iterateAndNextNull(nodep->stmtsp());
+            m_noopt = నిజం;
+            iterate_And_తదుపరి_Null(nodep->stmtsp());
             UINFO(4, "   joinloop");
             // For the next assignments, clear any variables that were read or written in the block
-            m_lifep->lifeToAbove();
-            VL_DO_DANGLING(delete m_lifep, m_lifep);
+            m_lifep->life_గమ్యం_Above();
+            VL_DO_DANGLING(తొలగించు m_lifep, m_lifep);
         }
-        if (m_containsTiming) setNoopt("timing");
+        ఒకవేళ (m_కలిగియుంది_Timing) సమితి_Noopt("timing");
     }
-    void visit(AstJumpBlock* nodep) override {
+    శూన్య సందర్శించు(Ast_Jump_ఖండం* nodep) override {
         // As with Loop's we can't predict if a JumpGo will kill us or not
         // It's worse though as an IF(..., JUMPGO) may change the control flow.
         // Just don't optimize blocks with labels; they're rare - so far.
-        VL_RESTORER(m_containsTiming);
+        VL_RESTORER(m_కలిగియుంది_Timing);
         {
             VL_RESTORER(m_noopt);
             VL_RESTORER(m_lifep);
-            m_lifep = new LifeBlock{m_lifep, m_statep};
+            m_lifep = కొత్త Life_ఖండం{m_lifep, m_statep};
             // Structural only, as for AstLoop above
-            m_noopt = true;
-            iterateAndNextNull(nodep->stmtsp());
+            m_noopt = నిజం;
+            iterate_And_తదుపరి_Null(nodep->stmtsp());
             UINFO(4, "   joinjump");
             // For the next assignments, clear any variables that were read or written in the block
-            m_lifep->lifeToAbove();
-            VL_DO_DANGLING(delete m_lifep, m_lifep);
+            m_lifep->life_గమ్యం_Above();
+            VL_DO_DANGLING(తొలగించు m_lifep, m_lifep);
         }
-        if (m_containsTiming) setNoopt("timing");
+        ఒకవేళ (m_కలిగియుంది_Timing) సమితి_Noopt("timing");
     }
-    void visit(AstNodeCCall* nodep) override {
+    శూన్య సందర్శించు(Ast_కణుపు_CCall* nodep) override {
         // UINFO(4, "  CCALL " << nodep);
         iterateChildren(nodep);
         // Enter the function and trace it
         // else is non-inline or public function we optimize separately
-        if (nodep->funcp()->entryPoint()) {
-            setNoopt("ccall");
-        } else {
-            m_tracingCall = true;
+        ఒకవేళ (nodep->funcp()->నమోదు_బిందువు()) {
+            సమితి_Noopt("ccall");
+        } లేకపోతే {
+            m_tracingCall = నిజం;
             iterate(nodep->funcp());
         }
     }
-    void visit(AstCFunc* nodep) override {
+    శూన్య సందర్శించు(AstCFunc* nodep) override {
         // UINFO(4, "  CFUNC " << nodep);
-        if (!m_tracingCall && !nodep->entryPoint()) return;
-        m_tracingCall = false;
-        if (nodep->recursive()) setNoopt("recursive");
-        if (nodep->noLife()) setNoopt("nolife");
-        if (nodep->dpiImportPrototype() && !nodep->dpiPure()) {
-            m_sideEffect = true;  // If appears on assign RHS, don't ever delete the assignment
+        ఒకవేళ (!m_tracingCall && !nodep->నమోదు_బిందువు()) తిరిగి;
+        m_tracingCall = అబద్ధం;
+        ఒకవేళ (nodep->recursive()) సమితి_Noopt("recursive");
+        ఒకవేళ (nodep->noLife()) సమితి_Noopt("nolife");
+        ఒకవేళ (nodep->dpiImportPrototype() && !nodep->dpi_శుద్ధ()) {
+            m_sideEffect = నిజం;  // If appears on assign RHS, don't ever delete the assignment
         }
         iterateChildren(nodep);
     }
-    void visit(AstCExprUser* nodep) override {
-        m_sideEffect = true;  // If appears on assign RHS, don't ever delete the assignment
+    శూన్య సందర్శించు(AstCExprUser* nodep) override {
+        m_sideEffect = నిజం;  // If appears on assign RHS, don't ever delete the assignment
         iterateChildren(nodep);
     }
-    void visit(AstCExpr* nodep) override {
-        m_sideEffect = true;  // If appears on assign RHS, don't ever delete the assignment
+    శూన్య సందర్శించు(AstCExpr* nodep) override {
+        m_sideEffect = నిజం;  // If appears on assign RHS, don't ever delete the assignment
         iterateChildren(nodep);
     }
 
-    void visit(AstVar*) override {}  // Don't want varrefs under it
-    void visit(AstNode* nodep) override {
-        if (nodep->isTimingControl()) {
+    శూన్య సందర్శించు(AstVar*) override {}  // Don't want varrefs under it
+    శూన్య సందర్శించు(Ast_కణుపు* nodep) override {
+        ఒకవేళ (nodep->isTimingControl()) {
             // V3Life doesn't understand time sense - don't optimize
-            setNoopt("timing");
-            m_containsTiming = true;
+            సమితి_Noopt("timing");
+            m_కలిగియుంది_Timing = నిజం;
         }
         iterateChildren(nodep);
     }
 
-public:
+బహిరంగ:
     // CONSTRUCTORS
-    LifeVisitor(AstNode* nodep, LifeState* statep)
+    LifeVisitor(Ast_కణుపు* nodep, LifeState* statep)
         : m_statep{statep} {
         UINFO(4, "  LifeVisitor on " << nodep);
         {
-            m_lifep = new LifeBlock{nullptr, m_statep};
+            m_lifep = కొత్త Life_ఖండం{శూన్యసూచిక, m_statep};
             iterate(nodep);
-            if (m_lifep) VL_DO_CLEAR(delete m_lifep, m_lifep = nullptr);
+            ఒకవేళ (m_lifep) VL_DO_CLEAR(తొలగించు m_lifep, m_lifep = శూన్యసూచిక);
         }
     }
     ~LifeVisitor() override {
-        if (m_lifep) VL_DO_CLEAR(delete m_lifep, m_lifep = nullptr);
+        ఒకవేళ (m_lifep) VL_DO_CLEAR(తొలగించు m_lifep, m_lifep = శూన్యసూచిక);
     }
     VL_UNCOPYABLE(LifeVisitor);
 };
 
 //######################################################################
 
-class LifeTopVisitor final : public VNVisitor {
+తరగతి Life_శిఖరం_Visitor final : బహిరంగ VNVisitor {
     // Visit all top nodes searching for functions that are entry points we want to start
     // finding code within.
-private:
+అంతరంగ:
     // STATE
-    LifeState* const m_statep;  // Current state
+    LifeState* స్థిరరాశి m_statep;  // Current state
 
     // VISITORS
-    void visit(AstCFunc* nodep) override {
-        if (nodep->entryPoint()) {
+    శూన్య సందర్శించు(AstCFunc* nodep) override {
+        ఒకవేళ (nodep->నమోదు_బిందువు()) {
             // Usage model 1: Simulate all C code, doing lifetime analysis
             LifeVisitor{nodep, m_statep};
         }
     }
-    void visit(AstNodeProcedure* nodep) override {
+    శూన్య సందర్శించు(Ast_కణుపు_Procedure* nodep) override {
         // Usage model 2: Cleanup basic blocks
         LifeVisitor{nodep, m_statep};
     }
-    void visit(AstVar*) override {}  // Accelerate
-    void visit(AstNodeStmt*) override {}  // Accelerate
-    void visit(AstNodeExpr*) override {}  // Accelerate
-    void visit(AstNode* nodep) override { iterateChildren(nodep); }
+    శూన్య సందర్శించు(AstVar*) override {}  // Accelerate
+    శూన్య సందర్శించు(Ast_కణుపు_Stmt*) override {}  // Accelerate
+    శూన్య సందర్శించు(Ast_కణుపు_సమాసం*) override {}  // Accelerate
+    శూన్య సందర్శించు(Ast_కణుపు* nodep) override { iterateChildren(nodep); }
 
-public:
+బహిరంగ:
     // CONSTRUCTORS
-    LifeTopVisitor(AstNetlist* nodep, LifeState* statep)
+    Life_శిఖరం_Visitor(AstNetlist* nodep, LifeState* statep)
         : m_statep{statep} {
         iterate(nodep);
     }
-    ~LifeTopVisitor() override = default;
+    ~Life_శిఖరం_Visitor() override = అప్రమేయ;
 };
 
 //######################################################################
 // Life class functions
 
-void V3Life::lifeAll(AstNetlist* nodep) {
+శూన్య V3Life::lifeAll(AstNetlist* nodep) {
     UINFO(2, __FUNCTION__ << ":");
     {
         LifeState state;
-        LifeTopVisitor{nodep, &state};
+        Life_శిఖరం_Visitor{nodep, &state};
     }  // Destruct before checking
-    VIsCached::clearCacheTree();  // Removing assignments may affect isPure
-    V3Global::dumpCheckGlobalTree("life", 0, dumpTreeEitherLevel() >= 3);
+    VIsCached::clear_Cache_వృక్షం();  // Removing assignments may affect isPure
+    V3Global::dump_Check_Global_వృక్షం("life", 0, dump_వృక్షం_Either_Level() >= 3);
 }

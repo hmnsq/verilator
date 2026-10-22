@@ -14,24 +14,24 @@
 //
 //*************************************************************************
 
-#ifndef VERILATOR_V3EMITV_H_
-#define VERILATOR_V3EMITV_H_
+#నిర్వచితం_కాకపోతే VERILATOR_V3EMITV_H_
+#నిర్వచించు VERILATOR_V3EMITV_H_
 
-#include "config_build.h"
-#include "verilatedos.h"
+#అన్తర్భావ "config_build.h"
+#అన్తర్భావ "verilatedos.h"
 
-class AstNode;
-class AstSenTree;
+class Ast_కణుపు;
+class Ast_Sen_వృక్షం;
 
 //============================================================================
 
 class V3EmitV final {
-public:
-    static void verilogForTree(const AstNode* nodep, std::ostream& os = std::cout);
-    static void debugVerilogForTree(const AstNode* nodep, std::ostream& os);
-    static std::string debugVerilogForTree(const AstNode* nodep);
-    static void emitvFiles();
-    static void debugEmitV(const string& filename);
+బహిరంగ:
+    స్థిర శూన్య verilog_For_వృక్షం(స్థిరరాశి Ast_కణుపు* nodep, std::ostream& os = std::cout);
+    స్థిర శూన్య debug_Verilog_For_వృక్షం(స్థిరరాశి Ast_కణుపు* nodep, std::ostream& os);
+    స్థిర std::string debug_Verilog_For_వృక్షం(స్థిరరాశి Ast_కణుపు* nodep);
+    స్థిర శూన్య emitvFiles();
+    స్థిర శూన్య debugEmitV(స్థిరరాశి string& filename);
 };
 
-#endif  // Guard
+#అయితే_ముగింపు  // Guard

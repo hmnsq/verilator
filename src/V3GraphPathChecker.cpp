@@ -14,20 +14,20 @@
 //
 //*************************************************************************
 
-#define VL_MT_DISABLED_CODE_UNIT 1
+#నిర్వచించు VL_MT_DISABLED_సంకేతం_UNIT 1
 
-#include "config_build.h"
-#include "verilatedos.h"
+#అన్తర్భావ "config_build.h"
+#అన్తర్భావ "verilatedos.h"
 
-#include "V3GraphPathChecker.h"
+#అన్తర్భావ "V3GraphPathChecker.h"
 
-#include "V3Global.h"
-#include "V3GraphStream.h"
+#అన్తర్భావ "V3Global.h"
+#అన్తర్భావ "V3GraphStream.h"
 
 //######################################################################
 // GraphPCNode
 
-struct GraphPCNode final {
+నిర్మాణం లేఖాచిత్రం_PCNode final {
     // User data for each node in GraphPathChecker.
     //
     // Like the LogicMTasks's, store before and after CPs for the nodes in
@@ -35,118 +35,118 @@ struct GraphPCNode final {
     //
     // Unlike the LogicMTasks's, we have no cost info for the generic graph
     // accepted by GraphPathChecker, so assume each node has unit cost.
-    std::array<uint32_t, GraphWay::NUM_WAYS> m_cp = {};
+    std::array<uint32_t, లేఖాచిత్రం_Way::అంకె_WAYS> m_cp = {};
 
     // Detect if we've seen this node before in a given recursive
     // operation. We'll use this in pathExistsInternal() to avoid checking
     // the same node twice, and again in updateHalfCriticalPath() to assert
     // there are no cycles.
-    uint64_t m_seenAtGeneration = 0;
+    uint64_t m_చూసిన_At_Generation = 0;
 
     // CONSTRUCTORS
-    GraphPCNode() = default;
-    ~GraphPCNode() = default;
+    లేఖాచిత్రం_PCNode() = అప్రమేయ;
+    ~లేఖాచిత్రం_PCNode() = అప్రమేయ;
 };
 
 //######################################################################
 // GraphPathChecker implementation
 
-template <GraphWay::en N_Way>
-void GraphPathChecker::initHalfCriticalPaths(bool checkOnly) {
-    constexpr GraphWay way{N_Way};
-    constexpr GraphWay rev = way.invert();
-    GraphStreamUnordered order(m_graphp, way);
-    while (const V3GraphVertex* const vertexp = order.nextp()) {
-        unsigned critPathCost = 0;
-        for (const V3GraphEdge& edge : vertexp->edges<rev>()) {
-            if (!m_edgeFuncp(&edge)) continue;
+మూస <లేఖాచిత్రం_Way::en N_Way>
+శూన్య లేఖాచిత్రం_మార్గం_Checker::initHalfCriticalPaths(తార్కిక checkOnly) {
+    constexpr లేఖాచిత్రం_Way way{N_Way};
+    constexpr లేఖాచిత్రం_Way rev = way.invert();
+    లేఖాచిత్రం_ప్రవాహం_Unordered క్రమం(m_graphp, way);
+    అయితే (స్థిరరాశి V3_లేఖాచిత్రం_శీర్షం* స్థిరరాశి vertexp = క్రమం.nextp()) {
+        గుర్తులేని crit_మార్గం_ఖర్చు = 0;
+        కొరకు (స్థిరరాశి V3_లేఖాచిత్రం_అంచు& అంచు : vertexp->అంచులు<rev>()) {
+            ఒకవేళ (!m_అంచు_Funcp(&అంచు)) కొనసాగు;
 
-            const V3GraphVertex* wrelativep = edge.furtherp<rev>();
-            const GraphPCNode* const wrelUserp = static_cast<GraphPCNode*>(wrelativep->userp());
-            critPathCost = std::max(critPathCost, wrelUserp->m_cp[way] + 1);
+            స్థిరరాశి V3_లేఖాచిత్రం_శీర్షం* wrelativep = అంచు.furtherp<rev>();
+            స్థిరరాశి లేఖాచిత్రం_PCNode* స్థిరరాశి wrelUserp = static_cast<లేఖాచిత్రం_PCNode*>(wrelativep->userp());
+            crit_మార్గం_ఖర్చు = std::max(crit_మార్గం_ఖర్చు, wrelUserp->m_cp[way] + 1);
         }
 
-        GraphPCNode* const ourUserp = static_cast<GraphPCNode*>(vertexp->userp());
-        if (checkOnly) {
-            UASSERT_OBJ(ourUserp->m_cp[way] == critPathCost, vertexp,
+        లేఖాచిత్రం_PCNode* స్థిరరాశి ourUserp = static_cast<లేఖాచిత్రం_PCNode*>(vertexp->userp());
+        ఒకవేళ (checkOnly) {
+            UASSERT_OBJ(ourUserp->m_cp[way] == crit_మార్గం_ఖర్చు, vertexp,
                         "Validation of critical paths failed");
-        } else {
-            ourUserp->m_cp[way] = critPathCost;
+        } లేకపోతే {
+            ourUserp->m_cp[way] = crit_మార్గం_ఖర్చు;
         }
     }
 }
 
-template void GraphPathChecker::initHalfCriticalPaths<GraphWay::FORWARD>(bool);
-template void GraphPathChecker::initHalfCriticalPaths<GraphWay::REVERSE>(bool);
+మూస శూన్య లేఖాచిత్రం_మార్గం_Checker::initHalfCriticalPaths<లేఖాచిత్రం_Way::FORWARD>(తార్కిక);
+మూస శూన్య లేఖాచిత్రం_మార్గం_Checker::initHalfCriticalPaths<లేఖాచిత్రం_Way::తిరగేయి_2>(తార్కిక);
 
-GraphPathChecker::GraphPathChecker(V3Graph* graphp, V3EdgeFuncP edgeFuncp)
-    : GraphAlg<V3Graph>{graphp, edgeFuncp} {
-    for (V3GraphVertex& vtx : graphp->vertices()) {
+లేఖాచిత్రం_మార్గం_Checker::లేఖాచిత్రం_మార్గం_Checker(V3_లేఖాచిత్రం* graphp, V3_అంచు_Func_P అంచు_Funcp)
+    : లేఖాచిత్రం_Alg<V3_లేఖాచిత్రం>{graphp, అంచు_Funcp} {
+    కొరకు (V3_లేఖాచిత్రం_శీర్షం& vtx : graphp->vertices()) {
         // Setup tracking structure for each node.  If delete a vertex
         // there would be a leak, but ok as accept only const V3Graph*'s.
-        vtx.userp(new GraphPCNode);
+        vtx.userp(కొత్త లేఖాచిత్రం_PCNode);
     }
     // Init critical paths in userp() for each vertex
-    initHalfCriticalPaths<GraphWay::FORWARD>(false);
-    initHalfCriticalPaths<GraphWay::REVERSE>(false);
+    initHalfCriticalPaths<లేఖాచిత్రం_Way::FORWARD>(అబద్ధం);
+    initHalfCriticalPaths<లేఖాచిత్రం_Way::తిరగేయి_2>(అబద్ధం);
 }
 
-GraphPathChecker::~GraphPathChecker() {
+లేఖాచిత్రం_మార్గం_Checker::~లేఖాచిత్రం_మార్గం_Checker() {
     // Free every GraphPCNode
-    for (V3GraphVertex& vtx : m_graphp->vertices()) {
-        const GraphPCNode* const nodep = static_cast<GraphPCNode*>(vtx.userp());
-        VL_DO_DANGLING(delete nodep, nodep);
-        vtx.userp(nullptr);
+    కొరకు (V3_లేఖాచిత్రం_శీర్షం& vtx : m_graphp->vertices()) {
+        స్థిరరాశి లేఖాచిత్రం_PCNode* స్థిరరాశి nodep = static_cast<లేఖాచిత్రం_PCNode*>(vtx.userp());
+        VL_DO_DANGLING(తొలగించు nodep, nodep);
+        vtx.userp(శూన్యసూచిక);
     }
 }
 
-bool GraphPathChecker::pathExistsInternal(const V3GraphVertex* ap, const V3GraphVertex* bp,
-                                          unsigned* costp) {
-    GraphPCNode* const auserp = static_cast<GraphPCNode*>(ap->userp());
-    const GraphPCNode* const buserp = static_cast<GraphPCNode*>(bp->userp());
+తార్కిక లేఖాచిత్రం_మార్గం_Checker::మార్గం_Exists_అంతర్గత(స్థిరరాశి V3_లేఖాచిత్రం_శీర్షం* ap, స్థిరరాశి V3_లేఖాచిత్రం_శీర్షం* bp,
+                                          గుర్తులేని* costp) {
+    లేఖాచిత్రం_PCNode* స్థిరరాశి auserp = static_cast<లేఖాచిత్రం_PCNode*>(ap->userp());
+    స్థిరరాశి లేఖాచిత్రం_PCNode* స్థిరరాశి buserp = static_cast<లేఖాచిత్రం_PCNode*>(bp->userp());
 
     // If have already searched this node on the current search, don't
     // recurse through it again. Since we're still searching, we must not
     // have found a path on the first go either.
-    if (auserp->m_seenAtGeneration == m_generation) {
-        if (costp) *costp = 0;
-        return false;
+    ఒకవేళ (auserp->m_చూసిన_At_Generation == m_generation) {
+        ఒకవేళ (costp) *costp = 0;
+        తిరిగి అబద్ధం;
     }
-    auserp->m_seenAtGeneration = m_generation;
+    auserp->m_చూసిన_At_Generation = m_generation;
 
-    if (costp) *costp = 1;  // count 'a' toward the search cost
+    ఒకవేళ (costp) *costp = 1;  // count 'a' toward the search cost
 
-    if (ap == bp) return true;
+    ఒకవేళ (ap == bp) తిరిగి నిజం;
 
     // Rule out an a->b path based on their CPs
-    if (auserp->m_cp[GraphWay::REVERSE] < buserp->m_cp[GraphWay::REVERSE] + 1) return false;
-    if (buserp->m_cp[GraphWay::FORWARD] < auserp->m_cp[GraphWay::FORWARD] + 1) return false;
+    ఒకవేళ (auserp->m_cp[లేఖాచిత్రం_Way::తిరగేయి_2] < buserp->m_cp[లేఖాచిత్రం_Way::తిరగేయి_2] + 1) తిరిగి అబద్ధం;
+    ఒకవేళ (buserp->m_cp[లేఖాచిత్రం_Way::FORWARD] < auserp->m_cp[లేఖాచిత్రం_Way::FORWARD] + 1) తిరిగి అబద్ధం;
 
     // Slow path; visit some extended family
-    bool foundPath = false;
-    for (const V3GraphEdge& edge : ap->outEdges()) {
-        if (!m_edgeFuncp(&edge)) continue;
+    తార్కిక దొరికింది_మార్గం = అబద్ధం;
+    కొరకు (స్థిరరాశి V3_లేఖాచిత్రం_అంచు& అంచు : ap->బహిర్గతం_అంచులు()) {
+        ఒకవేళ (!m_అంచు_Funcp(&అంచు)) కొనసాగు;
 
-        unsigned childCost;
-        if (pathExistsInternal(edge.top(), bp, &childCost)) foundPath = true;
-        if (costp) *costp += childCost;
+        గుర్తులేని బిడ్డ_ఖర్చు;
+        ఒకవేళ (మార్గం_Exists_అంతర్గత(అంచు.శిఖరం(), bp, &బిడ్డ_ఖర్చు)) దొరికింది_మార్గం = నిజం;
+        ఒకవేళ (costp) *costp += బిడ్డ_ఖర్చు;
     }
 
-    return foundPath;
+    తిరిగి దొరికింది_మార్గం;
 }
 
-bool GraphPathChecker::pathExistsFrom(const V3GraphVertex* fromp, const V3GraphVertex* top) {
+తార్కిక లేఖాచిత్రం_మార్గం_Checker::మార్గం_Exists_From(స్థిరరాశి V3_లేఖాచిత్రం_శీర్షం* fromp, స్థిరరాశి V3_లేఖాచిత్రం_శీర్షం* శిఖరం) {
     incGeneration();
-    return pathExistsInternal(fromp, top);
+    తిరిగి మార్గం_Exists_అంతర్గత(fromp, శిఖరం);
 }
 
-bool GraphPathChecker::isTransitiveEdge(const V3GraphEdge* edgep) {
-    const V3GraphVertex* fromp = edgep->fromp();
-    const V3GraphVertex* top = edgep->top();
+తార్కిక లేఖాచిత్రం_మార్గం_Checker::is_సంక్రమణ_అంచు(స్థిరరాశి V3_లేఖాచిత్రం_అంచు* edgep) {
+    స్థిరరాశి V3_లేఖాచిత్రం_శీర్షం* fromp = edgep->fromp();
+    స్థిరరాశి V3_లేఖాచిత్రం_శీర్షం* శిఖరం = edgep->శిఖరం();
     incGeneration();
-    for (const V3GraphEdge& fromOut : fromp->outEdges()) {
-        if (&fromOut == edgep) continue;
-        if (pathExistsInternal(fromOut.top(), top)) return true;
+    కొరకు (స్థిరరాశి V3_లేఖాచిత్రం_అంచు& from_బహిర్గతం : fromp->బహిర్గతం_అంచులు()) {
+        ఒకవేళ (&from_బహిర్గతం == edgep) కొనసాగు;
+        ఒకవేళ (మార్గం_Exists_అంతర్గత(from_బహిర్గతం.శిఖరం(), శిఖరం)) తిరిగి నిజం;
     }
-    return false;
+    తిరిగి అబద్ధం;
 }

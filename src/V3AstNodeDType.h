@@ -19,891 +19,891 @@
 //
 //*************************************************************************
 
-#ifndef VERILATOR_V3ASTNODEDTYPE_H_
-#define VERILATOR_V3ASTNODEDTYPE_H_
+#నిర్వచితం_కాకపోతే VERILATOR_V3ASTNODEDTYPE_H_
+#నిర్వచించు VERILATOR_V3ASTNODEDTYPE_H_
 
-#ifndef VERILATOR_V3AST_H_
-#error "Use V3Ast.h as the include"
-#include "V3Ast.h"  // This helps code analysis tools pick up symbols in V3Ast.h
-#define VL_NOT_FINAL  // This #define fixes broken code folding in the CLion IDE
-#endif
+#నిర్వచితం_కాకపోతే VERILATOR_V3AST_H_
+#దోషం "Use V3Ast.h as the include"
+#అన్తర్భావ "V3Ast.h"  // This helps code analysis tools pick up symbols in V3Ast.h
+#నిర్వచించు VL_NOT_FINAL  // This #define fixes broken code folding in the CLion IDE
+#అయితే_ముగింపు
 
 // === Abstract base node types (AstNode*) =====================================
 
-class AstNodeDType VL_NOT_FINAL : public AstNode {
+class Ast_కణుపు_DType VL_NOT_FINAL : బహిరంగ Ast_కణుపు {
     // Ideally width() would migrate to BasicDType as that's where it makes sense,
     // but it's currently so prevalent in the code we leave it here.
     // Note the below members are included in AstTypeTable::Key lookups
     // dist-ast-dump-suppress  // Part of dumpSmall
-    int m_width = 0;  // (also in AstTypeTable::Key) Bit width of operation
+    పూర్ణాంకం m_వెడల్పు = 0;  // (also in AstTypeTable::Key) Bit width of operation
     // (also in AstTypeTable::Key) If unsized, bitwidth of minimum implementation
     // dist-ast-dump-suppress  // Part of dumpSmall
-    int m_widthMin = 0;
+    పూర్ణాంకం m_వెడల్పు_Min = 0;
     // dist-ast-dump-suppress  // Part of dumpSmall
     VSigning m_numeric;  // (also in AstTypeTable::Key) Node is signed
     // dist-ast-dump-suppress  // Part of dumpSmall
     bool m_generic = false;  // Simple globally referenced type, don't garbage collect
     // Unique number assigned to each dtype during creation for IEEE matching
-    static int s_uniqueNum;
+    స్థిర పూర్ణాంకం s_unique_అంకె;
 
-protected:
+రక్షిత:
     // CONSTRUCTORS
-    AstNodeDType(VNType t, FileLine* fl)
-        : AstNode{t, fl} {}
+    Ast_కణుపు_DType(VNType t, File_పంక్తి* fl)
+        : Ast_కణుపు{t, fl} {}
 
-private:
+అంతరంగ:
     // METHODS
-    const AstNodeDType* skipRefIterp(bool skipConst, bool skipEnum,
-                                     bool assertOn = true) const VL_MT_STABLE;
+    స్థిరరాశి Ast_కణుపు_DType* skipRefIterp(bool skipConst, bool skipEnum,
+                                     bool assertOn = true) స్థిరరాశి VL_MT_STABLE;
 
-protected:
+రక్షిత:
     // METHODS
-    virtual bool similarDTypeNode(const AstNodeDType* samep) const = 0;
+    మాయా bool similar_DType_కణుపు(స్థిరరాశి Ast_కణుపు_DType* samep) స్థిరరాశి = 0;
 
-public:
-    ASTGEN_MEMBERS_AstNodeDType;
+బహిరంగ:
+    ASTGEN_MEMBERS_Ast_కణుపు_DType;
     // ACCESSORS
-    void dump(std::ostream& str) const override;
-    void dumpJson(std::ostream& str) const override;
-    virtual void dumpSmall(std::ostream& str) const VL_MT_STABLE;
-    bool hasDType() const override VL_MT_SAFE { return true; }
+    శూన్య dump(std::ostream& str) స్థిరరాశి override;
+    శూన్య dumpJson(std::ostream& str) స్థిరరాశి override;
+    మాయా శూన్య dumpSmall(std::ostream& str) స్థిరరాశి VL_MT_STABLE;
+    bool hasDType() స్థిరరాశి override VL_MT_సురక్షిత { తిరిగి true; }
     /// Require VlUnpacked, instead of [] for POD elements.
     /// A non-POD object is always compound, but some POD elements
     /// are compound when methods calls operate on object, or when
     /// under another compound-requiring object e.g. class
-    virtual bool isCompound() const = 0;
+    మాయా bool isCompound() స్థిరరాశి = 0;
     // Integral or packed, allowed inside an unpacked union/struct
-    virtual bool isIntegralOrPacked() const { return !isCompound(); }
+    మాయా bool isIntegralOrPacked() స్థిరరాశి { తిరిగి !isCompound(); }
     // (Slow) recurse down to find basic data type
-    virtual AstBasicDType* basicp() const VL_MT_STABLE = 0;
+    మాయా AstBasicDType* basicp() స్థిరరాశి VL_MT_STABLE = 0;
     // (Slow) Recurse over MemberDType|ParamTypeDType|RefDType|ConstDType|EnumDType to other type
-    const AstNodeDType* skipRefp() const VL_MT_STABLE { return skipRefIterp(true, true); }
-    AstNodeDType* skipRefp() VL_MT_STABLE {
-        return const_cast<AstNodeDType*>(
-            static_cast<const AstNodeDType*>(this)->skipRefIterp(true, true));
+    స్థిరరాశి Ast_కణుపు_DType* skipRefp() స్థిరరాశి VL_MT_STABLE { తిరిగి skipRefIterp(true, true); }
+    Ast_కణుపు_DType* skipRefp() VL_MT_STABLE {
+        తిరిగి const_cast<Ast_కణుపు_DType*>(
+            static_cast<స్థిరరాశి Ast_కణుపు_DType*>(this)->skipRefIterp(true, true));
     }
     // (Slow) Recurse over MemberDType|ParamTypeDType|RefDType|ConstDType|EnumDType to other type,
     // Returns null if not resolved
-    const AstNodeDType* skipRefOrNullp() const VL_MT_STABLE {
-        return skipRefIterp(true, true, false);
+    స్థిరరాశి Ast_కణుపు_DType* skipRefOrNullp() స్థిరరాశి VL_MT_STABLE {
+        తిరిగి skipRefIterp(true, true, false);
     }
-    AstNodeDType* skipRefOrNullp() VL_MT_STABLE {
-        return const_cast<AstNodeDType*>(
-            static_cast<const AstNodeDType*>(this)->skipRefIterp(true, true, false));
+    Ast_కణుపు_DType* skipRefOrNullp() VL_MT_STABLE {
+        తిరిగి const_cast<Ast_కణుపు_DType*>(
+            static_cast<స్థిరరాశి Ast_కణుపు_DType*>(this)->skipRefIterp(true, true, false));
     }
     // (Slow) Recurse over MemberDType|ParamTypeDType|RefDType|EnumDType to ConstDType
-    const AstNodeDType* skipRefToConstp() const { return skipRefIterp(false, true); }
-    AstNodeDType* skipRefToConstp() {
-        return const_cast<AstNodeDType*>(
-            static_cast<const AstNodeDType*>(this)->skipRefIterp(false, true));
+    స్థిరరాశి Ast_కణుపు_DType* skip_Ref_గమ్యం_Constp() స్థిరరాశి { తిరిగి skipRefIterp(false, true); }
+    Ast_కణుపు_DType* skip_Ref_గమ్యం_Constp() {
+        తిరిగి const_cast<Ast_కణుపు_DType*>(
+            static_cast<స్థిరరాశి Ast_కణుపు_DType*>(this)->skipRefIterp(false, true));
     }
     // (Slow) Recurse over MemberDType|ParamTypeDType|RefDType|ConstDType to EnumDType
-    const AstNodeDType* skipRefToEnump() const { return skipRefIterp(true, false); }
-    AstNodeDType* skipRefToEnump() {
-        return const_cast<AstNodeDType*>(
-            static_cast<const AstNodeDType*>(this)->skipRefIterp(true, false));
+    స్థిరరాశి Ast_కణుపు_DType* skip_Ref_గమ్యం_Enump() స్థిరరాశి { తిరిగి skipRefIterp(true, false); }
+    Ast_కణుపు_DType* skip_Ref_గమ్యం_Enump() {
+        తిరిగి const_cast<Ast_కణుపు_DType*>(
+            static_cast<స్థిరరాశి Ast_కణుపు_DType*>(this)->skipRefIterp(true, false));
     }
     // (Slow) Recurse over MemberDType|ParamTypeDType|RefDType|ConstDType to EnumDType,
     // Returns null if not resolved
-    const AstNodeDType* skipRefToEnumOrNullp() const { return skipRefIterp(true, false, false); }
+    స్థిరరాశి Ast_కణుపు_DType* skip_Ref_గమ్యం_Enum_Or_Nullp() స్థిరరాశి { తిరిగి skipRefIterp(true, false, false); }
     // (Slow) Recurse over MemberDType|ParamTypeDType|RefDType to other type
-    const AstNodeDType* skipRefToNonRefp() const { return skipRefIterp(false, false); }
-    AstNodeDType* skipRefToNonRefp() {
-        return const_cast<AstNodeDType*>(
-            static_cast<const AstNodeDType*>(this)->skipRefIterp(false, false));
+    స్థిరరాశి Ast_కణుపు_DType* skip_Ref_గమ్యం_Non_Refp() స్థిరరాశి { తిరిగి skipRefIterp(false, false); }
+    Ast_కణుపు_DType* skip_Ref_గమ్యం_Non_Refp() {
+        తిరిగి const_cast<Ast_కణుపు_DType*>(
+            static_cast<స్థిరరాశి Ast_కణుపు_DType*>(this)->skipRefIterp(false, false));
     }
     // If array, returns element dtype, otherwise returns skipRef dtype
     // If skipRef is false, RefDTypes are not followed (safe before typedef linking)
-    const AstNodeDType* elemDTypep(bool skipRef = true) const VL_MT_STABLE;
-    AstNodeDType* elemDTypep(bool skipRef = true) VL_MT_STABLE {
-        return const_cast<AstNodeDType*>(
-            static_cast<const AstNodeDType*>(this)->elemDTypep(skipRef));
+    స్థిరరాశి Ast_కణుపు_DType* elemDTypep(bool skipRef = true) స్థిరరాశి VL_MT_STABLE;
+    Ast_కణుపు_DType* elemDTypep(bool skipRef = true) VL_MT_STABLE {
+        తిరిగి const_cast<Ast_కణుపు_DType*>(
+            static_cast<స్థిరరాశి Ast_కణుపు_DType*>(this)->elemDTypep(skipRef));
     }
     // (Slow) recurses - Structure alignment 1,2,4 or 8 bytes (arrays affect this)
-    virtual int widthAlignBytes() const = 0;
+    మాయా పూర్ణాంకం వెడల్పు_Align_బైట్లు() స్థిరరాశి = 0;
     // (Slow) recurses - Width in bytes rounding up 1,2,4,8,12,...
-    virtual int widthTotalBytes() const = 0;
-    bool maybePointedTo() const override VL_MT_SAFE { return true; }
+    మాయా పూర్ణాంకం వెడల్పు_మొత్తం_బైట్లు() స్థిరరాశి = 0;
+    bool maybe_Pointed_గమ్యం() స్థిరరాశి override VL_MT_సురక్షిత { తిరిగి true; }
     // Iff has a non-null refDTypep(), as generic node function
-    virtual AstNodeDType* virtRefDTypep() const { return nullptr; }
+    మాయా Ast_కణుపు_DType* virtRefDTypep() స్థిరరాశి { తిరిగి nullptr; }
     // Iff has refDTypep(), set as generic node function
-    virtual void virtRefDTypep(AstNodeDType* nodep) {}
+    మాయా శూన్య virtRefDTypep(Ast_కణుపు_DType* nodep) {}
     // Iff has a non-null second dtypep, as generic node function
-    virtual AstNodeDType* virtRefDType2p() const { return nullptr; }
+    మాయా Ast_కణుపు_DType* virtRefDType2p() స్థిరరాశి { తిరిగి nullptr; }
     // Iff has second dtype, set as generic node function
-    virtual void virtRefDType2p(AstNodeDType* nodep) {}
+    మాయా శూన్య virtRefDType2p(Ast_కణుపు_DType* nodep) {}
     // Assignable equivalence.  Calls skipRefToNonRefp() during comparisons.
-    bool similarDType(const AstNodeDType* samep) const;
+    bool similarDType(స్థిరరాశి Ast_కణుపు_DType* samep) స్థిరరాశి;
     // Iff has a non-null subDTypep(), as generic node function
-    virtual AstNodeDType* subDTypep() const VL_MT_STABLE { return nullptr; }
-    virtual AstNodeDType* subDType2p() const VL_MT_STABLE { return nullptr; }
-    virtual bool isAggregateType() const { return false; }
+    మాయా Ast_కణుపు_DType* subDTypep() స్థిరరాశి VL_MT_STABLE { తిరిగి nullptr; }
+    మాయా Ast_కణుపు_DType* subDType2p() స్థిరరాశి VL_MT_STABLE { తిరిగి nullptr; }
+    మాయా bool isAggregateType() స్థిరరాశి { తిరిగి false; }
     // True for unpacked, dynamic, queue, and associative arrays (not packed arrays)
-    bool isNonPackedArray() const;
-    virtual bool isFourstate() const;
+    bool isNonPackedArray() స్థిరరాశి;
+    మాయా bool isFourstate() స్థిరరాశి;
     // Ideally an IEEE $typename
-    virtual string prettyDTypeName(bool) const { return prettyTypeName(); }
-    string prettyDTypeNameQ(bool full = false) const { return "'" + prettyDTypeName(full) + "'"; }
-    string stateDTypeName() const { return this->isFourstate() ? "(4-state)" : "(2-state)"; }
+    మాయా string prettyDTypeName(bool) స్థిరరాశి { తిరిగి prettyTypeName(); }
+    string prettyDTypeNameQ(bool నిండిన_2 = false) స్థిరరాశి { తిరిగి "'" + prettyDTypeName(నిండిన_2) + "'"; }
+    string stateDTypeName() స్థిరరాశి { తిరిగి this->isFourstate() ? "(4-state)" : "(2-state)"; }
     //
     // Changing the width may confuse the data type resolution, so must clear
     // TypeTable cache after use.
-    void widthForce(int width, int widthMin) {
-        m_width = width;
-        m_widthMin = widthMin;
+    శూన్య వెడల్పు_Force(పూర్ణాంకం వెడల్పు, పూర్ణాంకం వెడల్పు_Min) {
+        m_వెడల్పు = వెడల్పు;
+        m_వెడల్పు_Min = వెడల్పు_Min;
     }
     // For backward compatibility inherit width and signing from the subDType/base type
-    void widthFromSub(const AstNodeDType* nodep) {
-        m_width = nodep->m_width;
-        m_widthMin = nodep->m_widthMin;
+    శూన్య వెడల్పు_From_Sub(స్థిరరాశి Ast_కణుపు_DType* nodep) {
+        m_వెడల్పు = nodep->m_వెడల్పు;
+        m_వెడల్పు_Min = nodep->m_వెడల్పు_Min;
         m_numeric = nodep->m_numeric;
     }
     //
-    int width() const VL_MT_STABLE { return m_width; }
-    void numeric(VSigning flag) { m_numeric = flag; }
-    bool isSigned() const VL_MT_STABLE { return m_numeric.isSigned(); }
-    bool isNosign() const VL_MT_SAFE { return m_numeric.isNosign(); }
-    VSigning numeric() const VL_MT_STABLE { return m_numeric; }
-    int widthWords() const VL_MT_STABLE { return VL_WORDS_I(width()); }
-    int widthMin() const VL_MT_STABLE {  // If sized, the size,
+    పూర్ణాంకం వెడల్పు() స్థిరరాశి VL_MT_STABLE { తిరిగి m_వెడల్పు; }
+    శూన్య numeric(VSigning flag) { m_numeric = flag; }
+    bool isSigned() స్థిరరాశి VL_MT_STABLE { తిరిగి m_numeric.isSigned(); }
+    bool isNosign() స్థిరరాశి VL_MT_సురక్షిత { తిరిగి m_numeric.isNosign(); }
+    VSigning numeric() స్థిరరాశి VL_MT_STABLE { తిరిగి m_numeric; }
+    పూర్ణాంకం వెడల్పు_పదాలు() స్థిరరాశి VL_MT_STABLE { తిరిగి VL_పదాలు_I(వెడల్పు()); }
+    పూర్ణాంకం వెడల్పు_Min() స్థిరరాశి VL_MT_STABLE {  // If sized, the size,
                                          // if unsized the min digits to represent it
-        return m_widthMin ? m_widthMin : m_width;
+        తిరిగి m_వెడల్పు_Min ? m_వెడల్పు_Min : m_వెడల్పు;
     }
-    int widthPow2() const;
-    void widthMinFromWidth() { m_widthMin = m_width; }
-    bool widthSized() const VL_MT_SAFE { return !m_widthMin || m_widthMin == m_width; }
-    bool generic() const VL_MT_SAFE { return m_generic; }
-    void generic(bool flag) { m_generic = flag; }
-    std::pair<uint32_t, uint32_t> dimensions(bool includeBasic) const;
-    uint32_t arrayUnpackedElements() const;  // 1, or total multiplication of all dimensions
+    పూర్ణాంకం వెడల్పు_Pow2() స్థిరరాశి;
+    శూన్య వెడల్పు_Min_From_వెడల్పు() { m_వెడల్పు_Min = m_వెడల్పు; }
+    bool వెడల్పు_Sized() స్థిరరాశి VL_MT_సురక్షిత { తిరిగి !m_వెడల్పు_Min || m_వెడల్పు_Min == m_వెడల్పు; }
+    bool generic() స్థిరరాశి VL_MT_సురక్షిత { తిరిగి m_generic; }
+    శూన్య generic(bool flag) { m_generic = flag; }
+    std::pair<uint32_t, uint32_t> dimensions(bool includeBasic) స్థిరరాశి;
+    uint32_t arrayUnpackedElements() స్థిరరాశి;  // 1, or total multiplication of all dimensions
     // Fixed aggregate streaming properties
-    bool isStreamableFixedAggregate() const;
+    bool isStreamableFixedAggregate() స్థిరరాశి;
     // Whether is a string, or an unpacked array or structure containing one
-    bool containsString() const;
-    bool containsUnpackedStruct() const;
-    int widthStream() const;
-    string vlEnumType() const;  // Return VerilatedVarType: VLVT_UINT32, etc
-    string vlEnumPackedAgg() const;  // Return VLVF_PACKED_AGG etc flags, or empty
-    static int uniqueNumInc() { return ++s_uniqueNum; }
-    const char* charIQWN() const {
-        return (isString() ? "N" : isWide() ? "W" : isDouble() ? "D" : isQuad() ? "Q" : "I");
+    bool కలిగియుంది_String() స్థిరరాశి;
+    bool కలిగియుంది_Unpacked_Struct() స్థిరరాశి;
+    పూర్ణాంకం వెడల్పు_ప్రవాహం() స్థిరరాశి;
+    string vlEnumType() స్థిరరాశి;  // Return VerilatedVarType: VLVT_UINT32, etc
+    string vlEnumPackedAgg() స్థిరరాశి;  // Return VLVF_PACKED_AGG etc flags, or empty
+    స్థిర పూర్ణాంకం unique_అంకె_Inc() { తిరిగి ++s_unique_అంకె; }
+    స్థిరరాశి అక్షరం* charIQWN() స్థిరరాశి {
+        తిరిగి (isString() ? "N" : isWide() ? "W" : isDouble() ? "D" : isQuad() ? "Q" : "I");
     }
-    string cType(const string& name, bool forFunc, bool isRef, bool packed = false) const;
+    string cType(స్థిరరాశి string& name, bool forFunc, bool isRef, bool packed = false) స్థిరరాశి;
     // Represents a C++ LiteralType? (can be constexpr)
-    bool isLiteralType() const VL_MT_STABLE;
+    bool isLiteralType() స్థిరరాశి VL_MT_STABLE;
     // C++ type (as emitted by cType) is trivially default constructible and destructible?
-    bool isTriviallyConstructible() const VL_MT_STABLE;
-    virtual bool isDynamicallySized() const { return false; }
+    bool isTriviallyConstructible() స్థిరరాశి VL_MT_STABLE;
+    మాయా bool isDynamicallySized() స్థిరరాశి { తిరిగి false; }
 
-private:
+అంతరంగ:
     class CTypeRecursed;
-    CTypeRecursed cTypeRecurse(bool compound, bool packed) const;
+    CTypeRecursed cTypeRecurse(bool compound, bool packed) స్థిరరాశి;
 };
-class AstNodeArrayDType VL_NOT_FINAL : public AstNodeDType {
+class Ast_కణుపు_Array_DType VL_NOT_FINAL : బహిరంగ Ast_కణుపు_DType {
     // Array data type, ie "some_dtype var_name [2:0]"
     // @astgen op1 := childDTypep : Optional[AstNodeDType] // moved to refDTypep() in V3Width
     // @astgen op2 := rangep : Optional[AstRange] // array bounds
     //
     // @astgen ptr := m_refDTypep : Optional[AstNodeDType]  // Elements of this type (post-width)
-    AstNode* rangenp() const { return reinterpret_cast<AstNode*>(rangep()); }
+    Ast_కణుపు* rangenp() స్థిరరాశి { తిరిగి reinterpret_cast<Ast_కణుపు*>(rangep()); }
 
-protected:
-    AstNodeArrayDType(VNType t, FileLine* fl)
-        : AstNodeDType{t, fl} {}
+రక్షిత:
+    Ast_కణుపు_Array_DType(VNType t, File_పంక్తి* fl)
+        : Ast_కణుపు_DType{t, fl} {}
 
-public:
-    ASTGEN_MEMBERS_AstNodeArrayDType;
-    void dump(std::ostream& str) const override;
-    void dumpJson(std::ostream& str) const override;
-    void dumpSmall(std::ostream& str) const override;
-    const char* broken() const override {
-        BROKEN_RTN(!((m_refDTypep && !childDTypep()) || (!m_refDTypep && childDTypep())));
-        return nullptr;
+బహిరంగ:
+    ASTGEN_MEMBERS_Ast_కణుపు_Array_DType;
+    శూన్య dump(std::ostream& str) స్థిరరాశి override;
+    శూన్య dumpJson(std::ostream& str) స్థిరరాశి override;
+    శూన్య dumpSmall(std::ostream& str) స్థిరరాశి override;
+    స్థిరరాశి అక్షరం* broken() స్థిరరాశి override {
+        BROKEN_RTN(!((m_refDTypep && !బిడ్డ_DTypep()) || (!m_refDTypep && బిడ్డ_DTypep())));
+        తిరిగి nullptr;
     }
-    bool sameNode(const AstNode* samep) const override {
-        const AstNodeArrayDType* const asamep = VN_DBG_AS(samep, NodeArrayDType);
-        return hi() == asamep->hi() && rangenp()->sameTree(asamep->rangenp())
+    bool same_కణుపు(స్థిరరాశి Ast_కణుపు* samep) స్థిరరాశి override {
+        స్థిరరాశి Ast_కణుపు_Array_DType* స్థిరరాశి asamep = VN_DBG_AS(samep, కణుపు_Array_DType);
+        తిరిగి hi() == asamep->hi() && rangenp()->same_వృక్షం(asamep->rangenp())
                && subDTypep() == asamep->subDTypep();
     }  // HashedDT doesn't recurse, so need to check children
-    bool similarDTypeNode(const AstNodeDType* samep) const override {
-        const AstNodeArrayDType* const asamep = VN_DBG_AS(samep, NodeArrayDType);
-        return elementsConst() == asamep->elementsConst()
+    bool similar_DType_కణుపు(స్థిరరాశి Ast_కణుపు_DType* samep) స్థిరరాశి override {
+        స్థిరరాశి Ast_కణుపు_Array_DType* స్థిరరాశి asamep = VN_DBG_AS(samep, కణుపు_Array_DType);
+        తిరిగి elementsConst() == asamep->elementsConst()
                && subDTypep()->similarDType(asamep->subDTypep());
     }
-    AstNodeDType* getChildDTypep() const override { return childDTypep(); }
-    AstNodeDType* subDTypep() const override VL_MT_STABLE {
-        return m_refDTypep ? m_refDTypep : childDTypep();
+    Ast_కణుపు_DType* get_బిడ్డ_DTypep() స్థిరరాశి override { తిరిగి బిడ్డ_DTypep(); }
+    Ast_కణుపు_DType* subDTypep() స్థిరరాశి override VL_MT_STABLE {
+        తిరిగి m_refDTypep ? m_refDTypep : బిడ్డ_DTypep();
     }
-    void refDTypep(AstNodeDType* nodep) { m_refDTypep = nodep; }
-    AstNodeDType* virtRefDTypep() const override { return m_refDTypep; }
-    void virtRefDTypep(AstNodeDType* nodep) override { refDTypep(nodep); }
+    శూన్య refDTypep(Ast_కణుపు_DType* nodep) { m_refDTypep = nodep; }
+    Ast_కణుపు_DType* virtRefDTypep() స్థిరరాశి override { తిరిగి m_refDTypep; }
+    శూన్య virtRefDTypep(Ast_కణుపు_DType* nodep) override { refDTypep(nodep); }
     // METHODS
-    AstBasicDType* basicp() const override VL_MT_STABLE {
-        return subDTypep()->basicp();
+    AstBasicDType* basicp() స్థిరరాశి override VL_MT_STABLE {
+        తిరిగి subDTypep()->basicp();
     }  // (Slow) recurse down to find basic data type
-    int widthAlignBytes() const override { return subDTypep()->widthAlignBytes(); }
-    int widthTotalBytes() const override {
-        return elementsConst() * subDTypep()->widthTotalBytes();
+    పూర్ణాంకం వెడల్పు_Align_బైట్లు() స్థిరరాశి override { తిరిగి subDTypep()->వెడల్పు_Align_బైట్లు(); }
+    పూర్ణాంకం వెడల్పు_మొత్తం_బైట్లు() స్థిరరాశి override {
+        తిరిగి elementsConst() * subDTypep()->వెడల్పు_మొత్తం_బైట్లు();
     }
-    inline int left() const VL_MT_STABLE;
-    inline int right() const VL_MT_STABLE;
-    inline int hi() const VL_MT_STABLE;
-    inline int lo() const VL_MT_STABLE;
-    inline int elementsConst() const VL_MT_STABLE;
-    inline VNumRange declRange() const VL_MT_STABLE;
+    అంతఃవరుస పూర్ణాంకం ఎడమ_2() స్థిరరాశి VL_MT_STABLE;
+    అంతఃవరుస పూర్ణాంకం కుడి_2() స్థిరరాశి VL_MT_STABLE;
+    అంతఃవరుస పూర్ణాంకం hi() స్థిరరాశి VL_MT_STABLE;
+    అంతఃవరుస పూర్ణాంకం lo() స్థిరరాశి VL_MT_STABLE;
+    అంతఃవరుస పూర్ణాంకం elementsConst() స్థిరరాశి VL_MT_STABLE;
+    అంతఃవరుస VNumRange declRange() స్థిరరాశి VL_MT_STABLE;
 };
-class AstNodeUOrStructDType VL_NOT_FINAL : public AstNodeDType {
+class Ast_కణుపు_UOr_Struct_DType VL_NOT_FINAL : బహిరంగ Ast_కణుపు_DType {
     // A struct or union; common handling
     // @astgen op1 := membersp : List[AstMemberDType]
     //
     // @astgen ptr := m_classOrPackagep : Optional[AstNodeModule]  // Package emitted with
     string m_name;  // Name from upper typedef, if any
     string m_typedefName;  // Typedef's dtypeName() once moved off the typedef declaring it
-    const int m_uniqueNum;  // Unique ID distinguishing this dtype instance, for hashing/naming
+    స్థిరరాశి పూర్ణాంకం m_unique_అంకె;  // Unique ID distinguishing this dtype instance, for hashing/naming
     bool m_packed;  // Packed struct/union, else unpacked
     bool m_isFourstate = false;  // V3Width computes; true if any member is 4-state
     bool m_constrainedRand = false;  // True if struct has constraint expression
-    bool m_emitToString = false;  // Generate to_string() for this struct/union if set
+    bool m_emit_గమ్యం_String = false;  // Generate to_string() for this struct/union if set
 
-protected:
-    AstNodeUOrStructDType(VNType t, FileLine* fl, VSigning numericUnpack)
-        : AstNodeDType{t, fl}
-        , m_uniqueNum{uniqueNumInc()} {
+రక్షిత:
+    Ast_కణుపు_UOr_Struct_DType(VNType t, File_పంక్తి* fl, VSigning numericUnpack)
+        : Ast_కణుపు_DType{t, fl}
+        , m_unique_అంకె{unique_అంకె_Inc()} {
         // VSigning::NOSIGN overloaded to indicate not packed
         m_packed = (numericUnpack != VSigning::NOSIGN);
         numeric(VSigning::fromBool(numericUnpack.isSigned()));
     }
-    AstNodeUOrStructDType(const AstNodeUOrStructDType& other)
-        : AstNodeDType{other}
+    Ast_కణుపు_UOr_Struct_DType(స్థిరరాశి Ast_కణుపు_UOr_Struct_DType& other)
+        : Ast_కణుపు_DType{other}
         , m_name{other.m_name}
         , m_typedefName{other.m_typedefName}
-        , m_uniqueNum{uniqueNumInc()}
+        , m_unique_అంకె{unique_అంకె_Inc()}
         , m_packed{other.m_packed}
         , m_isFourstate{other.m_isFourstate} {}
 
-public:
-    ASTGEN_MEMBERS_AstNodeUOrStructDType;
-    int uniqueNum() const { return m_uniqueNum; }
-    void dump(std::ostream& str) const override;
-    void dumpJson(std::ostream& str) const override;
-    string prettyDTypeName(bool) const override;
-    bool isCompound() const override { return !packed(); }
+బహిరంగ:
+    ASTGEN_MEMBERS_Ast_కణుపు_UOr_Struct_DType;
+    పూర్ణాంకం unique_అంకె() స్థిరరాశి { తిరిగి m_unique_అంకె; }
+    శూన్య dump(std::ostream& str) స్థిరరాశి override;
+    శూన్య dumpJson(std::ostream& str) స్థిరరాశి override;
+    string prettyDTypeName(bool) స్థిరరాశి override;
+    bool isCompound() స్థిరరాశి override { తిరిగి !packed(); }
     // For basicp() we reuse the size to indicate a "fake" basic type of same size
-    AstBasicDType* basicp() const override VL_MT_STABLE {
-        if (!m_packed) return nullptr;
-        return (isFourstate()
-                    ? VN_AS(findLogicRangeDType(VNumRange{width() - 1, 0}, width(), numeric()),
+    AstBasicDType* basicp() స్థిరరాశి override VL_MT_STABLE {
+        ఒకవేళ (!m_packed) తిరిగి nullptr;
+        తిరిగి (isFourstate()
+                    ? VN_AS(కనుగొను_Logic_Range_DType(VNumRange{వెడల్పు() - 1, 0}, వెడల్పు(), numeric()),
                             BasicDType)
-                    : VN_AS(findBitRangeDType(VNumRange{width() - 1, 0}, width(), numeric()),
+                    : VN_AS(కనుగొను_బిట్టు_Range_DType(VNumRange{వెడల్పు() - 1, 0}, వెడల్పు(), numeric()),
                             BasicDType));
     }
     // (Slow) recurses - Structure alignment 1,2,4 or 8 bytes (arrays affect this)
-    int widthAlignBytes() const override;
+    పూర్ణాంకం వెడల్పు_Align_బైట్లు() స్థిరరాశి override;
     // (Slow) recurses - Width in bytes rounding up 1,2,4,8,12,...
-    int widthTotalBytes() const override;
-    bool similarDTypeNode(const AstNodeDType* samep) const override;
-    string name() const override VL_MT_STABLE { return m_name; }
-    void name(const string& flag) override { m_name = flag; }
+    పూర్ణాంకం వెడల్పు_మొత్తం_బైట్లు() స్థిరరాశి override;
+    bool similar_DType_కణుపు(స్థిరరాశి Ast_కణుపు_DType* samep) స్థిరరాశి override;
+    string name() స్థిరరాశి override VL_MT_STABLE { తిరిగి m_name; }
+    శూన్య name(స్థిరరాశి string& flag) override { m_name = flag; }
     // Keep the name the typedef declaring it gives, as it moves off it to the type table
-    void typedefName(const string& name) { m_typedefName = name; }
+    శూన్య typedefName(స్థిరరాశి string& name) { m_typedefName = name; }
     // Name of the C structure for DPI, empty if no typedef names it, so declared where used
-    string dpiName() const;
+    string dpiName() స్థిరరాశి;
     // C typedef of the unpacked structure for DPI (IEEE 1800-2023 H.7.3)
-    string dpiTypedef() const;
-    bool packed() const VL_MT_SAFE { return m_packed; }
-    void packed(bool flag) { m_packed = flag; }
+    string dpiTypedef() స్థిరరాశి;
+    bool packed() స్థిరరాశి VL_MT_సురక్షిత { తిరిగి m_packed; }
+    శూన్య packed(bool flag) { m_packed = flag; }
     // packed() but as don't support unpacked, presently all structs
-    static bool packedUnsup() { return true; }
-    void isFourstate(bool flag) { m_isFourstate = flag; }
-    bool isFourstate() const override VL_MT_SAFE { return m_isFourstate; }
-    static int lo() VL_MT_STABLE { return 0; }
-    int hi() const VL_MT_STABLE {
-        return dtypep()->width() - 1;
+    స్థిర bool packedUnsup() { తిరిగి true; }
+    శూన్య isFourstate(bool flag) { m_isFourstate = flag; }
+    bool isFourstate() స్థిరరాశి override VL_MT_సురక్షిత { తిరిగి m_isFourstate; }
+    స్థిర పూర్ణాంకం lo() VL_MT_STABLE { తిరిగి 0; }
+    పూర్ణాంకం hi() స్థిరరాశి VL_MT_STABLE {
+        తిరిగి dtypep()->వెడల్పు() - 1;
     }  // Packed classes look like arrays
-    VNumRange declRange() const VL_MT_STABLE { return VNumRange{hi(), lo()}; }
-    AstNodeModule* classOrPackagep() const { return m_classOrPackagep; }
-    void classOrPackagep(AstNodeModule* classpackagep) { m_classOrPackagep = classpackagep; }
-    bool isConstrainedRand() const { return m_constrainedRand; }
-    void markConstrainedRand(bool flag) { m_constrainedRand = flag; }
-    bool emitToString() const { return m_emitToString; }
-    void setEmitToString() { m_emitToString = true; }
-    bool isAggregateType() const override { return !packed(); }
+    VNumRange declRange() స్థిరరాశి VL_MT_STABLE { తిరిగి VNumRange{hi(), lo()}; }
+    Ast_కణుపు_Module* classOrPackagep() స్థిరరాశి { తిరిగి m_classOrPackagep; }
+    శూన్య classOrPackagep(Ast_కణుపు_Module* classpackagep) { m_classOrPackagep = classpackagep; }
+    bool isConstrainedRand() స్థిరరాశి { తిరిగి m_constrainedRand; }
+    శూన్య markConstrainedRand(bool flag) { m_constrainedRand = flag; }
+    bool emit_గమ్యం_String() స్థిరరాశి { తిరిగి m_emit_గమ్యం_String; }
+    శూన్య సమితి_Emit_గమ్యం_String() { m_emit_గమ్యం_String = true; }
+    bool isAggregateType() స్థిరరాశి override { తిరిగి !packed(); }
 };
 
 // === Concrete node types =====================================================
 
 // === AstNode ===
-class AstEnumItem final : public AstNode {
+class Ast_Enum_అంశం final : బహిరంగ Ast_కణుపు {
     // @astgen op1 := rangep : Optional[AstRange] // Range for name appending
     // @astgen op2 := valuep : Optional[AstNodeExpr]
     string m_name;  // Name of item
 
-public:
+బహిరంగ:
     // Parents: ENUM
-    AstEnumItem(FileLine* fl, const string& name, AstRange* rangep, AstNodeExpr* valuep)
-        : ASTGEN_SUPER_EnumItem(fl)
+    Ast_Enum_అంశం(File_పంక్తి* fl, స్థిరరాశి string& name, AstRange* rangep, Ast_కణుపు_సమాసం* valuep)
+        : ASTGEN_SUPER_Enum_అంశం(fl)
         , m_name{name} {
         this->rangep(rangep);
         this->valuep(valuep);
     }
-    ASTGEN_MEMBERS_AstEnumItem;
-    string name() const override VL_MT_STABLE { return m_name; }
-    bool maybePointedTo() const override VL_MT_SAFE { return true; }
-    bool hasDType() const override VL_MT_SAFE { return true; }
-    void name(const string& flag) override { m_name = flag; }
+    ASTGEN_MEMBERS_Ast_Enum_అంశం;
+    string name() స్థిరరాశి override VL_MT_STABLE { తిరిగి m_name; }
+    bool maybe_Pointed_గమ్యం() స్థిరరాశి override VL_MT_సురక్షిత { తిరిగి true; }
+    bool hasDType() స్థిరరాశి override VL_MT_సురక్షిత { తిరిగి true; }
+    శూన్య name(స్థిరరాశి string& flag) override { m_name = flag; }
 };
 
 // === AstNodeDType ===
-class AstAssocArrayDType final : public AstNodeDType {
+class AstAssocArrayDType final : బహిరంగ Ast_కణుపు_DType {
     // Associative array data type, ie "[some_dtype]"
     // @astgen op1 := childDTypep : Optional[AstNodeDType] // moved to refDTypep() in V3Width
     // @astgen op2 := keyChildDTypep : Optional[AstNodeDType]
     //
     // @astgen ptr := m_refDTypep : Optional[AstNodeDType]  // Elements of this type (post-width)
     // @astgen ptr := m_keyDTypep : Optional[AstNodeDType]  // Keys of this type (post-width)
-public:
-    AstAssocArrayDType(FileLine* fl, VFlagChildDType, AstNodeDType* dtp, AstNodeDType* keyDtp)
+బహిరంగ:
+    AstAssocArrayDType(File_పంక్తి* fl, VFlag_బిడ్డ_DType, Ast_కణుపు_DType* dtp, Ast_కణుపు_DType* కీలకం_Dtp)
         : ASTGEN_SUPER_AssocArrayDType(fl) {
-        childDTypep(dtp);  // Only for parser
-        keyChildDTypep(keyDtp);  // Only for parser
+        బిడ్డ_DTypep(dtp);  // Only for parser
+        కీలకం_బిడ్డ_DTypep(కీలకం_Dtp);  // Only for parser
         refDTypep(nullptr);
-        keyDTypep(nullptr);
+        కీలకం_DTypep(nullptr);
         dtypep(nullptr);  // V3Width will resolve
     }
-    AstAssocArrayDType(FileLine* fl, AstNodeDType* dtp, AstNodeDType* keyDtp)
+    AstAssocArrayDType(File_పంక్తి* fl, Ast_కణుపు_DType* dtp, Ast_కణుపు_DType* కీలకం_Dtp)
         : ASTGEN_SUPER_AssocArrayDType(fl) {
         refDTypep(dtp);
-        keyDTypep(keyDtp);
+        కీలకం_DTypep(కీలకం_Dtp);
         dtypep(dtp);
     }
     ASTGEN_MEMBERS_AstAssocArrayDType;
-    const char* broken() const override {
-        BROKEN_RTN(!((m_refDTypep && !childDTypep()) || (!m_refDTypep && childDTypep())));
-        BROKEN_RTN(!((m_keyDTypep && !childDTypep()) || (!m_keyDTypep && childDTypep())));
-        return nullptr;
+    స్థిరరాశి అక్షరం* broken() స్థిరరాశి override {
+        BROKEN_RTN(!((m_refDTypep && !బిడ్డ_DTypep()) || (!m_refDTypep && బిడ్డ_DTypep())));
+        BROKEN_RTN(!((m_కీలకం_DTypep && !బిడ్డ_DTypep()) || (!m_కీలకం_DTypep && బిడ్డ_DTypep())));
+        తిరిగి nullptr;
     }
-    bool sameNode(const AstNode* samep) const override {
-        const AstAssocArrayDType* const asamep = VN_DBG_AS(samep, AssocArrayDType);
-        if (!asamep->subDTypep()) return false;
-        if (!asamep->keyDTypep()) return false;
-        return (subDTypep() == asamep->subDTypep() && keyDTypep() == asamep->keyDTypep());
+    bool same_కణుపు(స్థిరరాశి Ast_కణుపు* samep) స్థిరరాశి override {
+        స్థిరరాశి AstAssocArrayDType* స్థిరరాశి asamep = VN_DBG_AS(samep, AssocArrayDType);
+        ఒకవేళ (!asamep->subDTypep()) తిరిగి false;
+        ఒకవేళ (!asamep->కీలకం_DTypep()) తిరిగి false;
+        తిరిగి (subDTypep() == asamep->subDTypep() && కీలకం_DTypep() == asamep->కీలకం_DTypep());
     }
-    bool similarDTypeNode(const AstNodeDType* samep) const override {
-        const AstAssocArrayDType* const asamep = VN_DBG_AS(samep, AssocArrayDType);
-        return asamep->subDTypep() && subDTypep()->similarDType(asamep->subDTypep())
-               && asamep->keyDTypep() && keyDTypep()->similarDType(asamep->keyDTypep());
+    bool similar_DType_కణుపు(స్థిరరాశి Ast_కణుపు_DType* samep) స్థిరరాశి override {
+        స్థిరరాశి AstAssocArrayDType* స్థిరరాశి asamep = VN_DBG_AS(samep, AssocArrayDType);
+        తిరిగి asamep->subDTypep() && subDTypep()->similarDType(asamep->subDTypep())
+               && asamep->కీలకం_DTypep() && కీలకం_DTypep()->similarDType(asamep->కీలకం_DTypep());
     }
-    string prettyDTypeName(bool full) const override;
-    void dumpSmall(std::ostream& str) const override;
-    AstNodeDType* getChildDTypep() const override { return childDTypep(); }
-    AstNodeDType* getChild2DTypep() const override { return keyChildDTypep(); }
-    AstNodeDType* subDTypep() const override VL_MT_STABLE {
-        return m_refDTypep ? m_refDTypep : childDTypep();
+    string prettyDTypeName(bool నిండిన_2) స్థిరరాశి override;
+    శూన్య dumpSmall(std::ostream& str) స్థిరరాశి override;
+    Ast_కణుపు_DType* get_బిడ్డ_DTypep() స్థిరరాశి override { తిరిగి బిడ్డ_DTypep(); }
+    Ast_కణుపు_DType* getChild2DTypep() స్థిరరాశి override { తిరిగి కీలకం_బిడ్డ_DTypep(); }
+    Ast_కణుపు_DType* subDTypep() స్థిరరాశి override VL_MT_STABLE {
+        తిరిగి m_refDTypep ? m_refDTypep : బిడ్డ_DTypep();
     }
-    AstNodeDType* subDType2p() const override VL_MT_STABLE {
-        return m_keyDTypep ? m_keyDTypep : keyChildDTypep();
+    Ast_కణుపు_DType* subDType2p() స్థిరరాశి override VL_MT_STABLE {
+        తిరిగి m_కీలకం_DTypep ? m_కీలకం_DTypep : కీలకం_బిడ్డ_DTypep();
     }
-    bool isAggregateType() const override { return true; }
-    void refDTypep(AstNodeDType* nodep) { m_refDTypep = nodep; }
-    AstNodeDType* virtRefDTypep() const override { return m_refDTypep; }
-    void virtRefDTypep(AstNodeDType* nodep) override { refDTypep(nodep); }
-    AstNodeDType* virtRefDType2p() const override { return m_keyDTypep; }
-    void virtRefDType2p(AstNodeDType* nodep) override { keyDTypep(nodep); }
+    bool isAggregateType() స్థిరరాశి override { తిరిగి true; }
+    శూన్య refDTypep(Ast_కణుపు_DType* nodep) { m_refDTypep = nodep; }
+    Ast_కణుపు_DType* virtRefDTypep() స్థిరరాశి override { తిరిగి m_refDTypep; }
+    శూన్య virtRefDTypep(Ast_కణుపు_DType* nodep) override { refDTypep(nodep); }
+    Ast_కణుపు_DType* virtRefDType2p() స్థిరరాశి override { తిరిగి m_కీలకం_DTypep; }
+    శూన్య virtRefDType2p(Ast_కణుపు_DType* nodep) override { కీలకం_DTypep(nodep); }
     //
-    AstNodeDType* keyDTypep() const VL_MT_STABLE {
-        return m_keyDTypep ? m_keyDTypep : keyChildDTypep();
+    Ast_కణుపు_DType* కీలకం_DTypep() స్థిరరాశి VL_MT_STABLE {
+        తిరిగి m_కీలకం_DTypep ? m_కీలకం_DTypep : కీలకం_బిడ్డ_DTypep();
     }
-    void keyDTypep(AstNodeDType* nodep) { m_keyDTypep = nodep; }
+    శూన్య కీలకం_DTypep(Ast_కణుపు_DType* nodep) { m_కీలకం_DTypep = nodep; }
     // METHODS
-    AstBasicDType* basicp() const override VL_MT_STABLE { return nullptr; }
-    int widthAlignBytes() const override { return subDTypep()->widthAlignBytes(); }
-    int widthTotalBytes() const override { return subDTypep()->widthTotalBytes(); }
-    bool isCompound() const override { return true; }
-    bool isDynamicallySized() const override { return true; }
+    AstBasicDType* basicp() స్థిరరాశి override VL_MT_STABLE { తిరిగి nullptr; }
+    పూర్ణాంకం వెడల్పు_Align_బైట్లు() స్థిరరాశి override { తిరిగి subDTypep()->వెడల్పు_Align_బైట్లు(); }
+    పూర్ణాంకం వెడల్పు_మొత్తం_బైట్లు() స్థిరరాశి override { తిరిగి subDTypep()->వెడల్పు_మొత్తం_బైట్లు(); }
+    bool isCompound() స్థిరరాశి override { తిరిగి true; }
+    bool isDynamicallySized() స్థిరరాశి override { తిరిగి true; }
 };
-class AstBasicDType final : public AstNodeDType {
+class AstBasicDType final : బహిరంగ Ast_కణుపు_DType {
     // Builtin atomic/vectored data type
     // @astgen op1 := rangep : Optional[AstRange] // Range of variable
-    struct Members final {
+    నిర్మాణం Members final {
         VBasicDTypeKwd m_keyword;  // (also in VBasicTypeKey) What keyword created basic type
         // dist-ast-dump-suppress  // Part of dumpSmall
         VNumRange m_nrange;  // (also in VBasicTypeKey) Numeric msb/lsb (if non-opaque keyword)
-        bool operator==(const Members& rhs) const {
-            return rhs.m_keyword == m_keyword && rhs.m_nrange == m_nrange;
+        bool క్రియాకారకం==(స్థిరరాశి Members& rhs) స్థిరరాశి {
+            తిరిగి rhs.m_keyword == m_keyword && rhs.m_nrange == m_nrange;
         }
     } m;
     // See also in AstNodeDType: m_width, m_widthMin, m_numeric(issigned)
-public:
-    AstBasicDType(FileLine* fl, VBasicDTypeKwd kwd, const VSigning& signst = VSigning::NOSIGN)
+బహిరంగ:
+    AstBasicDType(File_పంక్తి* fl, VBasicDTypeKwd kwd, స్థిరరాశి VSigning& signst = VSigning::NOSIGN)
         : ASTGEN_SUPER_BasicDType(fl) {
         init(kwd, signst, 0, -1, nullptr);
     }
-    AstBasicDType(FileLine* fl, VFlagLogicPacked, int wantwidth)
+    AstBasicDType(File_పంక్తి* fl, VFlagLogicPacked, పూర్ణాంకం wantwidth)
         : ASTGEN_SUPER_BasicDType(fl) {
         init(VBasicDTypeKwd::LOGIC, VSigning::NOSIGN, wantwidth, -1, nullptr);
     }
-    AstBasicDType(FileLine* fl, VFlagLogic2StatePacked, int wantwidth)
+    AstBasicDType(File_పంక్తి* fl, VFlagLogic2StatePacked, పూర్ణాంకం wantwidth)
         : ASTGEN_SUPER_BasicDType(fl) {
         init(VBasicDTypeKwd::LOGIC2STATE, VSigning::NOSIGN, wantwidth, -1, nullptr);
     }
-    AstBasicDType(FileLine* fl, VFlagBitPacked, int wantwidth)
+    AstBasicDType(File_పంక్తి* fl, VFlag_బిట్టు_Packed, పూర్ణాంకం wantwidth)
         : ASTGEN_SUPER_BasicDType(fl) {
-        init(VBasicDTypeKwd::BIT, VSigning::NOSIGN, wantwidth, -1, nullptr);
+        init(VBasicDTypeKwd::బిట్టు, VSigning::NOSIGN, wantwidth, -1, nullptr);
     }
-    AstBasicDType(FileLine* fl, VBasicDTypeKwd kwd, VSigning numer, int wantwidth, int widthmin)
+    AstBasicDType(File_పంక్తి* fl, VBasicDTypeKwd kwd, VSigning numer, పూర్ణాంకం wantwidth, పూర్ణాంకం widthmin)
         : ASTGEN_SUPER_BasicDType(fl) {
         init(kwd, numer, wantwidth, widthmin, nullptr);
     }
-    AstBasicDType(FileLine* fl, VBasicDTypeKwd kwd, VSigning numer, VNumRange range, int widthmin)
+    AstBasicDType(File_పంక్తి* fl, VBasicDTypeKwd kwd, VSigning numer, VNumRange range, పూర్ణాంకం widthmin)
         : ASTGEN_SUPER_BasicDType(fl) {
         init(kwd, numer, range.elements(), widthmin, nullptr);
         m.m_nrange = range;  // as init() presumes lsb==0, but range.lsb() might not be
     }
     // See also addRange in verilog.y
-private:
-    void init(VBasicDTypeKwd kwd, VSigning numer, int wantwidth, int wantwidthmin,
+అంతరంగ:
+    శూన్య init(VBasicDTypeKwd kwd, VSigning numer, పూర్ణాంకం wantwidth, పూర్ణాంకం wantwidthmin,
               AstRange* rangep);
 
-public:
+బహిరంగ:
     ASTGEN_MEMBERS_AstBasicDType;
-    void dump(std::ostream& str) const override;
-    void dumpJson(std::ostream& str) const override;
+    శూన్య dump(std::ostream& str) స్థిరరాశి override;
+    శూన్య dumpJson(std::ostream& str) స్థిరరాశి override;
     // width/widthMin/numeric compared elsewhere
-    bool sameNode(const AstNode* samep) const override;
-    bool similarDTypeNode(const AstNodeDType* samep) const override;
-    string name() const override VL_MT_STABLE { return m.m_keyword.typeName(); }
-    string prettyDTypeName(bool full) const override;
-    const char* broken() const override {
+    bool same_కణుపు(స్థిరరాశి Ast_కణుపు* samep) స్థిరరాశి override;
+    bool similar_DType_కణుపు(స్థిరరాశి Ast_కణుపు_DType* samep) స్థిరరాశి override;
+    string name() స్థిరరాశి override VL_MT_STABLE { తిరిగి m.m_keyword.typeName(); }
+    string prettyDTypeName(bool నిండిన_2) స్థిరరాశి override;
+    స్థిరరాశి అక్షరం* broken() స్థిరరాశి override {
         BROKEN_RTN(dtypep() != this);
-        BROKEN_RTN(v3Global.widthMinUsage() == VWidthMinUsage::VERILOG_WIDTH
-                   && widthMin() > width());
-        return nullptr;
+        BROKEN_RTN(v3Global.వెడల్పు_Min_Usage() == VWidthMinUsage::VERILOG_వెడల్పు
+                   && వెడల్పు_Min() > వెడల్పు());
+        తిరిగి nullptr;
     }
-    void setSignedState(const VSigning& signst) {
+    శూన్య సమితి_Signed_State(స్థిరరాశి VSigning& signst) {
         // Note NOSIGN does NOT change the state; this is required by the parser
-        if (signst == VSigning::UNSIGNED) {
+        ఒకవేళ (signst == VSigning::UNSIGNED) {
             numeric(signst);
-        } else if (signst == VSigning::SIGNED) {
+        } లేకపోతే ఒకవేళ (signst == VSigning::SIGNED) {
             numeric(signst);
         }
     }
     // METHODS
-    AstBasicDType* basicp() const override VL_MT_STABLE { return (AstBasicDType*)this; }
+    AstBasicDType* basicp() స్థిరరాశి override VL_MT_STABLE { తిరిగి (AstBasicDType*)this; }
     // (Slow) recurses - Structure alignment 1,2,4 or 8 bytes (arrays affect this)
-    int widthAlignBytes() const override;
+    పూర్ణాంకం వెడల్పు_Align_బైట్లు() స్థిరరాశి override;
     // (Slow) recurses - Width in bytes rounding up 1,2,4,8,12,...
-    int widthTotalBytes() const override;
-    bool isFourstate() const override { return keyword().isFourstate(); }
-    VBasicDTypeKwd keyword() const VL_MT_SAFE {  // Avoid using - use isSomething accessors instead
-        return m.m_keyword;
+    పూర్ణాంకం వెడల్పు_మొత్తం_బైట్లు() స్థిరరాశి override;
+    bool isFourstate() స్థిరరాశి override { తిరిగి keyword().isFourstate(); }
+    VBasicDTypeKwd keyword() స్థిరరాశి VL_MT_సురక్షిత {  // Avoid using - use isSomething accessors instead
+        తిరిగి m.m_keyword;
     }
-    bool isBitLogic() const { return keyword().isBitLogic(); }
-    bool isBit() const { return keyword().isBit(); }
-    bool isCHandle() const VL_MT_STABLE { return keyword().isCHandle(); }
-    bool isDouble() const VL_MT_STABLE { return keyword().isDouble(); }
-    bool isEvent() const VL_MT_STABLE { return keyword() == VBasicDTypeKwd::EVENT; }
-    bool isForkSync() const VL_MT_SAFE { return keyword() == VBasicDTypeKwd::FORK_SYNC; }
-    bool isProcessRef() const VL_MT_SAFE { return keyword() == VBasicDTypeKwd::PROCESS_REFERENCE; }
-    bool isDelayScheduler() const VL_MT_SAFE {
-        return keyword() == VBasicDTypeKwd::DELAY_SCHEDULER;
+    bool is_బిట్టు_Logic() స్థిరరాశి { తిరిగి keyword().is_బిట్టు_Logic(); }
+    bool is_బిట్టు() స్థిరరాశి { తిరిగి keyword().is_బిట్టు(); }
+    bool isCHandle() స్థిరరాశి VL_MT_STABLE { తిరిగి keyword().isCHandle(); }
+    bool isDouble() స్థిరరాశి VL_MT_STABLE { తిరిగి keyword().isDouble(); }
+    bool isEvent() స్థిరరాశి VL_MT_STABLE { తిరిగి keyword() == VBasicDTypeKwd::EVENT; }
+    bool isForkSync() స్థిరరాశి VL_MT_సురక్షిత { తిరిగి keyword() == VBasicDTypeKwd::FORK_SYNC; }
+    bool isProcessRef() స్థిరరాశి VL_MT_సురక్షిత { తిరిగి keyword() == VBasicDTypeKwd::PROCESS_REFERENCE; }
+    bool isDelayScheduler() స్థిరరాశి VL_MT_సురక్షిత {
+        తిరిగి keyword() == VBasicDTypeKwd::DELAY_SCHEDULER;
     }
-    bool isTriggerScheduler() const VL_MT_SAFE {
-        return keyword() == VBasicDTypeKwd::TRIGGER_SCHEDULER;
+    bool isTriggerScheduler() స్థిరరాశి VL_MT_సురక్షిత {
+        తిరిగి keyword() == VBasicDTypeKwd::TRIGGER_SCHEDULER;
     }
-    bool isDynamicTriggerScheduler() const VL_MT_SAFE {
-        return keyword() == VBasicDTypeKwd::DYNAMIC_TRIGGER_SCHEDULER;
+    bool isDynamicTriggerScheduler() స్థిరరాశి VL_MT_సురక్షిత {
+        తిరిగి keyword() == VBasicDTypeKwd::DYNAMIC_TRIGGER_SCHEDULER;
     }
-    bool isRandomGenerator() const VL_MT_SAFE {
-        return keyword() == VBasicDTypeKwd::RANDOM_GENERATOR;
+    bool isRandomGenerator() స్థిరరాశి VL_MT_సురక్షిత {
+        తిరిగి keyword() == VBasicDTypeKwd::RANDOM_GENERATOR;
     }
-    bool isStdRandomGenerator() const VL_MT_SAFE {
-        return keyword() == VBasicDTypeKwd::RANDOM_STDGENERATOR;
+    bool isStdRandomGenerator() స్థిరరాశి VL_MT_సురక్షిత {
+        తిరిగి keyword() == VBasicDTypeKwd::RANDOM_STDGENERATOR;
     }
-    bool isCovergroupInstHandle() const VL_MT_SAFE {
-        return keyword() == VBasicDTypeKwd::COVERGROUP_INSTHANDLE;
+    bool isCovergroupInstHandle() స్థిరరాశి VL_MT_సురక్షిత {
+        తిరిగి keyword() == VBasicDTypeKwd::COVERGROUP_INSTHANDLE;
     }
-    bool isOpaque() const VL_MT_SAFE { return keyword().isOpaque(); }
-    bool isString() const VL_MT_STABLE { return keyword().isString(); }
-    bool isZeroInit() const { return keyword().isZeroInit(); }
-    bool isRanged() const { return rangep() || m.m_nrange.ranged(); }
-    bool isDpiBitVec() const {  // DPI uses svBitVecVal
-        return keyword() == VBasicDTypeKwd::BIT && isRanged();
+    bool isOpaque() స్థిరరాశి VL_MT_సురక్షిత { తిరిగి keyword().isOpaque(); }
+    bool isString() స్థిరరాశి VL_MT_STABLE { తిరిగి keyword().isString(); }
+    bool isZeroInit() స్థిరరాశి { తిరిగి keyword().isZeroInit(); }
+    bool isRanged() స్థిరరాశి { తిరిగి rangep() || m.m_nrange.ranged(); }
+    bool is_Dpi_బిట్టు_Vec() స్థిరరాశి {  // DPI uses svBitVecVal
+        తిరిగి keyword() == VBasicDTypeKwd::బిట్టు && isRanged();
     }
-    bool isDpiLogicVec() const {  // DPI uses svLogicVecVal
-        return keyword().isFourstate() && !(keyword() == VBasicDTypeKwd::LOGIC && !isRanged());
+    bool isDpiLogicVec() స్థిరరాశి {  // DPI uses svLogicVecVal
+        తిరిగి keyword().isFourstate() && !(keyword() == VBasicDTypeKwd::LOGIC && !isRanged());
     }
-    bool isDpiCLayout() const {
-        return keyword().isDpiCLayout()
+    bool isDpiCLayout() స్థిరరాశి {
+        తిరిగి keyword().isDpiCLayout()
                || (keyword().isSameish(VBasicDTypeKwd::LOGIC) && !isRanged());
     }
-    bool isDpiPrimitive() const {  // DPI uses a primitive type
-        return !isDpiBitVec() && !isDpiLogicVec();
+    bool isDpiPrimitive() స్థిరరాశి {  // DPI uses a primitive type
+        తిరిగి !is_Dpi_బిట్టు_Vec() && !isDpiLogicVec();
     }
     // Generally the lo/hi/left/right funcs should be used instead of nrange()
-    const VNumRange& nrange() const { return m.m_nrange; }
-    inline int hi() const;
-    inline int lo() const;
-    inline int elements() const;
-    int left() const { return ascending() ? lo() : hi(); }  // How to show a declaration
-    int right() const { return ascending() ? hi() : lo(); }
-    inline bool ascending() const;
-    bool implicit() const { return keyword() == VBasicDTypeKwd::LOGIC_IMPLICIT; }
-    bool untyped() const { return keyword() == VBasicDTypeKwd::UNTYPED; }
-    VNumRange declRange() const { return isRanged() ? VNumRange{left(), right()} : VNumRange{}; }
-    void cvtRangeConst();  // Convert to smaller representation
-    bool isCompound() const override { return isString(); }
-    bool isIntegralOrPacked() const override { return keyword().isIntNumeric(); }
+    స్థిరరాశి VNumRange& nrange() స్థిరరాశి { తిరిగి m.m_nrange; }
+    అంతఃవరుస పూర్ణాంకం hi() స్థిరరాశి;
+    అంతఃవరుస పూర్ణాంకం lo() స్థిరరాశి;
+    అంతఃవరుస పూర్ణాంకం elements() స్థిరరాశి;
+    పూర్ణాంకం ఎడమ_2() స్థిరరాశి { తిరిగి ascending() ? lo() : hi(); }  // How to show a declaration
+    పూర్ణాంకం కుడి_2() స్థిరరాశి { తిరిగి ascending() ? hi() : lo(); }
+    అంతఃవరుస bool ascending() స్థిరరాశి;
+    bool implicit() స్థిరరాశి { తిరిగి keyword() == VBasicDTypeKwd::LOGIC_IMPLICIT; }
+    bool untyped() స్థిరరాశి { తిరిగి keyword() == VBasicDTypeKwd::UNTYPED; }
+    VNumRange declRange() స్థిరరాశి { తిరిగి isRanged() ? VNumRange{ఎడమ_2(), కుడి_2()} : VNumRange{}; }
+    శూన్య cvtRangeConst();  // Convert to smaller representation
+    bool isCompound() స్థిరరాశి override { తిరిగి isString(); }
+    bool isIntegralOrPacked() స్థిరరాశి override { తిరిగి keyword().isIntNumeric(); }
 };
-class AstBracketArrayDType final : public AstNodeDType {
+class AstBracketArrayDType final : బహిరంగ Ast_కణుపు_DType {
     // Associative/Queue/Normal array data type, ie "[dtype_or_expr]"
     // only for early parsing then becomes another data type
     // @astgen op1 := childDTypep : Optional[AstNodeDType] // moved to refDTypep() in V3Width
     // @astgen op2 := elementsp : AstNode  // Number of elements in array
-public:
-    AstBracketArrayDType(FileLine* fl, VFlagChildDType, AstNodeDType* childDTypep,
-                         AstNode* elementsp)
+బహిరంగ:
+    AstBracketArrayDType(File_పంక్తి* fl, VFlag_బిడ్డ_DType, Ast_కణుపు_DType* బిడ్డ_DTypep,
+                         Ast_కణుపు* elementsp)
         : ASTGEN_SUPER_BracketArrayDType(fl) {
-        this->childDTypep(childDTypep);
+        this->బిడ్డ_DTypep(బిడ్డ_DTypep);
         this->elementsp(elementsp);
     }
     ASTGEN_MEMBERS_AstBracketArrayDType;
-    bool similarDTypeNode(const AstNodeDType* samep) const override { return this == samep; }
-    AstNodeDType* subDTypep() const override VL_MT_STABLE { return childDTypep(); }
+    bool similar_DType_కణుపు(స్థిరరాశి Ast_కణుపు_DType* samep) స్థిరరాశి override { తిరిగి this == samep; }
+    Ast_కణుపు_DType* subDTypep() స్థిరరాశి override VL_MT_STABLE { తిరిగి బిడ్డ_DTypep(); }
     // METHODS
     // Will be removed in V3Width, which relies on this
     // being a child not a dtype pointed node
-    bool maybePointedTo() const override VL_MT_SAFE { return false; }
-    AstBasicDType* basicp() const override VL_MT_STABLE { return nullptr; }
-    int widthAlignBytes() const override { V3ERROR_NA_RETURN(0); }
-    int widthTotalBytes() const override { V3ERROR_NA_RETURN(0); }
-    bool isCompound() const override { return true; }
+    bool maybe_Pointed_గమ్యం() స్థిరరాశి override VL_MT_సురక్షిత { తిరిగి false; }
+    AstBasicDType* basicp() స్థిరరాశి override VL_MT_STABLE { తిరిగి nullptr; }
+    పూర్ణాంకం వెడల్పు_Align_బైట్లు() స్థిరరాశి override { V3ERROR_NA_RETURN(0); }
+    పూర్ణాంకం వెడల్పు_మొత్తం_బైట్లు() స్థిరరాశి override { V3ERROR_NA_RETURN(0); }
+    bool isCompound() స్థిరరాశి override { తిరిగి true; }
 };
-class AstCDType final : public AstNodeDType {
+class AstCDType final : బహిరంగ Ast_కణుపు_DType {
     // Raw "C" data type passed directly to output
     string m_name;  // Name of data type, printed when do V3EmitC
-public:
-    AstCDType(FileLine* fl, const string& name)
+బహిరంగ:
+    AstCDType(File_పంక్తి* fl, స్థిరరాశి string& name)
         : ASTGEN_SUPER_CDType(fl)
         , m_name{name} {
         dtypep(this);
     }
 
     ASTGEN_MEMBERS_AstCDType;
-    bool sameNode(const AstNode* samep) const override {
-        const AstCDType* const asamep = VN_DBG_AS(samep, CDType);
-        return m_name == asamep->m_name;
+    bool same_కణుపు(స్థిరరాశి Ast_కణుపు* samep) స్థిరరాశి override {
+        స్థిరరాశి AstCDType* స్థిరరాశి asamep = VN_DBG_AS(samep, CDType);
+        తిరిగి m_name == asamep->m_name;
     }
-    bool similarDTypeNode(const AstNodeDType* samep) const override { return sameNode(samep); }
-    string name() const override VL_MT_STABLE { return m_name; }
-    string prettyDTypeName(bool) const override { return m_name; }
+    bool similar_DType_కణుపు(స్థిరరాశి Ast_కణుపు_DType* samep) స్థిరరాశి override { తిరిగి same_కణుపు(samep); }
+    string name() స్థిరరాశి override VL_MT_STABLE { తిరిగి m_name; }
+    string prettyDTypeName(bool) స్థిరరాశి override { తిరిగి m_name; }
     // METHODS
-    AstBasicDType* basicp() const override VL_MT_STABLE { return nullptr; }
-    int widthAlignBytes() const override { return 8; }  // Assume
-    int widthTotalBytes() const override { return 8; }  // Assume
-    bool isCompound() const override { return true; }
+    AstBasicDType* basicp() స్థిరరాశి override VL_MT_STABLE { తిరిగి nullptr; }
+    పూర్ణాంకం వెడల్పు_Align_బైట్లు() స్థిరరాశి override { తిరిగి 8; }  // Assume
+    పూర్ణాంకం వెడల్పు_మొత్తం_బైట్లు() స్థిరరాశి override { తిరిగి 8; }  // Assume
+    bool isCompound() స్థిరరాశి override { తిరిగి true; }
     // Return the global runtime type storing the requested number of bits.
-    static string typeToHold(int width) {
-        if (width <= 8) return "::CData";
-        if (width <= 16) return "::SData";
-        if (width <= VL_IDATASIZE) return "::IData";
-        if (width <= VL_QUADSIZE) return "::QData";
+    స్థిర string type_గమ్యం_Hold(పూర్ణాంకం వెడల్పు) {
+        ఒకవేళ (వెడల్పు <= 8) తిరిగి "::CData";
+        ఒకవేళ (వెడల్పు <= 16) తిరిగి "::SData";
+        ఒకవేళ (వెడల్పు <= VL_IDATASIZE) తిరిగి "::IData";
+        ఒకవేళ (వెడల్పు <= VL_QUADSIZE) తిరిగి "::QData";
 
-        return "::VlWide<" + std::to_string(VL_WORDS_I(width)) + ">";
+        తిరిగి "::VlWide<" + std::గమ్యం_string(VL_పదాలు_I(వెడల్పు)) + ">";
     }
 };
-class AstClassRefDType final : public AstNodeDType {
+class AstClassRefDType final : బహిరంగ Ast_కణుపు_DType {
     // Reference to a class
     // @astgen op1 := paramsp: List[AstPin]
     //
     // @astgen ptr := m_classp : Optional[AstClass]  // data type pointed to, BELOW the AstTypedef
     // @astgen ptr := m_classOrPackagep : Optional[AstNodeModule]  // Package hierarchy
-    bool m_rawPointer = false;  // Emit as a non-owning C++ pointer rather than VlClassRef
-public:
-    AstClassRefDType(FileLine* fl, AstClass* classp, AstPin* paramsp)
+    bool m_raw_సూచిక = false;  // Emit as a non-owning C++ pointer rather than VlClassRef
+బహిరంగ:
+    AstClassRefDType(File_పంక్తి* fl, AstClass* classp, AstPin* paramsp)
         : ASTGEN_SUPER_ClassRefDType(fl)
         , m_classp{classp} {
         dtypep(this);
-        addParamsp(paramsp);
+        కూడు_Paramsp(paramsp);
     }
     ASTGEN_MEMBERS_AstClassRefDType;
     // METHODS
-    bool sameNode(const AstNode* samep) const override {
-        const AstClassRefDType* const asamep = VN_DBG_AS(samep, ClassRefDType);
-        return (m_classp == asamep->m_classp && m_classOrPackagep == asamep->m_classOrPackagep
-                && m_rawPointer == asamep->m_rawPointer);
+    bool same_కణుపు(స్థిరరాశి Ast_కణుపు* samep) స్థిరరాశి override {
+        స్థిరరాశి AstClassRefDType* స్థిరరాశి asamep = VN_DBG_AS(samep, ClassRefDType);
+        తిరిగి (m_classp == asamep->m_classp && m_classOrPackagep == asamep->m_classOrPackagep
+                && m_raw_సూచిక == asamep->m_raw_సూచిక);
     }
-    bool similarDTypeNode(const AstNodeDType* samep) const override;
-    void dump(std::ostream& str = std::cout) const override;
-    void dumpJson(std::ostream& str = std::cout) const override;
-    void dumpSmall(std::ostream& str) const override;
-    string prettyDTypeName(bool full) const override;
-    string prettyNameMsg() const override;
-    string name() const override VL_MT_STABLE;
-    AstBasicDType* basicp() const override VL_MT_STABLE { return nullptr; }
-    int widthAlignBytes() const override { return 0; }
-    int widthTotalBytes() const override { return 0; }
-    AstNodeDType* virtRefDTypep() const override { return nullptr; }
-    void virtRefDTypep(AstNodeDType* nodep) override {}
-    AstNodeDType* subDTypep() const override VL_MT_STABLE { return nullptr; }
-    AstNodeModule* classOrPackagep() const { return m_classOrPackagep; }
-    void classOrPackagep(AstNodeModule* nodep) { m_classOrPackagep = nodep; }
-    AstClass* classp() const VL_MT_STABLE { return m_classp; }
-    void classp(AstClass* nodep) { m_classp = nodep; }
-    bool rawPointer() const { return m_rawPointer; }
-    void rawPointer(bool flag) { m_rawPointer = flag; }
-    static void selfTest();
-    bool isCompound() const override { return true; }
+    bool similar_DType_కణుపు(స్థిరరాశి Ast_కణుపు_DType* samep) స్థిరరాశి override;
+    శూన్య dump(std::ostream& str = std::cout) స్థిరరాశి override;
+    శూన్య dumpJson(std::ostream& str = std::cout) స్థిరరాశి override;
+    శూన్య dumpSmall(std::ostream& str) స్థిరరాశి override;
+    string prettyDTypeName(bool నిండిన_2) స్థిరరాశి override;
+    string pretty_Name_సందేశం() స్థిరరాశి override;
+    string name() స్థిరరాశి override VL_MT_STABLE;
+    AstBasicDType* basicp() స్థిరరాశి override VL_MT_STABLE { తిరిగి nullptr; }
+    పూర్ణాంకం వెడల్పు_Align_బైట్లు() స్థిరరాశి override { తిరిగి 0; }
+    పూర్ణాంకం వెడల్పు_మొత్తం_బైట్లు() స్థిరరాశి override { తిరిగి 0; }
+    Ast_కణుపు_DType* virtRefDTypep() స్థిరరాశి override { తిరిగి nullptr; }
+    శూన్య virtRefDTypep(Ast_కణుపు_DType* nodep) override {}
+    Ast_కణుపు_DType* subDTypep() స్థిరరాశి override VL_MT_STABLE { తిరిగి nullptr; }
+    Ast_కణుపు_Module* classOrPackagep() స్థిరరాశి { తిరిగి m_classOrPackagep; }
+    శూన్య classOrPackagep(Ast_కణుపు_Module* nodep) { m_classOrPackagep = nodep; }
+    AstClass* classp() స్థిరరాశి VL_MT_STABLE { తిరిగి m_classp; }
+    శూన్య classp(AstClass* nodep) { m_classp = nodep; }
+    bool raw_సూచిక() స్థిరరాశి { తిరిగి m_raw_సూచిక; }
+    శూన్య raw_సూచిక(bool flag) { m_raw_సూచిక = flag; }
+    స్థిర శూన్య selfTest();
+    bool isCompound() స్థిరరాశి override { తిరిగి true; }
 };
-class AstConstDType final : public AstNodeDType {
+class AstConstDType final : బహిరంగ Ast_కణుపు_DType {
     // const data type, ie "const some_dtype var_name [2:0]"
     // ConstDType are removed in V3LinkLValue and become AstVar::isConst.
     // When more generic types are supported AstConstDType will be propagated further.
     // @astgen op1 := childDTypep : Optional[AstNodeDType]
     //
     // @astgen ptr := m_refDTypep : Optional[AstNodeDType]  // Inherit from this base data type
-public:
-    AstConstDType(FileLine* fl, VFlagChildDType, AstNodeDType* dtp)
+బహిరంగ:
+    AstConstDType(File_పంక్తి* fl, VFlag_బిడ్డ_DType, Ast_కణుపు_DType* dtp)
         : ASTGEN_SUPER_ConstDType(fl) {
-        childDTypep(dtp);  // Only for parser
+        బిడ్డ_DTypep(dtp);  // Only for parser
         refDTypep(nullptr);  // V3Width will resolve
         dtypep(nullptr);  // V3Width will resolve
-        widthFromSub(subDTypep());
+        వెడల్పు_From_Sub(subDTypep());
     }
     ASTGEN_MEMBERS_AstConstDType;
-    const char* broken() const override {
-        BROKEN_RTN(!((m_refDTypep && !childDTypep()) || (!m_refDTypep && childDTypep())));
-        return nullptr;
+    స్థిరరాశి అక్షరం* broken() స్థిరరాశి override {
+        BROKEN_RTN(!((m_refDTypep && !బిడ్డ_DTypep()) || (!m_refDTypep && బిడ్డ_DTypep())));
+        తిరిగి nullptr;
     }
-    bool sameNode(const AstNode* samep) const override {
-        const AstConstDType* const sp = VN_DBG_AS(samep, ConstDType);
-        return (m_refDTypep == sp->m_refDTypep);
+    bool same_కణుపు(స్థిరరాశి Ast_కణుపు* samep) స్థిరరాశి override {
+        స్థిరరాశి AstConstDType* స్థిరరాశి sp = VN_DBG_AS(samep, ConstDType);
+        తిరిగి (m_refDTypep == sp->m_refDTypep);
     }
-    bool similarDTypeNode(const AstNodeDType* samep) const override {
-        return skipRefp()->similarDType(samep->skipRefp());
+    bool similar_DType_కణుపు(స్థిరరాశి Ast_కణుపు_DType* samep) స్థిరరాశి override {
+        తిరిగి skipRefp()->similarDType(samep->skipRefp());
     }
-    AstNodeDType* getChildDTypep() const override { return childDTypep(); }
-    AstNodeDType* subDTypep() const override VL_MT_STABLE {
-        return m_refDTypep ? m_refDTypep : childDTypep();
+    Ast_కణుపు_DType* get_బిడ్డ_DTypep() స్థిరరాశి override { తిరిగి బిడ్డ_DTypep(); }
+    Ast_కణుపు_DType* subDTypep() స్థిరరాశి override VL_MT_STABLE {
+        తిరిగి m_refDTypep ? m_refDTypep : బిడ్డ_DTypep();
     }
-    void refDTypep(AstNodeDType* nodep) { m_refDTypep = nodep; }
-    AstNodeDType* virtRefDTypep() const override { return m_refDTypep; }
-    void virtRefDTypep(AstNodeDType* nodep) override { refDTypep(nodep); }
+    శూన్య refDTypep(Ast_కణుపు_DType* nodep) { m_refDTypep = nodep; }
+    Ast_కణుపు_DType* virtRefDTypep() స్థిరరాశి override { తిరిగి m_refDTypep; }
+    శూన్య virtRefDTypep(Ast_కణుపు_DType* nodep) override { refDTypep(nodep); }
     // METHODS
-    AstBasicDType* basicp() const override VL_MT_STABLE { return subDTypep()->basicp(); }
-    int widthAlignBytes() const override { return subDTypep()->widthAlignBytes(); }
-    int widthTotalBytes() const override { return subDTypep()->widthTotalBytes(); }
-    bool isCompound() const override {
+    AstBasicDType* basicp() స్థిరరాశి override VL_MT_STABLE { తిరిగి subDTypep()->basicp(); }
+    పూర్ణాంకం వెడల్పు_Align_బైట్లు() స్థిరరాశి override { తిరిగి subDTypep()->వెడల్పు_Align_బైట్లు(); }
+    పూర్ణాంకం వెడల్పు_మొత్తం_బైట్లు() స్థిరరాశి override { తిరిగి subDTypep()->వెడల్పు_మొత్తం_బైట్లు(); }
+    bool isCompound() స్థిరరాశి override {
         v3fatalSrc("call isCompound on subdata type, not reference");
-        return false;
+        తిరిగి false;
     }
 };
-class AstConstraintRefDType final : public AstNodeDType {
+class AstConstraintRefDType final : బహిరంగ Ast_కణుపు_DType {
     // For e.g. a reference to constraint for constraint_mode
-public:
-    explicit AstConstraintRefDType(FileLine* fl)
+బహిరంగ:
+    explicit AstConstraintRefDType(File_పంక్తి* fl)
         : ASTGEN_SUPER_ConstraintRefDType(fl) {
         dtypep(this);
     }
     ASTGEN_MEMBERS_AstConstraintRefDType;
-    bool hasDType() const override VL_MT_SAFE { return true; }
-    bool maybePointedTo() const override VL_MT_SAFE { return true; }
-    bool undead() const override { return true; }
-    AstNodeDType* subDTypep() const override VL_MT_STABLE { return nullptr; }
-    AstNodeDType* virtRefDTypep() const override { return nullptr; }
-    void virtRefDTypep(AstNodeDType* nodep) override {}
-    bool similarDTypeNode(const AstNodeDType* samep) const override { return this == samep; }
-    AstBasicDType* basicp() const override VL_MT_STABLE { return nullptr; }
-    int widthAlignBytes() const override { return 1; }
-    int widthTotalBytes() const override { return 1; }
-    bool isCompound() const override { return false; }
+    bool hasDType() స్థిరరాశి override VL_MT_సురక్షిత { తిరిగి true; }
+    bool maybe_Pointed_గమ్యం() స్థిరరాశి override VL_MT_సురక్షిత { తిరిగి true; }
+    bool undead() స్థిరరాశి override { తిరిగి true; }
+    Ast_కణుపు_DType* subDTypep() స్థిరరాశి override VL_MT_STABLE { తిరిగి nullptr; }
+    Ast_కణుపు_DType* virtRefDTypep() స్థిరరాశి override { తిరిగి nullptr; }
+    శూన్య virtRefDTypep(Ast_కణుపు_DType* nodep) override {}
+    bool similar_DType_కణుపు(స్థిరరాశి Ast_కణుపు_DType* samep) స్థిరరాశి override { తిరిగి this == samep; }
+    AstBasicDType* basicp() స్థిరరాశి override VL_MT_STABLE { తిరిగి nullptr; }
+    పూర్ణాంకం వెడల్పు_Align_బైట్లు() స్థిరరాశి override { తిరిగి 1; }
+    పూర్ణాంకం వెడల్పు_మొత్తం_బైట్లు() స్థిరరాశి override { తిరిగి 1; }
+    bool isCompound() స్థిరరాశి override { తిరిగి false; }
 };
-class AstCoverCrossDType final : public AstNodeDType {
+class AstCoverCrossDType final : బహిరంగ Ast_కణుపు_DType {
     // Borrowed pointer to VlCoverCrossT<...> or construction-time VlCoverCrossDyn.
-    const uint32_t m_dimensions;
-    const uint32_t m_tuples;  // Fixed capacity number of cross tuples (VlCoverCrossT's Tuples)
-    const uint32_t m_bins;  // Fixed capacity number of explicit bins (VlCoverCrossT's Bins)
-    const uint32_t m_autoBins;  // Fixed capacity number of auto bins (VlCoverCrossT's AutoBins)
-    const uint64_t m_binWords;  // Fixed capacity selection words (VlCoverCrossT's BinWords)
-    const bool m_dynamic;  // Bin layout is determined at covergroup construction
+    స్థిరరాశి uint32_t m_dimensions;
+    స్థిరరాశి uint32_t m_tuples;  // Fixed capacity number of cross tuples (VlCoverCrossT's Tuples)
+    స్థిరరాశి uint32_t m_bins;  // Fixed capacity number of explicit bins (VlCoverCrossT's Bins)
+    స్థిరరాశి uint32_t m_autoBins;  // Fixed capacity number of auto bins (VlCoverCrossT's AutoBins)
+    స్థిరరాశి uint64_t m_bin_పదాలు;  // Fixed capacity selection words (VlCoverCrossT's BinWords)
+    స్థిరరాశి bool m_dynamic;  // Bin layout is determined at covergroup construction
 
-public:
-    AstCoverCrossDType(FileLine* fl, uint32_t dimensions, uint32_t tuples, uint32_t bins,
-                       uint32_t autoBins, uint64_t binWords, bool dynamic = false)
+బహిరంగ:
+    AstCoverCrossDType(File_పంక్తి* fl, uint32_t dimensions, uint32_t tuples, uint32_t bins,
+                       uint32_t autoBins, uint64_t bin_పదాలు, bool dynamic = false)
         : ASTGEN_SUPER_CoverCrossDType(fl)
         , m_dimensions{dimensions}
         , m_tuples{tuples}
         , m_bins{bins}
         , m_autoBins{autoBins}
-        , m_binWords{binWords}
+        , m_bin_పదాలు{bin_పదాలు}
         , m_dynamic{dynamic} {
         dtypep(this);
     }
     ASTGEN_MEMBERS_AstCoverCrossDType;
-    const char* broken() const override {
+    స్థిరరాశి అక్షరం* broken() స్థిరరాశి override {
         BROKEN_RTN(m_dimensions == 0);
-        return nullptr;
+        తిరిగి nullptr;
     }
-    bool sameNode(const AstNode* samep) const override {  // LCOV_EXCL_START
-        const AstCoverCrossDType* const sp = VN_DBG_AS(samep, CoverCrossDType);
-        return dimensions() == sp->dimensions() && tuples() == sp->tuples() && bins() == sp->bins()
-               && autoBins() == sp->autoBins() && binWords() == sp->binWords()
+    bool same_కణుపు(స్థిరరాశి Ast_కణుపు* samep) స్థిరరాశి override {  // LCOV_EXCL_START
+        స్థిరరాశి AstCoverCrossDType* స్థిరరాశి sp = VN_DBG_AS(samep, CoverCrossDType);
+        తిరిగి dimensions() == sp->dimensions() && tuples() == sp->tuples() && bins() == sp->bins()
+               && autoBins() == sp->autoBins() && bin_పదాలు() == sp->bin_పదాలు()
                && isDynamic() == sp->isDynamic();
     }  // LCOV_EXCL_STOP
-    bool similarDTypeNode(const AstNodeDType* samep) const override { return this == samep; }
-    void dump(std::ostream& str) const override;
-    void dumpJson(std::ostream& str) const override;
-    void dumpSmall(std::ostream& str) const override;
-    uint32_t dimensions() const { return m_dimensions; }
-    uint32_t tuples() const { return m_tuples; }
-    uint32_t bins() const { return m_bins; }
-    uint32_t autoBins() const { return m_autoBins; }
-    uint64_t binWords() const { return m_binWords; }
-    bool isDynamic() const { return m_dynamic; }
-    string cppTemplateArgs() const;
-    AstBasicDType* basicp() const override VL_MT_STABLE { return nullptr; }
-    int widthAlignBytes() const override { return sizeof(void*); }
-    int widthTotalBytes() const override { return sizeof(void*); }
-    bool isCompound() const override { return true; }
+    bool similar_DType_కణుపు(స్థిరరాశి Ast_కణుపు_DType* samep) స్థిరరాశి override { తిరిగి this == samep; }
+    శూన్య dump(std::ostream& str) స్థిరరాశి override;
+    శూన్య dumpJson(std::ostream& str) స్థిరరాశి override;
+    శూన్య dumpSmall(std::ostream& str) స్థిరరాశి override;
+    uint32_t dimensions() స్థిరరాశి { తిరిగి m_dimensions; }
+    uint32_t tuples() స్థిరరాశి { తిరిగి m_tuples; }
+    uint32_t bins() స్థిరరాశి { తిరిగి m_bins; }
+    uint32_t autoBins() స్థిరరాశి { తిరిగి m_autoBins; }
+    uint64_t bin_పదాలు() స్థిరరాశి { తిరిగి m_bin_పదాలు; }
+    bool isDynamic() స్థిరరాశి { తిరిగి m_dynamic; }
+    string cpp_Template_వాదనలు() స్థిరరాశి;
+    AstBasicDType* basicp() స్థిరరాశి override VL_MT_STABLE { తిరిగి nullptr; }
+    పూర్ణాంకం వెడల్పు_Align_బైట్లు() స్థిరరాశి override { తిరిగి పరిమాణం(శూన్య*); }
+    పూర్ణాంకం వెడల్పు_మొత్తం_బైట్లు() స్థిరరాశి override { తిరిగి పరిమాణం(శూన్య*); }
+    bool isCompound() స్థిరరాశి override { తిరిగి true; }
 };
-class AstCoverpointDType final : public AstNodeDType {
+class AstCoverpointDType final : బహిరంగ Ast_కణుపు_DType {
     // Borrowed pointer to a covergroup coverpoint runtime, 'VlCoverpointT<hitBound>*'.
     // Follows pattern of AstQueueDType in capturing the compile-time max bin overlap
     // template argument.
-    uint32_t m_hitBound;  // VlCoverpointT<> template argument; hit list size, >= 1
-public:
-    AstCoverpointDType(FileLine* fl, uint32_t hitBound)
+    uint32_t m_తగిలింది_Bound;  // VlCoverpointT<> template argument; hit list size, >= 1
+బహిరంగ:
+    AstCoverpointDType(File_పంక్తి* fl, uint32_t తగిలింది_Bound)
         : ASTGEN_SUPER_CoverpointDType(fl)
-        , m_hitBound{hitBound} {
+        , m_తగిలింది_Bound{తగిలింది_Bound} {
         dtypep(this);
     }
     ASTGEN_MEMBERS_AstCoverpointDType;
-    const char* broken() const override {
-        BROKEN_RTN(m_hitBound < 1);
-        return nullptr;
+    స్థిరరాశి అక్షరం* broken() స్థిరరాశి override {
+        BROKEN_RTN(m_తగిలింది_Bound < 1);
+        తిరిగి nullptr;
     }
     // V3Covergroup interns these one-per-hitBound into the type table, so identity is
     // equality; there is never a second node with the same bound to compare against.
-    bool similarDTypeNode(const AstNodeDType* samep) const override { return this == samep; }
-    void dumpSmall(std::ostream& str) const override;
+    bool similar_DType_కణుపు(స్థిరరాశి Ast_కణుపు_DType* samep) స్థిరరాశి override { తిరిగి this == samep; }
+    శూన్య dumpSmall(std::ostream& str) స్థిరరాశి override;
     // ACCESSORS
-    uint32_t hitBound() const { return m_hitBound; }
+    uint32_t తగిలింది_Bound() స్థిరరాశి { తిరిగి m_తగిలింది_Bound; }
     // METHODS
-    AstBasicDType* basicp() const override VL_MT_STABLE { return nullptr; }
-    int widthAlignBytes() const override { return sizeof(void*); }
-    int widthTotalBytes() const override { return sizeof(void*); }
-    bool isCompound() const override { return true; }
+    AstBasicDType* basicp() స్థిరరాశి override VL_MT_STABLE { తిరిగి nullptr; }
+    పూర్ణాంకం వెడల్పు_Align_బైట్లు() స్థిరరాశి override { తిరిగి పరిమాణం(శూన్య*); }
+    పూర్ణాంకం వెడల్పు_మొత్తం_బైట్లు() స్థిరరాశి override { తిరిగి పరిమాణం(శూన్య*); }
+    bool isCompound() స్థిరరాశి override { తిరిగి true; }
 };
-class AstDefImplicitDType final : public AstNodeDType {
+class AstDefImplicitDType final : బహిరంగ Ast_కణుపు_DType {
     // For parsing enum/struct/unions that are declared with a variable rather than typedef
     // This allows "var enum {...} a,b" to share the enum definition for both variables
     // After link, these become typedefs
     // @astgen op1 := childDTypep : Optional[AstNodeDType]
     string m_name;  // Data type name
-    const int m_uniqueNum;  // Unique ID distinguishing this dtype instance, for hashing/naming
+    స్థిరరాశి పూర్ణాంకం m_unique_అంకె;  // Unique ID distinguishing this dtype instance, for hashing/naming
 
-public:
-    AstDefImplicitDType(FileLine* fl, const string& name, VFlagChildDType, AstNodeDType* dtp)
+బహిరంగ:
+    AstDefImplicitDType(File_పంక్తి* fl, స్థిరరాశి string& name, VFlag_బిడ్డ_DType, Ast_కణుపు_DType* dtp)
         : ASTGEN_SUPER_DefImplicitDType(fl)
         , m_name{name}
-        , m_uniqueNum{uniqueNumInc()} {
-        childDTypep(dtp);  // Only for parser
+        , m_unique_అంకె{unique_అంకె_Inc()} {
+        బిడ్డ_DTypep(dtp);  // Only for parser
         dtypep(nullptr);  // V3Width will resolve
     }
-    AstDefImplicitDType(const AstDefImplicitDType& other)
-        : AstNodeDType(other)
+    AstDefImplicitDType(స్థిరరాశి AstDefImplicitDType& other)
+        : Ast_కణుపు_DType(other)
         , m_name{other.m_name}
-        , m_uniqueNum{uniqueNumInc()} {}
+        , m_unique_అంకె{unique_అంకె_Inc()} {}
     ASTGEN_MEMBERS_AstDefImplicitDType;
-    int uniqueNum() const { return m_uniqueNum; }
-    bool sameNode(const AstNode* samep) const override {
-        const AstDefImplicitDType* const sp = VN_DBG_AS(samep, DefImplicitDType);
-        return uniqueNum() == sp->uniqueNum();
+    పూర్ణాంకం unique_అంకె() స్థిరరాశి { తిరిగి m_unique_అంకె; }
+    bool same_కణుపు(స్థిరరాశి Ast_కణుపు* samep) స్థిరరాశి override {
+        స్థిరరాశి AstDefImplicitDType* స్థిరరాశి sp = VN_DBG_AS(samep, DefImplicitDType);
+        తిరిగి unique_అంకె() == sp->unique_అంకె();
     }
-    bool similarDTypeNode(const AstNodeDType* samep) const override { return sameNode(samep); }
-    AstNodeDType* getChildDTypep() const override { return childDTypep(); }
-    AstNodeDType* subDTypep() const override VL_MT_STABLE {
-        return dtypep() ? dtypep() : childDTypep();
+    bool similar_DType_కణుపు(స్థిరరాశి Ast_కణుపు_DType* samep) స్థిరరాశి override { తిరిగి same_కణుపు(samep); }
+    Ast_కణుపు_DType* get_బిడ్డ_DTypep() స్థిరరాశి override { తిరిగి బిడ్డ_DTypep(); }
+    Ast_కణుపు_DType* subDTypep() స్థిరరాశి override VL_MT_STABLE {
+        తిరిగి dtypep() ? dtypep() : బిడ్డ_DTypep();
     }
     // METHODS
     // op1 = Range of variable
-    AstNodeDType* dtypeSkipRefp() const { return dtypep()->skipRefp(); }
-    AstBasicDType* basicp() const override VL_MT_STABLE { return subDTypep()->basicp(); }
-    int widthAlignBytes() const override { return dtypep()->widthAlignBytes(); }
-    int widthTotalBytes() const override { return dtypep()->widthTotalBytes(); }
-    string name() const override VL_MT_STABLE { return m_name; }
-    void name(const string& flag) override { m_name = flag; }
-    bool isCompound() const override { return false; }
+    Ast_కణుపు_DType* dtypeSkipRefp() స్థిరరాశి { తిరిగి dtypep()->skipRefp(); }
+    AstBasicDType* basicp() స్థిరరాశి override VL_MT_STABLE { తిరిగి subDTypep()->basicp(); }
+    పూర్ణాంకం వెడల్పు_Align_బైట్లు() స్థిరరాశి override { తిరిగి dtypep()->వెడల్పు_Align_బైట్లు(); }
+    పూర్ణాంకం వెడల్పు_మొత్తం_బైట్లు() స్థిరరాశి override { తిరిగి dtypep()->వెడల్పు_మొత్తం_బైట్లు(); }
+    string name() స్థిరరాశి override VL_MT_STABLE { తిరిగి m_name; }
+    శూన్య name(స్థిరరాశి string& flag) override { m_name = flag; }
+    bool isCompound() స్థిరరాశి override { తిరిగి false; }
 };
-class AstDynArrayDType final : public AstNodeDType {
+class AstDynArrayDType final : బహిరంగ Ast_కణుపు_DType {
     // Dynamic array data type, ie "[]"
     // @astgen op1 := childDTypep : Optional[AstNodeDType] // moved to refDTypep() in V3Width
     //
     // @astgen ptr := m_refDTypep : Optional[AstNodeDType]  // Elements of this type (post-width)
-public:
-    AstDynArrayDType(FileLine* fl, VFlagChildDType, AstNodeDType* dtp)
+బహిరంగ:
+    AstDynArrayDType(File_పంక్తి* fl, VFlag_బిడ్డ_DType, Ast_కణుపు_DType* dtp)
         : ASTGEN_SUPER_DynArrayDType(fl) {
-        childDTypep(dtp);  // Only for parser
+        బిడ్డ_DTypep(dtp);  // Only for parser
         refDTypep(nullptr);
         dtypep(nullptr);  // V3Width will resolve
     }
-    AstDynArrayDType(FileLine* fl, AstNodeDType* dtp)
+    AstDynArrayDType(File_పంక్తి* fl, Ast_కణుపు_DType* dtp)
         : ASTGEN_SUPER_DynArrayDType(fl) {
         refDTypep(dtp);
         dtypep(nullptr);  // V3Width will resolve
     }
     ASTGEN_MEMBERS_AstDynArrayDType;
-    const char* broken() const override {
-        BROKEN_RTN(!((m_refDTypep && !childDTypep()) || (!m_refDTypep && childDTypep())));
-        return nullptr;
+    స్థిరరాశి అక్షరం* broken() స్థిరరాశి override {
+        BROKEN_RTN(!((m_refDTypep && !బిడ్డ_DTypep()) || (!m_refDTypep && బిడ్డ_DTypep())));
+        తిరిగి nullptr;
     }
-    bool sameNode(const AstNode* samep) const override {
-        const AstDynArrayDType* const asamep = VN_DBG_AS(samep, DynArrayDType);
-        if (!asamep->subDTypep()) return false;
-        return subDTypep() == asamep->subDTypep();
+    bool same_కణుపు(స్థిరరాశి Ast_కణుపు* samep) స్థిరరాశి override {
+        స్థిరరాశి AstDynArrayDType* స్థిరరాశి asamep = VN_DBG_AS(samep, DynArrayDType);
+        ఒకవేళ (!asamep->subDTypep()) తిరిగి false;
+        తిరిగి subDTypep() == asamep->subDTypep();
     }
-    bool similarDTypeNode(const AstNodeDType* samep) const override {
-        const AstDynArrayDType* const asamep = VN_DBG_AS(samep, DynArrayDType);
-        return asamep->subDTypep() && subDTypep()->similarDType(asamep->subDTypep());
+    bool similar_DType_కణుపు(స్థిరరాశి Ast_కణుపు_DType* samep) స్థిరరాశి override {
+        స్థిరరాశి AstDynArrayDType* స్థిరరాశి asamep = VN_DBG_AS(samep, DynArrayDType);
+        తిరిగి asamep->subDTypep() && subDTypep()->similarDType(asamep->subDTypep());
     }
-    string prettyDTypeName(bool full) const override;
-    void dumpSmall(std::ostream& str) const override;
-    AstNodeDType* getChildDTypep() const override { return childDTypep(); }
-    AstNodeDType* subDTypep() const override VL_MT_STABLE {
-        return m_refDTypep ? m_refDTypep : childDTypep();
+    string prettyDTypeName(bool నిండిన_2) స్థిరరాశి override;
+    శూన్య dumpSmall(std::ostream& str) స్థిరరాశి override;
+    Ast_కణుపు_DType* get_బిడ్డ_DTypep() స్థిరరాశి override { తిరిగి బిడ్డ_DTypep(); }
+    Ast_కణుపు_DType* subDTypep() స్థిరరాశి override VL_MT_STABLE {
+        తిరిగి m_refDTypep ? m_refDTypep : బిడ్డ_DTypep();
     }
-    bool isAggregateType() const override { return true; }
-    void refDTypep(AstNodeDType* nodep) { m_refDTypep = nodep; }
-    AstNodeDType* virtRefDTypep() const override { return m_refDTypep; }
-    void virtRefDTypep(AstNodeDType* nodep) override { refDTypep(nodep); }
+    bool isAggregateType() స్థిరరాశి override { తిరిగి true; }
+    శూన్య refDTypep(Ast_కణుపు_DType* nodep) { m_refDTypep = nodep; }
+    Ast_కణుపు_DType* virtRefDTypep() స్థిరరాశి override { తిరిగి m_refDTypep; }
+    శూన్య virtRefDTypep(Ast_కణుపు_DType* nodep) override { refDTypep(nodep); }
     // METHODS
-    AstBasicDType* basicp() const override VL_MT_STABLE { return nullptr; }
-    int widthAlignBytes() const override { return subDTypep()->widthAlignBytes(); }
-    int widthTotalBytes() const override { return subDTypep()->widthTotalBytes(); }
-    bool isCompound() const override { return true; }
-    bool isDynamicallySized() const override { return true; }
+    AstBasicDType* basicp() స్థిరరాశి override VL_MT_STABLE { తిరిగి nullptr; }
+    పూర్ణాంకం వెడల్పు_Align_బైట్లు() స్థిరరాశి override { తిరిగి subDTypep()->వెడల్పు_Align_బైట్లు(); }
+    పూర్ణాంకం వెడల్పు_మొత్తం_బైట్లు() స్థిరరాశి override { తిరిగి subDTypep()->వెడల్పు_మొత్తం_బైట్లు(); }
+    bool isCompound() స్థిరరాశి override { తిరిగి true; }
+    bool isDynamicallySized() స్థిరరాశి override { తిరిగి true; }
 };
-class AstEmptyQueueDType final : public AstNodeDType {
+class Ast_ఖాళీలు_వరుస_DType final : బహిరంగ Ast_కణుపు_DType {
     // For EmptyQueue
-public:
-    explicit AstEmptyQueueDType(FileLine* fl)
-        : ASTGEN_SUPER_EmptyQueueDType(fl) {
+బహిరంగ:
+    explicit Ast_ఖాళీలు_వరుస_DType(File_పంక్తి* fl)
+        : ASTGEN_SUPER_ఖాళీలు_వరుస_DType(fl) {
         dtypep(this);
     }
-    ASTGEN_MEMBERS_AstEmptyQueueDType;
-    void dumpSmall(std::ostream& str) const override;
-    bool hasDType() const override VL_MT_SAFE { return true; }
-    bool maybePointedTo() const override VL_MT_SAFE { return true; }
-    bool undead() const override { return true; }
-    AstNodeDType* subDTypep() const override VL_MT_STABLE { return nullptr; }
-    AstNodeDType* virtRefDTypep() const override { return nullptr; }
-    void virtRefDTypep(AstNodeDType* nodep) override {}
-    bool similarDTypeNode(const AstNodeDType* samep) const override { return this == samep; }
-    AstBasicDType* basicp() const override VL_MT_STABLE { return nullptr; }
-    int widthAlignBytes() const override { return 1; }
-    int widthTotalBytes() const override { return 1; }
-    bool isCompound() const override { return false; }
+    ASTGEN_MEMBERS_Ast_ఖాళీలు_వరుస_DType;
+    శూన్య dumpSmall(std::ostream& str) స్థిరరాశి override;
+    bool hasDType() స్థిరరాశి override VL_MT_సురక్షిత { తిరిగి true; }
+    bool maybe_Pointed_గమ్యం() స్థిరరాశి override VL_MT_సురక్షిత { తిరిగి true; }
+    bool undead() స్థిరరాశి override { తిరిగి true; }
+    Ast_కణుపు_DType* subDTypep() స్థిరరాశి override VL_MT_STABLE { తిరిగి nullptr; }
+    Ast_కణుపు_DType* virtRefDTypep() స్థిరరాశి override { తిరిగి nullptr; }
+    శూన్య virtRefDTypep(Ast_కణుపు_DType* nodep) override {}
+    bool similar_DType_కణుపు(స్థిరరాశి Ast_కణుపు_DType* samep) స్థిరరాశి override { తిరిగి this == samep; }
+    AstBasicDType* basicp() స్థిరరాశి override VL_MT_STABLE { తిరిగి nullptr; }
+    పూర్ణాంకం వెడల్పు_Align_బైట్లు() స్థిరరాశి override { తిరిగి 1; }
+    పూర్ణాంకం వెడల్పు_మొత్తం_బైట్లు() స్థిరరాశి override { తిరిగి 1; }
+    bool isCompound() స్థిరరాశి override { తిరిగి false; }
 };
-class AstEnumDType final : public AstNodeDType {
+class AstEnumDType final : బహిరంగ Ast_కణుపు_DType {
     // Parents: TYPEDEF/MODULE
     // @astgen op1 := childDTypep : Optional[AstNodeDType]
     // @astgen op2 := itemsp : List[AstEnumItem]
@@ -911,172 +911,172 @@ class AstEnumDType final : public AstNodeDType {
     // @astgen ptr := m_refDTypep : Optional[AstNodeDType]  // Elements of this type (post-width)
     string m_name;  // Name from upper typedef, if any
     string m_typedefName;  // Typedef's dtypeName() once moved off the typedef declaring it
-    const int m_uniqueNum;  // Unique ID distinguishing this dtype instance, for hashing/naming
+    స్థిరరాశి పూర్ణాంకం m_unique_అంకె;  // Unique ID distinguishing this dtype instance, for hashing/naming
 
-public:
-    AstEnumDType(FileLine* fl, VFlagChildDType, AstNodeDType* dtp, AstEnumItem* itemsp)
+బహిరంగ:
+    AstEnumDType(File_పంక్తి* fl, VFlag_బిడ్డ_DType, Ast_కణుపు_DType* dtp, Ast_Enum_అంశం* itemsp)
         : ASTGEN_SUPER_EnumDType(fl)
-        , m_uniqueNum{uniqueNumInc()} {
-        childDTypep(dtp);  // Only for parser
+        , m_unique_అంకె{unique_అంకె_Inc()} {
+        బిడ్డ_DTypep(dtp);  // Only for parser
         refDTypep(nullptr);
-        addItemsp(itemsp);
+        కూడు_Itemsp(itemsp);
         dtypep(nullptr);  // V3Width will resolve
-        widthFromSub(subDTypep());
+        వెడల్పు_From_Sub(subDTypep());
     }
-    AstEnumDType(const AstEnumDType& other)
-        : AstNodeDType{other}
+    AstEnumDType(స్థిరరాశి AstEnumDType& other)
+        : Ast_కణుపు_DType{other}
         , m_name{other.m_name}
         , m_typedefName{other.m_typedefName}
-        , m_uniqueNum{uniqueNumInc()} {}
+        , m_unique_అంకె{unique_అంకె_Inc()} {}
     ASTGEN_MEMBERS_AstEnumDType;
 
-    const char* broken() const override;
-    int uniqueNum() const { return m_uniqueNum; }
-    bool sameNode(const AstNode* samep) const override {
-        const AstEnumDType* const sp = VN_DBG_AS(samep, EnumDType);
-        return uniqueNum() == sp->uniqueNum();
+    స్థిరరాశి అక్షరం* broken() స్థిరరాశి override;
+    పూర్ణాంకం unique_అంకె() స్థిరరాశి { తిరిగి m_unique_అంకె; }
+    bool same_కణుపు(స్థిరరాశి Ast_కణుపు* samep) స్థిరరాశి override {
+        స్థిరరాశి AstEnumDType* స్థిరరాశి sp = VN_DBG_AS(samep, EnumDType);
+        తిరిగి unique_అంకె() == sp->unique_అంకె();
     }
-    bool similarDTypeNode(const AstNodeDType* samep) const override { return sameNode(samep); }
-    AstNodeDType* getChildDTypep() const override { return childDTypep(); }
-    AstNodeDType* subDTypep() const override VL_MT_STABLE {
-        return m_refDTypep ? m_refDTypep : childDTypep();
+    bool similar_DType_కణుపు(స్థిరరాశి Ast_కణుపు_DType* samep) స్థిరరాశి override { తిరిగి same_కణుపు(samep); }
+    Ast_కణుపు_DType* get_బిడ్డ_DTypep() స్థిరరాశి override { తిరిగి బిడ్డ_DTypep(); }
+    Ast_కణుపు_DType* subDTypep() స్థిరరాశి override VL_MT_STABLE {
+        తిరిగి m_refDTypep ? m_refDTypep : బిడ్డ_DTypep();
     }
-    void refDTypep(AstNodeDType* nodep) { m_refDTypep = nodep; }
-    AstNodeDType* virtRefDTypep() const override { return m_refDTypep; }
-    void virtRefDTypep(AstNodeDType* nodep) override { refDTypep(nodep); }
-    string name() const override VL_MT_STABLE { return m_name; }
-    void name(const string& flag) override { m_name = flag; }
+    శూన్య refDTypep(Ast_కణుపు_DType* nodep) { m_refDTypep = nodep; }
+    Ast_కణుపు_DType* virtRefDTypep() స్థిరరాశి override { తిరిగి m_refDTypep; }
+    శూన్య virtRefDTypep(Ast_కణుపు_DType* nodep) override { refDTypep(nodep); }
+    string name() స్థిరరాశి override VL_MT_STABLE { తిరిగి m_name; }
+    శూన్య name(స్థిరరాశి string& flag) override { m_name = flag; }
     // Keep the name the typedef declaring it gives, as it moves off it to the type table
-    void typedefName(const string& name) { m_typedefName = name; }
-    void dump(std::ostream& str = std::cout) const override;
-    void dumpJson(std::ostream& str = std::cout) const override;
-    void dumpSmall(std::ostream& str) const override;
-    string prettyDTypeName(bool full) const override;
+    శూన్య typedefName(స్థిరరాశి string& name) { m_typedefName = name; }
+    శూన్య dump(std::ostream& str = std::cout) స్థిరరాశి override;
+    శూన్య dumpJson(std::ostream& str = std::cout) స్థిరరాశి override;
+    శూన్య dumpSmall(std::ostream& str) స్థిరరాశి override;
+    string prettyDTypeName(bool నిండిన_2) స్థిరరాశి override;
     // METHODS
-    AstBasicDType* basicp() const override VL_MT_STABLE { return subDTypep()->basicp(); }
-    int widthAlignBytes() const override { return subDTypep()->widthAlignBytes(); }
-    int widthTotalBytes() const override { return subDTypep()->widthTotalBytes(); }
-    size_t itemCount() const {
-        size_t count = 0;
-        for (AstNode* itemp = itemsp(); itemp; itemp = itemp->nextp()) ++count;
-        return count;
+    AstBasicDType* basicp() స్థిరరాశి override VL_MT_STABLE { తిరిగి subDTypep()->basicp(); }
+    పూర్ణాంకం వెడల్పు_Align_బైట్లు() స్థిరరాశి override { తిరిగి subDTypep()->వెడల్పు_Align_బైట్లు(); }
+    పూర్ణాంకం వెడల్పు_మొత్తం_బైట్లు() స్థిరరాశి override { తిరిగి subDTypep()->వెడల్పు_మొత్తం_బైట్లు(); }
+    కొలత_t అంశం_లెక్క() స్థిరరాశి {
+        కొలత_t లెక్క = 0;
+        కొరకు (Ast_కణుపు* itemp = itemsp(); itemp; itemp = itemp->nextp()) ++లెక్క;
+        తిరిగి లెక్క;
     }
-    bool isCompound() const override { return false; }
+    bool isCompound() స్థిరరాశి override { తిరిగి false; }
 };
 
-class AstIfaceGenericDType final : public AstNodeDType {
+class AstIfaceGenericDType final : బహిరంగ Ast_కణుపు_DType {
     // Generic interface that will be replaced with AstIfaceRefDType
-    FileLine* m_modportFileline;  // Where modport token was
+    File_పంక్తి* m_modportFileline;  // Where modport token was
     // dist-ast-dump-suppress  // Part of name()
     string m_modportName;  // "" = no modport
-public:
-    explicit AstIfaceGenericDType(FileLine* fl)
+బహిరంగ:
+    explicit AstIfaceGenericDType(File_పంక్తి* fl)
         : ASTGEN_SUPER_IfaceGenericDType(fl) {
         dtypep(this);
     }
-    AstIfaceGenericDType(FileLine* fl, FileLine* modportFl, const string& modport)
+    AstIfaceGenericDType(File_పంక్తి* fl, File_పంక్తి* modportFl, స్థిరరాశి string& modport)
         : ASTGEN_SUPER_IfaceGenericDType(fl)
         , m_modportFileline{modportFl}
         , m_modportName{modport} {
         dtypep(this);
     }
     ASTGEN_MEMBERS_AstIfaceGenericDType;
-    void dumpSmall(std::ostream& str) const override;
-    bool hasDType() const override VL_MT_SAFE { return true; }
-    bool maybePointedTo() const override VL_MT_SAFE { return true; }
-    bool undead() const override { return true; }
-    AstNodeDType* subDTypep() const override VL_MT_STABLE { return nullptr; }
-    AstNodeDType* virtRefDTypep() const override { return nullptr; }
-    void virtRefDTypep(AstNodeDType* nodep) override {}
-    bool similarDTypeNode(const AstNodeDType* samep) const override { return this == samep; }
-    AstBasicDType* basicp() const override VL_MT_STABLE { return nullptr; }
-    int widthAlignBytes() const override { return 1; }
-    int widthTotalBytes() const override { return 1; }
-    string modportName() const { return m_modportName; }
-    bool isModport() { return !m_modportName.empty(); }
-    bool isCompound() const override { return true; }
-    FileLine* modportFileline() const { return m_modportFileline; }
-    string name() const override { return m_modportName; }
+    శూన్య dumpSmall(std::ostream& str) స్థిరరాశి override;
+    bool hasDType() స్థిరరాశి override VL_MT_సురక్షిత { తిరిగి true; }
+    bool maybe_Pointed_గమ్యం() స్థిరరాశి override VL_MT_సురక్షిత { తిరిగి true; }
+    bool undead() స్థిరరాశి override { తిరిగి true; }
+    Ast_కణుపు_DType* subDTypep() స్థిరరాశి override VL_MT_STABLE { తిరిగి nullptr; }
+    Ast_కణుపు_DType* virtRefDTypep() స్థిరరాశి override { తిరిగి nullptr; }
+    శూన్య virtRefDTypep(Ast_కణుపు_DType* nodep) override {}
+    bool similar_DType_కణుపు(స్థిరరాశి Ast_కణుపు_DType* samep) స్థిరరాశి override { తిరిగి this == samep; }
+    AstBasicDType* basicp() స్థిరరాశి override VL_MT_STABLE { తిరిగి nullptr; }
+    పూర్ణాంకం వెడల్పు_Align_బైట్లు() స్థిరరాశి override { తిరిగి 1; }
+    పూర్ణాంకం వెడల్పు_మొత్తం_బైట్లు() స్థిరరాశి override { తిరిగి 1; }
+    string modportName() స్థిరరాశి { తిరిగి m_modportName; }
+    bool isModport() { తిరిగి !m_modportName.ఖాళీలు(); }
+    bool isCompound() స్థిరరాశి override { తిరిగి true; }
+    File_పంక్తి* modportFileline() స్థిరరాశి { తిరిగి m_modportFileline; }
+    string name() స్థిరరాశి override { తిరిగి m_modportName; }
 };
 
-class AstIfaceRefDType final : public AstNodeDType {
+class AstIfaceRefDType final : బహిరంగ Ast_కణుపు_DType {
     // Reference to an interface, either for a port, or inside parent cell
     // @astgen op1 := paramsp : List[AstPin]
     //
     // @astgen ptr := m_ifacep : Optional[AstIface]  // Interface; cellp() should override
     // @astgen ptr := m_cellp : Optional[AstCell]  // When exact parent cell known; not a guess
     // @astgen ptr := m_modportp : Optional[AstModport]  // nullptr = unlinked or no modport
-    FileLine* m_modportFileline;  // Where modport token was
+    File_పంక్తి* m_modportFileline;  // Where modport token was
     string m_cellName;  // "" = no cell, such as when connects to 'input' iface
     string m_ifaceName;  // Interface name
     string m_modportName;  // "" = no modport
     bool m_virtual = false;  // True if virtual interface
-public:
-    AstIfaceRefDType(FileLine* fl, const string& cellName, const string& ifaceName)
+బహిరంగ:
+    AstIfaceRefDType(File_పంక్తి* fl, స్థిరరాశి string& cellName, స్థిరరాశి string& ifaceName)
         : ASTGEN_SUPER_IfaceRefDType(fl)
         , m_modportFileline{nullptr}
         , m_cellName{cellName}
         , m_ifaceName{ifaceName}
         , m_modportName{""} {}
-    AstIfaceRefDType(FileLine* fl, FileLine* modportFl, const string& cellName,
-                     const string& ifaceName, const string& modport)
+    AstIfaceRefDType(File_పంక్తి* fl, File_పంక్తి* modportFl, స్థిరరాశి string& cellName,
+                     స్థిరరాశి string& ifaceName, స్థిరరాశి string& modport)
         : ASTGEN_SUPER_IfaceRefDType(fl)
         , m_modportFileline{modportFl}
         , m_cellName{cellName}
         , m_ifaceName{ifaceName}
         , m_modportName{modport} {}
-    AstIfaceRefDType(FileLine* fl, FileLine* modportFl, const string& cellName,
-                     const string& ifaceName, const string& modport, AstPin* paramsp)
+    AstIfaceRefDType(File_పంక్తి* fl, File_పంక్తి* modportFl, స్థిరరాశి string& cellName,
+                     స్థిరరాశి string& ifaceName, స్థిరరాశి string& modport, AstPin* paramsp)
         : ASTGEN_SUPER_IfaceRefDType(fl)
         , m_modportFileline{modportFl}
         , m_cellName{cellName}
         , m_ifaceName{ifaceName}
         , m_modportName{modport} {
-        addParamsp(paramsp);
+        కూడు_Paramsp(paramsp);
     }
     ASTGEN_MEMBERS_AstIfaceRefDType;
 
     // METHODS
-    void dump(std::ostream& str = std::cout) const override;
-    void dumpJson(std::ostream& str = std::cout) const override;
-    void dumpSmall(std::ostream& str) const override;
-    string prettyDTypeName(bool full) const override;
-    AstBasicDType* basicp() const override VL_MT_STABLE { return nullptr; }
-    bool similarDTypeNode(const AstNodeDType* samep) const override {
+    శూన్య dump(std::ostream& str = std::cout) స్థిరరాశి override;
+    శూన్య dumpJson(std::ostream& str = std::cout) స్థిరరాశి override;
+    శూన్య dumpSmall(std::ostream& str) స్థిరరాశి override;
+    string prettyDTypeName(bool నిండిన_2) స్థిరరాశి override;
+    AstBasicDType* basicp() స్థిరరాశి override VL_MT_STABLE { తిరిగి nullptr; }
+    bool similar_DType_కణుపు(స్థిరరాశి Ast_కణుపు_DType* samep) స్థిరరాశి override {
         // Each occurrence of a virtual interface type parses to its own node,
         // so pointer identity is insufficient; compare the referenced
         // interface instead, same equivalence as AstNode::computeCastable uses.
-        const AstIfaceRefDType* const asamep = VN_DBG_AS(samep, IfaceRefDType);
-        return ifaceViaCellp() && ifaceViaCellp() == asamep->ifaceViaCellp()
+        స్థిరరాశి AstIfaceRefDType* స్థిరరాశి asamep = VN_DBG_AS(samep, IfaceRefDType);
+        తిరిగి iface_ద్వారా_Cellp() && iface_ద్వారా_Cellp() == asamep->iface_ద్వారా_Cellp()
                && modportName() == asamep->modportName() && isVirtual() == asamep->isVirtual();
     }
-    int widthAlignBytes() const override { return 0; }
-    int widthTotalBytes() const override { return 0; }
-    bool isVirtual() const { return m_virtual; }
-    void isVirtual(bool flag) {
+    పూర్ణాంకం వెడల్పు_Align_బైట్లు() స్థిరరాశి override { తిరిగి 0; }
+    పూర్ణాంకం వెడల్పు_మొత్తం_బైట్లు() స్థిరరాశి override { తిరిగి 0; }
+    bool isVirtual() స్థిరరాశి { తిరిగి m_virtual; }
+    శూన్య isVirtual(bool flag) {
         m_virtual = flag;
-        if (flag) v3Global.setHasVirtIfaces();
+        ఒకవేళ (flag) v3Global.సమితి_Has_Virt_Ifaces();
     }
-    FileLine* modportFileline() const { return m_modportFileline; }
-    void modportFileline(FileLine* const modportFileline) { m_modportFileline = modportFileline; }
-    string cellName() const { return m_cellName; }
-    void cellName(const string& name) { m_cellName = name; }
-    string ifaceName() const { return m_ifaceName; }
-    string ifaceNameQ() const { return "'" + prettyName(ifaceName()) + "'"; }
-    void ifaceName(const string& name) { m_ifaceName = name; }
-    void modportName(const string& modportName) { m_modportName = modportName; }
-    string modportName() const { return m_modportName; }
-    AstIface* ifaceViaCellp() const;  // Use cellp or ifacep
-    AstIface* ifacep() const { return m_ifacep; }
-    void ifacep(AstIface* nodep) { m_ifacep = nodep; }
-    AstCell* cellp() const { return m_cellp; }
-    void cellp(AstCell* nodep) { m_cellp = nodep; }
-    AstModport* modportp() const { return m_modportp; }
-    void modportp(AstModport* modportp) { m_modportp = modportp; }
-    bool isModport() { return !m_modportName.empty(); }
-    bool isCompound() const override { return true; }  // But not relevant
+    File_పంక్తి* modportFileline() స్థిరరాశి { తిరిగి m_modportFileline; }
+    శూన్య modportFileline(File_పంక్తి* స్థిరరాశి modportFileline) { m_modportFileline = modportFileline; }
+    string cellName() స్థిరరాశి { తిరిగి m_cellName; }
+    శూన్య cellName(స్థిరరాశి string& name) { m_cellName = name; }
+    string ifaceName() స్థిరరాశి { తిరిగి m_ifaceName; }
+    string ifaceNameQ() స్థిరరాశి { తిరిగి "'" + prettyName(ifaceName()) + "'"; }
+    శూన్య ifaceName(స్థిరరాశి string& name) { m_ifaceName = name; }
+    శూన్య modportName(స్థిరరాశి string& modportName) { m_modportName = modportName; }
+    string modportName() స్థిరరాశి { తిరిగి m_modportName; }
+    AstIface* iface_ద్వారా_Cellp() స్థిరరాశి;  // Use cellp or ifacep
+    AstIface* ifacep() స్థిరరాశి { తిరిగి m_ifacep; }
+    శూన్య ifacep(AstIface* nodep) { m_ifacep = nodep; }
+    AstCell* cellp() స్థిరరాశి { తిరిగి m_cellp; }
+    శూన్య cellp(AstCell* nodep) { m_cellp = nodep; }
+    AstModport* modportp() స్థిరరాశి { తిరిగి m_modportp; }
+    శూన్య modportp(AstModport* modportp) { m_modportp = modportp; }
+    bool isModport() { తిరిగి !m_modportName.ఖాళీలు(); }
+    bool isCompound() స్థిరరాశి override { తిరిగి true; }  // But not relevant
 };
-class AstMemberDType final : public AstNodeDType {
+class AstMemberDType final : బహిరంగ Ast_కణుపు_DType {
     // A member of a struct/union
     // PARENT: AstNodeUOrStructDType
     // @astgen op1 := childDTypep : Optional[AstNodeDType]
@@ -1084,219 +1084,219 @@ class AstMemberDType final : public AstNodeDType {
     //
     // @astgen ptr := m_refDTypep : Optional[AstNodeDType]  // Elements of this type (post-width)
     string m_name;  // Name of variable
-    string m_tag;  // Holds the string of the verilator tag -- used in JSON output.
-    int m_lsb = -1;  // Within this level's packed struct, the LSB of the first bit of the member
+    string m_ట్యాగ్;  // Holds the string of the verilator tag -- used in JSON output.
+    పూర్ణాంకం m_lsb = -1;  // Within this level's packed struct, the LSB of the first bit of the member
     bool m_constrainedRand = false;  // Member has a constraint expression
     VRandAttr m_rand;  // Randomizability of this member (rand, randc, etc)
-public:
-    AstMemberDType(FileLine* fl, const string& name, VFlagChildDType, AstNodeDType* dtp,
-                   AstNode* valuep)
+బహిరంగ:
+    AstMemberDType(File_పంక్తి* fl, స్థిరరాశి string& name, VFlag_బిడ్డ_DType, Ast_కణుపు_DType* dtp,
+                   Ast_కణుపు* valuep)
         : ASTGEN_SUPER_MemberDType(fl)
         , m_name{name} {
-        childDTypep(dtp);  // Only for parser
+        బిడ్డ_DTypep(dtp);  // Only for parser
         this->valuep(valuep);
         dtypep(nullptr);  // V3Width will resolve
         refDTypep(nullptr);
     }
-    AstMemberDType(FileLine* fl, const string& name, AstNodeDType* dtp)
+    AstMemberDType(File_పంక్తి* fl, స్థిరరాశి string& name, Ast_కణుపు_DType* dtp)
         : ASTGEN_SUPER_MemberDType(fl)
         , m_name{name} {
         UASSERT(dtp, "AstMember created with no dtype");
         refDTypep(dtp);
         dtypep(this);
-        widthFromSub(subDTypep());
+        వెడల్పు_From_Sub(subDTypep());
     }
     ASTGEN_MEMBERS_AstMemberDType;
-    void dump(std::ostream& str = std::cout) const override;
-    void dumpJson(std::ostream& str = std::cout) const override;
-    void dumpSmall(std::ostream& str) const override;
-    string prettyDTypeName(bool full) const override;
-    string name() const override VL_MT_STABLE { return m_name; }  // * = Var name
-    bool hasDType() const override VL_MT_SAFE { return true; }
-    bool maybePointedTo() const override VL_MT_SAFE { return true; }
-    AstNodeDType* getChildDTypep() const override { return childDTypep(); }
-    AstNodeUOrStructDType* getChildStructp();
-    AstNodeDType* subDTypep() const override VL_MT_STABLE {
-        return m_refDTypep ? m_refDTypep : childDTypep();
+    శూన్య dump(std::ostream& str = std::cout) స్థిరరాశి override;
+    శూన్య dumpJson(std::ostream& str = std::cout) స్థిరరాశి override;
+    శూన్య dumpSmall(std::ostream& str) స్థిరరాశి override;
+    string prettyDTypeName(bool నిండిన_2) స్థిరరాశి override;
+    string name() స్థిరరాశి override VL_MT_STABLE { తిరిగి m_name; }  // * = Var name
+    bool hasDType() స్థిరరాశి override VL_MT_సురక్షిత { తిరిగి true; }
+    bool maybe_Pointed_గమ్యం() స్థిరరాశి override VL_MT_సురక్షిత { తిరిగి true; }
+    Ast_కణుపు_DType* get_బిడ్డ_DTypep() స్థిరరాశి override { తిరిగి బిడ్డ_DTypep(); }
+    Ast_కణుపు_UOr_Struct_DType* get_బిడ్డ_Structp();
+    Ast_కణుపు_DType* subDTypep() స్థిరరాశి override VL_MT_STABLE {
+        తిరిగి m_refDTypep ? m_refDTypep : బిడ్డ_DTypep();
     }
-    void refDTypep(AstNodeDType* nodep) { m_refDTypep = nodep; }
-    AstNodeDType* virtRefDTypep() const override { return m_refDTypep; }
-    void virtRefDTypep(AstNodeDType* nodep) override { refDTypep(nodep); }
-    bool similarDTypeNode(const AstNodeDType* samep) const override { return this == samep; }
+    శూన్య refDTypep(Ast_కణుపు_DType* nodep) { m_refDTypep = nodep; }
+    Ast_కణుపు_DType* virtRefDTypep() స్థిరరాశి override { తిరిగి m_refDTypep; }
+    శూన్య virtRefDTypep(Ast_కణుపు_DType* nodep) override { refDTypep(nodep); }
+    bool similar_DType_కణుపు(స్థిరరాశి Ast_కణుపు_DType* samep) స్థిరరాశి override { తిరిగి this == samep; }
     //
     // (Slow) recurse down to find basic data type (Note don't need virtual -
     // AstVar isn't a NodeDType)
-    AstBasicDType* basicp() const override VL_MT_STABLE { return subDTypep()->basicp(); }
+    AstBasicDType* basicp() స్థిరరాశి override VL_MT_STABLE { తిరిగి subDTypep()->basicp(); }
     // op1 = Range of variable (Note don't need virtual - AstVar isn't a NodeDType)
-    AstNodeDType* dtypeSkipRefp() const { return subDTypep()->skipRefp(); }
+    Ast_కణుపు_DType* dtypeSkipRefp() స్థిరరాశి { తిరిగి subDTypep()->skipRefp(); }
     // (Slow) recurses - Structure alignment 1,2,4 or 8 bytes (arrays affect this)
-    int widthAlignBytes() const override { return subDTypep()->widthAlignBytes(); }
+    పూర్ణాంకం వెడల్పు_Align_బైట్లు() స్థిరరాశి override { తిరిగి subDTypep()->వెడల్పు_Align_బైట్లు(); }
     // (Slow) recurses - Width in bytes rounding up 1,2,4,8,12,...
-    int widthTotalBytes() const override { return subDTypep()->widthTotalBytes(); }
+    పూర్ణాంకం వెడల్పు_మొత్తం_బైట్లు() స్థిరరాశి override { తిరిగి subDTypep()->వెడల్పు_మొత్తం_బైట్లు(); }
     // METHODS
-    void name(const string& name) override { m_name = name; }
-    string tag() const override { return m_tag; }
-    void tag(const string& text) override { m_tag = text; }
-    int lsb() const { return m_lsb; }
-    void lsb(int lsb) { m_lsb = lsb; }
-    bool isCompound() const override {
+    శూన్య name(స్థిరరాశి string& name) override { m_name = name; }
+    string ట్యాగ్() స్థిరరాశి override { తిరిగి m_ట్యాగ్; }
+    శూన్య ట్యాగ్(స్థిరరాశి string& పాఠ్యం) override { m_ట్యాగ్ = పాఠ్యం; }
+    పూర్ణాంకం lsb() స్థిరరాశి { తిరిగి m_lsb; }
+    శూన్య lsb(పూర్ణాంకం lsb) { m_lsb = lsb; }
+    bool isCompound() స్థిరరాశి override {
         v3fatalSrc("call isCompound on subdata type, not reference");
-        return false;
+        తిరిగి false;
     }
-    bool isConstrainedRand() const { return m_constrainedRand; }
-    void markConstrainedRand(bool flag) { m_constrainedRand = flag; }
-    VRandAttr rand() const { return m_rand; }
-    void rand(const VRandAttr flag) { m_rand = flag; }
+    bool isConstrainedRand() స్థిరరాశి { తిరిగి m_constrainedRand; }
+    శూన్య markConstrainedRand(bool flag) { m_constrainedRand = flag; }
+    VRandAttr rand() స్థిరరాశి { తిరిగి m_rand; }
+    శూన్య rand(స్థిరరాశి VRandAttr flag) { m_rand = flag; }
 };
-class AstNBACommitQueueDType final : public AstNodeDType {
+class Ast_NBACommit_వరుస_DType final : బహిరంగ Ast_కణుపు_DType {
     // @astgen ptr := m_subDTypep : AstNodeDType  // Type of the corresponding variable
-    const bool m_partial;  // Partial element update required
+    స్థిరరాశి bool m_partial;  // Partial element update required
 
-public:
-    AstNBACommitQueueDType(FileLine* fl, AstNodeDType* subDTypep, bool partial)
-        : ASTGEN_SUPER_NBACommitQueueDType(fl)
+బహిరంగ:
+    Ast_NBACommit_వరుస_DType(File_పంక్తి* fl, Ast_కణుపు_DType* subDTypep, bool partial)
+        : ASTGEN_SUPER_NBACommit_వరుస_DType(fl)
         , m_partial{partial}
         , m_subDTypep{subDTypep} {
         dtypep(this);
     }
-    ASTGEN_MEMBERS_AstNBACommitQueueDType;
-    void dump(std::ostream& str) const override;
-    void dumpJson(std::ostream& str) const override;
-    AstNodeDType* subDTypep() const override VL_MT_STABLE { return m_subDTypep; }
-    bool partial() const { return m_partial; }
-    bool sameNode(const AstNode* samep) const override {
-        const AstNBACommitQueueDType* const asamep = VN_DBG_AS(samep, NBACommitQueueDType);
-        return m_partial == asamep->m_partial;
+    ASTGEN_MEMBERS_Ast_NBACommit_వరుస_DType;
+    శూన్య dump(std::ostream& str) స్థిరరాశి override;
+    శూన్య dumpJson(std::ostream& str) స్థిరరాశి override;
+    Ast_కణుపు_DType* subDTypep() స్థిరరాశి override VL_MT_STABLE { తిరిగి m_subDTypep; }
+    bool partial() స్థిరరాశి { తిరిగి m_partial; }
+    bool same_కణుపు(స్థిరరాశి Ast_కణుపు* samep) స్థిరరాశి override {
+        స్థిరరాశి Ast_NBACommit_వరుస_DType* స్థిరరాశి asamep = VN_DBG_AS(samep, NBACommit_వరుస_DType);
+        తిరిగి m_partial == asamep->m_partial;
     }
-    bool similarDTypeNode(const AstNodeDType* samep) const override { return this == samep; }
-    AstBasicDType* basicp() const override VL_MT_STABLE { return nullptr; }
-    int widthAlignBytes() const override { return 1; }
-    int widthTotalBytes() const override { return 24; }
-    bool isCompound() const override { return true; }
+    bool similar_DType_కణుపు(స్థిరరాశి Ast_కణుపు_DType* samep) స్థిరరాశి override { తిరిగి this == samep; }
+    AstBasicDType* basicp() స్థిరరాశి override VL_MT_STABLE { తిరిగి nullptr; }
+    పూర్ణాంకం వెడల్పు_Align_బైట్లు() స్థిరరాశి override { తిరిగి 1; }
+    పూర్ణాంకం వెడల్పు_మొత్తం_బైట్లు() స్థిరరాశి override { తిరిగి 24; }
+    bool isCompound() స్థిరరాశి override { తిరిగి true; }
 };
-class AstParamTypeDType final : public AstNodeDType {
+class AstParamTypeDType final : బహిరంగ Ast_కణుపు_DType {
     // Parents: MODULE
     // A parameter type statement; much like a var or typedef
     // @astgen op1 := childDTypep : Optional[AstNodeDType]
-    const VVarType m_varType;  // Type of variable (for localparam vs. param)
-    const VFwdType m_fwdType;  // Forward type for lint check
+    స్థిరరాశి VVarType m_varType;  // Type of variable (for localparam vs. param)
+    స్థిరరాశి VFwdType m_fwdType;  // Forward type for lint check
     string m_name;  // Name of variable
-public:
-    AstParamTypeDType(FileLine* fl, VVarType type, VFwdType fwdType, const string& name,
-                      VFlagChildDType, AstNodeDType* dtp)
+బహిరంగ:
+    AstParamTypeDType(File_పంక్తి* fl, VVarType type, VFwdType fwdType, స్థిరరాశి string& name,
+                      VFlag_బిడ్డ_DType, Ast_కణుపు_DType* dtp)
         : ASTGEN_SUPER_ParamTypeDType(fl)
         , m_varType{type}
         , m_fwdType{fwdType}
         , m_name{name} {
-        childDTypep(dtp);  // Only for parser
+        బిడ్డ_DTypep(dtp);  // Only for parser
         dtypep(nullptr);  // V3Width will resolve
     }
     ASTGEN_MEMBERS_AstParamTypeDType;
-    void dump(std::ostream& str = std::cout) const override;
-    void dumpJson(std::ostream& str = std::cout) const override;
-    string prettyDTypeName(bool full) const override;
-    AstNodeDType* getChildDTypep() const override { return childDTypep(); }
-    AstNodeDType* subDTypep() const override VL_MT_STABLE {
-        return dtypep() ? dtypep() : childDTypep();
+    శూన్య dump(std::ostream& str = std::cout) స్థిరరాశి override;
+    శూన్య dumpJson(std::ostream& str = std::cout) స్థిరరాశి override;
+    string prettyDTypeName(bool నిండిన_2) స్థిరరాశి override;
+    Ast_కణుపు_DType* get_బిడ్డ_DTypep() స్థిరరాశి override { తిరిగి బిడ్డ_DTypep(); }
+    Ast_కణుపు_DType* subDTypep() స్థిరరాశి override VL_MT_STABLE {
+        తిరిగి dtypep() ? dtypep() : బిడ్డ_DTypep();
     }
-    AstBasicDType* basicp() const override VL_MT_STABLE { return subDTypep()->basicp(); }
-    bool similarDTypeNode(const AstNodeDType* samep) const override {
-        const AstParamTypeDType* const sp = VN_DBG_AS(samep, ParamTypeDType);
-        return this->subDTypep()->similarDType(sp->subDTypep());
+    AstBasicDType* basicp() స్థిరరాశి override VL_MT_STABLE { తిరిగి subDTypep()->basicp(); }
+    bool similar_DType_కణుపు(స్థిరరాశి Ast_కణుపు_DType* samep) స్థిరరాశి override {
+        స్థిరరాశి AstParamTypeDType* స్థిరరాశి sp = VN_DBG_AS(samep, ParamTypeDType);
+        తిరిగి this->subDTypep()->similarDType(sp->subDTypep());
     }
-    int widthAlignBytes() const override { return dtypep()->widthAlignBytes(); }
-    int widthTotalBytes() const override { return dtypep()->widthTotalBytes(); }
+    పూర్ణాంకం వెడల్పు_Align_బైట్లు() స్థిరరాశి override { తిరిగి dtypep()->వెడల్పు_Align_బైట్లు(); }
+    పూర్ణాంకం వెడల్పు_మొత్తం_బైట్లు() స్థిరరాశి override { తిరిగి dtypep()->వెడల్పు_మొత్తం_బైట్లు(); }
     // METHODS
-    string name() const override VL_MT_STABLE { return m_name; }
-    bool maybePointedTo() const override VL_MT_SAFE { return true; }
-    bool hasDType() const override VL_MT_SAFE { return true; }
-    void name(const string& flag) override { m_name = flag; }
-    VVarType varType() const { return m_varType; }  // * = Type of variable
-    VFwdType fwdType() const { return m_fwdType; }
-    bool isParam() const { return true; }
-    bool isGParam() const { return (varType() == VVarType::GPARAM); }
-    bool isCompound() const override {
+    string name() స్థిరరాశి override VL_MT_STABLE { తిరిగి m_name; }
+    bool maybe_Pointed_గమ్యం() స్థిరరాశి override VL_MT_సురక్షిత { తిరిగి true; }
+    bool hasDType() స్థిరరాశి override VL_MT_సురక్షిత { తిరిగి true; }
+    శూన్య name(స్థిరరాశి string& flag) override { m_name = flag; }
+    VVarType varType() స్థిరరాశి { తిరిగి m_varType; }  // * = Type of variable
+    VFwdType fwdType() స్థిరరాశి { తిరిగి m_fwdType; }
+    bool isParam() స్థిరరాశి { తిరిగి true; }
+    bool isGParam() స్థిరరాశి { తిరిగి (varType() == VVarType::GPARAM); }
+    bool isCompound() స్థిరరాశి override {
         v3fatalSrc("call isCompound on subdata type, not reference");
-        return false;
+        తిరిగి false;
     }
 };
-class AstParseTypeDType final : public AstNodeDType {
+class AstParseTypeDType final : బహిరంగ Ast_కణుపు_DType {
     // Parents: VAR
     // During parsing, this indicates the type of a parameter is a "parameter type"
     // e.g. the data type is a container of any data type
-    const VFwdType m_fwdType;  // Forward type for lint check
-public:
-    explicit AstParseTypeDType(FileLine* fl, VFwdType fwdType = VFwdType::NONE)
+    స్థిరరాశి VFwdType m_fwdType;  // Forward type for lint check
+బహిరంగ:
+    explicit AstParseTypeDType(File_పంక్తి* fl, VFwdType fwdType = VFwdType::NONE)
         : ASTGEN_SUPER_ParseTypeDType(fl)
         , m_fwdType{fwdType} {}
     ASTGEN_MEMBERS_AstParseTypeDType;
-    AstNodeDType* dtypep() const VL_MT_STABLE { return nullptr; }
+    Ast_కణుపు_DType* dtypep() స్థిరరాశి VL_MT_STABLE { తిరిగి nullptr; }
     // METHODS
-    void dump(std::ostream& str = std::cout) const override;
-    void dumpJson(std::ostream& str = std::cout) const override;
-    bool similarDTypeNode(const AstNodeDType* samep) const override { return this == samep; }
-    AstBasicDType* basicp() const override VL_MT_STABLE { return nullptr; }
-    int widthAlignBytes() const override { return 0; }
-    int widthTotalBytes() const override { return 0; }
-    bool isCompound() const override {
+    శూన్య dump(std::ostream& str = std::cout) స్థిరరాశి override;
+    శూన్య dumpJson(std::ostream& str = std::cout) స్థిరరాశి override;
+    bool similar_DType_కణుపు(స్థిరరాశి Ast_కణుపు_DType* samep) స్థిరరాశి override { తిరిగి this == samep; }
+    AstBasicDType* basicp() స్థిరరాశి override VL_MT_STABLE { తిరిగి nullptr; }
+    పూర్ణాంకం వెడల్పు_Align_బైట్లు() స్థిరరాశి override { తిరిగి 0; }
+    పూర్ణాంకం వెడల్పు_మొత్తం_బైట్లు() స్థిరరాశి override { తిరిగి 0; }
+    bool isCompound() స్థిరరాశి override {
         v3fatalSrc("call isCompound on subdata type, not reference");
-        return false;
+        తిరిగి false;
     }
-    VFwdType fwdType() const { return m_fwdType; }
+    VFwdType fwdType() స్థిరరాశి { తిరిగి m_fwdType; }
 };
-class AstQueueDType final : public AstNodeDType {
+class Ast_వరుస_DType final : బహిరంగ Ast_కణుపు_DType {
     // Queue array data type, ie "[ $ ]"
     // @astgen op1 := childDTypep : Optional[AstNodeDType] // moved to refDTypep() in V3Width
     // @astgen op2 := boundp : Optional[AstNodeExpr]
     //
     // @astgen ptr := m_refDTypep : Optional[AstNodeDType]  // Elements of this type (post-width)
-public:
-    AstQueueDType(FileLine* fl, VFlagChildDType, AstNodeDType* dtp, AstNodeExpr* boundp)
-        : ASTGEN_SUPER_QueueDType(fl) {
-        childDTypep(dtp);
+బహిరంగ:
+    Ast_వరుస_DType(File_పంక్తి* fl, VFlag_బిడ్డ_DType, Ast_కణుపు_DType* dtp, Ast_కణుపు_సమాసం* boundp)
+        : ASTGEN_SUPER_వరుస_DType(fl) {
+        బిడ్డ_DTypep(dtp);
         this->boundp(boundp);
         refDTypep(nullptr);
         dtypep(nullptr);  // V3Width will resolve
     }
-    AstQueueDType(FileLine* fl, AstNodeDType* dtp, AstNodeExpr* boundp)
-        : ASTGEN_SUPER_QueueDType(fl) {
+    Ast_వరుస_DType(File_పంక్తి* fl, Ast_కణుపు_DType* dtp, Ast_కణుపు_సమాసం* boundp)
+        : ASTGEN_SUPER_వరుస_DType(fl) {
         this->boundp(boundp);
         refDTypep(dtp);
         dtypep(dtp);
     }
-    ASTGEN_MEMBERS_AstQueueDType;
-    const char* broken() const override {
-        BROKEN_RTN(!((m_refDTypep && !childDTypep()) || (!m_refDTypep && childDTypep())));
-        return nullptr;
+    ASTGEN_MEMBERS_Ast_వరుస_DType;
+    స్థిరరాశి అక్షరం* broken() స్థిరరాశి override {
+        BROKEN_RTN(!((m_refDTypep && !బిడ్డ_DTypep()) || (!m_refDTypep && బిడ్డ_DTypep())));
+        తిరిగి nullptr;
     }
-    bool sameNode(const AstNode* samep) const override {
-        const AstQueueDType* const asamep = VN_DBG_AS(samep, QueueDType);
-        if (!asamep->subDTypep()) return false;
-        return (subDTypep() == asamep->subDTypep());
+    bool same_కణుపు(స్థిరరాశి Ast_కణుపు* samep) స్థిరరాశి override {
+        స్థిరరాశి Ast_వరుస_DType* స్థిరరాశి asamep = VN_DBG_AS(samep, వరుస_DType);
+        ఒకవేళ (!asamep->subDTypep()) తిరిగి false;
+        తిరిగి (subDTypep() == asamep->subDTypep());
     }
-    bool similarDTypeNode(const AstNodeDType* samep) const override {
-        const AstQueueDType* const asamep = VN_DBG_AS(samep, QueueDType);
-        return asamep->subDTypep() && subDTypep()->similarDType(asamep->subDTypep());
+    bool similar_DType_కణుపు(స్థిరరాశి Ast_కణుపు_DType* samep) స్థిరరాశి override {
+        స్థిరరాశి Ast_వరుస_DType* స్థిరరాశి asamep = VN_DBG_AS(samep, వరుస_DType);
+        తిరిగి asamep->subDTypep() && subDTypep()->similarDType(asamep->subDTypep());
     }
-    void dumpSmall(std::ostream& str) const override;
-    string prettyDTypeName(bool full) const override;
-    AstNodeDType* getChildDTypep() const override { return childDTypep(); }
-    AstNodeDType* subDTypep() const override VL_MT_STABLE {
-        return m_refDTypep ? m_refDTypep : childDTypep();
+    శూన్య dumpSmall(std::ostream& str) స్థిరరాశి override;
+    string prettyDTypeName(bool నిండిన_2) స్థిరరాశి override;
+    Ast_కణుపు_DType* get_బిడ్డ_DTypep() స్థిరరాశి override { తిరిగి బిడ్డ_DTypep(); }
+    Ast_కణుపు_DType* subDTypep() స్థిరరాశి override VL_MT_STABLE {
+        తిరిగి m_refDTypep ? m_refDTypep : బిడ్డ_DTypep();
     }
-    bool isAggregateType() const override { return true; }
-    void refDTypep(AstNodeDType* nodep) { m_refDTypep = nodep; }
-    inline int boundConst() const VL_MT_STABLE;
-    AstNodeDType* virtRefDTypep() const override { return m_refDTypep; }
-    void virtRefDTypep(AstNodeDType* nodep) override { refDTypep(nodep); }
+    bool isAggregateType() స్థిరరాశి override { తిరిగి true; }
+    శూన్య refDTypep(Ast_కణుపు_DType* nodep) { m_refDTypep = nodep; }
+    అంతఃవరుస పూర్ణాంకం boundConst() స్థిరరాశి VL_MT_STABLE;
+    Ast_కణుపు_DType* virtRefDTypep() స్థిరరాశి override { తిరిగి m_refDTypep; }
+    శూన్య virtRefDTypep(Ast_కణుపు_DType* nodep) override { refDTypep(nodep); }
     // METHODS
-    AstBasicDType* basicp() const override VL_MT_STABLE { return nullptr; }
-    int widthAlignBytes() const override { return subDTypep()->widthAlignBytes(); }
-    int widthTotalBytes() const override { return subDTypep()->widthTotalBytes(); }
-    bool isCompound() const override { return true; }
-    bool isDynamicallySized() const override { return true; }
+    AstBasicDType* basicp() స్థిరరాశి override VL_MT_STABLE { తిరిగి nullptr; }
+    పూర్ణాంకం వెడల్పు_Align_బైట్లు() స్థిరరాశి override { తిరిగి subDTypep()->వెడల్పు_Align_బైట్లు(); }
+    పూర్ణాంకం వెడల్పు_మొత్తం_బైట్లు() స్థిరరాశి override { తిరిగి subDTypep()->వెడల్పు_మొత్తం_బైట్లు(); }
+    bool isCompound() స్థిరరాశి override { తిరిగి true; }
+    bool isDynamicallySized() స్థిరరాశి override { తిరిగి true; }
 };
-class AstRefDType final : public AstNodeDType {
+class AstRefDType final : బహిరంగ Ast_కణుపు_DType {
     // @astgen op1 := typeofp : Optional[AstNode<AstNodeExpr|AstNodeDType>]
     // @astgen op2 := classOrPackageOpp : Optional[AstNodeExpr]
     // @astgen op3 := paramsp : List[AstPin]
@@ -1310,330 +1310,330 @@ class AstRefDType final : public AstNodeDType {
     // @astgen ptr := m_classOrPackagep : Optional[AstNodeModule]  // Class/package defined in
     string m_name;  // Name of an AstTypedef
     // Interface capture tag, owned by V3LinkDotIfaceCapture; cloning copies it
-    const VIfaceCaptureTag* m_captureTagp = nullptr;
+    స్థిరరాశి VIface_Capture_ట్యాగ్* m_captureTagp = nullptr;
 
-public:
-    AstRefDType(FileLine* fl, const string& name)
+బహిరంగ:
+    AstRefDType(File_పంక్తి* fl, స్థిరరాశి string& name)
         : ASTGEN_SUPER_RefDType(fl)
         , m_name{name} {}
-    AstRefDType(FileLine* fl, const string& name, AstNodeExpr* classOrPackagep, AstPin* paramsp)
+    AstRefDType(File_పంక్తి* fl, స్థిరరాశి string& name, Ast_కణుపు_సమాసం* classOrPackagep, AstPin* paramsp)
         : ASTGEN_SUPER_RefDType(fl)
         , m_name{name} {
         classOrPackageOpp(classOrPackagep);
-        addParamsp(paramsp);
+        కూడు_Paramsp(paramsp);
     }
-    class FlagTypeOfExpr {};  // type(expr) for parser only
-    AstRefDType(FileLine* fl, FlagTypeOfExpr, AstNode* typeofp)
+    class Flag_Type_యొక్క_సమాసం {};  // type(expr) for parser only
+    AstRefDType(File_పంక్తి* fl, Flag_Type_యొక్క_సమాసం, Ast_కణుపు* typeofp)
         : ASTGEN_SUPER_RefDType(fl) {
         this->typeofp(typeofp);
-        if (AstNodeDType* const dtp = VN_CAST(typeofp, NodeDType)) refDTypep(dtp);
+        ఒకవేళ (Ast_కణుపు_DType* స్థిరరాశి dtp = VN_CAST(typeofp, కణుపు_DType)) refDTypep(dtp);
     }
     ASTGEN_MEMBERS_AstRefDType;
     // METHODS
-    bool sameNode(const AstNode* samep) const override {
-        const AstRefDType* const asamep = VN_DBG_AS(samep, RefDType);
-        return (m_typedefp == asamep->m_typedefp && m_refDTypep == asamep->m_refDTypep
+    bool same_కణుపు(స్థిరరాశి Ast_కణుపు* samep) స్థిరరాశి override {
+        స్థిరరాశి AstRefDType* స్థిరరాశి asamep = VN_DBG_AS(samep, RefDType);
+        తిరిగి (m_typedefp == asamep->m_typedefp && m_refDTypep == asamep->m_refDTypep
                 && m_name == asamep->m_name && m_classOrPackagep == asamep->m_classOrPackagep);
     }
-    bool similarDTypeNode(const AstNodeDType* samep) const override {
-        return subDTypep()->similarDType(samep->subDTypep());
+    bool similar_DType_కణుపు(స్థిరరాశి Ast_కణుపు_DType* samep) స్థిరరాశి override {
+        తిరిగి subDTypep()->similarDType(samep->subDTypep());
     }
-    const char* broken() const override;
-    void dump(std::ostream& str = std::cout) const override;
-    void dumpJson(std::ostream& str = std::cout) const override;
-    void dumpSmall(std::ostream& str) const override;
-    string name() const override VL_MT_STABLE { return m_name; }
-    string prettyDTypeName(bool full) const override {
-        return subDTypep() ? subDTypep()->prettyDTypeName(full) : prettyName();
+    స్థిరరాశి అక్షరం* broken() స్థిరరాశి override;
+    శూన్య dump(std::ostream& str = std::cout) స్థిరరాశి override;
+    శూన్య dumpJson(std::ostream& str = std::cout) స్థిరరాశి override;
+    శూన్య dumpSmall(std::ostream& str) స్థిరరాశి override;
+    string name() స్థిరరాశి override VL_MT_STABLE { తిరిగి m_name; }
+    string prettyDTypeName(bool నిండిన_2) స్థిరరాశి override {
+        తిరిగి subDTypep() ? subDTypep()->prettyDTypeName(నిండిన_2) : prettyName();
     }
-    AstBasicDType* basicp() const override VL_MT_STABLE {
-        return subDTypep() ? subDTypep()->basicp() : nullptr;
+    AstBasicDType* basicp() స్థిరరాశి override VL_MT_STABLE {
+        తిరిగి subDTypep() ? subDTypep()->basicp() : nullptr;
     }
-    AstNodeDType* subDTypep() const override VL_MT_STABLE;
-    AstNodeDType* getChildDTypep() const override { return VN_CAST(typeofp(), NodeDType); }
-    int widthAlignBytes() const override { return dtypeSkipRefp()->widthAlignBytes(); }
-    int widthTotalBytes() const override { return dtypeSkipRefp()->widthTotalBytes(); }
-    void name(const string& flag) override { m_name = flag; }
-    AstNodeDType* dtypeSkipRefp() const { return subDTypep()->skipRefp(); }
-    AstTypedef* typedefp() const VL_MT_SAFE { return m_typedefp; }
-    void typedefp(AstTypedef* nodep) { m_typedefp = nodep; }
-    AstNodeDType* refDTypep() const VL_MT_SAFE { return m_refDTypep; }
-    void refDTypep(AstNodeDType* nodep) { m_refDTypep = nodep; }
-    AstNodeDType* virtRefDTypep() const override { return refDTypep(); }
-    void virtRefDTypep(AstNodeDType* nodep) override { refDTypep(nodep); }
-    AstNodeModule* classOrPackagep() const { return m_classOrPackagep; }
-    void classOrPackagep(AstNodeModule* nodep) { m_classOrPackagep = nodep; }
-    const VIfaceCaptureTag* captureTagp() const { return m_captureTagp; }
-    void captureTagp(const VIfaceCaptureTag* tagp) { m_captureTagp = tagp; }
-    bool isCompound() const override {
+    Ast_కణుపు_DType* subDTypep() స్థిరరాశి override VL_MT_STABLE;
+    Ast_కణుపు_DType* get_బిడ్డ_DTypep() స్థిరరాశి override { తిరిగి VN_CAST(typeofp(), కణుపు_DType); }
+    పూర్ణాంకం వెడల్పు_Align_బైట్లు() స్థిరరాశి override { తిరిగి dtypeSkipRefp()->వెడల్పు_Align_బైట్లు(); }
+    పూర్ణాంకం వెడల్పు_మొత్తం_బైట్లు() స్థిరరాశి override { తిరిగి dtypeSkipRefp()->వెడల్పు_మొత్తం_బైట్లు(); }
+    శూన్య name(స్థిరరాశి string& flag) override { m_name = flag; }
+    Ast_కణుపు_DType* dtypeSkipRefp() స్థిరరాశి { తిరిగి subDTypep()->skipRefp(); }
+    AstTypedef* typedefp() స్థిరరాశి VL_MT_సురక్షిత { తిరిగి m_typedefp; }
+    శూన్య typedefp(AstTypedef* nodep) { m_typedefp = nodep; }
+    Ast_కణుపు_DType* refDTypep() స్థిరరాశి VL_MT_సురక్షిత { తిరిగి m_refDTypep; }
+    శూన్య refDTypep(Ast_కణుపు_DType* nodep) { m_refDTypep = nodep; }
+    Ast_కణుపు_DType* virtRefDTypep() స్థిరరాశి override { తిరిగి refDTypep(); }
+    శూన్య virtRefDTypep(Ast_కణుపు_DType* nodep) override { refDTypep(nodep); }
+    Ast_కణుపు_Module* classOrPackagep() స్థిరరాశి { తిరిగి m_classOrPackagep; }
+    శూన్య classOrPackagep(Ast_కణుపు_Module* nodep) { m_classOrPackagep = nodep; }
+    స్థిరరాశి VIface_Capture_ట్యాగ్* captureTagp() స్థిరరాశి { తిరిగి m_captureTagp; }
+    శూన్య captureTagp(స్థిరరాశి VIface_Capture_ట్యాగ్* tagp) { m_captureTagp = tagp; }
+    bool isCompound() స్థిరరాశి override {
         v3fatalSrc("call isCompound on subdata type, not reference");
-        return false;
+        తిరిగి false;
     }
 };
-class AstRequireDType final : public AstNodeDType {
+class AstRequireDType final : బహిరంగ Ast_కణుపు_DType {
     // @astgen op1 := lhsp : Optional[AstNode<AstNodeExpr|AstNodeDType>]
     //
     // Require a generic node type (typically AstParseRef become a type.
-public:
-    AstRequireDType(FileLine* fl, AstNode* lhsp)
+బహిరంగ:
+    AstRequireDType(File_పంక్తి* fl, Ast_కణుపు* lhsp)
         : ASTGEN_SUPER_RequireDType(fl) {
         this->lhsp(lhsp);
     }
     ASTGEN_MEMBERS_AstRequireDType;
     // METHODS
-    bool similarDTypeNode(const AstNodeDType* samep) const override {
-        const AstRequireDType* const asamep = VN_DBG_AS(samep, RequireDType);
-        return subDTypep()->similarDType(asamep->subDTypep());
+    bool similar_DType_కణుపు(స్థిరరాశి Ast_కణుపు_DType* samep) స్థిరరాశి override {
+        స్థిరరాశి AstRequireDType* స్థిరరాశి asamep = VN_DBG_AS(samep, RequireDType);
+        తిరిగి subDTypep()->similarDType(asamep->subDTypep());
     }
-    AstBasicDType* basicp() const override VL_MT_STABLE { return nullptr; }
-    AstNodeDType* subDTypep() const override VL_MT_STABLE {
+    AstBasicDType* basicp() స్థిరరాశి override VL_MT_STABLE { తిరిగి nullptr; }
+    Ast_కణుపు_DType* subDTypep() స్థిరరాశి override VL_MT_STABLE {
         // Used for recursive definition checking
-        if (AstNodeDType* const dtp = VN_CAST(lhsp(), NodeDType)) return dtp;
+        ఒకవేళ (Ast_కణుపు_DType* స్థిరరాశి dtp = VN_CAST(lhsp(), కణుపు_DType)) తిరిగి dtp;
 
-        return nullptr;
+        తిరిగి nullptr;
     }
-    int widthAlignBytes() const override { V3ERROR_NA_RETURN(1); }
-    int widthTotalBytes() const override { V3ERROR_NA_RETURN(1); }
-    bool isCompound() const override { V3ERROR_NA_RETURN(false); }
+    పూర్ణాంకం వెడల్పు_Align_బైట్లు() స్థిరరాశి override { V3ERROR_NA_RETURN(1); }
+    పూర్ణాంకం వెడల్పు_మొత్తం_బైట్లు() స్థిరరాశి override { V3ERROR_NA_RETURN(1); }
+    bool isCompound() స్థిరరాశి override { V3ERROR_NA_RETURN(false); }
 };
-class AstSampleQueueDType final : public AstNodeDType {
+class Ast_Sample_వరుస_DType final : బహిరంగ Ast_కణుపు_DType {
     // @astgen op1 := childDTypep : Optional[AstNodeDType] // moved to refDTypep() in V3Width
     //
     // @astgen ptr := m_refDTypep : Optional[AstNodeDType]  // Elements of this type (post-width)
-public:
-    AstSampleQueueDType(FileLine* fl, AstNodeDType* dtp)
-        : ASTGEN_SUPER_SampleQueueDType(fl) {
+బహిరంగ:
+    Ast_Sample_వరుస_DType(File_పంక్తి* fl, Ast_కణుపు_DType* dtp)
+        : ASTGEN_SUPER_Sample_వరుస_DType(fl) {
         refDTypep(dtp);
         dtypep(dtp);
     }
-    ASTGEN_MEMBERS_AstSampleQueueDType;
-    const char* broken() const override {
-        BROKEN_RTN(!((m_refDTypep && !childDTypep()) || (!m_refDTypep && childDTypep())));
-        return nullptr;
+    ASTGEN_MEMBERS_Ast_Sample_వరుస_DType;
+    స్థిరరాశి అక్షరం* broken() స్థిరరాశి override {
+        BROKEN_RTN(!((m_refDTypep && !బిడ్డ_DTypep()) || (!m_refDTypep && బిడ్డ_DTypep())));
+        తిరిగి nullptr;
     }
-    bool sameNode(const AstNode* samep) const override {
-        const AstSampleQueueDType* const asamep = VN_DBG_AS(samep, SampleQueueDType);
-        if (!asamep->subDTypep()) return false;
-        return (subDTypep() == asamep->subDTypep());
+    bool same_కణుపు(స్థిరరాశి Ast_కణుపు* samep) స్థిరరాశి override {
+        స్థిరరాశి Ast_Sample_వరుస_DType* స్థిరరాశి asamep = VN_DBG_AS(samep, Sample_వరుస_DType);
+        ఒకవేళ (!asamep->subDTypep()) తిరిగి false;
+        తిరిగి (subDTypep() == asamep->subDTypep());
     }
-    bool similarDTypeNode(const AstNodeDType* samep) const override {
-        const AstSampleQueueDType* const asamep = VN_DBG_AS(samep, SampleQueueDType);
-        return asamep->subDTypep() && subDTypep()->similarDType(asamep->subDTypep());
+    bool similar_DType_కణుపు(స్థిరరాశి Ast_కణుపు_DType* samep) స్థిరరాశి override {
+        స్థిరరాశి Ast_Sample_వరుస_DType* స్థిరరాశి asamep = VN_DBG_AS(samep, Sample_వరుస_DType);
+        తిరిగి asamep->subDTypep() && subDTypep()->similarDType(asamep->subDTypep());
     }
-    void dumpSmall(std::ostream& str) const override;
-    AstNodeDType* getChildDTypep() const override { return childDTypep(); }
+    శూన్య dumpSmall(std::ostream& str) స్థిరరాశి override;
+    Ast_కణుపు_DType* get_బిడ్డ_DTypep() స్థిరరాశి override { తిరిగి బిడ్డ_DTypep(); }
     // op1 = Range of variable
-    AstNodeDType* subDTypep() const override VL_MT_STABLE {
-        return m_refDTypep ? m_refDTypep : childDTypep();
+    Ast_కణుపు_DType* subDTypep() స్థిరరాశి override VL_MT_STABLE {
+        తిరిగి m_refDTypep ? m_refDTypep : బిడ్డ_DTypep();
     }
-    void refDTypep(AstNodeDType* nodep) { m_refDTypep = nodep; }
-    AstNodeDType* virtRefDTypep() const override { return m_refDTypep; }
-    void virtRefDTypep(AstNodeDType* nodep) override { refDTypep(nodep); }
+    శూన్య refDTypep(Ast_కణుపు_DType* nodep) { m_refDTypep = nodep; }
+    Ast_కణుపు_DType* virtRefDTypep() స్థిరరాశి override { తిరిగి m_refDTypep; }
+    శూన్య virtRefDTypep(Ast_కణుపు_DType* nodep) override { refDTypep(nodep); }
     // METHODS
-    AstBasicDType* basicp() const override VL_MT_STABLE { return subDTypep()->basicp(); }
-    int widthAlignBytes() const override { return sizeof(std::map<std::string, std::string>); }
-    int widthTotalBytes() const override { return sizeof(std::map<std::string, std::string>); }
-    bool isCompound() const override { return true; }
+    AstBasicDType* basicp() స్థిరరాశి override VL_MT_STABLE { తిరిగి subDTypep()->basicp(); }
+    పూర్ణాంకం వెడల్పు_Align_బైట్లు() స్థిరరాశి override { తిరిగి పరిమాణం(std::map<std::string, std::string>); }
+    పూర్ణాంకం వెడల్పు_మొత్తం_బైట్లు() స్థిరరాశి override { తిరిగి పరిమాణం(std::map<std::string, std::string>); }
+    bool isCompound() స్థిరరాశి override { తిరిగి true; }
 };
-class AstStreamDType final : public AstNodeDType {
+class Ast_ప్రవాహం_DType final : బహిరంగ Ast_కణుపు_DType {
     // Stream data type, used only as data type of stream operations
     // Should behave like AstPackArrayDType, but it doesn't have a size
-public:
-    explicit AstStreamDType(FileLine* fl)
-        : ASTGEN_SUPER_StreamDType(fl) {
+బహిరంగ:
+    explicit Ast_ప్రవాహం_DType(File_పంక్తి* fl)
+        : ASTGEN_SUPER_ప్రవాహం_DType(fl) {
         dtypep(this);
     }
-    ASTGEN_MEMBERS_AstStreamDType;
-    void dumpSmall(std::ostream& str) const override;
-    bool hasDType() const override VL_MT_SAFE { return true; }
-    bool maybePointedTo() const override VL_MT_SAFE { return true; }
-    bool undead() const override { return true; }
-    AstNodeDType* subDTypep() const override VL_MT_STABLE { return nullptr; }
-    AstNodeDType* virtRefDTypep() const override { return nullptr; }
-    void virtRefDTypep(AstNodeDType* nodep) override {}
-    bool similarDTypeNode(const AstNodeDType* samep) const override { return this == samep; }
-    AstBasicDType* basicp() const override VL_MT_STABLE { return nullptr; }
-    int widthAlignBytes() const override { return 1; }
-    int widthTotalBytes() const override { return 1; }
-    bool isCompound() const override { return false; }
+    ASTGEN_MEMBERS_Ast_ప్రవాహం_DType;
+    శూన్య dumpSmall(std::ostream& str) స్థిరరాశి override;
+    bool hasDType() స్థిరరాశి override VL_MT_సురక్షిత { తిరిగి true; }
+    bool maybe_Pointed_గమ్యం() స్థిరరాశి override VL_MT_సురక్షిత { తిరిగి true; }
+    bool undead() స్థిరరాశి override { తిరిగి true; }
+    Ast_కణుపు_DType* subDTypep() స్థిరరాశి override VL_MT_STABLE { తిరిగి nullptr; }
+    Ast_కణుపు_DType* virtRefDTypep() స్థిరరాశి override { తిరిగి nullptr; }
+    శూన్య virtRefDTypep(Ast_కణుపు_DType* nodep) override {}
+    bool similar_DType_కణుపు(స్థిరరాశి Ast_కణుపు_DType* samep) స్థిరరాశి override { తిరిగి this == samep; }
+    AstBasicDType* basicp() స్థిరరాశి override VL_MT_STABLE { తిరిగి nullptr; }
+    పూర్ణాంకం వెడల్పు_Align_బైట్లు() స్థిరరాశి override { తిరిగి 1; }
+    పూర్ణాంకం వెడల్పు_మొత్తం_బైట్లు() స్థిరరాశి override { తిరిగి 1; }
+    bool isCompound() స్థిరరాశి override { తిరిగి false; }
 };
-class AstUnsizedArrayDType final : public AstNodeDType {
+class AstUnsizedArrayDType final : బహిరంగ Ast_కణుపు_DType {
     // Unsized/open-range Array data type, ie "some_dtype var_name []"
     // @astgen op1 := childDTypep : Optional[AstNodeDType] // moved to refDTypep() in V3Width
     //
     // @astgen ptr := m_refDTypep : Optional[AstNodeDType]  // Elements of this type (post-width)
-public:
-    AstUnsizedArrayDType(FileLine* fl, VFlagChildDType, AstNodeDType* dtp)
+బహిరంగ:
+    AstUnsizedArrayDType(File_పంక్తి* fl, VFlag_బిడ్డ_DType, Ast_కణుపు_DType* dtp)
         : ASTGEN_SUPER_UnsizedArrayDType(fl) {
-        childDTypep(dtp);  // Only for parser
+        బిడ్డ_DTypep(dtp);  // Only for parser
         refDTypep(nullptr);
         dtypep(nullptr);  // V3Width will resolve
     }
-    AstUnsizedArrayDType(FileLine* fl, AstNodeDType* dtp)
+    AstUnsizedArrayDType(File_పంక్తి* fl, Ast_కణుపు_DType* dtp)
         : ASTGEN_SUPER_UnsizedArrayDType(fl) {
         refDTypep(dtp);
         dtypep(nullptr);  // V3Width will resolve
     }
     ASTGEN_MEMBERS_AstUnsizedArrayDType;
-    const char* broken() const override {
-        BROKEN_RTN(!((m_refDTypep && !childDTypep()) || (!m_refDTypep && childDTypep())));
-        return nullptr;
+    స్థిరరాశి అక్షరం* broken() స్థిరరాశి override {
+        BROKEN_RTN(!((m_refDTypep && !బిడ్డ_DTypep()) || (!m_refDTypep && బిడ్డ_DTypep())));
+        తిరిగి nullptr;
     }
-    bool sameNode(const AstNode* samep) const override;
-    bool similarDTypeNode(const AstNodeDType* samep) const override;
-    void dumpSmall(std::ostream& str) const override;
-    AstNodeDType* getChildDTypep() const override { return childDTypep(); }
-    AstNodeDType* subDTypep() const override VL_MT_STABLE {
-        return m_refDTypep ? m_refDTypep : childDTypep();
+    bool same_కణుపు(స్థిరరాశి Ast_కణుపు* samep) స్థిరరాశి override;
+    bool similar_DType_కణుపు(స్థిరరాశి Ast_కణుపు_DType* samep) స్థిరరాశి override;
+    శూన్య dumpSmall(std::ostream& str) స్థిరరాశి override;
+    Ast_కణుపు_DType* get_బిడ్డ_DTypep() స్థిరరాశి override { తిరిగి బిడ్డ_DTypep(); }
+    Ast_కణుపు_DType* subDTypep() స్థిరరాశి override VL_MT_STABLE {
+        తిరిగి m_refDTypep ? m_refDTypep : బిడ్డ_DTypep();
     }
-    void refDTypep(AstNodeDType* nodep) { m_refDTypep = nodep; }
-    AstNodeDType* virtRefDTypep() const override { return m_refDTypep; }
-    void virtRefDTypep(AstNodeDType* nodep) override { refDTypep(nodep); }
+    శూన్య refDTypep(Ast_కణుపు_DType* nodep) { m_refDTypep = nodep; }
+    Ast_కణుపు_DType* virtRefDTypep() స్థిరరాశి override { తిరిగి m_refDTypep; }
+    శూన్య virtRefDTypep(Ast_కణుపు_DType* nodep) override { refDTypep(nodep); }
     // METHODS
-    AstBasicDType* basicp() const override VL_MT_STABLE { return subDTypep()->basicp(); }
-    int widthAlignBytes() const override { return subDTypep()->widthAlignBytes(); }
-    int widthTotalBytes() const override { return subDTypep()->widthTotalBytes(); }
-    bool isCompound() const override { return true; }
+    AstBasicDType* basicp() స్థిరరాశి override VL_MT_STABLE { తిరిగి subDTypep()->basicp(); }
+    పూర్ణాంకం వెడల్పు_Align_బైట్లు() స్థిరరాశి override { తిరిగి subDTypep()->వెడల్పు_Align_బైట్లు(); }
+    పూర్ణాంకం వెడల్పు_మొత్తం_బైట్లు() స్థిరరాశి override { తిరిగి subDTypep()->వెడల్పు_మొత్తం_బైట్లు(); }
+    bool isCompound() స్థిరరాశి override { తిరిగి true; }
 };
-class AstVoidDType final : public AstNodeDType {
+class AstVoidDType final : బహిరంగ Ast_కణుపు_DType {
     // For e.g. a function returning void
-public:
-    explicit AstVoidDType(FileLine* fl)
+బహిరంగ:
+    explicit AstVoidDType(File_పంక్తి* fl)
         : ASTGEN_SUPER_VoidDType(fl) {
         dtypep(this);
     }
     ASTGEN_MEMBERS_AstVoidDType;
-    void dumpSmall(std::ostream& str) const override;
-    bool hasDType() const override VL_MT_SAFE { return true; }
-    bool maybePointedTo() const override VL_MT_SAFE { return true; }
-    bool undead() const override { return true; }
-    AstNodeDType* subDTypep() const override VL_MT_STABLE { return nullptr; }
-    AstNodeDType* virtRefDTypep() const override { return nullptr; }
-    void virtRefDTypep(AstNodeDType* nodep) override {}
-    bool similarDTypeNode(const AstNodeDType* samep) const override { return true; }
-    AstBasicDType* basicp() const override VL_MT_STABLE { return nullptr; }
-    int widthAlignBytes() const override { return 1; }
-    int widthTotalBytes() const override { return 1; }
-    bool isCompound() const override { return false; }
+    శూన్య dumpSmall(std::ostream& str) స్థిరరాశి override;
+    bool hasDType() స్థిరరాశి override VL_MT_సురక్షిత { తిరిగి true; }
+    bool maybe_Pointed_గమ్యం() స్థిరరాశి override VL_MT_సురక్షిత { తిరిగి true; }
+    bool undead() స్థిరరాశి override { తిరిగి true; }
+    Ast_కణుపు_DType* subDTypep() స్థిరరాశి override VL_MT_STABLE { తిరిగి nullptr; }
+    Ast_కణుపు_DType* virtRefDTypep() స్థిరరాశి override { తిరిగి nullptr; }
+    శూన్య virtRefDTypep(Ast_కణుపు_DType* nodep) override {}
+    bool similar_DType_కణుపు(స్థిరరాశి Ast_కణుపు_DType* samep) స్థిరరాశి override { తిరిగి true; }
+    AstBasicDType* basicp() స్థిరరాశి override VL_MT_STABLE { తిరిగి nullptr; }
+    పూర్ణాంకం వెడల్పు_Align_బైట్లు() స్థిరరాశి override { తిరిగి 1; }
+    పూర్ణాంకం వెడల్పు_మొత్తం_బైట్లు() స్థిరరాశి override { తిరిగి 1; }
+    bool isCompound() స్థిరరాశి override { తిరిగి false; }
 };
-class AstWildcardArrayDType final : public AstNodeDType {
+class AstWildcardArrayDType final : బహిరంగ Ast_కణుపు_DType {
     // Wildcard index type associative array data type, ie "some_dtype var_name [*]"
     // @astgen op1 := childDTypep : Optional[AstNodeDType] // moved to refDTypep() in V3Width
     //
     // @astgen ptr := m_refDTypep : Optional[AstNodeDType]  // Elements of this type (post-width)
-public:
-    AstWildcardArrayDType(FileLine* fl, VFlagChildDType, AstNodeDType* dtp)
+బహిరంగ:
+    AstWildcardArrayDType(File_పంక్తి* fl, VFlag_బిడ్డ_DType, Ast_కణుపు_DType* dtp)
         : ASTGEN_SUPER_WildcardArrayDType(fl) {
-        childDTypep(dtp);  // Only for parser
+        బిడ్డ_DTypep(dtp);  // Only for parser
         refDTypep(nullptr);
         dtypep(nullptr);  // V3Width will resolve
     }
     ASTGEN_MEMBERS_AstWildcardArrayDType;
-    const char* broken() const override {
-        BROKEN_RTN(!((m_refDTypep && !childDTypep()) || (!m_refDTypep && childDTypep())));
-        return nullptr;
+    స్థిరరాశి అక్షరం* broken() స్థిరరాశి override {
+        BROKEN_RTN(!((m_refDTypep && !బిడ్డ_DTypep()) || (!m_refDTypep && బిడ్డ_DTypep())));
+        తిరిగి nullptr;
     }
-    bool sameNode(const AstNode* samep) const override;
-    bool similarDTypeNode(const AstNodeDType* samep) const override;
-    void dumpSmall(std::ostream& str) const override;
-    string prettyDTypeName(bool full) const override;
-    AstNodeDType* getChildDTypep() const override { return childDTypep(); }
-    AstNodeDType* subDTypep() const override VL_MT_STABLE {
-        return m_refDTypep ? m_refDTypep : childDTypep();
+    bool same_కణుపు(స్థిరరాశి Ast_కణుపు* samep) స్థిరరాశి override;
+    bool similar_DType_కణుపు(స్థిరరాశి Ast_కణుపు_DType* samep) స్థిరరాశి override;
+    శూన్య dumpSmall(std::ostream& str) స్థిరరాశి override;
+    string prettyDTypeName(bool నిండిన_2) స్థిరరాశి override;
+    Ast_కణుపు_DType* get_బిడ్డ_DTypep() స్థిరరాశి override { తిరిగి బిడ్డ_DTypep(); }
+    Ast_కణుపు_DType* subDTypep() స్థిరరాశి override VL_MT_STABLE {
+        తిరిగి m_refDTypep ? m_refDTypep : బిడ్డ_DTypep();
     }
-    void refDTypep(AstNodeDType* nodep) { m_refDTypep = nodep; }
-    AstNodeDType* virtRefDTypep() const override { return m_refDTypep; }
-    void virtRefDTypep(AstNodeDType* nodep) override { refDTypep(nodep); }
+    శూన్య refDTypep(Ast_కణుపు_DType* nodep) { m_refDTypep = nodep; }
+    Ast_కణుపు_DType* virtRefDTypep() స్థిరరాశి override { తిరిగి m_refDTypep; }
+    శూన్య virtRefDTypep(Ast_కణుపు_DType* nodep) override { refDTypep(nodep); }
     // METHODS
-    AstBasicDType* basicp() const override VL_MT_STABLE { return subDTypep()->basicp(); }
-    int widthAlignBytes() const override { return sizeof(std::map<std::string, std::string>); }
-    int widthTotalBytes() const override { return sizeof(std::map<std::string, std::string>); }
-    bool isCompound() const override { return true; }
-    bool isDynamicallySized() const override { return true; }
+    AstBasicDType* basicp() స్థిరరాశి override VL_MT_STABLE { తిరిగి subDTypep()->basicp(); }
+    పూర్ణాంకం వెడల్పు_Align_బైట్లు() స్థిరరాశి override { తిరిగి పరిమాణం(std::map<std::string, std::string>); }
+    పూర్ణాంకం వెడల్పు_మొత్తం_బైట్లు() స్థిరరాశి override { తిరిగి పరిమాణం(std::map<std::string, std::string>); }
+    bool isCompound() స్థిరరాశి override { తిరిగి true; }
+    bool isDynamicallySized() స్థిరరాశి override { తిరిగి true; }
 };
 
 // === AstNodeArrayDType ===
-class AstPackArrayDType final : public AstNodeArrayDType {
+class AstPackArrayDType final : బహిరంగ Ast_కణుపు_Array_DType {
     // Packed array data type, ie "some_dtype [2:0] var_name"
-public:
-    inline AstPackArrayDType(FileLine* fl, VFlagChildDType, AstNodeDType* dtp, AstRange* rangep);
-    inline AstPackArrayDType(FileLine* fl, AstNodeDType* dtp, AstRange* rangep);
+బహిరంగ:
+    అంతఃవరుస AstPackArrayDType(File_పంక్తి* fl, VFlag_బిడ్డ_DType, Ast_కణుపు_DType* dtp, AstRange* rangep);
+    అంతఃవరుస AstPackArrayDType(File_పంక్తి* fl, Ast_కణుపు_DType* dtp, AstRange* rangep);
     ASTGEN_MEMBERS_AstPackArrayDType;
-    string prettyDTypeName(bool full) const override;
-    bool isCompound() const override { return false; }
+    string prettyDTypeName(bool నిండిన_2) స్థిరరాశి override;
+    bool isCompound() స్థిరరాశి override { తిరిగి false; }
 };
-class AstUnpackArrayDType final : public AstNodeArrayDType {
+class AstUnpackArrayDType final : బహిరంగ Ast_కణుపు_Array_DType {
     // Array data type, ie "some_dtype var_name [2:0]"
     bool m_isCompound = false;  // Non-POD subDType, or parent requires compound
-public:
-    AstUnpackArrayDType(FileLine* fl, VFlagChildDType, AstNodeDType* dtp, AstRange* rangep)
+బహిరంగ:
+    AstUnpackArrayDType(File_పంక్తి* fl, VFlag_బిడ్డ_DType, Ast_కణుపు_DType* dtp, AstRange* rangep)
         : ASTGEN_SUPER_UnpackArrayDType(fl) {
-        childDTypep(dtp);  // Only for parser
+        బిడ్డ_DTypep(dtp);  // Only for parser
         this->rangep(rangep);
         refDTypep(nullptr);
         dtypep(nullptr);  // V3Width will resolve
         // For backward compatibility AstNodeArrayDType and others inherit
         // width and signing from the subDType/base type
-        widthFromSub(subDTypep());
+        వెడల్పు_From_Sub(subDTypep());
     }
-    AstUnpackArrayDType(FileLine* fl, AstNodeDType* dtp, AstRange* rangep)
+    AstUnpackArrayDType(File_పంక్తి* fl, Ast_కణుపు_DType* dtp, AstRange* rangep)
         : ASTGEN_SUPER_UnpackArrayDType(fl) {
         this->rangep(rangep);
         refDTypep(dtp);
         dtypep(this);
         // For backward compatibility AstNodeArrayDType and others inherit
         // width and signing from the subDType/base type
-        widthFromSub(subDTypep());
+        వెడల్పు_From_Sub(subDTypep());
     }
     ASTGEN_MEMBERS_AstUnpackArrayDType;
-    void dump(std::ostream& str) const override;
-    void dumpJson(std::ostream& str) const override;
-    string prettyDTypeName(bool full) const override;
-    bool sameNode(const AstNode* samep) const override {
-        const AstUnpackArrayDType* const sp = VN_DBG_AS(samep, UnpackArrayDType);
-        return m_isCompound == sp->m_isCompound;
+    శూన్య dump(std::ostream& str) స్థిరరాశి override;
+    శూన్య dumpJson(std::ostream& str) స్థిరరాశి override;
+    string prettyDTypeName(bool నిండిన_2) స్థిరరాశి override;
+    bool same_కణుపు(స్థిరరాశి Ast_కణుపు* samep) స్థిరరాశి override {
+        స్థిరరాశి AstUnpackArrayDType* స్థిరరాశి sp = VN_DBG_AS(samep, UnpackArrayDType);
+        తిరిగి m_isCompound == sp->m_isCompound;
     }
-    bool similarDTypeNode(const AstNodeDType* samep) const override;
-    bool isAggregateType() const override { return true; }
+    bool similar_DType_కణుపు(స్థిరరాశి Ast_కణుపు_DType* samep) స్థిరరాశి override;
+    bool isAggregateType() స్థిరరాశి override { తిరిగి true; }
     // True iff 'otherp' is an array of the same shape, with
     // at least one dimension reversed ascending/descending.
-    bool isReverseOf(const AstNodeDType* otherp) const;
+    bool is_తిరగేయి_యొక్క(స్థిరరాశి Ast_కణుపు_DType* otherp) స్థిరరాశి;
     // Outer dimension comes first. The first element is this node.
-    std::vector<AstUnpackArrayDType*> unpackDimensions();
-    void isCompound(bool flag) { m_isCompound = flag; }
-    bool isCompound() const override VL_MT_SAFE { return m_isCompound; }
-    bool isIntegralOrPacked() const override { return false; }
+    std::సదిశ<AstUnpackArrayDType*> unpackDimensions();
+    శూన్య isCompound(bool flag) { m_isCompound = flag; }
+    bool isCompound() స్థిరరాశి override VL_MT_సురక్షిత { తిరిగి m_isCompound; }
+    bool isIntegralOrPacked() స్థిరరాశి override { తిరిగి false; }
 };
 
 // === AstNodeUOrStructDType ===
-class AstStructDType final : public AstNodeUOrStructDType {
-public:
+class AstStructDType final : బహిరంగ Ast_కణుపు_UOr_Struct_DType {
+బహిరంగ:
     // VSigning below is mispurposed to indicate if packed or not
-    AstStructDType(FileLine* fl, VSigning numericUnpack)
+    AstStructDType(File_పంక్తి* fl, VSigning numericUnpack)
         : ASTGEN_SUPER_StructDType(fl, numericUnpack) {}
     ASTGEN_MEMBERS_AstStructDType;
-    string verilogKwd() const override { return "struct"; }
+    string verilogKwd() స్థిరరాశి override { తిరిగి "struct"; }
 };
-class AstUnionDType final : public AstNodeUOrStructDType {
+class AstUnionDType final : బహిరంగ Ast_కణుపు_UOr_Struct_DType {
     bool m_isSoft;  // Is a "union soft"
     bool m_isTagged;  // Is a "union tagged"
 
-public:
+బహిరంగ:
     // VSigning below is mispurposed to indicate if packed or not
     // isSoft implies packed
-    AstUnionDType(FileLine* fl, bool isSoft, bool isTagged, VSigning numericUnpack)
+    AstUnionDType(File_పంక్తి* fl, bool isSoft, bool isTagged, VSigning numericUnpack)
         : ASTGEN_SUPER_UnionDType(fl, numericUnpack)
         , m_isSoft{isSoft}
         , m_isTagged{isTagged} {
         packed(packed() | m_isSoft);
     }
     ASTGEN_MEMBERS_AstUnionDType;
-    string verilogKwd() const override { return "union"; }
-    bool isSoft() const { return m_isSoft; }
-    bool isTagged() const { return m_isTagged; }
-    bool sameNode(const AstNode* samep) const override;
-    void dump(std::ostream& str) const override;
-    void dumpJson(std::ostream& str) const override;
+    string verilogKwd() స్థిరరాశి override { తిరిగి "union"; }
+    bool isSoft() స్థిరరాశి { తిరిగి m_isSoft; }
+    bool isTagged() స్థిరరాశి { తిరిగి m_isTagged; }
+    bool same_కణుపు(స్థిరరాశి Ast_కణుపు* samep) స్థిరరాశి override;
+    శూన్య dump(std::ostream& str) స్థిరరాశి override;
+    శూన్య dumpJson(std::ostream& str) స్థిరరాశి override;
 };
 
-#endif  // Guard
+#అయితే_ముగింపు  // Guard

@@ -14,21 +14,21 @@
 //
 //*************************************************************************
 
-#define VL_MT_DISABLED_CODE_UNIT 1
+#నిర్వచించు VL_MT_DISABLED_సంకేతం_UNIT 1
 
-#include "config_build.h"
-#include "verilatedos.h"
+#అన్తర్భావ "config_build.h"
+#అన్తర్భావ "verilatedos.h"
 
-#include "V3Graph.h"
+#అన్తర్భావ "V3Graph.h"
 
-#include "V3File.h"
-#include "V3Global.h"
+#అన్తర్భావ "V3File.h"
+#అన్తర్భావ "V3Global.h"
 
-#include <map>
-#include <memory>
-#include <unordered_map>
-#include <unordered_set>
-#include <vector>
+#అన్తర్భావ <map>
+#అన్తర్భావ <memory>
+#అన్తర్భావ <unordered_map>
+#అన్తర్భావ <unordered_set>
+#అన్తర్భావ <vector>
 
 VL_DEFINE_DEBUG_FUNCTIONS;
 
@@ -36,120 +36,120 @@ VL_DEFINE_DEBUG_FUNCTIONS;
 //######################################################################
 // Vertices
 
-V3GraphVertex::V3GraphVertex(V3Graph* graphp, const V3GraphVertex& old)
+V3_లేఖాచిత్రం_శీర్షం::V3_లేఖాచిత్రం_శీర్షం(V3_లేఖాచిత్రం* graphp, స్థిరరాశి V3_లేఖాచిత్రం_శీర్షం& old)
     : m_fanout{old.m_fanout}
     , m_color{old.m_color}
     , m_rank{old.m_rank} {
-    m_userp = nullptr;
-    graphp->vertices().linkBack(this);
+    m_userp = శూన్యసూచిక;
+    graphp->vertices().link_వెనుక(ఇది);
 }
 
-V3GraphVertex::V3GraphVertex(V3Graph* graphp)
+V3_లేఖాచిత్రం_శీర్షం::V3_లేఖాచిత్రం_శీర్షం(V3_లేఖాచిత్రం* graphp)
     : m_fanout{0}
     , m_color{0}
     , m_rank{0} {
-    m_userp = nullptr;
-    graphp->vertices().linkBack(this);
+    m_userp = శూన్యసూచిక;
+    graphp->vertices().link_వెనుక(ఇది);
 }
 
-void V3GraphVertex::unlinkEdges(V3Graph*) {
-    while (V3GraphEdge* const ep = m_outs.frontp()) VL_DO_DANGLING(ep->unlinkDelete(), ep);
-    while (V3GraphEdge* const ep = m_ins.frontp()) VL_DO_DANGLING(ep->unlinkDelete(), ep);
+శూన్య V3_లేఖాచిత్రం_శీర్షం::unlink_అంచులు(V3_లేఖాచిత్రం*) {
+    అయితే (V3_లేఖాచిత్రం_అంచు* స్థిరరాశి ep = m_outs.frontp()) VL_DO_DANGLING(ep->unlinkDelete(), ep);
+    అయితే (V3_లేఖాచిత్రం_అంచు* స్థిరరాశి ep = m_ins.frontp()) VL_DO_DANGLING(ep->unlinkDelete(), ep);
 }
 
-void V3GraphVertex::unlinkDelete(V3Graph* graphp) {
+శూన్య V3_లేఖాచిత్రం_శీర్షం::unlinkDelete(V3_లేఖాచిత్రం* graphp) {
     // Delete edges
-    unlinkEdges(graphp);
+    unlink_అంచులు(graphp);
     // Unlink from vertex list
-    graphp->m_vertices.unlink(this);
+    graphp->m_vertices.unlink(ఇది);
     // Delete
-    delete this;  // this=nullptr;
+    తొలగించు ఇది;  // this=nullptr;
 }
 
-void V3GraphVertex::rerouteEdges(V3Graph* graphp) {
+శూన్య V3_లేఖాచిత్రం_శీర్షం::reroute_అంచులు(V3_లేఖాచిత్రం* graphp) {
     // Make new edges for each from/to pair
-    for (const V3GraphEdge& iedge : inEdges()) {
-        for (const V3GraphEdge& oedge : outEdges()) {
-            new V3GraphEdge{graphp, iedge.fromp(), oedge.top(),
-                            std::min(iedge.weight(), oedge.weight()),
+    కొరకు (స్థిరరాశి V3_లేఖాచిత్రం_అంచు& iedge : లోపల_అంచులు()) {
+        కొరకు (స్థిరరాశి V3_లేఖాచిత్రం_అంచు& oedge : బహిర్గతం_అంచులు()) {
+            కొత్త V3_లేఖాచిత్రం_అంచు{graphp, iedge.fromp(), oedge.శిఖరం(),
+                            std::min(iedge.బరువు_2(), oedge.బరువు_2()),
                             iedge.cutable() && oedge.cutable()};
         }
     }
     // Remove old edges
-    unlinkEdges(graphp);
+    unlink_అంచులు(graphp);
 }
 
 // cppcheck-has-bug-suppress constParameter
-void V3GraphVertex::v3errorEnd(const std::ostringstream& str) const  // LCOV_EXCL_START
+శూన్య V3_లేఖాచిత్రం_శీర్షం::v3error_చివర(స్థిరరాశి std::ostringstream& str) స్థిరరాశి  // LCOV_EXCL_START
     VL_RELEASE(V3Error::s().m_mutex) {
     std::ostringstream nsstr;
     nsstr << str.str();
-    if (debug()) nsstr << "\n-vertex: " << this << '\n';
-    if (FileLine* const flp = fileline()) {
-        flp->v3errorEnd(nsstr);
-    } else {
-        V3Error::v3errorEnd(nsstr, "", nullptr);
+    ఒకవేళ (debug()) nsstr << "\n-vertex: " << ఇది << '\n';
+    ఒకవేళ (File_పంక్తి* స్థిరరాశి flp = fileline()) {
+        flp->v3error_చివర(nsstr);
+    } లేకపోతే {
+        V3Error::v3error_చివర(nsstr, "", శూన్యసూచిక);
     }
 }
-void V3GraphVertex::v3errorEndFatal(const std::ostringstream& str) const
+శూన్య V3_లేఖాచిత్రం_శీర్షం::v3error_చివర_Fatal(స్థిరరాశి std::ostringstream& str) స్థిరరాశి
     VL_RELEASE(V3Error::s().m_mutex) {
-    v3errorEnd(str);
-    assert(0);
+    v3error_చివర(str);
+    ప్రతిజ్ఞా(0);
     VL_UNREACHABLE;
 }  // LCOV_EXCL_STOP
 
-std::ostream& operator<<(std::ostream& os, V3GraphVertex* vertexp) {
+std::ostream& క్రియాకారకం<<(std::ostream& os, V3_లేఖాచిత్రం_శీర్షం* vertexp) {
     os << "  VERTEX=" << vertexp->name();
-    if (vertexp->rank()) os << " r" << vertexp->rank();
-    if (vertexp->fanout() != 0.0) os << " f" << vertexp->fanout();
-    if (vertexp->color()) os << " c" << vertexp->color();
-    return os;
+    ఒకవేళ (vertexp->rank()) os << " r" << vertexp->rank();
+    ఒకవేళ (vertexp->fanout() != 0.0) os << " f" << vertexp->fanout();
+    ఒకవేళ (vertexp->color()) os << " c" << vertexp->color();
+    తిరిగి os;
 }
 
 //######################################################################
 //######################################################################
-// Edges
+//అంచులు
 
-void V3GraphEdge::init(V3Graph* /*graphp*/, V3GraphVertex* fromp, V3GraphVertex* top, int weight,
-                       bool cutable) {
+శూన్య V3_లేఖాచిత్రం_అంచు::init(V3_లేఖాచిత్రం* /*graphp*/, V3_లేఖాచిత్రం_శీర్షం* fromp, V3_లేఖాచిత్రం_శీర్షం* శిఖరం, పూర్ణాంకం బరువు_2,
+                       తార్కిక cutable) {
     UASSERT(fromp, "Null from pointer");
-    UASSERT(top, "Null to pointer");
+    UASSERT(శిఖరం, "Null to pointer");
     m_fromp = fromp;
-    m_top = top;
-    m_weight = weight;
+    m_శిఖరం = శిఖరం;
+    m_బరువు = బరువు_2;
     m_cutable = cutable;
-    m_userp = nullptr;
+    m_userp = శూన్యసూచిక;
     // Link vertices to this edge
-    m_fromp->outEdges().linkBack(this);
-    m_top->inEdges().linkBack(this);
+    m_fromp->బహిర్గతం_అంచులు().link_వెనుక(ఇది);
+    m_శిఖరం->లోపల_అంచులు().link_వెనుక(ఇది);
 }
 
-void V3GraphEdge::relinkFromp(V3GraphVertex* newFromp) {
-    m_fromp->outEdges().unlink(this);
+శూన్య V3_లేఖాచిత్రం_అంచు::relinkFromp(V3_లేఖాచిత్రం_శీర్షం* newFromp) {
+    m_fromp->బహిర్గతం_అంచులు().unlink(ఇది);
     m_fromp = newFromp;
-    m_fromp->outEdges().linkBack(this);
+    m_fromp->బహిర్గతం_అంచులు().link_వెనుక(ఇది);
 }
 
-void V3GraphEdge::relinkTop(V3GraphVertex* newTop) {
-    m_top->inEdges().unlink(this);
-    m_top = newTop;
-    m_top->inEdges().linkBack(this);
+శూన్య V3_లేఖాచిత్రం_అంచు::relink_శిఖరం(V3_లేఖాచిత్రం_శీర్షం* new_శిఖరం) {
+    m_శిఖరం->లోపల_అంచులు().unlink(ఇది);
+    m_శిఖరం = new_శిఖరం;
+    m_శిఖరం->లోపల_అంచులు().link_వెనుక(ఇది);
 }
 
-void V3GraphEdge::unlinkDelete() {
+శూన్య V3_లేఖాచిత్రం_అంచు::unlinkDelete() {
     // Unlink from side
-    m_fromp->outEdges().unlink(this);
+    m_fromp->బహిర్గతం_అంచులు().unlink(ఇది);
     // Unlink to side
-    m_top->inEdges().unlink(this);
+    m_శిఖరం->లోపల_అంచులు().unlink(ఇది);
     // Delete
-    delete this;
+    తొలగించు ఇది;
 }
 
-std::string V3GraphEdge::name() const { return m_fromp->name() + "->" + m_top->name(); }
+std::string V3_లేఖాచిత్రం_అంచు::name() స్థిరరాశి { తిరిగి m_fromp->name() + "->" + m_శిఖరం->name(); }
 
-int V3GraphEdge::sortCmp(const V3GraphEdge* rhsp) const {
-    if (!m_weight || !rhsp->m_weight) return 0;
-    return top()->sortCmp(rhsp->top());
+పూర్ణాంకం V3_లేఖాచిత్రం_అంచు::క్రమీకరించు_Cmp(స్థిరరాశి V3_లేఖాచిత్రం_అంచు* rhsp) స్థిరరాశి {
+    ఒకవేళ (!m_బరువు || !rhsp->m_బరువు) తిరిగి 0;
+    తిరిగి శిఖరం()->క్రమీకరించు_Cmp(rhsp->శిఖరం());
 }
 
 //######################################################################
@@ -157,43 +157,43 @@ int V3GraphEdge::sortCmp(const V3GraphEdge* rhsp) const {
 // Graph top level
 // Constructors
 
-V3Graph::V3Graph() {}
+V3_లేఖాచిత్రం::V3_లేఖాచిత్రం() {}
 
-V3Graph::~V3Graph() { clear(); }
+V3_లేఖాచిత్రం::~V3_లేఖాచిత్రం() { clear(); }
 
-void V3Graph::clear() {
+శూన్య V3_లేఖాచిత్రం::clear() {
     // Empty it of all points, as if making a new object
     // Delete the old edges
-    for (V3GraphVertex& vertex : vertices()) {
-        while (V3GraphEdge* const edgep = vertex.outEdges().unlinkFront()) {
-            VL_DO_DANGLING(delete edgep, edgep);
+    కొరకు (V3_లేఖాచిత్రం_శీర్షం& శీర్షం : vertices()) {
+        అయితే (V3_లేఖాచిత్రం_అంచు* స్థిరరాశి edgep = శీర్షం.బహిర్గతం_అంచులు().unlinkFront()) {
+            VL_DO_DANGLING(తొలగించు edgep, edgep);
         }
     }
     // Delete the old vertices
-    while (V3GraphVertex* const vertexp = vertices().unlinkFront()) {
-        VL_DO_DANGLING(delete vertexp, vertexp);
+    అయితే (V3_లేఖాచిత్రం_శీర్షం* స్థిరరాశి vertexp = vertices().unlinkFront()) {
+        VL_DO_DANGLING(తొలగించు vertexp, vertexp);
     }
 }
 
-void V3Graph::userClearVertices() {
+శూన్య V3_లేఖాచిత్రం::userClearVertices() {
     // Clear user() in all of tree
     // We may use the userCnt trick in V3Ast later... (but gblCnt would be
     // in V3Graph instead of static - which has the complication of finding
     // the graph pointer given a vertex.)  For now, we don't call this often, and
     // the extra code on each read of user() would probably slow things
     // down more than help.
-    for (V3GraphVertex& vertex : vertices()) {
-        vertex.user(0);
-        vertex.userp(nullptr);  // It's a union, but might be different size than user()
+    కొరకు (V3_లేఖాచిత్రం_శీర్షం& శీర్షం : vertices()) {
+        శీర్షం.user(0);
+        శీర్షం.userp(శూన్యసూచిక);  // It's a union, but might be different size than user()
     }
 }
 
-void V3Graph::userClearEdges() {
+శూన్య V3_లేఖాచిత్రం::user_Clear_అంచులు() {
     // Clear user() in all of tree
-    for (V3GraphVertex& vertex : vertices()) {
-        for (V3GraphEdge& edge : vertex.outEdges()) {
-            edge.user(0);
-            edge.userp(nullptr);  // It's a union, but might be different size than user()
+    కొరకు (V3_లేఖాచిత్రం_శీర్షం& శీర్షం : vertices()) {
+        కొరకు (V3_లేఖాచిత్రం_అంచు& అంచు : శీర్షం.బహిర్గతం_అంచులు()) {
+            అంచు.user(0);
+            అంచు.userp(శూన్యసూచిక);  // It's a union, but might be different size than user()
         }
     }
 }
@@ -201,63 +201,63 @@ void V3Graph::userClearEdges() {
 //======================================================================
 // Dumping
 
-void V3Graph::loopsMessageCb(V3GraphVertex* vertexp, V3EdgeFuncP edgeFuncp) {
+శూన్య V3_లేఖాచిత్రం::loops_సందేశం_Cb(V3_లేఖాచిత్రం_శీర్షం* vertexp, V3_అంచు_Func_P అంచు_Funcp) {
     vertexp->v3fatalSrc("Loops detected in graph: " << vertexp << "\n"
-                                                    << reportLoops(edgeFuncp, vertexp));
+                                                    << reportLoops(అంచు_Funcp, vertexp));
 }
-string V3Graph::loopsVertexCb(V3GraphVertex* vertexp) {
+string V3_లేఖాచిత్రం::loops_శీర్షం_Cb(V3_లేఖాచిత్రం_శీర్షం* vertexp) {
     // Needed here as V3GraphVertex<< isn't defined until later in header
-    if (debug())
-        return "-Info-Loop: "s + cvtToHex(vertexp) + ' ' + cvtToStr(vertexp) + '\n';
-    else
-        return "";
+    ఒకవేళ (debug())
+        తిరిగి "-Info-Loop: "s + cvt_గమ్యం_Hex(vertexp) + ' ' + cvt_గమ్యం_Str(vertexp) + '\n';
+    లేకపోతే
+        తిరిగి "";
 }
 
-void V3Graph::dump(std::ostream& os) const {
+శూన్య V3_లేఖాచిత్రం::dump(std::ostream& os) స్థిరరాశి {
     // This generates a file used by graphviz, https://www.graphviz.org
     os << " Graph:\n";
     // Print vertices
-    for (const V3GraphVertex& vertex : vertices()) {
-        os << "\tNode: " << vertex.name();
-        if (vertex.color()) os << "  color=" << vertex.color();
+    కొరకు (స్థిరరాశి V3_లేఖాచిత్రం_శీర్షం& శీర్షం : vertices()) {
+        os << "\tNode: " << శీర్షం.name();
+        ఒకవేళ (శీర్షం.color()) os << "  color=" << శీర్షం.color();
         os << '\n';
         // Print edges
-        for (const V3GraphEdge& edge : vertex.inEdges()) dumpEdge(os, vertex, edge);
-        for (const V3GraphEdge& edge : vertex.outEdges()) dumpEdge(os, vertex, edge);
+        కొరకు (స్థిరరాశి V3_లేఖాచిత్రం_అంచు& అంచు : శీర్షం.లోపల_అంచులు()) dump_అంచు(os, శీర్షం, అంచు);
+        కొరకు (స్థిరరాశి V3_లేఖాచిత్రం_అంచు& అంచు : శీర్షం.బహిర్గతం_అంచులు()) dump_అంచు(os, శీర్షం, అంచు);
     }
 }
 
-void V3Graph::dumpEdge(std::ostream& os, const V3GraphVertex& vertex,
-                       const V3GraphEdge& edge) const {
-    if (edge.weight() && (edge.fromp() == &vertex || edge.top() == &vertex)) {
+శూన్య V3_లేఖాచిత్రం::dump_అంచు(std::ostream& os, స్థిరరాశి V3_లేఖాచిత్రం_శీర్షం& శీర్షం,
+                       స్థిరరాశి V3_లేఖాచిత్రం_అంచు& అంచు) స్థిరరాశి {
+    ఒకవేళ (అంచు.బరువు_2() && (అంచు.fromp() == &శీర్షం || అంచు.శిఖరం() == &శీర్షం)) {
         os << "\t\t";
-        if (edge.fromp() == &vertex) os << "-> " << edge.top()->name();
-        if (edge.top() == &vertex) os << "<- " << edge.fromp()->name();
-        if (edge.cutable()) os << "  [CUTABLE]";
+        ఒకవేళ (అంచు.fromp() == &శీర్షం) os << "-> " << అంచు.శిఖరం()->name();
+        ఒకవేళ (అంచు.శిఖరం() == &శీర్షం) os << "<- " << అంచు.fromp()->name();
+        ఒకవేళ (అంచు.cutable()) os << "  [CUTABLE]";
         os << '\n';
     }
 }
-void V3Graph::dumpEdges(std::ostream& os, const V3GraphVertex& vertex) const {
-    for (const V3GraphEdge& edge : vertex.inEdges()) dumpEdge(os, vertex, edge);
-    for (const V3GraphEdge& edge : vertex.outEdges()) dumpEdge(os, vertex, edge);
+శూన్య V3_లేఖాచిత్రం::dump_అంచులు(std::ostream& os, స్థిరరాశి V3_లేఖాచిత్రం_శీర్షం& శీర్షం) స్థిరరాశి {
+    కొరకు (స్థిరరాశి V3_లేఖాచిత్రం_అంచు& అంచు : శీర్షం.లోపల_అంచులు()) dump_అంచు(os, శీర్షం, అంచు);
+    కొరకు (స్థిరరాశి V3_లేఖాచిత్రం_అంచు& అంచు : శీర్షం.బహిర్గతం_అంచులు()) dump_అంచు(os, శీర్షం, అంచు);
 }
 
-void V3Graph::dumpDotFilePrefixed(const string& nameComment, bool colorAsSubgraph) const {
+శూన్య V3_లేఖాచిత్రం::dumpDotFilePrefixed(స్థిరరాశి string& nameComment, తార్కిక colorAsSubgraph) స్థిరరాశి {
     dumpDotFile(v3Global.debugFilename(nameComment) + ".dot", colorAsSubgraph);
 }
 
 //! Variant of dumpDotFilePrefixed without --dump option check
-void V3Graph::dumpDotFilePrefixedAlways(const string& nameComment, bool colorAsSubgraph) const {
+శూన్య V3_లేఖాచిత్రం::dumpDotFilePrefixedAlways(స్థిరరాశి string& nameComment, తార్కిక colorAsSubgraph) స్థిరరాశి {
     dumpDotFile(v3Global.debugFilename(nameComment) + ".dot", colorAsSubgraph);
 }
 
-void V3Graph::dumpDotFile(const string& filename, bool colorAsSubgraph) const {
+శూన్య V3_లేఖాచిత్రం::dumpDotFile(స్థిరరాశి string& filename, తార్కిక colorAsSubgraph) స్థిరరాశి {
     // This generates a file used by graphviz, https://www.graphviz.org
     // "hardcoded" parameters:
-    const std::unique_ptr<std::ofstream> logp{V3File::new_ofstream(filename)};
-    if (logp->fail()) v3fatal("Can't write file: " << filename);
+    స్థిరరాశి std::unique_ptr<std::ofstream> logp{V3File::new_ofstream(filename)};
+    ఒకవేళ (logp->fail()) v3fatal("Can't write file: " << filename);
 
-    // Header
+    //శీర్షిక
     *logp << "digraph v3graph {\n";
     *logp << "\tgraph\t[label=\"" << filename << "\",\n";
     *logp << "\t\t labelloc=t, labeljust=l,\n";
@@ -266,66 +266,66 @@ void V3Graph::dumpDotFile(const string& filename, bool colorAsSubgraph) const {
 
     // List of all possible subgraphs
     // Collections of explicit ranks
-    std::unordered_set<std::string> ranks;
-    std::unordered_multimap<std::string, const V3GraphVertex*> rankSets;
-    std::multimap<std::string, const V3GraphVertex*> subgraphs;
-    for (const V3GraphVertex& vertex : vertices()) {
-        const string vertexSubgraph
-            = (colorAsSubgraph && vertex.color()) ? cvtToStr(vertex.color()) : "";
-        subgraphs.emplace(vertexSubgraph, &vertex);
-        const string& dotRank = vertex.dotRank();
-        if (!dotRank.empty()) {
+    std::unordered_సమితి<std::string> ranks;
+    std::unordered_multimap<std::string, స్థిరరాశి V3_లేఖాచిత్రం_శీర్షం*> rankSets;
+    std::multimap<std::string, స్థిరరాశి V3_లేఖాచిత్రం_శీర్షం*> subgraphs;
+    కొరకు (స్థిరరాశి V3_లేఖాచిత్రం_శీర్షం& శీర్షం : vertices()) {
+        స్థిరరాశి string శీర్షం_Subgraph
+            = (colorAsSubgraph && శీర్షం.color()) ? cvt_గమ్యం_Str(శీర్షం.color()) : "";
+        subgraphs.emplace(శీర్షం_Subgraph, &శీర్షం);
+        స్థిరరాశి string& dotRank = శీర్షం.dotRank();
+        ఒకవేళ (!dotRank.ఖాళీలు()) {
             ranks.emplace(dotRank);
-            rankSets.emplace(dotRank, &vertex);
+            rankSets.emplace(dotRank, &శీర్షం);
         }
     }
 
     // We use a map here, as we don't want to corrupt anything (userp) in the graph,
     // and we don't care if this is slow.
-    std::unordered_map<const V3GraphVertex*, int> numMap;
+    std::unordered_map<స్థిరరాశి V3_లేఖాచిత్రం_శీర్షం*, పూర్ణాంకం> అంకె_Map;
 
     // Print vertices
-    int n = 0;
+    పూర్ణాంకం n = 0;
     string subgr;
-    for (auto it = subgraphs.cbegin(); it != subgraphs.cend(); ++it) {
-        const string vertexSubgraph = it->first;
-        const V3GraphVertex* vertexp = it->second;
-        numMap[vertexp] = n;
-        if (subgr != vertexSubgraph) {
-            if (subgr != "") *logp << "\t};\n";
-            subgr = vertexSubgraph;
-            if (subgr != "") {
+    కొరకు (స్వయంచాలక it = subgraphs.cbegin(); it != subgraphs.cend(); ++it) {
+        స్థిరరాశి string శీర్షం_Subgraph = it->మొదటి;
+        స్థిరరాశి V3_లేఖాచిత్రం_శీర్షం* vertexp = it->రెండవ;
+        అంకె_Map[vertexp] = n;
+        ఒకవేళ (subgr != శీర్షం_Subgraph) {
+            ఒకవేళ (subgr != "") *logp << "\t};\n";
+            subgr = శీర్షం_Subgraph;
+            ఒకవేళ (subgr != "") {
                 *logp << "\tsubgraph cluster_" << subgr << " {\n";
                 *logp << "\tlabel=\"" << subgr << "\"\n";
             }
         }
-        if (subgr != "") *logp << "\t";
+        ఒకవేళ (subgr != "") *logp << "\t";
         *logp << "\tn" << vertexp->dotName() << (n++) << "\t[fontsize=8 " << "label=\""
               << (vertexp->name() != "" ? vertexp->name() : "\\N");
-        if (vertexp->rank()) *logp << " r" << vertexp->rank();
-        if (vertexp->fanout() != 0.0) *logp << " f" << vertexp->fanout();
-        if (vertexp->color()) *logp << "\\n c" << vertexp->color();
+        ఒకవేళ (vertexp->rank()) *logp << " r" << vertexp->rank();
+        ఒకవేళ (vertexp->fanout() != 0.0) *logp << " f" << vertexp->fanout();
+        ఒకవేళ (vertexp->color()) *logp << "\\n c" << vertexp->color();
         *logp << "\"";
         *logp << ", color=" << vertexp->dotColor();
-        if (vertexp->dotStyle() != "") *logp << ", style=" << vertexp->dotStyle();
-        if (vertexp->dotShape() != "") *logp << ", shape=" << vertexp->dotShape();
+        ఒకవేళ (vertexp->dotStyle() != "") *logp << ", style=" << vertexp->dotStyle();
+        ఒకవేళ (vertexp->dotShape() != "") *logp << ", shape=" << vertexp->dotShape();
         *logp << "];\n";
     }
-    if (subgr != "") *logp << "\t};\n";
+    ఒకవేళ (subgr != "") *logp << "\t};\n";
 
     // Print edges
-    for (const V3GraphVertex& vertex : vertices()) {
-        for (const V3GraphEdge& edge : vertex.outEdges()) {
-            if (edge.weight()) {
-                const int fromVnum = numMap[edge.fromp()];
-                const int toVnum = numMap[edge.top()];
-                *logp << "\tn" << edge.fromp()->dotName() << fromVnum << " -> n"
-                      << edge.top()->dotName() << toVnum
+    కొరకు (స్థిరరాశి V3_లేఖాచిత్రం_శీర్షం& శీర్షం : vertices()) {
+        కొరకు (స్థిరరాశి V3_లేఖాచిత్రం_అంచు& అంచు : శీర్షం.బహిర్గతం_అంచులు()) {
+            ఒకవేళ (అంచు.బరువు_2()) {
+                స్థిరరాశి పూర్ణాంకం fromVnum = అంకె_Map[అంచు.fromp()];
+                స్థిరరాశి పూర్ణాంకం గమ్యం_Vnum = అంకె_Map[అంచు.శిఖరం()];
+                *logp << "\tn" << అంచు.fromp()->dotName() << fromVnum << " -> n"
+                      << అంచు.శిఖరం()->dotName() << గమ్యం_Vnum
                       << " ["
                       // <<"fontsize=8 label=\""<<(edge.name()!="" ? edge.name() : "\\E")<<"\""
-                      << "fontsize=8 label=\"" << (edge.dotLabel() != "" ? edge.dotLabel() : "")
-                      << "\"" << " weight=" << edge.weight() << " color=" << edge.dotColor();
-                if (edge.dotStyle() != "") *logp << " style=" << edge.dotStyle();
+                      << "fontsize=8 label=\"" << (అంచు.dotLabel() != "" ? అంచు.dotLabel() : "")
+                      << "\"" << " weight=" << అంచు.బరువు_2() << " color=" << అంచు.dotColor();
+                ఒకవేళ (అంచు.dotStyle() != "") *logp << " style=" << అంచు.dotStyle();
                 // if (edge.cutable()) *logp << ",constraint=false";  // to rank without
                 // following edges
                 *logp << "];\n";
@@ -334,18 +334,18 @@ void V3Graph::dumpDotFile(const string& filename, bool colorAsSubgraph) const {
     }
 
     // Print ranks
-    for (const auto& dotRank : ranks) {
+    కొరకు (స్థిరరాశి స్వయంచాలక& dotRank : ranks) {
         *logp << "\t{ rank=";
-        if (dotRank != "sink" && dotRank != "source" && dotRank != "min" && dotRank != "max") {
+        ఒకవేళ (dotRank != "sink" && dotRank != "source" && dotRank != "min" && dotRank != "max") {
             *logp << "same";
-        } else {
+        } లేకపోతే {
             *logp << dotRank;
         }
         *logp << "; ";
-        auto bounds = rankSets.equal_range(dotRank);
-        for (auto it{bounds.first}; it != bounds.second; ++it) {
-            if (it != bounds.first) *logp << ", ";
-            *logp << 'n' << numMap[it->second] << "";
+        స్వయంచాలక bounds = rankSets.equal_range(dotRank);
+        కొరకు (స్వయంచాలక it{bounds.మొదటి}; it != bounds.రెండవ; ++it) {
+            ఒకవేళ (it != bounds.మొదటి) *logp << ", ";
+            *logp << 'n' << అంకె_Map[it->రెండవ] << "";
         }
         *logp << " }\n";
     }
@@ -356,20 +356,20 @@ void V3Graph::dumpDotFile(const string& filename, bool colorAsSubgraph) const {
     *logp << "}\n";
     logp->close();
 
-    cout << "dot -Tpdf -o ~/a.pdf " << filename << "\n";
+    బయటకు << "dot -Tpdf -o ~/a.pdf " << filename << "\n";
 }
 
-void V3Graph::hashGraphDebug(const char* debugName) const {
+శూన్య V3_లేఖాచిత్రం::hash_లేఖాచిత్రం_Debug(స్థిరరాశి అక్షరం* debugName) స్థిరరాశి {
     // Disabled when there are no nondeterminism issues in flight.
-    if (!v3Global.opt.debugNondeterminism()) return;
+    ఒకవేళ (!v3Global.opt.debugNondeterminism()) తిరిగి;
 
     // Assign a unique ID to each vertex for pointer stability, then hash
     uint32_t id = 1;
-    std::unordered_map<const V3GraphVertex*, uint32_t> vx2Id;
-    for (const V3GraphVertex& vtx : vertices()) vx2Id[&vtx] = ++id;
+    std::unordered_map<స్థిరరాశి V3_లేఖాచిత్రం_శీర్షం*, uint32_t> vx2Id;
+    కొరకు (స్థిరరాశి V3_లేఖాచిత్రం_శీర్షం& vtx : vertices()) vx2Id[&vtx] = ++id;
     V3Hash hash;
-    for (const V3GraphVertex& vtx : vertices()) {
-        for (const V3GraphEdge& edge : vtx.outEdges()) hash += vx2Id[edge.top()];
+    కొరకు (స్థిరరాశి V3_లేఖాచిత్రం_శీర్షం& vtx : vertices()) {
+        కొరకు (స్థిరరాశి V3_లేఖాచిత్రం_అంచు& అంచు : vtx.బహిర్గతం_అంచులు()) hash += vx2Id[అంచు.శిఖరం()];
     }
-    UINFO(0, "Hash of shape (not contents) of " << debugName << " = " << cvtToHex(hash.value()));
+    UINFO(0, "Hash of shape (not contents) of " << debugName << " = " << cvt_గమ్యం_Hex(hash.విలువ()));
 }

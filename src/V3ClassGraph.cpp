@@ -56,16 +56,16 @@
 //  and check for those errors somewhere before V3Task
 //*************************************************************************
 
-#include "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
+#అన్తర్భావ "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
 
-#include "V3ClassGraph.h"
+#అన్తర్భావ "V3ClassGraph.h"
 
 VL_DEFINE_DEBUG_FUNCTIONS;
 
-class V3ClassGraphVertex final : public V3GraphVertex {
-    VL_RTTI_IMPL(V3ClassGraphVertex, V3GraphVertex)
-    friend class ClassGraphBuilderVisitor;
-    enum Virtualization : uint8_t {
+తరగతి V3_Class_లేఖాచిత్రం_శీర్షం final : బహిరంగ V3_లేఖాచిత్రం_శీర్షం {
+    VL_RTTI_IMPL(V3_Class_లేఖాచిత్రం_శీర్షం, V3_లేఖాచిత్రం_శీర్షం)
+    మిత్ర తరగతి Class_లేఖాచిత్రం_Builder_Visitor;
+    గణన Virtualization : uint8_t {
         NON_VIRTUAL = 0,  // Not a virtual member function
         VIRTUAL_IMPLICIT,  // virtual keyword is not next to a function definition the ancestor
                            // class has such virtual function therefore, it is treated as an
@@ -76,140 +76,140 @@ class V3ClassGraphVertex final : public V3GraphVertex {
         // Note: non-virtual inherited function may not be described with this enum - no need for
         // now as well as static functions
     };
-    struct FuncInfo final {
-        AstCFunc* const m_cfuncp;  // pointer to a described function
-        std::unordered_set<AstCFunc*>
+    నిర్మాణం FuncInfo final {
+        AstCFunc* స్థిరరాశి m_cfuncp;  // pointer to a described function
+        std::unordered_సమితి<AstCFunc*>
             m_cache;  // set of functions that may be called due to a virtual call
         Virtualization m_virtualization;  // Whether function is virtual (see Virtualization)
-        bool m_cacheInitialized;  // true when m_cache stores a valid value
-        FuncInfo(AstCFunc* const cfuncp, Virtualization virtualization)
+        తార్కిక m_cacheInitialized;  // true when m_cache stores a valid value
+        FuncInfo(AstCFunc* స్థిరరాశి cfuncp, Virtualization virtualization)
             : m_cfuncp{cfuncp}
             , m_virtualization{virtualization}
-            , m_cacheInitialized{false} {}
+            , m_cacheInitialized{అబద్ధం} {}
     };
     std::unordered_map<std::string, FuncInfo>
         m_funcsVirtualization;  // Map from function names to their description
-    const AstClass* const m_classp;  // A class of which the function is a member of
+    స్థిరరాశి AstClass* స్థిరరాశి m_classp;  // A class of which the function is a member of
 
-public:
-    explicit V3ClassGraphVertex(V3Graph* const graphp, const AstClass* const classp)
-        : V3GraphVertex{graphp}
+బహిరంగ:
+    స్పష్టమైన V3_Class_లేఖాచిత్రం_శీర్షం(V3_లేఖాచిత్రం* స్థిరరాశి graphp, స్థిరరాశి AstClass* స్థిరరాశి classp)
+        : V3_లేఖాచిత్రం_శీర్షం{graphp}
         , m_classp{classp} {}
-    ~V3ClassGraphVertex() override = default;
+    ~V3_Class_లేఖాచిత్రం_శీర్షం() override = అప్రమేయ;
 
-    std::string name() const override { return m_classp->name(); }
+    std::string name() స్థిరరాశి override { తిరిగి m_classp->name(); }
 
-    void addFunc(AstCFunc* const cfuncp) {
+    శూన్య కూడు_Func(AstCFunc* స్థిరరాశి cfuncp) {
         m_funcsVirtualization.emplace(
             std::piecewise_construct, std::forward_as_tuple(cfuncp->name()),
-            std::forward_as_tuple(cfuncp, cfuncp->isVirtual() ? V3ClassGraphVertex::VIRTUAL
-                                                              : V3ClassGraphVertex::NON_VIRTUAL));
+            std::forward_as_tuple(cfuncp, cfuncp->isVirtual() ? V3_Class_లేఖాచిత్రం_శీర్షం::VIRTUAL
+                                                              : V3_Class_లేఖాచిత్రం_శీర్షం::NON_VIRTUAL));
     }
-    void propagateVirt(const V3ClassGraphVertex& from) {
-        for (auto funcs : from.m_funcsVirtualization) {
-            if (funcs.second.m_virtualization == NON_VIRTUAL) continue;
-            auto& vertex
+    శూన్య propagateVirt(స్థిరరాశి V3_Class_లేఖాచిత్రం_శీర్షం& from) {
+        కొరకు (స్వయంచాలక funcs : from.m_funcsVirtualization) {
+            ఒకవేళ (funcs.రెండవ.m_virtualization == NON_VIRTUAL) కొనసాగు;
+            స్వయంచాలక& శీర్షం
                 = m_funcsVirtualization
                       .emplace(
-                          std::piecewise_construct, std::forward_as_tuple(funcs.first),
-                          std::forward_as_tuple(nullptr, V3ClassGraphVertex::VIRTUAL_INHERITED))
-                      .first->second;
-            if (vertex.m_virtualization == NON_VIRTUAL) vertex.m_virtualization = VIRTUAL_IMPLICIT;
+                          std::piecewise_construct, std::forward_as_tuple(funcs.మొదటి),
+                          std::forward_as_tuple(శూన్యసూచిక, V3_Class_లేఖాచిత్రం_శీర్షం::VIRTUAL_INHERITED))
+                      .మొదటి->రెండవ;
+            ఒకవేళ (శీర్షం.m_virtualization == NON_VIRTUAL) శీర్షం.m_virtualization = VIRTUAL_IMPLICIT;
         }
     }
-    const std::unordered_set<AstCFunc*>& getCallPossibleCFuncs(const std::string& name) & {
-        auto it = m_funcsVirtualization.find(name);
-        UASSERT_OBJ(it != m_funcsVirtualization.end(), m_classp,
+    స్థిరరాశి std::unordered_సమితి<AstCFunc*>& getCallPossibleCFuncs(స్థిరరాశి std::string& name) & {
+        స్వయంచాలక it = m_funcsVirtualization.కనుగొను(name);
+        UASSERT_OBJ(it != m_funcsVirtualization.చివర(), m_classp,
                     "Unexpected call - CFunc with name '" << name << "' not found");
-        FuncInfo& info = it->second;
-        if (!info.m_cacheInitialized) {
-            if (info.m_cfuncp) info.m_cache.insert(info.m_cfuncp);
-            if (info.m_virtualization != V3ClassGraphVertex::NON_VIRTUAL) {
-                for (V3GraphEdge& edge : outEdges()) {
-                    V3ClassGraphVertex* const other = edge.top()->as<V3ClassGraphVertex>();
-                    const std::unordered_set<AstCFunc*> otherCalls
+        FuncInfo& info = it->రెండవ;
+        ఒకవేళ (!info.m_cacheInitialized) {
+            ఒకవేళ (info.m_cfuncp) info.m_cache.చొప్పించు(info.m_cfuncp);
+            ఒకవేళ (info.m_virtualization != V3_Class_లేఖాచిత్రం_శీర్షం::NON_VIRTUAL) {
+                కొరకు (V3_లేఖాచిత్రం_అంచు& అంచు : బహిర్గతం_అంచులు()) {
+                    V3_Class_లేఖాచిత్రం_శీర్షం* స్థిరరాశి other = అంచు.శిఖరం()->as<V3_Class_లేఖాచిత్రం_శీర్షం>();
+                    స్థిరరాశి std::unordered_సమితి<AstCFunc*> otherCalls
                         = other->getCallPossibleCFuncs(name);
-                    info.m_cache.insert(otherCalls.begin(), otherCalls.end());
+                    info.m_cache.చొప్పించు(otherCalls.begin(), otherCalls.చివర());
                 }
             }
-            info.m_cacheInitialized = true;
+            info.m_cacheInitialized = నిజం;
         }
-        return info.m_cache;
+        తిరిగి info.m_cache;
     }
 };
 
-const std::unordered_set<AstCFunc*>&
-V3ClassGraph::getCallPossibleCFuncs(const AstNodeCCall* const callp) const& {
+స్థిరరాశి std::unordered_సమితి<AstCFunc*>&
+V3_Class_లేఖాచిత్రం::getCallPossibleCFuncs(స్థిరరాశి Ast_కణుపు_CCall* స్థిరరాశి callp) స్థిరరాశి& {
     // super references shall have AstNodeCCall::funcp() pointing to the only possible
     // AstCFunc that may be called
-    if (callp->superReference()) return m_emptySet;
-    const auto it = m_memberFuncToClassVertex.find(callp->funcp());
-    if (it == m_memberFuncToClassVertex.end()) {
-        return m_emptySet;  // Not under class return empty set
+    ఒకవేళ (callp->superReference()) తిరిగి m_ఖాళీలు_సమితి;
+    స్థిరరాశి స్వయంచాలక it = m_member_Func_గమ్యం_Class_శీర్షం.కనుగొను(callp->funcp());
+    ఒకవేళ (it == m_member_Func_గమ్యం_Class_శీర్షం.చివర()) {
+        తిరిగి m_ఖాళీలు_సమితి;  // Not under class return empty set
     }
-    return it->second->getCallPossibleCFuncs(callp->funcp()->name());
+    తిరిగి it->రెండవ->getCallPossibleCFuncs(callp->funcp()->name());
 }
 
 // Build a Class graph and returns it in a V3ClassGraph
-class ClassGraphBuilderVisitor final : VNVisitorConst {
-    std::unique_ptr<V3ClassGraph> m_graphp;  // Graph of classes
-    std::unordered_map<const AstClass*, V3ClassGraphVertex*>
-        m_vertexMap;  // Maps classes to their vertices
-    AstClass* m_classp = nullptr;  // Current class
-    V3ClassGraphVertex* m_classVertexp = nullptr;  // vertex corresponding to a current class -
+తరగతి Class_లేఖాచిత్రం_Builder_Visitor final : VNVisitorConst {
+    std::unique_ptr<V3_Class_లేఖాచిత్రం> m_graphp;  // Graph of classes
+    std::unordered_map<స్థిరరాశి AstClass*, V3_Class_లేఖాచిత్రం_శీర్షం*>
+        m_శీర్షం_Map;  // Maps classes to their vertices
+    AstClass* m_classp = శూన్యసూచిక;  // Current class
+    V3_Class_లేఖాచిత్రం_శీర్షం* m_classVertexp = శూన్యసూచిక;  // vertex corresponding to a current class -
                                                    // getClassVertex(m_classp) == m_classVertexp
 
-    V3ClassGraphVertex* getClassVertex(const AstClass* const classp) {
-        auto it = m_vertexMap.find(classp);
-        if (it != m_vertexMap.end()) return it->second;
-        return m_vertexMap.emplace(classp, new V3ClassGraphVertex{m_graphp.get(), classp})
-            .first->second;
+    V3_Class_లేఖాచిత్రం_శీర్షం* get_Class_శీర్షం(స్థిరరాశి AstClass* స్థిరరాశి classp) {
+        స్వయంచాలక it = m_శీర్షం_Map.కనుగొను(classp);
+        ఒకవేళ (it != m_శీర్షం_Map.చివర()) తిరిగి it->రెండవ;
+        తిరిగి m_శీర్షం_Map.emplace(classp, కొత్త V3_Class_లేఖాచిత్రం_శీర్షం{m_graphp.get(), classp})
+            .మొదటి->రెండవ;
     }
 
-    void visit(AstCFunc* const nodep) override {
+    శూన్య సందర్శించు(AstCFunc* స్థిరరాశి nodep) override {
         // Constructors have explicitly added super call (added by V3LinkDot if not added by user),
         // therefore assume that no virtualization happens - only explicit calls
-        if (!m_classp || nodep->isConstructor()) return;
+        ఒకవేళ (!m_classp || nodep->isConstructor()) తిరిగి;
         UASSERT_OBJ(m_classVertexp, nodep,
                     "If function is under class m_classVertexp shall be set");
-        m_graphp->m_memberFuncToClassVertex.emplace(nodep, m_classVertexp);
-        m_classVertexp->addFunc(nodep);
+        m_graphp->m_member_Func_గమ్యం_Class_శీర్షం.emplace(nodep, m_classVertexp);
+        m_classVertexp->కూడు_Func(nodep);
     }
-    void visit(AstClassExtends* const nodep) override {
+    శూన్య సందర్శించు(AstClassExtends* స్థిరరాశి nodep) override {
         UASSERT_OBJ(m_classVertexp, nodep,
                     "m_classVertexp shall be set while visiting AstClassExtends");
-        new V3GraphEdge{m_graphp.get(),
-                        getClassVertex(VN_AS(nodep->childDTypep(), ClassRefDType)->classp()),
+        కొత్త V3_లేఖాచిత్రం_అంచు{m_graphp.get(),
+                        get_Class_శీర్షం(VN_AS(nodep->బిడ్డ_DTypep(), ClassRefDType)->classp()),
                         m_classVertexp, 1};
     }
-    void visit(AstNodeModule* const nodep) override {
+    శూన్య సందర్శించు(Ast_కణుపు_Module* స్థిరరాశి nodep) override {
         VL_RESTORER(m_classp);
         VL_RESTORER(m_classVertexp);
         m_classp = VN_CAST(nodep, Class);
-        if (m_classp) m_classVertexp = getClassVertex(m_classp);
+        ఒకవేళ (m_classp) m_classVertexp = get_Class_శీర్షం(m_classp);
         iterateChildrenConst(nodep);
     }
-    void visit(AstNode* const nodep) override { iterateChildrenConst(nodep); }
+    శూన్య సందర్శించు(Ast_కణుపు* స్థిరరాశి nodep) override { iterateChildrenConst(nodep); }
 
-public:
-    explicit ClassGraphBuilderVisitor(AstNetlist* const nodep)
-        : m_graphp{new V3ClassGraph} {
+బహిరంగ:
+    స్పష్టమైన Class_లేఖాచిత్రం_Builder_Visitor(AstNetlist* స్థిరరాశి nodep)
+        : m_graphp{కొత్త V3_Class_లేఖాచిత్రం} {
         iterateConst(nodep);
 
         // Propagate virtualization
-        m_graphp->order();
-        for (V3GraphVertex& graphVertex : m_graphp->vertices()) {
-            V3ClassGraphVertex* const vertexp = graphVertex.as<V3ClassGraphVertex>();
-            for (V3GraphEdge& outEdge : vertexp->outEdges()) {
-                V3ClassGraphVertex* const successorp = outEdge.top()->as<V3ClassGraphVertex>();
+        m_graphp->క్రమం();
+        కొరకు (V3_లేఖాచిత్రం_శీర్షం& లేఖాచిత్రం_శీర్షం : m_graphp->vertices()) {
+            V3_Class_లేఖాచిత్రం_శీర్షం* స్థిరరాశి vertexp = లేఖాచిత్రం_శీర్షం.as<V3_Class_లేఖాచిత్రం_శీర్షం>();
+            కొరకు (V3_లేఖాచిత్రం_అంచు& బహిర్గతం_అంచు : vertexp->బహిర్గతం_అంచులు()) {
+                V3_Class_లేఖాచిత్రం_శీర్షం* స్థిరరాశి successorp = బహిర్గతం_అంచు.శిఖరం()->as<V3_Class_లేఖాచిత్రం_శీర్షం>();
                 successorp->propagateVirt(*vertexp);
             }
         }
     }
-    ~ClassGraphBuilderVisitor() override = default;
-    std::unique_ptr<V3ClassGraph> takeGraph() && { return std::move(m_graphp); }
+    ~Class_లేఖాచిత్రం_Builder_Visitor() override = అప్రమేయ;
+    std::unique_ptr<V3_Class_లేఖాచిత్రం> take_లేఖాచిత్రం() && { తిరిగి std::move(m_graphp); }
 };
 
-std::unique_ptr<V3ClassGraph> V3ClassGraph::build(AstNetlist* netlistp) {
-    return ClassGraphBuilderVisitor{netlistp}.takeGraph();
+std::unique_ptr<V3_Class_లేఖాచిత్రం> V3_Class_లేఖాచిత్రం::build(AstNetlist* netlistp) {
+    తిరిగి Class_లేఖాచిత్రం_Builder_Visitor{netlistp}.take_లేఖాచిత్రం();
 }

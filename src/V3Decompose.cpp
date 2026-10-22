@@ -120,17 +120,17 @@
 //
 //*************************************************************************
 
-#include "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
+#అన్తర్భావ "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
 
-#include "V3Decompose.h"
+#అన్తర్భావ "V3Decompose.h"
 
-#include "V3AstUserAllocator.h"
-#include "V3MemberMap.h"
-#include "V3SharedTmps.h"
-#include "V3Stats.h"
+#అన్తర్భావ "V3AstUserAllocator.h"
+#అన్తర్భావ "V3MemberMap.h"
+#అన్తర్భావ "V3SharedTmps.h"
+#అన్తర్భావ "V3Stats.h"
 
-#include <algorithm>
-#include <memory>
+#అన్తర్భావ <algorithm>
+#అన్తర్భావ <memory>
 
 VL_DEFINE_DEBUG_FUNCTIONS;
 
@@ -140,88 +140,88 @@ VL_DEFINE_DEBUG_FUNCTIONS;
 // methods. It is otherwise stateless and exists only to help separate
 // the code of the steps into logically separate classes.
 
-class DecomposeBase VL_NOT_FINAL {
-protected:
+తరగతి Decompose_పునాది VL_NOT_FINAL {
+రక్షిత:
     // TYPES
 
     // A component (element or member) of an aggregate type
-    struct Component final {
-        AstNodeDType* dtypep;  // Type of the component
+    నిర్మాణం Component final {
+        Ast_కణుపు_DType* dtypep;  // Type of the component
         AstMemberDType* memberp;  // The member, if a struct
-        int declIdx;  // The declared index of the element, if an array
-        int lsb;  // LSB in the whole value, if packed
-        int msb;  // MSB in the whole value, if packed
+        పూర్ణాంకం declIdx;  // The declared index of the element, if an array
+        పూర్ణాంకం lsb;  // LSB in the whole value, if packed
+        పూర్ణాంకం msb;  // MSB in the whole value, if packed
     };
 
-    struct Place;  // A variable or a component of one, see below
+    నిర్మాణం ఉంచు;  // A variable or a component of one, see below
 
     // A copy between two Places, built from assignments. For unpacked
     // Places, it is always a whole copy. For packed Places, it might be a
     // partial range copy. Only used during the Decision step to track
     // which Places want to be split.
-    struct Copy final {
-        Place* otherp;  // The Place at the other end
+    నిర్మాణం Copy final {
+        ఉంచు* otherp;  // The Place at the other end
         // Following only for packed places
-        int lsb;  // The first bit covered of this end
-        int otherLsb;  // The first bit covered of the other end
-        int width;  // The number of bits covered at each end
+        పూర్ణాంకం lsb;  // The first bit covered of this end
+        పూర్ణాంకం otherLsb;  // The first bit covered of the other end
+        పూర్ణాంకం వెడల్పు;  // The number of bits covered at each end
     };
 
     // A 'place' represents an original variable that might be split, or one of its
     // components, recursively. See the file header for more details.
-    struct Place final {
-        Place* parentp = nullptr;  // The Place this is a component of, nullptr if original
-        Place* rootp = nullptr;  // The original variable (root of the tree), root points to itself
-        AstNodeDType* dtypep = nullptr;  // The data type of the variable or component
+    నిర్మాణం ఉంచు final {
+        ఉంచు* parentp = శూన్యసూచిక;  // The Place this is a component of, nullptr if original
+        ఉంచు* rootp = శూన్యసూచిక;  // The original variable (root of the tree), root points to itself
+        Ast_కణుపు_DType* dtypep = శూన్యసూచిక;  // The data type of the variable or component
         // The AstVarScope for this Place, null for components of an unsplit Place
-        AstVarScope* vscp = nullptr;
+        AstVarScope* vscp = శూన్యసూచిక;
         // The component Places created so far, by index, sized on the first one created
-        std::vector<std::unique_ptr<Place>> childrenp;
-        std::vector<Copy> copies;  // The copies covering it, until split
-        bool splittable = true;  // Can be split (there is no reason not to)
-        bool wantsSplit = false;  // Should be split (if possible, do split)
-        bool split = false;  // Place was split
-        bool queued = false;  // On the worklist
+        std::సదిశ<std::unique_ptr<ఉంచు>> childrenp;
+        std::సదిశ<Copy> copies;  // The copies covering it, until split
+        తార్కిక splittable = నిజం;  // Can be split (there is no reason not to)
+        తార్కిక కోరుతుంది_విభజించు = అబద్ధం;  // Should be split (if possible, do split)
+        తార్కిక విభజించు = అబద్ధం;  // Place was split
+        తార్కిక queued = అబద్ధం;  // On the worklist
     };
 
     // A component selected by a select chain, e.g. one step in 's.a[1][2].b[3]'
-    struct Select final {
-        AstNodeExpr* exprp;  // The select
-        Place* placep;  // The component
-        int lsb;  // The first bit selected from the component, for packed
+    నిర్మాణం Select final {
+        Ast_కణుపు_సమాసం* exprp;  // The select
+        ఉంచు* placep;  // The component
+        పూర్ణాంకం lsb;  // The first bit selected from the component, for packed
     };
 
     // An assignment to expand if a side is split
-    struct Assignment final {
-        AstNodeAssign* assp;  // The assignment
-        Place* lPlacep;  // The Place the LHS addresses exactly, if any
-        Place* rPlacep;  // The Place the RHS addresses exactly, if any
+    నిర్మాణం Assignment final {
+        Ast_కణుపు_కేటాయించు* assp;  // The assignment
+        ఉంచు* lPlacep;  // The Place the LHS addresses exactly, if any
+        ఉంచు* rPlacep;  // The Place the RHS addresses exactly, if any
     };
 
-public:
+బహిరంగ:
     // The state of the pass, shared by the steps
-    class State final {
+    తరగతి State final {
         // NODE STATE
         //  AstNodeDType::user4()       -> Components of the type, via dtypeComponents
         //  AstVarScope::user4()        -> Place: the original variable, via places
-        const VNUser4InUse m_user4InUse;
+        స్థిరరాశి VNUser4_లోపల_Use m_user4_లోపల_Use;
 
-    public:
+    బహిరంగ:
         // The components of the aggregate types, see DecomposeBase::dtypeComponents
-        AstUser4Allocator<AstNodeDType, std::vector<Component>> dtypeComponents;
+        AstUser4Allocator<Ast_కణుపు_DType, std::సదిశ<Component>> dtypeComponents;
         // The Places of the original variables, see DecomposeRecord::placeOf
-        AstUser4Allocator<AstVarScope, Place> places;
-        std::vector<Place*> rootps;  // The original Places, in creation order
-        std::vector<std::vector<Select>> chains;  // Select chains addressing components
-        std::vector<Assignment> assignments;  // Assignments to expand if a side is split
+        AstUser4Allocator<AstVarScope, ఉంచు> places;
+        std::సదిశ<ఉంచు*> rootps;  // The original Places, in creation order
+        std::సదిశ<std::సదిశ<Select>> chains;  // Select chains addressing components
+        std::సదిశ<Assignment> assignments;  // Assignments to expand if a side is split
     };
 
-protected:
+రక్షిత:
     // STATE
     State& m_state;  // The state of the pass
 
     // CONSTRUCTORS
-    explicit DecomposeBase(State& state)
+    స్పష్టమైన Decompose_పునాది(State& state)
         : m_state{state} {}
 
     // METHODS
@@ -229,47 +229,47 @@ protected:
     // Splittable unpacked type:
     // - Unpacked struct
     // - Unpacked array
-    static bool isUnpacked(const AstNodeDType* dtypep) {
+    స్థిర తార్కిక isUnpacked(స్థిరరాశి Ast_కణుపు_DType* dtypep) {
         dtypep = dtypep->skipRefp();
-        if (VN_IS(dtypep, UnpackArrayDType)) return true;
-        const AstStructDType* const structp = VN_CAST(dtypep, StructDType);
-        return structp && !structp->packed();
+        ఒకవేళ (VN_IS(dtypep, UnpackArrayDType)) తిరిగి నిజం;
+        స్థిరరాశి AstStructDType* స్థిరరాశి structp = VN_CAST(dtypep, StructDType);
+        తిరిగి structp && !structp->packed();
     }
 
     // Splittable packed type:
     // - Packed struct
     // - Packed array of width > 1 elements (that is: a multi-dimensional array).
     //   Specifically excludes e.g.: 'logic [31:0], bit_t [31:0], logic [31:0][0:0]'
-    static bool isPacked(const AstNodeDType* dtypep) {
+    స్థిర తార్కిక isPacked(స్థిరరాశి Ast_కణుపు_DType* dtypep) {
         dtypep = dtypep->skipRefp();
-        if (const AstPackArrayDType* const arrayp = VN_CAST(dtypep, PackArrayDType)) {
-            return arrayp->subDTypep()->width() > 1;
+        ఒకవేళ (స్థిరరాశి AstPackArrayDType* స్థిరరాశి arrayp = VN_CAST(dtypep, PackArrayDType)) {
+            తిరిగి arrayp->subDTypep()->వెడల్పు() > 1;
         }
-        const AstStructDType* const structp = VN_CAST(dtypep, StructDType);
-        return structp && structp->packed();
+        స్థిరరాశి AstStructDType* స్థిరరాశి structp = VN_CAST(dtypep, StructDType);
+        తిరిగి structp && structp->packed();
     }
 
     // Is the type an aggregate that can be split, as enabled by the options
-    static bool isSplittableType(const AstNodeDType* dtypep) {
-        if (isPacked(dtypep)) return v3Global.opt.fDecomposePacked();
-        if (isUnpacked(dtypep)) {
+    స్థిర తార్కిక isSplittableType(స్థిరరాశి Ast_కణుపు_DType* dtypep) {
+        ఒకవేళ (isPacked(dtypep)) తిరిగి v3Global.opt.fDecomposePacked();
+        ఒకవేళ (isUnpacked(dtypep)) {
             // Not splittable if has member default values
-            if (const AstStructDType* const structp = VN_CAST(dtypep->skipRefp(), StructDType)) {
-                for (const AstMemberDType* mp = structp->membersp(); mp;
+            ఒకవేళ (స్థిరరాశి AstStructDType* స్థిరరాశి structp = VN_CAST(dtypep->skipRefp(), StructDType)) {
+                కొరకు (స్థిరరాశి AstMemberDType* mp = structp->membersp(); mp;
                      mp = VN_AS(mp->nextp(), MemberDType)) {
-                    if (mp->valuep()) return false;
+                    ఒకవేళ (mp->valuep()) తిరిగి అబద్ధం;
                 }
             }
-            return v3Global.opt.fDecomposeUnpacked();
+            తిరిగి v3Global.opt.fDecomposeUnpacked();
         }
-        return false;
+        తిరిగి అబద్ధం;
     }
 
     // Type of the expression. For a VarRef, this returns the type of the variable,
     // which might differ from the type of the VarRef itself after earlier optimizations.
-    static AstNodeDType* dtypeOf(const AstNodeExpr* nodep) {
-        if (const AstVarRef* const refp = VN_CAST(nodep, VarRef)) return refp->varp()->dtypep();
-        return nodep->dtypep();
+    స్థిర Ast_కణుపు_DType* dtype_యొక్క(స్థిరరాశి Ast_కణుపు_సమాసం* nodep) {
+        ఒకవేళ (స్థిరరాశి AstVarRef* స్థిరరాశి refp = VN_CAST(nodep, VarRef)) తిరిగి refp->varp()->dtypep();
+        తిరిగి nodep->dtypep();
     }
 
     // Components of an aggregate type. Indexed in storage order, that is:
@@ -277,181 +277,181 @@ protected:
     // - For packed structs, component 0 is the last declared member, in the LSBs
     // - For unpacked arrays, component 0 is in storage slot 0 at runtime (element at lo() index)
     // - For unpacked structs, component 0 is the last declared member, to match packed
-    const std::vector<Component>& dtypeComponents(AstNodeDType* dtypep) {
+    స్థిరరాశి std::సదిశ<Component>& dtypeComponents(Ast_కణుపు_DType* dtypep) {
         dtypep = dtypep->skipRefp();
         UASSERT_OBJ(isUnpacked(dtypep) || isPacked(dtypep), dtypep,
                     "dtypeComponents of non-aggregate type");
 
         // Cached via user4
-        std::vector<Component>& compsr = m_state.dtypeComponents(dtypep);
+        std::సదిశ<Component>& compsr = m_state.dtypeComponents(dtypep);
 
         // Compute on first lookup
-        if (compsr.empty()) {
-            if (const AstNodeArrayDType* const arrayp = VN_CAST(dtypep, NodeArrayDType)) {
-                const bool packed = isPacked(dtypep);
-                const VNumRange range = arrayp->declRange();
-                const bool rev = packed && range.ascending();  // Only for naming components
-                AstNodeDType* const subp = arrayp->subDTypep();
-                for (int i = 0; i < range.elements(); ++i) {
-                    const int lsb = packed ? i * subp->width() : 0;
-                    const int msb = packed ? lsb + subp->width() - 1 : 0;
+        ఒకవేళ (compsr.ఖాళీలు()) {
+            ఒకవేళ (స్థిరరాశి Ast_కణుపు_Array_DType* స్థిరరాశి arrayp = VN_CAST(dtypep, కణుపు_Array_DType)) {
+                స్థిరరాశి తార్కిక packed = isPacked(dtypep);
+                స్థిరరాశి VNumRange range = arrayp->declRange();
+                స్థిరరాశి తార్కిక rev = packed && range.ascending();  // Only for naming components
+                Ast_కణుపు_DType* స్థిరరాశి subp = arrayp->subDTypep();
+                కొరకు (పూర్ణాంకం i = 0; i < range.elements(); ++i) {
+                    స్థిరరాశి పూర్ణాంకం lsb = packed ? i * subp->వెడల్పు() : 0;
+                    స్థిరరాశి పూర్ణాంకం msb = packed ? lsb + subp->వెడల్పు() - 1 : 0;
                     // The *declared* index of the element in slot i, only used for the name
-                    const int declIdx = rev ? range.hi() - i : range.lo() + i;
-                    compsr.push_back({subp, nullptr, declIdx, lsb, msb});
+                    స్థిరరాశి పూర్ణాంకం declIdx = rev ? range.hi() - i : range.lo() + i;
+                    compsr.నెట్టు_వెనుక({subp, శూన్యసూచిక, declIdx, lsb, msb});
                 }
-            } else {
-                const AstStructDType* const structp = VN_AS(dtypep, StructDType);
-                const bool packed = isPacked(dtypep);
-                for (AstMemberDType* mp = structp->membersp(); mp;
+            } లేకపోతే {
+                స్థిరరాశి AstStructDType* స్థిరరాశి structp = VN_AS(dtypep, StructDType);
+                స్థిరరాశి తార్కిక packed = isPacked(dtypep);
+                కొరకు (AstMemberDType* mp = structp->membersp(); mp;
                      mp = VN_AS(mp->nextp(), MemberDType)) {
-                    const int lsb = packed ? mp->lsb() : 0;
-                    const int msb = packed ? lsb + mp->width() - 1 : 0;
-                    compsr.push_back({mp->subDTypep(), mp, 0, lsb, msb});
+                    స్థిరరాశి పూర్ణాంకం lsb = packed ? mp->lsb() : 0;
+                    స్థిరరాశి పూర్ణాంకం msb = packed ? lsb + mp->వెడల్పు() - 1 : 0;
+                    compsr.నెట్టు_వెనుక({mp->subDTypep(), mp, 0, lsb, msb});
                 }
                 // Last member is first
-                std::reverse(compsr.begin(), compsr.end());
+                std::తిరగేయి(compsr.begin(), compsr.చివర());
             }
         }
 
         // The components of this data type
-        return compsr;
+        తిరిగి compsr;
     }
 
     // Index of the component of a packed type containing bit 'bit'
-    size_t componentIndex(AstNodeDType* dtypep, int bit) {
+    కొలత_t component_సూచీ(Ast_కణుపు_DType* dtypep, పూర్ణాంకం బిట్టు_2) {
         UASSERT_OBJ(isPacked(dtypep), dtypep, "componentIndex of non-packed type");
-        const std::vector<Component>& compsr = dtypeComponents(dtypep);
+        స్థిరరాశి std::సదిశ<Component>& compsr = dtypeComponents(dtypep);
         // The first component ending above the bit. This is O(log n) binary search.
-        const auto it = std::lower_bound(compsr.begin(), compsr.end(), bit,
-                                         [](const Component& comp, int b) {  //
-                                             return b > comp.msb;
+        స్థిరరాశి స్వయంచాలక it = std::క్రింది_bound(compsr.begin(), compsr.చివర(), బిట్టు_2,
+                                         [](స్థిరరాశి Component& comp, పూర్ణాంకం b) {  //
+                                             తిరిగి b > comp.msb;
                                          });
-        return it - compsr.begin();
+        తిరిగి it - compsr.begin();
     }
 
     // The Place for component 'idx' of 'placep', created if needed
-    Place* componentOf(Place* placep, size_t idx) {
-        const std::vector<Component>& comps = dtypeComponents(placep->dtypep);
-        if (placep->childrenp.empty()) placep->childrenp.resize(comps.size());
-        std::unique_ptr<Place>& childpr = placep->childrenp.at(idx);
-        if (!childpr) {
-            childpr = std::make_unique<Place>();
+    ఉంచు* component_యొక్క(ఉంచు* placep, కొలత_t idx) {
+        స్థిరరాశి std::సదిశ<Component>& comps = dtypeComponents(placep->dtypep);
+        ఒకవేళ (placep->childrenp.ఖాళీలు()) placep->childrenp.resize(comps.కొలత());
+        std::unique_ptr<ఉంచు>& childpr = placep->childrenp.at(idx);
+        ఒకవేళ (!childpr) {
+            childpr = std::make_unique<ఉంచు>();
             childpr->parentp = placep;
             childpr->rootp = placep->rootp;
             childpr->dtypep = comps.at(idx).dtypep;
             childpr->splittable = isSplittableType(childpr->dtypep);
-            childpr->wantsSplit = placep->rootp->vscp->varp()->attrSplitVar();
+            childpr->కోరుతుంది_విభజించు = placep->rootp->vscp->varp()->attr_విభజించు_Var();
         }
-        return childpr.get();
+        తిరిగి childpr.get();
     }
 
     // Is 'nodep' cheap to clone
-    static bool isCheap(const AstNodeExpr* nodep) {
+    స్థిర తార్కిక isCheap(స్థిరరాశి Ast_కణుపు_సమాసం* nodep) {
         // Constants are cheap
-        if (VN_IS(nodep, Const)) return true;
+        ఒకవేళ (VN_IS(nodep, Const)) తిరిగి నిజం;
         // So are resets
-        if (VN_IS(nodep, CReset)) return true;
+        ఒకవేళ (VN_IS(nodep, CReset)) తిరిగి నిజం;
         // Variable references are cheap for the most part
-        if (const AstVarRef* const refp = VN_CAST(nodep, VarRef)) {
+        ఒకవేళ (స్థిరరాశి AstVarRef* స్థిరరాశి refp = VN_CAST(nodep, VarRef)) {
             // Not a forced variable (not cheap, but also trips several bugs in V3Force)
-            if (refp->varp()->isForced()) return false;
+            ఒకవేళ (refp->varp()->isForced()) తిరిగి అబద్ధం;
             // Not a SystemC variable, which can only be accessed whole, not selected from.
-            if (refp->varp()->isSc()) return false;
+            ఒకవేళ (refp->varp()->isSc()) తిరిగి అబద్ధం;
             // Otherwise the path rooted here is cheap
-            return true;
+            తిరిగి నిజం;
         }
         // Bit selects only with a constant LSB
-        if (const AstSel* const selp = VN_CAST(nodep, Sel)) {
-            return VN_IS(selp->lsbp(), Const) && isCheap(selp->fromp());
+        ఒకవేళ (స్థిరరాశి AstSel* స్థిరరాశి selp = VN_CAST(nodep, Sel)) {
+            తిరిగి VN_IS(selp->lsbp(), Const) && isCheap(selp->fromp());
         }
         // Other selects with cheap indices are cheap
-        if (const AstArraySel* const selp = VN_CAST(nodep, ArraySel)) {
-            return isCheap(selp->bitp()) && isCheap(selp->fromp());
+        ఒకవేళ (స్థిరరాశి AstArraySel* స్థిరరాశి selp = VN_CAST(nodep, ArraySel)) {
+            తిరిగి isCheap(selp->bitp()) && isCheap(selp->fromp());
         }
-        if (const AstStructSel* const selp = VN_CAST(nodep, StructSel)) {  //
-            return isCheap(selp->fromp());
+        ఒకవేళ (స్థిరరాశి AstStructSel* స్థిరరాశి selp = VN_CAST(nodep, StructSel)) {  //
+            తిరిగి isCheap(selp->fromp());
         }
         // A zero extension of a cheap expression, e.g. of a narrow index
-        if (const AstExtend* const extp = VN_CAST(nodep, Extend)) {  //
-            return isCheap(extp->lhsp());
+        ఒకవేళ (స్థిరరాశి AstExtend* స్థిరరాశి extp = VN_CAST(nodep, Extend)) {  //
+            తిరిగి isCheap(extp->lhsp());
         }
         // Other expressions are not cheap
-        return false;
+        తిరిగి అబద్ధం;
     }
 };
 
 //######################################################################
 // Record the facts about the places, without changing the tree
 
-class DecomposeRecord final : public VNVisitorConst, public DecomposeBase {
+తరగతి Decompose_రికార్డు final : బహిరంగ VNVisitorConst, బహిరంగ Decompose_పునాది {
     // NODE STATE
     //  AstVar::user1()             -> int: bit 0: eligible, bit 1: evaluated, see isEligible
     //  AstStructDType::user1()     -> bool: members annotated with their indices
     //  AstMemberDType::user1()     -> uint64_t: component index of the member
     //  AstNodeExpr::user1u()       -> Place*: the one an assignment side addresses exactly
-    const VNUser1InUse m_user1InUse;
+    స్థిరరాశి VNUser1_లోపల_Use m_user1_లోపల_Use;
 
     // STATE
     VMemberMap m_memberMap;  // Struct members by name
-    AstNodeAssign* m_assignp = nullptr;  // The visited assignment iff splittable
+    Ast_కణుపు_కేటాయించు* m_assignp = శూన్యసూచిక;  // The visited assignment iff splittable
 
     // METHODS
 
     // Warn that splitting requested via split_var cannot be done, because of 'reasonp'
-    static void warnNoSplit(AstVar* varp, const AstNode* wherep, const char* reasonp) {
+    స్థిర శూన్య warn_No_విభజించు(AstVar* varp, స్థిరరాశి Ast_కణుపు* wherep, స్థిరరాశి అక్షరం* reasonp) {
         // Only warn if user requested splitting
-        if (!varp->attrSplitVar()) return;
+        ఒకవేళ (!varp->attr_విభజించు_Var()) తిరిగి;
         // A packed variable might still be split by V3BitBlast, which warns if not
-        if (isPacked(varp->dtypep())) return;
+        ఒకవేళ (isPacked(varp->dtypep())) తిరిగి;
         wherep->v3warn(SPLITVAR, varp->prettyNameQ()
                                      << " marked split_var but will not be split because "
                                      << reasonp << ".\n");
-        wherep->fileline()->modifyWarnOff(V3ErrorCode::SPLITVAR, true);  // Warn only once
+        wherep->fileline()->modifyWarnOff(V3_Error_సంకేతం::SPLITVAR, నిజం);  // Warn only once
     }
 
     // Is the variable eligible for splitting by its type and properties
     // Note this might be overridden by a visit to an unsupported construct,
     // so it is not completely determined until the whole netlist is visited.
-    static bool isEligible(AstVar* varp) {
+    స్థిర తార్కిక isEligible(AstVar* varp) {
         // Compute and cache eligibility on first encounter
-        if (!varp->user1()) {
-            const bool eligible = [&]() {
+        ఒకవేళ (!varp->user1()) {
+            స్థిరరాశి తార్కిక eligible = [&]() {
                 // Check data type
-                if (!isSplittableType(varp->dtypep())) return false;
+                ఒకవేళ (!isSplittableType(varp->dtypep())) తిరిగి అబద్ధం;
                 // Check properties
-                const char* const reasonp = varp->cannotSplitKindReason();
+                స్థిరరాశి అక్షరం* స్థిరరాశి reasonp = varp->cannot_విభజించు_రకం_Reason();
                 // Warn that it cannot be split if user explicitly requested splitting
-                if (reasonp) warnNoSplit(varp, varp, reasonp);
+                ఒకవేళ (reasonp) warn_No_విభజించు(varp, varp, reasonp);
                 // Eligible if no refusal reason returned
-                return !reasonp;
+                తిరిగి !reasonp;
             }();
             varp->user1(2 | eligible);
         }
         // Return the cached result
-        return varp->user1() & 1;
+        తిరిగి varp->user1() & 1;
     }
 
     // The root Place for the referenced VarScope, nullptr if not eligible
-    Place* placeOf(const AstVarRef* refp) {
-        AstVarScope* const vscp = refp->varScopep();
-        if (!isEligible(vscp->varp())) return nullptr;
-        Place& place = m_state.places(vscp);
-        if (!place.rootp) {
-            place.rootp = &place;
-            place.dtypep = vscp->varp()->dtypep();
-            place.vscp = vscp;
-            place.wantsSplit = vscp->varp()->attrSplitVar();
-            m_state.rootps.push_back(&place);
+    ఉంచు* ఉంచు_యొక్క(స్థిరరాశి AstVarRef* refp) {
+        AstVarScope* స్థిరరాశి vscp = refp->varScopep();
+        ఒకవేళ (!isEligible(vscp->varp())) తిరిగి శూన్యసూచిక;
+        ఉంచు& ఉంచు_2 = m_state.places(vscp);
+        ఒకవేళ (!ఉంచు_2.rootp) {
+            ఉంచు_2.rootp = &ఉంచు_2;
+            ఉంచు_2.dtypep = vscp->varp()->dtypep();
+            ఉంచు_2.vscp = vscp;
+            ఉంచు_2.కోరుతుంది_విభజించు = vscp->varp()->attr_విభజించు_Var();
+            m_state.rootps.నెట్టు_వెనుక(&ఉంచు_2);
         }
-        return &place;
+        తిరిగి &ఉంచు_2;
     }
 
     // Block the Place from splitting, due to the construct in 'wherep' which prevents splitting
-    static void block(Place* placep, const AstNode* wherep) {
-        placep->splittable = false;
+    స్థిర శూన్య ఖండం(ఉంచు* placep, స్థిరరాశి Ast_కణుపు* wherep) {
+        placep->splittable = అబద్ధం;
         // Warn on the variable only, a component is split as far as possible, as requested
-        if (!placep->parentp) {
-            warnNoSplit(placep->vscp->varp(), wherep, "it is referenced in an unsupported way");
+        ఒకవేళ (!placep->parentp) {
+            warn_No_విభజించు(placep->vscp->varp(), wherep, "it is referenced in an unsupported way");
         }
     }
 
@@ -460,406 +460,406 @@ class DecomposeRecord final : public VNVisitorConst, public DecomposeBase {
     // which is selected wants to be split, one used by a select that cannot be followed is
     // blocked. Iterates expressions not part of the select chain. The components selected are
     // appended to 'chain'.
-    Place* resolveChain(AstNodeExpr* exprp, std::vector<Select>& chain) {
+    ఉంచు* resolveChain(Ast_కణుపు_సమాసం* exprp, std::సదిశ<Select>& chain) {
         // Array selects correspond one to one with a component select
-        if (AstArraySel* const selp = VN_CAST(exprp, ArraySel)) {
-            if (Place* const fromp = resolveChain(selp->fromp(), chain)) {
+        ఒకవేళ (AstArraySel* స్థిరరాశి selp = VN_CAST(exprp, ArraySel)) {
+            ఒకవేళ (ఉంచు* స్థిరరాశి fromp = resolveChain(selp->fromp(), chain)) {
                 UASSERT_OBJ(isUnpacked(fromp->dtypep), selp, "ArraySel of non-unpacked Place");
                 // Index must be constant and in bounds
-                const AstConst* const bitp = VN_CAST(selp->bitp(), Const);
-                if (bitp && bitp->toUQuad() < dtypeComponents(fromp->dtypep).size()) {
-                    Place* const childp = componentOf(fromp, bitp->toUQuad());
-                    fromp->wantsSplit = true;
-                    chain.push_back({selp, childp, 0});
-                    return childp;
+                స్థిరరాశి AstConst* స్థిరరాశి bitp = VN_CAST(selp->bitp(), Const);
+                ఒకవేళ (bitp && bitp->గమ్యం_UQuad() < dtypeComponents(fromp->dtypep).కొలత()) {
+                    ఉంచు* స్థిరరాశి childp = component_యొక్క(fromp, bitp->గమ్యం_UQuad());
+                    fromp->కోరుతుంది_విభజించు = నిజం;
+                    chain.నెట్టు_వెనుక({selp, childp, 0});
+                    తిరిగి childp;
                 }
                 // Otherwise block splitting of the Place
-                block(fromp, selp->fromp());
+                ఖండం(fromp, selp->fromp());
             }
             // Must visit the non-constant index
             iterateConst(selp->bitp());
-            return nullptr;
+            తిరిగి శూన్యసూచిక;
         }
         // Struct selects correspond one to one with a component select
-        if (AstStructSel* const selp = VN_CAST(exprp, StructSel)) {
-            if (Place* const fromp = resolveChain(selp->fromp(), chain)) {
-                if (!isUnpacked(fromp->dtypep)) return nullptr;
-                AstStructDType* const structp = VN_AS(fromp->dtypep->skipRefp(), StructDType);
+        ఒకవేళ (AstStructSel* స్థిరరాశి selp = VN_CAST(exprp, StructSel)) {
+            ఒకవేళ (ఉంచు* స్థిరరాశి fromp = resolveChain(selp->fromp(), chain)) {
+                ఒకవేళ (!isUnpacked(fromp->dtypep)) తిరిగి శూన్యసూచిక;
+                AstStructDType* స్థిరరాశి structp = VN_AS(fromp->dtypep->skipRefp(), StructDType);
                 // Annotate member indices of the struct on first encounter
-                if (!structp->user1SetOnce()) {
-                    const std::vector<Component>& compsr = dtypeComponents(structp);
-                    for (size_t i = 0; i < compsr.size(); ++i) compsr[i].memberp->user1(i);
+                ఒకవేళ (!structp->user1_సమితి_Once()) {
+                    స్థిరరాశి std::సదిశ<Component>& compsr = dtypeComponents(structp);
+                    కొరకు (కొలత_t i = 0; i < compsr.కొలత(); ++i) compsr[i].memberp->user1(i);
                 }
-                const AstNode* const memberp = m_memberMap.findMember(structp, selp->name());
+                స్థిరరాశి Ast_కణుపు* స్థిరరాశి memberp = m_memberMap.కనుగొను_Member(structp, selp->name());
                 UASSERT_OBJ(memberp, selp, "Struct member not found: " << selp->name());
-                Place* const childp = componentOf(fromp, memberp->user1());
-                fromp->wantsSplit = true;
-                chain.push_back({selp, childp, 0});
-                return childp;
+                ఉంచు* స్థిరరాశి childp = component_యొక్క(fromp, memberp->user1());
+                fromp->కోరుతుంది_విభజించు = నిజం;
+                chain.నెట్టు_వెనుక({selp, childp, 0});
+                తిరిగి childp;
             }
-            return nullptr;
+            తిరిగి శూన్యసూచిక;
         }
         // A packed Sel corresponds to one or more component selects, depends on source dimensions
         // E.g. Sel(VarRef(a), 3) on 'logic [3:0][2:0][1:0]' a corresponds to a[0][1][1],
         // and will contribute 2 chain entries (the fastest varying dimension is not splittable)
-        if (AstSel* const selp = VN_CAST(exprp, Sel)) {
-            Place* placep = resolveChain(selp->fromp(), chain);
-            if (!placep) {
+        ఒకవేళ (AstSel* స్థిరరాశి selp = VN_CAST(exprp, Sel)) {
+            ఉంచు* placep = resolveChain(selp->fromp(), chain);
+            ఒకవేళ (!placep) {
                 iterateConst(selp->lsbp());
-                return nullptr;
+                తిరిగి శూన్యసూచిక;
             }
             // Not followed with a variable LSB, or if out of range, so the Place is used whole
-            const AstConst* const lsbp = VN_CAST(selp->lsbp(), Const);
-            if (!lsbp || lsbp->toSInt() + selp->widthConst() > placep->dtypep->width()) {
-                block(placep, selp->fromp());
+            స్థిరరాశి AstConst* స్థిరరాశి lsbp = VN_CAST(selp->lsbp(), Const);
+            ఒకవేళ (!lsbp || lsbp->గమ్యం_SInt() + selp->వెడల్పు_Const() > placep->dtypep->వెడల్పు()) {
+                ఖండం(placep, selp->fromp());
                 iterateConst(selp->lsbp());
-                return nullptr;
+                తిరిగి శూన్యసూచిక;
             }
             // Descend into the Place containing the bits, until exact
-            int lsb = lsbp->toSInt();
-            int msb = lsb + selp->widthConst() - 1;
-            while (lsb != 0 || msb != placep->dtypep->width() - 1) {
+            పూర్ణాంకం lsb = lsbp->గమ్యం_SInt();
+            పూర్ణాంకం msb = lsb + selp->వెడల్పు_Const() - 1;
+            అయితే (lsb != 0 || msb != placep->dtypep->వెడల్పు() - 1) {
                 // Within a component of a type not split
-                if (!isPacked(placep->dtypep)) return nullptr;
-                const size_t idx = componentIndex(placep->dtypep, lsb);
+                ఒకవేళ (!isPacked(placep->dtypep)) తిరిగి శూన్యసూచిక;
+                స్థిరరాశి కొలత_t idx = component_సూచీ(placep->dtypep, lsb);
                 // Crossing components prevents splitting
-                if (idx != componentIndex(placep->dtypep, msb)) {
-                    block(placep, selp->fromp());
-                    return nullptr;
+                ఒకవేళ (idx != component_సూచీ(placep->dtypep, msb)) {
+                    ఖండం(placep, selp->fromp());
+                    తిరిగి శూన్యసూచిక;
                 }
-                placep->wantsSplit = true;
-                const Component& comp = dtypeComponents(placep->dtypep).at(idx);
+                placep->కోరుతుంది_విభజించు = నిజం;
+                స్థిరరాశి Component& comp = dtypeComponents(placep->dtypep).at(idx);
                 lsb -= comp.lsb;
                 msb -= comp.lsb;
-                placep = componentOf(placep, idx);
-                chain.push_back({selp, placep, lsb});
+                placep = component_యొక్క(placep, idx);
+                chain.నెట్టు_వెనుక({selp, placep, lsb});
             }
-            return placep;
+            తిరిగి placep;
         }
         // Base case
-        if (AstVarRef* const refp = VN_CAST(exprp, VarRef)) return placeOf(refp);
+        ఒకవేళ (AstVarRef* స్థిరరాశి refp = VN_CAST(exprp, VarRef)) తిరిగి ఉంచు_యొక్క(refp);
         // Not a select chain
         iterateConst(exprp);
-        return nullptr;
+        తిరిగి శూన్యసూచిక;
     }
 
     // 'nodep' references the Place 'placep' whole
-    void referencedWhole(AstNodeExpr* nodep, Place* placep) {
+    శూన్య referenced_సంపూర్ణ(Ast_కణుపు_సమాసం* nodep, ఉంచు* placep) {
         // If the reference is one of the sides of a splittable assignment, it can stay
-        if (m_assignp && (nodep == m_assignp->lhsp() || nodep == m_assignp->rhsp())
+        ఒకవేళ (m_assignp && (nodep == m_assignp->lhsp() || nodep == m_assignp->rhsp())
             && isSplittableType(placep->dtypep)) {
             // Mark it for visitAssignment
             nodep->user1p(placep);
-            return;
+            తిరిగి;
         }
 
         // Otherwise must block splitting of this Place
-        block(placep, nodep);
+        ఖండం(placep, nodep);
     }
 
     // Visit a select expression
-    void visitSelect(AstNodeExpr* nodep) {
+    శూన్య సందర్శించు_Select(Ast_కణుపు_సమాసం* nodep) {
         // Resolve the select chain to the Place it addresses exactly, and also capture the chain
-        std::vector<Select> chain;
-        Place* const placep = resolveChain(nodep, chain);
+        std::సదిశ<Select> chain;
+        ఉంచు* స్థిరరాశి placep = resolveChain(nodep, chain);
         // If the select addresses a Place, it references it whole, mark it as such
-        if (placep) referencedWhole(nodep, placep);
+        ఒకవేళ (placep) referenced_సంపూర్ణ(nodep, placep);
         // Record the chain for the rewriting phase
-        if (!chain.empty()) m_state.chains.push_back(std::move(chain));
+        ఒకవేళ (!chain.ఖాళీలు()) m_state.chains.నెట్టు_వెనుక(std::move(chain));
     }
 
     // Do unpacked arrays of the types, at any depth, have ranges of opposite directions.
     // Assigning them pairs elements in reverse order (IEEE 1800-2023 7.6), not supported.
-    static bool hasReversedRange(const AstNodeDType* aDTypep, const AstNodeDType* bDTypep) {
-        const AstUnpackArrayDType* const aArrayp = VN_CAST(aDTypep->skipRefp(), UnpackArrayDType);
-        const AstUnpackArrayDType* const bArrayp = VN_CAST(bDTypep->skipRefp(), UnpackArrayDType);
-        if (!aArrayp || !bArrayp) return false;
-        if (aArrayp->declRange().ascending() != bArrayp->declRange().ascending()) return true;
-        return hasReversedRange(aArrayp->subDTypep(), bArrayp->subDTypep());
+    స్థిర తార్కిక hasReversedRange(స్థిరరాశి Ast_కణుపు_DType* aDTypep, స్థిరరాశి Ast_కణుపు_DType* bDTypep) {
+        స్థిరరాశి AstUnpackArrayDType* స్థిరరాశి aArrayp = VN_CAST(aDTypep->skipRefp(), UnpackArrayDType);
+        స్థిరరాశి AstUnpackArrayDType* స్థిరరాశి bArrayp = VN_CAST(bDTypep->skipRefp(), UnpackArrayDType);
+        ఒకవేళ (!aArrayp || !bArrayp) తిరిగి అబద్ధం;
+        ఒకవేళ (aArrayp->declRange().ascending() != bArrayp->declRange().ascending()) తిరిగి నిజం;
+        తిరిగి hasReversedRange(aArrayp->subDTypep(), bArrayp->subDTypep());
     }
 
     // Assignment visitor, shared by the assignment types that can be split
-    void visitAssignment(AstNodeAssign* nodep) {
+    శూన్య సందర్శించు_Assignment(Ast_కణుపు_కేటాయించు* nodep) {
         VL_RESTORER(m_assignp);
         // Not with timing control, or arrays of opposite directions, but always needs visiting
-        const bool reversed = hasReversedRange(dtypeOf(nodep->lhsp()), dtypeOf(nodep->rhsp()));
-        m_assignp = nodep->timingControlp() || reversed ? nullptr : nodep;
+        స్థిరరాశి తార్కిక reversed = hasReversedRange(dtype_యొక్క(nodep->lhsp()), dtype_యొక్క(nodep->rhsp()));
+        m_assignp = nodep->timingControlp() || reversed ? శూన్యసూచిక : nodep;
         iterateChildrenConst(nodep);
-        if (!m_assignp) return;
+        ఒకవేళ (!m_assignp) తిరిగి;
 
         // Note overlapping LHS/RHS handled in Rewrite
 
-        AstNodeExpr* const lhsp = nodep->lhsp();
-        AstNodeExpr* const rhsp = nodep->rhsp();
-        Place* const lPlacep = lhsp->user1u().to<Place*>();
-        Place* const rPlacep = rhsp->user1u().to<Place*>();
+        Ast_కణుపు_సమాసం* స్థిరరాశి lhsp = nodep->lhsp();
+        Ast_కణుపు_సమాసం* స్థిరరాశి rhsp = nodep->rhsp();
+        ఉంచు* స్థిరరాశి lPlacep = lhsp->user1u().గమ్యం<ఉంచు*>();
+        ఉంచు* స్థిరరాశి rPlacep = rhsp->user1u().గమ్యం<ఉంచు*>();
 
         // Is it a splittable assignment
-        const bool splittable = [&]() {
+        స్థిరరాశి తార్కిక splittable = [&]() {
             // Assignment between two Places is splittable
-            if (lPlacep && rPlacep) return true;
+            ఒకవేళ (lPlacep && rPlacep) తిరిగి నిజం;
             // If the LHS is a Place, the RHS must be a splittable expression
-            if (lPlacep) {
+            ఒకవేళ (lPlacep) {
                 // Packed values are always splittable, potentially through hoisting
-                if (isPacked(lPlacep->dtypep)) return true;
+                ఒకవేళ (isPacked(lPlacep->dtypep)) తిరిగి నిజం;
                 // Otherwise each component is assigned a select of the RHS, so it must be cheap
-                return isCheap(rhsp);
+                తిరిగి isCheap(rhsp);
             }
             // If the RHS is a Place, the assignment must be expandable component-wise
-            if (rPlacep) {
+            ఒకవేళ (rPlacep) {
                 // If packed, the LHS is assigned once, as LHS = { components of RHS }
-                if (isPacked(rPlacep->dtypep)) return true;
+                ఒకవేళ (isPacked(rPlacep->dtypep)) తిరిగి నిజం;
                 // Otherwise each component is assigned to a select of the LHS, so it must be cheap
-                return isCheap(lhsp);
+                తిరిగి isCheap(lhsp);
             }
             // Otherwise not splittable
-            return false;
+            తిరిగి అబద్ధం;
         }();
 
         // If not splittable, the sides use their Places whole, so they are blocked
-        if (!splittable) {
-            if (rPlacep) block(rPlacep, rhsp);
-            if (lPlacep) block(lPlacep, lhsp);
-            return;
+        ఒకవేళ (!splittable) {
+            ఒకవేళ (rPlacep) ఖండం(rPlacep, rhsp);
+            ఒకవేళ (lPlacep) ఖండం(lPlacep, lhsp);
+            తిరిగి;
         }
 
         // If both sides are places, record the whole copies for the Decision phase
-        if (lPlacep && rPlacep) {
-            const int width = lPlacep->dtypep->width();  // Unused when unpacked
-            lPlacep->copies.push_back({rPlacep, 0, 0, width});
-            rPlacep->copies.push_back({lPlacep, 0, 0, width});
+        ఒకవేళ (lPlacep && rPlacep) {
+            స్థిరరాశి పూర్ణాంకం వెడల్పు = lPlacep->dtypep->వెడల్పు();  // Unused when unpacked
+            lPlacep->copies.నెట్టు_వెనుక({rPlacep, 0, 0, వెడల్పు});
+            rPlacep->copies.నెట్టు_వెనుక({lPlacep, 0, 0, వెడల్పు});
         }
         // Record for the rewriting phase
-        m_state.assignments.push_back({nodep, lPlacep, rPlacep});
+        m_state.assignments.నెట్టు_వెనుక({nodep, lPlacep, rPlacep});
     }
 
     // VISITORS
-    void visit(AstNodeDType*) override {}  // No references in data types
-    void visit(AstNode* nodep) override { iterateChildrenConst(nodep); }
+    శూన్య సందర్శించు(Ast_కణుపు_DType*) override {}  // No references in data types
+    శూన్య సందర్శించు(Ast_కణుపు* nodep) override { iterateChildrenConst(nodep); }
     // VISITORS - Selects that can cause splitting
-    void visit(AstArraySel* nodep) override { visitSelect(nodep); }
-    void visit(AstStructSel* nodep) override { visitSelect(nodep); }
-    void visit(AstSel* nodep) override { visitSelect(nodep); }
+    శూన్య సందర్శించు(AstArraySel* nodep) override { సందర్శించు_Select(nodep); }
+    శూన్య సందర్శించు(AstStructSel* nodep) override { సందర్శించు_Select(nodep); }
+    శూన్య సందర్శించు(AstSel* nodep) override { సందర్శించు_Select(nodep); }
     // VISITORS - Assignments recordable as Copy
-    void visit(AstAssign* nodep) override { visitAssignment(nodep); }
-    void visit(AstAssignW* nodep) override { visitAssignment(nodep); }
-    void visit(AstAssignDly* nodep) override { visitAssignment(nodep); }
+    శూన్య సందర్శించు(Ast_కేటాయించు* nodep) override { సందర్శించు_Assignment(nodep); }
+    శూన్య సందర్శించు(Ast_కేటాయించు_W* nodep) override { సందర్శించు_Assignment(nodep); }
+    శూన్య సందర్శించు(Ast_కేటాయించు_Dly* nodep) override { సందర్శించు_Assignment(nodep); }
     // VISITORS - References to Places
-    void visit(AstVarRef* nodep) override {
+    శూన్య సందర్శించు(AstVarRef* nodep) override {
         // Reference not handled explicitly in splittable constructs is to the
         // whole of the Place it references, mark as such.
-        if (Place* const placep = placeOf(nodep)) referencedWhole(nodep, placep);
+        ఒకవేళ (ఉంచు* స్థిరరాశి placep = ఉంచు_యొక్క(nodep)) referenced_సంపూర్ణ(nodep, placep);
     }
-    void visit(AstMemberSel* nodep) override {
+    శూన్య సందర్శించు(AstMemberSel* nodep) override {
         iterateChildrenConst(nodep);
-        AstVar* const varp = nodep->varp();
-        if (!isEligible(varp)) return;
+        AstVar* స్థిరరాశి varp = nodep->varp();
+        ఒకవేళ (!isEligible(varp)) తిరిగి;
         varp->user1(2);  // Mark not eligible
-        warnNoSplit(varp, nodep, "it is accessed indirectly");
+        warn_No_విభజించు(varp, nodep, "it is accessed indirectly");
     }
 
     // CONSTRUCTORS
-    DecomposeRecord(State& state, AstNetlist* netlistp)
-        : DecomposeBase{state} {
+    Decompose_రికార్డు(State& state, AstNetlist* netlistp)
+        : Decompose_పునాది{state} {
         iterateConst(netlistp);
         // Block the original Places that became ineligible during traversal only
-        for (Place* const placep : m_state.rootps) {
-            if (!isEligible(placep->vscp->varp())) placep->splittable = false;
+        కొరకు (ఉంచు* స్థిరరాశి placep : m_state.rootps) {
+            ఒకవేళ (!isEligible(placep->vscp->varp())) placep->splittable = అబద్ధం;
         }
     }
 
-public:
-    static void apply(State& state, AstNetlist* netlistp) { DecomposeRecord{state, netlistp}; }
+బహిరంగ:
+    స్థిర శూన్య apply(State& state, AstNetlist* netlistp) { Decompose_రికార్డు{state, netlistp}; }
 };
 
 //######################################################################
 // Decision, which places are split, creating their components
 
-class DecomposeDecision final : public DecomposeBase {
+తరగతి DecomposeDecision final : బహిరంగ Decompose_పునాది {
     // NODE STATE
     //  AstVar::user1()             -> Split components, via m_splitVarps
-    const VNUser1InUse m_user1InUse;
+    స్థిరరాశి VNUser1_లోపల_Use m_user1_లోపల_Use;
 
     // STATE
-    std::vector<Place*> m_worklist;  // Places to consider splitting
+    std::సదిశ<ఉంచు*> m_worklist;  // Places to consider splitting
     // The component AstVars of the AstVars, see the node state
-    AstUser1Allocator<AstVar, std::vector<AstVar*>> m_splitVarps;
-    VDouble0 m_statSplitUnpackedOrig;  // Original AstVars of unpacked type split
-    VDouble0 m_statSplitPackedOrig;  // Original AstVars of packed type split
-    VDouble0 m_statSplitUnpackedComp;  // Component AstVars of unpacked type split
-    VDouble0 m_statSplitPackedComp;  // Component AstVars of packed type split
+    AstUser1Allocator<AstVar, std::సదిశ<AstVar*>> m_విభజించు_Varps;
+    VDouble0 m_stat_విభజించు_Unpacked_Orig;  // Original AstVars of unpacked type split
+    VDouble0 m_stat_విభజించు_Packed_Orig;  // Original AstVars of packed type split
+    VDouble0 m_stat_విభజించు_Unpacked_Comp;  // Component AstVars of unpacked type split
+    VDouble0 m_stat_విభజించు_Packed_Comp;  // Component AstVars of packed type split
 
     // METHODS
 
     // Can the Place be split, as far as known
-    static bool canSplit(const Place* placep) {
+    స్థిర తార్కిక can_విభజించు(స్థిరరాశి ఉంచు* placep) {
         // Not if not splittable
-        if (!placep->splittable) return false;
+        ఒకవేళ (!placep->splittable) తిరిగి అబద్ధం;
         // Not if already split
-        if (placep->split) return false;
+        ఒకవేళ (placep->విభజించు) తిరిగి అబద్ధం;
         // Original variable or its parent was already split
-        return !placep->parentp || placep->parentp->split;
+        తిరిగి !placep->parentp || placep->parentp->విభజించు;
     }
 
     // Put the Place on the worklist, if it wants to be and can be split
-    void enqueue(Place* placep) {
-        if (placep->queued || !placep->wantsSplit || !canSplit(placep)) return;
-        placep->queued = true;
-        m_worklist.push_back(placep);
+    శూన్య వరుసలో_చేర్చు(ఉంచు* placep) {
+        ఒకవేళ (placep->queued || !placep->కోరుతుంది_విభజించు || !can_విభజించు(placep)) తిరిగి;
+        placep->queued = నిజం;
+        m_worklist.నెట్టు_వెనుక(placep);
     }
 
     // Create the component AstVarScopes of the split Place, and set them on its components.
     // The component AstVars are shared by all scopes of the AstVar, created when first split.
-    void createComponents(Place* placep) {
-        AstVarScope* const vscp = placep->vscp;
-        AstVar* const varp = vscp->varp();
-        std::vector<AstVar*>& varps = m_splitVarps(varp);
+    శూన్య createComponents(ఉంచు* placep) {
+        AstVarScope* స్థిరరాశి vscp = placep->vscp;
+        AstVar* స్థిరరాశి varp = vscp->varp();
+        std::సదిశ<AstVar*>& varps = m_విభజించు_Varps(varp);
         // Create the component AstVars on first encounter
-        if (varps.empty()) {
-            const bool packed = isPacked(varp->dtypep());
-            if (placep->parentp) {
-                ++(packed ? m_statSplitPackedComp : m_statSplitUnpackedComp);
-            } else {
-                ++(packed ? m_statSplitPackedOrig : m_statSplitUnpackedOrig);
+        ఒకవేళ (varps.ఖాళీలు()) {
+            స్థిరరాశి తార్కిక packed = isPacked(varp->dtypep());
+            ఒకవేళ (placep->parentp) {
+                ++(packed ? m_stat_విభజించు_Packed_Comp : m_stat_విభజించు_Unpacked_Comp);
+            } లేకపోతే {
+                ++(packed ? m_stat_విభజించు_Packed_Orig : m_stat_విభజించు_Unpacked_Orig);
             }
-            FileLine* const flp = varp->fileline();
-            const VVarType varType = varp->varType();
-            const std::string name = varp->name();
-            for (const Component& comp : dtypeComponents(varp->dtypep())) {
-                const std::string suffix
+            File_పంక్తి* స్థిరరాశి flp = varp->fileline();
+            స్థిరరాశి VVarType varType = varp->varType();
+            స్థిరరాశి std::string name = varp->name();
+            కొరకు (స్థిరరాశి Component& comp : dtypeComponents(varp->dtypep())) {
+                స్థిరరాశి std::string suffix
                     = comp.memberp ? "__DOT__" + comp.memberp->name()
-                                   : "__BRA__" + AstNode::encodeNumber(comp.declIdx) + "__KET__";
-                AstVar* const newp = new AstVar{flp, varType, name + suffix, comp.dtypep};
-                newp->propagateSplitAttrFrom(varp);
-                varps.push_back(newp);
-                varp->addHereThisAsNext(newp);
+                                   : "__BRA__" + Ast_కణుపు::encode_సంఖ్య(comp.declIdx) + "__KET__";
+                AstVar* స్థిరరాశి newp = కొత్త AstVar{flp, varType, name + suffix, comp.dtypep};
+                newp->propagate_విభజించు_Attr_From(varp);
+                varps.నెట్టు_వెనుక(newp);
+                varp->కూడు_ఇక్కడ_This_As_తదుపరి(newp);
             }
         }
         // Create the component AstVarScopes
-        AstScope* const scopep = vscp->scopep();
-        FileLine* const flp = vscp->fileline();
-        for (size_t i = 0; i < varps.size(); ++i) {
-            AstVarScope* const newp = new AstVarScope{flp, scopep, varps[i]};
-            componentOf(placep, i)->vscp = newp;
-            vscp->addHereThisAsNext(newp);
+        AstScope* స్థిరరాశి scopep = vscp->scopep();
+        File_పంక్తి* స్థిరరాశి flp = vscp->fileline();
+        కొరకు (కొలత_t i = 0; i < varps.కొలత(); ++i) {
+            AstVarScope* స్థిరరాశి newp = కొత్త AstVarScope{flp, scopep, varps[i]};
+            component_యొక్క(placep, i)->vscp = newp;
+            vscp->కూడు_ఇక్కడ_This_As_తదుపరి(newp);
         }
     }
 
     // Add the copy to the unsplit Place at its end
-    void addCopy(Place* placep, const Copy& copy) {
-        UASSERT(!placep->split, "Copy added to a split Place");
+    శూన్య కూడు_Copy(ఉంచు* placep, స్థిరరాశి Copy& copy) {
+        UASSERT(!placep->విభజించు, "Copy added to a split Place");
         // If a Place is not splittable, only the other end matters, no need to attach
-        if (!placep->splittable) return;
+        ఒకవేళ (!placep->splittable) తిరిగి;
         // Add the copy to the Place
-        placep->copies.push_back(copy);
+        placep->copies.నెట్టు_వెనుక(copy);
         // Covering only a portion of a packed Place makes it want to be split,
         // so the copy becomes copies within its components, aligning both ends
-        if (!isPacked(placep->dtypep)) return;
-        if (copy.lsb != 0 || copy.width != placep->dtypep->width()) {
-            placep->wantsSplit = true;
-            enqueue(placep);
+        ఒకవేళ (!isPacked(placep->dtypep)) తిరిగి;
+        ఒకవేళ (copy.lsb != 0 || copy.వెడల్పు != placep->dtypep->వెడల్పు()) {
+            placep->కోరుతుంది_విభజించు = నిజం;
+            వరుసలో_చేర్చు(placep);
         }
     }
 
     // A new copy between 'width' bits of Place 'ap' from 'aLsb', and of 'bp' from 'bLsb',
     // or between the whole of them if unpacked
-    void newCopy(Place* ap, int aLsb, Place* bp, int bLsb, int width) {
+    శూన్య newCopy(ఉంచు* ap, పూర్ణాంకం aLsb, ఉంచు* bp, పూర్ణాంకం bLsb, పూర్ణాంకం వెడల్పు) {
         UASSERT(ap != bp, "Copy within a Place");
-        addCopy(ap, {bp, aLsb, bLsb, width});
-        addCopy(bp, {ap, bLsb, aLsb, width});
+        కూడు_Copy(ap, {bp, aLsb, bLsb, వెడల్పు});
+        కూడు_Copy(bp, {ap, bLsb, aLsb, వెడల్పు});
     }
 
     // Split the copy of split Place 'placep' into copies between its components, and for
     // packed, the corresponding bits of the other end, or for unpacked, the components of the
     // other end, which then wants to be split too
-    void splitCopy(Place* placep, const Copy& copy) {
-        Place* const otherp = copy.otherp;
+    శూన్య విభజించు_Copy(ఉంచు* placep, స్థిరరాశి Copy& copy) {
+        ఉంచు* స్థిరరాశి otherp = copy.otherp;
 
         // If packed, split the copy based on the components of this place which is being split
-        if (isPacked(placep->dtypep)) {
-            const std::vector<Component>& comps = dtypeComponents(placep->dtypep);
+        ఒకవేళ (isPacked(placep->dtypep)) {
+            స్థిరరాశి std::సదిశ<Component>& comps = dtypeComponents(placep->dtypep);
             // For each component of this place covered by the copy, add copy with other side
-            const int lsb = copy.lsb;
-            const int msb = copy.lsb + copy.width - 1;
-            const size_t first = componentIndex(placep->dtypep, lsb);
-            for (size_t i = first; i < comps.size() && comps[i].lsb <= msb; ++i) {
-                const Component& comp = comps[i];
-                const int partLsb = std::max(lsb, comp.lsb);
-                const int partMsb = std::min(msb, comp.msb);
-                newCopy(componentOf(placep, i), partLsb - comp.lsb, otherp,
+            స్థిరరాశి పూర్ణాంకం lsb = copy.lsb;
+            స్థిరరాశి పూర్ణాంకం msb = copy.lsb + copy.వెడల్పు - 1;
+            స్థిరరాశి కొలత_t మొదటి = component_సూచీ(placep->dtypep, lsb);
+            కొరకు (కొలత_t i = మొదటి; i < comps.కొలత() && comps[i].lsb <= msb; ++i) {
+                స్థిరరాశి Component& comp = comps[i];
+                స్థిరరాశి పూర్ణాంకం partLsb = std::max(lsb, comp.lsb);
+                స్థిరరాశి పూర్ణాంకం partMsb = std::min(msb, comp.msb);
+                newCopy(component_యొక్క(placep, i), partLsb - comp.lsb, otherp,
                         copy.otherLsb + partLsb - lsb, partMsb - partLsb + 1);
             }
-            return;
+            తిరిగి;
         }
 
         // Unpacked copy of a split place: the other end wants to be split too
-        otherp->wantsSplit = true;
-        enqueue(otherp);
+        otherp->కోరుతుంది_విభజించు = నిజం;
+        వరుసలో_చేర్చు(otherp);
         // The sides are the same shape, so pairwise whole copies
-        const size_t size = dtypeComponents(placep->dtypep).size();
-        for (size_t i = 0; i < size; ++i) {
-            Place* const ap = componentOf(placep, i);
-            if (!ap->splittable) continue;
-            Place* const bp = componentOf(otherp, i);
-            if (!bp->splittable) continue;
-            newCopy(ap, 0, bp, 0, ap->dtypep->width());
+        స్థిరరాశి కొలత_t కొలత = dtypeComponents(placep->dtypep).కొలత();
+        కొరకు (కొలత_t i = 0; i < కొలత; ++i) {
+            ఉంచు* స్థిరరాశి ap = component_యొక్క(placep, i);
+            ఒకవేళ (!ap->splittable) కొనసాగు;
+            ఉంచు* స్థిరరాశి bp = component_యొక్క(otherp, i);
+            ఒకవేళ (!bp->splittable) కొనసాగు;
+            newCopy(ap, 0, bp, 0, ap->dtypep->వెడల్పు());
         }
     }
 
     // Split the Place
-    void splitPlace(Place* placep) {
-        UASSERT(!placep->split, "Place split twice");
+    శూన్య విభజించు_ఉంచు(ఉంచు* placep) {
+        UASSERT(!placep->విభజించు, "Place split twice");
         // It is now split
-        placep->split = true;
+        placep->విభజించు = నిజం;
         // Create its components
         createComponents(placep);
         // Enqueue the components that want to be split
-        const size_t size = dtypeComponents(placep->dtypep).size();
-        for (size_t i = 0; i < size; ++i) enqueue(componentOf(placep, i));
+        స్థిరరాశి కొలత_t కొలత = dtypeComponents(placep->dtypep).కొలత();
+        కొరకు (కొలత_t i = 0; i < కొలత; ++i) వరుసలో_చేర్చు(component_యొక్క(placep, i));
         // Split the copies covering it, unless the other end is split, which split it already
-        for (const Copy& copy : placep->copies) {
-            if (!copy.otherp->split) splitCopy(placep, copy);
+        కొరకు (స్థిరరాశి Copy& copy : placep->copies) {
+            ఒకవేళ (!copy.otherp->విభజించు) విభజించు_Copy(placep, copy);
         }
         placep->copies.clear();
     }
 
     // CONSTRUCTORS
-    explicit DecomposeDecision(State& state)
-        : DecomposeBase{state} {
+    స్పష్టమైన DecomposeDecision(State& state)
+        : Decompose_పునాది{state} {
         // Enqueue the original variables
-        for (Place* const placep : m_state.rootps) enqueue(placep);
+        కొరకు (ఉంచు* స్థిరరాశి placep : m_state.rootps) వరుసలో_చేర్చు(placep);
         // Split enqueued places, which might make others splittable, repeat until done
-        while (!m_worklist.empty()) {
-            Place* const placep = m_worklist.back();
-            m_worklist.pop_back();
-            placep->queued = false;
-            splitPlace(placep);
+        అయితే (!m_worklist.ఖాళీలు()) {
+            ఉంచు* స్థిరరాశి placep = m_worklist.వెనుక();
+            m_worklist.తీయి_వెనుక();
+            placep->queued = అబద్ధం;
+            విభజించు_ఉంచు(placep);
         }
 
-        V3Stats::addStat("Optimizations, Decompose, unpacked variables split",
-                         m_statSplitUnpackedOrig);
-        V3Stats::addStat("Optimizations, Decompose, packed variables split",
-                         m_statSplitPackedOrig);
-        V3Stats::addStat("Optimizations, Decompose, unpacked components split further",
-                         m_statSplitUnpackedComp);
-        V3Stats::addStat("Optimizations, Decompose, packed components split further",
-                         m_statSplitPackedComp);
+        V3Stats::కూడు_Stat("Optimizations, Decompose, unpacked variables split",
+                         m_stat_విభజించు_Unpacked_Orig);
+        V3Stats::కూడు_Stat("Optimizations, Decompose, packed variables split",
+                         m_stat_విభజించు_Packed_Orig);
+        V3Stats::కూడు_Stat("Optimizations, Decompose, unpacked components split further",
+                         m_stat_విభజించు_Unpacked_Comp);
+        V3Stats::కూడు_Stat("Optimizations, Decompose, packed components split further",
+                         m_stat_విభజించు_Packed_Comp);
     }
 
-public:
-    static void apply(State& state) { DecomposeDecision{state}; }
+బహిరంగ:
+    స్థిర శూన్య apply(State& state) { DecomposeDecision{state}; }
 };
 
 //######################################################################
 // Rewrite, replacing the references to the split places
 
-class DecomposeRewrite final : public VNDeleter, public DecomposeBase {
+తరగతి DecomposeRewrite final : బహిరంగ VNDeleter, బహిరంగ Decompose_పునాది {
     // NODE STATE
     //  AstScope::user1p()          -> AstActive*: combinational active, see comboActive
     //  AstNodeExpr::user2()        -> uint64_t: count of a term, (only in hoistTerms)
     //  AstVarScope::user2()        -> bool: component of the LHS, (only in rewriteAssignment)
     //  AstVarScope::user2()        -> int: bit 0: written, bit 1: read, (only in expandNS)
-    const VNUser1InUse m_user1InUse;
+    స్థిరరాశి VNUser1_లోపల_Use m_user1_లోపల_Use;
 
     // STATE
     V3SharedTmps m_tmps{"__VdecompHoisted", VVarType::MODULETEMP};  // Temporaries of hoisted terms
@@ -871,537 +871,537 @@ class DecomposeRewrite final : public VNDeleter, public DecomposeBase {
     // METHODS
 
     // Reference to the AstVarScope of the Place
-    static AstVarRef* newRef(FileLine* flp, const Place* placep, VAccess access) {
+    స్థిర AstVarRef* newRef(File_పంక్తి* flp, స్థిరరాశి ఉంచు* placep, VAccess access) {
         UASSERT(placep->vscp, "Place without AstVarScope");
-        return new AstVarRef{flp, placep->vscp, access};
+        తిరిగి కొత్త AstVarRef{flp, placep->vscp, access};
     }
 
     // Replace the longest prefix of the select chain addressing a
     // component of a split Place with a reference to the component
-    void rewriteChain(const std::vector<Select>& chain) {
+    శూన్య rewriteChain(స్థిరరాశి std::సదిశ<Select>& chain) {
         // The last component selected of a split Place, so all before it are too
-        const Select* selectp = nullptr;
-        for (const Select& select : chain) {
-            if (select.placep->parentp->split) selectp = &select;
+        స్థిరరాశి Select* selectp = శూన్యసూచిక;
+        కొరకు (స్థిరరాశి Select& select : chain) {
+            ఒకవేళ (select.placep->parentp->విభజించు) selectp = &select;
         }
-        if (!selectp) return;
-        AstNodeExpr* const exprp = selectp->exprp;
+        ఒకవేళ (!selectp) తిరిగి;
+        Ast_కణుపు_సమాసం* స్థిరరాశి exprp = selectp->exprp;
         // The access of the variable reference at the root of the chain, under the first select
-        const VAccess access = [&]() {
-            const AstNodeExpr* rootp = chain.front().exprp;
-            while (true) {
-                if (const AstArraySel* const selp = VN_CAST(rootp, ArraySel)) {
+        స్థిరరాశి VAccess access = [&]() {
+            స్థిరరాశి Ast_కణుపు_సమాసం* rootp = chain.front().exprp;
+            అయితే (నిజం) {
+                ఒకవేళ (స్థిరరాశి AstArraySel* స్థిరరాశి selp = VN_CAST(rootp, ArraySel)) {
                     rootp = selp->fromp();
-                } else if (const AstStructSel* const selp = VN_CAST(rootp, StructSel)) {
+                } లేకపోతే ఒకవేళ (స్థిరరాశి AstStructSel* స్థిరరాశి selp = VN_CAST(rootp, StructSel)) {
                     rootp = selp->fromp();
-                } else if (const AstSel* const selp = VN_CAST(rootp, Sel)) {
+                } లేకపోతే ఒకవేళ (స్థిరరాశి AstSel* స్థిరరాశి selp = VN_CAST(rootp, Sel)) {
                     rootp = selp->fromp();
-                } else {
-                    return VN_AS(rootp, VarRef)->access();
+                } లేకపోతే {
+                    తిరిగి VN_AS(rootp, VarRef)->access();
                 }
             }
         }();
-        FileLine* const flp = exprp->fileline();
-        AstNodeExpr* newp = newRef(flp, selectp->placep, access);
-        if (const AstSel* const selp = VN_CAST(exprp, Sel)) {
-            const int width = selp->widthConst();
-            if (width != newp->width()) newp = new AstSel{flp, newp, selectp->lsb, width};
+        File_పంక్తి* స్థిరరాశి flp = exprp->fileline();
+        Ast_కణుపు_సమాసం* newp = newRef(flp, selectp->placep, access);
+        ఒకవేళ (స్థిరరాశి AstSel* స్థిరరాశి selp = VN_CAST(exprp, Sel)) {
+            స్థిరరాశి పూర్ణాంకం వెడల్పు = selp->వెడల్పు_Const();
+            ఒకవేళ (వెడల్పు != newp->వెడల్పు()) newp = కొత్త AstSel{flp, newp, selectp->lsb, వెడల్పు};
         }
         exprp->replaceWith(newp);
-        VL_DO_DANGLING(pushDeletep(exprp), exprp);
+        VL_DO_DANGLING(నెట్టు_Deletep(exprp), exprp);
     }
 
     // Select component 'idx' of 'fromp', with the components of aggregate 'dtypep'
-    AstNodeExpr* newSelect(AstNodeExpr* fromp, AstNodeDType* dtypep, size_t idx) {
-        FileLine* const flp = fromp->fileline();
-        const Component& comp = dtypeComponents(dtypep).at(idx);
+    Ast_కణుపు_సమాసం* newSelect(Ast_కణుపు_సమాసం* fromp, Ast_కణుపు_DType* dtypep, కొలత_t idx) {
+        File_పంక్తి* స్థిరరాశి flp = fromp->fileline();
+        స్థిరరాశి Component& comp = dtypeComponents(dtypep).at(idx);
         // If Packed, it's a Sel of the bits
-        if (isPacked(dtypep)) {
-            AstSel* const selp = new AstSel{flp, fromp, comp.lsb, comp.dtypep->width()};
+        ఒకవేళ (isPacked(dtypep)) {
+            AstSel* స్థిరరాశి selp = కొత్త AstSel{flp, fromp, comp.lsb, comp.dtypep->వెడల్పు()};
             selp->dtypep(comp.dtypep);
-            return selp;
+            తిరిగి selp;
         }
         // If unpacked array, it's an ArraySel
-        if (VN_IS(dtypep->skipRefp(), UnpackArrayDType)) {
-            const int i = static_cast<int>(idx);
-            UASSERT_OBJ(static_cast<size_t>(i) == idx, fromp, "Index overflow");
-            return new AstArraySel{flp, fromp, i};
+        ఒకవేళ (VN_IS(dtypep->skipRefp(), UnpackArrayDType)) {
+            స్థిరరాశి పూర్ణాంకం i = static_cast<పూర్ణాంకం>(idx);
+            UASSERT_OBJ(static_cast<కొలత_t>(i) == idx, fromp, "Index overflow");
+            తిరిగి కొత్త AstArraySel{flp, fromp, i};
         }
         // Otherwise must be an unpacked struct, so a StructSel
-        AstStructSel* const selp = new AstStructSel{flp, fromp, comp.memberp->name()};
+        AstStructSel* స్థిరరాశి selp = కొత్త AstStructSel{flp, fromp, comp.memberp->name()};
         selp->dtypep(comp.dtypep);
-        return selp;
+        తిరిగి selp;
     }
 
     // Leaf terms of a Concat/Replicate tree, in LSB order, or the expression itself if neither
-    static std::vector<AstNodeExpr*> concatTerms(AstNodeExpr* nodep) {
-        std::vector<AstNodeExpr*> termps;
-        std::vector<AstNodeExpr*> stack{nodep};
-        while (!stack.empty()) {
-            AstNodeExpr* const exprp = stack.back();
-            stack.pop_back();
-            if (AstConcat* const concatp = VN_CAST(exprp, Concat)) {
-                stack.push_back(concatp->lhsp());
-                stack.push_back(concatp->rhsp());
-                continue;
+    స్థిర std::సదిశ<Ast_కణుపు_సమాసం*> concatTerms(Ast_కణుపు_సమాసం* nodep) {
+        std::సదిశ<Ast_కణుపు_సమాసం*> termps;
+        std::సదిశ<Ast_కణుపు_సమాసం*> దొంతర{nodep};
+        అయితే (!దొంతర.ఖాళీలు()) {
+            Ast_కణుపు_సమాసం* స్థిరరాశి exprp = దొంతర.వెనుక();
+            దొంతర.తీయి_వెనుక();
+            ఒకవేళ (AstConcat* స్థిరరాశి concatp = VN_CAST(exprp, Concat)) {
+                దొంతర.నెట్టు_వెనుక(concatp->lhsp());
+                దొంతర.నెట్టు_వెనుక(concatp->rhsp());
+                కొనసాగు;
             }
-            if (AstReplicate* const repp = VN_CAST(exprp, Replicate)) {
-                const AstConst* const countp = VN_AS(repp->countp(), Const);
-                for (uint32_t i = 0; i < countp->toUInt(); ++i) stack.push_back(repp->srcp());
-                continue;
+            ఒకవేళ (AstReplicate* స్థిరరాశి repp = VN_CAST(exprp, Replicate)) {
+                స్థిరరాశి AstConst* స్థిరరాశి countp = VN_AS(repp->countp(), Const);
+                కొరకు (uint32_t i = 0; i < countp->గమ్యం_UInt(); ++i) దొంతర.నెట్టు_వెనుక(repp->srcp());
+                కొనసాగు;
             }
-            termps.push_back(exprp);
+            termps.నెట్టు_వెనుక(exprp);
         }
-        return termps;
+        తిరిగి termps;
     }
 
     // Can bits of 'nodep' be selected without evaluating it more than once, see newSlice
-    static bool isSliceable(const AstNodeExpr* nodep) {
-        if (const AstSel* const selp = VN_CAST(nodep, Sel)) {
-            return VN_IS(selp->lsbp(), Const) && isSliceable(selp->fromp());
+    స్థిర తార్కిక isSliceable(స్థిరరాశి Ast_కణుపు_సమాసం* nodep) {
+        ఒకవేళ (స్థిరరాశి AstSel* స్థిరరాశి selp = VN_CAST(nodep, Sel)) {
+            తిరిగి VN_IS(selp->lsbp(), Const) && isSliceable(selp->fromp());
         }
-        if (const AstConcat* const catp = VN_CAST(nodep, Concat)) {
-            return isSliceable(catp->lhsp()) && isSliceable(catp->rhsp());
+        ఒకవేళ (స్థిరరాశి AstConcat* స్థిరరాశి catp = VN_CAST(nodep, Concat)) {
+            తిరిగి isSliceable(catp->lhsp()) && isSliceable(catp->rhsp());
         }
-        if (const AstCond* const condp = VN_CAST(nodep, Cond)) {
-            return isCheap(condp->condp()) && isSliceable(condp->thenp())
+        ఒకవేళ (స్థిరరాశి AstCond* స్థిరరాశి condp = VN_CAST(nodep, Cond)) {
+            తిరిగి isCheap(condp->condp()) && isSliceable(condp->thenp())
                    && isSliceable(condp->elsep());
         }
-        if (const AstAnd* const andp = VN_CAST(nodep, And)) {
-            return isSliceable(andp->lhsp()) && isSliceable(andp->rhsp());
+        ఒకవేళ (స్థిరరాశి AstAnd* స్థిరరాశి andp = VN_CAST(nodep, And)) {
+            తిరిగి isSliceable(andp->lhsp()) && isSliceable(andp->rhsp());
         }
-        if (const AstOr* const orp = VN_CAST(nodep, Or)) {
-            return isSliceable(orp->lhsp()) && isSliceable(orp->rhsp());
+        ఒకవేళ (స్థిరరాశి AstOr* స్థిరరాశి orp = VN_CAST(nodep, Or)) {
+            తిరిగి isSliceable(orp->lhsp()) && isSliceable(orp->rhsp());
         }
-        if (const AstXor* const xorp = VN_CAST(nodep, Xor)) {
-            return isSliceable(xorp->lhsp()) && isSliceable(xorp->rhsp());
+        ఒకవేళ (స్థిరరాశి AstXor* స్థిరరాశి xorp = VN_CAST(nodep, Xor)) {
+            తిరిగి isSliceable(xorp->lhsp()) && isSliceable(xorp->rhsp());
         }
-        if (const AstExtend* const extp = VN_CAST(nodep, Extend)) {
-            return isSliceable(extp->lhsp());
+        ఒకవేళ (స్థిరరాశి AstExtend* స్థిరరాశి extp = VN_CAST(nodep, Extend)) {
+            తిరిగి isSliceable(extp->lhsp());
         }
-        if (const AstNot* const notp = VN_CAST(nodep, Not)) {  //
-            return isSliceable(notp->lhsp());
+        ఒకవేళ (స్థిరరాశి AstNot* స్థిరరాశి notp = VN_CAST(nodep, Not)) {  //
+            తిరిగి isSliceable(notp->lhsp());
         }
-        if (const AstReplicate* const repp = VN_CAST(nodep, Replicate)) {
-            return isSliceable(repp->srcp());
+        ఒకవేళ (స్థిరరాశి AstReplicate* స్థిరరాశి repp = VN_CAST(nodep, Replicate)) {
+            తిరిగి isSliceable(repp->srcp());
         }
-        return isCheap(nodep);
+        తిరిగి isCheap(nodep);
     }
 
     // Select 'width' bits of 'nodep' from 'lsb', pushing the select into the operands where the
     // operation allows
-    static AstNodeExpr* newSlice(AstNodeExpr* nodep, int lsb, int width) {
-        FileLine* const flp = nodep->fileline();
+    స్థిర Ast_కణుపు_సమాసం* new_ముక్క(Ast_కణుపు_సమాసం* nodep, పూర్ణాంకం lsb, పూర్ణాంకం వెడల్పు) {
+        File_పంక్తి* స్థిరరాశి flp = nodep->fileline();
         // A constant, as a new constant of the bits
-        if (const AstConst* const constp = VN_CAST(nodep, Const)) {
-            V3Number num{nodep, width};
-            num.opSel(constp->num(), lsb + width - 1, lsb);
-            return new AstConst{flp, num};
+        ఒకవేళ (స్థిరరాశి AstConst* స్థిరరాశి constp = VN_CAST(nodep, Const)) {
+            V3_సంఖ్య అంకె{nodep, వెడల్పు};
+            అంకె.opSel(constp->అంకె(), lsb + వెడల్పు - 1, lsb);
+            తిరిగి కొత్త AstConst{flp, అంకె};
         }
         // A constant bit select, from the bits of what it selects from
-        if (AstSel* const selp = VN_CAST(nodep, Sel)) {
-            if (const AstConst* const lsbp = VN_CAST(selp->lsbp(), Const)) {
-                return newSlice(selp->fromp(), lsbp->toSInt() + lsb, width);
+        ఒకవేళ (AstSel* స్థిరరాశి selp = VN_CAST(nodep, Sel)) {
+            ఒకవేళ (స్థిరరాశి AstConst* స్థిరరాశి lsbp = VN_CAST(selp->lsbp(), Const)) {
+                తిరిగి new_ముక్క(selp->fromp(), lsbp->గమ్యం_SInt() + lsb, వెడల్పు);
             }
         }
         // A concatenation, from the RHS for the low bits, and the LHS for the high bits
-        if (AstConcat* const catp = VN_CAST(nodep, Concat)) {
-            const int rWidth = catp->rhsp()->width();
-            const int msb = lsb + width - 1;
-            if (msb < rWidth) return newSlice(catp->rhsp(), lsb, width);
-            if (lsb >= rWidth) return newSlice(catp->lhsp(), lsb - rWidth, width);
-            return new AstConcat{flp, newSlice(catp->lhsp(), 0, msb - rWidth + 1),
-                                 newSlice(catp->rhsp(), lsb, rWidth - lsb)};
+        ఒకవేళ (AstConcat* స్థిరరాశి catp = VN_CAST(nodep, Concat)) {
+            స్థిరరాశి పూర్ణాంకం r_వెడల్పు = catp->rhsp()->వెడల్పు();
+            స్థిరరాశి పూర్ణాంకం msb = lsb + వెడల్పు - 1;
+            ఒకవేళ (msb < r_వెడల్పు) తిరిగి new_ముక్క(catp->rhsp(), lsb, వెడల్పు);
+            ఒకవేళ (lsb >= r_వెడల్పు) తిరిగి new_ముక్క(catp->lhsp(), lsb - r_వెడల్పు, వెడల్పు);
+            తిరిగి కొత్త AstConcat{flp, new_ముక్క(catp->lhsp(), 0, msb - r_వెడల్పు + 1),
+                                 new_ముక్క(catp->rhsp(), lsb, r_వెడల్పు - lsb)};
         }
-        if (AstCond* const condp = VN_CAST(nodep, Cond)) {
-            return new AstCond{flp, condp->condp()->cloneTreePure(false),
-                               newSlice(condp->thenp(), lsb, width),
-                               newSlice(condp->elsep(), lsb, width)};
+        ఒకవేళ (AstCond* స్థిరరాశి condp = VN_CAST(nodep, Cond)) {
+            తిరిగి కొత్త AstCond{flp, condp->condp()->clone_వృక్షం_శుద్ధ(అబద్ధం),
+                               new_ముక్క(condp->thenp(), lsb, వెడల్పు),
+                               new_ముక్క(condp->elsep(), lsb, వెడల్పు)};
         }
-        if (AstAnd* const andp = VN_CAST(nodep, And)) {
-            return new AstAnd{flp, newSlice(andp->lhsp(), lsb, width),
-                              newSlice(andp->rhsp(), lsb, width)};
+        ఒకవేళ (AstAnd* స్థిరరాశి andp = VN_CAST(nodep, And)) {
+            తిరిగి కొత్త AstAnd{flp, new_ముక్క(andp->lhsp(), lsb, వెడల్పు),
+                              new_ముక్క(andp->rhsp(), lsb, వెడల్పు)};
         }
-        if (AstOr* const orp = VN_CAST(nodep, Or)) {
-            return new AstOr{flp, newSlice(orp->lhsp(), lsb, width),
-                             newSlice(orp->rhsp(), lsb, width)};
+        ఒకవేళ (AstOr* స్థిరరాశి orp = VN_CAST(nodep, Or)) {
+            తిరిగి కొత్త AstOr{flp, new_ముక్క(orp->lhsp(), lsb, వెడల్పు),
+                             new_ముక్క(orp->rhsp(), lsb, వెడల్పు)};
         }
-        if (AstXor* const xorp = VN_CAST(nodep, Xor)) {
-            return new AstXor{flp, newSlice(xorp->lhsp(), lsb, width),
-                              newSlice(xorp->rhsp(), lsb, width)};
+        ఒకవేళ (AstXor* స్థిరరాశి xorp = VN_CAST(nodep, Xor)) {
+            తిరిగి కొత్త AstXor{flp, new_ముక్క(xorp->lhsp(), lsb, వెడల్పు),
+                              new_ముక్క(xorp->rhsp(), lsb, వెడల్పు)};
         }
         // A zero extension, from the operand for its bits, and zeros above
-        if (AstExtend* const extp = VN_CAST(nodep, Extend)) {
-            const int srcWidth = extp->lhsp()->width();
-            const int msb = lsb + width - 1;
-            if (msb < srcWidth) return newSlice(extp->lhsp(), lsb, width);
-            if (lsb >= srcWidth) return new AstConst{flp, AstConst::WidthedValue{}, width, 0};
-            return new AstConcat{
-                flp, new AstConst{flp, AstConst::WidthedValue{}, msb - srcWidth + 1, 0},
-                newSlice(extp->lhsp(), lsb, srcWidth - lsb)};
+        ఒకవేళ (AstExtend* స్థిరరాశి extp = VN_CAST(nodep, Extend)) {
+            స్థిరరాశి పూర్ణాంకం src_వెడల్పు = extp->lhsp()->వెడల్పు();
+            స్థిరరాశి పూర్ణాంకం msb = lsb + వెడల్పు - 1;
+            ఒకవేళ (msb < src_వెడల్పు) తిరిగి new_ముక్క(extp->lhsp(), lsb, వెడల్పు);
+            ఒకవేళ (lsb >= src_వెడల్పు) తిరిగి కొత్త AstConst{flp, AstConst::Widthed_విలువ{}, వెడల్పు, 0};
+            తిరిగి కొత్త AstConcat{
+                flp, కొత్త AstConst{flp, AstConst::Widthed_విలువ{}, msb - src_వెడల్పు + 1, 0},
+                new_ముక్క(extp->lhsp(), lsb, src_వెడల్పు - lsb)};
         }
-        if (AstNot* const notp = VN_CAST(nodep, Not)) {
-            return new AstNot{flp, newSlice(notp->lhsp(), lsb, width)};
+        ఒకవేళ (AstNot* స్థిరరాశి notp = VN_CAST(nodep, Not)) {
+            తిరిగి కొత్త AstNot{flp, new_ముక్క(notp->lhsp(), lsb, వెడల్పు)};
         }
         // A replication, from the portions of the copies overlapping the bits
-        if (AstReplicate* const repp = VN_CAST(nodep, Replicate)) {
-            AstNodeExpr* const srcp = repp->srcp();
-            const int srcWidth = srcp->width();
-            const int msb = lsb + width - 1;
-            AstNodeExpr* resultp = nullptr;
-            for (int copyLsb = lsb / srcWidth * srcWidth; copyLsb <= msb; copyLsb += srcWidth) {
-                const int partLsb = std::max(lsb, copyLsb) - copyLsb;
-                const int partMsb = std::min(msb, copyLsb + srcWidth - 1) - copyLsb;
-                AstNodeExpr* const bitsp = newSlice(srcp, partLsb, partMsb - partLsb + 1);
+        ఒకవేళ (AstReplicate* స్థిరరాశి repp = VN_CAST(nodep, Replicate)) {
+            Ast_కణుపు_సమాసం* స్థిరరాశి srcp = repp->srcp();
+            స్థిరరాశి పూర్ణాంకం src_వెడల్పు = srcp->వెడల్పు();
+            స్థిరరాశి పూర్ణాంకం msb = lsb + వెడల్పు - 1;
+            Ast_కణుపు_సమాసం* resultp = శూన్యసూచిక;
+            కొరకు (పూర్ణాంకం copyLsb = lsb / src_వెడల్పు * src_వెడల్పు; copyLsb <= msb; copyLsb += src_వెడల్పు) {
+                స్థిరరాశి పూర్ణాంకం partLsb = std::max(lsb, copyLsb) - copyLsb;
+                స్థిరరాశి పూర్ణాంకం partMsb = std::min(msb, copyLsb + src_వెడల్పు - 1) - copyLsb;
+                Ast_కణుపు_సమాసం* స్థిరరాశి bitsp = new_ముక్క(srcp, partLsb, partMsb - partLsb + 1);
                 // Higher bits go to the left
-                resultp = resultp ? new AstConcat{flp, bitsp, resultp} : bitsp;
+                resultp = resultp ? కొత్త AstConcat{flp, bitsp, resultp} : bitsp;
             }
-            return resultp;
+            తిరిగి resultp;
         }
-        AstNodeExpr* const clonep = nodep->cloneTreePure(false);
-        if (lsb == 0 && width == nodep->width()) return clonep;
-        return new AstSel{flp, clonep, lsb, width};
+        Ast_కణుపు_సమాసం* స్థిరరాశి clonep = nodep->clone_వృక్షం_శుద్ధ(అబద్ధం);
+        ఒకవేళ (lsb == 0 && వెడల్పు == nodep->వెడల్పు()) తిరిగి clonep;
+        తిరిగి కొత్త AstSel{flp, clonep, lsb, వెడల్పు};
     }
 
     // Values of the components of 'nodep', with the components of 'dtypep': for a reset cloned
     // from it, for packed assembled from the portions of its terms, otherwise selected from it
-    std::vector<AstNodeExpr*> newAssignRhsps(AstNodeExpr* nodep, AstNodeDType* dtypep) {
-        const std::vector<Component>& compsr = dtypeComponents(dtypep);
-        std::vector<AstNodeExpr*> valueps;
-        valueps.reserve(compsr.size());
+    std::సదిశ<Ast_కణుపు_సమాసం*> new_కేటాయించు_Rhsps(Ast_కణుపు_సమాసం* nodep, Ast_కణుపు_DType* dtypep) {
+        స్థిరరాశి std::సదిశ<Component>& compsr = dtypeComponents(dtypep);
+        std::సదిశ<Ast_కణుపు_సమాసం*> valueps;
+        valueps.reserve(compsr.కొలత());
 
         // If CReset, it is duplicated for each component
-        if (AstCReset* const cresetp = VN_CAST(nodep, CReset)) {
-            for (const Component& comp : compsr) {
-                AstCReset* const newp = cresetp->cloneTree(false);
+        ఒకవేళ (AstCReset* స్థిరరాశి cresetp = VN_CAST(nodep, CReset)) {
+            కొరకు (స్థిరరాశి Component& comp : compsr) {
+                AstCReset* స్థిరరాశి newp = cresetp->clone_వృక్షం(అబద్ధం);
                 newp->dtypep(comp.dtypep);
-                valueps.push_back(newp);
+                valueps.నెట్టు_వెనుక(newp);
             }
-            return valueps;
+            తిరిగి valueps;
         }
 
         // If packed, assemble each component from the portions of the terms overlapping it.
         // This avoids quadratic cloning then folding if the RHS is a concatenation.
-        if (isPacked(dtypep)) {
-            valueps.resize(compsr.size(), nullptr);
-            int lsb = 0;  // LSB of the current term
-            for (AstNodeExpr* const termp : concatTerms(nodep)) {
-                const int msb = lsb + termp->width() - 1;
-                const size_t first = componentIndex(dtypep, lsb);
-                for (size_t i = first; i < compsr.size() && compsr[i].lsb <= msb; ++i) {
-                    const Component& comp = compsr[i];
-                    const int partLsb = std::max(lsb, comp.lsb);
-                    const int partMsb = std::min(msb, comp.msb);
-                    FileLine* const flp = termp->fileline();
-                    AstNodeExpr* const sp = newSlice(termp, partLsb - lsb, partMsb - partLsb + 1);
-                    valueps[i] = valueps[i] ? new AstConcat{flp, sp, valueps[i]} : sp;
+        ఒకవేళ (isPacked(dtypep)) {
+            valueps.resize(compsr.కొలత(), శూన్యసూచిక);
+            పూర్ణాంకం lsb = 0;  // LSB of the current term
+            కొరకు (Ast_కణుపు_సమాసం* స్థిరరాశి termp : concatTerms(nodep)) {
+                స్థిరరాశి పూర్ణాంకం msb = lsb + termp->వెడల్పు() - 1;
+                స్థిరరాశి కొలత_t మొదటి = component_సూచీ(dtypep, lsb);
+                కొరకు (కొలత_t i = మొదటి; i < compsr.కొలత() && compsr[i].lsb <= msb; ++i) {
+                    స్థిరరాశి Component& comp = compsr[i];
+                    స్థిరరాశి పూర్ణాంకం partLsb = std::max(lsb, comp.lsb);
+                    స్థిరరాశి పూర్ణాంకం partMsb = std::min(msb, comp.msb);
+                    File_పంక్తి* స్థిరరాశి flp = termp->fileline();
+                    Ast_కణుపు_సమాసం* స్థిరరాశి sp = new_ముక్క(termp, partLsb - lsb, partMsb - partLsb + 1);
+                    valueps[i] = valueps[i] ? కొత్త AstConcat{flp, sp, valueps[i]} : sp;
                 }
                 lsb = msb + 1;
             }
-            return valueps;
+            తిరిగి valueps;
         }
 
         // Otherwise unpacked, so select each component
-        for (size_t i = 0; i < compsr.size(); ++i) {
-            valueps.push_back(newSelect(nodep->cloneTree(false), dtypep, i));
+        కొరకు (కొలత_t i = 0; i < compsr.కొలత(); ++i) {
+            valueps.నెట్టు_వెనుక(newSelect(nodep->clone_వృక్షం(అబద్ధం), dtypep, i));
         }
-        return valueps;
+        తిరిగి valueps;
     }
 
     // Return the expression holding bits 'lsb' to 'msb' of the packed Place
-    AstNodeExpr* newBits(FileLine* flp, const Place* placep, int lsb, int msb) {
-        AstNodeDType* const dtypep = placep->dtypep;
+    Ast_కణుపు_సమాసం* new_బిట్లు(File_పంక్తి* flp, స్థిరరాశి ఉంచు* placep, పూర్ణాంకం lsb, పూర్ణాంకం msb) {
+        Ast_కణుపు_DType* స్థిరరాశి dtypep = placep->dtypep;
         // Only splittable packed Places are split
-        UASSERT_OBJ(isPacked(dtypep) || !placep->split, dtypep, "Bits of non-packed Place");
+        UASSERT_OBJ(isPacked(dtypep) || !placep->విభజించు, dtypep, "Bits of non-packed Place");
         // If not split, return the bits selected out of a reference
-        if (!placep->split) {
-            AstVarRef* const refp = newRef(flp, placep, VAccess::READ);
-            if (lsb == 0 && msb == dtypep->width() - 1) return refp;
-            return new AstSel{flp, refp, lsb, msb - lsb + 1};
+        ఒకవేళ (!placep->విభజించు) {
+            AstVarRef* స్థిరరాశి refp = newRef(flp, placep, VAccess::READ);
+            ఒకవేళ (lsb == 0 && msb == dtypep->వెడల్పు() - 1) తిరిగి refp;
+            తిరిగి కొత్త AstSel{flp, refp, lsb, msb - lsb + 1};
         }
         // Otherwise, assemble the bits from the components via concatenations
-        const std::vector<Component>& comps = dtypeComponents(dtypep);
-        AstNodeExpr* resultp = nullptr;
-        const size_t first = componentIndex(dtypep, lsb);
-        for (size_t i = first; i < comps.size() && comps[i].lsb <= msb; ++i) {
-            const Component& comp = comps[i];
-            const int partLsb = std::max(lsb, comp.lsb) - comp.lsb;
-            const int partMsb = std::min(msb, comp.msb) - comp.lsb;
-            Place* const childp = placep->childrenp.at(i).get();
-            AstNodeExpr* const bitsp = newBits(flp, childp, partLsb, partMsb);
-            resultp = resultp ? new AstConcat{flp, bitsp, resultp} : bitsp;
+        స్థిరరాశి std::సదిశ<Component>& comps = dtypeComponents(dtypep);
+        Ast_కణుపు_సమాసం* resultp = శూన్యసూచిక;
+        స్థిరరాశి కొలత_t మొదటి = component_సూచీ(dtypep, lsb);
+        కొరకు (కొలత_t i = మొదటి; i < comps.కొలత() && comps[i].lsb <= msb; ++i) {
+            స్థిరరాశి Component& comp = comps[i];
+            స్థిరరాశి పూర్ణాంకం partLsb = std::max(lsb, comp.lsb) - comp.lsb;
+            స్థిరరాశి పూర్ణాంకం partMsb = std::min(msb, comp.msb) - comp.lsb;
+            ఉంచు* స్థిరరాశి childp = placep->childrenp.at(i).get();
+            Ast_కణుపు_సమాసం* స్థిరరాశి bitsp = new_బిట్లు(flp, childp, partLsb, partMsb);
+            resultp = resultp ? కొత్త AstConcat{flp, bitsp, resultp} : bitsp;
         }
-        return resultp;
+        తిరిగి resultp;
     }
 
-    static void addNewAssign(AstNodeAssign* origp, AstNodeExpr* lhsp, AstNodeExpr* rhsp) {
-        origp->addHereThisAsNext(origp->cloneType(lhsp, rhsp));
+    స్థిర శూన్య కూడు_New_కేటాయించు(Ast_కణుపు_కేటాయించు* origp, Ast_కణుపు_సమాసం* lhsp, Ast_కణుపు_సమాసం* rhsp) {
+        origp->కూడు_ఇక్కడ_This_As_తదుపరి(origp->cloneType(lhsp, rhsp));
     }
 
     // Expand the assignment between two split Places
-    void expandSS(AstNodeAssign* origp, Place* lPlacep, Place* rPlacep) {
-        FileLine* const flp = origp->fileline();
-        const std::vector<Component>& compsr = dtypeComponents(lPlacep->dtypep);
-        if (isPacked(rPlacep->dtypep)) {
-            for (size_t i = 0; i < compsr.size(); ++i) {
-                Place* const lChildp = lPlacep->childrenp.at(i).get();
-                AstNodeExpr* const rp = newBits(flp, rPlacep, compsr[i].lsb, compsr[i].msb);
-                expand(origp, lChildp, nullptr, nullptr, rp);
+    శూన్య expandSS(Ast_కణుపు_కేటాయించు* origp, ఉంచు* lPlacep, ఉంచు* rPlacep) {
+        File_పంక్తి* స్థిరరాశి flp = origp->fileline();
+        స్థిరరాశి std::సదిశ<Component>& compsr = dtypeComponents(lPlacep->dtypep);
+        ఒకవేళ (isPacked(rPlacep->dtypep)) {
+            కొరకు (కొలత_t i = 0; i < compsr.కొలత(); ++i) {
+                ఉంచు* స్థిరరాశి lChildp = lPlacep->childrenp.at(i).get();
+                Ast_కణుపు_సమాసం* స్థిరరాశి rp = new_బిట్లు(flp, rPlacep, compsr[i].lsb, compsr[i].msb);
+                expand(origp, lChildp, శూన్యసూచిక, శూన్యసూచిక, rp);
             }
-        } else {
-            for (size_t i = 0; i < compsr.size(); ++i) {
-                Place* const lChildp = lPlacep->childrenp.at(i).get();
-                expand(origp, lChildp, nullptr, rPlacep->childrenp.at(i).get(), nullptr);
+        } లేకపోతే {
+            కొరకు (కొలత_t i = 0; i < compsr.కొలత(); ++i) {
+                ఉంచు* స్థిరరాశి lChildp = lPlacep->childrenp.at(i).get();
+                expand(origp, lChildp, శూన్యసూచిక, rPlacep->childrenp.at(i).get(), శూన్యసూచిక);
             }
         }
     }
 
     // Expand the assignment between the split 'lPlacep' and non split 'rhsp'
-    void expandSN(AstNodeAssign* origp, Place* lPlacep, AstNodeExpr* rhsp) {
-        const std::vector<AstNodeExpr*> valueps = newAssignRhsps(rhsp, lPlacep->dtypep);
-        for (size_t i = 0; i < valueps.size(); ++i) {
-            expand(origp, lPlacep->childrenp.at(i).get(), nullptr, nullptr, valueps[i]);
+    శూన్య expandSN(Ast_కణుపు_కేటాయించు* origp, ఉంచు* lPlacep, Ast_కణుపు_సమాసం* rhsp) {
+        స్థిరరాశి std::సదిశ<Ast_కణుపు_సమాసం*> valueps = new_కేటాయించు_Rhsps(rhsp, lPlacep->dtypep);
+        కొరకు (కొలత_t i = 0; i < valueps.కొలత(); ++i) {
+            expand(origp, lPlacep->childrenp.at(i).get(), శూన్యసూచిక, శూన్యసూచిక, valueps[i]);
         }
-        VL_DO_DANGLING(pushDeletep(rhsp), rhsp);
+        VL_DO_DANGLING(నెట్టు_Deletep(rhsp), rhsp);
     }
 
     // Expand the assignment between the non split 'lhsp' and the split 'rPlacep'
-    void expandNS(AstNodeAssign* origp, AstNodeExpr* lhsp, Place* rPlacep) {
-        FileLine* const flp = origp->fileline();
+    శూన్య expandNS(Ast_కణుపు_కేటాయించు* origp, Ast_కణుపు_సమాసం* lhsp, ఉంచు* rPlacep) {
+        File_పంక్తి* స్థిరరాశి flp = origp->fileline();
         // If RHS is packed, assign the whole value assembled from the components
-        if (isPacked(rPlacep->dtypep)) {
-            addNewAssign(origp, lhsp, newBits(flp, rPlacep, 0, rPlacep->dtypep->width() - 1));
-            return;
+        ఒకవేళ (isPacked(rPlacep->dtypep)) {
+            కూడు_New_కేటాయించు(origp, lhsp, new_బిట్లు(flp, rPlacep, 0, rPlacep->dtypep->వెడల్పు() - 1));
+            తిరిగి;
         }
         // Unpacked of the same shape, component-wise
-        AstNodeDType* const dtypep = dtypeOf(lhsp);
+        Ast_కణుపు_DType* స్థిరరాశి dtypep = dtype_యొక్క(lhsp);
         // If the LHS reads its own variable, e.g. 'a[a[0].k] = s', assigning a component could
         // change where the others go, so assemble the value in a temporary, and assign it once.
         // Not for NBAs, as the writes commit after all reads.
-        const bool readsWrittenVar = !VN_IS(origp, AssignDly) && [&]() {
-            const VNUser2InUse user2InUse;
-            return lhsp->exists([](const AstVarRef* refp) {
-                AstVarScope* const vscp = refp->varScopep();
-                if (refp->access().isWriteOrRW()) vscp->user2(vscp->user2() | 1);
-                if (refp->access().isReadOrRW()) vscp->user2(vscp->user2() | 2);
-                return vscp->user2() == 3;
+        స్థిరరాశి తార్కిక readsWrittenVar = !VN_IS(origp, కేటాయించు_Dly) && [&]() {
+            స్థిరరాశి VNUser2_లోపల_Use user2_లోపల_Use;
+            తిరిగి lhsp->exists([](స్థిరరాశి AstVarRef* refp) {
+                AstVarScope* స్థిరరాశి vscp = refp->varScopep();
+                ఒకవేళ (refp->access().isWriteOrRW()) vscp->user2(vscp->user2() | 1);
+                ఒకవేళ (refp->access().isReadOrRW()) vscp->user2(vscp->user2() | 2);
+                తిరిగి vscp->user2() == 3;
             });
         }();
-        if (readsWrittenVar) {
+        ఒకవేళ (readsWrittenVar) {
             ++m_statLhsReadsLhs;
-            AstScope* const scopep = rPlacep->rootp->vscp->scopep();
-            AstVarScope* const vscp = m_tmps.make(flp, scopep, dtypep);
-            expand(origp, nullptr, new AstVarRef{flp, vscp, VAccess::WRITE}, rPlacep, nullptr);
-            addNewAssign(origp, lhsp, new AstVarRef{flp, vscp, VAccess::READ});
-            return;
+            AstScope* స్థిరరాశి scopep = rPlacep->rootp->vscp->scopep();
+            AstVarScope* స్థిరరాశి vscp = m_tmps.make(flp, scopep, dtypep);
+            expand(origp, శూన్యసూచిక, కొత్త AstVarRef{flp, vscp, VAccess::WRITE}, rPlacep, శూన్యసూచిక);
+            కూడు_New_కేటాయించు(origp, lhsp, కొత్త AstVarRef{flp, vscp, VAccess::READ});
+            తిరిగి;
         }
-        const size_t size = dtypeComponents(dtypep).size();
-        for (size_t i = 0; i < size; ++i) {
-            AstNodeExpr* const newLhsp = newSelect(lhsp->cloneTree(false), dtypep, i);
-            expand(origp, nullptr, newLhsp, rPlacep->childrenp.at(i).get(), nullptr);
+        స్థిరరాశి కొలత_t కొలత = dtypeComponents(dtypep).కొలత();
+        కొరకు (కొలత_t i = 0; i < కొలత; ++i) {
+            Ast_కణుపు_సమాసం* స్థిరరాశి newLhsp = newSelect(lhsp->clone_వృక్షం(అబద్ధం), dtypep, i);
+            expand(origp, శూన్యసూచిక, newLhsp, rPlacep->childrenp.at(i).get(), శూన్యసూచిక);
         }
-        VL_DO_DANGLING(pushDeletep(lhsp), lhsp);
+        VL_DO_DANGLING(నెట్టు_Deletep(lhsp), lhsp);
     }
 
     // Expand the assignment to the LHS from the RHS, into assignments of the type of 'origp',
     // inserted before it. Each side is either a Place, a component of a split one if not
     // split itself, or an expression, the other being nullptr.
     // Takes ownership of 'lhsp' and 'rhsp'.
-    void expand(AstNodeAssign* origp,  //
-                Place* lPlacep, AstNodeExpr* lhsp,  //
-                Place* rPlacep, AstNodeExpr* rhsp) {
+    శూన్య expand(Ast_కణుపు_కేటాయించు* origp,  //
+                ఉంచు* lPlacep, Ast_కణుపు_సమాసం* lhsp,  //
+                ఉంచు* rPlacep, Ast_కణుపు_సమాసం* rhsp) {
         UASSERT_OBJ(!lPlacep != !lhsp, origp, "Exactly one of lPlacep or lhsp must be non-null");
         UASSERT_OBJ(!rPlacep != !rhsp, origp, "Exactly one of rPlacep or rhsp must be non-null");
-        FileLine* const flp = origp->fileline();
+        File_పంక్తి* స్థిరరాశి flp = origp->fileline();
         // A Place not split is referenced
-        if (lPlacep && !lPlacep->split) {
+        ఒకవేళ (lPlacep && !lPlacep->విభజించు) {
             lhsp = newRef(flp, lPlacep, VAccess::WRITE);
-            lPlacep = nullptr;
+            lPlacep = శూన్యసూచిక;
         }
-        if (rPlacep && !rPlacep->split) {
+        ఒకవేళ (rPlacep && !rPlacep->విభజించు) {
             rhsp = newRef(flp, rPlacep, VAccess::READ);
-            rPlacep = nullptr;
+            rPlacep = శూన్యసూచిక;
         }
-        if (lPlacep && rPlacep) {
+        ఒకవేళ (lPlacep && rPlacep) {
             expandSS(origp, lPlacep, rPlacep);
-        } else if (lPlacep) {
+        } లేకపోతే ఒకవేళ (lPlacep) {
             expandSN(origp, lPlacep, rhsp);
-        } else if (rPlacep) {
+        } లేకపోతే ఒకవేళ (rPlacep) {
             expandNS(origp, lhsp, rPlacep);
-        } else {
-            addNewAssign(origp, lhsp, rhsp);
+        } లేకపోతే {
+            కూడు_New_కేటాయించు(origp, lhsp, rhsp);
         }
     }
 
     // Will bits 'lsb' to 'msb' of the Place be in different variables after splitting it?
-    bool isSplitBetween(const Place* placep, int lsb, int msb) {
-        while (placep->split) {
-            const size_t idx = componentIndex(placep->dtypep, lsb);
-            if (idx != componentIndex(placep->dtypep, msb)) return true;
-            const Component& comp = dtypeComponents(placep->dtypep).at(idx);
+    తార్కిక is_విభజించు_Between(స్థిరరాశి ఉంచు* placep, పూర్ణాంకం lsb, పూర్ణాంకం msb) {
+        అయితే (placep->విభజించు) {
+            స్థిరరాశి కొలత_t idx = component_సూచీ(placep->dtypep, lsb);
+            ఒకవేళ (idx != component_సూచీ(placep->dtypep, msb)) తిరిగి నిజం;
+            స్థిరరాశి Component& comp = dtypeComponents(placep->dtypep).at(idx);
             lsb -= comp.lsb;
             msb -= comp.lsb;
             placep = placep->childrenp.at(idx).get();
         }
-        return false;
+        తిరిగి అబద్ధం;
     }
 
     // Assign the RHS terms of 'origp' that expanding it to the split 'lPlacep' would
     // evaluate more than once, or that are impure, to temporaries before 'origp'
-    void hoistTerms(AstNodeAssign* origp, const Place* lPlacep) {
-        AstNodeExpr* const rhsp = origp->rhsp();
-        const std::vector<AstNodeExpr*> termps = concatTerms(rhsp);
+    శూన్య hoistTerms(Ast_కణుపు_కేటాయించు* origp, స్థిరరాశి ఉంచు* lPlacep) {
+        Ast_కణుపు_సమాసం* స్థిరరాశి rhsp = origp->rhsp();
+        స్థిరరాశి std::సదిశ<Ast_కణుపు_సమాసం*> termps = concatTerms(rhsp);
         // A replicated term appears multiple times, so would be evaluated once for each
-        const VNUser2InUse user2InUse;
-        for (AstNodeExpr* const termp : termps) termp->user2Inc();
+        స్థిరరాశి VNUser2_లోపల_Use user2_లోపల_Use;
+        కొరకు (Ast_కణుపు_సమాసం* స్థిరరాశి termp : termps) termp->user2Inc();
         // Hoist the terms, each once, before the assignment
-        AstScope* const scopep = lPlacep->rootp->vscp->scopep();
-        int lsb = 0;  // LSB of the current term
-        for (AstNodeExpr* const termp : termps) {
-            const int tLsb = lsb;
-            const int tMsb = lsb + termp->width() - 1;
+        AstScope* స్థిరరాశి scopep = lPlacep->rootp->vscp->scopep();
+        పూర్ణాంకం lsb = 0;  // LSB of the current term
+        కొరకు (Ast_కణుపు_సమాసం* స్థిరరాశి termp : termps) {
+            స్థిరరాశి పూర్ణాంకం tLsb = lsb;
+            స్థిరరాశి పూర్ణాంకం tMsb = lsb + termp->వెడల్పు() - 1;
             lsb = tMsb + 1;
 
             // Already decided, for a replicated term
-            if (!termp->user2()) continue;
+            ఒకవేళ (!termp->user2()) కొనసాగు;
             // Cheap to select from
-            if (isCheap(termp)) {
+            ఒకవేళ (isCheap(termp)) {
                 termp->user2(0);
-                continue;
+                కొనసాగు;
             }
             // No need to hoist if pure, appears once, and lands in one assignment
-            if (termp->isPure() && termp->user2() == 1 && !isSplitBetween(lPlacep, tLsb, tMsb)) {
-                continue;
+            ఒకవేళ (termp->is_శుద్ధ() && termp->user2() == 1 && !is_విభజించు_Between(lPlacep, tLsb, tMsb)) {
+                కొనసాగు;
             }
             // Bits can be selected without evaluating it more than once
-            if (isSliceable(termp)) {
+            ఒకవేళ (isSliceable(termp)) {
                 termp->user2(0);
                 ++m_statSliced;
-                continue;
+                కొనసాగు;
             }
 
             // Hoist this term to a temporary assignment before the original
             termp->user2(0);
             ++m_statHoisted;
-            FileLine* const flp = termp->fileline();
-            AstVarScope* const vscp = m_tmps.make(flp, scopep, termp->dtypep());
-            termp->replaceWith(new AstVarRef{flp, vscp, VAccess::READ});
-            AstVarRef* const tmpRefp = new AstVarRef{flp, vscp, VAccess::WRITE};
-            origp->addHereThisAsNext(new AstAssign{flp, tmpRefp, termp});
+            File_పంక్తి* స్థిరరాశి flp = termp->fileline();
+            AstVarScope* స్థిరరాశి vscp = m_tmps.make(flp, scopep, termp->dtypep());
+            termp->replaceWith(కొత్త AstVarRef{flp, vscp, VAccess::READ});
+            AstVarRef* స్థిరరాశి tmpRefp = కొత్త AstVarRef{flp, vscp, VAccess::WRITE};
+            origp->కూడు_ఇక్కడ_This_As_తదుపరి(కొత్త Ast_కేటాయించు{flp, tmpRefp, termp});
         }
     }
 
     // Mark the AstVarScopes of the components of the split 'placep', at any depth
-    static void markComponents(const Place* placep) {
-        for (const std::unique_ptr<Place>& childp : placep->childrenp) {
-            childp->vscp->user2(true);
-            if (childp->split) markComponents(childp.get());
+    స్థిర శూన్య markComponents(స్థిరరాశి ఉంచు* placep) {
+        కొరకు (స్థిరరాశి std::unique_ptr<ఉంచు>& childp : placep->childrenp) {
+            childp->vscp->user2(నిజం);
+            ఒకవేళ (childp->విభజించు) markComponents(childp.get());
         }
     }
 
     // Expand the assignment, if a side is split
-    void rewriteAssignment(const Assignment& assignment) {
-        Place* const lPlacep = assignment.lPlacep;
-        Place* const rPlacep = assignment.rPlacep;
-        const bool lSplit = lPlacep && lPlacep->split;
-        const bool rSplit = rPlacep && rPlacep->split;
+    శూన్య rewriteAssignment(స్థిరరాశి Assignment& assignment) {
+        ఉంచు* స్థిరరాశి lPlacep = assignment.lPlacep;
+        ఉంచు* స్థిరరాశి rPlacep = assignment.rPlacep;
+        స్థిరరాశి తార్కిక l_విభజించు = lPlacep && lPlacep->విభజించు;
+        స్థిరరాశి తార్కిక r_విభజించు = rPlacep && rPlacep->విభజించు;
         // Nothing to do if neither side is split
-        if (!lSplit && !rSplit) return;
+        ఒకవేళ (!l_విభజించు && !r_విభజించు) తిరిగి;
 
-        AstNodeAssign* const origp = assignment.assp;
+        Ast_కణుపు_కేటాయించు* స్థిరరాశి origp = assignment.assp;
 
         // If the RHS expression reads components of the LHS, e.g. 's = {s.b, s.a}', expanding
         // would read components already written, so assign it to a temporary first. Not for
         // NBAs, as the writes commit after all reads. The LHS reading the RHS is fine, e.g.
         // 'a[s.i] = s', as the expansion only writes the LHS, so the RHS reads the same values
         // in every expanded assignment, unless they overlap, but then the RHS reads the LHS.
-        if (lSplit && !rSplit && !VN_IS(origp, AssignDly)) {
-            const VNUser2InUse user2InUse;
+        ఒకవేళ (l_విభజించు && !r_విభజించు && !VN_IS(origp, కేటాయించు_Dly)) {
+            స్థిరరాశి VNUser2_లోపల_Use user2_లోపల_Use;
             markComponents(lPlacep);
-            AstNodeExpr* const rhsp = origp->rhsp();
-            if (rhsp->exists([](const AstVarRef* refp) { return refp->varScopep()->user2(); })) {
-                FileLine* const flp = rhsp->fileline();
-                AstScope* const scopep = lPlacep->rootp->vscp->scopep();
-                AstVarScope* const vscp = m_tmps.make(flp, scopep, dtypeOf(rhsp));
-                rhsp->replaceWith(new AstVarRef{flp, vscp, VAccess::READ});
-                AstVarRef* const tmpRefp = new AstVarRef{flp, vscp, VAccess::WRITE};
-                origp->addHereThisAsNext(new AstAssign{flp, tmpRefp, rhsp});
+            Ast_కణుపు_సమాసం* స్థిరరాశి rhsp = origp->rhsp();
+            ఒకవేళ (rhsp->exists([](స్థిరరాశి AstVarRef* refp) { తిరిగి refp->varScopep()->user2(); })) {
+                File_పంక్తి* స్థిరరాశి flp = rhsp->fileline();
+                AstScope* స్థిరరాశి scopep = lPlacep->rootp->vscp->scopep();
+                AstVarScope* స్థిరరాశి vscp = m_tmps.make(flp, scopep, dtype_యొక్క(rhsp));
+                rhsp->replaceWith(కొత్త AstVarRef{flp, vscp, VAccess::READ});
+                AstVarRef* స్థిరరాశి tmpRefp = కొత్త AstVarRef{flp, vscp, VAccess::WRITE};
+                origp->కూడు_ఇక్కడ_This_As_తదుపరి(కొత్త Ast_కేటాయించు{flp, tmpRefp, rhsp});
                 ++m_statRhsReadsLhs;
             }
         }
         // Hoist the terms of a packed RHS that would be evaluated more than once
-        if (lSplit && !rSplit && isPacked(lPlacep->dtypep)) hoistTerms(origp, lPlacep);
-        AstNodeExpr* const lhsp = origp->lhsp()->unlinkFrBack();
-        AstNodeExpr* const rhsp = origp->rhsp()->unlinkFrBack();
+        ఒకవేళ (l_విభజించు && !r_విభజించు && isPacked(lPlacep->dtypep)) hoistTerms(origp, lPlacep);
+        Ast_కణుపు_సమాసం* స్థిరరాశి lhsp = origp->lhsp()->unlink_Fr_వెనుక();
+        Ast_కణుపు_సమాసం* స్థిరరాశి rhsp = origp->rhsp()->unlink_Fr_వెనుక();
         // A side is used if not split, otherwise its components are
         expand(origp,  //
-               lSplit ? lPlacep : nullptr, lSplit ? nullptr : lhsp,  //
-               rSplit ? rPlacep : nullptr, rSplit ? nullptr : rhsp);
-        if (lSplit) VL_DO_DANGLING(pushDeletep(lhsp), lhsp);
-        if (rSplit) VL_DO_DANGLING(pushDeletep(rhsp), rhsp);
-        VL_DO_DANGLING(pushDeletep(origp->unlinkFrBack()), origp);
+               l_విభజించు ? lPlacep : శూన్యసూచిక, l_విభజించు ? శూన్యసూచిక : lhsp,  //
+               r_విభజించు ? rPlacep : శూన్యసూచిక, r_విభజించు ? శూన్యసూచిక : rhsp);
+        ఒకవేళ (l_విభజించు) VL_DO_DANGLING(నెట్టు_Deletep(lhsp), lhsp);
+        ఒకవేళ (r_విభజించు) VL_DO_DANGLING(నెట్టు_Deletep(rhsp), rhsp);
+        VL_DO_DANGLING(నెట్టు_Deletep(origp->unlink_Fr_వెనుక()), origp);
     }
 
     // The combinational AstActive of the scope, cached
-    static AstActive* comboActive(AstScope* scopep) {
-        if (!scopep->user1p()) scopep->user1p(scopep->comboActivep(true));
-        return VN_AS(scopep->user1p(), Active);
+    స్థిర Ast_చురుకైన* combo_చురుకైన(AstScope* scopep) {
+        ఒకవేళ (!scopep->user1p()) scopep->user1p(scopep->comboActivep(నిజం));
+        తిరిగి VN_AS(scopep->user1p(), చురుకైన);
     }
 
     // Drive the split Place 'placep' from its components, recursively,
     // so the original variable has its value available.
-    void driveFromComponents(Place* placep, AstActive* activep) {
-        if (!placep->split) return;
-        AstVarScope* const vscp = placep->vscp;
-        FileLine* const flp = vscp->fileline();
-        for (size_t i = 0; i < placep->childrenp.size(); ++i) {
-            Place* const childp = placep->childrenp[i].get();
+    శూన్య driveFromComponents(ఉంచు* placep, Ast_చురుకైన* activep) {
+        ఒకవేళ (!placep->విభజించు) తిరిగి;
+        AstVarScope* స్థిరరాశి vscp = placep->vscp;
+        File_పంక్తి* స్థిరరాశి flp = vscp->fileline();
+        కొరకు (కొలత_t i = 0; i < placep->childrenp.కొలత(); ++i) {
+            ఉంచు* స్థిరరాశి childp = placep->childrenp[i].get();
             driveFromComponents(childp, activep);
-            AstNodeExpr* const rhsp = new AstVarRef{flp, childp->vscp, VAccess::READ};
-            AstNodeExpr* const lhsRefp = new AstVarRef{flp, vscp, VAccess::WRITE};
-            AstNodeExpr* const lhsp = newSelect(lhsRefp, placep->dtypep, i);
-            activep->addStmtsp(new AstAlways{new AstAssignW{flp, lhsp, rhsp}});
+            Ast_కణుపు_సమాసం* స్థిరరాశి rhsp = కొత్త AstVarRef{flp, childp->vscp, VAccess::READ};
+            Ast_కణుపు_సమాసం* స్థిరరాశి lhsRefp = కొత్త AstVarRef{flp, vscp, VAccess::WRITE};
+            Ast_కణుపు_సమాసం* స్థిరరాశి lhsp = newSelect(lhsRefp, placep->dtypep, i);
+            activep->కూడు_Stmtsp(కొత్త AstAlways{కొత్త Ast_కేటాయించు_W{flp, lhsp, rhsp}});
         }
     }
 
     // CONSTRUCTORS
-    explicit DecomposeRewrite(State& state)
-        : DecomposeBase{state} {
+    స్పష్టమైన DecomposeRewrite(State& state)
+        : Decompose_పునాది{state} {
         // Rewrite the references: the select chains, then expand the assignments, so the clones
         // of their sides are rewritten already
-        for (const std::vector<Select>& chain : m_state.chains) rewriteChain(chain);
-        for (const Assignment& assignment : m_state.assignments) rewriteAssignment(assignment);
+        కొరకు (స్థిరరాశి std::సదిశ<Select>& chain : m_state.chains) rewriteChain(chain);
+        కొరకు (స్థిరరాశి Assignment& assignment : m_state.assignments) rewriteAssignment(assignment);
 
         // Drive variables that must be kept from their components
-        for (Place* const placep : m_state.rootps) {
-            if (!placep->split) continue;
-            const AstVarScope* const vscp = placep->vscp;
+        కొరకు (ఉంచు* స్థిరరాశి placep : m_state.rootps) {
+            ఒకవేళ (!placep->విభజించు) కొనసాగు;
+            స్థిరరాశి AstVarScope* స్థిరరాశి vscp = placep->vscp;
             // Only traced ones at this point
-            if (!(vscp->varp()->isTrace() && vscp->isTrace())) continue;
-            AstActive* const activep = comboActive(vscp->scopep());
+            ఒకవేళ (!(vscp->varp()->isTrace() && vscp->isTrace())) కొనసాగు;
+            Ast_చురుకైన* స్థిరరాశి activep = combo_చురుకైన(vscp->scopep());
             driveFromComponents(placep, activep);
         }
 
-        V3Stats::addStat("Optimizations, Decompose, terms hoisted", m_statHoisted);
-        V3Stats::addStat("Optimizations, Decompose, terms sliced", m_statSliced);
-        V3Stats::addStat("Optimizations, Decompose, RHS reading LHS hoisted", m_statRhsReadsLhs);
-        V3Stats::addStat("Optimizations, Decompose, LHS reading LHS assembled", m_statLhsReadsLhs);
+        V3Stats::కూడు_Stat("Optimizations, Decompose, terms hoisted", m_statHoisted);
+        V3Stats::కూడు_Stat("Optimizations, Decompose, terms sliced", m_statSliced);
+        V3Stats::కూడు_Stat("Optimizations, Decompose, RHS reading LHS hoisted", m_statRhsReadsLhs);
+        V3Stats::కూడు_Stat("Optimizations, Decompose, LHS reading LHS assembled", m_statLhsReadsLhs);
     }
 
-public:
-    static void apply(State& state) { DecomposeRewrite{state}; }
+బహిరంగ:
+    స్థిర శూన్య apply(State& state) { DecomposeRewrite{state}; }
 };
 
 //######################################################################
 // V3Decompose class functions
 
-void V3Decompose::decomposeAll(AstNetlist* nodep) {
+శూన్య V3Decompose::decomposeAll(AstNetlist* nodep) {
     UINFO(2, __FUNCTION__ << ":");
     {
-        DecomposeBase::State state;
-        DecomposeRecord::apply(state, nodep);
+        Decompose_పునాది::State state;
+        Decompose_రికార్డు::apply(state, nodep);
         DecomposeDecision::apply(state);
         DecomposeRewrite::apply(state);
     }  // Destruct before checking
-    V3Global::dumpCheckGlobalTree("decompose", 0, dumpTreeEitherLevel() >= 3);
+    V3Global::dump_Check_Global_వృక్షం("decompose", 0, dump_వృక్షం_Either_Level() >= 3);
 }

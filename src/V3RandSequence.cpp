@@ -48,386 +48,386 @@
 //
 //*************************************************************************
 
-#include "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
+#అన్తర్భావ "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
 
-#include "verilatedos.h"
+#అన్తర్భావ "verilatedos.h"
 
-#include "V3RandSequence.h"
+#అన్తర్భావ "V3RandSequence.h"
 
-#include "V3Ast.h"
-#include "V3Error.h"
-#include "V3FileLine.h"
-#include "V3Global.h"
+#అన్తర్భావ "V3Ast.h"
+#అన్తర్భావ "V3Error.h"
+#అన్తర్భావ "V3FileLine.h"
+#అన్తర్భావ "V3Global.h"
 
 VL_DEFINE_DEBUG_FUNCTIONS;
 
 // ######################################################################
 //  Matcher classes (for suggestion matching)
 
-class RSProdMatcher final : public VNodeMatcher {
-public:
-    bool nodeMatch(const AstNode* nodep) const override { return VN_IS(nodep, RSProd); }
+తరగతి RSProdMatcher final : బహిరంగ VNodeMatcher {
+బహిరంగ:
+    తార్కిక కణుపు_సరిపోలిక(స్థిరరాశి Ast_కణుపు* nodep) స్థిరరాశి override { తిరిగి VN_IS(nodep, RSProd); }
 };
 
 //######################################################################
 // Visitor that marks classes needing a randomize() method
 
-class RandSequenceVisitor final : public VNVisitor {
+తరగతి RandSequenceVisitor final : బహిరంగ VNVisitor {
     // STATE - global
-    std::map<AstRSProd*, AstNodeFTask*> m_prodFuncps;  // Generated production functions
+    std::map<AstRSProd*, Ast_కణుపు_FTask*> m_prodFuncps;  // Generated production functions
 
     // STATE - for current visit position (use VL_RESTORER)
-    AstNodeModule* m_modp = nullptr;  // Current module
-    AstRandSequence* m_rsp = nullptr;  // Current randsequence
-    AstRSProd* m_startProdp = nullptr;  // Starting production
-    AstNodeFTask* m_prodFuncp = nullptr;  // Production function being built
-    AstJumpBlock* m_jumpBlockp = nullptr;  // Building jumpblock for return/break
-    AstVar* m_breakVarp = nullptr;  // Break variable
-    std::unordered_set<AstVar*> m_localizes;  // Variables to become function inouts
-    std::map<std::string, AstVar*> m_localizeNames;  // Ordered names of function inouts
-    std::unordered_map<const AstVar*, AstVar*> m_localizeRemaps;  // New ports for old vars
+    Ast_కణుపు_Module* m_modp = శూన్యసూచిక;  // Current module
+    AstRandSequence* m_rsp = శూన్యసూచిక;  // Current randsequence
+    AstRSProd* m_ప్రారంభం_Prodp = శూన్యసూచిక;  // Starting production
+    Ast_కణుపు_FTask* m_prodFuncp = శూన్యసూచిక;  // Production function being built
+    Ast_Jump_ఖండం* m_jumpBlockp = శూన్యసూచిక;  // Building jumpblock for return/break
+    AstVar* m_breakVarp = శూన్యసూచిక;  // Break variable
+    std::unordered_సమితి<AstVar*> m_localizes;  // Variables to become function inouts
+    std::map<std::string, AstVar*> m_localize_పేర్లు;  // Ordered names of function inouts
+    std::unordered_map<స్థిరరాశి AstVar*, AstVar*> m_localizeRemaps;  // New ports for old vars
 
     // METHODS
-    void findLocalizes(AstRandSequence* nodep) {
-        std::set<AstVar*> localVars;
-        nodep->foreach([&](AstNode* const nodep) {
-            if (const AstVarRef* const anodep = VN_CAST(nodep, VarRef)) {
+    శూన్య కనుగొను_Localizes(AstRandSequence* nodep) {
+        std::సమితి<AstVar*> localVars;
+        nodep->foreach([&](Ast_కణుపు* స్థిరరాశి nodep) {
+            ఒకవేళ (స్థిరరాశి AstVarRef* స్థిరరాశి anodep = VN_CAST(nodep, VarRef)) {
                 m_localizes.emplace(anodep->varp());
-            } else if (AstVar* const anodep = VN_CAST(nodep, Var)) {
+            } లేకపోతే ఒకవేళ (AstVar* స్థిరరాశి anodep = VN_CAST(nodep, Var)) {
                 localVars.emplace(anodep);
             }
         });
         // Clear every variable allocated in the RandSequence
-        for (AstVar* varp : localVars) m_localizes.erase(varp);
+        కొరకు (AstVar* varp : localVars) m_localizes.erase(varp);
         // Sort by name, so function arguments are stable
-        for (AstVar* varp : m_localizes) {
+        కొరకు (AstVar* varp : m_localizes) {
             UINFO(9, "localize " << varp);
-            m_localizeNames.emplace(varp->name(), varp);
+            m_localize_పేర్లు.emplace(varp->name(), varp);
         }
     }
 
-    AstVar* newBreakVar(FileLine* fl, bool asOutput) {
-        AstVar* const varp = new AstVar{fl, VVarType::PORT, "__VrsBreak", VFlagBitPacked{}, 1};
+    AstVar* newBreakVar(File_పంక్తి* fl, తార్కిక asOutput) {
+        AstVar* స్థిరరాశి varp = కొత్త AstVar{fl, VVarType::పోర్టు, "__VrsBreak", VFlag_బిట్టు_Packed{}, 1};
         varp->lifetime(VLifetime::AUTOMATIC_EXPLICIT);
-        varp->funcLocal(true);
-        if (asOutput) varp->direction(VDirection::OUTPUT);
-        AstNode* outp = varp;
-        outp->addNext(new AstAssign{fl, new AstVarRef{fl, varp, VAccess::WRITE},
-                                    new AstConst{fl, AstConst::BitFalse{}}});
+        varp->funcLocal(నిజం);
+        ఒకవేళ (asOutput) varp->direction(VDirection::OUTPUT);
+        Ast_కణుపు* outp = varp;
+        outp->కూడు_తదుపరి(కొత్త Ast_కేటాయించు{fl, కొత్త AstVarRef{fl, varp, VAccess::WRITE},
+                                    కొత్త AstConst{fl, AstConst::బిట్టు_False{}}});
 
         // Also add arguments as next's
-        for (const auto& itr : m_localizeNames) {
-            const AstVar* const lvarp = itr.second;
-            AstVar* const iovarp
-                = new AstVar{fl, VVarType::PORT, "__Vrsarg_" + lvarp->name(), lvarp};
+        కొరకు (స్థిరరాశి స్వయంచాలక& itr : m_localize_పేర్లు) {
+            స్థిరరాశి AstVar* స్థిరరాశి lvarp = itr.రెండవ;
+            AstVar* స్థిరరాశి iovarp
+                = కొత్త AstVar{fl, VVarType::పోర్టు, "__Vrsarg_" + lvarp->name(), lvarp};
             iovarp->lifetime(VLifetime::AUTOMATIC_EXPLICIT);
-            iovarp->funcLocal(true);
+            iovarp->funcLocal(నిజం);
             iovarp->direction(VDirection::REF);
-            varp->addNext(iovarp);
+            varp->కూడు_తదుపరి(iovarp);
             m_localizeRemaps.emplace(lvarp, iovarp);
         }
-        return varp;
+        తిరిగి varp;
     }
 
-    AstTask* newStartFunc(AstRandSequence* nodep) {
+    AstTask* new_ప్రారంభం_Func(AstRandSequence* nodep) {
         // Create wrapper that is called by the sequence
-        AstTask* const taskp = new AstTask{m_startProdp->fileline(), m_rsp->name(), nullptr};
+        AstTask* స్థిరరాశి taskp = కొత్త AstTask{m_ప్రారంభం_Prodp->fileline(), m_rsp->name(), శూన్యసూచిక};
         taskp->lifetime(VLifetime::AUTOMATIC_EXPLICIT);
-        m_modp->addStmtsp(taskp);
+        m_modp->కూడు_Stmtsp(taskp);
 
         // Create local (not output) break variable
         VL_RESTORER_COPY(m_localizeRemaps);
-        AstVar* breakVarp = newBreakVar(nodep->fileline(), false);
-        taskp->addStmtsp(breakVarp);
+        AstVar* breakVarp = newBreakVar(nodep->fileline(), అబద్ధం);
+        taskp->కూడు_Stmtsp(breakVarp);
 
         // Call the start production's task
-        taskp->addStmtsp(newProdFuncRef(nodep, m_startProdp, breakVarp, nullptr));
+        taskp->కూడు_Stmtsp(newProdFuncRef(nodep, m_ప్రారంభం_Prodp, breakVarp, శూన్యసూచిక));
 
         UINFOTREE(9, taskp, "newStart", "");
-        return taskp;
+        తిరిగి taskp;
     }
 
-    AstNode* newProdFuncRef(AstNode* nodep, AstRSProd* prodp, AstVar* breakVarp,
+    Ast_కణుపు* newProdFuncRef(Ast_కణుపు* nodep, AstRSProd* prodp, AstVar* breakVarp,
                             AstArg* userArgsp) {
-        auto it = m_prodFuncps.find(prodp);
-        UASSERT_OBJ(it != m_prodFuncps.end(), nodep, "No production function made");
-        AstNodeFTask* const prodFuncp = it->second;
-        FileLine* const fl = nodep->fileline();
+        స్వయంచాలక it = m_prodFuncps.కనుగొను(prodp);
+        UASSERT_OBJ(it != m_prodFuncps.చివర(), nodep, "No production function made");
+        Ast_కణుపు_FTask* స్థిరరాశి prodFuncp = it->రెండవ;
+        File_పంక్తి* స్థిరరాశి fl = nodep->fileline();
         // V3Width already ran before V3RandSequence, so VarRefs we create here
         // need dtype set explicitly, V3Broken later checks width == widthMin.
-        AstVarRef* const breakRefp = new AstVarRef{fl, breakVarp, VAccess::WRITE};
+        AstVarRef* స్థిరరాశి breakRefp = కొత్త AstVarRef{fl, breakVarp, VAccess::WRITE};
         breakRefp->dtypeFrom(breakVarp);
-        AstArg* const argsp = new AstArg{fl, breakVarp->name(), breakRefp};
-        for (const auto& itr : m_localizeNames) {
-            const AstVar* const lvarp = itr.second;
-            AstVar* const iovarp = m_localizeRemaps[lvarp];
+        AstArg* స్థిరరాశి argsp = కొత్త AstArg{fl, breakVarp->name(), breakRefp};
+        కొరకు (స్థిరరాశి స్వయంచాలక& itr : m_localize_పేర్లు) {
+            స్థిరరాశి AstVar* స్థిరరాశి lvarp = itr.రెండవ;
+            AstVar* స్థిరరాశి iovarp = m_localizeRemaps[lvarp];
             UASSERT_OBJ(iovarp, nodep, "No new port variable for local variable" << lvarp);
-            AstVarRef* const refp = new AstVarRef{fl, iovarp, VAccess::READWRITE};
+            AstVarRef* స్థిరరాశి refp = కొత్త AstVarRef{fl, iovarp, VAccess::READWRITE};
             refp->dtypeFrom(iovarp);
-            argsp->addNext(new AstArg{nodep->fileline(), "__Vrsarg_" + lvarp->name(), refp});
+            argsp->కూడు_తదుపరి(కొత్త AstArg{nodep->fileline(), "__Vrsarg_" + lvarp->name(), refp});
         }
-        if (userArgsp) argsp->addNext(userArgsp);
-        AstNode* const newp
-            = new AstStmtExpr{fl, new AstTaskRef{fl, VN_AS(prodFuncp, Task), argsp}};
-        return newp;
+        ఒకవేళ (userArgsp) argsp->కూడు_తదుపరి(userArgsp);
+        Ast_కణుపు* స్థిరరాశి newp
+            = కొత్త Ast_Stmt_సమాసం{fl, కొత్త AstTaskRef{fl, VN_AS(prodFuncp, Task), argsp}};
+        తిరిగి newp;
     }
 
-    void newProdFunc(AstRSProd* nodep) {
+    శూన్య newProdFunc(AstRSProd* nodep) {
         // Task, as time may pass
-        AstTask* const newp
-            = new AstTask{nodep->fileline(), m_rsp->name() + "_" + nodep->name(), nullptr};
-        m_modp->addStmtsp(newp);
+        AstTask* స్థిరరాశి newp
+            = కొత్త AstTask{nodep->fileline(), m_rsp->name() + "_" + nodep->name(), శూన్యసూచిక};
+        m_modp->కూడు_Stmtsp(newp);
         m_prodFuncps.emplace(nodep, newp);
         UINFOTREE(9, newp, "newProd", "");
     }
 
-    AstNode* newProdRandJoin(AstRSProd* /*prodp*/, AstRSProdList* prodlistp) {
+    Ast_కణుపు* newProdRandJoin(AstRSProd* /*prodp*/, AstRSProdList* prodlistp) {
         // For weight == 1.0 longer sequence (favor stay in a)
         // For weight == 0.0 shorter squence (favor change a/b)
         UASSERT_OBJ(prodlistp->weightp(), prodlistp, "Weight should have default CONST(0.5)");
-        AstNodeExpr* weightp = prodlistp->weightp()->unlinkFrBack();
+        Ast_కణుపు_సమాసం* weightp = prodlistp->weightp()->unlink_Fr_వెనుక();
 
         // Build map of production lists and productions we need to join
         // Must mainain the relative order of each sequence.
-        std::deque<AstRSProdItem*> lists;
-        std::unordered_map<AstRSProdItem*, std::deque<AstNodeStmt*>> listStmts;
-        for (AstRSProdItem* proditemp = VN_AS(prodlistp->prodsp(), RSProdItem); proditemp;
-             proditemp = VN_AS(proditemp->nextp(), RSProdItem)) {
-            lists.push_back(proditemp);
-            const AstRSProd* const subProdp = proditemp->prodp();
-            if (!subProdp) continue;
-            if (!subProdp->rulesp()) continue;
-            if (!subProdp->rulesp()->prodlistsp()) continue;
-            for (AstNodeStmt* subStmtp
-                 = VN_AS(subProdp->rulesp()->prodlistsp()->prodsp(), NodeStmt);
-                 subStmtp; subStmtp = VN_AS(subStmtp->nextp(), NodeStmt)) {
-                listStmts[proditemp].push_back(subStmtp);
+        std::deque<Ast_RSProd_అంశం*> lists;
+        std::unordered_map<Ast_RSProd_అంశం*, std::deque<Ast_కణుపు_Stmt*>> listStmts;
+        కొరకు (Ast_RSProd_అంశం* proditemp = VN_AS(prodlistp->prodsp(), RSProd_అంశం); proditemp;
+             proditemp = VN_AS(proditemp->nextp(), RSProd_అంశం)) {
+            lists.నెట్టు_వెనుక(proditemp);
+            స్థిరరాశి AstRSProd* స్థిరరాశి subProdp = proditemp->prodp();
+            ఒకవేళ (!subProdp) కొనసాగు;
+            ఒకవేళ (!subProdp->rulesp()) కొనసాగు;
+            ఒకవేళ (!subProdp->rulesp()->prodlistsp()) కొనసాగు;
+            కొరకు (Ast_కణుపు_Stmt* subStmtp
+                 = VN_AS(subProdp->rulesp()->prodlistsp()->prodsp(), కణుపు_Stmt);
+                 subStmtp; subStmtp = VN_AS(subStmtp->nextp(), కణుపు_Stmt)) {
+                listStmts[proditemp].నెట్టు_వెనుక(subStmtp);
             }
         }
 
         UINFO(9, "RandJoin productions called:");
-        for (AstRSProdItem* proditemp : lists) {
+        కొరకు (Ast_RSProd_అంశం* proditemp : lists) {
             UINFO(9, "  list " << proditemp);
-            for (const AstNodeStmt* prodip : listStmts[proditemp])
+            కొరకు (స్థిరరాశి Ast_కణుపు_Stmt* prodip : listStmts[proditemp])
                 UINFO(9, "    calls " << prodip);
         }
 
         // Need to clone all nodes used
 
-        FileLine* fl = prodlistp->fileline();
-        AstNode* newp = nullptr;
+        File_పంక్తి* fl = prodlistp->fileline();
+        Ast_కణుపు* newp = శూన్యసూచిక;
 
         // "bool _Vjoin_repick = true;"  // Pick a new longer sequence
-        AstVar* repickVarp = new AstVar{fl, VVarType::VAR, "_Vjoin_repick", VFlagBitPacked{}, 1};
+        AstVar* repickVarp = కొత్త AstVar{fl, VVarType::VAR, "_Vjoin_repick", VFlag_బిట్టు_Packed{}, 1};
         repickVarp->lifetime(VLifetime::AUTOMATIC_EXPLICIT);
-        repickVarp->funcLocal(true);
-        m_breakVarp->addNextHere(repickVarp);  // Add to function top, not newp
-        newp = AstNode::addNext(newp,
-                                new AstAssign{fl, new AstVarRef{fl, repickVarp, VAccess::WRITE},
-                                              new AstConst{fl, AstConst::BitTrue{}}});
+        repickVarp->funcLocal(నిజం);
+        m_breakVarp->కూడు_తదుపరి_ఇక్కడ(repickVarp);  // Add to function top, not newp
+        newp = Ast_కణుపు::కూడు_తదుపరి(newp,
+                                కొత్త Ast_కేటాయించు{fl, కొత్త AstVarRef{fl, repickVarp, VAccess::WRITE},
+                                              కొత్త AstConst{fl, AstConst::బిట్టు_True{}}});
 
         // "int _Vjoin_nleft_0 = N(items);"  // N(a) Number left to generate in list 0, starts at
         // N(list0)
         std::deque<AstVar*> nleftVarps;
-        int i = 0;
-        for (AstRSProdItem* proditemp : lists) {
+        పూర్ణాంకం i = 0;
+        కొరకు (Ast_RSProd_అంశం* proditemp : lists) {
             // 'rand join arule arule arule' is legal, so need numbered, not non-unique named
             // nleft's
-            AstVar* const varp = new AstVar{
-                fl, VVarType::VAR, "_Vjoin_nleft_" + std::to_string(i++), VFlagBitPacked{}, 32};
+            AstVar* స్థిరరాశి varp = కొత్త AstVar{
+                fl, VVarType::VAR, "_Vjoin_nleft_" + std::గమ్యం_string(i++), VFlag_బిట్టు_Packed{}, 32};
             varp->lifetime(VLifetime::AUTOMATIC_EXPLICIT);
-            varp->funcLocal(true);
-            m_breakVarp->addNextHere(varp);  // Add to function top, not newp
-            nleftVarps.push_back(varp);
+            varp->funcLocal(నిజం);
+            m_breakVarp->కూడు_తదుపరి_ఇక్కడ(varp);  // Add to function top, not newp
+            nleftVarps.నెట్టు_వెనుక(varp);
 
-            newp = AstNode::addNext(
+            newp = Ast_కణుపు::కూడు_తదుపరి(
                 newp,
-                new AstAssign{fl, new AstVarRef{fl, varp, VAccess::WRITE},
-                              new AstConst{fl, AstConst::WidthedValue{}, 32,
-                                           static_cast<uint32_t>(listStmts[proditemp].size())}});
+                కొత్త Ast_కేటాయించు{fl, కొత్త AstVarRef{fl, varp, VAccess::WRITE},
+                              కొత్త AstConst{fl, AstConst::Widthed_విలువ{}, 32,
+                                           static_cast<uint32_t>(listStmts[proditemp].కొలత())}});
         }
 
         // "int _Vjoin_picked_elist = 0;"  // 0 = pick first eligible (non-finished) list, 1 = pick
         // second, etc
-        AstVar* const pickedVarp
-            = new AstVar{fl, VVarType::VAR, "_Vjoin_picked_elist", VFlagBitPacked{}, 1};
+        AstVar* స్థిరరాశి pickedVarp
+            = కొత్త AstVar{fl, VVarType::VAR, "_Vjoin_picked_elist", VFlag_బిట్టు_Packed{}, 1};
         pickedVarp->lifetime(VLifetime::AUTOMATIC_EXPLICIT);
-        pickedVarp->funcLocal(true);
-        m_breakVarp->addNextHere(pickedVarp);  // Add to function top, not newp
+        pickedVarp->funcLocal(నిజం);
+        m_breakVarp->కూడు_తదుపరి_ఇక్కడ(pickedVarp);  // Add to function top, not newp
 
         // "while(1) {"  // Generate until make complete sequence
-        AstJumpBlock* const whilep = new AstJumpBlock{fl, nullptr};
-        newp = AstNode::addNext(newp, new AstLoop{fl, whilep});
+        Ast_Jump_ఖండం* స్థిరరాశి whilep = కొత్త Ast_Jump_ఖండం{fl, శూన్యసూచిక};
+        newp = Ast_కణుపు::కూడు_తదుపరి(newp, కొత్త AstLoop{fl, whilep});
         {
             // "if ((std::rand() & 0xffffUL) > (0xffff * weight)) _Vjoin_repick = true;"
-            whilep->addStmtsp(new AstIf{
+            whilep->కూడు_Stmtsp(కొత్త AstIf{
                 fl,
-                new AstGt{
-                    fl, new AstRand{fl, AstRand::SRandomU32{}},
-                    new AstRToIS{fl, new AstMulD{fl,
-                                                 new AstConst{fl, AstConst::RealDouble{},
-                                                              static_cast<double>(0xffffffffUL)},
+                కొత్త AstGt{
+                    fl, కొత్త AstRand{fl, AstRand::SRandomU32{}},
+                    కొత్త AstRToIS{fl, కొత్త AstMulD{fl,
+                                                 కొత్త AstConst{fl, AstConst::RealDouble{},
+                                                              static_cast<ద్విగుణ>(0xffffffffUL)},
                                                  weightp}}},
-                new AstAssign{fl, new AstVarRef{fl, repickVarp, VAccess::WRITE},
-                              new AstConst{fl, AstConst::BitTrue{}}}});
+                కొత్త Ast_కేటాయించు{fl, కొత్త AstVarRef{fl, repickVarp, VAccess::WRITE},
+                              కొత్త AstConst{fl, AstConst::బిట్టు_True{}}}});
 
             // "if (_Vjoin_repick) {"
-            AstIf* ifp = new AstIf{fl, new AstVarRef{fl, repickVarp, VAccess::READ}};
-            whilep->addStmtsp(ifp);
+            AstIf* ifp = కొత్త AstIf{fl, కొత్త AstVarRef{fl, repickVarp, VAccess::READ}};
+            whilep->కూడు_Stmtsp(ifp);
             {
                 // "// _Vjoin_nlists_eligible is how many lists eligable for picking"
                 // "int _Vjoin_nlists_eligible = 0;"
-                AstVar* const eligibleVarp = new AstVar{
-                    fl, VVarType::VAR, "_Vjoin_nlists_eligible", VFlagBitPacked{}, 32};
+                AstVar* స్థిరరాశి eligibleVarp = కొత్త AstVar{
+                    fl, VVarType::VAR, "_Vjoin_nlists_eligible", VFlag_బిట్టు_Packed{}, 32};
                 eligibleVarp->lifetime(VLifetime::AUTOMATIC_EXPLICIT);
-                eligibleVarp->funcLocal(true);
-                m_breakVarp->addNextHere(eligibleVarp);  // Add to function top, not newp
-                ifp->addThensp(new AstAssign{fl, new AstVarRef{fl, eligibleVarp, VAccess::WRITE},
-                                             new AstConst{fl, AstConst::WidthedValue{}, 32, 0}});
+                eligibleVarp->funcLocal(నిజం);
+                m_breakVarp->కూడు_తదుపరి_ఇక్కడ(eligibleVarp);  // Add to function top, not newp
+                ifp->కూడు_Thensp(కొత్త Ast_కేటాయించు{fl, కొత్త AstVarRef{fl, eligibleVarp, VAccess::WRITE},
+                                             కొత్త AstConst{fl, AstConst::Widthed_విలువ{}, 32, 0}});
 
                 i = 0;
-                for (AstRSProdItem* proditemp : lists) {
-                    (void)proditemp;
+                కొరకు (Ast_RSProd_అంశం* proditemp : lists) {
+                    (శూన్య)proditemp;
                     // "_Vjoin_nlists_eligible += _Vjoin_nleft_0 ? 1 : 0;"
-                    ifp->addThensp(new AstAssign{
-                        fl, new AstVarRef{fl, eligibleVarp, VAccess::WRITE},
-                        new AstAdd{
-                            fl, new AstVarRef{fl, eligibleVarp, VAccess::READ},
-                            new AstCond{
+                    ifp->కూడు_Thensp(కొత్త Ast_కేటాయించు{
+                        fl, కొత్త AstVarRef{fl, eligibleVarp, VAccess::WRITE},
+                        కొత్త Ast_కూడు{
+                            fl, కొత్త AstVarRef{fl, eligibleVarp, VAccess::READ},
+                            కొత్త AstCond{
                                 fl,
-                                new AstNeq{fl, new AstConst{fl, AstConst::WidthedValue{}, 32, 0},
-                                           new AstVarRef{fl, nleftVarps[i], VAccess::READ}},
-                                new AstConst{fl, AstConst::WidthedValue{}, 32, 1},
-                                new AstConst{fl, AstConst::WidthedValue{}, 32, 0}}}});
+                                కొత్త AstNeq{fl, కొత్త AstConst{fl, AstConst::Widthed_విలువ{}, 32, 0},
+                                           కొత్త AstVarRef{fl, nleftVarps[i], VAccess::READ}},
+                                కొత్త AstConst{fl, AstConst::Widthed_విలువ{}, 32, 1},
+                                కొత్త AstConst{fl, AstConst::Widthed_విలువ{}, 32, 0}}}});
                     ++i;
                 }
 
                 // "if (!_Vjoin_nlists_eligible) break;"  // Out of elements
-                ifp->addThensp(
-                    new AstIf{fl,
-                              new AstEq{fl, new AstConst{fl, AstConst::WidthedValue{}, 32, 0},
-                                        new AstVarRef{fl, eligibleVarp, VAccess::READ}},
-                              new AstJumpGo{fl, m_jumpBlockp}});
+                ifp->కూడు_Thensp(
+                    కొత్త AstIf{fl,
+                              కొత్త AstEq{fl, కొత్త AstConst{fl, AstConst::Widthed_విలువ{}, 32, 0},
+                                        కొత్త AstVarRef{fl, eligibleVarp, VAccess::READ}},
+                              కొత్త AstJumpGo{fl, m_jumpBlockp}});
 
                 // "// +1 to simplify usage, so 0 = done"
                 // "_Vjoin_picked_elist = 1 + (std::rand() % _Vjoin_nlists_eligible);"
-                ifp->addThensp(new AstAssign{
-                    fl, new AstVarRef{fl, pickedVarp, VAccess::WRITE},
-                    new AstAdd{fl, new AstConst{fl, AstConst::WidthedValue{}, 32, 1},
-                               new AstModDiv{fl, new AstRand{fl, AstRand::SRandomU32{}},
-                                             new AstVarRef{fl, eligibleVarp, VAccess::READ}}}});
+                ifp->కూడు_Thensp(కొత్త Ast_కేటాయించు{
+                    fl, కొత్త AstVarRef{fl, pickedVarp, VAccess::WRITE},
+                    కొత్త Ast_కూడు{fl, కొత్త AstConst{fl, AstConst::Widthed_విలువ{}, 32, 1},
+                               కొత్త AstModDiv{fl, కొత్త AstRand{fl, AstRand::SRandomU32{}},
+                                             కొత్త AstVarRef{fl, eligibleVarp, VAccess::READ}}}});
 
                 // "_Vjoin_repick = false;
-                ifp->addThensp(new AstAssign{fl, new AstVarRef{fl, repickVarp, VAccess::WRITE},
-                                             new AstConst{fl, AstConst::BitFalse{}}});
+                ifp->కూడు_Thensp(కొత్త Ast_కేటాయించు{fl, కొత్త AstVarRef{fl, repickVarp, VAccess::WRITE},
+                                             కొత్త AstConst{fl, AstConst::బిట్టు_False{}}});
             }
 
             // "// Number of eligible lists left before hit _Vjoin_picked one"
             // "int _Vjoin_sel_elist = _Vjoin_picked_elist;"
-            AstVar* const selVarp
-                = new AstVar{fl, VVarType::VAR, "_Vjoin_sel_elist", VFlagBitPacked{}, 32};
+            AstVar* స్థిరరాశి selVarp
+                = కొత్త AstVar{fl, VVarType::VAR, "_Vjoin_sel_elist", VFlag_బిట్టు_Packed{}, 32};
             selVarp->lifetime(VLifetime::AUTOMATIC_EXPLICIT);
-            selVarp->funcLocal(true);
-            m_breakVarp->addNextHere(selVarp);  // Add to function top, not newp
-            whilep->addStmtsp(new AstAssign{fl, new AstVarRef{fl, selVarp, VAccess::WRITE},
-                                            new AstVarRef{fl, pickedVarp, VAccess::READ}});
+            selVarp->funcLocal(నిజం);
+            m_breakVarp->కూడు_తదుపరి_ఇక్కడ(selVarp);  // Add to function top, not newp
+            whilep->కూడు_Stmtsp(కొత్త Ast_కేటాయించు{fl, కొత్త AstVarRef{fl, selVarp, VAccess::WRITE},
+                                            కొత్త AstVarRef{fl, pickedVarp, VAccess::READ}});
 
             i = -1;
-            for (AstRSProdItem* proditemp : lists) {
+            కొరకు (Ast_RSProd_అంశం* proditemp : lists) {
                 ++i;
                 // "if (_Vjoin_nleft_0) {"
-                ifp = new AstIf{fl,
-                                new AstNeq{fl, new AstConst{fl, AstConst::WidthedValue{}, 32, 0},
-                                           new AstVarRef{fl, nleftVarps[i], VAccess::READ}},
-                                nullptr, nullptr};
-                whilep->addStmtsp(ifp);
+                ifp = కొత్త AstIf{fl,
+                                కొత్త AstNeq{fl, కొత్త AstConst{fl, AstConst::Widthed_విలువ{}, 32, 0},
+                                           కొత్త AstVarRef{fl, nleftVarps[i], VAccess::READ}},
+                                శూన్యసూచిక, శూన్యసూచిక};
+                whilep->కూడు_Stmtsp(ifp);
                 {
                     // "--_Vjoin_sel_elist;"
-                    ifp->addThensp(new AstAssign{
-                        fl, new AstVarRef{fl, selVarp, VAccess::WRITE},
-                        new AstSub{fl, new AstVarRef{fl, selVarp, VAccess::READ},
-                                   new AstConst{fl, AstConst::WidthedValue{}, 32, 1}}});
+                    ifp->కూడు_Thensp(కొత్త Ast_కేటాయించు{
+                        fl, కొత్త AstVarRef{fl, selVarp, VAccess::WRITE},
+                        కొత్త AstSub{fl, కొత్త AstVarRef{fl, selVarp, VAccess::READ},
+                                   కొత్త AstConst{fl, AstConst::Widthed_విలువ{}, 32, 1}}});
 
                     // "if (_Vjoin_sel_elist == 0) {"
-                    AstIf* const jIfp = new AstIf{
+                    AstIf* స్థిరరాశి jIfp = కొత్త AstIf{
                         fl,
-                        new AstEq{fl, new AstConst{fl, AstConst::WidthedValue{}, 32, 0},
-                                  new AstVarRef{fl, selVarp, VAccess::READ}},
-                        nullptr, nullptr};
-                    ifp->addThensp(jIfp);
+                        కొత్త AstEq{fl, కొత్త AstConst{fl, AstConst::Widthed_విలువ{}, 32, 0},
+                                  కొత్త AstVarRef{fl, selVarp, VAccess::READ}},
+                        శూన్యసూచిక, శూన్యసూచిక};
+                    ifp->కూడు_Thensp(jIfp);
                     {
                         // "switch (_Vjoin_nleft_0) {"
                         //     "case 2 / * N(a)  * /: {statement}; break;"
                         //     "case 1 / * N(a) - 1 * /: {statement}; break;"
-                        uint32_t j = static_cast<uint32_t>(listStmts[proditemp].size());
-                        for (AstNodeStmt* iprodp : listStmts[proditemp]) {
-                            jIfp->addThensp(new AstIf{
+                        uint32_t j = static_cast<uint32_t>(listStmts[proditemp].కొలత());
+                        కొరకు (Ast_కణుపు_Stmt* iprodp : listStmts[proditemp]) {
+                            jIfp->కూడు_Thensp(కొత్త AstIf{
                                 fl,
-                                new AstEq{fl, new AstConst{fl, AstConst::WidthedValue{}, 32, j},
-                                          new AstVarRef{fl, nleftVarps[i], VAccess::READ}},
-                                iprodp->cloneTree(false)});
+                                కొత్త AstEq{fl, కొత్త AstConst{fl, AstConst::Widthed_విలువ{}, 32, j},
+                                          కొత్త AstVarRef{fl, nleftVarps[i], VAccess::READ}},
+                                iprodp->clone_వృక్షం(అబద్ధం)});
                             --j;
                         }
 
                         // "--_Vjoin_nleft_0;"
-                        jIfp->addThensp(new AstAssign{
-                            fl, new AstVarRef{fl, nleftVarps[i], VAccess::WRITE},
-                            new AstSub{fl, new AstVarRef{fl, nleftVarps[i], VAccess::READ},
-                                       new AstConst{fl, AstConst::WidthedValue{}, 32, 1}}});
+                        jIfp->కూడు_Thensp(కొత్త Ast_కేటాయించు{
+                            fl, కొత్త AstVarRef{fl, nleftVarps[i], VAccess::WRITE},
+                            కొత్త AstSub{fl, కొత్త AstVarRef{fl, nleftVarps[i], VAccess::READ},
+                                       కొత్త AstConst{fl, AstConst::Widthed_విలువ{}, 32, 1}}});
 
                         // "if (0 == _Vjoin_nleft_0) _Vjoin_repick = true;"
-                        jIfp->addThensp(new AstIf{
+                        jIfp->కూడు_Thensp(కొత్త AstIf{
                             fl,
-                            new AstEq{fl, new AstConst{fl, AstConst::WidthedValue{}, 32, 0},
-                                      new AstVarRef{fl, nleftVarps[i], VAccess::READ}},
-                            new AstAssign{fl, new AstVarRef{fl, repickVarp, VAccess::WRITE},
-                                          new AstConst{fl, AstConst::BitTrue{}}}});
+                            కొత్త AstEq{fl, కొత్త AstConst{fl, AstConst::Widthed_విలువ{}, 32, 0},
+                                      కొత్త AstVarRef{fl, nleftVarps[i], VAccess::READ}},
+                            కొత్త Ast_కేటాయించు{fl, కొత్త AstVarRef{fl, repickVarp, VAccess::WRITE},
+                                          కొత్త AstConst{fl, AstConst::బిట్టు_True{}}}});
 
                         // "continue;"
-                        jIfp->addThensp(new AstJumpGo{fl, whilep});
+                        jIfp->కూడు_Thensp(కొత్త AstJumpGo{fl, whilep});
                     }
                 }
             }
         }
 
         UINFOTREE(9, newp, "ForkJoin new", "-");
-        return newp;
+        తిరిగి newp;
     }
 
     // VISITORS
 
-    void visit(AstNodeModule* nodep) override {
+    శూన్య సందర్శించు(Ast_కణుపు_Module* nodep) override {
         VL_RESTORER(m_modp);
         m_modp = nodep;
         iterateChildren(nodep);
     }
 
-    void visit(AstRandSequence* nodep) override {
+    శూన్య సందర్శించు(AstRandSequence* nodep) override {
         UINFO(9, "visit " << nodep);
         UASSERT_OBJ(m_modp, nodep, "randsequence not under module");
-        if (m_rsp) {
+        ఒకవేళ (m_rsp) {
             // No examples found in the wild
             nodep->v3warn(E_UNSUPPORTED, "Unsupported: randsequence under randsequence");
-            VL_DO_DANGLING(pushDeletep(nodep->unlinkFrBack()), nodep);
-            return;
+            VL_DO_DANGLING(నెట్టు_Deletep(nodep->unlink_Fr_వెనుక()), nodep);
+            తిరిగి;
         }
 
         UINFOTREE(9, nodep, "rsIn", "");
         VL_RESTORER(m_rsp);
         m_rsp = nodep;
-        VL_RESTORER(m_startProdp);
+        VL_RESTORER(m_ప్రారంభం_Prodp);
 
         VL_RESTORER_COPY(m_localizes);
-        VL_RESTORER_COPY(m_localizeNames);
+        VL_RESTORER_COPY(m_localize_పేర్లు);
         VL_RESTORER_COPY(m_localizeRemaps);
-        findLocalizes(nodep);
+        కనుగొను_Localizes(nodep);
 
         // Find first production
-        m_startProdp = nodep->prodsp();
-        if (nodep->prodp()) m_startProdp = nodep->prodp();  // Has a start production selected
+        m_ప్రారంభం_Prodp = nodep->prodsp();
+        ఒకవేళ (nodep->prodp()) m_ప్రారంభం_Prodp = nodep->prodp();  // Has a start production selected
 
         // Build production functions
-        for (AstRSProd* prodp = nodep->prodsp(); prodp; prodp = VN_AS(prodp->nextp(), RSProd)) {
+        కొరకు (AstRSProd* prodp = nodep->prodsp(); prodp; prodp = VN_AS(prodp->nextp(), RSProd)) {
             newProdFunc(prodp);
             // Don't iterate yet, need to have tasks we can reference
         }
@@ -436,218 +436,218 @@ class RandSequenceVisitor final : public VNVisitor {
         // Must do those with 'rand join' first, as they need to see the raw AstRS* nodes
         // before they are removed.  (Alternative would be to keep them until the end).
         UINFOTREE(9, nodep, "RS Tree pre-it", "-");
-        std::unordered_set<AstRSProd*> prodHasRandJoin;
-        for (AstRSProd* prodp = nodep->prodsp(); prodp; prodp = VN_AS(prodp->nextp(), RSProd)) {
-            prodp->foreach([&](const AstRSProdList* const prodlistp) {
-                if (prodlistp->randJoin()) prodHasRandJoin.emplace(prodp);
+        std::unordered_సమితి<AstRSProd*> prodHasRandJoin;
+        కొరకు (AstRSProd* prodp = nodep->prodsp(); prodp; prodp = VN_AS(prodp->nextp(), RSProd)) {
+            prodp->foreach([&](స్థిరరాశి AstRSProdList* స్థిరరాశి prodlistp) {
+                ఒకవేళ (prodlistp->randJoin()) prodHasRandJoin.emplace(prodp);
             });
         }
-        for (AstRSProd *nextp, *prodp = nodep->prodsp(); prodp; prodp = nextp) {
+        కొరకు (AstRSProd *nextp, *prodp = nodep->prodsp(); prodp; prodp = nextp) {
             nextp = VN_AS(prodp->nextp(), RSProd);
-            if (prodHasRandJoin.count(prodp)) VL_DO_DANGLING(iterate(prodp), prodp);
+            ఒకవేళ (prodHasRandJoin.లెక్క(prodp)) VL_DO_DANGLING(iterate(prodp), prodp);
         }
-        for (AstRSProd *nextp, *prodp = nodep->prodsp(); prodp; prodp = nextp) {
+        కొరకు (AstRSProd *nextp, *prodp = nodep->prodsp(); prodp; prodp = nextp) {
             nextp = VN_AS(prodp->nextp(), RSProd);
-            if (!prodHasRandJoin.count(prodp)) VL_DO_DANGLING(iterate(prodp), prodp);
+            ఒకవేళ (!prodHasRandJoin.లెక్క(prodp)) VL_DO_DANGLING(iterate(prodp), prodp);
         }
         UINFOTREE(9, nodep, "RS Tree post-it", "-");
 
         // Replace randsequence with call to randsequence start function
-        AstTask* const startFuncp = newStartFunc(nodep);
-        AstArg* argsp = nullptr;
-        for (auto& itr : m_localizeNames) {
-            AstVar* const lvarp = itr.second;
-            argsp = AstNode::addNext(
-                argsp, new AstArg{nodep->fileline(), "__Vrsarg_" + lvarp->name(),
-                                  new AstVarRef{nodep->fileline(), lvarp, VAccess::READWRITE}});
+        AstTask* స్థిరరాశి ప్రారంభం_Funcp = new_ప్రారంభం_Func(nodep);
+        AstArg* argsp = శూన్యసూచిక;
+        కొరకు (స్వయంచాలక& itr : m_localize_పేర్లు) {
+            AstVar* స్థిరరాశి lvarp = itr.రెండవ;
+            argsp = Ast_కణుపు::కూడు_తదుపరి(
+                argsp, కొత్త AstArg{nodep->fileline(), "__Vrsarg_" + lvarp->name(),
+                                  కొత్త AstVarRef{nodep->fileline(), lvarp, VAccess::READWRITE}});
         }
-        AstTaskRef* const callStartp
-            = new AstTaskRef{nodep->fileline(), startFuncp->name(), argsp};
-        callStartp->taskp(startFuncp);
-        nodep->replaceWith(new AstStmtExpr{nodep->fileline(), callStartp});
+        AstTaskRef* స్థిరరాశి callStartp
+            = కొత్త AstTaskRef{nodep->fileline(), ప్రారంభం_Funcp->name(), argsp};
+        callStartp->taskp(ప్రారంభం_Funcp);
+        nodep->replaceWith(కొత్త Ast_Stmt_సమాసం{nodep->fileline(), callStartp});
 
-        VL_DO_DANGLING(pushDeletep(nodep), nodep);
+        VL_DO_DANGLING(నెట్టు_Deletep(nodep), nodep);
     }
-    void visit(AstRSProd* nodep) override {
+    శూన్య సందర్శించు(AstRSProd* nodep) override {
         // Production, immediately under a randsequence
         UINFO(9, "visit " << nodep);
         UINFOTREE(9, nodep, "visit " << nodep, "-");
         UASSERT_OBJ(!m_prodFuncp, nodep, "recursive production definition?");
         VL_RESTORER(m_prodFuncp);
-        auto it = m_prodFuncps.find(nodep);
-        UASSERT_OBJ(it != m_prodFuncps.end(), nodep, "No production function made");
-        m_prodFuncp = it->second;
+        స్వయంచాలక it = m_prodFuncps.కనుగొను(nodep);
+        UASSERT_OBJ(it != m_prodFuncps.చివర(), nodep, "No production function made");
+        m_prodFuncp = it->రెండవ;
 
         // Create a break variable
         // TODO we could do this only if break exists in the downstream production,
         // but as-is we'll optimize it away in most cases anyways
         VL_RESTORER(m_breakVarp);
         VL_RESTORER_COPY(m_localizeRemaps);
-        m_breakVarp = newBreakVar(nodep->fileline(), true);
-        m_prodFuncp->addStmtsp(m_breakVarp);
+        m_breakVarp = newBreakVar(nodep->fileline(), నిజం);
+        m_prodFuncp->కూడు_Stmtsp(m_breakVarp);
 
         // Production formal ports become real input ports on the generated task.
         // Must be added after m_breakVarp / localize ports so positional argument
         // order in newProdFuncRef stays consistent: [break, localize..., user...].
-        if (AstNode* const portsp = nodep->portsp()) {
-            portsp->unlinkFrBackWithNext();
-            m_prodFuncp->addStmtsp(portsp);
-            for (AstNode* itp = portsp; itp; itp = itp->nextp()) {
-                AstVar* const portVarp = VN_AS(itp, Var);
-                portVarp->funcLocal(true);
-                portVarp->lifetime(VLifetime::AUTOMATIC_EXPLICIT);
+        ఒకవేళ (Ast_కణుపు* స్థిరరాశి portsp = nodep->portsp()) {
+            portsp->unlink_Fr_వెనుక_With_తదుపరి();
+            m_prodFuncp->కూడు_Stmtsp(portsp);
+            కొరకు (Ast_కణుపు* itp = portsp; itp; itp = itp->nextp()) {
+                AstVar* స్థిరరాశి పోర్టు_Varp = VN_AS(itp, Var);
+                పోర్టు_Varp->funcLocal(నిజం);
+                పోర్టు_Varp->lifetime(VLifetime::AUTOMATIC_EXPLICIT);
             }
         }
 
         // Put JumpBlock immediately under the new function to support
         // a future break/return.  V3Const will rip it out if unneeded.
         VL_RESTORER(m_jumpBlockp);
-        m_jumpBlockp = new AstJumpBlock{nodep->fileline(), nullptr};
-        m_prodFuncp->addStmtsp(m_jumpBlockp);
+        m_jumpBlockp = కొత్త Ast_Jump_ఖండం{nodep->fileline(), శూన్యసూచిక};
+        m_prodFuncp->కూడు_Stmtsp(m_jumpBlockp);
 
-        if (nodep->fvarp())
+        ఒకవేళ (nodep->fvarp())
             nodep->fvarp()->v3warn(E_UNSUPPORTED,
                                    "Unsupported: randsequence production function variable");
 
         // Move children into m_prodFuncp, and iterate there
-        if (!nodep->rulesp()) {  // Nothing to do
-        } else if (nodep->rulesp()->prodlistsp() && nodep->rulesp()->prodlistsp()->randJoin()) {
-            AstRSProdList* const prodlistp = nodep->rulesp()->prodlistsp();
-            AstNode* const itemsp = newProdRandJoin(nodep, prodlistp);
-            m_jumpBlockp->addStmtsp(itemsp);
-            iterateAndNextNull(itemsp);
-        } else if (!nodep->rulesp()->nextp()) {  // Single rule/list, can just do it
+        ఒకవేళ (!nodep->rulesp()) {  // Nothing to do
+        } లేకపోతే ఒకవేళ (nodep->rulesp()->prodlistsp() && nodep->rulesp()->prodlistsp()->randJoin()) {
+            AstRSProdList* స్థిరరాశి prodlistp = nodep->rulesp()->prodlistsp();
+            Ast_కణుపు* స్థిరరాశి itemsp = newProdRandJoin(nodep, prodlistp);
+            m_jumpBlockp->కూడు_Stmtsp(itemsp);
+            iterate_And_తదుపరి_Null(itemsp);
+        } లేకపోతే ఒకవేళ (!nodep->rulesp()->nextp()) {  // Single rule/list, can just do it
             // RSPROD(RSRULE(weight, stmt)) -> IF(weight != 0, stmt)
-            const AstRSRule* const rulep = nodep->rulesp();
-            AstNode* itemsp = nullptr;
-            if (rulep->weightStmtsp()) itemsp = rulep->weightStmtsp()->unlinkFrBackWithNext();
-            if (rulep->prodlistsp())
-                itemsp = AstNode::addNext(itemsp, rulep->prodlistsp()->unlinkFrBackWithNext());
+            స్థిరరాశి AstRSRule* స్థిరరాశి rulep = nodep->rulesp();
+            Ast_కణుపు* itemsp = శూన్యసూచిక;
+            ఒకవేళ (rulep->బరువు_Stmtsp()) itemsp = rulep->బరువు_Stmtsp()->unlink_Fr_వెనుక_With_తదుపరి();
+            ఒకవేళ (rulep->prodlistsp())
+                itemsp = Ast_కణుపు::కూడు_తదుపరి(itemsp, rulep->prodlistsp()->unlink_Fr_వెనుక_With_తదుపరి());
             // Can ignore rulep->weightp() unless is zero, in which case noop, add if
-            if (rulep->weightp())
-                itemsp = new AstIf{rulep->weightp()->fileline(),
-                                   new AstNeq{rulep->weightp()->fileline(),
-                                              new AstConst{rulep->weightp()->fileline(), 0},
-                                              rulep->weightp()->unlinkFrBack()},
+            ఒకవేళ (rulep->weightp())
+                itemsp = కొత్త AstIf{rulep->weightp()->fileline(),
+                                   కొత్త AstNeq{rulep->weightp()->fileline(),
+                                              కొత్త AstConst{rulep->weightp()->fileline(), 0},
+                                              rulep->weightp()->unlink_Fr_వెనుక()},
                                    itemsp};
             // Move prodlist to parent (m_prodFunc) and process
-            if (itemsp) {
+            ఒకవేళ (itemsp) {
                 UINFOTREE(9, itemsp, "additems", "-");
-                m_jumpBlockp->addStmtsp(itemsp);
-                iterateAndNextNull(itemsp);
+                m_jumpBlockp->కూడు_Stmtsp(itemsp);
+                iterate_And_తదుపరి_Null(itemsp);
                 UINFOTREE(9, m_jumpBlockp, "jumpBlockNow", "-");
             }
-        } else {
+        } లేకపోతే {
             // List of rules with "OR", need to random-weight them
             // RSPROD(RSRULE(weight1, stmt!), RSRULE(weight2, stmt2))
             //   -> RANDCASE(CASEITEM(weight1, stmt1), CASEITEM(weight2, stmt2))
-            AstRandCase* const randcasep = new AstRandCase{nodep->fileline(), nullptr};
-            for (AstRSRule* rulep = nodep->rulesp(); rulep;
+            AstRandCase* స్థిరరాశి randcasep = కొత్త AstRandCase{nodep->fileline(), శూన్యసూచిక};
+            కొరకు (AstRSRule* rulep = nodep->rulesp(); rulep;
                  rulep = VN_AS(rulep->nextp(), RSRule)) {
-                AstNode* itemsp = nullptr;
-                if (rulep->weightStmtsp()) itemsp = rulep->weightStmtsp()->unlinkFrBackWithNext();
-                if (rulep->prodlistsp())
-                    itemsp = AstNode::addNext(itemsp, rulep->prodlistsp()->unlinkFrBackWithNext());
-                if (itemsp) {
-                    AstNodeExpr* const weightp = rulep->weightp()
-                                                     ? rulep->weightp()->unlinkFrBack()
-                                                     : new AstConst{rulep->fileline(), 1};
-                    randcasep->addItemsp(new AstCaseItem{rulep->fileline(), weightp, itemsp});
+                Ast_కణుపు* itemsp = శూన్యసూచిక;
+                ఒకవేళ (rulep->బరువు_Stmtsp()) itemsp = rulep->బరువు_Stmtsp()->unlink_Fr_వెనుక_With_తదుపరి();
+                ఒకవేళ (rulep->prodlistsp())
+                    itemsp = Ast_కణుపు::కూడు_తదుపరి(itemsp, rulep->prodlistsp()->unlink_Fr_వెనుక_With_తదుపరి());
+                ఒకవేళ (itemsp) {
+                    Ast_కణుపు_సమాసం* స్థిరరాశి weightp = rulep->weightp()
+                                                     ? rulep->weightp()->unlink_Fr_వెనుక()
+                                                     : కొత్త AstConst{rulep->fileline(), 1};
+                    randcasep->కూడు_Itemsp(కొత్త Ast_Case_అంశం{rulep->fileline(), weightp, itemsp});
                 }
             }
-            m_jumpBlockp->addStmtsp(randcasep);
-            iterateAndNextNull(randcasep);
+            m_jumpBlockp->కూడు_Stmtsp(randcasep);
+            iterate_And_తదుపరి_Null(randcasep);
         }
 
         // V3Task needs to know if we ended up making a recursive function
-        m_prodFuncp->foreach([&](AstNodeFTaskRef* const nodep) {
-            if (nodep->taskp() == m_prodFuncp) m_prodFuncp->recursive(true);
+        m_prodFuncp->foreach([&](Ast_కణుపు_FTask_Ref* స్థిరరాశి nodep) {
+            ఒకవేళ (nodep->taskp() == m_prodFuncp) m_prodFuncp->recursive(నిజం);
         });
         UINFOTREE(9, m_prodFuncp, "rsprod-task-done " << nodep, "-");
 
         // Done with production, should have moved everything to new task
-        VL_DO_DANGLING(pushDeletep(nodep->unlinkFrBack()), nodep);
+        VL_DO_DANGLING(నెట్టు_Deletep(nodep->unlink_Fr_వెనుక()), nodep);
     }
-    void visit(AstRSRule* nodep) override {
+    శూన్య సందర్శించు(AstRSRule* nodep) override {
         // Rule of what to produce (as a list) under a production
         nodep->v3fatalSrc("randsequence rule should be iterated and deleted by AstRSProd");
     }
-    void visit(AstRSProdList* nodep) override {
+    శూన్య సందర్శించు(AstRSProdList* nodep) override {
         // List of productions to call, potentially with a weight
         UINFO(9, "visit " << nodep);
         UASSERT_OBJ(m_prodFuncp, nodep, "RSProdList not under production");
 
         // Move prodlist to parent (m_prodFunc) and process
-        if (AstNode* const itemsp = nodep->prodsp()) {
+        ఒకవేళ (Ast_కణుపు* స్థిరరాశి itemsp = nodep->prodsp()) {
             UASSERT_OBJ(!nodep->randJoin(), nodep,
                         "rand join should have been handled in visit(RSRule)");
-            nodep->replaceWith(itemsp->unlinkFrBackWithNext());
+            nodep->replaceWith(itemsp->unlink_Fr_వెనుక_With_తదుపరి());
             // Will soon iterate itemsp as part of normal visit process
             // These will become sequential in the generated task
-        } else {
-            nodep->unlinkFrBack();
+        } లేకపోతే {
+            nodep->unlink_Fr_వెనుక();
         }
-        VL_DO_DANGLING(pushDeletep(nodep), nodep);
+        VL_DO_DANGLING(నెట్టు_Deletep(nodep), nodep);
     }
-    void visit(AstRSProdItem* nodep) override {
+    శూన్య సందర్శించు(Ast_RSProd_అంశం* nodep) override {
         // "call" to generate using another production
         UINFO(9, "visit " << nodep);
         UASSERT_OBJ(m_prodFuncp, nodep, "RSProdItem not under production");
-        AstRSProd* const foundp = nodep->prodp();
+        AstRSProd* స్థిరరాశి foundp = nodep->prodp();
         UASSERT_OBJ(foundp, nodep, "Unlinked production reference");
         // Pass through caller-side argument list (IEEE 1800-2023 18.17.7).
-        AstArg* const userArgsp
-            = nodep->argsp() ? nodep->argsp()->unlinkFrBackWithNext() : nullptr;
+        AstArg* స్థిరరాశి userArgsp
+            = nodep->argsp() ? nodep->argsp()->unlink_Fr_వెనుక_With_తదుపరి() : శూన్యసూచిక;
         // Convert to task call
-        AstNode* const newp = newProdFuncRef(nodep, foundp, m_breakVarp, userArgsp);
+        Ast_కణుపు* స్థిరరాశి newp = newProdFuncRef(nodep, foundp, m_breakVarp, userArgsp);
         // The production might have done a "break;", skip other steps if so
-        newp->addNext(new AstIf{nodep->fileline(),
-                                new AstVarRef{nodep->fileline(), m_breakVarp, VAccess::READ},
-                                new AstJumpGo{nodep->fileline(), m_jumpBlockp}});
+        newp->కూడు_తదుపరి(కొత్త AstIf{nodep->fileline(),
+                                కొత్త AstVarRef{nodep->fileline(), m_breakVarp, VAccess::READ},
+                                కొత్త AstJumpGo{nodep->fileline(), m_jumpBlockp}});
 
         nodep->replaceWith(newp);
-        VL_DO_DANGLING(pushDeletep(nodep), nodep);
+        VL_DO_DANGLING(నెట్టు_Deletep(nodep), nodep);
     }
 
-    void visit(AstRSBreak* nodep) override {
+    శూన్య సందర్శించు(AstRSBreak* nodep) override {
         UASSERT_OBJ(m_jumpBlockp, nodep, "RSBreak not under production jump block");
         UASSERT_OBJ(m_breakVarp, nodep, "no break variable");
-        AstNodeStmt* const newp = new AstAssign{
-            nodep->fileline(), new AstVarRef{nodep->fileline(), m_breakVarp, VAccess::WRITE},
-            new AstConst{nodep->fileline(), AstConst::BitTrue{}}};
-        newp->addNext(new AstJumpGo{nodep->fileline(), m_jumpBlockp});
+        Ast_కణుపు_Stmt* స్థిరరాశి newp = కొత్త Ast_కేటాయించు{
+            nodep->fileline(), కొత్త AstVarRef{nodep->fileline(), m_breakVarp, VAccess::WRITE},
+            కొత్త AstConst{nodep->fileline(), AstConst::బిట్టు_True{}}};
+        newp->కూడు_తదుపరి(కొత్త AstJumpGo{nodep->fileline(), m_jumpBlockp});
         nodep->replaceWith(newp);
-        VL_DO_DANGLING(pushDeletep(nodep), nodep);
+        VL_DO_DANGLING(నెట్టు_Deletep(nodep), nodep);
     }
-    void visit(AstRSReturn* nodep) override {
+    శూన్య సందర్శించు(AstRSReturn* nodep) override {
         UASSERT_OBJ(m_jumpBlockp, nodep, "RSReturn not under production jump block");
-        nodep->replaceWith(new AstJumpGo{nodep->fileline(), m_jumpBlockp});
-        VL_DO_DANGLING(pushDeletep(nodep), nodep);
+        nodep->replaceWith(కొత్త AstJumpGo{nodep->fileline(), m_jumpBlockp});
+        VL_DO_DANGLING(నెట్టు_Deletep(nodep), nodep);
     }
-    void visit(AstVarRef* nodep) override {
+    శూన్య సందర్శించు(AstVarRef* nodep) override {
         // Change references to variables inside randsequence to references to
         // ref variables on the new task
-        const auto it = m_localizeRemaps.find(nodep->varp());
-        if (it != m_localizeRemaps.end()) {
-            AstVar* const iovarp = it->second;
+        స్థిరరాశి స్వయంచాలక it = m_localizeRemaps.కనుగొను(nodep->varp());
+        ఒకవేళ (it != m_localizeRemaps.చివర()) {
+            AstVar* స్థిరరాశి iovarp = it->రెండవ;
             UINFO(9, "VARREF remap " << nodep << " -> " << iovarp);
             nodep->varp(iovarp);
         }
     }
 
-    void visit(AstNode* nodep) override { iterateChildren(nodep); }
+    శూన్య సందర్శించు(Ast_కణుపు* nodep) override { iterateChildren(nodep); }
 
-public:
+బహిరంగ:
     // CONSTRUCTORS
-    explicit RandSequenceVisitor(AstNetlist* nodep) { iterate(nodep); }
-    ~RandSequenceVisitor() override = default;
+    స్పష్టమైన RandSequenceVisitor(AstNetlist* nodep) { iterate(nodep); }
+    ~RandSequenceVisitor() override = అప్రమేయ;
 };
 
 //######################################################################
 // RandSequence method class functions
 
-void V3RandSequence::randSequenceNetlist(AstNetlist* nodep) {
+శూన్య V3RandSequence::randSequenceNetlist(AstNetlist* nodep) {
     UINFO(2, __FUNCTION__ << ":");
-    { const RandSequenceVisitor randSequenceVisitor{nodep}; }
-    V3Global::dumpCheckGlobalTree("randsequence", 0, dumpTreeEitherLevel() >= 3);
+    { స్థిరరాశి RandSequenceVisitor randSequenceVisitor{nodep}; }
+    V3Global::dump_Check_Global_వృక్షం("randsequence", 0, dump_వృక్షం_Either_Level() >= 3);
 }

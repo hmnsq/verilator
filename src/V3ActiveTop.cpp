@@ -23,92 +23,92 @@
 //
 //*************************************************************************
 
-#include "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
+#అన్తర్భావ "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
 
-#include "V3ActiveTop.h"
+#అన్తర్భావ "V3ActiveTop.h"
 
-#include "V3Const.h"
-#include "V3SenTree.h"
+#అన్తర్భావ "V3Const.h"
+#అన్తర్భావ "V3SenTree.h"
 
 VL_DEFINE_DEBUG_FUNCTIONS;
 
 //######################################################################
 // Active class functions
 
-class ActiveTopVisitor final : public VNVisitor {
+తరగతి చురుకైన_శిఖరం_Visitor final : బహిరంగ VNVisitor {
     // NODE STATE
     // AstVarScope::user1()  // bool.  Processed
 
     // STATE
-    SenTreeFinder m_finder;  // Find global sentree's / add them under the AstTopScope
+    Sen_వృక్షం_Finder m_finder;  // Find global sentree's / add them under the AstTopScope
 
     // METHODS
-    static bool isInitial(AstNode* nodep) {
-        const VNUser1InUse user1InUse;
+    స్థిర తార్కిక isInitial(Ast_కణుపు* nodep) {
+        స్థిరరాశి VNUser1_లోపల_Use user1_లోపల_Use;
         // Return true if no variables that read.
-        return nodep->forall([&](const AstVarRef* refp) -> bool {
-            AstVarScope* const vscp = refp->varScopep();
+        తిరిగి nodep->forall([&](స్థిరరాశి AstVarRef* refp) -> తార్కిక {
+            AstVarScope* స్థిరరాశి vscp = refp->varScopep();
             // Note: Use same heuristic as ordering does to ignore written variables
             // TODO: Use live variable analysis.
-            if (refp->access().isWriteOnly()) {
-                vscp->user1(true);
-                return true;
+            ఒకవేళ (refp->access().isWriteOnly()) {
+                vscp->user1(నిజం);
+                తిరిగి నిజం;
             }
             // Read or ReadWrite: OK if written before
-            return vscp->user1();
+            తిరిగి vscp->user1();
         });
     }
 
     // VISITORS
-    void visit(AstNodeModule* nodep) override {
+    శూన్య సందర్శించు(Ast_కణుపు_Module* nodep) override {
         // Create required actives and add to module
         // We can start ordering at a module, or a scope
         UINFO(4, " MOD   " << nodep);
         iterateChildren(nodep);
     }
-    void visit(AstActive* nodep) override {
+    శూన్య సందర్శించు(Ast_చురుకైన* nodep) override {
         UINFO(4, "   ACTIVE " << nodep);
         // Remove duplicate clocks and such; sensesp() may change!
         V3Const::constifyExpensiveEdit(nodep);
-        AstSenTree* sentreep = nodep->sentreep();
+        Ast_Sen_వృక్షం* sentreep = nodep->sentreep();
         UASSERT_OBJ(sentreep, nodep, "nullptr");
-        if (sentreep->sensesp() && sentreep->sensesp()->isNever()) {
+        ఒకవేళ (sentreep->sensesp() && sentreep->sensesp()->isNever()) {
             // Never executing.  Kill it.
             UASSERT_OBJ(!sentreep->sensesp()->nextp(), nodep,
                         "Never senitem should be alone, else the never should be eliminated.");
-            VL_DO_DANGLING(nodep->unlinkFrBack()->deleteTree(), nodep);
-            return;
+            VL_DO_DANGLING(nodep->unlink_Fr_వెనుక()->delete_వృక్షం(), nodep);
+            తిరిగి;
         }
 
         // Delete empty procedures
-        for (AstNode *stmtp = nodep->stmtsp(), *nextp; stmtp; stmtp = nextp) {
+        కొరకు (Ast_కణుపు *stmtp = nodep->stmtsp(), *nextp; stmtp; stmtp = nextp) {
             nextp = stmtp->nextp();
-            if (AstNodeProcedure* const procp = VN_CAST(stmtp, NodeProcedure)) {
-                if (!procp->stmtsp()) VL_DO_DANGLING(pushDeletep(procp->unlinkFrBack()), stmtp);
+            ఒకవేళ (Ast_కణుపు_Procedure* స్థిరరాశి procp = VN_CAST(stmtp, కణుపు_Procedure)) {
+                ఒకవేళ (!procp->stmtsp()) VL_DO_DANGLING(నెట్టు_Deletep(procp->unlink_Fr_వెనుక()), stmtp);
             }
         }
 
         // Delete empty actives
-        if (!nodep->stmtsp()) {
-            VL_DO_DANGLING(nodep->unlinkFrBack()->deleteTree(), nodep);
-            return;
+        ఒకవేళ (!nodep->stmtsp()) {
+            VL_DO_DANGLING(nodep->unlink_Fr_వెనుక()->delete_వృక్షం(), nodep);
+            తిరిగి;
         }
 
         // Move the SENTREE for each active up to the global level.
         // This way we'll easily see what clock domains are identical
-        AstSenTree* const wantp = m_finder.getSenTree(sentreep);
+        Ast_Sen_వృక్షం* స్థిరరాశి wantp = m_finder.get_Sen_వృక్షం(sentreep);
         UINFO(4, "   lookdone");
-        if (wantp != sentreep) {
+        ఒకవేళ (wantp != sentreep) {
             // Move the active's contents to the other active
             UINFO(4, "   merge active " << sentreep << " into " << wantp);
-            if (nodep->senTreeStorep()) {
-                UASSERT_OBJ(sentreep == nodep->senTreeStorep(), nodep,
+            ఒకవేళ (nodep->sen_వృక్షం_Storep()) {
+                UASSERT_OBJ(sentreep == nodep->sen_వృక్షం_Storep(), nodep,
                             "sensesStore should have been deleted earlier if different");
-                sentreep->unlinkFrBack();
+                sentreep->unlink_Fr_వెనుక();
                 // There may be other references to same sense tree,
                 // we'll be removing all references when we get to them,
                 // but don't dangle our pointer yet!
-                VL_DO_DANGLING(pushDeletep(sentreep), sentreep);
+                VL_DO_DANGLING(నెట్టు_Deletep(sentreep), sentreep);
             }
             nodep->sentreep(wantp);
         }
@@ -118,37 +118,37 @@ class ActiveTopVisitor final : public VNVisitor {
         // prune these otherwise.
         // TODO: we should warn for these if they were 'always @*' as some (including strictly
         //       compliant) simulators will never execute these.
-        if (nodep->sentreep()->hasCombo()) {
-            FileLine* const flp = nodep->fileline();
-            AstActive* initialp = nullptr;
-            for (AstNode *logicp = nodep->stmtsp(), *nextp; logicp; logicp = nextp) {
+        ఒకవేళ (nodep->sentreep()->hasCombo()) {
+            File_పంక్తి* స్థిరరాశి flp = nodep->fileline();
+            Ast_చురుకైన* initialp = శూన్యసూచిక;
+            కొరకు (Ast_కణుపు *logicp = nodep->stmtsp(), *nextp; logicp; logicp = nextp) {
                 nextp = logicp->nextp();
-                if (!isInitial(logicp)) continue;
-                if (!initialp) initialp = new AstActive{flp, "", m_finder.getInitial()};
-                initialp->addStmtsp(logicp->unlinkFrBack());
+                ఒకవేళ (!isInitial(logicp)) కొనసాగు;
+                ఒకవేళ (!initialp) initialp = కొత్త Ast_చురుకైన{flp, "", m_finder.getInitial()};
+                initialp->కూడు_Stmtsp(logicp->unlink_Fr_వెనుక());
             }
-            if (initialp) nodep->addHereThisAsNext(initialp);
+            ఒకవేళ (initialp) nodep->కూడు_ఇక్కడ_This_As_తదుపరి(initialp);
         }
     }
-    void visit(AstNodeProcedure* nodep) override {  // LCOV_EXCL_LINE
+    శూన్య సందర్శించు(Ast_కణుపు_Procedure* nodep) override {  // LCOV_EXCL_LINE
         nodep->v3fatalSrc("Node should have been under ACTIVE");
     }
     //--------------------
-    void visit(AstNodeExpr*) override {}  // Accelerate
-    void visit(AstVarScope*) override {}  // Accelerate
-    void visit(AstNode* nodep) override { iterateChildren(nodep); }
+    శూన్య సందర్శించు(Ast_కణుపు_సమాసం*) override {}  // Accelerate
+    శూన్య సందర్శించు(AstVarScope*) override {}  // Accelerate
+    శూన్య సందర్శించు(Ast_కణుపు* nodep) override { iterateChildren(nodep); }
 
-public:
+బహిరంగ:
     // CONSTRUCTORS
-    explicit ActiveTopVisitor(AstNetlist* nodep) { iterate(nodep); }
-    ~ActiveTopVisitor() override = default;
+    స్పష్టమైన చురుకైన_శిఖరం_Visitor(AstNetlist* nodep) { iterate(nodep); }
+    ~చురుకైన_శిఖరం_Visitor() override = అప్రమేయ;
 };
 
 //######################################################################
 // Active class functions
 
-void V3ActiveTop::activeTopAll(AstNetlist* nodep) {
+శూన్య V3_చురుకైన_శిఖరం::చురుకైన_శిఖరం_All(AstNetlist* nodep) {
     UINFO(2, __FUNCTION__ << ":");
-    { ActiveTopVisitor{nodep}; }  // Destruct before checking
-    V3Global::dumpCheckGlobalTree("activetop", 0, dumpTreeEitherLevel() >= 3);
+    { చురుకైన_శిఖరం_Visitor{nodep}; }  // Destruct before checking
+    V3Global::dump_Check_Global_వృక్షం("activetop", 0, dump_వృక్షం_Either_Level() >= 3);
 }

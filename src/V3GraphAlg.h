@@ -14,33 +14,33 @@
 //
 //*************************************************************************
 
-#ifndef VERILATOR_V3GRAPHALG_H_
-#define VERILATOR_V3GRAPHALG_H_
+#నిర్వచితం_కాకపోతే VERILATOR_V3GRAPHALG_H_
+#నిర్వచించు VERILATOR_V3GRAPHALG_H_
 
-#include "config_build.h"
-#include "verilatedos.h"
+#అన్తర్భావ "config_build.h"
+#అన్తర్భావ "verilatedos.h"
 
-#include "V3Global.h"
-#include "V3Graph.h"
+#అన్తర్భావ "V3Global.h"
+#అన్తర్భావ "V3Graph.h"
 
 //=============================================================================
 // Algorithms - common class
 // For internal use, most graph algorithms use this as a base class
 
-template <typename T_Graph = V3Graph>  // Or sometimes const V3Graph
-class GraphAlg VL_NOT_FINAL {
-protected:
-    T_Graph* const m_graphp;  // Graph we're operating upon
-    const V3EdgeFuncP m_edgeFuncp;  // Function that says we follow this edge
+మూస <typename T_లేఖాచిత్రం = V3_లేఖాచిత్రం>  // Or sometimes const V3Graph
+class లేఖాచిత్రం_Alg VL_NOT_FINAL {
+రక్షిత:
+    T_లేఖాచిత్రం* స్థిరరాశి m_graphp;  // Graph we're operating upon
+    స్థిరరాశి V3_అంచు_Func_P m_అంచు_Funcp;  // Function that says we follow this edge
     // CONSTRUCTORS
-    GraphAlg(T_Graph* graphp, V3EdgeFuncP edgeFuncp)
+    లేఖాచిత్రం_Alg(T_లేఖాచిత్రం* graphp, V3_అంచు_Func_P అంచు_Funcp)
         : m_graphp{graphp}
-        , m_edgeFuncp{edgeFuncp} {}
-    ~GraphAlg() = default;
+        , m_అంచు_Funcp{అంచు_Funcp} {}
+    ~లేఖాచిత్రం_Alg() = అప్రమేయ;
     // METHODS
-    bool followEdge(V3GraphEdge* edgep) { return (edgep->weight() && (m_edgeFuncp)(edgep)); }
+    bool follow_అంచు(V3_లేఖాచిత్రం_అంచు* edgep) { తిరిగి (edgep->బరువు_2() && (m_అంచు_Funcp)(edgep)); }
 };
 
 //============================================================================
 
-#endif  // Guard
+#అయితే_ముగింపు  // Guard

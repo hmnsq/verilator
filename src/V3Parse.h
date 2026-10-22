@@ -14,14 +14,14 @@
 //
 //*************************************************************************
 
-#ifndef VERILATOR_V3PARSE_H_
-#define VERILATOR_V3PARSE_H_
+#నిర్వచితం_కాకపోతే VERILATOR_V3PARSE_H_
+#నిర్వచించు VERILATOR_V3PARSE_H_
 
-#include "config_build.h"
-#include "verilatedos.h"
+#అన్తర్భావ "config_build.h"
+#అన్తర్భావ "verilatedos.h"
 
-#include "V3Error.h"
-#include "V3Global.h"
+#అన్తర్భావ "V3Error.h"
+#అన్తర్భావ "V3Global.h"
 
 class AstNetlist;
 class VInFilter;
@@ -35,22 +35,22 @@ class V3Parse final {
     // CONSTRUCTORS
     VL_UNCOPYABLE(V3Parse);
 
-public:
+బహిరంగ:
     // We must allow reading multiple files into one parser
     V3Parse(AstNetlist* rootp, VInFilter* filterp) VL_MT_DISABLED;
     ~V3Parse() VL_MT_DISABLED;
 
     // METHODS
     // Preprocess and read the Verilog file specified into the netlist database
-    void parseFile(FileLine* fileline, const string& modname, bool inLibrary, bool inLibMap,
-                   const string& libname, const string& errmsg,
-                   const std::string& notFoundName = "") VL_MT_DISABLED;
+    శూన్య parseFile(File_పంక్తి* fileline, స్థిరరాశి string& modname, bool లోపల_Library, bool లోపల_Lib_Map,
+                   స్థిరరాశి string& libname, స్థిరరాశి string& errmsg,
+                   స్థిరరాశి std::string& not_దొరికింది_Name = "") VL_MT_DISABLED;
 
     // Push preprocessed text to the lexer
-    static void ppPushText(V3ParseImp* impp, const string& text) VL_MT_DISABLED;
+    స్థిర శూన్య pp_నెట్టు_పాఠ్యం(V3ParseImp* impp, స్థిరరాశి string& పాఠ్యం) VL_MT_DISABLED;
 
     // Suggest PLI functions for spell check
-    static void candidatePli(VSpellCheck* spellerp) VL_MT_DISABLED;
+    స్థిర శూన్య candidatePli(VSpellCheck* spellerp) VL_MT_DISABLED;
 };
 
-#endif  // Guard
+#అయితే_ముగింపు  // Guard

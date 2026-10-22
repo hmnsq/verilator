@@ -94,17 +94,17 @@
 //
 //*************************************************************************
 
-#include "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
+#అన్తర్భావ "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
 
-#include "V3Control.h"
-#include "V3Global.h"
-#include "V3Graph.h"
-#include "V3OrderGraph.h"
-#include "V3OrderMTaskGraph.h"
+#అన్తర్భావ "V3Control.h"
+#అన్తర్భావ "V3Global.h"
+#అన్తర్భావ "V3Graph.h"
+#అన్తర్భావ "V3OrderGraph.h"
+#అన్తర్భావ "V3OrderMTaskGraph.h"
 
-#include <algorithm>
-#include <set>
-#include <vector>
+#అన్తర్భావ <algorithm>
+#అన్తర్భావ <set>
+#అన్తర్భావ <vector>
 
 VL_DEFINE_DEBUG_FUNCTIONS;
 
@@ -112,60 +112,60 @@ VL_DEFINE_DEBUG_FUNCTIONS;
 // DpiImportCallVisitor
 
 // Scan node, indicate whether it contains a call to a DPI imported routine.
-class DpiImportCallVisitor final : public VNVisitor {
-    bool m_hasDpiHazard = false;  // Found a DPI import call.
-    bool m_tracingCall = false;  // Iterating into a CCall to a CFunc
+తరగతి DpiImportCallVisitor final : బహిరంగ VNVisitor {
+    తార్కిక m_hasDpiHazard = అబద్ధం;  // Found a DPI import call.
+    తార్కిక m_tracingCall = అబద్ధం;  // Iterating into a CCall to a CFunc
     // METHODS
-    void visit(AstCFunc* nodep) override {
-        if (!m_tracingCall) return;
-        m_tracingCall = false;
-        if (nodep->dpiImportWrapper()) {
-            if (nodep->dpiPure() ? !v3Global.opt.threadsDpiPure()
-                                 : !v3Global.opt.threadsDpiUnpure()) {
+    శూన్య సందర్శించు(AstCFunc* nodep) override {
+        ఒకవేళ (!m_tracingCall) తిరిగి;
+        m_tracingCall = అబద్ధం;
+        ఒకవేళ (nodep->dpiImportWrapper()) {
+            ఒకవేళ (nodep->dpi_శుద్ధ() ? !v3Global.opt.దారాలు_Dpi_శుద్ధ()
+                                 : !v3Global.opt.దారాలు_Dpi_Unpure()) {
                 // If hierarchical DPI wrapper cost is not found or is of a 0 cost,
                 // we have a normal DPI which induces DPI hazard by default.
-                m_hasDpiHazard = V3Control::getProfileData(nodep->cname()) == 0;
+                m_hasDpiHazard = V3Control::get_Profile_దత్తాంశం(nodep->cname()) == 0;
                 UINFO(9, "DPI wrapper '" << nodep->cname()
                                          << "' has dpi hazard = " << m_hasDpiHazard);
             }
         }
         iterateChildren(nodep);
     }
-    void visit(AstNodeCCall* nodep) override {
+    శూన్య సందర్శించు(Ast_కణుపు_CCall* nodep) override {
         iterateChildren(nodep);
         // Enter the function and trace it
-        m_tracingCall = true;
+        m_tracingCall = నిజం;
         iterate(nodep->funcp());
     }
-    void visit(AstNode* nodep) override { iterateChildren(nodep); }
+    శూన్య సందర్శించు(Ast_కణుపు* nodep) override { iterateChildren(nodep); }
 
     // CONSTRUCTORS
-    explicit DpiImportCallVisitor(AstNode* nodep) { iterate(nodep); }
+    స్పష్టమైన DpiImportCallVisitor(Ast_కణుపు* nodep) { iterate(nodep); }
 
-public:
-    static bool hasDpiHazard(AstNode* nodep) { return DpiImportCallVisitor{nodep}.m_hasDpiHazard; }
+బహిరంగ:
+    స్థిర తార్కిక hasDpiHazard(Ast_కణుపు* nodep) { తిరిగి DpiImportCallVisitor{nodep}.m_hasDpiHazard; }
 };
 
 //######################################################################
 // FixDataHazards
 
-class FixDataHazards final {
+తరగతి Fix_దత్తాంశం_Hazards final {
     // TYPES
 
     // Access to one variable, with the MTask performing it
-    struct Access final {
-        const AstVarScope* m_vscp;  // The variable accessed, its index is in 'user1'
+    నిర్మాణం Access final {
+        స్థిరరాశి AstVarScope* m_vscp;  // The variable accessed, its index is in 'user1'
         LogicMTask* m_mtaskp;  // The accessing MTask
         VAccess m_access;  // The kind of access
     };
 
     // NODE STATE
     //  AstVarScope::user1    -> int: Variable index for stable sorting
-    const VNUser1InUse m_user1InUse;
+    స్థిరరాశి VNUser1_లోపల_Use m_user1_లోపల_Use;
 
     // MEMBERS
-    OrderMTaskGraph& m_mTaskGraph;  // The Mtask graph
-    std::vector<LogicMTask*> m_scratch;  // Scratch MTask list, reused to avoid reallocation
+    క్రమం_MTask_లేఖాచిత్రం& m_m_Task_లేఖాచిత్రం;  // The Mtask graph
+    std::సదిశ<LogicMTask*> m_scratch;  // Scratch MTask list, reused to avoid reallocation
 
     // METHODS
 
@@ -173,154 +173,154 @@ class FixDataHazards final {
     // 'from -> to' we have seq(from) < seq(to). See the note at top of file on why this matters.
     // This is a topological sort using Kahn's algorithm with MTasks enumerated in a globally
     // non-decreasing critical path order.
-    void assignSequenceNumbers() {
-        struct MTaskCmp final {
-            bool operator()(const LogicMTask* ap, const LogicMTask* bp) const {
+    శూన్య కేటాయించు_Sequence_Numbers() {
+        నిర్మాణం MTaskCmp final {
+            తార్కిక క్రియాకారకం()(స్థిరరాశి LogicMTask* ap, స్థిరరాశి LogicMTask* bp) స్థిరరాశి {
                 // Order by critical path
-                const uint64_t aCp = ap->cpExclusive<GraphWay::FORWARD>();
-                const uint64_t bCp = bp->cpExclusive<GraphWay::FORWARD>();
-                if (aCp != bCp) return aCp < bCp;
+                స్థిరరాశి uint64_t aCp = ap->cpExclusive<లేఖాచిత్రం_Way::FORWARD>();
+                స్థిరరాశి uint64_t bCp = bp->cpExclusive<లేఖాచిత్రం_Way::FORWARD>();
+                ఒకవేళ (aCp != bCp) తిరిగి aCp < bCp;
                 // Break ties by stable id
-                return *ap < *bp;
+                తిరిగి *ap < *bp;
             }
         };
         // Set of ready vertices. Initialized to the entry MTask.
-        std::set<LogicMTask*, MTaskCmp> ready{m_mTaskGraph.entryp()};
+        std::సమితి<LogicMTask*, MTaskCmp> ready{m_m_Task_లేఖాచిత్రం.entryp()};
         // 'user' also used to count remaining dependencies of each MTask. Initialize it.
-        for (V3GraphVertex& vtx : m_mTaskGraph.vertices()) {
-            vtx.user(static_cast<uint32_t>(vtx.inEdges().size()));
+        కొరకు (V3_లేఖాచిత్రం_శీర్షం& vtx : m_m_Task_లేఖాచిత్రం.vertices()) {
+            vtx.user(static_cast<uint32_t>(vtx.లోపల_అంచులు().కొలత()));
         }
         // Next sequence number to assign to each MTask.
         uint32_t seq = 0;
         // Process ready vertices in critical path order.
-        while (!ready.empty()) {
+        అయితే (!ready.ఖాళీలు()) {
             // Pick up and detach the ready MTask with the smallest critical path.
-            const auto it = ready.begin();
-            LogicMTask* const mtaskp = *it;
+            స్థిరరాశి స్వయంచాలక it = ready.begin();
+            LogicMTask* స్థిరరాశి mtaskp = *it;
             ready.erase(it);
             // Assign the next sequence number to the MTask
             mtaskp->user(++seq);
             // Decrement edge count of successors and add to ready set if no dependencies left
-            for (V3GraphEdge& edge : mtaskp->outEdges()) {
-                LogicMTask* const top = static_cast<LogicMTask*>(edge.top());
-                const uint32_t nDeps = top->user() - 1;
-                top->user(nDeps);
-                if (!nDeps) ready.insert(top);
+            కొరకు (V3_లేఖాచిత్రం_అంచు& అంచు : mtaskp->బహిర్గతం_అంచులు()) {
+                LogicMTask* స్థిరరాశి శిఖరం = static_cast<LogicMTask*>(అంచు.శిఖరం());
+                స్థిరరాశి uint32_t nDeps = శిఖరం->user() - 1;
+                శిఖరం->user(nDeps);
+                ఒకవేళ (!nDeps) ready.చొప్పించు(శిఖరం);
             }
         }
-        UASSERT(seq == m_mTaskGraph.vertices().size(), "MTask graph is cyclic");
+        UASSERT(seq == m_m_Task_లేఖాచిత్రం.vertices().కొలత(), "MTask graph is cyclic");
     }
 
     // Gather every variable access, resolved to the MTask performing it.
-    std::vector<Access> gatherAccesses() {
-        std::vector<Access> accesses;
-        int nVars = 0;
-        for (V3GraphVertex& vtx : m_mTaskGraph.vertices()) {
+    std::సదిశ<Access> gatherAccesses() {
+        std::సదిశ<Access> accesses;
+        పూర్ణాంకం nVars = 0;
+        కొరకు (V3_లేఖాచిత్రం_శీర్షం& vtx : m_m_Task_లేఖాచిత్రం.vertices()) {
             LogicMTask& mtask = static_cast<LogicMTask&>(vtx);
-            for (const OrderMoveVertex& mVtx : mtask.vertexList()) {
-                const OrderLogicVertex* const lVtxp = mVtx.logicp();
-                if (!lVtxp) continue;
-                for (const OrderLogicVertex::VarAccess& acc : lVtxp->varAccesses()) {
-                    AstVarScope* const vscp = acc.m_vscp;
-                    if (!vscp->user1()) vscp->user1(++nVars);
-                    accesses.push_back({vscp, &mtask, acc.m_access});
+            కొరకు (స్థిరరాశి క్రమం_Move_శీర్షం& mVtx : mtask.శీర్షం_List()) {
+                స్థిరరాశి క్రమం_Logic_శీర్షం* స్థిరరాశి lVtxp = mVtx.logicp();
+                ఒకవేళ (!lVtxp) కొనసాగు;
+                కొరకు (స్థిరరాశి క్రమం_Logic_శీర్షం::VarAccess& acc : lVtxp->varAccesses()) {
+                    AstVarScope* స్థిరరాశి vscp = acc.m_vscp;
+                    ఒకవేళ (!vscp->user1()) vscp->user1(++nVars);
+                    accesses.నెట్టు_వెనుక({vscp, &mtask, acc.m_access});
                 }
             }
         }
-        return accesses;
+        తిరిగి accesses;
     }
 
     // Add an edge ordering 'fromp' before 'top', unless they are already ordered
-    void addEdgeIfNeeded(LogicMTask* fromp, LogicMTask* top) {
+    శూన్య కూడు_అంచు_If_Needed(LogicMTask* fromp, LogicMTask* శిఖరం) {
         // Nothing to order within a single MTask
-        if (fromp == top) return;
-        UASSERT_OBJ(fromp->user() < top->user(), fromp,
+        ఒకవేళ (fromp == శిఖరం) తిరిగి;
+        UASSERT_OBJ(fromp->user() < శిఖరం->user(), fromp,
                     "Edge must run in increasing sequence order");
         // Already directly ordered. This is an O(1) set lookup, and catches the common case of
         // a dependency the OrderGraph already provided.
-        if (fromp->hasEdgeTo(top)) return;
+        ఒకవేళ (fromp->has_అంచు_గమ్యం(శిఖరం)) తిరిగి;
         // Otherwise check if already ordered
-        if (m_mTaskGraph.pathExists(fromp, top, nullptr)) return;
+        ఒకవేళ (m_m_Task_లేఖాచిత్రం.మార్గం_Exists(fromp, శిఖరం, శూన్యసూచిక)) తిరిగి;
         // Unordered. Add an edge between them.
-        m_mTaskGraph.addEdge(fromp, top);
+        m_m_Task_లేఖాచిత్రం.కూడు_అంచు(fromp, శిఖరం);
     }
 
     // Add the edges required to make the accesses of one variable race free. 'beginp'/'endp'
     // delimit the accesses of a single variable, in sequence number order.
-    void serializeVariable(const Access* beginp, const Access* endp) {
+    శూన్య serializeVariable(స్థిరరాశి Access* beginp, స్థిరరాశి Access* endp) {
         // Nothing to order if at most one MTask accesses this variable. Each MTask appears at
         // most once in the range, see the assertion below, so this is just the range size.
-        if (endp - beginp < 2) return;
+        ఒకవేళ (endp - beginp < 2) తిరిగి;
 
-        std::vector<LogicMTask*>& pendingReaders = m_scratch;
+        std::సదిశ<LogicMTask*>& pendingReaders = m_scratch;
         pendingReaders.clear();
-        LogicMTask* prevWriterp = nullptr;
-        for (const Access* accp = beginp; accp != endp; ++accp) {
+        LogicMTask* prevWriterp = శూన్యసూచిక;
+        కొరకు (స్థిరరాశి Access* accp = beginp; accp != endp; ++accp) {
             // The OrderLogicVertices record one access per variable, and at this point each MTask
             // holds exactly one logic block, so an MTask cannot appear twice here.
             UASSERT_OBJ(accp == beginp || accp[-1].m_mtaskp != accp->m_mtaskp, accp->m_mtaskp,
                         "Multiple accesses of a variable in an MTask");
-            LogicMTask* const mtaskp = accp->m_mtaskp;
-            if (accp->m_access.isWriteOrRW()) {
+            LogicMTask* స్థిరరాశి mtaskp = accp->m_mtaskp;
+            ఒకవేళ (accp->m_access.isWriteOrRW()) {
                 // Reads since the previous write must complete before this write
-                for (LogicMTask* const readerp : pendingReaders) addEdgeIfNeeded(readerp, mtaskp);
+                కొరకు (LogicMTask* స్థిరరాశి readerp : pendingReaders) కూడు_అంచు_If_Needed(readerp, mtaskp);
                 // Consecutive writes must be ordered. If a read came between them, the edges to
                 // and from that read imply it already.
-                if (prevWriterp && pendingReaders.empty()) addEdgeIfNeeded(prevWriterp, mtaskp);
+                ఒకవేళ (prevWriterp && pendingReaders.ఖాళీలు()) కూడు_అంచు_If_Needed(prevWriterp, mtaskp);
                 pendingReaders.clear();
                 prevWriterp = mtaskp;
-            } else {
+            } లేకపోతే {
                 // This read must happen after the preceding write
-                if (prevWriterp) addEdgeIfNeeded(prevWriterp, mtaskp);
-                pendingReaders.push_back(mtaskp);
+                ఒకవేళ (prevWriterp) కూడు_అంచు_If_Needed(prevWriterp, mtaskp);
+                pendingReaders.నెట్టు_వెనుక(mtaskp);
             }
         }
     }
 
     // Serialize the given MTasks, in sequence number order
-    void serializeMTasks(std::vector<LogicMTask*>& mtaskps) {
-        std::sort(mtaskps.begin(), mtaskps.end(), [](const LogicMTask* ap, const LogicMTask* bp) {
-            return ap->user() < bp->user();
+    శూన్య serializeMTasks(std::సదిశ<LogicMTask*>& mtaskps) {
+        std::క్రమీకరించు(mtaskps.begin(), mtaskps.చివర(), [](స్థిరరాశి LogicMTask* ap, స్థిరరాశి LogicMTask* bp) {
+            తిరిగి ap->user() < bp->user();
         });
-        mtaskps.erase(std::unique(mtaskps.begin(), mtaskps.end()), mtaskps.end());
-        for (size_t i = 1; i < mtaskps.size(); ++i) addEdgeIfNeeded(mtaskps[i - 1], mtaskps[i]);
+        mtaskps.erase(std::unique(mtaskps.begin(), mtaskps.చివర()), mtaskps.చివర());
+        కొరకు (కొలత_t i = 1; i < mtaskps.కొలత(); ++i) కూడు_అంచు_If_Needed(mtaskps[i - 1], mtaskps[i]);
     }
 
-    bool hasDpiHazard(LogicMTask* mtaskp) {
-        for (const OrderMoveVertex& mVtx : mtaskp->vertexList()) {
-            OrderLogicVertex* const lvtxp = mVtx.logicp();
-            if (!lvtxp) continue;
+    తార్కిక hasDpiHazard(LogicMTask* mtaskp) {
+        కొరకు (స్థిరరాశి క్రమం_Move_శీర్షం& mVtx : mtaskp->శీర్షం_List()) {
+            క్రమం_Logic_శీర్షం* స్థిరరాశి lvtxp = mVtx.logicp();
+            ఒకవేళ (!lvtxp) కొనసాగు;
             // NOTE: We don't handle DPI exports. If testbench code calls a DPI-exported function
             // at any time during eval() we may have a data hazard. (Likewise in non-threaded mode
             // if an export messes with an ordered variable we're broken.)
 
             // Find all calls to DPI-imported functions, we can put those into a serial order at
             // least. That should solve the most likely DPI-related data hazards.
-            if (DpiImportCallVisitor::hasDpiHazard(lvtxp->nodep())) return true;
+            ఒకవేళ (DpiImportCallVisitor::hasDpiHazard(lvtxp->nodep())) తిరిగి నిజం;
         }
-        return false;
+        తిరిగి అబద్ధం;
     }
 
     // CONSTRUCTOR
-    FixDataHazards(OrderMTaskGraph& mTaskGraph)
-        : m_mTaskGraph{mTaskGraph} {
+    Fix_దత్తాంశం_Hazards(క్రమం_MTask_లేఖాచిత్రం& m_Task_లేఖాచిత్రం)
+        : m_m_Task_లేఖాచిత్రం{m_Task_లేఖాచిత్రం} {
         // Give the MTasks a total order consistent with their dependencies
-        assignSequenceNumbers();
+        కేటాయించు_Sequence_Numbers();
 
         // Gather variable accesses made by each MTask
-        std::vector<Access> accesses = gatherAccesses();
+        std::సదిశ<Access> accesses = gatherAccesses();
         // Sort by variable (to group by variable), then by sequence number of the accessing MTask
-        std::sort(accesses.begin(), accesses.end(), [](const Access& a, const Access& b) {
-            if (a.m_vscp != b.m_vscp) return a.m_vscp->user1() < b.m_vscp->user1();
-            return a.m_mtaskp->user() < b.m_mtaskp->user();
+        std::క్రమీకరించు(accesses.begin(), accesses.చివర(), [](స్థిరరాశి Access& a, స్థిరరాశి Access& b) {
+            ఒకవేళ (a.m_vscp != b.m_vscp) తిరిగి a.m_vscp->user1() < b.m_vscp->user1();
+            తిరిగి a.m_mtaskp->user() < b.m_mtaskp->user();
         });
 
         // Serialize the accesses of each variable
-        for (size_t i = 0; i < accesses.size();) {
-            size_t end = i + 1;
-            while (end < accesses.size() && accesses[end].m_vscp == accesses[i].m_vscp) ++end;
-            serializeVariable(accesses.data() + i, accesses.data() + end);
-            i = end;
+        కొరకు (కొలత_t i = 0; i < accesses.కొలత();) {
+            కొలత_t చివర = i + 1;
+            అయితే (చివర < accesses.కొలత() && accesses[చివర].m_vscp == accesses[i].m_vscp) ++చివర;
+            serializeVariable(accesses.దత్తాంశం() + i, accesses.దత్తాంశం() + చివర);
+            i = చివర;
         }
 
         // Serialize all writes to SystemC vars. Note the reads of an individual SC var are already
@@ -329,31 +329,31 @@ class FixDataHazards final {
         // so this should not hurt performance too much.
         {
             m_scratch.clear();
-            for (const Access& access : accesses) {
-                if (!access.m_access.isWriteOrRW()) continue;
-                if (!access.m_vscp->varp()->isSc()) continue;
-                m_scratch.push_back(access.m_mtaskp);
+            కొరకు (స్థిరరాశి Access& access : accesses) {
+                ఒకవేళ (!access.m_access.isWriteOrRW()) కొనసాగు;
+                ఒకవేళ (!access.m_vscp->varp()->isSc()) కొనసాగు;
+                m_scratch.నెట్టు_వెనుక(access.m_mtaskp);
             }
             serializeMTasks(m_scratch);
         }
 
         // Serialize DPI calls unless user gave '--threads-dpi none'.
-        if (!v3Global.opt.threadsDpiPure() || !v3Global.opt.threadsDpiUnpure()) {
+        ఒకవేళ (!v3Global.opt.దారాలు_Dpi_శుద్ధ() || !v3Global.opt.దారాలు_Dpi_Unpure()) {
             m_scratch.clear();
-            for (V3GraphVertex& vtx : m_mTaskGraph.vertices()) {
+            కొరకు (V3_లేఖాచిత్రం_శీర్షం& vtx : m_m_Task_లేఖాచిత్రం.vertices()) {
                 LogicMTask& mtask = static_cast<LogicMTask&>(vtx);
-                if (hasDpiHazard(&mtask)) m_scratch.push_back(&mtask);
+                ఒకవేళ (hasDpiHazard(&mtask)) m_scratch.నెట్టు_వెనుక(&mtask);
             }
             serializeMTasks(m_scratch);
         }
     }
 
-public:
-    static void apply(OrderMTaskGraph& mTaskGraph) { FixDataHazards{mTaskGraph}; }
+బహిరంగ:
+    స్థిర శూన్య apply(క్రమం_MTask_లేఖాచిత్రం& m_Task_లేఖాచిత్రం) { Fix_దత్తాంశం_Hazards{m_Task_లేఖాచిత్రం}; }
 };
 
-void OrderMTaskGraph::fixDataHazards(OrderMTaskGraph& mtaskGraph) {
-    FixDataHazards::apply(mtaskGraph);
+శూన్య క్రమం_MTask_లేఖాచిత్రం::fix_దత్తాంశం_Hazards(క్రమం_MTask_లేఖాచిత్రం& mtask_లేఖాచిత్రం) {
+    Fix_దత్తాంశం_Hazards::apply(mtask_లేఖాచిత్రం);
     // The critical paths are maintained as the graph is mutated, check them
-    mtaskGraph.validate();
+    mtask_లేఖాచిత్రం.validate();
 }

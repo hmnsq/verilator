@@ -14,27 +14,27 @@
 //
 //*************************************************************************
 
-#define VL_MT_DISABLED_CODE_UNIT 1
+#నిర్వచించు VL_MT_DISABLED_సంకేతం_UNIT 1
 
-#include "VlcTop.h"
+#అన్తర్భావ "VlcTop.h"
 
-#include "V3Error.h"
-#include "V3Os.h"
+#అన్తర్భావ "V3Error.h"
+#అన్తర్భావ "V3Os.h"
 
-#include "VlcOptions.h"
+#అన్తర్భావ "VlcOptions.h"
 
-#include <algorithm>
-#include <fstream>
-#include <iomanip>
-#include <map>
-#include <set>
-#include <sstream>
-#include <string>
-#include <vector>
+#అన్తర్భావ <algorithm>
+#అన్తర్భావ <fstream>
+#అన్తర్భావ <iomanip>
+#అన్తర్భావ <map>
+#అన్తర్భావ <set>
+#అన్తర్భావ <sstream>
+#అన్తర్భావ <string>
+#అన్తర్భావ <vector>
 
 //######################################################################
 
-namespace {
+నామాకాశ {
 
 // Report helpers only.  They keep the flat summary and hierarchy report using
 // the same hit/total accounting and output formatting.  These helpers read the
@@ -43,66 +43,66 @@ namespace {
 
 // Coverage of a report row: its covered and total points, and for covergroups, their
 // coverage, which weights coverpoints and crosses rather than counting bins
-class Tally final {
+తరగతి Tally final {
     // MEMBERS
-    uint64_t m_hit = 0;  // Covered points
-    uint64_t m_total = 0;  // Points
-    bool m_scored = false;  // Coverage is m_score, not the ratio of the points
-    double m_score = 0.0;  // Percent coverage, if m_scored
+    uint64_t m_తగిలింది = 0;  // Covered points
+    uint64_t m_మొత్తం = 0;  // Points
+    తార్కిక m_scored = అబద్ధం;  // Coverage is m_score, not the ratio of the points
+    ద్విగుణ m_score = 0.0;  // Percent coverage, if m_scored
 
-public:
+బహిరంగ:
     // ACCESSORS
-    uint64_t hit() const { return m_hit; }
-    uint64_t total() const { return m_total; }
-    bool scored() const { return m_scored; }
-    double score() const { return m_score; }
-    void score(double value) {
-        m_scored = true;
-        m_score = value;
+    uint64_t తగిలింది() స్థిరరాశి { తిరిగి m_తగిలింది; }
+    uint64_t మొత్తం() స్థిరరాశి { తిరిగి m_మొత్తం; }
+    తార్కిక scored() స్థిరరాశి { తిరిగి m_scored; }
+    ద్విగుణ score() స్థిరరాశి { తిరిగి m_score; }
+    శూన్య score(ద్విగుణ విలువ) {
+        m_scored = నిజం;
+        m_score = విలువ;
     }
     // METHODS
-    void addPoint(bool covered) {
-        if (covered) ++m_hit;
-        ++m_total;
+    శూన్య కూడు_బిందువు(తార్కిక covered) {
+        ఒకవేళ (covered) ++m_తగిలింది;
+        ++m_మొత్తం;
     }
-    void addPoints(const Tally& other) {
-        m_hit += other.m_hit;
-        m_total += other.m_total;
+    శూన్య కూడు_Points(స్థిరరాశి Tally& other) {
+        m_తగిలింది += other.m_తగిలింది;
+        m_మొత్తం += other.m_మొత్తం;
     }
 };
 
 // Map coverage type to its tally.
-using TypeTally = std::map<std::string, Tally>;
+ఉపయోగించి TypeTally = std::map<std::string, Tally>;
 
-static constexpr const char* const s_orderedTypes[]
+స్థిర constexpr స్థిరరాశి అక్షరం* స్థిరరాశి s_orderedTypes[]
     = {"line", "toggle", "branch", "expr", "fsm_state", "fsm_arc"};
-static constexpr const char* const s_covergroupType = "covergroup";
-static constexpr size_t s_summaryIndent = 2;
-static constexpr size_t s_reportRowIndent = 4;
+స్థిర constexpr స్థిరరాశి అక్షరం* స్థిరరాశి s_covergroupType = "covergroup";
+స్థిర constexpr కొలత_t s_summaryIndent = 2;
+స్థిర constexpr కొలత_t s_report_అడ్డువరుస_Indent = 4;
 
-string displayType(const VlcPoint& point) {
-    const string type = point.type();
-    return type.empty() ? "point" : type;
+string displayType(స్థిరరాశి Vlc_బిందువు& బిందువు) {
+    స్థిరరాశి string type = బిందువు.type();
+    తిరిగి type.ఖాళీలు() ? "point" : type;
 }
 
-bool isCollapsedHier(const string& hier) {
-    return hier.find('*') != string::npos || hier.find('?') != string::npos;
+తార్కిక isCollapsedHier(స్థిరరాశి string& hier) {
+    తిరిగి hier.కనుగొను('*') != string::npos || hier.కనుగొను('?') != string::npos;
 }
 
-bool isOrderedType(const string& type) {
-    for (const char* const typep : s_orderedTypes) {
-        if (type == typep) return true;
+తార్కిక isOrderedType(స్థిరరాశి string& type) {
+    కొరకు (స్థిరరాశి అక్షరం* స్థిరరాశి typep : s_orderedTypes) {
+        ఒకవేళ (type == typep) తిరిగి నిజం;
     }
-    return false;
+    తిరిగి అబద్ధం;
 }
 
-string reportHier(const VlcPoint& point) {
+string reportHier(స్థిరరాశి Vlc_బిందువు& బిందువు) {
     // FSM records currently have useful instance scope in Fv.
-    if (point.isFsmState() || point.isFsmArc()) {
-        const string fsmVar = point.fsmVarName();
-        return fsmVar.substr(0, fsmVar.rfind('.'));
+    ఒకవేళ (బిందువు.isFsmState() || బిందువు.isFsmArc()) {
+        స్థిరరాశి string fsmVar = బిందువు.fsmVarName();
+        తిరిగి fsmVar.substr(0, fsmVar.rfind('.'));
     }
-    return point.hier();
+    తిరిగి బిందువు.hier();
 }
 
 // The components of a hierarchy, split at its dots.  A covergroup's is the name of its type, as
@@ -112,73 +112,73 @@ string reportHier(const VlcPoint& point) {
 // within, which V3OutFormatter::quoteNameControls() escapes, as VString::quotedEnd() finds the
 // end of.  A name whose identifiers, parentheses, or quotes do not end is not as $typename writes
 // a type, so splits at each dot.
-std::vector<string> splitHier(const string& hier) {
-    std::vector<string> parts;
-    string::size_type start = 0;
-    int depth = 0;  // Of the parentheses of the values of parameters
-    string::size_type pos = 0;
-    while (pos < hier.size()) {
-        const char c = hier[pos];
-        if (c == '\\') {
-            pos = hier.find(' ', pos);  // npos if not ended
-            continue;
-        } else if (!depth && hier.compare(pos, 2, "#(") == 0) {
-            depth = 1;
+std::సదిశ<string> విభజించు_Hier(స్థిరరాశి string& hier) {
+    std::సదిశ<string> parts;
+    string::కొలత_type ప్రారంభం = 0;
+    పూర్ణాంకం లోతు = 0;  // Of the parentheses of the values of parameters
+    string::కొలత_type pos = 0;
+    అయితే (pos < hier.కొలత()) {
+        స్థిరరాశి అక్షరం c = hier[pos];
+        ఒకవేళ (c == '\\') {
+            pos = hier.కనుగొను(' ', pos);  // npos if not ended
+            కొనసాగు;
+        } లేకపోతే ఒకవేళ (!లోతు && hier.compare(pos, 2, "#(") == 0) {
+            లోతు = 1;
             ++pos;
-        } else if (!depth && c == '.') {
-            parts.push_back(hier.substr(start, pos - start));
-            start = pos + 1;
-        } else if (depth && c == '"') {
-            pos = VString::quotedEnd(hier, pos);  // npos if not terminated
-            continue;
-        } else if (depth && c == '(') {
-            ++depth;
-        } else if (depth && c == ')') {
-            --depth;
+        } లేకపోతే ఒకవేళ (!లోతు && c == '.') {
+            parts.నెట్టు_వెనుక(hier.substr(ప్రారంభం, pos - ప్రారంభం));
+            ప్రారంభం = pos + 1;
+        } లేకపోతే ఒకవేళ (లోతు && c == '"') {
+            pos = VString::quoted_చివర(hier, pos);  // npos if not terminated
+            కొనసాగు;
+        } లేకపోతే ఒకవేళ (లోతు && c == '(') {
+            ++లోతు;
+        } లేకపోతే ఒకవేళ (లోతు && c == ')') {
+            --లోతు;
         }
         ++pos;
     }
-    if (depth || pos != hier.size()) {  // Unbalanced
+    ఒకవేళ (లోతు || pos != hier.కొలత()) {  // Unbalanced
         parts.clear();
-        start = 0;
-        for (string::size_type dot; (dot = hier.find('.', start)) != string::npos;
-             start = dot + 1) {
-            parts.push_back(hier.substr(start, dot - start));
+        ప్రారంభం = 0;
+        కొరకు (string::కొలత_type dot; (dot = hier.కనుగొను('.', ప్రారంభం)) != string::npos;
+             ప్రారంభం = dot + 1) {
+            parts.నెట్టు_వెనుక(hier.substr(ప్రారంభం, dot - ప్రారంభం));
         }
     }
-    parts.push_back(hier.substr(start));
-    return parts;
+    parts.నెట్టు_వెనుక(hier.substr(ప్రారంభం));
+    తిరిగి parts;
 }
 
-string duName(const VlcPoint& point) {
+string duName(స్థిరరాశి Vlc_బిందువు& బిందువు) {
     // Pages are emitted as v_<type>/<design-unit> for RTL coverage.  Use the
     // suffix as the design-unit summary key.
-    const string page = point.page();
-    return page.substr(page.find('/') + 1);
+    స్థిరరాశి string పుట = బిందువు.పుట();
+    తిరిగి పుట.substr(పుట.కనుగొను('/') + 1);
 }
 
-void tallyPoint(TypeTally& tally, const string& type, uint64_t count) {
-    tally[type].addPoint(count > 0);
+శూన్య tally_బిందువు(TypeTally& tally, స్థిరరాశి string& type, uint64_t లెక్క) {
+    tally[type].కూడు_బిందువు(లెక్క > 0);
 }
 
 // Keep the percentage calculation in one place so flat summaries and hierarchy
 // reports cannot drift in zero-total handling.
-double pct(uint64_t hit, uint64_t total) {
-    return total ? (100.0 * static_cast<double>(hit) / static_cast<double>(total)) : 0.0;
+ద్విగుణ pct(uint64_t తగిలింది, uint64_t మొత్తం) {
+    తిరిగి మొత్తం ? (100.0 * static_cast<ద్విగుణ>(తగిలింది) / static_cast<ద్విగుణ>(మొత్తం)) : 0.0;
 }
 
 // Return a percentage as a string, handling 100%: coverage not complete shows below it.
-string pctValueString(double value, bool complete) {
-    if (!complete && value > 99.9) value = 99.9;  // Presumes precision 1
+string pct_విలువ_String(ద్విగుణ విలువ, తార్కిక complete) {
+    ఒకవేళ (!complete && విలువ > 99.9) విలువ = 99.9;  // Presumes precision 1
     std::stringstream os;
     os << std::fixed << std::setprecision(1)  // 1 matters, see above
-       << value << "%";
-    return os.str();
+       << విలువ << "%";
+    తిరిగి os.str();
 }
 
 // Return percentage as a string, handling 100%, and protecting from div zero.
-string pctString(uint64_t hit, uint64_t total) {
-    return pctValueString(pct(hit, total), hit >= total);
+string pctString(uint64_t తగిలింది, uint64_t మొత్తం) {
+    తిరిగి pct_విలువ_String(pct(తగిలింది, మొత్తం), తగిలింది >= మొత్తం);
 }
 
 // Covergroup coverage (IEEE 1800-2023 19.11).  An item, a coverpoint or cross, covers the
@@ -190,338 +190,338 @@ string pctString(uint64_t hit, uint64_t total) {
 // for a single instance.
 
 // A coverable bin of a coverpoint or cross, of all its records
-class CgBin final {
+తరగతి CgBin final {
     // MEMBERS
     string m_name;  // Name of the bin
-    uint64_t m_count = 0;  // Hits, of all the records
-    uint64_t m_atLeast = 0;  // option.at_least, the largest of the records
+    uint64_t m_లెక్క = 0;  // Hits, of all the records
+    uint64_t m_at_కనిష్ఠ = 0;  // option.at_least, the largest of the records
 
-public:
+బహిరంగ:
     // ACCESSORS
-    const string& name() const { return m_name; }
-    bool covered() const { return m_count >= m_atLeast; }
+    స్థిరరాశి string& name() స్థిరరాశి { తిరిగి m_name; }
+    తార్కిక covered() స్థిరరాశి { తిరిగి m_లెక్క >= m_at_కనిష్ఠ; }
     // METHODS
-    void addRecord(const string& name, uint64_t count, uint64_t atLeast) {
+    శూన్య కూడు_రికార్డు(స్థిరరాశి string& name, uint64_t లెక్క, uint64_t at_కనిష్ఠ) {
         m_name = name;
-        m_count += count;
-        m_atLeast = std::max(m_atLeast, atLeast);
+        m_లెక్క += లెక్క;
+        m_at_కనిష్ఠ = std::max(m_at_కనిష్ఠ, at_కనిష్ఠ);
     }
 };
 
 // A coverpoint or cross
-class CgItem final {
+తరగతి Cg_అంశం final {
     // MEMBERS
-    uint64_t m_weight = 0;  // The weight of the records, the largest
+    uint64_t m_బరువు = 0;  // The weight of the records, the largest
     std::map<string, CgBin> m_bins;  // Coverable bins, by binIdentity()
 
-public:
+బహిరంగ:
     // ACCESSORS
-    uint64_t weight() const { return m_weight; }
-    const std::map<string, CgBin>& bins() const { return m_bins; }
+    uint64_t బరువు_2() స్థిరరాశి { తిరిగి m_బరువు; }
+    స్థిరరాశి std::map<string, CgBin>& bins() స్థిరరాశి { తిరిగి m_bins; }
     // METHODS
-    void addRecord(uint64_t weight) { m_weight = std::max(m_weight, weight); }
-    CgBin& findNewBin(const string& identity) { return m_bins[identity]; }
+    శూన్య కూడు_రికార్డు(uint64_t బరువు_2) { m_బరువు = std::max(m_బరువు, బరువు_2); }
+    CgBin& కనుగొను_New_Bin(స్థిరరాశి string& తటస్థం) { తిరిగి m_bins[తటస్థం]; }
 };
 
 // A covergroup
-class CgGroup final {
+తరగతి Cg_సమూహం final {
     // MEMBERS
     string m_hier;  // Hierarchy above the items
-    uint64_t m_weight = 0;  // type_option.weight, the largest of the records
-    std::map<string, CgItem> m_items;  // By hierarchy
+    uint64_t m_బరువు = 0;  // type_option.weight, the largest of the records
+    std::map<string, Cg_అంశం> m_వస్తువులు;  // By hierarchy
 
-public:
+బహిరంగ:
     // ACCESSORS
-    const string& hier() const { return m_hier; }
-    uint64_t weight() const { return m_weight; }
-    const std::map<string, CgItem>& items() const { return m_items; }
+    స్థిరరాశి string& hier() స్థిరరాశి { తిరిగి m_hier; }
+    uint64_t బరువు_2() స్థిరరాశి { తిరిగి m_బరువు; }
+    స్థిరరాశి std::map<string, Cg_అంశం>& వస్తువులు() స్థిరరాశి { తిరిగి m_వస్తువులు; }
     // METHODS
-    void addRecord(const string& hier, uint64_t weight) {
+    శూన్య కూడు_రికార్డు(స్థిరరాశి string& hier, uint64_t బరువు_2) {
         m_hier = hier;
-        m_weight = std::max(m_weight, weight);
+        m_బరువు = std::max(m_బరువు, బరువు_2);
     }
-    CgItem& findNewItem(const string& hier) { return m_items[hier]; }
+    Cg_అంశం& కనుగొను_New_అంశం(స్థిరరాశి string& hier) { తిరిగి m_వస్తువులు[hier]; }
 };
-using CgGroups = std::map<string, CgGroup>;  // By page
+ఉపయోగించి CgGroups = std::map<string, Cg_సమూహం>;  // By page
 
 // A number of a record, or 1 if the record leaves it out
-uint64_t keyNumber(const string& value) {
-    return value.empty() ? 1 : std::strtoull(value.c_str(), nullptr, 10);
+uint64_t కీలకం_సంఖ్య(స్థిరరాశి string& విలువ) {
+    తిరిగి విలువ.ఖాళీలు() ? 1 : std::strtoull(విలువ.c_str(), శూన్యసూచిక, 10);
 }
 
 // If a field of a record's name, '\001<key>\002<value>', has a key of the coverage computation
-bool isScoreField(const string& field) {
-    for (const char* const keyp : {VL_CIK_THRESH, VL_CIK_WEIGHT, VL_CIK_GROUP_WEIGHT}) {
-        const string prefix = string{"\001"} + keyp + "\002";
-        if (field.compare(0, prefix.size(), prefix) == 0) return true;
+తార్కిక is_Score_క్షేత్రం(స్థిరరాశి string& క్షేత్రం) {
+    కొరకు (స్థిరరాశి అక్షరం* స్థిరరాశి keyp : {VL_CIK_THRESH, VL_CIK_బరువు, VL_CIK_సమూహం_బరువు}) {
+        స్థిరరాశి string ఉపసర్గ = string{"\001"} + keyp + "\002";
+        ఒకవేళ (క్షేత్రం.compare(0, ఉపసర్గ.కొలత(), ఉపసర్గ) == 0) తిరిగి నిజం;
     }
-    return false;
+    తిరిగి అబద్ధం;
 }
 
 // The name of a bin's record without the keys of the coverage computation, which the records of
 // a bin may differ in, so identifying the bin.  Its name does not: covergroups of distinct scopes
 // may share a name.
-string binIdentity(const string& recordName) {
-    string identity;
-    string::size_type start = 0;
-    while (start < recordName.size()) {
-        string::size_type end = recordName.find('\001', start + 1);
-        if (end == string::npos) end = recordName.size();
-        const string field = recordName.substr(start, end - start);
-        if (!isScoreField(field)) identity += field;
-        start = end;
+string bin_తటస్థం(స్థిరరాశి string& రికార్డు_Name) {
+    string తటస్థం;
+    string::కొలత_type ప్రారంభం = 0;
+    అయితే (ప్రారంభం < రికార్డు_Name.కొలత()) {
+        string::కొలత_type చివర = రికార్డు_Name.కనుగొను('\001', ప్రారంభం + 1);
+        ఒకవేళ (చివర == string::npos) చివర = రికార్డు_Name.కొలత();
+        స్థిరరాశి string క్షేత్రం = రికార్డు_Name.substr(ప్రారంభం, చివర - ప్రారంభం);
+        ఒకవేళ (!is_Score_క్షేత్రం(క్షేత్రం)) తటస్థం += క్షేత్రం;
+        ప్రారంభం = చివర;
     }
-    return identity;
+    తిరిగి తటస్థం;
 }
 
-bool isCovergroup(const VlcPoint& point) { return point.type() == s_covergroupType; }
+తార్కిక isCovergroup(స్థిరరాశి Vlc_బిందువు& బిందువు) { తిరిగి బిందువు.type() == s_covergroupType; }
 
 CgGroups covergroups(VlcPoints& points) {
     CgGroups groups;
-    for (const VlcPoints::ByName::value_type& i : points) {
-        const VlcPoint& pt = points.pointNumber(i.second);
-        if (!isCovergroup(pt)) continue;
+    కొరకు (స్థిరరాశి VlcPoints::ByName::విలువ_type& i : points) {
+        స్థిరరాశి Vlc_బిందువు& pt = points.బిందువు_సంఖ్య(i.రెండవ);
+        ఒకవేళ (!isCovergroup(pt)) కొనసాగు;
         // Named '<covergroup>.<item>.<bin>', where only the bin, of its own key, may have dots
-        const string hier = pt.hier();
+        స్థిరరాశి string hier = pt.hier();
         string bin = pt.bin();
-        if (bin.empty() || bin.size() >= hier.size()) bin = hier.substr(hier.rfind('.') + 1);
-        const string itemHier
-            = hier.substr(0, hier.size() - std::min(hier.size(), bin.size() + 1));
-        CgGroup& group = groups[pt.page()];
-        group.addRecord(itemHier.substr(0, itemHier.rfind('.')), keyNumber(pt.groupWeight()));
-        CgItem& item = group.findNewItem(itemHier);
-        item.addRecord(keyNumber(pt.weight()));
-        if (!pt.binType().empty()) continue;  // Not coverable
-        item.findNewBin(binIdentity(pt.name())).addRecord(bin, pt.count(), keyNumber(pt.thresh()));
+        ఒకవేళ (bin.ఖాళీలు() || bin.కొలత() >= hier.కొలత()) bin = hier.substr(hier.rfind('.') + 1);
+        స్థిరరాశి string అంశం_Hier
+            = hier.substr(0, hier.కొలత() - std::min(hier.కొలత(), bin.కొలత() + 1));
+        Cg_సమూహం& సమూహం = groups[pt.పుట()];
+        సమూహం.కూడు_రికార్డు(అంశం_Hier.substr(0, అంశం_Hier.rfind('.')), కీలకం_సంఖ్య(pt.సమూహం_బరువు()));
+        Cg_అంశం& అంశం_2 = సమూహం.కనుగొను_New_అంశం(అంశం_Hier);
+        అంశం_2.కూడు_రికార్డు(కీలకం_సంఖ్య(pt.బరువు_2()));
+        ఒకవేళ (!pt.binType().ఖాళీలు()) కొనసాగు;  // Not coverable
+        అంశం_2.కనుగొను_New_Bin(bin_తటస్థం(pt.name())).కూడు_రికార్డు(bin, pt.లెక్క(), కీలకం_సంఖ్య(pt.thresh()));
     }
-    return groups;
+    తిరిగి groups;
 }
 
-Tally itemTally(const CgItem& item) {
+Tally అంశం_Tally(స్థిరరాశి Cg_అంశం& అంశం_2) {
     Tally tally;
-    for (const std::pair<const string, CgBin>& bin : item.bins()) {
-        tally.addPoint(bin.second.covered());
+    కొరకు (స్థిరరాశి std::pair<స్థిరరాశి string, CgBin>& bin : అంశం_2.bins()) {
+        tally.కూడు_బిందువు(bin.రెండవ.covered());
     }
     // Without bins, 0.0, or 100.0 if of zero weight (IEEE 1800-2023 19.11.1)
-    tally.score(tally.total() ? pct(tally.hit(), tally.total()) : item.weight() ? 0.0 : 100.0);
-    return tally;
+    tally.score(tally.మొత్తం() ? pct(tally.తగిలింది(), tally.మొత్తం()) : అంశం_2.బరువు_2() ? 0.0 : 100.0);
+    తిరిగి tally;
 }
 
 // The tally of a covergroup; contributesp, if its items have weight and bins, so that it counts
 // in the coverage of covergroups together
-Tally groupTally(const CgGroup& group, bool* contributesp = nullptr) {
+Tally సమూహం_Tally(స్థిరరాశి Cg_సమూహం& సమూహం, తార్కిక* contributesp = శూన్యసూచిక) {
     Tally tally;
-    double weighted = 0.0;
-    double weights = 0.0;
-    for (const std::pair<const string, CgItem>& it : group.items()) {
-        const Tally item = itemTally(it.second);
-        tally.addPoints(item);
-        if (!item.total()) continue;  // Excluded from both sums
-        weighted += static_cast<double>(it.second.weight()) * item.score();
-        weights += static_cast<double>(it.second.weight());
+    ద్విగుణ weighted = 0.0;
+    ద్విగుణ weights = 0.0;
+    కొరకు (స్థిరరాశి std::pair<స్థిరరాశి string, Cg_అంశం>& it : సమూహం.వస్తువులు()) {
+        స్థిరరాశి Tally అంశం_2 = అంశం_Tally(it.రెండవ);
+        tally.కూడు_Points(అంశం_2);
+        ఒకవేళ (!అంశం_2.మొత్తం()) కొనసాగు;  // Excluded from both sums
+        weighted += static_cast<ద్విగుణ>(it.రెండవ.బరువు_2()) * అంశం_2.score();
+        weights += static_cast<ద్విగుణ>(it.రెండవ.బరువు_2());
     }
-    if (contributesp) *contributesp = weights != 0.0;
+    ఒకవేళ (contributesp) *contributesp = weights != 0.0;
     // Without items of weight and bins, 0.0, or 100.0 if of zero weight
-    tally.score(weights != 0.0 ? weighted / weights : group.weight() ? 0.0 : 100.0);
-    return tally;
+    tally.score(weights != 0.0 ? weighted / weights : సమూహం.బరువు_2() ? 0.0 : 100.0);
+    తిరిగి tally;
 }
 
-Tally groupsTally(const std::vector<const CgGroup*>& groups) {
+Tally groupsTally(స్థిరరాశి std::సదిశ<స్థిరరాశి Cg_సమూహం*>& groups) {
     Tally tally;
-    double weighted = 0.0;
-    double weights = 0.0;
-    bool anyWeight = false;
-    for (const CgGroup* const groupp : groups) {
-        bool contributes = false;
-        const Tally group = groupTally(*groupp, &contributes);
-        tally.addPoints(group);
-        if (groupp->weight()) anyWeight = true;
-        if (!contributes) continue;
-        weighted += static_cast<double>(groupp->weight()) * group.score();
-        weights += static_cast<double>(groupp->weight());
+    ద్విగుణ weighted = 0.0;
+    ద్విగుణ weights = 0.0;
+    తార్కిక any_బరువు = అబద్ధం;
+    కొరకు (స్థిరరాశి Cg_సమూహం* స్థిరరాశి groupp : groups) {
+        తార్కిక contributes = అబద్ధం;
+        స్థిరరాశి Tally సమూహం = సమూహం_Tally(*groupp, &contributes);
+        tally.కూడు_Points(సమూహం);
+        ఒకవేళ (groupp->బరువు_2()) any_బరువు = నిజం;
+        ఒకవేళ (!contributes) కొనసాగు;
+        weighted += static_cast<ద్విగుణ>(groupp->బరువు_2()) * సమూహం.score();
+        weights += static_cast<ద్విగుణ>(groupp->బరువు_2());
     }
     // Without covergroups of weight that contribute, 0.0, or 100.0 if all have zero weight
-    tally.score(weights != 0.0 ? weighted / weights : anyWeight ? 0.0 : 100.0);
-    return tally;
+    tally.score(weights != 0.0 ? weighted / weights : any_బరువు ? 0.0 : 100.0);
+    తిరిగి tally;
 }
 
 // The tallies of covergroups, of their coverpoints and crosses, and of the coverable bins of
 // those, by name; a covergroup of a dotted name also tallies in each node of its name
-std::map<string, Tally> covergroupTallies(const CgGroups& groups) {
+std::map<string, Tally> covergroupTallies(స్థిరరాశి CgGroups& groups) {
     std::map<string, Tally> tallies;
-    std::map<string, std::vector<const CgGroup*>> nodeGroups;
-    for (const CgGroups::value_type& it : groups) {
-        const CgGroup& group = it.second;
-        string path;
-        for (const string& part : splitHier(group.hier())) {
-            path = path.empty() ? part : path + "." + part;
-            nodeGroups[path].push_back(&group);
+    std::map<string, std::సదిశ<స్థిరరాశి Cg_సమూహం*>> కణుపు_Groups;
+    కొరకు (స్థిరరాశి CgGroups::విలువ_type& it : groups) {
+        స్థిరరాశి Cg_సమూహం& సమూహం = it.రెండవ;
+        string మార్గం;
+        కొరకు (స్థిరరాశి string& part : విభజించు_Hier(సమూహం.hier())) {
+            మార్గం = మార్గం.ఖాళీలు() ? part : మార్గం + "." + part;
+            కణుపు_Groups[మార్గం].నెట్టు_వెనుక(&సమూహం);
         }
-        for (const std::pair<const string, CgItem>& item : group.items()) {
-            tallies[item.first] = itemTally(item.second);
-            for (const std::pair<const string, CgBin>& bin : item.second.bins()) {
+        కొరకు (స్థిరరాశి std::pair<స్థిరరాశి string, Cg_అంశం>& అంశం_2 : సమూహం.వస్తువులు()) {
+            tallies[అంశం_2.మొదటి] = అంశం_Tally(అంశం_2.రెండవ);
+            కొరకు (స్థిరరాశి std::pair<స్థిరరాశి string, CgBin>& bin : అంశం_2.రెండవ.bins()) {
                 // Of the bins of the name
-                tallies[item.first + "." + bin.second.name()].addPoint(bin.second.covered());
+                tallies[అంశం_2.మొదటి + "." + bin.రెండవ.name()].కూడు_బిందువు(bin.రెండవ.covered());
             }
         }
     }
-    for (const std::pair<const string, std::vector<const CgGroup*>>& it : nodeGroups) {
-        tallies[it.first]
-            = it.second.size() == 1 ? groupTally(*it.second.front()) : groupsTally(it.second);
+    కొరకు (స్థిరరాశి std::pair<స్థిరరాశి string, std::సదిశ<స్థిరరాశి Cg_సమూహం*>>& it : కణుపు_Groups) {
+        tallies[it.మొదటి]
+            = it.రెండవ.కొలత() == 1 ? సమూహం_Tally(*it.రెండవ.front()) : groupsTally(it.రెండవ);
     }
-    return tallies;
+    తిరిగి tallies;
 }
 
 // Shared row formatter.  The callers choose which rows to print; this only keeps
 // the text layout identical between the flat and hierarchy reports.
-void printIndent(size_t indent) {
-    for (size_t i = 0; i < indent; ++i) std::cout << ' ';
+శూన్య printIndent(కొలత_t indent) {
+    కొరకు (కొలత_t i = 0; i < indent; ++i) std::బయటకు << ' ';
 }
 
-void printTallyRow(const string& type, const Tally& tally, size_t indent, size_t typeWidth,
-                   size_t countWidth) {
+శూన్య print_Tally_అడ్డువరుస(స్థిరరాశి string& type, స్థిరరాశి Tally& tally, కొలత_t indent, కొలత_t type_వెడల్పు,
+                   కొలత_t లెక్క_వెడల్పు) {
     printIndent(indent);
     // A score is complete at 100%, which it may reach with bins of no weight uncovered
-    const string percent = tally.scored() ? pctValueString(tally.score(), tally.score() >= 100.0)
-                                          : pctString(tally.hit(), tally.total());
+    స్థిరరాశి string percent = tally.scored() ? pct_విలువ_String(tally.score(), tally.score() >= 100.0)
+                                          : pctString(tally.తగిలింది(), tally.మొత్తం());
     // Right-align percentages to the width of "100.0%", so that rows line up
-    std::cout << std::left << std::setw(typeWidth) << type << " : " << std::right << std::fixed
-              << std::setw(6) << percent << " (" << std::setw(countWidth) << tally.hit() << "/"
-              << std::setw(countWidth) << tally.total() << ")\n";
+    std::బయటకు << std::ఎడమ << std::setw(type_వెడల్పు) << type << " : " << std::కుడి << std::fixed
+              << std::setw(6) << percent << " (" << std::setw(లెక్క_వెడల్పు) << tally.తగిలింది() << "/"
+              << std::setw(లెక్క_వెడల్పు) << tally.మొత్తం() << ")\n";
 }
 
-size_t countWidth(const TypeTally& tally) {
-    size_t width = cvtToStr(0).size();
-    for (TypeTally::const_iterator it = tally.begin(); it != tally.end(); ++it) {
-        width = std::max(width, cvtToStr(it->second.hit()).size());
-        width = std::max(width, cvtToStr(it->second.total()).size());
+కొలత_t లెక్క_వెడల్పు(స్థిరరాశి TypeTally& tally) {
+    కొలత_t వెడల్పు = cvt_గమ్యం_Str(0).కొలత();
+    కొరకు (TypeTally::const_iterator it = tally.begin(); it != tally.చివర(); ++it) {
+        వెడల్పు = std::max(వెడల్పు, cvt_గమ్యం_Str(it->రెండవ.తగిలింది()).కొలత());
+        వెడల్పు = std::max(వెడల్పు, cvt_గమ్యం_Str(it->రెండవ.మొత్తం()).కొలత());
     }
-    return width;
+    తిరిగి వెడల్పు;
 }
 
-size_t typeWidth(const TypeTally& tally) {
-    size_t typeWidth = 0;
-    for (const char* const typep : s_orderedTypes) {
-        const string type = typep;
-        typeWidth = std::max(typeWidth, type.size());
+కొలత_t type_వెడల్పు(స్థిరరాశి TypeTally& tally) {
+    కొలత_t type_వెడల్పు = 0;
+    కొరకు (స్థిరరాశి అక్షరం* స్థిరరాశి typep : s_orderedTypes) {
+        స్థిరరాశి string type = typep;
+        type_వెడల్పు = std::max(type_వెడల్పు, type.కొలత());
     }
-    for (TypeTally::const_iterator it = tally.begin(); it != tally.end(); ++it) {
-        typeWidth = std::max(typeWidth, it->first.size());
+    కొరకు (TypeTally::const_iterator it = tally.begin(); it != tally.చివర(); ++it) {
+        type_వెడల్పు = std::max(type_వెడల్పు, it->మొదటి.కొలత());
     }
-    return typeWidth;
+    తిరిగి type_వెడల్పు;
 }
 
-void printTypeTally(const TypeTally& tally, size_t indent, bool includeMissingOrdered) {
+శూన్య printTypeTally(స్థిరరాశి TypeTally& tally, కొలత_t indent, తార్కిక includeMissingOrdered) {
     // Print standard coverage types first for stable output.  When requested,
     // missing standard rows are printed with zero counts for compatibility with
     // the historical flat summary output.
-    const size_t typWidth = typeWidth(tally);
-    const size_t cntWidth = countWidth(tally);
-    for (const char* const typep : s_orderedTypes) {
-        const string type = typep;
-        const TypeTally::const_iterator it = tally.find(type);
-        if (it != tally.end()) {
-            printTallyRow(type, it->second, indent, typWidth, cntWidth);
-        } else if (includeMissingOrdered) {
-            printTallyRow(type, Tally{}, indent, typWidth, cntWidth);
+    స్థిరరాశి కొలత_t typ_వెడల్పు = type_వెడల్పు(tally);
+    స్థిరరాశి కొలత_t cnt_వెడల్పు = లెక్క_వెడల్పు(tally);
+    కొరకు (స్థిరరాశి అక్షరం* స్థిరరాశి typep : s_orderedTypes) {
+        స్థిరరాశి string type = typep;
+        స్థిరరాశి TypeTally::const_iterator it = tally.కనుగొను(type);
+        ఒకవేళ (it != tally.చివర()) {
+            print_Tally_అడ్డువరుస(type, it->రెండవ, indent, typ_వెడల్పు, cnt_వెడల్పు);
+        } లేకపోతే ఒకవేళ (includeMissingOrdered) {
+            print_Tally_అడ్డువరుస(type, Tally{}, indent, typ_వెడల్పు, cnt_వెడల్పు);
         }
     }
-    for (TypeTally::const_iterator it = tally.begin(); it != tally.end(); ++it) {
-        if (!isOrderedType(it->first)) {
-            printTallyRow(it->first, it->second, indent, typWidth, cntWidth);
+    కొరకు (TypeTally::const_iterator it = tally.begin(); it != tally.చివర(); ++it) {
+        ఒకవేళ (!isOrderedType(it->మొదటి)) {
+            print_Tally_అడ్డువరుస(it->మొదటి, it->రెండవ, indent, typ_వెడల్పు, cnt_వెడల్పు);
         }
     }
 }
 
 // Print covergroups, coverpoints, crosses, and bins one per line, so that searching for a name
 // shows its coverage
-void printCovergroupTallies(const std::map<string, Tally>& tallies, int levels) {
+శూన్య printCovergroupTallies(స్థిరరాశి std::map<string, Tally>& tallies, పూర్ణాంకం స్థాయిలు) {
     std::map<string, Tally> shown;
-    size_t nameWidth = 0;
-    for (const std::pair<const string, Tally>& it : tallies) {
-        if (levels >= 0 && static_cast<int>(splitHier(it.first).size()) > levels + 1) continue;
-        shown.insert(it);
-        nameWidth = std::max(nameWidth, it.first.size());
+    కొలత_t name_వెడల్పు = 0;
+    కొరకు (స్థిరరాశి std::pair<స్థిరరాశి string, Tally>& it : tallies) {
+        ఒకవేళ (స్థాయిలు >= 0 && static_cast<పూర్ణాంకం>(విభజించు_Hier(it.మొదటి).కొలత()) > స్థాయిలు + 1) కొనసాగు;
+        shown.చొప్పించు(it);
+        name_వెడల్పు = std::max(name_వెడల్పు, it.మొదటి.కొలత());
     }
-    const size_t cntWidth = countWidth(shown);
-    std::cout << "Covergroup Coverage Summary:\n";
-    for (const std::pair<const string, Tally>& it : shown) {
-        printTallyRow(it.first, it.second, s_summaryIndent, nameWidth, cntWidth);
+    స్థిరరాశి కొలత_t cnt_వెడల్పు = లెక్క_వెడల్పు(shown);
+    std::బయటకు << "Covergroup Coverage Summary:\n";
+    కొరకు (స్థిరరాశి std::pair<స్థిరరాశి string, Tally>& it : shown) {
+        print_Tally_అడ్డువరుస(it.మొదటి, it.రెండవ, s_summaryIndent, name_వెడల్పు, cnt_వెడల్పు);
     }
 }
 
 }  // namespace
 
-void VlcTop::readCoverage(const string& filename, bool nonfatal) {
+శూన్య Vlc_శిఖరం::readCoverage(స్థిరరాశి string& filename, తార్కిక nonfatal) {
     UINFO(2, "readCoverage " << filename);
 
     std::ifstream is{filename.c_str()};
-    if (!is) {
-        if (!nonfatal) v3fatal("Can't read coverage file: " << filename);
-        return;
+    ఒకవేళ (!is) {
+        ఒకవేళ (!nonfatal) v3fatal("Can't read coverage file: " << filename);
+        తిరిగి;
     }
 
     // Testrun and computrons argument unsupported as yet
-    VlcTest* const testp = tests().newTest(filename, 0, 0);
+    VlcTest* స్థిరరాశి testp = tests().newTest(filename, 0, 0);
 
     uint64_t lineno = 0;
-    while (!is.eof()) {
-        const string line = V3Os::getline(is);
+    అయితే (!is.eof()) {
+        స్థిరరాశి string పంక్తి = V3Os::getline(is);
         ++lineno;
         // UINFO(9, " got " << line);
-        if (line[0] == 'C') {
+        ఒకవేళ (పంక్తి[0] == 'C') {
             // The count follows the last "' ": a point may hold one too, as does a covergroup
             // type named with the value of a string parameter
-            const string::size_type secspace = line.rfind("' ");
-            if (secspace == string::npos || secspace < 3) {
+            స్థిరరాశి string::కొలత_type secspace = పంక్తి.rfind("' ");
+            ఒకవేళ (secspace == string::npos || secspace < 3) {
                 v3error("Malformed coverage point, without a count: " << filename << ":"
                                                                       << lineno);
-                continue;
+                కొనసాగు;
             }
-            const string point = line.substr(3, secspace - 3);
-            if (!opt.isTypeMatch(point.c_str())) continue;
+            స్థిరరాశి string బిందువు = పంక్తి.substr(3, secspace - 3);
+            ఒకవేళ (!opt.is_Type_సరిపోలిక(బిందువు.c_str())) కొనసాగు;
 
-            const uint64_t hits = std::atoll(line.c_str() + secspace + 1);
+            స్థిరరాశి uint64_t తగిలినవి = std::atoll(పంక్తి.c_str() + secspace + 1);
             // UINFO(9, "   point '" << point << "'" << " " << hits);
 
-            const uint64_t pointnum = points().findAddPoint(point, hits);
-            if (opt.rank()) {  // Only if ranking - uses a lot of memory
+            స్థిరరాశి uint64_t pointnum = points().కనుగొను_కూడు_బిందువు(బిందువు, తగిలినవి);
+            ఒకవేళ (opt.rank()) {  // Only if ranking - uses a lot of memory
                 // A test covers a point with a threshold (option.at_least) when its own hits
                 // reach it
-                const uint64_t needed = std::max(
-                    VlcBuckets::sufficient(), keyNumber(points().pointNumber(pointnum).thresh()));
-                if (hits >= needed) {
-                    points().pointNumber(pointnum).testsCoveringInc();
-                    testp->buckets().addData(pointnum, hits);
+                స్థిరరాశి uint64_t needed = std::max(
+                    VlcBuckets::sufficient(), కీలకం_సంఖ్య(points().బిందువు_సంఖ్య(pointnum).thresh()));
+                ఒకవేళ (తగిలినవి >= needed) {
+                    points().బిందువు_సంఖ్య(pointnum).testsCoveringInc();
+                    testp->buckets().కూడు_దత్తాంశం(pointnum, తగిలినవి);
                 }
             }
         }
     }
 }
 
-void VlcTop::writeCoverage(const string& filename) {
+శూన్య Vlc_శిఖరం::writeCoverage(స్థిరరాశి string& filename) {
     UINFO(2, "writeCoverage " << filename);
 
     std::ofstream os{filename.c_str()};
-    if (!os) {
+    ఒకవేళ (!os) {
         v3fatal("Can't write file: " << filename);
-        return;
+        తిరిగి;
     }
 
     os << "# SystemC::Coverage-3\n";
-    for (const auto& i : m_points) {
-        const VlcPoint& point = m_points.pointNumber(i.second);
-        os << "C '" << point.name() << "' " << point.count() << '\n';
+    కొరకు (స్థిరరాశి స్వయంచాలక& i : m_points) {
+        స్థిరరాశి Vlc_బిందువు& బిందువు = m_points.బిందువు_సంఖ్య(i.రెండవ);
+        os << "C '" << బిందువు.name() << "' " << బిందువు.లెక్క() << '\n';
     }
 }
 
-void VlcTop::writeInfo(const string& filename) {
+శూన్య Vlc_శిఖరం::writeInfo(స్థిరరాశి string& filename) {
     UINFO(2, "writeInfo " << filename);
 
     std::ofstream os{filename.c_str()};
-    if (!os) {
+    ఒకవేళ (!os) {
         v3fatal("Can't write file: " << filename);
-        return;
+        తిరిగి;
     }
 
     annotateCalc();
@@ -546,46 +546,46 @@ void VlcTop::writeInfo(const string& filename) {
     //   end_of_record
 
     os << "TN:verilator_coverage\n";
-    for (auto& si : m_sources) {
-        VlcSource& source = si.second;
-        os << "SF:" << source.name() << '\n';
-        VlcSource::LinenoMap& lines = source.lines();
-        int branchesFound = 0;
-        int branchesHit = 0;
-        for (auto& li : lines) {
-            VlcSourceCount& sc = li.second;
-            uint64_t daCount = 0;
-            std::vector<const VlcPoint*> infoPoints;
-            for (const auto& point : sc.points()) {
-                daCount = std::max(daCount, point->count());
-                infoPoints.push_back(point);
+    కొరకు (స్వయంచాలక& si : m_sources) {
+        Vlc_ఆధారం& ఆధారం = si.రెండవ;
+        os << "SF:" << ఆధారం.name() << '\n';
+        Vlc_ఆధారం::LinenoMap& పంక్తులు = ఆధారం.పంక్తులు();
+        పూర్ణాంకం branches_దొరికింది = 0;
+        పూర్ణాంకం branches_తగిలింది = 0;
+        కొరకు (స్వయంచాలక& li : పంక్తులు) {
+            Vlc_ఆధారం_లెక్క& sc = li.రెండవ;
+            uint64_t da_లెక్క = 0;
+            std::సదిశ<స్థిరరాశి Vlc_బిందువు*> infoPoints;
+            కొరకు (స్థిరరాశి స్వయంచాలక& బిందువు : sc.points()) {
+                da_లెక్క = std::max(da_లెక్క, బిందువు->లెక్క());
+                infoPoints.నెట్టు_వెనుక(బిందువు);
             }
-            os << "DA:" << sc.lineno() << "," << daCount << "\n";
-            if (infoPoints.size() <= 1) continue;
-            branchesFound += static_cast<int>(infoPoints.size());
-            int point_num = 0;
-            for (const VlcPoint* point : infoPoints) {
+            os << "DA:" << sc.lineno() << "," << da_లెక్క << "\n";
+            ఒకవేళ (infoPoints.కొలత() <= 1) కొనసాగు;
+            branches_దొరికింది += static_cast<పూర్ణాంకం>(infoPoints.కొలత());
+            పూర్ణాంకం బిందువు_అంకె_2 = 0;
+            కొరకు (స్థిరరాశి Vlc_బిందువు* బిందువు : infoPoints) {
                 os << "BRDA:" << sc.lineno() << ",";
-                if (point->isFsmArc()) {
+                ఒకవేళ (బిందువు->isFsmArc()) {
                     os << "2,";
-                    os << point->fsmFromState() << "->" << point->fsmToState();
-                } else if (point->comment().empty()) {
+                    os << బిందువు->fsmFromState() << "->" << బిందువు->fsm_గమ్యం_State();
+                } లేకపోతే ఒకవేళ (బిందువు->comment().ఖాళీలు()) {
                     os << "0,";
-                    os << point_num;
-                } else {
-                    os << (point->isFsmState() ? '1' : '0') << ',';
-                    std::string comment(point->comment());
-                    std::replace(comment.begin(), comment.end(), ',', '_');
+                    os << బిందువు_అంకె_2;
+                } లేకపోతే {
+                    os << (బిందువు->isFsmState() ? '1' : '0') << ',';
+                    std::string comment(బిందువు->comment());
+                    std::replace(comment.begin(), comment.చివర(), ',', '_');
                     os << comment;
                 }
-                os << "," << point->count() << "\n";
+                os << "," << బిందువు->లెక్క() << "\n";
 
-                branchesHit += opt.countOk(point->count());
-                ++point_num;
+                branches_తగిలింది += opt.లెక్క_Ok(బిందువు->లెక్క());
+                ++బిందువు_అంకె_2;
             }
         }
-        os << "BRF:" << branchesFound << '\n';
-        os << "BRH:" << branchesHit << '\n';
+        os << "BRF:" << branches_దొరికింది << '\n';
+        os << "BRH:" << branches_తగిలింది << '\n';
 
         os << "end_of_record\n";
     }
@@ -593,202 +593,202 @@ void VlcTop::writeInfo(const string& filename) {
 
 //********************************************************************
 
-struct CmpComputrons final {
-    bool operator()(const VlcTest* lhsp, const VlcTest* rhsp) const {
-        if (lhsp->computrons() != rhsp->computrons()) {
-            return lhsp->computrons() < rhsp->computrons();
+నిర్మాణం CmpComputrons final {
+    తార్కిక క్రియాకారకం()(స్థిరరాశి VlcTest* lhsp, స్థిరరాశి VlcTest* rhsp) స్థిరరాశి {
+        ఒకవేళ (lhsp->computrons() != rhsp->computrons()) {
+            తిరిగి lhsp->computrons() < rhsp->computrons();
         }
-        return lhsp->bucketsCovered() > rhsp->bucketsCovered();
+        తిరిగి lhsp->bucketsCovered() > rhsp->bucketsCovered();
     }
 };
 
-void VlcTop::rank() {
+శూన్య Vlc_శిఖరం::rank() {
     UINFO(2, "rank...");
     uint64_t nextrank = 1;
 
     // Sort by computrons, so fast tests get selected first
-    std::vector<VlcTest*> bytime;
-    for (const auto& testp : m_tests) {
-        if (testp->bucketsCovered()) {  // else no points, so can't help us
-            bytime.push_back(testp);
+    std::సదిశ<VlcTest*> bytime;
+    కొరకు (స్థిరరాశి స్వయంచాలక& testp : m_tests) {
+        ఒకవేళ (testp->bucketsCovered()) {  // else no points, so can't help us
+            bytime.నెట్టు_వెనుక(testp);
         }
     }
-    sort(bytime.begin(), bytime.end(), CmpComputrons());  // Sort the vector
+    క్రమీకరించు(bytime.begin(), bytime.చివర(), CmpComputrons());  // Sort the vector
 
-    VlcBuckets remaining;
-    for (const auto& i : m_points) {
-        const VlcPoint* const pointp = &points().pointNumber(i.second);
+    VlcBuckets మిగిలిన;
+    కొరకు (స్థిరరాశి స్వయంచాలక& i : m_points) {
+        స్థిరరాశి Vlc_బిందువు* స్థిరరాశి pointp = &points().బిందువు_సంఖ్య(i.రెండవ);
         // If any tests hit this point, then we'll need to cover it.
-        if (pointp->testsCovering()) remaining.addData(pointp->pointNum(), 1);
+        ఒకవేళ (pointp->testsCovering()) మిగిలిన.కూడు_దత్తాంశం(pointp->బిందువు_అంకె(), 1);
     }
 
     // Additional Greedy algorithm
     // O(n^2) Ouch.  Probably the thing to do is randomize the order of data
     // then hierarchically solve a small subset of tests, and take resulting
     // solution and move up to larger subset of tests.  (Aka quick sort.)
-    while (true) {
-        if (debug() >= 9) {
-            UINFO_PREFIX("Left on iter" << nextrank << ": ");  // LCOV_EXCL_LINE
-            remaining.dump();  // LCOV_EXCL_LINE
+    అయితే (నిజం) {
+        ఒకవేళ (debug() >= 9) {
+            UINFO_ఉపసర్గ("Left on iter" << nextrank << ": ");  // LCOV_EXCL_LINE
+            మిగిలిన.dump();  // LCOV_EXCL_LINE
         }
-        VlcTest* bestTestp = nullptr;
-        uint64_t bestRemain = 0;
-        for (const auto& testp : bytime) {
-            if (!testp->rank()) {
-                const uint64_t remain = testp->buckets().dataPopCount(remaining);
-                if (remain > bestRemain) {
-                    bestTestp = testp;
-                    bestRemain = remain;
+        VlcTest* ఉత్తమ_Testp = శూన్యసూచిక;
+        uint64_t ఉత్తమ_Remain = 0;
+        కొరకు (స్థిరరాశి స్వయంచాలక& testp : bytime) {
+            ఒకవేళ (!testp->rank()) {
+                స్థిరరాశి uint64_t remain = testp->buckets().దత్తాంశం_తీయి_లెక్క(మిగిలిన);
+                ఒకవేళ (remain > ఉత్తమ_Remain) {
+                    ఉత్తమ_Testp = testp;
+                    ఉత్తమ_Remain = remain;
                 }
             }
         }
-        if (VlcTest* const testp = bestTestp) {
+        ఒకవేళ (VlcTest* స్థిరరాశి testp = ఉత్తమ_Testp) {
             testp->rank(nextrank++);
-            testp->rankPoints(bestRemain);
-            remaining.orData(bestTestp->buckets());
-        } else {
-            break;  // No test covering more stuff found
+            testp->rankPoints(ఉత్తమ_Remain);
+            మిగిలిన.or_దత్తాంశం(ఉత్తమ_Testp->buckets());
+        } లేకపోతే {
+            ఆపు;  // No test covering more stuff found
         }
     }
 }
 
-void VlcTop::annotateCalc() {
+శూన్య Vlc_శిఖరం::annotateCalc() {
     // Calculate per-line information into filedata structure
-    for (const auto& i : m_points) {
-        const VlcPoint& point = m_points.pointNumber(i.second);
-        const string filename = point.filename();
-        const int lineno = point.lineno();
-        if (!filename.empty() && lineno != 0) {
-            VlcSource& source = sources().findNewSource(filename);
-            UINFO(9, "AnnoCalc count " << filename << ":" << lineno << ":" << point.column() << " "
-                                       << point.count() << " " << point.linescov());
+    కొరకు (స్థిరరాశి స్వయంచాలక& i : m_points) {
+        స్థిరరాశి Vlc_బిందువు& బిందువు = m_points.బిందువు_సంఖ్య(i.రెండవ);
+        స్థిరరాశి string filename = బిందువు.filename();
+        స్థిరరాశి పూర్ణాంకం lineno = బిందువు.lineno();
+        ఒకవేళ (!filename.ఖాళీలు() && lineno != 0) {
+            Vlc_ఆధారం& ఆధారం = sources().కనుగొను_New_ఆధారం(filename);
+            UINFO(9, "AnnoCalc count " << filename << ":" << lineno << ":" << బిందువు.స్తంభం_2() << " "
+                                       << బిందువు.లెక్క() << " " << బిందువు.linescov());
             // Base coverage
-            source.insertPoint(lineno, &point);
+            ఆధారం.చొప్పించు_బిందువు(lineno, &బిందువు);
             // Additional lines covered by this statement
-            bool range = false;
-            int start = 0;
-            int end = 0;
-            const string linescov = point.linescov();
-            for (const char* covp = linescov.c_str(); true; ++covp) {
-                if (!*covp || *covp == ',') {  // Ending
-                    for (int lni = start; start && lni <= end; ++lni) {
-                        source.insertPoint(lni, &point);
+            తార్కిక range = అబద్ధం;
+            పూర్ణాంకం ప్రారంభం = 0;
+            పూర్ణాంకం చివర = 0;
+            స్థిరరాశి string linescov = బిందువు.linescov();
+            కొరకు (స్థిరరాశి అక్షరం* covp = linescov.c_str(); నిజం; ++covp) {
+                ఒకవేళ (!*covp || *covp == ',') {  // Ending
+                    కొరకు (పూర్ణాంకం lni = ప్రారంభం; ప్రారంభం && lni <= చివర; ++lni) {
+                        ఆధారం.చొప్పించు_బిందువు(lni, &బిందువు);
                     }
-                    if (!*covp) break;
-                    start = 0;  // Prep for next
-                    end = 0;
-                    range = false;
-                } else if (*covp == '-') {
-                    range = true;
-                } else if (std::isdigit(*covp)) {
-                    const char* const digitsp = covp;
-                    while (std::isdigit(*covp)) ++covp;
+                    ఒకవేళ (!*covp) ఆపు;
+                    ప్రారంభం = 0;  // Prep for next
+                    చివర = 0;
+                    range = అబద్ధం;
+                } లేకపోతే ఒకవేళ (*covp == '-') {
+                    range = నిజం;
+                } లేకపోతే ఒకవేళ (std::అంకెనా(*covp)) {
+                    స్థిరరాశి అక్షరం* స్థిరరాశి digitsp = covp;
+                    అయితే (std::అంకెనా(*covp)) ++covp;
                     --covp;  // Will inc in for loop
-                    if (!range) start = std::atoi(digitsp);
-                    end = std::atoi(digitsp);
+                    ఒకవేళ (!range) ప్రారంభం = std::atoi(digitsp);
+                    చివర = std::atoi(digitsp);
                 }
             }
         }
     }
 }
 
-void VlcTop::annotateCalcNeeded() {
+శూన్య Vlc_శిఖరం::annotateCalcNeeded() {
     // Compute which files are needed.  A file isn't needed if it has appropriate
     // coverage in all categories
-    int totCases = 0;
-    int totOk = 0;
-    for (auto& si : m_sources) {
-        VlcSource& source = si.second;
+    పూర్ణాంకం totCases = 0;
+    పూర్ణాంకం totOk = 0;
+    కొరకు (స్వయంచాలక& si : m_sources) {
+        Vlc_ఆధారం& ఆధారం = si.రెండవ;
         // UINFO(1, "Source " << source.name());
-        if (opt.annotateAll()) source.needed(true);
-        const VlcSource::LinenoMap& lines = source.lines();
-        for (auto& li : lines) {
-            const VlcSourceCount& sc = li.second;
+        ఒకవేళ (opt.annotateAll()) ఆధారం.needed(నిజం);
+        స్థిరరాశి Vlc_ఆధారం::LinenoMap& పంక్తులు = ఆధారం.పంక్తులు();
+        కొరకు (స్వయంచాలక& li : పంక్తులు) {
+            స్థిరరాశి Vlc_ఆధారం_లెక్క& sc = li.రెండవ;
             // UINFO(0, "Source " << source.name() << ":" << sc.lineno() << ":" << sc.column());
             ++totCases;
-            if (opt.countOk(sc.minCount())) {
+            ఒకవేళ (opt.లెక్క_Ok(sc.min_లెక్క())) {
                 ++totOk;
-            } else {
-                source.needed(true);
+            } లేకపోతే {
+                ఆధారం.needed(నిజం);
             }
         }
     }
-    std::cout << "Annotation Summary:\n";
-    std::cout << "  lines with all attached points covered : ";
-    std::cout << pctString(totOk, totCases) << "  (" << totOk << "/" << totCases << ")\n";
-    if (totOk != totCases) cout << "See lines with '%00' in " << opt.annotateOut() << '\n';
+    std::బయటకు << "Annotation Summary:\n";
+    std::బయటకు << "  lines with all attached points covered : ";
+    std::బయటకు << pctString(totOk, totCases) << "  (" << totOk << "/" << totCases << ")\n";
+    ఒకవేళ (totOk != totCases) బయటకు << "See lines with '%00' in " << opt.annotate_బహిర్గతం() << '\n';
 }
 
-void VlcTop::annotateOutputFiles(const string& dirname) {
+శూన్య Vlc_శిఖరం::annotateOutputFiles(స్థిరరాశి string& dirname) {
     // Create if uncreated, ignore errors
     V3Os::createDir(dirname);
-    for (auto& si : m_sources) {
-        VlcSource& source = si.second;
-        if (!source.needed()) continue;
-        const string filename = source.name();
-        const string outfilename = dirname + "/" + V3Os::filenameNonDir(filename);
+    కొరకు (స్వయంచాలక& si : m_sources) {
+        Vlc_ఆధారం& ఆధారం = si.రెండవ;
+        ఒకవేళ (!ఆధారం.needed()) కొనసాగు;
+        స్థిరరాశి string filename = ఆధారం.name();
+        స్థిరరాశి string outfilename = dirname + "/" + V3Os::filenameNonDir(filename);
 
         UINFO(1, "annotateOutputFile " << filename << " -> " << outfilename);
 
         std::ifstream is{filename.c_str()};
-        if (!is) {
+        ఒకవేళ (!is) {
             v3error("Can't read annotation file: " << filename);
-            return;
+            తిరిగి;
         }
 
         std::ofstream os{outfilename.c_str()};
-        if (!os) {
+        ఒకవేళ (!os) {
             v3error("Can't write file: " << outfilename);
-            return;
+            తిరిగి;
         }
 
         os << "//      // verilator_coverage annotation\n";
 
-        int lineno = 0;
-        while (!is.eof()) {
+        పూర్ణాంకం lineno = 0;
+        అయితే (!is.eof()) {
             lineno++;
-            const std::string line = V3Os::getline(is);
+            స్థిరరాశి std::string పంక్తి = V3Os::getline(is);
 
-            VlcSource::LinenoMap& lines = source.lines();
-            const auto lit = lines.find(lineno);
-            if (lit == lines.end()) {
-                os << "        " << line << '\n';
-            } else {
-                VlcSourceCount& sc = lit->second;
+            Vlc_ఆధారం::LinenoMap& పంక్తులు = ఆధారం.పంక్తులు();
+            స్థిరరాశి స్వయంచాలక lit = పంక్తులు.కనుగొను(lineno);
+            ఒకవేళ (lit == పంక్తులు.చివర()) {
+                os << "        " << పంక్తి << '\n';
+            } లేకపోతే {
+                Vlc_ఆధారం_లెక్క& sc = lit->రెండవ;
                 // UINFO(0, "Source " << source.name() << ":" << sc.lineno() << ":" <<
                 // sc.column());
-                const bool minOk = opt.countOk(sc.minCount());
-                const bool maxOk = opt.countOk(sc.maxCount());
-                if (minOk) {
+                స్థిరరాశి తార్కిక minOk = opt.లెక్క_Ok(sc.min_లెక్క());
+                స్థిరరాశి తార్కిక maxOk = opt.లెక్క_Ok(sc.max_లెక్క());
+                ఒకవేళ (minOk) {
                     os << " ";
-                } else if (maxOk) {
+                } లేకపోతే ఒకవేళ (maxOk) {
                     os << "~";
-                } else {
+                } లేకపోతే {
                     os << "%";
                 }
-                os << std::setfill('0') << std::setw(6) << sc.maxCount() << " " << line << '\n';
+                os << std::setfill('0') << std::setw(6) << sc.max_లెక్క() << " " << పంక్తి << '\n';
 
-                if (opt.annotatePoints()) {
-                    for (const auto& pit : sc.points()) pit->dumpAnnotate(os, opt.annotateMin());
+                ఒకవేళ (opt.annotatePoints()) {
+                    కొరకు (స్థిరరాశి స్వయంచాలక& pit : sc.points()) pit->dumpAnnotate(os, opt.annotateMin());
                 }
-                bool printedFsmHeader = false;
-                for (const auto& pit : sc.points()) {
-                    if (!pit->isFsmState() && !pit->isFsmArc()) continue;
-                    if (!printedFsmHeader) {
+                తార్కిక printed_Fsm_శీర్షిక = అబద్ధం;
+                కొరకు (స్థిరరాశి స్వయంచాలక& pit : sc.points()) {
+                    ఒకవేళ (!pit->isFsmState() && !pit->isFsmArc()) కొనసాగు;
+                    ఒకవేళ (!printed_Fsm_శీర్షిక) {
                         os << "        // [FSM coverage]\n";
-                        printedFsmHeader = true;
+                        printed_Fsm_శీర్షిక = నిజం;
                     }
-                    os << (opt.countOk(pit->count()) ? " " : "%");
-                    os << std::setfill('0') << std::setw(6) << pit->count() << "        ";
-                    if (pit->isFsmState()) {
+                    os << (opt.లెక్క_Ok(pit->లెక్క()) ? " " : "%");
+                    os << std::setfill('0') << std::setw(6) << pit->లెక్క() << "        ";
+                    ఒకవేళ (pit->isFsmState()) {
                         os << "// [fsm_state " << pit->comment() << "]";
-                        if (pit->count() == 0) os << " *** UNCOVERED ***";
+                        ఒకవేళ (pit->లెక్క() == 0) os << " *** UNCOVERED ***";
                         os << "\n";
-                    } else if (pit->isFsmDefaultArc()) {
+                    } లేకపోతే ఒకవేళ (pit->isFsmDefaultArc()) {
                         os << "// [SYNTHETIC DEFAULT ARC: " << pit->comment() << "]\n";
-                    } else {
+                    } లేకపోతే {
                         os << "// [fsm_arc " << pit->comment() << "]";
-                        if (pit->fsmIsReset() && !opt.includeResetArcs()) {
+                        ఒకవేళ (pit->fsmIsReset() && !opt.includeResetArcs()) {
                             os << " [reset arc, excluded from %]";
                         }
                         os << "\n";
@@ -799,91 +799,91 @@ void VlcTop::annotateOutputFiles(const string& dirname) {
     }
 }
 
-void VlcTop::annotate(const string& dirname) {
+శూన్య Vlc_శిఖరం::annotate(స్థిరరాశి string& dirname) {
     // Calculate per-line information into filedata structure
     annotateCalc();
     annotateCalcNeeded();
     annotateOutputFiles(dirname);
 }
 
-void VlcTop::printTypeSummary() {
+శూన్య Vlc_శిఖరం::printTypeSummary() {
     TypeTally tally;
-    for (VlcPoints::ByName::value_type& i : m_points) {
-        const VlcPoint& pt = m_points.pointNumber(i.second);
-        if (isCovergroup(pt)) continue;  // Tallied below, by covergroup
-        tallyPoint(tally, displayType(pt), pt.count());
+    కొరకు (VlcPoints::ByName::విలువ_type& i : m_points) {
+        స్థిరరాశి Vlc_బిందువు& pt = m_points.బిందువు_సంఖ్య(i.రెండవ);
+        ఒకవేళ (isCovergroup(pt)) కొనసాగు;  // Tallied below, by covergroup
+        tally_బిందువు(tally, displayType(pt), pt.లెక్క());
     }
-    const CgGroups groups = covergroups(m_points);
-    if (!groups.empty()) {
-        std::vector<const CgGroup*> groupps;
-        for (const CgGroups::value_type& it : groups) groupps.push_back(&it.second);
+    స్థిరరాశి CgGroups groups = covergroups(m_points);
+    ఒకవేళ (!groups.ఖాళీలు()) {
+        std::సదిశ<స్థిరరాశి Cg_సమూహం*> groupps;
+        కొరకు (స్థిరరాశి CgGroups::విలువ_type& it : groups) groupps.నెట్టు_వెనుక(&it.రెండవ);
         tally[s_covergroupType] = groupsTally(groupps);
     }
-    if (tally.empty()) return;
-    std::cout << "Coverage Summary:\n";
+    ఒకవేళ (tally.ఖాళీలు()) తిరిగి;
+    std::బయటకు << "Coverage Summary:\n";
     // Keep the legacy summary behavior of showing standard coverage types even
     // when the input has no points of that type.
-    printTypeTally(tally, s_summaryIndent, true);
+    printTypeTally(tally, s_summaryIndent, నిజం);
 }
 
-void VlcTop::printHierarchyReport() {
+శూన్య Vlc_శిఖరం::printHierarchyReport() {
     std::map<string, TypeTally> hierTallies;
     std::map<string, TypeTally> duTallies;
-    bool hasHier = false;
-    bool hasCollapsedHier = false;
-    for (VlcPoints::ByName::value_type& i : m_points) {
-        const VlcPoint& pt = m_points.pointNumber(i.second);
-        if (isCovergroup(pt)) continue;  // Reported below, by covergroup
-        const string hier = reportHier(pt);
-        if (hier.empty()) continue;
-        hasHier = true;
-        if (isCollapsedHier(hier)) hasCollapsedHier = true;
-        const string type = displayType(pt);
-        const std::vector<string> parts = splitHier(hier);
-        string path;
-        for (std::vector<string>::const_iterator it = parts.begin(); it != parts.end(); ++it) {
-            path = path.empty() ? *it : path + "." + *it;
-            tallyPoint(hierTallies[path], type, pt.count());
+    తార్కిక hasHier = అబద్ధం;
+    తార్కిక hasCollapsedHier = అబద్ధం;
+    కొరకు (VlcPoints::ByName::విలువ_type& i : m_points) {
+        స్థిరరాశి Vlc_బిందువు& pt = m_points.బిందువు_సంఖ్య(i.రెండవ);
+        ఒకవేళ (isCovergroup(pt)) కొనసాగు;  // Reported below, by covergroup
+        స్థిరరాశి string hier = reportHier(pt);
+        ఒకవేళ (hier.ఖాళీలు()) కొనసాగు;
+        hasHier = నిజం;
+        ఒకవేళ (isCollapsedHier(hier)) hasCollapsedHier = నిజం;
+        స్థిరరాశి string type = displayType(pt);
+        స్థిరరాశి std::సదిశ<string> parts = విభజించు_Hier(hier);
+        string మార్గం;
+        కొరకు (std::సదిశ<string>::const_iterator it = parts.begin(); it != parts.చివర(); ++it) {
+            మార్గం = మార్గం.ఖాళీలు() ? *it : మార్గం + "." + *it;
+            tally_బిందువు(hierTallies[మార్గం], type, pt.లెక్క());
         }
-        tallyPoint(duTallies[duName(pt)], type, pt.count());
+        tally_బిందువు(duTallies[duName(pt)], type, pt.లెక్క());
     }
-    const std::map<string, Tally> cgTallies = covergroupTallies(covergroups(m_points));
+    స్థిరరాశి std::map<string, Tally> cgTallies = covergroupTallies(covergroups(m_points));
 
-    if (!hasHier && !cgTallies.empty()) {
-        printCovergroupTallies(cgTallies, opt.reportLevels());
-        return;
+    ఒకవేళ (!hasHier && !cgTallies.ఖాళీలు()) {
+        printCovergroupTallies(cgTallies, opt.report_స్థాయిలు());
+        తిరిగి;
     }
-    if (!hasHier) {
-        std::cout << "%Warning: --report hierarchy input has no hierarchy fields; "
+    ఒకవేళ (!hasHier) {
+        std::బయటకు << "%Warning: --report hierarchy input has no hierarchy fields; "
                   << "printing flat summary instead.\n";
         printTypeSummary();
-        return;
+        తిరిగి;
     }
 
-    const int levels = opt.reportLevels();
-    if (hasCollapsedHier) {
-        std::cout << "Note: hierarchy report contains collapsed hierarchy paths; "
+    స్థిరరాశి పూర్ణాంకం స్థాయిలు = opt.report_స్థాయిలు();
+    ఒకవేళ (hasCollapsedHier) {
+        std::బయటకు << "Note: hierarchy report contains collapsed hierarchy paths; "
                   << "it is not precise per-instance coverage.\n";
     }
-    std::cout << "Hierarchy Coverage Summary:\n";
-    for (std::map<string, TypeTally>::const_iterator it = hierTallies.begin();
-         it != hierTallies.end(); ++it) {
-        const std::vector<string> parts = splitHier(it->first);
-        if (levels >= 0 && static_cast<int>(parts.size()) > levels + 1) continue;
+    std::బయటకు << "Hierarchy Coverage Summary:\n";
+    కొరకు (std::map<string, TypeTally>::const_iterator it = hierTallies.begin();
+         it != hierTallies.చివర(); ++it) {
+        స్థిరరాశి std::సదిశ<string> parts = విభజించు_Hier(it->మొదటి);
+        ఒకవేళ (స్థాయిలు >= 0 && static_cast<పూర్ణాంకం>(parts.కొలత()) > స్థాయిలు + 1) కొనసాగు;
         printIndent(s_summaryIndent);
-        std::cout << it->first << "\n";
+        std::బయటకు << it->మొదటి << "\n";
         // Hierarchy nodes can be numerous, so only print coverage types present
         // under this node instead of repeating absent zero-count rows.
-        printTypeTally(it->second, s_reportRowIndent, false);
+        printTypeTally(it->రెండవ, s_report_అడ్డువరుస_Indent, అబద్ధం);
     }
-    std::cout << "Design Unit Coverage Summary:\n";
-    for (std::map<string, TypeTally>::const_iterator it = duTallies.begin(); it != duTallies.end();
+    std::బయటకు << "Design Unit Coverage Summary:\n";
+    కొరకు (std::map<string, TypeTally>::const_iterator it = duTallies.begin(); it != duTallies.చివర();
          ++it) {
         printIndent(s_summaryIndent);
-        std::cout << it->first << "\n";
+        std::బయటకు << it->మొదటి << "\n";
         // Design-unit summaries follow the hierarchy report style: present
         // types only, but in the same stable order as the flat summary.
-        printTypeTally(it->second, s_reportRowIndent, false);
+        printTypeTally(it->రెండవ, s_report_అడ్డువరుస_Indent, అబద్ధం);
     }
-    if (!cgTallies.empty()) printCovergroupTallies(cgTallies, levels);
+    ఒకవేళ (!cgTallies.ఖాళీలు()) printCovergroupTallies(cgTallies, స్థాయిలు);
 }

@@ -14,44 +14,44 @@
 //
 //*************************************************************************
 
-#include "config_build.h"
-#include "verilatedos.h"
+#అన్తర్భావ "config_build.h"
+#అన్తర్భావ "verilatedos.h"
 
-#include "V3Ast.h"
-#include "V3EmitCBase.h"
-#include "V3Error.h"
+#అన్తర్భావ "V3Ast.h"
+#అన్తర్భావ "V3EmitCBase.h"
+#అన్తర్భావ "V3Error.h"
 
-#include <cinttypes>
+#అన్తర్భావ <cinttypes>
 
 //######################################################################
 // Emitter that can emit NodeCons expressions
 
-class EmitCConstInit VL_NOT_FINAL : public EmitCBaseVisitorConst {
+class EmitCConstInit VL_NOT_FINAL : బహిరంగ EmitCBaseVisitorConst {
     // METHODS
-    static uint32_t tabModulus(const AstNodeDType* dtypep) {
-        const uint32_t elemBytes = dtypep->widthTotalBytes();
-        return dtypep->isString() ? 1  // String
-               : elemBytes <= 2   ? 8  // CData, SData
-               : elemBytes <= 4   ? 4  // IData
-               : elemBytes <= 8   ? 2  // QData
+    స్థిర uint32_t tabModulus(స్థిరరాశి Ast_కణుపు_DType* dtypep) {
+        స్థిరరాశి uint32_t elem_బైట్లు = dtypep->వెడల్పు_మొత్తం_బైట్లు();
+        తిరిగి dtypep->isString() ? 1  // String
+               : elem_బైట్లు <= 2   ? 8  // CData, SData
+               : elem_బైట్లు <= 4   ? 4  // IData
+               : elem_బైట్లు <= 8   ? 2  // QData
                                   : 1;
     }
 
-    void emitConsArray(AstConsArray* nodep) {
-        const AstUnpackArrayDType* const dtypep
+    శూన్య emitConsArray(AstConsArray* nodep) {
+        స్థిరరాశి AstUnpackArrayDType* స్థిరరాశి dtypep
             = VN_AS(nodep->dtypep()->skipRefp(), UnpackArrayDType);
-        const uint64_t size = dtypep->elementsConst();
+        స్థిరరాశి uint64_t కొలత = dtypep->elementsConst();
         uint32_t tabMod = tabModulus(dtypep->subDTypep());
-        if (nodep->defaultp() && !VN_IS(nodep->defaultp(), Const)) tabMod = 1;
-        for (const AstConsArrayItem* itemp = nodep->itemsp(); itemp;
-             itemp = VN_AS(itemp->nextp(), ConsArrayItem)) {
-            if (!VN_IS(itemp->valuep(), Const)) tabMod = 1;
+        ఒకవేళ (nodep->defaultp() && !VN_IS(nodep->defaultp(), Const)) tabMod = 1;
+        కొరకు (స్థిరరాశి Ast_Cons_Array_అంశం* itemp = nodep->itemsp(); itemp;
+             itemp = VN_AS(itemp->nextp(), Cons_Array_అంశం)) {
+            ఒకవేళ (!VN_IS(itemp->valuep(), Const)) tabMod = 1;
         }
         ofp()->putsNoTracking("{");
         puts("\n");
-        for (uint64_t n = 0; n < size; ++n) {
-            if (n) puts((n % tabMod) ? ", " : ",\n");
-            emitValue(nodep->valuep(n));
+        కొరకు (uint64_t n = 0; n < కొలత; ++n) {
+            ఒకవేళ (n) puts((n % tabMod) ? ", " : ",\n");
+            emit_విలువ(nodep->valuep(n));
         }
         puts("\n");
         ofp()->putsNoTracking("}");
@@ -59,22 +59,22 @@ class EmitCConstInit VL_NOT_FINAL : public EmitCBaseVisitorConst {
 
     // 'size, default, {{key, value}, ...}', where the size and default are optional, or nothing
     // if empty
-    template <typename T_Item>
-    void emitKeyedConsItems(AstNodeExpr* sizep, AstNodeExpr* defaultp, T_Item* itemsp) {
-        if (!sizep && !defaultp && !itemsp) return;
+    మూస <typename T_అంశం>
+    శూన్య emit_Keyed_Cons_వస్తువులు(Ast_కణుపు_సమాసం* sizep, Ast_కణుపు_సమాసం* defaultp, T_అంశం* itemsp) {
+        ఒకవేళ (!sizep && !defaultp && !itemsp) తిరిగి;
         puts("\n");
-        for (AstNodeExpr* const valuep : {sizep, defaultp}) {
-            if (!valuep) continue;
-            emitValue(valuep);
+        కొరకు (Ast_కణుపు_సమాసం* స్థిరరాశి valuep : {sizep, defaultp}) {
+            ఒకవేళ (!valuep) కొనసాగు;
+            emit_విలువ(valuep);
             puts(",\n");
         }
         puts("{");
-        for (T_Item* itemp = itemsp; itemp; itemp = AstNode::as<T_Item>(itemp->nextp())) {
-            if (itemp != itemsp) puts(",");
+        కొరకు (T_అంశం* itemp = itemsp; itemp; itemp = Ast_కణుపు::as<T_అంశం>(itemp->nextp())) {
+            ఒకవేళ (itemp != itemsp) puts(",");
             puts("\n{");
-            emitValue(itemp->keyp());
+            emit_విలువ(itemp->keyp());
             puts(", ");
-            emitValue(itemp->valuep());
+            emit_విలువ(itemp->valuep());
             puts("}");
         }
         puts("\n}");
@@ -82,129 +82,129 @@ class EmitCConstInit VL_NOT_FINAL : public EmitCBaseVisitorConst {
     }
 
     // The items, 'tabMod' per line if all are constants, otherwise one per line
-    template <typename T_Item>
-    void emitUnkeyedConsItems(T_Item* itemsp, uint32_t tabMod) {
-        if (!itemsp) return;
-        for (T_Item* itemp = itemsp; itemp; itemp = AstNode::as<T_Item>(itemp->nextp())) {
-            if (!VN_IS(itemp->valuep(), Const)) tabMod = 1;
+    మూస <typename T_అంశం>
+    శూన్య emit_Unkeyed_Cons_వస్తువులు(T_అంశం* itemsp, uint32_t tabMod) {
+        ఒకవేళ (!itemsp) తిరిగి;
+        కొరకు (T_అంశం* itemp = itemsp; itemp; itemp = Ast_కణుపు::as<T_అంశం>(itemp->nextp())) {
+            ఒకవేళ (!VN_IS(itemp->valuep(), Const)) tabMod = 1;
         }
         puts("\n");
         uint64_t n = 0;
-        for (T_Item* itemp = itemsp; itemp; itemp = AstNode::as<T_Item>(itemp->nextp())) {
-            if (n) puts((n % tabMod) ? ", " : ",\n");
-            emitValue(itemp->valuep());
+        కొరకు (T_అంశం* itemp = itemsp; itemp; itemp = Ast_కణుపు::as<T_అంశం>(itemp->nextp())) {
+            ఒకవేళ (n) puts((n % tabMod) ? ", " : ",\n");
+            emit_విలువ(itemp->valuep());
             ++n;
         }
         puts("\n");
     }
 
     // Emit a value
-    void emitValue(AstNodeExpr* nodep) {
+    శూన్య emit_విలువ(Ast_కణుపు_సమాసం* nodep) {
         // Either a value constructor
-        if (AstNodeCons* const consp = VN_CAST(nodep, NodeCons)) {
+        ఒకవేళ (Ast_కణుపు_Cons* స్థిరరాశి consp = VN_CAST(nodep, కణుపు_Cons)) {
             emitValCons(consp);
-            return;
+            తిరిగి;
         }
         // Or a constant
-        if (const AstConst* const constp = VN_CAST(nodep, Const)) {
-            const V3Number& num = constp->num();
-            UASSERT_OBJ(!num.isFourState(), constp, "4-state value in emitted constant");
+        ఒకవేళ (స్థిరరాశి AstConst* స్థిరరాశి constp = VN_CAST(nodep, Const)) {
+            స్థిరరాశి V3_సంఖ్య& అంకె = constp->అంకె();
+            UASSERT_OBJ(!అంకె.isFourState(), constp, "4-state value in emitted constant");
             // A narrow constant is a literal, which converts implicitly wherever a value is used
             // (This also covers string, double and null, which don't need type prefix)
-            if (!constp->isWide()) {
-                putns(constp, num.emitC());
-                return;
+            ఒకవేళ (!constp->isWide()) {
+                putns(constp, అంకె.emitC());
+                తిరిగి;
             }
             // Otherwise need the type prefix (naked braced lists cannot be deduced by templates)
             putnbs(constp, constp->dtypep()->cType("", false, false));
             emitInitializer(nodep);
-            return;
+            తిరిగి;
         }
         // Or an arbitrary expression, emitted via the derived visitor
         iterateConst(nodep);
     }
 
-    void emitInitializerBody(AstNodeExpr* nodep) {
-        if (AstConsArray* const arrayp = VN_CAST(nodep, ConsArray)) {
+    శూన్య emitInitializerBody(Ast_కణుపు_సమాసం* nodep) {
+        ఒకవేళ (AstConsArray* స్థిరరాశి arrayp = VN_CAST(nodep, ConsArray)) {
             emitConsArray(arrayp);
-            return;
+            తిరిగి;
         }
-        if (AstConsAssoc* const assocp = VN_CAST(nodep, ConsAssoc)) {
-            emitKeyedConsItems(nullptr, assocp->defaultp(), assocp->itemsp());
-            return;
+        ఒకవేళ (AstConsAssoc* స్థిరరాశి assocp = VN_CAST(nodep, ConsAssoc)) {
+            emit_Keyed_Cons_వస్తువులు(nullptr, assocp->defaultp(), assocp->itemsp());
+            తిరిగి;
         }
-        if (AstConsWildcard* const wildp = VN_CAST(nodep, ConsWildcard)) {
-            emitKeyedConsItems(nullptr, wildp->defaultp(), wildp->itemsp());
-            return;
+        ఒకవేళ (AstConsWildcard* స్థిరరాశి wildp = VN_CAST(nodep, ConsWildcard)) {
+            emit_Keyed_Cons_వస్తువులు(nullptr, wildp->defaultp(), wildp->itemsp());
+            తిరిగి;
         }
-        AstConsDynArray* const dynp = VN_CAST(nodep, ConsDynArray);
-        if (dynp && dynp->sizep()) {
-            emitKeyedConsItems(dynp->sizep(), dynp->defaultp(), dynp->itemsp());
-            return;
+        AstConsDynArray* స్థిరరాశి dynp = VN_CAST(nodep, ConsDynArray);
+        ఒకవేళ (dynp && dynp->sizep()) {
+            emit_Keyed_Cons_వస్తువులు(dynp->sizep(), dynp->defaultp(), dynp->itemsp());
+            తిరిగి;
         }
-        if (dynp) {
-            emitUnkeyedConsItems(dynp->itemsp(),
+        ఒకవేళ (dynp) {
+            emit_Unkeyed_Cons_వస్తువులు(dynp->itemsp(),
                                  tabModulus(dynp->dtypep()->skipRefp()->subDTypep()));
-            return;
+            తిరిగి;
         }
-        if (AstConsQueue* const queuep = VN_CAST(nodep, ConsQueue)) {
-            emitUnkeyedConsItems(queuep->itemsp(),
+        ఒకవేళ (Ast_Cons_వరుస* స్థిరరాశి queuep = VN_CAST(nodep, Cons_వరుస)) {
+            emit_Unkeyed_Cons_వస్తువులు(queuep->itemsp(),
                                  tabModulus(queuep->dtypep()->skipRefp()->subDTypep()));
-            return;
+            తిరిగి;
         }
-        if (AstConsStruct* const structp = VN_CAST(nodep, ConsStruct)) {
-            emitUnkeyedConsItems(structp->itemsp(), 1);  // Members of mixed types
-            return;
+        ఒకవేళ (AstConsStruct* స్థిరరాశి structp = VN_CAST(nodep, ConsStruct)) {
+            emit_Unkeyed_Cons_వస్తువులు(structp->itemsp(), 1);  // Members of mixed types
+            తిరిగి;
         }
-        if (VN_IS(nodep, Unbounded)) {
+        ఒకవేళ (VN_IS(nodep, Unbounded)) {
             // A public parameter's '$', which is only special during elaboration, so use zero
             puts("0");
-            return;
+            తిరిగి;
         }
-        if (const AstConst* const constp = VN_CAST(nodep, Const)) {
-            const V3Number& num = constp->num();
-            UASSERT_OBJ(!num.isFourState(), constp, "4-state value in emitted constant");
-            if (!constp->isWide()) {
-                puts(num.emitC());
-                return;
+        ఒకవేళ (స్థిరరాశి AstConst* స్థిరరాశి constp = VN_CAST(nodep, Const)) {
+            స్థిరరాశి V3_సంఖ్య& అంకె = constp->అంకె();
+            UASSERT_OBJ(!అంకె.isFourState(), constp, "4-state value in emitted constant");
+            ఒకవేళ (!constp->isWide()) {
+                puts(అంకె.emitC());
+                తిరిగి;
             }
 
             ofp()->putsNoTracking("{");  // The initializer of m_storage within the VlWide
-            const int words = constp->widthWords();
-            const int tabMod = 4;
-            if (words > tabMod) puts("\n");
-            for (int n = 0; n < words; ++n) {
-                if (n) puts((n % tabMod) ? ", " : ",\n");
-                ofp()->printf("0x%08" PRIx32, num.edataWord(n));
+            స్థిరరాశి పూర్ణాంకం పదాలు = constp->వెడల్పు_పదాలు();
+            స్థిరరాశి పూర్ణాంకం tabMod = 4;
+            ఒకవేళ (పదాలు > tabMod) puts("\n");
+            కొరకు (పూర్ణాంకం n = 0; n < పదాలు; ++n) {
+                ఒకవేళ (n) puts((n % tabMod) ? ", " : ",\n");
+                ofp()->రాయి("0x%08" PRIx32, అంకె.edata_మాట(n));
             }
-            if (words > tabMod) puts("\n");
+            ఒకవేళ (పదాలు > tabMod) puts("\n");
             ofp()->putsNoTracking("}");
-            return;
+            తిరిగి;
         }
         nodep->v3fatalSrc("Unknown node type in emitInitializerBody: " << nodep->prettyTypeName());
     }
 
     // Emit the braced initializer for the given value '{...}'
-    void emitInitializer(AstNodeExpr* nodep) {
+    శూన్య emitInitializer(Ast_కణుపు_సమాసం* nodep) {
         putns(nodep, "{");
         emitInitializerBody(nodep);
         puts("}");
     }
 
-protected:
+రక్షిత:
     // Emit a C++ value constructor: 'Type{...}'
-    void emitValCons(AstNodeCons* nodep) {
+    శూన్య emitValCons(Ast_కణుపు_Cons* nodep) {
         putnbs(nodep, nodep->dtypep()->cType("", false, false));
         emitInitializer(nodep);
     }
 
     // Emit the C++ variable definition 'Type name{...}'
-    void emitVarDefn(const AstVar* varp) {
-        const std::string name = varp->constPoolEntry()
+    శూన్య emitVarDefn(స్థిరరాశి AstVar* varp) {
+        స్థిరరాశి std::string name = varp->const_Pool_నమోదు()
                                      ? EmitCUtil::constPoolName(varp)
-                                     : EmitCUtil::prefixNameProtect(EmitCParentModule::get(varp))
+                                     : EmitCUtil::ఉపసర్గ_Name_Protect(EmitCParentModule::get(varp))
                                            + "::" + varp->nameProtect();
         putnbs(varp, varp->dtypep()->cType(name, false, false));
-        emitInitializer(VN_AS(varp->valuep(), NodeExpr));
+        emitInitializer(VN_AS(varp->valuep(), కణుపు_సమాసం));
     }
 };

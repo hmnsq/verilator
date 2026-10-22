@@ -14,472 +14,472 @@
 //
 //*************************************************************************
 
-#include "V3PchAstMT.h"
+#అన్తర్భావ "V3PchAstMT.h"
 
-#include "V3EmitV.h"
+#అన్తర్భావ "V3EmitV.h"
 
-#include "V3EmitCBase.h"
+#అన్తర్భావ "V3EmitCBase.h"
 
-#include <unordered_map>
-#include <vector>
+#అన్తర్భావ <unordered_map>
+#అన్తర్భావ <vector>
 
 VL_DEFINE_DEBUG_FUNCTIONS;
 
 // ######################################################################
 //  Emit statements and expressions
 
-class EmitVBaseVisitorConst VL_NOT_FINAL : public VNVisitorConst {
+తరగతి EmitVBaseVisitorConst VL_NOT_FINAL : బహిరంగ VNVisitorConst {
     // STATE - across all visitors
-    const bool m_suppressUnknown;  // Do not error on unknown node
+    స్థిరరాశి తార్కిక m_suppressUnknown;  // Do not error on unknown node
 
     // STATE - for current visit position (use VL_RESTORER)
-    AstSenTree* m_sentreep = nullptr;  // Domain for printing one a ALWAYS under a ACTIVE
-    bool m_suppressSemi = false;  // Non-statement, don't print ;
-    bool m_suppressVarSemi = false;  // Suppress emitting semicolon for AstVars
-    bool m_suppressSampled = false;  // Suppress emitting sampled in assertion properties
-    bool m_arrayPost = false;  // Print array information that goes after identifier (vs after)
-    bool m_prefixed = true;  // Whether constants need to be prefixed
-    std::deque<AstNodeArrayDType*> m_packedps;  // Packed arrays to print with BasicDType
-    std::unordered_map<AstJumpBlock*, size_t> m_labelNumbers;  // Label numbers for JumpBlocks
+    Ast_Sen_వృక్షం* m_sentreep = శూన్యసూచిక;  // Domain for printing one a ALWAYS under a ACTIVE
+    తార్కిక m_suppressSemi = అబద్ధం;  // Non-statement, don't print ;
+    తార్కిక m_suppressVarSemi = అబద్ధం;  // Suppress emitting semicolon for AstVars
+    తార్కిక m_suppressSampled = అబద్ధం;  // Suppress emitting sampled in assertion properties
+    తార్కిక m_arrayPost = అబద్ధం;  // Print array information that goes after identifier (vs after)
+    తార్కిక m_prefixed = నిజం;  // Whether constants need to be prefixed
+    std::deque<Ast_కణుపు_Array_DType*> m_packedps;  // Packed arrays to print with BasicDType
+    std::unordered_map<Ast_Jump_ఖండం*, కొలత_t> m_labelNumbers;  // Label numbers for JumpBlocks
 
     // METHODS
-    virtual void puts(const string& str) = 0;
-    virtual void putbs(const string& str) = 0;
-    virtual void putfs(AstNode* nodep, const string& str) = 0;  // Fileline and node %% mark
-    virtual void putqs(AstNode* nodep, const string& str) = 0;  // Fileline quiet w/o %% mark
-    virtual void putsNoTracking(const string& str) = 0;
-    virtual void putsQuoted(const string& str) {
+    మాయా శూన్య puts(స్థిరరాశి string& str) = 0;
+    మాయా శూన్య putbs(స్థిరరాశి string& str) = 0;
+    మాయా శూన్య putfs(Ast_కణుపు* nodep, స్థిరరాశి string& str) = 0;  // Fileline and node %% mark
+    మాయా శూన్య putqs(Ast_కణుపు* nodep, స్థిరరాశి string& str) = 0;  // Fileline quiet w/o %% mark
+    మాయా శూన్య putsNoTracking(స్థిరరాశి string& str) = 0;
+    మాయా శూన్య putsQuoted(స్థిరరాశి string& str) {
         // Quote \ and " for use inside C programs
         // Don't use to quote a filename for #include - #include doesn't \ escape.
         // Duplicate in V3File - here so we can print to string
         putsNoTracking("\"");
-        putsNoTracking(V3OutFormatter::quoteNameControls(str));
+        putsNoTracking(V3_బహిర్గతం_Formatter::quoteNameControls(str));
         putsNoTracking("\"");
     }
 
-    void iterateAndCommaConstNull(AstNode* nodep) {
-        for (; nodep; nodep = nodep->nextp()) {
+    శూన్య iterateAndCommaConstNull(Ast_కణుపు* nodep) {
+        కొరకు (; nodep; nodep = nodep->nextp()) {
             iterateConst(nodep);
-            if (nodep->nextp()) puts(", ");
+            ఒకవేళ (nodep->nextp()) puts(", ");
         }
     }
-    void emitPacked() {
-        for (AstNodeArrayDType* packedp : m_packedps) {
+    శూన్య emitPacked() {
+        కొరకు (Ast_కణుపు_Array_DType* packedp : m_packedps) {
             puts(" ");
             iterateConstNull(packedp->rangep());
         }
         m_packedps.clear();
     }
-    void emitNodesWithText(AstNode* nodesp, bool tracking, const std::string& separator) {
-        for (AstNode* nodep = nodesp; nodep; nodep = nodep->nextp()) {
-            if (const AstText* const textp = VN_CAST(nodep, Text)) {
-                if (tracking) {
-                    puts(textp->text());
-                } else {
-                    putsNoTracking(textp->text());
+    శూన్య emit_Nodes_With_పాఠ్యం(Ast_కణుపు* nodesp, తార్కిక tracking, స్థిరరాశి std::string& separator) {
+        కొరకు (Ast_కణుపు* nodep = nodesp; nodep; nodep = nodep->nextp()) {
+            ఒకవేళ (స్థిరరాశి Ast_పాఠ్యం* స్థిరరాశి textp = VN_CAST(nodep, పాఠ్యం_2)) {
+                ఒకవేళ (tracking) {
+                    puts(textp->పాఠ్యం());
+                } లేకపోతే {
+                    putsNoTracking(textp->పాఠ్యం());
                 }
-            } else {
+            } లేకపోతే {
                 iterateConst(nodep);
             }
-            if (nodep->nextp()) puts(separator);
+            ఒకవేళ (nodep->nextp()) puts(separator);
         }
     }
 
     // VISITORS
-    void visit(AstNetlist* nodep) override { iterateAndNextConstNull(nodep->modulesp()); }
-    void visit(AstNodeModule* nodep) override {
-        putfs(nodep, nodep->verilogKwd() + " " + EmitCUtil::prefixNameProtect(nodep) + ";\n");
+    శూన్య సందర్శించు(AstNetlist* nodep) override { iterate_And_తదుపరి_Const_Null(nodep->modulesp()); }
+    శూన్య సందర్శించు(Ast_కణుపు_Module* nodep) override {
+        putfs(nodep, nodep->verilogKwd() + " " + EmitCUtil::ఉపసర్గ_Name_Protect(nodep) + ";\n");
         iterateChildrenConst(nodep);
         putqs(nodep, "end" + nodep->verilogKwd() + "\n");
     }
-    void visit(AstPort* nodep) override {}
-    void visit(AstNodeFTask* nodep) override {
+    శూన్య సందర్శించు(Ast_పోర్టు* nodep) override {}
+    శూన్య సందర్శించు(Ast_కణుపు_FTask* nodep) override {
         putfs(nodep, nodep->verilogKwd());
         puts(" ");
         puts(nodep->prettyName());
         puts(";\n");
         // Only putfs the first time for each visitor; later for same node is putqs
-        iterateAndNextConstNull(nodep->stmtsp());
+        iterate_And_తదుపరి_Const_Null(nodep->stmtsp());
         putqs(nodep, "end" + nodep->verilogKwd() + "\n");
     }
 
-    void visit(AstGenBlock* nodep) override {
-        const std::string name = nodep->name().empty() ? "" : " : " + nodep->name();
+    శూన్య సందర్శించు(Ast_Gen_ఖండం* nodep) override {
+        స్థిరరాశి std::string name = nodep->name().ఖాళీలు() ? "" : " : " + nodep->name();
         putbs("/* generate */ begin" + name + '\n');
         iterateChildrenConst(nodep);
         puts("end" + name + '\n');
     }
-    void visit(AstGenCase* nodep) override {
+    శూన్య సందర్శించు(AstGenCase* nodep) override {
         putfs(nodep, "/* generate */ case (");
-        iterateAndNextConstNull(nodep->exprp());
+        iterate_And_తదుపరి_Const_Null(nodep->exprp());
         puts(")\n");
-        iterateAndNextConstNull(nodep->itemsp());
+        iterate_And_తదుపరి_Const_Null(nodep->itemsp());
         putqs(nodep, "endcase\n");
     }
-    void visit(AstGenCaseItem* nodep) override {
-        if (nodep->condsp()) {
-            iterateAndNextConstNull(nodep->condsp());
-        } else {
+    శూన్య సందర్శించు(Ast_Gen_Case_అంశం* nodep) override {
+        ఒకవేళ (nodep->condsp()) {
+            iterate_And_తదుపరి_Const_Null(nodep->condsp());
+        } లేకపోతే {
             putbs("default");
         }
-        iterateAndNextConstNull(nodep->itemsp());
+        iterate_And_తదుపరి_Const_Null(nodep->itemsp());
     }
-    void visit(AstGenFor* nodep) override {
+    శూన్య సందర్శించు(AstGenFor* nodep) override {
         putfs(nodep, "/* generate */ for (");
         {
             VL_RESTORER(m_suppressSemi);
-            m_suppressSemi = true;
-            iterateAndNextConstNull(nodep->initsp());
+            m_suppressSemi = నిజం;
+            iterate_And_తదుపరి_Const_Null(nodep->initsp());
             puts(";");
-            iterateAndNextConstNull(nodep->condp());
+            iterate_And_తదుపరి_Const_Null(nodep->condp());
             puts(";");
-            iterateAndNextConstNull(nodep->incsp());
+            iterate_And_తదుపరి_Const_Null(nodep->incsp());
         }
         puts(") begin\n");
-        iterateAndNextConstNull(nodep->itemsp());
+        iterate_And_తదుపరి_Const_Null(nodep->itemsp());
         putqs(nodep, "end\n");
     }
-    void visit(AstGenIf* nodep) override {
+    శూన్య సందర్శించు(AstGenIf* nodep) override {
         putfs(nodep, "");
         puts("/* generate */ if (");
-        iterateAndNextConstNull(nodep->condp());
+        iterate_And_తదుపరి_Const_Null(nodep->condp());
         puts(") begin\n");
-        iterateAndNextConstNull(nodep->thensp());
-        if (nodep->elsesp()) {
+        iterate_And_తదుపరి_Const_Null(nodep->thensp());
+        ఒకవేళ (nodep->elsesp()) {
             putqs(nodep, "end else begin\n");
-            iterateAndNextConstNull(nodep->elsesp());
+            iterate_And_తదుపరి_Const_Null(nodep->elsesp());
         }
         putqs(nodep, "end\n");
     }
-    void visit(AstBegin* nodep) override {
-        if (nodep->name() == "") {
+    శూన్య సందర్శించు(AstBegin* nodep) override {
+        ఒకవేళ (nodep->name() == "") {
             putbs("begin\n");
-        } else {
+        } లేకపోతే {
             putbs("begin : " + nodep->name() + "\n");
         }
         iterateChildrenConst(nodep);
         puts("end\n");
     }
-    void visit(AstFork* nodep) override {
-        if (nodep->name() == "") {
+    శూన్య సందర్శించు(AstFork* nodep) override {
+        ఒకవేళ (nodep->name() == "") {
             putbs("fork\n");
-        } else {
+        } లేకపోతే {
             putbs("fork : " + nodep->name() + "\n");
         }
         iterateChildrenConst(nodep);
         puts(nodep->joinType().verilogKwd());
         puts("\n");
     }
-    void visit(AstFinal* nodep) override {
+    శూన్య సందర్శించు(AstFinal* nodep) override {
         putfs(nodep, "final begin\n");
         iterateChildrenConst(nodep);
         putqs(nodep, "end\n");
     }
-    void visit(AstInitial* nodep) override {
+    శూన్య సందర్శించు(AstInitial* nodep) override {
         putfs(nodep, "initial begin\n");
         iterateChildrenConst(nodep);
         putqs(nodep, "end\n");
     }
-    void visit(AstInitialAutomatic* nodep) override { iterateChildrenConst(nodep); }
-    void visit(AstInitialStatic* nodep) override { iterateChildrenConst(nodep); }
-    void visit(AstInitialAutomaticStmt* nodep) override { iterateChildrenConst(nodep); }
-    void visit(AstInitialStaticStmt* nodep) override { iterateChildrenConst(nodep); }
-    void visit(AstAlways* nodep) override {
-        if (const AstAssignW* const ap = VN_CAST(nodep->stmtsp(), AssignW)) {
-            if (!ap->nextp()) {
+    శూన్య సందర్శించు(AstInitialAutomatic* nodep) override { iterateChildrenConst(nodep); }
+    శూన్య సందర్శించు(AstInitialStatic* nodep) override { iterateChildrenConst(nodep); }
+    శూన్య సందర్శించు(AstInitialAutomaticStmt* nodep) override { iterateChildrenConst(nodep); }
+    శూన్య సందర్శించు(AstInitialStaticStmt* nodep) override { iterateChildrenConst(nodep); }
+    శూన్య సందర్శించు(AstAlways* nodep) override {
+        ఒకవేళ (స్థిరరాశి Ast_కేటాయించు_W* స్థిరరాశి ap = VN_CAST(nodep->stmtsp(), కేటాయించు_W)) {
+            ఒకవేళ (!ap->nextp()) {
                 putfs(nodep, "assign ");
-                if (AstNode* const tcp = ap->timingControlp()) {
-                    iterateAndNextConstNull(tcp);
+                ఒకవేళ (Ast_కణుపు* స్థిరరాశి tcp = ap->timingControlp()) {
+                    iterate_And_తదుపరి_Const_Null(tcp);
                     putbs(" ");
                 }
-                iterateAndNextConstNull(ap->lhsp());
+                iterate_And_తదుపరి_Const_Null(ap->lhsp());
                 putbs(" = ");
-                iterateAndNextConstNull(ap->rhsp());
-                if (!m_suppressSemi) puts(";\n");
-                return;
+                iterate_And_తదుపరి_Const_Null(ap->rhsp());
+                ఒకవేళ (!m_suppressSemi) puts(";\n");
+                తిరిగి;
             }
         }
         putfs(nodep, "always ");
-        if (m_sentreep) {
-            iterateAndNextConstNull(m_sentreep);
+        ఒకవేళ (m_sentreep) {
+            iterate_And_తదుపరి_Const_Null(m_sentreep);
         }  // In active
-        else {
-            iterateAndNextConstNull(nodep->sentreep());
+        లేకపోతే {
+            iterate_And_తదుపరి_Const_Null(nodep->sentreep());
         }
         putbs(" begin\n");
-        iterateAndNextConstNull(nodep->stmtsp());
+        iterate_And_తదుపరి_Const_Null(nodep->stmtsp());
         putqs(nodep, "end\n");
     }
-    void visit(AstAlwaysPre* nodep) override {
+    శూన్య సందర్శించు(AstAlwaysPre* nodep) override {
         putfs(nodep, "always /* PRE */ begin\n");
-        iterateAndNextConstNull(nodep->stmtsp());
+        iterate_And_తదుపరి_Const_Null(nodep->stmtsp());
         putqs(nodep, "end\n");
     }
-    void visit(AstAlwaysPost* nodep) override {
+    శూన్య సందర్శించు(AstAlwaysPost* nodep) override {
         putfs(nodep, "always /* POST */ begin\n");
-        iterateAndNextConstNull(nodep->stmtsp());
+        iterate_And_తదుపరి_Const_Null(nodep->stmtsp());
         putqs(nodep, "end\n");
     }
-    void visit(AstNodeAssign* nodep) override {
-        if (VN_IS(nodep, AssignForce)) puts("force ");
-        iterateAndNextConstNull(nodep->lhsp());
+    శూన్య సందర్శించు(Ast_కణుపు_కేటాయించు* nodep) override {
+        ఒకవేళ (VN_IS(nodep, కేటాయించు_Force)) puts("force ");
+        iterate_And_తదుపరి_Const_Null(nodep->lhsp());
         putfs(nodep, " " + nodep->verilogKwd() + " ");
-        iterateAndNextConstNull(nodep->rhsp());
-        if (!m_suppressSemi) puts(";\n");
+        iterate_And_తదుపరి_Const_Null(nodep->rhsp());
+        ఒకవేళ (!m_suppressSemi) puts(";\n");
     }
-    void visit(AstAlias* nodep) override {
+    శూన్య సందర్శించు(AstAlias* nodep) override {
         putbs("alias ");
         iterateConst(nodep->itemsp());
-        for (AstNode* itemp = nodep->itemsp()->nextp(); itemp; itemp = itemp->nextp()) {
+        కొరకు (Ast_కణుపు* itemp = nodep->itemsp()->nextp(); itemp; itemp = itemp->nextp()) {
             putfs(nodep, " = ");
             iterateConst(itemp);
         }
-        if (!m_suppressSemi) puts(";\n");
+        ఒకవేళ (!m_suppressSemi) puts(";\n");
     }
-    void visit(AstAssignW* nodep) override {
+    శూన్య సందర్శించు(Ast_కేటాయించు_W* nodep) override {
         putfs(nodep, "continuous assign ");
-        iterateAndNextConstNull(nodep->lhsp());
+        iterate_And_తదుపరి_Const_Null(nodep->lhsp());
         putbs(" = ");
-        iterateAndNextConstNull(nodep->rhsp());
-        if (!m_suppressSemi) puts(";\n");
+        iterate_And_తదుపరి_Const_Null(nodep->rhsp());
+        ఒకవేళ (!m_suppressSemi) puts(";\n");
     }
-    void visit(AstRelease* nodep) override {
+    శూన్య సందర్శించు(AstRelease* nodep) override {
         puts("release ");
-        iterateAndNextConstNull(nodep->lhsp());
-        if (!m_suppressSemi) puts(";\n");
+        iterate_And_తదుపరి_Const_Null(nodep->lhsp());
+        ఒకవేళ (!m_suppressSemi) puts(";\n");
     }
-    void visit(AstBreak*) override {
+    శూన్య సందర్శించు(AstBreak*) override {
         putbs("break");
-        if (!m_suppressSemi) puts(";\n");
+        ఒకవేళ (!m_suppressSemi) puts(";\n");
     }
-    void visit(AstSenTree* nodep) override {
+    శూన్య సందర్శించు(Ast_Sen_వృక్షం* nodep) override {
         // AstSenItem is called for dumping in isolation by V3Order
         putfs(nodep, "@(");
-        for (AstNode* expp = nodep->sensesp(); expp; expp = expp->nextp()) {
+        కొరకు (Ast_కణుపు* expp = nodep->sensesp(); expp; expp = expp->nextp()) {
             iterateConst(expp);
-            if (expp->nextp()) putqs(expp->nextp(), " or ");
+            ఒకవేళ (expp->nextp()) putqs(expp->nextp(), " or ");
         }
         puts(")");
     }
-    void visit(AstSenItem* nodep) override {
+    శూన్య సందర్శించు(Ast_Sen_అంశం* nodep) override {
         putfs(nodep, "");
-        if (nodep->edgeType() != VEdgeType::ET_CHANGED) puts(nodep->edgeType().verilogKwd());
-        if (nodep->sensp()) puts(" ");
+        ఒకవేళ (nodep->అంచు_Type() != VEdgeType::ET_మారింది) puts(nodep->అంచు_Type().verilogKwd());
+        ఒకవేళ (nodep->sensp()) puts(" ");
         iterateChildrenConst(nodep);
     }
-    void visit(AstCReset* /*nodep*/) override { puts("/*CRESET*/"); }
-    void visit(AstCase* nodep) override {
+    శూన్య సందర్శించు(AstCReset* /*nodep*/) override { puts("/*CRESET*/"); }
+    శూన్య సందర్శించు(AstCase* nodep) override {
         putfs(nodep, "");
-        if (nodep->priorityPragma()) puts("priority ");
-        if (nodep->uniquePragma()) puts("unique ");
-        if (nodep->unique0Pragma()) puts("unique0 ");
+        ఒకవేళ (nodep->ప్రాధాన్యత_Pragma()) puts("priority ");
+        ఒకవేళ (nodep->uniquePragma()) puts("unique ");
+        ఒకవేళ (nodep->unique0Pragma()) puts("unique0 ");
         puts(nodep->verilogKwd());
         puts(" (");
-        iterateAndNextConstNull(nodep->exprp());
+        iterate_And_తదుపరి_Const_Null(nodep->exprp());
         puts(")\n");
-        if (nodep->fullPragma() || nodep->parallelPragma()) {
+        ఒకవేళ (nodep->నిండిన_Pragma() || nodep->parallelPragma()) {
             puts(" // synopsys");
-            if (nodep->fullPragma()) puts(" full_case");
-            if (nodep->parallelPragma()) puts(" parallel_case");
+            ఒకవేళ (nodep->నిండిన_Pragma()) puts(" full_case");
+            ఒకవేళ (nodep->parallelPragma()) puts(" parallel_case");
         }
-        iterateAndNextConstNull(nodep->itemsp());
+        iterate_And_తదుపరి_Const_Null(nodep->itemsp());
         putqs(nodep, "endcase\n");
     }
-    void visit(AstCaseItem* nodep) override {
-        if (nodep->condsp()) {
-            iterateAndNextConstNull(nodep->condsp());
-        } else {
+    శూన్య సందర్శించు(Ast_Case_అంశం* nodep) override {
+        ఒకవేళ (nodep->condsp()) {
+            iterate_And_తదుపరి_Const_Null(nodep->condsp());
+        } లేకపోతే {
             putbs("default");
         }
         putfs(nodep, ": begin ");
-        iterateAndNextConstNull(nodep->stmtsp());
+        iterate_And_తదుపరి_Const_Null(nodep->stmtsp());
         putqs(nodep, "end\n");
     }
-    void visit(AstComment* nodep) override {
+    శూన్య సందర్శించు(AstComment* nodep) override {
         puts("// "s + nodep->name() + "\n");
         iterateChildrenConst(nodep);
     }
-    void visit(AstContinue*) override {
+    శూన్య సందర్శించు(AstContinue*) override {
         putbs("continue");
-        if (!m_suppressSemi) puts(";\n");
+        ఒకవేళ (!m_suppressSemi) puts(";\n");
     }
-    void visit(AstNodeCoverDecl*) override {}  // N/A
-    void visit(AstCoverInc*) override {}  // N/A
-    void visit(AstCoverToggle*) override {}  // N/A
+    శూన్య సందర్శించు(Ast_కణుపు_Cover_Decl*) override {}  // N/A
+    శూన్య సందర్శించు(AstCoverInc*) override {}  // N/A
+    శూన్య సందర్శించు(AstCoverToggle*) override {}  // N/A
 
-    void visit(AstCovergroup* nodep) override {
+    శూన్య సందర్శించు(AstCovergroup* nodep) override {
         // AstCovergroup appears as a member inside the lowered AstClass body.
         // The outer covergroup/endcovergroup wrapper is already emitted by the
         // AstNodeModule visitor (verilogKwd()="covergroup" on AstClass::isCovergroup).
         // Here we only emit the clocking event, if any.
-        if (nodep->eventp()) {
+        ఒకవేళ (nodep->eventp()) {
             putfs(nodep, "");
             iterateConst(nodep->eventp());
         }
     }
-    void visit(AstCoverpoint* nodep) override {
+    శూన్య సందర్శించు(AstCoverpoint* nodep) override {
         putfs(nodep, nodep->name() + ": coverpoint ");
-        iterateAndNextConstNull(nodep->exprp());
-        if (nodep->binsp() || nodep->optionsp()) {
+        iterate_And_తదుపరి_Const_Null(nodep->exprp());
+        ఒకవేళ (nodep->binsp() || nodep->optionsp()) {
             puts(" {\n");
-            iterateAndNextConstNull(nodep->optionsp());
-            iterateAndNextConstNull(nodep->binsp());
+            iterate_And_తదుపరి_Const_Null(nodep->optionsp());
+            iterate_And_తదుపరి_Const_Null(nodep->binsp());
             puts("}");
         }
         puts(";\n");
     }
     // An option or type_option assignment, from a covergroup, coverpoint, or cross
-    void emitCoverageOption(AstNode* nodep, bool typeOption, VCoverOptionType optType,
-                            AstNodeExpr* valuep) {
+    శూన్య emitCoverageOption(Ast_కణుపు* nodep, తార్కిక typeOption, VCoverOptionType optType,
+                            Ast_కణుపు_సమాసం* valuep) {
         putfs(nodep,
               std::string{typeOption ? "type_option." : "option."} + optType.ascii() + " = ");
         iterateConst(valuep);
         puts(";\n");
     }
-    void visit(AstCgOptionAssign* nodep) override {
+    శూన్య సందర్శించు(Ast_Cg_Option_కేటాయించు* nodep) override {
         emitCoverageOption(nodep, nodep->typeOption(), nodep->optType(), nodep->valuep());
     }
-    void visit(AstCoverOption* nodep) override {
+    శూన్య సందర్శించు(AstCoverOption* nodep) override {
         emitCoverageOption(nodep, nodep->typeOption(), nodep->optType(), nodep->valuep());
     }
-    void visit(AstCoverBin* nodep) override {
+    శూన్య సందర్శించు(AstCoverBin* nodep) override {
         putfs(nodep, std::string{nodep->isWildcard() ? "wildcard " : ""}
                          + nodep->binsType().verilogKwd() + " ");
         puts(nodep->name());
-        if (nodep->isArray()) {
+        ఒకవేళ (nodep->isArray()) {
             puts("[");
-            if (nodep->arraySizep()) iterateConst(nodep->arraySizep());
+            ఒకవేళ (nodep->arraySizep()) iterateConst(nodep->arraySizep());
             puts("]");
         }
-        if (nodep->binsType() == VCoverBinsType::BINS_DEFAULT) {
+        ఒకవేళ (nodep->binsType() == VCoverBinsType::BINS_DEFAULT) {
             puts(" = default");
-        } else if (nodep->transp()) {
+        } లేకపోతే ఒకవేళ (nodep->transp()) {
             puts(" = ");
-            for (AstNode* setp = nodep->transp(); setp; setp = setp->nextp()) {
-                if (setp != nodep->transp()) puts(", ");
+            కొరకు (Ast_కణుపు* setp = nodep->transp(); setp; setp = setp->nextp()) {
+                ఒకవేళ (setp != nodep->transp()) puts(", ");
                 iterateConst(setp);
             }
-        } else if (VN_IS(nodep->rangesp(), CoverWith)) {
+        } లేకపోతే ఒకవేళ (VN_IS(nodep->rangesp(), CoverWith)) {
             puts(" = ");
             iterateConst(nodep->rangesp());
-        } else if (nodep->rangesp()) {  // LCOV_EXCL_BR_LINE - false: CoverBin always has
+        } లేకపోతే ఒకవేళ (nodep->rangesp()) {  // LCOV_EXCL_BR_LINE - false: CoverBin always has
                                         // transp/rangesp/default
             puts(" = {");
-            for (AstNode* rangep = nodep->rangesp(); rangep; rangep = rangep->nextp()) {
-                if (rangep != nodep->rangesp()) puts(", ");
+            కొరకు (Ast_కణుపు* rangep = nodep->rangesp(); rangep; rangep = rangep->nextp()) {
+                ఒకవేళ (rangep != nodep->rangesp()) puts(", ");
                 iterateConst(rangep);
             }
             puts("}");
         }
-        if (nodep->iffp()) {
+        ఒకవేళ (nodep->iffp()) {
             puts(" iff (");
             iterateConst(nodep->iffp());
             puts(")");
         }
         puts(";\n");
     }
-    void visit(AstCoverWith* nodep) override {
-        const bool rangeList = !VN_IS(nodep->subp(), CoverpointRef);
-        if (rangeList) putfs(nodep, "{");
+    శూన్య సందర్శించు(AstCoverWith* nodep) override {
+        స్థిరరాశి తార్కిక rangeList = !VN_IS(nodep->subp(), CoverpointRef);
+        ఒకవేళ (rangeList) putfs(nodep, "{");
         iterateAndCommaConstNull(nodep->subp());
-        if (rangeList) puts("}");
+        ఒకవేళ (rangeList) puts("}");
         puts(" with (");
         iterateConst(nodep->filterp());
         puts(")");
     }
-    void visit(AstCoverBinsof* nodep) override {
+    శూన్య సందర్శించు(AstCoverBinsof* nodep) override {
         putfs(nodep, nodep->isNegated() ? "!binsof(" : "binsof(");
         iterateConst(nodep->pointp());
-        if (!nodep->name().empty()) puts("." + nodep->name());
+        ఒకవేళ (!nodep->name().ఖాళీలు()) puts("." + nodep->name());
         puts(")");
-        if (nodep->rangesp()) {
+        ఒకవేళ (nodep->rangesp()) {
             puts(" intersect {");
             iterateAndCommaConstNull(nodep->rangesp());
             puts("}");
         }
     }
-    void visit(AstCoverCrossBin* nodep) override {
+    శూన్య సందర్శించు(AstCoverCrossBin* nodep) override {
         putfs(nodep, nodep->verilogKwd() + " " + nodep->name() + " = ");
         iterateConstNull(nodep->selectp());
-        if (nodep->iffp()) {
+        ఒకవేళ (nodep->iffp()) {
             puts(" iff (");
             iterateConst(nodep->iffp());
             puts(")");
         }
         puts(";\n");
     }
-    void visit(AstCoverCrossRef* nodep) override { putfs(nodep, nodep->name()); }
-    void visit(AstCoverCrossSelect* nodep) override {
+    శూన్య సందర్శించు(AstCoverCrossRef* nodep) override { putfs(nodep, nodep->name()); }
+    శూన్య సందర్శించు(AstCoverCrossSelect* nodep) override {
         putfs(nodep, "(");
         iterateConstNull(nodep->lhsp());
         putbs(" " + nodep->verilogKwd() + " ");
         iterateConstNull(nodep->rhsp());
         puts(")");
     }
-    void visit(AstCoverCrossWith* nodep) override {
+    శూన్య సందర్శించు(AstCoverCrossWith* nodep) override {
         // A selection with a count is filtered further only in parentheses
-        if (nodep->countp()) putfs(nodep, "(");
+        ఒకవేళ (nodep->countp()) putfs(nodep, "(");
         iterateConstNull(nodep->selectp());
         putfs(nodep, " with (");
         iterateConst(nodep->filterp());
         puts(")");
-        if (nodep->countp()) {
+        ఒకవేళ (nodep->countp()) {
             puts(" matches ");
             iterateConst(nodep->countp());
             puts(")");
         }
     }
-    void visit(AstCoverpointRef* nodep) override {
+    శూన్య సందర్శించు(AstCoverpointRef* nodep) override {
         putfs(nodep, nodep->name());
         iterateConstNull(nodep->exprp());
     }
-    void visit(AstCoverCross* nodep) override {
+    శూన్య సందర్శించు(AstCoverCross* nodep) override {
         putfs(nodep, nodep->name() + ": cross ");
-        for (AstNode* itemp = nodep->itemsp(); itemp; itemp = itemp->nextp()) {
-            if (itemp != nodep->itemsp()) puts(", ");
+        కొరకు (Ast_కణుపు* itemp = nodep->itemsp(); itemp; itemp = itemp->nextp()) {
+            ఒకవేళ (itemp != nodep->itemsp()) puts(", ");
             iterateConst(itemp);
         }
-        if (nodep->iffp()) {
+        ఒకవేళ (nodep->iffp()) {
             puts(" iff (");
             iterateConst(nodep->iffp());
             puts(")");
         }
-        if (nodep->binsp() || nodep->optionsp()) {
+        ఒకవేళ (nodep->binsp() || nodep->optionsp()) {
             puts(" {\n");
-            iterateAndNextConstNull(nodep->optionsp());
-            iterateAndNextConstNull(nodep->binsp());
+            iterate_And_తదుపరి_Const_Null(nodep->optionsp());
+            iterate_And_తదుపరి_Const_Null(nodep->binsp());
             puts("}\n");
-        } else {
+        } లేకపోతే {
             puts(";\n");
         }
     }
-    void visit(AstCoverTransSet* nodep) override {
+    శూన్య సందర్శించు(Ast_Cover_Trans_సమితి* nodep) override {
         puts("(");
-        for (AstNode* itemp = nodep->itemsp(); itemp; itemp = itemp->nextp()) {
-            if (itemp != nodep->itemsp()) puts(" => ");
+        కొరకు (Ast_కణుపు* itemp = nodep->itemsp(); itemp; itemp = itemp->nextp()) {
+            ఒకవేళ (itemp != nodep->itemsp()) puts(" => ");
             iterateConst(itemp);
         }
         puts(")");
     }
-    void visit(AstCoverTransItem* nodep) override { iterateChildrenConst(nodep); }
+    శూన్య సందర్శించు(Ast_Cover_Trans_అంశం* nodep) override { iterateChildrenConst(nodep); }
 
-    void visit(AstCvtPackString* nodep) override {
+    శూన్య సందర్శించు(AstCvtPackString* nodep) override {
         putfs(nodep, "");
-        if (AstConst* const lhsConstp = VN_CAST(nodep->lhsp(), Const)) {
-            putsQuoted(lhsConstp->num().toString());
-        } else {
+        ఒకవేళ (AstConst* స్థిరరాశి lhsConstp = VN_CAST(nodep->lhsp(), Const)) {
+            putsQuoted(lhsConstp->అంకె().గమ్యం_String());
+        } లేకపోతే {
             puts("string'(");
-            iterateAndNextConstNull(nodep->lhsp());
+            iterate_And_తదుపరి_Const_Null(nodep->lhsp());
             puts(")");
         }
     }
-    void visit(AstTestPlusArgs* nodep) override {
+    శూన్య సందర్శించు(Ast_Test_Plus_వాదనలు* nodep) override {
         putfs(nodep, nodep->verilogKwd());
         putbs("(");
         iterateChildrenConst(nodep);
         puts(")");
     }
-    void visit(AstValuePlusArgs* nodep) override {
+    శూన్య సందర్శించు(Ast_విలువ_Plus_వాదనలు* nodep) override {
         putfs(nodep, nodep->verilogKwd());
         putbs("(");
         iterateConstNull(nodep->searchp());
@@ -487,299 +487,299 @@ class EmitVBaseVisitorConst VL_NOT_FINAL : public VNVisitorConst {
         iterateConstNull(nodep->outp());
         puts(")");
     }
-    void visitNodeDisplay(AstNode* nodep, AstNode* fileOrStrgp, const string& text,
-                          AstNode* exprsp) {
+    శూన్య సందర్శించు_కణుపు_Display(Ast_కణుపు* nodep, Ast_కణుపు* fileOrStrgp, స్థిరరాశి string& పాఠ్యం,
+                          Ast_కణుపు* exprsp) {
         putfs(nodep, nodep->verilogKwd());
         putbs("(");
-        if (fileOrStrgp) {
+        ఒకవేళ (fileOrStrgp) {
             iterateConstNull(fileOrStrgp);
             putbs(", ");
         }
-        putsQuoted(text);
-        for (AstNode* expp = exprsp; expp; expp = expp->nextp()) {
+        putsQuoted(పాఠ్యం);
+        కొరకు (Ast_కణుపు* expp = exprsp; expp; expp = expp->nextp()) {
             puts(", ");
             iterateConstNull(expp);
         }
         puts(");\n");
     }
-    void visit(AstDisable* nodep) override { putbs("disable " + nodep->name() + ";\n"); }
-    void visit(AstDisplay* nodep) override {
-        visitNodeDisplay(nodep, nodep->filep(), nodep->fmtp()->text(), nodep->fmtp()->exprsp());
+    శూన్య సందర్శించు(AstDisable* nodep) override { putbs("disable " + nodep->name() + ";\n"); }
+    శూన్య సందర్శించు(AstDisplay* nodep) override {
+        సందర్శించు_కణుపు_Display(nodep, nodep->filep(), nodep->fmtp()->పాఠ్యం(), nodep->fmtp()->exprsp());
     }
-    void visit(AstElabDisplay* nodep) override {
-        visitNodeDisplay(nodep, nullptr, nodep->fmtp()->text(), nodep->fmtp()->exprsp());
+    శూన్య సందర్శించు(AstElabDisplay* nodep) override {
+        సందర్శించు_కణుపు_Display(nodep, శూన్యసూచిక, nodep->fmtp()->పాఠ్యం(), nodep->fmtp()->exprsp());
     }
-    void visit(AstFScanF* nodep) override {
-        visitNodeDisplay(nodep, nodep->filep(), nodep->text(), nodep->exprsp());
+    శూన్య సందర్శించు(AstFScanF* nodep) override {
+        సందర్శించు_కణుపు_Display(nodep, nodep->filep(), nodep->పాఠ్యం(), nodep->exprsp());
     }
-    void visit(AstSScanF* nodep) override {
-        visitNodeDisplay(nodep, nodep->fromp(), nodep->text(), nodep->exprsp());
+    శూన్య సందర్శించు(AstSScanF* nodep) override {
+        సందర్శించు_కణుపు_Display(nodep, nodep->fromp(), nodep->పాఠ్యం(), nodep->exprsp());
     }
-    void visit(AstSFormat* nodep) override {
-        visitNodeDisplay(nodep, nodep->lhsp(), nodep->fmtp()->text(), nodep->fmtp()->exprsp());
+    శూన్య సందర్శించు(AstSFormat* nodep) override {
+        సందర్శించు_కణుపు_Display(nodep, nodep->lhsp(), nodep->fmtp()->పాఠ్యం(), nodep->fmtp()->exprsp());
     }
-    void visit(AstToStringN* nodep) override { iterateConst(nodep->lhsp()); }
-    void visit(AstSFormatArg* nodep) override { iterateConst(nodep->exprp()); }
-    void visit(AstSFormatF* nodep) override {
-        visitNodeDisplay(nodep, nullptr, nodep->text(), nodep->exprsp());
+    శూన్య సందర్శించు(Ast_గమ్యం_String_N* nodep) override { iterateConst(nodep->lhsp()); }
+    శూన్య సందర్శించు(AstSFormatArg* nodep) override { iterateConst(nodep->exprp()); }
+    శూన్య సందర్శించు(AstSFormatF* nodep) override {
+        సందర్శించు_కణుపు_Display(nodep, శూన్యసూచిక, nodep->పాఠ్యం(), nodep->exprsp());
     }
-    void visit(AstFOpen* nodep) override {
+    శూన్య సందర్శించు(AstFOpen* nodep) override {
         putfs(nodep, nodep->verilogKwd());
         putbs("(");
-        iterateAndNextConstNull(nodep->filenamep());
+        iterate_And_తదుపరి_Const_Null(nodep->filenamep());
         putbs(", ");
-        iterateAndNextConstNull(nodep->modep());
+        iterate_And_తదుపరి_Const_Null(nodep->modep());
         puts(");\n");
     }
-    void visit(AstFOpenMcd* nodep) override {
+    శూన్య సందర్శించు(AstFOpenMcd* nodep) override {
         putfs(nodep, nodep->verilogKwd());
         putbs("(");
-        iterateAndNextConstNull(nodep->filenamep());
+        iterate_And_తదుపరి_Const_Null(nodep->filenamep());
         puts(");\n");
     }
-    void visit(AstFClose* nodep) override {
+    శూన్య సందర్శించు(AstFClose* nodep) override {
         putfs(nodep, nodep->verilogKwd());
         putbs("(");
-        if (nodep->filep()) iterateAndNextConstNull(nodep->filep());
+        ఒకవేళ (nodep->filep()) iterate_And_తదుపరి_Const_Null(nodep->filep());
         puts(");\n");
     }
-    void visit(AstFFlush* nodep) override {
+    శూన్య సందర్శించు(AstFFlush* nodep) override {
         putfs(nodep, nodep->verilogKwd());
         putbs("(");
-        if (nodep->filep()) iterateAndNextConstNull(nodep->filep());
+        ఒకవేళ (nodep->filep()) iterate_And_తదుపరి_Const_Null(nodep->filep());
         puts(");\n");
     }
-    void visit(AstJumpBlock* nodep) override {
+    శూన్య సందర్శించు(Ast_Jump_ఖండం* nodep) override {
         // Allocate label number
-        const size_t n = m_labelNumbers.size();
-        const bool newEntry = m_labelNumbers.emplace(nodep, n).second;
-        UASSERT_OBJ(newEntry, nodep, "AstJumpBlock visited twide");
+        స్థిరరాశి కొలత_t n = m_labelNumbers.కొలత();
+        స్థిరరాశి తార్కిక new_నమోదు = m_labelNumbers.emplace(nodep, n).రెండవ;
+        UASSERT_OBJ(new_నమోదు, nodep, "AstJumpBlock visited twide");
         // Emit
-        putbs("begin : label" + std::to_string(n) + "\n");
-        iterateAndNextConstNull(nodep->stmtsp());
+        putbs("begin : label" + std::గమ్యం_string(n) + "\n");
+        iterate_And_తదుపరి_Const_Null(nodep->stmtsp());
         puts("end\n");
     }
-    void visit(AstJumpGo* nodep) override {
+    శూన్య సందర్శించు(AstJumpGo* nodep) override {
         // Retrieve target label number - Sometimes EmitV is used by debug code,
         // so allow printing with an unknown target
-        const auto it = m_labelNumbers.find(nodep->blockp());
-        const std::string label
-            = it != m_labelNumbers.end() ? "label" + std::to_string(it->second) : "<UNKNOWN>";
+        స్థిరరాశి స్వయంచాలక it = m_labelNumbers.కనుగొను(nodep->blockp());
+        స్థిరరాశి std::string label
+            = it != m_labelNumbers.చివర() ? "label" + std::గమ్యం_string(it->రెండవ) : "<UNKNOWN>";
         putbs("disable " + label + ";\n");
     }
-    void visit(AstNodeReadWriteMem* nodep) override {
+    శూన్య సందర్శించు(Ast_కణుపు_Read_Write_Mem* nodep) override {
         putfs(nodep, nodep->verilogKwd());
         putbs("(");
-        if (nodep->filenamep()) iterateAndNextConstNull(nodep->filenamep());
+        ఒకవేళ (nodep->filenamep()) iterate_And_తదుపరి_Const_Null(nodep->filenamep());
         putbs(", ");
-        if (nodep->memp()) iterateAndNextConstNull(nodep->memp());
-        if (nodep->lsbp()) {
+        ఒకవేళ (nodep->memp()) iterate_And_తదుపరి_Const_Null(nodep->memp());
+        ఒకవేళ (nodep->lsbp()) {
             putbs(", ");
-            iterateAndNextConstNull(nodep->lsbp());
+            iterate_And_తదుపరి_Const_Null(nodep->lsbp());
         }
-        if (nodep->msbp()) {
+        ఒకవేళ (nodep->msbp()) {
             putbs(", ");
-            iterateAndNextConstNull(nodep->msbp());
+            iterate_And_తదుపరి_Const_Null(nodep->msbp());
         }
         puts(");\n");
     }
-    void visit(AstSysIgnore* nodep) override {
+    శూన్య సందర్శించు(AstSysIgnore* nodep) override {
         putfs(nodep, nodep->verilogKwd());
         putbs("(");
-        iterateAndNextConstNull(nodep->exprsp());
+        iterate_And_తదుపరి_Const_Null(nodep->exprsp());
         puts(");\n");
     }
-    void visit(AstRepeat* nodep) override {
+    శూన్య సందర్శించు(AstRepeat* nodep) override {
         putfs(nodep, "repeat (");
-        iterateAndNextConstNull(nodep->countp());
+        iterate_And_తదుపరి_Const_Null(nodep->countp());
         puts(") begin\n");
-        iterateAndNextConstNull(nodep->stmtsp());
+        iterate_And_తదుపరి_Const_Null(nodep->stmtsp());
         putfs(nodep, "end\n");
     }
-    void visit(AstLoop* nodep) override {
+    శూన్య సందర్శించు(AstLoop* nodep) override {
         // Special case when the AstLoopTest is first for output readability
-        if (AstLoopTest* const testp = VN_CAST(nodep->stmtsp(), LoopTest)) {
+        ఒకవేళ (AstLoopTest* స్థిరరాశి testp = VN_CAST(nodep->stmtsp(), LoopTest)) {
             putfs(nodep, "while (");
             iterateConst(testp->condp());
             puts(") begin\n");
-            iterateAndNextConstNull(testp->nextp());
+            iterate_And_తదుపరి_Const_Null(testp->nextp());
             puts("end\n");
-            return;
+            తిరిగి;
         }
         // Special case when the AstLoopTest is last for output readability
-        if (AstNode* lastp = nodep->stmtsp()) {
-            while (AstNode* const nextp = lastp->nextp()) lastp = nextp;
-            if (AstLoopTest* const testp = VN_CAST(lastp, LoopTest)) {
+        ఒకవేళ (Ast_కణుపు* lastp = nodep->stmtsp()) {
+            అయితే (Ast_కణుపు* స్థిరరాశి nextp = lastp->nextp()) lastp = nextp;
+            ఒకవేళ (AstLoopTest* స్థిరరాశి testp = VN_CAST(lastp, LoopTest)) {
                 putfs(nodep, "do begin\n");
-                for (AstNode* p = nodep->stmtsp(); p != lastp; p = p->nextp()) iterateConst(p);
+                కొరకు (Ast_కణుపు* p = nodep->stmtsp(); p != lastp; p = p->nextp()) iterateConst(p);
                 puts("end while (");
                 iterateConst(testp->condp());
                 puts(")\n");
-                return;
+                తిరిగి;
             }
         }
         // Generic case
         putfs(nodep, "while (true) begin\n");
-        iterateAndNextConstNull(nodep->stmtsp());
-        iterateAndNextConstNull(nodep->contsp());
+        iterate_And_తదుపరి_Const_Null(nodep->stmtsp());
+        iterate_And_తదుపరి_Const_Null(nodep->contsp());
         putfs(nodep, "end\n");
     }
-    void visit(AstLoopTest* nodep) override {
+    శూన్య సందర్శించు(AstLoopTest* nodep) override {
         putfs(nodep, "if (!(");
-        iterateAndNextConstNull(nodep->condp());
+        iterate_And_తదుపరి_Const_Null(nodep->condp());
         puts(")) break;\n");
     }
-    void visit(AstNodeIf* nodep) override {
+    శూన్య సందర్శించు(Ast_కణుపు_If* nodep) override {
         putfs(nodep, "");
-        if (const AstIf* const ifp = VN_CAST(nodep, If)) {
-            if (ifp->priorityPragma()) puts("priority ");
-            if (ifp->uniquePragma()) puts("unique ");
-            if (ifp->unique0Pragma()) puts("unique0 ");
+        ఒకవేళ (స్థిరరాశి AstIf* స్థిరరాశి ifp = VN_CAST(nodep, If)) {
+            ఒకవేళ (ifp->ప్రాధాన్యత_Pragma()) puts("priority ");
+            ఒకవేళ (ifp->uniquePragma()) puts("unique ");
+            ఒకవేళ (ifp->unique0Pragma()) puts("unique0 ");
         }
         puts("if (");
-        iterateAndNextConstNull(nodep->condp());
+        iterate_And_తదుపరి_Const_Null(nodep->condp());
         puts(") begin\n");
-        iterateAndNextConstNull(nodep->thensp());
-        if (nodep->elsesp()) {
+        iterate_And_తదుపరి_Const_Null(nodep->thensp());
+        ఒకవేళ (nodep->elsesp()) {
             putqs(nodep, "end\n");
             putqs(nodep, "else begin\n");
-            iterateAndNextConstNull(nodep->elsesp());
+            iterate_And_తదుపరి_Const_Null(nodep->elsesp());
         }
         putqs(nodep, "end\n");
     }
-    void visit(AstPast* nodep) override {
+    శూన్య సందర్శించు(AstPast* nodep) override {
         putfs(nodep, "$past(");
-        iterateAndNextConstNull(nodep->exprp());
-        if (nodep->ticksp() || nodep->sentreep()) {
+        iterate_And_తదుపరి_Const_Null(nodep->exprp());
+        ఒకవేళ (nodep->ticksp() || nodep->sentreep()) {
             puts(", ");
-            iterateAndNextConstNull(nodep->ticksp());
-            if (nodep->sentreep()) {
+            iterate_And_తదుపరి_Const_Null(nodep->ticksp());
+            ఒకవేళ (nodep->sentreep()) {
                 puts(", ");
-                iterateAndNextConstNull(nodep->sentreep());
+                iterate_And_తదుపరి_Const_Null(nodep->sentreep());
             }
         }
         puts(")");
     }
-    void visit(AstSampled* nodep) override {
-        if (!m_suppressSampled) {
+    శూన్య సందర్శించు(AstSampled* nodep) override {
+        ఒకవేళ (!m_suppressSampled) {
             putfs(nodep, "$sampled(");
-            iterateAndNextConstNull(nodep->exprp());
+            iterate_And_తదుపరి_Const_Null(nodep->exprp());
             puts(")");
         }
     }
-    void visit(AstRising* nodep) override {
+    శూన్య సందర్శించు(AstRising* nodep) override {
         putfs(nodep, "$rising(");
-        iterateAndNextConstNull(nodep->exprp());
+        iterate_And_తదుపరి_Const_Null(nodep->exprp());
         puts(")");
     }
-    void visit(AstRose* nodep) override {
+    శూన్య సందర్శించు(AstRose* nodep) override {
         putfs(nodep, "$rose(");
-        iterateAndNextConstNull(nodep->exprp());
-        if (nodep->sentreep()) {
+        iterate_And_తదుపరి_Const_Null(nodep->exprp());
+        ఒకవేళ (nodep->sentreep()) {
             puts(", ");
-            iterateAndNextConstNull(nodep->sentreep());
+            iterate_And_తదుపరి_Const_Null(nodep->sentreep());
         }
         puts(")");
     }
-    void visit(AstFell* nodep) override {
+    శూన్య సందర్శించు(AstFell* nodep) override {
         putfs(nodep, "$fell(");
-        iterateAndNextConstNull(nodep->exprp());
-        if (nodep->sentreep()) {
+        iterate_And_తదుపరి_Const_Null(nodep->exprp());
+        ఒకవేళ (nodep->sentreep()) {
             puts(", ");
-            iterateAndNextConstNull(nodep->sentreep());
+            iterate_And_తదుపరి_Const_Null(nodep->sentreep());
         }
         puts(")");
     }
-    void visit(AstFalling* nodep) override {
+    శూన్య సందర్శించు(AstFalling* nodep) override {
         putfs(nodep, "$falling(");
-        iterateAndNextConstNull(nodep->exprp());
+        iterate_And_తదుపరి_Const_Null(nodep->exprp());
         puts(")");
     }
-    void visit(AstFuture* nodep) override {
+    శూన్య సందర్శించు(AstFuture* nodep) override {
         putfs(nodep, "$future(");
-        iterateAndNextConstNull(nodep->exprp());
+        iterate_And_తదుపరి_Const_Null(nodep->exprp());
         puts(")");
     }
-    void visit(AstStable* nodep) override {
+    శూన్య సందర్శించు(AstStable* nodep) override {
         putfs(nodep, "$stable(");
-        iterateAndNextConstNull(nodep->exprp());
-        if (nodep->sentreep()) {
+        iterate_And_తదుపరి_Const_Null(nodep->exprp());
+        ఒకవేళ (nodep->sentreep()) {
             puts(", ");
-            iterateAndNextConstNull(nodep->sentreep());
+            iterate_And_తదుపరి_Const_Null(nodep->sentreep());
         }
         puts(")");
     }
-    void visit(AstSteady* nodep) override {
+    శూన్య సందర్శించు(AstSteady* nodep) override {
         putfs(nodep, "$steady(");
-        iterateAndNextConstNull(nodep->exprp());
+        iterate_And_తదుపరి_Const_Null(nodep->exprp());
         puts(")");
     }
-    void visit(AstReturn* nodep) override {
+    శూన్య సందర్శించు(AstReturn* nodep) override {
         putfs(nodep, "return ");
-        iterateAndNextConstNull(nodep->lhsp());
+        iterate_And_తదుపరి_Const_Null(nodep->lhsp());
         puts(";\n");
     }
-    void visit(AstStop* nodep) override {
+    శూన్య సందర్శించు(AstStop* nodep) override {
         emitVerilogFormat(nodep, nodep->emitVerilog());
         puts(";\n");
     }
-    void visit(AstFinish* nodep) override { putfs(nodep, "$finish;\n"); }
-    void visit(AstFinishFork* nodep) override { putfs(nodep, "$finish;\n"); }
-    void visit(AstStmtExpr* nodep) override {
+    శూన్య సందర్శించు(Ast_ముగింపు* nodep) override { putfs(nodep, "$finish;\n"); }
+    శూన్య సందర్శించు(Ast_ముగింపు_Fork* nodep) override { putfs(nodep, "$finish;\n"); }
+    శూన్య సందర్శించు(Ast_Stmt_సమాసం* nodep) override {
         iterateConst(nodep->exprp());
         puts(";\n");
     }
 
     // Nodes involing AstText
-    void visit(AstText* nodep) override {
+    శూన్య సందర్శించు(Ast_పాఠ్యం* nodep) override {
         // All Text should be under TextBlock/CStmt/CStmtUser/CExpr/CExprUser
         nodep->v3fatalSrc("Text node in unexpected position");
     }
-    void visit(AstTextBlock* nodep) override {
+    శూన్య సందర్శించు(Ast_పాఠ్యం_ఖండం* nodep) override {
         VL_RESTORER(m_suppressVarSemi);
-        m_suppressVarSemi = !nodep->separator().empty();
-        puts(nodep->prefix());
-        emitNodesWithText(nodep->nodesp(), true, nodep->separator());
+        m_suppressVarSemi = !nodep->separator().ఖాళీలు();
+        puts(nodep->ఉపసర్గ());
+        emit_Nodes_With_పాఠ్యం(nodep->nodesp(), నిజం, nodep->separator());
         puts(nodep->suffix());
     }
-    void visit(AstCStmt* nodep) override {
+    శూన్య సందర్శించు(AstCStmt* nodep) override {
         putfs(nodep, "$_CSTMT(");
-        emitNodesWithText(nodep->nodesp(), true, "");
+        emit_Nodes_With_పాఠ్యం(nodep->nodesp(), నిజం, "");
         puts(");\n");
     }
-    void visit(AstCExpr* nodep) override {
+    శూన్య సందర్శించు(AstCExpr* nodep) override {
         putfs(nodep, "$_CEXPR(");
-        emitNodesWithText(nodep->nodesp(), true, "");
+        emit_Nodes_With_పాఠ్యం(nodep->nodesp(), నిజం, "");
         puts(")");
     }
-    void visit(AstCStmtUser* nodep) override {
+    శూన్య సందర్శించు(AstCStmtUser* nodep) override {
         putfs(nodep, "$c(");
-        emitNodesWithText(nodep->nodesp(), false, "");
+        emit_Nodes_With_పాఠ్యం(nodep->nodesp(), అబద్ధం, "");
         puts(");\n");
     }
-    void visit(AstCExprUser* nodep) override {
+    శూన్య సందర్శించు(AstCExprUser* nodep) override {
         putfs(nodep, "$c(");
-        emitNodesWithText(nodep->nodesp(), false, "");
+        emit_Nodes_With_పాఠ్యం(nodep->nodesp(), అబద్ధం, "");
         puts(")");
     }
 
-    void visit(AstScopeName* nodep) override {}
-    void visit(AstExprStmt* nodep) override {
+    శూన్య సందర్శించు(AstScopeName* nodep) override {}
+    శూన్య సందర్శించు(Ast_సమాసం_Stmt* nodep) override {
         putfs(nodep, "$_EXPRSTMT(\n");
-        iterateAndNextConstNull(nodep->stmtsp());
+        iterate_And_తదుపరి_Const_Null(nodep->stmtsp());
         putbs(", ");
-        iterateAndNextConstNull(nodep->resultp());
+        iterate_And_తదుపరి_Const_Null(nodep->resultp());
         puts(");\n");
     }
 
-    void visit(AstCMethodHard* nodep) override {
+    శూన్య సందర్శించు(AstCMethodHard* nodep) override {
         iterateConst(nodep->fromp());
         puts("." + nodep->name() + "(");
         iterateAndCommaConstNull(nodep->pinsp());
         puts(")");
         iterateConstNull(nodep->withp());
     }
-    void visit(AstCMethodCall* nodep) override {
+    శూన్య సందర్శించు(AstCMethodCall* nodep) override {
         iterateConst(nodep->fromp());
         puts("." + nodep->name() + "(");
         iterateAndCommaConstNull(nodep->argsp());
@@ -787,9 +787,9 @@ class EmitVBaseVisitorConst VL_NOT_FINAL : public VNVisitorConst {
     }
 
     // Operators
-    virtual void emitVerilogFormat(AstNode* nodep, const string& format, AstNode* lhsp = nullptr,
-                                   AstNode* const rhsp = nullptr, AstNode* thsp = nullptr,
-                                   AstNode* fhsp = nullptr) {
+    మాయా శూన్య emitVerilogFormat(Ast_కణుపు* nodep, స్థిరరాశి string& format, Ast_కణుపు* lhsp = శూన్యసూచిక,
+                                   Ast_కణుపు* స్థిరరాశి rhsp = శూన్యసూచిక, Ast_కణుపు* thsp = శూన్యసూచిక,
+                                   Ast_కణుపు* fhsp = శూన్యసూచిక) {
         // Look at emitVerilog() format for term/uni/dual/triops,
         // and write out appropriate text.
         //      %f      Potential fileline-if-change and line break
@@ -799,347 +799,347 @@ class EmitVBaseVisitorConst VL_NOT_FINAL : public VNVisitorConst {
         //      %o      fhsp - if appropriate
         //      %d      dtypep - if appropriate
         //      %k      Potential line break
-        bool inPct = false;
+        తార్కిక లోపల_Pct = అబద్ధం;
         putbs("");
-        for (const char c : format) {
-            if (!inPct && c == '%') {
-                inPct = true;
-            } else if (!inPct) {  // Normal text
+        కొరకు (స్థిరరాశి అక్షరం c : format) {
+            ఒకవేళ (!లోపల_Pct && c == '%') {
+                లోపల_Pct = నిజం;
+            } లేకపోతే ఒకవేళ (!లోపల_Pct) {  // Normal text
                 string s;
                 s += c;
                 puts(s);
-            } else {  // Format character
-                inPct = false;
-                switch (c) {
-                case '%': puts("%"); break;
-                case 'f': putfs(nodep, ""); break;
-                case 'k': putbs(""); break;
-                case 'l': {
+            } లేకపోతే {  // Format character
+                లోపల_Pct = అబద్ధం;
+                ఎంపిక (c) {
+                స్థితి '%': puts("%"); ఆపు;
+                స్థితి 'f': putfs(nodep, ""); ఆపు;
+                స్థితి 'k': putbs(""); ఆపు;
+                స్థితి 'l': {
                     UASSERT_OBJ(lhsp, nodep, "emitVerilog() references undef node");
-                    iterateAndNextConstNull(lhsp);
-                    break;
+                    iterate_And_తదుపరి_Const_Null(lhsp);
+                    ఆపు;
                 }
-                case 'r': {
+                స్థితి 'r': {
                     UASSERT_OBJ(rhsp, nodep, "emitVerilog() references undef node");
-                    iterateAndNextConstNull(rhsp);
-                    break;
+                    iterate_And_తదుపరి_Const_Null(rhsp);
+                    ఆపు;
                 }
-                case 't': {
+                స్థితి 't': {
                     UASSERT_OBJ(thsp, nodep, "emitVerilog() references undef node");
-                    iterateAndNextConstNull(thsp);
-                    break;
+                    iterate_And_తదుపరి_Const_Null(thsp);
+                    ఆపు;
                 }
-                case 'o': {
+                స్థితి 'o': {
                     UASSERT_OBJ(thsp, nodep, "emitVerilog() references undef node");
-                    iterateAndNextConstNull(fhsp);
-                    break;
+                    iterate_And_తదుపరి_Const_Null(fhsp);
+                    ఆపు;
                 }
-                case 'd': {
+                స్థితి 'd': {
                     UASSERT_OBJ(nodep->dtypep(), nodep, "emitVerilog() references undef node");
-                    iterateAndNextConstNull(nodep->dtypep());
-                    break;
+                    iterate_And_తదుపరి_Const_Null(nodep->dtypep());
+                    ఆపు;
                 }
-                default: nodep->v3fatalSrc("Unknown emitVerilog format code: %" << c); break;
+                అప్రమేయ: nodep->v3fatalSrc("Unknown emitVerilog format code: %" << c); ఆపు;
                 }
             }
         }
     }
 
-    void visit(AstNodeTermop* nodep) override { emitVerilogFormat(nodep, nodep->emitVerilog()); }
-    void visit(AstNodeUniop* nodep) override {
+    శూన్య సందర్శించు(Ast_కణుపు_Termop* nodep) override { emitVerilogFormat(nodep, nodep->emitVerilog()); }
+    శూన్య సందర్శించు(Ast_కణుపు_Uniop* nodep) override {
         emitVerilogFormat(nodep, nodep->emitVerilog(), nodep->lhsp());
     }
-    void visit(AstNodeBiop* nodep) override {
+    శూన్య సందర్శించు(Ast_కణుపు_Biop* nodep) override {
         emitVerilogFormat(nodep, nodep->emitVerilog(), nodep->lhsp(), nodep->rhsp());
     }
-    void visit(AstNodeTriop* nodep) override {
+    శూన్య సందర్శించు(Ast_కణుపు_Triop* nodep) override {
         emitVerilogFormat(nodep, nodep->emitVerilog(), nodep->lhsp(), nodep->rhsp(),
                           nodep->thsp());
     }
-    void visit(AstNodeQuadop* nodep) override {
+    శూన్య సందర్శించు(Ast_కణుపు_Quadop* nodep) override {
         emitVerilogFormat(nodep, nodep->emitVerilog(), nodep->lhsp(), nodep->rhsp(), nodep->thsp(),
                           nodep->fhsp());
     }
-    void visit(AstMemberSel* nodep) override {
+    శూన్య సందర్శించు(AstMemberSel* nodep) override {
         iterateConst(nodep->fromp());
         puts(".");
         puts(nodep->prettyName());
     }
-    void visit(AstStructSel* nodep) override {
+    శూన్య సందర్శించు(AstStructSel* nodep) override {
         iterateConst(nodep->fromp());
         puts(".");
         puts(nodep->prettyName());
     }
-    void visit(AstAttrOf* nodep) override {
+    శూన్య సందర్శించు(Ast_Attr_యొక్క* nodep) override {
         putfs(nodep, "$_ATTROF(");
-        iterateAndNextConstNull(nodep->fromp());
-        if (nodep->dimp()) {
+        iterate_And_తదుపరి_Const_Null(nodep->fromp());
+        ఒకవేళ (nodep->dimp()) {
             putbs(", ");
-            iterateAndNextConstNull(nodep->dimp());
+            iterate_And_తదుపరి_Const_Null(nodep->dimp());
         }
         puts(")");
     }
-    void visit(AstConsArray* nodep) override {
+    శూన్య సందర్శించు(AstConsArray* nodep) override {
         putfs(nodep, "'{");
-        for (const AstConsArrayItem* itemp = nodep->itemsp(); itemp;
-             itemp = VN_AS(itemp->nextp(), ConsArrayItem)) {
-            if (itemp != nodep->itemsp()) putbs(", ");
-            puts(cvtToStr(itemp->index()));
+        కొరకు (స్థిరరాశి Ast_Cons_Array_అంశం* itemp = nodep->itemsp(); itemp;
+             itemp = VN_AS(itemp->nextp(), Cons_Array_అంశం)) {
+            ఒకవేళ (itemp != nodep->itemsp()) putbs(", ");
+            puts(cvt_గమ్యం_Str(itemp->సూచీ()));
             puts(":");
             iterateConst(itemp->valuep());
         }
         puts("}");
     }
-    void visit(AstCond* nodep) override {
+    శూన్య సందర్శించు(AstCond* nodep) override {
         putbs("(");
-        iterateAndNextConstNull(nodep->condp());
+        iterate_And_తదుపరి_Const_Null(nodep->condp());
         putfs(nodep, " ? ");
-        iterateAndNextConstNull(nodep->thenp());
+        iterate_And_తదుపరి_Const_Null(nodep->thenp());
         putbs(" : ");
-        iterateAndNextConstNull(nodep->elsep());
+        iterate_And_తదుపరి_Const_Null(nodep->elsep());
         puts(")");
     }
-    void visit(AstInsideRange* nodep) override {
+    శూన్య సందర్శించు(AstInsideRange* nodep) override {
         puts("[");
-        iterateAndNextConstNull(nodep->lhsp());
+        iterate_And_తదుపరి_Const_Null(nodep->lhsp());
         puts(":");
-        iterateAndNextConstNull(nodep->rhsp());
+        iterate_And_తదుపరి_Const_Null(nodep->rhsp());
         puts("]");
     }
-    void visit(AstRange* nodep) override {
+    శూన్య సందర్శించు(AstRange* nodep) override {
         puts("[");
-        if (VN_IS(nodep->leftp(), Const) && VN_IS(nodep->rightp(), Const)) {
+        ఒకవేళ (VN_IS(nodep->leftp(), Const) && VN_IS(nodep->rightp(), Const)) {
             // Looks nicer if we print [1:0] rather than [32'sh1:32sh0]
-            puts(cvtToStr(nodep->leftConst()));
+            puts(cvt_గమ్యం_Str(nodep->ఎడమ_Const()));
             puts(":");
-            puts(cvtToStr(nodep->rightConst()));
-        } else {
-            iterateAndNextConstNull(nodep->leftp());
+            puts(cvt_గమ్యం_Str(nodep->కుడి_Const()));
+        } లేకపోతే {
+            iterate_And_తదుపరి_Const_Null(nodep->leftp());
             puts(":");
-            iterateAndNextConstNull(nodep->rightp());
+            iterate_And_తదుపరి_Const_Null(nodep->rightp());
         }
         puts("]");
     }
-    void visit(AstRand* nodep) override {
+    శూన్య సందర్శించు(AstRand* nodep) override {
         emitVerilogFormat(nodep, nodep->emitVerilog(), nodep->seedp());
     }
-    void visit(AstSel* nodep) override {
-        iterateAndNextConstNull(nodep->fromp());
-        int offset = 0;
-        AstNodeDType* const dtypep = nodep->fromp()->dtypep();
-        if (VN_IS(dtypep, BasicDType)) {
-            AstBasicDType* const basicDtypep = VN_AS(dtypep, BasicDType);
-            offset = basicDtypep->lo();
+    శూన్య సందర్శించు(AstSel* nodep) override {
+        iterate_And_తదుపరి_Const_Null(nodep->fromp());
+        పూర్ణాంకం స్థానభ్రంశం = 0;
+        Ast_కణుపు_DType* స్థిరరాశి dtypep = nodep->fromp()->dtypep();
+        ఒకవేళ (VN_IS(dtypep, BasicDType)) {
+            AstBasicDType* స్థిరరాశి basicDtypep = VN_AS(dtypep, BasicDType);
+            స్థానభ్రంశం = basicDtypep->lo();
         }
         puts("[");
-        if (VN_IS(nodep->lsbp(), Const)) {
-            if (nodep->widthConst() == 1) {
-                puts(cvtToStr(VN_AS(nodep->lsbp(), Const)->toSInt() + offset));
-            } else {
-                puts(cvtToStr(VN_AS(nodep->lsbp(), Const)->toSInt() + nodep->widthConst() + offset
+        ఒకవేళ (VN_IS(nodep->lsbp(), Const)) {
+            ఒకవేళ (nodep->వెడల్పు_Const() == 1) {
+                puts(cvt_గమ్యం_Str(VN_AS(nodep->lsbp(), Const)->గమ్యం_SInt() + స్థానభ్రంశం));
+            } లేకపోతే {
+                puts(cvt_గమ్యం_Str(VN_AS(nodep->lsbp(), Const)->గమ్యం_SInt() + nodep->వెడల్పు_Const() + స్థానభ్రంశం
                               - 1));
                 puts(":");
-                puts(cvtToStr(VN_AS(nodep->lsbp(), Const)->toSInt() + offset));
+                puts(cvt_గమ్యం_Str(VN_AS(nodep->lsbp(), Const)->గమ్యం_SInt() + స్థానభ్రంశం));
             }
-        } else {
-            iterateAndNextConstNull(nodep->lsbp());
-            if (offset != 0) {
+        } లేకపోతే {
+            iterate_And_తదుపరి_Const_Null(nodep->lsbp());
+            ఒకవేళ (స్థానభ్రంశం != 0) {
                 puts(" + ");
-                puts(cvtToStr(offset));
+                puts(cvt_గమ్యం_Str(స్థానభ్రంశం));
             }
             putfs(nodep, "+:");
-            puts(cvtToStr(nodep->widthConst()));
+            puts(cvt_గమ్యం_Str(nodep->వెడల్పు_Const()));
         }
         puts("]");
     }
-    void visit(AstSliceSel* nodep) override {
-        iterateAndNextConstNull(nodep->fromp());
-        puts(cvtToStr(nodep->declRange()));
+    శూన్య సందర్శించు(Ast_ముక్క_Sel* nodep) override {
+        iterate_And_తదుపరి_Const_Null(nodep->fromp());
+        puts(cvt_గమ్యం_Str(nodep->declRange()));
     }
-    void visit(AstThisRef* /*nodep*/) override { puts("this"); }
-    void visit(AstTypedef* nodep) override {
+    శూన్య సందర్శించు(AstThisRef* /*nodep*/) override { puts("this"); }
+    శూన్య సందర్శించు(AstTypedef* nodep) override {
         putfs(nodep, "typedef ");
         iterateConstNull(nodep->subDTypep());
         puts(" ");
         puts(nodep->prettyName());
         puts(";\n");
     }
-    void visit(AstNodeCoverOrAssert* nodep) override {
+    శూన్య సందర్శించు(Ast_కణుపు_Cover_Or_Assert* nodep) override {
         putfs(nodep, nodep->verilogKwd() + " ");
-        if (nodep->userType() == VAssertType::OBSERVED_DEFERRED_IMMEDIATE) {
+        ఒకవేళ (nodep->userType() == VAssertType::OBSERVED_DEFERRED_తక్షణ) {
             puts("#0 ");
-        } else if (nodep->userType() == VAssertType::FINAL_DEFERRED_IMMEDIATE) {
+        } లేకపోతే ఒకవేళ (nodep->userType() == VAssertType::FINAL_DEFERRED_తక్షణ) {
             puts("final ");
-        } else if (nodep->userType() == VAssertType::CONCURRENT) {
+        } లేకపోతే ఒకవేళ (nodep->userType() == VAssertType::CONCURRENT) {
             puts("property ");
         }
         iterateConstNull(nodep->sentreep());
         puts("(");
-        if (AstSampled* const sampledp = VN_CAST(nodep->propp(), Sampled)) {
-            iterateAndNextConstNull(sampledp->exprp());
-        } else {
-            iterateAndNextConstNull(nodep->propp());
+        ఒకవేళ (AstSampled* స్థిరరాశి sampledp = VN_CAST(nodep->propp(), Sampled)) {
+            iterate_And_తదుపరి_Const_Null(sampledp->exprp());
+        } లేకపోతే {
+            iterate_And_తదుపరి_Const_Null(nodep->propp());
         }
-        if (!VN_IS(nodep, Restrict)) {
+        ఒకవేళ (!VN_IS(nodep, Restrict)) {
             puts(") begin\n");
-            iterateAndNextConstNull(nodep->passsp());
+            iterate_And_తదుపరి_Const_Null(nodep->passsp());
             puts("end\n");
-        } else {
+        } లేకపోతే {
             puts(");\n");
         }
 
-        if (const AstAssert* const assertp = VN_CAST(nodep, Assert)) {
+        ఒకవేళ (స్థిరరాశి AstAssert* స్థిరరాశి assertp = VN_CAST(nodep, Assert)) {
             puts("else begin\n");
-            iterateAndNextConstNull(assertp->failsp());
+            iterate_And_తదుపరి_Const_Null(assertp->failsp());
             puts("end\n");
-        } else if (const AstAssertIntrinsic* const assertp = VN_CAST(nodep, AssertIntrinsic)) {
+        } లేకపోతే ఒకవేళ (స్థిరరాశి AstAssertIntrinsic* స్థిరరాశి assertp = VN_CAST(nodep, AssertIntrinsic)) {
             puts("else begin\n");
-            iterateAndNextConstNull(assertp->failsp());
+            iterate_And_తదుపరి_Const_Null(assertp->failsp());
             puts("end\n");
         }
     }
-    void visit(AstAssocArrayDType* nodep) override {
-        if (!m_arrayPost) {
+    శూన్య సందర్శించు(AstAssocArrayDType* nodep) override {
+        ఒకవేళ (!m_arrayPost) {
             iterateConst(nodep->subDTypep());
-        } else {
+        } లేకపోతే {
             VL_RESTORER(m_arrayPost);
-            m_arrayPost = false;
+            m_arrayPost = అబద్ధం;
             puts("[");
-            iterateConst(nodep->keyDTypep());
+            iterateConst(nodep->కీలకం_DTypep());
             puts("]");
-            m_arrayPost = true;
+            m_arrayPost = నిజం;
             iterateConst(nodep->subDTypep());  // For post's key
         }
     }
-    void visit(AstBasicDType* nodep) override {
-        if (m_arrayPost) return;
+    శూన్య సందర్శించు(AstBasicDType* nodep) override {
+        ఒకవేళ (m_arrayPost) తిరిగి;
         putfs(nodep, nodep->prettyName());
-        if (nodep->isSigned() && !nodep->keyword().isDouble()) putfs(nodep, " signed");
+        ఒకవేళ (nodep->isSigned() && !nodep->keyword().isDouble()) putfs(nodep, " signed");
         // Do not emit ranges for integer atoms.
-        if (nodep->keyword().isIntNumeric() && !nodep->keyword().isBitLogic()) return;
+        ఒకవేళ (nodep->keyword().isIntNumeric() && !nodep->keyword().is_బిట్టు_Logic()) తిరిగి;
         emitPacked();
-        if (nodep->rangep()) {
+        ఒకవేళ (nodep->rangep()) {
             puts(" ");
-            iterateAndNextConstNull(nodep->rangep());
+            iterate_And_తదుపరి_Const_Null(nodep->rangep());
             puts(" ");
-        } else if (nodep->isRanged()) {
+        } లేకపోతే ఒకవేళ (nodep->isRanged()) {
             puts(" [");
-            puts(cvtToStr(nodep->left()));
+            puts(cvt_గమ్యం_Str(nodep->ఎడమ()));
             puts(":");
-            puts(cvtToStr(nodep->right()));
+            puts(cvt_గమ్యం_Str(nodep->కుడి()));
             puts("] ");
         }
     }
-    void visit(AstConstDType* nodep) override {
-        if (m_arrayPost) return;
+    శూన్య సందర్శించు(AstConstDType* nodep) override {
+        ఒకవేళ (m_arrayPost) తిరిగి;
         putfs(nodep, "const ");
         iterateConst(nodep->subDTypep());
     }
-    void visit(AstDynArrayDType* nodep) override {
-        if (!m_arrayPost) {
+    శూన్య సందర్శించు(AstDynArrayDType* nodep) override {
+        ఒకవేళ (!m_arrayPost) {
             iterateConst(nodep->subDTypep());
-        } else {
+        } లేకపోతే {
             puts("[]");
             iterateConst(nodep->subDTypep());  // For post's key
         }
     }
-    void visit(AstEnumDType* nodep) override {
-        if (m_arrayPost) return;
+    శూన్య సందర్శించు(AstEnumDType* nodep) override {
+        ఒకవేళ (m_arrayPost) తిరిగి;
         putfs(nodep, "enum ");
         iterateConst(nodep->subDTypep());
         puts("{\n");
-        iterateAndNextConstNull(nodep->itemsp());
+        iterate_And_తదుపరి_Const_Null(nodep->itemsp());
         puts("}");
     }
-    void visit(AstEnumItemRef* nodep) override {
-        if (AstNodeModule* const classOrPackagep = nodep->classOrPackagep()) {
+    శూన్య సందర్శించు(Ast_Enum_అంశం_Ref* nodep) override {
+        ఒకవేళ (Ast_కణుపు_Module* స్థిరరాశి classOrPackagep = nodep->classOrPackagep()) {
             putfs(nodep, classOrPackagep->prettyName());
             puts("::");
         }
         putfs(nodep, nodep->name());
     }
-    void visit(AstEnumItem* nodep) override {
+    శూన్య సందర్శించు(Ast_Enum_అంశం* nodep) override {
         putfs(nodep, nodep->name());
         iterateConstNull(nodep->rangep());
         puts(" = ");
         iterateConstNull(nodep->valuep());
-        if (nodep->nextp()) puts(",");
+        ఒకవేళ (nodep->nextp()) puts(",");
         puts("\n");
     }
-    void visit(AstNodeArrayDType* nodep) override {
-        if (!m_arrayPost) {
-            if (VN_IS(nodep, PackArrayDType)) {
+    శూన్య సందర్శించు(Ast_కణుపు_Array_DType* nodep) override {
+        ఒకవేళ (!m_arrayPost) {
+            ఒకవేళ (VN_IS(nodep, PackArrayDType)) {
                 // Unpacked ranges handled in BasicDType, as they print "backwards"
-                m_packedps.push_back(nodep);
+                m_packedps.నెట్టు_వెనుక(nodep);
             }
             iterateConst(nodep->subDTypep());
-        } else {
-            if (VN_IS(nodep, UnpackArrayDType)) {
+        } లేకపోతే {
+            ఒకవేళ (VN_IS(nodep, UnpackArrayDType)) {
                 VL_RESTORER(m_arrayPost);
-                m_arrayPost = false;
-                iterateAndNextConstNull(nodep->rangep());
-                m_arrayPost = true;
+                m_arrayPost = అబద్ధం;
+                iterate_And_తదుపరి_Const_Null(nodep->rangep());
+                m_arrayPost = నిజం;
             }
             iterateConst(nodep->subDTypep());  // For post's key
         }
     }
-    void visit(AstIfaceRefDType* nodep) override {
-        if (m_arrayPost) {
+    శూన్య సందర్శించు(AstIfaceRefDType* nodep) override {
+        ఒకవేళ (m_arrayPost) {
             puts(" (");
-            if (nodep->cellp()) {
+            ఒకవేళ (nodep->cellp()) {
                 iterateConst(nodep->cellp());
-            } else {
+            } లేకపోతే {
                 puts("????");
             }
             puts(")");
-            return;
+            తిరిగి;
         }
         puts(nodep->ifaceName());
     }
-    void visit(AstRefDType* nodep) override {
-        if (nodep->subDTypep()) {
+    శూన్య సందర్శించు(AstRefDType* nodep) override {
+        ఒకవేళ (nodep->subDTypep()) {
             iterateConst(nodep->skipRefp());
-        } else {
+        } లేకపోతే {
             puts("\n???? // "s + nodep->prettyTypeName() + " -> UNLINKED\n");
         }
     }
-    void visit(AstClassRefDType* nodep) override {
+    శూన్య సందర్శించు(AstClassRefDType* nodep) override {
         UASSERT_OBJ(nodep->classp(), nodep, "AstClassRefDType not linked");
-        putfs(nodep, EmitCUtil::prefixNameProtect(nodep->classp()));
+        putfs(nodep, EmitCUtil::ఉపసర్గ_Name_Protect(nodep->classp()));
     }
-    void visit(AstRequireDType* nodep) override { iterateConst(nodep->lhsp()); }
-    void visit(AstModport* nodep) override {
+    శూన్య సందర్శించు(AstRequireDType* nodep) override { iterateConst(nodep->lhsp()); }
+    శూన్య సందర్శించు(AstModport* nodep) override {
         puts(nodep->verilogKwd());
         puts(" ");
         puts(nodep->prettyName());
         puts(" (\n");
-        if (nodep->varsp()) {
+        ఒకవేళ (nodep->varsp()) {
             iterateConst(nodep->varsp());
-        } else {
+        } లేకపోతే {
             puts("????");
         }
         puts(");\n");
     }
-    void visit(AstModportVarRef* nodep) override {
+    శూన్య సందర్శించు(AstModportVarRef* nodep) override {
         puts(nodep->direction().verilogKwd());
         puts(" ");
-        if (nodep->varp()) {
+        ఒకవేళ (nodep->varp()) {
             VL_RESTORER(m_suppressVarSemi);
-            m_suppressVarSemi = true;
+            m_suppressVarSemi = నిజం;
             iterateConst(nodep->varp());
-        } else {
+        } లేకపోతే {
             puts(nodep->prettyName());
         }
-        if (nodep->nextp()) puts(", ");
+        ఒకవేళ (nodep->nextp()) puts(", ");
     }
-    void visit(AstNodeUOrStructDType* nodep) override {
-        if (m_arrayPost) return;
+    శూన్య సందర్శించు(Ast_కణుపు_UOr_Struct_DType* nodep) override {
+        ఒకవేళ (m_arrayPost) తిరిగి;
         puts(nodep->verilogKwd() + " ");
-        if (nodep->packed()) puts("packed ");
+        ఒకవేళ (nodep->packed()) puts("packed ");
         {
             puts("{\n");
             VL_RESTORER_CLEAR(m_packedps);
-            for (AstMemberDType* itemp = nodep->membersp(); itemp;
+            కొరకు (AstMemberDType* itemp = nodep->membersp(); itemp;
                  itemp = VN_AS(itemp->nextp(), MemberDType)) {
                 iterateConst(itemp);
             }
@@ -1147,103 +1147,103 @@ class EmitVBaseVisitorConst VL_NOT_FINAL : public VNVisitorConst {
         }
         emitPacked();
     }
-    void visit(AstMemberDType* nodep) override {
-        if (m_arrayPost) return;
+    శూన్య సందర్శించు(AstMemberDType* nodep) override {
+        ఒకవేళ (m_arrayPost) తిరిగి;
         iterateConst(nodep->subDTypep());
         puts(" ");
         puts(nodep->name());
         puts(";\n");
     }
-    void visit(AstQueueDType* nodep) override {
-        if (!m_arrayPost) {
+    శూన్య సందర్శించు(Ast_వరుస_DType* nodep) override {
+        ఒకవేళ (!m_arrayPost) {
             iterateConst(nodep->subDTypep());
-        } else {
+        } లేకపోతే {
             VL_RESTORER(m_arrayPost);
-            m_arrayPost = false;
+            m_arrayPost = అబద్ధం;
             puts("[$");
-            if (nodep->boundp()) {
+            ఒకవేళ (nodep->boundp()) {
                 puts(":");
                 iterateConst(nodep->boundp());
             }
             puts("]");
-            m_arrayPost = true;
+            m_arrayPost = నిజం;
             iterateConst(nodep->subDTypep());  // For post's key
         }
     }
-    void visit(AstNodeFTaskRef* nodep) override {
-        if (nodep->dotted() != "") {
+    శూన్య సందర్శించు(Ast_కణుపు_FTask_Ref* nodep) override {
+        ఒకవేళ (nodep->dotted() != "") {
             putfs(nodep, nodep->dotted());
             puts(".");
             puts(nodep->prettyName());
-        } else {
+        } లేకపోతే {
             putfs(nodep, nodep->prettyName());
         }
-        if (!VN_IS(nodep->taskp(), Property)) {
+        ఒకవేళ (!VN_IS(nodep->taskp(), Property)) {
             puts("(");
-            iterateAndNextConstNull(nodep->argsp());
+            iterate_And_తదుపరి_Const_Null(nodep->argsp());
             puts(")");
             iterateConstNull(nodep->withp());
         }
     }
-    void visit(AstCCall* nodep) override {
+    శూన్య సందర్శించు(AstCCall* nodep) override {
         puts(nodep->funcp()->name());
         puts("(");
-        iterateAndNextConstNull(nodep->argsp());
+        iterate_And_తదుపరి_Const_Null(nodep->argsp());
         puts(")");
     }
-    void visit(AstArg* nodep) override { iterateAndNextConstNull(nodep->exprp()); }
-    void visit(AstWith* nodep) override {
+    శూన్య సందర్శించు(AstArg* nodep) override { iterate_And_తదుపరి_Const_Null(nodep->exprp()); }
+    శూన్య సందర్శించు(AstWith* nodep) override {
         putfs(nodep, " with (");
         iterateConstNull(nodep->exprp());
         puts(") ");
     }
-    void visit(AstLambdaArgRef* nodep) override { putfs(nodep, nodep->name()); }
-    void visit(AstPrintTimeScale* nodep) override {
+    శూన్య సందర్శించు(AstLambdaArgRef* nodep) override { putfs(nodep, nodep->name()); }
+    శూన్య సందర్శించు(Ast_Print_సమయం_Scale* nodep) override {
         puts(nodep->verilogKwd());
         puts(";\n");
     }
-    void visit(AstPropSpec* nodep) override {
-        if (!VN_IS(nodep->propp(), FuncRef)) {
+    శూన్య సందర్శించు(AstPropSpec* nodep) override {
+        ఒకవేళ (!VN_IS(nodep->propp(), FuncRef)) {
             // Same dumping as in AstSenTree
             putfs(nodep, "@(");
-            for (AstNode* expp = nodep->sensesp(); expp; expp = expp->nextp()) {
+            కొరకు (Ast_కణుపు* expp = nodep->sensesp(); expp; expp = expp->nextp()) {
                 iterateConst(expp);
-                if (expp->nextp()) putqs(expp->nextp(), " or ");
+                ఒకవేళ (expp->nextp()) putqs(expp->nextp(), " or ");
             }
             puts(")");
         }
-        if (nodep->disablep()) {
+        ఒకవేళ (nodep->disablep()) {
             puts(" disable iff ");
             iterateConst(nodep->disablep());
         }
 
         puts(" ");
-        if (nodep->propStrength() != VPropStrength::DEFAULT) {
+        ఒకవేళ (nodep->propStrength() != VPropStrength::DEFAULT) {
             puts(nodep->propStrength().ascii());
             puts("(");
         }
         iterateConstNull(nodep->propp());
-        if (nodep->propStrength() != VPropStrength::DEFAULT) puts(")");
+        ఒకవేళ (nodep->propStrength() != VPropStrength::DEFAULT) puts(")");
         puts("\n");
     }
-    void visit(AstPExpr* nodep) override { iterateConst(nodep->bodyp()); }
-    void visit(AstAbortOn* nodep) override {
-        puts(nodep->kind().ascii());
+    శూన్య సందర్శించు(AstPExpr* nodep) override { iterateConst(nodep->bodyp()); }
+    శూన్య సందర్శించు(AstAbortOn* nodep) override {
+        puts(nodep->రకం().ascii());
         puts(" (");
         iterateConst(nodep->condp());
         puts(") ");
         iterateConst(nodep->propp());
     }
-    void visit(AstSClocked* nodep) override {
+    శూన్య సందర్శించు(AstSClocked* nodep) override {
         puts("@(");
         iterateConst(nodep->sensesp());
         puts(") ");
         iterateConst(nodep->exprp());
         puts("\n");
     }
-    void visit(AstPropAlways* nodep) override {
+    శూన్య సందర్శించు(AstPropAlways* nodep) override {
         puts(nodep->isStrong() ? "s_always" : "always");
-        if (!VN_IS(nodep->loBoundp(), Unbounded) || !VN_IS(nodep->hiBoundp(), Unbounded)) {
+        ఒకవేళ (!VN_IS(nodep->loBoundp(), Unbounded) || !VN_IS(nodep->hiBoundp(), Unbounded)) {
             puts(" [");
             iterateConst(nodep->loBoundp());
             puts(":");
@@ -1253,217 +1253,217 @@ class EmitVBaseVisitorConst VL_NOT_FINAL : public VNVisitorConst {
         puts(" ");
         iterateConst(nodep->propp());
     }
-    void visit(AstSExpr* nodep) override {
+    శూన్య సందర్శించు(AstSExpr* nodep) override {
         iterateConstNull(nodep->preExprp());
         {
             VL_RESTORER(m_suppressSemi);
-            m_suppressSemi = true;
+            m_suppressSemi = నిజం;
             iterateConst(nodep->delayp());
         }
         iterateConst(nodep->exprp());
     }
     // Terminals
-    void visit(AstVarRef* nodep) override {
-        if (nodep->varScopep()) {
+    శూన్య సందర్శించు(AstVarRef* nodep) override {
+        ఒకవేళ (nodep->varScopep()) {
             putfs(nodep, nodep->varScopep()->prettyName());
-        } else {
-            if (nodep->varp()) {
-                if (nodep->selfPointer().isEmpty()) {
+        } లేకపోతే {
+            ఒకవేళ (nodep->varp()) {
+                ఒకవేళ (nodep->self_సూచిక().is_ఖాళీలు()) {
                     putfs(nodep, nodep->varp()->prettyName());
-                } else {
-                    putfs(nodep, nodep->selfPointer().asString());
+                } లేకపోతే {
+                    putfs(nodep, nodep->self_సూచిక().asString());
                     putfs(nodep, "->");
                     puts(nodep->varp()->prettyName());
                 }
-            } else {
+            } లేకపోతే {
                 putfs(nodep, nodep->name());
             }
         }
     }
-    void visit(AstVarXRef* nodep) override {
+    శూన్య సందర్శించు(AstVarXRef* nodep) override {
         putfs(nodep, nodep->prettyName(nodep->dotted()));
         puts(".");
-        if (nodep->varp()) {
+        ఒకవేళ (nodep->varp()) {
             puts(nodep->varp()->prettyName());
-        } else {
+        } లేకపోతే {
             puts(nodep->prettyName());
         }
     }
-    void visit(AstConst* nodep) override { putfs(nodep, nodep->num().ascii(m_prefixed, true)); }
-    void visit(AstUnbounded* nodep) override { emitVerilogFormat(nodep, nodep->emitVerilog()); }
+    శూన్య సందర్శించు(AstConst* nodep) override { putfs(nodep, nodep->అంకె().ascii(m_prefixed, నిజం)); }
+    శూన్య సందర్శించు(AstUnbounded* nodep) override { emitVerilogFormat(nodep, nodep->emitVerilog()); }
 
     // Just iterate
-    void visit(AstTopScope* nodep) override { iterateChildrenConst(nodep); }
-    void visit(AstScope* nodep) override { iterateChildrenConst(nodep); }
-    void visit(AstVar* nodep) override {
-        if (nodep->isIO()) {
+    శూన్య సందర్శించు(Ast_శిఖరం_Scope* nodep) override { iterateChildrenConst(nodep); }
+    శూన్య సందర్శించు(AstScope* nodep) override { iterateChildrenConst(nodep); }
+    శూన్య సందర్శించు(AstVar* nodep) override {
+        ఒకవేళ (nodep->isIO()) {
             putfs(nodep, nodep->verilogKwd());
             puts(" ");
         }
         VL_RESTORER(m_arrayPost);
-        m_arrayPost = false;
+        m_arrayPost = అబద్ధం;
         iterateConstNull(nodep->dtypep());  // Dtype part before identifier
         puts(" ");
         puts(nodep->prettyName());
-        m_arrayPost = true;
+        m_arrayPost = నిజం;
         iterateConstNull(nodep->dtypep());  // Dtype part after identifier
         puts(m_suppressVarSemi ? "\n" : ";\n");
     }
-    void visit(AstActive* nodep) override {
+    శూన్య సందర్శించు(Ast_చురుకైన* nodep) override {
         VL_RESTORER(m_sentreep);
         m_sentreep = nodep->sentreep();
-        iterateAndNextConstNull(nodep->stmtsp());
+        iterate_And_తదుపరి_Const_Null(nodep->stmtsp());
     }
-    void visit(AstDelay* nodep) override {
+    శూన్య సందర్శించు(AstDelay* nodep) override {
         puts("");  // this is for proper alignment
-        if (nodep->isCycleDelay()) {
+        ఒకవేళ (nodep->is_చక్రం_Delay()) {
             puts("##");
-        } else {
+        } లేకపోతే {
             puts("#");
         }
         VL_RESTORER(m_prefixed);
-        m_prefixed = false;
-        if (AstNodeExpr* const fallDelayp = nodep->fallDelay()) {
+        m_prefixed = అబద్ధం;
+        ఒకవేళ (Ast_కణుపు_సమాసం* స్థిరరాశి fallDelayp = nodep->fallDelay()) {
             puts("(");
             iterateConst(nodep->lhsp());
             puts(", ");
             iterateConst(fallDelayp);
             puts(")");
-        } else {
+        } లేకపోతే {
             iterateConst(nodep->lhsp());
         }
-        if (!m_suppressSemi) {
+        ఒకవేళ (!m_suppressSemi) {
             puts(";\n");
-        } else {
+        } లేకపోతే {
             puts(" ");
         }
-        iterateAndNextConstNull(nodep->stmtsp());
+        iterate_And_తదుపరి_Const_Null(nodep->stmtsp());
     }
-    void visit(AstWait* nodep) override {
+    శూన్య సందర్శించు(AstWait* nodep) override {
         puts("wait(");
         iterateConst(nodep->condp());
         puts(")");
-        if (nodep->stmtsp()) {
+        ఒకవేళ (nodep->stmtsp()) {
             puts(" ");
-            iterateAndNextConstNull(nodep->stmtsp());
-        } else {
+            iterate_And_తదుపరి_Const_Null(nodep->stmtsp());
+        } లేకపోతే {
             puts(";\n");
         }
     }
-    void visit(AstCAwait* nodep) override {
+    శూన్య సందర్శించు(AstCAwait* nodep) override {
         AstCMethodHard* methodp = VN_CAST(nodep->exprp(), CMethodHard);
         UASSERT_OBJ(methodp, nodep, "AstCAwait expression must be an AstCMethodHard");
         puts("");  // this is for proper alignment
         puts("#");
         iterateConst(methodp->pinsp());
     }
-    void visit(AstParseRef* nodep) override { puts(nodep->prettyName()); }
-    void visit(AstVarScope*) override {}
-    void visit(AstTraceDecl*) override {}
-    void visit(AstTraceInc*) override {}
+    శూన్య సందర్శించు(AstParseRef* nodep) override { puts(nodep->prettyName()); }
+    శూన్య సందర్శించు(AstVarScope*) override {}
+    శూన్య సందర్శించు(AstTraceDecl*) override {}
+    శూన్య సందర్శించు(AstTraceInc*) override {}
     // NOPs
-    void visit(AstPragma*) override {}
-    void visit(AstStmtPragma*) override {}
-    void visit(AstCell*) override {}  // Handled outside the Visit class
+    శూన్య సందర్శించు(AstPragma*) override {}
+    శూన్య సందర్శించు(AstStmtPragma*) override {}
+    శూన్య సందర్శించు(AstCell*) override {}  // Handled outside the Visit class
     // Default
-    void visit(AstNode* nodep) override {
+    శూన్య సందర్శించు(Ast_కణుపు* nodep) override {
         puts("\n???? // "s + nodep->prettyTypeName() + "\n");
         iterateChildrenConst(nodep);
         // Not v3fatalSrc so we keep processing
-        if (!m_suppressUnknown) {
+        ఒకవేళ (!m_suppressUnknown) {
             nodep->v3error(
                 "Internal: Unknown node type reached emitter: " << nodep->prettyTypeName());
         }
     }
 
-public:
-    explicit EmitVBaseVisitorConst(bool suppressUnknown)
+బహిరంగ:
+    స్పష్టమైన EmitVBaseVisitorConst(తార్కిక suppressUnknown)
         : m_suppressUnknown{suppressUnknown} {}
-    ~EmitVBaseVisitorConst() override = default;
+    ~EmitVBaseVisitorConst() override = అప్రమేయ;
 };
 
 //######################################################################
 // Emit to an output file
 
-class EmitVFileVisitor final : public EmitVBaseVisitorConst {
+తరగతి EmitVFileVisitor final : బహిరంగ EmitVBaseVisitorConst {
     // STATE
-    V3OutVFile& m_of;  // The output file
+    V3_బహిర్గతం_VFile& m_యొక్క;  // The output file
     // METHODS
-    void putsNoTracking(const string& str) override { m_of.putsNoTracking(str); }
-    void puts(const string& str) override { m_of.puts(str); }
-    void putbs(const string& str) override { m_of.putbs(str); }
-    void putfs(AstNode*, const string& str) override { putbs(str); }
-    void putqs(AstNode*, const string& str) override { putbs(str); }
+    శూన్య putsNoTracking(స్థిరరాశి string& str) override { m_యొక్క.putsNoTracking(str); }
+    శూన్య puts(స్థిరరాశి string& str) override { m_యొక్క.puts(str); }
+    శూన్య putbs(స్థిరరాశి string& str) override { m_యొక్క.putbs(str); }
+    శూన్య putfs(Ast_కణుపు*, స్థిరరాశి string& str) override { putbs(str); }
+    శూన్య putqs(Ast_కణుపు*, స్థిరరాశి string& str) override { putbs(str); }
 
-public:
-    EmitVFileVisitor(AstNode* nodep, V3OutVFile& of, bool suppressUnknown)
+బహిరంగ:
+    EmitVFileVisitor(Ast_కణుపు* nodep, V3_బహిర్గతం_VFile& యొక్క, తార్కిక suppressUnknown)
         : EmitVBaseVisitorConst{suppressUnknown}
-        , m_of{of} {
+        , m_యొక్క{యొక్క} {
         iterateConst(nodep);
     }
-    ~EmitVFileVisitor() override = default;
+    ~EmitVFileVisitor() override = అప్రమేయ;
 };
 
 //######################################################################
 // Emit to a stream (perhaps stringstream)
 
-class EmitVStreamVisitor final : public EmitVBaseVisitorConst {
+తరగతి EmitVStreamVisitor final : బహిరంగ EmitVBaseVisitorConst {
     // STATE
-    V3OutStream m_os;  // The output stream formatter
-    const bool m_tracking;  // Use line tracking
+    V3_బహిర్గతం_ప్రవాహం m_os;  // The output stream formatter
+    స్థిరరాశి తార్కిక m_tracking;  // Use line tracking
     // METHODS
-    void putsNoTracking(const string& str) override { m_os.putsNoTracking(str); }
-    void puts(const string& str) override {
+    శూన్య putsNoTracking(స్థిరరాశి string& str) override { m_os.putsNoTracking(str); }
+    శూన్య puts(స్థిరరాశి string& str) override {
         m_tracking ? m_os.puts(str) : m_os.putsNoTracking(str);
     }
-    void putbs(const string& str) override {
+    శూన్య putbs(స్థిరరాశి string& str) override {
         m_tracking ? m_os.putbs(str) : m_os.putsNoTracking(str);
     }
-    void putfs(AstNode*, const string& str) override { putbs(str); }
-    void putqs(AstNode*, const string& str) override { putbs(str); }
+    శూన్య putfs(Ast_కణుపు*, స్థిరరాశి string& str) override { putbs(str); }
+    శూన్య putqs(Ast_కణుపు*, స్థిరరాశి string& str) override { putbs(str); }
 
-public:
-    EmitVStreamVisitor(const AstNode* nodep, std::ostream& os, bool tracking, bool suppressUnknown)
+బహిరంగ:
+    EmitVStreamVisitor(స్థిరరాశి Ast_కణుపు* nodep, std::ostream& os, తార్కిక tracking, తార్కిక suppressUnknown)
         : EmitVBaseVisitorConst{suppressUnknown}
-        , m_os{os, V3OutFormatter::LA_VERILOG}
+        , m_os{os, V3_బహిర్గతం_Formatter::LA_VERILOG}
         , m_tracking{tracking} {
-        iterateConst(const_cast<AstNode*>(nodep));
+        iterateConst(const_cast<Ast_కణుపు*>(nodep));
     }
-    ~EmitVStreamVisitor() override = default;
+    ~EmitVStreamVisitor() override = అప్రమేయ;
 };
 
 //######################################################################
 // EmitV class functions
 
-void V3EmitV::verilogForTree(const AstNode* nodep, std::ostream& os) {
-    { EmitVStreamVisitor{nodep, os, /* tracking: */ false, false}; }
+శూన్య V3EmitV::verilog_For_వృక్షం(స్థిరరాశి Ast_కణుపు* nodep, std::ostream& os) {
+    { EmitVStreamVisitor{nodep, os, /* tracking: */ అబద్ధం, అబద్ధం}; }
 }
 
-void V3EmitV::debugVerilogForTree(const AstNode* nodep, std::ostream& os) {
-    { EmitVStreamVisitor{nodep, os, /* tracking: */ true, true}; }
+శూన్య V3EmitV::debug_Verilog_For_వృక్షం(స్థిరరాశి Ast_కణుపు* nodep, std::ostream& os) {
+    { EmitVStreamVisitor{nodep, os, /* tracking: */ నిజం, నిజం}; }
 }
 
-std::string V3EmitV::debugVerilogForTree(const AstNode* nodep) {
+std::string V3EmitV::debug_Verilog_For_వృక్షం(స్థిరరాశి Ast_కణుపు* nodep) {
     std::stringstream ss;
-    debugVerilogForTree(nodep, ss);
-    return ss.str();
+    debug_Verilog_For_వృక్షం(nodep, ss);
+    తిరిగి ss.str();
 }
 
-void V3EmitV::emitvFiles() {
+శూన్య V3EmitV::emitvFiles() {
     UINFO(2, __FUNCTION__ << ":");
-    for (AstNodeFile* filep = v3Global.rootp()->filesp(); filep;
-         filep = VN_AS(filep->nextp(), NodeFile)) {
-        AstVFile* const vfilep = VN_CAST(filep, VFile);
-        if (vfilep && vfilep->tblockp()) {
-            V3OutVFile of{vfilep->name()};
-            of.puts("// DESCRIPTION: Verilator generated Verilog\n");
-            EmitVFileVisitor{vfilep->tblockp(), of, false};
+    కొరకు (Ast_కణుపు_File* filep = v3Global.rootp()->filesp(); filep;
+         filep = VN_AS(filep->nextp(), కణుపు_File)) {
+        AstVFile* స్థిరరాశి vfilep = VN_CAST(filep, VFile);
+        ఒకవేళ (vfilep && vfilep->tblockp()) {
+            V3_బహిర్గతం_VFile యొక్క{vfilep->name()};
+            యొక్క.puts("// DESCRIPTION: Verilator generated Verilog\n");
+            EmitVFileVisitor{vfilep->tblockp(), యొక్క, అబద్ధం};
         }
     }
 }
 
-void V3EmitV::debugEmitV(const string& filename) {
+శూన్య V3EmitV::debugEmitV(స్థిరరాశి string& filename) {
     UINFO(2, __FUNCTION__ << ":");
-    V3OutVFile of{filename};
-    EmitVFileVisitor{v3Global.rootp(), of, true};
+    V3_బహిర్గతం_VFile యొక్క{filename};
+    EmitVFileVisitor{v3Global.rootp(), యొక్క, నిజం};
 }

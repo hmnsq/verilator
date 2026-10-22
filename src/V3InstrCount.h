@@ -15,16 +15,16 @@
 //
 //*************************************************************************
 
-#ifndef VERILATOR_V3INSTRCOUNT_H_
-#define VERILATOR_V3INSTRCOUNT_H_
+#నిర్వచితం_కాకపోతే VERILATOR_V3INSTRCOUNT_H_
+#నిర్వచించు VERILATOR_V3INSTRCOUNT_H_
 
-#include "config_build.h"
-#include "verilatedos.h"
+#అన్తర్భావ "config_build.h"
+#అన్తర్భావ "verilatedos.h"
 
-class AstNode;
+class Ast_కణుపు;
 
-class V3InstrCount final {
-public:
+class V3_Instr_లెక్క final {
+బహిరంగ:
     // Return the estimate count of instructions we'd incur while running
     // code in and under nodep.
     //
@@ -38,8 +38,8 @@ public:
     // if we see the same node twice (across more than one call to count,
     // potentially) raises an error.
     // Optional osp is stream to dump critical path to.
-    static uint32_t count(AstNode* nodep, bool assertNoDups,
+    స్థిర uint32_t లెక్క(Ast_కణుపు* nodep, bool assertNoDups,
                           std::ostream* osp = nullptr) VL_MT_DISABLED;
 };
 
-#endif  // guard
+#అయితే_ముగింపు  // guard

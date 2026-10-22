@@ -20,83 +20,83 @@
 //
 //*************************************************************************
 
-#include "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
+#అన్తర్భావ "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
 
-#include "V3TraceDecl.h"
+#అన్తర్భావ "V3TraceDecl.h"
 
-#include "V3Ast.h"
-#include "V3Control.h"
-#include "V3EmitCBase.h"
-#include "V3Error.h"
-#include "V3File.h"
-#include "V3Global.h"
-#include "V3Number.h"
-#include "V3Stats.h"
-#include "V3UniqueNames.h"
+#అన్తర్భావ "V3Ast.h"
+#అన్తర్భావ "V3Control.h"
+#అన్తర్భావ "V3EmitCBase.h"
+#అన్తర్భావ "V3Error.h"
+#అన్తర్భావ "V3File.h"
+#అన్తర్భావ "V3Global.h"
+#అన్తర్భావ "V3Number.h"
+#అన్తర్భావ "V3Stats.h"
+#అన్తర్భావ "V3UniqueNames.h"
 
-#include <cstdint>
-#include <functional>
-#include <limits>
-#include <tuple>
-#include <unordered_map>
-#include <vector>
+#అన్తర్భావ <cstdint>
+#అన్తర్భావ <functional>
+#అన్తర్భావ <limits>
+#అన్తర్భావ <tuple>
+#అన్తర్భావ <unordered_map>
+#అన్తర్భావ <vector>
 
 VL_DEFINE_DEBUG_FUNCTIONS;
 
 //######################################################################
 // Utility class to emit path adjustments
 
-class PathAdjustor final {
-    FileLine* const m_flp;  // FileLine used for created nodes
-    std::function<void(AstNodeStmt*)> m_emit;  // Function called with adjustment statements
-    std::vector<std::string> m_stack{""};  // Stack of current paths
+తరగతి మార్గం_Adjustor final {
+    File_పంక్తి* స్థిరరాశి m_flp;  // FileLine used for created nodes
+    std::function<శూన్య(Ast_కణుపు_Stmt*)> m_emit;  // Function called with adjustment statements
+    std::సదిశ<std::string> m_దొంతర{""};  // Stack of current paths
 
-    static constexpr char SEPARATOR = ' ';
+    స్థిర constexpr అక్షరం SEPARATOR = ' ';
 
-public:
-    explicit PathAdjustor(FileLine* flp, std::function<void(AstNodeStmt*)> emit)
+బహిరంగ:
+    స్పష్టమైన మార్గం_Adjustor(File_పంక్తి* flp, std::function<శూన్య(Ast_కణుపు_Stmt*)> emit)
         : m_flp{flp}
         , m_emit{emit} {}
 
     // Emit Prefix adjustments until the current path is 'newPath'
-    void adjust(const string& newPath, AstCell* cellp, AstVarScope* vscp) {
+    శూన్య adjust(స్థిరరాశి string& new_మార్గం, AstCell* cellp, AstVarScope* vscp) {
         // Move up to enclosing path
-        while (!VString::startsWith(newPath, m_stack.back())) {
-            m_emit(new AstTracePopPrefix{m_flp});
-            m_stack.pop_back();
+        అయితే (!VString::startsWith(new_మార్గం, m_దొంతర.వెనుక())) {
+            m_emit(కొత్త Ast_Trace_తీయి_ఉపసర్గ{m_flp});
+            m_దొంతర.తీయి_వెనుక();
         }
 
-        if (newPath == m_stack.back()) return;
+        ఒకవేళ (new_మార్గం == m_దొంతర.వెనుక()) తిరిగి;
 
-        const VTracePrefixType lastScopeType =  //
+        స్థిరరాశి VTrace_ఉపసర్గ_Type చివరి_Scope_Type =  //
             (cellp && VN_IS(cellp->modp(), Iface))
                     || (vscp && VN_IS(vscp->dtypep(), IfaceRefDType))
-                ? VTracePrefixType::SCOPE_INTERFACE
-                : VTracePrefixType::SCOPE_MODULE;
-        const std::string extraPrefix = newPath.substr(m_stack.back().size());
-        size_t begin = 0;
-        const size_t last = extraPrefix.rfind(SEPARATOR);
+                ? VTrace_ఉపసర్గ_Type::SCOPE_INTERFACE
+                : VTrace_ఉపసర్గ_Type::SCOPE_MODULE;
+        స్థిరరాశి std::string extra_ఉపసర్గ = new_మార్గం.substr(m_దొంతర.వెనుక().కొలత());
+        కొలత_t begin = 0;
+        స్థిరరాశి కొలత_t చివరి = extra_ఉపసర్గ.rfind(SEPARATOR);
         // Move down, one path element at a time
-        while (true) {
-            const size_t end = extraPrefix.find(SEPARATOR, begin);
-            if (end == string::npos) break;
-            const string& extra = extraPrefix.substr(begin, end - begin);
-            if (end == last) {
-                m_emit(new AstTracePushPrefix{m_flp, extra, lastScopeType});
-            } else {
-                m_emit(new AstTracePushPrefix{m_flp, extra, VTracePrefixType::SCOPE_MODULE});
+        అయితే (నిజం) {
+            స్థిరరాశి కొలత_t చివర = extra_ఉపసర్గ.కనుగొను(SEPARATOR, begin);
+            ఒకవేళ (చివర == string::npos) ఆపు;
+            స్థిరరాశి string& extra = extra_ఉపసర్గ.substr(begin, చివర - begin);
+            ఒకవేళ (చివర == చివరి) {
+                m_emit(కొత్త Ast_Trace_నెట్టు_ఉపసర్గ{m_flp, extra, చివరి_Scope_Type});
+            } లేకపోతే {
+                m_emit(కొత్త Ast_Trace_నెట్టు_ఉపసర్గ{m_flp, extra, VTrace_ఉపసర్గ_Type::SCOPE_MODULE});
             }
-            m_stack.push_back(m_stack.back() + extra + SEPARATOR);
-            begin = end + 1;
+            m_దొంతర.నెట్టు_వెనుక(m_దొంతర.వెనుక() + extra + SEPARATOR);
+            begin = చివర + 1;
         }
-        UASSERT(begin == extraPrefix.size(), "Should have consumed all of extraPrefix");
+        UASSERT(begin == extra_ఉపసర్గ.కొలత(), "Should have consumed all of extraPrefix");
     }
 
     // Emit Prefix adjustments to unwind the path back to its original state
-    void unwind() {
-        while (m_stack.size() > 1) {
-            m_emit(new AstTracePopPrefix{m_flp});
-            m_stack.pop_back();
+    శూన్య unwind() {
+        అయితే (m_దొంతర.కొలత() > 1) {
+            m_emit(కొత్త Ast_Trace_తీయి_ఉపసర్గ{m_flp});
+            m_దొంతర.తీయి_వెనుక();
         }
     }
 };
@@ -104,90 +104,90 @@ public:
 //######################################################################
 // TraceDecl state, as a visitor of each AstNode
 
-class TraceDeclVisitor final : public VNVisitor {
+తరగతి TraceDeclVisitor final : బహిరంగ VNVisitor {
     // NODE STATE
     // AstCFunc::user1()                // uint32_t.  code offset for current type
     // AstCFunc::user2()                // VarScope* for dtype functions
 
     // STATE
-    AstTopScope* const m_topScopep;  // The singleton AstTopScope
-    const AstScope* m_currScopep = nullptr;  // Current scope being visited
+    Ast_శిఖరం_Scope* స్థిరరాశి m_శిఖరం_Scopep;  // The singleton AstTopScope
+    స్థిరరాశి AstScope* m_currScopep = శూన్యసూచిక;  // Current scope being visited
 
-    std::vector<AstCFunc*> m_topFuncps;  // Top level trace initialization functions
-    std::vector<AstCFunc*> m_subFuncps;  // Trace sub functions for this scope
-    std::set<const AstTraceDecl*> m_declUncalledps;  // Declarations not called
+    std::సదిశ<AstCFunc*> m_శిఖరం_Funcps;  // Top level trace initialization functions
+    std::సదిశ<AstCFunc*> m_subFuncps;  // Trace sub functions for this scope
+    std::సమితి<స్థిరరాశి AstTraceDecl*> m_declUncalledps;  // Declarations not called
     // Functions per type and variable kind (wire vs logic etc.)
-    struct DtypeFuncKey final {
-        const AstNodeDType* dtypep;
+    నిర్మాణం Dtype_Func_కీలకం final {
+        స్థిరరాశి Ast_కణుపు_DType* dtypep;
         VVarType varType;
-        bool operator==(const DtypeFuncKey& other) const {
-            return dtypep == other.dtypep && varType == other.varType;
+        తార్కిక క్రియాకారకం==(స్థిరరాశి Dtype_Func_కీలకం& other) స్థిరరాశి {
+            తిరిగి dtypep == other.dtypep && varType == other.varType;
         }
     };
-    struct DtypeFuncKeyHash final {
-        size_t operator()(const DtypeFuncKey& key) const {
-            return std::hash<const AstNodeDType*>{}(key.dtypep)
-                   ^ (std::hash<uint8_t>{}(key.varType) << 1);
+    నిర్మాణం Dtype_Func_కీలకం_Hash final {
+        కొలత_t క్రియాకారకం()(స్థిరరాశి Dtype_Func_కీలకం& కీలకం) స్థిరరాశి {
+            తిరిగి std::hash<స్థిరరాశి Ast_కణుపు_DType*>{}(కీలకం.dtypep)
+                   ^ (std::hash<uint8_t>{}(కీలకం.varType) << 1);
         }
     };
-    std::unordered_map<DtypeFuncKey, AstCFunc*, DtypeFuncKeyHash>
+    std::unordered_map<Dtype_Func_కీలకం, AstCFunc*, Dtype_Func_కీలకం_Hash>
         m_dtypeFuncs;  // Functions per type+kind
-    AstCFunc* m_dtypeFuncp = nullptr;  // Current type func
-    AstCFunc* m_dtypeSubFuncp = nullptr;  // Current type sub func
-    const string m_dtypeArgs{", const char* name, uint32_t fidx, uint32_t c, "
+    AstCFunc* m_dtypeFuncp = శూన్యసూచిక;  // Current type func
+    AstCFunc* m_dtypeSubFuncp = శూన్యసూచిక;  // Current type sub func
+    స్థిరరాశి string m_dtype_వాదనలు{", const char* name, uint32_t fidx, uint32_t c, "
                              "VerilatedTraceSigDirection direction"};  // Type func args
-    AstTraceDecl* m_dtypeDeclp = nullptr;  // Current type func decl
-    V3UniqueNames m_dtypeNames{""};  // Unique names for dtype funcs
-    bool m_skipDtypeFunc = false;  // Don't create a type func
-    uint32_t m_offset = std::numeric_limits<uint32_t>::max();  // Offset for types
-    int m_topFuncSize = 0;  // Size of the top function currently being built
-    int m_subFuncSize = 0;  // Size of the sub function currently being built
-    bool m_forceNewLeaf = false;  // Force next addToSubFunc to start a fresh leaf
-    size_t m_topScopeRootFuncCount = 0;  // Top-scope init functions used only for wrapper IOs
-    bool m_topScopeRootPhase = false;  // Emitting top-scope wrapper IO declarations
-    const int m_funcSizeLimit  // Maximum size of a function
-        = v3Global.opt.outputSplitCTrace() ? v3Global.opt.outputSplitCTrace()
-                                           : std::numeric_limits<int>::max();
+    AstTraceDecl* m_dtypeDeclp = శూన్యసూచిక;  // Current type func decl
+    V3_Unique_పేర్లు m_dtype_పేర్లు{""};  // Unique names for dtype funcs
+    తార్కిక m_skipDtypeFunc = అబద్ధం;  // Don't create a type func
+    uint32_t m_స్థానభ్రంశం = std::numeric_limits<uint32_t>::max();  // Offset for types
+    పూర్ణాంకం m_శిఖరం_Func_కొలత = 0;  // Size of the top function currently being built
+    పూర్ణాంకం m_sub_Func_కొలత = 0;  // Size of the sub function currently being built
+    తార్కిక m_force_New_ఆకు = అబద్ధం;  // Force next addToSubFunc to start a fresh leaf
+    కొలత_t m_శిఖరం_Scope_మూలం_Func_లెక్క = 0;  // Top-scope init functions used only for wrapper IOs
+    తార్కిక m_శిఖరం_Scope_మూలం_Phase = అబద్ధం;  // Emitting top-scope wrapper IO declarations
+    స్థిరరాశి పూర్ణాంకం m_func_కొలత_హద్దు  // Maximum size of a function
+        = v3Global.opt.output_విభజించు_CTrace() ? v3Global.opt.output_విభజించు_CTrace()
+                                           : std::numeric_limits<పూర్ణాంకం>::max();
     // Trace init functions to for each scope
-    std::unordered_map<const AstScope*, std::vector<AstCFunc*>> m_scopeInitFuncps;
+    std::unordered_map<స్థిరరాశి AstScope*, std::సదిశ<AstCFunc*>> m_scopeInitFuncps;
     // Map from hierarchical scope name to the corresponding AstScope. Note that
     // this is a many-to-one mapping for interfaces, due to interface refs.
-    std::unordered_map<std::string, const AstScope*> m_pathToScopep;
+    std::unordered_map<std::string, స్థిరరాశి AstScope*> m_మార్గం_గమ్యం_Scopep;
     // Cell initialization placeholders:
     // (parent scope, cell under parent scope, statement)
-    std::vector<std::tuple<AstScope*, AstCell*, AstNodeStmt*>> m_cellInitPlaceholders;
+    std::సదిశ<std::tuple<AstScope*, AstCell*, Ast_కణుపు_Stmt*>> m_cellInitPlaceholders;
     // Interface refs initialization placeholders:
     // (Interface ref variable, placeholder statement)
-    std::vector<std::tuple<AstVarScope*, AstNodeStmt*>> m_ifaceRefInitPlaceholders;
+    std::సదిశ<std::tuple<AstVarScope*, Ast_కణుపు_Stmt*>> m_ifaceRefInitPlaceholders;
 
     // A trace entry under a scope is either:
     // - A variable (including interface references)
     // - A sub scope (stored as the cell corresponding to the sub scope)
     // Note: members are non-const to allow copy during sorting
-    class TraceEntry final {
-        AstVarScope* m_vscp = nullptr;  // AstVarScope under scope being traced
-        AstCell* m_cellp = nullptr;  // Sub scope (as AstCell) under scope being traced
-        std::string m_path;  // Path to enclosing module in original hierarchy
+    తరగతి Trace_నమోదు final {
+        AstVarScope* m_vscp = శూన్యసూచిక;  // AstVarScope under scope being traced
+        AstCell* m_cellp = శూన్యసూచిక;  // Sub scope (as AstCell) under scope being traced
+        std::string m_మార్గం;  // Path to enclosing module in original hierarchy
         std::string m_name;  // Name of signal/subscope
 
-        void init(const std::string& name, AstNode* nodep, bool inTopScope) {
+        శూన్య init(స్థిరరాశి std::string& name, Ast_కణుపు* nodep, తార్కిక లోపల_శిఖరం_Scope) {
             // Compute path in hierarchy and item name
-            const std::string& vcdName = AstNode::vcdName(name);
-            AstVar* const varp = VN_CAST(nodep, Var);
-            if (VN_IS(nodep, Cell) || VN_IS(varp->dtypep(), IfaceRefDType)) {
+            స్థిరరాశి std::string& vcdName = Ast_కణుపు::vcdName(name);
+            AstVar* స్థిరరాశి varp = VN_CAST(nodep, Var);
+            ఒకవేళ (VN_IS(nodep, Cell) || VN_IS(varp->dtypep(), IfaceRefDType)) {
                 // Cell or interface reference
-                m_path = vcdName + " ";
+                m_మార్గం = vcdName + " ";
                 m_name.clear();
-            } else if (varp->isPrimaryIO()) {
+            } లేకపోతే ఒకవేళ (varp->isPrimaryIO()) {
                 // Primary IO variable
-                m_path = "$rootio ";
+                m_మార్గం = "$rootio ";
                 m_name = vcdName;
-            } else {
+            } లేకపోతే {
                 // Other Variable
-                const size_t pos = vcdName.rfind(' ');
-                const size_t pathLen = pos == std::string::npos ? 0 : pos + 1;
-                m_path = vcdName.substr(0, pathLen);
-                m_name = vcdName.substr(pathLen);
+                స్థిరరాశి కొలత_t pos = vcdName.rfind(' ');
+                స్థిరరాశి కొలత_t మార్గం_Len = pos == std::string::npos ? 0 : pos + 1;
+                m_మార్గం = vcdName.substr(0, మార్గం_Len);
+                m_name = vcdName.substr(మార్గం_Len);
             }
 
             // When creating a --lib-create library, drop the name of the selected top module.
@@ -195,43 +195,43 @@ class TraceDeclVisitor final : public VNVisitor {
             // restored at runtime if the library itself is traced as the root model. Other top
             // level entities ($unit, packages, ...) keep a '$libroot' wrapper so they still have
             // a stable location in the dump.
-            if (inTopScope && !v3Global.opt.libCreate().empty()) {
-                const size_t start = m_path.find(' ');
+            ఒకవేళ (లోపల_శిఖరం_Scope && !v3Global.opt.libCreate().ఖాళీలు()) {
+                స్థిరరాశి కొలత_t ప్రారంభం = m_మార్గం.కనుగొను(' ');
                 // Must have a prefix in the top scope with lib, as top wrapper signals not traced
-                UASSERT_OBJ(start != std::string::npos, nodep, "No prefix with --lib-create");
-                const std::string prefix = m_path.substr(0, start);
+                UASSERT_OBJ(ప్రారంభం != std::string::npos, nodep, "No prefix with --lib-create");
+                స్థిరరాశి std::string ఉపసర్గ = m_మార్గం.substr(0, ప్రారంభం);
                 // Wrapper primary IOs stay under $rootio so a root-traced library can restore
                 // them under the runtime C++ instance name without affecting embedded use.
-                if (prefix == "$rootio") return;
-                m_path = m_path.substr(start + 1);
-                if (v3Global.rootp()->traceLibTopName() != prefix) m_path = "$libroot " + m_path;
+                ఒకవేళ (ఉపసర్గ == "$rootio") తిరిగి;
+                m_మార్గం = m_మార్గం.substr(ప్రారంభం + 1);
+                ఒకవేళ (v3Global.rootp()->trace_Lib_శిఖరం_Name() != ఉపసర్గ) m_మార్గం = "$libroot " + m_మార్గం;
             }
         }
 
-    public:
-        explicit TraceEntry(const AstScope* scopep, AstVarScope* vscp)
+    బహిరంగ:
+        స్పష్టమైన Trace_నమోదు(స్థిరరాశి AstScope* scopep, AstVarScope* vscp)
             : m_vscp{vscp} {
-            init(vscp->varp()->name(), vscp->varp(), scopep->isTop());
+            init(vscp->varp()->name(), vscp->varp(), scopep->is_శిఖరం());
         }
-        explicit TraceEntry(const AstScope* scopep, AstCell* cellp)
+        స్పష్టమైన Trace_నమోదు(స్థిరరాశి AstScope* scopep, AstCell* cellp)
             : m_cellp{cellp} {
-            init(cellp->name(), cellp, scopep->isTop());
+            init(cellp->name(), cellp, scopep->is_శిఖరం());
         }
-        int operatorCompare(const TraceEntry& b) const {
-            if (const int cmp = path().compare(b.path())) return cmp < 0;
-            if (const int cmp = fileline().operatorCompare(b.fileline())) return cmp < 0;
-            return name() < b.name();
+        పూర్ణాంకం operatorCompare(స్థిరరాశి Trace_నమోదు& b) స్థిరరాశి {
+            ఒకవేళ (స్థిరరాశి పూర్ణాంకం cmp = మార్గం().compare(b.మార్గం())) తిరిగి cmp < 0;
+            ఒకవేళ (స్థిరరాశి పూర్ణాంకం cmp = fileline().operatorCompare(b.fileline())) తిరిగి cmp < 0;
+            తిరిగి name() < b.name();
         }
-        AstVarScope* vscp() const { return m_vscp; }
-        AstCell* cellp() const { return m_cellp; }
-        const std::string& path() const { return m_path; }
-        void path(const std::string& path) { m_path = path; }
-        const std::string& name() const { return m_name; }
-        FileLine& fileline() const { return m_vscp ? *m_vscp->fileline() : *m_cellp->fileline(); }
+        AstVarScope* vscp() స్థిరరాశి { తిరిగి m_vscp; }
+        AstCell* cellp() స్థిరరాశి { తిరిగి m_cellp; }
+        స్థిరరాశి std::string& మార్గం() స్థిరరాశి { తిరిగి m_మార్గం; }
+        శూన్య మార్గం(స్థిరరాశి std::string& మార్గం) { m_మార్గం = మార్గం; }
+        స్థిరరాశి std::string& name() స్థిరరాశి { తిరిగి m_name; }
+        File_పంక్తి& fileline() స్థిరరాశి { తిరిగి m_vscp ? *m_vscp->fileline() : *m_cellp->fileline(); }
     };
-    std::vector<TraceEntry> m_entries;  // Trace entries under current scope
-    AstVarScope* m_traVscp = nullptr;  // Current AstVarScope we are constructing AstTraceDecls for
-    AstNodeExpr* m_traValuep = nullptr;  // Value expression for current signal
+    std::సదిశ<Trace_నమోదు> m_entries;  // Trace entries under current scope
+    AstVarScope* m_traVscp = శూన్యసూచిక;  // Current AstVarScope we are constructing AstTraceDecls for
+    Ast_కణుపు_సమాసం* m_traValuep = శూన్యసూచిక;  // Value expression for current signal
     string m_traName;  // Name component for current signal
 
     VDouble0 m_statSigs;  // Statistic tracking
@@ -239,219 +239,219 @@ class TraceDeclVisitor final : public VNVisitor {
 
     // METHODS
 
-    string vscIgnoreTrace(const AstVarScope* nodep) {
+    string vscIgnoreTrace(స్థిరరాశి AstVarScope* nodep) {
         // Return true if this shouldn't be traced
         // See also similar rule in V3Coverage::varIgnoreToggle
-        const AstVar* const varp = nodep->varp();
-        if (!varp->isTrace()) return "Verilator trace_off";
-        if (!nodep->isTrace()) return "Verilator instance trace_off";
+        స్థిరరాశి AstVar* స్థిరరాశి varp = nodep->varp();
+        ఒకవేళ (!varp->isTrace()) తిరిగి "Verilator trace_off";
+        ఒకవేళ (!nodep->isTrace()) తిరిగి "Verilator instance trace_off";
         // Automatics (typically, excluding forks) have no persistance over
         // time, and may optimize differently when multithreadeded or hierarchical.
         // Class automatics refer to being in a class but might still be pointed
         // to by a static, so are ok.
-        if (varp->lifetime().isAutomatic() && !varp->isClassMember() && !varp->isParam())
-            return "Automatic variable";
+        ఒకవేళ (varp->lifetime().isAutomatic() && !varp->isClassMember() && !varp->isParam())
+            తిరిగి "Automatic variable";
 
-        const int width = recurseDTypeWidth(nodep->varp()->dtypep());
-        if (v3Global.opt.traceMaxWidth() && width > v3Global.opt.traceMaxWidth())
-            return "Width " + cvtToStr(width) + " > --trace-max-width";
+        స్థిరరాశి పూర్ణాంకం వెడల్పు = recurse_DType_వెడల్పు(nodep->varp()->dtypep());
+        ఒకవేళ (v3Global.opt.trace_Max_వెడల్పు() && వెడల్పు > v3Global.opt.trace_Max_వెడల్పు())
+            తిరిగి "Width " + cvt_గమ్యం_Str(వెడల్పు) + " > --trace-max-width";
 
-        const string prettyName = nodep->prettyName();
-        if (!V3Control::getScopeTraceOn(prettyName)) return "Vlt scope trace_off";
-        if (!v3Global.opt.traceUnderscore()) {
-            if (!prettyName.empty() && prettyName[0] == '_') return "Leading underscore";
-            if (prettyName.find("._") != string::npos) return "Inlined leading underscore";
+        స్థిరరాశి string prettyName = nodep->prettyName();
+        ఒకవేళ (!V3Control::getScopeTraceOn(prettyName)) తిరిగి "Vlt scope trace_off";
+        ఒకవేళ (!v3Global.opt.traceUnderscore()) {
+            ఒకవేళ (!prettyName.ఖాళీలు() && prettyName[0] == '_') తిరిగి "Leading underscore";
+            ఒకవేళ (prettyName.కనుగొను("._") != string::npos) తిరిగి "Inlined leading underscore";
         }
-        return ""s;
+        తిరిగి ""s;
     }
 
-    int recurseDTypeWidth(const AstNodeDType* nodep) {
-        if (const AstNodeArrayDType* adtypep = VN_CAST(nodep, NodeArrayDType))
-            return recurseDTypeWidth(adtypep->subDTypep()) * adtypep->declRange().elements();
-        return nodep->width();
+    పూర్ణాంకం recurse_DType_వెడల్పు(స్థిరరాశి Ast_కణుపు_DType* nodep) {
+        ఒకవేళ (స్థిరరాశి Ast_కణుపు_Array_DType* adtypep = VN_CAST(nodep, కణుపు_Array_DType))
+            తిరిగి recurse_DType_వెడల్పు(adtypep->subDTypep()) * adtypep->declRange().elements();
+        తిరిగి nodep->వెడల్పు();
     }
 
-    AstCFunc* newCFunc(FileLine* flp, const string& name) {
-        AstScope* const topScopep = m_topScopep->scopep();
-        AstCFunc* const funcp = new AstCFunc{flp, name, topScopep};
-        funcp->argTypes(v3Global.opt.traceClassBase() + "* tracep");
-        funcp->isTrace(true);
-        funcp->isStatic(false);
-        funcp->isLoose(true);
-        funcp->slow(true);
-        topScopep->addBlocksp(funcp);
-        return funcp;
+    AstCFunc* newCFunc(File_పంక్తి* flp, స్థిరరాశి string& name) {
+        AstScope* స్థిరరాశి శిఖరం_Scopep = m_శిఖరం_Scopep->scopep();
+        AstCFunc* స్థిరరాశి funcp = కొత్త AstCFunc{flp, name, శిఖరం_Scopep};
+        funcp->argTypes(v3Global.opt.trace_Class_పునాది() + "* tracep");
+        funcp->isTrace(నిజం);
+        funcp->isStatic(అబద్ధం);
+        funcp->isLoose(నిజం);
+        funcp->slow(నిజం);
+        శిఖరం_Scopep->కూడు_Blocksp(funcp);
+        తిరిగి funcp;
     }
 
-    void addToTopFunc(AstNodeStmt* stmtp) {
-        if (m_topFuncSize > m_funcSizeLimit || m_topFuncps.empty()) {
-            m_topFuncSize = 0;
+    శూన్య కూడు_గమ్యం_శిఖరం_Func(Ast_కణుపు_Stmt* stmtp) {
+        ఒకవేళ (m_శిఖరం_Func_కొలత > m_func_కొలత_హద్దు || m_శిఖరం_Funcps.ఖాళీలు()) {
+            m_శిఖరం_Func_కొలత = 0;
             //
-            const string n = cvtToStr(m_topFuncps.size());
-            const string name{"trace_init_top__" + n};
-            AstCFunc* const funcp = newCFunc(m_topScopep->fileline(), name);
-            m_topFuncps.push_back(funcp);
+            స్థిరరాశి string n = cvt_గమ్యం_Str(m_శిఖరం_Funcps.కొలత());
+            స్థిరరాశి string name{"trace_init_top__" + n};
+            AstCFunc* స్థిరరాశి funcp = newCFunc(m_శిఖరం_Scopep->fileline(), name);
+            m_శిఖరం_Funcps.నెట్టు_వెనుక(funcp);
         }
-        m_topFuncps.back()->addStmtsp(stmtp);
-        m_topFuncSize += stmtp->nodeCount();
+        m_శిఖరం_Funcps.వెనుక()->కూడు_Stmtsp(stmtp);
+        m_శిఖరం_Func_కొలత += stmtp->కణుపు_లెక్క();
     }
 
-    void addToSubFunc(AstNodeStmt* stmtp) {
+    శూన్య కూడు_గమ్యం_Sub_Func(Ast_కణుపు_Stmt* stmtp) {
         // TODO (maybe) -- sub funcs for dtype components
-        if (m_dtypeSubFuncp) {
-            if (m_subFuncSize > m_funcSizeLimit) newDeclSubFunc();
-            m_dtypeSubFuncp->addStmtsp(stmtp);
-            m_subFuncSize += stmtp->nodeCount();
-            return;
+        ఒకవేళ (m_dtypeSubFuncp) {
+            ఒకవేళ (m_sub_Func_కొలత > m_func_కొలత_హద్దు) newDeclSubFunc();
+            m_dtypeSubFuncp->కూడు_Stmtsp(stmtp);
+            m_sub_Func_కొలత += stmtp->కణుపు_లెక్క();
+            తిరిగి;
         }
         // Defer trace splitting until V3Trace
-        if (m_subFuncps.empty() || m_forceNewLeaf) {
-            m_forceNewLeaf = false;
-            FileLine* const flp = m_currScopep->fileline();
-            const string n = cvtToStr(m_subFuncps.size());
-            const string name
-                = m_currScopep == m_topScopep->scopep() && !v3Global.opt.libCreate().empty()
-                      ? (m_topScopeRootPhase ? "trace_init_leaf_root__" : "trace_init_leaf_top__")
+        ఒకవేళ (m_subFuncps.ఖాళీలు() || m_force_New_ఆకు) {
+            m_force_New_ఆకు = అబద్ధం;
+            File_పంక్తి* స్థిరరాశి flp = m_currScopep->fileline();
+            స్థిరరాశి string n = cvt_గమ్యం_Str(m_subFuncps.కొలత());
+            స్థిరరాశి string name
+                = m_currScopep == m_శిఖరం_Scopep->scopep() && !v3Global.opt.libCreate().ఖాళీలు()
+                      ? (m_శిఖరం_Scope_మూలం_Phase ? "trace_init_leaf_root__" : "trace_init_leaf_top__")
                             + n
                       : "trace_init_sub__" + m_currScopep->nameDotless() + "__" + n;
-            AstCFunc* const funcp = newCFunc(flp, name);
-            funcp->addStmtsp(new AstCStmt{flp, "const int c = vlSymsp->__Vm_baseCode;"});
-            m_subFuncps.push_back(funcp);
+            AstCFunc* స్థిరరాశి funcp = newCFunc(flp, name);
+            funcp->కూడు_Stmtsp(కొత్త AstCStmt{flp, "const int c = vlSymsp->__Vm_baseCode;"});
+            m_subFuncps.నెట్టు_వెనుక(funcp);
         }
-        m_subFuncps.back()->addStmtsp(stmtp);
-        m_subFuncSize += stmtp->nodeCount();
+        m_subFuncps.వెనుక()->కూడు_Stmtsp(stmtp);
+        m_sub_Func_కొలత += stmtp->కణుపు_లెక్క();
     }
 
-    AstTraceDecl* addTraceDecl(const VNumRange& arrayRange,
-                               int widthOverride,  // If !=0, is packed struct/array where basicp
+    AstTraceDecl* కూడు_Trace_Decl(స్థిరరాశి VNumRange& arrayRange,
+                               పూర్ణాంకం వెడల్పు_Override,  // If !=0, is packed struct/array where basicp
                                                    // size misreflects one element
-                               AstCCall* const dtypeCallp = nullptr) {
-        VNumRange bitRange;
-        if (widthOverride) {
-            bitRange = VNumRange{widthOverride - 1, 0};
-        } else if (const AstBasicDType* const bdtypep = m_traValuep->dtypep()->basicp()) {
-            bitRange = bdtypep->nrange();
+                               AstCCall* స్థిరరాశి dtypeCallp = శూన్యసూచిక) {
+        VNumRange బిట్టు_Range;
+        ఒకవేళ (వెడల్పు_Override) {
+            బిట్టు_Range = VNumRange{వెడల్పు_Override - 1, 0};
+        } లేకపోతే ఒకవేళ (స్థిరరాశి AstBasicDType* స్థిరరాశి bdtypep = m_traValuep->dtypep()->basicp()) {
+            బిట్టు_Range = bdtypep->nrange();
         }
-        FileLine* const flp = m_traVscp->fileline();
-        AstNodeExpr* valuep = m_traValuep->cloneTree(false);
-        const bool validOffset = m_offset != std::numeric_limits<uint32_t>::max();
-        AstTraceDecl* const newp
-            = new AstTraceDecl{flp,      m_traName,  m_traVscp->varp(), valuep,
-                               bitRange, arrayRange, dtypeCallp,        validOffset};
-        if (validOffset) {
-            newp->code(m_offset);
-            if (!dtypeCallp) { m_offset += newp->codeInc(); }
-            valuep->foreach([&](AstVarRef* const refp) {
+        File_పంక్తి* స్థిరరాశి flp = m_traVscp->fileline();
+        Ast_కణుపు_సమాసం* valuep = m_traValuep->clone_వృక్షం(అబద్ధం);
+        స్థిరరాశి తార్కిక valid_స్థానభ్రంశం = m_స్థానభ్రంశం != std::numeric_limits<uint32_t>::max();
+        AstTraceDecl* స్థిరరాశి newp
+            = కొత్త AstTraceDecl{flp,      m_traName,  m_traVscp->varp(), valuep,
+                               బిట్టు_Range, arrayRange, dtypeCallp,        valid_స్థానభ్రంశం};
+        ఒకవేళ (valid_స్థానభ్రంశం) {
+            newp->సంకేతం_2(m_స్థానభ్రంశం);
+            ఒకవేళ (!dtypeCallp) { m_స్థానభ్రంశం += newp->సంకేతం_Inc(); }
+            valuep->foreach([&](AstVarRef* స్థిరరాశి refp) {
                 UASSERT_OBJ(refp->varScopep() == m_traVscp, refp,
                             "Trace decl expression references unexpected var");
-                refp->replaceWith(new AstCExpr{flp, "__VdtypeVar", m_traVscp->width()});
-                VL_DO_DANGLING(refp->deleteTree(), refp);
+                refp->replaceWith(కొత్త AstCExpr{flp, "__VdtypeVar", m_traVscp->వెడల్పు()});
+                VL_DO_DANGLING(refp->delete_వృక్షం(), refp);
             });
-        } else {
+        } లేకపోతే {
             newp->dtypeDeclp(m_dtypeDeclp);
         }
         m_declUncalledps.emplace(newp);
-        addToSubFunc(newp);
+        కూడు_గమ్యం_Sub_Func(newp);
 
-        return newp;
+        తిరిగి newp;
     }
 
-    void addIgnore(const string& why) {
+    శూన్య కూడు_Ignore(స్థిరరాశి string& why) {
         ++m_statIgnSigs;
-        const std::string cmt = "Tracing: "s + m_traName + " // Ignored: " + why;
-        if (debug() > 3 && m_traVscp) std::cout << "- " << m_traVscp->fileline() << cmt << '\n';
+        స్థిరరాశి std::string cmt = "Tracing: "s + m_traName + " // Ignored: " + why;
+        ఒకవేళ (debug() > 3 && m_traVscp) std::బయటకు << "- " << m_traVscp->fileline() << cmt << '\n';
     }
 
-    void fixupPlaceholder(const std::string& path, AstNodeStmt* placeholderp) {
+    శూన్య fixupPlaceholder(స్థిరరాశి std::string& మార్గం, Ast_కణుపు_Stmt* placeholderp) {
         // Find the scope for the path. As we are working based on cell names,
         // it is possible there is no corresponding scope (e.g.: for an empty
         // module).
-        const auto it = m_pathToScopep.find(AstNode::prettyName(path));
-        if (it != m_pathToScopep.end()) {
-            const AstScope* const scopep = it->second;
-            FileLine* const flp = placeholderp->fileline();
+        స్థిరరాశి స్వయంచాలక it = m_మార్గం_గమ్యం_Scopep.కనుగొను(Ast_కణుపు::prettyName(మార్గం));
+        ఒకవేళ (it != m_మార్గం_గమ్యం_Scopep.చివర()) {
+            స్థిరరాశి AstScope* స్థిరరాశి scopep = it->రెండవ;
+            File_పంక్తి* స్థిరరాశి flp = placeholderp->fileline();
 
             // Call the initialization functions for the scope
-            AstNode* stmtp = nullptr;
-            for (AstCFunc* const subFuncp : m_scopeInitFuncps.at(scopep)) {
-                AstCCall* const callp = new AstCCall{flp, subFuncp};
-                callp->dtypeSetVoid();
+            Ast_కణుపు* stmtp = శూన్యసూచిక;
+            కొరకు (AstCFunc* స్థిరరాశి subFuncp : m_scopeInitFuncps.at(scopep)) {
+                AstCCall* స్థిరరాశి callp = కొత్త AstCCall{flp, subFuncp};
+                callp->dtype_సమితి_Void();
                 callp->argTypes("tracep");
-                stmtp = AstNode::addNext(stmtp, callp->makeStmt());
+                stmtp = Ast_కణుపు::కూడు_తదుపరి(stmtp, callp->makeStmt());
             }
 
             // Add after the placeholder
-            if (stmtp) placeholderp->addNextHere(stmtp);
+            ఒకవేళ (stmtp) placeholderp->కూడు_తదుపరి_ఇక్కడ(stmtp);
         }
         // Delete the placeholder
-        placeholderp->unlinkFrBack();
-        VL_DO_DANGLING(placeholderp->deleteTree(), placeholderp);
+        placeholderp->unlink_Fr_వెనుక();
+        VL_DO_DANGLING(placeholderp->delete_వృక్షం(), placeholderp);
     }
 
-    void fixupLibStub(const std::string& path, AstNodeStmt* placeholderp) {
-        FileLine* const flp = placeholderp->fileline();
+    శూన్య fixupLibStub(స్థిరరాశి std::string& మార్గం, Ast_కణుపు_Stmt* placeholderp) {
+        File_పంక్తి* స్థిరరాశి flp = placeholderp->fileline();
 
         // The library instance's model is named after its %m within the parent model,
         // which does not include the "l2-name" (top module) of the library
-        std::string name = AstNode::prettyName(path);
-        if (!v3Global.opt.libCreate().empty()) {
-            const std::string topPrefix = v3Global.rootp()->traceLibTopName() + ".";
-            if (VString::startsWith(name, topPrefix)) name = name.substr(topPrefix.size());
+        std::string name = Ast_కణుపు::prettyName(మార్గం);
+        ఒకవేళ (!v3Global.opt.libCreate().ఖాళీలు()) {
+            స్థిరరాశి std::string శిఖరం_ఉపసర్గ = v3Global.rootp()->trace_Lib_శిఖరం_Name() + ".";
+            ఒకవేళ (VString::startsWith(name, శిఖరం_ఉపసర్గ)) name = name.substr(శిఖరం_ఉపసర్గ.కొలత());
         }
 
         // Call the initialization function for the library instance
-        AstCStmt* const initp = new AstCStmt{flp};
-        initp->add("{\n");
-        initp->add("std::string __VlibName = vlSymsp->name();\n");
-        initp->add("if (!__VlibName.empty()) __VlibName += '.';\n");
-        initp->add("__VlibName += ");
-        initp->add(new AstConst{flp, AstConst::String{}, name});
-        initp->add(";\n");
-        initp->add("tracep->initLib(__VlibName);\n");
-        initp->add("}\n");
+        AstCStmt* స్థిరరాశి initp = కొత్త AstCStmt{flp};
+        initp->కూడు("{\n");
+        initp->కూడు("std::string __VlibName = vlSymsp->name();\n");
+        initp->కూడు("if (!__VlibName.empty()) __VlibName += '.';\n");
+        initp->కూడు("__VlibName += ");
+        initp->కూడు(కొత్త AstConst{flp, AstConst::String{}, name});
+        initp->కూడు(";\n");
+        initp->కూడు("tracep->initLib(__VlibName);\n");
+        initp->కూడు("}\n");
 
-        placeholderp->addNextHere(initp);
+        placeholderp->కూడు_తదుపరి_ఇక్కడ(initp);
         // Delete the placeholder
-        VL_DO_DANGLING(placeholderp->unlinkFrBack()->deleteTree(), placeholderp);
+        VL_DO_DANGLING(placeholderp->unlink_Fr_వెనుక()->delete_వృక్షం(), placeholderp);
     }
 
-    void fixupPlaceholders() {
+    శూన్య fixupPlaceholders() {
         // Fix up cell initialization placehodlers
         UINFO(9, "fixupPlaceholders()");
-        for (const auto& item : m_cellInitPlaceholders) {
-            const AstScope* const parentp = std::get<0>(item);
-            const AstCell* const cellp = std::get<1>(item);
-            AstNodeStmt* const placeholderp = std::get<2>(item);
-            const std::string path = parentp->name() + "__DOT__" + cellp->name();
-            if (cellp->modp()->verilatorLib()) {
-                fixupLibStub(path, placeholderp);
-            } else {
-                fixupPlaceholder(path, placeholderp);
+        కొరకు (స్థిరరాశి స్వయంచాలక& అంశం_2 : m_cellInitPlaceholders) {
+            స్థిరరాశి AstScope* స్థిరరాశి parentp = std::get<0>(అంశం_2);
+            స్థిరరాశి AstCell* స్థిరరాశి cellp = std::get<1>(అంశం_2);
+            Ast_కణుపు_Stmt* స్థిరరాశి placeholderp = std::get<2>(అంశం_2);
+            స్థిరరాశి std::string మార్గం = parentp->name() + "__DOT__" + cellp->name();
+            ఒకవేళ (cellp->modp()->verilatorLib()) {
+                fixupLibStub(మార్గం, placeholderp);
+            } లేకపోతే {
+                fixupPlaceholder(మార్గం, placeholderp);
             }
         }
 
         // Fix up interface reference initialization placeholders
-        for (const auto& item : m_ifaceRefInitPlaceholders) {
-            const AstVarScope* const vscp = std::get<0>(item);
-            AstNodeStmt* const placeholderp = std::get<1>(item);
-            const std::string path = vscp->scopep()->name() + "__DOT__" + vscp->varp()->name();
-            fixupPlaceholder(path, placeholderp);
+        కొరకు (స్థిరరాశి స్వయంచాలక& అంశం_2 : m_ifaceRefInitPlaceholders) {
+            స్థిరరాశి AstVarScope* స్థిరరాశి vscp = std::get<0>(అంశం_2);
+            Ast_కణుపు_Stmt* స్థిరరాశి placeholderp = std::get<1>(అంశం_2);
+            స్థిరరాశి std::string మార్గం = vscp->scopep()->name() + "__DOT__" + vscp->varp()->name();
+            fixupPlaceholder(మార్గం, placeholderp);
         }
     }
 
-    void removeRedundantPrefixPushPop() {
-        for (const auto& pair : m_scopeInitFuncps) {
+    శూన్య remove_Redundant_ఉపసర్గ_నెట్టు_తీయి() {
+        కొరకు (స్థిరరాశి స్వయంచాలక& pair : m_scopeInitFuncps) {
             // cppcheck-suppress constVariablePointer
-            for (AstCFunc* const funcp : pair.second) {
-                AstNode* prevp = nullptr;
-                AstNode* currp = funcp->stmtsp();
-                while (currp) {
-                    AstNode* const nextp = currp->nextp();
-                    if (VN_IS(prevp, TracePushPrefix) && VN_IS(currp, TracePopPrefix)) {
-                        VL_DO_DANGLING(prevp->unlinkFrBack()->deleteTree(), prevp);
-                        VL_DO_DANGLING(currp->unlinkFrBack()->deleteTree(), currp);
+            కొరకు (AstCFunc* స్థిరరాశి funcp : pair.రెండవ) {
+                Ast_కణుపు* prevp = శూన్యసూచిక;
+                Ast_కణుపు* currp = funcp->stmtsp();
+                అయితే (currp) {
+                    Ast_కణుపు* స్థిరరాశి nextp = currp->nextp();
+                    ఒకవేళ (VN_IS(prevp, Trace_నెట్టు_ఉపసర్గ) && VN_IS(currp, Trace_తీయి_ఉపసర్గ)) {
+                        VL_DO_DANGLING(prevp->unlink_Fr_వెనుక()->delete_వృక్షం(), prevp);
+                        VL_DO_DANGLING(currp->unlink_Fr_వెనుక()->delete_వృక్షం(), currp);
                     }
-                    if (!nextp) break;
+                    ఒకవేళ (!nextp) ఆపు;
                     prevp = nextp->backp();
                     currp = nextp;
                 }
@@ -459,194 +459,194 @@ class TraceDeclVisitor final : public VNVisitor {
         }
     }
 
-    void checkCalls(const AstCFunc* funcp) {
-        if (!v3Global.opt.debugCheck()) return;
+    శూన్య checkCalls(స్థిరరాశి AstCFunc* funcp) {
+        ఒకవేళ (!v3Global.opt.debugCheck()) తిరిగి;
         checkCallsRecurse(funcp);
-        if (!m_declUncalledps.empty()) {  // LCOV_EXCL_START
-            for (auto tracep : m_declUncalledps) UINFO(0, "-nodep " << tracep);
+        ఒకవేళ (!m_declUncalledps.ఖాళీలు()) {  // LCOV_EXCL_START
+            కొరకు (స్వయంచాలక tracep : m_declUncalledps) UINFO(0, "-nodep " << tracep);
             (*(m_declUncalledps.begin()))->v3fatalSrc("Created TraceDecl which is never called");
         }  // LCOV_EXCL_STOP
     }
-    void checkCallsRecurse(const AstCFunc* funcp) {
-        funcp->foreach([this](const AstNode* nodep) {
-            if (const AstTraceDecl* const declp = VN_CAST(nodep, TraceDecl)) {
+    శూన్య checkCallsRecurse(స్థిరరాశి AstCFunc* funcp) {
+        funcp->foreach([ఇది](స్థిరరాశి Ast_కణుపు* nodep) {
+            ఒకవేళ (స్థిరరాశి AstTraceDecl* స్థిరరాశి declp = VN_CAST(nodep, TraceDecl)) {
                 m_declUncalledps.erase(declp);
-            } else if (const AstCCall* const ccallp = VN_CAST(nodep, CCall)) {
+            } లేకపోతే ఒకవేళ (స్థిరరాశి AstCCall* స్థిరరాశి ccallp = VN_CAST(nodep, CCall)) {
                 checkCallsRecurse(ccallp->funcp());
             }
         });
     }
 
-    bool isBasicIO() { return m_traVscp->varp()->isVLIO(); }
-    void newDeclSubFunc() {
-        FileLine* const flp = m_dtypeFuncp->fileline();
-        AstCFunc* const subFuncp = newCFunc(flp, m_dtypeNames.get("trace_init_dtype_sub__"));
-        subFuncp->argTypes(subFuncp->argTypes() + m_dtypeArgs);
-        AstCCall* const subCallp = new AstCCall{flp, subFuncp};
-        subCallp->dtypeSetVoid();
+    తార్కిక isBasicIO() { తిరిగి m_traVscp->varp()->isVLIO(); }
+    శూన్య newDeclSubFunc() {
+        File_పంక్తి* స్థిరరాశి flp = m_dtypeFuncp->fileline();
+        AstCFunc* స్థిరరాశి subFuncp = newCFunc(flp, m_dtype_పేర్లు.get("trace_init_dtype_sub__"));
+        subFuncp->argTypes(subFuncp->argTypes() + m_dtype_వాదనలు);
+        AstCCall* స్థిరరాశి subCallp = కొత్త AstCCall{flp, subFuncp};
+        subCallp->dtype_సమితి_Void();
         subCallp->argTypes("tracep, name, fidx, c, direction");
-        m_dtypeFuncp->addStmtsp(subCallp->makeStmt());
+        m_dtypeFuncp->కూడు_Stmtsp(subCallp->makeStmt());
         m_dtypeSubFuncp = subFuncp;
-        m_subFuncSize = 0;
+        m_sub_Func_కొలత = 0;
     }
-    void newDeclFunc(AstNodeDType* nodep) {
-        AstNodeDType* const skipTypep = nodep->skipRefp();
+    శూన్య newDeclFunc(Ast_కణుపు_DType* nodep) {
+        Ast_కణుపు_DType* స్థిరరాశి skipTypep = nodep->skipRefp();
         // offset and direction args added in EmitCImp
-        std::string callArgs{"tracep, \"" + VIdProtect::protect(m_traName) + "\""};
+        std::string call_వాదనలు{"tracep, \"" + VIdProtect::protect(m_traName) + "\""};
         VL_RESTORER_COPY(m_traName);
-        FileLine* const flp = skipTypep->fileline();
+        File_పంక్తి* స్థిరరాశి flp = skipTypep->fileline();
 
-        const DtypeFuncKey dtypeKey{skipTypep, m_traVscp->varp()->varType()};
-        auto pair = m_dtypeFuncs.emplace(dtypeKey, nullptr);
-        AstCFunc** funcpp = &pair.first->second;
-        if (pair.second) {
-            *funcpp = newCFunc(flp, m_dtypeNames.get("trace_init_dtype__"));
-            (*funcpp)->argTypes((*funcpp)->argTypes() + m_dtypeArgs);
+        స్థిరరాశి Dtype_Func_కీలకం dtype_కీలకం{skipTypep, m_traVscp->varp()->varType()};
+        స్వయంచాలక pair = m_dtypeFuncs.emplace(dtype_కీలకం, శూన్యసూచిక);
+        AstCFunc** funcpp = &pair.మొదటి->రెండవ;
+        ఒకవేళ (pair.రెండవ) {
+            *funcpp = newCFunc(flp, m_dtype_పేర్లు.get("trace_init_dtype__"));
+            (*funcpp)->argTypes((*funcpp)->argTypes() + m_dtype_వాదనలు);
             (*funcpp)->user2p(m_traVscp);
         }
 
-        AstCCall* const callp = new AstCCall{flp, *funcpp};
-        callp->dtypeSetVoid();
-        callp->argTypes(callArgs);
-        m_dtypeDeclp = addTraceDecl(VNumRange{}, skipTypep->width(), callp);
-        addToSubFunc(callp->makeStmt());
+        AstCCall* స్థిరరాశి callp = కొత్త AstCCall{flp, *funcpp};
+        callp->dtype_సమితి_Void();
+        callp->argTypes(call_వాదనలు);
+        m_dtypeDeclp = కూడు_Trace_Decl(VNumRange{}, skipTypep->వెడల్పు(), callp);
+        కూడు_గమ్యం_Sub_Func(callp->makeStmt());
 
-        if (pair.second) {
-            VL_RESTORER(m_offset);
-            m_offset = 0;
+        ఒకవేళ (pair.రెండవ) {
+            VL_RESTORER(m_స్థానభ్రంశం);
+            m_స్థానభ్రంశం = 0;
 
             VL_RESTORER(m_dtypeFuncp);
             VL_RESTORER(m_dtypeSubFuncp);
-            VL_RESTORER(m_subFuncSize);
+            VL_RESTORER(m_sub_Func_కొలత);
             m_dtypeFuncp = *funcpp;
             newDeclSubFunc();
-            if (AstStructDType* const dtypep = VN_CAST(skipTypep, StructDType)) {
-                declStruct(dtypep, true);
-            } else if (AstUnpackArrayDType* const dtypep = VN_CAST(skipTypep, UnpackArrayDType)) {
-                declUnpackedArray(dtypep, true);
-            } else if (AstPackArrayDType* const dtypep = VN_CAST(skipTypep, PackArrayDType)) {
-                declPackedArray(dtypep, true);
-            } else {
-                UASSERT_OBJ(false, skipTypep, "Creating a trace function for an unexpected type");
+            ఒకవేళ (AstStructDType* స్థిరరాశి dtypep = VN_CAST(skipTypep, StructDType)) {
+                declStruct(dtypep, నిజం);
+            } లేకపోతే ఒకవేళ (AstUnpackArrayDType* స్థిరరాశి dtypep = VN_CAST(skipTypep, UnpackArrayDType)) {
+                declUnpackedArray(dtypep, నిజం);
+            } లేకపోతే ఒకవేళ (AstPackArrayDType* స్థిరరాశి dtypep = VN_CAST(skipTypep, PackArrayDType)) {
+                declPackedArray(dtypep, నిజం);
+            } లేకపోతే {
+                UASSERT_OBJ(అబద్ధం, skipTypep, "Creating a trace function for an unexpected type");
             }
-            m_dtypeFuncp->user1(m_offset);
+            m_dtypeFuncp->user1(m_స్థానభ్రంశం);
         }
 
-        m_dtypeDeclp->codeInc((*funcpp)->user1());
-        m_offset += m_dtypeDeclp->codeInc();
+        m_dtypeDeclp->సంకేతం_Inc((*funcpp)->user1());
+        m_స్థానభ్రంశం += m_dtypeDeclp->సంకేతం_Inc();
     }
-    void declUnpackedArray(AstUnpackArrayDType* const nodep, bool newFunc) {
-        string prefixName(newFunc ? "name" : m_traName);
+    శూన్య declUnpackedArray(AstUnpackArrayDType* స్థిరరాశి nodep, తార్కిక newFunc) {
+        string ఉపసర్గ_Name(newFunc ? "name" : m_traName);
 
         VL_RESTORER_COPY(m_traName);
-        FileLine* const flp = nodep->fileline();
+        File_పంక్తి* స్థిరరాశి flp = nodep->fileline();
 
-        addToSubFunc(new AstTracePushPrefix{flp, prefixName, VTracePrefixType::ARRAY_UNPACKED,
-                                            nodep->left(), nodep->right(), !newFunc});
+        కూడు_గమ్యం_Sub_Func(కొత్త Ast_Trace_నెట్టు_ఉపసర్గ{flp, ఉపసర్గ_Name, VTrace_ఉపసర్గ_Type::ARRAY_UNPACKED,
+                                            nodep->ఎడమ(), nodep->కుడి(), !newFunc});
 
-        if (VN_IS(nodep->subDTypep()->skipRefToEnump(),
+        ఒకవేళ (VN_IS(nodep->subDTypep()->skip_Ref_గమ్యం_Enump(),
                   BasicDType)  // Nothing lower than this array
-            && m_traVscp->dtypep()->skipRefToEnump() == nodep) {  // Nothing above this array
+            && m_traVscp->dtypep()->skip_Ref_గమ్యం_Enump() == nodep) {  // Nothing above this array
             // Simple 1-D array, use existing V3EmitC runtime loop rather than unrolling
             // This will put "(index)" at end of signal name for us
-            if (m_traVscp->dtypep()->skipRefToEnump()->isString()) {
-                addIgnore("Unsupported: strings");
-            } else {
+            ఒకవేళ (m_traVscp->dtypep()->skip_Ref_గమ్యం_Enump()->isString()) {
+                కూడు_Ignore("Unsupported: strings");
+            } లేకపోతే {
                 m_traName = "";
-                addTraceDecl(nodep->declRange(), 0);
+                కూడు_Trace_Decl(nodep->declRange(), 0);
             }
-        } else {
-            AstNodeDType* const subtypep = nodep->subDTypep()->skipRefToEnump();
+        } లేకపోతే {
+            Ast_కణుపు_DType* స్థిరరాశి subtypep = nodep->subDTypep()->skip_Ref_గమ్యం_Enump();
             // Always iterate left index to right index
-            for (const int i : nodep->declRange().seqLeftToRight()) {
+            కొరకు (స్థిరరాశి పూర్ణాంకం i : nodep->declRange().seq_ఎడమ_గమ్యం_కుడి()) {
                 VL_RESTORER(m_traValuep);
-                m_traName = '[' + std::to_string(i) + ']';
-                m_traValuep = m_traValuep->cloneTree(false);
-                m_traValuep = new AstArraySel{flp, m_traValuep, i - nodep->lo()};
+                m_traName = '[' + std::గమ్యం_string(i) + ']';
+                m_traValuep = m_traValuep->clone_వృక్షం(అబద్ధం);
+                m_traValuep = కొత్త AstArraySel{flp, m_traValuep, i - nodep->lo()};
                 m_traValuep->dtypep(subtypep);
                 iterate(subtypep);
-                VL_DO_DANGLING(m_traValuep->deleteTree(), m_traValuep);
+                VL_DO_DANGLING(m_traValuep->delete_వృక్షం(), m_traValuep);
             }
         }
 
-        addToSubFunc(new AstTracePopPrefix{flp});
+        కూడు_గమ్యం_Sub_Func(కొత్త Ast_Trace_తీయి_ఉపసర్గ{flp});
     }
-    void declPackedArray(AstPackArrayDType* const nodep, bool newFunc) {
-        string prefixName(newFunc ? "name" : m_traName);
-        AstNodeDType* const subtypep = nodep->subDTypep()->skipRefToEnump();
+    శూన్య declPackedArray(AstPackArrayDType* స్థిరరాశి nodep, తార్కిక newFunc) {
+        string ఉపసర్గ_Name(newFunc ? "name" : m_traName);
+        Ast_కణుపు_DType* స్థిరరాశి subtypep = nodep->subDTypep()->skip_Ref_గమ్యం_Enump();
 
         VL_RESTORER_COPY(m_traName);
-        FileLine* const flp = nodep->fileline();
+        File_పంక్తి* స్థిరరాశి flp = nodep->fileline();
 
-        addToSubFunc(new AstTracePushPrefix{flp, prefixName, VTracePrefixType::ARRAY_PACKED,
-                                            nodep->left(), nodep->right(), !newFunc});
+        కూడు_గమ్యం_Sub_Func(కొత్త Ast_Trace_నెట్టు_ఉపసర్గ{flp, ఉపసర్గ_Name, VTrace_ఉపసర్గ_Type::ARRAY_PACKED,
+                                            nodep->ఎడమ(), nodep->కుడి(), !newFunc});
 
         // Always iterate left index to right index
-        for (const int i : nodep->declRange().seqLeftToRight()) {
+        కొరకు (స్థిరరాశి పూర్ణాంకం i : nodep->declRange().seq_ఎడమ_గమ్యం_కుడి()) {
             VL_RESTORER(m_traValuep);
-            m_traName = '[' + std::to_string(i) + ']';
-            const int lsb = (i - nodep->lo()) * subtypep->width();
-            m_traValuep = m_traValuep->cloneTree(false);
-            m_traValuep = new AstSel{flp, m_traValuep, lsb, subtypep->width()};
+            m_traName = '[' + std::గమ్యం_string(i) + ']';
+            స్థిరరాశి పూర్ణాంకం lsb = (i - nodep->lo()) * subtypep->వెడల్పు();
+            m_traValuep = m_traValuep->clone_వృక్షం(అబద్ధం);
+            m_traValuep = కొత్త AstSel{flp, m_traValuep, lsb, subtypep->వెడల్పు()};
             m_traValuep->dtypep(subtypep);
             iterate(subtypep);
-            VL_DO_CLEAR(m_traValuep->deleteTree(), m_traValuep = nullptr);
+            VL_DO_CLEAR(m_traValuep->delete_వృక్షం(), m_traValuep = శూన్యసూచిక);
         }
 
-        addToSubFunc(new AstTracePopPrefix{flp});
+        కూడు_గమ్యం_Sub_Func(కొత్త Ast_Trace_తీయి_ఉపసర్గ{flp});
     }
-    void declStruct(AstStructDType* const nodep, bool newFunc) {
-        FileLine* const flp = nodep->fileline();
-        string prefixName(newFunc ? "name" : m_traName);
-        int nMembers = 0;
-        for (AstNode* mp = nodep->membersp(); mp; mp = mp->nextp()) ++nMembers;
-        if (!nodep->packed()) {
-            addToSubFunc(new AstTracePushPrefix{flp, prefixName,  //
-                                                VTracePrefixType::STRUCT_UNPACKED, nMembers, 0,
+    శూన్య declStruct(AstStructDType* స్థిరరాశి nodep, తార్కిక newFunc) {
+        File_పంక్తి* స్థిరరాశి flp = nodep->fileline();
+        string ఉపసర్గ_Name(newFunc ? "name" : m_traName);
+        పూర్ణాంకం nMembers = 0;
+        కొరకు (Ast_కణుపు* mp = nodep->membersp(); mp; mp = mp->nextp()) ++nMembers;
+        ఒకవేళ (!nodep->packed()) {
+            కూడు_గమ్యం_Sub_Func(కొత్త Ast_Trace_నెట్టు_ఉపసర్గ{flp, ఉపసర్గ_Name,  //
+                                                VTrace_ఉపసర్గ_Type::STRUCT_UNPACKED, nMembers, 0,
                                                 !newFunc});
-            for (const AstMemberDType *itemp = nodep->membersp(), *nextp; itemp; itemp = nextp) {
+            కొరకు (స్థిరరాశి AstMemberDType *itemp = nodep->membersp(), *nextp; itemp; itemp = nextp) {
                 nextp = VN_AS(itemp->nextp(), MemberDType);
-                AstNodeDType* const subtypep = itemp->subDTypep()->skipRefToEnump();
+                Ast_కణుపు_DType* స్థిరరాశి subtypep = itemp->subDTypep()->skip_Ref_గమ్యం_Enump();
                 m_traName = itemp->prettyName();
                 VL_RESTORER(m_traValuep);
-                m_traValuep = m_traValuep->cloneTree(false);
-                m_traValuep = new AstStructSel{flp, m_traValuep, itemp->name()};
+                m_traValuep = m_traValuep->clone_వృక్షం(అబద్ధం);
+                m_traValuep = కొత్త AstStructSel{flp, m_traValuep, itemp->name()};
                 m_traValuep->dtypep(subtypep);
                 iterate(subtypep);
-                VL_DO_DANGLING(m_traValuep->deleteTree(), m_traValuep);
+                VL_DO_DANGLING(m_traValuep->delete_వృక్షం(), m_traValuep);
             }
-            addToSubFunc(new AstTracePopPrefix{flp});
-        } else {
-            addToSubFunc(new AstTracePushPrefix{flp, prefixName,  //
-                                                VTracePrefixType::STRUCT_PACKED, nMembers, 0,
+            కూడు_గమ్యం_Sub_Func(కొత్త Ast_Trace_తీయి_ఉపసర్గ{flp});
+        } లేకపోతే {
+            కూడు_గమ్యం_Sub_Func(కొత్త Ast_Trace_నెట్టు_ఉపసర్గ{flp, ఉపసర్గ_Name,  //
+                                                VTrace_ఉపసర్గ_Type::STRUCT_PACKED, nMembers, 0,
                                                 !newFunc});
-            for (const AstMemberDType *itemp = nodep->membersp(), *nextp; itemp; itemp = nextp) {
+            కొరకు (స్థిరరాశి AstMemberDType *itemp = nodep->membersp(), *nextp; itemp; itemp = nextp) {
                 nextp = VN_AS(itemp->nextp(), MemberDType);
-                AstNodeDType* const subtypep = itemp->subDTypep()->skipRefToEnump();
+                Ast_కణుపు_DType* స్థిరరాశి subtypep = itemp->subDTypep()->skip_Ref_గమ్యం_Enump();
                 m_traName = itemp->prettyName();
                 VL_RESTORER(m_traValuep);
-                m_traValuep = m_traValuep->cloneTree(false);
-                m_traValuep = new AstSel{flp, m_traValuep, itemp->lsb(), subtypep->width()};
+                m_traValuep = m_traValuep->clone_వృక్షం(అబద్ధం);
+                m_traValuep = కొత్త AstSel{flp, m_traValuep, itemp->lsb(), subtypep->వెడల్పు()};
                 m_traValuep->dtypep(subtypep);
                 iterate(subtypep);
-                VL_DO_DANGLING(m_traValuep->deleteTree(), m_traValuep);
+                VL_DO_DANGLING(m_traValuep->delete_వృక్షం(), m_traValuep);
             }
-            addToSubFunc(new AstTracePopPrefix{flp});
+            కూడు_గమ్యం_Sub_Func(కొత్త Ast_Trace_తీయి_ఉపసర్గ{flp});
         }
     }
 
     // VISITORS
-    void visit(AstScope* nodep) override {
+    శూన్య సందర్శించు(AstScope* nodep) override {
         UINFO(9, "visit " << nodep);
         UASSERT_OBJ(!m_currScopep, nodep, "Should not nest");
-        UASSERT_OBJ(m_subFuncps.empty(), nodep, "Should not nest");
-        UASSERT_OBJ(m_entries.empty(), nodep, "Should not nest");
+        UASSERT_OBJ(m_subFuncps.ఖాళీలు(), nodep, "Should not nest");
+        UASSERT_OBJ(m_entries.ఖాళీలు(), nodep, "Should not nest");
         UASSERT_OBJ(!m_traVscp, nodep, "Should not nest");
         UASSERT_OBJ(!m_traValuep, nodep, "Should not nest");
-        UASSERT_OBJ(m_traName.empty(), nodep, "Should not nest");
+        UASSERT_OBJ(m_traName.ఖాళీలు(), nodep, "Should not nest");
 
         // If this is a stub for a --lib-create library, skip.
-        if (nodep->modp()->verilatorLib()) return;
+        ఒకవేళ (nodep->modp()->verilatorLib()) తిరిగి;
 
         VL_RESTORER(m_currScopep);
         m_currScopep = nodep;
@@ -655,73 +655,73 @@ class TraceDeclVisitor final : public VNVisitor {
         iterateChildrenConst(nodep);
 
         // Gather cells under this scope
-        for (AstNode* stmtp = nodep->modp()->stmtsp(); stmtp; stmtp = stmtp->nextp()) {
-            if (AstCell* const cellp = VN_CAST(stmtp, Cell)) m_entries.emplace_back(nodep, cellp);
+        కొరకు (Ast_కణుపు* stmtp = nodep->modp()->stmtsp(); stmtp; stmtp = stmtp->nextp()) {
+            ఒకవేళ (AstCell* స్థిరరాశి cellp = VN_CAST(stmtp, Cell)) m_entries.emplace_వెనుక(nodep, cellp);
         }
 
-        if (!m_entries.empty()) {
+        ఒకవేళ (!m_entries.ఖాళీలు()) {
             // Sort trace entries, by enclosing instance (necessary for single traversal of
             // hierarchy during initialization), then by source location, then by name.
-            std::stable_sort(
-                m_entries.begin(), m_entries.end(),
-                [](const TraceEntry& a, const TraceEntry& b) { return a.operatorCompare(b); });
+            std::stable_క్రమీకరించు(
+                m_entries.begin(), m_entries.చివర(),
+                [](స్థిరరాశి Trace_నమోదు& a, స్థిరరాశి Trace_నమోదు& b) { తిరిగి a.operatorCompare(b); });
 
-            FileLine* const flp = nodep->fileline();
-            PathAdjustor pathAdjustor{flp, [&](AstNodeStmt* stmtp) { addToSubFunc(stmtp); }};
-            const bool splitRootPrimaryIos = nodep->isTop() && !v3Global.opt.libCreate().empty();
-            const auto emitEntry = [&](const TraceEntry& entry) {
-                AstVarScope* const vscp = entry.vscp();
+            File_పంక్తి* స్థిరరాశి flp = nodep->fileline();
+            మార్గం_Adjustor మార్గం_Adjustor_2{flp, [&](Ast_కణుపు_Stmt* stmtp) { కూడు_గమ్యం_Sub_Func(stmtp); }};
+            స్థిరరాశి తార్కిక విభజించు_మూలం_Primary_Ios = nodep->is_శిఖరం() && !v3Global.opt.libCreate().ఖాళీలు();
+            స్థిరరాశి స్వయంచాలక emit_నమోదు = [&](స్థిరరాశి Trace_నమోదు& నమోదు_2) {
+                AstVarScope* స్థిరరాశి vscp = నమోదు_2.vscp();
                 // Adjust name prefix based on path in hierarchy
-                UINFO(9, "path='" << entry.path() << "' name='" << entry.name() << "' "
-                                  << (entry.cellp() ? static_cast<AstNode*>(entry.cellp())
-                                                    : static_cast<AstNode*>(entry.vscp())));
-                pathAdjustor.adjust(entry.path(), entry.cellp(), entry.vscp());
+                UINFO(9, "path='" << నమోదు_2.మార్గం() << "' name='" << నమోదు_2.name() << "' "
+                                  << (నమోదు_2.cellp() ? static_cast<Ast_కణుపు*>(నమోదు_2.cellp())
+                                                    : static_cast<Ast_కణుపు*>(నమోదు_2.vscp())));
+                మార్గం_Adjustor_2.adjust(నమోదు_2.మార్గం(), నమోదు_2.cellp(), నమోదు_2.vscp());
 
-                m_traName = entry.name();
+                m_traName = నమోదు_2.name();
 
-                if (vscp) {
+                ఒకవేళ (vscp) {
                     // This is a signal: build AstTraceDecl for it
                     m_traVscp = vscp;
-                    const string& ignoreReason = vscIgnoreTrace(m_traVscp);
-                    if (!ignoreReason.empty()) {
-                        addIgnore(ignoreReason);
-                    } else {
+                    స్థిరరాశి string& ignoreReason = vscIgnoreTrace(m_traVscp);
+                    ఒకవేళ (!ignoreReason.ఖాళీలు()) {
+                        కూడు_Ignore(ignoreReason);
+                    } లేకపోతే {
                         ++m_statSigs;
                         // Create reference to whole signal. We will operate on this during the
                         // traversal.
                         m_traValuep
-                            = new AstVarRef{m_traVscp->fileline(), m_traVscp, VAccess::READ};
+                            = కొత్త AstVarRef{m_traVscp->fileline(), m_traVscp, VAccess::READ};
                         // Recurse into data type of the signal. The visit methods will add
                         // AstTraceDecls.
-                        iterate(m_traVscp->varp()->dtypep()->skipRefToEnump());
+                        iterate(m_traVscp->varp()->dtypep()->skip_Ref_గమ్యం_Enump());
                         // Delete reference created above. Traversal cloned it as required.
-                        if (m_traValuep) {
-                            VL_DO_DANGLING(m_traValuep->deleteTree(), m_traValuep);
+                        ఒకవేళ (m_traValuep) {
+                            VL_DO_DANGLING(m_traValuep->delete_వృక్షం(), m_traValuep);
                             // Note: Sometimes VL_DANGLING is a no-op, but we have assertions
                             // on m_traValuep being nullptr, so make sure it is.
-                            m_traValuep = nullptr;
+                            m_traValuep = శూన్యసూచిక;
                         }
                     }
-                } else {
+                } లేకపోతే {
                     // This is a subscope: insert a placeholder to be fixed up later
-                    AstCell* const cellp = entry.cellp();
-                    AstNodeStmt* const stmtp = new AstComment{
+                    AstCell* స్థిరరాశి cellp = నమోదు_2.cellp();
+                    Ast_కణుపు_Stmt* స్థిరరాశి stmtp = కొత్త AstComment{
                         cellp->fileline(), "Instance init for: " + cellp->prettyName()};
-                    addToSubFunc(stmtp);
-                    m_cellInitPlaceholders.emplace_back(nodep, cellp, stmtp);
+                    కూడు_గమ్యం_Sub_Func(stmtp);
+                    m_cellInitPlaceholders.emplace_వెనుక(nodep, cellp, stmtp);
                 }
             };
-            if (splitRootPrimaryIos) {
-                m_topScopeRootPhase = true;
-                for (const TraceEntry& entry : m_entries) {
-                    AstVarScope* const vscp = entry.vscp();
-                    if (!(vscp && vscp->varp()->isPrimaryIO())) continue;
-                    emitEntry(entry);
+            ఒకవేళ (విభజించు_మూలం_Primary_Ios) {
+                m_శిఖరం_Scope_మూలం_Phase = నిజం;
+                కొరకు (స్థిరరాశి Trace_నమోదు& నమోదు_2 : m_entries) {
+                    AstVarScope* స్థిరరాశి vscp = నమోదు_2.vscp();
+                    ఒకవేళ (!(vscp && vscp->varp()->isPrimaryIO())) కొనసాగు;
+                    emit_నమోదు(నమోదు_2);
                 }
-                m_topScopeRootPhase = false;
-                pathAdjustor.unwind();
-                m_topScopeRootFuncCount = m_subFuncps.size();
-                if (m_topScopeRootFuncCount) {
+                m_శిఖరం_Scope_మూలం_Phase = అబద్ధం;
+                మార్గం_Adjustor_2.unwind();
+                m_శిఖరం_Scope_మూలం_Func_లెక్క = m_subFuncps.కొలత();
+                ఒకవేళ (m_శిఖరం_Scope_మూలం_Func_లెక్క) {
                     // Force the next addToSubFunc to start a fresh leaf so
                     // root-phase decls and top-phase decls live in separate
                     // functions. Without this, both phases land in the same
@@ -729,17 +729,17 @@ class TraceDeclVisitor final : public VNVisitor {
                     // $rootio-prefixed IOs and the regular-scope decls, so
                     // each IO gets traced twice when the lib is consumed
                     // via initLib(name).
-                    m_subFuncSize = 0;
-                    m_forceNewLeaf = true;
+                    m_sub_Func_కొలత = 0;
+                    m_force_New_ఆకు = నిజం;
                 }
             }
-            for (const TraceEntry& entry : m_entries) {
-                AstVarScope* const vscp = entry.vscp();
-                if (splitRootPrimaryIos && vscp && vscp->varp()->isPrimaryIO()) continue;
-                emitEntry(entry);
+            కొరకు (స్థిరరాశి Trace_నమోదు& నమోదు_2 : m_entries) {
+                AstVarScope* స్థిరరాశి vscp = నమోదు_2.vscp();
+                ఒకవేళ (విభజించు_మూలం_Primary_Ios && vscp && vscp->varp()->isPrimaryIO()) కొనసాగు;
+                emit_నమోదు(నమోదు_2);
             }
-            pathAdjustor.unwind();
-            m_traVscp = nullptr;
+            మార్గం_Adjustor_2.unwind();
+            m_traVscp = శూన్యసూచిక;
             m_traName.clear();
             UASSERT_OBJ(!m_traValuep, nodep, "Should have been deleted");
             m_entries.clear();
@@ -749,229 +749,229 @@ class TraceDeclVisitor final : public VNVisitor {
         m_scopeInitFuncps.emplace(nodep, std::move(m_subFuncps));
 
         // Save the hierarchical name of this scope
-        const std::string path = nodep->prettyName();
-        m_pathToScopep.emplace(path, nodep);
+        స్థిరరాశి std::string మార్గం = nodep->prettyName();
+        m_మార్గం_గమ్యం_Scopep.emplace(మార్గం, nodep);
 
         // Save the hierarchical names of interface references that reference this scope
-        const AstCell* const cellp = nodep->aboveCellp();
-        if (cellp
+        స్థిరరాశి AstCell* స్థిరరాశి cellp = nodep->aboveCellp();
+        ఒకవేళ (cellp
             && VN_IS(cellp->modp(), Iface)
             // Exclude classes that were inside interfaces, the cell's modp is an interface,
             // but the nodep->module is the Class
             && VN_IS(nodep->modp(), Iface)) {
-            const size_t lastDot = path.find_last_of('.');
-            UASSERT_OBJ(lastDot != string::npos, nodep,
-                        "Expected an interface scope name to have at least one dot: " << path);
-            const std::string parentPath = path.substr(0, lastDot + 1);
+            స్థిరరాశి కొలత_t చివరి_Dot = మార్గం.కనుగొను_చివరి_యొక్క('.');
+            UASSERT_OBJ(చివరి_Dot != string::npos, nodep,
+                        "Expected an interface scope name to have at least one dot: " << మార్గం);
+            స్థిరరాశి std::string మాతృ_మార్గం = మార్గం.substr(0, చివరి_Dot + 1);
 
-            for (AstIntfRef *intfRefp = cellp->intfRefsp(), *nextp; intfRefp; intfRefp = nextp) {
+            కొరకు (AstIntfRef *intfRefp = cellp->intfRefsp(), *nextp; intfRefp; intfRefp = nextp) {
                 nextp = VN_AS(intfRefp->nextp(), IntfRef);
 
-                const std::string refName = intfRefp->prettyName();
+                స్థిరరాశి std::string refName = intfRefp->prettyName();
 
                 // Assume only references under the same parent scope reference
                 // the same interface.
                 // TODO: This is not actually correct. An interface can propagate
                 //       upwards and sideways when passed to a port via a downward
                 //       hierarchical reference, which we will miss here.
-                if (!VString::startsWith(refName, parentPath)) continue;
+                ఒకవేళ (!VString::startsWith(refName, మాతృ_మార్గం)) కొనసాగు;
 
                 // Save the mapping from the path of the reference to the scope
-                m_pathToScopep.emplace(refName, nodep);
+                m_మార్గం_గమ్యం_Scopep.emplace(refName, nodep);
 
                 // No more need for AstIntfRef, unless V3EmitCSyms wants it for VPI
-                if (!v3Global.opt.vpi()) {
-                    VL_DO_DANGLING(intfRefp->unlinkFrBack()->deleteTree(), intfRefp);
+                ఒకవేళ (!v3Global.opt.vpi()) {
+                    VL_DO_DANGLING(intfRefp->unlink_Fr_వెనుక()->delete_వృక్షం(), intfRefp);
                 }
             }
         }
     }
-    void visit(AstVarScope* nodep) override {
+    శూన్య సందర్శించు(AstVarScope* nodep) override {
         UASSERT_OBJ(m_currScopep, nodep, "AstVarScope not under AstScope");
 
         // Prefilter - things that get added to m_vscps will either get traced or get a comment as
         // to why they are not traced. Generally these conditions doesn't need updating, instead
         // use varp->isTrace() and/or vscIgnoreTrace.
-        if (nodep->varp()->isTemp() && !nodep->varp()->isTrace()) return;
-        if (nodep->varp()->isClassMember()) return;
-        if (nodep->varp()->isFuncLocal()) return;
+        ఒకవేళ (nodep->varp()->is_తాత్కాలిక() && !nodep->varp()->isTrace()) తిరిగి;
+        ఒకవేళ (nodep->varp()->isClassMember()) తిరిగి;
+        ఒకవేళ (nodep->varp()->isFuncLocal()) తిరిగి;
 
         // When creating a --lib-create library ...
-        if (!v3Global.opt.libCreate().empty()) {
+        ఒకవేళ (!v3Global.opt.libCreate().ఖాళీలు()) {
             // Ignore parameters in packages. These will be traced at the top level.
-            if (nodep->varp()->isParam() && VN_IS(nodep->scopep()->modp(), Package)) return;
+            ఒకవేళ (nodep->varp()->isParam() && VN_IS(nodep->scopep()->modp(), Package)) తిరిగి;
         }
 
         // Add to traced signal list
-        m_entries.emplace_back(m_currScopep, nodep);
+        m_entries.emplace_వెనుక(m_currScopep, nodep);
     }
 
     // VISITORS - Data types when tracing
-    void visit(AstConstDType* nodep) override {
-        if (!m_traVscp) return;
-        VL_RESTORER(m_offset);
+    శూన్య సందర్శించు(AstConstDType* nodep) override {
+        ఒకవేళ (!m_traVscp) తిరిగి;
+        VL_RESTORER(m_స్థానభ్రంశం);
         VL_RESTORER(m_skipDtypeFunc);
-        m_skipDtypeFunc = true;
-        iterate(nodep->subDTypep()->skipRefToEnump());
+        m_skipDtypeFunc = నిజం;
+        iterate(nodep->subDTypep()->skip_Ref_గమ్యం_Enump());
     }
-    void visit(AstRefDType* nodep) override {
-        if (!m_traVscp) return;
-        VL_RESTORER(m_offset);
-        iterate(nodep->subDTypep()->skipRefToEnump());
+    శూన్య సందర్శించు(AstRefDType* nodep) override {
+        ఒకవేళ (!m_traVscp) తిరిగి;
+        VL_RESTORER(m_స్థానభ్రంశం);
+        iterate(nodep->subDTypep()->skip_Ref_గమ్యం_Enump());
     }
-    void visit(AstIfaceRefDType* /*nodep*/) override {
-        if (!m_traVscp) return;
+    శూన్య సందర్శించు(AstIfaceRefDType* /*nodep*/) override {
+        ఒకవేళ (!m_traVscp) తిరిగి;
         // Insert a placeholder to be fixed up later
-        FileLine* const flp = m_traVscp->fileline();
-        AstNodeStmt* const stmtp
-            = new AstComment{flp, "Interface ref init for: " + m_traVscp->prettyName()};
-        addToSubFunc(stmtp);
-        m_ifaceRefInitPlaceholders.emplace_back(m_traVscp, stmtp);
+        File_పంక్తి* స్థిరరాశి flp = m_traVscp->fileline();
+        Ast_కణుపు_Stmt* స్థిరరాశి stmtp
+            = కొత్త AstComment{flp, "Interface ref init for: " + m_traVscp->prettyName()};
+        కూడు_గమ్యం_Sub_Func(stmtp);
+        m_ifaceRefInitPlaceholders.emplace_వెనుక(m_traVscp, stmtp);
     }
-    void visit(AstUnpackArrayDType* nodep) override {
+    శూన్య సందర్శించు(AstUnpackArrayDType* nodep) override {
         // Note more specific dtypes above
-        if (!m_traVscp) return;
+        ఒకవేళ (!m_traVscp) తిరిగి;
 
-        if (v3Global.opt.traceMaxArray()
-            && static_cast<int>(nodep->arrayUnpackedElements()) > v3Global.opt.traceMaxArray()) {
-            addIgnore("Wide memory > --trace-max-array ents");
-            return;
+        ఒకవేళ (v3Global.opt.traceMaxArray()
+            && static_cast<పూర్ణాంకం>(nodep->arrayUnpackedElements()) > v3Global.opt.traceMaxArray()) {
+            కూడు_Ignore("Wide memory > --trace-max-array ents");
+            తిరిగి;
         }
 
         // Skip unpacked arrays of non-traceable leaf types (e.g. strings)
-        if (VN_IS(nodep->subDTypep()->skipRefToEnump(), BasicDType)
-            && nodep->subDTypep()->skipRefToEnump()->isString()) {
-            addIgnore("Unsupported: strings");
-            return;
+        ఒకవేళ (VN_IS(nodep->subDTypep()->skip_Ref_గమ్యం_Enump(), BasicDType)
+            && nodep->subDTypep()->skip_Ref_గమ్యం_Enump()->isString()) {
+            కూడు_Ignore("Unsupported: strings");
+            తిరిగి;
         }
 
         VL_RESTORER(m_skipDtypeFunc);
         VL_RESTORER(m_dtypeDeclp);
-        if (isBasicIO()) m_skipDtypeFunc = true;
+        ఒకవేళ (isBasicIO()) m_skipDtypeFunc = నిజం;
 
-        if (!(m_skipDtypeFunc || m_dtypeDeclp)) {
-            VL_RESTORER(m_offset);
+        ఒకవేళ (!(m_skipDtypeFunc || m_dtypeDeclp)) {
+            VL_RESTORER(m_స్థానభ్రంశం);
             newDeclFunc(nodep);
         }
-        declUnpackedArray(nodep, false);
+        declUnpackedArray(nodep, అబద్ధం);
     }
-    void visit(AstPackArrayDType* nodep) override {
-        if (!m_traVscp) return;
+    శూన్య సందర్శించు(AstPackArrayDType* nodep) override {
+        ఒకవేళ (!m_traVscp) తిరిగి;
 
-        if (!v3Global.opt.traceStructs()) {
+        ఒకవేళ (!v3Global.opt.traceStructs()) {
             // Everything downstream is packed, so deal with as one trace unit.
             // This may not be the nicest for user presentation, but is
             // a much faster way to trace
-            addTraceDecl(VNumRange{}, nodep->width());
-            return;
+            కూడు_Trace_Decl(VNumRange{}, nodep->వెడల్పు());
+            తిరిగి;
         }
 
-        AstNodeDType* const subtypep = nodep->subDTypep()->skipRefToEnump();
+        Ast_కణుపు_DType* స్థిరరాశి subtypep = nodep->subDTypep()->skip_Ref_గమ్యం_Enump();
 
         // Do not unroll if the elements are simple 'bit', or 'logic'
-        if (AstBasicDType* const basicp = VN_CAST(subtypep->skipRefp(), BasicDType)) {
-            if (basicp->isBitLogic() && !basicp->isRanged()) {
-                addTraceDecl(VNumRange{}, nodep->width());
-                return;
+        ఒకవేళ (AstBasicDType* స్థిరరాశి basicp = VN_CAST(subtypep->skipRefp(), BasicDType)) {
+            ఒకవేళ (basicp->is_బిట్టు_Logic() && !basicp->isRanged()) {
+                కూడు_Trace_Decl(VNumRange{}, nodep->వెడల్పు());
+                తిరిగి;
             }
         }
 
         VL_RESTORER(m_skipDtypeFunc);
         VL_RESTORER(m_dtypeDeclp);
-        if (isBasicIO()) m_skipDtypeFunc = true;
+        ఒకవేళ (isBasicIO()) m_skipDtypeFunc = నిజం;
 
-        if (!(m_skipDtypeFunc || m_dtypeDeclp)) {
-            VL_RESTORER(m_offset);
+        ఒకవేళ (!(m_skipDtypeFunc || m_dtypeDeclp)) {
+            VL_RESTORER(m_స్థానభ్రంశం);
             newDeclFunc(nodep);
         }
-        declPackedArray(nodep, false);
+        declPackedArray(nodep, అబద్ధం);
     }
-    void visit(AstStructDType* nodep) override {
-        if (!m_traVscp) return;
+    శూన్య సందర్శించు(AstStructDType* nodep) override {
+        ఒకవేళ (!m_traVscp) తిరిగి;
 
-        if (nodep->packed() && !v3Global.opt.traceStructs()) {
+        ఒకవేళ (nodep->packed() && !v3Global.opt.traceStructs()) {
             // Everything downstream is packed, so deal with as one trace unit
             // This may not be the nicest for user presentation, but is
             // a much faster way to trace
-            addTraceDecl(VNumRange{}, nodep->width());
-            return;
+            కూడు_Trace_Decl(VNumRange{}, nodep->వెడల్పు());
+            తిరిగి;
         }
 
         VL_RESTORER(m_skipDtypeFunc);
         VL_RESTORER(m_dtypeDeclp);
-        if (isBasicIO()) m_skipDtypeFunc = true;
+        ఒకవేళ (isBasicIO()) m_skipDtypeFunc = నిజం;
 
         // Only create sub functions for top-level structs, i.e. don't have struct funcs
         // call other struct funcs for child types.  This could easily be done for decl funcs
         // but full / chg funcs would require copying / aligning data for child types or more
         // complicated / wonky / generalized data access.
-        if (!(m_skipDtypeFunc || m_dtypeDeclp)) {
-            VL_RESTORER(m_offset);
+        ఒకవేళ (!(m_skipDtypeFunc || m_dtypeDeclp)) {
+            VL_RESTORER(m_స్థానభ్రంశం);
             newDeclFunc(nodep);
         }
-        declStruct(nodep, false);
+        declStruct(nodep, అబద్ధం);
     }
-    void visit(AstUnionDType* nodep) override {
-        if (!m_traVscp) return;
+    శూన్య సందర్శించు(AstUnionDType* nodep) override {
+        ఒకవేళ (!m_traVscp) తిరిగి;
 
         VL_RESTORER(m_skipDtypeFunc);
-        m_skipDtypeFunc = true;
+        m_skipDtypeFunc = నిజం;
 
-        if (nodep->packed() && !v3Global.opt.traceStructs()) {
+        ఒకవేళ (nodep->packed() && !v3Global.opt.traceStructs()) {
             // Everything downstream is packed, so deal with as one trace unit
             // This may not be the nicest for user presentation, but is
             // a much faster way to trace
-            addTraceDecl(VNumRange{}, nodep->width());
-            return;
+            కూడు_Trace_Decl(VNumRange{}, nodep->వెడల్పు());
+            తిరిగి;
         }
 
         VL_RESTORER_COPY(m_traName);
-        FileLine* const flp = nodep->fileline();
+        File_పంక్తి* స్థిరరాశి flp = nodep->fileline();
 
-        int nMembers = 0;
-        for (AstNode* mp = nodep->membersp(); mp; mp = mp->nextp()) ++nMembers;
+        పూర్ణాంకం nMembers = 0;
+        కొరకు (Ast_కణుపు* mp = nodep->membersp(); mp; mp = mp->nextp()) ++nMembers;
 
-        if (!nodep->packed()) {
-            addIgnore("Unsupported: Unpacked union");
-        } else {
-            addToSubFunc(new AstTracePushPrefix{flp, m_traName,  //
-                                                VTracePrefixType::UNION_PACKED, nMembers});
-            for (const AstMemberDType *itemp = nodep->membersp(), *nextp; itemp; itemp = nextp) {
+        ఒకవేళ (!nodep->packed()) {
+            కూడు_Ignore("Unsupported: Unpacked union");
+        } లేకపోతే {
+            కూడు_గమ్యం_Sub_Func(కొత్త Ast_Trace_నెట్టు_ఉపసర్గ{flp, m_traName,  //
+                                                VTrace_ఉపసర్గ_Type::UNION_PACKED, nMembers});
+            కొరకు (స్థిరరాశి AstMemberDType *itemp = nodep->membersp(), *nextp; itemp; itemp = nextp) {
                 nextp = VN_AS(itemp->nextp(), MemberDType);
-                AstNodeDType* const subtypep = itemp->subDTypep()->skipRefToEnump();
+                Ast_కణుపు_DType* స్థిరరాశి subtypep = itemp->subDTypep()->skip_Ref_గమ్యం_Enump();
                 m_traName = itemp->prettyName();
                 iterate(subtypep);
             }
-            addToSubFunc(new AstTracePopPrefix{flp});
+            కూడు_గమ్యం_Sub_Func(కొత్త Ast_Trace_తీయి_ఉపసర్గ{flp});
         }
     }
-    void visit(AstBasicDType* nodep) override {
-        if (!m_traVscp) return;
-        if (nodep->isString()) {
-            addIgnore("Unsupported: strings");
-        } else {
-            addTraceDecl(VNumRange{}, 0);
+    శూన్య సందర్శించు(AstBasicDType* nodep) override {
+        ఒకవేళ (!m_traVscp) తిరిగి;
+        ఒకవేళ (nodep->isString()) {
+            కూడు_Ignore("Unsupported: strings");
+        } లేకపోతే {
+            కూడు_Trace_Decl(VNumRange{}, 0);
         }
     }
-    void visit(AstEnumDType* nodep) override { iterate(nodep->skipRefp()); }
-    void visit(AstNodeDType*) override {
+    శూన్య సందర్శించు(AstEnumDType* nodep) override { iterate(nodep->skipRefp()); }
+    శూన్య సందర్శించు(Ast_కణుపు_DType*) override {
         // Note more specific dtypes above
-        if (!m_traVscp) return;
-        addIgnore("Unsupported: data type");
+        ఒకవేళ (!m_traVscp) తిరిగి;
+        కూడు_Ignore("Unsupported: data type");
     }
 
     //--------------------
-    void visit(AstNode* nodep) override { iterateChildren(nodep); }
+    శూన్య సందర్శించు(Ast_కణుపు* nodep) override { iterateChildren(nodep); }
 
-public:
+బహిరంగ:
     // CONSTRUCTORS
-    explicit TraceDeclVisitor(AstNetlist* nodep)
-        : m_topScopep{nodep->topScopep()} {
-        FileLine* const flp = nodep->fileline();
+    స్పష్టమైన TraceDeclVisitor(AstNetlist* nodep)
+        : m_శిఖరం_Scopep{nodep->శిఖరం_Scopep()} {
+        File_పంక్తి* స్థిరరాశి flp = nodep->fileline();
 
         // Iterate modules to build per scope initialization functions
-        iterateAndNextConstNull(nodep->modulesp());
-        UASSERT_OBJ(m_subFuncps.empty(), nodep, "Should have been emptied");
+        iterate_And_తదుపరి_Const_Null(nodep->modulesp());
+        UASSERT_OBJ(m_subFuncps.ఖాళీలు(), nodep, "Should have been emptied");
 
         // Fix up the placeholders in the initialization functions
         fixupPlaceholders();
@@ -981,66 +981,66 @@ public:
         // might have some empty scope declarations), we do it to preserve previous
         // behavior. Note: unfortunately generating these without the redundant
         // push/pop pairs is a bit hard. It is cleaner to remove them.
-        removeRedundantPrefixPushPop();
+        remove_Redundant_ఉపసర్గ_నెట్టు_తీయి();
 
-        const std::vector<AstCFunc*>& topScopeFuncps = m_scopeInitFuncps.at(m_topScopep->scopep());
-        AstCFunc* rootFuncp = nullptr;
-        if (!v3Global.opt.libCreate().empty()) {
-            rootFuncp = newCFunc(flp, "trace_init_root");
-            rootFuncp->entryPoint(true);
-            for (size_t i = 0; i < m_topScopeRootFuncCount; ++i) {
-                AstCCall* const callp = new AstCCall{flp, topScopeFuncps.at(i)};
-                callp->dtypeSetVoid();
+        స్థిరరాశి std::సదిశ<AstCFunc*>& శిఖరం_Scope_Funcps = m_scopeInitFuncps.at(m_శిఖరం_Scopep->scopep());
+        AstCFunc* మూలం_Funcp = శూన్యసూచిక;
+        ఒకవేళ (!v3Global.opt.libCreate().ఖాళీలు()) {
+            మూలం_Funcp = newCFunc(flp, "trace_init_root");
+            మూలం_Funcp->నమోదు_బిందువు(నిజం);
+            కొరకు (కొలత_t i = 0; i < m_శిఖరం_Scope_మూలం_Func_లెక్క; ++i) {
+                AstCCall* స్థిరరాశి callp = కొత్త AstCCall{flp, శిఖరం_Scope_Funcps.at(i)};
+                callp->dtype_సమితి_Void();
                 callp->argTypes("tracep");
-                rootFuncp->addStmtsp(callp->makeStmt());
+                మూలం_Funcp->కూడు_Stmtsp(callp->makeStmt());
             }
-            if (!m_topScopeRootFuncCount) rootFuncp->addStmtsp(new AstComment{flp, "Empty"});
+            ఒకవేళ (!m_శిఖరం_Scope_మూలం_Func_లెక్క) మూలం_Funcp->కూడు_Stmtsp(కొత్త AstComment{flp, "Empty"});
         }
 
         // Call the non-wrapper initialization functions of the root scope from the top function
-        for (size_t i = m_topScopeRootFuncCount; i < topScopeFuncps.size(); ++i) {
-            AstCFunc* const funcp = topScopeFuncps.at(i);
-            AstCCall* const callp = new AstCCall{flp, funcp};
-            callp->dtypeSetVoid();
+        కొరకు (కొలత_t i = m_శిఖరం_Scope_మూలం_Func_లెక్క; i < శిఖరం_Scope_Funcps.కొలత(); ++i) {
+            AstCFunc* స్థిరరాశి funcp = శిఖరం_Scope_Funcps.at(i);
+            AstCCall* స్థిరరాశి callp = కొత్త AstCCall{flp, funcp};
+            callp->dtype_సమితి_Void();
             callp->argTypes("tracep");
-            addToTopFunc(callp->makeStmt());
+            కూడు_గమ్యం_శిఖరం_Func(callp->makeStmt());
         }
 
         // Ensure a top function exists, in case there was nothing to trace at all
-        if (m_topFuncps.empty()) addToTopFunc(new AstComment{flp, "Empty"});
+        ఒకవేళ (m_శిఖరం_Funcps.ఖాళీలు()) కూడు_గమ్యం_శిఖరం_Func(కొత్త AstComment{flp, "Empty"});
 
         // Create single top level function, if more than one exists
-        if (m_topFuncps.size() > 1) {
-            AstCFunc* const topFuncp = newCFunc(flp, "");
-            for (AstCFunc* funcp : m_topFuncps) {
-                AstCCall* const callp = new AstCCall{flp, funcp};
-                callp->dtypeSetVoid();
+        ఒకవేళ (m_శిఖరం_Funcps.కొలత() > 1) {
+            AstCFunc* స్థిరరాశి శిఖరం_Funcp = newCFunc(flp, "");
+            కొరకు (AstCFunc* funcp : m_శిఖరం_Funcps) {
+                AstCCall* స్థిరరాశి callp = కొత్త AstCCall{flp, funcp};
+                callp->dtype_సమితి_Void();
                 callp->argTypes("tracep");
-                topFuncp->addStmtsp(callp->makeStmt());
+                శిఖరం_Funcp->కూడు_Stmtsp(callp->makeStmt());
             }
-            m_topFuncps.clear();
-            m_topFuncps.push_back(topFuncp);
+            m_శిఖరం_Funcps.clear();
+            m_శిఖరం_Funcps.నెట్టు_వెనుక(శిఖరం_Funcp);
         }
 
         // Set name of top level function
-        AstCFunc* const topFuncp = m_topFuncps.front();
-        topFuncp->name("trace_init_top");
-        topFuncp->entryPoint(true);
+        AstCFunc* స్థిరరాశి శిఖరం_Funcp = m_శిఖరం_Funcps.front();
+        శిఖరం_Funcp->name("trace_init_top");
+        శిఖరం_Funcp->నమోదు_బిందువు(నిజం);
 
-        if (rootFuncp && v3Global.opt.debugCheck()) checkCallsRecurse(rootFuncp);
-        checkCalls(topFuncp);
+        ఒకవేళ (మూలం_Funcp && v3Global.opt.debugCheck()) checkCallsRecurse(మూలం_Funcp);
+        checkCalls(శిఖరం_Funcp);
     }
     ~TraceDeclVisitor() override {
-        V3Stats::addStat("Tracing, Traced signals", m_statSigs);
-        V3Stats::addStat("Tracing, Ignored signals", m_statIgnSigs);
+        V3Stats::కూడు_Stat("Tracing, Traced signals", m_statSigs);
+        V3Stats::కూడు_Stat("Tracing, Ignored signals", m_statIgnSigs);
     }
 };
 
 //######################################################################
 // Trace class functions
 
-void V3TraceDecl::traceDeclAll(AstNetlist* nodep) {
+శూన్య V3TraceDecl::traceDeclAll(AstNetlist* nodep) {
     UINFO(2, __FUNCTION__ << ":");
     { TraceDeclVisitor{nodep}; }  // Destruct before checking
-    V3Global::dumpCheckGlobalTree("tracedecl", 0, dumpTreeEitherLevel() >= 3);
+    V3Global::dump_Check_Global_వృక్షం("tracedecl", 0, dump_వృక్షం_Either_Level() >= 3);
 }

@@ -61,81 +61,81 @@
 //
 //*************************************************************************
 
-#include "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
+#అన్తర్భావ "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
 
-#include "V3Split.h"
+#అన్తర్భావ "V3Split.h"
 
-#include "V3Graph.h"
-#include "V3Stats.h"
+#అన్తర్భావ "V3Graph.h"
+#అన్తర్భావ "V3Stats.h"
 
-#include <string>
-#include <vector>
+#అన్తర్భావ <string>
+#అన్తర్భావ <vector>
 
 VL_DEFINE_DEBUG_FUNCTIONS;
 
 //######################################################################
 // Support classes
 
-class SplitNodeVertex VL_NOT_FINAL : public V3GraphVertex {
-    VL_RTTI_IMPL(SplitNodeVertex, V3GraphVertex)
-    AstNode* const m_nodep;
+తరగతి విభజించు_కణుపు_శీర్షం VL_NOT_FINAL : బహిరంగ V3_లేఖాచిత్రం_శీర్షం {
+    VL_RTTI_IMPL(విభజించు_కణుపు_శీర్షం, V3_లేఖాచిత్రం_శీర్షం)
+    Ast_కణుపు* స్థిరరాశి m_nodep;
 
-protected:
-    SplitNodeVertex(V3Graph* graphp, AstNode* nodep)
-        : V3GraphVertex{graphp}
+రక్షిత:
+    విభజించు_కణుపు_శీర్షం(V3_లేఖాచిత్రం* graphp, Ast_కణుపు* nodep)
+        : V3_లేఖాచిత్రం_శీర్షం{graphp}
         , m_nodep{nodep} {}
     // ACCESSORS
-    std::string name() const override {
-        return cvtToHex(m_nodep) + ' ' + m_nodep->prettyTypeName();
+    std::string name() స్థిరరాశి override {
+        తిరిగి cvt_గమ్యం_Hex(m_nodep) + ' ' + m_nodep->prettyTypeName();
     }
 
-public:
-    AstNode* nodep() const { return m_nodep; }
+బహిరంగ:
+    Ast_కణుపు* nodep() స్థిరరాశి { తిరిగి m_nodep; }
 };
 
-class SplitImpureVertex final : public SplitNodeVertex {
-    VL_RTTI_IMPL(SplitImpureVertex, SplitNodeVertex)
+తరగతి విభజించు_Impure_శీర్షం final : బహిరంగ విభజించు_కణుపు_శీర్షం {
+    VL_RTTI_IMPL(విభజించు_Impure_శీర్షం, విభజించు_కణుపు_శీర్షం)
 
-    std::string name() const override { return "*IMPURE*"; }
-    std::string dotColor() const override { return "green"; }
+    std::string name() స్థిరరాశి override { తిరిగి "*IMPURE*"; }
+    std::string dotColor() స్థిరరాశి override { తిరిగి "green"; }
 
-public:
-    explicit SplitImpureVertex(V3Graph* graphp, AstNode* nodep)
-        : SplitNodeVertex{graphp, nodep} {}
+బహిరంగ:
+    స్పష్టమైన విభజించు_Impure_శీర్షం(V3_లేఖాచిత్రం* graphp, Ast_కణుపు* nodep)
+        : విభజించు_కణుపు_శీర్షం{graphp, nodep} {}
 };
 
-class SplitStmtVertex final : public SplitNodeVertex {
-    VL_RTTI_IMPL(SplitStmtVertex, SplitNodeVertex)
+తరగతి విభజించు_Stmt_శీర్షం final : బహిరంగ విభజించు_కణుపు_శీర్షం {
+    VL_RTTI_IMPL(విభజించు_Stmt_శీర్షం, విభజించు_కణుపు_శీర్షం)
 
-    std::string dotColor() const override { return "yellow"; }
+    std::string dotColor() స్థిరరాశి override { తిరిగి "yellow"; }
 
-public:
-    SplitStmtVertex(V3Graph* graphp, AstNode* nodep)
-        : SplitNodeVertex{graphp, nodep} {}
+బహిరంగ:
+    విభజించు_Stmt_శీర్షం(V3_లేఖాచిత్రం* graphp, Ast_కణుపు* nodep)
+        : విభజించు_కణుపు_శీర్షం{graphp, nodep} {}
 };
 
-class SplitVarStdVertex final : public SplitNodeVertex {
-    VL_RTTI_IMPL(SplitVarStdVertex, SplitNodeVertex)
+తరగతి విభజించు_Var_Std_శీర్షం final : బహిరంగ విభజించు_కణుపు_శీర్షం {
+    VL_RTTI_IMPL(విభజించు_Var_Std_శీర్షం, విభజించు_కణుపు_శీర్షం)
 
-    std::string dotColor() const override { return "skyblue"; }
+    std::string dotColor() స్థిరరాశి override { తిరిగి "skyblue"; }
 
-public:
-    SplitVarStdVertex(V3Graph* graphp, AstVarScope* vscp)
-        : SplitNodeVertex{graphp, vscp} {}
+బహిరంగ:
+    విభజించు_Var_Std_శీర్షం(V3_లేఖాచిత్రం* graphp, AstVarScope* vscp)
+        : విభజించు_కణుపు_శీర్షం{graphp, vscp} {}
 };
 
-class SplitVarPostVertex final : public SplitNodeVertex {
-    VL_RTTI_IMPL(SplitVarPostVertex, SplitNodeVertex)
+తరగతి విభజించు_Var_Post_శీర్షం final : బహిరంగ విభజించు_కణుపు_శీర్షం {
+    VL_RTTI_IMPL(విభజించు_Var_Post_శీర్షం, విభజించు_కణుపు_శీర్షం)
 
-    std::string name() const override { return "POST "s + SplitNodeVertex::name(); }
-    std::string dotColor() const override { return "CadetBlue"; }
+    std::string name() స్థిరరాశి override { తిరిగి "POST "s + విభజించు_కణుపు_శీర్షం::name(); }
+    std::string dotColor() స్థిరరాశి override { తిరిగి "CadetBlue"; }
 
-public:
-    SplitVarPostVertex(V3Graph* graphp, AstVarScope* vscp)
-        : SplitNodeVertex{graphp, vscp} {}
+బహిరంగ:
+    విభజించు_Var_Post_శీర్షం(V3_లేఖాచిత్రం* graphp, AstVarScope* vscp)
+        : విభజించు_కణుపు_శీర్షం{graphp, vscp} {}
 };
 
-class SplitVisitor final : public VNVisitor {
+తరగతి విభజించు_Visitor final : బహిరంగ VNVisitor {
     // NODE STATE - Only under AstAlways
     // AstVarScope::user1p  -> SplitVarStdVertex*: Regular program-flow variable vertex
     // AstVarScope::user2p  -> SplitVarPostVertex*: NBA written delayed variable vertex
@@ -143,57 +143,57 @@ class SplitVisitor final : public VNVisitor {
 
     // NODE STATE
     // AstAlways::user3     -> bool: Block created by splitting, needs no further splitting
-    const VNUser3InUse m_inuser3;
+    స్థిరరాశి VNUser3_లోపల_Use m_inuser3;
 
     // STATE
-    V3Graph* m_graphp = nullptr;  // Dependency graph to analyze statement connectivity
-    std::vector<SplitStmtVertex*> m_stmtStackps;  // Current statements being tracked
-    SplitImpureVertex* m_impureVtxp = nullptr;  // Vertex connecting impure statements
-    const char* m_noSplitWhy = nullptr;  // Reason current block cannot be split
-    bool m_inDly = false;  // Inside AstAssignDly Lhs
-    const AstIf* m_currIfp = nullptr;  // The AstIf whose condition is currently visited
+    V3_లేఖాచిత్రం* m_graphp = శూన్యసూచిక;  // Dependency graph to analyze statement connectivity
+    std::సదిశ<విభజించు_Stmt_శీర్షం*> m_stmtStackps;  // Current statements being tracked
+    విభజించు_Impure_శీర్షం* m_impureVtxp = శూన్యసూచిక;  // Vertex connecting impure statements
+    స్థిరరాశి అక్షరం* m_no_విభజించు_Why = శూన్యసూచిక;  // Reason current block cannot be split
+    తార్కిక m_లోపల_Dly = అబద్ధం;  // Inside AstAssignDly Lhs
+    స్థిరరాశి AstIf* m_currIfp = శూన్యసూచిక;  // The AstIf whose condition is currently visited
     VDouble0 m_statSplits;  // Statistic tracking
 
     // METHODS
-    void addEdge(V3GraphVertex* fromp, V3GraphVertex* top) {
-        new V3GraphEdge{m_graphp, fromp, top, 1};
+    శూన్య కూడు_అంచు(V3_లేఖాచిత్రం_శీర్షం* fromp, V3_లేఖాచిత్రం_శీర్షం* శిఖరం) {
+        కొత్త V3_లేఖాచిత్రం_అంచు{m_graphp, fromp, శిఖరం, 1};
     }
 
     // Iterate the given list of statements, building the dependency graph
-    void scanBlock(AstNode* stmtsp) {
-        if (m_noSplitWhy) return;
-        for (AstNode* stmtp = stmtsp; stmtp; stmtp = stmtp->nextp()) {
+    శూన్య పరిశీలన_ఖండం(Ast_కణుపు* stmtsp) {
+        ఒకవేళ (m_no_విభజించు_Why) తిరిగి;
+        కొరకు (Ast_కణుపు* stmtp = stmtsp; stmtp; stmtp = stmtp->nextp()) {
             // Skip comments. They have no dependencies at all, so would always
             // form an independent component, and hence a split block, of their
             // own, which would be subsequently deleted as it does nothing.
-            if (VN_IS(stmtp, Comment)) continue;
+            ఒకవేళ (VN_IS(stmtp, Comment)) కొనసాగు;
             UASSERT_OBJ(!stmtp->user1p(), stmtp, "user1p should not be set");
-            SplitStmtVertex* const vtxp = new SplitStmtVertex{m_graphp, stmtp};
+            విభజించు_Stmt_శీర్షం* స్థిరరాశి vtxp = కొత్త విభజించు_Stmt_శీర్షం{m_graphp, stmtp};
             stmtp->user1p(vtxp);
-            m_stmtStackps.push_back(vtxp);
+            m_stmtStackps.నెట్టు_వెనుక(vtxp);
             iterate(stmtp);
-            m_stmtStackps.pop_back();
+            m_stmtStackps.తీయి_వెనుక();
         }
     }
 
     // Remove unnecessary edges, then color to find weakly connected components
-    uint32_t colorAlwaysGraph() {
-        if (dumpGraphLevel() >= 9) m_graphp->dumpDotFilePrefixed("splitg_built", false);
+    uint32_t color_Always_లేఖాచిత్రం() {
+        ఒకవేళ (dump_లేఖాచిత్రం_Level() >= 9) m_graphp->dumpDotFilePrefixed("splitg_built", అబద్ధం);
 
         // Prune duplicate edges. Not necessary for correctness, but simplifies dumps.
-        m_graphp->removeRedundantEdgesMax(&V3GraphEdge::followAlwaysTrue);
-        if (dumpGraphLevel() >= 9) m_graphp->dumpDotFilePrefixed("splitg_nodup", false);
+        m_graphp->remove_Redundant_అంచులు_Max(&V3_లేఖాచిత్రం_అంచు::followAlwaysTrue);
+        ఒకవేళ (dump_లేఖాచిత్రం_Level() >= 9) m_graphp->dumpDotFilePrefixed("splitg_nodup", అబద్ధం);
 
         // Remove variable vertices that are not written in the block.
         // These are input-only to the block, so carry no dependency.
-        for (V3GraphVertex* const vtxp : m_graphp->vertices().unlinkable()) {
-            SplitVarStdVertex* const vstdp = vtxp->cast<SplitVarStdVertex>();
-            if (!vstdp || !vstdp->outEmpty()) continue;
+        కొరకు (V3_లేఖాచిత్రం_శీర్షం* స్థిరరాశి vtxp : m_graphp->vertices().unlinkable()) {
+            విభజించు_Var_Std_శీర్షం* స్థిరరాశి vstdp = vtxp->cast<విభజించు_Var_Std_శీర్షం>();
+            ఒకవేళ (!vstdp || !vstdp->బహిర్గతం_ఖాళీలు()) కొనసాగు;
             UINFOTREE(9, vstdp->nodep(), "", "Will remove deps on block input var:");
-            vstdp->nodep()->user1p(nullptr);  // Don't leave a dangling pointer behind
+            vstdp->nodep()->user1p(శూన్యసూచిక);  // Don't leave a dangling pointer behind
             VL_DO_DANGLING(vstdp->unlinkDelete(m_graphp), vstdp);
         }
-        if (dumpGraphLevel() >= 9) m_graphp->dumpDotFilePrefixed("splitg_noinputs", false);
+        ఒకవేళ (dump_లేఖాచిత్రం_Level() >= 9) m_graphp->dumpDotFilePrefixed("splitg_noinputs", అబద్ధం);
 
         // A statement under an 'if' also has an edge to the 'if' itself, from
         // each variable it writes, so an 'if' holds its whole body together.
@@ -205,54 +205,54 @@ class SplitVisitor final : public VNVisitor {
         // condition.  This is what allows splitting within an if/else at all,
         // and is what breaks up the reset tree in the example at the top of
         // this file.
-        for (V3GraphVertex* const vtxp : m_graphp->vertices().unlinkable()) {
-            SplitStmtVertex* const stmtVtxp = vtxp->cast<SplitStmtVertex>();
-            if (!stmtVtxp || !VN_IS(stmtVtxp->nodep(), If)) continue;
+        కొరకు (V3_లేఖాచిత్రం_శీర్షం* స్థిరరాశి vtxp : m_graphp->vertices().unlinkable()) {
+            విభజించు_Stmt_శీర్షం* స్థిరరాశి stmtVtxp = vtxp->cast<విభజించు_Stmt_శీర్షం>();
+            ఒకవేళ (!stmtVtxp || !VN_IS(stmtVtxp->nodep(), If)) కొనసాగు;
             // Can't remove if dependent on a variable written in the block
-            if (!stmtVtxp->outEmpty()) continue;
+            ఒకవేళ (!stmtVtxp->బహిర్గతం_ఖాళీలు()) కొనసాగు;
             // Depends only on block inputs, so can be split. Remove the vertex.
-            stmtVtxp->nodep()->user1p(nullptr);
+            stmtVtxp->nodep()->user1p(శూన్యసూచిక);
             stmtVtxp->unlinkDelete(m_graphp);
         }
-        if (dumpGraphLevel() >= 9) m_graphp->dumpDotFilePrefixed("splitg_nofreeifs", false);
+        ఒకవేళ (dump_లేఖాచిత్రం_Level() >= 9) m_graphp->dumpDotFilePrefixed("splitg_nofreeifs", అబద్ధం);
 
         // Weak coloring to determine what must stay together in a single block
-        const uint32_t numColors = m_graphp->weaklyConnected(&V3GraphEdge::followAlwaysTrue);
-        if (dumpGraphLevel() >= 9) m_graphp->dumpDotFilePrefixed("splitg_colored", false);
-        return numColors;
+        స్థిరరాశి uint32_t అంకె_Colors = m_graphp->weaklyConnected(&V3_లేఖాచిత్రం_అంచు::followAlwaysTrue);
+        ఒకవేళ (dump_లేఖాచిత్రం_Level() >= 9) m_graphp->dumpDotFilePrefixed("splitg_colored", అబద్ధం);
+        తిరిగి అంకె_Colors;
     }
 
     // Take the statements of the given list, and return them distributed into one list per color.
-    static std::vector<AstNode*> splitStatements(AstNode* stmtsp, uint32_t numColors) {
-        std::vector<AstNode*> result{numColors, nullptr};
-        for (AstNode *stmtp = stmtsp, *nextp = nullptr; stmtp; stmtp = nextp) {
+    స్థిర std::సదిశ<Ast_కణుపు*> విభజించు_Statements(Ast_కణుపు* stmtsp, uint32_t అంకె_Colors) {
+        std::సదిశ<Ast_కణుపు*> ఫలితం{అంకె_Colors, శూన్యసూచిక};
+        కొరకు (Ast_కణుపు *stmtp = stmtsp, *nextp = శూన్యసూచిక; stmtp; stmtp = nextp) {
             nextp = stmtp->nextp();  // 'stmtp' is unlinked below
 
             // Comments are dropped if the block is split
-            if (VN_IS(stmtp, Comment)) continue;
+            ఒకవేళ (VN_IS(stmtp, Comment)) కొనసాగు;
 
             // Pick up the statement vertex, which might be nullptr after pruning during analysis
-            const SplitStmtVertex* const vtxp = stmtp->user1u().to<SplitStmtVertex*>();
+            స్థిరరాశి విభజించు_Stmt_శీర్షం* స్థిరరాశి vtxp = stmtp->user1u().గమ్యం<విభజించు_Stmt_శీర్షం*>();
 
             // If statements are duplicated for each split branch
-            if (AstIf* const ifp = VN_CAST(stmtp, If)) {
-                const auto thens = splitStatements(ifp->thensp(), numColors);
-                const auto elses = splitStatements(ifp->elsesp(), numColors);
-                FileLine* const flp = ifp->fileline();
+            ఒకవేళ (AstIf* స్థిరరాశి ifp = VN_CAST(stmtp, If)) {
+                స్థిరరాశి స్వయంచాలక thens = విభజించు_Statements(ifp->thensp(), అంకె_Colors);
+                స్థిరరాశి స్వయంచాలక elses = విభజించు_Statements(ifp->elsesp(), అంకె_Colors);
+                File_పంక్తి* స్థిరరాశి flp = ifp->fileline();
                 // Rebuild the 'if' for each color present in either branch
-                bool empty = true;
-                for (uint32_t color = 0; color < numColors; ++color) {
-                    if (!thens[color] && !elses[color]) continue;
-                    empty = false;
+                తార్కిక ఖాళీలు = నిజం;
+                కొరకు (uint32_t color = 0; color < అంకె_Colors; ++color) {
+                    ఒకవేళ (!thens[color] && !elses[color]) కొనసాగు;
+                    ఖాళీలు = అబద్ధం;
                     // The condition is cloned for each color. An impure condition
                     // keeps the 'if' and all it holds in one component, so just once.
-                    AstIf* const clonep = new AstIf{flp, ifp->condp()->cloneTree(true),
+                    AstIf* స్థిరరాశి clonep = కొత్త AstIf{flp, ifp->condp()->clone_వృక్షం(నిజం),
                                                     thens[color], elses[color]};
                     // Preserve pragmas from unique if's so assertions work properly
                     clonep->uniquePragma(ifp->uniquePragma());
                     clonep->unique0Pragma(ifp->unique0Pragma());
-                    clonep->priorityPragma(ifp->priorityPragma());
-                    result[color] = AstNode::addNext(result[color], clonep);
+                    clonep->ప్రాధాన్యత_Pragma(ifp->ప్రాధాన్యత_Pragma());
+                    ఫలితం[color] = Ast_కణుపు::కూడు_తదుపరి(ఫలితం[color], clonep);
                 }
                 // There is nothing under the 'if' to guard. If its vertex was
                 // removed as having no dependencies at all, then its
@@ -260,208 +260,208 @@ class SplitVisitor final : public VNVisitor {
                 // 'if' can go. Otherwise the condition might have a side
                 // effect, so keep just the condition, evaluated as a
                 // statement, under the color of the 'if' itself.
-                if (empty && vtxp) {
-                    const uint32_t color = vtxp->color();
-                    AstNodeExpr* const condp = ifp->condp();
-                    condp->unlinkFrBack();
-                    result[color] = AstNode::addNext(result[color], new AstStmtExpr{flp, condp});
+                ఒకవేళ (ఖాళీలు && vtxp) {
+                    స్థిరరాశి uint32_t color = vtxp->color();
+                    Ast_కణుపు_సమాసం* స్థిరరాశి condp = ifp->condp();
+                    condp->unlink_Fr_వెనుక();
+                    ఫలితం[color] = Ast_కణుపు::కూడు_తదుపరి(ఫలితం[color], కొత్త Ast_Stmt_సమాసం{flp, condp});
                 }
-                continue;
+                కొనసాగు;
             }
 
             // Move the leaf into its color's list
-            const uint32_t color = vtxp->color();
-            result[color] = AstNode::addNext(result[color], stmtp->unlinkFrBack());
+            స్థిరరాశి uint32_t color = vtxp->color();
+            ఫలితం[color] = Ast_కణుపు::కూడు_తదుపరి(ఫలితం[color], stmtp->unlink_Fr_వెనుక());
         }
-        return result;
+        తిరిగి ఫలితం;
     }
 
     // VISITORS
-    void visit(AstAlways* nodep) override {
+    శూన్య సందర్శించు(AstAlways* nodep) override {
         // Skip blocks created below
-        if (nodep->user3()) return;
+        ఒకవేళ (nodep->user3()) తిరిగి;
 
         UASSERT_OBJ(!m_graphp, nodep, "AstAlways should not nest");
         VL_RESTORER(m_graphp);
         VL_RESTORER(m_impureVtxp);
-        VL_RESTORER(m_noSplitWhy);
-        VL_RESTORER(m_inDly);
-        V3Graph graph;
-        m_graphp = &graph;
-        m_impureVtxp = nullptr;
-        m_noSplitWhy = nullptr;
-        m_inDly = false;
-        UASSERT_OBJ(m_stmtStackps.empty(), nodep, "Statement stack not empty");
+        VL_RESTORER(m_no_విభజించు_Why);
+        VL_RESTORER(m_లోపల_Dly);
+        V3_లేఖాచిత్రం లేఖాచిత్రం;
+        m_graphp = &లేఖాచిత్రం;
+        m_impureVtxp = శూన్యసూచిక;
+        m_no_విభజించు_Why = శూన్యసూచిక;
+        m_లోపల_Dly = అబద్ధం;
+        UASSERT_OBJ(m_stmtStackps.ఖాళీలు(), nodep, "Statement stack not empty");
 
         // Build the graph
-        const VNUser1InUse user1InUse;
-        const VNUser2InUse user2InUse;
-        scanBlock(nodep->stmtsp());
+        స్థిరరాశి VNUser1_లోపల_Use user1_లోపల_Use;
+        స్థిరరాశి VNUser2_లోపల_Use user2_లోపల_Use;
+        పరిశీలన_ఖండం(nodep->stmtsp());
 
         // We might have to give up
-        if (m_noSplitWhy) {
-            UINFO(9, "  NoSplitBlock because " << m_noSplitWhy);
-            return;
+        ఒకవేళ (m_no_విభజించు_Why) {
+            UINFO(9, "  NoSplitBlock because " << m_no_విభజించు_Why);
+            తిరిగి;
         }
 
         // Color the graph to identify separable statements
-        const uint32_t numColors = colorAlwaysGraph();
+        స్థిరరాశి uint32_t అంకె_Colors = color_Always_లేఖాచిత్రం();
         // If the whole block is one component (or empty), then nothing to split
-        if (numColors <= 1) return;
+        ఒకవేళ (అంకె_Colors <= 1) తిరిగి;
 
         UINFO(6, "  splitting always " << nodep);
 
         // Count the number of new blocks inserted into the Ast: '1 -> n' split, so 'n - 1' extra
-        m_statSplits += numColors - 1;
+        m_statSplits += అంకె_Colors - 1;
 
         // Unpick the statements out of the original block, into one list per color
-        const auto lists = splitStatements(nodep->stmtsp(), numColors);
-        UASSERT_OBJ(lists.size() == numColors, nodep, "Inconsistent split");
+        స్థిరరాశి స్వయంచాలక lists = విభజించు_Statements(nodep->stmtsp(), అంకె_Colors);
+        UASSERT_OBJ(lists.కొలత() == అంకె_Colors, nodep, "Inconsistent split");
 
         // Whatever 'splitStatements' did not take, (comments, empty ifs) is not needed any more
-        if (AstNode* const restp = nodep->stmtsp()) {
-            VL_DO_DANGLING(restp->unlinkFrBackWithNext()->deleteTree(), restp);
+        ఒకవేళ (Ast_కణుపు* స్థిరరాశి restp = nodep->stmtsp()) {
+            VL_DO_DANGLING(restp->unlink_Fr_వెనుక_With_తదుపరి()->delete_వృక్షం(), restp);
         }
 
         // Every color has a statement in it. Reuse the original block for the
         // first color, and add a new block after it for each of the rest.
         UASSERT_OBJ(lists.front(), nodep, "Color with no statements");
-        nodep->addStmtsp(lists.front());
-        AstNode* lastp = nodep;
-        FileLine* const flp = nodep->fileline();
-        const VAlwaysKwd kwd = nodep->keyword();
-        for (size_t i = 1; i < numColors; ++i) {
-            AstNode* const stmtsp = lists[i];
+        nodep->కూడు_Stmtsp(lists.front());
+        Ast_కణుపు* lastp = nodep;
+        File_పంక్తి* స్థిరరాశి flp = nodep->fileline();
+        స్థిరరాశి VAlwaysKwd kwd = nodep->keyword();
+        కొరకు (కొలత_t i = 1; i < అంకె_Colors; ++i) {
+            Ast_కణుపు* స్థిరరాశి stmtsp = lists[i];
             UASSERT_OBJ(stmtsp, nodep, "Color with no statements");
-            AstAlways* const newp = new AstAlways{flp, kwd, nullptr, stmtsp};
+            AstAlways* స్థిరరాశి newp = కొత్త AstAlways{flp, kwd, శూన్యసూచిక, stmtsp};
             newp->user3(1);  // Do not split again
-            lastp->addNextHere(newp);
+            lastp->కూడు_తదుపరి_ఇక్కడ(newp);
             lastp = newp;
         }
     }
 
-    void visit(AstIf* nodep) override {
-        if (!m_graphp || m_noSplitWhy) return;
+    శూన్య సందర్శించు(AstIf* nodep) override {
+        ఒకవేళ (!m_graphp || m_no_విభజించు_Why) తిరిగి;
         {
             VL_RESTORER(m_currIfp);
             m_currIfp = nodep;
-            iterateAndNextNull(nodep->condp());
+            iterate_And_తదుపరి_Null(nodep->condp());
         }
-        scanBlock(nodep->thensp());
-        scanBlock(nodep->elsesp());
+        పరిశీలన_ఖండం(nodep->thensp());
+        పరిశీలన_ఖండం(nodep->elsesp());
     }
 
-    void visit(AstExprStmt* nodep) override {
-        if (!m_graphp || m_noSplitWhy) return;
-        VL_RESTORER(m_inDly);
-        m_inDly = false;
+    శూన్య సందర్శించు(Ast_సమాసం_Stmt* nodep) override {
+        ఒకవేళ (!m_graphp || m_no_విభజించు_Why) తిరిగి;
+        VL_RESTORER(m_లోపల_Dly);
+        m_లోపల_Dly = అబద్ధం;
         iterateChildren(nodep);
     }
 
-    void visit(AstAssignDly* nodep) override {
-        if (!m_graphp || m_noSplitWhy) return;
+    శూన్య సందర్శించు(Ast_కేటాయించు_Dly* nodep) override {
+        ఒకవేళ (!m_graphp || m_no_విభజించు_Why) తిరిగి;
         // An intra-assignment timing control does not block, but it reads variables when the NBA
         // executes, like the value
-        if (AstNode* const controlp = nodep->timingControlp()) iterateChildren(controlp);
+        ఒకవేళ (Ast_కణుపు* స్థిరరాశి controlp = nodep->timingControlp()) iterateChildren(controlp);
         iterate(nodep->rhsp());
-        VL_RESTORER(m_inDly);
-        m_inDly = true;
+        VL_RESTORER(m_లోపల_Dly);
+        m_లోపల_Dly = నిజం;
         iterate(nodep->lhsp());
     }
 
-    void visit(AstMemberSel* nodep) override {
+    శూన్య సందర్శించు(AstMemberSel* nodep) override {
         // A variable selected through a handle can be the same as one accessed otherwise, which
         // is not known here, so the accesses must be kept in order
-        if (m_graphp) m_noSplitWhy = "Handle";
-        visit(static_cast<AstNode*>(nodep));
+        ఒకవేళ (m_graphp) m_no_విభజించు_Why = "Handle";
+        సందర్శించు(static_cast<Ast_కణుపు*>(nodep));
     }
 
-    void visit(AstJumpGo*) override {
-        if (!m_graphp || m_noSplitWhy) return;
-        m_noSplitWhy = "JumpGo";
+    శూన్య సందర్శించు(AstJumpGo*) override {
+        ఒకవేళ (!m_graphp || m_no_విభజించు_Why) తిరిగి;
+        m_no_విభజించు_Why = "JumpGo";
     }
 
-    void visit(AstVarRef* nodep) override {
-        if (!m_graphp || m_noSplitWhy) return;
-        UASSERT_OBJ(!m_stmtStackps.empty(), nodep, "Not under a statement");
+    శూన్య సందర్శించు(AstVarRef* nodep) override {
+        ఒకవేళ (!m_graphp || m_no_విభజించు_Why) తిరిగి;
+        UASSERT_OBJ(!m_stmtStackps.ఖాళీలు(), nodep, "Not under a statement");
 
         // Constant lookups can be ignored
-        if (nodep->varp()->isConst()) return;
+        ఒకవేళ (nodep->varp()->isConst()) తిరిగి;
 
-        AstVarScope* const vscp = nodep->varScopep();
+        AstVarScope* స్థిరరాశి vscp = nodep->varScopep();
 
         // SPEEDUP: We add duplicate edges, that should be fixed
-        if (m_inDly && nodep->access().isWriteOrRW()) {
+        ఒకవేళ (m_లోపల_Dly && nodep->access().isWriteOrRW()) {
             // Delayed variable: is different from non-delayed variable, writes to it
             // are not observable while executing this block (NBA not yet committed),
             // so add only a write edge to a separate 'post' vertex.
-            if (!vscp->user2p()) vscp->user2p(new SplitVarPostVertex{m_graphp, vscp});
-            SplitVarPostVertex* const vpostp = vscp->user2u().to<SplitVarPostVertex*>();
-            for (SplitStmtVertex* const vtxp : m_stmtStackps) addEdge(vpostp, vtxp);
-        } else if (nodep->access().isWriteOrRW()) {
+            ఒకవేళ (!vscp->user2p()) vscp->user2p(కొత్త విభజించు_Var_Post_శీర్షం{m_graphp, vscp});
+            విభజించు_Var_Post_శీర్షం* స్థిరరాశి vpostp = vscp->user2u().గమ్యం<విభజించు_Var_Post_శీర్షం*>();
+            కొరకు (విభజించు_Stmt_శీర్షం* స్థిరరాశి vtxp : m_stmtStackps) కూడు_అంచు(vpostp, vtxp);
+        } లేకపోతే ఒకవేళ (nodep->access().isWriteOrRW()) {
             // Regular (non-blocking) write: Need to maintain program-flow order
-            if (!vscp->user1p()) vscp->user1p(new SplitVarStdVertex{m_graphp, vscp});
-            SplitVarStdVertex* const vstdp = vscp->user1u().to<SplitVarStdVertex*>();
-            for (SplitStmtVertex* const vtxp : m_stmtStackps) addEdge(vstdp, vtxp);
-        } else {
+            ఒకవేళ (!vscp->user1p()) vscp->user1p(కొత్త విభజించు_Var_Std_శీర్షం{m_graphp, vscp});
+            విభజించు_Var_Std_శీర్షం* స్థిరరాశి vstdp = vscp->user1u().గమ్యం<విభజించు_Var_Std_శీర్షం*>();
+            కొరకు (విభజించు_Stmt_శీర్షం* స్థిరరాశి vtxp : m_stmtStackps) కూడు_అంచు(vstdp, vtxp);
+        } లేకపోతే {
             // Regular (non-blocking) read: Need to maintain program-flow order
-            if (!vscp->user1p()) vscp->user1p(new SplitVarStdVertex{m_graphp, vscp});
-            SplitVarStdVertex* const vstdp = vscp->user1u().to<SplitVarStdVertex*>();
-            for (SplitStmtVertex* const vtxp : m_stmtStackps) {
+            ఒకవేళ (!vscp->user1p()) vscp->user1p(కొత్త విభజించు_Var_Std_శీర్షం{m_graphp, vscp});
+            విభజించు_Var_Std_శీర్షం* స్థిరరాశి vstdp = vscp->user1u().గమ్యం<విభజించు_Var_Std_శీర్షం*>();
+            కొరకు (విభజించు_Stmt_శీర్షం* స్థిరరాశి vtxp : m_stmtStackps) {
                 // If this is an if statement it only depends on refs in its
                 // own condition only (not those in its branches). For other
                 // statements, just record the referene as normal.
-                if (const AstIf* const ifp = VN_CAST(vtxp->nodep(), If)) {
-                    if (ifp != m_currIfp) continue;
+                ఒకవేళ (స్థిరరాశి AstIf* స్థిరరాశి ifp = VN_CAST(vtxp->nodep(), If)) {
+                    ఒకవేళ (ifp != m_currIfp) కొనసాగు;
                 }
-                addEdge(vtxp, vstdp);
+                కూడు_అంచు(vtxp, vstdp);
             }
         }
     }
 
-    void visit(AstNode* nodep) override {
+    శూన్య సందర్శించు(Ast_కణుపు* nodep) override {
         // Outside AstAlways, just descend
-        if (!m_graphp) {
+        ఒకవేళ (!m_graphp) {
             iterateChildren(nodep);
-            return;
+            తిరిగి;
         }
         // Early exit if decided not to split
-        if (m_noSplitWhy) return;
+        ఒకవేళ (m_no_విభజించు_Why) తిరిగి;
 
-        UASSERT_OBJ(!m_stmtStackps.empty(), nodep, "Not under a statement");
+        UASSERT_OBJ(!m_stmtStackps.ఖాళీలు(), nodep, "Not under a statement");
 
         // Timing control prevents splitting
-        if (nodep->isTimingControl()) {
-            m_noSplitWhy = "TimingControl";
-            return;
+        ఒకవేళ (nodep->isTimingControl()) {
+            m_no_విభజించు_Why = "TimingControl";
+            తిరిగి;
         }
 
         // All impure statements must be grouped together.
-        if (!nodep->isPure()) {
-            if (!m_impureVtxp) m_impureVtxp = new SplitImpureVertex{m_graphp, nodep};
+        ఒకవేళ (!nodep->is_శుద్ధ()) {
+            ఒకవేళ (!m_impureVtxp) m_impureVtxp = కొత్త విభజించు_Impure_శీర్షం{m_graphp, nodep};
             // One edge is enough to find the weakly connected components, but
             // it must point at the impure vertex, so it is an out edge (input
             // dependency) of any enclosing 'if' to prevent pruning.
-            for (SplitStmtVertex* const vtxp : m_stmtStackps) addEdge(vtxp, m_impureVtxp);
+            కొరకు (విభజించు_Stmt_శీర్షం* స్థిరరాశి vtxp : m_stmtStackps) కూడు_అంచు(vtxp, m_impureVtxp);
         }
 
         iterateChildren(nodep);
     }
 
     // CONSTRUCTORS
-    explicit SplitVisitor(AstNetlist* nodep) { iterate(nodep); }
-    ~SplitVisitor() override { V3Stats::addStat("Optimizations, Split always", m_statSplits); }
-    VL_UNCOPYABLE(SplitVisitor);
+    స్పష్టమైన విభజించు_Visitor(AstNetlist* nodep) { iterate(nodep); }
+    ~విభజించు_Visitor() override { V3Stats::కూడు_Stat("Optimizations, Split always", m_statSplits); }
+    VL_UNCOPYABLE(విభజించు_Visitor);
 
-public:
-    static void apply(AstNetlist* nodep) { SplitVisitor{nodep}; }
+బహిరంగ:
+    స్థిర శూన్య apply(AstNetlist* nodep) { విభజించు_Visitor{nodep}; }
 };
 
 //######################################################################
 // Split class functions
 
-void V3Split::splitAll(AstNetlist* nodep) {
+శూన్య V3_విభజించు::విభజించు_All(AstNetlist* nodep) {
     UINFO(2, __FUNCTION__ << ":");
-    SplitVisitor::apply(nodep);
-    V3Global::dumpCheckGlobalTree("split", 0, dumpTreeEitherLevel() >= 3);
+    విభజించు_Visitor::apply(nodep);
+    V3Global::dump_Check_Global_వృక్షం("split", 0, dump_వృక్షం_Either_Level() >= 3);
 }

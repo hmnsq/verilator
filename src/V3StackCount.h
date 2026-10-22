@@ -15,22 +15,22 @@
 //
 //*************************************************************************
 
-#ifndef VERILATOR_V3STACKCOUNT_H_
-#define VERILATOR_V3STACKCOUNT_H_
+#నిర్వచితం_కాకపోతే VERILATOR_V3STACKCOUNT_H_
+#నిర్వచించు VERILATOR_V3STACKCOUNT_H_
 
-#include "config_build.h"
-#include "verilatedos.h"
+#అన్తర్భావ "config_build.h"
+#అన్తర్భావ "verilatedos.h"
 
-class AstNode;
+class Ast_కణుపు;
 
-class V3StackCount final {
-public:
+class V3_దొంతర_లెక్క final {
+బహిరంగ:
     // Return the estimate count of bytes needed in stack we'd incur while
     // running code in and under nodep.
     //
     // This is a rough estimate; we don't know what path we'll take through
     // conditionals in nodep, so we assume we take the longest path.
-    static uint64_t count(AstNode* nodep) VL_MT_DISABLED;
+    స్థిర uint64_t లెక్క(Ast_కణుపు* nodep) VL_MT_DISABLED;
 };
 
-#endif  // guard
+#అయితే_ముగింపు  // guard

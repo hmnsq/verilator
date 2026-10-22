@@ -29,45 +29,45 @@
 //
 //*************************************************************************
 
-#ifndef VERILATOR_V3SIMULATE_H_
-#define VERILATOR_V3SIMULATE_H_
+#నిర్వచితం_కాకపోతే VERILATOR_V3SIMULATE_H_
+#నిర్వచించు VERILATOR_V3SIMULATE_H_
 
-#include "config_build.h"
-#include "verilatedos.h"
+#అన్తర్భావ "config_build.h"
+#అన్తర్భావ "verilatedos.h"
 
-#include "V3Ast.h"
-#include "V3AstUserAllocator.h"
-#include "V3Const.h"
-#include "V3Error.h"
-#include "V3Task.h"
-#include "V3Width.h"
+#అన్తర్భావ "V3Ast.h"
+#అన్తర్భావ "V3AstUserAllocator.h"
+#అన్తర్భావ "V3Const.h"
+#అన్తర్భావ "V3Error.h"
+#అన్తర్భావ "V3Task.h"
+#అన్తర్భావ "V3Width.h"
 
-#include <deque>
-#include <set>
-#include <sstream>
-#include <stack>
-#include <string>
-#include <unordered_map>
-#include <vector>
+#అన్తర్భావ <deque>
+#అన్తర్భావ <set>
+#అన్తర్భావ <sstream>
+#అన్తర్భావ <stack>
+#అన్తర్భావ <string>
+#అన్తర్భావ <unordered_map>
+#అన్తర్భావ <vector>
 
 //============================================================================
 
 //######################################################################
 // Simulate class functions
 
-class SimStackNode final {
-public:
+class Sim_దొంతర_కణుపు final {
+బహిరంగ:
     // MEMBERS
-    AstFuncRef* const m_funcp;
-    V3TaskConnects* const m_tconnects;
+    AstFuncRef* స్థిరరాశి m_funcp;
+    V3TaskConnects* స్థిరరాశి m_tconnects;
     // CONSTRUCTORS
-    SimStackNode(AstFuncRef* funcp, V3TaskConnects* tconnects)
+    Sim_దొంతర_కణుపు(AstFuncRef* funcp, V3TaskConnects* tconnects)
         : m_funcp{funcp}
         , m_tconnects{tconnects} {}
-    ~SimStackNode() = default;
+    ~Sim_దొంతర_కణుపు() = అప్రమేయ;
 };
 
-class SimulateVisitor VL_NOT_FINAL : public VNVisitorConst {
+class SimulateVisitor VL_NOT_FINAL : బహిరంగ VNVisitorConst {
     // Simulate a node tree, returning value of variables
     // Two major operating modes:
     //   Test the tree to see if it is conformant
@@ -75,54 +75,54 @@ class SimulateVisitor VL_NOT_FINAL : public VNVisitorConst {
     // Both are done in this same visitor to reduce risk; if a visitor
     // is missing, we will not apply the optimization, rather then bomb.
 
-private:
+అంతరంగ:
     // CONSTANTS
-    static constexpr int CALL_STACK_MAX = 100;
+    స్థిర constexpr పూర్ణాంకం CALL_దొంతర_MAX = 100;
 
     // NODE STATE
     // Cleared on each always/assignw
-    const VNUser1InUse m_inuser1;
+    స్థిరరాశి VNUser1_లోపల_Use m_inuser1;
 
     // AstNode::user1p()     -> See AuxAstVar via m_varAux
 
-    enum VarUsage : uint8_t { VU_NONE = 0, VU_LV = 1, VU_RV = 2, VU_LVDLY = 4 };
+    గణన VarUsage : uint8_t { VU_NONE = 0, VU_LV = 1, VU_RV = 2, VU_LVDLY = 4 };
 
-    struct AuxVariable final {
+    నిర్మాణం AuxVariable final {
         // Checking:
         //  Set true to indicate tracking as lvalue/rvalue
         uint8_t usage = VU_NONE;
         // Simulating:
         //  Output value of variable (delayed assignments)
-        AstNodeExpr* outValuep = nullptr;
+        Ast_కణుపు_సమాసం* బహిర్గతం_Valuep = nullptr;
         //  Input value of variable or node (and output for non-delayed assignments)
-        AstNodeExpr* valuep = nullptr;
+        Ast_కణుపు_సమాసం* valuep = nullptr;
     };
 
-    AstUser1Allocator<AstNode, AuxVariable> m_varAux;
+    AstUser1Allocator<Ast_కణుపు, AuxVariable> m_varAux;
 
     // We want to re-use allocated constants across calls to clear(), but we want to be able
     // to 'clear()' fast, so we use a generation number based allocator.
-    struct ConstAllocator final {
-        size_t m_generation = 0;  // Generation as of last clear(); invalidates m_nextFree cheaply
-        size_t m_nextFree = 0;  // Index of the next unused constant in m_constps
+    నిర్మాణం ConstAllocator final {
+        కొలత_t m_generation = 0;  // Generation as of last clear(); invalidates m_nextFree cheaply
+        కొలత_t m_తదుపరి_Free = 0;  // Index of the next unused constant in m_constps
         std::deque<AstConst*> m_constps;  // Pool of allocated constants, reused across generations
-        AstConst* allocate(size_t currentGeneration, AstNode* nodep) {
-            if (m_generation != currentGeneration) {
+        AstConst* allocate(కొలత_t currentGeneration, Ast_కణుపు* nodep) {
+            ఒకవేళ (m_generation != currentGeneration) {
                 m_generation = currentGeneration;
-                m_nextFree = 0;
+                m_తదుపరి_Free = 0;
             }
-            UASSERT_OBJ(m_nextFree <= m_constps.size(), nodep, "Should only allocate at end");
-            if (m_nextFree == m_constps.size()) {
-                m_constps.push_back(
+            UASSERT_OBJ(m_తదుపరి_Free <= m_constps.కొలత(), nodep, "Should only allocate at end");
+            ఒకవేళ (m_తదుపరి_Free == m_constps.కొలత()) {
+                m_constps.నెట్టు_వెనుక(
                     new AstConst{nodep->fileline(), AstConst::DTyped{}, nodep->dtypep()});
             }
-            AstConst* const constp = m_constps[m_nextFree++];
-            constp->num().nodep(nodep);
-            return constp;
+            AstConst* స్థిరరాశి constp = m_constps[m_తదుపరి_Free++];
+            constp->అంకె().nodep(nodep);
+            తిరిగి constp;
         }
 
         ~ConstAllocator() {
-            for (AstConst* const constp : m_constps) VL_DO_DANGLING(delete constp, constp);
+            కొరకు (AstConst* స్థిరరాశి constp : m_constps) VL_DO_DANGLING(delete constp, constp);
         }
     };
 
@@ -133,1192 +133,1192 @@ private:
     bool m_params;  ///< Doing parameter propagation
     // Checking:
     string m_whyNotOptimizable;  ///< String explaining why not optimizable or nullptr to optimize
-    AstNode* m_whyNotNodep;  ///< First node not optimizable
-    bool m_anyAssignDly;  ///< True if found a delayed assignment
-    bool m_anyAssignComb;  ///< True if found a non-delayed assignment
-    bool m_inDlyAssign;  ///< Under delayed assignment
+    Ast_కణుపు* m_whyNotNodep;  ///< First node not optimizable
+    bool m_any_కేటాయించు_Dly;  ///< True if found a delayed assignment
+    bool m_any_కేటాయించు_Comb;  ///< True if found a non-delayed assignment
+    bool m_లోపల_Dly_కేటాయించు;  ///< Under delayed assignment
     bool m_isImpure;  // Not pure
     bool m_isCoverage;  // Has coverage
-    int m_instrCount;  ///< Number of nodes
-    int m_dataCount;  ///< Bytes of data
-    int m_recurseCount = 0;  // Now deep in current recursion
-    AstNode* m_jumptargetp = nullptr;  // AstJumpBlock/AstLoop we are branching over
+    పూర్ణాంకం m_instr_లెక్క;  ///< Number of nodes
+    పూర్ణాంకం m_దత్తాంశం_లెక్క;  ///< Bytes of data
+    పూర్ణాంకం m_recurse_లెక్క = 0;  // Now deep in current recursion
+    Ast_కణుపు* m_jumptargetp = nullptr;  // AstJumpBlock/AstLoop we are branching over
     // Simulating:
     // Allocators for constants of various data types
-    std::unordered_map<const AstNodeDType*, ConstAllocator> m_constps;
-    size_t m_constGeneration = 0;
-    std::vector<SimStackNode*> m_callStack;  // Call stack for verbose error messages
+    std::unordered_map<స్థిరరాశి Ast_కణుపు_DType*, ConstAllocator> m_constps;
+    కొలత_t m_constGeneration = 0;
+    std::సదిశ<Sim_దొంతర_కణుపు*> m_call_దొంతర;  // Call stack for verbose error messages
 
     // Cleanup
     // V3Numbers that represents strings are a bit special and the API for
     // V3Number does not allow changing them.
-    std::vector<AstNode*> m_reclaimValuesp;  // List of allocated string numbers
+    std::సదిశ<Ast_కణుపు*> m_reclaimValuesp;  // List of allocated string numbers
 
     // Note level 8&9 include debugging each simulation value
     VL_DEFINE_DEBUG_FUNCTIONS;
 
     // Potentially very slow, intended for debugging
-    string prettyNumber(const V3Number* nump, const AstNodeDType* dtypep) {
-        if (const AstRefDType* const refdtypep = VN_CAST(dtypep, RefDType)) {  //
+    string pretty_సంఖ్య(స్థిరరాశి V3_సంఖ్య* nump, స్థిరరాశి Ast_కణుపు_DType* dtypep) {
+        ఒకవేళ (స్థిరరాశి AstRefDType* స్థిరరాశి refdtypep = VN_CAST(dtypep, RefDType)) {  //
             dtypep = refdtypep->skipRefp();
         }
-        if (const AstNodeUOrStructDType* const stp = VN_CAST(dtypep, NodeUOrStructDType)) {
-            if (stp->packed()) {
-                std::ostringstream out;
-                out << "'{";
-                for (AstMemberDType* itemp = stp->membersp(); itemp;
+        ఒకవేళ (స్థిరరాశి Ast_కణుపు_UOr_Struct_DType* స్థిరరాశి stp = VN_CAST(dtypep, కణుపు_UOr_Struct_DType)) {
+            ఒకవేళ (stp->packed()) {
+                std::ostringstream బహిర్గతం;
+                బహిర్గతం << "'{";
+                కొరకు (AstMemberDType* itemp = stp->membersp(); itemp;
                      itemp = VN_AS(itemp->nextp(), MemberDType)) {
-                    const int width = itemp->width();
-                    const int lsb = itemp->lsb();
-                    const int msb = lsb + width - 1;
-                    V3Number fieldNum{nump, width};
-                    fieldNum.opSel(*nump, msb, lsb);
-                    out << itemp->name() << ": ";
-                    if (const AstNodeDType* const childTypep = itemp->subDTypep()) {
-                        out << prettyNumber(&fieldNum, childTypep);
-                    } else {
-                        out << fieldNum;
+                    స్థిరరాశి పూర్ణాంకం వెడల్పు = itemp->వెడల్పు();
+                    స్థిరరాశి పూర్ణాంకం lsb = itemp->lsb();
+                    స్థిరరాశి పూర్ణాంకం msb = lsb + వెడల్పు - 1;
+                    V3_సంఖ్య క్షేత్రం_అంకె{nump, వెడల్పు};
+                    క్షేత్రం_అంకె.opSel(*nump, msb, lsb);
+                    బహిర్గతం << itemp->name() << ": ";
+                    ఒకవేళ (స్థిరరాశి Ast_కణుపు_DType* స్థిరరాశి బిడ్డ_Typep = itemp->subDTypep()) {
+                        బహిర్గతం << pretty_సంఖ్య(&క్షేత్రం_అంకె, బిడ్డ_Typep);
+                    } లేకపోతే {
+                        బహిర్గతం << క్షేత్రం_అంకె;
                     }
-                    if (itemp->nextp()) out << ", ";
+                    ఒకవేళ (itemp->nextp()) బహిర్గతం << ", ";
                 }
-                out << "}";
-                return out.str();
+                బహిర్గతం << "}";
+                తిరిగి బహిర్గతం.str();
             }
-        } else if (const AstPackArrayDType* const arrayp = VN_CAST(dtypep, PackArrayDType)) {
-            if (const AstNodeDType* const childTypep = arrayp->subDTypep()) {
-                std::ostringstream out;
-                out << "[";
-                const int arrayElements = arrayp->elementsConst();
-                for (int element = 0; element < arrayElements; ++element) {
-                    const int width = childTypep->width();
-                    const int lsb = width * element;
-                    const int msb = lsb + width - 1;
-                    V3Number fieldNum{nump, width};
-                    fieldNum.opSel(*nump, msb, lsb);
-                    const int arrayElem = arrayp->lo() + element;
-                    out << arrayElem << " = " << prettyNumber(&fieldNum, childTypep);
-                    if (element < arrayElements - 1) out << ", ";
+        } లేకపోతే ఒకవేళ (స్థిరరాశి AstPackArrayDType* స్థిరరాశి arrayp = VN_CAST(dtypep, PackArrayDType)) {
+            ఒకవేళ (స్థిరరాశి Ast_కణుపు_DType* స్థిరరాశి బిడ్డ_Typep = arrayp->subDTypep()) {
+                std::ostringstream బహిర్గతం;
+                బహిర్గతం << "[";
+                స్థిరరాశి పూర్ణాంకం arrayElements = arrayp->elementsConst();
+                కొరకు (పూర్ణాంకం element = 0; element < arrayElements; ++element) {
+                    స్థిరరాశి పూర్ణాంకం వెడల్పు = బిడ్డ_Typep->వెడల్పు();
+                    స్థిరరాశి పూర్ణాంకం lsb = వెడల్పు * element;
+                    స్థిరరాశి పూర్ణాంకం msb = lsb + వెడల్పు - 1;
+                    V3_సంఖ్య క్షేత్రం_అంకె{nump, వెడల్పు};
+                    క్షేత్రం_అంకె.opSel(*nump, msb, lsb);
+                    స్థిరరాశి పూర్ణాంకం arrayElem = arrayp->lo() + element;
+                    బహిర్గతం << arrayElem << " = " << pretty_సంఖ్య(&క్షేత్రం_అంకె, బిడ్డ_Typep);
+                    ఒకవేళ (element < arrayElements - 1) బహిర్గతం << ", ";
                 }
-                out << "]";
-                return out.str();
+                బహిర్గతం << "]";
+                తిరిగి బహిర్గతం.str();
             }
         }
-        return nump->ascii();
+        తిరిగి nump->ascii();
     }
 
     // Checking METHODS
-public:
+బహిరంగ:
     /// Call other-this function on all new *non-constant* var references
-    virtual void varRefCb(AstVarRef* nodep) {}
+    మాయా శూన్య varRefCb(AstVarRef* nodep) {}
 
-    void clearOptimizable(AstNode* nodep /*null ok*/, const string& why) {
+    శూన్య clearOptimizable(Ast_కణుపు* nodep /*null ok*/, స్థిరరాశి string& why) {
         //  Something bad found.  optimizable() will return false,
         //  and fetchConst should not be called or it may assert.
-        if (!m_whyNotNodep) {
+        ఒకవేళ (!m_whyNotNodep) {
             m_whyNotNodep = nodep;
-            if (debug() >= 5) {  // LCOV_EXCL_START
-                UINFO_PREFIX("Clear optimizable: " << why);
-                if (nodep) std::cout << ": " << nodep;
+            ఒకవేళ (debug() >= 5) {  // LCOV_EXCL_START
+                UINFO_ఉపసర్గ("Clear optimizable: " << why);
+                ఒకవేళ (nodep) std::cout << ": " << nodep;
                 std::cout << '\n';
             }  // LCOV_EXCL_STOP
             m_whyNotOptimizable = why;
-            std::ostringstream stack;
-            int n = 0;
-            for (const auto& callstack : vlstd::reverse_view(m_callStack)) {
-                const AstFuncRef* const funcp = callstack->m_funcp;
-                stack << "\n        " << funcp->fileline() << "... Called from '"
+            std::ostringstream దొంతర;
+            పూర్ణాంకం n = 0;
+            కొరకు (స్థిరరాశి స్వయంచాలక& callstack : vlstd::తిరగేయి_view(m_call_దొంతర)) {
+                స్థిరరాశి AstFuncRef* స్థిరరాశి funcp = callstack->m_funcp;
+                దొంతర << "\n        " << funcp->fileline() << "... Called from '"
                       << funcp->prettyName() << "()' with parameters:";
                 V3TaskConnects* tconnects = callstack->m_tconnects;
-                for (V3TaskConnects::iterator conIt = tconnects->begin();
-                     conIt != tconnects->end(); ++conIt) {
-                    const AstVar* const portp = conIt->first;
-                    AstNodeExpr* const pinp = conIt->second->exprp();
-                    const AstNodeDType* const dtypep = pinp->dtypep();
-                    if (AstConst* const valp = fetchConstNull(pinp)) {
-                        stack << "\n           " << portp->prettyName() << " = "
-                              << prettyNumber(&valp->num(), dtypep);
-                    } else if (AstNodeExpr* const valuep = fetchValueNull(pinp)) {
-                        stack << "\n           " << portp->prettyName() << " = "
-                              << toStringRecurse(valuep);
+                కొరకు (V3TaskConnects::iterator conIt = tconnects->begin();
+                     conIt != tconnects->చివర(); ++conIt) {
+                    స్థిరరాశి AstVar* స్థిరరాశి portp = conIt->మొదటి;
+                    Ast_కణుపు_సమాసం* స్థిరరాశి pinp = conIt->రెండవ->exprp();
+                    స్థిరరాశి Ast_కణుపు_DType* స్థిరరాశి dtypep = pinp->dtypep();
+                    ఒకవేళ (AstConst* స్థిరరాశి valp = fetchConstNull(pinp)) {
+                        దొంతర << "\n           " << portp->prettyName() << " = "
+                              << pretty_సంఖ్య(&valp->అంకె(), dtypep);
+                    } లేకపోతే ఒకవేళ (Ast_కణుపు_సమాసం* స్థిరరాశి valuep = fetch_విలువ_Null(pinp)) {
+                        దొంతర << "\n           " << portp->prettyName() << " = "
+                              << గమ్యం_String_Recurse(valuep);
                     }
                 }
-                if (++n > CALL_STACK_MAX) {
-                    stack << "\n           ... stack truncated";
-                    break;
+                ఒకవేళ (++n > CALL_దొంతర_MAX) {
+                    దొంతర << "\n           ... stack truncated";
+                    ఆపు;
                 }
             }
-            m_whyNotOptimizable += stack.str();
+            m_whyNotOptimizable += దొంతర.str();
         }
     }
-    bool optimizable() const { return m_whyNotNodep == nullptr; }
-    string whyNotMessage() const { return m_whyNotOptimizable; }
-    AstNode* whyNotNodep() const { return m_whyNotNodep; }
+    bool optimizable() స్థిరరాశి { తిరిగి m_whyNotNodep == nullptr; }
+    string why_Not_సందేశం() స్థిరరాశి { తిరిగి m_whyNotOptimizable; }
+    Ast_కణుపు* whyNotNodep() స్థిరరాశి { తిరిగి m_whyNotNodep; }
 
-    bool isAssignDly() const { return m_anyAssignDly; }
-    bool isImpure() const { return m_isImpure; }
-    bool isCoverage() const { return m_isCoverage; }
-    int instrCount() const { return m_instrCount; }
-    int dataCount() const { return m_dataCount; }
+    bool is_కేటాయించు_Dly() స్థిరరాశి { తిరిగి m_any_కేటాయించు_Dly; }
+    bool isImpure() స్థిరరాశి { తిరిగి m_isImpure; }
+    bool isCoverage() స్థిరరాశి { తిరిగి m_isCoverage; }
+    పూర్ణాంకం instr_లెక్క() స్థిరరాశి { తిరిగి m_instr_లెక్క; }
+    పూర్ణాంకం దత్తాంశం_లెక్క() స్థిరరాశి { తిరిగి m_దత్తాంశం_లెక్క; }
 
     // Simulation METHODS
-private:
-    AstConst* allocConst(AstNode* nodep) {
+అంతరంగ:
+    AstConst* allocConst(Ast_కణుపు* nodep) {
         // Allocate a constant with this dtype. Reuse them across a 'clear()' call for efficiency.
-        return m_constps[nodep->dtypep()].allocate(m_constGeneration, nodep);
+        తిరిగి m_constps[nodep->dtypep()].allocate(m_constGeneration, nodep);
     }
 
-public:
-    void newValue(AstNode* nodep, const AstNodeExpr* valuep) {
-        if (const AstConst* const constp = VN_CAST(valuep, Const)) {
-            newConst(nodep)->num().opAssign(constp->num());
+బహిరంగ:
+    శూన్య new_విలువ(Ast_కణుపు* nodep, స్థిరరాశి Ast_కణుపు_సమాసం* valuep) {
+        ఒకవేళ (స్థిరరాశి AstConst* స్థిరరాశి constp = VN_CAST(valuep, Const)) {
+            newConst(nodep)->అంకె().op_కేటాయించు(constp->అంకె());
             UINFO(9, "     new val " << valuep->name() << " on " << nodep);
-        } else if (fetchValueNull(nodep) != valuep) {
+        } లేకపోతే ఒకవేళ (fetch_విలువ_Null(nodep) != valuep) {
             // const_cast, as clonep() is set on valuep, but nothing should care
-            setValue(nodep, newTrackedClone(const_cast<AstNodeExpr*>(valuep)));
+            సమితి_విలువ(nodep, newTrackedClone(const_cast<Ast_కణుపు_సమాసం*>(valuep)));
         }
     }
-    void newOutValue(AstNode* nodep, const AstNodeExpr* valuep) {
-        if (const AstConst* const constp = VN_CAST(valuep, Const)) {
-            newOutConst(nodep)->num().opAssign(constp->num());
+    శూన్య new_బహిర్గతం_విలువ(Ast_కణుపు* nodep, స్థిరరాశి Ast_కణుపు_సమాసం* valuep) {
+        ఒకవేళ (స్థిరరాశి AstConst* స్థిరరాశి constp = VN_CAST(valuep, Const)) {
+            new_బహిర్గతం_Const(nodep)->అంకె().op_కేటాయించు(constp->అంకె());
             UINFO(9, "     new oval " << valuep->name() << " on " << nodep);
-        } else if (fetchOutValueNull(nodep) != valuep) {
+        } లేకపోతే ఒకవేళ (fetch_బహిర్గతం_విలువ_Null(nodep) != valuep) {
             // const_cast, as clonep() is set on valuep, but nothing should care
-            setOutValue(nodep, newTrackedClone(const_cast<AstNodeExpr*>(valuep)));
+            సమితి_బహిర్గతం_విలువ(nodep, newTrackedClone(const_cast<Ast_కణుపు_సమాసం*>(valuep)));
         }
     }
 
-private:
-    AstNodeExpr* newTrackedClone(AstNodeExpr* nodep) {
-        AstNodeExpr* const newp = nodep->cloneTree(false);
-        m_reclaimValuesp.push_back(newp);
-        return newp;
+అంతరంగ:
+    Ast_కణుపు_సమాసం* newTrackedClone(Ast_కణుపు_సమాసం* nodep) {
+        Ast_కణుపు_సమాసం* స్థిరరాశి newp = nodep->clone_వృక్షం(false);
+        m_reclaimValuesp.నెట్టు_వెనుక(newp);
+        తిరిగి newp;
     }
-    AstConst* newConst(AstNode* nodep) {
+    AstConst* newConst(Ast_కణుపు* nodep) {
         // Set a constant value for this node
-        if (!VN_IS(m_varAux(nodep).valuep, Const)) {
-            AstConst* const constp = allocConst(nodep);
+        ఒకవేళ (!VN_IS(m_varAux(nodep).valuep, Const)) {
+            AstConst* స్థిరరాశి constp = allocConst(nodep);
             m_varAux(nodep).valuep = constp;
-            return constp;
+            తిరిగి constp;
         }
-        return fetchConst(nodep);
+        తిరిగి fetchConst(nodep);
     }
-    AstConst* newOutConst(AstNode* nodep) {
+    AstConst* new_బహిర్గతం_Const(Ast_కణుపు* nodep) {
         // Set a var-output constant value for this node
-        if (!VN_IS(m_varAux(nodep).outValuep, Const)) {
-            AstConst* const constp = allocConst(nodep);
-            m_varAux(nodep).outValuep = constp;
-            return constp;
+        ఒకవేళ (!VN_IS(m_varAux(nodep).బహిర్గతం_Valuep, Const)) {
+            AstConst* స్థిరరాశి constp = allocConst(nodep);
+            m_varAux(nodep).బహిర్గతం_Valuep = constp;
+            తిరిగి constp;
         }
-        return fetchOutConst(nodep);
+        తిరిగి fetch_బహిర్గతం_Const(nodep);
     }
 
-public:
-    AstNodeExpr* fetchValueNull(AstNode* nodep) { return m_varAux(nodep).valuep; }
+బహిరంగ:
+    Ast_కణుపు_సమాసం* fetch_విలువ_Null(Ast_కణుపు* nodep) { తిరిగి m_varAux(nodep).valuep; }
 
-private:
-    AstNodeExpr* fetchOutValueNull(AstNode* nodep) { return m_varAux(nodep).outValuep; }
-    AstConst* fetchConstNull(AstNode* nodep) { return VN_CAST(fetchValueNull(nodep), Const); }
-    AstConst* fetchOutConstNull(AstNode* nodep) {
-        return VN_CAST(fetchOutValueNull(nodep), Const);
+అంతరంగ:
+    Ast_కణుపు_సమాసం* fetch_బహిర్గతం_విలువ_Null(Ast_కణుపు* nodep) { తిరిగి m_varAux(nodep).బహిర్గతం_Valuep; }
+    AstConst* fetchConstNull(Ast_కణుపు* nodep) { తిరిగి VN_CAST(fetch_విలువ_Null(nodep), Const); }
+    AstConst* fetch_బహిర్గతం_Const_Null(Ast_కణుపు* nodep) {
+        తిరిగి VN_CAST(fetch_బహిర్గతం_విలువ_Null(nodep), Const);
     }
-    AstNodeExpr* fetchValue(AstNode* nodep) {
-        AstNodeExpr* const valuep = fetchValueNull(nodep);
+    Ast_కణుపు_సమాసం* fetch_విలువ(Ast_కణుపు* nodep) {
+        Ast_కణుపు_సమాసం* స్థిరరాశి valuep = fetch_విలువ_Null(nodep);
         UASSERT_OBJ(valuep, nodep, "No value found for node.");
         // UINFO(9, "     fetch val " << *valuep << " on " << nodep);
-        return valuep;
+        తిరిగి valuep;
     }
-    AstConst* fetchConst(AstNode* nodep) {
-        AstConst* const constp = fetchConstNull(nodep);
+    AstConst* fetchConst(Ast_కణుపు* nodep) {
+        AstConst* స్థిరరాశి constp = fetchConstNull(nodep);
         UASSERT_OBJ(constp, nodep, "No value found for node.");
         // UINFO(9, "     fetch num " << *constp << " on " << nodep);
-        return constp;
+        తిరిగి constp;
     }
-    AstConst* fetchOutConst(AstNode* nodep) {
-        AstConst* const constp = fetchOutConstNull(nodep);
+    AstConst* fetch_బహిర్గతం_Const(Ast_కణుపు* nodep) {
+        AstConst* స్థిరరాశి constp = fetch_బహిర్గతం_Const_Null(nodep);
         UASSERT_OBJ(constp, nodep, "No value found for node.");
-        return constp;
+        తిరిగి constp;
     }
 
-public:
-    V3Number* fetchNumberNull(AstNode* nodep) {
-        AstConst* const constp = fetchConstNull(nodep);
-        if (constp) return &constp->num();
-        return nullptr;
+బహిరంగ:
+    V3_సంఖ్య* fetch_సంఖ్య_Null(Ast_కణుపు* nodep) {
+        AstConst* స్థిరరాశి constp = fetchConstNull(nodep);
+        ఒకవేళ (constp) తిరిగి &constp->అంకె();
+        తిరిగి nullptr;
     }
-    V3Number* fetchOutNumberNull(AstNode* nodep) {
-        AstConst* const constp = fetchOutConstNull(nodep);
-        if (constp) return &constp->num();
-        return nullptr;
+    V3_సంఖ్య* fetch_బహిర్గతం_సంఖ్య_Null(Ast_కణుపు* nodep) {
+        AstConst* స్థిరరాశి constp = fetch_బహిర్గతం_Const_Null(nodep);
+        ఒకవేళ (constp) తిరిగి &constp->అంకె();
+        తిరిగి nullptr;
     }
 
-private:
-    void setValue(AstNode* nodep, AstNodeExpr* valuep) {
+అంతరంగ:
+    శూన్య సమితి_విలువ(Ast_కణుపు* nodep, Ast_కణుపు_సమాసం* valuep) {
         UASSERT_OBJ(valuep, nodep, "Simulate setting null value");
         UINFO(9, "     set val " << valuep->name() << " on " << nodep);
         m_varAux(nodep).valuep = valuep;
     }
-    void setOutValue(AstNode* nodep, AstNodeExpr* valuep) {
+    శూన్య సమితి_బహిర్గతం_విలువ(Ast_కణుపు* nodep, Ast_కణుపు_సమాసం* valuep) {
         UASSERT_OBJ(valuep, nodep, "Simulate setting null value");
         UINFO(9, "     set oval " << valuep->name() << " on " << nodep);
-        m_varAux(nodep).outValuep = valuep;
+        m_varAux(nodep).బహిర్గతం_Valuep = valuep;
     }
 
-    void checkNodeInfo(AstNode* nodep, bool ignorePredict = false) {
-        if (m_checkOnly) {
-            m_instrCount += nodep->instrCount();
-            m_dataCount += nodep->width();
+    శూన్య check_కణుపు_Info(Ast_కణుపు* nodep, bool ignorePredict = false) {
+        ఒకవేళ (m_checkOnly) {
+            m_instr_లెక్క += nodep->instr_లెక్క();
+            m_దత్తాంశం_లెక్క += nodep->వెడల్పు();
         }
-        if (!ignorePredict && !nodep->isPredictOptimizable()) {
+        ఒకవేళ (!ignorePredict && !nodep->isPredictOptimizable()) {
             // UINFO(9, "     !predictopt " << nodep);
             clearOptimizable(nodep, "Isn't predictable");
         }
-        if (!nodep->isPure()) m_isImpure = true;
+        ఒకవేళ (!nodep->is_శుద్ధ()) m_isImpure = true;
     }
 
-    void knownBadNodeType(AstNode* nodep) {
+    శూన్య తెలిసిన_Bad_కణుపు_Type(Ast_కణుపు* nodep) {
         // Call for node types we know we can't handle
-        if (jumpingOver()) return;
-        checkNodeInfo(nodep);
-        if (optimizable()) {
+        ఒకవేళ (jumpingOver()) తిరిగి;
+        check_కణుపు_Info(nodep);
+        ఒకవేళ (optimizable()) {
             clearOptimizable(nodep, "Known unhandled node type "s + nodep->typeName());
         }
     }
-    void badNodeType(AstNode* nodep) {
+    శూన్య bad_కణుపు_Type(Ast_కణుపు* nodep) {
         // Call for default node types, or other node types we don't know how to handle
-        checkNodeInfo(nodep);
-        if (optimizable()) {
+        check_కణుపు_Info(nodep);
+        ఒకవేళ (optimizable()) {
             // Hmm, what is this then?
             // In production code, we'll just not optimize.  It should be fixed though.
             clearOptimizable(nodep,
                              "Unknown node type, perhaps missing visitor in SimulateVisitor");
-#ifdef VL_DEBUG
-            static std::set<VNType> s_typePrinted;
-            const auto pair = s_typePrinted.emplace(nodep->type());
-            if (pair.second)
+#నిర్వచితమైతే VL_DEBUG
+            స్థిర std::సమితి<VNType> s_typePrinted;
+            స్థిరరాశి స్వయంచాలక pair = s_typePrinted.emplace(nodep->type());
+            ఒకవేళ (pair.రెండవ)
                 UINFO(0, "Unknown node type in SimulateVisitor: " << nodep->prettyTypeName());
-#endif
+#అయితే_ముగింపు
         }
     }
 
-    AstNode* varOrScope(AstVarRef* nodep) const {
-        AstNode* vscp;
-        if (m_scoped) {
+    Ast_కణుపు* varOrScope(AstVarRef* nodep) స్థిరరాశి {
+        Ast_కణుపు* vscp;
+        ఒకవేళ (m_scoped) {
             vscp = nodep->varScopep();
-        } else {
+        } లేకపోతే {
             vscp = nodep->varp();
         }
         UASSERT_OBJ(vscp, nodep, "Not linked");
-        return vscp;
+        తిరిగి vscp;
     }
 
     // True if current node might be jumped over - all visitors must call this up front
-    bool jumpingOver() const { return m_jumptargetp; }
-    void assignOutValue(const AstNodeAssign* nodep, AstNode* vscp, const AstNodeExpr* valuep) {
-        if (VN_IS(nodep, AssignDly)) {
+    bool jumpingOver() స్థిరరాశి { తిరిగి m_jumptargetp; }
+    శూన్య కేటాయించు_బహిర్గతం_విలువ(స్థిరరాశి Ast_కణుపు_కేటాయించు* nodep, Ast_కణుపు* vscp, స్థిరరాశి Ast_కణుపు_సమాసం* valuep) {
+        ఒకవేళ (VN_IS(nodep, కేటాయించు_Dly)) {
             // Don't do setValue, as value isn't yet visible to following statements
-            newOutValue(vscp, valuep);
-        } else {
-            newValue(vscp, valuep);
-            setOutValue(vscp, fetchValue(vscp));
+            new_బహిర్గతం_విలువ(vscp, valuep);
+        } లేకపోతే {
+            new_విలువ(vscp, valuep);
+            సమితి_బహిర్గతం_విలువ(vscp, fetch_విలువ(vscp));
         }
     }
 
-    string toStringRecurse(AstNodeExpr* valuep) {
+    string గమ్యం_String_Recurse(Ast_కణుపు_సమాసం* valuep) {
         // Return string representation of a value, or clearOptimizable
-        if (const AstConst* const avaluep = VN_CAST(valuep, Const)) {
-            return "'h"s + avaluep->num().displayed(valuep, "%0x");
+        ఒకవేళ (స్థిరరాశి AstConst* స్థిరరాశి avaluep = VN_CAST(valuep, Const)) {
+            తిరిగి "'h"s + avaluep->అంకె().displayed(valuep, "%0x");
         }
-        if (const AstConsArray* const avaluep = VN_CAST(valuep, ConsArray)) {
-            string result = "'{";
+        ఒకవేళ (స్థిరరాశి AstConsArray* స్థిరరాశి avaluep = VN_CAST(valuep, ConsArray)) {
+            string ఫలితం = "'{";
             string comma;
-            const AstUnpackArrayDType* const dtypep
+            స్థిరరాశి AstUnpackArrayDType* స్థిరరాశి dtypep
                 = VN_AS(valuep->dtypep()->skipRefp(), UnpackArrayDType);
-            for (int n = 0; n < dtypep->elementsConst(); ++n) {
-                result += comma + toStringRecurse(avaluep->valuep(n));
+            కొరకు (పూర్ణాంకం n = 0; n < dtypep->elementsConst(); ++n) {
+                ఫలితం += comma + గమ్యం_String_Recurse(avaluep->valuep(n));
                 comma = ", ";
             }
-            result += "}";
-            return result;
+            ఫలితం += "}";
+            తిరిగి ఫలితం;
         }
-        if (const AstConsStruct* const avaluep = VN_CAST(valuep, ConsStruct)) {
-            string result = "'{";
+        ఒకవేళ (స్థిరరాశి AstConsStruct* స్థిరరాశి avaluep = VN_CAST(valuep, ConsStruct)) {
+            string ఫలితం = "'{";
             string comma;
-            for (const AstConsStructItem* itemp = avaluep->itemsp(); itemp;
-                 itemp = VN_AS(itemp->nextp(), ConsStructItem)) {
-                result
-                    += comma + itemp->memberp()->name() + ":" + toStringRecurse(itemp->valuep());
+            కొరకు (స్థిరరాశి Ast_Cons_Struct_అంశం* itemp = avaluep->itemsp(); itemp;
+                 itemp = VN_AS(itemp->nextp(), Cons_Struct_అంశం)) {
+                ఫలితం
+                    += comma + itemp->memberp()->name() + ":" + గమ్యం_String_Recurse(itemp->valuep());
                 comma = ", ";
             }
-            result += "}";
-            return result;
+            ఫలితం += "}";
+            తిరిగి ఫలితం;
         }
         clearOptimizable(valuep, "Cannot convert to string");  // LCOV_EXCL_LINE
-        return "";
+        తిరిగి "";
     }
 
     // Return a new value of the initial value of a variable of the given type, or nullptr if
     // the type isn't supported
-    AstNodeExpr* newInitValuep(AstNode* nodep, AstNodeDType* dtypep) {
+    Ast_కణుపు_సమాసం* newInitValuep(Ast_కణుపు* nodep, Ast_కణుపు_DType* dtypep) {
         dtypep = dtypep->skipRefp();
-        if (AstUnpackArrayDType* const arrayp = VN_CAST(dtypep, UnpackArrayDType)) {
-            AstNodeExpr* const elementp = newInitValuep(nodep, arrayp->subDTypep());
-            return elementp ? new AstConsArray{nodep->fileline(), arrayp, elementp} : nullptr;
+        ఒకవేళ (AstUnpackArrayDType* స్థిరరాశి arrayp = VN_CAST(dtypep, UnpackArrayDType)) {
+            Ast_కణుపు_సమాసం* స్థిరరాశి elementp = newInitValuep(nodep, arrayp->subDTypep());
+            తిరిగి elementp ? new AstConsArray{nodep->fileline(), arrayp, elementp} : nullptr;
         }
-        AstStructDType* const structp = VN_CAST(dtypep, StructDType);
-        if (structp && !structp->packed()) {
-            AstConsStruct* const newp = new AstConsStruct{nodep->fileline(), structp};
-            for (AstMemberDType* memberp = structp->membersp(); memberp;
+        AstStructDType* స్థిరరాశి structp = VN_CAST(dtypep, StructDType);
+        ఒకవేళ (structp && !structp->packed()) {
+            AstConsStruct* స్థిరరాశి newp = new AstConsStruct{nodep->fileline(), structp};
+            కొరకు (AstMemberDType* memberp = structp->membersp(); memberp;
                  memberp = VN_AS(memberp->nextp(), MemberDType)) {
-                AstNodeExpr* const memberValuep = newInitValuep(nodep, memberp->subDTypep());
-                if (!memberValuep) {
-                    VL_DO_DANGLING(newp->deleteTree(), newp);
-                    return nullptr;
+                Ast_కణుపు_సమాసం* స్థిరరాశి memberValuep = newInitValuep(nodep, memberp->subDTypep());
+                ఒకవేళ (!memberValuep) {
+                    VL_DO_DANGLING(newp->delete_వృక్షం(), newp);
+                    తిరిగి nullptr;
                 }
-                newp->addItemsp(new AstConsStructItem{nodep->fileline(), memberp, memberValuep});
+                newp->కూడు_Itemsp(new Ast_Cons_Struct_అంశం{nodep->fileline(), memberp, memberValuep});
             }
-            return newp;
+            తిరిగి newp;
         }
-        if (const AstBasicDType* const basicp = dtypep->basicp()) {
-            AstConst* const constp
-                = new AstConst{nodep->fileline(), AstConst::WidthedValue{}, basicp->widthMin(), 0};
-            if (basicp->isZeroInit()) {
-                constp->num() = V3Number{nodep, basicp};
-            } else {
-                constp->num().setAllBitsX();
+        ఒకవేళ (స్థిరరాశి AstBasicDType* స్థిరరాశి basicp = dtypep->basicp()) {
+            AstConst* స్థిరరాశి constp
+                = new AstConst{nodep->fileline(), AstConst::Widthed_విలువ{}, basicp->వెడల్పు_Min(), 0};
+            ఒకవేళ (basicp->isZeroInit()) {
+                constp->అంకె() = V3_సంఖ్య{nodep, basicp};
+            } లేకపోతే {
+                constp->అంకె().సమితి_All_బిట్లు_X();
             }
-            return constp;
+            తిరిగి constp;
         }
-        return nullptr;
+        తిరిగి nullptr;
     }
-    void initVar(AstVar* nodep) {
-        if (AstNodeExpr* const valuep = newInitValuep(nodep, nodep->dtypep())) {
-            newValue(nodep, valuep);
-            VL_DO_DANGLING(valuep->deleteTree(), valuep);
+    శూన్య initVar(AstVar* nodep) {
+        ఒకవేళ (Ast_కణుపు_సమాసం* స్థిరరాశి valuep = newInitValuep(nodep, nodep->dtypep())) {
+            new_విలువ(nodep, valuep);
+            VL_DO_DANGLING(valuep->delete_వృక్షం(), valuep);
         }
     }
 
     // VISITORS
-    void visit(AstAlways* nodep) override {
-        if (jumpingOver()) return;
-        checkNodeInfo(nodep);
+    శూన్య సందర్శించు(AstAlways* nodep) override {
+        ఒకవేళ (jumpingOver()) తిరిగి;
+        check_కణుపు_Info(nodep);
         iterateChildrenConst(nodep);
     }
-    void visit(AstSenTree* nodep) override {
+    శూన్య సందర్శించు(Ast_Sen_వృక్షం* nodep) override {
         // Sensitivities aren't inputs per se; we'll keep our tree under the same sens.
     }
-    void visit(AstVarRef* nodep) override {
-        if (jumpingOver()) return;
-        if (!optimizable()) return;  // Accelerate
+    శూన్య సందర్శించు(AstVarRef* nodep) override {
+        ఒకవేళ (jumpingOver()) తిరిగి;
+        ఒకవేళ (!optimizable()) తిరిగి;  // Accelerate
         UASSERT_OBJ(nodep->varp(), nodep, "Unlinked");
         iterateChildrenConst(nodep->varp());
-        AstNode* const vscp = varOrScope(nodep);
+        Ast_కణుపు* స్థిరరాశి vscp = varOrScope(nodep);
 
         // We can't have non-delayed assignments with same value on LHS and RHS
         // as we don't figure out variable ordering.
         // Delayed is OK though, as we'll decode the next state separately.
-        if (!VN_IS(nodep->varp()->dtypeSkipRefp(), BasicDType)
+        ఒకవేళ (!VN_IS(nodep->varp()->dtypeSkipRefp(), BasicDType)
             && !VN_IS(nodep->varp()->dtypeSkipRefp(), PackArrayDType)
             && !VN_IS(nodep->varp()->dtypeSkipRefp(), UnpackArrayDType)
-            && !VN_IS(nodep->varp()->dtypeSkipRefp(), NodeUOrStructDType))
+            && !VN_IS(nodep->varp()->dtypeSkipRefp(), కణుపు_UOr_Struct_DType))
             clearOptimizable(nodep, "Array references/not basic");
-        if (nodep->access().isWriteOrRW()) {
-            if (m_inDlyAssign) {
-                if (!(m_varAux(vscp).usage & VU_LVDLY)) {
+        ఒకవేళ (nodep->access().isWriteOrRW()) {
+            ఒకవేళ (m_లోపల_Dly_కేటాయించు) {
+                ఒకవేళ (!(m_varAux(vscp).usage & VU_LVDLY)) {
                     m_varAux(vscp).usage |= VU_LVDLY;
-                    if (m_checkOnly) varRefCb(nodep);
+                    ఒకవేళ (m_checkOnly) varRefCb(nodep);
                 }
-            } else {  // nondly asn
-                if (!(m_varAux(vscp).usage & VU_LV)) {
-                    if (!m_params && (m_varAux(vscp).usage & VU_RV)) {
+            } లేకపోతే {  // nondly asn
+                ఒకవేళ (!(m_varAux(vscp).usage & VU_LV)) {
+                    ఒకవేళ (!m_params && (m_varAux(vscp).usage & VU_RV)) {
                         clearOptimizable(nodep, "Var read & write");
                     }
                     m_varAux(vscp).usage |= VarUsage::VU_LV;
-                    if (m_checkOnly) varRefCb(nodep);
+                    ఒకవేళ (m_checkOnly) varRefCb(nodep);
                 }
             }
         }
-        if (nodep->access().isReadOrRW()) {
-            if (!(m_varAux(vscp).usage & VU_RV)) {
-                if (!m_params && (m_varAux(vscp).usage & VU_LV)) {
+        ఒకవేళ (nodep->access().isReadOrRW()) {
+            ఒకవేళ (!(m_varAux(vscp).usage & VU_RV)) {
+                ఒకవేళ (!m_params && (m_varAux(vscp).usage & VU_LV)) {
                     clearOptimizable(nodep, "Var write & read");
                 }
                 m_varAux(vscp).usage |= VU_RV;
-                const bool varIsConst = (nodep->varp()->isConst() || nodep->varp()->isParam())
+                స్థిరరాశి bool varIsConst = (nodep->varp()->isConst() || nodep->varp()->isParam())
                                         && nodep->varp()->valuep();
-                const AstNodeExpr* const valuep
-                    = varIsConst ? fetchValueNull(nodep->varp()->valuep()) : nullptr;
+                స్థిరరాశి Ast_కణుపు_సమాసం* స్థిరరాశి valuep
+                    = varIsConst ? fetch_విలువ_Null(nodep->varp()->valuep()) : nullptr;
                 // Propagate PARAM constants for constant function analysis
-                if (varIsConst && valuep) {
-                    if (!m_checkOnly && optimizable()) newValue(vscp, valuep);
-                } else {
-                    if (m_checkOnly) varRefCb(nodep);
+                ఒకవేళ (varIsConst && valuep) {
+                    ఒకవేళ (!m_checkOnly && optimizable()) new_విలువ(vscp, valuep);
+                } లేకపోతే {
+                    ఒకవేళ (m_checkOnly) varRefCb(nodep);
                 }
             }
         }
-        if (m_checkOnly || !optimizable()) return;  // Not simulating
+        ఒకవేళ (m_checkOnly || !optimizable()) తిరిగి;  // Not simulating
         UASSERT_OBJ(nodep->access().isReadOnly(), nodep,
                     "LHS varref should be handled in AstAssign visitor.");
         {
             // Return simulation value - copy by reference instead of value for speed
-            AstNodeExpr* valuep = fetchValueNull(vscp);
-            if (!valuep) {
-                if (m_params) {
+            Ast_కణుపు_సమాసం* valuep = fetch_విలువ_Null(vscp);
+            ఒకవేళ (!valuep) {
+                ఒకవేళ (m_params) {
                     clearOptimizable(
                         nodep, "Language violation: reference to non-function-local variable");
-                } else {
+                } లేకపోతే {
                     nodep->v3fatalSrc(
                         "Variable value should have been set before any visitor called.");
                 }
                 valuep = allocConst(nodep);  // Any value; just so recover from error
             }
-            setValue(nodep, valuep);
+            సమితి_విలువ(nodep, valuep);
         }
     }
-    void visit(AstVarXRef* nodep) override {
-        if (jumpingOver()) return;
-        if (m_scoped) {
-            badNodeType(nodep);
-            return;
+    శూన్య సందర్శించు(AstVarXRef* nodep) override {
+        ఒకవేళ (jumpingOver()) తిరిగి;
+        ఒకవేళ (m_scoped) {
+            bad_కణుపు_Type(nodep);
+            తిరిగి;
         }
         clearOptimizable(nodep, "Language violation: Dotted hierarchical references not "
                                 "allowed in constant functions");
     }
-    void visit(AstNodeFTask* nodep) override {
-        if (jumpingOver()) return;
-        if (!m_params) {
-            badNodeType(nodep);
-            return;
+    శూన్య సందర్శించు(Ast_కణుపు_FTask* nodep) override {
+        ఒకవేళ (jumpingOver()) తిరిగి;
+        ఒకవేళ (!m_params) {
+            bad_కణుపు_Type(nodep);
+            తిరిగి;
         }
-        if (nodep->dpiImport()) {
-            if (m_params) {
+        ఒకవేళ (nodep->dpiImport()) {
+            ఒకవేళ (m_params) {
                 nodep->v3error("Constant function may not be DPI import (IEEE 1800-2023 13.4.3)");
             }
             clearOptimizable(nodep, "DPI import functions aren't simulatable");
         }
-        if (nodep->underGenerate()) {
+        ఒకవేళ (nodep->underGenerate()) {
             nodep->v3error(
                 "Constant function may not be declared under generate (IEEE 1800-2023 13.4.3)");
             clearOptimizable(nodep, "Constant function called under generate");
         }
-        checkNodeInfo(nodep);
+        check_కణుపు_Info(nodep);
         iterateChildrenConst(nodep);
     }
-    void visit(AstInitialAutomaticStmt* nodep) override {
-        checkNodeInfo(nodep);
+    శూన్య సందర్శించు(AstInitialAutomaticStmt* nodep) override {
+        check_కణుపు_Info(nodep);
         iterateChildrenConst(nodep);
     }
-    void visit(AstInitialStaticStmt* nodep) override {
-        checkNodeInfo(nodep);
+    శూన్య సందర్శించు(AstInitialStaticStmt* nodep) override {
+        check_కణుపు_Info(nodep);
         iterateChildrenConst(nodep);
     }
-    void visit(AstInitialStatic* nodep) override {
-        if (jumpingOver()) return;
-        if (!m_params) {
-            badNodeType(nodep);
-            return;
+    శూన్య సందర్శించు(AstInitialStatic* nodep) override {
+        ఒకవేళ (jumpingOver()) తిరిగి;
+        ఒకవేళ (!m_params) {
+            bad_కణుపు_Type(nodep);
+            తిరిగి;
         }
-        checkNodeInfo(nodep);
+        check_కణుపు_Info(nodep);
         iterateChildrenConst(nodep);
     }
-    void visit(AstNodeIf* nodep) override {
-        if (jumpingOver()) return;
+    శూన్య సందర్శించు(Ast_కణుపు_If* nodep) override {
+        ఒకవేళ (jumpingOver()) తిరిగి;
         UINFO(5, "   IF " << nodep);
-        checkNodeInfo(nodep);
-        if (m_checkOnly) {
+        check_కణుపు_Info(nodep);
+        ఒకవేళ (m_checkOnly) {
             iterateChildrenConst(nodep);
-        } else {
-            iterateAndNextConstNull(nodep->condp());
-            if (optimizable()) {
-                if (fetchConst(nodep->condp())->num().isNeqZero()) {
-                    iterateAndNextConstNull(nodep->thensp());
-                } else {
-                    iterateAndNextConstNull(nodep->elsesp());
+        } లేకపోతే {
+            iterate_And_తదుపరి_Const_Null(nodep->condp());
+            ఒకవేళ (optimizable()) {
+                ఒకవేళ (fetchConst(nodep->condp())->అంకె().isNeqZero()) {
+                    iterate_And_తదుపరి_Const_Null(nodep->thensp());
+                } లేకపోతే {
+                    iterate_And_తదుపరి_Const_Null(nodep->elsesp());
                 }
             }
         }
     }
-    void visit(AstConst* nodep) override {
-        checkNodeInfo(nodep);
-        if (m_checkOnly || !optimizable()) return;
-        newValue(nodep, nodep);
+    శూన్య సందర్శించు(AstConst* nodep) override {
+        check_కణుపు_Info(nodep);
+        ఒకవేళ (m_checkOnly || !optimizable()) తిరిగి;
+        new_విలువ(nodep, nodep);
     }
     // An aggregate value is a tree of only AstConst, AstConsArray and AstConsStruct
     // nodes, so the value of an element or member is its subtree
-    void visit(AstConsArray* nodep) override {
-        checkNodeInfo(nodep);
+    శూన్య సందర్శించు(AstConsArray* nodep) override {
+        check_కణుపు_Info(nodep);
         iterateChildrenConst(nodep);
-        if (m_checkOnly || !optimizable()) return;
-        AstConsArray* const valuep = new AstConsArray{
+        ఒకవేళ (m_checkOnly || !optimizable()) తిరిగి;
+        AstConsArray* స్థిరరాశి valuep = new AstConsArray{
             nodep->fileline(), nodep->dtypep(),
-            nodep->defaultp() ? fetchValue(nodep->defaultp())->cloneTree(false) : nullptr};
-        for (const AstConsArrayItem* itemp = nodep->itemsp(); itemp;
-             itemp = VN_AS(itemp->nextp(), ConsArrayItem)) {
-            valuep->valuep(itemp->index(), fetchValue(itemp->valuep())->cloneTree(false));
+            nodep->defaultp() ? fetch_విలువ(nodep->defaultp())->clone_వృక్షం(false) : nullptr};
+        కొరకు (స్థిరరాశి Ast_Cons_Array_అంశం* itemp = nodep->itemsp(); itemp;
+             itemp = VN_AS(itemp->nextp(), Cons_Array_అంశం)) {
+            valuep->valuep(itemp->సూచీ(), fetch_విలువ(itemp->valuep())->clone_వృక్షం(false));
         }
-        m_reclaimValuesp.push_back(valuep);
-        setValue(nodep, valuep);
+        m_reclaimValuesp.నెట్టు_వెనుక(valuep);
+        సమితి_విలువ(nodep, valuep);
     }
-    void visit(AstConsStruct* nodep) override {
-        if (!m_params) {
-            badNodeType(nodep);
-            return;
+    శూన్య సందర్శించు(AstConsStruct* nodep) override {
+        ఒకవేళ (!m_params) {
+            bad_కణుపు_Type(nodep);
+            తిరిగి;
         }
-        checkNodeInfo(nodep);
-        for (AstConsStructItem* itemp = nodep->itemsp(); itemp;
-             itemp = VN_AS(itemp->nextp(), ConsStructItem)) {
+        check_కణుపు_Info(nodep);
+        కొరకు (Ast_Cons_Struct_అంశం* itemp = nodep->itemsp(); itemp;
+             itemp = VN_AS(itemp->nextp(), Cons_Struct_అంశం)) {
             iterateConst(itemp->valuep());
         }
-        if (m_checkOnly || !optimizable()) return;
-        AstConsStruct* const valuep = new AstConsStruct{
+        ఒకవేళ (m_checkOnly || !optimizable()) తిరిగి;
+        AstConsStruct* స్థిరరాశి valuep = new AstConsStruct{
             nodep->fileline(), VN_AS(nodep->dtypep()->skipRefp(), StructDType)};
-        for (AstConsStructItem* itemp = nodep->itemsp(); itemp;
-             itemp = VN_AS(itemp->nextp(), ConsStructItem)) {
-            valuep->addItemsp(
-                new AstConsStructItem{itemp->fileline(), itemp->memberp(),
-                                      fetchValue(itemp->valuep())->cloneTree(false)});
+        కొరకు (Ast_Cons_Struct_అంశం* itemp = nodep->itemsp(); itemp;
+             itemp = VN_AS(itemp->nextp(), Cons_Struct_అంశం)) {
+            valuep->కూడు_Itemsp(
+                new Ast_Cons_Struct_అంశం{itemp->fileline(), itemp->memberp(),
+                                      fetch_విలువ(itemp->valuep())->clone_వృక్షం(false)});
         }
-        m_reclaimValuesp.push_back(valuep);
-        setValue(nodep, valuep);
+        m_reclaimValuesp.నెట్టు_వెనుక(valuep);
+        సమితి_విలువ(nodep, valuep);
     }
-    void visit(AstCvtUnpackToUnpack* nodep) override {
-        checkNodeInfo(nodep);
+    శూన్య సందర్శించు(Ast_Cvt_Unpack_గమ్యం_Unpack* nodep) override {
+        check_కణుపు_Info(nodep);
         iterateChildrenConst(nodep);
-        if (m_checkOnly || !optimizable()) return;
+        ఒకవేళ (m_checkOnly || !optimizable()) తిరిగి;
         // An array value is an AstConsArray, so V3Const folds the conversion
-        AstNodeExpr* const cvtp = new AstCvtUnpackToUnpack{
-            nodep->fileline(), fetchValue(nodep->fromp())->cloneTree(false), nodep->dtypep()};
-        AstNodeExpr* const valuep = V3Const::constifyEdit(cvtp);
-        m_reclaimValuesp.push_back(valuep);
-        setValue(nodep, valuep);
+        Ast_కణుపు_సమాసం* స్థిరరాశి cvtp = new Ast_Cvt_Unpack_గమ్యం_Unpack{
+            nodep->fileline(), fetch_విలువ(nodep->fromp())->clone_వృక్షం(false), nodep->dtypep()};
+        Ast_కణుపు_సమాసం* స్థిరరాశి valuep = V3Const::constifyEdit(cvtp);
+        m_reclaimValuesp.నెట్టు_వెనుక(valuep);
+        సమితి_విలువ(nodep, valuep);
     }
-    void visit(AstConsArrayItem* nodep) override {
-        checkNodeInfo(nodep);
+    శూన్య సందర్శించు(Ast_Cons_Array_అంశం* nodep) override {
+        check_కణుపు_Info(nodep);
         iterateChildrenConst(nodep);
     }
-    void visit(AstEnumItemRef* nodep) override {
-        checkNodeInfo(nodep);
+    శూన్య సందర్శించు(Ast_Enum_అంశం_Ref* nodep) override {
+        check_కణుపు_Info(nodep);
         UASSERT_OBJ(nodep->itemp(), nodep, "Not linked");
-        if (m_checkOnly || !optimizable()) return;
-        AstNode* const valuep = nodep->itemp()->valuep();
-        if (valuep) {
-            iterateAndNextConstNull(valuep);
-            if (!optimizable()) return;
-            newValue(nodep, fetchValue(valuep));
-        } else {
+        ఒకవేళ (m_checkOnly || !optimizable()) తిరిగి;
+        Ast_కణుపు* స్థిరరాశి valuep = nodep->itemp()->valuep();
+        ఒకవేళ (valuep) {
+            iterate_And_తదుపరి_Const_Null(valuep);
+            ఒకవేళ (!optimizable()) తిరిగి;
+            new_విలువ(nodep, fetch_విలువ(valuep));
+        } లేకపోతే {
             clearOptimizable(nodep, "No value found for enum item");  // LCOV_EXCL_LINE
         }
     }
-    void visit(AstNodeUniop* nodep) override {
-        if (!optimizable()) return;  // Accelerate
-        checkNodeInfo(nodep);
+    శూన్య సందర్శించు(Ast_కణుపు_Uniop* nodep) override {
+        ఒకవేళ (!optimizable()) తిరిగి;  // Accelerate
+        check_కణుపు_Info(nodep);
         iterateChildrenConst(nodep);
-        if (m_checkOnly || !optimizable()) return;
-        nodep->numberOperate(newConst(nodep)->num(), fetchConst(nodep->lhsp())->num());
+        ఒకవేళ (m_checkOnly || !optimizable()) తిరిగి;
+        nodep->సంఖ్య_నిర్వహించు(newConst(nodep)->అంకె(), fetchConst(nodep->lhsp())->అంకె());
     }
     // Set resultr to whether the aggregate values are equal, like a logical and of comparing
     // each element or member. V3Width allows comparing only values of matching types, so the
     // values have the same shape, and an array value is of an unpacked array, as associative
     // and dynamic arrays and queues are not values here.
-    void aggregateEqRecurse(V3Number& resultr, AstNode* nodep, bool caseEq, AstNodeExpr* lhsp,
-                            AstNodeExpr* rhsp) {
-        if (const AstConst* const lconstp = VN_CAST(lhsp, Const)) {
-            const V3Number& lnum = lconstp->num();
-            const V3Number& rnum = VN_AS(rhsp, Const)->num();
-            V3Number eq{nodep, 1};
-            if (lnum.isDouble()) {
+    శూన్య aggregateEqRecurse(V3_సంఖ్య& resultr, Ast_కణుపు* nodep, bool caseEq, Ast_కణుపు_సమాసం* lhsp,
+                            Ast_కణుపు_సమాసం* rhsp) {
+        ఒకవేళ (స్థిరరాశి AstConst* స్థిరరాశి lconstp = VN_CAST(lhsp, Const)) {
+            స్థిరరాశి V3_సంఖ్య& lnum = lconstp->అంకె();
+            స్థిరరాశి V3_సంఖ్య& rnum = VN_AS(rhsp, Const)->అంకె();
+            V3_సంఖ్య eq{nodep, 1};
+            ఒకవేళ (lnum.isDouble()) {
                 eq.opEqD(lnum, rnum);
-            } else if (lnum.isString()) {
+            } లేకపోతే ఒకవేళ (lnum.isString()) {
                 eq.opEqN(lnum, rnum);
-            } else if (caseEq) {
+            } లేకపోతే ఒకవేళ (caseEq) {
                 eq.opCaseEq(lnum, rnum);
-            } else {
+            } లేకపోతే {
                 eq.opEq(lnum, rnum);
             }
-            const V3Number prev = resultr;
+            స్థిరరాశి V3_సంఖ్య prev = resultr;
             resultr.opLogAnd(prev, eq);
-        } else if (const AstConsArray* const lconsp = VN_CAST(lhsp, ConsArray)) {
-            const AstUnpackArrayDType* const dtypep
+        } లేకపోతే ఒకవేళ (స్థిరరాశి AstConsArray* స్థిరరాశి lconsp = VN_CAST(lhsp, ConsArray)) {
+            స్థిరరాశి AstUnpackArrayDType* స్థిరరాశి dtypep
                 = VN_AS(lhsp->dtypep()->skipRefp(), UnpackArrayDType);
-            for (int n = 0; n < dtypep->elementsConst(); ++n) {
+            కొరకు (పూర్ణాంకం n = 0; n < dtypep->elementsConst(); ++n) {
                 aggregateEqRecurse(resultr, nodep, caseEq, lconsp->valuep(n),
                                    VN_AS(rhsp, ConsArray)->valuep(n));
             }
-        } else {
-            const AstConsStructItem* ritemp = VN_AS(rhsp, ConsStruct)->itemsp();
-            for (const AstConsStructItem* litemp = VN_AS(lhsp, ConsStruct)->itemsp(); litemp;
-                 litemp = VN_AS(litemp->nextp(), ConsStructItem),
-                                          ritemp = VN_AS(ritemp->nextp(), ConsStructItem)) {
+        } లేకపోతే {
+            స్థిరరాశి Ast_Cons_Struct_అంశం* ritemp = VN_AS(rhsp, ConsStruct)->itemsp();
+            కొరకు (స్థిరరాశి Ast_Cons_Struct_అంశం* litemp = VN_AS(lhsp, ConsStruct)->itemsp(); litemp;
+                 litemp = VN_AS(litemp->nextp(), Cons_Struct_అంశం),
+                                          ritemp = VN_AS(ritemp->nextp(), Cons_Struct_అంశం)) {
                 aggregateEqRecurse(resultr, nodep, caseEq, litemp->valuep(), ritemp->valuep());
             }
         }
     }
-    void handleAggregateCompare(AstNodeBiop* nodep) {
+    శూన్య handleAggregateCompare(Ast_కణుపు_Biop* nodep) {
         // V3Width allows only equality operators on aggregates (IEEE 1800-2023 11.3)
-        const bool caseEq = VN_IS(nodep, EqCase) || VN_IS(nodep, NeqCase);
-        const bool neq = VN_IS(nodep, Neq) || VN_IS(nodep, NeqCase);
+        స్థిరరాశి bool caseEq = VN_IS(nodep, EqCase) || VN_IS(nodep, NeqCase);
+        స్థిరరాశి bool neq = VN_IS(nodep, Neq) || VN_IS(nodep, NeqCase);
         UASSERT_OBJ(caseEq || neq || VN_IS(nodep, Eq), nodep, "Unexpected operator on aggregate");
-        V3Number& resultr = newConst(nodep)->num();
-        resultr.setAllBits1();
-        aggregateEqRecurse(resultr, nodep, caseEq, fetchValue(nodep->lhsp()),
-                           fetchValue(nodep->rhsp()));
-        if (neq) {
-            const V3Number eq = resultr;
+        V3_సంఖ్య& resultr = newConst(nodep)->అంకె();
+        resultr.సమితి_All_Bits1();
+        aggregateEqRecurse(resultr, nodep, caseEq, fetch_విలువ(nodep->lhsp()),
+                           fetch_విలువ(nodep->rhsp()));
+        ఒకవేళ (neq) {
+            స్థిరరాశి V3_సంఖ్య eq = resultr;
             resultr.opLogNot(eq);
         }
     }
-    void visit(AstNodeBiop* nodep) override {
-        if (!optimizable()) return;  // Accelerate
-        checkNodeInfo(nodep);
+    శూన్య సందర్శించు(Ast_కణుపు_Biop* nodep) override {
+        ఒకవేళ (!optimizable()) తిరిగి;  // Accelerate
+        check_కణుపు_Info(nodep);
         iterateChildrenConst(nodep);
-        if (m_checkOnly || !optimizable()) return;
+        ఒకవేళ (m_checkOnly || !optimizable()) తిరిగి;
         // A value that is not a constant is an aggregate, and V3Width allows only
         // equality operators on aggregates (IEEE 1800-2023 11.3)
-        if (!VN_IS(fetchValue(nodep->lhsp()), Const)) {
+        ఒకవేళ (!VN_IS(fetch_విలువ(nodep->lhsp()), Const)) {
             handleAggregateCompare(nodep);
-            return;
+            తిరిగి;
         }
-        AstConst* const valuep = newConst(nodep);
-        nodep->numberOperate(newConst(nodep)->num(), fetchConst(nodep->lhsp())->num(),
-                             fetchConst(nodep->rhsp())->num());
+        AstConst* స్థిరరాశి valuep = newConst(nodep);
+        nodep->సంఖ్య_నిర్వహించు(newConst(nodep)->అంకె(), fetchConst(nodep->lhsp())->అంకె(),
+                             fetchConst(nodep->rhsp())->అంకె());
         // See #5490. 'numberOperate' on partially out of range select yields 'x' bits,
         // but in reality it would yield '0's without V3Table, so force 'x' bits to '0',
         // to ensure the result is the same with and without V3Table.
-        if (!m_params && VN_IS(nodep, Sel) && valuep->num().isAnyX()) {
-            const V3Number num{valuep, valuep->width(), valuep->num()};
-            valuep->num().opBitsOne(num);
+        ఒకవేళ (!m_params && VN_IS(nodep, Sel) && valuep->అంకె().isAnyX()) {
+            స్థిరరాశి V3_సంఖ్య అంకె{valuep, valuep->వెడల్పు(), valuep->అంకె()};
+            valuep->అంకె().op_బిట్లు_One(అంకె);
         }
     }
-    void visit(AstNodeTriop* nodep) override {
-        if (!optimizable()) return;  // Accelerate
-        checkNodeInfo(nodep);
+    శూన్య సందర్శించు(Ast_కణుపు_Triop* nodep) override {
+        ఒకవేళ (!optimizable()) తిరిగి;  // Accelerate
+        check_కణుపు_Info(nodep);
         iterateChildrenConst(nodep);
-        if (m_checkOnly || !optimizable()) return;
-        nodep->numberOperate(newConst(nodep)->num(), fetchConst(nodep->lhsp())->num(),
-                             fetchConst(nodep->rhsp())->num(), fetchConst(nodep->thsp())->num());
+        ఒకవేళ (m_checkOnly || !optimizable()) తిరిగి;
+        nodep->సంఖ్య_నిర్వహించు(newConst(nodep)->అంకె(), fetchConst(nodep->lhsp())->అంకె(),
+                             fetchConst(nodep->rhsp())->అంకె(), fetchConst(nodep->thsp())->అంకె());
     }
-    void visit(AstNodeQuadop* nodep) override {
-        if (!optimizable()) return;  // Accelerate
-        checkNodeInfo(nodep);
+    శూన్య సందర్శించు(Ast_కణుపు_Quadop* nodep) override {
+        ఒకవేళ (!optimizable()) తిరిగి;  // Accelerate
+        check_కణుపు_Info(nodep);
         iterateChildrenConst(nodep);
-        if (m_checkOnly || !optimizable()) return;
-        nodep->numberOperate(newConst(nodep)->num(), fetchConst(nodep->lhsp())->num(),
-                             fetchConst(nodep->rhsp())->num(), fetchConst(nodep->thsp())->num(),
-                             fetchConst(nodep->fhsp())->num());
+        ఒకవేళ (m_checkOnly || !optimizable()) తిరిగి;
+        nodep->సంఖ్య_నిర్వహించు(newConst(nodep)->అంకె(), fetchConst(nodep->lhsp())->అంకె(),
+                             fetchConst(nodep->rhsp())->అంకె(), fetchConst(nodep->thsp())->అంకె(),
+                             fetchConst(nodep->fhsp())->అంకె());
     }
-    void visit(AstLogAnd* nodep) override {
+    శూన్య సందర్శించు(AstLogAnd* nodep) override {
         // Need to short circuit
-        if (!optimizable()) return;  // Accelerate
-        checkNodeInfo(nodep);
-        if (m_checkOnly) {
+        ఒకవేళ (!optimizable()) తిరిగి;  // Accelerate
+        check_కణుపు_Info(nodep);
+        ఒకవేళ (m_checkOnly) {
             iterateChildrenConst(nodep);
-        } else {
+        } లేకపోతే {
             iterateConst(nodep->lhsp());
-            if (!optimizable()) return;
-            if (fetchConst(nodep->lhsp())->num().isNeqZero()) {
+            ఒకవేళ (!optimizable()) తిరిగి;
+            ఒకవేళ (fetchConst(nodep->lhsp())->అంకె().isNeqZero()) {
                 iterateConst(nodep->rhsp());
-                if (!optimizable()) return;
-                newValue(nodep, fetchValue(nodep->rhsp()));
-            } else {
-                newValue(nodep, fetchValue(nodep->lhsp()));  // a zero
+                ఒకవేళ (!optimizable()) తిరిగి;
+                new_విలువ(nodep, fetch_విలువ(nodep->rhsp()));
+            } లేకపోతే {
+                new_విలువ(nodep, fetch_విలువ(nodep->lhsp()));  // a zero
             }
         }
     }
-    void visit(AstLogOr* nodep) override {
+    శూన్య సందర్శించు(AstLogOr* nodep) override {
         // Need to short circuit
-        if (!optimizable()) return;  // Accelerate
-        checkNodeInfo(nodep);
-        if (m_checkOnly) {
+        ఒకవేళ (!optimizable()) తిరిగి;  // Accelerate
+        check_కణుపు_Info(nodep);
+        ఒకవేళ (m_checkOnly) {
             iterateChildrenConst(nodep);
-        } else {
+        } లేకపోతే {
             iterateConst(nodep->lhsp());
-            if (!optimizable()) return;
-            if (fetchConst(nodep->lhsp())->num().isNeqZero()) {
-                newValue(nodep, fetchValue(nodep->lhsp()));  // a one
-            } else {
+            ఒకవేళ (!optimizable()) తిరిగి;
+            ఒకవేళ (fetchConst(nodep->lhsp())->అంకె().isNeqZero()) {
+                new_విలువ(nodep, fetch_విలువ(nodep->lhsp()));  // a one
+            } లేకపోతే {
                 iterateConst(nodep->rhsp());
-                if (!optimizable()) return;
-                newValue(nodep, fetchValue(nodep->rhsp()));
+                ఒకవేళ (!optimizable()) తిరిగి;
+                new_విలువ(nodep, fetch_విలువ(nodep->rhsp()));
             }
         }
     }
-    void visit(AstLogIf* nodep) override {
+    శూన్య సందర్శించు(AstLogIf* nodep) override {
         // Need to short circuit, same as (!A || B)
-        if (!optimizable()) return;  // Accelerate
-        checkNodeInfo(nodep);
-        if (m_checkOnly) {
+        ఒకవేళ (!optimizable()) తిరిగి;  // Accelerate
+        check_కణుపు_Info(nodep);
+        ఒకవేళ (m_checkOnly) {
             iterateChildrenConst(nodep);
-        } else {
+        } లేకపోతే {
             iterateConst(nodep->lhsp());
-            if (!optimizable()) return;
-            if (fetchConst(nodep->lhsp())->num().isEqZero()) {
-                const AstConst cnst{nodep->fileline(), AstConst::WidthedValue{}, 1, 1};  // a one
-                newValue(nodep, &cnst);  // a one
-            } else {
+            ఒకవేళ (!optimizable()) తిరిగి;
+            ఒకవేళ (fetchConst(nodep->lhsp())->అంకె().isEqZero()) {
+                స్థిరరాశి AstConst cnst{nodep->fileline(), AstConst::Widthed_విలువ{}, 1, 1};  // a one
+                new_విలువ(nodep, &cnst);  // a one
+            } లేకపోతే {
                 iterateConst(nodep->rhsp());
-                if (!optimizable()) return;
-                newValue(nodep, fetchValue(nodep->rhsp()));
+                ఒకవేళ (!optimizable()) తిరిగి;
+                new_విలువ(nodep, fetch_విలువ(nodep->rhsp()));
             }
         }
     }
-    void visit(AstCond* nodep) override {
+    శూన్య సందర్శించు(AstCond* nodep) override {
         // We could use above visit(AstNodeTriop), but need to do short circuiting.
         // It's also slower even O(n^2) to evaluate both sides when we
         // really only need to evaluate one side.
-        if (!optimizable()) return;  // Accelerate
-        checkNodeInfo(nodep);
-        if (m_checkOnly) {
+        ఒకవేళ (!optimizable()) తిరిగి;  // Accelerate
+        check_కణుపు_Info(nodep);
+        ఒకవేళ (m_checkOnly) {
             iterateChildrenConst(nodep);
-        } else {
+        } లేకపోతే {
             iterateConst(nodep->condp());
-            if (!optimizable()) return;
-            if (fetchConst(nodep->condp())->num().isNeqZero()) {
+            ఒకవేళ (!optimizable()) తిరిగి;
+            ఒకవేళ (fetchConst(nodep->condp())->అంకె().isNeqZero()) {
                 iterateConst(nodep->thenp());
-                if (!optimizable()) return;
-                newValue(nodep, fetchValue(nodep->thenp()));
-            } else {
+                ఒకవేళ (!optimizable()) తిరిగి;
+                new_విలువ(nodep, fetch_విలువ(nodep->thenp()));
+            } లేకపోతే {
                 iterateConst(nodep->elsep());
-                if (!optimizable()) return;
-                newValue(nodep, fetchValue(nodep->elsep()));
+                ఒకవేళ (!optimizable()) తిరిగి;
+                new_విలువ(nodep, fetch_విలువ(nodep->elsep()));
             }
         }
     }
 
-    void handleAssignElement(AstNodeAssign* nodep, AstNodeExpr* lhsp, AstNodeExpr* valueFromp) {
+    శూన్య handle_కేటాయించు_Element(Ast_కణుపు_కేటాయించు* nodep, Ast_కణుపు_సమాసం* lhsp, Ast_కణుపు_సమాసం* విలువ_Fromp) {
         // Assign an element or member, maybe nested, of a variable, by editing the variable's
         // value. Selects, from the element inwards:
-        std::vector<AstNodeExpr*> selps;
-        AstNodeExpr* fromp = lhsp;
-        while (true) {
-            if (AstArraySel* const selp = VN_CAST(fromp, ArraySel)) {
-                checkNodeInfo(selp);
-                iterateAndNextConstNull(selp->bitp());  // Bit index
-                selps.push_back(selp);
+        std::సదిశ<Ast_కణుపు_సమాసం*> selps;
+        Ast_కణుపు_సమాసం* fromp = lhsp;
+        అయితే (true) {
+            ఒకవేళ (AstArraySel* స్థిరరాశి selp = VN_CAST(fromp, ArraySel)) {
+                check_కణుపు_Info(selp);
+                iterate_And_తదుపరి_Const_Null(selp->bitp());  // Bit index
+                selps.నెట్టు_వెనుక(selp);
                 fromp = selp->fromp();
-            } else if (AstStructSel* const selp = VN_CAST(fromp, StructSel)) {
-                checkNodeInfo(selp);
-                selps.push_back(selp);
+            } లేకపోతే ఒకవేళ (AstStructSel* స్థిరరాశి selp = VN_CAST(fromp, StructSel)) {
+                check_కణుపు_Info(selp);
+                selps.నెట్టు_వెనుక(selp);
                 fromp = selp->fromp();
-            } else {
-                break;
+            } లేకపోతే {
+                ఆపు;
             }
         }
-        AstVarRef* const varrefp = VN_CAST(fromp, VarRef);
-        if (!varrefp) {
+        AstVarRef* స్థిరరాశి varrefp = VN_CAST(fromp, VarRef);
+        ఒకవేళ (!varrefp) {
             clearOptimizable(fromp, "Array select LHS isn't simple variable");
-            return;
+            తిరిగి;
         }
-        if (m_checkOnly || !optimizable()) return;
-        AstNode* const vscp = varOrScope(varrefp);
-        AstNodeExpr* rootp = fetchOutValueNull(vscp);
-        if (!rootp) rootp = fetchValueNull(vscp);
-        if (!rootp) {  // As initVar couldn't make an initial value of its type
+        ఒకవేళ (m_checkOnly || !optimizable()) తిరిగి;
+        Ast_కణుపు* స్థిరరాశి vscp = varOrScope(varrefp);
+        Ast_కణుపు_సమాసం* rootp = fetch_బహిర్గతం_విలువ_Null(vscp);
+        ఒకవేళ (!rootp) rootp = fetch_విలువ_Null(vscp);
+        ఒకవేళ (!rootp) {  // As initVar couldn't make an initial value of its type
             clearOptimizable(varrefp, "Assigned variable has unsupported data type");
-            return;
+            తిరిగి;
         }
         // Find the value of the selected element, making a defaulted array element explicit
-        AstNodeExpr* itemp = rootp;
-        for (AstNodeExpr* const selp : vlstd::reverse_view(selps)) {
-            if (const AstArraySel* const aselp = VN_CAST(selp, ArraySel)) {
-                AstConsArray* const consp = VN_AS(itemp, ConsArray);
-                const uint32_t index = fetchConst(aselp->bitp())->toUInt();
-                const int elements
+        Ast_కణుపు_సమాసం* itemp = rootp;
+        కొరకు (Ast_కణుపు_సమాసం* స్థిరరాశి selp : vlstd::తిరగేయి_view(selps)) {
+            ఒకవేళ (స్థిరరాశి AstArraySel* స్థిరరాశి aselp = VN_CAST(selp, ArraySel)) {
+                AstConsArray* స్థిరరాశి consp = VN_AS(itemp, ConsArray);
+                స్థిరరాశి uint32_t సూచీ = fetchConst(aselp->bitp())->గమ్యం_UInt();
+                స్థిరరాశి పూర్ణాంకం elements
                     = VN_AS(consp->dtypep()->skipRefp(), UnpackArrayDType)->elementsConst();
-                if (index >= static_cast<uint32_t>(elements)) {
-                    return;  // Ignore a write out of bounds (IEEE 1800-2023 7.4.6)
+                ఒకవేళ (సూచీ >= static_cast<uint32_t>(elements)) {
+                    తిరిగి;  // Ignore a write out of bounds (IEEE 1800-2023 7.4.6)
                 }
-                itemp = consp->valuep(index);
-                if (itemp == consp->defaultp()) {  // Make a defaulted element explicit
-                    itemp = itemp->cloneTree(false);
-                    consp->valuep(index, itemp);
+                itemp = consp->valuep(సూచీ);
+                ఒకవేళ (itemp == consp->defaultp()) {  // Make a defaulted element explicit
+                    itemp = itemp->clone_వృక్షం(false);
+                    consp->valuep(సూచీ, itemp);
                 }
-            } else {
+            } లేకపోతే {
                 itemp = VN_AS(itemp, ConsStruct)->memberValuep(selp->name());
             }
         }
         // Clone first, as the value assigned may be the old value of the element
-        AstNodeExpr* const valuep = newTrackedClone(fetchValue(valueFromp));
+        Ast_కణుపు_సమాసం* స్థిరరాశి valuep = newTrackedClone(fetch_విలువ(విలువ_Fromp));
         UINFO(9, "     set " << lhsp << " = " << valuep);
         itemp->replaceWith(valuep);
-        m_reclaimValuesp.push_back(itemp);
+        m_reclaimValuesp.నెట్టు_వెనుక(itemp);
         UINFOTREE(9, rootp, "", "aggregate");
-        assignOutValue(nodep, vscp, rootp);
+        కేటాయించు_బహిర్గతం_విలువ(nodep, vscp, rootp);
     }
-    void handleAssignSel(AstNodeAssign* nodep, AstSel* selp, AstNodeExpr* valueFromp) {
+    శూన్య handle_కేటాయించు_Sel(Ast_కణుపు_కేటాయించు* nodep, AstSel* selp, Ast_కణుపు_సమాసం* విలువ_Fromp) {
         AstVarRef* varrefp = nullptr;
-        V3Number lsb{nodep};
-        handleAssignSelRecurse(nodep, selp, varrefp /*ref*/, lsb /*ref*/, 0);
-        if (m_checkOnly || !optimizable()) return;
+        V3_సంఖ్య lsb{nodep};
+        handle_కేటాయించు_Sel_Recurse(nodep, selp, varrefp /*ref*/, lsb /*ref*/, 0);
+        ఒకవేళ (m_checkOnly || !optimizable()) తిరిగి;
         UASSERT_OBJ(varrefp, nodep,
                     "Indicated optimizable, but no variable found on RHS of select");
-        AstNode* const vscp = varOrScope(varrefp);
+        Ast_కణుపు* స్థిరరాశి vscp = varOrScope(varrefp);
         AstConst* outconstp = nullptr;
-        if (AstConst* const vscpnump = fetchOutConstNull(vscp)) {
+        ఒకవేళ (AstConst* స్థిరరాశి vscpnump = fetch_బహిర్గతం_Const_Null(vscp)) {
             outconstp = vscpnump;
-        } else if (AstConst* const vscpnump = fetchConstNull(vscp)) {
+        } లేకపోతే ఒకవేళ (AstConst* స్థిరరాశి vscpnump = fetchConstNull(vscp)) {
             outconstp = vscpnump;
-        } else {  // Assignment to unassigned variable, all bits are X or 0
-            outconstp = new AstConst{nodep->fileline(), AstConst::WidthedValue{},
-                                     varrefp->varp()->widthMin(), 0};
-            if (varrefp->varp()->basicp() && varrefp->varp()->basicp()->isZeroInit()) {
-                outconstp->num().setAllBits0();
-            } else {
-                outconstp->num().setAllBitsX();
+        } లేకపోతే {  // Assignment to unassigned variable, all bits are X or 0
+            outconstp = new AstConst{nodep->fileline(), AstConst::Widthed_విలువ{},
+                                     varrefp->varp()->వెడల్పు_Min(), 0};
+            ఒకవేళ (varrefp->varp()->basicp() && varrefp->varp()->basicp()->isZeroInit()) {
+                outconstp->అంకె().సమితి_All_Bits0();
+            } లేకపోతే {
+                outconstp->అంకె().సమితి_All_బిట్లు_X();
             }
-            m_reclaimValuesp.emplace_back(outconstp);
+            m_reclaimValuesp.emplace_వెనుక(outconstp);
         }
-        outconstp->num().opSelInto(fetchConst(valueFromp)->num(), lsb, selp->widthConst());
-        assignOutValue(nodep, vscp, outconstp);
+        outconstp->అంకె().opSelInto(fetchConst(విలువ_Fromp)->అంకె(), lsb, selp->వెడల్పు_Const());
+        కేటాయించు_బహిర్గతం_విలువ(nodep, vscp, outconstp);
     }
-    void handleAssignSelRecurse(AstNodeAssign* nodep, AstSel* selp, AstVarRef*& outVarrefpRef,
-                                V3Number& lsbRef, int depth) {
+    శూన్య handle_కేటాయించు_Sel_Recurse(Ast_కణుపు_కేటాయించు* nodep, AstSel* selp, AstVarRef*& బహిర్గతం_Varrefp_Ref,
+                                V3_సంఖ్య& lsbRef, పూర్ణాంకం లోతు) {
         // Recurse down to find final variable being set (outVarrefp), with
         // lsb to be eventually set on lsbRef
-        checkNodeInfo(selp);
-        iterateAndNextConstNull(selp->lsbp());  // Bit index
-        if (AstVarRef* const varrefp = VN_CAST(selp->fromp(), VarRef)) {
-            outVarrefpRef = varrefp;
-            lsbRef = fetchConst(selp->lsbp())->num();
-            return;  // And presumably still optimizable()
+        check_కణుపు_Info(selp);
+        iterate_And_తదుపరి_Const_Null(selp->lsbp());  // Bit index
+        ఒకవేళ (AstVarRef* స్థిరరాశి varrefp = VN_CAST(selp->fromp(), VarRef)) {
+            బహిర్గతం_Varrefp_Ref = varrefp;
+            lsbRef = fetchConst(selp->lsbp())->అంకె();
+            తిరిగి;  // And presumably still optimizable()
         }
-        if (AstSel* const subselp = VN_CAST(selp->fromp(), Sel)) {
-            V3Number sublsb{nodep};
-            handleAssignSelRecurse(nodep, subselp, outVarrefpRef, sublsb /*ref*/, depth + 1);
-            if (optimizable()) {
+        ఒకవేళ (AstSel* స్థిరరాశి subselp = VN_CAST(selp->fromp(), Sel)) {
+            V3_సంఖ్య sublsb{nodep};
+            handle_కేటాయించు_Sel_Recurse(nodep, subselp, బహిర్గతం_Varrefp_Ref, sublsb /*ref*/, లోతు + 1);
+            ఒకవేళ (optimizable()) {
                 lsbRef = sublsb;
-                lsbRef.opAdd(sublsb, fetchConst(selp->lsbp())->num());
+                lsbRef.op_కూడు(sublsb, fetchConst(selp->lsbp())->అంకె());
             }
-        } else {
+        } లేకపోతే {
             clearOptimizable(selp->fromp(), "Select LHS isn't simple variable");
         }
     }
-    void handleAssignRecurse(AstNodeAssign* nodep, AstNodeExpr* lhsp, AstNodeExpr* valueFromp) {
-        if (!optimizable()) return;
-        if (VN_IS(lhsp, ArraySel) || VN_IS(lhsp, StructSel)) {
-            if (!m_params) {
+    శూన్య handle_కేటాయించు_Recurse(Ast_కణుపు_కేటాయించు* nodep, Ast_కణుపు_సమాసం* lhsp, Ast_కణుపు_సమాసం* విలువ_Fromp) {
+        ఒకవేళ (!optimizable()) తిరిగి;
+        ఒకవేళ (VN_IS(lhsp, ArraySel) || VN_IS(lhsp, StructSel)) {
+            ఒకవేళ (!m_params) {
                 clearOptimizable(lhsp, "Assign LHS has select");
-                return;
+                తిరిగి;
             }
-            handleAssignElement(nodep, lhsp, valueFromp);
-        } else if (AstConcat* const selp = VN_CAST(lhsp, Concat)) {
-            checkNodeInfo(selp);
-            if (!VN_IS(selp->rhsp()->dtypep()->skipRefp(), BasicDType)) {
+            handle_కేటాయించు_Element(nodep, lhsp, విలువ_Fromp);
+        } లేకపోతే ఒకవేళ (AstConcat* స్థిరరాశి selp = VN_CAST(lhsp, Concat)) {
+            check_కణుపు_Info(selp);
+            ఒకవేళ (!VN_IS(selp->rhsp()->dtypep()->skipRefp(), BasicDType)) {
                 clearOptimizable(lhsp, "Assign LHS concat of non-basic type");
-                return;
+                తిరిగి;
             }
             // Split value into left and right concat values
-            if (!m_checkOnly) {
+            ఒకవేళ (!m_checkOnly) {
                 {
-                    AstConst* const outconstp
-                        = new AstConst{selp->lhsp()->fileline(), AstConst::WidthedValue{},
-                                       selp->lhsp()->width(), 0};
-                    outconstp->num().opSel(fetchConst(valueFromp)->num(),
-                                           selp->lhsp()->width() + selp->rhsp()->width() + 1,
-                                           selp->rhsp()->width());
-                    newValue(selp->lhsp(), outconstp);
-                    VL_DO_DANGLING(outconstp->deleteTree(), outconstp);
+                    AstConst* స్థిరరాశి outconstp
+                        = new AstConst{selp->lhsp()->fileline(), AstConst::Widthed_విలువ{},
+                                       selp->lhsp()->వెడల్పు(), 0};
+                    outconstp->అంకె().opSel(fetchConst(విలువ_Fromp)->అంకె(),
+                                           selp->lhsp()->వెడల్పు() + selp->rhsp()->వెడల్పు() + 1,
+                                           selp->rhsp()->వెడల్పు());
+                    new_విలువ(selp->lhsp(), outconstp);
+                    VL_DO_DANGLING(outconstp->delete_వృక్షం(), outconstp);
                 }
                 {
-                    AstConst* const outconstp
-                        = new AstConst{selp->rhsp()->fileline(), AstConst::WidthedValue{},
-                                       selp->rhsp()->widthMin(), 0};
-                    outconstp->num().opSel(fetchConst(valueFromp)->num(),
-                                           selp->rhsp()->width() - 1, 0);
-                    newValue(selp->rhsp(), outconstp);
-                    VL_DO_DANGLING(outconstp->deleteTree(), outconstp);
+                    AstConst* స్థిరరాశి outconstp
+                        = new AstConst{selp->rhsp()->fileline(), AstConst::Widthed_విలువ{},
+                                       selp->rhsp()->వెడల్పు_Min(), 0};
+                    outconstp->అంకె().opSel(fetchConst(విలువ_Fromp)->అంకె(),
+                                           selp->rhsp()->వెడల్పు() - 1, 0);
+                    new_విలువ(selp->rhsp(), outconstp);
+                    VL_DO_DANGLING(outconstp->delete_వృక్షం(), outconstp);
                 }
             }
-            handleAssignRecurse(nodep, selp->lhsp(), selp->lhsp());
-            handleAssignRecurse(nodep, selp->rhsp(), selp->rhsp());
-        } else if (AstReplicate* const selp = VN_CAST(lhsp, Replicate)) {
-            checkNodeInfo(selp);
-            iterateAndNextConstNull(selp->countp());
-            AstConst* const countp = VN_CAST(selp->countp(), Const);
-            if (!countp || !countp->num().isEqOne()) {
+            handle_కేటాయించు_Recurse(nodep, selp->lhsp(), selp->lhsp());
+            handle_కేటాయించు_Recurse(nodep, selp->rhsp(), selp->rhsp());
+        } లేకపోతే ఒకవేళ (AstReplicate* స్థిరరాశి selp = VN_CAST(lhsp, Replicate)) {
+            check_కణుపు_Info(selp);
+            iterate_And_తదుపరి_Const_Null(selp->countp());
+            AstConst* స్థిరరాశి countp = VN_CAST(selp->countp(), Const);
+            ఒకవేళ (!countp || !countp->అంకె().isEqOne()) {
                 clearOptimizable(selp, "Replicate LHS count isn't one");
-                return;
+                తిరిగి;
             }
-            handleAssignRecurse(nodep, selp->srcp(), valueFromp);
-        } else if (AstSel* const selp = VN_CAST(lhsp, Sel)) {
-            if (!m_params) {
+            handle_కేటాయించు_Recurse(nodep, selp->srcp(), విలువ_Fromp);
+        } లేకపోతే ఒకవేళ (AstSel* స్థిరరాశి selp = VN_CAST(lhsp, Sel)) {
+            ఒకవేళ (!m_params) {
                 clearOptimizable(lhsp, "Assign LHS has select");
-                return;
+                తిరిగి;
             }
-            handleAssignSel(nodep, selp, valueFromp);
-        } else if (VN_IS(lhsp, VarRef)) {
-            if (m_checkOnly) {
-                iterateAndNextConstNull(lhsp);
-            } else {
-                AstNode* const vscp = varOrScope(VN_CAST(lhsp, VarRef));
-                assignOutValue(nodep, vscp, fetchValue(valueFromp));
+            handle_కేటాయించు_Sel(nodep, selp, విలువ_Fromp);
+        } లేకపోతే ఒకవేళ (VN_IS(lhsp, VarRef)) {
+            ఒకవేళ (m_checkOnly) {
+                iterate_And_తదుపరి_Const_Null(lhsp);
+            } లేకపోతే {
+                Ast_కణుపు* స్థిరరాశి vscp = varOrScope(VN_CAST(lhsp, VarRef));
+                కేటాయించు_బహిర్గతం_విలువ(nodep, vscp, fetch_విలువ(విలువ_Fromp));
             }
-        } else {
+        } లేకపోతే {
             clearOptimizable(lhsp, "Assign LHS isn't simple variable");
         }
     }
-    void visit(AstNodeAssign* nodep) override {
-        if (jumpingOver()) return;
-        if (!optimizable()) return;  // Accelerate
-        checkNodeInfo(nodep);
+    శూన్య సందర్శించు(Ast_కణుపు_కేటాయించు* nodep) override {
+        ఒకవేళ (jumpingOver()) తిరిగి;
+        ఒకవేళ (!optimizable()) తిరిగి;  // Accelerate
+        check_కణుపు_Info(nodep);
 
-        VL_RESTORER(m_inDlyAssign);
+        VL_RESTORER(m_లోపల_Dly_కేటాయించు);
 
-        if (VN_IS(nodep, AssignForce)) {
+        ఒకవేళ (VN_IS(nodep, కేటాయించు_Force)) {
             clearOptimizable(nodep, "Force");
-        } else if (VN_IS(nodep, AssignDly)) {
-            if (m_anyAssignComb) clearOptimizable(nodep, "Mix of dly/non-dly assigns");
-            m_anyAssignDly = true;
-            m_inDlyAssign = true;
-        } else {
-            if (m_anyAssignDly) clearOptimizable(nodep, "Mix of dly/non-dly assigns");
-            m_anyAssignComb = true;
+        } లేకపోతే ఒకవేళ (VN_IS(nodep, కేటాయించు_Dly)) {
+            ఒకవేళ (m_any_కేటాయించు_Comb) clearOptimizable(nodep, "Mix of dly/non-dly assigns");
+            m_any_కేటాయించు_Dly = true;
+            m_లోపల_Dly_కేటాయించు = true;
+        } లేకపోతే {
+            ఒకవేళ (m_any_కేటాయించు_Dly) clearOptimizable(nodep, "Mix of dly/non-dly assigns");
+            m_any_కేటాయించు_Comb = true;
         }
 
-        if (VN_IS(nodep->rhsp(), CReset)) {
+        ఒకవేళ (VN_IS(nodep->rhsp(), CReset)) {
             initVar(VN_AS(nodep->lhsp(), VarRef)->varp());
-            return;
+            తిరిగి;
         }
 
-        iterateAndNextConstNull(nodep->rhsp());  // Value to assign
-        handleAssignRecurse(nodep, nodep->lhsp(), nodep->rhsp());
+        iterate_And_తదుపరి_Const_Null(nodep->rhsp());  // Value to assign
+        handle_కేటాయించు_Recurse(nodep, nodep->lhsp(), nodep->rhsp());
         // UINFO(9, "set " << fetchConst(nodep->rhsp())->num().ascii() << " for assign "
         //  << nodep->lhsp()->name());
     }
-    void visit(AstArraySel* nodep) override {
-        checkNodeInfo(nodep);
+    శూన్య సందర్శించు(AstArraySel* nodep) override {
+        check_కణుపు_Info(nodep);
         iterateChildrenConst(nodep);
-        if (const AstConsArray* const consp = VN_CAST(fetchValueNull(nodep->fromp()), ConsArray)) {
-            const AstConst* const indexp = fetchConst(nodep->bitp());
-            const uint32_t offset = indexp->num().toUInt();
-            AstNodeExpr* const itemp = consp->valuep(offset);
-            if (!itemp) {
-                clearOptimizable(nodep, "Array select out of range: " + std::to_string(offset));
-            } else {
-                setValue(nodep, itemp);
+        ఒకవేళ (స్థిరరాశి AstConsArray* స్థిరరాశి consp = VN_CAST(fetch_విలువ_Null(nodep->fromp()), ConsArray)) {
+            స్థిరరాశి AstConst* స్థిరరాశి indexp = fetchConst(nodep->bitp());
+            స్థిరరాశి uint32_t స్థానభ్రంశం = indexp->అంకె().గమ్యం_UInt();
+            Ast_కణుపు_సమాసం* స్థిరరాశి itemp = consp->valuep(స్థానభ్రంశం);
+            ఒకవేళ (!itemp) {
+                clearOptimizable(nodep, "Array select out of range: " + std::గమ్యం_string(స్థానభ్రంశం));
+            } లేకపోతే {
+                సమితి_విలువ(nodep, itemp);
             }
-        } else {
+        } లేకపోతే {
             clearOptimizable(nodep, "Array select of non-array");
         }
     }
-    void visit(AstStructSel* nodep) override {
-        if (!m_params) {
-            badNodeType(nodep);
-            return;
+    శూన్య సందర్శించు(AstStructSel* nodep) override {
+        ఒకవేళ (!m_params) {
+            bad_కణుపు_Type(nodep);
+            తిరిగి;
         }
-        checkNodeInfo(nodep);
+        check_కణుపు_Info(nodep);
         iterateChildrenConst(nodep);
-        if (m_checkOnly || !optimizable()) return;
-        AstConsStruct* const consp = VN_AS(fetchValue(nodep->fromp()), ConsStruct);
-        setValue(nodep, consp->memberValuep(nodep->name()));
+        ఒకవేళ (m_checkOnly || !optimizable()) తిరిగి;
+        AstConsStruct* స్థిరరాశి consp = VN_AS(fetch_విలువ(nodep->fromp()), ConsStruct);
+        సమితి_విలువ(nodep, consp->memberValuep(nodep->name()));
     }
 
     // Evaluate a slice of an unpacked array.  If the base value is a constant
     // AstConsArray, build a new AstConsArray representing the slice and assign
     // it as this node's value.  New index 0 corresponds to the lowest index of
     // the slice.  Otherwise, mark this node as unoptimizable.
-    void visit(AstSliceSel* nodep) override {
-        checkNodeInfo(nodep);
+    శూన్య సందర్శించు(Ast_ముక్క_Sel* nodep) override {
+        check_కణుపు_Info(nodep);
         iterateChildrenConst(nodep);
-        if (m_checkOnly || !optimizable()) return;
+        ఒకవేళ (m_checkOnly || !optimizable()) తిరిగి;
         // Fetch the base constant array
-        if (const AstConsArray* const consp = VN_CAST(fetchValueNull(nodep->fromp()), ConsArray)) {
-            const VNumRange& sliceRange = nodep->declRange();
-            const uint32_t sliceElements = sliceRange.elements();
-            const int sliceLo = sliceRange.lo();
+        ఒకవేళ (స్థిరరాశి AstConsArray* స్థిరరాశి consp = VN_CAST(fetch_విలువ_Null(nodep->fromp()), ConsArray)) {
+            స్థిరరాశి VNumRange& ముక్క_Range = nodep->declRange();
+            స్థిరరాశి uint32_t ముక్క_Elements = ముక్క_Range.elements();
+            స్థిరరాశి పూర్ణాంకం ముక్క_Lo = ముక్క_Range.lo();
             // Use this node's dtype for the slice array
-            AstNodeDType* const dtypep = nodep->dtypep()->skipRefp();
-            AstConsArray* const newConsp = new AstConsArray{nodep->fileline(), dtypep};
+            Ast_కణుపు_DType* స్థిరరాశి dtypep = nodep->dtypep()->skipRefp();
+            AstConsArray* స్థిరరాశి newConsp = new AstConsArray{nodep->fileline(), dtypep};
             // Copy slice elements in ascending order
-            for (uint32_t idx = 0; idx < sliceElements; ++idx) {
-                const uint32_t baseIdx = sliceLo + idx;
-                newConsp->valuep(idx, consp->valuep(baseIdx)->cloneTree(false));
+            కొరకు (uint32_t idx = 0; idx < ముక్క_Elements; ++idx) {
+                స్థిరరాశి uint32_t పునాది_Idx = ముక్క_Lo + idx;
+                newConsp->valuep(idx, consp->valuep(పునాది_Idx)->clone_వృక్షం(false));
             }
             // Assign the new constant array and track it for later deletion
-            setValue(nodep, newConsp);
-            m_reclaimValuesp.push_back(newConsp);
-        } else {
+            సమితి_విలువ(nodep, newConsp);
+            m_reclaimValuesp.నెట్టు_వెనుక(newConsp);
+        } లేకపోతే {
             clearOptimizable(nodep, "Slice select of non-array");
         }
     }
 
-    void visit(AstBegin* nodep) override {
-        checkNodeInfo(nodep);
+    శూన్య సందర్శించు(AstBegin* nodep) override {
+        check_కణుపు_Info(nodep);
         iterateChildrenConst(nodep);
     }
-    void visit(AstCase* nodep) override {
-        if (jumpingOver()) return;
+    శూన్య సందర్శించు(AstCase* nodep) override {
+        ఒకవేళ (jumpingOver()) తిరిగి;
         UINFO(5, "   CASE " << nodep);
-        checkNodeInfo(nodep);
-        if (m_checkOnly) {
+        check_కణుపు_Info(nodep);
+        ఒకవేళ (m_checkOnly) {
             iterateChildrenConst(nodep);
-        } else if (optimizable()) {
-            iterateAndNextConstNull(nodep->exprp());
-            bool hit = false;
-            for (AstCaseItem* itemp = nodep->itemsp(); itemp;
-                 itemp = VN_AS(itemp->nextp(), CaseItem)) {
-                if (!itemp->isDefault()) {
-                    for (AstNode* ep = itemp->condsp(); ep; ep = ep->nextp()) {
-                        if (hit) break;
-                        iterateAndNextConstNull(ep);
-                        if (optimizable()) {
-                            V3Number match{nodep, 1};
-                            match.opEq(fetchConst(nodep->exprp())->num(), fetchConst(ep)->num());
-                            if (match.isNeqZero()) {
-                                iterateAndNextConstNull(itemp->stmtsp());
-                                hit = true;
+        } లేకపోతే ఒకవేళ (optimizable()) {
+            iterate_And_తదుపరి_Const_Null(nodep->exprp());
+            bool తగిలింది = false;
+            కొరకు (Ast_Case_అంశం* itemp = nodep->itemsp(); itemp;
+                 itemp = VN_AS(itemp->nextp(), Case_అంశం)) {
+                ఒకవేళ (!itemp->isDefault()) {
+                    కొరకు (Ast_కణుపు* ep = itemp->condsp(); ep; ep = ep->nextp()) {
+                        ఒకవేళ (తగిలింది) ఆపు;
+                        iterate_And_తదుపరి_Const_Null(ep);
+                        ఒకవేళ (optimizable()) {
+                            V3_సంఖ్య సరిపోలిక{nodep, 1};
+                            సరిపోలిక.opEq(fetchConst(nodep->exprp())->అంకె(), fetchConst(ep)->అంకె());
+                            ఒకవేళ (సరిపోలిక.isNeqZero()) {
+                                iterate_And_తదుపరి_Const_Null(itemp->stmtsp());
+                                తగిలింది = true;
                             }
                         }
                     }
                 }
             }
             // Else default match
-            for (AstCaseItem* itemp = nodep->itemsp(); itemp;
-                 itemp = VN_AS(itemp->nextp(), CaseItem)) {
-                if (hit) break;
-                if (itemp->isDefault()) {
-                    iterateAndNextConstNull(itemp->stmtsp());
-                    hit = true;
+            కొరకు (Ast_Case_అంశం* itemp = nodep->itemsp(); itemp;
+                 itemp = VN_AS(itemp->nextp(), Case_అంశం)) {
+                ఒకవేళ (తగిలింది) ఆపు;
+                ఒకవేళ (itemp->isDefault()) {
+                    iterate_And_తదుపరి_Const_Null(itemp->stmtsp());
+                    తగిలింది = true;
                 }
             }
         }
     }
 
-    void visit(AstCaseItem* nodep) override {
+    శూన్య సందర్శించు(Ast_Case_అంశం* nodep) override {
         // Real handling is in AstNodeCase
-        if (jumpingOver()) return;
-        checkNodeInfo(nodep);
+        ఒకవేళ (jumpingOver()) తిరిగి;
+        check_కణుపు_Info(nodep);
         iterateChildrenConst(nodep);
     }
 
-    void visit(AstComment*) override {}
+    శూన్య సందర్శించు(AstComment*) override {}
 
-    void visit(AstStmtExpr* nodep) override {
-        if (jumpingOver()) return;
-        checkNodeInfo(nodep);
+    శూన్య సందర్శించు(Ast_Stmt_సమాసం* nodep) override {
+        ఒకవేళ (jumpingOver()) తిరిగి;
+        check_కణుపు_Info(nodep);
         iterateChildrenConst(nodep);
     }
-    void visit(AstExprStmt* nodep) override {
-        if (jumpingOver()) return;
-        checkNodeInfo(nodep);
-        iterateAndNextConstNull(nodep->stmtsp());
-        if (!optimizable()) return;
-        iterateAndNextConstNull(nodep->resultp());
-        if (m_checkOnly || !optimizable()) return;
-        newValue(nodep, fetchValue(nodep->resultp()));
+    శూన్య సందర్శించు(Ast_సమాసం_Stmt* nodep) override {
+        ఒకవేళ (jumpingOver()) తిరిగి;
+        check_కణుపు_Info(nodep);
+        iterate_And_తదుపరి_Const_Null(nodep->stmtsp());
+        ఒకవేళ (!optimizable()) తిరిగి;
+        iterate_And_తదుపరి_Const_Null(nodep->resultp());
+        ఒకవేళ (m_checkOnly || !optimizable()) తిరిగి;
+        new_విలువ(nodep, fetch_విలువ(nodep->resultp()));
     }
 
-    void visit(AstJumpBlock* nodep) override {
-        if (jumpingOver()) return;
+    శూన్య సందర్శించు(Ast_Jump_ఖండం* nodep) override {
+        ఒకవేళ (jumpingOver()) తిరిగి;
         iterateChildrenConst(nodep);
-        if (m_jumptargetp == nodep) {
+        ఒకవేళ (m_jumptargetp == nodep) {
             UINFO(5, "   JUMP DONE " << nodep);
             m_jumptargetp = nullptr;
         }
     }
-    void visit(AstJumpGo* nodep) override {
-        if (jumpingOver()) return;
-        checkNodeInfo(nodep);
-        if (!m_checkOnly) {
+    శూన్య సందర్శించు(AstJumpGo* nodep) override {
+        ఒకవేళ (jumpingOver()) తిరిగి;
+        check_కణుపు_Info(nodep);
+        ఒకవేళ (!m_checkOnly) {
             UINFO(5, "   JUMP GO " << nodep);
             UASSERT_OBJ(!m_jumptargetp, nodep, "Jump inside jump");
             m_jumptargetp = nodep->blockp();
         }
     }
-    void visit(AstLoop* nodep) override {
+    శూన్య సందర్శించు(AstLoop* nodep) override {
         UASSERT_OBJ(!nodep->contsp(), nodep, "'contsp' only used before LinkJump");
-        if (jumpingOver()) return;
+        ఒకవేళ (jumpingOver()) తిరిగి;
         UINFO(5, "   LOOP " << nodep);
         // Doing lots of loops is slow, so only for parameters
-        if (!m_params) {
-            badNodeType(nodep);
-            return;
+        ఒకవేళ (!m_params) {
+            bad_కణుపు_Type(nodep);
+            తిరిగి;
         }
-        checkNodeInfo(nodep);
-        if (m_checkOnly) {
+        check_కణుపు_Info(nodep);
+        ఒకవేళ (m_checkOnly) {
             iterateChildrenConst(nodep);
-            return;
+            తిరిగి;
         }
-        if (!optimizable()) return;
+        ఒకవేళ (!optimizable()) తిరిగి;
 
-        size_t iterCount = 0;
-        const size_t iterLimit = v3Global.opt.unrollLimit();
-        while (true) {
-            if (iterCount > iterLimit) {
+        కొలత_t iter_లెక్క = 0;
+        స్థిరరాశి కొలత_t iter_హద్దు = v3Global.opt.unroll_హద్దు();
+        అయితే (true) {
+            ఒకవేళ (iter_లెక్క > iter_హద్దు) {
                 clearOptimizable(nodep, "Loop simulation took too long; probably this is an "
                                         "infinite loop, otherwise set '--unroll-limit' above "
-                                            + std::to_string(iterLimit));
-                break;
+                                            + std::గమ్యం_string(iter_హద్దు));
+                ఆపు;
             }
-            ++iterCount;
+            ++iter_లెక్క;
 
             UINFO(5, "    LOOP-ITER " << nodep);
-            iterateAndNextConstNull(nodep->stmtsp());
-            if (jumpingOver()) break;
+            iterate_And_తదుపరి_Const_Null(nodep->stmtsp());
+            ఒకవేళ (jumpingOver()) ఆపు;
         }
 
-        if (m_jumptargetp == nodep) {
+        ఒకవేళ (m_jumptargetp == nodep) {
             UINFO(5, "   LOOP TEST DONE " << nodep);
             m_jumptargetp = nullptr;
         }
     }
-    void visit(AstLoopTest* nodep) override {
-        if (jumpingOver()) return;
-        checkNodeInfo(nodep);
+    శూన్య సందర్శించు(AstLoopTest* nodep) override {
+        ఒకవేళ (jumpingOver()) తిరిగి;
+        check_కణుపు_Info(nodep);
         iterateConst(nodep->condp());
-        if (m_checkOnly || !optimizable()) return;
-        if (fetchConst(nodep->condp())->num().isEqZero()) {
+        ఒకవేళ (m_checkOnly || !optimizable()) తిరిగి;
+        ఒకవేళ (fetchConst(nodep->condp())->అంకె().isEqZero()) {
             UINFO(5, "   LOOP TEST GO " << nodep);
             UASSERT_OBJ(!m_jumptargetp, nodep, "Jump inside jump");
             m_jumptargetp = nodep->loopp();
         }
     }
 
-    void visit(AstStop* nodep) override {
-        if (jumpingOver()) return;
-        if (m_params) {  // This message seems better than an obscure $stop
+    శూన్య సందర్శించు(AstStop* nodep) override {
+        ఒకవేళ (jumpingOver()) తిరిగి;
+        ఒకవేళ (m_params) {  // This message seems better than an obscure $stop
             // The spec says $stop is just ignored, it seems evil to ignore assertions
             clearOptimizable(
                 nodep,
                 "$stop executed during function constification; maybe indicates assertion firing");
         }
-        checkNodeInfo(nodep);
+        check_కణుపు_Info(nodep);
     }
-    void visit(AstFuncRef* nodep) override {
-        if (jumpingOver()) return;
-        if (!optimizable()) return;  // Accelerate
+    శూన్య సందర్శించు(AstFuncRef* nodep) override {
+        ఒకవేళ (jumpingOver()) తిరిగి;
+        ఒకవేళ (!optimizable()) తిరిగి;  // Accelerate
         UINFO(5, "   FUNCREF " << nodep);
-        checkNodeInfo(nodep);
-        if (!m_params) {
-            badNodeType(nodep);
-            return;
+        check_కణుపు_Info(nodep);
+        ఒకవేళ (!m_params) {
+            bad_కణుపు_Type(nodep);
+            తిరిగి;
         }
-        AstNodeFTask* funcp = nodep->taskp();
+        Ast_కణుపు_FTask* funcp = nodep->taskp();
         UASSERT_OBJ(funcp, nodep, "Not linked");
-        if (m_params) V3Width::widthParamsEdit(funcp);
+        ఒకవేళ (m_params) V3_వెడల్పు::వెడల్పు_Params_Edit(funcp);
         VL_DANGLING(funcp);  // Make sure we've sized the function
         funcp = nodep->taskp();
         UASSERT_OBJ(funcp, nodep, "Not linked");
 
-        if (funcp->recursive()) {
-            if (m_recurseCount >= v3Global.opt.funcRecursionDepth()) {
+        ఒకవేళ (funcp->recursive()) {
+            ఒకవేళ (m_recurse_లెక్క >= v3Global.opt.func_Recursion_లోతు()) {
                 clearOptimizable(funcp, "Constant function recursed more than "s
-                                            + std::to_string(v3Global.opt.funcRecursionDepth())
+                                            + std::గమ్యం_string(v3Global.opt.func_Recursion_లోతు())
                                             + " times");
-                return;
+                తిరిగి;
             }
-            ++m_recurseCount;
+            ++m_recurse_లెక్క;
         }
 
         // Values from previous call, so can save to stack
         // The "stack" is this visit function's local stack, as this visit is itself recursing
-        std::map<AstNode*, AstNodeExpr*> oldValues;
+        std::map<Ast_కణుపు*, Ast_కణుపు_సమాసం*> old_విలువలు;
 
-        if (funcp->recursive() && !m_checkOnly) {
+        ఒకవేళ (funcp->recursive() && !m_checkOnly) {
             // Save local automatics
-            funcp->foreach([this, &oldValues](AstVar* varp) {
-                if (varp->lifetime().isAutomatic()) {  // This also does function's I/O
-                    if (AstNodeExpr* const valuep = fetchValueNull(varp)) {
-                        AstNodeExpr* const nvaluep = newTrackedClone(valuep);
-                        oldValues.emplace(varp, nvaluep);
+            funcp->foreach([this, &old_విలువలు](AstVar* varp) {
+                ఒకవేళ (varp->lifetime().isAutomatic()) {  // This also does function's I/O
+                    ఒకవేళ (Ast_కణుపు_సమాసం* స్థిరరాశి valuep = fetch_విలువ_Null(varp)) {
+                        Ast_కణుపు_సమాసం* స్థిరరాశి nvaluep = newTrackedClone(valuep);
+                        old_విలువలు.emplace(varp, nvaluep);
                     }
                 }
             });
@@ -1328,11 +1328,11 @@ private:
             // we could look at the visit stack to determine what nodes
             // need save-restore, but that is difficult to get right, and
             // recursion is rare.
-            funcp->foreach([this, &oldValues](AstNodeExpr* exprp) {
-                if (VN_IS(exprp, Const)) return;  // Speed up as won't change
-                if (AstNodeExpr* const valuep = fetchValueNull(exprp)) {
-                    AstNodeExpr* const nvaluep = newTrackedClone(valuep);
-                    oldValues.emplace(exprp, nvaluep);
+            funcp->foreach([this, &old_విలువలు](Ast_కణుపు_సమాసం* exprp) {
+                ఒకవేళ (VN_IS(exprp, Const)) తిరిగి;  // Speed up as won't change
+                ఒకవేళ (Ast_కణుపు_సమాసం* స్థిరరాశి valuep = fetch_విలువ_Null(exprp)) {
+                    Ast_కణుపు_సమాసం* స్థిరరాశి nvaluep = newTrackedClone(valuep);
+                    old_విలువలు.emplace(exprp, nvaluep);
                 }
             });
         }
@@ -1340,256 +1340,256 @@ private:
         V3TaskConnects tconnects = V3Task::taskConnects(nodep, nodep->taskp()->stmtsp());
         // Must do this in two steps, eval all params, then apply them
         // Otherwise chained functions may have the wrong results
-        std::vector<std::pair<AstVar*, AstNodeExpr*>> portValues;
-        for (V3TaskConnects::iterator it = tconnects.begin(); it != tconnects.end(); ++it) {
-            AstVar* const portp = it->first;
-            AstNode* const pinp = it->second->exprp();
-            if (pinp) {  // Else too few arguments in function call - ignore it
-                if (portp->isWritable()) {
+        std::సదిశ<std::pair<AstVar*, Ast_కణుపు_సమాసం*>> పోర్టు_విలువలు;
+        కొరకు (V3TaskConnects::iterator it = tconnects.begin(); it != tconnects.చివర(); ++it) {
+            AstVar* స్థిరరాశి portp = it->మొదటి;
+            Ast_కణుపు* స్థిరరాశి pinp = it->రెండవ->exprp();
+            ఒకవేళ (pinp) {  // Else too few arguments in function call - ignore it
+                ఒకవేళ (portp->isWritable()) {
                     clearOptimizable(
                         portp,
                         "Language violation: Outputs/refs not allowed in constant functions");
-                    return;
+                    తిరిగి;
                 }
                 // Evaluate pin value
                 iterateConst(pinp);
                 // Clone in case are recursing
-                portValues.emplace_back(std::make_pair(portp, newTrackedClone(fetchValue(pinp))));
+                పోర్టు_విలువలు.emplace_వెనుక(std::make_pair(portp, newTrackedClone(fetch_విలువ(pinp))));
             }
         }
         // Apply value to the function
-        if (!m_checkOnly && optimizable())
-            for (const auto& it : portValues) {
-                if (!m_checkOnly && optimizable()) newValue(it.first, it.second);
+        ఒకవేళ (!m_checkOnly && optimizable())
+            కొరకు (స్థిరరాశి స్వయంచాలక& it : పోర్టు_విలువలు) {
+                ఒకవేళ (!m_checkOnly && optimizable()) new_విలువ(it.మొదటి, it.రెండవ);
             }
-        SimStackNode stackNode{nodep, &tconnects};
+        Sim_దొంతర_కణుపు దొంతర_కణుపు{nodep, &tconnects};
         // cppcheck-suppress danglingLifetime
-        m_callStack.push_back(&stackNode);
-        if (!m_checkOnly) {
+        m_call_దొంతర.నెట్టు_వెనుక(&దొంతర_కణుపు);
+        ఒకవేళ (!m_checkOnly) {
             // Clear output variable
             initVar(VN_CAST(funcp->fvarp(), Var));
             // Clear other automatic variables
             funcp->foreach([this](AstVar* varp) {
-                if (varp->lifetime().isAutomatic() && (!varp->isIO() || varp->isFuncReturn()))
+                ఒకవేళ (varp->lifetime().isAutomatic() && (!varp->isIO() || varp->isFuncReturn()))
                     initVar(varp);
             });
         }
 
         // Evaluate the function
         iterateConst(funcp);
-        m_callStack.pop_back();
-        const AstNodeExpr* returnp = nullptr;
-        if (!m_checkOnly && optimizable()) {
+        m_call_దొంతర.తీయి_వెనుక();
+        స్థిరరాశి Ast_కణుపు_సమాసం* returnp = nullptr;
+        ఒకవేళ (!m_checkOnly && optimizable()) {
             // Grab return value from output variable
             UASSERT_OBJ(funcp->fvarp(), nodep, "Function reference points at non-function");
-            returnp = newTrackedClone(fetchValue(funcp->fvarp()));
+            returnp = newTrackedClone(fetch_విలువ(funcp->fvarp()));
             UINFO(5, "func " << nodep->name() << " return = " << returnp);
         }
         // Restore local automatics (none unless recursed)
-        for (const auto& it : oldValues) {
-            if (it.second) newValue(it.first, it.second);
+        కొరకు (స్థిరరాశి స్వయంచాలక& it : old_విలువలు) {
+            ఒకవేళ (it.రెండవ) new_విలువ(it.మొదటి, it.రెండవ);
         }
-        if (returnp) newValue(nodep, returnp);
-        if (funcp->recursive()) {
-            UASSERT_OBJ(m_recurseCount > 0, nodep, "recurse underflow");
-            --m_recurseCount;
-        }
-    }
-
-    void visit(AstVar* nodep) override {
-        if (jumpingOver()) return;
-        if (!m_params) {
-            badNodeType(nodep);
-            return;
+        ఒకవేళ (returnp) new_విలువ(nodep, returnp);
+        ఒకవేళ (funcp->recursive()) {
+            UASSERT_OBJ(m_recurse_లెక్క > 0, nodep, "recurse underflow");
+            --m_recurse_లెక్క;
         }
     }
 
-    void visit(AstScopeName* /*nodep*/) override {
-        if (jumpingOver()) return;
+    శూన్య సందర్శించు(AstVar* nodep) override {
+        ఒకవేళ (jumpingOver()) తిరిగి;
+        ఒకవేళ (!m_params) {
+            bad_కణుపు_Type(nodep);
+            తిరిగి;
+        }
+    }
+
+    శూన్య సందర్శించు(AstScopeName* /*nodep*/) override {
+        ఒకవేళ (jumpingOver()) తిరిగి;
         // Ignore
     }
 
-    void visit(AstSFormatArg* nodep) override {
-        checkNodeInfo(nodep);
+    శూన్య సందర్శించు(AstSFormatArg* nodep) override {
+        check_కణుపు_Info(nodep);
         // Constant enum names come from the dtype, not the runtime lookup.
-        iterateAndNextConstNull(nodep->exprp());
+        iterate_And_తదుపరి_Const_Null(nodep->exprp());
     }
-    void visit(AstSFormatF* nodep) override {
-        if (jumpingOver()) return;
-        if (!optimizable()) return;  // Accelerate
-        checkNodeInfo(nodep);
+    శూన్య సందర్శించు(AstSFormatF* nodep) override {
+        ఒకవేళ (jumpingOver()) తిరిగి;
+        ఒకవేళ (!optimizable()) తిరిగి;  // Accelerate
+        check_కణుపు_Info(nodep);
         iterateChildrenConst(nodep);
-        if (m_checkOnly || !optimizable()) return;
+        ఒకవేళ (m_checkOnly || !optimizable()) తిరిగి;
 
-        AstNode* nextArgp = nodep->exprsp();
-        string result;
-        const string format = nodep->text();
-        auto pos = format.cbegin();
-        bool inPct = false;
-        string width;
-        for (; pos != format.cend(); ++pos) {
-            if (!inPct && pos[0] == '%') {
-                inPct = true;
-                width = "";
-            } else if (!inPct) {  // Normal text
-                result += *pos;
-            } else {  // Format character
-                if (std::isdigit(pos[0])) {
-                    width += pos[0];
-                    continue;
+        Ast_కణుపు* తదుపరి_Argp = nodep->exprsp();
+        string ఫలితం;
+        స్థిరరాశి string format = nodep->పాఠ్యం();
+        స్వయంచాలక pos = format.cbegin();
+        bool లోపల_Pct = false;
+        string వెడల్పు;
+        కొరకు (; pos != format.cend(); ++pos) {
+            ఒకవేళ (!లోపల_Pct && pos[0] == '%') {
+                లోపల_Pct = true;
+                వెడల్పు = "";
+            } లేకపోతే ఒకవేళ (!లోపల_Pct) {  // Normal text
+                ఫలితం += *pos;
+            } లేకపోతే {  // Format character
+                ఒకవేళ (std::అంకెనా(pos[0])) {
+                    వెడల్పు += pos[0];
+                    కొనసాగు;
                 }
 
-                inPct = false;
+                లోపల_Pct = false;
 
-                if (V3Number::displayedFmtHasArg(std::tolower(pos[0]), false)) {
-                    AstNode* const argp = nextArgp;
-                    nextArgp = nextArgp->nextp();
-                    AstSFormatArg* const fargp = VN_CAST(argp, SFormatArg);
-                    AstNode* const subargp = fargp ? fargp->exprp() : argp;
-                    AstConst* const constp = fetchConstNull(subargp);
-                    const VFormatAttr formatAttr
+                ఒకవేళ (V3_సంఖ్య::displayedFmtHasArg(std::tolower(pos[0]), false)) {
+                    Ast_కణుపు* స్థిరరాశి argp = తదుపరి_Argp;
+                    తదుపరి_Argp = తదుపరి_Argp->nextp();
+                    AstSFormatArg* స్థిరరాశి fargp = VN_CAST(argp, SFormatArg);
+                    Ast_కణుపు* స్థిరరాశి subargp = fargp ? fargp->exprp() : argp;
+                    AstConst* స్థిరరాశి constp = fetchConstNull(subargp);
+                    స్థిరరాశి VFormatAttr formatAttr
                         = argp ? AstSFormatArg::formatAttrDefauled(fargp, subargp->dtypep())
                                : VFormatAttr{};
-                    if (!constp) {
+                    ఒకవేళ (!constp) {
                         clearOptimizable(nodep,
                                          "Argument for $display-like statement is not constant");
-                        break;
+                        ఆపు;
                     }
-                    const string pformat = "%"s + width + pos[0];
-                    result += formatAttr.isEnum()
-                                  ? constp->num().displayedEnum(fargp, pformat)
-                                  : constp->num().displayed(nodep, pformat, formatAttr);
-                } else {
-                    switch (std::tolower(pos[0])) {
-                    case '%': result += "%"; break;
-                    case 'm':
+                    స్థిరరాశి string pformat = "%"s + వెడల్పు + pos[0];
+                    ఫలితం += formatAttr.isEnum()
+                                  ? constp->అంకె().displayedEnum(fargp, pformat)
+                                  : constp->అంకె().displayed(nodep, pformat, formatAttr);
+                } లేకపోతే {
+                    ఎంపిక (std::tolower(pos[0])) {
+                    స్థితి '%': ఫలితం += "%"; ఆపు;
+                    స్థితి 'm':
                         // This happens prior to AstScope so we don't
                         // know the scope name. Leave the %m in place.
-                        result += "%m";
-                        break;
-                    default: clearOptimizable(nodep, "Unknown $display-like format code."); break;
+                        ఫలితం += "%m";
+                        ఆపు;
+                    అప్రమేయ: clearOptimizable(nodep, "Unknown $display-like format code."); ఆపు;
                     }
                 }
             }
         }
 
-        AstConst* const resultConstp = new AstConst{nodep->fileline(), AstConst::String{}, result};
-        setValue(nodep, resultConstp);
-        m_reclaimValuesp.push_back(resultConstp);
+        AstConst* స్థిరరాశి ఫలితం_Constp = new AstConst{nodep->fileline(), AstConst::String{}, ఫలితం};
+        సమితి_విలువ(nodep, ఫలితం_Constp);
+        m_reclaimValuesp.నెట్టు_వెనుక(ఫలితం_Constp);
     }
 
-    void visit(AstDisplay* nodep) override {
-        if (jumpingOver()) return;
-        if (!optimizable()) return;  // Accelerate
+    శూన్య సందర్శించు(AstDisplay* nodep) override {
+        ఒకవేళ (jumpingOver()) తిరిగి;
+        ఒకవేళ (!optimizable()) తిరిగి;  // Accelerate
         // We ignore isPredictOptimizable as $display is often in constant
         // functions and we want them to work if used with parameters
-        checkNodeInfo(nodep, /*display:*/ true);
+        check_కణుపు_Info(nodep, /*display:*/ true);
         iterateChildrenConst(nodep);
-        if (m_params) {
-            const AstConst* const textp = fetchConst(nodep->fmtp());
-            switch (nodep->displayType()) {
-            case VDisplayType::DT_DISPLAY:  // FALLTHRU
-            case VDisplayType::DT_INFO: v3warn(USERINFO, textp->name()); break;
-            case VDisplayType::DT_ERROR: v3warn(USERERROR, textp->name()); break;
-            case VDisplayType::DT_WARNING: v3warn(USERWARN, textp->name()); break;
-            case VDisplayType::DT_FATAL: v3warn(USERFATAL, textp->name()); break;
-            case VDisplayType::DT_WRITE:  // FALLTHRU
-            default: clearOptimizable(nodep, "Unexpected display type");
+        ఒకవేళ (m_params) {
+            స్థిరరాశి AstConst* స్థిరరాశి textp = fetchConst(nodep->fmtp());
+            ఎంపిక (nodep->displayType()) {
+            స్థితి VDisplayType::DT_DISPLAY:  // FALLTHRU
+            స్థితి VDisplayType::DT_INFO: v3warn(USERINFO, textp->name()); ఆపు;
+            స్థితి VDisplayType::DT_ERROR: v3warn(USERERROR, textp->name()); ఆపు;
+            స్థితి VDisplayType::DT_WARNING: v3warn(USERWARN, textp->name()); ఆపు;
+            స్థితి VDisplayType::DT_FATAL: v3warn(USERFATAL, textp->name()); ఆపు;
+            స్థితి VDisplayType::DT_WRITE:  // FALLTHRU
+            అప్రమేయ: clearOptimizable(nodep, "Unexpected display type");
             }
         }
     }
-    void visit(AstToStringN* nodep) override {
-        if (jumpingOver()) return;
-        if (!optimizable()) return;  // Accelerate
-        checkNodeInfo(nodep);
+    శూన్య సందర్శించు(Ast_గమ్యం_String_N* nodep) override {
+        ఒకవేళ (jumpingOver()) తిరిగి;
+        ఒకవేళ (!optimizable()) తిరిగి;  // Accelerate
+        check_కణుపు_Info(nodep);
         iterateChildrenConst(nodep);
-        if (m_checkOnly || !optimizable()) return;
-        const std::string result = toStringRecurse(fetchValue(nodep->lhsp()));
-        if (!optimizable()) return;
-        AstConst* const resultConstp = new AstConst{nodep->fileline(), AstConst::String{}, result};
-        setValue(nodep, resultConstp);
-        m_reclaimValuesp.push_back(resultConstp);
+        ఒకవేళ (m_checkOnly || !optimizable()) తిరిగి;
+        స్థిరరాశి std::string ఫలితం = గమ్యం_String_Recurse(fetch_విలువ(nodep->lhsp()));
+        ఒకవేళ (!optimizable()) తిరిగి;
+        AstConst* స్థిరరాశి ఫలితం_Constp = new AstConst{nodep->fileline(), AstConst::String{}, ఫలితం};
+        సమితి_విలువ(nodep, ఫలితం_Constp);
+        m_reclaimValuesp.నెట్టు_వెనుక(ఫలితం_Constp);
     }
 
-    void visit(AstCoverInc* /*nodep*/) override { m_isCoverage = true; }
+    శూన్య సందర్శించు(AstCoverInc* /*nodep*/) override { m_isCoverage = true; }
 
     // ====
     // Known Bad
-    void visit(AstCMethodHard* nodep) override {
+    శూన్య సందర్శించు(AstCMethodHard* nodep) override {
         // Some CMethods such as size() on queues could be supported, but
         // instead we should change those methods to new Ast types so we can
         // properly dispatch them
-        knownBadNodeType(nodep);
+        తెలిసిన_Bad_కణుపు_Type(nodep);
     }
-    void visit(AstGetInitialRandomSeed* nodep) override { knownBadNodeType(nodep); }
-    void visit(AstMemberSel* nodep) override { knownBadNodeType(nodep); }
-    void visit(AstSampled* nodep) override { knownBadNodeType(nodep); }
+    శూన్య సందర్శించు(Ast_Get_Initial_Random_విత్తనం* nodep) override { తెలిసిన_Bad_కణుపు_Type(nodep); }
+    శూన్య సందర్శించు(AstMemberSel* nodep) override { తెలిసిన_Bad_కణుపు_Type(nodep); }
+    శూన్య సందర్శించు(AstSampled* nodep) override { తెలిసిన_Bad_కణుపు_Type(nodep); }
     // ====
     // default
     // These types are definitely not reducible
     //   AstCoverInc, AstFinish,
     //   AstRand, AstTime, AstCCall, AstCStmt*, AstCExpr*
-    void visit(AstNode* nodep) override {
-        if (jumpingOver()) return;
-        badNodeType(nodep);
+    శూన్య సందర్శించు(Ast_కణుపు* nodep) override {
+        ఒకవేళ (jumpingOver()) తిరిగి;
+        bad_కణుపు_Type(nodep);
     }
 
     // MEMBERS - called by constructor
-    void setMode(bool scoped, bool checkOnly, bool params) {
+    శూన్య సమితి_బహుళకం(bool scoped, bool checkOnly, bool params) {
         m_checkOnly = checkOnly;
         m_scoped = scoped;
         m_params = params;
     }
-    void mainGuts(AstNode* nodep) {
+    శూన్య mainGuts(Ast_కణుపు* nodep) {
         iterateConst(nodep);
         UASSERT_OBJ(!m_jumptargetp, m_jumptargetp, "Jump target was not found");
     }
 
-public:
+బహిరంగ:
     // CONSTRUCTORS
     SimulateVisitor() {
         // Note AstUser#InUse ensures only one invocation exists at once
-        setMode(false, false, false);
+        సమితి_బహుళకం(false, false, false);
         clear();  // We reuse this structure in the main loop, so put initializers inside clear()
     }
-    void clear() {
+    శూన్య clear() {
         m_whyNotOptimizable = "";
         m_whyNotNodep = nullptr;
-        m_anyAssignComb = false;
-        m_anyAssignDly = false;
-        m_inDlyAssign = false;
+        m_any_కేటాయించు_Comb = false;
+        m_any_కేటాయించు_Dly = false;
+        m_లోపల_Dly_కేటాయించు = false;
         m_isImpure = false;
         m_isCoverage = false;
-        m_instrCount = 0;
-        m_dataCount = 0;
+        m_instr_లెక్క = 0;
+        m_దత్తాంశం_లెక్క = 0;
         m_jumptargetp = nullptr;
 
-        AstNode::user1ClearTree();
+        Ast_కణుపు::user1_Clear_వృక్షం();
         m_varAux.clear();
         ++m_constGeneration;
     }
-    void mainTableCheck(AstNode* nodep) {
-        setMode(true /*scoped*/, true /*checking*/, false /*params*/);
+    శూన్య main_పట్టిక_Check(Ast_కణుపు* nodep) {
+        సమితి_బహుళకం(true /*scoped*/, true /*checking*/, false /*params*/);
         mainGuts(nodep);
     }
-    void mainTableEmulate(AstNode* nodep) {
-        setMode(true /*scoped*/, false /*checking*/, false /*params*/);
+    శూన్య main_పట్టిక_Emulate(Ast_కణుపు* nodep) {
+        సమితి_బహుళకం(true /*scoped*/, false /*checking*/, false /*params*/);
         mainGuts(nodep);
     }
-    void mainParamEmulate(AstNode* nodep) {
-        setMode(false /*scoped*/, false /*checking*/, true /*params*/);
+    శూన్య mainParamEmulate(Ast_కణుపు* nodep) {
+        సమితి_బహుళకం(false /*scoped*/, false /*checking*/, true /*params*/);
         mainGuts(nodep);
     }
     ~SimulateVisitor() override {
         m_constps.clear();
         // A value replaced in an aggregate may be listed twice
-        std::set<AstNode*> unusedRootps;
-        for (AstNode* const nodep : m_reclaimValuesp) {
-            if (!nodep->backp()) unusedRootps.emplace(nodep);
+        std::సమితి<Ast_కణుపు*> వాడని_Rootps;
+        కొరకు (Ast_కణుపు* స్థిరరాశి nodep : m_reclaimValuesp) {
+            ఒకవేళ (!nodep->backp()) వాడని_Rootps.emplace(nodep);
         }
         m_reclaimValuesp.clear();
-        for (AstNode* const nodep : unusedRootps) VL_DO_DANGLING(nodep->deleteTree(), nodep);
+        కొరకు (Ast_కణుపు* స్థిరరాశి nodep : వాడని_Rootps) VL_DO_DANGLING(nodep->delete_వృక్షం(), nodep);
     }
 };
 
-#endif  // Guard
+#అయితే_ముగింపు  // Guard

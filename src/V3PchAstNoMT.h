@@ -13,35 +13,35 @@
 //
 //*************************************************************************
 
-#ifndef VERILATOR_V3PCHASTNOMT_H_
-#define VERILATOR_V3PCHASTNOMT_H_
+#నిర్వచితం_కాకపోతే VERILATOR_V3PCHASTNOMT_H_
+#నిర్వచించు VERILATOR_V3PCHASTNOMT_H_
 
-#ifdef VL_PCH_INCLUDED
-#error "Including multiple V3Pch*.h flavors"
-#endif
-#define VL_PCH_INCLUDED
+#నిర్వచితమైతే VL_PCH_INCLUDED
+#దోషం "Including multiple V3Pch*.h flavors"
+#అయితే_ముగింపు
+#నిర్వచించు VL_PCH_INCLUDED
 
-#define VL_MT_DISABLED_CODE_UNIT 1
+#నిర్వచించు VL_MT_DISABLED_సంకేతం_UNIT 1
 
-#include "config_build.h"
-#include "verilatedos.h"
+#అన్తర్భావ "config_build.h"
+#అన్తర్భావ "verilatedos.h"
 
-#include "V3Ast.h"
-#include "V3Broken.h"
-#include "V3Container.h"
-#include "V3DebugBisect.h"
-#include "V3Error.h"
-#include "V3FileLine.h"
-#include "V3FunctionTraits.h"
-#include "V3Global.h"
-#include "V3Mutex.h"
-#include "V3Number.h"
-#include "V3Options.h"
-#include "V3StdFuture.h"
-#include "V3String.h"
+#అన్తర్భావ "V3Ast.h"
+#అన్తర్భావ "V3Broken.h"
+#అన్తర్భావ "V3Container.h"
+#అన్తర్భావ "V3DebugBisect.h"
+#అన్తర్భావ "V3Error.h"
+#అన్తర్భావ "V3FileLine.h"
+#అన్తర్భావ "V3FunctionTraits.h"
+#అన్తర్భావ "V3Global.h"
+#అన్తర్భావ "V3Mutex.h"
+#అన్తర్భావ "V3Number.h"
+#అన్తర్భావ "V3Options.h"
+#అన్తర్భావ "V3StdFuture.h"
+#అన్తర్భావ "V3String.h"
 
-#include <algorithm>
-#include <map>
-#include <utility>
+#అన్తర్భావ <algorithm>
+#అన్తర్భావ <map>
+#అన్తర్భావ <utility>
 
-#endif  // Guard
+#అయితే_ముగింపు  // Guard

@@ -18,35 +18,35 @@
 //
 //*************************************************************************
 
-#include "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
+#అన్తర్భావ "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
 
-#include "V3Unroll.h"
+#అన్తర్భావ "V3Unroll.h"
 
-#include "V3Const.h"
-#include "V3Stats.h"
+#అన్తర్భావ "V3Const.h"
+#అన్తర్భావ "V3Stats.h"
 
 VL_DEFINE_DEBUG_FUNCTIONS;
 
 //######################################################################
 // Statistics tracking
 
-struct UnrollStats final {
-    class Stat final {
-        size_t m_value = 0;  // Statistics value
-        const char* const m_name;  // Name for stats file and UDEBUG
+నిర్మాణం UnrollStats final {
+    తరగతి Stat final {
+        కొలత_t m_విలువ = 0;  // Statistics value
+        స్థిరరాశి అక్షరం* స్థిరరాశి m_name;  // Name for stats file and UDEBUG
 
-    public:
-        explicit Stat(const char* const name)
+    బహిరంగ:
+        స్పష్టమైన Stat(స్థిరరాశి అక్షరం* స్థిరరాశి name)
             : m_name{name} {}
-        ~Stat() { V3Stats::addStat("Optimizations, Loop unrolling, "s + m_name, m_value); }
-        const char* name() const { return m_name; }
-        Stat& operator++() {
-            ++m_value;
-            return *this;
+        ~Stat() { V3Stats::కూడు_Stat("Optimizations, Loop unrolling, "s + m_name, m_విలువ); }
+        స్థిరరాశి అక్షరం* name() స్థిరరాశి { తిరిగి m_name; }
+        Stat& క్రియాకారకం++() {
+            ++m_విలువ;
+            తిరిగి *ఇది;
         }
-        Stat& operator+=(size_t v) {
-            m_value += v;
-            return *this;
+        Stat& క్రియాకారకం+=(కొలత_t v) {
+            m_విలువ += v;
+            తిరిగి *ఇది;
         }
     };
 
@@ -57,55 +57,55 @@ struct UnrollStats final {
     Stat m_nFailInfinite{"Failed - infinite loop"};
     Stat m_nFailNestedLoopTest{"Failed - loop test in sub-statement"};
     Stat m_nFailTimingControl{"Failed - contains timing control"};
-    Stat m_nFailUnrollCount{"Failed - reached --unroll-count"};
+    Stat m_n_Fail_Unroll_లెక్క{"Failed - reached --unroll-count"};
     Stat m_nFailUnrollStmts{"Failed - reached --unroll-stmts"};
     Stat m_nPragmaDisabled{"Pragma unroll_disable"};
     Stat m_nUnrolledLoops{"Unrolled loops"};
     Stat m_nUnrolledIters{"Unrolled iterations"};
-    Stat m_bitScanLowered{"Lowered priority-encoder to mostsetbitp1"};
-    Stat m_countOnesLowered{"Lowered count-set-bits to countones"};
+    Stat m_బిట్టు_పరిశీలన_Lowered{"Lowered priority-encoder to mostsetbitp1"};
+    Stat m_లెక్క_Ones_Lowered{"Lowered count-set-bits to countones"};
 };
 
 //######################################################################
 // Variable bindings
-class UnrolllBindings final {
+తరగతి UnrolllBindings final {
     // NODE STATE
     // AstVarScope::user1()    int: index of the binding in m_bindings
-    const VNUser1InUse m_inuser1;
+    స్థిరరాశి VNUser1_లోపల_Use m_inuser1;
 
     // STATE
     // Map from AstVarScope::user1() to current variable value, nullptr if not bound - idx 0 unused
-    std::vector<AstConst*> m_curr{nullptr};
+    std::సదిశ<AstConst*> m_curr{శూన్యసూచిక};
     // Stack of binding checkpoints
-    std::vector<std::vector<AstConst*>> m_checkpoints;
+    std::సదిశ<std::సదిశ<AstConst*>> m_checkpoints;
 
-public:
+బహిరంగ:
     // CONSTRUCTOR
-    UnrolllBindings() = default;
-    ~UnrolllBindings() = default;
+    UnrolllBindings() = అప్రమేయ;
+    ~UnrolllBindings() = అప్రమేయ;
     VL_UNCOPYABLE(UnrolllBindings);
     VL_UNMOVABLE(UnrolllBindings);
 
     // METHODS
-    void clear() {
+    శూన్య clear() {
         m_curr.resize(1);
         m_checkpoints.clear();
-        AstNode::user1ClearTree();
+        Ast_కణుపు::user1_Clear_వృక్షం();
     }
 
-    void checkpoint() { m_checkpoints.push_back(m_curr); }
+    శూన్య checkpoint() { m_checkpoints.నెట్టు_వెనుక(m_curr); }
 
-    void revert() {
-        m_curr = std::move(m_checkpoints.back());
-        m_checkpoints.pop_back();
+    శూన్య revert() {
+        m_curr = std::move(m_checkpoints.వెనుక());
+        m_checkpoints.తీయి_వెనుక();
     }
 
-    void commit() { m_checkpoints.pop_back(); }
+    శూన్య commit() { m_checkpoints.తీయి_వెనుక(); }
 
-    void set(AstVarScope* vscp, AstConst* valp) {
-        if (!vscp->user1()) {
-            vscp->user1(m_curr.size());
-            m_curr.push_back(nullptr);
+    శూన్య సమితి(AstVarScope* vscp, AstConst* valp) {
+        ఒకవేళ (!vscp->user1()) {
+            vscp->user1(m_curr.కొలత());
+            m_curr.నెట్టు_వెనుక(శూన్యసూచిక);
         }
         UINFO(6, "Binding SET " << vscp->name() << " / " << vscp->user1() << " := " << valp);
         m_curr[vscp->user1()] = valp;
@@ -113,175 +113,175 @@ public:
 
     AstConst* get(AstVarScope* vscp) {
         // It's possible after a revert that user1 is set, but the vector is shorter, pad up
-        if (static_cast<size_t>(vscp->user1()) >= m_curr.size()) {
-            m_curr.resize(vscp->user1() + 1, nullptr);
+        ఒకవేళ (static_cast<కొలత_t>(vscp->user1()) >= m_curr.కొలత()) {
+            m_curr.resize(vscp->user1() + 1, శూన్యసూచిక);
         }
-        AstConst* const valp = vscp->user1() ? m_curr[vscp->user1()] : nullptr;
+        AstConst* స్థిరరాశి valp = vscp->user1() ? m_curr[vscp->user1()] : శూన్యసూచిక;
         UINFO(6, "Binding GET " << vscp->name() << " / " << vscp->user1() << " == " << valp);
-        return valp;
+        తిరిగి valp;
     }
 };
 
 //######################################################################
 // Unroll one AstLoop
 
-class UnrollOneVisitor final : VNVisitor {
+తరగతి UnrollOneVisitor final : VNVisitor {
     // STATE
     UnrollStats& m_stats;  // Statistics tracking
     UnrolllBindings& m_bindings;  // Variable bindings
-    AstLoop* const m_loopp;  // The loop we are trying to unroll
-    AstNode* m_stmtsp = nullptr;  // Resulting unrolled statement
-    size_t m_unrolledSize = 0;  // Number of nodes in unrolled loop
+    AstLoop* స్థిరరాశి m_loopp;  // The loop we are trying to unroll
+    Ast_కణుపు* m_stmtsp = శూన్యసూచిక;  // Resulting unrolled statement
+    కొలత_t m_unrolled_కొలత = 0;  // Number of nodes in unrolled loop
     // Temporary block needed for iteration of cloned statements
-    AstBegin* const m_wrapp = new AstBegin{m_loopp->fileline(), "[EditWrapper]", nullptr, false};
-    const bool m_unrollFull = m_loopp->unroll().isSetTrue();  // Completely unroll the loop?
-    bool m_ok = true;  // Unrolling successful so far, gave up if false
+    AstBegin* స్థిరరాశి m_wrapp = కొత్త AstBegin{m_loopp->fileline(), "[EditWrapper]", శూన్యసూచిక, అబద్ధం};
+    స్థిరరాశి తార్కిక m_unroll_నిండిన = m_loopp->unroll().is_సమితి_True();  // Completely unroll the loop?
+    తార్కిక m_ok = నిజం;  // Unrolling successful so far, gave up if false
 
     // METHODS
-    void cantUnroll(AstNode* nodep, UnrollStats::Stat& stat) {
-        m_ok = false;
+    శూన్య cantUnroll(Ast_కణుపు* nodep, UnrollStats::Stat& stat) {
+        m_ok = అబద్ధం;
         ++stat;
         UINFO(4, "   Can't Unroll: " << stat.name() << " :" << nodep);
     }
 
     // Returns false if the loop terminated (or we gave up)
-    bool unrollOneIteration(AstNode* stmtsp) {
+    తార్కిక unrollOneIteration(Ast_కణుపు* stmtsp) {
         // True if the loop contains at least one dependent AstLoopTest
-        bool foundLoopTest = false;
+        తార్కిక దొరికింది_Loop_Test = అబద్ధం;
         // Process one body statement at a time
-        for (AstNode* stmtp = stmtsp; stmtp; stmtp = stmtp->nextp()) {
+        కొరకు (Ast_కణుపు* stmtp = stmtsp; stmtp; stmtp = stmtp->nextp()) {
             // Check if this is a loop test - before substitution
-            if (AstLoopTest* const testp = VN_CAST(stmtp, LoopTest)) {
-                AstNode* const condp = V3Const::constifyEdit(testp->condp());
-                if (condp->isZero()) {
+            ఒకవేళ (AstLoopTest* స్థిరరాశి testp = VN_CAST(stmtp, LoopTest)) {
+                Ast_కణుపు* స్థిరరాశి condp = V3Const::constifyEdit(testp->condp());
+                ఒకవేళ (condp->isZero()) {
                     // Loop terminates
-                    return false;
-                } else if (condp->isNeqZero()) {
+                    తిరిగి అబద్ధం;
+                } లేకపోతే ఒకవేళ (condp->isNeqZero()) {
                     // Loop test is unconditionally true, ignore
-                    continue;
+                    కొనసాగు;
                 }
             }
 
             // Clone and iterate one body statement
-            m_wrapp->addStmtsp(stmtp->cloneTree(false));
-            iterateAndNextNull(m_wrapp->stmtsp());
+            m_wrapp->కూడు_Stmtsp(stmtp->clone_వృక్షం(అబద్ధం));
+            iterate_And_తదుపరి_Null(m_wrapp->stmtsp());
             // Give up if failed
-            if (!m_ok) return false;
+            ఒకవేళ (!m_ok) తిరిగి అబద్ధం;
 
             // Add statements to unrolled body
-            while (AstNode* const nodep = m_wrapp->stmtsp()) {
+            అయితే (Ast_కణుపు* స్థిరరాశి nodep = m_wrapp->stmtsp()) {
                 // Check if we reached the size limit, unless full unrolling is requested
-                if (!m_unrollFull) {
-                    m_unrolledSize += nodep->nodeCount();
-                    if (m_unrolledSize > static_cast<size_t>(v3Global.opt.unrollStmts())) {
+                ఒకవేళ (!m_unroll_నిండిన) {
+                    m_unrolled_కొలత += nodep->కణుపు_లెక్క();
+                    ఒకవేళ (m_unrolled_కొలత > static_cast<కొలత_t>(v3Global.opt.unrollStmts())) {
                         cantUnroll(m_loopp, m_stats.m_nFailUnrollStmts);
-                        return false;
+                        తిరిగి అబద్ధం;
                     }
                 }
 
                 // Will be adding to results (or deleting)
-                nodep->unlinkFrBack();
+                nodep->unlink_Fr_వెనుక();
 
                 // If a LoopTest, check how it resolved
-                if (AstLoopTest* const testp = VN_CAST(nodep, LoopTest)) {
-                    foundLoopTest = true;
+                ఒకవేళ (AstLoopTest* స్థిరరాశి testp = VN_CAST(nodep, LoopTest)) {
+                    దొరికింది_Loop_Test = నిజం;
                     // Will not actually need it, nor any subsequent
-                    pushDeletep(testp);  // TODO testp used past here
+                    నెట్టు_Deletep(testp);  // TODO testp used past here
                     // Loop continues - add rest of statements
-                    if (testp->condp()->isNeqZero()) continue;
+                    ఒకవేళ (testp->condp()->isNeqZero()) కొనసాగు;
                     // Won't need any of the trailing statements
-                    if (m_wrapp->stmtsp()) pushDeletep(m_wrapp->stmtsp()->unlinkFrBackWithNext());
+                    ఒకవేళ (m_wrapp->stmtsp()) నెట్టు_Deletep(m_wrapp->stmtsp()->unlink_Fr_వెనుక_With_తదుపరి());
                     // Loop terminates
-                    if (testp->condp()->isZero()) return false;
+                    ఒకవేళ (testp->condp()->isZero()) తిరిగి అబద్ధం;
                     // Loop condition unknown - cannot unroll
                     cantUnroll(testp->condp(), m_stats.m_nFailCondition);
-                    return false;
+                    తిరిగి అబద్ధం;
                 }
 
                 // Add this statement to the result list
-                m_stmtsp = AstNode::addNext(m_stmtsp, nodep);
+                m_stmtsp = Ast_కణుపు::కూడు_తదుపరి(m_stmtsp, nodep);
 
                 // Check if terminated via JumpGo
-                if (VN_IS(nodep, JumpGo)) {
+                ఒకవేళ (VN_IS(nodep, JumpGo)) {
                     UASSERT_OBJ(!m_wrapp->stmtsp(), nodep, "Statements after JumpGo");
                     // This JumpGo is going directly into the body of the unrolled loop.
                     // A JumpGo always redirects to the end of an enclosing JumpBlock,
                     // so this JumpGo must go outside the loop. The loop terminates.
-                    return false;
+                    తిరిగి అబద్ధం;
                 }
             }
         }
         // If there is no loop test in the body, give up, it's an infinite loop
-        if (!foundLoopTest) {
+        ఒకవేళ (!దొరికింది_Loop_Test) {
             cantUnroll(m_loopp, m_stats.m_nFailInfinite);
-            return false;
+            తిరిగి అబద్ధం;
         }
         // One iteration done, loop continues
-        return true;
+        తిరిగి నిజం;
     }
 
     // Substitute all reads of bound variables with their value. If a write is
     // encountered, remove the binding and don't substitute that variable.
     // Returns false if we can't unroll
-    bool process(AstNode* nodep) {
+    తార్కిక process(Ast_కణుపు* nodep) {
         UASSERT_OBJ(m_ok, nodep, "Should not call 'substituteCondVscp' if we gave up");
-        if (!nodep) return true;
+        ఒకవేళ (!nodep) తిరిగి నిజం;
         // Variable references we should try to substitute
-        std::vector<AstVarRef*> toSubstitute;
+        std::సదిశ<AstVarRef*> గమ్యం_Substitute;
         // Iterate subtree
-        nodep->foreach([&](AstNode* np) {
+        nodep->foreach([&](Ast_కణుపు* np) {
             // Failed earlier
-            if (!m_ok) return;
+            ఒకవేళ (!m_ok) తిరిగి;
             // Check for AstLoopTest
-            if (AstLoopTest* const testp = VN_CAST(np, LoopTest)) {
+            ఒకవేళ (AstLoopTest* స్థిరరాశి testp = VN_CAST(np, LoopTest)) {
                 // Nested loop is OK, bail only if the nested LoopTest is for the current loop
-                if (testp->loopp() == m_loopp) cantUnroll(np, m_stats.m_nFailNestedLoopTest);
-                return;
+                ఒకవేళ (testp->loopp() == m_loopp) cantUnroll(np, m_stats.m_nFailNestedLoopTest);
+                తిరిగి;
             }
             // Check for AstFork - can't unroll
-            if (VN_IS(np, Fork)) {
+            ఒకవేళ (VN_IS(np, Fork)) {
                 cantUnroll(np, m_stats.m_nFailFork);
-                return;
+                తిరిగి;
             }
             // Check for calls - can't unroll if not pure might modify bindings
-            if (AstNodeCCall* const callp = VN_CAST(np, NodeCCall)) {
-                if (!callp->isPure()) {
+            ఒకవేళ (Ast_కణుపు_CCall* స్థిరరాశి callp = VN_CAST(np, కణుపు_CCall)) {
+                ఒకవేళ (!callp->is_శుద్ధ()) {
                     cantUnroll(np, m_stats.m_nFailCall);
-                    return;
+                    తిరిగి;
                 }
             }
             // Check for timing control - can't unroll, might modify bindings
-            if (np->isTimingControl()) {
+            ఒకవేళ (np->isTimingControl()) {
                 cantUnroll(np, m_stats.m_nFailTimingControl);
-                return;
+                తిరిగి;
             }
             // Process variable references
-            AstVarRef* const refp = VN_CAST(np, VarRef);
-            if (!refp) return;
+            AstVarRef* స్థిరరాశి refp = VN_CAST(np, VarRef);
+            ఒకవేళ (!refp) తిరిగి;
             // Ignore if the referenced variable has no binding
-            AstConst* const valp = m_bindings.get(refp->varScopep());
-            if (!valp) return;
+            AstConst* స్థిరరాశి valp = m_bindings.get(refp->varScopep());
+            ఒకవేళ (!valp) తిరిగి;
             // If writen, remove the binding
-            if (refp->access().isWriteOrRW()) {
-                m_bindings.set(refp->varScopep(), nullptr);
-                return;
+            ఒకవేళ (refp->access().isWriteOrRW()) {
+                m_bindings.సమితి(refp->varScopep(), శూన్యసూచిక);
+                తిరిగి;
             }
             // Otherwise add it to the list of variables to substitute
-            toSubstitute.push_back(refp);
+            గమ్యం_Substitute.నెట్టు_వెనుక(refp);
         });
         // Give up if we have to
-        if (!m_ok) return false;
+        ఒకవేళ (!m_ok) తిరిగి అబద్ధం;
         // Actually substitute the variables that still have bindings
-        for (AstVarRef* const refp : toSubstitute) {
+        కొరకు (AstVarRef* స్థిరరాశి refp : గమ్యం_Substitute) {
             // Pick up bound value
-            AstConst* const valp = m_bindings.get(refp->varScopep());
+            AstConst* స్థిరరాశి valp = m_bindings.get(refp->varScopep());
             // Binding might have been removed after adding to 'toSubstitute'
-            if (!valp) continue;
+            ఒకవేళ (!valp) కొనసాగు;
             // Substitute it
-            refp->replaceWith(valp->cloneTree(false));
-            VL_DO_DANGLING(pushDeletep(refp), refp);
+            refp->replaceWith(valp->clone_వృక్షం(అబద్ధం));
+            VL_DO_DANGLING(నెట్టు_Deletep(refp), refp);
         }
-        return true;
+        తిరిగి నిజం;
     }
 
     // CONSTRUCTOR
@@ -291,135 +291,135 @@ class UnrollOneVisitor final : VNVisitor {
         , m_loopp{loopp} {
         UASSERT_OBJ(!loopp->contsp(), loopp, "'contsp' only used before LinkJump");
         // Do not unroll if we are told not to
-        if (loopp->unroll().isSetFalse()) {
+        ఒకవేళ (loopp->unroll().is_సమితి_False()) {
             cantUnroll(loopp, m_stats.m_nPragmaDisabled);
-            return;
+            తిరిగి;
         }
         // Attempt to unroll the loop
-        const size_t iterLimit = m_unrollFull ? v3Global.opt.unrollLimit()  //
-                                              : v3Global.opt.unrollCount();
-        size_t iterCount = 0;
-        do {
-            if (iterCount > iterLimit) {
-                cantUnroll(m_loopp, m_stats.m_nFailUnrollCount);
-                if (m_unrollFull) {
+        స్థిరరాశి కొలత_t iter_హద్దు = m_unroll_నిండిన ? v3Global.opt.unroll_హద్దు()  //
+                                              : v3Global.opt.unroll_లెక్క();
+        కొలత_t iter_లెక్క = 0;
+        చేయి {
+            ఒకవేళ (iter_లెక్క > iter_హద్దు) {
+                cantUnroll(m_loopp, m_stats.m_n_Fail_Unroll_లెక్క);
+                ఒకవేళ (m_unroll_నిండిన) {
                     loopp->v3error("Unrolling procedural loop with '/* verilator unroll_full */' "
                                    "took too long; probably this is an infinite loop, otherwise "
                                    "set '--unroll-limit' above "
-                                   << iterLimit);
+                                   << iter_హద్దు);
                 }
-                return;
+                తిరిగి;
             }
-            ++iterCount;
-        } while (unrollOneIteration(loopp->stmtsp()));
+            ++iter_లెక్క;
+        } అయితే (unrollOneIteration(loopp->stmtsp()));
 
-        if (m_ok) {
+        ఒకవేళ (m_ok) {
             ++m_stats.m_nUnrolledLoops;
-            m_stats.m_nUnrolledIters += iterCount;
+            m_stats.m_nUnrolledIters += iter_లెక్క;
         }
     }
-    ~UnrollOneVisitor() { VL_DO_DANGLING(m_wrapp->deleteTree(), m_wrapp); }
+    ~UnrollOneVisitor() { VL_DO_DANGLING(m_wrapp->delete_వృక్షం(), m_wrapp); }
 
     // VISIT - these are called for the statements directly in the loop body
-    void visit(AstNode* nodep) override {
-        if (!m_ok) return;
+    శూన్య సందర్శించు(Ast_కణుపు* nodep) override {
+        ఒకవేళ (!m_ok) తిరిగి;
         // Generic body statement, just substitute
         process(nodep);
     }
-    void visit(AstLoopTest* nodep) override {
-        if (!m_ok) return;
+    శూన్య సందర్శించు(AstLoopTest* nodep) override {
+        ఒకవేళ (!m_ok) తిరిగి;
         // If the condition is a ExprStmt, move it before the LoopTest
-        if (AstExprStmt* const exprp = VN_CAST(nodep->condp(), ExprStmt)) {
-            AstNode* const stmtsp = exprp->stmtsp()->unlinkFrBackWithNext();
-            exprp->replaceWith(exprp->resultp()->unlinkFrBack());
-            VL_DO_DANGLING(pushDeletep(exprp), exprp);
+        ఒకవేళ (Ast_సమాసం_Stmt* స్థిరరాశి exprp = VN_CAST(nodep->condp(), సమాసం_Stmt)) {
+            Ast_కణుపు* స్థిరరాశి stmtsp = exprp->stmtsp()->unlink_Fr_వెనుక_With_తదుపరి();
+            exprp->replaceWith(exprp->resultp()->unlink_Fr_వెనుక());
+            VL_DO_DANGLING(నెట్టు_Deletep(exprp), exprp);
             VNRelinker relinker;
-            nodep->unlinkFrBack(&relinker);
-            stmtsp->addNext(nodep);
+            nodep->unlink_Fr_వెనుక(&relinker);
+            stmtsp->కూడు_తదుపరి(nodep);
             relinker.relink(stmtsp);
-            return;
+            తిరిగి;
         }
         // Substitute the condition only, this is not a nested AstLoopTest
         process(nodep->condp());
         // Also simplify it, it will be checked later
         V3Const::constifyEdit(nodep->condp());
     }
-    void visit(AstAssign* nodep) override {
-        if (!m_ok) return;
+    శూన్య సందర్శించు(Ast_కేటాయించు* nodep) override {
+        ఒకవేళ (!m_ok) తిరిగి;
         // Can't do it if delayed
-        if (nodep->timingControlp()) {
+        ఒకవేళ (nodep->timingControlp()) {
             cantUnroll(nodep, m_stats.m_nFailTimingControl);
-            return;
+            తిరిగి;
         }
-        if (!process(nodep->rhsp())) return;
+        ఒకవేళ (!process(nodep->rhsp())) తిరిగి;
         // If a simple variable assignment, update the binding
-        AstVarRef* const lhsp = VN_CAST(nodep->lhsp(), VarRef);
-        AstConst* const valp = VN_CAST(V3Const::constifyEdit(nodep->rhsp()), Const);
-        if (lhsp && valp && !lhsp->varp()->isForced() && !lhsp->varp()->isSigUserRWPublic()) {
-            m_bindings.set(lhsp->varScopep(), valp);
-            return;
+        AstVarRef* స్థిరరాశి lhsp = VN_CAST(nodep->lhsp(), VarRef);
+        AstConst* స్థిరరాశి valp = VN_CAST(V3Const::constifyEdit(nodep->rhsp()), Const);
+        ఒకవేళ (lhsp && valp && !lhsp->varp()->isForced() && !lhsp->varp()->isSigUserRWPublic()) {
+            m_bindings.సమితి(lhsp->varScopep(), valp);
+            తిరిగి;
         }
         // Otherwise just like a generic statement
         process(nodep->lhsp());
     }
-    void visit(AstIf* nodep) override {
-        if (!m_ok) return;
-        if (!process(nodep->condp())) return;
+    శూన్య సందర్శించు(AstIf* nodep) override {
+        ఒకవేళ (!m_ok) తిరిగి;
+        ఒకవేళ (!process(nodep->condp())) తిరిగి;
         // If condition is constant, replce with the relevant branch
-        if (AstConst* const condp = VN_CAST(V3Const::constifyEdit(nodep->condp()), Const)) {
-            if (AstNode* const bodyp = condp->isNeqZero() ? nodep->thensp() : nodep->elsesp()) {
-                nodep->addNextHere(bodyp->unlinkFrBackWithNext());  // This will be iterated next
+        ఒకవేళ (AstConst* స్థిరరాశి condp = VN_CAST(V3Const::constifyEdit(nodep->condp()), Const)) {
+            ఒకవేళ (Ast_కణుపు* స్థిరరాశి bodyp = condp->isNeqZero() ? nodep->thensp() : nodep->elsesp()) {
+                nodep->కూడు_తదుపరి_ఇక్కడ(bodyp->unlink_Fr_వెనుక_With_తదుపరి());  // This will be iterated next
             }
-            VL_DO_DANGLING(pushDeletep(nodep->unlinkFrBack()), nodep);
-            return;
+            VL_DO_DANGLING(నెట్టు_Deletep(nodep->unlink_Fr_వెనుక()), nodep);
+            తిరిగి;
         }
         // Otherwise just like a generic statement
         process(nodep);
     }
-    void visit(AstJumpGo* nodep) override {
-        if (!m_ok) return;
+    శూన్య సందర్శించు(AstJumpGo* nodep) override {
+        ఒకవేళ (!m_ok) తిరిగి;
         // Remove trailing dead code
-        if (nodep->nextp()) pushDeletep(nodep->nextp()->unlinkFrBackWithNext());
+        ఒకవేళ (nodep->nextp()) నెట్టు_Deletep(nodep->nextp()->unlink_Fr_వెనుక_With_తదుపరి());
     }
-    void visit(AstLoop* nodep) override {
-        if (!m_ok) return;
+    శూన్య సందర్శించు(AstLoop* nodep) override {
+        ఒకవేళ (!m_ok) తిరిగి;
         m_bindings.checkpoint();
-        std::pair<AstNode*, bool> pair = UnrollOneVisitor::apply(m_stats, m_bindings, nodep);
+        std::pair<Ast_కణుపు*, తార్కిక> pair = UnrollOneVisitor::apply(m_stats, m_bindings, nodep);
 
         // If failed, revert the bindings and process the loop as a generic statement
-        if (!pair.second) {
+        ఒకవేళ (!pair.రెండవ) {
             m_bindings.revert();
             process(nodep);
-            return;
+            తిరిగి;
         }
 
         // Commit the bindings and replace the loop with the unrolled code
         m_bindings.commit();
-        if (pair.first) {
-            nodep->replaceWith(pair.first);
-        } else {
-            nodep->unlinkFrBack();
+        ఒకవేళ (pair.మొదటి) {
+            nodep->replaceWith(pair.మొదటి);
+        } లేకపోతే {
+            nodep->unlink_Fr_వెనుక();
         }
-        VL_DO_DANGLING(pushDeletep(nodep), nodep);
+        VL_DO_DANGLING(నెట్టు_Deletep(nodep), nodep);
     }
 
-public:
+బహిరంగ:
     // Unroll the given loop. Returns the resulting statements and a flag indicating success
-    static std::pair<AstNode*, bool> apply(UnrollStats& stats, UnrolllBindings& bindings,
+    స్థిర std::pair<Ast_కణుపు*, తార్కిక> apply(UnrollStats& stats, UnrolllBindings& bindings,
                                            AstLoop* loopp) {
         UnrollOneVisitor visitor{stats, bindings, loopp};
         // If successfully unrolled, return the resulting list of statements - might be empty
-        if (visitor.m_ok) return {visitor.m_stmtsp, true};
+        ఒకవేళ (visitor.m_ok) తిరిగి {visitor.m_stmtsp, నిజం};
         // Otherwise delete intermediate results
-        if (visitor.m_stmtsp) VL_DO_DANGLING(visitor.m_stmtsp->deleteTree(), visitor.m_stmtsp);
-        return {nullptr, false};
+        ఒకవేళ (visitor.m_stmtsp) VL_DO_DANGLING(visitor.m_stmtsp->delete_వృక్షం(), visitor.m_stmtsp);
+        తిరిగి {శూన్యసూచిక, అబద్ధం};
     }
 };
 
 //######################################################################
 // Unroll all AstLoop statements
 
-class UnrollAllVisitor final : VNVisitor {
+తరగతి UnrollAllVisitor final : VNVisitor {
     // STATE
     UnrollStats m_stats;  // Statistic tracking
     UnrolllBindings m_bindings;  // Variable bindings
@@ -428,62 +428,62 @@ class UnrollAllVisitor final : VNVisitor {
     // Peel value-preserving width casts (Extend/ExtendS, or a low-bits Sel with lsb 0) to the
     // underlying VarRef.  A Sel kept narrower than 'minWidth' is a lossy narrowing (idx[1:0])
     // and is rejected.
-    static AstVarRef* unwrapToVarRef(AstNodeExpr* nodep, int minWidth) {
-        while (true) {
-            if (AstVarRef* const refp = VN_CAST(nodep, VarRef)) return refp;
-            if (AstExtend* const ep = VN_CAST(nodep, Extend)) {
+    స్థిర AstVarRef* unwrap_గమ్యం_Var_Ref(Ast_కణుపు_సమాసం* nodep, పూర్ణాంకం min_వెడల్పు) {
+        అయితే (నిజం) {
+            ఒకవేళ (AstVarRef* స్థిరరాశి refp = VN_CAST(nodep, VarRef)) తిరిగి refp;
+            ఒకవేళ (AstExtend* స్థిరరాశి ep = VN_CAST(nodep, Extend)) {
                 nodep = ep->lhsp();
-            } else if (AstExtendS* const ep = VN_CAST(nodep, ExtendS)) {
+            } లేకపోతే ఒకవేళ (AstExtendS* స్థిరరాశి ep = VN_CAST(nodep, ExtendS)) {
                 nodep = ep->lhsp();
-            } else if (AstSel* const sp = VN_CAST(nodep, Sel)) {
-                const AstConst* const lsbp = VN_CAST(sp->lsbp(), Const);
-                if (!lsbp || lsbp->toUInt() != 0 || sp->width() < minWidth) return nullptr;
+            } లేకపోతే ఒకవేళ (AstSel* స్థిరరాశి sp = VN_CAST(nodep, Sel)) {
+                స్థిరరాశి AstConst* స్థిరరాశి lsbp = VN_CAST(sp->lsbp(), Const);
+                ఒకవేళ (!lsbp || lsbp->గమ్యం_UInt() != 0 || sp->వెడల్పు() < min_వెడల్పు) తిరిగి శూన్యసూచిక;
                 nodep = sp->fromp();
-            } else {
-                return nullptr;
+            } లేకపోతే {
+                తిరిగి శూన్యసూచిక;
             }
         }
     }
     // True if 'nodep' is exactly '1 + var' for 'vscp' (V3Const puts the constant on the LHS).
     // Passing the add's width as minWidth rejects a lossy increment like 32'(i[1:0]) + 1.
-    bool isVarPlus1(AstNode* nodep, const AstVarScope* vscp) {
-        AstAdd* const addp = VN_CAST(nodep, Add);
-        if (!addp || !addp->lhsp()->isOne()) return false;
-        const AstVarRef* const r = unwrapToVarRef(addp->rhsp(), addp->width());
-        return r && r->varScopep() == vscp;
+    తార్కిక isVarPlus1(Ast_కణుపు* nodep, స్థిరరాశి AstVarScope* vscp) {
+        Ast_కూడు* స్థిరరాశి addp = VN_CAST(nodep, కూడు_2);
+        ఒకవేళ (!addp || !addp->lhsp()->isOne()) తిరిగి అబద్ధం;
+        స్థిరరాశి AstVarRef* స్థిరరాశి r = unwrap_గమ్యం_Var_Ref(addp->rhsp(), addp->వెడల్పు());
+        తిరిగి r && r->varScopep() == vscp;
     }
     // Resize the 32-bit reduction to the accumulator width; truncating the low bits matches
     // the original counted loop's wrap-around.
-    static AstNodeExpr* resizeToWidth(AstNodeExpr* exprp, const AstVarRef* targetRefp) {
-        const int width = targetRefp->width();
-        if (width == 32) return exprp;
-        FileLine* const flp = exprp->fileline();
-        if (width < 32) return new AstSel{flp, exprp, 0, width};
-        AstExtend* const extp = new AstExtend{flp, exprp};
-        extp->dtypeFrom(targetRefp);
-        return extp;
+    స్థిర Ast_కణుపు_సమాసం* resize_గమ్యం_వెడల్పు(Ast_కణుపు_సమాసం* exprp, స్థిరరాశి AstVarRef* లక్ష్యం_Refp) {
+        స్థిరరాశి పూర్ణాంకం వెడల్పు = లక్ష్యం_Refp->వెడల్పు();
+        ఒకవేళ (వెడల్పు == 32) తిరిగి exprp;
+        File_పంక్తి* స్థిరరాశి flp = exprp->fileline();
+        ఒకవేళ (వెడల్పు < 32) తిరిగి కొత్త AstSel{flp, exprp, 0, వెడల్పు};
+        AstExtend* స్థిరరాశి extp = కొత్త AstExtend{flp, exprp};
+        extp->dtypeFrom(లక్ష్యం_Refp);
+        తిరిగి extp;
     }
     // Match a strict ascending loop bound 'idx < W'.  V3Const canonicalizes this to the
     // 'W > idx' form (Gt unsigned, GtS signed), so only that form is matched.
-    static bool ascendingBound(AstNodeExpr* condp, AstConst*& wp, AstVarRef*& idxRefp) {
-        if (!VN_IS(condp, Gt) && !VN_IS(condp, GtS)) return false;
-        AstNodeBiop* const bp = VN_AS(condp, NodeBiop);
+    స్థిర తార్కిక ascendingBound(Ast_కణుపు_సమాసం* condp, AstConst*& wp, AstVarRef*& idxRefp) {
+        ఒకవేళ (!VN_IS(condp, Gt) && !VN_IS(condp, GtS)) తిరిగి అబద్ధం;
+        Ast_కణుపు_Biop* స్థిరరాశి bp = VN_AS(condp, కణుపు_Biop);
         wp = VN_CAST(bp->lhsp(), Const);
         idxRefp = VN_CAST(bp->rhsp(), VarRef);
-        return wp && idxRefp && !wp->num().isFourState();
+        తిరిగి wp && idxRefp && !wp->అంకె().isFourState();
     }
     // Recognize the redundant in-range guard Verilator auto-inserts for a select into a
     // non-power-of-two vector.  V3Const canonicalizes 'idx <= C' to '(C >= idx)' (Gte/GteS,
     // const on the LHS), so only that form occurs; with C >= W-1 it is always true for idx
     // in 0..W-1.
-    static bool isInRangeGuard(AstNodeExpr* condp, const AstVarScope* idxVscp, uint32_t width,
-                               int addrBits) {
-        if (!VN_IS(condp, Gte) && !VN_IS(condp, GteS)) return false;
-        AstNodeBiop* const bp = VN_AS(condp, NodeBiop);
-        const AstConst* const cp = VN_CAST(bp->lhsp(), Const);
-        if (!cp || cp->num().isFourState() || cp->toUInt() < width - 1) return false;
-        const AstVarRef* const r = unwrapToVarRef(bp->rhsp(), addrBits);
-        return r && r->varScopep() == idxVscp;
+    స్థిర తార్కిక is_లోపల_Range_Guard(Ast_కణుపు_సమాసం* condp, స్థిరరాశి AstVarScope* idxVscp, uint32_t వెడల్పు,
+                               పూర్ణాంకం addr_బిట్లు) {
+        ఒకవేళ (!VN_IS(condp, Gte) && !VN_IS(condp, GteS)) తిరిగి అబద్ధం;
+        Ast_కణుపు_Biop* స్థిరరాశి bp = VN_AS(condp, కణుపు_Biop);
+        స్థిరరాశి AstConst* స్థిరరాశి cp = VN_CAST(bp->lhsp(), Const);
+        ఒకవేళ (!cp || cp->అంకె().isFourState() || cp->గమ్యం_UInt() < వెడల్పు - 1) తిరిగి అబద్ధం;
+        స్థిరరాశి AstVarRef* స్థిరరాశి r = unwrap_గమ్యం_Var_Ref(bp->rhsp(), addr_బిట్లు);
+        తిరిగి r && r->varScopep() == idxVscp;
     }
     // Recognize a single-bit scan loop over all W bits of 'vec' (idx 0..W-1, target
     // pre-zeroed) and lower it to a bit-reduction primitive.  Two idioms are matched:
@@ -492,151 +492,151 @@ class UnrollAllVisitor final : VNVisitor {
     // where, when W == width(vec):
     //   <e> = idx + 1     => target = $mostsetbitp1(vec)  (leading-one / bit-width)
     //   <e> = target + 1  => target = $countones(vec)     (population count)
-    bool tryLowerBitScanLoop(AstLoop* loopp) {
-        AstLoopTest* const testp = VN_CAST(loopp->stmtsp(), LoopTest);
-        if (!testp) return false;
-        AstIf* const ifp = VN_CAST(testp->nextp(), If);
-        if (!ifp) return false;
-        AstAssign* const incp = VN_CAST(ifp->nextp(), Assign);
-        if (!incp || incp->nextp()) return false;
-        AstConst* wp = nullptr;
-        AstVarRef* idxRefp = nullptr;
-        if (!ascendingBound(testp->condp(), wp, idxRefp)) return false;
-        AstVarScope* const idxVscp = idxRefp->varScopep();
-        const uint32_t width = wp->toUInt();
+    తార్కిక try_క్రింది_బిట్టు_పరిశీలన_Loop(AstLoop* loopp) {
+        AstLoopTest* స్థిరరాశి testp = VN_CAST(loopp->stmtsp(), LoopTest);
+        ఒకవేళ (!testp) తిరిగి అబద్ధం;
+        AstIf* స్థిరరాశి ifp = VN_CAST(testp->nextp(), If);
+        ఒకవేళ (!ifp) తిరిగి అబద్ధం;
+        Ast_కేటాయించు* స్థిరరాశి incp = VN_CAST(ifp->nextp(), కేటాయించు);
+        ఒకవేళ (!incp || incp->nextp()) తిరిగి అబద్ధం;
+        AstConst* wp = శూన్యసూచిక;
+        AstVarRef* idxRefp = శూన్యసూచిక;
+        ఒకవేళ (!ascendingBound(testp->condp(), wp, idxRefp)) తిరిగి అబద్ధం;
+        AstVarScope* స్థిరరాశి idxVscp = idxRefp->varScopep();
+        స్థిరరాశి uint32_t వెడల్పు = wp->గమ్యం_UInt();
         // Bits needed to address all W bits of 'vec' (clog2(W)); a narrower index is lossy.
-        const int addrBits = width <= 1 ? 1 : V3Number::log2b(width - 1) + 1;
-        const AstConst* const idxInitp = m_bindings.get(idxVscp);
-        if (!idxInitp || !idxInitp->isZero()) return false;
-        AstVarRef* const incLhsp = VN_CAST(incp->lhsp(), VarRef);
-        if (!incLhsp || incLhsp->varScopep() != idxVscp) return false;
-        if (!isVarPlus1(incp->rhsp(), idxVscp)) return false;
-        if (ifp->elsesp()) return false;
-        AstAssign* const thenp = VN_CAST(ifp->thensp(), Assign);
-        if (!thenp || thenp->nextp()) return false;
-        AstVarRef* const targetRefp = VN_CAST(thenp->lhsp(), VarRef);
-        if (!targetRefp) return false;
-        AstVarScope* const targetVscp = targetRefp->varScopep();
-        if (targetVscp == idxVscp) return false;
-        const bool isLeadingOne = isVarPlus1(thenp->rhsp(), idxVscp);
-        const bool isCountOnes = !isLeadingOne && isVarPlus1(thenp->rhsp(), targetVscp);
-        if (!isLeadingOne && !isCountOnes) return false;
+        స్థిరరాశి పూర్ణాంకం addr_బిట్లు = వెడల్పు <= 1 ? 1 : V3_సంఖ్య::log2b(వెడల్పు - 1) + 1;
+        స్థిరరాశి AstConst* స్థిరరాశి idxInitp = m_bindings.get(idxVscp);
+        ఒకవేళ (!idxInitp || !idxInitp->isZero()) తిరిగి అబద్ధం;
+        AstVarRef* స్థిరరాశి incLhsp = VN_CAST(incp->lhsp(), VarRef);
+        ఒకవేళ (!incLhsp || incLhsp->varScopep() != idxVscp) తిరిగి అబద్ధం;
+        ఒకవేళ (!isVarPlus1(incp->rhsp(), idxVscp)) తిరిగి అబద్ధం;
+        ఒకవేళ (ifp->elsesp()) తిరిగి అబద్ధం;
+        Ast_కేటాయించు* స్థిరరాశి thenp = VN_CAST(ifp->thensp(), కేటాయించు);
+        ఒకవేళ (!thenp || thenp->nextp()) తిరిగి అబద్ధం;
+        AstVarRef* స్థిరరాశి లక్ష్యం_Refp = VN_CAST(thenp->lhsp(), VarRef);
+        ఒకవేళ (!లక్ష్యం_Refp) తిరిగి అబద్ధం;
+        AstVarScope* స్థిరరాశి లక్ష్యం_Vscp = లక్ష్యం_Refp->varScopep();
+        ఒకవేళ (లక్ష్యం_Vscp == idxVscp) తిరిగి అబద్ధం;
+        స్థిరరాశి తార్కిక isLeadingOne = isVarPlus1(thenp->rhsp(), idxVscp);
+        స్థిరరాశి తార్కిక is_లెక్క_Ones = !isLeadingOne && isVarPlus1(thenp->rhsp(), లక్ష్యం_Vscp);
+        ఒకవేళ (!isLeadingOne && !is_లెక్క_Ones) తిరిగి అబద్ధం;
         // If-cond is the 1-bit select 'vec[idx]', possibly wrapped in the redundant in-range
         // guard Verilator auto-inserts (as 'guard && sel') for a non-power-of-two vector:
         //   '(idx <= W-1) && vec[idx]'        (default / --x-assign 0; a LogAnd), or
         //   '(idx <= W-1) ? vec[idx] : <x>'   (--x-assign unique; a Cond).
         // The guard is always true for idx in 0..W-1, so peel it to reach the select.  Any
         // other compound condition (e.g. 'vec[idx] && en') leaves a non-select, rejected below.
-        AstNodeExpr* condp = ifp->condp();
-        if (AstLogAnd* const andp = VN_CAST(condp, LogAnd)) {
-            if (isInRangeGuard(andp->lhsp(), idxVscp, width, addrBits)) condp = andp->rhsp();
-        } else if (AstCond* const ternp = VN_CAST(condp, Cond)) {
-            if (isInRangeGuard(ternp->condp(), idxVscp, width, addrBits)) condp = ternp->thenp();
+        Ast_కణుపు_సమాసం* condp = ifp->condp();
+        ఒకవేళ (AstLogAnd* స్థిరరాశి andp = VN_CAST(condp, LogAnd)) {
+            ఒకవేళ (is_లోపల_Range_Guard(andp->lhsp(), idxVscp, వెడల్పు, addr_బిట్లు)) condp = andp->rhsp();
+        } లేకపోతే ఒకవేళ (AstCond* స్థిరరాశి ternp = VN_CAST(condp, Cond)) {
+            ఒకవేళ (is_లోపల_Range_Guard(ternp->condp(), idxVscp, వెడల్పు, addr_బిట్లు)) condp = ternp->thenp();
         }
-        AstSel* const selp = VN_CAST(condp, Sel);
-        if (!selp || selp->width() != 1) return false;
-        const AstVarRef* const fromp = VN_CAST(selp->fromp(), VarRef);
-        if (!fromp) return false;
-        const AstVarScope* const fromVscp = fromp->varScopep();
-        if (fromVscp == idxVscp || fromVscp == targetVscp) return false;
-        AstNodeExpr* const vecExprp = selp->fromp();
+        AstSel* స్థిరరాశి selp = VN_CAST(condp, Sel);
+        ఒకవేళ (!selp || selp->వెడల్పు() != 1) తిరిగి అబద్ధం;
+        స్థిరరాశి AstVarRef* స్థిరరాశి fromp = VN_CAST(selp->fromp(), VarRef);
+        ఒకవేళ (!fromp) తిరిగి అబద్ధం;
+        స్థిరరాశి AstVarScope* స్థిరరాశి fromVscp = fromp->varScopep();
+        ఒకవేళ (fromVscp == idxVscp || fromVscp == లక్ష్యం_Vscp) తిరిగి అబద్ధం;
+        Ast_కణుపు_సమాసం* స్థిరరాశి vecExprp = selp->fromp();
         // Must scan all W bits of 'vec', indexed by exactly 'idx' (address kept >= clog2(W),
         // so a lossy narrowing like vec[idx[2:0]] is rejected).
-        if (static_cast<int>(width) != vecExprp->width()) return false;
-        const AstVarRef* const idxInSel = unwrapToVarRef(selp->lsbp(), addrBits);
-        if (!idxInSel || idxInSel->varScopep() != idxVscp) return false;
+        ఒకవేళ (static_cast<పూర్ణాంకం>(వెడల్పు) != vecExprp->వెడల్పు()) తిరిగి అబద్ధం;
+        స్థిరరాశి AstVarRef* స్థిరరాశి idx_లోపల_Sel = unwrap_గమ్యం_Var_Ref(selp->lsbp(), addr_బిట్లు);
+        ఒకవేళ (!idx_లోపల_Sel || idx_లోపల_Sel->varScopep() != idxVscp) తిరిగి అబద్ధం;
         // 'target' must be const-0 immediately before the loop (collected in m_bindings),
         // so that an all-zero 'vec' yields 0, matching $mostsetbitp1's definition.
-        const AstConst* const targetInitp = m_bindings.get(targetVscp);
-        if (!targetInitp || !targetInitp->isZero()) return false;
+        స్థిరరాశి AstConst* స్థిరరాశి లక్ష్యం_Initp = m_bindings.get(లక్ష్యం_Vscp);
+        ఒకవేళ (!లక్ష్యం_Initp || !లక్ష్యం_Initp->isZero()) తిరిగి అబద్ధం;
         // Rewrite to 'target = <reduction>(vec); idx = W'.  The 'idx = W' store preserves the
         // loop's exit value, so this is sound even if idx is read afterwards (else DCE drops it).
-        FileLine* const flp = loopp->fileline();
-        AstNodeExpr* reducep;
-        if (isLeadingOne) {
-            reducep = new AstMostSetBitP1{flp, vecExprp->cloneTree(false)};
-        } else {
-            AstCountOnes* const conep = new AstCountOnes{flp, vecExprp->cloneTree(false)};
+        File_పంక్తి* స్థిరరాశి flp = loopp->fileline();
+        Ast_కణుపు_సమాసం* reducep;
+        ఒకవేళ (isLeadingOne) {
+            reducep = కొత్త Ast_Most_సమితి_బిట్టు_P1{flp, vecExprp->clone_వృక్షం(అబద్ధం)};
+        } లేకపోతే {
+            Ast_లెక్క_Ones* స్థిరరాశి conep = కొత్త Ast_లెక్క_Ones{flp, vecExprp->clone_వృక్షం(అబద్ధం)};
             reducep = conep;
         }
-        reducep = resizeToWidth(reducep, targetRefp);
-        AstAssign* const newp = new AstAssign{flp, targetRefp->cloneTree(false), reducep};
-        newp->addNext(new AstAssign{flp, incLhsp->cloneTree(false), wp->cloneTree(false)});
+        reducep = resize_గమ్యం_వెడల్పు(reducep, లక్ష్యం_Refp);
+        Ast_కేటాయించు* స్థిరరాశి newp = కొత్త Ast_కేటాయించు{flp, లక్ష్యం_Refp->clone_వృక్షం(అబద్ధం), reducep};
+        newp->కూడు_తదుపరి(కొత్త Ast_కేటాయించు{flp, incLhsp->clone_వృక్షం(అబద్ధం), wp->clone_వృక్షం(అబద్ధం)});
         loopp->replaceWith(newp);
-        VL_DO_DANGLING(pushDeletep(loopp), loopp);
-        if (isLeadingOne) {
+        VL_DO_DANGLING(నెట్టు_Deletep(loopp), loopp);
+        ఒకవేళ (isLeadingOne) {
             UINFO(4, "Lowered priority-encoder loop to $mostsetbitp1: " << newp);
-            ++m_stats.m_bitScanLowered;
-        } else {
+            ++m_stats.m_బిట్టు_పరిశీలన_Lowered;
+        } లేకపోతే {
             UINFO(4, "Lowered count-set-bits loop to $countones: " << newp);
-            ++m_stats.m_countOnesLowered;
+            ++m_stats.m_లెక్క_Ones_Lowered;
         }
-        return true;
+        తిరిగి నిజం;
     }
 
-    // VISIT
-    void visit(AstLoop* nodep) override {
+    //సందర్శించు
+    శూన్య సందర్శించు(AstLoop* nodep) override {
         // Gather variable bindings from the preceding statements
         m_bindings.clear();
-        for (AstNode *succp = nodep, *currp = nodep->backp(); true;
+        కొరకు (Ast_కణుపు *succp = nodep, *currp = nodep->backp(); నిజం;
              succp = currp, currp = currp->backp()) {
             // If the current statement is in higher list, proceed carefully
-            if (currp->nextp() != succp) {
+            ఒకవేళ (currp->nextp() != succp) {
                 // Jump block is OK, there is only one way to get here
-                if (VN_IS(currp, JumpBlock)) continue;
+                ఒకవేళ (VN_IS(currp, Jump_ఖండం)) కొనసాగు;
                 // TODO: if?
                 // Otherwise we dont' know the control flow, give up
-                break;
+                ఆపు;
             }
-            AstAssign* const assignp = VN_CAST(currp, Assign);
-            if (!assignp) break;
-            AstConst* const valp = VN_CAST(V3Const::constifyEdit(assignp->rhsp()), Const);
-            if (!valp) break;
-            AstVarRef* const lhsp = VN_CAST(assignp->lhsp(), VarRef);
-            if (!lhsp) break;
+            Ast_కేటాయించు* స్థిరరాశి assignp = VN_CAST(currp, కేటాయించు);
+            ఒకవేళ (!assignp) ఆపు;
+            AstConst* స్థిరరాశి valp = VN_CAST(V3Const::constifyEdit(assignp->rhsp()), Const);
+            ఒకవేళ (!valp) ఆపు;
+            AstVarRef* స్థిరరాశి lhsp = VN_CAST(assignp->lhsp(), VarRef);
+            ఒకవేళ (!lhsp) ఆపు;
             // Don't bind if volatile
-            if (lhsp->varp()->isForced() || lhsp->varp()->isSigUserRWPublic()) continue;
+            ఒకవేళ (lhsp->varp()->isForced() || lhsp->varp()->isSigUserRWPublic()) కొనసాగు;
             // Don't overwrite a later binding
-            if (m_bindings.get(lhsp->varScopep())) continue;
+            ఒకవేళ (m_bindings.get(lhsp->varScopep())) కొనసాగు;
             // Set up the binding
-            m_bindings.set(lhsp->varScopep(), valp);
+            m_bindings.సమితి(lhsp->varScopep(), valp);
         }
 
         // Recognize a bit counting loop and lower it to a builtin
-        if (v3Global.opt.fBitScanLoops() && tryLowerBitScanLoop(nodep)) return;
+        ఒకవేళ (v3Global.opt.f_బిట్టు_పరిశీలన_Loops() && try_క్రింది_బిట్టు_పరిశీలన_Loop(nodep)) తిరిగి;
 
         // Attempt to unroll this loop
-        const std::pair<AstNode*, bool> pair = UnrollOneVisitor::apply(m_stats, m_bindings, nodep);
+        స్థిరరాశి std::pair<Ast_కణుపు*, తార్కిక> pair = UnrollOneVisitor::apply(m_stats, m_bindings, nodep);
 
         // If failed, carry on with nested loop
-        if (!pair.second) {
+        ఒకవేళ (!pair.రెండవ) {
             iterateChildren(nodep);
-            return;
+            తిరిగి;
         }
 
         // Otherwise replace the loop with the unrolled code - might be empty
-        if (pair.first) {
-            nodep->replaceWith(pair.first);
-            VL_DO_DANGLING(pushDeletep(nodep), nodep);
-        } else {
-            VL_DO_DANGLING(pushDeletep(nodep->unlinkFrBack()), nodep);
+        ఒకవేళ (pair.మొదటి) {
+            nodep->replaceWith(pair.మొదటి);
+            VL_DO_DANGLING(నెట్టు_Deletep(nodep), nodep);
+        } లేకపోతే {
+            VL_DO_DANGLING(నెట్టు_Deletep(nodep->unlink_Fr_వెనుక()), nodep);
         }
         // Iteration continues with the unrolled body
     }
-    void visit(AstNode* nodep) override { iterateChildren(nodep); }
+    శూన్య సందర్శించు(Ast_కణుపు* nodep) override { iterateChildren(nodep); }
 
     // CONSTRUCTOR
-    explicit UnrollAllVisitor(AstNetlist* netlistp) { iterate(netlistp); }
+    స్పష్టమైన UnrollAllVisitor(AstNetlist* netlistp) { iterate(netlistp); }
 
-public:
-    static void apply(AstNetlist* netlistp) { UnrollAllVisitor{netlistp}; }
+బహిరంగ:
+    స్థిర శూన్య apply(AstNetlist* netlistp) { UnrollAllVisitor{netlistp}; }
 };
 
 //######################################################################
 // V3Unroll class functions
 
-void V3Unroll::unrollAll(AstNetlist* nodep) {
+శూన్య V3Unroll::unrollAll(AstNetlist* nodep) {
     UINFO(2, __FUNCTION__ << ":");
     UnrollAllVisitor::apply(nodep);
-    V3Global::dumpCheckGlobalTree("unroll", 0, dumpTreeEitherLevel() >= 3);
+    V3Global::dump_Check_Global_వృక్షం("unroll", 0, dump_వృక్షం_Either_Level() >= 3);
 }

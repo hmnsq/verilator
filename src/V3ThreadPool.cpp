@@ -14,56 +14,56 @@
 //
 //*************************************************************************
 
-#include "V3ThreadPool.h"
+#అన్తర్భావ "V3ThreadPool.h"
 
-#include "V3Error.h"
-#include "V3Global.h"
-#include "V3Mutex.h"
+#అన్తర్భావ "V3Error.h"
+#అన్తర్భావ "V3Global.h"
+#అన్తర్భావ "V3Mutex.h"
 
-V3ThreadPool::V3ThreadPool(int numThreads) {
-    numThreads = std::max(numThreads, 1);
-    if (numThreads == 1) return;
-    for (int i = 0; i < numThreads; ++i) {
-        m_workers.emplace_back(&V3ThreadPool::startWorker, this);
+V3ThreadPool::V3ThreadPool(పూర్ణాంకం అంకె_దారాలు) {
+    అంకె_దారాలు = std::max(అంకె_దారాలు, 1);
+    ఒకవేళ (అంకె_దారాలు == 1) తిరిగి;
+    కొరకు (పూర్ణాంకం i = 0; i < అంకె_దారాలు; ++i) {
+        m_workers.emplace_వెనుక(&V3ThreadPool::ప్రారంభం_కార్మికుడు, ఇది);
     }
 }
 
 V3ThreadPool::~V3ThreadPool() {
     {
-        const V3LockGuard lock{m_mutex};
-        m_shutdown = true;
+        స్థిరరాశి V3_తాళం_Guard తాళం_2{m_mutex};
+        m_shutdown = నిజం;
     }
     m_cv.notify_all();
     wait();
 }
 
-void V3ThreadPool::enqueue(std::function<void()>&& f) {
-    if (m_workers.empty()) {
+శూన్య V3ThreadPool::వరుసలో_చేర్చు(std::function<శూన్య()>&& f) {
+    ఒకవేళ (m_workers.ఖాళీలు()) {
         f();
-    } else {
+    } లేకపోతే {
         {
-            const V3LockGuard lock{m_mutex};
-            m_queue.push(std::move(f));
+            స్థిరరాశి V3_తాళం_Guard తాళం_2{m_mutex};
+            m_వరుస.నెట్టు(std::move(f));
         }
-        m_pendingJobs.fetch_add(1, std::memory_order_release);
+        m_pendingJobs.fetch_కూడు(1, std::జ్ఞాపకం_క్రమం_release);
         m_cv.notify_one();
     }
 }
 
-void V3ThreadPool::wait() {
-    while (m_pendingJobs.load(std::memory_order_acquire) > 0 && !m_shutdown) {
+శూన్య V3ThreadPool::wait() {
+    అయితే (m_pendingJobs.ఎక్కించు(std::జ్ఞాపకం_క్రమం_acquire) > 0 && !m_shutdown) {
         std::this_thread::yield();
     }
-    if (m_shutdown) {
-        for (auto& worker : m_workers) worker.join();
+    ఒకవేళ (m_shutdown) {
+        కొరకు (స్వయంచాలక& కార్మికుడు : m_workers) కార్మికుడు.join();
     }
 }
 
-void V3ThreadPool::startWorker(V3ThreadPool* selfThreadp) { selfThreadp->workerJobLoop(); }
+శూన్య V3ThreadPool::ప్రారంభం_కార్మికుడు(V3ThreadPool* selfThreadp) { selfThreadp->కార్మికుడు_పని_Loop(); }
 
-void V3ThreadPool::workerJobLoop() {
-    while (true) {
-        std::function<void()> job;
+శూన్య V3ThreadPool::కార్మికుడు_పని_Loop() {
+    అయితే (నిజం) {
+        std::function<శూన్య()> పని;
         {
             // Locking before `condition_variable::wait` is required to ensure that the
             // `m_cv` condition will be executed under a lock. Taking a lock
@@ -72,87 +72,87 @@ void V3ThreadPool::workerJobLoop() {
             // before) but, according to C++ standard, the `condition_variable::wait` first checks
             // the condition and then waits for the notification, thus even when notification is
             // missed, the condition still will be checked.
-            const V3LockGuard lock{m_mutex};
+            స్థిరరాశి V3_తాళం_Guard తాళం_2{m_mutex};
             m_cv.wait(m_mutex,
-                      [&]() VL_REQUIRES(m_mutex) { return !m_queue.empty() || m_shutdown; });
-            if (m_shutdown) return;  // Terminate if requested
-            UASSERT(!m_queue.empty(), "Job should be available");
-            if (m_queue.empty()) continue;
-            job = std::move(m_queue.front());
-            m_queue.pop();
+                      [&]() VL_REQUIRES(m_mutex) { తిరిగి !m_వరుస.ఖాళీలు() || m_shutdown; });
+            ఒకవేళ (m_shutdown) తిరిగి;  // Terminate if requested
+            UASSERT(!m_వరుస.ఖాళీలు(), "Job should be available");
+            ఒకవేళ (m_వరుస.ఖాళీలు()) కొనసాగు;
+            పని = std::move(m_వరుస.front());
+            m_వరుస.తీయి();
         }
-        job();
-        m_pendingJobs.fetch_sub(1, std::memory_order_release);
+        పని();
+        m_pendingJobs.fetch_sub(1, std::జ్ఞాపకం_క్రమం_release);
     }
 }
 
-void V3ThreadPool::selfTestMtDisabled() {
+శూన్య V3ThreadPool::selfTestMtDisabled() {
     // empty
 }
 
-void V3ThreadPool::selfTest() {
+శూన్య V3ThreadPool::selfTest() {
     V3Mutex commonMutex;
-    int commonValue{0};
+    పూర్ణాంకం common_విలువ{0};
 
-    auto firstJob = [&](int sleep) -> void {
-        std::this_thread::sleep_for(std::chrono::milliseconds{sleep});
-        const V3LockGuard lock{commonMutex};
-        commonValue = 10;
-        std::this_thread::sleep_for(std::chrono::milliseconds{sleep + 10});
-        UASSERT(commonValue == 10, "unexpected commonValue = " << commonValue);
+    స్వయంచాలక మొదటి_పని = [&](పూర్ణాంకం సుషుప్తి) -> శూన్య {
+        std::this_thread::sleep_for(std::chrono::milliseconds{సుషుప్తి});
+        స్థిరరాశి V3_తాళం_Guard తాళం_2{commonMutex};
+        common_విలువ = 10;
+        std::this_thread::sleep_for(std::chrono::milliseconds{సుషుప్తి + 10});
+        UASSERT(common_విలువ == 10, "unexpected commonValue = " << common_విలువ);
     };
-    auto secondJob = [&](int sleep) -> void {
-        commonMutex.lock();
+    స్వయంచాలక రెండవ_పని = [&](పూర్ణాంకం సుషుప్తి) -> శూన్య {
+        commonMutex.తాళం_2();
         commonMutex.unlock();
-        const V3LockGuard lock{commonMutex};
-        std::this_thread::sleep_for(std::chrono::milliseconds{sleep});
-        commonValue = 1000;
+        స్థిరరాశి V3_తాళం_Guard తాళం_2{commonMutex};
+        std::this_thread::sleep_for(std::chrono::milliseconds{సుషుప్తి});
+        common_విలువ = 1000;
     };
-    auto thirdJob = [&](int sleep) -> void {
+    స్వయంచాలక మూడవ_పని = [&](పూర్ణాంకం సుషుప్తి) -> శూన్య {
         {
-            const V3LockGuard lock{commonMutex};
-            std::this_thread::sleep_for(std::chrono::milliseconds{sleep});
+            స్థిరరాశి V3_తాళం_Guard తాళం_2{commonMutex};
+            std::this_thread::sleep_for(std::chrono::milliseconds{సుషుప్తి});
         }
-        firstJob(sleep);
-        const V3LockGuard lock{commonMutex};
-        commonValue = 100;
+        మొదటి_పని(సుషుప్తి);
+        స్థిరరాశి V3_తాళం_Guard తాళం_2{commonMutex};
+        common_విలువ = 100;
     };
     {
         V3ThreadScope scope;
 
-        scope.enqueue(std::bind(firstJob, 100));
-        scope.enqueue(std::bind(secondJob, 100));
-        scope.enqueue(std::bind(firstJob, 100));
-        scope.enqueue(std::bind(secondJob, 100));
-        scope.enqueue(std::bind(secondJob, 200));
-        scope.enqueue(std::bind(firstJob, 200));
-        scope.enqueue(std::bind(firstJob, 300));
+        scope.వరుసలో_చేర్చు(std::bind(మొదటి_పని, 100));
+        scope.వరుసలో_చేర్చు(std::bind(రెండవ_పని, 100));
+        scope.వరుసలో_చేర్చు(std::bind(మొదటి_పని, 100));
+        scope.వరుసలో_చేర్చు(std::bind(రెండవ_పని, 100));
+        scope.వరుసలో_చేర్చు(std::bind(రెండవ_పని, 200));
+        scope.వరుసలో_చేర్చు(std::bind(మొదటి_పని, 200));
+        scope.వరుసలో_చేర్చు(std::bind(మొదటి_పని, 300));
         scope.wait();
 
-        UASSERT(commonValue == 1000 || commonValue == 10,
-                "unexpected common value = " << commonValue);
+        UASSERT(common_విలువ == 1000 || common_విలువ == 10,
+                "unexpected common value = " << common_విలువ);
 
-        scope.enqueue(std::bind(thirdJob, 100));
-        scope.enqueue(std::bind(thirdJob, 100));
+        scope.వరుసలో_చేర్చు(std::bind(మూడవ_పని, 100));
+        scope.వరుసలో_చేర్చు(std::bind(మూడవ_పని, 100));
     }
 
-    UASSERT(commonValue == 100, "unexpected common value = " << commonValue);
+    UASSERT(common_విలువ == 100, "unexpected common value = " << common_విలువ);
 
     {
         V3ThreadScope scope;
-        scope.enqueue(std::bind(firstJob, 100));
+        scope.వరుసలో_చేర్చు(std::bind(మొదటి_పని, 100));
     }
 
-    UASSERT(commonValue == 10, "unexpected common value = " << commonValue);
+    UASSERT(common_విలువ == 10, "unexpected common value = " << common_విలువ);
 
     {
-        int result = 0;
-        auto forthJob = [&]() -> void { result = 1234; };
+        పూర్ణాంకం ఫలితం = 0;
+        స్వయంచాలక forth_పని = [&]() -> శూన్య { ఫలితం = 1234; };
 
         V3ThreadScope scope;
-        scope.enqueue(forthJob);
+        scope.వరుసలో_చేర్చు(forth_పని);
         scope.wait();
-        UASSERT(result == 1234, "unexpected job result = " << result);
+        UASSERT(ఫలితం == 1234, "unexpected job result = " << ఫలితం);
     }
     selfTestMtDisabled();
 }
@@ -163,6 +163,6 @@ V3ThreadScope::V3ThreadScope() {
     wait();
 }
 
-void V3ThreadScope::enqueue(std::function<void()>&& f) { m_pool->enqueue(std::move(f)); }
+శూన్య V3ThreadScope::వరుసలో_చేర్చు(std::function<శూన్య()>&& f) { m_pool->వరుసలో_చేర్చు(std::move(f)); }
 
-void V3ThreadScope::wait() { m_pool->wait(); }
+శూన్య V3ThreadScope::wait() { m_pool->wait(); }

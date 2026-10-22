@@ -22,70 +22,70 @@
 //
 //*************************************************************************
 
-#include "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
+#అన్తర్భావ "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
 
-#include "V3Descope.h"
+#అన్తర్భావ "V3Descope.h"
 
-#include "V3ConstPool.h"
-#include "V3EmitCBase.h"
+#అన్తర్భావ "V3ConstPool.h"
+#అన్తర్భావ "V3EmitCBase.h"
 
 VL_DEFINE_DEBUG_FUNCTIONS;
 
 //######################################################################
 
-class DescopeVisitor final : public VNVisitor {
+తరగతి DescopeVisitor final : బహిరంగ VNVisitor {
     // NODE STATE
     //  Cleared entire netlist
     //   AstCFunc::user()               // bool.  Indicates processing completed
-    const VNUser1InUse m_inuser1;
+    స్థిరరాశి VNUser1_లోపల_Use m_inuser1;
 
     // TYPES
-    using FuncMmap = std::multimap<std::string, AstCFunc*>;
-    struct ScopeSelfPtr final {
-        VSelfPointerText thisPtr = VSelfPointerText{VSelfPointerText::Empty()};
-        VSelfPointerText vlSymsPtr = VSelfPointerText{VSelfPointerText::Empty()};
+    ఉపయోగించి FuncMmap = std::multimap<std::string, AstCFunc*>;
+    నిర్మాణం ScopeSelfPtr final {
+        VSelf_సూచిక_పాఠ్యం thisPtr = VSelf_సూచిక_పాఠ్యం{VSelf_సూచిక_పాఠ్యం::ఖాళీలు_2()};
+        VSelf_సూచిక_పాఠ్యం vlSymsPtr = VSelf_సూచిక_పాఠ్యం{VSelf_సూచిక_పాఠ్యం::ఖాళీలు_2()};
     };
 
     // STATE
-    AstNodeModule* m_modp = nullptr;  // Current module
-    AstScope* m_scopep = nullptr;  // Current scope
-    const AstCFunc* m_funcp = nullptr;  // Current function
-    bool m_modSingleton = false;  // m_modp is only instantiated once
+    Ast_కణుపు_Module* m_modp = శూన్యసూచిక;  // Current module
+    AstScope* m_scopep = శూన్యసూచిక;  // Current scope
+    స్థిరరాశి AstCFunc* m_funcp = శూన్యసూచిక;  // Current function
+    తార్కిక m_modSingleton = అబద్ధం;  // m_modp is only instantiated once
     FuncMmap m_modFuncs;  // Name of public functions added
-    std::map<const AstScope*, ScopeSelfPtr> m_scopeToSelf;  // Scope to self pointers
+    std::map<స్థిరరాశి AstScope*, ScopeSelfPtr> m_scope_గమ్యం_Self;  // Scope to self pointers
 
     // METHODS
 
-    static bool modIsSingleton(const AstNodeModule* modp) {
+    స్థిర తార్కిక modIsSingleton(స్థిరరాశి Ast_కణుపు_Module* modp) {
         // True iff there's exactly one instance of this module in the design (including top).
-        if (modp->isTop()) return true;
-        int instances = 0;
-        for (const AstNode* stmtp = modp->stmtsp(); stmtp; stmtp = stmtp->nextp()) {
-            if (VN_IS(stmtp, Scope)) {
-                if (++instances > 1) return false;
+        ఒకవేళ (modp->is_శిఖరం()) తిరిగి నిజం;
+        పూర్ణాంకం instances = 0;
+        కొరకు (స్థిరరాశి Ast_కణుపు* stmtp = modp->stmtsp(); stmtp; stmtp = stmtp->nextp()) {
+            ఒకవేళ (VN_IS(stmtp, Scope)) {
+                ఒకవేళ (++instances > 1) తిరిగి అబద్ధం;
             }
         }
-        return (instances == 1);
+        తిరిగి (instances == 1);
     }
 
     // Construct a 'this' self pointer for the given scope
-    VSelfPointerText scopeThis(const AstScope* scopep) {
-        auto& ret = m_scopeToSelf[scopep];
-        if (ret.thisPtr.isEmpty()) {
+    VSelf_సూచిక_పాఠ్యం scopeThis(స్థిరరాశి AstScope* scopep) {
+        స్వయంచాలక& ret = m_scope_గమ్యం_Self[scopep];
+        ఒకవేళ (ret.thisPtr.is_ఖాళీలు()) {
             string name = scopep->name();
-            string::size_type pos = name.rfind('.');
-            if (pos != string::npos) name.erase(0, pos + 1);
-            ret.thisPtr = VSelfPointerText{VSelfPointerText::This{}, name};
+            string::కొలత_type pos = name.rfind('.');
+            ఒకవేళ (pos != string::npos) name.erase(0, pos + 1);
+            ret.thisPtr = VSelf_సూచిక_పాఠ్యం{VSelf_సూచిక_పాఠ్యం::This{}, name};
         }
-        return ret.thisPtr;
+        తిరిగి ret.thisPtr;
     }
     // Construct a 'vlSyms' self pointer for the given scope
-    VSelfPointerText scopeVlSyms(const AstScope* scopep) {
-        auto& ret = m_scopeToSelf[scopep];
-        if (ret.vlSymsPtr.isEmpty()) {
-            ret.vlSymsPtr = VSelfPointerText{VSelfPointerText::VlSyms(), scopep->nameDotless()};
+    VSelf_సూచిక_పాఠ్యం scopeVlSyms(స్థిరరాశి AstScope* scopep) {
+        స్వయంచాలక& ret = m_scope_గమ్యం_Self[scopep];
+        ఒకవేళ (ret.vlSymsPtr.is_ఖాళీలు()) {
+            ret.vlSymsPtr = VSelf_సూచిక_పాఠ్యం{VSelf_సూచిక_పాఠ్యం::VlSyms(), scopep->nameDotless()};
         }
-        return ret.vlSymsPtr;
+        తిరిగి ret.vlSymsPtr;
     }
 
     // Construct the best self pointer to reference an object in 'scopep'  from a CFunc in
@@ -93,98 +93,98 @@ class DescopeVisitor final : public VNVisitor {
     //
     // Using relative references allows V3Combine'ing code across multiple instances of the same
     // module.
-    VSelfPointerText descopedSelfPointer(const AstScope* scopep) {
+    VSelf_సూచిక_పాఠ్యం descoped_Self_సూచిక(స్థిరరాశి AstScope* scopep) {
         UASSERT(scopep, "Var/Func not scoped");
         // Static functions can't use relative references via 'this->'
-        const bool relativeRefOk = !m_funcp->isStatic();
+        స్థిరరాశి తార్కిక relativeRefOk = !m_funcp->isStatic();
 
         UINFO(8, "      Descope ref under " << m_scopep);
         UINFO(8, "              ref to    " << scopep);
         UINFO(8, "             aboveScope " << scopep->aboveScopep());
 
-        if (VN_IS(scopep->modp(), Class)) {
+        ఒకవేళ (VN_IS(scopep->modp(), Class)) {
             // Direct reference to class members are from within the class itself, references from
             // outside the class must go via AstMemberSel
-            return VSelfPointerText{VSelfPointerText::This{}};
-        } else if (relativeRefOk && scopep == m_scopep) {
-            return VSelfPointerText{VSelfPointerText::This{}};
-        } else if (relativeRefOk && !m_modSingleton && scopep->aboveScopep() == m_scopep
+            తిరిగి VSelf_సూచిక_పాఠ్యం{VSelf_సూచిక_పాఠ్యం::This{}};
+        } లేకపోతే ఒకవేళ (relativeRefOk && scopep == m_scopep) {
+            తిరిగి VSelf_సూచిక_పాఠ్యం{VSelf_సూచిక_పాఠ్యం::This{}};
+        } లేకపోతే ఒకవేళ (relativeRefOk && !m_modSingleton && scopep->aboveScopep() == m_scopep
                    && VN_IS(scopep->modp(), Module)) {
             // Reference to scope of instance directly under this module, can just "this->cell",
             // which can potentially be V3Combined, but note this requires one extra pointer
             // dereference which is slower, so we only use it if the source scope is not a
             // singleton.
-            return scopeThis(scopep);
-        } else {
+            తిరిగి scopeThis(scopep);
+        } లేకపోతే {
             // Reference to something elsewhere, or relative references are disabled. Use global
             // variable
-            return scopeVlSyms(scopep);
+            తిరిగి scopeVlSyms(scopep);
         }
     }
 
-    void makePublicFuncWrappers() {
+    శూన్య make_ప్రజా_Func_Wrappers() {
         // We recorded all public functions in m_modFuncs.
         // If for any given name only one function exists, we can use that function directly.
         // If multiple functions exist, we need to select the appropriate scope.
-        for (FuncMmap::iterator it = m_modFuncs.begin(); it != m_modFuncs.end(); ++it) {
-            const string name = it->first;
-            AstCFunc* const topFuncp = it->second;
-            auto nextIt1 = it;
-            ++nextIt1;
-            const bool moreOfSame1 = (nextIt1 != m_modFuncs.end() && nextIt1->first == name);
-            if (moreOfSame1) {
+        కొరకు (FuncMmap::iterator it = m_modFuncs.begin(); it != m_modFuncs.చివర(); ++it) {
+            స్థిరరాశి string name = it->మొదటి;
+            AstCFunc* స్థిరరాశి శిఖరం_Funcp = it->రెండవ;
+            స్వయంచాలక తదుపరి_It1 = it;
+            ++తదుపరి_It1;
+            స్థిరరాశి తార్కిక మరిన్ని_యొక్క_Same1 = (తదుపరి_It1 != m_modFuncs.చివర() && తదుపరి_It1->మొదటి == name);
+            ఒకవేళ (మరిన్ని_యొక్క_Same1) {
                 // Multiple functions under this name, need a wrapper function
                 UINFO(6, "  Wrapping " << name << " multifuncs");
-                AstCFunc* const newfuncp = topFuncp->cloneTree(false);
-                if (newfuncp->varsp()) newfuncp->varsp()->unlinkFrBackWithNext()->deleteTree();
-                if (newfuncp->stmtsp()) newfuncp->stmtsp()->unlinkFrBackWithNext()->deleteTree();
+                AstCFunc* స్థిరరాశి newfuncp = శిఖరం_Funcp->clone_వృక్షం(అబద్ధం);
+                ఒకవేళ (newfuncp->varsp()) newfuncp->varsp()->unlink_Fr_వెనుక_With_తదుపరి()->delete_వృక్షం();
+                ఒకవేళ (newfuncp->stmtsp()) newfuncp->stmtsp()->unlink_Fr_వెనుక_With_తదుపరి()->delete_వృక్షం();
                 newfuncp->name(name);
-                newfuncp->isStatic(false);
-                topFuncp->addNextHere(newfuncp);
+                newfuncp->isStatic(అబద్ధం);
+                శిఖరం_Funcp->కూడు_తదుపరి_ఇక్కడ(newfuncp);
                 // In the body, call each function if it matches the given scope
-                for (FuncMmap::iterator eachIt = it;
-                     eachIt != m_modFuncs.end() && eachIt->first == name; ++eachIt) {
+                కొరకు (FuncMmap::iterator eachIt = it;
+                     eachIt != m_modFuncs.చివర() && eachIt->మొదటి == name; ++eachIt) {
                     it = eachIt;
-                    AstCFunc* const funcp = eachIt->second;
-                    auto nextIt2 = eachIt;
-                    ++nextIt2;
-                    const bool moreOfSame
-                        = (nextIt2 != m_modFuncs.end() && nextIt2->first == name);
+                    AstCFunc* స్థిరరాశి funcp = eachIt->రెండవ;
+                    స్వయంచాలక తదుపరి_It2 = eachIt;
+                    ++తదుపరి_It2;
+                    స్థిరరాశి తార్కిక మరిన్ని_యొక్క_Same
+                        = (తదుపరి_It2 != m_modFuncs.చివర() && తదుపరి_It2->మొదటి == name);
                     UASSERT_OBJ(funcp->scopep(), funcp, "Not scoped");
 
                     UINFO(6, "     Wrapping " << name << " " << funcp);
                     UINFO(6, "  at " << newfuncp->argTypes() << " und " << funcp->argTypes());
-                    funcp->declPrivate(true);
-                    AstVarRef* argsp = nullptr;
-                    for (AstNode* stmtp = newfuncp->argsp(); stmtp; stmtp = stmtp->nextp()) {
-                        if (AstVar* const portp = VN_CAST(stmtp, Var)) {
-                            if (portp->isIO() && !portp->isFuncReturn()) {
-                                AstVarRef* const newp = new AstVarRef{
+                    funcp->decl_వ్యక్తిగత(నిజం);
+                    AstVarRef* argsp = శూన్యసూచిక;
+                    కొరకు (Ast_కణుపు* stmtp = newfuncp->argsp(); stmtp; stmtp = stmtp->nextp()) {
+                        ఒకవేళ (AstVar* స్థిరరాశి portp = VN_CAST(stmtp, Var)) {
+                            ఒకవేళ (portp->isIO() && !portp->isFuncReturn()) {
+                                AstVarRef* స్థిరరాశి newp = కొత్త AstVarRef{
                                     portp->fileline(), portp, portp->direction().pinAccess()};
-                                argsp = AstNode::addNext(argsp, newp);
+                                argsp = Ast_కణుపు::కూడు_తదుపరి(argsp, newp);
                             }
                         }
                     }
 
-                    AstCCall* const callp = new AstCCall{funcp->fileline(), funcp, argsp};
-                    if (AstNodeDType* const dtypep = funcp->dtypep()) {
+                    AstCCall* స్థిరరాశి callp = కొత్త AstCCall{funcp->fileline(), funcp, argsp};
+                    ఒకవేళ (Ast_కణుపు_DType* స్థిరరాశి dtypep = funcp->dtypep()) {
                         callp->dtypep(dtypep);
-                    } else {
-                        callp->dtypeSetVoid();
+                    } లేకపోతే {
+                        callp->dtype_సమితి_Void();
                     }
-                    AstNode* const returnp = new AstCReturn{funcp->fileline(), callp};
+                    Ast_కణుపు* స్థిరరాశి returnp = కొత్త AstCReturn{funcp->fileline(), callp};
 
-                    if (moreOfSame) {
-                        AstIf* const ifp = new AstIf{
+                    ఒకవేళ (మరిన్ని_యొక్క_Same) {
+                        AstIf* స్థిరరాశి ifp = కొత్త AstIf{
                             funcp->fileline(),
-                            new AstEq{funcp->fileline(),
-                                      new AstCExpr{funcp->fileline(), "this", 64},
-                                      new AstCExpr{funcp->fileline(),
+                            కొత్త AstEq{funcp->fileline(),
+                                      కొత్త AstCExpr{funcp->fileline(), "this", 64},
+                                      కొత్త AstCExpr{funcp->fileline(),
                                                    scopeVlSyms(funcp->scopep()).asString(), 64}},
                             returnp};
-                        newfuncp->addStmtsp(ifp);
-                    } else {
-                        newfuncp->addStmtsp(returnp);
+                        newfuncp->కూడు_Stmtsp(ifp);
+                    } లేకపోతే {
+                        newfuncp->కూడు_Stmtsp(returnp);
                     }
                 }
                 // Not really any way the user could do this, and we'd need
@@ -195,101 +195,101 @@ class DescopeVisitor final : public VNVisitor {
                 //                                   scope", nullptr});
                 // newfuncp->addStmtsp(new AstStop{newfuncp->fileline()});
                 UINFOTREE(9, newfuncp, "", "newfunc");
-            } else {
+            } లేకపోతే {
                 // Only a single function under this name, we can rename it
-                UINFO(6, "  Wrapping " << name << " just one " << topFuncp);
-                topFuncp->name(name);
+                UINFO(6, "  Wrapping " << name << " just one " << శిఖరం_Funcp);
+                శిఖరం_Funcp->name(name);
             }
         }
     }
 
     // VISITORS
-    void visit(AstNodeModule* nodep) override {
+    శూన్య సందర్శించు(Ast_కణుపు_Module* nodep) override {
         VL_RESTORER(m_modp);
         m_modp = nodep;
         m_modFuncs.clear();
         m_modSingleton = modIsSingleton(m_modp);
         iterateChildren(nodep);
-        makePublicFuncWrappers();
+        make_ప్రజా_Func_Wrappers();
     }
-    void visit(AstScope* nodep) override {
+    శూన్య సందర్శించు(AstScope* nodep) override {
         VL_RESTORER(m_scopep);
         m_scopep = nodep;
         iterateChildren(nodep);
     }
-    void visit(AstVarScope* nodep) override {
+    శూన్య సందర్శించు(AstVarScope* nodep) override {
         // Delete the varscope when we're finished
-        VL_DO_DANGLING(pushDeletep(nodep->unlinkFrBack()), nodep);
+        VL_DO_DANGLING(నెట్టు_Deletep(nodep->unlink_Fr_వెనుక()), nodep);
     }
-    void visit(AstNodeVarRef* nodep) override {
+    శూన్య సందర్శించు(Ast_కణుపు_Var_Ref* nodep) override {
         iterateChildren(nodep);
-        if (!nodep->varScopep()) {
+        ఒకవేళ (!nodep->varScopep()) {
             UASSERT_OBJ(nodep->varp()->isFuncLocal(), nodep,
                         "unscoped reference can only appear to function locals at this point");
-            return;
+            తిరిగి;
         }
         // Convert the hierch name
         UINFO(9, "  ref-in " << nodep);
         UASSERT_OBJ(m_scopep, nodep, "Node not under scope");
-        const AstVar* const varp = nodep->varScopep()->varp();
-        const AstScope* const scopep = nodep->varScopep()->scopep();
-        if (varp->isFuncLocal()) {
+        స్థిరరాశి AstVar* స్థిరరాశి varp = nodep->varScopep()->varp();
+        స్థిరరాశి AstScope* స్థిరరాశి scopep = nodep->varScopep()->scopep();
+        ఒకవేళ (varp->isFuncLocal()) {
             // Reference to function locals need no self pointer
-            nodep->selfPointer(VSelfPointerText{VSelfPointerText::Empty()});
-        } else if (scopep->modp()->isConstPool()) {
+            nodep->self_సూచిక(VSelf_సూచిక_పాఠ్యం{VSelf_సూచిక_పాఠ్యం::ఖాళీలు_2()});
+        } లేకపోతే ఒకవేళ (scopep->modp()->isConstPool()) {
             // Reference to constant pool value need no self pointer
-            nodep->selfPointer(VSelfPointerText{VSelfPointerText::Empty()});
-        } else {
-            nodep->selfPointer(descopedSelfPointer(scopep));
+            nodep->self_సూచిక(VSelf_సూచిక_పాఠ్యం{VSelf_సూచిక_పాఠ్యం::ఖాళీలు_2()});
+        } లేకపోతే {
+            nodep->self_సూచిక(descoped_Self_సూచిక(scopep));
         }
-        nodep->varScopep(nullptr);
-        UINFO(9, "  refout " << nodep << " selfPtr=" << nodep->selfPointer().asString());
+        nodep->varScopep(శూన్యసూచిక);
+        UINFO(9, "  refout " << nodep << " selfPtr=" << nodep->self_సూచిక().asString());
     }
-    void visit(AstCCall* nodep) override {
+    శూన్య సందర్శించు(AstCCall* nodep) override {
         // UINFO(9, "       " << nodep);
         iterateChildren(nodep);
         // Convert the hierch name
         UASSERT_OBJ(m_scopep, nodep, "Node not under scope");
-        const AstScope* const scopep = nodep->funcp()->scopep();
-        nodep->selfPointer(descopedSelfPointer(scopep));
+        స్థిరరాశి AstScope* స్థిరరాశి scopep = nodep->funcp()->scopep();
+        nodep->self_సూచిక(descoped_Self_సూచిక(scopep));
         // Can't do this, as we may have more calls later
         // nodep->funcp()->scopep(nullptr);
     }
-    void visit(AstScopeName* nodep) override {
+    శూన్య సందర్శించు(AstScopeName* nodep) override {
         // Print a %m under this instance as its vlNamep, which holds its pretty name, plus the
         // rest of the path, so the instances' code can be V3Combined. Not with --protect-ids, as
         // vlNamep then holds the protected name, while %m prints the original.
-        if (!m_funcp || !nodep->forFormat() || m_modSingleton || m_funcp->isStatic()
+        ఒకవేళ (!m_funcp || !nodep->forFormat() || m_modSingleton || m_funcp->isStatic()
             || v3Global.opt.protectIds()) {
-            return;
+            తిరిగి;
         }
-        std::string path = nodep->scopePrettySymName();
-        const std::string inst = m_scopep->prettyName();
-        if (path != inst && !VString::startsWith(path, inst + ".")) return;
-        path.erase(0, inst.size() + 1);
+        std::string మార్గం = nodep->scopePrettySymName();
+        స్థిరరాశి std::string inst = m_scopep->prettyName();
+        ఒకవేళ (మార్గం != inst && !VString::startsWith(మార్గం, inst + ".")) తిరిగి;
+        మార్గం.erase(0, inst.కొలత() + 1);
         // The DPI scope table keeps the absolute name, via a copy outside any function
-        m_scopep->addBlocksp(nodep->cloneTree(false));
-        nodep->scopeAttr(path);
+        m_scopep->కూడు_Blocksp(nodep->clone_వృక్షం(అబద్ధం));
+        nodep->scopeAttr(మార్గం);
         nodep->scopeEntr("");  // Only used by the DPI scope table
-        nodep->selfRelative(true);
+        nodep->selfRelative(నిజం);
     }
-    void visit(AstCMethodCall* nodep) override { iterateChildren(nodep); }
-    void visit(AstCNew* nodep) override { iterateChildren(nodep); }
-    void visit(AstCFunc* nodep) override {
+    శూన్య సందర్శించు(AstCMethodCall* nodep) override { iterateChildren(nodep); }
+    శూన్య సందర్శించు(AstCNew* nodep) override { iterateChildren(nodep); }
+    శూన్య సందర్శించు(AstCFunc* nodep) override {
         VL_RESTORER(m_funcp);
-        if (!nodep->user1()) {
+        ఒకవేళ (!nodep->user1()) {
             // Static functions should have been moved under the corresponding AstClassPackage
             UASSERT_OBJ(!(nodep->isStatic() && VN_IS(m_modp, Class)), nodep,
                         "Static function under AstClass");
             m_funcp = nodep;
             iterateChildren(nodep);
-            nodep->user1(true);
+            nodep->user1(నిజం);
             // If it's under a scope, move it up to the top
-            if (m_scopep) {
-                nodep->unlinkFrBack();
-                m_modp->addStmtsp(nodep);
+            ఒకవేళ (m_scopep) {
+                nodep->unlink_Fr_వెనుక();
+                m_modp->కూడు_Stmtsp(nodep);
 
-                if (nodep->funcPublic()) {
+                ఒకవేళ (nodep->func_ప్రజా()) {
                     // There may be multiple public functions by the same name;
                     // record for later correction or making of shells
                     m_modFuncs.emplace(nodep->name(), nodep);
@@ -298,21 +298,21 @@ class DescopeVisitor final : public VNVisitor {
             }
         }
     }
-    void visit(AstVar*) override {}
-    void visit(AstNode* nodep) override { iterateChildren(nodep); }
+    శూన్య సందర్శించు(AstVar*) override {}
+    శూన్య సందర్శించు(Ast_కణుపు* nodep) override { iterateChildren(nodep); }
 
-public:
+బహిరంగ:
     // CONSTRUCTORS
-    explicit DescopeVisitor(AstNetlist* nodep) { iterate(nodep); }
-    ~DescopeVisitor() override = default;
+    స్పష్టమైన DescopeVisitor(AstNetlist* nodep) { iterate(nodep); }
+    ~DescopeVisitor() override = అప్రమేయ;
 };
 
 //######################################################################
 // Descope class functions
 
-void V3Descope::descopeAll(AstNetlist* nodep) {
+శూన్య V3Descope::descopeAll(AstNetlist* nodep) {
     UINFO(2, __FUNCTION__ << ":");
     { DescopeVisitor{nodep}; }  // Destruct before checking
-    V3ConstPool::setDescoped();
-    V3Global::dumpCheckGlobalTree("descope", 0, dumpTreeEitherLevel() >= 3);
+    V3ConstPool::సమితి_Descoped();
+    V3Global::dump_Check_Global_వృక్షం("descope", 0, dump_వృక్షం_Either_Level() >= 3);
 }

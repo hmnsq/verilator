@@ -35,111 +35,111 @@
 //
 //*************************************************************************
 
-#ifndef VERILATOR_V3SHAREDTMPS_H_
-#define VERILATOR_V3SHAREDTMPS_H_
+#నిర్వచితం_కాకపోతే VERILATOR_V3SHAREDTMPS_H_
+#నిర్వచించు VERILATOR_V3SHAREDTMPS_H_
 
-#include "config_build.h"
-#include "verilatedos.h"
+#అన్తర్భావ "config_build.h"
+#అన్తర్భావ "verilatedos.h"
 
-#include "V3Ast.h"
-#include "V3Hash.h"
-#include "V3HashTable.h"
-#include "V3String.h"
+#అన్తర్భావ "V3Ast.h"
+#అన్తర్భావ "V3Hash.h"
+#అన్తర్భావ "V3HashTable.h"
+#అన్తర్భావ "V3String.h"
 
-#include <set>
-#include <string>
-#include <unordered_map>
-#include <utility>
-#include <vector>
+#అన్తర్భావ <set>
+#అన్తర్భావ <string>
+#అన్తర్భావ <unordered_map>
+#అన్తర్భావ <utility>
+#అన్తర్భావ <vector>
 
 class V3SharedTmps final {
     // TYPES
     // Temporaries are identified by their module, name and data type
-    struct Key final {
-        const AstNodeModule* m_modp;  // The module of the scopes
+    నిర్మాణం కీలకం_2 final {
+        స్థిరరాశి Ast_కణుపు_Module* m_modp;  // The module of the scopes
         std::string m_name;  // Name of the temporary
-        const AstNodeDType* m_dtypep;  // Data type of the temporary
+        స్థిరరాశి Ast_కణుపు_DType* m_dtypep;  // Data type of the temporary
     };
     // Hash and equality of Keys, which can be looked up by their parts, without making one
-    struct KeyHash final {
-        size_t operator()(const AstNodeModule* modp, const std::string& name,
-                          const AstNodeDType* dtypep) const {
+    నిర్మాణం కీలకం_Hash final {
+        కొలత_t క్రియాకారకం()(స్థిరరాశి Ast_కణుపు_Module* modp, స్థిరరాశి std::string& name,
+                          స్థిరరాశి Ast_కణుపు_DType* dtypep) స్థిరరాశి {
             V3Hash hash{modp};
             hash += name;
             hash += dtypep;
-            return hash.value();
+            తిరిగి hash.విలువ();
         }
-        size_t operator()(const Key& key) const {
-            return (*this)(key.m_modp, key.m_name, key.m_dtypep);
-        }
-    };
-    struct KeyEqual final {
-        bool operator()(const Key& key, const AstNodeModule* modp, const std::string& name,
-                        const AstNodeDType* dtypep) const {
-            return key.m_modp == modp && key.m_dtypep == dtypep && key.m_name == name;
-        }
-        bool operator()(const Key& a, const Key& b) const {
-            return (*this)(a, b.m_modp, b.m_name, b.m_dtypep);
+        కొలత_t క్రియాకారకం()(స్థిరరాశి కీలకం_2& కీలకం) స్థిరరాశి {
+            తిరిగి (*this)(కీలకం.m_modp, కీలకం.m_name, కీలకం.m_dtypep);
         }
     };
-    struct Tmps final {
-        std::vector<AstVar*> m_varps;  // Variables created so far
+    నిర్మాణం కీలకం_Equal final {
+        bool క్రియాకారకం()(స్థిరరాశి కీలకం_2& కీలకం, స్థిరరాశి Ast_కణుపు_Module* modp, స్థిరరాశి std::string& name,
+                        స్థిరరాశి Ast_కణుపు_DType* dtypep) స్థిరరాశి {
+            తిరిగి కీలకం.m_modp == modp && కీలకం.m_dtypep == dtypep && కీలకం.m_name == name;
+        }
+        bool క్రియాకారకం()(స్థిరరాశి కీలకం_2& a, స్థిరరాశి కీలకం_2& b) స్థిరరాశి {
+            తిరిగి (*this)(a, b.m_modp, b.m_name, b.m_dtypep);
+        }
+    };
+    నిర్మాణం Tmps final {
+        std::సదిశ<AstVar*> m_varps;  // Variables created so far
         // Number of variables used by each scope
-        std::unordered_map<const AstScope*, size_t> m_nUsed;
+        std::unordered_map<స్థిరరాశి AstScope*, కొలత_t> m_n_వాడిన;
     };
 
     // STATE
-    const std::string m_prefix;  // Prefix of all variable names
-    const VVarType m_varType;  // Type of all variables
-    V3HashMap<Key, Tmps, KeyHash, KeyEqual> m_tmps;  // The temporaries created so far
-    size_t m_nVars = 0;  // Number of variables created, used to make unique names
-    size_t m_nReused = 0;  // Number of temporaries using an existing variable
+    స్థిరరాశి std::string m_ఉపసర్గ;  // Prefix of all variable names
+    స్థిరరాశి VVarType m_varType;  // Type of all variables
+    V3HashMap<కీలకం_2, Tmps, కీలకం_Hash, కీలకం_Equal> m_tmps;  // The temporaries created so far
+    కొలత_t m_nVars = 0;  // Number of variables created, used to make unique names
+    కొలత_t m_nReused = 0;  // Number of temporaries using an existing variable
 
-public:
+బహిరంగ:
     // CONSTRUCTORS
-    V3SharedTmps(const std::string& prefix, VVarType varType)
-        : m_prefix{prefix}
+    V3SharedTmps(స్థిరరాశి std::string& ఉపసర్గ, VVarType varType)
+        : m_ఉపసర్గ{ఉపసర్గ}
         , m_varType{varType} {
-        UASSERT(VString::startsWith(prefix, "__V"), "Prefix must start with '__V'");
-        UASSERT(!VString::endsWith(prefix, "_"), "Prefix must not end with '_'");
+        UASSERT(VString::startsWith(ఉపసర్గ, "__V"), "Prefix must start with '__V'");
+        UASSERT(!VString::చివర్లు_With(ఉపసర్గ, "_"), "Prefix must not end with '_'");
         // Prefixes used so far during the whole of compilation. Must be unique.
-        static std::set<std::string> s_prefixes;
-        const bool isNew = s_prefixes.insert(m_prefix).second;
-        UASSERT(isNew, "V3SharedTmps prefix is not unique: '" << prefix << "'");
+        స్థిర std::సమితి<std::string> s_prefixes;
+        స్థిరరాశి bool isNew = s_prefixes.చొప్పించు(m_ఉపసర్గ).రెండవ;
+        UASSERT(isNew, "V3SharedTmps prefix is not unique: '" << ఉపసర్గ << "'");
     }
 
     // METHODS
     // Create a new temporary of type 'dtypep' in 'scopep', and return its AstVarScope
-    AstVarScope* make(FileLine* flp, AstScope* scopep, AstNodeDType* dtypep,
-                      const std::string& name = "") {
-        const AstNodeModule* const modp = scopep->modp();
-        const auto pair = m_tmps.insertLazy(modp, name, dtypep, [&]() {  //
-            return std::make_pair(Key{modp, name, dtypep}, Tmps{});
+    AstVarScope* make(File_పంక్తి* flp, AstScope* scopep, Ast_కణుపు_DType* dtypep,
+                      స్థిరరాశి std::string& name = "") {
+        స్థిరరాశి Ast_కణుపు_Module* స్థిరరాశి modp = scopep->modp();
+        స్థిరరాశి స్వయంచాలక pair = m_tmps.చొప్పించు_Lazy(modp, name, dtypep, [&]() {  //
+            తిరిగి std::make_pair(కీలకం_2{modp, name, dtypep}, Tmps{});
         });
-        Tmps& tmps = pair.first.value();
-        const size_t n = tmps.m_nUsed[scopep]++;
-        if (n < tmps.m_varps.size()) {
+        Tmps& tmps = pair.మొదటి.విలువ();
+        స్థిరరాశి కొలత_t n = tmps.m_n_వాడిన[scopep]++;
+        ఒకవేళ (n < tmps.m_varps.కొలత()) {
             ++m_nReused;
-        } else {
-            std::string uniqueName = m_prefix + "_";
-            if (!name.empty()) uniqueName += name + "_";
-            uniqueName += std::to_string(m_nVars++);
-            AstVar* const varp = new AstVar{flp, m_varType, uniqueName, dtypep};
-            scopep->modp()->addStmtsp(varp);
-            tmps.m_varps.emplace_back(varp);
+        } లేకపోతే {
+            std::string uniqueName = m_ఉపసర్గ + "_";
+            ఒకవేళ (!name.ఖాళీలు()) uniqueName += name + "_";
+            uniqueName += std::గమ్యం_string(m_nVars++);
+            AstVar* స్థిరరాశి varp = new AstVar{flp, m_varType, uniqueName, dtypep};
+            scopep->modp()->కూడు_Stmtsp(varp);
+            tmps.m_varps.emplace_వెనుక(varp);
         }
-        AstVarScope* const vscp = new AstVarScope{flp, scopep, tmps.m_varps[n]};
-        scopep->addVarsp(vscp);
-        return vscp;
+        AstVarScope* స్థిరరాశి vscp = new AstVarScope{flp, scopep, tmps.m_varps[n]};
+        scopep->కూడు_Varsp(vscp);
+        తిరిగి vscp;
     }
     // Same as above, but with a 2-state unsigned packed type of the given 'width'
-    AstVarScope* make(FileLine* flp, AstScope* scopep, unsigned width,
-                      const std::string& name = "") {
-        return make(flp, scopep, scopep->findBitDType(width, width, VSigning::UNSIGNED), name);
+    AstVarScope* make(File_పంక్తి* flp, AstScope* scopep, గుర్తులేని వెడల్పు,
+                      స్థిరరాశి std::string& name = "") {
+        తిరిగి make(flp, scopep, scopep->కనుగొను_బిట్టు_DType(వెడల్పు, వెడల్పు, VSigning::UNSIGNED), name);
     }
 
     // Number of temporaries using an existing variable
-    size_t nReused() const { return m_nReused; }
+    కొలత_t nReused() స్థిరరాశి { తిరిగి m_nReused; }
 };
 
-#endif  // Guard
+#అయితే_ముగింపు  // Guard

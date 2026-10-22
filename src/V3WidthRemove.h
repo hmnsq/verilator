@@ -14,49 +14,49 @@
 //
 //*************************************************************************
 
-#ifndef VERILATOR_V3WIDTHREMOVE_H_
-#define VERILATOR_V3WIDTHREMOVE_H_
+#నిర్వచితం_కాకపోతే VERILATOR_V3WIDTHREMOVE_H_
+#నిర్వచించు VERILATOR_V3WIDTHREMOVE_H_
 
-#include "config_build.h"
-#include "verilatedos.h"
+#అన్తర్భావ "config_build.h"
+#అన్తర్భావ "verilatedos.h"
 
-#include "V3Ast.h"
-#include "V3Error.h"
+#అన్తర్భావ "V3Ast.h"
+#అన్తర్భావ "V3Error.h"
 
 // clang-format off
-#ifndef VERILATOR_V3WIDTH_CPP_
+#నిర్వచితం_కాకపోతే VERILATOR_V3_వెడల్పు_CPP
 # error "V3WidthRemove for V3Width internal use only"
-#endif
+#అయితే_ముగింపు
 // clang-format on
 
 //######################################################################
 
-class WidthRemoveVisitor final : public VNVisitor {
+class వెడల్పు_Remove_Visitor final : బహిరంగ VNVisitor {
     // METHODS
     VL_DEFINE_DEBUG_FUNCTIONS;
 
-    void replaceWithSignedVersion(AstNode* nodep, AstNode* newp) {
+    శూన్య replace_With_Signed_సంస్కరణ(Ast_కణుపు* nodep, Ast_కణుపు* newp) {
         UINFO(6, " Replace " << nodep << " w/ " << newp);
         nodep->replaceWithKeepDType(newp);
-        VL_DO_DANGLING(pushDeletep(nodep), nodep);
+        VL_DO_DANGLING(నెట్టు_Deletep(nodep), nodep);
     }
 
     // VISITORS
-    void visit(AstSigned* nodep) override {
-        VL_DO_DANGLING(replaceWithSignedVersion(nodep, nodep->lhsp()->unlinkFrBack()), nodep);
+    శూన్య సందర్శించు(AstSigned* nodep) override {
+        VL_DO_DANGLING(replace_With_Signed_సంస్కరణ(nodep, nodep->lhsp()->unlink_Fr_వెనుక()), nodep);
     }
-    void visit(AstUnsigned* nodep) override {
-        VL_DO_DANGLING(replaceWithSignedVersion(nodep, nodep->lhsp()->unlinkFrBack()), nodep);
+    శూన్య సందర్శించు(AstUnsigned* nodep) override {
+        VL_DO_DANGLING(replace_With_Signed_సంస్కరణ(nodep, nodep->lhsp()->unlink_Fr_వెనుక()), nodep);
     }
-    void visit(AstNode* nodep) override { iterateChildren(nodep); }
+    శూన్య సందర్శించు(Ast_కణుపు* nodep) override { iterateChildren(nodep); }
 
-public:
+బహిరంగ:
     // CONSTRUCTORS
-    WidthRemoveVisitor() = default;
-    ~WidthRemoveVisitor() override = default;
-    AstNode* mainAcceptEdit(AstNode* nodep) { return iterateSubtreeReturnEdits(nodep); }
+    వెడల్పు_Remove_Visitor() = అప్రమేయ;
+    ~వెడల్పు_Remove_Visitor() override = అప్రమేయ;
+    Ast_కణుపు* mainAcceptEdit(Ast_కణుపు* nodep) { తిరిగి iterateSubtreeReturnEdits(nodep); }
 };
 
 //######################################################################
 
-#endif  // Guard
+#అయితే_ముగింపు  // Guard

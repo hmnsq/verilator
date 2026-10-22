@@ -14,41 +14,41 @@
 //
 //*************************************************************************
 
-#ifndef VERILATOR_V3RTTI_H_
-#define VERILATOR_V3RTTI_H_
+#నిర్వచితం_కాకపోతే VERILATOR_V3RTTI_H_
+#నిర్వచించు VERILATOR_V3RTTI_H_
 
-#include "verilatedos.h"
+#అన్తర్భావ "verilatedos.h"
 
-#include <cstdint>
-#include <type_traits>
+#అన్తర్భావ <cstdint>
+#అన్తర్భావ <type_traits>
 
 namespace V3Rtti {
 
 // Use 'V3Rtti::isInstanceOf<T>(objp)' to check if 'objp' is of subtype 'T' (downcasting)
-template <typename SubClass, typename SuperClass>
-bool isInstanceOf(SuperClass* objp) {
-    static_assert(std::is_base_of<SuperClass, SubClass>::value, "Impossible 'isInstanceOf'");
-    static_assert(!std::is_same<SuperClass, SubClass>::value, "Useless 'isInstanceOf'");
+మూస <typename SubClass, typename SuperClass>
+bool is_Instance_యొక్క(SuperClass* objp) {
+    static_assert(std::is_పునాది_యొక్క<SuperClass, SubClass>::విలువ, "Impossible 'isInstanceOf'");
+    static_assert(!std::is_same<SuperClass, SubClass>::విలువ, "Useless 'isInstanceOf'");
     static_assert(std::is_same<  //
                       typename std::remove_cv<SubClass>::type,  //
                       typename SubClass::V3RttiThisClass  //
-                      >::value,
+                      >::విలువ,
                   "Missing VL_RTTI_IMPL(...) in 'SubClass'");
-    return objp->v3RttiIsInstanceOfImpl(SubClass::v3RttiClassId());
+    తిరిగి objp->v3_Rtti_Is_Instance_యొక్క_Impl(SubClass::v3RttiClassId());
 }
 
-namespace internal {
+namespace అంతర్గత_2 {
 
 // Returns true iff 'id' equals the 'rttiClassId()' of either 'T', or any of its base classes
-template <typename T>
-inline bool matchClassId(uintptr_t id) VL_PURE {
-    return id == T::v3RttiClassId() || matchClassId<typename T::V3RttiBaseClass>(id);
+మూస <typename T>
+అంతఃవరుస bool సరిపోలిక_Class_Id(uintptr_t id) VL_శుద్ధ {
+    తిరిగి id == T::v3RttiClassId() || సరిపోలిక_Class_Id<typename T::V3_Rtti_పునాది_Class>(id);
 }
 
 // Specialization for the root class, which have 'void' for 'V3RttiBaseClass'
-template <>
-inline bool matchClassId<void>(uintptr_t) VL_PURE {
-    return false;
+మూస <>
+అంతఃవరుస bool సరిపోలిక_Class_Id<శూన్య>(uintptr_t) VL_శుద్ధ {
+    తిరిగి false;
 }
 
 }  // namespace internal
@@ -56,44 +56,44 @@ inline bool matchClassId<void>(uintptr_t) VL_PURE {
 }  // namespace V3Rtti
 
 // Common code used by VL_RTTI_COMMON_IMPL and VL_RTTI_COMMON_IMPL_BASE.
-#define V3RTTIINTERNAL_VL_RTTI_COMMON_IMPL(ThisClass, OVERRIDE) \
+#నిర్వచించు V3RTTIINTERNAL_VL_RTTI_COMMON_IMPL(ThisClass, OVERRIDE) \
     using V3RttiThisClass = ThisClass; \
     /* A type used only for implementation of the static_assert below. */ \
-    struct RttiUniqueTypeForThisClass {}; \
+    నిర్మాణం RttiUniqueTypeForThisClass {}; \
     static_assert( \
-        std::is_same<RttiUniqueTypeForThisClass, ThisClass::RttiUniqueTypeForThisClass>::value, \
+        std::is_same<RttiUniqueTypeForThisClass, ThisClass::RttiUniqueTypeForThisClass>::విలువ, \
         "'ThisClass' argument (" #ThisClass ") does not match the class name"); \
     /* The implementation can pick up the private members */ \
-    template <typename T> \
-    friend bool V3Rtti::internal::matchClassId(uintptr_t id); \
-    template <typename T, typename U> \
-    friend bool V3Rtti::isInstanceOf(U*); \
+    మూస <typename T> \
+    మిత్ర bool V3Rtti::అంతర్గత_2::సరిపోలిక_Class_Id(uintptr_t id); \
+    మూస <typename T, typename U> \
+    మిత్ర bool V3Rtti::is_Instance_యొక్క(U*); \
     /* Returns unique type ID of the class. */ \
-    static uintptr_t v3RttiClassId() VL_PURE { \
-        /* Don't complain this function is unused */ (void)&v3RttiClassId; \
+    స్థిర uintptr_t v3RttiClassId() VL_శుద్ధ { \
+        /* Don't complain this function is unused */ (శూన్య)&v3RttiClassId; \
         /* The address of this static variable is used as the unique class type ID. */ \
-        static char s_vlrttiClassId; \
-        return reinterpret_cast<uintptr_t>(&s_vlrttiClassId); \
+        స్థిర అక్షరం s_vlrttiClassId; \
+        తిరిగి reinterpret_cast<uintptr_t>(&s_vlrttiClassId); \
     } \
     /* Dispatch to matchClassId with the correct sub type (this type) */ \
-    virtual bool v3RttiIsInstanceOfImpl(uintptr_t id) const OVERRIDE VL_PURE { \
-        return ::V3Rtti::internal::matchClassId<ThisClass>(id); \
+    మాయా bool v3_Rtti_Is_Instance_యొక్క_Impl(uintptr_t id) స్థిరరాశి OVERRIDE VL_శుద్ధ { \
+        తిరిగి ::V3Rtti::అంతర్గత_2::సరిపోలిక_Class_Id<ThisClass>(id); \
     }
 
 // Call this macro at the beginning of class definition if the class derives
 // from a class with VL_RTTI_IMPL or VL_RTTI_IMPL_BASE calls.
-#define VL_RTTI_IMPL(ThisClass, DirectBaseClass) \
-private: \
-    using V3RttiBaseClass = DirectBaseClass; \
+#నిర్వచించు VL_RTTI_IMPL(ThisClass, ప్రత్యక్ష_పునాది_Class) \
+అంతరంగ: \
+    using V3_Rtti_పునాది_Class = ప్రత్యక్ష_పునాది_Class; \
     V3RTTIINTERNAL_VL_RTTI_COMMON_IMPL(ThisClass, override) \
-private:
+అంతరంగ:
 
 // Call this macro at the beginning of a base class to implement class type
 // usable with V3Rtti::InstanceOf
-#define VL_RTTI_IMPL_BASE(ThisClass) \
-private: \
-    using V3RttiBaseClass = void; \
-    V3RTTIINTERNAL_VL_RTTI_COMMON_IMPL(ThisClass, /* base */) \
-private:
+#నిర్వచించు VL_RTTI_IMPL_పునాది(ThisClass) \
+అంతరంగ: \
+    using V3_Rtti_పునాది_Class = శూన్య; \
+    V3RTTIINTERNAL_VL_RTTI_COMMON_IMPL(ThisClass, /*పునాది*/) \
+అంతరంగ:
 
-#endif  // Guard
+#అయితే_ముగింపు  // Guard

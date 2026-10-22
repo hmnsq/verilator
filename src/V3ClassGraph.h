@@ -14,44 +14,44 @@
 //
 //*************************************************************************
 
-#ifndef VERILATOR_V3CLASS_GRAPH_H_
-#define VERILATOR_V3CLASS_GRAPH_H_
+#నిర్వచితం_కాకపోతే VERILATOR_V3_CLASS_లేఖాచిత్రం_H
+#నిర్వచించు VERILATOR_V3_CLASS_లేఖాచిత్రం_H
 
-#include "config_build.h"
-#include "verilatedos.h"
+#అన్తర్భావ "config_build.h"
+#అన్తర్భావ "verilatedos.h"
 
-#include "V3Ast.h"
-#include "V3Graph.h"
+#అన్తర్భావ "V3Ast.h"
+#అన్తర్భావ "V3Graph.h"
 
-#include <memory>
-#include <unordered_map>
-#include <unordered_set>
+#అన్తర్భావ <memory>
+#అన్తర్భావ <unordered_map>
+#అన్తర్భావ <unordered_set>
 
 //============================================================================
 
-class V3ClassGraphVertex;
+class V3_Class_లేఖాచిత్రం_శీర్షం;
 
 // Graph of classes - build by V3ClassGraph::build() and used to get CFuncs that may be
 // called by a AstNodeCCall (due to virtualization)
-class V3ClassGraph final : public V3Graph {
-    friend class ClassGraphBuilderVisitor;
-    std::unordered_map<const AstCFunc*, V3ClassGraphVertex*>
-        m_memberFuncToClassVertex;  // Map from member function to its class
-    const std::unordered_set<AstCFunc*>
-        m_emptySet;  // Always empty set - used to return a reference to an empty set
+class V3_Class_లేఖాచిత్రం final : బహిరంగ V3_లేఖాచిత్రం {
+    మిత్ర class Class_లేఖాచిత్రం_Builder_Visitor;
+    std::unordered_map<స్థిరరాశి AstCFunc*, V3_Class_లేఖాచిత్రం_శీర్షం*>
+        m_member_Func_గమ్యం_Class_శీర్షం;  // Map from member function to its class
+    స్థిరరాశి std::unordered_సమితి<AstCFunc*>
+        m_ఖాళీలు_సమితి;  // Always empty set - used to return a reference to an empty set
 
-    V3ClassGraph() = default;
+    V3_Class_లేఖాచిత్రం() = అప్రమేయ;
 
-public:
-    static std::unique_ptr<V3ClassGraph> build(AstNetlist*);
-    ~V3ClassGraph() override = default;
+బహిరంగ:
+    స్థిర std::unique_ptr<V3_Class_లేఖాచిత్రం> build(AstNetlist*);
+    ~V3_Class_లేఖాచిత్రం() override = అప్రమేయ;
 
     // Returns possible CFuncs that may be called due to a NodeCCall passed as a callp argument
     // Warning: returned set may be empty if NodeCCall is a New call or a super call - in such
     // cases only `callp->funcp()` may be called. Also, if callp is to a non-member function the
     // set will be empty - post V3Task static functions are not member functions anymore.
-    const std::unordered_set<AstCFunc*>&
-    getCallPossibleCFuncs(const AstNodeCCall* const callp) const&;
+    స్థిరరాశి std::unordered_సమితి<AstCFunc*>&
+    getCallPossibleCFuncs(స్థిరరాశి Ast_కణుపు_CCall* స్థిరరాశి callp) స్థిరరాశి&;
 };
 
-#endif  // Guard
+#అయితే_ముగింపు  // Guard

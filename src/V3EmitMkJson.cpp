@@ -14,94 +14,94 @@
 //
 //*************************************************************************
 
-#include "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
+#అన్తర్భావ "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
 
-#include "V3EmitMkJson.h"
+#అన్తర్భావ "V3EmitMkJson.h"
 
-#include "V3EmitCBase.h"
-#include "V3HierBlock.h"
-#include "V3Os.h"
+#అన్తర్భావ "V3EmitCBase.h"
+#అన్తర్భావ "V3HierBlock.h"
+#అన్తర్భావ "V3Os.h"
 
-#include <memory>
+#అన్తర్భావ <memory>
 
 VL_DEFINE_DEBUG_FUNCTIONS;
 
 // ######################################################################
 //  Emit statements
 
-class V3EmitMkJsonEmitter final {
+తరగతి V3EmitMkJsonEmitter final {
     // METHODS
 
     // STATIC FUNCTIONS
-    static void emitManifest() {
-        const std::string makeDir
-            = V3Os::filenameSlashPath(V3Os::filenameAbsolutePath(v3Global.opt.makeDir()));
+    స్థిర శూన్య emitManifest() {
+        స్థిరరాశి std::string makeDir
+            = V3Os::filename_Slash_మార్గం(V3Os::filename_Absolute_మార్గం(v3Global.opt.makeDir()));
 
-        V3OutJsonFile of{makeDir + "/" + v3Global.opt.prefix() + ".json"};
+        V3_బహిర్గతం_Json_File యొక్క{makeDir + "/" + v3Global.opt.ఉపసర్గ() + ".json"};
 
-        std::vector<string> classesFast;
-        std::vector<string> classesSlow;
-        std::vector<string> supportFast;
-        std::vector<string> supportSlow;
-        std::vector<string> global;
-        std::vector<string> deps;
-        std::vector<string> cppFiles;
+        std::సదిశ<string> classesFast;
+        std::సదిశ<string> classesSlow;
+        std::సదిశ<string> supportFast;
+        std::సదిశ<string> supportSlow;
+        std::సదిశ<string> global;
+        std::సదిశ<string> deps;
+        std::సదిశ<string> cppFiles;
 
-        for (AstNodeFile* nodep = v3Global.rootp()->filesp(); nodep;
-             nodep = VN_AS(nodep->nextp(), NodeFile)) {
-            const AstCFile* const cfilep = VN_CAST(nodep, CFile);
-            if (cfilep && cfilep->source()) {
-                const std::string filename
-                    = V3Os::filenameSlashPath(V3Os::filenameAbsolutePath(cfilep->name()));
-                if (cfilep->support()) {
-                    if (cfilep->slow()) {
-                        supportSlow.emplace_back(filename);
-                    } else {
-                        supportFast.emplace_back(filename);
+        కొరకు (Ast_కణుపు_File* nodep = v3Global.rootp()->filesp(); nodep;
+             nodep = VN_AS(nodep->nextp(), కణుపు_File)) {
+            స్థిరరాశి AstCFile* స్థిరరాశి cfilep = VN_CAST(nodep, CFile);
+            ఒకవేళ (cfilep && cfilep->ఆధారం()) {
+                స్థిరరాశి std::string filename
+                    = V3Os::filename_Slash_మార్గం(V3Os::filename_Absolute_మార్గం(cfilep->name()));
+                ఒకవేళ (cfilep->support()) {
+                    ఒకవేళ (cfilep->slow()) {
+                        supportSlow.emplace_వెనుక(filename);
+                    } లేకపోతే {
+                        supportFast.emplace_వెనుక(filename);
                     }
-                } else {
-                    if (cfilep->slow()) {
-                        classesSlow.emplace_back(filename);
-                    } else {
-                        classesFast.emplace_back(filename);
+                } లేకపోతే {
+                    ఒకవేళ (cfilep->slow()) {
+                        classesSlow.emplace_వెనుక(filename);
+                    } లేకపోతే {
+                        classesFast.emplace_వెనుక(filename);
                     }
                 }
             }
         }
 
-        const std::string verilatorRoot = V3Os::filenameSlashPath(
-            V3Os::filenameAbsolutePath(V3Options::getenvVERILATOR_ROOT()));
-        for (const string& cpp : v3Global.verilatedCppFiles())
-            global.emplace_back(verilatorRoot + "/include/" + cpp);
-        if (!v3Global.opt.libCreate().empty()) {
-            global.emplace_back(makeDir + "/" + v3Global.opt.libCreate() + ".cpp");
+        స్థిరరాశి std::string verilator_మూలం = V3Os::filename_Slash_మార్గం(
+            V3Os::filename_Absolute_మార్గం(V3Options::getenv_VERILATOR_మూలం()));
+        కొరకు (స్థిరరాశి string& cpp : v3Global.verilatedCppFiles())
+            global.emplace_వెనుక(verilator_మూలం + "/include/" + cpp);
+        ఒకవేళ (!v3Global.opt.libCreate().ఖాళీలు()) {
+            global.emplace_వెనుక(makeDir + "/" + v3Global.opt.libCreate() + ".cpp");
         }
 
-        for (const auto& dep : V3File::getAllDeps())
-            deps.emplace_back(V3Os::filenameSlashPath(V3Os::filenameAbsolutePath(dep)));
-        for (const auto& cppFile : v3Global.opt.cppFiles())
-            cppFiles.emplace_back(V3Os::filenameSlashPath(V3Os::filenameAbsolutePath(cppFile)));
+        కొరకు (స్థిరరాశి స్వయంచాలక& dep : V3File::getAllDeps())
+            deps.emplace_వెనుక(V3Os::filename_Slash_మార్గం(V3Os::filename_Absolute_మార్గం(dep)));
+        కొరకు (స్థిరరాశి స్వయంచాలక& cppFile : v3Global.opt.cppFiles())
+            cppFiles.emplace_వెనుక(V3Os::filename_Slash_మార్గం(V3Os::filename_Absolute_మార్గం(cppFile)));
 
-        of.put("version", 1)
+        యొక్క.put("version", 1)
             .begin("system")
             .put("perl", V3Options::getenvPERL())
             .put("python3", V3Options::getenvPYTHON3())
-            .put("verilator_root", verilatorRoot)
+            .put("verilator_root", verilator_మూలం)
             .put("verilator_solver", V3Options::getenvVERILATOR_SOLVER())
-            .end()
+            .చివర()
             .begin("options")
             .putList("cflags", v3Global.opt.cFlags())
             .putList("ldflags", v3Global.opt.ldLibs())
             .put("system_c", v3Global.opt.systemC())
             .put("coverage", v3Global.opt.coverage())
             .put("dpi", v3Global.dpi())
-            .put("use_timing", v3Global.usesTiming())
-            .put("threads", v3Global.opt.threads())
+            .put("use_timing", v3Global.ఉపయోగిస్తుంది_Timing())
+            .put("threads", v3Global.opt.దారాలు())
             .put("trace", v3Global.opt.trace())
             .put("trace_fst", v3Global.opt.traceEnabledFst())
             .put("trace_saif", v3Global.opt.traceEnabledSaif())
             .put("trace_vcd", v3Global.opt.traceEnabledVcd())
-            .end()
+            .చివర()
             .begin("sources")
             .putList("global", global)
             .putList("classes_slow", classesSlow)
@@ -110,38 +110,38 @@ class V3EmitMkJsonEmitter final {
             .putList("support_fast", supportFast)
             .putList("deps", deps)
             .putList("user_classes", cppFiles)
-            .end();
+            .చివర();
 
-        if (const V3HierGraph* const graphp = v3Global.hierGraphp()) {
-            of.begin("submodules", '[');
+        ఒకవేళ (స్థిరరాశి V3_Hier_లేఖాచిత్రం* స్థిరరాశి graphp = v3Global.hierGraphp()) {
+            యొక్క.begin("submodules", '[');
 
             // Enumerate in dependency order, leaves first. TODO: Shouldn't
             // really have to, but verilator-config.cmake.in depends on order.
-            for (const V3GraphVertex& vtx : vlstd::reverse_view(graphp->vertices())) {
-                const V3HierBlock* const hblockp = vtx.as<V3HierBlock>();
-                std::vector<std::string> hierDeps;
-                std::vector<std::string> sources;
-                for (const V3GraphEdge& edge : hblockp->outEdges()) {
-                    const V3HierBlock* const dependencyp = edge.top()->as<V3HierBlock>();
-                    hierDeps.emplace_back(dependencyp->hierPrefix());
-                    sources.emplace_back(makeDir + "/" + dependencyp->hierWrapperFilename(true));
+            కొరకు (స్థిరరాశి V3_లేఖాచిత్రం_శీర్షం& vtx : vlstd::తిరగేయి_view(graphp->vertices())) {
+                స్థిరరాశి V3_Hier_ఖండం* స్థిరరాశి hblockp = vtx.as<V3_Hier_ఖండం>();
+                std::సదిశ<std::string> hierDeps;
+                std::సదిశ<std::string> sources;
+                కొరకు (స్థిరరాశి V3_లేఖాచిత్రం_అంచు& అంచు : hblockp->బహిర్గతం_అంచులు()) {
+                    స్థిరరాశి V3_Hier_ఖండం* స్థిరరాశి dependencyp = అంచు.శిఖరం()->as<V3_Hier_ఖండం>();
+                    hierDeps.emplace_వెనుక(dependencyp->hier_ఉపసర్గ());
+                    sources.emplace_వెనుక(makeDir + "/" + dependencyp->hierWrapperFilename(నిజం));
                 }
 
-                for (const string& fname : V3HierGraph::sourceFiles(hblockp->vFileIfNecessary())) {
-                    sources.emplace_back(
-                        V3Os::filenameSlashPath(V3Os::filenameAbsolutePath(fname)));
+                కొరకు (స్థిరరాశి string& fname : V3_Hier_లేఖాచిత్రం::ఆధారం_Files(hblockp->vFileIfNecessary())) {
+                    sources.emplace_వెనుక(
+                        V3Os::filename_Slash_మార్గం(V3Os::filename_Absolute_మార్గం(fname)));
                 }
 
-                of.begin()
-                    .put("prefix", hblockp->hierPrefix())
+                యొక్క.begin()
+                    .put("prefix", hblockp->hier_ఉపసర్గ())
                     .put("top", hblockp->modp()->name())
                     .putList("deps", hierDeps)
-                    .put("directory", makeDir + "/" + hblockp->hierPrefix())
+                    .put("directory", makeDir + "/" + hblockp->hier_ఉపసర్గ())
                     .putList("sources", sources)
                     .putList("cflags", {"-fPIC"})
-                    .put("verilator_args", V3Os::filenameSlashPath(V3Os::filenameAbsolutePath(
-                                               hblockp->commandArgsFilename(true))))
-                    .end();
+                    .put("verilator_args", V3Os::filename_Slash_మార్గం(V3Os::filename_Absolute_మార్గం(
+                                               hblockp->command_వాదనలు_Filename(నిజం))))
+                    .చివర();
             }
 
             // Top level reintegration
@@ -150,37 +150,37 @@ class V3EmitMkJsonEmitter final {
                 // CMake script, it will overwrite the original json manifest containing the
                 // "subodule" list we are creating here with one that doesn't have "submodule".
                 // Good luck debugging, suggest 'message(${MANIFEST})' in verilated-config.cmake.
-                std::vector<std::string> sources;
-                for (const V3GraphVertex& vtx : graphp->vertices()) {
-                    const V3HierBlock* const blockp = vtx.as<V3HierBlock>();
-                    sources.emplace_back(makeDir + "/" + blockp->hierWrapperFilename(true));
+                std::సదిశ<std::string> sources;
+                కొరకు (స్థిరరాశి V3_లేఖాచిత్రం_శీర్షం& vtx : graphp->vertices()) {
+                    స్థిరరాశి V3_Hier_ఖండం* స్థిరరాశి blockp = vtx.as<V3_Hier_ఖండం>();
+                    sources.emplace_వెనుక(makeDir + "/" + blockp->hierWrapperFilename(నిజం));
                 }
 
-                for (const string& fname : V3HierGraph::sourceFiles()) {
-                    sources.emplace_back(
-                        V3Os::filenameSlashPath(V3Os::filenameAbsolutePath(fname)));
+                కొరకు (స్థిరరాశి string& fname : V3_Hier_లేఖాచిత్రం::ఆధారం_Files()) {
+                    sources.emplace_వెనుక(
+                        V3Os::filename_Slash_మార్గం(V3Os::filename_Absolute_మార్గం(fname)));
                 }
 
-                of.begin()
-                    .put("prefix", v3Global.opt.prefix())
-                    .put("top", v3Global.rootp()->topModulep()->name())
+                యొక్క.begin()
+                    .put("prefix", v3Global.opt.ఉపసర్గ())
+                    .put("top", v3Global.rootp()->శిఖరం_Modulep()->name())
                     .put("directory", makeDir)
                     .putList("sources", sources)
-                    .put("verilator_args", V3Os::filenameSlashPath(V3Os::filenameAbsolutePath(
-                                               graphp->topCommandArgsFilename(true))))
-                    .end();
+                    .put("verilator_args", V3Os::filename_Slash_మార్గం(V3Os::filename_Absolute_మార్గం(
+                                               graphp->శిఖరం_Command_వాదనలు_Filename(నిజం))))
+                    .చివర();
             }
 
-            of.end();  // submodules
+            యొక్క.చివర();  // submodules
         }
     }
 
-public:
-    explicit V3EmitMkJsonEmitter() { emitManifest(); }
-    virtual ~V3EmitMkJsonEmitter() = default;
+బహిరంగ:
+    స్పష్టమైన V3EmitMkJsonEmitter() { emitManifest(); }
+    మాయా ~V3EmitMkJsonEmitter() = అప్రమేయ;
 };
 
-void V3EmitMkJson::emit() {
+శూన్య V3EmitMkJson::emit() {
     UINFO(2, __FUNCTION__ << ":");
-    const V3EmitMkJsonEmitter emitter;
+    స్థిరరాశి V3EmitMkJsonEmitter emitter;
 }

@@ -14,32 +14,32 @@
 //
 //*************************************************************************
 
-#ifndef VERILATOR_V3GLOBAL_H_
-#define VERILATOR_V3GLOBAL_H_
+#నిర్వచితం_కాకపోతే VERILATOR_V3GLOBAL_H_
+#నిర్వచించు VERILATOR_V3GLOBAL_H_
 
 // clang-format off
-#include "config_build.h"
-#ifndef HAVE_CONFIG_PACKAGE
+#అన్తర్భావ "config_build.h"
+#నిర్వచితం_కాకపోతే HAVE_CONFIG_PACKAGE
 # error "Something failed during ./configure as config_package.h is incomplete. Perhaps you used autoreconf, don't."
-#endif
+#అయితే_ముగింపు
 // clang-format on
 
-#include "verilatedos.h"
+#అన్తర్భావ "verilatedos.h"
 
-#include "V3Error.h"
-#include "V3FileLine.h"
-#include "V3Mutex.h"
-#include "V3Options.h"
+#అన్తర్భావ "V3Error.h"
+#అన్తర్భావ "V3FileLine.h"
+#అన్తర్భావ "V3Mutex.h"
+#అన్తర్భావ "V3Options.h"
 
-#include <string>
-#include <thread>
-#include <type_traits>
-#include <unordered_map>
-#include <unordered_set>
+#అన్తర్భావ <string>
+#అన్తర్భావ <thread>
+#అన్తర్భావ <type_traits>
+#అన్తర్భావ <unordered_map>
+#అన్తర్భావ <unordered_set>
 
 class AstNetlist;
 class V3ConstPool;
-class V3HierGraph;
+class V3_Hier_లేఖాచిత్రం;
 class V3LibMap;
 class V3ThreadPool;
 
@@ -51,111 +51,111 @@ class V3ThreadPool;
 // Copy given variable's value on the stack, copy saved value back at end-of-scope.
 // Only usable for trivially copyable types; use VL_RESTORER_COPY/VL_RESTORER_CLEAR for
 // non-trivially copyable types, which are more efficient.
-#define VL_RESTORER(var) \
-    const VRestorerTrivial<typename std::decay_t<decltype(var)>> restorer_##var(var);
+#నిర్వచించు VL_RESTORER(var) \
+    స్థిరరాశి VRestorerTrivial<typename std::decay_t<decltype(var)>> restorer_##var(var);
 
 // This is the equivalent of VL_RESTORER for non-trivially copyable types. Still more efficient
 // than VL_RESTORER as uses move to restore.
-#define VL_RESTORER_COPY(var) \
-    const VRestorerCopy<typename std::decay_t<decltype(var)>> restorer_##var(var);
+#నిర్వచించు VL_RESTORER_COPY(var) \
+    స్థిరరాశి VRestorerCopy<typename std::decay_t<decltype(var)>> restorer_##var(var);
 
 // Swap 'var' with a no-args constructed object of the same type, effectively clearing it, then
 // swap back at end-of-scope. No copying involved. Use this e.g. for std containers where they
 // would be .clear()'d right after the VL_RESTORER instance.
-#define VL_RESTORER_CLEAR(var) \
-    const VRestorerClear<typename std::decay_t<decltype(var)>> restorer_##var(var);
+#నిర్వచించు VL_RESTORER_CLEAR(var) \
+    స్థిరరాశి VRestorerClear<typename std::decay_t<decltype(var)>> restorer_##var(var);
 
 // Get const reference to the saved copy
-#define VL_RESTORER_PREV(var) restorer_##var.saved()
+#నిర్వచించు VL_RESTORER_PREV(var) restorer_##var.saved()
 
 // Implementation of VL_RESTORER
-template <typename T>
+మూస <typename T>
 class VRestorerTrivial final {
-    static_assert(std::is_trivially_copyable<T>::value,
+    static_assert(std::is_trivially_copyable<T>::విలువ,
                   "Use VL_RESTORER_{COPY,CLEAR} for non trivially copyable types");
     T& m_ref;  // Reference to object we're saving and restoring
-    const T m_saved;  // Value saved, for later restore
+    స్థిరరాశి T m_saved;  // Value saved, for later restore
 
-public:
+బహిరంగ:
     explicit VRestorerTrivial(T& val)
         : m_ref{val}
         , m_saved{val} {}
     ~VRestorerTrivial() { m_ref = m_saved; }
     VL_UNCOPYABLE(VRestorerTrivial);
     // Must be stack allocated
-    void* operator new(size_t) = delete;
-    void operator delete(void*) = delete;
+    శూన్య* క్రియాకారకం new(కొలత_t) = delete;
+    శూన్య క్రియాకారకం delete(శూన్య*) = delete;
 
-    const T& saved() const { return m_saved; }
+    స్థిరరాశి T& saved() స్థిరరాశి { తిరిగి m_saved; }
 };
 
 // Implementation of VL_RESTORER_COPY
-template <typename T>
+మూస <typename T>
 class VRestorerCopy final {
-    static_assert(!std::is_trivially_copyable<T>::value,
+    static_assert(!std::is_trivially_copyable<T>::విలువ,
                   "Use VL_RESTORER for trivially copyable types");
     T& m_ref;  // Reference to object we're saving and restoring
     T m_saved;  // Value saved, for later restore
 
-public:
+బహిరంగ:
     explicit VRestorerCopy(T& val)
         : m_ref{val}
         , m_saved{val} {}
     ~VRestorerCopy() { m_ref = std::move(m_saved); }
     VL_UNCOPYABLE(VRestorerCopy);
     // Must be stack allocated
-    void* operator new(size_t) = delete;
-    void operator delete(void*) = delete;
+    శూన్య* క్రియాకారకం new(కొలత_t) = delete;
+    శూన్య క్రియాకారకం delete(శూన్య*) = delete;
 
-    const T& saved() const { return m_saved; }
+    స్థిరరాశి T& saved() స్థిరరాశి { తిరిగి m_saved; }
 };
 
 // Implementation of VL_RESTORER_CLEAR.
-template <typename T>
+మూస <typename T>
 class VRestorerClear final {
-    static_assert(!std::is_trivially_copyable<T>::value,
+    static_assert(!std::is_trivially_copyable<T>::విలువ,
                   "Use VL_RESTORER for trivially copyable types");
     T& m_ref;  // Reference to object we're saving and restoring
     T m_saved{};  // Owns the swapped-out value; starts empty
 
-public:
+బహిరంగ:
     explicit VRestorerClear(T& val)
         : m_ref{val} {
-        std::swap(m_ref, m_saved);
+        std::మార్పిడి(m_ref, m_saved);
     }
-    ~VRestorerClear() { std::swap(m_ref, m_saved); }
+    ~VRestorerClear() { std::మార్పిడి(m_ref, m_saved); }
     VL_UNCOPYABLE(VRestorerClear);
     // Must be stack allocated
-    void* operator new(size_t) = delete;
-    void operator delete(void*) = delete;
+    శూన్య* క్రియాకారకం new(కొలత_t) = delete;
+    శూన్య క్రియాకారకం delete(శూన్య*) = delete;
 
-    const T& saved() const { return m_saved; }
+    స్థిరరాశి T& saved() స్థిరరాశి { తిరిగి m_saved; }
 };
 
 //######################################################################
 
 class VWidthMinUsage final {
-public:
-    enum en : uint8_t { LINT_WIDTH, MATCHES_WIDTH, VERILOG_WIDTH };
-    enum en m_e;
+బహిరంగ:
+    గణన en : uint8_t { LINT_వెడల్పు, MATCHES_వెడల్పు, VERILOG_వెడల్పు };
+    గణన en m_e;
     VWidthMinUsage()
-        : m_e{LINT_WIDTH} {}
+        : m_e{LINT_వెడల్పు} {}
     // cppcheck-suppress noExplicitConstructor
-    constexpr VWidthMinUsage(en _e) VL_PURE : m_e{_e} {}
-    constexpr VWidthMinUsage(const VWidthMinUsage& _e) VL_PURE = default;
-    explicit VWidthMinUsage(int _e)
+    constexpr VWidthMinUsage(en _e) VL_శుద్ధ : m_e{_e} {}
+    constexpr VWidthMinUsage(స్థిరరాశి VWidthMinUsage& _e) VL_శుద్ధ = అప్రమేయ;
+    explicit VWidthMinUsage(పూర్ణాంకం _e)
         : m_e(static_cast<en>(_e)) {}  // Need () or GCC 4.8 false warning
-    constexpr operator en() const { return m_e; }
-    constexpr VWidthMinUsage& operator=(const VWidthMinUsage& _e) VL_PURE = default;
+    constexpr క్రియాకారకం en() స్థిరరాశి { తిరిగి m_e; }
+    constexpr VWidthMinUsage& క్రియాకారకం=(స్థిరరాశి VWidthMinUsage& _e) VL_శుద్ధ = అప్రమేయ;
 };
-constexpr bool operator==(const VWidthMinUsage& lhs, const VWidthMinUsage& rhs) {
-    return lhs.m_e == rhs.m_e;
+constexpr bool క్రియాకారకం==(స్థిరరాశి VWidthMinUsage& lhs, స్థిరరాశి VWidthMinUsage& rhs) {
+    తిరిగి lhs.m_e == rhs.m_e;
 }
-constexpr bool operator==(const VWidthMinUsage& lhs, VWidthMinUsage::en rhs) VL_PURE {
-    return lhs.m_e == rhs;
+constexpr bool క్రియాకారకం==(స్థిరరాశి VWidthMinUsage& lhs, VWidthMinUsage::en rhs) VL_శుద్ధ {
+    తిరిగి lhs.m_e == rhs;
 }
-constexpr bool operator==(VWidthMinUsage::en lhs, const VWidthMinUsage& rhs) {
-    return lhs == rhs.m_e;
+constexpr bool క్రియాకారకం==(VWidthMinUsage::en lhs, స్థిరరాశి VWidthMinUsage& rhs) {
+    తిరిగి lhs == rhs.m_e;
 }
 
 //######################################################################
@@ -168,15 +168,15 @@ class V3Global final {
     // Constant pool lookup, see V3ConstPool.h
     V3ConstPool* m_constPoolp = nullptr;
     // Hierarchical block graph (plan) iff hierarchical verilation is performed
-    V3HierGraph* m_hierGraphp = nullptr;
+    V3_Hier_లేఖాచిత్రం* m_hierGraphp = nullptr;
     // Thread Pool, nullptr unless 'verilatedJobs' is known, set via threadPoolp(V3ThreadPool*)
     V3ThreadPool* m_threadPoolp = nullptr;
     // Library Mapping, nullptr unless --libmap is used
     V3LibMap* m_libMapp = nullptr;
-    VWidthMinUsage m_widthMinUsage
-        = VWidthMinUsage::LINT_WIDTH;  // What AstNode::widthMin() is used for
+    VWidthMinUsage m_వెడల్పు_Min_Usage
+        = VWidthMinUsage::LINT_వెడల్పు;  // What AstNode::widthMin() is used for
 
-    std::atomic_int m_debugFileNumber{0};  // Number to append to debug files created
+    std::atomic_int m_debug_File_సంఖ్య{0};  // Number to append to debug files created
     bool m_assertDTypesResolved = false;  // Tree should have dtypep()'s
     bool m_assertScoped = false;  // Tree is scoped
     bool m_staticsLifted = false;  // Static variables have been lifted to module scope
@@ -188,126 +188,126 @@ class V3Global final {
     bool m_hasEvents = false;  // Design uses SystemVerilog named events
     bool m_hasClasses = false;  // Design uses SystemVerilog classes
     bool m_hasSampled = false;  // Design uses SAMPLED expresions
-    bool m_hasTable = false;  // Desgin has the UDP Table.
+    bool m_has_పట్టిక = false;  // Desgin has the UDP Table.
     bool m_hasVirtIfaces = false;  // Design uses virtual interfaces
-    bool m_usesProbDist = false;  // Uses $dist_*
-    bool m_usesStdPackage = false;  // Design uses the std package
-    bool m_usesTiming = false;  // Design uses timing constructs
-    bool m_usesForce = false;  // Design uses force/release statements
-    bool m_usesZeroDelay = false;  // Design uses #0 delay (or non-constant delay)
-    bool m_hasForceableSignals = false;  // Need to apply V3Force pass
-    bool m_hasAssignDeassign = false;  // Need to apply V3Force pass for assign/deassign statements
+    bool m_ఉపయోగిస్తుంది_Prob_Dist = false;  // Uses $dist_*
+    bool m_ఉపయోగిస్తుంది_Std_Package = false;  // Design uses the std package
+    bool m_ఉపయోగిస్తుంది_Timing = false;  // Design uses timing constructs
+    bool m_ఉపయోగిస్తుంది_Force = false;  // Design uses force/release statements
+    bool m_ఉపయోగిస్తుంది_Zero_Delay = false;  // Design uses #0 delay (or non-constant delay)
+    bool m_has_Forceable_సంకేతాలు = false;  // Need to apply V3Force pass
+    bool m_has_కేటాయించు_Deassign = false;  // Need to apply V3Force pass for assign/deassign statements
     bool m_useParallelBuild = false;  // Use parallel build for model
     bool m_useRandSequence = false;  // Has `randsequence`
     bool m_useCovergroup = false;  // Has covergroup declarations
     bool m_useRandomizeMethods = false;  // Need to define randomize() class methods
     bool m_hasPrintedObjects = false;  // Design has format args printed with to_string()
-    uint64_t m_currentHierBlockCost = 0;  // Total cost of this hier block, used for scheduling
+    uint64_t m_current_Hier_ఖండం_ఖర్చు = 0;  // Total cost of this hier block, used for scheduling
 
     // Memory address to short string mapping (for debug)
-    std::unordered_map<const void*, std::string>
-        m_ptrToId;  // The actual 'address' <=> 'short string' bijection
+    std::unordered_map<స్థిరరాశి శూన్య*, std::string>
+        m_ptr_గమ్యం_Id;  // The actual 'address' <=> 'short string' bijection
 
     // Names of fields that were dumped by dumpJsonPtr()
-    std::unordered_set<std::string> m_jsonPtrNames;
+    std::unordered_సమితి<std::string> m_json_Ptr_పేర్లు;
 
     // Id of the main thread
-    const std::thread::id m_mainThreadId = std::this_thread::get_id();
+    స్థిరరాశి std::thread::id m_mainThreadId = std::this_thread::get_id();
 
-public:
+బహిరంగ:
     // Options
     V3Options opt;  // All options; let user see them directly
 
     // CONSTRUCTORS
-    V3Global() = default;
-    void boot();
-    void shutdown();  // Release allocated resources
+    V3Global() = అప్రమేయ;
+    శూన్య boot();
+    శూన్య shutdown();  // Release allocated resources
 
-    void vlExit(int status);
+    శూన్య vlExit(పూర్ణాంకం స్థితి_2);
 
     // ACCESSORS (general)
-    AstNetlist* rootp() const VL_MT_SAFE { return m_rootp; }
+    AstNetlist* rootp() స్థిరరాశి VL_MT_సురక్షిత { తిరిగి m_rootp; }
     // Use V3ConstPool:: static methods instead
-    V3ConstPool* constPoolp() const VL_PURE { return m_constPoolp; }
-    V3LibMap* libMapp() const VL_PURE { return m_libMapp; }
-    V3ThreadPool* threadPoolp() const VL_PURE { return m_threadPoolp; }
-    void threadPoolp(V3ThreadPool* threadPoolp) {
+    V3ConstPool* constPoolp() స్థిరరాశి VL_శుద్ధ { తిరిగి m_constPoolp; }
+    V3LibMap* libMapp() స్థిరరాశి VL_శుద్ధ { తిరిగి m_libMapp; }
+    V3ThreadPool* threadPoolp() స్థిరరాశి VL_శుద్ధ { తిరిగి m_threadPoolp; }
+    శూన్య threadPoolp(V3ThreadPool* threadPoolp) {
         UASSERT(!m_threadPoolp, "attempted to create multiple threadPool singletons");
         m_threadPoolp = threadPoolp;
     }
-    VWidthMinUsage widthMinUsage() const VL_PURE { return m_widthMinUsage; }
-    bool assertDTypesResolved() const { return m_assertDTypesResolved; }
-    bool assertScoped() const { return m_assertScoped; }
-    bool staticsLifted() const { return m_staticsLifted; }
+    VWidthMinUsage వెడల్పు_Min_Usage() స్థిరరాశి VL_శుద్ధ { తిరిగి m_వెడల్పు_Min_Usage; }
+    bool assertDTypesResolved() స్థిరరాశి { తిరిగి m_assertDTypesResolved; }
+    bool assertScoped() స్థిరరాశి { తిరిగి m_assertScoped; }
+    bool staticsLifted() స్థిరరాశి { తిరిగి m_staticsLifted; }
 
     // METHODS
-    void readFiles() VL_MT_DISABLED;
-    void removeStd() VL_MT_DISABLED;
-    void checkTree() const;
-    static void dumpCheckGlobalTree(const string& stagename, int newNumber = 0, bool doDump = true,
+    శూన్య readFiles() VL_MT_DISABLED;
+    శూన్య removeStd() VL_MT_DISABLED;
+    శూన్య check_వృక్షం() స్థిరరాశి;
+    స్థిర శూన్య dump_Check_Global_వృక్షం(స్థిరరాశి string& stagename, పూర్ణాంకం new_సంఖ్య = 0, bool doDump = true,
                                     bool doCheck = true);
-    void assertDTypesResolved(bool flag) { m_assertDTypesResolved = flag; }
-    void assertScoped(bool flag) { m_assertScoped = flag; }
-    void staticsLifted(bool flag) { m_staticsLifted = flag; }
-    void widthMinUsage(const VWidthMinUsage& flag) { m_widthMinUsage = flag; }
-    bool constRemoveXs() const { return m_constRemoveXs; }
-    void constRemoveXs(bool flag) { m_constRemoveXs = flag; }
-    string debugFilename(const string& nameComment, int newNumber = 0);
-    static string digitsFilename(int number);
-    bool needTraceDumper() const { return m_needTraceDumper; }
-    void needTraceDumper(bool flag) { m_needTraceDumper = flag; }
-    bool dpi() const VL_MT_SAFE { return m_dpi; }
-    void dpi(bool flag) { m_dpi = flag; }
-    bool assignsEvents() const { return m_assignsEvents; }
-    void setAssignsEvents() { m_assignsEvents = true; }
-    bool hasEvents() const { return m_hasEvents; }
-    void setHasEvents() { m_hasEvents = true; }
-    bool hasClasses() const { return m_hasClasses; }
-    void setHasClasses() { m_hasClasses = true; }
-    bool hasSampled() const { return m_hasSampled; }
-    void setHasSampled() { m_hasSampled = true; }
-    bool hasTable() const { return m_hasTable; }
-    void setHasTable() { m_hasTable = true; }
-    bool hasVirtIfaces() const { return m_hasVirtIfaces; }
-    void setHasVirtIfaces() { m_hasVirtIfaces = true; }
-    bool usesProbDist() const { return m_usesProbDist; }
-    void setUsesProbDist() { m_usesProbDist = true; }
-    bool usesStdPackage() const { return m_usesStdPackage; }
-    void setUsesStdPackage() { m_usesStdPackage = true; }
-    bool usesTiming() const { return m_usesTiming; }
-    void setUsesTiming() { m_usesTiming = true; }
-    bool usesZeroDelay() const { return m_usesZeroDelay; }
-    void setUsesZeroDelay() { m_usesZeroDelay = true; }
-    bool hasForceableSignals() const { return m_hasForceableSignals; }
-    void setHasForceableSignals() { m_hasForceableSignals = true; }
-    bool hasAssignDeassign() const { return m_hasAssignDeassign; }
-    void setHasAssignDeassign() { m_hasAssignDeassign = true; }
-    bool usesForce() const { return m_usesForce; }
-    void setUsesForce() { m_usesForce = true; }
-    V3HierGraph* hierGraphp() const { return m_hierGraphp; }
-    void hierGraphp(V3HierGraph* graphp) { m_hierGraphp = graphp; }
-    bool useParallelBuild() const { return m_useParallelBuild; }
-    void useParallelBuild(bool flag) { m_useParallelBuild = flag; }
-    bool useRandSequence() const { return m_useRandSequence; }
-    void useRandSequence(bool flag) { m_useRandSequence = flag; }
-    bool useCovergroup() const { return m_useCovergroup; }
-    void useCovergroup(bool flag) { m_useCovergroup = flag; }
-    bool useRandomizeMethods() const { return m_useRandomizeMethods; }
-    void useRandomizeMethods(bool flag) { m_useRandomizeMethods = flag; }
-    bool hasPrintedObjects() const { return m_hasPrintedObjects; }
-    void hasPrintedObjects(bool flag) { m_hasPrintedObjects = flag; }
-    void saveJsonPtrFieldName(const std::string& fieldName);
-    void ptrNamesDumpJson(std::ostream& os);
-    void idPtrMapDumpJson(std::ostream& os);
-    const std::string& ptrToId(const void* p);
-    std::thread::id mainThreadId() const { return m_mainThreadId; }
-    static std::vector<std::string> verilatedCppFiles();
-    uint64_t currentHierBlockCost() const { return m_currentHierBlockCost; }
-    void currentHierBlockCost(uint64_t cost) { m_currentHierBlockCost = cost; }
+    శూన్య assertDTypesResolved(bool flag) { m_assertDTypesResolved = flag; }
+    శూన్య assertScoped(bool flag) { m_assertScoped = flag; }
+    శూన్య staticsLifted(bool flag) { m_staticsLifted = flag; }
+    శూన్య వెడల్పు_Min_Usage(స్థిరరాశి VWidthMinUsage& flag) { m_వెడల్పు_Min_Usage = flag; }
+    bool constRemoveXs() స్థిరరాశి { తిరిగి m_constRemoveXs; }
+    శూన్య constRemoveXs(bool flag) { m_constRemoveXs = flag; }
+    string debugFilename(స్థిరరాశి string& nameComment, పూర్ణాంకం new_సంఖ్య = 0);
+    స్థిర string digitsFilename(పూర్ణాంకం సంఖ్య);
+    bool needTraceDumper() స్థిరరాశి { తిరిగి m_needTraceDumper; }
+    శూన్య needTraceDumper(bool flag) { m_needTraceDumper = flag; }
+    bool dpi() స్థిరరాశి VL_MT_సురక్షిత { తిరిగి m_dpi; }
+    శూన్య dpi(bool flag) { m_dpi = flag; }
+    bool assignsEvents() స్థిరరాశి { తిరిగి m_assignsEvents; }
+    శూన్య సమితి_Assigns_Events() { m_assignsEvents = true; }
+    bool hasEvents() స్థిరరాశి { తిరిగి m_hasEvents; }
+    శూన్య సమితి_Has_Events() { m_hasEvents = true; }
+    bool hasClasses() స్థిరరాశి { తిరిగి m_hasClasses; }
+    శూన్య సమితి_Has_Classes() { m_hasClasses = true; }
+    bool hasSampled() స్థిరరాశి { తిరిగి m_hasSampled; }
+    శూన్య సమితి_Has_Sampled() { m_hasSampled = true; }
+    bool has_పట్టిక() స్థిరరాశి { తిరిగి m_has_పట్టిక; }
+    శూన్య సమితి_Has_పట్టిక() { m_has_పట్టిక = true; }
+    bool hasVirtIfaces() స్థిరరాశి { తిరిగి m_hasVirtIfaces; }
+    శూన్య సమితి_Has_Virt_Ifaces() { m_hasVirtIfaces = true; }
+    bool ఉపయోగిస్తుంది_Prob_Dist() స్థిరరాశి { తిరిగి m_ఉపయోగిస్తుంది_Prob_Dist; }
+    శూన్య సమితి_ఉపయోగిస్తుంది_Prob_Dist() { m_ఉపయోగిస్తుంది_Prob_Dist = true; }
+    bool ఉపయోగిస్తుంది_Std_Package() స్థిరరాశి { తిరిగి m_ఉపయోగిస్తుంది_Std_Package; }
+    శూన్య సమితి_ఉపయోగిస్తుంది_Std_Package() { m_ఉపయోగిస్తుంది_Std_Package = true; }
+    bool ఉపయోగిస్తుంది_Timing() స్థిరరాశి { తిరిగి m_ఉపయోగిస్తుంది_Timing; }
+    శూన్య సమితి_ఉపయోగిస్తుంది_Timing() { m_ఉపయోగిస్తుంది_Timing = true; }
+    bool ఉపయోగిస్తుంది_Zero_Delay() స్థిరరాశి { తిరిగి m_ఉపయోగిస్తుంది_Zero_Delay; }
+    శూన్య సమితి_ఉపయోగిస్తుంది_Zero_Delay() { m_ఉపయోగిస్తుంది_Zero_Delay = true; }
+    bool has_Forceable_సంకేతాలు() స్థిరరాశి { తిరిగి m_has_Forceable_సంకేతాలు; }
+    శూన్య సమితి_Has_Forceable_సంకేతాలు() { m_has_Forceable_సంకేతాలు = true; }
+    bool has_కేటాయించు_Deassign() స్థిరరాశి { తిరిగి m_has_కేటాయించు_Deassign; }
+    శూన్య సమితి_Has_కేటాయించు_Deassign() { m_has_కేటాయించు_Deassign = true; }
+    bool ఉపయోగిస్తుంది_Force() స్థిరరాశి { తిరిగి m_ఉపయోగిస్తుంది_Force; }
+    శూన్య సమితి_ఉపయోగిస్తుంది_Force() { m_ఉపయోగిస్తుంది_Force = true; }
+    V3_Hier_లేఖాచిత్రం* hierGraphp() స్థిరరాశి { తిరిగి m_hierGraphp; }
+    శూన్య hierGraphp(V3_Hier_లేఖాచిత్రం* graphp) { m_hierGraphp = graphp; }
+    bool useParallelBuild() స్థిరరాశి { తిరిగి m_useParallelBuild; }
+    శూన్య useParallelBuild(bool flag) { m_useParallelBuild = flag; }
+    bool useRandSequence() స్థిరరాశి { తిరిగి m_useRandSequence; }
+    శూన్య useRandSequence(bool flag) { m_useRandSequence = flag; }
+    bool useCovergroup() స్థిరరాశి { తిరిగి m_useCovergroup; }
+    శూన్య useCovergroup(bool flag) { m_useCovergroup = flag; }
+    bool useRandomizeMethods() స్థిరరాశి { తిరిగి m_useRandomizeMethods; }
+    శూన్య useRandomizeMethods(bool flag) { m_useRandomizeMethods = flag; }
+    bool hasPrintedObjects() స్థిరరాశి { తిరిగి m_hasPrintedObjects; }
+    శూన్య hasPrintedObjects(bool flag) { m_hasPrintedObjects = flag; }
+    శూన్య save_Json_Ptr_క్షేత్రం_Name(స్థిరరాశి std::string& క్షేత్రం_Name);
+    శూన్య ptr_పేర్లు_Dump_Json(std::ostream& os);
+    శూన్య idPtrMapDumpJson(std::ostream& os);
+    స్థిరరాశి std::string& ptr_గమ్యం_Id(స్థిరరాశి శూన్య* p);
+    std::thread::id mainThreadId() స్థిరరాశి { తిరిగి m_mainThreadId; }
+    స్థిర std::సదిశ<std::string> verilatedCppFiles();
+    uint64_t current_Hier_ఖండం_ఖర్చు() స్థిరరాశి { తిరిగి m_current_Hier_ఖండం_ఖర్చు; }
+    శూన్య current_Hier_ఖండం_ఖర్చు(uint64_t ఖర్చు) { m_current_Hier_ఖండం_ఖర్చు = ఖర్చు; }
 };
 
-extern V3Global v3Global;
+బాహ్య V3Global v3Global;
 
 //######################################################################
 
-#endif  // guard
+#అయితే_ముగింపు  // guard

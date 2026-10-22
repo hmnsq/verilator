@@ -23,49 +23,49 @@
 //
 //*************************************************************************
 
-#ifndef VERILATOR_V3ASTATTR_H_
-#define VERILATOR_V3ASTATTR_H_
+#నిర్వచితం_కాకపోతే VERILATOR_V3ASTATTR_H_
+#నిర్వచించు VERILATOR_V3ASTATTR_H_
 
-#ifndef VERILATOR_V3AST_H_
-#error "Use V3Ast.h as the include"
-#include "V3Ast.h"  // This helps code analysis tools pick up symbols in V3Ast.h
-#define VL_NOT_FINAL  // This #define fixes broken code folding in the CLion IDE
-#endif
+#నిర్వచితం_కాకపోతే VERILATOR_V3AST_H_
+#దోషం "Use V3Ast.h as the include"
+#అన్తర్భావ "V3Ast.h"  // This helps code analysis tools pick up symbols in V3Ast.h
+#నిర్వచించు VL_NOT_FINAL  // This #define fixes broken code folding in the CLion IDE
+#అయితే_ముగింపు
 
 // Hint class so we can choose constructors
-class VFlagBitPacked {};
-class VFlagChildDType {};  // Used by parser.y to select constructor that sets childDType
+class VFlag_బిట్టు_Packed {};
+class VFlag_బిడ్డ_DType {};  // Used by parser.y to select constructor that sets childDType
 class VFlagLogicPacked {};
 class VFlagLogic2StatePacked {};
 
 // ######################################################################
 
-class VAbortKind final {
-public:
+class VAbort_రకం final {
+బహిరంగ:
     // IEEE 1800-2023 16.12.14 property abort operators.
-    enum en : uint8_t {
+    గణన en : uint8_t {
         ACCEPT_ON,  // accept_on(cond) prop: async abort, property succeeds
         REJECT_ON,  // reject_on(cond) prop: async abort, property fails
         SYNC_ACCEPT_ON,  // sync_accept_on(cond) prop: sampled at matured clock, succeeds
         SYNC_REJECT_ON  // sync_reject_on(cond) prop: sampled at matured clock, fails
     };
-    enum en m_e;
+    గణన en m_e;
     // cppcheck-suppress noExplicitConstructor
-    constexpr VAbortKind(en _e)
+    constexpr VAbort_రకం(en _e)
         : m_e{_e} {}
-    const char* ascii() const {
-        static const char* const names[]
+    స్థిరరాశి అక్షరం* ascii() స్థిరరాశి {
+        స్థిర స్థిరరాశి అక్షరం* స్థిరరాశి పేర్లు[]
             = {"accept_on", "reject_on", "sync_accept_on", "sync_reject_on"};
-        return names[m_e];
+        తిరిగి పేర్లు[m_e];
     }
-    bool isAccept() const { return m_e == ACCEPT_ON || m_e == SYNC_ACCEPT_ON; }
+    bool isAccept() స్థిరరాశి { తిరిగి m_e == ACCEPT_ON || m_e == SYNC_ACCEPT_ON; }
 };
 
 //######################################################################
 
 class VAccess final {
-public:
-    enum en : uint8_t {
+బహిరంగ:
+    గణన en : uint8_t {
         READ,  // Read/Consumed, variable not changed
         WRITE,  // Written/Updated, variable might be updated, but not consumed
         //      // so variable might be removable if not consumed elsewhere
@@ -74,71 +74,71 @@ public:
         //          // For non-simple data types only e.g. no tristates/delayed vars.
         NOCHANGE  // No change to previous state, used only in V3LinkLValue
     };
-    enum en m_e;
-    const char* ascii() const {
-        static constexpr const char* const names[] = {"RD", "WR", "RW", "--"};
-        return names[m_e];
+    గణన en m_e;
+    స్థిరరాశి అక్షరం* ascii() స్థిరరాశి {
+        స్థిర constexpr స్థిరరాశి అక్షరం* స్థిరరాశి పేర్లు[] = {"RD", "WR", "RW", "--"};
+        తిరిగి పేర్లు[m_e];
     }
-    const char* arrow() const {
-        static constexpr const char* const names[] = {"[RV] <-", "[LV] =>", "[LRV] <=>", "--"};
-        return names[m_e];
+    స్థిరరాశి అక్షరం* arrow() స్థిరరాశి {
+        స్థిర constexpr స్థిరరాశి అక్షరం* స్థిరరాశి పేర్లు[] = {"[RV] <-", "[LV] =>", "[LRV] <=>", "--"};
+        తిరిగి పేర్లు[m_e];
     }
     VAccess()
         : m_e{READ} {}
     // cppcheck-suppress noExplicitConstructor
     constexpr VAccess(en _e)
         : m_e{_e} {}
-    explicit VAccess(int _e)
+    explicit VAccess(పూర్ణాంకం _e)
         : m_e(static_cast<en>(_e)) {}  // Need () or GCC 4.8 false warning
-    constexpr operator en() const { return m_e; }
-    VAccess invert() const {
-        return (m_e == READWRITE) ? VAccess{m_e} : (m_e == WRITE ? VAccess{READ} : VAccess{WRITE});
+    constexpr క్రియాకారకం en() స్థిరరాశి { తిరిగి m_e; }
+    VAccess invert() స్థిరరాశి {
+        తిరిగి (m_e == READWRITE) ? VAccess{m_e} : (m_e == WRITE ? VAccess{READ} : VAccess{WRITE});
     }
-    bool isReadOnly() const { return m_e == READ; }  // False with READWRITE
-    bool isWriteOnly() const { return m_e == WRITE; }  // False with READWRITE
-    bool isReadOrRW() const { return m_e == READ || m_e == READWRITE; }
-    bool isWriteOrRW() const { return m_e == WRITE || m_e == READWRITE; }
-    bool isRW() const { return m_e == READWRITE; }
+    bool isReadOnly() స్థిరరాశి { తిరిగి m_e == READ; }  // False with READWRITE
+    bool isWriteOnly() స్థిరరాశి { తిరిగి m_e == WRITE; }  // False with READWRITE
+    bool isReadOrRW() స్థిరరాశి { తిరిగి m_e == READ || m_e == READWRITE; }
+    bool isWriteOrRW() స్థిరరాశి { తిరిగి m_e == WRITE || m_e == READWRITE; }
+    bool isRW() స్థిరరాశి { తిరిగి m_e == READWRITE; }
 };
-constexpr bool operator==(const VAccess& lhs, const VAccess& rhs) { return lhs.m_e == rhs.m_e; }
-constexpr bool operator==(const VAccess& lhs, VAccess::en rhs) { return lhs.m_e == rhs; }
-constexpr bool operator==(VAccess::en lhs, const VAccess& rhs) { return lhs == rhs.m_e; }
-inline std::ostream& operator<<(std::ostream& os, const VAccess& rhs) { return os << rhs.ascii(); }
+constexpr bool క్రియాకారకం==(స్థిరరాశి VAccess& lhs, స్థిరరాశి VAccess& rhs) { తిరిగి lhs.m_e == rhs.m_e; }
+constexpr bool క్రియాకారకం==(స్థిరరాశి VAccess& lhs, VAccess::en rhs) { తిరిగి lhs.m_e == rhs; }
+constexpr bool క్రియాకారకం==(VAccess::en lhs, స్థిరరాశి VAccess& rhs) { తిరిగి lhs == rhs.m_e; }
+అంతఃవరుస std::ostream& క్రియాకారకం<<(std::ostream& os, స్థిరరాశి VAccess& rhs) { తిరిగి os << rhs.ascii(); }
 
 //######################################################################
 
 class VAlwaysKwd final {
-public:
-    enum en : uint8_t { ALWAYS, ALWAYS_FF, ALWAYS_LATCH, ALWAYS_COMB, CONT_ASSIGN };
-    enum en m_e;
+బహిరంగ:
+    గణన en : uint8_t { ALWAYS, ALWAYS_FF, ALWAYS_LATCH, ALWAYS_COMB, CONT_కేటాయించు };
+    గణన en m_e;
     VAlwaysKwd()
         : m_e{ALWAYS} {}
     // cppcheck-suppress noExplicitConstructor
     constexpr VAlwaysKwd(en _e)
         : m_e{_e} {}
-    explicit VAlwaysKwd(int _e)
+    explicit VAlwaysKwd(పూర్ణాంకం _e)
         : m_e(static_cast<en>(_e)) {}  // Need () or GCC 4.8 false warning
-    constexpr operator en() const { return m_e; }
-    const char* ascii() const {
-        static constexpr const char* const names[]
+    constexpr క్రియాకారకం en() స్థిరరాశి { తిరిగి m_e; }
+    స్థిరరాశి అక్షరం* ascii() స్థిరరాశి {
+        స్థిర constexpr స్థిరరాశి అక్షరం* స్థిరరాశి పేర్లు[]
             = {"always", "always_ff", "always_latch", "always_comb", "cont_assign"};
-        return names[m_e];
+        తిరిగి పేర్లు[m_e];
     }
 };
-constexpr bool operator==(const VAlwaysKwd& lhs, const VAlwaysKwd& rhs) {
-    return lhs.m_e == rhs.m_e;
+constexpr bool క్రియాకారకం==(స్థిరరాశి VAlwaysKwd& lhs, స్థిరరాశి VAlwaysKwd& rhs) {
+    తిరిగి lhs.m_e == rhs.m_e;
 }
-constexpr bool operator==(const VAlwaysKwd& lhs, VAlwaysKwd::en rhs) { return lhs.m_e == rhs; }
-constexpr bool operator==(VAlwaysKwd::en lhs, const VAlwaysKwd& rhs) { return lhs == rhs.m_e; }
+constexpr bool క్రియాకారకం==(స్థిరరాశి VAlwaysKwd& lhs, VAlwaysKwd::en rhs) { తిరిగి lhs.m_e == rhs; }
+constexpr bool క్రియాకారకం==(VAlwaysKwd::en lhs, స్థిరరాశి VAlwaysKwd& rhs) { తిరిగి lhs == rhs.m_e; }
 
 // ######################################################################
 
 class VAssertCtlType final {
-public:
+బహిరంగ:
     // IEEE 1800-2023 Table 20-5
-    enum en : uint8_t {
-        _TO_BE_EVALUATED = 0,
-        LOCK = 1,
+    గణన en : uint8_t {
+        గమ్యం_BE_EVALUATED = 0,
+        తాళం = 1,
         UNLOCK = 2,
         ON = 3,
         OFF = 4,
@@ -150,18 +150,18 @@ public:
         NONVACUOUS_ON = 10,
         VACUOUS_OFF = 11
     };
-    enum en m_e;
+    గణన en m_e;
     VAssertCtlType()
-        : m_e{_TO_BE_EVALUATED} {}
+        : m_e{గమ్యం_BE_EVALUATED} {}
     // cppcheck-suppress noExplicitConstructor
     constexpr VAssertCtlType(en _e)
         : m_e{_e} {}
-    explicit VAssertCtlType(int _e)
+    explicit VAssertCtlType(పూర్ణాంకం _e)
         : m_e(static_cast<en>(_e)) {}  // Need () or GCC 4.8 false warning
-    constexpr operator en() const { return m_e; }
-    const char* ascii() const {
+    constexpr క్రియాకారకం en() స్థిరరాశి { తిరిగి m_e; }
+    స్థిరరాశి అక్షరం* ascii() స్థిరరాశి {
         // IEEE 1800-2023 20.11
-        static constexpr const char* const names[] = {"",
+        స్థిర constexpr స్థిరరాశి అక్షరం* స్థిరరాశి పేర్లు[] = {"",
                                                       "",
                                                       "",
                                                       "$asserton",
@@ -173,26 +173,26 @@ public:
                                                       "$assertfailoff",
                                                       "$assertnonvacuouson",
                                                       "$assertvacuousoff"};
-        return names[m_e];
+        తిరిగి పేర్లు[m_e];
     }
 };
-constexpr bool operator==(const VAssertCtlType& lhs, const VAssertCtlType& rhs) {
-    return lhs.m_e == rhs.m_e;
+constexpr bool క్రియాకారకం==(స్థిరరాశి VAssertCtlType& lhs, స్థిరరాశి VAssertCtlType& rhs) {
+    తిరిగి lhs.m_e == rhs.m_e;
 }
-constexpr bool operator==(const VAssertCtlType& lhs, VAssertCtlType::en rhs) {
-    return lhs.m_e == rhs;
+constexpr bool క్రియాకారకం==(స్థిరరాశి VAssertCtlType& lhs, VAssertCtlType::en rhs) {
+    తిరిగి lhs.m_e == rhs;
 }
-constexpr bool operator==(VAssertCtlType::en lhs, const VAssertCtlType& rhs) {
-    return lhs == rhs.m_e;
+constexpr bool క్రియాకారకం==(VAssertCtlType::en lhs, స్థిరరాశి VAssertCtlType& rhs) {
+    తిరిగి lhs == rhs.m_e;
 }
 
 // ######################################################################
 
 class VAssertDirectiveType final {
-public:
+బహిరంగ:
     // IEEE 1800-2023 Table 20-7
-    enum en : uint8_t {
-        INTERNAL = 0,  // Non IEEE type, for directives to be evaluated from expression.
+    గణన en : uint8_t {
+        అంతర్గత = 0,  // Non IEEE type, for directives to be evaluated from expression.
         ASSERT = (1 << 0),
         COVER = (1 << 1),
         ASSUME = (1 << 2),
@@ -203,154 +203,154 @@ public:
         INTRINSIC = (1 << 5),  // Non IEEE type, for intrinsic assertions.
         RESTRICT = (1 << 6),  // Non IEEE type, for ignored restrict assertions.
     };
-    enum en m_e;
+    గణన en m_e;
     VAssertDirectiveType()
         : m_e{ASSERT} {}
     // cppcheck-suppress noExplicitConstructor
     constexpr VAssertDirectiveType(en _e)
         : m_e{_e} {}
-    explicit VAssertDirectiveType(int _e)
+    explicit VAssertDirectiveType(పూర్ణాంకం _e)
         : m_e(static_cast<en>(_e)) {}  // Need () or GCC 4.8 false warning
-    string ascii() const {
+    string ascii() స్థిరరాశి {
         std::stringstream types;
-        if (m_e == INTERNAL)
+        ఒకవేళ (m_e == అంతర్గత)
             types << "INTERNAL ";
-        else {
-            if (m_e & ASSERT) types << "ASSERT ";
-            if (m_e & COVER) types << "COVER ";
-            if (m_e & ASSUME) types << "ASSUME ";
-            if (m_e & VIOLATION_CASE) types << "VIOLATION_CASE ";
-            if (m_e & VIOLATION_IF) types << "VIOLATION_IF ";
-            if (m_e & INTRINSIC) types << "INTRINSIC ";
-            if (m_e & RESTRICT) types << "RESTRICT ";
+        లేకపోతే {
+            ఒకవేళ (m_e & ASSERT) types << "ASSERT ";
+            ఒకవేళ (m_e & COVER) types << "COVER ";
+            ఒకవేళ (m_e & ASSUME) types << "ASSUME ";
+            ఒకవేళ (m_e & VIOLATION_CASE) types << "VIOLATION_CASE ";
+            ఒకవేళ (m_e & VIOLATION_IF) types << "VIOLATION_IF ";
+            ఒకవేళ (m_e & INTRINSIC) types << "INTRINSIC ";
+            ఒకవేళ (m_e & RESTRICT) types << "RESTRICT ";
         }
-        const string str = types.str();
-        UASSERT(!str.empty(), "Assert should be of one of types");
-        return str.substr(0, str.size() - 1);
+        స్థిరరాశి string str = types.str();
+        UASSERT(!str.ఖాళీలు(), "Assert should be of one of types");
+        తిరిగి str.substr(0, str.కొలత() - 1);
     }
-    constexpr operator en() const { return m_e; }
+    constexpr క్రియాకారకం en() స్థిరరాశి { తిరిగి m_e; }
 };
-constexpr bool operator==(const VAssertDirectiveType& lhs, const VAssertDirectiveType& rhs) {
-    return lhs.m_e == rhs.m_e;
+constexpr bool క్రియాకారకం==(స్థిరరాశి VAssertDirectiveType& lhs, స్థిరరాశి VAssertDirectiveType& rhs) {
+    తిరిగి lhs.m_e == rhs.m_e;
 }
-constexpr bool operator==(const VAssertDirectiveType& lhs, VAssertDirectiveType::en rhs) {
-    return lhs.m_e == rhs;
+constexpr bool క్రియాకారకం==(స్థిరరాశి VAssertDirectiveType& lhs, VAssertDirectiveType::en rhs) {
+    తిరిగి lhs.m_e == rhs;
 }
-constexpr bool operator==(VAssertDirectiveType::en lhs, const VAssertDirectiveType& rhs) {
-    return lhs == rhs.m_e;
+constexpr bool క్రియాకారకం==(VAssertDirectiveType::en lhs, స్థిరరాశి VAssertDirectiveType& rhs) {
+    తిరిగి lhs == rhs.m_e;
 }
-constexpr VAssertDirectiveType::en operator|(VAssertDirectiveType::en lhs,
+constexpr VAssertDirectiveType::en క్రియాకారకం|(VAssertDirectiveType::en lhs,
                                              VAssertDirectiveType::en rhs) {
-    return VAssertDirectiveType::en(static_cast<uint8_t>(lhs) | static_cast<uint8_t>(rhs));
+    తిరిగి VAssertDirectiveType::en(static_cast<uint8_t>(lhs) | static_cast<uint8_t>(rhs));
 }
 
 // ######################################################################
 
 class VAssertType final {
-public:
+బహిరంగ:
     // IEEE 1800-2023 Table 20-6
-    enum en : uint8_t {
-        INTERNAL = 0,  // Non IEEE type, for assertions that should not be controlled.
+    గణన en : uint8_t {
+        అంతర్గత = 0,  // Non IEEE type, for assertions that should not be controlled.
         CONCURRENT = (1 << 0),
-        SIMPLE_IMMEDIATE = (1 << 1),
-        OBSERVED_DEFERRED_IMMEDIATE = (1 << 2),
-        FINAL_DEFERRED_IMMEDIATE = (1 << 3),
+        SIMPLE_తక్షణ = (1 << 1),
+        OBSERVED_DEFERRED_తక్షణ = (1 << 2),
+        FINAL_DEFERRED_తక్షణ = (1 << 3),
         EXPECT = (1 << 4),
         UNIQUE = (1 << 5),
         UNIQUE0 = (1 << 6),
-        PRIORITY = (1 << 7),
+        ప్రాధాన్యత = (1 << 7),
     };
-    enum en m_e;
+    గణన en m_e;
     VAssertType()
-        : m_e{INTERNAL} {}
+        : m_e{అంతర్గత} {}
     // cppcheck-suppress noExplicitConstructor
     constexpr VAssertType(en _e)
         : m_e{_e} {}
-    explicit VAssertType(int _e)
+    explicit VAssertType(పూర్ణాంకం _e)
         : m_e(static_cast<en>(_e)) {}  // Need () or GCC 4.8 false warning
-    bool containsAny(VAssertType other) const { return m_e & other.m_e; }
-    string ascii() const {
+    bool కలిగియుంది_Any(VAssertType other) స్థిరరాశి { తిరిగి m_e & other.m_e; }
+    string ascii() స్థిరరాశి {
         std::stringstream types;
-        if (m_e == INTERNAL)
+        ఒకవేళ (m_e == అంతర్గత)
             types << "INTERNAL ";
-        else {
-            if (m_e & CONCURRENT) types << "CONCURRENT ";
-            if (m_e & SIMPLE_IMMEDIATE) types << "SIMPLE_IMMEDIATE ";
-            if (m_e & OBSERVED_DEFERRED_IMMEDIATE) types << "OBSERVED_DEFERRED_IMMEDIATE ";
-            if (m_e & FINAL_DEFERRED_IMMEDIATE) types << "FINAL_DEFERRED_IMMEDIATE ";
-            if (m_e & EXPECT) types << "EXPECT ";
-            if (m_e & UNIQUE) types << "UNIQUE ";
-            if (m_e & UNIQUE0) types << "UNIQUE0 ";
-            if (m_e & PRIORITY) types << "PRIORITY ";
+        లేకపోతే {
+            ఒకవేళ (m_e & CONCURRENT) types << "CONCURRENT ";
+            ఒకవేళ (m_e & SIMPLE_తక్షణ) types << "SIMPLE_IMMEDIATE ";
+            ఒకవేళ (m_e & OBSERVED_DEFERRED_తక్షణ) types << "OBSERVED_DEFERRED_IMMEDIATE ";
+            ఒకవేళ (m_e & FINAL_DEFERRED_తక్షణ) types << "FINAL_DEFERRED_IMMEDIATE ";
+            ఒకవేళ (m_e & EXPECT) types << "EXPECT ";
+            ఒకవేళ (m_e & UNIQUE) types << "UNIQUE ";
+            ఒకవేళ (m_e & UNIQUE0) types << "UNIQUE0 ";
+            ఒకవేళ (m_e & ప్రాధాన్యత) types << "PRIORITY ";
         }
-        const string str = types.str();
-        UASSERT(!str.empty(), "Assert should be of one of types");
-        return str.substr(0, str.size() - 1);
+        స్థిరరాశి string str = types.str();
+        UASSERT(!str.ఖాళీలు(), "Assert should be of one of types");
+        తిరిగి str.substr(0, str.కొలత() - 1);
     }
-    constexpr operator en() const { return m_e; }
+    constexpr క్రియాకారకం en() స్థిరరాశి { తిరిగి m_e; }
 };
-constexpr bool operator==(const VAssertType& lhs, const VAssertType& rhs) {
-    return lhs.m_e == rhs.m_e;
+constexpr bool క్రియాకారకం==(స్థిరరాశి VAssertType& lhs, స్థిరరాశి VAssertType& rhs) {
+    తిరిగి lhs.m_e == rhs.m_e;
 }
-constexpr bool operator==(const VAssertType& lhs, VAssertType::en rhs) { return lhs.m_e == rhs; }
-constexpr bool operator==(VAssertType::en lhs, const VAssertType& rhs) { return lhs == rhs.m_e; }
-constexpr VAssertType::en operator|(VAssertType::en lhs, VAssertType::en rhs) {
-    return VAssertType::en(static_cast<uint8_t>(lhs) | static_cast<uint8_t>(rhs));
+constexpr bool క్రియాకారకం==(స్థిరరాశి VAssertType& lhs, VAssertType::en rhs) { తిరిగి lhs.m_e == rhs; }
+constexpr bool క్రియాకారకం==(VAssertType::en lhs, స్థిరరాశి VAssertType& rhs) { తిరిగి lhs == rhs.m_e; }
+constexpr VAssertType::en క్రియాకారకం|(VAssertType::en lhs, VAssertType::en rhs) {
+    తిరిగి VAssertType::en(static_cast<uint8_t>(lhs) | static_cast<uint8_t>(rhs));
 }
 
 // ######################################################################
 
 class VPropStrength final {
-public:
-    enum en : uint8_t {
+బహిరంగ:
+    గణన en : uint8_t {
         DEFAULT = 0,  // Resolve from assertion/coverage context
         WEAK,
         STRONG,
     };
-    enum en m_e;
+    గణన en m_e;
     // cppcheck-suppress noExplicitConstructor
     constexpr VPropStrength(en _e)
         : m_e{_e} {}
-    const char* ascii() const {
-        static constexpr const char* const names[] = {"default", "weak", "strong"};
-        return names[m_e];
+    స్థిరరాశి అక్షరం* ascii() స్థిరరాశి {
+        స్థిర constexpr స్థిరరాశి అక్షరం* స్థిరరాశి పేర్లు[] = {"default", "weak", "strong"};
+        తిరిగి పేర్లు[m_e];
     }
 };
-constexpr bool operator==(const VPropStrength& lhs, const VPropStrength& rhs) {
-    return lhs.m_e == rhs.m_e;
+constexpr bool క్రియాకారకం==(స్థిరరాశి VPropStrength& lhs, స్థిరరాశి VPropStrength& rhs) {
+    తిరిగి lhs.m_e == rhs.m_e;
 }
-constexpr bool operator==(const VPropStrength& lhs, VPropStrength::en rhs) {
-    return lhs.m_e == rhs;
+constexpr bool క్రియాకారకం==(స్థిరరాశి VPropStrength& lhs, VPropStrength::en rhs) {
+    తిరిగి lhs.m_e == rhs;
 }
-constexpr bool operator!=(const VPropStrength& lhs, VPropStrength::en rhs) {
-    return lhs.m_e != rhs;
+constexpr bool క్రియాకారకం!=(స్థిరరాశి VPropStrength& lhs, VPropStrength::en rhs) {
+    తిరిగి lhs.m_e != rhs;
 }
 
 // ######################################################################
 
 class VAttrType final {
-public:
+బహిరంగ:
     // clang-format off
-    enum en: uint8_t  {
+    గణన en: uint8_t  {
         ILLEGAL,
         //
-        DIM_BITS,                       // V3Const converts to constant
-        DIM_BITS_OR_NUMBER,             // V3Const converts to constant
+        DIM_బిట్లు,                       // V3Const converts to constant
+        DIM_బిట్లు_OR_సంఖ్య,             // V3Const converts to constant
         DIM_DIMENSIONS,                 // V3Width converts to constant
-        DIM_HIGH,                       // V3Width processes
+        DIM_ఎగువ,                       // V3Width processes
         DIM_INCREMENT,                  // V3Width processes
-        DIM_LEFT,                       // V3Width processes
-        DIM_LOW,                        // V3Width processes
-        DIM_RIGHT,                      // V3Width processes
-        DIM_SIZE,                       // V3Width processes
+        DIM_ఎడమ,                       // V3Width processes
+        DIM_దిగువ,                        // V3Width processes
+        DIM_కుడి,                      // V3Width processes
+        DIM_కొలత,                       // V3Width processes
         DIM_UNPK_DIMENSIONS,            // V3Width converts to constant
         //
-        DT_PUBLIC,                      // V3LinkParse moves to AstTypedef::attrPublic
+        DT_ప్రజా,                      // V3LinkParse moves to AstTypedef::attrPublic
         //
-        ENUM_FIRST,                     // V3Width processes
-        ENUM_LAST,                      // V3Width processes
-        ENUM_NUM,                       // V3Width processes
-        ENUM_NEXT,                      // V3Width processes
+        ENUM_మొదటి,                     // V3Width processes
+        ENUM_చివరి,                      // V3Width processes
+        ENUM_అంకె,                       // V3Width processes
+        ENUM_తదుపరి,                      // V3Width processes
         ENUM_PREV,                      // V3Width processes
         ENUM_NAME,                      // V3Width processes
         ENUM_VALID,                     // V3Width processes
@@ -361,31 +361,31 @@ public:
         TYPEID,                         // V3Width processes
         TYPENAME,                       // V3Width processes
         //
-        VAR_BASE,                       // V3LinkResolve creates for AstPreSel, V3LinkParam removes
+        VAR_పునాది,                       // V3LinkResolve creates for AstPreSel, V3LinkParam removes
         VAR_FORCEABLE,                  // V3LinkParse moves to AstVar::isForceable
         VAR_FSM_ARC_INCLUDE_COND,       // V3LinkParse moves to AstVar::attrFsmArcInclCond
         VAR_FSM_ARC_INCLUDE_COND_AUTO,  // Flavors of above option - setting expand mode per FSM
         VAR_FSM_ARC_INCLUDE_COND_AUTO_EXPAND,
-        VAR_FSM_ARC_INCLUDE_COND_FULL,
+        VAR_FSM_ARC_INCLUDE_COND_నిండిన,
         VAR_FSM_STATE,                  // V3LinkParse moves to AstVar::attrFsmState
         VAR_FSM_STATE_AUTO,             // Flavors of above option - setting expand mode per FSM
         VAR_FSM_STATE_AUTO_EXPAND,
-        VAR_FSM_STATE_FULL,
-        VAR_PORT_DTYPE,                 // V3LinkDot for V3Width to check port dtype
-        VAR_PUBLIC,                     // V3LinkParse moves to AstVar::sigPublic
-        VAR_PUBLIC_FLAT,                // V3LinkParse moves to AstVar::sigPublic
-        VAR_PUBLIC_FLAT_RD,             // V3LinkParse moves to AstVar::sigPublic
-        VAR_PUBLIC_FLAT_RW,             // V3LinkParse moves to AstVar::sigPublic
+        VAR_FSM_STATE_నిండిన,
+        VAR_పోర్టు_DTYPE,                 // V3LinkDot for V3Width to check port dtype
+        VAR_ప్రజా,                     // V3LinkParse moves to AstVar::sigPublic
+        VAR_ప్రజా_FLAT,                // V3LinkParse moves to AstVar::sigPublic
+        VAR_ప్రజా_FLAT_RD,             // V3LinkParse moves to AstVar::sigPublic
+        VAR_ప్రజా_FLAT_RW,             // V3LinkParse moves to AstVar::sigPublic
         VAR_SC_BIGUINT,                 // V3LinkParse moves to AstVar::attrScBigUint
         VAR_SC_BV,                      // V3LinkParse moves to AstVar::attrScBv
         VAR_SFORMAT,                    // V3LinkParse moves to AstVar::attrSFormat
-        VAR_SPLIT_VAR                   // V3LinkParse moves to AstVar::attrSplitVar
+        VAR_విభజించు_VAR                   // V3LinkParse moves to AstVar::attrSplitVar
     };
     // clang-format on
-    enum en m_e;
-    const char* ascii() const {
+    గణన en m_e;
+    స్థిరరాశి అక్షరం* ascii() స్థిరరాశి {
         // clang-format off
-        static constexpr const char* const names[] = {
+        స్థిర constexpr స్థిరరాశి అక్షరం* స్థిరరాశి పేర్లు[] = {
             "%E-AT",
             "DIM_BITS", "DIM_BITS_OR_NUMBER", "DIM_DIMENSIONS",
             "DIM_HIGH", "DIM_INCREMENT", "DIM_LEFT",
@@ -406,24 +406,24 @@ public:
             "VAR_SC_BIGUINT", "VAR_SC_BV", "VAR_SFORMAT", "VAR_SPLIT_VAR"
         };
         // clang-format on
-        return names[m_e];
+        తిరిగి పేర్లు[m_e];
     }
     // True for attributes that read an operand's type rather than its value, such as $bits.
-    bool isTypeQuery() const {
-        switch (m_e) {
-        case DIM_BITS:
-        case DIM_BITS_OR_NUMBER:
-        case DIM_DIMENSIONS:
-        case DIM_HIGH:
-        case DIM_INCREMENT:
-        case DIM_LEFT:
-        case DIM_LOW:
-        case DIM_RIGHT:
-        case DIM_SIZE:
-        case DIM_UNPK_DIMENSIONS:
-        case TYPEID:
-        case TYPENAME: return true;
-        default: return false;
+    bool isTypeQuery() స్థిరరాశి {
+        ఎంపిక (m_e) {
+        స్థితి DIM_బిట్లు:
+        స్థితి DIM_బిట్లు_OR_సంఖ్య:
+        స్థితి DIM_DIMENSIONS:
+        స్థితి DIM_ఎగువ:
+        స్థితి DIM_INCREMENT:
+        స్థితి DIM_ఎడమ:
+        స్థితి DIM_దిగువ:
+        స్థితి DIM_కుడి:
+        స్థితి DIM_కొలత:
+        స్థితి DIM_UNPK_DIMENSIONS:
+        స్థితి TYPEID:
+        స్థితి TYPENAME: తిరిగి true;
+        అప్రమేయ: తిరిగి false;
         }
     }
     VAttrType()
@@ -431,15 +431,15 @@ public:
     // cppcheck-suppress noExplicitConstructor
     constexpr VAttrType(en _e)
         : m_e{_e} {}
-    explicit VAttrType(int _e)
+    explicit VAttrType(పూర్ణాంకం _e)
         : m_e(static_cast<en>(_e)) {}  // Need () or GCC 4.8 false warning
-    constexpr operator en() const { return m_e; }
+    constexpr క్రియాకారకం en() స్థిరరాశి { తిరిగి m_e; }
 };
-constexpr bool operator==(const VAttrType& lhs, const VAttrType& rhs) {
-    return lhs.m_e == rhs.m_e;
+constexpr bool క్రియాకారకం==(స్థిరరాశి VAttrType& lhs, స్థిరరాశి VAttrType& rhs) {
+    తిరిగి lhs.m_e == rhs.m_e;
 }
-constexpr bool operator==(const VAttrType& lhs, VAttrType::en rhs) { return lhs.m_e == rhs; }
-constexpr bool operator==(VAttrType::en lhs, const VAttrType& rhs) { return lhs == rhs.m_e; }
+constexpr bool క్రియాకారకం==(స్థిరరాశి VAttrType& lhs, VAttrType::en rhs) { తిరిగి lhs.m_e == rhs; }
+constexpr bool క్రియాకారకం==(VAttrType::en lhs, స్థిరరాశి VAttrType& rhs) { తిరిగి lhs == rhs.m_e; }
 
 // ######################################################################
 
@@ -448,7 +448,7 @@ class VBaseOverride final {
     bool m_final : 1;
     bool m_initial : 1;
 
-public:
+బహిరంగ:
     VBaseOverride()
         : m_extends{false}
         , m_final{false}
@@ -468,31 +468,31 @@ public:
         : m_extends{false}
         , m_final{false}
         , m_initial{true} {}
-    void combine(const VBaseOverride& other) {
+    శూన్య combine(స్థిరరాశి VBaseOverride& other) {
         m_extends |= other.m_extends;
         m_final |= other.m_final;
         m_initial |= other.m_initial;
     }
-    bool isAny() const { return m_extends | m_final | m_initial; }
-    bool isExtends() const { return m_extends; }
-    bool isFinal() const { return m_final; }
-    bool isInitial() const { return m_initial; }
-    string ascii() const {
-        string out;
-        if (m_initial) out = VString::dot(out, " ", "initial");
-        if (m_extends) out = VString::dot(out, " ", "extends");
-        if (m_final) out = VString::dot(out, " ", "final");
-        return out;
+    bool isAny() స్థిరరాశి { తిరిగి m_extends | m_final | m_initial; }
+    bool isExtends() స్థిరరాశి { తిరిగి m_extends; }
+    bool isFinal() స్థిరరాశి { తిరిగి m_final; }
+    bool isInitial() స్థిరరాశి { తిరిగి m_initial; }
+    string ascii() స్థిరరాశి {
+        string బహిర్గతం;
+        ఒకవేళ (m_initial) బహిర్గతం = VString::dot(బహిర్గతం, " ", "initial");
+        ఒకవేళ (m_extends) బహిర్గతం = VString::dot(బహిర్గతం, " ", "extends");
+        ఒకవేళ (m_final) బహిర్గతం = VString::dot(బహిర్గతం, " ", "final");
+        తిరిగి బహిర్గతం;
     }
 };
 
 // ######################################################################
 
 class VBasicDTypeKwd final {
-public:
-    enum en : uint8_t {
+బహిరంగ:
+    గణన en : uint8_t {
         UNKNOWN,
-        BIT,
+        బిట్టు,
         BYTE,
         CHANDLE,
         // Void type for tagged union members (CVOID to avoid Windows VOID macro)
@@ -507,7 +507,7 @@ public:
         LONGINT,
         DOUBLE,
         SHORTINT,
-        TIME,
+        సమయం,
         TIME2STATE,  // Time but two-state domain (to save info about original DType)
         // Closer to a class type, but limited usage
         STRING,
@@ -533,9 +533,9 @@ public:
         // Leave last
         _ENUM_MAX
     };
-    enum en m_e;
-    const char* ascii() const VL_MT_SAFE {
-        static constexpr const char* const names[] = {"%E-unk",
+    గణన en m_e;
+    స్థిరరాశి అక్షరం* ascii() స్థిరరాశి VL_MT_సురక్షిత {
+        స్థిర constexpr స్థిరరాశి అక్షరం* స్థిరరాశి పేర్లు[] = {"%E-unk",
                                                       "bit",
                                                       "byte",
                                                       "chandle",
@@ -569,18 +569,18 @@ public:
                                                       "QData",
                                                       "LOGIC_IMPLICIT",
                                                       " MAX"};
-        return names[m_e];
+        తిరిగి పేర్లు[m_e];
     }
-    const char* typeName() const VL_MT_SAFE {
-        switch (m_e) {
-        case LOGIC2STATE: return VBasicDTypeKwd{LOGIC}.ascii();
-        case INTEGER2STATE: return VBasicDTypeKwd{INTEGER}.ascii();
-        case TIME2STATE: return VBasicDTypeKwd{TIME}.ascii();
-        default: return ascii();
+    స్థిరరాశి అక్షరం* typeName() స్థిరరాశి VL_MT_సురక్షిత {
+        ఎంపిక (m_e) {
+        స్థితి LOGIC2STATE: తిరిగి VBasicDTypeKwd{LOGIC}.ascii();
+        స్థితి INTEGER2STATE: తిరిగి VBasicDTypeKwd{INTEGER}.ascii();
+        స్థితి TIME2STATE: తిరిగి VBasicDTypeKwd{సమయం}.ascii();
+        అప్రమేయ: తిరిగి ascii();
         }
     }
-    const char* dpiType() const {
-        static constexpr const char* const names[] = {"%E-unk",
+    స్థిరరాశి అక్షరం* dpiType() స్థిరరాశి {
+        స్థిర constexpr స్థిరరాశి అక్షరం* స్థిరరాశి పేర్లు[] = {"%E-unk",
                                                       "svBit",
                                                       "char",
                                                       "void*",
@@ -614,137 +614,137 @@ public:
                                                       "QData",
                                                       "%E-logic-implct",
                                                       " MAX"};
-        return names[m_e];
+        తిరిగి పేర్లు[m_e];
     }
-    static void selfTest() {
+    స్థిర శూన్య selfTest() {
         UASSERT(0 == std::strcmp(VBasicDTypeKwd{_ENUM_MAX}.ascii(), " MAX"),
                 "SelfTest: Enum mismatch");
         UASSERT(0 == std::strcmp(VBasicDTypeKwd{_ENUM_MAX}.dpiType(), " MAX"),
                 "SelfTest: Enum mismatch");
     }
-    VBasicDTypeKwd() VL_MT_SAFE : m_e{UNKNOWN} {}
+    VBasicDTypeKwd() VL_MT_సురక్షిత : m_e{UNKNOWN} {}
     // cppcheck-suppress noExplicitConstructor
-    constexpr VBasicDTypeKwd(en _e) VL_MT_SAFE : m_e{_e} {}
-    explicit VBasicDTypeKwd(int _e) VL_MT_SAFE  //
+    constexpr VBasicDTypeKwd(en _e) VL_MT_సురక్షిత : m_e{_e} {}
+    explicit VBasicDTypeKwd(పూర్ణాంకం _e) VL_MT_సురక్షిత  //
         : m_e(static_cast<en>(_e)) {}  // Need () or GCC 4.8 false warning
-    constexpr operator en() const { return m_e; }
-    int width() const {
-        switch (m_e) {
-        case BIT: return 1;  // scalar, can't bit extract unless ranged
-        case BYTE: return 8;
-        case CHANDLE: return 64;
-        case NULLTYPE: return 1;  // Historical - bit was used instead of NULLTYPE
-        case EVENT: return 1;
-        case INT: return 32;
-        case INTEGER: return 32;
-        case INTEGER2STATE: return 32;
-        case LOGIC: return 1;  // scalar, can't bit extract unless ranged
-        case LOGIC2STATE: return 1;  // scalar, can't bit extract unless ranged
-        case LONGINT: return 64;
-        case DOUBLE: return 64;  // opaque
-        case SHORTINT: return 16;
-        case TIME: return 64;
-        case TIME2STATE: return 64;
-        case STRING: return 64;  // opaque  // Just the pointer, for today
-        case SCOPEPTR: return 0;  // opaque
-        case CHARPTR: return 0;  // opaque
-        case MTASKSTATE: return 0;  // opaque
-        case DELAY_SCHEDULER: return 0;  // opaque
-        case TRIGGER_SCHEDULER: return 0;  // opaque
-        case DYNAMIC_TRIGGER_SCHEDULER: return 0;  // opaque
-        case FORK_SYNC: return 0;  // opaque
-        case PROCESS_REFERENCE: return 0;  // opaque
-        case RANDOM_GENERATOR: return 0;  // opaque
-        case RANDOM_STDGENERATOR: return 0;  // opaque
-        case COVERGROUP_INSTHANDLE: return 0;  // opaque
-        case UINT32: return 32;
-        case UINT64: return 64;
-        default: return 0;
+    constexpr క్రియాకారకం en() స్థిరరాశి { తిరిగి m_e; }
+    పూర్ణాంకం వెడల్పు() స్థిరరాశి {
+        ఎంపిక (m_e) {
+        స్థితి బిట్టు: తిరిగి 1;  // scalar, can't bit extract unless ranged
+        స్థితి BYTE: తిరిగి 8;
+        స్థితి CHANDLE: తిరిగి 64;
+        స్థితి NULLTYPE: తిరిగి 1;  // Historical - bit was used instead of NULLTYPE
+        స్థితి EVENT: తిరిగి 1;
+        స్థితి INT: తిరిగి 32;
+        స్థితి INTEGER: తిరిగి 32;
+        స్థితి INTEGER2STATE: తిరిగి 32;
+        స్థితి LOGIC: తిరిగి 1;  // scalar, can't bit extract unless ranged
+        స్థితి LOGIC2STATE: తిరిగి 1;  // scalar, can't bit extract unless ranged
+        స్థితి LONGINT: తిరిగి 64;
+        స్థితి DOUBLE: తిరిగి 64;  // opaque
+        స్థితి SHORTINT: తిరిగి 16;
+        స్థితి సమయం: తిరిగి 64;
+        స్థితి TIME2STATE: తిరిగి 64;
+        స్థితి STRING: తిరిగి 64;  // opaque  // Just the pointer, for today
+        స్థితి SCOPEPTR: తిరిగి 0;  // opaque
+        స్థితి CHARPTR: తిరిగి 0;  // opaque
+        స్థితి MTASKSTATE: తిరిగి 0;  // opaque
+        స్థితి DELAY_SCHEDULER: తిరిగి 0;  // opaque
+        స్థితి TRIGGER_SCHEDULER: తిరిగి 0;  // opaque
+        స్థితి DYNAMIC_TRIGGER_SCHEDULER: తిరిగి 0;  // opaque
+        స్థితి FORK_SYNC: తిరిగి 0;  // opaque
+        స్థితి PROCESS_REFERENCE: తిరిగి 0;  // opaque
+        స్థితి RANDOM_GENERATOR: తిరిగి 0;  // opaque
+        స్థితి RANDOM_STDGENERATOR: తిరిగి 0;  // opaque
+        స్థితి COVERGROUP_INSTHANDLE: తిరిగి 0;  // opaque
+        స్థితి UINT32: తిరిగి 32;
+        స్థితి UINT64: తిరిగి 64;
+        అప్రమేయ: తిరిగి 0;
         }
     }
-    bool isSigned() const {
-        return m_e == BYTE || m_e == SHORTINT || m_e == INT || m_e == LONGINT || m_e == INTEGER
+    bool isSigned() స్థిరరాశి {
+        తిరిగి m_e == BYTE || m_e == SHORTINT || m_e == INT || m_e == LONGINT || m_e == INTEGER
                || m_e == INTEGER2STATE || m_e == DOUBLE;
     }
-    bool isUnsigned() const {
-        return m_e == CHANDLE || m_e == EVENT || m_e == STRING || m_e == SCOPEPTR || m_e == CHARPTR
-               || m_e == UINT32 || m_e == UINT64 || m_e == BIT || m_e == LOGIC
-               || m_e == LOGIC2STATE || m_e == TIME || m_e == TIME2STATE;
+    bool isUnsigned() స్థిరరాశి {
+        తిరిగి m_e == CHANDLE || m_e == EVENT || m_e == STRING || m_e == SCOPEPTR || m_e == CHARPTR
+               || m_e == UINT32 || m_e == UINT64 || m_e == బిట్టు || m_e == LOGIC
+               || m_e == LOGIC2STATE || m_e == సమయం || m_e == TIME2STATE;
     }
-    bool isFourstate() const {
-        return m_e == INTEGER || m_e == LOGIC || m_e == LOGIC_IMPLICIT || m_e == TIME;
+    bool isFourstate() స్థిరరాశి {
+        తిరిగి m_e == INTEGER || m_e == LOGIC || m_e == LOGIC_IMPLICIT || m_e == సమయం;
     }
-    bool isZeroInit() const {  // Otherwise initializes to X
-        return (m_e == BIT || m_e == BYTE || m_e == CHANDLE || m_e == NULLTYPE || m_e == EVENT
+    bool isZeroInit() స్థిరరాశి {  // Otherwise initializes to X
+        తిరిగి (m_e == బిట్టు || m_e == BYTE || m_e == CHANDLE || m_e == NULLTYPE || m_e == EVENT
                 || m_e == INT || m_e == LONGINT || m_e == SHORTINT || m_e == STRING
                 || m_e == DOUBLE);
     }
-    bool isIntNumeric() const {  // Enum increment supported
-        return (m_e == BIT || m_e == BYTE || m_e == INT || m_e == INTEGER || m_e == INTEGER2STATE
+    bool isIntNumeric() స్థిరరాశి {  // Enum increment supported
+        తిరిగి (m_e == బిట్టు || m_e == BYTE || m_e == INT || m_e == INTEGER || m_e == INTEGER2STATE
                 || m_e == LOGIC || m_e == LOGIC2STATE || m_e == LONGINT || m_e == SHORTINT
-                || m_e == UINT32 || m_e == UINT64 || m_e == TIME || m_e == TIME2STATE);
+                || m_e == UINT32 || m_e == UINT64 || m_e == సమయం || m_e == TIME2STATE);
     }
-    bool isBit() const { return m_e == BIT; }
-    bool isBitLogic() const {  // Bit/logic vector types; can form a packed array
-        return (m_e == LOGIC || m_e == LOGIC2STATE || m_e == BIT);
+    bool is_బిట్టు() స్థిరరాశి { తిరిగి m_e == బిట్టు; }
+    bool is_బిట్టు_Logic() స్థిరరాశి {  // Bit/logic vector types; can form a packed array
+        తిరిగి (m_e == LOGIC || m_e == LOGIC2STATE || m_e == బిట్టు);
     }
-    bool isDpiUnsignable() const {  // Can add "unsigned" to DPI
-        return (m_e == BYTE || m_e == SHORTINT || m_e == INT || m_e == LONGINT || m_e == INTEGER
+    bool isDpiUnsignable() స్థిరరాశి {  // Can add "unsigned" to DPI
+        తిరిగి (m_e == BYTE || m_e == SHORTINT || m_e == INT || m_e == LONGINT || m_e == INTEGER
                 || m_e == INTEGER2STATE);
     }
-    bool isDpiCLayout() const {  // Uses standard C layout, for DPI runtime access
-        return (m_e == BIT || m_e == BYTE || m_e == CHANDLE || m_e == INT || m_e == LONGINT
+    bool isDpiCLayout() స్థిరరాశి {  // Uses standard C layout, for DPI runtime access
+        తిరిగి (m_e == బిట్టు || m_e == BYTE || m_e == CHANDLE || m_e == INT || m_e == LONGINT
                 || m_e == DOUBLE || m_e == SHORTINT || m_e == UINT32 || m_e == UINT64);
     }
-    bool isOpaque() const VL_MT_SAFE {  // IE not a simple number we can bit optimize
-        return (m_e == EVENT || m_e == STRING || m_e == SCOPEPTR || m_e == CHARPTR
+    bool isOpaque() స్థిరరాశి VL_MT_సురక్షిత {  // IE not a simple number we can bit optimize
+        తిరిగి (m_e == EVENT || m_e == STRING || m_e == SCOPEPTR || m_e == CHARPTR
                 || m_e == MTASKSTATE || m_e == DELAY_SCHEDULER || m_e == TRIGGER_SCHEDULER
                 || m_e == DYNAMIC_TRIGGER_SCHEDULER || m_e == FORK_SYNC || m_e == PROCESS_REFERENCE
                 || m_e == RANDOM_GENERATOR || m_e == RANDOM_STDGENERATOR
                 || m_e == COVERGROUP_INSTHANDLE || m_e == DOUBLE || m_e == UNTYPED);
     }
-    bool isCHandle() const VL_MT_SAFE { return m_e == CHANDLE; }
-    bool isDouble() const VL_MT_SAFE { return m_e == DOUBLE; }
-    bool isEvent() const { return m_e == EVENT; }
-    bool isString() const VL_MT_SAFE { return m_e == STRING; }
-    bool isMTaskState() const VL_MT_SAFE { return m_e == MTASKSTATE; }
-    bool isSameish(const VBasicDTypeKwd& other) const VL_MT_SAFE {
-        switch (other.m_e) {
-        case LOGIC:
-        case LOGIC2STATE:
-        case LOGIC_IMPLICIT: return m_e == LOGIC || m_e == LOGIC2STATE || m_e == LOGIC_IMPLICIT;
-        case INTEGER:
-        case INTEGER2STATE: return m_e == INTEGER || m_e == INTEGER2STATE;
-        case TIME:
-        case TIME2STATE: return m_e == TIME || m_e == TIME2STATE;
-        default: return m_e == other.m_e;
+    bool isCHandle() స్థిరరాశి VL_MT_సురక్షిత { తిరిగి m_e == CHANDLE; }
+    bool isDouble() స్థిరరాశి VL_MT_సురక్షిత { తిరిగి m_e == DOUBLE; }
+    bool isEvent() స్థిరరాశి { తిరిగి m_e == EVENT; }
+    bool isString() స్థిరరాశి VL_MT_సురక్షిత { తిరిగి m_e == STRING; }
+    bool isMTaskState() స్థిరరాశి VL_MT_సురక్షిత { తిరిగి m_e == MTASKSTATE; }
+    bool isSameish(స్థిరరాశి VBasicDTypeKwd& other) స్థిరరాశి VL_MT_సురక్షిత {
+        ఎంపిక (other.m_e) {
+        స్థితి LOGIC:
+        స్థితి LOGIC2STATE:
+        స్థితి LOGIC_IMPLICIT: తిరిగి m_e == LOGIC || m_e == LOGIC2STATE || m_e == LOGIC_IMPLICIT;
+        స్థితి INTEGER:
+        స్థితి INTEGER2STATE: తిరిగి m_e == INTEGER || m_e == INTEGER2STATE;
+        స్థితి సమయం:
+        స్థితి TIME2STATE: తిరిగి m_e == సమయం || m_e == TIME2STATE;
+        అప్రమేయ: తిరిగి m_e == other.m_e;
         }
     }
     // Does this represent a C++ LiteralType? (can be constexpr)
-    bool isLiteralType() const VL_MT_SAFE {
-        switch (m_e) {
-        case BIT:
-        case BYTE:
-        case CHANDLE:
-        case INT:
-        case INTEGER:
-        case INTEGER2STATE:
-        case LOGIC:
-        case LOGIC2STATE:
-        case LONGINT:
-        case DOUBLE:
-        case SHORTINT:
-        case SCOPEPTR:
-        case CHARPTR:
-        case UINT32:
-        case UINT64: return true;
-        default: return false;
+    bool isLiteralType() స్థిరరాశి VL_MT_సురక్షిత {
+        ఎంపిక (m_e) {
+        స్థితి బిట్టు:
+        స్థితి BYTE:
+        స్థితి CHANDLE:
+        స్థితి INT:
+        స్థితి INTEGER:
+        స్థితి INTEGER2STATE:
+        స్థితి LOGIC:
+        స్థితి LOGIC2STATE:
+        స్థితి LONGINT:
+        స్థితి DOUBLE:
+        స్థితి SHORTINT:
+        స్థితి SCOPEPTR:
+        స్థితి CHARPTR:
+        స్థితి UINT32:
+        స్థితి UINT64: తిరిగి true;
+        అప్రమేయ: తిరిగి false;
         }
     }
 
-    const char* traceSigType() const {
+    స్థిరరాశి అక్షరం* traceSigType() స్థిరరాశి {
         // VerilatedTraceSigType to used in trace signal declaration
-        static constexpr const char* const lut[] = {
+        స్థిర constexpr స్థిరరాశి అక్షరం* స్థిరరాశి lut[] = {
             /* UNKNOWN:                   */ "",  // Should not be traced
             /* BIT:                       */ "BIT",
             /* BYTE:                      */ "BYTE",
@@ -779,95 +779,95 @@ public:
             /* UINT64:                    */ "BIT",
             /* LOGIC_IMPLICIT:            */ "",  // Should not be traced
         };
-        static_assert(sizeof(lut) / sizeof(lut[0]) == _ENUM_MAX, "Missing trace signal type");
-        return lut[m_e];
+        static_assert(పరిమాణం(lut) / పరిమాణం(lut[0]) == _ENUM_MAX, "Missing trace signal type");
+        తిరిగి lut[m_e];
     }
 };
-constexpr bool operator==(const VBasicDTypeKwd& lhs, const VBasicDTypeKwd& rhs) VL_MT_SAFE {
-    return lhs.m_e == rhs.m_e;
+constexpr bool క్రియాకారకం==(స్థిరరాశి VBasicDTypeKwd& lhs, స్థిరరాశి VBasicDTypeKwd& rhs) VL_MT_సురక్షిత {
+    తిరిగి lhs.m_e == rhs.m_e;
 }
-constexpr bool operator==(const VBasicDTypeKwd& lhs, VBasicDTypeKwd::en rhs) VL_MT_SAFE {
-    return lhs.m_e == rhs;
+constexpr bool క్రియాకారకం==(స్థిరరాశి VBasicDTypeKwd& lhs, VBasicDTypeKwd::en rhs) VL_MT_సురక్షిత {
+    తిరిగి lhs.m_e == rhs;
 }
-constexpr bool operator==(VBasicDTypeKwd::en lhs, const VBasicDTypeKwd& rhs) VL_MT_SAFE {
-    return lhs == rhs.m_e;
+constexpr bool క్రియాకారకం==(VBasicDTypeKwd::en lhs, స్థిరరాశి VBasicDTypeKwd& rhs) VL_MT_సురక్షిత {
+    తిరిగి lhs == rhs.m_e;
 }
 
 // ######################################################################
 
 /// Boolean or unknown
 class VBoolOrUnknown final {
-public:
-    enum en : uint8_t { BU_FALSE = 0, BU_TRUE = 1, BU_UNKNOWN = 2, _ENUM_END };
-    enum en m_e;
+బహిరంగ:
+    గణన en : uint8_t { BU_FALSE = 0, BU_TRUE = 1, BU_UNKNOWN = 2, ENUM_చివర };
+    గణన en m_e;
     // CONSTRUCTOR - note defaults to *UNKNOWN*
     VBoolOrUnknown()
         : m_e{BU_UNKNOWN} {}
     // cppcheck-suppress noExplicitConstructor
     constexpr VBoolOrUnknown(en _e)
         : m_e{_e} {}
-    explicit VBoolOrUnknown(int _e)
+    explicit VBoolOrUnknown(పూర్ణాంకం _e)
         : m_e(static_cast<en>(_e)) {}  // Need () or GCC 4.8 false warning
-    const char* ascii() const {
-        static constexpr const char* const names[] = {"FALSE", "TRUE", "UNK"};
-        return names[m_e];
+    స్థిరరాశి అక్షరం* ascii() స్థిరరాశి {
+        స్థిర constexpr స్థిరరాశి అక్షరం* స్థిరరాశి పేర్లు[] = {"FALSE", "TRUE", "UNK"};
+        తిరిగి పేర్లు[m_e];
     }
-    bool isKnown() const { return m_e != BU_UNKNOWN; }
-    bool trueKnown() const { return m_e == BU_TRUE; }
-    void setTrueOrFalse(bool flag) { m_e = flag ? BU_TRUE : BU_FALSE; }
+    bool is_తెలిసిన() స్థిరరాశి { తిరిగి m_e != BU_UNKNOWN; }
+    bool true_తెలిసిన() స్థిరరాశి { తిరిగి m_e == BU_TRUE; }
+    శూన్య సమితి_True_Or_False(bool flag) { m_e = flag ? BU_TRUE : BU_FALSE; }
 };
-constexpr bool operator==(const VBoolOrUnknown& lhs, const VBoolOrUnknown& rhs) {
-    return lhs.m_e == rhs.m_e;
+constexpr bool క్రియాకారకం==(స్థిరరాశి VBoolOrUnknown& lhs, స్థిరరాశి VBoolOrUnknown& rhs) {
+    తిరిగి lhs.m_e == rhs.m_e;
 }
-constexpr bool operator==(const VBoolOrUnknown& lhs, VBoolOrUnknown::en rhs) {
-    return lhs.m_e == rhs;
+constexpr bool క్రియాకారకం==(స్థిరరాశి VBoolOrUnknown& lhs, VBoolOrUnknown::en rhs) {
+    తిరిగి lhs.m_e == rhs;
 }
-constexpr bool operator==(VBoolOrUnknown::en lhs, const VBoolOrUnknown& rhs) {
-    return lhs == rhs.m_e;
+constexpr bool క్రియాకారకం==(VBoolOrUnknown::en lhs, స్థిరరాశి VBoolOrUnknown& rhs) {
+    తిరిగి lhs == rhs.m_e;
 }
-inline std::ostream& operator<<(std::ostream& os, const VBoolOrUnknown& rhs) {
-    return os << rhs.ascii();
+అంతఃవరుస std::ostream& క్రియాకారకం<<(std::ostream& os, స్థిరరాశి VBoolOrUnknown& rhs) {
+    తిరిగి os << rhs.ascii();
 }
 
 // ######################################################################
 
 class VBranchPred final {
-public:
-    enum en : uint8_t { BP_UNKNOWN = 0, BP_LIKELY, BP_UNLIKELY, _ENUM_END };
-    enum en m_e;
+బహిరంగ:
+    గణన en : uint8_t { BP_UNKNOWN = 0, BP_LIKELY, BP_UNLIKELY, ENUM_చివర };
+    గణన en m_e;
     // CONSTRUCTOR - note defaults to *UNKNOWN*
     VBranchPred()
         : m_e{BP_UNKNOWN} {}
     // cppcheck-suppress noExplicitConstructor
     constexpr VBranchPred(en _e)
         : m_e{_e} {}
-    explicit VBranchPred(int _e)
+    explicit VBranchPred(పూర్ణాంకం _e)
         : m_e(static_cast<en>(_e)) {}  // Need () or GCC 4.8 false warning
-    constexpr operator en() const { return m_e; }
-    bool unknown() const { return m_e == BP_UNKNOWN; }
-    bool likely() const { return m_e == BP_LIKELY; }
-    bool unlikely() const { return m_e == BP_UNLIKELY; }
-    VBranchPred invert() const {
-        if (m_e == BP_UNLIKELY) return BP_LIKELY;
-        if (m_e == BP_LIKELY) return BP_UNLIKELY;
-        return m_e;
+    constexpr క్రియాకారకం en() స్థిరరాశి { తిరిగి m_e; }
+    bool unknown() స్థిరరాశి { తిరిగి m_e == BP_UNKNOWN; }
+    bool likely() స్థిరరాశి { తిరిగి m_e == BP_LIKELY; }
+    bool unlikely() స్థిరరాశి { తిరిగి m_e == BP_UNLIKELY; }
+    VBranchPred invert() స్థిరరాశి {
+        ఒకవేళ (m_e == BP_UNLIKELY) తిరిగి BP_LIKELY;
+        ఒకవేళ (m_e == BP_LIKELY) తిరిగి BP_UNLIKELY;
+        తిరిగి m_e;
     }
-    const char* ascii() const {
-        static constexpr const char* const names[] = {"", "VL_LIKELY", "VL_UNLIKELY"};
-        return names[m_e];
+    స్థిరరాశి అక్షరం* ascii() స్థిరరాశి {
+        స్థిర constexpr స్థిరరాశి అక్షరం* స్థిరరాశి పేర్లు[] = {"", "VL_LIKELY", "VL_UNLIKELY"};
+        తిరిగి పేర్లు[m_e];
     }
-    const char* asciiShort() const {
-        static constexpr const char* const names[] = {"", "L", "!L"};
-        return names[m_e];
+    స్థిరరాశి అక్షరం* asciiShort() స్థిరరాశి {
+        స్థిర constexpr స్థిరరాశి అక్షరం* స్థిరరాశి పేర్లు[] = {"", "L", "!L"};
+        తిరిగి పేర్లు[m_e];
     }
 };
-constexpr bool operator==(const VBranchPred& lhs, const VBranchPred& rhs) {
-    return lhs.m_e == rhs.m_e;
+constexpr bool క్రియాకారకం==(స్థిరరాశి VBranchPred& lhs, స్థిరరాశి VBranchPred& rhs) {
+    తిరిగి lhs.m_e == rhs.m_e;
 }
-constexpr bool operator==(const VBranchPred& lhs, VBranchPred::en rhs) { return lhs.m_e == rhs; }
-constexpr bool operator==(VBranchPred::en lhs, const VBranchPred& rhs) { return lhs == rhs.m_e; }
-inline std::ostream& operator<<(std::ostream& os, const VBranchPred& rhs) {
-    return os << rhs.ascii();
+constexpr bool క్రియాకారకం==(స్థిరరాశి VBranchPred& lhs, VBranchPred::en rhs) { తిరిగి lhs.m_e == rhs; }
+constexpr bool క్రియాకారకం==(VBranchPred::en lhs, స్థిరరాశి VBranchPred& rhs) { తిరిగి lhs == rhs.m_e; }
+అంతఃవరుస std::ostream& క్రియాకారకం<<(std::ostream& os, స్థిరరాశి VBranchPred& rhs) {
+    తిరిగి os << rhs.ascii();
 }
 
 // ######################################################################
@@ -875,18 +875,18 @@ inline std::ostream& operator<<(std::ostream& os, const VBranchPred& rhs) {
 namespace {
 // Validate the arguments descriptor
 // LCOV_EXCL_START
-static constexpr bool validateArgsDescriptor(const char* descrp) {
+స్థిర constexpr bool validate_వాదనలు_Descriptor(స్థిరరాశి అక్షరం* descrp) {
     // Is "TODO"
-    if (descrp[0] == 'T' && descrp[1] == 'O' && descrp[2] == 'D' && descrp[3] == 'O'
+    ఒకవేళ (descrp[0] == 'T' && descrp[1] == 'O' && descrp[2] == 'D' && descrp[3] == 'O'
         && !descrp[4]) {
-        return true;
+        తిరిగి true;
     }
     // Is a sequence of 'r'/'w'/'m' with an optional trailing '+'
-    for (const char* cp = descrp; *cp; ++cp) {
-        if (*cp == '+') return cp != descrp && !cp[1];
-        if (*cp != 'r' && *cp != 'w' && *cp != 'm') return false;
+    కొరకు (స్థిరరాశి అక్షరం* cp = descrp; *cp; ++cp) {
+        ఒకవేళ (*cp == '+') తిరిగి cp != descrp && !cp[1];
+        ఒకవేళ (*cp != 'r' && *cp != 'w' && *cp != 'm') తిరిగి false;
     }
-    return true;
+    తిరిగి true;
 }
 // LCOV_EXCL_STOP
 };  //namespace
@@ -902,145 +902,145 @@ static constexpr bool validateArgsDescriptor(const char* descrp) {
 // - "" if the method takes no arguments
 // - "TODO" if not yet checked due to existing issues
 // clang-format off
-#define FOR_EACH_CMETHOD(macro) \
+#నిర్వచించు FOR_EACH_CMETHOD(macro) \
     /*    id,                                 method,                   pure,   clean,  args */ \
     macro(_NONE,                              "_none",                  false,  CLEAN,  "") \
-    macro(ARRAY_AT,                           "at",                     PURE,   CLEAN,  "r") \
-    macro(ARRAY_AT_BACK,                      "atBack",                 PURE,   CLEAN,  "r") \
-    macro(ARRAY_AT_WRITE,                     "atWrite",                PURE,   CLEAN,  "r") \
-    macro(ARRAY_FIND,                         "find",                   PURE,   CLEAN,  "") \
-    macro(ARRAY_FIND_FIRST,                   "find_first",             PURE,   CLEAN,  "") \
-    macro(ARRAY_FIND_FIRST_INDEX,             "find_first_index",       PURE,   CLEAN,  "") \
-    macro(ARRAY_FIND_INDEX,                   "find_index",             PURE,   CLEAN,  "") \
-    macro(ARRAY_FIND_LAST,                    "find_last",              PURE,   CLEAN,  "") \
-    macro(ARRAY_FIND_LAST_INDEX,              "find_last_index",        PURE,   CLEAN,  "") \
-    macro(ARRAY_FIRST,                        "first",                  false,  CLEAN,  "m") \
-    macro(ARRAY_INSIDE,                       "inside",                 PURE,   CLEAN,  "r") \
-    macro(ARRAY_LAST,                         "last",                   false,  CLEAN,  "m") \
-    macro(ARRAY_MAP,                          "map",                    PURE,   CLEAN,  "") \
-    macro(ARRAY_MAX,                          "max",                    PURE,   CLEAN,  "") \
-    macro(ARRAY_MIN,                          "min",                    PURE,   CLEAN,  "") \
-    macro(ARRAY_NEXT,                         "next",                   false,  CLEAN,  "m") \
-    macro(ARRAY_POP_BACK,                     "pop_back",               false,  CLEAN,  "") \
-    macro(ARRAY_POP_FRONT,                    "pop_front",              false,  CLEAN,  "") \
+    macro(ARRAY_AT,                           "at",                     శుద్ధ_2,   CLEAN,  "r") \
+    macro(ARRAY_AT_వెనుక,                      "atBack",                 శుద్ధ_2,   CLEAN,  "r") \
+    macro(ARRAY_AT_WRITE,                     "atWrite",                శుద్ధ_2,   CLEAN,  "r") \
+    macro(ARRAY_కనుగొను,                         "find",                   శుద్ధ_2,   CLEAN,  "") \
+    macro(ARRAY_కనుగొను_మొదటి,                   "find_first",             శుద్ధ_2,   CLEAN,  "") \
+    macro(ARRAY_కనుగొను_మొదటి_సూచీ,             "find_first_index",       శుద్ధ_2,   CLEAN,  "") \
+    macro(ARRAY_కనుగొను_సూచీ,                   "find_index",             శుద్ధ_2,   CLEAN,  "") \
+    macro(ARRAY_కనుగొను_చివరి,                    "find_last",              శుద్ధ_2,   CLEAN,  "") \
+    macro(ARRAY_కనుగొను_చివరి_సూచీ,              "find_last_index",        శుద్ధ_2,   CLEAN,  "") \
+    macro(ARRAY_మొదటి,                        "first",                  false,  CLEAN,  "m") \
+    macro(ARRAY_INSIDE,                       "inside",                 శుద్ధ_2,   CLEAN,  "r") \
+    macro(ARRAY_చివరి,                         "last",                   false,  CLEAN,  "m") \
+    macro(ARRAY_MAP,                          "map",                    శుద్ధ_2,   CLEAN,  "") \
+    macro(ARRAY_MAX,                          "max",                    శుద్ధ_2,   CLEAN,  "") \
+    macro(ARRAY_MIN,                          "min",                    శుద్ధ_2,   CLEAN,  "") \
+    macro(ARRAY_తదుపరి,                         "next",                   false,  CLEAN,  "m") \
+    macro(ARRAY_తీయి_వెనుక,                     "pop_back",               false,  CLEAN,  "") \
+    macro(ARRAY_తీయి_FRONT,                    "pop_front",              false,  CLEAN,  "") \
     macro(ARRAY_PREV,                         "prev",                   false,  CLEAN,  "m") \
-    macro(ARRAY_PUSH_BACK,                    "push_back",              false,  CLEAN,  "r") \
-    macro(ARRAY_PUSH_FRONT,                   "push_front",             false,  CLEAN,  "r") \
-    macro(ARRAY_REVERSE,                      "reverse",                false,  CLEAN,  "") \
+    macro(ARRAY_నెట్టు_వెనుక,                    "push_back",              false,  CLEAN,  "r") \
+    macro(ARRAY_నెట్టు_FRONT,                   "push_front",             false,  CLEAN,  "r") \
+    macro(ARRAY_తిరగేయి,                      "reverse",                false,  CLEAN,  "") \
     macro(ARRAY_RSORT,                        "rsort",                  false,  CLEAN,  "") \
-    macro(ARRAY_R_AND,                        "r_and",                  PURE,   CLEAN,  "") \
-    macro(ARRAY_R_OR,                         "r_or",                   PURE,   CLEAN,  "") \
-    macro(ARRAY_R_PRODUCT,                    "r_product",              PURE,   false,  "") \
-    macro(ARRAY_R_SUM,                        "r_sum",                  PURE,   false,  "") \
-    macro(ARRAY_R_XOR,                        "r_xor",                  PURE,   CLEAN,  "") \
+    macro(ARRAY_R_AND,                        "r_and",                  శుద్ధ_2,   CLEAN,  "") \
+    macro(ARRAY_R_OR,                         "r_or",                   శుద్ధ_2,   CLEAN,  "") \
+    macro(ARRAY_R_లబ్ధం,                    "r_product",              శుద్ధ_2,   false,  "") \
+    macro(ARRAY_R_కూడిక,                        "r_sum",                  శుద్ధ_2,   false,  "") \
+    macro(ARRAY_R_XOR,                        "r_xor",                  శుద్ధ_2,   CLEAN,  "") \
     macro(ARRAY_SHUFFLE,                      "shuffle",                false,  CLEAN,  "") \
-    macro(ARRAY_SLICE,                        "slice",                  PURE,   CLEAN,  "r") \
-    macro(ARRAY_SORT,                         "sort",                   false,  CLEAN,  "") \
-    macro(ARRAY_UNIQUE,                       "unique",                 PURE,   CLEAN,  "") \
-    macro(ARRAY_UNIQUE_INDEX,                 "unique_index",           PURE,   CLEAN,  "") \
+    macro(ARRAY_ముక్క,                        "slice",                  శుద్ధ_2,   CLEAN,  "r") \
+    macro(ARRAY_క్రమీకరించు,                         "sort",                   false,  CLEAN,  "") \
+    macro(ARRAY_UNIQUE,                       "unique",                 శుద్ధ_2,   CLEAN,  "") \
+    macro(ARRAY_UNIQUE_సూచీ,                 "unique_index",           శుద్ధ_2,   CLEAN,  "") \
     macro(ASSOC_CLEAR,                        "clear",                  false,  CLEAN,  "") \
     macro(ASSOC_ERASE,                        "erase",                  false,  CLEAN,  "r") \
-    macro(ASSOC_EXISTS,                       "exists",                 PURE,   CLEAN,  "r") \
-    macro(ASSOC_FIRST,                        "first",                  false,  CLEAN,  "m") \
-    macro(ASSOC_NEXT,                         "next",                   false,  CLEAN,  "m") \
-    macro(ASSOC_SIZE,                         "size",                   PURE,   CLEAN,  "") \
-    macro(CLASS_SET_RANDMODE,                 "set_randmode",           false,  CLEAN,  "r") \
-    macro(COVERGROUP_ADD_ARRAY_NAMER,         "addArrayNamer",          false,  CLEAN,  "r+") \
-    macro(COVERGROUP_ADD_BIN,                 "addBin",                 false,  CLEAN,  "r+") \
-    macro(COVERGROUP_ADD_COVERPOINT,          "addCoverpoint",          false,  CLEAN,  "") \
-    macro(COVERGROUP_ADD_CROSS,               "addCross",               false,  CLEAN,  "") \
-    macro(COVERGROUP_ADD_CROSS_DYN,           "addCrossDyn",            false,  CLEAN,  "") \
-    macro(COVERGROUP_ADD_NUMBERED_NAMER,      "addNumberedNamer",       false,  CLEAN,  "r+") \
-    macro(COVERGROUP_ADD_SINGLE_NAMER,        "addSingleNamer",         false,  CLEAN,  "r+") \
+    macro(ASSOC_EXISTS,                       "exists",                 శుద్ధ_2,   CLEAN,  "r") \
+    macro(ASSOC_మొదటి,                        "first",                  false,  CLEAN,  "m") \
+    macro(ASSOC_తదుపరి,                         "next",                   false,  CLEAN,  "m") \
+    macro(ASSOC_కొలత,                         "size",                   శుద్ధ_2,   CLEAN,  "") \
+    macro(CLASS_సమితి_RANDMODE,                 "set_randmode",           false,  CLEAN,  "r") \
+    macro(COVERGROUP_కూడు_ARRAY_NAMER,         "addArrayNamer",          false,  CLEAN,  "r+") \
+    macro(COVERGROUP_కూడు_BIN,                 "addBin",                 false,  CLEAN,  "r+") \
+    macro(COVERGROUP_కూడు_COVERPOINT,          "addCoverpoint",          false,  CLEAN,  "") \
+    macro(COVERGROUP_కూడు_CROSS,               "addCross",               false,  CLEAN,  "") \
+    macro(COVERGROUP_కూడు_CROSS_DYN,           "addCrossDyn",            false,  CLEAN,  "") \
+    macro(COVERGROUP_కూడు_NUMBERED_NAMER,      "addNumberedNamer",       false,  CLEAN,  "r+") \
+    macro(COVERGROUP_కూడు_SINGLE_NAMER,        "addSingleNamer",         false,  CLEAN,  "r+") \
     macro(COVERGROUP_ATTACH,                  "attach",                 false,  CLEAN,  "r") \
-    macro(COVERGROUP_CLEAR_HIT_LIST,          "clearHitList",           false,  CLEAN,  "") \
+    macro(COVERGROUP_CLEAR_తగిలింది_LIST,          "clearHitList",           false,  CLEAN,  "") \
     macro(COVERGROUP_COVERAGE,                "coverage",               false,  CLEAN,  "") \
     macro(COVERGROUP_CROSS_WITH_BEGIN,        "withBegin",              false,  CLEAN,  "r+") \
-    macro(COVERGROUP_CROSS_WITH_END,          "withEnd",                false,  CLEAN,  "") \
+    macro(COVERGROUP_CROSS_WITH_చివర,          "withEnd",                false,  CLEAN,  "") \
     macro(COVERGROUP_CROSS_WITH_TEST,         "withTest",               false,  CLEAN,  "r") \
-    macro(COVERGROUP_CROSS_WITH_VALUE,        "withValue",              false,  CLEAN,  "r") \
-    macro(COVERGROUP_CROSS_WITH_VALUE_W,      "withValueW",             false,  CLEAN,  "rw") \
+    macro(COVERGROUP_CROSS_WITH_విలువ,        "withValue",              false,  CLEAN,  "r") \
+    macro(COVERGROUP_CROSS_WITH_విలువ_W,      "withValueW",             false,  CLEAN,  "rw") \
     macro(COVERGROUP_FINALIZE_BINS,           "finalizeBins",           false,  CLEAN,  "") \
     macro(COVERGROUP_INCREMENT_BIN,           "incrementBin",           false,  CLEAN,  "r") \
     macro(COVERGROUP_INIT,                    "init",                   false,  CLEAN,  "r+") \
-    macro(COVERGROUP_INST_P,                  "p",                      PURE,   CLEAN,  "") \
-    macro(COVERGROUP_LEND_WEIGHT,             "lendWeight",             false,  CLEAN,  "rr") \
-    macro(COVERGROUP_RECORD_HIT,              "recordHit",              false,  CLEAN,  "r") \
-    macro(COVERGROUP_REGISTER_BINS,           "registerBins",           false,  CLEAN,  "rrrr") \
+    macro(COVERGROUP_INST_P,                  "p",                      శుద్ధ_2,   CLEAN,  "") \
+    macro(COVERGROUP_LEND_బరువు,             "lendWeight",             false,  CLEAN,  "rr") \
+    macro(COVERGROUP_రికార్డు_తగిలింది,              "recordHit",              false,  CLEAN,  "r") \
+    macro(COVERGROUP_రిజిస్టరు_BINS,           "registerBins",           false,  CLEAN,  "rrrr") \
     macro(COVERGROUP_SAMPLE,                  "sample",                 false,  CLEAN,  "") \
     macro(COVERGROUP_SAMPLE_IFFS,             "sample",                 false,  CLEAN,  "r") \
     macro(COVERGROUP_SELECT_ALL,              "selectAll",              false,  CLEAN,  "") \
     macro(COVERGROUP_SELECT_AND,              "selectAnd",              false,  CLEAN,  "") \
     macro(COVERGROUP_SELECT_BIN,              "selectBin",              false,  CLEAN,  "r+") \
     macro(COVERGROUP_SELECT_DIM,              "selectDim",              false,  CLEAN,  "r+") \
-    macro(COVERGROUP_SELECT_DIM_END,          "selectDimEnd",           false,  CLEAN,  "") \
+    macro(COVERGROUP_SELECT_DIM_చివర,          "selectDimEnd",           false,  CLEAN,  "") \
     macro(COVERGROUP_SELECT_OR,               "selectOr",               false,  CLEAN,  "") \
     macro(COVERGROUP_SELECT_RANGE,            "selectRange",            false,  CLEAN,  "rr") \
     macro(COVERGROUP_SELECT_RANGE_W,          "selectRangeW",           false,  CLEAN,  "rr") \
-    macro(COVERGROUP_SIZED_END,               "sizedEnd",               PURE,   CLEAN,  "r") \
-    macro(COVERGROUP_SIZED_FINISH,            "sizedFinish",            false,  CLEAN,  "r+") \
-    macro(COVERGROUP_SIZED_FIRST,             "sizedFirst",             PURE,   CLEAN,  "r") \
+    macro(COVERGROUP_SIZED_చివర,               "sizedEnd",               శుద్ధ_2,   CLEAN,  "r") \
+    macro(COVERGROUP_SIZED_ముగింపు,            "sizedFinish",            false,  CLEAN,  "r+") \
+    macro(COVERGROUP_SIZED_మొదటి,             "sizedFirst",             శుద్ధ_2,   CLEAN,  "r") \
     macro(COVERGROUP_SIZED_RANGE,             "sizedRange",             false,  CLEAN,  "rr") \
     macro(COVERGROUP_SIZED_RANGE_W,           "sizedRangeW",            false,  CLEAN,  "rr") \
     macro(COVERGROUP_SIZED_SAMPLE,            "sizedSample",            false,  CLEAN,  "rrr") \
     macro(COVERGROUP_SIZED_SAMPLE_W,          "sizedSampleW",           false,  CLEAN,  "rrr") \
     macro(COVERGROUP_TYPE_COVERAGE,           "typeCoverage",           false,  CLEAN,  "rrrr") \
-    macro(COVERGROUP_TYPE_WEIGHT,             "typeWeight",             false,  CLEAN,  "r") \
-    macro(COVERGROUP_VALUE_EXCLUDED,          "valueExcluded",          PURE,   CLEAN,  "r") \
-    macro(COVERGROUP_VALUE_EXCLUDED_W,        "valueExcludedW",         PURE,   CLEAN,  "r") \
-    macro(COVERGROUP_VALUE_FINALIZE,          "valueFinalize",          false,  CLEAN,  "") \
-    macro(COVERGROUP_VALUE_PATTERNS,          "valuePatterns",          false,  CLEAN,  "r") \
-    macro(COVERGROUP_VALUE_RANGES,            "valueRanges",            false,  CLEAN,  "r") \
-    macro(COVERGROUP_VALUE_RELEASE,           "valueRelease",           false,  CLEAN,  "") \
-    macro(COVERGROUP_VALUE_RUNS,              "valueRuns",              false,  CLEAN,  "r") \
-    macro(COVERGROUP_VALUE_TRANSITIONS,       "valueTransitions",       false,  CLEAN,  "r") \
-    macro(COVERGROUP_VALUE_TYPE,              "valueType",              false,  CLEAN,  "rr") \
-    macro(COVERGROUP_WEIGHT,                  "weight",                 false,  CLEAN,  "rr") \
+    macro(COVERGROUP_TYPE_బరువు,             "typeWeight",             false,  CLEAN,  "r") \
+    macro(COVERGROUP_విలువ_EXCLUDED,          "valueExcluded",          శుద్ధ_2,   CLEAN,  "r") \
+    macro(COVERGROUP_విలువ_EXCLUDED_W,        "valueExcludedW",         శుద్ధ_2,   CLEAN,  "r") \
+    macro(COVERGROUP_విలువ_FINALIZE,          "valueFinalize",          false,  CLEAN,  "") \
+    macro(COVERGROUP_విలువ_PATTERNS,          "valuePatterns",          false,  CLEAN,  "r") \
+    macro(COVERGROUP_విలువ_RANGES,            "valueRanges",            false,  CLEAN,  "r") \
+    macro(COVERGROUP_విలువ_RELEASE,           "valueRelease",           false,  CLEAN,  "") \
+    macro(COVERGROUP_విలువ_RUNS,              "valueRuns",              false,  CLEAN,  "r") \
+    macro(COVERGROUP_విలువ_TRANSITIONS,       "valueTransitions",       false,  CLEAN,  "r") \
+    macro(COVERGROUP_విలువ_TYPE,              "valueType",              false,  CLEAN,  "rr") \
+    macro(COVERGROUP_బరువు,                  "weight",                 false,  CLEAN,  "rr") \
     macro(COVERGROUP_WITH_BEGIN,              "withBegin",              false,  CLEAN,  "rr") \
-    macro(COVERGROUP_WITH_FINISH,             "withFinish",             false,  CLEAN,  "r+") \
+    macro(COVERGROUP_WITH_ముగింపు,             "withFinish",             false,  CLEAN,  "r+") \
     macro(COVERGROUP_WITH_HI,                 "withHi",                 false,  CLEAN,  "") \
     macro(COVERGROUP_WITH_HI_W,               "withHiW",                false,  CLEAN,  "w") \
     macro(COVERGROUP_WITH_LO,                 "withLo",                 false,  CLEAN,  "") \
     macro(COVERGROUP_WITH_LO_W,               "withLoW",                false,  CLEAN,  "w") \
-    macro(COVERGROUP_WITH_NEXT,               "withNext",               false,  CLEAN,  "") \
-    macro(COVERGROUP_WITH_RUN,                "withRun",                false,  CLEAN,  "rr") \
-    macro(COVERGROUP_WITH_RUN_W,              "withRunW",               false,  CLEAN,  "rr") \
+    macro(COVERGROUP_WITH_తదుపరి,               "withNext",               false,  CLEAN,  "") \
+    macro(COVERGROUP_WITH_నిరంతరం,                "withRun",                false,  CLEAN,  "rr") \
+    macro(COVERGROUP_WITH_నిరంతరం_W,              "withRunW",               false,  CLEAN,  "rr") \
     macro(DYN_AT_WRITE_APPEND,                "atWriteAppend",          false,  CLEAN,  "r") \
-    macro(DYN_AT_WRITE_APPEND_BACK,           "atWriteAppendBack",      false,  CLEAN,  "r") \
+    macro(DYN_AT_WRITE_APPEND_వెనుక,           "atWriteAppendBack",      false,  CLEAN,  "r") \
     macro(DYN_CLEAR,                          "clear",                  false,  CLEAN,  "") \
     macro(DYN_ERASE,                          "erase",                  false,  CLEAN,  "r") \
-    macro(DYN_INSERT,                         "insert",                 false,  CLEAN,  "rr") \
-    macro(DYN_POP,                            "pop",                    false,  CLEAN,  "rrm") \
-    macro(DYN_POP_FRONT,                      "pop_front",              false,  CLEAN,  "") \
-    macro(DYN_PUSH,                           "push",                   false,  CLEAN,  "rr") \
-    macro(DYN_PUSH_FRONT,                     "push_front",             false,  CLEAN,  "r") \
+    macro(DYN_చొప్పించు,                         "insert",                 false,  CLEAN,  "rr") \
+    macro(DYN_తీయి,                            "pop",                    false,  CLEAN,  "rrm") \
+    macro(DYN_తీయి_FRONT,                      "pop_front",              false,  CLEAN,  "") \
+    macro(DYN_నెట్టు,                           "push",                   false,  CLEAN,  "rr") \
+    macro(DYN_నెట్టు_FRONT,                     "push_front",             false,  CLEAN,  "r") \
     macro(DYN_RENEW,                          "renew",                  false,  CLEAN,  "r") \
     macro(DYN_RENEW_COPY,                     "renew_copy",             false,  CLEAN,  "rr") \
     macro(DYN_RESIZE,                         "resize",                 false,  CLEAN,  "TODO") \
-    macro(DYN_SIZE,                           "size",                   PURE,   CLEAN,  "") \
-    macro(DYN_SLICE,                          "slice",                  PURE,   CLEAN,  "rr") \
-    macro(DYN_SLICE_ASSIGN,                   "sliceAssign",            false,  CLEAN,  "rrr") \
-    macro(DYN_SLICE_ASSIGN_BACK_BACK,         "sliceAssignBackBack",    false,  CLEAN,  "rrr") \
-    macro(DYN_SLICE_ASSIGN_FRONT_BACK,        "sliceAssignFrontBack",   false,  CLEAN,  "rrr") \
-    macro(DYN_SLICE_BACK_BACK,                "sliceBackBack",          PURE,   CLEAN,  "rr") \
-    macro(DYN_SLICE_FRONT_BACK,               "sliceFrontBack",         PURE,   CLEAN,  "rr") \
+    macro(DYN_కొలత,                           "size",                   శుద్ధ_2,   CLEAN,  "") \
+    macro(DYN_ముక్క,                          "slice",                  శుద్ధ_2,   CLEAN,  "rr") \
+    macro(DYN_ముక్క_కేటాయించు,                   "sliceAssign",            false,  CLEAN,  "rrr") \
+    macro(DYN_ముక్క_కేటాయించు_వెనుక_వెనుక,         "sliceAssignBackBack",    false,  CLEAN,  "rrr") \
+    macro(DYN_ముక్క_కేటాయించు_FRONT_వెనుక,        "sliceAssignFrontBack",   false,  CLEAN,  "rrr") \
+    macro(DYN_ముక్క_వెనుక_వెనుక,                "sliceBackBack",          శుద్ధ_2,   CLEAN,  "rr") \
+    macro(DYN_ముక్క_FRONT_వెనుక,               "sliceFrontBack",         శుద్ధ_2,   CLEAN,  "rr") \
     macro(EVENT_CLEAR_FIRED,                  "clearFired",             false,  CLEAN,  "") \
     macro(EVENT_CLEAR_TRIGGERED,              "clearTriggered",         false,  CLEAN,  "") \
     macro(EVENT_FIRE,                         "fire",                   false,  CLEAN,  "") \
-    macro(EVENT_IS_FIRED,                     "isFired",                PURE,   CLEAN,  "") \
-    macro(EVENT_IS_TRIGGERED,                 "isTriggered",            PURE,   CLEAN,  "") \
-    macro(FORCE_ADD,                          "addForce",               false,  CLEAN,  "rrrr+") \
-    macro(FORCE_READ,                         "read",                   PURE,   CLEAN,  "r") \
-    macro(FORCE_READ_INDEX,                   "readIndex",              PURE,   CLEAN,  "rr") \
-    macro(FORCE_READ_SEL,                     "readSel",                PURE,   CLEAN,  "TODO") \
+    macro(EVENT_IS_FIRED,                     "isFired",                శుద్ధ_2,   CLEAN,  "") \
+    macro(EVENT_IS_TRIGGERED,                 "isTriggered",            శుద్ధ_2,   CLEAN,  "") \
+    macro(FORCE_కూడు,                          "addForce",               false,  CLEAN,  "rrrr+") \
+    macro(FORCE_READ,                         "read",                   శుద్ధ_2,   CLEAN,  "r") \
+    macro(FORCE_READ_సూచీ,                   "readIndex",              శుద్ధ_2,   CLEAN,  "rr") \
+    macro(FORCE_READ_SEL,                     "readSel",                శుద్ధ_2,   CLEAN,  "TODO") \
     macro(FORCE_RELEASE,                      "release",                false,  CLEAN,  "rr+") \
     macro(FORCE_TOUCH,                        "touch",                  false,  CLEAN,  "") \
-    macro(FORK_DONE,                          "done",                   false,  CLEAN,  "rr") \
+    macro(FORK_పూర్తి,                          "done",                   false,  CLEAN,  "rr") \
     macro(FORK_INIT,                          "init",                   false,  CLEAN,  "rr") \
     macro(FORK_JOIN,                          "join",                   false,  CLEAN,  "rrr") \
     macro(FORK_ON_KILL,                       "onKill",                 false,  CLEAN,  "r") \
     macro(NBA_COMMIT,                         "commit",                 false,  CLEAN,  "w") \
-    macro(NBA_ENQUEUE,                        "enqueue",                false,  CLEAN,  "r+") \
+    macro(NBA_వరుసలో_చేర్చు,                        "enqueue",                false,  CLEAN,  "r+") \
     macro(RANDOMIZER_BASIC_STD_RANDOMIZATION, "basicStdRandomization",  false,  CLEAN,  "mr") \
     macro(RANDOMIZER_CLEARCONSTRAINTS,        "clearConstraints",       false,  CLEAN,  "") \
     macro(RANDOMIZER_CLEARALL,                "clearAll",               false,  CLEAN,  "") \
@@ -1053,17 +1053,17 @@ static constexpr bool validateArgsDescriptor(const char* descrp) {
     macro(RANDOMIZER_PIN_VAR,                 "pin_var",                false,  CLEAN,  "rrr") \
     macro(RANDOMIZER_UPDATE_VAR,              "update_var",             false,  CLEAN,  "TODO") \
     macro(RANDOMIZER_WRITE_VAR,               "write_var",              false,  CLEAN,  "TODO") \
-    macro(RANDOMIZER_SET_VAR_DISABLED,        "set_var_disabled",       false,  CLEAN,  "r") \
+    macro(RANDOMIZER_సమితి_VAR_DISABLED,        "set_var_disabled",       false,  CLEAN,  "r") \
     macro(RANDOMIZER_CLEAR_VAR_DISABLED,      "clear_var_disabled",     false,  CLEAN,  "r") \
     macro(RANDOMIZER_MARK_VAR_STATIC,         "mark_var_static",        false,  CLEAN,  "r") \
-    macro(RANDOMIZER_SET_STATIC_RANDMODE,     "set_static_randmode",    false,  CLEAN,  "r") \
-    macro(RNG_GET_RANDSTATE,                  "__Vm_rng.get_randstate", PURE,   CLEAN,  "") \
-    macro(RNG_SET_RANDSTATE,                  "__Vm_rng.set_randstate", false,  CLEAN,  "r") \
+    macro(RANDOMIZER_సమితి_STATIC_RANDMODE,     "set_static_randmode",    false,  CLEAN,  "r") \
+    macro(RNG_GET_RANDSTATE,                  "__Vm_rng.get_randstate", శుద్ధ_2,   CLEAN,  "") \
+    macro(RNG_సమితి_RANDSTATE,                  "__Vm_rng.set_randstate", false,  CLEAN,  "r") \
     macro(SCHED_ANY_TRIGGERED,                "anyTriggered",           false,  CLEAN,  "r") \
-    macro(SCHED_AWAITING_CURRENT_TIME,        "awaitingCurrentTime",    PURE,   CLEAN,  "") \
-    macro(SCHED_AWAITING_ZERO_DELAY,          "awaitingZeroDelay",      PURE,   CLEAN,  "") \
+    macro(SCHED_AWAITING_CURRENT_సమయం,        "awaitingCurrentTime",    శుద్ధ_2,   CLEAN,  "") \
+    macro(SCHED_AWAITING_ZERO_DELAY,          "awaitingZeroDelay",      శుద్ధ_2,   CLEAN,  "") \
     macro(SCHED_READY,                        "ready",                  false,  CLEAN,  "r") \
-    macro(SCHED_MOVE_TO_RESUME_QUEUE,         "moveToResumeQueue",      false,  CLEAN,  "r") \
+    macro(SCHED_MOVE_గమ్యం_RESUME_వరుస,         "moveToResumeQueue",      false,  CLEAN,  "r") \
     macro(SCHED_DELAY,                        "delay",                  false,  CLEAN,  "rrrr") \
     macro(SCHED_DO_POST_UPDATES,              "doPostUpdates",          false,  CLEAN,  "") \
     macro(SCHED_EVALUATE,                     "evaluate",               false,  CLEAN,  "") \
@@ -1074,190 +1074,190 @@ static constexpr bool validateArgsDescriptor(const char* descrp) {
     macro(SCHED_RESUMPTION,                   "resumption",             false,  CLEAN,  "rrrr") \
     macro(SCHED_TRIGGER,                      "trigger",                false,  CLEAN,  "rrrrr") \
     macro(SCHED_WAIT_FOREVER,                 "waitForever",            false,  CLEAN,  "rrr") \
-    macro(UNPACKED_ASSIGN,                    "assign",                 false,  CLEAN,  "r") \
+    macro(UNPACKED_కేటాయించు,                    "assign",                 false,  CLEAN,  "r") \
     macro(UNPACKED_FILL,                      "fill",                   false,  CLEAN,  "r") \
-    macro(UNPACKED_NEQ,                       "neq",                    PURE,   CLEAN,  "r")
+    macro(UNPACKED_NEQ,                       "neq",                    శుద్ధ_2,   CLEAN,  "r")
 // clang-format on
 
 class VCMethod final {
-    static constexpr bool PURE = true;  // For macro expansion of 'pure' field only
-    static constexpr bool CLEAN = true;  // For macro expansion of 'clean' field only
+    స్థిర constexpr bool శుద్ధ_2 = true;  // For macro expansion of 'pure' field only
+    స్థిర constexpr bool CLEAN = true;  // For macro expansion of 'clean' field only
 
-public:
-    enum en : uint8_t {
-#define VL_CMETHOD_ID(id, method, pure, clean, args) id,
+బహిరంగ:
+    గణన en : uint8_t {
+#నిర్వచించు VL_CMETHOD_ID(id, పద్ధతి, శుద్ధ_3, clean, వాదనలు) id,
         FOR_EACH_CMETHOD(VL_CMETHOD_ID)
-#undef VL_CMETHOD_ID
+#నిర్వచనం_రద్దు VL_CMETHOD_ID
             _ENUM_MAX  // Leave last
     };
-    enum en m_e;
+    గణన en m_e;
     VCMethod()
         : m_e{_NONE} {}
     // cppcheck-suppress noExplicitConstructor
     constexpr VCMethod(en _e)
         : m_e{_e} {}
-    explicit VCMethod(int _e)
+    explicit VCMethod(పూర్ణాంకం _e)
         : m_e(static_cast<en>(_e)) {}  // Need () or GCC 4.8 false warning
-    constexpr operator en() const { return m_e; }
-    const char* ascii() const VL_PURE {
-        static constexpr const char* const values[] = {
-#define VL_CMETHOD_NAME(id, method, pure, clean, args) method,
+    constexpr క్రియాకారకం en() స్థిరరాశి { తిరిగి m_e; }
+    స్థిరరాశి అక్షరం* ascii() స్థిరరాశి VL_శుద్ధ {
+        స్థిర constexpr స్థిరరాశి అక్షరం* స్థిరరాశి విలువలు[] = {
+#నిర్వచించు VL_CMETHOD_NAME(id, పద్ధతి, శుద్ధ_3, clean, వాదనలు) పద్ధతి,
             FOR_EACH_CMETHOD(VL_CMETHOD_NAME)
-#undef VL_CMETHOD_NAME
+#నిర్వచనం_రద్దు VL_CMETHOD_NAME
                 "_ENUM_MAX"  //
         };
-        return values[m_e];
+        తిరిగి విలువలు[m_e];
     }
-    bool isPure() const VL_PURE {
-        static constexpr bool values[] = {
-#define VL_CMETHOD_PURE(id, method, pure, clean, args) pure,
-            FOR_EACH_CMETHOD(VL_CMETHOD_PURE)
-#undef VL_CMETHOD_PURE
+    bool is_శుద్ధ() స్థిరరాశి VL_శుద్ధ {
+        స్థిర constexpr bool విలువలు[] = {
+#నిర్వచించు VL_CMETHOD_శుద్ధ(id, పద్ధతి, శుద్ధ_3, clean, వాదనలు) శుద్ధ_3,
+            FOR_EACH_CMETHOD(VL_CMETHOD_శుద్ధ)
+#నిర్వచనం_రద్దు VL_CMETHOD_శుద్ధ
                 false  //
         };
-        return values[m_e];
+        తిరిగి విలువలు[m_e];
     }
-    bool isClean() const VL_PURE {
-        static constexpr bool values[] = {
-#define VL_CMETHOD_CLEAN(id, method, pure, clean, args) clean,
+    bool isClean() స్థిరరాశి VL_శుద్ధ {
+        స్థిర constexpr bool విలువలు[] = {
+#నిర్వచించు VL_CMETHOD_CLEAN(id, పద్ధతి, శుద్ధ_3, clean, వాదనలు) clean,
             FOR_EACH_CMETHOD(VL_CMETHOD_CLEAN)
-#undef VL_CMETHOD_CLEAN
+#నిర్వచనం_రద్దు VL_CMETHOD_CLEAN
                 false  //
         };
-        return values[m_e];
+        తిరిగి విలువలు[m_e];
     }
-    const char* args() const VL_PURE {
-        static constexpr const char* const values[] = {
-#define VL_CMETHOD_ARGS(id, method, pure, clean, args) args,
-            FOR_EACH_CMETHOD(VL_CMETHOD_ARGS)
-#undef VL_CMETHOD_ARGS
+    స్థిరరాశి అక్షరం* వాదనలు() స్థిరరాశి VL_శుద్ధ {
+        స్థిర constexpr స్థిరరాశి అక్షరం* స్థిరరాశి విలువలు[] = {
+#నిర్వచించు VL_CMETHOD_వాదనలు(id, పద్ధతి, శుద్ధ_3, clean, వాదనలు) వాదనలు,
+            FOR_EACH_CMETHOD(VL_CMETHOD_వాదనలు)
+#నిర్వచనం_రద్దు VL_CMETHOD_వాదనలు
                 ""  //
         };
-        return values[m_e];
+        తిరిగి విలువలు[m_e];
     }
     // Return array method for given name
-    static VCMethod arrayMethod(const string& name);
+    స్థిర VCMethod array_పద్ధతి(స్థిరరాశి string& name);
 };
-constexpr bool operator==(const VCMethod& lhs, const VCMethod& rhs) { return lhs.m_e == rhs.m_e; }
-constexpr bool operator==(const VCMethod& lhs, VCMethod::en rhs) { return lhs.m_e == rhs; }
-constexpr bool operator==(VCMethod::en lhs, const VCMethod& rhs) { return lhs == rhs.m_e; }
-inline std::ostream& operator<<(std::ostream& os, const VCMethod& rhs) {
-    return os << rhs.ascii();
+constexpr bool క్రియాకారకం==(స్థిరరాశి VCMethod& lhs, స్థిరరాశి VCMethod& rhs) { తిరిగి lhs.m_e == rhs.m_e; }
+constexpr bool క్రియాకారకం==(స్థిరరాశి VCMethod& lhs, VCMethod::en rhs) { తిరిగి lhs.m_e == rhs; }
+constexpr bool క్రియాకారకం==(VCMethod::en lhs, స్థిరరాశి VCMethod& rhs) { తిరిగి lhs == rhs.m_e; }
+అంతఃవరుస std::ostream& క్రియాకారకం<<(std::ostream& os, స్థిరరాశి VCMethod& rhs) {
+    తిరిగి os << rhs.ascii();
 }
 
 // Static assert all argument descriptors are well formed
-#define VL_CMETHOD_ARGS_CHECK(id, method, pure, clean, args) \
-    static_assert(validateArgsDescriptor(args), "Malformed argument descriptor for " #id);
-FOR_EACH_CMETHOD(VL_CMETHOD_ARGS_CHECK)
-#undef VL_CMETHOD_ARGS_CHECK
+#నిర్వచించు VL_CMETHOD_వాదనలు_CHECK(id, పద్ధతి, శుద్ధ_3, clean, వాదనలు) \
+    static_assert(validate_వాదనలు_Descriptor(వాదనలు), "Malformed argument descriptor for " #id);
+FOR_EACH_CMETHOD(VL_CMETHOD_వాదనలు_CHECK)
+#నిర్వచనం_రద్దు VL_CMETHOD_వాదనలు_CHECK
 
-#undef FOR_EACH_CMETHOD
+#నిర్వచనం_రద్దు FOR_EACH_CMETHOD
 
 // clang-format off
-#define FOR_EACH_CFUNCTION(macro) \
+#నిర్వచించు FOR_EACH_CFUNCTION(macro) \
     /*    id,                                 function,                 pure,   args */ \
     macro(_NONE,                              "_none",                  false,  "") \
-    macro(RANDOMIZER_TO_SOLVER_HEX,           "vlToSolverHex",          PURE,   "r")
+    macro(RANDOMIZER_గమ్యం_SOLVER_HEX,           "vlToSolverHex",          శుద్ధ_2,   "r")
 // clang-format on
 
 class VCFunction final {
-    static constexpr bool PURE = true;  // For macro expansion of 'pure' field only
+    స్థిర constexpr bool శుద్ధ_2 = true;  // For macro expansion of 'pure' field only
 
-public:
-    enum en : uint8_t {
-#define VL_CFUNCTION_ID(id, method, pure, args) id,
+బహిరంగ:
+    గణన en : uint8_t {
+#నిర్వచించు VL_CFUNCTION_ID(id, పద్ధతి, శుద్ధ_3, వాదనలు) id,
         FOR_EACH_CFUNCTION(VL_CFUNCTION_ID)
-#undef VL_CFUNCTION_ID
+#నిర్వచనం_రద్దు VL_CFUNCTION_ID
             _ENUM_MAX  // Leave last
     };
-    enum en m_e;
+    గణన en m_e;
     // cppcheck-suppress noExplicitConstructor
     constexpr VCFunction(en _e)
         : m_e{_e} {}
-    const char* ascii() const VL_PURE {
-        static const char* const values[] = {
-#define VL_CFUNCTION_NAME(id, function, pure, args) function,
+    స్థిరరాశి అక్షరం* ascii() స్థిరరాశి VL_శుద్ధ {
+        స్థిర స్థిరరాశి అక్షరం* స్థిరరాశి విలువలు[] = {
+#నిర్వచించు VL_CFUNCTION_NAME(id, function, శుద్ధ_3, వాదనలు) function,
             FOR_EACH_CFUNCTION(VL_CFUNCTION_NAME)
-#undef VL_CFUNCTION_NAME
+#నిర్వచనం_రద్దు VL_CFUNCTION_NAME
                 "_ENUM_MAX"  //
         };
-        return values[m_e];
+        తిరిగి విలువలు[m_e];
     }
-    bool isPure() const VL_PURE {
-        static const bool values[] = {
-#define VL_CFUNCTION_PURE(id, method, pure, args) pure,
-            FOR_EACH_CFUNCTION(VL_CFUNCTION_PURE)
-#undef VL_CFUNCTION_PURE
+    bool is_శుద్ధ() స్థిరరాశి VL_శుద్ధ {
+        స్థిర స్థిరరాశి bool విలువలు[] = {
+#నిర్వచించు VL_CFUNCTION_శుద్ధ(id, పద్ధతి, శుద్ధ_3, వాదనలు) శుద్ధ_3,
+            FOR_EACH_CFUNCTION(VL_CFUNCTION_శుద్ధ)
+#నిర్వచనం_రద్దు VL_CFUNCTION_శుద్ధ
                 false  //
         };
-        return values[m_e];
+        తిరిగి విలువలు[m_e];
     }
-    const char* args() const VL_PURE {
-        static const char* const values[] = {
-#define VL_CFUNCTION_ARGS(id, method, pure, args) args,
-            FOR_EACH_CFUNCTION(VL_CFUNCTION_ARGS)
-#undef VL_CFUNCTION_ARGS
+    స్థిరరాశి అక్షరం* వాదనలు() స్థిరరాశి VL_శుద్ధ {
+        స్థిర స్థిరరాశి అక్షరం* స్థిరరాశి విలువలు[] = {
+#నిర్వచించు VL_CFUNCTION_వాదనలు(id, పద్ధతి, శుద్ధ_3, వాదనలు) వాదనలు,
+            FOR_EACH_CFUNCTION(VL_CFUNCTION_వాదనలు)
+#నిర్వచనం_రద్దు VL_CFUNCTION_వాదనలు
                 ""  //
         };
-        return values[m_e];
+        తిరిగి విలువలు[m_e];
     }
 };
 
 // Static assert all argument descriptors are well formed
-#define VL_CFUNCTION_ARGS_CHECK(id, method, pure, args) \
-    static_assert(validateArgsDescriptor(args), "Malformed argument descriptor for " #id);
-FOR_EACH_CFUNCTION(VL_CFUNCTION_ARGS_CHECK)
-#undef VL_CFUNCTION_ARGS_CHECK
+#నిర్వచించు VL_CFUNCTION_వాదనలు_CHECK(id, పద్ధతి, శుద్ధ_3, వాదనలు) \
+    static_assert(validate_వాదనలు_Descriptor(వాదనలు), "Malformed argument descriptor for " #id);
+FOR_EACH_CFUNCTION(VL_CFUNCTION_వాదనలు_CHECK)
+#నిర్వచనం_రద్దు VL_CFUNCTION_వాదనలు_CHECK
 
-#undef FOR_EACH_CFUNCTION
+#నిర్వచనం_రద్దు FOR_EACH_CFUNCTION
 
 // ######################################################################
 
 class VCStmtType final {
-public:
-    enum en : uint8_t {
+బహిరంగ:
+    గణన en : uint8_t {
         NONE,  // Unknown or not applicable
         CTOR_VAR_RESET_CALL,
         _ENUM_MAX  // Leave last
     };
 
-private:
-    struct Item final {
-        enum en m_e;  // Statement's enum mnemonic, for checking
-        const char* m_name;  // Statements name, for debugging
+అంతరంగ:
+    నిర్మాణం అంశం final {
+        గణన en m_e;  // Statement's enum mnemonic, for checking
+        స్థిరరాశి అక్షరం* m_name;  // Statements name, for debugging
     };
-    static Item s_itemData[];
+    స్థిర అంశం s_అంశం_దత్తాంశం[];
 
-public:
-    enum en m_e;
+బహిరంగ:
+    గణన en m_e;
     VCStmtType()
         : m_e{NONE} {}
     // cppcheck-suppress noExplicitConstructor
     constexpr VCStmtType(en _e)
         : m_e{_e} {}
-    explicit VCStmtType(int _e)
+    explicit VCStmtType(పూర్ణాంకం _e)
         : m_e(static_cast<en>(_e)) {}  // Need () or GCC 4.8 false warning
-    constexpr operator en() const { return m_e; }
-    const char* ascii() const VL_PURE {
-        static constexpr const char* const names[] = {"none", "ctor_var_reset_call"};
-        return names[m_e];
+    constexpr క్రియాకారకం en() స్థిరరాశి { తిరిగి m_e; }
+    స్థిరరాశి అక్షరం* ascii() స్థిరరాశి VL_శుద్ధ {
+        స్థిర constexpr స్థిరరాశి అక్షరం* స్థిరరాశి పేర్లు[] = {"none", "ctor_var_reset_call"};
+        తిరిగి పేర్లు[m_e];
     }
-    bool isNone() const { return m_e == NONE; }
+    bool isNone() స్థిరరాశి { తిరిగి m_e == NONE; }
 };
-constexpr bool operator==(const VCStmtType& lhs, const VCStmtType& rhs) {
-    return lhs.m_e == rhs.m_e;
+constexpr bool క్రియాకారకం==(స్థిరరాశి VCStmtType& lhs, స్థిరరాశి VCStmtType& rhs) {
+    తిరిగి lhs.m_e == rhs.m_e;
 }
-constexpr bool operator==(const VCStmtType& lhs, VCStmtType::en rhs) { return lhs.m_e == rhs; }
-constexpr bool operator==(VCStmtType::en lhs, const VCStmtType& rhs) { return lhs == rhs.m_e; }
-inline std::ostream& operator<<(std::ostream& os, const VCStmtType& rhs) {
-    return os << rhs.ascii();
+constexpr bool క్రియాకారకం==(స్థిరరాశి VCStmtType& lhs, VCStmtType::en rhs) { తిరిగి lhs.m_e == rhs; }
+constexpr bool క్రియాకారకం==(VCStmtType::en lhs, స్థిరరాశి VCStmtType& rhs) { తిరిగి lhs == rhs.m_e; }
+అంతఃవరుస std::ostream& క్రియాకారకం<<(std::ostream& os, స్థిరరాశి VCStmtType& rhs) {
+    తిరిగి os << rhs.ascii();
 }
 
 // ######################################################################
 
 class VCaseType final {
-public:
-    enum en : uint8_t {
+బహిరంగ:
+    గణన en : uint8_t {
         CT_CASE,
         CT_CASEX,
         CT_CASEZ,
@@ -1265,32 +1265,32 @@ public:
         CT_CASEMATCHES,
         CT_RANDSEQUENCE
     };
-    enum en m_e;
+    గణన en m_e;
     VCaseType()
         : m_e{CT_CASE} {}
     // cppcheck-suppress noExplicitConstructor
     constexpr VCaseType(en _e)
         : m_e{_e} {}
-    explicit VCaseType(int _e)
+    explicit VCaseType(పూర్ణాంకం _e)
         : m_e(static_cast<en>(_e)) {}  // Need () or GCC 4.8 false warning
-    constexpr operator en() const { return m_e; }
-    const char* ascii() const VL_PURE {
-        static constexpr const char* const names[]
+    constexpr క్రియాకారకం en() స్థిరరాశి { తిరిగి m_e; }
+    స్థిరరాశి అక్షరం* ascii() స్థిరరాశి VL_శుద్ధ {
+        స్థిర constexpr స్థిరరాశి అక్షరం* స్థిరరాశి పేర్లు[]
             = {"CASE", "CASEX", "CASEZ", "CASEINSIDE", "CASEMATCHES", "RANDSEQUENCE"};
-        return names[m_e];
+        తిరిగి పేర్లు[m_e];
     }
 };
-constexpr bool operator==(const VCaseType& lhs, const VCaseType& rhs) {
-    return lhs.m_e == rhs.m_e;
+constexpr bool క్రియాకారకం==(స్థిరరాశి VCaseType& lhs, స్థిరరాశి VCaseType& rhs) {
+    తిరిగి lhs.m_e == rhs.m_e;
 }
-constexpr bool operator==(const VCaseType& lhs, VCaseType::en rhs) { return lhs.m_e == rhs; }
-constexpr bool operator==(VCaseType::en lhs, const VCaseType& rhs) { return lhs == rhs.m_e; }
+constexpr bool క్రియాకారకం==(స్థిరరాశి VCaseType& lhs, VCaseType::en rhs) { తిరిగి lhs.m_e == rhs; }
+constexpr bool క్రియాకారకం==(VCaseType::en lhs, స్థిరరాశి VCaseType& rhs) { తిరిగి lhs == rhs.m_e; }
 
 // ######################################################################
 
 class VCastable final {
-public:
-    enum en : uint8_t {
+బహిరంగ:
+    గణన en : uint8_t {
         UNSUPPORTED,
         SAMEISH,
         COMPATIBLE,
@@ -1300,37 +1300,37 @@ public:
         INCOMPATIBLE,
         _ENUM_MAX  // Leave last
     };
-    enum en m_e;
-    const char* ascii() const {
-        static constexpr const char* const names[]
+    గణన en m_e;
+    స్థిరరాశి అక్షరం* ascii() స్థిరరాశి {
+        స్థిర constexpr స్థిరరాశి అక్షరం* స్థిరరాశి పేర్లు[]
             = {"UNSUPPORTED",   "SAMEISH",       "COMPATIBLE",  "ENUM_IMPLICIT",
                "ENUM_EXPLICIT", "DYNAMIC_CLASS", "INCOMPATIBLE"};
-        return names[m_e];
+        తిరిగి పేర్లు[m_e];
     }
-    bool isAssignable() const { return m_e != UNSUPPORTED && m_e != INCOMPATIBLE; }
+    bool isAssignable() స్థిరరాశి { తిరిగి m_e != UNSUPPORTED && m_e != INCOMPATIBLE; }
     VCastable()
         : m_e{UNSUPPORTED} {}
     // cppcheck-suppress noExplicitConstructor
     constexpr VCastable(en _e)
         : m_e{_e} {}
-    explicit VCastable(int _e)
+    explicit VCastable(పూర్ణాంకం _e)
         : m_e(static_cast<en>(_e)) {}  // Need () or GCC 4.8 false warning
-    constexpr operator en() const { return m_e; }
+    constexpr క్రియాకారకం en() స్థిరరాశి { తిరిగి m_e; }
 };
-constexpr bool operator==(const VCastable& lhs, const VCastable& rhs) {
-    return lhs.m_e == rhs.m_e;
+constexpr bool క్రియాకారకం==(స్థిరరాశి VCastable& lhs, స్థిరరాశి VCastable& rhs) {
+    తిరిగి lhs.m_e == rhs.m_e;
 }
-constexpr bool operator==(const VCastable& lhs, VCastable::en rhs) { return lhs.m_e == rhs; }
-constexpr bool operator==(VCastable::en lhs, const VCastable& rhs) { return lhs == rhs.m_e; }
-inline std::ostream& operator<<(std::ostream& os, const VCastable& rhs) {
-    return os << rhs.ascii();
+constexpr bool క్రియాకారకం==(స్థిరరాశి VCastable& lhs, VCastable::en rhs) { తిరిగి lhs.m_e == rhs; }
+constexpr bool క్రియాకారకం==(VCastable::en lhs, స్థిరరాశి VCastable& rhs) { తిరిగి lhs == rhs.m_e; }
+అంతఃవరుస std::ostream& క్రియాకారకం<<(std::ostream& os, స్థిరరాశి VCastable& rhs) {
+    తిరిగి os << rhs.ascii();
 }
 
 //######################################################################
 
 class VCoverBinsType final {
-public:
-    enum en : uint8_t {
+బహిరంగ:
+    గణన en : uint8_t {
         BINS_ARRAY,  // Array of bins with user-speciifed size
         BINS_AUTO,  // Automatic bins of a 'bins auto[N]' declaration
         BINS_AUTO_IMPLICIT,  // Automatic bins of a coverpoint without bins (IEEE 1800-2023 19.5.3)
@@ -1341,77 +1341,77 @@ public:
         BINS_USER,  // Single bin with one or more values/ranges
         BINS_WILDCARD  // Wildcard bin
     };
-    enum en m_e;
+    గణన en m_e;
     VCoverBinsType()  // LCOV_EXCL_START
         : m_e{BINS_USER} {}  // LCOV_EXCL_STOP
     // cppcheck-suppress noExplicitConstructor
     constexpr VCoverBinsType(en _e)
         : m_e{_e} {}
-    constexpr operator en() const { return m_e; }  // LCOV_EXCL_LINE
-    const char* ascii() const {
-        static constexpr const char* const names[]
+    constexpr క్రియాకారకం en() స్థిరరాశి { తిరిగి m_e; }  // LCOV_EXCL_LINE
+    స్థిరరాశి అక్షరం* ascii() స్థిరరాశి {
+        స్థిర constexpr స్థిరరాశి అక్షరం* స్థిరరాశి పేర్లు[]
             = {"array",        "auto",       "auto_implicit", "default", "ignore_bins",
                "illegal_bins", "transition", "bins",          "wildcard"};
-        return names[m_e];
+        తిరిగి పేర్లు[m_e];
     }
     // Keyword declaring the bins, without any 'wildcard' prefix
-    const char* verilogKwd() const {
-        static constexpr const char* const names[] = {
+    స్థిరరాశి అక్షరం* verilogKwd() స్థిరరాశి {
+        స్థిర constexpr స్థిరరాశి అక్షరం* స్థిరరాశి పేర్లు[] = {
             "bins", "bins", "bins", "bins", "ignore_bins", "illegal_bins", "bins", "bins", "bins"};
-        return names[m_e];
+        తిరిగి పేర్లు[m_e];
     }
     // VlCovBinKind enumerator naming the bin's set
-    const char* binSetEnum() const {
-        switch (m_e) {
-        case BINS_IGNORE: return "VlCovBinKind::KIND_IGNORE";
-        case BINS_ILLEGAL: return "VlCovBinKind::KIND_ILLEGAL";
-        case BINS_DEFAULT: return "VlCovBinKind::KIND_DEFAULT";
-        default: return "VlCovBinKind::KIND_NORMAL";
+    స్థిరరాశి అక్షరం* bin_సమితి_Enum() స్థిరరాశి {
+        ఎంపిక (m_e) {
+        స్థితి BINS_IGNORE: తిరిగి "VlCovBinKind::KIND_IGNORE";
+        స్థితి BINS_ILLEGAL: తిరిగి "VlCovBinKind::KIND_ILLEGAL";
+        స్థితి BINS_DEFAULT: తిరిగి "VlCovBinKind::KIND_DEFAULT";
+        అప్రమేయ: తిరిగి "VlCovBinKind::KIND_NORMAL";
         }
     }
     // Normal bins (feed coverage) are anything but ignore/illegal/default
-    bool binIsNormal() const {
-        return m_e != BINS_IGNORE && m_e != BINS_ILLEGAL && m_e != BINS_DEFAULT;
+    bool bin_Is_సాధారణ() స్థిరరాశి {
+        తిరిగి m_e != BINS_IGNORE && m_e != BINS_ILLEGAL && m_e != BINS_DEFAULT;
     }
 };
-constexpr bool operator==(const VCoverBinsType& lhs, VCoverBinsType::en rhs) {
-    return lhs.m_e == rhs;
+constexpr bool క్రియాకారకం==(స్థిరరాశి VCoverBinsType& lhs, VCoverBinsType::en rhs) {
+    తిరిగి lhs.m_e == rhs;
 }
 
 //######################################################################
 
 class VCoverOptionType final {
-public:
-    enum en : uint8_t {
+బహిరంగ:
+    గణన en : uint8_t {
         // Shared by option.* and type_option.*
-        WEIGHT,
+        బరువు,
         GOAL,
-        AT_LEAST,
+        AT_కనిష్ఠ,
         AUTO_BIN_MAX,
-        PER_INSTANCE,
+        చొప్పున_INSTANCE,
         COMMENT,
         // option.* only (IEEE 1800-2023 Table 19-1)
         NAME,
-        CROSS_NUM_PRINT_MISSING,
+        CROSS_అంకె_PRINT_MISSING,
         CROSS_RETAIN_AUTO_BINS,
         DETECT_OVERLAP,
         GET_INST_COVERAGE,
         // type_option.* only (IEEE 1800-2023 Table 19-3)
         STROBE,
-        MERGE_INSTANCES,
-        DISTRIBUTE_FIRST,
+        విలీనం_INSTANCES,
+        DISTRIBUTE_మొదటి,
         REAL_INTERVAL,
         // Legacy option.* accepted for compatibility
         CROSS_AUTO_BIN_MAX,
         // sentinel - should never appear after parse-time validation
         UNKNOWN
     };
-    enum en m_e;
+    గణన en m_e;
     // cppcheck-suppress noExplicitConstructor
     constexpr VCoverOptionType(en _e)
         : m_e{_e} {}
-    const char* ascii() const {
-        static constexpr const char* const names[] = {"weight",
+    స్థిరరాశి అక్షరం* ascii() స్థిరరాశి {
+        స్థిర constexpr స్థిరరాశి అక్షరం* స్థిరరాశి పేర్లు[] = {"weight",
                                                       "goal",
                                                       "at_least",
                                                       "auto_bin_max",
@@ -1428,120 +1428,120 @@ public:
                                                       "real_interval",
                                                       "cross_auto_bin_max",
                                                       "unknown"};
-        return names[m_e];
+        తిరిగి పేర్లు[m_e];
     }
 };
-constexpr bool operator==(const VCoverOptionType& lhs, VCoverOptionType::en rhs) {
-    return lhs.m_e == rhs;
+constexpr bool క్రియాకారకం==(స్థిరరాశి VCoverOptionType& lhs, VCoverOptionType::en rhs) {
+    తిరిగి lhs.m_e == rhs;
 }
 
 //######################################################################
 
 class VTransRepType final {
-public:
-    enum en : uint8_t {
+బహిరంగ:
+    గణన en : uint8_t {
         NONE,  // No repetition
         CONSEC,  // Consecutive repetition [*]
         GOTO,  // Goto repetition [->]
         NONCONS  // Nonconsecutive repetition [=]
     };
-    enum en m_e;
+    గణన en m_e;
     VTransRepType()  // LCOV_EXCL_START
         : m_e{NONE} {}  // LCOV_EXCL_STOP
     // cppcheck-suppress noExplicitConstructor
     constexpr VTransRepType(en _e)
         : m_e{_e} {}
-    explicit VTransRepType(int _e)  // LCOV_EXCL_START
+    explicit VTransRepType(పూర్ణాంకం _e)  // LCOV_EXCL_START
         : m_e(static_cast<en>(_e)) {}  // LCOV_EXCL_STOP  // Need () or GCC 4.8 false warning
-    constexpr operator en() const { return m_e; }  // LCOV_EXCL_LINE
-    const char* ascii() const {
-        static constexpr const char* const names[] = {"", "[*]", "[->]", "[=]"};
-        return names[m_e];
+    constexpr క్రియాకారకం en() స్థిరరాశి { తిరిగి m_e; }  // LCOV_EXCL_LINE
+    స్థిరరాశి అక్షరం* ascii() స్థిరరాశి {
+        స్థిర constexpr స్థిరరాశి అక్షరం* స్థిరరాశి పేర్లు[] = {"", "[*]", "[->]", "[=]"};
+        తిరిగి పేర్లు[m_e];
     }
-    const char* asciiJson() const {
-        static constexpr const char* const names[]
+    స్థిరరాశి అక్షరం* asciiJson() స్థిరరాశి {
+        స్థిర constexpr స్థిరరాశి అక్షరం* స్థిరరాశి పేర్లు[]
             = {"\"none\"", "\"consec\"", "\"goto\"", "\"noncons\""};
-        return names[m_e];
+        తిరిగి పేర్లు[m_e];
     }
 };
 
 //######################################################################
 
 class VDirection final {
-public:
-    enum en : uint8_t { NONE, INPUT, OUTPUT, INOUT, REF, CONSTREF };
-    enum en m_e;
+బహిరంగ:
+    గణన en : uint8_t { NONE, ఆదానం, OUTPUT, INOUT, REF, CONSTREF };
+    గణన en m_e;
     VDirection()
         : m_e{NONE} {}
     // cppcheck-suppress noExplicitConstructor
     constexpr VDirection(en _e)
         : m_e{_e} {}
-    explicit VDirection(int _e)
+    explicit VDirection(పూర్ణాంకం _e)
         : m_e(static_cast<en>(_e)) {}  // Need () or GCC 4.8 false warning
-    constexpr operator en() const VL_MT_SAFE { return m_e; }
-    const char* ascii() const {
-        static constexpr const char* const names[]
+    constexpr క్రియాకారకం en() స్థిరరాశి VL_MT_సురక్షిత { తిరిగి m_e; }
+    స్థిరరాశి అక్షరం* ascii() స్థిరరాశి {
+        స్థిర constexpr స్థిరరాశి అక్షరం* స్థిరరాశి పేర్లు[]
             = {"NONE", "INPUT", "OUTPUT", "INOUT", "REF", "CONSTREF"};
-        return names[m_e];
+        తిరిగి పేర్లు[m_e];
     }
-    string verilogKwd() const {
-        static constexpr const char* const names[]
+    string verilogKwd() స్థిరరాశి {
+        స్థిర constexpr స్థిరరాశి అక్షరం* స్థిరరాశి పేర్లు[]
             = {"", "input", "output", "inout", "ref", "const ref"};
-        return names[m_e];
+        తిరిగి పేర్లు[m_e];
     }
-    string prettyName() const { return verilogKwd(); }
-    bool isAny() const { return m_e != NONE; }
-    bool isInout() const { return m_e == INOUT; }
-    bool isInoutOrRef() const { return m_e == INOUT || m_e == REF || m_e == CONSTREF; }
-    bool isInput() const { return m_e == INPUT; }
-    bool isNonOutput() const {
-        return m_e == INPUT || m_e == INOUT || m_e == REF || m_e == CONSTREF;
+    string prettyName() స్థిరరాశి { తిరిగి verilogKwd(); }
+    bool isAny() స్థిరరాశి { తిరిగి m_e != NONE; }
+    bool isInout() స్థిరరాశి { తిరిగి m_e == INOUT; }
+    bool isInoutOrRef() స్థిరరాశి { తిరిగి m_e == INOUT || m_e == REF || m_e == CONSTREF; }
+    bool is_ఆదానం() స్థిరరాశి { తిరిగి m_e == ఆదానం; }
+    bool isNonOutput() స్థిరరాశి {
+        తిరిగి m_e == ఆదానం || m_e == INOUT || m_e == REF || m_e == CONSTREF;
     }
-    bool isOutput() const { return m_e == OUTPUT; }
-    bool isReadOnly() const VL_MT_SAFE { return m_e == INPUT || m_e == CONSTREF; }
-    bool isWritable() const VL_MT_SAFE { return m_e == OUTPUT || m_e == INOUT || m_e == REF; }
-    bool isRef() const VL_MT_SAFE { return m_e == REF; }
-    bool isConstRef() const VL_MT_SAFE { return m_e == CONSTREF; }
-    string traceSigDirection() const {
-        if (isInout()) {
-            return "VerilatedTraceSigDirection::INOUT";
-        } else if (isWritable()) {
-            return "VerilatedTraceSigDirection::OUTPUT";
-        } else if (isNonOutput()) {
-            return "VerilatedTraceSigDirection::INPUT";
+    bool isOutput() స్థిరరాశి { తిరిగి m_e == OUTPUT; }
+    bool isReadOnly() స్థిరరాశి VL_MT_సురక్షిత { తిరిగి m_e == ఆదానం || m_e == CONSTREF; }
+    bool isWritable() స్థిరరాశి VL_MT_సురక్షిత { తిరిగి m_e == OUTPUT || m_e == INOUT || m_e == REF; }
+    bool isRef() స్థిరరాశి VL_MT_సురక్షిత { తిరిగి m_e == REF; }
+    bool isConstRef() స్థిరరాశి VL_MT_సురక్షిత { తిరిగి m_e == CONSTREF; }
+    string traceSigDirection() స్థిరరాశి {
+        ఒకవేళ (isInout()) {
+            తిరిగి "VerilatedTraceSigDirection::INOUT";
+        } లేకపోతే ఒకవేళ (isWritable()) {
+            తిరిగి "VerilatedTraceSigDirection::OUTPUT";
+        } లేకపోతే ఒకవేళ (isNonOutput()) {
+            తిరిగి "VerilatedTraceSigDirection::INPUT";
         }
-        return "VerilatedTraceSigDirection::NONE";
+        తిరిగి "VerilatedTraceSigDirection::NONE";
     }
-    VAccess pinAccess() const {
-        switch (m_e) {
-        case NONE: return VAccess::NOCHANGE;
-        case INPUT:
-        case CONSTREF: return VAccess::READ;
-        case OUTPUT: return VAccess::WRITE;
-        case INOUT:
-        case REF: return VAccess::READWRITE;
+    VAccess pinAccess() స్థిరరాశి {
+        ఎంపిక (m_e) {
+        స్థితి NONE: తిరిగి VAccess::NOCHANGE;
+        స్థితి ఆదానం:
+        స్థితి CONSTREF: తిరిగి VAccess::READ;
+        స్థితి OUTPUT: తిరిగి VAccess::WRITE;
+        స్థితి INOUT:
+        స్థితి REF: తిరిగి VAccess::READWRITE;
         }
         v3fatalSrc("Unhandled VDirection");
     }
 };
-constexpr bool operator==(const VDirection& lhs, const VDirection& rhs) VL_MT_SAFE {
-    return lhs.m_e == rhs.m_e;
+constexpr bool క్రియాకారకం==(స్థిరరాశి VDirection& lhs, స్థిరరాశి VDirection& rhs) VL_MT_సురక్షిత {
+    తిరిగి lhs.m_e == rhs.m_e;
 }
-constexpr bool operator==(const VDirection& lhs, VDirection::en rhs) VL_MT_SAFE {
-    return lhs.m_e == rhs;
+constexpr bool క్రియాకారకం==(స్థిరరాశి VDirection& lhs, VDirection::en rhs) VL_MT_సురక్షిత {
+    తిరిగి lhs.m_e == rhs;
 }
-constexpr bool operator==(VDirection::en lhs, const VDirection& rhs) VL_MT_SAFE {
-    return lhs == rhs.m_e;
+constexpr bool క్రియాకారకం==(VDirection::en lhs, స్థిరరాశి VDirection& rhs) VL_MT_సురక్షిత {
+    తిరిగి lhs == rhs.m_e;
 }
-inline std::ostream& operator<<(std::ostream& os, const VDirection& rhs) {
-    return os << rhs.ascii();
+అంతఃవరుస std::ostream& క్రియాకారకం<<(std::ostream& os, స్థిరరాశి VDirection& rhs) {
+    తిరిగి os << rhs.ascii();
 }
 
 // ######################################################################
 
 class VDisplayType final {
-public:
-    enum en : uint8_t {
+బహిరంగ:
+    గణన en : uint8_t {
         DT_DISPLAY,
         DT_WRITE,
         DT_MONITOR,
@@ -1551,66 +1551,66 @@ public:
         DT_WARNING,
         DT_FATAL
     };
-    enum en m_e;
+    గణన en m_e;
     VDisplayType()
         : m_e{DT_DISPLAY} {}
     // cppcheck-suppress noExplicitConstructor
     constexpr VDisplayType(en _e)
         : m_e{_e} {}
-    explicit VDisplayType(int _e)
+    explicit VDisplayType(పూర్ణాంకం _e)
         : m_e(static_cast<en>(_e)) {}  // Need () or GCC 4.8 false warning
-    constexpr operator en() const { return m_e; }
-    bool addNewline() const { return m_e != DT_WRITE; }
-    bool needScopeTracking() const { return m_e != DT_DISPLAY && m_e != DT_WRITE; }
-    const char* ascii() const {
-        static constexpr const char* const names[]
+    constexpr క్రియాకారకం en() స్థిరరాశి { తిరిగి m_e; }
+    bool కూడు_Newline() స్థిరరాశి { తిరిగి m_e != DT_WRITE; }
+    bool needScopeTracking() స్థిరరాశి { తిరిగి m_e != DT_DISPLAY && m_e != DT_WRITE; }
+    స్థిరరాశి అక్షరం* ascii() స్థిరరాశి {
+        స్థిర constexpr స్థిరరాశి అక్షరం* స్థిరరాశి పేర్లు[]
             = {"display", "write", "monitor", "strobe", "info", "error", "warning", "fatal"};
-        return names[m_e];
+        తిరిగి పేర్లు[m_e];
     }
 };
-constexpr bool operator==(const VDisplayType& lhs, const VDisplayType& rhs) {
-    return lhs.m_e == rhs.m_e;
+constexpr bool క్రియాకారకం==(స్థిరరాశి VDisplayType& lhs, స్థిరరాశి VDisplayType& rhs) {
+    తిరిగి lhs.m_e == rhs.m_e;
 }
-constexpr bool operator==(const VDisplayType& lhs, VDisplayType::en rhs) { return lhs.m_e == rhs; }
-constexpr bool operator==(VDisplayType::en lhs, const VDisplayType& rhs) { return lhs == rhs.m_e; }
+constexpr bool క్రియాకారకం==(స్థిరరాశి VDisplayType& lhs, VDisplayType::en rhs) { తిరిగి lhs.m_e == rhs; }
+constexpr bool క్రియాకారకం==(VDisplayType::en lhs, స్థిరరాశి VDisplayType& rhs) { తిరిగి lhs == rhs.m_e; }
 
 // ######################################################################
 
 class VDumpCtlType final {
-public:
-    enum en : uint8_t { FILE, VARS, ALL, FLUSH, LIMIT, OFF, ON };
-    enum en m_e;
+బహిరంగ:
+    గణన en : uint8_t { FILE, VARS, ALL, FLUSH, హద్దు_2, OFF, ON };
+    గణన en m_e;
     VDumpCtlType()
         : m_e{ON} {}
     // cppcheck-suppress noExplicitConstructor
     constexpr VDumpCtlType(en _e)
         : m_e{_e} {}
-    explicit VDumpCtlType(int _e)
+    explicit VDumpCtlType(పూర్ణాంకం _e)
         : m_e(static_cast<en>(_e)) {}  // Need () or GCC 4.8 false warning
-    constexpr operator en() const { return m_e; }
-    const char* ascii() const {
-        static constexpr const char* const names[]
+    constexpr క్రియాకారకం en() స్థిరరాశి { తిరిగి m_e; }
+    స్థిరరాశి అక్షరం* ascii() స్థిరరాశి {
+        స్థిర constexpr స్థిరరాశి అక్షరం* స్థిరరాశి పేర్లు[]
             = {"$dumpfile",  "$dumpvars", "$dumpall", "$dumpflush",
                "$dumplimit", "$dumpoff",  "$dumpon"};
-        return names[m_e];
+        తిరిగి పేర్లు[m_e];
     }
 };
-constexpr bool operator==(const VDumpCtlType& lhs, const VDumpCtlType& rhs) {
-    return lhs.m_e == rhs.m_e;
+constexpr bool క్రియాకారకం==(స్థిరరాశి VDumpCtlType& lhs, స్థిరరాశి VDumpCtlType& rhs) {
+    తిరిగి lhs.m_e == rhs.m_e;
 }
-constexpr bool operator==(const VDumpCtlType& lhs, VDumpCtlType::en rhs) { return lhs.m_e == rhs; }
-constexpr bool operator==(VDumpCtlType::en lhs, const VDumpCtlType& rhs) { return lhs == rhs.m_e; }
+constexpr bool క్రియాకారకం==(స్థిరరాశి VDumpCtlType& lhs, VDumpCtlType::en rhs) { తిరిగి lhs.m_e == rhs; }
+constexpr bool క్రియాకారకం==(VDumpCtlType::en lhs, స్థిరరాశి VDumpCtlType& rhs) { తిరిగి lhs == rhs.m_e; }
 
 // ######################################################################
 
 class VEdgeType final {
-public:
+బహిరంగ:
     // REMEMBER to edit the strings below too
-    enum en : uint8_t {
+    గణన en : uint8_t {
         // These must be in general -> most specific order, as we sort by it
         // in V3Const::visit AstSenTree
         // Involving a variable
-        ET_CHANGED,  // Value changed
+        ET_మారింది,  // Value changed
         ET_BOTHEDGE,  // POSEDGE | NEGEDGE (i.e.: 'edge' in Verilog)
         ET_POSEDGE,
         ET_NEGEDGE,
@@ -1620,16 +1620,16 @@ public:
         ET_INITIAL_NBA,  // Event that is fired initially and never again
         //
         ET_COMBO,  // Sensitive to all combo inputs to this block
-        ET_COMBO_STAR,  // Sensitive to all combo inputs to this block (from .*)
+        ET_COMBO_నక్షత్రం,  // Sensitive to all combo inputs to this block (from .*)
         ET_HYBRID,  // This is like ET_COMB, but with explicit sensitivity to an expression
         ET_STATIC,  // static variable initializers (runs before 'initial')
         ET_INITIAL,  // 'initial' statements
         ET_FINAL,  // 'final' statements
         ET_NEVER  // Never occurs (optimized away)
     };
-    enum en m_e;
-    bool clockedStmt() const {
-        static constexpr bool clocked[] = {
+    గణన en m_e;
+    bool clockedStmt() స్థిరరాశి {
+        స్థిర constexpr bool clocked[] = {
             true,  // ET_CHANGED
             true,  // ET_BOTHEDGE
             true,  // ET_POSEDGE
@@ -1646,62 +1646,62 @@ public:
             false,  // ET_FINAL
             false,  // ET_NEVER
         };
-        return clocked[m_e];
+        తిరిగి clocked[m_e];
     }
-    bool anEdge() const { return m_e == ET_BOTHEDGE || m_e == ET_POSEDGE || m_e == ET_NEGEDGE; }
-    VEdgeType invert() const {
-        switch (m_e) {
-        case ET_CHANGED: return ET_CHANGED;
-        case ET_BOTHEDGE: return ET_BOTHEDGE;
-        case ET_POSEDGE: return ET_NEGEDGE;
-        case ET_NEGEDGE: return ET_POSEDGE;
-        default: UASSERT_STATIC(0, "Inverting bad edgeType()"); return ET_NEGEDGE;
+    bool an_అంచు() స్థిరరాశి { తిరిగి m_e == ET_BOTHEDGE || m_e == ET_POSEDGE || m_e == ET_NEGEDGE; }
+    VEdgeType invert() స్థిరరాశి {
+        ఎంపిక (m_e) {
+        స్థితి ET_మారింది: తిరిగి ET_మారింది;
+        స్థితి ET_BOTHEDGE: తిరిగి ET_BOTHEDGE;
+        స్థితి ET_POSEDGE: తిరిగి ET_NEGEDGE;
+        స్థితి ET_NEGEDGE: తిరిగి ET_POSEDGE;
+        అప్రమేయ: UASSERT_STATIC(0, "Inverting bad edgeType()"); తిరిగి ET_NEGEDGE;
         }
     }
-    const char* ascii() const {
-        static constexpr const char* const names[]
+    స్థిరరాశి అక్షరం* ascii() స్థిరరాశి {
+        స్థిర constexpr స్థిరరాశి అక్షరం* స్థిరరాశి పేర్లు[]
             = {"CHANGED", "BOTH",       "POS",    "NEG",    "EVENT",   "TRUE",  "ET_INITIAL_NBA",
                "COMBO",   "COMBO_STAR", "HYBRID", "STATIC", "INITIAL", "FINAL", "NEVER"};
-        return names[m_e];
+        తిరిగి పేర్లు[m_e];
     }
-    const char* verilogKwd() const {
-        static constexpr const char* const names[] = {
+    స్థిరరాశి అక్షరం* verilogKwd() స్థిరరాశి {
+        స్థిర constexpr స్థిరరాశి అక్షరం* స్థిరరాశి పేర్లు[] = {
             "[changed]", "edge", "posedge",  "negedge",  "[event]",   "[true]",  "[initial_nba]",
             "*",         "*",    "[hybrid]", "[static]", "[initial]", "[final]", "[never]"};
-        return names[m_e];
+        తిరిగి పేర్లు[m_e];
     }
     // Return true iff this and the other have mutually exclusive transitions
-    bool exclusiveEdge(const VEdgeType& other) const {
-        switch (m_e) {
-        case VEdgeType::ET_POSEDGE:
-            if (other.m_e == VEdgeType::ET_NEGEDGE) return true;
-            break;
-        case VEdgeType::ET_NEGEDGE:
-            if (other.m_e == VEdgeType::ET_POSEDGE) return true;
-            break;
-        default: break;
+    bool exclusive_అంచు(స్థిరరాశి VEdgeType& other) స్థిరరాశి {
+        ఎంపిక (m_e) {
+        స్థితి VEdgeType::ET_POSEDGE:
+            ఒకవేళ (other.m_e == VEdgeType::ET_NEGEDGE) తిరిగి true;
+            ఆపు;
+        స్థితి VEdgeType::ET_NEGEDGE:
+            ఒకవేళ (other.m_e == VEdgeType::ET_POSEDGE) తిరిగి true;
+            ఆపు;
+        అప్రమేయ: ఆపు;
         }
-        return false;
+        తిరిగి false;
     }
     // cppcheck-suppress noExplicitConstructor
     constexpr VEdgeType(en _e)
         : m_e{_e} {}
-    explicit VEdgeType(int _e)
+    explicit VEdgeType(పూర్ణాంకం _e)
         : m_e(static_cast<en>(_e)) {}  // Need () or GCC 4.8 false warning
-    constexpr operator en() const { return m_e; }
+    constexpr క్రియాకారకం en() స్థిరరాశి { తిరిగి m_e; }
 };
-constexpr bool operator==(const VEdgeType& lhs, const VEdgeType& rhs) {
-    return lhs.m_e == rhs.m_e;
+constexpr bool క్రియాకారకం==(స్థిరరాశి VEdgeType& lhs, స్థిరరాశి VEdgeType& rhs) {
+    తిరిగి lhs.m_e == rhs.m_e;
 }
-constexpr bool operator==(const VEdgeType& lhs, VEdgeType::en rhs) { return lhs.m_e == rhs; }
-constexpr bool operator==(VEdgeType::en lhs, const VEdgeType& rhs) { return lhs == rhs.m_e; }
+constexpr bool క్రియాకారకం==(స్థిరరాశి VEdgeType& lhs, VEdgeType::en rhs) { తిరిగి lhs.m_e == rhs; }
+constexpr bool క్రియాకారకం==(VEdgeType::en lhs, స్థిరరాశి VEdgeType& rhs) { తిరిగి lhs == rhs.m_e; }
 
 // ######################################################################
 
 // Enumeration of the model's evaluation entry points. Fields:
 // is iterated, has triggers, takes 'firstIteration' flag, is slow
 // clang-format off
-#define FOR_EACH_EVAL(macro) \
+#నిర్వచించు FOR_EACH_EVAL(macro) \
     /*    id,        iterated,  hasTrigs, firstIt, slow */ \
     macro(STATIC,    false,     false,    false,   true) \
     macro(INITIAL,   false,     false,    false,   true) \
@@ -1718,115 +1718,115 @@ constexpr bool operator==(VEdgeType::en lhs, const VEdgeType& rhs) { return lhs 
 // clang-format on
 
 class VEval final {
-public:
-    enum en : uint8_t {
-#define VL_EVAL_ID(id, iterated, triggers, first, slow) id,
+బహిరంగ:
+    గణన en : uint8_t {
+#నిర్వచించు VL_EVAL_ID(id, iterated, triggers, మొదటి, slow) id,
         FOR_EACH_EVAL(VL_EVAL_ID)
-#undef VL_EVAL_ID
-            _ENUM_END
+#నిర్వచనం_రద్దు VL_EVAL_ID
+            ENUM_చివర
     };
-    enum en m_e;
+    గణన en m_e;
 
-    const char* ascii() const {
-        static constexpr const char* const values[] = {
-#define VL_EVAL_NAME(id, iterated, triggers, first, slow) #id,
+    స్థిరరాశి అక్షరం* ascii() స్థిరరాశి {
+        స్థిర constexpr స్థిరరాశి అక్షరం* స్థిరరాశి విలువలు[] = {
+#నిర్వచించు VL_EVAL_NAME(id, iterated, triggers, మొదటి, slow) #id,
             FOR_EACH_EVAL(VL_EVAL_NAME)
-#undef VL_EVAL_NAME
+#నిర్వచనం_రద్దు VL_EVAL_NAME
                 "_ENUM_END"  //
         };
-        return values[m_e];
+        తిరిగి విలువలు[m_e];
     }
-    bool isIterated() const {
-        static constexpr bool values[] = {
-#define VL_EVAL_IS_ITERATED(id, iterated, triggers, first, slow) iterated,
+    bool isIterated() స్థిరరాశి {
+        స్థిర constexpr bool విలువలు[] = {
+#నిర్వచించు VL_EVAL_IS_ITERATED(id, iterated, triggers, మొదటి, slow) iterated,
             FOR_EACH_EVAL(VL_EVAL_IS_ITERATED)
-#undef VL_EVAL_IS_ITERATED
+#నిర్వచనం_రద్దు VL_EVAL_IS_ITERATED
                 false  //
         };
-        return values[m_e];
+        తిరిగి విలువలు[m_e];
     }
-    bool hasTriggers() const {
-        static constexpr bool values[] = {
-#define VL_EVAL_HAS_TRIGGERS(id, iterated, triggers, first, slow) triggers,
+    bool hasTriggers() స్థిరరాశి {
+        స్థిర constexpr bool విలువలు[] = {
+#నిర్వచించు VL_EVAL_HAS_TRIGGERS(id, iterated, triggers, మొదటి, slow) triggers,
             FOR_EACH_EVAL(VL_EVAL_HAS_TRIGGERS)
-#undef VL_EVAL_HAS_TRIGGERS
+#నిర్వచనం_రద్దు VL_EVAL_HAS_TRIGGERS
                 false  //
         };
-        return values[m_e];
+        తిరిగి విలువలు[m_e];
     }
-    bool firstIteration() const {
-        static constexpr bool values[] = {
-#define VL_EVAL_FIRST(id, iterated, triggers, first, slow) first,
-            FOR_EACH_EVAL(VL_EVAL_FIRST)
-#undef VL_EVAL_FIRST
+    bool మొదటి_Iteration() స్థిరరాశి {
+        స్థిర constexpr bool విలువలు[] = {
+#నిర్వచించు VL_EVAL_మొదటి(id, iterated, triggers, మొదటి, slow) మొదటి,
+            FOR_EACH_EVAL(VL_EVAL_మొదటి)
+#నిర్వచనం_రద్దు VL_EVAL_మొదటి
                 false  //
         };
-        return values[m_e];
+        తిరిగి విలువలు[m_e];
     }
-    bool slow() const {
-        static constexpr bool values[] = {
-#define VL_EVAL_SLOW(id, iterated, triggers, first, slow) slow,
+    bool slow() స్థిరరాశి {
+        స్థిర constexpr bool విలువలు[] = {
+#నిర్వచించు VL_EVAL_SLOW(id, iterated, triggers, మొదటి, slow) slow,
             FOR_EACH_EVAL(VL_EVAL_SLOW)
-#undef VL_EVAL_SLOW
+#నిర్వచనం_రద్దు VL_EVAL_SLOW
                 false  //
         };
-        return values[m_e];
+        తిరిగి విలువలు[m_e];
     }
 
     // Short name
-    std::string tag() const { return VString::downcase(ascii()); }
+    std::string ట్యాగ్() స్థిరరాశి { తిరిగి VString::downcase(ascii()); }
     // Name of the generated entry point function
-    std::string funcName() const { return "_eval_" + tag(); }
+    std::string funcName() స్థిరరాశి { తిరిగి "_eval_" + ట్యాగ్(); }
     // Name of the VerilatedModel virtual method invoking the entry point
-    std::string evalMethod() const { return "eval" + capitalizedTag(); }
+    std::string eval_పద్ధతి() స్థిరరాశి { తిరిగి "eval" + capitalized_ట్యాగ్(); }
     // Name of the function dumping the triggers of this region
-    std::string dumpTriggersFuncName() const { return "_eval_dump_triggers__" + tag(); }
+    std::string dumpTriggersFuncName() స్థిరరాశి { తిరిగి "_eval_dump_triggers__" + ట్యాగ్(); }
     // Name of the VerilatedModel virtual method dumping this region's triggers
-    std::string dumpTriggersMethod() const { return "dumpTriggers" + capitalizedTag(); }
+    std::string dump_Triggers_పద్ధతి() స్థిరరాశి { తిరిగి "dumpTriggers" + capitalized_ట్యాగ్(); }
 
     // cppcheck-suppress noExplicitConstructor
     VEval(en _e)
         : m_e{_e} {}
-    explicit VEval(int _e)
+    explicit VEval(పూర్ణాంకం _e)
         : m_e(static_cast<en>(_e)) {}
-    operator en() const { return m_e; }
+    క్రియాకారకం en() స్థిరరాశి { తిరిగి m_e; }
 
-private:
-    std::string capitalizedTag() const {
-        const std::string name = ascii();
-        return name.substr(0, 1) + VString::downcase(name.substr(1));
+అంతరంగ:
+    std::string capitalized_ట్యాగ్() స్థిరరాశి {
+        స్థిరరాశి std::string name = ascii();
+        తిరిగి name.substr(0, 1) + VString::downcase(name.substr(1));
     }
 };
 
-#undef FOR_EACH_EVAL
+#నిర్వచనం_రద్దు FOR_EACH_EVAL
 
 // ######################################################################
 
 class VFwdType final {
-public:
-    enum en : uint8_t { NONE, ENUM, STRUCT, UNION, CLASS, INTERFACE_CLASS, GENERIC_INTERFACE };
-    enum en m_e;
-    const char* ascii() const {
-        static constexpr const char* const names[]
+బహిరంగ:
+    గణన en : uint8_t { NONE, ENUM, STRUCT, UNION, CLASS, INTERFACE_CLASS, GENERIC_INTERFACE };
+    గణన en m_e;
+    స్థిరరాశి అక్షరం* ascii() స్థిరరాశి {
+        స్థిర constexpr స్థిరరాశి అక్షరం* స్థిరరాశి పేర్లు[]
             = {"none", "enum", "struct", "union", "class", "interface class", "generic interface"};
-        return names[m_e];
+        తిరిగి పేర్లు[m_e];
     }
     VFwdType()
         : m_e{NONE} {}
     // cppcheck-suppress noExplicitConstructor
     constexpr VFwdType(en _e)
         : m_e{_e} {}
-    explicit VFwdType(int _e)
+    explicit VFwdType(పూర్ణాంకం _e)
         : m_e(static_cast<en>(_e)) {}  // Need () or GCC 4.8 false warning
-    constexpr operator en() const { return m_e; }
+    constexpr క్రియాకారకం en() స్థిరరాశి { తిరిగి m_e; }
     // Is a node type compatible with the declaration
-    bool isNodeCompatible(const AstNode* nodep) const;
+    bool is_కణుపు_Compatible(స్థిరరాశి Ast_కణుపు* nodep) స్థిరరాశి;
 };
-constexpr bool operator==(const VFwdType& lhs, const VFwdType& rhs) { return lhs.m_e == rhs.m_e; }
-constexpr bool operator==(const VFwdType& lhs, VFwdType::en rhs) { return lhs.m_e == rhs; }
-constexpr bool operator==(VFwdType::en lhs, const VFwdType& rhs) { return lhs == rhs.m_e; }
-inline std::ostream& operator<<(std::ostream& os, const VFwdType& rhs) {
-    return os << rhs.ascii();
+constexpr bool క్రియాకారకం==(స్థిరరాశి VFwdType& lhs, స్థిరరాశి VFwdType& rhs) { తిరిగి lhs.m_e == rhs.m_e; }
+constexpr bool క్రియాకారకం==(స్థిరరాశి VFwdType& lhs, VFwdType::en rhs) { తిరిగి lhs.m_e == rhs; }
+constexpr bool క్రియాకారకం==(VFwdType::en lhs, స్థిరరాశి VFwdType& rhs) { తిరిగి lhs == rhs.m_e; }
+అంతఃవరుస std::ostream& క్రియాకారకం<<(std::ostream& os, స్థిరరాశి VFwdType& rhs) {
+    తిరిగి os << rhs.ascii();
 }
 
 // ######################################################################
@@ -1837,23 +1837,23 @@ class VIsCached final {
     // else if cachedCnt == s_cachedCntGbl, then m_state is if cached
     uint64_t m_cachedCnt : 63;  // Mark of when cache was computed
     uint64_t m_state : 1;
-    static uint64_t s_cachedCntGbl;  // Global computed count
+    స్థిర uint64_t s_cachedCntGbl;  // Global computed count
 
-public:
+బహిరంగ:
     VIsCached()
         : m_cachedCnt{0}
         , m_state{0} {}
-    bool isCached() const { return m_cachedCnt == s_cachedCntGbl; }
-    bool get() const { return m_state; }
-    void set(bool flag) {
+    bool isCached() స్థిరరాశి { తిరిగి m_cachedCnt == s_cachedCntGbl; }
+    bool get() స్థిరరాశి { తిరిగి m_state; }
+    శూన్య సమితి(bool flag) {
         m_cachedCnt = s_cachedCntGbl;
         m_state = flag;
     }
-    void clearCache() {
+    శూన్య clearCache() {
         m_cachedCnt = 0;
         m_state = 0;
     }
-    static void clearCacheTree() {
+    స్థిర శూన్య clear_Cache_వృక్షం() {
         ++s_cachedCntGbl;
         // 64 bits so won't overflow
         // UASSERT_STATIC(s_cachedCntGbl < MAX_CNT, "Overflow of cache counting");
@@ -1864,83 +1864,83 @@ public:
 
 /// Join type
 class VJoinType final {
-public:
-    enum en : uint8_t { JOIN = 0, JOIN_ANY = 1, JOIN_NONE = 2 };
-    enum en m_e;
+బహిరంగ:
+    గణన en : uint8_t { JOIN = 0, JOIN_ANY = 1, JOIN_NONE = 2 };
+    గణన en m_e;
     // CONSTRUCTOR - note defaults to *UNKNOWN*
     VJoinType()
         : m_e{JOIN} {}
     // cppcheck-suppress noExplicitConstructor
     constexpr VJoinType(en _e)
         : m_e{_e} {}
-    explicit VJoinType(int _e)
+    explicit VJoinType(పూర్ణాంకం _e)
         : m_e(static_cast<en>(_e)) {}  // Need () or GCC 4.8 false warning
-    constexpr operator en() const { return m_e; }
-    const char* ascii() const {
-        static constexpr const char* const names[] = {"JOIN", "JOIN_ANY", "JOIN_NONE"};
-        return names[m_e];
+    constexpr క్రియాకారకం en() స్థిరరాశి { తిరిగి m_e; }
+    స్థిరరాశి అక్షరం* ascii() స్థిరరాశి {
+        స్థిర constexpr స్థిరరాశి అక్షరం* స్థిరరాశి పేర్లు[] = {"JOIN", "JOIN_ANY", "JOIN_NONE"};
+        తిరిగి పేర్లు[m_e];
     }
-    const char* verilogKwd() const {
-        static constexpr const char* const names[] = {"join", "join_any", "join_none"};
-        return names[m_e];
+    స్థిరరాశి అక్షరం* verilogKwd() స్థిరరాశి {
+        స్థిర constexpr స్థిరరాశి అక్షరం* స్థిరరాశి పేర్లు[] = {"join", "join_any", "join_none"};
+        తిరిగి పేర్లు[m_e];
     }
-    bool join() const { return m_e == JOIN; }
-    bool joinAny() const { return m_e == JOIN_ANY; }
-    bool joinNone() const { return m_e == JOIN_NONE; }
+    bool join() స్థిరరాశి { తిరిగి m_e == JOIN; }
+    bool joinAny() స్థిరరాశి { తిరిగి m_e == JOIN_ANY; }
+    bool joinNone() స్థిరరాశి { తిరిగి m_e == JOIN_NONE; }
 };
-constexpr bool operator==(const VJoinType& lhs, const VJoinType& rhs) {
-    return lhs.m_e == rhs.m_e;
+constexpr bool క్రియాకారకం==(స్థిరరాశి VJoinType& lhs, స్థిరరాశి VJoinType& rhs) {
+    తిరిగి lhs.m_e == rhs.m_e;
 }
-constexpr bool operator==(const VJoinType& lhs, VJoinType::en rhs) { return lhs.m_e == rhs; }
-constexpr bool operator==(VJoinType::en lhs, const VJoinType& rhs) { return lhs == rhs.m_e; }
-inline std::ostream& operator<<(std::ostream& os, const VJoinType& rhs) {
-    return os << rhs.ascii();
+constexpr bool క్రియాకారకం==(స్థిరరాశి VJoinType& lhs, VJoinType::en rhs) { తిరిగి lhs.m_e == rhs; }
+constexpr bool క్రియాకారకం==(VJoinType::en lhs, స్థిరరాశి VJoinType& rhs) { తిరిగి lhs == rhs.m_e; }
+అంతఃవరుస std::ostream& క్రియాకారకం<<(std::ostream& os, స్థిరరాశి VJoinType& rhs) {
+    తిరిగి os << rhs.ascii();
 }
 
 // ######################################################################
 
 class VLifetime final {
-public:
-    enum en : uint8_t {
+బహిరంగ:
+    గణన en : uint8_t {
         NONE,
         AUTOMATIC_EXPLICIT,  // Automatic assigned by user
         AUTOMATIC_IMPLICIT,  // AUtomatic propagated from above
         STATIC_EXPLICIT,  // Static assigned by user
         STATIC_IMPLICIT
     };  // Static propagated from above
-    enum en m_e;
-    const char* ascii() const {
-        static constexpr const char* const names[]
+    గణన en m_e;
+    స్థిరరాశి అక్షరం* ascii() స్థిరరాశి {
+        స్థిర constexpr స్థిరరాశి అక్షరం* స్థిరరాశి పేర్లు[]
             = {"NONE", "VAUTOM", "VAUTOMI", "VSTATIC", "VSTATICI"};
-        return names[m_e];
+        తిరిగి పేర్లు[m_e];
     }
     VLifetime()
         : m_e{NONE} {}
     // cppcheck-suppress noExplicitConstructor
     constexpr VLifetime(en _e)
         : m_e{_e} {}
-    explicit VLifetime(int _e)
+    explicit VLifetime(పూర్ణాంకం _e)
         : m_e(static_cast<en>(_e)) {}  // Need () or GCC 4.8 false warning
-    constexpr operator en() const { return m_e; }
-    bool isNone() const { return m_e == NONE; }
-    bool isAutomatic() const { return m_e == AUTOMATIC_EXPLICIT || m_e == AUTOMATIC_IMPLICIT; }
-    bool isStatic() const { return m_e == STATIC_EXPLICIT || m_e == STATIC_IMPLICIT; }
-    bool isStaticExplicit() const { return m_e == STATIC_EXPLICIT; }
-    VLifetime makeImplicit() const {
-        switch (m_e) {
-        case AUTOMATIC_EXPLICIT: return AUTOMATIC_IMPLICIT;
-        case STATIC_EXPLICIT: return STATIC_IMPLICIT;
-        default: return m_e;
+    constexpr క్రియాకారకం en() స్థిరరాశి { తిరిగి m_e; }
+    bool isNone() స్థిరరాశి { తిరిగి m_e == NONE; }
+    bool isAutomatic() స్థిరరాశి { తిరిగి m_e == AUTOMATIC_EXPLICIT || m_e == AUTOMATIC_IMPLICIT; }
+    bool isStatic() స్థిరరాశి { తిరిగి m_e == STATIC_EXPLICIT || m_e == STATIC_IMPLICIT; }
+    bool isStaticExplicit() స్థిరరాశి { తిరిగి m_e == STATIC_EXPLICIT; }
+    VLifetime makeImplicit() స్థిరరాశి {
+        ఎంపిక (m_e) {
+        స్థితి AUTOMATIC_EXPLICIT: తిరిగి AUTOMATIC_IMPLICIT;
+        స్థితి STATIC_EXPLICIT: తిరిగి STATIC_IMPLICIT;
+        అప్రమేయ: తిరిగి m_e;
         }
     }
 };
-constexpr bool operator==(const VLifetime& lhs, const VLifetime& rhs) {
-    return lhs.m_e == rhs.m_e;
+constexpr bool క్రియాకారకం==(స్థిరరాశి VLifetime& lhs, స్థిరరాశి VLifetime& rhs) {
+    తిరిగి lhs.m_e == rhs.m_e;
 }
-constexpr bool operator==(const VLifetime& lhs, VLifetime::en rhs) { return lhs.m_e == rhs; }
-constexpr bool operator==(VLifetime::en lhs, const VLifetime& rhs) { return lhs == rhs.m_e; }
-inline std::ostream& operator<<(std::ostream& os, const VLifetime& rhs) {
-    return os << rhs.ascii();
+constexpr bool క్రియాకారకం==(స్థిరరాశి VLifetime& lhs, VLifetime::en rhs) { తిరిగి lhs.m_e == rhs; }
+constexpr bool క్రియాకారకం==(VLifetime::en lhs, స్థిరరాశి VLifetime& rhs) { తిరిగి lhs == rhs.m_e; }
+అంతఃవరుస std::ostream& క్రియాకారకం<<(std::ostream& os, స్థిరరాశి VLifetime& rhs) {
+    తిరిగి os << rhs.ascii();
 }
 
 // ######################################################################
@@ -1948,126 +1948,126 @@ inline std::ostream& operator<<(std::ostream& os, const VLifetime& rhs) {
 //  See also AstRange, which is a symbolic version of this
 
 class VNumRange final {
-public:
+బహిరంగ:
     // Iterable sequence of integers
     class Sequence final {
         class Iterator final {
-            int m_index;  // Current index
-            const int m_inc;  // Step, +1 or -1
-        public:
-            Iterator(int index, int inc)
-                : m_index{index}
+            పూర్ణాంకం m_సూచీ;  // Current index
+            స్థిరరాశి పూర్ణాంకం m_inc;  // Step, +1 or -1
+        బహిరంగ:
+            Iterator(పూర్ణాంకం సూచీ, పూర్ణాంకం inc)
+                : m_సూచీ{సూచీ}
                 , m_inc{inc} {}
-            int operator*() const { return m_index; }
-            Iterator& operator++() {
-                m_index += m_inc;
-                return *this;
+            పూర్ణాంకం క్రియాకారకం*() స్థిరరాశి { తిరిగి m_సూచీ; }
+            Iterator& క్రియాకారకం++() {
+                m_సూచీ += m_inc;
+                తిరిగి *this;
             }
-            bool operator!=(const Iterator& that) const { return m_index != that.m_index; }
+            bool క్రియాకారకం!=(స్థిరరాశి Iterator& that) స్థిరరాశి { తిరిగి m_సూచీ != that.m_సూచీ; }
         };
-        const int m_begin;  // First index
-        const int m_end;  // One past the last index
-        const int m_inc;  // Step, +1 or -1
-    public:
-        Sequence(int first, int last, int inc)
-            : m_begin{first}
-            , m_end{last + inc}
+        స్థిరరాశి పూర్ణాంకం m_begin;  // First index
+        స్థిరరాశి పూర్ణాంకం m_చివర;  // One past the last index
+        స్థిరరాశి పూర్ణాంకం m_inc;  // Step, +1 or -1
+    బహిరంగ:
+        Sequence(పూర్ణాంకం మొదటి, పూర్ణాంకం చివరి, పూర్ణాంకం inc)
+            : m_begin{మొదటి}
+            , m_చివర{చివరి + inc}
             , m_inc{inc} {}
-        Iterator begin() const { return Iterator{m_begin, m_inc}; }
-        Iterator end() const { return Iterator{m_end, m_inc}; }
+        Iterator begin() స్థిరరాశి { తిరిగి Iterator{m_begin, m_inc}; }
+        Iterator చివర() స్థిరరాశి { తిరిగి Iterator{m_చివర, m_inc}; }
     };
 
-    int m_left = 0;  // Left side of range (pre-':')
-    int m_right = 0;  // Right side of range (post-':')
+    పూర్ణాంకం m_ఎడమ = 0;  // Left side of range (pre-':')
+    పూర్ణాంకం m_కుడి = 0;  // Right side of range (post-':')
     bool m_ranged = false;  // Has a range
-    bool operator==(const VNumRange& rhs) const {
-        return m_left == rhs.m_left && m_right == rhs.m_right && m_ranged == rhs.m_ranged;
+    bool క్రియాకారకం==(స్థిరరాశి VNumRange& rhs) స్థిరరాశి {
+        తిరిగి m_ఎడమ == rhs.m_ఎడమ && m_కుడి == rhs.m_కుడి && m_ranged == rhs.m_ranged;
     }
-    bool operator<(const VNumRange& rhs) const {
-        if ((m_left < rhs.m_left)) return true;
-        if (!(m_left == rhs.m_left)) return false;  // lhs > rhs
-        if ((m_right < rhs.m_right)) return true;
-        if (!(m_right == rhs.m_right)) return false;  // lhs > rhs
-        if ((m_ranged < rhs.m_ranged)) return true;
-        if (!(m_ranged == rhs.m_ranged)) return false;  // lhs > rhs
-        return false;
+    bool క్రియాకారకం<(స్థిరరాశి VNumRange& rhs) స్థిరరాశి {
+        ఒకవేళ ((m_ఎడమ < rhs.m_ఎడమ)) తిరిగి true;
+        ఒకవేళ (!(m_ఎడమ == rhs.m_ఎడమ)) తిరిగి false;  // lhs > rhs
+        ఒకవేళ ((m_కుడి < rhs.m_కుడి)) తిరిగి true;
+        ఒకవేళ (!(m_కుడి == rhs.m_కుడి)) తిరిగి false;  // lhs > rhs
+        ఒకవేళ ((m_ranged < rhs.m_ranged)) తిరిగి true;
+        ఒకవేళ (!(m_ranged == rhs.m_ranged)) తిరిగి false;  // lhs > rhs
+        తిరిగి false;
     }
     //
-    VNumRange() = default;
-    VNumRange(int hi, int lo, bool ascending) { init(hi, lo, ascending); }
-    VNumRange(int left, int right)
-        : m_left{left}
-        , m_right{right}
+    VNumRange() = అప్రమేయ;
+    VNumRange(పూర్ణాంకం hi, పూర్ణాంకం lo, bool ascending) { init(hi, lo, ascending); }
+    VNumRange(పూర్ణాంకం ఎడమ_2, పూర్ణాంకం కుడి_2)
+        : m_ఎడమ{ఎడమ_2}
+        , m_కుడి{కుడి_2}
         , m_ranged{true} {}
-    ~VNumRange() = default;
+    ~VNumRange() = అప్రమేయ;
     // MEMBERS
-    void init(int hi, int lo, bool ascending) {
-        if (lo > hi) std::swap(hi, lo);
-        m_left = ascending ? lo : hi;
-        m_right = ascending ? hi : lo;
+    శూన్య init(పూర్ణాంకం hi, పూర్ణాంకం lo, bool ascending) {
+        ఒకవేళ (lo > hi) std::మార్పిడి(hi, lo);
+        m_ఎడమ = ascending ? lo : hi;
+        m_కుడి = ascending ? hi : lo;
         m_ranged = true;
     }
-    int left() const { return m_left; }
-    int right() const { return m_right; }
-    int hi() const VL_MT_SAFE {
-        return m_left > m_right ? m_left : m_right;
+    పూర్ణాంకం ఎడమ_2() స్థిరరాశి { తిరిగి m_ఎడమ; }
+    పూర్ణాంకం కుడి_2() స్థిరరాశి { తిరిగి m_కుడి; }
+    పూర్ణాంకం hi() స్థిరరాశి VL_MT_సురక్షిత {
+        తిరిగి m_ఎడమ > m_కుడి ? m_ఎడమ : m_కుడి;
     }  // How to show a declaration
-    int lo() const VL_MT_SAFE {
-        return m_left > m_right ? m_right : m_left;
+    పూర్ణాంకం lo() స్థిరరాశి VL_MT_సురక్షిత {
+        తిరిగి m_ఎడమ > m_కుడి ? m_కుడి : m_ఎడమ;
     }  // How to show a declaration
-    int leftToRightInc() const { return ascending() ? 1 : -1; }
+    పూర్ణాంకం ఎడమ_గమ్యం_కుడి_Inc() స్థిరరాశి { తిరిగి ascending() ? 1 : -1; }
     // Iterate indices from left() to right() inclusive: 'for (int i : range.seqLeftToRight())'
-    Sequence seqLeftToRight() const { return {m_left, m_right, leftToRightInc()}; }
+    Sequence seq_ఎడమ_గమ్యం_కుడి() స్థిరరాశి { తిరిగి {m_ఎడమ, m_కుడి, ఎడమ_గమ్యం_కుడి_Inc()}; }
     // Iterate indices from right() to left() inclusive: 'for (int i : range.seqRightToLeft())'
-    Sequence seqRightToLeft() const { return {m_right, m_left, -leftToRightInc()}; }
+    Sequence seq_కుడి_గమ్యం_ఎడమ() స్థిరరాశి { తిరిగి {m_కుడి, m_ఎడమ, -ఎడమ_గమ్యం_కుడి_Inc()}; }
     // Iterate indices from lo() to hi() inclusive: 'for (int i : range.seqLoToHi())'
-    Sequence seqLoToHi() const { return {lo(), hi(), 1}; }
+    Sequence seq_Lo_గమ్యం_Hi() స్థిరరాశి { తిరిగి {lo(), hi(), 1}; }
     // Iterate indices from hi() to lo() inclusive: 'for (int i : range.seqHiToLo())'
-    Sequence seqHiToLo() const { return {hi(), lo(), -1}; }
-    int elements() const VL_MT_SAFE { return hi() - lo() + 1; }
-    bool ranged() const { return m_ranged; }
-    bool ascending() const { return m_left < m_right; }
-    int hiMaxSelect() const {
-        return (lo() < 0 ? hi() - lo() : hi());
+    Sequence seq_Hi_గమ్యం_Lo() స్థిరరాశి { తిరిగి {hi(), lo(), -1}; }
+    పూర్ణాంకం elements() స్థిరరాశి VL_MT_సురక్షిత { తిరిగి hi() - lo() + 1; }
+    bool ranged() స్థిరరాశి { తిరిగి m_ranged; }
+    bool ascending() స్థిరరాశి { తిరిగి m_ఎడమ < m_కుడి; }
+    పూర్ణాంకం hiMaxSelect() స్థిరరాశి {
+        తిరిగి (lo() < 0 ? hi() - lo() : hi());
     }  // Maximum value a [] select may index
-    string ascii() const {
-        if (ranged()) {
-            return "["s + std::to_string(left()) + ":" + std::to_string(right()) + "]";
-        } else {
-            return "[norg]";
+    string ascii() స్థిరరాశి {
+        ఒకవేళ (ranged()) {
+            తిరిగి "["s + std::గమ్యం_string(ఎడమ_2()) + ":" + std::గమ్యం_string(కుడి_2()) + "]";
+        } లేకపోతే {
+            తిరిగి "[norg]";
         }
     }
-    void dump(std::ostream& str) const { str << ascii(); }
+    శూన్య dump(std::ostream& str) స్థిరరాశి { str << ascii(); }
 };
-inline std::ostream& operator<<(std::ostream& os, const VNumRange& rhs) {
+అంతఃవరుస std::ostream& క్రియాకారకం<<(std::ostream& os, స్థిరరాశి VNumRange& rhs) {
     rhs.dump(os);
-    return os;
+    తిరిగి os;
 }
 
 // ######################################################################
 
 class VPragmaType final {
-public:
-    enum en : uint8_t {
-        COVERAGE_BLOCK_OFF,
-        HIER_BLOCK,
+బహిరంగ:
+    గణన en : uint8_t {
+        COVERAGE_ఖండం_OFF,
+        HIER_ఖండం,
         HIER_PARAMS,
         INLINE_MODULE,
         NO_INLINE_MODULE,
         NO_INLINE_TASK,
-        PUBLIC_MODULE,
-        PUBLIC_TASK,
-        TIMEUNIT_SET,
+        ప్రజా_MODULE,
+        ప్రజా_TASK,
+        TIMEUNIT_సమితి,
         UNROLL_DISABLE,
-        UNROLL_FULL,
-        FULL_CASE,
+        UNROLL_నిండిన,
+        నిండిన_CASE,
         PARALLEL_CASE,
         VERILATOR_LIB,
-        _ENUM_SIZE
+        ENUM_కొలత
     };
-    enum en m_e;
-    const char* ascii() const {
-        static constexpr const char* const names[] = {
+    గణన en m_e;
+    స్థిరరాశి అక్షరం* ascii() స్థిరరాశి {
+        స్థిర constexpr స్థిరరాశి అక్షరం* స్థిరరాశి పేర్లు[] = {
             "COVERAGE_BLOCK_OFF",  //
             "HIER_BLOCK",  //
             "HIER_PARAMS",  //
@@ -2084,52 +2084,52 @@ public:
             "VERILATOR_LIB",  //
             "_ENUM_SIZE"  //
         };
-        return names[m_e];
+        తిరిగి పేర్లు[m_e];
     }
     // cppcheck-suppress noExplicitConstructor
     constexpr VPragmaType(en _e)
         : m_e{_e} {}
-    explicit VPragmaType(int _e)
+    explicit VPragmaType(పూర్ణాంకం _e)
         : m_e(static_cast<en>(_e)) {}  // Need () or GCC 4.8 false warning
-    constexpr operator en() const { return m_e; }
+    constexpr క్రియాకారకం en() స్థిరరాశి { తిరిగి m_e; }
 };
-constexpr bool operator==(const VPragmaType& lhs, const VPragmaType& rhs) {
-    return lhs.m_e == rhs.m_e;
+constexpr bool క్రియాకారకం==(స్థిరరాశి VPragmaType& lhs, స్థిరరాశి VPragmaType& rhs) {
+    తిరిగి lhs.m_e == rhs.m_e;
 }
-constexpr bool operator==(const VPragmaType& lhs, VPragmaType::en rhs) { return lhs.m_e == rhs; }
-constexpr bool operator==(VPragmaType::en lhs, const VPragmaType& rhs) { return lhs == rhs.m_e; }
-inline std::ostream& operator<<(std::ostream& os, const VPragmaType& rhs) {
-    return os << rhs.ascii();
+constexpr bool క్రియాకారకం==(స్థిరరాశి VPragmaType& lhs, VPragmaType::en rhs) { తిరిగి lhs.m_e == rhs; }
+constexpr bool క్రియాకారకం==(VPragmaType::en lhs, స్థిరరాశి VPragmaType& rhs) { తిరిగి lhs == rhs.m_e; }
+అంతఃవరుస std::ostream& క్రియాకారకం<<(std::ostream& os, స్థిరరాశి VPragmaType& rhs) {
+    తిరిగి os << rhs.ascii();
 }
 
 // ######################################################################
 // Defines what kind of randomization is done on a variable
 
 class VRandAttr final {
-public:
-    enum en : uint8_t {
+బహిరంగ:
+    గణన en : uint8_t {
         NONE,  // Not randomizable
         RAND,  // Has a rand modifier
         RAND_CYCLIC,  // Has a randc modifier
         RAND_INLINE  // Not rand/randc, but used in inline random variable control
     };
-    enum en m_e;
-    const char* ascii() const {
-        static constexpr const char* const names[] = {"NONE", "RAND", "RANDC", "RAND_INLINE"};
-        return names[m_e];
+    గణన en m_e;
+    స్థిరరాశి అక్షరం* ascii() స్థిరరాశి {
+        స్థిర constexpr స్థిరరాశి అక్షరం* స్థిరరాశి పేర్లు[] = {"NONE", "RAND", "RANDC", "RAND_INLINE"};
+        తిరిగి పేర్లు[m_e];
     }
     VRandAttr()
         : m_e{NONE} {}
     // cppcheck-suppress noExplicitConstructor
     constexpr VRandAttr(en _e)
         : m_e{_e} {}
-    constexpr operator en() const { return m_e; }
-    bool isRandomizable() const { return m_e != NONE; }
-    bool isRand() const { return m_e == RAND || m_e == RAND_CYCLIC; }
-    bool isRandC() const { return m_e == RAND_CYCLIC; }
+    constexpr క్రియాకారకం en() స్థిరరాశి { తిరిగి m_e; }
+    bool isRandomizable() స్థిరరాశి { తిరిగి m_e != NONE; }
+    bool isRand() స్థిరరాశి { తిరిగి m_e == RAND || m_e == RAND_CYCLIC; }
+    bool isRandC() స్థిరరాశి { తిరిగి m_e == RAND_CYCLIC; }
 };
-inline std::ostream& operator<<(std::ostream& os, const VRandAttr& rhs) {
-    return os << rhs.ascii();
+అంతఃవరుస std::ostream& క్రియాకారకం<<(std::ostream& os, స్థిరరాశి VRandAttr& rhs) {
+    తిరిగి os << rhs.ascii();
 }
 
 // ######################################################################
@@ -2137,110 +2137,110 @@ inline std::ostream& operator<<(std::ostream& os, const VRandAttr& rhs) {
 //  serve as a pointer to a 'self' object. For example, it could be empty (no self pointer), or the
 //  string 'this', or 'vlSymsp->...'
 
-class VSelfPointerText final {
+class VSelf_సూచిక_పాఠ్యం final {
     // STATIC MEMBERS
     // Keep these in shared pointers to avoid branching for special cases
-    static const std::shared_ptr<const string> s_emptyp;  // Holds ""
-    static const std::shared_ptr<const string> s_thisp;  // Holds "this"
+    స్థిర స్థిరరాశి std::shared_ptr<స్థిరరాశి string> s_emptyp;  // Holds ""
+    స్థిర స్థిరరాశి std::shared_ptr<స్థిరరాశి string> s_thisp;  // Holds "this"
 
     // MEMBERS
-    std::shared_ptr<const string> m_strp;
+    std::shared_ptr<స్థిరరాశి string> m_strp;
 
-public:
+బహిరంగ:
     // CONSTRUCTORS
-    class Empty {};  // for creator type-overload selection
-    explicit VSelfPointerText(Empty)
+    class ఖాళీలు_2 {};  // for creator type-overload selection
+    explicit VSelf_సూచిక_పాఠ్యం(ఖాళీలు_2)
         : m_strp{s_emptyp} {}
     class This {};  // for creator type-overload selection
-    explicit VSelfPointerText(This)
+    explicit VSelf_సూచిక_పాఠ్యం(This)
         : m_strp{s_thisp} {}
-    VSelfPointerText(This, const string& field)
-        : m_strp{std::make_shared<const string>("this->" + field)} {}
+    VSelf_సూచిక_పాఠ్యం(This, స్థిరరాశి string& క్షేత్రం)
+        : m_strp{std::make_shared<స్థిరరాశి string>("this->" + క్షేత్రం)} {}
     class VlSyms {};  // for creator type-overload selection
-    VSelfPointerText(VlSyms, const string& field)
-        : m_strp{std::make_shared<const string>("(&vlSymsp->vlInst." + field + ')')} {}
+    VSelf_సూచిక_పాఠ్యం(VlSyms, స్థిరరాశి string& క్షేత్రం)
+        : m_strp{std::make_shared<స్థిరరాశి string>("(&vlSymsp->vlInst." + క్షేత్రం + ')')} {}
 
     // METHODS
-    bool isEmpty() const { return m_strp == s_emptyp; }
-    bool isVlSym() const { return m_strp->find("vlSymsp") != string::npos; }
-    bool hasThis() const { return m_strp == s_thisp || VString::startsWith(*m_strp, "this"); }
-    string protect(bool useSelfForThis, bool protect) const;
-    static string replaceThis(bool useSelfForThis, const string& text);
-    const std::string& asString() const { return *m_strp; }
-    bool operator==(const VSelfPointerText& other) const { return *m_strp == *other.m_strp; }
+    bool is_ఖాళీలు() స్థిరరాశి { తిరిగి m_strp == s_emptyp; }
+    bool isVlSym() స్థిరరాశి { తిరిగి m_strp->కనుగొను("vlSymsp") != string::npos; }
+    bool hasThis() స్థిరరాశి { తిరిగి m_strp == s_thisp || VString::startsWith(*m_strp, "this"); }
+    string protect(bool useSelfForThis, bool protect) స్థిరరాశి;
+    స్థిర string replaceThis(bool useSelfForThis, స్థిరరాశి string& పాఠ్యం);
+    స్థిరరాశి std::string& asString() స్థిరరాశి { తిరిగి *m_strp; }
+    bool క్రియాకారకం==(స్థిరరాశి VSelf_సూచిక_పాఠ్యం& other) స్థిరరాశి { తిరిగి *m_strp == *other.m_strp; }
 };
 
 // ######################################################################
 
 class VSigning final {
-public:
-    enum en : uint8_t {
+బహిరంగ:
+    గణన en : uint8_t {
         UNSIGNED,
         SIGNED,
         NOSIGN,
         _ENUM_MAX  // Leave last
     };
-    enum en m_e;
-    const char* ascii() const {
-        static constexpr const char* const names[] = {"UNSIGNED", "SIGNED", "NOSIGN"};
-        return names[m_e];
+    గణన en m_e;
+    స్థిరరాశి అక్షరం* ascii() స్థిరరాశి {
+        స్థిర constexpr స్థిరరాశి అక్షరం* స్థిరరాశి పేర్లు[] = {"UNSIGNED", "SIGNED", "NOSIGN"};
+        తిరిగి పేర్లు[m_e];
     }
     VSigning()
         : m_e{UNSIGNED} {}
     // cppcheck-suppress noExplicitConstructor
     constexpr VSigning(en _e)
         : m_e{_e} {}
-    static VSigning fromBool(bool isSigned) {  // Factory method
-        return isSigned ? VSigning{SIGNED} : VSigning{UNSIGNED};
+    స్థిర VSigning fromBool(bool isSigned) {  // Factory method
+        తిరిగి isSigned ? VSigning{SIGNED} : VSigning{UNSIGNED};
     }
-    explicit VSigning(int _e)
+    explicit VSigning(పూర్ణాంకం _e)
         : m_e(static_cast<en>(_e)) {}  // Need () or GCC 4.8 false warning
-    constexpr operator en() const { return m_e; }
-    bool isSigned() const VL_MT_SAFE { return m_e == SIGNED; }
-    bool isNosign() const VL_MT_SAFE { return m_e == NOSIGN; }
+    constexpr క్రియాకారకం en() స్థిరరాశి { తిరిగి m_e; }
+    bool isSigned() స్థిరరాశి VL_MT_సురక్షిత { తిరిగి m_e == SIGNED; }
+    bool isNosign() స్థిరరాశి VL_MT_సురక్షిత { తిరిగి m_e == NOSIGN; }
     // No isUnsigned() as it's ambiguous if NOSIGN should be included or not.
 };
-constexpr bool operator==(const VSigning& lhs, const VSigning& rhs) { return lhs.m_e == rhs.m_e; }
-constexpr bool operator==(const VSigning& lhs, VSigning::en rhs) { return lhs.m_e == rhs; }
-constexpr bool operator==(VSigning::en lhs, const VSigning& rhs) { return lhs == rhs.m_e; }
-inline std::ostream& operator<<(std::ostream& os, const VSigning& rhs) {
-    return os << rhs.ascii();
+constexpr bool క్రియాకారకం==(స్థిరరాశి VSigning& lhs, స్థిరరాశి VSigning& rhs) { తిరిగి lhs.m_e == rhs.m_e; }
+constexpr bool క్రియాకారకం==(స్థిరరాశి VSigning& lhs, VSigning::en rhs) { తిరిగి lhs.m_e == rhs; }
+constexpr bool క్రియాకారకం==(VSigning::en lhs, స్థిరరాశి VSigning& rhs) { తిరిగి lhs == rhs.m_e; }
+అంతఃవరుస std::ostream& క్రియాకారకం<<(std::ostream& os, స్థిరరాశి VSigning& rhs) {
+    తిరిగి os << rhs.ascii();
 }
 
 // ######################################################################
 
 class VStrength final {
-public:
-    enum en : uint8_t { HIGHZ, SMALL, MEDIUM, WEAK, LARGE, PULL, STRONG, SUPPLY };
-    enum en m_e;
+బహిరంగ:
+    గణన en : uint8_t { HIGHZ, SMALL, MEDIUM, WEAK, LARGE, PULL, STRONG, SUPPLY };
+    గణన en m_e;
 
     // cppcheck-suppress noExplicitConstructor
     constexpr VStrength(en strengthLevel)
         : m_e{strengthLevel} {}
-    explicit VStrength(int _e)
+    explicit VStrength(పూర్ణాంకం _e)
         : m_e(static_cast<en>(_e)) {}  // Need () or GCC 4.8 false warning
-    constexpr operator en() const { return m_e; }
-    const char* ascii() const {
-        static constexpr const char* const names[]
+    constexpr క్రియాకారకం en() స్థిరరాశి { తిరిగి m_e; }
+    స్థిరరాశి అక్షరం* ascii() స్థిరరాశి {
+        స్థిర constexpr స్థిరరాశి అక్షరం* స్థిరరాశి పేర్లు[]
             = {"highz", "small", "medium", "weak", "large", "pull", "strong", "supply"};
-        return names[m_e];
+        తిరిగి పేర్లు[m_e];
     }
 };
-constexpr bool operator==(const VStrength& lhs, const VStrength& rhs) {
-    return lhs.m_e == rhs.m_e;
+constexpr bool క్రియాకారకం==(స్థిరరాశి VStrength& lhs, స్థిరరాశి VStrength& rhs) {
+    తిరిగి lhs.m_e == rhs.m_e;
 }
-constexpr bool operator==(const VStrength& lhs, VStrength::en rhs) { return lhs.m_e == rhs; }
-constexpr bool operator==(VStrength::en lhs, const VStrength& rhs) { return lhs == rhs.m_e; }
-inline std::ostream& operator<<(std::ostream& os, const VStrength& rhs) {
-    return os << rhs.ascii();
+constexpr bool క్రియాకారకం==(స్థిరరాశి VStrength& lhs, VStrength::en rhs) { తిరిగి lhs.m_e == rhs; }
+constexpr bool క్రియాకారకం==(VStrength::en lhs, స్థిరరాశి VStrength& rhs) { తిరిగి lhs == rhs.m_e; }
+అంతఃవరుస std::ostream& క్రియాకారకం<<(std::ostream& os, స్థిరరాశి VStrength& rhs) {
+    తిరిగి os << rhs.ascii();
 }
 
 // ######################################################################
 //  VSystemCSectionType - Represents the type of a `systemc_* block (Verilator specific extension)
 
 class VSystemCSectionType final {
-public:
-    enum en : uint8_t {
+బహిరంగ:
+    గణన en : uint8_t {
         CTOR,  // `systemc_ctor
         DTOR,  // `systemc_dtor
         HDR,  // `systemc_header
@@ -2249,28 +2249,28 @@ public:
         IMP_HDR,  // `systemc_imp_header
         INT  // `systemc_interface
     };
-    enum en m_e;
-    const char* ascii() const {
-        static constexpr const char* const names[] = {"`systemc_ctor",  //
+    గణన en m_e;
+    స్థిరరాశి అక్షరం* ascii() స్థిరరాశి {
+        స్థిర constexpr స్థిరరాశి అక్షరం* స్థిరరాశి పేర్లు[] = {"`systemc_ctor",  //
                                                       "`systemc_dtor",  //
                                                       "`systemc_header",  //
                                                       "`systemc_header_post",  //
                                                       "`systemc_implementation",  //
                                                       "`systemc_imp_header",  //
                                                       "`systemc_interface"};
-        return names[m_e];
+        తిరిగి పేర్లు[m_e];
     }
     // cppcheck-suppress noExplicitConstructor
     constexpr VSystemCSectionType(en _e)
         : m_e{_e} {}
-    constexpr operator en() const { return m_e; }
+    constexpr క్రియాకారకం en() స్థిరరాశి { తిరిగి m_e; }
 };
 
 //######################################################################
 
-class VTracePrefixType final {
-public:
-    enum en : uint8_t {
+class VTrace_ఉపసర్గ_Type final {
+బహిరంగ:
+    గణన en : uint8_t {
         // Note: Entries must match VerilatedTracePrefixType
         ARRAY_PACKED,
         ARRAY_UNPACKED,
@@ -2280,109 +2280,109 @@ public:
         STRUCT_UNPACKED,
         UNION_PACKED,
     };
-    enum en m_e;
+    గణన en m_e;
     // cppcheck-suppress noExplicitConstructor
-    constexpr VTracePrefixType(en _e)
+    constexpr VTrace_ఉపసర్గ_Type(en _e)
         : m_e{_e} {}
-    constexpr operator en() const { return m_e; }
-    const char* ascii() const {
-        static constexpr const char* const names[]
+    constexpr క్రియాకారకం en() స్థిరరాశి { తిరిగి m_e; }
+    స్థిరరాశి అక్షరం* ascii() స్థిరరాశి {
+        స్థిర constexpr స్థిరరాశి అక్షరం* స్థిరరాశి పేర్లు[]
             = {"ARRAY_PACKED",  "ARRAY_UNPACKED",  "SCOPE_MODULE", "SCOPE_INTERFACE",
                "STRUCT_PACKED", "STRUCT_UNPACKED", "UNION_PACKED"};
-        return names[m_e];
+        తిరిగి పేర్లు[m_e];
     }
 };
-constexpr bool operator==(const VTracePrefixType& lhs, const VTracePrefixType& rhs) {
-    return lhs.m_e == rhs.m_e;
+constexpr bool క్రియాకారకం==(స్థిరరాశి VTrace_ఉపసర్గ_Type& lhs, స్థిరరాశి VTrace_ఉపసర్గ_Type& rhs) {
+    తిరిగి lhs.m_e == rhs.m_e;
 }
-constexpr bool operator==(const VTracePrefixType& lhs, VTracePrefixType::en rhs) {
-    return lhs.m_e == rhs;
+constexpr bool క్రియాకారకం==(స్థిరరాశి VTrace_ఉపసర్గ_Type& lhs, VTrace_ఉపసర్గ_Type::en rhs) {
+    తిరిగి lhs.m_e == rhs;
 }
-constexpr bool operator==(VTracePrefixType::en lhs, const VTracePrefixType& rhs) {
-    return lhs == rhs.m_e;
+constexpr bool క్రియాకారకం==(VTrace_ఉపసర్గ_Type::en lhs, స్థిరరాశి VTrace_ఉపసర్గ_Type& rhs) {
+    తిరిగి lhs == rhs.m_e;
 }
-inline std::ostream& operator<<(std::ostream& os, const VTracePrefixType& rhs) {
-    return os << rhs.ascii();
+అంతఃవరుస std::ostream& క్రియాకారకం<<(std::ostream& os, స్థిరరాశి VTrace_ఉపసర్గ_Type& rhs) {
+    తిరిగి os << rhs.ascii();
 }
 
 //######################################################################
 
 class VTraceType final {
-public:
-    enum en : uint8_t {
+బహిరంగ:
+    గణన en : uint8_t {
         CONSTANT,  // Constant value dump (once at the beginning)
-        FULL,  // Full value dump (always emitted)
+        నిండిన,  // Full value dump (always emitted)
         CHANGE  // Incremental value dump (emitted only if the value changed)
     };
-    enum en m_e;
+    గణన en m_e;
     VTraceType()
         : m_e{CONSTANT} {}
     // cppcheck-suppress noExplicitConstructor
     constexpr VTraceType(en _e)
         : m_e{_e} {}
-    explicit VTraceType(int _e)
+    explicit VTraceType(పూర్ణాంకం _e)
         : m_e(static_cast<en>(_e)) {}  // Need () or GCC 4.8 false warning
-    constexpr operator en() const { return m_e; }
-    const char* ascii() const {
-        static constexpr const char* const names[] = {"CONSTANT", "FULL", "CHANGE"};
-        return names[m_e];
+    constexpr క్రియాకారకం en() స్థిరరాశి { తిరిగి m_e; }
+    స్థిరరాశి అక్షరం* ascii() స్థిరరాశి {
+        స్థిర constexpr స్థిరరాశి అక్షరం* స్థిరరాశి పేర్లు[] = {"CONSTANT", "FULL", "CHANGE"};
+        తిరిగి పేర్లు[m_e];
     }
-    const char* func_prefix() const {
-        static constexpr const char* const names[] = {"trace_const", "trace_full", "trace_chg"};
-        return names[m_e];
+    స్థిరరాశి అక్షరం* func_ఉపసర్గ() స్థిరరాశి {
+        స్థిర constexpr స్థిరరాశి అక్షరం* స్థిరరాశి పేర్లు[] = {"trace_const", "trace_full", "trace_chg"};
+        తిరిగి పేర్లు[m_e];
     }
 };
-constexpr bool operator==(const VTraceType& lhs, const VTraceType& rhs) {
-    return lhs.m_e == rhs.m_e;
+constexpr bool క్రియాకారకం==(స్థిరరాశి VTraceType& lhs, స్థిరరాశి VTraceType& rhs) {
+    తిరిగి lhs.m_e == rhs.m_e;
 }
-constexpr bool operator==(const VTraceType& lhs, VTraceType::en rhs) { return lhs.m_e == rhs; }
-constexpr bool operator==(VTraceType::en lhs, const VTraceType& rhs) { return lhs == rhs.m_e; }
-inline std::ostream& operator<<(std::ostream& os, const VTraceType& rhs) {
-    return os << rhs.ascii();
+constexpr bool క్రియాకారకం==(స్థిరరాశి VTraceType& lhs, VTraceType::en rhs) { తిరిగి lhs.m_e == rhs; }
+constexpr bool క్రియాకారకం==(VTraceType::en lhs, స్థిరరాశి VTraceType& rhs) { తిరిగి lhs == rhs.m_e; }
+అంతఃవరుస std::ostream& క్రియాకారకం<<(std::ostream& os, స్థిరరాశి VTraceType& rhs) {
+    తిరిగి os << rhs.ascii();
 }
 
 //######################################################################
 
 class VUseType final {
-public:
-    enum en : uint8_t {
+బహిరంగ:
+    గణన en : uint8_t {
         // Enum values are compared with <, so order matters
         INT_FWD_CLASS = 1 << 0,  // Interface (.h) needs a forward class declaration
         INT_INCLUDE = 1 << 1,  // Interface (.h) needs an include
     };
-    enum en m_e;
+    గణన en m_e;
     VUseType()
         : m_e{INT_FWD_CLASS} {}
     // cppcheck-suppress noExplicitConstructor
     constexpr VUseType(en _e)
         : m_e{_e} {}
-    explicit VUseType(int _e)
+    explicit VUseType(పూర్ణాంకం _e)
         : m_e(static_cast<en>(_e)) {}  // Need () or GCC 4.8 false warning
-    constexpr operator en() const { return m_e; }
-    bool containsAny(VUseType other) const { return m_e & other.m_e; }
-    const char* ascii() const {
-        static constexpr const char* const names[] = {"INT_FWD", "INT_INC", "INT_FWD_INC"};
-        return names[m_e - 1];
+    constexpr క్రియాకారకం en() స్థిరరాశి { తిరిగి m_e; }
+    bool కలిగియుంది_Any(VUseType other) స్థిరరాశి { తిరిగి m_e & other.m_e; }
+    స్థిరరాశి అక్షరం* ascii() స్థిరరాశి {
+        స్థిర constexpr స్థిరరాశి అక్షరం* స్థిరరాశి పేర్లు[] = {"INT_FWD", "INT_INC", "INT_FWD_INC"};
+        తిరిగి పేర్లు[m_e - 1];
     }
 };
-constexpr bool operator==(const VUseType& lhs, const VUseType& rhs) { return lhs.m_e == rhs.m_e; }
-constexpr bool operator==(const VUseType& lhs, VUseType::en rhs) { return lhs.m_e == rhs; }
-constexpr bool operator==(VUseType::en lhs, const VUseType& rhs) { return lhs == rhs.m_e; }
-constexpr VUseType::en operator|(VUseType::en lhs, VUseType::en rhs) {
-    return VUseType::en(static_cast<uint8_t>(lhs) | static_cast<uint8_t>(rhs));
+constexpr bool క్రియాకారకం==(స్థిరరాశి VUseType& lhs, స్థిరరాశి VUseType& rhs) { తిరిగి lhs.m_e == rhs.m_e; }
+constexpr bool క్రియాకారకం==(స్థిరరాశి VUseType& lhs, VUseType::en rhs) { తిరిగి lhs.m_e == rhs; }
+constexpr bool క్రియాకారకం==(VUseType::en lhs, స్థిరరాశి VUseType& rhs) { తిరిగి lhs == rhs.m_e; }
+constexpr VUseType::en క్రియాకారకం|(VUseType::en lhs, VUseType::en rhs) {
+    తిరిగి VUseType::en(static_cast<uint8_t>(lhs) | static_cast<uint8_t>(rhs));
 }
-constexpr VUseType::en operator&(VUseType::en lhs, VUseType::en rhs) {
-    return VUseType::en(static_cast<uint8_t>(lhs) & static_cast<uint8_t>(rhs));
+constexpr VUseType::en క్రియాకారకం&(VUseType::en lhs, VUseType::en rhs) {
+    తిరిగి VUseType::en(static_cast<uint8_t>(lhs) & static_cast<uint8_t>(rhs));
 }
-inline std::ostream& operator<<(std::ostream& os, const VUseType& rhs) {
-    return os << rhs.ascii();
+అంతఃవరుస std::ostream& క్రియాకారకం<<(std::ostream& os, స్థిరరాశి VUseType& rhs) {
+    తిరిగి os << rhs.ascii();
 }
 
 // ######################################################################
 
 class VVarType final {
-public:
-    enum en : uint8_t {
+బహిరంగ:
+    గణన en : uint8_t {
         UNKNOWN,
         GPARAM,
         LPARAM,
@@ -2398,7 +2398,7 @@ public:
         TRIWIRE,
         TRI0,
         TRI1,
-        PORT,  // Used in parser to recognize ports
+        పోర్టు,  // Used in parser to recognize ports
         BLOCKTEMP,
         MODULETEMP,
         STMTTEMP,
@@ -2406,54 +2406,54 @@ public:
         IFACEREF,  // Used to link Interfaces between modules
         MEMBER
     };
-    enum en m_e;
-    VVarType() VL_MT_SAFE : m_e{UNKNOWN} {}
+    గణన en m_e;
+    VVarType() VL_MT_సురక్షిత : m_e{UNKNOWN} {}
     // cppcheck-suppress noExplicitConstructor
-    constexpr VVarType(en _e) VL_MT_SAFE : m_e{_e} {}
-    explicit VVarType(int _e)
+    constexpr VVarType(en _e) VL_MT_సురక్షిత : m_e{_e} {}
+    explicit VVarType(పూర్ణాంకం _e)
         : m_e(static_cast<en>(_e)) {}  // Need () or GCC 4.8 false warning
-    constexpr operator en() const { return m_e; }
-    const char* ascii() const {
-        static constexpr const char* const names[]
+    constexpr క్రియాకారకం en() స్థిరరాశి { తిరిగి m_e; }
+    స్థిరరాశి అక్షరం* ascii() స్థిరరాశి {
+        స్థిర constexpr స్థిరరాశి అక్షరం* స్థిరరాశి పేర్లు[]
             = {"?",        "GPARAM",  "LPARAM",   "SPECPARAM", "GENVAR",    "VAR",
                "SUPPLY0",  "SUPPLY1", "WIRE",     "WREAL",     "TRIAND",    "TRIOR",
                "TRIWIRE",  "TRI0",    "TRI1",     "PORT",      "BLOCKTEMP", "MODULETEMP",
                "STMTTEMP", "XTEMP",   "IFACEREF", "MEMBER"};
-        return names[m_e];
+        తిరిగి పేర్లు[m_e];
     }
-    bool isParam() const { return m_e == GPARAM || m_e == LPARAM; }
-    bool isSignal() const {
-        return (m_e == WIRE || m_e == WREAL || m_e == TRIWIRE || m_e == TRI0 || m_e == TRI1
-                || m_e == PORT || m_e == SUPPLY0 || m_e == SUPPLY1 || m_e == VAR || m_e == TRIOR
+    bool isParam() స్థిరరాశి { తిరిగి m_e == GPARAM || m_e == LPARAM; }
+    bool isSignal() స్థిరరాశి {
+        తిరిగి (m_e == WIRE || m_e == WREAL || m_e == TRIWIRE || m_e == TRI0 || m_e == TRI1
+                || m_e == పోర్టు || m_e == SUPPLY0 || m_e == SUPPLY1 || m_e == VAR || m_e == TRIOR
                 || m_e == TRIAND);
     }
-    bool isNet() const {
-        return (m_e == WIRE || m_e == TRIWIRE || m_e == TRI0 || m_e == TRI1 || m_e == SUPPLY0
+    bool isNet() స్థిరరాశి {
+        తిరిగి (m_e == WIRE || m_e == TRIWIRE || m_e == TRI0 || m_e == TRI1 || m_e == SUPPLY0
                 || m_e == SUPPLY1 || m_e == TRIOR || m_e == TRIAND);
     }
-    bool isWor() const { return (m_e == TRIOR); }
-    bool isWiredNet() const { return (m_e == TRIOR || m_e == TRIAND); }
-    bool isContAssignable() const {  // In Verilog, always ok in SystemVerilog
-        return (m_e == SUPPLY0 || m_e == SUPPLY1 || m_e == WIRE || m_e == WREAL || m_e == TRIWIRE
-                || m_e == TRI0 || m_e == TRI1 || m_e == PORT || m_e == BLOCKTEMP
+    bool isWor() స్థిరరాశి { తిరిగి (m_e == TRIOR); }
+    bool isWiredNet() స్థిరరాశి { తిరిగి (m_e == TRIOR || m_e == TRIAND); }
+    bool isContAssignable() స్థిరరాశి {  // In Verilog, always ok in SystemVerilog
+        తిరిగి (m_e == SUPPLY0 || m_e == SUPPLY1 || m_e == WIRE || m_e == WREAL || m_e == TRIWIRE
+                || m_e == TRI0 || m_e == TRI1 || m_e == పోర్టు || m_e == BLOCKTEMP
                 || m_e == MODULETEMP || m_e == STMTTEMP || m_e == XTEMP || m_e == IFACEREF);
     }
-    bool isProcAssignable() const {
-        return (m_e == GPARAM || m_e == LPARAM || m_e == GENVAR || m_e == VAR || m_e == BLOCKTEMP
+    bool isProcAssignable() స్థిరరాశి {
+        తిరిగి (m_e == GPARAM || m_e == LPARAM || m_e == GENVAR || m_e == VAR || m_e == BLOCKTEMP
                 || m_e == MODULETEMP || m_e == STMTTEMP || m_e == XTEMP || m_e == IFACEREF
                 || m_e == MEMBER);
     }
-    bool isTemp() const {
-        return (m_e == BLOCKTEMP || m_e == MODULETEMP || m_e == STMTTEMP || m_e == XTEMP);
+    bool is_తాత్కాలిక() స్థిరరాశి {
+        తిరిగి (m_e == BLOCKTEMP || m_e == MODULETEMP || m_e == STMTTEMP || m_e == XTEMP);
     }
-    bool isVPIAccessible() const {
-        return (m_e == VAR || m_e == GPARAM || m_e == LPARAM || m_e == SPECPARAM || m_e == PORT
+    bool isVPIAccessible() స్థిరరాశి {
+        తిరిగి (m_e == VAR || m_e == GPARAM || m_e == LPARAM || m_e == SPECPARAM || m_e == పోర్టు
                 || m_e == WIRE || m_e == TRI0 || m_e == TRI1);
     }
 
-    const char* traceSigKind() const {
+    స్థిరరాశి అక్షరం* trace_Sig_రకం() స్థిరరాశి {
         // VerilatedTraceSigKind to used in trace signal declaration
-        static constexpr const char* const lut[] = {
+        స్థిర constexpr స్థిరరాశి అక్షరం* స్థిరరాశి lut[] = {
             /* UNKNOWN:      */ "",  // Should not be traced
             /* GPARAM:       */ "PARAMETER",
             /* LPARAM:       */ "PARAMETER",
@@ -2477,57 +2477,57 @@ public:
             /* IFACEREF:     */ "",  // Should not be traced directly
             /* MEMBER:       */ "VAR",
         };
-        return lut[m_e];
+        తిరిగి lut[m_e];
     }
 };
-constexpr bool operator==(const VVarType& lhs, const VVarType& rhs) VL_MT_SAFE {
-    return lhs.m_e == rhs.m_e;
+constexpr bool క్రియాకారకం==(స్థిరరాశి VVarType& lhs, స్థిరరాశి VVarType& rhs) VL_MT_సురక్షిత {
+    తిరిగి lhs.m_e == rhs.m_e;
 }
-constexpr bool operator==(const VVarType& lhs, VVarType::en rhs) VL_MT_SAFE {
-    return lhs.m_e == rhs;
+constexpr bool క్రియాకారకం==(స్థిరరాశి VVarType& lhs, VVarType::en rhs) VL_MT_సురక్షిత {
+    తిరిగి lhs.m_e == rhs;
 }
-constexpr bool operator==(VVarType::en lhs, const VVarType& rhs) VL_MT_SAFE {
-    return lhs == rhs.m_e;
+constexpr bool క్రియాకారకం==(VVarType::en lhs, స్థిరరాశి VVarType& rhs) VL_MT_సురక్షిత {
+    తిరిగి lhs == rhs.m_e;
 }
-inline std::ostream& operator<<(std::ostream& os, const VVarType& rhs) VL_MT_SAFE {
-    return os << rhs.ascii();
+అంతఃవరుస std::ostream& క్రియాకారకం<<(std::ostream& os, స్థిరరాశి VVarType& rhs) VL_MT_సురక్షిత {
+    తిరిగి os << rhs.ascii();
 }
 
 // ######################################################################
 
 // Not in sorted order, as depends on above classes
-class VBasicTypeKey final {
-public:
-    const int m_width;  // From AstNodeDType: Bit width of operation
-    const int m_widthMin;  // From AstNodeDType: If unsized, bitwidth of minimum implementation
-    const VNumRange m_nrange;  // From AstBasicDType: Numeric msb/lsb (if non-opaque keyword)
-    const VSigning m_numeric;  // From AstNodeDType: Node is signed
-    const VBasicDTypeKwd m_keyword;  // From AstBasicDType: What keyword created basic type
-    bool operator==(const VBasicTypeKey& rhs) const {
-        return m_width == rhs.m_width && m_widthMin == rhs.m_widthMin && m_numeric == rhs.m_numeric
+class VBasic_Type_కీలకం final {
+బహిరంగ:
+    స్థిరరాశి పూర్ణాంకం m_వెడల్పు;  // From AstNodeDType: Bit width of operation
+    స్థిరరాశి పూర్ణాంకం m_వెడల్పు_Min;  // From AstNodeDType: If unsized, bitwidth of minimum implementation
+    స్థిరరాశి VNumRange m_nrange;  // From AstBasicDType: Numeric msb/lsb (if non-opaque keyword)
+    స్థిరరాశి VSigning m_numeric;  // From AstNodeDType: Node is signed
+    స్థిరరాశి VBasicDTypeKwd m_keyword;  // From AstBasicDType: What keyword created basic type
+    bool క్రియాకారకం==(స్థిరరాశి VBasic_Type_కీలకం& rhs) స్థిరరాశి {
+        తిరిగి m_వెడల్పు == rhs.m_వెడల్పు && m_వెడల్పు_Min == rhs.m_వెడల్పు_Min && m_numeric == rhs.m_numeric
                && m_keyword == rhs.m_keyword && m_nrange == rhs.m_nrange;
     }
-    bool operator<(const VBasicTypeKey& rhs) const {
-        if ((m_width < rhs.m_width)) return true;
-        if (!(m_width == rhs.m_width)) return false;  // lhs > rhs
-        if ((m_widthMin < rhs.m_widthMin)) return true;
-        if (!(m_widthMin == rhs.m_widthMin)) return false;  // lhs > rhs
-        if ((m_numeric < rhs.m_numeric)) return true;
-        if (!(m_numeric == rhs.m_numeric)) return false;  // lhs > rhs
-        if ((m_keyword < rhs.m_keyword)) return true;
-        if (!(m_keyword == rhs.m_keyword)) return false;  // lhs > rhs
-        if ((m_nrange < rhs.m_nrange)) return true;
-        if (!(m_nrange == rhs.m_nrange)) return false;  // lhs > rhs
-        return false;
+    bool క్రియాకారకం<(స్థిరరాశి VBasic_Type_కీలకం& rhs) స్థిరరాశి {
+        ఒకవేళ ((m_వెడల్పు < rhs.m_వెడల్పు)) తిరిగి true;
+        ఒకవేళ (!(m_వెడల్పు == rhs.m_వెడల్పు)) తిరిగి false;  // lhs > rhs
+        ఒకవేళ ((m_వెడల్పు_Min < rhs.m_వెడల్పు_Min)) తిరిగి true;
+        ఒకవేళ (!(m_వెడల్పు_Min == rhs.m_వెడల్పు_Min)) తిరిగి false;  // lhs > rhs
+        ఒకవేళ ((m_numeric < rhs.m_numeric)) తిరిగి true;
+        ఒకవేళ (!(m_numeric == rhs.m_numeric)) తిరిగి false;  // lhs > rhs
+        ఒకవేళ ((m_keyword < rhs.m_keyword)) తిరిగి true;
+        ఒకవేళ (!(m_keyword == rhs.m_keyword)) తిరిగి false;  // lhs > rhs
+        ఒకవేళ ((m_nrange < rhs.m_nrange)) తిరిగి true;
+        ఒకవేళ (!(m_nrange == rhs.m_nrange)) తిరిగి false;  // lhs > rhs
+        తిరిగి false;
     }
-    VBasicTypeKey(int width, int widthMin, VSigning numeric, VBasicDTypeKwd kwd,
-                  const VNumRange& nrange)
-        : m_width{width}
-        , m_widthMin{widthMin}
+    VBasic_Type_కీలకం(పూర్ణాంకం వెడల్పు, పూర్ణాంకం వెడల్పు_Min, VSigning numeric, VBasicDTypeKwd kwd,
+                  స్థిరరాశి VNumRange& nrange)
+        : m_వెడల్పు{వెడల్పు}
+        , m_వెడల్పు_Min{వెడల్పు_Min}
         , m_nrange{nrange}
         , m_numeric{numeric}
         , m_keyword{kwd} {}
-    ~VBasicTypeKey() = default;
+    ~VBasic_Type_కీలకం() = అప్రమేయ;
 };
 
-#endif  // Guard
+#అయితే_ముగింపు  // Guard

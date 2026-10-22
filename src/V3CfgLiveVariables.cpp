@@ -19,188 +19,188 @@
 //
 //*************************************************************************
 
-#include "config_build.h"
-#include "verilatedos.h"
+#అన్తర్భావ "config_build.h"
+#అన్తర్భావ "verilatedos.h"
 
-#include "V3Ast.h"
-#include "V3Cfg.h"
+#అన్తర్భావ "V3Ast.h"
+#అన్తర్భావ "V3Cfg.h"
 
-#include <memory>
+#అన్తర్భావ <memory>
 
 VL_DEFINE_DEBUG_FUNCTIONS;
 
-class CfgLiveVariables final : VNVisitorConst {
+తరగతి Cfg_సజీవ_Variables final : VNVisitorConst {
     // State associted with each basic block
-    struct BlockState final {
+    నిర్మాణం ఖండం_State final {
         // Variables used in block, before a complete assignment in the same block
-        std::unordered_set<AstVarScope*> m_gen;
+        std::unordered_సమితి<AstVarScope*> m_gen;
         // Variables that are assigned a complete value in the basic block
-        std::unordered_set<AstVarScope*> m_kill;
-        std::unordered_set<AstVarScope*> m_liveIn;  // Variables live on entry to the block
-        std::unordered_set<AstVarScope*> m_liveOut;  // Variables live on exit from the block
-        bool m_isOnWorkList = false;  // Block is on work list
-        bool m_wasProcessed = false;  // Already processed at least once
+        std::unordered_సమితి<AstVarScope*> m_kill;
+        std::unordered_సమితి<AstVarScope*> m_సజీవ_లోపల;  // Variables live on entry to the block
+        std::unordered_సమితి<AstVarScope*> m_సజీవ_బహిర్గతం;  // Variables live on exit from the block
+        తార్కిక m_isOnWorkList = అబద్ధం;  // Block is on work list
+        తార్కిక m_wasProcessed = అబద్ధం;  // Already processed at least once
     };
 
     // STATE
-    const CfgGraph& m_cfg;  // The CFG beign analysed
+    స్థిరరాశి Cfg_లేఖాచిత్రం& m_cfg;  // The CFG beign analysed
     // State for each block
-    CfgBlockMap<BlockState> m_blockState{m_cfg.makeBlockMap<BlockState>()};
-    BlockState* m_currp = nullptr;  // State of current block being analysed
-    bool m_abort = false;  // Abort analysis - unhandled construct
+    Cfg_ఖండం_Map<ఖండం_State> m_ఖండం_State{m_cfg.make_ఖండం_Map<ఖండం_State>()};
+    ఖండం_State* m_currp = శూన్యసూచిక;  // State of current block being analysed
+    తార్కిక m_abort = అబద్ధం;  // Abort analysis - unhandled construct
 
     // METHODS
 
-    static bool isPacked(const AstVarScope* vscp) {
-        AstNodeDType* const dtypep = vscp->dtypep()->skipRefp();
-        if (const AstBasicDType* const typep = VN_CAST(dtypep, BasicDType)) {
-            return typep->keyword().isIntNumeric();
+    స్థిర తార్కిక isPacked(స్థిరరాశి AstVarScope* vscp) {
+        Ast_కణుపు_DType* స్థిరరాశి dtypep = vscp->dtypep()->skipRefp();
+        ఒకవేళ (స్థిరరాశి AstBasicDType* స్థిరరాశి typep = VN_CAST(dtypep, BasicDType)) {
+            తిరిగి typep->keyword().isIntNumeric();
         }
-        if (VN_IS(dtypep, PackArrayDType)) return true;
-        if (const AstNodeUOrStructDType* const typep = VN_CAST(dtypep, NodeUOrStructDType)) {
-            return typep->packed();
+        ఒకవేళ (VN_IS(dtypep, PackArrayDType)) తిరిగి నిజం;
+        ఒకవేళ (స్థిరరాశి Ast_కణుపు_UOr_Struct_DType* స్థిరరాశి typep = VN_CAST(dtypep, కణుపు_UOr_Struct_DType)) {
+            తిరిగి typep->packed();
         }
-        return false;
+        తిరిగి అబద్ధం;
     }
 
-    void updateGen(AstNode* nodep) {
+    శూన్య updateGen(Ast_కణుపు* nodep) {
         UASSERT_OBJ(!m_abort, nodep, "Doing useless work");
-        m_abort = nodep->exists([&](const AstVarRef* refp) {
+        m_abort = nodep->exists([&](స్థిరరాశి AstVarRef* refp) {
             // Only care about reads
-            if (refp->access().isWriteOnly()) return false;
+            ఒకవేళ (refp->access().isWriteOnly()) తిరిగి అబద్ధం;
             // Grab referenced variable
-            AstVarScope* const vscp = refp->varScopep();
+            AstVarScope* స్థిరరాశి vscp = refp->varScopep();
             // Add to gen set, if not killed - assume whole variable read
-            if (m_currp->m_kill.count(vscp)) return false;
+            ఒకవేళ (m_currp->m_kill.లెక్క(vscp)) తిరిగి అబద్ధం;
             m_currp->m_gen.emplace(vscp);
-            return false;
+            తిరిగి అబద్ధం;
         });
     }
 
-    void updateKill(AstNode* nodep) {
+    శూన్య updateKill(Ast_కణుపు* nodep) {
         UASSERT_OBJ(!m_abort, nodep, "Doing useless work");
-        m_abort = nodep->exists([&](const AstVarRef* refp) {
+        m_abort = nodep->exists([&](స్థిరరాశి AstVarRef* refp) {
             // Only care about writes
-            if (refp->access().isReadOnly()) return false;
+            ఒకవేళ (refp->access().isReadOnly()) తిరిగి అబద్ధం;
             // Grab referenced variable
-            AstVarScope* const vscp = refp->varScopep();
+            AstVarScope* స్థిరరాశి vscp = refp->varScopep();
             // Safety case: bail on variables with unusual semantics
-            if (vscp->varp()->ignoreSchedWrite()) return true;
+            ఒకవేళ (vscp->varp()->ignoreSchedWrite()) తిరిగి నిజం;
             // If not a packed variable, assume it's not a whole update, don't add to kill set
-            if (!isPacked(vscp)) return false;
+            ఒకవేళ (!isPacked(vscp)) తిరిగి అబద్ధం;
             // If packed, and updated partially, don't add to kill set
-            if (refp->backp()->nextp() != refp && VN_IS(refp->abovep(), Sel)) return false;
+            ఒకవేళ (refp->backp()->nextp() != refp && VN_IS(refp->abovep(), Sel)) తిరిగి అబద్ధం;
             // Whole variable is writen, add to kill set
             m_currp->m_kill.emplace(vscp);
-            return false;
+            తిరిగి అబద్ధం;
         });
     }
 
-    void single(AstNode* nodep) {
+    శూన్య single(Ast_కణుపు* nodep) {
         // Assume all reads hapen before any writes
-        if (m_abort) return;
+        ఒకవేళ (m_abort) తిరిగి;
         updateGen(nodep);
-        if (m_abort) return;
+        ఒకవేళ (m_abort) తిరిగి;
         updateKill(nodep);
     }
 
     // Apply transfer function of block, return true if changed
-    bool transfer(const CfgBlock& bb) {
-        BlockState& state = m_blockState[bb];
+    తార్కిక transfer(స్థిరరాశి Cfg_ఖండం& bb) {
+        ఖండం_State& state = m_ఖండం_State[bb];
 
         // liveIn = gen union (liveOut - kill)
-        std::unordered_set<AstVarScope*> liveIn = state.m_gen;
-        for (AstVarScope* const varp : state.m_liveOut) {
-            if (state.m_kill.count(varp)) continue;
-            liveIn.insert(varp);
+        std::unordered_సమితి<AstVarScope*> సజీవ_లోపల = state.m_gen;
+        కొరకు (AstVarScope* స్థిరరాశి varp : state.m_సజీవ_బహిర్గతం) {
+            ఒకవేళ (state.m_kill.లెక్క(varp)) కొనసాగు;
+            సజీవ_లోపల.చొప్పించు(varp);
         }
-        if (liveIn == state.m_liveIn) return false;
-        std::swap(liveIn, state.m_liveIn);
-        return true;
+        ఒకవేళ (సజీవ_లోపల == state.m_సజీవ_లోపల) తిరిగి అబద్ధం;
+        std::మార్పిడి(సజీవ_లోపల, state.m_సజీవ_లోపల);
+        తిరిగి నిజం;
     }
 
-    // VISIT
-    void visit(AstNode* nodep) override {  //
+    //సందర్శించు
+    శూన్య సందర్శించు(Ast_కణుపు* nodep) override {  //
         UASSERT_OBJ(!m_abort, nodep, "Repeat traversal after abort");
-        m_abort = true;
+        m_abort = నిజం;
         UINFO(9, "Unhandled AstNode type " << nodep->typeName());
     }
 
-    void visit(AstAssign* nodep) override { single(nodep); }
-    void visit(AstAssignW* nodep) override { single(nodep); }
-    void visit(AstDisplay* nodep) override { single(nodep); }
-    void visit(AstFinish* nodep) override { single(nodep); }
-    void visit(AstFinishFork* nodep) override { single(nodep); }
-    void visit(AstStmtExpr* nodep) override { single(nodep); }
-    void visit(AstStop* nodep) override { single(nodep); }
+    శూన్య సందర్శించు(Ast_కేటాయించు* nodep) override { single(nodep); }
+    శూన్య సందర్శించు(Ast_కేటాయించు_W* nodep) override { single(nodep); }
+    శూన్య సందర్శించు(AstDisplay* nodep) override { single(nodep); }
+    శూన్య సందర్శించు(Ast_ముగింపు* nodep) override { single(nodep); }
+    శూన్య సందర్శించు(Ast_ముగింపు_Fork* nodep) override { single(nodep); }
+    శూన్య సందర్శించు(Ast_Stmt_సమాసం* nodep) override { single(nodep); }
+    శూన్య సందర్శించు(AstStop* nodep) override { single(nodep); }
 
     // Only the condition check belongs to the terminated basic block
-    void visit(AstIf* nodep) override { single(nodep->condp()); }
-    void visit(AstLoopTest* nodep) override { single(nodep->condp()); }
+    శూన్య సందర్శించు(AstIf* nodep) override { single(nodep->condp()); }
+    శూన్య సందర్శించు(AstLoopTest* nodep) override { single(nodep->condp()); }
 
     // CONSTRUCTOR
-    explicit CfgLiveVariables(const CfgGraph& cfg)
+    స్పష్టమైన Cfg_సజీవ_Variables(స్థిరరాశి Cfg_లేఖాచిత్రం& cfg)
         : m_cfg{cfg} {
         // For each basic block, compute the gen and kill set via visit
-        for (const V3GraphVertex& vtx : cfg.vertices()) {
-            const CfgBlock& bb = static_cast<const CfgBlock&>(vtx);
-            if (m_abort) return;
+        కొరకు (స్థిరరాశి V3_లేఖాచిత్రం_శీర్షం& vtx : cfg.vertices()) {
+            స్థిరరాశి Cfg_ఖండం& bb = static_cast<స్థిరరాశి Cfg_ఖండం&>(vtx);
+            ఒకవేళ (m_abort) తిరిగి;
             VL_RESTORER(m_currp);
-            m_currp = &m_blockState[bb];
-            for (AstNode* const stmtp : bb.stmtps()) iterateConst(stmtp);
+            m_currp = &m_ఖండం_State[bb];
+            కొరకు (Ast_కణుపు* స్థిరరాశి stmtp : bb.stmtps()) iterateConst(stmtp);
         }
-        if (m_abort) return;
+        ఒకవేళ (m_abort) తిరిగి;
 
         // Perform the flow analysis
-        std::deque<const CfgBlock*> workList;
-        const auto enqueue = [&](const CfgBlock& bb) {
-            BlockState& state = m_blockState[bb];
-            if (state.m_isOnWorkList) return;
-            state.m_isOnWorkList = true;
-            workList.emplace_back(&bb);
+        std::deque<స్థిరరాశి Cfg_ఖండం*> workList;
+        స్థిరరాశి స్వయంచాలక వరుసలో_చేర్చు = [&](స్థిరరాశి Cfg_ఖండం& bb) {
+            ఖండం_State& state = m_ఖండం_State[bb];
+            ఒకవేళ (state.m_isOnWorkList) తిరిగి;
+            state.m_isOnWorkList = నిజం;
+            workList.emplace_వెనుక(&bb);
         };
 
-        enqueue(cfg.exit());
+        వరుసలో_చేర్చు(cfg.నిష్క్రమించు());
 
-        while (!workList.empty()) {
-            const CfgBlock* const currp = workList.front();
-            workList.pop_front();
-            BlockState& state = m_blockState[*currp];
-            state.m_isOnWorkList = false;
+        అయితే (!workList.ఖాళీలు()) {
+            స్థిరరాశి Cfg_ఖండం* స్థిరరాశి currp = workList.front();
+            workList.తీయి_front();
+            ఖండం_State& state = m_ఖండం_State[*currp];
+            state.m_isOnWorkList = అబద్ధం;
 
             // Compute meet (liveOut = union liveIn of successors)
-            currp->forEachSuccessor([&](const CfgBlock& bb) {
-                auto& liveIn = m_blockState[bb].m_liveIn;
-                state.m_liveOut.insert(liveIn.begin(), liveIn.end());
+            currp->forEachSuccessor([&](స్థిరరాశి Cfg_ఖండం& bb) {
+                స్వయంచాలక& సజీవ_లోపల = m_ఖండం_State[bb].m_సజీవ_లోపల;
+                state.m_సజీవ_బహిర్గతం.చొప్పించు(సజీవ_లోపల.begin(), సజీవ_లోపల.చివర());
             });
 
             // Apply transfer function of block
-            const bool changed = transfer(*currp);
+            స్థిరరాశి తార్కిక మారింది = transfer(*currp);
             // Enqueue predecessors
-            if (changed || !state.m_wasProcessed) currp->forEachPredecessor(enqueue);
+            ఒకవేళ (మారింది || !state.m_wasProcessed) currp->forEachPredecessor(వరుసలో_చేర్చు);
             // Mark as done with first visit
-            state.m_wasProcessed = true;
+            state.m_wasProcessed = నిజం;
         }
     }
 
-public:
-    static std::unique_ptr<std::vector<AstVarScope*>> apply(const CfgGraph& cfg) {
-        CfgLiveVariables analysis{cfg};
+బహిరంగ:
+    స్థిర std::unique_ptr<std::సదిశ<AstVarScope*>> apply(స్థిరరాశి Cfg_లేఖాచిత్రం& cfg) {
+        Cfg_సజీవ_Variables analysis{cfg};
         // If failed, return nullptr
-        if (analysis.m_abort) return nullptr;
+        ఒకవేళ (analysis.m_abort) తిరిగి శూన్యసూచిక;
         // Gather variables live in to the entry block
-        const std::unordered_set<AstVarScope*>& lin = analysis.m_blockState[cfg.enter()].m_liveIn;
-        std::vector<AstVarScope*>* const resultp
-            = new std::vector<AstVarScope*>{lin.begin(), lin.end()};
+        స్థిరరాశి std::unordered_సమితి<AstVarScope*>& lin = analysis.m_ఖండం_State[cfg.enter()].m_సజీవ_లోపల;
+        std::సదిశ<AstVarScope*>* స్థిరరాశి resultp
+            = కొత్త std::సదిశ<AstVarScope*>{lin.begin(), lin.చివర()};
         // Sort for stability
-        std::stable_sort(resultp->begin(), resultp->end(),
+        std::stable_క్రమీకరించు(resultp->begin(), resultp->చివర(),
                          [](AstVarScope* ap, AstVarScope* bp) {  //
-                             return ap->name() < bp->name();
+                             తిరిగి ap->name() < bp->name();
                          });
-        return std::unique_ptr<std::vector<AstVarScope*>>{resultp};
+        తిరిగి std::unique_ptr<std::సదిశ<AstVarScope*>>{resultp};
     }
 };
 
-std::unique_ptr<std::vector<AstVarScope*>> V3Cfg::liveVarScopes(const CfgGraph& cfg) {
-    return CfgLiveVariables::apply(cfg);
+std::unique_ptr<std::సదిశ<AstVarScope*>> V3Cfg::సజీవ_Var_Scopes(స్థిరరాశి Cfg_లేఖాచిత్రం& cfg) {
+    తిరిగి Cfg_సజీవ_Variables::apply(cfg);
 }

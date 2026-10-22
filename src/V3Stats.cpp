@@ -14,12 +14,12 @@
 //
 //*************************************************************************
 
-#include "V3PchAstMT.h"
+#అన్తర్భావ "V3PchAstMT.h"
 
-#include "V3Stats.h"
+#అన్తర్భావ "V3Stats.h"
 
-#include <iomanip>
-#include <map>
+#అన్తర్భావ <iomanip>
+#అన్తర్భావ <map>
 
 VL_DEFINE_DEBUG_FUNCTIONS;
 
@@ -31,122 +31,122 @@ V3Mutex V3Stats::s_mutex;
 //######################################################################
 // Stats class functions
 
-class StatsVisitor final : public VNVisitorConst {
-    struct Counters final {
+తరగతి StatsVisitor final : బహిరంగ VNVisitorConst {
+    నిర్మాణం Counters final {
         // Nodes of given type
-        std::array<uint64_t, VNType::NUM_TYPES()> m_statTypeCount{};
+        std::array<uint64_t, VNType::అంకె_TYPES()> m_stat_Type_లెక్క{};
         // Prediction of given type
-        std::array<uint64_t, VBranchPred::_ENUM_END> m_statPred{};
+        std::array<uint64_t, VBranchPred::ENUM_చివర> m_statPred{};
     };
 
     // STATE
-    const bool m_fastOnly;  // When true, consider only fast functions
-    bool m_empty = true;  // Netlist is empty
+    స్థిరరాశి తార్కిక m_fastOnly;  // When true, consider only fast functions
+    తార్కిక m_ఖాళీలు = నిజం;  // Netlist is empty
     Counters m_counters;  // The actual counts we will display
     Counters m_dumpster;  // Alternate buffer to make discarding parts of the tree easier
     Counters* m_accump;  // The currently active accumulator
-    std::vector<uint64_t> m_statVarWidths;  // Variables of given width
-    std::vector<std::map<const std::string, uint32_t>>
-        m_statVarWidthNames;  // Var names of given width
+    std::సదిశ<uint64_t> m_statVarWidths;  // Variables of given width
+    std::సదిశ<std::map<స్థిరరాశి std::string, uint32_t>>
+        m_stat_Var_వెడల్పు_పేర్లు;  // Var names of given width
 
     // METHODS
-    void countThenIterateChildren(AstNode* nodep) {
-        ++m_accump->m_statTypeCount[nodep->type()];
-        if (nodep->type() != VNType::Netlist) m_empty = false;
+    శూన్య లెక్క_Then_Iterate_Children(Ast_కణుపు* nodep) {
+        ++m_accump->m_stat_Type_లెక్క[nodep->type()];
+        ఒకవేళ (nodep->type() != VNType::Netlist) m_ఖాళీలు = అబద్ధం;
         iterateChildrenConst(nodep);
     }
 
     // VISITORS
-    void visit(AstVar* nodep) override {
-        if (nodep->dtypep()) {
-            if (!nodep->constPoolEntry()) {
+    శూన్య సందర్శించు(AstVar* nodep) override {
+        ఒకవేళ (nodep->dtypep()) {
+            ఒకవేళ (!nodep->const_Pool_నమోదు()) {
                 // Count proper variables
-                if (m_statVarWidths.size() <= static_cast<size_t>(nodep->width())) {
-                    m_statVarWidths.resize(nodep->width() + 5);
-                    if (v3Global.opt.statsVars()) {  //
-                        m_statVarWidthNames.resize(nodep->width() + 5);
+                ఒకవేళ (m_statVarWidths.కొలత() <= static_cast<కొలత_t>(nodep->వెడల్పు())) {
+                    m_statVarWidths.resize(nodep->వెడల్పు() + 5);
+                    ఒకవేళ (v3Global.opt.statsVars()) {  //
+                        m_stat_Var_వెడల్పు_పేర్లు.resize(nodep->వెడల్పు() + 5);
                     }
                 }
-                ++m_statVarWidths.at(nodep->width());
-                if (v3Global.opt.statsVars()) {
-                    ++m_statVarWidthNames.at(nodep->width())[nodep->prettyName()];
+                ++m_statVarWidths.at(nodep->వెడల్పు());
+                ఒకవేళ (v3Global.opt.statsVars()) {
+                    ++m_stat_Var_వెడల్పు_పేర్లు.at(nodep->వెడల్పు())[nodep->prettyName()];
                 }
             }
         }
 
-        countThenIterateChildren(nodep);
+        లెక్క_Then_Iterate_Children(nodep);
     }
 
-    void visit(AstNodeIf* nodep) override {
+    శూన్య సందర్శించు(Ast_కణుపు_If* nodep) override {
         // Track prediction
         ++m_accump->m_statPred[nodep->branchPred()];
-        countThenIterateChildren(nodep);
+        లెక్క_Then_Iterate_Children(nodep);
     }
 
-    void visit(AstCFunc* nodep) override {
+    శూన్య సందర్శించు(AstCFunc* nodep) override {
         VL_RESTORER(m_accump);
-        if (m_fastOnly && !nodep->slow()) m_accump = &m_counters;
-        countThenIterateChildren(nodep);
+        ఒకవేళ (m_fastOnly && !nodep->slow()) m_accump = &m_counters;
+        లెక్క_Then_Iterate_Children(nodep);
     }
 
-    void visit(AstNode* nodep) override { countThenIterateChildren(nodep); }
+    శూన్య సందర్శించు(Ast_కణుపు* nodep) override { లెక్క_Then_Iterate_Children(nodep); }
 
-public:
+బహిరంగ:
     // CONSTRUCTORS
-    StatsVisitor(AstNetlist* nodep, const std::string& stage, bool fastOnly)
+    StatsVisitor(AstNetlist* nodep, స్థిరరాశి std::string& stage, తార్కిక fastOnly)
         : m_fastOnly{fastOnly}
         , m_accump{fastOnly ? &m_dumpster : &m_counters} {
         UINFO(9, "Starting stats, fastOnly=" << fastOnly);
         iterateConst(nodep);
-        if (m_empty) return;
+        ఒకవేళ (m_ఖాళీలు) తిరిగి;
 
         // Shorthand
-        const auto addStat = [&](const std::string& name, double count, unsigned precision = 0) {
-            V3Stats::addStat(stage, name, count, precision);
+        స్థిరరాశి స్వయంచాలక కూడు_Stat = [&](స్థిరరాశి std::string& name, ద్విగుణ లెక్క, గుర్తులేని precision = 0) {
+            V3Stats::కూడు_Stat(stage, name, లెక్క, precision);
         };
 
         // Variable widths
-        for (unsigned i = 0; i < m_statVarWidths.size(); i++) {
-            if (const uint64_t count = m_statVarWidths.at(i)) {
+        కొరకు (గుర్తులేని i = 0; i < m_statVarWidths.కొలత(); i++) {
+            ఒకవేళ (స్థిరరాశి uint64_t లెక్క = m_statVarWidths.at(i)) {
                 std::stringstream ss;
                 ss << "Vars, width " << std::setw(5) << std::dec << i;
-                const std::string prefix = ss.str();
-                if (v3Global.opt.statsVars()) {
-                    for (const auto& it : m_statVarWidthNames.at(i)) {
-                        addStat(prefix + " " + it.first, it.second);
+                స్థిరరాశి std::string ఉపసర్గ = ss.str();
+                ఒకవేళ (v3Global.opt.statsVars()) {
+                    కొరకు (స్థిరరాశి స్వయంచాలక& it : m_stat_Var_వెడల్పు_పేర్లు.at(i)) {
+                        కూడు_Stat(ఉపసర్గ + " " + it.మొదటి, it.రెండవ);
                     }
-                } else {
-                    addStat(prefix, count);
+                } లేకపోతే {
+                    కూడు_Stat(ఉపసర్గ, లెక్క);
                 }
             }
         }
 
         // Node types (also total memory usage)
-        const auto typeName
-            = [](size_t t) { return std::string{VNType{static_cast<VNType::en>(t)}.ascii()}; };
-        const auto typeSize
-            = [](size_t t) { return VNType::typeInfo(static_cast<VNType::en>(t)).m_sizeof; };
-        size_t totalNodeMemoryUsage = 0;
-        for (size_t t = 0; t < VNType::NUM_TYPES(); ++t) {
-            if (const uint64_t count = m_counters.m_statTypeCount[t]) {
-                totalNodeMemoryUsage += count * typeSize(t);
-                addStat("Node count, " + typeName(t), count);
+        స్థిరరాశి స్వయంచాలక typeName
+            = [](కొలత_t t) { తిరిగి std::string{VNType{static_cast<VNType::en>(t)}.ascii()}; };
+        స్థిరరాశి స్వయంచాలక type_కొలత
+            = [](కొలత_t t) { తిరిగి VNType::typeInfo(static_cast<VNType::en>(t)).m_sizeof; };
+        కొలత_t మొత్తం_కణుపు_జ్ఞాపకం_Usage = 0;
+        కొరకు (కొలత_t t = 0; t < VNType::అంకె_TYPES(); ++t) {
+            ఒకవేళ (స్థిరరాశి uint64_t లెక్క = m_counters.m_stat_Type_లెక్క[t]) {
+                మొత్తం_కణుపు_జ్ఞాపకం_Usage += లెక్క * type_కొలత(t);
+                కూడు_Stat("Node count, " + typeName(t), లెక్క);
             }
         }
-        addStat("Node mem TOTAL (MiB)", totalNodeMemoryUsage >> 20);
+        కూడు_Stat("Node mem TOTAL (MiB)", మొత్తం_కణుపు_జ్ఞాపకం_Usage >> 20);
 
         // Node Memory usage
-        for (size_t t = 0; t < VNType::NUM_TYPES(); ++t) {
-            if (const uint64_t count = m_counters.m_statTypeCount[t]) {
-                const double share = 100.0 * count * typeSize(t) / totalNodeMemoryUsage;
-                addStat("Node mem %, " + typeName(t), share, 2);
+        కొరకు (కొలత_t t = 0; t < VNType::అంకె_TYPES(); ++t) {
+            ఒకవేళ (స్థిరరాశి uint64_t లెక్క = m_counters.m_stat_Type_లెక్క[t]) {
+                స్థిరరాశి ద్విగుణ share = 100.0 * లెక్క * type_కొలత(t) / మొత్తం_కణుపు_జ్ఞాపకం_Usage;
+                కూడు_Stat("Node mem %, " + typeName(t), share, 2);
             }
         }
 
         // Branch predictions
-        for (int t = 0; t < VBranchPred::_ENUM_END; ++t) {
-            if (const uint64_t c = m_counters.m_statPred[t]) {
-                addStat("Branch prediction, "s + VBranchPred{t}.ascii(), c);
+        కొరకు (పూర్ణాంకం t = 0; t < VBranchPred::ENUM_చివర; ++t) {
+            ఒకవేళ (స్థిరరాశి uint64_t c = m_counters.m_statPred[t]) {
+                కూడు_Stat("Branch prediction, "s + VBranchPred{t}.ascii(), c);
             }
         }
     }
@@ -155,6 +155,6 @@ public:
 //######################################################################
 // Top Stats class
 
-void V3Stats::statsStageAll(AstNetlist* nodep, const std::string& stage, bool fastOnly) {
+శూన్య V3Stats::statsStageAll(AstNetlist* nodep, స్థిరరాశి std::string& stage, తార్కిక fastOnly) {
     StatsVisitor{nodep, stage, fastOnly};
 }

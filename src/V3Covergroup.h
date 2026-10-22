@@ -14,17 +14,17 @@
 //
 //*************************************************************************
 
-#ifndef VERILATOR_V3COVERGROUP_H_
-#define VERILATOR_V3COVERGROUP_H_
+#నిర్వచితం_కాకపోతే VERILATOR_V3COVERGROUP_H_
+#నిర్వచించు VERILATOR_V3COVERGROUP_H_
 
-#include "V3Ast.h"
-#include "V3Error.h"
+#అన్తర్భావ "V3Ast.h"
+#అన్తర్భావ "V3Error.h"
 
 //============================================================================
 
 class V3Covergroup final {
-public:
-    static void covergroup(AstNetlist* nodep);
+బహిరంగ:
+    స్థిర శూన్య covergroup(AstNetlist* nodep);
 };
 
-#endif  // Guard
+#అయితే_ముగింపు  // Guard

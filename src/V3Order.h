@@ -14,15 +14,15 @@
 //
 //*************************************************************************
 
-#ifndef VERILATOR_V3ORDER_H_
-#define VERILATOR_V3ORDER_H_
+#నిర్వచితం_కాకపోతే VERILATOR_V3_క్రమం_H
+#నిర్వచించు VERILATOR_V3_క్రమం_H
 
-#include "config_build.h"
-#include "verilatedos.h"
+#అన్తర్భావ "config_build.h"
+#అన్తర్భావ "verilatedos.h"
 
-#include <functional>
-#include <set>
-#include <vector>
+#అన్తర్భావ <functional>
+#అన్తర్భావ <set>
+#అన్తర్భావ <vector>
 
 class AstCFunc;
 class AstVarScope;
@@ -35,20 +35,20 @@ class TriggerKit;
 
 //============================================================================
 
-namespace V3Order {
+namespace V3_క్రమం {
 
 // Callable to add the indices of extra external triggers of a variable to the given set
-using ExternalTriggersProvider = std::function<void(const AstVarScope*, std::set<uint32_t>&)>;
+using ExternalTriggersProvider = std::function<శూన్య(స్థిరరాశి AstVarScope*, std::సమితి<uint32_t>&)>;
 
-AstCFunc* order(const std::vector<V3Sched::LogicByScope*>& logic,  //
-                const V3Sched::TriggerKit& trigKit,  //
+AstCFunc* క్రమం(స్థిరరాశి std::సదిశ<V3Sched::LogicByScope*>& logic,  //
+                స్థిరరాశి V3Sched::TriggerKit& trigKit,  //
                 AstVarScope* trigVscp,  //
-                const V3Sched::CovergroupRefBindings& cgRefBindings,  //
-                const string& tag,  //
+                స్థిరరాశి V3Sched::CovergroupRefBindings& cgRefBindings,  //
+                స్థిరరాశి string& ట్యాగ్,  //
                 bool parallel,  //
                 bool slow,  //
-                const ExternalTriggersProvider& externalTriggers) VL_MT_DISABLED;
+                స్థిరరాశి ExternalTriggersProvider& externalTriggers) VL_MT_DISABLED;
 
 };  // namespace V3Order
 
-#endif  // Guard
+#అయితే_ముగింపు  // Guard

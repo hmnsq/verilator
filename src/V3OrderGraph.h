@@ -61,30 +61,30 @@
 //
 //*************************************************************************
 
-#ifndef VERILATOR_V3ORDERGRAPH_H_
-#define VERILATOR_V3ORDERGRAPH_H_
+#నిర్వచితం_కాకపోతే VERILATOR_V3ORDERGRAPH_H_
+#నిర్వచించు VERILATOR_V3ORDERGRAPH_H_
 
-#include "config_build.h"
-#include "verilatedos.h"
+#అన్తర్భావ "config_build.h"
+#అన్తర్భావ "verilatedos.h"
 
-#include "V3Ast.h"
-#include "V3Graph.h"
-#include "V3Sched.h"
+#అన్తర్భావ "V3Ast.h"
+#అన్తర్భావ "V3Graph.h"
+#అన్తర్భావ "V3Sched.h"
 
-#include <set>
-#include <vector>
+#అన్తర్భావ <set>
+#అన్తర్భావ <vector>
 
-class OrderLogicVertex;
-class OrderVarVertex;
+class క్రమం_Logic_శీర్షం;
+class క్రమం_Var_శీర్షం;
 
 //======================================================================
 
-enum OrderWeights : uint8_t {
-    WEIGHT_COMBO = 1,  // Breakable combo logic
-    WEIGHT_POST = 2,  // Post-delayed used var
-    WEIGHT_PRE = 3,  // Breakable pre-delayed used var
-    WEIGHT_MEDIUM = 8,  // Medium weight just so dot graph looks nice
-    WEIGHT_NORMAL = 32  // High weight just so dot graph looks nice
+గణన క్రమం_Weights : uint8_t {
+    బరువు_COMBO = 1,  // Breakable combo logic
+    బరువు_POST = 2,  // Post-delayed used var
+    బరువు_PRE = 3,  // Breakable pre-delayed used var
+    బరువు_MEDIUM = 8,  // Medium weight just so dot graph looks nice
+    బరువు_సాధారణ = 32  // High weight just so dot graph looks nice
 };
 
 //======================================================================
@@ -93,58 +93,58 @@ enum OrderWeights : uint8_t {
 // The sensitivity domain of a vertex: the set of trigger indices,
 // any of which being set means the logic needs to be executed.
 // Instances are interned in the OrderGraph, so can compare pointers.
-class OrderDomain final {
-    const std::set<uint32_t> m_triggers;  // The trigger indices
+class క్రమం_Domain final {
+    స్థిరరాశి std::సమితి<uint32_t> m_triggers;  // The trigger indices
 
-public:
-    explicit OrderDomain(const std::set<uint32_t>& triggers)
+బహిరంగ:
+    explicit క్రమం_Domain(స్థిరరాశి std::సమితి<uint32_t>& triggers)
         : m_triggers{triggers} {}
 
-    const std::set<uint32_t>& triggers() const { return m_triggers; }
-    bool operator<(const OrderDomain& other) const { return m_triggers < other.m_triggers; }
+    స్థిరరాశి std::సమితి<uint32_t>& triggers() స్థిరరాశి { తిరిగి m_triggers; }
+    bool క్రియాకారకం<(స్థిరరాశి క్రమం_Domain& other) స్థిరరాశి { తిరిగి m_triggers < other.m_triggers; }
 };
 
-class OrderGraph final : public V3Graph {
-    const V3Sched::TriggerKit& m_trigKit;  // The TriggerKit of the triggers
-    AstVarScope* const m_trigVscp;  // The trigger vector for this graph
-    std::set<OrderDomain> m_domains;  // The interned domains
+class క్రమం_లేఖాచిత్రం final : బహిరంగ V3_లేఖాచిత్రం {
+    స్థిరరాశి V3Sched::TriggerKit& m_trigKit;  // The TriggerKit of the triggers
+    AstVarScope* స్థిరరాశి m_trigVscp;  // The trigger vector for this graph
+    std::సమితి<క్రమం_Domain> m_domains;  // The interned domains
 
-public:
+బహిరంగ:
     // CONSTRUCTOR
-    OrderGraph(const V3Sched::TriggerKit& trigKit, AstVarScope* trigVscp)
+    క్రమం_లేఖాచిత్రం(స్థిరరాశి V3Sched::TriggerKit& trigKit, AstVarScope* trigVscp)
         : m_trigKit{trigKit}
         , m_trigVscp{trigVscp} {}
 
     // METHODS
-    AstVarScope* trigVscp() const { return m_trigVscp; }
+    AstVarScope* trigVscp() స్థిరరాశి { తిరిగి m_trigVscp; }
 
     // The AstSenItem the given trigger index stands for, nullptr if none
-    const AstSenItem* trigSenItemp(uint32_t index) const {
-        return m_trigKit.trigIdx2SenItem().at(index);
+    స్థిరరాశి Ast_Sen_అంశం* trigSenItemp(uint32_t సూచీ) స్థిరరాశి {
+        తిరిగి m_trigKit.trig_Idx2_Sen_అంశం().at(సూచీ);
     }
 
     // Get the interned instance of the given domain
-    const OrderDomain* domainp(const std::set<uint32_t>& triggers) {
-        return &*m_domains.emplace(triggers).first;
+    స్థిరరాశి క్రమం_Domain* domainp(స్థిరరాశి std::సమితి<uint32_t>& triggers) {
+        తిరిగి &*m_domains.emplace(triggers).మొదటి;
     }
 
     // Methods to add edges representing constraints, utilizing the type system to help us ensure
     // the graph remains bipartite.
-    inline void addHardEdge(OrderLogicVertex* fromp, OrderVarVertex* top,
-                            int weight) VL_MT_DISABLED;
-    inline void addHardEdge(OrderVarVertex* fromp, OrderLogicVertex* top,
-                            int weight) VL_MT_DISABLED;
-    inline void addSoftEdge(OrderLogicVertex* fromp, OrderVarVertex* top,
-                            int weight) VL_MT_DISABLED;
-    inline void addSoftEdge(OrderVarVertex* fromp, OrderLogicVertex* top,
-                            int weight) VL_MT_DISABLED;
+    అంతఃవరుస శూన్య కూడు_Hard_అంచు(క్రమం_Logic_శీర్షం* fromp, క్రమం_Var_శీర్షం* శిఖరం,
+                            పూర్ణాంకం బరువు_2) VL_MT_DISABLED;
+    అంతఃవరుస శూన్య కూడు_Hard_అంచు(క్రమం_Var_శీర్షం* fromp, క్రమం_Logic_శీర్షం* శిఖరం,
+                            పూర్ణాంకం బరువు_2) VL_MT_DISABLED;
+    అంతఃవరుస శూన్య కూడు_Soft_అంచు(క్రమం_Logic_శీర్షం* fromp, క్రమం_Var_శీర్షం* శిఖరం,
+                            పూర్ణాంకం బరువు_2) VL_MT_DISABLED;
+    అంతఃవరుస శూన్య కూడు_Soft_అంచు(క్రమం_Var_శీర్షం* fromp, క్రమం_Logic_శీర్షం* శిఖరం,
+                            పూర్ణాంకం బరువు_2) VL_MT_DISABLED;
 };
 
 //======================================================================
 // Vertex types
 
-class OrderEitherVertex VL_NOT_FINAL : public V3GraphVertex {
-    VL_RTTI_IMPL(OrderEitherVertex, V3GraphVertex)
+class క్రమం_Either_శీర్షం VL_NOT_FINAL : బహిరంగ V3_లేఖాచిత్రం_శీర్షం {
+    VL_RTTI_IMPL(క్రమం_Either_శీర్షం, V3_లేఖాచిత్రం_శీర్షం)
     // Event domain of vertex. For OrderLogicVertex this represents the conditions when the logic
     // block must be executed. For OrderVarVertex, this is the union of the domains of all the
     // OrderLogicVertex vertices that drive the variable. If initially set to nullptr (e.g.: all
@@ -152,53 +152,53 @@ class OrderEitherVertex VL_NOT_FINAL : public V3GraphVertex {
     // ordering algorithm will compute the domain automatically based on the edges representing
     // data-flow (those between OrderLogicVertex and OrderVarStdVertex), otherwise the domain is
     // as given (e.g.: for those OrderLogicVertices that represent clocked logic).
-    const OrderDomain* m_domainp;
+    స్థిరరాశి క్రమం_Domain* m_domainp;
 
-protected:
+రక్షిత:
     // CONSTRUCTOR
-    OrderEitherVertex(OrderGraph* graphp, const OrderDomain* domainp) VL_MT_DISABLED
-        : V3GraphVertex{graphp},
+    క్రమం_Either_శీర్షం(క్రమం_లేఖాచిత్రం* graphp, స్థిరరాశి క్రమం_Domain* domainp) VL_MT_DISABLED
+        : V3_లేఖాచిత్రం_శీర్షం{graphp},
           m_domainp{domainp} {}
-    ~OrderEitherVertex() override = default;
+    ~క్రమం_Either_శీర్షం() override = అప్రమేయ;
 
-public:
+బహిరంగ:
     // METHODS
-    virtual bool domainMatters() = 0;
+    మాయా bool domainMatters() = 0;
 
     // ACCESSORS
-    const OrderDomain* domainp() const VL_MT_STABLE { return m_domainp; }
-    void domainp(const OrderDomain* domainp) VL_MT_DISABLED {
-#if VL_DEBUG
+    స్థిరరాశి క్రమం_Domain* domainp() స్థిరరాశి VL_MT_STABLE { తిరిగి m_domainp; }
+    శూన్య domainp(స్థిరరాశి క్రమం_Domain* domainp) VL_MT_DISABLED {
+#ఒకవేళ VL_DEBUG
         UASSERT(!m_domainp, "Domain should only be set once");
-#endif
+#అయితే_ముగింపు
         m_domainp = domainp;
     }
 };
 
-class OrderLogicVertex final : public OrderEitherVertex {
-    VL_RTTI_IMPL(OrderLogicVertex, OrderEitherVertex)
+class క్రమం_Logic_శీర్షం final : బహిరంగ క్రమం_Either_శీర్షం {
+    VL_RTTI_IMPL(క్రమం_Logic_శీర్షం, క్రమం_Either_శీర్షం)
 
-public:
+బహిరంగ:
     // Variable access record
-    struct VarAccess final {
+    నిర్మాణం VarAccess final {
         AstVarScope* m_vscp;  // The variable accessed
         VAccess m_access;  // The kind of access, as in the AST
     };
 
-private:
-    AstNode* const m_nodep;  // The logic this vertex represents
-    AstScope* const m_scopep;  // Scope the logic is under
-    const OrderDomain* const m_hybridp;  // Additional sensitivities for hybrid combinational logic
-    const bool m_comb;  // Is from combinational logic
+అంతరంగ:
+    Ast_కణుపు* స్థిరరాశి m_nodep;  // The logic this vertex represents
+    AstScope* స్థిరరాశి m_scopep;  // Scope the logic is under
+    స్థిరరాశి క్రమం_Domain* స్థిరరాశి m_hybridp;  // Additional sensitivities for hybrid combinational logic
+    స్థిరరాశి bool m_comb;  // Is from combinational logic
     // Every variable accessed by this logic, in order of first access, at most one record per
     // variable. Only populated for multi-threaded ordering.
-    std::vector<VarAccess> m_varAccesses;
+    std::సదిశ<VarAccess> m_varAccesses;
 
-public:
+బహిరంగ:
     // CONSTRUCTOR
-    OrderLogicVertex(OrderGraph* graphp, AstScope* scopep, const OrderDomain* domainp,
-                     const OrderDomain* hybridp, AstNode* nodep) VL_MT_DISABLED
-        : OrderEitherVertex{graphp, domainp},
+    క్రమం_Logic_శీర్షం(క్రమం_లేఖాచిత్రం* graphp, AstScope* scopep, స్థిరరాశి క్రమం_Domain* domainp,
+                     స్థిరరాశి క్రమం_Domain* hybridp, Ast_కణుపు* nodep) VL_MT_DISABLED
+        : క్రమం_Either_శీర్షం{graphp, domainp},
           m_nodep{nodep},
           m_scopep{scopep},
           m_hybridp{hybridp},
@@ -206,154 +206,154 @@ public:
         UASSERT_OBJ(scopep, nodep, "Must not be null");
         UASSERT_OBJ(!(domainp && hybridp), nodep, "Cannot have bot domainp and hybridp set");
     }
-    ~OrderLogicVertex() override = default;
+    ~క్రమం_Logic_శీర్షం() override = అప్రమేయ;
 
     // METHODS
-    bool domainMatters() override { return true; }
+    bool domainMatters() override { తిరిగి true; }
 
     // ACCESSORS
-    AstNode* nodep() const VL_MT_STABLE { return m_nodep; }
-    AstScope* scopep() const VL_MT_STABLE { return m_scopep; }
-    const OrderDomain* hybridp() const { return m_hybridp; }
-    bool comb() const { return m_comb; }
-    const std::vector<VarAccess>& varAccesses() const { return m_varAccesses; }
-    void addVarAccess(AstVarScope* vscp, VAccess access) {
-        m_varAccesses.push_back({vscp, access});
+    Ast_కణుపు* nodep() స్థిరరాశి VL_MT_STABLE { తిరిగి m_nodep; }
+    AstScope* scopep() స్థిరరాశి VL_MT_STABLE { తిరిగి m_scopep; }
+    స్థిరరాశి క్రమం_Domain* hybridp() స్థిరరాశి { తిరిగి m_hybridp; }
+    bool comb() స్థిరరాశి { తిరిగి m_comb; }
+    స్థిరరాశి std::సదిశ<VarAccess>& varAccesses() స్థిరరాశి { తిరిగి m_varAccesses; }
+    శూన్య కూడు_Var_Access(AstVarScope* vscp, VAccess access) {
+        m_varAccesses.నెట్టు_వెనుక({vscp, access});
     }
 
     // LCOV_EXCL_START // Debug code
-    string name() const override VL_MT_STABLE {
-        return (cvtToHex(m_nodep) + "\\n " + cvtToStr(nodep()->typeName()));
+    string name() స్థిరరాశి override VL_MT_STABLE {
+        తిరిగి (cvt_గమ్యం_Hex(m_nodep) + "\\n " + cvt_గమ్యం_Str(nodep()->typeName()));
     }
-    string dotShape() const override { return VN_IS(m_nodep, Active) ? "doubleoctagon" : "rect"; }
+    string dotShape() స్థిరరాశి override { తిరిగి VN_IS(m_nodep, చురుకైన) ? "doubleoctagon" : "rect"; }
     // LCOV_EXCL_STOP
 };
 
-class OrderVarVertex VL_NOT_FINAL : public OrderEitherVertex {
-    VL_RTTI_IMPL(OrderVarVertex, OrderEitherVertex)
-    AstVarScope* const m_vscp;
+class క్రమం_Var_శీర్షం VL_NOT_FINAL : బహిరంగ క్రమం_Either_శీర్షం {
+    VL_RTTI_IMPL(క్రమం_Var_శీర్షం, క్రమం_Either_శీర్షం)
+    AstVarScope* స్థిరరాశి m_vscp;
 
-public:
+బహిరంగ:
     // CONSTRUCTOR
-    OrderVarVertex(OrderGraph* graphp, AstVarScope* vscp) VL_MT_DISABLED
-        : OrderEitherVertex{graphp, nullptr},
+    క్రమం_Var_శీర్షం(క్రమం_లేఖాచిత్రం* graphp, AstVarScope* vscp) VL_MT_DISABLED
+        : క్రమం_Either_శీర్షం{graphp, nullptr},
           m_vscp{vscp} {}
-    ~OrderVarVertex() override = default;
+    ~క్రమం_Var_శీర్షం() override = అప్రమేయ;
 
     // ACCESSORS
-    AstVarScope* vscp() const { return m_vscp; }
+    AstVarScope* vscp() స్థిరరాశి { తిరిగి m_vscp; }
 
     // LCOV_EXCL_START // Debug code
-    string dotShape() const override final { return "ellipse"; }
-    virtual string nameSuffix() const VL_MT_SAFE = 0;
-    string name() const override final VL_MT_STABLE {
-        return cvtToHex(m_vscp) + " " + nameSuffix() + "\\n " + m_vscp->name();
+    string dotShape() స్థిరరాశి override final { తిరిగి "ellipse"; }
+    మాయా string nameSuffix() స్థిరరాశి VL_MT_సురక్షిత = 0;
+    string name() స్థిరరాశి override final VL_MT_STABLE {
+        తిరిగి cvt_గమ్యం_Hex(m_vscp) + " " + nameSuffix() + "\\n " + m_vscp->name();
     }
     // LCOV_EXCL_STOP
 };
 
-class OrderVarStdVertex final : public OrderVarVertex {
-    VL_RTTI_IMPL(OrderVarStdVertex, OrderVarVertex)
-public:
+class క్రమం_Var_Std_శీర్షం final : బహిరంగ క్రమం_Var_శీర్షం {
+    VL_RTTI_IMPL(క్రమం_Var_Std_శీర్షం, క్రమం_Var_శీర్షం)
+బహిరంగ:
     // CONSTRUCTOR
-    OrderVarStdVertex(OrderGraph* graphp, AstVarScope* vscp) VL_MT_DISABLED
-        : OrderVarVertex{graphp, vscp} {}
-    ~OrderVarStdVertex() override = default;
+    క్రమం_Var_Std_శీర్షం(క్రమం_లేఖాచిత్రం* graphp, AstVarScope* vscp) VL_MT_DISABLED
+        : క్రమం_Var_శీర్షం{graphp, vscp} {}
+    ~క్రమం_Var_Std_శీర్షం() override = అప్రమేయ;
 
     // METHODS
-    bool domainMatters() override { return true; }
+    bool domainMatters() override { తిరిగి true; }
 
     // LCOV_EXCL_START // Debug code
-    string nameSuffix() const override VL_MT_SAFE { return ""; }
-    string dotColor() const override { return "grey"; }
+    string nameSuffix() స్థిరరాశి override VL_MT_సురక్షిత { తిరిగి ""; }
+    string dotColor() స్థిరరాశి override { తిరిగి "grey"; }
     // LCOV_EXCL_STOP
 };
 
-class OrderVarPreVertex final : public OrderVarVertex {
-    VL_RTTI_IMPL(OrderVarPreVertex, OrderVarVertex)
-public:
+class క్రమం_Var_Pre_శీర్షం final : బహిరంగ క్రమం_Var_శీర్షం {
+    VL_RTTI_IMPL(క్రమం_Var_Pre_శీర్షం, క్రమం_Var_శీర్షం)
+బహిరంగ:
     // CONSTRUCTOR
-    OrderVarPreVertex(OrderGraph* graphp, AstVarScope* vscp) VL_MT_DISABLED
-        : OrderVarVertex{graphp, vscp} {}
-    ~OrderVarPreVertex() override = default;
+    క్రమం_Var_Pre_శీర్షం(క్రమం_లేఖాచిత్రం* graphp, AstVarScope* vscp) VL_MT_DISABLED
+        : క్రమం_Var_శీర్షం{graphp, vscp} {}
+    ~క్రమం_Var_Pre_శీర్షం() override = అప్రమేయ;
 
     // METHODS
-    bool domainMatters() override { return false; }
+    bool domainMatters() override { తిరిగి false; }
 
     // LCOV_EXCL_START // Debug code
-    string nameSuffix() const override VL_MT_SAFE { return "PRE"; }
-    string dotColor() const override { return "green"; }
+    string nameSuffix() స్థిరరాశి override VL_MT_సురక్షిత { తిరిగి "PRE"; }
+    string dotColor() స్థిరరాశి override { తిరిగి "green"; }
     // LCOV_EXCL_STOP
 };
 
-class OrderVarPostVertex final : public OrderVarVertex {
-    VL_RTTI_IMPL(OrderVarPostVertex, OrderVarVertex)
-public:
+class క్రమం_Var_Post_శీర్షం final : బహిరంగ క్రమం_Var_శీర్షం {
+    VL_RTTI_IMPL(క్రమం_Var_Post_శీర్షం, క్రమం_Var_శీర్షం)
+బహిరంగ:
     // CONSTRUCTOR
-    OrderVarPostVertex(OrderGraph* graphp, AstVarScope* vscp) VL_MT_DISABLED
-        : OrderVarVertex{graphp, vscp} {}
-    ~OrderVarPostVertex() override = default;
+    క్రమం_Var_Post_శీర్షం(క్రమం_లేఖాచిత్రం* graphp, AstVarScope* vscp) VL_MT_DISABLED
+        : క్రమం_Var_శీర్షం{graphp, vscp} {}
+    ~క్రమం_Var_Post_శీర్షం() override = అప్రమేయ;
 
     // METHODS
-    bool domainMatters() override { return false; }
+    bool domainMatters() override { తిరిగి false; }
 
     // LCOV_EXCL_START // Debug code
-    string nameSuffix() const override VL_MT_SAFE { return "POST"; }
-    string dotColor() const override { return "red"; }
+    string nameSuffix() స్థిరరాశి override VL_MT_సురక్షిత { తిరిగి "POST"; }
+    string dotColor() స్థిరరాశి override { తిరిగి "red"; }
     // LCOV_EXCL_STOP
 };
 
-class OrderVarPordVertex final : public OrderVarVertex {
-    VL_RTTI_IMPL(OrderVarPordVertex, OrderVarVertex)
-public:
+class క్రమం_Var_Pord_శీర్షం final : బహిరంగ క్రమం_Var_శీర్షం {
+    VL_RTTI_IMPL(క్రమం_Var_Pord_శీర్షం, క్రమం_Var_శీర్షం)
+బహిరంగ:
     // CONSTRUCTOR
-    OrderVarPordVertex(OrderGraph* graphp, AstVarScope* vscp) VL_MT_DISABLED
-        : OrderVarVertex{graphp, vscp} {}
-    ~OrderVarPordVertex() override = default;
+    క్రమం_Var_Pord_శీర్షం(క్రమం_లేఖాచిత్రం* graphp, AstVarScope* vscp) VL_MT_DISABLED
+        : క్రమం_Var_శీర్షం{graphp, vscp} {}
+    ~క్రమం_Var_Pord_శీర్షం() override = అప్రమేయ;
 
     // METHODS
-    bool domainMatters() override { return false; }
+    bool domainMatters() override { తిరిగి false; }
 
     // LCOV_EXCL_START // Debug code
-    string nameSuffix() const override VL_MT_SAFE { return "PORD"; }
-    string dotColor() const override { return "blue"; }
+    string nameSuffix() స్థిరరాశి override VL_MT_సురక్షిత { తిరిగి "PORD"; }
+    string dotColor() స్థిరరాశి override { తిరిగి "blue"; }
     // LCOV_EXCL_STOP
 };
 
 //======================================================================
 // Edge type
 
-class OrderEdge final : public V3GraphEdge {
-    VL_RTTI_IMPL(OrderEdge, V3GraphEdge)
-    friend class OrderGraph;  // Only the OrderGraph can create these
+class క్రమం_అంచు final : బహిరంగ V3_లేఖాచిత్రం_అంచు {
+    VL_RTTI_IMPL(క్రమం_అంచు, V3_లేఖాచిత్రం_అంచు)
+    మిత్ర class క్రమం_లేఖాచిత్రం;  // Only the OrderGraph can create these
     // CONSTRUCTOR
-    OrderEdge(OrderGraph* graphp, OrderEitherVertex* fromp, OrderEitherVertex* top, int weight,
-              bool cutable) VL_MT_DISABLED : V3GraphEdge{graphp, fromp, top, weight, cutable} {}
-    ~OrderEdge() override = default;
+    క్రమం_అంచు(క్రమం_లేఖాచిత్రం* graphp, క్రమం_Either_శీర్షం* fromp, క్రమం_Either_శీర్షం* శిఖరం, పూర్ణాంకం బరువు_2,
+              bool cutable) VL_MT_DISABLED : V3_లేఖాచిత్రం_అంచు{graphp, fromp, శిఖరం, బరువు_2, cutable} {}
+    ~క్రమం_అంచు() override = అప్రమేయ;
 
     // LCOV_EXCL_START // Debug code
-    string dotColor() const override { return cutable() ? "green" : "red"; }
+    string dotColor() స్థిరరాశి override { తిరిగి cutable() ? "green" : "red"; }
     // LCOV_EXCL_STOP
 };
 
 //======================================================================
 // Inline methods
 
-void OrderGraph::addHardEdge(OrderLogicVertex* fromp, OrderVarVertex* top,
-                             int weight) VL_MT_DISABLED {
-    new OrderEdge{this, fromp, top, weight, /* cutable: */ false};
+శూన్య క్రమం_లేఖాచిత్రం::కూడు_Hard_అంచు(క్రమం_Logic_శీర్షం* fromp, క్రమం_Var_శీర్షం* శిఖరం,
+                             పూర్ణాంకం బరువు_2) VL_MT_DISABLED {
+    new క్రమం_అంచు{this, fromp, శిఖరం, బరువు_2, /* cutable: */ false};
 }
-void OrderGraph::addHardEdge(OrderVarVertex* fromp, OrderLogicVertex* top,
-                             int weight) VL_MT_DISABLED {
-    new OrderEdge{this, fromp, top, weight, /* cutable: */ false};
+శూన్య క్రమం_లేఖాచిత్రం::కూడు_Hard_అంచు(క్రమం_Var_శీర్షం* fromp, క్రమం_Logic_శీర్షం* శిఖరం,
+                             పూర్ణాంకం బరువు_2) VL_MT_DISABLED {
+    new క్రమం_అంచు{this, fromp, శిఖరం, బరువు_2, /* cutable: */ false};
 }
-void OrderGraph::addSoftEdge(OrderLogicVertex* fromp, OrderVarVertex* top,
-                             int weight) VL_MT_DISABLED {
-    new OrderEdge{this, fromp, top, weight, /* cutable: */ true};
+శూన్య క్రమం_లేఖాచిత్రం::కూడు_Soft_అంచు(క్రమం_Logic_శీర్షం* fromp, క్రమం_Var_శీర్షం* శిఖరం,
+                             పూర్ణాంకం బరువు_2) VL_MT_DISABLED {
+    new క్రమం_అంచు{this, fromp, శిఖరం, బరువు_2, /* cutable: */ true};
 }
-void OrderGraph::addSoftEdge(OrderVarVertex* fromp, OrderLogicVertex* top,
-                             int weight) VL_MT_DISABLED {
-    new OrderEdge{this, fromp, top, weight, /* cutable: */ true};
+శూన్య క్రమం_లేఖాచిత్రం::కూడు_Soft_అంచు(క్రమం_Var_శీర్షం* fromp, క్రమం_Logic_శీర్షం* శిఖరం,
+                             పూర్ణాంకం బరువు_2) VL_MT_DISABLED {
+    new క్రమం_అంచు{this, fromp, శిఖరం, బరువు_2, /* cutable: */ true};
 }
 
-#endif  // Guard
+#అయితే_ముగింపు  // Guard

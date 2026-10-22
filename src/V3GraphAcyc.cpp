@@ -14,17 +14,17 @@
 //
 //*************************************************************************
 
-#define VL_MT_DISABLED_CODE_UNIT 1
+#నిర్వచించు VL_MT_DISABLED_సంకేతం_UNIT 1
 
-#include "config_build.h"
-#include "verilatedos.h"
+#అన్తర్భావ "config_build.h"
+#అన్తర్భావ "verilatedos.h"
 
-#include "V3Global.h"
-#include "V3Graph.h"
+#అన్తర్భావ "V3Global.h"
+#అన్తర్భావ "V3Graph.h"
 
-#include <algorithm>
-#include <list>
-#include <vector>
+#అన్తర్భావ <algorithm>
+#అన్తర్భావ <list>
+#అన్తర్భావ <vector>
 
 VL_DEFINE_DEBUG_FUNCTIONS;
 
@@ -33,77 +33,77 @@ VL_DEFINE_DEBUG_FUNCTIONS;
 // Algorithms - acyclic
 //      Break the minimal number of backward edges to make the graph acyclic
 
-class GraphAcycVertex final : public V3GraphVertex {
-    VL_RTTI_IMPL(GraphAcycVertex, V3GraphVertex)
+తరగతి లేఖాచిత్రం_Acyc_శీర్షం final : బహిరంగ V3_లేఖాచిత్రం_శీర్షం {
+    VL_RTTI_IMPL(లేఖాచిత్రం_Acyc_శీర్షం, V3_లేఖాచిత్రం_శీర్షం)
     // user() is used for various sub-algorithm pieces
-    V3GraphVertex* const m_origVertexp;  // Pointer to first vertex this represents
-protected:
-    friend class GraphAcyc;
-    V3ListLinks<GraphAcycVertex> m_links;  // List links to store instances of this class
+    V3_లేఖాచిత్రం_శీర్షం* స్థిరరాశి m_origVertexp;  // Pointer to first vertex this represents
+రక్షిత:
+    మిత్ర తరగతి లేఖాచిత్రం_Acyc;
+    V3ListLinks<లేఖాచిత్రం_Acyc_శీర్షం> m_links;  // List links to store instances of this class
     uint32_t m_storedRank = 0;  // Rank held until commit to edge placement
-    bool m_onWorkList = false;  // True if already on list of work to do
-    bool m_deleted = false;  // True if deleted
+    తార్కిక m_onWorkList = అబద్ధం;  // True if already on list of work to do
+    తార్కిక m_deleted = అబద్ధం;  // True if deleted
 
-private:
-    V3ListLinks<GraphAcycVertex>& links() { return m_links; }
+అంతరంగ:
+    V3ListLinks<లేఖాచిత్రం_Acyc_శీర్షం>& links() { తిరిగి m_links; }
 
-public:
+బహిరంగ:
     // List type to store instances of this class
-    using List = V3List<GraphAcycVertex, &GraphAcycVertex::links>;
+    ఉపయోగించి List = V3List<లేఖాచిత్రం_Acyc_శీర్షం, &లేఖాచిత్రం_Acyc_శీర్షం::links>;
 
-    GraphAcycVertex(V3Graph* graphp, V3GraphVertex* origVertexp)
-        : V3GraphVertex{graphp}
+    లేఖాచిత్రం_Acyc_శీర్షం(V3_లేఖాచిత్రం* graphp, V3_లేఖాచిత్రం_శీర్షం* origVertexp)
+        : V3_లేఖాచిత్రం_శీర్షం{graphp}
         , m_origVertexp{origVertexp} {}
-    ~GraphAcycVertex() override = default;
-    V3GraphVertex* origVertexp() const { return m_origVertexp; }
-    void setDelete() { m_deleted = true; }
-    bool isDelete() const { return m_deleted; }
+    ~లేఖాచిత్రం_Acyc_శీర్షం() override = అప్రమేయ;
+    V3_లేఖాచిత్రం_శీర్షం* origVertexp() స్థిరరాశి { తిరిగి m_origVertexp; }
+    శూన్య సమితి_Delete() { m_deleted = నిజం; }
+    తార్కిక isDelete() స్థిరరాశి { తిరిగి m_deleted; }
     // cppcheck-suppress uselessOverride // cppcheck is wrong ...
-    string name() const override { return m_origVertexp->name(); }
+    string name() స్థిరరాశి override { తిరిగి m_origVertexp->name(); }
     // cppcheck-suppress uselessOverride // cppcheck is wrong ...
-    string dotColor() const override { return m_origVertexp->dotColor(); }
+    string dotColor() స్థిరరాశి override { తిరిగి m_origVertexp->dotColor(); }
     // cppcheck-suppress uselessOverride // cppcheck is wrong ...
-    FileLine* fileline() const override { return m_origVertexp->fileline(); }
+    File_పంక్తి* fileline() స్థిరరాశి override { తిరిగి m_origVertexp->fileline(); }
 };
 
 //--------------------------------------------------------------------
 
-class GraphAcycEdge final : public V3GraphEdge {
-    VL_RTTI_IMPL(GraphAcycEdge, V3GraphEdge)
+తరగతి లేఖాచిత్రం_Acyc_అంచు final : బహిరంగ V3_లేఖాచిత్రం_అంచు {
+    VL_RTTI_IMPL(లేఖాచిత్రం_Acyc_అంచు, V3_లేఖాచిత్రం_అంచు)
     // userp() is always used to point to the head original graph edge
-private:
-    using OrigEdgeList = std::list<V3GraphEdge*>;  // List of orig edges, see also GraphAcyc's decl
-    V3GraphEdge* origEdgep() const {
-        const OrigEdgeList* const oEListp = static_cast<OrigEdgeList*>(userp());
-        UASSERT(oEListp, "No original edge associated with acyc edge " << this);
-        return (oEListp->front());
+అంతరంగ:
+    ఉపయోగించి Orig_అంచు_List = std::list<V3_లేఖాచిత్రం_అంచు*>;  // List of orig edges, see also GraphAcyc's decl
+    V3_లేఖాచిత్రం_అంచు* origEdgep() స్థిరరాశి {
+        స్థిరరాశి Orig_అంచు_List* స్థిరరాశి oEListp = static_cast<Orig_అంచు_List*>(userp());
+        UASSERT(oEListp, "No original edge associated with acyc edge " << ఇది);
+        తిరిగి (oEListp->front());
     }
 
-public:
-    GraphAcycEdge(V3Graph* graphp, V3GraphVertex* fromp, V3GraphVertex* top, int weight,
-                  bool cutable = false)
-        : V3GraphEdge{graphp, fromp, top, weight, cutable} {}
-    ~GraphAcycEdge() override = default;
+బహిరంగ:
+    లేఖాచిత్రం_Acyc_అంచు(V3_లేఖాచిత్రం* graphp, V3_లేఖాచిత్రం_శీర్షం* fromp, V3_లేఖాచిత్రం_శీర్షం* శిఖరం, పూర్ణాంకం బరువు_2,
+                  తార్కిక cutable = అబద్ధం)
+        : V3_లేఖాచిత్రం_అంచు{graphp, fromp, శిఖరం, బరువు_2, cutable} {}
+    ~లేఖాచిత్రం_Acyc_అంచు() override = అప్రమేయ;
     // yellow=we might still cut it, else oldEdge: yellowGreen=made uncutable, red=uncutable
-    string dotColor() const override { return (cutable() ? "yellow" : origEdgep()->dotColor()); }
+    string dotColor() స్థిరరాశి override { తిరిగి (cutable() ? "yellow" : origEdgep()->dotColor()); }
 };
 
 //--------------------------------------------------------------------
 
-struct GraphAcycEdgeCmp final {
-    bool operator()(const V3GraphEdge* lhsp, const V3GraphEdge* rhsp) const {
-        if (lhsp->weight() > rhsp->weight()) return true;  // LHS goes first
-        if (lhsp->weight() < rhsp->weight()) return false;  // RHS goes first
-        return false;
+నిర్మాణం లేఖాచిత్రం_Acyc_అంచు_Cmp final {
+    తార్కిక క్రియాకారకం()(స్థిరరాశి V3_లేఖాచిత్రం_అంచు* lhsp, స్థిరరాశి V3_లేఖాచిత్రం_అంచు* rhsp) స్థిరరాశి {
+        ఒకవేళ (lhsp->బరువు_2() > rhsp->బరువు_2()) తిరిగి నిజం;  // LHS goes first
+        ఒకవేళ (lhsp->బరువు_2() < rhsp->బరువు_2()) తిరిగి అబద్ధం;  // RHS goes first
+        తిరిగి అబద్ధం;
     }
 };
 
 //--------------------------------------------------------------------
 
 // CLASSES
-class GraphAcyc final {
-    using OrigEdgeList
-        = std::list<V3GraphEdge*>;  // List of orig edges, see also GraphAcycEdge's decl
+తరగతి లేఖాచిత్రం_Acyc final {
+    ఉపయోగించి Orig_అంచు_List
+        = std::list<V3_లేఖాచిత్రం_అంచు*>;  // List of orig edges, see also GraphAcycEdge's decl
     // GRAPH USERS
     //  origGraph
     //    GraphVertex::user()   GraphAycVerted* New graph node
@@ -111,154 +111,154 @@ class GraphAcyc final {
     //    GraphEdge::user()     OrigEdgeList*   Old graph edges
     //    GraphVertex::user     bool            Detection of loops in simplifyDupIterate
     // MEMBERS
-    V3Graph* const m_origGraphp;  // Original graph
-    V3Graph m_breakGraph;  // Graph with only breakable edges represented
-    GraphAcycVertex::List m_work;  // List of vertices with optimization work left
-    std::vector<OrigEdgeList*> m_origEdgeDelp;  // List of deletions to do when done
-    const V3EdgeFuncP
-        m_origEdgeFuncp;  // Function that says we follow this edge (in original graph)
-    uint32_t m_placeStep = 0;  // Number that user() must be equal to to indicate processing
+    V3_లేఖాచిత్రం* స్థిరరాశి m_origGraphp;  // Original graph
+    V3_లేఖాచిత్రం m_break_లేఖాచిత్రం;  // Graph with only breakable edges represented
+    లేఖాచిత్రం_Acyc_శీర్షం::List m_work;  // List of vertices with optimization work left
+    std::సదిశ<Orig_అంచు_List*> m_orig_అంచు_Delp;  // List of deletions to do when done
+    స్థిరరాశి V3_అంచు_Func_P
+        m_orig_అంచు_Funcp;  // Function that says we follow this edge (in original graph)
+    uint32_t m_ఉంచు_అడుగు = 0;  // Number that user() must be equal to to indicate processing
 
     // METHODS
-    void buildGraph(V3Graph* origGraphp);
-    void buildGraphIterate(V3GraphVertex* overtexp, GraphAcycVertex* avertexp);
-    void simplify(bool allowCut);
-    void simplifyNone(GraphAcycVertex* avertexp);
-    void simplifyOne(GraphAcycVertex* avertexp);
-    void simplifyOut(GraphAcycVertex* avertexp);
-    void simplifyDup(GraphAcycVertex* avertexp);
-    void cutBasic(GraphAcycVertex* avertexp);
-    void cutBackward(GraphAcycVertex* avertexp);
-    void deleteMarked();
-    void place();
-    void placeTryEdge(V3GraphEdge* edgep);
-    bool placeIterate(GraphAcycVertex* vertexp, uint32_t currentRank);
+    శూన్య build_లేఖాచిత్రం(V3_లేఖాచిత్రం* origGraphp);
+    శూన్య build_లేఖాచిత్రం_Iterate(V3_లేఖాచిత్రం_శీర్షం* overtexp, లేఖాచిత్రం_Acyc_శీర్షం* avertexp);
+    శూన్య simplify(తార్కిక allowCut);
+    శూన్య simplifyNone(లేఖాచిత్రం_Acyc_శీర్షం* avertexp);
+    శూన్య simplifyOne(లేఖాచిత్రం_Acyc_శీర్షం* avertexp);
+    శూన్య simplify_బహిర్గతం(లేఖాచిత్రం_Acyc_శీర్షం* avertexp);
+    శూన్య simplifyDup(లేఖాచిత్రం_Acyc_శీర్షం* avertexp);
+    శూన్య cutBasic(లేఖాచిత్రం_Acyc_శీర్షం* avertexp);
+    శూన్య cutBackward(లేఖాచిత్రం_Acyc_శీర్షం* avertexp);
+    శూన్య deleteMarked();
+    శూన్య ఉంచు_2();
+    శూన్య ఉంచు_Try_అంచు(V3_లేఖాచిత్రం_అంచు* edgep);
+    తార్కిక ఉంచు_Iterate(లేఖాచిత్రం_Acyc_శీర్షం* vertexp, uint32_t currentRank);
 
-    bool origFollowEdge(V3GraphEdge* edgep) {
-        return (edgep->weight() && (m_origEdgeFuncp)(edgep));
+    తార్కిక orig_Follow_అంచు(V3_లేఖాచిత్రం_అంచు* edgep) {
+        తిరిగి (edgep->బరువు_2() && (m_orig_అంచు_Funcp)(edgep));
     }
-    void edgeFromEdge(V3GraphEdge* oldedgep, V3GraphVertex* fromp, V3GraphVertex* top) {
+    శూన్య అంచు_From_అంచు(V3_లేఖాచిత్రం_అంచు* oldedgep, V3_లేఖాచిత్రం_శీర్షం* fromp, V3_లేఖాచిత్రం_శీర్షం* శిఖరం) {
         // Make new breakGraph edge, with old edge as a template
-        GraphAcycEdge* const newEdgep = new GraphAcycEdge{&m_breakGraph, fromp, top,
-                                                          oldedgep->weight(), oldedgep->cutable()};
+        లేఖాచిత్రం_Acyc_అంచు* స్థిరరాశి newEdgep = కొత్త లేఖాచిత్రం_Acyc_అంచు{&m_break_లేఖాచిత్రం, fromp, శిఖరం,
+                                                          oldedgep->బరువు_2(), oldedgep->cutable()};
         newEdgep->userp(oldedgep->userp());  // Keep pointer to OrigEdgeList
     }
-    void addOrigEdgep(V3GraphEdge* toEdgep, V3GraphEdge* addEdgep) {
+    శూన్య కూడు_Orig_Edgep(V3_లేఖాచిత్రం_అంచు* గమ్యం_Edgep, V3_లేఖాచిత్రం_అంచు* కూడు_Edgep) {
         // Add addEdge (or it's list) to list of edges that break edge represents
         // Note addEdge may already have a bunch of similar linked edge representations.  Yuk.
-        UASSERT(addEdgep, "Adding nullptr");
-        if (!toEdgep->userp()) {
-            OrigEdgeList* const oep = new OrigEdgeList;
-            m_origEdgeDelp.push_back(oep);
-            toEdgep->userp(oep);
+        UASSERT(కూడు_Edgep, "Adding nullptr");
+        ఒకవేళ (!గమ్యం_Edgep->userp()) {
+            Orig_అంచు_List* స్థిరరాశి oep = కొత్త Orig_అంచు_List;
+            m_orig_అంచు_Delp.నెట్టు_వెనుక(oep);
+            గమ్యం_Edgep->userp(oep);
         }
-        OrigEdgeList* const oEListp = static_cast<OrigEdgeList*>(toEdgep->userp());
-        if (OrigEdgeList* const addListp = static_cast<OrigEdgeList*>(addEdgep->userp())) {
-            for (const auto& itr : *addListp) oEListp->push_back(itr);
-            addListp->clear();  // Done with it
-        } else {
-            oEListp->push_back(addEdgep);
+        Orig_అంచు_List* స్థిరరాశి oEListp = static_cast<Orig_అంచు_List*>(గమ్యం_Edgep->userp());
+        ఒకవేళ (Orig_అంచు_List* స్థిరరాశి కూడు_Listp = static_cast<Orig_అంచు_List*>(కూడు_Edgep->userp())) {
+            కొరకు (స్థిరరాశి స్వయంచాలక& itr : *కూడు_Listp) oEListp->నెట్టు_వెనుక(itr);
+            కూడు_Listp->clear();  // Done with it
+        } లేకపోతే {
+            oEListp->నెట్టు_వెనుక(కూడు_Edgep);
         }
     }
-    void cutOrigEdge(V3GraphEdge* breakEdgep, const char* why) {
+    శూన్య cut_Orig_అంచు(V3_లేఖాచిత్రం_అంచు* breakEdgep, స్థిరరాశి అక్షరం* why) {
         // From the break edge, cut edges in original graph it represents
         UINFO(8, why << " CUT " << breakEdgep->fromp());
         breakEdgep->cut();
-        const OrigEdgeList* const oEListp = static_cast<OrigEdgeList*>(breakEdgep->userp());
-        if (!oEListp) {
+        స్థిరరాశి Orig_అంచు_List* స్థిరరాశి oEListp = static_cast<Orig_అంచు_List*>(breakEdgep->userp());
+        ఒకవేళ (!oEListp) {
             v3fatalSrc("No original edge associated with cutting edge " << breakEdgep);
         }
         // The breakGraph edge may represent multiple real edges; cut them all
-        for (const auto& origEdgep : *oEListp) {
+        కొరకు (స్థిరరాశి స్వయంచాలక& origEdgep : *oEListp) {
             origEdgep->cut();
-            UINFO(8, "  " << why << "   " << origEdgep->fromp() << " ->" << origEdgep->top());
+            UINFO(8, "  " << why << "   " << origEdgep->fromp() << " ->" << origEdgep->శిఖరం());
         }
     }
     // Work Queue
-    void workPush(V3GraphVertex* vertexp) {
-        GraphAcycVertex* const avertexp = static_cast<GraphAcycVertex*>(vertexp);
+    శూన్య work_నెట్టు(V3_లేఖాచిత్రం_శీర్షం* vertexp) {
+        లేఖాచిత్రం_Acyc_శీర్షం* స్థిరరాశి avertexp = static_cast<లేఖాచిత్రం_Acyc_శీర్షం*>(vertexp);
         // Add vertex to list of nodes needing further optimization trials
-        if (!avertexp->m_onWorkList) {
-            avertexp->m_onWorkList = true;
-            m_work.linkBack(avertexp);
+        ఒకవేళ (!avertexp->m_onWorkList) {
+            avertexp->m_onWorkList = నిజం;
+            m_work.link_వెనుక(avertexp);
         }
     }
-    GraphAcycVertex* workBeginp() { return m_work.frontp(); }
-    void workPop() {
-        GraphAcycVertex* const avertexp = workBeginp();
-        avertexp->m_onWorkList = false;
+    లేఖాచిత్రం_Acyc_శీర్షం* workBeginp() { తిరిగి m_work.frontp(); }
+    శూన్య work_తీయి() {
+        లేఖాచిత్రం_Acyc_శీర్షం* స్థిరరాశి avertexp = workBeginp();
+        avertexp->m_onWorkList = అబద్ధం;
         m_work.unlink(avertexp);
     }
 
-public:
+బహిరంగ:
     // CONSTRUCTORS
-    GraphAcyc(V3Graph* origGraphp, V3EdgeFuncP edgeFuncp)
+    లేఖాచిత్రం_Acyc(V3_లేఖాచిత్రం* origGraphp, V3_అంచు_Func_P అంచు_Funcp)
         : m_origGraphp{origGraphp}
-        , m_origEdgeFuncp{edgeFuncp} {}
-    ~GraphAcyc() {
-        for (OrigEdgeList* ip : m_origEdgeDelp) delete ip;
-        m_origEdgeDelp.clear();
+        , m_orig_అంచు_Funcp{అంచు_Funcp} {}
+    ~లేఖాచిత్రం_Acyc() {
+        కొరకు (Orig_అంచు_List* ip : m_orig_అంచు_Delp) తొలగించు ip;
+        m_orig_అంచు_Delp.clear();
     }
-    void main();
+    శూన్య ప్రధాన();
 };
 
 //--------------------------------------------------------------------
 
-void GraphAcyc::buildGraph(V3Graph* origGraphp) {
+శూన్య లేఖాచిత్రం_Acyc::build_లేఖాచిత్రం(V3_లేఖాచిత్రం* origGraphp) {
     // Presumes the graph has been strongly ordered,
     // and thus there's a unique color if there are loops in this subgraph.
 
     // For each old node, make a new graph node for optimization
     origGraphp->userClearVertices();
-    origGraphp->userClearEdges();
-    for (V3GraphVertex& overtex : origGraphp->vertices()) {
-        if (overtex.color()) {
-            GraphAcycVertex* const avertexp = new GraphAcycVertex{&m_breakGraph, &overtex};
+    origGraphp->user_Clear_అంచులు();
+    కొరకు (V3_లేఖాచిత్రం_శీర్షం& overtex : origGraphp->vertices()) {
+        ఒకవేళ (overtex.color()) {
+            లేఖాచిత్రం_Acyc_శీర్షం* స్థిరరాశి avertexp = కొత్త లేఖాచిత్రం_Acyc_శీర్షం{&m_break_లేఖాచిత్రం, &overtex};
             overtex.userp(avertexp);  // Stash so can look up later
         }
     }
 
     // Build edges between logic vertices
-    for (V3GraphVertex& overtex : origGraphp->vertices()) {
-        if (overtex.color()) {
-            GraphAcycVertex* const avertexp = static_cast<GraphAcycVertex*>(overtex.userp());
-            buildGraphIterate(&overtex, avertexp);
+    కొరకు (V3_లేఖాచిత్రం_శీర్షం& overtex : origGraphp->vertices()) {
+        ఒకవేళ (overtex.color()) {
+            లేఖాచిత్రం_Acyc_శీర్షం* స్థిరరాశి avertexp = static_cast<లేఖాచిత్రం_Acyc_శీర్షం*>(overtex.userp());
+            build_లేఖాచిత్రం_Iterate(&overtex, avertexp);
         }
     }
 }
 
-void GraphAcyc::buildGraphIterate(V3GraphVertex* overtexp, GraphAcycVertex* avertexp) {
+శూన్య లేఖాచిత్రం_Acyc::build_లేఖాచిత్రం_Iterate(V3_లేఖాచిత్రం_శీర్షం* overtexp, లేఖాచిత్రం_Acyc_శీర్షం* avertexp) {
     // Make new edges
-    for (V3GraphEdge& edge : overtexp->outEdges()) {
-        if (origFollowEdge(&edge)) {  // not cut
-            const V3GraphVertex* toVertexp = edge.top();
-            if (toVertexp->color()) {
-                GraphAcycVertex* const toAVertexp
-                    = static_cast<GraphAcycVertex*>(toVertexp->userp());
+    కొరకు (V3_లేఖాచిత్రం_అంచు& అంచు : overtexp->బహిర్గతం_అంచులు()) {
+        ఒకవేళ (orig_Follow_అంచు(&అంచు)) {  // not cut
+            స్థిరరాశి V3_లేఖాచిత్రం_శీర్షం* గమ్యం_Vertexp = అంచు.శిఖరం();
+            ఒకవేళ (గమ్యం_Vertexp->color()) {
+                లేఖాచిత్రం_Acyc_శీర్షం* స్థిరరాశి గమ్యం_AVertexp
+                    = static_cast<లేఖాచిత్రం_Acyc_శీర్షం*>(గమ్యం_Vertexp->userp());
                 // Replicate the old edge into the new graph
                 // There may be multiple edges between same pairs of vertices
-                V3GraphEdge* breakEdgep = new GraphAcycEdge{&m_breakGraph, avertexp, toAVertexp,
-                                                            edge.weight(), edge.cutable()};
-                addOrigEdgep(breakEdgep, &edge);  // So can find original edge
+                V3_లేఖాచిత్రం_అంచు* breakEdgep = కొత్త లేఖాచిత్రం_Acyc_అంచు{&m_break_లేఖాచిత్రం, avertexp, గమ్యం_AVertexp,
+                                                            అంచు.బరువు_2(), అంచు.cutable()};
+                కూడు_Orig_Edgep(breakEdgep, &అంచు);  // So can find original edge
             }
         }
     }
 }
 
-void GraphAcyc::simplify(bool allowCut) {
+శూన్య లేఖాచిత్రం_Acyc::simplify(తార్కిక allowCut) {
     // Add all nodes to list of work to do
-    for (V3GraphVertex& vertex : m_breakGraph.vertices()) workPush(&vertex);
+    కొరకు (V3_లేఖాచిత్రం_శీర్షం& శీర్షం : m_break_లేఖాచిత్రం.vertices()) work_నెట్టు(&శీర్షం);
     // Optimize till everything finished
-    while (GraphAcycVertex* vertexp = workBeginp()) {
-        workPop();
+    అయితే (లేఖాచిత్రం_Acyc_శీర్షం* vertexp = workBeginp()) {
+        work_తీయి();
         simplifyNone(vertexp);
         simplifyOne(vertexp);
-        simplifyOut(vertexp);
+        simplify_బహిర్గతం(vertexp);
         simplifyDup(vertexp);
-        if (allowCut) {
+        ఒకవేళ (allowCut) {
             // The main algorithm works without these, though slower
             // So if changing the main algorithm, comment these out for a test run
-            if (v3Global.opt.fAcycSimp()) {
+            ఒకవేళ (v3Global.opt.fAcycSimp()) {
                 cutBasic(vertexp);
                 cutBackward(vertexp);
             }
@@ -267,298 +267,298 @@ void GraphAcyc::simplify(bool allowCut) {
     deleteMarked();
 }
 
-void GraphAcyc::deleteMarked() {
+శూన్య లేఖాచిత్రం_Acyc::deleteMarked() {
     // Delete nodes marked for removal
-    for (V3GraphVertex* const vtxp : m_breakGraph.vertices().unlinkable()) {
-        GraphAcycVertex* const avertexp = static_cast<GraphAcycVertex*>(vtxp);
-        if (avertexp->isDelete()) {
-            VL_DO_DANGLING(avertexp->unlinkDelete(&m_breakGraph), avertexp);
+    కొరకు (V3_లేఖాచిత్రం_శీర్షం* స్థిరరాశి vtxp : m_break_లేఖాచిత్రం.vertices().unlinkable()) {
+        లేఖాచిత్రం_Acyc_శీర్షం* స్థిరరాశి avertexp = static_cast<లేఖాచిత్రం_Acyc_శీర్షం*>(vtxp);
+        ఒకవేళ (avertexp->isDelete()) {
+            VL_DO_DANGLING(avertexp->unlinkDelete(&m_break_లేఖాచిత్రం), avertexp);
         }
     }
 }
 
-void GraphAcyc::simplifyNone(GraphAcycVertex* avertexp) {
+శూన్య లేఖాచిత్రం_Acyc::simplifyNone(లేఖాచిత్రం_Acyc_శీర్షం* avertexp) {
     // Don't need any vertices with no inputs, There's no way they can have a loop.
     // Likewise, vertices with no outputs
-    if (avertexp->isDelete()) return;
-    if (avertexp->inEmpty() || avertexp->outEmpty()) {
+    ఒకవేళ (avertexp->isDelete()) తిరిగి;
+    ఒకవేళ (avertexp->లోపల_ఖాళీలు() || avertexp->బహిర్గతం_ఖాళీలు()) {
         UINFO(9, "  SimplifyNoneRemove " << avertexp);
-        avertexp->setDelete();  // Mark so we won't delete it twice
+        avertexp->సమితి_Delete();  // Mark so we won't delete it twice
         // Remove edges
-        while (V3GraphEdge* const edgep = avertexp->outEdges().frontp()) {
-            workPush(edgep->top());
+        అయితే (V3_లేఖాచిత్రం_అంచు* స్థిరరాశి edgep = avertexp->బహిర్గతం_అంచులు().frontp()) {
+            work_నెట్టు(edgep->శిఖరం());
             VL_DO_DANGLING(edgep->unlinkDelete(), edgep);
         }
-        while (V3GraphEdge* const edgep = avertexp->inEdges().frontp()) {
-            workPush(edgep->fromp());
+        అయితే (V3_లేఖాచిత్రం_అంచు* స్థిరరాశి edgep = avertexp->లోపల_అంచులు().frontp()) {
+            work_నెట్టు(edgep->fromp());
             VL_DO_DANGLING(edgep->unlinkDelete(), edgep);
         }
     }
 }
 
-void GraphAcyc::simplifyOne(GraphAcycVertex* avertexp) {
+శూన్య లేఖాచిత్రం_Acyc::simplifyOne(లేఖాచిత్రం_Acyc_శీర్షం* avertexp) {
     // If a node has one input and one output, we can remove it and change the edges
-    if (avertexp->isDelete()) return;
-    if (avertexp->inSize1() && avertexp->outSize1()) {
-        V3GraphEdge* const inEdgep = avertexp->inEdges().frontp();
-        V3GraphEdge* const outEdgep = avertexp->outEdges().frontp();
-        V3GraphVertex* const inVertexp = inEdgep->fromp();
-        V3GraphVertex* const outVertexp = outEdgep->top();
+    ఒకవేళ (avertexp->isDelete()) తిరిగి;
+    ఒకవేళ (avertexp->లోపల_Size1() && avertexp->బహిర్గతం_Size1()) {
+        V3_లేఖాచిత్రం_అంచు* స్థిరరాశి లోపల_Edgep = avertexp->లోపల_అంచులు().frontp();
+        V3_లేఖాచిత్రం_అంచు* స్థిరరాశి బహిర్గతం_Edgep = avertexp->బహిర్గతం_అంచులు().frontp();
+        V3_లేఖాచిత్రం_శీర్షం* స్థిరరాశి లోపల_Vertexp = లోపల_Edgep->fromp();
+        V3_లేఖాచిత్రం_శీర్షం* స్థిరరాశి బహిర్గతం_Vertexp = బహిర్గతం_Edgep->శిఖరం();
         // The in and out may be the same node; we'll make a loop
         // The in OR out may be THIS node; we can't delete it then.
-        if (inVertexp != avertexp && outVertexp != avertexp) {
+        ఒకవేళ (లోపల_Vertexp != avertexp && బహిర్గతం_Vertexp != avertexp) {
             UINFO(9, "  SimplifyOneRemove " << avertexp);
-            avertexp->setDelete();  // Mark so we won't delete it twice
+            avertexp->సమితి_Delete();  // Mark so we won't delete it twice
             // Make a new edge connecting the two vertices directly
             // If both are breakable, we pick the one with less weight, else it's arbitrary
             // We can forget about the origEdge list for the "non-selected" set of edges,
             // as we need to break only one set or the other set of edges, not both.
             // (This is why we must give preference to the cutable set.)
-            V3GraphEdge* const templateEdgep
-                = ((inEdgep->cutable()
-                    && (!outEdgep->cutable() || inEdgep->weight() < outEdgep->weight()))
-                       ? inEdgep
-                       : outEdgep);
+            V3_లేఖాచిత్రం_అంచు* స్థిరరాశి templateEdgep
+                = ((లోపల_Edgep->cutable()
+                    && (!బహిర్గతం_Edgep->cutable() || లోపల_Edgep->బరువు_2() < బహిర్గతం_Edgep->బరువు_2()))
+                       ? లోపల_Edgep
+                       : బహిర్గతం_Edgep);
             // cppcheck-suppress leakReturnValNotUsed
-            edgeFromEdge(templateEdgep, inVertexp, outVertexp);
+            అంచు_From_అంచు(templateEdgep, లోపల_Vertexp, బహిర్గతం_Vertexp);
             // Remove old edge
-            VL_DO_DANGLING(inEdgep->unlinkDelete(), inEdgep);
-            VL_DO_DANGLING(outEdgep->unlinkDelete(), outEdgep);
+            VL_DO_DANGLING(లోపల_Edgep->unlinkDelete(), లోపల_Edgep);
+            VL_DO_DANGLING(బహిర్గతం_Edgep->unlinkDelete(), బహిర్గతం_Edgep);
             VL_DANGLING(templateEdgep);
-            workPush(inVertexp);
-            workPush(outVertexp);
+            work_నెట్టు(లోపల_Vertexp);
+            work_నెట్టు(బహిర్గతం_Vertexp);
         }
     }
 }
 
-void GraphAcyc::simplifyOut(GraphAcycVertex* avertexp) {
+శూన్య లేఖాచిత్రం_Acyc::simplify_బహిర్గతం(లేఖాచిత్రం_Acyc_శీర్షం* avertexp) {
     // If a node has one output that's not cutable, all its inputs can be reassigned
     // to the next node in the list
-    if (avertexp->isDelete()) return;
-    if (avertexp->outSize1()) {
-        V3GraphEdge* const outEdgep = avertexp->outEdges().frontp();
-        if (!outEdgep->cutable()) {
-            V3GraphVertex* outVertexp = outEdgep->top();
+    ఒకవేళ (avertexp->isDelete()) తిరిగి;
+    ఒకవేళ (avertexp->బహిర్గతం_Size1()) {
+        V3_లేఖాచిత్రం_అంచు* స్థిరరాశి బహిర్గతం_Edgep = avertexp->బహిర్గతం_అంచులు().frontp();
+        ఒకవేళ (!బహిర్గతం_Edgep->cutable()) {
+            V3_లేఖాచిత్రం_శీర్షం* బహిర్గతం_Vertexp = బహిర్గతం_Edgep->శిఖరం();
             UINFO(9, "  SimplifyOutRemove " << avertexp);
-            avertexp->setDelete();  // Mark so we won't delete it twice
-            for (V3GraphEdge* const inEdgep : avertexp->inEdges().unlinkable()) {
-                V3GraphVertex* inVertexp = inEdgep->fromp();
-                if (inVertexp == avertexp) {
-                    if (debug()) v3error("Non-cutable vertex=" << avertexp);  // LCOV_EXCL_LINE
+            avertexp->సమితి_Delete();  // Mark so we won't delete it twice
+            కొరకు (V3_లేఖాచిత్రం_అంచు* స్థిరరాశి లోపల_Edgep : avertexp->లోపల_అంచులు().unlinkable()) {
+                V3_లేఖాచిత్రం_శీర్షం* లోపల_Vertexp = లోపల_Edgep->fromp();
+                ఒకవేళ (లోపల_Vertexp == avertexp) {
+                    ఒకవేళ (debug()) v3error("Non-cutable vertex=" << avertexp);  // LCOV_EXCL_LINE
                     v3error("Circular logic when ordering code (non-cutable edge loop)\n"
                             << m_origGraphp->reportLoops(  // calls OrderGraph::loopsVertexCb
-                                   &V3GraphEdge::followNotCutable, avertexp->origVertexp()));
+                                   &V3_లేఖాచిత్రం_అంచు::followNotCutable, avertexp->origVertexp()));
                     // Things are unlikely to end well at this point,
                     // but we'll try something to get to further errors...
-                    inEdgep->cutable(true);
-                    return;
+                    లోపల_Edgep->cutable(నిజం);
+                    తిరిగి;
                 }
                 // Make a new edge connecting the two vertices directly
                 // cppcheck-suppress leakReturnValNotUsed
-                edgeFromEdge(inEdgep, inVertexp, outVertexp);
+                అంచు_From_అంచు(లోపల_Edgep, లోపల_Vertexp, బహిర్గతం_Vertexp);
                 // Remove old edge
-                VL_DO_DANGLING(inEdgep->unlinkDelete(), inEdgep);
-                workPush(inVertexp);
+                VL_DO_DANGLING(లోపల_Edgep->unlinkDelete(), లోపల_Edgep);
+                work_నెట్టు(లోపల_Vertexp);
             }
-            VL_DO_DANGLING(outEdgep->unlinkDelete(), outEdgep);
-            workPush(outVertexp);
+            VL_DO_DANGLING(బహిర్గతం_Edgep->unlinkDelete(), బహిర్గతం_Edgep);
+            work_నెట్టు(బహిర్గతం_Vertexp);
         }
     }
 }
 
-void GraphAcyc::simplifyDup(GraphAcycVertex* avertexp) {
+శూన్య లేఖాచిత్రం_Acyc::simplifyDup(లేఖాచిత్రం_Acyc_శీర్షం* avertexp) {
     // Remove redundant edges
-    if (avertexp->isDelete()) return;
+    ఒకవేళ (avertexp->isDelete()) తిరిగి;
     // Clear marks
-    for (V3GraphEdge& edge : avertexp->outEdges()) edge.top()->userp(nullptr);
+    కొరకు (V3_లేఖాచిత్రం_అంచు& అంచు : avertexp->బహిర్గతం_అంచులు()) అంచు.శిఖరం()->userp(శూన్యసూచిక);
     // Mark edges and detect duplications
-    for (V3GraphEdge* const edgep : avertexp->outEdges().unlinkable()) {
-        V3GraphVertex* outVertexp = edgep->top();
-        V3GraphEdge* prevEdgep = static_cast<V3GraphEdge*>(outVertexp->userp());
-        if (prevEdgep) {
-            if (!prevEdgep->cutable()) {
+    కొరకు (V3_లేఖాచిత్రం_అంచు* స్థిరరాశి edgep : avertexp->బహిర్గతం_అంచులు().unlinkable()) {
+        V3_లేఖాచిత్రం_శీర్షం* బహిర్గతం_Vertexp = edgep->శిఖరం();
+        V3_లేఖాచిత్రం_అంచు* prevEdgep = static_cast<V3_లేఖాచిత్రం_అంచు*>(బహిర్గతం_Vertexp->userp());
+        ఒకవేళ (prevEdgep) {
+            ఒకవేళ (!prevEdgep->cutable()) {
                 // !cutable duplicates prev !cutable: we can ignore it, redundant
                 //  cutable duplicates prev !cutable: know it's not a relevant loop, ignore it
-                UINFO(8, "    DelDupEdge " << avertexp << " -> " << edgep->top());
+                UINFO(8, "    DelDupEdge " << avertexp << " -> " << edgep->శిఖరం());
                 VL_DO_DANGLING(edgep->unlinkDelete(), edgep);
-            } else if (!edgep->cutable()) {
+            } లేకపోతే ఒకవేళ (!edgep->cutable()) {
                 // !cutable duplicates prev  cutable: delete the earlier cutable
-                UINFO(8, "    DelDupPrev " << avertexp << " -> " << prevEdgep->top());
+                UINFO(8, "    DelDupPrev " << avertexp << " -> " << prevEdgep->శిఖరం());
                 VL_DO_DANGLING(prevEdgep->unlinkDelete(), prevEdgep);
-                outVertexp->userp(edgep);
-            } else {
+                బహిర్గతం_Vertexp->userp(edgep);
+            } లేకపోతే {
                 //  cutable duplicates prev  cutable: combine weights
-                UINFO(8, "    DelDupComb " << avertexp << " -> " << edgep->top());
-                prevEdgep->weight(prevEdgep->weight() + edgep->weight());
-                addOrigEdgep(prevEdgep, edgep);
+                UINFO(8, "    DelDupComb " << avertexp << " -> " << edgep->శిఖరం());
+                prevEdgep->బరువు_2(prevEdgep->బరువు_2() + edgep->బరువు_2());
+                కూడు_Orig_Edgep(prevEdgep, edgep);
                 VL_DO_DANGLING(edgep->unlinkDelete(), edgep);
             }
-            workPush(outVertexp);
-            workPush(avertexp);
-        } else {
+            work_నెట్టు(బహిర్గతం_Vertexp);
+            work_నెట్టు(avertexp);
+        } లేకపోతే {
             // No previous assignment
-            outVertexp->userp(edgep);
+            బహిర్గతం_Vertexp->userp(edgep);
         }
     }
 }
 
-void GraphAcyc::cutBasic(GraphAcycVertex* avertexp) {
+శూన్య లేఖాచిత్రం_Acyc::cutBasic(లేఖాచిత్రం_Acyc_శీర్షం* avertexp) {
     // Detect and cleanup any loops from node to itself
-    if (avertexp->isDelete()) return;
-    for (V3GraphEdge* const edgep : avertexp->outEdges().unlinkable()) {
-        if (edgep->cutable() && edgep->top() == avertexp) {
-            cutOrigEdge(edgep, "  Cut Basic");
+    ఒకవేళ (avertexp->isDelete()) తిరిగి;
+    కొరకు (V3_లేఖాచిత్రం_అంచు* స్థిరరాశి edgep : avertexp->బహిర్గతం_అంచులు().unlinkable()) {
+        ఒకవేళ (edgep->cutable() && edgep->శిఖరం() == avertexp) {
+            cut_Orig_అంచు(edgep, "  Cut Basic");
             VL_DO_DANGLING(edgep->unlinkDelete(), edgep);
-            workPush(avertexp);
+            work_నెట్టు(avertexp);
         }
     }
 }
 
-void GraphAcyc::cutBackward(GraphAcycVertex* avertexp) {
+శూన్య లేఖాచిత్రం_Acyc::cutBackward(లేఖాచిత్రం_Acyc_శీర్షం* avertexp) {
     // If a cutable edge is from A->B, and there's a non-cutable edge B->A, then must cut!
-    if (avertexp->isDelete()) return;
+    ఒకవేళ (avertexp->isDelete()) తిరిగి;
     // Clear marks
-    for (V3GraphEdge& edge : avertexp->outEdges()) edge.top()->user(false);
-    for (V3GraphEdge& edge : avertexp->inEdges()) {
-        if (!edge.cutable()) edge.fromp()->user(true);
+    కొరకు (V3_లేఖాచిత్రం_అంచు& అంచు : avertexp->బహిర్గతం_అంచులు()) అంచు.శిఖరం()->user(అబద్ధం);
+    కొరకు (V3_లేఖాచిత్రం_అంచు& అంచు : avertexp->లోపల_అంచులు()) {
+        ఒకవేళ (!అంచు.cutable()) అంచు.fromp()->user(నిజం);
     }
     // Detect duplications
-    for (V3GraphEdge* const edgep : avertexp->outEdges().unlinkable()) {
-        if (edgep->cutable() && edgep->top()->user()) {
-            cutOrigEdge(edgep, "  Cut A->B->A");
+    కొరకు (V3_లేఖాచిత్రం_అంచు* స్థిరరాశి edgep : avertexp->బహిర్గతం_అంచులు().unlinkable()) {
+        ఒకవేళ (edgep->cutable() && edgep->శిఖరం()->user()) {
+            cut_Orig_అంచు(edgep, "  Cut A->B->A");
             VL_DO_DANGLING(edgep->unlinkDelete(), edgep);
-            workPush(avertexp);
+            work_నెట్టు(avertexp);
         }
     }
 }
 
-void GraphAcyc::place() {
+శూన్య లేఖాచిత్రం_Acyc::ఉంచు_2() {
     // Input is m_breakGraph with ranks already assigned on non-breakable edges
 
     // Make a list of all cutable edges in the graph
-    int numEdges = 0;
-    for (V3GraphVertex& vertex : m_breakGraph.vertices()) {
-        for (V3GraphEdge& edge : vertex.outEdges()) {
-            if (edge.weight() && edge.cutable()) ++numEdges;
+    పూర్ణాంకం అంకె_అంచులు = 0;
+    కొరకు (V3_లేఖాచిత్రం_శీర్షం& శీర్షం : m_break_లేఖాచిత్రం.vertices()) {
+        కొరకు (V3_లేఖాచిత్రం_అంచు& అంచు : శీర్షం.బహిర్గతం_అంచులు()) {
+            ఒకవేళ (అంచు.బరువు_2() && అంచు.cutable()) ++అంకె_అంచులు;
         }
     }
-    UINFO(4, "    Cutable edges = " << numEdges);
+    UINFO(4, "    Cutable edges = " << అంకె_అంచులు);
 
-    std::vector<V3GraphEdge*> edges;  // List of all edges to be processed
+    std::సదిశ<V3_లేఖాచిత్రం_అంచు*> అంచులు;  // List of all edges to be processed
     // Make the vector properly sized right off the bat -- faster than reallocating
-    edges.reserve(numEdges + 1);
-    for (V3GraphVertex& vertex : m_breakGraph.vertices()) {
-        vertex.user(0);  // Clear in prep of next step
-        for (V3GraphEdge& edge : vertex.outEdges()) {
-            if (edge.weight() && edge.cutable()) edges.push_back(&edge);
+    అంచులు.reserve(అంకె_అంచులు + 1);
+    కొరకు (V3_లేఖాచిత్రం_శీర్షం& శీర్షం : m_break_లేఖాచిత్రం.vertices()) {
+        శీర్షం.user(0);  // Clear in prep of next step
+        కొరకు (V3_లేఖాచిత్రం_అంచు& అంచు : శీర్షం.బహిర్గతం_అంచులు()) {
+            ఒకవేళ (అంచు.బరువు_2() && అంచు.cutable()) అంచులు.నెట్టు_వెనుక(&అంచు);
         }
     }
 
     // Sort by weight, then by vertex (so that we completely process one vertex, when possible)
-    stable_sort(edges.begin(), edges.end(), GraphAcycEdgeCmp());
+    stable_క్రమీకరించు(అంచులు.begin(), అంచులు.చివర(), లేఖాచిత్రం_Acyc_అంచు_Cmp());
 
     // Process each edge in weighted order
-    m_placeStep = 10;
-    for (V3GraphEdge* edgep : edges) placeTryEdge(edgep);
+    m_ఉంచు_అడుగు = 10;
+    కొరకు (V3_లేఖాచిత్రం_అంచు* edgep : అంచులు) ఉంచు_Try_అంచు(edgep);
 }
 
-void GraphAcyc::placeTryEdge(V3GraphEdge* edgep) {
+శూన్య లేఖాచిత్రం_Acyc::ఉంచు_Try_అంచు(V3_లేఖాచిత్రం_అంచు* edgep) {
     // Try to make this edge uncutable
-    m_placeStep++;
-    UINFO(8, "    PlaceEdge s" << m_placeStep << " w" << edgep->weight() << " " << edgep->fromp());
+    m_ఉంచు_అడుగు++;
+    UINFO(8, "    PlaceEdge s" << m_ఉంచు_అడుగు << " w" << edgep->బరువు_2() << " " << edgep->fromp());
     // Make the edge uncutable so we detect it in placement
-    edgep->cutable(false);
+    edgep->cutable(అబద్ధం);
     // Vertex::m_user begin: number indicates this edge was completed
     // Try to assign ranks, presuming this edge is in place
     // If we come across user()==placestep, we've detected a loop and must back out
-    const bool loop
-        = placeIterate(static_cast<GraphAcycVertex*>(edgep->top()), edgep->fromp()->rank() + 1);
-    if (!loop) {
+    స్థిరరాశి తార్కిక loop
+        = ఉంచు_Iterate(static_cast<లేఖాచిత్రం_Acyc_శీర్షం*>(edgep->శిఖరం()), edgep->fromp()->rank() + 1);
+    ఒకవేళ (!loop) {
         // No loop, we can keep it as uncutable
         // Commit the new ranks we calculated
         // Just cleanup the list.  If this is slow, we can add another set of
         // user counters to avoid cleaning up the list.
-        while (workBeginp()) workPop();
-    } else {
+        అయితే (workBeginp()) work_తీయి();
+    } లేకపోతే {
         // Adding this edge would cause a loop, kill it
-        edgep->cutable(true);  // So graph still looks pretty
-        cutOrigEdge(edgep, "  Cut loop");
+        edgep->cutable(నిజం);  // So graph still looks pretty
+        cut_Orig_అంచు(edgep, "  Cut loop");
         VL_DO_DANGLING(edgep->unlinkDelete(), edgep);
         // Back out the ranks we calculated
-        while (GraphAcycVertex* vertexp = workBeginp()) {
-            workPop();
+        అయితే (లేఖాచిత్రం_Acyc_శీర్షం* vertexp = workBeginp()) {
+            work_తీయి();
             vertexp->rank(vertexp->m_storedRank);
         }
     }
 }
 
-bool GraphAcyc::placeIterate(GraphAcycVertex* vertexp, uint32_t currentRank) {
+తార్కిక లేఖాచిత్రం_Acyc::ఉంచు_Iterate(లేఖాచిత్రం_Acyc_శీర్షం* vertexp, uint32_t currentRank) {
     // Assign rank to each unvisited node
     //   rank() is the "committed rank" of the graph known without loops
     // If larger rank is found, assign it and loop back through
     // If we hit a back node make a list of all loops
-    if (vertexp->rank() >= currentRank) return false;  // Already processed it
-    if (vertexp->user() == m_placeStep) return true;  // Loop detected
-    vertexp->user(m_placeStep);
+    ఒకవేళ (vertexp->rank() >= currentRank) తిరిగి అబద్ధం;  // Already processed it
+    ఒకవేళ (vertexp->user() == m_ఉంచు_అడుగు) తిరిగి నిజం;  // Loop detected
+    vertexp->user(m_ఉంచు_అడుగు);
     // Remember we're changing the rank of this node; might need to back out
-    if (!vertexp->m_onWorkList) {
+    ఒకవేళ (!vertexp->m_onWorkList) {
         vertexp->m_storedRank = vertexp->rank();
-        workPush(vertexp);
+        work_నెట్టు(vertexp);
     }
     vertexp->rank(currentRank);
     // Follow all edges and increase their ranks
-    for (V3GraphEdge& edge : vertexp->outEdges()) {
-        if (edge.weight() && !edge.cutable()) {
-            if (placeIterate(static_cast<GraphAcycVertex*>(edge.top()), currentRank + 1)) {
+    కొరకు (V3_లేఖాచిత్రం_అంచు& అంచు : vertexp->బహిర్గతం_అంచులు()) {
+        ఒకవేళ (అంచు.బరువు_2() && !అంచు.cutable()) {
+            ఒకవేళ (ఉంచు_Iterate(static_cast<లేఖాచిత్రం_Acyc_శీర్షం*>(అంచు.శిఖరం()), currentRank + 1)) {
                 // We don't need to reset user(); we'll use a different placeStep for the next edge
-                return true;  // Loop detected
+                తిరిగి నిజం;  // Loop detected
             }
         }
     }
     vertexp->user(0);
-    return false;
+    తిరిగి అబద్ధం;
 }
 
 //----- Main algorithm entry point
 
-void GraphAcyc::main() {
-    m_breakGraph.userClearEdges();
+శూన్య లేఖాచిత్రం_Acyc::ప్రధాన() {
+    m_break_లేఖాచిత్రం.user_Clear_అంచులు();
 
     // Color based on possible loops
-    m_origGraphp->stronglyConnected(m_origEdgeFuncp);
+    m_origGraphp->stronglyConnected(m_orig_అంచు_Funcp);
 
     // Make a new graph with vertices that have only a single vertex
     // for each group of old vertices that are interconnected with unbreakable
     // edges (and thus can't represent loops - if we did the unbreakable
     // marking right, anyways)
-    buildGraph(m_origGraphp);
-    if (dumpGraphLevel() >= 6) m_breakGraph.dumpDotFilePrefixed("acyc_pre");
+    build_లేఖాచిత్రం(m_origGraphp);
+    ఒకవేళ (dump_లేఖాచిత్రం_Level() >= 6) m_break_లేఖాచిత్రం.dumpDotFilePrefixed("acyc_pre");
 
     // Perform simple optimizations before any cuttings
-    simplify(false);
-    if (dumpGraphLevel() >= 5) m_breakGraph.dumpDotFilePrefixed("acyc_simp");
+    simplify(అబద్ధం);
+    ఒకవేళ (dump_లేఖాచిత్రం_Level() >= 5) m_break_లేఖాచిత్రం.dumpDotFilePrefixed("acyc_simp");
 
     UINFO(4, " Cutting trivial loops");
-    simplify(true);
-    if (dumpGraphLevel() >= 6) m_breakGraph.dumpDotFilePrefixed("acyc_mid");
+    simplify(నిజం);
+    ఒకవేళ (dump_లేఖాచిత్రం_Level() >= 6) m_break_లేఖాచిత్రం.dumpDotFilePrefixed("acyc_mid");
 
     UINFO(4, " Ranking");
-    m_breakGraph.rank(&V3GraphEdge::followNotCutable);
-    if (dumpGraphLevel() >= 6) m_breakGraph.dumpDotFilePrefixed("acyc_rank");
+    m_break_లేఖాచిత్రం.rank(&V3_లేఖాచిత్రం_అంచు::followNotCutable);
+    ఒకవేళ (dump_లేఖాచిత్రం_Level() >= 6) m_break_లేఖాచిత్రం.dumpDotFilePrefixed("acyc_rank");
 
     UINFO(4, " Placement");
-    place();
-    if (dumpGraphLevel() >= 6) m_breakGraph.dumpDotFilePrefixed("acyc_place");
+    ఉంచు_2();
+    ఒకవేళ (dump_లేఖాచిత్రం_Level() >= 6) m_break_లేఖాచిత్రం.dumpDotFilePrefixed("acyc_place");
 
     UINFO(4, " Final Ranking");
     // Only needed to assert there are no loops in completed graph
-    m_breakGraph.rank(&V3GraphEdge::followAlwaysTrue);
-    if (dumpGraphLevel() >= 6) m_breakGraph.dumpDotFilePrefixed("acyc_done");
+    m_break_లేఖాచిత్రం.rank(&V3_లేఖాచిత్రం_అంచు::followAlwaysTrue);
+    ఒకవేళ (dump_లేఖాచిత్రం_Level() >= 6) m_break_లేఖాచిత్రం.dumpDotFilePrefixed("acyc_done");
 }
 
-void V3Graph::acyclic(V3EdgeFuncP edgeFuncp) {
+శూన్య V3_లేఖాచిత్రం::acyclic(V3_అంచు_Func_P అంచు_Funcp) {
     UINFO(4, "Acyclic");
-    GraphAcyc acyc{this, edgeFuncp};
-    acyc.main();
+    లేఖాచిత్రం_Acyc acyc{ఇది, అంచు_Funcp};
+    acyc.ప్రధాన();
     UINFO(4, "Acyclic done");
 }

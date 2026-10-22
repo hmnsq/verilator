@@ -26,318 +26,318 @@
 //
 //*************************************************************************
 
-#include "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
+#అన్తర్భావ "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
 
-#include "V3Dfg.h"
-#include "V3DfgPasses.h"
-#include "V3UniqueNames.h"
+#అన్తర్భావ "V3Dfg.h"
+#అన్తర్భావ "V3DfgPasses.h"
+#అన్తర్భావ "V3UniqueNames.h"
 
 VL_DEFINE_DEBUG_FUNCTIONS;
 
-namespace {
+నామాకాశ {
 
 // Create an AstNodeExpr out of a DfgVertex. For most AstNodeExpr subtypes, this can be done
 // automatically. For the few special cases, we provide specializations below
-template <typename T_Node, typename T_Vertex, typename... Ops>
-T_Node* makeNode(const T_Vertex* vtxp, Ops... ops) {
-    T_Node* const nodep = new T_Node{vtxp->fileline(), ops...};
-    UASSERT_OBJ(nodep->width() == static_cast<int>(vtxp->width()), vtxp,
+మూస <రకం_పేరు T_కణుపు, రకం_పేరు T_శీర్షం, రకం_పేరు... Ops>
+T_కణుపు* make_కణుపు(స్థిరరాశి T_శీర్షం* vtxp, Ops... ops) {
+    T_కణుపు* స్థిరరాశి nodep = కొత్త T_కణుపు{vtxp->fileline(), ops...};
+    UASSERT_OBJ(nodep->వెడల్పు() == static_cast<పూర్ణాంకం>(vtxp->వెడల్పు()), vtxp,
                 "Incorrect width in AstNode created from DfgVertex "
-                    << vtxp->typeName() << ": " << nodep->width() << " vs " << vtxp->width());
-    return nodep;
+                    << vtxp->typeName() << ": " << nodep->వెడల్పు() << " vs " << vtxp->వెడల్పు());
+    తిరిగి nodep;
 }
 
 //======================================================================
 // Vertices needing special conversion
 
-template <>
-AstCountOnes* makeNode<AstCountOnes, DfgCountOnes, AstNodeExpr*>(  //
-    const DfgCountOnes* vtxp, AstNodeExpr* op1) {
-    AstCountOnes* const nodep = new AstCountOnes{vtxp->fileline(), op1};
-    return nodep;
+మూస <>
+Ast_లెక్క_Ones* make_కణుపు<Ast_లెక్క_Ones, Dfg_లెక్క_Ones, Ast_కణుపు_సమాసం*>(  //
+    స్థిరరాశి Dfg_లెక్క_Ones* vtxp, Ast_కణుపు_సమాసం* op1) {
+    Ast_లెక్క_Ones* స్థిరరాశి nodep = కొత్త Ast_లెక్క_Ones{vtxp->fileline(), op1};
+    తిరిగి nodep;
 }
 
-template <>
-AstExtend* makeNode<AstExtend, DfgExtend, AstNodeExpr*>(  //
-    const DfgExtend* vtxp, AstNodeExpr* op1) {
-    return new AstExtend{vtxp->fileline(), op1, static_cast<int>(vtxp->width())};
+మూస <>
+AstExtend* make_కణుపు<AstExtend, DfgExtend, Ast_కణుపు_సమాసం*>(  //
+    స్థిరరాశి DfgExtend* vtxp, Ast_కణుపు_సమాసం* op1) {
+    తిరిగి కొత్త AstExtend{vtxp->fileline(), op1, static_cast<పూర్ణాంకం>(vtxp->వెడల్పు())};
 }
 
-template <>
-AstExtendS* makeNode<AstExtendS, DfgExtendS, AstNodeExpr*>(  //
-    const DfgExtendS* vtxp, AstNodeExpr* op1) {
-    return new AstExtendS{vtxp->fileline(), op1, static_cast<int>(vtxp->width())};
+మూస <>
+AstExtendS* make_కణుపు<AstExtendS, DfgExtendS, Ast_కణుపు_సమాసం*>(  //
+    స్థిరరాశి DfgExtendS* vtxp, Ast_కణుపు_సమాసం* op1) {
+    తిరిగి కొత్త AstExtendS{vtxp->fileline(), op1, static_cast<పూర్ణాంకం>(vtxp->వెడల్పు())};
 }
 
-template <>
-AstShiftL* makeNode<AstShiftL, DfgShiftL, AstNodeExpr*, AstNodeExpr*>(  //
-    const DfgShiftL* vtxp, AstNodeExpr* op1, AstNodeExpr* op2) {
-    return new AstShiftL{vtxp->fileline(), op1, op2, static_cast<int>(vtxp->width())};
+మూస <>
+Ast_జరుపు_L* make_కణుపు<Ast_జరుపు_L, Dfg_జరుపు_L, Ast_కణుపు_సమాసం*, Ast_కణుపు_సమాసం*>(  //
+    స్థిరరాశి Dfg_జరుపు_L* vtxp, Ast_కణుపు_సమాసం* op1, Ast_కణుపు_సమాసం* op2) {
+    తిరిగి కొత్త Ast_జరుపు_L{vtxp->fileline(), op1, op2, static_cast<పూర్ణాంకం>(vtxp->వెడల్పు())};
 }
 
-template <>
-AstShiftR* makeNode<AstShiftR, DfgShiftR, AstNodeExpr*, AstNodeExpr*>(  //
-    const DfgShiftR* vtxp, AstNodeExpr* op1, AstNodeExpr* op2) {
-    return new AstShiftR{vtxp->fileline(), op1, op2, static_cast<int>(vtxp->width())};
+మూస <>
+Ast_జరుపు_R* make_కణుపు<Ast_జరుపు_R, Dfg_జరుపు_R, Ast_కణుపు_సమాసం*, Ast_కణుపు_సమాసం*>(  //
+    స్థిరరాశి Dfg_జరుపు_R* vtxp, Ast_కణుపు_సమాసం* op1, Ast_కణుపు_సమాసం* op2) {
+    తిరిగి కొత్త Ast_జరుపు_R{vtxp->fileline(), op1, op2, static_cast<పూర్ణాంకం>(vtxp->వెడల్పు())};
 }
 
-template <>
-AstShiftRS* makeNode<AstShiftRS, DfgShiftRS, AstNodeExpr*, AstNodeExpr*>(  //
-    const DfgShiftRS* vtxp, AstNodeExpr* op1, AstNodeExpr* op2) {
-    return new AstShiftRS{vtxp->fileline(), op1, op2, static_cast<int>(vtxp->width())};
+మూస <>
+Ast_జరుపు_RS* make_కణుపు<Ast_జరుపు_RS, Dfg_జరుపు_RS, Ast_కణుపు_సమాసం*, Ast_కణుపు_సమాసం*>(  //
+    స్థిరరాశి Dfg_జరుపు_RS* vtxp, Ast_కణుపు_సమాసం* op1, Ast_కణుపు_సమాసం* op2) {
+    తిరిగి కొత్త Ast_జరుపు_RS{vtxp->fileline(), op1, op2, static_cast<పూర్ణాంకం>(vtxp->వెడల్పు())};
 }
 
 }  // namespace
 
-class DfgToAstVisitor final : DfgVisitor {
+తరగతి Dfg_గమ్యం_Ast_Visitor final : DfgVisitor {
     // NODE STATE
 
     // AstScope::user2p  // The combinational AstActive under this scope
-    const VNUser2InUse m_user2InUse;
+    స్థిరరాశి VNUser2_లోపల_Use m_user2_లోపల_Use;
 
     // STATE
-    V3DfgDfgToAstContext& m_ctx;  // The context for stats
-    AstNodeExpr* m_resultp = nullptr;  // The result node of the current traversal
-    AstAlways* m_alwaysp = nullptr;  // Process to add assignments to, if have a default driver
-    AstActive* m_activep = nullptr;  // The AstNodeModule or AstActive to insert assigns into
+    V3_Dfg_Dfg_గమ్యం_Ast_Context& m_ctx;  // The context for stats
+    Ast_కణుపు_సమాసం* m_resultp = శూన్యసూచిక;  // The result node of the current traversal
+    AstAlways* m_alwaysp = శూన్యసూచిక;  // Process to add assignments to, if have a default driver
+    Ast_చురుకైన* m_activep = శూన్యసూచిక;  // The AstNodeModule or AstActive to insert assigns into
 
     // METHODS
-    static AstActive* getCombActive(AstScope* scopep) {
-        if (!scopep->user2p()) {
+    స్థిర Ast_చురుకైన* get_Comb_చురుకైన(AstScope* scopep) {
+        ఒకవేళ (!scopep->user2p()) {
             // Try to find the existing combinational AstActive
-            for (AstNode* nodep = scopep->blocksp(); nodep; nodep = nodep->nextp()) {
-                AstActive* const activep = VN_CAST(nodep, Active);
-                if (!activep) continue;
-                if (activep->hasCombo()) {
+            కొరకు (Ast_కణుపు* nodep = scopep->blocksp(); nodep; nodep = nodep->nextp()) {
+                Ast_చురుకైన* స్థిరరాశి activep = VN_CAST(nodep, చురుకైన);
+                ఒకవేళ (!activep) కొనసాగు;
+                ఒకవేళ (activep->hasCombo()) {
                     scopep->user2p(activep);
-                    break;
+                    ఆపు;
                 }
             }
             // If there isn't one, create a new one
-            if (!scopep->user2p()) {
-                FileLine* const flp = scopep->fileline();
-                AstSenTree* const senTreep
-                    = new AstSenTree{flp, new AstSenItem{flp, AstSenItem::Combo{}}};
-                AstActive* const activep = new AstActive{flp, "", senTreep};
-                activep->senTreeStorep(senTreep);
-                scopep->addBlocksp(activep);
+            ఒకవేళ (!scopep->user2p()) {
+                File_పంక్తి* స్థిరరాశి flp = scopep->fileline();
+                Ast_Sen_వృక్షం* స్థిరరాశి senTreep
+                    = కొత్త Ast_Sen_వృక్షం{flp, కొత్త Ast_Sen_అంశం{flp, Ast_Sen_అంశం::Combo{}}};
+                Ast_చురుకైన* స్థిరరాశి activep = కొత్త Ast_చురుకైన{flp, "", senTreep};
+                activep->sen_వృక్షం_Storep(senTreep);
+                scopep->కూడు_Blocksp(activep);
                 scopep->user2p(activep);
             }
         }
-        return VN_AS(scopep->user2p(), Active);
+        తిరిగి VN_AS(scopep->user2p(), చురుకైన);
     }
 
-    AstNodeExpr* convertDfgVertexToAstNodeExpr(DfgVertex* vtxp) {
+    Ast_కణుపు_సమాసం* convert_Dfg_శీర్షం_గమ్యం_Ast_కణుపు_సమాసం(Dfg_శీర్షం* vtxp) {
         UASSERT_OBJ(!m_resultp, vtxp, "Result already computed");
-        UASSERT_OBJ(vtxp->is<DfgVertexVar>() || vtxp->is<DfgConst>()  //
-                        || !vtxp->hasMultipleSinks() || vtxp->isCheaperThanLoad(),  //
+        UASSERT_OBJ(vtxp->is<Dfg_శీర్షం_Var>() || vtxp->is<DfgConst>()  //
+                        || !vtxp->has_గుణిజం_Sinks() || vtxp->is_Cheaper_Than_ఎక్కించు(),  //
                     vtxp, "Intermediate DFG value with multiple uses");
         iterate(vtxp);
         UASSERT_OBJ(m_resultp, vtxp, "Missing result");
-        AstNodeExpr* const resultp = m_resultp;
-        m_resultp = nullptr;
-        return resultp;
+        Ast_కణుపు_సమాసం* స్థిరరాశి resultp = m_resultp;
+        m_resultp = శూన్యసూచిక;
+        తిరిగి resultp;
     }
 
-    void createAssignment(FileLine* flp, AstNodeExpr* lhsp, DfgVertex* driverp) {
+    శూన్య createAssignment(File_పంక్తి* flp, Ast_కణుపు_సమాసం* lhsp, Dfg_శీర్షం* driverp) {
         // Keep track of statisticss
-        ++m_ctx.m_resultEquations;
+        ++m_ctx.m_ఫలితం_Equations;
         // Render the driver
-        AstNodeExpr* const rhsp = convertDfgVertexToAstNodeExpr(driverp);
+        Ast_కణుపు_సమాసం* స్థిరరాశి rhsp = convert_Dfg_శీర్షం_గమ్యం_Ast_కణుపు_సమాసం(driverp);
         // Update LHS locations to reflect the location of the original driver
-        lhsp->foreach([&](AstNode* nodep) { nodep->fileline(flp); });
+        lhsp->foreach([&](Ast_కణుపు* nodep) { nodep->fileline(flp); });
 
         // If using a process, add Assign there
-        if (m_alwaysp) {
-            m_alwaysp->addStmtsp(new AstAssign{flp, lhsp, rhsp});
-            return;
+        ఒకవేళ (m_alwaysp) {
+            m_alwaysp->కూడు_Stmtsp(కొత్త Ast_కేటాయించు{flp, lhsp, rhsp});
+            తిరిగి;
         }
 
         // Otherwise create an AssignW
-        AstAssignW* const ap = new AstAssignW{flp, lhsp, rhsp};
-        m_activep->addStmtsp(new AstAlways{ap});
+        Ast_కేటాయించు_W* స్థిరరాశి ap = కొత్త Ast_కేటాయించు_W{flp, lhsp, rhsp};
+        m_activep->కూడు_Stmtsp(కొత్త AstAlways{ap});
     }
 
-    void convertDriver(FileLine* flp, AstNodeExpr* lhsp, DfgVertex* driverp) {
-        if (DfgSplicePacked* const sPackedp = driverp->cast<DfgSplicePacked>()) {
+    శూన్య convertDriver(File_పంక్తి* flp, Ast_కణుపు_సమాసం* lhsp, Dfg_శీర్షం* driverp) {
+        ఒకవేళ (DfgSplicePacked* స్థిరరాశి sPackedp = driverp->cast<DfgSplicePacked>()) {
             // Partial assignment of packed value
-            sPackedp->foreachDriver([&](DfgVertex& src, uint32_t lo, FileLine* dflp) {
+            sPackedp->foreachDriver([&](Dfg_శీర్షం& src, uint32_t lo, File_పంక్తి* dflp) {
                 // Create Sel
-                AstConst* const lsbp = new AstConst{dflp, lo};
-                const int width = static_cast<int>(src.width());
-                AstSel* const nLhsp = new AstSel{dflp, lhsp->cloneTreePure(false), lsbp, width};
+                AstConst* స్థిరరాశి lsbp = కొత్త AstConst{dflp, lo};
+                స్థిరరాశి పూర్ణాంకం వెడల్పు = static_cast<పూర్ణాంకం>(src.వెడల్పు());
+                AstSel* స్థిరరాశి nLhsp = కొత్త AstSel{dflp, lhsp->clone_వృక్షం_శుద్ధ(అబద్ధం), lsbp, వెడల్పు};
                 // Convert source
                 convertDriver(dflp, nLhsp, &src);
                 // Delete Sel - was cloned
-                VL_DO_DANGLING(nLhsp->deleteTree(), nLhsp);
-                return false;
+                VL_DO_DANGLING(nLhsp->delete_వృక్షం(), nLhsp);
+                తిరిగి అబద్ధం;
             });
-            return;
+            తిరిగి;
         }
 
-        if (DfgSpliceArray* const sArrayp = driverp->cast<DfgSpliceArray>()) {
+        ఒకవేళ (DfgSpliceArray* స్థిరరాశి sArrayp = driverp->cast<DfgSpliceArray>()) {
             // Partial assignment of array variable
-            sArrayp->foreachDriver([&](DfgVertex& src, uint32_t lo, FileLine* dflp) {
-                UASSERT_OBJ(src.size() == 1, &src, "We only handle single elements");
+            sArrayp->foreachDriver([&](Dfg_శీర్షం& src, uint32_t lo, File_పంక్తి* dflp) {
+                UASSERT_OBJ(src.కొలత() == 1, &src, "We only handle single elements");
                 // Create ArraySel
-                AstConst* const idxp = new AstConst{dflp, lo};
-                AstArraySel* const nLhsp = new AstArraySel{dflp, lhsp->cloneTreePure(false), idxp};
+                AstConst* స్థిరరాశి idxp = కొత్త AstConst{dflp, lo};
+                AstArraySel* స్థిరరాశి nLhsp = కొత్త AstArraySel{dflp, lhsp->clone_వృక్షం_శుద్ధ(అబద్ధం), idxp};
                 // Convert source
-                if (const DfgUnitArray* const uap = src.cast<DfgUnitArray>()) {
+                ఒకవేళ (స్థిరరాశి DfgUnitArray* స్థిరరాశి uap = src.cast<DfgUnitArray>()) {
                     convertDriver(dflp, nLhsp, uap->srcp());
-                } else {
+                } లేకపోతే {
                     convertDriver(dflp, nLhsp, &src);
                 }
                 // Delete ArraySel - was cloned
-                VL_DO_DANGLING(nLhsp->deleteTree(), nLhsp);
-                return false;
+                VL_DO_DANGLING(nLhsp->delete_వృక్షం(), nLhsp);
+                తిరిగి అబద్ధం;
             });
-            return;
+            తిరిగి;
         }
 
-        if (const DfgUnitArray* const uap = driverp->cast<DfgUnitArray>()) {
+        ఒకవేళ (స్థిరరాశి DfgUnitArray* స్థిరరాశి uap = driverp->cast<DfgUnitArray>()) {
             // Single element array being assigned a unit array. Needs an ArraySel.
-            AstConst* const idxp = new AstConst{flp, 0};
-            AstArraySel* const nLhsp = new AstArraySel{flp, lhsp->cloneTreePure(false), idxp};
+            AstConst* స్థిరరాశి idxp = కొత్త AstConst{flp, 0};
+            AstArraySel* స్థిరరాశి nLhsp = కొత్త AstArraySel{flp, lhsp->clone_వృక్షం_శుద్ధ(అబద్ధం), idxp};
             // Convert source
             convertDriver(flp, nLhsp, uap->srcp());
             // Delete ArraySel - was cloned
-            VL_DO_DANGLING(nLhsp->deleteTree(), nLhsp);
-            return;
+            VL_DO_DANGLING(nLhsp->delete_వృక్షం(), nLhsp);
+            తిరిగి;
         }
 
         // Base case: assign vertex to current lhs
-        createAssignment(flp, lhsp->cloneTreePure(false), driverp);
+        createAssignment(flp, lhsp->clone_వృక్షం_శుద్ధ(అబద్ధం), driverp);
     }
 
     // VISITORS
-    void visit(DfgVertex* vtxp) override {  // LCOV_EXCL_START
+    శూన్య సందర్శించు(Dfg_శీర్షం* vtxp) override {  // LCOV_EXCL_START
         vtxp->v3fatalSrc("Unhandled DfgVertex: " << vtxp->typeName());
     }  // LCOV_EXCL_STOP
 
-    void visit(DfgVarPacked* vtxp) override {
-        m_resultp = new AstVarRef{vtxp->fileline(), vtxp->vscp(), VAccess::READ};
+    శూన్య సందర్శించు(DfgVarPacked* vtxp) override {
+        m_resultp = కొత్త AstVarRef{vtxp->fileline(), vtxp->vscp(), VAccess::READ};
     }
 
-    void visit(DfgVarArray* vtxp) override {
-        m_resultp = new AstVarRef{vtxp->fileline(), vtxp->vscp(), VAccess::READ};
+    శూన్య సందర్శించు(DfgVarArray* vtxp) override {
+        m_resultp = కొత్త AstVarRef{vtxp->fileline(), vtxp->vscp(), VAccess::READ};
     }
 
-    void visit(DfgPrev* vtxp) override {
-        m_resultp = new AstVarRef{vtxp->fileline(), vtxp->vscp(), VAccess::READ};
+    శూన్య సందర్శించు(DfgPrev* vtxp) override {
+        m_resultp = కొత్త AstVarRef{vtxp->fileline(), vtxp->vscp(), VAccess::READ};
     }
 
-    void visit(DfgConst* vtxp) override {  //
-        m_resultp = new AstConst{vtxp->fileline(), vtxp->num()};
+    శూన్య సందర్శించు(DfgConst* vtxp) override {  //
+        m_resultp = కొత్త AstConst{vtxp->fileline(), vtxp->అంకె()};
     }
-    void visit(DfgCReset* vtxp) override {
-        DfgVertex* const sinkp = vtxp->singleSink();
+    శూన్య సందర్శించు(DfgCReset* vtxp) override {
+        Dfg_శీర్షం* స్థిరరాశి sinkp = vtxp->singleSink();
         UASSERT_OBJ(sinkp, vtxp, "CReset should only have one sink");
-        UASSERT_OBJ(sinkp->is<DfgVertexVar>(), sinkp, "CReset should drive a variable");
-        AstVar* const varp = sinkp->as<DfgVertexVar>()->vscp()->varp();
-        m_resultp = new AstCReset{vtxp->fileline(), varp, false};
+        UASSERT_OBJ(sinkp->is<Dfg_శీర్షం_Var>(), sinkp, "CReset should drive a variable");
+        AstVar* స్థిరరాశి varp = sinkp->as<Dfg_శీర్షం_Var>()->vscp()->varp();
+        m_resultp = కొత్త AstCReset{vtxp->fileline(), varp, అబద్ధం};
     }
-    void visit(DfgMatchMasked* vtxp) override {
-        FileLine* const flp = vtxp->fileline();
-        AstNodeExpr* const lhsp = convertDfgVertexToAstNodeExpr(vtxp->lhsp());
-        AstVarScope* const matchp = vtxp->matchp()->as<DfgVertexVar>()->vscp();
-        m_resultp = new AstMatchMasked{flp, lhsp, new AstVarRef{flp, matchp, VAccess::READ}};
-    }
-
-    void visit(DfgRep* vtxp) override {
-        FileLine* const flp = vtxp->fileline();
-        AstNodeExpr* const srcp = convertDfgVertexToAstNodeExpr(vtxp->srcp());
-        m_resultp = new AstReplicate{flp, srcp, vtxp->count()};
+    శూన్య సందర్శించు(Dfg_సరిపోలిక_Masked* vtxp) override {
+        File_పంక్తి* స్థిరరాశి flp = vtxp->fileline();
+        Ast_కణుపు_సమాసం* స్థిరరాశి lhsp = convert_Dfg_శీర్షం_గమ్యం_Ast_కణుపు_సమాసం(vtxp->lhsp());
+        AstVarScope* స్థిరరాశి matchp = vtxp->matchp()->as<Dfg_శీర్షం_Var>()->vscp();
+        m_resultp = కొత్త Ast_సరిపోలిక_Masked{flp, lhsp, కొత్త AstVarRef{flp, matchp, VAccess::READ}};
     }
 
-    void visit(DfgSel* vtxp) override {
-        FileLine* const flp = vtxp->fileline();
-        AstNodeExpr* const fromp = convertDfgVertexToAstNodeExpr(vtxp->fromp());
-        AstConst* const lsbp = new AstConst{flp, vtxp->lsb()};
-        m_resultp = new AstSel{flp, fromp, lsbp, static_cast<int>(vtxp->width())};
+    శూన్య సందర్శించు(DfgRep* vtxp) override {
+        File_పంక్తి* స్థిరరాశి flp = vtxp->fileline();
+        Ast_కణుపు_సమాసం* స్థిరరాశి srcp = convert_Dfg_శీర్షం_గమ్యం_Ast_కణుపు_సమాసం(vtxp->srcp());
+        m_resultp = కొత్త AstReplicate{flp, srcp, vtxp->లెక్క()};
     }
 
-    void visit(DfgMux* vtxp) override {
-        FileLine* const flp = vtxp->fileline();
-        AstNodeExpr* const fromp = convertDfgVertexToAstNodeExpr(vtxp->fromp());
-        AstNodeExpr* const lsbp = convertDfgVertexToAstNodeExpr(vtxp->lsbp());
-        m_resultp = new AstSel{flp, fromp, lsbp, static_cast<int>(vtxp->width())};
+    శూన్య సందర్శించు(DfgSel* vtxp) override {
+        File_పంక్తి* స్థిరరాశి flp = vtxp->fileline();
+        Ast_కణుపు_సమాసం* స్థిరరాశి fromp = convert_Dfg_శీర్షం_గమ్యం_Ast_కణుపు_సమాసం(vtxp->fromp());
+        AstConst* స్థిరరాశి lsbp = కొత్త AstConst{flp, vtxp->lsb()};
+        m_resultp = కొత్త AstSel{flp, fromp, lsbp, static_cast<పూర్ణాంకం>(vtxp->వెడల్పు())};
+    }
+
+    శూన్య సందర్శించు(DfgMux* vtxp) override {
+        File_పంక్తి* స్థిరరాశి flp = vtxp->fileline();
+        Ast_కణుపు_సమాసం* స్థిరరాశి fromp = convert_Dfg_శీర్షం_గమ్యం_Ast_కణుపు_సమాసం(vtxp->fromp());
+        Ast_కణుపు_సమాసం* స్థిరరాశి lsbp = convert_Dfg_శీర్షం_గమ్యం_Ast_కణుపు_సమాసం(vtxp->lsbp());
+        m_resultp = కొత్త AstSel{flp, fromp, lsbp, static_cast<పూర్ణాంకం>(vtxp->వెడల్పు())};
     }
 
     // The rest of the 'visit' methods are generated by 'astgen'
-#include "V3Dfg__gen_dfg_to_ast.h"
+#అన్తర్భావ "V3Dfg__gen_dfg_to_ast.h"
 
     // Constructor
-    DfgToAstVisitor(DfgGraph& dfg, V3DfgDfgToAstContext& ctx)
+    Dfg_గమ్యం_Ast_Visitor(Dfg_లేఖాచిత్రం& dfg, V3_Dfg_Dfg_గమ్యం_Ast_Context& ctx)
         : m_ctx{ctx} {
-        if (v3Global.opt.debugCheck()) V3DfgPasses::typeCheck(dfg);
+        ఒకవేళ (v3Global.opt.debugCheck()) V3DfgPasses::typeCheck(dfg);
 
         // Convert the graph back to combinational assignments. The graph must have been
         // regularized, so we only need to render variable assignments and update Ast references.
 
         // Render variable assignments
-        for (DfgVertexVar& vtx : dfg.varVertices()) {
+        కొరకు (Dfg_శీర్షం_Var& vtx : dfg.varVertices()) {
             // If there is no driver (this vertex is an input to the graph), then nothing to do.
-            if (!vtx.srcp()) {
+            ఒకవేళ (!vtx.srcp()) {
                 UASSERT_OBJ(!vtx.defaultp(), &vtx, "Only default driver on variable");
-                continue;
+                కొనసాగు;
             }
 
             ++m_ctx.m_outputVariables;
 
             // Render variable assignments
-            FileLine* const flp = vtx.driverFileLine() ? vtx.driverFileLine() : vtx.fileline();
-            AstVarRef* const lhsp = new AstVarRef{flp, vtx.vscp(), VAccess::WRITE};
+            File_పంక్తి* స్థిరరాశి flp = vtx.driver_File_పంక్తి() ? vtx.driver_File_పంక్తి() : vtx.fileline();
+            AstVarRef* స్థిరరాశి lhsp = కొత్త AstVarRef{flp, vtx.vscp(), VAccess::WRITE};
 
             // Add it to the scope holding the target variable
             VL_RESTORER(m_activep);
-            m_activep = getCombActive(vtx.vscp()->scopep());
+            m_activep = get_Comb_చురుకైన(vtx.vscp()->scopep());
 
             // If there is a default value, render all drivers under an AstAlways
             VL_RESTORER(m_alwaysp);
-            if (DfgVertex* const defaultp = vtx.defaultp()) {
+            ఒకవేళ (Dfg_శీర్షం* స్థిరరాశి defaultp = vtx.defaultp()) {
                 ++m_ctx.m_outputVariablesWithDefault;
-                m_alwaysp = new AstAlways{vtx.fileline(), VAlwaysKwd::ALWAYS_COMB, nullptr};
-                m_activep->addStmtsp(m_alwaysp);
+                m_alwaysp = కొత్త AstAlways{vtx.fileline(), VAlwaysKwd::ALWAYS_COMB, శూన్యసూచిక};
+                m_activep->కూడు_Stmtsp(m_alwaysp);
                 // The default assignment needs to go first
-                createAssignment(vtx.fileline(), lhsp->cloneTreePure(false), defaultp);
+                createAssignment(vtx.fileline(), lhsp->clone_వృక్షం_శుద్ధ(అబద్ధం), defaultp);
             }
 
             // Render the drivers
             convertDriver(flp, lhsp, vtx.srcp());
 
             // convetDriver always clones lhsp
-            VL_DO_DANGLING(lhsp->deleteTree(), lhsp);
+            VL_DO_DANGLING(lhsp->delete_వృక్షం(), lhsp);
         }
 
         // Update Ast References
-        for (DfgVertexAst& vtx : dfg.astVertices()) {
-            if (DfgAstRd* const rVtxp = vtx.cast<DfgAstRd>()) {
+        కొరకు (Dfg_శీర్షం_Ast& vtx : dfg.astVertices()) {
+            ఒకవేళ (DfgAstRd* స్థిరరాశి rVtxp = vtx.cast<DfgAstRd>()) {
                 // Render the driver
-                AstNodeExpr* const exprp = convertDfgVertexToAstNodeExpr(rVtxp->srcp());
+                Ast_కణుపు_సమాసం* స్థిరరాశి exprp = convert_Dfg_శీర్షం_గమ్యం_Ast_కణుపు_సమాసం(rVtxp->srcp());
                 // If it's the same as the reference, do not replace it so FileLines are preserved
-                if (exprp->sameTree(rVtxp->exprp())) {
-                    VL_DO_DANGLING(exprp->deleteTree(), exprp);
-                    continue;
+                ఒకవేళ (exprp->same_వృక్షం(rVtxp->exprp())) {
+                    VL_DO_DANGLING(exprp->delete_వృక్షం(), exprp);
+                    కొనసాగు;
                 }
                 // Replace the reference with the expression
-                if (VN_IS(exprp, VarRef)) {
+                ఒకవేళ (VN_IS(exprp, VarRef)) {
                     exprp->fileline(rVtxp->exprp()->fileline());
                     ++m_ctx.m_varRefsSubstituted;
-                } else {
+                } లేకపోతే {
                     ++m_ctx.m_expressionsInlined;
                 }
                 rVtxp->exprp()->replaceWith(exprp);
-                rVtxp->exprp()->deleteTree();
+                rVtxp->exprp()->delete_వృక్షం();
                 rVtxp->exprp(exprp);
             }
         }
     }
 
-public:
-    static void apply(DfgGraph& dfg, V3DfgDfgToAstContext& ctx) { DfgToAstVisitor{dfg, ctx}; }
+బహిరంగ:
+    స్థిర శూన్య apply(Dfg_లేఖాచిత్రం& dfg, V3_Dfg_Dfg_గమ్యం_Ast_Context& ctx) { Dfg_గమ్యం_Ast_Visitor{dfg, ctx}; }
 };
 
-void V3DfgPasses::dfgToAst(DfgGraph& dfg, V3DfgContext& ctx) {
-    DfgToAstVisitor::apply(dfg, ctx.m_dfg2AstContext);
+శూన్య V3DfgPasses::dfg_గమ్యం_Ast(Dfg_లేఖాచిత్రం& dfg, V3DfgContext& ctx) {
+    Dfg_గమ్యం_Ast_Visitor::apply(dfg, ctx.m_dfg2AstContext);
 }

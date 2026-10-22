@@ -14,222 +14,222 @@
 //
 //*************************************************************************
 
-#ifndef VERILATOR_V3ASTINLINES_H_
-#define VERILATOR_V3ASTINLINES_H_
+#నిర్వచితం_కాకపోతే VERILATOR_V3ASTINLINES_H_
+#నిర్వచించు VERILATOR_V3ASTINLINES_H_
 
-#ifndef VERILATOR_V3AST_H_
-#error "Use V3Ast.h as the include"
-#include "V3Ast.h"  // This helps code analysis tools pick up symbols in V3Ast.h and related
-#endif
+#నిర్వచితం_కాకపోతే VERILATOR_V3AST_H_
+#దోషం "Use V3Ast.h as the include"
+#అన్తర్భావ "V3Ast.h"  // This helps code analysis tools pick up symbols in V3Ast.h and related
+#అయితే_ముగింపు
 
 //######################################################################
 // Inline METHODS
 
-int AstNode::width() const VL_MT_STABLE { return dtypep() ? dtypep()->width() : 0; }
-int AstNode::widthMin() const VL_MT_STABLE { return dtypep() ? dtypep()->widthMin() : 0; }
-bool AstNode::width1() const {  // V3Const uses to know it can optimize
-    return dtypep() && dtypep()->width() == 1;
+పూర్ణాంకం Ast_కణుపు::వెడల్పు() స్థిరరాశి VL_MT_STABLE { తిరిగి dtypep() ? dtypep()->వెడల్పు() : 0; }
+పూర్ణాంకం Ast_కణుపు::వెడల్పు_Min() స్థిరరాశి VL_MT_STABLE { తిరిగి dtypep() ? dtypep()->వెడల్పు_Min() : 0; }
+bool Ast_కణుపు::width1() స్థిరరాశి {  // V3Const uses to know it can optimize
+    తిరిగి dtypep() && dtypep()->వెడల్పు() == 1;
 }
-int AstNode::widthInstrs() const {
-    return (!dtypep() ? 1 : (dtypep()->isWide() ? dtypep()->widthWords() : 1));
+పూర్ణాంకం Ast_కణుపు::వెడల్పు_Instrs() స్థిరరాశి {
+    తిరిగి (!dtypep() ? 1 : (dtypep()->isWide() ? dtypep()->వెడల్పు_పదాలు() : 1));
 }
-bool AstNode::isCHandle() const VL_MT_STABLE {
-    return dtypep() && dtypep()->basicp() && dtypep()->basicp()->isCHandle();
+bool Ast_కణుపు::isCHandle() స్థిరరాశి VL_MT_STABLE {
+    తిరిగి dtypep() && dtypep()->basicp() && dtypep()->basicp()->isCHandle();
 }
-bool AstNode::isDouble() const VL_MT_STABLE {
-    return dtypep() && dtypep()->basicp() && dtypep()->basicp()->isDouble();
+bool Ast_కణుపు::isDouble() స్థిరరాశి VL_MT_STABLE {
+    తిరిగి dtypep() && dtypep()->basicp() && dtypep()->basicp()->isDouble();
 }
-bool AstNode::isString() const VL_MT_STABLE {
-    return dtypep() && dtypep()->basicp() && dtypep()->basicp()->isString();
+bool Ast_కణుపు::isString() స్థిరరాశి VL_MT_STABLE {
+    తిరిగి dtypep() && dtypep()->basicp() && dtypep()->basicp()->isString();
 }
-bool AstNode::isEvent() const VL_MT_STABLE {
-    return dtypep() && dtypep()->basicp() && dtypep()->basicp()->isEvent();
+bool Ast_కణుపు::isEvent() స్థిరరాశి VL_MT_STABLE {
+    తిరిగి dtypep() && dtypep()->basicp() && dtypep()->basicp()->isEvent();
 }
 
-bool AstNode::isSigned() const VL_MT_STABLE { return dtypep() && dtypep()->isSigned(); }
+bool Ast_కణుపు::isSigned() స్థిరరాశి VL_MT_STABLE { తిరిగి dtypep() && dtypep()->isSigned(); }
 
-bool AstNode::isClassHandleValue() const {
-    return (VN_IS(this, Const) && VN_AS(this, Const)->num().isNull())
+bool Ast_కణుపు::is_Class_Handle_విలువ() స్థిరరాశి {
+    తిరిగి (VN_IS(this, Const) && VN_AS(this, Const)->అంకె().isNull())
            || (dtypep() && VN_IS(dtypep()->skipRefp(), ClassRefDType));
 }
-bool AstNode::isNull() const { return VN_IS(this, Const) && VN_AS(this, Const)->num().isNull(); }
-bool AstNode::isZero() const {
-    return (VN_IS(this, Const) && VN_AS(this, Const)->num().isEqZero());
+bool Ast_కణుపు::isNull() స్థిరరాశి { తిరిగి VN_IS(this, Const) && VN_AS(this, Const)->అంకె().isNull(); }
+bool Ast_కణుపు::isZero() స్థిరరాశి {
+    తిరిగి (VN_IS(this, Const) && VN_AS(this, Const)->అంకె().isEqZero());
 }
-bool AstNode::isNeqZero() const {
-    return (VN_IS(this, Const) && VN_AS(this, Const)->num().isNeqZero());
+bool Ast_కణుపు::isNeqZero() స్థిరరాశి {
+    తిరిగి (VN_IS(this, Const) && VN_AS(this, Const)->అంకె().isNeqZero());
 }
-bool AstNode::isOne() const { return (VN_IS(this, Const) && VN_AS(this, Const)->num().isEqOne()); }
-bool AstNode::isAllOnes() const {
-    return (VN_IS(this, Const) && VN_AS(this, Const)->isEqAllOnes());
+bool Ast_కణుపు::isOne() స్థిరరాశి { తిరిగి (VN_IS(this, Const) && VN_AS(this, Const)->అంకె().isEqOne()); }
+bool Ast_కణుపు::isAllOnes() స్థిరరాశి {
+    తిరిగి (VN_IS(this, Const) && VN_AS(this, Const)->isEqAllOnes());
 }
-bool AstNode::isAllOnesV() const {
-    return (VN_IS(this, Const) && VN_AS(this, Const)->isEqAllOnesV());
+bool Ast_కణుపు::isAllOnesV() స్థిరరాశి {
+    తిరిగి (VN_IS(this, Const) && VN_AS(this, Const)->isEqAllOnesV());
 }
-bool AstNode::sameTree(const AstNode* node2p) const {
-    return sameTreeIter(this, node2p, true, false);
+bool Ast_కణుపు::same_వృక్షం(స్థిరరాశి Ast_కణుపు* node2p) స్థిరరాశి {
+    తిరిగి same_వృక్షం_Iter(this, node2p, true, false);
 }
-bool AstNode::sameGateTree(const AstNode* node2p) const {
-    return sameTreeIter(this, node2p, true, true);
+bool Ast_కణుపు::same_Gate_వృక్షం(స్థిరరాశి Ast_కణుపు* node2p) స్థిరరాశి {
+    తిరిగి same_వృక్షం_Iter(this, node2p, true, true);
 }
 
-int AstNodeArrayDType::left() const VL_MT_STABLE { return rangep()->leftConst(); }
-int AstNodeArrayDType::right() const VL_MT_STABLE { return rangep()->rightConst(); }
-int AstNodeArrayDType::hi() const VL_MT_STABLE { return rangep()->hiConst(); }
-int AstNodeArrayDType::lo() const VL_MT_STABLE { return rangep()->loConst(); }
-int AstNodeArrayDType::elementsConst() const VL_MT_STABLE { return rangep()->elementsConst(); }
-VNumRange AstNodeArrayDType::declRange() const VL_MT_STABLE { return VNumRange{left(), right()}; }
+పూర్ణాంకం Ast_కణుపు_Array_DType::ఎడమ_2() స్థిరరాశి VL_MT_STABLE { తిరిగి rangep()->ఎడమ_Const(); }
+పూర్ణాంకం Ast_కణుపు_Array_DType::కుడి_2() స్థిరరాశి VL_MT_STABLE { తిరిగి rangep()->కుడి_Const(); }
+పూర్ణాంకం Ast_కణుపు_Array_DType::hi() స్థిరరాశి VL_MT_STABLE { తిరిగి rangep()->hiConst(); }
+పూర్ణాంకం Ast_కణుపు_Array_DType::lo() స్థిరరాశి VL_MT_STABLE { తిరిగి rangep()->loConst(); }
+పూర్ణాంకం Ast_కణుపు_Array_DType::elementsConst() స్థిరరాశి VL_MT_STABLE { తిరిగి rangep()->elementsConst(); }
+VNumRange Ast_కణుపు_Array_DType::declRange() స్థిరరాశి VL_MT_STABLE { తిరిగి VNumRange{ఎడమ_2(), కుడి_2()}; }
 
-AstFuncRef::AstFuncRef(FileLine* fl, AstFunc* taskp, AstArg* argsp)
+AstFuncRef::AstFuncRef(File_పంక్తి* fl, AstFunc* taskp, AstArg* argsp)
     : ASTGEN_SUPER_FuncRef(fl, taskp->name(), argsp) {
     this->taskp(taskp);
     dtypeFrom(taskp);
 }
 
-AstRange::AstRange(FileLine* fl, int left, int right)
+AstRange::AstRange(File_పంక్తి* fl, పూర్ణాంకం ఎడమ_2, పూర్ణాంకం కుడి_2)
     : ASTGEN_SUPER_Range(fl) {
-    leftp(new AstConst{fl, static_cast<uint32_t>(left)});
-    rightp(new AstConst{fl, static_cast<uint32_t>(right)});
+    leftp(new AstConst{fl, static_cast<uint32_t>(ఎడమ_2)});
+    rightp(new AstConst{fl, static_cast<uint32_t>(కుడి_2)});
 }
-AstRange::AstRange(FileLine* fl, const VNumRange& range)
+AstRange::AstRange(File_పంక్తి* fl, స్థిరరాశి VNumRange& range)
     : ASTGEN_SUPER_Range(fl) {
-    leftp(new AstConst{fl, static_cast<uint32_t>(range.left())});
-    rightp(new AstConst{fl, static_cast<uint32_t>(range.right())});
+    leftp(new AstConst{fl, static_cast<uint32_t>(range.ఎడమ_2())});
+    rightp(new AstConst{fl, static_cast<uint32_t>(range.కుడి_2())});
 }
-int AstRange::leftConst() const VL_MT_STABLE {
-    const AstConst* const constp = VN_CAST(leftp(), Const);
-    return (constp ? constp->toSInt() : 0);
+పూర్ణాంకం AstRange::ఎడమ_Const() స్థిరరాశి VL_MT_STABLE {
+    స్థిరరాశి AstConst* స్థిరరాశి constp = VN_CAST(leftp(), Const);
+    తిరిగి (constp ? constp->గమ్యం_SInt() : 0);
 }
-int AstRange::rightConst() const VL_MT_STABLE {
-    const AstConst* const constp = VN_CAST(rightp(), Const);
-    return (constp ? constp->toSInt() : 0);
+పూర్ణాంకం AstRange::కుడి_Const() స్థిరరాశి VL_MT_STABLE {
+    స్థిరరాశి AstConst* స్థిరరాశి constp = VN_CAST(rightp(), Const);
+    తిరిగి (constp ? constp->గమ్యం_SInt() : 0);
 }
 
-AstPackArrayDType::AstPackArrayDType(FileLine* fl, VFlagChildDType, AstNodeDType* dtp,
+AstPackArrayDType::AstPackArrayDType(File_పంక్తి* fl, VFlag_బిడ్డ_DType, Ast_కణుపు_DType* dtp,
                                      AstRange* rangep)
     : ASTGEN_SUPER_PackArrayDType(fl) {
-    childDTypep(dtp);  // Only for parser
+    బిడ్డ_DTypep(dtp);  // Only for parser
     refDTypep(nullptr);
     this->rangep(rangep);
     dtypep(nullptr);  // V3Width will resolve
-    const int width = subDTypep()->width() * rangep->elementsConst();
-    widthForce(width, width);
+    స్థిరరాశి పూర్ణాంకం వెడల్పు = subDTypep()->వెడల్పు() * rangep->elementsConst();
+    వెడల్పు_Force(వెడల్పు, వెడల్పు);
 }
-AstPackArrayDType::AstPackArrayDType(FileLine* fl, AstNodeDType* dtp, AstRange* rangep)
+AstPackArrayDType::AstPackArrayDType(File_పంక్తి* fl, Ast_కణుపు_DType* dtp, AstRange* rangep)
     : ASTGEN_SUPER_PackArrayDType(fl) {
     refDTypep(dtp);
     this->rangep(rangep);
     dtypep(this);
-    const int width = subDTypep()->width() * rangep->elementsConst();
-    widthForce(width, width);
+    స్థిరరాశి పూర్ణాంకం వెడల్పు = subDTypep()->వెడల్పు() * rangep->elementsConst();
+    వెడల్పు_Force(వెడల్పు, వెడల్పు);
 }
 
-int AstQueueDType::boundConst() const VL_MT_STABLE {
-    const AstConst* const constp = VN_CAST(boundp(), Const);
-    return (constp ? constp->toSInt() : 0);
+పూర్ణాంకం Ast_వరుస_DType::boundConst() స్థిరరాశి VL_MT_STABLE {
+    స్థిరరాశి AstConst* స్థిరరాశి constp = VN_CAST(boundp(), Const);
+    తిరిగి (constp ? constp->గమ్యం_SInt() : 0);
 }
 
-AstTaskRef::AstTaskRef(FileLine* fl, AstTask* taskp, AstArg* argsp)
+AstTaskRef::AstTaskRef(File_పంక్తి* fl, AstTask* taskp, AstArg* argsp)
     : ASTGEN_SUPER_TaskRef(fl, taskp->name(), argsp) {
     this->taskp(taskp);
-    dtypeSetVoid();
+    dtype_సమితి_Void();
 }
 
-int AstBasicDType::hi() const { return (rangep() ? rangep()->hiConst() : m.m_nrange.hi()); }
-int AstBasicDType::lo() const { return (rangep() ? rangep()->loConst() : m.m_nrange.lo()); }
-int AstBasicDType::elements() const {
-    return (rangep() ? rangep()->elementsConst() : m.m_nrange.elements());
+పూర్ణాంకం AstBasicDType::hi() స్థిరరాశి { తిరిగి (rangep() ? rangep()->hiConst() : m.m_nrange.hi()); }
+పూర్ణాంకం AstBasicDType::lo() స్థిరరాశి { తిరిగి (rangep() ? rangep()->loConst() : m.m_nrange.lo()); }
+పూర్ణాంకం AstBasicDType::elements() స్థిరరాశి {
+    తిరిగి (rangep() ? rangep()->elementsConst() : m.m_nrange.elements());
 }
-bool AstBasicDType::ascending() const {
-    return (rangep() ? rangep()->ascending() : m.m_nrange.ascending());
+bool AstBasicDType::ascending() స్థిరరాశి {
+    తిరిగి (rangep() ? rangep()->ascending() : m.m_nrange.ascending());
 }
 
-bool AstActive::hasClocked() const { return m_sentreep->hasClocked(); }
-bool AstActive::hasCombo() const { return m_sentreep->hasCombo(); }
-bool AstActive::hasInitial() const { return m_sentreep->hasInitial(); }
-bool AstActive::hasStatic() const { return m_sentreep->hasStatic(); }
+bool Ast_చురుకైన::hasClocked() స్థిరరాశి { తిరిగి m_sentreep->hasClocked(); }
+bool Ast_చురుకైన::hasCombo() స్థిరరాశి { తిరిగి m_sentreep->hasCombo(); }
+bool Ast_చురుకైన::hasInitial() స్థిరరాశి { తిరిగి m_sentreep->hasInitial(); }
+bool Ast_చురుకైన::hasStatic() స్థిరరాశి { తిరిగి m_sentreep->hasStatic(); }
 
-bool AstNodeModule::isDollarUnit() const { return this == v3Global.rootp()->dollarUnitPkgp(); }
-bool AstNodeModule::isConstPool() const { return this == v3Global.rootp()->constPoolPkgp(); }
+bool Ast_కణుపు_Module::isDollarUnit() స్థిరరాశి { తిరిగి this == v3Global.rootp()->dollarUnitPkgp(); }
+bool Ast_కణుపు_Module::isConstPool() స్థిరరాశి { తిరిగి this == v3Global.rootp()->constPoolPkgp(); }
 
-AstAlways::AstAlways(AstAssignW* assignp)
+AstAlways::AstAlways(Ast_కేటాయించు_W* assignp)
     : ASTGEN_SUPER_Always(assignp->fileline(), assignp)
-    , m_keyword{VAlwaysKwd::CONT_ASSIGN} {}
+    , m_keyword{VAlwaysKwd::CONT_కేటాయించు} {}
 
-AstElabDisplay::AstElabDisplay(FileLine* fl, VDisplayType dispType, AstNodeExpr* exprsp)
+AstElabDisplay::AstElabDisplay(File_పంక్తి* fl, VDisplayType dispType, Ast_కణుపు_సమాసం* exprsp)
     : ASTGEN_SUPER_ElabDisplay(fl) {
-    addFmtp(new AstSFormatF{fl, "", true, exprsp});
+    కూడు_Fmtp(new AstSFormatF{fl, "", true, exprsp});
     m_displayType = dispType;
 }
 
-bool AstVar::sameNode(const AstNode* samep) const {
-    const AstVar* const asamep = VN_DBG_AS(samep, Var);
-    return m_name == asamep->m_name && varType() == asamep->varType()
+bool AstVar::same_కణుపు(స్థిరరాశి Ast_కణుపు* samep) స్థిరరాశి {
+    స్థిరరాశి AstVar* స్థిరరాశి asamep = VN_DBG_AS(samep, Var);
+    తిరిగి m_name == asamep->m_name && varType() == asamep->varType()
            && covergroupRefMember() == asamep->covergroupRefMember()
            && libInoutId() == asamep->libInoutId() && libInoutEnable() == asamep->libInoutEnable();
 }
 
-AstMatchMasked::AstMatchMasked(FileLine* fl, AstNodeExpr* lhsp, AstVarRef* matchp)
-    : ASTGEN_SUPER_MatchMasked(fl) {
+Ast_సరిపోలిక_Masked::Ast_సరిపోలిక_Masked(File_పంక్తి* fl, Ast_కణుపు_సమాసం* lhsp, AstVarRef* matchp)
+    : ASTGEN_SUPER_సరిపోలిక_Masked(fl) {
     this->lhsp(lhsp);
     this->matchp(matchp);
-    dtypeSetUInt32();
+    dtype_సమితి_UInt32();
 }
 
-AstVarRef::AstVarRef(FileLine* fl, AstVar* varp, const VAccess& access)
+AstVarRef::AstVarRef(File_పంక్తి* fl, AstVar* varp, స్థిరరాశి VAccess& access)
     : ASTGEN_SUPER_VarRef(fl, varp, access) {
-    if (v3Global.assertDTypesResolved()) {
+    ఒకవేళ (v3Global.assertDTypesResolved()) {
         UASSERT_OBJ(varp, this, "Require non-null varp post resolution");
-    } else if (varp) {
+    } లేకపోతే ఒకవేళ (varp) {
         m_name = varp->name();
     }
 }
-AstVarRef::AstVarRef(FileLine* fl, AstNodeModule* pkgp, AstVar* varp, const VAccess& access)
+AstVarRef::AstVarRef(File_పంక్తి* fl, Ast_కణుపు_Module* pkgp, AstVar* varp, స్థిరరాశి VAccess& access)
     : AstVarRef{fl, varp, access} {
     classOrPackagep(pkgp);
 }
 // This form only allowed post-link (see above)
-AstVarRef::AstVarRef(FileLine* fl, AstVarScope* varscp, const VAccess& access)
+AstVarRef::AstVarRef(File_పంక్తి* fl, AstVarScope* varscp, స్థిరరాశి VAccess& access)
     : ASTGEN_SUPER_VarRef(fl, varscp->varp(), access) {
     varScopep(varscp);
 }
 
-string AstVarRef::name() const { return varp() ? varp()->name() : nameThis(); }
+string AstVarRef::name() స్థిరరాశి { తిరిగి varp() ? varp()->name() : nameThis(); }
 
-bool AstVarRef::sameNode(const AstVarRef* samep) const {
-    if (varScopep()) return (varScopep() == samep->varScopep() && access() == samep->access());
-    return (selfPointer() == samep->selfPointer() && classOrPackagep() == samep->classOrPackagep()
+bool AstVarRef::same_కణుపు(స్థిరరాశి AstVarRef* samep) స్థిరరాశి {
+    ఒకవేళ (varScopep()) తిరిగి (varScopep() == samep->varScopep() && access() == samep->access());
+    తిరిగి (self_సూచిక() == samep->self_సూచిక() && classOrPackagep() == samep->classOrPackagep()
             && access() == samep->access()
-            && (varp() && samep->varp() && varp()->sameNode(samep->varp())));
+            && (varp() && samep->varp() && varp()->same_కణుపు(samep->varp())));
 }
-bool AstVarRef::sameNoLvalue(const AstVarRef* samep) const {
-    if (varScopep()) return (varScopep() == samep->varScopep());
+bool AstVarRef::sameNoLvalue(స్థిరరాశి AstVarRef* samep) స్థిరరాశి {
+    ఒకవేళ (varScopep()) తిరిగి (varScopep() == samep->varScopep());
 
-    return (selfPointer() == samep->selfPointer() && classOrPackagep() == samep->classOrPackagep()
-            && (!selfPointer().isEmpty() || !samep->selfPointer().isEmpty())
-            && varp()->sameNode(samep->varp()));
+    తిరిగి (self_సూచిక() == samep->self_సూచిక() && classOrPackagep() == samep->classOrPackagep()
+            && (!self_సూచిక().is_ఖాళీలు() || !samep->self_సూచిక().is_ఖాళీలు())
+            && varp()->same_కణుపు(samep->varp()));
 }
 
-AstVarXRef::AstVarXRef(FileLine* fl, AstVar* varp, const string& dotted, const VAccess& access)
+AstVarXRef::AstVarXRef(File_పంక్తి* fl, AstVar* varp, స్థిరరాశి string& dotted, స్థిరరాశి VAccess& access)
     : ASTGEN_SUPER_VarXRef(fl, varp, access)
     , m_name{varp->name()}
     , m_dotted{dotted} {
     dtypeFrom(varp);
 }
 
-AstStmtExpr* AstNodeExpr::makeStmt() { return new AstStmtExpr{fileline(), this}; }
+Ast_Stmt_సమాసం* Ast_కణుపు_సమాసం::makeStmt() { తిరిగి new Ast_Stmt_సమాసం{fileline(), this}; }
 
-AstConsArrayItem* AstConsArray::itemsp() const VL_MT_STABLE {
-    return VN_DBG_AS(op2p(), ConsArrayItem);
+Ast_Cons_Array_అంశం* AstConsArray::itemsp() స్థిరరాశి VL_MT_STABLE {
+    తిరిగి VN_DBG_AS(op2p(), Cons_Array_అంశం);
 }
 
 // Walk up the AST via backp() to find the containing AstNodeModule.
 // Returns nullptr if not found.
-inline AstNodeModule* findParentModule(AstNode* nodep) {
-    for (AstNode* curp = nodep; curp; curp = curp->backp()) {
-        if (AstNodeModule* const modp = VN_CAST(curp, NodeModule)) return modp;
+అంతఃవరుస Ast_కణుపు_Module* కనుగొను_మాతృ_Module(Ast_కణుపు* nodep) {
+    కొరకు (Ast_కణుపు* curp = nodep; curp; curp = curp->backp()) {
+        ఒకవేళ (Ast_కణుపు_Module* స్థిరరాశి modp = VN_CAST(curp, కణుపు_Module)) తిరిగి modp;
     }
-    return nullptr;
+    తిరిగి nullptr;
 }
 
-#endif  // Guard
+#అయితే_ముగింపు  // Guard

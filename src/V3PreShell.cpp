@@ -14,108 +14,108 @@
 //
 //*************************************************************************
 
-#define VL_MT_DISABLED_CODE_UNIT 1
+#నిర్వచించు VL_MT_DISABLED_సంకేతం_UNIT 1
 
-#include "config_build.h"
-#include "verilatedos.h"
+#అన్తర్భావ "config_build.h"
+#అన్తర్భావ "verilatedos.h"
 
-#include "V3PreShell.h"
+#అన్తర్భావ "V3PreShell.h"
 
-#include "V3File.h"
-#include "V3Global.h"
-#include "V3Os.h"
-#include "V3Parse.h"
-#include "V3PreProc.h"
+#అన్తర్భావ "V3File.h"
+#అన్తర్భావ "V3Global.h"
+#అన్తర్భావ "V3Os.h"
+#అన్తర్భావ "V3Parse.h"
+#అన్తర్భావ "V3PreProc.h"
 
-#include <algorithm>
-#include <iostream>
+#అన్తర్భావ <algorithm>
+#అన్తర్భావ <iostream>
 
 VL_DEFINE_DEBUG_FUNCTIONS;
 
 //######################################################################
 
-class V3PreShellImp final {
-protected:
-    friend class V3PreShell;
+తరగతి V3PreShellImp final {
+రక్షిత:
+    మిత్ర తరగతి V3PreShell;
 
-    static V3PreShellImp s_preImp;
-    static V3PreProc* s_preprocp;
-    static VInFilter* s_filterp;
+    స్థిర V3PreShellImp s_preImp;
+    స్థిర V3PreProc* s_preprocp;
+    స్థిర VInFilter* s_filterp;
 
     //---------------------------------------
     // METHODS
 
-    static void boot() {
+    స్థిర శూన్య boot() {
         // Create the implementation pointer
-        if (!s_preprocp) {
-            FileLine* const cmdfl = new FileLine{FileLine::commandLineFilename()};
+        ఒకవేళ (!s_preprocp) {
+            File_పంక్తి* స్థిరరాశి cmdfl = కొత్త File_పంక్తి{File_పంక్తి::command_పంక్తి_Filename()};
             s_preprocp = V3PreProc::createPreProc(cmdfl);
             // Default defines
-            FileLine* const prefl = new FileLine{FileLine::builtInFilename()};
-            s_preprocp->defineCmdLine(prefl, "VERILATOR", "1");  // LEAK_OK
-            s_preprocp->defineCmdLine(prefl, "verilator", "1");  // LEAK_OK
-            s_preprocp->defineCmdLine(prefl, "verilator3", "1");  // LEAK_OK
-            s_preprocp->defineCmdLine(prefl, "coverage_block_off",
+            File_పంక్తి* స్థిరరాశి prefl = కొత్త File_పంక్తి{File_పంక్తి::built_లోపల_Filename()};
+            s_preprocp->define_Cmd_పంక్తి(prefl, "VERILATOR", "1");  // LEAK_OK
+            s_preprocp->define_Cmd_పంక్తి(prefl, "verilator", "1");  // LEAK_OK
+            s_preprocp->define_Cmd_పంక్తి(prefl, "verilator3", "1");  // LEAK_OK
+            s_preprocp->define_Cmd_పంక్తి(prefl, "coverage_block_off",
                                       "/*verilator coverage_block_off*/");  // LEAK_OK
-            if (prefl->language().systemVerilog()) {
+            ఒకవేళ (prefl->language().systemVerilog()) {
                 // Synthesis compatibility
-                s_preprocp->defineCmdLine(prefl, "SYSTEMVERILOG", "1");  // LEAK_OK
+                s_preprocp->define_Cmd_పంక్తి(prefl, "SYSTEMVERILOG", "1");  // LEAK_OK
                 // IEEE predefined
-                s_preprocp->defineCmdLine(prefl, "SV_COV_START", "0");
-                s_preprocp->defineCmdLine(prefl, "SV_COV_STOP", "1");
-                s_preprocp->defineCmdLine(prefl, "SV_COV_RESET", "2");
-                s_preprocp->defineCmdLine(prefl, "SV_COV_CHECK", "3");
-                s_preprocp->defineCmdLine(prefl, "SV_COV_MODULE", "10");
-                s_preprocp->defineCmdLine(prefl, "SV_COV_HIER", "11");
-                s_preprocp->defineCmdLine(prefl, "SV_COV_ASSERTION", "20");
-                s_preprocp->defineCmdLine(prefl, "SV_COV_FSM_STATE", "21");
-                s_preprocp->defineCmdLine(prefl, "SV_COV_STATEMENT", "22");
-                s_preprocp->defineCmdLine(prefl, "SV_COV_TOGGLE", "23");
-                s_preprocp->defineCmdLine(prefl, "SV_COV_OVERFLOW", "-2");
-                s_preprocp->defineCmdLine(prefl, "SV_COV_ERROR", "-1");
-                s_preprocp->defineCmdLine(prefl, "SV_COV_NOCOV", "0");
-                s_preprocp->defineCmdLine(prefl, "SV_COV_OK", "1");
-                s_preprocp->defineCmdLine(prefl, "SV_COV_PARTIAL", "2");
+                s_preprocp->define_Cmd_పంక్తి(prefl, "SV_COV_START", "0");
+                s_preprocp->define_Cmd_పంక్తి(prefl, "SV_COV_STOP", "1");
+                s_preprocp->define_Cmd_పంక్తి(prefl, "SV_COV_RESET", "2");
+                s_preprocp->define_Cmd_పంక్తి(prefl, "SV_COV_CHECK", "3");
+                s_preprocp->define_Cmd_పంక్తి(prefl, "SV_COV_MODULE", "10");
+                s_preprocp->define_Cmd_పంక్తి(prefl, "SV_COV_HIER", "11");
+                s_preprocp->define_Cmd_పంక్తి(prefl, "SV_COV_ASSERTION", "20");
+                s_preprocp->define_Cmd_పంక్తి(prefl, "SV_COV_FSM_STATE", "21");
+                s_preprocp->define_Cmd_పంక్తి(prefl, "SV_COV_STATEMENT", "22");
+                s_preprocp->define_Cmd_పంక్తి(prefl, "SV_COV_TOGGLE", "23");
+                s_preprocp->define_Cmd_పంక్తి(prefl, "SV_COV_OVERFLOW", "-2");
+                s_preprocp->define_Cmd_పంక్తి(prefl, "SV_COV_ERROR", "-1");
+                s_preprocp->define_Cmd_పంక్తి(prefl, "SV_COV_NOCOV", "0");
+                s_preprocp->define_Cmd_పంక్తి(prefl, "SV_COV_OK", "1");
+                s_preprocp->define_Cmd_పంక్తి(prefl, "SV_COV_PARTIAL", "2");
             }
         }
     }
 
-    void shutdown() {
-        if (s_preprocp) VL_DO_DANGLING(delete s_preprocp, s_preprocp);
+    శూన్య shutdown() {
+        ఒకవేళ (s_preprocp) VL_DO_DANGLING(తొలగించు s_preprocp, s_preprocp);
     }
 
-    bool preproc(FileLine* fl, const string& modname, VInFilter* filterp, V3ParseImp* parsep,
-                 const string& errmsg) {  // "" for no error
+    తార్కిక preproc(File_పంక్తి* fl, స్థిరరాశి string& modname, VInFilter* filterp, V3ParseImp* parsep,
+                 స్థిరరాశి string& errmsg) {  // "" for no error
         // Preprocess the given module, putting output in vppFilename
         UINFO(1, "Preprocessing " << modname);
 
         // Preprocess
         s_filterp = filterp;
-        const string modfilename = preprocOpen(fl, s_filterp, modname, "", errmsg);
-        if (modfilename.empty()) return false;
+        స్థిరరాశి string modfilename = preprocOpen(fl, s_filterp, modname, "", errmsg);
+        ఒకవేళ (modfilename.ఖాళీలు()) తిరిగి అబద్ధం;
 
         // Set language standard up front
-        if (!v3Global.opt.preprocOnly() || v3Global.opt.preprocResolve()) {
+        ఒకవేళ (!v3Global.opt.preprocOnly() || v3Global.opt.preprocResolve()) {
             // Letting lex parse this saves us from having to specially en/decode
             // from the V3LangCode to the various Lex BEGIN states. The language
             // of this source file is updated here, in case there have been any
             // intervening +<lang>ext+ options since it was first encountered.
-            const FileLine* const modfileline = new FileLine{modfilename};
+            స్థిరరాశి File_పంక్తి* స్థిరరాశి modfileline = కొత్త File_పంక్తి{modfilename};
             modfileline->language(v3Global.opt.fileLanguage(modfilename));
-            V3Parse::ppPushText(
+            V3Parse::pp_నెట్టు_పాఠ్యం(
                 parsep, ("`begin_keywords \""s + modfileline->language().ascii() + "\"\n"));
             // FileLine tracks and frees modfileline
         }
 
-        while (!s_preprocp->isEof()) {
-            const string line = s_preprocp->getline();
-            V3Parse::ppPushText(parsep, line);
+        అయితే (!s_preprocp->isEof()) {
+            స్థిరరాశి string పంక్తి = s_preprocp->getline();
+            V3Parse::pp_నెట్టు_పాఠ్యం(parsep, పంక్తి);
         }
-        return true;
+        తిరిగి నిజం;
     }
 
-    void preprocInclude(FileLine* fl, const string& modname) {
-        if (modname[0] == '/' || modname[0] == '\\') {
+    శూన్య preprocInclude(File_పంక్తి* fl, స్థిరరాశి string& modname) {
+        ఒకవేళ (modname[0] == '/' || modname[0] == '\\') {
             fl->v3warn(INCABSPATH,
                        "Suggest `include with absolute path be made relative, and use +include: "
                            << modname);
@@ -124,56 +124,56 @@ protected:
                     "Cannot find include file: ");
     }
 
-private:
-    string preprocOpen(FileLine* fl, VInFilter* filterp, const string& modname,
-                       const string& lastpath,
-                       const string& errmsg) {  // Error message or "" to suppress
+అంతరంగ:
+    string preprocOpen(File_పంక్తి* fl, VInFilter* filterp, స్థిరరాశి string& modname,
+                       స్థిరరాశి string& lastpath,
+                       స్థిరరాశి string& errmsg) {  // Error message or "" to suppress
         // Returns filename if successful
         // Try a pure name in case user has a bogus `filename they don't expect
-        string filename = v3Global.opt.filePath(fl, modname, lastpath, errmsg);
-        if (filename == "") {
+        string filename = v3Global.opt.file_మార్గం(fl, modname, lastpath, errmsg);
+        ఒకవేళ (filename == "") {
             // Allow user to put `defined names on the command line instead of filenames,
             // then convert them properly.
-            const string ppmodname = s_preprocp->removeDefines(modname);
+            స్థిరరాశి string ppmodname = s_preprocp->remove_నిర్వచిస్తుంది(modname);
 
-            filename = v3Global.opt.filePath(fl, ppmodname, lastpath, errmsg);
+            filename = v3Global.opt.file_మార్గం(fl, ppmodname, lastpath, errmsg);
         }
-        if (filename == "") return "";  // Not found
+        ఒకవేళ (filename == "") తిరిగి "";  // Not found
 
         UINFO(2, "    Reading " << filename);
         s_preprocp->openFile(fl, filterp, filename);
-        return filename;
+        తిరిగి filename;
     }
 
-public:
+బహిరంగ:
     // CONSTRUCTORS
-    V3PreShellImp() = default;
-    ~V3PreShellImp() = default;
+    V3PreShellImp() = అప్రమేయ;
+    ~V3PreShellImp() = అప్రమేయ;
 };
 
 V3PreShellImp V3PreShellImp::s_preImp;
-V3PreProc* V3PreShellImp::s_preprocp = nullptr;
-VInFilter* V3PreShellImp::s_filterp = nullptr;
+V3PreProc* V3PreShellImp::s_preprocp = శూన్యసూచిక;
+VInFilter* V3PreShellImp::s_filterp = శూన్యసూచిక;
 
 //######################################################################
 // V3PreShell
 
-void V3PreShell::boot() { V3PreShellImp::s_preImp.boot(); }
-void V3PreShell::shutdown() { V3PreShellImp::s_preImp.shutdown(); }
-bool V3PreShell::preproc(FileLine* fl, const string& modname, VInFilter* filterp,
-                         V3ParseImp* parsep, const string& errmsg) {
-    return V3PreShellImp::s_preImp.preproc(fl, modname, filterp, parsep, errmsg);
+శూన్య V3PreShell::boot() { V3PreShellImp::s_preImp.boot(); }
+శూన్య V3PreShell::shutdown() { V3PreShellImp::s_preImp.shutdown(); }
+తార్కిక V3PreShell::preproc(File_పంక్తి* fl, స్థిరరాశి string& modname, VInFilter* filterp,
+                         V3ParseImp* parsep, స్థిరరాశి string& errmsg) {
+    తిరిగి V3PreShellImp::s_preImp.preproc(fl, modname, filterp, parsep, errmsg);
 }
-void V3PreShell::preprocInclude(FileLine* fl, const string& modname) {
+శూన్య V3PreShell::preprocInclude(File_పంక్తి* fl, స్థిరరాశి string& modname) {
     V3PreShellImp::s_preImp.preprocInclude(fl, modname);
 }
-void V3PreShell::defineCmdLine(const string& name, const string& value) {
-    FileLine* const prefl = new FileLine{FileLine::commandLineFilename()};
-    V3PreShellImp::s_preprocp->defineCmdLine(prefl, name, value);
+శూన్య V3PreShell::define_Cmd_పంక్తి(స్థిరరాశి string& name, స్థిరరాశి string& విలువ) {
+    File_పంక్తి* స్థిరరాశి prefl = కొత్త File_పంక్తి{File_పంక్తి::command_పంక్తి_Filename()};
+    V3PreShellImp::s_preprocp->define_Cmd_పంక్తి(prefl, name, విలువ);
 }
-void V3PreShell::undef(const string& name) { V3PreShellImp::s_preprocp->undef(name); }
-void V3PreShell::dumpDefines(std::ostream& os) { V3PreShellImp::s_preprocp->dumpDefines(os); }
-void V3PreShell::candidateDefines(VSpellCheck* spellerp) {
-    V3PreShellImp::s_preprocp->candidateDefines(spellerp);
+శూన్య V3PreShell::undef(స్థిరరాశి string& name) { V3PreShellImp::s_preprocp->undef(name); }
+శూన్య V3PreShell::dump_నిర్వచిస్తుంది(std::ostream& os) { V3PreShellImp::s_preprocp->dump_నిర్వచిస్తుంది(os); }
+శూన్య V3PreShell::candidate_నిర్వచిస్తుంది(VSpellCheck* spellerp) {
+    V3PreShellImp::s_preprocp->candidate_నిర్వచిస్తుంది(spellerp);
 }
-void V3PreShell::selfTest() { V3PreProc::selfTest(); }
+శూన్య V3PreShell::selfTest() { V3PreProc::selfTest(); }

@@ -20,52 +20,52 @@
 //
 //*************************************************************************
 
-#include "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
+#అన్తర్భావ "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
 
-#include "V3Class.h"
+#అన్తర్భావ "V3Class.h"
 
-#include "V3UniqueNames.h"
+#అన్తర్భావ "V3UniqueNames.h"
 
-#include <queue>
-#include <set>
+#అన్తర్భావ <queue>
+#అన్తర్భావ <set>
 
 VL_DEFINE_DEBUG_FUNCTIONS;
 
 //######################################################################
 
-class ClassVisitor final : public VNVisitor {
+తరగతి ClassVisitor final : బహిరంగ VNVisitor {
     // NODE STATE
     //  AstClass::user1()       -> bool.  True if iterated already
     //  AstVar::user1p()        -> AstVarScope*  Scope used with this var
-    const VNUser1InUse m_inuser1;
+    స్థిరరాశి VNUser1_లోపల_Use m_inuser1;
 
     // MEMBERS
-    string m_prefix;  // String prefix to add to class name based on hier
-    V3UniqueNames m_names;  // For unique naming of structs and unions
-    AstNodeModule* m_modp = nullptr;  // Current module
-    AstNodeModule* m_classPackagep = nullptr;  // Package moving into
-    const AstScope* m_classScopep = nullptr;  // Package moving scopes into
-    AstScope* m_packageScopep = nullptr;  // Class package scope
-    const AstNodeFTask* m_ftaskp = nullptr;  // Current task
-    std::vector<std::pair<AstNode*, AstScope*>> m_toScopeMoves;
-    std::vector<std::pair<AstNode*, AstNodeModule*>> m_toPackageMoves;
-    std::set<AstTypedef*> m_typedefps;  // Contains all typedef nodes
-    std::set<AstNodeUOrStructDType*> m_strDtypeps;  // Contains all packed structs and unions
+    string m_ఉపసర్గ;  // String prefix to add to class name based on hier
+    V3_Unique_పేర్లు m_పేర్లు;  // For unique naming of structs and unions
+    Ast_కణుపు_Module* m_modp = శూన్యసూచిక;  // Current module
+    Ast_కణుపు_Module* m_classPackagep = శూన్యసూచిక;  // Package moving into
+    స్థిరరాశి AstScope* m_classScopep = శూన్యసూచిక;  // Package moving scopes into
+    AstScope* m_packageScopep = శూన్యసూచిక;  // Class package scope
+    స్థిరరాశి Ast_కణుపు_FTask* m_ftaskp = శూన్యసూచిక;  // Current task
+    std::సదిశ<std::pair<Ast_కణుపు*, AstScope*>> m_గమ్యం_Scope_కదలికలు;
+    std::సదిశ<std::pair<Ast_కణుపు*, Ast_కణుపు_Module*>> m_గమ్యం_Package_కదలికలు;
+    std::సమితి<AstTypedef*> m_typedefps;  // Contains all typedef nodes
+    std::సమితి<Ast_కణుపు_UOr_Struct_DType*> m_strDtypeps;  // Contains all packed structs and unions
     // Contains all public packed structs and unions, using a queue to
     // mark embedded struct / union public by BFS
-    std::queue<AstNodeUOrStructDType*> m_pubStrDtypeps;
+    std::వరుస<Ast_కణుపు_UOr_Struct_DType*> m_pubStrDtypeps;
 
     // METHODS
 
-    void recurseImplements(AstClass* nodep) {
+    శూన్య recurseImplements(AstClass* nodep) {
         // In SystemVerilog, we have two inheritance chains:
         // - extends of concrete clasess: mapped to non-virtual C++ inheritance
         //   as there is only single ancestor allowed
         // - implements of concrete classes / extends of interface classes: mapped
         //   to virtual inheritance to allow diamond patterns with multiple ancestors
-        if (nodep->useVirtualPublic()) return;  // Short-circuit to exit diamond cycles
-        if (nodep->isInterfaceClass()) { nodep->useVirtualPublic(true); }
-        for (const AstClassExtends* extp = nodep->extendsp(); extp;
+        ఒకవేళ (nodep->use_Virtual_ప్రజా()) తిరిగి;  // Short-circuit to exit diamond cycles
+        ఒకవేళ (nodep->isInterfaceClass()) { nodep->use_Virtual_ప్రజా(నిజం); }
+        కొరకు (స్థిరరాశి AstClassExtends* extp = nodep->extendsp(); extp;
              extp = VN_AS(extp->nextp(), ClassExtends)) {
             recurseImplements(extp->classp());
         }
@@ -73,48 +73,48 @@ class ClassVisitor final : public VNVisitor {
 
     // VISITORS
 
-    void visit(AstClass* nodep) override {
-        if (nodep->user1SetOnce()) return;
+    శూన్య సందర్శించు(AstClass* nodep) override {
+        ఒకవేళ (nodep->user1_సమితి_Once()) తిరిగి;
         // Move this class
-        nodep->name(m_prefix + nodep->name());
-        nodep->unlinkFrBack();
-        v3Global.rootp()->addModulesp(nodep);
+        nodep->name(m_ఉపసర్గ + nodep->name());
+        nodep->unlink_Fr_వెనుక();
+        v3Global.rootp()->కూడు_Modulesp(nodep);
         recurseImplements(nodep);
         // Make containing package
         // Note origName is the same as the class origName so errors look correct
-        AstClassPackage* const packagep
-            = new AstClassPackage{nodep->fileline(), nodep->origName(), nodep->libname()};
+        AstClassPackage* స్థిరరాశి packagep
+            = కొత్త AstClassPackage{nodep->fileline(), nodep->origName(), nodep->libname()};
         packagep->name(nodep->name() + "__Vclpkg");
-        nodep->editCountInc();
+        nodep->edit_లెక్క_Inc();
         nodep->classOrPackagep(packagep);
         packagep->classp(nodep);
         packagep->timeunit(nodep->timeunit());
-        v3Global.rootp()->addModulesp(packagep);
+        v3Global.rootp()->కూడు_Modulesp(packagep);
         // Add package to hierarchy
-        AstCell* const cellp = new AstCell{packagep->fileline(),
+        AstCell* స్థిరరాశి cellp = కొత్త AstCell{packagep->fileline(),
                                            packagep->fileline(),
                                            packagep->name(),
                                            packagep->name(),
-                                           nullptr,
-                                           nullptr,
-                                           nullptr};
+                                           శూన్యసూచిక,
+                                           శూన్యసూచిక,
+                                           శూన్యసూచిక};
         cellp->modp(packagep);
-        v3Global.rootp()->topModulep()->addStmtsp(cellp);
+        v3Global.rootp()->శిఖరం_Modulep()->కూడు_Stmtsp(cellp);
         // Find class's scope
         // Alternative would be to move this and related to V3Scope
-        const AstScope* classScopep = nullptr;
-        for (AstNode* itp = nodep->stmtsp(); itp; itp = itp->nextp()) {
-            if ((classScopep = VN_CAST(itp, Scope))) break;
+        స్థిరరాశి AstScope* classScopep = శూన్యసూచిక;
+        కొరకు (Ast_కణుపు* itp = nodep->stmtsp(); itp; itp = itp->nextp()) {
+            ఒకవేళ ((classScopep = VN_CAST(itp, Scope))) ఆపు;
         }
         UASSERT_OBJ(classScopep, nodep, "No scope under class");
 
         // Add scope
-        AstScope* const scopep
-            = new AstScope{nodep->fileline(), packagep, classScopep->name(),
+        AstScope* స్థిరరాశి scopep
+            = కొత్త AstScope{nodep->fileline(), packagep, classScopep->name(),
                            classScopep->aboveScopep(), classScopep->aboveCellp()};
-        packagep->addStmtsp(scopep);
+        packagep->కూడు_Stmtsp(scopep);
         // Iterate
-        VL_RESTORER_CLEAR(m_prefix);
+        VL_RESTORER_CLEAR(m_ఉపసర్గ);
         VL_RESTORER(m_classPackagep);
         VL_RESTORER(m_classScopep);
         VL_RESTORER(m_packageScopep);
@@ -123,51 +123,51 @@ class ClassVisitor final : public VNVisitor {
         m_classPackagep = packagep;
         m_classScopep = classScopep;
         m_packageScopep = scopep;
-        m_prefix = nodep->name() + "__02e";  // .
+        m_ఉపసర్గ = nodep->name() + "__02e";  // .
         iterateChildren(nodep);
     }
-    void visit(AstNodeModule* nodep) override {
+    శూన్య సందర్శించు(Ast_కణుపు_Module* nodep) override {
         // Visit for NodeModules that are not AstClass (AstClass is-a AstNodeModule)
         // Classes are always under a Package (perhaps $unit) or a module
-        VL_RESTORER_CLEAR(m_prefix);
+        VL_RESTORER_CLEAR(m_ఉపసర్గ);
         VL_RESTORER(m_modp);
         m_modp = nodep;
-        m_prefix = nodep->name() + "__03a__03a";  // ::
+        m_ఉపసర్గ = nodep->name() + "__03a__03a";  // ::
         iterateChildren(nodep);
     }
 
-    void visit(AstVar* nodep) override {
+    శూన్య సందర్శించు(AstVar* nodep) override {
         iterateChildren(nodep);
-        if (m_packageScopep) {
-            if (m_ftaskp && m_ftaskp->isStatic()) {
+        ఒకవేళ (m_packageScopep) {
+            ఒకవేళ (m_ftaskp && m_ftaskp->isStatic()) {
                 // Move later, or we wouldn't keep iterating the class
                 // We're really moving the VarScope but we might not
                 // have a pointer to it yet
-                m_toScopeMoves.emplace_back(nodep, m_packageScopep);
+                m_గమ్యం_Scope_కదలికలు.emplace_వెనుక(nodep, m_packageScopep);
             }
-            if (!m_ftaskp && (nodep->lifetime().isStatic() || nodep->isParam())) {
-                m_toPackageMoves.emplace_back(nodep, m_classPackagep);
+            ఒకవేళ (!m_ftaskp && (nodep->lifetime().isStatic() || nodep->isParam())) {
+                m_గమ్యం_Package_కదలికలు.emplace_వెనుక(nodep, m_classPackagep);
                 // We're really moving the VarScope but we might not
                 // have a pointer to it yet
-                m_toScopeMoves.emplace_back(nodep, m_packageScopep);
+                m_గమ్యం_Scope_కదలికలు.emplace_వెనుక(nodep, m_packageScopep);
             }
         }
     }
 
-    void visit(AstVarScope* nodep) override {
+    శూన్య సందర్శించు(AstVarScope* nodep) override {
         iterateChildren(nodep);
         nodep->varp()->user1p(nodep);
     }
 
-    void visit(AstNodeFTask* nodep) override {
+    శూన్య సందర్శించు(Ast_కణుపు_FTask* nodep) override {
         VL_RESTORER(m_ftaskp);
         m_ftaskp = nodep;
         iterateChildren(nodep);
-        if (m_packageScopep && nodep->isStatic()) {
-            m_toScopeMoves.emplace_back(nodep, m_packageScopep);
+        ఒకవేళ (m_packageScopep && nodep->isStatic()) {
+            m_గమ్యం_Scope_కదలికలు.emplace_వెనుక(nodep, m_packageScopep);
         }
     }
-    void visit(AstCFunc* nodep) override {
+    శూన్య సందర్శించు(AstCFunc* nodep) override {
         iterateChildren(nodep);
         // Don't move now, or wouldn't keep iterating the class
         // TODO move function statics only
@@ -175,109 +175,109 @@ class ClassVisitor final : public VNVisitor {
         //    m_toScopeMoves.emplace_back(nodep, m_classScopep);
         //}
     }
-    void visit(AstNodeCoverDecl* nodep) override {
+    శూన్య సందర్శించు(Ast_కణుపు_Cover_Decl* nodep) override {
         // Need to declare coverage in package, where we have access to symbol table
         iterateChildren(nodep);
-        if (m_classPackagep) m_classPackagep->addStmtsp(nodep->unlinkFrBack());
+        ఒకవేళ (m_classPackagep) m_classPackagep->కూడు_Stmtsp(nodep->unlink_Fr_వెనుక());
     }
-    void visit(AstInitial* nodep) override {
+    శూన్య సందర్శించు(AstInitial* nodep) override {
         // But not AstInitialAutomatic, which remains under the class
         iterateChildren(nodep);
-        if (m_packageScopep) m_toScopeMoves.emplace_back(nodep, m_packageScopep);
+        ఒకవేళ (m_packageScopep) m_గమ్యం_Scope_కదలికలు.emplace_వెనుక(nodep, m_packageScopep);
     }
-    void visit(AstInitialStatic* nodep) override {
+    శూన్య సందర్శించు(AstInitialStatic* nodep) override {
         // But not AstInitialAutomatic, which remains under the class
         iterateChildren(nodep);
-        if (m_packageScopep) m_toScopeMoves.emplace_back(nodep, m_packageScopep);
+        ఒకవేళ (m_packageScopep) m_గమ్యం_Scope_కదలికలు.emplace_వెనుక(nodep, m_packageScopep);
     }
 
-    void setStructModulep(AstNodeUOrStructDType* const dtypep) {
+    శూన్య సమితి_Struct_Modulep(Ast_కణుపు_UOr_Struct_DType* స్థిరరాశి dtypep) {
         // Give struct a pointer to its package and a final name
-        dtypep->editCountInc();
+        dtypep->edit_లెక్క_Inc();
         dtypep->classOrPackagep(m_classPackagep ? m_classPackagep : m_modp);
         dtypep->name(
-            m_names.get(dtypep->name() + (VN_IS(dtypep, UnionDType) ? "__union" : "__struct")));
-        if (dtypep->packed()) m_strDtypeps.insert(dtypep);
+            m_పేర్లు.get(dtypep->name() + (VN_IS(dtypep, UnionDType) ? "__union" : "__struct")));
+        ఒకవేళ (dtypep->packed()) m_strDtypeps.చొప్పించు(dtypep);
 
-        for (AstMemberDType* itemp = dtypep->membersp(); itemp;
+        కొరకు (AstMemberDType* itemp = dtypep->membersp(); itemp;
              itemp = VN_AS(itemp->nextp(), MemberDType)) {
-            AstNodeUOrStructDType* const subp = itemp->getChildStructp();
+            Ast_కణుపు_UOr_Struct_DType* స్థిరరాశి subp = itemp->get_బిడ్డ_Structp();
             // Recurse only into anonymous structs inside this definition,
             // other structs will be reached from another typedefs
-            if (subp && subp->name().empty()) setStructModulep(subp);
+            ఒకవేళ (subp && subp->name().ఖాళీలు()) సమితి_Struct_Modulep(subp);
         }
     }
-    void visit(AstTypedef* nodep) override {
-        if (nodep->user1SetOnce()) return;
-        AstNodeUOrStructDType* const dtypep = VN_CAST(nodep->dtypep(), NodeUOrStructDType);
-        if (dtypep && dtypep->packed()) {
-            m_typedefps.insert(nodep);
-            if (nodep->attrPublic()) m_pubStrDtypeps.push(dtypep);
+    శూన్య సందర్శించు(AstTypedef* nodep) override {
+        ఒకవేళ (nodep->user1_సమితి_Once()) తిరిగి;
+        Ast_కణుపు_UOr_Struct_DType* స్థిరరాశి dtypep = VN_CAST(nodep->dtypep(), కణుపు_UOr_Struct_DType);
+        ఒకవేళ (dtypep && dtypep->packed()) {
+            m_typedefps.చొప్పించు(nodep);
+            ఒకవేళ (nodep->attr_ప్రజా()) m_pubStrDtypeps.నెట్టు(dtypep);
         }
         iterateChildren(nodep);
-        if (m_classPackagep) m_classPackagep->addStmtsp(nodep->unlinkFrBack());
+        ఒకవేళ (m_classPackagep) m_classPackagep->కూడు_Stmtsp(nodep->unlink_Fr_వెనుక());
 
-        if (dtypep) {
+        ఒకవేళ (dtypep) {
             dtypep->name(nodep->name());
-            setStructModulep(dtypep);
+            సమితి_Struct_Modulep(dtypep);
         }
     }
 
-    void visit(AstNodeExpr* nodep) override {}  // Short circuit
-    void visit(AstNodeStmt* nodep) override {}  // Short circuit
-    void visit(AstNode* nodep) override { iterateChildren(nodep); }
+    శూన్య సందర్శించు(Ast_కణుపు_సమాసం* nodep) override {}  // Short circuit
+    శూన్య సందర్శించు(Ast_కణుపు_Stmt* nodep) override {}  // Short circuit
+    శూన్య సందర్శించు(Ast_కణుపు* nodep) override { iterateChildren(nodep); }
 
-public:
+బహిరంగ:
     // CONSTRUCTORS
-    explicit ClassVisitor(AstNetlist* nodep) { iterate(nodep); }
+    స్పష్టమైన ClassVisitor(AstNetlist* nodep) { iterate(nodep); }
     ~ClassVisitor() override {
-        for (auto moved : m_toScopeMoves) {
-            AstNode* const nodep = moved.first;
-            AstScope* const scopep = moved.second;
+        కొరకు (స్వయంచాలక moved : m_గమ్యం_Scope_కదలికలు) {
+            Ast_కణుపు* స్థిరరాశి nodep = moved.మొదటి;
+            AstScope* స్థిరరాశి scopep = moved.రెండవ;
             UINFO(9, "moving " << nodep << " to " << scopep);
-            if (VN_IS(nodep, NodeFTask)) {
-                scopep->addBlocksp(nodep->unlinkFrBack());
-            } else if (VN_IS(nodep, Var)) {
-                AstVarScope* const vscp = VN_AS(nodep->user1p(), VarScope);
+            ఒకవేళ (VN_IS(nodep, కణుపు_FTask)) {
+                scopep->కూడు_Blocksp(nodep->unlink_Fr_వెనుక());
+            } లేకపోతే ఒకవేళ (VN_IS(nodep, Var)) {
+                AstVarScope* స్థిరరాశి vscp = VN_AS(nodep->user1p(), VarScope);
                 vscp->scopep(scopep);
-                vscp->unlinkFrBack();
-                scopep->addVarsp(vscp);
-            } else if (VN_IS(nodep, Initial) || VN_IS(nodep, InitialStatic)) {
-                nodep->unlinkFrBack();
-                scopep->addBlocksp(nodep);
-            } else {
+                vscp->unlink_Fr_వెనుక();
+                scopep->కూడు_Varsp(vscp);
+            } లేకపోతే ఒకవేళ (VN_IS(nodep, Initial) || VN_IS(nodep, InitialStatic)) {
+                nodep->unlink_Fr_వెనుక();
+                scopep->కూడు_Blocksp(nodep);
+            } లేకపోతే {
                 nodep->v3fatalSrc("Bad case");
             }
         }
-        for (auto moved : m_toPackageMoves) {
-            AstNode* const nodep = moved.first;
-            AstNodeModule* const modp = moved.second;
+        కొరకు (స్వయంచాలక moved : m_గమ్యం_Package_కదలికలు) {
+            Ast_కణుపు* స్థిరరాశి nodep = moved.మొదటి;
+            Ast_కణుపు_Module* స్థిరరాశి modp = moved.రెండవ;
             UINFO(9, "moving " << nodep << " to " << modp);
-            nodep->unlinkFrBack();
-            modp->addStmtsp(nodep);
+            nodep->unlink_Fr_వెనుక();
+            modp->కూడు_Stmtsp(nodep);
         }
         // BFS to mark public typedefs.
-        std::set<const AstNodeUOrStructDType*> pubStrDtypeps;
-        while (!m_pubStrDtypeps.empty()) {
-            AstNodeUOrStructDType* const dtypep = m_pubStrDtypeps.front();
-            m_pubStrDtypeps.pop();
-            if (pubStrDtypeps.insert(dtypep).second) {
-                for (AstMemberDType* itemp = dtypep->membersp(); itemp;
+        std::సమితి<స్థిరరాశి Ast_కణుపు_UOr_Struct_DType*> pubStrDtypeps;
+        అయితే (!m_pubStrDtypeps.ఖాళీలు()) {
+            Ast_కణుపు_UOr_Struct_DType* స్థిరరాశి dtypep = m_pubStrDtypeps.front();
+            m_pubStrDtypeps.తీయి();
+            ఒకవేళ (pubStrDtypeps.చొప్పించు(dtypep).రెండవ) {
+                కొరకు (AstMemberDType* itemp = dtypep->membersp(); itemp;
                      itemp = VN_AS(itemp->nextp(), MemberDType)) {
-                    if (AstNodeUOrStructDType* const subp = itemp->getChildStructp())
-                        m_pubStrDtypeps.push(subp);
+                    ఒకవేళ (Ast_కణుపు_UOr_Struct_DType* స్థిరరాశి subp = itemp->get_బిడ్డ_Structp())
+                        m_pubStrDtypeps.నెట్టు(subp);
                 }
             }
         }
-        for (AstTypedef* typedefp : m_typedefps) {
-            const AstNodeUOrStructDType* const sdtypep
-                = VN_AS(typedefp->dtypep(), NodeUOrStructDType);
-            if (pubStrDtypeps.count(sdtypep)) typedefp->attrPublic(true);
+        కొరకు (AstTypedef* typedefp : m_typedefps) {
+            స్థిరరాశి Ast_కణుపు_UOr_Struct_DType* స్థిరరాశి sdtypep
+                = VN_AS(typedefp->dtypep(), కణుపు_UOr_Struct_DType);
+            ఒకవేళ (pubStrDtypeps.లెక్క(sdtypep)) typedefp->attr_ప్రజా(నిజం);
         }
         // Clear package pointer of non-public packed struct / union type, which will never be
         // exported.
-        for (AstNodeUOrStructDType* sdtypep : m_strDtypeps) {
-            if (!pubStrDtypeps.count(sdtypep)) sdtypep->classOrPackagep(nullptr);
+        కొరకు (Ast_కణుపు_UOr_Struct_DType* sdtypep : m_strDtypeps) {
+            ఒకవేళ (!pubStrDtypeps.లెక్క(sdtypep)) sdtypep->classOrPackagep(శూన్యసూచిక);
         }
     }
 };
@@ -285,8 +285,8 @@ public:
 //######################################################################
 // Class class functions
 
-void V3Class::classAll(AstNetlist* nodep) {
+శూన్య V3Class::classAll(AstNetlist* nodep) {
     UINFO(2, __FUNCTION__ << ":");
     { ClassVisitor{nodep}; }  // Destruct before checking
-    V3Global::dumpCheckGlobalTree("class", 0, dumpTreeEitherLevel() >= 3);
+    V3Global::dump_Check_Global_వృక్షం("class", 0, dump_వృక్షం_Either_Level() >= 3);
 }

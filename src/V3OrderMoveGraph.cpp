@@ -18,47 +18,47 @@
 //
 //*************************************************************************
 
-#include "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
+#అన్తర్భావ "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
 
-#include "V3OrderMoveGraph.h"
+#అన్తర్భావ "V3OrderMoveGraph.h"
 
-#include "V3Graph.h"
+#అన్తర్భావ "V3Graph.h"
 
 VL_DEFINE_DEBUG_FUNCTIONS;
 
 //======================================================================
 // OrderMoveDomScope implementation
 
-OrderMoveDomScope::DomScopeMap OrderMoveDomScope::s_dsMap;
+క్రమం_Move_Dom_Scope::DomScopeMap క్రమం_Move_Dom_Scope::s_dsMap;
 
 //======================================================================
 // OrderMoveVertex implementation
 
-OrderMoveVertex::OrderMoveVertex(OrderMoveGraph& graph, OrderLogicVertex* lVtxp,
-                                 const OrderDomain* domainp) VL_MT_DISABLED
-    : V3GraphVertex{&graph},
+క్రమం_Move_శీర్షం::క్రమం_Move_శీర్షం(క్రమం_Move_లేఖాచిత్రం& లేఖాచిత్రం, క్రమం_Logic_శీర్షం* lVtxp,
+                                 స్థిరరాశి క్రమం_Domain* domainp) VL_MT_DISABLED
+    : V3_లేఖాచిత్రం_శీర్షం{&లేఖాచిత్రం},
       m_logicp{lVtxp},
-      m_domScope{OrderMoveDomScope::getOrCreate(domainp, lVtxp ? lVtxp->scopep() : nullptr)} {
+      m_domScope{క్రమం_Move_Dom_Scope::getOrCreate(domainp, lVtxp ? lVtxp->scopep() : శూన్యసూచిక)} {
     UASSERT_OBJ(!lVtxp || lVtxp->domainp() == domainp, lVtxp, "Wrong domain for Move vertex");
 }
 
 //======================================================================
 // OrderMoveGraphBuilder - for OrderMoveGraph::build
 
-class OrderMoveGraphBuilder final {
+తరగతి క్రమం_Move_లేఖాచిత్రం_Builder final {
     // TYPES
-    using DomainMap = std::map<const OrderDomain*, OrderMoveVertex*>;
+    ఉపయోగించి DomainMap = std::map<స్థిరరాశి క్రమం_Domain*, క్రమం_Move_శీర్షం*>;
 
     // MEMBERS
-    OrderGraph& m_orderGraph;  // Input OrderGraph
+    క్రమం_లేఖాచిత్రం& m_క్రమం_లేఖాచిత్రం;  // Input OrderGraph
     // Output OrderMoveGraph
-    std::unique_ptr<OrderMoveGraph> m_moveGraphp{new OrderMoveGraph{m_orderGraph}};
+    std::unique_ptr<క్రమం_Move_లేఖాచిత్రం> m_moveGraphp{కొత్త క్రమం_Move_లేఖాచిత్రం{m_క్రమం_లేఖాచిత్రం}};
     // Storage for domain -> OrderMoveVertex, maps held in OrderVarVertex::userp()
     std::deque<DomainMap> m_domainMaps;
 
     // CONSTRUCTORS
-    explicit OrderMoveGraphBuilder(OrderGraph& orderGraph)
-        : m_orderGraph{orderGraph} {
+    స్పష్టమైన క్రమం_Move_లేఖాచిత్రం_Builder(క్రమం_లేఖాచిత్రం& క్రమం_లేఖాచిత్రం_2)
+        : m_క్రమం_లేఖాచిత్రం{క్రమం_లేఖాచిత్రం_2} {
         // How this works:
         //  - Create a OrderMoveVertex for each OrderLogicVertex.
         //  - Following each OrderLogicVertex, search forward in the context of its domain
@@ -71,31 +71,31 @@ class OrderMoveGraphBuilder final {
 
         // For each logic vertex, make a OrderMoveVertex, for each variable vertex, allocate
         // storage
-        for (V3GraphVertex& vtx : m_orderGraph.vertices()) {
-            if (OrderLogicVertex* const lvtxp = vtx.cast<OrderLogicVertex>()) {
-                lvtxp->userp(new OrderMoveVertex{*m_moveGraphp, lvtxp, lvtxp->domainp()});
-            } else {
+        కొరకు (V3_లేఖాచిత్రం_శీర్షం& vtx : m_క్రమం_లేఖాచిత్రం.vertices()) {
+            ఒకవేళ (క్రమం_Logic_శీర్షం* స్థిరరాశి lvtxp = vtx.cast<క్రమం_Logic_శీర్షం>()) {
+                lvtxp->userp(కొత్త క్రమం_Move_శీర్షం{*m_moveGraphp, lvtxp, lvtxp->domainp()});
+            } లేకపోతే {
                 // This is an OrderVarVertex
-                m_domainMaps.emplace_back();
-                vtx.userp(&m_domainMaps.back());
+                m_domainMaps.emplace_వెనుక();
+                vtx.userp(&m_domainMaps.వెనుక());
             }
         }
         // Build edges between logic vertices
-        for (V3GraphVertex& vtx : m_orderGraph.vertices()) {
-            if (OrderLogicVertex* const lvtxp = vtx.cast<OrderLogicVertex>()) {
-                iterateLogicVertex(lvtxp);
+        కొరకు (V3_లేఖాచిత్రం_శీర్షం& vtx : m_క్రమం_లేఖాచిత్రం.vertices()) {
+            ఒకవేళ (క్రమం_Logic_శీర్షం* స్థిరరాశి lvtxp = vtx.cast<క్రమం_Logic_శీర్షం>()) {
+                iterate_Logic_శీర్షం(lvtxp);
             }
         }
-        m_moveGraphp->removeRedundantEdgesSum(&V3GraphEdge::followAlwaysTrue);
+        m_moveGraphp->remove_Redundant_అంచులు_కూడిక(&V3_లేఖాచిత్రం_అంచు::followAlwaysTrue);
         m_moveGraphp->userClearVertices();
     }
-    virtual ~OrderMoveGraphBuilder() = default;
-    VL_UNCOPYABLE(OrderMoveGraphBuilder);
-    VL_UNMOVABLE(OrderMoveGraphBuilder);
+    మాయా ~క్రమం_Move_లేఖాచిత్రం_Builder() = అప్రమేయ;
+    VL_UNCOPYABLE(క్రమం_Move_లేఖాచిత్రం_Builder);
+    VL_UNMOVABLE(క్రమం_Move_లేఖాచిత్రం_Builder);
 
     // METHODS
 
-    bool domainsExclusive(const OrderDomain* fromp, const OrderDomain* top) {
+    తార్కిక domainsExclusive(స్థిరరాశి క్రమం_Domain* fromp, స్థిరరాశి క్రమం_Domain* శిఖరం) {
         // Return 'true' if we can prove that both 'from' and 'to' cannot both
         // be active on the same evaluation, or false if we can't prove this.
         //
@@ -109,90 +109,90 @@ class OrderMoveGraphBuilder final {
         //
         // ... unless you know more about A and B, which sounds hard.
 
-        const std::set<uint32_t>& fromTriggers = fromp->triggers();
-        const std::set<uint32_t>& toTriggers = top->triggers();
-        if (fromTriggers.size() != 1) return false;
-        if (toTriggers.size() != 1) return false;
-        const AstSenItem* const fromSenItemp = m_orderGraph.trigSenItemp(*fromTriggers.begin());
-        if (!fromSenItemp) return false;
-        const AstSenItem* const toSenItemp = m_orderGraph.trigSenItemp(*toTriggers.begin());
-        if (!toSenItemp) return false;
+        స్థిరరాశి std::సమితి<uint32_t>& fromTriggers = fromp->triggers();
+        స్థిరరాశి std::సమితి<uint32_t>& గమ్యం_Triggers = శిఖరం->triggers();
+        ఒకవేళ (fromTriggers.కొలత() != 1) తిరిగి అబద్ధం;
+        ఒకవేళ (గమ్యం_Triggers.కొలత() != 1) తిరిగి అబద్ధం;
+        స్థిరరాశి Ast_Sen_అంశం* స్థిరరాశి fromSenItemp = m_క్రమం_లేఖాచిత్రం.trigSenItemp(*fromTriggers.begin());
+        ఒకవేళ (!fromSenItemp) తిరిగి అబద్ధం;
+        స్థిరరాశి Ast_Sen_అంశం* స్థిరరాశి గమ్యం_Sen_Itemp = m_క్రమం_లేఖాచిత్రం.trigSenItemp(*గమ్యం_Triggers.begin());
+        ఒకవేళ (!గమ్యం_Sen_Itemp) తిరిగి అబద్ధం;
 
-        const AstNodeVarRef* const fromVarrefp = fromSenItemp->varrefp();
-        if (!fromVarrefp) return false;
-        const AstNodeVarRef* const toVarrefp = toSenItemp->varrefp();
-        if (!toVarrefp) return false;
+        స్థిరరాశి Ast_కణుపు_Var_Ref* స్థిరరాశి fromVarrefp = fromSenItemp->varrefp();
+        ఒకవేళ (!fromVarrefp) తిరిగి అబద్ధం;
+        స్థిరరాశి Ast_కణుపు_Var_Ref* స్థిరరాశి గమ్యం_Varrefp = గమ్యం_Sen_Itemp->varrefp();
+        ఒకవేళ (!గమ్యం_Varrefp) తిరిగి అబద్ధం;
 
         // We know nothing about the relationship between different clocks here,
         // so only proceed if strictly the same clock.
-        if (fromVarrefp->varScopep() != toVarrefp->varScopep()) return false;
+        ఒకవేళ (fromVarrefp->varScopep() != గమ్యం_Varrefp->varScopep()) తిరిగి అబద్ధం;
 
-        return fromSenItemp->edgeType().exclusiveEdge(toSenItemp->edgeType());
+        తిరిగి fromSenItemp->అంచు_Type().exclusive_అంచు(గమ్యం_Sen_Itemp->అంచు_Type());
     }
 
-    void addEdge(OrderMoveVertex* srcp, OrderMoveVertex* dstp) {
-        new V3GraphEdge{m_moveGraphp.get(), srcp, dstp, 1};
+    శూన్య కూడు_అంచు(క్రమం_Move_శీర్షం* srcp, క్రమం_Move_శీర్షం* dstp) {
+        కొత్త V3_లేఖాచిత్రం_అంచు{m_moveGraphp.get(), srcp, dstp, 1};
     }
 
-    void iterateLogicVertex(const OrderLogicVertex* lvtxp) {
-        const OrderDomain* const domainp = lvtxp->domainp();
-        OrderMoveVertex* const lMoveVtxp = static_cast<OrderMoveVertex*>(lvtxp->userp());
+    శూన్య iterate_Logic_శీర్షం(స్థిరరాశి క్రమం_Logic_శీర్షం* lvtxp) {
+        స్థిరరాశి క్రమం_Domain* స్థిరరాశి domainp = lvtxp->domainp();
+        క్రమం_Move_శీర్షం* స్థిరరాశి lMoveVtxp = static_cast<క్రమం_Move_శీర్షం*>(lvtxp->userp());
         // Search forward from lvtxp, making new edges from lMoveVtxp forward
-        for (const V3GraphEdge& edge : lvtxp->outEdges()) {
-            if (edge.weight() == 0) continue;  // Was cut
+        కొరకు (స్థిరరాశి V3_లేఖాచిత్రం_అంచు& అంచు : lvtxp->బహిర్గతం_అంచులు()) {
+            ఒకవేళ (అంచు.బరువు_2() == 0) కొనసాగు;  // Was cut
 
             // OrderGraph is a bipartite graph, so we know it's an OrderVarVertex
-            const OrderVarVertex* const vvtxp = static_cast<const OrderVarVertex*>(edge.top());
+            స్థిరరాశి క్రమం_Var_శీర్షం* స్థిరరాశి vvtxp = static_cast<స్థిరరాశి క్రమం_Var_శీర్షం*>(అంచు.శిఖరం());
 
             // Look up OrderMoveVertex for this domain on this variable
             DomainMap& mapp = *static_cast<DomainMap*>(vvtxp->userp());
-            const auto pair = mapp.emplace(domainp, nullptr);
+            స్థిరరాశి స్వయంచాలక pair = mapp.emplace(domainp, శూన్యసూచిక);
             // Reference to the mapped OrderMoveVertex
-            OrderMoveVertex*& vMoveVtxp = pair.first->second;
+            క్రమం_Move_శీర్షం*& vMoveVtxp = pair.మొదటి->రెండవ;
 
             // On first encounter, visit downstream logic dependent on this (var, domain)
-            if (pair.second) vMoveVtxp = iterateVarVertex(vvtxp, domainp);
+            ఒకవేళ (pair.రెండవ) vMoveVtxp = iterate_Var_శీర్షం(vvtxp, domainp);
 
             // If no downstream dependents from this variable, then there is no need to add this
             // variable as a dependent.
-            if (!vMoveVtxp) continue;
+            ఒకవేళ (!vMoveVtxp) కొనసాగు;
 
             // Add this (variable, domain) as dependent of the logic that writes it.
-            addEdge(lMoveVtxp, vMoveVtxp);
+            కూడు_అంచు(lMoveVtxp, vMoveVtxp);
         }
     }
 
     // Return the OrderMoveVertex for this (var, domain) pair, iff it has downstream dependencies,
     // otherwise return nullptr.
-    OrderMoveVertex* iterateVarVertex(const OrderVarVertex* vvtxp, const OrderDomain* domainp) {
-        OrderMoveVertex* vMoveVtxp = nullptr;
+    క్రమం_Move_శీర్షం* iterate_Var_శీర్షం(స్థిరరాశి క్రమం_Var_శీర్షం* vvtxp, స్థిరరాశి క్రమం_Domain* domainp) {
+        క్రమం_Move_శీర్షం* vMoveVtxp = శూన్యసూచిక;
         // Search forward from vvtxp, making new edges from vMoveVtxp forward
-        for (const V3GraphEdge& edge : vvtxp->outEdges()) {
-            if (edge.weight() == 0) continue;  // Was cut
+        కొరకు (స్థిరరాశి V3_లేఖాచిత్రం_అంచు& అంచు : vvtxp->బహిర్గతం_అంచులు()) {
+            ఒకవేళ (అంచు.బరువు_2() == 0) కొనసాగు;  // Was cut
 
             // OrderGraph is a bipartite graph, so we know it's an OrderLogicVertex
-            const OrderLogicVertex* const lVtxp = edge.top()->as<OrderLogicVertex>();
+            స్థిరరాశి క్రమం_Logic_శీర్షం* స్థిరరాశి lVtxp = అంచు.శిఖరం()->as<క్రమం_Logic_శీర్షం>();
 
             // Do not construct dependencies across exclusive domains.
-            if (domainsExclusive(domainp, lVtxp->domainp())) continue;
+            ఒకవేళ (domainsExclusive(domainp, lVtxp->domainp())) కొనసాగు;
 
             // there is a path from this vvtx to a logic vertex. Add the new edge.
-            if (!vMoveVtxp) vMoveVtxp = new OrderMoveVertex{*m_moveGraphp, nullptr, domainp};
-            OrderMoveVertex* const lMoveVxp = static_cast<OrderMoveVertex*>(lVtxp->userp());
-            addEdge(vMoveVtxp, lMoveVxp);
+            ఒకవేళ (!vMoveVtxp) vMoveVtxp = కొత్త క్రమం_Move_శీర్షం{*m_moveGraphp, శూన్యసూచిక, domainp};
+            క్రమం_Move_శీర్షం* స్థిరరాశి lMoveVxp = static_cast<క్రమం_Move_శీర్షం*>(lVtxp->userp());
+            కూడు_అంచు(vMoveVtxp, lMoveVxp);
         }
-        return vMoveVtxp;
+        తిరిగి vMoveVtxp;
     }
 
-public:
-    static std::unique_ptr<OrderMoveGraph> apply(OrderGraph& orderGraph) {
-        return std::move(OrderMoveGraphBuilder{orderGraph}.m_moveGraphp);
+బహిరంగ:
+    స్థిర std::unique_ptr<క్రమం_Move_లేఖాచిత్రం> apply(క్రమం_లేఖాచిత్రం& క్రమం_లేఖాచిత్రం_2) {
+        తిరిగి std::move(క్రమం_Move_లేఖాచిత్రం_Builder{క్రమం_లేఖాచిత్రం_2}.m_moveGraphp);
     }
 };
 
 //======================================================================
 // OrderMoveGraph implementation
 
-std::unique_ptr<OrderMoveGraph> OrderMoveGraph::build(OrderGraph& orderGraph) {
-    return OrderMoveGraphBuilder::apply(orderGraph);
+std::unique_ptr<క్రమం_Move_లేఖాచిత్రం> క్రమం_Move_లేఖాచిత్రం::build(క్రమం_లేఖాచిత్రం& క్రమం_లేఖాచిత్రం_2) {
+    తిరిగి క్రమం_Move_లేఖాచిత్రం_Builder::apply(క్రమం_లేఖాచిత్రం_2);
 }

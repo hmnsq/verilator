@@ -14,21 +14,21 @@
 //
 //*************************************************************************
 
-#include "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
+#అన్తర్భావ "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
 
-#include "V3EmitC.h"
-#include "V3EmitCBase.h"
-#include "V3ExecGraph.h"
-#include "V3LanguageWords.h"
-#include "V3StackCount.h"
-#include "V3Stats.h"
+#అన్తర్భావ "V3EmitC.h"
+#అన్తర్భావ "V3EmitCBase.h"
+#అన్తర్భావ "V3ExecGraph.h"
+#అన్తర్భావ "V3LanguageWords.h"
+#అన్తర్భావ "V3StackCount.h"
+#అన్తర్భావ "V3Stats.h"
 
-#include <algorithm>
-#include <cstring>
-#include <map>
-#include <set>
-#include <unordered_map>
-#include <vector>
+#అన్తర్భావ <algorithm>
+#అన్తర్భావ <cstring>
+#అన్తర్భావ <map>
+#అన్తర్భావ <set>
+#అన్తర్భావ <unordered_map>
+#అన్తర్భావ <vector>
 
 VL_DEFINE_DEBUG_FUNCTIONS;
 
@@ -36,25 +36,25 @@ VL_DEFINE_DEBUG_FUNCTIONS;
 // Symbol table emitting
 
 // Some handy short-hands to reduce verbosity
-static constexpr auto symClassName = &EmitCUtil::symClassName;
-static constexpr auto topClassName = &EmitCUtil::topClassName;
+స్థిర constexpr స్వయంచాలక symClassName = &EmitCUtil::symClassName;
+స్థిర constexpr స్వయంచాలక శిఖరం_Class_Name = &EmitCUtil::శిఖరం_Class_Name;
 
-class EmitCSyms final : EmitCBaseVisitorConst {
+తరగతి EmitCSyms final : EmitCBaseVisitorConst {
     // NODE STATE
     // Cleared on Netlist
     //  AstNodeModule::user1()  -> bool.  Set true __Vconfigure called
-    const VNUser1InUse m_inuser1;
+    స్థిరరాశి VNUser1_లోపల_Use m_inuser1;
 
     // TYPES
-    struct ScopeData final {
-        const AstNode* m_nodep;  // Scope symbol-table entry corresponds to
-        const std::string m_symName;  // Mangled name used to build __Vscopep_ variable
-        const std::string m_prettyName;  // Pretty (unprotected) name for display
-        const std::string m_defName;  // Name registered for this scope
-        const int m_timeunit;  // Timeunit of this scope
+    నిర్మాణం Scope_దత్తాంశం final {
+        స్థిరరాశి Ast_కణుపు* m_nodep;  // Scope symbol-table entry corresponds to
+        స్థిరరాశి std::string m_symName;  // Mangled name used to build __Vscopep_ variable
+        స్థిరరాశి std::string m_prettyName;  // Pretty (unprotected) name for display
+        స్థిరరాశి std::string m_defName;  // Name registered for this scope
+        స్థిరరాశి పూర్ణాంకం m_timeunit;  // Timeunit of this scope
         std::string m_type;  // TODO: this should be an enum
-        ScopeData(const AstNode* nodep, const std::string& symName, const std::string& prettyName,
-                  const std::string& defName, int timeunit, const std::string& type)
+        Scope_దత్తాంశం(స్థిరరాశి Ast_కణుపు* nodep, స్థిరరాశి std::string& symName, స్థిరరాశి std::string& prettyName,
+                  స్థిరరాశి std::string& defName, పూర్ణాంకం timeunit, స్థిరరాశి std::string& type)
             : m_nodep{nodep}
             , m_symName{symName}
             , m_prettyName{prettyName}
@@ -62,101 +62,101 @@ class EmitCSyms final : EmitCBaseVisitorConst {
             , m_timeunit{timeunit}
             , m_type{type} {}
     };
-    struct IfaceRefData final {
-        const AstScope* m_scopep;  // Concrete interface scope referred to
-        std::string m_parentSym;  // Declaring scope symbol, including inlined levels
+    నిర్మాణం Iface_Ref_దత్తాంశం final {
+        స్థిరరాశి AstScope* m_scopep;  // Concrete interface scope referred to
+        std::string m_మాతృ_Sym;  // Declaring scope symbol, including inlined levels
         std::string m_suffix;  // Path relative to the model instance
         std::string m_name;  // Name of the reference port
         std::string m_modportName;  // "" = no modport
-        IfaceRefData(const AstScope* scopep, const std::string& parentSym,
-                     const std::string& suffix, const std::string& name,
-                     const std::string& modportName)
+        Iface_Ref_దత్తాంశం(స్థిరరాశి AstScope* scopep, స్థిరరాశి std::string& మాతృ_Sym,
+                     స్థిరరాశి std::string& suffix, స్థిరరాశి std::string& name,
+                     స్థిరరాశి std::string& modportName)
             : m_scopep{scopep}
-            , m_parentSym{parentSym}
+            , m_మాతృ_Sym{మాతృ_Sym}
             , m_suffix{suffix}
             , m_name{name}
             , m_modportName{modportName} {}
     };
-    struct ScopeFuncData final {
-        const AstScopeName* const m_scopep;  // Scope the DPI export function is registered under
-        const AstCFunc* const m_cfuncp;  // DPI export function
-        const AstNodeModule* const m_modp;  // Module containing the DPI export function
-        ScopeFuncData(const AstScopeName* scopep, const AstCFunc* funcp, const AstNodeModule* modp)
+    నిర్మాణం Scope_Func_దత్తాంశం final {
+        స్థిరరాశి AstScopeName* స్థిరరాశి m_scopep;  // Scope the DPI export function is registered under
+        స్థిరరాశి AstCFunc* స్థిరరాశి m_cfuncp;  // DPI export function
+        స్థిరరాశి Ast_కణుపు_Module* స్థిరరాశి m_modp;  // Module containing the DPI export function
+        Scope_Func_దత్తాంశం(స్థిరరాశి AstScopeName* scopep, స్థిరరాశి AstCFunc* funcp, స్థిరరాశి Ast_కణుపు_Module* modp)
             : m_scopep{scopep}
             , m_cfuncp{funcp}
             , m_modp{modp} {}
     };
-    struct ScopeVarData final {
-        const std::string m_scopeName;  // Full name of the scope containing the variable
-        const std::string m_varBasePretty;  // Pretty base name of the variable, without scope
-        const AstVar* const m_varp;  // Public variable
-        const AstNodeModule* const m_modp;  // Module containing the variable
-        const AstScope* const m_scopep;  // Scope containing the variable
-        ScopeVarData(const std::string& scopeName, const std::string& varBasePretty,
-                     const AstVar* varp, const AstNodeModule* modp, const AstScope* scopep)
+    నిర్మాణం Scope_Var_దత్తాంశం final {
+        స్థిరరాశి std::string m_scopeName;  // Full name of the scope containing the variable
+        స్థిరరాశి std::string m_var_పునాది_Pretty;  // Pretty base name of the variable, without scope
+        స్థిరరాశి AstVar* స్థిరరాశి m_varp;  // Public variable
+        స్థిరరాశి Ast_కణుపు_Module* స్థిరరాశి m_modp;  // Module containing the variable
+        స్థిరరాశి AstScope* స్థిరరాశి m_scopep;  // Scope containing the variable
+        Scope_Var_దత్తాంశం(స్థిరరాశి std::string& scopeName, స్థిరరాశి std::string& var_పునాది_Pretty,
+                     స్థిరరాశి AstVar* varp, స్థిరరాశి Ast_కణుపు_Module* modp, స్థిరరాశి AstScope* scopep)
             : m_scopeName{scopeName}
-            , m_varBasePretty{varBasePretty}
+            , m_var_పునాది_Pretty{var_పునాది_Pretty}
             , m_varp{varp}
             , m_modp{modp}
             , m_scopep{scopep} {}
     };
-    using ScopeNames = std::map<const std::string, ScopeData>;
-    using ScopeModPair = std::pair<const AstScope*, AstNodeModule*>;
-    using ModVarPair = std::pair<const AstNodeModule*, const AstVar*>;
+    ఉపయోగించి Scope_పేర్లు = std::map<స్థిరరాశి std::string, Scope_దత్తాంశం>;
+    ఉపయోగించి ScopeModPair = std::pair<స్థిరరాశి AstScope*, Ast_కణుపు_Module*>;
+    ఉపయోగించి ModVarPair = std::pair<స్థిరరాశి Ast_కణుపు_Module*, స్థిరరాశి AstVar*>;
 
     // Vars with more dims take the residual per-statement path.
-    static constexpr int VPI_TABLE_MAX_DIMS = 3;
+    స్థిర constexpr పూర్ణాంకం VPI_పట్టిక_MAX_DIMS = 3;
 
     // STATE
-    AstCFunc* m_cfuncp = nullptr;  // Current function
-    AstNodeModule* m_modp = nullptr;  // Current module
-    const AstScope* m_scopep = nullptr;  // Current scope
-    std::vector<ScopeModPair> m_scopes;  // Every scope by module
-    std::vector<AstCFunc*> m_dpis;  // DPI functions
-    std::vector<ModVarPair> m_modVars;  // Each public {mod,var}
-    std::map<const std::string, ScopeFuncData> m_scopeFuncs;  // Each {scope,dpi-export-func}
-    std::map<const std::string, ScopeVarData> m_scopeVars;  // Each {scope,public-var}
-    ScopeNames m_scopeNames;  // Each unique AstScopeName. Dpi scopes added later
-    ScopeNames m_dpiScopeNames;  // Each unique AstScopeName for DPI export
-    ScopeNames m_vpiScopeCandidates;  // All scopes for VPI
-    std::vector<IfaceRefData> m_ifaceRefs;  // Each interface reference, for VPI
+    AstCFunc* m_cfuncp = శూన్యసూచిక;  // Current function
+    Ast_కణుపు_Module* m_modp = శూన్యసూచిక;  // Current module
+    స్థిరరాశి AstScope* m_scopep = శూన్యసూచిక;  // Current scope
+    std::సదిశ<ScopeModPair> m_scopes;  // Every scope by module
+    std::సదిశ<AstCFunc*> m_dpis;  // DPI functions
+    std::సదిశ<ModVarPair> m_modVars;  // Each public {mod,var}
+    std::map<స్థిరరాశి std::string, Scope_Func_దత్తాంశం> m_scopeFuncs;  // Each {scope,dpi-export-func}
+    std::map<స్థిరరాశి std::string, Scope_Var_దత్తాంశం> m_scopeVars;  // Each {scope,public-var}
+    Scope_పేర్లు m_scope_పేర్లు;  // Each unique AstScopeName. Dpi scopes added later
+    Scope_పేర్లు m_dpi_Scope_పేర్లు;  // Each unique AstScopeName for DPI export
+    Scope_పేర్లు m_vpiScopeCandidates;  // All scopes for VPI
+    std::సదిశ<Iface_Ref_దత్తాంశం> m_ifaceRefs;  // Each interface reference, for VPI
     // The actual hierarchy of scopes
-    std::map<const std::string, std::vector<std::string>> m_vpiScopeHierarchy;
-    int m_coverBins = 0;  // Global coverage bin number for non-object helper functions
+    std::map<స్థిరరాశి std::string, std::సదిశ<std::string>> m_vpiScopeHierarchy;
+    పూర్ణాంకం m_coverBins = 0;  // Global coverage bin number for non-object helper functions
     // Counts bins within the current module. Coverage storage is also emitted
     // on each module object so no-inline instances keep independent counters
     // when forcePerInstance is used.
-    int m_modCoverBins = 0;  // Per-module coverage bin number
-    const bool m_dpiHdrOnly;  // Only emit the DPI header
-    VDouble0 m_statVarScopeBytes;  // Statistic tracking
+    పూర్ణాంకం m_modCoverBins = 0;  // Per-module coverage bin number
+    స్థిరరాశి తార్కిక m_dpiHdrOnly;  // Only emit the DPI header
+    VDouble0 m_stat_Var_Scope_బైట్లు;  // Statistic tracking
     // name -> initializer rows, built in getSymCtorStmts()
-    std::vector<std::pair<std::string, std::vector<std::string>>> m_varTables;
+    std::సదిశ<std::pair<std::string, std::సదిశ<std::string>>> m_varTables;
     // Single VlScopeTableEntry[] table for all scopes, built in getSymCtorStmts()
-    std::string m_scopeTableName;
-    std::vector<std::string> m_scopeTableRows;
-    std::string m_ifaceRefTableName;
-    std::vector<std::string> m_ifaceRefTableRows;
+    std::string m_scope_పట్టిక_Name;
+    std::సదిశ<std::string> m_scope_పట్టిక_అడ్డువరుసలు;
+    std::string m_iface_Ref_పట్టిక_Name;
+    std::సదిశ<std::string> m_iface_Ref_పట్టిక_అడ్డువరుసలు;
 
     // METHODS
-    void emitSymHdr();
-    void emitSymImpPreamble();
-    void emitVarTables();
-    void emitScopeHier(TextStmts& stmts, bool destroy);
-    void emitSymImp(const AstNetlist* netlistp);
-    void emitDpiHdr();
-    void emitDpiStruct(const AstNodeDType* dtypep, std::set<std::string>& namesr);
-    void emitDpiImp();
+    శూన్య emitSymHdr();
+    శూన్య emitSymImpPreamble();
+    శూన్య emitVarTables();
+    శూన్య emitScopeHier(పాఠ్యం_Stmts& stmts, తార్కిక destroy);
+    శూన్య emitSymImp(స్థిరరాశి AstNetlist* netlistp);
+    శూన్య emitDpiHdr();
+    శూన్య emitDpiStruct(స్థిరరాశి Ast_కణుపు_DType* dtypep, std::సమితి<std::string>& namesr);
+    శూన్య emitDpiImp();
 
-    TextStmts getSymCtorStmts();
-    TextStmts getSymDtorStmts();
+    పాఠ్యం_Stmts getSymCtorStmts();
+    పాఠ్యం_Stmts getSymDtorStmts();
 
-    static void nameCheck(AstNode* nodep) {
+    స్థిర శూన్య nameCheck(Ast_కణుపు* nodep) {
         // Prevent GCC compile time error; name check all things that reach C++ code
-        if (nodep->name().empty()) return;
-        const AstCFunc* const cfuncp = VN_CAST(nodep, CFunc);
-        if (!cfuncp || (!cfuncp->isConstructor() && !cfuncp->isDestructor())) {
-            const std::string rsvd = V3LanguageWords::isKeyword(nodep->name());
-            if (rsvd != "") {
+        ఒకవేళ (nodep->name().ఖాళీలు()) తిరిగి;
+        స్థిరరాశి AstCFunc* స్థిరరాశి cfuncp = VN_CAST(nodep, CFunc);
+        ఒకవేళ (!cfuncp || (!cfuncp->isConstructor() && !cfuncp->isDestructor())) {
+            స్థిరరాశి std::string rsvd = V3_Language_పదాలు::isKeyword(nodep->name());
+            ఒకవేళ (rsvd != "") {
                 // Generally V3Name should find all of these and throw SYMRSVDWORD.
                 // We'll still check here because the compiler errors
                 // resulting if we miss this warning are SO nasty
@@ -168,323 +168,323 @@ class EmitCSyms final : EmitCBaseVisitorConst {
         }
     }
 
-    static std::string scopeSymString(const std::string& scpname) {
-        std::string out = scpname;
-        std::string::size_type pos;
-        while ((pos = out.find("__PVT__")) != std::string::npos) out.replace(pos, 7, "");
-        if (VString::startsWith(out, "TOP__DOT__")) out.replace(0, 10, "");
-        if (VString::startsWith(out, "TOP.")) out.replace(0, 4, "");
-        while ((pos = out.find('.')) != std::string::npos) out.replace(pos, 1, "__");
-        while ((pos = out.find("__DOT__")) != std::string::npos) out.replace(pos, 7, "__");
-        return out;
+    స్థిర std::string scopeSymString(స్థిరరాశి std::string& scpname) {
+        std::string బహిర్గతం = scpname;
+        std::string::కొలత_type pos;
+        అయితే ((pos = బహిర్గతం.కనుగొను("__PVT__")) != std::string::npos) బహిర్గతం.replace(pos, 7, "");
+        ఒకవేళ (VString::startsWith(బహిర్గతం, "TOP__DOT__")) బహిర్గతం.replace(0, 10, "");
+        ఒకవేళ (VString::startsWith(బహిర్గతం, "TOP.")) బహిర్గతం.replace(0, 4, "");
+        అయితే ((pos = బహిర్గతం.కనుగొను('.')) != std::string::npos) బహిర్గతం.replace(pos, 1, "__");
+        అయితే ((pos = బహిర్గతం.కనుగొను("__DOT__")) != std::string::npos) బహిర్గతం.replace(pos, 7, "__");
+        తిరిగి బహిర్గతం;
     }
 
-    static string scopeDecodeIdentifier(const std::string& scpname) {
-        std::string::size_type pos = std::string::npos;
+    స్థిర string scopeDecodeIdentifier(స్థిరరాశి std::string& scpname) {
+        std::string::కొలత_type pos = std::string::npos;
 
         // Remove hierarchy
-        size_t i = 0;
+        కొలత_t i = 0;
         // always makes progress
-        while (i < scpname.length()) {
-            if (scpname[i] == '\\') {
-                while (i < scpname.length() && scpname[i] != ' ') ++i;
+        అయితే (i < scpname.నిడివి()) {
+            ఒకవేళ (scpname[i] == '\\') {
+                అయితే (i < scpname.నిడివి() && scpname[i] != ' ') ++i;
                 ++i;  // Proc ' ', it should always be there. Then grab '.' on next cycle
-            } else {
-                while (i < scpname.length() && scpname[i] != '.') ++i;
-                if (i < scpname.length()) pos = i++;
+            } లేకపోతే {
+                అయితే (i < scpname.నిడివి() && scpname[i] != '.') ++i;
+                ఒకవేళ (i < scpname.నిడివి()) pos = i++;
             }
         }
 
-        return pos != std::string::npos ? scpname.substr(pos + 1) : scpname;
+        తిరిగి pos != std::string::npos ? scpname.substr(pos + 1) : scpname;
     }
 
     // Encounter order of one dtype-chain walk: unpacked (outer), then packed,
     // then a ranged basic leaf.
-    struct VarDims final {
-        int pdim = 0;  // Packed array dims plus a ranged basic leaf
-        int udim = 0;
-        std::vector<std::pair<int, int>> unpackedLR;  // (left,right), outer-first
-        std::vector<std::pair<int, int>> packedLR;  // (left,right), inner then leaf
+    నిర్మాణం VarDims final {
+        పూర్ణాంకం pdim = 0;  // Packed array dims plus a ranged basic leaf
+        పూర్ణాంకం udim = 0;
+        std::సదిశ<std::pair<పూర్ణాంకం, పూర్ణాంకం>> unpackedLR;  // (left,right), outer-first
+        std::సదిశ<std::pair<పూర్ణాంకం, పూర్ణాంకం>> packedLR;  // (left,right), inner then leaf
 
         // Shared order used by both boundsString() and the table-row dv[] fill.
-        std::vector<std::pair<int, int>> flatten() const {
-            std::vector<std::pair<int, int>> flat(unpackedLR);
-            flat.insert(flat.end(), packedLR.cbegin(), packedLR.cend());
-            return flat;
+        std::సదిశ<std::pair<పూర్ణాంకం, పూర్ణాంకం>> flatten() స్థిరరాశి {
+            std::సదిశ<std::pair<పూర్ణాంకం, పూర్ణాంకం>> flat(unpackedLR);
+            flat.చొప్పించు(flat.చివర(), packedLR.cbegin(), packedLR.cend());
+            తిరిగి flat;
         }
     };
-    static VarDims getVarDims(const AstNodeDType* const rootDtypep) {
+    స్థిర VarDims getVarDims(స్థిరరాశి Ast_కణుపు_DType* స్థిరరాశి మూలం_Dtypep) {
         VarDims d;
         // Range is always first, it's not in "C" order
-        for (const AstNodeDType* dtypep = rootDtypep; dtypep;) {
+        కొరకు (స్థిరరాశి Ast_కణుపు_DType* dtypep = మూలం_Dtypep; dtypep;) {
             // Skip AstRefDType/AstTypedef, or return same node
             dtypep = dtypep->skipRefp();
-            if (const AstNodeArrayDType* const adtypep = VN_CAST(dtypep, NodeArrayDType)) {
-                if (VN_IS(dtypep, PackArrayDType)) {
-                    d.packedLR.emplace_back(adtypep->left(), adtypep->right());
+            ఒకవేళ (స్థిరరాశి Ast_కణుపు_Array_DType* స్థిరరాశి adtypep = VN_CAST(dtypep, కణుపు_Array_DType)) {
+                ఒకవేళ (VN_IS(dtypep, PackArrayDType)) {
+                    d.packedLR.emplace_వెనుక(adtypep->ఎడమ(), adtypep->కుడి());
                     ++d.pdim;
-                } else {
-                    d.unpackedLR.emplace_back(adtypep->left(), adtypep->right());
+                } లేకపోతే {
+                    d.unpackedLR.emplace_వెనుక(adtypep->ఎడమ(), adtypep->కుడి());
                     ++d.udim;
                 }
                 dtypep = adtypep->subDTypep();
-            } else {
-                if (const AstBasicDType* const basicp = dtypep->basicp()) {
-                    if (basicp->isRanged()) {
-                        d.packedLR.emplace_back(basicp->left(), basicp->right());
+            } లేకపోతే {
+                ఒకవేళ (స్థిరరాశి AstBasicDType* స్థిరరాశి basicp = dtypep->basicp()) {
+                    ఒకవేళ (basicp->isRanged()) {
+                        d.packedLR.emplace_వెనుక(basicp->ఎడమ(), basicp->కుడి());
                         ++d.pdim;
                     }
                 }
-                break;  // Non-array leaf
+                ఆపు;  // Non-array leaf
             }
         }
-        return d;
+        తిరిగి d;
     }
 
-    static VarDims dimsFor(const ScopeVarData& svd) { return getVarDims(svd.m_varp->dtypep()); }
+    స్థిర VarDims dimsFor(స్థిరరాశి Scope_Var_దత్తాంశం& svd) { తిరిగి getVarDims(svd.m_varp->dtypep()); }
 
     // Only needed on the residual path; the table path uses dims.flatten() directly.
-    static std::string boundsString(const VarDims& d) {
+    స్థిర std::string boundsString(స్థిరరాశి VarDims& d) {
         std::string bounds;
-        for (const std::pair<int, int>& lr : d.flatten()) {
+        కొరకు (స్థిరరాశి std::pair<పూర్ణాంకం, పూర్ణాంకం>& lr : d.flatten()) {
             bounds += " ,";
-            bounds += std::to_string(lr.first);
+            bounds += std::గమ్యం_string(lr.మొదటి);
             bounds += ",";
-            bounds += std::to_string(lr.second);
+            bounds += std::గమ్యం_string(lr.రెండవ);
         }
-        return bounds;
+        తిరిగి bounds;
     }
 
-    static int getUnpackedElements(const AstNodeDType* rootDtypep) {
-        int elements = 1;
-        for (const AstNodeDType* dtypep = rootDtypep; dtypep;) {
+    స్థిర పూర్ణాంకం getUnpackedElements(స్థిరరాశి Ast_కణుపు_DType* మూలం_Dtypep) {
+        పూర్ణాంకం elements = 1;
+        కొరకు (స్థిరరాశి Ast_కణుపు_DType* dtypep = మూలం_Dtypep; dtypep;) {
             dtypep = dtypep->skipRefp();
-            const AstUnpackArrayDType* const adtypep = VN_CAST(dtypep, UnpackArrayDType);
-            if (!adtypep) break;
+            స్థిరరాశి AstUnpackArrayDType* స్థిరరాశి adtypep = VN_CAST(dtypep, UnpackArrayDType);
+            ఒకవేళ (!adtypep) ఆపు;
             elements *= adtypep->elementsConst();
             dtypep = adtypep->subDTypep();
         }
-        return elements;
+        తిరిగి elements;
     }
 
-    static bool needsEmittedEntSize(const std::string& vlEnumType) {
-        return vlEnumType == "VLVT_STRUCT" || vlEnumType == "VLVT_UNION";
+    స్థిర తార్కిక needs_Emitted_Ent_కొలత(స్థిరరాశి std::string& vlEnumType) {
+        తిరిగి vlEnumType == "VLVT_STRUCT" || vlEnumType == "VLVT_UNION";
     }
 
-    static std::pair<bool, std::string> isForceControlSignal(const AstVar* const signalVarp) {
+    స్థిర std::pair<తార్కిక, std::string> isForceControlSignal(స్థిరరాశి AstVar* స్థిరరాశి signalVarp) {
         // __VforceRd should not show up here because it is never public, but just in case it does,
         // it should be skipped because forceableVarInsert creates its VerilatedVar.
-        for (const std::string forceControlSuffix : {"__VforceEn", "__VforceVal", "__VforceRd"}) {
-            const std::size_t suffixPos = signalVarp->name().find(forceControlSuffix);
-            const bool suffixFound = suffixPos != std::string::npos;
-            const bool suffixIsAtEnd
-                = suffixPos + forceControlSuffix.length() == signalVarp->name().length();
-            if (!(suffixFound && suffixIsAtEnd)) continue;
-            const std::string baseSignalName = signalVarp->name().substr(0, suffixPos);
-            return std::pair<bool, std::string>{true, baseSignalName};
+        కొరకు (స్థిరరాశి std::string forceControlSuffix : {"__VforceEn", "__VforceVal", "__VforceRd"}) {
+            స్థిరరాశి std::కొలత_t suffixPos = signalVarp->name().కనుగొను(forceControlSuffix);
+            స్థిరరాశి తార్కిక suffix_దొరికింది = suffixPos != std::string::npos;
+            స్థిరరాశి తార్కిక suffix_Is_At_చివర
+                = suffixPos + forceControlSuffix.నిడివి() == signalVarp->name().నిడివి();
+            ఒకవేళ (!(suffix_దొరికింది && suffix_Is_At_చివర)) కొనసాగు;
+            స్థిరరాశి std::string పునాది_Signal_Name = signalVarp->name().substr(0, suffixPos);
+            తిరిగి std::pair<తార్కిక, std::string>{నిజం, పునాది_Signal_Name};
         }
-        return std::pair<bool, std::string>{false, ""};
+        తిరిగి std::pair<తార్కిక, std::string>{అబద్ధం, ""};
     }
 
-    static void appendVarProperties(std::string& stmt, const std::string& vlEnumType,
-                                    const std::string& vlEnumDir, const int udim, const int pdim,
-                                    const std::string& bounds, const std::string& entSize = "") {
+    స్థిర శూన్య appendVarProperties(std::string& stmt, స్థిరరాశి std::string& vlEnumType,
+                                    స్థిరరాశి std::string& vlEnumDir, స్థిరరాశి పూర్ణాంకం udim, స్థిరరాశి పూర్ణాంకం pdim,
+                                    స్థిరరాశి std::string& bounds, స్థిరరాశి std::string& ent_కొలత = "") {
         stmt += vlEnumType;  // VLVT_UINT32 etc
         stmt += ", ";
         stmt += vlEnumDir;  // VLVD_IN etc
         stmt += ", ";
-        stmt += std::to_string(udim);
-        if (!entSize.empty()) {
+        stmt += std::గమ్యం_string(udim);
+        ఒకవేళ (!ent_కొలత.ఖాళీలు()) {
             stmt += ", ";
-            stmt += entSize;
-        } else {
+            stmt += ent_కొలత;
+        } లేకపోతే {
             stmt += ", ";
-            stmt += std::to_string(pdim);
+            stmt += std::గమ్యం_string(pdim);
         }
         stmt += bounds;
         stmt += ")";
     }
-    static std::string memberVlEnumDir(const AstVar* const varp,
-                                       const AstNodeDType* const dtypep) {
-        std::string out = '(' + varp->vlEnumDir(/*forMember=*/true);
-        const AstNodeDType* const skipDTypep = dtypep->skipRefp();
-        if (skipDTypep->isSigned()) out += "|VLVF_SIGNED";
-        if (const AstBasicDType* const basicp = skipDTypep->basicp()) {
-            if (basicp->keyword() == VBasicDTypeKwd::BIT) out += "|VLVF_BITVAR";
+    స్థిర std::string memberVlEnumDir(స్థిరరాశి AstVar* స్థిరరాశి varp,
+                                       స్థిరరాశి Ast_కణుపు_DType* స్థిరరాశి dtypep) {
+        std::string బహిర్గతం = '(' + varp->vlEnumDir(/*forMember=*/నిజం);
+        స్థిరరాశి Ast_కణుపు_DType* స్థిరరాశి skipDTypep = dtypep->skipRefp();
+        ఒకవేళ (skipDTypep->isSigned()) బహిర్గతం += "|VLVF_SIGNED";
+        ఒకవేళ (స్థిరరాశి AstBasicDType* స్థిరరాశి basicp = skipDTypep->basicp()) {
+            ఒకవేళ (basicp->keyword() == VBasicDTypeKwd::బిట్టు) బహిర్గతం += "|VLVF_BITVAR";
         }
-        out += skipDTypep->vlEnumPackedAgg();
-        return out + ')';
+        బహిర్గతం += skipDTypep->vlEnumPackedAgg();
+        తిరిగి బహిర్గతం + ')';
     }
 
     // Name of the instance member for the given scope
-    static std::string instName(const AstScope* scopep) {
-        return "vlInst." + VIdProtect::protectIf(scopep->nameDotless(), scopep->protect());
+    స్థిర std::string instName(స్థిరరాశి AstScope* scopep) {
+        తిరిగి "vlInst." + VIdProtect::protectIf(scopep->nameDotless(), scopep->protect());
     }
 
-    static std::string insertVarStatement(const ScopeVarData& svd, const AstScope* const scopep,
-                                          const AstVar* const varp, const int udim, const int pdim,
-                                          const std::string& bounds) {
-        const std::string varExpr = "vlSymsp->" + instName(scopep) + "." + varName(varp);
-        const std::string vlEnumType = varp->vlEnumType();
-        const bool needsEntSize = needsEmittedEntSize(vlEnumType);
+    స్థిర std::string చొప్పించు_Var_Statement(స్థిరరాశి Scope_Var_దత్తాంశం& svd, స్థిరరాశి AstScope* స్థిరరాశి scopep,
+                                          స్థిరరాశి AstVar* స్థిరరాశి varp, స్థిరరాశి పూర్ణాంకం udim, స్థిరరాశి పూర్ణాంకం pdim,
+                                          స్థిరరాశి std::string& bounds) {
+        స్థిరరాశి std::string var_సమాసం = "vlSymsp->" + instName(scopep) + "." + varName(varp);
+        స్థిరరాశి std::string vlEnumType = varp->vlEnumType();
+        స్థిరరాశి తార్కిక needs_Ent_కొలత = needs_Emitted_Ent_కొలత(vlEnumType);
 
         std::string stmt;
         stmt += "vlSymsp->" + protect("__Vscopep_" + svd.m_scopeName);
-        stmt += needsEntSize ? "->varInsertSized(\"" : "->varInsert(\"";
-        stmt += V3OutFormatter::quoteNameControls(protect(svd.m_varBasePretty)) + '"';
+        stmt += needs_Ent_కొలత ? "->varInsertSized(\"" : "->varInsert(\"";
+        stmt += V3_బహిర్గతం_Formatter::quoteNameControls(protect(svd.m_var_పునాది_Pretty)) + '"';
 
-        if (!varp->isParam()) {
+        ఒకవేళ (!varp->isParam()) {
             stmt += ", &(";
-            stmt += varExpr;
+            stmt += var_సమాసం;
             stmt += "), false, ";
-        } else if (varp->vlEnumType() == "VLVT_STRING"
+        } లేకపోతే ఒకవేళ (varp->vlEnumType() == "VLVT_STRING"
                    && !VN_IS(varp->subDTypep(), UnpackArrayDType)) {
             stmt += ", const_cast<void*>(static_cast<const void*>(";
-            stmt += varExpr;
+            stmt += var_సమాసం;
             stmt += ".c_str())), true, ";
-        } else {
+        } లేకపోతే {
             stmt += ", const_cast<void*>(static_cast<const void*>(&(";
-            stmt += varExpr;
+            stmt += var_సమాసం;
             stmt += "))), true, ";
         }
 
-        const std::string entSize = needsEntSize
-                                        ? "sizeof(" + varExpr + ") / "
-                                              + std::to_string(getUnpackedElements(varp->dtypep()))
+        స్థిరరాశి std::string ent_కొలత = needs_Ent_కొలత
+                                        ? "sizeof(" + var_సమాసం + ") / "
+                                              + std::గమ్యం_string(getUnpackedElements(varp->dtypep()))
                                         : "";
-        appendVarProperties(stmt, vlEnumType, varp->vlEnumDir(), udim, pdim, bounds, entSize);
-        return stmt;
+        appendVarProperties(stmt, vlEnumType, varp->vlEnumDir(), udim, pdim, bounds, ent_కొలత);
+        తిరిగి stmt;
     }
 
     // tryBuildTableEntry() classifies each public var once, so the caller does
     // not re-derive (and risk desyncing) the forceable-eligibility test.
-    enum class TableEntryKind : uint8_t {
-        TABLE_ROW,  // Registered via a VlVarTableEntry[] table row
+    గణన తరగతి పట్టిక_నమోదు_రకం : uint8_t {
+        పట్టిక_అడ్డువరుస,  // Registered via a VlVarTableEntry[] table row
         FORCEABLE_RESIDUAL,  // Residual, via insertForceableVarStatement()
         PLAIN_RESIDUAL,  // Residual, via insertVarStatement() (+ struct/array expansion)
     };
 
     // Builds one VlVarTableEntry row for 'varp', or reports which residual
     // path it must take instead.
-    TableEntryKind tryBuildTableEntry(const ScopeVarData& svd, const AstVar* const varp,
-                                      const AstScope* const scopep,
-                                      const std::string& modClassName, const VarDims& dims,
-                                      std::string& rowOut) const {
-        const int pdim = dims.pdim;
-        const int udim = dims.udim;
-        if (varp->isForceable() && forceControlSignalsAreValid(scopep, varp)) {
-            return TableEntryKind::FORCEABLE_RESIDUAL;
+    పట్టిక_నమోదు_రకం try_Build_పట్టిక_నమోదు(స్థిరరాశి Scope_Var_దత్తాంశం& svd, స్థిరరాశి AstVar* స్థిరరాశి varp,
+                                      స్థిరరాశి AstScope* స్థిరరాశి scopep,
+                                      స్థిరరాశి std::string& modClassName, స్థిరరాశి VarDims& dims,
+                                      std::string& అడ్డువరుస_బహిర్గతం) స్థిరరాశి {
+        స్థిరరాశి పూర్ణాంకం pdim = dims.pdim;
+        స్థిరరాశి పూర్ణాంకం udim = dims.udim;
+        ఒకవేళ (varp->isForceable() && force_Control_సంకేతాలు_Are_Valid(scopep, varp)) {
+            తిరిగి పట్టిక_నమోదు_రకం::FORCEABLE_RESIDUAL;
         }
-        if (udim + pdim > VPI_TABLE_MAX_DIMS) return TableEntryKind::PLAIN_RESIDUAL;
+        ఒకవేళ (udim + pdim > VPI_పట్టిక_MAX_DIMS) తిరిగి పట్టిక_నమోదు_రకం::PLAIN_RESIDUAL;
 
-        const std::string vlEnumType = varp->vlEnumType();
-        if (needsEmittedEntSize(vlEnumType))
-            return TableEntryKind::PLAIN_RESIDUAL;  // struct/union whole
+        స్థిరరాశి std::string vlEnumType = varp->vlEnumType();
+        ఒకవేళ (needs_Emitted_Ent_కొలత(vlEnumType))
+            తిరిగి పట్టిక_నమోదు_రకం::PLAIN_RESIDUAL;  // struct/union whole
         // Params are static members (offsetof is invalid on those);
         // string params also need a runtime .c_str().
-        if (varp->isParam()) return TableEntryKind::PLAIN_RESIDUAL;
+        ఒకవేళ (varp->isParam()) తిరిగి పట్టిక_నమోదు_రకం::PLAIN_RESIDUAL;
 
-        const std::string name = V3OutFormatter::quoteNameControls(protect(svd.m_varBasePretty));
+        స్థిరరాశి std::string name = V3_బహిర్గతం_Formatter::quoteNameControls(protect(svd.m_var_పునాది_Pretty));
         // nameProtect() (not protect(name())) so the offsetof member matches the
         // emitted struct field: a primary I/O port keeps its unprotected name
         // under --protect-ids, whereas protect() would always hash it.
-        const std::string member = varName(varp);
-        const std::string dir = varp->vlEnumDir();
+        స్థిరరాశి std::string member = varName(varp);
+        స్థిరరాశి std::string dir = varp->vlEnumDir();
         // Flat dim (left,right) ints in varInsert() order: unpacked then packed.
-        std::vector<int> dv;
-        for (const std::pair<int, int>& lr : dims.flatten()) {
-            dv.push_back(lr.first);
-            dv.push_back(lr.second);
+        std::సదిశ<పూర్ణాంకం> dv;
+        కొరకు (స్థిరరాశి std::pair<పూర్ణాంకం, పూర్ణాంకం>& lr : dims.flatten()) {
+            dv.నెట్టు_వెనుక(lr.మొదటి);
+            dv.నెట్టు_వెనుక(lr.రెండవ);
         }
 
-        std::string row = "{\"" + name + "\", ";
-        row += "offsetof(" + modClassName + ", " + member + "), ";
-        row += vlEnumType + ", ";
-        row += "(" + dir + "), ";
-        row += std::to_string(udim) + ", " + std::to_string(pdim) + ", {";
-        for (int i = 0; i < VPI_TABLE_MAX_DIMS * 2; ++i) {
-            if (i) row += ", ";
-            row += std::to_string(i < static_cast<int>(dv.size()) ? dv[i] : 0);
+        std::string అడ్డువరుస = "{\"" + name + "\", ";
+        అడ్డువరుస += "offsetof(" + modClassName + ", " + member + "), ";
+        అడ్డువరుస += vlEnumType + ", ";
+        అడ్డువరుస += "(" + dir + "), ";
+        అడ్డువరుస += std::గమ్యం_string(udim) + ", " + std::గమ్యం_string(pdim) + ", {";
+        కొరకు (పూర్ణాంకం i = 0; i < VPI_పట్టిక_MAX_DIMS * 2; ++i) {
+            ఒకవేళ (i) అడ్డువరుస += ", ";
+            అడ్డువరుస += std::గమ్యం_string(i < static_cast<పూర్ణాంకం>(dv.కొలత()) ? dv[i] : 0);
         }
-        row += "}}";
-        rowOut = row;
-        return TableEntryKind::TABLE_ROW;
+        అడ్డువరుస += "}}";
+        అడ్డువరుస_బహిర్గతం = అడ్డువరుస;
+        తిరిగి పట్టిక_నమోదు_రకం::పట్టిక_అడ్డువరుస;
     }
 
-    static std::string insertDTypeVarStatement(const ScopeVarData& svd,
-                                               const AstScope* const scopep,
-                                               const std::string& prettyName,
-                                               const std::string& cName,
-                                               const AstNodeDType* const dtypep, const int udim,
-                                               const int pdim, const std::string& bounds) {
-        const std::string vlEnumType = dtypep->vlEnumType();
-        const bool needsEntSize = needsEmittedEntSize(vlEnumType);
+    స్థిర std::string చొప్పించు_DType_Var_Statement(స్థిరరాశి Scope_Var_దత్తాంశం& svd,
+                                               స్థిరరాశి AstScope* స్థిరరాశి scopep,
+                                               స్థిరరాశి std::string& prettyName,
+                                               స్థిరరాశి std::string& cName,
+                                               స్థిరరాశి Ast_కణుపు_DType* స్థిరరాశి dtypep, స్థిరరాశి పూర్ణాంకం udim,
+                                               స్థిరరాశి పూర్ణాంకం pdim, స్థిరరాశి std::string& bounds) {
+        స్థిరరాశి std::string vlEnumType = dtypep->vlEnumType();
+        స్థిరరాశి తార్కిక needs_Ent_కొలత = needs_Emitted_Ent_కొలత(vlEnumType);
         std::string stmt;
         stmt += "vlSymsp->" + protect("__Vscopep_" + svd.m_scopeName);
-        stmt += needsEntSize ? "->varInsertSized(\"" : "->varInsert(\"";
-        stmt += V3OutFormatter::quoteNameControls(prettyName) + '"';
-        const std::string varExpr = "vlSymsp->" + instName(scopep) + "." + cName;
+        stmt += needs_Ent_కొలత ? "->varInsertSized(\"" : "->varInsert(\"";
+        stmt += V3_బహిర్గతం_Formatter::quoteNameControls(prettyName) + '"';
+        స్థిరరాశి std::string var_సమాసం = "vlSymsp->" + instName(scopep) + "." + cName;
         // A parameter is emitted 'static const', so its members are const too and
         // need the same cast the whole-parameter insert uses.
-        if (svd.m_varp->isParam()) {
+        ఒకవేళ (svd.m_varp->isParam()) {
             stmt += ", const_cast<void*>(static_cast<const void*>(&(";
-            stmt += varExpr;
+            stmt += var_సమాసం;
             stmt += "))), true, ";
-        } else {
+        } లేకపోతే {
             stmt += ", &(";
-            stmt += varExpr;
+            stmt += var_సమాసం;
             stmt += "), false, ";
         }
-        const std::string entSize
-            = needsEntSize
-                  ? "sizeof(" + varExpr + ") / " + std::to_string(getUnpackedElements(dtypep))
+        స్థిరరాశి std::string ent_కొలత
+            = needs_Ent_కొలత
+                  ? "sizeof(" + var_సమాసం + ") / " + std::గమ్యం_string(getUnpackedElements(dtypep))
                   : "";
         appendVarProperties(stmt, vlEnumType, memberVlEnumDir(svd.m_varp, dtypep), udim, pdim,
-                            bounds, entSize);
-        return stmt;
+                            bounds, ent_కొలత);
+        తిరిగి stmt;
     }
 
-    static void addUOrStructMemberVars(std::vector<std::string>& stmts, const ScopeVarData& svd,
-                                       const AstScope* const scopep,
-                                       const std::string& prettyPrefix, const std::string& cPrefix,
-                                       const AstNodeUOrStructDType* const sdtypep) {
-        for (const AstMemberDType* itemp = sdtypep->membersp(); itemp;
+    స్థిర శూన్య కూడు_UOr_Struct_Member_Vars(std::సదిశ<std::string>& stmts, స్థిరరాశి Scope_Var_దత్తాంశం& svd,
+                                       స్థిరరాశి AstScope* స్థిరరాశి scopep,
+                                       స్థిరరాశి std::string& pretty_ఉపసర్గ, స్థిరరాశి std::string& c_ఉపసర్గ,
+                                       స్థిరరాశి Ast_కణుపు_UOr_Struct_DType* స్థిరరాశి sdtypep) {
+        కొరకు (స్థిరరాశి AstMemberDType* itemp = sdtypep->membersp(); itemp;
              itemp = VN_AS(itemp->nextp(), MemberDType)) {
-            const AstNodeDType* const itemDTypep = itemp->dtypep();
-            if (itemDTypep->vlEnumType().empty()) continue;
-            const std::string prettyName
-                = prettyPrefix + "." + AstNode::vpiName(itemp->shortName());
-            const std::string cName = cPrefix + "." + itemp->nameProtect();
-            const VarDims dims = getVarDims(itemDTypep);
-            stmts.emplace_back(insertDTypeVarStatement(svd, scopep, prettyName, cName, itemDTypep,
+            స్థిరరాశి Ast_కణుపు_DType* స్థిరరాశి అంశం_DTypep = itemp->dtypep();
+            ఒకవేళ (అంశం_DTypep->vlEnumType().ఖాళీలు()) కొనసాగు;
+            స్థిరరాశి std::string prettyName
+                = pretty_ఉపసర్గ + "." + Ast_కణుపు::vpiName(itemp->shortName());
+            స్థిరరాశి std::string cName = c_ఉపసర్గ + "." + itemp->nameProtect();
+            స్థిరరాశి VarDims dims = getVarDims(అంశం_DTypep);
+            stmts.emplace_వెనుక(చొప్పించు_DType_Var_Statement(svd, scopep, prettyName, cName, అంశం_DTypep,
                                                        dims.udim, dims.pdim, boundsString(dims))
                                + ";");
-            addPackedAggMemberVars(stmts, svd, scopep, prettyName, cName, itemDTypep);
-            if (const AstNodeUOrStructDType* const subp
-                = VN_CAST(itemDTypep->skipRefp(), NodeUOrStructDType)) {
-                if (!subp->packed())
-                    addUOrStructMemberVars(stmts, svd, scopep, prettyName, cName, subp);
-            } else if (VN_IS(itemDTypep->skipRefp(), UnpackArrayDType)) {
-                addUnpackedArrayUOrStructMemberVars(stmts, svd, scopep, prettyName, cName,
-                                                    itemDTypep);
+            కూడు_Packed_Agg_Member_Vars(stmts, svd, scopep, prettyName, cName, అంశం_DTypep);
+            ఒకవేళ (స్థిరరాశి Ast_కణుపు_UOr_Struct_DType* స్థిరరాశి subp
+                = VN_CAST(అంశం_DTypep->skipRefp(), కణుపు_UOr_Struct_DType)) {
+                ఒకవేళ (!subp->packed())
+                    కూడు_UOr_Struct_Member_Vars(stmts, svd, scopep, prettyName, cName, subp);
+            } లేకపోతే ఒకవేళ (VN_IS(అంశం_DTypep->skipRefp(), UnpackArrayDType)) {
+                కూడు_Unpacked_Array_UOr_Struct_Member_Vars(stmts, svd, scopep, prettyName, cName,
+                                                    అంశం_DTypep);
             }
         }
     }
 
-    static void addUnpackedArrayUOrStructMemberVars(std::vector<std::string>& stmts,
-                                                    const ScopeVarData& svd,
-                                                    const AstScope* const scopep,
-                                                    const std::string& prettyPrefix,
-                                                    const std::string& cPrefix,
-                                                    const AstNodeDType* const dtypep) {
-        const AstNodeDType* const skipDTypep = dtypep->skipRefp();
-        if (const AstUnpackArrayDType* const adtypep = VN_CAST(skipDTypep, UnpackArrayDType)) {
-            addUnpackedArrayUOrStructMemberVars(stmts, svd, scopep, prettyPrefix, cPrefix + "[0]",
+    స్థిర శూన్య కూడు_Unpacked_Array_UOr_Struct_Member_Vars(std::సదిశ<std::string>& stmts,
+                                                    స్థిరరాశి Scope_Var_దత్తాంశం& svd,
+                                                    స్థిరరాశి AstScope* స్థిరరాశి scopep,
+                                                    స్థిరరాశి std::string& pretty_ఉపసర్గ,
+                                                    స్థిరరాశి std::string& c_ఉపసర్గ,
+                                                    స్థిరరాశి Ast_కణుపు_DType* స్థిరరాశి dtypep) {
+        స్థిరరాశి Ast_కణుపు_DType* స్థిరరాశి skipDTypep = dtypep->skipRefp();
+        ఒకవేళ (స్థిరరాశి AstUnpackArrayDType* స్థిరరాశి adtypep = VN_CAST(skipDTypep, UnpackArrayDType)) {
+            కూడు_Unpacked_Array_UOr_Struct_Member_Vars(stmts, svd, scopep, pretty_ఉపసర్గ, c_ఉపసర్గ + "[0]",
                                                 adtypep->subDTypep());
-        } else if (const AstNodeUOrStructDType* const sdtypep
-                   = VN_CAST(skipDTypep, NodeUOrStructDType)) {
-            if (!sdtypep->packed())
-                addUOrStructMemberVars(stmts, svd, scopep, prettyPrefix, cPrefix, sdtypep);
+        } లేకపోతే ఒకవేళ (స్థిరరాశి Ast_కణుపు_UOr_Struct_DType* స్థిరరాశి sdtypep
+                   = VN_CAST(skipDTypep, కణుపు_UOr_Struct_DType)) {
+            ఒకవేళ (!sdtypep->packed())
+                కూడు_UOr_Struct_Member_Vars(stmts, svd, scopep, pretty_ఉపసర్గ, c_ఉపసర్గ, sdtypep);
         }
     }
 
@@ -492,279 +492,279 @@ class EmitCSyms final : EmitCBaseVisitorConst {
     // slice of the parent's storage 'cName', with the parent's storage type and entSize, and its
     // bit offset within the parent's element 0. VPI adds any packed/unpacked index offset.
     // 'needsIndex' if an ancestor is an array, so the members are only valid after an index.
-    static void addPackedMemberVars(std::vector<std::string>& stmts, const ScopeVarData& svd,
-                                    const AstScope* const scopep, const std::string& prettyPrefix,
-                                    const std::string& cName, const std::string& vlEnumType,
-                                    const std::string& entSize,
-                                    const AstNodeUOrStructDType* const sdtypep,
-                                    const int parentBitOffset, const bool needsIndex) {
-        const std::string varExpr = "vlSymsp->" + instName(scopep) + "." + cName;
-        for (const AstMemberDType* itemp = sdtypep->membersp(); itemp;
+    స్థిర శూన్య కూడు_Packed_Member_Vars(std::సదిశ<std::string>& stmts, స్థిరరాశి Scope_Var_దత్తాంశం& svd,
+                                    స్థిరరాశి AstScope* స్థిరరాశి scopep, స్థిరరాశి std::string& pretty_ఉపసర్గ,
+                                    స్థిరరాశి std::string& cName, స్థిరరాశి std::string& vlEnumType,
+                                    స్థిరరాశి std::string& ent_కొలత,
+                                    స్థిరరాశి Ast_కణుపు_UOr_Struct_DType* స్థిరరాశి sdtypep,
+                                    స్థిరరాశి పూర్ణాంకం మాతృ_బిట్టు_స్థానభ్రంశం, స్థిరరాశి తార్కిక needs_సూచీ) {
+        స్థిరరాశి std::string var_సమాసం = "vlSymsp->" + instName(scopep) + "." + cName;
+        కొరకు (స్థిరరాశి AstMemberDType* itemp = sdtypep->membersp(); itemp;
              itemp = VN_AS(itemp->nextp(), MemberDType)) {
-            const AstNodeDType* const itemDTypep = itemp->dtypep();
-            const std::string prettyName
-                = prettyPrefix + "." + AstNode::vpiName(itemp->shortName());
+            స్థిరరాశి Ast_కణుపు_DType* స్థిరరాశి అంశం_DTypep = itemp->dtypep();
+            స్థిరరాశి std::string prettyName
+                = pretty_ఉపసర్గ + "." + Ast_కణుపు::vpiName(itemp->shortName());
             // Union members all have lsb 0, so share the parent's offset
-            const int bitOffset = parentBitOffset + itemp->lsb();
-            const VarDims dims = getVarDims(itemDTypep);
+            స్థిరరాశి పూర్ణాంకం బిట్టు_స్థానభ్రంశం = మాతృ_బిట్టు_స్థానభ్రంశం + itemp->lsb();
+            స్థిరరాశి VarDims dims = getVarDims(అంశం_DTypep);
             UASSERT_OBJ(dims.udim == 0, itemp, "Unpacked dimension in packed struct/union");
             std::string stmt;
             stmt += "vlSymsp->" + protect("__Vscopep_" + svd.m_scopeName);
             stmt += "->varInsertMember(\"";
-            stmt += V3OutFormatter::quoteNameControls(prettyName) + '"';
+            stmt += V3_బహిర్గతం_Formatter::quoteNameControls(prettyName) + '"';
             // A parameter is emitted 'static const', see insertDTypeVarStatement
-            if (svd.m_varp->isParam()) {
+            ఒకవేళ (svd.m_varp->isParam()) {
                 stmt
-                    += ", const_cast<void*>(static_cast<const void*>(&(" + varExpr + "))), true, ";
-            } else {
-                stmt += ", &(" + varExpr + "), false, ";
+                    += ", const_cast<void*>(static_cast<const void*>(&(" + var_సమాసం + "))), true, ";
+            } లేకపోతే {
+                stmt += ", &(" + var_సమాసం + "), false, ";
             }
             stmt += vlEnumType + ", ";
-            stmt += memberVlEnumDir(svd.m_varp, itemDTypep);
-            if (needsIndex) stmt += "|VLVF_PACKED_NEEDS_INDEX";
+            stmt += memberVlEnumDir(svd.m_varp, అంశం_DTypep);
+            ఒకవేళ (needs_సూచీ) stmt += "|VLVF_PACKED_NEEDS_INDEX";
             stmt += ", ";
-            stmt += std::to_string(bitOffset) + ", ";
-            stmt += entSize + ", ";
-            stmt += std::to_string(dims.pdim);
+            stmt += std::గమ్యం_string(బిట్టు_స్థానభ్రంశం) + ", ";
+            stmt += ent_కొలత + ", ";
+            stmt += std::గమ్యం_string(dims.pdim);
             stmt += boundsString(dims);
             stmt += ");";
-            stmts.emplace_back(stmt);
+            stmts.emplace_వెనుక(stmt);
             // Nested packed struct/union, or packed array of them: register the members of
             // the element at index offset 0
-            const AstNodeDType* subDTypep = itemDTypep->skipRefp();
-            bool isArray = false;
-            while (const AstPackArrayDType* const adtypep = VN_CAST(subDTypep, PackArrayDType)) {
+            స్థిరరాశి Ast_కణుపు_DType* subDTypep = అంశం_DTypep->skipRefp();
+            తార్కిక isArray = అబద్ధం;
+            అయితే (స్థిరరాశి AstPackArrayDType* స్థిరరాశి adtypep = VN_CAST(subDTypep, PackArrayDType)) {
                 subDTypep = adtypep->subDTypep()->skipRefp();
-                isArray = true;
+                isArray = నిజం;
             }
-            if (const AstNodeUOrStructDType* const subp = VN_CAST(subDTypep, NodeUOrStructDType)) {
-                addPackedMemberVars(stmts, svd, scopep, prettyName, cName, vlEnumType, entSize,
-                                    subp, bitOffset, needsIndex || isArray);
+            ఒకవేళ (స్థిరరాశి Ast_కణుపు_UOr_Struct_DType* స్థిరరాశి subp = VN_CAST(subDTypep, కణుపు_UOr_Struct_DType)) {
+                కూడు_Packed_Member_Vars(stmts, svd, scopep, prettyName, cName, vlEnumType, ent_కొలత,
+                                    subp, బిట్టు_స్థానభ్రంశం, needs_సూచీ || isArray);
             }
         }
     }
 
     // If 'dtypep' (the type of storage 'cName') has packed struct/union elements, register the
     // members of its element 0
-    static void addPackedAggMemberVars(std::vector<std::string>& stmts, const ScopeVarData& svd,
-                                       const AstScope* const scopep,
-                                       const std::string& prettyPrefix, const std::string& cName,
-                                       const AstNodeDType* const dtypep) {
+    స్థిర శూన్య కూడు_Packed_Agg_Member_Vars(std::సదిశ<std::string>& stmts, స్థిరరాశి Scope_Var_దత్తాంశం& svd,
+                                       స్థిరరాశి AstScope* స్థిరరాశి scopep,
+                                       స్థిరరాశి std::string& pretty_ఉపసర్గ, స్థిరరాశి std::string& cName,
+                                       స్థిరరాశి Ast_కణుపు_DType* స్థిరరాశి dtypep) {
         std::string elemCName = cName;
-        const AstNodeDType* elemDTypep = dtypep->skipRefp();
-        bool isArray = false;
-        while (const AstNodeArrayDType* const adtypep = VN_CAST(elemDTypep, NodeArrayDType)) {
-            if (VN_IS(adtypep, UnpackArrayDType)) elemCName += "[0]";
+        స్థిరరాశి Ast_కణుపు_DType* elemDTypep = dtypep->skipRefp();
+        తార్కిక isArray = అబద్ధం;
+        అయితే (స్థిరరాశి Ast_కణుపు_Array_DType* స్థిరరాశి adtypep = VN_CAST(elemDTypep, కణుపు_Array_DType)) {
+            ఒకవేళ (VN_IS(adtypep, UnpackArrayDType)) elemCName += "[0]";
             elemDTypep = adtypep->subDTypep()->skipRefp();
-            isArray = true;
+            isArray = నిజం;
         }
-        const AstNodeUOrStructDType* const sdtypep = VN_CAST(elemDTypep, NodeUOrStructDType);
-        if (!sdtypep || !sdtypep->packed()) return;
-        const std::string varExpr = "vlSymsp->" + instName(scopep) + "." + cName;
-        const std::string entSize
-            = "sizeof(" + varExpr + ") / " + std::to_string(getUnpackedElements(dtypep));
-        addPackedMemberVars(stmts, svd, scopep, prettyPrefix, elemCName, dtypep->vlEnumType(),
-                            entSize, sdtypep, 0, isArray);
+        స్థిరరాశి Ast_కణుపు_UOr_Struct_DType* స్థిరరాశి sdtypep = VN_CAST(elemDTypep, కణుపు_UOr_Struct_DType);
+        ఒకవేళ (!sdtypep || !sdtypep->packed()) తిరిగి;
+        స్థిరరాశి std::string var_సమాసం = "vlSymsp->" + instName(scopep) + "." + cName;
+        స్థిరరాశి std::string ent_కొలత
+            = "sizeof(" + var_సమాసం + ") / " + std::గమ్యం_string(getUnpackedElements(dtypep));
+        కూడు_Packed_Member_Vars(stmts, svd, scopep, pretty_ఉపసర్గ, elemCName, dtypep->vlEnumType(),
+                            ent_కొలత, sdtypep, 0, isArray);
     }
 
-    std::string insertForceableVarStatement(const ScopeVarData& svd, const AstScope* const scopep,
-                                            const AstVar* const varp, const int udim,
-                                            const int pdim, const std::string& bounds) {
+    std::string చొప్పించు_Forceable_Var_Statement(స్థిరరాశి Scope_Var_దత్తాంశం& svd, స్థిరరాశి AstScope* స్థిరరాశి scopep,
+                                            స్థిరరాశి AstVar* స్థిరరాశి varp, స్థిరరాశి పూర్ణాంకం udim,
+                                            స్థిరరాశి పూర్ణాంకం pdim, స్థిరరాశి std::string& bounds) {
         std::string stmt;
 
         stmt += "vlSymsp->" + protect("__Vscopep_" + svd.m_scopeName) + "->forceableVarInsert(\"";
-        stmt += V3OutFormatter::quoteNameControls(protect(svd.m_varBasePretty)) + '"';
+        stmt += V3_బహిర్గతం_Formatter::quoteNameControls(protect(svd.m_var_పునాది_Pretty)) + '"';
 
-        const std::string varExpr = "vlSymsp->" + instName(scopep) + "." + varName(varp);
+        స్థిరరాశి std::string var_సమాసం = "vlSymsp->" + instName(scopep) + "." + varName(varp);
 
-        assert(!varp->isParam());  // Forceable params do not make sense
+        ప్రతిజ్ఞా(!varp->isParam());  // Forceable params do not make sense
         stmt += ", &(";
-        stmt += varExpr;
+        stmt += var_సమాసం;
         stmt += "), false, ";
 
         stmt += varp->vlEnumType();  // VLVT_UINT32 etc
         stmt += ", ";
         stmt += varp->vlEnumDir();  // VLVD_IN etc
         stmt += ", &(";
-        stmt += varExpr + "__VforceRd";
-        stmt += "), \"" + V3OutFormatter::quoteNameControls(protect(svd.m_varBasePretty))
+        stmt += var_సమాసం + "__VforceRd";
+        stmt += "), \"" + V3_బహిర్గతం_Formatter::quoteNameControls(protect(svd.m_var_పునాది_Pretty))
                 + "__VforceRd" + '"';
         stmt += ", {";
 
-        for (const std::string forceControlSuffix : {"__VforceEn", "__VforceVal"}) {
-            const std::string enableSignalKey
-                = getKeyName(scopep, varp->name() + forceControlSuffix);
-            const std::map<const std::string, ScopeVarData>::const_iterator itpair
-                = m_scopeVars.find(enableSignalKey);
+        కొరకు (స్థిరరాశి std::string forceControlSuffix : {"__VforceEn", "__VforceVal"}) {
+            స్థిరరాశి std::string enable_Signal_కీలకం
+                = get_కీలకం_Name(scopep, varp->name() + forceControlSuffix);
+            స్థిరరాశి std::map<స్థిరరాశి std::string, Scope_Var_దత్తాంశం>::const_iterator itpair
+                = m_scopeVars.కనుగొను(enable_Signal_కీలకం);
 
-            if (itpair == m_scopeVars.end()) {
+            ఒకవేళ (itpair == m_scopeVars.చివర()) {
                 varp->v3fatalSrc("Signal "
                                  << varp->prettyNameQ()
                                  << " is marked forceable, but the force control signal '"
                                  << varp->name() << forceControlSuffix
                                  << "' can not be found in m_scopeVars with key '"
-                                 << enableSignalKey << "'.");
+                                 << enable_Signal_కీలకం << "'.");
             }
 
-            const ScopeVarData& svd = itpair->second;
-            const AstScope* const scopep = svd.m_scopep;
-            const AstVar* const varp = svd.m_varp;
-            const VarDims dims = dimsFor(svd);
+            స్థిరరాశి Scope_Var_దత్తాంశం& svd = itpair->రెండవ;
+            స్థిరరాశి AstScope* స్థిరరాశి scopep = svd.m_scopep;
+            స్థిరరాశి AstVar* స్థిరరాశి varp = svd.m_varp;
+            స్థిరరాశి VarDims dims = dimsFor(svd);
             stmt
-                += insertVarStatement(svd, scopep, varp, dims.udim, dims.pdim, boundsString(dims));
-            if (forceControlSuffix == "__VforceEn") stmt += ",";
+                += చొప్పించు_Var_Statement(svd, scopep, varp, dims.udim, dims.pdim, boundsString(dims));
+            ఒకవేళ (forceControlSuffix == "__VforceEn") stmt += ",";
         }
 
         stmt += "}";
         stmt += ", ";
-        stmt += std::to_string(udim);
+        stmt += std::గమ్యం_string(udim);
         stmt += ", ";
-        stmt += std::to_string(pdim);
+        stmt += std::గమ్యం_string(pdim);
         stmt += bounds;
         stmt += ")";
-        return stmt;
+        తిరిగి stmt;
     }
 
-    static std::string getKeyName(const AstScope* const scopep, const std::string& signal_name) {
+    స్థిర std::string get_కీలకం_Name(స్థిరరాశి AstScope* స్థిరరాశి scopep, స్థిరరాశి std::string& signal_name) {
         // Copies the process from `addScopeVarEntry` which created the keys in the first place, in
-        // order
+        //క్రమం
         // signal can be found.
-        std::string whole = scopep->name() + "__DOT__" + signal_name;
+        std::string సంపూర్ణ = scopep->name() + "__DOT__" + signal_name;
         std::string scpName;
-        if (VString::startsWith(whole, "__DOT__TOP")) whole.replace(0, 10, "");
-        const std::string::size_type dpos = whole.rfind("__DOT__");
-        if (dpos != std::string::npos) { scpName = whole.substr(0, dpos); }
-        const std::string scpSym = scopeSymString(VName::dehash(scpName));
-        return scpSym + " " + signal_name;
+        ఒకవేళ (VString::startsWith(సంపూర్ణ, "__DOT__TOP")) సంపూర్ణ.replace(0, 10, "");
+        స్థిరరాశి std::string::కొలత_type dpos = సంపూర్ణ.rfind("__DOT__");
+        ఒకవేళ (dpos != std::string::npos) { scpName = సంపూర్ణ.substr(0, dpos); }
+        స్థిరరాశి std::string scpSym = scopeSymString(VName::dehash(scpName));
+        తిరిగి scpSym + " " + signal_name;
     }
 
-    bool baseSignalIsValid(const AstScope* const scopep, const AstVar* const controlSignalVarp,
-                           const std::string& baseSignalName) const {
-        const std::string baseSignalKey = getKeyName(scopep, baseSignalName);
-        const std::map<const std::string, ScopeVarData>::const_iterator baseSignalIt
-            = m_scopeVars.find(baseSignalKey);
-        if (baseSignalIt == m_scopeVars.end()) {
+    తార్కిక పునాది_Signal_Is_Valid(స్థిరరాశి AstScope* స్థిరరాశి scopep, స్థిరరాశి AstVar* స్థిరరాశి controlSignalVarp,
+                           స్థిరరాశి std::string& పునాది_Signal_Name) స్థిరరాశి {
+        స్థిరరాశి std::string పునాది_Signal_కీలకం = get_కీలకం_Name(scopep, పునాది_Signal_Name);
+        స్థిరరాశి std::map<స్థిరరాశి std::string, Scope_Var_దత్తాంశం>::const_iterator పునాది_Signal_It
+            = m_scopeVars.కనుగొను(పునాది_Signal_కీలకం);
+        ఒకవేళ (పునాది_Signal_It == m_scopeVars.చివర()) {
             // This means that the signal is forceable, but not public, so only the force control
             // signals show up in the m_scopeVars, but not the base signal itself.
             // Expect this branch not to be hit, because `baseSignalIsPublic` is checked before
             // this, so this function will not get called in that case.
-            return false;
-        } else {
-            const AstVar* const baseSignalVarp = baseSignalIt->second.m_varp;
-            if (m_scopeVars.count(baseSignalName) > 1) {
-                baseSignalVarp->v3fatalSrc(
-                    "Found Signal " << baseSignalName
+            తిరిగి అబద్ధం;
+        } లేకపోతే {
+            స్థిరరాశి AstVar* స్థిరరాశి పునాది_Signal_Varp = పునాది_Signal_It->రెండవ.m_varp;
+            ఒకవేళ (m_scopeVars.లెక్క(పునాది_Signal_Name) > 1) {
+                పునాది_Signal_Varp->v3fatalSrc(
+                    "Found Signal " << పునాది_Signal_Name
                                     << ", but also found at least one other signal with name"
-                                    << baseSignalName << " occurring in the same scope.");
-                return false;
+                                    << పునాది_Signal_Name << " occurring in the same scope.");
+                తిరిగి అబద్ధం;
             }
-            if (!baseSignalVarp->isForceable()) {
+            ఒకవేళ (!పునాది_Signal_Varp->isForceable()) {
                 controlSignalVarp->v3fatalSrc(
                     "Found signal " << controlSignalVarp->prettyNameQ()
                                     << " which is a force control signal, but the base signal "
-                                    << baseSignalVarp->prettyNameQ()
+                                    << పునాది_Signal_Varp->prettyNameQ()
                                     << " is not marked as forceable.");
-                return false;
+                తిరిగి అబద్ధం;
             }
         }
-        return true;
+        తిరిగి నిజం;
     }
 
-    bool baseSignalIsPublic(const AstScope* const scopep,
-                            const std::string& baseSignalName) const {
-        const std::string baseSignalKey = getKeyName(scopep, baseSignalName);
-        const std::map<const std::string, ScopeVarData>::const_iterator baseSignalIt
-            = m_scopeVars.find(baseSignalKey);
-        if (baseSignalIt == m_scopeVars.end()) {
-            return false;
-        } else {
-            const AstVar* const baseSignalVarp = baseSignalIt->second.m_varp;
+    తార్కిక పునాది_Signal_Is_ప్రజా(స్థిరరాశి AstScope* స్థిరరాశి scopep,
+                            స్థిరరాశి std::string& పునాది_Signal_Name) స్థిరరాశి {
+        స్థిరరాశి std::string పునాది_Signal_కీలకం = get_కీలకం_Name(scopep, పునాది_Signal_Name);
+        స్థిరరాశి std::map<స్థిరరాశి std::string, Scope_Var_దత్తాంశం>::const_iterator పునాది_Signal_It
+            = m_scopeVars.కనుగొను(పునాది_Signal_కీలకం);
+        ఒకవేళ (పునాది_Signal_It == m_scopeVars.చివర()) {
+            తిరిగి అబద్ధం;
+        } లేకపోతే {
+            స్థిరరాశి AstVar* స్థిరరాశి పునాది_Signal_Varp = పునాది_Signal_It->రెండవ.m_varp;
             // Should not actually occur if the variable is in the m_scopeVars
-            if (!baseSignalVarp->isSigPublic()) return false;
+            ఒకవేళ (!పునాది_Signal_Varp->is_Sig_ప్రజా()) తిరిగి అబద్ధం;
         }
-        return true;
+        తిరిగి నిజం;
     }
 
-    bool forceControlSignalsAreValid(const AstScope* const scopep,
-                                     const AstVar* const baseSignalVarp) const {
-        constexpr std::array<const char*, 2> forceControlSuffixes = {"__VforceEn", "__VforceVal"};
-        return std::all_of(
-            forceControlSuffixes.begin(), forceControlSuffixes.end(),
-            [scopep, baseSignalVarp, this](const std::string& forceControlSuffix) {
-                const std::string controlSignalName = baseSignalVarp->name() + forceControlSuffix;
-                const std::string controlSignalKey = getKeyName(scopep, controlSignalName);
-                const std::size_t controlSignalCount = m_scopeVars.count(controlSignalKey);
-                if (controlSignalCount == 0) {
-                    baseSignalVarp->v3fatalSrc("Signal "
-                                               << baseSignalVarp->prettyNameQ()
+    తార్కిక force_Control_సంకేతాలు_Are_Valid(స్థిరరాశి AstScope* స్థిరరాశి scopep,
+                                     స్థిరరాశి AstVar* స్థిరరాశి పునాది_Signal_Varp) స్థిరరాశి {
+        constexpr std::array<స్థిరరాశి అక్షరం*, 2> forceControlSuffixes = {"__VforceEn", "__VforceVal"};
+        తిరిగి std::all_యొక్క(
+            forceControlSuffixes.begin(), forceControlSuffixes.చివర(),
+            [scopep, పునాది_Signal_Varp, ఇది](స్థిరరాశి std::string& forceControlSuffix) {
+                స్థిరరాశి std::string controlSignalName = పునాది_Signal_Varp->name() + forceControlSuffix;
+                స్థిరరాశి std::string control_Signal_కీలకం = get_కీలకం_Name(scopep, controlSignalName);
+                స్థిరరాశి std::కొలత_t control_Signal_లెక్క = m_scopeVars.లెక్క(control_Signal_కీలకం);
+                ఒకవేళ (control_Signal_లెక్క == 0) {
+                    పునాది_Signal_Varp->v3fatalSrc("Signal "
+                                               << పునాది_Signal_Varp->prettyNameQ()
                                                << " is marked forceable, but the control signal '"
                                                << controlSignalName
                                                << "' can not be found in m_scopeVars with key '"
-                                               << controlSignalKey << "'.");
-                    return false;
+                                               << control_Signal_కీలకం << "'.");
+                    తిరిగి అబద్ధం;
                 }
-                if (controlSignalCount > 1) {
-                    baseSignalVarp->v3fatalSrc("The control signal '"
+                ఒకవేళ (control_Signal_లెక్క > 1) {
+                    పునాది_Signal_Varp->v3fatalSrc("The control signal '"
                                                << controlSignalName << "' for forceable signal "
-                                               << baseSignalVarp->prettyNameQ()
+                                               << పునాది_Signal_Varp->prettyNameQ()
                                                << " occurs several times within the same scope.");
-                    return false;
+                    తిరిగి అబద్ధం;
                 }
-                return true;
+                తిరిగి నిజం;
             });
     }
 
     /// (scp, m_vpiScopeCandidates, m_scopeNames) -> m_scopeNames
     /// Look for parent scopes of scp in m_vpiScopeCandidates (separated by __DOT__ or ".")
     /// Then add/update entry in m_scopeNames if not already there
-    void varHierarchyScopes(std::string scp) {
+    శూన్య varHierarchyScopes(std::string scp) {
 
-        std::string::size_type prd_pos = scp.rfind('.');
-        std::string::size_type dot_pos = scp.rfind("__DOT__");
+        std::string::కొలత_type prd_pos = scp.rfind('.');
+        std::string::కొలత_type dot_pos = scp.rfind("__DOT__");
 
-        while (!scp.empty()) {
-            const auto scpit = m_vpiScopeCandidates.find(scopeSymString(scp));
-            if ((scpit != m_vpiScopeCandidates.end())
-                && (m_scopeNames.find(scp) == m_scopeNames.end())) {
+        అయితే (!scp.ఖాళీలు()) {
+            స్థిరరాశి స్వయంచాలక scpit = m_vpiScopeCandidates.కనుగొను(scopeSymString(scp));
+            ఒకవేళ ((scpit != m_vpiScopeCandidates.చివర())
+                && (m_scope_పేర్లు.కనుగొను(scp) == m_scope_పేర్లు.చివర())) {
                 // If not in m_scopeNames, add it, otherwise just update m_type
-                const auto pair = m_scopeNames.emplace(scpit->second.m_symName, scpit->second);
-                if (!pair.second) pair.first->second.m_type = scpit->second.m_type;
+                స్థిరరాశి స్వయంచాలక pair = m_scope_పేర్లు.emplace(scpit->రెండవ.m_symName, scpit->రెండవ);
+                ఒకవేళ (!pair.రెండవ) pair.మొదటి->రెండవ.m_type = scpit->రెండవ.m_type;
             }
 
             // resize and advance pointers
-            if ((prd_pos < dot_pos || prd_pos == string::npos) && dot_pos != string::npos) {
+            ఒకవేళ ((prd_pos < dot_pos || prd_pos == string::npos) && dot_pos != string::npos) {
                 scp.resize(dot_pos);
                 dot_pos = scp.rfind("__DOT__");
-            } else {
-                if (prd_pos == string::npos) break;
+            } లేకపోతే {
+                ఒకవేళ (prd_pos == string::npos) ఆపు;
                 scp.resize(prd_pos);
                 prd_pos = scp.rfind('.');
             }
         }
     }
 
-    void addScopeVarEntry(const AstScope* const scopep, const AstNodeModule* const modp,
-                          const AstVar* const varp) {
+    శూన్య కూడు_Scope_Var_నమోదు(స్థిరరాశి AstScope* స్థిరరాశి scopep, స్థిరరాశి Ast_కణుపు_Module* స్థిరరాశి modp,
+                          స్థిరరాశి AstVar* స్థిరరాశి varp) {
         // Need to split the module + var name into the original-ish full scope
         // and variable name under that scope. The module instance name is
         // included later, when we know the scopes this module is under.
-        std::string whole = scopep->name() + "__DOT__" + varp->name();
-        if (VString::startsWith(whole, "__DOT__TOP")) whole.replace(0, 10, "");
-        const std::string::size_type dpos = whole.rfind("__DOT__");
+        std::string సంపూర్ణ = scopep->name() + "__DOT__" + varp->name();
+        ఒకవేళ (VString::startsWith(సంపూర్ణ, "__DOT__TOP")) సంపూర్ణ.replace(0, 10, "");
+        స్థిరరాశి std::string::కొలత_type dpos = సంపూర్ణ.rfind("__DOT__");
         UASSERT_OBJ(dpos != std::string::npos, varp,
                     "Scope/variable name lost its appended __DOT__ separator");
-        const std::string scpName = whole.substr(0, dpos);
-        const std::string varBase = whole.substr(dpos + std::strlen("__DOT__"));
+        స్థిరరాశి std::string scpName = సంపూర్ణ.substr(0, dpos);
+        స్థిరరాశి std::string var_పునాది = సంపూర్ణ.substr(dpos + std::అక్షరశ్రేణి_పొడవు("__DOT__"));
         // UINFO(9, "For " << scopep->name() << " - " << varp->name() << "  Scp "
         // << scpName << "Var " << varBase);
-        const std::string varBasePretty = AstNode::vpiName(VName::dehash(varBase));
-        const std::string scpPretty = AstNode::prettyName(VName::dehash(scpName));
-        const std::string scpSym = scopeSymString(VName::dehash(scpName));
+        స్థిరరాశి std::string var_పునాది_Pretty = Ast_కణుపు::vpiName(VName::dehash(var_పునాది));
+        స్థిరరాశి std::string scpPretty = Ast_కణుపు::prettyName(VName::dehash(scpName));
+        స్థిరరాశి std::string scpSym = scopeSymString(VName::dehash(scpName));
         // UINFO(9, " scnameins sp " << scpName << " sp " << scpPretty << " ss "
         // << scpSym);
-        if (v3Global.opt.vpi()) varHierarchyScopes(scpName);
+        ఒకవేళ (v3Global.opt.vpi()) varHierarchyScopes(scpName);
 
-        m_scopeNames.emplace(  //
+        m_scope_పేర్లు.emplace(  //
             std::piecewise_construct,  //
             std::forward_as_tuple(scpSym),  //
             std::forward_as_tuple(varp, scpSym, scpPretty, "<null>", 0, "SCOPE_OTHER"));
@@ -772,145 +772,145 @@ class EmitCSyms final : EmitCBaseVisitorConst {
         m_scopeVars.emplace(  //
             std::piecewise_construct,  //
             std::forward_as_tuple(scpSym + " " + varp->name()),  //
-            std::forward_as_tuple(scpSym, varBasePretty, varp, modp, scopep));
+            std::forward_as_tuple(scpSym, var_పునాది_Pretty, varp, modp, scopep));
     }
 
-    void varsExpand() {
+    శూన్య varsExpand() {
         // We didn't have all m_scopes loaded when we encountered variables, so expand them now
         // It would be less code if each module inserted its own variables.
         // Someday.
-        for (const ScopeModPair& smPair : m_scopes) {
-            const AstScope* const scopep = smPair.first;
-            const AstNodeModule* const smodp = smPair.second;
-            for (const ModVarPair& mvPair : m_modVars) {
-                const AstNodeModule* const modp = mvPair.first;
-                const AstVar* const varp = mvPair.second;
-                if (modp != smodp) continue;
-                addScopeVarEntry(scopep, modp, varp);
+        కొరకు (స్థిరరాశి ScopeModPair& smPair : m_scopes) {
+            స్థిరరాశి AstScope* స్థిరరాశి scopep = smPair.మొదటి;
+            స్థిరరాశి Ast_కణుపు_Module* స్థిరరాశి smodp = smPair.రెండవ;
+            కొరకు (స్థిరరాశి ModVarPair& mvPair : m_modVars) {
+                స్థిరరాశి Ast_కణుపు_Module* స్థిరరాశి modp = mvPair.మొదటి;
+                స్థిరరాశి AstVar* స్థిరరాశి varp = mvPair.రెండవ;
+                ఒకవేళ (modp != smodp) కొనసాగు;
+                కూడు_Scope_Var_నమోదు(scopep, modp, varp);
             }
         }
     }
 
-    void collectIfaceRefs(const AstScope* nodep) {
-        const AstCell* const cellp = nodep->aboveCellp();
+    శూన్య collectIfaceRefs(స్థిరరాశి AstScope* nodep) {
+        స్థిరరాశి AstCell* స్థిరరాశి cellp = nodep->aboveCellp();
         // Exclude classes inside interfaces; the cell's modp is the interface, not the Class
-        if (!cellp || !VN_IS(cellp->modp(), Iface) || !VN_IS(nodep->modp(), Iface)) return;
+        ఒకవేళ (!cellp || !VN_IS(cellp->modp(), Iface) || !VN_IS(nodep->modp(), Iface)) తిరిగి;
 
         // vpiName() to match the scope table these are looked up alongside. Inlining
         // flattens the hierarchy but leaves the inlined levels in the scope name, which
         // therefore carries the full enclosing path.
-        const std::string path = AstNode::vpiName(nodep->name());
-        const std::string instName = AstNode::vpiName(cellp->origName());
-        UASSERT_OBJ(path.length() > instName.length() && VString::endsWith(path, instName), nodep,
-                    "Interface scope name " << path << " does not end with instance name "
+        స్థిరరాశి std::string మార్గం = Ast_కణుపు::vpiName(nodep->name());
+        స్థిరరాశి std::string instName = Ast_కణుపు::vpiName(cellp->origName());
+        UASSERT_OBJ(మార్గం.నిడివి() > instName.నిడివి() && VString::చివర్లు_With(మార్గం, instName), nodep,
+                    "Interface scope name " << మార్గం << " does not end with instance name "
                                             << instName);
-        const std::string parentPath = path.substr(0, path.length() - instName.length());
+        స్థిరరాశి std::string మాతృ_మార్గం = మార్గం.substr(0, మార్గం.నిడివి() - instName.నిడివి());
 
-        for (AstIntfRef* intfRefp = cellp->intfRefsp(); intfRefp;
+        కొరకు (AstIntfRef* intfRefp = cellp->intfRefsp(); intfRefp;
              intfRefp = VN_AS(intfRefp->nextp(), IntfRef)) {
-            const std::string refName = AstNode::vpiName(intfRefp->name());
+            స్థిరరాశి std::string refName = Ast_కణుపు::vpiName(intfRefp->name());
             // Assume only references under the same parent scope reference the
             // same interface. Same limitation as the trace path in V3TraceDecl.
-            if (!VString::startsWith(refName, parentPath)) continue;
-            m_ifaceRefs.emplace_back(nodep, scopeSymString(intfRefp->parentName()), refName,
-                                     AstNode::vpiName(intfRefp->baseName()),
+            ఒకవేళ (!VString::startsWith(refName, మాతృ_మార్గం)) కొనసాగు;
+            m_ifaceRefs.emplace_వెనుక(nodep, scopeSymString(intfRefp->మాతృ_Name()), refName,
+                                     Ast_కణుపు::vpiName(intfRefp->పునాది_Name()),
                                      intfRefp->modportName());
         }
     }
 
-    void buildIfaceRefTable() {
-        if (m_ifaceRefs.empty()) return;
-        const std::string symClass = symClassName();
+    శూన్య build_Iface_Ref_పట్టిక() {
+        ఒకవేళ (m_ifaceRefs.ఖాళీలు()) తిరిగి;
+        స్థిరరాశి std::string symClass = symClassName();
         // Sorted by path, as VPI iteration yields references in table order
-        std::stable_sort(
-            m_ifaceRefs.begin(), m_ifaceRefs.end(),
-            [](const IfaceRefData& a, const IfaceRefData& b) { return a.m_suffix < b.m_suffix; });
-        for (const IfaceRefData& ird : m_ifaceRefs) {
-            const std::string scopeSym = scopeSymString(ird.m_scopep->name());
+        std::stable_క్రమీకరించు(
+            m_ifaceRefs.begin(), m_ifaceRefs.చివర(),
+            [](స్థిరరాశి Iface_Ref_దత్తాంశం& a, స్థిరరాశి Iface_Ref_దత్తాంశం& b) { తిరిగి a.m_suffix < b.m_suffix; });
+        కొరకు (స్థిరరాశి Iface_Ref_దత్తాంశం& ird : m_ifaceRefs) {
+            స్థిరరాశి std::string scopeSym = scopeSymString(ird.m_scopep->name());
             // Only reference scopes that actually made it into the scope table
-            if (m_scopeNames.find(scopeSym) == m_scopeNames.end()) continue;
+            ఒకవేళ (m_scope_పేర్లు.కనుగొను(scopeSym) == m_scope_పేర్లు.చివర()) కొనసాగు;
             // The declaring scope may have been omitted from the public scope table.
             // Keep such references reachable by name, without attaching them to a scope.
-            std::string parentOffset = "VL_IFACEREF_NO_PARENT";
-            const auto parent = m_scopeNames.find(ird.m_parentSym);
-            if (parent != m_scopeNames.end()) {
-                parentOffset = "offsetof(" + symClass + ", "
-                               + protect("__Vscopep_" + parent->second.m_symName) + ")";
+            std::string మాతృ_స్థానభ్రంశం = "VL_IFACEREF_NO_PARENT";
+            స్థిరరాశి స్వయంచాలక మాతృ = m_scope_పేర్లు.కనుగొను(ird.m_మాతృ_Sym);
+            ఒకవేళ (మాతృ != m_scope_పేర్లు.చివర()) {
+                మాతృ_స్థానభ్రంశం = "offsetof(" + symClass + ", "
+                               + protect("__Vscopep_" + మాతృ->రెండవ.m_symName) + ")";
             }
-            std::string row
+            std::string అడ్డువరుస
                 = "{offsetof(" + symClass + ", " + protect("__Vscopep_" + scopeSym) + "), ";
-            row += parentOffset + ", \"";
-            row += V3OutFormatter::quoteNameControls(VIdProtect::protectWordsIf(ird.m_name, true));
-            row += "\", \"";
-            row += V3OutFormatter::quoteNameControls(
-                VIdProtect::protectWordsIf(ird.m_suffix, true));
-            row += "\", \"";
-            row += V3OutFormatter::quoteNameControls(
-                VIdProtect::protectWordsIf(ird.m_modportName, true));
-            row += "\"}";
-            m_ifaceRefTableRows.emplace_back(std::move(row));
+            అడ్డువరుస += మాతృ_స్థానభ్రంశం + ", \"";
+            అడ్డువరుస += V3_బహిర్గతం_Formatter::quoteNameControls(VIdProtect::protect_పదాలు_If(ird.m_name, నిజం));
+            అడ్డువరుస += "\", \"";
+            అడ్డువరుస += V3_బహిర్గతం_Formatter::quoteNameControls(
+                VIdProtect::protect_పదాలు_If(ird.m_suffix, నిజం));
+            అడ్డువరుస += "\", \"";
+            అడ్డువరుస += V3_బహిర్గతం_Formatter::quoteNameControls(
+                VIdProtect::protect_పదాలు_If(ird.m_modportName, నిజం));
+            అడ్డువరుస += "\"}";
+            m_iface_Ref_పట్టిక_అడ్డువరుసలు.emplace_వెనుక(std::move(అడ్డువరుస));
         }
-        if (!m_ifaceRefTableRows.empty()) m_ifaceRefTableName = symClass + "__VpiIfaceRefTable";
+        ఒకవేళ (!m_iface_Ref_పట్టిక_అడ్డువరుసలు.ఖాళీలు()) m_iface_Ref_పట్టిక_Name = symClass + "__VpiIfaceRefTable";
     }
 
-    void buildVpiHierarchy() {
-        for (const auto& itpair : m_scopeNames) {
-            const std::string symName = itpair.second.m_symName;
+    శూన్య buildVpiHierarchy() {
+        కొరకు (స్థిరరాశి స్వయంచాలక& itpair : m_scope_పేర్లు) {
+            స్థిరరాశి std::string symName = itpair.రెండవ.m_symName;
             std::string above = symName;
-            if (VString::startsWith(above, "TOP.")) above.replace(0, 4, "");
+            ఒకవేళ (VString::startsWith(above, "TOP.")) above.replace(0, 4, "");
 
-            while (!above.empty()) {
-                const std::string::size_type pos = above.rfind("__");
-                if (pos == std::string::npos) break;
+            అయితే (!above.ఖాళీలు()) {
+                స్థిరరాశి std::string::కొలత_type pos = above.rfind("__");
+                ఒకవేళ (pos == std::string::npos) ఆపు;
                 above.resize(pos);
-                if (m_vpiScopeHierarchy.find(above) != m_vpiScopeHierarchy.end()) {
-                    m_vpiScopeHierarchy[above].push_back(symName);
-                    break;
+                ఒకవేళ (m_vpiScopeHierarchy.కనుగొను(above) != m_vpiScopeHierarchy.చివర()) {
+                    m_vpiScopeHierarchy[above].నెట్టు_వెనుక(symName);
+                    ఆపు;
                 }
             }
-            m_vpiScopeHierarchy[symName] = std::vector<string>();
+            m_vpiScopeHierarchy[symName] = std::సదిశ<string>();
         }
     }
 
     // VISITORS
-    void visit(AstNetlist* nodep) override {
+    శూన్య సందర్శించు(AstNetlist* nodep) override {
         // Collect list of scopes
         iterateChildrenConst(nodep);
         varsExpand();
 
-        if (v3Global.opt.vpi()) buildVpiHierarchy();
+        ఒకవేళ (v3Global.opt.vpi()) buildVpiHierarchy();
 
-        if (v3Global.dpi()) {
+        ఒకవేళ (v3Global.dpi()) {
             // add dpi scopes to m_scopeNames if not already there
-            for (const auto& scp : m_dpiScopeNames) m_scopeNames.emplace(scp.first, scp.second);
+            కొరకు (స్థిరరాశి స్వయంచాలక& scp : m_dpi_Scope_పేర్లు) m_scope_పేర్లు.emplace(scp.మొదటి, scp.రెండవ);
         }
 
         // Sort by names, so line/process order matters less
-        std::stable_sort(m_scopes.begin(), m_scopes.end(),
-                         [](const ScopeModPair& a, const ScopeModPair& b) {
-                             return a.first->name() < b.first->name();
+        std::stable_క్రమీకరించు(m_scopes.begin(), m_scopes.చివర(),
+                         [](స్థిరరాశి ScopeModPair& a, స్థిరరాశి ScopeModPair& b) {
+                             తిరిగి a.మొదటి->name() < b.మొదటి->name();
                          });
-        std::stable_sort(m_dpis.begin(), m_dpis.end(),  //
-                         [](const AstCFunc* ap, const AstCFunc* bp) {
-                             if (ap->dpiImportPrototype() != bp->dpiImportPrototype()) {
-                                 return bp->dpiImportPrototype();
+        std::stable_క్రమీకరించు(m_dpis.begin(), m_dpis.చివర(),  //
+                         [](స్థిరరాశి AstCFunc* ap, స్థిరరాశి AstCFunc* bp) {
+                             ఒకవేళ (ap->dpiImportPrototype() != bp->dpiImportPrototype()) {
+                                 తిరిగి bp->dpiImportPrototype();
                              }
-                             return ap->name() < bp->name();
+                             తిరిగి ap->name() < bp->name();
                          });
 
         // Output
-        if (!m_dpiHdrOnly) {
+        ఒకవేళ (!m_dpiHdrOnly) {
             // Must emit implementation first to determine number of splits
             emitSymImp(nodep);
             emitSymHdr();
         }
-        if (v3Global.dpi()) {
+        ఒకవేళ (v3Global.dpi()) {
             emitDpiHdr();
-            if (!m_dpiHdrOnly) emitDpiImp();
+            ఒకవేళ (!m_dpiHdrOnly) emitDpiImp();
         }
     }
-    void visit(AstNodeModule* nodep) override {
-        if (nodep->isConstPool()) return;  // Special emit rules
+    శూన్య సందర్శించు(Ast_కణుపు_Module* nodep) override {
+        ఒకవేళ (nodep->isConstPool()) తిరిగి;  // Special emit rules
         nameCheck(nodep);
         VL_RESTORER(m_modp);
         VL_RESTORER(m_modCoverBins);
@@ -920,34 +920,34 @@ class EmitCSyms final : EmitCBaseVisitorConst {
         m_modCoverBins = 0;
         iterateChildrenConst(nodep);
     }
-    void visit(AstCellInlineScope* nodep) override {
-        const std::string type = (nodep->origModName() == "__BEGIN__") ? "SCOPE_OTHER"  //
+    శూన్య సందర్శించు(AstCellInlineScope* nodep) override {
+        స్థిరరాశి std::string type = (nodep->origModName() == "__BEGIN__") ? "SCOPE_OTHER"  //
                                                                        : "SCOPE_MODULE";
-        const std::string name = m_scopep->shortName() + "__DOT__" + nodep->name();
-        const int timeunit = m_modp->timeunit().powerOfTen();
+        స్థిరరాశి std::string name = m_scopep->shortName() + "__DOT__" + nodep->name();
+        స్థిరరాశి పూర్ణాంకం timeunit = m_modp->timeunit().power_యొక్క_Ten();
         m_vpiScopeCandidates.emplace(  //
             std::piecewise_construct,  //
             std::forward_as_tuple(scopeSymString(name)),  //
-            std::forward_as_tuple(nodep, scopeSymString(name), AstNode::vpiName(name),
+            std::forward_as_tuple(nodep, scopeSymString(name), Ast_కణుపు::vpiName(name),
                                   type == "SCOPE_MODULE" ? nodep->origModName() : "<null>",
                                   timeunit, type));
     }
-    void visit(AstScope* nodep) override {
-        if (VN_IS(m_modp, Class)) return;  // The ClassPackage is what is visible
+    శూన్య సందర్శించు(AstScope* nodep) override {
+        ఒకవేళ (VN_IS(m_modp, Class)) తిరిగి;  // The ClassPackage is what is visible
         nameCheck(nodep);
 
-        m_scopes.emplace_back(nodep, m_modp);
+        m_scopes.emplace_వెనుక(nodep, m_modp);
 
-        if (v3Global.opt.vpi() && !nodep->isTop()) {
-            const std::string type = VN_IS(nodep->modp(), Package) ? "SCOPE_PACKAGE"  //
+        ఒకవేళ (v3Global.opt.vpi() && !nodep->is_శిఖరం()) {
+            స్థిరరాశి std::string type = VN_IS(nodep->modp(), Package) ? "SCOPE_PACKAGE"  //
                                      : VN_IS(nodep->modp(), Iface) ? "SCOPE_INTERFACE"  //
                                                                    : "SCOPE_MODULE";
-            const int timeunit = m_modp->timeunit().powerOfTen();
+            స్థిరరాశి పూర్ణాంకం timeunit = m_modp->timeunit().power_యొక్క_Ten();
             m_vpiScopeCandidates.emplace(  //
                 std::piecewise_construct,  //
                 std::forward_as_tuple(scopeSymString(nodep->name())),  //
                 std::forward_as_tuple(nodep, scopeSymString(nodep->name()),
-                                      AstNode::vpiName(nodep->shortName()),
+                                      Ast_కణుపు::vpiName(nodep->shortName()),
                                       nodep->modp()->origName(), timeunit, type));
             collectIfaceRefs(nodep);
         }
@@ -955,75 +955,75 @@ class EmitCSyms final : EmitCBaseVisitorConst {
         m_scopep = nodep;
         iterateChildrenConst(nodep);
     }
-    void visit(AstScopeName* nodep) override {
-        if (nodep->selfRelative()) return;  // Its absolute copy is under the scope
-        const std::string name = nodep->scopeSymName();
+    శూన్య సందర్శించు(AstScopeName* nodep) override {
+        ఒకవేళ (nodep->selfRelative()) తిరిగి;  // Its absolute copy is under the scope
+        స్థిరరాశి std::string name = nodep->scopeSymName();
         // UINFO(9, "scnameins sp " << nodep->name() << " sp " << nodep->scopePrettySymName()
         // << " ss" << name);
-        const int timeunit = m_modp ? m_modp->timeunit().powerOfTen() : 0;
-        m_dpiScopeNames.emplace(  //
+        స్థిరరాశి పూర్ణాంకం timeunit = m_modp ? m_modp->timeunit().power_యొక్క_Ten() : 0;
+        m_dpi_Scope_పేర్లు.emplace(  //
             std::piecewise_construct,  //
             std::forward_as_tuple(name),  //
             std::forward_as_tuple(nodep, name, nodep->scopePrettySymName(), "<null>", timeunit,
                                   "SCOPE_OTHER"));
 
-        if (nodep->dpiExport()) {
+        ఒకవేళ (nodep->dpiExport()) {
             UASSERT_OBJ(m_cfuncp, nodep, "ScopeName not under DPI function");
             m_scopeFuncs.emplace(  //
                 std::piecewise_construct,  //
                 std::forward_as_tuple(name + " " + m_cfuncp->name()),  //
                 std::forward_as_tuple(nodep, m_cfuncp, m_modp));
-        } else {
+        } లేకపోతే {
             // Note emplace does not construct when duplicate key
-            m_dpiScopeNames.emplace(  //
+            m_dpi_Scope_పేర్లు.emplace(  //
                 std::piecewise_construct,  //
                 std::forward_as_tuple(nodep->scopeDpiName()),  //
                 std::forward_as_tuple(nodep, nodep->scopeDpiName(), nodep->scopePrettyDpiName(),
                                       "<null>", timeunit, "SCOPE_OTHER"));
         }
     }
-    void visit(AstVar* nodep) override {
+    శూన్య సందర్శించు(AstVar* nodep) override {
         nameCheck(nodep);
         iterateChildrenConst(nodep);
         // Record if public, ignoring locals and types VPI cannot represent
-        if ((nodep->isSigUserRdPublic() || nodep->isSigUserRWPublic()) && !m_cfuncp
-            && !nodep->vlEnumType().empty()) {
-            m_modVars.emplace_back(m_modp, nodep);
+        ఒకవేళ ((nodep->is_Sig_User_Rd_ప్రజా() || nodep->isSigUserRWPublic()) && !m_cfuncp
+            && !nodep->vlEnumType().ఖాళీలు()) {
+            m_modVars.emplace_వెనుక(m_modp, nodep);
         }
     }
-    void visit(AstNodeCoverDecl* nodep) override {
+    శూన్య సందర్శించు(Ast_కణుపు_Cover_Decl* nodep) override {
         // Assign both global and module-local bin numbers. Most generated
         // coverage uses module-local counters, but static/package/class helper
         // functions may have no vlSelf and still need the global array.
-        if (!nodep->dataDeclNullp()) {  // else duplicate we don't need code for
-            nodep->binNum(m_coverBins);
-            m_coverBins += nodep->size();
-            nodep->localBinNum(m_modCoverBins);
-            m_modCoverBins += nodep->size();
+        ఒకవేళ (!nodep->దత్తాంశం_Decl_Nullp()) {  // else duplicate we don't need code for
+            nodep->bin_అంకె(m_coverBins);
+            m_coverBins += nodep->కొలత();
+            nodep->local_Bin_అంకె(m_modCoverBins);
+            m_modCoverBins += nodep->కొలత();
         }
     }
-    void visit(AstCFunc* nodep) override {
+    శూన్య సందర్శించు(AstCFunc* nodep) override {
         nameCheck(nodep);
-        if (nodep->dpiImportPrototype() || nodep->dpiExportDispatcher()) m_dpis.push_back(nodep);
+        ఒకవేళ (nodep->dpiImportPrototype() || nodep->dpiExportDispatcher()) m_dpis.నెట్టు_వెనుక(nodep);
         VL_RESTORER(m_cfuncp);
         m_cfuncp = nodep;
         iterateChildrenConst(nodep);
     }
 
     //---------------------------------------
-    void visit(AstConst*) override {}
-    void visit(AstNode* nodep) override { iterateChildrenConst(nodep); }
+    శూన్య సందర్శించు(AstConst*) override {}
+    శూన్య సందర్శించు(Ast_కణుపు* nodep) override { iterateChildrenConst(nodep); }
 
-public:
-    explicit EmitCSyms(AstNetlist* nodep, bool dpiHdrOnly)
+బహిరంగ:
+    స్పష్టమైన EmitCSyms(AstNetlist* nodep, తార్కిక dpiHdrOnly)
         : m_dpiHdrOnly{dpiHdrOnly} {
         iterateConst(nodep);
     }
 };
 
-void EmitCSyms::emitSymHdr() {
+శూన్య EmitCSyms::emitSymHdr() {
     UINFO(6, __FUNCTION__ << ": ");
-    openNewOutputHeaderFile(symClassName(), "Symbol table internal header");
+    open_New_Output_శీర్షిక_File(symClassName(), "Symbol table internal header");
     puts("//\n");
     puts("// Internal details; most calling programs do not need this header,\n");
     puts("// unless using verilator public meta comments.\n");
@@ -1031,48 +1031,48 @@ void EmitCSyms::emitSymHdr() {
     ofp()->putsGuard();
 
     puts("\n");
-    ofp()->putsIntTopInclude();
+    ofp()->puts_Int_శిఖరం_Include();
     puts("#include \"verilated.h\"\n");
-    if (v3Global.needTraceDumper()) {
-        for (const string& base : v3Global.opt.traceSourceLangs())
-            puts("#include \"" + base + ".h\"\n");
+    ఒకవేళ (v3Global.needTraceDumper()) {
+        కొరకు (స్థిరరాశి string& పునాది : v3Global.opt.trace_ఆధారం_Langs())
+            puts("#include \"" + పునాది + ".h\"\n");
     }
-    if (v3Global.opt.usesProfiler()) puts("#include \"verilated_profiler.h\"\n");
+    ఒకవేళ (v3Global.opt.ఉపయోగిస్తుంది_Profiler()) puts("#include \"verilated_profiler.h\"\n");
 
     puts("\n// INCLUDE MODEL CLASS\n");
-    puts("\n#include \"" + topClassName() + ".h\"\n");
+    puts("\n#include \"" + శిఖరం_Class_Name() + ".h\"\n");
 
     puts("\n// INCLUDE MODULE CLASSES\n");
-    for (AstNodeModule *nodep = v3Global.rootp()->modulesp(), *nextp; nodep; nodep = nextp) {
-        nextp = VN_AS(nodep->nextp(), NodeModule);
-        if (VN_IS(nodep, Class)) continue;  // Class included earlier
-        if (nodep->isConstPool()) continue;  // Special emit rules
-        putns(nodep, "#include \"" + EmitCUtil::prefixNameProtect(nodep) + ".h\"\n");
+    కొరకు (Ast_కణుపు_Module *nodep = v3Global.rootp()->modulesp(), *nextp; nodep; nodep = nextp) {
+        nextp = VN_AS(nodep->nextp(), కణుపు_Module);
+        ఒకవేళ (VN_IS(nodep, Class)) కొనసాగు;  // Class included earlier
+        ఒకవేళ (nodep->isConstPool()) కొనసాగు;  // Special emit rules
+        putns(nodep, "#include \"" + EmitCUtil::ఉపసర్గ_Name_Protect(nodep) + ".h\"\n");
     }
 
-    if (v3Global.dpi()) {
+    ఒకవేళ (v3Global.dpi()) {
         puts("\n// DPI TYPES for DPI Export callbacks (Internal use)\n");
-        std::set<std::string> types;  // Remove duplicates and sort
-        for (const auto& itpair : m_scopeFuncs) {
-            const AstCFunc* const funcp = itpair.second.m_cfuncp;
-            if (!funcp->dpiExportImpl()) continue;
-            const std::string cbtype
-                = protect(v3Global.opt.prefix() + "__Vcb_" + funcp->cname() + "_t");
-            const std::string functype = funcp->rtnTypeVoid() + " (*) (" + cFuncArgs(funcp) + ")";
+        std::సమితి<std::string> types;  // Remove duplicates and sort
+        కొరకు (స్థిరరాశి స్వయంచాలక& itpair : m_scopeFuncs) {
+            స్థిరరాశి AstCFunc* స్థిరరాశి funcp = itpair.రెండవ.m_cfuncp;
+            ఒకవేళ (!funcp->dpiExportImpl()) కొనసాగు;
+            స్థిరరాశి std::string cbtype
+                = protect(v3Global.opt.ఉపసర్గ() + "__Vcb_" + funcp->cname() + "_t");
+            స్థిరరాశి std::string functype = funcp->rtnTypeVoid() + " (*) (" + c_Func_వాదనలు(funcp) + ")";
             types.emplace("using " + cbtype + " = " + functype + ";\n");
         }
-        for (const std::string& type : types) puts(type);
+        కొరకు (స్థిరరాశి std::string& type : types) puts(type);
     }
 
     puts("\n// SYMS CLASS (contains all model state)\n");
     puts("class alignas(VL_CACHE_LINE_BYTES) " + symClassName()
          + " final : public VerilatedSyms {\n");
-    ofp()->putsPrivate(false);  // public:
+    ofp()->puts_వ్యక్తిగత(అబద్ధం);  // public:
 
     puts("// INTERNAL STATE\n");
-    puts(topClassName() + "* const __Vm_modelp;\n");
+    puts(శిఖరం_Class_Name() + "* const __Vm_modelp;\n");
 
-    if (v3Global.needTraceDumper()) {
+    ఒకవేళ (v3Global.needTraceDumper()) {
         // __Vm_dumperp is local, otherwise we wouldn't know what design's eval()
         // should call a global dumpperp
         puts("bool __Vm_dumping = false;  // Dumping is active\n");
@@ -1081,24 +1081,24 @@ void EmitCSyms::emitSymHdr() {
              + "* __Vm_dumperp VL_GUARDED_BY(__Vm_dumperMutex) = nullptr;"
                "  /// Trace class for $dump*\n");
     }
-    if (v3Global.opt.trace()) {
+    ఒకవేళ (v3Global.opt.trace()) {
         puts("bool __Vm_activity = false;"
              "  ///< Used by trace routines to determine change occurred\n");
         puts("uint32_t __Vm_baseCode = 0;"
              "  ///< Used by trace routines when tracing multiple models\n");
     }
-    if (v3Global.hasEvents()) {
-        if (v3Global.assignsEvents()) {
+    ఒకవేళ (v3Global.hasEvents()) {
+        ఒకవేళ (v3Global.assignsEvents()) {
             puts("std::vector<VlAssignableEvent> __Vm_triggeredEvents;\n");
-        } else {
+        } లేకపోతే {
             puts("std::vector<VlEvent*> __Vm_triggeredEvents;\n");
         }
     }
-    if (v3Global.hasClasses()) puts("VlDeleter __Vm_deleter;\n");
+    ఒకవేళ (v3Global.hasClasses()) puts("VlDeleter __Vm_deleter;\n");
     puts("bool& __Vm_didInit;\n");
-    if (v3Global.opt.systemC()) puts("sc_core::sc_event __Vm_wakeEvent;\n");
+    ఒకవేళ (v3Global.opt.systemC()) puts("sc_core::sc_event __Vm_wakeEvent;\n");
 
-    if (v3Global.opt.mtasks()) {
+    ఒకవేళ (v3Global.opt.mtasks()) {
         puts("\n// MULTI-THREADING\n");
         puts("VlThreadPool* __Vm_threadPoolp;\n");
         puts("bool __Vm_even_cycle__ico = false;\n");
@@ -1106,143 +1106,143 @@ void EmitCSyms::emitSymHdr() {
         puts("bool __Vm_even_cycle__nba = false;\n");
     }
 
-    if (v3Global.opt.profExec()) {
+    ఒకవేళ (v3Global.opt.profExec()) {
         puts("\n// EXECUTION PROFILING\n");
         puts("VlExecutionProfiler* const __Vm_executionProfilerp;\n");
     }
 
-    if (v3Global.opt.profPgo()) {
+    ఒకవేళ (v3Global.opt.profPgo()) {
         puts("\n// PGO PROFILING\n");
-        puts("VlPgoProfiler<" + std::to_string(ExecMTask::numUsedIds()) + "> _vm_pgoProfiler;\n");
+        puts("VlPgoProfiler<" + std::గమ్యం_string(ExecMTask::అంకె_వాడిన_Ids()) + "> _vm_pgoProfiler;\n");
     }
 
     puts("\n// MODULE INSTANCE STATE\n");
     // In an anonymous union so the C++ compiler does not construct them implicitly,
     // they are constructed/destroyed explicitly in the ctor/dtor functions.
     puts("union {\nstruct {\n");
-    for (const ScopeModPair& itpair : m_scopes) {
-        const AstScope* const scopep = itpair.first;
-        const AstNodeModule* const modp = itpair.second;
-        if (VN_IS(modp, Class)) continue;
-        ofp()->printf("%-30s ", EmitCUtil::prefixNameProtect(modp).c_str());
+    కొరకు (స్థిరరాశి ScopeModPair& itpair : m_scopes) {
+        స్థిరరాశి AstScope* స్థిరరాశి scopep = itpair.మొదటి;
+        స్థిరరాశి Ast_కణుపు_Module* స్థిరరాశి modp = itpair.రెండవ;
+        ఒకవేళ (VN_IS(modp, Class)) కొనసాగు;
+        ofp()->రాయి("%-30s ", EmitCUtil::ఉపసర్గ_Name_Protect(modp).c_str());
         putns(scopep, VIdProtect::protectIf(scopep->nameDotless(), scopep->protect()) + ";\n");
     }
     puts("} vlInst;\n};\n");
 
-    if (m_coverBins) {
+    ఒకవేళ (m_coverBins) {
         puts("\n// COVERAGE\n");
-        puts(v3Global.opt.threads() > 1 ? "std::atomic<uint32_t>" : "uint32_t");
+        puts(v3Global.opt.దారాలు() > 1 ? "std::atomic<uint32_t>" : "uint32_t");
         puts(" __Vcoverage[");
-        puts(std::to_string(m_coverBins));
+        puts(std::గమ్యం_string(m_coverBins));
         puts("];\n");
     }
 
-    if (!m_scopeNames.empty()) {  // Scope names
+    ఒకవేళ (!m_scope_పేర్లు.ఖాళీలు()) {  // Scope names
         puts("\n// SCOPE NAMES\n");
-        for (const auto& itpair : m_scopeNames) {
-            const ScopeData& sd = itpair.second;
+        కొరకు (స్థిరరాశి స్వయంచాలక& itpair : m_scope_పేర్లు) {
+            స్థిరరాశి Scope_దత్తాంశం& sd = itpair.రెండవ;
             putns(sd.m_nodep, "::VerilatedScope* " + protect("__Vscopep_" + sd.m_symName) + ";\n");
         }
     }
 
-    if (v3Global.opt.vpi()) {
+    ఒకవేళ (v3Global.opt.vpi()) {
         puts("\n// SCOPE HIERARCHY\n");
         puts("VerilatedHierarchy __Vhier;\n");
     }
 
     puts("\n// CONSTRUCTORS\n");
-    puts(symClassName() + "(VerilatedContext* contextp, const char* namep, " + topClassName()
+    puts(symClassName() + "(VerilatedContext* contextp, const char* namep, " + శిఖరం_Class_Name()
          + "* modelp);\n");
     puts("~" + symClassName() + "();\n");
 
     puts("\n// METHODS\n");
     puts("const char* name() const { return vlInst.TOP.vlNamep; }\n");
 
-    if (v3Global.hasEvents()) {
-        if (v3Global.assignsEvents()) {
+    ఒకవేళ (v3Global.hasEvents()) {
+        ఒకవేళ (v3Global.assignsEvents()) {
             puts("void fireEvent(VlAssignableEvent& event) {\n");
-        } else {
+        } లేకపోతే {
             puts("void fireEvent(VlEvent& event) {\n");
         }
         puts("if (VL_LIKELY(!event.isTriggered())) {\n");
-        if (v3Global.assignsEvents()) {
+        ఒకవేళ (v3Global.assignsEvents()) {
             puts("__Vm_triggeredEvents.push_back(event);\n");
-        } else {
+        } లేకపోతే {
             puts("__Vm_triggeredEvents.push_back(&event);\n");
         }
         puts("}\n");
         puts("event.fire();\n");
         puts("}\n");
         puts("void clearTriggeredEvents() {\n");
-        if (v3Global.assignsEvents()) {
+        ఒకవేళ (v3Global.assignsEvents()) {
             puts("for (auto& event : __Vm_triggeredEvents) event.clearTriggered();\n");
-        } else {
+        } లేకపోతే {
             puts("for (const auto eventp : __Vm_triggeredEvents) eventp->clearTriggered();\n");
         }
         puts("__Vm_triggeredEvents.clear();\n");
         puts("}\n");
     }
 
-    if (v3Global.needTraceDumper()) {
-        if (!optSystemC()) puts("void _traceDump();\n");
+    ఒకవేళ (v3Global.needTraceDumper()) {
+        ఒకవేళ (!optSystemC()) puts("void _traceDump();\n");
         puts("void _traceDumpOpen();\n");
         puts("void _traceDumpClose();\n");
     }
 
-    if (v3Global.opt.savable()) {
+    ఒకవేళ (v3Global.opt.savable()) {
         puts("void " + protect("__Vserialize") + "(VerilatedSerialize& os);\n");
         puts("void " + protect("__Vdeserialize") + "(VerilatedDeserialize& os);\n");
     }
     puts("};\n");
 
-    ofp()->putsEndGuard();
+    ofp()->puts_చివర_Guard();
     closeOutputFile();
 }
 
-void EmitCSyms::emitSymImpPreamble() {
+శూన్య EmitCSyms::emitSymImpPreamble() {
     puts("\n");
 
     // Includes
     puts("#include \"" + EmitCUtil::pchClassName() + ".h\"\n");
     puts("\n");
     // Declarations for DPI Export implementation functions
-    bool needsNewLine = false;
-    for (const auto& itpair : m_scopeFuncs) {
-        const AstCFunc* const funcp = itpair.second.m_cfuncp;
-        if (!funcp->dpiExportImpl()) continue;
-        emitCFuncDecl(funcp, itpair.second.m_modp);
-        needsNewLine = true;
+    తార్కిక needs_New_పంక్తి = అబద్ధం;
+    కొరకు (స్థిరరాశి స్వయంచాలక& itpair : m_scopeFuncs) {
+        స్థిరరాశి AstCFunc* స్థిరరాశి funcp = itpair.రెండవ.m_cfuncp;
+        ఒకవేళ (!funcp->dpiExportImpl()) కొనసాగు;
+        emitCFuncDecl(funcp, itpair.రెండవ.m_modp);
+        needs_New_పంక్తి = నిజం;
     }
-    if (needsNewLine) puts("\n");
+    ఒకవేళ (needs_New_పంక్తి) puts("\n");
     // Declarations of the Verilator library functions called at construction
-    std::set<std::string> libNames;
-    for (const ScopeModPair& itpair : m_scopes) {
-        if (itpair.second->verilatorLib()) libNames.emplace(itpair.second->origName());
+    std::సమితి<std::string> lib_పేర్లు;
+    కొరకు (స్థిరరాశి ScopeModPair& itpair : m_scopes) {
+        ఒకవేళ (itpair.రెండవ->verilatorLib()) lib_పేర్లు.emplace(itpair.రెండవ->origName());
     }
-    for (const std::string& libName : libNames) {
+    కొరకు (స్థిరరాశి std::string& libName : lib_పేర్లు) {
         puts("extern \"C\" void " + libName + "_protectlib_check_hash(int protectlib_hash__V);\n");
         puts("extern \"C\" void* " + libName + "_protectlib_create(const char* scopep__V);\n");
     }
-    if (!libNames.empty()) puts("\n");
+    ఒకవేళ (!lib_పేర్లు.ఖాళీలు()) puts("\n");
 
     // So split ctor sub-functions in other translation units can reference
     // the VPI variable tables defined below.
-    if (!m_varTables.empty() || !m_scopeTableRows.empty() || !m_ifaceRefTableRows.empty()) {
-        for (const auto& kv : m_varTables) {
-            puts("extern const VlVarTableEntry " + kv.first + "[];\n");
+    ఒకవేళ (!m_varTables.ఖాళీలు() || !m_scope_పట్టిక_అడ్డువరుసలు.ఖాళీలు() || !m_iface_Ref_పట్టిక_అడ్డువరుసలు.ఖాళీలు()) {
+        కొరకు (స్థిరరాశి స్వయంచాలక& kv : m_varTables) {
+            puts("extern const VlVarTableEntry " + kv.మొదటి + "[];\n");
         }
-        if (!m_scopeTableRows.empty()) {
-            puts("extern const VlScopeTableEntry " + m_scopeTableName + "[];\n");
+        ఒకవేళ (!m_scope_పట్టిక_అడ్డువరుసలు.ఖాళీలు()) {
+            puts("extern const VlScopeTableEntry " + m_scope_పట్టిక_Name + "[];\n");
         }
-        if (!m_ifaceRefTableRows.empty()) {
-            puts("extern const VlIfaceRefTableEntry " + m_ifaceRefTableName + "[];\n");
+        ఒకవేళ (!m_iface_Ref_పట్టిక_అడ్డువరుసలు.ఖాళీలు()) {
+            puts("extern const VlIfaceRefTableEntry " + m_iface_Ref_పట్టిక_Name + "[];\n");
         }
         puts("\n");
     }
 }
 
-void EmitCSyms::emitVarTables() {
-    if (m_varTables.empty() && m_scopeTableRows.empty() && m_ifaceRefTableRows.empty()) return;
+శూన్య EmitCSyms::emitVarTables() {
+    ఒకవేళ (m_varTables.ఖాళీలు() && m_scope_పట్టిక_అడ్డువరుసలు.ఖాళీలు() && m_iface_Ref_పట్టిక_అడ్డువరుసలు.ఖాళీలు()) తిరిగి;
     puts("\n// VPI VARIABLE/SCOPE TABLES\n");
     // offsetof on the (non-standard-layout) generated module/Syms classes is well
     // defined on all supported compilers but warns; suppress just here.
@@ -1250,29 +1250,29 @@ void EmitCSyms::emitVarTables() {
     puts("# pragma GCC diagnostic push\n");
     puts("# pragma GCC diagnostic ignored \"-Winvalid-offsetof\"\n");
     puts("#endif\n");
-    for (const auto& kv : m_varTables) {
-        puts("extern const VlVarTableEntry " + kv.first + "[] = {\n");
-        for (const std::string& row : kv.second) {
+    కొరకు (స్థిరరాశి స్వయంచాలక& kv : m_varTables) {
+        puts("extern const VlVarTableEntry " + kv.మొదటి + "[] = {\n");
+        కొరకు (స్థిరరాశి std::string& అడ్డువరుస : kv.రెండవ) {
             ofp()->putsNoTracking("    ");
-            ofp()->putsNoTracking(row);
+            ofp()->putsNoTracking(అడ్డువరుస);
             ofp()->putsNoTracking(",\n");
         }
         puts("};\n");
     }
-    if (!m_scopeTableRows.empty()) {
-        puts("extern const VlScopeTableEntry " + m_scopeTableName + "[] = {\n");
-        for (const std::string& row : m_scopeTableRows) {
+    ఒకవేళ (!m_scope_పట్టిక_అడ్డువరుసలు.ఖాళీలు()) {
+        puts("extern const VlScopeTableEntry " + m_scope_పట్టిక_Name + "[] = {\n");
+        కొరకు (స్థిరరాశి std::string& అడ్డువరుస : m_scope_పట్టిక_అడ్డువరుసలు) {
             ofp()->putsNoTracking("    ");
-            ofp()->putsNoTracking(row);
+            ofp()->putsNoTracking(అడ్డువరుస);
             ofp()->putsNoTracking(",\n");
         }
         puts("};\n");
     }
-    if (!m_ifaceRefTableRows.empty()) {
-        puts("extern const VlIfaceRefTableEntry " + m_ifaceRefTableName + "[] = {\n");
-        for (const std::string& row : m_ifaceRefTableRows) {
+    ఒకవేళ (!m_iface_Ref_పట్టిక_అడ్డువరుసలు.ఖాళీలు()) {
+        puts("extern const VlIfaceRefTableEntry " + m_iface_Ref_పట్టిక_Name + "[] = {\n");
+        కొరకు (స్థిరరాశి std::string& అడ్డువరుస : m_iface_Ref_పట్టిక_అడ్డువరుసలు) {
             ofp()->putsNoTracking("    ");
-            ofp()->putsNoTracking(row);
+            ofp()->putsNoTracking(అడ్డువరుస);
             ofp()->putsNoTracking(",\n");
         }
         puts("};\n");
@@ -1282,223 +1282,223 @@ void EmitCSyms::emitVarTables() {
     puts("#endif\n");
 }
 
-void EmitCSyms::emitScopeHier(TextStmts& stmts, bool destroy) {
-    if (!v3Global.opt.vpi()) return;
+శూన్య EmitCSyms::emitScopeHier(పాఠ్యం_Stmts& stmts, తార్కిక destroy) {
+    ఒకవేళ (!v3Global.opt.vpi()) తిరిగి;
 
-    if (destroy) {
-        stmts.add("// Tear down scope hierarchy");
-    } else {
-        stmts.add("// Set up scope hierarchy");
+    ఒకవేళ (destroy) {
+        stmts.కూడు("// Tear down scope hierarchy");
+    } లేకపోతే {
+        stmts.కూడు("// Set up scope hierarchy");
     }
 
-    const std::string method = destroy ? "remove" : "add";
-    for (const auto& itpair : m_scopeNames) {
-        if (itpair.first == "TOP") continue;
-        const ScopeData& sd = itpair.second;
-        const std::string& name = sd.m_prettyName;
-        const std::string& scopeType = sd.m_type;
-        if (name.find('.') != string::npos) continue;
-        if (scopeType != "SCOPE_MODULE" && scopeType != "SCOPE_PACKAGE") continue;
-        const std::string id = "vlSymsp->" + protect("__Vscopep_" + sd.m_symName);
-        stmts.add("vlSymsp->__Vhier." + method + "(0, " + id + ");");
+    స్థిరరాశి std::string పద్ధతి = destroy ? "remove" : "add";
+    కొరకు (స్థిరరాశి స్వయంచాలక& itpair : m_scope_పేర్లు) {
+        ఒకవేళ (itpair.మొదటి == "TOP") కొనసాగు;
+        స్థిరరాశి Scope_దత్తాంశం& sd = itpair.రెండవ;
+        స్థిరరాశి std::string& name = sd.m_prettyName;
+        స్థిరరాశి std::string& scopeType = sd.m_type;
+        ఒకవేళ (name.కనుగొను('.') != string::npos) కొనసాగు;
+        ఒకవేళ (scopeType != "SCOPE_MODULE" && scopeType != "SCOPE_PACKAGE") కొనసాగు;
+        స్థిరరాశి std::string id = "vlSymsp->" + protect("__Vscopep_" + sd.m_symName);
+        stmts.కూడు("vlSymsp->__Vhier." + పద్ధతి + "(0, " + id + ");");
     }
-    for (const auto& itpair : m_vpiScopeHierarchy) {
-        const std::string fromName = scopeSymString(itpair.first);
-        const std::string fromId
-            = "vlSymsp->" + protect("__Vscopep_" + m_scopeNames.at(fromName).m_symName);
-        for (const std::string& name : itpair.second) {
-            const std::string toName = scopeSymString(name);
-            const std::string toId
-                = "vlSymsp->" + protect("__Vscopep_" + m_scopeNames.at(toName).m_symName);
-            stmts.add("vlSymsp->__Vhier." + method + "(" + fromId + ", " + toId + ");");
+    కొరకు (స్థిరరాశి స్వయంచాలక& itpair : m_vpiScopeHierarchy) {
+        స్థిరరాశి std::string fromName = scopeSymString(itpair.మొదటి);
+        స్థిరరాశి std::string fromId
+            = "vlSymsp->" + protect("__Vscopep_" + m_scope_పేర్లు.at(fromName).m_symName);
+        కొరకు (స్థిరరాశి std::string& name : itpair.రెండవ) {
+            స్థిరరాశి std::string గమ్యం_Name = scopeSymString(name);
+            స్థిరరాశి std::string గమ్యం_Id
+                = "vlSymsp->" + protect("__Vscopep_" + m_scope_పేర్లు.at(గమ్యం_Name).m_symName);
+            stmts.కూడు("vlSymsp->__Vhier." + పద్ధతి + "(" + fromId + ", " + గమ్యం_Id + ");");
         }
     }
 
-    if (destroy) {
-        stmts.add("// Clear keys from hierarchy map after values have been removed");
-        stmts.add("vlSymsp->__Vhier.clear();");
+    ఒకవేళ (destroy) {
+        stmts.కూడు("// Clear keys from hierarchy map after values have been removed");
+        stmts.కూడు("vlSymsp->__Vhier.clear();");
     }
 }
 
-EmitCSyms::TextStmts EmitCSyms::getSymCtorStmts() {
-    TextStmts stmts;
+EmitCSyms::పాఠ్యం_Stmts EmitCSyms::getSymCtorStmts() {
+    పాఠ్యం_Stmts stmts;
 
     {
-        uint64_t stackSize = V3StackCount::count(v3Global.rootp());
-        if (v3Global.opt.debugStackCheck()) stackSize += 1024 * 1024 * 1024;
-        V3Stats::addStat("Size prediction, Stack (bytes)", stackSize);
+        uint64_t దొంతర_కొలత = V3_దొంతర_లెక్క::లెక్క(v3Global.rootp());
+        ఒకవేళ (v3Global.opt.debug_దొంతర_Check()) దొంతర_కొలత += 1024 * 1024 * 1024;
+        V3Stats::కూడు_Stat("Size prediction, Stack (bytes)", దొంతర_కొలత);
         // TODO: 'm_statVarScopeBytes' is always 0, AstVarScope doesn't reach here (V3Descope)
-        V3Stats::addStat("Size prediction, Heap, from Var Scopes (bytes)", m_statVarScopeBytes);
-        V3Stats::addStat(V3Stats::STAT_MODEL_SIZE, stackSize + m_statVarScopeBytes);
+        V3Stats::కూడు_Stat("Size prediction, Heap, from Var Scopes (bytes)", m_stat_Var_Scope_బైట్లు);
+        V3Stats::కూడు_Stat(V3Stats::STAT_MODEL_కొలత, దొంతర_కొలత + m_stat_Var_Scope_బైట్లు);
 
-        stmts.add("// Check resources");
-        stmts.add("Verilated::stackCheck(" + std::to_string(stackSize) + ");");
+        stmts.కూడు("// Check resources");
+        stmts.కూడు("Verilated::stackCheck(" + std::గమ్యం_string(దొంతర_కొలత) + ");");
     }
 
-    stmts.add("// Setup sub module instances");
-    for (const ScopeModPair& itpair : m_scopes) {
-        const AstScope* const scopep = itpair.first;
-        const AstNodeModule* const modp = itpair.second;
-        if (modp->isTop()) continue;
-        const std::string name = V3OutFormatter::quoteNameControls(
-            VIdProtect::protectWordsIf(scopep->prettyName(), scopep->protect()));
-        stmts.add("VL_INPLACE_CONSTRUCT(vlSymsp->" + instName(scopep) + ", vlSymsp, \"" + name
+    stmts.కూడు("// Setup sub module instances");
+    కొరకు (స్థిరరాశి ScopeModPair& itpair : m_scopes) {
+        స్థిరరాశి AstScope* స్థిరరాశి scopep = itpair.మొదటి;
+        స్థిరరాశి Ast_కణుపు_Module* స్థిరరాశి modp = itpair.రెండవ;
+        ఒకవేళ (modp->is_శిఖరం()) కొనసాగు;
+        స్థిరరాశి std::string name = V3_బహిర్గతం_Formatter::quoteNameControls(
+            VIdProtect::protect_పదాలు_If(scopep->prettyName(), scopep->protect()));
+        stmts.కూడు("VL_INPLACE_CONSTRUCT(vlSymsp->" + instName(scopep) + ", vlSymsp, \"" + name
                   + "\");");
     }
 
-    if (v3Global.opt.profPgo()) {
-        stmts.add("// Configure profiling for PGO\n");
-        if (!v3Global.opt.hierChild()) {
-            stmts.add("vlSymsp->_vm_pgoProfiler.writeHeader("
+    ఒకవేళ (v3Global.opt.profPgo()) {
+        stmts.కూడు("// Configure profiling for PGO\n");
+        ఒకవేళ (!v3Global.opt.hier_బిడ్డ()) {
+            stmts.కూడు("vlSymsp->_vm_pgoProfiler.writeHeader("
                       "vlSymsp->_vm_contextp__->profVltFilename());");
         }
-        if (v3Global.opt.mtasks()) {
-            v3Global.rootp()->topModulep()->foreach([&](const AstExecGraph* execGraphp) {
-                for (const V3GraphVertex& vtx : execGraphp->depGraphp()->vertices()) {
-                    const ExecMTask& mt = static_cast<const ExecMTask&>(vtx);
-                    stmts.add("vlSymsp->_vm_pgoProfiler.addCounter(" + std::to_string(mt.id())
+        ఒకవేళ (v3Global.opt.mtasks()) {
+            v3Global.rootp()->శిఖరం_Modulep()->foreach([&](స్థిరరాశి Ast_Exec_లేఖాచిత్రం* execGraphp) {
+                కొరకు (స్థిరరాశి V3_లేఖాచిత్రం_శీర్షం& vtx : execGraphp->depGraphp()->vertices()) {
+                    స్థిరరాశి ExecMTask& mt = static_cast<స్థిరరాశి ExecMTask&>(vtx);
+                    stmts.కూడు("vlSymsp->_vm_pgoProfiler.addCounter(" + std::గమ్యం_string(mt.id())
                               + ", \"" + mt.hashName() + "\");");
                 }
             });
         }
     }
 
-    stmts.add("// Configure time unit / time precision");
-    if (!v3Global.rootp()->timeunit().isNone()) {
-        const std::string unit = std::to_string(v3Global.rootp()->timeunit().powerOfTen());
-        stmts.add("vlSymsp->_vm_contextp__->timeunit(" + unit + ");");
+    stmts.కూడు("// Configure time unit / time precision");
+    ఒకవేళ (!v3Global.rootp()->timeunit().isNone()) {
+        స్థిరరాశి std::string unit = std::గమ్యం_string(v3Global.rootp()->timeunit().power_యొక్క_Ten());
+        stmts.కూడు("vlSymsp->_vm_contextp__->timeunit(" + unit + ");");
     }
-    if (!v3Global.rootp()->timeprecision().isNone()) {
-        const std::string prec = std::to_string(v3Global.rootp()->timeprecision().powerOfTen());
-        stmts.add("vlSymsp->_vm_contextp__->timeprecision(" + prec + ");");
+    ఒకవేళ (!v3Global.rootp()->timeprecision().isNone()) {
+        స్థిరరాశి std::string prec = std::గమ్యం_string(v3Global.rootp()->timeprecision().power_యొక్క_Ten());
+        stmts.కూడు("vlSymsp->_vm_contextp__->timeprecision(" + prec + ");");
     }
 
-    stmts.add("// Setup each module's pointers to their submodules");
-    for (const auto& i : m_scopes) {
-        const AstScope* const scopep = i.first;
-        const AstNodeModule* const modp = i.second;
-        const AstScope* const abovep = scopep->aboveScopep();
-        if (!abovep) continue;
+    stmts.కూడు("// Setup each module's pointers to their submodules");
+    కొరకు (స్థిరరాశి స్వయంచాలక& i : m_scopes) {
+        స్థిరరాశి AstScope* స్థిరరాశి scopep = i.మొదటి;
+        స్థిరరాశి Ast_కణుపు_Module* స్థిరరాశి modp = i.రెండవ;
+        స్థిరరాశి AstScope* స్థిరరాశి abovep = scopep->aboveScopep();
+        ఒకవేళ (!abovep) కొనసాగు;
 
-        const std::string protName = VIdProtect::protectWordsIf(scopep->name(), scopep->protect());
+        స్థిరరాశి std::string protName = VIdProtect::protect_పదాలు_If(scopep->name(), scopep->protect());
         std::string stmt = "vlSymsp->";
-        if (VN_IS(modp, ClassPackage)) {
+        ఒకవేళ (VN_IS(modp, ClassPackage)) {
             // ClassPackage modules seem to be a bit out of place, so hard code...
             stmt += "vlInst.TOP";
-        } else {
+        } లేకపోతే {
             stmt += instName(abovep);
         }
         stmt += ".";
         stmt += protName.substr(protName.rfind('.') + 1);
         stmt += " = &vlSymsp->";
         stmt += instName(scopep) + ";";
-        stmts.add(stmt);
+        stmts.కూడు(stmt);
     }
 
-    if (v3Global.opt.coverage()) {
-        stmts.add("// Setup each module's pointer back to symbol table (for public functions)");
-        for (const ScopeModPair& i : m_scopes) {
-            const AstScope* const scopep = i.first;
-            AstNodeModule* const modp = i.second;
+    ఒకవేళ (v3Global.opt.coverage()) {
+        stmts.కూడు("// Setup each module's pointer back to symbol table (for public functions)");
+        కొరకు (స్థిరరాశి ScopeModPair& i : m_scopes) {
+            స్థిరరాశి AstScope* స్థిరరాశి scopep = i.మొదటి;
+            Ast_కణుపు_Module* స్థిరరాశి modp = i.రెండవ;
             // first is used by AstCoverDecl's call to __vlCoverInsert
-            const bool first = !modp->user1();
-            modp->user1(true);
-            stmts.add("vlSymsp->" + instName(scopep) + "." + protect("__Vconfigure") + "("
-                      + (first ? "true" : "false") + ");");
+            స్థిరరాశి తార్కిక మొదటి = !modp->user1();
+            modp->user1(నిజం);
+            stmts.కూడు("vlSymsp->" + instName(scopep) + "." + protect("__Vconfigure") + "("
+                      + (మొదటి ? "true" : "false") + ");");
         }
     }
 
     // Check the hash and create the library model of each Verilator library wrapper, as its
     // initial process would, but already at construction, so the library model exists before
     // the first evaluation
-    for (const ScopeModPair& i : m_scopes) {
-        const AstScope* const scopep = i.first;
-        const AstNodeModule* const modp = i.second;
-        if (!modp->verilatorLib()) continue;
-        const AstVar* hashp = nullptr;
-        const AstVar* handlep = nullptr;
-        for (const AstNode* nodep = modp->stmtsp(); nodep; nodep = nodep->nextp()) {
-            const AstVar* const varp = VN_CAST(nodep, Var);
-            if (!varp) continue;
-            if (varp->prettyName() == "protectlib_hash__V") hashp = varp;
-            if (varp->prettyName() == "handle__V") handlep = varp;
+    కొరకు (స్థిరరాశి ScopeModPair& i : m_scopes) {
+        స్థిరరాశి AstScope* స్థిరరాశి scopep = i.మొదటి;
+        స్థిరరాశి Ast_కణుపు_Module* స్థిరరాశి modp = i.రెండవ;
+        ఒకవేళ (!modp->verilatorLib()) కొనసాగు;
+        స్థిరరాశి AstVar* hashp = శూన్యసూచిక;
+        స్థిరరాశి AstVar* handlep = శూన్యసూచిక;
+        కొరకు (స్థిరరాశి Ast_కణుపు* nodep = modp->stmtsp(); nodep; nodep = nodep->nextp()) {
+            స్థిరరాశి AstVar* స్థిరరాశి varp = VN_CAST(nodep, Var);
+            ఒకవేళ (!varp) కొనసాగు;
+            ఒకవేళ (varp->prettyName() == "protectlib_hash__V") hashp = varp;
+            ఒకవేళ (varp->prettyName() == "handle__V") handlep = varp;
         }
         UASSERT_OBJ(hashp, modp, "Verilator library wrapper without 'protectlib_hash__V'");
         UASSERT_OBJ(handlep, modp, "Verilator library wrapper without 'handle__V'");
-        const uint32_t hash = VN_AS(hashp->valuep(), Const)->toUInt();
-        stmts.add(modp->origName() + "_protectlib_check_hash(static_cast<int>("
-                  + std::to_string(hash) + "U));");
+        స్థిరరాశి uint32_t hash = VN_AS(hashp->valuep(), Const)->గమ్యం_UInt();
+        stmts.కూడు(modp->origName() + "_protectlib_check_hash(static_cast<int>("
+                  + std::గమ్యం_string(hash) + "U));");
         // The library model is named after the %m of the instance, which in a --lib-create
         // library omits the top module (see V3Scope)
-        std::string path = scopep->prettyName();
-        if (!v3Global.opt.libCreate().empty()) {
-            path.erase(0, v3Global.rootp()->traceLibTopName().size() + 1);
+        std::string మార్గం = scopep->prettyName();
+        ఒకవేళ (!v3Global.opt.libCreate().ఖాళీలు()) {
+            మార్గం.erase(0, v3Global.rootp()->trace_Lib_శిఖరం_Name().కొలత() + 1);
         }
-        stmts.add("vlSymsp->" + instName(scopep) + "." + varName(handlep) + " = VL_CVT_VP_Q("
+        stmts.కూడు("vlSymsp->" + instName(scopep) + "." + varName(handlep) + " = VL_CVT_VP_Q("
                   + modp->origName()
                   + "_protectlib_create((std::string{vlSymsp->name()} + (vlSymsp->name()[0] ? "
                     "\".\" : \"\") + \""
-                  + V3OutFormatter::quoteNameControls(path) + "\").c_str()));");
+                  + V3_బహిర్గతం_Formatter::quoteNameControls(మార్గం) + "\").c_str()));");
     }
 
     // Every scope has the same construction shape, so all fold into one table with no
     // residual; offsetof bakes the target __Vscopep_* member address into each row.
-    if (!m_scopeNames.empty()) {
-        stmts.add("// Setup scopes");
-        const std::string symClass = symClassName();
-        for (const auto& itpair : m_scopeNames) {
-            const ScopeData& sd = itpair.second;
-            std::string row
+    ఒకవేళ (!m_scope_పేర్లు.ఖాళీలు()) {
+        stmts.కూడు("// Setup scopes");
+        స్థిరరాశి std::string symClass = symClassName();
+        కొరకు (స్థిరరాశి స్వయంచాలక& itpair : m_scope_పేర్లు) {
+            స్థిరరాశి Scope_దత్తాంశం& sd = itpair.రెండవ;
+            std::string అడ్డువరుస
                 = "{offsetof(" + symClass + ", " + protect("__Vscopep_" + sd.m_symName) + "), \"";
-            row += V3OutFormatter::quoteNameControls(
-                VIdProtect::protectWordsIf(sd.m_prettyName, true));
-            row += "\", \"";
-            row += V3OutFormatter::quoteNameControls(
+            అడ్డువరుస += V3_బహిర్గతం_Formatter::quoteNameControls(
+                VIdProtect::protect_పదాలు_If(sd.m_prettyName, నిజం));
+            అడ్డువరుస += "\", \"";
+            అడ్డువరుస += V3_బహిర్గతం_Formatter::quoteNameControls(
                 protect(scopeDecodeIdentifier(sd.m_prettyName)));
-            row += "\", \"";
-            row += V3OutFormatter::quoteNameControls(sd.m_defName);
-            row += "\", ";
-            row += std::to_string(sd.m_timeunit);
-            row += ", VerilatedScope::" + sd.m_type + "}";
-            m_scopeTableRows.emplace_back(std::move(row));
+            అడ్డువరుస += "\", \"";
+            అడ్డువరుస += V3_బహిర్గతం_Formatter::quoteNameControls(sd.m_defName);
+            అడ్డువరుస += "\", ";
+            అడ్డువరుస += std::గమ్యం_string(sd.m_timeunit);
+            అడ్డువరుస += ", VerilatedScope::" + sd.m_type + "}";
+            m_scope_పట్టిక_అడ్డువరుసలు.emplace_వెనుక(std::move(అడ్డువరుస));
         }
-        m_scopeTableName = symClass + "__VpiScopeTable";
-        stmts.add("VerilatedScope::scopesConstructFromTable(" + m_scopeTableName + ", "
-                  + std::to_string(m_scopeNames.size()) + ", vlSymsp);");
+        m_scope_పట్టిక_Name = symClass + "__VpiScopeTable";
+        stmts.కూడు("VerilatedScope::scopesConstructFromTable(" + m_scope_పట్టిక_Name + ", "
+                  + std::గమ్యం_string(m_scope_పేర్లు.కొలత()) + ", vlSymsp);");
     }
 
     // After the scopes above, as each row points at an already-built VerilatedScope
-    buildIfaceRefTable();
-    if (!m_ifaceRefTableRows.empty()) {
-        stmts.add("// Setup interface references");
-        stmts.add("VerilatedScope::ifaceRefsInsertFromTable(" + m_ifaceRefTableName + ", "
-                  + std::to_string(m_ifaceRefTableRows.size()) + ", vlSymsp);");
+    build_Iface_Ref_పట్టిక();
+    ఒకవేళ (!m_iface_Ref_పట్టిక_అడ్డువరుసలు.ఖాళీలు()) {
+        stmts.కూడు("// Setup interface references");
+        stmts.కూడు("VerilatedScope::ifaceRefsInsertFromTable(" + m_iface_Ref_పట్టిక_Name + ", "
+                  + std::గమ్యం_string(m_iface_Ref_పట్టిక_అడ్డువరుసలు.కొలత()) + ", vlSymsp);");
     }
 
-    emitScopeHier(stmts, false);
+    emitScopeHier(stmts, అబద్ధం);
 
-    if (v3Global.dpi()) {
-        for (const std::string vfinal : {"0", "1"}) {
-            stmts.add("// Setup export functions - final: " + vfinal);
-            for (const auto& itpair : m_scopeFuncs) {
-                const ScopeFuncData& sfd = itpair.second;
-                const AstScopeName* const scopep = sfd.m_scopep;
-                const AstCFunc* const funcp = sfd.m_cfuncp;
-                const AstNodeModule* const modp = sfd.m_modp;
-                if (!funcp->dpiExportImpl()) continue;
+    ఒకవేళ (v3Global.dpi()) {
+        కొరకు (స్థిరరాశి std::string vfinal : {"0", "1"}) {
+            stmts.కూడు("// Setup export functions - final: " + vfinal);
+            కొరకు (స్థిరరాశి స్వయంచాలక& itpair : m_scopeFuncs) {
+                స్థిరరాశి Scope_Func_దత్తాంశం& sfd = itpair.రెండవ;
+                స్థిరరాశి AstScopeName* స్థిరరాశి scopep = sfd.m_scopep;
+                స్థిరరాశి AstCFunc* స్థిరరాశి funcp = sfd.m_cfuncp;
+                స్థిరరాశి Ast_కణుపు_Module* స్థిరరాశి modp = sfd.m_modp;
+                ఒకవేళ (!funcp->dpiExportImpl()) కొనసాగు;
 
                 std::string stmt;
                 stmt += "vlSymsp->" + protect("__Vscopep_" + scopep->scopeSymName())
                         + "->exportInsert(";
                 stmt += vfinal + ", \"";
                 // Not protected - user asked for import/export
-                stmt += V3OutFormatter::quoteNameControls(funcp->cname());
+                stmt += V3_బహిర్గతం_Formatter::quoteNameControls(funcp->cname());
                 stmt += "\", (void*)(&";
-                stmt += EmitCUtil::prefixNameProtect(modp);
+                stmt += EmitCUtil::ఉపసర్గ_Name_Protect(modp);
                 stmt += "__";
                 stmt += funcp->nameProtect();
                 stmt += "));";
-                stmts.add(stmt);
+                stmts.కూడు(stmt);
             }
         }
     }
@@ -1507,175 +1507,175 @@ EmitCSyms::TextStmts EmitCSyms::getSymCtorStmts() {
     // contiguous. Tables are deduplicated by row content, not by scope, so
     // distinct scopes mapping to the same C++ class (e.g. --public-flat-rw)
     // still share a table when their rows are identical.
-    if (!m_scopeVars.empty()) {
-        stmts.add("// Setup public variables");
+    ఒకవేళ (!m_scopeVars.ఖాళీలు()) {
+        stmts.కూడు("// Setup public variables");
         // Keyed by '\0'-joined row text so identical rows share one table.
-        std::unordered_map<std::string, std::string> tableByRows;
-        int tableCounter = 0;
+        std::unordered_map<std::string, std::string> పట్టిక_By_అడ్డువరుసలు;
+        పూర్ణాంకం పట్టిక_Counter = 0;
 
-        auto it = m_scopeVars.cbegin();
-        while (it != m_scopeVars.cend()) {
-            const std::string scopeName = it->second.m_scopeName;
-            const AstScope* const instScopep = it->second.m_scopep;
-            const AstNodeModule* const modp = it->second.m_modp;
-            const std::string modClassName = EmitCUtil::prefixNameProtect(modp);
+        స్వయంచాలక it = m_scopeVars.cbegin();
+        అయితే (it != m_scopeVars.cend()) {
+            స్థిరరాశి std::string scopeName = it->రెండవ.m_scopeName;
+            స్థిరరాశి AstScope* స్థిరరాశి instScopep = it->రెండవ.m_scopep;
+            స్థిరరాశి Ast_కణుపు_Module* స్థిరరాశి modp = it->రెండవ.m_modp;
+            స్థిరరాశి std::string modClassName = EmitCUtil::ఉపసర్గ_Name_Protect(modp);
 
-            std::vector<std::string> rows;
-            std::vector<std::string> residual;
+            std::సదిశ<std::string> అడ్డువరుసలు;
+            std::సదిశ<std::string> residual;
 
-            for (; it != m_scopeVars.cend() && it->second.m_scopeName == scopeName; ++it) {
-                const ScopeVarData& svd = it->second;
-                const AstScope* const scopep = svd.m_scopep;
+            కొరకు (; it != m_scopeVars.cend() && it->రెండవ.m_scopeName == scopeName; ++it) {
+                స్థిరరాశి Scope_Var_దత్తాంశం& svd = it->రెండవ;
+                స్థిరరాశి AstScope* స్థిరరాశి scopep = svd.m_scopep;
                 UASSERT(scopep == instScopep && svd.m_modp == modp,
                         "VPI scope '" << scopeName << "' spans multiple C++ instances");
-                const AstVar* const varp = svd.m_varp;
-                const VarDims dims = dimsFor(svd);
+                స్థిరరాశి AstVar* స్థిరరాశి varp = svd.m_varp;
+                స్థిరరాశి VarDims dims = dimsFor(svd);
 
                 // Force-control signals fold into the base signal's forceable insert.
-                const std::pair<bool, std::string> fc = isForceControlSignal(varp);
-                if (fc.first && baseSignalIsPublic(scopep, fc.second)
-                    && baseSignalIsValid(scopep, varp, fc.second)) {
-                    continue;
+                స్థిరరాశి std::pair<తార్కిక, std::string> fc = isForceControlSignal(varp);
+                ఒకవేళ (fc.మొదటి && పునాది_Signal_Is_ప్రజా(scopep, fc.రెండవ)
+                    && పునాది_Signal_Is_Valid(scopep, varp, fc.రెండవ)) {
+                    కొనసాగు;
                 }
 
-                std::string row;
-                const TableEntryKind kind
-                    = tryBuildTableEntry(svd, varp, scopep, modClassName, dims, row);
-                switch (kind) {
-                case TableEntryKind::TABLE_ROW:
-                    rows.emplace_back(row);
-                    addPackedAggMemberVars(residual, svd, scopep, svd.m_varBasePretty,
+                std::string అడ్డువరుస;
+                స్థిరరాశి పట్టిక_నమోదు_రకం రకం
+                    = try_Build_పట్టిక_నమోదు(svd, varp, scopep, modClassName, dims, అడ్డువరుస);
+                ఎంపిక (రకం) {
+                స్థితి పట్టిక_నమోదు_రకం::పట్టిక_అడ్డువరుస:
+                    అడ్డువరుసలు.emplace_వెనుక(అడ్డువరుస);
+                    కూడు_Packed_Agg_Member_Vars(residual, svd, scopep, svd.m_var_పునాది_Pretty,
                                            varName(varp), varp->dtypep());
-                    break;
-                case TableEntryKind::FORCEABLE_RESIDUAL: {
-                    const std::string bounds = boundsString(dims);
-                    residual.emplace_back(insertForceableVarStatement(svd, scopep, varp, dims.udim,
+                    ఆపు;
+                స్థితి పట్టిక_నమోదు_రకం::FORCEABLE_RESIDUAL: {
+                    స్థిరరాశి std::string bounds = boundsString(dims);
+                    residual.emplace_వెనుక(చొప్పించు_Forceable_Var_Statement(svd, scopep, varp, dims.udim,
                                                                       dims.pdim, bounds)
                                           + ";");
-                    break;
+                    ఆపు;
                 }
-                case TableEntryKind::PLAIN_RESIDUAL: {
-                    const std::string bounds = boundsString(dims);
-                    residual.emplace_back(
-                        insertVarStatement(svd, scopep, varp, dims.udim, dims.pdim, bounds) + ";");
-                    break;
+                స్థితి పట్టిక_నమోదు_రకం::PLAIN_RESIDUAL: {
+                    స్థిరరాశి std::string bounds = boundsString(dims);
+                    residual.emplace_వెనుక(
+                        చొప్పించు_Var_Statement(svd, scopep, varp, dims.udim, dims.pdim, bounds) + ";");
+                    ఆపు;
                 }
-                default: v3fatalSrc("Bad case");
+                అప్రమేయ: v3fatalSrc("Bad case");
                 }
-                if (kind == TableEntryKind::TABLE_ROW) continue;
-                if (const AstNodeUOrStructDType* const sdtypep
-                    = VN_CAST(varp->dtypeSkipRefp(), NodeUOrStructDType)) {
-                    if (!sdtypep->packed()) {
-                        addUOrStructMemberVars(residual, svd, scopep, svd.m_varBasePretty,
+                ఒకవేళ (రకం == పట్టిక_నమోదు_రకం::పట్టిక_అడ్డువరుస) కొనసాగు;
+                ఒకవేళ (స్థిరరాశి Ast_కణుపు_UOr_Struct_DType* స్థిరరాశి sdtypep
+                    = VN_CAST(varp->dtypeSkipRefp(), కణుపు_UOr_Struct_DType)) {
+                    ఒకవేళ (!sdtypep->packed()) {
+                        కూడు_UOr_Struct_Member_Vars(residual, svd, scopep, svd.m_var_పునాది_Pretty,
                                                varName(varp), sdtypep);
                     }
-                } else if (VN_IS(varp->dtypeSkipRefp(), UnpackArrayDType)) {
-                    addUnpackedArrayUOrStructMemberVars(residual, svd, scopep, svd.m_varBasePretty,
+                } లేకపోతే ఒకవేళ (VN_IS(varp->dtypeSkipRefp(), UnpackArrayDType)) {
+                    కూడు_Unpacked_Array_UOr_Struct_Member_Vars(residual, svd, scopep, svd.m_var_పునాది_Pretty,
                                                         varName(varp), varp->dtypep());
                 }
-                if (kind == TableEntryKind::PLAIN_RESIDUAL) {
-                    addPackedAggMemberVars(residual, svd, scopep, svd.m_varBasePretty,
+                ఒకవేళ (రకం == పట్టిక_నమోదు_రకం::PLAIN_RESIDUAL) {
+                    కూడు_Packed_Agg_Member_Vars(residual, svd, scopep, svd.m_var_పునాది_Pretty,
                                            varName(varp), varp->dtypep());
                 }
             }
 
-            if (!rows.empty()) {
-                const size_t rowCount = rows.size();
-                std::string key;
-                for (const std::string& r : rows) {
-                    key += r;
-                    key += '\0';
+            ఒకవేళ (!అడ్డువరుసలు.ఖాళీలు()) {
+                స్థిరరాశి కొలత_t అడ్డువరుస_లెక్క = అడ్డువరుసలు.కొలత();
+                std::string కీలకం;
+                కొరకు (స్థిరరాశి std::string& r : అడ్డువరుసలు) {
+                    కీలకం += r;
+                    కీలకం += '\0';
                 }
-                const auto itt = tableByRows.find(key);
-                std::string tableName;
-                if (itt != tableByRows.end()) {
-                    tableName = itt->second;
-                } else {
-                    tableName = modClassName + "__VpiVarTable" + std::to_string(tableCounter++);
-                    tableByRows.emplace(std::move(key), tableName);
-                    m_varTables.emplace_back(tableName, std::move(rows));
+                స్థిరరాశి స్వయంచాలక itt = పట్టిక_By_అడ్డువరుసలు.కనుగొను(కీలకం);
+                std::string పట్టిక_Name;
+                ఒకవేళ (itt != పట్టిక_By_అడ్డువరుసలు.చివర()) {
+                    పట్టిక_Name = itt->రెండవ;
+                } లేకపోతే {
+                    పట్టిక_Name = modClassName + "__VpiVarTable" + std::గమ్యం_string(పట్టిక_Counter++);
+                    పట్టిక_By_అడ్డువరుసలు.emplace(std::move(కీలకం), పట్టిక_Name);
+                    m_varTables.emplace_వెనుక(పట్టిక_Name, std::move(అడ్డువరుసలు));
                 }
 
                 std::string call = "vlSymsp->" + protect("__Vscopep_" + scopeName)
-                                   + "->varsInsertFromTable(" + tableName + ", "
-                                   + std::to_string(rowCount) + ", &(vlSymsp->"
+                                   + "->varsInsertFromTable(" + పట్టిక_Name + ", "
+                                   + std::గమ్యం_string(అడ్డువరుస_లెక్క) + ", &(vlSymsp->"
                                    + instName(instScopep) + "));";
-                stmts.add(call);
+                stmts.కూడు(call);
             }
-            for (const std::string& r : residual) stmts.add(r);
+            కొరకు (స్థిరరాశి std::string& r : residual) stmts.కూడు(r);
         }
     }
 
-    return stmts;
+    తిరిగి stmts;
 }
 
-EmitCSyms::TextStmts EmitCSyms::getSymDtorStmts() {
-    TextStmts stmts;
+EmitCSyms::పాఠ్యం_Stmts EmitCSyms::getSymDtorStmts() {
+    పాఠ్యం_Stmts stmts;
 
-    emitScopeHier(stmts, true);
-    if (v3Global.needTraceDumper()) {
-        stmts.add("if (vlSymsp->__Vm_dumping) vlSymsp->_traceDumpClose();");
+    emitScopeHier(stmts, నిజం);
+    ఒకవేళ (v3Global.needTraceDumper()) {
+        stmts.కూడు("if (vlSymsp->__Vm_dumping) vlSymsp->_traceDumpClose();");
     }
-    if (v3Global.opt.profPgo()) {
-        stmts.add("vlSymsp->_vm_pgoProfiler.write(\"" + topClassName()
+    ఒకవేళ (v3Global.opt.profPgo()) {
+        stmts.కూడు("vlSymsp->_vm_pgoProfiler.write(\"" + శిఖరం_Class_Name()
                   + "\", vlSymsp->_vm_contextp__->profVltFilename());");
     }
     // Before the scopes below, as each row names a scope being torn down
-    if (!m_ifaceRefTableRows.empty()) {
-        stmts.add("// Tear down interface references");
-        stmts.add("VerilatedScope::ifaceRefsEraseFromTable(" + m_ifaceRefTableName + ", "
-                  + std::to_string(m_ifaceRefTableRows.size()) + ", vlSymsp);");
+    ఒకవేళ (!m_iface_Ref_పట్టిక_అడ్డువరుసలు.ఖాళీలు()) {
+        stmts.కూడు("// Tear down interface references");
+        stmts.కూడు("VerilatedScope::ifaceRefsEraseFromTable(" + m_iface_Ref_పట్టిక_Name + ", "
+                  + std::గమ్యం_string(m_iface_Ref_పట్టిక_అడ్డువరుసలు.కొలత()) + ", vlSymsp);");
     }
 
-    stmts.add("// Tear down scopes");
-    for (const auto& itpair : m_scopeNames) {
-        const ScopeData& sd = itpair.second;
-        const std::string id = "vlSymsp->" + protect("__Vscopep_" + sd.m_symName);
-        stmts.add("VL_DO_CLEAR(delete " + id + ", " + id + " = nullptr);");
+    stmts.కూడు("// Tear down scopes");
+    కొరకు (స్థిరరాశి స్వయంచాలక& itpair : m_scope_పేర్లు) {
+        స్థిరరాశి Scope_దత్తాంశం& sd = itpair.రెండవ;
+        స్థిరరాశి std::string id = "vlSymsp->" + protect("__Vscopep_" + sd.m_symName);
+        stmts.కూడు("VL_DO_CLEAR(delete " + id + ", " + id + " = nullptr);");
     }
 
-    stmts.add("// Tear down sub module instances");
-    for (const ScopeModPair& itpair : vlstd::reverse_view(m_scopes)) {
-        const AstScope* const scopep = itpair.first;
-        const AstNodeModule* const modp = itpair.second;
-        if (modp->isTop()) continue;
-        stmts.add("VL_INPLACE_DESTRUCT(vlSymsp->" + instName(scopep) + ");");
+    stmts.కూడు("// Tear down sub module instances");
+    కొరకు (స్థిరరాశి ScopeModPair& itpair : vlstd::తిరగేయి_view(m_scopes)) {
+        స్థిరరాశి AstScope* స్థిరరాశి scopep = itpair.మొదటి;
+        స్థిరరాశి Ast_కణుపు_Module* స్థిరరాశి modp = itpair.రెండవ;
+        ఒకవేళ (modp->is_శిఖరం()) కొనసాగు;
+        stmts.కూడు("VL_INPLACE_DESTRUCT(vlSymsp->" + instName(scopep) + ");");
     }
-    return stmts;
+    తిరిగి stmts;
 }
 
-void EmitCSyms::emitSymImp(const AstNetlist* netlistp) {
+శూన్య EmitCSyms::emitSymImp(స్థిరరాశి AstNetlist* netlistp) {
     UINFO(6, __FUNCTION__ << ": ");
 
     // Get the body of the constructor and destructor
-    TextStmts ctorStmts = getSymCtorStmts();
-    TextStmts dtorStmts = getSymDtorStmts();
+    పాఠ్యం_Stmts ctorStmts = getSymCtorStmts();
+    పాఠ్యం_Stmts dtorStmts = getSymDtorStmts();
 
     // Split into sub-functions if needed
-    const std::pair<std::string, std::string> splitCtorDtorDecls  //
-        = emitSplitCtorDtor(ctorStmts, dtorStmts,
+    స్థిరరాశి std::pair<std::string, std::string> విభజించు_Ctor_Dtor_Decls  //
+        = emit_విభజించు_Ctor_Dtor(ctorStmts, dtorStmts,
                             // Base cost 200 to consider other contents in main file.
                             200, symClassName(), symClassName() + "* vlSymsp", "vlSymsp",  //
-                            true, "Symbol table implementation internals",
-                            [this]() { emitSymImpPreamble(); });
+                            నిజం, "Symbol table implementation internals",
+                            [ఇది]() { emitSymImpPreamble(); });
 
-    openNewOutputSourceFile(symClassName(), true, true, "Symbol table implementation internals");
+    open_New_Output_ఆధారం_File(symClassName(), నిజం, నిజం, "Symbol table implementation internals");
     emitSymImpPreamble();
     emitVarTables();
 
-    const AstScope* const topScopep = netlistp->topScopep()->scopep();
-    const std::string topInst = "vlSymsp->" + instName(topScopep);
+    స్థిరరాశి AstScope* స్థిరరాశి శిఖరం_Scopep = netlistp->శిఖరం_Scopep()->scopep();
+    స్థిరరాశి std::string శిఖరం_Inst = "vlSymsp->" + instName(శిఖరం_Scopep);
 
     // Constructor contents, in a loose function, so all statements access the members through
     // 'vlSymsp', as they do when split into sub-functions
-    if (!splitCtorDtorDecls.first.empty()) puts("\n" + splitCtorDtorDecls.first + "\n");
+    ఒకవేళ (!విభజించు_Ctor_Dtor_Decls.మొదటి.ఖాళీలు()) puts("\n" + విభజించు_Ctor_Dtor_Decls.మొదటి + "\n");
     puts("\nvoid " + symClassName() + "__ctor(" + symClassName()
          + "* vlSymsp, const char* namep) {\n");
     puts("// Setup top module instance\n");
-    puts("VL_INPLACE_CONSTRUCT(" + topInst + ", vlSymsp, namep);\n");
-    for (const TextStmts::Stmt& stmt : ctorStmts) {
+    puts("VL_INPLACE_CONSTRUCT(" + శిఖరం_Inst + ", vlSymsp, namep);\n");
+    కొరకు (స్థిరరాశి పాఠ్యం_Stmts::Stmt& stmt : ctorStmts) {
         ofp()->putsNoTracking("    ");
-        ofp()->putsNoTracking(stmt.m_text);
+        ofp()->putsNoTracking(stmt.m_పాఠ్యం);
         ofp()->putsNoTracking("\n");
     }
     puts("}\n");
@@ -1683,36 +1683,36 @@ void EmitCSyms::emitSymImp(const AstNetlist* netlistp) {
     // Constructor
     puts("\n");
     puts(symClassName() + "::" + symClassName()
-         + "(VerilatedContext* contextp, const char* namep, " + topClassName() + "* modelp)\n");
+         + "(VerilatedContext* contextp, const char* namep, " + శిఖరం_Class_Name() + "* modelp)\n");
     puts("    : VerilatedSyms{contextp}\n");
     puts("    // Setup internal state of the Syms class\n");
     puts("    , __Vm_modelp{modelp}\n");
     puts("    , __Vm_didInit{modelp->m_didInit}\n");
-    if (v3Global.opt.mtasks()) {
+    ఒకవేళ (v3Global.opt.mtasks()) {
         puts("    , __Vm_threadPoolp{static_cast<VlThreadPool*>(contextp->threadPoolp("
              "modelp->threads()))}\n");
     }
-    if (v3Global.opt.profExec()) {
+    ఒకవేళ (v3Global.opt.profExec()) {
         puts("    , __Vm_executionProfilerp{static_cast<VlExecutionProfiler*>(contextp->"
              "enableExecutionProfiler(&VlExecutionProfiler::construct))}\n");
     }
-    if (v3Global.opt.profPgo() && !v3Global.opt.libCreate().empty()) {
-        puts("    , _vm_pgoProfiler{" + std::to_string(v3Global.currentHierBlockCost()) + "}\n");
+    ఒకవేళ (v3Global.opt.profPgo() && !v3Global.opt.libCreate().ఖాళీలు()) {
+        puts("    , _vm_pgoProfiler{" + std::గమ్యం_string(v3Global.current_Hier_ఖండం_ఖర్చు()) + "}\n");
     }
     puts("{\n");
     puts(symClassName() + "__ctor(this, namep);\n");
     puts("}\n");
 
     // Destructor contents, in a loose function, see constructor
-    if (!splitCtorDtorDecls.second.empty()) puts("\n" + splitCtorDtorDecls.second + "\n");
+    ఒకవేళ (!విభజించు_Ctor_Dtor_Decls.రెండవ.ఖాళీలు()) puts("\n" + విభజించు_Ctor_Dtor_Decls.రెండవ + "\n");
     puts("\nvoid " + symClassName() + "__dtor(" + symClassName() + "* vlSymsp) {\n");
-    for (const TextStmts::Stmt& stmt : dtorStmts) {
+    కొరకు (స్థిరరాశి పాఠ్యం_Stmts::Stmt& stmt : dtorStmts) {
         ofp()->putsNoTracking("    ");
-        ofp()->putsNoTracking(stmt.m_text);
+        ofp()->putsNoTracking(stmt.m_పాఠ్యం);
         ofp()->putsNoTracking("\n");
     }
     puts("// Tear down top module instance\n");
-    puts("VL_INPLACE_DESTRUCT(" + topInst + ");\n");
+    puts("VL_INPLACE_DESTRUCT(" + శిఖరం_Inst + ");\n");
     puts("}\n");
 
     // Destructor
@@ -1722,8 +1722,8 @@ void EmitCSyms::emitSymImp(const AstNetlist* netlistp) {
     puts("}\n");
 
     // Methods
-    if (v3Global.needTraceDumper()) {
-        if (!optSystemC()) {
+    ఒకవేళ (v3Global.needTraceDumper()) {
+        ఒకవేళ (!optSystemC()) {
             puts("\nvoid " + symClassName() + "::_traceDump() {\n");
             puts("const VerilatedLockGuard lock{__Vm_dumperMutex};\n");
             // Caller checked for __Vm_dumperp non-nullptr
@@ -1749,18 +1749,18 @@ void EmitCSyms::emitSymImp(const AstNetlist* netlistp) {
         puts("}\n");
     }
 
-    if (v3Global.opt.savable()) {
-        for (const bool& de : {false, true}) {
-            const std::string classname = de ? "VerilatedDeserialize" : "VerilatedSerialize";
-            const std::string funcname = protect(de ? "__Vdeserialize" : "__Vserialize");
-            const std::string op = de ? ">>" : "<<";
+    ఒకవేళ (v3Global.opt.savable()) {
+        కొరకు (స్థిరరాశి తార్కిక& de : {అబద్ధం, నిజం}) {
+            స్థిరరాశి std::string classname = de ? "VerilatedDeserialize" : "VerilatedSerialize";
+            స్థిరరాశి std::string funcname = protect(de ? "__Vdeserialize" : "__Vserialize");
+            స్థిరరాశి std::string op = de ? ">>" : "<<";
             puts("\nvoid " + symClassName() + "::" + funcname + "(" + classname + "& os) {\n");
             puts("// Internal state\n");
-            if (v3Global.opt.trace()) puts("os" + op + "__Vm_activity;\n");
+            ఒకవేళ (v3Global.opt.trace()) puts("os" + op + "__Vm_activity;\n");
             puts("os " + op + " __Vm_didInit;\n");
             puts("// Module instance state\n");
-            for (const ScopeModPair& itpair : m_scopes) {
-                const AstScope* const scopep = itpair.first;
+            కొరకు (స్థిరరాశి ScopeModPair& itpair : m_scopes) {
+                స్థిరరాశి AstScope* స్థిరరాశి scopep = itpair.మొదటి;
                 puts(instName(scopep) + "." + funcname + "(os);\n");
             }
             puts("}\n");
@@ -1772,10 +1772,10 @@ void EmitCSyms::emitSymImp(const AstNetlist* netlistp) {
 
 //######################################################################
 
-void EmitCSyms::emitDpiHdr() {
+శూన్య EmitCSyms::emitDpiHdr() {
     UINFO(6, __FUNCTION__ << ": ");
 
-    openNewOutputHeaderFile(topClassName() + "__Dpi",
+    open_New_Output_శీర్షిక_File(శిఖరం_Class_Name() + "__Dpi",
                             "Prototypes for DPI import and export functions.");
     puts("//\n");
     puts("// Verilator includes this file in all generated .cpp files that use DPI functions.\n");
@@ -1789,39 +1789,39 @@ void EmitCSyms::emitDpiHdr() {
     puts("\n");
 
     // Unpacked structures passed as C structures (IEEE 1800-2023 H.7.8)
-    std::set<std::string> structNames;
-    for (const AstCFunc* const nodep : m_dpis) {
-        for (const AstNode* argp = nodep->argsp(); argp; argp = argp->nextp()) {
-            if (const AstVar* const portp = VN_CAST(argp, Var)) {
-                emitDpiStruct(portp->dtypep(), structNames);
+    std::సమితి<std::string> struct_పేర్లు;
+    కొరకు (స్థిరరాశి AstCFunc* స్థిరరాశి nodep : m_dpis) {
+        కొరకు (స్థిరరాశి Ast_కణుపు* argp = nodep->argsp(); argp; argp = argp->nextp()) {
+            ఒకవేళ (స్థిరరాశి AstVar* స్థిరరాశి portp = VN_CAST(argp, Var)) {
+                emitDpiStruct(portp->dtypep(), struct_పేర్లు);
             }
         }
     }
-    if (!structNames.empty()) puts("\n");
+    ఒకవేళ (!struct_పేర్లు.ఖాళీలు()) puts("\n");
 
     puts("#ifdef __cplusplus\n");
     puts("extern \"C\" {\n");
     puts("#endif\n");
     puts("\n");
 
-    int firstExp = 0;
-    int firstImp = 0;
-    for (const AstCFunc* const nodep : m_dpis) {
-        if (!nodep->dpiExportDispatcher() && !nodep->dpiImportPrototype()) continue;
+    పూర్ణాంకం మొదటి_Exp = 0;
+    పూర్ణాంకం మొదటి_Imp = 0;
+    కొరకు (స్థిరరాశి AstCFunc* స్థిరరాశి nodep : m_dpis) {
+        ఒకవేళ (!nodep->dpiExportDispatcher() && !nodep->dpiImportPrototype()) కొనసాగు;
 
-        const std::string sourceLoc = VIdProtect::ifNoProtect(" at " + nodep->fileline()->ascii());
-        if (nodep->dpiExportDispatcher()) {
-            if (!firstExp++) puts("\n// DPI EXPORTS\n");
-            putsDecoration(nodep, "// DPI export" + sourceLoc + "\n");
-        } else {
-            if (!firstImp++) puts("\n// DPI IMPORTS\n");
-            putsDecoration(nodep, "// DPI import" + sourceLoc + "\n");
+        స్థిరరాశి std::string ఆధారం_Loc = VIdProtect::ifNoProtect(" at " + nodep->fileline()->ascii());
+        ఒకవేళ (nodep->dpiExportDispatcher()) {
+            ఒకవేళ (!మొదటి_Exp++) puts("\n// DPI EXPORTS\n");
+            putsDecoration(nodep, "// DPI export" + ఆధారం_Loc + "\n");
+        } లేకపోతే {
+            ఒకవేళ (!మొదటి_Imp++) puts("\n// DPI IMPORTS\n");
+            putsDecoration(nodep, "// DPI import" + ఆధారం_Loc + "\n");
         }
-        if (nodep->dpiCDeclOverride()) {
+        ఒకవేళ (nodep->dpiCDeclOverride()) {
             putns(nodep, "extern " + nodep->dpiCDecl() + ";\n");
-        } else {
+        } లేకపోతే {
             putns(nodep, "extern " + nodep->rtnTypeVoid() + " " + nodep->nameProtect() + "("
-                             + cFuncArgs(nodep, false) + ");\n");
+                             + c_Func_వాదనలు(nodep, అబద్ధం) + ");\n");
         }
     }
 
@@ -1830,25 +1830,25 @@ void EmitCSyms::emitDpiHdr() {
     puts("}\n");
     puts("#endif\n");
 
-    ofp()->putsEndGuard();
+    ofp()->puts_చివర_Guard();
 
     closeOutputFile();
 }
 
-void EmitCSyms::emitDpiStruct(const AstNodeDType* dtypep, std::set<std::string>& namesr) {
-    if (!dtypep->containsUnpackedStruct()) return;
-    const AstStructDType* const sdtypep = VN_AS(dtypep->elemDTypep(), StructDType);
-    const std::string name = sdtypep->dpiName();
+శూన్య EmitCSyms::emitDpiStruct(స్థిరరాశి Ast_కణుపు_DType* dtypep, std::సమితి<std::string>& namesr) {
+    ఒకవేళ (!dtypep->కలిగియుంది_Unpacked_Struct()) తిరిగి;
+    స్థిరరాశి AstStructDType* స్థిరరాశి sdtypep = VN_AS(dtypep->elemDTypep(), StructDType);
+    స్థిరరాశి std::string name = sdtypep->dpiName();
     // Once per name, as V3Task checked structures of the same name are the same
-    if (namesr.count(name)) return;
+    ఒకవేళ (namesr.లెక్క(name)) తిరిగి;
     // After the structures it contains
-    for (const AstMemberDType* itemp = sdtypep->membersp(); itemp;
+    కొరకు (స్థిరరాశి AstMemberDType* itemp = sdtypep->membersp(); itemp;
          itemp = VN_AS(itemp->nextp(), MemberDType)) {
         emitDpiStruct(itemp->subDTypep(), namesr);
     }
-    if (name.empty()) return;  // Declared where used
-    if (namesr.empty()) puts("// DPI TYPES\n");
-    namesr.insert(name);
+    ఒకవేళ (name.ఖాళీలు()) తిరిగి;  // Declared where used
+    ఒకవేళ (namesr.ఖాళీలు()) puts("// DPI TYPES\n");
+    namesr.చొప్పించు(name);
     // Guarded, so the user, or another model, may declare it instead
     puts("#ifndef VL_DPITYPE_" + name + "_\n");
     puts("#define VL_DPITYPE_" + name + "_\n");
@@ -1858,9 +1858,9 @@ void EmitCSyms::emitDpiStruct(const AstNodeDType* dtypep, std::set<std::string>&
 
 //######################################################################
 
-void EmitCSyms::emitDpiImp() {
+శూన్య EmitCSyms::emitDpiImp() {
     UINFO(6, __FUNCTION__ << ": ");
-    openNewOutputSourceFile(topClassName() + "__Dpi", false, true,
+    open_New_Output_ఆధారం_File(శిఖరం_Class_Name() + "__Dpi", అబద్ధం, నిజం,
                             "Implementation of DPI export functions");
     puts("//\n");
     puts("// Verilator compiles this file in when DPI functions are used.\n");
@@ -1868,32 +1868,32 @@ void EmitCSyms::emitDpiImp() {
     puts("// function names, you will get multiple definition link errors from here.\n");
     puts("// This is an unfortunate result of the DPI specification.\n");
     puts("// To solve this, either\n");
-    puts("//    1. Call " + topClassName() + "::{export_function} instead,\n");
+    puts("//    1. Call " + శిఖరం_Class_Name() + "::{export_function} instead,\n");
     puts("//       and do not even bother to compile this file\n");
     puts("// or 2. Compile all __Dpi.cpp files in the same compiler run,\n");
     puts("//       and #ifdefs already inserted here will sort everything out.\n");
     puts("\n");
 
-    puts("#include \"" + topClassName() + "__Dpi.h\"\n");
-    puts("#include \"" + topClassName() + ".h\"\n");
+    puts("#include \"" + శిఖరం_Class_Name() + "__Dpi.h\"\n");
+    puts("#include \"" + శిఖరం_Class_Name() + ".h\"\n");
     puts("\n");
 
-    for (const AstCFunc* const nodep : m_dpis) {
-        if (!nodep->dpiExportDispatcher()) continue;
+    కొరకు (స్థిరరాశి AstCFunc* స్థిరరాశి nodep : m_dpis) {
+        ఒకవేళ (!nodep->dpiExportDispatcher()) కొనసాగు;
 
-        const std::string name = nodep->name();
-        const std::string sourceLoc = VIdProtect::ifNoProtect(" at " + nodep->fileline()->ascii());
+        స్థిరరాశి std::string name = nodep->name();
+        స్థిరరాశి std::string ఆధారం_Loc = VIdProtect::ifNoProtect(" at " + nodep->fileline()->ascii());
 
         // Prevent multi-definition if used by multiple models
         puts("#ifndef VL_DPIDECL_" + name + "_\n");
         puts("#define VL_DPIDECL_" + name + "_\n");
-        putns(nodep, nodep->rtnTypeVoid() + " " + name + "(" + cFuncArgs(nodep) + ") {\n");
-        puts("// DPI export" + sourceLoc + "\n");
-        putns(nodep, "return " + topClassName() + "::" + name + "(");
+        putns(nodep, nodep->rtnTypeVoid() + " " + name + "(" + c_Func_వాదనలు(nodep) + ") {\n");
+        puts("// DPI export" + ఆధారం_Loc + "\n");
+        putns(nodep, "return " + శిఖరం_Class_Name() + "::" + name + "(");
         std::string comma;
-        for (const AstNode* stmtp = nodep->argsp(); stmtp; stmtp = stmtp->nextp()) {
-            if (const AstVar* const portp = VN_CAST(stmtp, Var)) {
-                if (portp->isIO() && !portp->isFuncReturn()) {
+        కొరకు (స్థిరరాశి Ast_కణుపు* stmtp = nodep->argsp(); stmtp; stmtp = stmtp->nextp()) {
+            ఒకవేళ (స్థిరరాశి AstVar* స్థిరరాశి portp = VN_CAST(stmtp, Var)) {
+                ఒకవేళ (portp->isIO() && !portp->isFuncReturn()) {
                     puts(comma);
                     comma = ", ";
                     putns(portp, portp->name());
@@ -1911,7 +1911,7 @@ void EmitCSyms::emitDpiImp() {
 //######################################################################
 // EmitC class functions
 
-void V3EmitC::emitcSyms(bool dpiHdrOnly) {
+శూన్య V3EmitC::emitcSyms(తార్కిక dpiHdrOnly) {
     UINFO(2, __FUNCTION__ << ":");
     EmitCSyms{v3Global.rootp(), dpiHdrOnly};
 }

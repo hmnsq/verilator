@@ -14,81 +14,81 @@
 //
 //*************************************************************************
 
-#include "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
+#అన్తర్భావ "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
 
-#include "V3DupFinder.h"
+#అన్తర్భావ "V3DupFinder.h"
 
-#include "V3File.h"
+#అన్తర్భావ "V3File.h"
 
-#include <iomanip>
-#include <memory>
+#అన్తర్భావ <iomanip>
+#అన్తర్భావ <memory>
 
 VL_DEFINE_DEBUG_FUNCTIONS;
 
 //######################################################################
 // V3DupFinder class functions
 
-V3DupFinder::size_type V3DupFinder::erase(AstNode* nodep) {
-    const auto& er = equal_range(m_hasher(nodep));
-    for (iterator it = er.first; it != er.second; ++it) {
-        if (nodep == it->second) {
+V3DupFinder::కొలత_type V3DupFinder::erase(Ast_కణుపు* nodep) {
+    స్థిరరాశి స్వయంచాలక& er = equal_range(m_hasher(nodep));
+    కొరకు (iterator it = er.మొదటి; it != er.రెండవ; ++it) {
+        ఒకవేళ (nodep == it->రెండవ) {
             erase(it);
-            return 1;
+            తిరిగి 1;
         }
     }
-    return 0;
+    తిరిగి 0;
 }
 
-V3DupFinder::iterator V3DupFinder::findDuplicate(AstNode* nodep, V3DupFinderUserSame* checkp) {
-    const auto& er = equal_range(m_hasher(nodep));
-    for (iterator it = er.first; it != er.second; ++it) {
-        AstNode* const node2p = it->second;
-        if (nodep == node2p) continue;  // Same node is not a duplicate
-        if (checkp && !checkp->isSame(nodep, node2p)) continue;  // User says it is not a duplicate
-        if (!nodep->sameTree(node2p)) continue;  // Not the same trees
+V3DupFinder::iterator V3DupFinder::కనుగొను_Duplicate(Ast_కణుపు* nodep, V3DupFinderUserSame* checkp) {
+    స్థిరరాశి స్వయంచాలక& er = equal_range(m_hasher(nodep));
+    కొరకు (iterator it = er.మొదటి; it != er.రెండవ; ++it) {
+        Ast_కణుపు* స్థిరరాశి node2p = it->రెండవ;
+        ఒకవేళ (nodep == node2p) కొనసాగు;  // Same node is not a duplicate
+        ఒకవేళ (checkp && !checkp->isSame(nodep, node2p)) కొనసాగు;  // User says it is not a duplicate
+        ఒకవేళ (!nodep->same_వృక్షం(node2p)) కొనసాగు;  // Not the same trees
         // Found duplicate
-        return it;
+        తిరిగి it;
     }
-    return end();
+    తిరిగి చివర();
 }
 
-void V3DupFinder::dumpFile(const string& filename, bool tree) {
+శూన్య V3DupFinder::dumpFile(స్థిరరాశి string& filename, తార్కిక వృక్షం) {
     UINFO(2, "Dumping " << filename);
-    const std::unique_ptr<std::ofstream> logp{V3File::new_ofstream(filename)};
-    if (logp->fail()) v3fatal("Can't write file: " << filename);
+    స్థిరరాశి std::unique_ptr<std::ofstream> logp{V3File::new_ofstream(filename)};
+    ఒకవేళ (logp->fail()) v3fatal("Can't write file: " << filename);
 
-    std::unordered_map<int, int> dist;
+    std::unordered_map<పూర్ణాంకం, పూర్ణాంకం> dist;
 
     V3Hash lasthash;
-    int num_in_bucket = 0;
-    for (auto it = cbegin(); true; ++it) {
-        if (it == cend() || lasthash != it->first) {
-            if (it != cend()) lasthash = it->first;
-            if (num_in_bucket) ++dist[num_in_bucket];
-            num_in_bucket = 0;
+    పూర్ణాంకం అంకె_లోపల_పాత్ర = 0;
+    కొరకు (స్వయంచాలక it = cbegin(); నిజం; ++it) {
+        ఒకవేళ (it == cend() || lasthash != it->మొదటి) {
+            ఒకవేళ (it != cend()) lasthash = it->మొదటి;
+            ఒకవేళ (అంకె_లోపల_పాత్ర) ++dist[అంకె_లోపల_పాత్ర];
+            అంకె_లోపల_పాత్ర = 0;
         }
-        if (it == cend()) break;
-        num_in_bucket++;
+        ఒకవేళ (it == cend()) ఆపు;
+        అంకె_లోపల_పాత్ర++;
     }
     *logp << "\n*** STATS:\n\n";
     *logp << "    #InBucket   Occurrences\n";
-    for (const auto& i : dist) {
-        *logp << "    " << std::setw(9) << i.first << "  " << std::setw(12) << i.second << '\n';
+    కొరకు (స్థిరరాశి స్వయంచాలక& i : dist) {
+        *logp << "    " << std::setw(9) << i.మొదటి << "  " << std::setw(12) << i.రెండవ << '\n';
     }
 
     *logp << "\n*** Dump:\n\n";
-    for (const auto& it : *this) {
-        if (lasthash != it.first) {
-            lasthash = it.first;
-            *logp << "    " << it.first << '\n';
+    కొరకు (స్థిరరాశి స్వయంచాలక& it : *ఇది) {
+        ఒకవేళ (lasthash != it.మొదటి) {
+            lasthash = it.మొదటి;
+            *logp << "    " << it.మొదటి << '\n';
         }
-        *logp << "\t" << it.second << '\n';
+        *logp << "\t" << it.రెండవ << '\n';
         // Dumping the entire tree may make nearly N^2 sized dumps,
         // because the nodes under this one may also be in the hash table!
-        if (tree) it.second->dumpTree(*logp, "    ");
+        ఒకవేళ (వృక్షం) it.రెండవ->dump_వృక్షం(*logp, "    ");
     }
 }
 
-void V3DupFinder::dumpFilePrefixed(const string& nameComment, bool tree) {
-    if (dumpLevel()) dumpFile(v3Global.debugFilename(nameComment) + ".hash", tree);
+శూన్య V3DupFinder::dumpFilePrefixed(స్థిరరాశి string& nameComment, తార్కిక వృక్షం) {
+    ఒకవేళ (dumpLevel()) dumpFile(v3Global.debugFilename(nameComment) + ".hash", వృక్షం);
 }

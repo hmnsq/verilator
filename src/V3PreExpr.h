@@ -14,69 +14,69 @@
 //
 //*************************************************************************
 
-#ifndef VERILATOR_V3PREEXPR_H_
-#define VERILATOR_V3PREEXPR_H_
+#నిర్వచితం_కాకపోతే VERILATOR_V3PREEXPR_H_
+#నిర్వచించు VERILATOR_V3PREEXPR_H_
 
-#include "config_build.h"
-#include "verilatedos.h"
+#అన్తర్భావ "config_build.h"
+#అన్తర్భావ "verilatedos.h"
 
-#include "V3FileLine.h"
-#include "V3Global.h"
+#అన్తర్భావ "V3FileLine.h"
+#అన్తర్భావ "V3Global.h"
 
-#include <deque>
+#అన్తర్భావ <deque>
 
-class V3PreExprToken final {
-public:
+class V3_Pre_సమాసం_Token final {
+బహిరంగ:
     // TYPES
     // Order of enum must match token table
-    enum token_t : uint8_t { ZERO, ONE, END, BRA, KET, LNOT, LAND, LOR, IMP, EQV, MAX };
+    గణన token_t : uint8_t { ZERO, ONE, చివర_2, BRA, KET, LNOT, LAND, LOR, IMP, EQV, MAX };
 
-private:
+అంతరంగ:
     // MEMBERS
-    FileLine* const m_fileline;  // Token fileline
-    token_t const m_token;  // Token value
-public:
+    File_పంక్తి* స్థిరరాశి m_fileline;  // Token fileline
+    token_t స్థిరరాశి m_token;  // Token value
+బహిరంగ:
     // METHODS
-    V3PreExprToken(FileLine* fileline, token_t token)
+    V3_Pre_సమాసం_Token(File_పంక్తి* fileline, token_t token)
         : m_fileline{fileline}
         , m_token{token} {}
-    V3PreExprToken(FileLine* fileline, bool value)
+    V3_Pre_సమాసం_Token(File_పంక్తి* fileline, bool విలువ)
         : m_fileline{fileline}
-        , m_token{value ? ONE : ZERO} {}
-    ~V3PreExprToken() = default;
-    const char* ascii() const {
-        static const char* names[] = {"0", "1", "$", "(", ")", "!", "&&", "||", "->", "<->"};
-        return names[m_token];
+        , m_token{విలువ ? ONE : ZERO} {}
+    ~V3_Pre_సమాసం_Token() = అప్రమేయ;
+    స్థిరరాశి అక్షరం* ascii() స్థిరరాశి {
+        స్థిర స్థిరరాశి అక్షరం* పేర్లు[] = {"0", "1", "$", "(", ")", "!", "&&", "||", "->", "<->"};
+        తిరిగి పేర్లు[m_token];
     }
-    FileLine* fileline() const { return m_fileline; }
-    token_t token() const { return m_token; }
-    bool isValue() const { return m_token == ZERO || m_token == ONE; }
-    bool value() const {
-        UASSERT(isValue(), "preproc expr fetch of non-value");
-        return m_token == ONE;
+    File_పంక్తి* fileline() స్థిరరాశి { తిరిగి m_fileline; }
+    token_t token() స్థిరరాశి { తిరిగి m_token; }
+    bool is_విలువ() స్థిరరాశి { తిరిగి m_token == ZERO || m_token == ONE; }
+    bool విలువ() స్థిరరాశి {
+        UASSERT(is_విలువ(), "preproc expr fetch of non-value");
+        తిరిగి m_token == ONE;
     }
 };
 
-class V3PreExpr final {
+class V3_Pre_సమాసం final {
     // MEMBERS
-    std::deque<V3PreExprToken> m_inputs;  // Input stack
-    std::deque<V3PreExprToken> m_values;  // Value stack
-    std::deque<V3PreExprToken> m_ops;  // Operator stack
-    FileLine* m_firstFileline = nullptr;
+    std::deque<V3_Pre_సమాసం_Token> m_inputs;  // Input stack
+    std::deque<V3_Pre_సమాసం_Token> m_విలువలు;  // Value stack
+    std::deque<V3_Pre_సమాసం_Token> m_ops;  // Operator stack
+    File_పంక్తి* m_మొదటి_Fileline = nullptr;
 
     VL_DEFINE_DEBUG_FUNCTIONS;
 
     // PARSER DEFINITION
-    enum action_t : uint8_t {
-        VV,  // Value
+    గణన action_t : uint8_t {
+        VV,  //విలువ
         AA,  // Accept
         RR,  // Reduce
-        SS,  // Shift
+        SS,  //జరుపు
         EE  // Error
     };
-    static const char* actionAscii(action_t en) {
-        static constexpr const char* names[] = {"VV", "AA", "RR", "SS", "EE"};
-        return names[en];
+    స్థిర స్థిరరాశి అక్షరం* actionAscii(action_t en) {
+        స్థిర constexpr స్థిరరాశి అక్షరం* పేర్లు[] = {"VV", "AA", "RR", "SS", "EE"};
+        తిరిగి పేర్లు[en];
     }
 
     //  Operators  Associativity  Precedence
@@ -90,7 +90,7 @@ class V3PreExpr final {
     //  If different op precedence, shift for higher to input, else reduce for lower
     //  If same op precedence, shift for right assoc, reduce for left assoc
 
-    action_t parseTable[V3PreExprToken::MAX][V3PreExprToken::MAX] = {
+    action_t parse_పట్టిక[V3_Pre_సమాసం_Token::MAX][V3_Pre_సమాసం_Token::MAX] = {
         // stack   ------------- inputs ------------------
         //         0   1   $   (   )   !   &&  ||  ->  <->
         /* 0   */ {EE, EE, EE, EE, EE, EE, EE, EE, EE, EE},  // 0 never on op stack
@@ -104,7 +104,7 @@ class V3PreExpr final {
         /* ->  */ {VV, VV, RR, SS, RR, SS, SS, SS, RR, RR},
         /* <-> */ {VV, VV, RR, SS, RR, SS, SS, SS, RR, RR}};
 
-    static void selfTestImp() {
+    స్థిర శూన్య selfTestImp() {
         selfTestOne("0", false);
         selfTestOne("1", true);
         selfTestOne("! 0", true);
@@ -131,161 +131,161 @@ class V3PreExpr final {
         selfTestOne("! 0 && ! 0", true);
     }
 
-    static void selfTestOne(const string& expr, bool expect) {
+    స్థిర శూన్య selfTestOne(స్థిరరాశి string& సమాసం, bool expect) {
         // This hacky self-test parser just looks at first character of
         // operator, and requires space separation of operators/values
-        UINFO(9, "V3PreExpr selfTestOne " << expr);
-        FileLine* const flp = nullptr;
-        V3PreExpr parser;
+        UINFO(9, "V3PreExpr selfTestOne " << సమాసం);
+        File_పంక్తి* స్థిరరాశి flp = nullptr;
+        V3_Pre_సమాసం parser;
         parser.reset(flp);
         bool tstart = true;
-        for (const char* cp = expr.c_str(); *cp; ++cp) {
-            if (tstart) {
+        కొరకు (స్థిరరాశి అక్షరం* cp = సమాసం.c_str(); *cp; ++cp) {
+            ఒకవేళ (tstart) {
                 tstart = false;
-                switch (*cp) {
-                case '0': parser.pushInput(V3PreExprToken{flp, V3PreExprToken::ZERO}); break;
-                case '1': parser.pushInput(V3PreExprToken{flp, V3PreExprToken::ONE}); break;
-                case '!': parser.pushInput(V3PreExprToken{flp, V3PreExprToken::LNOT}); break;
-                case '|': parser.pushInput(V3PreExprToken{flp, V3PreExprToken::LOR}); break;
-                case '&': parser.pushInput(V3PreExprToken{flp, V3PreExprToken::LAND}); break;
-                case '-': parser.pushInput(V3PreExprToken{flp, V3PreExprToken::IMP}); break;
-                case '<': parser.pushInput(V3PreExprToken{flp, V3PreExprToken::EQV}); break;
-                case '(': parser.pushInput(V3PreExprToken{flp, V3PreExprToken::BRA}); break;
-                case ')': parser.pushInput(V3PreExprToken{flp, V3PreExprToken::KET}); break;
-                default: break;
+                ఎంపిక (*cp) {
+                స్థితి '0': parser.నెట్టు_ఆదానం(V3_Pre_సమాసం_Token{flp, V3_Pre_సమాసం_Token::ZERO}); ఆపు;
+                స్థితి '1': parser.నెట్టు_ఆదానం(V3_Pre_సమాసం_Token{flp, V3_Pre_సమాసం_Token::ONE}); ఆపు;
+                స్థితి '!': parser.నెట్టు_ఆదానం(V3_Pre_సమాసం_Token{flp, V3_Pre_సమాసం_Token::LNOT}); ఆపు;
+                స్థితి '|': parser.నెట్టు_ఆదానం(V3_Pre_సమాసం_Token{flp, V3_Pre_సమాసం_Token::LOR}); ఆపు;
+                స్థితి '&': parser.నెట్టు_ఆదానం(V3_Pre_సమాసం_Token{flp, V3_Pre_సమాసం_Token::LAND}); ఆపు;
+                స్థితి '-': parser.నెట్టు_ఆదానం(V3_Pre_సమాసం_Token{flp, V3_Pre_సమాసం_Token::IMP}); ఆపు;
+                స్థితి '<': parser.నెట్టు_ఆదానం(V3_Pre_సమాసం_Token{flp, V3_Pre_సమాసం_Token::EQV}); ఆపు;
+                స్థితి '(': parser.నెట్టు_ఆదానం(V3_Pre_సమాసం_Token{flp, V3_Pre_సమాసం_Token::BRA}); ఆపు;
+                స్థితి ')': parser.నెట్టు_ఆదానం(V3_Pre_సమాసం_Token{flp, V3_Pre_సమాసం_Token::KET}); ఆపు;
+                అప్రమేయ: ఆపు;
                 }
-            } else if (*cp == ' ') {
+            } లేకపోతే ఒకవేళ (*cp == ' ') {
                 tstart = true;
             }
         }
-        const bool got = parser.result();
+        స్థిరరాశి bool got = parser.ఫలితం();
         UASSERT_SELFTEST(got, expect);
     }
 
     // METHODS
-    void pushOp(const V3PreExprToken& token) {
+    శూన్య నెట్టు_Op(స్థిరరాశి V3_Pre_సమాసం_Token& token) {
         // UINFO(9, "  pushOp " << token.ascii());
-        m_ops.push_back(token);
+        m_ops.నెట్టు_వెనుక(token);
     }
-    void pushValue(const V3PreExprToken& token) {
+    శూన్య నెట్టు_విలువ(స్థిరరాశి V3_Pre_సమాసం_Token& token) {
         // UINFO(9, "  pushValue " << token.ascii());
-        m_values.push_back(token);
+        m_విలువలు.నెట్టు_వెనుక(token);
     }
-    V3PreExprToken popValue() {
-        if (m_values.empty()) {
-            m_firstFileline->v3error("Syntax error in `ifdef () expression");
-            return V3PreExprToken{m_firstFileline, false};
+    V3_Pre_సమాసం_Token తీయి_విలువ() {
+        ఒకవేళ (m_విలువలు.ఖాళీలు()) {
+            m_మొదటి_Fileline->v3error("Syntax error in `ifdef () expression");
+            తిరిగి V3_Pre_సమాసం_Token{m_మొదటి_Fileline, false};
         }
-        const V3PreExprToken tok = m_values.back();
-        m_values.pop_back();
+        స్థిరరాశి V3_Pre_సమాసం_Token tok = m_విలువలు.వెనుక();
+        m_విలువలు.తీయి_వెనుక();
         // UINFO(9, "  popValue " << tok.ascii());
-        return tok;
+        తిరిగి tok;
     }
-    void reduce() {
-        UASSERT(!m_ops.empty(), "lost op stack beginning END");
-        const V3PreExprToken tok = m_ops.back();
+    శూన్య reduce() {
+        UASSERT(!m_ops.ఖాళీలు(), "lost op stack beginning END");
+        స్థిరరాశి V3_Pre_సమాసం_Token tok = m_ops.వెనుక();
         // UINFO(9, "Reduce " << tok.ascii());
-        m_ops.pop_back();
-        switch (tok.token()) {
-        case V3PreExprToken::KET: {
-            while (m_ops.back().token() != V3PreExprToken::END
-                   && m_ops.back().token() != V3PreExprToken::BRA)
+        m_ops.తీయి_వెనుక();
+        ఎంపిక (tok.token()) {
+        స్థితి V3_Pre_సమాసం_Token::KET: {
+            అయితే (m_ops.వెనుక().token() != V3_Pre_సమాసం_Token::చివర_2
+                   && m_ops.వెనుక().token() != V3_Pre_సమాసం_Token::BRA)
                 reduce();
-            if (m_ops.back().token() == V3PreExprToken::BRA) {
-                m_ops.pop_back();
-            } else {
+            ఒకవేళ (m_ops.వెనుక().token() == V3_Pre_సమాసం_Token::BRA) {
+                m_ops.తీయి_వెనుక();
+            } లేకపోతే {
                 tok.fileline()->v3error("Syntax error in `ifdef () expression:"  // LCOV_EXCL_LINE
                                         " ) without matching )");
-                return;
+                తిరిగి;
             }
-            break;
+            ఆపు;
         }
-        case V3PreExprToken::LNOT: {
-            const V3PreExprToken lhs = popValue();
-            pushValue(V3PreExprToken{tok.fileline(), !lhs.value()});
-            break;
+        స్థితి V3_Pre_సమాసం_Token::LNOT: {
+            స్థిరరాశి V3_Pre_సమాసం_Token lhs = తీయి_విలువ();
+            నెట్టు_విలువ(V3_Pre_సమాసం_Token{tok.fileline(), !lhs.విలువ()});
+            ఆపు;
         }
-        case V3PreExprToken::LAND: {
-            const V3PreExprToken rhs = popValue();
-            const V3PreExprToken lhs = popValue();
-            pushValue(V3PreExprToken{tok.fileline(), lhs.value() && rhs.value()});
-            break;
+        స్థితి V3_Pre_సమాసం_Token::LAND: {
+            స్థిరరాశి V3_Pre_సమాసం_Token rhs = తీయి_విలువ();
+            స్థిరరాశి V3_Pre_సమాసం_Token lhs = తీయి_విలువ();
+            నెట్టు_విలువ(V3_Pre_సమాసం_Token{tok.fileline(), lhs.విలువ() && rhs.విలువ()});
+            ఆపు;
         }
-        case V3PreExprToken::LOR: {
-            const V3PreExprToken rhs = popValue();
-            const V3PreExprToken lhs = popValue();
-            pushValue(V3PreExprToken{tok.fileline(), lhs.value() || rhs.value()});
-            break;
+        స్థితి V3_Pre_సమాసం_Token::LOR: {
+            స్థిరరాశి V3_Pre_సమాసం_Token rhs = తీయి_విలువ();
+            స్థిరరాశి V3_Pre_సమాసం_Token lhs = తీయి_విలువ();
+            నెట్టు_విలువ(V3_Pre_సమాసం_Token{tok.fileline(), lhs.విలువ() || rhs.విలువ()});
+            ఆపు;
         }
-        case V3PreExprToken::IMP: {
-            const V3PreExprToken rhs = popValue();
-            const V3PreExprToken lhs = popValue();
-            pushValue(V3PreExprToken{tok.fileline(), !lhs.value() || rhs.value()});
-            break;
+        స్థితి V3_Pre_సమాసం_Token::IMP: {
+            స్థిరరాశి V3_Pre_సమాసం_Token rhs = తీయి_విలువ();
+            స్థిరరాశి V3_Pre_సమాసం_Token lhs = తీయి_విలువ();
+            నెట్టు_విలువ(V3_Pre_సమాసం_Token{tok.fileline(), !lhs.విలువ() || rhs.విలువ()});
+            ఆపు;
         }
-        case V3PreExprToken::EQV: {
-            const V3PreExprToken rhs = popValue();
-            const V3PreExprToken lhs = popValue();
-            pushValue(V3PreExprToken{tok.fileline(), lhs.value() == rhs.value()});
-            break;
+        స్థితి V3_Pre_సమాసం_Token::EQV: {
+            స్థిరరాశి V3_Pre_సమాసం_Token rhs = తీయి_విలువ();
+            స్థిరరాశి V3_Pre_సమాసం_Token lhs = తీయి_విలువ();
+            నెట్టు_విలువ(V3_Pre_సమాసం_Token{tok.fileline(), lhs.విలువ() == rhs.విలువ()});
+            ఆపు;
         }
-        default: {
+        అప్రమేయ: {
             v3fatalSrc("bad case on operand stack");
-            break;
+            ఆపు;
         }
         }
     }
-    void parse() {
-        while (!m_inputs.empty()) {
-            const V3PreExprToken tok = m_inputs.front();
-            m_inputs.pop_front();
+    శూన్య parse() {
+        అయితే (!m_inputs.ఖాళీలు()) {
+            స్థిరరాశి V3_Pre_సమాసం_Token tok = m_inputs.front();
+            m_inputs.తీయి_front();
             UINFO(9, "input read " << tok.ascii());
-            if (tok.isValue()) {
-                pushValue(tok);
-                continue;
+            ఒకవేళ (tok.is_విలువ()) {
+                నెట్టు_విలువ(tok);
+                కొనసాగు;
             }
 
-            UASSERT(!m_ops.empty(), "lost op stack beginning END");
-            const V3PreExprToken topTok = m_ops.back();
-            auto action = parseTable[topTok.token()][tok.token()];
-            UINFO(9, "pop action " << actionAscii(action) << " from parseTable[" << topTok.ascii()
+            UASSERT(!m_ops.ఖాళీలు(), "lost op stack beginning END");
+            స్థిరరాశి V3_Pre_సమాసం_Token శిఖరం_Tok = m_ops.వెనుక();
+            స్వయంచాలక action = parse_పట్టిక[శిఖరం_Tok.token()][tok.token()];
+            UINFO(9, "pop action " << actionAscii(action) << " from parseTable[" << శిఖరం_Tok.ascii()
                                    << "][" << tok.ascii() << "]");
-            switch (action) {
-            case RR:  // Reduce
+            ఎంపిక (action) {
+            స్థితి RR:  // Reduce
                 reduce();
-                break;
-            case SS:  // Shift
-                m_ops.push_back(tok);
-                break;
-            case AA:  // Accept
-                break;
-            default: tok.fileline()->v3error("Syntax error in `ifdef () expression"); return;
+                ఆపు;
+            స్థితి SS:  //జరుపు
+                m_ops.నెట్టు_వెనుక(tok);
+                ఆపు;
+            స్థితి AA:  // Accept
+                ఆపు;
+            అప్రమేయ: tok.fileline()->v3error("Syntax error in `ifdef () expression"); తిరిగి;
             }
         }
     }
 
-public:
+బహిరంగ:
     // METHODS
-    V3PreExpr() = default;
-    ~V3PreExpr() = default;
-    void reset(FileLine* flp) {
+    V3_Pre_సమాసం() = అప్రమేయ;
+    ~V3_Pre_సమాసం() = అప్రమేయ;
+    శూన్య reset(File_పంక్తి* flp) {
         m_inputs.clear();
-        m_values.clear();
+        m_విలువలు.clear();
         m_ops.clear();
-        m_firstFileline = flp;
-        pushOp(V3PreExprToken{flp, V3PreExprToken::END});
+        m_మొదటి_Fileline = flp;
+        నెట్టు_Op(V3_Pre_సమాసం_Token{flp, V3_Pre_సమాసం_Token::చివర_2});
     }
-    void pushInput(const V3PreExprToken& token) {
-        if (!m_firstFileline) m_firstFileline = token.fileline();
+    శూన్య నెట్టు_ఆదానం(స్థిరరాశి V3_Pre_సమాసం_Token& token) {
+        ఒకవేళ (!m_మొదటి_Fileline) m_మొదటి_Fileline = token.fileline();
         UINFO(9, "pushInput " << token.ascii());
-        m_inputs.push_back(token);
+        m_inputs.నెట్టు_వెనుక(token);
     }
-    bool result() {
-        pushInput(V3PreExprToken{m_firstFileline, V3PreExprToken::END});
+    bool ఫలితం() {
+        నెట్టు_ఆదానం(V3_Pre_సమాసం_Token{m_మొదటి_Fileline, V3_Pre_సమాసం_Token::చివర_2});
         parse();
-        return popValue().value();
+        తిరిగి తీయి_విలువ().విలువ();
     }
-    static void selfTest() VL_MT_DISABLED { selfTestImp(); }
+    స్థిర శూన్య selfTest() VL_MT_DISABLED { selfTestImp(); }
 };
 
-#endif  // Guard
+#అయితే_ముగింపు  // Guard

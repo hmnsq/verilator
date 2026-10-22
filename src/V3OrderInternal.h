@@ -14,18 +14,18 @@
 //
 //*************************************************************************
 
-#ifndef VERILATOR_V3ORDERINTERNAL_H_
-#define VERILATOR_V3ORDERINTERNAL_H_
+#నిర్వచితం_కాకపోతే VERILATOR_V3ORDERINTERNAL_H_
+#నిర్వచించు VERILATOR_V3ORDERINTERNAL_H_
 
-#include "config_build.h"
-#include "verilatedos.h"
+#అన్తర్భావ "config_build.h"
+#అన్తర్భావ "verilatedos.h"
 
-#include "V3Order.h"
-#include "V3OrderGraph.h"
-#include "V3OrderMoveGraph.h"
+#అన్తర్భావ "V3Order.h"
+#అన్తర్భావ "V3OrderGraph.h"
+#అన్తర్భావ "V3OrderMoveGraph.h"
 
-#include <string>
-#include <vector>
+#అన్తర్భావ <string>
+#అన్తర్భావ <vector>
 
 class AstVarScope;
 
@@ -35,24 +35,24 @@ class LogicByScope;
 
 //============================================================================
 
-namespace V3Order {
+namespace V3_క్రమం {
 
-std::unique_ptr<OrderGraph> buildOrderGraph(const V3Sched::TriggerKit& trigKit,  //
+std::unique_ptr<క్రమం_లేఖాచిత్రం> build_క్రమం_లేఖాచిత్రం(స్థిరరాశి V3Sched::TriggerKit& trigKit,  //
                                             AstVarScope* trigVscp,  //
-                                            const std::vector<V3Sched::LogicByScope*>& coll,  //
-                                            const V3Sched::CovergroupRefBindings& cgRefBindings,
+                                            స్థిరరాశి std::సదిశ<V3Sched::LogicByScope*>& coll,  //
+                                            స్థిరరాశి V3Sched::CovergroupRefBindings& cgRefBindings,
                                             bool parallel);
 
-void orderOrderGraph(OrderGraph& graph, const std::string& tag);
+శూన్య క్రమం_క్రమం_లేఖాచిత్రం(క్రమం_లేఖాచిత్రం& లేఖాచిత్రం, స్థిరరాశి std::string& ట్యాగ్);
 
-void processDomains(OrderGraph& graph,  //
-                    const std::string& tag,  //
-                    const ExternalTriggersProvider& externalTriggers);
+శూన్య processDomains(క్రమం_లేఖాచిత్రం& లేఖాచిత్రం,  //
+                    స్థిరరాశి std::string& ట్యాగ్,  //
+                    స్థిరరాశి ExternalTriggersProvider& externalTriggers);
 
-AstNodeStmt* createSerial(OrderMoveGraph& moveGraph, const std::string& tag, bool slow);
+Ast_కణుపు_Stmt* createSerial(క్రమం_Move_లేఖాచిత్రం& move_లేఖాచిత్రం, స్థిరరాశి std::string& ట్యాగ్, bool slow);
 
-AstNodeStmt* createParallel(OrderMoveGraph& moveGraph, const std::string& tag, bool slow);
+Ast_కణుపు_Stmt* createParallel(క్రమం_Move_లేఖాచిత్రం& move_లేఖాచిత్రం, స్థిరరాశి std::string& ట్యాగ్, bool slow);
 
 };  // namespace V3Order
 
-#endif  // Guard
+#అయితే_ముగింపు  // Guard

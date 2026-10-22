@@ -20,27 +20,27 @@
 //
 //*************************************************************************
 
-#include "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
+#అన్తర్భావ "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
 
-#include "V3Global.h"
-#include "V3Graph.h"
-#include "V3OrderMTaskGraph.h"
-#include "V3PairingHeap.h"
-#include "V3PoolAllocator.h"
+#అన్తర్భావ "V3Global.h"
+#అన్తర్భావ "V3Graph.h"
+#అన్తర్భావ "V3OrderMTaskGraph.h"
+#అన్తర్భావ "V3PairingHeap.h"
+#అన్తర్భావ "V3PoolAllocator.h"
 
-#include <algorithm>
-#include <array>
-#include <limits>
-#include <memory>
-#include <type_traits>
-#include <unordered_set>
-#include <utility>
+#అన్తర్భావ <algorithm>
+#అన్తర్భావ <array>
+#అన్తర్భావ <limits>
+#అన్తర్భావ <memory>
+#అన్తర్భావ <type_traits>
+#అన్తర్భావ <unordered_set>
+#అన్తర్భావ <utility>
 
 VL_DEFINE_DEBUG_FUNCTIONS;
 
-class MergeCandidate;
-class SiblingMC;
-class EdgeMC;
+తరగతి విలీనం_Candidate;
+తరగతి SiblingMC;
+తరగతి అంచు_MC;
 
 //######################################################################
 // Tunable settings
@@ -61,34 +61,34 @@ class EdgeMC;
 //
 // If runtime is not a concern and the most precise result is desired,
 // set the limit very high.
-constexpr unsigned PART_SIBLING_EDGE_LIMIT = 26;
+constexpr గుర్తులేని PART_SIBLING_అంచు_హద్దు = 26;
 
 // If the user doesn't give one with '--threads-max-mtasks', we'll set the
 // maximum # of MTasks to (# of threads * PART_DEFAULT_MAX_MTASKS_PER_THREAD)
-constexpr unsigned PART_DEFAULT_MAX_MTASKS_PER_THREAD = 50;
+constexpr గుర్తులేని PART_DEFAULT_MAX_MTASKS_చొప్పున_THREAD = 50;
 
 //######################################################################
 // MTask utility classes
 
-struct MergeCandidateKey final {
+నిర్మాణం విలీనం_Candidate_కీలకం final {
     // Note: Structure layout chosen to minimize padding in PairingHeap<*>::Node
     uint64_t m_id;  // Unique ID part of the key
     uint64_t m_score;  // Score part of the key
-    bool operator<(const MergeCandidateKey& other) const {
+    తార్కిక క్రియాకారకం<(స్థిరరాశి విలీనం_Candidate_కీలకం& other) స్థిరరాశి {
         // First by Score then by ID, but notice that we want minimums using a max-heap, so reverse
-        return m_score > other.m_score || (m_score == other.m_score && m_id > other.m_id);
+        తిరిగి m_score > other.m_score || (m_score == other.m_score && m_id > other.m_id);
     }
 };
 
 // For efficiency, MergeCandidateScoreboard elements must derive from
 // PairingHeap<MergeCandidateKey>::Node
-using MergeCandidateHeapNode = PairingHeap<MergeCandidateKey>::Node;
+ఉపయోగించి విలీనం_Candidate_కుప్ప_కణుపు = Pairing_కుప్ప<విలీనం_Candidate_కీలకం>::కణుపు_2;
 
 // Information associated with scoreboarding a merge candidate
-class MergeCandidate VL_NOT_FINAL : public MergeCandidateHeapNode {
+తరగతి విలీనం_Candidate VL_NOT_FINAL : బహిరంగ విలీనం_Candidate_కుప్ప_కణుపు {
     // Only the known subclasses can create or delete one of these
-    friend class SiblingMC;
-    friend class EdgeMC;
+    మిత్ర తరగతి SiblingMC;
+    మిత్ర తరగతి అంచు_MC;
 
     // This structure is extremely hot. To save 8 bytes by not having a virtual
     // function table, we implement the few polymorphic methods over the two
@@ -97,94 +97,94 @@ class MergeCandidate VL_NOT_FINAL : public MergeCandidateHeapNode {
 
     // By using the bottom bits for flags, we can still use < to compare IDs without masking.
     // <63:1> Serial number for ordering, <0> subtype (SiblingMC)
-    static constexpr uint64_t IS_SIBLING_MASK = 1ULL << 0;
-    static constexpr uint64_t ID_INCREMENT = 1ULL << 1;
+    స్థిర constexpr uint64_t IS_SIBLING_ముసుగు = 1ULL << 0;
+    స్థిర constexpr uint64_t ID_INCREMENT = 1ULL << 1;
 
-    bool isSiblingMC() const { return m_key.m_id & IS_SIBLING_MASK; }
+    తార్కిక isSiblingMC() స్థిరరాశి { తిరిగి m_కీలకం.m_id & IS_SIBLING_ముసుగు; }
 
     // CONSTRUCTORS
-    explicit MergeCandidate(bool isSiblingMC) {
-        static uint64_t s_serial = 0;
+    స్పష్టమైన విలీనం_Candidate(తార్కిక isSiblingMC) {
+        స్థిర uint64_t s_serial = 0;
         s_serial += ID_INCREMENT;  // +ID_INCREMENT so doesn't set the special bottom bits
-        m_key.m_id = s_serial | (isSiblingMC * IS_SIBLING_MASK);
+        m_కీలకం.m_id = s_serial | (isSiblingMC * IS_SIBLING_ముసుగు);
     }
-    ~MergeCandidate() = default;
+    ~విలీనం_Candidate() = అప్రమేయ;
 
-public:
+బహిరంగ:
     // METHODS
-    SiblingMC* toSiblingMC();  // Instead of cast<>/as<>
-    EdgeMC* toEdgeMC();  // Instead of cast<>/as<>
-    bool mergeWouldCreateCycle(OrderMTaskGraph& graph);
+    SiblingMC* గమ్యం_Sibling_MC();  // Instead of cast<>/as<>
+    అంచు_MC* గమ్యం_అంచు_MC();  // Instead of cast<>/as<>
+    తార్కిక విలీనం_Would_Create_చక్రం(క్రమం_MTask_లేఖాచిత్రం& లేఖాచిత్రం);
 
     // The current score of this candidate, which changes as the graph is contracted
-    inline uint64_t currentScore();
+    అంతఃవరుస uint64_t currentScore();
     // The score this candidate was last given, which is its key in the scoreboard heap
-    uint64_t score() const { return m_key.m_score; }
+    uint64_t score() స్థిరరాశి { తిరిగి m_కీలకం.m_score; }
     // Set the score of this candidate to its current value. Only valid while it is not in a heap.
-    void updateScore() { m_key.m_score = currentScore(); }
+    శూన్య updateScore() { m_కీలకం.m_score = currentScore(); }
 
-    static MergeCandidate* heapNodeToElem(MergeCandidateHeapNode* nodep) {
-        return static_cast<MergeCandidate*>(nodep);
+    స్థిర విలీనం_Candidate* కుప్ప_కణుపు_గమ్యం_Elem(విలీనం_Candidate_కుప్ప_కణుపు* nodep) {
+        తిరిగి static_cast<విలీనం_Candidate*>(nodep);
     }
 };
 
-static_assert(sizeof(MergeCandidate) == sizeof(MergeCandidateHeapNode),
+static_assert(పరిమాణం(విలీనం_Candidate) == పరిమాణం(విలీనం_Candidate_కుప్ప_కణుపు),
               "Should not have a vtable");
 
 // A pair of associated LogicMTask's that are merge candidates for sibling
 // contraction
-class SiblingMC final : public MergeCandidate {
-    LogicMTask* const m_ap;  // The higher ID MTask
-    LogicMTask* const m_bp;  // The lower ID MTask
+తరగతి SiblingMC final : బహిరంగ విలీనం_Candidate {
+    LogicMTask* స్థిరరాశి m_ap;  // The higher ID MTask
+    LogicMTask* స్థిరరాశి m_bp;  // The lower ID MTask
 
     V3ListLinks<SiblingMC> m_aLinks;  // List links to store instances of this class
     V3ListLinks<SiblingMC> m_bLinks;  // List links to store instances of this class
 
-    V3ListLinks<SiblingMC>& aLinks() { return m_aLinks; }
-    V3ListLinks<SiblingMC>& bLinks() { return m_bLinks; }
+    V3ListLinks<SiblingMC>& aLinks() { తిరిగి m_aLinks; }
+    V3ListLinks<SiblingMC>& bLinks() { తిరిగి m_bLinks; }
 
-public:
+బహిరంగ:
     // List type to store instances of this class
-    using AList = V3List<SiblingMC, &SiblingMC::aLinks>;
-    using BList = V3List<SiblingMC, &SiblingMC::bLinks>;
+    ఉపయోగించి AList = V3List<SiblingMC, &SiblingMC::aLinks>;
+    ఉపయోగించి BList = V3List<SiblingMC, &SiblingMC::bLinks>;
 
     // CONSTRUCTORS
     SiblingMC(LogicMTask* ap, LogicMTask* bp);
-    ~SiblingMC() = default;
+    ~SiblingMC() = అప్రమేయ;
 
     // METHODS
-    void unlinkA();
-    void unlinkB();
+    శూన్య unlinkA();
+    శూన్య unlinkB();
 
-    LogicMTask* ap() const { return m_ap; }
-    LogicMTask* bp() const { return m_bp; }
+    LogicMTask* ap() స్థిరరాశి { తిరిగి m_ap; }
+    LogicMTask* bp() స్థిరరాశి { తిరిగి m_bp; }
 };
 
-static_assert(!std::is_polymorphic<SiblingMC>::value, "Should not have a vtable");
+static_assert(!std::is_polymorphic<SiblingMC>::విలువ, "Should not have a vtable");
 
 // A merge candidate associated with an MTaskEdge (edge contraction candidate)
-class EdgeMC final : public MergeCandidate {
-    MTaskEdge* const m_edgep;  // The associated edge
+తరగతి అంచు_MC final : బహిరంగ విలీనం_Candidate {
+    MTask_అంచు* స్థిరరాశి m_edgep;  // The associated edge
 
-public:
+బహిరంగ:
     // CONSTRUCTORS
-    explicit EdgeMC(MTaskEdge* edgep)
-        : MergeCandidate{/* isSiblingMC: */ false}
+    స్పష్టమైన అంచు_MC(MTask_అంచు* edgep)
+        : విలీనం_Candidate{/* isSiblingMC: */ అబద్ధం}
         , m_edgep{edgep} {}
-    ~EdgeMC() = default;
+    ~అంచు_MC() = అప్రమేయ;
 
     // METHODS
-    MTaskEdge* edgep() const { return m_edgep; }
+    MTask_అంచు* edgep() స్థిరరాశి { తిరిగి m_edgep; }
 };
 
-static_assert(!std::is_polymorphic<EdgeMC>::value, "Should not have a vtable");
+static_assert(!std::is_polymorphic<అంచు_MC>::విలువ, "Should not have a vtable");
 
 // Auxiliary data associated with each LogicMTask during Contraction, attached via
 // LogicMTask::userp(). Kept out of LogicMTask itself so that LogicMTask does not depend on the
 // MergeCandidate hierarchy (which the SiblingMC lists reference).
-struct MTaskContractionData final {
+నిర్మాణం MTask_Contraction_దత్తాంశం final {
     // MTasks for which a SiblingMC exists with the owning MTask as the higher ID MTask (m_ap)
-    std::unordered_set<LogicMTask*> siblings;
+    std::unordered_సమితి<LogicMTask*> siblings;
     // SiblingMCs for which the owning MTask is the higher ID MTask (m_ap in SiblingMC)
     SiblingMC::AList aSiblingMCs;
     // SiblingMCs for which the owning MTask is the lower ID MTask (m_bp in SiblingMC)
@@ -192,82 +192,82 @@ struct MTaskContractionData final {
 };
 
 // The MTaskContractionData attached to 'mtaskp' (see LogicMTask::userp)
-static MTaskContractionData& mtaskData(const LogicMTask* mtaskp) {
-    return *static_cast<MTaskContractionData*>(mtaskp->userp());
+స్థిర MTask_Contraction_దత్తాంశం& mtask_దత్తాంశం(స్థిరరాశి LogicMTask* mtaskp) {
+    తిరిగి *static_cast<MTask_Contraction_దత్తాంశం*>(mtaskp->userp());
 }
 
 // The EdgeMC associated with 'edgep' while it is on the scoreboard, or nullptr otherwise. Held in
 // the edge's user pointer (see MTaskEdge), kept here so MTaskEdge does not depend on EdgeMC.
-static EdgeMC* edgeMC(const MTaskEdge* edgep) { return static_cast<EdgeMC*>(edgep->userp()); }
+స్థిర అంచు_MC* అంచు_MC_2(స్థిరరాశి MTask_అంచు* edgep) { తిరిగి static_cast<అంచు_MC*>(edgep->userp()); }
 
 // Instead of dynamic cast
-SiblingMC* MergeCandidate::toSiblingMC() {
-    return isSiblingMC() ? static_cast<SiblingMC*>(this) : nullptr;
+SiblingMC* విలీనం_Candidate::గమ్యం_Sibling_MC() {
+    తిరిగి isSiblingMC() ? static_cast<SiblingMC*>(ఇది) : శూన్యసూచిక;
 }
 
-EdgeMC* MergeCandidate::toEdgeMC() { return isSiblingMC() ? nullptr : static_cast<EdgeMC*>(this); }
+అంచు_MC* విలీనం_Candidate::గమ్యం_అంచు_MC() { తిరిగి isSiblingMC() ? శూన్యసూచిక : static_cast<అంచు_MC*>(ఇది); }
 
-bool MergeCandidate::mergeWouldCreateCycle(OrderMTaskGraph& graph) {
+తార్కిక విలీనం_Candidate::విలీనం_Would_Create_చక్రం(క్రమం_MTask_లేఖాచిత్రం& లేఖాచిత్రం) {
     // Sibling merge: merging creates a cycle if either sibling is reachable from the other
-    if (const SiblingMC* const sibp = toSiblingMC()) {
-        return graph.pathExists(sibp->ap(), sibp->bp(), nullptr)
-               || graph.pathExists(sibp->bp(), sibp->ap(), nullptr);
+    ఒకవేళ (స్థిరరాశి SiblingMC* స్థిరరాశి sibp = గమ్యం_Sibling_MC()) {
+        తిరిగి లేఖాచిత్రం.మార్గం_Exists(sibp->ap(), sibp->bp(), శూన్యసూచిక)
+               || లేఖాచిత్రం.మార్గం_Exists(sibp->bp(), sibp->ap(), శూన్యసూచిక);
     }
 
     // Edge merge: merging creates a cycle if there is another path between the two MTasks
-    MTaskEdge* const edgep = toEdgeMC()->edgep();
-    return graph.pathExists(edgep->fromMTaskp(), edgep->toMTaskp(), edgep);
+    MTask_అంచు* స్థిరరాశి edgep = గమ్యం_అంచు_MC()->edgep();
+    తిరిగి లేఖాచిత్రం.మార్గం_Exists(edgep->fromMTaskp(), edgep->గమ్యం_MTaskp(), edgep);
 }
 
-uint64_t MergeCandidate::currentScore() {
+uint64_t విలీనం_Candidate::currentScore() {
     // Score this candidate. The score is the new local CP length if we merge this candidate.
     // ("Local" means the longest critical path running through the merged node.)
 
     // Sibling merge
-    if (const SiblingMC* const sibp = toSiblingMC()) {
-        const LogicMTask* const ap = sibp->ap();
-        const LogicMTask* const bp = sibp->bp();
-        const uint64_t mergedCpFwd
-            = std::max(ap->cpExclusive<GraphWay::FORWARD>(), bp->cpExclusive<GraphWay::FORWARD>());
-        const uint64_t mergedCpRev
-            = std::max(ap->cpExclusive<GraphWay::REVERSE>(), bp->cpExclusive<GraphWay::REVERSE>());
-        return mergedCpRev + mergedCpFwd + ap->cost() + bp->cost();
+    ఒకవేళ (స్థిరరాశి SiblingMC* స్థిరరాశి sibp = గమ్యం_Sibling_MC()) {
+        స్థిరరాశి LogicMTask* స్థిరరాశి ap = sibp->ap();
+        స్థిరరాశి LogicMTask* స్థిరరాశి bp = sibp->bp();
+        స్థిరరాశి uint64_t mergedCpFwd
+            = std::max(ap->cpExclusive<లేఖాచిత్రం_Way::FORWARD>(), bp->cpExclusive<లేఖాచిత్రం_Way::FORWARD>());
+        స్థిరరాశి uint64_t mergedCpRev
+            = std::max(ap->cpExclusive<లేఖాచిత్రం_Way::తిరగేయి_2>(), bp->cpExclusive<లేఖాచిత్రం_Way::తిరగేయి_2>());
+        తిరిగి mergedCpRev + mergedCpFwd + ap->ఖర్చు() + bp->ఖర్చు();
     }
 
     // Edge merge
     {
-        MTaskEdge* const edgep = toEdgeMC()->edgep();
-        const LogicMTask* const fromp = edgep->fromMTaskp();
-        const LogicMTask* const top = edgep->toMTaskp();
-        const uint64_t mergedCpFwd = std::max(fromp->cpExclusive<GraphWay::FORWARD>(),
-                                              top->cpExclusiveWithout<GraphWay::FORWARD>(edgep));
-        const uint64_t mergedCpRev = std::max(fromp->cpExclusiveWithout<GraphWay::REVERSE>(edgep),
-                                              top->cpExclusive<GraphWay::REVERSE>());
+        MTask_అంచు* స్థిరరాశి edgep = గమ్యం_అంచు_MC()->edgep();
+        స్థిరరాశి LogicMTask* స్థిరరాశి fromp = edgep->fromMTaskp();
+        స్థిరరాశి LogicMTask* స్థిరరాశి శిఖరం = edgep->గమ్యం_MTaskp();
+        స్థిరరాశి uint64_t mergedCpFwd = std::max(fromp->cpExclusive<లేఖాచిత్రం_Way::FORWARD>(),
+                                              శిఖరం->cpExclusiveWithout<లేఖాచిత్రం_Way::FORWARD>(edgep));
+        స్థిరరాశి uint64_t mergedCpRev = std::max(fromp->cpExclusiveWithout<లేఖాచిత్రం_Way::తిరగేయి_2>(edgep),
+                                              శిఖరం->cpExclusive<లేఖాచిత్రం_Way::తిరగేయి_2>());
         // Give a slight preference to sibling merges by increasing the cost of edge merges.
         // This biases towards sibling merges in case they are equal score with edge merges.
         // This avoid a central node growing while many leaves remain due to edge merges.
-        return 1 + mergedCpRev + mergedCpFwd + fromp->cost() + top->cost();
+        తిరిగి 1 + mergedCpRev + mergedCpFwd + fromp->ఖర్చు() + శిఖరం->ఖర్చు();
     }
 }
 
 SiblingMC::SiblingMC(LogicMTask* ap, LogicMTask* bp)
-    : MergeCandidate{/* isSiblingMC: */ true}
+    : విలీనం_Candidate{/* isSiblingMC: */ నిజం}
     , m_ap{ap}
     , m_bp{bp} {
     // Storage management depends on this
     UASSERT(ap->id() > bp->id(), "Should be ordered");
-    UDEBUGONLY(UASSERT(mtaskData(ap).siblings.count(bp), "Should be in sibling map"););
-    mtaskData(m_ap).aSiblingMCs.linkBack(this);
-    mtaskData(m_bp).bSiblingMCs.linkBack(this);
+    UDEBUGONLY(UASSERT(mtask_దత్తాంశం(ap).siblings.లెక్క(bp), "Should be in sibling map"););
+    mtask_దత్తాంశం(m_ap).aSiblingMCs.link_వెనుక(ఇది);
+    mtask_దత్తాంశం(m_bp).bSiblingMCs.link_వెనుక(ఇది);
 }
 
-void SiblingMC::unlinkA() {
-    VL_ATTR_UNUSED const size_t removed = mtaskData(m_ap).siblings.erase(m_bp);
+శూన్య SiblingMC::unlinkA() {
+    VL_ATTR_వాడని స్థిరరాశి కొలత_t removed = mtask_దత్తాంశం(m_ap).siblings.erase(m_bp);
     UDEBUGONLY(UASSERT(removed == 1, "Should have been in sibling set"););
-    mtaskData(m_ap).aSiblingMCs.unlink(this);
+    mtask_దత్తాంశం(m_ap).aSiblingMCs.unlink(ఇది);
 }
 
-void SiblingMC::unlinkB() { mtaskData(m_bp).bSiblingMCs.unlink(this); }
+శూన్య SiblingMC::unlinkB() { mtask_దత్తాంశం(m_bp).bSiblingMCs.unlink(ఇది); }
 
 // Scoreboard of MTask merge candidates.
 //
@@ -287,139 +287,139 @@ void SiblingMC::unlinkB() { mtaskData(m_bp).bSiblingMCs.unlink(this); }
 // via the methods below and never allocate or free them directly. For edges this maintains the
 // invariant that an MTaskEdge has an associated EdgeMC (held in its userp()), if and only if it is
 // currently on the scoreboard.
-class MergeCandidateScoreboard final {
+తరగతి విలీనం_Candidate_Scoreboard final {
     // TYPES
-    using Heap = PairingHeap<MergeCandidateKey>;
+    ఉపయోగించి కుప్ప = Pairing_కుప్ప<విలీనం_Candidate_కీలకం>;
 
     // MEMBERS
-    Heap m_heap;  // The heap of candidates, keyed on their score (see class comment above)
-    PoolAllocator<EdgeMC> m_edgeMCPool;  // Allocator for the edge merge candidates
+    కుప్ప m_కుప్ప;  // The heap of candidates, keyed on their score (see class comment above)
+    PoolAllocator<అంచు_MC> m_అంచు_MCPool;  // Allocator for the edge merge candidates
     PoolAllocator<SiblingMC> m_siblingMCPool;  // Allocator for the sibling merge candidates
 
     // METHODS
     // Set the score of a candidate and add it to the heap. The score is computed from the critical
     // paths of the MTasks, which are up to date while the graph is being contracted.
-    void insert(MergeCandidate* nodep) {
+    శూన్య చొప్పించు(విలీనం_Candidate* nodep) {
         nodep->updateScore();
-        m_heap.insert(nodep);
+        m_కుప్ప.చొప్పించు(nodep);
     }
 
     // Remove a candidate from the scoreboard.
-    void remove(MergeCandidate* nodep) { m_heap.remove(nodep); }
+    శూన్య remove(విలీనం_Candidate* nodep) { m_కుప్ప.remove(nodep); }
 
-public:
+బహిరంగ:
     // CONSTRUCTORS
-    MergeCandidateScoreboard() = default;
-    ~MergeCandidateScoreboard() = default;
-    VL_UNCOPYABLE(MergeCandidateScoreboard);
+    విలీనం_Candidate_Scoreboard() = అప్రమేయ;
+    ~విలీనం_Candidate_Scoreboard() = అప్రమేయ;
+    VL_UNCOPYABLE(విలీనం_Candidate_Scoreboard);
 
     // The candidate with the lowest score it was given, or nullptr if the scoreboard is empty.
     // Note this is only a lower bound on the best current score, see the class comment above.
-    MergeCandidate* best() const { return MergeCandidate::heapNodeToElem(m_heap.max()); }
+    విలీనం_Candidate* ఉత్తమ() స్థిరరాశి { తిరిగి విలీనం_Candidate::కుప్ప_కణుపు_గమ్యం_Elem(m_కుప్ప.max()); }
 
     // Update the score of a candidate to its current value, and reposition it in the heap
-    void rescore(MergeCandidate* nodep) {
+    శూన్య rescore(విలీనం_Candidate* nodep) {
         remove(nodep);
-        insert(nodep);
+        చొప్పించు(nodep);
     }
 
     // Create a merge candidate for 'edgep' and add it to the scoreboard
-    void addEdgeMC(MTaskEdge* edgep) {
+    శూన్య కూడు_అంచు_MC(MTask_అంచు* edgep) {
         UDEBUGONLY(UASSERT(!edgep->userp(), "Edge already has a merge candidate"););
-        EdgeMC* const edgeMCp = m_edgeMCPool.alloc(edgep);
-        edgep->userp(edgeMCp);
-        insert(edgeMCp);
+        అంచు_MC* స్థిరరాశి అంచు_MCp = m_అంచు_MCPool.alloc(edgep);
+        edgep->userp(అంచు_MCp);
+        చొప్పించు(అంచు_MCp);
     }
     // Remove 'edgep's merge candidate from the scoreboard and release it
-    void removeEdgeMC(MTaskEdge* edgep) {
-        EdgeMC* const edgeMCp = edgeMC(edgep);
-        UDEBUGONLY(UASSERT(edgeMCp, "Edge has no merge candidate"););
-        edgep->userp(nullptr);
-        remove(edgeMCp);
-        VL_DO_DANGLING(m_edgeMCPool.free(edgeMCp), edgeMCp);
+    శూన్య remove_అంచు_MC(MTask_అంచు* edgep) {
+        అంచు_MC* స్థిరరాశి అంచు_MCp = అంచు_MC_2(edgep);
+        UDEBUGONLY(UASSERT(అంచు_MCp, "Edge has no merge candidate"););
+        edgep->userp(శూన్యసూచిక);
+        remove(అంచు_MCp);
+        VL_DO_DANGLING(m_అంచు_MCPool.విడుదల(అంచు_MCp), అంచు_MCp);
     }
 
     // Create a sibling merge candidate for 'ap' and 'bp' and add it to the scoreboard
-    void addSiblingMC(LogicMTask* ap, LogicMTask* bp) { insert(m_siblingMCPool.alloc(ap, bp)); }
+    శూన్య కూడు_Sibling_MC(LogicMTask* ap, LogicMTask* bp) { చొప్పించు(m_siblingMCPool.alloc(ap, bp)); }
     // Remove sibling merge candidate 'smcp' from the scoreboard and release it
-    void removeSiblingMC(SiblingMC* smcp) {
+    శూన్య removeSiblingMC(SiblingMC* smcp) {
         remove(smcp);
         smcp->unlinkA();
         smcp->unlinkB();
-        VL_DO_DANGLING(m_siblingMCPool.free(smcp), smcp);
+        VL_DO_DANGLING(m_siblingMCPool.విడుదల(smcp), smcp);
     }
 
     // Remove the given merge candidate, whichever kind it is, from the scoreboard and release it
-    void removeMC(MergeCandidate* nodep) {
-        if (SiblingMC* const smcp = nodep->toSiblingMC()) {
+    శూన్య removeMC(విలీనం_Candidate* nodep) {
+        ఒకవేళ (SiblingMC* స్థిరరాశి smcp = nodep->గమ్యం_Sibling_MC()) {
             removeSiblingMC(smcp);
-        } else {
-            removeEdgeMC(nodep->toEdgeMC()->edgep());
+        } లేకపోతే {
+            remove_అంచు_MC(nodep->గమ్యం_అంచు_MC()->edgep());
         }
     }
 };
 
 //######################################################################
 // Contraction - Perform greedy edge or sibling merges on the MTask graph
-class Contraction final {
+తరగతి Contraction final {
     // MEMBERS
-    OrderMTaskGraph& m_mTaskGraph;  // The Mtask graph
-    uint64_t m_scoreLimit;  // Critical path limit for merges
-    MergeCandidateScoreboard m_sb;  // Scoreboard
+    క్రమం_MTask_లేఖాచిత్రం& m_m_Task_లేఖాచిత్రం;  // The Mtask graph
+    uint64_t m_score_హద్దు;  // Critical path limit for merges
+    విలీనం_Candidate_Scoreboard m_sb;  // Scoreboard
     // Auxiliary per-MTask data (the SiblingMC lists) attached to each MTask via its user pointer.
     // Owned here for the lifetime of this Contraction. A single array, as the number of MTasks
     // can only decrease during contraction.
-    std::unique_ptr<MTaskContractionData[]> m_mtaskDatap;
+    std::unique_ptr<MTask_Contraction_దత్తాంశం[]> m_mtaskDatap;
 
     // Add merge candidates for all edges of 'mtaskp' to the scoreboard
-    void addEdgeMCs(LogicMTask* mtaskp) {
-        for (V3GraphEdge& e : mtaskp->outEdges()) m_sb.addEdgeMC(static_cast<MTaskEdge*>(&e));
-        for (V3GraphEdge& e : mtaskp->inEdges()) m_sb.addEdgeMC(static_cast<MTaskEdge*>(&e));
+    శూన్య కూడు_అంచు_MCs(LogicMTask* mtaskp) {
+        కొరకు (V3_లేఖాచిత్రం_అంచు& e : mtaskp->బహిర్గతం_అంచులు()) m_sb.కూడు_అంచు_MC(static_cast<MTask_అంచు*>(&e));
+        కొరకు (V3_లేఖాచిత్రం_అంచు& e : mtaskp->లోపల_అంచులు()) m_sb.కూడు_అంచు_MC(static_cast<MTask_అంచు*>(&e));
     }
 
     // Remove the merge candidates of all edges of 'mtaskp' from the scoreboard.
-    void removeEdgeMCs(LogicMTask* mtaskp) {
+    శూన్య remove_అంచు_MCs(LogicMTask* mtaskp) {
         // Note not all edges have a merge candidate:
         // those rejected by the main contraction loop had theirs removed there.
-        for (V3GraphEdge& edge : mtaskp->outEdges()) {
-            MTaskEdge* const edgep = static_cast<MTaskEdge*>(&edge);
-            if (edgeMC(edgep)) m_sb.removeEdgeMC(edgep);
+        కొరకు (V3_లేఖాచిత్రం_అంచు& అంచు : mtaskp->బహిర్గతం_అంచులు()) {
+            MTask_అంచు* స్థిరరాశి edgep = static_cast<MTask_అంచు*>(&అంచు);
+            ఒకవేళ (అంచు_MC_2(edgep)) m_sb.remove_అంచు_MC(edgep);
         }
-        for (V3GraphEdge& edge : mtaskp->inEdges()) {
-            MTaskEdge* const edgep = static_cast<MTaskEdge*>(&edge);
-            if (edgeMC(edgep)) m_sb.removeEdgeMC(edgep);
+        కొరకు (V3_లేఖాచిత్రం_అంచు& అంచు : mtaskp->లోపల_అంచులు()) {
+            MTask_అంచు* స్థిరరాశి edgep = static_cast<MTask_అంచు*>(&అంచు);
+            ఒకవేళ (అంచు_MC_2(edgep)) m_sb.remove_అంచు_MC(edgep);
         }
     }
 
-    void makeSiblingMC(LogicMTask* ap, LogicMTask* bp) {
-        if (ap->id() < bp->id()) std::swap(ap, bp);
+    శూన్య makeSiblingMC(LogicMTask* ap, LogicMTask* bp) {
+        ఒకవేళ (ap->id() < bp->id()) std::మార్పిడి(ap, bp);
         // The higher id vertex owns the association set
-        const bool first = mtaskData(ap).siblings.insert(bp).second;
-        if (first) {
-            m_sb.addSiblingMC(ap, bp);
-            return;
+        స్థిరరాశి తార్కిక మొదటి = mtask_దత్తాంశం(ap).siblings.చొప్పించు(bp).రెండవ;
+        ఒకవేళ (మొదటి) {
+            m_sb.కూడు_Sibling_MC(ap, bp);
+            తిరిగి;
         }
 
-        if (VL_UNLIKELY(m_mTaskGraph.slowAsserts())) {
+        ఒకవేళ (VL_UNLIKELY(m_m_Task_లేఖాచిత్రం.slowAsserts())) {
             // It's fine if we already have this SiblingMC, we may have
             // created it earlier. Just confirm that we have associated data.
-            bool found = false;
-            for (const SiblingMC& smc : mtaskData(ap).aSiblingMCs) {
+            తార్కిక దొరికింది = అబద్ధం;
+            కొరకు (స్థిరరాశి SiblingMC& smc : mtask_దత్తాంశం(ap).aSiblingMCs) {
                 UASSERT_OBJ(smc.ap() == ap, ap, "Inconsistent SiblingMC");
-                if (smc.bp() == bp) found = true;
+                ఒకవేళ (smc.bp() == bp) దొరికింది = నిజం;
             }
-            UASSERT_OBJ(found, ap, "Sibling not found");
+            UASSERT_OBJ(దొరికింది, ap, "Sibling not found");
         }
     }
 
-    template <GraphWay::en N_Way, bool N_Exhaustive>
-    void addSiblingMCsFromRelatives(LogicMTask* mtaskp) {
-        constexpr GraphWay way{N_Way};
+    మూస <లేఖాచిత్రం_Way::en N_Way, తార్కిక N_Exhaustive>
+    శూన్య కూడు_Sibling_MCs_From_Relatives(LogicMTask* mtaskp) {
+        constexpr లేఖాచిత్రం_Way way{N_Way};
         // Need at least 2 edges
-        auto& edges = mtaskp->edges<way>();
-        if (!edges.hasMultipleElements()) return;
+        స్వయంచాలక& అంచులు = mtaskp->అంచులు<way>();
+        ఒకవేళ (!అంచులు.has_గుణిజం_Elements()) తిరిగి;
 
-        std::array<LogicMTask*, PART_SIBLING_EDGE_LIMIT> neighbors;
+        std::array<LogicMTask*, PART_SIBLING_అంచు_హద్దు> neighbors;
 
         // This is a hot method, so we want so sort as efficiently as possible. We pre-load
         // all data (critical path cost and id) required for determining ordering into an aligned
@@ -428,241 +428,241 @@ class Contraction final {
         // and swap these sorting records very efficiently. With this the standard library sorting
         // functions are efficient enough and using more optimized methods (e.g.: sorting networks)
         // has no measurable benefit.
-        struct alignas(16) SortingRecord final {
+        నిర్మాణం alignas(16) క్రమీకరణ_రికార్డు final {
             uint64_t m_cp;  // Critical path cost of the neighbor (primary sort key)
             uint32_t m_id;  // Id of the neighbor (tiebreaker sort key)
             uint8_t m_idx;  // Index of the neighbor within 'neighbors'
-            static_assert(PART_SIBLING_EDGE_LIMIT <= std::numeric_limits<uint8_t>::max(),
+            static_assert(PART_SIBLING_అంచు_హద్దు <= std::numeric_limits<uint8_t>::max(),
                           "m_idx must fit all indices into 'neighbors'");
-            bool operator<(const SortingRecord& that) const {
-                return m_cp < that.m_cp || (m_cp == that.m_cp && m_id < that.m_id);
+            తార్కిక క్రియాకారకం<(స్థిరరాశి క్రమీకరణ_రికార్డు& that) స్థిరరాశి {
+                తిరిగి m_cp < that.m_cp || (m_cp == that.m_cp && m_id < that.m_id);
             }
         };
-        static_assert(sizeof(SortingRecord) <= 16, "How could this be padded to more than 16?");
+        static_assert(పరిమాణం(క్రమీకరణ_రికార్డు) <= 16, "How could this be padded to more than 16?");
 
-        std::array<SortingRecord, PART_SIBLING_EDGE_LIMIT> sortRecs;
-        size_t n = 0;
+        std::array<క్రమీకరణ_రికార్డు, PART_SIBLING_అంచు_హద్దు> క్రమీకరించు_Recs;
+        కొలత_t n = 0;
 
         // Populate the buffers
-        for (V3GraphEdge& edge : mtaskp->edges<way>()) {
-            LogicMTask* const otherp = static_cast<LogicMTask*>(edge.furtherp<way>());
+        కొరకు (V3_లేఖాచిత్రం_అంచు& అంచు : mtaskp->అంచులు<way>()) {
+            LogicMTask* స్థిరరాశి otherp = static_cast<LogicMTask*>(అంచు.furtherp<way>());
             neighbors[n] = otherp;
-            sortRecs[n].m_id = otherp->id();
-            sortRecs[n].m_cp = otherp->cpInclusive<way>();
-            sortRecs[n].m_idx = n;
+            క్రమీకరించు_Recs[n].m_id = otherp->id();
+            క్రమీకరించు_Recs[n].m_cp = otherp->cpInclusive<way>();
+            క్రమీకరించు_Recs[n].m_idx = n;
             ++n;
             // Prevent nodes with huge numbers of edges from massively slowing down us down
-            if (n >= PART_SIBLING_EDGE_LIMIT) break;
+            ఒకవేళ (n >= PART_SIBLING_అంచు_హద్దు) ఆపు;
         }
 
         // Don't make all possible pairs of siblings when not requested (non-exhaustive).
         // Just make a few pairs.
-        constexpr size_t MAX_NONEXHAUSTIVE_PAIRS = 3;
+        constexpr కొలత_t MAX_NONEXHAUSTIVE_జతలు = 3;
 
-        if (N_Exhaustive || n <= 2 * MAX_NONEXHAUSTIVE_PAIRS) {
-            const size_t end = n & ~static_cast<size_t>(1);  // Round down to even, (we want pairs)
-            std::sort(sortRecs.begin(), sortRecs.begin() + n);
-            for (size_t i = 0; i < end; i += 2) {
-                makeSiblingMC(neighbors[sortRecs[i].m_idx], neighbors[sortRecs[i + 1].m_idx]);
+        ఒకవేళ (N_Exhaustive || n <= 2 * MAX_NONEXHAUSTIVE_జతలు) {
+            స్థిరరాశి కొలత_t చివర = n & ~static_cast<కొలత_t>(1);  // Round down to even, (we want pairs)
+            std::క్రమీకరించు(క్రమీకరించు_Recs.begin(), క్రమీకరించు_Recs.begin() + n);
+            కొరకు (కొలత_t i = 0; i < చివర; i += 2) {
+                makeSiblingMC(neighbors[క్రమీకరించు_Recs[i].m_idx], neighbors[క్రమీకరించు_Recs[i + 1].m_idx]);
             }
-        } else {
-            constexpr size_t end = 2 * MAX_NONEXHAUSTIVE_PAIRS;
-            std::partial_sort(sortRecs.begin(), sortRecs.begin() + end, sortRecs.begin() + n);
-            for (size_t i = 0; i < end; i += 2) {
-                makeSiblingMC(neighbors[sortRecs[i].m_idx], neighbors[sortRecs[i + 1].m_idx]);
+        } లేకపోతే {
+            constexpr కొలత_t చివర = 2 * MAX_NONEXHAUSTIVE_జతలు;
+            std::partial_క్రమీకరించు(క్రమీకరించు_Recs.begin(), క్రమీకరించు_Recs.begin() + చివర, క్రమీకరించు_Recs.begin() + n);
+            కొరకు (కొలత_t i = 0; i < చివర; i += 2) {
+                makeSiblingMC(neighbors[క్రమీకరించు_Recs[i].m_idx], neighbors[క్రమీకరించు_Recs[i + 1].m_idx]);
             }
         }
     }
 
-    void removeSiblingMCs(LogicMTask* mtaskp) {
+    శూన్య removeSiblingMCs(LogicMTask* mtaskp) {
         // Note: 'removeSiblingMC' unlinks the candidate from both of its MTasks' lists, so taking
         // the front element repeatedly does terminate. It also erases the candidate from the
         // owning (higher id) MTask's sibling set as it goes, so both the sets and the lists are
         // left consistent, whichever side of the candidate 'mtaskp' happens to be on.
-        while (SiblingMC* const smcp = mtaskData(mtaskp).aSiblingMCs.frontp()) {
+        అయితే (SiblingMC* స్థిరరాశి smcp = mtask_దత్తాంశం(mtaskp).aSiblingMCs.frontp()) {
             m_sb.removeSiblingMC(smcp);
         }
-        while (SiblingMC* const smcp = mtaskData(mtaskp).bSiblingMCs.frontp()) {
+        అయితే (SiblingMC* స్థిరరాశి smcp = mtask_దత్తాంశం(mtaskp).bSiblingMCs.frontp()) {
             m_sb.removeSiblingMC(smcp);
         }
     }
 
     // Merge the two MTasks of 'mergeCanp'
-    void contract(MergeCandidate* mergeCanp) {
+    శూన్య contract(విలీనం_Candidate* విలీనం_Canp) {
         // The two MTasks to merge. Note the order of the two decides which of them becomes the
         // recipient below when their costs are equal, so keep it stable.
         LogicMTask* fromp;
-        LogicMTask* top;
-        if (const EdgeMC* const edgeMCp = mergeCanp->toEdgeMC()) {
-            fromp = edgeMCp->edgep()->fromMTaskp();
-            top = edgeMCp->edgep()->toMTaskp();
-        } else {
-            const SiblingMC* const sibMCp = mergeCanp->toSiblingMC();
+        LogicMTask* శిఖరం;
+        ఒకవేళ (స్థిరరాశి అంచు_MC* స్థిరరాశి అంచు_MCp = విలీనం_Canp->గమ్యం_అంచు_MC()) {
+            fromp = అంచు_MCp->edgep()->fromMTaskp();
+            శిఖరం = అంచు_MCp->edgep()->గమ్యం_MTaskp();
+        } లేకపోతే {
+            స్థిరరాశి SiblingMC* స్థిరరాశి sibMCp = విలీనం_Canp->గమ్యం_Sibling_MC();
             fromp = sibMCp->bp();
-            top = sibMCp->ap();
+            శిఖరం = sibMCp->ap();
         }
 
         // Merge the smaller mtask into the larger mtask.
         LogicMTask* recipientp;
         LogicMTask* donorp;
-        if (fromp->cost() > top->cost()) {
+        ఒకవేళ (fromp->ఖర్చు() > శిఖరం->ఖర్చు()) {
             recipientp = fromp;
-            donorp = top;
-        } else {
+            donorp = శిఖరం;
+        } లేకపోతే {
             donorp = fromp;
-            recipientp = top;
+            recipientp = శిఖరం;
         }
         VL_DANGLING(fromp);
-        VL_DANGLING(top);  // Use donorp and recipientp now instead
+        VL_DANGLING(శిఖరం);  // Use donorp and recipientp now instead
 
         // Remove all SiblingMCs that include either MTask
         removeSiblingMCs(recipientp);
         removeSiblingMCs(donorp);
 
         // Remove the EdgeMCs of both MTasks
-        removeEdgeMCs(recipientp);
-        removeEdgeMCs(donorp);
+        remove_అంచు_MCs(recipientp);
+        remove_అంచు_MCs(donorp);
 
         // Merge the MTasks. This redirects all edges, updates critical paths, and deletes donorp
-        m_mTaskGraph.mergeMTasks(recipientp, donorp);
+        m_m_Task_లేఖాచిత్రం.విలీనం_MTasks(recipientp, donorp);
         VL_DANGLING(donorp);
 
         // Confirm we haven't botched the CP updates. This is a whole graph walk after every single
         // merge, so it is quadratic in the size of the graph, hence only under '--debug 9'.
-        if (VL_UNLIKELY(debug() >= 9)) m_mTaskGraph.validate();
+        ఒకవేళ (VL_UNLIKELY(debug() >= 9)) m_m_Task_లేఖాచిత్రం.validate();
 
         // Add the EdgeMCs of the merged MTask
-        addEdgeMCs(recipientp);
+        కూడు_అంచు_MCs(recipientp);
 
         // Finally, make new sibling pairs as needed:
         //  - prereqs and postreqs of recipientp
         //  - prereqs of recipientp's postreqs
         //  - postreqs of recipientp's prereqs
         // Note that this depends on the updated critical paths (above).
-        addSiblingMCsFromRelatives<GraphWay::REVERSE, true>(recipientp);
-        addSiblingMCsFromRelatives<GraphWay::FORWARD, true>(recipientp);
-        unsigned edges = 0;
-        for (V3GraphEdge& edge : recipientp->outEdges()) {
-            LogicMTask* const postreqp = static_cast<LogicMTask*>(edge.top());
-            addSiblingMCsFromRelatives<GraphWay::REVERSE, false>(postreqp);
-            ++edges;
-            if (edges >= PART_SIBLING_EDGE_LIMIT) break;
+        కూడు_Sibling_MCs_From_Relatives<లేఖాచిత్రం_Way::తిరగేయి_2, నిజం>(recipientp);
+        కూడు_Sibling_MCs_From_Relatives<లేఖాచిత్రం_Way::FORWARD, నిజం>(recipientp);
+        గుర్తులేని అంచులు = 0;
+        కొరకు (V3_లేఖాచిత్రం_అంచు& అంచు : recipientp->బహిర్గతం_అంచులు()) {
+            LogicMTask* స్థిరరాశి postreqp = static_cast<LogicMTask*>(అంచు.శిఖరం());
+            కూడు_Sibling_MCs_From_Relatives<లేఖాచిత్రం_Way::తిరగేయి_2, అబద్ధం>(postreqp);
+            ++అంచులు;
+            ఒకవేళ (అంచులు >= PART_SIBLING_అంచు_హద్దు) ఆపు;
         }
-        edges = 0;
-        for (V3GraphEdge& edge : recipientp->inEdges()) {
-            LogicMTask* const prereqp = static_cast<LogicMTask*>(edge.fromp());
-            addSiblingMCsFromRelatives<GraphWay::FORWARD, false>(prereqp);
-            ++edges;
-            if (edges >= PART_SIBLING_EDGE_LIMIT) break;
+        అంచులు = 0;
+        కొరకు (V3_లేఖాచిత్రం_అంచు& అంచు : recipientp->లోపల_అంచులు()) {
+            LogicMTask* స్థిరరాశి prereqp = static_cast<LogicMTask*>(అంచు.fromp());
+            కూడు_Sibling_MCs_From_Relatives<లేఖాచిత్రం_Way::FORWARD, అబద్ధం>(prereqp);
+            ++అంచులు;
+            ఒకవేళ (అంచులు >= PART_SIBLING_అంచు_హద్దు) ఆపు;
         }
     }
 
     // CONSTRUCTORS
-    Contraction(OrderMTaskGraph& mTaskGraph, uint64_t cpLimit)
-        : m_mTaskGraph{mTaskGraph}
-        , m_scoreLimit{cpLimit} {
+    Contraction(క్రమం_MTask_లేఖాచిత్రం& m_Task_లేఖాచిత్రం, uint64_t cp_హద్దు)
+        : m_m_Task_లేఖాచిత్రం{m_Task_లేఖాచిత్రం}
+        , m_score_హద్దు{cp_హద్దు} {
 
         // Check the graph we were given is consistent.
-        m_mTaskGraph.validate();
+        m_m_Task_లేఖాచిత్రం.validate();
 
         // Figure out maximum number of MTasks
-        const uint32_t maxMTasks = []() -> uint32_t {
+        స్థిరరాశి uint32_t maxMTasks = []() -> uint32_t {
             // If specified, use the given value
-            const int given = v3Global.opt.threadsMaxMTasks();
-            if (given > 0) return given;
+            స్థిరరాశి పూర్ణాంకం given = v3Global.opt.దారాలు_Max_MTasks();
+            ఒకవేళ (given > 0) తిరిగి given;
             // Unspecified so estimate
-            return PART_DEFAULT_MAX_MTASKS_PER_THREAD * v3Global.opt.threads();
+            తిరిగి PART_DEFAULT_MAX_MTASKS_చొప్పున_THREAD * v3Global.opt.దారాలు();
         }();
 
         // Allocate and assign the auxiliary data for every LogicMTask.
         {
-            const size_t nMTasks = m_mTaskGraph.vertices().size();
-            m_mtaskDatap.reset(new MTaskContractionData[nMTasks]);
-            size_t i = 0;
-            for (V3GraphVertex& vtx : m_mTaskGraph.vertices()) vtx.userp(&m_mtaskDatap[i++]);
+            స్థిరరాశి కొలత_t nMTasks = m_m_Task_లేఖాచిత్రం.vertices().కొలత();
+            m_mtaskDatap.reset(కొత్త MTask_Contraction_దత్తాంశం[nMTasks]);
+            కొలత_t i = 0;
+            కొరకు (V3_లేఖాచిత్రం_శీర్షం& vtx : m_m_Task_లేఖాచిత్రం.vertices()) vtx.userp(&m_mtaskDatap[i++]);
             UASSERT(i == nMTasks, "Inconsistent MTask count");
         }
 
         // Add initial candidates
-        for (V3GraphVertex& vtx : m_mTaskGraph.vertices()) {
-            for (V3GraphEdge& edge : vtx.outEdges())
-                m_sb.addEdgeMC(static_cast<MTaskEdge*>(&edge));
-            LogicMTask* const mtaskp = static_cast<LogicMTask*>(&vtx);
-            addSiblingMCsFromRelatives<GraphWay::REVERSE, true>(mtaskp);
-            addSiblingMCsFromRelatives<GraphWay::FORWARD, true>(mtaskp);
+        కొరకు (V3_లేఖాచిత్రం_శీర్షం& vtx : m_m_Task_లేఖాచిత్రం.vertices()) {
+            కొరకు (V3_లేఖాచిత్రం_అంచు& అంచు : vtx.బహిర్గతం_అంచులు())
+                m_sb.కూడు_అంచు_MC(static_cast<MTask_అంచు*>(&అంచు));
+            LogicMTask* స్థిరరాశి mtaskp = static_cast<LogicMTask*>(&vtx);
+            కూడు_Sibling_MCs_From_Relatives<లేఖాచిత్రం_Way::తిరగేయి_2, నిజం>(mtaskp);
+            కూడు_Sibling_MCs_From_Relatives<లేఖాచిత్రం_Way::FORWARD, నిజం>(mtaskp);
         }
 
-        while (true) {
+        అయితే (నిజం) {
             // Pick the candidate yielding the lowest local critical path.
-            MergeCandidate* const mergeCanp = m_sb.best();
-            if (!mergeCanp) break;  // No more candidates
+            విలీనం_Candidate* స్థిరరాశి విలీనం_Canp = m_sb.ఉత్తమ();
+            ఒకవేళ (!విలీనం_Canp) ఆపు;  // No more candidates
 
             // If the score has changed since it was inserted into the scoreboard, rescore it and
             // pick again. (The real scores can differ from the one used to insert it into the
             // scoreboard, due to merges between insertion and retrieval.)
-            const uint64_t score = mergeCanp->currentScore();
-            if (score != mergeCanp->score()) {
-                m_sb.rescore(mergeCanp);
-                continue;
+            స్థిరరాశి uint64_t score = విలీనం_Canp->currentScore();
+            ఒకవేళ (score != విలీనం_Canp->score()) {
+                m_sb.rescore(విలీనం_Canp);
+                కొనసాగు;
             }
 
             // Check if the critical path limit is reached.
-            if (score > m_scoreLimit) {
+            ఒకవేళ (score > m_score_హద్దు) {
 
                 // If there are still too many MTasks, raise the limit and keep going
-                const unsigned mtaskCount = m_mTaskGraph.vertices().size();
-                if (mtaskCount > maxMTasks) {
-                    m_scoreLimit = (m_scoreLimit * 120) / 100;
-                    FileLine* const flp = v3Global.rootp()->fileline();
-                    if (!flp->warnIsOff(V3ErrorCode::UNOPTTHREADS)) {
+                స్థిరరాశి గుర్తులేని mtask_లెక్క = m_m_Task_లేఖాచిత్రం.vertices().కొలత();
+                ఒకవేళ (mtask_లెక్క > maxMTasks) {
+                    m_score_హద్దు = (m_score_హద్దు * 120) / 100;
+                    File_పంక్తి* స్థిరరాశి flp = v3Global.rootp()->fileline();
+                    ఒకవేళ (!flp->warnIsOff(V3_Error_సంకేతం::UNOPTTHREADS)) {
                         flp->v3warn(UNOPTTHREADS,
                                     "Thread scheduler is unable to provide requested "
                                     "parallelism; suggest asking for fewer threads.");
-                        flp->modifyWarnOff(V3ErrorCode::UNOPTTHREADS, true);
+                        flp->modifyWarnOff(V3_Error_సంకేతం::UNOPTTHREADS, నిజం);
                     }
-                    continue;
+                    కొనసాగు;
                 }
 
                 // MTasks limit and CP limit reached. Stop.
-                break;
+                ఆపు;
             }
 
             // Avoid merging the entry/exit nodes. This would create serialization, by forcing the
             // merged MTask to run before/after everything else. Empirically this helps performance
             // in a modest way by allowing other MTasks to start earlier.
-            if (EdgeMC* const edgeMCp = mergeCanp->toEdgeMC()) {
-                MTaskEdge* const edgep = edgeMCp->edgep();
-                if (edgep->fromp() == m_mTaskGraph.entryp()
-                    || edgep->top() == m_mTaskGraph.exitp()) {
-                    m_sb.removeEdgeMC(edgep);
-                    continue;
+            ఒకవేళ (అంచు_MC* స్థిరరాశి అంచు_MCp = విలీనం_Canp->గమ్యం_అంచు_MC()) {
+                MTask_అంచు* స్థిరరాశి edgep = అంచు_MCp->edgep();
+                ఒకవేళ (edgep->fromp() == m_m_Task_లేఖాచిత్రం.entryp()
+                    || edgep->శిఖరం() == m_m_Task_లేఖాచిత్రం.exitp()) {
+                    m_sb.remove_అంచు_MC(edgep);
+                    కొనసాగు;
                 }
             }
 
             // Avoid merging any edge that would create a cycle. For example suppose we begin with
             // vertices A, B, C and edges A->B, B->C, A->C. Merging A->C would create a cycle.
-            if (mergeCanp->mergeWouldCreateCycle(m_mTaskGraph)) {
-                m_sb.removeMC(mergeCanp);
-                continue;
+            ఒకవేళ (విలీనం_Canp->విలీనం_Would_Create_చక్రం(m_m_Task_లేఖాచిత్రం)) {
+                m_sb.removeMC(విలీనం_Canp);
+                కొనసాగు;
             }
 
             // Merge this candidate
-            contract(mergeCanp);
+            contract(విలీనం_Canp);
         }
 
         // Free all remaining merge candidates.
-        while (MergeCandidate* const mergeCanp = m_sb.best()) m_sb.removeMC(mergeCanp);
+        అయితే (విలీనం_Candidate* స్థిరరాశి విలీనం_Canp = m_sb.ఉత్తమ()) m_sb.removeMC(విలీనం_Canp);
     }
 
-public:
-    static void apply(OrderMTaskGraph& mTaskGraph, uint64_t scoreLimit) {
-        Contraction{mTaskGraph, scoreLimit};
+బహిరంగ:
+    స్థిర శూన్య apply(క్రమం_MTask_లేఖాచిత్రం& m_Task_లేఖాచిత్రం, uint64_t score_హద్దు) {
+        Contraction{m_Task_లేఖాచిత్రం, score_హద్దు};
     }
 };
 
 //######################################################################
 // OrderMTaskGraph entry point
 
-void OrderMTaskGraph::contract(OrderMTaskGraph& mtaskGraph, uint64_t scoreLimit) {
-    Contraction::apply(mtaskGraph, scoreLimit);
+శూన్య క్రమం_MTask_లేఖాచిత్రం::contract(క్రమం_MTask_లేఖాచిత్రం& mtask_లేఖాచిత్రం, uint64_t score_హద్దు) {
+    Contraction::apply(mtask_లేఖాచిత్రం, score_హద్దు);
 }

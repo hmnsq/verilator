@@ -14,60 +14,60 @@
 //
 //*************************************************************************
 
-#ifndef VERILATOR_V3TASK_H_
-#define VERILATOR_V3TASK_H_
+#నిర్వచితం_కాకపోతే VERILATOR_V3TASK_H_
+#నిర్వచించు VERILATOR_V3TASK_H_
 
-#include "config_build.h"
-#include "verilatedos.h"
+#అన్తర్భావ "config_build.h"
+#అన్తర్భావ "verilatedos.h"
 
-#include "V3Ast.h"
-#include "V3Container.h"
-#include "V3Error.h"
+#అన్తర్భావ "V3Ast.h"
+#అన్తర్భావ "V3Container.h"
+#అన్తర్భావ "V3Error.h"
 
-#include <utility>
-#include <vector>
+#అన్తర్భావ <utility>
+#అన్తర్భావ <vector>
 
 //============================================================================
 
 using V3TaskConnect = std::pair<AstVar*, AstArg*>;  // [port, pin-connects-to]
-using V3TaskConnects = std::vector<V3TaskConnect>;  // [ [port, pin-connects-to] ... ]
+using V3TaskConnects = std::సదిశ<V3TaskConnect>;  // [ [port, pin-connects-to] ... ]
 
 class V3TaskConnectState final {
     VNDeleter m_deleter;  // Allow delayed deletion of nodes
     bool m_didWrap = false;  // Made a wrapper
-    using WrapMap = std::map<std::pair<AstNodeFTask*, std::string>, AstNodeFTask*>;
+    using WrapMap = std::map<std::pair<Ast_కణుపు_FTask*, std::string>, Ast_కణుపు_FTask*>;
     WrapMap m_wrapMap;  // Map of {old function, arguments} -> new function
-public:
-    V3TaskConnectState() = default;
-    ~V3TaskConnectState() = default;
-    void pushDeletep(AstNode* nodep) { m_deleter.pushDeletep(nodep); }
-    bool didWrap() const { return m_didWrap; }
-    void setDidWrap() { m_didWrap = true; }
-    WrapMap& wrapMap() { return m_wrapMap; }
+బహిరంగ:
+    V3TaskConnectState() = అప్రమేయ;
+    ~V3TaskConnectState() = అప్రమేయ;
+    శూన్య నెట్టు_Deletep(Ast_కణుపు* nodep) { m_deleter.నెట్టు_Deletep(nodep); }
+    bool didWrap() స్థిరరాశి { తిరిగి m_didWrap; }
+    శూన్య సమితి_Did_Wrap() { m_didWrap = true; }
+    WrapMap& wrapMap() { తిరిగి m_wrapMap; }
 };
 
 //============================================================================
 
 class V3Task final {
-    static const char* const s_dpiTemporaryVarSuffix;
+    స్థిర స్థిరరాశి అక్షరం* స్థిరరాశి s_dpiTemporaryVarSuffix;
 
-public:
-    static void taskAll(AstNetlist* nodep) VL_MT_DISABLED;
+బహిరంగ:
+    స్థిర శూన్య taskAll(AstNetlist* nodep) VL_MT_DISABLED;
     /// Return vector of [port, pin-connects-to]  (SLOW)
-    static V3TaskConnects taskConnects(AstNodeFTaskRef* nodep, AstNode* taskStmtsp,
+    స్థిర V3TaskConnects taskConnects(Ast_కణుపు_FTask_Ref* nodep, Ast_కణుపు* taskStmtsp,
                                        V3TaskConnectState* statep = nullptr,
                                        bool makeChanges = true) VL_MT_DISABLED;
-    static void taskConnectWrap(AstNodeFTaskRef* nodep, const V3TaskConnects& tconnects,
+    స్థిర శూన్య taskConnectWrap(Ast_కణుపు_FTask_Ref* nodep, స్థిరరాశి V3TaskConnects& tconnects,
                                 V3TaskConnectState* statep,
-                                const VInsertionSet<const AstVar*>& argWrap) VL_MT_DISABLED;
-    static AstNodeFTask*
-    taskConnectWrapNew(AstNodeFTask* taskp, const string& newname, const V3TaskConnects& tconnects,
-                       const VInsertionSet<const AstVar*>& argWrap) VL_MT_DISABLED;
-    static string assignInternalToDpi(AstVar* portp, bool isPtr, const string& frSuffix,
-                                      const string& toSuffix,
-                                      const string& frPrefix = "") VL_MT_DISABLED;
-    static string assignDpiToInternal(const string& lhsName, AstVar* rhsp) VL_MT_DISABLED;
-    static const char* dpiTemporaryVarSuffix() VL_MT_SAFE { return s_dpiTemporaryVarSuffix; }
+                                స్థిరరాశి VInsertion_సమితి<స్థిరరాశి AstVar*>& argWrap) VL_MT_DISABLED;
+    స్థిర Ast_కణుపు_FTask*
+    taskConnectWrapNew(Ast_కణుపు_FTask* taskp, స్థిరరాశి string& newname, స్థిరరాశి V3TaskConnects& tconnects,
+                       స్థిరరాశి VInsertion_సమితి<స్థిరరాశి AstVar*>& argWrap) VL_MT_DISABLED;
+    స్థిర string కేటాయించు_అంతర్గత_గమ్యం_Dpi(AstVar* portp, bool isPtr, స్థిరరాశి string& frSuffix,
+                                      స్థిరరాశి string& గమ్యం_Suffix,
+                                      స్థిరరాశి string& fr_ఉపసర్గ = "") VL_MT_DISABLED;
+    స్థిర string కేటాయించు_Dpi_గమ్యం_అంతర్గత(స్థిరరాశి string& lhsName, AstVar* rhsp) VL_MT_DISABLED;
+    స్థిర స్థిరరాశి అక్షరం* dpiTemporaryVarSuffix() VL_MT_సురక్షిత { తిరిగి s_dpiTemporaryVarSuffix; }
 };
 
-#endif  // Guard
+#అయితే_ముగింపు  // Guard

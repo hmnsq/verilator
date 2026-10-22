@@ -25,354 +25,354 @@
 //
 //*************************************************************************
 
-#include "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
+#అన్తర్భావ "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
 
-#include "V3InlineCFuncs.h"
+#అన్తర్భావ "V3InlineCFuncs.h"
 
-#include "V3AstUserAllocator.h"
-#include "V3ExecGraph.h"
-#include "V3Graph.h"
-#include "V3Stats.h"
+#అన్తర్భావ "V3AstUserAllocator.h"
+#అన్తర్భావ "V3ExecGraph.h"
+#అన్తర్భావ "V3Graph.h"
+#అన్తర్భావ "V3Stats.h"
 
-#include <vector>
+#అన్తర్భావ <vector>
 
 VL_DEFINE_DEBUG_FUNCTIONS;
 
 //######################################################################
 // Bipartite call graph containing function and call site vertices
 
-class InlineCFuncsFunctionVertex;
-class InlineCFuncsCallSiteVertex;
+తరగతి Inline_CFuncs_Function_శీర్షం;
+తరగతి Inline_CFuncs_Call_Site_శీర్షం;
 
-class InlineCFuncsCallGraph final : public V3Graph {
-public:
-    InlineCFuncsCallGraph()
-        : V3Graph{} {}
-    ~InlineCFuncsCallGraph() override = default;
+తరగతి Inline_CFuncs_Call_లేఖాచిత్రం final : బహిరంగ V3_లేఖాచిత్రం {
+బహిరంగ:
+    Inline_CFuncs_Call_లేఖాచిత్రం()
+        : V3_లేఖాచిత్రం{} {}
+    ~Inline_CFuncs_Call_లేఖాచిత్రం() override = అప్రమేయ;
 
-    void addEdge(InlineCFuncsFunctionVertex& from, InlineCFuncsCallSiteVertex& top);
-    void addEdge(InlineCFuncsCallSiteVertex& from, InlineCFuncsFunctionVertex& top);
+    శూన్య కూడు_అంచు(Inline_CFuncs_Function_శీర్షం& from, Inline_CFuncs_Call_Site_శీర్షం& శిఖరం);
+    శూన్య కూడు_అంచు(Inline_CFuncs_Call_Site_శీర్షం& from, Inline_CFuncs_Function_శీర్షం& శిఖరం);
 };
 
-class EitherVertex VL_NOT_FINAL : public V3GraphVertex {
-    VL_RTTI_IMPL(EitherVertex, V3GraphVertex)
-protected:
-    explicit EitherVertex(InlineCFuncsCallGraph& graph)
-        : V3GraphVertex{&graph} {}
+తరగతి Either_శీర్షం VL_NOT_FINAL : బహిరంగ V3_లేఖాచిత్రం_శీర్షం {
+    VL_RTTI_IMPL(Either_శీర్షం, V3_లేఖాచిత్రం_శీర్షం)
+రక్షిత:
+    స్పష్టమైన Either_శీర్షం(Inline_CFuncs_Call_లేఖాచిత్రం& లేఖాచిత్రం)
+        : V3_లేఖాచిత్రం_శీర్షం{&లేఖాచిత్రం} {}
 };
 
-class InlineCFuncsFunctionVertex final : public EitherVertex {
-    VL_RTTI_IMPL(InlineCFuncsFunctionVertex, EitherVertex)
-    AstCFunc* const m_cfuncp;  // The function
-    const char* m_noInlineWyp = nullptr;  // First reason the function should not be inlined
-    const char* m_keepWyp = nullptr;  // Why the function should not be removed
-    size_t m_size = 0;  // The size of the function
+తరగతి Inline_CFuncs_Function_శీర్షం final : బహిరంగ Either_శీర్షం {
+    VL_RTTI_IMPL(Inline_CFuncs_Function_శీర్షం, Either_శీర్షం)
+    AstCFunc* స్థిరరాశి m_cfuncp;  // The function
+    స్థిరరాశి అక్షరం* m_noInlineWyp = శూన్యసూచిక;  // First reason the function should not be inlined
+    స్థిరరాశి అక్షరం* m_keepWyp = శూన్యసూచిక;  // Why the function should not be removed
+    కొలత_t m_కొలత = 0;  // The size of the function
 
-public:
-    InlineCFuncsFunctionVertex(InlineCFuncsCallGraph& graph, AstCFunc* cfuncp)
-        : EitherVertex{graph}
+బహిరంగ:
+    Inline_CFuncs_Function_శీర్షం(Inline_CFuncs_Call_లేఖాచిత్రం& లేఖాచిత్రం, AstCFunc* cfuncp)
+        : Either_శీర్షం{లేఖాచిత్రం}
         , m_cfuncp{cfuncp} {}
-    ~InlineCFuncsFunctionVertex() override = default;
+    ~Inline_CFuncs_Function_శీర్షం() override = అప్రమేయ;
 
     // ACCESSORS
-    AstCFunc* cfuncp() const { return m_cfuncp; }
-    size_t size() const { return m_size; }
-    void sizeInc(size_t value = 1) { m_size += value; }
-    bool noInline() const { return m_noInlineWyp; }
-    void setNoInline(const char* whyp) {
-        if (!m_noInlineWyp) m_noInlineWyp = whyp;
+    AstCFunc* cfuncp() స్థిరరాశి { తిరిగి m_cfuncp; }
+    కొలత_t కొలత() స్థిరరాశి { తిరిగి m_కొలత; }
+    శూన్య కొలత_Inc(కొలత_t విలువ = 1) { m_కొలత += విలువ; }
+    తార్కిక noInline() స్థిరరాశి { తిరిగి m_noInlineWyp; }
+    శూన్య సమితి_No_Inline(స్థిరరాశి అక్షరం* whyp) {
+        ఒకవేళ (!m_noInlineWyp) m_noInlineWyp = whyp;
     }
-    bool keep() const { return m_keepWyp; }
-    void setKeep(const char* whyp) {
-        if (!m_keepWyp) m_keepWyp = whyp;
+    తార్కిక keep() స్థిరరాశి { తిరిగి m_keepWyp; }
+    శూన్య సమితి_Keep(స్థిరరాశి అక్షరం* whyp) {
+        ఒకవేళ (!m_keepWyp) m_keepWyp = whyp;
     }
-    std::string dotColor() const override {
-        return m_noInlineWyp ? "red" : m_keepWyp ? "orange" : "black";
+    std::string dotColor() స్థిరరాశి override {
+        తిరిగి m_noInlineWyp ? "red" : m_keepWyp ? "orange" : "black";
     }
 
     // debug
-    FileLine* fileline() const override { return m_cfuncp->fileline(); }
-    std::string dotShape() const override { return "box"; }
-    std::string name() const override VL_MT_STABLE {
-        std::string str = cvtToHex(m_cfuncp);
+    File_పంక్తి* fileline() స్థిరరాశి override { తిరిగి m_cfuncp->fileline(); }
+    std::string dotShape() స్థిరరాశి override { తిరిగి "box"; }
+    std::string name() స్థిరరాశి override VL_MT_STABLE {
+        std::string str = cvt_గమ్యం_Hex(m_cfuncp);
         str += "\n" + m_cfuncp->name();
-        str += "\nsize: " + std::to_string(m_size);
-        if (m_noInlineWyp) str += "\nNoInline: "s + m_noInlineWyp;
-        if (m_keepWyp) str += "\nKeep: "s + m_keepWyp;
-        return str;
+        str += "\nsize: " + std::గమ్యం_string(m_కొలత);
+        ఒకవేళ (m_noInlineWyp) str += "\nNoInline: "s + m_noInlineWyp;
+        ఒకవేళ (m_keepWyp) str += "\nKeep: "s + m_keepWyp;
+        తిరిగి str;
     }
 };
 
-class InlineCFuncsCallSiteVertex final : public EitherVertex {
-    VL_RTTI_IMPL(InlineCFuncsCallSiteVertex, EitherVertex)
-    AstCCall* const m_callp;  // The call site
-    const char* m_noInlineWyp = nullptr;  // First reason the function should not be inlined
+తరగతి Inline_CFuncs_Call_Site_శీర్షం final : బహిరంగ Either_శీర్షం {
+    VL_RTTI_IMPL(Inline_CFuncs_Call_Site_శీర్షం, Either_శీర్షం)
+    AstCCall* స్థిరరాశి m_callp;  // The call site
+    స్థిరరాశి అక్షరం* m_noInlineWyp = శూన్యసూచిక;  // First reason the function should not be inlined
 
-public:
-    InlineCFuncsCallSiteVertex(InlineCFuncsCallGraph& graph, AstCCall* callp)
-        : EitherVertex{graph}
+బహిరంగ:
+    Inline_CFuncs_Call_Site_శీర్షం(Inline_CFuncs_Call_లేఖాచిత్రం& లేఖాచిత్రం, AstCCall* callp)
+        : Either_శీర్షం{లేఖాచిత్రం}
         , m_callp{callp} {}
-    ~InlineCFuncsCallSiteVertex() override = default;
+    ~Inline_CFuncs_Call_Site_శీర్షం() override = అప్రమేయ;
 
     // ACCESSORS
-    AstCCall* callp() const { return m_callp; }
-    bool noInline() const { return m_noInlineWyp; }
-    void setNoInline(const char* whyp) {
-        if (!m_noInlineWyp) m_noInlineWyp = whyp;
+    AstCCall* callp() స్థిరరాశి { తిరిగి m_callp; }
+    తార్కిక noInline() స్థిరరాశి { తిరిగి m_noInlineWyp; }
+    శూన్య సమితి_No_Inline(స్థిరరాశి అక్షరం* whyp) {
+        ఒకవేళ (!m_noInlineWyp) m_noInlineWyp = whyp;
     }
 
     // debug
-    FileLine* fileline() const override { return m_callp->fileline(); }
-    std::string dotColor() const override { return m_noInlineWyp ? "red" : "black"; }
-    std::string dotShape() const override { return "ellipse"; }
-    std::string name() const override VL_MT_STABLE {
-        std::string str = cvtToHex(m_callp);
-        if (m_noInlineWyp) str += "\nNoInline: "s + m_noInlineWyp;
-        return str;
+    File_పంక్తి* fileline() స్థిరరాశి override { తిరిగి m_callp->fileline(); }
+    std::string dotColor() స్థిరరాశి override { తిరిగి m_noInlineWyp ? "red" : "black"; }
+    std::string dotShape() స్థిరరాశి override { తిరిగి "ellipse"; }
+    std::string name() స్థిరరాశి override VL_MT_STABLE {
+        std::string str = cvt_గమ్యం_Hex(m_callp);
+        ఒకవేళ (m_noInlineWyp) str += "\nNoInline: "s + m_noInlineWyp;
+        తిరిగి str;
     }
 };
 
-void InlineCFuncsCallGraph::addEdge(InlineCFuncsFunctionVertex& caller,
-                                    InlineCFuncsCallSiteVertex& callsite) {
-    UASSERT_OBJ(callsite.inEmpty(), &callsite, "Call site should have at most one incoming edge");
-    new V3GraphEdge{this, &caller, &callsite, 1, true};  // Can cut caller -> callsite
+శూన్య Inline_CFuncs_Call_లేఖాచిత్రం::కూడు_అంచు(Inline_CFuncs_Function_శీర్షం& caller,
+                                    Inline_CFuncs_Call_Site_శీర్షం& callsite) {
+    UASSERT_OBJ(callsite.లోపల_ఖాళీలు(), &callsite, "Call site should have at most one incoming edge");
+    కొత్త V3_లేఖాచిత్రం_అంచు{ఇది, &caller, &callsite, 1, నిజం};  // Can cut caller -> callsite
 }
-void InlineCFuncsCallGraph::addEdge(InlineCFuncsCallSiteVertex& callsite,
-                                    InlineCFuncsFunctionVertex& callee) {
-    UASSERT_OBJ(callsite.outEmpty(), &callsite, "Call site should have at most one outgoing edge");
-    new V3GraphEdge{this, &callsite, &callee, 1, false};
+శూన్య Inline_CFuncs_Call_లేఖాచిత్రం::కూడు_అంచు(Inline_CFuncs_Call_Site_శీర్షం& callsite,
+                                    Inline_CFuncs_Function_శీర్షం& callee) {
+    UASSERT_OBJ(callsite.బహిర్గతం_ఖాళీలు(), &callsite, "Call site should have at most one outgoing edge");
+    కొత్త V3_లేఖాచిత్రం_అంచు{ఇది, &callsite, &callee, 1, అబద్ధం};
 }
 
 //######################################################################
 
-class InlineCFuncsVisitor final : public VNVisitor {
+తరగతి InlineCFuncsVisitor final : బహిరంగ VNVisitor {
     // NODE STATE
     // AstCFunc::user1p() ->  InlineCFuncsFunctionVertex*, the function vertex
     // AstCCall::user1p() ->  InlineCFuncsCallSiteVertex*, the call site vertex
     // AstVar::user2p()   ->  AstVar*, the cloned inlined local variable
-    const VNUser1InUse m_user1InUse;
+    స్థిరరాశి VNUser1_లోపల_Use m_user1_లోపల_Use;
 
     // STATE
-    InlineCFuncsCallGraph m_graph;  // The call graph
+    Inline_CFuncs_Call_లేఖాచిత్రం m_లేఖాచిత్రం;  // The call graph
     VDouble0 m_statCallsInlined;  // Number of calls inlined
     VDouble0 m_statFuncsInlined;  // Number of functions inlined at least once
     VDouble0 m_statFuncsRemoved;  // Number of fully-inlined functions removed
     // Size threshold: always inline if size <= this
-    const size_t m_sizeThreshold = v3Global.opt.inlineCFuncs();
+    స్థిరరాశి కొలత_t m_కొలత_పరిమితి = v3Global.opt.inlineCFuncs();
     // Product threshold: inline if size * calls <= this
-    const size_t m_prodThreshold = v3Global.opt.inlineCFuncsProduct();
+    స్థిరరాశి కొలత_t m_prod_పరిమితి = v3Global.opt.inline_CFuncs_లబ్ధం();
     // Maximum size of caller to consider inlining into
-    const size_t m_maxSizeCFunc = []() -> size_t {
-        int maxCFunc = v3Global.opt.outputSplitCFuncs();
-        int maxFile = v3Global.opt.outputSplit();
-        if (maxCFunc <= 0) maxCFunc = std::numeric_limits<int>::max();
-        if (maxFile <= 0) maxFile = std::numeric_limits<int>::max();
-        return std::min(maxCFunc, maxFile);
+    స్థిరరాశి కొలత_t m_max_కొలత_CFunc = []() -> కొలత_t {
+        పూర్ణాంకం maxCFunc = v3Global.opt.output_విభజించు_CFuncs();
+        పూర్ణాంకం maxFile = v3Global.opt.output_విభజించు();
+        ఒకవేళ (maxCFunc <= 0) maxCFunc = std::numeric_limits<పూర్ణాంకం>::max();
+        ఒకవేళ (maxFile <= 0) maxFile = std::numeric_limits<పూర్ణాంకం>::max();
+        తిరిగి std::min(maxCFunc, maxFile);
     }();
-    const size_t m_maxSizeTrace = []() -> size_t {
-        int maxTrace = v3Global.opt.outputSplitCTrace();
-        int maxFile = v3Global.opt.outputSplit();
-        if (maxTrace <= 0) maxTrace = std::numeric_limits<int>::max();
-        if (maxFile <= 0) maxFile = std::numeric_limits<int>::max();
-        return std::min(maxTrace, maxFile);
+    స్థిరరాశి కొలత_t m_max_కొలత_Trace = []() -> కొలత_t {
+        పూర్ణాంకం maxTrace = v3Global.opt.output_విభజించు_CTrace();
+        పూర్ణాంకం maxFile = v3Global.opt.output_విభజించు();
+        ఒకవేళ (maxTrace <= 0) maxTrace = std::numeric_limits<పూర్ణాంకం>::max();
+        ఒకవేళ (maxFile <= 0) maxFile = std::numeric_limits<పూర్ణాంకం>::max();
+        తిరిగి std::min(maxTrace, maxFile);
     }();
-    InlineCFuncsFunctionVertex* m_cfuncVtxp = nullptr;  // Vertex of currently iterated function
-    bool m_inExecGraph = false;  // True while inside an AstExecGraph subtree
+    Inline_CFuncs_Function_శీర్షం* m_cfuncVtxp = శూన్యసూచిక;  // Vertex of currently iterated function
+    తార్కిక m_లోపల_Exec_లేఖాచిత్రం = అబద్ధం;  // True while inside an AstExecGraph subtree
 
     // METHODS
-    InlineCFuncsFunctionVertex* getInlineCFuncsFunctionVertexp(AstCFunc* cfuncp) {
-        if (!cfuncp->user1p()) cfuncp->user1p(new InlineCFuncsFunctionVertex{m_graph, cfuncp});
-        return cfuncp->user1u().to<InlineCFuncsFunctionVertex*>();
+    Inline_CFuncs_Function_శీర్షం* getInlineCFuncsFunctionVertexp(AstCFunc* cfuncp) {
+        ఒకవేళ (!cfuncp->user1p()) cfuncp->user1p(కొత్త Inline_CFuncs_Function_శీర్షం{m_లేఖాచిత్రం, cfuncp});
+        తిరిగి cfuncp->user1u().గమ్యం<Inline_CFuncs_Function_శీర్షం*>();
     }
 
-    InlineCFuncsCallSiteVertex* getInlineCFuncsCallSiteVertexp(AstCCall* callp) {
-        if (!callp->user1p()) callp->user1p(new InlineCFuncsCallSiteVertex{m_graph, callp});
-        return callp->user1u().to<InlineCFuncsCallSiteVertex*>();
+    Inline_CFuncs_Call_Site_శీర్షం* getInlineCFuncsCallSiteVertexp(AstCCall* callp) {
+        ఒకవేళ (!callp->user1p()) callp->user1p(కొత్త Inline_CFuncs_Call_Site_శీర్షం{m_లేఖాచిత్రం, callp});
+        తిరిగి callp->user1u().గమ్యం<Inline_CFuncs_Call_Site_శీర్షం*>();
     }
 
-    AstCLocalScope* inlineCall(AstCFunc* const callerp,  //
-                               AstCCall* const callp,  //
-                               AstCFunc* const calleep,  //
-                               const size_t seqNum) {
+    AstCLocalScope* inlineCall(AstCFunc* స్థిరరాశి callerp,  //
+                               AstCCall* స్థిరరాశి callp,  //
+                               AstCFunc* స్థిరరాశి calleep,  //
+                               స్థిరరాశి కొలత_t seq_అంకె) {
         UINFO(6, "Inlining CFunc " << calleep->name() << " into " << callerp->name()
                                    << " at call site " << callp);
 
-        AstNodeStmt* const callSitep = VN_AS(callp->backp(), StmtExpr);
+        Ast_కణుపు_Stmt* స్థిరరాశి callSitep = VN_AS(callp->backp(), Stmt_సమాసం);
         ++m_statCallsInlined;
 
         // Callee might be empty, just delete the call
-        if (!calleep->stmtsp()) {
-            VL_DO_DANGLING(pushDeletep(callSitep->unlinkFrBack()), callSitep);
-            return nullptr;
+        ఒకవేళ (!calleep->stmtsp()) {
+            VL_DO_DANGLING(నెట్టు_Deletep(callSitep->unlink_Fr_వెనుక()), callSitep);
+            తిరిగి శూన్యసూచిక;
         }
 
         // Replace call site with a local scope
-        FileLine* const flp = callSitep->fileline();
-        AstCLocalScope* const lscopep = new AstCLocalScope{flp, nullptr};
+        File_పంక్తి* స్థిరరాశి flp = callSitep->fileline();
+        AstCLocalScope* స్థిరరాశి lscopep = కొత్త AstCLocalScope{flp, శూన్యసూచిక};
         callSitep->replaceWith(lscopep);
-        VL_DO_DANGLING(pushDeletep(callSitep), callSitep);
-        lscopep->addStmtsp(new AstComment{flp, "Inlined CFunc: " + calleep->name()});
+        VL_DO_DANGLING(నెట్టు_Deletep(callSitep), callSitep);
+        lscopep->కూడు_Stmtsp(కొత్త AstComment{flp, "Inlined CFunc: " + calleep->name()});
 
         // Although it's in a local scope, we still make names of cloned locals unique
-        const std::string varPrefix
-            = "__Vinline_" + std::to_string(seqNum) + "_" + calleep->name() + "_";
+        స్థిరరాశి std::string var_ఉపసర్గ
+            = "__Vinline_" + std::గమ్యం_string(seq_అంకె) + "_" + calleep->name() + "_";
 
         // AstVar::user2p()  ->  AstVar*, the cloned inlined local variable
-        const VNUser2InUse user2InUse;
+        స్థిరరాశి VNUser2_లోపల_Use user2_లోపల_Use;
 
         // Clone local variables, add them to the local scope
-        for (AstVar* varp = calleep->varsp(); varp; varp = VN_AS(varp->nextp(), Var)) {
-            AstVar* const newVarp = varp->cloneTree(false);
-            newVarp->name(varPrefix + varp->name());
-            lscopep->addStmtsp(newVarp);
+        కొరకు (AstVar* varp = calleep->varsp(); varp; varp = VN_AS(varp->nextp(), Var)) {
+            AstVar* స్థిరరాశి newVarp = varp->clone_వృక్షం(అబద్ధం);
+            newVarp->name(var_ఉపసర్గ + varp->name());
+            lscopep->కూడు_Stmtsp(newVarp);
             varp->user2p(newVarp);
         }
 
         // Clone the function body
-        AstNode* const bodyp = calleep->stmtsp()->cloneTree(true);
-        lscopep->addStmtsp(bodyp);
+        Ast_కణుపు* స్థిరరాశి bodyp = calleep->stmtsp()->clone_వృక్షం(నిజం);
+        lscopep->కూడు_Stmtsp(bodyp);
 
         // Retarget local variable references to the cloned locals
         // Rename locals defined in the body, TODO: there should be none after #6280
         // Reset vertex pointers on calls
-        bodyp->foreachAndNext([&](AstNode* nodep) {
-            if (AstVarRef* const refp = VN_CAST(nodep, VarRef)) {
-                if (AstVar* const varp = VN_AS(refp->varp()->user2p(), Var)) {
+        bodyp->foreach_And_తదుపరి([&](Ast_కణుపు* nodep) {
+            ఒకవేళ (AstVarRef* స్థిరరాశి refp = VN_CAST(nodep, VarRef)) {
+                ఒకవేళ (AstVar* స్థిరరాశి varp = VN_AS(refp->varp()->user2p(), Var)) {
                     // Keep dtype; V3Expand may have widened the reference beyond the variable
-                    AstNodeDType* const dtypep = refp->dtypep();
+                    Ast_కణుపు_DType* స్థిరరాశి dtypep = refp->dtypep();
                     refp->varp(varp);
                     refp->dtypep(dtypep);
                 }
-            } else if (AstVar* const varp = VN_CAST(nodep, Var)) {
-                varp->name(varPrefix + varp->name());
-            } else if (AstCCall* const callp = VN_CAST(nodep, CCall)) {
-                callp->user1p(nullptr);
+            } లేకపోతే ఒకవేళ (AstVar* స్థిరరాశి varp = VN_CAST(nodep, Var)) {
+                varp->name(var_ఉపసర్గ + varp->name());
+            } లేకపోతే ఒకవేళ (AstCCall* స్థిరరాశి callp = VN_CAST(nodep, CCall)) {
+                callp->user1p(శూన్యసూచిక);
             }
         });
 
         // Return the local scope
-        return lscopep;
+        తిరిగి lscopep;
     }
 
-    void doInlining() {
+    శూన్య doInlining() {
         // Need to gather vertices as we are changing the graph
-        std::vector<InlineCFuncsFunctionVertex*> m_fVtxps;
-        for (V3GraphVertex& vtx : m_graph.vertices()) {
-            if (InlineCFuncsFunctionVertex* const fVtxp = vtx.cast<InlineCFuncsFunctionVertex>()) {
-                m_fVtxps.emplace_back(fVtxp);
+        std::సదిశ<Inline_CFuncs_Function_శీర్షం*> m_fVtxps;
+        కొరకు (V3_లేఖాచిత్రం_శీర్షం& vtx : m_లేఖాచిత్రం.vertices()) {
+            ఒకవేళ (Inline_CFuncs_Function_శీర్షం* స్థిరరాశి fVtxp = vtx.cast<Inline_CFuncs_Function_శీర్షం>()) {
+                m_fVtxps.emplace_వెనుక(fVtxp);
             }
         }
 
         // Iterate functions leaf to root
-        for (InlineCFuncsFunctionVertex* const calleeVtxp : vlstd::reverse_view(m_fVtxps)) {
+        కొరకు (Inline_CFuncs_Function_శీర్షం* స్థిరరాశి calleeVtxp : vlstd::తిరగేయి_view(m_fVtxps)) {
             // Should we inline this function?
-            if (calleeVtxp->noInline()) continue;  // Told not to
+            ఒకవేళ (calleeVtxp->noInline()) కొనసాగు;  // Told not to
 
             // Check size heuristics
-            const bool doIt = [&]() {
+            స్థిరరాశి తార్కిక doIt = [&]() {
                 // Inline if small enough
-                if (calleeVtxp->size() <= m_sizeThreshold) return true;
+                ఒకవేళ (calleeVtxp->కొలత() <= m_కొలత_పరిమితి) తిరిగి నిజం;
                 // Inline if not too much bloat
-                const size_t nCalls = calleeVtxp->inEdges().size();
-                if (nCalls * calleeVtxp->size() <= m_prodThreshold) return true;
+                స్థిరరాశి కొలత_t nCalls = calleeVtxp->లోపల_అంచులు().కొలత();
+                ఒకవేళ (nCalls * calleeVtxp->కొలత() <= m_prod_పరిమితి) తిరిగి నిజం;
                 // Otherwise don't inline
-                return false;
+                తిరిగి అబద్ధం;
             }();
-            if (!doIt) continue;
+            ఒకవేళ (!doIt) కొనసాగు;
 
             // Ok, attempt to inline call sites
-            size_t nInlined = 0;
-            for (const V3GraphEdge* const edgep : calleeVtxp->inEdges().unlinkable()) {
-                InlineCFuncsCallSiteVertex* const callVtxp
-                    = edgep->fromp()->as<InlineCFuncsCallSiteVertex>();
+            కొలత_t nInlined = 0;
+            కొరకు (స్థిరరాశి V3_లేఖాచిత్రం_అంచు* స్థిరరాశి edgep : calleeVtxp->లోపల_అంచులు().unlinkable()) {
+                Inline_CFuncs_Call_Site_శీర్షం* స్థిరరాశి callVtxp
+                    = edgep->fromp()->as<Inline_CFuncs_Call_Site_శీర్షం>();
 
-                AstCFunc* const calleep = calleeVtxp->cfuncp();
-                AstCCall* const callp = callVtxp->callp();
+                AstCFunc* స్థిరరాశి calleep = calleeVtxp->cfuncp();
+                AstCCall* స్థిరరాశి callp = callVtxp->callp();
                 UINFO(6, "Consider inlining " << calleep->name() << " at call site " << callp);
                 // Should we inline this call site?
-                if (callVtxp->noInline()) continue;  // Told not to
-                if (callVtxp->inEmpty()) continue;  // Don't know where it's called from
+                ఒకవేళ (callVtxp->noInline()) కొనసాగు;  // Told not to
+                ఒకవేళ (callVtxp->లోపల_ఖాళీలు()) కొనసాగు;  // Don't know where it's called from
 
                 // Pick up the caller
-                UASSERT_OBJ(callVtxp->inSize1(), callVtxp->callp(),
+                UASSERT_OBJ(callVtxp->లోపల_Size1(), callVtxp->callp(),
                             "Expected exactly one input edge for call site");
-                InlineCFuncsFunctionVertex* const callerVtxp
-                    = callVtxp->inEdges().frontp()->fromp()->as<InlineCFuncsFunctionVertex>();
-                AstCFunc* const callerp = callerVtxp->cfuncp();
+                Inline_CFuncs_Function_శీర్షం* స్థిరరాశి callerVtxp
+                    = callVtxp->లోపల_అంచులు().frontp()->fromp()->as<Inline_CFuncs_Function_శీర్షం>();
+                AstCFunc* స్థిరరాశి callerp = callerVtxp->cfuncp();
 
                 // Don't make a function bigger than the limit
-                const size_t limit = callerp->isTrace() ? m_maxSizeTrace : m_maxSizeCFunc;
-                if (callerVtxp->size() + calleeVtxp->size() > limit) continue;
+                స్థిరరాశి కొలత_t హద్దు = callerp->isTrace() ? m_max_కొలత_Trace : m_max_కొలత_CFunc;
+                ఒకవేళ (callerVtxp->కొలత() + calleeVtxp->కొలత() > హద్దు) కొనసాగు;
 
                 // Can't do it if it's in a different scope, self pointers differ
-                if (callerp->scopep() != calleep->scopep()) continue;
+                ఒకవేళ (callerp->scopep() != calleep->scopep()) కొనసాగు;
 
                 // Inline it
-                if (!nInlined) ++m_statFuncsInlined;
-                AstNode* const inlinedp = inlineCall(callerp, callp, calleep, nInlined++);
+                ఒకవేళ (!nInlined) ++m_statFuncsInlined;
+                Ast_కణుపు* స్థిరరాశి inlinedp = inlineCall(callerp, callp, calleep, nInlined++);
 
                 // Need to adjust the graph:
                 // 1. Delete inlined call site
-                VL_DO_DANGLING(callVtxp->unlinkDelete(&m_graph), callVtxp);
+                VL_DO_DANGLING(callVtxp->unlinkDelete(&m_లేఖాచిత్రం), callVtxp);
                 // 2. Add new inlined call sites - also increments size of caller
                 VL_RESTORER(m_cfuncVtxp);
                 m_cfuncVtxp = callerVtxp;
-                if (inlinedp) iterateChildrenConst(inlinedp);
+                ఒకవేళ (inlinedp) iterateChildrenConst(inlinedp);
             }
         }
     }
 
-    void removeUnusedFuncs() {
+    శూన్య remove_వాడని_Funcs() {
         // Iterate root to leaves
-        for (V3GraphVertex* const vtxp : m_graph.vertices().unlinkable()) {
-            InlineCFuncsFunctionVertex* const fVtxp = vtxp->cast<InlineCFuncsFunctionVertex>();
-            if (!fVtxp) continue;
+        కొరకు (V3_లేఖాచిత్రం_శీర్షం* స్థిరరాశి vtxp : m_లేఖాచిత్రం.vertices().unlinkable()) {
+            Inline_CFuncs_Function_శీర్షం* స్థిరరాశి fVtxp = vtxp->cast<Inline_CFuncs_Function_శీర్షం>();
+            ఒకవేళ (!fVtxp) కొనసాగు;
             // Keep if still called
-            if (!fVtxp->inEmpty()) continue;
+            ఒకవేళ (!fVtxp->లోపల_ఖాళీలు()) కొనసాగు;
             // Keep for other reasons
-            if (fVtxp->keep()) continue;
+            ఒకవేళ (fVtxp->keep()) కొనసాగు;
 
-            AstCFunc* const funcp = fVtxp->cfuncp();
+            AstCFunc* స్థిరరాశి funcp = fVtxp->cfuncp();
             UINFO(6, "Removing unused CFunc " << funcp);
             ++m_statFuncsRemoved;
 
             // Unlink all call sites
-            for (const V3GraphEdge* const edgep : vtxp->outEdges().unlinkable()) {
-                edgep->top()->unlinkEdges(&m_graph);
+            కొరకు (స్థిరరాశి V3_లేఖాచిత్రం_అంచు* స్థిరరాశి edgep : vtxp->బహిర్గతం_అంచులు().unlinkable()) {
+                edgep->శిఖరం()->unlink_అంచులు(&m_లేఖాచిత్రం);
             }
             // Delete function vertex
-            vtxp->unlinkDelete(&m_graph);
+            vtxp->unlinkDelete(&m_లేఖాచిత్రం);
             // Delete the function
-            VL_DO_DANGLING(pushDeletep(funcp->unlinkFrBack()), funcp);
+            VL_DO_DANGLING(నెట్టు_Deletep(funcp->unlink_Fr_వెనుక()), funcp);
         }
 
         // Delete inlined/deleted call site vertices (for debugging only)
-        for (V3GraphVertex* const vtxp : m_graph.vertices().unlinkable()) {
-            InlineCFuncsCallSiteVertex* const cVtxp = vtxp->cast<InlineCFuncsCallSiteVertex>();
-            if (!cVtxp) continue;
-            if (!cVtxp->inEmpty()) continue;
-            if (!cVtxp->outEmpty()) continue;
-            vtxp->unlinkDelete(&m_graph);
+        కొరకు (V3_లేఖాచిత్రం_శీర్షం* స్థిరరాశి vtxp : m_లేఖాచిత్రం.vertices().unlinkable()) {
+            Inline_CFuncs_Call_Site_శీర్షం* స్థిరరాశి cVtxp = vtxp->cast<Inline_CFuncs_Call_Site_శీర్షం>();
+            ఒకవేళ (!cVtxp) కొనసాగు;
+            ఒకవేళ (!cVtxp->లోపల_ఖాళీలు()) కొనసాగు;
+            ఒకవేళ (!cVtxp->బహిర్గతం_ఖాళీలు()) కొనసాగు;
+            vtxp->unlinkDelete(&m_లేఖాచిత్రం);
         }
     }
 
     // VISITORS
-    void visit(AstCFunc* nodep) override {
+    శూన్య సందర్శించు(AstCFunc* nodep) override {
         // Create the function vertex
-        InlineCFuncsFunctionVertex* const vtxp = getInlineCFuncsFunctionVertexp(nodep);
+        Inline_CFuncs_Function_శీర్షం* స్థిరరాశి vtxp = getInlineCFuncsFunctionVertexp(nodep);
 
         // Check if the function itself is not inlineable
-        if (nodep->rtnTypeVoid() != "void") vtxp->setNoInline("Not void");
-        if (nodep->dpiImportPrototype()) vtxp->setNoInline("DPI import prototype");
-        if (nodep->recursive()) vtxp->setNoInline("Recursive");
-        if (nodep->argsp()) vtxp->setNoInline("Has arguments");
-        if (nodep->isVirtual()) vtxp->setNoInline("Virtual method");
+        ఒకవేళ (nodep->rtnTypeVoid() != "void") vtxp->సమితి_No_Inline("Not void");
+        ఒకవేళ (nodep->dpiImportPrototype()) vtxp->సమితి_No_Inline("DPI import prototype");
+        ఒకవేళ (nodep->recursive()) vtxp->సమితి_No_Inline("Recursive");
+        ఒకవేళ (nodep->argsp()) vtxp->సమితి_No_Inline("Has arguments");
+        ఒకవేళ (nodep->isVirtual()) vtxp->సమితి_No_Inline("Virtual method");
 
         // Check if the function should not be removed
-        if (nodep->entryPoint()) vtxp->setKeep("Entry point");
-        if (nodep->dpiImportPrototype()) vtxp->setKeep("DPI import prototype");
-        if (nodep->dpiExportDispatcher()) vtxp->setKeep("DPI export implementation");
-        if (nodep->isVirtual()) vtxp->setKeep("Virtual method");
+        ఒకవేళ (nodep->నమోదు_బిందువు()) vtxp->సమితి_Keep("Entry point");
+        ఒకవేళ (nodep->dpiImportPrototype()) vtxp->సమితి_Keep("DPI import prototype");
+        ఒకవేళ (nodep->dpiExportDispatcher()) vtxp->సమితి_Keep("DPI export implementation");
+        ఒకవేళ (nodep->isVirtual()) vtxp->సమితి_Keep("Virtual method");
 
         // Iterate children
         VL_RESTORER(m_cfuncVtxp);
@@ -381,122 +381,122 @@ class InlineCFuncsVisitor final : public VNVisitor {
     }
 
     // Inlineable calls
-    void visit(AstCCall* nodep) override {
-        if (m_cfuncVtxp) m_cfuncVtxp->sizeInc();
-        AstCFunc* const calleep = nodep->funcp();
+    శూన్య సందర్శించు(AstCCall* nodep) override {
+        ఒకవేళ (m_cfuncVtxp) m_cfuncVtxp->కొలత_Inc();
+        AstCFunc* స్థిరరాశి calleep = nodep->funcp();
 
         // Create the call site vertex
-        InlineCFuncsCallSiteVertex* const vtxp = getInlineCFuncsCallSiteVertexp(nodep);
+        Inline_CFuncs_Call_Site_శీర్షం* స్థిరరాశి vtxp = getInlineCFuncsCallSiteVertexp(nodep);
 
         // Check if the call site is not inlineable
-        if (!VN_IS(nodep->backp(), StmtExpr)) vtxp->setNoInline("Not in statement position");
-        if (m_inExecGraph) vtxp->setNoInline("In ExecGraph");
-        if (calleep->isVirtual()) vtxp->setNoInline("Virtual method");
+        ఒకవేళ (!VN_IS(nodep->backp(), Stmt_సమాసం)) vtxp->సమితి_No_Inline("Not in statement position");
+        ఒకవేళ (m_లోపల_Exec_లేఖాచిత్రం) vtxp->సమితి_No_Inline("In ExecGraph");
+        ఒకవేళ (calleep->isVirtual()) vtxp->సమితి_No_Inline("Virtual method");
 
         // Add caller/callee edges
-        if (m_cfuncVtxp) m_graph.addEdge(*m_cfuncVtxp, *vtxp);
-        m_graph.addEdge(*vtxp, *getInlineCFuncsFunctionVertexp(calleep));
+        ఒకవేళ (m_cfuncVtxp) m_లేఖాచిత్రం.కూడు_అంచు(*m_cfuncVtxp, *vtxp);
+        m_లేఖాచిత్రం.కూడు_అంచు(*vtxp, *getInlineCFuncsFunctionVertexp(calleep));
 
         // Iterate children
         iterateChildrenConst(nodep);
     }
 
-    void visit(AstNodeCCall* nodep) override {
-        if (m_cfuncVtxp) m_cfuncVtxp->sizeInc();
-        getInlineCFuncsFunctionVertexp(nodep->funcp())->setKeep("Called elsewhere");
+    శూన్య సందర్శించు(Ast_కణుపు_CCall* nodep) override {
+        ఒకవేళ (m_cfuncVtxp) m_cfuncVtxp->కొలత_Inc();
+        getInlineCFuncsFunctionVertexp(nodep->funcp())->సమితి_Keep("Called elsewhere");
         iterateChildrenConst(nodep);
     }
 
-    void visit(AstAddrOfCFunc* nodep) override {
-        if (m_cfuncVtxp) m_cfuncVtxp->sizeInc();
-        getInlineCFuncsFunctionVertexp(nodep->funcp())->setKeep("Referenced by AddressOfCFunc");
+    శూన్య సందర్శించు(Ast_Addr_యొక్క_CFunc* nodep) override {
+        ఒకవేళ (m_cfuncVtxp) m_cfuncVtxp->కొలత_Inc();
+        getInlineCFuncsFunctionVertexp(nodep->funcp())->సమితి_Keep("Referenced by AddressOfCFunc");
         iterateChildrenConst(nodep);
     }
 
     // Nodes preventing inlining
-    void visit(AstTraceDecl* nodep) override {
+    శూన్య సందర్శించు(AstTraceDecl* nodep) override {
         // Referenced by TraceInc
-        if (m_cfuncVtxp) m_cfuncVtxp->setNoInline("Contains TraceDecl");
+        ఒకవేళ (m_cfuncVtxp) m_cfuncVtxp->సమితి_No_Inline("Contains TraceDecl");
 
-        if (AstCCall* const callp = nodep->dtypeCallp()) {
-            getInlineCFuncsCallSiteVertexp(callp)->setNoInline("Referenced by TraceDecl");
+        ఒకవేళ (AstCCall* స్థిరరాశి callp = nodep->dtypeCallp()) {
+            getInlineCFuncsCallSiteVertexp(callp)->సమితి_No_Inline("Referenced by TraceDecl");
         }
         iterateChildrenConst(nodep);
     }
-    void visit(AstExecGraph* nodep) override {
+    శూన్య సందర్శించు(Ast_Exec_లేఖాచిత్రం* nodep) override {
         // AstExecGraph is not cloneable, so can't inline the containing function
-        if (m_cfuncVtxp) m_cfuncVtxp->setNoInline("Contains ExecGraph");
+        ఒకవేళ (m_cfuncVtxp) m_cfuncVtxp->సమితి_No_Inline("Contains ExecGraph");
         // Also mark functions referenced in the dependency graph
-        for (const V3GraphVertex& vtx : nodep->depGraphp()->vertices()) {
+        కొరకు (స్థిరరాశి V3_లేఖాచిత్రం_శీర్షం& vtx : nodep->depGraphp()->vertices()) {
             getInlineCFuncsFunctionVertexp(vtx.as<ExecMTask>()->funcp())
-                ->setKeep("MTask function");
+                ->సమితి_Keep("MTask function");
         }
-        VL_RESTORER(m_inExecGraph);
-        m_inExecGraph = true;
+        VL_RESTORER(m_లోపల_Exec_లేఖాచిత్రం);
+        m_లోపల_Exec_లేఖాచిత్రం = నిజం;
         iterateChildrenConst(nodep);
     }
-    void visit(AstCStmt* nodep) override {
+    శూన్య సందర్శించు(AstCStmt* nodep) override {
         // Can reference anything in text
-        if (m_cfuncVtxp) m_cfuncVtxp->setNoInline("Contains CStmt");
+        ఒకవేళ (m_cfuncVtxp) m_cfuncVtxp->సమితి_No_Inline("Contains CStmt");
         iterateChildrenConst(nodep);
     }
-    void visit(AstCExpr* nodep) override {
+    శూన్య సందర్శించు(AstCExpr* nodep) override {
         // Can reference anything in text
-        if (m_cfuncVtxp) m_cfuncVtxp->setNoInline("Contains CExpr");
+        ఒకవేళ (m_cfuncVtxp) m_cfuncVtxp->సమితి_No_Inline("Contains CExpr");
         iterateChildrenConst(nodep);
     }
-    void visit(AstCStmtUser* nodep) override {
+    శూన్య సందర్శించు(AstCStmtUser* nodep) override {
         // Can reference anything in text
-        if (m_cfuncVtxp) m_cfuncVtxp->setNoInline("Contains CStmtUser");
+        ఒకవేళ (m_cfuncVtxp) m_cfuncVtxp->సమితి_No_Inline("Contains CStmtUser");
         iterateChildrenConst(nodep);
     }
-    void visit(AstCExprUser* nodep) override {
+    శూన్య సందర్శించు(AstCExprUser* nodep) override {
         // Can reference anything in text
-        if (m_cfuncVtxp) m_cfuncVtxp->setNoInline("Contains CExprUser");
+        ఒకవేళ (m_cfuncVtxp) m_cfuncVtxp->సమితి_No_Inline("Contains CExprUser");
         iterateChildrenConst(nodep);
     }
-    void visit(AstCReturn* nodep) override {
-        if (m_cfuncVtxp) m_cfuncVtxp->setNoInline("Contains CReturn");
+    శూన్య సందర్శించు(AstCReturn* nodep) override {
+        ఒకవేళ (m_cfuncVtxp) m_cfuncVtxp->సమితి_No_Inline("Contains CReturn");
         iterateChildrenConst(nodep);
     }
 
     // Base node
-    void visit(AstNode* nodep) override {
-        if (m_cfuncVtxp) m_cfuncVtxp->sizeInc();
+    శూన్య సందర్శించు(Ast_కణుపు* nodep) override {
+        ఒకవేళ (m_cfuncVtxp) m_cfuncVtxp->కొలత_Inc();
         iterateChildrenConst(nodep);
     }
 
-public:
+బహిరంగ:
     // CONSTRUCTORS
-    explicit InlineCFuncsVisitor(AstNetlist* nodep) {
+    స్పష్టమైన InlineCFuncsVisitor(AstNetlist* nodep) {
         // Phase 1: Build call graph
         iterateConst(nodep);
         // Make acyclic in case there is recursion
-        m_graph.acyclic(V3GraphEdge::followAlwaysTrue);
+        m_లేఖాచిత్రం.acyclic(V3_లేఖాచిత్రం_అంచు::followAlwaysTrue);
         // Order vertices (any topological order is fine)
-        m_graph.order();
-        if (dumpGraphLevel() >= 6) m_graph.dumpDotFilePrefixed("inlinecfuncs-graph");
+        m_లేఖాచిత్రం.క్రమం();
+        ఒకవేళ (dump_లేఖాచిత్రం_Level() >= 6) m_లేఖాచిత్రం.dumpDotFilePrefixed("inlinecfuncs-graph");
         // Phase 2: Inline calls
         doInlining();
-        if (dumpGraphLevel() >= 6) m_graph.dumpDotFilePrefixed("inlinecfuncs-inlined");
+        ఒకవేళ (dump_లేఖాచిత్రం_Level() >= 6) m_లేఖాచిత్రం.dumpDotFilePrefixed("inlinecfuncs-inlined");
         // Phase 3: Remove unused functions
-        removeUnusedFuncs();
-        if (dumpGraphLevel() >= 6) m_graph.dumpDotFilePrefixed("inlinecfuncs-kept");
+        remove_వాడని_Funcs();
+        ఒకవేళ (dump_లేఖాచిత్రం_Level() >= 6) m_లేఖాచిత్రం.dumpDotFilePrefixed("inlinecfuncs-kept");
     }
     ~InlineCFuncsVisitor() override {
-        V3Stats::addStat("Optimizations, Inline CFuncs, calls inlined", m_statCallsInlined);
-        V3Stats::addStat("Optimizations, Inline CFuncs, functions inlined", m_statFuncsInlined);
-        V3Stats::addStat("Optimizations, Inline CFuncs, functions removed", m_statFuncsRemoved);
+        V3Stats::కూడు_Stat("Optimizations, Inline CFuncs, calls inlined", m_statCallsInlined);
+        V3Stats::కూడు_Stat("Optimizations, Inline CFuncs, functions inlined", m_statFuncsInlined);
+        V3Stats::కూడు_Stat("Optimizations, Inline CFuncs, functions removed", m_statFuncsRemoved);
     }
 };
 
 //######################################################################
 // InlineCFuncs class functions
 
-void V3InlineCFuncs::inlineAll(AstNetlist* nodep) {
+శూన్య V3InlineCFuncs::inlineAll(AstNetlist* nodep) {
     UINFO(2, __FUNCTION__ << ":");
     // Don't inline when profiling per-function (it would lose granularity)
-    if (v3Global.opt.profCFuncs()) return;
+    ఒకవేళ (v3Global.opt.profCFuncs()) తిరిగి;
     { InlineCFuncsVisitor{nodep}; }  // Destruct before checking
-    V3Global::dumpCheckGlobalTree("inlinecfuncs", 0, dumpTreeEitherLevel() >= 6);
+    V3Global::dump_Check_Global_వృక్షం("inlinecfuncs", 0, dump_వృక్షం_Either_Level() >= 6);
 }

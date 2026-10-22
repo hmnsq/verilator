@@ -14,56 +14,56 @@
 //
 //*************************************************************************
 
-#ifndef VERILATOR_VLCTOP_H_
-#define VERILATOR_VLCTOP_H_
+#నిర్వచితం_కాకపోతే VERILATOR_VLCTOP_H_
+#నిర్వచించు VERILATOR_VLCTOP_H_
 
-#include "config_build.h"
-#include "verilatedos.h"
+#అన్తర్భావ "config_build.h"
+#అన్తర్భావ "verilatedos.h"
 
-#include "VlcOptions.h"
-#include "VlcPoint.h"
-#include "VlcSource.h"
-#include "VlcTest.h"
+#అన్తర్భావ "VlcOptions.h"
+#అన్తర్భావ "VlcPoint.h"
+#అన్తర్భావ "VlcSource.h"
+#అన్తర్భావ "VlcTest.h"
 
 //######################################################################
 // VlcTop - Top level options container
 
-class VlcTop final {
-public:
+class Vlc_శిఖరం final {
+బహిరంగ:
     // PUBLIC MEMBERS
     VlcOptions opt;  //< Runtime options
-private:
+అంతరంగ:
     // MEMBERS
     VlcTests m_tests;  //< List of all tests (all coverage files)
     VlcPoints m_points;  //< List of all points
     VlcSources m_sources;  //< List of all source files to annotate
 
     // METHODS
-    void annotateCalc();
-    void annotateCalcNeeded();
-    void annotateOutputFiles(const string& dirname);
+    శూన్య annotateCalc();
+    శూన్య annotateCalcNeeded();
+    శూన్య annotateOutputFiles(స్థిరరాశి string& dirname);
 
-public:
+బహిరంగ:
     // CONSTRUCTORS
-    VlcTop() = default;
-    ~VlcTop() = default;
+    Vlc_శిఖరం() = అప్రమేయ;
+    ~Vlc_శిఖరం() = అప్రమేయ;
 
     // ACCESSORS
-    VlcTests& tests() { return m_tests; }
-    VlcPoints& points() { return m_points; }
-    VlcSources& sources() { return m_sources; }
+    VlcTests& tests() { తిరిగి m_tests; }
+    VlcPoints& points() { తిరిగి m_points; }
+    VlcSources& sources() { తిరిగి m_sources; }
 
     // METHODS
-    void annotate(const string& dirname);
-    void printHierarchyReport();
-    void printTypeSummary();
-    void readCoverage(const string& filename, bool nonfatal = false);
-    void writeCoverage(const string& filename);
-    void writeInfo(const string& filename);
+    శూన్య annotate(స్థిరరాశి string& dirname);
+    శూన్య printHierarchyReport();
+    శూన్య printTypeSummary();
+    శూన్య readCoverage(స్థిరరాశి string& filename, bool nonfatal = false);
+    శూన్య writeCoverage(స్థిరరాశి string& filename);
+    శూన్య writeInfo(స్థిరరాశి string& filename);
 
-    void rank();
+    శూన్య rank();
 };
 
 //######################################################################
 
-#endif  // guard
+#అయితే_ముగింపు  // guard

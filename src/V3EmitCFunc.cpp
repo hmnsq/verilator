@@ -14,30 +14,30 @@
 //
 //*************************************************************************
 
-#include "V3PchAstMT.h"
+#అన్తర్భావ "V3PchAstMT.h"
 
-#include "V3EmitCFunc.h"
+#అన్తర్భావ "V3EmitCFunc.h"
 
-#include <map>
-#include <vector>
+#అన్తర్భావ <map>
+#అన్తర్భావ <vector>
 
 VL_DEFINE_DEBUG_FUNCTIONS;
 
 //######################################################################
 // EmitCFunc
 
-bool EmitCFunc::emitSimpleOk(AstNodeExpr* nodep) {
+తార్కిక EmitCFunc::emitSimpleOk(Ast_కణుపు_సమాసం* nodep) {
     // Can we put out a simple (A + B) instead of VL_ADD_III(A,B)?
-    if (nodep->emitSimpleOperator() == "") return false;
-    if (nodep->isWide()) return false;
-    if (nodep->op1p() && nodep->op1p()->isWide()) return false;
-    if (nodep->op2p() && nodep->op2p()->isWide()) return false;
-    if (nodep->op3p() && nodep->op3p()->isWide()) return false;
-    return true;
+    ఒకవేళ (nodep->emitSimpleOperator() == "") తిరిగి అబద్ధం;
+    ఒకవేళ (nodep->isWide()) తిరిగి అబద్ధం;
+    ఒకవేళ (nodep->op1p() && nodep->op1p()->isWide()) తిరిగి అబద్ధం;
+    ఒకవేళ (nodep->op2p() && nodep->op2p()->isWide()) తిరిగి అబద్ధం;
+    ఒకవేళ (nodep->op3p() && nodep->op3p()->isWide()) తిరిగి అబద్ధం;
+    తిరిగి నిజం;
 }
 
-void EmitCFunc::emitOpName(AstNode* nodep, const string& format, AstNode* lhsp, AstNode* rhsp,
-                           AstNode* thsp) {
+శూన్య EmitCFunc::emitOpName(Ast_కణుపు* nodep, స్థిరరాశి string& format, Ast_కణుపు* lhsp, Ast_కణుపు* rhsp,
+                           Ast_కణుపు* thsp) {
     // Look at emitOperator() format for term/uni/dual/triops,
     // and write out appropriate text.
     //  %n*     node
@@ -51,323 +51,323 @@ void EmitCFunc::emitOpName(AstNode* nodep, const string& format, AstNode* lhsp, 
     //  %k      Potential line break
     //  %P      Wide temporary name
     //  ,       Commas suppressed if the previous field is suppressed
-    string out;
+    string బహిర్గతం;
     putnbs(nodep, "");
 
-    bool needComma = false;
-    bool usesQueue = false;
-    string nextComma;
-    auto commaOut = [&out, &nextComma]() {
-        if (!nextComma.empty()) {
-            out += nextComma;
-            nextComma = "";
+    తార్కిక needComma = అబద్ధం;
+    తార్కిక ఉపయోగిస్తుంది_వరుస = అబద్ధం;
+    string తదుపరి_Comma;
+    స్వయంచాలక comma_బహిర్గతం = [&బహిర్గతం, &తదుపరి_Comma]() {
+        ఒకవేళ (!తదుపరి_Comma.ఖాళీలు()) {
+            బహిర్గతం += తదుపరి_Comma;
+            తదుపరి_Comma = "";
         }
     };
 
-    auto putOut = [this, &out]() {
-        if (!out.empty()) puts(out);
-        out = "";
+    స్వయంచాలక put_బహిర్గతం = [ఇది, &బహిర్గతం]() {
+        ఒకవేళ (!బహిర్గతం.ఖాళీలు()) puts(బహిర్గతం);
+        బహిర్గతం = "";
     };
 
-    for (string::const_iterator pos = format.begin(); pos != format.end(); ++pos) {
-        if (pos[0] == ',') {
+    కొరకు (string::const_iterator pos = format.begin(); pos != format.చివర(); ++pos) {
+        ఒకవేళ (pos[0] == ',') {
             // Remember we need to add one, but don't do yet to avoid ",)"
-            if (needComma) {
-                if (pos[1] == ' ') {
-                    nextComma = ", ";
-                } else {
-                    nextComma = ",";
+            ఒకవేళ (needComma) {
+                ఒకవేళ (pos[1] == ' ') {
+                    తదుపరి_Comma = ", ";
+                } లేకపోతే {
+                    తదుపరి_Comma = ",";
                 }
-                needComma = false;
+                needComma = అబద్ధం;
             }
-            if (pos[1] == ' ') ++pos;  // Must do even if no nextComma
-        } else if (pos[0] == '%') {
+            ఒకవేళ (pos[1] == ' ') ++pos;  // Must do even if no nextComma
+        } లేకపోతే ఒకవేళ (pos[0] == '%') {
             ++pos;
-            bool detail = false;
-            AstNode* detailp = nullptr;
-            switch (pos[0]) {
-            case '%': out += '%'; break;
-            case 'k':
-                putOut();
+            తార్కిక detail = అబద్ధం;
+            Ast_కణుపు* detailp = శూన్యసూచిక;
+            ఎంపిక (pos[0]) {
+            స్థితి '%': బహిర్గతం += '%'; ఆపు;
+            స్థితి 'k':
+                put_బహిర్గతం();
                 putbs("");
-                break;
-            case 'n':
-                detail = true;
+                ఆపు;
+            స్థితి 'n':
+                detail = నిజం;
                 detailp = nodep;
-                break;
-            case 'l':
-                detail = true;
+                ఆపు;
+            స్థితి 'l':
+                detail = నిజం;
                 detailp = lhsp;
-                break;
-            case 'r':
-                detail = true;
+                ఆపు;
+            స్థితి 'r':
+                detail = నిజం;
                 detailp = rhsp;
-                break;
-            case 't':
-                detail = true;
+                ఆపు;
+            స్థితి 't':
+                detail = నిజం;
                 detailp = thsp;
-                break;
-            case 'P':
-                if (nodep->isWide() && !usesQueue) {
-                    UASSERT_OBJ(m_wideTempRefp, nodep,
+                ఆపు;
+            స్థితి 'P':
+                ఒకవేళ (nodep->isWide() && !ఉపయోగిస్తుంది_వరుస) {
+                    UASSERT_OBJ(m_wide_తాత్కాలిక_Refp, nodep,
                                 "Wide op " << nodep->prettyTypeName()
                                            << " w/ no temp, perhaps missing op in V3EmitC?");
-                    commaOut();
-                    putOut();
-                    if (!m_wideTempRefp->selfPointer().isEmpty()) {
-                        emitDereference(m_wideTempRefp,
-                                        m_wideTempRefp->selfPointerProtect(m_useSelfForThis));
+                    comma_బహిర్గతం();
+                    put_బహిర్గతం();
+                    ఒకవేళ (!m_wide_తాత్కాలిక_Refp->self_సూచిక().is_ఖాళీలు()) {
+                        emitDereference(m_wide_తాత్కాలిక_Refp,
+                                        m_wide_తాత్కాలిక_Refp->self_సూచిక_Protect(m_useSelfForThis));
                     }
-                    out += varName(m_wideTempRefp->varp());
-                    m_wideTempRefp = nullptr;
-                    needComma = true;
-                } else if (usesQueue) {
-                    commaOut();
-                    putOut();
-                    iterateAndNextConstNull(nodep->backp()->op2p());
-                    needComma = true;
+                    బహిర్గతం += varName(m_wide_తాత్కాలిక_Refp->varp());
+                    m_wide_తాత్కాలిక_Refp = శూన్యసూచిక;
+                    needComma = నిజం;
+                } లేకపోతే ఒకవేళ (ఉపయోగిస్తుంది_వరుస) {
+                    comma_బహిర్గతం();
+                    put_బహిర్గతం();
+                    iterate_And_తదుపరి_Const_Null(nodep->backp()->op2p());
+                    needComma = నిజం;
                 }
 
-                break;
-            default: nodep->v3fatalSrc("Unknown emitOperator format code: %" << pos[0]); break;
+                ఆపు;
+            అప్రమేయ: nodep->v3fatalSrc("Unknown emitOperator format code: %" << pos[0]); ఆపు;
             }
-            if (detail) {
+            ఒకవేళ (detail) {
                 // Get next letter of %[nlrt]
                 ++pos;
-                switch (pos[0]) {
-                case 'q':
-                    putOut();
+                ఎంపిక (pos[0]) {
+                స్థితి 'q':
+                    put_బహిర్గతం();
                     // If we are assigning this to a queue we need to get the return type
-                    if (VN_IS(detailp->backp(), Assign)
-                        && VN_IS(detailp->backp()->op2p()->dtypep()->skipRefp(), QueueDType)) {
+                    ఒకవేళ (VN_IS(detailp->backp(), కేటాయించు)
+                        && VN_IS(detailp->backp()->op2p()->dtypep()->skipRefp(), వరుస_DType)) {
                         puts("R");  // R for queue
-                        usesQueue = true;
-                    } else if (VN_IS(detailp->dtypep()->skipRefp(), QueueDType)
-                               || VN_IS(detailp->dtypep()->skipRefp(), StreamDType)) {
+                        ఉపయోగిస్తుంది_వరుస = నిజం;
+                    } లేకపోతే ఒకవేళ (VN_IS(detailp->dtypep()->skipRefp(), వరుస_DType)
+                               || VN_IS(detailp->dtypep()->skipRefp(), ప్రవాహం_DType)) {
                         puts("R");  // R for queue
-                    } else {
+                    } లేకపోతే {
                         emitIQW(detailp);
                     }
-                    break;
-                case 'w':
-                    commaOut();
-                    out += cvtToStr(detailp->widthMin());
-                    needComma = true;
-                    break;
-                case 'W':
-                    if (lhsp->isWide()) {
-                        commaOut();
-                        out += cvtToStr(lhsp->widthWords());
-                        needComma = true;
-                    } else if (VN_IS(lhsp, StreamR)) {
-                        commaOut();
-                        out += cvtToStr(rhsp->widthWords());
-                        needComma = true;
+                    ఆపు;
+                స్థితి 'w':
+                    comma_బహిర్గతం();
+                    బహిర్గతం += cvt_గమ్యం_Str(detailp->వెడల్పు_Min());
+                    needComma = నిజం;
+                    ఆపు;
+                స్థితి 'W':
+                    ఒకవేళ (lhsp->isWide()) {
+                        comma_బహిర్గతం();
+                        బహిర్గతం += cvt_గమ్యం_Str(lhsp->వెడల్పు_పదాలు());
+                        needComma = నిజం;
+                    } లేకపోతే ఒకవేళ (VN_IS(lhsp, ప్రవాహం_R)) {
+                        comma_బహిర్గతం();
+                        బహిర్గతం += cvt_గమ్యం_Str(rhsp->వెడల్పు_పదాలు());
+                        needComma = నిజం;
                     }
-                    break;
-                case 'i':
-                    commaOut();
+                    ఆపు;
+                స్థితి 'i':
+                    comma_బహిర్గతం();
                     UASSERT_OBJ(detailp, nodep, "emitOperator() references undef node");
-                    putOut();
-                    iterateAndNextConstNull(detailp);
-                    needComma = true;
-                    break;
-                default:
+                    put_బహిర్గతం();
+                    iterate_And_తదుపరి_Const_Null(detailp);
+                    needComma = నిజం;
+                    ఆపు;
+                అప్రమేయ:
                     nodep->v3fatalSrc("Unknown emitOperator format code: %[nlrt]" << pos[0]);
-                    break;
+                    ఆపు;
                 }
             }
-        } else if (pos[0] == ')') {
-            nextComma = "";
-            out += ')';
-        } else if (pos[0] == '(') {
-            commaOut();
-            needComma = false;
-            out += '(';
-        } else {
+        } లేకపోతే ఒకవేళ (pos[0] == ')') {
+            తదుపరి_Comma = "";
+            బహిర్గతం += ')';
+        } లేకపోతే ఒకవేళ (pos[0] == '(') {
+            comma_బహిర్గతం();
+            needComma = అబద్ధం;
+            బహిర్గతం += '(';
+        } లేకపోతే {
             // Normal text
-            if (std::isalnum(pos[0])) needComma = true;
-            commaOut();
-            out += pos[0];
+            ఒకవేళ (std::అక్షరమా_అంకెనా(pos[0])) needComma = నిజం;
+            comma_బహిర్గతం();
+            బహిర్గతం += pos[0];
         }
     }
-    putOut();
+    put_బహిర్గతం();
 }
 
-bool EmitCFunc::displayEmitHeader(AstNode* nodep) {
-    bool isStmt = false;
-    if (const AstFScanF* const dispp = VN_CAST(nodep, FScanF)) {
-        isStmt = false;
+తార్కిక EmitCFunc::display_Emit_శీర్షిక(Ast_కణుపు* nodep) {
+    తార్కిక isStmt = అబద్ధం;
+    ఒకవేళ (స్థిరరాశి AstFScanF* స్థిరరాశి dispp = VN_CAST(nodep, FScanF)) {
+        isStmt = అబద్ధం;
         putns(nodep, "VL_FSCANF_INX(");
         iterateConst(dispp->filep());
         puts(",");
-    } else if (const AstSScanF* const dispp = VN_CAST(nodep, SScanF)) {
-        isStmt = false;
+    } లేకపోతే ఒకవేళ (స్థిరరాశి AstSScanF* స్థిరరాశి dispp = VN_CAST(nodep, SScanF)) {
+        isStmt = అబద్ధం;
         putns(nodep, "VL_SSCANF_I");
         emitIQW(dispp->fromp());
         puts("NX(");
-        puts(cvtToStr(dispp->fromp()->widthMin()));
+        puts(cvt_గమ్యం_Str(dispp->fromp()->వెడల్పు_Min()));
         puts(",");
         iterateConst(dispp->fromp());
         puts(",");
-    } else if (const AstDisplay* const dispp = VN_CAST(nodep, Display)) {
-        isStmt = true;
-        if (dispp->filep()) {
+    } లేకపోతే ఒకవేళ (స్థిరరాశి AstDisplay* స్థిరరాశి dispp = VN_CAST(nodep, Display)) {
+        isStmt = నిజం;
+        ఒకవేళ (dispp->filep()) {
             putns(nodep, "VL_FWRITEF_NX(");
             iterateConst(dispp->filep());
             puts(",");
-        } else {
+        } లేకపోతే {
             putns(nodep, "VL_WRITEF_NX(");
         }
-    } else if (const AstSFormat* const dispp = VN_CAST(nodep, SFormat)) {
-        isStmt = true;
+    } లేకపోతే ఒకవేళ (స్థిరరాశి AstSFormat* స్థిరరాశి dispp = VN_CAST(nodep, SFormat)) {
+        isStmt = నిజం;
         puts("VL_SFORMAT_NX(");
-        if (!dispp->lhsp()->dtypep()->isString()) {
-            puts(cvtToStr(dispp->lhsp()->widthMin()));
+        ఒకవేళ (!dispp->lhsp()->dtypep()->isString()) {
+            puts(cvt_గమ్యం_Str(dispp->lhsp()->వెడల్పు_Min()));
             putbs(",");
         }
         iterateConst(dispp->lhsp());
         emitDatap(dispp->lhsp());
         putbs(",");
-    } else if (VN_IS(nodep, SFormatF)) {
-        isStmt = false;
+    } లేకపోతే ఒకవేళ (VN_IS(nodep, SFormatF)) {
+        isStmt = అబద్ధం;
         putns(nodep, "VL_SFORMATF_N_NX(");
-    } else {
+    } లేకపోతే {
         nodep->v3fatalSrc("Unknown displayEmit node type");
     }
-    return isStmt;
+    తిరిగి isStmt;
 }
 
-void EmitCFunc::displayNode(AstNode* nodep, AstSFormatF* fmtp,  // fmtp is nullptr for AstScan
-                            const string& vformat, AstNode* exprsp, bool isScan) {
+శూన్య EmitCFunc::display_కణుపు(Ast_కణుపు* nodep, AstSFormatF* fmtp,  // fmtp is nullptr for AstScan
+                            స్థిరరాశి string& vformat, Ast_కణుపు* exprsp, తార్కిక is_పరిశీలన) {
     // Check format, if it exists
-    const bool exprFormat = fmtp && fmtp->exprFormat();
-    bool needsScope = exprFormat;
-    bool needsTimescale = exprFormat;
-    int formatArgs = 0;
-    if (!exprFormat) {
+    స్థిరరాశి తార్కిక సమాసం_Format_2 = fmtp && fmtp->సమాసం_Format_2();
+    తార్కిక needsScope = సమాసం_Format_2;
+    తార్కిక needsTimescale = సమాసం_Format_2;
+    పూర్ణాంకం format_వాదనలు = 0;
+    ఒకవేళ (!సమాసం_Format_2) {
         // Check display and argument count to head-off later runtime issues
-        bool inPct = false;
-        bool ignore = false;
-        for (char ch : vformat) {
+        తార్కిక లోపల_Pct = అబద్ధం;
+        తార్కిక ignore = అబద్ధం;
+        కొరకు (అక్షరం ch : vformat) {
             // UINFO(1, "Parse '" << *pos << "'  IP" << inPct << " List " << cvtToHex(elistp));
-            if (!inPct && ch == '%') {
-                inPct = true;
-                ignore = false;
-            } else if (inPct && (std::isdigit(ch) || ch == '.' || ch == '-')) {
-            } else if (!inPct) {  // Normal text
-            } else {  // Format character
-                inPct = false;
+            ఒకవేళ (!లోపల_Pct && ch == '%') {
+                లోపల_Pct = నిజం;
+                ignore = అబద్ధం;
+            } లేకపోతే ఒకవేళ (లోపల_Pct && (std::అంకెనా(ch) || ch == '.' || ch == '-')) {
+            } లేకపోతే ఒకవేళ (!లోపల_Pct) {  // Normal text
+            } లేకపోతే {  // Format character
+                లోపల_Pct = అబద్ధం;
                 ch = std::tolower(ch);
-                switch (ch) {
-                case '%': break;
-                case '*':
-                    inPct = true;  // Get more digits
-                    ignore = true;
-                    break;
-                case 'm': needsScope = true; break;
-                case 't':
-                    needsTimescale = true;
-                    ++formatArgs;
-                    break;
-                default:
-                    if (!ignore && V3Number::displayedFmtHasArg(ch, isScan)) ++formatArgs;
-                    break;
+                ఎంపిక (ch) {
+                స్థితి '%': ఆపు;
+                స్థితి '*':
+                    లోపల_Pct = నిజం;  // Get more digits
+                    ignore = నిజం;
+                    ఆపు;
+                స్థితి 'm': needsScope = నిజం; ఆపు;
+                స్థితి 't':
+                    needsTimescale = నిజం;
+                    ++format_వాదనలు;
+                    ఆపు;
+                అప్రమేయ:
+                    ఒకవేళ (!ignore && V3_సంఖ్య::displayedFmtHasArg(ch, is_పరిశీలన)) ++format_వాదనలు;
+                    ఆపు;
                 }
             }
         }
     }
 
-    if (vformat.empty() && VN_IS(nodep, Display))  // not fscanf etc, as they need to return value
-        return;  // NOP
+    ఒకవేళ (vformat.ఖాళీలు() && VN_IS(nodep, Display))  // not fscanf etc, as they need to return value
+        తిరిగి;  // NOP
 
-    const bool isStmt = displayEmitHeader(nodep);
+    స్థిరరాశి తార్కిక isStmt = display_Emit_శీర్షిక(nodep);
 
-    if (exprFormat) {
+    ఒకవేళ (సమాసం_Format_2) {
         UASSERT_OBJ(exprsp, nodep, "Missing format expression");
         iterateConst(exprsp);
         emitDatap(exprsp);
         exprsp = exprsp->nextp();
-    } else {
+    } లేకపోతే {
         ofp()->putsQuoted(vformat);
     }
 
-    int exprArgs = 0;
-    for (AstNode* argp = exprsp; argp; argp = argp->nextp()) ++exprArgs;
-    if (VL_UNCOVERABLE(!exprFormat && exprArgs != formatArgs)) {  // LCOV_EXCL_START
+    పూర్ణాంకం సమాసం_వాదనలు = 0;
+    కొరకు (Ast_కణుపు* argp = exprsp; argp; argp = argp->nextp()) ++సమాసం_వాదనలు;
+    ఒకవేళ (VL_UNCOVERABLE(!సమాసం_Format_2 && సమాసం_వాదనలు != format_వాదనలు)) {  // LCOV_EXCL_START
         // expectDisplay() checks this first, so probably internal error if found here
         nodep->v3error("Internal: Missing or extra arguments for $display-like format, "
-                       << " expression had " << exprArgs << ", format had " << formatArgs);
+                       << " expression had " << సమాసం_వాదనలు << ", format had " << format_వాదనలు);
     }  // LCOV_EXCL_STOP
 
     // argc for error check. Also MSVC++ requires va_args to not be off a reference
-    int argc = 0;
-    if (needsScope) ++argc;
-    if (needsTimescale) ++argc;
-    for (AstNode* argp = exprsp; argp; argp = argp->nextp()) {
+    పూర్ణాంకం argc = 0;
+    ఒకవేళ (needsScope) ++argc;
+    ఒకవేళ (needsTimescale) ++argc;
+    కొరకు (Ast_కణుపు* argp = exprsp; argp; argp = argp->nextp()) {
         ++argc;
-        const AstSFormatArg* const fargp = VN_CAST(argp, SFormatArg);
-        if (fargp && fargp->formatAttr().isEnum()) ++argc;  // Additional name argument
+        స్థిరరాశి AstSFormatArg* స్థిరరాశి fargp = VN_CAST(argp, SFormatArg);
+        ఒకవేళ (fargp && fargp->formatAttr().isEnum()) ++argc;  // Additional name argument
     }
-    ofp()->puts("," + std::to_string(argc));
+    ofp()->puts("," + std::గమ్యం_string(argc));
 
-    if (needsScope) {
-        AstScopeName* const scopenamep = fmtp ? fmtp->scopeNamep() : nullptr;
+    ఒకవేళ (needsScope) {
+        AstScopeName* స్థిరరాశి scopenamep = fmtp ? fmtp->scopeNamep() : శూన్యసూచిక;
         UASSERT_OBJ(scopenamep, nodep, "Display with %m but no AstScopeName");
         ofp()->puts(", '"s + VFormatAttr{VFormatAttr::SCOPE}.ascii() + "'");
-        if (scopenamep->selfRelative()) {
+        ఒకవేళ (scopenamep->selfRelative()) {
             // vlNamep is catName(name(), instance), so starts with '.' when the model is unnamed
-            const string namep = string{m_useSelfForThis ? "vlSelf" : "this"} + "->vlNamep";
+            స్థిరరాశి string namep = string{m_useSelfForThis ? "vlSelf" : "this"} + "->vlNamep";
             ofp()->puts(",(vlSymsp->name()[0] ? " + namep + " : " + namep + " + 1),");
             ofp()->putsQuoted(scopenamep->scopeAttr());
-        } else {
+        } లేకపోతే {
             ofp()->puts(",vlSymsp->name(),");
             ofp()->putsQuoted(scopenamep->scopePrettySymName());
         }
     }
 
-    if (needsTimescale) {
+    ఒకవేళ (needsTimescale) {
         VTimescale timeunit = VTimescale::NONE;
-        if (const AstDisplay* const anodep = VN_CAST(nodep, Display)) {
+        ఒకవేళ (స్థిరరాశి AstDisplay* స్థిరరాశి anodep = VN_CAST(nodep, Display)) {
             timeunit = anodep->fmtp()->timeunit();
-        } else if (const AstSFormat* const anodep = VN_CAST(nodep, SFormat)) {
+        } లేకపోతే ఒకవేళ (స్థిరరాశి AstSFormat* స్థిరరాశి anodep = VN_CAST(nodep, SFormat)) {
             timeunit = anodep->fmtp()->timeunit();
-        } else if (const AstSScanF* const anodep = VN_CAST(nodep, SScanF)) {
+        } లేకపోతే ఒకవేళ (స్థిరరాశి AstSScanF* స్థిరరాశి anodep = VN_CAST(nodep, SScanF)) {
             timeunit = anodep->timeunit();
-        } else if (const AstSFormatF* const anodep = VN_CAST(nodep, SFormatF)) {
+        } లేకపోతే ఒకవేళ (స్థిరరాశి AstSFormatF* స్థిరరాశి anodep = VN_CAST(nodep, SFormatF)) {
             timeunit = anodep->timeunit();
         }
         UASSERT_OBJ(!timeunit.isNone(), nodep,
                     "Use of %t must be under AstDisplay, AstSFormat, or AstSFormatF, or "
                     "SScanF, and timeunit set");
         ofp()->puts(", '"s + VFormatAttr{VFormatAttr::TIMEUNIT}.ascii() + "'");
-        ofp()->puts(","s + cvtToStr((int)timeunit.powerOfTen()));
+        ofp()->puts(","s + cvt_గమ్యం_Str((పూర్ణాంకం)timeunit.power_యొక్క_Ten()));
     }
 
     // Arguments
-    for (AstNode* argp = exprsp; argp; argp = argp->nextp()) {
+    కొరకు (Ast_కణుపు* argp = exprsp; argp; argp = argp->nextp()) {
         ofp()->indentInc();
         ofp()->putbs("");
-        AstSFormatArg* const fargp = VN_CAST(argp, SFormatArg);
-        AstNode* const subargp = fargp ? fargp->exprp() : argp;
-        const VFormatAttr formatAttr = AstSFormatArg::formatAttrDefauled(fargp, subargp->dtypep());
+        AstSFormatArg* స్థిరరాశి fargp = VN_CAST(argp, SFormatArg);
+        Ast_కణుపు* స్థిరరాశి subargp = fargp ? fargp->exprp() : argp;
+        స్థిరరాశి VFormatAttr formatAttr = AstSFormatArg::formatAttrDefauled(fargp, subargp->dtypep());
         puts(", '"s + formatAttr.ascii() + '\'');
-        if (formatAttr.isSigned() || formatAttr.isUnsigned() || formatAttr.isEnum())
-            puts("," + cvtToStr(subargp->widthMin()));
-        const bool addrof = isScan || formatAttr.isString() || formatAttr.isComplex();
-        const bool wideEnum = formatAttr.isEnum() && subargp->isWide();
+        ఒకవేళ (formatAttr.isSigned() || formatAttr.isUnsigned() || formatAttr.isEnum())
+            puts("," + cvt_గమ్యం_Str(subargp->వెడల్పు_Min()));
+        స్థిరరాశి తార్కిక addrof = is_పరిశీలన || formatAttr.isString() || formatAttr.isComplex();
+        స్థిరరాశి తార్కిక wideEnum = formatAttr.isEnum() && subargp->isWide();
         puts(",");
-        if (wideEnum) puts("static_cast<const EData*>(");
-        if (addrof) puts("&(");
-        if (VN_IS(subargp, StreamR))
-            emitStreamR(
-                VN_CAST(subargp, StreamR),
+        ఒకవేళ (wideEnum) puts("static_cast<const EData*>(");
+        ఒకవేళ (addrof) puts("&(");
+        ఒకవేళ (VN_IS(subargp, ప్రవాహం_R))
+            emit_ప్రవాహం_R(
+                VN_CAST(subargp, ప్రవాహం_R),
                 nodep);  // This has to be done here because streamR doesn't know what it returns
-        else { iterateConst(subargp); }
-        if (addrof) puts(")");
-        if (!addrof) emitDatap(argp);
-        if (wideEnum) puts(")");
-        if (formatAttr.isEnum()) {
+        లేకపోతే { iterateConst(subargp); }
+        ఒకవేళ (addrof) puts(")");
+        ఒకవేళ (!addrof) emitDatap(argp);
+        ఒకవేళ (wideEnum) puts(")");
+        ఒకవేళ (formatAttr.isEnum()) {
             puts(", '"s + VFormatAttr{VFormatAttr::STRING}.ascii() + "', &(");
             iterateConst(fargp->namep());
             puts(")");
@@ -376,289 +376,289 @@ void EmitCFunc::displayNode(AstNode* nodep, AstSFormatF* fmtp,  // fmtp is nullp
     }
 
     // End
-    if (isStmt) {
+    ఒకవేళ (isStmt) {
         puts(");\n");
-    } else {
+    } లేకపోతే {
         puts(") ");
     }
 }
 
-void EmitCFunc::emitCCallArgs(const AstNodeCCall* nodep, const string& selfPointer,
-                              bool inProcess) {
+శూన్య EmitCFunc::emit_CCall_వాదనలు(స్థిరరాశి Ast_కణుపు_CCall* nodep, స్థిరరాశి string& self_సూచిక,
+                              తార్కిక లోపల_Process) {
     putns(nodep, "(");
-    bool comma = false;
-    if (nodep->funcp()->isLoose() && !nodep->funcp()->isStatic()) {
-        UASSERT_OBJ(!selfPointer.empty(), nodep, "Call to loose method without self pointer");
-        puts(selfPointer);
-        comma = true;
+    తార్కిక comma = అబద్ధం;
+    ఒకవేళ (nodep->funcp()->isLoose() && !nodep->funcp()->isStatic()) {
+        UASSERT_OBJ(!self_సూచిక.ఖాళీలు(), nodep, "Call to loose method without self pointer");
+        puts(self_సూచిక);
+        comma = నిజం;
     }
-    if (nodep->funcp()->needProcess()) {
-        if (comma) puts(", ");
-        if (VN_IS(nodep->backp(), CAwait) || !nodep->funcp()->isCoroutine()) {
+    ఒకవేళ (nodep->funcp()->needProcess()) {
+        ఒకవేళ (comma) puts(", ");
+        ఒకవేళ (VN_IS(nodep->backp(), CAwait) || !nodep->funcp()->isCoroutine()) {
             puts("vlProcess");
-        } else if (inProcess) {
+        } లేకపోతే ఒకవేళ (లోపల_Process) {
             puts("std::make_shared<VlProcess>(vlProcess)");
-        } else {
+        } లేకపోతే {
             puts("std::make_shared<VlProcess>()");
         }
-        comma = true;
+        comma = నిజం;
     }
-    if (!nodep->argTypes().empty()) {
-        if (comma) puts(", ");
+    ఒకవేళ (!nodep->argTypes().ఖాళీలు()) {
+        ఒకవేళ (comma) puts(", ");
         puts(nodep->argTypes());
-        comma = true;
+        comma = నిజం;
     }
-    putCommaIterateNext(nodep->argsp(), comma);
+    put_Comma_Iterate_తదుపరి(nodep->argsp(), comma);
     puts(")");
 }
 
-std::string EmitCFunc::dereferenceString(const std::string& pointer) const {
-    if (pointer[0] == '(' && pointer[1] == '&') {
+std::string EmitCFunc::dereferenceString(స్థిరరాశి std::string& సూచిక) స్థిరరాశి {
+    ఒకవేళ (సూచిక[0] == '(' && సూచిక[1] == '&') {
         // remove "address of" followed by immediate dereference
         // Note: this relies on only the form '(&OBJECT)' being used by Verilator
-        return pointer.substr(2, pointer.length() - 3) + '.';
-    } else {
-        if (pointer == "vlSelf" && m_usevlSelfRef) {
-            return "vlSelfRef.";
-        } else {
-            return pointer + "->";
+        తిరిగి సూచిక.substr(2, సూచిక.నిడివి() - 3) + '.';
+    } లేకపోతే {
+        ఒకవేళ (సూచిక == "vlSelf" && m_usevlSelfRef) {
+            తిరిగి "vlSelfRef.";
+        } లేకపోతే {
+            తిరిగి సూచిక + "->";
         }
     }
 }
-void EmitCFunc::emitDereference(AstNode* nodep, const string& pointer) {
-    putns(nodep, dereferenceString(pointer));
+శూన్య EmitCFunc::emitDereference(Ast_కణుపు* nodep, స్థిరరాశి string& సూచిక) {
+    putns(nodep, dereferenceString(సూచిక));
 }
 
-void EmitCFunc::emitCvtPackStr(AstNode* nodep) {
-    if (const AstConst* const constp = VN_CAST(nodep, Const)) {
+శూన్య EmitCFunc::emitCvtPackStr(Ast_కణుపు* nodep) {
+    ఒకవేళ (స్థిరరాశి AstConst* స్థిరరాశి constp = VN_CAST(nodep, Const)) {
         emitConstantString(constp);
-    } else if (VN_IS(nodep->dtypep(), StreamDType)) {
+    } లేకపోతే ఒకవేళ (VN_IS(nodep->dtypep(), ప్రవాహం_DType)) {
         putnbs(nodep, "VL_CVT_PACK_STR_ND(");
-        iterateAndNextConstNull(nodep);
+        iterate_And_తదుపరి_Const_Null(nodep);
         puts(")");
-    } else {
+    } లేకపోతే {
         putnbs(nodep, "VL_CVT_PACK_STR_N");
         emitIQW(nodep);
         puts("(");
-        if (nodep->isWide()) {
+        ఒకవేళ (nodep->isWide()) {
             // Note argument width, not node width (which is always 32)
-            puts(cvtToStr(nodep->widthWords()));
+            puts(cvt_గమ్యం_Str(nodep->వెడల్పు_పదాలు()));
             puts(", ");
         }
-        iterateAndNextConstNull(nodep);
+        iterate_And_తదుపరి_Const_Null(nodep);
         puts(")");
     }
 }
 
-void EmitCFunc::emitConstant(AstConst* nodep) {
+శూన్య EmitCFunc::emitConstant(AstConst* nodep) {
     // Put out constant set to the specified variable, or given variable in a string
-    const V3Number& num = nodep->num();
-    if (num.isFourState()) {
+    స్థిరరాశి V3_సంఖ్య& అంకె = nodep->అంకె();
+    ఒకవేళ (అంకె.isFourState()) {
         nodep->v3warn(E_UNSUPPORTED, "Unsupported: 4-state numbers in this context");
-        return;
+        తిరిగి;
     }
-    putns(nodep, num.emitC());
+    putns(nodep, అంకె.emitC());
 }
 
-void EmitCFunc::emitConstantString(const AstConst* nodep) {
+శూన్య EmitCFunc::emitConstantString(స్థిరరాశి AstConst* nodep) {
     // Const might be a Verilog array-type string, but need to always output std::string
     putnbs(nodep, "std::string{");
-    const string str = nodep->num().toString();
-    if (!str.empty()) putsQuoted(str);
+    స్థిరరాశి string str = nodep->అంకె().గమ్యం_String();
+    ఒకవేళ (!str.ఖాళీలు()) putsQuoted(str);
     puts("}");
 }
 
-void EmitCFunc::emitVarReset(const string& prefix, AstVar* varp, bool constructing) {
+శూన్య EmitCFunc::emitVarReset(స్థిరరాశి string& ఉపసర్గ, AstVar* varp, తార్కిక constructing) {
     // 'constructing' indicates that the object was just constructed, so if it is a string or
     // something that starts off clear already, no need to clear it again
-    AstNodeDType* const dtypep = varp->dtypep()->skipRefp();
-    const string vlSelf = VSelfPointerText::replaceThis(m_useSelfForThis, "this->");
-    const string varNameProtected
-        = ((VN_IS(m_modp, Class) || varp->isFuncLocal()) || !prefix.empty())
+    Ast_కణుపు_DType* స్థిరరాశి dtypep = varp->dtypep()->skipRefp();
+    స్థిరరాశి string vlSelf = VSelf_సూచిక_పాఠ్యం::replaceThis(m_useSelfForThis, "this->");
+    స్థిరరాశి string varNameProtected
+        = ((VN_IS(m_modp, Class) || varp->isFuncLocal()) || !ఉపసర్గ.ఖాళీలు())
               ? varName(varp)
               : vlSelf + varName(varp);
-    const string newPrefix = prefix + varNameProtected;
-    if (varp->isIO() && m_modp->isTop() && optSystemC()) {
+    స్థిరరాశి string new_ఉపసర్గ = ఉపసర్గ + varNameProtected;
+    ఒకవేళ (varp->isIO() && m_modp->is_శిఖరం() && optSystemC()) {
         // System C top I/O doesn't need loading, as the lower level subinst code does it.}
-    } else if (varp->isParam()) {
+    } లేకపోతే ఒకవేళ (varp->isParam()) {
         UASSERT_OBJ(varp->valuep(), varp, "No init for a param?");
         // If a simple CONST value we initialize it using an enum
         // If an ARRAYINIT we initialize it using an initial block similar to a signal
         // puts("// parameter "+varp->nameProtect()+" = "+varp->valuep()->name()+"\n");
-    } else {
+    } లేకపోతే {
         putns(varp,
-              emitVarResetRecurse(varp, constructing, newPrefix, dtypep, 0, "", varp->valuep()));
+              emitVarResetRecurse(varp, constructing, new_ఉపసర్గ, dtypep, 0, "", varp->valuep()));
     }
 }
 
-string EmitCFunc::emitVarResetRecurse(const AstVar* varp, bool constructing,
-                                      const string& varNameProtected, AstNodeDType* dtypep,
-                                      int depth, const string& suffix, const AstNode* valuep) {
+string EmitCFunc::emitVarResetRecurse(స్థిరరాశి AstVar* varp, తార్కిక constructing,
+                                      స్థిరరాశి string& varNameProtected, Ast_కణుపు_DType* dtypep,
+                                      పూర్ణాంకం లోతు, స్థిరరాశి string& suffix, స్థిరరాశి Ast_కణుపు* valuep) {
     dtypep = dtypep->skipRefp();
-    AstBasicDType* const basicp = dtypep->basicp();
+    AstBasicDType* స్థిరరాశి basicp = dtypep->basicp();
     // Returns string to do resetting, empty to do nothing (which caller should handle)
-    if (AstAssocArrayDType* const adtypep = VN_CAST(dtypep, AssocArrayDType)) {
+    ఒకవేళ (AstAssocArrayDType* స్థిరరాశి adtypep = VN_CAST(dtypep, AssocArrayDType)) {
         // Access std::array as C array
-        const string pre = constructing ? "" : varNameProtected + suffix + ".clear();\n";
-        return pre
+        స్థిరరాశి string pre = constructing ? "" : varNameProtected + suffix + ".clear();\n";
+        తిరిగి pre
                + emitVarResetRecurse(varp, constructing, varNameProtected, adtypep->subDTypep(),
-                                     depth + 1, suffix + ".atDefault()", nullptr);
-    } else if (AstWildcardArrayDType* const adtypep = VN_CAST(dtypep, WildcardArrayDType)) {
+                                     లోతు + 1, suffix + ".atDefault()", శూన్యసూచిక);
+    } లేకపోతే ఒకవేళ (AstWildcardArrayDType* స్థిరరాశి adtypep = VN_CAST(dtypep, WildcardArrayDType)) {
         // Access std::array as C array
-        const string pre = constructing ? "" : varNameProtected + suffix + ".clear();\n";
-        return pre
+        స్థిరరాశి string pre = constructing ? "" : varNameProtected + suffix + ".clear();\n";
+        తిరిగి pre
                + emitVarResetRecurse(varp, constructing, varNameProtected, adtypep->subDTypep(),
-                                     depth + 1, suffix + ".atDefault()", nullptr);
-    } else if (VN_IS(dtypep, CDType)) {
-        return "";  // Constructor does it
-    } else if (VN_IS(dtypep, CoverCrossDType) || VN_IS(dtypep, CoverpointDType)) {
-        return "";  // Covergroup constructor creates the runtime and assigns the pointer
-    } else if (const AstClassRefDType* const adtypep = VN_CAST(dtypep, ClassRefDType)) {
-        return adtypep->rawPointer() ? varNameProtected + suffix + " = nullptr;\n" : "";
-    } else if (VN_IS(dtypep, IfaceRefDType)) {
-        return varNameProtected + suffix + " = nullptr;\n";
-    } else if (const AstDynArrayDType* const adtypep = VN_CAST(dtypep, DynArrayDType)) {
-        const string pre = constructing ? "" : varNameProtected + suffix + ".clear();\n";
-        return pre
+                                     లోతు + 1, suffix + ".atDefault()", శూన్యసూచిక);
+    } లేకపోతే ఒకవేళ (VN_IS(dtypep, CDType)) {
+        తిరిగి "";  // Constructor does it
+    } లేకపోతే ఒకవేళ (VN_IS(dtypep, CoverCrossDType) || VN_IS(dtypep, CoverpointDType)) {
+        తిరిగి "";  // Covergroup constructor creates the runtime and assigns the pointer
+    } లేకపోతే ఒకవేళ (స్థిరరాశి AstClassRefDType* స్థిరరాశి adtypep = VN_CAST(dtypep, ClassRefDType)) {
+        తిరిగి adtypep->raw_సూచిక() ? varNameProtected + suffix + " = nullptr;\n" : "";
+    } లేకపోతే ఒకవేళ (VN_IS(dtypep, IfaceRefDType)) {
+        తిరిగి varNameProtected + suffix + " = nullptr;\n";
+    } లేకపోతే ఒకవేళ (స్థిరరాశి AstDynArrayDType* స్థిరరాశి adtypep = VN_CAST(dtypep, DynArrayDType)) {
+        స్థిరరాశి string pre = constructing ? "" : varNameProtected + suffix + ".clear();\n";
+        తిరిగి pre
                + emitVarResetRecurse(varp, constructing, varNameProtected, adtypep->subDTypep(),
-                                     depth + 1, suffix + ".atDefault()", nullptr);
-    } else if (const AstQueueDType* const adtypep = VN_CAST(dtypep, QueueDType)) {
-        const string pre = constructing ? "" : varNameProtected + suffix + ".clear();\n";
-        return pre
+                                     లోతు + 1, suffix + ".atDefault()", శూన్యసూచిక);
+    } లేకపోతే ఒకవేళ (స్థిరరాశి Ast_వరుస_DType* స్థిరరాశి adtypep = VN_CAST(dtypep, వరుస_DType)) {
+        స్థిరరాశి string pre = constructing ? "" : varNameProtected + suffix + ".clear();\n";
+        తిరిగి pre
                + emitVarResetRecurse(varp, constructing, varNameProtected, adtypep->subDTypep(),
-                                     depth + 1, suffix + ".atDefault()", nullptr);
-    } else if (VN_IS(dtypep, SampleQueueDType)) {
-        return "";
-    } else if (const AstUnpackArrayDType* const adtypep = VN_CAST(dtypep, UnpackArrayDType)) {
+                                     లోతు + 1, suffix + ".atDefault()", శూన్యసూచిక);
+    } లేకపోతే ఒకవేళ (VN_IS(dtypep, Sample_వరుస_DType)) {
+        తిరిగి "";
+    } లేకపోతే ఒకవేళ (స్థిరరాశి AstUnpackArrayDType* స్థిరరాశి adtypep = VN_CAST(dtypep, UnpackArrayDType)) {
         UASSERT_OBJ(adtypep->hi() >= adtypep->lo(), varp,
                     "Should have swapped msb & lsb earlier.");
-        const AstNodeDType* const elementp = adtypep->subDTypep()->skipRefp();
-        if (!varp->isFuncLocal() && elementp->isIntegralOrPacked()) {
+        స్థిరరాశి Ast_కణుపు_DType* స్థిరరాశి elementp = adtypep->subDTypep()->skipRefp();
+        ఒకవేళ (!varp->isFuncLocal() && elementp->isIntegralOrPacked()) {
             // Scoped reset has no array-index input or mutable RNG state. Initialize one
             // element, then fill in the optimized runtime even when this code is cold.
-            const string first
+            స్థిరరాశి string మొదటి
                 = emitVarResetRecurse(varp, constructing, varNameProtected, adtypep->subDTypep(),
-                                      depth + 1, suffix + "[0]", nullptr);
-            const string array = varNameProtected + suffix;
-            return first + "VL_UNPACKED_FILL(" + array + ".data(), sizeof(" + array + "[0]), "
-                   + cvtToStr(adtypep->elementsConst()) + ");\n";
+                                      లోతు + 1, suffix + "[0]", శూన్యసూచిక);
+            స్థిరరాశి string array = varNameProtected + suffix;
+            తిరిగి మొదటి + "VL_UNPACKED_FILL(" + array + ".data(), sizeof(" + array + "[0]), "
+                   + cvt_గమ్యం_Str(adtypep->elementsConst()) + ");\n";
         }
-        const string ivar = "__Vi"s + cvtToStr(depth);
-        const string pre = ("for (int " + ivar + " = " + cvtToStr(0) + "; " + ivar + " < "
-                            + cvtToStr(adtypep->elementsConst()) + "; ++" + ivar + ") {\n");
-        const string below
+        స్థిరరాశి string ivar = "__Vi"s + cvt_గమ్యం_Str(లోతు);
+        స్థిరరాశి string pre = ("for (int " + ivar + " = " + cvt_గమ్యం_Str(0) + "; " + ivar + " < "
+                            + cvt_గమ్యం_Str(adtypep->elementsConst()) + "; ++" + ivar + ") {\n");
+        స్థిరరాశి string క్రింద
             = emitVarResetRecurse(varp, constructing, varNameProtected, adtypep->subDTypep(),
-                                  depth + 1, suffix + "[" + ivar + "]", nullptr);
-        const string post = "}\n";
-        return below.empty() ? "" : pre + below + post;
-    } else if (VN_IS(dtypep, NodeUOrStructDType) && !VN_AS(dtypep, NodeUOrStructDType)->packed()) {
-        const AstNodeUOrStructDType* const sdtypep = VN_AS(dtypep, NodeUOrStructDType);
+                                  లోతు + 1, suffix + "[" + ivar + "]", శూన్యసూచిక);
+        స్థిరరాశి string post = "}\n";
+        తిరిగి క్రింద.ఖాళీలు() ? "" : pre + క్రింద + post;
+    } లేకపోతే ఒకవేళ (VN_IS(dtypep, కణుపు_UOr_Struct_DType) && !VN_AS(dtypep, కణుపు_UOr_Struct_DType)->packed()) {
+        స్థిరరాశి Ast_కణుపు_UOr_Struct_DType* స్థిరరాశి sdtypep = VN_AS(dtypep, కణుపు_UOr_Struct_DType);
         string literal;
-        for (const AstMemberDType* itemp = sdtypep->membersp(); itemp;
+        కొరకు (స్థిరరాశి AstMemberDType* itemp = sdtypep->membersp(); itemp;
              itemp = VN_AS(itemp->nextp(), MemberDType)) {
-            const std::string line = emitVarResetRecurse(
+            స్థిరరాశి std::string పంక్తి = emitVarResetRecurse(
                 varp, constructing, varNameProtected + suffix + "." + itemp->nameProtect(),
-                itemp->dtypep(), depth + 1, "", itemp->valuep());
-            if (!line.empty()) literal += line;
+                itemp->dtypep(), లోతు + 1, "", itemp->valuep());
+            ఒకవేళ (!పంక్తి.ఖాళీలు()) literal += పంక్తి;
         }
-        return literal;
-    } else if (basicp && basicp->keyword() == VBasicDTypeKwd::STRING) {
-        if (constructing) return "";  // String's constructor deals with it
-        return varNameProtected + suffix + ".clear();\n";
-    } else if (basicp && basicp->isForkSync()) {
-        return "";
-    } else if (basicp && basicp->isProcessRef()) {
-        return "";
-    } else if (basicp && basicp->isDelayScheduler()) {
-        return "";
-    } else if (basicp && basicp->isTriggerScheduler()) {
-        return "";
-    } else if (basicp && basicp->isDynamicTriggerScheduler()) {
-        return "";
-    } else if (basicp && (basicp->isRandomGenerator() || basicp->isStdRandomGenerator())) {
-        return "";
-    } else if (basicp && basicp->isCovergroupInstHandle()) {
+        తిరిగి literal;
+    } లేకపోతే ఒకవేళ (basicp && basicp->keyword() == VBasicDTypeKwd::STRING) {
+        ఒకవేళ (constructing) తిరిగి "";  // String's constructor deals with it
+        తిరిగి varNameProtected + suffix + ".clear();\n";
+    } లేకపోతే ఒకవేళ (basicp && basicp->isForkSync()) {
+        తిరిగి "";
+    } లేకపోతే ఒకవేళ (basicp && basicp->isProcessRef()) {
+        తిరిగి "";
+    } లేకపోతే ఒకవేళ (basicp && basicp->isDelayScheduler()) {
+        తిరిగి "";
+    } లేకపోతే ఒకవేళ (basicp && basicp->isTriggerScheduler()) {
+        తిరిగి "";
+    } లేకపోతే ఒకవేళ (basicp && basicp->isDynamicTriggerScheduler()) {
+        తిరిగి "";
+    } లేకపోతే ఒకవేళ (basicp && (basicp->isRandomGenerator() || basicp->isStdRandomGenerator())) {
+        తిరిగి "";
+    } లేకపోతే ఒకవేళ (basicp && basicp->isCovergroupInstHandle()) {
         // The handle's own constructor deals with it.
-        return "";
-    } else if (basicp && (basicp->isEvent())) {
-        return "VlAssignableEvent{};\n";
-    } else if (basicp) {
-        const bool zeroit
+        తిరిగి "";
+    } లేకపోతే ఒకవేళ (basicp && (basicp->isEvent())) {
+        తిరిగి "VlAssignableEvent{};\n";
+    } లేకపోతే ఒకవేళ (basicp) {
+        స్థిరరాశి తార్కిక zeroit
             = (varp->attrFileDescr()  // Zero so we don't do file IO if never $fopen
                || varp->isFuncLocal()  // Randomization too slow
                || (basicp && basicp->isZeroInit())
-               || (v3Global.opt.underlineZero() && !varp->name().empty() && varp->name()[0] == '_')
-               || (varp->varType().isTemp() && !varp->isXTemp())
+               || (v3Global.opt.underlineZero() && !varp->name().ఖాళీలు() && varp->name()[0] == '_')
+               || (varp->varType().is_తాత్కాలిక() && !varp->isXTemp())
                || (varp->isXTemp()
-                       ? (v3Global.opt.xAssign() != "unique")
+                       ? (v3Global.opt.x_కేటాయించు() != "unique")
                        : (v3Global.opt.xInitial() == "fast" || v3Global.opt.xInitial() == "0")));
-        const bool slow = !varp->isFuncLocal() && !varp->isClassMember();
-        splitSizeInc(1);
-        if (dtypep->isWide()) {  // Handle unpacked; not basicp->isWide
-            string out;
-            if (valuep) {
-                const AstConst* const constp = VN_AS(valuep, Const);
+        స్థిరరాశి తార్కిక slow = !varp->isFuncLocal() && !varp->isClassMember();
+        విభజించు_కొలత_Inc(1);
+        ఒకవేళ (dtypep->isWide()) {  // Handle unpacked; not basicp->isWide
+            string బహిర్గతం;
+            ఒకవేళ (valuep) {
+                స్థిరరాశి AstConst* స్థిరరాశి constp = VN_AS(valuep, Const);
                 UASSERT_OBJ(constp, varp, "non-const initializer for variable");
-                for (int w = 0; w < dtypep->widthWords(); ++w) {
-                    out += varNameProtected + suffix + "[" + cvtToStr(w) + "] = ";
-                    out += cvtToStr(constp->num().edataWord(w)) + "U;\n";
+                కొరకు (పూర్ణాంకం w = 0; w < dtypep->వెడల్పు_పదాలు(); ++w) {
+                    బహిర్గతం += varNameProtected + suffix + "[" + cvt_గమ్యం_Str(w) + "] = ";
+                    బహిర్గతం += cvt_గమ్యం_Str(constp->అంకె().edata_మాట(w)) + "U;\n";
                 }
-            } else {
-                out += zeroit ? (slow ? "VL_ZERO_RESET_W(" : "VL_ZERO_W(")
+            } లేకపోతే {
+                బహిర్గతం += zeroit ? (slow ? "VL_ZERO_RESET_W(" : "VL_ZERO_W(")
                               : (varp->isXTemp() ? "VL_SCOPED_RAND_RESET_ASSIGN_W("
                                                  : "VL_SCOPED_RAND_RESET_W(");
-                out += cvtToStr(dtypep->widthMin());
-                out += ", " + varNameProtected + suffix;
-                if (!zeroit) {
+                బహిర్గతం += cvt_గమ్యం_Str(dtypep->వెడల్పు_Min());
+                బహిర్గతం += ", " + varNameProtected + suffix;
+                ఒకవేళ (!zeroit) {
                     emitVarResetScopeHash();
-                    const uint64_t salt = VString::hashMurmur(varp->prettyName());
-                    out += ", ";
-                    out += m_classOrPackage ? m_classOrPackageHash : "__VscopeHash";
-                    out += ", ";
-                    out += std::to_string(salt);
-                    out += "ull";
+                    స్థిరరాశి uint64_t salt = VString::hashMurmur(varp->prettyName());
+                    బహిర్గతం += ", ";
+                    బహిర్గతం += m_classOrPackage ? m_classOrPackageHash : "__VscopeHash";
+                    బహిర్గతం += ", ";
+                    బహిర్గతం += std::గమ్యం_string(salt);
+                    బహిర్గతం += "ull";
                 }
-                out += ");\n";
+                బహిర్గతం += ");\n";
             }
-            return out;
-        } else {
-            string out = varNameProtected + suffix;
-            if (valuep) {
-                out += " = ";
+            తిరిగి బహిర్గతం;
+        } లేకపోతే {
+            string బహిర్గతం = varNameProtected + suffix;
+            ఒకవేళ (valuep) {
+                బహిర్గతం += " = ";
                 // TODO cleanup code shared between here, V3EmitCConstInit.h,
                 // EmitCFunc::emitVarReset, EmitCFunc::emitConstant
-                const AstConst* const constp = VN_AS(valuep, Const);
+                స్థిరరాశి AstConst* స్థిరరాశి constp = VN_AS(valuep, Const);
                 UASSERT_OBJ(constp, varp, "non-const initializer for variable");
-                out += cvtToStr(constp->num().edataWord(0)) + "U;\n";
-                out += ";\n";
-            } else if (zeroit) {
-                out += " = 0;\n";
-            } else {
+                బహిర్గతం += cvt_గమ్యం_Str(constp->అంకె().edata_మాట(0)) + "U;\n";
+                బహిర్గతం += ";\n";
+            } లేకపోతే ఒకవేళ (zeroit) {
+                బహిర్గతం += " = 0;\n";
+            } లేకపోతే {
                 emitVarResetScopeHash();
-                const uint64_t salt = VString::hashMurmur(varp->prettyName());
-                out += " = VL_SCOPED_RAND_RESET_";
-                if (varp->isXTemp()) out += "ASSIGN_";
-                out += dtypep->charIQWN();
-                out += "(" + cvtToStr(dtypep->widthMin()) + ", "
+                స్థిరరాశి uint64_t salt = VString::hashMurmur(varp->prettyName());
+                బహిర్గతం += " = VL_SCOPED_RAND_RESET_";
+                ఒకవేళ (varp->isXTemp()) బహిర్గతం += "ASSIGN_";
+                బహిర్గతం += dtypep->charIQWN();
+                బహిర్గతం += "(" + cvt_గమ్యం_Str(dtypep->వెడల్పు_Min()) + ", "
                        + (m_classOrPackage ? m_classOrPackageHash : "__VscopeHash") + ", "
-                       + std::to_string(salt) + "ull);\n";
+                       + std::గమ్యం_string(salt) + "ull);\n";
             }
-            return out;
+            తిరిగి బహిర్గతం;
         }
-    } else {  // LCOV_EXCL_BR_LINE
+    } లేకపోతే {  // LCOV_EXCL_BR_LINE
         v3fatalSrc("Unknown node type in reset generator: " << varp->prettyTypeName());
     }
-    return "";
+    తిరిగి "";
 }
 
-void EmitCFunc::emitVarResetScopeHash() {
-    if (VL_LIKELY(m_createdScopeHash)) { return; }
-    if (m_classOrPackage) {
+శూన్య EmitCFunc::emitVarResetScopeHash() {
+    ఒకవేళ (VL_LIKELY(m_createdScopeHash)) { తిరిగి; }
+    ఒకవేళ (m_classOrPackage) {
         m_classOrPackageHash
-            = std::to_string(VString::hashMurmur(m_classOrPackage->name())) + "ULL";
-    } else {
+            = std::గమ్యం_string(VString::hashMurmur(m_classOrPackage->name())) + "ULL";
+    } లేకపోతే {
         puts(string("const uint64_t __VscopeHash = VL_MURMUR64_HASH(")
              + (m_useSelfForThis ? "vlSelf" : "this") + "->vlNamep);\n");
     }
-    m_createdScopeHash = true;
+    m_createdScopeHash = నిజం;
 }

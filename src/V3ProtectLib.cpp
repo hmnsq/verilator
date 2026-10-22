@@ -14,82 +14,82 @@
 //
 //*************************************************************************
 
-#include "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
+#అన్తర్భావ "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
 
-#include "V3ProtectLib.h"
+#అన్తర్భావ "V3ProtectLib.h"
 
-#include "V3Control.h"
-#include "V3Hasher.h"
-#include "V3InstrCount.h"
-#include "V3String.h"
-#include "V3Task.h"
+#అన్తర్భావ "V3Control.h"
+#అన్తర్భావ "V3Hasher.h"
+#అన్తర్భావ "V3InstrCount.h"
+#అన్తర్భావ "V3String.h"
+#అన్తర్భావ "V3Task.h"
 
 VL_DEFINE_DEBUG_FUNCTIONS;
 
 //######################################################################
 // ProtectLib top-level visitor
 
-class ProtectVisitor final : public VNVisitor {
+తరగతి ProtectVisitor final : బహిరంగ VNVisitor {
     // TYPES
-    struct InoutPorts final {
-        AstVar* inp = nullptr;  // Resolved input value and original public port
-        AstVar* outp = nullptr;  // Library drive value
-        AstVar* enp = nullptr;  // Per-bit drive enable
+    నిర్మాణం InoutPorts final {
+        AstVar* inp = శూన్యసూచిక;  // Resolved input value and original public port
+        AstVar* outp = శూన్యసూచిక;  // Library drive value
+        AstVar* enp = శూన్యసూచిక;  // Per-bit drive enable
     };
 
     // MEMBERS
-    AstVFile* m_vfilep = nullptr;  // DPI-enabled Verilog wrapper
-    AstCFile* m_cfilep = nullptr;  // C implementation of DPI functions
+    AstVFile* m_vfilep = శూన్యసూచిక;  // DPI-enabled Verilog wrapper
+    AstCFile* m_cfilep = శూన్యసూచిక;  // C implementation of DPI functions
     // Verilog text blocks
-    AstTextBlock* m_modPortsp = nullptr;  // Module port list
-    AstTextBlock* m_comboPortsp = nullptr;  // Combo function port list
-    AstTextBlock* m_seqPortsp = nullptr;  // Sequential function port list
-    AstTextBlock* m_comboIgnorePortsp = nullptr;  // Combo ignore function port list
-    AstTextBlock* m_comboDeclsp = nullptr;  // Combo signal declaration list
-    AstTextBlock* m_seqDeclsp = nullptr;  // Sequential signal declaration list
-    AstTextBlock* m_tmpDeclsp = nullptr;  // Temporary signal declaration list
-    AstTextBlock* m_inoutDeclsp = nullptr;  // Lowered inout signals and tristate drivers
-    AstTextBlock* m_hashValuep = nullptr;  // CPP hash value
-    AstTextBlock* m_comboParamsp = nullptr;  // Combo function parameter list
-    AstTextBlock* m_clkSensp = nullptr;  // Clock sensitivity list
-    AstTextBlock* m_comboIgnoreParamsp = nullptr;  // Combo ignore parameter list
-    AstTextBlock* m_seqParamsp = nullptr;  // Sequential parameter list
-    AstTextBlock* m_nbAssignsp = nullptr;  // Non-blocking assignment list
-    AstTextBlock* m_seqAssignsp = nullptr;  // Sequential assignment list
-    AstTextBlock* m_comboAssignsp = nullptr;  // Combo assignment list
+    Ast_పాఠ్యం_ఖండం* m_modPortsp = శూన్యసూచిక;  // Module port list
+    Ast_పాఠ్యం_ఖండం* m_comboPortsp = శూన్యసూచిక;  // Combo function port list
+    Ast_పాఠ్యం_ఖండం* m_seqPortsp = శూన్యసూచిక;  // Sequential function port list
+    Ast_పాఠ్యం_ఖండం* m_comboIgnorePortsp = శూన్యసూచిక;  // Combo ignore function port list
+    Ast_పాఠ్యం_ఖండం* m_comboDeclsp = శూన్యసూచిక;  // Combo signal declaration list
+    Ast_పాఠ్యం_ఖండం* m_seqDeclsp = శూన్యసూచిక;  // Sequential signal declaration list
+    Ast_పాఠ్యం_ఖండం* m_tmpDeclsp = శూన్యసూచిక;  // Temporary signal declaration list
+    Ast_పాఠ్యం_ఖండం* m_inoutDeclsp = శూన్యసూచిక;  // Lowered inout signals and tristate drivers
+    Ast_పాఠ్యం_ఖండం* m_hashValuep = శూన్యసూచిక;  // CPP hash value
+    Ast_పాఠ్యం_ఖండం* m_comboParamsp = శూన్యసూచిక;  // Combo function parameter list
+    Ast_పాఠ్యం_ఖండం* m_clkSensp = శూన్యసూచిక;  // Clock sensitivity list
+    Ast_పాఠ్యం_ఖండం* m_comboIgnoreParamsp = శూన్యసూచిక;  // Combo ignore parameter list
+    Ast_పాఠ్యం_ఖండం* m_seqParamsp = శూన్యసూచిక;  // Sequential parameter list
+    Ast_పాఠ్యం_ఖండం* m_nbAssignsp = శూన్యసూచిక;  // Non-blocking assignment list
+    Ast_పాఠ్యం_ఖండం* m_seqAssignsp = శూన్యసూచిక;  // Sequential assignment list
+    Ast_పాఠ్యం_ఖండం* m_comboAssignsp = శూన్యసూచిక;  // Combo assignment list
     // C text blocks
-    AstTextBlock* m_cHashValuep = nullptr;  // CPP hash value
-    AstTextBlock* m_cComboParamsp = nullptr;  // Combo function parameter list
-    AstTextBlock* m_cComboInsp = nullptr;  // Combo input copy list
-    AstTextBlock* m_cComboOutsp = nullptr;  // Combo output copy list
-    AstTextBlock* m_cSeqParamsp = nullptr;  // Sequential parameter list
-    AstTextBlock* m_cSeqClksp = nullptr;  // Sequential clock copy list
-    AstTextBlock* m_cSeqOutsp = nullptr;  // Sequential output copy list
-    AstTextBlock* m_cIgnoreParamsp = nullptr;  // Combo ignore parameter list
-    const string m_libName;
-    const string m_topName;
-    bool m_foundTop = false;  // Have seen the top module
-    bool m_hasClk = false;  // True if the top module has sequential logic
-    std::map<int, InoutPorts> m_inouts;  // Lowered ports grouped by original inout
+    Ast_పాఠ్యం_ఖండం* m_cHashValuep = శూన్యసూచిక;  // CPP hash value
+    Ast_పాఠ్యం_ఖండం* m_cComboParamsp = శూన్యసూచిక;  // Combo function parameter list
+    Ast_పాఠ్యం_ఖండం* m_cComboInsp = శూన్యసూచిక;  // Combo input copy list
+    Ast_పాఠ్యం_ఖండం* m_cComboOutsp = శూన్యసూచిక;  // Combo output copy list
+    Ast_పాఠ్యం_ఖండం* m_cSeqParamsp = శూన్యసూచిక;  // Sequential parameter list
+    Ast_పాఠ్యం_ఖండం* m_cSeqClksp = శూన్యసూచిక;  // Sequential clock copy list
+    Ast_పాఠ్యం_ఖండం* m_cSeqOutsp = శూన్యసూచిక;  // Sequential output copy list
+    Ast_పాఠ్యం_ఖండం* m_cIgnoreParamsp = శూన్యసూచిక;  // Combo ignore parameter list
+    స్థిరరాశి string m_libName;
+    స్థిరరాశి string m_శిఖరం_Name;
+    తార్కిక m_దొరికింది_శిఖరం = అబద్ధం;  // Have seen the top module
+    తార్కిక m_hasClk = అబద్ధం;  // True if the top module has sequential logic
+    std::map<పూర్ణాంకం, InoutPorts> m_inouts;  // Lowered ports grouped by original inout
 
     // VISITORS
-    void visit(AstNetlist* nodep) override {
+    శూన్య సందర్శించు(AstNetlist* nodep) override {
         m_vfilep
-            = new AstVFile{nodep->fileline(), v3Global.opt.makeDir() + "/" + m_libName + ".sv"};
-        nodep->addFilesp(m_vfilep);
+            = కొత్త AstVFile{nodep->fileline(), v3Global.opt.makeDir() + "/" + m_libName + ".sv"};
+        nodep->కూడు_Filesp(m_vfilep);
         m_cfilep
-            = new AstCFile{nodep->fileline(), v3Global.opt.makeDir() + "/" + m_libName + ".cpp"};
-        nodep->addFilesp(m_cfilep);
+            = కొత్త AstCFile{nodep->fileline(), v3Global.opt.makeDir() + "/" + m_libName + ".cpp"};
+        nodep->కూడు_Filesp(m_cfilep);
         iterateChildren(nodep);
     }
 
-    void visit(AstNodeModule* nodep) override {
-        if (!nodep->isTop()) {
-            return;
-        } else {
-            UASSERT_OBJ(!m_foundTop, nodep, "Multiple root modules");
+    శూన్య సందర్శించు(Ast_కణుపు_Module* nodep) override {
+        ఒకవేళ (!nodep->is_శిఖరం()) {
+            తిరిగి;
+        } లేకపోతే {
+            UASSERT_OBJ(!m_దొరికింది_శిఖరం, nodep, "Multiple root modules");
         }
-        FileLine* const fl = nodep->fileline();
+        File_పంక్తి* స్థిరరాశి fl = nodep->fileline();
         // Need to know the existence of clk before createSvFile()
         m_hasClk = checkIfClockExists(nodep);
         createSvFile(fl, nodep);
@@ -100,360 +100,360 @@ class ProtectVisitor final : public VNVisitor {
         restoreInouts();
 
         // cppcheck-suppress unreadVariable
-        const V3Hash hash = V3Hasher::uncachedHash(m_cfilep);
-        m_hashValuep->add(cvtToStr(hash.value()) + ";\n");
-        m_cHashValuep->add(cvtToStr(hash.value()) + "U;\n");
-        m_foundTop = true;
+        స్థిరరాశి V3Hash hash = V3Hasher::uncachedHash(m_cfilep);
+        m_hashValuep->కూడు(cvt_గమ్యం_Str(hash.విలువ()) + ";\n");
+        m_cHashValuep->కూడు(cvt_గమ్యం_Str(hash.విలువ()) + "U;\n");
+        m_దొరికింది_శిఖరం = నిజం;
     }
 
-    void addComment(AstTextBlock* txtp, FileLine* fl, const string& comment) {
-        txtp->add(new AstComment{fl, comment});
+    శూన్య కూడు_Comment(Ast_పాఠ్యం_ఖండం* txtp, File_పంక్తి* fl, స్థిరరాశి string& comment) {
+        txtp->కూడు(కొత్త AstComment{fl, comment});
     }
 
-    void configSection(AstNodeModule* /*modp*/, AstTextBlock* txtp, FileLine* /*fl*/) {
-        txtp->add("\n`ifdef VERILATOR\n");
-        txtp->add("`verilator_config\n");
+    శూన్య configSection(Ast_కణుపు_Module* /*modp*/, Ast_పాఠ్యం_ఖండం* txtp, File_పంక్తి* /*fl*/) {
+        txtp->కూడు("\n`ifdef VERILATOR\n");
+        txtp->కూడు("`verilator_config\n");
 
-        txtp->add("verilator_lib -module \"" + m_libName + "\"\n");
+        txtp->కూడు("verilator_lib -module \"" + m_libName + "\"\n");
 
-        txtp->add("profile_data -hier-dpi \"" + m_libName + "_protectlib_combo_update\" -cost 64'd"
-                  + std::to_string(v3Global.currentHierBlockCost()) + "\n");
-        txtp->add("profile_data -hier-dpi \"" + m_libName + "_protectlib_seq_update\" -cost 64'd"
-                  + std::to_string(v3Global.currentHierBlockCost()) + "\n");
+        txtp->కూడు("profile_data -hier-dpi \"" + m_libName + "_protectlib_combo_update\" -cost 64'd"
+                  + std::గమ్యం_string(v3Global.current_Hier_ఖండం_ఖర్చు()) + "\n");
+        txtp->కూడు("profile_data -hier-dpi \"" + m_libName + "_protectlib_seq_update\" -cost 64'd"
+                  + std::గమ్యం_string(v3Global.current_Hier_ఖండం_ఖర్చు()) + "\n");
 
         // Mark remaining NBA protectlib wrapper DPIs as non-hazardous by deliberately forwarding
         // them with non-zero cost.
         // Also, specify hierarchical workers for those tasks for scheduling.
-        txtp->add("profile_data -hier-dpi \"" + m_libName
+        txtp->కూడు("profile_data -hier-dpi \"" + m_libName
                   + "_protectlib_combo_ignore\" -cost 64'd1\n");
 
-        txtp->add("hier_workers -hier-dpi \"" + m_libName
+        txtp->కూడు("hier_workers -hier-dpi \"" + m_libName
                   + "_protectlib_combo_update\" -workers 16'd"
-                  + std::to_string(V3Control::getHierWorkers(m_libName)) + "\n");
-        txtp->add("hier_workers -hier-dpi \"" + m_libName
+                  + std::గమ్యం_string(V3Control::getHierWorkers(m_libName)) + "\n");
+        txtp->కూడు("hier_workers -hier-dpi \"" + m_libName
                   + "_protectlib_seq_update\" -workers 16'd"
-                  + std::to_string(V3Control::getHierWorkers(m_libName)) + "\n");
+                  + std::గమ్యం_string(V3Control::getHierWorkers(m_libName)) + "\n");
         // No workers for combo_ignore
-        txtp->add("`verilog\n");
-        txtp->add("`endif\n");
+        txtp->కూడు("`verilog\n");
+        txtp->కూడు("`endif\n");
     }
 
-    void hashComment(AstTextBlock* txtp, FileLine* fl) {
-        addComment(txtp, fl, "Checks to make sure the .sv wrapper and library agree");
+    శూన్య hashComment(Ast_పాఠ్యం_ఖండం* txtp, File_పంక్తి* fl) {
+        కూడు_Comment(txtp, fl, "Checks to make sure the .sv wrapper and library agree");
     }
 
-    void initialComment(AstTextBlock* txtp, FileLine* fl) {
-        addComment(txtp, fl, "Creates an instance of the library module at initial-time");
-        addComment(txtp, fl, "(one for each instance in the user's design)");
+    శూన్య initialComment(Ast_పాఠ్యం_ఖండం* txtp, File_పంక్తి* fl) {
+        కూడు_Comment(txtp, fl, "Creates an instance of the library module at initial-time");
+        కూడు_Comment(txtp, fl, "(one for each instance in the user's design)");
     }
 
-    void comboComment(AstTextBlock* txtp, FileLine* fl) {
-        addComment(txtp, fl, "Updates all non-clock inputs and retrieves the results");
+    శూన్య comboComment(Ast_పాఠ్యం_ఖండం* txtp, File_పంక్తి* fl) {
+        కూడు_Comment(txtp, fl, "Updates all non-clock inputs and retrieves the results");
     }
 
-    void seqComment(AstTextBlock* txtp, FileLine* fl) {
-        addComment(txtp, fl, "Updates all clocks and retrieves the results");
+    శూన్య seqComment(Ast_పాఠ్యం_ఖండం* txtp, File_పంక్తి* fl) {
+        కూడు_Comment(txtp, fl, "Updates all clocks and retrieves the results");
     }
 
-    void comboIgnoreComment(AstTextBlock* txtp, FileLine* fl) {
-        addComment(txtp, fl, "Need to convince some simulators that the input to the module");
-        addComment(txtp, fl, "must be evaluated before evaluating the clock edge");
+    శూన్య comboIgnoreComment(Ast_పాఠ్యం_ఖండం* txtp, File_పంక్తి* fl) {
+        కూడు_Comment(txtp, fl, "Need to convince some simulators that the input to the module");
+        కూడు_Comment(txtp, fl, "must be evaluated before evaluating the clock edge");
     }
 
-    void finalComment(AstTextBlock* txtp, FileLine* fl) {
-        addComment(txtp, fl, "Evaluates the library module's final process");
+    శూన్య finalComment(Ast_పాఠ్యం_ఖండం* txtp, File_పంక్తి* fl) {
+        కూడు_Comment(txtp, fl, "Evaluates the library module's final process");
     }
 
-    void createSvFile(FileLine* fl, AstNodeModule* modp) {
+    శూన్య createSvFile(File_పంక్తి* fl, Ast_కణుపు_Module* modp) {
         // Comments
-        AstTextBlock* const txtp = new AstTextBlock{fl};
-        addComment(txtp, fl, "Wrapper module for DPI protected library");
-        addComment(txtp, fl,
+        Ast_పాఠ్యం_ఖండం* స్థిరరాశి txtp = కొత్త Ast_పాఠ్యం_ఖండం{fl};
+        కూడు_Comment(txtp, fl, "Wrapper module for DPI protected library");
+        కూడు_Comment(txtp, fl,
                    "This module requires lib" + m_libName + ".a or lib" + m_libName
                        + ".so to work");
-        addComment(txtp, fl,
+        కూడు_Comment(txtp, fl,
                    "See instructions in your simulator for how"
                    " to use DPI libraries\n");
 
         // Module declaration
         // Wrapper ranges preserve the original RTL, including intentional ascending ranges.
-        txtp->add("/*verilator lint_save*/\n");
-        txtp->add("/*verilator lint_off ASCRANGE*/\n");
-        m_modPortsp = new AstTextBlock{fl, "module " + m_libName + " (\n", ", ", ");\n\n"};
-        txtp->add(m_modPortsp);
+        txtp->కూడు("/*verilator lint_save*/\n");
+        txtp->కూడు("/*verilator lint_off ASCRANGE*/\n");
+        m_modPortsp = కొత్త Ast_పాఠ్యం_ఖండం{fl, "module " + m_libName + " (\n", ", ", ");\n\n"};
+        txtp->కూడు(m_modPortsp);
 
         // Timescale
-        if (v3Global.opt.hierChild() && v3Global.rootp()->timescaleSpecified()) {
+        ఒకవేళ (v3Global.opt.hier_బిడ్డ() && v3Global.rootp()->timescaleSpecified()) {
             // Emit timescale for hierarchical Verilation if input HDL specifies timespec
-            txtp->add("timeunit "s + modp->timeunit().ascii() + ";\n");
-            txtp->add("timeprecision "s + +v3Global.rootp()->timeprecision().ascii() + ";\n");
-        } else {
-            addComment(txtp, fl,
+            txtp->కూడు("timeunit "s + modp->timeunit().ascii() + ";\n");
+            txtp->కూడు("timeprecision "s + +v3Global.rootp()->timeprecision().ascii() + ";\n");
+        } లేకపోతే {
+            కూడు_Comment(txtp, fl,
                        "Precision of submodule"
                        " (commented out to avoid requiring timescale on all modules)");
-            addComment(txtp, fl, "timeunit "s + v3Global.rootp()->timeunit().ascii() + ";");
-            addComment(txtp, fl,
+            కూడు_Comment(txtp, fl, "timeunit "s + v3Global.rootp()->timeunit().ascii() + ";");
+            కూడు_Comment(txtp, fl,
                        "timeprecision "s + v3Global.rootp()->timeprecision().ascii() + ";\n");
         }
 
         // DPI declarations
         hashComment(txtp, fl);
-        txtp->add("import \"DPI-C\" function void " + m_libName
+        txtp->కూడు("import \"DPI-C\" function void " + m_libName
                   + "_protectlib_check_hash(int protectlib_hash__V);\n\n");
         initialComment(txtp, fl);
-        txtp->add("import \"DPI-C\" function chandle " + m_libName
+        txtp->కూడు("import \"DPI-C\" function chandle " + m_libName
                   + "_protectlib_create(string scope__V);\n\n");
         comboComment(txtp, fl);
-        m_comboPortsp = new AstTextBlock{fl,  //
+        m_comboPortsp = కొత్త Ast_పాఠ్యం_ఖండం{fl,  //
                                          "import \"DPI-C\" function longint " + m_libName
                                              + "_protectlib_combo_update(\n",  //
                                          ", ",  //
                                          ");\n\n"};
-        m_comboPortsp->add("chandle handle__V\n");
-        txtp->add(m_comboPortsp);
+        m_comboPortsp->కూడు("chandle handle__V\n");
+        txtp->కూడు(m_comboPortsp);
         seqComment(txtp, fl);
-        if (m_hasClk) {
-            m_seqPortsp = new AstTextBlock{fl,  //
+        ఒకవేళ (m_hasClk) {
+            m_seqPortsp = కొత్త Ast_పాఠ్యం_ఖండం{fl,  //
                                            "import \"DPI-C\" function longint " + m_libName
                                                + "_protectlib_seq_update(\n",  //
                                            ", ",  //
                                            ");\n\n"};
-            m_seqPortsp->add("chandle handle__V\n");
-            txtp->add(m_seqPortsp);
+            m_seqPortsp->కూడు("chandle handle__V\n");
+            txtp->కూడు(m_seqPortsp);
         }
         comboIgnoreComment(txtp, fl);
-        m_comboIgnorePortsp = new AstTextBlock{fl,  //
+        m_comboIgnorePortsp = కొత్త Ast_పాఠ్యం_ఖండం{fl,  //
                                                "import \"DPI-C\" function void " + m_libName
                                                    + "_protectlib_combo_ignore(\n",  //
                                                ", ",  //
                                                ");\n\n"};
-        m_comboIgnorePortsp->add("chandle handle__V\n");
-        txtp->add(m_comboIgnorePortsp);
+        m_comboIgnorePortsp->కూడు("chandle handle__V\n");
+        txtp->కూడు(m_comboIgnorePortsp);
 
         finalComment(txtp, fl);
-        txtp->add("import \"DPI-C\" function void " + m_libName
+        txtp->కూడు("import \"DPI-C\" function void " + m_libName
                   + "_protectlib_final(chandle handle__V);\n\n");
 
         // Local variables
         // Avoid tracing handle, as it is not a stable value, so breaks wavediff
         // Likewise other internals aren't interesting to the user
-        txtp->add("// verilator tracing_off\n");
+        txtp->కూడు("// verilator tracing_off\n");
 
-        txtp->add("chandle handle__V;\n");
-        txtp->add("time last_combo_seqnum__V;\n");
-        if (m_hasClk) txtp->add("time last_seq_seqnum__V;\n");
-        txtp->add("\n");
+        txtp->కూడు("chandle handle__V;\n");
+        txtp->కూడు("time last_combo_seqnum__V;\n");
+        ఒకవేళ (m_hasClk) txtp->కూడు("time last_seq_seqnum__V;\n");
+        txtp->కూడు("\n");
 
-        m_comboDeclsp = new AstTextBlock{fl};
-        txtp->add(m_comboDeclsp);
-        m_seqDeclsp = new AstTextBlock{fl};
-        txtp->add(m_seqDeclsp);
-        m_tmpDeclsp = new AstTextBlock{fl};
-        txtp->add(m_tmpDeclsp);
-        m_inoutDeclsp = new AstTextBlock{fl};
-        txtp->add(m_inoutDeclsp);
+        m_comboDeclsp = కొత్త Ast_పాఠ్యం_ఖండం{fl};
+        txtp->కూడు(m_comboDeclsp);
+        m_seqDeclsp = కొత్త Ast_పాఠ్యం_ఖండం{fl};
+        txtp->కూడు(m_seqDeclsp);
+        m_tmpDeclsp = కొత్త Ast_పాఠ్యం_ఖండం{fl};
+        txtp->కూడు(m_tmpDeclsp);
+        m_inoutDeclsp = కొత్త Ast_పాఠ్యం_ఖండం{fl};
+        txtp->కూడు(m_inoutDeclsp);
 
         // CPP hash value
-        addComment(txtp, fl, "Hash value to make sure this file and the corresponding");
-        addComment(txtp, fl, "library agree");
-        m_hashValuep = new AstTextBlock{
+        కూడు_Comment(txtp, fl, "Hash value to make sure this file and the corresponding");
+        కూడు_Comment(txtp, fl, "library agree");
+        m_hashValuep = కొత్త Ast_పాఠ్యం_ఖండం{
             fl, "localparam int protectlib_hash__V /*verilator public_flat_rd*/ = 32'd", "", "\n"};
-        txtp->add(m_hashValuep);
+        txtp->కూడు(m_hashValuep);
 
         // Initial
-        txtp->add("initial begin\n");
-        txtp->add(m_libName + "_protectlib_check_hash(protectlib_hash__V);\n");
-        txtp->add("if (handle__V == null) handle__V = " + m_libName
+        txtp->కూడు("initial begin\n");
+        txtp->కూడు(m_libName + "_protectlib_check_hash(protectlib_hash__V);\n");
+        txtp->కూడు("if (handle__V == null) handle__V = " + m_libName
                   + "_protectlib_create"
                     "($sformatf(\"%m\"));\n");
-        txtp->add("end\n\n");
+        txtp->కూడు("end\n\n");
 
         // Combinatorial process
-        addComment(txtp, fl, "Combinatorially evaluate changes to inputs");
-        txtp->add("always_comb begin\n");
-        m_comboParamsp = new AstTextBlock{fl,  //
+        కూడు_Comment(txtp, fl, "Combinatorially evaluate changes to inputs");
+        txtp->కూడు("always_comb begin\n");
+        m_comboParamsp = కొత్త Ast_పాఠ్యం_ఖండం{fl,  //
                                           "last_combo_seqnum__V = " + m_libName
                                               + "_protectlib_combo_update(\n",  //
                                           ",\n",  //
                                           "\n);\n"};
-        m_comboParamsp->add("handle__V");
-        txtp->add(m_comboParamsp);
-        txtp->add("end\n\n");
+        m_comboParamsp->కూడు("handle__V");
+        txtp->కూడు(m_comboParamsp);
+        txtp->కూడు("end\n\n");
 
         // Sequential process
-        if (m_hasClk) {
-            addComment(txtp, fl, "Evaluate clock edges");
-            m_clkSensp = new AstTextBlock{fl, "always @(", " or ", ")"};
-            txtp->add(m_clkSensp);
-            txtp->add(" begin\n");
+        ఒకవేళ (m_hasClk) {
+            కూడు_Comment(txtp, fl, "Evaluate clock edges");
+            m_clkSensp = కొత్త Ast_పాఠ్యం_ఖండం{fl, "always @(", " or ", ")"};
+            txtp->కూడు(m_clkSensp);
+            txtp->కూడు(" begin\n");
             m_comboIgnoreParamsp
-                = new AstTextBlock{fl,  //
+                = కొత్త Ast_పాఠ్యం_ఖండం{fl,  //
                                    m_libName + "_protectlib_combo_ignore(\n", ",\n", "\n);\n"};
-            m_comboIgnoreParamsp->add("handle__V");
-            txtp->add(m_comboIgnoreParamsp);
-            m_seqParamsp = new AstTextBlock{fl,  //
+            m_comboIgnoreParamsp->కూడు("handle__V");
+            txtp->కూడు(m_comboIgnoreParamsp);
+            m_seqParamsp = కొత్త Ast_పాఠ్యం_ఖండం{fl,  //
                                             "last_seq_seqnum__V <= " + m_libName
                                                 + "_protectlib_seq_update(\n",  //
                                             ",\n",  //
                                             "\n);\n"};
-            m_seqParamsp->add("handle__V");
-            txtp->add(m_seqParamsp);
-            m_nbAssignsp = new AstTextBlock{fl};
-            txtp->add(m_nbAssignsp);
-            txtp->add("end\n\n");
+            m_seqParamsp->కూడు("handle__V");
+            txtp->కూడు(m_seqParamsp);
+            m_nbAssignsp = కొత్త Ast_పాఠ్యం_ఖండం{fl};
+            txtp->కూడు(m_nbAssignsp);
+            txtp->కూడు("end\n\n");
         }
 
         // Select between combinatorial and sequential results
-        addComment(txtp, fl, "Select between combinatorial and sequential results");
-        txtp->add("always_comb begin\n");
-        if (m_hasClk) {
-            txtp->add("if (last_seq_seqnum__V > last_combo_seqnum__V) begin\n");
-            m_seqAssignsp = new AstTextBlock{fl};
-            txtp->add(m_seqAssignsp);
-            txtp->add("end else begin\n");
-            m_comboAssignsp = new AstTextBlock{fl};
-            txtp->add(m_comboAssignsp);
-            txtp->add("end\n");
-        } else {
-            m_comboAssignsp = new AstTextBlock{fl};
-            txtp->add(m_comboAssignsp);
+        కూడు_Comment(txtp, fl, "Select between combinatorial and sequential results");
+        txtp->కూడు("always_comb begin\n");
+        ఒకవేళ (m_hasClk) {
+            txtp->కూడు("if (last_seq_seqnum__V > last_combo_seqnum__V) begin\n");
+            m_seqAssignsp = కొత్త Ast_పాఠ్యం_ఖండం{fl};
+            txtp->కూడు(m_seqAssignsp);
+            txtp->కూడు("end else begin\n");
+            m_comboAssignsp = కొత్త Ast_పాఠ్యం_ఖండం{fl};
+            txtp->కూడు(m_comboAssignsp);
+            txtp->కూడు("end\n");
+        } లేకపోతే {
+            m_comboAssignsp = కొత్త Ast_పాఠ్యం_ఖండం{fl};
+            txtp->కూడు(m_comboAssignsp);
         }
-        txtp->add("end\n\n");
+        txtp->కూడు("end\n\n");
 
         // Final
-        txtp->add("final " + m_libName + "_protectlib_final(handle__V);\n\n");
+        txtp->కూడు("final " + m_libName + "_protectlib_final(handle__V);\n\n");
 
-        txtp->add("endmodule\n");
-        txtp->add("/*verilator lint_restore*/\n");
+        txtp->కూడు("endmodule\n");
+        txtp->కూడు("/*verilator lint_restore*/\n");
 
         configSection(modp, txtp, fl);
 
         m_vfilep->tblockp(txtp);
     }
 
-    void castPtr(FileLine* /*fl*/, AstTextBlock* txtp) {
-        txtp->add(m_topName
+    శూన్య castPtr(File_పంక్తి* /*fl*/, Ast_పాఠ్యం_ఖండం* txtp) {
+        txtp->కూడు(m_శిఖరం_Name
                   + "_container* const handlep__V = "  // LCOV_EXCL_LINE  // lcov bug
                     "static_cast<"
-                  + m_topName + "_container*>(vhandlep__V);\n");
+                  + m_శిఖరం_Name + "_container*>(vhandlep__V);\n");
     }
 
-    void createCppFile(FileLine* fl) {
+    శూన్య createCppFile(File_పంక్తి* fl) {
         // Comments
-        AstTextBlock* const txtp = new AstTextBlock{fl};
-        addComment(txtp, fl, "Wrapper functions for DPI protected library\n");
+        Ast_పాఠ్యం_ఖండం* స్థిరరాశి txtp = కొత్త Ast_పాఠ్యం_ఖండం{fl};
+        కూడు_Comment(txtp, fl, "Wrapper functions for DPI protected library\n");
 
         // Includes
-        txtp->add("#include \"" + m_topName + ".h\"\n");
-        txtp->add("#include \"verilated_dpi.h\"\n\n");
-        txtp->add("#include <cstdio>\n");
-        txtp->add("#include <cstdlib>\n\n");
+        txtp->కూడు("#include \"" + m_శిఖరం_Name + ".h\"\n");
+        txtp->కూడు("#include \"verilated_dpi.h\"\n\n");
+        txtp->కూడు("#include <cstdio>\n");
+        txtp->కూడు("#include <cstdlib>\n\n");
 
         // Verilated module plus sequence number
-        addComment(txtp, fl, "Container class to house verilated object and sequence number");
-        txtp->add("class " + m_topName + "_container: public " + m_topName + " {\n");
-        txtp->add("public:\n");
-        txtp->add("long long m_seqnum;\n");
-        txtp->add(m_topName + "_container(const char* scopep__V):\n");
-        txtp->add(m_topName + "(scopep__V) {}\n");
-        txtp->add("};\n\n");
+        కూడు_Comment(txtp, fl, "Container class to house verilated object and sequence number");
+        txtp->కూడు("class " + m_శిఖరం_Name + "_container: public " + m_శిఖరం_Name + " {\n");
+        txtp->కూడు("public:\n");
+        txtp->కూడు("long long m_seqnum;\n");
+        txtp->కూడు(m_శిఖరం_Name + "_container(const char* scopep__V):\n");
+        txtp->కూడు(m_శిఖరం_Name + "(scopep__V) {}\n");
+        txtp->కూడు("};\n\n");
 
         // Extern C
-        txtp->add("extern \"C\" {\n\n");
+        txtp->కూడు("extern \"C\" {\n\n");
 
         // Hash check
         hashComment(txtp, fl);
-        txtp->add("void " + m_libName
+        txtp->కూడు("void " + m_libName
                   + "_protectlib_check_hash"
                     "(int protectlib_hash__V) {\n");
-        m_cHashValuep = new AstTextBlock{fl, "const int expected_hash__V = ", "", ""};
-        txtp->add(m_cHashValuep);
-        txtp->add(/**/ "if (protectlib_hash__V != expected_hash__V) {\n");
-        txtp->add(/****/ "fprintf(stderr, \"%%Error: cannot use " + m_libName
+        m_cHashValuep = కొత్త Ast_పాఠ్యం_ఖండం{fl, "const int expected_hash__V = ", "", ""};
+        txtp->కూడు(m_cHashValuep);
+        txtp->కూడు(/**/ "if (protectlib_hash__V != expected_hash__V) {\n");
+        txtp->కూడు(/****/ "fprintf(stderr, \"%%Error: cannot use " + m_libName
                   + " library, "
                     "Verliog (%u) and library (%u) hash values do not "
                     "agree\\n\", protectlib_hash__V, expected_hash__V);\n");
-        txtp->add(/****/ "std::exit(EXIT_FAILURE);\n");
-        txtp->add(/**/ "}\n");
-        txtp->add("}\n\n");
+        txtp->కూడు(/****/ "std::exit(EXIT_FAILURE);\n");
+        txtp->కూడు(/**/ "}\n");
+        txtp->కూడు("}\n\n");
 
         // Initial
         initialComment(txtp, fl);
-        txtp->add("void* " + m_libName + "_protectlib_create(const char* scopep__V) {\n");
-        txtp->add(/**/ m_topName + "_container* const handlep__V = new " + m_topName
+        txtp->కూడు("void* " + m_libName + "_protectlib_create(const char* scopep__V) {\n");
+        txtp->కూడు(/**/ m_శిఖరం_Name + "_container* const handlep__V = new " + m_శిఖరం_Name
                   + "_container{scopep__V};\n");
-        txtp->add(/**/ "return handlep__V;\n");
-        txtp->add("}\n\n");
+        txtp->కూడు(/**/ "return handlep__V;\n");
+        txtp->కూడు("}\n\n");
 
         // Updates
         comboComment(txtp, fl);
-        m_cComboParamsp = new AstTextBlock{
+        m_cComboParamsp = కొత్త Ast_పాఠ్యం_ఖండం{
             fl, "long long " + m_libName + "_protectlib_combo_update(\n", ",\n", "\n) {\n"};
-        m_cComboParamsp->add("void* vhandlep__V");
-        txtp->add(m_cComboParamsp);
-        m_cComboInsp = new AstTextBlock{fl};
+        m_cComboParamsp->కూడు("void* vhandlep__V");
+        txtp->కూడు(m_cComboParamsp);
+        m_cComboInsp = కొత్త Ast_పాఠ్యం_ఖండం{fl};
         castPtr(fl, m_cComboInsp);
-        txtp->add(m_cComboInsp);
-        txtp->add("handlep__V->eval();\n");
-        m_cComboOutsp = new AstTextBlock{fl};
-        txtp->add(m_cComboOutsp);
-        txtp->add("return handlep__V->m_seqnum++;\n");
-        txtp->add("}\n\n");
+        txtp->కూడు(m_cComboInsp);
+        txtp->కూడు("handlep__V->eval();\n");
+        m_cComboOutsp = కొత్త Ast_పాఠ్యం_ఖండం{fl};
+        txtp->కూడు(m_cComboOutsp);
+        txtp->కూడు("return handlep__V->m_seqnum++;\n");
+        txtp->కూడు("}\n\n");
 
-        if (m_hasClk) {
+        ఒకవేళ (m_hasClk) {
             seqComment(txtp, fl);
-            m_cSeqParamsp = new AstTextBlock{
+            m_cSeqParamsp = కొత్త Ast_పాఠ్యం_ఖండం{
                 fl, "long long " + m_libName + "_protectlib_seq_update(\n", ",\n", "\n) {\n"};
-            m_cSeqParamsp->add("void* vhandlep__V");
-            txtp->add(m_cSeqParamsp);
-            m_cSeqClksp = new AstTextBlock{fl};
+            m_cSeqParamsp->కూడు("void* vhandlep__V");
+            txtp->కూడు(m_cSeqParamsp);
+            m_cSeqClksp = కొత్త Ast_పాఠ్యం_ఖండం{fl};
             castPtr(fl, m_cSeqClksp);
-            txtp->add(m_cSeqClksp);
-            txtp->add("handlep__V->eval();\n");
-            m_cSeqOutsp = new AstTextBlock{fl};
-            txtp->add(m_cSeqOutsp);
-            txtp->add("return handlep__V->m_seqnum++;\n");
-            txtp->add("}\n\n");
+            txtp->కూడు(m_cSeqClksp);
+            txtp->కూడు("handlep__V->eval();\n");
+            m_cSeqOutsp = కొత్త Ast_పాఠ్యం_ఖండం{fl};
+            txtp->కూడు(m_cSeqOutsp);
+            txtp->కూడు("return handlep__V->m_seqnum++;\n");
+            txtp->కూడు("}\n\n");
         }
 
         comboIgnoreComment(txtp, fl);
-        m_cIgnoreParamsp = new AstTextBlock{
+        m_cIgnoreParamsp = కొత్త Ast_పాఠ్యం_ఖండం{
             fl, "void " + m_libName + "_protectlib_combo_ignore(\n", ",\n", "\n)\n{ }\n\n"};
-        m_cIgnoreParamsp->add("void* vhandlep__V");
-        txtp->add(m_cIgnoreParamsp);
+        m_cIgnoreParamsp->కూడు("void* vhandlep__V");
+        txtp->కూడు(m_cIgnoreParamsp);
 
         // Final
         finalComment(txtp, fl);
-        txtp->add("void " + m_libName + "_protectlib_final(void* vhandlep__V) {\n");
+        txtp->కూడు("void " + m_libName + "_protectlib_final(void* vhandlep__V) {\n");
         castPtr(fl, txtp);
-        txtp->add(/**/ "handlep__V->final();\n");
-        txtp->add(/**/ "delete handlep__V;\n");
-        txtp->add("}\n\n");
+        txtp->కూడు(/**/ "handlep__V->final();\n");
+        txtp->కూడు(/**/ "delete handlep__V;\n");
+        txtp->కూడు("}\n\n");
 
-        txtp->add("}\n");
+        txtp->కూడు("}\n");
         m_cfilep->tblockp(txtp);
     }
 
-    void visit(AstVar* nodep) override {
-        if (!nodep->isIO()) return;
-        if (restoreInout(nodep)) {
+    శూన్య సందర్శించు(AstVar* nodep) override {
+        ఒకవేళ (!nodep->isIO()) తిరిగి;
+        ఒకవేళ (restoreInout(nodep)) {
             InoutPorts& ports = m_inouts[nodep->libInoutId()];
-            if (nodep->isInput()) {
+            ఒకవేళ (nodep->is_ఆదానం()) {
                 ports.inp = nodep;
-            } else if (nodep->libInoutEnable()) {
+            } లేకపోతే ఒకవేళ (nodep->libInoutEnable()) {
                 ports.enp = nodep;
-            } else {
+            } లేకపోతే {
                 ports.outp = nodep;
             }
         }
-        if (nodep->direction() == VDirection::INPUT) {
-            if (nodep->isPrimaryClock()) {
+        ఒకవేళ (nodep->direction() == VDirection::ఆదానం) {
+            ఒకవేళ (nodep->isPrimaryClock()) {
                 UASSERT_OBJ(m_hasClk, nodep, "checkIfClockExists() didn't find this clock");
                 handleClock(nodep);
-            } else {
-                handleDataInput(nodep);
+            } లేకపోతే {
+                handle_దత్తాంశం_ఆదానం(nodep);
             }
-        } else {
+        } లేకపోతే {
             // Ref ports were rejected during linking, and tristate lowering split all inouts.
             UASSERT_OBJ(nodep->direction() == VDirection::OUTPUT, nodep,
                         "Unexpected library port direction");
@@ -461,165 +461,165 @@ class ProtectVisitor final : public VNVisitor {
         }
     }
 
-    void visit(AstNode*) override {}
+    శూన్య సందర్శించు(Ast_కణుపు*) override {}
 
-    string cInputConnection(AstVar* varp) {
-        return V3Task::assignDpiToInternal("handlep__V->" + varp->name(), varp);
+    string c_ఆదానం_Connection(AstVar* varp) {
+        తిరిగి V3Task::కేటాయించు_Dpi_గమ్యం_అంతర్గత("handlep__V->" + varp->name(), varp);
     }
 
     // The wrapper's module ports are connected by name, so they must use the user's
     // names rather than the hashed form of long names used internally
-    static string svPortName(const AstVar* varp) {
-        return AstNode::prettyName(VName::dehash(varp->name()));
+    స్థిర string sv_పోర్టు_Name(స్థిరరాశి AstVar* varp) {
+        తిరిగి Ast_కణుపు::prettyName(VName::dehash(varp->name()));
     }
 
-    static AstVar* newSvPortVar(AstVar* varp) {
-        AstVar* const newVarp = varp->cloneTree(false);
+    స్థిర AstVar* new_Sv_పోర్టు_Var(AstVar* varp) {
+        AstVar* స్థిరరాశి newVarp = varp->clone_వృక్షం(అబద్ధం);
         newVarp->name(VName::dehash(varp->name()));
-        return newVarp;
+        తిరిగి newVarp;
     }
 
-    void handleClock(AstVar* varp) {
-        handleInput(varp);
-        m_seqPortsp->add(varp->cloneTree(false));
-        if (m_hasClk) {
-            const std::string pname = svPortName(varp);
-            m_seqParamsp->add(pname);
-            m_clkSensp->add(pname);
+    శూన్య handleClock(AstVar* varp) {
+        handle_ఆదానం(varp);
+        m_seqPortsp->కూడు(varp->clone_వృక్షం(అబద్ధం));
+        ఒకవేళ (m_hasClk) {
+            స్థిరరాశి std::string pname = sv_పోర్టు_Name(varp);
+            m_seqParamsp->కూడు(pname);
+            m_clkSensp->కూడు(pname);
         }
-        m_cSeqParamsp->add(varp->dpiArgType(true, false));
-        m_cSeqClksp->add(cInputConnection(varp));
+        m_cSeqParamsp->కూడు(varp->dpiArgType(నిజం, అబద్ధం));
+        m_cSeqClksp->కూడు(c_ఆదానం_Connection(varp));
     }
 
-    void handleDataInput(AstVar* varp) {
-        handleInput(varp);
-        m_comboPortsp->add(varp->cloneTree(false));
-        m_comboParamsp->add(svPortName(varp));
-        m_comboIgnorePortsp->add(varp->cloneTree(false));
-        if (m_hasClk) m_comboIgnoreParamsp->add(svPortName(varp));
-        m_cComboParamsp->add(varp->dpiArgType(true, false));
-        m_cComboInsp->add(cInputConnection(varp));
-        m_cIgnoreParamsp->add(varp->dpiArgType(true, false));
+    శూన్య handle_దత్తాంశం_ఆదానం(AstVar* varp) {
+        handle_ఆదానం(varp);
+        m_comboPortsp->కూడు(varp->clone_వృక్షం(అబద్ధం));
+        m_comboParamsp->కూడు(sv_పోర్టు_Name(varp));
+        m_comboIgnorePortsp->కూడు(varp->clone_వృక్షం(అబద్ధం));
+        ఒకవేళ (m_hasClk) m_comboIgnoreParamsp->కూడు(sv_పోర్టు_Name(varp));
+        m_cComboParamsp->కూడు(varp->dpiArgType(నిజం, అబద్ధం));
+        m_cComboInsp->కూడు(c_ఆదానం_Connection(varp));
+        m_cIgnoreParamsp->కూడు(varp->dpiArgType(నిజం, అబద్ధం));
     }
 
-    static bool restoreInout(const AstVar* varp) {
-        return varp->libInoutId() && !v3Global.opt.pinsInoutEnables();
+    స్థిర తార్కిక restoreInout(స్థిరరాశి AstVar* varp) {
+        తిరిగి varp->libInoutId() && !v3Global.opt.pinsInoutEnables();
     }
 
-    void handleInput(AstVar* varp) {
-        AstVar* const portp = newSvPortVar(varp);
-        if (restoreInout(varp)) {
+    శూన్య handle_ఆదానం(AstVar* varp) {
+        AstVar* స్థిరరాశి portp = new_Sv_పోర్టు_Var(varp);
+        ఒకవేళ (restoreInout(varp)) {
             portp->direction(VDirection::INOUT);
             portp->varType(VVarType::WIRE);
         }
-        m_modPortsp->add(portp);
+        m_modPortsp->కూడు(portp);
     }
 
-    void restoreInouts() {
-        for (const auto& entry : m_inouts) {
-            const InoutPorts& ports = entry.second;
+    శూన్య restoreInouts() {
+        కొరకు (స్థిరరాశి స్వయంచాలక& నమోదు_2 : m_inouts) {
+            స్థిరరాశి InoutPorts& ports = నమోదు_2.రెండవ;
             UASSERT_OBJ(ports.inp && ports.outp && ports.enp, m_vfilep,
                         "Incomplete lowered library inout");
-            const string in = svPortName(ports.inp);
-            const string out = ports.outp->prettyName();
-            const string en = ports.enp->prettyName();
-            std::vector<std::pair<int, int>> dimensions;
-            const AstNodeDType* dtypep = ports.inp->dtypep()->skipRefp();
-            while (const AstNodeArrayDType* const arrayp = VN_CAST(dtypep, NodeArrayDType)) {
+            స్థిరరాశి string లోపల = sv_పోర్టు_Name(ports.inp);
+            స్థిరరాశి string బహిర్గతం = ports.outp->prettyName();
+            స్థిరరాశి string en = ports.enp->prettyName();
+            std::సదిశ<std::pair<పూర్ణాంకం, పూర్ణాంకం>> dimensions;
+            స్థిరరాశి Ast_కణుపు_DType* dtypep = ports.inp->dtypep()->skipRefp();
+            అయితే (స్థిరరాశి Ast_కణుపు_Array_DType* స్థిరరాశి arrayp = VN_CAST(dtypep, కణుపు_Array_DType)) {
                 // V3Slice currently rejects lowered unpacked inouts before this pass.
                 // TODO: Support unpacked inouts once V3Slice supports their lowered form.
                 UASSERT_OBJ(!VN_IS(arrayp, UnpackArrayDType), ports.inp,
                             "Unpacked library inout should have been rejected by V3Slice");
-                dimensions.emplace_back(arrayp->lo(), arrayp->hi());
+                dimensions.emplace_వెనుక(arrayp->lo(), arrayp->hi());
                 dtypep = arrayp->subDTypep()->skipRefp();
             }
-            const AstBasicDType* const basicp = dtypep->basicp();
+            స్థిరరాశి AstBasicDType* స్థిరరాశి basicp = dtypep->basicp();
             UASSERT_OBJ(basicp, ports.inp, "Library inout must have a packed integral type");
-            if (basicp->isRanged()) dimensions.emplace_back(basicp->lo(), basicp->hi());
-            if (dimensions.empty()) {
-                m_inoutDeclsp->add("assign " + in + " = " + en + " ? " + out + " : 1'bz;\n");
-            } else {
-                string lhs = in;
+            ఒకవేళ (basicp->isRanged()) dimensions.emplace_వెనుక(basicp->lo(), basicp->hi());
+            ఒకవేళ (dimensions.ఖాళీలు()) {
+                m_inoutDeclsp->కూడు("assign " + లోపల + " = " + en + " ? " + బహిర్గతం + " : 1'bz;\n");
+            } లేకపోతే {
+                string lhs = లోపల;
                 string rhsEn = en;
-                string rhsOut = out;
-                for (size_t dim = 0; dim < dimensions.size(); ++dim) {
-                    const string index
-                        = "__VlibInout" + cvtToStr(entry.first) + "_" + cvtToStr(dim);
-                    const int low = dimensions[dim].first;
-                    const int high = dimensions[dim].second;
-                    const int size = high - low + 1;
-                    m_inoutDeclsp->add("for (genvar " + index + " = 0; " + index + " < "
-                                       + cvtToStr(size) + "; ++" + index + ") begin\n");
-                    const string select = "[" + cvtToStr(low) + " + " + index + "]";
+                string rhs_బహిర్గతం = బహిర్గతం;
+                కొరకు (కొలత_t dim = 0; dim < dimensions.కొలత(); ++dim) {
+                    స్థిరరాశి string సూచీ
+                        = "__VlibInout" + cvt_గమ్యం_Str(నమోదు_2.మొదటి) + "_" + cvt_గమ్యం_Str(dim);
+                    స్థిరరాశి పూర్ణాంకం దిగువ = dimensions[dim].మొదటి;
+                    స్థిరరాశి పూర్ణాంకం ఎగువ = dimensions[dim].రెండవ;
+                    స్థిరరాశి పూర్ణాంకం కొలత = ఎగువ - దిగువ + 1;
+                    m_inoutDeclsp->కూడు("for (genvar " + సూచీ + " = 0; " + సూచీ + " < "
+                                       + cvt_గమ్యం_Str(కొలత) + "; ++" + సూచీ + ") begin\n");
+                    స్థిరరాశి string select = "[" + cvt_గమ్యం_Str(దిగువ) + " + " + సూచీ + "]";
                     lhs += select;
                     rhsEn += select;
-                    rhsOut += select;
+                    rhs_బహిర్గతం += select;
                 }
-                m_inoutDeclsp->add("assign " + lhs + " = " + rhsEn + " ? " + rhsOut
+                m_inoutDeclsp->కూడు("assign " + lhs + " = " + rhsEn + " ? " + rhs_బహిర్గతం
                                    + " : 1'bz;\n");
-                for (size_t dim = 0; dim < dimensions.size(); ++dim) m_inoutDeclsp->add("end\n");
+                కొరకు (కొలత_t dim = 0; dim < dimensions.కొలత(); ++dim) m_inoutDeclsp->కూడు("end\n");
             }
         }
     }
 
-    static void addLocalVariable(AstTextBlock* textp, const AstVar* varp, const char* suffix) {
-        AstVar* const newVarp
-            = new AstVar{varp->fileline(), VVarType::VAR, varp->name() + suffix, varp->dtypep()};
-        textp->add(newVarp);
+    స్థిర శూన్య కూడు_Local_Variable(Ast_పాఠ్యం_ఖండం* textp, స్థిరరాశి AstVar* varp, స్థిరరాశి అక్షరం* suffix) {
+        AstVar* స్థిరరాశి newVarp
+            = కొత్త AstVar{varp->fileline(), VVarType::VAR, varp->name() + suffix, varp->dtypep()};
+        textp->కూడు(newVarp);
     }
 
-    void handleOutput(AstVar* const varp) {
-        const std::string pname = varp->prettyName();
+    శూన్య handleOutput(AstVar* స్థిరరాశి varp) {
+        స్థిరరాశి std::string pname = varp->prettyName();
         // Restored inout drivers are local signals and retain their internal names.
-        const std::string portName = restoreInout(varp) ? pname : svPortName(varp);
-        if (restoreInout(varp)) {
-            AstVar* const localp = varp->cloneTree(false);
+        స్థిరరాశి std::string పోర్టు_Name = restoreInout(varp) ? pname : sv_పోర్టు_Name(varp);
+        ఒకవేళ (restoreInout(varp)) {
+            AstVar* స్థిరరాశి localp = varp->clone_వృక్షం(అబద్ధం);
             localp->direction(VDirection::NONE);
-            m_inoutDeclsp->add(localp);
-        } else {
-            m_modPortsp->add(newSvPortVar(varp));
+            m_inoutDeclsp->కూడు(localp);
+        } లేకపోతే {
+            m_modPortsp->కూడు(new_Sv_పోర్టు_Var(varp));
         }
-        m_comboPortsp->add(varp->cloneTree(false));
-        m_comboParamsp->add(pname + "_combo__V");
-        if (m_hasClk) {
-            m_seqPortsp->add(varp->cloneTree(false));
-            m_seqParamsp->add(pname + "_tmp__V");
+        m_comboPortsp->కూడు(varp->clone_వృక్షం(అబద్ధం));
+        m_comboParamsp->కూడు(pname + "_combo__V");
+        ఒకవేళ (m_hasClk) {
+            m_seqPortsp->కూడు(varp->clone_వృక్షం(అబద్ధం));
+            m_seqParamsp->కూడు(pname + "_tmp__V");
         }
 
-        addLocalVariable(m_comboDeclsp, varp, "_combo__V");
+        కూడు_Local_Variable(m_comboDeclsp, varp, "_combo__V");
 
-        if (m_hasClk) {
-            addLocalVariable(m_seqDeclsp, varp, "_seq__V");
-            addLocalVariable(m_tmpDeclsp, varp, "_tmp__V");
+        ఒకవేళ (m_hasClk) {
+            కూడు_Local_Variable(m_seqDeclsp, varp, "_seq__V");
+            కూడు_Local_Variable(m_tmpDeclsp, varp, "_tmp__V");
 
-            m_nbAssignsp->add(pname + "_seq__V <= " + pname + "_tmp__V;\n");
-            m_seqAssignsp->add(portName + " = " + pname + "_seq__V;\n");
+            m_nbAssignsp->కూడు(pname + "_seq__V <= " + pname + "_tmp__V;\n");
+            m_seqAssignsp->కూడు(పోర్టు_Name + " = " + pname + "_seq__V;\n");
         }
-        m_comboAssignsp->add(portName + " = " + pname + "_combo__V;\n");
-        m_cComboParamsp->add(varp->dpiArgType(true, false));
-        m_cComboOutsp->add(V3Task::assignInternalToDpi(varp, true, "", "", "handlep__V->") + "\n");
-        if (m_hasClk) {
-            m_cSeqParamsp->add(varp->dpiArgType(true, false));
-            m_cSeqOutsp->add(V3Task::assignInternalToDpi(varp, true, "", "", "handlep__V->")
+        m_comboAssignsp->కూడు(పోర్టు_Name + " = " + pname + "_combo__V;\n");
+        m_cComboParamsp->కూడు(varp->dpiArgType(నిజం, అబద్ధం));
+        m_cComboOutsp->కూడు(V3Task::కేటాయించు_అంతర్గత_గమ్యం_Dpi(varp, నిజం, "", "", "handlep__V->") + "\n");
+        ఒకవేళ (m_hasClk) {
+            m_cSeqParamsp->కూడు(varp->dpiArgType(నిజం, అబద్ధం));
+            m_cSeqOutsp->కూడు(V3Task::కేటాయించు_అంతర్గత_గమ్యం_Dpi(varp, నిజం, "", "", "handlep__V->")
                              + "\n");
         }
     }
 
-    static bool checkIfClockExists(const AstNodeModule* modp) {
-        for (const AstNode* stmtp = modp->stmtsp(); stmtp; stmtp = stmtp->nextp()) {
-            if (const AstVar* const varp = VN_CAST(stmtp, Var)) {
-                if (varp->direction() == VDirection::INPUT && varp->isPrimaryClock()) {
-                    return true;
+    స్థిర తార్కిక checkIfClockExists(స్థిరరాశి Ast_కణుపు_Module* modp) {
+        కొరకు (స్థిరరాశి Ast_కణుపు* stmtp = modp->stmtsp(); stmtp; stmtp = stmtp->nextp()) {
+            ఒకవేళ (స్థిరరాశి AstVar* స్థిరరాశి varp = VN_CAST(stmtp, Var)) {
+                ఒకవేళ (varp->direction() == VDirection::ఆదానం && varp->isPrimaryClock()) {
+                    తిరిగి నిజం;
                 }
             }
         }
-        return false;
+        తిరిగి అబద్ధం;
     }
 
-public:
-    explicit ProtectVisitor(AstNode* nodep)
+బహిరంగ:
+    స్పష్టమైన ProtectVisitor(Ast_కణుపు* nodep)
         : m_libName{v3Global.opt.libCreate()}
-        , m_topName{v3Global.opt.prefix()} {
+        , m_శిఖరం_Name{v3Global.opt.ఉపసర్గ()} {
         iterate(nodep);
     }
 };
@@ -627,7 +627,7 @@ public:
 //######################################################################
 // ProtectLib class functions
 
-void V3ProtectLib::protect() {
+శూన్య V3ProtectLib::protect() {
     UINFO(2, __FUNCTION__ << ":");
     ProtectVisitor{v3Global.rootp()};
 }

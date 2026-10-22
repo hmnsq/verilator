@@ -60,44 +60,44 @@
 //
 //*************************************************************************
 
-#ifndef VERILATOR_V3HASHTABLE_H_
-#define VERILATOR_V3HASHTABLE_H_
+#నిర్వచితం_కాకపోతే VERILATOR_V3HASHTABLE_H_
+#నిర్వచించు VERILATOR_V3HASHTABLE_H_
 
-#include "config_build.h"
-#include "verilatedos.h"
+#అన్తర్భావ "config_build.h"
+#అన్తర్భావ "verilatedos.h"
 
-#include "V3Error.h"
-#include "V3StdFuture.h"
+#అన్తర్భావ "V3Error.h"
+#అన్తర్భావ "V3StdFuture.h"
 
-#include <functional>
-#include <memory>
-#include <new>
-#include <tuple>
-#include <type_traits>
-#include <utility>
+#అన్తర్భావ <functional>
+#అన్తర్భావ <memory>
+#అన్తర్భావ <new>
+#అన్తర్భావ <tuple>
+#అన్తర్భావ <type_traits>
+#అన్తర్భావ <utility>
 
-namespace V3HashTableInternals {
+namespace V3_Hash_పట్టిక_Internals {
 
-constexpr size_t MIN_CAPACITY = 16;  // Smallest table allocated
-constexpr size_t LOAD_FACTOR_NUM = 3;  // Numerator of the maximum load factor
-constexpr size_t LOAD_FACTOR_DEN = 4;  // Denominator of the maximum load factor
+constexpr కొలత_t MIN_సామర్థ్యం = 16;  // Smallest table allocated
+constexpr కొలత_t ఎక్కించు_గుణకం_అంకె = 3;  // Numerator of the maximum load factor
+constexpr కొలత_t ఎక్కించు_గుణకం_DEN = 4;  // Denominator of the maximum load factor
 
 // Key extractor for a table whose entries are their own keys, that is, a set
-template <typename T_Key>
-struct V3HashTableKeyIsEntry final {
-    using Key = T_Key;  // What it yields, so the table need not deduce it
-    const T_Key& operator()(const T_Key& entry) const { return entry; }
+మూస <typename T_కీలకం>
+నిర్మాణం V3_Hash_పట్టిక_కీలకం_Is_నమోదు final {
+    using కీలకం_2 = T_కీలకం;  // What it yields, so the table need not deduce it
+    స్థిరరాశి T_కీలకం& క్రియాకారకం()(స్థిరరాశి T_కీలకం& నమోదు_2) స్థిరరాశి { తిరిగి నమోదు_2; }
 };
 
 // Key extractor for a table whose entries are pairs keyed by the first, that is, a map
-template <typename T_Key, typename T_Val>
-struct V3HashTableKeyIsFirst final {
-    using Key = T_Key;  // What it yields, so the table need not deduce it
-    const T_Key& operator()(const std::pair<T_Key, T_Val>& entry) const { return entry.first; }
-    static T_Val& valueOf(std::pair<T_Key, T_Val>& entry) { return entry.second; }
+మూస <typename T_కీలకం, typename T_Val>
+నిర్మాణం V3_Hash_పట్టిక_కీలకం_Is_మొదటి final {
+    using కీలకం_2 = T_కీలకం;  // What it yields, so the table need not deduce it
+    స్థిరరాశి T_కీలకం& క్రియాకారకం()(స్థిరరాశి std::pair<T_కీలకం, T_Val>& నమోదు_2) స్థిరరాశి { తిరిగి నమోదు_2.మొదటి; }
+    స్థిర T_Val& విలువ_యొక్క(std::pair<T_కీలకం, T_Val>& నమోదు_2) { తిరిగి నమోదు_2.రెండవ; }
 };
 
-void selfTest();
+శూన్య selfTest();
 
 }  // namespace V3HashTableInternals
 
@@ -106,380 +106,380 @@ void selfTest();
 //  T_Hash   Hashes a lookup key
 //  T_Equal  Compares a key to a lookup key
 //  T_KeyOf  Yields the key of an entry
-template <typename T_Entry, typename T_Hash, typename T_Equal, typename T_KeyOf>
-class V3HashTable VL_NOT_FINAL {
-public:
+మూస <typename T_నమోదు, typename T_Hash, typename T_Equal, typename T_కీలకం_యొక్క>
+class V3_Hash_పట్టిక VL_NOT_FINAL {
+బహిరంగ:
     // TYPES
-    using Entry = T_Entry;  // What is stored
-    using Key = typename T_KeyOf::Key;  // What entries are looked up by
+    using నమోదు_3 = T_నమోదు;  // What is stored
+    using కీలకం_2 = typename T_కీలకం_యొక్క::కీలకం_2;  // What entries are looked up by
 
-private:
+అంతరంగ:
     // TYPES
     // Holds if the hash accepts a lookup key spelled as the given arguments
-    template <typename... T_Args>
-    using ValidHash = vlstd::is_invocable_r<size_t, const T_Hash&, const T_Args&...>;
+    మూస <typename... T_వాదనలు>
+    using ValidHash = vlstd::is_invocable_r<కొలత_t, స్థిరరాశి T_Hash&, స్థిరరాశి T_వాదనలు&...>;
 
     // Holds if the equality accepts a key and such a lookup key
-    template <typename... T_Args>
-    using ValidEqual = vlstd::is_invocable_r<bool, const T_Equal&, const Key&, const T_Args&...>;
+    మూస <typename... T_వాదనలు>
+    using ValidEqual = vlstd::is_invocable_r<bool, స్థిరరాశి T_Equal&, స్థిరరాశి కీలకం_2&, స్థిరరాశి T_వాదనలు&...>;
 
     // The Key must itself be a valid lookup key, as every lookup ends in comparing one
     // against a stored entry. Asserted separately, so the failure names the functor.
-    static_assert(ValidHash<Key>::value, "The 'Hash' functor must accept the 'Key'");
-    static_assert(ValidEqual<Key>::value, "The 'Equal' functor must accept two 'Key's");
+    static_assert(ValidHash<కీలకం_2>::విలువ, "The 'Hash' functor must accept the 'Key'");
+    static_assert(ValidEqual<కీలకం_2>::విలువ, "The 'Equal' functor must accept two 'Key's");
 
     // A table slot
-    struct Slot final {
+    నిర్మాణం స్థానం final {
         // The entry comes first, so it starts the slot whatever its alignment.
         // It is a union so it is alive only while the slot is occupied.
-        union {
-            Entry m_entry;  // Stored entry; alive only while the slot is occupied
+        సంఘం {
+            నమోదు_3 m_నమోదు;  // Stored entry; alive only while the slot is occupied
         };
-        size_t m_hash = 0;  // Hash of the entry, or zero when the slot is free
+        కొలత_t m_hash = 0;  // Hash of the entry, or zero when the slot is free
 
-        Slot() {}  // Leaves 'm_entry' uninitialized, as the slot is free
-        ~Slot() {
-            if (!isFree()) destroy();
+        స్థానం() {}  // Leaves 'm_entry' uninitialized, as the slot is free
+        ~స్థానం() {
+            ఒకవేళ (!isFree()) destroy();
         }
-        Slot(const Slot&) = delete;
-        Slot(Slot&&) = delete;
-        const Slot& operator=(const Slot&) = delete;
-        Slot& operator=(Slot&& that) {
+        స్థానం(స్థిరరాశి స్థానం&) = delete;
+        స్థానం(స్థానం&&) = delete;
+        స్థిరరాశి స్థానం& క్రియాకారకం=(స్థిరరాశి స్థానం&) = delete;
+        స్థానం& క్రియాకారకం=(స్థానం&& that) {
             UDEBUGONLY(UASSERT(this != &that, "Moving a slot onto itself"););
             UDEBUGONLY(UASSERT(!that.isFree(), "Moving from a free slot"););
             UDEBUGONLY(UASSERT(isFree(), "Moving into an occupied slot"););
-            new (&m_entry) Entry{std::move(that.m_entry)};
+            new (&m_నమోదు) నమోదు_3{std::move(that.m_నమోదు)};
             m_hash = that.m_hash;
             that.destroy();
-            return *this;
+            తిరిగి *this;
         }
 
-        bool isFree() const { return !m_hash; }
+        bool isFree() స్థిరరాశి { తిరిగి !m_hash; }
 
         // Construct the entry of this free slot from the given entry
-        void construct(size_t hash, Entry&& entry) {
+        శూన్య construct(కొలత_t hash, నమోదు_3&& నమోదు_2) {
             UDEBUGONLY(UASSERT(isFree(), "Constructing the entry of an occupied slot"););
-            new (&m_entry) Entry{std::move(entry)};
+            new (&m_నమోదు) నమోదు_3{std::move(నమోదు_2)};
             m_hash = hash;
         }
         // Destroy the entry of this occupied slot, leaving it free
-        void destroy() {
+        శూన్య destroy() {
             UDEBUGONLY(UASSERT(!isFree(), "Destroying the entry of a free slot"););
-            m_entry.~Entry();
+            m_నమోదు.~నమోదు_3();
             m_hash = 0;
         }
     };
 
-public:
+బహిరంగ:
     // Iterator over the entries, see the file header on invalidation
     class iterator final {
-        friend class V3HashTable;
+        మిత్ర class V3_Hash_పట్టిక;
 
-        Slot* m_slotp = nullptr;  // The slot iterated, or the end of the table
-        Slot* m_endp = nullptr;  // One past the last slot
+        స్థానం* m_slotp = nullptr;  // The slot iterated, or the end of the table
+        స్థానం* m_endp = nullptr;  // One past the last slot
 
-        iterator(Slot* slotp, Slot* endp)
+        iterator(స్థానం* slotp, స్థానం* endp)
             : m_slotp{slotp}
             , m_endp{endp} {}
 
-    public:
-        iterator() = default;
+    బహిరంగ:
+        iterator() = అప్రమేయ;
         // As opposed to the STL, this always returns a const reference so an
         // entry is not mutable through an iterator alone. This is required
         // because entries must be movable, hence can't be const, but the key
         // of a map must not be modified. See 'value()' for the mapped value.
-        const Entry& operator*() const { return m_slotp->m_entry; }
-        const Entry* operator->() const { return &m_slotp->m_entry; }
+        స్థిరరాశి నమోదు_3& క్రియాకారకం*() స్థిరరాశి { తిరిగి m_slotp->m_నమోదు; }
+        స్థిరరాశి నమోదు_3* క్రియాకారకం->() స్థిరరాశి { తిరిగి &m_slotp->m_నమోదు; }
         // Mutable reference to the mapped value, for a V3HashMap only, as in a set
         // the entry is the key. Changing it is safe, as it takes no part in the lookup.
-        auto& value() const { return T_KeyOf::valueOf(m_slotp->m_entry); }
+        స్వయంచాలక& విలువ() స్థిరరాశి { తిరిగి T_కీలకం_యొక్క::విలువ_యొక్క(m_slotp->m_నమోదు); }
         // Pre-increment, skipping the free slots
-        iterator& operator++() {
-            while (++m_slotp != m_endp && m_slotp->isFree()) {}
-            return *this;
+        iterator& క్రియాకారకం++() {
+            అయితే (++m_slotp != m_endp && m_slotp->isFree()) {}
+            తిరిగి *this;
         }
-        bool operator==(const iterator& that) const { return m_slotp == that.m_slotp; }
-        bool operator!=(const iterator& that) const { return m_slotp != that.m_slotp; }
+        bool క్రియాకారకం==(స్థిరరాశి iterator& that) స్థిరరాశి { తిరిగి m_slotp == that.m_slotp; }
+        bool క్రియాకారకం!=(స్థిరరాశి iterator& that) స్థిరరాశి { తిరిగి m_slotp != that.m_slotp; }
     };
 
-private:
+అంతరంగ:
     // STATE
-    std::unique_ptr<Slot[]> m_table;  // The table, null when unallocated
-    size_t m_capacity = 0;  // Number of slots in the table, a power of two, or zero
-    size_t m_size = 0;  // Number of occupied slots
-    VL_NO_UNIQUE_ADDRESS_CXX20 T_Hash m_hash;  // Hashes a lookup key
-    VL_NO_UNIQUE_ADDRESS_CXX20 T_Equal m_equal;  // Compares a key to a lookup key
-    VL_NO_UNIQUE_ADDRESS_CXX20 T_KeyOf m_keyOf;  // Yields the lookup key of an entry
+    std::unique_ptr<స్థానం[]> m_పట్టిక;  // The table, null when unallocated
+    కొలత_t m_సామర్థ్యం = 0;  // Number of slots in the table, a power of two, or zero
+    కొలత_t m_కొలత = 0;  // Number of occupied slots
+    VL_NO_UNIQUE_చిరునామా_CXX20 T_Hash m_hash;  // Hashes a lookup key
+    VL_NO_UNIQUE_చిరునామా_CXX20 T_Equal m_equal;  // Compares a key to a lookup key
+    VL_NO_UNIQUE_చిరునామా_CXX20 T_కీలకం_యొక్క m_కీలకం_యొక్క;  // Yields the lookup key of an entry
 
     // METHODS
 
     // The hash of the given entry or lookup key, as stored in a slot
-    template <typename... T_Args>
-    size_t hashOf(const T_Args&... args) const {
+    మూస <typename... T_వాదనలు>
+    కొలత_t hash_యొక్క(స్థిరరాశి T_వాదనలు&... వాదనలు) స్థిరరాశి {
         // A free slot is one with a zero hash, so force the high bit into every hash.
-        constexpr size_t USED_BIT = size_t{1} << (sizeof(size_t) * 8 - 1);
-        return static_cast<size_t>(m_hash(args...)) | USED_BIT;
+        constexpr కొలత_t వాడిన_బిట్టు = కొలత_t{1} << (పరిమాణం(కొలత_t) * 8 - 1);
+        తిరిగి static_cast<కొలత_t>(m_hash(వాదనలు...)) | వాడిన_బిట్టు;
     }
 
     // Index of the free slot the given hash probes to. There must always be one.
-    size_t freeSlot(size_t hash) const {
-        const size_t mask = m_capacity - 1;
-        size_t i = hash & mask;
-        while (!m_table[i].isFree()) i = (i + 1) & mask;
-        return i;
+    కొలత_t free_స్థానం(కొలత_t hash) స్థిరరాశి {
+        స్థిరరాశి కొలత_t ముసుగు = m_సామర్థ్యం - 1;
+        కొలత_t i = hash & ముసుగు;
+        అయితే (!m_పట్టిక[i].isFree()) i = (i + 1) & ముసుగు;
+        తిరిగి i;
     }
 
     // Resize to the given number of slots, which must fit all entries
-    void resize(size_t count) {
-        UDEBUGONLY(UASSERT(count && !(count & (count - 1)), "Capacity not a power of 2"););
-        const std::unique_ptr<Slot[]> oldTable{std::move(m_table)};
-        const size_t oldCapacity = m_capacity;
-        m_table = std::make_unique<Slot[]>(count);
-        m_capacity = count;
+    శూన్య resize(కొలత_t లెక్క) {
+        UDEBUGONLY(UASSERT(లెక్క && !(లెక్క & (లెక్క - 1)), "Capacity not a power of 2"););
+        స్థిరరాశి std::unique_ptr<స్థానం[]> old_పట్టిక{std::move(m_పట్టిక)};
+        స్థిరరాశి కొలత_t old_సామర్థ్యం = m_సామర్థ్యం;
+        m_పట్టిక = std::make_unique<స్థానం[]>(లెక్క);
+        m_సామర్థ్యం = లెక్క;
         // Reinsert the entries. 'freeSlot' appends to the probe run of each, so the runs
         // come out contiguous whatever order this visits the old slots in.
-        for (size_t i = 0; i < oldCapacity; ++i) {
-            Slot& slot = oldTable[i];
-            if (!slot.isFree()) m_table[freeSlot(slot.m_hash)] = std::move(slot);
+        కొరకు (కొలత_t i = 0; i < old_సామర్థ్యం; ++i) {
+            స్థానం& స్థానం_2 = old_పట్టిక[i];
+            ఒకవేళ (!స్థానం_2.isFree()) m_పట్టిక[free_స్థానం(స్థానం_2.m_hash)] = std::move(స్థానం_2);
         }
     }
 
     // Index of the slot holding the entry equal to the given key, or of the free slot its
     // probe sequence ends at. The table must not be empty.
-    template <typename... T_Args>
-    size_t probe(size_t hash, const T_Args&... args) const {
-        UDEBUGONLY(UASSERT(m_table, "Table must be allocated"););
-        const size_t mask = m_capacity - 1;
-        size_t i = hash & mask;
-        while (!m_table[i].isFree()) {
-            const Slot& slot = m_table[i];
-            if (slot.m_hash == hash && m_equal(m_keyOf(slot.m_entry), args...)) break;
-            i = (i + 1) & mask;
+    మూస <typename... T_వాదనలు>
+    కొలత_t probe(కొలత_t hash, స్థిరరాశి T_వాదనలు&... వాదనలు) స్థిరరాశి {
+        UDEBUGONLY(UASSERT(m_పట్టిక, "Table must be allocated"););
+        స్థిరరాశి కొలత_t ముసుగు = m_సామర్థ్యం - 1;
+        కొలత_t i = hash & ముసుగు;
+        అయితే (!m_పట్టిక[i].isFree()) {
+            స్థిరరాశి స్థానం& స్థానం_2 = m_పట్టిక[i];
+            ఒకవేళ (స్థానం_2.m_hash == hash && m_equal(m_కీలకం_యొక్క(స్థానం_2.m_నమోదు), వాదనలు...)) ఆపు;
+            i = (i + 1) & ముసుగు;
         }
-        return i;
+        తిరిగి i;
     }
 
     // Implementation of 'insertLazy' below. 'all' holds the key arguments, followed by
     // the callable that creates the entry, so 'N_Key' indexes the key.
-    template <size_t... N_Key, typename T_All>
-    std::pair<iterator, bool> insertLazyImpl(std::index_sequence<N_Key...>, T_All&& all) {
-        static_assert(ValidHash<std::tuple_element_t<N_Key, T_All>...>::value,
+    మూస <కొలత_t... N_కీలకం, typename T_All>
+    std::pair<iterator, bool> చొప్పించు_Lazy_Impl(std::సూచీ_sequence<N_కీలకం...>, T_All&& all) {
+        static_assert(ValidHash<std::tuple_element_t<N_కీలకం, T_All>...>::విలువ,
                       "The 'Hash' functor does not accept a lookup key spelled like this");
-        static_assert(ValidEqual<std::tuple_element_t<N_Key, T_All>...>::value,
+        static_assert(ValidEqual<std::tuple_element_t<N_కీలకం, T_All>...>::విలువ,
                       "The 'Equal' functor does not accept a lookup key spelled like this");
-        const size_t hash = hashOf(std::get<N_Key>(all)...);
+        స్థిరరాశి కొలత_t hash = hash_యొక్క(std::get<N_కీలకం>(all)...);
         // Allocate on the first insertion
-        if (VL_UNLIKELY(!m_capacity)) resize(V3HashTableInternals::MIN_CAPACITY);
+        ఒకవేళ (VL_UNLIKELY(!m_సామర్థ్యం)) resize(V3_Hash_పట్టిక_Internals::MIN_సామర్థ్యం);
         // Find the slot for the entry
-        Slot* slotp = m_table.get() + probe(hash, std::get<N_Key>(all)...);
+        స్థానం* slotp = m_పట్టిక.get() + probe(hash, std::get<N_కీలకం>(all)...);
         // If occupied, it's the equivalent, and we are done
-        if (!slotp->isFree()) return {iterator{slotp, m_table.get() + m_capacity}, false};
+        ఒకవేళ (!slotp->isFree()) తిరిగి {iterator{slotp, m_పట్టిక.get() + m_సామర్థ్యం}, false};
         // Table is growing
-        ++m_size;
+        ++m_కొలత;
         // Increase if necessary by load factor
-        if (VL_UNLIKELY(m_size * V3HashTableInternals::LOAD_FACTOR_DEN
-                        > m_capacity * V3HashTableInternals::LOAD_FACTOR_NUM)) {
-            resize(m_capacity * 2);
-            slotp = m_table.get() + freeSlot(hash);
+        ఒకవేళ (VL_UNLIKELY(m_కొలత * V3_Hash_పట్టిక_Internals::ఎక్కించు_గుణకం_DEN
+                        > m_సామర్థ్యం * V3_Hash_పట్టిక_Internals::ఎక్కించు_గుణకం_అంకె)) {
+            resize(m_సామర్థ్యం * 2);
+            slotp = m_పట్టిక.get() + free_స్థానం(hash);
         }
         // Construct the entry via the user provided callable (last item in 'all')
-        slotp->construct(hash, std::get<sizeof...(N_Key)>(all)());
+        slotp->construct(hash, std::get<పరిమాణం...(N_కీలకం)>(all)());
         // The key of the created entry must both hash and compare as the key looked up
-#ifdef VL_DEBUG
-        const Key& key = m_keyOf(slotp->m_entry);
-        UASSERT(hashOf(key) == hash,
+#నిర్వచితమైతే VL_DEBUG
+        స్థిరరాశి కీలకం_2& కీలకం = m_కీలకం_యొక్క(slotp->m_నమోదు);
+        UASSERT(hash_యొక్క(కీలకం) == hash,
                 "Created entry does not hash as the key it was looked up with");
-        UASSERT(m_equal(key, std::get<N_Key>(all)...),
+        UASSERT(m_equal(కీలకం, std::get<N_కీలకం>(all)...),
                 "Created entry does not match the key it was looked up with");
-#endif
+#అయితే_ముగింపు
         // Return newly create entry
-        return {iterator{slotp, m_table.get() + m_capacity}, true};
+        తిరిగి {iterator{slotp, m_పట్టిక.get() + m_సామర్థ్యం}, true};
     }
 
-protected:
+రక్షిత:
     // CONSTRUCTORS
-    V3HashTable() = default;
-    V3HashTable(T_Hash hash, T_Equal equal)
+    V3_Hash_పట్టిక() = అప్రమేయ;
+    V3_Hash_పట్టిక(T_Hash hash, T_Equal equal)
         : m_hash{std::move(hash)}
         , m_equal{std::move(equal)} {}
-    ~V3HashTable() = default;
-    VL_UNCOPYABLE(V3HashTable);
+    ~V3_Hash_పట్టిక() = అప్రమేయ;
+    VL_UNCOPYABLE(V3_Hash_పట్టిక);
     // Movable, as the table is just a pointer. The source is left empty rather than
     // merely unspecified, so it remains a usable, empty table.
-    V3HashTable(V3HashTable&& that)
-        : m_table{std::move(that.m_table)}
-        , m_capacity{that.m_capacity}
-        , m_size{that.m_size}
+    V3_Hash_పట్టిక(V3_Hash_పట్టిక&& that)
+        : m_పట్టిక{std::move(that.m_పట్టిక)}
+        , m_సామర్థ్యం{that.m_సామర్థ్యం}
+        , m_కొలత{that.m_కొలత}
         , m_hash{std::move(that.m_hash)}
         , m_equal{std::move(that.m_equal)}
-        , m_keyOf{std::move(that.m_keyOf)} {
-        that.m_capacity = 0;
-        that.m_size = 0;
+        , m_కీలకం_యొక్క{std::move(that.m_కీలకం_యొక్క)} {
+        that.m_సామర్థ్యం = 0;
+        that.m_కొలత = 0;
     }
-    V3HashTable& operator=(V3HashTable&& that) {
-        m_table = std::move(that.m_table);  // Frees the table this held, if any
-        m_capacity = that.m_capacity;
-        m_size = that.m_size;
+    V3_Hash_పట్టిక& క్రియాకారకం=(V3_Hash_పట్టిక&& that) {
+        m_పట్టిక = std::move(that.m_పట్టిక);  // Frees the table this held, if any
+        m_సామర్థ్యం = that.m_సామర్థ్యం;
+        m_కొలత = that.m_కొలత;
         m_hash = std::move(that.m_hash);
         m_equal = std::move(that.m_equal);
-        m_keyOf = std::move(that.m_keyOf);
-        that.m_capacity = 0;
-        that.m_size = 0;
-        return *this;
+        m_కీలకం_యొక్క = std::move(that.m_కీలకం_యొక్క);
+        that.m_సామర్థ్యం = 0;
+        that.m_కొలత = 0;
+        తిరిగి *this;
     }
 
-public:
+బహిరంగ:
     // METHODS
-    size_t size() const { return m_size; }
-    bool empty() const { return !m_size; }
+    కొలత_t కొలత() స్థిరరాశి { తిరిగి m_కొలత; }
+    bool ఖాళీలు() స్థిరరాశి { తిరిగి !m_కొలత; }
 
-    iterator begin() const {
-        Slot* const endp = m_table.get() + m_capacity;
-        Slot* slotp = m_table.get();
-        while (slotp != endp && slotp->isFree()) ++slotp;
-        return iterator{slotp, endp};
+    iterator begin() స్థిరరాశి {
+        స్థానం* స్థిరరాశి endp = m_పట్టిక.get() + m_సామర్థ్యం;
+        స్థానం* slotp = m_పట్టిక.get();
+        అయితే (slotp != endp && slotp->isFree()) ++slotp;
+        తిరిగి iterator{slotp, endp};
     }
-    iterator end() const {
-        Slot* const endp = m_table.get() + m_capacity;
-        return iterator{endp, endp};
+    iterator చివర() స్థిరరాశి {
+        స్థానం* స్థిరరాశి endp = m_పట్టిక.get() + m_సామర్థ్యం;
+        తిరిగి iterator{endp, endp};
     }
 
     // Make room for the given number of entries, so inserting that many will not resize
-    void reserve(size_t count) {
-        size_t capacity = V3HashTableInternals::MIN_CAPACITY;
-        while (capacity * V3HashTableInternals::LOAD_FACTOR_NUM
-               < count * V3HashTableInternals::LOAD_FACTOR_DEN)
-            capacity *= 2;
-        if (capacity > m_capacity) resize(capacity);
+    శూన్య reserve(కొలత_t లెక్క) {
+        కొలత_t సామర్థ్యం = V3_Hash_పట్టిక_Internals::MIN_సామర్థ్యం;
+        అయితే (సామర్థ్యం * V3_Hash_పట్టిక_Internals::ఎక్కించు_గుణకం_అంకె
+               < లెక్క * V3_Hash_పట్టిక_Internals::ఎక్కించు_గుణకం_DEN)
+            సామర్థ్యం *= 2;
+        ఒకవేళ (సామర్థ్యం > m_సామర్థ్యం) resize(సామర్థ్యం);
     }
 
     // Remove all entries. The table stays allocated. Invalidates every iterator.
-    void clear() {
-        for (size_t i = 0; i < m_capacity; ++i) {
-            if (!m_table[i].isFree()) m_table[i].destroy();
+    శూన్య clear() {
+        కొరకు (కొలత_t i = 0; i < m_సామర్థ్యం; ++i) {
+            ఒకవేళ (!m_పట్టిక[i].isFree()) m_పట్టిక[i].destroy();
         }
-        m_size = 0;
+        m_కొలత = 0;
     }
 
     // Return iterator to the entry equal to the given key, or 'end()' if there
     // is none. The key is whatever T_Hash and T_Equal accept, spelled as any
     // number of arguments. Same as STL containers.
-    template <typename... T_Args>
-    iterator find(const T_Args&... args) const {
-        static_assert(ValidHash<T_Args...>::value,
+    మూస <typename... T_వాదనలు>
+    iterator కనుగొను(స్థిరరాశి T_వాదనలు&... వాదనలు) స్థిరరాశి {
+        static_assert(ValidHash<T_వాదనలు...>::విలువ,
                       "The 'Hash' functor does not accept a lookup key spelled like this");
-        static_assert(ValidEqual<T_Args...>::value,
+        static_assert(ValidEqual<T_వాదనలు...>::విలువ,
                       "The 'Equal' functor does not accept a lookup key spelled like this");
-        if (!m_size) return end();  // Nothing to find, and this also covers there being no table
-        Slot* const slotp = m_table.get() + probe(hashOf(args...), args...);
-        return slotp->isFree() ? end() : iterator{slotp, m_table.get() + m_capacity};
+        ఒకవేళ (!m_కొలత) తిరిగి చివర();  // Nothing to find, and this also covers there being no table
+        స్థానం* స్థిరరాశి slotp = m_పట్టిక.get() + probe(hash_యొక్క(వాదనలు...), వాదనలు...);
+        తిరిగి slotp->isFree() ? చివర() : iterator{slotp, m_పట్టిక.get() + m_సామర్థ్యం};
     }
 
     // Add the given entry, unless an equal one is in the table already. Return
     // iterator to the entry and true if insertion happened. Same as STL containers.
-    std::pair<iterator, bool> insert(const Entry& entry) {
-        static_assert(std::is_copy_constructible<Entry>::value,
+    std::pair<iterator, bool> చొప్పించు(స్థిరరాశి నమోదు_3& నమోదు_2) {
+        static_assert(std::is_copy_constructible<నమోదు_3>::విలువ,
                       "'Entry' must be copy constructible to use 'insert'");
-        return insertLazy(m_keyOf(entry), [&entry]() -> Entry { return entry; });
+        తిరిగి చొప్పించు_Lazy(m_కీలకం_యొక్క(నమోదు_2), [&నమోదు_2]() -> నమోదు_3 { తిరిగి నమోదు_2; });
     }
 
     // As 'insert', but the entry is only made when needed: all but the last argument spell
     // the key, and the last is a callable to create the entry on a miss. Note the created entry
     // must hash and compare equal to the key, and the call must not touch the container, as this
     // holds the slot the entry will go in.
-    template <typename... T_Args>
-    std::pair<iterator, bool> insertLazy(T_Args&&... args) {
-        static_assert(sizeof...(T_Args) >= 2,
+    మూస <typename... T_వాదనలు>
+    std::pair<iterator, bool> చొప్పించు_Lazy(T_వాదనలు&&... వాదనలు) {
+        static_assert(పరిమాణం...(T_వాదనలు) >= 2,
                       "'insertLazy' needs a lookup key, then a callable to create the entry");
-        using Callable = std::tuple_element_t<sizeof...(T_Args) - 1, std::tuple<T_Args...>>;
-        static_assert(vlstd::is_invocable_r<Entry, Callable>::value,
+        using Callable = std::tuple_element_t<పరిమాణం...(T_వాదనలు) - 1, std::tuple<T_వాదనలు...>>;
+        static_assert(vlstd::is_invocable_r<నమోదు_3, Callable>::విలువ,
                       "The last argument of 'insertLazy' must be a callable that takes no "
                       "arguments and returns an 'Entry'");
-        return insertLazyImpl(std::make_index_sequence<sizeof...(T_Args) - 1>{},
-                              std::forward_as_tuple(std::forward<T_Args>(args)...));
+        తిరిగి చొప్పించు_Lazy_Impl(std::make_సూచీ_sequence<పరిమాణం...(T_వాదనలు) - 1>{},
+                              std::forward_as_tuple(std::forward<T_వాదనలు>(వాదనలు)...));
     }
 
     // Whether an entry equal to the given key is in the table. The key is spelled as for 'find'.
-    template <typename... T_Args>
-    bool contains(const T_Args&... args) const {
-        return find(args...) != end();
+    మూస <typename... T_వాదనలు>
+    bool కలిగియుంది(స్థిరరాశి T_వాదనలు&... వాదనలు) స్థిరరాశి {
+        తిరిగి కనుగొను(వాదనలు...) != చివర();
     }
 
     // Remove the entry equal to the given key, and return whether there was one.
-    template <typename... T_Args>
-    bool erase(const T_Args&... args) {
-        const iterator it = find(args...);
-        if (it == end()) return false;
+    మూస <typename... T_వాదనలు>
+    bool erase(స్థిరరాశి T_వాదనలు&... వాదనలు) {
+        స్థిరరాశి iterator it = కనుగొను(వాదనలు...);
+        ఒకవేళ (it == చివర()) తిరిగి false;
         erase(it);
-        return true;
+        తిరిగి true;
     }
 
     // Remove the entry the given iterator refers to, which must not be 'end()'. Note that
     // unlike STL erase this returns nothing, as every iterator is invalidated on deletion.
-    void erase(iterator it) {
-        UDEBUGONLY(UASSERT(it != end() && !it.m_slotp->isFree(), "Erasing a bad iterator"););
-        const size_t mask = m_capacity - 1;
-        size_t i = static_cast<size_t>(it.m_slotp - m_table.get());
+    శూన్య erase(iterator it) {
+        UDEBUGONLY(UASSERT(it != చివర() && !it.m_slotp->isFree(), "Erasing a bad iterator"););
+        స్థిరరాశి కొలత_t ముసుగు = m_సామర్థ్యం - 1;
+        కొలత_t i = static_cast<కొలత_t>(it.m_slotp - m_పట్టిక.get());
         // Destroy the entry
-        m_table[i].destroy();
+        m_పట్టిక[i].destroy();
         // The entry is gone, so slot 'i' is now a hole
-        --m_size;
+        --m_కొలత;
         // Backward shift deletion: move back the entries whose probing the hole breaks
-        size_t j = i;
-        while (true) {
-            j = (j + 1) & mask;
-            Slot& slot = m_table[j];
-            if (slot.isFree()) break;
+        కొలత_t j = i;
+        అయితే (true) {
+            j = (j + 1) & ముసుగు;
+            స్థానం& స్థానం_2 = m_పట్టిక[j];
+            ఒకవేళ (స్థానం_2.isFree()) ఆపు;
             // Move back if its home position does not lie in the cyclic range (i, j]
-            if (((j - (slot.m_hash & mask)) & mask) >= ((j - i) & mask)) {
-                m_table[i] = std::move(slot);  // Frees 'slot', which is then the hole
+            ఒకవేళ (((j - (స్థానం_2.m_hash & ముసుగు)) & ముసుగు) >= ((j - i) & ముసుగు)) {
+                m_పట్టిక[i] = std::move(స్థానం_2);  // Frees 'slot', which is then the hole
                 i = j;
             }
         }
     }
 };
 
-template <typename T_Key, typename T_Hash = std::hash<T_Key>,
-          typename T_Equal = std::equal_to<T_Key>>
-class V3HashSet final : public V3HashTable<T_Key, T_Hash, T_Equal,
-                                           V3HashTableInternals::V3HashTableKeyIsEntry<T_Key>> {
+మూస <typename T_కీలకం, typename T_Hash = std::hash<T_కీలకం>,
+          typename T_Equal = std::equal_గమ్యం<T_కీలకం>>
+class V3_Hash_సమితి final : బహిరంగ V3_Hash_పట్టిక<T_కీలకం, T_Hash, T_Equal,
+                                           V3_Hash_పట్టిక_Internals::V3_Hash_పట్టిక_కీలకం_Is_నమోదు<T_కీలకం>> {
     using Super
-        = V3HashTable<T_Key, T_Hash, T_Equal, V3HashTableInternals::V3HashTableKeyIsEntry<T_Key>>;
+        = V3_Hash_పట్టిక<T_కీలకం, T_Hash, T_Equal, V3_Hash_పట్టిక_Internals::V3_Hash_పట్టిక_కీలకం_Is_నమోదు<T_కీలకం>>;
 
     // Entries are only ever moved. Note 'insert' additionally needs copy construction.
-    static_assert(std::is_move_constructible<T_Key>::value, "'T_Key' must be move constructible");
-    static_assert(std::is_destructible<T_Key>::value, "'T_Key' must be destructible");
+    static_assert(std::is_move_constructible<T_కీలకం>::విలువ, "'T_Key' must be move constructible");
+    static_assert(std::is_destructible<T_కీలకం>::విలువ, "'T_Key' must be destructible");
 
-public:
+బహిరంగ:
     // CONSTRUCTORS
-    V3HashSet() = default;
-    V3HashSet(T_Hash hash, T_Equal equal)
+    V3_Hash_సమితి() = అప్రమేయ;
+    V3_Hash_సమితి(T_Hash hash, T_Equal equal)
         : Super{std::move(hash), std::move(equal)} {}
 };
 
-template <typename T_Key, typename T_Val, typename T_Hash = std::hash<T_Key>,
-          typename T_Equal = std::equal_to<T_Key>>
+మూస <typename T_కీలకం, typename T_Val, typename T_Hash = std::hash<T_కీలకం>,
+          typename T_Equal = std::equal_గమ్యం<T_కీలకం>>
 class V3HashMap final
-    : public V3HashTable<std::pair<T_Key, T_Val>, T_Hash, T_Equal,
-                         V3HashTableInternals::V3HashTableKeyIsFirst<T_Key, T_Val>> {
-    using Super = V3HashTable<std::pair<T_Key, T_Val>, T_Hash, T_Equal,
-                              V3HashTableInternals::V3HashTableKeyIsFirst<T_Key, T_Val>>;
+    : బహిరంగ V3_Hash_పట్టిక<std::pair<T_కీలకం, T_Val>, T_Hash, T_Equal,
+                         V3_Hash_పట్టిక_Internals::V3_Hash_పట్టిక_కీలకం_Is_మొదటి<T_కీలకం, T_Val>> {
+    using Super = V3_Hash_పట్టిక<std::pair<T_కీలకం, T_Val>, T_Hash, T_Equal,
+                              V3_Hash_పట్టిక_Internals::V3_Hash_పట్టిక_కీలకం_Is_మొదటి<T_కీలకం, T_Val>>;
 
     // Entries are only ever moved. Note 'insert' additionally needs copy construction.
     // Asserted separately, so the failure names the one at fault.
-    static_assert(std::is_move_constructible<T_Key>::value, "'T_Key' must be move constructible");
-    static_assert(std::is_destructible<T_Key>::value, "'T_Key' must be destructible");
-    static_assert(std::is_move_constructible<T_Val>::value, "'T_Val' must be move constructible");
-    static_assert(std::is_destructible<T_Val>::value, "'T_Val' must be destructible");
+    static_assert(std::is_move_constructible<T_కీలకం>::విలువ, "'T_Key' must be move constructible");
+    static_assert(std::is_destructible<T_కీలకం>::విలువ, "'T_Key' must be destructible");
+    static_assert(std::is_move_constructible<T_Val>::విలువ, "'T_Val' must be move constructible");
+    static_assert(std::is_destructible<T_Val>::విలువ, "'T_Val' must be destructible");
 
-public:
+బహిరంగ:
     // TYPES
-    using Value = T_Val;  // What a key maps to
+    using విలువ_2 = T_Val;  // What a key maps to
 
     // CONSTRUCTORS
-    V3HashMap() = default;
+    V3HashMap() = అప్రమేయ;
     V3HashMap(T_Hash hash, T_Equal equal)
         : Super{std::move(hash), std::move(equal)} {}
 };
 
-#endif  // Guard
+#అయితే_ముగింపు  // Guard

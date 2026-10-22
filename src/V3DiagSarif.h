@@ -14,20 +14,20 @@
 //
 //*************************************************************************
 
-#ifndef VERILATOR_V3DIAGSARIF_H_
-#define VERILATOR_V3DIAGSARIF_H_
+#నిర్వచితం_కాకపోతే VERILATOR_V3DIAGSARIF_H_
+#నిర్వచించు VERILATOR_V3DIAGSARIF_H_
 
-#include "config_build.h"
-#include "verilatedos.h"
+#అన్తర్భావ "config_build.h"
+#అన్తర్భావ "verilatedos.h"
 
-#include <V3Error.h>
+#అన్తర్భావ <V3Error.h>
 
 //============================================================================
 
 class V3DiagSarif final {
-public:
-    static void pushMessage(const VErrorMessage& msg) VL_MT_DISABLED;
-    static void output(bool success) VL_MT_DISABLED;
+బహిరంగ:
+    స్థిర శూన్య నెట్టు_సందేశం(స్థిరరాశి VError_సందేశం& సందేశం_2) VL_MT_DISABLED;
+    స్థిర శూన్య output(bool success) VL_MT_DISABLED;
 };
 
-#endif  // Guard
+#అయితే_ముగింపు  // Guard

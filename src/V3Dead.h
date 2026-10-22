@@ -14,26 +14,26 @@
 //
 //*************************************************************************
 
-#ifndef VERILATOR_V3DEAD_H_
-#define VERILATOR_V3DEAD_H_
+#నిర్వచితం_కాకపోతే VERILATOR_V3DEAD_H_
+#నిర్వచించు VERILATOR_V3DEAD_H_
 
-#include "config_build.h"
-#include "verilatedos.h"
+#అన్తర్భావ "config_build.h"
+#అన్తర్భావ "verilatedos.h"
 
 class AstNetlist;
 
 //============================================================================
 
 class V3Dead final {
-public:
+బహిరంగ:
     // Modules, no vars/dtypes
-    static void deadifyModules(AstNetlist* nodep) VL_MT_DISABLED;
+    స్థిర శూన్య deadifyModules(AstNetlist* nodep) VL_MT_DISABLED;
     // Modules, Data types
-    static void deadifyDTypes(AstNetlist* nodep) VL_MT_DISABLED;
-    static void deadifyDTypesScoped(AstNetlist* nodep) VL_MT_DISABLED;
+    స్థిర శూన్య deadifyDTypes(AstNetlist* nodep) VL_MT_DISABLED;
+    స్థిర శూన్య deadifyDTypesScoped(AstNetlist* nodep) VL_MT_DISABLED;
     // Everything that's possible
-    static void deadifyAll(AstNetlist* nodep) VL_MT_DISABLED;
-    static void deadifyAllScoped(AstNetlist* nodep) VL_MT_DISABLED;
+    స్థిర శూన్య deadifyAll(AstNetlist* nodep) VL_MT_DISABLED;
+    స్థిర శూన్య deadifyAllScoped(AstNetlist* nodep) VL_MT_DISABLED;
 };
 
-#endif  // Guard
+#అయితే_ముగింపు  // Guard

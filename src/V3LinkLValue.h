@@ -14,20 +14,20 @@
 //
 //*************************************************************************
 
-#ifndef VERILATOR_V3LINKLVALUE_H_
-#define VERILATOR_V3LINKLVALUE_H_
+#నిర్వచితం_కాకపోతే VERILATOR_V3LINKLVALUE_H_
+#నిర్వచించు VERILATOR_V3LINKLVALUE_H_
 
-#include "config_build.h"
-#include "verilatedos.h"
+#అన్తర్భావ "config_build.h"
+#అన్తర్భావ "verilatedos.h"
 
-#include "V3Ast.h"
+#అన్తర్భావ "V3Ast.h"
 
 //============================================================================
 
 class V3LinkLValue final {
-public:
-    static void linkLValue(AstNetlist* nodep) VL_MT_DISABLED;
-    static void linkLValueSet(AstNode* nodep, VAccess access = VAccess::WRITE) VL_MT_DISABLED;
+బహిరంగ:
+    స్థిర శూన్య linkLValue(AstNetlist* nodep) VL_MT_DISABLED;
+    స్థిర శూన్య link_LValue_సమితి(Ast_కణుపు* nodep, VAccess access = VAccess::WRITE) VL_MT_DISABLED;
 };
 
-#endif  // Guard
+#అయితే_ముగింపు  // Guard

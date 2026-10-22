@@ -71,95 +71,95 @@
 //
 //*************************************************************************
 
-#include "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
+#అన్తర్భావ "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
 
-#include "V3OrderInternal.h"
-#include "V3Sched.h"
+#అన్తర్భావ "V3OrderInternal.h"
+#అన్తర్భావ "V3Sched.h"
 
-#include <memory>
-#include <vector>
+#అన్తర్భావ <memory>
+#అన్తర్భావ <vector>
 
 VL_DEFINE_DEBUG_FUNCTIONS;
 
-void V3Order::orderOrderGraph(OrderGraph& graph, const std::string& tag) {
+శూన్య V3_క్రమం::క్రమం_క్రమం_లేఖాచిత్రం(క్రమం_లేఖాచిత్రం& లేఖాచిత్రం, స్థిరరాశి std::string& ట్యాగ్) {
     // Dump data
-    if (dumpGraphLevel()) graph.dumpDotFilePrefixed(tag + "_orderg_pre");
+    ఒకవేళ (dump_లేఖాచిత్రం_Level()) లేఖాచిత్రం.dumpDotFilePrefixed(ట్యాగ్ + "_orderg_pre");
 
     // Break cycles. Note that the OrderGraph only contains cuttable cycles
     // (soft constraints). Actual logic loops must have been eliminated by
     // the introduction of Hybid sensitivity expressions, before invoking
     // ordering (e.g. in V3SchedAcyclic).
-    graph.acyclic(&V3GraphEdge::followAlwaysTrue);
-    if (dumpGraphLevel()) graph.dumpDotFilePrefixed(tag + "_orderg_acyc");
+    లేఖాచిత్రం.acyclic(&V3_లేఖాచిత్రం_అంచు::followAlwaysTrue);
+    ఒకవేళ (dump_లేఖాచిత్రం_Level()) లేఖాచిత్రం.dumpDotFilePrefixed(ట్యాగ్ + "_orderg_acyc");
 
     // Assign ranks so we know what to follow, then sort vertices and edges by that ordering
-    graph.order();
-    if (dumpGraphLevel()) graph.dumpDotFilePrefixed(tag + "_orderg_order");
+    లేఖాచిత్రం.క్రమం();
+    ఒకవేళ (dump_లేఖాచిత్రం_Level()) లేఖాచిత్రం.dumpDotFilePrefixed(ట్యాగ్ + "_orderg_order");
 }
 
 //######################################################################
 
-AstCFunc* V3Order::order(const std::vector<V3Sched::LogicByScope*>& logic,  //
-                         const V3Sched::TriggerKit& trigKit,  //
+AstCFunc* V3_క్రమం::క్రమం(స్థిరరాశి std::సదిశ<V3Sched::LogicByScope*>& logic,  //
+                         స్థిరరాశి V3Sched::TriggerKit& trigKit,  //
                          AstVarScope* trigVscp,  //
-                         const V3Sched::CovergroupRefBindings& cgRefBindings,
-                         const string& tag,  //
-                         bool parallel,  //
-                         bool slow,  //
-                         const ExternalTriggersProvider& externalTriggers) {
+                         స్థిరరాశి V3Sched::CovergroupRefBindings& cgRefBindings,
+                         స్థిరరాశి string& ట్యాగ్,  //
+                         తార్కిక parallel,  //
+                         తార్కిక slow,  //
+                         స్థిరరాశి ExternalTriggersProvider& externalTriggers) {
     // Build the OrderGraph
-    const std::unique_ptr<OrderGraph> graph
-        = buildOrderGraph(trigKit, trigVscp, logic, cgRefBindings, parallel);
+    స్థిరరాశి std::unique_ptr<క్రమం_లేఖాచిత్రం> లేఖాచిత్రం
+        = build_క్రమం_లేఖాచిత్రం(trigKit, trigVscp, logic, cgRefBindings, parallel);
     // Order it
-    orderOrderGraph(*graph, tag);
+    క్రమం_క్రమం_లేఖాచిత్రం(*లేఖాచిత్రం, ట్యాగ్);
     // Assign sensitivity domains to combinational logic
-    processDomains(*graph, tag, externalTriggers);
+    processDomains(*లేఖాచిత్రం, ట్యాగ్, externalTriggers);
     // Build the move graph
-    OrderMoveDomScope::clear();
-    const std::unique_ptr<OrderMoveGraph> moveGraphp = OrderMoveGraph::build(*graph);
-    if (dumpGraphLevel() >= 9) moveGraphp->dumpDotFilePrefixed(tag + "_ordermv");
+    క్రమం_Move_Dom_Scope::clear();
+    స్థిరరాశి std::unique_ptr<క్రమం_Move_లేఖాచిత్రం> moveGraphp = క్రమం_Move_లేఖాచిత్రం::build(*లేఖాచిత్రం);
+    ఒకవేళ (dump_లేఖాచిత్రం_Level() >= 9) moveGraphp->dumpDotFilePrefixed(ట్యాగ్ + "_ordermv");
 
     // The ordered statements, if there are any
-    AstNodeStmt* stmtsp = nullptr;
-    if (!moveGraphp->empty()) {
-        if (parallel) {
-            stmtsp = createParallel(*moveGraphp, tag, slow);
-        } else {
-            stmtsp = createSerial(*moveGraphp, tag, slow);
+    Ast_కణుపు_Stmt* stmtsp = శూన్యసూచిక;
+    ఒకవేళ (!moveGraphp->ఖాళీలు()) {
+        ఒకవేళ (parallel) {
+            stmtsp = createParallel(*moveGraphp, ట్యాగ్, slow);
+        } లేకపోతే {
+            stmtsp = createSerial(*moveGraphp, ట్యాగ్, slow);
         }
         // Should have consumed all vertices
-        UASSERT(moveGraphp->empty(), "Unconsumed vertices remain in OrderMoveGraph");
+        UASSERT(moveGraphp->ఖాళీలు(), "Unconsumed vertices remain in OrderMoveGraph");
     }
-    OrderMoveDomScope::clear();
+    క్రమం_Move_Dom_Scope::clear();
 
     // Dump data
-    if (dumpGraphLevel()) graph->dumpDotFilePrefixed(tag + "_orderg_done");
+    ఒకవేళ (dump_లేఖాచిత్రం_Level()) లేఖాచిత్రం->dumpDotFilePrefixed(ట్యాగ్ + "_orderg_done");
 
     // Dispose of the remnants of the inputs
-    for (auto* const lbsp : logic) lbsp->deleteActives();
+    కొరకు (స్వయంచాలక* స్థిరరాశి lbsp : logic) lbsp->deleteActives();
 
     // If there is no resulting logic, then don't create an empty function
-    if (!stmtsp) return nullptr;
+    ఒకవేళ (!stmtsp) తిరిగి శూన్యసూచిక;
 
     // Create the result function
-    AstNetlist* const netlistp = v3Global.rootp();
-    FileLine* const flp = netlistp->fileline();
-    AstCFunc* const funcp = [&]() {
-        AstScope* const scopeTopp = netlistp->topScopep()->scopep();
-        AstCFunc* const resp = new AstCFunc{flp, "_eval_body__" + tag, scopeTopp, ""};
-        resp->dontCombine(true);
-        resp->isStatic(false);
-        resp->isLoose(true);
+    AstNetlist* స్థిరరాశి netlistp = v3Global.rootp();
+    File_పంక్తి* స్థిరరాశి flp = netlistp->fileline();
+    AstCFunc* స్థిరరాశి funcp = [&]() {
+        AstScope* స్థిరరాశి scopeTopp = netlistp->శిఖరం_Scopep()->scopep();
+        AstCFunc* స్థిరరాశి resp = కొత్త AstCFunc{flp, "_eval_body__" + ట్యాగ్, scopeTopp, ""};
+        resp->dontCombine(నిజం);
+        resp->isStatic(అబద్ధం);
+        resp->isLoose(నిజం);
         resp->slow(slow);
-        resp->isConst(false);
-        resp->declPrivate(true);
-        scopeTopp->addBlocksp(resp);
-        return resp;
+        resp->isConst(అబద్ధం);
+        resp->decl_వ్యక్తిగత(నిజం);
+        scopeTopp->కూడు_Blocksp(resp);
+        తిరిగి resp;
     }();
 
     // Assemble the body
-    funcp->addStmtsp(stmtsp);
+    funcp->కూడు_Stmtsp(stmtsp);
 
-    // Done
-    return funcp;
+    //పూర్తి
+    తిరిగి funcp;
 }

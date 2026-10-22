@@ -60,30 +60,30 @@
 //
 //*************************************************************************
 
-#include "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
+#అన్తర్భావ "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
 
-#include "V3Timing.h"
+#అన్తర్భావ "V3Timing.h"
 
-#include "V3Const.h"
-#include "V3EmitV.h"
-#include "V3File.h"
-#include "V3Global.h"
-#include "V3Graph.h"
-#include "V3MemberMap.h"
-#include "V3SenExprBuilder.h"
-#include "V3SenTree.h"
-#include "V3SharedTmps.h"
-#include "V3Stats.h"
-#include "V3UniqueNames.h"
+#అన్తర్భావ "V3Const.h"
+#అన్తర్భావ "V3EmitV.h"
+#అన్తర్భావ "V3File.h"
+#అన్తర్భావ "V3Global.h"
+#అన్తర్భావ "V3Graph.h"
+#అన్తర్భావ "V3MemberMap.h"
+#అన్తర్భావ "V3SenExprBuilder.h"
+#అన్తర్భావ "V3SenTree.h"
+#అన్తర్భావ "V3SharedTmps.h"
+#అన్తర్భావ "V3Stats.h"
+#అన్తర్భావ "V3UniqueNames.h"
 
-#include <limits>
-#include <queue>
+#అన్తర్భావ <limits>
+#అన్తర్భావ <queue>
 
 VL_DEFINE_DEBUG_FUNCTIONS;
 
 // ######################################################################
 
-enum NodeFlag : uint8_t {
+గణన కణుపు_Flag : uint8_t {
     T_SUSPENDEE = 1 << 0,  // Suspendable (due to dependence on another suspendable)
     T_SUSPENDER = 1 << 1,  // Suspendable (has timing control)
     T_ALLOCS_PROC = 1 << 2,  // Can allocate VlProcess
@@ -93,86 +93,86 @@ enum NodeFlag : uint8_t {
     T_NBA_UPDATE = 1 << 6,  // Fork branch of a pending NBA update, which is not a subprocess
 };
 
-enum ForkType : uint8_t {
+గణన ForkType : uint8_t {
     F_NONE = 0,  // Not under a fork
     F_MIGHT_SUSPEND = 1 << 0,  // Fork might suspend the execution of current process
     F_MIGHT_NEED_PROC = 1 << 1,  // Fork might need a process (any fork really)
 };
 
-enum PropagationType : uint8_t {
+గణన ప్రసరణ_Type : uint8_t {
     P_CALL = 1,  // Propagation through call to a function/task/method
     P_FORK = 2,  // Propagation due to fork's behavior
     P_SIGNATURE = 3,  // Propagation required to maintain C++ function's signature requirements
 };
 
 // Add timing flag to a node
-static void addFlags(AstNode* const nodep, uint8_t flags) { nodep->user2Or(flags); }
+స్థిర శూన్య కూడు_Flags(Ast_కణుపు* స్థిరరాశి nodep, uint8_t flags) { nodep->user2Or(flags); }
 // Check if a node has ALL of the expected flags set
-static bool hasFlags(AstNode* const nodep, uint8_t flags) { return !(~nodep->user2() & flags); }
+స్థిర తార్కిక hasFlags(Ast_కణుపు* స్థిరరాశి nodep, uint8_t flags) { తిరిగి !(~nodep->user2() & flags); }
 
 // ######################################################################
 //  Detect nodes affected by timing and/or requiring a process
 
-class TimingSuspendableVisitor final : public VNVisitor {
+తరగతి TimingSuspendableVisitor final : బహిరంగ VNVisitor {
     // TYPES
     // Vertex of a dependency graph of suspendable nodes, e.g. if a node (process or task) is
     // suspendable, all its dependents should also be suspendable
-    class DepVtx VL_NOT_FINAL : public V3GraphVertex {
-        VL_RTTI_IMPL(DepVtx, V3GraphVertex)
-        AstClass* const m_classp;  // Class associated with a method
-        AstNode* const m_nodep;  // AST node represented by this graph vertex
+    తరగతి DepVtx VL_NOT_FINAL : బహిరంగ V3_లేఖాచిత్రం_శీర్షం {
+        VL_RTTI_IMPL(DepVtx, V3_లేఖాచిత్రం_శీర్షం)
+        AstClass* స్థిరరాశి m_classp;  // Class associated with a method
+        Ast_కణుపు* స్థిరరాశి m_nodep;  // AST node represented by this graph vertex
 
         // ACCESSORS
-        string name() const override {
-            if (m_classp) {
-                if (VN_IS(nodep(), CFunc)) {
-                    return cvtToHex(nodep()) + ' ' + classp()->name() + "::" + nodep()->name();
+        string name() స్థిరరాశి override {
+            ఒకవేళ (m_classp) {
+                ఒకవేళ (VN_IS(nodep(), CFunc)) {
+                    తిరిగి cvt_గమ్యం_Hex(nodep()) + ' ' + classp()->name() + "::" + nodep()->name();
                 }
             }
-            return cvtToHex(nodep()) + ' ' + nodep()->prettyTypeName();
+            తిరిగి cvt_గమ్యం_Hex(nodep()) + ' ' + nodep()->prettyTypeName();
         }
-        FileLine* fileline() const override { return nodep()->fileline(); }
+        File_పంక్తి* fileline() స్థిరరాశి override { తిరిగి nodep()->fileline(); }
 
-    public:
+    బహిరంగ:
         // CONSTRUCTORS
-        DepVtx(V3Graph* graphp, AstNode* nodep, AstClass* classp)
-            : V3GraphVertex{graphp}
+        DepVtx(V3_లేఖాచిత్రం* graphp, Ast_కణుపు* nodep, AstClass* classp)
+            : V3_లేఖాచిత్రం_శీర్షం{graphp}
             , m_classp{classp}
             , m_nodep{nodep} {}
-        ~DepVtx() override = default;
+        ~DepVtx() override = అప్రమేయ;
 
         // ACCESSORS
-        virtual AstNode* nodep() const VL_MT_STABLE { return m_nodep; }
-        virtual AstNode* classp() const VL_MT_STABLE { return m_classp; }
+        మాయా Ast_కణుపు* nodep() స్థిరరాశి VL_MT_STABLE { తిరిగి m_nodep; }
+        మాయా Ast_కణుపు* classp() స్థిరరాశి VL_MT_STABLE { తిరిగి m_classp; }
     };
 
-    class SuspendDepVtx final : public DepVtx {
+    తరగతి SuspendDepVtx final : బహిరంగ DepVtx {
         VL_RTTI_IMPL(SuspendDepVtx, DepVtx)
-        string dotColor() const override {
-            if (hasFlags(nodep(), T_SUSPENDER)) return "red";
-            if (hasFlags(nodep(), T_SUSPENDEE)) return "blue";
-            return "black";
+        string dotColor() స్థిరరాశి override {
+            ఒకవేళ (hasFlags(nodep(), T_SUSPENDER)) తిరిగి "red";
+            ఒకవేళ (hasFlags(nodep(), T_SUSPENDEE)) తిరిగి "blue";
+            తిరిగి "black";
         }
 
-    public:
-        SuspendDepVtx(V3Graph* graphp, AstNode* nodep, AstClass* classp)
+    బహిరంగ:
+        SuspendDepVtx(V3_లేఖాచిత్రం* graphp, Ast_కణుపు* nodep, AstClass* classp)
             : DepVtx{graphp, nodep, classp} {}
-        ~SuspendDepVtx() override = default;
+        ~SuspendDepVtx() override = అప్రమేయ;
     };
 
-    class NeedsProcDepVtx final : public DepVtx {
+    తరగతి NeedsProcDepVtx final : బహిరంగ DepVtx {
         VL_RTTI_IMPL(NeedsProcDepVtx, DepVtx)
-        string dotColor() const override {
-            if (hasFlags(nodep(), T_HAS_PROC)) return "blue";
-            if (hasFlags(nodep(), T_NEEDS_PROC)) return "green";
-            if (hasFlags(nodep(), T_FORCES_PROC)) return "red";
-            return "black";
+        string dotColor() స్థిరరాశి override {
+            ఒకవేళ (hasFlags(nodep(), T_HAS_PROC)) తిరిగి "blue";
+            ఒకవేళ (hasFlags(nodep(), T_NEEDS_PROC)) తిరిగి "green";
+            ఒకవేళ (hasFlags(nodep(), T_FORCES_PROC)) తిరిగి "red";
+            తిరిగి "black";
         }
 
-    public:
-        NeedsProcDepVtx(V3Graph* graphp, AstNode* nodep, AstClass* classp)
+    బహిరంగ:
+        NeedsProcDepVtx(V3_లేఖాచిత్రం* graphp, Ast_కణుపు* nodep, AstClass* classp)
             : DepVtx{graphp, nodep, classp} {}
-        ~NeedsProcDepVtx() override = default;
+        ~NeedsProcDepVtx() override = అప్రమేయ;
     };
 
     // NODE STATE
@@ -183,284 +183,284 @@ class TimingSuspendableVisitor final : public VNVisitor {
     //                                                         needs process metadata.
     //  Ast{NodeProcedure,CFunc,Begin}::user3()  -> DependencyVertex*.  Vertex in m_suspGraph
     //  Ast{NodeProcedure,CFunc,Begin}::user3()  -> DependencyVertex*.  Vertex in m_procGraph
-    const VNUser3InUse m_user3InUse;
-    const VNUser4InUse m_user4InUse;
+    స్థిరరాశి VNUser3_లోపల_Use m_user3_లోపల_Use;
+    స్థిరరాశి VNUser4_లోపల_Use m_user4_లోపల_Use;
 
     // STATE
     VMemberMap m_memberMap;  // Member names cached for fast lookup
-    AstClass* m_classp = nullptr;  // Current class
-    AstNode* m_procp = nullptr;  // NodeProcedure/CFunc/Begin we're under
+    AstClass* m_classp = శూన్యసూచిక;  // Current class
+    Ast_కణుపు* m_procp = శూన్యసూచిక;  // NodeProcedure/CFunc/Begin we're under
     uint8_t m_underFork = F_NONE;  // F_NONE or flags of a fork we are under
-    V3Graph m_suspGraph;  // Dependency graph where a node is a dependency of another if it being
+    V3_లేఖాచిత్రం m_susp_లేఖాచిత్రం;  // Dependency graph where a node is a dependency of another if it being
                           // suspendable makes the other node suspendable
-    V3Graph m_procGraph;  // Dependency graph where a node is a dependency of another if it being
+    V3_లేఖాచిత్రం m_proc_లేఖాచిత్రం;  // Dependency graph where a node is a dependency of another if it being
                           // suspendable makes the other node suspendable
 
     // METHODS
     // Get or create the dependency vertex for the given node
-    DepVtx* getSuspendDepVtx(AstNode* const nodep) {
-        AstClass* classp = nullptr;
-        if (AstCFunc* funcp = VN_CAST(nodep, CFunc)) {
-            if (funcp->scopep() && funcp->scopep()->modp()) {
+    DepVtx* getSuspendDepVtx(Ast_కణుపు* స్థిరరాశి nodep) {
+        AstClass* classp = శూన్యసూచిక;
+        ఒకవేళ (AstCFunc* funcp = VN_CAST(nodep, CFunc)) {
+            ఒకవేళ (funcp->scopep() && funcp->scopep()->modp()) {
                 classp = VN_CAST(funcp->scopep()->modp(), Class);
             }
         }
-        if (!nodep->user3p()) nodep->user3p(new SuspendDepVtx{&m_suspGraph, nodep, classp});
-        return nodep->user3u().to<SuspendDepVtx*>();
+        ఒకవేళ (!nodep->user3p()) nodep->user3p(కొత్త SuspendDepVtx{&m_susp_లేఖాచిత్రం, nodep, classp});
+        తిరిగి nodep->user3u().గమ్యం<SuspendDepVtx*>();
     }
-    DepVtx* getNeedsProcDepVtx(AstNode* const nodep) {
-        AstClass* classp = nullptr;
-        if (AstCFunc* funcp = VN_CAST(nodep, CFunc)) {
-            if (funcp->scopep() && funcp->scopep()->modp()) {
+    DepVtx* getNeedsProcDepVtx(Ast_కణుపు* స్థిరరాశి nodep) {
+        AstClass* classp = శూన్యసూచిక;
+        ఒకవేళ (AstCFunc* funcp = VN_CAST(nodep, CFunc)) {
+            ఒకవేళ (funcp->scopep() && funcp->scopep()->modp()) {
                 classp = VN_CAST(funcp->scopep()->modp(), Class);
             }
         }
-        if (!nodep->user4p()) nodep->user4p(new NeedsProcDepVtx{&m_procGraph, nodep, classp});
-        return nodep->user4u().to<NeedsProcDepVtx*>();
+        ఒకవేళ (!nodep->user4p()) nodep->user4p(కొత్త NeedsProcDepVtx{&m_proc_లేఖాచిత్రం, nodep, classp});
+        తిరిగి nodep->user4u().గమ్యం<NeedsProcDepVtx*>();
     }
     // Pass timing flag between nodes
-    bool passFlag(const AstNode* from, AstNode* to, NodeFlag flag) {
-        if ((from->user2() & flag) && !(to->user2() & flag)) {
-            addFlags(to, flag);
-            return true;
+    తార్కిక passFlag(స్థిరరాశి Ast_కణుపు* from, Ast_కణుపు* గమ్యం, కణుపు_Flag flag) {
+        ఒకవేళ ((from->user2() & flag) && !(గమ్యం->user2() & flag)) {
+            కూడు_Flags(గమ్యం, flag);
+            తిరిగి నిజం;
         }
-        return false;
+        తిరిగి అబద్ధం;
     }
     // Propagate flag to all nodes that depend on the given one
-    void propagateFlags(DepVtx* const vxp, NodeFlag flag) {
-        auto* const parentp = vxp->nodep();
-        for (V3GraphEdge& edge : vxp->outEdges()) {
-            auto* const depVxp = static_cast<DepVtx*>(edge.top());
-            AstNode* const depp = depVxp->nodep();
-            if (passFlag(parentp, depp, flag)) propagateFlags(depVxp, flag);
+    శూన్య propagateFlags(DepVtx* స్థిరరాశి vxp, కణుపు_Flag flag) {
+        స్వయంచాలక* స్థిరరాశి parentp = vxp->nodep();
+        కొరకు (V3_లేఖాచిత్రం_అంచు& అంచు : vxp->బహిర్గతం_అంచులు()) {
+            స్వయంచాలక* స్థిరరాశి depVxp = static_cast<DepVtx*>(అంచు.శిఖరం());
+            Ast_కణుపు* స్థిరరాశి depp = depVxp->nodep();
+            ఒకవేళ (passFlag(parentp, depp, flag)) propagateFlags(depVxp, flag);
         }
     }
-    template <typename T_Predicate>
-    void propagateFlagsIf(DepVtx* const vxp, NodeFlag flag, T_Predicate p) {
-        auto* const parentp = vxp->nodep();
-        for (V3GraphEdge& edge : vxp->outEdges()) {
-            auto* const depVxp = static_cast<DepVtx*>(edge.top());
-            AstNode* const depp = depVxp->nodep();
-            if (p(&edge) && passFlag(parentp, depp, flag)) propagateFlagsIf(depVxp, flag, p);
+    మూస <రకం_పేరు T_Predicate>
+    శూన్య propagateFlagsIf(DepVtx* స్థిరరాశి vxp, కణుపు_Flag flag, T_Predicate p) {
+        స్వయంచాలక* స్థిరరాశి parentp = vxp->nodep();
+        కొరకు (V3_లేఖాచిత్రం_అంచు& అంచు : vxp->బహిర్గతం_అంచులు()) {
+            స్వయంచాలక* స్థిరరాశి depVxp = static_cast<DepVtx*>(అంచు.శిఖరం());
+            Ast_కణుపు* స్థిరరాశి depp = depVxp->nodep();
+            ఒకవేళ (p(&అంచు) && passFlag(parentp, depp, flag)) propagateFlagsIf(depVxp, flag, p);
         }
     }
-    template <typename T_Predicate>
-    void propagateFlagsReversedIf(DepVtx* const vxp, NodeFlag flag, T_Predicate p) {
-        auto* const parentp = vxp->nodep();
-        for (V3GraphEdge& edge : vxp->inEdges()) {
-            auto* const depVxp = static_cast<DepVtx*>(edge.fromp());
-            AstNode* const depp = depVxp->nodep();
-            if (p(&edge) && passFlag(parentp, depp, flag))
+    మూస <రకం_పేరు T_Predicate>
+    శూన్య propagateFlagsReversedIf(DepVtx* స్థిరరాశి vxp, కణుపు_Flag flag, T_Predicate p) {
+        స్వయంచాలక* స్థిరరాశి parentp = vxp->nodep();
+        కొరకు (V3_లేఖాచిత్రం_అంచు& అంచు : vxp->లోపల_అంచులు()) {
+            స్వయంచాలక* స్థిరరాశి depVxp = static_cast<DepVtx*>(అంచు.fromp());
+            Ast_కణుపు* స్థిరరాశి depp = depVxp->nodep();
+            ఒకవేళ (p(&అంచు) && passFlag(parentp, depp, flag))
                 propagateFlagsReversedIf(depVxp, flag, p);
         }
     }
 
     // VISITORS
-    void visit(AstClass* nodep) override {
+    శూన్య సందర్శించు(AstClass* nodep) override {
         UASSERT_OBJ(!m_classp, nodep, "Class under class");
         VL_RESTORER(m_classp);
         m_classp = nodep;
         iterateChildren(nodep);
     }
-    void visit(AstNodeProcedure* nodep) override {
+    శూన్య సందర్శించు(Ast_కణుపు_Procedure* nodep) override {
         VL_RESTORER(m_procp);
         m_procp = nodep;
         getNeedsProcDepVtx(nodep);
-        addFlags(nodep, T_ALLOCS_PROC);
-        if (VN_IS(nodep, Always)) {
+        కూడు_Flags(nodep, T_ALLOCS_PROC);
+        ఒకవేళ (VN_IS(nodep, Always)) {
             UINFO(9, "Always does " << (nodep->needProcess() ? "" : "NOT ") << "need process");
         }
         iterateChildren(nodep);
     }
-    void visit(AstDisableFork* nodep) override {
-        visit(static_cast<AstNode*>(nodep));
-        addFlags(m_procp, T_FORCES_PROC | T_NEEDS_PROC);
+    శూన్య సందర్శించు(AstDisableFork* nodep) override {
+        సందర్శించు(static_cast<Ast_కణుపు*>(nodep));
+        కూడు_Flags(m_procp, T_FORCES_PROC | T_NEEDS_PROC);
     }
-    void visit(AstWaitFork* nodep) override {
-        visit(static_cast<AstNode*>(nodep));
-        addFlags(m_procp, T_FORCES_PROC | T_NEEDS_PROC);
+    శూన్య సందర్శించు(AstWaitFork* nodep) override {
+        సందర్శించు(static_cast<Ast_కణుపు*>(nodep));
+        కూడు_Flags(m_procp, T_FORCES_PROC | T_NEEDS_PROC);
     }
-    void visit(AstWait* nodep) override {
+    శూన్య సందర్శించు(AstWait* nodep) override {
         UINFO(9, "suspendable-visit " << nodep);
-        AstNodeExpr* const condp = V3Const::constifyEdit(nodep->condp());
-        if (AstConst* const constp = VN_CAST(condp, Const)) {
-            if (!nodep->fileline()->warnIsOff(V3ErrorCode::WAITCONST)) {
+        Ast_కణుపు_సమాసం* స్థిరరాశి condp = V3Const::constifyEdit(nodep->condp());
+        ఒకవేళ (AstConst* స్థిరరాశి constp = VN_CAST(condp, Const)) {
+            ఒకవేళ (!nodep->fileline()->warnIsOff(V3_Error_సంకేతం::WAITCONST)) {
                 condp->v3warn(WAITCONST, "Wait statement condition is constant");
             }
-            if (!constp->isZero()) {
+            ఒకవేళ (!constp->isZero()) {
                 // Remove AstWait before we track process as T_SUSPENDER
-                if (AstNode* const stmtsp = nodep->stmtsp()) {
-                    stmtsp->unlinkFrBackWithNext();
+                ఒకవేళ (Ast_కణుపు* స్థిరరాశి stmtsp = nodep->stmtsp()) {
+                    stmtsp->unlink_Fr_వెనుక_With_తదుపరి();
                     nodep->replaceWith(stmtsp);
-                } else {
-                    nodep->unlinkFrBack();
+                } లేకపోతే {
+                    nodep->unlink_Fr_వెనుక();
                 }
-                VL_DO_DANGLING(pushDeletep(nodep), nodep);
-                return;
+                VL_DO_DANGLING(నెట్టు_Deletep(nodep), nodep);
+                తిరిగి;
             }
         }
-        v3Global.setUsesTiming();
-        if (m_procp) addFlags(m_procp, T_SUSPENDEE | T_SUSPENDER | T_NEEDS_PROC);
+        v3Global.సమితి_ఉపయోగిస్తుంది_Timing();
+        ఒకవేళ (m_procp) కూడు_Flags(m_procp, T_SUSPENDEE | T_SUSPENDER | T_NEEDS_PROC);
         iterateChildren(nodep);
     }
-    void visit(AstCFunc* nodep) override {
+    శూన్య సందర్శించు(AstCFunc* nodep) override {
         VL_RESTORER(m_procp);
         m_procp = nodep;
         iterateChildren(nodep);
-        if (nodep->needProcess()) addFlags(nodep, T_FORCES_PROC | T_NEEDS_PROC);
-        DepVtx* const sVxp = getSuspendDepVtx(nodep);
-        DepVtx* const pVxp = getNeedsProcDepVtx(nodep);
-        if (!m_classp) return;
+        ఒకవేళ (nodep->needProcess()) కూడు_Flags(nodep, T_FORCES_PROC | T_NEEDS_PROC);
+        DepVtx* స్థిరరాశి sVxp = getSuspendDepVtx(nodep);
+        DepVtx* స్థిరరాశి pVxp = getNeedsProcDepVtx(nodep);
+        ఒకవేళ (!m_classp) తిరిగి;
 
         // Go over overridden functions
 
-        std::queue<AstClassExtends*> extends;
-        if (m_classp->extendsp()) extends.push(m_classp->extendsp());
+        std::వరుస<AstClassExtends*> extends;
+        ఒకవేళ (m_classp->extendsp()) extends.నెట్టు(m_classp->extendsp());
 
-        while (!extends.empty()) {
+        అయితే (!extends.ఖాళీలు()) {
             AstClassExtends* ext_list = extends.front();
-            extends.pop();
+            extends.తీయి();
 
-            for (AstClassExtends* cextp = ext_list; cextp;
+            కొరకు (AstClassExtends* cextp = ext_list; cextp;
                  cextp = VN_AS(cextp->nextp(), ClassExtends)) {
                 // TODO: It is possible that a methods the same name in the base class is not
                 // actually overridden by our method. If this causes a problem, traverse to
                 // the root of the inheritance hierarchy and check if the original method is
                 // virtual or not.
-                if (auto* const overriddenp
-                    = VN_CAST(m_memberMap.findMember(cextp->classp(), nodep->name()), CFunc)) {
+                ఒకవేళ (స్వయంచాలక* స్థిరరాశి overriddenp
+                    = VN_CAST(m_memberMap.కనుగొను_Member(cextp->classp(), nodep->name()), CFunc)) {
                     // Suspendability and process affects typing, so they propagate both ways
-                    DepVtx* const overriddenSVxp = getSuspendDepVtx(overriddenp);
-                    DepVtx* const overriddenPVxp = getNeedsProcDepVtx(overriddenp);
-                    new V3GraphEdge{&m_suspGraph, sVxp, overriddenSVxp, P_SIGNATURE};
-                    new V3GraphEdge{&m_suspGraph, overriddenSVxp, sVxp, P_SIGNATURE};
-                    new V3GraphEdge{&m_procGraph, pVxp, overriddenPVxp, P_SIGNATURE};
-                    new V3GraphEdge{&m_procGraph, overriddenPVxp, pVxp, P_SIGNATURE};
-                } else {
-                    AstClassExtends* more_extends = cextp->classp()->extendsp();
-                    if (more_extends) extends.push(more_extends);
+                    DepVtx* స్థిరరాశి overriddenSVxp = getSuspendDepVtx(overriddenp);
+                    DepVtx* స్థిరరాశి overriddenPVxp = getNeedsProcDepVtx(overriddenp);
+                    కొత్త V3_లేఖాచిత్రం_అంచు{&m_susp_లేఖాచిత్రం, sVxp, overriddenSVxp, P_SIGNATURE};
+                    కొత్త V3_లేఖాచిత్రం_అంచు{&m_susp_లేఖాచిత్రం, overriddenSVxp, sVxp, P_SIGNATURE};
+                    కొత్త V3_లేఖాచిత్రం_అంచు{&m_proc_లేఖాచిత్రం, pVxp, overriddenPVxp, P_SIGNATURE};
+                    కొత్త V3_లేఖాచిత్రం_అంచు{&m_proc_లేఖాచిత్రం, overriddenPVxp, pVxp, P_SIGNATURE};
+                } లేకపోతే {
+                    AstClassExtends* మరిన్ని_extends = cextp->classp()->extendsp();
+                    ఒకవేళ (మరిన్ని_extends) extends.నెట్టు(మరిన్ని_extends);
                 }
             }
         }
     }
-    void visit(AstNodeCCall* nodep) override {
-        AstCFunc* const funcp = nodep->funcp();
+    శూన్య సందర్శించు(Ast_కణుపు_CCall* nodep) override {
+        AstCFunc* స్థిరరాశి funcp = nodep->funcp();
         UASSERT_OBJ(funcp, nodep, "AstNodeCCall must have non-null funcp post-link");
         UASSERT_OBJ(m_procp, nodep, "AstNodeCCall must be inside a procedure/CFunc/Begin");
 
         UINFO(9, "V3Timing: Processing CCall to " << funcp->name() << " in dependency graph\n");
-        new V3GraphEdge{&m_suspGraph, getSuspendDepVtx(funcp), getSuspendDepVtx(m_procp), P_CALL};
+        కొత్త V3_లేఖాచిత్రం_అంచు{&m_susp_లేఖాచిత్రం, getSuspendDepVtx(funcp), getSuspendDepVtx(m_procp), P_CALL};
 
-        new V3GraphEdge{&m_procGraph, getNeedsProcDepVtx(funcp), getNeedsProcDepVtx(m_procp),
+        కొత్త V3_లేఖాచిత్రం_అంచు{&m_proc_లేఖాచిత్రం, getNeedsProcDepVtx(funcp), getNeedsProcDepVtx(m_procp),
                         P_CALL};
 
         iterateChildren(nodep);
     }
-    void visit(AstBegin* nodep) override {
+    శూన్య సందర్శించు(AstBegin* nodep) override {
         VL_RESTORER(m_procp);
         VL_RESTORER(m_underFork);
 
-        if (!m_underFork || (m_underFork & F_MIGHT_SUSPEND))
-            new V3GraphEdge{&m_suspGraph, getSuspendDepVtx(nodep), getSuspendDepVtx(m_procp),
+        ఒకవేళ (!m_underFork || (m_underFork & F_MIGHT_SUSPEND))
+            కొత్త V3_లేఖాచిత్రం_అంచు{&m_susp_లేఖాచిత్రం, getSuspendDepVtx(nodep), getSuspendDepVtx(m_procp),
                             m_underFork ? P_FORK : P_CALL};
 
-        new V3GraphEdge{&m_procGraph, getNeedsProcDepVtx(nodep), getNeedsProcDepVtx(m_procp),
+        కొత్త V3_లేఖాచిత్రం_అంచు{&m_proc_లేఖాచిత్రం, getNeedsProcDepVtx(nodep), getNeedsProcDepVtx(m_procp),
                         P_CALL};
 
-        if (m_underFork) addFlags(nodep, T_NEEDS_PROC | T_ALLOCS_PROC);
+        ఒకవేళ (m_underFork) కూడు_Flags(nodep, T_NEEDS_PROC | T_ALLOCS_PROC);
 
         m_procp = nodep;
         m_underFork = 0;
         iterateChildren(nodep);
     }
-    void visit(AstFork* nodep) override {
+    శూన్య సందర్శించు(AstFork* nodep) override {
         UINFO(9, "suspendable-visit " << nodep);
         VL_RESTORER(m_underFork);
 
-        v3Global.setUsesTiming();  // Even if there are no event controls, we have to set this flag
+        v3Global.సమితి_ఉపయోగిస్తుంది_Timing();  // Even if there are no event controls, we have to set this flag
                                    // so that transformForks() in V3SchedTiming gets called and
                                    // removes all forks and begins
-        if (nodep->isTimingControl() && m_procp) {
-            addFlags(m_procp, T_SUSPENDEE | T_SUSPENDER);
+        ఒకవేళ (nodep->isTimingControl() && m_procp) {
+            కూడు_Flags(m_procp, T_SUSPENDEE | T_SUSPENDER);
             m_underFork |= F_MIGHT_SUSPEND;
         }
         m_underFork |= F_MIGHT_NEED_PROC;
         iterateChildren(nodep);
     }
-    void visit(AstAssignDly* nodep) override {
-        if (!VN_IS(m_procp, NodeProcedure)) v3Global.setUsesTiming();
-        visit(static_cast<AstNode*>(nodep));
+    శూన్య సందర్శించు(Ast_కేటాయించు_Dly* nodep) override {
+        ఒకవేళ (!VN_IS(m_procp, కణుపు_Procedure)) v3Global.సమితి_ఉపయోగిస్తుంది_Timing();
+        సందర్శించు(static_cast<Ast_కణుపు*>(nodep));
     }
-    void visit(AstFireEvent* nodep) override {
-        if (nodep->isDelayed()
-            && (!VN_IS(m_procp, NodeProcedure) || !VN_IS(nodep->operandp(), VarRef))) {
-            v3Global.setUsesTiming();
+    శూన్య సందర్శించు(AstFireEvent* nodep) override {
+        ఒకవేళ (nodep->isDelayed()
+            && (!VN_IS(m_procp, కణుపు_Procedure) || !VN_IS(nodep->operandp(), VarRef))) {
+            v3Global.సమితి_ఉపయోగిస్తుంది_Timing();
         }
-        visit(static_cast<AstNode*>(nodep));
+        సందర్శించు(static_cast<Ast_కణుపు*>(nodep));
     }
-    void visit(AstAssignW* nodep) override {
-        if (nodep->timingControlp()) v3Global.setUsesTiming();
+    శూన్య సందర్శించు(Ast_కేటాయించు_W* nodep) override {
+        ఒకవేళ (nodep->timingControlp()) v3Global.సమితి_ఉపయోగిస్తుంది_Timing();
         // Containing process will not suspend, don't mark it
     }
-    void visit(AstNode* nodep) override {
-        if (nodep->isTimingControl()) {
-            v3Global.setUsesTiming();
-            if (m_procp) addFlags(m_procp, T_SUSPENDEE | T_SUSPENDER | T_NEEDS_PROC);
+    శూన్య సందర్శించు(Ast_కణుపు* nodep) override {
+        ఒకవేళ (nodep->isTimingControl()) {
+            v3Global.సమితి_ఉపయోగిస్తుంది_Timing();
+            ఒకవేళ (m_procp) కూడు_Flags(m_procp, T_SUSPENDEE | T_SUSPENDER | T_NEEDS_PROC);
         }
         iterateChildren(nodep);
     }
 
     //--------------------
-    void visit(AstVar*) override {}  // Accelerate
+    శూన్య సందర్శించు(AstVar*) override {}  // Accelerate
 
-public:
+బహిరంగ:
     // CONSTRUCTORS
-    explicit TimingSuspendableVisitor(AstNetlist* nodep) {
+    స్పష్టమైన TimingSuspendableVisitor(AstNetlist* nodep) {
         iterate(nodep);
-        m_suspGraph.removeTransitiveEdges();
-        m_procGraph.removeTransitiveEdges();
+        m_susp_లేఖాచిత్రం.remove_సంక్రమణ_అంచులు();
+        m_proc_లేఖాచిత్రం.remove_సంక్రమణ_అంచులు();
         // Propagate suspendability
-        for (V3GraphVertex& vtx : m_suspGraph.vertices()) {
+        కొరకు (V3_లేఖాచిత్రం_శీర్షం& vtx : m_susp_లేఖాచిత్రం.vertices()) {
             DepVtx& depVtx = static_cast<DepVtx&>(vtx);
-            if (hasFlags(depVtx.nodep(), T_SUSPENDEE)) propagateFlags(&depVtx, T_SUSPENDEE);
+            ఒకవేళ (hasFlags(depVtx.nodep(), T_SUSPENDEE)) propagateFlags(&depVtx, T_SUSPENDEE);
         }
-        if (dumpGraphLevel() >= 6) m_suspGraph.dumpDotFilePrefixed("timing_deps");
+        ఒకవేళ (dump_లేఖాచిత్రం_Level() >= 6) m_susp_లేఖాచిత్రం.dumpDotFilePrefixed("timing_deps");
 
         // Propagate T_HAS_PROCESS
-        for (V3GraphVertex& vtx : m_procGraph.vertices()) {
+        కొరకు (V3_లేఖాచిత్రం_శీర్షం& vtx : m_proc_లేఖాచిత్రం.vertices()) {
             DepVtx& depVtx = static_cast<DepVtx&>(vtx);
             // Find processes that'll allocate VlProcess
-            if (hasFlags(depVtx.nodep(), T_FORCES_PROC)) {
-                propagateFlagsIf(&depVtx, T_FORCES_PROC, [&](const V3GraphEdge* e) -> bool {
-                    return !hasFlags(static_cast<DepVtx*>(e->fromp())->nodep(), T_ALLOCS_PROC);
+            ఒకవేళ (hasFlags(depVtx.nodep(), T_FORCES_PROC)) {
+                propagateFlagsIf(&depVtx, T_FORCES_PROC, [&](స్థిరరాశి V3_లేఖాచిత్రం_అంచు* e) -> తార్కిక {
+                    తిరిగి !hasFlags(static_cast<DepVtx*>(e->fromp())->nodep(), T_ALLOCS_PROC);
                 });
             }
             // Mark nodes on paths between processes and statements that use VlProcess
-            if (hasFlags(depVtx.nodep(), T_NEEDS_PROC)) {
-                propagateFlagsIf(&depVtx, T_NEEDS_PROC, [&](const V3GraphEdge* e) -> bool {
-                    return !hasFlags(static_cast<DepVtx*>(e->top())->nodep(), T_ALLOCS_PROC);
+            ఒకవేళ (hasFlags(depVtx.nodep(), T_NEEDS_PROC)) {
+                propagateFlagsIf(&depVtx, T_NEEDS_PROC, [&](స్థిరరాశి V3_లేఖాచిత్రం_అంచు* e) -> తార్కిక {
+                    తిరిగి !hasFlags(static_cast<DepVtx*>(e->శిఖరం())->nodep(), T_ALLOCS_PROC);
                 });
             }
         }
-        for (V3GraphVertex& vtx : m_procGraph.vertices()) {
+        కొరకు (V3_లేఖాచిత్రం_శీర్షం& vtx : m_proc_లేఖాచిత్రం.vertices()) {
             DepVtx& depVtx = static_cast<DepVtx&>(vtx);
             // Mark nodes that will be emitted with a VlProcess argument
-            if (hasFlags(depVtx.nodep(), T_ALLOCS_PROC | T_FORCES_PROC)) {
-                addFlags(depVtx.nodep(), T_HAS_PROC);
-                propagateFlagsReversedIf(&depVtx, T_HAS_PROC, [&](const V3GraphEdge* e) -> bool {
-                    return hasFlags(static_cast<DepVtx*>(e->fromp())->nodep(), T_NEEDS_PROC);
+            ఒకవేళ (hasFlags(depVtx.nodep(), T_ALLOCS_PROC | T_FORCES_PROC)) {
+                కూడు_Flags(depVtx.nodep(), T_HAS_PROC);
+                propagateFlagsReversedIf(&depVtx, T_HAS_PROC, [&](స్థిరరాశి V3_లేఖాచిత్రం_అంచు* e) -> తార్కిక {
+                    తిరిగి hasFlags(static_cast<DepVtx*>(e->fromp())->nodep(), T_NEEDS_PROC);
                 });
             }
         }
-        if (dumpGraphLevel() >= 6) m_procGraph.dumpDotFilePrefixed("proc_deps");
+        ఒకవేళ (dump_లేఖాచిత్రం_Level() >= 6) m_proc_లేఖాచిత్రం.dumpDotFilePrefixed("proc_deps");
     }
-    ~TimingSuspendableVisitor() override = default;
+    ~TimingSuspendableVisitor() override = అప్రమేయ;
 };
 
 // ######################################################################
 //  Transform nodes affected by timing
 
-class TimingControlVisitor final : public VNVisitor {
+తరగతి TimingControlVisitor final : బహిరంగ VNVisitor {
     // NODE STATE
     //  Ast{Always,NodeCCall,Fork,NodeAssign}::user1()  -> bool.         Set true if the node has
     //                                                                   been processed.
@@ -480,280 +480,280 @@ class TimingControlVisitor final : public VNVisitor {
 
     // STATE
     // Current context
-    AstNetlist* const m_netlistp;  // Root node
-    AstTopScope* const m_topScopep = m_netlistp->topScopep();  // The AstTopScope
-    AstScope* const m_scopeTopp = m_topScopep->scopep();  // Scope at the top
-    AstClass* m_classp = nullptr;  // Current class
-    AstScope* m_scopep = nullptr;  // Current scope
-    AstActive* m_activep = nullptr;  // Current active
-    AstNode* m_procp = nullptr;  // NodeProcedure/CFunc/Begin we're under
-    bool m_hasProcess = false;  // True if current scope has a VlProcess handle available
-    int m_forkCnt = 0;  // Number of forks inside a module
-    bool m_underJumpBlock = false;  // True if we are inside of a jump-block
-    bool m_underProcedure = false;  // True if we are under an always or initial
-    bool m_underIfaceCFunc = false;  // True if we are under a CFunc owned by an interface scope
-    bool m_hasStaticZeroDelay = false;  // True if we have a static #0 delay
-    std::vector<FileLine*> m_unknownDelayFlps;  // Locations of AstDelay with non-constant value
+    AstNetlist* స్థిరరాశి m_netlistp;  // Root node
+    Ast_శిఖరం_Scope* స్థిరరాశి m_శిఖరం_Scopep = m_netlistp->శిఖరం_Scopep();  // The AstTopScope
+    AstScope* స్థిరరాశి m_scopeTopp = m_శిఖరం_Scopep->scopep();  // Scope at the top
+    AstClass* m_classp = శూన్యసూచిక;  // Current class
+    AstScope* m_scopep = శూన్యసూచిక;  // Current scope
+    Ast_చురుకైన* m_activep = శూన్యసూచిక;  // Current active
+    Ast_కణుపు* m_procp = శూన్యసూచిక;  // NodeProcedure/CFunc/Begin we're under
+    తార్కిక m_hasProcess = అబద్ధం;  // True if current scope has a VlProcess handle available
+    పూర్ణాంకం m_forkCnt = 0;  // Number of forks inside a module
+    తార్కిక m_under_Jump_ఖండం = అబద్ధం;  // True if we are inside of a jump-block
+    తార్కిక m_underProcedure = అబద్ధం;  // True if we are under an always or initial
+    తార్కిక m_underIfaceCFunc = అబద్ధం;  // True if we are under a CFunc owned by an interface scope
+    తార్కిక m_hasStaticZeroDelay = అబద్ధం;  // True if we have a static #0 delay
+    std::సదిశ<File_పంక్తి*> m_unknownDelayFlps;  // Locations of AstDelay with non-constant value
 
     // Unique names
-    V3UniqueNames m_dlyforkNames{"__Vdlyfork"};  // Names for temp AssignW vars
-    V3UniqueNames m_intraValueNames{"__Vintraval"};  // Intra assign delay value var names
-    V3UniqueNames m_intraIndexNames{"__Vintraidx"};  // Intra assign delay index var names
-    V3UniqueNames m_intraLsbNames{"__Vintralsb"};  // Intra assign delay LSB var names
-    V3UniqueNames m_trigSchedNames{"__VtrigSched"};  // Trigger scheduler name generator
-    V3UniqueNames m_dynTrigNames{"__VdynTrigger"};  // Dynamic trigger name generator
+    V3_Unique_పేర్లు m_dlyfork_పేర్లు{"__Vdlyfork"};  // Names for temp AssignW vars
+    V3_Unique_పేర్లు m_intra_విలువ_పేర్లు{"__Vintraval"};  // Intra assign delay value var names
+    V3_Unique_పేర్లు m_intra_సూచీ_పేర్లు{"__Vintraidx"};  // Intra assign delay index var names
+    V3_Unique_పేర్లు m_intra_Lsb_పేర్లు{"__Vintralsb"};  // Intra assign delay LSB var names
+    V3_Unique_పేర్లు m_trig_Sched_పేర్లు{"__VtrigSched"};  // Trigger scheduler name generator
+    V3_Unique_పేర్లు m_dyn_Trig_పేర్లు{"__VdynTrigger"};  // Dynamic trigger name generator
     // Module level temporary variables, shared by instances
-    V3SharedTmps m_assignWTmps{"__VassignWtmp", VVarType::MODULETEMP};  // Delayed AssignW values
-    V3SharedTmps m_assignWGens{"__VassignWgen", VVarType::MODULETEMP};  // AssignW generations
+    V3SharedTmps m_కేటాయించు_WTmps{"__VassignWtmp", VVarType::MODULETEMP};  // Delayed AssignW values
+    V3SharedTmps m_కేటాయించు_WGens{"__VassignWgen", VVarType::MODULETEMP};  // AssignW generations
 
     // DTypes
-    AstBasicDType* m_forkDtp = nullptr;  // Fork variable type
-    AstBasicDType* m_trigSchedDtp = nullptr;  // Trigger scheduler type
+    AstBasicDType* m_forkDtp = శూన్యసూచిక;  // Fork variable type
+    AstBasicDType* m_trigSchedDtp = శూన్యసూచిక;  // Trigger scheduler type
 
     // Timing-related globals
-    AstVarScope* m_delaySchedp = nullptr;  // Global delay scheduler
-    AstVarScope* m_dynamicSchedp = nullptr;  // Global dynamic trigger scheduler
-    AstSenTree* m_delaySensesp = nullptr;  // Domain to trigger if a delayed coroutine is resumed
-    AstSenTree* m_dynamicSensesp = nullptr;  // Domain to trigger if a dynamic trigger is set
+    AstVarScope* m_delaySchedp = శూన్యసూచిక;  // Global delay scheduler
+    AstVarScope* m_dynamicSchedp = శూన్యసూచిక;  // Global dynamic trigger scheduler
+    Ast_Sen_వృక్షం* m_delaySensesp = శూన్యసూచిక;  // Domain to trigger if a delayed coroutine is resumed
+    Ast_Sen_వృక్షం* m_dynamicSensesp = శూన్యసూచిక;  // Domain to trigger if a dynamic trigger is set
 
     // Other
-    SenTreeFinder m_finder{m_netlistp};  // Sentree finder and uniquifier
-    SenExprBuilder* m_senExprBuilderp = nullptr;  // Sens expression builder for current m_scope
+    Sen_వృక్షం_Finder m_finder{m_netlistp};  // Sentree finder and uniquifier
+    Sen_సమాసం_Builder* m_sen_సమాసం_Builderp = శూన్యసూచిక;  // Sens expression builder for current m_scope
 
     // Stats
-    size_t m_statZeroDelays = 0;  // Number of statically known #0 delays
-    size_t m_statConstDelays = 0;  // Number of statically known #const (non-zero) delays
-    size_t m_statVariableDelays = 0;  // Number of delays with value unknown at compile time
+    కొలత_t m_statZeroDelays = 0;  // Number of statically known #0 delays
+    కొలత_t m_statConstDelays = 0;  // Number of statically known #const (non-zero) delays
+    కొలత_t m_statVariableDelays = 0;  // Number of delays with value unknown at compile time
 
     // METHODS
     // Transform an assignment with an intra timing control into a timing control with the
     // assignment under it
-    AstNode* factorOutTimingControl(AstNodeAssign* nodep) const {
-        AstNode* stmtp = nodep;
-        AstNode* const controlp = nodep->timingControlp();
-        if (AstDelay* const delayp = VN_CAST(controlp, Delay)) {
-            stmtp->replaceWith(delayp->unlinkFrBack());
-            delayp->addStmtsp(stmtp);
+    Ast_కణుపు* గుణకం_బహిర్గతం_Timing_Control(Ast_కణుపు_కేటాయించు* nodep) స్థిరరాశి {
+        Ast_కణుపు* stmtp = nodep;
+        Ast_కణుపు* స్థిరరాశి controlp = nodep->timingControlp();
+        ఒకవేళ (AstDelay* స్థిరరాశి delayp = VN_CAST(controlp, Delay)) {
+            stmtp->replaceWith(delayp->unlink_Fr_వెనుక());
+            delayp->కూడు_Stmtsp(stmtp);
             stmtp = delayp;
-        } else if (AstSenTree* const sentreep = VN_CAST(controlp, SenTree)) {
-            AstEventControl* const eventControlp
-                = new AstEventControl{sentreep->fileline(), sentreep->unlinkFrBack(), nullptr};
+        } లేకపోతే ఒకవేళ (Ast_Sen_వృక్షం* స్థిరరాశి sentreep = VN_CAST(controlp, Sen_వృక్షం)) {
+            AstEventControl* స్థిరరాశి eventControlp
+                = కొత్త AstEventControl{sentreep->fileline(), sentreep->unlink_Fr_వెనుక(), శూన్యసూచిక};
             stmtp->replaceWith(eventControlp);
-            eventControlp->addStmtsp(stmtp);
+            eventControlp->కూడు_Stmtsp(stmtp);
             stmtp = eventControlp;
-        } else if (AstBegin* const beginp = VN_CAST(controlp, Begin)) {
+        } లేకపోతే ఒకవేళ (AstBegin* స్థిరరాశి beginp = VN_CAST(controlp, Begin)) {
             // Begin from V3AssertPre
-            stmtp->replaceWith(beginp->unlinkFrBack());
-            beginp->addStmtsp(stmtp);
+            stmtp->replaceWith(beginp->unlink_Fr_వెనుక());
+            beginp->కూడు_Stmtsp(stmtp);
             stmtp = beginp;
         }
-        return stmtp == nodep ? nullptr : stmtp;
+        తిరిగి stmtp == nodep ? శూన్యసూచిక : stmtp;
     }
-    static bool staticallyNonZeroDelay(const AstNodeExpr* valuep) {
-        if (const AstConst* const constp = VN_CAST(valuep, Const)) return !constp->isZero();
-        if (const AstCond* const condp = VN_CAST(valuep, Cond)) {
-            return staticallyNonZeroDelay(condp->thenp())
+    స్థిర తార్కిక staticallyNonZeroDelay(స్థిరరాశి Ast_కణుపు_సమాసం* valuep) {
+        ఒకవేళ (స్థిరరాశి AstConst* స్థిరరాశి constp = VN_CAST(valuep, Const)) తిరిగి !constp->isZero();
+        ఒకవేళ (స్థిరరాశి AstCond* స్థిరరాశి condp = VN_CAST(valuep, Cond)) {
+            తిరిగి staticallyNonZeroDelay(condp->thenp())
                    && staticallyNonZeroDelay(condp->elsep());
         }
-        if (const AstMul* const mulp = VN_CAST(valuep, Mul)) {
-            const AstConst* const lhsConstp = VN_CAST(mulp->lhsp(), Const);
-            const AstConst* const rhsConstp = VN_CAST(mulp->rhsp(), Const);
-            if (lhsConstp && !lhsConstp->isZero()) return staticallyNonZeroDelay(mulp->rhsp());
-            if (rhsConstp && !rhsConstp->isZero()) return staticallyNonZeroDelay(mulp->lhsp());
+        ఒకవేళ (స్థిరరాశి AstMul* స్థిరరాశి mulp = VN_CAST(valuep, Mul)) {
+            స్థిరరాశి AstConst* స్థిరరాశి lhsConstp = VN_CAST(mulp->lhsp(), Const);
+            స్థిరరాశి AstConst* స్థిరరాశి rhsConstp = VN_CAST(mulp->rhsp(), Const);
+            ఒకవేళ (lhsConstp && !lhsConstp->isZero()) తిరిగి staticallyNonZeroDelay(mulp->rhsp());
+            ఒకవేళ (rhsConstp && !rhsConstp->isZero()) తిరిగి staticallyNonZeroDelay(mulp->lhsp());
         }
-        return false;
+        తిరిగి అబద్ధం;
     }
     // Creates the global delay scheduler variable
     AstVarScope* getCreateDelayScheduler() {
-        if (m_delaySchedp) return m_delaySchedp;
-        auto* const dlySchedDtp = new AstBasicDType{
+        ఒకవేళ (m_delaySchedp) తిరిగి m_delaySchedp;
+        స్వయంచాలక* స్థిరరాశి dlySchedDtp = కొత్త AstBasicDType{
             m_scopeTopp->fileline(), VBasicDTypeKwd::DELAY_SCHEDULER, VSigning::UNSIGNED};
-        m_netlistp->typeTablep()->addTypesp(dlySchedDtp);
-        m_delaySchedp = m_topScopep->createTemp("__VdlySched", dlySchedDtp);
+        m_netlistp->typeTablep()->కూడు_Typesp(dlySchedDtp);
+        m_delaySchedp = m_శిఖరం_Scopep->create_తాత్కాలిక("__VdlySched", dlySchedDtp);
         // Delay scheduler has to be accessible from top
-        m_delaySchedp->varp()->sigPublic(true);
+        m_delaySchedp->varp()->sig_ప్రజా(నిజం);
         m_netlistp->delaySchedulerp(m_delaySchedp->varp());
-        return m_delaySchedp;
+        తిరిగి m_delaySchedp;
     }
     // Creates the delay sentree
-    AstSenTree* getCreateDelaySenTree() {
-        if (m_delaySensesp) return m_delaySensesp;
-        FileLine* const flp = m_scopeTopp->fileline();
-        auto* const awaitingCurrentTimep
-            = new AstCMethodHard{flp, new AstVarRef{flp, getCreateDelayScheduler(), VAccess::READ},
-                                 VCMethod::SCHED_AWAITING_CURRENT_TIME};
-        awaitingCurrentTimep->dtypeSetBit();
+    Ast_Sen_వృక్షం* get_Create_Delay_Sen_వృక్షం() {
+        ఒకవేళ (m_delaySensesp) తిరిగి m_delaySensesp;
+        File_పంక్తి* స్థిరరాశి flp = m_scopeTopp->fileline();
+        స్వయంచాలక* స్థిరరాశి awaitingCurrentTimep
+            = కొత్త AstCMethodHard{flp, కొత్త AstVarRef{flp, getCreateDelayScheduler(), VAccess::READ},
+                                 VCMethod::SCHED_AWAITING_CURRENT_సమయం};
+        awaitingCurrentTimep->dtype_సమితి_బిట్టు();
         m_delaySensesp
-            = new AstSenTree{flp, new AstSenItem{flp, VEdgeType::ET_TRUE, awaitingCurrentTimep}};
-        m_netlistp->topScopep()->addSenTreesp(m_delaySensesp);
-        return m_delaySensesp;
+            = కొత్త Ast_Sen_వృక్షం{flp, కొత్త Ast_Sen_అంశం{flp, VEdgeType::ET_TRUE, awaitingCurrentTimep}};
+        m_netlistp->శిఖరం_Scopep()->కూడు_Sen_Treesp(m_delaySensesp);
+        తిరిగి m_delaySensesp;
     }
     // Creates the global dynamic trigger scheduler variable
     AstVarScope* getCreateDynamicTriggerScheduler() {
-        if (m_dynamicSchedp) return m_dynamicSchedp;
-        auto* const dynSchedDtp
-            = new AstBasicDType{m_scopeTopp->fileline(), VBasicDTypeKwd::DYNAMIC_TRIGGER_SCHEDULER,
+        ఒకవేళ (m_dynamicSchedp) తిరిగి m_dynamicSchedp;
+        స్వయంచాలక* స్థిరరాశి dynSchedDtp
+            = కొత్త AstBasicDType{m_scopeTopp->fileline(), VBasicDTypeKwd::DYNAMIC_TRIGGER_SCHEDULER,
                                 VSigning::UNSIGNED};
-        m_netlistp->typeTablep()->addTypesp(dynSchedDtp);
-        m_dynamicSchedp = m_topScopep->createTemp("__VdynSched", dynSchedDtp);
-        return m_dynamicSchedp;
+        m_netlistp->typeTablep()->కూడు_Typesp(dynSchedDtp);
+        m_dynamicSchedp = m_శిఖరం_Scopep->create_తాత్కాలిక("__VdynSched", dynSchedDtp);
+        తిరిగి m_dynamicSchedp;
     }
     // Creates the dynamic trigger sentree
-    AstSenTree* getCreateDynamicTriggerSenTree() {
-        if (m_dynamicSensesp) return m_dynamicSensesp;
-        FileLine* const flp = m_scopeTopp->fileline();
-        auto* const awaitingCurrentTimep = new AstCMethodHard{
-            flp, new AstVarRef{flp, getCreateDynamicTriggerScheduler(), VAccess::READ},
+    Ast_Sen_వృక్షం* get_Create_Dynamic_Trigger_Sen_వృక్షం() {
+        ఒకవేళ (m_dynamicSensesp) తిరిగి m_dynamicSensesp;
+        File_పంక్తి* స్థిరరాశి flp = m_scopeTopp->fileline();
+        స్వయంచాలక* స్థిరరాశి awaitingCurrentTimep = కొత్త AstCMethodHard{
+            flp, కొత్త AstVarRef{flp, getCreateDynamicTriggerScheduler(), VAccess::READ},
             VCMethod::SCHED_EVALUATE};
-        awaitingCurrentTimep->dtypeSetBit();
+        awaitingCurrentTimep->dtype_సమితి_బిట్టు();
         m_dynamicSensesp
-            = new AstSenTree{flp, new AstSenItem{flp, VEdgeType::ET_TRUE, awaitingCurrentTimep}};
-        m_netlistp->topScopep()->addSenTreesp(m_dynamicSensesp);
-        return m_dynamicSensesp;
+            = కొత్త Ast_Sen_వృక్షం{flp, కొత్త Ast_Sen_అంశం{flp, VEdgeType::ET_TRUE, awaitingCurrentTimep}};
+        m_netlistp->శిఖరం_Scopep()->కూడు_Sen_Treesp(m_dynamicSensesp);
+        తిరిగి m_dynamicSensesp;
     }
     // Creates the event variable to trigger in NBA region
-    AstEventControl* createNbaEventControl(FileLine* flp) {
-        if (!m_netlistp->nbaEventp()) {
-            auto* const nbaEventDtp = new AstBasicDType{m_scopeTopp->fileline(),
+    AstEventControl* createNbaEventControl(File_పంక్తి* flp) {
+        ఒకవేళ (!m_netlistp->nbaEventp()) {
+            స్వయంచాలక* స్థిరరాశి nbaEventDtp = కొత్త AstBasicDType{m_scopeTopp->fileline(),
                                                         VBasicDTypeKwd::EVENT, VSigning::UNSIGNED};
-            m_netlistp->typeTablep()->addTypesp(nbaEventDtp);
-            m_netlistp->nbaEventp(m_topScopep->createTemp("__VnbaEvent", nbaEventDtp));
-            v3Global.setHasEvents();
+            m_netlistp->typeTablep()->కూడు_Typesp(nbaEventDtp);
+            m_netlistp->nbaEventp(m_శిఖరం_Scopep->create_తాత్కాలిక("__VnbaEvent", nbaEventDtp));
+            v3Global.సమితి_Has_Events();
         }
-        return new AstEventControl{
+        తిరిగి కొత్త AstEventControl{
             flp,
-            new AstSenTree{
-                flp, new AstSenItem{flp, VEdgeType::ET_EVENT,
-                                    new AstVarRef{flp, m_netlistp->nbaEventp(), VAccess::READ}}},
-            nullptr};
+            కొత్త Ast_Sen_వృక్షం{
+                flp, కొత్త Ast_Sen_అంశం{flp, VEdgeType::ET_EVENT,
+                                    కొత్త AstVarRef{flp, m_netlistp->nbaEventp(), VAccess::READ}}},
+            శూన్యసూచిక};
     }
     // Creates the variable that, if set, causes the NBA event to be triggered
-    AstAssign* createNbaEventTriggerAssignment(FileLine* flp) {
-        if (!m_netlistp->nbaEventTriggerp()) {
-            m_netlistp->nbaEventTriggerp(m_topScopep->createTemp("__VnbaEventTrigger", 1));
+    Ast_కేటాయించు* createNbaEventTriggerAssignment(File_పంక్తి* flp) {
+        ఒకవేళ (!m_netlistp->nbaEventTriggerp()) {
+            m_netlistp->nbaEventTriggerp(m_శిఖరం_Scopep->create_తాత్కాలిక("__VnbaEventTrigger", 1));
         }
-        return new AstAssign{flp,
-                             new AstVarRef{flp, m_netlistp->nbaEventTriggerp(), VAccess::WRITE},
-                             new AstConst{flp, AstConst::BitTrue{}}};
+        తిరిగి కొత్త Ast_కేటాయించు{flp,
+                             కొత్త AstVarRef{flp, m_netlistp->nbaEventTriggerp(), VAccess::WRITE},
+                             కొత్త AstConst{flp, AstConst::బిట్టు_True{}}};
     }
     // Returns true if we are under a class or interface function, or the tree references locals.
     // These are cases where static, globally-evaluated triggers are not suitable.
-    bool needDynamicTrigger(AstNode* const nodep) const {
-        return m_classp || m_underIfaceCFunc || nodep->exists([](AstNode* const nodep) {
-            if (AstNodeVarRef* varp = VN_CAST(nodep, NodeVarRef)) {
-                return varp->varp()->isFuncLocal();
+    తార్కిక needDynamicTrigger(Ast_కణుపు* స్థిరరాశి nodep) స్థిరరాశి {
+        తిరిగి m_classp || m_underIfaceCFunc || nodep->exists([](Ast_కణుపు* స్థిరరాశి nodep) {
+            ఒకవేళ (Ast_కణుపు_Var_Ref* varp = VN_CAST(nodep, కణుపు_Var_Ref)) {
+                తిరిగి varp->varp()->isFuncLocal();
             }
-            return !nodep->isPure();
+            తిరిగి !nodep->is_శుద్ధ();
         });
     }
     // Creates a trigger scheduler variable
-    AstVarScope* getCreateTriggerSchedulerp(AstSenTree* const sentreep) {
-        if (!sentreep->user1p()) {
-            if (!m_trigSchedDtp) {
+    AstVarScope* getCreateTriggerSchedulerp(Ast_Sen_వృక్షం* స్థిరరాశి sentreep) {
+        ఒకవేళ (!sentreep->user1p()) {
+            ఒకవేళ (!m_trigSchedDtp) {
                 m_trigSchedDtp
-                    = new AstBasicDType{m_scopeTopp->fileline(), VBasicDTypeKwd::TRIGGER_SCHEDULER,
+                    = కొత్త AstBasicDType{m_scopeTopp->fileline(), VBasicDTypeKwd::TRIGGER_SCHEDULER,
                                         VSigning::UNSIGNED};
-                m_netlistp->typeTablep()->addTypesp(m_trigSchedDtp);
+                m_netlistp->typeTablep()->కూడు_Typesp(m_trigSchedDtp);
             }
-            AstVarScope* const trigSchedp
-                = m_topScopep->createTemp(m_trigSchedNames.get(sentreep), m_trigSchedDtp);
+            AstVarScope* స్థిరరాశి trigSchedp
+                = m_శిఖరం_Scopep->create_తాత్కాలిక(m_trig_Sched_పేర్లు.get(sentreep), m_trigSchedDtp);
             sentreep->user1p(trigSchedp);
         }
-        return VN_AS(sentreep->user1p(), VarScope);
+        తిరిగి VN_AS(sentreep->user1p(), VarScope);
     }
     // Creates a string describing the sentree
-    AstCExpr* createEventDescription(AstSenTree* const sentreep) const {
-        if (!sentreep->user2p()) {
+    AstCExpr* createEventDescription(Ast_Sen_వృక్షం* స్థిరరాశి sentreep) స్థిరరాశి {
+        ఒకవేళ (!sentreep->user2p()) {
             std::stringstream ss;
-            V3EmitV::verilogForTree(sentreep, ss);
+            V3EmitV::verilog_For_వృక్షం(sentreep, ss);
             // possibly a multiline string
             // Names were hashed by V3Name, show the user the original text
             std::string comment = VName::dehash(ss.str());
-            std::replace(comment.begin(), comment.end(), '\n', ' ');
+            std::replace(comment.begin(), comment.చివర(), '\n', ' ');
             // Escape quotes, e.g. from string-indexed event array selects
-            comment = '"' + V3OutFormatter::quoteNameControls(comment) + '"';
-            AstCExpr* const commentp = new AstCExpr{sentreep->fileline(), comment};
-            commentp->dtypeSetString();
+            comment = '"' + V3_బహిర్గతం_Formatter::quoteNameControls(comment) + '"';
+            AstCExpr* స్థిరరాశి commentp = కొత్త AstCExpr{sentreep->fileline(), comment};
+            commentp->dtype_సమితి_String();
             sentreep->user2p(commentp);
-            return commentp;
+            తిరిగి commentp;
         }
-        return VN_AS(sentreep->user2p(), CExpr)->cloneTree(false);
+        తిరిగి VN_AS(sentreep->user2p(), CExpr)->clone_వృక్షం(అబద్ధం);
     }
     // Adds debug info to a hardcoded method call
-    void addDebugInfo(AstCMethodHard* const methodp) const {
-        FileLine* const flp = methodp->fileline();
-        const bool protectIds = v3Global.opt.protectIds();
-        AstCExpr* const ap
-            = new AstCExpr{flp, protectIds ? "VL_UNKNOWN" : '"' + flp->filenameEsc() + '"'};
-        ap->dtypeSetString();
-        methodp->addPinsp(ap);
-        AstCExpr* const bp = new AstCExpr{flp, protectIds ? "0" : cvtToStr(flp->lineno())};
-        bp->dtypeSetString();
-        methodp->addPinsp(bp);
+    శూన్య కూడు_Debug_Info(AstCMethodHard* స్థిరరాశి methodp) స్థిరరాశి {
+        File_పంక్తి* స్థిరరాశి flp = methodp->fileline();
+        స్థిరరాశి తార్కిక protectIds = v3Global.opt.protectIds();
+        AstCExpr* స్థిరరాశి ap
+            = కొత్త AstCExpr{flp, protectIds ? "VL_UNKNOWN" : '"' + flp->filenameEsc() + '"'};
+        ap->dtype_సమితి_String();
+        methodp->కూడు_Pinsp(ap);
+        AstCExpr* స్థిరరాశి bp = కొత్త AstCExpr{flp, protectIds ? "0" : cvt_గమ్యం_Str(flp->lineno())};
+        bp->dtype_సమితి_String();
+        methodp->కూడు_Pinsp(bp);
     }
     // Adds debug info to a trigSched.trigger() call
-    void addEventDebugInfo(AstCMethodHard* const methodp, AstSenTree* const sentreep) const {
-        if (v3Global.opt.protectIds()) {
-            FileLine* const flp = sentreep->fileline();
-            AstCExpr* const descp = new AstCExpr{flp, "VL_UNKNOWN"};
-            descp->dtypeSetString();
-            methodp->addPinsp(descp);
-            addDebugInfo(methodp);
-            return;
+    శూన్య కూడు_Event_Debug_Info(AstCMethodHard* స్థిరరాశి methodp, Ast_Sen_వృక్షం* స్థిరరాశి sentreep) స్థిరరాశి {
+        ఒకవేళ (v3Global.opt.protectIds()) {
+            File_పంక్తి* స్థిరరాశి flp = sentreep->fileline();
+            AstCExpr* స్థిరరాశి descp = కొత్త AstCExpr{flp, "VL_UNKNOWN"};
+            descp->dtype_సమితి_String();
+            methodp->కూడు_Pinsp(descp);
+            కూడు_Debug_Info(methodp);
+            తిరిగి;
         }
-        methodp->addPinsp(createEventDescription(sentreep));
-        addDebugInfo(methodp);
+        methodp->కూడు_Pinsp(createEventDescription(sentreep));
+        కూడు_Debug_Info(methodp);
     }
     // Adds process pointer to a hardcoded method call
-    void addProcessInfo(AstCMethodHard* const methodp) const {
-        FileLine* const flp = methodp->fileline();
-        AstCExpr* const ap
-            = new AstCExpr{flp, (m_procp && m_hasProcess) ? "vlProcess" : "nullptr"};
-        methodp->addPinsp(ap);
+    శూన్య కూడు_Process_Info(AstCMethodHard* స్థిరరాశి methodp) స్థిరరాశి {
+        File_పంక్తి* స్థిరరాశి flp = methodp->fileline();
+        AstCExpr* స్థిరరాశి ap
+            = కొత్త AstCExpr{flp, (m_procp && m_hasProcess) ? "vlProcess" : "nullptr"};
+        methodp->కూడు_Pinsp(ap);
     }
     // Creates the fork handle type and returns it
     AstBasicDType* getCreateForkSyncDTypep() {
-        if (m_forkDtp) return m_forkDtp;
-        m_forkDtp = new AstBasicDType{m_scopeTopp->fileline(), VBasicDTypeKwd::FORK_SYNC,
+        ఒకవేళ (m_forkDtp) తిరిగి m_forkDtp;
+        m_forkDtp = కొత్త AstBasicDType{m_scopeTopp->fileline(), VBasicDTypeKwd::FORK_SYNC,
                                       VSigning::UNSIGNED};
-        m_netlistp->typeTablep()->addTypesp(m_forkDtp);
-        return m_forkDtp;
+        m_netlistp->typeTablep()->కూడు_Typesp(m_forkDtp);
+        తిరిగి m_forkDtp;
     }
     // Move `nodep` into `AstCLocalScope`.
-    AstCLocalScope* addCLocalScope(FileLine* const flp, AstNode* const nodep) const {
-        if (!nodep) return nullptr;
+    AstCLocalScope* కూడు_CLocal_Scope(File_పంక్తి* స్థిరరాశి flp, Ast_కణుపు* స్థిరరాశి nodep) స్థిరరాశి {
+        ఒకవేళ (!nodep) తిరిగి శూన్యసూచిక;
         VNRelinker handle;
-        nodep->unlinkFrBack(&handle);
-        AstCLocalScope* const cscopep = new AstCLocalScope{flp, nodep};
+        nodep->unlink_Fr_వెనుక(&handle);
+        AstCLocalScope* స్థిరరాశి cscopep = కొత్త AstCLocalScope{flp, nodep};
         handle.relink(cscopep);
-        return cscopep;
+        తిరిగి cscopep;
     }
     // Create a temp variable and optionally put it before the specified node (mark local if so)
-    AstVarScope* createTemp(FileLine* const flp, const std::string& name,
-                            AstNodeDType* const dtypep, AstNode* const insertBeforep = nullptr) {
+    AstVarScope* create_తాత్కాలిక(File_పంక్తి* స్థిరరాశి flp, స్థిరరాశి std::string& name,
+                            Ast_కణుపు_DType* స్థిరరాశి dtypep, Ast_కణుపు* స్థిరరాశి చొప్పించు_Beforep = శూన్యసూచిక) {
         AstVar* varp;
-        if (insertBeforep) {
-            varp = new AstVar{flp, VVarType::BLOCKTEMP, name, dtypep};
-            varp->funcLocal(true);
-            insertBeforep->addHereThisAsNext(varp);
-        } else {
-            varp = new AstVar{flp, VVarType::MODULETEMP, name, dtypep};
-            m_scopep->modp()->addStmtsp(varp);
+        ఒకవేళ (చొప్పించు_Beforep) {
+            varp = కొత్త AstVar{flp, VVarType::BLOCKTEMP, name, dtypep};
+            varp->funcLocal(నిజం);
+            చొప్పించు_Beforep->కూడు_ఇక్కడ_This_As_తదుపరి(varp);
+        } లేకపోతే {
+            varp = కొత్త AstVar{flp, VVarType::MODULETEMP, name, dtypep};
+            m_scopep->modp()->కూడు_Stmtsp(varp);
         }
-        AstVarScope* const vscp = new AstVarScope{flp, m_scopep, varp};
-        m_scopep->addVarsp(vscp);
-        return vscp;
+        AstVarScope* స్థిరరాశి vscp = కొత్త AstVarScope{flp, m_scopep, varp};
+        m_scopep->కూడు_Varsp(vscp);
+        తిరిగి vscp;
     }
     // Add a done() call on the fork sync
-    void addForkDone(AstBegin* const beginp, AstVarScope* const forkVscp) const {
-        FileLine* const flp = beginp->fileline();
-        auto* const donep = new AstCMethodHard{
-            beginp->fileline(), new AstVarRef{flp, forkVscp, VAccess::WRITE}, VCMethod::FORK_DONE};
-        donep->dtypeSetVoid();
-        addDebugInfo(donep);
-        beginp->addStmtsp(donep->makeStmt());
+    శూన్య కూడు_Fork_పూర్తి(AstBegin* స్థిరరాశి beginp, AstVarScope* స్థిరరాశి forkVscp) స్థిరరాశి {
+        File_పంక్తి* స్థిరరాశి flp = beginp->fileline();
+        స్వయంచాలక* స్థిరరాశి donep = కొత్త AstCMethodHard{
+            beginp->fileline(), కొత్త AstVarRef{flp, forkVscp, VAccess::WRITE}, VCMethod::FORK_పూర్తి};
+        donep->dtype_సమితి_Void();
+        కూడు_Debug_Info(donep);
+        beginp->కూడు_Stmtsp(donep->makeStmt());
     }
-    static bool hasDisableQueuePushSelfPrefix(AstBegin* const beginp) {
+    స్థిర తార్కిక has_Disable_వరుస_నెట్టు_Self_ఉపసర్గ(AstBegin* స్థిరరాశి beginp) {
         // LinkJump prepends disable-by-name registration as:
         //   __VprocessQueue_*.push_back(std::process::self())
         // V3LiftExpr lifts std::process::self() into an assignment to a temporary, then V3Task
@@ -761,78 +761,78 @@ class TimingControlVisitor final : public VNVisitor {
         // push_back is no longer necessarily the first statement. Scan across this generated
         // prefix for it, stopping at the fork-start sentinel or the branch body. Registrations for
         // nested forks live in sub-blocks and so are not in this statement list.
-        for (AstNode* stmtp = beginp->stmtsp(); stmtp; stmtp = stmtp->nextp()) {
-            if (VN_IS(stmtp, Comment)) continue;
-            AstStmtExpr* const stmtExprp = VN_CAST(stmtp, StmtExpr);
-            if (!stmtExprp) break;
-            if (stmtExprp->isDisableQueuePushSelfStmt()) return true;
+        కొరకు (Ast_కణుపు* stmtp = beginp->stmtsp(); stmtp; stmtp = stmtp->nextp()) {
+            ఒకవేళ (VN_IS(stmtp, Comment)) కొనసాగు;
+            Ast_Stmt_సమాసం* స్థిరరాశి stmtExprp = VN_CAST(stmtp, Stmt_సమాసం);
+            ఒకవేళ (!stmtExprp) ఆపు;
+            ఒకవేళ (stmtExprp->is_Disable_వరుస_నెట్టు_Self_Stmt()) తిరిగి నిజం;
         }
-        return false;
+        తిరిగి అబద్ధం;
     }
     // Register a callback so killing a process-backed fork branch decrements the join counter
-    void addForkOnKill(AstBegin* const beginp, AstVarScope* const forkVscp) const {
-        if (!beginp->needProcess() && !hasDisableQueuePushSelfPrefix(beginp)) return;
-        FileLine* const flp = beginp->fileline();
-        AstCMethodHard* const onKillp = new AstCMethodHard{
-            flp, new AstVarRef{flp, forkVscp, VAccess::WRITE}, VCMethod::FORK_ON_KILL};
-        onKillp->dtypeSetVoid();
-        AstCExpr* const processp = new AstCExpr{flp, "vlProcess"};
+    శూన్య కూడు_Fork_On_Kill(AstBegin* స్థిరరాశి beginp, AstVarScope* స్థిరరాశి forkVscp) స్థిరరాశి {
+        ఒకవేళ (!beginp->needProcess() && !has_Disable_వరుస_నెట్టు_Self_ఉపసర్గ(beginp)) తిరిగి;
+        File_పంక్తి* స్థిరరాశి flp = beginp->fileline();
+        AstCMethodHard* స్థిరరాశి onKillp = కొత్త AstCMethodHard{
+            flp, కొత్త AstVarRef{flp, forkVscp, VAccess::WRITE}, VCMethod::FORK_ON_KILL};
+        onKillp->dtype_సమితి_Void();
+        AstCExpr* స్థిరరాశి processp = కొత్త AstCExpr{flp, "vlProcess"};
         processp
-            ->dtypeSetVoid();  // Opaque process reference; type is irrelevant for hardcoded emit
-        onKillp->addPinsp(processp);
-        AstNodeStmt* const stmtp = onKillp->makeStmt();
+            ->dtype_సమితి_Void();  // Opaque process reference; type is irrelevant for hardcoded emit
+        onKillp->కూడు_Pinsp(processp);
+        Ast_కణుపు_Stmt* స్థిరరాశి stmtp = onKillp->makeStmt();
         beginp->prependStmtsp(stmtp);
     }
     // Handle the 'join' part of a fork..join
-    void makeForkJoin(AstFork* const forkp) {
+    శూన్య makeForkJoin(AstFork* స్థిరరాశి forkp) {
         // Create a fork sync var
-        FileLine* const flp = forkp->fileline();
+        File_పంక్తి* స్థిరరాశి flp = forkp->fileline();
         // Insert the sync var directly before the fork
-        AstNode* const insertBeforep = forkp;
+        Ast_కణుపు* స్థిరరాశి చొప్పించు_Beforep = forkp;
         // Make sure all references to the fork var are contained within a single scope to prevent
         // moving statements accessing it in case of large functions splitting.
-        addCLocalScope(flp, insertBeforep);
+        కూడు_CLocal_Scope(flp, చొప్పించు_Beforep);
         AstVarScope* forkVscp
-            = createTemp(flp, forkp->name() + "__sync", getCreateForkSyncDTypep(), insertBeforep);
-        unsigned joinCount = 0;  // Needed for join counter
+            = create_తాత్కాలిక(flp, forkp->name() + "__sync", getCreateForkSyncDTypep(), చొప్పించు_Beforep);
+        గుర్తులేని join_లెక్క = 0;  // Needed for join counter
         // Add a <fork sync>.done() to each begin
-        for (AstNode* beginp = forkp->forksp(); beginp; beginp = beginp->nextp()) {
-            addForkOnKill(VN_AS(beginp, Begin), forkVscp);
-            addForkDone(VN_AS(beginp, Begin), forkVscp);
-            joinCount++;
+        కొరకు (Ast_కణుపు* beginp = forkp->forksp(); beginp; beginp = beginp->nextp()) {
+            కూడు_Fork_On_Kill(VN_AS(beginp, Begin), forkVscp);
+            కూడు_Fork_పూర్తి(VN_AS(beginp, Begin), forkVscp);
+            join_లెక్క++;
         }
-        if (forkp->joinType().joinAny()) joinCount = 1;
+        ఒకవేళ (forkp->joinType().joinAny()) join_లెక్క = 1;
         // Set the join counter
-        auto* const initp = new AstCMethodHard{flp, new AstVarRef{flp, forkVscp, VAccess::WRITE},
-                                               VCMethod::FORK_INIT, new AstConst{flp, joinCount}};
-        initp->dtypeSetVoid();
-        addProcessInfo(initp);
-        forkp->addHereThisAsNext(initp->makeStmt());
+        స్వయంచాలక* స్థిరరాశి initp = కొత్త AstCMethodHard{flp, కొత్త AstVarRef{flp, forkVscp, VAccess::WRITE},
+                                               VCMethod::FORK_INIT, కొత్త AstConst{flp, join_లెక్క}};
+        initp->dtype_సమితి_Void();
+        కూడు_Process_Info(initp);
+        forkp->కూడు_ఇక్కడ_This_As_తదుపరి(initp->makeStmt());
         // Await the join at the end
-        auto* const joinp = new AstCMethodHard{flp, new AstVarRef{flp, forkVscp, VAccess::WRITE},
+        స్వయంచాలక* స్థిరరాశి joinp = కొత్త AstCMethodHard{flp, కొత్త AstVarRef{flp, forkVscp, VAccess::WRITE},
                                                VCMethod::FORK_JOIN};
-        joinp->dtypeSetVoid();
-        addProcessInfo(joinp);
-        addDebugInfo(joinp);
-        forkp->addNextHere(new AstCAwait{flp, joinp});
+        joinp->dtype_సమితి_Void();
+        కూడు_Process_Info(joinp);
+        కూడు_Debug_Info(joinp);
+        forkp->కూడు_తదుపరి_ఇక్కడ(కొత్త AstCAwait{flp, joinp});
     }
 
     // `procp` shall be a NodeProcedure/CFunc/Begin and within it vars from `varsp` will be placed.
     // `varsp` vector of vars which shall be localized.
-    static void localizeVars(AstNode* const procp, const std::vector<AstVar*>& varsp) {
+    స్థిర శూన్య localizeVars(Ast_కణుపు* స్థిరరాశి procp, స్థిరరాశి std::సదిశ<AstVar*>& varsp) {
         UASSERT(procp, "procp is nullptr");
-        AstVar* newVarsp = nullptr;
-        for (AstVar* const varp : varsp) {
-            varp->funcLocal(true);
-            newVarsp = AstNode::addNextNull(newVarsp, varp->unlinkFrBack());
+        AstVar* newVarsp = శూన్యసూచిక;
+        కొరకు (AstVar* స్థిరరాశి varp : varsp) {
+            varp->funcLocal(నిజం);
+            newVarsp = Ast_కణుపు::కూడు_తదుపరి_Null(newVarsp, varp->unlink_Fr_వెనుక());
         }
-        if (AstNodeProcedure* const nodeProcp = VN_CAST(procp, NodeProcedure)) {
-            nodeProcp->prependStmtsp(newVarsp);
-        } else if (AstCFunc* const cfuncp = VN_CAST(procp, CFunc)) {
+        ఒకవేళ (Ast_కణుపు_Procedure* స్థిరరాశి కణుపు_Procp = VN_CAST(procp, కణుపు_Procedure)) {
+            కణుపు_Procp->prependStmtsp(newVarsp);
+        } లేకపోతే ఒకవేళ (AstCFunc* స్థిరరాశి cfuncp = VN_CAST(procp, CFunc)) {
             cfuncp->prependVarsp(newVarsp);
-        } else if (AstBegin* const beginp = VN_CAST(procp, Begin)) {
+        } లేకపోతే ఒకవేళ (AstBegin* స్థిరరాశి beginp = VN_CAST(procp, Begin)) {
             beginp->prependStmtsp(newVarsp);
-        } else {
+        } లేకపోతే {
             procp->v3fatalSrc(
                 procp->prettyNameQ()
                 << " is not of an expected type NodeProcedure/CFunc/Begin instead it is: "
@@ -840,15 +840,15 @@ class TimingControlVisitor final : public VNVisitor {
         }
     }
 
-    AstNodeExpr* delayToIntegral(AstDelay* nodep, AstNodeExpr* valuep) {
-        const AstConst* const constp = VN_CAST(valuep, Const);
+    Ast_కణుపు_సమాసం* delay_గమ్యం_Integral(AstDelay* nodep, Ast_కణుపు_సమాసం* valuep) {
+        స్థిరరాశి AstConst* స్థిరరాశి constp = VN_CAST(valuep, Const);
         // The fork start sentinel is already in ticks
-        if (constp && constp->toUQuad() == std::numeric_limits<uint64_t>::max()) return valuep;
-        return V3Timing::delayToTicks(valuep, nodep->timeunit());
+        ఒకవేళ (constp && constp->గమ్యం_UQuad() == std::numeric_limits<uint64_t>::max()) తిరిగి valuep;
+        తిరిగి V3Timing::delay_గమ్యం_Ticks(valuep, nodep->timeunit());
     }
 
     // VISITORS
-    void visit(AstNodeModule* nodep) override {
+    శూన్య సందర్శించు(Ast_కణుపు_Module* nodep) override {
         UASSERT_OBJ(!m_classp, nodep, "Module or class under class");
         VL_RESTORER(m_classp);
         m_classp = VN_CAST(nodep, Class);
@@ -856,80 +856,80 @@ class TimingControlVisitor final : public VNVisitor {
         m_forkCnt = 0;
         iterateChildren(nodep);
     }
-    void visit(AstScope* nodep) override {
+    శూన్య సందర్శించు(AstScope* nodep) override {
         VL_RESTORER(m_scopep);
         m_scopep = nodep;
-        SenExprBuilder senExprBuilder{m_scopep};
+        Sen_సమాసం_Builder sen_సమాసం_Builder{m_scopep};
         {  // Restore m_senExprBuilderp before destroying senExprBuilder
-            VL_RESTORER(m_senExprBuilderp);
-            m_senExprBuilderp = &senExprBuilder;
+            VL_RESTORER(m_sen_సమాసం_Builderp);
+            m_sen_సమాసం_Builderp = &sen_సమాసం_Builder;
             iterateChildren(nodep);
         }
     }
-    void visit(AstActive* nodep) override {
+    శూన్య సందర్శించు(Ast_చురుకైన* nodep) override {
         VL_RESTORER(m_activep);
         m_activep = nodep;
         iterateChildren(nodep);
     }
-    void visit(AstNodeProcedure* nodep) override {
+    శూన్య సందర్శించు(Ast_కణుపు_Procedure* nodep) override {
         VL_RESTORER(m_procp);
         VL_RESTORER(m_hasProcess);
         m_procp = nodep;
         m_hasProcess = hasFlags(nodep, T_HAS_PROC);
         VL_RESTORER(m_underProcedure);
-        m_underProcedure = true;
+        m_underProcedure = నిజం;
         iterateChildren(nodep);
-        if (hasFlags(nodep, T_SUSPENDEE)) nodep->setSuspendable();
-        if (hasFlags(nodep, T_HAS_PROC)) nodep->setNeedProcess();
+        ఒకవేళ (hasFlags(nodep, T_SUSPENDEE)) nodep->సమితి_Suspendable();
+        ఒకవేళ (hasFlags(nodep, T_HAS_PROC)) nodep->సమితి_Need_Process();
     }
-    void visit(AstInitial* nodep) override {
-        visit(static_cast<AstNodeProcedure*>(nodep));
-        if (nodep->needProcess() && !nodep->user1SetOnce()) {
-            nodep->addStmtsp(
-                new AstCStmt{nodep->fileline(), "vlProcess->state(VlProcess::FINISHED);"});
+    శూన్య సందర్శించు(AstInitial* nodep) override {
+        సందర్శించు(static_cast<Ast_కణుపు_Procedure*>(nodep));
+        ఒకవేళ (nodep->needProcess() && !nodep->user1_సమితి_Once()) {
+            nodep->కూడు_Stmtsp(
+                కొత్త AstCStmt{nodep->fileline(), "vlProcess->state(VlProcess::FINISHED);"});
         }
     }
-    void visit(AstJumpBlock* nodep) override {
-        VL_RESTORER(m_underJumpBlock);
-        m_underJumpBlock = true;
-        visit(static_cast<AstNodeStmt*>(nodep));
+    శూన్య సందర్శించు(Ast_Jump_ఖండం* nodep) override {
+        VL_RESTORER(m_under_Jump_ఖండం);
+        m_under_Jump_ఖండం = నిజం;
+        సందర్శించు(static_cast<Ast_కణుపు_Stmt*>(nodep));
     }
-    void visit(AstAlways* nodep) override {
-        if (nodep->user1SetOnce()) return;
+    శూన్య సందర్శించు(AstAlways* nodep) override {
+        ఒకవేళ (nodep->user1_సమితి_Once()) తిరిగి;
         VL_RESTORER(m_procp);
         VL_RESTORER(m_hasProcess);
         m_procp = nodep;
         m_hasProcess = hasFlags(nodep, T_HAS_PROC);
         VL_RESTORER(m_underProcedure);
-        m_underProcedure = true;
+        m_underProcedure = నిజం;
         // Workaround for killing `always` processes (doing that is pretty much UB)
         // TODO: Disallow killing `always` at runtime (throw an error)
         // Skip for combinational blocks; if the body has timing controls
         // iterateChildren will add T_SUSPENDEE, otherwise it would spin.
-        if (hasFlags(nodep, T_HAS_PROC)
+        ఒకవేళ (hasFlags(nodep, T_HAS_PROC)
             && !(m_activep && m_activep->sentreep() && m_activep->sentreep()->hasCombo()))
-            addFlags(nodep, T_SUSPENDEE);
+            కూడు_Flags(nodep, T_SUSPENDEE);
 
         iterateChildren(nodep);
-        if (hasFlags(nodep, T_HAS_PROC)) nodep->setNeedProcess();
-        if (!hasFlags(nodep, T_SUSPENDEE)) return;
-        nodep->setSuspendable();
-        FileLine* const flp = nodep->fileline();
-        AstSenTree* const sentreep = m_activep->sentreep();
-        if (sentreep->hasClocked()) {
-            AstNode* const bodysp = nodep->stmtsp()->unlinkFrBackWithNext();
-            auto* const controlp = new AstEventControl{flp, sentreep->cloneTree(false), bodysp};
-            nodep->addStmtsp(controlp);
+        ఒకవేళ (hasFlags(nodep, T_HAS_PROC)) nodep->సమితి_Need_Process();
+        ఒకవేళ (!hasFlags(nodep, T_SUSPENDEE)) తిరిగి;
+        nodep->సమితి_Suspendable();
+        File_పంక్తి* స్థిరరాశి flp = nodep->fileline();
+        Ast_Sen_వృక్షం* స్థిరరాశి sentreep = m_activep->sentreep();
+        ఒకవేళ (sentreep->hasClocked()) {
+            Ast_కణుపు* స్థిరరాశి bodysp = nodep->stmtsp()->unlink_Fr_వెనుక_With_తదుపరి();
+            స్వయంచాలక* స్థిరరాశి controlp = కొత్త AstEventControl{flp, sentreep->clone_వృక్షం(అబద్ధం), bodysp};
+            nodep->కూడు_Stmtsp(controlp);
             iterate(controlp);
         }
         // Note: The 'while (true)' outer loop will be added in V3Sched
-        auto* const activep = new AstActive{
-            flp, "", new AstSenTree{flp, new AstSenItem{flp, AstSenItem::Initial{}}}};
-        activep->senTreeStorep(activep->sentreep());
-        activep->addStmtsp(nodep->unlinkFrBack());
-        m_activep->addNextHere(activep);
+        స్వయంచాలక* స్థిరరాశి activep = కొత్త Ast_చురుకైన{
+            flp, "", కొత్త Ast_Sen_వృక్షం{flp, కొత్త Ast_Sen_అంశం{flp, Ast_Sen_అంశం::Initial{}}}};
+        activep->sen_వృక్షం_Storep(activep->sentreep());
+        activep->కూడు_Stmtsp(nodep->unlink_Fr_వెనుక());
+        m_activep->కూడు_తదుపరి_ఇక్కడ(activep);
     }
-    void visit(AstCFunc* nodep) override {
+    శూన్య సందర్శించు(AstCFunc* nodep) override {
         VL_RESTORER(m_procp);
         VL_RESTORER(m_hasProcess);
         VL_RESTORER(m_underIfaceCFunc);
@@ -937,642 +937,642 @@ class TimingControlVisitor final : public VNVisitor {
         m_hasProcess = hasFlags(nodep, T_HAS_PROC);
         m_underIfaceCFunc = VN_IS(m_scopep->modp(), Iface);
         iterateChildren(nodep);
-        if (hasFlags(nodep, T_HAS_PROC)) nodep->setNeedProcess();
-        if (!(hasFlags(nodep, T_SUSPENDEE))) return;
+        ఒకవేళ (hasFlags(nodep, T_HAS_PROC)) nodep->సమితి_Need_Process();
+        ఒకవేళ (!(hasFlags(nodep, T_SUSPENDEE))) తిరిగి;
 
         nodep->rtnType("VlCoroutine");
         // If in a class, create a shared pointer to 'this'
-        if (m_classp) {
-            AstCStmt* const cstmtp = new AstCStmt{nodep->fileline(), "VL_KEEP_THIS;"};
+        ఒకవేళ (m_classp) {
+            AstCStmt* స్థిరరాశి cstmtp = కొత్త AstCStmt{nodep->fileline(), "VL_KEEP_THIS;"};
             nodep->prependStmtsp(cstmtp);
         }
-        if (nodep->dpiExportImpl()) {
-            nodep->exists([](AstCAwait* const awaitp) -> bool {
+        ఒకవేళ (nodep->dpiExportImpl()) {
+            nodep->exists([](AstCAwait* స్థిరరాశి awaitp) -> తార్కిక {
                 // A DPI-exported coroutine won't be able to block the calling code
                 // Error on the await node; fall back to the function node
                 awaitp->v3warn(E_UNSUPPORTED,
                                "Unsupported: Timing controls inside DPI-exported tasks");
-                return true;
+                తిరిగి నిజం;
             });
         }
     }
-    void visit(AstNodeCCall* nodep) override {
-        AstCFunc* const funcp = nodep->funcp();
+    శూన్య సందర్శించు(Ast_కణుపు_CCall* nodep) override {
+        AstCFunc* స్థిరరాశి funcp = nodep->funcp();
 
         // Skip automatic covergroup sampling calls
-        if (funcp->isCovergroupSample()) {
+        ఒకవేళ (funcp->isCovergroupSample()) {
             iterateChildren(nodep);
-            return;
+            తిరిగి;
         }
 
-        if (funcp->needProcess()) m_hasProcess = true;
-        if (hasFlags(funcp, T_SUSPENDEE) && !nodep->user1SetOnce()) {  // If suspendable
+        ఒకవేళ (funcp->needProcess()) m_hasProcess = నిజం;
+        ఒకవేళ (hasFlags(funcp, T_SUSPENDEE) && !nodep->user1_సమితి_Once()) {  // If suspendable
             // Calls to suspendables are always void return type, hence parent must be StmtExpr
-            AstStmtExpr* const stmtp = VN_AS(nodep->backp(), StmtExpr);
-            stmtp->replaceWith(new AstCAwait{nodep->fileline(), nodep->unlinkFrBack()});
-            VL_DO_DANGLING(pushDeletep(stmtp), stmtp);
+            Ast_Stmt_సమాసం* స్థిరరాశి stmtp = VN_AS(nodep->backp(), Stmt_సమాసం);
+            stmtp->replaceWith(కొత్త AstCAwait{nodep->fileline(), nodep->unlink_Fr_వెనుక()});
+            VL_DO_DANGLING(నెట్టు_Deletep(stmtp), stmtp);
         }
         iterateChildren(nodep);
     }
-    void visit(AstDelay* nodep) override {
-        UASSERT_OBJ(!nodep->isCycleDelay(), nodep,
+    శూన్య సందర్శించు(AstDelay* nodep) override {
+        UASSERT_OBJ(!nodep->is_చక్రం_Delay(), nodep,
                     "Cycle delays should have been handled in V3AssertPre");
-        FileLine* const flp = nodep->fileline();
+        File_పంక్తి* స్థిరరాశి flp = nodep->fileline();
 
-        AstNodeExpr* valuep = delayToIntegral(nodep, nodep->lhsp()->unlinkFrBack());
+        Ast_కణుపు_సమాసం* valuep = delay_గమ్యం_Integral(nodep, nodep->lhsp()->unlink_Fr_వెనుక());
 
         // Statistics
-        if (valuep->isZero()) {
+        ఒకవేళ (valuep->isZero()) {
             ++m_statZeroDelays;
-        } else if (VN_IS(valuep, Const)) {
+        } లేకపోతే ఒకవేళ (VN_IS(valuep, Const)) {
             ++m_statConstDelays;
-        } else {
+        } లేకపోతే {
             ++m_statVariableDelays;
         }
 
         // Decide scheduling support for #0
-        if (v3Global.opt.schedZeroDelay().isSetTrue()) {
+        ఒకవేళ (v3Global.opt.schedZeroDelay().is_సమితి_True()) {
             // User said to schedule for #0 support, nothing else to do
-            v3Global.setUsesZeroDelay();
-        } else if (v3Global.opt.schedZeroDelay().isSetFalse()) {
+            v3Global.సమితి_ఉపయోగిస్తుంది_Zero_Delay();
+        } లేకపోతే ఒకవేళ (v3Global.opt.schedZeroDelay().is_సమితి_False()) {
             // User said to schedule without #0 support. Still warn if a static #0 delay exists
-            if (valuep->isZero()) {
+            ఒకవేళ (valuep->isZero()) {
                 nodep->v3warn(
                     ZERODLY,
                     "Static #0 delay exists, but '--no-sched-zero-delay' was given.\n"
-                        << nodep->warnMore()  //
+                        << nodep->warn_మరిన్ని()  //
                         << "... Can proceed, but this will fail at runtime if executed.");
             }
-        } else {
+        } లేకపోతే {
             // User did not express preference, decide based on presence of delays
-            if (valuep->isZero()) {
+            ఒకవేళ (valuep->isZero()) {
                 // Statically known #0 delay exists, schedule for #0 support
-                v3Global.setUsesZeroDelay();
-                m_hasStaticZeroDelay = true;
+                v3Global.సమితి_ఉపయోగిస్తుంది_Zero_Delay();
+                m_hasStaticZeroDelay = నిజం;
                 // Don't warn on variable delays, as no point
                 m_unknownDelayFlps.clear();
-            } else if (staticallyNonZeroDelay(valuep)) {
+            } లేకపోతే ఒకవేళ (staticallyNonZeroDelay(valuep)) {
                 // Delay is dynamic, but every statically known outcome is non-zero.
                 // So we don't need #0 delay support and there should be no warning.
-            } else if (!VN_IS(valuep, Const)) {
+            } లేకపోతే ఒకవేళ (!VN_IS(valuep, Const)) {
                 // Delay is not known at compiile time. Conservatively schedule for #0 support,
                 // but warn if no static #0 delays used as performance might be improved
-                v3Global.setUsesZeroDelay();
-                if (!m_hasStaticZeroDelay) m_unknownDelayFlps.push_back(nodep->fileline());
+                v3Global.సమితి_ఉపయోగిస్తుంది_Zero_Delay();
+                ఒకవేళ (!m_hasStaticZeroDelay) m_unknownDelayFlps.నెట్టు_వెనుక(nodep->fileline());
             }
         }
 
         // Replace self with a 'co_await dlySched.delay(<valuep>)'
-        AstCMethodHard* const delayMethodp = new AstCMethodHard{
-            flp, new AstVarRef{flp, getCreateDelayScheduler(), VAccess::WRITE},
+        AstCMethodHard* స్థిరరాశి delayMethodp = కొత్త AstCMethodHard{
+            flp, కొత్త AstVarRef{flp, getCreateDelayScheduler(), VAccess::WRITE},
             VCMethod::SCHED_DELAY, valuep};
-        delayMethodp->dtypeSetVoid();
-        addProcessInfo(delayMethodp);
-        addDebugInfo(delayMethodp);
+        delayMethodp->dtype_సమితి_Void();
+        కూడు_Process_Info(delayMethodp);
+        కూడు_Debug_Info(delayMethodp);
         // Create the co_await
-        AstNode* const awaitp = new AstCAwait{flp, delayMethodp, getCreateDelaySenTree()};
+        Ast_కణుపు* స్థిరరాశి awaitp = కొత్త AstCAwait{flp, delayMethodp, get_Create_Delay_Sen_వృక్షం()};
         // Relink child statements after the co_await
-        if (AstNode* const stmtsp = nodep->stmtsp()) {
-            awaitp->addNext(stmtsp->unlinkFrBackWithNext());
+        ఒకవేళ (Ast_కణుపు* స్థిరరాశి stmtsp = nodep->stmtsp()) {
+            awaitp->కూడు_తదుపరి(stmtsp->unlink_Fr_వెనుక_With_తదుపరి());
         }
         nodep->replaceWith(awaitp);
-        VL_DO_DANGLING(nodep->deleteTree(), nodep);
+        VL_DO_DANGLING(nodep->delete_వృక్షం(), nodep);
     }
-    void visit(AstEventControl* nodep) override {
+    శూన్య సందర్శించు(AstEventControl* nodep) override {
         // Do not allow waiting on local named events, as they get enqueued for clearing, but can
         // go out of scope before that happens
-        if (!nodep->sentreep()) {
+        ఒకవేళ (!nodep->sentreep()) {
             nodep->v3warn(E_UNSUPPORTED,
                           "Unsupported: Event control with implicit sensitivity (@*)"
                           " in this context; use an explicit sensitivity list instead");
-            VL_DO_DANGLING(pushDeletep(nodep->unlinkFrBack()), nodep);
-            return;
+            VL_DO_DANGLING(నెట్టు_Deletep(nodep->unlink_Fr_వెనుక()), nodep);
+            తిరిగి;
         }
-        FileLine* const flp = nodep->fileline();
+        File_పంక్తి* స్థిరరాశి flp = nodep->fileline();
         // Relink child statements after the event control
-        if (nodep->stmtsp()) nodep->addNextHere(nodep->stmtsp()->unlinkFrBackWithNext());
-        if (needDynamicTrigger(nodep->sentreep())) {
+        ఒకవేళ (nodep->stmtsp()) nodep->కూడు_తదుపరి_ఇక్కడ(nodep->stmtsp()->unlink_Fr_వెనుక_With_తదుపరి());
+        ఒకవేళ (needDynamicTrigger(nodep->sentreep())) {
             // Create the trigger variable and init it with 0
-            AstVarScope* const trigvscp
-                = createTemp(flp, m_dynTrigNames.get(nodep), nodep->findBitDType(), nodep);
-            auto* const initp = new AstAssign{flp, new AstVarRef{flp, trigvscp, VAccess::WRITE},
-                                              new AstConst{flp, AstConst::BitFalse{}}};
+            AstVarScope* స్థిరరాశి trigvscp
+                = create_తాత్కాలిక(flp, m_dyn_Trig_పేర్లు.get(nodep), nodep->కనుగొను_బిట్టు_DType(), nodep);
+            స్వయంచాలక* స్థిరరాశి initp = కొత్త Ast_కేటాయించు{flp, కొత్త AstVarRef{flp, trigvscp, VAccess::WRITE},
+                                              కొత్త AstConst{flp, AstConst::బిట్టు_False{}}};
             // Await the eval step with the dynamic trigger scheduler. First, create the method
             // call
-            auto* const evalMethodp = new AstCMethodHard{
-                flp, new AstVarRef{flp, getCreateDynamicTriggerScheduler(), VAccess::WRITE},
+            స్వయంచాలక* స్థిరరాశి evalMethodp = కొత్త AstCMethodHard{
+                flp, కొత్త AstVarRef{flp, getCreateDynamicTriggerScheduler(), VAccess::WRITE},
                 VCMethod::SCHED_EVALUATION};
-            evalMethodp->dtypeSetVoid();
-            addProcessInfo(evalMethodp);
-            auto* const sentreep = nodep->sentreep();
-            addEventDebugInfo(evalMethodp, sentreep);
+            evalMethodp->dtype_సమితి_Void();
+            కూడు_Process_Info(evalMethodp);
+            స్వయంచాలక* స్థిరరాశి sentreep = nodep->sentreep();
+            కూడు_Event_Debug_Info(evalMethodp, sentreep);
             // Create the co_await
-            AstCAwait* const awaitEvalp
-                = new AstCAwait{flp, evalMethodp, getCreateDynamicTriggerSenTree()};
+            AstCAwait* స్థిరరాశి awaitEvalp
+                = కొత్త AstCAwait{flp, evalMethodp, get_Create_Dynamic_Trigger_Sen_వృక్షం()};
             // Construct the sen expression for this sentree
-            UASSERT_OBJ(m_senExprBuilderp, nodep, "No SenExprBuilder for this scope");
-            auto* const assignp = new AstAssign{flp, new AstVarRef{flp, trigvscp, VAccess::WRITE},
-                                                m_senExprBuilderp->build(sentreep).first};
+            UASSERT_OBJ(m_sen_సమాసం_Builderp, nodep, "No SenExprBuilder for this scope");
+            స్వయంచాలక* స్థిరరాశి assignp = కొత్త Ast_కేటాయించు{flp, కొత్త AstVarRef{flp, trigvscp, VAccess::WRITE},
+                                                m_sen_సమాసం_Builderp->build(sentreep).మొదటి};
             // Get the SenExprBuilder results
-            const SenExprBuilder::Results senResults = m_senExprBuilderp->getAndClearResults();
+            స్థిరరాశి Sen_సమాసం_Builder::Results senResults = m_sen_సమాసం_Builderp->getAndClearResults();
             localizeVars(m_procp, senResults.m_vars);
             // If post updates are destructive (e.g. clearFired on events), perform a
             // conservative pre-clear once before entering the wait loop so stale state from a
             // previous wait does not cause an immediate false-positive trigger.
-            const bool hasDestructivePostUpdates = !senResults.m_destructivePostUpdates.empty();
+            స్థిరరాశి తార్కిక hasDestructivePostUpdates = !senResults.m_destructivePostUpdates.ఖాళీలు();
             // Create the trigger eval loop, which will await the evaluation step and check the
             // trigger
-            AstNodeExpr* const condp
-                = new AstLogNot{flp, new AstVarRef{flp, trigvscp, VAccess::READ}};
-            AstLoop* const loopp = new AstLoop{flp};
-            loopp->addStmtsp(new AstLoopTest{flp, loopp, condp});
-            loopp->addStmtsp(awaitEvalp);
+            Ast_కణుపు_సమాసం* స్థిరరాశి condp
+                = కొత్త AstLogNot{flp, కొత్త AstVarRef{flp, trigvscp, VAccess::READ}};
+            AstLoop* స్థిరరాశి loopp = కొత్త AstLoop{flp};
+            loopp->కూడు_Stmtsp(కొత్త AstLoopTest{flp, loopp, condp});
+            loopp->కూడు_Stmtsp(awaitEvalp);
             // Put pre updates before the trigger check and assignment
-            for (AstNodeStmt* const stmtp : senResults.m_preUpdates) loopp->addStmtsp(stmtp);
+            కొరకు (Ast_కణుపు_Stmt* స్థిరరాశి stmtp : senResults.m_preUpdates) loopp->కూడు_Stmtsp(stmtp);
             // Then the trigger check and assignment
-            loopp->addStmtsp(assignp);
+            loopp->కూడు_Stmtsp(assignp);
             // Let the dynamic trigger scheduler know if this trigger was set
             // If it was, a call to the scheduler's evaluate() will return true
-            AstCMethodHard* const anyTriggeredMethodp = new AstCMethodHard{
-                flp, new AstVarRef{flp, getCreateDynamicTriggerScheduler(), VAccess::WRITE},
-                VCMethod::SCHED_ANY_TRIGGERED, new AstVarRef{flp, trigvscp, VAccess::READ}};
-            anyTriggeredMethodp->dtypeSetVoid();
-            loopp->addStmtsp(anyTriggeredMethodp->makeStmt());
+            AstCMethodHard* స్థిరరాశి anyTriggeredMethodp = కొత్త AstCMethodHard{
+                flp, కొత్త AstVarRef{flp, getCreateDynamicTriggerScheduler(), VAccess::WRITE},
+                VCMethod::SCHED_ANY_TRIGGERED, కొత్త AstVarRef{flp, trigvscp, VAccess::READ}};
+            anyTriggeredMethodp->dtype_సమితి_Void();
+            loopp->కూడు_Stmtsp(anyTriggeredMethodp->makeStmt());
             // If the post update is destructive (e.g. event vars are cleared), create an await for
             // the post update step
-            if (hasDestructivePostUpdates) {
-                AstCAwait* const awaitPostUpdatep = awaitEvalp->cloneTree(false);
-                VN_AS(awaitPostUpdatep->exprp(), CMethodHard)->method(VCMethod::SCHED_POST_UPDATE);
-                loopp->addStmtsp(awaitPostUpdatep);
+            ఒకవేళ (hasDestructivePostUpdates) {
+                AstCAwait* స్థిరరాశి awaitPostUpdatep = awaitEvalp->clone_వృక్షం(అబద్ధం);
+                VN_AS(awaitPostUpdatep->exprp(), CMethodHard)->పద్ధతి(VCMethod::SCHED_POST_UPDATE);
+                loopp->కూడు_Stmtsp(awaitPostUpdatep);
             }
             // Put the post updates at the end of the loop
-            for (AstNodeStmt* const stmtp : senResults.m_postUpdates) loopp->addStmtsp(stmtp);
+            కొరకు (Ast_కణుపు_Stmt* స్థిరరాశి stmtp : senResults.m_postUpdates) loopp->కూడు_Stmtsp(stmtp);
             // Finally, await the resumption step in 'act'
-            AstCAwait* const awaitResumep = awaitEvalp->cloneTree(false);
-            VN_AS(awaitResumep->exprp(), CMethodHard)->method(VCMethod::SCHED_RESUMPTION);
-            AstNode::addNext<AstNodeStmt, AstNodeStmt>(loopp, awaitResumep);
+            AstCAwait* స్థిరరాశి awaitResumep = awaitEvalp->clone_వృక్షం(అబద్ధం);
+            VN_AS(awaitResumep->exprp(), CMethodHard)->పద్ధతి(VCMethod::SCHED_RESUMPTION);
+            Ast_కణుపు::కూడు_తదుపరి<Ast_కణుపు_Stmt, Ast_కణుపు_Stmt>(loopp, awaitResumep);
             // Replace the event control with one explicit stmt chain:
             //   init -> [inits] -> [optional destructive pre-clears] -> loop -> awaitResumption
-            AstNodeStmt* chainp = nullptr;
-            chainp = AstNode::addNextNull(chainp, initp);
-            for (AstNodeStmt* const stmtp : senResults.m_inits) {
-                chainp = AstNode::addNextNull(chainp, stmtp);
+            Ast_కణుపు_Stmt* chainp = శూన్యసూచిక;
+            chainp = Ast_కణుపు::కూడు_తదుపరి_Null(chainp, initp);
+            కొరకు (Ast_కణుపు_Stmt* స్థిరరాశి stmtp : senResults.m_inits) {
+                chainp = Ast_కణుపు::కూడు_తదుపరి_Null(chainp, stmtp);
             }
-            if (hasDestructivePostUpdates) {
-                for (AstNodeStmt* const stmtp : senResults.m_destructivePostUpdates) {
-                    chainp = AstNode::addNextNull(chainp, stmtp->cloneTree(false));
+            ఒకవేళ (hasDestructivePostUpdates) {
+                కొరకు (Ast_కణుపు_Stmt* స్థిరరాశి stmtp : senResults.m_destructivePostUpdates) {
+                    chainp = Ast_కణుపు::కూడు_తదుపరి_Null(chainp, stmtp->clone_వృక్షం(అబద్ధం));
                 }
             }
-            chainp = AstNode::addNextNull(chainp, loopp);
+            chainp = Ast_కణుపు::కూడు_తదుపరి_Null(chainp, loopp);
             nodep->replaceWith(chainp);
-        } else {
-            auto* const sentreep = m_finder.getSenTree(nodep->sentreep());
-            nodep->sentreep()->unlinkFrBack()->deleteTree();
+        } లేకపోతే {
+            స్వయంచాలక* స్థిరరాశి sentreep = m_finder.get_Sen_వృక్షం(nodep->sentreep());
+            nodep->sentreep()->unlink_Fr_వెనుక()->delete_వృక్షం();
             // Get this sentree's trigger scheduler
             // Replace self with a 'co_await trigSched.trigger()'
-            auto* const triggerMethodp = new AstCMethodHard{
-                flp, new AstVarRef{flp, getCreateTriggerSchedulerp(sentreep), VAccess::WRITE},
+            స్వయంచాలక* స్థిరరాశి triggerMethodp = కొత్త AstCMethodHard{
+                flp, కొత్త AstVarRef{flp, getCreateTriggerSchedulerp(sentreep), VAccess::WRITE},
                 VCMethod::SCHED_TRIGGER};
-            triggerMethodp->dtypeSetVoid();
+            triggerMethodp->dtype_సమితి_Void();
             // If it should be committed immediately, pass true, otherwise false
-            triggerMethodp->addPinsp(nodep->user2() ? new AstConst{flp, AstConst::BitTrue{}}
-                                                    : new AstConst{flp, AstConst::BitFalse{}});
-            addProcessInfo(triggerMethodp);
-            addEventDebugInfo(triggerMethodp, sentreep);
+            triggerMethodp->కూడు_Pinsp(nodep->user2() ? కొత్త AstConst{flp, AstConst::బిట్టు_True{}}
+                                                    : కొత్త AstConst{flp, AstConst::బిట్టు_False{}});
+            కూడు_Process_Info(triggerMethodp);
+            కూడు_Event_Debug_Info(triggerMethodp, sentreep);
             // Create the co_await
-            AstCAwait* const awaitp = new AstCAwait{flp, triggerMethodp, sentreep};
+            AstCAwait* స్థిరరాశి awaitp = కొత్త AstCAwait{flp, triggerMethodp, sentreep};
             nodep->replaceWith(awaitp);
         }
-        VL_DO_DANGLING(nodep->deleteTree(), nodep);
+        VL_DO_DANGLING(nodep->delete_వృక్షం(), nodep);
     }
-    void visit(AstNodeAssign* nodep) override {
+    శూన్య సందర్శించు(Ast_కణుపు_కేటాయించు* nodep) override {
         // Only process once to avoid infinite loops (due to the net delay)
-        if (nodep->user1SetOnce()) return;
+        ఒకవేళ (nodep->user1_సమితి_Once()) తిరిగి;
         UINFO(9, "control-visit " << nodep);
-        FileLine* const flp = nodep->fileline();
-        AstNode* controlp = factorOutTimingControl(nodep);
-        const bool inAssignDly = VN_IS(nodep, AssignDly);
+        File_పంక్తి* స్థిరరాశి flp = nodep->fileline();
+        Ast_కణుపు* controlp = గుణకం_బహిర్గతం_Timing_Control(nodep);
+        స్థిరరాశి తార్కిక లోపల_కేటాయించు_Dly = VN_IS(nodep, కేటాయించు_Dly);
         // Handle the intra assignment timing control
         // Transform if:
         // * there's a timing control in the assignment
         // * the assignment is an AssignDly and it's in a non-inlined function
-        if (!controlp && (!inAssignDly || m_underProcedure)) {
+        ఒకవేళ (!controlp && (!లోపల_కేటాయించు_Dly || m_underProcedure)) {
             iterateChildren(nodep);
-            return;
+            తిరిగి;
         }
         // The timing control, if any, which is put in a fork for an NBA
-        AstNode* const timingp = controlp;
+        Ast_కణుపు* స్థిరరాశి timingp = controlp;
         // Insert new vars before the timing control if we're in a function; in a process we can't
         // do that, as after V3Begin only modules and functions declare variables. These
         // intra-assignment vars will later be passed to forked processes by value.
-        AstNode* insertBeforep = m_underProcedure ? nullptr : controlp;
+        Ast_కణుపు* చొప్పించు_Beforep = m_underProcedure ? శూన్యసూచిక : controlp;
         // Special case for NBA
-        if (inAssignDly) {
+        ఒకవేళ (లోపల_కేటాయించు_Dly) {
             // Put it in a fork so it doesn't block
             // Could already be the only thing directly under a fork, reuse that if possible
-            AstFork* forkp = !nodep->nextp() ? VN_CAST(nodep->firstAbovep(), Fork) : nullptr;
-            if (!forkp) forkp = new AstFork{flp, VJoinType::JOIN_NONE};
-            if (!m_underProcedure) {
+            AstFork* forkp = !nodep->nextp() ? VN_CAST(nodep->మొదటి_Abovep(), Fork) : శూన్యసూచిక;
+            ఒకవేళ (!forkp) forkp = కొత్త AstFork{flp, VJoinType::JOIN_NONE};
+            ఒకవేళ (!m_underProcedure) {
                 // If it's in a function, it won't be handled by V3Delayed
                 // Put it behind an additional named event that gets triggered in the NBA region
-                AstEventControl* const nbaEventControlp = createNbaEventControl(flp);
-                AstAssign* const trigAssignp = createNbaEventTriggerAssignment(flp);
+                AstEventControl* స్థిరరాశి nbaEventControlp = createNbaEventControl(flp);
+                Ast_కేటాయించు* స్థిరరాశి trigAssignp = createNbaEventTriggerAssignment(flp);
                 nodep->replaceWith(trigAssignp);
-                trigAssignp->addNextHere(nbaEventControlp);
-                nbaEventControlp->addStmtsp(nodep);
-                insertBeforep = forkp;
-                if (!controlp) controlp = nbaEventControlp;
+                trigAssignp->కూడు_తదుపరి_ఇక్కడ(nbaEventControlp);
+                nbaEventControlp->కూడు_Stmtsp(nodep);
+                చొప్పించు_Beforep = forkp;
+                ఒకవేళ (!controlp) controlp = nbaEventControlp;
             }
             controlp->replaceWith(forkp);
             AstBegin* beginp = VN_CAST(controlp, Begin);
-            if (!beginp) beginp = new AstBegin{nodep->fileline(), "", controlp, false};
-            forkp->addForksp(beginp);
-            addFlags(beginp, T_NBA_UPDATE);
+            ఒకవేళ (!beginp) beginp = కొత్త AstBegin{nodep->fileline(), "", controlp, అబద్ధం};
+            forkp->కూడు_Forksp(beginp);
+            కూడు_Flags(beginp, T_NBA_UPDATE);
             controlp = forkp;
         }
         UASSERT_OBJ(nodep, controlp, "Assignment should have timing control");
         // Move `insertBeforep` into `AstCLocalScope` if necessary to avoid jumping over
         // a variable initialization that would be inserted before `insertBeforep`. All
         // access to this variable should be contained within returned `AstCLocalScope`.
-        if (m_underJumpBlock) addCLocalScope(flp, insertBeforep);
+        ఒకవేళ (m_under_Jump_ఖండం) కూడు_CLocal_Scope(flp, చొప్పించు_Beforep);
         // Function for replacing values with intermediate variables
-        const auto replaceWithIntermediate = [&](AstNodeExpr* const valuep,
-                                                 const std::string& name) {
-            AstVarScope* const newvscp = createTemp(flp, name, valuep->dtypep(), insertBeforep);
+        స్థిరరాశి స్వయంచాలక replaceWithIntermediate = [&](Ast_కణుపు_సమాసం* స్థిరరాశి valuep,
+                                                 స్థిరరాశి std::string& name) {
+            AstVarScope* స్థిరరాశి newvscp = create_తాత్కాలిక(flp, name, valuep->dtypep(), చొప్పించు_Beforep);
             // A pending update keeps its own value, even if its process schedules more
-            if (inAssignDly && !insertBeforep) newvscp->forkByValue(true);
-            valuep->replaceWith(new AstVarRef{flp, newvscp, VAccess::READ});
-            controlp->addHereThisAsNext(
-                new AstAssign{flp, new AstVarRef{flp, newvscp, VAccess::WRITE}, valuep});
+            ఒకవేళ (లోపల_కేటాయించు_Dly && !చొప్పించు_Beforep) newvscp->fork_By_విలువ(నిజం);
+            valuep->replaceWith(కొత్త AstVarRef{flp, newvscp, VAccess::READ});
+            controlp->కూడు_ఇక్కడ_This_As_తదుపరి(
+                కొత్త Ast_కేటాయించు{flp, కొత్త AstVarRef{flp, newvscp, VAccess::WRITE}, valuep});
         };
         // NBAs with delays evaluate the indices selecting the target now (IEEE 1800-2023 10.4.2),
         // in order, each as a whole, also the selects and function calls in it. So follow the
         // selects of the target up from the variable, not into their indices. As an example, this
         // transforms 'x[a[i]][f(j)] <= #1 y' into 't0 = a[i]; t1 = f(j); x[t0][t1] <= #1 y'.
         // V3Const has split NBAs to concatenations, also streamed, into NBAs to each part.
-        if (inAssignDly) {
-            for (AstNode* exprp = nodep->lhsp()->baseFromp(true); exprp != nodep;
-                 exprp = exprp->firstAbovep()) {
-                if (AstSel* const selp = VN_CAST(exprp, Sel)) {
+        ఒకవేళ (లోపల_కేటాయించు_Dly) {
+            కొరకు (Ast_కణుపు* exprp = nodep->lhsp()->పునాది_Fromp(నిజం); exprp != nodep;
+                 exprp = exprp->మొదటి_Abovep()) {
+                ఒకవేళ (AstSel* స్థిరరాశి selp = VN_CAST(exprp, Sel)) {
                     // widthp should be const
-                    if (!VN_IS(selp->lsbp(), Const)) {
-                        replaceWithIntermediate(selp->lsbp(), m_intraLsbNames.get(nodep));
+                    ఒకవేళ (!VN_IS(selp->lsbp(), Const)) {
+                        replaceWithIntermediate(selp->lsbp(), m_intra_Lsb_పేర్లు.get(nodep));
                     }
-                } else if (AstNodeSel* const selp = VN_CAST(exprp, NodeSel)) {
-                    if (!VN_IS(selp->bitp(), Const)) {
-                        replaceWithIntermediate(selp->bitp(), m_intraIndexNames.get(nodep));
+                } లేకపోతే ఒకవేళ (Ast_కణుపు_Sel* స్థిరరాశి selp = VN_CAST(exprp, కణుపు_Sel)) {
+                    ఒకవేళ (!VN_IS(selp->bitp(), Const)) {
+                        replaceWithIntermediate(selp->bitp(), m_intra_సూచీ_పేర్లు.get(nodep));
                     }
                 }
             }
         }
         // Replace the RHS with an intermediate value var
-        replaceWithIntermediate(nodep->rhsp(), m_intraValueNames.get(nodep));
-        if (!inAssignDly) return;
+        replaceWithIntermediate(nodep->rhsp(), m_intra_విలువ_పేర్లు.get(nodep));
+        ఒకవేళ (!లోపల_కేటాయించు_Dly) తిరిగి;
         // The process executing the NBA evaluates its delay (IEEE 1800-2023 4.9.4), not the forked
         // process, if it has side effects, e.g. calling a function that checks its process. A pure
         // one is evaluated as the forked process starts, at once.
-        if (AstDelay* const delayp = VN_CAST(timingp, Delay)) {
-            if (!delayp->lhsp()->isPure()) {
-                replaceWithIntermediate(delayp->lhsp(), m_intraValueNames.get(nodep));
+        ఒకవేళ (AstDelay* స్థిరరాశి delayp = VN_CAST(timingp, Delay)) {
+            ఒకవేళ (!delayp->lhsp()->is_శుద్ధ()) {
+                replaceWithIntermediate(delayp->lhsp(), m_intra_విలువ_పేర్లు.get(nodep));
             }
         }
     }
-    void visit(AstFireEvent* nodep) override {
+    శూన్య సందర్శించు(AstFireEvent* nodep) override {
         // V3Delayed handles '->>' of a variable in a process. Like NBAs in non-inlined functions,
         // trigger other events from a fork awaiting the NBA region.
-        if (!nodep->isDelayed() || (m_underProcedure && VN_IS(nodep->operandp(), VarRef))) {
+        ఒకవేళ (!nodep->isDelayed() || (m_underProcedure && VN_IS(nodep->operandp(), VarRef))) {
             iterateChildren(nodep);
-            return;
+            తిరిగి;
         }
-        FileLine* const flp = nodep->fileline();
-        AstAssign* const trigAssignp = createNbaEventTriggerAssignment(flp);
+        File_పంక్తి* స్థిరరాశి flp = nodep->fileline();
+        Ast_కేటాయించు* స్థిరరాశి trigAssignp = createNbaEventTriggerAssignment(flp);
         nodep->replaceWith(trigAssignp);
-        AstFork* const forkp = new AstFork{flp, VJoinType::JOIN_NONE};
-        trigAssignp->addNextHere(forkp);
-        if (m_underJumpBlock) addCLocalScope(flp, forkp);
+        AstFork* స్థిరరాశి forkp = కొత్త AstFork{flp, VJoinType::JOIN_NONE};
+        trigAssignp->కూడు_తదుపరి_ఇక్కడ(forkp);
+        ఒకవేళ (m_under_Jump_ఖండం) కూడు_CLocal_Scope(flp, forkp);
         // The triggered event is the one referenced now, so evaluate handles and indices now
-        AstNodeExpr* const eventp = nodep->operandp()->unlinkFrBack();
-        const auto evalNow = [&](AstNodeExpr* const valuep, V3UniqueNames& names) {
+        Ast_కణుపు_సమాసం* స్థిరరాశి eventp = nodep->operandp()->unlink_Fr_వెనుక();
+        స్థిరరాశి స్వయంచాలక evalNow = [&](Ast_కణుపు_సమాసం* స్థిరరాశి valuep, V3_Unique_పేర్లు& పేర్లు) {
             // Like for an NBA, a process uses a module variable, passed to the fork by value
-            AstVarScope* const vscp = createTemp(flp, names.get(nodep), valuep->dtypep(),
-                                                 m_underProcedure ? nullptr : forkp);
-            if (m_underProcedure) vscp->forkByValue(true);
-            valuep->replaceWith(new AstVarRef{flp, vscp, VAccess::READ});
+            AstVarScope* స్థిరరాశి vscp = create_తాత్కాలిక(flp, పేర్లు.get(nodep), valuep->dtypep(),
+                                                 m_underProcedure ? శూన్యసూచిక : forkp);
+            ఒకవేళ (m_underProcedure) vscp->fork_By_విలువ(నిజం);
+            valuep->replaceWith(కొత్త AstVarRef{flp, vscp, VAccess::READ});
             // Unlike an event, a handle selecting one is only read
-            valuep->foreach([](AstNode* const np) {
-                if (AstNodeVarRef* const refp = VN_CAST(np, NodeVarRef)) {
+            valuep->foreach([](Ast_కణుపు* స్థిరరాశి np) {
+                ఒకవేళ (Ast_కణుపు_Var_Ref* స్థిరరాశి refp = VN_CAST(np, కణుపు_Var_Ref)) {
                     refp->access(VAccess::READ);
-                } else if (AstMemberSel* const selp = VN_CAST(np, MemberSel)) {
+                } లేకపోతే ఒకవేళ (AstMemberSel* స్థిరరాశి selp = VN_CAST(np, MemberSel)) {
                     selp->access(VAccess::READ);
                 }
             });
-            forkp->addHereThisAsNext(
-                new AstAssign{flp, new AstVarRef{flp, vscp, VAccess::WRITE}, valuep});
+            forkp->కూడు_ఇక్కడ_This_As_తదుపరి(
+                కొత్త Ast_కేటాయించు{flp, కొత్త AstVarRef{flp, vscp, VAccess::WRITE}, valuep});
         };
-        AstNodeExpr* refp = eventp;
-        while (AstNodeSel* const selp = VN_CAST(refp, NodeSel)) {
-            if (!VN_IS(selp->bitp(), Const)) evalNow(selp->bitp(), m_intraIndexNames);
+        Ast_కణుపు_సమాసం* refp = eventp;
+        అయితే (Ast_కణుపు_Sel* స్థిరరాశి selp = VN_CAST(refp, కణుపు_Sel)) {
+            ఒకవేళ (!VN_IS(selp->bitp(), Const)) evalNow(selp->bitp(), m_intra_సూచీ_పేర్లు);
             refp = selp->fromp();
         }
         // Handle of a class (or virtual interface)
-        if (AstMemberSel* const selp = VN_CAST(refp, MemberSel)) {
-            evalNow(selp->fromp(), m_intraValueNames);
+        ఒకవేళ (AstMemberSel* స్థిరరాశి selp = VN_CAST(refp, MemberSel)) {
+            evalNow(selp->fromp(), m_intra_విలువ_పేర్లు);
         }
-        AstEventControl* const controlp = createNbaEventControl(flp);
-        controlp->addStmtsp(new AstFireEvent{flp, eventp, false});
-        AstBegin* const beginp = new AstBegin{flp, "", controlp, false};
-        addFlags(beginp, T_NBA_UPDATE);
-        forkp->addForksp(beginp);
-        VL_DO_DANGLING(pushDeletep(nodep), nodep);
+        AstEventControl* స్థిరరాశి controlp = createNbaEventControl(flp);
+        controlp->కూడు_Stmtsp(కొత్త AstFireEvent{flp, eventp, అబద్ధం});
+        AstBegin* స్థిరరాశి beginp = కొత్త AstBegin{flp, "", controlp, అబద్ధం};
+        కూడు_Flags(beginp, T_NBA_UPDATE);
+        forkp->కూడు_Forksp(beginp);
+        VL_DO_DANGLING(నెట్టు_Deletep(nodep), nodep);
     }
-    void visit(AstAssignW* nodep) override {
-        FileLine* const flp = nodep->fileline();
+    శూన్య సందర్శించు(Ast_కేటాయించు_W* nodep) override {
+        File_పంక్తి* స్థిరరాశి flp = nodep->fileline();
         // Get the net delay unless this assignment was created for handling the net delay (user1)
-        AstDelay* const netDelayp = nodep->user1() ? nullptr : nodep->getLhsNetDelay();
-        if (netDelayp) {
-            if (nodep->timingControlp()) {
+        AstDelay* స్థిరరాశి netDelayp = nodep->user1() ? శూన్యసూచిక : nodep->getLhsNetDelay();
+        ఒకవేళ (netDelayp) {
+            ఒకవేళ (nodep->timingControlp()) {
                 // If this assignment has a delay, create another one to handle the net delay
-                AstVarScope* const newvscp = m_assignWTmps.make(flp, m_scopep, nodep->dtypep());
-                AstAssignW* assignp = new AstAssignW{
-                    nodep->fileline(), nodep->lhsp()->unlinkFrBack(),
-                    new AstVarRef{flp, newvscp, VAccess::READ}, netDelayp->cloneTree(false)};
-                assignp->user1(true);
-                nodep->addNextHere(assignp);
-                nodep->lhsp(new AstVarRef{flp, newvscp, VAccess::WRITE});
-            } else {
+                AstVarScope* స్థిరరాశి newvscp = m_కేటాయించు_WTmps.make(flp, m_scopep, nodep->dtypep());
+                Ast_కేటాయించు_W* assignp = కొత్త Ast_కేటాయించు_W{
+                    nodep->fileline(), nodep->lhsp()->unlink_Fr_వెనుక(),
+                    కొత్త AstVarRef{flp, newvscp, VAccess::READ}, netDelayp->clone_వృక్షం(అబద్ధం)};
+                assignp->user1(నిజం);
+                nodep->కూడు_తదుపరి_ఇక్కడ(assignp);
+                nodep->lhsp(కొత్త AstVarRef{flp, newvscp, VAccess::WRITE});
+            } లేకపోతే {
                 // Else just use this one with the net delay
-                nodep->timingControlp(netDelayp->cloneTree(false));
+                nodep->timingControlp(netDelayp->clone_వృక్షం(అబద్ధం));
             }
         }
-        if (!nodep->timingControlp()) return;
+        ఒకవేళ (!nodep->timingControlp()) తిరిగి;
         // There will be some circular logic here, suppress the warning for newly created vars
-        flp->modifyWarnOff(V3ErrorCode::UNOPTFLAT, true);
+        flp->modifyWarnOff(V3_Error_సంకేతం::UNOPTFLAT, నిజం);
         // Also suppress the warning for the LHS var, for cases like `assign #1 clk = ~clk;`
         // TODO: Restore the warning for other, non-delayed drivers
         nodep->lhsp()->foreach([](AstVarRef* refp) {
-            if (refp->access().isWriteOrRW()) {
-                refp->varp()->fileline()->modifyWarnOff(V3ErrorCode::UNOPTFLAT, true);
+            ఒకవేళ (refp->access().isWriteOrRW()) {
+                refp->varp()->fileline()->modifyWarnOff(V3_Error_సంకేతం::UNOPTFLAT, నిజం);
             }
         });
         // Should be under an always
-        AstAlways* const alwaysp = VN_AS(m_procp, Always);
+        AstAlways* స్థిరరాశి alwaysp = VN_AS(m_procp, Always);
         // Convert it to an Assign; the new assign with intra delay will be handled by
         // visit(AstNodeAssign*)
-        AstNodeExpr* const lhs1p = nodep->lhsp()->unlinkFrBack();
-        AstNodeExpr* const rhs1p = nodep->rhsp()->unlinkFrBack();
-        AstNode* const controlp = nodep->timingControlp()->unlinkFrBack();
-        if (AstDelay* const delayp = VN_CAST(controlp, Delay)) {
-            if (AstNodeExpr* fallDelayp = delayp->fallDelay()) {
-                fallDelayp = fallDelayp->unlinkFrBack();
-                AstNodeExpr* lhsp = delayp->lhsp()->unlinkFrBack();
+        Ast_కణుపు_సమాసం* స్థిరరాశి lhs1p = nodep->lhsp()->unlink_Fr_వెనుక();
+        Ast_కణుపు_సమాసం* స్థిరరాశి rhs1p = nodep->rhsp()->unlink_Fr_వెనుక();
+        Ast_కణుపు* స్థిరరాశి controlp = nodep->timingControlp()->unlink_Fr_వెనుక();
+        ఒకవేళ (AstDelay* స్థిరరాశి delayp = VN_CAST(controlp, Delay)) {
+            ఒకవేళ (Ast_కణుపు_సమాసం* fallDelayp = delayp->fallDelay()) {
+                fallDelayp = fallDelayp->unlink_Fr_వెనుక();
+                Ast_కణుపు_సమాసం* lhsp = delayp->lhsp()->unlink_Fr_వెనుక();
                 // Use fall only for an all-zero value, rise otherwise.
-                lhsp = delayToIntegral(delayp, lhsp);
-                fallDelayp = delayToIntegral(delayp, fallDelayp);
+                lhsp = delay_గమ్యం_Integral(delayp, lhsp);
+                fallDelayp = delay_గమ్యం_Integral(delayp, fallDelayp);
                 delayp->lhsp(
-                    new AstCond{flp, new AstEq{flp, rhs1p->cloneTree(false), new AstConst{flp, 0}},
+                    కొత్త AstCond{flp, కొత్త AstEq{flp, rhs1p->clone_వృక్షం(అబద్ధం), కొత్త AstConst{flp, 0}},
                                 fallDelayp, lhsp});
             }
         }
-        AstAssign* const assignp = new AstAssign{nodep->fileline(), lhs1p, rhs1p, controlp};
+        Ast_కేటాయించు* స్థిరరాశి assignp = కొత్త Ast_కేటాయించు{nodep->fileline(), lhs1p, rhs1p, controlp};
         // Put the assignment in a fork..join_none.
-        AstFork* const forkp = new AstFork{flp, VJoinType::JOIN_NONE};
+        AstFork* స్థిరరాశి forkp = కొత్త AstFork{flp, VJoinType::JOIN_NONE};
         nodep->replaceWith(forkp);
-        VL_DO_DANGLING(pushDeletep(nodep), nodep);
-        AstBegin* const beginp = new AstBegin{flp, "", assignp, false};
-        forkp->addForksp(beginp);
-        visit(forkp);  // Visit now as we need to do some post-processing
+        VL_DO_DANGLING(నెట్టు_Deletep(nodep), nodep);
+        AstBegin* స్థిరరాశి beginp = కొత్త AstBegin{flp, "", assignp, అబద్ధం};
+        forkp->కూడు_Forksp(beginp);
+        సందర్శించు(forkp);  // Visit now as we need to do some post-processing
         // IEEE 1800-2023 10.3.3 - if the RHS value differs from the currently scheduled value to
         // be assigned, the currently scheduled assignment is descheduled. To keep track if an
         // assignment should be descheduled, each scheduled assignment event has a 'generation',
         // and if at assignment time its generation differs from the current generation, it won't
         // be performed
-        AstAssign* const preAssignp = VN_AS(beginp->stmtsp(), Assign);
+        Ast_కేటాయించు* స్థిరరాశి preAssignp = VN_AS(beginp->stmtsp(), కేటాయించు);
         UASSERT_OBJ(preAssignp, alwaysp, "Pre-assign should be there from visit(AstFork)");
-        AstAssign* const postAssignp = VN_AS(preAssignp->nextp()->nextp(), Assign);
+        Ast_కేటాయించు* స్థిరరాశి postAssignp = VN_AS(preAssignp->nextp()->nextp(), కేటాయించు);
         UASSERT_OBJ(postAssignp, alwaysp, "Post-assign should be there from visit(AstFork)");
         // Increment generation and copy it to a local
-        AstVarScope* const generationVarp
-            = m_assignWGens.make(flp, m_scopep, alwaysp->findUInt64DType());
-        AstVarScope* const genLocalVarp
-            = createTemp(flp, generationVarp->varp()->name() + "__local",
-                         alwaysp->findUInt64DType(), preAssignp);
-        preAssignp->addHereThisAsNext(
-            new AstAssign{flp, new AstVarRef{flp, generationVarp, VAccess::WRITE},
-                          new AstAdd{flp, new AstVarRef{flp, generationVarp, VAccess::READ},
-                                     new AstConst{flp, 1}}});
-        preAssignp->addHereThisAsNext(
-            new AstAssign{flp, new AstVarRef{flp, genLocalVarp, VAccess::WRITE},
-                          new AstVarRef{flp, generationVarp, VAccess::READ}});
+        AstVarScope* స్థిరరాశి generationVarp
+            = m_కేటాయించు_WGens.make(flp, m_scopep, alwaysp->కనుగొను_UInt64_DType());
+        AstVarScope* స్థిరరాశి genLocalVarp
+            = create_తాత్కాలిక(flp, generationVarp->varp()->name() + "__local",
+                         alwaysp->కనుగొను_UInt64_DType(), preAssignp);
+        preAssignp->కూడు_ఇక్కడ_This_As_తదుపరి(
+            కొత్త Ast_కేటాయించు{flp, కొత్త AstVarRef{flp, generationVarp, VAccess::WRITE},
+                          కొత్త Ast_కూడు{flp, కొత్త AstVarRef{flp, generationVarp, VAccess::READ},
+                                     కొత్త AstConst{flp, 1}}});
+        preAssignp->కూడు_ఇక్కడ_This_As_తదుపరి(
+            కొత్త Ast_కేటాయించు{flp, కొత్త AstVarRef{flp, genLocalVarp, VAccess::WRITE},
+                          కొత్త AstVarRef{flp, generationVarp, VAccess::READ}});
         // If the current generation is same as the one saved in the local var, assign
-        beginp->addStmtsp(
-            new AstIf{flp,
-                      new AstEq{flp, new AstVarRef{flp, generationVarp, VAccess::READ},
-                                new AstVarRef{flp, genLocalVarp, VAccess::READ}},
-                      postAssignp->unlinkFrBack()});
+        beginp->కూడు_Stmtsp(
+            కొత్త AstIf{flp,
+                      కొత్త AstEq{flp, కొత్త AstVarRef{flp, generationVarp, VAccess::READ},
+                                కొత్త AstVarRef{flp, genLocalVarp, VAccess::READ}},
+                      postAssignp->unlink_Fr_వెనుక()});
         // Save scheduled RHS value before delay
-        AstVarScope* const tmpVarp
-            = m_assignWTmps.make(flp, m_scopep, preAssignp->rhsp()->dtypep());
-        AstVarRef* const tmpAssignRhsp = VN_AS(preAssignp->lhsp(), VarRef)->cloneTree(false);
-        tmpAssignRhsp->access(VAccess::WRITE);
-        preAssignp->addNextHere(
-            new AstAssign{flp, new AstVarRef{flp, tmpVarp, VAccess::WRITE}, tmpAssignRhsp});
+        AstVarScope* స్థిరరాశి tmpVarp
+            = m_కేటాయించు_WTmps.make(flp, m_scopep, preAssignp->rhsp()->dtypep());
+        AstVarRef* స్థిరరాశి tmp_కేటాయించు_Rhsp = VN_AS(preAssignp->lhsp(), VarRef)->clone_వృక్షం(అబద్ధం);
+        tmp_కేటాయించు_Rhsp->access(VAccess::WRITE);
+        preAssignp->కూడు_తదుపరి_ఇక్కడ(
+            కొత్త Ast_కేటాయించు{flp, కొత్త AstVarRef{flp, tmpVarp, VAccess::WRITE}, tmp_కేటాయించు_Rhsp});
         // If the RHS is different from the currently scheduled value, schedule the new assignment
         // The generation will increase, effectively 'descheduling' the previous assignment.
-        AstNodeExpr* const didNotInitp
-            = new AstLogNot{flp, new AstCExpr{flp, "vlSymsp->__Vm_didInit", 1}};
-        AstVarRef* const firstIterp
-            = new AstVarRef{flp, m_netlistp->stlFirstIterationp(), VAccess::READ};
-        AstNodeExpr* const schedCondp
-            = new AstLogOr{flp,
-                           new AstNeq{flp, preAssignp->rhsp()->cloneTree(false),
-                                      new AstVarRef{flp, tmpVarp, VAccess::READ}},
-                           new AstLogAnd{flp, didNotInitp, firstIterp}};
-        alwaysp->addStmtsp(new AstIf{flp, schedCondp, forkp->unlinkFrBack()});
+        Ast_కణుపు_సమాసం* స్థిరరాశి didNotInitp
+            = కొత్త AstLogNot{flp, కొత్త AstCExpr{flp, "vlSymsp->__Vm_didInit", 1}};
+        AstVarRef* స్థిరరాశి మొదటి_Iterp
+            = కొత్త AstVarRef{flp, m_netlistp->stl_మొదటి_Iterationp(), VAccess::READ};
+        Ast_కణుపు_సమాసం* స్థిరరాశి schedCondp
+            = కొత్త AstLogOr{flp,
+                           కొత్త AstNeq{flp, preAssignp->rhsp()->clone_వృక్షం(అబద్ధం),
+                                      కొత్త AstVarRef{flp, tmpVarp, VAccess::READ}},
+                           కొత్త AstLogAnd{flp, didNotInitp, మొదటి_Iterp}};
+        alwaysp->కూడు_Stmtsp(కొత్త AstIf{flp, schedCondp, forkp->unlink_Fr_వెనుక()});
     }
-    void visit(AstDisableFork* nodep) override {
-        if (m_hasProcess) return;
+    శూన్య సందర్శించు(AstDisableFork* nodep) override {
+        ఒకవేళ (m_hasProcess) తిరిగి;
         // never reached by any process; remove to avoid compilation error
-        VL_DO_DANGLING(nodep->unlinkFrBack()->deleteTree(), nodep);
+        VL_DO_DANGLING(nodep->unlink_Fr_వెనుక()->delete_వృక్షం(), nodep);
     }
-    void visit(AstWaitFork* nodep) override {
-        if (m_hasProcess) {
-            FileLine* const flp = nodep->fileline();
-            AstCExpr* const exprp = new AstCExpr{flp, "vlProcess->completedFork()", 1};
-            AstWait* const waitp = new AstWait{flp, exprp, nullptr};
+    శూన్య సందర్శించు(AstWaitFork* nodep) override {
+        ఒకవేళ (m_hasProcess) {
+            File_పంక్తి* స్థిరరాశి flp = nodep->fileline();
+            AstCExpr* స్థిరరాశి exprp = కొత్త AstCExpr{flp, "vlProcess->completedFork()", 1};
+            AstWait* స్థిరరాశి waitp = కొత్త AstWait{flp, exprp, శూన్యసూచిక};
             nodep->replaceWith(waitp);
-        } else {
+        } లేకపోతే {
             // never reached by any process; remove to avoid compilation error
-            nodep->unlinkFrBack();
+            nodep->unlink_Fr_వెనుక();
         }
-        VL_DO_DANGLING(nodep->deleteTree(), nodep);
+        VL_DO_DANGLING(nodep->delete_వృక్షం(), nodep);
     }
-    void visit(AstWait* nodep) override {
+    శూన్య సందర్శించు(AstWait* nodep) override {
         // Wait on changed events related to the vars in the wait statement
         UINFO(9, "control-visit " << nodep);
-        FileLine* const flp = nodep->fileline();
-        AstNode* const stmtsp = nodep->stmtsp();
-        if (stmtsp) stmtsp->unlinkFrBackWithNext();
-        AstNodeExpr* const condp = V3Const::constifyEdit(nodep->condp()->unlinkFrBack());
-        auto* const constp = VN_CAST(condp, Const);
-        if (constp) {
-            if (constp->isZero()) {
+        File_పంక్తి* స్థిరరాశి flp = nodep->fileline();
+        Ast_కణుపు* స్థిరరాశి stmtsp = nodep->stmtsp();
+        ఒకవేళ (stmtsp) stmtsp->unlink_Fr_వెనుక_With_తదుపరి();
+        Ast_కణుపు_సమాసం* స్థిరరాశి condp = V3Const::constifyEdit(nodep->condp()->unlink_Fr_వెనుక());
+        స్వయంచాలక* స్థిరరాశి constp = VN_CAST(condp, Const);
+        ఒకవేళ (constp) {
+            ఒకవేళ (constp->isZero()) {
                 // We have to await forever instead of simply returning in case we're deep in a
                 // callstack
-                AstCMethodHard* const foreverMethodp = new AstCMethodHard{
-                    flp, new AstVarRef{flp, getCreateDelayScheduler(), VAccess::WRITE},
+                AstCMethodHard* స్థిరరాశి foreverMethodp = కొత్త AstCMethodHard{
+                    flp, కొత్త AstVarRef{flp, getCreateDelayScheduler(), VAccess::WRITE},
                     VCMethod::SCHED_WAIT_FOREVER};
-                foreverMethodp->dtypeSetVoid();
-                addProcessInfo(foreverMethodp);
-                addDebugInfo(foreverMethodp);
-                AstCAwait* const awaitp = new AstCAwait{flp, foreverMethodp};
+                foreverMethodp->dtype_సమితి_Void();
+                కూడు_Process_Info(foreverMethodp);
+                కూడు_Debug_Info(foreverMethodp);
+                AstCAwait* స్థిరరాశి awaitp = కొత్త AstCAwait{flp, foreverMethodp};
                 nodep->replaceWith(awaitp);
-                if (stmtsp) VL_DO_DANGLING(stmtsp->deleteTree(), stmtsp);
-                VL_DO_DANGLING(condp->deleteTree(), condp);
-            } else {
+                ఒకవేళ (stmtsp) VL_DO_DANGLING(stmtsp->delete_వృక్షం(), stmtsp);
+                VL_DO_DANGLING(condp->delete_వృక్షం(), condp);
+            } లేకపోతే {
                 nodep->v3fatalSrc("constant wait should have been removed in "
                                   "TimingSuspendableVisitor::visit(AstWait)");
             }
-        } else if (needDynamicTrigger(condp)) {
+        } లేకపోతే ఒకవేళ (needDynamicTrigger(condp)) {
             // No point in making a sentree, just use the expression as sensitivity
             // Put the event control in an if so we only wait if the condition isn't met already
-            auto* const ifp = new AstIf{
-                flp, new AstLogNot{flp, condp},
-                new AstEventControl{flp,
-                                    new AstSenTree{flp, new AstSenItem{flp, VEdgeType::ET_TRUE,
-                                                                       condp->cloneTree(false)}},
-                                    nullptr}};
-            if (stmtsp) AstNode::addNext<AstNode, AstNode>(ifp, stmtsp);
+            స్వయంచాలక* స్థిరరాశి ifp = కొత్త AstIf{
+                flp, కొత్త AstLogNot{flp, condp},
+                కొత్త AstEventControl{flp,
+                                    కొత్త Ast_Sen_వృక్షం{flp, కొత్త Ast_Sen_అంశం{flp, VEdgeType::ET_TRUE,
+                                                                       condp->clone_వృక్షం(అబద్ధం)}},
+                                    శూన్యసూచిక}};
+            ఒకవేళ (stmtsp) Ast_కణుపు::కూడు_తదుపరి<Ast_కణుపు, Ast_కణుపు>(ifp, stmtsp);
             nodep->replaceWith(ifp);
-        } else {
+        } లేకపోతే {
             // We are using a global sentree, so we cannot use ET_TRUE, as that could lead to the
             // active region never converging. Because of this, we need to use ET_CHANGED in a
             // loop.
-            AstEventControl* const controlp = new AstEventControl{
+            AstEventControl* స్థిరరాశి controlp = కొత్త AstEventControl{
                 flp,
-                new AstSenTree{
-                    flp, new AstSenItem{flp, VEdgeType::ET_CHANGED, condp->cloneTree(false)}},
-                nullptr};
-            controlp->user2(true);  // Commit immediately
-            AstLoop* const loopp = new AstLoop{flp};
-            loopp->addStmtsp(new AstLoopTest{flp, loopp, new AstLogNot{flp, condp}});
-            loopp->addStmtsp(controlp);
-            if (stmtsp) AstNode::addNext<AstNode, AstNode>(loopp, stmtsp);
+                కొత్త Ast_Sen_వృక్షం{
+                    flp, కొత్త Ast_Sen_అంశం{flp, VEdgeType::ET_మారింది, condp->clone_వృక్షం(అబద్ధం)}},
+                శూన్యసూచిక};
+            controlp->user2(నిజం);  // Commit immediately
+            AstLoop* స్థిరరాశి loopp = కొత్త AstLoop{flp};
+            loopp->కూడు_Stmtsp(కొత్త AstLoopTest{flp, loopp, కొత్త AstLogNot{flp, condp}});
+            loopp->కూడు_Stmtsp(controlp);
+            ఒకవేళ (stmtsp) Ast_కణుపు::కూడు_తదుపరి<Ast_కణుపు, Ast_కణుపు>(loopp, stmtsp);
             nodep->replaceWith(loopp);
         }
-        VL_DO_DANGLING(nodep->deleteTree(), nodep);
+        VL_DO_DANGLING(nodep->delete_వృక్షం(), nodep);
     }
-    void visit(AstBegin* nodep) override {
+    శూన్య సందర్శించు(AstBegin* nodep) override {
         VL_RESTORER(m_procp);
         VL_RESTORER(m_hasProcess);
         m_hasProcess |= hasFlags(nodep, T_HAS_PROC);
         // A pending NBA update is not a subprocess of the process that scheduled it, so it is
         // unaffected by 'disable fork' and 'wait fork' (IEEE 1800-2023 9.6.1, 9.6.3)
-        if (hasFlags(nodep, T_NBA_UPDATE)) m_hasProcess = false;
+        ఒకవేళ (hasFlags(nodep, T_NBA_UPDATE)) m_hasProcess = అబద్ధం;
         m_procp = nodep;
-        if (m_hasProcess) nodep->setNeedProcess();
+        ఒకవేళ (m_hasProcess) nodep->సమితి_Need_Process();
         iterateChildren(nodep);
     }
-    void visit(AstFork* nodep) override {
-        if (nodep->user1SetOnce()) return;
+    శూన్య సందర్శించు(AstFork* nodep) override {
+        ఒకవేళ (nodep->user1_సమితి_Once()) తిరిగి;
         UINFO(9, "control-visit " << nodep);
-        v3Global.setUsesTiming();
+        v3Global.సమితి_ఉపయోగిస్తుంది_Timing();
 
         // Create a unique name for this fork
-        nodep->name("__Vfork_" + std::to_string(++m_forkCnt));
+        nodep->name("__Vfork_" + std::గమ్యం_string(++m_forkCnt));
 
         // TODO: Should process nodep->stmtsp() in case an earlier pass
         //       inserted something there, but as of today we don't need to.
 
         // Process and name each fork
-        size_t idx = 0;  // Index for naming begins
-        for (AstBegin *itemp = nodep->forksp(), *nextp; itemp; itemp = nextp) {
+        కొలత_t idx = 0;  // Index for naming begins
+        కొరకు (AstBegin *itemp = nodep->forksp(), *nextp; itemp; itemp = nextp) {
             nextp = VN_AS(itemp->nextp(), Begin);
             iterate(itemp);
             // Note: Even if we do not find any awaits, we cannot simply inline
             // the process here, as new awaits could be added later.
 
             // Name the begin (later the name will be used for a new function)
-            itemp->name(nodep->name() + "__" + std::to_string(idx++));
-            if (itemp->needProcess()) {
-                itemp->addStmtsp(
-                    new AstCStmt{itemp->fileline(), "vlProcess->state(VlProcess::FINISHED);"});
+            itemp->name(nodep->name() + "__" + std::గమ్యం_string(idx++));
+            ఒకవేళ (itemp->needProcess()) {
+                itemp->కూడు_Stmtsp(
+                    కొత్త AstCStmt{itemp->fileline(), "vlProcess->state(VlProcess::FINISHED);"});
             }
         }
-        if (!nodep->joinType().joinNone()) makeForkJoin(nodep);
+        ఒకవేళ (!nodep->joinType().joinNone()) makeForkJoin(nodep);
     }
 
     //--------------------
-    void visit(AstVar*) override {}  // Accelerate
-    void visit(AstNode* nodep) override { iterateChildren(nodep); }
+    శూన్య సందర్శించు(AstVar*) override {}  // Accelerate
+    శూన్య సందర్శించు(Ast_కణుపు* nodep) override { iterateChildren(nodep); }
 
-public:
+బహిరంగ:
     // CONSTRUCTORS
-    explicit TimingControlVisitor(AstNetlist* nodep)
+    స్పష్టమైన TimingControlVisitor(AstNetlist* nodep)
         : m_netlistp{nodep} {
         iterate(nodep);
 
         // If there is no static #0 in the design, but an unknown delay was found,
         // and the user did not specify preference, then warn on all unknown delays
         // as we will be assuming they can be #0, which can cause performance degradation.
-        for (FileLine* const flp : m_unknownDelayFlps) {
+        కొరకు (File_పంక్తి* స్థిరరాశి flp : m_unknownDelayFlps) {
             flp->v3warn(ZERODLY,
                         "Value of # delay control statically unknown. Assuming it can be #0.\n"
-                            << flp->warnMore()  //
+                            << flp->warn_మరిన్ని()  //
                             << "... If all # delays are non-zero at runtime,\n"
-                            << flp->warnMore()  //
+                            << flp->warn_మరిన్ని()  //
                             << "... use '--no-sched-zero-delay' for improved performance.\n"
-                            << flp->warnMore()  //
+                            << flp->warn_మరిన్ని()  //
                             << "... If a real #0 is expected at runtime,\n"
-                            << flp->warnMore()  //
+                            << flp->warn_మరిన్ని()  //
                             << "... use '--sched-zero-delay' to suppress this warning.");
         }
     }
     ~TimingControlVisitor() override {
-        V3Stats::addStat("Timing, known #0 delays", m_statZeroDelays);
-        V3Stats::addStat("Timing, known #const delays", m_statConstDelays);
-        V3Stats::addStat("Timing, unknown #variable delays", m_statVariableDelays);
+        V3Stats::కూడు_Stat("Timing, known #0 delays", m_statZeroDelays);
+        V3Stats::కూడు_Stat("Timing, known #const delays", m_statConstDelays);
+        V3Stats::కూడు_Stat("Timing, unknown #variable delays", m_statVariableDelays);
     }
 };
 
 //######################################################################
 // Timing class functions
 
-AstNodeExpr* V3Timing::delayToTicks(AstNodeExpr* valuep, VTimescale timeunit) {
-    FileLine* const flp = valuep->fileline();
-    if (const AstConst* const constp = VN_CAST(valuep, Const)) {
-        if (constp->num().is1Step()) {
+Ast_కణుపు_సమాసం* V3Timing::delay_గమ్యం_Ticks(Ast_కణుపు_సమాసం* valuep, VTimescale timeunit) {
+    File_పంక్తి* స్థిరరాశి flp = valuep->fileline();
+    ఒకవేళ (స్థిరరాశి AstConst* స్థిరరాశి constp = VN_CAST(valuep, Const)) {
+        ఒకవేళ (constp->అంకె().is1_అడుగు()) {
             // A step is one tick of the global time precision (IEEE 1800-2023 3.14.3)
-            VL_DO_DANGLING(valuep->deleteTree(), valuep);
-            AstConst* const tickp = new AstConst{flp, AstConst::Unsized64{}, 1};
-            tickp->dtypeSetBitSized(64, VSigning::UNSIGNED);
-            return tickp;
+            VL_DO_DANGLING(valuep->delete_వృక్షం(), valuep);
+            AstConst* స్థిరరాశి tickp = కొత్త AstConst{flp, AstConst::Unsized64{}, 1};
+            tickp->dtype_సమితి_బిట్టు_Sized(64, VSigning::UNSIGNED);
+            తిరిగి tickp;
         }
-        if (constp->isZero()) return valuep;
+        ఒకవేళ (constp->isZero()) తిరిగి valuep;
     }
     UASSERT_OBJ(!timeunit.isNone(), valuep, "timeunit must be set");
-    const double timescaleFactorD
-        = std::pow(10.0, timeunit.powerOfTen() - v3Global.rootp()->timeprecision().powerOfTen());
-    if (valuep->dtypep()->skipRefp()->isDouble()) {
-        AstConst* const tsfp = new AstConst{flp, AstConst::RealDouble{}, timescaleFactorD};
-        valuep = new AstMulD{flp, valuep, tsfp};
-        valuep = new AstRToIRoundS{flp, valuep};
-        valuep->dtypeSetBitSized(64, VSigning::UNSIGNED);
-    } else {
-        valuep->dtypeSetBitSized(64, VSigning::UNSIGNED);
-        const uint64_t timescaleFactorU = static_cast<uint64_t>(timescaleFactorD);
-        AstConst* const tsfp = new AstConst{flp, AstConst::Unsized64{}, timescaleFactorU};
-        valuep = new AstMul{flp, valuep, tsfp};
+    స్థిరరాశి ద్విగుణ timescale_గుణకం_D
+        = std::ఘాతం(10.0, timeunit.power_యొక్క_Ten() - v3Global.rootp()->timeprecision().power_యొక్క_Ten());
+    ఒకవేళ (valuep->dtypep()->skipRefp()->isDouble()) {
+        AstConst* స్థిరరాశి tsfp = కొత్త AstConst{flp, AstConst::RealDouble{}, timescale_గుణకం_D};
+        valuep = కొత్త AstMulD{flp, valuep, tsfp};
+        valuep = కొత్త AstRToIRoundS{flp, valuep};
+        valuep->dtype_సమితి_బిట్టు_Sized(64, VSigning::UNSIGNED);
+    } లేకపోతే {
+        valuep->dtype_సమితి_బిట్టు_Sized(64, VSigning::UNSIGNED);
+        స్థిరరాశి uint64_t timescale_గుణకం_U = static_cast<uint64_t>(timescale_గుణకం_D);
+        AstConst* స్థిరరాశి tsfp = కొత్త AstConst{flp, AstConst::Unsized64{}, timescale_గుణకం_U};
+        valuep = కొత్త AstMul{flp, valuep, tsfp};
     }
-    return V3Const::constifyEdit(valuep);  // Simplify
+    తిరిగి V3Const::constifyEdit(valuep);  // Simplify
 }
 
-void V3Timing::timingAll(AstNetlist* nodep) {
+శూన్య V3Timing::timingAll(AstNetlist* nodep) {
     UINFO(2, __FUNCTION__ << ":");
     {
-        const VNUser1InUse m_user1InUse;
-        const VNUser2InUse m_user2InUse;
+        స్థిరరాశి VNUser1_లోపల_Use m_user1_లోపల_Use;
+        స్థిరరాశి VNUser2_లోపల_Use m_user2_లోపల_Use;
         { TimingSuspendableVisitor{nodep}; }
-        if (v3Global.usesTiming()) TimingControlVisitor{nodep};
+        ఒకవేళ (v3Global.ఉపయోగిస్తుంది_Timing()) TimingControlVisitor{nodep};
     }
-    V3Global::dumpCheckGlobalTree("timing", 0, dumpTreeEitherLevel() >= 3);
+    V3Global::dump_Check_Global_వృక్షం("timing", 0, dump_వృక్షం_Either_Level() >= 3);
 }

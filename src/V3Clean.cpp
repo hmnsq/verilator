@@ -24,338 +24,338 @@
 //
 //*************************************************************************
 
-#include "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
+#అన్తర్భావ "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
 
-#include "V3Clean.h"
+#అన్తర్భావ "V3Clean.h"
 
 VL_DEFINE_DEBUG_FUNCTIONS;
 
 //######################################################################
 // Clean state, as a visitor of each AstNode
 
-class CleanVisitor final : public VNVisitor {
+తరగతి CleanVisitor final : బహిరంగ VNVisitor {
     // NODE STATE
     // Entire netlist:
     //  AstNode::user1()        -> CleanState.  For this node, 0==UNKNOWN
     //  AstNode::user2()        -> bool.  True indicates widthMin has been propagated
     //  AstNodeDType::user3()   -> AstNodeDType*.  Alternative node with C size
-    const VNUser1InUse m_inuser1;
-    const VNUser2InUse m_inuser2;
-    const VNUser3InUse m_inuser3;
+    స్థిరరాశి VNUser1_లోపల_Use m_inuser1;
+    స్థిరరాశి VNUser2_లోపల_Use m_inuser2;
+    స్థిరరాశి VNUser3_లోపల_Use m_inuser3;
 
     // TYPES
-    enum CleanState : uint8_t { CS_UNKNOWN, CS_CLEAN, CS_DIRTY };
+    గణన CleanState : uint8_t { CS_UNKNOWN, CS_CLEAN, CS_DIRTY };
 
     // STATE - for current visit position (use VL_RESTORER)
-    const AstNodeModule* m_modp = nullptr;
+    స్థిరరాశి Ast_కణుపు_Module* m_modp = శూన్యసూచిక;
 
     // METHODS
 
     // Width resetting
-    int cppWidth(const AstNode* nodep) {
-        if (nodep->width() <= VL_IDATASIZE) {
-            return VL_IDATASIZE;
-        } else if (nodep->width() <= VL_QUADSIZE) {
-            return VL_QUADSIZE;
-        } else {
-            return nodep->widthWords() * VL_EDATASIZE;
+    పూర్ణాంకం cpp_వెడల్పు(స్థిరరాశి Ast_కణుపు* nodep) {
+        ఒకవేళ (nodep->వెడల్పు() <= VL_IDATASIZE) {
+            తిరిగి VL_IDATASIZE;
+        } లేకపోతే ఒకవేళ (nodep->వెడల్పు() <= VL_QUADSIZE) {
+            తిరిగి VL_QUADSIZE;
+        } లేకపోతే {
+            తిరిగి nodep->వెడల్పు_పదాలు() * VL_EDATASIZE;
         }
     }
-    void setCppWidth(AstNode* nodep) {
-        nodep->user2(true);  // Don't resize it again
-        AstNodeDType* const old_dtypep = nodep->dtypep();
-        const int width = cppWidth(nodep);  // widthMin is unchanged
-        if (old_dtypep->width() != width) {
+    శూన్య సమితి_Cpp_వెడల్పు(Ast_కణుపు* nodep) {
+        nodep->user2(నిజం);  // Don't resize it again
+        Ast_కణుపు_DType* స్థిరరాశి old_dtypep = nodep->dtypep();
+        స్థిరరాశి పూర్ణాంకం వెడల్పు = cpp_వెడల్పు(nodep);  // widthMin is unchanged
+        ఒకవేళ (old_dtypep->వెడల్పు() != వెడల్పు) {
             // Since any given dtype's cppWidth() is the same, we can just
             // remember one conversion for each, and reuse it
-            if (AstNodeDType* const new_dtypep = VN_CAST(old_dtypep->user3p(), NodeDType)) {
+            ఒకవేళ (Ast_కణుపు_DType* స్థిరరాశి new_dtypep = VN_CAST(old_dtypep->user3p(), కణుపు_DType)) {
                 nodep->dtypep(new_dtypep);
-            } else {
-                nodep->dtypeChgWidth(width, nodep->widthMin());
-                AstNodeDType* const new_dtypep2 = nodep->dtypep();
+            } లేకపోతే {
+                nodep->dtype_Chg_వెడల్పు(వెడల్పు, nodep->వెడల్పు_Min());
+                Ast_కణుపు_DType* స్థిరరాశి new_dtypep2 = nodep->dtypep();
                 UASSERT_OBJ(new_dtypep2 != old_dtypep, nodep,
                             "Dtype didn't change when width changed");
                 old_dtypep->user3p(new_dtypep2);  // Remember for next time
             }
         }
     }
-    void computeCppWidth(AstNode* nodep) {
-        if (!nodep->user2() && nodep->hasDType()) {
-            if (VN_IS(nodep, Var)  //
-                || VN_IS(nodep, NodeDType)  // Don't want to change variable widths!
-                || VN_IS(nodep, NodeSel)  // Array selects should reflect variable widths
+    శూన్య compute_Cpp_వెడల్పు(Ast_కణుపు* nodep) {
+        ఒకవేళ (!nodep->user2() && nodep->hasDType()) {
+            ఒకవేళ (VN_IS(nodep, Var)  //
+                || VN_IS(nodep, కణుపు_DType)  // Don't want to change variable widths!
+                || VN_IS(nodep, కణుపు_Sel)  // Array selects should reflect variable widths
                 || VN_IS(nodep, SFormatArg)  // Retain the logical argument type, not storage width
                 || VN_IS(nodep->dtypep()->skipRefp(), AssocArrayDType)  // Or arrays
                 || VN_IS(nodep->dtypep()->skipRefp(), WildcardArrayDType)
                 || VN_IS(nodep->dtypep()->skipRefp(), DynArrayDType)
                 || VN_IS(nodep->dtypep()->skipRefp(), ClassRefDType)
-                || VN_IS(nodep->dtypep()->skipRefp(), QueueDType)
-                || VN_IS(nodep->dtypep()->skipRefp(), StreamDType)
+                || VN_IS(nodep->dtypep()->skipRefp(), వరుస_DType)
+                || VN_IS(nodep->dtypep()->skipRefp(), ప్రవాహం_DType)
                 || VN_IS(nodep->dtypep()->skipRefp(), UnpackArrayDType)
                 || VN_IS(nodep->dtypep()->skipRefp(), CoverCrossDType)
                 || VN_IS(nodep->dtypep()->skipRefp(), CoverpointDType)
                 || VN_IS(nodep->dtypep()->skipRefp(), VoidDType)) {
-            } else {
-                const AstNodeUOrStructDType* const dtypep
-                    = VN_CAST(nodep->dtypep()->skipRefp(), NodeUOrStructDType);
-                if (!dtypep || dtypep->packed()) setCppWidth(nodep);
+            } లేకపోతే {
+                స్థిరరాశి Ast_కణుపు_UOr_Struct_DType* స్థిరరాశి dtypep
+                    = VN_CAST(nodep->dtypep()->skipRefp(), కణుపు_UOr_Struct_DType);
+                ఒకవేళ (!dtypep || dtypep->packed()) సమితి_Cpp_వెడల్పు(nodep);
             }
         }
     }
 
     // Store the clean state in the userp on each node
-    void setCleanState(AstNode* nodep, CleanState clean) { nodep->user1(clean); }
-    CleanState getCleanState(const AstNode* nodep) {
-        return static_cast<CleanState>(nodep->user1());
+    శూన్య సమితి_Clean_State(Ast_కణుపు* nodep, CleanState clean) { nodep->user1(clean); }
+    CleanState getCleanState(స్థిరరాశి Ast_కణుపు* nodep) {
+        తిరిగి static_cast<CleanState>(nodep->user1());
     }
-    bool isClean(AstNode* nodep) {
-        const CleanState clstate = getCleanState(nodep);
-        if (clstate == CS_CLEAN) return true;
-        if (clstate == CS_DIRTY) return false;
+    తార్కిక isClean(Ast_కణుపు* nodep) {
+        స్థిరరాశి CleanState clstate = getCleanState(nodep);
+        ఒకవేళ (clstate == CS_CLEAN) తిరిగి నిజం;
+        ఒకవేళ (clstate == CS_DIRTY) తిరిగి అబద్ధం;
         nodep->v3fatalSrc("Unknown clean state on node: " + nodep->prettyTypeName());
-        return false;
+        తిరిగి అబద్ధం;
     }
-    void setClean(AstNode* nodep, bool isClean) {
-        computeCppWidth(nodep);  // Just to be sure it's in widthMin
-        const bool wholeUint
-            = (nodep->widthMin() == VL_IDATASIZE || nodep->widthMin() == VL_QUADSIZE
-               || (nodep->widthMin() % VL_EDATASIZE) == 0);
-        setCleanState(nodep, ((isClean || wholeUint) ? CS_CLEAN : CS_DIRTY));
+    శూన్య సమితి_Clean(Ast_కణుపు* nodep, తార్కిక isClean) {
+        compute_Cpp_వెడల్పు(nodep);  // Just to be sure it's in widthMin
+        స్థిరరాశి తార్కిక సంపూర్ణ_Uint
+            = (nodep->వెడల్పు_Min() == VL_IDATASIZE || nodep->వెడల్పు_Min() == VL_QUADSIZE
+               || (nodep->వెడల్పు_Min() % VL_EDATASIZE) == 0);
+        సమితి_Clean_State(nodep, ((isClean || సంపూర్ణ_Uint) ? CS_CLEAN : CS_DIRTY));
     }
 
     // Operate on nodes
-    void insertClean(AstNodeExpr* nodep) {  // We'll insert ABOVE passed node
+    శూన్య చొప్పించు_Clean(Ast_కణుపు_సమాసం* nodep) {  // We'll insert ABOVE passed node
         UINFO(4, "  NeedClean " << nodep);
         VNRelinker relinkHandle;
-        nodep->unlinkFrBack(&relinkHandle);
+        nodep->unlink_Fr_వెనుక(&relinkHandle);
         //
-        computeCppWidth(nodep);
-        V3Number mask{nodep, cppWidth(nodep)};
-        mask.setMask(nodep->widthMin());
-        AstNode* const cleanp
-            = new AstAnd{nodep->fileline(), new AstConst{nodep->fileline(), mask}, nodep};
+        compute_Cpp_వెడల్పు(nodep);
+        V3_సంఖ్య ముసుగు{nodep, cpp_వెడల్పు(nodep)};
+        ముసుగు.సమితి_ముసుగు(nodep->వెడల్పు_Min());
+        Ast_కణుపు* స్థిరరాశి cleanp
+            = కొత్త AstAnd{nodep->fileline(), కొత్త AstConst{nodep->fileline(), ముసుగు}, nodep};
         cleanp->dtypeFrom(nodep);  // Otherwise the AND normally picks LHS
         relinkHandle.relink(cleanp);
     }
-    void ensureClean(AstNodeExpr* nodep) {
-        computeCppWidth(nodep);
-        if (!isClean(nodep)) insertClean(nodep);
+    శూన్య ensureClean(Ast_కణుపు_సమాసం* nodep) {
+        compute_Cpp_వెడల్పు(nodep);
+        ఒకవేళ (!isClean(nodep)) చొప్పించు_Clean(nodep);
     }
-    void ensureCleanAndNext(AstNode* nodep) {
+    శూన్య ensure_Clean_And_తదుపరి(Ast_కణుపు* nodep) {
         // Editing list, careful looping!
-        for (AstNode* argp = nodep; argp;) {
-            AstNode* const nextp = argp->nextp();
-            if (AstNodeExpr* const exprp = VN_CAST(argp, NodeExpr)) ensureClean(exprp);
+        కొరకు (Ast_కణుపు* argp = nodep; argp;) {
+            Ast_కణుపు* స్థిరరాశి nextp = argp->nextp();
+            ఒకవేళ (Ast_కణుపు_సమాసం* స్థిరరాశి exprp = VN_CAST(argp, కణుపు_సమాసం)) ensureClean(exprp);
             argp = nextp;
         }
     }
 
     // Base type handling methods
-    void operandBiop(AstNodeBiop* nodep) {
+    శూన్య నిర్వాహ్యం_Biop(Ast_కణుపు_Biop* nodep) {
         iterateChildren(nodep);
-        computeCppWidth(nodep);
-        if (nodep->cleanLhs()) ensureClean(nodep->lhsp());
-        if (nodep->cleanRhs()) ensureClean(nodep->rhsp());
+        compute_Cpp_వెడల్పు(nodep);
+        ఒకవేళ (nodep->cleanLhs()) ensureClean(nodep->lhsp());
+        ఒకవేళ (nodep->cleanRhs()) ensureClean(nodep->rhsp());
         // no setClean.. must do it in each user routine.
     }
-    void operandTriop(AstNodeTriop* nodep) {
+    శూన్య నిర్వాహ్యం_Triop(Ast_కణుపు_Triop* nodep) {
         iterateChildren(nodep);
-        computeCppWidth(nodep);
-        if (nodep->cleanLhs()) ensureClean(nodep->lhsp());
-        if (nodep->cleanRhs()) ensureClean(nodep->rhsp());
-        if (nodep->cleanThs()) ensureClean(nodep->thsp());
+        compute_Cpp_వెడల్పు(nodep);
+        ఒకవేళ (nodep->cleanLhs()) ensureClean(nodep->lhsp());
+        ఒకవేళ (nodep->cleanRhs()) ensureClean(nodep->rhsp());
+        ఒకవేళ (nodep->cleanThs()) ensureClean(nodep->thsp());
         // no setClean.. must do it in each user routine.
     }
-    void operandQuadop(AstNodeQuadop* nodep) {
+    శూన్య నిర్వాహ్యం_Quadop(Ast_కణుపు_Quadop* nodep) {
         iterateChildren(nodep);
-        computeCppWidth(nodep);
-        if (nodep->cleanLhs()) ensureClean(nodep->lhsp());
-        if (nodep->cleanRhs()) ensureClean(nodep->rhsp());
-        if (nodep->cleanThs()) ensureClean(nodep->thsp());
-        if (nodep->cleanFhs()) ensureClean(nodep->fhsp());
+        compute_Cpp_వెడల్పు(nodep);
+        ఒకవేళ (nodep->cleanLhs()) ensureClean(nodep->lhsp());
+        ఒకవేళ (nodep->cleanRhs()) ensureClean(nodep->rhsp());
+        ఒకవేళ (nodep->cleanThs()) ensureClean(nodep->thsp());
+        ఒకవేళ (nodep->cleanFhs()) ensureClean(nodep->fhsp());
         // no setClean.. must do it in each user routine.
     }
 
     // VISITORS
-    void visit(AstNodeModule* nodep) override {
+    శూన్య సందర్శించు(Ast_కణుపు_Module* nodep) override {
         VL_RESTORER(m_modp);
         m_modp = nodep;
         iterateChildren(nodep);
     }
-    void visit(AstNodeUniop* nodep) override {
+    శూన్య సందర్శించు(Ast_కణుపు_Uniop* nodep) override {
         iterateChildren(nodep);
-        computeCppWidth(nodep);
-        if (nodep->cleanLhs()) ensureClean(nodep->lhsp());
-        setClean(nodep, nodep->cleanOut());
+        compute_Cpp_వెడల్పు(nodep);
+        ఒకవేళ (nodep->cleanLhs()) ensureClean(nodep->lhsp());
+        సమితి_Clean(nodep, nodep->clean_బహిర్గతం());
     }
-    void visit(AstNodeBiop* nodep) override {
-        operandBiop(nodep);
-        setClean(nodep, nodep->cleanOut());
+    శూన్య సందర్శించు(Ast_కణుపు_Biop* nodep) override {
+        నిర్వాహ్యం_Biop(nodep);
+        సమితి_Clean(nodep, nodep->clean_బహిర్గతం());
     }
-    void visit(AstAnd* nodep) override {
-        operandBiop(nodep);
-        setClean(nodep, isClean(nodep->lhsp()) || isClean(nodep->rhsp()));
+    శూన్య సందర్శించు(AstAnd* nodep) override {
+        నిర్వాహ్యం_Biop(nodep);
+        సమితి_Clean(nodep, isClean(nodep->lhsp()) || isClean(nodep->rhsp()));
     }
-    void visit(AstXor* nodep) override {
-        operandBiop(nodep);
-        setClean(nodep, isClean(nodep->lhsp()) && isClean(nodep->rhsp()));
+    శూన్య సందర్శించు(AstXor* nodep) override {
+        నిర్వాహ్యం_Biop(nodep);
+        సమితి_Clean(nodep, isClean(nodep->lhsp()) && isClean(nodep->rhsp()));
     }
-    void visit(AstOr* nodep) override {
-        operandBiop(nodep);
-        setClean(nodep, isClean(nodep->lhsp()) && isClean(nodep->rhsp()));
+    శూన్య సందర్శించు(AstOr* nodep) override {
+        నిర్వాహ్యం_Biop(nodep);
+        సమితి_Clean(nodep, isClean(nodep->lhsp()) && isClean(nodep->rhsp()));
     }
-    void visit(AstNodeQuadop* nodep) override {
-        operandQuadop(nodep);
-        setClean(nodep, nodep->cleanOut());
+    శూన్య సందర్శించు(Ast_కణుపు_Quadop* nodep) override {
+        నిర్వాహ్యం_Quadop(nodep);
+        సమితి_Clean(nodep, nodep->clean_బహిర్గతం());
     }
-    void visit(AstExprStmt* nodep) override {
+    శూన్య సందర్శించు(Ast_సమాసం_Stmt* nodep) override {
         iterateChildren(nodep);
-        computeCppWidth(nodep);
-        setClean(nodep, isClean(nodep->resultp()));
+        compute_Cpp_వెడల్పు(nodep);
+        సమితి_Clean(nodep, isClean(nodep->resultp()));
     }
-    void visit(AstNodeExpr* nodep) override {
+    శూన్య సందర్శించు(Ast_కణుపు_సమాసం* nodep) override {
         iterateChildren(nodep);
-        computeCppWidth(nodep);
-        setClean(nodep, nodep->cleanOut());
+        compute_Cpp_వెడల్పు(nodep);
+        సమితి_Clean(nodep, nodep->clean_బహిర్గతం());
     }
-    void visit(AstNodeAssign* nodep) override {
+    శూన్య సందర్శించు(Ast_కణుపు_కేటాయించు* nodep) override {
         iterateChildren(nodep);
-        computeCppWidth(nodep);
-        if (nodep->cleanRhs()) ensureClean(nodep->rhsp());
+        compute_Cpp_వెడల్పు(nodep);
+        ఒకవేళ (nodep->cleanRhs()) ensureClean(nodep->rhsp());
     }
-    void visit(AstScopeName* nodep) override {  //
-        setClean(nodep, true);
+    శూన్య సందర్శించు(AstScopeName* nodep) override {  //
+        సమితి_Clean(nodep, నిజం);
     }
-    void visit(AstCNew* nodep) override {
+    శూన్య సందర్శించు(AstCNew* nodep) override {
         iterateChildren(nodep);
-        setClean(nodep, true);
+        సమితి_Clean(nodep, నిజం);
     }
     // Constructor values are stored, so must be clean
-    void visit(AstConsAssoc* nodep) override {
+    శూన్య సందర్శించు(AstConsAssoc* nodep) override {
         iterateChildren(nodep);
-        if (nodep->defaultp()) ensureClean(nodep->defaultp());
-        setClean(nodep, true);
+        ఒకవేళ (nodep->defaultp()) ensureClean(nodep->defaultp());
+        సమితి_Clean(nodep, నిజం);
     }
-    void visit(AstConsDynArray* nodep) override {
+    శూన్య సందర్శించు(AstConsDynArray* nodep) override {
         iterateChildren(nodep);
-        if (nodep->defaultp()) ensureClean(nodep->defaultp());
-        setClean(nodep, true);
+        ఒకవేళ (nodep->defaultp()) ensureClean(nodep->defaultp());
+        సమితి_Clean(nodep, నిజం);
     }
-    void visit(AstConsWildcard* nodep) override {
+    శూన్య సందర్శించు(AstConsWildcard* nodep) override {
         iterateChildren(nodep);
-        if (nodep->defaultp()) ensureClean(nodep->defaultp());
-        setClean(nodep, true);
+        ఒకవేళ (nodep->defaultp()) ensureClean(nodep->defaultp());
+        సమితి_Clean(nodep, నిజం);
     }
-    void visit(AstNodeConsItem* nodep) override {
+    శూన్య సందర్శించు(Ast_కణుపు_Cons_అంశం* nodep) override {
         iterateChildren(nodep);
         ensureClean(nodep->valuep());
     }
-    void visit(AstMatchMasked* nodep) override {
+    శూన్య సందర్శించు(Ast_సరిపోలిక_Masked* nodep) override {
         iterateChildren(nodep);
         ensureClean(nodep->lhsp());
-        setClean(nodep, true);
+        సమితి_Clean(nodep, నిజం);
     }
-    void visit(AstSel* nodep) override {
-        operandBiop(nodep);
-        setClean(nodep, nodep->cleanOut());
+    శూన్య సందర్శించు(AstSel* nodep) override {
+        నిర్వాహ్యం_Biop(nodep);
+        సమితి_Clean(nodep, nodep->clean_బహిర్గతం());
     }
-    void visit(AstCExprUser* nodep) override {
+    శూన్య సందర్శించు(AstCExprUser* nodep) override {
         iterateChildren(nodep);
-        computeCppWidth(nodep);
-        setClean(nodep, false);
+        compute_Cpp_వెడల్పు(nodep);
+        సమితి_Clean(nodep, అబద్ధం);
         // We always clean, as we don't trust those pesky users.
-        if (!VN_IS(nodep->backp(), And)) insertClean(nodep);
-        ensureCleanAndNext(nodep->nodesp());
+        ఒకవేళ (!VN_IS(nodep->backp(), And)) చొప్పించు_Clean(nodep);
+        ensure_Clean_And_తదుపరి(nodep->nodesp());
     }
-    void visit(AstTraceDecl* nodep) override {}  // Nothing to do here
-    void visit(AstTraceInc* nodep) override {
+    శూన్య సందర్శించు(AstTraceDecl* nodep) override {}  // Nothing to do here
+    శూన్య సందర్శించు(AstTraceInc* nodep) override {
         iterateChildren(nodep);
-        ensureCleanAndNext(nodep->valuep());
+        ensure_Clean_And_తదుపరి(nodep->valuep());
     }
-    void visit(AstTypedef* nodep) override {
+    శూన్య సందర్శించు(AstTypedef* nodep) override {
         // No cleaning, or would loose pointer to enum
         iterateChildren(nodep);
     }
-    void visit(AstParamTypeDType* nodep) override {
+    శూన్య సందర్శించు(AstParamTypeDType* nodep) override {
         // No cleaning, or would loose pointer to enum
         iterateChildren(nodep);
     }
 
     // Control flow operators
-    void visit(AstCond* nodep) override {
+    శూన్య సందర్శించు(AstCond* nodep) override {
         iterateChildren(nodep);
         ensureClean(nodep->condp());
-        setClean(nodep, isClean(nodep->thenp()) && isClean(nodep->elsep()));
+        సమితి_Clean(nodep, isClean(nodep->thenp()) && isClean(nodep->elsep()));
     }
-    void visit(AstLoop* nodep) override { iterateChildren(nodep); }
-    void visit(AstLoopTest* nodep) override {
-        iterateChildren(nodep);
-        ensureClean(nodep->condp());
-    }
-    void visit(AstNodeIf* nodep) override {
+    శూన్య సందర్శించు(AstLoop* nodep) override { iterateChildren(nodep); }
+    శూన్య సందర్శించు(AstLoopTest* nodep) override {
         iterateChildren(nodep);
         ensureClean(nodep->condp());
     }
-    void visit(AstSFormatArg* nodep) override {
+    శూన్య సందర్శించు(Ast_కణుపు_If* nodep) override {
         iterateChildren(nodep);
-        ensureCleanAndNext(nodep->exprp());
-        setClean(nodep, true);
+        ensureClean(nodep->condp());
     }
-    void visit(AstSFormatF* nodep) override {
+    శూన్య సందర్శించు(AstSFormatArg* nodep) override {
         iterateChildren(nodep);
-        ensureCleanAndNext(nodep->exprsp());
-        setClean(nodep, true);  // generates a string, so not relevant
+        ensure_Clean_And_తదుపరి(nodep->exprp());
+        సమితి_Clean(nodep, నిజం);
     }
-    void visit(AstCStmt* nodep) override {
+    శూన్య సందర్శించు(AstSFormatF* nodep) override {
         iterateChildren(nodep);
-        ensureCleanAndNext(nodep->nodesp());
+        ensure_Clean_And_తదుపరి(nodep->exprsp());
+        సమితి_Clean(nodep, నిజం);  // generates a string, so not relevant
     }
-    void visit(AstCStmtUser* nodep) override {
+    శూన్య సందర్శించు(AstCStmt* nodep) override {
         iterateChildren(nodep);
-        ensureCleanAndNext(nodep->nodesp());
+        ensure_Clean_And_తదుపరి(nodep->nodesp());
     }
-    void visit(AstNodeCCall* nodep) override {
+    శూన్య సందర్శించు(AstCStmtUser* nodep) override {
         iterateChildren(nodep);
-        ensureCleanAndNext(nodep->argsp());
-        setClean(nodep, true);
+        ensure_Clean_And_తదుపరి(nodep->nodesp());
     }
-    void visit(AstCMethodHard* nodep) override {
+    శూన్య సందర్శించు(Ast_కణుపు_CCall* nodep) override {
         iterateChildren(nodep);
-        ensureCleanAndNext(nodep->pinsp());
-        setClean(nodep, nodep->cleanOut());
+        ensure_Clean_And_తదుపరి(nodep->argsp());
+        సమితి_Clean(nodep, నిజం);
     }
-    void visit(AstWith* nodep) override {
+    శూన్య సందర్శించు(AstCMethodHard* nodep) override {
         iterateChildren(nodep);
-        setClean(nodep, true);
+        ensure_Clean_And_తదుపరి(nodep->pinsp());
+        సమితి_Clean(nodep, nodep->clean_బహిర్గతం());
     }
-    void visit(AstCReturn* nodep) override {
+    శూన్య సందర్శించు(AstWith* nodep) override {
+        iterateChildren(nodep);
+        సమితి_Clean(nodep, నిజం);
+    }
+    శూన్య సందర్శించు(AstCReturn* nodep) override {
         iterateChildren(nodep);
         ensureClean(nodep->lhsp());
-        setClean(nodep, true);
+        సమితి_Clean(nodep, నిజం);
     }
-    void visit(AstIntfRef* nodep) override {
+    శూన్య సందర్శించు(AstIntfRef* nodep) override {
         iterateChildren(nodep);
-        setClean(nodep, true);  // generates a string, so not relevant
+        సమితి_Clean(nodep, నిజం);  // generates a string, so not relevant
     }
 
     //--------------------
     // Default: Just iterate
-    void visit(AstNode* nodep) override {
+    శూన్య సందర్శించు(Ast_కణుపు* nodep) override {
         iterateChildren(nodep);
-        computeCppWidth(nodep);
+        compute_Cpp_వెడల్పు(nodep);
     }
 
-public:
+బహిరంగ:
     // CONSTRUCTORS
-    explicit CleanVisitor(AstNetlist* nodep) { iterate(nodep); }
-    ~CleanVisitor() override = default;
+    స్పష్టమైన CleanVisitor(AstNetlist* nodep) { iterate(nodep); }
+    ~CleanVisitor() override = అప్రమేయ;
 };
 
 //######################################################################
 // Clean class functions
 
-void V3Clean::cleanAll(AstNetlist* nodep) {
+శూన్య V3Clean::cleanAll(AstNetlist* nodep) {
     UINFO(2, __FUNCTION__ << ":");
     { CleanVisitor{nodep}; }  // Destruct before checking
-    V3Global::dumpCheckGlobalTree("clean", 0, dumpTreeEitherLevel() >= 3);
+    V3Global::dump_Check_Global_వృక్షం("clean", 0, dump_వృక్షం_Either_Level() >= 3);
 }

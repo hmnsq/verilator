@@ -18,44 +18,44 @@
 //
 //*************************************************************************
 
-#ifndef VERILATOR_V3DUPFINDER_H_
-#define VERILATOR_V3DUPFINDER_H_
-#include "config_build.h"
-#include "verilatedos.h"
+#నిర్వచితం_కాకపోతే VERILATOR_V3DUPFINDER_H_
+#నిర్వచించు VERILATOR_V3DUPFINDER_H_
+#అన్తర్భావ "config_build.h"
+#అన్తర్భావ "verilatedos.h"
 
-#include "V3Ast.h"
-#include "V3Error.h"
-#include "V3Hasher.h"
+#అన్తర్భావ "V3Ast.h"
+#అన్తర్భావ "V3Error.h"
+#అన్తర్భావ "V3Hasher.h"
 
-#include <map>
-#include <memory>
+#అన్తర్భావ <map>
+#అన్తర్భావ <memory>
 
 //============================================================================
 
-struct V3DupFinderUserSame VL_NOT_FINAL {
+నిర్మాణం V3DupFinderUserSame VL_NOT_FINAL {
     // Functor for V3DupFinder::findDuplicate
-    virtual bool isSame(AstNode*, AstNode*) = 0;
-    V3DupFinderUserSame() = default;
-    virtual ~V3DupFinderUserSame() = default;
+    మాయా bool isSame(Ast_కణుపు*, Ast_కణుపు*) = 0;
+    V3DupFinderUserSame() = అప్రమేయ;
+    మాయా ~V3DupFinderUserSame() = అప్రమేయ;
 };
 
 // This really is just a multimap from 'node hash' to 'node pointer', with some minor extensions.
-class V3DupFinder final : private std::multimap<V3Hash, AstNode*> {
-    using Super = std::multimap<V3Hash, AstNode*>;
+class V3DupFinder final : అంతరంగ std::multimap<V3Hash, Ast_కణుపు*> {
+    using Super = std::multimap<V3Hash, Ast_కణుపు*>;
 
     // MEMBERS
-    const V3Hasher* const m_hasherOwnedp = nullptr;  // Pointer to owned hasher
-    const V3Hasher& m_hasher;  // Reference to hasher
+    స్థిరరాశి V3Hasher* స్థిరరాశి m_hasherOwnedp = nullptr;  // Pointer to owned hasher
+    స్థిరరాశి V3Hasher& m_hasher;  // Reference to hasher
 
-public:
+బహిరంగ:
     // CONSTRUCTORS
     V3DupFinder()
         : m_hasherOwnedp{new V3Hasher}
         , m_hasher{*m_hasherOwnedp} {}
-    explicit V3DupFinder(const V3Hasher& hasher)
+    explicit V3DupFinder(స్థిరరాశి V3Hasher& hasher)
         : m_hasher{hasher} {}
     ~V3DupFinder() {
-        if (m_hasherOwnedp) delete m_hasherOwnedp;
+        ఒకవేళ (m_hasherOwnedp) delete m_hasherOwnedp;
     }
 
     // METHODS
@@ -66,24 +66,24 @@ public:
     using Super::cend;
     using Super::clear;
     using Super::const_iterator;
-    using Super::empty;
-    using Super::end;
+    using Super::ఖాళీలు;
+    using Super::చివర;
     using Super::erase;
     using Super::iterator;
-    using Super::size_type;
+    using Super::కొలత_type;
 
     // Insert node into data structure
-    iterator insert(AstNode* nodep) { return emplace(m_hasher(nodep), nodep); }
+    iterator చొప్పించు(Ast_కణుపు* nodep) { తిరిగి emplace(m_hasher(nodep), nodep); }
 
     // Erase node from data structure
-    size_type erase(AstNode* nodep) VL_MT_DISABLED;
+    కొలత_type erase(Ast_కణుపు* nodep) VL_MT_DISABLED;
 
     // Return duplicate, if one was inserted, with optional user check for sameness
-    iterator findDuplicate(AstNode* nodep, V3DupFinderUserSame* checkp = nullptr) VL_MT_DISABLED;
+    iterator కనుగొను_Duplicate(Ast_కణుపు* nodep, V3DupFinderUserSame* checkp = nullptr) VL_MT_DISABLED;
 
     // Dump for debug
-    void dumpFile(const string& filename, bool tree) VL_MT_DISABLED;
-    void dumpFilePrefixed(const string& nameComment, bool tree = false) VL_MT_DISABLED;
+    శూన్య dumpFile(స్థిరరాశి string& filename, bool వృక్షం) VL_MT_DISABLED;
+    శూన్య dumpFilePrefixed(స్థిరరాశి string& nameComment, bool వృక్షం = false) VL_MT_DISABLED;
 };
 
-#endif  // Guard
+#అయితే_ముగింపు  // Guard

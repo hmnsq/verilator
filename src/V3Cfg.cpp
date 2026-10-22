@@ -18,183 +18,183 @@
 //
 //*************************************************************************
 
-#include "config_build.h"
-#include "verilatedos.h"
+#అన్తర్భావ "config_build.h"
+#అన్తర్భావ "verilatedos.h"
 
-#include "V3Cfg.h"
+#అన్తర్భావ "V3Cfg.h"
 
-#include "V3Ast.h"
-#include "V3EmitV.h"
+#అన్తర్భావ "V3Ast.h"
+#అన్తర్భావ "V3EmitV.h"
 
 VL_DEFINE_DEBUG_FUNCTIONS;
 
 //######################################################################
 // CfgBlock method definitions
 
-std::string CfgBlock::name() const {
+std::string Cfg_ఖండం::name() స్థిరరాశి {
     std::stringstream ss;
-    ss << "BB " + std::to_string(id()) + ":\n";
-    for (AstNode* nodep : m_stmtps) {
-        if (const AstIf* const ifp = VN_CAST(nodep, If)) {
+    ss << "BB " + std::గమ్యం_string(id()) + ":\n";
+    కొరకు (Ast_కణుపు* nodep : m_stmtps) {
+        ఒకవేళ (స్థిరరాశి AstIf* స్థిరరాశి ifp = VN_CAST(nodep, If)) {
             ss << "if (";
-            V3EmitV::debugVerilogForTree(ifp->condp(), ss);
+            V3EmitV::debug_Verilog_For_వృక్షం(ifp->condp(), ss);
             ss << ") ...";
-        } else if (const AstLoopTest* const testp = VN_CAST(nodep, LoopTest)) {
+        } లేకపోతే ఒకవేళ (స్థిరరాశి AstLoopTest* స్థిరరాశి testp = VN_CAST(nodep, LoopTest)) {
             ss << "if  (!";
-            V3EmitV::debugVerilogForTree(testp->condp(), ss);
+            V3EmitV::debug_Verilog_For_వృక్షం(testp->condp(), ss);
             ss << ") break;";
-        } else {
-            V3EmitV::debugVerilogForTree(nodep, ss);
+        } లేకపోతే {
+            V3EmitV::debug_Verilog_For_వృక్షం(nodep, ss);
         }
     }
-    std::string text = VString::replaceSubstr(
+    std::string పాఠ్యం = VString::replaceSubstr(
         VString::replaceSubstr(ss.str(), "\n", "\\l        "), "\"", "\\\"");
-    if (isEnter()) text = "**ENTER**\n" + text;
-    if (isExit()) text = text + "\n**EXIT**";
-    return text;
+    ఒకవేళ (isEnter()) పాఠ్యం = "**ENTER**\n" + పాఠ్యం;
+    ఒకవేళ (isExit()) పాఠ్యం = పాఠ్యం + "\n**EXIT**";
+    తిరిగి పాఠ్యం;
 }
-std::string CfgBlock::dotShape() const { return "rect"; }
-std::string CfgBlock::dotRank() const {
-    if (isEnter()) return "source";
-    if (isExit()) return "sink";
-    return "";
+std::string Cfg_ఖండం::dotShape() స్థిరరాశి { తిరిగి "rect"; }
+std::string Cfg_ఖండం::dotRank() స్థిరరాశి {
+    ఒకవేళ (isEnter()) తిరిగి "source";
+    ఒకవేళ (isExit()) తిరిగి "sink";
+    తిరిగి "";
 }
 
 //######################################################################
 // CfgEdge method definitions
 
-std::string CfgEdge::dotLabel() const {
-    std::string label = "E" + std::to_string(id());
-    const CfgEdge* const untknp = srcp()->untknEdgep();
-    if (this == untknp) {
+std::string Cfg_అంచు::dotLabel() స్థిరరాశి {
+    std::string label = "E" + std::గమ్యం_string(id());
+    స్థిరరాశి Cfg_అంచు* స్థిరరాశి untknp = srcp()->untknEdgep();
+    ఒకవేళ (ఇది == untknp) {
         label += " / F";
-    } else if (untknp) {
+    } లేకపోతే ఒకవేళ (untknp) {
         label += " / T";
     }
-    return label;
+    తిరిగి label;
 }
 
 //######################################################################
 // CfgGraph method definitions
 
-static void cfgOrderVisitBlock(std::vector<CfgBlock*>& postOrderEnumeration, CfgBlock* bbp) {
+స్థిర శూన్య cfg_క్రమం_సందర్శించు_ఖండం(std::సదిశ<Cfg_ఖండం*>& post_క్రమం_Enumeration, Cfg_ఖండం* bbp) {
     // Mark visited
     bbp->user(1);
     // Visit un-visited successors
-    if (CfgBlock* const takenp = bbp->takenp()) {
-        if (!takenp->user()) cfgOrderVisitBlock(postOrderEnumeration, takenp);
-        if (CfgBlock* const untknp = bbp->untknp()) {
-            if (!untknp->user()) cfgOrderVisitBlock(postOrderEnumeration, untknp);
+    ఒకవేళ (Cfg_ఖండం* స్థిరరాశి takenp = bbp->takenp()) {
+        ఒకవేళ (!takenp->user()) cfg_క్రమం_సందర్శించు_ఖండం(post_క్రమం_Enumeration, takenp);
+        ఒకవేళ (Cfg_ఖండం* స్థిరరాశి untknp = bbp->untknp()) {
+            ఒకవేళ (!untknp->user()) cfg_క్రమం_సందర్శించు_ఖండం(post_క్రమం_Enumeration, untknp);
         }
     }
     // Add to post order enumeration
-    postOrderEnumeration.emplace_back(bbp);
+    post_క్రమం_Enumeration.emplace_వెనుక(bbp);
 };
 
-void CfgGraph::rpoBlocks() {
-    UASSERT_OBJ(m_nEdits != m_nLastOrdered, m_enterp, "Redundant 'CfgGraph::order' call");
-    m_nLastOrdered = m_nEdits;
+శూన్య Cfg_లేఖాచిత్రం::rpo_ఖండాలు() {
+    UASSERT_OBJ(m_nEdits != m_n_చివరి_Ordered, m_enterp, "Redundant 'CfgGraph::order' call");
+    m_n_చివరి_Ordered = m_nEdits;
 
     // Reset marks
-    for (V3GraphVertex& v : vertices()) v.user(0);
+    కొరకు (V3_లేఖాచిత్రం_శీర్షం& v : vertices()) v.user(0);
 
     // Compute post-order enumeration. Simple recursive algorith will do.
-    std::vector<CfgBlock*> postOrderEnumeration;
-    postOrderEnumeration.reserve(m_nBlocks);
-    cfgOrderVisitBlock(postOrderEnumeration, m_enterp);
-    UASSERT_OBJ(postOrderEnumeration.size() == m_nBlocks, m_enterp, "Inconsistent block count");
+    std::సదిశ<Cfg_ఖండం*> post_క్రమం_Enumeration;
+    post_క్రమం_Enumeration.reserve(m_n_ఖండాలు);
+    cfg_క్రమం_సందర్శించు_ఖండం(post_క్రమం_Enumeration, m_enterp);
+    UASSERT_OBJ(post_క్రమం_Enumeration.కొలత() == m_n_ఖండాలు, m_enterp, "Inconsistent block count");
 
     // Assign block IDs equal to the reverse post-order number and sort vertices
-    for (size_t i = 0; i < postOrderEnumeration.size(); ++i) {
-        CfgBlock* const bbp = postOrderEnumeration[m_nBlocks - 1 - i];
-        bbp->m_rpoNumber = i;
+    కొరకు (కొలత_t i = 0; i < post_క్రమం_Enumeration.కొలత(); ++i) {
+        Cfg_ఖండం* స్థిరరాశి bbp = post_క్రమం_Enumeration[m_n_ఖండాలు - 1 - i];
+        bbp->m_rpo_సంఖ్య = i;
         vertices().unlink(bbp);
-        vertices().linkBack(bbp);
+        vertices().link_వెనుక(bbp);
     }
 
     // Assign edge IDs
-    size_t edgeCount = 0;
-    for (V3GraphVertex& v : vertices()) {
+    కొలత_t అంచు_లెక్క = 0;
+    కొరకు (V3_లేఖాచిత్రం_శీర్షం& v : vertices()) {
         // cppcheck-suppress constVariableReference // cppcheck is wrong
-        for (V3GraphEdge& e : v.outEdges()) static_cast<CfgEdge&>(e).m_id = edgeCount++;
+        కొరకు (V3_లేఖాచిత్రం_అంచు& e : v.బహిర్గతం_అంచులు()) static_cast<Cfg_అంచు&>(e).m_id = అంచు_లెక్క++;
     }
-    UASSERT_OBJ(edgeCount == m_nEdges, m_enterp, "Inconsistent edge count");
+    UASSERT_OBJ(అంచు_లెక్క == m_n_అంచులు, m_enterp, "Inconsistent edge count");
 }
 
-bool CfgGraph::containsLoop() const {
-    for (const V3GraphVertex& vtx : vertices()) {
-        const CfgBlock& current = static_cast<const CfgBlock&>(vtx);
-        for (const V3GraphEdge& edge : current.outEdges()) {
-            const CfgBlock& successor = *static_cast<const CfgBlock*>(edge.top());
+తార్కిక Cfg_లేఖాచిత్రం::కలిగియుంది_Loop() స్థిరరాశి {
+    కొరకు (స్థిరరాశి V3_లేఖాచిత్రం_శీర్షం& vtx : vertices()) {
+        స్థిరరాశి Cfg_ఖండం& current = static_cast<స్థిరరాశి Cfg_ఖండం&>(vtx);
+        కొరకు (స్థిరరాశి V3_లేఖాచిత్రం_అంచు& అంచు : current.బహిర్గతం_అంచులు()) {
+            స్థిరరాశి Cfg_ఖండం& successor = *static_cast<స్థిరరాశి Cfg_ఖండం*>(అంచు.శిఖరం());
             // IDs are the reverse post-order numbering, so easy to check for a back-edge
-            if (successor.id() < current.id()) return true;
+            ఒకవేళ (successor.id() < current.id()) తిరిగి నిజం;
         }
     }
-    return false;
+    తిరిగి అబద్ధం;
 }
 
-void CfgGraph::minimize() {
+శూన్య Cfg_లేఖాచిత్రం::minimize() {
     // Remove empty blocks (except enter and exit)
-    for (V3GraphVertex* const vtxp : vertices().unlinkable()) {
-        CfgBlock* const bbp = static_cast<CfgBlock*>(vtxp);
-        if (bbp->isEnter()) continue;
-        if (bbp->isExit()) continue;
-        if (!bbp->stmtps().empty()) continue;
+    కొరకు (V3_లేఖాచిత్రం_శీర్షం* స్థిరరాశి vtxp : vertices().unlinkable()) {
+        Cfg_ఖండం* స్థిరరాశి bbp = static_cast<Cfg_ఖండం*>(vtxp);
+        ఒకవేళ (bbp->isEnter()) కొనసాగు;
+        ఒకవేళ (bbp->isExit()) కొనసాగు;
+        ఒకవేళ (!bbp->stmtps().ఖాళీలు()) కొనసాగు;
         UASSERT(!bbp->isBranch(), "Empty block should have a single successor");
-        CfgBlock* const succp = bbp->takenp();
-        for (V3GraphEdge* const edgep : bbp->inEdges().unlinkable()) edgep->relinkTop(succp);
+        Cfg_ఖండం* స్థిరరాశి succp = bbp->takenp();
+        కొరకు (V3_లేఖాచిత్రం_అంచు* స్థిరరాశి edgep : bbp->లోపల_అంచులు().unlinkable()) edgep->relink_శిఖరం(succp);
         ++m_nEdits;
-        --m_nEdges;
-        --m_nBlocks;
-        VL_DO_DANGLING(bbp->unlinkDelete(this), bbp);
+        --m_n_అంచులు;
+        --m_n_ఖండాలు;
+        VL_DO_DANGLING(bbp->unlinkDelete(ఇది), bbp);
     }
 
     // Combine sequential blocks
-    for (V3GraphVertex* const vtxp : vertices().unlinkable()) {
-        CfgBlock* const srcp = static_cast<CfgBlock*>(vtxp);
-        if (srcp->isExit()) continue;
-        if (srcp->isBranch()) continue;
-        CfgBlock* const dstp = srcp->takenp();
-        if (dstp->isJoin()) continue;
+    కొరకు (V3_లేఖాచిత్రం_శీర్షం* స్థిరరాశి vtxp : vertices().unlinkable()) {
+        Cfg_ఖండం* స్థిరరాశి srcp = static_cast<Cfg_ఖండం*>(vtxp);
+        ఒకవేళ (srcp->isExit()) కొనసాగు;
+        ఒకవేళ (srcp->isBranch()) కొనసాగు;
+        Cfg_ఖండం* స్థిరరాశి dstp = srcp->takenp();
+        ఒకవేళ (dstp->isJoin()) కొనసాగు;
         // Combine them
-        if (srcp->isEnter()) m_enterp = dstp;
-        std::vector<AstNodeStmt*> stmtps{std::move(srcp->m_stmtps)};
-        stmtps.reserve(stmtps.size() + dstp->m_stmtps.size());
-        stmtps.insert(stmtps.end(), dstp->m_stmtps.begin(), dstp->m_stmtps.end());
+        ఒకవేళ (srcp->isEnter()) m_enterp = dstp;
+        std::సదిశ<Ast_కణుపు_Stmt*> stmtps{std::move(srcp->m_stmtps)};
+        stmtps.reserve(stmtps.కొలత() + dstp->m_stmtps.కొలత());
+        stmtps.చొప్పించు(stmtps.చివర(), dstp->m_stmtps.begin(), dstp->m_stmtps.చివర());
         dstp->m_stmtps = std::move(stmtps);
-        for (V3GraphEdge* const edgep : srcp->inEdges().unlinkable()) edgep->relinkTop(dstp);
+        కొరకు (V3_లేఖాచిత్రం_అంచు* స్థిరరాశి edgep : srcp->లోపల_అంచులు().unlinkable()) edgep->relink_శిఖరం(dstp);
         ++m_nEdits;
-        --m_nEdges;
-        --m_nBlocks;
-        VL_DO_DANGLING(srcp->unlinkDelete(this), srcp);
+        --m_n_అంచులు;
+        --m_n_ఖండాలు;
+        VL_DO_DANGLING(srcp->unlinkDelete(ఇది), srcp);
     }
 
-    if (m_nEdits != m_nLastOrdered) rpoBlocks();
-    if (dumpGraphLevel() >= 9) dumpDotFilePrefixed("cfg-minimize");
+    ఒకవేళ (m_nEdits != m_n_చివరి_Ordered) rpo_ఖండాలు();
+    ఒకవేళ (dump_లేఖాచిత్రం_Level() >= 9) dumpDotFilePrefixed("cfg-minimize");
 }
 
-void CfgGraph::breakCriticalEdges() {
+శూన్య Cfg_లేఖాచిత్రం::break_Critical_అంచులు() {
     // Gather critical edges
-    std::vector<CfgEdge*> criticalEdges;
-    criticalEdges.reserve(m_nEdges);
-    for (V3GraphVertex& vtx : vertices()) {
-        const CfgBlock& bb = static_cast<const CfgBlock&>(vtx);
-        if (!bb.isBranch()) continue;
-        for (V3GraphEdge& edge : vtx.outEdges()) {
-            const CfgBlock& succ = static_cast<const CfgBlock&>(*edge.top());
-            if (!succ.isJoin()) continue;
-            criticalEdges.emplace_back(static_cast<CfgEdge*>(&edge));
+    std::సదిశ<Cfg_అంచు*> critical_అంచులు;
+    critical_అంచులు.reserve(m_n_అంచులు);
+    కొరకు (V3_లేఖాచిత్రం_శీర్షం& vtx : vertices()) {
+        స్థిరరాశి Cfg_ఖండం& bb = static_cast<స్థిరరాశి Cfg_ఖండం&>(vtx);
+        ఒకవేళ (!bb.isBranch()) కొనసాగు;
+        కొరకు (V3_లేఖాచిత్రం_అంచు& అంచు : vtx.బహిర్గతం_అంచులు()) {
+            స్థిరరాశి Cfg_ఖండం& succ = static_cast<స్థిరరాశి Cfg_ఖండం&>(*అంచు.శిఖరం());
+            ఒకవేళ (!succ.isJoin()) కొనసాగు;
+            critical_అంచులు.emplace_వెనుక(static_cast<Cfg_అంచు*>(&అంచు));
         }
     }
     // Insert blocks
-    for (CfgEdge* const edgep : criticalEdges) {
-        CfgBlock* const newp = addBlock();
-        addTakenEdge(newp, edgep->dstp());
-        edgep->relinkTop(newp);
+    కొరకు (Cfg_అంచు* స్థిరరాశి edgep : critical_అంచులు) {
+        Cfg_ఖండం* స్థిరరాశి newp = కూడు_ఖండం();
+        కూడు_తీసుకున్న_అంచు(newp, edgep->dstp());
+        edgep->relink_శిఖరం(newp);
     }
 
-    if (m_nEdits != m_nLastOrdered) rpoBlocks();
-    if (dumpGraphLevel() >= 9) dumpDotFilePrefixed("cfg-breakCriticalEdges");
+    ఒకవేళ (m_nEdits != m_n_చివరి_Ordered) rpo_ఖండాలు();
+    ఒకవేళ (dump_లేఖాచిత్రం_Level() >= 9) dumpDotFilePrefixed("cfg-breakCriticalEdges");
 }
 
 // Given a branching basic block, if the sub-graph below this branch, up until
@@ -204,7 +204,7 @@ void CfgGraph::breakCriticalEdges() {
 // If the relevant sub-graph is not series-parallel (there is a control flow
 // path between the branches, or to a path not dominated by the given branch),
 // then return nullptr. Cached results in the given map
-CfgBlock* CfgGraph::getOrCreateTwoWayJoinFor(CfgBlock* bbp) {
+Cfg_ఖండం* Cfg_లేఖాచిత్రం::getOrCreateTwoWayJoinFor(Cfg_ఖండం* bbp) {
     UASSERT_OBJ(bbp->isBranch(), bbp, "Not a branch");
 
     // Mark visited
@@ -212,79 +212,79 @@ CfgBlock* CfgGraph::getOrCreateTwoWayJoinFor(CfgBlock* bbp) {
     bbp->user(1);
 
     // We need the edge converting to a join block along both path. This is how we find it:
-    const auto chaseEdge = [&](CfgEdge* edgep) -> CfgEdge* {
-        while (true) {
-            CfgBlock* dstp = edgep->dstp();
+    స్థిరరాశి స్వయంచాలక chase_అంచు = [&](Cfg_అంచు* edgep) -> Cfg_అంచు* {
+        అయితే (నిజం) {
+            Cfg_ఖండం* dstp = edgep->dstp();
             // Stop if found the joining block along this path
-            if (dstp->isJoin()) return edgep;
+            ఒకవేళ (dstp->isJoin()) తిరిగి edgep;
             // If the successor is a branch, recursively get it's 2-way join block
-            while (dstp->isBranch()) {
+            అయితే (dstp->isBranch()) {
                 dstp = getOrCreateTwoWayJoinFor(dstp);
                 // If the subgarph below dstp is not series-parallel, then no solution
-                if (!dstp) return nullptr;
+                ఒకవేళ (!dstp) తిరిగి శూన్యసూచిక;
             }
             UASSERT_OBJ(!dstp->isExit(), bbp, "Non-convergent branch - multiple Exit blocks?");
-            edgep = dstp->takenEdgep();
+            edgep = dstp->తీసుకున్న_Edgep();
         }
     };
 
     // Walk down both paths
-    CfgEdge* const takenEdgep = chaseEdge(bbp->takenEdgep());
-    if (!takenEdgep) return nullptr;
-    CfgEdge* const untknEdgep = chaseEdge(bbp->untknEdgep());
-    if (!untknEdgep) return nullptr;
+    Cfg_అంచు* స్థిరరాశి తీసుకున్న_Edgep = chase_అంచు(bbp->తీసుకున్న_Edgep());
+    ఒకవేళ (!తీసుకున్న_Edgep) తిరిగి శూన్యసూచిక;
+    Cfg_అంచు* స్థిరరాశి untknEdgep = chase_అంచు(bbp->untknEdgep());
+    ఒకవేళ (!untknEdgep) తిరిగి శూన్యసూచిక;
     // If we ended up at different joining blocks, then there is a path from one
     // of the branches into a path of another branch before 'bbp', no solution
-    if (takenEdgep->dstp() != untknEdgep->dstp()) return nullptr;
+    ఒకవేళ (తీసుకున్న_Edgep->dstp() != untknEdgep->dstp()) తిరిగి శూన్యసూచిక;
 
     // Pick up the common successor
-    CfgBlock* const succp = takenEdgep->dstp();
+    Cfg_ఖండం* స్థిరరాశి succp = తీసుకున్న_Edgep->dstp();
     // If the common successor is a 2-way join, we can use it directly
-    if (succp->isTwoWayJoin()) return succp;
+    ఒకవేళ (succp->isTwoWayJoin()) తిరిగి succp;
     // Otherwise insert a new block to join the 2 paths of the original block
-    CfgBlock* const joinp = addBlock();
-    addTakenEdge(joinp, succp);
-    takenEdgep->relinkTop(joinp);
-    untknEdgep->relinkTop(joinp);
-    return joinp;
+    Cfg_ఖండం* స్థిరరాశి joinp = కూడు_ఖండం();
+    కూడు_తీసుకున్న_అంచు(joinp, succp);
+    తీసుకున్న_Edgep->relink_శిఖరం(joinp);
+    untknEdgep->relink_శిఖరం(joinp);
+    తిరిగి joinp;
 }
 
-bool CfgGraph::insertTwoWayJoins() {
+తార్కిక Cfg_లేఖాచిత్రం::చొప్పించు_Two_Way_Joins() {
     // Reset marks
-    for (V3GraphVertex& v : vertices()) v.user(0);
+    కొరకు (V3_లేఖాచిత్రం_శీర్షం& v : vertices()) v.user(0);
 
-    bool isSeriesParallel = true;
+    తార్కిక isSeriesParallel = నిజం;
 
     // We will be adding vertices at the end. That's OK, they don't need to be visited again
-    for (V3GraphVertex& v : vertices()) {
-        CfgBlock& bb = static_cast<CfgBlock&>(v);
+    కొరకు (V3_లేఖాచిత్రం_శీర్షం& v : vertices()) {
+        Cfg_ఖండం& bb = static_cast<Cfg_ఖండం&>(v);
         // Skip if already visited
-        if (bb.user()) continue;
+        ఒకవేళ (bb.user()) కొనసాగు;
         // Skip if not a branch
-        if (!bb.isBranch()) continue;
+        ఒకవేళ (!bb.isBranch()) కొనసాగు;
         // Fix it up, record if failed
-        if (!getOrCreateTwoWayJoinFor(&bb)) isSeriesParallel = false;
+        ఒకవేళ (!getOrCreateTwoWayJoinFor(&bb)) isSeriesParallel = అబద్ధం;
     }
 
-    if (m_nEdits != m_nLastOrdered) rpoBlocks();
-    if (dumpGraphLevel() >= 9) dumpDotFilePrefixed("cfg-insertTwoWayJoins");
+    ఒకవేళ (m_nEdits != m_n_చివరి_Ordered) rpo_ఖండాలు();
+    ఒకవేళ (dump_లేఖాచిత్రం_Level() >= 9) dumpDotFilePrefixed("cfg-insertTwoWayJoins");
 
-    return isSeriesParallel;
+    తిరిగి isSeriesParallel;
 }
 
 //######################################################################
 // CfgDominatorTree
 
-const CfgBlock* CfgDominatorTree::intersect(const CfgBlock* ap, const CfgBlock* bp) {
-    while (ap != bp) {
-        while (*ap > *bp) ap = m_bb2Idom[*ap];
-        while (*bp > *ap) bp = m_bb2Idom[*bp];
+స్థిరరాశి Cfg_ఖండం* Cfg_Dominator_వృక్షం::intersect(స్థిరరాశి Cfg_ఖండం* ap, స్థిరరాశి Cfg_ఖండం* bp) {
+    అయితే (ap != bp) {
+        అయితే (*ap > *bp) ap = m_bb2Idom[*ap];
+        అయితే (*bp > *ap) bp = m_bb2Idom[*bp];
     }
-    return ap;
+    తిరిగి ap;
 }
 
-CfgDominatorTree::CfgDominatorTree(const CfgGraph& cfg)
-    : m_bb2Idom{cfg.makeBlockMap<const CfgBlock*>()} {
+Cfg_Dominator_వృక్షం::Cfg_Dominator_వృక్షం(స్థిరరాశి Cfg_లేఖాచిత్రం& cfg)
+    : m_bb2Idom{cfg.make_ఖండం_Map<స్థిరరాశి Cfg_ఖండం*>()} {
 
     // Build the immediate dominator map, using algorithm from:
     // "A Simple, Fast Dominance Algorithm", Keith D. Cooper et al., 2006
@@ -293,30 +293,30 @@ CfgDominatorTree::CfgDominatorTree(const CfgGraph& cfg)
     // Point enteer block to itself, while computing below
     m_bb2Idom[cfg.enter()] = &cfg.enter();
     // Iterate until settled
-    for (bool changed = true; changed;) {
-        changed = false;
+    కొరకు (తార్కిక మారింది = నిజం; మారింది;) {
+        మారింది = అబద్ధం;
         // For each vertex except enter block
-        for (const V3GraphVertex& vtx : cfg.vertices()) {
-            const CfgBlock& curr = static_cast<const CfgBlock&>(vtx);
-            if (curr.isEnter()) continue;  // Skip entry block
+        కొరకు (స్థిరరాశి V3_లేఖాచిత్రం_శీర్షం& vtx : cfg.vertices()) {
+            స్థిరరాశి Cfg_ఖండం& curr = static_cast<స్థిరరాశి Cfg_ఖండం&>(vtx);
+            ఒకవేళ (curr.isEnter()) కొనసాగు;  // Skip entry block
 
             // For each predecessor of current block
-            const CfgBlock* idom = nullptr;
-            for (const V3GraphEdge& edge : curr.inEdges()) {
-                const CfgBlock& pred = static_cast<const CfgBlock&>(*edge.fromp());
+            స్థిరరాశి Cfg_ఖండం* idom = శూన్యసూచిక;
+            కొరకు (స్థిరరాశి V3_లేఖాచిత్రం_అంచు& అంచు : curr.లోపల_అంచులు()) {
+                స్థిరరాశి Cfg_ఖండం& pred = static_cast<స్థిరరాశి Cfg_ఖండం&>(*అంచు.fromp());
                 // Skip if perdecessor not yet processed
-                if (!m_bb2Idom[pred]) continue;
+                ఒకవేళ (!m_bb2Idom[pred]) కొనసాగు;
                 // Pick first, then use intersect
                 idom = !idom ? &pred : intersect(&pred, idom);
             }
 
             // If chenged, record it, else move on
-            if (idom == m_bb2Idom[curr]) continue;
+            ఒకవేళ (idom == m_bb2Idom[curr]) కొనసాగు;
             m_bb2Idom[curr] = idom;
-            changed = true;
+            మారింది = నిజం;
         }
     }
 
     // The enter block is the root of the tree and does not itself have an immediate dominator
-    m_bb2Idom[cfg.enter()] = nullptr;
+    m_bb2Idom[cfg.enter()] = శూన్యసూచిక;
 }

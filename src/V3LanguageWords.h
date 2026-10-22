@@ -14,240 +14,240 @@
 //
 //*************************************************************************
 
-#ifndef VERILATOR_V3LANGUAGEWORDS_H_
-#define VERILATOR_V3LANGUAGEWORDS_H_
+#నిర్వచితం_కాకపోతే VERILATOR_V3LANGUAGEWORDS_H_
+#నిర్వచించు VERILATOR_V3LANGUAGEWORDS_H_
 
-#include "config_build.h"
-#include "verilatedos.h"
+#అన్తర్భావ "config_build.h"
+#అన్తర్భావ "verilatedos.h"
 
-#include <map>
+#అన్తర్భావ <map>
 
 //============================================================================
 
-class V3LanguageWords final {
+class V3_Language_పదాలు final {
     // List of common reserved keywords
-private:
-    using KeywordMap = std::map<const string, std::string>;
-    struct Singleton final {
+అంతరంగ:
+    using KeywordMap = std::map<స్థిరరాశి string, std::string>;
+    నిర్మాణం Singleton final {
         KeywordMap s_kwdMap;  // List of keywords, and what language applies
         Singleton() { init(); }
-        void addKwd(const string& kwd, const string& why) { s_kwdMap.emplace(kwd, why); }
-        void init();
+        శూన్య కూడు_Kwd(స్థిరరాశి string& kwd, స్థిరరాశి string& why) { s_kwdMap.emplace(kwd, why); }
+        శూన్య init();
     };
 
-public:
+బహిరంగ:
     using const_iterator = KeywordMap::const_iterator;
     // METHODS
-    static const_iterator begin() { return s().s_kwdMap.begin(); }
-    static const_iterator end() { return s().s_kwdMap.end(); }
-    static string isKeyword(const string& kwd) {
-        const auto it = vlstd::as_const(s().s_kwdMap).find(kwd);
-        if (it == s().s_kwdMap.end()) return "";
-        return it->second;
+    స్థిర const_iterator begin() { తిరిగి s().s_kwdMap.begin(); }
+    స్థిర const_iterator చివర() { తిరిగి s().s_kwdMap.చివర(); }
+    స్థిర string isKeyword(స్థిరరాశి string& kwd) {
+        స్థిరరాశి స్వయంచాలక it = vlstd::as_const(s().s_kwdMap).కనుగొను(kwd);
+        ఒకవేళ (it == s().s_kwdMap.చివర()) తిరిగి "";
+        తిరిగి it->రెండవ;
     }
 
-private:
-    static Singleton& s() {
-        static Singleton s_s;  // LCOV_EXCL_BR_LINE
-        return s_s;
+అంతరంగ:
+    స్థిర Singleton& s() {
+        స్థిర Singleton s_s;  // LCOV_EXCL_BR_LINE
+        తిరిగి s_s;
     }
 };
 
-inline void V3LanguageWords::Singleton::init() {
+అంతఃవరుస శూన్య V3_Language_పదాలు::Singleton::init() {
     // C++ keywords
     // clang-format off
-    addKwd("abort",                 "C++ common word");
-    addKwd("alignas",               "C++11 keyword");
-    addKwd("alignof",               "C++11 keyword");
-    addKwd("and",                   "C++11 keyword");
-    addKwd("and_eq",                "C++11 keyword");
-    addKwd("asm",                   "C++ common word");
-    addKwd("atomic_cancel",         "C++ TM TS keyword");
-    addKwd("atomic_commit",         "C++ TM TS keyword");
-    addKwd("atomic_noexcept",       "C++ TM TS keyword");
-    addKwd("auto",                  "C++ keyword");
-    addKwd("bit_vector",            "C++ common word");
-    addKwd("bitand",                "C++ keyword");
-    addKwd("bitor",                 "C++ keyword");
-    addKwd("bool",                  "C++ keyword");
-    addKwd("break",                 "C++ keyword");
-    addKwd("case",                  "C++ keyword");
-    addKwd("catch",                 "C++ keyword");
-    addKwd("cdecl",                 "C++ common word");
-    addKwd("char",                  "C++ keyword");
-    addKwd("char16_t",              "C++11 keyword");
-    addKwd("char32_t",              "C++11 keyword");
-    addKwd("class",                 "C++11 keyword");
-    addKwd("compl",                 "C++11 keyword");
-    addKwd("complex",               "C++ common word");
-    addKwd("concept",               "C++20 keyword");
-    addKwd("const",                 "C++ keyword");
-    addKwd("const_cast",            "C++ common word");
-    addKwd("const_iterator",        "C++ common word");
-    addKwd("const_reference ",      "C++ common word");
-    addKwd("constexpr",             "C++11 keyword");
-    addKwd("continue",              "C++ keyword");
-    addKwd("decltype",              "C++11 keyword");
-    addKwd("default",               "C++ keyword");
-    addKwd("delete",                "C++ keyword");
-    addKwd("do",                    "C++ keyword");
-    addKwd("double",                "C++ keyword");
-    addKwd("dynamic_cast",          "C++ keyword");
-    addKwd("else",                  "C++ keyword");
-    addKwd("enum",                  "C++ keyword");
-    addKwd("explicit",              "C++ keyword");
-    addKwd("export",                "C++ keyword");
-    addKwd("extern",                "C++ keyword");
-    addKwd("false",                 "C++ keyword");
-    addKwd("far",                   "C++ common word");
-    addKwd("float",                 "C++ keyword");
-    addKwd("for",                   "C++ keyword");
-    addKwd("friend",                "C++ keyword");
-    addKwd("goto",                  "C++ keyword");
-    addKwd("huge",                  "C++ keyword");
-    addKwd("if",                    "C++ keyword");
-    addKwd("import",                "C++ modules TS keyword");
-    addKwd("inline",                "C++ keyword");
-    addKwd("int",                   "C++ keyword");
-    addKwd("interrupt",             "C++ common word");
-    addKwd("iterator",              "C++ common word");
-    addKwd("long",                  "C++ keyword");
-    addKwd("module",                "C++ modules TS keyword");
-    addKwd("mutable",               "C++ keyword");
-    addKwd("namespace",             "C++ keyword");
-    addKwd("near",                  "C++ common word");
-    addKwd("new",                   "C++ keyword");
-    addKwd("noexcept",              "C++11 keyword");
-    addKwd("not",                   "C++ keyword");
-    addKwd("not_eq",                "C++ keyword");
-    addKwd("nullptr",               "C++ common word");
-    addKwd("nullptr",               "C++11 keyword");
-    addKwd("operator",              "C++ keyword");
-    addKwd("or",                    "C++ keyword");
-    addKwd("or_eq",                 "C++ keyword");
-    addKwd("override",              "C++ common word");
-    addKwd("pascal",                "C++ keyword");
-    addKwd("private",               "C++ keyword");
-    addKwd("protected",             "C++ keyword");
-    addKwd("public",                "C++ keyword");
-    addKwd("queue",                 "C++ common word");
-    addKwd("reference",             "C++ common word");
-    addKwd("register",              "C++ keyword");
-    addKwd("reinterpret_cast ",     "C++ keyword");
-    addKwd("requires",              "C++20 keyword");
-    addKwd("restrict",              "C++ keyword");
-    addKwd("return",                "C++ keyword");
-    addKwd("short",                 "C++ keyword");
-    addKwd("signed",                "C++ keyword");
-    addKwd("sizeof",                "C++ keyword");
-    addKwd("stack",                 "C++ common word");
-    addKwd("static",                "C++ keyword");
-    addKwd("static_assert",         "C++11 keyword");
-    addKwd("static_cast",           "C++ keyword");
-    addKwd("std::deque",            "C++ common word");
-    addKwd("std::list",             "C++ common word");
-    addKwd("std::map",              "C++ common word");
-    addKwd("std::multimap",         "C++ common word");
-    addKwd("std::multiset",         "C++ common word");
-    addKwd("std::set",              "C++ common word");
-    addKwd("std::vector",           "C++ common word");
-    addKwd("struct",                "C++ keyword");
-    addKwd("switch",                "C++ keyword");
-    addKwd("synchronized",          "C++ TM TS keyword");
-    addKwd("template",              "C++ keyword");
-    addKwd("this",                  "C++ keyword");
-    addKwd("thread_local",          "C++11 keyword");
-    addKwd("throw",                 "C++ keyword");
-    addKwd("transaction_safe",      "C++ common word");
-    addKwd("transaction_safe_dynamic",      "C++ common word");
-    addKwd("true",                  "C++ keyword");
-    addKwd("try",                   "C++ keyword");
-    addKwd("type_info",             "C++ common word");
-    addKwd("typedef",               "C++ keyword");
-    addKwd("typeid",                "C++ keyword");
-    addKwd("typename",              "C++ keyword");
-    addKwd("uint16_t",              "C++ common word");
-    addKwd("uint32_t",              "C++ common word");
-    addKwd("uint8_t",               "C++ common word");
-    addKwd("union",                 "C++ keyword");
-    addKwd("unsigned",              "C++ keyword");
-    addKwd("using",                 "C++ keyword");
-    addKwd("virtual",               "C++ keyword");
-    addKwd("void",                  "C++ keyword");
-    addKwd("volatile",              "C++ keyword");
-    addKwd("wchar_t",               "C++ keyword");
-    addKwd("while",                 "C++ keyword");
-    addKwd("xor",                   "C++ keyword");
-    addKwd("xor_eq",                "C++ keyword");
+    కూడు_Kwd("abort",                 "C++ common word");
+    కూడు_Kwd("alignas",               "C++11 keyword");
+    కూడు_Kwd("alignof",               "C++11 keyword");
+    కూడు_Kwd("and",                   "C++11 keyword");
+    కూడు_Kwd("and_eq",                "C++11 keyword");
+    కూడు_Kwd("asm",                   "C++ common word");
+    కూడు_Kwd("atomic_cancel",         "C++ TM TS keyword");
+    కూడు_Kwd("atomic_commit",         "C++ TM TS keyword");
+    కూడు_Kwd("atomic_noexcept",       "C++ TM TS keyword");
+    కూడు_Kwd("auto",                  "C++ keyword");
+    కూడు_Kwd("bit_vector",            "C++ common word");
+    కూడు_Kwd("bitand",                "C++ keyword");
+    కూడు_Kwd("bitor",                 "C++ keyword");
+    కూడు_Kwd("bool",                  "C++ keyword");
+    కూడు_Kwd("break",                 "C++ keyword");
+    కూడు_Kwd("case",                  "C++ keyword");
+    కూడు_Kwd("catch",                 "C++ keyword");
+    కూడు_Kwd("cdecl",                 "C++ common word");
+    కూడు_Kwd("char",                  "C++ keyword");
+    కూడు_Kwd("char16_t",              "C++11 keyword");
+    కూడు_Kwd("char32_t",              "C++11 keyword");
+    కూడు_Kwd("class",                 "C++11 keyword");
+    కూడు_Kwd("compl",                 "C++11 keyword");
+    కూడు_Kwd("complex",               "C++ common word");
+    కూడు_Kwd("concept",               "C++20 keyword");
+    కూడు_Kwd("const",                 "C++ keyword");
+    కూడు_Kwd("const_cast",            "C++ common word");
+    కూడు_Kwd("const_iterator",        "C++ common word");
+    కూడు_Kwd("const_reference ",      "C++ common word");
+    కూడు_Kwd("constexpr",             "C++11 keyword");
+    కూడు_Kwd("continue",              "C++ keyword");
+    కూడు_Kwd("decltype",              "C++11 keyword");
+    కూడు_Kwd("default",               "C++ keyword");
+    కూడు_Kwd("delete",                "C++ keyword");
+    కూడు_Kwd("do",                    "C++ keyword");
+    కూడు_Kwd("double",                "C++ keyword");
+    కూడు_Kwd("dynamic_cast",          "C++ keyword");
+    కూడు_Kwd("else",                  "C++ keyword");
+    కూడు_Kwd("enum",                  "C++ keyword");
+    కూడు_Kwd("explicit",              "C++ keyword");
+    కూడు_Kwd("export",                "C++ keyword");
+    కూడు_Kwd("extern",                "C++ keyword");
+    కూడు_Kwd("false",                 "C++ keyword");
+    కూడు_Kwd("far",                   "C++ common word");
+    కూడు_Kwd("float",                 "C++ keyword");
+    కూడు_Kwd("for",                   "C++ keyword");
+    కూడు_Kwd("friend",                "C++ keyword");
+    కూడు_Kwd("goto",                  "C++ keyword");
+    కూడు_Kwd("huge",                  "C++ keyword");
+    కూడు_Kwd("if",                    "C++ keyword");
+    కూడు_Kwd("import",                "C++ modules TS keyword");
+    కూడు_Kwd("inline",                "C++ keyword");
+    కూడు_Kwd("int",                   "C++ keyword");
+    కూడు_Kwd("interrupt",             "C++ common word");
+    కూడు_Kwd("iterator",              "C++ common word");
+    కూడు_Kwd("long",                  "C++ keyword");
+    కూడు_Kwd("module",                "C++ modules TS keyword");
+    కూడు_Kwd("mutable",               "C++ keyword");
+    కూడు_Kwd("namespace",             "C++ keyword");
+    కూడు_Kwd("near",                  "C++ common word");
+    కూడు_Kwd("new",                   "C++ keyword");
+    కూడు_Kwd("noexcept",              "C++11 keyword");
+    కూడు_Kwd("not",                   "C++ keyword");
+    కూడు_Kwd("not_eq",                "C++ keyword");
+    కూడు_Kwd("nullptr",               "C++ common word");
+    కూడు_Kwd("nullptr",               "C++11 keyword");
+    కూడు_Kwd("operator",              "C++ keyword");
+    కూడు_Kwd("or",                    "C++ keyword");
+    కూడు_Kwd("or_eq",                 "C++ keyword");
+    కూడు_Kwd("override",              "C++ common word");
+    కూడు_Kwd("pascal",                "C++ keyword");
+    కూడు_Kwd("private",               "C++ keyword");
+    కూడు_Kwd("protected",             "C++ keyword");
+    కూడు_Kwd("public",                "C++ keyword");
+    కూడు_Kwd("queue",                 "C++ common word");
+    కూడు_Kwd("reference",             "C++ common word");
+    కూడు_Kwd("register",              "C++ keyword");
+    కూడు_Kwd("reinterpret_cast ",     "C++ keyword");
+    కూడు_Kwd("requires",              "C++20 keyword");
+    కూడు_Kwd("restrict",              "C++ keyword");
+    కూడు_Kwd("return",                "C++ keyword");
+    కూడు_Kwd("short",                 "C++ keyword");
+    కూడు_Kwd("signed",                "C++ keyword");
+    కూడు_Kwd("sizeof",                "C++ keyword");
+    కూడు_Kwd("stack",                 "C++ common word");
+    కూడు_Kwd("static",                "C++ keyword");
+    కూడు_Kwd("static_assert",         "C++11 keyword");
+    కూడు_Kwd("static_cast",           "C++ keyword");
+    కూడు_Kwd("std::deque",            "C++ common word");
+    కూడు_Kwd("std::list",             "C++ common word");
+    కూడు_Kwd("std::map",              "C++ common word");
+    కూడు_Kwd("std::multimap",         "C++ common word");
+    కూడు_Kwd("std::multiset",         "C++ common word");
+    కూడు_Kwd("std::set",              "C++ common word");
+    కూడు_Kwd("std::vector",           "C++ common word");
+    కూడు_Kwd("struct",                "C++ keyword");
+    కూడు_Kwd("switch",                "C++ keyword");
+    కూడు_Kwd("synchronized",          "C++ TM TS keyword");
+    కూడు_Kwd("template",              "C++ keyword");
+    కూడు_Kwd("this",                  "C++ keyword");
+    కూడు_Kwd("thread_local",          "C++11 keyword");
+    కూడు_Kwd("throw",                 "C++ keyword");
+    కూడు_Kwd("transaction_safe",      "C++ common word");
+    కూడు_Kwd("transaction_safe_dynamic",      "C++ common word");
+    కూడు_Kwd("true",                  "C++ keyword");
+    కూడు_Kwd("try",                   "C++ keyword");
+    కూడు_Kwd("type_info",             "C++ common word");
+    కూడు_Kwd("typedef",               "C++ keyword");
+    కూడు_Kwd("typeid",                "C++ keyword");
+    కూడు_Kwd("typename",              "C++ keyword");
+    కూడు_Kwd("uint16_t",              "C++ common word");
+    కూడు_Kwd("uint32_t",              "C++ common word");
+    కూడు_Kwd("uint8_t",               "C++ common word");
+    కూడు_Kwd("union",                 "C++ keyword");
+    కూడు_Kwd("unsigned",              "C++ keyword");
+    కూడు_Kwd("using",                 "C++ keyword");
+    కూడు_Kwd("virtual",               "C++ keyword");
+    కూడు_Kwd("void",                  "C++ keyword");
+    కూడు_Kwd("volatile",              "C++ keyword");
+    కూడు_Kwd("wchar_t",               "C++ keyword");
+    కూడు_Kwd("while",                 "C++ keyword");
+    కూడు_Kwd("xor",                   "C++ keyword");
+    కూడు_Kwd("xor_eq",                "C++ keyword");
     // This conflicts with header functions, so is ignored
     //dKwd("final",                 "C++11 keyword");
     // SystemC
-    addKwd("sc_clock",              "SystemC common word");
-    addKwd("sc_in",                 "SystemC common word");
-    addKwd("sc_inout",              "SystemC common word");
-    addKwd("sc_out",                "SystemC common word");
-    addKwd("sc_signal",             "SystemC common word");
-    addKwd("sensitive",             "SystemC common word");
-    addKwd("sensitive_neg",         "SystemC common word");
-    addKwd("sensitive_pos",         "SystemC common word");
+    కూడు_Kwd("sc_clock",              "SystemC common word");
+    కూడు_Kwd("sc_in",                 "SystemC common word");
+    కూడు_Kwd("sc_inout",              "SystemC common word");
+    కూడు_Kwd("sc_out",                "SystemC common word");
+    కూడు_Kwd("sc_signal",             "SystemC common word");
+    కూడు_Kwd("sensitive",             "SystemC common word");
+    కూడు_Kwd("sensitive_neg",         "SystemC common word");
+    కూడు_Kwd("sensitive_pos",         "SystemC common word");
     // Preprocessor defined words
-    addKwd("`__FILE__",                 "Verilog preprocessor directive");
-    addKwd("`__LINE__",                 "Verilog preprocessor directive");
-    addKwd("`accelerate",               "Verilog-XL preprocessor directive");
-    addKwd("`autoexpand_vectornets",    "Verilog-XL preprocessor directive");
-    addKwd("`begin_keywords",           "Verilog preprocessor directive");
-    addKwd("`celldefine",               "Verilog preprocessor directive");
-    addKwd("`default_decay_time",       "Verilog preprocessor directive");
-    addKwd("`default_nettype",          "Verilog preprocessor directive");
-    addKwd("`default_trireg_strength",  "Verilog preprocessor directive");
-    addKwd("`define",                   "Verilog preprocessor directive");
-    addKwd("`delay_mode_distributed",   "Verilog preprocessor directive");
-    addKwd("`delay_mode_path",          "Verilog preprocessor directive");
-    addKwd("`delay_mode_unit",          "Verilog preprocessor directive");
-    addKwd("`delay_mode_zero",          "Verilog preprocessor directive");
-    addKwd("`disable_portfaults",       "Verilog-XL preprocessor directive");
-    addKwd("`else",                     "Verilog preprocessor directive");
-    addKwd("`elsif",                    "Verilog preprocessor directive");
-    addKwd("`enable_portfaults",        "Verilog-XL preprocessor directive");
-    addKwd("`end_keywords",             "Verilog preprocessor directive");
-    addKwd("`endcelldefine",            "Verilog preprocessor directive");
-    addKwd("`endif",                    "Verilog preprocessor directive");
-    addKwd("`endprotect",               "Verilog preprocessor directive");
-    addKwd("`endprotected",             "Verilog preprocessor directive");
-    addKwd("`error",                    "Verilog preprocessor directive");
-    addKwd("`expand_vectornets",        "Verilog-XL preprocessor directive");
-    addKwd("`ifdef",                    "Verilog preprocessor directive");
-    addKwd("`ifndef",                   "Verilog preprocessor directive");
-    addKwd("`include",                  "Verilog preprocessor directive");
-    addKwd("`inline",                   "Verilog preprocessor directive");
-    addKwd("`line",                     "Verilog preprocessor directive");
-    addKwd("`noaccelerate",             "Verilog-XL preprocessor directive");
-    addKwd("`noexpand_vectornets",      "Verilog-XL preprocessor directive");
-    addKwd("`noremove_gatenames",       "Verilog-XL preprocessor directive");
-    addKwd("`noremove_netnames",        "Verilog-XL preprocessor directive");
-    addKwd("`nosuppress_faults",        "Verilog-XL preprocessor directive");
-    addKwd("`nounconnected_drive",      "Verilog-XL preprocessor directive");
-    addKwd("`portcoerce",               "Verilog preprocessor directive");
-    addKwd("`pragma",                   "Verilog preprocessor directive");
-    addKwd("`protect",                  "Verilog preprocessor directive");
-    addKwd("`protected",                "Verilog preprocessor directive");
-    addKwd("`remove_gatenames",         "Verilog-XL preprocessor directive");
-    addKwd("`remove_netnames",          "Verilog-XL preprocessor directive");
-    addKwd("`resetall",                 "Verilog preprocessor directive");
-    addKwd("`suppress_faults",          "Verilog-XL preprocessor directive");
-    addKwd("`systemc_ctor",             "Verilator preprocessor directive");
-    addKwd("`systemc_dtor",             "Verilator preprocessor directive");
-    addKwd("`systemc_header",           "Verilator preprocessor directive");
-    addKwd("`systemc_header_post",      "Verilator preprocessor directive");
-    addKwd("`systemc_imp_header",       "Verilator preprocessor directive");
-    addKwd("`systemc_implementation",   "Verilator preprocessor directive");
-    addKwd("`systemc_interface",        "Verilator preprocessor directive");
-    addKwd("`timescale",                "Verilog preprocessor directive");
-    addKwd("`undef",                    "Verilog preprocessor directive");
-    addKwd("`undefineall",              "Verilog preprocessor directive");
-    addKwd("`verilator_config",         "Verilator preprocessor directive");
-    addKwd("`verilog",                  "Verilator preprocessor directive");
+    కూడు_Kwd("`__FILE__",                 "Verilog preprocessor directive");
+    కూడు_Kwd("`__LINE__",                 "Verilog preprocessor directive");
+    కూడు_Kwd("`accelerate",               "Verilog-XL preprocessor directive");
+    కూడు_Kwd("`autoexpand_vectornets",    "Verilog-XL preprocessor directive");
+    కూడు_Kwd("`begin_keywords",           "Verilog preprocessor directive");
+    కూడు_Kwd("`celldefine",               "Verilog preprocessor directive");
+    కూడు_Kwd("`default_decay_time",       "Verilog preprocessor directive");
+    కూడు_Kwd("`default_nettype",          "Verilog preprocessor directive");
+    కూడు_Kwd("`default_trireg_strength",  "Verilog preprocessor directive");
+    కూడు_Kwd("`define",                   "Verilog preprocessor directive");
+    కూడు_Kwd("`delay_mode_distributed",   "Verilog preprocessor directive");
+    కూడు_Kwd("`delay_mode_path",          "Verilog preprocessor directive");
+    కూడు_Kwd("`delay_mode_unit",          "Verilog preprocessor directive");
+    కూడు_Kwd("`delay_mode_zero",          "Verilog preprocessor directive");
+    కూడు_Kwd("`disable_portfaults",       "Verilog-XL preprocessor directive");
+    కూడు_Kwd("`else",                     "Verilog preprocessor directive");
+    కూడు_Kwd("`elsif",                    "Verilog preprocessor directive");
+    కూడు_Kwd("`enable_portfaults",        "Verilog-XL preprocessor directive");
+    కూడు_Kwd("`end_keywords",             "Verilog preprocessor directive");
+    కూడు_Kwd("`endcelldefine",            "Verilog preprocessor directive");
+    కూడు_Kwd("`endif",                    "Verilog preprocessor directive");
+    కూడు_Kwd("`endprotect",               "Verilog preprocessor directive");
+    కూడు_Kwd("`endprotected",             "Verilog preprocessor directive");
+    కూడు_Kwd("`error",                    "Verilog preprocessor directive");
+    కూడు_Kwd("`expand_vectornets",        "Verilog-XL preprocessor directive");
+    కూడు_Kwd("`ifdef",                    "Verilog preprocessor directive");
+    కూడు_Kwd("`ifndef",                   "Verilog preprocessor directive");
+    కూడు_Kwd("`include",                  "Verilog preprocessor directive");
+    కూడు_Kwd("`inline",                   "Verilog preprocessor directive");
+    కూడు_Kwd("`line",                     "Verilog preprocessor directive");
+    కూడు_Kwd("`noaccelerate",             "Verilog-XL preprocessor directive");
+    కూడు_Kwd("`noexpand_vectornets",      "Verilog-XL preprocessor directive");
+    కూడు_Kwd("`noremove_gatenames",       "Verilog-XL preprocessor directive");
+    కూడు_Kwd("`noremove_netnames",        "Verilog-XL preprocessor directive");
+    కూడు_Kwd("`nosuppress_faults",        "Verilog-XL preprocessor directive");
+    కూడు_Kwd("`nounconnected_drive",      "Verilog-XL preprocessor directive");
+    కూడు_Kwd("`portcoerce",               "Verilog preprocessor directive");
+    కూడు_Kwd("`pragma",                   "Verilog preprocessor directive");
+    కూడు_Kwd("`protect",                  "Verilog preprocessor directive");
+    కూడు_Kwd("`protected",                "Verilog preprocessor directive");
+    కూడు_Kwd("`remove_gatenames",         "Verilog-XL preprocessor directive");
+    కూడు_Kwd("`remove_netnames",          "Verilog-XL preprocessor directive");
+    కూడు_Kwd("`resetall",                 "Verilog preprocessor directive");
+    కూడు_Kwd("`suppress_faults",          "Verilog-XL preprocessor directive");
+    కూడు_Kwd("`systemc_ctor",             "Verilator preprocessor directive");
+    కూడు_Kwd("`systemc_dtor",             "Verilator preprocessor directive");
+    కూడు_Kwd("`systemc_header",           "Verilator preprocessor directive");
+    కూడు_Kwd("`systemc_header_post",      "Verilator preprocessor directive");
+    కూడు_Kwd("`systemc_imp_header",       "Verilator preprocessor directive");
+    కూడు_Kwd("`systemc_implementation",   "Verilator preprocessor directive");
+    కూడు_Kwd("`systemc_interface",        "Verilator preprocessor directive");
+    కూడు_Kwd("`timescale",                "Verilog preprocessor directive");
+    కూడు_Kwd("`undef",                    "Verilog preprocessor directive");
+    కూడు_Kwd("`undefineall",              "Verilog preprocessor directive");
+    కూడు_Kwd("`verilator_config",         "Verilator preprocessor directive");
+    కూడు_Kwd("`verilog",                  "Verilator preprocessor directive");
     // clang-format on
 }
 
-#endif  // Guard
+#అయితే_ముగింపు  // Guard

@@ -14,118 +14,118 @@
 //
 //*************************************************************************
 
-#include "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
+#అన్తర్భావ "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
 
-#include "V3Dfg.h"
+#అన్తర్భావ "V3Dfg.h"
 
-#include "V3Ast.h"
-#include "V3DfgContext.h"
-#include "V3EmitV.h"
-#include "V3File.h"
+#అన్తర్భావ "V3Ast.h"
+#అన్తర్భావ "V3DfgContext.h"
+#అన్తర్భావ "V3EmitV.h"
+#అన్తర్భావ "V3File.h"
 
 VL_DEFINE_DEBUG_FUNCTIONS;
 
 //------------------------------------------------------------------------------
 // DfgGraph
 
-DfgGraph::DfgGraph(V3DfgContext& ctx, const string& name)
+Dfg_లేఖాచిత్రం::Dfg_లేఖాచిత్రం(V3DfgContext& ctx, స్థిరరాశి string& name)
     : m_ctx{ctx}
     , m_name{name} {}
 
-DfgGraph::~DfgGraph() {
-    forEachVertex([&](DfgVertex& vtx) { vtx.unlinkDelete(*this); });
+Dfg_లేఖాచిత్రం::~Dfg_లేఖాచిత్రం() {
+    for_Each_శీర్షం([&](Dfg_శీర్షం& vtx) { vtx.unlinkDelete(*ఇది); });
 }
 
-void DfgGraph::mergeGraphs(std::vector<std::unique_ptr<DfgGraph>>&& otherps) {
-    if (otherps.empty()) return;
+శూన్య Dfg_లేఖాచిత్రం::విలీనం_Graphs(std::సదిశ<std::unique_ptr<Dfg_లేఖాచిత్రం>>&& otherps) {
+    ఒకవేళ (otherps.ఖాళీలు()) తిరిగి;
 
     // NODE STATE
     // AstVarScope::user2p() -> corresponding DfgVertexVar* in 'this' graph
-    const VNUser2InUse user2InUse;
+    స్థిరరాశి VNUser2_లోపల_Use user2_లోపల_Use;
 
     // Set up Ast Variable -> DfgVertexVar map for 'this' graph
-    for (DfgVertexVar& vtx : m_varVertices) vtx.vscp()->user2p(&vtx);
+    కొరకు (Dfg_శీర్షం_Var& vtx : m_varVertices) vtx.vscp()->user2p(&vtx);
 
     // Merge in each of the other graphs
-    for (const std::unique_ptr<DfgGraph>& otherp : otherps) {
+    కొరకు (స్థిరరాశి std::unique_ptr<Dfg_లేఖాచిత్రం>& otherp : otherps) {
         // Process variables
-        for (DfgVertexVar* const vtxp : otherp->m_varVertices.unlinkable()) {
+        కొరకు (Dfg_శీర్షం_Var* స్థిరరాశి vtxp : otherp->m_varVertices.unlinkable()) {
             // Variabels that are present in 'this', make them use the DfgVertexVar in 'this'.
-            if (DfgVertexVar* const altp = vtxp->vscp()->user2u().to<DfgVertexVar*>()) {
-                DfgVertex* const srcp = vtxp->srcp();
-                DfgVertex* const defaultp = vtxp->defaultp();
+            ఒకవేళ (Dfg_శీర్షం_Var* స్థిరరాశి altp = vtxp->vscp()->user2u().గమ్యం<Dfg_శీర్షం_Var*>()) {
+                Dfg_శీర్షం* స్థిరరాశి srcp = vtxp->srcp();
+                Dfg_శీర్షం* స్థిరరాశి defaultp = vtxp->defaultp();
                 UASSERT_OBJ(!(srcp || defaultp) || (!altp->srcp() && !altp->defaultp()), vtxp,
                             "At most one alias should be driven");
                 vtxp->replaceWith(altp);
-                if (srcp) altp->srcp(srcp);
-                if (defaultp) altp->defaultp(defaultp);
+                ఒకవేళ (srcp) altp->srcp(srcp);
+                ఒకవేళ (defaultp) altp->defaultp(defaultp);
                 VL_DO_DANGLING(vtxp->unlinkDelete(*otherp), vtxp);
-                continue;
+                కొనసాగు;
             }
             // Otherwise they will be moved
             vtxp->vscp()->user2p(vtxp);
             vtxp->m_userGeneration = 0;
-#ifdef VL_DEBUG
-            vtxp->m_dfgp = this;
-#endif
+#నిర్వచితమైతే VL_DEBUG
+            vtxp->m_dfgp = ఇది;
+#అయితే_ముగింపు
         }
-        m_varVertices.splice(m_varVertices.end(), otherp->m_varVertices);
+        m_varVertices.splice(m_varVertices.చివర(), otherp->m_varVertices);
         // Process Ast references
-        for (DfgVertexAst* const vtxp : otherp->m_astVertices.unlinkable()) {
+        కొరకు (Dfg_శీర్షం_Ast* స్థిరరాశి vtxp : otherp->m_astVertices.unlinkable()) {
             vtxp->m_userGeneration = 0;
-#ifdef VL_DEBUG
-            vtxp->m_dfgp = this;
-#endif
+#నిర్వచితమైతే VL_DEBUG
+            vtxp->m_dfgp = ఇది;
+#అయితే_ముగింపు
         }
-        m_astVertices.splice(m_astVertices.end(), otherp->m_astVertices);
+        m_astVertices.splice(m_astVertices.చివర(), otherp->m_astVertices);
         // Process constants
-        for (DfgConst& vtx : otherp->m_constVertices) {
+        కొరకు (DfgConst& vtx : otherp->m_constVertices) {
             vtx.m_userGeneration = 0;
-#ifdef VL_DEBUG
-            vtx.m_dfgp = this;
-#endif
+#నిర్వచితమైతే VL_DEBUG
+            vtx.m_dfgp = ఇది;
+#అయితే_ముగింపు
         }
-        m_constVertices.splice(m_constVertices.end(), otherp->m_constVertices);
+        m_constVertices.splice(m_constVertices.చివర(), otherp->m_constVertices);
         // Process operations
-        for (DfgVertex& vtx : otherp->m_opVertices) {
+        కొరకు (Dfg_శీర్షం& vtx : otherp->m_opVertices) {
             vtx.m_userGeneration = 0;
-#ifdef VL_DEBUG
-            vtx.m_dfgp = this;
-#endif
+#నిర్వచితమైతే VL_DEBUG
+            vtx.m_dfgp = ఇది;
+#అయితే_ముగింపు
         }
-        m_opVertices.splice(m_opVertices.end(), otherp->m_opVertices);
+        m_opVertices.splice(m_opVertices.చివర(), otherp->m_opVertices);
         // Update graph sizes
-        m_size += otherp->m_size;
-        otherp->m_size = 0;
+        m_కొలత += otherp->m_కొలత;
+        otherp->m_కొలత = 0;
     }
 }
 
-DfgVertexVar* DfgGraph::makeNewVar(FileLine* flp, const std::string& prefix,
-                                   const DfgDataType& dtype, AstScope* scopep) {
-    AstVarScope* const vscp = m_ctx.m_sharedTmps.make(flp, scopep, dtype.astDtypep(), prefix);
+Dfg_శీర్షం_Var* Dfg_లేఖాచిత్రం::makeNewVar(File_పంక్తి* flp, స్థిరరాశి std::string& ఉపసర్గ,
+                                   స్థిరరాశి Dfg_దత్తాంశం_Type& dtype, AstScope* scopep) {
+    AstVarScope* స్థిరరాశి vscp = m_ctx.m_sharedTmps.make(flp, scopep, dtype.astDtypep(), ఉపసర్గ);
     // Create and return the corresponding variable vertex
-    if (dtype.isArray()) return new DfgVarArray{*this, vscp};
-    return new DfgVarPacked{*this, vscp};
+    ఒకవేళ (dtype.isArray()) తిరిగి కొత్త DfgVarArray{*ఇది, vscp};
+    తిరిగి కొత్త DfgVarPacked{*ఇది, vscp};
 }
 
-static const std::string toDotId(const DfgVertex& vtx) { return '"' + cvtToHex(&vtx) + '"'; }
+స్థిర స్థిరరాశి std::string గమ్యం_Dot_Id(స్థిరరాశి Dfg_శీర్షం& vtx) { తిరిగి '"' + cvt_గమ్యం_Hex(&vtx) + '"'; }
 
 // Dump one DfgVertex in Graphviz format
-static void dumpDotVertex(std::ostream& os, const DfgVertex& vtx) {
-    if (const DfgVertexVar* const varVtxp = vtx.cast<DfgVertexVar>()) {
-        const AstVarScope* const vscp = varVtxp->vscp();
-        os << toDotId(vtx);
+స్థిర శూన్య dump_Dot_శీర్షం(std::ostream& os, స్థిరరాశి Dfg_శీర్షం& vtx) {
+    ఒకవేళ (స్థిరరాశి Dfg_శీర్షం_Var* స్థిరరాశి varVtxp = vtx.cast<Dfg_శీర్షం_Var>()) {
+        స్థిరరాశి AstVarScope* స్థిరరాశి vscp = varVtxp->vscp();
+        os << గమ్యం_Dot_Id(vtx);
         // Begin attributes
         os << " [";
         // Begin 'label'
         os << "label=\"";
         // Name
         os << vscp->prettyName();
-        // Address
-        os << '\n' << cvtToHex(varVtxp);
+        //చిరునామా
+        os << '\n' << cvt_గమ్యం_Hex(varVtxp);
         // Original variable, if any
-        if (const AstVarScope* const tmpForp = varVtxp->tmpForp()) {
-            if (tmpForp != vscp) os << "\ntemporary for: " << tmpForp->prettyName();
+        ఒకవేళ (స్థిరరాశి AstVarScope* స్థిరరాశి tmpForp = varVtxp->tmpForp()) {
+            ఒకవేళ (tmpForp != vscp) os << "\ntemporary for: " << tmpForp->prettyName();
         }
         // Type and fanout
         os << '\n';
@@ -133,44 +133,44 @@ static void dumpDotVertex(std::ostream& os, const DfgVertex& vtx) {
         os << " / F" << varVtxp->fanout();
         // Reference flags
         os << " / ";
-        static const char* const rwmn[2][2] = {{"_", "W"}, {"R", "M"}};
+        స్థిర స్థిరరాశి అక్షరం* స్థిరరాశి rwmn[2][2] = {{"_", "W"}, {"R", "M"}};
         os << rwmn[varVtxp->hasExtRdRefs()][varVtxp->hasExtWrRefs()];
-        os << rwmn[false][varVtxp->hasModWrRefs()];
+        os << rwmn[అబద్ధం][varVtxp->hasModWrRefs()];
         os << (varVtxp->hasDfgRefs() ? "D" : "_");
         // End 'label'
         os << '"';
         // Shape
-        if (varVtxp->is<DfgVarPacked>()) {
+        ఒకవేళ (varVtxp->is<DfgVarPacked>()) {
             os << ", shape=box";
-        } else if (varVtxp->is<DfgVarArray>()) {
+        } లేకపోతే ఒకవేళ (varVtxp->is<DfgVarArray>()) {
             os << ", shape=box3d";
-        } else {
+        } లేకపోతే {
             varVtxp->v3fatalSrc("Unhandled DfgVertexVar sub-type");
         }
         // Color
-        const char* const colorp = varVtxp->hasExtRefs()     ? "firebrick2"  // Red
+        స్థిరరాశి అక్షరం* స్థిరరాశి colorp = varVtxp->hasExtRefs()     ? "firebrick2"  // Red
                                    : varVtxp->hasModWrRefs() ? "darkorange1"  // Orange
                                    : varVtxp->hasDfgRefs()   ? "gold2"  // Yellow
-                                   : varVtxp->tmpForp()      ? "gray95"  // Gray
+                                   : varVtxp->tmpForp()      ? "gray95"  //బూడిద
                                                              : "white";
         os << ", style=filled";
         os << ", fillcolor=\"" << colorp << "\"";
         // End attributes
         os << "]\n";
-        return;
+        తిరిగి;
     }
 
-    if (const DfgPrev* const prevVtxp = vtx.cast<DfgPrev>()) {
-        const AstVarScope* const vscp = prevVtxp->vscp();
-        os << toDotId(vtx);
+    ఒకవేళ (స్థిరరాశి DfgPrev* స్థిరరాశి prevVtxp = vtx.cast<DfgPrev>()) {
+        స్థిరరాశి AstVarScope* స్థిరరాశి vscp = prevVtxp->vscp();
+        os << గమ్యం_Dot_Id(vtx);
         // Begin attributes
         os << " [";
         // Begin 'label'
         os << "label=\"";
         // Name
         os << vscp->prettyName();
-        // Address
-        os << '\n' << cvtToHex(prevVtxp);
+        //చిరునామా
+        os << '\n' << cvt_గమ్యం_Hex(prevVtxp);
         // Type and fanout
         os << '\n';
         prevVtxp->dtype().astDtypep()->dumpSmall(os);
@@ -178,787 +178,787 @@ static void dumpDotVertex(std::ostream& os, const DfgVertex& vtx) {
         // End 'label'
         os << '"';
         // Shape
-        if (prevVtxp->isPacked()) {
+        ఒకవేళ (prevVtxp->isPacked()) {
             os << ", shape=box";
-        } else if (prevVtxp->isArray()) {
+        } లేకపోతే ఒకవేళ (prevVtxp->isArray()) {
             os << ", shape=box3d";
-        } else {
+        } లేకపోతే {
             prevVtxp->v3fatalSrc("Unhandled variable type");
         }
         // Color
-        const char* const colorp = "mediumorchid1";  // Purple
+        స్థిరరాశి అక్షరం* స్థిరరాశి colorp = "mediumorchid1";  // Purple
         os << ", style=filled";
         os << ", fillcolor=\"" << colorp << "\"";
         // End attributes
         os << "]\n";
-        return;
+        తిరిగి;
     }
 
-    if (const DfgConst* const constVtxp = vtx.cast<DfgConst>()) {
-        const V3Number& num = constVtxp->num();
+    ఒకవేళ (స్థిరరాశి DfgConst* స్థిరరాశి constVtxp = vtx.cast<DfgConst>()) {
+        స్థిరరాశి V3_సంఖ్య& అంకె = constVtxp->అంకె();
 
-        os << toDotId(vtx);
+        os << గమ్యం_Dot_Id(vtx);
         os << " [label=\"";
-        if (num.width() <= 32 && !num.isSigned()) {
-            os << constVtxp->width() << "'d" << num.toUInt() << '\n';
-            os << constVtxp->width() << "'h" << std::hex << num.toUInt() << std::dec << '\n';
-        } else {
-            os << num.ascii() << '\n';
+        ఒకవేళ (అంకె.వెడల్పు() <= 32 && !అంకె.isSigned()) {
+            os << constVtxp->వెడల్పు() << "'d" << అంకె.గమ్యం_UInt() << '\n';
+            os << constVtxp->వెడల్పు() << "'h" << std::hex << అంకె.గమ్యం_UInt() << std::dec << '\n';
+        } లేకపోతే {
+            os << అంకె.ascii() << '\n';
         }
-        os << cvtToHex(constVtxp) << '\n';
+        os << cvt_గమ్యం_Hex(constVtxp) << '\n';
         os << '"';
         os << ", shape=plain";
         os << "]\n";
-        return;
+        తిరిగి;
     }
 
-    if (const DfgSel* const selVtxp = vtx.cast<DfgSel>()) {
-        const uint32_t lsb = selVtxp->lsb();
-        const uint32_t msb = lsb + selVtxp->width() - 1;
-        os << toDotId(vtx);
+    ఒకవేళ (స్థిరరాశి DfgSel* స్థిరరాశి selVtxp = vtx.cast<DfgSel>()) {
+        స్థిరరాశి uint32_t lsb = selVtxp->lsb();
+        స్థిరరాశి uint32_t msb = lsb + selVtxp->వెడల్పు() - 1;
+        os << గమ్యం_Dot_Id(vtx);
         os << " [label=\"SEL _[" << msb << ":" << lsb << "]\n";
-        os << cvtToHex(selVtxp) << '\n';
+        os << cvt_గమ్యం_Hex(selVtxp) << '\n';
         vtx.dtype().astDtypep()->dumpSmall(os);
         os << " / F" << vtx.fanout() << '"';
-        if (vtx.hasMultipleSinks()) {
+        ఒకవేళ (vtx.has_గుణిజం_Sinks()) {
             os << ", shape=doublecircle";
-        } else {
+        } లేకపోతే {
             os << ", shape=circle";
         }
         os << "]\n";
-        return;
+        తిరిగి;
     }
 
-    if (vtx.is<DfgVertexSplice>() || vtx.is<DfgUnitArray>() || vtx.is<DfgUnresolved>()) {
-        os << toDotId(vtx);
+    ఒకవేళ (vtx.is<Dfg_శీర్షం_Splice>() || vtx.is<DfgUnitArray>() || vtx.is<DfgUnresolved>()) {
+        os << గమ్యం_Dot_Id(vtx);
         os << " [label=\"" << vtx.typeName() << '\n';
-        os << cvtToHex(&vtx) << '\n';
+        os << cvt_గమ్యం_Hex(&vtx) << '\n';
         vtx.dtype().astDtypep()->dumpSmall(os);
         os << " / F" << vtx.fanout() << '"';
-        if (vtx.hasMultipleSinks()) {
+        ఒకవేళ (vtx.has_గుణిజం_Sinks()) {
             os << ", shape=doubleoctagon";
-        } else {
+        } లేకపోతే {
             os << ", shape=octagon";
         }
         os << "]\n";
-        return;
+        తిరిగి;
     }
 
-    if (const DfgLogic* const logicp = vtx.cast<DfgLogic>()) {
-        os << toDotId(vtx);
+    ఒకవేళ (స్థిరరాశి DfgLogic* స్థిరరాశి logicp = vtx.cast<DfgLogic>()) {
+        os << గమ్యం_Dot_Id(vtx);
         std::stringstream ss;
-        V3EmitV::debugVerilogForTree(logicp->nodep(), ss);
-        std::string str = "AstNode: " + cvtToHex(logicp->nodep()) + "\n" + ss.str();
+        V3EmitV::debug_Verilog_For_వృక్షం(logicp->nodep(), ss);
+        std::string str = "AstNode: " + cvt_గమ్యం_Hex(logicp->nodep()) + "\n" + ss.str();
         str = VString::quoteBackslash(str);
         str = VString::quoteAny(str, '"', '\\');
         str = VString::replaceSubstr(str, "\n", "\\l");
-        const char* const colorp = !logicp->selectedForSynthesis() ? "#d0d0ff"  // Pale Blue
+        స్థిరరాశి అక్షరం* స్థిరరాశి colorp = !logicp->selectedForSynthesis() ? "#d0d0ff"  // Pale Blue
                                    : logicp->nonSynthesizable()    ? "#ffd0d0"  // Pale Red
                                    : logicp->reverted()            ? "#faffd0"  // Pale Yellow
                                                                    : "#d0ffd0";  // Pale Green
 
         os << " [label=\"";
         os << str;
-        os << '\n' << vtx.typeName() << '\n' << cvtToHex(&vtx);
+        os << '\n' << vtx.typeName() << '\n' << cvt_గమ్యం_Hex(&vtx);
         os << "\"\n";
         os << ", shape=box, style=\"rounded,filled\", nojustify=true";
         os << ", fillcolor=\"" << colorp << "\"";
         os << "]\n";
-        return;
+        తిరిగి;
     }
 
-    if (const DfgVertexAst* const astVtxp = vtx.cast<DfgVertexAst>()) {
-        os << toDotId(vtx);
+    ఒకవేళ (స్థిరరాశి Dfg_శీర్షం_Ast* స్థిరరాశి astVtxp = vtx.cast<Dfg_శీర్షం_Ast>()) {
+        os << గమ్యం_Dot_Id(vtx);
         std::stringstream ss;
-        V3EmitV::debugVerilogForTree(astVtxp->exprp(), ss);
-        std::string str = "AstNode: " + cvtToHex(astVtxp->exprp()) + "\n" + ss.str() + "\n";
+        V3EmitV::debug_Verilog_For_వృక్షం(astVtxp->exprp(), ss);
+        std::string str = "AstNode: " + cvt_గమ్యం_Hex(astVtxp->exprp()) + "\n" + ss.str() + "\n";
         str = VString::quoteBackslash(str);
         str = VString::quoteAny(str, '"', '\\');
         str = VString::replaceSubstr(str, "\n", "\\l");
-        const DfgAstRd* const astRdVtxp = astVtxp->cast<DfgAstRd>();
-        const char* const colorp = astRdVtxp ? "#80ff80"  // Green
+        స్థిరరాశి DfgAstRd* స్థిరరాశి astRdVtxp = astVtxp->cast<DfgAstRd>();
+        స్థిరరాశి అక్షరం* స్థిరరాశి colorp = astRdVtxp ? "#80ff80"  // Green
                                              : "#ffff80";  // Yellow
         os << " [label=\"";
         os << str;
-        os << '\n' << vtx.typeName() << '\n' << cvtToHex(&vtx) << '\n';
+        os << '\n' << vtx.typeName() << '\n' << cvt_గమ్యం_Hex(&vtx) << '\n';
         vtx.dtype().astDtypep()->dumpSmall(os);
         os << " / ";
-        os << "_S"[astRdVtxp->inSenItem()];
-        os << "_L"[astRdVtxp->inLoop()];
+        os << "_S"[astRdVtxp->లోపల_Sen_అంశం()];
+        os << "_L"[astRdVtxp->లోపల_Loop()];
         os << "\"\n";
         os << ", shape=box, style=\"rounded,filled\", nojustify=true";
         os << ", fillcolor=\"" << colorp << "\"";
         os << "]\n";
-        return;
+        తిరిగి;
     }
 
-    os << toDotId(vtx);
+    os << గమ్యం_Dot_Id(vtx);
     os << " [label=\"" << vtx.typeName() << '\n';
-    os << cvtToHex(&vtx) << '\n';
+    os << cvt_గమ్యం_Hex(&vtx) << '\n';
     vtx.dtype().astDtypep()->dumpSmall(os);
     os << " / F" << vtx.fanout() << '"';
-    if (vtx.hasMultipleSinks()) {
+    ఒకవేళ (vtx.has_గుణిజం_Sinks()) {
         os << ", shape=doublecircle";
-    } else {
+    } లేకపోతే {
         os << ", shape=circle";
     }
     os << "]\n";
 }
 
-void DfgGraph::dumpDot(std::ostream& os, const std::string& label,
-                       std::function<bool(const DfgVertex&)> p) const {
+శూన్య Dfg_లేఖాచిత్రం::dumpDot(std::ostream& os, స్థిరరాశి std::string& label,
+                       std::function<తార్కిక(స్థిరరాశి Dfg_శీర్షం&)> p) స్థిరరాశి {
     // This generates a graphviz dump, https://www.graphviz.org
 
-    // Header
+    //శీర్షిక
     os << "digraph dfg {\n";
     os << "rankdir=LR\n";
 
     // If predicate not given, dump everything
-    if (!p) p = [](const DfgVertex&) { return true; };
+    ఒకవేళ (!p) p = [](స్థిరరాశి Dfg_శీర్షం&) { తిరిగి నిజం; };
 
-    std::unordered_set<const DfgVertex*> emitted;
+    std::unordered_సమితి<స్థిరరాశి Dfg_శీర్షం*> emitted;
     // Emit all vertices associated with a DfgLogic
-    forEachVertex([&](const DfgVertex& vtx) {
-        const DfgLogic* const logicp = vtx.cast<DfgLogic>();
-        if (!logicp) return;
-        if (logicp->synth().empty()) return;
-        if (!p(vtx)) return;
-        os << "subgraph cluster_" << cvtToHex(logicp) << " {\n";
-        dumpDotVertex(os, *logicp);
-        emitted.insert(logicp);
-        for (DfgVertex* const vtxp : logicp->synth()) {
-            if (!p(*vtxp)) continue;
-            dumpDotVertex(os, *vtxp);
-            emitted.insert(vtxp);
+    for_Each_శీర్షం([&](స్థిరరాశి Dfg_శీర్షం& vtx) {
+        స్థిరరాశి DfgLogic* స్థిరరాశి logicp = vtx.cast<DfgLogic>();
+        ఒకవేళ (!logicp) తిరిగి;
+        ఒకవేళ (logicp->synth().ఖాళీలు()) తిరిగి;
+        ఒకవేళ (!p(vtx)) తిరిగి;
+        os << "subgraph cluster_" << cvt_గమ్యం_Hex(logicp) << " {\n";
+        dump_Dot_శీర్షం(os, *logicp);
+        emitted.చొప్పించు(logicp);
+        కొరకు (Dfg_శీర్షం* స్థిరరాశి vtxp : logicp->synth()) {
+            ఒకవేళ (!p(*vtxp)) కొనసాగు;
+            dump_Dot_శీర్షం(os, *vtxp);
+            emitted.చొప్పించు(vtxp);
         }
         os << "}\n";
     });
     // Emit all remaining vertices
-    forEachVertex([&](const DfgVertex& vtx) {
-        if (emitted.count(&vtx)) return;
-        if (!p(vtx)) return;
-        dumpDotVertex(os, vtx);
+    for_Each_శీర్షం([&](స్థిరరాశి Dfg_శీర్షం& vtx) {
+        ఒకవేళ (emitted.లెక్క(&vtx)) తిరిగి;
+        ఒకవేళ (!p(vtx)) తిరిగి;
+        dump_Dot_శీర్షం(os, vtx);
     });
     // Emit all edges
-    forEachVertex([&](const DfgVertex& vtx) {
-        if (!p(vtx)) return;
-        for (size_t i = 0; i < vtx.nInputs(); ++i) {
-            DfgVertex* const srcp = vtx.inputp(i);
-            if (!srcp) continue;
-            if (!p(*srcp)) continue;
-            os << toDotId(*srcp) << " -> " << toDotId(vtx);
+    for_Each_శీర్షం([&](స్థిరరాశి Dfg_శీర్షం& vtx) {
+        ఒకవేళ (!p(vtx)) తిరిగి;
+        కొరకు (కొలత_t i = 0; i < vtx.nInputs(); ++i) {
+            Dfg_శీర్షం* స్థిరరాశి srcp = vtx.inputp(i);
+            ఒకవేళ (!srcp) కొనసాగు;
+            ఒకవేళ (!p(*srcp)) కొనసాగు;
+            os << గమ్యం_Dot_Id(*srcp) << " -> " << గమ్యం_Dot_Id(vtx);
             os << " [headlabel=\"" << vtx.srcName(i) << "\"]";
             os << '\n';
         }
     });
 
     // Footer
-    os << "label=\"" << name() + (label.empty() ? "" : "-" + label) << "\"\n";
+    os << "label=\"" << name() + (label.ఖాళీలు() ? "" : "-" + label) << "\"\n";
     os << "labelloc=t\n";
     os << "labeljust=l\n";
     os << "}\n";
 }
 
-std::string DfgGraph::dumpDotString(const std::string& label,
-                                    std::function<bool(const DfgVertex&)> p) const {
+std::string Dfg_లేఖాచిత్రం::dumpDotString(స్థిరరాశి std::string& label,
+                                    std::function<తార్కిక(స్థిరరాశి Dfg_శీర్షం&)> p) స్థిరరాశి {
     std::stringstream ss;
     dumpDot(ss, label, p);
-    return ss.str();
+    తిరిగి ss.str();
 }
 
-void DfgGraph::dumpDotFile(const std::string& filename, const std::string& label,
-                           std::function<bool(const DfgVertex&)> p) const {
-    const std::unique_ptr<std::ofstream> os{V3File::new_ofstream(filename)};
-    if (os->fail()) v3fatal("Can't write file: " << filename);
+శూన్య Dfg_లేఖాచిత్రం::dumpDotFile(స్థిరరాశి std::string& filename, స్థిరరాశి std::string& label,
+                           std::function<తార్కిక(స్థిరరాశి Dfg_శీర్షం&)> p) స్థిరరాశి {
+    స్థిరరాశి std::unique_ptr<std::ofstream> os{V3File::new_ofstream(filename)};
+    ఒకవేళ (os->fail()) v3fatal("Can't write file: " << filename);
     dumpDot(*os.get(), label, p);
     os->close();
 }
 
-void DfgGraph::dumpDotFilePrefixed(const std::string& label,
-                                   std::function<bool(const DfgVertex&)> p) const {
+శూన్య Dfg_లేఖాచిత్రం::dumpDotFilePrefixed(స్థిరరాశి std::string& label,
+                                   std::function<తార్కిక(స్థిరరాశి Dfg_శీర్షం&)> p) స్థిరరాశి {
     std::string filename = name();
-    if (!label.empty()) filename += "-" + label;
+    ఒకవేళ (!label.ఖాళీలు()) filename += "-" + label;
     dumpDotFile(v3Global.debugFilename(filename) + ".dot", label, p);
 }
 
-template <bool T_SinksNotSources>
-static std::unique_ptr<std::unordered_set<const DfgVertex*>>
-dfgGraphCollectCone(const std::vector<const DfgVertex*>& vtxps) {
+మూస <తార్కిక T_SinksNotSources>
+స్థిర std::unique_ptr<std::unordered_సమితి<స్థిరరాశి Dfg_శీర్షం*>>
+dfg_లేఖాచిత్రం_Collect_Cone(స్థిరరాశి std::సదిశ<స్థిరరాశి Dfg_శీర్షం*>& vtxps) {
     // Work queue for traversal starting from all the seed vertices
-    std::vector<const DfgVertex*> queue = vtxps;
+    std::సదిశ<స్థిరరాశి Dfg_శీర్షం*> వరుస = vtxps;
     // Set of already visited vertices
-    std::unique_ptr<std::unordered_set<const DfgVertex*>> resp{
-        new std::unordered_set<const DfgVertex*>{}};
+    std::unique_ptr<std::unordered_సమితి<స్థిరరాశి Dfg_శీర్షం*>> resp{
+        కొత్త std::unordered_సమితి<స్థిరరాశి Dfg_శీర్షం*>{}};
     // Depth first traversal
-    while (!queue.empty()) {
+    అయితే (!వరుస.ఖాళీలు()) {
         // Pop next work item
-        const DfgVertex* const vtxp = queue.back();
-        queue.pop_back();
+        స్థిరరాశి Dfg_శీర్షం* స్థిరరాశి vtxp = వరుస.వెనుక();
+        వరుస.తీయి_వెనుక();
         // Mark vertex as visited, move on if already visited
-        if (!resp->insert(vtxp).second) continue;
+        ఒకవేళ (!resp->చొప్పించు(vtxp).రెండవ) కొనసాగు;
         // Enqueue all siblings of this vertex.
-        if VL_CONSTEXPR_CXX17 (T_SinksNotSources) {
-            vtxp->foreachSink([&](const DfgVertex& sink) {
-                queue.push_back(&sink);
-                return false;
+        ఒకవేళ VL_CONSTEXPR_CXX17 (T_SinksNotSources) {
+            vtxp->foreachSink([&](స్థిరరాశి Dfg_శీర్షం& sink) {
+                వరుస.నెట్టు_వెనుక(&sink);
+                తిరిగి అబద్ధం;
             });
-        } else {
-            vtxp->foreachSource([&](const DfgVertex& src) {
-                queue.push_back(&src);
-                return false;
+        } లేకపోతే {
+            vtxp->foreach_ఆధారం([&](స్థిరరాశి Dfg_శీర్షం& src) {
+                వరుస.నెట్టు_వెనుక(&src);
+                తిరిగి అబద్ధం;
             });
         }
     }
-    // Done
-    return resp;
+    //పూర్తి
+    తిరిగి resp;
 }
 
-std::unique_ptr<std::unordered_set<const DfgVertex*>>
-DfgGraph::sourceCone(const std::vector<const DfgVertex*>& vtxps) const {
-    return dfgGraphCollectCone<false>(vtxps);
+std::unique_ptr<std::unordered_సమితి<స్థిరరాశి Dfg_శీర్షం*>>
+Dfg_లేఖాచిత్రం::ఆధారం_Cone(స్థిరరాశి std::సదిశ<స్థిరరాశి Dfg_శీర్షం*>& vtxps) స్థిరరాశి {
+    తిరిగి dfg_లేఖాచిత్రం_Collect_Cone<అబద్ధం>(vtxps);
 }
 
-std::unique_ptr<std::unordered_set<const DfgVertex*>>
-DfgGraph::sinkCone(const std::vector<const DfgVertex*>& vtxps) const {
-    return dfgGraphCollectCone<true>(vtxps);
+std::unique_ptr<std::unordered_సమితి<స్థిరరాశి Dfg_శీర్షం*>>
+Dfg_లేఖాచిత్రం::sinkCone(స్థిరరాశి std::సదిశ<స్థిరరాశి Dfg_శీర్షం*>& vtxps) స్థిరరాశి {
+    తిరిగి dfg_లేఖాచిత్రం_Collect_Cone<నిజం>(vtxps);
 }
 
-std::unique_ptr<std::unordered_set<const DfgVertex*>>
-DfgGraph::neighborhood(const std::vector<const DfgVertex*>& vtxps, size_t n) const {
+std::unique_ptr<std::unordered_సమితి<స్థిరరాశి Dfg_శీర్షం*>>
+Dfg_లేఖాచిత్రం::neighborhood(స్థిరరాశి std::సదిశ<స్థిరరాశి Dfg_శీర్షం*>& vtxps, కొలత_t n) స్థిరరాశి {
     // Neighborhood
-    std::vector<const DfgVertex*> vec = vtxps;
+    std::సదిశ<స్థిరరాశి Dfg_శీర్షం*> vec = vtxps;
     // Set of already visited vertices
-    std::unordered_set<const DfgVertex*> res{vec.begin(), vec.end()};
+    std::unordered_సమితి<స్థిరరాశి Dfg_శీర్షం*> res{vec.begin(), vec.చివర()};
     // Expand neihborhood by 'n' hops
-    size_t begin = 0;
-    size_t end = vec.size();
-    for (size_t hops = 1; hops <= n; ++hops) {
-        for (size_t i = begin; i < end; ++i) {
-            const DfgVertex* const vtxp = vec[i];
-            vtxp->foreachSink([&](const DfgVertex& dst) {
-                if (res.insert(&dst).second) vec.push_back(&dst);
-                return false;
+    కొలత_t begin = 0;
+    కొలత_t చివర = vec.కొలత();
+    కొరకు (కొలత_t hops = 1; hops <= n; ++hops) {
+        కొరకు (కొలత_t i = begin; i < చివర; ++i) {
+            స్థిరరాశి Dfg_శీర్షం* స్థిరరాశి vtxp = vec[i];
+            vtxp->foreachSink([&](స్థిరరాశి Dfg_శీర్షం& dst) {
+                ఒకవేళ (res.చొప్పించు(&dst).రెండవ) vec.నెట్టు_వెనుక(&dst);
+                తిరిగి అబద్ధం;
             });
-            vtxp->foreachSource([&](const DfgVertex& src) {
-                if (res.insert(&src).second) vec.push_back(&src);
-                return false;
+            vtxp->foreach_ఆధారం([&](స్థిరరాశి Dfg_శీర్షం& src) {
+                ఒకవేళ (res.చొప్పించు(&src).రెండవ) vec.నెట్టు_వెనుక(&src);
+                తిరిగి అబద్ధం;
             });
         }
-        begin = end;
-        end = vec.size();
+        begin = చివర;
+        చివర = vec.కొలత();
     }
     // Move out the results
-    return std::make_unique<std::unordered_set<const DfgVertex*>>(std::move(res));
+    తిరిగి std::make_unique<std::unordered_సమితి<స్థిరరాశి Dfg_శీర్షం*>>(std::move(res));
 }
 
 //------------------------------------------------------------------------------
 // DfgVertex
 
-DfgVertex::DfgVertex(DfgGraph& dfg, VDfgType type, FileLine* flp, const DfgDataType& dt,
-                     DfgEdge* inlineInputsp, uint32_t nInputs)
+Dfg_శీర్షం::Dfg_శీర్షం(Dfg_లేఖాచిత్రం& dfg, VDfgType type, File_పంక్తి* flp, స్థిరరాశి Dfg_దత్తాంశం_Type& dt,
+                     Dfg_అంచు* inlineInputsp, uint32_t nInputs)
     : m_inlineInputsp{inlineInputsp}
     , m_nInputs{nInputs}
     , m_filelinep{flp}
     , m_dtype{dt}
     , m_type{type} {
-    dfg.addVertex(*this);
+    dfg.కూడు_శీర్షం(*ఇది);
 }
 
-bool DfgVertex::unsafe() const {
-    if (is<DfgMux>()) return true;
-    if (is<DfgArraySel>()) return !as<DfgArraySel>()->bitp()->is<DfgConst>();
-    return false;
+తార్కిక Dfg_శీర్షం::unsafe() స్థిరరాశి {
+    ఒకవేళ (is<DfgMux>()) తిరిగి నిజం;
+    ఒకవేళ (is<DfgArraySel>()) తిరిగి !as<DfgArraySel>()->bitp()->is<DfgConst>();
+    తిరిగి అబద్ధం;
 }
 
-void DfgVertex::typeCheck(const DfgGraph& dfg) const {
+శూన్య Dfg_శీర్షం::typeCheck(స్థిరరాశి Dfg_లేఖాచిత్రం& dfg) స్థిరరాశి {
 
-#define CHECK(cond, msg) \
-    UASSERT_OBJ(cond, this, \
+#నిర్వచించు CHECK(cond, సందేశం_2) \
+    UASSERT_OBJ(cond, ఇది, \
                 "Dfg type error for vertex " << typeName() << " in " << dfg.name() << ": " \
-                                             << msg);
-    switch (type()) {
-    case VDfgType::Const: {
+                                             << సందేశం_2);
+    ఎంపిక (type()) {
+    స్థితి VDfgType::Const: {
         CHECK(isPacked(), "Should be Packed type");
-        return;
+        తిరిగి;
     }
-    case VDfgType::CReset: {
+    స్థితి VDfgType::CReset: {
         CHECK(isPacked() || isArray(), "Should be Packed or Array type");
-        return;
+        తిరిగి;
     }
-    case VDfgType::AstRd: {
-        const DfgAstRd& v = *as<DfgAstRd>();
+    స్థితి VDfgType::AstRd: {
+        స్థిరరాశి DfgAstRd& v = *as<DfgAstRd>();
         CHECK(v.isPacked() || v.isArray(), "Should be Packed or Array type");
-        return;
+        తిరిగి;
     }
-    case VDfgType::VarArray:
-    case VDfgType::VarPacked: {
-        const DfgVertexVar& v = *as<DfgVertexVar>();
+    స్థితి VDfgType::VarArray:
+    స్థితి VDfgType::VarPacked: {
+        స్థిరరాశి Dfg_శీర్షం_Var& v = *as<Dfg_శీర్షం_Var>();
         CHECK(!v.defaultp() || v.defaultp()->dtype() == v.dtype(), "'defaultp' should match");
         CHECK(!v.srcp() || v.srcp()->dtype() == v.dtype(), "'srcp' should match");
-        return;
+        తిరిగి;
     }
-    case VDfgType::Prev: {
+    స్థితి VDfgType::Prev: {
         CHECK(isPacked() || isArray(), "Should be Packed or Array type");
-        return;
+        తిరిగి;
     }
-    case VDfgType::SpliceArray:
-    case VDfgType::SplicePacked: {
-        const DfgVertexSplice& v = *as<DfgVertexSplice>();
-        v.foreachDriver([&](const DfgVertex& src, uint32_t lo) {
-            CHECK(src.dtype() == DfgDataType::select(v.dtype(), lo, src.size()), "driver");
-            return false;
+    స్థితి VDfgType::SpliceArray:
+    స్థితి VDfgType::SplicePacked: {
+        స్థిరరాశి Dfg_శీర్షం_Splice& v = *as<Dfg_శీర్షం_Splice>();
+        v.foreachDriver([&](స్థిరరాశి Dfg_శీర్షం& src, uint32_t lo) {
+            CHECK(src.dtype() == Dfg_దత్తాంశం_Type::select(v.dtype(), lo, src.కొలత()), "driver");
+            తిరిగి అబద్ధం;
         });
-        return;
+        తిరిగి;
     }
-    case VDfgType::Logic: {
+    స్థితి VDfgType::Logic: {
         CHECK(dtype().isNull(), "Should be Null type");
-        return;
+        తిరిగి;
     }
-    case VDfgType::Unresolved: {
+    స్థితి VDfgType::Unresolved: {
         CHECK(!dtype().isNull(), "Should not be Null type");
-        return;
+        తిరిగి;
     }
-    case VDfgType::UnitArray: {
-        const DfgUnitArray& v = *as<DfgUnitArray>();
+    స్థితి VDfgType::UnitArray: {
+        స్థిరరాశి DfgUnitArray& v = *as<DfgUnitArray>();
         CHECK(v.isArray(), "Should be Array type");
-        CHECK(v.size() == 1, "Should be one element");
+        CHECK(v.కొలత() == 1, "Should be one element");
         CHECK(v.srcp()->dtype() == v.dtype().elemDtype(), "Input should be the element type");
-        return;
+        తిరిగి;
     }
-    case VDfgType::Sel: {
-        const DfgSel& v = *as<DfgSel>();
+    స్థితి VDfgType::Sel: {
+        స్థిరరాశి DfgSel& v = *as<DfgSel>();
         CHECK(v.isPacked(), "Should be Packed type");
-        CHECK(v.dtype() == DfgDataType::select(v.srcp()->dtype(), v.lsb(), v.size()), "sel");
-        return;
+        CHECK(v.dtype() == Dfg_దత్తాంశం_Type::select(v.srcp()->dtype(), v.lsb(), v.కొలత()), "sel");
+        తిరిగి;
     }
-    case VDfgType::MatchMasked: {
-        const DfgMatchMasked& v = *as<DfgMatchMasked>();
+    స్థితి VDfgType::సరిపోలిక_Masked: {
+        స్థిరరాశి Dfg_సరిపోలిక_Masked& v = *as<Dfg_సరిపోలిక_Masked>();
         CHECK(v.isPacked(), "Should be Packed type");
-        CHECK(v.size() == 32U, "Should yield a 32-bit result");
+        CHECK(v.కొలత() == 32U, "Should yield a 32-bit result");
         CHECK(v.lhsp()->isPacked(), "Lhs should be packed");
         CHECK(v.matchp()->isPacked(), "Match should be Packed type");
-        CHECK(v.matchp()->is<DfgVertexVar>(), "Match should be a variable");
-        return;
+        CHECK(v.matchp()->is<Dfg_శీర్షం_Var>(), "Match should be a variable");
+        తిరిగి;
     }
-    case VDfgType::Mux: {
-        const DfgMux& v = *as<DfgMux>();
+    స్థితి VDfgType::Mux: {
+        స్థిరరాశి DfgMux& v = *as<DfgMux>();
         CHECK(v.isPacked(), "Should be Packed type");
         CHECK(v.fromp()->isPacked(), "Source operand should be Packed type");
-        CHECK(v.fromp()->size() >= v.size(), "Source operand should not be narrower");
+        CHECK(v.fromp()->కొలత() >= v.కొలత(), "Source operand should not be narrower");
         CHECK(v.lsbp()->isPacked(), "Index should be Packed type");
-        return;
+        తిరిగి;
     }
-    case VDfgType::ArraySel: {
-        const DfgArraySel& v = *as<DfgArraySel>();
+    స్థితి VDfgType::ArraySel: {
+        స్థిరరాశి DfgArraySel& v = *as<DfgArraySel>();
         CHECK(v.dtype() == v.fromp()->dtype().elemDtype(), "Element type should match");
         CHECK(v.bitp()->isPacked(), "Index should be Packed type");
-        return;
+        తిరిగి;
     }
 
-    case VDfgType::Add:
-    case VDfgType::And:
-    case VDfgType::Div:
-    case VDfgType::DivS:
-    case VDfgType::ModDiv:
-    case VDfgType::ModDivS:
-    case VDfgType::Mul:
-    case VDfgType::MulS:
-    case VDfgType::Or:
-    case VDfgType::Sub:
-    case VDfgType::Xor: {
+    స్థితి VDfgType::కూడు_2:
+    స్థితి VDfgType::And:
+    స్థితి VDfgType::Div:
+    స్థితి VDfgType::DivS:
+    స్థితి VDfgType::ModDiv:
+    స్థితి VDfgType::ModDivS:
+    స్థితి VDfgType::Mul:
+    స్థితి VDfgType::MulS:
+    స్థితి VDfgType::Or:
+    స్థితి VDfgType::Sub:
+    స్థితి VDfgType::Xor: {
         CHECK(isPacked(), "Should be Packed type");
         CHECK(inputp(0)->dtype() == dtype(), "LHS should be same type");
         CHECK(inputp(1)->dtype() == dtype(), "RHS should be same type");
-        return;
+        తిరిగి;
     }
 
-    case VDfgType::Negate:
-    case VDfgType::Not: {
+    స్థితి VDfgType::Negate:
+    స్థితి VDfgType::Not: {
         CHECK(isPacked(), "Should be Packed type");
         CHECK(inputp(0)->dtype() == dtype(), "Input should be same type");
-        return;
+        తిరిగి;
     }
 
-    case VDfgType::ShiftL:
-    case VDfgType::ShiftR:
-    case VDfgType::ShiftRS: {
+    స్థితి VDfgType::జరుపు_L:
+    స్థితి VDfgType::జరుపు_R:
+    స్థితి VDfgType::జరుపు_RS: {
         CHECK(isPacked(), "Should be Packed type");
         CHECK(inputp(0)->dtype() == dtype(), "LHS should be same type");
         CHECK(inputp(1)->isPacked(), "RHS should be Packed type");
-        return;
+        తిరిగి;
     }
 
-    case VDfgType::Concat: {
-        const DfgConcat& v = *as<DfgConcat>();
+    స్థితి VDfgType::Concat: {
+        స్థిరరాశి DfgConcat& v = *as<DfgConcat>();
         CHECK(v.isPacked(), "Should be Packed type");
         CHECK(v.lhsp()->isPacked(), "LHS should be Packed type");
         CHECK(v.rhsp()->isPacked(), "RHS should be Packed type");
-        CHECK(v.size() == v.rhsp()->size() + v.lhsp()->size(), "Concat result mismatch");
-        return;
+        CHECK(v.కొలత() == v.rhsp()->కొలత() + v.lhsp()->కొలత(), "Concat result mismatch");
+        తిరిగి;
     }
 
-    case VDfgType::Rep: {
-        const DfgRep& v = *as<DfgRep>();
+    స్థితి VDfgType::Rep: {
+        స్థిరరాశి DfgRep& v = *as<DfgRep>();
         CHECK(v.isPacked(), "Should be Packed type");
         CHECK(v.srcp()->isPacked(), "'srcp' should be same type");
-        CHECK(v.size() % v.srcp()->size() == 0, "Not a replicate");
-        return;
+        CHECK(v.కొలత() % v.srcp()->కొలత() == 0, "Not a replicate");
+        తిరిగి;
     }
 
-    case VDfgType::StreamL:
-    case VDfgType::StreamR: {
+    స్థితి VDfgType::ప్రవాహం_L:
+    స్థితి VDfgType::ప్రవాహం_R: {
         // TODO: model these without an explicit slice size which is always constant (?)
         CHECK(isPacked(), "Should be Packed type");
         CHECK(inputp(0)->dtype() == dtype(), "LHS should be same type");
         CHECK(inputp(1)->isPacked(), "Slice size should be Packed type");
-        return;
+        తిరిగి;
     }
 
-    case VDfgType::Eq:
-    case VDfgType::EqCase:
-    case VDfgType::EqWild:
-    case VDfgType::Neq:
-    case VDfgType::NeqCase:
-    case VDfgType::NeqWild:
-    case VDfgType::Gt:
-    case VDfgType::GtS:
-    case VDfgType::Gte:
-    case VDfgType::GteS:
-    case VDfgType::Lt:
-    case VDfgType::LtS:
-    case VDfgType::Lte:
-    case VDfgType::LteS: {
-        CHECK(dtype() == DfgDataType::packed(1), "Should be 1-bit");
+    స్థితి VDfgType::Eq:
+    స్థితి VDfgType::EqCase:
+    స్థితి VDfgType::EqWild:
+    స్థితి VDfgType::Neq:
+    స్థితి VDfgType::NeqCase:
+    స్థితి VDfgType::NeqWild:
+    స్థితి VDfgType::Gt:
+    స్థితి VDfgType::GtS:
+    స్థితి VDfgType::Gte:
+    స్థితి VDfgType::GteS:
+    స్థితి VDfgType::Lt:
+    స్థితి VDfgType::LtS:
+    స్థితి VDfgType::Lte:
+    స్థితి VDfgType::LteS: {
+        CHECK(dtype() == Dfg_దత్తాంశం_Type::packed(1), "Should be 1-bit");
         CHECK(inputp(0)->dtype() == inputp(1)->dtype(), "Sides should match");
-        return;
+        తిరిగి;
     }
 
-    case VDfgType::Extend:
-    case VDfgType::ExtendS: {
+    స్థితి VDfgType::Extend:
+    స్థితి VDfgType::ExtendS: {
         CHECK(isPacked(), "Should be Packed type");
         CHECK(inputp(0)->isPacked(), "Operand should be same type");
-        CHECK(inputp(0)->size() < size(), "Operand should be narrower");
-        return;
+        CHECK(inputp(0)->కొలత() < కొలత(), "Operand should be narrower");
+        తిరిగి;
     }
 
-    case VDfgType::LogAnd:
-    case VDfgType::LogEq:
-    case VDfgType::LogIf:
-    case VDfgType::LogOr: {
-        CHECK(dtype() == DfgDataType::packed(1), "Should be 1-bit");
+    స్థితి VDfgType::LogAnd:
+    స్థితి VDfgType::LogEq:
+    స్థితి VDfgType::LogIf:
+    స్థితి VDfgType::LogOr: {
+        CHECK(dtype() == Dfg_దత్తాంశం_Type::packed(1), "Should be 1-bit");
         CHECK(inputp(0)->isPacked(), "LHS should be Packed type");
         CHECK(inputp(1)->isPacked(), "RHS should be Packed type");
-        return;
+        తిరిగి;
     }
 
-    case VDfgType::LogNot:
-    case VDfgType::RedAnd:
-    case VDfgType::RedOr:
-    case VDfgType::RedXor:
-    case VDfgType::OneHot:
-    case VDfgType::OneHot0: {
-        CHECK(dtype() == DfgDataType::packed(1), "Should be 1-bit");
+    స్థితి VDfgType::LogNot:
+    స్థితి VDfgType::RedAnd:
+    స్థితి VDfgType::RedOr:
+    స్థితి VDfgType::RedXor:
+    స్థితి VDfgType::OneHot:
+    స్థితి VDfgType::OneHot0: {
+        CHECK(dtype() == Dfg_దత్తాంశం_Type::packed(1), "Should be 1-bit");
         CHECK(inputp(0)->isPacked(), "Operand should be Packed type");
-        return;
+        తిరిగి;
     }
 
-    case VDfgType::Cond: {
-        const DfgCond& v = *as<DfgCond>();
+    స్థితి VDfgType::Cond: {
+        స్థిరరాశి DfgCond& v = *as<DfgCond>();
         CHECK(v.isPacked(), "Should be Packed type");
         CHECK(v.condp()->isPacked(), "Condition should be Packed type");
         CHECK(v.thenp()->dtype() == v.dtype(), "Then should be same type");
         CHECK(v.elsep()->dtype() == v.dtype(), "Else should be same type");
-        return;
+        తిరిగి;
     }
 
-    case VDfgType::CountOnes: {
-        const DfgCountOnes& v = *as<DfgCountOnes>();
+    స్థితి VDfgType::లెక్క_Ones_2: {
+        స్థిరరాశి Dfg_లెక్క_Ones& v = *as<Dfg_లెక్క_Ones>();
         CHECK(v.isPacked(), "Should be Packed type");
         CHECK(v.srcp()->isPacked(), "Source should be Packed type");
-        CHECK(v.size() == 32U, "Should yield a 32-bit result");
-        return;
+        CHECK(v.కొలత() == 32U, "Should yield a 32-bit result");
+        తిరిగి;
     }
 
-    case VDfgType::Pow:
-    case VDfgType::PowSS:
-    case VDfgType::PowSU:
-    case VDfgType::PowUS: {
+    స్థితి VDfgType::Pow:
+    స్థితి VDfgType::PowSS:
+    స్థితి VDfgType::PowSU:
+    స్థితి VDfgType::PowUS: {
         CHECK(isPacked(), "Should be Packed type");
         CHECK(inputp(0)->dtype() == dtype(), "LHS should be same type");
         CHECK(inputp(1)->isPacked(), "RHS should be Packed type");
-        return;
+        తిరిగి;
     }
     }
-#undef CHECK
+#నిర్వచనం_రద్దు CHECK
 }
 
-uint32_t DfgVertex::fanout() const {
-    uint32_t result = 0;
-    foreachSink([&](const DfgVertex&) {
-        ++result;
-        return false;
+uint32_t Dfg_శీర్షం::fanout() స్థిరరాశి {
+    uint32_t ఫలితం = 0;
+    foreachSink([&](స్థిరరాశి Dfg_శీర్షం&) {
+        ++ఫలితం;
+        తిరిగి అబద్ధం;
     });
-    return result;
+    తిరిగి ఫలితం;
 }
 
-DfgVertexVar* DfgVertex::getResultVar() {
+Dfg_శీర్షం_Var* Dfg_శీర్షం::get_ఫలితం_Var() {
     // It's easy if the vertex is already a variable ...
-    if (DfgVertexVar* const varp = this->cast<DfgVertexVar>()) return varp;
+    ఒకవేళ (Dfg_శీర్షం_Var* స్థిరరాశి varp = ఇది->cast<Dfg_శీర్షం_Var>()) తిరిగి varp;
 
     // Inspect existing variables written by this vertex, and choose one
-    DfgVertexVar* resp = nullptr;
+    Dfg_శీర్షం_Var* resp = శూన్యసూచిక;
     // cppcheck-has-bug-suppress constParameter
-    this->foreachSink([&resp](DfgVertex& sink) {
-        DfgVertexVar* const varp = sink.cast<DfgVertexVar>();
-        if (!varp) return false;
+    ఇది->foreachSink([&resp](Dfg_శీర్షం& sink) {
+        Dfg_శీర్షం_Var* స్థిరరాశి varp = sink.cast<Dfg_శీర్షం_Var>();
+        ఒకవేళ (!varp) తిరిగి అబద్ధం;
 
         // Do not use it if value might differ from its drivers
-        if (varp->isVolatile()) return false;
+        ఒకవేళ (varp->isVolatile()) తిరిగి అబద్ధం;
 
         // First variable found
-        if (!resp) {
+        ఒకవేళ (!resp) {
             resp = varp;
-            return false;
+            తిరిగి అబద్ధం;
         }
 
         // Prefer those variables that must be kept anyway
-        if (resp->hasExtRdRefs() != varp->hasExtRdRefs()) {
-            if (!resp->hasExtRdRefs()) resp = varp;
-            return false;
+        ఒకవేళ (resp->hasExtRdRefs() != varp->hasExtRdRefs()) {
+            ఒకవేళ (!resp->hasExtRdRefs()) resp = varp;
+            తిరిగి అబద్ధం;
         }
-        if (resp->hasDfgRefs() != varp->hasDfgRefs()) {
-            if (!resp->hasDfgRefs()) resp = varp;
-            return false;
+        ఒకవేళ (resp->hasDfgRefs() != varp->hasDfgRefs()) {
+            ఒకవేళ (!resp->hasDfgRefs()) resp = varp;
+            తిరిగి అబద్ధం;
         }
 
         // Prefer real variables over temporaries
-        const bool resIsTemp = resp->vscp()->varp()->isTemp();
-        const bool varIsTemp = varp->vscp()->varp()->isTemp();
-        if (resIsTemp != varIsTemp) {
-            if (resIsTemp) resp = varp;
-            return false;
+        స్థిరరాశి తార్కిక res_Is_తాత్కాలిక = resp->vscp()->varp()->is_తాత్కాలిక();
+        స్థిరరాశి తార్కిక var_Is_తాత్కాలిక = varp->vscp()->varp()->is_తాత్కాలిక();
+        ఒకవేళ (res_Is_తాత్కాలిక != var_Is_తాత్కాలిక) {
+            ఒకవేళ (res_Is_తాత్కాలిక) resp = varp;
+            తిరిగి అబద్ధం;
         }
-        if (!resp->tmpForp() != !varp->tmpForp()) {
-            if (resp->tmpForp()) resp = varp;
-            return false;
+        ఒకవేళ (!resp->tmpForp() != !varp->tmpForp()) {
+            ఒకవేళ (resp->tmpForp()) resp = varp;
+            తిరిగి అబద్ధం;
         }
 
         // Prefer the earlier one in source order
-        const FileLine& oldFlp = *(resp->fileline());
-        const FileLine& newFlp = *(varp->fileline());
-        if (const int cmp = oldFlp.operatorCompare(newFlp)) {
-            if (cmp > 0) resp = varp;
-            return false;
+        స్థిరరాశి File_పంక్తి& oldFlp = *(resp->fileline());
+        స్థిరరాశి File_పంక్తి& newFlp = *(varp->fileline());
+        ఒకవేళ (స్థిరరాశి పూర్ణాంకం cmp = oldFlp.operatorCompare(newFlp)) {
+            ఒకవేళ (cmp > 0) resp = varp;
+            తిరిగి అబద్ధం;
         }
         // Prefer the one with the lexically smaller name
-        if (const int cmp = resp->vscp()->name().compare(varp->vscp()->name())) {
-            if (cmp > 0) resp = varp;
-            return false;
+        ఒకవేళ (స్థిరరాశి పూర్ణాంకం cmp = resp->vscp()->name().compare(varp->vscp()->name())) {
+            ఒకవేళ (cmp > 0) resp = varp;
+            తిరిగి అబద్ధం;
         }
         // 'resp' and 'varp' are all the same, keep using the existing 'resp'
-        return false;
+        తిరిగి అబద్ధం;
     });
-    return resp;
+    తిరిగి resp;
 }
 
-AstScope* DfgVertex::scopep(ScopeCache& cache, bool tryResultVar) VL_MT_DISABLED {
+AstScope* Dfg_శీర్షం::scopep(ScopeCache& cache, తార్కిక try_ఫలితం_Var) VL_MT_DISABLED {
     // If this is a variable, we are done
-    if (const DfgVertexVar* const varp = this->cast<DfgVertexVar>()) {
-        return varp->vscp()->scopep();
+    ఒకవేళ (స్థిరరాశి Dfg_శీర్షం_Var* స్థిరరాశి varp = ఇది->cast<Dfg_శీర్షం_Var>()) {
+        తిరిగి varp->vscp()->scopep();
     }
 
     // Try the result var first if instructed (usully only in the recursive case)
-    if (tryResultVar) {
-        if (const DfgVertexVar* const varp = this->getResultVar()) {
-            return varp->vscp()->scopep();
+    ఒకవేళ (try_ఫలితం_Var) {
+        ఒకవేళ (స్థిరరాశి Dfg_శీర్షం_Var* స్థిరరాశి varp = ఇది->get_ఫలితం_Var()) {
+            తిరిగి varp->vscp()->scopep();
         }
     }
 
-    AstScope* const rootp = v3Global.rootp()->topScopep()->scopep();
+    AstScope* స్థిరరాశి rootp = v3Global.rootp()->శిఖరం_Scopep()->scopep();
 
     // Note: the recursive invocation can cause a re-hash but that will not invalidate references
-    AstScope*& resultr = cache[this];
-    if (!resultr) {
+    AstScope*& resultr = cache[ఇది];
+    ఒకవేళ (!resultr) {
         // Mark to prevent infinite recursion on circular graphs - should never be called on such
         resultr = reinterpret_cast<AstScope*>(1);
         // Find scope based on sources, falling back on the root scope. Never use a package
         // scope, including the constant pool, so new variables are not created in packages.
-        AstScope* foundp = nullptr;
-        foreachSource([&](DfgVertex& src) {
-            AstScope* const scp = src.scopep(cache, true);
-            if (scp != rootp && !VN_IS(scp->modp(), Package)) {
+        AstScope* foundp = శూన్యసూచిక;
+        foreach_ఆధారం([&](Dfg_శీర్షం& src) {
+            AstScope* స్థిరరాశి scp = src.scopep(cache, నిజం);
+            ఒకవేళ (scp != rootp && !VN_IS(scp->modp(), Package)) {
                 foundp = scp;
-                return true;
+                తిరిగి నిజం;
             }
-            return false;
+            తిరిగి అబద్ధం;
         });
         resultr = foundp ? foundp : rootp;
     }
 
     // Die on a graph circular through operation vertices
-    UASSERT_OBJ(resultr != reinterpret_cast<AstScope*>(1), this,
+    UASSERT_OBJ(resultr != reinterpret_cast<AstScope*>(1), ఇది,
                 "DfgVertex::scopep called on graph with circular operations");
 
-    // Done
-    return resultr;
+    //పూర్తి
+    తిరిగి resultr;
 }
 
-void DfgVertex::unlinkDelete(DfgGraph& dfg) {
+శూన్య Dfg_శీర్షం::unlinkDelete(Dfg_లేఖాచిత్రం& dfg) {
     // Unlink sink edges
-    while (!m_sinks.empty()) m_sinks.frontp()->unlinkSrcp();
+    అయితే (!m_sinks.ఖాళీలు()) m_sinks.frontp()->unlinkSrcp();
     // Remove from graph
-    dfg.removeVertex(*this);
+    dfg.remove_శీర్షం(*ఇది);
     // Delete - this will unlink sources
-    delete this;
+    తొలగించు ఇది;
 }
 
 //------------------------------------------------------------------------------
 // DfgVertexVar
 
-std::pair<DfgVertex*, uint32_t> DfgVertexVar::driverOfRange(uint32_t lo, uint32_t size) {
-    DfgVertex* const srcp = this->srcp();
+std::pair<Dfg_శీర్షం*, uint32_t> Dfg_శీర్షం_Var::driver_యొక్క_Range(uint32_t lo, uint32_t కొలత) {
+    Dfg_శీర్షం* స్థిరరాశి srcp = ఇది->srcp();
     // Not driven at all
-    if (!srcp) return {nullptr, 0};
+    ఒకవేళ (!srcp) తిరిగి {శూన్యసూచిక, 0};
     // If volatile, can have other drivers
-    if (isVolatile()) return {nullptr, 0};
+    ఒకవేళ (isVolatile()) తిరిగి {శూన్యసూచిక, 0};
     // Don't inline CReset
-    if (srcp->is<DfgCReset>()) return {nullptr, 0};
+    ఒకవేళ (srcp->is<DfgCReset>()) తిరిగి {శూన్యసూచిక, 0};
 
     // If not driven via a splice, then it is driven whole, at the same offsets
-    DfgVertexSplice* const splicep = srcp->cast<DfgVertexSplice>();
-    if (!splicep) return {srcp, lo};
+    Dfg_శీర్షం_Splice* స్థిరరాశి splicep = srcp->cast<Dfg_శీర్షం_Splice>();
+    ఒకవేళ (!splicep) తిరిగి {srcp, lo};
 
     // Find the driver that covers the whole searched range, if there is a single one
-    const uint32_t hi = lo + size - 1;
-    DfgVertex* driverp = nullptr;
+    స్థిరరాశి uint32_t hi = lo + కొలత - 1;
+    Dfg_శీర్షం* driverp = శూన్యసూచిక;
     uint32_t driverLo = 0;
-    bool useDefault = defaultp();
-    splicep->foreachDriver([&](DfgVertex& src, const uint32_t dLo) {
-        const uint32_t dHi = dLo + src.size() - 1;
+    తార్కిక useDefault = defaultp();
+    splicep->foreachDriver([&](Dfg_శీర్షం& src, స్థిరరాశి uint32_t dLo) {
+        స్థిరరాశి uint32_t dHi = dLo + src.కొలత() - 1;
         // Note whether it overlaps the searched range, so the default cannot be used
-        if (dLo <= hi && lo <= dHi) useDefault = false;
+        ఒకవేళ (dLo <= hi && lo <= dHi) useDefault = అబద్ధం;
         // If it does not cover the whole searched range, move on
-        if (lo < dLo || dHi < hi) return false;
+        ఒకవేళ (lo < dLo || dHi < hi) తిరిగి అబద్ధం;
         // Save the driver that covers the whole searched range
         driverp = &src;
         driverLo = dLo;
-        return true;
+        తిరిగి నిజం;
     });
 
     // If a single driver covers the searched range, it is the one
-    if (driverp) return {driverp, lo - driverLo};
+    ఒకవేళ (driverp) తిరిగి {driverp, lo - driverLo};
     // Otherwise the default driver is responsible for it, if nothing else overlaps it
-    if (useDefault) return {defaultp(), lo};
+    ఒకవేళ (useDefault) తిరిగి {defaultp(), lo};
     // Not driven by a single vertex
-    return {nullptr, 0};
+    తిరిగి {శూన్యసూచిక, 0};
 }
 
 //######################################################################
 // Renders the canonical pattern S-expression for a single DfgVertex
 
-class DfgPatternString final {
+తరగతి Dfg_నమూనా_String final {
     std::ostream& m_os;
 
     std::map<std::string, std::string> m_internedConsts;  // Interned constants
     std::map<uint32_t, std::string> m_internedSelLsbs;  // Interned lsb value for selects
-    std::map<uint32_t, std::string> m_internedWordWidths;  // Interned widths
+    std::map<uint32_t, std::string> m_interned_మాట_Widths;  // Interned widths
     std::map<uint32_t, std::string> m_internedWideWidths;  // Interned widths
-    std::map<const DfgVertex*, std::string> m_internedVertices;  // Interned vertices
+    std::map<స్థిరరాశి Dfg_శీర్షం*, std::string> m_internedVertices;  // Interned vertices
     // Multiplicity and depth of vertices
-    std::map<const DfgVertex*, std::pair<uint32_t, uint32_t>> m_multiplicityAndDepth;
+    std::map<స్థిరరాశి Dfg_శీర్షం*, std::pair<uint32_t, uint32_t>> m_multiplicity_And_లోతు;
 
-    static std::string toLetters(size_t value, bool lowerCase = false) {
-        const char base = lowerCase ? 'a' : 'A';
+    స్థిర std::string గమ్యం_Letters(కొలత_t విలువ, తార్కిక క్రింది_Case = అబద్ధం) {
+        స్థిరరాశి అక్షరం పునాది = క్రింది_Case ? 'a' : 'A';
         std::string s;
-        do { s += static_cast<char>(base + value % 26); } while (value /= 26);
-        return s;
+        చేయి { s += static_cast<అక్షరం>(పునాది + విలువ % 26); } అయితే (విలువ /= 26);
+        తిరిగి s;
     }
 
-    const std::string& internConst(const DfgConst& vtx) {
-        const auto pair = m_internedConsts.emplace(vtx.num().ascii(false), "");
-        if (pair.second) pair.first->second += toLetters(m_internedConsts.size() - 1);
-        return pair.first->second;
+    స్థిరరాశి std::string& internConst(స్థిరరాశి DfgConst& vtx) {
+        స్థిరరాశి స్వయంచాలక pair = m_internedConsts.emplace(vtx.అంకె().ascii(అబద్ధం), "");
+        ఒకవేళ (pair.రెండవ) pair.మొదటి->రెండవ += గమ్యం_Letters(m_internedConsts.కొలత() - 1);
+        తిరిగి pair.మొదటి->రెండవ;
     }
 
-    const std::string& internSelLsb(uint32_t value) {
-        const auto pair = m_internedSelLsbs.emplace(value, "");
-        if (pair.second) pair.first->second += toLetters(m_internedSelLsbs.size() - 1);
-        return pair.first->second;
+    స్థిరరాశి std::string& internSelLsb(uint32_t విలువ) {
+        స్థిరరాశి స్వయంచాలక pair = m_internedSelLsbs.emplace(విలువ, "");
+        ఒకవేళ (pair.రెండవ) pair.మొదటి->రెండవ += గమ్యం_Letters(m_internedSelLsbs.కొలత() - 1);
+        తిరిగి pair.మొదటి->రెండవ;
     }
 
-    const std::string& internWordWidth(uint32_t value) {
-        const auto pair = m_internedWordWidths.emplace(value, "");
-        if (pair.second) pair.first->second += toLetters(m_internedWordWidths.size() - 1, true);
-        return pair.first->second;
+    స్థిరరాశి std::string& intern_మాట_వెడల్పు(uint32_t విలువ) {
+        స్థిరరాశి స్వయంచాలక pair = m_interned_మాట_Widths.emplace(విలువ, "");
+        ఒకవేళ (pair.రెండవ) pair.మొదటి->రెండవ += గమ్యం_Letters(m_interned_మాట_Widths.కొలత() - 1, నిజం);
+        తిరిగి pair.మొదటి->రెండవ;
     }
 
-    const std::string& internWideWidth(uint32_t value) {
-        const auto pair = m_internedWideWidths.emplace(value, "");
-        if (pair.second) pair.first->second += toLetters(m_internedWideWidths.size() - 1);
-        return pair.first->second;
+    స్థిరరాశి std::string& intern_Wide_వెడల్పు(uint32_t విలువ) {
+        స్థిరరాశి స్వయంచాలక pair = m_internedWideWidths.emplace(విలువ, "");
+        ఒకవేళ (pair.రెండవ) pair.మొదటి->రెండవ += గమ్యం_Letters(m_internedWideWidths.కొలత() - 1);
+        తిరిగి pair.మొదటి->రెండవ;
     }
 
-    const std::string& internVertex(const DfgVertex& vtx) {
-        const auto pair = m_internedVertices.emplace(&vtx, "");
-        if (pair.second) pair.first->second += toLetters(m_internedVertices.size() - 1);
-        return pair.first->second;
+    స్థిరరాశి std::string& intern_శీర్షం(స్థిరరాశి Dfg_శీర్షం& vtx) {
+        స్థిరరాశి స్వయంచాలక pair = m_internedVertices.emplace(&vtx, "");
+        ఒకవేళ (pair.రెండవ) pair.మొదటి->రెండవ += గమ్యం_Letters(m_internedVertices.కొలత() - 1);
+        తిరిగి pair.మొదటి->రెండవ;
     }
 
-    void recordMultiplicityAndDepth(const DfgVertex& vtx, uint32_t depth) {
-        std::pair<uint32_t, uint32_t>& value = m_multiplicityAndDepth
+    శూన్య రికార్డు_Multiplicity_And_లోతు(స్థిరరాశి Dfg_శీర్షం& vtx, uint32_t లోతు) {
+        std::pair<uint32_t, uint32_t>& విలువ = m_multiplicity_And_లోతు
                                                    .emplace(std::piecewise_construct,  //
                                                             std::forward_as_tuple(&vtx),  //
-                                                            std::forward_as_tuple(0, depth))
-                                                   .first->second;
-        value.first += 1;
-        value.second = std::max(value.second, depth);
-        if (!depth) return;
-        vtx.foreachSource([&](const DfgVertex& src) {
-            recordMultiplicityAndDepth(src, depth - 1);
-            return false;
+                                                            std::forward_as_tuple(0, లోతు))
+                                                   .మొదటి->రెండవ;
+        విలువ.మొదటి += 1;
+        విలువ.రెండవ = std::max(విలువ.రెండవ, లోతు);
+        ఒకవేళ (!లోతు) తిరిగి;
+        vtx.foreach_ఆధారం([&](స్థిరరాశి Dfg_శీర్షం& src) {
+            రికార్డు_Multiplicity_And_లోతు(src, లోతు - 1);
+            తిరిగి అబద్ధం;
         });
     }
 
     // Render the vertx into ss, and return true if the recursion reached the given depth,
     // meaning an S-expression with that nesting level has been rendered.
-    void render(const DfgVertex& vtx, uint32_t depth, bool isRoot = true) {
-        if (const DfgConst* const constp = vtx.cast<DfgConst>()) {
+    శూన్య render(స్థిరరాశి Dfg_శీర్షం& vtx, uint32_t లోతు, తార్కిక is_మూలం_2 = నిజం) {
+        ఒకవేళ (స్థిరరాశి DfgConst* స్థిరరాశి constp = vtx.cast<DfgConst>()) {
             // Base case 1: constant
-            if (constp->isZero()) {
+            ఒకవేళ (constp->isZero()) {
                 m_os << "(CONST ZERO)";
-            } else if (constp->isOnes()) {
+            } లేకపోతే ఒకవేళ (constp->isOnes()) {
                 m_os << "(CONST ONES)";
-            } else {
+            } లేకపోతే {
                 m_os << "(CONST #" << internConst(*constp) << ')';
             }
-        } else if (!isRoot && m_multiplicityAndDepth.at(&vtx).first > 1) {
+        } లేకపోతే ఒకవేళ (!is_మూలం_2 && m_multiplicity_And_లోతు.at(&vtx).మొదటి > 1) {
             // Base case 2: vertex appearing multiple times
-            m_os << internVertex(vtx);
-        } else if (!vtx.foreachSource([&](const DfgVertex&) { return true; })) {
+            m_os << intern_శీర్షం(vtx);
+        } లేకపోతే ఒకవేళ (!vtx.foreach_ఆధారం([&](స్థిరరాశి Dfg_శీర్షం&) { తిరిగి నిజం; })) {
             // Base case 3: vertex with no inputs (input variable)
             m_os << '(' << vtx.typeName() << ')';
-        } else if (depth == 0) {
+        } లేకపోతే ఒకవేళ (లోతు == 0) {
             // Base case 4: deep vertex (apperaing only once)
             m_os << "_";
-        } else {
+        } లేకపోతే {
             // Recursively print an S-expression for the vertex
             m_os << '(';
             // Name
             m_os << vtx.typeName();
             // Specials
-            if (const DfgSel* const selp = vtx.cast<DfgSel>()) {
+            ఒకవేళ (స్థిరరాశి DfgSel* స్థిరరాశి selp = vtx.cast<DfgSel>()) {
                 m_os << '@';
-                if (selp->lsb() == 0) {
+                ఒకవేళ (selp->lsb() == 0) {
                     m_os << '0';
-                } else {
+                } లేకపోతే {
                     m_os << internSelLsb(selp->lsb());
                 }
             }
             // Operands
-            vtx.foreachSource([&](const DfgVertex& src) {
+            vtx.foreach_ఆధారం([&](స్థిరరాశి Dfg_శీర్షం& src) {
                 m_os << ' ';
-                render(src, depth - 1, false);
-                return false;
+                render(src, లోతు - 1, అబద్ధం);
+                తిరిగి అబద్ధం;
             });
             // S-expression end
             m_os << ')';
@@ -966,51 +966,51 @@ class DfgPatternString final {
 
         // Annotate type
         m_os << ':';
-        if (!vtx.dtype().isPacked()) {
+        ఒకవేళ (!vtx.dtype().isPacked()) {
             vtx.dtype().astDtypep()->dumpSmall(m_os);
-        } else {
-            const uint32_t width = vtx.size();
-            if (width == 1) {
+        } లేకపోతే {
+            స్థిరరాశి uint32_t వెడల్పు = vtx.కొలత();
+            ఒకవేళ (వెడల్పు == 1) {
                 m_os << '1';
-            } else if (width <= VL_QUADSIZE) {
-                m_os << internWordWidth(width);
-            } else {
-                m_os << internWideWidth(width);
+            } లేకపోతే ఒకవేళ (వెడల్పు <= VL_QUADSIZE) {
+                m_os << intern_మాట_వెడల్పు(వెడల్పు);
+            } లేకపోతే {
+                m_os << intern_Wide_వెడల్పు(వెడల్పు);
             }
         }
 
         // Mark it if it has multiple sinks
-        if (vtx.hasMultipleSinks()) m_os << '*';
+        ఒకవేళ (vtx.has_గుణిజం_Sinks()) m_os << '*';
     }
 
-public:
-    DfgPatternString(std::ostream& os, const DfgVertex& vtx, uint32_t depth)
+బహిరంగ:
+    Dfg_నమూనా_String(std::ostream& os, స్థిరరాశి Dfg_శీర్షం& vtx, uint32_t లోతు)
         : m_os{os} {
-        recordMultiplicityAndDepth(vtx, depth);
-        render(vtx, depth, false);
-        using Pair = std::pair<std::string, const DfgVertex*>;
-        std::vector<Pair> vertices;
-        for (const auto& pair : m_multiplicityAndDepth) {
-            if (pair.second.first == 1) continue;
-            vertices.emplace_back(internVertex(*pair.first), pair.first);
+        రికార్డు_Multiplicity_And_లోతు(vtx, లోతు);
+        render(vtx, లోతు, అబద్ధం);
+        ఉపయోగించి Pair = std::pair<std::string, స్థిరరాశి Dfg_శీర్షం*>;
+        std::సదిశ<Pair> vertices;
+        కొరకు (స్థిరరాశి స్వయంచాలక& pair : m_multiplicity_And_లోతు) {
+            ఒకవేళ (pair.రెండవ.మొదటి == 1) కొనసాగు;
+            vertices.emplace_వెనుక(intern_శీర్షం(*pair.మొదటి), pair.మొదటి);
         }
-        std::sort(vertices.begin(), vertices.end(), [](const Pair& a, const Pair& b) {  //
-            return a.first < b.first;
+        std::క్రమీకరించు(vertices.begin(), vertices.చివర(), [](స్థిరరాశి Pair& a, స్థిరరాశి Pair& b) {  //
+            తిరిగి a.మొదటి < b.మొదటి;
         });
-        for (const Pair& pair : vertices) {
-            m_os << " | " << pair.first << " is ";
-            render(*pair.second, m_multiplicityAndDepth.at(pair.second).second);
+        కొరకు (స్థిరరాశి Pair& pair : vertices) {
+            m_os << " | " << pair.మొదటి << " is ";
+            render(*pair.రెండవ, m_multiplicity_And_లోతు.at(pair.రెండవ).రెండవ);
         }
     }
 };
 
-std::string DfgVertex::patternString(uint32_t depth) const {
+std::string Dfg_శీర్షం::నమూనా_String(uint32_t లోతు) స్థిరరాశి {
     std::ostringstream oss;
-    DfgPatternString{oss, *this, depth};
-    return oss.str();
+    Dfg_నమూనా_String{oss, *ఇది, లోతు};
+    తిరిగి oss.str();
 }
 
 //------------------------------------------------------------------------------
 // DfgVisitor
 
-#include "V3Dfg__gen_visitor_defns.h"  // From ./astgen
+#అన్తర్భావ "V3Dfg__gen_visitor_defns.h"  // From ./astgen

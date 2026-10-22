@@ -24,194 +24,194 @@
 //
 //*************************************************************************
 
-#include "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
+#అన్తర్భావ "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
 
-#include "V3AstUserAllocator.h"
-#include "V3ClassGraph.h"
-#include "V3EmitCBase.h"
-#include "V3Sched.h"
+#అన్తర్భావ "V3AstUserAllocator.h"
+#అన్తర్భావ "V3ClassGraph.h"
+#అన్తర్భావ "V3EmitCBase.h"
+#అన్తర్భావ "V3Sched.h"
 
-#include <unordered_map>
-#include <unordered_set>
+#అన్తర్భావ <unordered_map>
+#అన్తర్భావ <unordered_set>
 
 VL_DEFINE_DEBUG_FUNCTIONS;
 
-namespace V3Sched {
+నామాకాశ V3Sched {
 
 //============================================================================
 // Trigger indices of the external domains of each variable
 
-std::map<const AstVarScope*, std::vector<uint32_t>>
-TimingKit::externalTriggerIndices(const TriggerKit& trigKit) const {
-    std::map<const AstVarScope*, std::vector<uint32_t>> result;
-    for (const auto& vscpDomains : m_externalDomains) {
-        std::vector<uint32_t>& indices = result[vscpDomains.first];
-        for (const AstSenTree* const domainp : vscpDomains.second) {
-            for (const AstSenItem* itemp = domainp->sensesp(); itemp;
-                 itemp = VN_AS(itemp->nextp(), SenItem)) {
-                indices.push_back(trigKit.senItem2TrigIdx(itemp));
+std::map<స్థిరరాశి AstVarScope*, std::సదిశ<uint32_t>>
+TimingKit::externalTriggerIndices(స్థిరరాశి TriggerKit& trigKit) స్థిరరాశి {
+    std::map<స్థిరరాశి AstVarScope*, std::సదిశ<uint32_t>> ఫలితం;
+    కొరకు (స్థిరరాశి స్వయంచాలక& vscpDomains : m_externalDomains) {
+        std::సదిశ<uint32_t>& indices = ఫలితం[vscpDomains.మొదటి];
+        కొరకు (స్థిరరాశి Ast_Sen_వృక్షం* స్థిరరాశి domainp : vscpDomains.రెండవ) {
+            కొరకు (స్థిరరాశి Ast_Sen_అంశం* itemp = domainp->sensesp(); itemp;
+                 itemp = VN_AS(itemp->nextp(), Sen_అంశం)) {
+                indices.నెట్టు_వెనుక(trigKit.senItem2TrigIdx(itemp));
             }
         }
     }
-    return result;
+    తిరిగి ఫలితం;
 }
 
 //============================================================================
 // Creates a timing resume call (if needed, else returns null)
 
 AstCCall* TimingKit::createResume(AstVarScope* trigVscp) {
-    if (!m_resumeFuncp) {
-        if (m_lbs.empty()) return nullptr;
+    ఒకవేళ (!m_resumeFuncp) {
+        ఒకవేళ (m_lbs.ఖాళీలు()) తిరిగి శూన్యసూచిక;
         // Create global resume function
-        AstNetlist* const netlistp = v3Global.rootp();
-        AstScope* const scopeTopp = netlistp->topScopep()->scopep();
-        m_resumeFuncp = new AstCFunc{netlistp->fileline(), "_timing_resume", scopeTopp, ""};
-        m_resumeFuncp->dontCombine(true);
-        m_resumeFuncp->isLoose(true);
-        m_resumeFuncp->isConst(false);
-        m_resumeFuncp->declPrivate(true);
-        scopeTopp->addBlocksp(m_resumeFuncp);
+        AstNetlist* స్థిరరాశి netlistp = v3Global.rootp();
+        AstScope* స్థిరరాశి scopeTopp = netlistp->శిఖరం_Scopep()->scopep();
+        m_resumeFuncp = కొత్త AstCFunc{netlistp->fileline(), "_timing_resume", scopeTopp, ""};
+        m_resumeFuncp->dontCombine(నిజం);
+        m_resumeFuncp->isLoose(నిజం);
+        m_resumeFuncp->isConst(అబద్ధం);
+        m_resumeFuncp->decl_వ్యక్తిగత(నిజం);
+        scopeTopp->కూడు_Blocksp(m_resumeFuncp);
 
-        for (const auto& entry : m_lbs) {
-            AstActive* const activep = entry.m_activep;
-            activep->foreach([this](AstCMethodHard* const exprp) {
-                if (exprp->method() != VCMethod::SCHED_RESUME) return;
-                AstNodeExpr* const fromp = exprp->fromp();
-                if (VN_AS(fromp->dtypep(), BasicDType)->keyword()
+        కొరకు (స్థిరరాశి స్వయంచాలక& నమోదు_2 : m_lbs) {
+            Ast_చురుకైన* స్థిరరాశి activep = నమోదు_2.m_activep;
+            activep->foreach([ఇది](AstCMethodHard* స్థిరరాశి exprp) {
+                ఒకవేళ (exprp->పద్ధతి() != VCMethod::SCHED_RESUME) తిరిగి;
+                Ast_కణుపు_సమాసం* స్థిరరాశి fromp = exprp->fromp();
+                ఒకవేళ (VN_AS(fromp->dtypep(), BasicDType)->keyword()
                     != VBasicDTypeKwd::TRIGGER_SCHEDULER) {
-                    return;
+                    తిరిగి;
                 }
-                AstCMethodHard* const moveToResumep = new AstCMethodHard{
-                    fromp->fileline(), fromp->cloneTree(false),
-                    VCMethod::SCHED_MOVE_TO_RESUME_QUEUE,
-                    exprp->pinsp() ? exprp->pinsp()->cloneTree(true) : nullptr};
-                moveToResumep->dtypeSetVoid();
-                m_resumeFuncp->addStmtsp(moveToResumep->makeStmt());
+                AstCMethodHard* స్థిరరాశి move_గమ్యం_Resumep = కొత్త AstCMethodHard{
+                    fromp->fileline(), fromp->clone_వృక్షం(అబద్ధం),
+                    VCMethod::SCHED_MOVE_గమ్యం_RESUME_వరుస,
+                    exprp->pinsp() ? exprp->pinsp()->clone_వృక్షం(నిజం) : శూన్యసూచిక};
+                move_గమ్యం_Resumep->dtype_సమితి_Void();
+                m_resumeFuncp->కూడు_Stmtsp(move_గమ్యం_Resumep->makeStmt());
             });
         }
 
         // Put all the timing actives in the resume function
-        AstIf* dlyShedIfp = nullptr;
-        for (const auto& entry : m_lbs) {
-            AstActive* const activep = entry.m_activep;
+        AstIf* dlyShedIfp = శూన్యసూచిక;
+        కొరకు (స్థిరరాశి స్వయంచాలక& నమోదు_2 : m_lbs) {
+            Ast_చురుకైన* స్థిరరాశి activep = నమోదు_2.m_activep;
             // Resume time delays last. For no particular reason other than
             // that's what we used to do prior to proper #0 support.
-            AstVarRef* const schedrefp = VN_AS(
-                VN_AS(VN_AS(activep->stmtsp(), StmtExpr)->exprp(), CMethodHard)->fromp(), VarRef);
+            AstVarRef* స్థిరరాశి schedrefp = VN_AS(
+                VN_AS(VN_AS(activep->stmtsp(), Stmt_సమాసం)->exprp(), CMethodHard)->fromp(), VarRef);
 
-            AstNode* const actionp = activep->stmtsp()->unlinkFrBackWithNext();
-            if (schedrefp->varScopep()->dtypep()->basicp()->isDelayScheduler()) {
-                FileLine* const flp = trigVscp->fileline();
-                const std::set<uint32_t>& triggers = entry.m_triggers;
-                AstTriggered* const condp
-                    = new AstTriggered{flp, trigVscp, {triggers.begin(), triggers.end()}};
-                dlyShedIfp = new AstIf{flp, condp};
-                dlyShedIfp->addThensp(actionp);
-            } else {
-                m_resumeFuncp->addStmtsp(actionp);
+            Ast_కణుపు* స్థిరరాశి actionp = activep->stmtsp()->unlink_Fr_వెనుక_With_తదుపరి();
+            ఒకవేళ (schedrefp->varScopep()->dtypep()->basicp()->isDelayScheduler()) {
+                File_పంక్తి* స్థిరరాశి flp = trigVscp->fileline();
+                స్థిరరాశి std::సమితి<uint32_t>& triggers = నమోదు_2.m_triggers;
+                AstTriggered* స్థిరరాశి condp
+                    = కొత్త AstTriggered{flp, trigVscp, {triggers.begin(), triggers.చివర()}};
+                dlyShedIfp = కొత్త AstIf{flp, condp};
+                dlyShedIfp->కూడు_Thensp(actionp);
+            } లేకపోతే {
+                m_resumeFuncp->కూడు_Stmtsp(actionp);
             }
         }
-        if (dlyShedIfp) m_resumeFuncp->addStmtsp(dlyShedIfp);
+        ఒకవేళ (dlyShedIfp) m_resumeFuncp->కూడు_Stmtsp(dlyShedIfp);
 
         // These are now spent, oispose of now empty AstActive instances
         m_lbs.deleteActives();
     }
-    AstCCall* const callp = new AstCCall{m_resumeFuncp->fileline(), m_resumeFuncp};
-    callp->dtypeSetVoid();
-    return callp;
+    AstCCall* స్థిరరాశి callp = కొత్త AstCCall{m_resumeFuncp->fileline(), m_resumeFuncp};
+    callp->dtype_సమితి_Void();
+    తిరిగి callp;
 }
 
-AstVarScope* TimingKit::getDelayScheduler(AstNetlist* const /*netlistp*/) {
-    for (const auto& entry : m_lbs) {
-        AstActive* const ap = entry.m_activep;
+AstVarScope* TimingKit::getDelayScheduler(AstNetlist* స్థిరరాశి /*netlistp*/) {
+    కొరకు (స్థిరరాశి స్వయంచాలక& నమోదు_2 : m_lbs) {
+        Ast_చురుకైన* స్థిరరాశి ap = నమోదు_2.m_activep;
         // TODO: this triple VN_AS expression is ridiculous
-        AstVarRef* const schedrefp
-            = VN_AS(VN_AS(VN_AS(ap->stmtsp(), StmtExpr)->exprp(), CMethodHard)->fromp(), VarRef);
-        AstVarScope* const vscp = schedrefp->varScopep();
-        if (vscp->dtypep()->basicp()->isDelayScheduler()) return vscp;
+        AstVarRef* స్థిరరాశి schedrefp
+            = VN_AS(VN_AS(VN_AS(ap->stmtsp(), Stmt_సమాసం)->exprp(), CMethodHard)->fromp(), VarRef);
+        AstVarScope* స్థిరరాశి vscp = schedrefp->varScopep();
+        ఒకవేళ (vscp->dtypep()->basicp()->isDelayScheduler()) తిరిగి vscp;
     }
     // None found. Design doesn't use any time delays
-    return nullptr;
+    తిరిగి శూన్యసూచిక;
 }
 
 //============================================================================
 // Creates a timing ready call (if needed, else returns null)
 
 AstCCall* TimingKit::createReady(AstVarScope* trigVscp) {
-    if (!m_readyFuncp) {
-        for (const auto& entry : m_lbs) {
-            AstActive* const activep = entry.m_activep;
-            auto* const resumep = VN_AS(VN_AS(activep->stmtsp(), StmtExpr)->exprp(), CMethodHard);
+    ఒకవేళ (!m_readyFuncp) {
+        కొరకు (స్థిరరాశి స్వయంచాలక& నమోదు_2 : m_lbs) {
+            Ast_చురుకైన* స్థిరరాశి activep = నమోదు_2.m_activep;
+            స్వయంచాలక* స్థిరరాశి resumep = VN_AS(VN_AS(activep->stmtsp(), Stmt_సమాసం)->exprp(), CMethodHard);
             UASSERT_OBJ(!resumep->nextp(), resumep, "Should be the only statement here");
-            AstVarScope* const schedulerp = VN_AS(resumep->fromp(), VarRef)->varScopep();
+            AstVarScope* స్థిరరాశి schedulerp = VN_AS(resumep->fromp(), VarRef)->varScopep();
             UASSERT_OBJ(schedulerp->dtypep()->basicp()->isDelayScheduler()
                             || schedulerp->dtypep()->basicp()->isTriggerScheduler()
                             || schedulerp->dtypep()->basicp()->isDynamicTriggerScheduler(),
                         schedulerp, "Unexpected type");
-            if (!schedulerp->dtypep()->basicp()->isTriggerScheduler()) continue;
+            ఒకవేళ (!schedulerp->dtypep()->basicp()->isTriggerScheduler()) కొనసాగు;
             // Create the global ready function only if we have trigger schedulers
-            if (!m_readyFuncp) {
-                AstNetlist* const netlistp = v3Global.rootp();
-                AstScope* const scopeTopp = netlistp->topScopep()->scopep();
-                m_readyFuncp = new AstCFunc{netlistp->fileline(), "_timing_ready", scopeTopp, ""};
-                m_readyFuncp->dontCombine(true);
-                m_readyFuncp->isLoose(true);
-                m_readyFuncp->isConst(false);
-                m_readyFuncp->declPrivate(true);
-                scopeTopp->addBlocksp(m_readyFuncp);
+            ఒకవేళ (!m_readyFuncp) {
+                AstNetlist* స్థిరరాశి netlistp = v3Global.rootp();
+                AstScope* స్థిరరాశి scopeTopp = netlistp->శిఖరం_Scopep()->scopep();
+                m_readyFuncp = కొత్త AstCFunc{netlistp->fileline(), "_timing_ready", scopeTopp, ""};
+                m_readyFuncp->dontCombine(నిజం);
+                m_readyFuncp->isLoose(నిజం);
+                m_readyFuncp->isConst(అబద్ధం);
+                m_readyFuncp->decl_వ్యక్తిగత(నిజం);
+                scopeTopp->కూడు_Blocksp(m_readyFuncp);
             }
 
-            FileLine* const flp = activep->sentreep()->fileline();
+            File_పంక్తి* స్థిరరాశి flp = activep->sentreep()->fileline();
 
             // Create an 'AstIf' sensitive to the suspending triggers
-            const std::set<uint32_t>& triggers = entry.m_triggers;
-            AstTriggered* const condp
-                = new AstTriggered{flp, trigVscp, {triggers.begin(), triggers.end()}};
-            AstIf* const ifp = new AstIf{flp, condp};
-            m_readyFuncp->addStmtsp(ifp);
+            స్థిరరాశి std::సమితి<uint32_t>& triggers = నమోదు_2.m_triggers;
+            AstTriggered* స్థిరరాశి condp
+                = కొత్త AstTriggered{flp, trigVscp, {triggers.begin(), triggers.చివర()}};
+            AstIf* స్థిరరాశి ifp = కొత్త AstIf{flp, condp};
+            m_readyFuncp->కూడు_Stmtsp(ifp);
 
             // Mark as ready the processes resumed on this sensitivity expression
-            AstVarRef* const refp = new AstVarRef{flp, schedulerp, VAccess::READWRITE};
-            AstCMethodHard* const callp = new AstCMethodHard{flp, refp, VCMethod::SCHED_READY};
-            callp->dtypeSetVoid();
-            if (resumep->pinsp()) callp->addPinsp(resumep->pinsp()->cloneTree(false));
-            ifp->addThensp(callp->makeStmt());
+            AstVarRef* స్థిరరాశి refp = కొత్త AstVarRef{flp, schedulerp, VAccess::READWRITE};
+            AstCMethodHard* స్థిరరాశి callp = కొత్త AstCMethodHard{flp, refp, VCMethod::SCHED_READY};
+            callp->dtype_సమితి_Void();
+            ఒకవేళ (resumep->pinsp()) callp->కూడు_Pinsp(resumep->pinsp()->clone_వృక్షం(అబద్ధం));
+            ifp->కూడు_Thensp(callp->makeStmt());
         }
         // We still haven't created a ready function (no trigger schedulers), return null
-        if (!m_readyFuncp) return nullptr;
+        ఒకవేళ (!m_readyFuncp) తిరిగి శూన్యసూచిక;
     }
-    AstCCall* const callp = new AstCCall{m_readyFuncp->fileline(), m_readyFuncp};
-    callp->dtypeSetVoid();
-    return callp;
+    AstCCall* స్థిరరాశి callp = కొత్త AstCCall{m_readyFuncp->fileline(), m_readyFuncp};
+    callp->dtype_సమితి_Void();
+    తిరిగి callp;
 }
 
 //============================================================================
 // Creates the timing kit and marks variables written by suspendables
 
-class AwaitVisitor final : public VNVisitor {
+తరగతి AwaitVisitor final : బహిరంగ VNVisitor {
     // NODE STATE
     //  AstSenTree::user1()  -> bool.               Set true if the sentree has been visited.
     //  AstCFunc::user1()    -> AstUser1Allocator.  See alocator below
-    const VNUser1InUse m_inuser1;
+    స్థిరరాశి VNUser1_లోపల_Use m_inuser1;
 
     // STATE
-    bool m_inProcess = false;  // Are we in a process?
-    bool m_gatherVars = false;  // Should we gather vars in m_writtenBySuspendable?
-    AstScope* const m_scopeTopp;  // Scope at the top
+    తార్కిక m_లోపల_Process = అబద్ధం;  // Are we in a process?
+    తార్కిక m_gatherVars = అబద్ధం;  // Should we gather vars in m_writtenBySuspendable?
+    AstScope* స్థిరరాశి m_scopeTopp;  // Scope at the top
     LogicByScope& m_lbs;  // Timing resume actives
-    AstNodeStmt*& m_postUpdatesr;  // Post updates for the trigger eval function
+    Ast_కణుపు_Stmt*& m_postUpdatesr;  // Post updates for the trigger eval function
     // Additional var sensitivities
-    std::map<const AstVarScope*, std::set<AstSenTree*>>& m_externalDomains;
-    std::unique_ptr<V3ClassGraph>
+    std::map<స్థిరరాశి AstVarScope*, std::సమితి<Ast_Sen_వృక్షం*>>& m_externalDomains;
+    std::unique_ptr<V3_Class_లేఖాచిత్రం>
         m_classGraphp;  // class graph to get possibly called functions from a virtual call
-    std::set<AstSenTree*> m_processDomains;  // Sentrees from the current process
+    std::సమితి<Ast_Sen_వృక్షం*> m_processDomains;  // Sentrees from the current process
     // Variables written by suspendable processes
-    std::set<AstVarScope*> m_writtenBySuspendable;
-    struct CFuncCache final {
-        std::set<AstSenTree*> m_processDomains;  // What shall be added to m_processDomains
-        std::set<AstVarScope*>
+    std::సమితి<AstVarScope*> m_writtenBySuspendable;
+    నిర్మాణం CFuncCache final {
+        std::సమితి<Ast_Sen_వృక్షం*> m_processDomains;  // What shall be added to m_processDomains
+        std::సమితి<AstVarScope*>
             m_writtenBySuspendable;  // What shall be added to m_writtenBySuspendable
-        std::set<AstCFunc*> m_includes;  // CFuncs whose CFuncCache shall be included into this
+        std::సమితి<AstCFunc*> m_includes;  // CFuncs whose CFuncCache shall be included into this
         // m_includes does not need to keep bool with m_gatherVars to know which cache shall be
         // used since:
         //  Only possible transition in a graph is from `!m_gatherVars` to `m_gatherVars`
@@ -221,273 +221,273 @@ class AwaitVisitor final : public VNVisitor {
         //  won't be in visiting state
         //  therefore, every node in a m_includes shall take value of m_gatherVars under which
         //  current CFuncCache is
-        enum State : uint8_t {
+        గణన State : uint8_t {
             UNINITIALIZED = 0,  // Not initialized members are empty
             VISITING,  // Visiting - needed for breaking recursion
             INITIALIZED,  // Members contains correct values
         } m_state  // Current state of Cache
             = UNINITIALIZED;
     };
-    std::vector<const AstCFunc*> m_callStack;  // Current callstack of AstCFuncs
+    std::సదిశ<స్థిరరాశి AstCFunc*> m_call_దొంతర;  // Current callstack of AstCFuncs
     // Caches how visiting the function with given value of m_gatherVars changes
     // m_processDomains and m_writtenBySuspendable - only accessed from visit(AstCFunc* nodep)
     AstUser1Allocator<AstCFunc, std::array<CFuncCache, 2>> m_cfuncsCache;
     // Count uses of not inlined writes to signals in suspendables
-    VDouble0 m_notInlinedWritesInSuspendableUsage;
+    VDouble0 m_not_Inlined_Writes_లోపల_Suspendable_Usage;
 
     // METHODS
     // Add arguments to a resume() call based on arguments in the suspending call
-    void addResumePins(AstCMethodHard* const resumep, AstNodeExpr* pinsp) {
-        AstCExpr* const exprp = VN_CAST(pinsp, CExpr);
-        AstText* const textp = VN_CAST(exprp->nodesp(), Text);
-        if (textp) {
+    శూన్య కూడు_Resume_Pins(AstCMethodHard* స్థిరరాశి resumep, Ast_కణుపు_సమాసం* pinsp) {
+        AstCExpr* స్థిరరాశి exprp = VN_CAST(pinsp, CExpr);
+        Ast_పాఠ్యం* స్థిరరాశి textp = VN_CAST(exprp->nodesp(), పాఠ్యం_2);
+        ఒకవేళ (textp) {
             // The first argument, vlProcess, isn't used by any of resume() methods, skip it
-            if ((pinsp = VN_CAST(pinsp->nextp(), NodeExpr))) {
-                resumep->addPinsp(pinsp->cloneTree(false));
+            ఒకవేళ ((pinsp = VN_CAST(pinsp->nextp(), కణుపు_సమాసం))) {
+                resumep->కూడు_Pinsp(pinsp->clone_వృక్షం(అబద్ధం));
             }
-        } else {
-            resumep->addPinsp(pinsp->cloneTree(false));
+        } లేకపోతే {
+            resumep->కూడు_Pinsp(pinsp->clone_వృక్షం(అబద్ధం));
         }
     }
-    void addCFuncCachedValues(const AstCFunc* const cfuncp,
-                              std::unordered_set<const AstCFunc*>& visited) {
-        if (!visited.insert(cfuncp).second) return;
-        CFuncCache& value = m_cfuncsCache(cfuncp)[static_cast<size_t>(m_gatherVars)];
-        const size_t initialSize = m_writtenBySuspendable.size();
-        m_writtenBySuspendable.insert(value.m_writtenBySuspendable.begin(),
-                                      value.m_writtenBySuspendable.end());
-        m_notInlinedWritesInSuspendableUsage += m_writtenBySuspendable.size() - initialSize;
-        m_processDomains.insert(value.m_processDomains.begin(), value.m_processDomains.end());
-        for (const AstCFunc* const includedp : value.m_includes) {
-            addCFuncCachedValues(includedp, visited);
+    శూన్య కూడు_CFunc_Cached_విలువలు(స్థిరరాశి AstCFunc* స్థిరరాశి cfuncp,
+                              std::unordered_సమితి<స్థిరరాశి AstCFunc*>& సందర్శించిన) {
+        ఒకవేళ (!సందర్శించిన.చొప్పించు(cfuncp).రెండవ) తిరిగి;
+        CFuncCache& విలువ = m_cfuncsCache(cfuncp)[static_cast<కొలత_t>(m_gatherVars)];
+        స్థిరరాశి కొలత_t initial_కొలత = m_writtenBySuspendable.కొలత();
+        m_writtenBySuspendable.చొప్పించు(విలువ.m_writtenBySuspendable.begin(),
+                                      విలువ.m_writtenBySuspendable.చివర());
+        m_not_Inlined_Writes_లోపల_Suspendable_Usage += m_writtenBySuspendable.కొలత() - initial_కొలత;
+        m_processDomains.చొప్పించు(విలువ.m_processDomains.begin(), విలువ.m_processDomains.చివర());
+        కొరకు (స్థిరరాశి AstCFunc* స్థిరరాశి includedp : విలువ.m_includes) {
+            కూడు_CFunc_Cached_విలువలు(includedp, సందర్శించిన);
         }
     }
     // Create an active with a timing scheduler resume() call
-    void createResumeActive(AstCAwait* const awaitp) {
-        auto* const methodp = VN_AS(awaitp->exprp(), CMethodHard);
-        AstVarScope* const schedulerp = VN_AS(methodp->fromp(), VarRef)->varScopep();
-        AstSenTree* const sentreep = awaitp->sentreep();
-        FileLine* const flp = sentreep->fileline();
+    శూన్య create_Resume_చురుకైన(AstCAwait* స్థిరరాశి awaitp) {
+        స్వయంచాలక* స్థిరరాశి methodp = VN_AS(awaitp->exprp(), CMethodHard);
+        AstVarScope* స్థిరరాశి schedulerp = VN_AS(methodp->fromp(), VarRef)->varScopep();
+        Ast_Sen_వృక్షం* స్థిరరాశి sentreep = awaitp->sentreep();
+        File_పంక్తి* స్థిరరాశి flp = sentreep->fileline();
         // Create a resume() call on the timing scheduler
-        auto* const resumep = new AstCMethodHard{
-            flp, new AstVarRef{flp, schedulerp, VAccess::READWRITE}, VCMethod::SCHED_RESUME};
-        resumep->dtypeSetVoid();
-        if (schedulerp->dtypep()->basicp()->isTriggerScheduler()) {
+        స్వయంచాలక* స్థిరరాశి resumep = కొత్త AstCMethodHard{
+            flp, కొత్త AstVarRef{flp, schedulerp, VAccess::READWRITE}, VCMethod::SCHED_RESUME};
+        resumep->dtype_సమితి_Void();
+        ఒకవేళ (schedulerp->dtypep()->basicp()->isTriggerScheduler()) {
             UASSERT_OBJ(methodp->pinsp(), methodp,
                         "Trigger method should have pins from V3Timing");
             // The first pin is the ready boolean, the rest (if any) should be debug info
             // See V3Timing for details
-            if (AstNode* const dbginfop = methodp->pinsp()->nextp()) {
-                if (methodp->pinsp()) addResumePins(resumep, static_cast<AstNodeExpr*>(dbginfop));
+            ఒకవేళ (Ast_కణుపు* స్థిరరాశి dbginfop = methodp->pinsp()->nextp()) {
+                ఒకవేళ (methodp->pinsp()) కూడు_Resume_Pins(resumep, static_cast<Ast_కణుపు_సమాసం*>(dbginfop));
             }
-        } else if (schedulerp->dtypep()->basicp()->isDynamicTriggerScheduler()) {
-            auto* const postp = resumep->cloneTree(false);
-            postp->method(VCMethod::SCHED_DO_POST_UPDATES);
-            m_postUpdatesr = AstNode::addNext(m_postUpdatesr, postp->makeStmt());
+        } లేకపోతే ఒకవేళ (schedulerp->dtypep()->basicp()->isDynamicTriggerScheduler()) {
+            స్వయంచాలక* స్థిరరాశి postp = resumep->clone_వృక్షం(అబద్ధం);
+            postp->పద్ధతి(VCMethod::SCHED_DO_POST_UPDATES);
+            m_postUpdatesr = Ast_కణుపు::కూడు_తదుపరి(m_postUpdatesr, postp->makeStmt());
         }
         // Put it in an active
-        AstActive* const activep = new AstActive{flp, "_timing", sentreep};
-        activep->addStmtsp(resumep->makeStmt());
-        m_lbs.add(m_scopeTopp, activep);
+        Ast_చురుకైన* స్థిరరాశి activep = కొత్త Ast_చురుకైన{flp, "_timing", sentreep};
+        activep->కూడు_Stmtsp(resumep->makeStmt());
+        m_lbs.కూడు(m_scopeTopp, activep);
     }
     // Visit AstCFunc from a AstNodeCCall - this function is rather expensive to call therefore, it
     // only shall be called when necessary
-    void visitCalledCFunc(AstCFunc* const nodep) {
-        if (!m_inProcess) return;  // Skip if not in process - nothing would be added to any set
-        const size_t cacheKey = static_cast<size_t>(m_gatherVars);
-        CFuncCache& value = m_cfuncsCache(nodep)[cacheKey];
-        switch (value.m_state) {
-        case CFuncCache::UNINITIALIZED: {
+    శూన్య సందర్శించు_Called_CFunc(AstCFunc* స్థిరరాశి nodep) {
+        ఒకవేళ (!m_లోపల_Process) తిరిగి;  // Skip if not in process - nothing would be added to any set
+        స్థిరరాశి కొలత_t cache_కీలకం = static_cast<కొలత_t>(m_gatherVars);
+        CFuncCache& విలువ = m_cfuncsCache(nodep)[cache_కీలకం];
+        ఎంపిక (విలువ.m_state) {
+        స్థితి CFuncCache::UNINITIALIZED: {
             // Save current state
             VL_RESTORER_CLEAR(m_processDomains);
             VL_RESTORER_CLEAR(m_writtenBySuspendable);
 
             // Visit
-            value.m_state = CFuncCache::VISITING;
-            m_callStack.push_back(nodep);
+            విలువ.m_state = CFuncCache::VISITING;
+            m_call_దొంతర.నెట్టు_వెనుక(nodep);
             iterateChildren(nodep);
-            m_callStack.pop_back();
-            value.m_state = CFuncCache::INITIALIZED;
+            m_call_దొంతర.తీయి_వెనుక();
+            విలువ.m_state = CFuncCache::INITIALIZED;
 
             // Save a cache
-            std::swap(m_processDomains, value.m_processDomains);
-            std::swap(m_writtenBySuspendable, value.m_writtenBySuspendable);
-        } break;
-        case CFuncCache::VISITING: {
-            for (size_t i = m_callStack.size() - 1; m_callStack.at(i) != nodep; --i) {
-                m_cfuncsCache(m_callStack[i])[cacheKey].m_includes.insert(nodep);
+            std::మార్పిడి(m_processDomains, విలువ.m_processDomains);
+            std::మార్పిడి(m_writtenBySuspendable, విలువ.m_writtenBySuspendable);
+        } ఆపు;
+        స్థితి CFuncCache::VISITING: {
+            కొరకు (కొలత_t i = m_call_దొంతర.కొలత() - 1; m_call_దొంతర.at(i) != nodep; --i) {
+                m_cfuncsCache(m_call_దొంతర[i])[cache_కీలకం].m_includes.చొప్పించు(nodep);
             }
-            return;  // Break recursion
+            తిరిగి;  // Break recursion
         }
-        case CFuncCache::INITIALIZED: break;
+        స్థితి CFuncCache::INITIALIZED: ఆపు;
         }
-        std::unordered_set<const AstCFunc*> visited;
-        addCFuncCachedValues(nodep, visited);
+        std::unordered_సమితి<స్థిరరాశి AstCFunc*> సందర్శించిన;
+        కూడు_CFunc_Cached_విలువలు(nodep, సందర్శించిన);
     }
 
     // VISITORS
-    void visit(AstNodeProcedure* const nodep) override {
-        UASSERT_OBJ(!m_inProcess && !m_gatherVars && m_processDomains.empty()
-                        && m_writtenBySuspendable.empty(),
+    శూన్య సందర్శించు(Ast_కణుపు_Procedure* స్థిరరాశి nodep) override {
+        UASSERT_OBJ(!m_లోపల_Process && !m_gatherVars && m_processDomains.ఖాళీలు()
+                        && m_writtenBySuspendable.ఖాళీలు(),
                     nodep, "Process in process?");
-        m_inProcess = true;
+        m_లోపల_Process = నిజం;
         m_gatherVars = nodep->isSuspendable();  // Only gather vars in a suspendable
         iterateChildren(nodep);
-        for (AstVarScope* const vscp : m_writtenBySuspendable) {
-            m_externalDomains[vscp].insert(m_processDomains.begin(), m_processDomains.end());
-            vscp->varp()->setWrittenBySuspendable();
+        కొరకు (AstVarScope* స్థిరరాశి vscp : m_writtenBySuspendable) {
+            m_externalDomains[vscp].చొప్పించు(m_processDomains.begin(), m_processDomains.చివర());
+            vscp->varp()->సమితి_Written_By_Suspendable();
         }
         m_processDomains.clear();
         m_writtenBySuspendable.clear();
-        m_inProcess = false;
-        m_gatherVars = false;
+        m_లోపల_Process = అబద్ధం;
+        m_gatherVars = అబద్ధం;
     }
-    void visit(AstFork* nodep) override {
+    శూన్య సందర్శించు(AstFork* nodep) override {
         VL_RESTORER(m_gatherVars);
-        if (m_inProcess) m_gatherVars = true;
+        ఒకవేళ (m_లోపల_Process) m_gatherVars = నిజం;
         // If not in a process, we don't need to gather variables or domains
         iterateChildren(nodep);
     }
-    void visit(AstCAwait* nodep) override {
-        if (AstSenTree* const sentreep = nodep->sentreep()) {
-            if (!sentreep->user1SetOnce()) createResumeActive(nodep);
-            if (m_inProcess) m_processDomains.insert(sentreep);
+    శూన్య సందర్శించు(AstCAwait* nodep) override {
+        ఒకవేళ (Ast_Sen_వృక్షం* స్థిరరాశి sentreep = nodep->sentreep()) {
+            ఒకవేళ (!sentreep->user1_సమితి_Once()) create_Resume_చురుకైన(nodep);
+            ఒకవేళ (m_లోపల_Process) m_processDomains.చొప్పించు(sentreep);
         }
         iterateChildren(nodep);
     }
-    void visit(AstNodeVarRef* nodep) override {
-        if (m_gatherVars && nodep->access().isWriteOrRW() && !nodep->varp()->ignoreSchedWrite()) {
-            m_writtenBySuspendable.insert(nodep->varScopep());
+    శూన్య సందర్శించు(Ast_కణుపు_Var_Ref* nodep) override {
+        ఒకవేళ (m_gatherVars && nodep->access().isWriteOrRW() && !nodep->varp()->ignoreSchedWrite()) {
+            m_writtenBySuspendable.చొప్పించు(nodep->varScopep());
         }
     }
-    void visit(AstNodeCCall* const nodep) override {
+    శూన్య సందర్శించు(Ast_కణుపు_CCall* స్థిరరాశి nodep) override {
         iterateChildren(nodep);
         // We need to visit bodies of non-inlined functions
-        const auto& cfuncps = m_classGraphp->getCallPossibleCFuncs(nodep);
-        if (cfuncps.empty()) {
-            visitCalledCFunc(nodep->funcp());
-        } else {
-            for (AstCFunc* const cfuncp : cfuncps) visitCalledCFunc(cfuncp);
+        స్థిరరాశి స్వయంచాలక& cfuncps = m_classGraphp->getCallPossibleCFuncs(nodep);
+        ఒకవేళ (cfuncps.ఖాళీలు()) {
+            సందర్శించు_Called_CFunc(nodep->funcp());
+        } లేకపోతే {
+            కొరకు (AstCFunc* స్థిరరాశి cfuncp : cfuncps) సందర్శించు_Called_CFunc(cfuncp);
         }
     }
-    void visit(AstCFunc* const nodep) override {
-        const auto& value = m_cfuncsCache(nodep);
+    శూన్య సందర్శించు(AstCFunc* స్థిరరాశి nodep) override {
+        స్థిరరాశి స్వయంచాలక& విలువ = m_cfuncsCache(nodep);
         // Check whether it was already visited by visitCalledCFunc()
-        if (value[0].m_state != CFuncCache::UNINITIALIZED
-            || value[1].m_state != CFuncCache::UNINITIALIZED) {
-            return;
+        ఒకవేళ (విలువ[0].m_state != CFuncCache::UNINITIALIZED
+            || విలువ[1].m_state != CFuncCache::UNINITIALIZED) {
+            తిరిగి;
         }
         iterateChildren(nodep);
     }
-    void visit(AstExprStmt* nodep) override { iterateChildren(nodep); }
+    శూన్య సందర్శించు(Ast_సమాసం_Stmt* nodep) override { iterateChildren(nodep); }
 
     //--------------------
-    void visit(AstNode* nodep) override { iterateChildren(nodep); }
+    శూన్య సందర్శించు(Ast_కణుపు* nodep) override { iterateChildren(nodep); }
 
-public:
+బహిరంగ:
     // CONSTRUCTORS
-    explicit AwaitVisitor(AstNetlist* nodep, LogicByScope& lbs, AstNodeStmt*& postUpdatesr,
-                          std::map<const AstVarScope*, std::set<AstSenTree*>>& externalDomains)
-        : m_scopeTopp{nodep->topScopep()->scopep()}
+    స్పష్టమైన AwaitVisitor(AstNetlist* nodep, LogicByScope& lbs, Ast_కణుపు_Stmt*& postUpdatesr,
+                          std::map<స్థిరరాశి AstVarScope*, std::సమితి<Ast_Sen_వృక్షం*>>& externalDomains)
+        : m_scopeTopp{nodep->శిఖరం_Scopep()->scopep()}
         , m_lbs{lbs}
         , m_postUpdatesr{postUpdatesr}
         , m_externalDomains{externalDomains}
-        , m_classGraphp{V3ClassGraph::build(nodep)} {
+        , m_classGraphp{V3_Class_లేఖాచిత్రం::build(nodep)} {
         iterate(nodep);
     }
     ~AwaitVisitor() override {
-        V3Stats::addStat("Scheduling, count of non-inlined signal writes in suspendables",
-                         m_notInlinedWritesInSuspendableUsage);
+        V3Stats::కూడు_Stat("Scheduling, count of non-inlined signal writes in suspendables",
+                         m_not_Inlined_Writes_లోపల_Suspendable_Usage);
     }
 };
 
-TimingKit prepareTiming(AstNetlist* const netlistp) {
-    if (!v3Global.usesTiming()) return {};
+TimingKit prepareTiming(AstNetlist* స్థిరరాశి netlistp) {
+    ఒకవేళ (!v3Global.ఉపయోగిస్తుంది_Timing()) తిరిగి {};
     LogicByScope lbs;
-    AstNodeStmt* postUpdates = nullptr;
-    std::map<const AstVarScope*, std::set<AstSenTree*>> externalDomains;
+    Ast_కణుపు_Stmt* postUpdates = శూన్యసూచిక;
+    std::map<స్థిరరాశి AstVarScope*, std::సమితి<Ast_Sen_వృక్షం*>> externalDomains;
     { AwaitVisitor{netlistp, lbs, postUpdates, externalDomains}; }
-    return {std::move(lbs), postUpdates, std::move(externalDomains)};
+    తిరిగి {std::move(lbs), postUpdates, std::move(externalDomains)};
 }
 
 //============================================================================
 // Visits all forks and transforms their sub-statements into separate functions.
 
 // Transform all forked processes into functions
-class TransformForksVisitor final : public VNVisitor {
+తరగతి TransformForksVisitor final : బహిరంగ VNVisitor {
     // NODE STATE
     //  AstVar::user1()  -> bool.  Set true if the variable was declared before the current fork.
-    const VNUser1InUse m_inuser1;
+    స్థిరరాశి VNUser1_లోపల_Use m_inuser1;
 
     // STATE
-    bool m_inClass = false;  // Are we in a class?
-    bool m_beginHasAwaits = false;  // Does the current begin have awaits?
-    AstFork* m_forkp = nullptr;  // Current fork
-    AstCFunc* m_funcp = nullptr;  // Current function
+    తార్కిక m_లోపల_Class = అబద్ధం;  // Are we in a class?
+    తార్కిక m_beginHasAwaits = అబద్ధం;  // Does the current begin have awaits?
+    AstFork* m_forkp = శూన్యసూచిక;  // Current fork
+    AstCFunc* m_funcp = శూన్యసూచిక;  // Current function
 
     // METHODS
     // Remap local vars referenced by the given fork function
     // TODO: We should only pass variables to the fork that are
     // live in the fork body, but for that we need a proper data
     // flow analysis framework which we don't have at the moment
-    void remapLocals(AstCFunc* const funcp, AstCCall* const callp) {
-        const VNUser2InUse user2InUse;  // AstVarScope -> AstVarScope: var to remap to
-        funcp->foreach([&](AstNodeVarRef* refp) {
-            AstVar* const varp = refp->varp();
-            AstVarScope* const vscp = refp->varScopep();
-            AstBasicDType* const dtypep = varp->dtypep()->basicp();
+    శూన్య remapLocals(AstCFunc* స్థిరరాశి funcp, AstCCall* స్థిరరాశి callp) {
+        స్థిరరాశి VNUser2_లోపల_Use user2_లోపల_Use;  // AstVarScope -> AstVarScope: var to remap to
+        funcp->foreach([&](Ast_కణుపు_Var_Ref* refp) {
+            AstVar* స్థిరరాశి varp = refp->varp();
+            AstVarScope* స్థిరరాశి vscp = refp->varScopep();
+            AstBasicDType* స్థిరరాశి dtypep = varp->dtypep()->basicp();
             // If not a fork..join, copy. All write refs should've been handled by V3Fork
-            bool passByValue = !m_forkp->joinType().join();
-            if (vscp->forkByValue()) {
+            తార్కిక pass_By_విలువ = !m_forkp->joinType().join();
+            ఒకవేళ (vscp->fork_By_విలువ()) {
                 // Set just before the fork, for its processes to get by value
-                passByValue = true;
-            } else if (!varp->isFuncLocal()) {
+                pass_By_విలువ = నిజం;
+            } లేకపోతే ఒకవేళ (!varp->isFuncLocal()) {
                 // Not func local. Its lifetime is longer than the forked process. Skip
-                return;
-            } else if (!varp->user1()) {
+                తిరిగి;
+            } లేకపోతే ఒకవేళ (!varp->user1()) {
                 // Not declared before the fork. It cannot outlive the forked process
-                return;
-            } else if (dtypep && dtypep->isForkSync()) {
+                తిరిగి;
+            } లేకపోతే ఒకవేళ (dtypep && dtypep->isForkSync()) {
                 // We can just pass it by value to the new function
-                passByValue = true;
+                pass_By_విలువ = నిజం;
             }
             // Remap the reference
-            if (!vscp->user2p()) {
+            ఒకవేళ (!vscp->user2p()) {
                 // Clone the var to the new function
-                AstVar* const newvarp
-                    = new AstVar{varp->fileline(), VVarType::BLOCKTEMP, varp->name(), varp};
-                newvarp->funcLocal(true);
-                newvarp->direction(passByValue ? VDirection::INPUT : VDirection::REF);
-                funcp->addArgsp(newvarp);
-                AstVarScope* const newvscp
-                    = new AstVarScope{newvarp->fileline(), funcp->scopep(), newvarp};
-                funcp->scopep()->addVarsp(newvscp);
+                AstVar* స్థిరరాశి newvarp
+                    = కొత్త AstVar{varp->fileline(), VVarType::BLOCKTEMP, varp->name(), varp};
+                newvarp->funcLocal(నిజం);
+                newvarp->direction(pass_By_విలువ ? VDirection::ఆదానం : VDirection::REF);
+                funcp->కూడు_Argsp(newvarp);
+                AstVarScope* స్థిరరాశి newvscp
+                    = కొత్త AstVarScope{newvarp->fileline(), funcp->scopep(), newvarp};
+                funcp->scopep()->కూడు_Varsp(newvscp);
                 vscp->user2p(newvscp);
-                callp->addArgsp(new AstVarRef{refp->fileline(), vscp,
-                                              passByValue ? VAccess::READ : VAccess::READWRITE});
+                callp->కూడు_Argsp(కొత్త AstVarRef{refp->fileline(), vscp,
+                                              pass_By_విలువ ? VAccess::READ : VAccess::READWRITE});
             }
-            AstVarScope* const newvscp = VN_AS(vscp->user2p(), VarScope);
+            AstVarScope* స్థిరరాశి newvscp = VN_AS(vscp->user2p(), VarScope);
             refp->varScopep(newvscp);
             refp->varp(newvscp->varp());
         });
     }
 
     // VISITORS
-    void visit(AstNodeModule* nodep) override {
-        VL_RESTORER(m_inClass);
-        m_inClass = VN_IS(nodep, Class);
+    శూన్య సందర్శించు(Ast_కణుపు_Module* nodep) override {
+        VL_RESTORER(m_లోపల_Class);
+        m_లోపల_Class = VN_IS(nodep, Class);
         iterateChildren(nodep);
     }
-    void visit(AstCFunc* nodep) override {
+    శూన్య సందర్శించు(AstCFunc* nodep) override {
         VL_RESTORER(m_funcp);
         m_funcp = nodep;
         iterateChildren(nodep);
     }
-    void visit(AstVar* nodep) override {
-        if (!m_forkp) nodep->user1(true);
+    శూన్య సందర్శించు(AstVar* nodep) override {
+        ఒకవేళ (!m_forkp) nodep->user1(నిజం);
     }
-    void visit(AstFork* nodep) override {
-        if (m_forkp) return;  // Handle forks in forks after moving them to new functions
+    శూన్య సందర్శించు(AstFork* nodep) override {
+        ఒకవేళ (m_forkp) తిరిగి;  // Handle forks in forks after moving them to new functions
         VL_RESTORER(m_forkp);
         m_forkp = nodep;
         iterateChildrenConst(nodep);  // Const, so we don't iterate the calls twice
@@ -495,88 +495,88 @@ class TransformForksVisitor final : public VNVisitor {
         // process to suspend whenever any of the children do)
         // V3Dead could have removed all statements from the fork, so guard against it
         // Inline begins now that they are not needed
-        AstNode* resp = nullptr;
-        if (AstNode* const declsp = nodep->declsp()) {
-            resp = AstNode::addNext(resp, declsp->unlinkFrBackWithNext());
+        Ast_కణుపు* resp = శూన్యసూచిక;
+        ఒకవేళ (Ast_కణుపు* స్థిరరాశి declsp = nodep->declsp()) {
+            resp = Ast_కణుపు::కూడు_తదుపరి(resp, declsp->unlink_Fr_వెనుక_With_తదుపరి());
         }
-        if (AstNode* const stmtsp = nodep->stmtsp()) {
-            resp = AstNode::addNext(resp, stmtsp->unlinkFrBackWithNext());
+        ఒకవేళ (Ast_కణుపు* స్థిరరాశి stmtsp = nodep->stmtsp()) {
+            resp = Ast_కణుపు::కూడు_తదుపరి(resp, stmtsp->unlink_Fr_వెనుక_With_తదుపరి());
         }
-        while (AstBegin* const beginp = nodep->forksp()) {
-            if (AstNode* const declsp = beginp->declsp()) {
-                resp = AstNode::addNext(resp, declsp->unlinkFrBackWithNext());
+        అయితే (AstBegin* స్థిరరాశి beginp = nodep->forksp()) {
+            ఒకవేళ (Ast_కణుపు* స్థిరరాశి declsp = beginp->declsp()) {
+                resp = Ast_కణుపు::కూడు_తదుపరి(resp, declsp->unlink_Fr_వెనుక_With_తదుపరి());
             }
-            if (AstNode* const stmtsp = beginp->stmtsp()) {
-                resp = AstNode::addNext(resp, stmtsp->unlinkFrBackWithNext());
+            ఒకవేళ (Ast_కణుపు* స్థిరరాశి stmtsp = beginp->stmtsp()) {
+                resp = Ast_కణుపు::కూడు_తదుపరి(resp, stmtsp->unlink_Fr_వెనుక_With_తదుపరి());
             }
-            VL_DO_DANGLING(pushDeletep(beginp->unlinkFrBack()), beginp);
+            VL_DO_DANGLING(నెట్టు_Deletep(beginp->unlink_Fr_వెనుక()), beginp);
         }
-        if (resp) {
+        ఒకవేళ (resp) {
             nodep->replaceWith(resp);
-        } else {
-            nodep->unlinkFrBack();
+        } లేకపోతే {
+            nodep->unlink_Fr_వెనుక();
         }
-        VL_DO_DANGLING(pushDeletep(nodep), nodep);
+        VL_DO_DANGLING(నెట్టు_Deletep(nodep), nodep);
     }
-    void visit(AstBegin* nodep) override {
+    శూన్య సందర్శించు(AstBegin* nodep) override {
         UASSERT_OBJ(m_forkp, nodep, "Begin outside of a fork");
         // Start with children, so later we only find awaits that are actually in this begin
-        m_beginHasAwaits = false;
+        m_beginHasAwaits = అబద్ధం;
         iterateChildrenConst(nodep);
-        if (!nodep->stmtsp()) return;
-        if (!m_beginHasAwaits && !nodep->needProcess()) return;
+        ఒకవేళ (!nodep->stmtsp()) తిరిగి;
+        ఒకవేళ (!m_beginHasAwaits && !nodep->needProcess()) తిరిగి;
 
-        UASSERT_OBJ(!nodep->name().empty(), nodep, "Begin needs a name");
+        UASSERT_OBJ(!nodep->name().ఖాళీలు(), nodep, "Begin needs a name");
         // Create a function to put this begin's statements in
-        FileLine* const flp = nodep->fileline();
-        AstCFunc* const newfuncp = new AstCFunc{flp, m_funcp->name() + "__" + nodep->name(),
+        File_పంక్తి* స్థిరరాశి flp = nodep->fileline();
+        AstCFunc* స్థిరరాశి newfuncp = కొత్త AstCFunc{flp, m_funcp->name() + "__" + nodep->name(),
                                                 m_funcp->scopep(), "VlCoroutine"};
 
-        m_funcp->addNextHere(newfuncp);
+        m_funcp->కూడు_తదుపరి_ఇక్కడ(newfuncp);
         newfuncp->isLoose(m_funcp->isLoose());
         newfuncp->slow(m_funcp->slow());
         newfuncp->isConst(m_funcp->isConst());
-        newfuncp->declPrivate(true);
+        newfuncp->decl_వ్యక్తిగత(నిజం);
         // Create the call to the function
-        AstCCall* const callp = new AstCCall{flp, newfuncp};
-        callp->dtypeSetVoid();
+        AstCCall* స్థిరరాశి callp = కొత్త AstCCall{flp, newfuncp};
+        callp->dtype_సమితి_Void();
         // If we're in a class, add a vlSymsp arg
-        if (m_inClass) {
-            newfuncp->addStmtsp(new AstCStmt{flp, "VL_KEEP_THIS;"});
+        ఒకవేళ (m_లోపల_Class) {
+            newfuncp->కూడు_Stmtsp(కొత్త AstCStmt{flp, "VL_KEEP_THIS;"});
             newfuncp->argTypes(EmitCUtil::symClassVar());
             callp->argTypes("vlSymsp");
         }
         // Put the begin's statements in the function
-        if (AstNode* const declsp = nodep->declsp()) {
-            newfuncp->addStmtsp(declsp->unlinkFrBackWithNext());
+        ఒకవేళ (Ast_కణుపు* స్థిరరాశి declsp = nodep->declsp()) {
+            newfuncp->కూడు_Stmtsp(declsp->unlink_Fr_వెనుక_With_తదుపరి());
         }
-        if (AstNode* const stmtsp = nodep->stmtsp()) {
-            newfuncp->addStmtsp(stmtsp->unlinkFrBackWithNext());
+        ఒకవేళ (Ast_కణుపు* స్థిరరాశి stmtsp = nodep->stmtsp()) {
+            newfuncp->కూడు_Stmtsp(stmtsp->unlink_Fr_వెనుక_With_తదుపరి());
         }
         // Replace the body of the begin with a call to the newly created function
-        nodep->addStmtsp(callp->makeStmt());
+        nodep->కూడు_Stmtsp(callp->makeStmt());
         // Propagate if needs process
-        if (nodep->needProcess()) newfuncp->setNeedProcess();
+        ఒకవేళ (nodep->needProcess()) newfuncp->సమితి_Need_Process();
         remapLocals(newfuncp, callp);
     }
-    void visit(AstCAwait* nodep) override {
-        m_beginHasAwaits = true;
+    శూన్య సందర్శించు(AstCAwait* nodep) override {
+        m_beginHasAwaits = నిజం;
         iterateChildrenConst(nodep);
     }
 
     //--------------------
-    void visit(AstNode* nodep) override { iterateChildren(nodep); }
+    శూన్య సందర్శించు(Ast_కణుపు* nodep) override { iterateChildren(nodep); }
 
-public:
+బహిరంగ:
     // CONSTRUCTORS
-    explicit TransformForksVisitor(AstNetlist* nodep) { iterate(nodep); }
-    ~TransformForksVisitor() override = default;
+    స్పష్టమైన TransformForksVisitor(AstNetlist* nodep) { iterate(nodep); }
+    ~TransformForksVisitor() override = అప్రమేయ;
 };
 
-void transformForks(AstNetlist* const netlistp) {
-    if (!v3Global.usesTiming()) return;
+శూన్య transformForks(AstNetlist* స్థిరరాశి netlistp) {
+    ఒకవేళ (!v3Global.ఉపయోగిస్తుంది_Timing()) తిరిగి;
     { TransformForksVisitor{netlistp}; }
-    V3Global::dumpCheckGlobalTree("transform_forks", 0, dumpTreeEitherLevel() >= 3);
+    V3Global::dump_Check_Global_వృక్షం("transform_forks", 0, dump_వృక్షం_Either_Level() >= 3);
 }
 
 }  // namespace V3Sched

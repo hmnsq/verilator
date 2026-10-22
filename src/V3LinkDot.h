@@ -14,27 +14,27 @@
 //
 //*************************************************************************
 
-#ifndef VERILATOR_V3LINKDOT_H_
-#define VERILATOR_V3LINKDOT_H_
+#నిర్వచితం_కాకపోతే VERILATOR_V3LINKDOT_H_
+#నిర్వచించు VERILATOR_V3LINKDOT_H_
 
-#include "config_build.h"
-#include "verilatedos.h"
+#అన్తర్భావ "config_build.h"
+#అన్తర్భావ "verilatedos.h"
 
-#include "V3Ast.h"
-#include "V3Error.h"
+#అన్తర్భావ "V3Ast.h"
+#అన్తర్భావ "V3Error.h"
 
 //============================================================================
 
-enum VLinkDotStep : uint8_t { LDS_PRIMARY, LDS_PARAMED, LDS_SCOPED };
+గణన VLink_Dot_అడుగు : uint8_t { LDS_PRIMARY, LDS_PARAMED, LDS_SCOPED };
 
 class V3LinkDot final {
-    static void dumpSubstep(const string& name) VL_MT_DISABLED;
-    static void linkDotGuts(AstNetlist* rootp, VLinkDotStep step) VL_MT_DISABLED;
+    స్థిర శూన్య dumpSubstep(స్థిరరాశి string& name) VL_MT_DISABLED;
+    స్థిర శూన్య linkDotGuts(AstNetlist* rootp, VLink_Dot_అడుగు అడుగు) VL_MT_DISABLED;
 
-public:
-    static void linkDotPrimary(AstNetlist* nodep) VL_MT_DISABLED;
-    static void linkDotParamed(AstNetlist* nodep) VL_MT_DISABLED;
-    static void linkDotScope(AstNetlist* nodep) VL_MT_DISABLED;
+బహిరంగ:
+    స్థిర శూన్య linkDotPrimary(AstNetlist* nodep) VL_MT_DISABLED;
+    స్థిర శూన్య linkDotParamed(AstNetlist* nodep) VL_MT_DISABLED;
+    స్థిర శూన్య linkDotScope(AstNetlist* nodep) VL_MT_DISABLED;
 };
 
-#endif  // Guard
+#అయితే_ముగింపు  // Guard

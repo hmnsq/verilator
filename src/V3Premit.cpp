@@ -24,218 +24,218 @@
 //
 //*************************************************************************
 
-#include "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
+#అన్తర్భావ "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
 
-#include "V3Premit.h"
+#అన్తర్భావ "V3Premit.h"
 
-#include "V3ConstPool.h"
-#include "V3Stats.h"
-#include "V3UniqueNames.h"
+#అన్తర్భావ "V3ConstPool.h"
+#అన్తర్భావ "V3Stats.h"
+#అన్తర్భావ "V3UniqueNames.h"
 
 VL_DEFINE_DEBUG_FUNCTIONS;
 
-constexpr int STATIC_CONST_MIN_WIDTH = 256;  // Minimum size to extract to static constant
+constexpr పూర్ణాంకం STATIC_CONST_MIN_వెడల్పు = 256;  // Minimum size to extract to static constant
 
 //######################################################################
 // Premit state, as a visitor of each AstNode
 
-class PremitVisitor final : public VNVisitor {
+తరగతి PremitVisitor final : బహిరంగ VNVisitor {
     // NODE STATE
     //  AstNodeExpr::user()     -> bool.  True if iterated already
     //  *::user3()              -> bool.  Used when visiting AstNodeAssign
-    const VNUser1InUse m_inuser1;
+    స్థిరరాశి VNUser1_లోపల_Use m_inuser1;
 
     // STATE - across all visitors
-    VDouble0 m_extractedToConstPool;  // Statistic tracking
+    VDouble0 m_extracted_గమ్యం_Const_Pool;  // Statistic tracking
     VDouble0 m_temporaryVarsCreated;  // Statistic tracking
 
     // STATE - for current visit position (use VL_RESTORER)
-    AstCFunc* m_cfuncp = nullptr;  // Current block
-    size_t m_tmpVarCnt = 0;  // Number of temporary variables created inside a function
-    AstNode* m_stmtp = nullptr;  // Current statement
-    bool m_assignLhs = false;  // Inside assignment lhs, don't breakup extracts
-    bool m_inCons = false;  // Inside a NodeCons, so not the root of a value
+    AstCFunc* m_cfuncp = శూన్యసూచిక;  // Current block
+    కొలత_t m_tmpVarCnt = 0;  // Number of temporary variables created inside a function
+    Ast_కణుపు* m_stmtp = శూన్యసూచిక;  // Current statement
+    తార్కిక m_కేటాయించు_Lhs = అబద్ధం;  // Inside assignment lhs, don't breakup extracts
+    తార్కిక m_లోపల_Cons = అబద్ధం;  // Inside a NodeCons, so not the root of a value
 
     // METHODS
-    bool needsTemp(AstNodeExpr* nodep) {
+    తార్కిక needs_తాత్కాలిక(Ast_కణుపు_సమాసం* nodep) {
         // Consider adding a temp for this expression.
-        if (!m_stmtp) return false;  // Not under a statement
-        if (nodep->user1SetOnce()) return false;  // Already processed
-        if (!nodep->isWide()) return false;  // Not wide
-        if (m_assignLhs) return false;  // This is an lvalue!
-        UASSERT_OBJ(!VN_IS(nodep->firstAbovep(), ArraySel), nodep, "Should have been ignored");
-        return true;
+        ఒకవేళ (!m_stmtp) తిరిగి అబద్ధం;  // Not under a statement
+        ఒకవేళ (nodep->user1_సమితి_Once()) తిరిగి అబద్ధం;  // Already processed
+        ఒకవేళ (!nodep->isWide()) తిరిగి అబద్ధం;  // Not wide
+        ఒకవేళ (m_కేటాయించు_Lhs) తిరిగి అబద్ధం;  // This is an lvalue!
+        UASSERT_OBJ(!VN_IS(nodep->మొదటి_Abovep(), ArraySel), nodep, "Should have been ignored");
+        తిరిగి నిజం;
     }
 
-    void checkNode(AstNodeExpr* nodep) {
-        if (needsTemp(nodep)) createTemp(nodep);
+    శూన్య check_కణుపు(Ast_కణుపు_సమాసం* nodep) {
+        ఒకవేళ (needs_తాత్కాలిక(nodep)) create_తాత్కాలిక(nodep);
     }
 
     // True if the value should be in the constant pool, rather than built where it is used
-    static bool useConstPool(const AstNodeExpr* nodep) {
-        uint64_t width = 0;
-        bool hasData = false;
-        bool hasDynamic = false;
+    స్థిర తార్కిక useConstPool(స్థిరరాశి Ast_కణుపు_సమాసం* nodep) {
+        uint64_t వెడల్పు = 0;
+        తార్కిక has_దత్తాంశం = అబద్ధం;
+        తార్కిక hasDynamic = అబద్ధం;
         // Must be a tree of constants (see AstNodeExpr::isConstantTree), which can be emitted
-        const bool emittable = nodep->forall([&](const AstNodeExpr* exprp) {
-            if (VN_IS(exprp, NodeCons)) {
+        స్థిరరాశి తార్కిక emittable = nodep->forall([&](స్థిరరాశి Ast_కణుపు_సమాసం* exprp) {
+            ఒకవేళ (VN_IS(exprp, కణుపు_Cons)) {
                 hasDynamic |= exprp->dtypep()->skipRefp()->isDynamicallySized();
-                return true;
+                తిరిగి నిజం;
             }
-            const AstConst* const constp = VN_CAST(exprp, Const);
-            if (!constp) return false;
-            width += static_cast<uint64_t>(constp->widthWords()) * VL_EDATASIZE;
-            hasData = true;
-            return !constp->num().isFourState();
+            స్థిరరాశి AstConst* స్థిరరాశి constp = VN_CAST(exprp, Const);
+            ఒకవేళ (!constp) తిరిగి అబద్ధం;
+            వెడల్పు += static_cast<uint64_t>(constp->వెడల్పు_పదాలు()) * VL_EDATASIZE;
+            has_దత్తాంశం = నిజం;
+            తిరిగి !constp->అంకె().isFourState();
         });
-        if (!emittable) return false;
+        ఒకవేళ (!emittable) తిరిగి అబద్ధం;
         // Dynamically sized values allocate when built with data, so use the pool for them
-        if (hasDynamic) return hasData;
-        return width >= static_cast<uint64_t>(STATIC_CONST_MIN_WIDTH);
+        ఒకవేళ (hasDynamic) తిరిగి has_దత్తాంశం;
+        తిరిగి వెడల్పు >= static_cast<uint64_t>(STATIC_CONST_MIN_వెడల్పు);
     }
 
-    AstVarRef* isRhsOfAssignToVar(AstNodeExpr* nodep) {
+    AstVarRef* is_Rhs_యొక్క_కేటాయించు_గమ్యం_Var(Ast_కణుపు_సమాసం* nodep) {
         // If enclosing statement is an assign
-        AstNodeAssign* const assignp = VN_CAST(m_stmtp, NodeAssign);
-        if (!assignp) return nullptr;
+        Ast_కణుపు_కేటాయించు* స్థిరరాశి assignp = VN_CAST(m_stmtp, కణుపు_కేటాయించు);
+        ఒకవేళ (!assignp) తిరిగి శూన్యసూచిక;
         // of which 'nodep' is the RHS of
-        if (assignp->rhsp() != nodep) return nullptr;
+        ఒకవేళ (assignp->rhsp() != nodep) తిరిగి శూన్యసూచిక;
         // and the LHS is a sipmple variable reference
-        AstVarRef* const lRefp = VN_CAST(assignp->lhsp(), VarRef);
-        if (!lRefp) return nullptr;
-        AstVar* const varp = lRefp->varp();
+        AstVarRef* స్థిరరాశి lRefp = VN_CAST(assignp->lhsp(), VarRef);
+        ఒకవేళ (!lRefp) తిరిగి శూన్యసూచిక;
+        AstVar* స్థిరరాశి varp = lRefp->varp();
         // And the RHS does not use the same variable
-        if (nodep->exists([varp](const AstVarRef* refp) { return refp->varp() == varp; })) {
-            return nullptr;
+        ఒకవేళ (nodep->exists([varp](స్థిరరాశి AstVarRef* refp) { తిరిగి refp->varp() == varp; })) {
+            తిరిగి శూన్యసూచిక;
         }
         // Then return the LHS reference
-        return lRefp;
+        తిరిగి lRefp;
     }
 
     // Create a new temporary that can hold the value of the given expression
-    AstVar* newTmpFor(AstNodeExpr* nodep) {
-        FileLine* const flp = nodep->fileline();
-        const std::string name = "__Vtemp_" + std::to_string(++m_tmpVarCnt);
-        AstVar* const varp = new AstVar{flp, VVarType::STMTTEMP, name, nodep->dtypep()};
-        varp->funcLocal(true);
-        varp->noReset(true);
-        m_cfuncp->addVarsp(varp);
+    AstVar* newTmpFor(Ast_కణుపు_సమాసం* nodep) {
+        File_పంక్తి* స్థిరరాశి flp = nodep->fileline();
+        స్థిరరాశి std::string name = "__Vtemp_" + std::గమ్యం_string(++m_tmpVarCnt);
+        AstVar* స్థిరరాశి varp = కొత్త AstVar{flp, VVarType::STMTTEMP, name, nodep->dtypep()};
+        varp->funcLocal(నిజం);
+        varp->noReset(నిజం);
+        m_cfuncp->కూడు_Varsp(varp);
         ++m_temporaryVarsCreated;
-        return varp;
+        తిరిగి varp;
     }
 
-    AstVar* createTemp(AstNodeExpr* nodep) {
+    AstVar* create_తాత్కాలిక(Ast_కణుపు_సమాసం* nodep) {
         UASSERT_OBJ(m_stmtp, nodep, "Attempting to create temporary with no insertion point");
         UINFO(4, "createTemp: " << nodep);
 
         VNRelinker relinker;
-        nodep->unlinkFrBack(&relinker);
+        nodep->unlink_Fr_వెనుక(&relinker);
 
-        FileLine* const flp = nodep->fileline();
-        AstVar* varp = nullptr;
+        File_పంక్తి* స్థిరరాశి flp = nodep->fileline();
+        AstVar* varp = శూన్యసూచిక;
 
-        if (useConstPool(nodep)) {
+        ఒకవేళ (useConstPool(nodep)) {
             // Extract into constant pool.
-            AstVarRef* const refp = V3ConstPool::find(nodep);
+            AstVarRef* స్థిరరాశి refp = V3ConstPool::కనుగొను(nodep);
             varp = refp->varp();
-            VL_DO_DANGLING(nodep->deleteTree(), nodep);
-            ++m_extractedToConstPool;
+            VL_DO_DANGLING(nodep->delete_వృక్షం(), nodep);
+            ++m_extracted_గమ్యం_Const_Pool;
             // Replace node with reference to the constant pool entry
             relinker.relink(refp);
-        } else {
+        } లేకపోతే {
             // Keep as local temporary.
             varp = newTmpFor(nodep);
             // Assignment to put before the referencing statement
-            AstVarRef* const refp = new AstVarRef{flp, varp, VAccess::WRITE};
-            AstAssign* const assignp = new AstAssign{flp, refp, nodep};
+            AstVarRef* స్థిరరాశి refp = కొత్త AstVarRef{flp, varp, VAccess::WRITE};
+            Ast_కేటాయించు* స్థిరరాశి assignp = కొత్త Ast_కేటాయించు{flp, refp, nodep};
             // Insert before the statement
-            m_stmtp->addHereThisAsNext(assignp);
+            m_stmtp->కూడు_ఇక్కడ_This_As_తదుపరి(assignp);
             // Replace node with VarRef to new Var
-            relinker.relink(new AstVarRef{flp, varp, VAccess::READ});
+            relinker.relink(కొత్త AstVarRef{flp, varp, VAccess::READ});
         }
 
         // Return the temporary variable
-        return varp;
+        తిరిగి varp;
     }
 
-    void replaceWithOvrShift(AstNodeBiop* nodep) {
-        FileLine* const flp = nodep->fileline();
-        AstNodeExpr* const lhsp = nodep->lhsp()->unlinkFrBack();
-        AstNodeExpr* const rhsp = nodep->rhsp()->unlinkFrBack();
-        AstNodeExpr* newp = nullptr;
-        if (VN_IS(nodep, ShiftL)) {
-            newp = new AstShiftLOvr{flp, lhsp, rhsp};
-        } else if (VN_IS(nodep, ShiftR)) {
-            newp = new AstShiftROvr{flp, lhsp, rhsp};
-        } else {
-            newp = new AstShiftRSOvr{flp, lhsp, rhsp};
+    శూన్య replace_With_Ovr_జరుపు(Ast_కణుపు_Biop* nodep) {
+        File_పంక్తి* స్థిరరాశి flp = nodep->fileline();
+        Ast_కణుపు_సమాసం* స్థిరరాశి lhsp = nodep->lhsp()->unlink_Fr_వెనుక();
+        Ast_కణుపు_సమాసం* స్థిరరాశి rhsp = nodep->rhsp()->unlink_Fr_వెనుక();
+        Ast_కణుపు_సమాసం* newp = శూన్యసూచిక;
+        ఒకవేళ (VN_IS(nodep, జరుపు_L)) {
+            newp = కొత్త Ast_జరుపు_LOvr{flp, lhsp, rhsp};
+        } లేకపోతే ఒకవేళ (VN_IS(nodep, జరుపు_R)) {
+            newp = కొత్త Ast_జరుపు_ROvr{flp, lhsp, rhsp};
+        } లేకపోతే {
+            newp = కొత్త Ast_జరుపు_RSOvr{flp, lhsp, rhsp};
         }
         nodep->replaceWithKeepDType(newp);
-        VL_DO_DANGLING(pushDeletep(nodep), nodep);
+        VL_DO_DANGLING(నెట్టు_Deletep(nodep), nodep);
     }
 
-    void visitShift(AstNodeBiop* nodep) {
+    శూన్య సందర్శించు_జరుపు(Ast_కణుపు_Biop* nodep) {
         UINFO(4, "  ShiftFix  " << nodep);
-        UASSERT_OBJ(VN_IS(nodep, ShiftL) || VN_IS(nodep, ShiftR) || VN_IS(nodep, ShiftRS), nodep,
+        UASSERT_OBJ(VN_IS(nodep, జరుపు_L) || VN_IS(nodep, జరుపు_R) || VN_IS(nodep, జరుపు_RS), nodep,
                     "Bad case");
         // Shift larger than the width of the type (overshift) is undefined behavour in C++
         // (in practice will shift by the wrapped shift amount). These are requierd to go to
         // zero/msbs, so replacing them here.
-        FileLine* const flp = nodep->fileline();
-        if (const AstConst* const shiftp = VN_CAST(nodep->rhsp(), Const)) {
+        File_పంక్తి* స్థిరరాశి flp = nodep->fileline();
+        ఒకవేళ (స్థిరరాశి AstConst* స్థిరరాశి shiftp = VN_CAST(nodep->rhsp(), Const)) {
             // Shift amount known to be constant. If oversized shift, replace with zero/msbs.
             // Otherwise we can leave the original shifts which have better constant folding
             // than the *Ovr versions.
-            const bool isOversized
-                = shiftp->num().mostSetBitP1() > 32
-                  || (shiftp->num().toUInt() >= static_cast<uint32_t>(nodep->width()));
-            if (isOversized) {
+            స్థిరరాశి తార్కిక isOversized
+                = shiftp->అంకె().most_సమితి_బిట్టు_P1() > 32
+                  || (shiftp->అంకె().గమ్యం_UInt() >= static_cast<uint32_t>(nodep->వెడల్పు()));
+            ఒకవేళ (isOversized) {
                 // If signed shift, replace with replicated MSB
-                if (VN_IS(nodep, ShiftRS)) {
-                    AstNodeExpr* const lhsp = nodep->lhsp()->unlinkFrBack();
-                    AstNodeExpr* const msbp = new AstSel{flp, lhsp, lhsp->widthMin() - 1, 1};
-                    nodep->replaceWithKeepDType(new AstExtendS{flp, msbp, nodep->width()});
-                    VL_DO_DANGLING(pushDeletep(nodep), nodep);
-                    return;
+                ఒకవేళ (VN_IS(nodep, జరుపు_RS)) {
+                    Ast_కణుపు_సమాసం* స్థిరరాశి lhsp = nodep->lhsp()->unlink_Fr_వెనుక();
+                    Ast_కణుపు_సమాసం* స్థిరరాశి msbp = కొత్త AstSel{flp, lhsp, lhsp->వెడల్పు_Min() - 1, 1};
+                    nodep->replaceWithKeepDType(కొత్త AstExtendS{flp, msbp, nodep->వెడల్పు()});
+                    VL_DO_DANGLING(నెట్టు_Deletep(nodep), nodep);
+                    తిరిగి;
                 }
                 // Unsigned. If pure, replace with zero
-                if (nodep->lhsp()->isPure()) {
+                ఒకవేళ (nodep->lhsp()->is_శుద్ధ()) {
                     nodep->replaceWithKeepDType(
-                        new AstConst{flp, AstConst::DTyped{}, nodep->dtypep()});
-                    VL_DO_DANGLING(pushDeletep(nodep), nodep);
-                    return;
+                        కొత్త AstConst{flp, AstConst::DTyped{}, nodep->dtypep()});
+                    VL_DO_DANGLING(నెట్టు_Deletep(nodep), nodep);
+                    తిరిగి;
                 }
                 // Impure. Keep shift
-                if (!nodep->isWide()) {
-                    replaceWithOvrShift(nodep);
-                    return;
+                ఒకవేళ (!nodep->isWide()) {
+                    replace_With_Ovr_జరుపు(nodep);
+                    తిరిగి;
                 }
             }
-        } else {
+        } లేకపోతే {
             // Shift amount not known at compile time. Convert to *Ovr version. Don't need to do
             // if it would use a wide operation which works correctly at runtime, of if the max
             // value of the shift amount is less than the with of the shifted value.
-            if (!nodep->isWide() && (nodep->width() < (1LL << nodep->rhsp()->widthMin()))) {
-                replaceWithOvrShift(nodep);
-                return;
+            ఒకవేళ (!nodep->isWide() && (nodep->వెడల్పు() < (1LL << nodep->rhsp()->వెడల్పు_Min()))) {
+                replace_With_Ovr_జరుపు(nodep);
+                తిరిగి;
             }
         }
         iterateChildren(nodep);
-        checkNode(nodep);
+        check_కణుపు(nodep);
     }
 
-    static bool rhsReadsLhs(const AstNodeAssign* nodep) {
-        const VNUser3InUse user3InUse;
-        nodep->lhsp()->foreach([](const AstVarRef* refp) {
-            if (refp->access().isWriteOrRW()) refp->varp()->user3(true);
+    స్థిర తార్కిక rhsReadsLhs(స్థిరరాశి Ast_కణుపు_కేటాయించు* nodep) {
+        స్థిరరాశి VNUser3_లోపల_Use user3_లోపల_Use;
+        nodep->lhsp()->foreach([](స్థిరరాశి AstVarRef* refp) {
+            ఒకవేళ (refp->access().isWriteOrRW()) refp->varp()->user3(నిజం);
         });
-        return nodep->rhsp()->exists([](const AstVarRef* refp) {
-            return refp->access().isReadOnly() && refp->varp()->user3();
+        తిరిగి nodep->rhsp()->exists([](స్థిరరాశి AstVarRef* refp) {
+            తిరిగి refp->access().isReadOnly() && refp->varp()->user3();
         });
     }
 
     // VISITORS
-    void visit(AstCFunc* nodep) override {
+    శూన్య సందర్శించు(AstCFunc* nodep) override {
         UASSERT_OBJ(!m_cfuncp, nodep, "Should not nest");
         VL_RESTORER(m_cfuncp);
         VL_RESTORER(m_tmpVarCnt);
@@ -245,290 +245,290 @@ class PremitVisitor final : public VNVisitor {
     }
 
     // VISITORS - Statements
-#define START_STATEMENT_OR_RETURN(stmtp) \
-    if (!m_cfuncp) return; \
-    if ((stmtp)->user1SetOnce()) return; \
-    VL_RESTORER(m_assignLhs); \
+#నిర్వచించు ప్రారంభం_STATEMENT_OR_RETURN(stmtp) \
+    ఒకవేళ (!m_cfuncp) తిరిగి; \
+    ఒకవేళ ((stmtp)->user1_సమితి_Once()) తిరిగి; \
+    VL_RESTORER(m_కేటాయించు_Lhs); \
     VL_RESTORER(m_stmtp); \
-    m_assignLhs = false; \
+    m_కేటాయించు_Lhs = అబద్ధం; \
     m_stmtp = (stmtp);
 
-    void visit(AstNodeAssign* nodep) override {
-        START_STATEMENT_OR_RETURN(nodep);
+    శూన్య సందర్శించు(Ast_కణుపు_కేటాయించు* nodep) override {
+        ప్రారంభం_STATEMENT_OR_RETURN(nodep);
 
-        if (AstCvtArrayToPacked* const packedp = VN_CAST(nodep->lhsp(), CvtArrayToPacked)) {
+        ఒకవేళ (Ast_Cvt_Array_గమ్యం_Packed* స్థిరరాశి packedp = VN_CAST(nodep->lhsp(), Cvt_Array_గమ్యం_Packed)) {
             // AstCvtArrayToPacked is converted to VL_PACK, which returns rvalue,
             // so it shouldn't be on the LHS. It is now replaced with unpacking of RHS.
-            AstNodeExpr* const exprLhsp = packedp->fromp()->unlinkFrBack();
-            packedp->replaceWith(exprLhsp);
-            VL_DO_DANGLING(pushDeletep(packedp), packedp);
-            AstNodeExpr* const rhsp = nodep->rhsp()->unlinkFrBack();
-            nodep->rhsp(new AstCvtPackedToArray{rhsp->fileline(), rhsp, exprLhsp->dtypep()});
-            nodep->dtypeFrom(exprLhsp);
+            Ast_కణుపు_సమాసం* స్థిరరాశి సమాసం_Lhsp = packedp->fromp()->unlink_Fr_వెనుక();
+            packedp->replaceWith(సమాసం_Lhsp);
+            VL_DO_DANGLING(నెట్టు_Deletep(packedp), packedp);
+            Ast_కణుపు_సమాసం* స్థిరరాశి rhsp = nodep->rhsp()->unlink_Fr_వెనుక();
+            nodep->rhsp(కొత్త Ast_Cvt_Packed_గమ్యం_Array{rhsp->fileline(), rhsp, సమాసం_Lhsp->dtypep()});
+            nodep->dtypeFrom(సమాసం_Lhsp);
         }
         // Direct assignment to a simple variable
-        if (VN_IS(nodep->lhsp(), VarRef) && !AstVar::scVarRecurse(nodep->lhsp())) {
-            AstNode* const rhsp = nodep->rhsp();
+        ఒకవేళ (VN_IS(nodep->lhsp(), VarRef) && !AstVar::scVarRecurse(nodep->lhsp())) {
+            Ast_కణుపు* స్థిరరాశి rhsp = nodep->rhsp();
             // Rhs is already a var ref, so nothing to do
-            if (VN_IS(rhsp, VarRef) && !AstVar::scVarRecurse(rhsp)) return;
-            if (VN_IS(rhsp, Cond)) {
+            ఒకవేళ (VN_IS(rhsp, VarRef) && !AstVar::scVarRecurse(rhsp)) తిరిగి;
+            ఒకవేళ (VN_IS(rhsp, Cond)) {
                 // Do replace Cond on RHS, even if a simple assignment
-            } else if (!VN_IS(rhsp, Const)) {
+            } లేకపోతే ఒకవేళ (!VN_IS(rhsp, Const)) {
                 // Don't replace the rhs, it's already a simple assignment
-                rhsp->user1(true);
-            } else if (rhsp->widthWords() * VL_EDATASIZE < STATIC_CONST_MIN_WIDTH) {
+                rhsp->user1(నిజం);
+            } లేకపోతే ఒకవేళ (rhsp->వెడల్పు_పదాలు() * VL_EDATASIZE < STATIC_CONST_MIN_వెడల్పు) {
                 // It's a small constant, so nothing to do, otherwise will be put to const pool
-                return;
+                తిరిగి;
             }
         }
 
         // If the RHS reads the LHS, we need a temporary unless the update is atomic
-        const bool isAtomic = VN_IS(nodep->lhsp(), VarRef) && !nodep->lhsp()->isWide();
-        if (!isAtomic && rhsReadsLhs(nodep)) {
-            createTemp(nodep->rhsp());
-        } else {
-            iterateAndNextNull(nodep->rhsp());
+        స్థిరరాశి తార్కిక isAtomic = VN_IS(nodep->lhsp(), VarRef) && !nodep->lhsp()->isWide();
+        ఒకవేళ (!isAtomic && rhsReadsLhs(nodep)) {
+            create_తాత్కాలిక(nodep->rhsp());
+        } లేకపోతే {
+            iterate_And_తదుపరి_Null(nodep->rhsp());
         }
 
-        m_assignLhs = true;  // Restored by VL_RESTORER in START_STATEMENT_OR_RETURN
-        iterateAndNextNull(nodep->lhsp());
+        m_కేటాయించు_Lhs = నిజం;  // Restored by VL_RESTORER in START_STATEMENT_OR_RETURN
+        iterate_And_తదుపరి_Null(nodep->lhsp());
 
         // It's possible we end up with an 'a' = 'a' after expanding an AstCond
-        if (AstVarRef* const rhsp = VN_CAST(nodep->rhsp(), VarRef)) {
-            if (AstVarRef* const lhsp = VN_CAST(nodep->lhsp(), VarRef)) {
-                if (lhsp->varp() == rhsp->varp()) {
-                    VL_DO_DANGLING(pushDeletep(nodep->unlinkFrBack()), nodep);
+        ఒకవేళ (AstVarRef* స్థిరరాశి rhsp = VN_CAST(nodep->rhsp(), VarRef)) {
+            ఒకవేళ (AstVarRef* స్థిరరాశి lhsp = VN_CAST(nodep->lhsp(), VarRef)) {
+                ఒకవేళ (lhsp->varp() == rhsp->varp()) {
+                    VL_DO_DANGLING(నెట్టు_Deletep(nodep->unlink_Fr_వెనుక()), nodep);
                 }
             }
         }
     }
-    void visit(AstDisplay* nodep) override {
-        START_STATEMENT_OR_RETURN(nodep);
+    శూన్య సందర్శించు(AstDisplay* nodep) override {
+        ప్రారంభం_STATEMENT_OR_RETURN(nodep);
         iterateChildren(nodep);
-        if (v3Global.opt.autoflush()) {
-            const AstNode* searchp = nodep->nextp();
-            while (searchp && VN_IS(searchp, Comment)) searchp = searchp->nextp();
-            if (searchp && VN_IS(searchp, Display)
-                && nodep->filep()->sameGateTree(VN_AS(searchp, Display)->filep())) {
+        ఒకవేళ (v3Global.opt.autoflush()) {
+            స్థిరరాశి Ast_కణుపు* searchp = nodep->nextp();
+            అయితే (searchp && VN_IS(searchp, Comment)) searchp = searchp->nextp();
+            ఒకవేళ (searchp && VN_IS(searchp, Display)
+                && nodep->filep()->same_Gate_వృక్షం(VN_AS(searchp, Display)->filep())) {
                 // There's another display next; we can just wait to flush
-            } else {
+            } లేకపోతే {
                 UINFO(4, "Autoflush " << nodep);
-                nodep->addNextHere(
-                    new AstFFlush{nodep->fileline(),
-                                  nodep->filep() ? nodep->filep()->cloneTreePure(true) : nullptr});
+                nodep->కూడు_తదుపరి_ఇక్కడ(
+                    కొత్త AstFFlush{nodep->fileline(),
+                                  nodep->filep() ? nodep->filep()->clone_వృక్షం_శుద్ధ(నిజం) : శూన్యసూచిక});
             }
         }
     }
-    void visit(AstWriteMem* nodep) override {
+    శూన్య సందర్శించు(AstWriteMem* nodep) override {
         // Task lowering and scheduling put every memory dump inside a C++ function.
         UASSERT_OBJ(m_cfuncp, nodep, "Memory dump not under CFunc");
-        START_STATEMENT_OR_RETURN(nodep);
+        ప్రారంభం_STATEMENT_OR_RETURN(nodep);
         iterateChildren(nodep);
         // Memory dumps take an address, so force-aware reads need stable storage.
         // Keep temporaries created here or while visiting a wide memory expression.
-        if (const AstVarRef* const refp = VN_CAST(nodep->memp(), VarRef)) {
-            refp->varp()->noSubst(true);
-        } else {
-            createTemp(nodep->memp())->noSubst(true);
+        ఒకవేళ (స్థిరరాశి AstVarRef* స్థిరరాశి refp = VN_CAST(nodep->memp(), VarRef)) {
+            refp->varp()->noSubst(నిజం);
+        } లేకపోతే {
+            create_తాత్కాలిక(nodep->memp())->noSubst(నిజం);
         }
     }
-    void visit(AstNodeStmt* nodep) override {
-        START_STATEMENT_OR_RETURN(nodep);
+    శూన్య సందర్శించు(Ast_కణుపు_Stmt* nodep) override {
+        ప్రారంభం_STATEMENT_OR_RETURN(nodep);
         iterateChildren(nodep);
     }
 
-#undef START_STATEMENT_OR_RETURN
+#నిర్వచనం_రద్దు ప్రారంభం_STATEMENT_OR_RETURN
 
     // VISITORS - Expressions
-    void visit(AstShiftL* nodep) override { visitShift(nodep); }
-    void visit(AstShiftR* nodep) override { visitShift(nodep); }
-    void visit(AstShiftRS* nodep) override { visitShift(nodep); }
+    శూన్య సందర్శించు(Ast_జరుపు_L* nodep) override { సందర్శించు_జరుపు(nodep); }
+    శూన్య సందర్శించు(Ast_జరుపు_R* nodep) override { సందర్శించు_జరుపు(nodep); }
+    శూన్య సందర్శించు(Ast_జరుపు_RS* nodep) override { సందర్శించు_జరుపు(nodep); }
 
-    void visit(AstConst* nodep) override { checkNode(nodep); }
+    శూన్య సందర్శించు(AstConst* nodep) override { check_కణుపు(nodep); }
     // Operators
-    void visit(AstNodeTermop* nodep) override { checkNode(nodep); }
-    void visit(AstNodeUniop* nodep) override {
+    శూన్య సందర్శించు(Ast_కణుపు_Termop* nodep) override { check_కణుపు(nodep); }
+    శూన్య సందర్శించు(Ast_కణుపు_Uniop* nodep) override {
         iterateChildren(nodep);
-        checkNode(nodep);
+        check_కణుపు(nodep);
     }
-    void visit(AstNodeBiop* nodep) override {
+    శూన్య సందర్శించు(Ast_కణుపు_Biop* nodep) override {
         iterateChildren(nodep);
-        checkNode(nodep);
+        check_కణుపు(nodep);
     }
-    void visit(AstRand* nodep) override {
+    శూన్య సందర్శించు(AstRand* nodep) override {
         iterateChildren(nodep);
-        checkNode(nodep);
+        check_కణుపు(nodep);
     }
-    void visit(AstRandRNG* nodep) override {
+    శూన్య సందర్శించు(AstRandRNG* nodep) override {
         iterateChildren(nodep);
-        checkNode(nodep);
+        check_కణుపు(nodep);
     }
-    void visit(AstCExprUser* nodep) override {
+    శూన్య సందర్శించు(AstCExprUser* nodep) override {
         iterateChildren(nodep);
-        checkNode(nodep);
+        check_కణుపు(nodep);
     }
-    void visit(AstCMethodHard* nodep) override {
+    శూన్య సందర్శించు(AstCMethodHard* nodep) override {
         iterateChildren(nodep);
-        checkNode(nodep);
+        check_కణుపు(nodep);
     }
-    void visit(AstCvtArrayToPacked* nodep) override {
+    శూన్య సందర్శించు(Ast_Cvt_Array_గమ్యం_Packed* nodep) override {
         iterateChildren(nodep);
-        checkNode(nodep);
+        check_కణుపు(nodep);
     }
-    void visit(AstCvtPackedToArray* nodep) override {
+    శూన్య సందర్శించు(Ast_Cvt_Packed_గమ్యం_Array* nodep) override {
         iterateChildren(nodep);
-        checkNode(nodep);
-        if (!VN_IS(nodep->backp(), NodeAssign)) createTemp(nodep);
+        check_కణుపు(nodep);
+        ఒకవేళ (!VN_IS(nodep->backp(), కణుపు_కేటాయించు)) create_తాత్కాలిక(nodep);
     }
-    void visit(AstCvtUnpackToQueue* nodep) override {
+    శూన్య సందర్శించు(Ast_Cvt_Unpack_గమ్యం_వరుస* nodep) override {
         iterateChildren(nodep);
-        checkNode(nodep);
+        check_కణుపు(nodep);
     }
-    void visit(AstSel* nodep) override {
-        iterateAndNextNull(nodep->fromp());
+    శూన్య సందర్శించు(AstSel* nodep) override {
+        iterate_And_తదుపరి_Null(nodep->fromp());
         {  // Only the 'from' is part of the assignment LHS
-            VL_RESTORER(m_assignLhs);
-            m_assignLhs = false;
-            iterateAndNextNull(nodep->lsbp());
+            VL_RESTORER(m_కేటాయించు_Lhs);
+            m_కేటాయించు_Lhs = అబద్ధం;
+            iterate_And_తదుపరి_Null(nodep->lsbp());
             // AstSel::widthp() must remain a constant, so not iterating
         }
-        checkNode(nodep);
+        check_కణుపు(nodep);
     }
-    void visit(AstArraySel* nodep) override {
-        iterateAndNextNull(nodep->fromp());
+    శూన్య సందర్శించు(AstArraySel* nodep) override {
+        iterate_And_తదుపరి_Null(nodep->fromp());
         {  // Only the 'from' is part of the assignment LHS
-            VL_RESTORER(m_assignLhs);
-            m_assignLhs = false;
-            iterateAndNextNull(nodep->bitp());
+            VL_RESTORER(m_కేటాయించు_Lhs);
+            m_కేటాయించు_Lhs = అబద్ధం;
+            iterate_And_తదుపరి_Null(nodep->bitp());
         }
         // ArraySel are just pointer arithmetic and should never be replaced
     }
-    void visit(AstAssocSel* nodep) override {
-        iterateAndNextNull(nodep->fromp());
+    శూన్య సందర్శించు(AstAssocSel* nodep) override {
+        iterate_And_తదుపరి_Null(nodep->fromp());
         {  // Only the 'from' is part of the assignment LHS
-            VL_RESTORER(m_assignLhs);
-            m_assignLhs = false;
-            iterateAndNextNull(nodep->bitp());
+            VL_RESTORER(m_కేటాయించు_Lhs);
+            m_కేటాయించు_Lhs = అబద్ధం;
+            iterate_And_తదుపరి_Null(nodep->bitp());
         }
-        checkNode(nodep);
+        check_కణుపు(nodep);
     }
-    void visit(AstNodeCons* nodep) override {
+    శూన్య సందర్శించు(Ast_కణుపు_Cons* nodep) override {
         // Only lift whole values, as editing the parts of a constant would make it non-constant
-        if (!m_inCons && nodep->isConstantTree()) {
-            if (m_stmtp && useConstPool(nodep)) {
-                nodep->replaceWith(V3ConstPool::find(nodep));
-                VL_DO_DANGLING(pushDeletep(nodep), nodep);
-                ++m_extractedToConstPool;
+        ఒకవేళ (!m_లోపల_Cons && nodep->is_Constant_వృక్షం()) {
+            ఒకవేళ (m_stmtp && useConstPool(nodep)) {
+                nodep->replaceWith(V3ConstPool::కనుగొను(nodep));
+                VL_DO_DANGLING(నెట్టు_Deletep(nodep), nodep);
+                ++m_extracted_గమ్యం_Const_Pool;
             }
-            return;
+            తిరిగి;
         }
-        VL_RESTORER(m_inCons);
-        m_inCons = true;
+        VL_RESTORER(m_లోపల_Cons);
+        m_లోపల_Cons = నిజం;
         iterateChildren(nodep);
     }
     // Const associative array keys are emitted as initializers, so need no temporary
-    void visit(AstConsAssocItem* nodep) override {
-        if (!VN_IS(nodep->keyp(), Const)) iterate(nodep->keyp());
+    శూన్య సందర్శించు(Ast_Cons_Assoc_అంశం* nodep) override {
+        ఒకవేళ (!VN_IS(nodep->keyp(), Const)) iterate(nodep->keyp());
         iterate(nodep->valuep());
     }
-    void visit(AstMatchMasked* nodep) override {
+    శూన్య సందర్శించు(Ast_సరిపోలిక_Masked* nodep) override {
         iterateChildren(nodep);
-        if (!nodep->user1SetOnce()) {
+        ఒకవేళ (!nodep->user1_సమితి_Once()) {
             // Don't want this replicated by V3Expand
-            AstVar* const varp = createTemp(nodep);
-            varp->noSubst(true);  // Do not re-inline in V3Subst
+            AstVar* స్థిరరాశి varp = create_తాత్కాలిక(nodep);
+            varp->noSubst(నిజం);  // Do not re-inline in V3Subst
         }
     }
-    void visit(AstCond* nodep) override {
+    శూన్య సందర్శించు(AstCond* nodep) override {
         // Convert AstCond to AstIf in order to avoid evaluating
         // sub-expressions in both branches unconditionally.
-        if (needsTemp(nodep)) {
+        ఒకవేళ (needs_తాత్కాలిక(nodep)) {
             // Check if LHS variable could be used directly
-            AstVarRef* const lRefp = isRhsOfAssignToVar(nodep);
+            AstVarRef* స్థిరరాశి lRefp = is_Rhs_యొక్క_కేటాయించు_గమ్యం_Var(nodep);
             // If not, create a new temporary variable
             AstVar* varp = lRefp ? lRefp->varp() : newTmpFor(nodep);
             // Can't substitute across basic blocks
-            varp->noSubst(true);
+            varp->noSubst(నిజం);
 
-            FileLine* const flp = nodep->fileline();
+            File_పంక్తి* స్థిరరాశి flp = nodep->fileline();
             // Create 'then' assignment
-            AstVarRef* const thenRefp = new AstVarRef{flp, varp, VAccess::WRITE};
-            if (lRefp) thenRefp->selfPointer(lRefp->selfPointer());
-            AstNodeExpr* const thenExprp = nodep->thenp()->unlinkFrBack();
-            AstAssign* const thenAsspp = new AstAssign{flp, thenRefp, thenExprp};
+            AstVarRef* స్థిరరాశి thenRefp = కొత్త AstVarRef{flp, varp, VAccess::WRITE};
+            ఒకవేళ (lRefp) thenRefp->self_సూచిక(lRefp->self_సూచిక());
+            Ast_కణుపు_సమాసం* స్థిరరాశి thenExprp = nodep->thenp()->unlink_Fr_వెనుక();
+            Ast_కేటాయించు* స్థిరరాశి thenAsspp = కొత్త Ast_కేటాయించు{flp, thenRefp, thenExprp};
             // Create 'else' assignment
-            AstVarRef* const elseRefp = new AstVarRef{flp, varp, VAccess::WRITE};
-            if (lRefp) elseRefp->selfPointer(lRefp->selfPointer());
-            AstNodeExpr* const elseExprp = nodep->elsep()->unlinkFrBack();
-            AstAssign* const elseAsspp = new AstAssign{flp, elseRefp, elseExprp};
+            AstVarRef* స్థిరరాశి elseRefp = కొత్త AstVarRef{flp, varp, VAccess::WRITE};
+            ఒకవేళ (lRefp) elseRefp->self_సూచిక(lRefp->self_సూచిక());
+            Ast_కణుపు_సమాసం* స్థిరరాశి elseExprp = nodep->elsep()->unlink_Fr_వెనుక();
+            Ast_కేటాయించు* స్థిరరాశి elseAsspp = కొత్త Ast_కేటాయించు{flp, elseRefp, elseExprp};
             // Creae 'if' and insert it before the statement
-            AstNodeExpr* const condp = nodep->condp()->unlinkFrBack();
-            AstIf* const ifp = new AstIf{flp, condp, thenAsspp, elseAsspp};
-            m_stmtp->addHereThisAsNext(ifp);
+            Ast_కణుపు_సమాసం* స్థిరరాశి condp = nodep->condp()->unlink_Fr_వెనుక();
+            AstIf* స్థిరరాశి ifp = కొత్త AstIf{flp, condp, thenAsspp, elseAsspp};
+            m_stmtp->కూడు_ఇక్కడ_This_As_తదుపరి(ifp);
             // Replace the AstCond with the result variable
-            nodep->replaceWith(new AstVarRef{flp, varp, VAccess::READ});
-            VL_DO_DANGLING(pushDeletep(nodep), nodep);
+            nodep->replaceWith(కొత్త AstVarRef{flp, varp, VAccess::READ});
+            VL_DO_DANGLING(నెట్టు_Deletep(nodep), nodep);
             // Splitting to multiple statements can change purity
-            VIsCached::clearCacheTree();
+            VIsCached::clear_Cache_వృక్షం();
             // Iterate the resulting assignments
             iterate(ifp);
-            return;
+            తిరిగి;
         }
         iterateChildren(nodep);
     }
-    void visit(AstSFormatF* nodep) override {
+    శూన్య సందర్శించు(AstSFormatF* nodep) override {
         iterateChildren(nodep);
         // Any strings sent to a display must be var of string data type,
         // to avoid passing a pointer to a temporary.
-        AstNodeExpr* exprsp = nodep->exprsp();
-        if (nodep->exprFormat()) {
-            exprsp = VN_AS(exprsp->nextp(), NodeExpr);
-            for (AstNode* argp = exprsp; argp; argp = argp->nextp()) {
-                const AstSFormatArg* const fargp = VN_CAST(argp, SFormatArg);
-                if (fargp && fargp->formatAttr().isEnum()) {
+        Ast_కణుపు_సమాసం* exprsp = nodep->exprsp();
+        ఒకవేళ (nodep->సమాసం_Format_2()) {
+            exprsp = VN_AS(exprsp->nextp(), కణుపు_సమాసం);
+            కొరకు (Ast_కణుపు* argp = exprsp; argp; argp = argp->nextp()) {
+                స్థిరరాశి AstSFormatArg* స్థిరరాశి fargp = VN_CAST(argp, SFormatArg);
+                ఒకవేళ (fargp && fargp->formatAttr().isEnum()) {
                     // Evaluate the format before materializing enum arguments.
-                    AstVar* const varp = createTemp(nodep->exprsp());
-                    varp->noSubst(true);
-                    break;
+                    AstVar* స్థిరరాశి varp = create_తాత్కాలిక(nodep->exprsp());
+                    varp->noSubst(నిజం);
+                    ఆపు;
                 }
             }
         }
-        for (AstNodeExpr *argp = exprsp, *nextp; argp; argp = nextp) {
-            nextp = VN_AS(argp->nextp(), NodeExpr);
+        కొరకు (Ast_కణుపు_సమాసం *argp = exprsp, *nextp; argp; argp = nextp) {
+            nextp = VN_AS(argp->nextp(), కణుపు_సమాసం);
 
-            AstSFormatArg* const fargp = VN_CAST(argp, SFormatArg);
-            AstNodeExpr* const subargp = fargp ? fargp->exprp() : argp;
-            if (fargp && fargp->formatAttr().isEnum()) {
+            AstSFormatArg* స్థిరరాశి fargp = VN_CAST(argp, SFormatArg);
+            Ast_కణుపు_సమాసం* స్థిరరాశి subargp = fargp ? fargp->exprp() : argp;
+            ఒకవేళ (fargp && fargp->formatAttr().isEnum()) {
                 // The name lookup must see the same value as the numeric argument.
-                AstVar* const valueVarp = createTemp(subargp);
-                valueVarp->noSubst(true);
-                if (!VN_IS(fargp->namep(), VarRef)) {
-                    AstVar* const nameVarp = createTemp(fargp->namep());
-                    nameVarp->noSubst(true);
+                AstVar* స్థిరరాశి విలువ_Varp = create_తాత్కాలిక(subargp);
+                విలువ_Varp->noSubst(నిజం);
+                ఒకవేళ (!VN_IS(fargp->namep(), VarRef)) {
+                    AstVar* స్థిరరాశి nameVarp = create_తాత్కాలిక(fargp->namep());
+                    nameVarp->noSubst(నిజం);
                 }
-                continue;
+                కొనసాగు;
             }
             // Must avoid taking address of rvalue, so even Const needs a temp
-            if (subargp->isString() && !VN_IS(subargp, VarRef)) {
-                AstVar* const varp = createTemp(subargp);
+            ఒకవేళ (subargp->isString() && !VN_IS(subargp, VarRef)) {
+                AstVar* స్థిరరాశి varp = create_తాత్కాలిక(subargp);
                 // Do not remove VarRefs to this in V3Const
-                varp->noSubst(true);
+                varp->noSubst(నిజం);
             }
         }
     }
 
     //--------------------
     // Default: Just iterate
-    void visit(AstVar*) override {}  // Don't hit varrefs under vars
-    void visit(AstNode* nodep) override { iterateChildren(nodep); }
+    శూన్య సందర్శించు(AstVar*) override {}  // Don't hit varrefs under vars
+    శూన్య సందర్శించు(Ast_కణుపు* nodep) override { iterateChildren(nodep); }
 
-public:
+బహిరంగ:
     // CONSTRUCTORS
-    explicit PremitVisitor(AstNetlist* nodep) { iterate(nodep); }
+    స్పష్టమైన PremitVisitor(AstNetlist* nodep) { iterate(nodep); }
     ~PremitVisitor() override {
-        V3Stats::addStat("Optimizations, Prelim extracted value to ConstPool",
-                         m_extractedToConstPool);
-        V3Stats::addStat("Optimizations, Prelim temporary variables created",
+        V3Stats::కూడు_Stat("Optimizations, Prelim extracted value to ConstPool",
+                         m_extracted_గమ్యం_Const_Pool);
+        V3Stats::కూడు_Stat("Optimizations, Prelim temporary variables created",
                          m_temporaryVarsCreated);
     }
 };
@@ -536,8 +536,8 @@ public:
 //######################################################################
 // Premit class functions
 
-void V3Premit::premitAll(AstNetlist* nodep) {
+శూన్య V3Premit::premitAll(AstNetlist* nodep) {
     UINFO(2, __FUNCTION__ << ":");
     { PremitVisitor{nodep}; }  // Destruct before checking
-    V3Global::dumpCheckGlobalTree("premit", 0, dumpTreeEitherLevel() >= 3);
+    V3Global::dump_Check_Global_వృక్షం("premit", 0, dump_వృక్షం_Either_Level() >= 3);
 }

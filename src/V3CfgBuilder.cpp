@@ -18,51 +18,51 @@
 //
 //*************************************************************************
 
-#include "config_build.h"
-#include "verilatedos.h"
+#అన్తర్భావ "config_build.h"
+#అన్తర్భావ "verilatedos.h"
 
-#include "V3Ast.h"
-#include "V3Cfg.h"
-#include "V3EmitV.h"
+#అన్తర్భావ "V3Ast.h"
+#అన్తర్భావ "V3Cfg.h"
+#అన్తర్భావ "V3EmitV.h"
 
-#include <deque>
-#include <unordered_map>
-#include <unordered_set>
+#అన్తర్భావ <deque>
+#అన్తర్భావ <unordered_map>
+#అన్తర్భావ <unordered_set>
 
 VL_DEFINE_DEBUG_FUNCTIONS;
 
-class CfgBuilder final : public VNVisitorConst {
+తరగతి CfgBuilder final : బహిరంగ VNVisitorConst {
     // STATE
     // The graph being built, or nullptr if failed to build one
-    std::unique_ptr<CfgGraph> m_cfgp{new CfgGraph};
+    std::unique_ptr<Cfg_లేఖాచిత్రం> m_cfgp{కొత్త Cfg_లేఖాచిత్రం};
     // Current basic block to add statements to
-    CfgBlock* m_currBBp = nullptr;
+    Cfg_ఖండం* m_currBBp = శూన్యసూచిక;
     // Continuation block for given JumpBlock
-    std::unordered_map<AstJumpBlock*, CfgBlock*> m_jumpBlockContp;
+    std::unordered_map<Ast_Jump_ఖండం*, Cfg_ఖండం*> m_jump_ఖండం_Contp;
     // Continuation block for given Loop
-    std::unordered_map<AstLoop*, CfgBlock*> m_loopContp;
+    std::unordered_map<AstLoop*, Cfg_ఖండం*> m_loopContp;
 
     // METHODS
 
     // Add the given statement to the current CfgBlock
-    void addStmt(AstNodeStmt* nodep) { m_currBBp->m_stmtps.emplace_back(nodep); }
+    శూన్య కూడు_Stmt(Ast_కణుపు_Stmt* nodep) { m_currBBp->m_stmtps.emplace_వెనుక(nodep); }
 
     // Used to handle statements not representable in the CFG
-    void nonRepresentable(AstNodeStmt*) {
-        if (!m_cfgp) return;
+    శూన్య nonRepresentable(Ast_కణుపు_Stmt*) {
+        ఒకవేళ (!m_cfgp) తిరిగి;
         m_cfgp.reset();
     }
 
     // Used to handle simple (non-branching) statements in the CFG
-    void simpleStatement(AstNodeStmt* nodep, bool representable = true) {
-        if (!m_cfgp) return;
+    శూన్య simpleStatement(Ast_కణుపు_Stmt* nodep, తార్కిక representable = నిజం) {
+        ఒకవేళ (!m_cfgp) తిరిగి;
         // If non-representable, reset graph
-        if (!representable) {
+        ఒకవేళ (!representable) {
             m_cfgp.reset();
-            return;
+            తిరిగి;
         }
         // Just add to current block
-        addStmt(nodep);
+        కూడు_Stmt(nodep);
     }
 
     // VISITORS
@@ -72,176 +72,176 @@ class CfgBuilder final : public VNVisitorConst {
     // instance we will only handle select statemetns that cover the requied
     // use cases, and in the base case we conservatively assume the statement
     // is non-representable. More visits can be added case by case if needed.
-    void visit(AstNode* nodep) override {
-        if (!m_cfgp) return;
+    శూన్య సందర్శించు(Ast_కణుపు* nodep) override {
+        ఒకవేళ (!m_cfgp) తిరిగి;
         UINFO(9, "Unhandled AstNode type " << nodep->typeName());
         m_cfgp.reset();
     }
 
     // Non-representable statements
-    void visit(AstAssignDly* nodep) override { nonRepresentable(nodep); }
-    void visit(AstCase* nodep) override { nonRepresentable(nodep); }  // V3Case will eliminate
-    void visit(AstDelay* nodep) override { nonRepresentable(nodep); }
+    శూన్య సందర్శించు(Ast_కేటాయించు_Dly* nodep) override { nonRepresentable(nodep); }
+    శూన్య సందర్శించు(AstCase* nodep) override { nonRepresentable(nodep); }  // V3Case will eliminate
+    శూన్య సందర్శించు(AstDelay* nodep) override { nonRepresentable(nodep); }
 
     // Representable non control-flow statements
-    void visit(AstAssign* nodep) override { simpleStatement(nodep, !nodep->timingControlp()); }
-    void visit(AstAssignW* nodep) override { simpleStatement(nodep, !nodep->timingControlp()); }
-    void visit(AstComment*) override {}  // ignore entirely
-    void visit(AstDisplay* nodep) override { simpleStatement(nodep); }
-    void visit(AstFinish* nodep) override { simpleStatement(nodep); }
-    void visit(AstFinishFork* nodep) override { simpleStatement(nodep); }
-    void visit(AstStmtExpr* nodep) override { simpleStatement(nodep); }
-    void visit(AstStop* nodep) override { simpleStatement(nodep); }
+    శూన్య సందర్శించు(Ast_కేటాయించు* nodep) override { simpleStatement(nodep, !nodep->timingControlp()); }
+    శూన్య సందర్శించు(Ast_కేటాయించు_W* nodep) override { simpleStatement(nodep, !nodep->timingControlp()); }
+    శూన్య సందర్శించు(AstComment*) override {}  // ignore entirely
+    శూన్య సందర్శించు(AstDisplay* nodep) override { simpleStatement(nodep); }
+    శూన్య సందర్శించు(Ast_ముగింపు* nodep) override { simpleStatement(nodep); }
+    శూన్య సందర్శించు(Ast_ముగింపు_Fork* nodep) override { simpleStatement(nodep); }
+    శూన్య సందర్శించు(Ast_Stmt_సమాసం* nodep) override { simpleStatement(nodep); }
+    శూన్య సందర్శించు(AstStop* nodep) override { simpleStatement(nodep); }
 
     // Representable control flow statements
-    void visit(AstIf* nodep) override {
-        if (!m_cfgp) return;
+    శూన్య సందర్శించు(AstIf* nodep) override {
+        ఒకవేళ (!m_cfgp) తిరిగి;
 
         // Add terminator statement to current block - semantically the condition check only ...
-        addStmt(nodep);
+        కూడు_Stmt(nodep);
 
         // Create then/else/continuation blocks
-        CfgBlock* const thenBBp = m_cfgp->addBlock();
-        CfgBlock* const elseBBp = m_cfgp->addBlock();
-        CfgBlock* const contBBp = m_cfgp->addBlock();
-        m_cfgp->addTakenEdge(m_currBBp, thenBBp);
-        m_cfgp->addUntknEdge(m_currBBp, elseBBp);
+        Cfg_ఖండం* స్థిరరాశి thenBBp = m_cfgp->కూడు_ఖండం();
+        Cfg_ఖండం* స్థిరరాశి elseBBp = m_cfgp->కూడు_ఖండం();
+        Cfg_ఖండం* స్థిరరాశి contBBp = m_cfgp->కూడు_ఖండం();
+        m_cfgp->కూడు_తీసుకున్న_అంచు(m_currBBp, thenBBp);
+        m_cfgp->కూడు_Untkn_అంచు(m_currBBp, elseBBp);
 
         // Build then branch
         m_currBBp = thenBBp;
-        iterateAndNextConstNull(nodep->thensp());
-        if (!m_cfgp) return;
-        if (m_currBBp) m_cfgp->addTakenEdge(m_currBBp, contBBp);
+        iterate_And_తదుపరి_Const_Null(nodep->thensp());
+        ఒకవేళ (!m_cfgp) తిరిగి;
+        ఒకవేళ (m_currBBp) m_cfgp->కూడు_తీసుకున్న_అంచు(m_currBBp, contBBp);
 
         // Build else branch
         m_currBBp = elseBBp;
-        iterateAndNextConstNull(nodep->elsesp());
-        if (!m_cfgp) return;
-        if (m_currBBp) m_cfgp->addTakenEdge(m_currBBp, contBBp);
+        iterate_And_తదుపరి_Const_Null(nodep->elsesp());
+        ఒకవేళ (!m_cfgp) తిరిగి;
+        ఒకవేళ (m_currBBp) m_cfgp->కూడు_తీసుకున్న_అంచు(m_currBBp, contBBp);
 
         // Set continuation
         m_currBBp = contBBp;
     }
-    void visit(AstLoop* nodep) override {
+    శూన్య సందర్శించు(AstLoop* nodep) override {
         UASSERT_OBJ(!nodep->contsp(), nodep, "'contsp' only used before LinkJump");
-        if (!m_cfgp) return;
+        ఒకవేళ (!m_cfgp) తిరిగి;
 
         // Don't acutally need to add this 'nodep' to any block
 
         // Create continuation block
-        CfgBlock* const contBBp = m_cfgp->addBlock();
-        const bool newEntry = m_loopContp.emplace(nodep, contBBp).second;
-        UASSERT_OBJ(newEntry, nodep, "AstLoop visited twice");
+        Cfg_ఖండం* స్థిరరాశి contBBp = m_cfgp->కూడు_ఖండం();
+        స్థిరరాశి తార్కిక new_నమోదు = m_loopContp.emplace(nodep, contBBp).రెండవ;
+        UASSERT_OBJ(new_నమోదు, nodep, "AstLoop visited twice");
 
         // Create the body block
-        CfgBlock* const bodyBBp = m_cfgp->addBlock();
-        m_cfgp->addTakenEdge(m_currBBp, bodyBBp);
+        Cfg_ఖండం* స్థిరరాశి bodyBBp = m_cfgp->కూడు_ఖండం();
+        m_cfgp->కూడు_తీసుకున్న_అంచు(m_currBBp, bodyBBp);
 
         // Build the body
         m_currBBp = bodyBBp;
-        iterateAndNextConstNull(nodep->stmtsp());
-        if (!m_cfgp) return;
-        if (m_currBBp) m_cfgp->addTakenEdge(m_currBBp, bodyBBp);
+        iterate_And_తదుపరి_Const_Null(nodep->stmtsp());
+        ఒకవేళ (!m_cfgp) తిరిగి;
+        ఒకవేళ (m_currBBp) m_cfgp->కూడు_తీసుకున్న_అంచు(m_currBBp, bodyBBp);
 
         // Set continuation
         m_currBBp = contBBp;
     }
-    void visit(AstLoopTest* nodep) override {
-        if (!m_cfgp) return;
+    శూన్య సందర్శించు(AstLoopTest* nodep) override {
+        ఒకవేళ (!m_cfgp) తిరిగి;
 
         // Add terminator statement to current block - semantically the condition check only ...
-        addStmt(nodep);
+        కూడు_Stmt(nodep);
 
         // Create continuation blocks
-        CfgBlock* const contBBp = m_cfgp->addBlock();
-        m_cfgp->addTakenEdge(m_currBBp, contBBp);
-        m_cfgp->addUntknEdge(m_currBBp, m_loopContp.at(nodep->loopp()));
+        Cfg_ఖండం* స్థిరరాశి contBBp = m_cfgp->కూడు_ఖండం();
+        m_cfgp->కూడు_తీసుకున్న_అంచు(m_currBBp, contBBp);
+        m_cfgp->కూడు_Untkn_అంచు(m_currBBp, m_loopContp.at(nodep->loopp()));
 
         // Set continuation
         m_currBBp = contBBp;
     }
-    void visit(AstJumpBlock* nodep) override {
-        if (!m_cfgp) return;
+    శూన్య సందర్శించు(Ast_Jump_ఖండం* nodep) override {
+        ఒకవేళ (!m_cfgp) తిరిగి;
 
         // Don't acutally need to add this 'nodep' to any block
 
         // Create continuation block
-        CfgBlock* const contBBp = m_cfgp->addBlock();
-        const bool newEntry = m_jumpBlockContp.emplace(nodep, contBBp).second;
-        UASSERT_OBJ(newEntry, nodep, "AstJumpBlock visited twice");
+        Cfg_ఖండం* స్థిరరాశి contBBp = m_cfgp->కూడు_ఖండం();
+        స్థిరరాశి తార్కిక new_నమోదు = m_jump_ఖండం_Contp.emplace(nodep, contBBp).రెండవ;
+        UASSERT_OBJ(new_నమోదు, nodep, "AstJumpBlock visited twice");
 
         // Build the body
-        iterateAndNextConstNull(nodep->stmtsp());
-        if (!m_cfgp) return;
-        if (m_currBBp) m_cfgp->addTakenEdge(m_currBBp, contBBp);
+        iterate_And_తదుపరి_Const_Null(nodep->stmtsp());
+        ఒకవేళ (!m_cfgp) తిరిగి;
+        ఒకవేళ (m_currBBp) m_cfgp->కూడు_తీసుకున్న_అంచు(m_currBBp, contBBp);
 
         // Set continuation
         m_currBBp = contBBp;
     }
-    void visit(AstJumpGo* nodep) override {
-        if (!m_cfgp) return;
+    శూన్య సందర్శించు(AstJumpGo* nodep) override {
+        ఒకవేళ (!m_cfgp) తిరిగి;
 
         // Non-representable if not last in statement list (V3Const will fix this later)
-        if (nodep->nextp()) {
+        ఒకవేళ (nodep->nextp()) {
             m_cfgp.reset();
-            return;
+            తిరిగి;
         }
 
         // Don't acutally need to add this 'nodep' to any block
 
         // Make current block go to the continuation of the JumpBlock
-        m_cfgp->addTakenEdge(m_currBBp, m_jumpBlockContp.at(nodep->blockp()));
+        m_cfgp->కూడు_తీసుకున్న_అంచు(m_currBBp, m_jump_ఖండం_Contp.at(nodep->blockp()));
 
         // There should be no statements after a JumpGo!
-        m_currBBp = nullptr;
+        m_currBBp = శూన్యసూచిక;
     }
 
     // CONSTRUCTOR
-    explicit CfgBuilder(AstNode* stmtsp) {
+    స్పష్టమైన CfgBuilder(Ast_కణుపు* stmtsp) {
         // Build the graph, starting from the entry block
-        m_currBBp = m_cfgp->addBlock();
+        m_currBBp = m_cfgp->కూడు_ఖండం();
         m_cfgp->m_enterp = m_currBBp;
         // Visit each statement to build the control flow graph
-        iterateAndNextConstNull(stmtsp);
+        iterate_And_తదుపరి_Const_Null(stmtsp);
         // If failed, stop now
-        if (!m_cfgp) return;
+        ఒకవేళ (!m_cfgp) తిరిగి;
         // The final block is the exit block
         m_cfgp->m_exitp = m_currBBp;
         // Some blocks might not have predecessors if they are unreachable, remove them
         {
-            std::vector<V3GraphVertex*> unreachableps;
-            for (V3GraphVertex* const vtxp : m_cfgp->vertices().unlinkable()) {
-                if (vtxp == m_cfgp->m_enterp) continue;
-                if (vtxp == m_cfgp->m_exitp) continue;
-                UASSERT_OBJ(!vtxp->outEmpty(), vtxp, "Block with no successor other than exit");
-                if (vtxp->inEmpty()) unreachableps.emplace_back(vtxp);
+            std::సదిశ<V3_లేఖాచిత్రం_శీర్షం*> unreachableps;
+            కొరకు (V3_లేఖాచిత్రం_శీర్షం* స్థిరరాశి vtxp : m_cfgp->vertices().unlinkable()) {
+                ఒకవేళ (vtxp == m_cfgp->m_enterp) కొనసాగు;
+                ఒకవేళ (vtxp == m_cfgp->m_exitp) కొనసాగు;
+                UASSERT_OBJ(!vtxp->బహిర్గతం_ఖాళీలు(), vtxp, "Block with no successor other than exit");
+                ఒకవేళ (vtxp->లోపల_ఖాళీలు()) unreachableps.emplace_వెనుక(vtxp);
             }
-            while (!unreachableps.empty()) {
-                V3GraphVertex* const vtxp = unreachableps.back();
-                unreachableps.pop_back();
-                for (const V3GraphEdge& edge : vtxp->outEdges()) {
-                    --m_cfgp->m_nEdges;
-                    if (edge.top()->inSize1()) unreachableps.emplace_back(edge.top());
+            అయితే (!unreachableps.ఖాళీలు()) {
+                V3_లేఖాచిత్రం_శీర్షం* స్థిరరాశి vtxp = unreachableps.వెనుక();
+                unreachableps.తీయి_వెనుక();
+                కొరకు (స్థిరరాశి V3_లేఖాచిత్రం_అంచు& అంచు : vtxp->బహిర్గతం_అంచులు()) {
+                    --m_cfgp->m_n_అంచులు;
+                    ఒకవేళ (అంచు.శిఖరం()->లోపల_Size1()) unreachableps.emplace_వెనుక(అంచు.శిఖరం());
                 }
-                --m_cfgp->m_nBlocks;
+                --m_cfgp->m_n_ఖండాలు;
                 VL_DO_DANGLING(vtxp->unlinkDelete(m_cfgp.get()), vtxp);
             }
         }
         // Dump the initial graph
-        if (dumpGraphLevel() >= 9) {
-            m_cfgp->rpoBlocks();
+        ఒకవేళ (dump_లేఖాచిత్రం_Level() >= 9) {
+            m_cfgp->rpo_ఖండాలు();
             m_cfgp->dumpDotFilePrefixed("cfg-builder-initial");
         }
         // Minimize it
         m_cfgp->minimize();
         // Dump the final graph
-        if (dumpGraphLevel() >= 8) m_cfgp->dumpDotFilePrefixed("cfg-builder");
+        ఒకవేళ (dump_లేఖాచిత్రం_Level() >= 8) m_cfgp->dumpDotFilePrefixed("cfg-builder");
     }
 
-public:
-    static std::unique_ptr<CfgGraph> apply(AstNode* stmtsp) {
-        return std::move(CfgBuilder{stmtsp}.m_cfgp);
+బహిరంగ:
+    స్థిర std::unique_ptr<Cfg_లేఖాచిత్రం> apply(Ast_కణుపు* stmtsp) {
+        తిరిగి std::move(CfgBuilder{stmtsp}.m_cfgp);
     }
 };
 
-std::unique_ptr<CfgGraph> CfgGraph::build(AstNode* stmtsp) { return CfgBuilder::apply(stmtsp); }
+std::unique_ptr<Cfg_లేఖాచిత్రం> Cfg_లేఖాచిత్రం::build(Ast_కణుపు* stmtsp) { తిరిగి CfgBuilder::apply(stmtsp); }

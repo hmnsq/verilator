@@ -14,20 +14,20 @@
 //
 //*************************************************************************
 
-#ifndef VERILATOR_V3OPTION_PARSER_H_
-#define VERILATOR_V3OPTION_PARSER_H_
+#నిర్వచితం_కాకపోతే VERILATOR_V3OPTION_PARSER_H_
+#నిర్వచించు VERILATOR_V3OPTION_PARSER_H_
 
-#include "config_build.h"
-#include "verilatedos.h"
+#అన్తర్భావ "config_build.h"
+#అన్తర్భావ "verilatedos.h"
 
-#include <functional>
-#include <memory>
-#include <string>
+#అన్తర్భావ <functional>
+#అన్తర్భావ <memory>
+#అన్తర్భావ <string>
 
 // Not to include V3Option.h here so that VlcMain or other executables can use this file easily.
-#ifndef V3OPTION_PARSER_NO_VOPTION_BOOL
+#నిర్వచితం_కాకపోతే V3OPTION_PARSER_NO_VOPTION_BOOL
 class VOptionBool;
-#endif
+#అయితే_ముగింపు
 
 // Typical usage would look as below.
 // See also V3Options::parseOptsList() in V3Options.cpp for more detailed usage.
@@ -52,37 +52,37 @@ class VOptionBool;
 // V3 OptionParser
 
 class V3OptionParser final {
-public:
+బహిరంగ:
     // TYPES
     class ActionIfs;
     // Functor to register options to V3OptionParser
     class AppendHelper;
-    struct Impl;
+    నిర్మాణం Impl;
 
-private:
+అంతరంగ:
     // MEMBERS
-    const std::unique_ptr<Impl> m_pimpl;  // Implementation class
+    స్థిరరాశి std::unique_ptr<Impl> m_pimpl;  // Implementation class
 
     // METHODS
-    ActionIfs* find(const char* optp) VL_MT_DISABLED;
-    template <typename T_Act, typename T_Arg>
-    ActionIfs& add(const string& opt, T_Arg arg) VL_MT_DISABLED;
+    ActionIfs* కనుగొను(స్థిరరాశి అక్షరం* optp) VL_MT_DISABLED;
+    మూస <typename T_Act, typename T_Arg>
+    ActionIfs& కూడు(స్థిరరాశి string& opt, T_Arg arg) VL_MT_DISABLED;
     // Returns true if strp starts with "-fno"
-    static bool hasPrefixFNo(const char* strp) VL_MT_DISABLED;
+    స్థిర bool has_ఉపసర్గ_FNo(స్థిరరాశి అక్షరం* strp) VL_MT_DISABLED;
     // Returns true if strp starts with "-no"
-    static bool hasPrefixNo(const char* strp) VL_MT_DISABLED;
+    స్థిర bool has_ఉపసర్గ_No(స్థిరరాశి అక్షరం* strp) VL_MT_DISABLED;
 
-public:
+బహిరంగ:
     // METHODS
     // Returns how many args are consumed. 0 means not match.
     // Also bool, true iff option is needed for rerun with --dump-inputs
-    std::pair<int, bool> parse(int idx, int argc, char* argv[]) VL_MT_DISABLED;
+    std::pair<పూర్ణాంకం, bool> parse(పూర్ణాంకం idx, పూర్ణాంకం argc, అక్షరం* argv[]) VL_MT_DISABLED;
     // Find the most similar option
-    string getSuggestion(const char* str) const VL_MT_DISABLED;
-    void addSuggestionCandidate(const string& s) VL_MT_DISABLED;
+    string getSuggestion(స్థిరరాశి అక్షరం* str) స్థిరరాశి VL_MT_DISABLED;
+    శూన్య కూడు_Suggestion_Candidate(స్థిరరాశి string& s) VL_MT_DISABLED;
     // Call this function after all options are registered.
-    void finalize() VL_MT_DISABLED;
-    void dumpOptions() VL_MT_DISABLED;
+    శూన్య finalize() VL_MT_DISABLED;
+    శూన్య dumpOptions() VL_MT_DISABLED;
 
     // CONSTRUCTORS
     V3OptionParser() VL_MT_DISABLED;
@@ -90,89 +90,89 @@ public:
 };
 
 class V3OptionParser::ActionIfs VL_NOT_FINAL {
-public:
-    virtual ~ActionIfs() = default;
-    virtual bool isValueNeeded() const = 0;  // Need val of "-opt val"
-    virtual bool isFOnOffAllowed() const = 0;  // true if "-fno-opt" is allowed
-    virtual bool isNotForRerun() const = 0;  // Will not be dumped with --dump-inputs
-    virtual bool isOnOffAllowed() const = 0;  // true if "-no-opt" is allowed
-    virtual bool isPartialMatchAllowed() const = 0;  // true if "-Wno-" matches "-Wno-fatal"
-    virtual bool isUndocumented() const = 0;  // Will not be suggested in typo
+బహిరంగ:
+    మాయా ~ActionIfs() = అప్రమేయ;
+    మాయా bool is_విలువ_Needed() స్థిరరాశి = 0;  // Need val of "-opt val"
+    మాయా bool isFOnOffAllowed() స్థిరరాశి = 0;  // true if "-fno-opt" is allowed
+    మాయా bool isNotForRerun() స్థిరరాశి = 0;  // Will not be dumped with --dump-inputs
+    మాయా bool isOnOffAllowed() స్థిరరాశి = 0;  // true if "-no-opt" is allowed
+    మాయా bool is_Partial_సరిపోలిక_Allowed() స్థిరరాశి = 0;  // true if "-Wno-" matches "-Wno-fatal"
+    మాయా bool isUndocumented() స్థిరరాశి = 0;  // Will not be suggested in typo
     // Set a value or run callback
-    virtual void exec(const char* optp, const char* valp) = 0;
+    మాయా శూన్య exec(స్థిరరాశి అక్షరం* optp, స్థిరరాశి అక్షరం* valp) = 0;
     // Mark this option undocumented. (Exclude this option from suggestion list).
-    virtual ActionIfs& undocumented() = 0;
+    మాయా ActionIfs& undocumented() = 0;
     // Mark this as not needed for rerunning with preprocessed sources
-    virtual ActionIfs& notForRerun() = 0;
+    మాయా ActionIfs& notForRerun() = 0;
 };
 
 // A helper class to register options
 class V3OptionParser::AppendHelper final {
-public:
+బహిరంగ:
     // TYPES
     // Tag to specify which operator() to call
-    struct FOnOff {};  // For ActionFOnOff
-    struct OnOff {};  // For ActionOnOff
-    struct Set {};  // For ActionSet
+    నిర్మాణం FOnOff {};  // For ActionFOnOff
+    నిర్మాణం OnOff {};  // For ActionOnOff
+    నిర్మాణం సమితి_2 {};  // For ActionSet
 
-    struct CbCall {};  // For ActionCbCall
-    struct CbFOnOff {};  // For ActionCbFOnOff
-    struct CbOnOff {};  // For ActionCbOnOff
-    struct CbPartialMatch {};  // For ActionCbPartialMatch
-    struct CbPartialMatchVal {};  // For ActionCbPartialMatchVal
-    struct CbVal {};  // For ActionCbVal
+    నిర్మాణం CbCall {};  // For ActionCbCall
+    నిర్మాణం CbFOnOff {};  // For ActionCbFOnOff
+    నిర్మాణం CbOnOff {};  // For ActionCbOnOff
+    నిర్మాణం Cb_Partial_సరిపోలిక {};  // For ActionCbPartialMatch
+    నిర్మాణం Cb_Partial_సరిపోలిక_Val {};  // For ActionCbPartialMatchVal
+    నిర్మాణం CbVal {};  // For ActionCbVal
 
-private:
+అంతరంగ:
     // MEMBERS
     V3OptionParser& m_parser;  // The actual option registry
 
-public:
+బహిరంగ:
     // METHODS
-    ActionIfs& operator()(const char* optp, Set, bool*) const VL_MT_DISABLED;
-#ifndef V3OPTION_PARSER_NO_VOPTION_BOOL
-    ActionIfs& operator()(const char* optp, Set, VOptionBool*) const VL_MT_DISABLED;
-#endif
-    ActionIfs& operator()(const char* optp, Set, int*) const VL_MT_DISABLED;
-    ActionIfs& operator()(const char* optp, Set, string*) const VL_MT_DISABLED;
+    ActionIfs& క్రియాకారకం()(స్థిరరాశి అక్షరం* optp, సమితి_2, bool*) స్థిరరాశి VL_MT_DISABLED;
+#నిర్వచితం_కాకపోతే V3OPTION_PARSER_NO_VOPTION_BOOL
+    ActionIfs& క్రియాకారకం()(స్థిరరాశి అక్షరం* optp, సమితి_2, VOptionBool*) స్థిరరాశి VL_MT_DISABLED;
+#అయితే_ముగింపు
+    ActionIfs& క్రియాకారకం()(స్థిరరాశి అక్షరం* optp, సమితి_2, పూర్ణాంకం*) స్థిరరాశి VL_MT_DISABLED;
+    ActionIfs& క్రియాకారకం()(స్థిరరాశి అక్షరం* optp, సమితి_2, string*) స్థిరరాశి VL_MT_DISABLED;
 
-    ActionIfs& operator()(const char* optp, FOnOff, bool*) const VL_MT_DISABLED;
-    ActionIfs& operator()(const char* optp, OnOff, bool*) const VL_MT_DISABLED;
-#ifndef V3OPTION_PARSER_NO_VOPTION_BOOL
-    ActionIfs& operator()(const char* optp, OnOff, VOptionBool*) const VL_MT_DISABLED;
-#endif
+    ActionIfs& క్రియాకారకం()(స్థిరరాశి అక్షరం* optp, FOnOff, bool*) స్థిరరాశి VL_MT_DISABLED;
+    ActionIfs& క్రియాకారకం()(స్థిరరాశి అక్షరం* optp, OnOff, bool*) స్థిరరాశి VL_MT_DISABLED;
+#నిర్వచితం_కాకపోతే V3OPTION_PARSER_NO_VOPTION_BOOL
+    ActionIfs& క్రియాకారకం()(స్థిరరాశి అక్షరం* optp, OnOff, VOptionBool*) స్థిరరాశి VL_MT_DISABLED;
+#అయితే_ముగింపు
 
-    ActionIfs& operator()(const char* optp, CbCall,
-                          std::function<void(void)>) const VL_MT_DISABLED;
-    ActionIfs& operator()(const char* optp, CbFOnOff,
-                          std::function<void(bool)>) const VL_MT_DISABLED;
-    ActionIfs& operator()(const char* optp, CbOnOff,
-                          std::function<void(bool)>) const VL_MT_DISABLED;
-    ActionIfs& operator()(const char* optp, CbVal, std::function<void(int)>) const VL_MT_DISABLED;
-    ActionIfs& operator()(const char* optp, CbVal,
-                          std::function<void(const char*)>) const VL_MT_DISABLED;
+    ActionIfs& క్రియాకారకం()(స్థిరరాశి అక్షరం* optp, CbCall,
+                          std::function<శూన్య(శూన్య)>) స్థిరరాశి VL_MT_DISABLED;
+    ActionIfs& క్రియాకారకం()(స్థిరరాశి అక్షరం* optp, CbFOnOff,
+                          std::function<శూన్య(bool)>) స్థిరరాశి VL_MT_DISABLED;
+    ActionIfs& క్రియాకారకం()(స్థిరరాశి అక్షరం* optp, CbOnOff,
+                          std::function<శూన్య(bool)>) స్థిరరాశి VL_MT_DISABLED;
+    ActionIfs& క్రియాకారకం()(స్థిరరాశి అక్షరం* optp, CbVal, std::function<శూన్య(పూర్ణాంకం)>) స్థిరరాశి VL_MT_DISABLED;
+    ActionIfs& క్రియాకారకం()(స్థిరరాశి అక్షరం* optp, CbVal,
+                          std::function<శూన్య(స్థిరరాశి అక్షరం*)>) స్థిరరాశి VL_MT_DISABLED;
 
-    ActionIfs& operator()(const char* optp, CbPartialMatch,
-                          std::function<void(const char*)>) const VL_MT_DISABLED;
-    ActionIfs& operator()(const char* optp, CbPartialMatchVal,
-                          std::function<void(const char*, const char*)>) const VL_MT_DISABLED;
+    ActionIfs& క్రియాకారకం()(స్థిరరాశి అక్షరం* optp, Cb_Partial_సరిపోలిక,
+                          std::function<శూన్య(స్థిరరాశి అక్షరం*)>) స్థిరరాశి VL_MT_DISABLED;
+    ActionIfs& క్రియాకారకం()(స్థిరరాశి అక్షరం* optp, Cb_Partial_సరిపోలిక_Val,
+                          std::function<శూన్య(స్థిరరాశి అక్షరం*, స్థిరరాశి అక్షరం*)>) స్థిరరాశి VL_MT_DISABLED;
 
     // CONSTRUCTORS
     explicit AppendHelper(V3OptionParser& parser)
         : m_parser{parser} {}
 };
 
-#define V3OPTION_PARSER_DECL_TAGS \
-    const auto Set VL_ATTR_UNUSED = V3OptionParser::AppendHelper::Set{}; \
-    const auto FOnOff VL_ATTR_UNUSED = V3OptionParser::AppendHelper::FOnOff{}; \
-    const auto OnOff VL_ATTR_UNUSED = V3OptionParser::AppendHelper::OnOff{}; \
-    const auto CbCall VL_ATTR_UNUSED = V3OptionParser::AppendHelper::CbCall{}; \
-    const auto CbFOnOff VL_ATTR_UNUSED = V3OptionParser::AppendHelper::CbFOnOff{}; \
-    const auto CbOnOff VL_ATTR_UNUSED = V3OptionParser::AppendHelper::CbOnOff{}; \
-    const auto CbPartialMatch VL_ATTR_UNUSED = V3OptionParser::AppendHelper::CbPartialMatch{}; \
-    const auto CbPartialMatchVal VL_ATTR_UNUSED \
-        = V3OptionParser::AppendHelper::CbPartialMatchVal{}; \
-    const auto CbVal VL_ATTR_UNUSED = V3OptionParser::AppendHelper::CbVal{};
+#నిర్వచించు V3_OPTION_PARSER_DECL_ట్యాగులు \
+    స్థిరరాశి స్వయంచాలక సమితి_2 VL_ATTR_వాడని = V3OptionParser::AppendHelper::సమితి_2{}; \
+    స్థిరరాశి స్వయంచాలక FOnOff VL_ATTR_వాడని = V3OptionParser::AppendHelper::FOnOff{}; \
+    స్థిరరాశి స్వయంచాలక OnOff VL_ATTR_వాడని = V3OptionParser::AppendHelper::OnOff{}; \
+    స్థిరరాశి స్వయంచాలక CbCall VL_ATTR_వాడని = V3OptionParser::AppendHelper::CbCall{}; \
+    స్థిరరాశి స్వయంచాలక CbFOnOff VL_ATTR_వాడని = V3OptionParser::AppendHelper::CbFOnOff{}; \
+    స్థిరరాశి స్వయంచాలక CbOnOff VL_ATTR_వాడని = V3OptionParser::AppendHelper::CbOnOff{}; \
+    స్థిరరాశి స్వయంచాలక Cb_Partial_సరిపోలిక VL_ATTR_వాడని = V3OptionParser::AppendHelper::Cb_Partial_సరిపోలిక{}; \
+    స్థిరరాశి స్వయంచాలక Cb_Partial_సరిపోలిక_Val VL_ATTR_వాడని \
+        = V3OptionParser::AppendHelper::Cb_Partial_సరిపోలిక_Val{}; \
+    స్థిరరాశి స్వయంచాలక CbVal VL_ATTR_వాడని = V3OptionParser::AppendHelper::CbVal{};
 
 //######################################################################
 
-#endif  // guard
+#అయితే_ముగింపు  // guard

@@ -29,188 +29,188 @@
 //
 //*************************************************************************
 
-#include "V3PchAstMT.h"
+#అన్తర్భావ "V3PchAstMT.h"
 
-#include "V3FuncOpt.h"
+#అన్తర్భావ "V3FuncOpt.h"
 
-#include "V3Global.h"
-#include "V3Stats.h"
+#అన్తర్భావ "V3Global.h"
+#అన్తర్భావ "V3Stats.h"
 
 VL_DEFINE_DEBUG_FUNCTIONS;
 
-class BalanceConcatTree final {
+తరగతి Balance_Concat_వృక్షం final {
     // STATELESS
 
     // We keep the expressions, together with their offsets within a concatenation tree
-    struct Term final {
-        AstNodeExpr* exprp = nullptr;
-        size_t offset = 0;
+    నిర్మాణం పదం_2 final {
+        Ast_కణుపు_సమాసం* exprp = శూన్యసూచిక;
+        కొలత_t స్థానభ్రంశం = 0;
 
-        Term() = default;
-        Term(AstNodeExpr* exprp, size_t offset)
+        పదం_2() = అప్రమేయ;
+        పదం_2(Ast_కణుపు_సమాసం* exprp, కొలత_t స్థానభ్రంశం)
             : exprp{exprp}
-            , offset{offset} {}
+            , స్థానభ్రంశం{స్థానభ్రంశం} {}
     };
 
     // Recursive implementation of 'gatherTerms' below.
-    static void gatherTermsRecursive(AstNodeExpr* exprp, std::vector<AstNodeExpr*>& terms) {
-        if (AstConcat* const catp = VN_CAST(exprp, Concat)) {
+    స్థిర శూన్య gatherTermsRecursive(Ast_కణుపు_సమాసం* exprp, std::సదిశ<Ast_కణుపు_సమాసం*>& terms) {
+        ఒకవేళ (AstConcat* స్థిరరాశి catp = VN_CAST(exprp, Concat)) {
             // Recursive case: gather sub terms, right to left
             gatherTermsRecursive(catp->rhsp(), terms);
             gatherTermsRecursive(catp->lhsp(), terms);
-            return;
+            తిరిగి;
         }
-        if (AstExtend* const extp = VN_CAST(exprp, Extend)) {
+        ఒకవేళ (AstExtend* స్థిరరాశి extp = VN_CAST(exprp, Extend)) {
             // Recursive case: gather sub terms, right to left
             gatherTermsRecursive(extp->lhsp(), terms);
-            terms.emplace_back(extp);
-            return;
+            terms.emplace_వెనుక(extp);
+            తిరిగి;
         }
 
         // Base case: different operation
-        terms.emplace_back(exprp);
+        terms.emplace_వెనుక(exprp);
     }
 
     // Gather terms in the tree rooted at the given node.
     // Results are right to left, that is, index 0 in the returned vector
     // is the rightmost term, index size()-1 is the leftmost term.
     // If a term is an AstExtend, it represents the extension part only.
-    static std::vector<AstNodeExpr*> gatherTerms(AstNodeExpr* rootp) {
-        std::vector<AstNodeExpr*> terms;
-        if (AstConcat* const catp = VN_CAST(rootp, Concat)) {
+    స్థిర std::సదిశ<Ast_కణుపు_సమాసం*> gatherTerms(Ast_కణుపు_సమాసం* rootp) {
+        std::సదిశ<Ast_కణుపు_సమాసం*> terms;
+        ఒకవేళ (AstConcat* స్థిరరాశి catp = VN_CAST(rootp, Concat)) {
             gatherTermsRecursive(catp->rhsp(), terms);
             gatherTermsRecursive(catp->lhsp(), terms);
-        } else if (AstExtend* const extp = VN_CAST(rootp, Extend)) {
+        } లేకపోతే ఒకవేళ (AstExtend* స్థిరరాశి extp = VN_CAST(rootp, Extend)) {
             gatherTermsRecursive(extp->lhsp(), terms);
-            terms.emplace_back(extp);
-        } else {
+            terms.emplace_వెనుక(extp);
+        } లేకపోతే {
             rootp->v3fatalSrc("Unexpected node type");
         }
-        return terms;
+        తిరిగి terms;
     }
 
     // Construct a balanced concatenation from the given terms,
     // between indices begin (inclusive), and end (exclusive).
     // Note term[end].offset must be valid. term[end].vtxp is
     // never referenced.
-    static AstNodeExpr* construct(const std::vector<Term>& terms, const size_t begin,
-                                  const size_t end) {
-        UASSERT(end < terms.size(), "Invalid end");
-        UASSERT(begin < end, "Invalid range");
+    స్థిర Ast_కణుపు_సమాసం* construct(స్థిరరాశి std::సదిశ<పదం_2>& terms, స్థిరరాశి కొలత_t begin,
+                                  స్థిరరాశి కొలత_t చివర) {
+        UASSERT(చివర < terms.కొలత(), "Invalid end");
+        UASSERT(begin < చివర, "Invalid range");
         // Base case: just return the term
-        if (end == begin + 1) return terms[begin].exprp;
+        ఒకవేళ (చివర == begin + 1) తిరిగి terms[begin].exprp;
 
         // Recursive case:
         // Compute the mid-point, trying to create roughly equal width intermediates
-        const size_t width = terms[end].offset - terms[begin].offset;
-        const size_t midOffset = width / 2 + terms[begin].offset;
-        const auto beginIt = terms.begin() + begin;
-        const auto endIt = terms.begin() + end;
-        const auto midIt = std::lower_bound(beginIt + 1, endIt - 1, midOffset,  //
-                                            [&](const Term& term, size_t value) {  //
-                                                return term.offset < value;
+        స్థిరరాశి కొలత_t వెడల్పు = terms[చివర].స్థానభ్రంశం - terms[begin].స్థానభ్రంశం;
+        స్థిరరాశి కొలత_t mid_స్థానభ్రంశం = వెడల్పు / 2 + terms[begin].స్థానభ్రంశం;
+        స్థిరరాశి స్వయంచాలక beginIt = terms.begin() + begin;
+        స్థిరరాశి స్వయంచాలక చివర_It = terms.begin() + చివర;
+        స్థిరరాశి స్వయంచాలక midIt = std::క్రింది_bound(beginIt + 1, చివర_It - 1, mid_స్థానభ్రంశం,  //
+                                            [&](స్థిరరాశి పదం_2& పదం, కొలత_t విలువ) {  //
+                                                తిరిగి పదం.స్థానభ్రంశం < విలువ;
                                             });
-        const size_t mid = begin + std::distance(beginIt, midIt);
-        UASSERT(begin < mid && mid < end, "Must make some progress");
+        స్థిరరాశి కొలత_t mid = begin + std::దూరం(beginIt, midIt);
+        UASSERT(begin < mid && mid < చివర, "Must make some progress");
         // Construct the subtrees
-        AstNodeExpr* const rhsp = construct(terms, begin, mid);
-        AstNodeExpr* const lhsp = construct(terms, mid, end);
+        Ast_కణుపు_సమాసం* స్థిరరాశి rhsp = construct(terms, begin, mid);
+        Ast_కణుపు_సమాసం* స్థిరరాశి lhsp = construct(terms, mid, చివర);
         // Construct new node
-        AstNodeExpr* newp = new AstConcat{lhsp->fileline(), lhsp, rhsp};
-        newp->user1(true);  // Must not attempt to balance again.
-        return newp;
+        Ast_కణుపు_సమాసం* newp = కొత్త AstConcat{lhsp->fileline(), lhsp, rhsp};
+        newp->user1(నిజం);  // Must not attempt to balance again.
+        తిరిగి newp;
     }
 
     // Returns replacement node, or nullptr if no change
-    static AstConcat* balance(AstNodeExpr* const rootp) {
+    స్థిర AstConcat* balance(Ast_కణుపు_సమాసం* స్థిరరాశి rootp) {
         UINFO(9, "balanceConcat " << rootp);
         // Gather all input vertices of the tree
-        const std::vector<AstNodeExpr*> exprps = gatherTerms(rootp);
+        స్థిరరాశి std::సదిశ<Ast_కణుపు_సమాసం*> exprps = gatherTerms(rootp);
         // Don't bother with trivial trees
-        if (exprps.size() <= 3) return nullptr;
+        ఒకవేళ (exprps.కొలత() <= 3) తిరిగి శూన్యసూచిక;
         // Don't do it if any of the terms are impure
-        for (AstNodeExpr* const exprp : exprps) {
-            if (!exprp->isPure()) return nullptr;
+        కొరకు (Ast_కణుపు_సమాసం* స్థిరరాశి exprp : exprps) {
+            ఒకవేళ (!exprp->is_శుద్ధ()) తిరిగి శూన్యసూచిక;
         }
 
         // Construct the terms Vector that we are going to do processing on
-        std::vector<Term> terms(exprps.size() + 1);
+        std::సదిశ<పదం_2> terms(exprps.కొలత() + 1);
         // These are redundant (constructor does the same), but here they are for clarity
-        terms[0].offset = 0;
-        terms[exprps.size()].exprp = nullptr;
-        for (size_t i = 0; i < exprps.size(); ++i) {
-            AstNodeExpr* const exprp = [&]() -> AstNodeExpr* {
-                if (AstExtend* const extp = VN_CAST(exprps[i], Extend)) {
-                    const int width = extp->width() - extp->lhsp()->width();
-                    return new AstConst{extp->fileline(), AstConst::WidthedValue{}, width, 0};
+        terms[0].స్థానభ్రంశం = 0;
+        terms[exprps.కొలత()].exprp = శూన్యసూచిక;
+        కొరకు (కొలత_t i = 0; i < exprps.కొలత(); ++i) {
+            Ast_కణుపు_సమాసం* స్థిరరాశి exprp = [&]() -> Ast_కణుపు_సమాసం* {
+                ఒకవేళ (AstExtend* స్థిరరాశి extp = VN_CAST(exprps[i], Extend)) {
+                    స్థిరరాశి పూర్ణాంకం వెడల్పు = extp->వెడల్పు() - extp->lhsp()->వెడల్పు();
+                    తిరిగి కొత్త AstConst{extp->fileline(), AstConst::Widthed_విలువ{}, వెడల్పు, 0};
                 }
-                return exprps[i]->cloneTreePure(false);
+                తిరిగి exprps[i]->clone_వృక్షం_శుద్ధ(అబద్ధం);
             }();
             terms[i].exprp = exprp;
-            terms[i + 1].offset = terms[i].offset + exprp->width();
+            terms[i + 1].స్థానభ్రంశం = terms[i].స్థానభ్రంశం + exprp->వెడల్పు();
         }
 
         // Round 1: try to create terms ending on VL_EDATASIZE boundaries.
         // This ensures we pack bits within a VL_EDATASIZE first is possible,
         // and then hopefully we can just assemble VL_EDATASIZE words afterward.
-        std::vector<Term> terms2;
+        std::సదిశ<పదం_2> terms2;
         {
-            terms2.reserve(terms.size());
+            terms2.reserve(terms.కొలత());
 
-            size_t begin = 0;  // Start of current range considered
-            size_t end = 0;  // End of current range considered
-            size_t offset = 0;  // Offset of current range considered
+            కొలత_t begin = 0;  // Start of current range considered
+            కొలత_t చివర = 0;  // End of current range considered
+            కొలత_t స్థానభ్రంశం = 0;  // Offset of current range considered
 
             // Create a term from the current range
-            const auto makeTerm = [&]() {
-                AstNodeExpr* const exprp = construct(terms, begin, end);
-                terms2.emplace_back(exprp, offset);
-                offset += exprp->width();
-                begin = end;
+            స్థిరరాశి స్వయంచాలక make_పదం = [&]() {
+                Ast_కణుపు_సమాసం* స్థిరరాశి exprp = construct(terms, begin, చివర);
+                terms2.emplace_వెనుక(exprp, స్థానభ్రంశం);
+                స్థానభ్రంశం += exprp->వెడల్పు();
+                begin = చివర;
             };
 
             // Create all terms ending on a boundary.
-            while (++end < terms.size() - 1) {
-                if (terms[end].offset % VL_EDATASIZE == 0) makeTerm();
+            అయితే (++చివర < terms.కొలత() - 1) {
+                ఒకవేళ (terms[చివర].స్థానభ్రంశం % VL_EDATASIZE == 0) make_పదం();
             }
             // Final term. Loop condition above ensures this always exists,
             // and might or might not be on a boundary.
-            makeTerm();
+            make_పదం();
             // Sentinel term
-            terms2.emplace_back(nullptr, offset);
+            terms2.emplace_వెనుక(శూన్యసూచిక, స్థానభ్రంశం);
             // should have ended up with the same number of bits at least...
-            UASSERT(terms2.back().offset == terms.back().offset, "Inconsistent terms");
+            UASSERT(terms2.వెనుక().స్థానభ్రంశం == terms.వెనుక().స్థానభ్రంశం, "Inconsistent terms");
         }
 
         // Round 2: Combine the partial terms
-        return VN_AS(construct(terms2, 0, terms2.size() - 1), Concat);
+        తిరిగి VN_AS(construct(terms2, 0, terms2.కొలత() - 1), Concat);
     }
 
-public:
-    static AstNodeExpr* apply(AstNodeExpr* nodep) {
-        if (!v3Global.opt.fFuncBalanceCat()) return nullptr;
-        if (nodep->user1()) return nullptr;  // Created by us, don't try to balance again
-        if (VN_IS(nodep->backp(), Concat)) return nullptr;  // Not root of tree
-        if (VN_IS(nodep->backp(), Extend)) return nullptr;  // Not root of tree
-        AstNodeExpr* const exprp = balance(nodep);
-        if (exprp) exprp->user1(true);  // Must not attempt again.
-        return exprp;
+బహిరంగ:
+    స్థిర Ast_కణుపు_సమాసం* apply(Ast_కణుపు_సమాసం* nodep) {
+        ఒకవేళ (!v3Global.opt.fFuncBalanceCat()) తిరిగి శూన్యసూచిక;
+        ఒకవేళ (nodep->user1()) తిరిగి శూన్యసూచిక;  // Created by us, don't try to balance again
+        ఒకవేళ (VN_IS(nodep->backp(), Concat)) తిరిగి శూన్యసూచిక;  // Not root of tree
+        ఒకవేళ (VN_IS(nodep->backp(), Extend)) తిరిగి శూన్యసూచిక;  // Not root of tree
+        Ast_కణుపు_సమాసం* స్థిరరాశి exprp = balance(nodep);
+        ఒకవేళ (exprp) exprp->user1(నిజం);  // Must not attempt again.
+        తిరిగి exprp;
     }
 };
 
-struct FuncOptStats final {
+నిర్మాణం FuncOptStats final {
     // STATE - Statistic tracking
-    VDouble0 m_balancedConcats;  // Number of concatenations balanced
+    VDouble0 m_సమతుల్య_Concats;  // Number of concatenations balanced
     VDouble0 m_concatSplits;  // Number of splits in assignments with Concat on RHS
 
-    FuncOptStats() = default;
+    FuncOptStats() = అప్రమేయ;
     ~FuncOptStats() {
-        V3Stats::addStat("Optimizations, FuncOpt concat trees balanced", m_balancedConcats);
-        V3Stats::addStat("Optimizations, FuncOpt concat splits", m_concatSplits);
+        V3Stats::కూడు_Stat("Optimizations, FuncOpt concat trees balanced", m_సమతుల్య_Concats);
+        V3Stats::కూడు_Stat("Optimizations, FuncOpt concat splits", m_concatSplits);
     }
 };
 
-class FuncOptVisitor final : public VNVisitor {
+తరగతి FuncOptVisitor final : బహిరంగ VNVisitor {
     // NODE STATE
     //  AstNodeAssign::user()     -> bool.  Already checked, safe to split. Omit expensive check.
     //  AstConcat::user()         -> bool.  Already balanced.
@@ -219,179 +219,179 @@ class FuncOptVisitor final : public VNVisitor {
     FuncOptStats& m_stats;  // Statistics
 
     // True for e.g.: foo = foo >> 1; or foo[foo[0]] = ...;
-    static bool readsLhs(AstNodeAssign* nodep) {
+    స్థిర తార్కిక readsLhs(Ast_కణుపు_కేటాయించు* nodep) {
         // It is expected that the number of vars written on the LHS is very small (should be 1).
-        std::unordered_set<const AstVar*> lhsWrVarps;
-        std::unordered_set<const AstVar*> lhsRdVarps;
-        nodep->lhsp()->foreach([&](const AstVarRef* refp) {
-            if (refp->access().isWriteOrRW()) lhsWrVarps.emplace(refp->varp());
-            if (refp->access().isReadOrRW()) lhsRdVarps.emplace(refp->varp());
+        std::unordered_సమితి<స్థిరరాశి AstVar*> lhsWrVarps;
+        std::unordered_సమితి<స్థిరరాశి AstVar*> lhsRdVarps;
+        nodep->lhsp()->foreach([&](స్థిరరాశి AstVarRef* refp) {
+            ఒకవేళ (refp->access().isWriteOrRW()) lhsWrVarps.emplace(refp->varp());
+            ఒకవేళ (refp->access().isReadOrRW()) lhsRdVarps.emplace(refp->varp());
         });
 
         // Common case of 1 variable on the LHS - special handling for speed
-        if (lhsWrVarps.size() == 1) {
-            const AstVar* const lhsWrVarp = *lhsWrVarps.begin();
+        ఒకవేళ (lhsWrVarps.కొలత() == 1) {
+            స్థిరరాశి AstVar* స్థిరరాశి lhsWrVarp = *lhsWrVarps.begin();
             // Check Rhs doesn't read the written var
-            const bool rhsReadsWritten = nodep->rhsp()->exists([=](const AstVarRef* refp) {  //
-                return refp->varp() == lhsWrVarp;
+            స్థిరరాశి తార్కిక rhsReadsWritten = nodep->rhsp()->exists([=](స్థిరరాశి AstVarRef* refp) {  //
+                తిరిగి refp->varp() == lhsWrVarp;
             });
-            if (rhsReadsWritten) return true;
+            ఒకవేళ (rhsReadsWritten) తిరిగి నిజం;
             // Check Lhs doesn't read the written var
-            return lhsRdVarps.count(lhsWrVarp);
+            తిరిగి lhsRdVarps.లెక్క(lhsWrVarp);
         }
 
         // Generic case of multiple vars written on LHS
         // TODO: this might be impossible due to earlier transforms, not sure
         // Check Rhs doesn't read the written vars
-        const bool rhsReadsWritten = nodep->rhsp()->exists([&](const AstVarRef* refp) {  //
-            return lhsWrVarps.count(refp->varp());
+        స్థిరరాశి తార్కిక rhsReadsWritten = nodep->rhsp()->exists([&](స్థిరరాశి AstVarRef* refp) {  //
+            తిరిగి lhsWrVarps.లెక్క(refp->varp());
         });
-        if (rhsReadsWritten) return true;
+        ఒకవేళ (rhsReadsWritten) తిరిగి నిజం;
         // Check Lhs doesn't read the written vars
-        for (const AstVar* const lhsWrVarp : lhsWrVarps) {
-            if (lhsRdVarps.count(lhsWrVarp)) return true;
+        కొరకు (స్థిరరాశి AstVar* స్థిరరాశి lhsWrVarp : lhsWrVarps) {
+            ఒకవేళ (lhsRdVarps.లెక్క(lhsWrVarp)) తిరిగి నిజం;
         }
-        return false;
+        తిరిగి అబద్ధం;
     }
 
     // METHODS
     // Split wide assignments with a wide concatenation on the RHS.
     // Returns true if 'nodep' was deleted
-    bool splitConcat(AstNodeAssign* nodep) {
+    తార్కిక విభజించు_Concat(Ast_కణుపు_కేటాయించు* nodep) {
         UINFO(9, "splitConcat " << nodep);
-        AstNodeExpr* const rhsp = nodep->rhsp();
+        Ast_కణుపు_సమాసం* స్థిరరాశి rhsp = nodep->rhsp();
         // Only care about concatenations an zero extend on the RHS
-        if (!VN_IS(rhsp, Concat) && !VN_IS(rhsp, Extend)) return false;
+        ఒకవేళ (!VN_IS(rhsp, Concat) && !VN_IS(rhsp, Extend)) తిరిగి అబద్ధం;
         // Will need the LHS
-        AstNodeExpr* lhsp = nodep->lhsp();
-        if (!VN_IS(lhsp->dtypep()->skipRefp(), QueueDType))
-            UASSERT_OBJ(lhsp->width() == rhsp->width(), nodep, "Inconsistent assignment");
+        Ast_కణుపు_సమాసం* lhsp = nodep->lhsp();
+        ఒకవేళ (!VN_IS(lhsp->dtypep()->skipRefp(), వరుస_DType))
+            UASSERT_OBJ(lhsp->వెడల్పు() == rhsp->వెడల్పు(), nodep, "Inconsistent assignment");
         // Only consider pure assignments. Nodes inserted below are safe.
-        if (!nodep->user1() && (!lhsp->isPure() || !rhsp->isPure())) return false;
+        ఒకవేళ (!nodep->user1() && (!lhsp->is_శుద్ధ() || !rhsp->is_శుద్ధ())) తిరిగి అబద్ధం;
         // Do not split assignments to SC variables, they cannot be assigned in parts
-        if (lhsp->exists([](AstVarRef* refp) { return refp->varp()->isSc(); })) return false;
+        ఒకవేళ (lhsp->exists([](AstVarRef* refp) { తిరిగి refp->varp()->isSc(); })) తిరిగి అబద్ధం;
         // Check for a Sel on the LHS if present, and skip over it
         uint32_t lsb = 0;
-        if (AstSel* const selp = VN_CAST(lhsp, Sel)) {
-            if (AstConst* const lsbp = VN_CAST(selp->lsbp(), Const)) {
+        ఒకవేళ (AstSel* స్థిరరాశి selp = VN_CAST(lhsp, Sel)) {
+            ఒకవేళ (AstConst* స్థిరరాశి lsbp = VN_CAST(selp->lsbp(), Const)) {
                 lhsp = selp->fromp();
-                lsb = lsbp->toUInt();
-            } else {
+                lsb = lsbp->గమ్యం_UInt();
+            } లేకపోతే {
                 // Don't optimize if it's a variable select
-                return false;
+                తిరిగి అబద్ధం;
             }
         }
         // No need to split assignments targeting storage smaller than a machine register
-        if (lhsp->width() <= VL_QUADSIZE) return false;
+        ఒకవేళ (lhsp->వెడల్పు() <= VL_QUADSIZE) తిరిగి అబద్ధం;
 
         // If it's a concat straddling a word boundary, try to split it.
         // The next visit on the new nodes will split it recursively.
         // Otherwise, keep the original assignment.
-        const int lsbWord = lsb / VL_EDATASIZE;
-        const int msbWord = (lsb + rhsp->width() - 1) / VL_EDATASIZE;
-        if (lsbWord == msbWord) return false;
+        స్థిరరాశి పూర్ణాంకం lsb_మాట = lsb / VL_EDATASIZE;
+        స్థిరరాశి పూర్ణాంకం msb_మాట = (lsb + rhsp->వెడల్పు() - 1) / VL_EDATASIZE;
+        ఒకవేళ (lsb_మాట == msb_మాట) తిరిగి అబద్ధం;
 
         // If the RHS reads the LHS, we can't actually do this. Nodes inserted below are safe.
-        if (!nodep->user1() && readsLhs(nodep)) return false;
+        ఒకవేళ (!nodep->user1() && readsLhs(nodep)) తిరిగి అబద్ధం;
 
         // Ok, actually split it now
         UINFO(5, "splitConcat optimizing " << nodep);
         ++m_stats.m_concatSplits;
         // The 2 parts and their offsets
-        AstNodeExpr* const rrp = [rhsp]() -> AstNodeExpr* {
-            if (AstConcat* const catp = VN_CAST(rhsp, Concat)) {
-                return catp->rhsp()->unlinkFrBack();
+        Ast_కణుపు_సమాసం* స్థిరరాశి rrp = [rhsp]() -> Ast_కణుపు_సమాసం* {
+            ఒకవేళ (AstConcat* స్థిరరాశి catp = VN_CAST(rhsp, Concat)) {
+                తిరిగి catp->rhsp()->unlink_Fr_వెనుక();
             }
-            return VN_AS(rhsp, Extend)->lhsp()->unlinkFrBack();
+            తిరిగి VN_AS(rhsp, Extend)->lhsp()->unlink_Fr_వెనుక();
         }();
-        AstNodeExpr* const rlp = [rhsp, rrp]() -> AstNodeExpr* {
-            if (AstConcat* const catp = VN_CAST(rhsp, Concat)) {
-                return catp->lhsp()->unlinkFrBack();
+        Ast_కణుపు_సమాసం* స్థిరరాశి rlp = [rhsp, rrp]() -> Ast_కణుపు_సమాసం* {
+            ఒకవేళ (AstConcat* స్థిరరాశి catp = VN_CAST(rhsp, Concat)) {
+                తిరిగి catp->lhsp()->unlink_Fr_వెనుక();
             }
-            const int lWidth = rhsp->width() - rrp->width();
-            return new AstConst{rhsp->fileline(), AstConst::WidthedValue{}, lWidth, 0};
+            స్థిరరాశి పూర్ణాంకం l_వెడల్పు = rhsp->వెడల్పు() - rrp->వెడల్పు();
+            తిరిగి కొత్త AstConst{rhsp->fileline(), AstConst::Widthed_విలువ{}, l_వెడల్పు, 0};
         }();
-        const int rLsb = lsb;
-        const int lLsb = lsb + rrp->width();
+        స్థిరరాశి పూర్ణాంకం rLsb = lsb;
+        స్థిరరాశి పూర్ణాంకం lLsb = lsb + rrp->వెడల్పు();
         // Insert the 2 assignment right after the original. They will be visited next.
-        AstAssign* const arp = new AstAssign{
+        Ast_కేటాయించు* స్థిరరాశి arp = కొత్త Ast_కేటాయించు{
             nodep->fileline(),
-            new AstSel{lhsp->fileline(), lhsp->cloneTreePure(false), rLsb, rrp->width()}, rrp};
-        AstAssign* const alp = new AstAssign{
+            కొత్త AstSel{lhsp->fileline(), lhsp->clone_వృక్షం_శుద్ధ(అబద్ధం), rLsb, rrp->వెడల్పు()}, rrp};
+        Ast_కేటాయించు* స్థిరరాశి alp = కొత్త Ast_కేటాయించు{
             nodep->fileline(),
-            new AstSel{lhsp->fileline(), lhsp->unlinkFrBack(), lLsb, rlp->width()}, rlp};
-        nodep->addNextHere(arp);
-        arp->addNextHere(alp);
+            కొత్త AstSel{lhsp->fileline(), lhsp->unlink_Fr_వెనుక(), lLsb, rlp->వెడల్పు()}, rlp};
+        nodep->కూడు_తదుపరి_ఇక్కడ(arp);
+        arp->కూడు_తదుపరి_ఇక్కడ(alp);
         // Safe to split these.
-        arp->user1(true);
-        alp->user1(true);
+        arp->user1(నిజం);
+        alp->user1(నిజం);
         // Nuke what is left
-        VL_DO_DANGLING(pushDeletep(nodep->unlinkFrBack()), nodep);
-        return true;
+        VL_DO_DANGLING(నెట్టు_Deletep(nodep->unlink_Fr_వెనుక()), nodep);
+        తిరిగి నిజం;
     }
 
-    // VISIT
-    void visit(AstNodeAssign* nodep) override {
+    //సందర్శించు
+    శూన్య సందర్శించు(Ast_కణుపు_కేటాయించు* nodep) override {
         // TODO: Only thing remaining inside functions should be AstAssign (that is, an actual
         //       assignment statement), but we stil use AstAssignW, AstAssignDly, and all, fix.
         iterateChildren(nodep);
 
-        if (v3Global.opt.fFuncSplitCat()) {
-            if (splitConcat(nodep)) return;  // Must return here, in case more code is added below
+        ఒకవేళ (v3Global.opt.f_Func_విభజించు_Cat()) {
+            ఒకవేళ (విభజించు_Concat(nodep)) తిరిగి;  // Must return here, in case more code is added below
         }
     }
 
-    void visit(AstConcat* nodep) override {
-        if (AstNodeExpr* const newp = BalanceConcatTree::apply(nodep)) {
+    శూన్య సందర్శించు(AstConcat* nodep) override {
+        ఒకవేళ (Ast_కణుపు_సమాసం* స్థిరరాశి newp = Balance_Concat_వృక్షం::apply(nodep)) {
             UINFO(5, "balanceConcat optimizing " << nodep);
-            ++m_stats.m_balancedConcats;
+            ++m_stats.m_సమతుల్య_Concats;
             nodep->replaceWith(newp);
-            VL_DO_DANGLING(pushDeletep(nodep), nodep);
-            return;  // The new node will be iterated next
+            VL_DO_DANGLING(నెట్టు_Deletep(nodep), nodep);
+            తిరిగి;  // The new node will be iterated next
         }
         iterateChildren(nodep);
     }
 
-    void visit(AstExtend* nodep) override {
-        if (AstNodeExpr* const newp = BalanceConcatTree::apply(nodep)) {
+    శూన్య సందర్శించు(AstExtend* nodep) override {
+        ఒకవేళ (Ast_కణుపు_సమాసం* స్థిరరాశి newp = Balance_Concat_వృక్షం::apply(nodep)) {
             UINFO(5, "balanceConcat optimizing " << nodep);
-            ++m_stats.m_balancedConcats;
+            ++m_stats.m_సమతుల్య_Concats;
             nodep->replaceWith(newp);
-            VL_DO_DANGLING(pushDeletep(nodep), nodep);
-            return;  // The new node will be iterated next
+            VL_DO_DANGLING(నెట్టు_Deletep(nodep), nodep);
+            తిరిగి;  // The new node will be iterated next
         }
         iterateChildren(nodep);
     }
 
-    void visit(AstNode* nodep) override { iterateChildren(nodep); }
+    శూన్య సందర్శించు(Ast_కణుపు* nodep) override { iterateChildren(nodep); }
 
     // CONSTRUCTORS
-    explicit FuncOptVisitor(FuncOptStats& stats, AstCFunc* funcp)
+    స్పష్టమైన FuncOptVisitor(FuncOptStats& stats, AstCFunc* funcp)
         : m_stats{stats} {
         iterateChildren(funcp);
     }
 
-public:
-    static void apply(FuncOptStats& stats, AstCFunc* funcp) { FuncOptVisitor{stats, funcp}; }
+బహిరంగ:
+    స్థిర శూన్య apply(FuncOptStats& stats, AstCFunc* funcp) { FuncOptVisitor{stats, funcp}; }
 };
 
 //######################################################################
 
-void V3FuncOpt::funcOptAll(AstNetlist* nodep) {
+శూన్య V3FuncOpt::funcOptAll(AstNetlist* nodep) {
     UINFO(2, __FUNCTION__ << ":");
     {
         // NODE STATE
         //  AstNode::user1()     -> bool.  Processed
-        const VNUser1InUse user1InUse;
+        స్థిరరాశి VNUser1_లోపల_Use user1_లోపల_Use;
         FuncOptStats stats;
-        for (AstNodeModule* modp = nodep->modulesp(); modp;
-             modp = VN_AS(modp->nextp(), NodeModule)) {
-            for (AstNode* stmtp = modp->stmtsp(); stmtp; stmtp = stmtp->nextp()) {
-                if (AstCFunc* const cfuncp = VN_CAST(stmtp, CFunc)) {
+        కొరకు (Ast_కణుపు_Module* modp = nodep->modulesp(); modp;
+             modp = VN_AS(modp->nextp(), కణుపు_Module)) {
+            కొరకు (Ast_కణుపు* stmtp = modp->stmtsp(); stmtp; stmtp = stmtp->nextp()) {
+                ఒకవేళ (AstCFunc* స్థిరరాశి cfuncp = VN_CAST(stmtp, CFunc)) {
                     FuncOptVisitor::apply(stats, cfuncp);
                 }
             }
         }
     }
-    V3Global::dumpCheckGlobalTree("funcopt", 0, dumpTreeEitherLevel() >= 3);
+    V3Global::dump_Check_Global_వృక్షం("funcopt", 0, dump_వృక్షం_Either_Level() >= 3);
 }

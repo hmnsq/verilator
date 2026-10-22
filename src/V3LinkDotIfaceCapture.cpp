@@ -36,30 +36,30 @@
 //      from its owner module and retargets it by name, then clears all tags.
 //
 
-#include "V3LinkDotIfaceCapture.h"
+#అన్తర్భావ "V3LinkDotIfaceCapture.h"
 
-#include "V3Error.h"
-#include "V3Global.h"
-#include "V3Stats.h"
-#include "V3SymTable.h"
+#అన్తర్భావ "V3Error.h"
+#అన్తర్భావ "V3Global.h"
+#అన్తర్భావ "V3Stats.h"
+#అన్తర్భావ "V3SymTable.h"
 
-#include <unordered_map>
-#include <unordered_set>
+#అన్తర్భావ <unordered_map>
+#అన్తర్భావ <unordered_set>
 
 VL_DEFINE_DEBUG_FUNCTIONS;
 
-std::deque<VIfaceCaptureTag> V3LinkDotIfaceCapture::s_tags{};
-bool V3LinkDotIfaceCapture::s_enabled = true;
+std::deque<VIface_Capture_ట్యాగ్> V3LinkDotIfaceCapture::s_ట్యాగులు{};
+తార్కిక V3LinkDotIfaceCapture::s_enabled = నిజం;
 
 // LCOV_EXCL_START
-void V3LinkDotIfaceCapture::enable(bool flag) {
+శూన్య V3LinkDotIfaceCapture::enable(తార్కిక flag) {
     s_enabled = flag;
-    if (!flag) clearModuleCache();
+    ఒకవేళ (!flag) clearModuleCache();
 }
 // LCOV_EXCL_STOP
 
-void V3LinkDotIfaceCapture::reset() {
-    s_tags.clear();
+శూన్య V3LinkDotIfaceCapture::reset() {
+    s_ట్యాగులు.clear();
     clearModuleCache();
 }
 
@@ -67,209 +67,209 @@ void V3LinkDotIfaceCapture::reset() {
 // Lazily built on first access for a given module; cleared at phase boundaries.
 // Uses vectors per name to handle rare cases where different node types share a name
 // (e.g. a Typedef and a ParamTypeDType both named 'sc_tag_status_t').
-namespace {
-struct StmtNameMap final {
-    std::unordered_map<string, std::vector<AstNode*>> m_byName;
+నామాకాశ {
+నిర్మాణం StmtNameMap final {
+    std::unordered_map<string, std::సదిశ<Ast_కణుపు*>> m_byName;
 };
-std::unordered_map<AstNodeModule*, StmtNameMap> s_moduleCache;
+std::unordered_map<Ast_కణుపు_Module*, StmtNameMap> s_moduleCache;
 
-const StmtNameMap& getOrBuild(AstNodeModule* modp) {
-    auto it = s_moduleCache.find(modp);
-    if (it != s_moduleCache.end()) return it->second;
+స్థిరరాశి StmtNameMap& getOrBuild(Ast_కణుపు_Module* modp) {
+    స్వయంచాలక it = s_moduleCache.కనుగొను(modp);
+    ఒకవేళ (it != s_moduleCache.చివర()) తిరిగి it->రెండవ;
     StmtNameMap& cache = s_moduleCache[modp];
-    for (AstNode* stmtp = modp->stmtsp(); stmtp; stmtp = stmtp->nextp()) {
-        const string& nm = stmtp->name();
-        if (!nm.empty()) cache.m_byName[nm].push_back(stmtp);
+    కొరకు (Ast_కణుపు* stmtp = modp->stmtsp(); stmtp; stmtp = stmtp->nextp()) {
+        స్థిరరాశి string& nm = stmtp->name();
+        ఒకవేళ (!nm.ఖాళీలు()) cache.m_byName[nm].నెట్టు_వెనుక(stmtp);
     }
-    return cache;
+    తిరిగి cache;
 }
 }  // namespace
 
-void V3LinkDotIfaceCapture::clearModuleCache() { s_moduleCache.clear(); }
+శూన్య V3LinkDotIfaceCapture::clearModuleCache() { s_moduleCache.clear(); }
 
-AstIfaceRefDType* V3LinkDotIfaceCapture::ifaceRefFromVarDType(AstNodeDType* dtypep) {
-    AstIfaceRefDType* resultp = nullptr;
-    for (AstNodeDType* curp = dtypep; curp;) {
-        if (AstIfaceRefDType* const irefp = VN_CAST(curp, IfaceRefDType)) {
+AstIfaceRefDType* V3LinkDotIfaceCapture::ifaceRefFromVarDType(Ast_కణుపు_DType* dtypep) {
+    AstIfaceRefDType* resultp = శూన్యసూచిక;
+    కొరకు (Ast_కణుపు_DType* curp = dtypep; curp;) {
+        ఒకవేళ (AstIfaceRefDType* స్థిరరాశి irefp = VN_CAST(curp, IfaceRefDType)) {
             resultp = irefp;
-            break;
-        } else if (AstBracketArrayDType* const bracketp = VN_CAST(curp, BracketArrayDType)) {
+            ఆపు;
+        } లేకపోతే ఒకవేళ (AstBracketArrayDType* స్థిరరాశి bracketp = VN_CAST(curp, BracketArrayDType)) {
             curp = bracketp->subDTypep();
-        } else if (AstUnpackArrayDType* const unpackp = VN_CAST(curp, UnpackArrayDType)) {
+        } లేకపోతే ఒకవేళ (AstUnpackArrayDType* స్థిరరాశి unpackp = VN_CAST(curp, UnpackArrayDType)) {
             curp = unpackp->subDTypep();
-        } else {
+        } లేకపోతే {
             v3fatalSrc("ifaceRefFromVarDType: unexpected dtype " << curp->prettyTypeName()
                                                                  << " in chain");
         }
     }
-    return resultp;
+    తిరిగి resultp;
 }
 
-namespace {
+నామాకాశ {
 // Resolve the owner module name for a typedef/paramType node.
 // Returns hint if non-empty, otherwise walks backp() to find the owner module name.
-string resolveOwnerName(const string& hint, AstNode* nodep) {
-    if (!hint.empty()) return hint;
-    if (!nodep) return "";
-    AstNodeModule* const ownerp = V3LinkDotIfaceCapture::findOwnerModule(nodep);
-    return ownerp ? ownerp->name() : string{};
+string resolveOwnerName(స్థిరరాశి string& hint, Ast_కణుపు* nodep) {
+    ఒకవేళ (!hint.ఖాళీలు()) తిరిగి hint;
+    ఒకవేళ (!nodep) తిరిగి "";
+    Ast_కణుపు_Module* స్థిరరాశి ownerp = V3LinkDotIfaceCapture::కనుగొను_Owner_Module(nodep);
+    తిరిగి ownerp ? ownerp->name() : string{};
 }
 }  // namespace
 
-AstTypedef* V3LinkDotIfaceCapture::findTypedefInModule(AstNodeModule* modp, const string& name) {
-    AstTypedef* resultp = nullptr;
-    const StmtNameMap& cache = getOrBuild(modp);
-    const auto it = cache.m_byName.find(name);
-    if (!(it == cache.m_byName.end())) {
-        for (AstNode* nodep : it->second) {
-            if (AstTypedef* const tdp = VN_CAST(nodep, Typedef)) {
+AstTypedef* V3LinkDotIfaceCapture::కనుగొను_Typedef_లోపల_Module(Ast_కణుపు_Module* modp, స్థిరరాశి string& name) {
+    AstTypedef* resultp = శూన్యసూచిక;
+    స్థిరరాశి StmtNameMap& cache = getOrBuild(modp);
+    స్థిరరాశి స్వయంచాలక it = cache.m_byName.కనుగొను(name);
+    ఒకవేళ (!(it == cache.m_byName.చివర())) {
+        కొరకు (Ast_కణుపు* nodep : it->రెండవ) {
+            ఒకవేళ (AstTypedef* స్థిరరాశి tdp = VN_CAST(nodep, Typedef)) {
                 resultp = tdp;
-                break;
+                ఆపు;
             }
         }
     }
-    return resultp;
+    తిరిగి resultp;
 }
-AstNodeDType* V3LinkDotIfaceCapture::findDTypeInModule(AstNodeModule* modp, const string& name,
+Ast_కణుపు_DType* V3LinkDotIfaceCapture::కనుగొను_DType_లోపల_Module(Ast_కణుపు_Module* modp, స్థిరరాశి string& name,
                                                        VNType type) {
 
-    AstNodeDType* resultp = nullptr;
-    const StmtNameMap& cache = getOrBuild(modp);
-    const auto it = cache.m_byName.find(name);
-    if (!(it == cache.m_byName.end())) {
-        for (AstNode* nodep : it->second) {
-            if (AstNodeDType* const dtp = VN_CAST(nodep, NodeDType)) {
-                if (dtp->type() == type) {
+    Ast_కణుపు_DType* resultp = శూన్యసూచిక;
+    స్థిరరాశి StmtNameMap& cache = getOrBuild(modp);
+    స్థిరరాశి స్వయంచాలక it = cache.m_byName.కనుగొను(name);
+    ఒకవేళ (!(it == cache.m_byName.చివర())) {
+        కొరకు (Ast_కణుపు* nodep : it->రెండవ) {
+            ఒకవేళ (Ast_కణుపు_DType* స్థిరరాశి dtp = VN_CAST(nodep, కణుపు_DType)) {
+                ఒకవేళ (dtp->type() == type) {
                     resultp = dtp;
-                    break;
+                    ఆపు;
                 }
             }
         }
     }
-    return resultp;
+    తిరిగి resultp;
 }
-AstParamTypeDType* V3LinkDotIfaceCapture::findParamTypeInModule(AstNodeModule* modp,
-                                                                const string& name) {
+AstParamTypeDType* V3LinkDotIfaceCapture::కనుగొను_Param_Type_లోపల_Module(Ast_కణుపు_Module* modp,
+                                                                స్థిరరాశి string& name) {
 
-    AstParamTypeDType* resultp = nullptr;
-    const StmtNameMap& cache = getOrBuild(modp);
-    const auto it = cache.m_byName.find(name);
-    if (!(it == cache.m_byName.end())) {
-        for (AstNode* nodep : it->second) {
-            if (AstParamTypeDType* const ptdp = VN_CAST(nodep, ParamTypeDType)) {
+    AstParamTypeDType* resultp = శూన్యసూచిక;
+    స్థిరరాశి StmtNameMap& cache = getOrBuild(modp);
+    స్థిరరాశి స్వయంచాలక it = cache.m_byName.కనుగొను(name);
+    ఒకవేళ (!(it == cache.m_byName.చివర())) {
+        కొరకు (Ast_కణుపు* nodep : it->రెండవ) {
+            ఒకవేళ (AstParamTypeDType* స్థిరరాశి ptdp = VN_CAST(nodep, ParamTypeDType)) {
                 resultp = ptdp;
-                break;
+                ఆపు;
             }
         }
     }
-    return resultp;
+    తిరిగి resultp;
 }
 
-bool V3LinkDotIfaceCapture::retargetRefToModule(AstRefDType* refp, AstNodeModule* targetModp) {
-    const VIfaceCaptureTag* const tagp = refp->captureTagp();
+తార్కిక V3LinkDotIfaceCapture::retarget_Ref_గమ్యం_Module(AstRefDType* refp, Ast_కణుపు_Module* లక్ష్యం_Modp) {
+    స్థిరరాశి VIface_Capture_ట్యాగ్* స్థిరరాశి tagp = refp->captureTagp();
     UASSERT_OBJ(tagp, refp, "Retarget of a reference that was not captured");
-    UASSERT_OBJ(targetModp, refp, "Retarget to a null module");
+    UASSERT_OBJ(లక్ష్యం_Modp, refp, "Retarget to a null module");
 
-    if (tagp->m_kind == VIfaceCaptureTag::Kind::PARAM_TYPE) {
-        AstParamTypeDType* const paramTypep = findParamTypeInModule(targetModp, refp->name());
-        if (!paramTypep) return false;
-        retargetRefToParamType(refp, paramTypep);
-        return true;
+    ఒకవేళ (tagp->m_రకం == VIface_Capture_ట్యాగ్::రకం_2::PARAM_TYPE) {
+        AstParamTypeDType* స్థిరరాశి paramTypep = కనుగొను_Param_Type_లోపల_Module(లక్ష్యం_Modp, refp->name());
+        ఒకవేళ (!paramTypep) తిరిగి అబద్ధం;
+        retarget_Ref_గమ్యం_Param_Type(refp, paramTypep);
+        తిరిగి నిజం;
     }
 
-    AstTypedef* const typedefp = findTypedefInModule(targetModp, refp->name());
-    if (!typedefp) return false;
-    retargetRefToTypedef(refp, typedefp);
-    return true;
+    AstTypedef* స్థిరరాశి typedefp = కనుగొను_Typedef_లోపల_Module(లక్ష్యం_Modp, refp->name());
+    ఒకవేళ (!typedefp) తిరిగి అబద్ధం;
+    retarget_Ref_గమ్యం_Typedef(refp, typedefp);
+    తిరిగి నిజం;
 }
 
-void V3LinkDotIfaceCapture::retargetRefToParamType(AstRefDType* refp,
+శూన్య V3LinkDotIfaceCapture::retarget_Ref_గమ్యం_Param_Type(AstRefDType* refp,
                                                    AstParamTypeDType* paramTypep) {
     UASSERT_OBJ(paramTypep, refp, "Retarget to a null parameter type");
     refp->refDTypep(paramTypep);
     refp->dtypep(paramTypep);
 }
 
-void V3LinkDotIfaceCapture::retargetRefToTypedef(AstRefDType* refp, AstTypedef* typedefp) {
+శూన్య V3LinkDotIfaceCapture::retarget_Ref_గమ్యం_Typedef(AstRefDType* refp, AstTypedef* typedefp) {
     UASSERT_OBJ(typedefp, refp, "Retarget to a null typedef");
     refp->typedefp(typedefp);
     // An incomplete typedef is still a successful name resolution, but
     // must not erase type links that a later width pass can complete.
-    if (AstNodeDType* const dtypep = typedefp->subDTypep()) {
+    ఒకవేళ (Ast_కణుపు_DType* స్థిరరాశి dtypep = typedefp->subDTypep()) {
         refp->refDTypep(dtypep);
         refp->dtypep(dtypep);
     }
 }
 
-namespace {
-using LiveNodes = std::unordered_set<const AstNode*>;
+నామాకాశ {
+ఉపయోగించి సజీవ_Nodes = std::unordered_సమితి<స్థిరరాశి Ast_కణుపు*>;
 
 // A scoped snapshot of every node currently in the tree.  V3Broken::isLinkable()
 // cannot serve this role: its table is populated only while V3Broken::brokenAll()
 // runs and is cleared before it returns.
-LiveNodes collectLiveNodes() {
-    LiveNodes liveNodes;
-    v3Global.rootp()->foreach([&](AstNode* nodep) { liveNodes.insert(nodep); });
-    return liveNodes;
+సజీవ_Nodes collect_సజీవ_Nodes() {
+    సజీవ_Nodes సజీవ_Nodes_2;
+    v3Global.rootp()->foreach([&](Ast_కణుపు* nodep) { సజీవ_Nodes_2.చొప్పించు(nodep); });
+    తిరిగి సజీవ_Nodes_2;
 }
 
 // Find the module that owns this node; a snapshot, if given, stops the walk at a stale link.
-AstNodeModule* findOwnerModuleImpl(AstNode* nodep, const LiveNodes* liveNodesp) {
-    for (AstNode* curp = nodep; curp; curp = curp->backp()) {
-        if (liveNodesp && !liveNodesp->count(curp)) return nullptr;
-        if (AstNodeModule* const modp = VN_CAST(curp, NodeModule)) return modp;
+Ast_కణుపు_Module* కనుగొను_Owner_Module_Impl(Ast_కణుపు* nodep, స్థిరరాశి సజీవ_Nodes* సజీవ_Nodesp) {
+    కొరకు (Ast_కణుపు* curp = nodep; curp; curp = curp->backp()) {
+        ఒకవేళ (సజీవ_Nodesp && !సజీవ_Nodesp->లెక్క(curp)) తిరిగి శూన్యసూచిక;
+        ఒకవేళ (Ast_కణుపు_Module* స్థిరరాశి modp = VN_CAST(curp, కణుపు_Module)) తిరిగి modp;
     }
-    return nullptr;
+    తిరిగి శూన్యసూచిక;
 }
 
-AstNodeModule* findOwnerModuleIfLive(AstNode* nodep, const LiveNodes& liveNodes) {
-    return findOwnerModuleImpl(nodep, &liveNodes);
+Ast_కణుపు_Module* కనుగొను_Owner_Module_If_సజీవ(Ast_కణుపు* nodep, స్థిరరాశి సజీవ_Nodes& సజీవ_Nodes_2) {
+    తిరిగి కనుగొను_Owner_Module_Impl(nodep, &సజీవ_Nodes_2);
 }
 
-bool moduleMatchesOwner(const AstNodeModule* modp, const string& ownerName) {
-    if (!modp || ownerName.empty()) return false;
-    return modp->name() == ownerName || modp->origName() == ownerName;
+తార్కిక moduleMatchesOwner(స్థిరరాశి Ast_కణుపు_Module* modp, స్థిరరాశి string& ownerName) {
+    ఒకవేళ (!modp || ownerName.ఖాళీలు()) తిరిగి అబద్ధం;
+    తిరిగి modp->name() == ownerName || modp->origName() == ownerName;
 }
 }  // namespace
 
-AstNodeModule* V3LinkDotIfaceCapture::findOwnerModule(AstNode* nodep) {
-    return findOwnerModuleImpl(nodep, nullptr);
+Ast_కణుపు_Module* V3LinkDotIfaceCapture::కనుగొను_Owner_Module(Ast_కణుపు* nodep) {
+    తిరిగి కనుగొను_Owner_Module_Impl(nodep, శూన్యసూచిక);
 }
 
-void V3LinkDotIfaceCapture::dumpEntries(const string& label) {
+శూన్య V3LinkDotIfaceCapture::dumpEntries(స్థిరరాశి string& label) {
     UINFO(9, "========== iface capture dumpEntries: " << label << " ==========");
-    int idx = 0;
+    పూర్ణాంకం idx = 0;
     v3Global.rootp()->foreach([&](AstRefDType* refp) {
-        const VIfaceCaptureTag* const tagp = captureTag(refp);
-        if (!tagp) return;
-        const AstNodeModule* const ownerModp = findOwnerModule(refp);
-        UINFO(9, "  [" << idx << "] ref=" << refp->name() << " refp=" << cvtToHex(refp)
+        స్థిరరాశి VIface_Capture_ట్యాగ్* స్థిరరాశి tagp = capture_ట్యాగ్(refp);
+        ఒకవేళ (!tagp) తిరిగి;
+        స్థిరరాశి Ast_కణుపు_Module* స్థిరరాశి ownerModp = కనుగొను_Owner_Module(refp);
+        UINFO(9, "  [" << idx << "] ref=" << refp->name() << " refp=" << cvt_గమ్యం_Hex(refp)
                        << " ownerMod=" << (ownerModp ? ownerModp->name() : "<null>")
-                       << " cellPath='" << tagp->m_cellPath << "' ownerModName='"
+                       << " cellPath='" << tagp->m_cell_మార్గం << "' ownerModName='"
                        << tagp->m_ownerModName << "' kind="
-                       << (tagp->m_kind == VIfaceCaptureTag::Kind::PARAM_TYPE ? "param type"
+                       << (tagp->m_రకం == VIface_Capture_ట్యాగ్::రకం_2::PARAM_TYPE ? "param type"
                                                                               : "typedef"));
         ++idx;
     });
     UINFO(9, "========== end iface capture dumpEntries (" << idx << " captured) ==========");
 }
 
-void V3LinkDotIfaceCapture::tag(AstRefDType* refp, const AstNodeModule* capturedInp,
-                                VIfaceCaptureTag::Kind kind, const string& cellPath,
-                                const string& ownerModName) {
+శూన్య V3LinkDotIfaceCapture::ట్యాగ్(AstRefDType* refp, స్థిరరాశి Ast_కణుపు_Module* capturedInp,
+                                VIface_Capture_ట్యాగ్::రకం_2 రకం, స్థిరరాశి string& cell_మార్గం,
+                                స్థిరరాశి string& ownerModName) {
     UASSERT_OBJ(!refp->captureTagp(), refp, "Reference captured twice");
     UASSERT_OBJ(capturedInp, refp, "Captured reference is not in a module");
-    UASSERT_OBJ(!cellPath.empty(), refp, "Captured reference has no cell path");
-    s_tags.emplace_back(VIfaceCaptureTag{kind, cellPath, ownerModName, capturedInp->origName()});
-    refp->captureTagp(&s_tags.back());
+    UASSERT_OBJ(!cell_మార్గం.ఖాళీలు(), refp, "Captured reference has no cell path");
+    s_ట్యాగులు.emplace_వెనుక(VIface_Capture_ట్యాగ్{రకం, cell_మార్గం, ownerModName, capturedInp->origName()});
+    refp->captureTagp(&s_ట్యాగులు.వెనుక());
 }
 
-const VIfaceCaptureTag* V3LinkDotIfaceCapture::captureTag(AstRefDType* refp) {
-    const VIfaceCaptureTag* const tagp = refp->captureTagp();
-    if (!tagp) return nullptr;
-    const AstNodeModule* const ownerp = findOwnerModule(refp);
-    if (!ownerp || ownerp->origName() != tagp->m_capturedInName) return nullptr;
-    return tagp;
+స్థిరరాశి VIface_Capture_ట్యాగ్* V3LinkDotIfaceCapture::capture_ట్యాగ్(AstRefDType* refp) {
+    స్థిరరాశి VIface_Capture_ట్యాగ్* స్థిరరాశి tagp = refp->captureTagp();
+    ఒకవేళ (!tagp) తిరిగి శూన్యసూచిక;
+    స్థిరరాశి Ast_కణుపు_Module* స్థిరరాశి ownerp = కనుగొను_Owner_Module(refp);
+    ఒకవేళ (!ownerp || ownerp->origName() != tagp->m_captured_లోపల_Name) తిరిగి శూన్యసూచిక;
+    తిరిగి tagp;
 }
 
 // Walk a dot-separated cell path through the cell / IFACEREFDTYPE hierarchy
@@ -277,124 +277,124 @@ const VIfaceCaptureTag* V3LinkDotIfaceCapture::captureTag(AstRefDType* refp) {
 // nullptr if any component cannot be resolved.
 // Cell/port names are preserved across clones by cloneTree, so this works
 // identically on template and cloned modules.
-AstNodeModule* V3LinkDotIfaceCapture::followCellPath(AstNodeModule* startModp,
-                                                     const string& cellPath) {
-    if (cellPath.empty() || !startModp) return nullptr;
-    AstNodeModule* curModp = startModp;
-    string remaining = cellPath;
-    while (!remaining.empty() && curModp) {
+Ast_కణుపు_Module* V3LinkDotIfaceCapture::follow_Cell_మార్గం(Ast_కణుపు_Module* ప్రారంభం_Modp,
+                                                     స్థిరరాశి string& cell_మార్గం) {
+    ఒకవేళ (cell_మార్గం.ఖాళీలు() || !ప్రారంభం_Modp) తిరిగి శూన్యసూచిక;
+    Ast_కణుపు_Module* curModp = ప్రారంభం_Modp;
+    string మిగిలిన = cell_మార్గం;
+    అయితే (!మిగిలిన.ఖాళీలు() && curModp) {
         string component;
-        const size_t dotPos = remaining.find('.');
-        if (dotPos == string::npos) {
-            component = remaining;
-            remaining.clear();
-        } else {
-            component = remaining.substr(0, dotPos);
-            remaining = remaining.substr(dotPos + 1);
+        స్థిరరాశి కొలత_t dotPos = మిగిలిన.కనుగొను('.');
+        ఒకవేళ (dotPos == string::npos) {
+            component = మిగిలిన;
+            మిగిలిన.clear();
+        } లేకపోతే {
+            component = మిగిలిన.substr(0, dotPos);
+            మిగిలిన = మిగిలిన.substr(dotPos + 1);
         }
         // Matched without any array index; the elements of an instance array (see V3Param) all
         // instantiate the same module, so any of them will do
-        const string componentBase = AstNode::nameNoArray(component);
-        AstNodeModule* nextModp = nullptr;
-        for (AstNode* sp = curModp->stmtsp(); sp; sp = sp->nextp()) {
-            if (AstCell* const cellp = VN_CAST(sp, Cell)) {
-                if ((cellp->name() == component
-                     || AstNode::nameNoArray(cellp->name()) == componentBase)
+        స్థిరరాశి string component_పునాది = Ast_కణుపు::nameNoArray(component);
+        Ast_కణుపు_Module* తదుపరి_Modp = శూన్యసూచిక;
+        కొరకు (Ast_కణుపు* sp = curModp->stmtsp(); sp; sp = sp->nextp()) {
+            ఒకవేళ (AstCell* స్థిరరాశి cellp = VN_CAST(sp, Cell)) {
+                ఒకవేళ ((cellp->name() == component
+                     || Ast_కణుపు::nameNoArray(cellp->name()) == component_పునాది)
                     && cellp->modp()) {
-                    nextModp = cellp->modp();
-                    break;
+                    తదుపరి_Modp = cellp->modp();
+                    ఆపు;
                 }
             }
-            if (AstVar* const varp = VN_CAST(sp, Var)) {
-                if (varp->isIfaceRef() && varp->subDTypep()) {
-                    string varBaseName = varp->name();
-                    const size_t viftopPos = varBaseName.find("__Viftop");
-                    if (viftopPos != string::npos) {
-                        varBaseName = varBaseName.substr(0, viftopPos);
+            ఒకవేళ (AstVar* స్థిరరాశి varp = VN_CAST(sp, Var)) {
+                ఒకవేళ (varp->isIfaceRef() && varp->subDTypep()) {
+                    string var_పునాది_Name = varp->name();
+                    స్థిరరాశి కొలత_t viftopPos = var_పునాది_Name.కనుగొను("__Viftop");
+                    ఒకవేళ (viftopPos != string::npos) {
+                        var_పునాది_Name = var_పునాది_Name.substr(0, viftopPos);
                     }
-                    if (varBaseName == component
-                        || AstNode::nameNoArray(varBaseName) == componentBase) {
-                        if (AstIfaceRefDType* const irefp
+                    ఒకవేళ (var_పునాది_Name == component
+                        || Ast_కణుపు::nameNoArray(var_పునాది_Name) == component_పునాది) {
+                        ఒకవేళ (AstIfaceRefDType* స్థిరరాశి irefp
                             = ifaceRefFromVarDType(varp->subDTypep())) {
-                            AstIface* const ifacep = irefp->ifaceViaCellp();
-                            if (ifacep) {
-                                nextModp = ifacep;
-                                break;
+                            AstIface* స్థిరరాశి ifacep = irefp->iface_ద్వారా_Cellp();
+                            ఒకవేళ (ifacep) {
+                                తదుపరి_Modp = ifacep;
+                                ఆపు;
                             }
                         }
                     }
                 }
             }
         }
-        curModp = nextModp;
+        curModp = తదుపరి_Modp;
     }
-    return curModp;
+    తిరిగి curModp;
 }
 
 // replaces the lambda used in V3LinkDot.cpp for iface capture
-void V3LinkDotIfaceCapture::captureTypedefContext(AstRefDType* refp, const char* stageLabel,
-                                                  int dotPos, const std::string& dotText,
-                                                  VSymEnt* dotSymp, AstNodeModule* modp,
-                                                  const std::function<std::string()>& indentFn) {
-    if (!enabled() || !refp) return;
+శూన్య V3LinkDotIfaceCapture::captureTypedefContext(AstRefDType* refp, స్థిరరాశి అక్షరం* stageLabel,
+                                                  పూర్ణాంకం dotPos, స్థిరరాశి std::string& dot_పాఠ్యం,
+                                                  VSymEnt* dotSymp, Ast_కణుపు_Module* modp,
+                                                  స్థిరరాశి std::function<std::string()>& indentFn) {
+    ఒకవేళ (!enabled() || !refp) తిరిగి;
 
     UINFO(9, indentFn() << "iface capture capture request stage=" << stageLabel
                         << " typedef=" << refp << " name=" << refp->name() << " dotPos=" << dotPos
-                        << " dotText='" << dotText << "' dotSym=" << dotSymp);
+                        << " dotText='" << dot_పాఠ్యం << "' dotSym=" << dotSymp);
 
-    const AstCell* ifaceCellp = nullptr;
-    if (dotSymp && VN_IS(dotSymp->nodep(), Cell)) {
-        const AstCell* const cellp = VN_AS(dotSymp->nodep(), Cell);
-        if (cellp->modp() && VN_IS(cellp->modp(), Iface)) ifaceCellp = cellp;
+    స్థిరరాశి AstCell* ifaceCellp = శూన్యసూచిక;
+    ఒకవేళ (dotSymp && VN_IS(dotSymp->nodep(), Cell)) {
+        స్థిరరాశి AstCell* స్థిరరాశి cellp = VN_AS(dotSymp->nodep(), Cell);
+        ఒకవేళ (cellp->modp() && VN_IS(cellp->modp(), Iface)) ifaceCellp = cellp;
     }
-    if (!ifaceCellp) {
+    ఒకవేళ (!ifaceCellp) {
         UINFO(9, indentFn() << "iface capture capture skipped typedef=" << refp
                             << " (no iface context)");
-        return;
+        తిరిగి;
     }
     // Skip internal interface typedef references (typedef used within its own interface)
-    if (ifaceCellp->modp() == modp) {
+    ఒకవేళ (ifaceCellp->modp() == modp) {
         UINFO(9, indentFn() << "iface capture capture skipped typedef=" << refp
                             << " (internal to interface " << modp->name() << ")");
-        return;
+        తిరిగి;
     }
 
     // dotText is always non-empty for interface typedef captures.  If this
     // fires, the caller resolved to an interface Cell but did not accumulate
     // a dotText path - investigate the dot-state in visitParseRef.
-    UASSERT_OBJ(!dotText.empty(), refp, "captureTypedefContext: dotText empty");
-    const string cellPath = dotText;
+    UASSERT_OBJ(!dot_పాఠ్యం.ఖాళీలు(), refp, "captureTypedefContext: dotText empty");
+    స్థిరరాశి string cell_మార్గం = dot_పాఠ్యం;
 
     // A reference to a ParamTypeDType is captured as a parameter type, else as a typedef
-    if (AstParamTypeDType* const paramTypep = VN_CAST(refp->refDTypep(), ParamTypeDType)) {
-        V3LinkDotIfaceCapture::addParamType(refp, cellPath, modp, paramTypep, "");
-    } else {
-        tag(refp, modp, VIfaceCaptureTag::Kind::TYPEDEF, cellPath,
+    ఒకవేళ (AstParamTypeDType* స్థిరరాశి paramTypep = VN_CAST(refp->refDTypep(), ParamTypeDType)) {
+        V3LinkDotIfaceCapture::కూడు_Param_Type(refp, cell_మార్గం, modp, paramTypep, "");
+    } లేకపోతే {
+        ట్యాగ్(refp, modp, VIface_Capture_ట్యాగ్::రకం_2::TYPEDEF, cell_మార్గం,
             resolveOwnerName("", refp->typedefp()));
     }
 
     UINFO(9, indentFn() << "iface capture capture success typedef=" << refp
-                        << " cell=" << ifaceCellp << " cellPath='" << cellPath << "'"
+                        << " cell=" << ifaceCellp << " cellPath='" << cell_మార్గం << "'"
                         << " mod=" << (ifaceCellp->modp() ? ifaceCellp->modp()->name() : "<null>")
                         << " dotPos=" << dotPos);
 }
 
-void V3LinkDotIfaceCapture::addParamType(AstRefDType* refp, const string& cellPath,
-                                         AstNodeModule* ownerModp, AstParamTypeDType* paramTypep,
-                                         const string& paramTypeOwnerModName) {
+శూన్య V3LinkDotIfaceCapture::కూడు_Param_Type(AstRefDType* refp, స్థిరరాశి string& cell_మార్గం,
+                                         Ast_కణుపు_Module* ownerModp, AstParamTypeDType* paramTypep,
+                                         స్థిరరాశి string& paramTypeOwnerModName) {
     UASSERT(refp, "addParamType() called with null refp");
     UASSERT(ownerModp,
             "addParamType() called with null ownerModp for refp='" << refp->prettyNameQ() << "'");
     UASSERT_OBJ(paramTypep, refp,
                 "addParamType() called with null paramTypep for refp='" << refp->prettyNameQ()
                                                                         << "'");
-    const string ptOwnerName = resolveOwnerName(paramTypeOwnerModName, paramTypep);
-    UINFO(9, "addParamType: refp=" << refp << " cellPath='" << cellPath << "'"
+    స్థిరరాశి string ptOwnerName = resolveOwnerName(paramTypeOwnerModName, paramTypep);
+    UINFO(9, "addParamType: refp=" << refp << " cellPath='" << cell_మార్గం << "'"
                                    << " ownerModp=" << (ownerModp ? ownerModp->name() : "<null>")
                                    << " paramTypep=" << paramTypep << " paramTypeOwnerModName='"
                                    << ptOwnerName << "'");
     UINFO(9, "addParamType: paramTypep subDTypep chain:");
-    if (debug())
+    ఒకవేళ (debug())
         paramTypep->foreach([&](AstRefDType* innerRefp) {
             UINFO(9,
                   "  inner RefDType: "
@@ -402,11 +402,11 @@ void V3LinkDotIfaceCapture::addParamType(AstRefDType* refp, const string& cellPa
                       << (innerRefp->refDTypep() ? " refDTypep->name=" : "")
                       << (innerRefp->refDTypep() ? innerRefp->refDTypep()->prettyTypeName() : ""));
         });
-    tag(refp, ownerModp, VIfaceCaptureTag::Kind::PARAM_TYPE, cellPath, ptOwnerName);
+    ట్యాగ్(refp, ownerModp, VIface_Capture_ట్యాగ్::రకం_2::PARAM_TYPE, cell_మార్గం, ptOwnerName);
 }
 
-int V3LinkDotIfaceCapture::resolveCapturedRefs() {
-    int fixed = 0;
+పూర్ణాంకం V3LinkDotIfaceCapture::resolveCapturedRefs() {
+    పూర్ణాంకం fixed = 0;
 
     // TARGET RESOLUTION.  By this point all cloning is complete and cell
     // pointers are wired to the correct interface clones.  For each tagged
@@ -415,74 +415,74 @@ int V3LinkDotIfaceCapture::resolveCapturedRefs() {
     // See the ARCHITECTURE comment above for the full picture.
 
     v3Global.rootp()->foreach([&](AstRefDType* refp) {
-        const VIfaceCaptureTag* const tagp = captureTag(refp);
-        if (!tagp) return;
-        AstNodeModule* const ownerModp = findOwnerModule(refp);
-        if (!ownerModp || ownerModp->dead() || VN_IS(ownerModp, Package)) return;
+        స్థిరరాశి VIface_Capture_ట్యాగ్* స్థిరరాశి tagp = capture_ట్యాగ్(refp);
+        ఒకవేళ (!tagp) తిరిగి;
+        Ast_కణుపు_Module* స్థిరరాశి ownerModp = కనుగొను_Owner_Module(refp);
+        ఒకవేళ (!ownerModp || ownerModp->dead() || VN_IS(ownerModp, Package)) తిరిగి;
 
         UINFO(9, "finalizeIfaceCapture Phase3 entry: refp="
-                     << refp->name() << " (" << cvtToHex(refp) << ")" << " ownerMod="
-                     << ownerModp->name() << " cellPath='" << tagp->m_cellPath << "' targetKind="
-                     << (tagp->m_kind == VIfaceCaptureTag::Kind::PARAM_TYPE ? "param type"
+                     << refp->name() << " (" << cvt_గమ్యం_Hex(refp) << ")" << " ownerMod="
+                     << ownerModp->name() << " cellPath='" << tagp->m_cell_మార్గం << "' targetKind="
+                     << (tagp->m_రకం == VIface_Capture_ట్యాగ్::రకం_2::PARAM_TYPE ? "param type"
                                                                             : "typedef"));
 
         // Prefer the owner itself when its stable template identity matches the
         // captured target owner.  Otherwise resolve and validate the cell path.
-        AstNodeModule* correctModp = nullptr;
-        if (moduleMatchesOwner(ownerModp, tagp->m_ownerModName)) {
+        Ast_కణుపు_Module* correctModp = శూన్యసూచిక;
+        ఒకవేళ (moduleMatchesOwner(ownerModp, tagp->m_ownerModName)) {
             correctModp = ownerModp;
-        } else {
-            correctModp = followCellPath(ownerModp, tagp->m_cellPath);
+        } లేకపోతే {
+            correctModp = follow_Cell_మార్గం(ownerModp, tagp->m_cell_మార్గం);
             UINFO(9, "  followCellPath('"
-                         << ownerModp->name() << "', '" << tagp->m_cellPath
+                         << ownerModp->name() << "', '" << tagp->m_cell_మార్గం
                          << "') = " << (correctModp ? correctModp->name() : "<null>")
                          << (correctModp ? (correctModp->dead() ? " (DEAD)" : " (live)") : ""));
             UASSERT_OBJ(correctModp && !correctModp->dead()
                             && moduleMatchesOwner(correctModp, tagp->m_ownerModName),
                         refp,
                         "captured ref '" << refp->prettyNameQ() << "' cell path '"
-                                         << tagp->m_cellPath << "' did not resolve to live owner '"
+                                         << tagp->m_cell_మార్గం << "' did not resolve to live owner '"
                                          << tagp->m_ownerModName << "'");
         }
-        UASSERT_OBJ(retargetRefToModule(refp, correctModp), refp,
+        UASSERT_OBJ(retarget_Ref_గమ్యం_Module(refp, correctModp), refp,
                     "could not retarget captured "
-                        << (tagp->m_kind == VIfaceCaptureTag::Kind::PARAM_TYPE ? "parameter type "
+                        << (tagp->m_రకం == VIface_Capture_ట్యాగ్::రకం_2::PARAM_TYPE ? "parameter type "
                                                                                : "typedef ")
                         << refp->prettyNameQ() << " in " << correctModp->prettyNameQ());
-        refp->user3(true);
+        refp->user3(నిజం);
         ++fixed;
     });
 
-    return fixed;
+    తిరిగి fixed;
 }
 
-void V3LinkDotIfaceCapture::verifyNoDeadRefs(const LiveNodes& liveNodes) {
+శూన్య V3LinkDotIfaceCapture::verifyNoDeadRefs(స్థిరరాశి సజీవ_Nodes& సజీవ_Nodes_2) {
     // Assert: no REFDTYPE in any live module should have typedefp or refDTypep
     // pointing to a dead module.
-    for (AstNode* nodep = v3Global.rootp()->modulesp(); nodep; nodep = nodep->nextp()) {
-        if (AstNodeModule* const modp = VN_CAST(nodep, NodeModule)) {
-            if (modp->dead()) continue;
+    కొరకు (Ast_కణుపు* nodep = v3Global.rootp()->modulesp(); nodep; nodep = nodep->nextp()) {
+        ఒకవేళ (Ast_కణుపు_Module* స్థిరరాశి modp = VN_CAST(nodep, కణుపు_Module)) {
+            ఒకవేళ (modp->dead()) కొనసాగు;
             modp->foreach([&](AstRefDType* refp) {
-                if (refp->typedefp()) {
-                    UASSERT_OBJ(liveNodes.count(refp->typedefp()), refp,
+                ఒకవేళ (refp->typedefp()) {
+                    UASSERT_OBJ(సజీవ_Nodes_2.లెక్క(refp->typedefp()), refp,
                                 "REFDTYPE '" << refp->prettyNameQ() << "' in live module '"
                                              << modp->prettyNameQ()
                                              << "' has a dangling typedefp");
-                    AstNodeModule* const ownerModp
-                        = findOwnerModuleIfLive(refp->typedefp(), liveNodes);
+                    Ast_కణుపు_Module* స్థిరరాశి ownerModp
+                        = కనుగొను_Owner_Module_If_సజీవ(refp->typedefp(), సజీవ_Nodes_2);
                     UASSERT_OBJ(!ownerModp || !ownerModp->dead(), refp,
                                 "REFDTYPE '" << refp->prettyNameQ() << "' in live module '"
                                              << modp->prettyNameQ()
                                              << "' has typedefp pointing to dead module '"
                                              << ownerModp->prettyNameQ() << "'");
                 }
-                if (refp->refDTypep()) {
-                    UASSERT_OBJ(liveNodes.count(refp->refDTypep()), refp,
+                ఒకవేళ (refp->refDTypep()) {
+                    UASSERT_OBJ(సజీవ_Nodes_2.లెక్క(refp->refDTypep()), refp,
                                 "REFDTYPE '" << refp->prettyNameQ() << "' in live module '"
                                              << modp->prettyNameQ()
                                              << "' has a dangling refDTypep");
-                    AstNodeModule* const ownerModp
-                        = findOwnerModuleIfLive(refp->refDTypep(), liveNodes);
+                    Ast_కణుపు_Module* స్థిరరాశి ownerModp
+                        = కనుగొను_Owner_Module_If_సజీవ(refp->refDTypep(), సజీవ_Nodes_2);
                     UASSERT_OBJ(!ownerModp || !ownerModp->dead(), refp,
                                 "REFDTYPE '" << refp->prettyNameQ() << "' in live module '"
                                              << modp->prettyNameQ()
@@ -492,28 +492,28 @@ void V3LinkDotIfaceCapture::verifyNoDeadRefs(const LiveNodes& liveNodes) {
             });
         }
     }
-    if (v3Global.rootp()->typeTablep()) {
-        for (AstNode* nodep = v3Global.rootp()->typeTablep()->typesp(); nodep;
+    ఒకవేళ (v3Global.rootp()->typeTablep()) {
+        కొరకు (Ast_కణుపు* nodep = v3Global.rootp()->typeTablep()->typesp(); nodep;
              nodep = nodep->nextp()) {
             nodep->foreach([&](AstRefDType* refp) {
-                if (refp->typedefp()) {
-                    UASSERT_OBJ(liveNodes.count(refp->typedefp()), refp,
+                ఒకవేళ (refp->typedefp()) {
+                    UASSERT_OBJ(సజీవ_Nodes_2.లెక్క(refp->typedefp()), refp,
                                 "REFDTYPE '" << refp->prettyNameQ()
                                              << "' in type table has a dangling typedefp");
-                    AstNodeModule* const ownerModp
-                        = findOwnerModuleIfLive(refp->typedefp(), liveNodes);
+                    Ast_కణుపు_Module* స్థిరరాశి ownerModp
+                        = కనుగొను_Owner_Module_If_సజీవ(refp->typedefp(), సజీవ_Nodes_2);
                     UASSERT_OBJ(!ownerModp || !ownerModp->dead(), refp,
                                 "REFDTYPE '"
                                     << refp->prettyNameQ()
                                     << "' in type table has typedefp pointing to dead module '"
                                     << ownerModp->prettyNameQ() << "'");
                 }
-                if (refp->refDTypep()) {
-                    UASSERT_OBJ(liveNodes.count(refp->refDTypep()), refp,
+                ఒకవేళ (refp->refDTypep()) {
+                    UASSERT_OBJ(సజీవ_Nodes_2.లెక్క(refp->refDTypep()), refp,
                                 "REFDTYPE '" << refp->prettyNameQ()
                                              << "' in type table has a dangling refDTypep");
-                    AstNodeModule* const ownerModp
-                        = findOwnerModuleIfLive(refp->refDTypep(), liveNodes);
+                    Ast_కణుపు_Module* స్థిరరాశి ownerModp
+                        = కనుగొను_Owner_Module_If_సజీవ(refp->refDTypep(), సజీవ_Nodes_2);
                     UASSERT_OBJ(!ownerModp || !ownerModp->dead(), refp,
                                 "REFDTYPE '"
                                     << refp->prettyNameQ()
@@ -525,26 +525,26 @@ void V3LinkDotIfaceCapture::verifyNoDeadRefs(const LiveNodes& liveNodes) {
     }
 }
 
-void V3LinkDotIfaceCapture::finalizeIfaceCapture() {
-    if (!s_enabled) return;
+శూన్య V3LinkDotIfaceCapture::finalizeIfaceCapture() {
+    ఒకవేళ (!s_enabled) తిరిగి;
     UINFO(4, "finalizeIfaceCapture: fixing remaining cross-interface refs");
-    if (!v3Global.rootp()) return;
+    ఒకవేళ (!v3Global.rootp()) తిరిగి;
     clearModuleCache();  // Ensure fresh view after all cloning/widthing
 
     // Resolve live captured refs from stable path metadata before inspecting
     // any inherited target pointers, which may refer to replaced template nodes.
-    const int capturedFixed = resolveCapturedRefs();
+    స్థిరరాశి పూర్ణాంకం capturedFixed = resolveCapturedRefs();
     UINFO(4, "finalizeIfaceCapture: structurally resolved " << capturedFixed << " captured refs");
 
-    if (debug() >= 9) dumpEntries("after finalizeIfaceCapture");
+    ఒకవేళ (debug() >= 9) dumpEntries("after finalizeIfaceCapture");
 
     // Emit statistics for --stats
-    V3Stats::addStat("IfaceCapture, Captured refs", s_tags.size());
-    V3Stats::addStat("IfaceCapture, Captured refs resolved", capturedFixed);
+    V3Stats::కూడు_Stat("IfaceCapture, Captured refs", s_ట్యాగులు.కొలత());
+    V3Stats::కూడు_Stat("IfaceCapture, Captured refs resolved", capturedFixed);
 
     // No reference may be left pointing into a module about to be removed
-    if (v3Global.opt.debugCheck()) verifyNoDeadRefs(collectLiveNodes());
+    ఒకవేళ (v3Global.opt.debugCheck()) verifyNoDeadRefs(collect_సజీవ_Nodes());
     // Drop every tag before its record is freed.
-    v3Global.rootp()->foreach([](AstRefDType* refp) { refp->captureTagp(nullptr); });
+    v3Global.rootp()->foreach([](AstRefDType* refp) { refp->captureTagp(శూన్యసూచిక); });
     reset();
 }

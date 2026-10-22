@@ -14,20 +14,20 @@
 //
 //*************************************************************************
 
-#ifndef VERILATOR_V3PARSEIMP_H_
-#define VERILATOR_V3PARSEIMP_H_
+#నిర్వచితం_కాకపోతే VERILATOR_V3PARSEIMP_H_
+#నిర్వచించు VERILATOR_V3PARSEIMP_H_
 
-#include "config_build.h"
-#include "verilatedos.h"
+#అన్తర్భావ "config_build.h"
+#అన్తర్భావ "verilatedos.h"
 
-#include "V3Ast.h"
-#include "V3Error.h"
-#include "V3FileLine.h"
-#include "V3Global.h"
-#include "V3Parse.h"
+#అన్తర్భావ "V3Ast.h"
+#అన్తర్భావ "V3Error.h"
+#అన్తర్భావ "V3FileLine.h"
+#అన్తర్భావ "V3Global.h"
+#అన్తర్భావ "V3Parse.h"
 
-#include <algorithm>
-#include <deque>
+#అన్తర్భావ <algorithm>
+#అన్తర్భావ <deque>
 
 class V3Lexer;
 
@@ -37,19 +37,19 @@ class V3Lexer;
 //======================================================================
 // Types (between parser & lexer)
 
-enum V3UniqState : uint8_t { uniq_NONE, uniq_UNIQUE, uniq_UNIQUE0, uniq_PRIORITY };
+గణన V3UniqState : uint8_t { uniq_NONE, uniq_UNIQUE, uniq_UNIQUE0, uniq_ప్రాధాన్యత };
 
-enum V3TaggedState : uint8_t { tagged_NONE, tagged_SOFT, tagged_TAGGED };
+గణన V3TaggedState : uint8_t { tagged_NONE, tagged_SOFT, tagged_TAGGED };
 
-enum V3ImportProperty : uint8_t { iprop_NONE, iprop_CONTEXT, iprop_PURE };
+గణన V3ImportProperty : uint8_t { iprop_NONE, iprop_CONTEXT, iprop_శుద్ధ };
 
 //============================================================================
 // Member qualifiers
 
-struct VMemberQualifiers final {
-    union {
+నిర్మాణం VMemberQualifiers final {
+    సంఘం {
         uint32_t m_flags;
-        struct {
+        నిర్మాణం {
             uint32_t m_local : 1;  // Local class item (ignored until warning implemented)
             uint32_t m_protected : 1;  // Protected class item (ignored until warning implemented)
             uint32_t m_rand : 1;  // Rand property/member qualifier
@@ -59,50 +59,50 @@ struct VMemberQualifiers final {
             uint32_t m_static : 1;  // Static class member
         };
     };
-    static VMemberQualifiers none() {
+    స్థిర VMemberQualifiers none() {
         VMemberQualifiers q;
         q.m_flags = 0;
-        return q;
+        తిరిగి q;
     }
-    static VMemberQualifiers combine(const VMemberQualifiers& a, const VMemberQualifiers& b) {
+    స్థిర VMemberQualifiers combine(స్థిరరాశి VMemberQualifiers& a, స్థిరరాశి VMemberQualifiers& b) {
         VMemberQualifiers q;
         q.m_flags = a.m_flags | b.m_flags;
-        return q;
+        తిరిగి q;
     }
-    VRandAttr randAttr() const {
-        if (m_randc) return VRandAttr::RAND_CYCLIC;
-        if (m_rand) return VRandAttr::RAND;
-        return VRandAttr::NONE;
+    VRandAttr randAttr() స్థిరరాశి {
+        ఒకవేళ (m_randc) తిరిగి VRandAttr::RAND_CYCLIC;
+        ఒకవేళ (m_rand) తిరిగి VRandAttr::RAND;
+        తిరిగి VRandAttr::NONE;
     }
-    void applyToNodes(AstNodeFTask* nodesp) const {
-        for (AstNodeFTask* nodep = nodesp; nodep; nodep = VN_AS(nodep->nextp(), NodeFTask)) {
-            if (m_local) nodep->isHideLocal(true);
-            if (m_protected) nodep->isHideProtected(true);
-            if (m_static) nodep->isStatic(true);
-            if (m_virtual) nodep->isVirtual(true);
-            if (m_const || m_rand || m_randc) {
+    శూన్య apply_గమ్యం_Nodes(Ast_కణుపు_FTask* nodesp) స్థిరరాశి {
+        కొరకు (Ast_కణుపు_FTask* nodep = nodesp; nodep; nodep = VN_AS(nodep->nextp(), కణుపు_FTask)) {
+            ఒకవేళ (m_local) nodep->isHideLocal(true);
+            ఒకవేళ (m_protected) nodep->isHideProtected(true);
+            ఒకవేళ (m_static) nodep->isStatic(true);
+            ఒకవేళ (m_virtual) nodep->isVirtual(true);
+            ఒకవేళ (m_const || m_rand || m_randc) {
                 nodep->v3error("Syntax error: 'const'/'rand'/'randc' not allowed "
                                "before function/task declaration");
             }
         }
     }
-    void applyToNodes(AstTypedef* nodep) const {
-        if (m_local) nodep->isHideLocal(true);
-        if (m_protected) nodep->isHideProtected(true);
-        if (m_static || m_virtual || m_rand || m_randc) {
+    శూన్య apply_గమ్యం_Nodes(AstTypedef* nodep) స్థిరరాశి {
+        ఒకవేళ (m_local) nodep->isHideLocal(true);
+        ఒకవేళ (m_protected) nodep->isHideProtected(true);
+        ఒకవేళ (m_static || m_virtual || m_rand || m_randc) {
             nodep->v3error("Syntax error: 'static'/'virtual'/'rand'/'randc' not allowed "
                            "before typedef declaration");
         }
     }
-    void applyToNodes(AstVar* nodesp) const {
-        for (AstVar* nodep = nodesp; nodep; nodep = VN_AS(nodep->nextp(), Var)) {
-            if (m_rand) nodep->rand(VRandAttr::RAND);
-            if (m_randc) nodep->rand(VRandAttr::RAND_CYCLIC);
-            if (m_local) nodep->isHideLocal(true);
-            if (m_protected) nodep->isHideProtected(true);
-            if (m_static) nodep->lifetime(VLifetime::STATIC_EXPLICIT);
-            if (m_const) nodep->isConst(true);
-            if (m_virtual) {
+    శూన్య apply_గమ్యం_Nodes(AstVar* nodesp) స్థిరరాశి {
+        కొరకు (AstVar* nodep = nodesp; nodep; nodep = VN_AS(nodep->nextp(), Var)) {
+            ఒకవేళ (m_rand) nodep->rand(VRandAttr::RAND);
+            ఒకవేళ (m_randc) nodep->rand(VRandAttr::RAND_CYCLIC);
+            ఒకవేళ (m_local) nodep->isHideLocal(true);
+            ఒకవేళ (m_protected) nodep->isHideProtected(true);
+            ఒకవేళ (m_static) nodep->lifetime(VLifetime::STATIC_EXPLICIT);
+            ఒకవేళ (m_const) nodep->isConst(true);
+            ఒకవేళ (m_virtual) {
                 nodep->v3error("Syntax error: 'virtual' not allowed before var declaration");
             }
         }
@@ -113,23 +113,23 @@ struct VMemberQualifiers final {
 // Parser YYSType, e.g. for parser's yylval
 // We can't use bison's %union as we want to pass the fileline with all tokens
 
-struct V3ParseBisonYYSType final {
-    FileLine* fl = nullptr;
-    int token = 0;  // Read token, aka tok
-    VBaseOverride baseOverride;
+నిర్మాణం V3ParseBisonYYSType final {
+    File_పంక్తి* fl = nullptr;
+    పూర్ణాంకం token = 0;  // Read token, aka tok
+    VBaseOverride పునాది_Override;
     bool flag = false;  // Passed up some rules
-    union {
-        V3Number* nump;
+    సంఘం {
+        V3_సంఖ్య* nump;
         std::string* strp;
-        int cint;
-        double cdouble;
+        పూర్ణాంకం cint;
+        ద్విగుణ cdouble;
         bool cbool;
         VMemberQualifiers qualifiers;
         V3UniqState uniqstate;
         V3TaggedState taggedstate;
         V3ImportProperty iprop;
         VSigning::en signstate;
-        V3ErrorCode::en errcodeen;
+        V3_Error_సంకేతం::en errcodeen;
         VAttrType::en attrtypeen;
         VAssertType::en asserttypeen;
         VAssertDirectiveType::en assertdirectivetypeen;
@@ -138,203 +138,203 @@ struct V3ParseBisonYYSType final {
         VStrength::en strength;
         VJoinType::en joinType;
 
-#include "V3Ast__gen_yystype.h"
+#అన్తర్భావ "V3Ast__gen_yystype.h"
     };
 };
-std::ostream& operator<<(std::ostream& os, const V3ParseBisonYYSType& rhs) VL_MT_DISABLED;
+std::ostream& క్రియాకారకం<<(std::ostream& os, స్థిరరాశి V3ParseBisonYYSType& rhs) VL_MT_DISABLED;
 
-#define YYSTYPE V3ParseBisonYYSType
+#నిర్వచించు YYSTYPE V3ParseBisonYYSType
 
 //######################################################################
 
 class V3ParseImp final {
     // MEMBERS
-    AstNetlist* const m_rootp;  // Root of the design
-    VInFilter* const m_filterp;  // Reading filter
+    AstNetlist* స్థిరరాశి m_rootp;  // Root of the design
+    VInFilter* స్థిరరాశి m_filterp;  // Reading filter
 
     V3Lexer* m_lexerp = nullptr;  // Current FlexLexer
-    static V3ParseImp* s_parsep;  // Current THIS, bison() isn't class based
-    FileLine* m_lexFileline = nullptr;  // Filename/linenumber currently active for lexing
+    స్థిర V3ParseImp* s_parsep;  // Current THIS, bison() isn't class based
+    File_పంక్తి* m_lexFileline = nullptr;  // Filename/linenumber currently active for lexing
 
-    FileLine* m_bisonLastFileline = nullptr;  // Filename/linenumber of last token
+    File_పంక్తి* m_bison_చివరి_Fileline = nullptr;  // Filename/linenumber of last token
 
-    bool m_inLibrary = false;  // Currently reading a library vs. regular file
-    bool m_inLibMap = false;  // Currently reading a libmap file
+    bool m_లోపల_Library = false;  // Currently reading a library vs. regular file
+    bool m_లోపల_Lib_Map = false;  // Currently reading a libmap file
     string m_libname;  // Config library name (or --work)
-    int m_lexKwdDepth = 0;  // Inside a `begin_keywords
-    int m_lexKwdLast;  // Last LEX state in `begin_keywords
+    పూర్ణాంకం m_lex_Kwd_లోతు = 0;  // Inside a `begin_keywords
+    పూర్ణాంకం m_lex_Kwd_చివరి;  // Last LEX state in `begin_keywords
     VOptionBool m_unconnectedDrive;  // Last unconnected drive
 
-    int m_lexPrevToken = 0;  // previous parsed token (for lexer)
+    పూర్ణాంకం m_lexPrevToken = 0;  // previous parsed token (for lexer)
     bool m_afterColonColon = false;  // The previous token was '::'
-    V3ParseBisonYYSType m_tokenLastBison{};  // Token we last sent to Bison
-    std::deque<V3ParseBisonYYSType> m_tokensAhead;  // Tokens we parsed ahead of parser
+    V3ParseBisonYYSType m_token_చివరి_Bison{};  // Token we last sent to Bison
+    std::deque<V3ParseBisonYYSType> m_టోకెన్లు_Ahead;  // Tokens we parsed ahead of parser
 
     std::deque<string*> m_stringps;  // Created strings for later cleanup
-    std::deque<V3Number*> m_numberps;  // Created numbers for later cleanup
-    std::deque<FileLine> m_lexLintState;  // Current lint state for save/restore
+    std::deque<V3_సంఖ్య*> m_numberps;  // Created numbers for later cleanup
+    std::deque<File_పంక్తి> m_lexLintState;  // Current lint state for save/restore
     std::string m_lexString;  // Text of the quoted or triple-quoted string currently being lexed
     std::deque<string> m_ppBuffers;  // Preprocessor->lex buffer of characters to process
-    size_t m_ppBytes = 0;  // Preprocessor->lex bytes transferred
+    కొలత_t m_pp_బైట్లు = 0;  // Preprocessor->lex bytes transferred
 
-    AstNode* m_tagNodep = nullptr;  // Points to the node to set to m_tag or nullptr to not set.
-    VTimescale m_timeLastUnit;  // Last `timescale's unit
-    VTimescale m_timeLastPrec;  // Last `timescale's precision
+    Ast_కణుపు* m_ట్యాగ్_Nodep = nullptr;  // Points to the node to set to m_tag or nullptr to not set.
+    VTimescale m_సమయం_చివరి_Unit;  // Last `timescale's unit
+    VTimescale m_సమయం_చివరి_Prec;  // Last `timescale's precision
 
-public:
+బహిరంగ:
     VL_DEFINE_DEBUG_FUNCTIONS;
     // Note these are an exception to using the filename as the debug type
     VL_DEFINE_DEBUG(Bison);  // Define 'unsigned debugBison()'
     VL_DEFINE_DEBUG(Flex);  // Define 'unsigned debugFlex()'
 
     // Functions called by lex rules:
-    int yylexThis();
-    static bool optFuture(const string& flag) { return v3Global.opt.isFuture(flag); }
+    పూర్ణాంకం yylexThis();
+    స్థిర bool optFuture(స్థిరరాశి string& flag) { తిరిగి v3Global.opt.isFuture(flag); }
 
-    void tagNodep(AstNode* nodep) { m_tagNodep = nodep; }
-    AstNode* tagNodep() const { return m_tagNodep; }
-    void lexTimescaleParse(FileLine* fl, const char* textp) VL_MT_DISABLED;
-    AstPragma* createTimescale(FileLine* fl, bool unitSet, double unitVal, bool precSet,
-                               double precVal) VL_MT_DISABLED;
-    VTimescale timeLastUnit() const { return m_timeLastUnit; }
-    VTimescale timeLastPrec() const { return m_timeLastPrec; }
+    శూన్య ట్యాగ్_Nodep(Ast_కణుపు* nodep) { m_ట్యాగ్_Nodep = nodep; }
+    Ast_కణుపు* ట్యాగ్_Nodep() స్థిరరాశి { తిరిగి m_ట్యాగ్_Nodep; }
+    శూన్య lexTimescaleParse(File_పంక్తి* fl, స్థిరరాశి అక్షరం* textp) VL_MT_DISABLED;
+    AstPragma* createTimescale(File_పంక్తి* fl, bool unit_సమితి, ద్విగుణ unitVal, bool prec_సమితి,
+                               ద్విగుణ precVal) VL_MT_DISABLED;
+    VTimescale సమయం_చివరి_Unit() స్థిరరాశి { తిరిగి m_సమయం_చివరి_Unit; }
+    VTimescale సమయం_చివరి_Prec() స్థిరరాశి { తిరిగి m_సమయం_చివరి_Prec; }
 
-    void lexFileline(FileLine* fl) { m_lexFileline = fl; }
-    FileLine* lexFileline() const { return m_lexFileline; }
-    std::string& lexString() { return m_lexString; }
-    static void lexErrorPreprocDirective(FileLine* fl, const char* textp) VL_MT_DISABLED;
-    static string lexParseTag(const char* textp) VL_MT_DISABLED;
-    static double lexParseTimenum(const char* text) VL_MT_DISABLED;
-    void lexPpline(const char* textp) VL_MT_DISABLED;
-    void lexVerilatorCmtLint(FileLine* fl, const char* textp, bool turnOff) VL_MT_DISABLED;
-    void lexVerilatorCmtLintSave(const FileLine* fl) VL_MT_DISABLED;
-    void lexVerilatorCmtLintRestore(FileLine* fl) VL_MT_DISABLED;
-    static void lexVerilatorCmtBad(FileLine* fl, const char* textp) VL_MT_DISABLED;
+    శూన్య lexFileline(File_పంక్తి* fl) { m_lexFileline = fl; }
+    File_పంక్తి* lexFileline() స్థిరరాశి { తిరిగి m_lexFileline; }
+    std::string& lexString() { తిరిగి m_lexString; }
+    స్థిర శూన్య lexErrorPreprocDirective(File_పంక్తి* fl, స్థిరరాశి అక్షరం* textp) VL_MT_DISABLED;
+    స్థిర string lex_Parse_ట్యాగ్(స్థిరరాశి అక్షరం* textp) VL_MT_DISABLED;
+    స్థిర ద్విగుణ lexParseTimenum(స్థిరరాశి అక్షరం* పాఠ్యం) VL_MT_DISABLED;
+    శూన్య lexPpline(స్థిరరాశి అక్షరం* textp) VL_MT_DISABLED;
+    శూన్య lexVerilatorCmtLint(File_పంక్తి* fl, స్థిరరాశి అక్షరం* textp, bool turnOff) VL_MT_DISABLED;
+    శూన్య lexVerilatorCmtLintSave(స్థిరరాశి File_పంక్తి* fl) VL_MT_DISABLED;
+    శూన్య lexVerilatorCmtLintRestore(File_పంక్తి* fl) VL_MT_DISABLED;
+    స్థిర శూన్య lexVerilatorCmtBad(File_పంక్తి* fl, స్థిరరాశి అక్షరం* textp) VL_MT_DISABLED;
 
-    void lexPushKeywords(int state) {
-        ++m_lexKwdDepth;
-        m_lexKwdLast = state;
+    శూన్య lex_నెట్టు_Keywords(పూర్ణాంకం state) {
+        ++m_lex_Kwd_లోతు;
+        m_lex_Kwd_చివరి = state;
     }
-    bool lexPopKeywords() {
-        if (m_lexKwdDepth) {
-            --m_lexKwdDepth;
-            return true;
+    bool lex_తీయి_Keywords() {
+        ఒకవేళ (m_lex_Kwd_లోతు) {
+            --m_lex_Kwd_లోతు;
+            తిరిగి true;
         }
-        return false;
+        తిరిగి false;
     }
-    int lexKwdLastState() const { return m_lexKwdLast; }
-    static const char* tokenName(int tok) VL_MT_DISABLED;
-    static bool isStrengthToken(int tok) VL_MT_DISABLED;
+    పూర్ణాంకం lex_Kwd_చివరి_State() స్థిరరాశి { తిరిగి m_lex_Kwd_చివరి; }
+    స్థిర స్థిరరాశి అక్షరం* tokenName(పూర్ణాంకం tok) VL_MT_DISABLED;
+    స్థిర bool isStrengthToken(పూర్ణాంకం tok) VL_MT_DISABLED;
 
-    void ppPushText(const string& text) {
-        m_ppBuffers.push_back(text);
-        m_ppBytes += text.length();
-        if (lexFileline()->contentp()) lexFileline()->contentp()->pushText(text);
+    శూన్య pp_నెట్టు_పాఠ్యం(స్థిరరాశి string& పాఠ్యం) {
+        m_ppBuffers.నెట్టు_వెనుక(పాఠ్యం);
+        m_pp_బైట్లు += పాఠ్యం.నిడివి();
+        ఒకవేళ (lexFileline()->contentp()) lexFileline()->contentp()->నెట్టు_పాఠ్యం(పాఠ్యం);
     }
-    size_t ppInputToLex(char* buf, size_t max_size) VL_MT_DISABLED;
+    కొలత_t pp_ఆదానం_గమ్యం_Lex(అక్షరం* buf, కొలత_t max_కొలత_2) VL_MT_DISABLED;
 
-    static V3ParseImp* parsep() { return s_parsep; }
+    స్థిర V3ParseImp* parsep() { తిరిగి s_parsep; }
 
     // TODO: Many of these functions are the old interface; they'd be better as non-static
     // and called as READP->newString(...) etc.
     // These can be called by either parser or lexer, as not lex/parser-position aware
-    string* newString(const string& text) {
+    string* newString(స్థిరరాశి string& పాఠ్యం) {
         // Allocate a string, remembering it so we can reclaim storage at lex end
-        string* const strp = new std::string{text};
-        m_stringps.push_back(strp);
-        return strp;
+        string* స్థిరరాశి strp = new std::string{పాఠ్యం};
+        m_stringps.నెట్టు_వెనుక(strp);
+        తిరిగి strp;
     }
-    string* newString(const char* text) {
+    string* newString(స్థిరరాశి అక్షరం* పాఠ్యం) {
         // Allocate a string, remembering it so we can reclaim storage at lex end
-        string* const strp = new std::string{text};
-        m_stringps.push_back(strp);
-        return strp;
+        string* స్థిరరాశి strp = new std::string{పాఠ్యం};
+        m_stringps.నెట్టు_వెనుక(strp);
+        తిరిగి strp;
     }
-    string* newString(const char* text, size_t length) {
-        string* const strp = new string(text, length);  // Need () constructor
-        m_stringps.push_back(strp);
-        return strp;
+    string* newString(స్థిరరాశి అక్షరం* పాఠ్యం, కొలత_t నిడివి) {
+        string* స్థిరరాశి strp = new string(పాఠ్యం, నిడివి);  // Need () constructor
+        m_stringps.నెట్టు_వెనుక(strp);
+        తిరిగి strp;
     }
-    V3Number* newNumber(FileLine* flp, const char* text) {
-        V3Number* nump = new V3Number{flp, V3Number::VerilogNumberLiteral{}, text};
-        m_numberps.push_back(nump);
-        return nump;
+    V3_సంఖ్య* new_సంఖ్య(File_పంక్తి* flp, స్థిరరాశి అక్షరం* పాఠ్యం) {
+        V3_సంఖ్య* nump = new V3_సంఖ్య{flp, V3_సంఖ్య::Verilog_సంఖ్య_Literal{}, పాఠ్యం};
+        m_numberps.నెట్టు_వెనుక(nump);
+        తిరిగి nump;
     }
 
     // For 'unique if' cannot have empty else statements as then assertion
     // would misfire
-    AstNode* newBlock(FileLine* fl, AstNode* nodep) {
-        if (nodep) return nodep;
-        return new AstBegin{fl, "", nullptr, true};
+    Ast_కణుపు* new_ఖండం(File_పంక్తి* fl, Ast_కణుపు* nodep) {
+        ఒకవేళ (nodep) తిరిగి nodep;
+        తిరిగి new AstBegin{fl, "", nullptr, true};
     }
 
     // Bison sometimes needs error context without a token, so remember last token's line
     // Only use this if do not have and cannot get a token-relevant fileline
-    FileLine* bisonLastFileline() const { return m_bisonLastFileline; }
+    File_పంక్తి* bison_చివరి_Fileline() స్థిరరాశి { తిరిగి m_bison_చివరి_Fileline; }
 
     // Return next token, for bison, since bison isn't class based, use a global THIS
-    AstNetlist* rootp() const { return m_rootp; }
-    bool inLibMap() const { return m_inLibMap; }
-    bool inLibrary() const { return m_inLibrary; }
-    string libname() const { return m_libname; }
-    VOptionBool unconnectedDrive() const { return m_unconnectedDrive; }
-    void unconnectedDrive(const VOptionBool flag) { m_unconnectedDrive = flag; }
+    AstNetlist* rootp() స్థిరరాశి { తిరిగి m_rootp; }
+    bool లోపల_Lib_Map() స్థిరరాశి { తిరిగి m_లోపల_Lib_Map; }
+    bool లోపల_Library() స్థిరరాశి { తిరిగి m_లోపల_Library; }
+    string libname() స్థిరరాశి { తిరిగి m_libname; }
+    VOptionBool unconnectedDrive() స్థిరరాశి { తిరిగి m_unconnectedDrive; }
+    శూన్య unconnectedDrive(స్థిరరాశి VOptionBool flag) { m_unconnectedDrive = flag; }
 
     // Interactions with parser
-    int bisonParse() VL_MT_DISABLED;
+    పూర్ణాంకం bisonParse() VL_MT_DISABLED;
 
     // Interactions with lexer
-    void lexNew() VL_MT_DISABLED;
-    void lexDestroy() VL_MT_DISABLED;
-    static int stateVerilogRecent() VL_MT_DISABLED;  // Parser -> lexer communication
-    int lexPrevToken() const { return m_lexPrevToken; }  // Parser -> lexer communication
-    size_t flexPpInputToLex(char* buf, size_t max_size) { return ppInputToLex(buf, max_size); }
+    శూన్య lexNew() VL_MT_DISABLED;
+    శూన్య lexDestroy() VL_MT_DISABLED;
+    స్థిర పూర్ణాంకం stateVerilogRecent() VL_MT_DISABLED;  // Parser -> lexer communication
+    పూర్ణాంకం lexPrevToken() స్థిరరాశి { తిరిగి m_lexPrevToken; }  // Parser -> lexer communication
+    కొలత_t flex_Pp_ఆదానం_గమ్యం_Lex(అక్షరం* buf, కొలత_t max_కొలత_2) { తిరిగి pp_ఆదానం_గమ్యం_Lex(buf, max_కొలత_2); }
 
     //==== Symbol tables
-    AstPackage* unitPackage(FileLine* /*fl*/) { return parsep()->rootp()->dollarUnitPkgp(); }
+    AstPackage* unitPackage(File_పంక్తి* /*fl*/) { తిరిగి parsep()->rootp()->dollarUnitPkgp(); }
 
     // CONSTRUCTORS
     V3ParseImp(AstNetlist* rootp, VInFilter* filterp)
         : m_rootp{rootp}
         , m_filterp{filterp} {
-        m_lexKwdLast = stateVerilogRecent();
-        m_timeLastUnit = v3Global.opt.timeDefaultUnit();
-        m_timeLastPrec = v3Global.opt.timeDefaultPrec();
+        m_lex_Kwd_చివరి = stateVerilogRecent();
+        m_సమయం_చివరి_Unit = v3Global.opt.సమయం_Default_Unit();
+        m_సమయం_చివరి_Prec = v3Global.opt.సమయం_Default_Prec();
     }
     ~V3ParseImp() VL_MT_DISABLED;
-    void parserClear() VL_MT_DISABLED;
-    void lexUnputString(const char* textp, size_t length) VL_MT_DISABLED;
+    శూన్య parserClear() VL_MT_DISABLED;
+    శూన్య lexUnputString(స్థిరరాశి అక్షరం* textp, కొలత_t నిడివి) VL_MT_DISABLED;
 
     // METHODS
     // Preprocess and read the Verilog file specified into the netlist database
-    int tokenToBison() VL_MT_DISABLED;  // Pass token to bison
+    పూర్ణాంకం token_గమ్యం_Bison() VL_MT_DISABLED;  // Pass token to bison
 
-    void parseFile(FileLine* fileline, const string& modfilename, bool inLibrary, bool inLibMap,
-                   const string& libname, const string& errmsg,
-                   const std::string& notFoundName) VL_MT_DISABLED;
-    void dumpInputsFile() VL_MT_DISABLED;
-    void dumpTokensAhead(int line) VL_MT_DISABLED;
-    static void candidatePli(VSpellCheck* spellerp) VL_MT_DISABLED;
-    void importIfInStd(FileLine* fileline, const string& id, bool doImport);
-    AstNodeExpr* makePropertyCase(FileLine* flp, AstNodeExpr* exprp, AstCaseItem* itemsp);
+    శూన్య parseFile(File_పంక్తి* fileline, స్థిరరాశి string& modfilename, bool లోపల_Library, bool లోపల_Lib_Map,
+                   స్థిరరాశి string& libname, స్థిరరాశి string& errmsg,
+                   స్థిరరాశి std::string& not_దొరికింది_Name) VL_MT_DISABLED;
+    శూన్య dumpInputsFile() VL_MT_DISABLED;
+    శూన్య dump_టోకెన్లు_Ahead(పూర్ణాంకం పంక్తి) VL_MT_DISABLED;
+    స్థిర శూన్య candidatePli(VSpellCheck* spellerp) VL_MT_DISABLED;
+    శూన్య import_If_లోపల_Std(File_పంక్తి* fileline, స్థిరరాశి string& id, bool doImport);
+    Ast_కణుపు_సమాసం* makePropertyCase(File_పంక్తి* flp, Ast_కణుపు_సమాసం* exprp, Ast_Case_అంశం* itemsp);
 
-private:
-    void preprocDumps(std::ostream& os);
-    void lexFile(const string& modname) VL_MT_DISABLED;
-    void yylexReadTok() VL_MT_DISABLED;
-    void tokenPull() VL_MT_DISABLED;
-    void tokenPipeline() VL_MT_DISABLED;  // Internal; called from tokenToBison
-    int tokenPipelineId(int token) VL_MT_DISABLED;
-    void tokenPipelineSym() VL_MT_DISABLED;
-    size_t tokenPipeScanIdInst(size_t depth) VL_MT_DISABLED;
-    size_t tokenPipeScanIdType(size_t depth) VL_MT_DISABLED;
-    size_t tokenPipeScanBracket(size_t depth) VL_MT_DISABLED;
-    size_t tokenPipeScanParam(size_t depth, bool forInst) VL_MT_DISABLED;
-    size_t tokenPipeScanParens(size_t depth) VL_MT_DISABLED;
-    size_t tokenPipeScanEqNew(size_t depth) VL_MT_DISABLED;
-    bool tokenPipeScanTaggedFollowsPrimary(size_t depth) VL_MT_DISABLED;
-    const V3ParseBisonYYSType* tokenPeekp(size_t depth) VL_MT_DISABLED;
-    void preprocDumps(std::ostream& os, bool forInputs) VL_MT_DISABLED;
+అంతరంగ:
+    శూన్య preprocDumps(std::ostream& os);
+    శూన్య lexFile(స్థిరరాశి string& modname) VL_MT_DISABLED;
+    శూన్య yylexReadTok() VL_MT_DISABLED;
+    శూన్య tokenPull() VL_MT_DISABLED;
+    శూన్య tokenPipeline() VL_MT_DISABLED;  // Internal; called from tokenToBison
+    పూర్ణాంకం tokenPipelineId(పూర్ణాంకం token) VL_MT_DISABLED;
+    శూన్య tokenPipelineSym() VL_MT_DISABLED;
+    కొలత_t token_Pipe_పరిశీలన_Id_Inst(కొలత_t లోతు) VL_MT_DISABLED;
+    కొలత_t token_Pipe_పరిశీలన_Id_Type(కొలత_t లోతు) VL_MT_DISABLED;
+    కొలత_t token_Pipe_పరిశీలన_Bracket(కొలత_t లోతు) VL_MT_DISABLED;
+    కొలత_t token_Pipe_పరిశీలన_Param(కొలత_t లోతు, bool forInst) VL_MT_DISABLED;
+    కొలత_t token_Pipe_పరిశీలన_Parens(కొలత_t లోతు) VL_MT_DISABLED;
+    కొలత_t token_Pipe_పరిశీలన_Eq_New(కొలత_t లోతు) VL_MT_DISABLED;
+    bool token_Pipe_పరిశీలన_Tagged_Follows_Primary(కొలత_t లోతు) VL_MT_DISABLED;
+    స్థిరరాశి V3ParseBisonYYSType* tokenPeekp(కొలత_t లోతు) VL_MT_DISABLED;
+    శూన్య preprocDumps(std::ostream& os, bool forInputs) VL_MT_DISABLED;
 };
 
-#endif  // Guard
+#అయితే_ముగింపు  // Guard

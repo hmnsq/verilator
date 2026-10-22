@@ -50,107 +50,107 @@
 //
 //*************************************************************************
 
-#include "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
+#అన్తర్భావ "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
 
-#include "V3Param.h"
+#అన్తర్భావ "V3Param.h"
 
-#include "V3Case.h"
-#include "V3Const.h"
-#include "V3EmitV.h"
-#include "V3HierBlock.h"
-#include "V3LinkDotIfaceCapture.h"
-#include "V3MemberMap.h"
-#include "V3Os.h"
-#include "V3Parse.h"
-#include "V3Simulate.h"
-#include "V3Stats.h"
-#include "V3Unroll.h"
-#include "V3Width.h"
+#అన్తర్భావ "V3Case.h"
+#అన్తర్భావ "V3Const.h"
+#అన్తర్భావ "V3EmitV.h"
+#అన్తర్భావ "V3HierBlock.h"
+#అన్తర్భావ "V3LinkDotIfaceCapture.h"
+#అన్తర్భావ "V3MemberMap.h"
+#అన్తర్భావ "V3Os.h"
+#అన్తర్భావ "V3Parse.h"
+#అన్తర్భావ "V3Simulate.h"
+#అన్తర్భావ "V3Stats.h"
+#అన్తర్భావ "V3Unroll.h"
+#అన్తర్భావ "V3Width.h"
 
-#include <cctype>
-#include <cstdlib>
-#include <deque>
-#include <map>
-#include <memory>
-#include <set>
-#include <unordered_map>
-#include <vector>
+#అన్తర్భావ <cctype>
+#అన్తర్భావ <cstdlib>
+#అన్తర్భావ <deque>
+#అన్తర్భావ <map>
+#అన్తర్భావ <memory>
+#అన్తర్భావ <set>
+#అన్తర్భావ <unordered_map>
+#అన్తర్భావ <vector>
 
 VL_DEFINE_DEBUG_FUNCTIONS;
 
 // Walk a class-typed node through typedef/RefDType chains to its ClassRefDType, or null.
-static AstClassRefDType* classRefDTypeOfNode(AstNode* nodep) {
-    while (AstTypedef* const tdp = VN_CAST(nodep, Typedef)) nodep = tdp->subDTypep();
-    AstNodeDType* const dtp = VN_CAST(nodep, NodeDType);
-    return dtp ? VN_CAST(dtp->skipRefOrNullp(), ClassRefDType) : nullptr;
+స్థిర AstClassRefDType* class_Ref_DType_యొక్క_కణుపు(Ast_కణుపు* nodep) {
+    అయితే (AstTypedef* స్థిరరాశి tdp = VN_CAST(nodep, Typedef)) nodep = tdp->subDTypep();
+    Ast_కణుపు_DType* స్థిరరాశి dtp = VN_CAST(nodep, కణుపు_DType);
+    తిరిగి dtp ? VN_CAST(dtp->skipRefOrNullp(), ClassRefDType) : శూన్యసూచిక;
 }
 
 //######################################################################
 // Hierarchical block and parameter db (modules without parameters are also handled)
 
-class ParameterizedHierBlocks final {
-    using HierBlockOptsByOrigName = std::multimap<std::string, const V3HierarchicalBlockOption*>;
-    using HierMapIt = HierBlockOptsByOrigName::const_iterator;
-    using HierBlockModMap = std::map<const std::string, AstNodeModule*>;
-    using ParamConstMap = std::map<const std::string, std::unique_ptr<AstConst>>;
-    using GParamsMap = std::map<const std::string, AstVar*>;  // key:parameter name value:parameter
+తరగతి Parameterized_Hier_ఖండాలు final {
+    ఉపయోగించి Hier_ఖండం_Opts_By_Orig_Name = std::multimap<std::string, స్థిరరాశి V3_క్రమానుగత_ఖండం_Option*>;
+    ఉపయోగించి HierMapIt = Hier_ఖండం_Opts_By_Orig_Name::const_iterator;
+    ఉపయోగించి Hier_ఖండం_Mod_Map = std::map<స్థిరరాశి std::string, Ast_కణుపు_Module*>;
+    ఉపయోగించి ParamConstMap = std::map<స్థిరరాశి std::string, std::unique_ptr<AstConst>>;
+    ఉపయోగించి GParamsMap = std::map<స్థిరరాశి std::string, AstVar*>;  // key:parameter name value:parameter
 
     // MEMBERS
-    const bool m_hierSubRun;  // Is in sub-run for hierarchical verilation
+    స్థిరరాశి తార్కిక m_hier_Sub_నిరంతరం;  // Is in sub-run for hierarchical verilation
     // key:Original module name, value:HiearchyBlockOption*
     // If a module is parameterized, the module is uniquified to overridden parameters.
     // This is why HierBlockOptsByOrigName is multimap.
-    HierBlockOptsByOrigName m_hierBlockOptsByOrigName;
+    Hier_ఖండం_Opts_By_Orig_Name m_hier_ఖండం_Opts_By_Orig_Name;
     // key:mangled module name, value:AstNodeModule*
-    HierBlockModMap m_hierBlockMod;
+    Hier_ఖండం_Mod_Map m_hier_ఖండం_Mod;
     // Overridden parameters of the hierarchical block
-    std::map<const V3HierarchicalBlockOption*, ParamConstMap> m_hierParams;
+    std::map<స్థిరరాశి V3_క్రమానుగత_ఖండం_Option*, ParamConstMap> m_hierParams;
     // Parameter variables of hierarchical blocks
-    std::map<const std::string, GParamsMap> m_modParams;
+    std::map<స్థిరరాశి std::string, GParamsMap> m_modParams;
     // Formals declared without a type, whose type is that of the assigned value
-    std::set<const AstVar*> m_untypedParams;
+    std::సమితి<స్థిరరాశి AstVar*> m_untypedParams;
 
     // METHODS
 
-public:
-    ParameterizedHierBlocks(const V3HierBlockOptSet& hierOpts, AstNetlist* nodep)
+బహిరంగ:
+    Parameterized_Hier_ఖండాలు(స్థిరరాశి V3_Hier_ఖండం_Opt_సమితి& hierOpts, AstNetlist* nodep)
         // A type parameter file only describes a child's own types; the final consolidation
         // run has none, but must still substitute the libraries it consumes.
-        : m_hierSubRun{!v3Global.opt.hierBlocks().empty() || v3Global.opt.hierChild()} {
-        for (const auto& hierOpt : hierOpts) {
-            m_hierBlockOptsByOrigName.emplace(hierOpt.second.origName(), &hierOpt.second);
-            const V3HierarchicalBlockOption::ParamStrMap& params = hierOpt.second.params();
-            ParamConstMap& consts = m_hierParams[&hierOpt.second];
-            for (V3HierarchicalBlockOption::ParamStrMap::const_iterator pIt = params.begin();
-                 pIt != params.end(); ++pIt) {
+        : m_hier_Sub_నిరంతరం{!v3Global.opt.hier_ఖండాలు().ఖాళీలు() || v3Global.opt.hier_బిడ్డ()} {
+        కొరకు (స్థిరరాశి స్వయంచాలక& hierOpt : hierOpts) {
+            m_hier_ఖండం_Opts_By_Orig_Name.emplace(hierOpt.రెండవ.origName(), &hierOpt.రెండవ);
+            స్థిరరాశి V3_క్రమానుగత_ఖండం_Option::ParamStrMap& params = hierOpt.రెండవ.params();
+            ParamConstMap& consts = m_hierParams[&hierOpt.రెండవ];
+            కొరకు (V3_క్రమానుగత_ఖండం_Option::ParamStrMap::const_iterator pIt = params.begin();
+                 pIt != params.చివర(); ++pIt) {
                 std::unique_ptr<AstConst> constp{AstConst::parseParamLiteral(
-                    new FileLine{FileLine::builtInFilename()}, pIt->second)};
-                UASSERT(constp, pIt->second << " is not a valid parameter literal");
-                const bool inserted = consts.emplace(pIt->first, std::move(constp)).second;
-                UASSERT(inserted, pIt->first << " is already added");
+                    కొత్త File_పంక్తి{File_పంక్తి::built_లోపల_Filename()}, pIt->రెండవ)};
+                UASSERT(constp, pIt->రెండవ << " is not a valid parameter literal");
+                స్థిరరాశి తార్కిక inserted = consts.emplace(pIt->మొదటి, std::move(constp)).రెండవ;
+                UASSERT(inserted, pIt->మొదటి << " is already added");
             }
             // origName may be already registered, but it's fine.
-            m_modParams.insert({hierOpt.second.origName(), {}});
+            m_modParams.చొప్పించు({hierOpt.రెండవ.origName(), {}});
         }
-        for (AstNodeModule* modp = nodep->modulesp(); modp;
-             modp = VN_AS(modp->nextp(), NodeModule)) {
-            if (hierOpts.find(modp->prettyName()) != hierOpts.end()) {
-                m_hierBlockMod.emplace(modp->name(), modp);
+        కొరకు (Ast_కణుపు_Module* modp = nodep->modulesp(); modp;
+             modp = VN_AS(modp->nextp(), కణుపు_Module)) {
+            ఒకవేళ (hierOpts.కనుగొను(modp->prettyName()) != hierOpts.చివర()) {
+                m_hier_ఖండం_Mod.emplace(modp->name(), modp);
             }
             // Recursive hierarchical module may change its name, so we have to match its origName.
             // Collect values from recursive cloned module as parameters in the top module could be
             // overridden.
-            const string actualModName = modp->recursiveClone() ? modp->origName() : modp->name();
-            const auto defParamIt = m_modParams.find(actualModName);
-            if (defParamIt != m_modParams.end()) {
+            స్థిరరాశి string actualModName = modp->recursiveClone() ? modp->origName() : modp->name();
+            స్థిరరాశి స్వయంచాలక defParamIt = m_modParams.కనుగొను(actualModName);
+            ఒకవేళ (defParamIt != m_modParams.చివర()) {
                 // modp is the original of parameterized hierarchical block
-                for (AstNode* stmtp = modp->stmtsp(); stmtp; stmtp = stmtp->nextp()) {
-                    if (AstVar* const varp = VN_CAST(stmtp, Var)) {
-                        if (varp->isGParam()) defParamIt->second.emplace(varp->name(), varp);
+                కొరకు (Ast_కణుపు* stmtp = modp->stmtsp(); stmtp; stmtp = stmtp->nextp()) {
+                    ఒకవేళ (AstVar* స్థిరరాశి varp = VN_CAST(stmtp, Var)) {
+                        ఒకవేళ (varp->isGParam()) defParamIt->రెండవ.emplace(varp->name(), varp);
                         // Recorded before V3Param resolves the type from the assigned value.
-                        const AstBasicDType* const dtypep
-                            = VN_CAST(varp->childDTypep(), BasicDType);
-                        if (varp->isGParam() && dtypep && dtypep->implicit()) {
+                        స్థిరరాశి AstBasicDType* స్థిరరాశి dtypep
+                            = VN_CAST(varp->బిడ్డ_DTypep(), BasicDType);
+                        ఒకవేళ (varp->isGParam() && dtypep && dtypep->implicit()) {
                             m_untypedParams.emplace(varp);
                         }
                     }
@@ -158,116 +158,116 @@ public:
             }
         }
     }
-    bool hierSubRun() const { return m_hierSubRun; }
-    bool isHierBlock(const string& origName) const {
-        return m_hierBlockOptsByOrigName.find(origName) != m_hierBlockOptsByOrigName.end();
+    తార్కిక hier_Sub_నిరంతరం() స్థిరరాశి { తిరిగి m_hier_Sub_నిరంతరం; }
+    తార్కిక is_Hier_ఖండం(స్థిరరాశి string& origName) స్థిరరాశి {
+        తిరిగి m_hier_ఖండం_Opts_By_Orig_Name.కనుగొను(origName) != m_hier_ఖండం_Opts_By_Orig_Name.చివర();
     }
-    AstNodeModule* findByParams(const string& origName, AstPin* firstPinp,
-                                const AstNodeModule* modp) {
-        UASSERT(isHierBlock(origName), origName << " is not hierarchical block");
+    Ast_కణుపు_Module* కనుగొను_By_Params(స్థిరరాశి string& origName, AstPin* మొదటి_Pinp,
+                                స్థిరరాశి Ast_కణుపు_Module* modp) {
+        UASSERT(is_Hier_ఖండం(origName), origName << " is not hierarchical block");
         // This module is a hierarchical block. Need to replace it by the --lib-create wrapper.
-        const std::pair<HierMapIt, HierMapIt> candidates
-            = m_hierBlockOptsByOrigName.equal_range(origName);
-        const auto paramsIt = m_modParams.find(origName);
-        UASSERT_OBJ(paramsIt != m_modParams.end(), modp, origName << " must be registered");
+        స్థిరరాశి std::pair<HierMapIt, HierMapIt> candidates
+            = m_hier_ఖండం_Opts_By_Orig_Name.equal_range(origName);
+        స్థిరరాశి స్వయంచాలక paramsIt = m_modParams.కనుగొను(origName);
+        UASSERT_OBJ(paramsIt != m_modParams.చివర(), modp, origName << " must be registered");
         // An untyped parameter takes the type of its value, but libraries are distinguished
         // only by parameter values. This is a pin whose value equals that of a library or the
         // default, but whose type differs.
-        const AstPin* typeMismatchPinp = nullptr;
+        స్థిరరాశి AstPin* typeMismatchPinp = శూన్యసూచిక;
         HierMapIt hierIt;
-        for (hierIt = candidates.first; hierIt != candidates.second; ++hierIt) {
-            bool found = true;
-            size_t paramIdx = 0;
-            const ParamConstMap& params = m_hierParams[hierIt->second];
-            UASSERT(params.size() == hierIt->second->params().size(), "not match");
-            for (AstPin* pinp = firstPinp; pinp; pinp = VN_AS(pinp->nextp(), Pin)) {
-                if (!pinp->exprp()) continue;
-                if (const AstVar* const modvarp = pinp->modVarp()) {
-                    AstConst* const constp = VN_AS(pinp->exprp(), Const);
+        కొరకు (hierIt = candidates.మొదటి; hierIt != candidates.రెండవ; ++hierIt) {
+            తార్కిక దొరికింది = నిజం;
+            కొలత_t paramIdx = 0;
+            స్థిరరాశి ParamConstMap& params = m_hierParams[hierIt->రెండవ];
+            UASSERT(params.కొలత() == hierIt->రెండవ->params().కొలత(), "not match");
+            కొరకు (AstPin* pinp = మొదటి_Pinp; pinp; pinp = VN_AS(pinp->nextp(), Pin)) {
+                ఒకవేళ (!pinp->exprp()) కొనసాగు;
+                ఒకవేళ (స్థిరరాశి AstVar* స్థిరరాశి modvarp = pinp->modVarp()) {
+                    AstConst* స్థిరరాశి constp = VN_AS(pinp->exprp(), Const);
                     UASSERT_OBJ(constp, pinp,
                                 "parameter for a hierarchical block must have been constified");
-                    const auto paramIt = paramsIt->second.find(modvarp->name());
-                    UASSERT_OBJ(paramIt != paramsIt->second.end(), modvarp, "must be registered");
-                    const bool untyped = m_untypedParams.count(paramIt->second);
-                    AstConst* const defValuep = VN_CAST(paramIt->second->valuep(), Const);
-                    if (defValuep && areSame(constp, defValuep)) {
-                        if (!untyped || constp->sameValueType(defValuep)) {
+                    స్థిరరాశి స్వయంచాలక paramIt = paramsIt->రెండవ.కనుగొను(modvarp->name());
+                    UASSERT_OBJ(paramIt != paramsIt->రెండవ.చివర(), modvarp, "must be registered");
+                    స్థిరరాశి తార్కిక untyped = m_untypedParams.లెక్క(paramIt->రెండవ);
+                    AstConst* స్థిరరాశి defValuep = VN_CAST(paramIt->రెండవ->valuep(), Const);
+                    ఒకవేళ (defValuep && areSame(constp, defValuep)) {
+                        ఒకవేళ (!untyped || constp->same_విలువ_Type(defValuep)) {
                             UINFO(5, "Setting default value of " << constp << " to " << modvarp);
-                            continue;  // Skip this parameter because setting the same value
+                            కొనసాగు;  // Skip this parameter because setting the same value
                         }
                         typeMismatchPinp = pinp;
                     }
-                    const auto pIt = vlstd::as_const(params).find(modvarp->name());
+                    స్థిరరాశి స్వయంచాలక pIt = vlstd::as_const(params).కనుగొను(modvarp->name());
                     UINFO(5, "Comparing " << modvarp->name() << " " << constp);
-                    if (pIt == params.end() || paramIdx >= params.size()
-                        || !areSame(constp, pIt->second.get())) {
-                        found = false;
-                        break;
+                    ఒకవేళ (pIt == params.చివర() || paramIdx >= params.కొలత()
+                        || !areSame(constp, pIt->రెండవ.get())) {
+                        దొరికింది = అబద్ధం;
+                        ఆపు;
                     }
-                    if (untyped && !constp->sameValueType(pIt->second.get())) {
+                    ఒకవేళ (untyped && !constp->same_విలువ_Type(pIt->రెండవ.get())) {
                         typeMismatchPinp = pinp;
-                        found = false;
-                        break;
+                        దొరికింది = అబద్ధం;
+                        ఆపు;
                     }
                     UINFO(5, "Matched " << modvarp->name() << " " << constp << " and "
-                                        << pIt->second.get());
+                                        << pIt->రెండవ.get());
                     ++paramIdx;
                 }
             }
-            if (found && paramIdx == hierIt->second->params().size()) break;
+            ఒకవేళ (దొరికింది && paramIdx == hierIt->రెండవ->params().కొలత()) ఆపు;
         }
-        if (hierIt == candidates.second && typeMismatchPinp) {
+        ఒకవేళ (hierIt == candidates.రెండవ && typeMismatchPinp) {
             typeMismatchPinp->v3warn(
                 E_UNSUPPORTED, "Unsupported: Untyped parameter "
                                    << typeMismatchPinp->modVarp()->prettyNameQ()
-                                   << " of hierarchical block " << AstNode::prettyNameQ(origName)
+                                   << " of hierarchical block " << Ast_కణుపు::prettyNameQ(origName)
                                    << " given equal values of different width or"
                                       " signedness");
-            return nullptr;
+            తిరిగి శూన్యసూచిక;
         }
-        UASSERT_OBJ(hierIt != candidates.second, firstPinp, "No --lib-create wrapper found");
+        UASSERT_OBJ(hierIt != candidates.రెండవ, మొదటి_Pinp, "No --lib-create wrapper found");
         // parameter settings will be removed in the bottom of caller visitCell().
-        const HierBlockModMap::const_iterator modIt
-            = m_hierBlockMod.find(hierIt->second->mangledName());
-        UASSERT_OBJ(modIt != m_hierBlockMod.end(), firstPinp,
-                    hierIt->second->mangledName() << " is not found");
+        స్థిరరాశి Hier_ఖండం_Mod_Map::const_iterator modIt
+            = m_hier_ఖండం_Mod.కనుగొను(hierIt->రెండవ->mangledName());
+        UASSERT_OBJ(modIt != m_hier_ఖండం_Mod.చివర(), మొదటి_Pinp,
+                    hierIt->రెండవ->mangledName() << " is not found");
 
-        const auto it = vlstd::as_const(m_hierBlockMod).find(hierIt->second->mangledName());
-        if (it == m_hierBlockMod.end()) return nullptr;
-        return it->second;
+        స్థిరరాశి స్వయంచాలక it = vlstd::as_const(m_hier_ఖండం_Mod).కనుగొను(hierIt->రెండవ->mangledName());
+        ఒకవేళ (it == m_hier_ఖండం_Mod.చివర()) తిరిగి శూన్యసూచిక;
+        తిరిగి it->రెండవ;
     }
-    static bool areSame(AstConst* pinValuep, AstConst* hierOptParamp) {
-        if (pinValuep->isString()) {
-            return pinValuep->num().toString() == hierOptParamp->num().toString();
+    స్థిర తార్కిక areSame(AstConst* pinValuep, AstConst* hierOptParamp) {
+        ఒకవేళ (pinValuep->isString()) {
+            తిరిగి pinValuep->అంకె().గమ్యం_String() == hierOptParamp->అంకె().గమ్యం_String();
         }
 
-        if (hierOptParamp->isDouble()) {
-            double var;
-            if (pinValuep->isDouble()) {
-                var = pinValuep->num().toDouble();
-            } else {  // Cast from integer to real
-                V3Number varNum{pinValuep, V3Number::Double{}, 0.0};
-                varNum.opIToRD(pinValuep->num());
-                var = varNum.toDouble();
+        ఒకవేళ (hierOptParamp->isDouble()) {
+            ద్విగుణ var;
+            ఒకవేళ (pinValuep->isDouble()) {
+                var = pinValuep->అంకె().గమ్యం_Double();
+            } లేకపోతే {  // Cast from integer to real
+                V3_సంఖ్య var_అంకె{pinValuep, V3_సంఖ్య::Double{}, 0.0};
+                var_అంకె.opIToRD(pinValuep->అంకె());
+                var = var_అంకె.గమ్యం_Double();
             }
-            return V3Number::epsilonEqual(var, hierOptParamp->num().toDouble());
-        } else {  // Now integer type is assumed
+            తిరిగి V3_సంఖ్య::epsilonEqual(var, hierOptParamp->అంకె().గమ్యం_Double());
+        } లేకపోతే {  // Now integer type is assumed
             // Bitwidth of hierOptParamp is accurate because V3Width already calculated in the
             // previous run. Bitwidth of pinValuep is before width analysis, so pinValuep is casted
             // to hierOptParamp width.
-            V3Number varNum{pinValuep, hierOptParamp->num().width()};
-            if (pinValuep->isDouble()) {  // Need to cast to int
+            V3_సంఖ్య var_అంకె{pinValuep, hierOptParamp->అంకె().వెడల్పు()};
+            ఒకవేళ (pinValuep->isDouble()) {  // Need to cast to int
                 // Parameter is actually an integral type, but passed value is floating point.
                 // Conversion from real to integer uses rounding in V3Width.cpp
-                varNum.opRToIRoundS(pinValuep->num());
-            } else if (pinValuep->isSigned()) {
-                varNum.opExtendS(pinValuep->num(), pinValuep->num().width());
-            } else {
-                varNum.opAssign(pinValuep->num());
+                var_అంకె.opRToIRoundS(pinValuep->అంకె());
+            } లేకపోతే ఒకవేళ (pinValuep->isSigned()) {
+                var_అంకె.opExtendS(pinValuep->అంకె(), pinValuep->అంకె().వెడల్పు());
+            } లేకపోతే {
+                var_అంకె.op_కేటాయించు(pinValuep->అంకె());
             }
-            V3Number isEq{pinValuep, 1};
-            isEq.opEq(varNum, hierOptParamp->num());
-            return isEq.isNeqZero();
+            V3_సంఖ్య isEq{pinValuep, 1};
+            isEq.opEq(var_అంకె, hierOptParamp->అంకె());
+            తిరిగి isEq.isNeqZero();
         }
     }
 };
@@ -275,7 +275,7 @@ public:
 //######################################################################
 // Remove parameters from cells and build new modules
 
-class ParamProcessor final {
+తరగతి ParamProcessor final {
     // NODE STATE - Local
     //   AstVar::user3()        // int    Global parameter number (for naming new module)
     //                          //        (0=not processed, 1=iterated, but no number,
@@ -291,575 +291,575 @@ class ParamProcessor final {
     //   AstIfaceRefDType::user2()      // bool   True if visited
     //   AstClassRefDType::user2()      // bool   True if visited
     //   AstNodeModule:user4p() // AstNodeModule* Parametrized copy with default parameters
-    const VNUser2InUse m_inuser2;
-    const VNUser3InUse m_inuser3;
-    const VNUser4InUse m_inuser4;
+    స్థిరరాశి VNUser2_లోపల_Use m_inuser2;
+    స్థిరరాశి VNUser3_లోపల_Use m_inuser3;
+    స్థిరరాశి VNUser4_లోపల_Use m_inuser4;
     // User1 used by constant function simulations
 
     // TYPES
     // Note may have duplicate entries
-    using IfaceRefRefs = std::deque<std::pair<AstIfaceRefDType*, AstIfaceRefDType*>>;
+    ఉపయోగించి IfaceRefRefs = std::deque<std::pair<AstIfaceRefDType*, AstIfaceRefDType*>>;
 
     // STATE
-    using CloneMap = std::unordered_map<const AstNode*, AstNode*>;
-    struct ModInfo final {
-        AstNodeModule* const m_modp;  // Module with specified name
+    ఉపయోగించి CloneMap = std::unordered_map<స్థిరరాశి Ast_కణుపు*, Ast_కణుపు*>;
+    నిర్మాణం ModInfo final {
+        Ast_కణుపు_Module* స్థిరరాశి m_modp;  // Module with specified name
         CloneMap m_cloneMap;  // Map of old-varp -> new cloned varp
-        explicit ModInfo(AstNodeModule* modp)
+        స్పష్టమైన ModInfo(Ast_కణుపు_Module* modp)
             : m_modp{modp} {}
     };
-    std::map<const std::string, ModInfo> m_modNameMap;  // Hash of created module flavors by name
+    std::map<స్థిరరాశి std::string, ModInfo> m_modNameMap;  // Hash of created module flavors by name
 
-    std::map<const std::string, std::string>
+    std::map<స్థిరరాశి std::string, std::string>
         m_longMap;  // Hash of very long names to unique identity number
-    std::set<std::string> m_longSuffixes;  // Digest suffixes used by m_longMap
+    std::సమితి<std::string> m_longSuffixes;  // Digest suffixes used by m_longMap
 
     // All module names that are loaded from source code
     // Generated modules by this visitor is not included
-    VStringSet m_allModuleNames;
+    VString_సమితి m_all_Module_పేర్లు;
 
     CloneMap m_originalParams;  // Map between parameters of copied parameteized classes and their
                                 // original nodes
 
-    std::map<const std::string, std::string> m_valueNames;  // Parameter value text to its name
-    std::set<std::string> m_valueSuffixes;  // Digest suffixes used by m_valueNames
+    std::map<స్థిరరాశి std::string, std::string> m_విలువ_పేర్లు;  // Parameter value text to its name
+    std::సమితి<std::string> m_విలువ_Suffixes;  // Digest suffixes used by m_valueNames
     // Number of digest hex digits in a name. With 8 digits, a collision between names made in
     // different runs, such as those of different hierarchical blocks, is unlikely. Within one
     // run, digestSuffix resolves a collision by lengthening the later text's suffix, which can
     // then differ between runs.
-    static constexpr std::string::size_type DIGEST_DIGITS = 8;
+    స్థిర constexpr std::string::కొలత_type DIGEST_DIGITS = 8;
 
-    const AstNodeModule* m_modp = nullptr;  // Current module being processed
+    స్థిరరాశి Ast_కణుపు_Module* m_modp = శూన్యసూచిక;  // Current module being processed
 
     // Database to get lib-create wrapper that matches parameters in hierarchical Verilation
-    ParameterizedHierBlocks m_hierBlocks;
+    Parameterized_Hier_ఖండాలు m_hier_ఖండాలు;
     // Default parameter values key:parameter name, value:default value (can be nullptr)
-    using DefaultValueMap = std::map<std::string, AstNode*>;
+    ఉపయోగించి Default_విలువ_Map = std::map<std::string, Ast_కణుపు*>;
     // Default parameter values of hierarchical blocks
-    std::map<AstNodeModule*, DefaultValueMap> m_defaultParameterValues;
+    std::map<Ast_కణుపు_Module*, Default_విలువ_Map> m_default_Parameter_విలువలు;
     // Module -> a defparam in it or below it, or nullptr (see nestedDefparamp)
-    std::map<const AstNodeModule*, const AstPin*> m_nestedDefparamps;
+    std::map<స్థిరరాశి Ast_కణుపు_Module*, స్థిరరాశి AstPin*> m_nestedDefparamps;
     VNDeleter m_deleter;  // Used to delay deletion of nodes
     // Class default type paramater dependencies
-    std::vector<std::pair<AstParamTypeDType*, int>> m_classTypeParams;
-    std::unordered_map<AstParamTypeDType*, int> m_paramIndex;
+    std::సదిశ<std::pair<AstParamTypeDType*, పూర్ణాంకం>> m_classTypeParams;
+    std::unordered_map<AstParamTypeDType*, పూర్ణాంకం> m_param_సూచీ;
 
     // Guard against infinite recursion in classTypeMatchesDefaultClone slow path
-    std::unordered_set<const AstClass*> m_defaultCloneInProgress;
+    std::unordered_సమితి<స్థిరరాశి AstClass*> m_default_Clone_లోపల_పురోగతి;
 
-    std::vector<AstClass*> m_specializedClassps;  // Classes specialized since last drained
+    std::సదిశ<AstClass*> m_specializedClassps;  // Classes specialized since last drained
 
     // member names cached for fast lookup
     VMemberMap m_memberMap;
 
     // METHODS
 
-    static void makeSmallNames(AstNodeModule* modp) {
-        std::vector<int> usedLetter;
-        usedLetter.resize(256);
+    స్థిర శూన్య make_Small_పేర్లు(Ast_కణుపు_Module* modp) {
+        std::సదిశ<పూర్ణాంకం> వాడిన_Letter;
+        వాడిన_Letter.resize(256);
         // Pass 1, assign first letter to each gparam's name
-        for (AstNode* stmtp = modp->stmtsp(); stmtp; stmtp = stmtp->nextp()) {
-            if (AstVar* const varp = VN_CAST(stmtp, Var)) {
-                if (varp->isGParam() || varp->isIfaceRef()) {
-                    char ch = varp->name()[0];
-                    ch = std::toupper(ch);
-                    if (ch < 'A' || ch > 'Z') ch = 'Z';
-                    varp->user3(usedLetter[static_cast<int>(ch)] * 256 + ch);
-                    usedLetter[static_cast<int>(ch)]++;
+        కొరకు (Ast_కణుపు* stmtp = modp->stmtsp(); stmtp; stmtp = stmtp->nextp()) {
+            ఒకవేళ (AstVar* స్థిరరాశి varp = VN_CAST(stmtp, Var)) {
+                ఒకవేళ (varp->isGParam() || varp->isIfaceRef()) {
+                    అక్షరం ch = varp->name()[0];
+                    ch = std::పెద్ద_అక్షరం(ch);
+                    ఒకవేళ (ch < 'A' || ch > 'Z') ch = 'Z';
+                    varp->user3(వాడిన_Letter[static_cast<పూర్ణాంకం>(ch)] * 256 + ch);
+                    వాడిన_Letter[static_cast<పూర్ణాంకం>(ch)]++;
                 }
-            } else if (AstParamTypeDType* const typep = VN_CAST(stmtp, ParamTypeDType)) {
-                const char ch = 'T';
-                typep->user3(usedLetter[static_cast<int>(ch)] * 256 + ch);
-                usedLetter[static_cast<int>(ch)]++;
+            } లేకపోతే ఒకవేళ (AstParamTypeDType* స్థిరరాశి typep = VN_CAST(stmtp, ParamTypeDType)) {
+                స్థిరరాశి అక్షరం ch = 'T';
+                typep->user3(వాడిన_Letter[static_cast<పూర్ణాంకం>(ch)] * 256 + ch);
+                వాడిన_Letter[static_cast<పూర్ణాంకం>(ch)]++;
             }
         }
     }
-    static string paramSmallName(AstNodeModule* modp, AstNode* varp) {
-        if (varp->user3() <= 1) makeSmallNames(modp);
-        int index = varp->user3() / 256;
-        const char ch = varp->user3() & 255;
-        string st = cvtToStr(ch);
-        while (index) {
-            st += cvtToStr(static_cast<char>((index % 25) + 'A'));
-            index /= 26;
+    స్థిర string paramSmallName(Ast_కణుపు_Module* modp, Ast_కణుపు* varp) {
+        ఒకవేళ (varp->user3() <= 1) make_Small_పేర్లు(modp);
+        పూర్ణాంకం సూచీ = varp->user3() / 256;
+        స్థిరరాశి అక్షరం ch = varp->user3() & 255;
+        string st = cvt_గమ్యం_Str(ch);
+        అయితే (సూచీ) {
+            st += cvt_గమ్యం_Str(static_cast<అక్షరం>((సూచీ % 25) + 'A'));
+            సూచీ /= 26;
         }
-        return st;
+        తిరిగి st;
     }
 
-    static bool isAggregateParamValue(const AstNode* nodep) {
-        return VN_IS(nodep, ConsArray) || VN_IS(nodep, ConsStruct);
+    స్థిర తార్కిక is_Aggregate_Param_విలువ(స్థిరరాశి Ast_కణుపు* nodep) {
+        తిరిగి VN_IS(nodep, ConsArray) || VN_IS(nodep, ConsStruct);
     }
 
-    static string paramValueString(const AstNode* nodep) {
-        if (const AstRefDType* const refp = VN_CAST(nodep, RefDType)) {
-            nodep = refp->skipRefToNonRefp();
+    స్థిర string param_విలువ_String(స్థిరరాశి Ast_కణుపు* nodep) {
+        ఒకవేళ (స్థిరరాశి AstRefDType* స్థిరరాశి refp = VN_CAST(nodep, RefDType)) {
+            nodep = refp->skip_Ref_గమ్యం_Non_Refp();
         }
-        string key = nodep->name();
-        if (const AstIfaceRefDType* const ifrtp = VN_CAST(nodep, IfaceRefDType)) {
-            if (ifrtp->cellp() && ifrtp->cellp()->modp()) {
-                key = ifrtp->cellp()->modp()->name();
-            } else if (ifrtp->ifacep()) {
-                key = ifrtp->ifacep()->name();
-            } else {
+        string కీలకం = nodep->name();
+        ఒకవేళ (స్థిరరాశి AstIfaceRefDType* స్థిరరాశి ifrtp = VN_CAST(nodep, IfaceRefDType)) {
+            ఒకవేళ (ifrtp->cellp() && ifrtp->cellp()->modp()) {
+                కీలకం = ifrtp->cellp()->modp()->name();
+            } లేకపోతే ఒకవేళ (ifrtp->ifacep()) {
+                కీలకం = ifrtp->ifacep()->name();
+            } లేకపోతే {
                 nodep->v3fatalSrc("Can't parameterize interface without module name");
             }
-        } else if (const AstNodeUOrStructDType* const dtypep
-                   = VN_CAST(nodep, NodeUOrStructDType)) {
-            key += " ";
-            key += dtypep->verilogKwd();
-            key += " {";
-            for (const AstNode* memberp = dtypep->membersp(); memberp;
+        } లేకపోతే ఒకవేళ (స్థిరరాశి Ast_కణుపు_UOr_Struct_DType* స్థిరరాశి dtypep
+                   = VN_CAST(nodep, కణుపు_UOr_Struct_DType)) {
+            కీలకం += " ";
+            కీలకం += dtypep->verilogKwd();
+            కీలకం += " {";
+            కొరకు (స్థిరరాశి Ast_కణుపు* memberp = dtypep->membersp(); memberp;
                  memberp = memberp->nextp()) {
-                key += paramValueString(memberp);
-                key += ";";
+                కీలకం += param_విలువ_String(memberp);
+                కీలకం += ";";
             }
-            key += "}";
-        } else if (const AstMemberDType* const dtypep = VN_CAST(nodep, MemberDType)) {
-            key += " ";
-            key += paramValueString(dtypep->subDTypep());
-        } else if (const AstBasicDType* const dtypep = VN_CAST(nodep, BasicDType)) {
-            if (dtypep->isSigned()) key += " signed";
-            if (dtypep->isRanged()) {
-                key += "[" + cvtToStr(dtypep->left()) + ":" + cvtToStr(dtypep->right()) + "]";
+            కీలకం += "}";
+        } లేకపోతే ఒకవేళ (స్థిరరాశి AstMemberDType* స్థిరరాశి dtypep = VN_CAST(nodep, MemberDType)) {
+            కీలకం += " ";
+            కీలకం += param_విలువ_String(dtypep->subDTypep());
+        } లేకపోతే ఒకవేళ (స్థిరరాశి AstBasicDType* స్థిరరాశి dtypep = VN_CAST(nodep, BasicDType)) {
+            ఒకవేళ (dtypep->isSigned()) కీలకం += " signed";
+            ఒకవేళ (dtypep->isRanged()) {
+                కీలకం += "[" + cvt_గమ్యం_Str(dtypep->ఎడమ()) + ":" + cvt_గమ్యం_Str(dtypep->కుడి()) + "]";
             }
-        } else if (const AstPackArrayDType* const dtypep = VN_CAST(nodep, PackArrayDType)) {
-            key += "[";
-            key += cvtToStr(dtypep->left());
-            key += ":";
-            key += cvtToStr(dtypep->right());
-            key += "] ";
-            key += paramValueString(dtypep->subDTypep());
-        } else if (const AstPattern* const patp = VN_CAST(nodep, Pattern)) {
+        } లేకపోతే ఒకవేళ (స్థిరరాశి AstPackArrayDType* స్థిరరాశి dtypep = VN_CAST(nodep, PackArrayDType)) {
+            కీలకం += "[";
+            కీలకం += cvt_గమ్యం_Str(dtypep->ఎడమ());
+            కీలకం += ":";
+            కీలకం += cvt_గమ్యం_Str(dtypep->కుడి());
+            కీలకం += "] ";
+            కీలకం += param_విలువ_String(dtypep->subDTypep());
+        } లేకపోతే ఒకవేళ (స్థిరరాశి Ast_నమూనా* స్థిరరాశి patp = VN_CAST(nodep, నమూనా)) {
             // A parameter override pattern, keyed before the specialized module types it
-            key += "'{";
-            for (const AstPatMember* memp = VN_AS(patp->itemsp(), PatMember); memp;
+            కీలకం += "'{";
+            కొరకు (స్థిరరాశి AstPatMember* memp = VN_AS(patp->itemsp(), PatMember); memp;
                  memp = VN_AS(memp->nextp(), PatMember)) {
-                if (memp->isDefault()) key += "default";
-                if (const AstText* const textp = VN_CAST(memp->keyp(), Text)) {
-                    key += textp->text();
-                } else if (memp->keyp()) {
-                    key += paramValueString(memp->keyp());
+                ఒకవేళ (memp->isDefault()) కీలకం += "default";
+                ఒకవేళ (స్థిరరాశి Ast_పాఠ్యం* స్థిరరాశి textp = VN_CAST(memp->keyp(), పాఠ్యం_2)) {
+                    కీలకం += textp->పాఠ్యం();
+                } లేకపోతే ఒకవేళ (memp->keyp()) {
+                    కీలకం += param_విలువ_String(memp->keyp());
                 }
-                key += ":";
-                if (memp->repp()) key += paramValueString(memp->repp()) + "x";
-                for (const AstNodeExpr* valuep = memp->lhssp(); valuep;
-                     valuep = VN_AS(valuep->nextp(), NodeExpr)) {
-                    key += paramValueString(valuep) + ";";
+                కీలకం += ":";
+                ఒకవేళ (memp->repp()) కీలకం += param_విలువ_String(memp->repp()) + "x";
+                కొరకు (స్థిరరాశి Ast_కణుపు_సమాసం* valuep = memp->lhssp(); valuep;
+                     valuep = VN_AS(valuep->nextp(), కణుపు_సమాసం)) {
+                    కీలకం += param_విలువ_String(valuep) + ";";
                 }
-                key += ",";
+                కీలకం += ",";
             }
-            key += "}";
-        } else if (const AstConsArray* const consArrayp = VN_CAST(nodep, ConsArray)) {
+            కీలకం += "}";
+        } లేకపోతే ఒకవేళ (స్థిరరాశి AstConsArray* స్థిరరాశి consArrayp = VN_CAST(nodep, ConsArray)) {
             // Include the indices and the default, as with a default the items may be sparse
-            key += "{";
-            for (const AstConsArrayItem* itemp = consArrayp->itemsp(); itemp;
-                 itemp = VN_AS(itemp->nextp(), ConsArrayItem)) {
-                key += cvtToStr(itemp->index()) + ":" + paramValueString(itemp->valuep()) + ",";
+            కీలకం += "{";
+            కొరకు (స్థిరరాశి Ast_Cons_Array_అంశం* itemp = consArrayp->itemsp(); itemp;
+                 itemp = VN_AS(itemp->nextp(), Cons_Array_అంశం)) {
+                కీలకం += cvt_గమ్యం_Str(itemp->సూచీ()) + ":" + param_విలువ_String(itemp->valuep()) + ",";
             }
-            if (consArrayp->defaultp()) {
-                key += "default:" + paramValueString(consArrayp->defaultp()) + ",";
+            ఒకవేళ (consArrayp->defaultp()) {
+                కీలకం += "default:" + param_విలువ_String(consArrayp->defaultp()) + ",";
             }
-            key += "}";
-        } else if (const AstConsStruct* const consp = VN_CAST(nodep, ConsStruct)) {
-            key += "{";
-            for (const AstConsStructItem* itemp = consp->itemsp(); itemp;
-                 itemp = VN_AS(itemp->nextp(), ConsStructItem)) {
-                key += paramValueString(itemp->valuep());
-                key += ",";
+            కీలకం += "}";
+        } లేకపోతే ఒకవేళ (స్థిరరాశి AstConsStruct* స్థిరరాశి consp = VN_CAST(nodep, ConsStruct)) {
+            కీలకం += "{";
+            కొరకు (స్థిరరాశి Ast_Cons_Struct_అంశం* itemp = consp->itemsp(); itemp;
+                 itemp = VN_AS(itemp->nextp(), Cons_Struct_అంశం)) {
+                కీలకం += param_విలువ_String(itemp->valuep());
+                కీలకం += ",";
             }
-            key += "}";
-        } else if (const AstClassRefDType* const classRefp = VN_CAST(nodep, ClassRefDType)) {
+            కీలకం += "}";
+        } లేకపోతే ఒకవేళ (స్థిరరాశి AstClassRefDType* స్థిరరాశి classRefp = VN_CAST(nodep, ClassRefDType)) {
             // For parameterized class types, use the original class name (without specialization
             // suffix) plus the actual type parameter values. This ensures equivalent class types
             // get the same string representation regardless of which AST node is used.
-            if (classRefp->classp()) {
-                const string& className = classRefp->classp()->name();
-                const string& origName = classRefp->classp()->origName();
-                const bool isSpecialized = (className != origName);
+            ఒకవేళ (classRefp->classp()) {
+                స్థిరరాశి string& className = classRefp->classp()->name();
+                స్థిరరాశి string& origName = classRefp->classp()->origName();
+                స్థిరరాశి తార్కిక isSpecialized = (className != origName);
                 UINFO(9, "paramValueString ClassRefDType: name="
                              << className << " origName=" << origName
                              << " isSpecialized=" << isSpecialized
                              << " hasParams=" << (classRefp->paramsp() ? "Y" : "N")
                              << " classHasGParam=" << classRefp->classp()->hasGParam());
 
-                if (classRefp->paramsp()) {
+                ఒకవేళ (classRefp->paramsp()) {
                     // ClassRefDType should have been deparameterized (paramsp
                     // consumed) before cellPinCleanup calls paramValueString.
                     classRefp->v3fatalSrc(  // LCOV_EXCL_LINE
                         "ClassRefDType still has paramsp in paramValueString");
-                } else if (isSpecialized) {
+                } లేకపోతే ఒకవేళ (isSpecialized) {
                     // Already specialized class (e.g., c1__Tz1_TBz1) - use full name
                     // This ensures different specializations are distinguished
-                    key = className;
-                } else {
+                    కీలకం = className;
+                } లేకపోతే {
                     // Unspecialized class with no params - use origName
-                    key = origName;
+                    కీలకం = origName;
                 }
-            } else {
+            } లేకపోతే {
                 // classp() should always be set; unresolved class refs
                 // would have errored in LinkDot.
                 classRefp->v3fatalSrc(  // LCOV_EXCL_LINE
                     "ClassRefDType has null classp in paramValueString");
             }
-        } else if (const AstUnpackArrayDType* const dtypep = VN_CAST(nodep, UnpackArrayDType)) {
+        } లేకపోతే ఒకవేళ (స్థిరరాశి AstUnpackArrayDType* స్థిరరాశి dtypep = VN_CAST(nodep, UnpackArrayDType)) {
             // Name containers by their elements as above, not by prettyDTypeName(), which names
             // classes by parameter values that may be yet to be resolved
-            key = paramElemString(dtypep->subDTypep()) + "$" + cvtToStr(dtypep->declRange());
-        } else if (const AstQueueDType* const dtypep = VN_CAST(nodep, QueueDType)) {
-            key = paramElemString(dtypep->subDTypep()) + "$[$";
-            if (dtypep->boundConst()) key += ":" + cvtToStr(dtypep->boundConst());
-            key += "]";
-        } else if (const AstDynArrayDType* const dtypep = VN_CAST(nodep, DynArrayDType)) {
-            key = paramElemString(dtypep->subDTypep()) + "$[]";
-        } else if (const AstAssocArrayDType* const dtypep = VN_CAST(nodep, AssocArrayDType)) {
-            key = paramElemString(dtypep->subDTypep()) + "$["
-                  + paramElemString(dtypep->keyDTypep()) + "]";
-        } else if (const AstWildcardArrayDType* const dtypep
+            కీలకం = paramElemString(dtypep->subDTypep()) + "$" + cvt_గమ్యం_Str(dtypep->declRange());
+        } లేకపోతే ఒకవేళ (స్థిరరాశి Ast_వరుస_DType* స్థిరరాశి dtypep = VN_CAST(nodep, వరుస_DType)) {
+            కీలకం = paramElemString(dtypep->subDTypep()) + "$[$";
+            ఒకవేళ (dtypep->boundConst()) కీలకం += ":" + cvt_గమ్యం_Str(dtypep->boundConst());
+            కీలకం += "]";
+        } లేకపోతే ఒకవేళ (స్థిరరాశి AstDynArrayDType* స్థిరరాశి dtypep = VN_CAST(nodep, DynArrayDType)) {
+            కీలకం = paramElemString(dtypep->subDTypep()) + "$[]";
+        } లేకపోతే ఒకవేళ (స్థిరరాశి AstAssocArrayDType* స్థిరరాశి dtypep = VN_CAST(nodep, AssocArrayDType)) {
+            కీలకం = paramElemString(dtypep->subDTypep()) + "$["
+                  + paramElemString(dtypep->కీలకం_DTypep()) + "]";
+        } లేకపోతే ఒకవేళ (స్థిరరాశి AstWildcardArrayDType* స్థిరరాశి dtypep
                    = VN_CAST(nodep, WildcardArrayDType)) {
-            key = paramElemString(dtypep->subDTypep()) + "$[*]";
-        } else if (const AstEnumDType* const dtypep = VN_CAST(nodep, EnumDType)) {
+            కీలకం = paramElemString(dtypep->subDTypep()) + "$[*]";
+        } లేకపోతే ఒకవేళ (స్థిరరాశి AstEnumDType* స్థిరరాశి dtypep = VN_CAST(nodep, EnumDType)) {
             // With the items, as prettyDTypeName() omits them, yet a specialization of a class
             // may declare an enumeration of the same name with other values
-            key += " enum {";
-            for (const AstEnumItem* itemp = dtypep->itemsp(); itemp;
-                 itemp = VN_AS(itemp->nextp(), EnumItem)) {
-                const AstConst* const constp = VN_CAST(itemp->valuep(), Const);
-                key += itemp->name() + "=" + (constp ? constp->num().ascii() : "?") + ";";
+            కీలకం += " enum {";
+            కొరకు (స్థిరరాశి Ast_Enum_అంశం* itemp = dtypep->itemsp(); itemp;
+                 itemp = VN_AS(itemp->nextp(), Enum_అంశం)) {
+                స్థిరరాశి AstConst* స్థిరరాశి constp = VN_CAST(itemp->valuep(), Const);
+                కీలకం += itemp->name() + "=" + (constp ? constp->అంకె().ascii() : "?") + ";";
             }
-            key += "}";
-        } else if (const AstNodeDType* const dtypep = VN_CAST(nodep, NodeDType)) {
-            key += dtypep->prettyDTypeName(true);
+            కీలకం += "}";
+        } లేకపోతే ఒకవేళ (స్థిరరాశి Ast_కణుపు_DType* స్థిరరాశి dtypep = VN_CAST(nodep, కణుపు_DType)) {
+            కీలకం += dtypep->prettyDTypeName(నిజం);
         }
-        UASSERT_OBJ(!key.empty(), nodep, "Parameter yielded no value string");
-        return key;
+        UASSERT_OBJ(!కీలకం.ఖాళీలు(), nodep, "Parameter yielded no value string");
+        తిరిగి కీలకం;
     }
     // As paramValueString(), for the element or key type of a container
-    static string paramElemString(const AstNodeDType* dtypep) {
+    స్థిర string paramElemString(స్థిరరాశి Ast_కణుపు_DType* dtypep) {
         // Unlike at the top of a value, a class may be yet to be specialized, so just name it
-        const AstClassRefDType* const classRefp
-            = VN_CAST(dtypep->skipRefToNonRefp(), ClassRefDType);
-        if (classRefp && classRefp->paramsp()) return classRefp->prettyDTypeName(true);
-        return paramValueString(dtypep);
+        స్థిరరాశి AstClassRefDType* స్థిరరాశి classRefp
+            = VN_CAST(dtypep->skip_Ref_గమ్యం_Non_Refp(), ClassRefDType);
+        ఒకవేళ (classRefp && classRefp->paramsp()) తిరిగి classRefp->prettyDTypeName(నిజం);
+        తిరిగి param_విలువ_String(dtypep);
     }
 
     // Return a name suffix for 'text' from its SHA-512 digest. Hierarchical blocks are
     // Verilated in separate runs, where a counter would restart, but the digest is the same in
     // every run. Use the shortest digest prefix of at least DIGEST_DIGITS digits that is not
     // already in 'usedr', and add it to 'usedr'.
-    static string digestSuffix(const string& text, std::set<string>& usedr) {
-        const string hex = VHashSha512{text}.digestHex();
+    స్థిర string digestSuffix(స్థిరరాశి string& పాఠ్యం, std::సమితి<string>& usedr) {
+        స్థిరరాశి string hex = VHashSha512{పాఠ్యం}.digestHex();
         // Force collisions of the prefixes -- for testing only
-        string::size_type digits = v3Global.opt.debugCollision() ? 1 : DIGEST_DIGITS;
-        while (digits < hex.size() && !usedr.insert(hex.substr(0, digits)).second) ++digits;
-        return hex.substr(0, digits);
+        string::కొలత_type digits = v3Global.opt.debugCollision() ? 1 : DIGEST_DIGITS;
+        అయితే (digits < hex.కొలత() && !usedr.చొప్పించు(hex.substr(0, digits)).రెండవ) ++digits;
+        తిరిగి hex.substr(0, digits);
     }
-    string paramValueNumber(AstNode* nodep) {
+    string param_విలువ_సంఖ్య(Ast_కణుపు* nodep) {
         // All call sites resolve through skipRefToNonRefp() or pass non-DType
         // nodes, so nodep should never be a bare RefDType here.
-        if (VN_IS(nodep, RefDType)) {  // LCOV_EXCL_LINE
+        ఒకవేళ (VN_IS(nodep, RefDType)) {  // LCOV_EXCL_LINE
             nodep->v3fatalSrc("Unexpected RefDType in paramValueNumber");  // LCOV_EXCL_LINE
         }
         // Name the value by its text, which is the same for equal values or types in every run.
         // V3Hasher is unsuitable, as it hashes node pointers, which can differ for equal types.
         // V3Hash of a string is unsuitable, as std::hash varies between C++ libraries.
-        const string text = paramValueString(nodep);
-        const auto pair = m_valueNames.emplace(text, "");
-        if (pair.second) pair.first->second = "z" + digestSuffix(text, m_valueSuffixes);
-        return pair.first->second;
+        స్థిరరాశి string పాఠ్యం = param_విలువ_String(nodep);
+        స్థిరరాశి స్వయంచాలక pair = m_విలువ_పేర్లు.emplace(పాఠ్యం, "");
+        ఒకవేళ (pair.రెండవ) pair.మొదటి->రెండవ = "z" + digestSuffix(పాఠ్యం, m_విలువ_Suffixes);
+        తిరిగి pair.మొదటి->రెండవ;
     }
-    string moduleCalcName(const AstNodeModule* srcModp, const string& longname) {
+    string moduleCalcName(స్థిరరాశి Ast_కణుపు_Module* srcModp, స్థిరరాశి string& longname) {
         string newname = longname;
-        if (longname.length() > 30) {
-            const auto pair = m_longMap.emplace(longname, "");
-            if (pair.second) {
+        ఒకవేళ (longname.నిడివి() > 30) {
+            స్థిరరాశి స్వయంచాలక pair = m_longMap.emplace(longname, "");
+            ఒకవేళ (pair.రెండవ) {
                 // We use all upper case above, so lower here can't conflict
-                pair.first->second
+                pair.మొదటి->రెండవ
                     = srcModp->name() + "__pi" + digestSuffix(longname, m_longSuffixes);
             }
-            newname = pair.first->second;
+            newname = pair.మొదటి->రెండవ;
         }
         UINFO(4, "Name: " << srcModp->name() << "->" << longname << "->" << newname);
-        return newname;
+        తిరిగి newname;
     }
-    static AstNodeDType* arraySubDTypep(AstNodeDType* nodep) {
+    స్థిర Ast_కణుపు_DType* arraySubDTypep(Ast_కణుపు_DType* nodep) {
         // If an unpacked array, return the subDTypep under it
-        if (const AstUnpackArrayDType* const adtypep = VN_CAST(nodep, UnpackArrayDType)) {
-            return adtypep->subDTypep();
+        ఒకవేళ (స్థిరరాశి AstUnpackArrayDType* స్థిరరాశి adtypep = VN_CAST(nodep, UnpackArrayDType)) {
+            తిరిగి adtypep->subDTypep();
         }
         // We have not resolved parameter of the child yet, so still
         // have BracketArrayDType's. We'll presume it'll end up as assignment
         // compatible (or V3Width will complain).
-        if (const AstBracketArrayDType* const adtypep = VN_CAST(nodep, BracketArrayDType)) {
-            return adtypep->subDTypep();
+        ఒకవేళ (స్థిరరాశి AstBracketArrayDType* స్థిరరాశి adtypep = VN_CAST(nodep, BracketArrayDType)) {
+            తిరిగి adtypep->subDTypep();
         }
-        return nullptr;
+        తిరిగి శూన్యసూచిక;
     }
     // Peel all unpacked-array layers to reach the innermost subDTypep.
     // Used for multi-dim iface arrays where port dtype is nested UnpackArrayDType.
-    static AstNodeDType* arraySubDTypeDeepp(AstNodeDType* nodep) {
-        while (AstNodeDType* const subp = arraySubDTypep(nodep)) nodep = subp;
-        return nodep;
+    స్థిర Ast_కణుపు_DType* arraySubDTypeDeepp(Ast_కణుపు_DType* nodep) {
+        అయితే (Ast_కణుపు_DType* స్థిరరాశి subp = arraySubDTypep(nodep)) nodep = subp;
+        తిరిగి nodep;
     }
-    static bool isString(AstNodeDType* nodep) {
-        if (AstBasicDType* const basicp = VN_CAST(nodep->skipRefToNonRefp(), BasicDType))
-            return basicp->isString();
-        return false;
+    స్థిర తార్కిక isString(Ast_కణుపు_DType* nodep) {
+        ఒకవేళ (AstBasicDType* స్థిరరాశి basicp = VN_CAST(nodep->skip_Ref_గమ్యం_Non_Refp(), BasicDType))
+            తిరిగి basicp->isString();
+        తిరిగి అబద్ధం;
     }
-    void collectPins(CloneMap* clonemapp, AstNodeModule* modp, bool originalIsCopy) {
+    శూన్య collectPins(CloneMap* clonemapp, Ast_కణుపు_Module* modp, తార్కిక originalIsCopy) {
         // Grab all I/O so we can remap our pins later
-        for (AstNode* stmtp = modp->stmtsp(); stmtp; stmtp = stmtp->nextp()) {
-            const AstNode* originalParamp = nullptr;
-            if (AstVar* const varp = VN_CAST(stmtp, Var)) {
-                if (varp->isIO() || varp->isGParam() || varp->isIfaceRef()) {
+        కొరకు (Ast_కణుపు* stmtp = modp->stmtsp(); stmtp; stmtp = stmtp->nextp()) {
+            స్థిరరాశి Ast_కణుపు* originalParamp = శూన్యసూచిక;
+            ఒకవేళ (AstVar* స్థిరరాశి varp = VN_CAST(stmtp, Var)) {
+                ఒకవేళ (varp->isIO() || varp->isGParam() || varp->isIfaceRef()) {
                     // Cloning saved a pointer to the new node for us, so just follow that link.
                     originalParamp = varp->clonep();
                 }
-            } else if (AstParamTypeDType* const ptp = VN_CAST(stmtp, ParamTypeDType)) {
-                if (ptp->isGParam()) originalParamp = ptp->clonep();
+            } లేకపోతే ఒకవేళ (AstParamTypeDType* స్థిరరాశి ptp = VN_CAST(stmtp, ParamTypeDType)) {
+                ఒకవేళ (ptp->isGParam()) originalParamp = ptp->clonep();
             }
-            if (originalIsCopy) originalParamp = m_originalParams[originalParamp];
-            if (originalParamp) clonemapp->emplace(originalParamp, stmtp);
+            ఒకవేళ (originalIsCopy) originalParamp = m_originalParams[originalParamp];
+            ఒకవేళ (originalParamp) clonemapp->emplace(originalParamp, stmtp);
         }
     }
-    void relinkPins(const CloneMap* clonemapp, AstPin* startpinp) {
-        for (AstPin* pinp = startpinp; pinp; pinp = VN_AS(pinp->nextp(), Pin)) {
-            if (pinp->modVarp()) {
+    శూన్య relinkPins(స్థిరరాశి CloneMap* clonemapp, AstPin* startpinp) {
+        కొరకు (AstPin* pinp = startpinp; pinp; pinp = VN_AS(pinp->nextp(), Pin)) {
+            ఒకవేళ (pinp->modVarp()) {
                 // Find it in the clone structure
                 // UINFO(8,"Clone find 0x"<<hex<<(uint32_t)pinp->modVarp());
-                const auto cloneiter = clonemapp->find(pinp->modVarp());
-                UASSERT_OBJ(cloneiter != clonemapp->end(), pinp,
+                స్థిరరాశి స్వయంచాలక cloneiter = clonemapp->కనుగొను(pinp->modVarp());
+                UASSERT_OBJ(cloneiter != clonemapp->చివర(), pinp,
                             "Couldn't find pin in clone list");
-                pinp->modVarp(VN_AS(cloneiter->second, Var));
-            } else if (pinp->modPTypep()) {
-                const auto cloneiter = clonemapp->find(pinp->modPTypep());
-                UASSERT_OBJ(cloneiter != clonemapp->end(), pinp,
+                pinp->modVarp(VN_AS(cloneiter->రెండవ, Var));
+            } లేకపోతే ఒకవేళ (pinp->modPTypep()) {
+                స్థిరరాశి స్వయంచాలక cloneiter = clonemapp->కనుగొను(pinp->modPTypep());
+                UASSERT_OBJ(cloneiter != clonemapp->చివర(), pinp,
                             "Couldn't find pin in clone list");
-                pinp->modPTypep(VN_AS(cloneiter->second, ParamTypeDType));
-            } else {
+                pinp->modPTypep(VN_AS(cloneiter->రెండవ, ParamTypeDType));
+            } లేకపోతే {
                 pinp->v3fatalSrc("Not linked?");
             }
         }
     }
-    void relinkPinsByName(AstPin* startpinp, AstNodeModule* modp) {
-        std::map<const string, AstVar*> nameToPin;
-        for (AstNode* stmtp = modp->stmtsp(); stmtp; stmtp = stmtp->nextp()) {
-            if (AstVar* const varp = VN_CAST(stmtp, Var)) {
-                if (varp->isIO() || varp->isGParam() || varp->isIfaceRef()) {
-                    nameToPin.emplace(varp->name(), varp);
+    శూన్య relinkPinsByName(AstPin* startpinp, Ast_కణుపు_Module* modp) {
+        std::map<స్థిరరాశి string, AstVar*> name_గమ్యం_Pin;
+        కొరకు (Ast_కణుపు* stmtp = modp->stmtsp(); stmtp; stmtp = stmtp->nextp()) {
+            ఒకవేళ (AstVar* స్థిరరాశి varp = VN_CAST(stmtp, Var)) {
+                ఒకవేళ (varp->isIO() || varp->isGParam() || varp->isIfaceRef()) {
+                    name_గమ్యం_Pin.emplace(varp->name(), varp);
                 }
             }
         }
-        for (AstPin* pinp = startpinp; pinp; pinp = VN_AS(pinp->nextp(), Pin)) {
-            if (const AstVar* const varp = pinp->modVarp()) {
-                const auto varIt = vlstd::as_const(nameToPin).find(varp->name());
-                UASSERT_OBJ(varIt != nameToPin.end(), varp,
+        కొరకు (AstPin* pinp = startpinp; pinp; pinp = VN_AS(pinp->nextp(), Pin)) {
+            ఒకవేళ (స్థిరరాశి AstVar* స్థిరరాశి varp = pinp->modVarp()) {
+                స్థిరరాశి స్వయంచాలక varIt = vlstd::as_const(name_గమ్యం_Pin).కనుగొను(varp->name());
+                UASSERT_OBJ(varIt != name_గమ్యం_Pin.చివర(), varp,
                             "Not found in " << modp->prettyNameQ());
-                pinp->modVarp(varIt->second);
+                pinp->modVarp(varIt->రెండవ);
             }
         }
     }
-    static bool hasDescendantDefparams(const AstNodeModule* modp,
-                                       std::set<const AstNodeModule*>& visited) {
-        if (!visited.insert(modp).second) return false;
-        for (AstNode* stmtp = modp->stmtsp(); stmtp; stmtp = stmtp->nextp()) {
-            AstCell* const cellp = VN_CAST(stmtp, Cell);
-            if (!cellp) continue;
-            for (AstPin* pinp = cellp->paramsp(); pinp; pinp = VN_AS(pinp->nextp(), Pin)) {
-                if (!pinp->paramPath().empty()) {
-                    visited.erase(modp);
-                    return true;
+    స్థిర తార్కిక hasDescendantDefparams(స్థిరరాశి Ast_కణుపు_Module* modp,
+                                       std::సమితి<స్థిరరాశి Ast_కణుపు_Module*>& సందర్శించిన) {
+        ఒకవేళ (!సందర్శించిన.చొప్పించు(modp).రెండవ) తిరిగి అబద్ధం;
+        కొరకు (Ast_కణుపు* stmtp = modp->stmtsp(); stmtp; stmtp = stmtp->nextp()) {
+            AstCell* స్థిరరాశి cellp = VN_CAST(stmtp, Cell);
+            ఒకవేళ (!cellp) కొనసాగు;
+            కొరకు (AstPin* pinp = cellp->paramsp(); pinp; pinp = VN_AS(pinp->nextp(), Pin)) {
+                ఒకవేళ (!pinp->param_మార్గం().ఖాళీలు()) {
+                    సందర్శించిన.erase(modp);
+                    తిరిగి నిజం;
                 }
             }
-            if (AstNodeModule* const childModp = cellp->modp()) {
-                if (hasDescendantDefparams(childModp, visited)) {
-                    visited.erase(modp);
-                    return true;
+            ఒకవేళ (Ast_కణుపు_Module* స్థిరరాశి బిడ్డ_Modp = cellp->modp()) {
+                ఒకవేళ (hasDescendantDefparams(బిడ్డ_Modp, సందర్శించిన)) {
+                    సందర్శించిన.erase(modp);
+                    తిరిగి నిజం;
                 }
             }
         }
-        visited.erase(modp);
-        return false;
+        సందర్శించిన.erase(modp);
+        తిరిగి అబద్ధం;
     }
-    static bool hasDescendantDefparams(const AstNodeModule* modp) {
-        std::set<const AstNodeModule*> visited;
-        return hasDescendantDefparams(modp, visited);
+    స్థిర తార్కిక hasDescendantDefparams(స్థిరరాశి Ast_కణుపు_Module* modp) {
+        std::సమితి<స్థిరరాశి Ast_కణుపు_Module*> సందర్శించిన;
+        తిరిగి hasDescendantDefparams(modp, సందర్శించిన);
     }
     // Return a defparam in the module or below it. Unlike hasDescendantDefparams, also look
     // inside generate constructs. Memoized, so each module is searched once.
-    const AstPin* nestedDefparamp(const AstNodeModule* modp) {
-        const auto pair = m_nestedDefparamps.emplace(modp, nullptr);
-        if (!pair.second) return pair.first->second;  // Searched, or being searched
-        const AstPin* foundp = nullptr;
-        modp->exists([&](const AstCell* cellp) {
-            for (const AstPin* pinp = cellp->paramsp(); pinp && !foundp;
+    స్థిరరాశి AstPin* nestedDefparamp(స్థిరరాశి Ast_కణుపు_Module* modp) {
+        స్థిరరాశి స్వయంచాలక pair = m_nestedDefparamps.emplace(modp, శూన్యసూచిక);
+        ఒకవేళ (!pair.రెండవ) తిరిగి pair.మొదటి->రెండవ;  // Searched, or being searched
+        స్థిరరాశి AstPin* foundp = శూన్యసూచిక;
+        modp->exists([&](స్థిరరాశి AstCell* cellp) {
+            కొరకు (స్థిరరాశి AstPin* pinp = cellp->paramsp(); pinp && !foundp;
                  pinp = VN_AS(pinp->nextp(), Pin)) {
-                if (!pinp->paramPath().empty()) foundp = pinp;
+                ఒకవేళ (!pinp->param_మార్గం().ఖాళీలు()) foundp = pinp;
             }
-            if (!foundp && cellp->modp()) foundp = nestedDefparamp(cellp->modp());
-            return foundp != nullptr;
+            ఒకవేళ (!foundp && cellp->modp()) foundp = nestedDefparamp(cellp->modp());
+            తిరిగి foundp != శూన్యసూచిక;
         });
-        pair.first->second = foundp;
-        return foundp;
+        pair.మొదటి->రెండవ = foundp;
+        తిరిగి foundp;
     }
     // Check if parameter setting during instantiation is simple enough for hierarchical Verilation
-    void checkSupportedParam(AstNodeModule* modp, AstPin* pinp) const {
+    శూన్య checkSupportedParam(Ast_కణుపు_Module* modp, AstPin* pinp) స్థిరరాశి {
         // ConsArray is not supported because that can not be set via -G
         // option.
-        if (pinp->modVarp()) {
-            bool supported = false;
-            if (const AstConst* const constp = VN_CAST(pinp->exprp(), Const)) {
-                supported = true;
-                if (constp->num().isString()
-                    && !V3HierBlock::stringParamPassable(constp->num().toString())) {
+        ఒకవేళ (pinp->modVarp()) {
+            తార్కిక supported = అబద్ధం;
+            ఒకవేళ (స్థిరరాశి AstConst* స్థిరరాశి constp = VN_CAST(pinp->exprp(), Const)) {
+                supported = నిజం;
+                ఒకవేళ (constp->అంకె().isString()
+                    && !V3_Hier_ఖండం::stringParamPassable(constp->అంకె().గమ్యం_String())) {
                     pinp->v3warn(E_UNSUPPORTED, "Unsupported: String value of hierarchical block"
                                                 " parameter with newline, double quote, '/*',"
                                                 " or whitespace before '//'");
                 }
             }
-            if (!supported) {
+            ఒకవేళ (!supported) {
                 pinp->v3error(
-                    AstNode::prettyNameQ(modp->origName())
+                    Ast_కణుపు::prettyNameQ(modp->origName())
                     << " has hier_block metacomment, hierarchical Verilation"
                     << " supports only integer/floating point/string and type param parameters");
             }
-        } else if (const AstParamTypeDType* const typep = pinp->modPTypep()) {
+        } లేకపోతే ఒకవేళ (స్థిరరాశి AstParamTypeDType* స్థిరరాశి typep = pinp->modPTypep()) {
             // Libraries are found by comparing values only
             pinp->v3warn(E_UNSUPPORTED, "Unsupported: Setting type parameter "
                                             << typep->prettyNameQ() << " of hierarchical block "
-                                            << AstNode::prettyNameQ(modp->origName()));
+                                            << Ast_కణుపు::prettyNameQ(modp->origName()));
         }
     }
-    bool moduleExists(const string& modName) const {
-        if (m_allModuleNames.find(modName) != m_allModuleNames.end()) return true;
-        if (m_modNameMap.find(modName) != m_modNameMap.end()) return true;
-        return false;
+    తార్కిక moduleExists(స్థిరరాశి string& modName) స్థిరరాశి {
+        ఒకవేళ (m_all_Module_పేర్లు.కనుగొను(modName) != m_all_Module_పేర్లు.చివర()) తిరిగి నిజం;
+        ఒకవేళ (m_modNameMap.కనుగొను(modName) != m_modNameMap.చివర()) తిరిగి నిజం;
+        తిరిగి అబద్ధం;
     }
 
-    string parameterizedHierBlockName(AstNodeModule* modp, AstPin* paramPinsp) {
+    string parameterized_Hier_ఖండం_Name(Ast_కణుపు_Module* modp, AstPin* paramPinsp) {
         // Create a unique name in the following steps
         //  - Make a long name that includes all parameters, that appear
         //    in the alphabetical order.
         //  - Hash the long name to get valid Verilog symbol
-        UASSERT_OBJ(modp->hierBlock(), modp, "should be used for hierarchical block");
+        UASSERT_OBJ(modp->hier_ఖండం(), modp, "should be used for hierarchical block");
 
-        std::map<string, AstNode*> pins;
+        std::map<string, Ast_కణుపు*> pins;
 
         AstPin* pinp = paramPinsp;
-        while (pinp) {
+        అయితే (pinp) {
             checkSupportedParam(modp, pinp);
-            if (const AstVar* const varp = pinp->modVarp()) {
-                if (!pinp->exprp()) continue;
-                if (varp->isGParam()) pins.emplace(varp->name(), pinp->exprp());
-            } else if (VN_IS(pinp->exprp(), BasicDType) || VN_IS(pinp->exprp(), NodeDType)) {
+            ఒకవేళ (స్థిరరాశి AstVar* స్థిరరాశి varp = pinp->modVarp()) {
+                ఒకవేళ (!pinp->exprp()) కొనసాగు;
+                ఒకవేళ (varp->isGParam()) pins.emplace(varp->name(), pinp->exprp());
+            } లేకపోతే ఒకవేళ (VN_IS(pinp->exprp(), BasicDType) || VN_IS(pinp->exprp(), కణుపు_DType)) {
                 pins.emplace(pinp->name(), pinp->exprp());
             }
             pinp = VN_AS(pinp->nextp(), Pin);
         }
 
-        const auto pair = m_defaultParameterValues.emplace(
+        స్థిరరాశి స్వయంచాలక pair = m_default_Parameter_విలువలు.emplace(
             std::piecewise_construct, std::forward_as_tuple(modp), std::forward_as_tuple());
-        if (pair.second) {  // Not cached yet, so check parameters
+        ఒకవేళ (pair.రెండవ) {  // Not cached yet, so check parameters
             // A separately compiled library cannot receive defparams aimed into its body
-            if (const AstPin* const defparamp = nestedDefparamp(modp)) {
+            ఒకవేళ (స్థిరరాశి AstPin* స్థిరరాశి defparamp = nestedDefparamp(modp)) {
                 defparamp->v3warn(E_UNSUPPORTED, "Unsupported: defparam inside hierarchical block "
-                                                     << AstNode::prettyNameQ(modp->origName()));
+                                                     << Ast_కణుపు::prettyNameQ(modp->origName()));
             }
             // Using map with key=string so that we can scan it in deterministic order
-            DefaultValueMap params;
-            for (AstNode* stmtp = modp->stmtsp(); stmtp; stmtp = stmtp->nextp()) {
-                if (AstVar* const varp = VN_CAST(stmtp, Var)) {
-                    if (varp->isGParam()) {
-                        AstConst* const constp = VN_CAST(varp->valuep(), Const);
+            Default_విలువ_Map params;
+            కొరకు (Ast_కణుపు* stmtp = modp->stmtsp(); stmtp; stmtp = stmtp->nextp()) {
+                ఒకవేళ (AstVar* స్థిరరాశి varp = VN_CAST(stmtp, Var)) {
+                    ఒకవేళ (varp->isGParam()) {
+                        AstConst* స్థిరరాశి constp = VN_CAST(varp->valuep(), Const);
                         // constp can be nullptr if the parameter is not used to instantiate sub
                         // module. varp->valuep() is not constified yet in the case.
                         // nullptr means that the parameter is using some default value.
                         params.emplace(varp->name(), constp);
                     }
-                } else if (AstParamTypeDType* const p = VN_CAST(stmtp, ParamTypeDType)) {
-                    AstNode* const dtypep = static_cast<AstNode*>(p->skipRefp());
+                } లేకపోతే ఒకవేళ (AstParamTypeDType* స్థిరరాశి p = VN_CAST(stmtp, ParamTypeDType)) {
+                    Ast_కణుపు* స్థిరరాశి dtypep = static_cast<Ast_కణుపు*>(p->skipRefp());
                     params.emplace(p->name(), dtypep);
                 }
             }
-            pair.first->second = std::move(params);
+            pair.మొదటి->రెండవ = std::move(params);
         }
-        const auto paramsIt = pair.first;
-        if (paramsIt->second.empty()) return modp->origName();  // modp has no parameter
+        స్థిరరాశి స్వయంచాలక paramsIt = pair.మొదటి;
+        ఒకవేళ (paramsIt->రెండవ.ఖాళీలు()) తిరిగి modp->origName();  // modp has no parameter
 
         string longname = modp->origName();
-        for (auto&& defaultValue : paramsIt->second) {
-            const auto pinIt = pins.find(defaultValue.first);
+        కొరకు (స్వయంచాలక&& default_విలువ : paramsIt->రెండవ) {
+            స్థిరరాశి స్వయంచాలక pinIt = pins.కనుగొను(default_విలువ.మొదటి);
             // If the pin does not have a value assigned, use the default one.
-            const AstNode* const nodep = pinIt == pins.end() ? defaultValue.second : pinIt->second;
+            స్థిరరాశి Ast_కణుపు* స్థిరరాశి nodep = pinIt == pins.చివర() ? default_విలువ.రెండవ : pinIt->రెండవ;
             // This longname is not valid as verilog symbol, but ok, because it will be hashed
-            longname += "_" + defaultValue.first + "=";
+            longname += "_" + default_విలువ.మొదటి + "=";
             // constp can be nullptr
 
-            if (const AstConst* const p = VN_CAST(nodep, Const)) {
+            ఒకవేళ (స్థిరరాశి AstConst* స్థిరరాశి p = VN_CAST(nodep, Const)) {
                 // Treat modules parameterized with the same values but with different type as the
                 // same.
-                longname += p->num().ascii(false);
-            } else if (nodep) {
+                longname += p->అంకె().ascii(అబద్ధం);
+            } లేకపోతే ఒకవేళ (nodep) {
                 std::stringstream type;
-                V3EmitV::verilogForTree(nodep, type);
+                V3EmitV::verilog_For_వృక్షం(nodep, type);
                 longname += type.str();
             }
         }
         UINFO(9, "       module params longname: " << longname);
 
-        const auto iter = m_longMap.find(longname);
-        if (iter != m_longMap.end()) return iter->second;  // Already calculated
+        స్థిరరాశి స్వయంచాలక iter = m_longMap.కనుగొను(longname);
+        ఒకవేళ (iter != m_longMap.చివర()) తిరిగి iter->రెండవ;  // Already calculated
 
         VHashSha512 hash;
         // Calculate hash using longname
         // The hash is used as the module suffix to find a module name that is unique in the design
-        hash.insert(longname);
-        while (true) {
+        hash.చొప్పించు(longname);
+        అయితే (నిజం) {
             // Copy VHashSha512 just in case of hash collision
             VHashSha512 hashStrGen = hash;
             // Hex string must be a safe suffix for any symbol
-            const string hashStr = hashStrGen.digestHex();
-            for (string::size_type i = 1; i < hashStr.size(); ++i) {
+            స్థిరరాశి string hashStr = hashStrGen.digestHex();
+            కొరకు (string::కొలత_type i = 1; i < hashStr.కొలత(); ++i) {
                 string newName = modp->origName();
                 // Don't use '__' not to be encoded when this module is loaded later by Verilator
-                if (newName.at(newName.size() - 1) != '_') newName += '_';
+                ఒకవేళ (newName.at(newName.కొలత() - 1) != '_') newName += '_';
                 newName += hashStr.substr(0, i);
-                if (!moduleExists(newName)) {
+                ఒకవేళ (!moduleExists(newName)) {
                     m_longMap.emplace(longname, newName);
-                    return newName;
+                    తిరిగి newName;
                 }
             }
             // Hash collision. maybe just v3error is practically enough
-            hash.insert(V3Os::trueRandom(64));
+            hash.చొప్పించు(V3Os::trueRandom(64));
         }
     }
-    void replaceRefsRecurse(AstNode* const nodep, const AstClass* const oldClassp,
-                            AstClass* const newClassp) {
+    శూన్య replaceRefsRecurse(Ast_కణుపు* స్థిరరాశి nodep, స్థిరరాశి AstClass* స్థిరరాశి oldClassp,
+                            AstClass* స్థిరరాశి newClassp) {
         // Self references linked in the first pass of V3LinkDot.cpp should point to the default
         // instance.
-        if (AstClassRefDType* const classRefp = VN_CAST(nodep, ClassRefDType)) {
-            if (classRefp->classp() == oldClassp) classRefp->classp(newClassp);
-        } else if (AstClassOrPackageRef* const classRefp = VN_CAST(nodep, ClassOrPackageRef)) {
-            if (classRefp->classOrPackageSkipp() == oldClassp)
+        ఒకవేళ (AstClassRefDType* స్థిరరాశి classRefp = VN_CAST(nodep, ClassRefDType)) {
+            ఒకవేళ (classRefp->classp() == oldClassp) classRefp->classp(newClassp);
+        } లేకపోతే ఒకవేళ (AstClassOrPackageRef* స్థిరరాశి classRefp = VN_CAST(nodep, ClassOrPackageRef)) {
+            ఒకవేళ (classRefp->classOrPackageSkipp() == oldClassp)
                 classRefp->classOrPackagep(newClassp);
-        } else if (AstTypedef* const typedefp = VN_CAST(nodep, Typedef)) {
+        } లేకపోతే ఒకవేళ (AstTypedef* స్థిరరాశి typedefp = VN_CAST(nodep, Typedef)) {
             // Update typedefs that refer to the old class to point to the new class
-            if (typedefp->subDTypep()) {
-                if (AstClassRefDType* const classRefp
+            ఒకవేళ (typedefp->subDTypep()) {
+                ఒకవేళ (AstClassRefDType* స్థిరరాశి classRefp
                     = VN_CAST(typedefp->subDTypep(), ClassRefDType)) {
-                    if (classRefp->classp() == oldClassp) { classRefp->classp(newClassp); }
+                    ఒకవేళ (classRefp->classp() == oldClassp) { classRefp->classp(newClassp); }
                 }
             }
-        } else if (AstNodeFTaskRef* const ftaskRefp = VN_CAST(nodep, NodeFTaskRef)) {
+        } లేకపోతే ఒకవేళ (Ast_కణుపు_FTask_Ref* స్థిరరాశి ftaskRefp = VN_CAST(nodep, కణుపు_FTask_Ref)) {
             // Also update FuncRef/TaskRef packagep to point to new class
             // This fixes static method calls through typedefs in parameterized classes
-            if (ftaskRefp->classOrPackagep() == oldClassp) ftaskRefp->classOrPackagep(newClassp);
+            ఒకవేళ (ftaskRefp->classOrPackagep() == oldClassp) ftaskRefp->classOrPackagep(newClassp);
             // Also update taskp if it points to a function in the old class.
             // AstNodeFTask::classOrPackagep() (op2) holds a parse-time
             // Dot/ClassOrPackageRef for extern declarations, which is deleted
             // in LinkDot::moveExternFuncDecl before V3Param runs. For inline
             // class methods op2 is nullptr. So this should never match.
-            if (AstNodeFTask* const oldTaskp = ftaskRefp->taskp()) {
-                if (oldTaskp->classOrPackagep() == oldClassp) {
+            ఒకవేళ (Ast_కణుపు_FTask* స్థిరరాశి oldTaskp = ftaskRefp->taskp()) {
+                ఒకవేళ (oldTaskp->classOrPackagep() == oldClassp) {
                     oldTaskp->v3fatalSrc(  // LCOV_EXCL_LINE
                         "FTask classOrPackagep unexpectedly matches old class "
                         << oldClassp->prettyNameQ());
@@ -867,195 +867,195 @@ class ParamProcessor final {
             }
         }
 
-        if (nodep->op1p()) replaceRefsRecurse(nodep->op1p(), oldClassp, newClassp);
-        if (nodep->op2p()) replaceRefsRecurse(nodep->op2p(), oldClassp, newClassp);
-        if (nodep->op3p()) replaceRefsRecurse(nodep->op3p(), oldClassp, newClassp);
-        if (nodep->op4p()) replaceRefsRecurse(nodep->op4p(), oldClassp, newClassp);
-        if (nodep->nextp()) replaceRefsRecurse(nodep->nextp(), oldClassp, newClassp);
+        ఒకవేళ (nodep->op1p()) replaceRefsRecurse(nodep->op1p(), oldClassp, newClassp);
+        ఒకవేళ (nodep->op2p()) replaceRefsRecurse(nodep->op2p(), oldClassp, newClassp);
+        ఒకవేళ (nodep->op3p()) replaceRefsRecurse(nodep->op3p(), oldClassp, newClassp);
+        ఒకవేళ (nodep->op4p()) replaceRefsRecurse(nodep->op4p(), oldClassp, newClassp);
+        ఒకవేళ (nodep->nextp()) replaceRefsRecurse(nodep->nextp(), oldClassp, newClassp);
     }
 
     // Helper visitor to update VarXRefs to use variables from specialized interfaces.
     // When a module with interface ports is cloned and the port's interface is remapped
     // to a specialized version, VarXRefs that access members of the old interface need
     // to be updated to reference the corresponding members in the new interface.
-    class VarXRefRelinkVisitor final : public VNVisitor {
-        AstNodeModule* m_modp;  // The cloned module we're updating
-        std::unordered_map<AstVar*, AstNodeModule*> m_varModuleMap;  // Cache var->module lookups
+    తరగతి VarXRefRelinkVisitor final : బహిరంగ VNVisitor {
+        Ast_కణుపు_Module* m_modp;  // The cloned module we're updating
+        std::unordered_map<AstVar*, Ast_కణుపు_Module*> m_varModuleMap;  // Cache var->module lookups
 
-    public:
-        explicit VarXRefRelinkVisitor(AstNodeModule* newModp)
+    బహిరంగ:
+        స్పష్టమైన VarXRefRelinkVisitor(Ast_కణుపు_Module* newModp)
             : m_modp{newModp} {
             iterate(newModp);
         }
 
-    private:
+    అంతరంగ:
         // Find which module a variable belongs to, using cache to avoid repeated backp() walks
-        AstNodeModule* findVarModule(AstVar* varp) {
-            const auto it = m_varModuleMap.find(varp);
-            if (it != m_varModuleMap.end()) return it->second;
-            AstNodeModule* varModp = nullptr;
-            for (AstNode* np = varp; np; np = np->backp()) {
-                if (AstNodeModule* const modp = VN_CAST(np, NodeModule)) {
+        Ast_కణుపు_Module* కనుగొను_Var_Module(AstVar* varp) {
+            స్థిరరాశి స్వయంచాలక it = m_varModuleMap.కనుగొను(varp);
+            ఒకవేళ (it != m_varModuleMap.చివర()) తిరిగి it->రెండవ;
+            Ast_కణుపు_Module* varModp = శూన్యసూచిక;
+            కొరకు (Ast_కణుపు* np = varp; np; np = np->backp()) {
+                ఒకవేళ (Ast_కణుపు_Module* స్థిరరాశి modp = VN_CAST(np, కణుపు_Module)) {
                     varModp = modp;
-                    break;
+                    ఆపు;
                 }
             }
             m_varModuleMap[varp] = varModp;
-            return varModp;
+            తిరిగి varModp;
         }
 
-        void visit(AstVarXRef* nodep) override {
-            AstVar* const varp = nodep->varp();
-            if (!varp) {
+        శూన్య సందర్శించు(AstVarXRef* nodep) override {
+            AstVar* స్థిరరాశి varp = nodep->varp();
+            ఒకవేళ (!varp) {
                 iterateChildren(nodep);
-                return;
+                తిరిగి;
             }
 
             // Get the dotted prefix (port name) from the VarXRef
             // dotted() format: "portname" or "portname.subpath" or empty
-            const string& dotted = nodep->dotted();
-            if (dotted.empty()) {
+            స్థిరరాశి string& dotted = nodep->dotted();
+            ఒకవేళ (dotted.ఖాళీలు()) {
                 iterateChildren(nodep);
-                return;
+                తిరిగి;
             }
 
-            const size_t dotPos = dotted.find('.');
-            const string portName = (dotPos == string::npos) ? dotted : dotted.substr(0, dotPos);
-            if (portName.empty()) {
+            స్థిరరాశి కొలత_t dotPos = dotted.కనుగొను('.');
+            స్థిరరాశి string పోర్టు_Name = (dotPos == string::npos) ? dotted : dotted.substr(0, dotPos);
+            ఒకవేళ (పోర్టు_Name.ఖాళీలు()) {
                 iterateChildren(nodep);
-                return;
+                తిరిగి;
             }
 
             // Find the interface port variable in the cloned module
-            AstVar* portVarp = nullptr;
-            for (AstNode* stmtp = m_modp->stmtsp(); stmtp; stmtp = stmtp->nextp()) {
-                if (AstVar* const varChkp = VN_CAST(stmtp, Var)) {
-                    if (varChkp->name() == portName && varChkp->isIfaceRef()) {
-                        portVarp = varChkp;
-                        break;
+            AstVar* పోర్టు_Varp = శూన్యసూచిక;
+            కొరకు (Ast_కణుపు* stmtp = m_modp->stmtsp(); stmtp; stmtp = stmtp->nextp()) {
+                ఒకవేళ (AstVar* స్థిరరాశి varChkp = VN_CAST(stmtp, Var)) {
+                    ఒకవేళ (varChkp->name() == పోర్టు_Name && varChkp->isIfaceRef()) {
+                        పోర్టు_Varp = varChkp;
+                        ఆపు;
                     }
                 }
             }
-            if (!portVarp) {
+            ఒకవేళ (!పోర్టు_Varp) {
                 iterateChildren(nodep);
-                return;
+                తిరిగి;
             }
 
             // Get the interface module from the port's dtype
-            AstIfaceRefDType* const irefp = VN_CAST(portVarp->subDTypep(), IfaceRefDType);
-            if (!irefp) {
+            AstIfaceRefDType* స్థిరరాశి irefp = VN_CAST(పోర్టు_Varp->subDTypep(), IfaceRefDType);
+            ఒకవేళ (!irefp) {
                 iterateChildren(nodep);
-                return;
+                తిరిగి;
             }
 
-            AstNodeModule* const newIfacep = irefp->ifaceViaCellp();
-            if (!newIfacep) {
+            Ast_కణుపు_Module* స్థిరరాశి newIfacep = irefp->iface_ద్వారా_Cellp();
+            ఒకవేళ (!newIfacep) {
                 iterateChildren(nodep);
-                return;
+                తిరిగి;
             }
 
             // Find which module the variable currently belongs to (cached)
-            AstNodeModule* const varModp = findVarModule(varp);
+            Ast_కణుపు_Module* స్థిరరాశి varModp = కనుగొను_Var_Module(varp);
 
             // If variable is in a different module than the port's interface, remap it
-            if (varModp && varModp != newIfacep) {
-                for (AstNode* stmtp = newIfacep->stmtsp(); stmtp; stmtp = stmtp->nextp()) {
-                    if (AstVar* const newVarp = VN_CAST(stmtp, Var)) {
-                        if (newVarp->name() == varp->name()) {
+            ఒకవేళ (varModp && varModp != newIfacep) {
+                కొరకు (Ast_కణుపు* stmtp = newIfacep->stmtsp(); stmtp; stmtp = stmtp->nextp()) {
+                    ఒకవేళ (AstVar* స్థిరరాశి newVarp = VN_CAST(stmtp, Var)) {
+                        ఒకవేళ (newVarp->name() == varp->name()) {
                             UINFO(9, "VarXRef relink " << varp->name() << " in " << varModp->name()
                                                        << " -> " << newIfacep->name());
                             nodep->varp(newVarp);
-                            break;
+                            ఆపు;
                         }
                     }
                 }
             }
             iterateChildren(nodep);
         }
-        void visit(AstNode* nodep) override { iterateChildren(nodep); }
+        శూన్య సందర్శించు(Ast_కణుపు* nodep) override { iterateChildren(nodep); }
     };
 
     // Retarget the captured references in newModp to its specialized interfaces.
-    void fixupCrossModuleRefDTypes(AstNodeModule* newModp) {
-        if (!V3LinkDotIfaceCapture::enabled()) return;
+    శూన్య fixupCrossModuleRefDTypes(Ast_కణుపు_Module* newModp) {
+        ఒకవేళ (!V3LinkDotIfaceCapture::enabled()) తిరిగి;
         UINFO(9, "iface capture clone fixup: " << newModp->prettyNameQ());
-        int fixedCount = 0;
+        పూర్ణాంకం fixed_లెక్క = 0;
         // References in a class nested in newModp (e.g. a covergroup) are included.
         newModp->foreach([&](AstRefDType* refp) {
-            const VIfaceCaptureTag* const tagp = V3LinkDotIfaceCapture::captureTag(refp);
-            if (!tagp) return;
+            స్థిరరాశి VIface_Capture_ట్యాగ్* స్థిరరాశి tagp = V3LinkDotIfaceCapture::capture_ట్యాగ్(refp);
+            ఒకవేళ (!tagp) తిరిగి;
 
-            AstNodeModule* const correctModp
-                = V3LinkDotIfaceCapture::followCellPath(newModp, tagp->m_cellPath);
-            UINFO(9, "  path fixup: " << refp << " cellPath='" << tagp->m_cellPath << "' -> "
+            Ast_కణుపు_Module* స్థిరరాశి correctModp
+                = V3LinkDotIfaceCapture::follow_Cell_మార్గం(newModp, tagp->m_cell_మార్గం);
+            UINFO(9, "  path fixup: " << refp << " cellPath='" << tagp->m_cell_మార్గం << "' -> "
                                       << (correctModp ? correctModp->name() : "<null>"));
-            if (!correctModp || correctModp->dead()) return;
-            if (correctModp->parameterizedTemplate()) return;
+            ఒకవేళ (!correctModp || correctModp->dead()) తిరిగి;
+            ఒకవేళ (correctModp->parameterizedTemplate()) తిరిగి;
 
-            bool fixed = false;
-            if (refp->typedefp()) {
-                if (AstTypedef* const newTdp = V3LinkDotIfaceCapture::findTypedefInModule(
+            తార్కిక fixed = అబద్ధం;
+            ఒకవేళ (refp->typedefp()) {
+                ఒకవేళ (AstTypedef* స్థిరరాశి newTdp = V3LinkDotIfaceCapture::కనుగొను_Typedef_లోపల_Module(
                         correctModp, refp->typedefp()->name())) {
                     refp->typedefp(newTdp);
-                    if (newTdp->subDTypep()) refp->refDTypep(newTdp->subDTypep());
-                    fixed = true;
+                    ఒకవేళ (newTdp->subDTypep()) refp->refDTypep(newTdp->subDTypep());
+                    fixed = నిజం;
                 }
             }
-            if (!fixed && refp->refDTypep()) {
-                if (AstNodeDType* const newDtp = V3LinkDotIfaceCapture::findDTypeInModule(
+            ఒకవేళ (!fixed && refp->refDTypep()) {
+                ఒకవేళ (Ast_కణుపు_DType* స్థిరరాశి newDtp = V3LinkDotIfaceCapture::కనుగొను_DType_లోపల_Module(
                         correctModp, refp->refDTypep()->name(), refp->refDTypep()->type())) {
                     refp->refDTypep(newDtp);
-                    fixed = true;
+                    fixed = నిజం;
                 }
             }
-            if (fixed) ++fixedCount;
+            ఒకవేళ (fixed) ++fixed_లెక్క;
         });
-        V3Stats::addStatSum("IfaceCapture, Ledger fixups in V3Param", fixedCount);
+        V3Stats::కూడు_Stat_కూడిక("IfaceCapture, Ledger fixups in V3Param", fixed_లెక్క);
     }
 
     // Return true on success, false on error
-    bool deepCloneModule(AstNodeModule* srcModp, AstNode* ifErrorp, AstPin* paramsp,
-                         const string& newname, const IfaceRefRefs& ifaceRefRefs) {
+    తార్కిక deepCloneModule(Ast_కణుపు_Module* srcModp, Ast_కణుపు* ifErrorp, AstPin* paramsp,
+                         స్థిరరాశి string& newname, స్థిరరాశి IfaceRefRefs& ifaceRefRefs) {
         // Deep clone of new module
         // Note all module internal variables will be re-linked to the new modules by clone
         // However links outside the module (like on the upper cells) will not.
-        AstNodeModule* newModp;
-        if (srcModp->user3p()) {
-            newModp = VN_CAST(srcModp->user3p()->cloneTree(false), NodeModule);
-        } else {
-            newModp = srcModp->cloneTree(false);
+        Ast_కణుపు_Module* newModp;
+        ఒకవేళ (srcModp->user3p()) {
+            newModp = VN_CAST(srcModp->user3p()->clone_వృక్షం(అబద్ధం), కణుపు_Module);
+        } లేకపోతే {
+            newModp = srcModp->clone_వృక్షం(అబద్ధం);
         }
         // AstPin normally retains links to external module formals across cloning. For a cloned
         // interface, relink pins whose formals were cloned with the interface while clonep() is
         // still valid, so nested parameterized classes use the cloned interface parameters.
-        if (AstIface* const newIfacep = VN_CAST(newModp, Iface)) {
+        ఒకవేళ (AstIface* స్థిరరాశి newIfacep = VN_CAST(newModp, Iface)) {
             newIfacep->foreach([](AstPin* pinp) { pinp->cloneRelinkGen(); });
         }
 
         // Mark the source module as a parameterized template now that a specialized
         // clone exists.  This suppresses width/type errors on the unresolved template
         // during widthParamsEdit (which runs before V3LinkDot sets dead()).
-        srcModp->parameterizedTemplate(true);
+        srcModp->parameterizedTemplate(నిజం);
         // The clone is a specialized instance, not a template.  Clear the flag in
         // case it was inherited from a prior cloneTree (when srcModp was already
         // marked by an earlier specialization).
-        newModp->parameterizedTemplate(false);
+        newModp->parameterizedTemplate(అబద్ధం);
 
         newModp->name(newname);
-        newModp->user2(false);  // We need to re-recurse this module once changed
-        newModp->recursive(false);
-        newModp->recursiveClone(false);
-        newModp->hasGParam(false);
+        newModp->user2(అబద్ధం);  // We need to re-recurse this module once changed
+        newModp->recursive(అబద్ధం);
+        newModp->recursiveClone(అబద్ధం);
+        newModp->hasGParam(అబద్ధం);
         // Recursion may need level cleanups
-        if (newModp->level() <= m_modp->level()) newModp->level(m_modp->level() + 1);
-        if ((newModp->level() - srcModp->level()) >= (v3Global.opt.moduleRecursionDepth() - 2)) {
+        ఒకవేళ (newModp->level() <= m_modp->level()) newModp->level(m_modp->level() + 1);
+        ఒకవేళ ((newModp->level() - srcModp->level()) >= (v3Global.opt.module_Recursion_లోతు() - 2)) {
             ifErrorp->v3error("Exceeded maximum --module-recursion-depth of "
-                              << v3Global.opt.moduleRecursionDepth());
-            VL_DO_DANGLING(newModp->deleteTree(), newModp);
-            return false;
+                              << v3Global.opt.module_Recursion_లోతు());
+            VL_DO_DANGLING(newModp->delete_వృక్షం(), newModp);
+            తిరిగి అబద్ధం;
         }
 
-        if (AstClass* const newClassp = VN_CAST(newModp, Class)) {
+        ఒకవేళ (AstClass* స్థిరరాశి newClassp = VN_CAST(newModp, Class)) {
             replaceRefsRecurse(newModp->stmtsp(), newClassp, VN_AS(srcModp, Class));
         }
 
@@ -1063,16 +1063,16 @@ class ParamProcessor final {
         // module end up with the same level, which we will need to fix up at the end, as we do not
         // know up front how recursive modules are expanded, and a later expansion might re-use an
         // earlier expansion (see t_recursive_module_bug_2).
-        AstNode* insertp = srcModp;
-        while (VN_IS(insertp->nextp(), NodeModule)
-               && VN_AS(insertp->nextp(), NodeModule)->level() <= newModp->level()) {
+        Ast_కణుపు* insertp = srcModp;
+        అయితే (VN_IS(insertp->nextp(), కణుపు_Module)
+               && VN_AS(insertp->nextp(), కణుపు_Module)->level() <= newModp->level()) {
             insertp = insertp->nextp();
         }
-        insertp->addNextHere(newModp);
+        insertp->కూడు_తదుపరి_ఇక్కడ(newModp);
 
         m_modNameMap.emplace(newModp->name(), ModInfo{newModp});
-        const auto iter = m_modNameMap.find(newname);
-        CloneMap* const clonemapp = &(iter->second.m_cloneMap);
+        స్థిరరాశి స్వయంచాలక iter = m_modNameMap.కనుగొను(newname);
+        CloneMap* స్థిరరాశి clonemapp = &(iter->రెండవ.m_cloneMap);
         UINFO(4, "     De-parameterize to new: " << newModp);
 
         // Grab all I/O so we can remap our pins later
@@ -1085,38 +1085,38 @@ class ParamProcessor final {
         // being cloned. In such cases, use relinkPinsByName to match by variable name.
         // Check if any parameter pins reference variables outside the cloned interface.
         // This is O(n) but acceptable since parameter pin lists are typically small (<10 pins).
-        bool needRelinkByName = false;
-        if (paramsp) {
-            for (AstPin* pinp = paramsp; pinp; pinp = VN_AS(pinp->nextp(), Pin)) {
-                if (pinp->modVarp() && clonemapp->find(pinp->modVarp()) == clonemapp->end()) {
-                    needRelinkByName = true;
-                    break;
+        తార్కిక needRelinkByName = అబద్ధం;
+        ఒకవేళ (paramsp) {
+            కొరకు (AstPin* pinp = paramsp; pinp; pinp = VN_AS(pinp->nextp(), Pin)) {
+                ఒకవేళ (pinp->modVarp() && clonemapp->కనుగొను(pinp->modVarp()) == clonemapp->చివర()) {
+                    needRelinkByName = నిజం;
+                    ఆపు;
                 }
             }
         }
-        if (needRelinkByName) {
+        ఒకవేళ (needRelinkByName) {
             relinkPinsByName(paramsp, newModp);
-        } else {
+        } లేకపోతే {
             relinkPins(clonemapp, paramsp);
         }
 
         // Fix any interface references
-        for (auto it = ifaceRefRefs.cbegin(); it != ifaceRefRefs.cend(); ++it) {
-            const AstIfaceRefDType* const portIrefp = it->first;
-            const AstIfaceRefDType* const pinIrefp = it->second;
-            AstIfaceRefDType* const cloneIrefp = portIrefp->clonep();
-            UINFO(8, "     IfaceOld " << portIrefp);
+        కొరకు (స్వయంచాలక it = ifaceRefRefs.cbegin(); it != ifaceRefRefs.cend(); ++it) {
+            స్థిరరాశి AstIfaceRefDType* స్థిరరాశి పోర్టు_Irefp = it->మొదటి;
+            స్థిరరాశి AstIfaceRefDType* స్థిరరాశి pinIrefp = it->రెండవ;
+            AstIfaceRefDType* స్థిరరాశి cloneIrefp = పోర్టు_Irefp->clonep();
+            UINFO(8, "     IfaceOld " << పోర్టు_Irefp);
             UINFO(8, "     IfaceTo  " << pinIrefp);
-            UASSERT_OBJ(cloneIrefp, portIrefp, "parameter clone didn't hit AstIfaceRefDType");
+            UASSERT_OBJ(cloneIrefp, పోర్టు_Irefp, "parameter clone didn't hit AstIfaceRefDType");
             UINFO(8, "     IfaceClo " << cloneIrefp);
-            cloneIrefp->ifacep(pinIrefp->ifaceViaCellp());
+            cloneIrefp->ifacep(pinIrefp->iface_ద్వారా_Cellp());
             UINFO(8, "     IfaceNew " << cloneIrefp);
         }
 
         // Fix VarXRefs that reference variables in old interfaces.
         // Now that interface port dtypes have been updated above, we can use them
         // to find the correct interface for each VarXRef.
-        if (!ifaceRefRefs.empty()) { VarXRefRelinkVisitor{newModp}; }
+        ఒకవేళ (!ifaceRefRefs.ఖాళీలు()) { VarXRefRelinkVisitor{newModp}; }
 
         // Fix cross-module REFDTYPE pointers in newModp.
         UASSERT_OBJ(newModp, srcModp, "newModp null before hierarchy fixup");
@@ -1124,61 +1124,61 @@ class ParamProcessor final {
 
         // Assign parameters to the constants specified
         // DOES clone() so must be finished with module clonep() before here
-        for (AstPin* pinp = paramsp; pinp; pinp = VN_AS(pinp->nextp(), Pin)) {
-            if (pinp->exprp()) {
-                if (AstVar* const modvarp = pinp->modVarp()) {
-                    AstNode* const newp = pinp->exprp();  // Const or ConsArray
-                    AstConst* const exprp = VN_CAST(newp, Const);
-                    AstConst* const origp = VN_CAST(modvarp->valuep(), Const);
-                    const bool overridden
-                        = !(origp && exprp && ParameterizedHierBlocks::areSame(exprp, origp));
+        కొరకు (AstPin* pinp = paramsp; pinp; pinp = VN_AS(pinp->nextp(), Pin)) {
+            ఒకవేళ (pinp->exprp()) {
+                ఒకవేళ (AstVar* స్థిరరాశి modvarp = pinp->modVarp()) {
+                    Ast_కణుపు* స్థిరరాశి newp = pinp->exprp();  // Const or ConsArray
+                    AstConst* స్థిరరాశి exprp = VN_CAST(newp, Const);
+                    AstConst* స్థిరరాశి origp = VN_CAST(modvarp->valuep(), Const);
+                    స్థిరరాశి తార్కిక overridden
+                        = !(origp && exprp && Parameterized_Hier_ఖండాలు::areSame(exprp, origp));
                     // Remove any existing parameter
-                    if (modvarp->valuep()) modvarp->valuep()->unlinkFrBack()->deleteTree();
+                    ఒకవేళ (modvarp->valuep()) modvarp->valuep()->unlink_Fr_వెనుక()->delete_వృక్షం();
                     // Set this parameter to value requested by cell
                     UINFO(9, "       set param " << modvarp << " = " << newp);
-                    modvarp->valuep(newp->cloneTree(false));
+                    modvarp->valuep(newp->clone_వృక్షం(అబద్ధం));
                     modvarp->overriddenParam(overridden);
-                } else if (AstParamTypeDType* const modptp = pinp->modPTypep()) {
-                    AstNodeDType* const dtypep = VN_AS(pinp->exprp(), NodeDType);
+                } లేకపోతే ఒకవేళ (AstParamTypeDType* స్థిరరాశి modptp = pinp->modPTypep()) {
+                    Ast_కణుపు_DType* స్థిరరాశి dtypep = VN_AS(pinp->exprp(), కణుపు_DType);
                     UASSERT_OBJ(dtypep, pinp, "unlinked param dtype");
-                    if (modptp->childDTypep()) modptp->childDTypep()->unlinkFrBack()->deleteTree();
+                    ఒకవేళ (modptp->బిడ్డ_DTypep()) modptp->బిడ్డ_DTypep()->unlink_Fr_వెనుక()->delete_వృక్షం();
                     // Set this parameter to value requested by cell
-                    modptp->childDTypep(dtypep->cloneTree(false));
+                    modptp->బిడ్డ_DTypep(dtypep->clone_వృక్షం(అబద్ధం));
                     // Later V3LinkDot will convert the ParamDType to a Typedef
                     // Not done here as may be localparams, etc, that also need conversion
                 }
             }
         }
 
-        return true;
+        తిరిగి నిజం;
     }
-    const ModInfo* moduleFindOrClone(AstNodeModule* srcModp, AstNode* ifErrorp, AstPin* paramsp,
-                                     const string& newname, const IfaceRefRefs& ifaceRefRefs) {
+    స్థిరరాశి ModInfo* module_కనుగొను_Or_Clone(Ast_కణుపు_Module* srcModp, Ast_కణుపు* ifErrorp, AstPin* paramsp,
+                                     స్థిరరాశి string& newname, స్థిరరాశి IfaceRefRefs& ifaceRefRefs) {
         // Already made this flavor?
-        auto it = m_modNameMap.find(newname);
-        if (it != m_modNameMap.end()) {
-            UINFO(4, "     De-parameterize to prev: " << it->second.m_modp);
-        } else {
-            if (!deepCloneModule(srcModp, ifErrorp, paramsp, newname, ifaceRefRefs)) {
-                return nullptr;
+        స్వయంచాలక it = m_modNameMap.కనుగొను(newname);
+        ఒకవేళ (it != m_modNameMap.చివర()) {
+            UINFO(4, "     De-parameterize to prev: " << it->రెండవ.m_modp);
+        } లేకపోతే {
+            ఒకవేళ (!deepCloneModule(srcModp, ifErrorp, paramsp, newname, ifaceRefRefs)) {
+                తిరిగి శూన్యసూచిక;
             }
-            it = m_modNameMap.find(newname);
-            UASSERT(it != m_modNameMap.end(), "should find just-made module");
+            it = m_modNameMap.కనుగొను(newname);
+            UASSERT(it != m_modNameMap.చివర(), "should find just-made module");
         }
-        const ModInfo* const modInfop = &(it->second);
-        return modInfop;
+        స్థిరరాశి ModInfo* స్థిరరాశి modInfop = &(it->రెండవ);
+        తిరిగి modInfop;
     }
 
-    void convertToStringp(AstNode* nodep) {
+    శూన్య convert_గమ్యం_Stringp(Ast_కణుపు* nodep) {
         // Should be called on values of parameters of type string to convert them
         // to properly typed string constants.
         // Has no effect if the value is not a string constant.
-        AstConst* const constp = VN_CAST(nodep, Const);
+        AstConst* స్థిరరాశి constp = VN_CAST(nodep, Const);
         // Check if it wasn't already converted
-        if (constp && !constp->num().isString()) {
+        ఒకవేళ (constp && !constp->అంకె().isString()) {
             constp->replaceWith(
-                new AstConst{constp->fileline(), AstConst::String{}, constp->num().toString()});
-            VL_DO_DANGLING(constp->deleteTree(), constp);
+                కొత్త AstConst{constp->fileline(), AstConst::String{}, constp->అంకె().గమ్యం_String()});
+            VL_DO_DANGLING(constp->delete_వృక్షం(), constp);
         }
     }
 
@@ -1187,115 +1187,115 @@ class ParamProcessor final {
     // VarRefs to sibling lparams that are not yet const, e.g. `one = base`
     // where `base = inner_a::v`), resolving siblings deepest-first so the
     // whole chain constifies.  `inProgress` guards against reference cycles.
-    void constifyMemberValue(AstVar* varp, std::set<AstVar*>& inProgress) {
-        if (!varp->valuep() || VN_IS(varp->valuep(), Const)) return;
-        if (!inProgress.insert(varp).second) {
+    శూన్య constify_Member_విలువ(AstVar* varp, std::సమితి<AstVar*>& లోపల_పురోగతి) {
+        ఒకవేళ (!varp->valuep() || VN_IS(varp->valuep(), Const)) తిరిగి;
+        ఒకవేళ (!లోపల_పురోగతి.చొప్పించు(varp).రెండవ) {
             // Re-entered while still resolving varp: its value transitively
             // references itself.  Report and replace the value with a Const, as
             // otherwise the unresolved Dot reaches V3Width as an untyped node.
             varp->v3error("Variable's initial value is circular: " << varp->prettyNameQ());
-            varp->valuep()->unlinkFrBack()->deleteTree();
-            varp->valuep(new AstConst{varp->fileline(), AstConst::Signed32{}, 0});
-            return;
+            varp->valuep()->unlink_Fr_వెనుక()->delete_వృక్షం();
+            varp->valuep(కొత్త AstConst{varp->fileline(), AstConst::Signed32{}, 0});
+            తిరిగి;
         }
         // First resolve sibling lparams this value references, so their Dots
         // are folded before we inline them here.
-        std::set<AstVar*> siblings;
-        varp->valuep()->foreach([&](const AstVarRef* refp) {
-            AstVar* const refVarp = refp->varp();
-            if (refVarp && refVarp->isParam() && refVarp->valuep()
+        std::సమితి<AstVar*> siblings;
+        varp->valuep()->foreach([&](స్థిరరాశి AstVarRef* refp) {
+            AstVar* స్థిరరాశి refVarp = refp->varp();
+            ఒకవేళ (refVarp && refVarp->isParam() && refVarp->valuep()
                 && !VN_IS(refVarp->valuep(), Const)) {
-                siblings.insert(refVarp);
+                siblings.చొప్పించు(refVarp);
             }
         });
-        for (AstVar* const sibp : siblings) constifyMemberValue(sibp, inProgress);
+        కొరకు (AstVar* స్థిరరాశి sibp : siblings) constify_Member_విలువ(sibp, లోపల_పురోగతి);
         // Resolve class-scoped references and any member selections they expose.
         resolveDeferredDotsReachableFrom(varp->valuep(), m_modp);
         V3Const::constifyParamsEdit(varp);
-        inProgress.erase(varp);
+        లోపల_పురోగతి.erase(varp);
     }
 
     // Return the member name on a deferred Dot RHS, including a selected member.
-    static AstParseRef* memberParseRef(AstNode* nodep) {
-        if (AstParseRef* const refp = VN_CAST(nodep, ParseRef)) return refp;
-        AstNodePreSel* const selp = VN_CAST(nodep, NodePreSel);
-        return selp ? VN_CAST(selp->fromp(), ParseRef) : nullptr;
+    స్థిర AstParseRef* memberParseRef(Ast_కణుపు* nodep) {
+        ఒకవేళ (AstParseRef* స్థిరరాశి refp = VN_CAST(nodep, ParseRef)) తిరిగి refp;
+        Ast_కణుపు_Pre_Sel* స్థిరరాశి selp = VN_CAST(nodep, కణుపు_Pre_Sel);
+        తిరిగి selp ? VN_CAST(selp->fromp(), ParseRef) : శూన్యసూచిక;
     }
 
     // Replace a deferred Dot with valuep, preserving any select on the member name.
-    static void replaceMemberDot(AstDot* dotp, AstParseRef* memberRefp, AstNodeExpr* valuep) {
-        if (memberRefp == dotp->rhsp()) {
+    స్థిర శూన్య replaceMemberDot(AstDot* dotp, AstParseRef* memberRefp, Ast_కణుపు_సమాసం* valuep) {
+        ఒకవేళ (memberRefp == dotp->rhsp()) {
             dotp->replaceWith(valuep);
-        } else {
-            AstNodePreSel* const selp = VN_AS(dotp->rhsp(), NodePreSel);
-            if (AstAttrOf* const attrp = selp->attrp()) {
-                if (AstNode* const oldFromp = attrp->fromp()) {
-                    oldFromp->replaceWith(valuep->cloneTree(false));
-                    VL_DO_DANGLING(oldFromp->deleteTree(), oldFromp);
+        } లేకపోతే {
+            Ast_కణుపు_Pre_Sel* స్థిరరాశి selp = VN_AS(dotp->rhsp(), కణుపు_Pre_Sel);
+            ఒకవేళ (Ast_Attr_యొక్క* స్థిరరాశి attrp = selp->attrp()) {
+                ఒకవేళ (Ast_కణుపు* స్థిరరాశి oldFromp = attrp->fromp()) {
+                    oldFromp->replaceWith(valuep->clone_వృక్షం(అబద్ధం));
+                    VL_DO_DANGLING(oldFromp->delete_వృక్షం(), oldFromp);
                 }
             }
             memberRefp->replaceWith(valuep);
-            VL_DO_DANGLING(memberRefp->deleteTree(), memberRefp);
-            dotp->replaceWith(dotp->rhsp()->unlinkFrBack());
+            VL_DO_DANGLING(memberRefp->delete_వృక్షం(), memberRefp);
+            dotp->replaceWith(dotp->rhsp()->unlink_Fr_వెనుక());
         }
-        VL_DO_DANGLING(dotp->deleteTree(), dotp);
+        VL_DO_DANGLING(dotp->delete_వృక్షం(), dotp);
     }
 
     // True for an expression produced while lowering a deferred struct-member chain.
-    static bool isDeferredMemberBase(const AstNodeExpr* nodep) {
-        if (VN_IS(nodep, MemberSel)) return true;
-        if (const AstNodePreSel* const selp = VN_CAST(nodep, NodePreSel)) {
-            const AstNodeDType* const fromDTypep = selp->fromp()->dtypep();
-            const AstNodeArrayDType* const arrayDTypep
-                = fromDTypep ? VN_CAST(fromDTypep->skipRefOrNullp(), NodeArrayDType) : nullptr;
-            if (arrayDTypep) {
-                const AstNodeDType* const elemDTypep = arrayDTypep->subDTypep();
-                return elemDTypep && VN_IS(elemDTypep->skipRefOrNullp(), NodeUOrStructDType);
+    స్థిర తార్కిక is_Deferred_Member_పునాది(స్థిరరాశి Ast_కణుపు_సమాసం* nodep) {
+        ఒకవేళ (VN_IS(nodep, MemberSel)) తిరిగి నిజం;
+        ఒకవేళ (స్థిరరాశి Ast_కణుపు_Pre_Sel* స్థిరరాశి selp = VN_CAST(nodep, కణుపు_Pre_Sel)) {
+            స్థిరరాశి Ast_కణుపు_DType* స్థిరరాశి fromDTypep = selp->fromp()->dtypep();
+            స్థిరరాశి Ast_కణుపు_Array_DType* స్థిరరాశి arrayDTypep
+                = fromDTypep ? VN_CAST(fromDTypep->skipRefOrNullp(), కణుపు_Array_DType) : శూన్యసూచిక;
+            ఒకవేళ (arrayDTypep) {
+                స్థిరరాశి Ast_కణుపు_DType* స్థిరరాశి elemDTypep = arrayDTypep->subDTypep();
+                తిరిగి elemDTypep && VN_IS(elemDTypep->skipRefOrNullp(), కణుపు_UOr_Struct_DType);
             }
-            return isDeferredMemberBase(selp->fromp());
+            తిరిగి is_Deferred_Member_పునాది(selp->fromp());
         }
-        const AstNodeDType* const dtypep = nodep->dtypep();
-        return dtypep && VN_IS(dtypep->skipRefOrNullp(), NodeUOrStructDType);
+        స్థిరరాశి Ast_కణుపు_DType* స్థిరరాశి dtypep = nodep->dtypep();
+        తిరిగి dtypep && VN_IS(dtypep->skipRefOrNullp(), కణుపు_UOr_Struct_DType);
     }
 
     // Lower a Dot exposed after its inner class::member reference was substituted.
-    static void resolveMemberDot(AstDot* dotp) {
-        AstNodeExpr* const lhsp = VN_CAST(dotp->lhsp(), NodeExpr);
-        AstParseRef* const memberRefp = memberParseRef(dotp->rhsp());
-        if (!lhsp || !memberRefp || !isDeferredMemberBase(lhsp)) return;
-        AstMemberSel* const newp = new AstMemberSel{memberRefp->fileline(), lhsp->unlinkFrBack(),
-                                                    VFlagChildDType{}, memberRefp->name()};
+    స్థిర శూన్య resolveMemberDot(AstDot* dotp) {
+        Ast_కణుపు_సమాసం* స్థిరరాశి lhsp = VN_CAST(dotp->lhsp(), కణుపు_సమాసం);
+        AstParseRef* స్థిరరాశి memberRefp = memberParseRef(dotp->rhsp());
+        ఒకవేళ (!lhsp || !memberRefp || !is_Deferred_Member_పునాది(lhsp)) తిరిగి;
+        AstMemberSel* స్థిరరాశి newp = కొత్త AstMemberSel{memberRefp->fileline(), lhsp->unlink_Fr_వెనుక(),
+                                                    VFlag_బిడ్డ_DType{}, memberRefp->name()};
         replaceMemberDot(dotp, memberRefp, newp);
     }
 
     // Helper to resolve DOT to RefDType for class type references.
     // If the class is parameterized and not yet specialized, specialize it first.
     // This handles cases like: iface #(param_class#(value)::typedef_name)
-    void resolveDotToTypedef(AstNode* exprp) {
-        AstDot* const dotp = VN_CAST(exprp, Dot);
-        if (!dotp) return;
+    శూన్య resolve_Dot_గమ్యం_Typedef(Ast_కణుపు* exprp) {
+        AstDot* స్థిరరాశి dotp = VN_CAST(exprp, Dot);
+        ఒకవేళ (!dotp) తిరిగి;
         UINFO(9, "Resolve deferred Dot: " << dotp);
-        AstClassOrPackageRef* const classRefp = VN_CAST(dotp->lhsp(), ClassOrPackageRef);
-        if (!classRefp) {
+        AstClassOrPackageRef* స్థిరరాశి classRefp = VN_CAST(dotp->lhsp(), ClassOrPackageRef);
+        ఒకవేళ (!classRefp) {
             resolveMemberDot(dotp);
-            return;
+            తిరిగి;
         }
-        AstParseRef* const parseRefp = memberParseRef(dotp->rhsp());
-        if (!parseRefp) return;
+        AstParseRef* స్థిరరాశి parseRefp = memberParseRef(dotp->rhsp());
+        ఒకవేళ (!parseRefp) తిరిగి;
 
-        const AstClass* lhsClassp = VN_CAST(classRefp->classOrPackageSkipp(), Class);
+        స్థిరరాశి AstClass* lhsClassp = VN_CAST(classRefp->classOrPackageSkipp(), Class);
 
         // Specialize parameterized class through type parameter indirection (#7000)
-        AstParamTypeDType* const paramTypep
+        AstParamTypeDType* స్థిరరాశి paramTypep
             = VN_CAST(classRefp->classOrPackageNodep(), ParamTypeDType);
-        if (paramTypep) {
-            AstNodeDType* const dtypep = paramTypep->subDTypep();
-            AstClassRefDType* const classRefDTypep
-                = dtypep ? VN_CAST(dtypep->skipRefOrNullp(), ClassRefDType) : nullptr;
-            if (classRefDTypep) {
-                AstClass* const srcClassp = classRefDTypep->classp();
-                if (srcClassp && srcClassp->hasGParam() && classRefDTypep->paramsp()) {
-                    if (lhsClassp == srcClassp || !lhsClassp) {
+        ఒకవేళ (paramTypep) {
+            Ast_కణుపు_DType* స్థిరరాశి dtypep = paramTypep->subDTypep();
+            AstClassRefDType* స్థిరరాశి classRefDTypep
+                = dtypep ? VN_CAST(dtypep->skipRefOrNullp(), ClassRefDType) : శూన్యసూచిక;
+            ఒకవేళ (classRefDTypep) {
+                AstClass* స్థిరరాశి srcClassp = classRefDTypep->classp();
+                ఒకవేళ (srcClassp && srcClassp->hasGParam() && classRefDTypep->paramsp()) {
+                    ఒకవేళ (lhsClassp == srcClassp || !lhsClassp) {
                         classRefDeparam(classRefDTypep, srcClassp);
                         lhsClassp = classRefDTypep->classp();
                     }
@@ -1303,165 +1303,165 @@ class ParamProcessor final {
             }
         }
 
-        if (classRefp->paramsp()) {
-            AstClass* const srcClassp = VN_CAST(classRefp->classOrPackageNodep(), Class);
-            if (srcClassp && srcClassp->hasGParam()) {
-                if (lhsClassp == srcClassp || !lhsClassp) {
+        ఒకవేళ (classRefp->paramsp()) {
+            AstClass* స్థిరరాశి srcClassp = VN_CAST(classRefp->classOrPackageNodep(), Class);
+            ఒకవేళ (srcClassp && srcClassp->hasGParam()) {
+                ఒకవేళ (lhsClassp == srcClassp || !lhsClassp) {
                     classRefDeparam(classRefp, srcClassp);
                     lhsClassp = VN_CAST(classRefp->classOrPackageSkipp(), Class);
                 }
             }
         }
         // Typedef-aliased paramed class (e.g., typedef C#(7) my_c; my_c::b).
-        if (AstClassRefDType* const crp = classRefDTypeOfNode(classRefp->classOrPackageNodep())) {
-            if (AstClass* const srcClassp = crp->classp()) {
-                if (srcClassp->hasGParam() && crp->paramsp()) {
+        ఒకవేళ (AstClassRefDType* స్థిరరాశి crp = class_Ref_DType_యొక్క_కణుపు(classRefp->classOrPackageNodep())) {
+            ఒకవేళ (AstClass* స్థిరరాశి srcClassp = crp->classp()) {
+                ఒకవేళ (srcClassp->hasGParam() && crp->paramsp()) {
                     classRefDeparam(crp, srcClassp);
-                    if (AstClass* const newClassp = crp->classp()) lhsClassp = newClassp;
+                    ఒకవేళ (AstClass* స్థిరరాశి newClassp = crp->classp()) lhsClassp = newClassp;
                 }
             }
         }
-        if (!lhsClassp) return;
+        ఒకవేళ (!lhsClassp) తిరిగి;
 
-        AstNode* const memberp = m_memberMap.findMember(lhsClassp, parseRefp->name());
+        Ast_కణుపు* స్థిరరాశి memberp = m_memberMap.కనుగొను_Member(lhsClassp, parseRefp->name());
         UINFO(9, "Resolve deferred class member: " << parseRefp->name() << " -> " << memberp);
-        if (AstTypedef* const tdefp = VN_CAST(memberp, Typedef)) {
-            if (parseRefp != dotp->rhsp()) return;
-            AstRefDType* const refp = new AstRefDType{dotp->fileline(), tdefp->name()};
+        ఒకవేళ (AstTypedef* స్థిరరాశి tdefp = VN_CAST(memberp, Typedef)) {
+            ఒకవేళ (parseRefp != dotp->rhsp()) తిరిగి;
+            AstRefDType* స్థిరరాశి refp = కొత్త AstRefDType{dotp->fileline(), tdefp->name()};
             refp->typedefp(tdefp);
             dotp->replaceWith(refp);
-            VL_DO_DANGLING(dotp->deleteTree(), dotp);
-        } else if (AstVar* const varp = VN_CAST(memberp, Var)) {
+            VL_DO_DANGLING(dotp->delete_వృక్షం(), dotp);
+        } లేకపోతే ఒకవేళ (AstVar* స్థిరరాశి varp = VN_CAST(memberp, Var)) {
             substituteParamMember(dotp, parseRefp, varp);
         }
     }
 
     // Substitute a class param/lparam member's constant value for dotp. The
     // reverse-order deferred-Dot walk lowers any outer fields to MemberSels.
-    void substituteParamMember(AstDot* const dotp, AstParseRef* const memberRefp,
-                               AstVar* const varp) {
-        if (!varp->isParam() || !varp->valuep()) return;
-        if (!VN_IS(varp->valuep(), Const)) {
-            std::set<AstVar*> inProgress;
-            constifyMemberValue(varp, inProgress);
+    శూన్య substituteParamMember(AstDot* స్థిరరాశి dotp, AstParseRef* స్థిరరాశి memberRefp,
+                               AstVar* స్థిరరాశి varp) {
+        ఒకవేళ (!varp->isParam() || !varp->valuep()) తిరిగి;
+        ఒకవేళ (!VN_IS(varp->valuep(), Const)) {
+            std::సమితి<AstVar*> లోపల_పురోగతి;
+            constify_Member_విలువ(varp, లోపల_పురోగతి);
         }
-        AstConst* const constp = VN_CAST(varp->valuep(), Const);
-        if (!constp) return;
-        AstConst* const newp = constp->cloneTree(false);
+        AstConst* స్థిరరాశి constp = VN_CAST(varp->valuep(), Const);
+        ఒకవేళ (!constp) తిరిగి;
+        AstConst* స్థిరరాశి newp = constp->clone_వృక్షం(అబద్ధం);
         newp->dtypep(varp->subDTypep());
         replaceMemberDot(dotp, memberRefp, newp);
     }
 
     // Resolve one class-scoped RefDType. The generic deferred walk finds these
     // through every dtype wrapper and follows out-of-tree typedef references.
-    void resolveParamClassRefDType(AstRefDType* refp) {
-        if (refp->typedefp() || refp->refDTypep()) return;
+    శూన్య resolveParamClassRefDType(AstRefDType* refp) {
+        ఒకవేళ (refp->typedefp() || refp->refDTypep()) తిరిగి;
 
-        AstClassOrPackageRef* const classRefp
+        AstClassOrPackageRef* స్థిరరాశి classRefp
             = VN_CAST(refp->classOrPackageOpp(), ClassOrPackageRef);
-        if (!classRefp) return;
+        ఒకవేళ (!classRefp) తిరిగి;
 
         AstClass* srcClassp = VN_CAST(classRefp->classOrPackageNodep(), Class);
-        if (srcClassp && srcClassp->hasGParam()) {
+        ఒకవేళ (srcClassp && srcClassp->hasGParam()) {
             classRefDeparam(classRefp, srcClassp);
-            return;
+            తిరిగి;
         }
 
         // Follow typedef chain to find the underlying ClassRefDType
-        AstNode* targetp = classRefp->classOrPackageNodep();
-        while (const AstTypedef* const tdefp = VN_CAST(targetp, Typedef))
+        Ast_కణుపు* targetp = classRefp->classOrPackageNodep();
+        అయితే (స్థిరరాశి AstTypedef* స్థిరరాశి tdefp = VN_CAST(targetp, Typedef))
             targetp = tdefp->subDTypep();
-        if (AstNodeDType* const dtargetp = VN_CAST(targetp, NodeDType))
+        ఒకవేళ (Ast_కణుపు_DType* స్థిరరాశి dtargetp = VN_CAST(targetp, కణుపు_DType))
             targetp = dtargetp->skipRefOrNullp();
-        if (!targetp) return;
-        AstClassRefDType* const classRefDTypep = VN_CAST(targetp, ClassRefDType);
-        if (!classRefDTypep) return;
+        ఒకవేళ (!targetp) తిరిగి;
+        AstClassRefDType* స్థిరరాశి classRefDTypep = VN_CAST(targetp, ClassRefDType);
+        ఒకవేళ (!classRefDTypep) తిరిగి;
         srcClassp = classRefDTypep->classp();
-        if (!srcClassp) return;
+        ఒకవేళ (!srcClassp) తిరిగి;
 
         AstClass* newClassp = srcClassp;
-        if (srcClassp->hasGParam()) {
+        ఒకవేళ (srcClassp->hasGParam()) {
             classRefDeparam(classRefDTypep, srcClassp);
             newClassp = classRefDTypep->classp();
         }
 
-        AstTypedef* const typedefp
-            = VN_CAST(m_memberMap.findMember(newClassp, refp->name()), Typedef);
-        if (typedefp) {
+        AstTypedef* స్థిరరాశి typedefp
+            = VN_CAST(m_memberMap.కనుగొను_Member(newClassp, refp->name()), Typedef);
+        ఒకవేళ (typedefp) {
             refp->typedefp(typedefp);
             refp->classOrPackagep(newClassp);
         }
     }
 
     // True if a $bits/$size type query in nodep's parameters reads another type parameter.
-    static bool defaultParamsHaveTypeQueryOnParamType(const AstClassRefDType* nodep) {
-        bool found = false;
-        nodep->foreach([&](const AstAttrOf* attrp) {
-            if (found || !attrp->attrType().isTypeQuery()) return;
-            const AstRefDType* const refp = VN_CAST(attrp->fromp(), RefDType);
-            if (refp && VN_IS(refp->refDTypep(), ParamTypeDType)) found = true;
+    స్థిర తార్కిక defaultParamsHaveTypeQueryOnParamType(స్థిరరాశి AstClassRefDType* nodep) {
+        తార్కిక దొరికింది = అబద్ధం;
+        nodep->foreach([&](స్థిరరాశి Ast_Attr_యొక్క* attrp) {
+            ఒకవేళ (దొరికింది || !attrp->attrType().isTypeQuery()) తిరిగి;
+            స్థిరరాశి AstRefDType* స్థిరరాశి refp = VN_CAST(attrp->fromp(), RefDType);
+            ఒకవేళ (refp && VN_IS(refp->refDTypep(), ParamTypeDType)) దొరికింది = నిజం;
         });
-        return found;
+        తిరిగి దొరికింది;
     }
 
     // Check if exprp's class matches origp's class after deparameterization.
     // Handles both the simple case (user4p link from defaultsResolved) and the
     // nested case where the default's inner class has non-default sub-parameters
     // (e.g., uvm_sequence#(uvm_reg_item) where uvm_reg_item != default uvm_sequence_item).
-    bool classTypeMatchesDefaultClone(const AstNodeDType* exprp, const AstNodeDType* origp) {
+    తార్కిక classTypeMatchesDefaultClone(స్థిరరాశి Ast_కణుపు_DType* exprp, స్థిరరాశి Ast_కణుపు_DType* origp) {
         exprp = exprp->skipRefp();
         origp = origp->skipRefp();
-        const auto* const exprClassRefp = VN_CAST(exprp, ClassRefDType);
-        const auto* const origClassRefp = VN_CAST(origp, ClassRefDType);
-        if (!exprClassRefp || !origClassRefp) return false;
+        స్థిరరాశి స్వయంచాలక* స్థిరరాశి సమాసం_Class_Refp = VN_CAST(exprp, ClassRefDType);
+        స్థిరరాశి స్వయంచాలక* స్థిరరాశి origClassRefp = VN_CAST(origp, ClassRefDType);
+        ఒకవేళ (!సమాసం_Class_Refp || !origClassRefp) తిరిగి అబద్ధం;
         // Fast path: check user4p link (set when template was deparameterized with defaults)
-        const AstNodeModule* const defaultClonep
+        స్థిరరాశి Ast_కణుపు_Module* స్థిరరాశి defaultClonep
             = VN_CAST(origClassRefp->classp()->user4p(), Class);
-        if (defaultClonep && defaultClonep == exprClassRefp->classp()) return true;
+        ఒకవేళ (defaultClonep && defaultClonep == సమాసం_Class_Refp->classp()) తిరిగి నిజం;
         // Skip the comparison when the default's $bits/$size reads another type parameter, as
         // deparameterizing it below would resolve that shared type at the wrong width (#7711).
-        if (defaultParamsHaveTypeQueryOnParamType(origClassRefp)) return false;
+        ఒకవేళ (defaultParamsHaveTypeQueryOnParamType(origClassRefp)) తిరిగి అబద్ధం;
         // Slow path: deparameterize the default type and compare the result.
         // Different templates can never match; use origName() because exprp's
         // class may already be a specialization (clone) of the template.
-        if (!origClassRefp->classp()->hasGParam()) return false;
-        if (origClassRefp->classp()->origName() != exprClassRefp->classp()->origName())
-            return false;
+        ఒకవేళ (!origClassRefp->classp()->hasGParam()) తిరిగి అబద్ధం;
+        ఒకవేళ (origClassRefp->classp()->origName() != సమాసం_Class_Refp->classp()->origName())
+            తిరిగి అబద్ధం;
         // Prevent re-entry when classRefDeparam recurses through cellPinCleanup.
-        if (!m_defaultCloneInProgress.insert(origClassRefp->classp()).second) return false;
+        ఒకవేళ (!m_default_Clone_లోపల_పురోగతి.చొప్పించు(origClassRefp->classp()).రెండవ) తిరిగి అబద్ధం;
         // const_cast safe: cloneTree doesn't modify the source
-        AstClassRefDType* const origClonep = static_cast<AstClassRefDType*>(
-            const_cast<AstClassRefDType*>(origClassRefp)->cloneTree(false));
-        AstNodeModule* const resolvedModp = classRefDeparam(origClonep, origClassRefp->classp());
-        const bool match = resolvedModp && VN_CAST(resolvedModp, Class) == exprClassRefp->classp();
-        VL_DO_DANGLING(origClonep->deleteTree(), origClonep);
-        m_defaultCloneInProgress.erase(origClassRefp->classp());
-        return match;
+        AstClassRefDType* స్థిరరాశి origClonep = static_cast<AstClassRefDType*>(
+            const_cast<AstClassRefDType*>(origClassRefp)->clone_వృక్షం(అబద్ధం));
+        Ast_కణుపు_Module* స్థిరరాశి resolvedModp = classRefDeparam(origClonep, origClassRefp->classp());
+        స్థిరరాశి తార్కిక సరిపోలిక = resolvedModp && VN_CAST(resolvedModp, Class) == సమాసం_Class_Refp->classp();
+        VL_DO_DANGLING(origClonep->delete_వృక్షం(), origClonep);
+        m_default_Clone_లోపల_పురోగతి.erase(origClassRefp->classp());
+        తిరిగి సరిపోలిక;
     }
 
-    static bool paramConstsEqualAtMaxWidth(AstConst* exprp, AstConst* origp) {
+    స్థిర తార్కిక param_Consts_Equal_At_Max_వెడల్పు(AstConst* exprp, AstConst* origp) {
         // Return true if two integer constants are equal after sign-extending
         // both to max(width).  A typed parameter default (e.g. byte) is
         // narrower than a 32-bit pin expression, so sameTree/areSame fail.
-        if (exprp->num().width() == origp->num().width()) return false;
-        if (exprp->num().isOpaque()) return false;
-        if (origp->num().isOpaque()) return false;
-        const int maxWidth = std::max(exprp->num().width(), origp->num().width());
-        V3Number exprNum{exprp, maxWidth};
-        if (exprp->num().isSigned()) {
-            exprNum.opExtendS(exprp->num(), exprp->num().width());
-        } else {
-            exprNum.opAssign(exprp->num());
+        ఒకవేళ (exprp->అంకె().వెడల్పు() == origp->అంకె().వెడల్పు()) తిరిగి అబద్ధం;
+        ఒకవేళ (exprp->అంకె().isOpaque()) తిరిగి అబద్ధం;
+        ఒకవేళ (origp->అంకె().isOpaque()) తిరిగి అబద్ధం;
+        స్థిరరాశి పూర్ణాంకం max_వెడల్పు = std::max(exprp->అంకె().వెడల్పు(), origp->అంకె().వెడల్పు());
+        V3_సంఖ్య సమాసం_అంకె{exprp, max_వెడల్పు};
+        ఒకవేళ (exprp->అంకె().isSigned()) {
+            సమాసం_అంకె.opExtendS(exprp->అంకె(), exprp->అంకె().వెడల్పు());
+        } లేకపోతే {
+            సమాసం_అంకె.op_కేటాయించు(exprp->అంకె());
         }
-        V3Number origNum{origp, maxWidth};
-        if (origp->num().isSigned()) {
-            origNum.opExtendS(origp->num(), origp->num().width());
-        } else {
-            origNum.opAssign(origp->num());
+        V3_సంఖ్య orig_అంకె{origp, max_వెడల్పు};
+        ఒకవేళ (origp->అంకె().isSigned()) {
+            orig_అంకె.opExtendS(origp->అంకె(), origp->అంకె().వెడల్పు());
+        } లేకపోతే {
+            orig_అంకె.op_కేటాయించు(origp->అంకె());
         }
-        V3Number isEq{exprp, 1};
-        isEq.opEq(exprNum, origNum);
-        return isEq.isNeqZero();
+        V3_సంఖ్య isEq{exprp, 1};
+        isEq.opEq(సమాసం_అంకె, orig_అంకె);
+        తిరిగి isEq.isNeqZero();
     }
 
     // Rewrite placeholder __VGIfaceParam pins emitted by
@@ -1476,58 +1476,58 @@ class ParamProcessor final {
     //     after its own nodeDeparam has specialized it. That specialization
     //     happens in V3Param's top-down walk, so the window between "outer
     //     port resolved" and "inner cellDeparam starts" exists only here.
-    void resolveGenericIfaceForwardingPins(AstPin* paramsp) {
-        for (AstPin* pinp = paramsp; pinp; pinp = VN_AS(pinp->nextp(), Pin)) {
-            if (!pinp->exprp()) continue;
-            if (!VString::startsWith(pinp->name(), "__VGIfaceParam")) continue;
-            const AstNodeVarRef* const fwdRefp = VN_CAST(pinp->exprp(), NodeVarRef);
-            if (!fwdRefp) continue;
-            const AstIfaceRefDType* const resolvedp
-                = VN_CAST(fwdRefp->varp()->childDTypep()->skipRefp(), IfaceRefDType);
+    శూన్య resolveGenericIfaceForwardingPins(AstPin* paramsp) {
+        కొరకు (AstPin* pinp = paramsp; pinp; pinp = VN_AS(pinp->nextp(), Pin)) {
+            ఒకవేళ (!pinp->exprp()) కొనసాగు;
+            ఒకవేళ (!VString::startsWith(pinp->name(), "__VGIfaceParam")) కొనసాగు;
+            స్థిరరాశి Ast_కణుపు_Var_Ref* స్థిరరాశి fwdRefp = VN_CAST(pinp->exprp(), కణుపు_Var_Ref);
+            ఒకవేళ (!fwdRefp) కొనసాగు;
+            స్థిరరాశి AstIfaceRefDType* స్థిరరాశి resolvedp
+                = VN_CAST(fwdRefp->varp()->బిడ్డ_DTypep()->skipRefp(), IfaceRefDType);
             UASSERT_OBJ(resolvedp, pinp,
                         "Generic interface forwarding pin not specialized before use");
-            AstIfaceRefDType* const newIrefp = new AstIfaceRefDType{
+            AstIfaceRefDType* స్థిరరాశి newIrefp = కొత్త AstIfaceRefDType{
                 resolvedp->fileline(), resolvedp->modportFileline(), resolvedp->cellName(),
                 resolvedp->ifaceName(), resolvedp->modportName()};
             newIrefp->ifacep(resolvedp->ifacep());
-            if (resolvedp->paramsp()) {
-                newIrefp->addParamsp(resolvedp->paramsp()->cloneTree(true));
+            ఒకవేళ (resolvedp->paramsp()) {
+                newIrefp->కూడు_Paramsp(resolvedp->paramsp()->clone_వృక్షం(నిజం));
             }
-            pinp->exprp()->unlinkFrBack()->deleteTree();
+            pinp->exprp()->unlink_Fr_వెనుక()->delete_వృక్షం();
             pinp->exprp(newIrefp);
         }
     }
 
     // Include the pin's value in the specialization name, so cells passing equal
     // values share one module clone.
-    void nameByPinValue(AstPin* pinp, AstNodeModule* srcModp, AstVar* modvarp, string& longnamer,
-                        bool& any_overridesr) {
-        longnamer += "_" + paramSmallName(srcModp, modvarp) + paramValueNumber(pinp->exprp());
-        any_overridesr = true;
+    శూన్య name_By_Pin_విలువ(AstPin* pinp, Ast_కణుపు_Module* srcModp, AstVar* modvarp, string& longnamer,
+                        తార్కిక& any_overridesr) {
+        longnamer += "_" + paramSmallName(srcModp, modvarp) + param_విలువ_సంఖ్య(pinp->exprp());
+        any_overridesr = నిజం;
     }
 
     // Name the specialization by a value pin, or prepare a type pin, noting in
     // overridingTypePinsr whether it differs from the default
-    void cellPinCleanup(AstNode* nodep, AstPin* pinp, AstPin* paramsp, AstNodeModule* srcModp,
-                        string& longnamer, bool& any_overridesr,
-                        std::unordered_set<const AstPin*>& overridingTypePinsr) {
-        if (!pinp->exprp()) return;  // No-connect
-        if (AstVar* const modvarp = pinp->modVarp()) {
+    శూన్య cellPinCleanup(Ast_కణుపు* nodep, AstPin* pinp, AstPin* paramsp, Ast_కణుపు_Module* srcModp,
+                        string& longnamer, తార్కిక& any_overridesr,
+                        std::unordered_సమితి<స్థిరరాశి AstPin*>& overridingTypePinsr) {
+        ఒకవేళ (!pinp->exprp()) తిరిగి;  // No-connect
+        ఒకవేళ (AstVar* స్థిరరాశి modvarp = pinp->modVarp()) {
             resolveDeferredDotsReachableFrom(modvarp->subDTypep(), m_modp);
-            if (!modvarp->isGParam()) {
+            ఒకవేళ (!modvarp->isGParam()) {
                 pinp->v3fatalSrc("Attempted parameter setting of non-parameter: Param "
                                  << pinp->prettyNameQ() << " of " << nodep->prettyNameQ());
-            } else if (VN_IS(pinp->exprp(), Pattern)
+            } లేకపోతే ఒకవేళ (VN_IS(pinp->exprp(), నమూనా)
                        || (VN_IS(pinp->exprp(), ConsArray)
                            && arraySubDTypep(modvarp->subDTypep()))) {
                 // A pattern or array value is named by its contents
-                nameByPinValue(pinp, srcModp, modvarp, longnamer, any_overridesr);
-            } else {
+                name_By_Pin_విలువ(pinp, srcModp, modvarp, longnamer, any_overridesr);
+            } లేకపోతే {
                 UINFO(9, "cellPinCleanup: before constify " << pinp << " " << modvarp);
                 V3Const::constifyParamsEdit(pinp->exprp());
-                if (isAggregateParamValue(pinp->exprp())) {
-                    nameByPinValue(pinp, srcModp, modvarp, longnamer, any_overridesr);
-                    return;
+                ఒకవేళ (is_Aggregate_Param_విలువ(pinp->exprp())) {
+                    name_By_Pin_విలువ(pinp, srcModp, modvarp, longnamer, any_overridesr);
+                    తిరిగి;
                 }
                 // Cast/CastSize default values are not yet folded by V3Width.
                 // Constify here so the comparison below sees a Const node.
@@ -1540,183 +1540,183 @@ class ParamProcessor final {
                 // instance, and folding it here would evaluate it against the
                 // template's own defaults and bake that in for every later
                 // instance that relies on the default.
-                if (modvarp->valuep()
-                    && (VN_IS(modvarp->valuep(), Cast) || VN_IS(modvarp->valuep(), CastSize))) {
-                    const bool dependent = modvarp->valuep()->exists(
-                        [](AstNode* np) { return VN_IS(np, VarRef) || VN_IS(np, RefDType); });
-                    if (!dependent) V3Const::constifyParamsEdit(modvarp->valuep());
+                ఒకవేళ (modvarp->valuep()
+                    && (VN_IS(modvarp->valuep(), Cast) || VN_IS(modvarp->valuep(), Cast_కొలత))) {
+                    స్థిరరాశి తార్కిక dependent = modvarp->valuep()->exists(
+                        [](Ast_కణుపు* np) { తిరిగి VN_IS(np, VarRef) || VN_IS(np, RefDType); });
+                    ఒకవేళ (!dependent) V3Const::constifyParamsEdit(modvarp->valuep());
                 }
                 UINFO(9, "cellPinCleanup: after constify " << pinp);
                 // String constants are parsed as logic arrays and converted to strings in V3Const.
                 // At this moment, some constants may have been already converted.
                 // To correctly compare constants, both should be of the same type,
                 // so they need to be converted.
-                if (isString(modvarp->subDTypep())) {
-                    convertToStringp(pinp->exprp());
-                    convertToStringp(modvarp->valuep());
+                ఒకవేళ (isString(modvarp->subDTypep())) {
+                    convert_గమ్యం_Stringp(pinp->exprp());
+                    convert_గమ్యం_Stringp(modvarp->valuep());
                 }
-                AstConst* const exprp = VN_CAST(pinp->exprp(), Const);
-                AstConst* const origp = VN_CAST(modvarp->valuep(), Const);
+                AstConst* స్థిరరాశి exprp = VN_CAST(pinp->exprp(), Const);
+                AstConst* స్థిరరాశి origp = VN_CAST(modvarp->valuep(), Const);
                 // Width the pin to the port's type so equal values hash the same (#5479).
-                AstConst* normedNamep = nullptr;
-                if (exprp && !exprp->num().isDouble() && !exprp->num().isString()) {
-                    AstVar* cloneVarp = modvarp->cloneTree(false);
-                    bool cloneVarpUnresolved = false;
-                    if (AstNode* const oldValuep = cloneVarp->valuep()) {
-                        oldValuep->unlinkFrBack();
-                        VL_DO_DANGLING(oldValuep->deleteTree(), oldValuep);
+                AstConst* normedNamep = శూన్యసూచిక;
+                ఒకవేళ (exprp && !exprp->అంకె().isDouble() && !exprp->అంకె().isString()) {
+                    AstVar* cloneVarp = modvarp->clone_వృక్షం(అబద్ధం);
+                    తార్కిక cloneVarpUnresolved = అబద్ధం;
+                    ఒకవేళ (Ast_కణుపు* స్థిరరాశి oldValuep = cloneVarp->valuep()) {
+                        oldValuep->unlink_Fr_వెనుక();
+                        VL_DO_DANGLING(oldValuep->delete_వృక్షం(), oldValuep);
                     }
-                    cloneVarp->valuep(exprp->cloneTree(false));
-                    if (AstNodeDType* const origDTypep = modvarp->subDTypep()) {
+                    cloneVarp->valuep(exprp->clone_వృక్షం(అబద్ధం));
+                    ఒకవేళ (Ast_కణుపు_DType* స్థిరరాశి origDTypep = modvarp->subDTypep()) {
                         // Attach clone under cloneVarp so the root has a back pointer.
-                        if (cloneVarp->childDTypep())
-                            cloneVarp->childDTypep()->unlinkFrBack()->deleteTree();
-                        cloneVarp->childDTypep(origDTypep->cloneTree(false));
-                        cloneVarp->dtypep(nullptr);
+                        ఒకవేళ (cloneVarp->బిడ్డ_DTypep())
+                            cloneVarp->బిడ్డ_DTypep()->unlink_Fr_వెనుక()->delete_వృక్షం();
+                        cloneVarp->బిడ్డ_DTypep(origDTypep->clone_వృక్షం(అబద్ధం));
+                        cloneVarp->dtypep(శూన్యసూచిక);
                         // Inline param refs so widthing doesn't touch the template (#7411).
-                        constexpr int maxSubstIters = 1000;
-                        for (int it = 0; it < maxSubstIters; ++it) {
-                            bool any = false;
+                        constexpr పూర్ణాంకం maxSubstIters = 1000;
+                        కొరకు (పూర్ణాంకం it = 0; it < maxSubstIters; ++it) {
+                            తార్కిక any = అబద్ధం;
                             cloneVarp->foreach([&](AstVarRef* varrefp) {
-                                AstVar* const targetp = varrefp->varp();
-                                AstNode* replacep = nullptr;
-                                for (AstPin* pp = paramsp; pp; pp = VN_AS(pp->nextp(), Pin)) {
-                                    if (pp->modVarp() == targetp) {
+                                AstVar* స్థిరరాశి targetp = varrefp->varp();
+                                Ast_కణుపు* replacep = శూన్యసూచిక;
+                                కొరకు (AstPin* pp = paramsp; pp; pp = VN_AS(pp->nextp(), Pin)) {
+                                    ఒకవేళ (pp->modVarp() == targetp) {
                                         // A pattern or array override names the value too
-                                        if (VN_IS(pp->exprp(), Const)
-                                            || VN_IS(pp->exprp(), Pattern)
+                                        ఒకవేళ (VN_IS(pp->exprp(), Const)
+                                            || VN_IS(pp->exprp(), నమూనా)
                                             || VN_IS(pp->exprp(), ConsArray)) {
-                                            replacep = pp->exprp()->cloneTree(false);
+                                            replacep = pp->exprp()->clone_వృక్షం(అబద్ధం);
                                         }
-                                        break;
+                                        ఆపు;
                                     }
                                 }
-                                if (!replacep && targetp->valuep()) {
-                                    replacep = targetp->valuep()->cloneTree(false);
+                                ఒకవేళ (!replacep && targetp->valuep()) {
+                                    replacep = targetp->valuep()->clone_వృక్షం(అబద్ధం);
                                 }
                                 // An inlined pattern takes the type of its parameter
-                                AstPattern* const patp = VN_CAST(replacep, Pattern);
-                                if (patp && !patp->childDTypep() && targetp->childDTypep()) {
-                                    patp->childDTypep(targetp->childDTypep()->cloneTree(false));
+                                Ast_నమూనా* స్థిరరాశి patp = VN_CAST(replacep, నమూనా);
+                                ఒకవేళ (patp && !patp->బిడ్డ_DTypep() && targetp->బిడ్డ_DTypep()) {
+                                    patp->బిడ్డ_DTypep(targetp->బిడ్డ_DTypep()->clone_వృక్షం(అబద్ధం));
                                 }
-                                if (replacep) {
+                                ఒకవేళ (replacep) {
                                     varrefp->replaceWith(replacep);
-                                    VL_DO_DANGLING(varrefp->deleteTree(), varrefp);
-                                    any = true;
+                                    VL_DO_DANGLING(varrefp->delete_వృక్షం(), varrefp);
+                                    any = నిజం;
                                 }
                             });
                             // Replace RefDType to a ParamTypeDType with pin override
                             // or the paramtype's default so constify below does not
                             // reach into the template.  Collect then replace in
                             // reverse so descendants aren't freed early.
-                            std::vector<std::pair<AstRefDType*, AstNodeDType*>> toReplace;
+                            std::సదిశ<std::pair<AstRefDType*, Ast_కణుపు_DType*>> గమ్యం_Replace;
                             cloneVarp->foreach([&](AstRefDType* refp) {
-                                AstParamTypeDType* const ptdp
+                                AstParamTypeDType* స్థిరరాశి ptdp
                                     = VN_CAST(refp->refDTypep(), ParamTypeDType);
-                                if (!ptdp) return;
-                                AstPin* overridePinp = nullptr;
-                                for (AstPin* pp = paramsp; pp; pp = VN_AS(pp->nextp(), Pin)) {
-                                    if (pp->modPTypep() == ptdp) {
+                                ఒకవేళ (!ptdp) తిరిగి;
+                                AstPin* overridePinp = శూన్యసూచిక;
+                                కొరకు (AstPin* pp = paramsp; pp; pp = VN_AS(pp->nextp(), Pin)) {
+                                    ఒకవేళ (pp->modPTypep() == ptdp) {
                                         overridePinp = pp;
-                                        break;
+                                        ఆపు;
                                     }
                                 }
-                                AstNodeDType* const substp
-                                    = overridePinp ? VN_CAST(overridePinp->exprp(), NodeDType)
+                                Ast_కణుపు_DType* స్థిరరాశి substp
+                                    = overridePinp ? VN_CAST(overridePinp->exprp(), కణుపు_DType)
                                                    : ptdp->subDTypep();
-                                if (substp) toReplace.emplace_back(refp, substp);
+                                ఒకవేళ (substp) గమ్యం_Replace.emplace_వెనుక(refp, substp);
                             });
-                            for (auto it = toReplace.rbegin(); it != toReplace.rend(); ++it) {
-                                AstRefDType* const refp = it->first;
-                                refp->replaceWith(it->second->cloneTree(false));
-                                VL_DO_DANGLING(refp->deleteTree(), refp);
-                                any = true;
+                            కొరకు (స్వయంచాలక it = గమ్యం_Replace.rbegin(); it != గమ్యం_Replace.rend(); ++it) {
+                                AstRefDType* స్థిరరాశి refp = it->మొదటి;
+                                refp->replaceWith(it->రెండవ->clone_వృక్షం(అబద్ధం));
+                                VL_DO_DANGLING(refp->delete_వృక్షం(), refp);
+                                any = నిజం;
                             }
-                            if (!any) break;
+                            ఒకవేళ (!any) ఆపు;
                         }
                         // Skip the widthing constify if anything left can't be evaluated here: a
                         // reference, as to a variable or around a cycle, an unresolved type
                         // parameter, or a type or enum item of the template
-                        cloneVarp->foreach([&](AstNode* np) {
-                            if (VN_IS(np, VarRef)) {
-                                cloneVarpUnresolved = true;
-                                return;
+                        cloneVarp->foreach([&](Ast_కణుపు* np) {
+                            ఒకవేళ (VN_IS(np, VarRef)) {
+                                cloneVarpUnresolved = నిజం;
+                                తిరిగి;
                             }
-                            if (AstEnumItemRef* const itemRefp = VN_CAST(np, EnumItemRef)) {
-                                if (V3LinkDotIfaceCapture::findOwnerModule(itemRefp->itemp())
+                            ఒకవేళ (Ast_Enum_అంశం_Ref* స్థిరరాశి అంశం_Refp = VN_CAST(np, Enum_అంశం_Ref)) {
+                                ఒకవేళ (V3LinkDotIfaceCapture::కనుగొను_Owner_Module(అంశం_Refp->itemp())
                                     == srcModp) {
-                                    cloneVarpUnresolved = true;
+                                    cloneVarpUnresolved = నిజం;
                                 }
-                                return;
+                                తిరిగి;
                             }
-                            AstRefDType* const refp = VN_CAST(np, RefDType);
-                            if (!refp) return;
-                            if (VN_IS(refp->refDTypep(), ParamTypeDType)) {
+                            AstRefDType* స్థిరరాశి refp = VN_CAST(np, RefDType);
+                            ఒకవేళ (!refp) తిరిగి;
+                            ఒకవేళ (VN_IS(refp->refDTypep(), ParamTypeDType)) {
                                 UINFO(5, "  cellPinCleanup: skip normedNamep "
                                          "(unresolved RefDType->ParamTypeDType) pin="
                                              << pinp->prettyNameQ());
-                                cloneVarpUnresolved = true;
+                                cloneVarpUnresolved = నిజం;
                             }
                             // A type declared in the template must not be widthed there
-                            if (V3LinkDotIfaceCapture::findOwnerModule(refp->typedefp()) == srcModp
-                                || V3LinkDotIfaceCapture::findOwnerModule(refp->refDTypep())
+                            ఒకవేళ (V3LinkDotIfaceCapture::కనుగొను_Owner_Module(refp->typedefp()) == srcModp
+                                || V3LinkDotIfaceCapture::కనుగొను_Owner_Module(refp->refDTypep())
                                        == srcModp) {
-                                cloneVarpUnresolved = true;
+                                cloneVarpUnresolved = నిజం;
                             }
                         });
                     }
-                    if (!cloneVarpUnresolved) {
+                    ఒకవేళ (!cloneVarpUnresolved) {
                         V3Const::constifyParamsEdit(cloneVarp);
-                        if (AstConst* const widthedp = VN_CAST(cloneVarp->valuep(), Const)) {
+                        ఒకవేళ (AstConst* స్థిరరాశి widthedp = VN_CAST(cloneVarp->valuep(), Const)) {
                             // Stamp the port's type so equal values hash the same.
-                            if (cloneVarp->dtypep()) widthedp->dtypep(cloneVarp->dtypep());
-                            widthedp->unlinkFrBack();
+                            ఒకవేళ (cloneVarp->dtypep()) widthedp->dtypep(cloneVarp->dtypep());
+                            widthedp->unlink_Fr_వెనుక();
                             normedNamep = widthedp;
                         }
                     }
-                    VL_DO_DANGLING(cloneVarp->deleteTree(), cloneVarp);
+                    VL_DO_DANGLING(cloneVarp->delete_వృక్షం(), cloneVarp);
                 }
-                AstConst* const namingExprp = normedNamep ? normedNamep : exprp;
-                if (!exprp) {
+                AstConst* స్థిరరాశి namingExprp = normedNamep ? normedNamep : exprp;
+                ఒకవేళ (!exprp) {
                     // With DepGraph architecture, all expressions should be constants
                     // by the time V3Param runs. If not, it's an error.
                     UINFO(9, "cellPinCleanup: NOT CONST after constify " << pinp);
                     UINFOTREE(1, pinp, "", "errnode");
                     pinp->v3error("Can't convert defparam value to constant: Param "
                                   << pinp->prettyNameQ() << " of " << nodep->prettyNameQ());
-                    AstNode* const pinExprp = pinp->exprp();
-                    pinExprp->replaceWith(new AstConst{pinp->fileline(), AstConst::WidthedValue{},
-                                                       modvarp->width(), 0});
-                    VL_DO_DANGLING(pinExprp->deleteTree(), pinExprp);
-                } else if (origp
-                           && (exprp->sameTree(origp)
-                               || (exprp->num().width() == origp->num().width()
-                                   && ParameterizedHierBlocks::areSame(exprp, origp))
-                               || paramConstsEqualAtMaxWidth(exprp, origp))) {
+                    Ast_కణుపు* స్థిరరాశి pinExprp = pinp->exprp();
+                    pinExprp->replaceWith(కొత్త AstConst{pinp->fileline(), AstConst::Widthed_విలువ{},
+                                                       modvarp->వెడల్పు(), 0});
+                    VL_DO_DANGLING(pinExprp->delete_వృక్షం(), pinExprp);
+                } లేకపోతే ఒకవేళ (origp
+                           && (exprp->same_వృక్షం(origp)
+                               || (exprp->అంకె().వెడల్పు() == origp->అంకె().వెడల్పు()
+                                   && Parameterized_Hier_ఖండాలు::areSame(exprp, origp))
+                               || param_Consts_Equal_At_Max_వెడల్పు(exprp, origp))) {
                     // Setting parameter to its default value.  Just ignore it.
                     // This prevents making additional modules, and makes coverage more
                     // obvious as it won't show up under a unique module page name.
                     UINFO(9, "cellPinCleanup: same as default " << pinp);
-                } else if (namingExprp->num().isDouble() || namingExprp->num().isString()
-                           || namingExprp->num().isFourState()
-                           || namingExprp->num().width() != 32) {
+                } లేకపోతే ఒకవేళ (namingExprp->అంకె().isDouble() || namingExprp->అంకె().isString()
+                           || namingExprp->అంకె().isFourState()
+                           || namingExprp->అంకె().వెడల్పు() != 32) {
                     longnamer += ("_" + paramSmallName(srcModp, modvarp)
-                                  + paramValueNumber(namingExprp));
-                    any_overridesr = true;
-                } else {
+                                  + param_విలువ_సంఖ్య(namingExprp));
+                    any_overridesr = నిజం;
+                } లేకపోతే {
                     longnamer += ("_" + paramSmallName(srcModp, modvarp)
-                                  + namingExprp->num().ascii(false));
-                    any_overridesr = true;
+                                  + namingExprp->అంకె().ascii(అబద్ధం));
+                    any_overridesr = నిజం;
                 }
-                if (normedNamep) VL_DO_DANGLING(normedNamep->deleteTree(), normedNamep);
+                ఒకవేళ (normedNamep) VL_DO_DANGLING(normedNamep->delete_వృక్షం(), normedNamep);
             }
-        } else if (AstParamTypeDType* const modvarp = pinp->modPTypep()) {
+        } లేకపోతే ఒకవేళ (AstParamTypeDType* స్థిరరాశి modvarp = pinp->modPTypep()) {
             // Resolve the pin and declared type through arbitrary dtype wrappers
             // and typedef chains before widthing either one.
             resolveDeferredDotsReachableFrom(pinp->exprp(), m_modp);
             resolveDeferredDotsReachableFrom(modvarp->subDTypep(), m_modp);
 
-            AstNodeDType* rawTypep = VN_CAST(pinp->exprp(), NodeDType);
+            Ast_కణుపు_DType* rawTypep = VN_CAST(pinp->exprp(), కణుపు_DType);
             // Guard against widthing a struct/union still owned by a
             // parameterized template interface (not yet specialized).
             // widthParamsEdit is destructive: it evaluates range expressions,
@@ -1725,20 +1725,20 @@ class ParamProcessor final {
             // Triggered by deeply nested parameterized interfaces (e.g.
             // outer_if containing inner_if with struct typedefs) when the
             // inner interface hasn't been specialized yet.
-            bool skipWidthForTemplateStruct = false;
+            తార్కిక skip_వెడల్పు_For_Template_Struct = అబద్ధం;
             {
                 // Use non-asserting skip: before widthParamsEdit, type(expr)
                 // constructs may contain unlinked REFDTYPEs (e.g. type(x-y))
-                AstNodeDType* const resolvedp = rawTypep ? rawTypep->skipRefOrNullp() : nullptr;
-                if (resolvedp && (VN_IS(resolvedp, StructDType) || VN_IS(resolvedp, UnionDType))) {
-                    AstNodeModule* const ownerModp
-                        = V3LinkDotIfaceCapture::findOwnerModule(resolvedp);
+                Ast_కణుపు_DType* స్థిరరాశి resolvedp = rawTypep ? rawTypep->skipRefOrNullp() : శూన్యసూచిక;
+                ఒకవేళ (resolvedp && (VN_IS(resolvedp, StructDType) || VN_IS(resolvedp, UnionDType))) {
+                    Ast_కణుపు_Module* స్థిరరాశి ownerModp
+                        = V3LinkDotIfaceCapture::కనుగొను_Owner_Module(resolvedp);
                     // Skip if owned by a parameterized interface (template or not
                     // yet cloned).  hasGParam() covers interfaces that haven't
                     // been cloned yet (parameterizedTemplate() not set).
-                    if (ownerModp && VN_IS(ownerModp, Iface) && ownerModp->hasGParam()) {
-                        skipWidthForTemplateStruct = true;
-                        V3Stats::addStatSum("Param, Template struct width skips", 1);
+                    ఒకవేళ (ownerModp && VN_IS(ownerModp, Iface) && ownerModp->hasGParam()) {
+                        skip_వెడల్పు_For_Template_Struct = నిజం;
+                        V3Stats::కూడు_Stat_కూడిక("Param, Template struct width skips", 1);
                         UINFO(9, "SKIP-WIDTH-TEMPLATE: struct="
                                      << resolvedp->prettyTypeName() << " templateOwner="
                                      << ownerModp->prettyNameQ() << " pin=" << pinp->prettyNameQ()
@@ -1746,43 +1746,43 @@ class ParamProcessor final {
                                      << " srcMod=" << srcModp->prettyNameQ());
                     }
                 }
-                if (rawTypep && !skipWidthForTemplateStruct) V3Width::widthParamsEdit(rawTypep);
+                ఒకవేళ (rawTypep && !skip_వెడల్పు_For_Template_Struct) V3_వెడల్పు::వెడల్పు_Params_Edit(rawTypep);
             }
-            AstNodeDType* exprp = rawTypep ? rawTypep->skipRefToNonRefp() : nullptr;
-            const AstNodeDType* origp = modvarp->skipRefToNonRefp();
-            if (!exprp) {
+            Ast_కణుపు_DType* exprp = rawTypep ? rawTypep->skip_Ref_గమ్యం_Non_Refp() : శూన్యసూచిక;
+            స్థిరరాశి Ast_కణుపు_DType* origp = modvarp->skip_Ref_గమ్యం_Non_Refp();
+            ఒకవేళ (!exprp) {
                 pinp->v3error("Parameter type pin value isn't a type: Param "
                               << pinp->prettyNameQ() << " of " << nodep->prettyNameQ());
-            } else if (!origp) {
+            } లేకపోతే ఒకవేళ (!origp) {
                 pinp->v3error("Parameter type variable isn't a type: Param "
                               << modvarp->prettyNameQ());
-            } else {
+            } లేకపోతే {
                 UINFO(9, "Parameter type assignment expr=" << exprp << " to " << origp);
-                if (!skipWidthForTemplateStruct) {
+                ఒకవేళ (!skip_వెడల్పు_For_Template_Struct) {
                     V3Const::constifyParamsEdit(pinp->exprp());  // Reconcile typedefs
                     // Constify may have caused pinp->exprp to change
-                    rawTypep = VN_AS(pinp->exprp(), NodeDType);
-                    exprp = rawTypep->skipRefToNonRefp();
+                    rawTypep = VN_AS(pinp->exprp(), కణుపు_DType);
+                    exprp = rawTypep->skip_Ref_గమ్యం_Non_Refp();
                 }
-                if (!modvarp->fwdType().isNodeCompatible(exprp)) {
+                ఒకవేళ (!modvarp->fwdType().is_కణుపు_Compatible(exprp)) {
                     pinp->v3error("Parameter type expression type "
                                   << exprp->prettyDTypeNameQ()
                                   << " violates parameter's forwarding type '"
                                   << modvarp->fwdType().ascii() << "'");
                 }
-                if (exprp->similarDType(origp) || classTypeMatchesDefaultClone(exprp, origp)) {
+                ఒకవేళ (exprp->similarDType(origp) || classTypeMatchesDefaultClone(exprp, origp)) {
                     // Setting parameter to its default value.  Just ignore it.
                     // This prevents making additional modules, and makes coverage more
                     // obvious as it won't show up under a unique module page name.
-                } else {
-                    if (!skipWidthForTemplateStruct) {
+                } లేకపోతే {
+                    ఒకవేళ (!skip_వెడల్పు_For_Template_Struct) {
                         VL_DO_DANGLING(V3Const::constifyParamsEdit(exprp), exprp);
-                        rawTypep = VN_CAST(pinp->exprp(), NodeDType);
-                        exprp = rawTypep ? rawTypep->skipRefToNonRefp() : nullptr;
+                        rawTypep = VN_CAST(pinp->exprp(), కణుపు_DType);
+                        exprp = rawTypep ? rawTypep->skip_Ref_గమ్యం_Non_Refp() : శూన్యసూచిక;
                     }
                     // Deparameterize ClassRefDType before name generation (#7000)
-                    if (AstClassRefDType* const classRefDTypep = VN_CAST(exprp, ClassRefDType)) {
-                        if (classRefDTypep->paramsp() && classRefDTypep->classp()
+                    ఒకవేళ (AstClassRefDType* స్థిరరాశి classRefDTypep = VN_CAST(exprp, ClassRefDType)) {
+                        ఒకవేళ (classRefDTypep->paramsp() && classRefDTypep->classp()
                             && classRefDTypep->classp()->hasGParam()) {
                             classRefDeparam(classRefDTypep, classRefDTypep->classp());
                         }
@@ -1790,76 +1790,76 @@ class ParamProcessor final {
                     overridingTypePinsr.emplace(pinp);  // Named once every pin is prepared
                 }
             }
-        } else {
+        } లేకపోతే {
             pinp->v3fatalSrc("Parameter not found in sub-module: Param "
                              << pinp->prettyNameQ() << " of " << nodep->prettyNameQ());
         }
     }
 
-    void cellInterfaceCleanup(AstPin* pinsp, AstNodeModule* srcModp, string& longnamer,
-                              bool& any_overridesr, IfaceRefRefs& ifaceRefRefs) {
-        for (AstPin* pinp = pinsp; pinp; pinp = VN_AS(pinp->nextp(), Pin)) {
-            const AstVar* const modvarp = pinp->modVarp();
-            if (modvarp && VN_IS(arraySubDTypeDeepp(modvarp->subDTypep()), IfaceGenericDType)) {
-                continue;
+    శూన్య cellInterfaceCleanup(AstPin* pinsp, Ast_కణుపు_Module* srcModp, string& longnamer,
+                              తార్కిక& any_overridesr, IfaceRefRefs& ifaceRefRefs) {
+        కొరకు (AstPin* pinp = pinsp; pinp; pinp = VN_AS(pinp->nextp(), Pin)) {
+            స్థిరరాశి AstVar* స్థిరరాశి modvarp = pinp->modVarp();
+            ఒకవేళ (modvarp && VN_IS(arraySubDTypeDeepp(modvarp->subDTypep()), IfaceGenericDType)) {
+                కొనసాగు;
             }
-            if (modvarp->isIfaceRef()) {
+            ఒకవేళ (modvarp->isIfaceRef()) {
                 // arraySubDTypeDeepp returns input unchanged if not an array.
-                AstIfaceRefDType* const portIrefp
+                AstIfaceRefDType* స్థిరరాశి పోర్టు_Irefp
                     = VN_CAST(arraySubDTypeDeepp(modvarp->subDTypep()), IfaceRefDType);
-                const AstNode* const exprp = pinp->exprp();
-                if (VN_IS(exprp, CellArrayRef)) {
+                స్థిరరాశి Ast_కణుపు* స్థిరరాశి exprp = pinp->exprp();
+                ఒకవేళ (VN_IS(exprp, CellArrayRef)) {
                     // CellArrayRef not yet linked; V3LinkDot resolves this pin later.
                     UINFO(9, "Skipping interface cleanup for CellArrayRef pin: " << pinp);
-                    continue;
+                    కొనసాగు;
                 }
-                AstIfaceRefDType* pinIrefp = nullptr;
+                AstIfaceRefDType* pinIrefp = శూన్యసూచిక;
                 // Pin is a VarRef to a var of (possibly arrayed) iface type.
-                if (const AstNodeVarRef* const vrp = VN_CAST(exprp, NodeVarRef)) {
-                    if (vrp->varp()) {
+                ఒకవేళ (స్థిరరాశి Ast_కణుపు_Var_Ref* స్థిరరాశి vrp = VN_CAST(exprp, కణుపు_Var_Ref)) {
+                    ఒకవేళ (vrp->varp()) {
                         pinIrefp
                             = VN_CAST(arraySubDTypeDeepp(vrp->varp()->subDTypep()), IfaceRefDType);
                     }
                 }
                 // Pin is a select, of any depth, of a VarRef (e.g. SelBit/ArraySel into an iface
                 // array, or a slice of a row of a multi-dimensional one)
-                if (!pinIrefp && exprp) {
-                    const AstNode* basep = exprp;
-                    while (const AstNodePreSel* const selp = VN_CAST(basep, NodePreSel)) {
+                ఒకవేళ (!pinIrefp && exprp) {
+                    స్థిరరాశి Ast_కణుపు* basep = exprp;
+                    అయితే (స్థిరరాశి Ast_కణుపు_Pre_Sel* స్థిరరాశి selp = VN_CAST(basep, కణుపు_Pre_Sel)) {
                         basep = selp->fromp();
                     }
-                    if (const AstVarRef* const vrp = VN_CAST(basep, VarRef)) {
-                        if (vrp->varp()) {
+                    ఒకవేళ (స్థిరరాశి AstVarRef* స్థిరరాశి vrp = VN_CAST(basep, VarRef)) {
+                        ఒకవేళ (vrp->varp()) {
                             pinIrefp = VN_CAST(arraySubDTypeDeepp(vrp->varp()->subDTypep()),
                                                IfaceRefDType);
                         }
                     }
                 }
 
-                UINFO(9, "     portIfaceRef " << portIrefp);
+                UINFO(9, "     portIfaceRef " << పోర్టు_Irefp);
 
-                if (!portIrefp) {
+                ఒకవేళ (!పోర్టు_Irefp) {
                     pinp->v3error("Interface port " << modvarp->prettyNameQ()
                                                     << " is not an interface " << modvarp);
-                } else if (!pinIrefp) {
+                } లేకపోతే ఒకవేళ (!pinIrefp) {
                     pinp->v3error("Interface port "
                                   << modvarp->prettyNameQ()
                                   << " is not connected to interface/modport pin expression");
-                } else {
+                } లేకపోతే {
                     UINFO(9, "     pinIfaceRef " << pinIrefp);
-                    if (portIrefp->ifaceViaCellp() != pinIrefp->ifaceViaCellp()) {
+                    ఒకవేళ (పోర్టు_Irefp->iface_ద్వారా_Cellp() != pinIrefp->iface_ద్వారా_Cellp()) {
                         UINFO(9, "     IfaceRefDType needs reconnect  " << pinIrefp);
                         longnamer += ("_" + paramSmallName(srcModp, pinp->modVarp())
-                                      + paramValueNumber(pinIrefp));
-                        any_overridesr = true;
-                        ifaceRefRefs.emplace_back(portIrefp, pinIrefp);
-                        if (portIrefp->ifacep() != pinIrefp->ifacep()
+                                      + param_విలువ_సంఖ్య(pinIrefp));
+                        any_overridesr = నిజం;
+                        ifaceRefRefs.emplace_వెనుక(పోర్టు_Irefp, pinIrefp);
+                        ఒకవేళ (పోర్టు_Irefp->ifacep() != pinIrefp->ifacep()
                             // Might be different only due to param cloning, so check names too
-                            && portIrefp->ifaceName() != pinIrefp->ifaceName()) {
+                            && పోర్టు_Irefp->ifaceName() != pinIrefp->ifaceName()) {
                             pinp->v3error("Port " << pinp->prettyNameQ() << " expects "
-                                                  << AstNode::prettyNameQ(portIrefp->ifaceName())
+                                                  << Ast_కణుపు::prettyNameQ(పోర్టు_Irefp->ifaceName())
                                                   << " interface but pin connects "
-                                                  << AstNode::prettyNameQ(pinIrefp->ifaceName())
+                                                  << Ast_కణుపు::prettyNameQ(pinIrefp->ifaceName())
                                                   << " interface");
                         }
                     }
@@ -1868,80 +1868,80 @@ class ParamProcessor final {
         }
     }
 
-    void storeOriginalParams(AstNodeModule* const classp) {
-        for (AstNode* stmtp = classp->stmtsp(); stmtp; stmtp = stmtp->nextp()) {
-            AstNode* originalParamp = nullptr;
-            if (AstVar* const varp = VN_CAST(stmtp, Var)) {
-                if (varp->isGParam()) originalParamp = varp->clonep();
-            } else if (AstParamTypeDType* const ptp = VN_CAST(stmtp, ParamTypeDType)) {
-                if (ptp->isGParam()) originalParamp = ptp->clonep();
+    శూన్య storeOriginalParams(Ast_కణుపు_Module* స్థిరరాశి classp) {
+        కొరకు (Ast_కణుపు* stmtp = classp->stmtsp(); stmtp; stmtp = stmtp->nextp()) {
+            Ast_కణుపు* originalParamp = శూన్యసూచిక;
+            ఒకవేళ (AstVar* స్థిరరాశి varp = VN_CAST(stmtp, Var)) {
+                ఒకవేళ (varp->isGParam()) originalParamp = varp->clonep();
+            } లేకపోతే ఒకవేళ (AstParamTypeDType* స్థిరరాశి ptp = VN_CAST(stmtp, ParamTypeDType)) {
+                ఒకవేళ (ptp->isGParam()) originalParamp = ptp->clonep();
             }
-            if (originalParamp) m_originalParams[stmtp] = originalParamp;
+            ఒకవేళ (originalParamp) m_originalParams[stmtp] = originalParamp;
         }
     }
 
     // Set interfaces types inside generic modules
     // to the corresponding values of implicit parameters
-    void genericInterfaceVarSetup(const AstPin* const paramsp, const AstPin* const pinsp) {
-        std::unordered_map<string, const AstPin*> paramspMap;
-        for (const AstPin* pinp = paramsp; pinp; pinp = VN_AS(pinp->nextp(), Pin)) {
-            if (VString::startsWith(pinp->name(), "__VGIfaceParam")) {
-                paramspMap.insert({pinp->name().substr(std::strlen("__VGIfaceParam")), pinp});
+    శూన్య generic_Interface_Var_అమరిక(స్థిరరాశి AstPin* స్థిరరాశి paramsp, స్థిరరాశి AstPin* స్థిరరాశి pinsp) {
+        std::unordered_map<string, స్థిరరాశి AstPin*> paramspMap;
+        కొరకు (స్థిరరాశి AstPin* pinp = paramsp; pinp; pinp = VN_AS(pinp->nextp(), Pin)) {
+            ఒకవేళ (VString::startsWith(pinp->name(), "__VGIfaceParam")) {
+                paramspMap.చొప్పించు({pinp->name().substr(std::అక్షరశ్రేణి_పొడవు("__VGIfaceParam")), pinp});
             }
         }
 
-        if (paramspMap.empty()) return;
+        ఒకవేళ (paramspMap.ఖాళీలు()) తిరిగి;
 
-        for (const AstNode* nodep = pinsp; nodep; nodep = nodep->nextp()) {
-            if (const AstPin* const pinp = VN_CAST(nodep, Pin)) {
-                if (AstVar* const varp = pinp->modVarp()) {
-                    AstNodeDType* dtypep = varp->childDTypep()->elemDTypep();
-                    if (AstIfaceGenericDType* const ifaceGDTypep
+        కొరకు (స్థిరరాశి Ast_కణుపు* nodep = pinsp; nodep; nodep = nodep->nextp()) {
+            ఒకవేళ (స్థిరరాశి AstPin* స్థిరరాశి pinp = VN_CAST(nodep, Pin)) {
+                ఒకవేళ (AstVar* స్థిరరాశి varp = pinp->modVarp()) {
+                    Ast_కణుపు_DType* dtypep = varp->బిడ్డ_DTypep()->elemDTypep();
+                    ఒకవేళ (AstIfaceGenericDType* స్థిరరాశి ifaceGDTypep
                         = VN_CAST(dtypep, IfaceGenericDType)) {
-                        const auto iter = paramspMap.find(varp->name());
-                        if (iter == paramspMap.end()) continue;
-                        AstNode* const backp = ifaceGDTypep->backp();
-                        ifaceGDTypep->unlinkFrBack();
-                        const AstPin* const paramp = iter->second;
+                        స్థిరరాశి స్వయంచాలక iter = paramspMap.కనుగొను(varp->name());
+                        ఒకవేళ (iter == paramspMap.చివర()) కొనసాగు;
+                        Ast_కణుపు* స్థిరరాశి backp = ifaceGDTypep->backp();
+                        ifaceGDTypep->unlink_Fr_వెనుక();
+                        స్థిరరాశి AstPin* స్థిరరాశి paramp = iter->రెండవ;
                         paramspMap.erase(iter);
-                        const AstIfaceRefDType* const ifacerefp
+                        స్థిరరాశి AstIfaceRefDType* స్థిరరాశి ifacerefp
                             = VN_AS(paramp->exprp(), IfaceRefDType);
-                        AstIfaceRefDType* const newIfacerefp = new AstIfaceRefDType{
+                        AstIfaceRefDType* స్థిరరాశి newIfacerefp = కొత్త AstIfaceRefDType{
                             ifaceGDTypep->fileline(), ifaceGDTypep->modportFileline(),
                             ifaceGDTypep->name(), ifacerefp->ifaceName(),
                             ifaceGDTypep->modportName()};
                         newIfacerefp->ifacep(ifacerefp->ifacep());
-                        if (auto* const arrDtp = VN_CAST(backp, NodeArrayDType)) {
-                            arrDtp->childDTypep(newIfacerefp);
-                        } else if (auto* const arrDtp = VN_CAST(backp, BracketArrayDType)) {
-                            arrDtp->childDTypep(newIfacerefp);
-                        } else {
-                            varp->childDTypep(newIfacerefp);
+                        ఒకవేళ (స్వయంచాలక* స్థిరరాశి arrDtp = VN_CAST(backp, కణుపు_Array_DType)) {
+                            arrDtp->బిడ్డ_DTypep(newIfacerefp);
+                        } లేకపోతే ఒకవేళ (స్వయంచాలక* స్థిరరాశి arrDtp = VN_CAST(backp, BracketArrayDType)) {
+                            arrDtp->బిడ్డ_DTypep(newIfacerefp);
+                        } లేకపోతే {
+                            varp->బిడ్డ_DTypep(newIfacerefp);
                         }
-                        VL_DO_DANGLING(m_deleter.pushDeletep(ifaceGDTypep), ifaceGDTypep);
-                        if (paramspMap.empty()) return;
+                        VL_DO_DANGLING(m_deleter.నెట్టు_Deletep(ifaceGDTypep), ifaceGDTypep);
+                        ఒకవేళ (paramspMap.ఖాళీలు()) తిరిగి;
                     }
                 }
             }
         }
 
-        UASSERT(paramspMap.empty(), "Not every generic interface implicit param is used");
+        UASSERT(paramspMap.ఖాళీలు(), "Not every generic interface implicit param is used");
     }
 
-    void resolveDefaultParams(AstNode* nodep) {
+    శూన్య resolveDefaultParams(Ast_కణుపు* nodep) {
         AstClassOrPackageRef* classOrPackageRef = VN_CAST(nodep, ClassOrPackageRef);
         AstClassRefDType* classRefDType = VN_CAST(nodep, ClassRefDType);
-        AstClass* classp = nullptr;
-        AstPin* paramsp = nullptr;
+        AstClass* classp = శూన్యసూచిక;
+        AstPin* paramsp = శూన్యసూచిక;
 
-        if (classOrPackageRef) {
+        ఒకవేళ (classOrPackageRef) {
             classp = VN_CAST(classOrPackageRef->classOrPackageSkipp(), Class);
-            if (!classp) return;  // No parameters in packages
+            ఒకవేళ (!classp) తిరిగి;  // No parameters in packages
             paramsp = classOrPackageRef->paramsp();
-        } else if (classRefDType) {
+        } లేకపోతే ఒకవేళ (classRefDType) {
             classp = classRefDType->classp();
             paramsp = classRefDType->paramsp();
-        } else {
+        } లేకపోతే {
             nodep->v3fatalSrc("resolveDefaultParams called on node which is not a Class ref");
         }
 
@@ -1949,40 +1949,40 @@ class ParamProcessor final {
 
         // Get the parameter list for this class
         m_classTypeParams.clear();
-        m_paramIndex.clear();
-        for (AstNode* stmtp = classp->stmtsp(); stmtp; stmtp = stmtp->nextp()) {
-            if (AstParamTypeDType* paramTypep = VN_CAST(stmtp, ParamTypeDType)) {
+        m_param_సూచీ.clear();
+        కొరకు (Ast_కణుపు* stmtp = classp->stmtsp(); stmtp; stmtp = stmtp->nextp()) {
+            ఒకవేళ (AstParamTypeDType* paramTypep = VN_CAST(stmtp, ParamTypeDType)) {
                 // Only consider formal class type parameters (generic parameters),
                 // not localparam type declarations inside the class body.
-                if (!paramTypep->isGParam()) continue;
-                m_paramIndex.emplace(paramTypep, static_cast<int>(m_classTypeParams.size()));
-                m_classTypeParams.emplace_back(paramTypep, -1);
+                ఒకవేళ (!paramTypep->isGParam()) కొనసాగు;
+                m_param_సూచీ.emplace(paramTypep, static_cast<పూర్ణాంకం>(m_classTypeParams.కొలత()));
+                m_classTypeParams.emplace_వెనుక(paramTypep, -1);
             }
         }
 
         // For each parameter, detect either a dependent default (copy from previous param)
         // or a direct type default (for ex. int). Store dependency index in
         // m_classParams[i].second, default type in defaultTypeNodes[i].
-        std::vector<AstNodeDType*> defaultTypeNodes(m_classTypeParams.size(), nullptr);
-        for (size_t i = 0; i < m_classTypeParams.size(); ++i) {
-            AstParamTypeDType* const paramTypep = m_classTypeParams[i].first;
+        std::సదిశ<Ast_కణుపు_DType*> defaultTypeNodes(m_classTypeParams.కొలత(), శూన్యసూచిక);
+        కొరకు (కొలత_t i = 0; i < m_classTypeParams.కొలత(); ++i) {
+            AstParamTypeDType* స్థిరరాశి paramTypep = m_classTypeParams[i].మొదటి;
             // Parser places defaults/constraints under childDTypep as AstRequireDType
-            AstRequireDType* const reqDtp = VN_CAST(paramTypep->getChildDTypep(), RequireDType);
-            if (!reqDtp) continue;
+            AstRequireDType* స్థిరరాశి reqDtp = VN_CAST(paramTypep->get_బిడ్డ_DTypep(), RequireDType);
+            ఒకవేళ (!reqDtp) కొనసాగు;
 
             // If default is a reference to another param type, record dependency
-            if (AstRefDType* const refDtp = VN_CAST(reqDtp->subDTypep(), RefDType)) {
-                if (AstParamTypeDType* const sourceParamp
+            ఒకవేళ (AstRefDType* స్థిరరాశి refDtp = VN_CAST(reqDtp->subDTypep(), RefDType)) {
+                ఒకవేళ (AstParamTypeDType* స్థిరరాశి ఆధారం_Paramp
                     = VN_CAST(refDtp->refDTypep(), ParamTypeDType)) {
-                    auto it = m_paramIndex.find(sourceParamp);
-                    if (it != m_paramIndex.end()) { m_classTypeParams[i].second = it->second; }
-                    continue;  // dependency handled
+                    స్వయంచాలక it = m_param_సూచీ.కనుగొను(ఆధారం_Paramp);
+                    ఒకవేళ (it != m_param_సూచీ.చివర()) { m_classTypeParams[i].రెండవ = it->రెండవ; }
+                    కొనసాగు;  // dependency handled
                 }
             }
 
             // If default is a direct type (for ex. int)
             // also record dependency
-            if (AstNodeDType* const dtp = VN_CAST(reqDtp->lhsp(), NodeDType)) {
+            ఒకవేళ (Ast_కణుపు_DType* స్థిరరాశి dtp = VN_CAST(reqDtp->lhsp(), కణుపు_DType)) {
                 defaultTypeNodes[i] = dtp;
             }
         }
@@ -1991,102 +1991,102 @@ class ParamProcessor final {
         // Type parameters when named can be given in any order, but later we depend
         // on the order when handling defaults. So here we reorder them
         // for proper handling. The remaining ones are just pushed back
-        std::vector<AstPin*> pinsByIndex;
-        pinsByIndex.resize(m_classTypeParams.size(), nullptr);
-        for (AstPin* pinp = paramsp; pinp; pinp = VN_AS(pinp->nextp(), Pin)) {
-            AstParamTypeDType* const typep = pinp->modPTypep();
-            const auto it = typep ? m_paramIndex.find(typep) : m_paramIndex.end();
-            if (it != m_paramIndex.end()) {
-                pinsByIndex[it->second] = pinp;
-            } else {
-                pinsByIndex.push_back(pinp);
+        std::సదిశ<AstPin*> pins_By_సూచీ;
+        pins_By_సూచీ.resize(m_classTypeParams.కొలత(), శూన్యసూచిక);
+        కొరకు (AstPin* pinp = paramsp; pinp; pinp = VN_AS(pinp->nextp(), Pin)) {
+            AstParamTypeDType* స్థిరరాశి typep = pinp->modPTypep();
+            స్థిరరాశి స్వయంచాలక it = typep ? m_param_సూచీ.కనుగొను(typep) : m_param_సూచీ.చివర();
+            ఒకవేళ (it != m_param_సూచీ.చివర()) {
+                pins_By_సూచీ[it->రెండవ] = pinp;
+            } లేకపోతే {
+                pins_By_సూచీ.నెట్టు_వెనుక(pinp);
             }
         }
 
         // For each missing parameter, get its pin from dependency or direct default.
         // A dependent default can reference a parameter declared later (not IEEE, but
         // we support it here), so repeat until no further parameter can be resolved.
-        for (bool resolvedSome = true; resolvedSome;) {
-            resolvedSome = false;
-            for (size_t paramIdx = 0; paramIdx < m_classTypeParams.size(); paramIdx++) {
-                if (pinsByIndex[paramIdx]) continue;
-                const int sourceParamIdx = m_classTypeParams[paramIdx].second;
+        కొరకు (తార్కిక resolvedSome = నిజం; resolvedSome;) {
+            resolvedSome = అబద్ధం;
+            కొరకు (కొలత_t paramIdx = 0; paramIdx < m_classTypeParams.కొలత(); paramIdx++) {
+                ఒకవేళ (pins_By_సూచీ[paramIdx]) కొనసాగు;
+                స్థిరరాశి పూర్ణాంకం ఆధారం_Param_Idx = m_classTypeParams[paramIdx].రెండవ;
 
-                AstPin* newPinp = nullptr;
+                AstPin* newPinp = శూన్యసూచిక;
 
                 // Case 1: Dependent default -> clone the source pin's type, but only once
                 // the source parameter itself has been resolved (it might be listed later)
-                if (sourceParamIdx >= 0 && pinsByIndex[sourceParamIdx]) {
-                    newPinp = pinsByIndex[sourceParamIdx]->cloneTree(false);
+                ఒకవేళ (ఆధారం_Param_Idx >= 0 && pins_By_సూచీ[ఆధారం_Param_Idx]) {
+                    newPinp = pins_By_సూచీ[ఆధారం_Param_Idx]->clone_వృక్షం(అబద్ధం);
                 }
 
                 // Case 2: Direct default type (e.g., int), create a new pin with that dtype
-                if (!newPinp && defaultTypeNodes[paramIdx]) {
-                    AstNodeDType* const dtypep = defaultTypeNodes[paramIdx];
-                    newPinp = new AstPin{dtypep->fileline(), static_cast<int>(paramIdx) + 1,
-                                         "__paramNumber" + cvtToStr(paramIdx + 1),
-                                         dtypep->cloneTree(false)};
+                ఒకవేళ (!newPinp && defaultTypeNodes[paramIdx]) {
+                    Ast_కణుపు_DType* స్థిరరాశి dtypep = defaultTypeNodes[paramIdx];
+                    newPinp = కొత్త AstPin{dtypep->fileline(), static_cast<పూర్ణాంకం>(paramIdx) + 1,
+                                         "__paramNumber" + cvt_గమ్యం_Str(paramIdx + 1),
+                                         dtypep->clone_వృక్షం(అబద్ధం)};
                 }
 
-                if (newPinp) {
-                    newPinp->name("__paramNumber" + cvtToStr(paramIdx + 1));
-                    newPinp->param(true);
-                    newPinp->modPTypep(m_classTypeParams[paramIdx].first);
-                    if (classOrPackageRef) {
-                        classOrPackageRef->addParamsp(newPinp);
-                    } else if (classRefDType) {
-                        classRefDType->addParamsp(newPinp);
+                ఒకవేళ (newPinp) {
+                    newPinp->name("__paramNumber" + cvt_గమ్యం_Str(paramIdx + 1));
+                    newPinp->param(నిజం);
+                    newPinp->modPTypep(m_classTypeParams[paramIdx].మొదటి);
+                    ఒకవేళ (classOrPackageRef) {
+                        classOrPackageRef->కూడు_Paramsp(newPinp);
+                    } లేకపోతే ఒకవేళ (classRefDType) {
+                        classRefDType->కూడు_Paramsp(newPinp);
                     }
                     // Update local tracking so future dependent defaults can find it
-                    pinsByIndex[paramIdx] = newPinp;
-                    if (!paramsp) paramsp = newPinp;
-                    resolvedSome = true;
+                    pins_By_సూచీ[paramIdx] = newPinp;
+                    ఒకవేళ (!paramsp) paramsp = newPinp;
+                    resolvedSome = నిజం;
                 }
             }
         }
     }
 
-    AstNodeModule* nodeDeparamCommon(AstNode* nodep, AstNodeModule* srcModp, AstPin* paramsp,
-                                     AstPin* pinsp, bool any_overrides) {
+    Ast_కణుపు_Module* కణుపు_Deparam_Common(Ast_కణుపు* nodep, Ast_కణుపు_Module* srcModp, AstPin* paramsp,
+                                     AstPin* pinsp, తార్కిక any_overrides) {
         // Returns new or reused module
         // Make sure constification worked
         // Must be a separate loop, as constant conversion may have changed some pointers.
         string longname = srcModp->name() + "_";
-        if (debug() >= 9 && paramsp) paramsp->dumpTreeAndNext(cout, "-  cellparams: ");
+        ఒకవేళ (debug() >= 9 && paramsp) paramsp->dump_వృక్షం_And_తదుపరి(బయటకు, "-  cellparams: ");
 
-        if (srcModp->hierBlock()) {
-            longname = parameterizedHierBlockName(srcModp, paramsp);
+        ఒకవేళ (srcModp->hier_ఖండం()) {
+            longname = parameterized_Hier_ఖండం_Name(srcModp, paramsp);
             any_overrides = longname != srcModp->name();
-        } else {
+        } లేకపోతే {
             // Prepare every pin before naming any, as naming a value can depend on the others:
             // fold each value pin, as a class reference's may not be yet, and resolve each type
-            std::unordered_set<const AstPin*> overridingTypePins;
-            for (AstPin* pinp = paramsp; pinp; pinp = VN_AS(pinp->nextp(), Pin)) {
-                if (!pinp->exprp()) continue;  // An empty override keeps the default
-                if (pinp->modPTypep()) {
+            std::unordered_సమితి<స్థిరరాశి AstPin*> overridingTypePins;
+            కొరకు (AstPin* pinp = paramsp; pinp; pinp = VN_AS(pinp->nextp(), Pin)) {
+                ఒకవేళ (!pinp->exprp()) కొనసాగు;  // An empty override keeps the default
+                ఒకవేళ (pinp->modPTypep()) {
                     cellPinCleanup(nodep, pinp, paramsp, srcModp, longname /*ref*/,
                                    any_overrides /*ref*/, overridingTypePins /*ref*/);
-                    continue;
+                    కొనసాగు;
                 }
-                AstVar* const modvarp = pinp->modVarp();
-                if (!modvarp || !modvarp->isGParam()) continue;
+                AstVar* స్థిరరాశి modvarp = pinp->modVarp();
+                ఒకవేళ (!modvarp || !modvarp->isGParam()) కొనసాగు;
                 resolveDeferredDotsReachableFrom(modvarp->subDTypep(), m_modp);
                 // An untyped pattern can't be folded without its parameter's type
-                const AstPattern* const patternp = VN_CAST(pinp->exprp(), Pattern);
-                if (patternp && !patternp->childDTypep()) continue;
-                if (!VN_IS(pinp->exprp(), Const) && !isAggregateParamValue(pinp->exprp())) {
+                స్థిరరాశి Ast_నమూనా* స్థిరరాశి patternp = VN_CAST(pinp->exprp(), నమూనా);
+                ఒకవేళ (patternp && !patternp->బిడ్డ_DTypep()) కొనసాగు;
+                ఒకవేళ (!VN_IS(pinp->exprp(), Const) && !is_Aggregate_Param_విలువ(pinp->exprp())) {
                     // The pin, so a conditional of patterns is typed as an override's value
                     V3Const::constifyParamsEdit(pinp);
                 }
             }
-            for (AstPin* pinp = paramsp; pinp; pinp = VN_AS(pinp->nextp(), Pin)) {
-                if (AstParamTypeDType* const modptp = pinp->modPTypep()) {
-                    if (!overridingTypePins.count(pinp)) continue;
-                    AstNodeDType* const typep = VN_AS(pinp->exprp(), NodeDType);
+            కొరకు (AstPin* pinp = paramsp; pinp; pinp = VN_AS(pinp->nextp(), Pin)) {
+                ఒకవేళ (AstParamTypeDType* స్థిరరాశి modptp = pinp->modPTypep()) {
+                    ఒకవేళ (!overridingTypePins.లెక్క(pinp)) కొనసాగు;
+                    Ast_కణుపు_DType* స్థిరరాశి typep = VN_AS(pinp->exprp(), కణుపు_DType);
                     longname += "_" + paramSmallName(srcModp, modptp)
-                                + paramValueNumber(typep->skipRefToNonRefp());
-                    any_overrides = true;
-                    continue;
+                                + param_విలువ_సంఖ్య(typep->skip_Ref_గమ్యం_Non_Refp());
+                    any_overrides = నిజం;
+                    కొనసాగు;
                 }
                 cellPinCleanup(nodep, pinp, paramsp, srcModp, longname /*ref*/,
                                any_overrides /*ref*/, overridingTypePins /*ref*/);
@@ -2102,62 +2102,62 @@ class ParamProcessor final {
         // Already-specialized clones (hasGParam=false) must not be re-cloned, otherwise
         // nested class type parameters cause unbounded re-deparameterization (Holder_ ->
         // Holder__).
-        bool defaultsResolved = false;
-        if (!any_overrides && !VN_IS(srcModp, Iface) && srcModp->hasGParam()) {
-            for (AstPin* pinp = paramsp; pinp; pinp = VN_AS(pinp->nextp(), Pin)) {
-                if (pinp->modPTypep()) {
-                    any_overrides = true;
-                    defaultsResolved = true;
-                    break;
+        తార్కిక defaultsResolved = అబద్ధం;
+        ఒకవేళ (!any_overrides && !VN_IS(srcModp, Iface) && srcModp->hasGParam()) {
+            కొరకు (AstPin* pinp = paramsp; pinp; pinp = VN_AS(pinp->nextp(), Pin)) {
+                ఒకవేళ (pinp->modPTypep()) {
+                    any_overrides = నిజం;
+                    defaultsResolved = నిజం;
+                    ఆపు;
                 }
             }
         }
-        if (!any_overrides && VN_IS(nodep, Cell) && hasDescendantDefparams(srcModp)) {
-            longname += "__Vdefparam" + V3Hash{srcModp->someInstanceName()}.toString();
-            any_overrides = true;
+        ఒకవేళ (!any_overrides && VN_IS(nodep, Cell) && hasDescendantDefparams(srcModp)) {
+            longname += "__Vdefparam" + V3Hash{srcModp->someInstanceName()}.గమ్యం_String();
+            any_overrides = నిజం;
         }
 
         UINFO(9,
               "nodeDeparamCommon: " << srcModp->prettyNameQ() << " overrides=" << any_overrides);
 
-        AstNodeModule* newModp = nullptr;
-        if (m_hierBlocks.hierSubRun() && m_hierBlocks.isHierBlock(srcModp->origName())) {
-            AstNodeModule* const paramedModp
-                = m_hierBlocks.findByParams(srcModp->origName(), paramsp, m_modp);
-            if (!paramedModp) return nullptr;  // Unsupported, already reported
-            paramedModp->dead(false);
+        Ast_కణుపు_Module* newModp = శూన్యసూచిక;
+        ఒకవేళ (m_hier_ఖండాలు.hier_Sub_నిరంతరం() && m_hier_ఖండాలు.is_Hier_ఖండం(srcModp->origName())) {
+            Ast_కణుపు_Module* స్థిరరాశి paramedModp
+                = m_hier_ఖండాలు.కనుగొను_By_Params(srcModp->origName(), paramsp, m_modp);
+            ఒకవేళ (!paramedModp) తిరిగి శూన్యసూచిక;  // Unsupported, already reported
+            paramedModp->dead(అబద్ధం);
             // We need to relink the pins to the new module
             relinkPinsByName(pinsp, paramedModp);
             newModp = paramedModp;
             // any_overrides = true;  // Unused later, so not needed
-        } else if (!any_overrides) {
+        } లేకపోతే ఒకవేళ (!any_overrides) {
             UINFO(9, "nodeDeparamCommon: no overrides, reusing " << srcModp);
             UINFO(8, "Cell parameters all match original values, skipping expansion.");
             // If it's the first use of the default instance, create a copy and store it in user3p.
             // user3p will also be used to check if the default instance is used.
-            if (!srcModp->user3p() && (VN_IS(srcModp, Class) || VN_IS(srcModp, Iface))) {
-                AstNodeModule* nodeCopyp = srcModp->cloneTree(false);
+            ఒకవేళ (!srcModp->user3p() && (VN_IS(srcModp, Class) || VN_IS(srcModp, Iface))) {
+                Ast_కణుపు_Module* కణుపు_Copyp = srcModp->clone_వృక్షం(అబద్ధం);
                 // It is a temporary copy of the original class node, stored in order to create
                 // another instances. It is needed only during class instantiation.
-                UINFO(8, "    Created clone " << nodeCopyp);
-                m_deleter.pushDeletep(nodeCopyp);  // nodeCopyp used past here
-                srcModp->user3p(nodeCopyp);
-                storeOriginalParams(nodeCopyp);
+                UINFO(8, "    Created clone " << కణుపు_Copyp);
+                m_deleter.నెట్టు_Deletep(కణుపు_Copyp);  // nodeCopyp used past here
+                srcModp->user3p(కణుపు_Copyp);
+                storeOriginalParams(కణుపు_Copyp);
             }
             newModp = srcModp;
-        } else {
-            const string newname
-                = srcModp->hierBlock() ? longname : moduleCalcName(srcModp, longname);
-            const ModInfo* const modInfop
-                = moduleFindOrClone(srcModp, nodep, paramsp, newname, ifaceRefRefs);
-            if (!modInfop) return nullptr;
+        } లేకపోతే {
+            స్థిరరాశి string newname
+                = srcModp->hier_ఖండం() ? longname : moduleCalcName(srcModp, longname);
+            స్థిరరాశి ModInfo* స్థిరరాశి modInfop
+                = module_కనుగొను_Or_Clone(srcModp, nodep, paramsp, newname, ifaceRefRefs);
+            ఒకవేళ (!modInfop) తిరిగి శూన్యసూచిక;
             // We need to relink the pins to the new module
             relinkPinsByName(pinsp, modInfop->m_modp);
             UINFO(8, "     Done with " << modInfop->m_modp);
             newModp = modInfop->m_modp;
         }
 
-        const bool cloned = (newModp != srcModp);
+        స్థిరరాశి తార్కిక cloned = (newModp != srcModp);
         UINFO(9, "nodeDeparamCommon result: " << newModp->prettyNameQ() << " cloned=" << cloned);
 
         // ParamVisitor skips the body of a class still marked hasGParam(), relying on it
@@ -2165,115 +2165,115 @@ class ParamProcessor final {
         // class-scoped reference (e.g. the 'C#(V)::t' default of a type parameter that the
         // instantiation overrides) is never visited, so record specializations here.
         // user2() is set once processWorkQ has elaborated the body, which needs no re-queue.
-        AstClass* const newClassp = VN_CAST(newModp, Class);
-        if (newClassp && !newClassp->user2()) m_specializedClassps.push_back(newClassp);
+        AstClass* స్థిరరాశి newClassp = VN_CAST(newModp, Class);
+        ఒకవేళ (newClassp && !newClassp->user2()) m_specializedClassps.నెట్టు_వెనుక(newClassp);
 
         // Link source class to its specialized version for later relinking of method references
-        if (defaultsResolved) srcModp->user4p(newModp);
+        ఒకవేళ (defaultsResolved) srcModp->user4p(newModp);
 
-        for (auto* stmtp = newModp->stmtsp(); stmtp; stmtp = stmtp->nextp()) {
-            if (AstParamTypeDType* dtypep = VN_CAST(stmtp, ParamTypeDType)) {
-                if (VN_IS(dtypep->skipRefOrNullp(), VoidDType)) {
+        కొరకు (స్వయంచాలక* stmtp = newModp->stmtsp(); stmtp; stmtp = stmtp->nextp()) {
+            ఒకవేళ (AstParamTypeDType* dtypep = VN_CAST(stmtp, ParamTypeDType)) {
+                ఒకవేళ (VN_IS(dtypep->skipRefOrNullp(), VoidDType)) {
                     nodep->v3error(
                         "Class parameter type without default value is never given value"
                         << " (IEEE 1800-2023 6.20.1): " << dtypep->prettyNameQ());
                 }
             }
-            if (AstVar* const varp = VN_CAST(stmtp, Var)) {
-                if (VN_IS(newModp, Class) && varp->isParam() && !varp->valuep()) {
+            ఒకవేళ (AstVar* స్థిరరాశి varp = VN_CAST(stmtp, Var)) {
+                ఒకవేళ (VN_IS(newModp, Class) && varp->isParam() && !varp->valuep()) {
                     nodep->v3error("Class parameter without default value is never given value"
                                    << " (IEEE 1800-2023 6.20.1): " << varp->prettyNameQ());
                 }
             }
         }
 
-        genericInterfaceVarSetup(paramsp, pinsp);
+        generic_Interface_Var_అమరిక(paramsp, pinsp);
 
         // Delete the parameters from the cell; they're not relevant any longer.
-        if (paramsp) VL_DO_DANGLING(paramsp->unlinkFrBackWithNext()->deleteTree(), paramsp);
-        return newModp;
+        ఒకవేళ (paramsp) VL_DO_DANGLING(paramsp->unlink_Fr_వెనుక_With_తదుపరి()->delete_వృక్షం(), paramsp);
+        తిరిగి newModp;
     }
 
-    AstNodeModule* cellDeparam(AstCell* nodep, AstNodeModule* srcModp) {
+    Ast_కణుపు_Module* cellDeparam(AstCell* nodep, Ast_కణుపు_Module* srcModp) {
         // Must always clone __Vrcm (recursive modules)
-        AstNodeModule* const newModp = nodeDeparamCommon(nodep, srcModp, nodep->paramsp(),
+        Ast_కణుపు_Module* స్థిరరాశి newModp = కణుపు_Deparam_Common(nodep, srcModp, nodep->paramsp(),
                                                          nodep->pinsp(), nodep->recursive());
-        if (!newModp) return nullptr;
+        ఒకవేళ (!newModp) తిరిగి శూన్యసూచిక;
         nodep->modp(newModp);  // Might be unchanged if not cloned (newModp == srcModp)
         nodep->modName(newModp->name());
-        nodep->recursive(false);
-        return newModp;
+        nodep->recursive(అబద్ధం);
+        తిరిగి newModp;
     }
-    AstNodeModule* ifaceRefDeparam(AstIfaceRefDType* const nodep, AstNodeModule* srcModp) {
+    Ast_కణుపు_Module* ifaceRefDeparam(AstIfaceRefDType* స్థిరరాశి nodep, Ast_కణుపు_Module* srcModp) {
         // Check for self-reference pattern: typedef iface#(T) this_type inside interface iface
         // When processing inside a specialized interface, the IfaceRefDType should point to
         // the owner interface, not create an intermediate specialization.
-        if (m_modp && VN_IS(m_modp, Iface)) {
+        ఒకవేళ (m_modp && VN_IS(m_modp, Iface)) {
             AstIface* ownerIfacep = const_cast<AstIface*>(VN_AS(m_modp, Iface));
-            const string ownerOrigName
-                = ownerIfacep->origName().empty() ? ownerIfacep->name() : ownerIfacep->origName();
-            const string srcOrigName
-                = srcModp->origName().empty() ? srcModp->name() : srcModp->origName();
-            string ownerBaseName = ownerOrigName;
-            const size_t ownerPos = ownerBaseName.find("__");
-            if (ownerPos != string::npos) ownerBaseName = ownerBaseName.substr(0, ownerPos);
-            string srcBaseName = srcOrigName;
-            const size_t srcPos = srcBaseName.find("__");
-            if (srcPos != string::npos) srcBaseName = srcBaseName.substr(0, srcPos);
+            స్థిరరాశి string ownerOrigName
+                = ownerIfacep->origName().ఖాళీలు() ? ownerIfacep->name() : ownerIfacep->origName();
+            స్థిరరాశి string srcOrigName
+                = srcModp->origName().ఖాళీలు() ? srcModp->name() : srcModp->origName();
+            string owner_పునాది_Name = ownerOrigName;
+            స్థిరరాశి కొలత_t ownerPos = owner_పునాది_Name.కనుగొను("__");
+            ఒకవేళ (ownerPos != string::npos) owner_పునాది_Name = owner_పునాది_Name.substr(0, ownerPos);
+            string src_పునాది_Name = srcOrigName;
+            స్థిరరాశి కొలత_t srcPos = src_పునాది_Name.కనుగొను("__");
+            ఒకవేళ (srcPos != string::npos) src_పునాది_Name = src_పునాది_Name.substr(0, srcPos);
 
-            if (ownerBaseName == srcBaseName) {
-                bool allOwnParams = true;
-                for (AstPin* pinp = nodep->paramsp(); pinp && allOwnParams;
+            ఒకవేళ (owner_పునాది_Name == src_పునాది_Name) {
+                తార్కిక allOwnParams = నిజం;
+                కొరకు (AstPin* pinp = nodep->paramsp(); pinp && allOwnParams;
                      pinp = VN_AS(pinp->nextp(), Pin)) {
-                    if (AstRefDType* const refp = VN_CAST(pinp->exprp(), RefDType)) {
-                        if (AstParamTypeDType* const ptdp
+                    ఒకవేళ (AstRefDType* స్థిరరాశి refp = VN_CAST(pinp->exprp(), RefDType)) {
+                        ఒకవేళ (AstParamTypeDType* స్థిరరాశి ptdp
                             = VN_CAST(refp->refDTypep(), ParamTypeDType)) {
-                            AstNodeModule* const ptdOwnerp
-                                = V3LinkDotIfaceCapture::findOwnerModule(ptdp);
-                            if (ptdOwnerp != m_modp) allOwnParams = false;
-                        } else {
+                            Ast_కణుపు_Module* స్థిరరాశి ptdOwnerp
+                                = V3LinkDotIfaceCapture::కనుగొను_Owner_Module(ptdp);
+                            ఒకవేళ (ptdOwnerp != m_modp) allOwnParams = అబద్ధం;
+                        } లేకపోతే {
                             pinp->v3error(  // LCOV_EXCL_LINE
                                 "Self-referencing interface typedef "
                                 "parameter is not a type parameter of "
                                 "the enclosing interface");
                         }
-                    } else {
+                    } లేకపోతే {
                         pinp->v3error(  // LCOV_EXCL_LINE
                             "Self-referencing interface typedef "
                             "parameter is not a type reference");
                     }
                 }
-                if (allOwnParams) {
+                ఒకవేళ (allOwnParams) {
                     UINFO(5, "ifaceRefDeparam: self-reference pattern detected in "
                                  << ownerIfacep->prettyNameQ() << ", using owner interface");
-                    V3Stats::addStatSum("Param, Self-reference iface typedefs", 1);
+                    V3Stats::కూడు_Stat_కూడిక("Param, Self-reference iface typedefs", 1);
                     nodep->ifacep(ownerIfacep);
-                    if (nodep->paramsp()) nodep->paramsp()->unlinkFrBackWithNext()->deleteTree();
-                    return ownerIfacep;
+                    ఒకవేళ (nodep->paramsp()) nodep->paramsp()->unlink_Fr_వెనుక_With_తదుపరి()->delete_వృక్షం();
+                    తిరిగి ownerIfacep;
                 }
             }
         }
 
-        AstNodeModule* const newModp
-            = nodeDeparamCommon(nodep, srcModp, nodep->paramsp(), nullptr, false);
-        if (!newModp) return nullptr;
+        Ast_కణుపు_Module* స్థిరరాశి newModp
+            = కణుపు_Deparam_Common(nodep, srcModp, nodep->paramsp(), శూన్యసూచిక, అబద్ధం);
+        ఒకవేళ (!newModp) తిరిగి శూన్యసూచిక;
         nodep->ifacep(VN_AS(newModp, Iface));
-        return newModp;
+        తిరిగి newModp;
     }
-    AstNodeModule* classRefDeparam(AstClassOrPackageRef* nodep, AstNodeModule* srcModp) {
+    Ast_కణుపు_Module* classRefDeparam(AstClassOrPackageRef* nodep, Ast_కణుపు_Module* srcModp) {
         resolveDefaultParams(nodep);
-        AstNodeModule* const newModp
-            = nodeDeparamCommon(nodep, srcModp, nodep->paramsp(), nullptr, false);
-        if (!newModp) return nullptr;
+        Ast_కణుపు_Module* స్థిరరాశి newModp
+            = కణుపు_Deparam_Common(nodep, srcModp, nodep->paramsp(), శూన్యసూచిక, అబద్ధం);
+        ఒకవేళ (!newModp) తిరిగి శూన్యసూచిక;
         nodep->classOrPackagep(newModp);  // Might be unchanged if not cloned (newModp == srcModp)
 
         // If this ClassOrPackageRef is a child of a RefDType (e.g., typedef class#(T)::member_t),
         // resolve the RefDType's typedef to point to the typedef inside the specialized class
-        AstRefDType* const refDTypep = VN_CAST(nodep->backp(), RefDType);
-        AstClass* const newClassp = refDTypep ? VN_CAST(newModp, Class) : nullptr;
-        if (newClassp && !refDTypep->typedefp() && !refDTypep->subDTypep()) {
-            if (AstTypedef* const typedefp
-                = VN_CAST(m_memberMap.findMember(newClassp, refDTypep->name()), Typedef)) {
+        AstRefDType* స్థిరరాశి refDTypep = VN_CAST(nodep->backp(), RefDType);
+        AstClass* స్థిరరాశి newClassp = refDTypep ? VN_CAST(newModp, Class) : శూన్యసూచిక;
+        ఒకవేళ (newClassp && !refDTypep->typedefp() && !refDTypep->subDTypep()) {
+            ఒకవేళ (AstTypedef* స్థిరరాశి typedefp
+                = VN_CAST(m_memberMap.కనుగొను_Member(newClassp, refDTypep->name()), Typedef)) {
                 refDTypep->typedefp(typedefp);
                 refDTypep->classOrPackagep(newClassp);
                 UINFO(9, "Resolved parameterized class typedef: " << refDTypep->name() << " -> "
@@ -2281,95 +2281,95 @@ class ParamProcessor final {
                                                                   << newClassp->name());
             }
         }
-        return newModp;
+        తిరిగి newModp;
     }
-    AstNodeModule* classRefDeparam(AstClassRefDType* nodep, AstNodeModule* srcModp) {
+    Ast_కణుపు_Module* classRefDeparam(AstClassRefDType* nodep, Ast_కణుపు_Module* srcModp) {
         resolveDefaultParams(nodep);
-        AstNodeModule* const newModp
-            = nodeDeparamCommon(nodep, srcModp, nodep->paramsp(), nullptr, false);
-        if (!newModp) return nullptr;
-        AstClass* const newClassp = VN_AS(newModp, Class);
+        Ast_కణుపు_Module* స్థిరరాశి newModp
+            = కణుపు_Deparam_Common(nodep, srcModp, nodep->paramsp(), శూన్యసూచిక, అబద్ధం);
+        ఒకవేళ (!newModp) తిరిగి శూన్యసూచిక;
+        AstClass* స్థిరరాశి newClassp = VN_AS(newModp, Class);
         nodep->classp(newClassp);  // Might be unchanged if not cloned (newModp == srcModp)
         nodep->classOrPackagep(newClassp);
-        return newClassp;
+        తిరిగి newClassp;
     }
 
     // Resolve deferred class-scoped references in post-order. Resolution may
     // deparameterize a class and delete its parameter pins, so no pointer to a
     // child may remain pending when its parent is resolved.
-    class DeferredResolverVisitor final : public VNVisitor {
+    తరగతి DeferredResolverVisitor final : బహిరంగ VNVisitor {
         ParamProcessor& m_processor;  // Processor used to resolve deferred references
-        std::set<const AstNode*> m_reachedDecls;
+        std::సమితి<స్థిరరాశి Ast_కణుపు*> m_reachedDecls;
 
-        bool firstReach(const AstNode* const declp) { return m_reachedDecls.insert(declp).second; }
+        తార్కిక మొదటి_వ్యాప్తి(స్థిరరాశి Ast_కణుపు* స్థిరరాశి declp) { తిరిగి m_reachedDecls.చొప్పించు(declp).రెండవ; }
 
-        void iterateParamType(AstParamTypeDType* const paramTypep) {
-            if (firstReach(paramTypep)) iterate(paramTypep);
+        శూన్య iterateParamType(AstParamTypeDType* స్థిరరాశి paramTypep) {
+            ఒకవేళ (మొదటి_వ్యాప్తి(paramTypep)) iterate(paramTypep);
         }
-        void iterateTypedef(AstTypedef* const tdefp) {
-            if (firstReach(tdefp)) iterate(tdefp->subDTypep());
+        శూన్య iterateTypedef(AstTypedef* స్థిరరాశి tdefp) {
+            ఒకవేళ (మొదటి_వ్యాప్తి(tdefp)) iterate(tdefp->subDTypep());
         }
 
-        void visit(AstNode* nodep) override { iterateChildren(nodep); }
-        void visit(AstClassOrPackageRef* nodep) override {
+        శూన్య సందర్శించు(Ast_కణుపు* nodep) override { iterateChildren(nodep); }
+        శూన్య సందర్శించు(AstClassOrPackageRef* nodep) override {
             iterateChildren(nodep);
-            AstNode* const targetp = nodep->classOrPackageNodep();
-            if (AstTypedef* const tdefp = VN_CAST(targetp, Typedef)) {
+            Ast_కణుపు* స్థిరరాశి targetp = nodep->classOrPackageNodep();
+            ఒకవేళ (AstTypedef* స్థిరరాశి tdefp = VN_CAST(targetp, Typedef)) {
                 iterateTypedef(tdefp);
-            } else if (AstParamTypeDType* const paramTypep = VN_CAST(targetp, ParamTypeDType)) {
+            } లేకపోతే ఒకవేళ (AstParamTypeDType* స్థిరరాశి paramTypep = VN_CAST(targetp, ParamTypeDType)) {
                 iterateParamType(paramTypep);
             }
         }
-        void visit(AstDot* nodep) override {
+        శూన్య సందర్శించు(AstDot* nodep) override {
             iterateChildren(nodep);
-            m_processor.resolveDotToTypedef(nodep);
+            m_processor.resolve_Dot_గమ్యం_Typedef(nodep);
         }
-        void visit(AstRefDType* nodep) override {
+        శూన్య సందర్శించు(AstRefDType* nodep) override {
             iterateChildren(nodep);
-            AstTypedef* const tdefp = nodep->typedefp();
-            if (tdefp) {
+            AstTypedef* స్థిరరాశి tdefp = nodep->typedefp();
+            ఒకవేళ (tdefp) {
                 iterateTypedef(tdefp);
-            } else if (AstParamTypeDType* const paramTypep
+            } లేకపోతే ఒకవేళ (AstParamTypeDType* స్థిరరాశి paramTypep
                        = VN_CAST(nodep->refDTypep(), ParamTypeDType)) {
                 iterateParamType(paramTypep);
             }
             m_processor.resolveParamClassRefDType(nodep);
         }
-        void visit(AstVarRef* nodep) override {
+        శూన్య సందర్శించు(AstVarRef* nodep) override {
             iterateChildren(nodep);
-            AstVar* const varp = nodep->varp();
-            if (firstReach(varp)) {
+            AstVar* స్థిరరాశి varp = nodep->varp();
+            ఒకవేళ (మొదటి_వ్యాప్తి(varp)) {
                 iterate(varp->subDTypep());
-                const auto& deferredVarps = v3Global.rootp()->deferredParamVarps();
-                if (varp->varType() == VVarType::LPARAM && deferredVarps.count(varp)) {
+                స్థిరరాశి స్వయంచాలక& deferredVarps = v3Global.rootp()->deferredParamVarps();
+                ఒకవేళ (varp->varType() == VVarType::LPARAM && deferredVarps.లెక్క(varp)) {
                     UASSERT_OBJ(varp->valuep(), varp, "VarRef should have non-null valuep");
                     iterate(varp->valuep());
                 }
             }
         }
 
-    public:
-        DeferredResolverVisitor(ParamProcessor& processor, AstNode* rootp)
+    బహిరంగ:
+        DeferredResolverVisitor(ParamProcessor& processor, Ast_కణుపు* rootp)
             : m_processor{processor} {
             iterate(rootp);
         }
     };
 
-public:
+బహిరంగ:
     // After an interface cell inside parentModp has been deparameterized
     // (rewired from template to clone), retarget REFDTYPEs that still
     // reference the old template's types so that $bits(iface_typedef)
     // evaluates with the clone's widths.
-    void retargetIfaceRefs(AstNodeModule* parentModp, const string& cellName) {
-        AstNodeModule* const correctModp
-            = V3LinkDotIfaceCapture::followCellPath(parentModp, cellName);
-        if (!correctModp || correctModp->dead() || correctModp->parameterizedTemplate()) return;
-        parentModp->foreach([&](AstRefDType* refp) {
-            const VIfaceCaptureTag* const tagp = V3LinkDotIfaceCapture::captureTag(refp);
-            if (!tagp || tagp->m_cellPath != cellName) return;
+    శూన్య retargetIfaceRefs(Ast_కణుపు_Module* మాతృ_Modp, స్థిరరాశి string& cellName) {
+        Ast_కణుపు_Module* స్థిరరాశి correctModp
+            = V3LinkDotIfaceCapture::follow_Cell_మార్గం(మాతృ_Modp, cellName);
+        ఒకవేళ (!correctModp || correctModp->dead() || correctModp->parameterizedTemplate()) తిరిగి;
+        మాతృ_Modp->foreach([&](AstRefDType* refp) {
+            స్థిరరాశి VIface_Capture_ట్యాగ్* స్థిరరాశి tagp = V3LinkDotIfaceCapture::capture_ట్యాగ్(refp);
+            ఒకవేళ (!tagp || tagp->m_cell_మార్గం != cellName) తిరిగి;
             // Only retarget REFDTYPEs owned by parentModp.
-            if (V3LinkDotIfaceCapture::findOwnerModule(refp) != parentModp) return;
-            if (V3LinkDotIfaceCapture::retargetRefToModule(refp, correctModp)) {
+            ఒకవేళ (V3LinkDotIfaceCapture::కనుగొను_Owner_Module(refp) != మాతృ_Modp) తిరిగి;
+            ఒకవేళ (V3LinkDotIfaceCapture::retarget_Ref_గమ్యం_Module(refp, correctModp)) {
                 UINFO(9, "retargetIfaceRefs: " << refp << " -> " << correctModp->prettyNameQ());
             }
         });
@@ -2379,14 +2379,14 @@ public:
     // addition to AST children, follow typedefs, parameter types, deferred
     // localparam values, and referenced-variable dtypes. This makes the walk
     // independent of the particular dtype wrappers around a RefDType.
-    void resolveDeferredDotsReachableFrom(AstNode* rootp, const AstNodeModule* modp) {
+    శూన్య resolveDeferredDotsReachableFrom(Ast_కణుపు* rootp, స్థిరరాశి Ast_కణుపు_Module* modp) {
         VL_RESTORER(m_modp);
         m_modp = modp;
-        DeferredResolverVisitor{*this, rootp};
+        DeferredResolverVisitor{*ఇది, rootp};
     }
 
-    AstNodeModule* nodeDeparam(AstNode* nodep, AstNodeModule* srcModp, AstNodeModule* modp,
-                               const string& someInstanceName) {
+    Ast_కణుపు_Module* కణుపు_Deparam(Ast_కణుపు* nodep, Ast_కణుపు_Module* srcModp, Ast_కణుపు_Module* modp,
+                               స్థిరరాశి string& someInstanceName) {
         // Return new or reused de-parameterized module
         m_modp = modp;
         // Cell: Check for parameters in the instantiation.
@@ -2394,7 +2394,7 @@ public:
         // and remove any recursive references
         UINFO(4, "De-parameterize: " << nodep);
         UINFO(9, "nodeDeparam ENTER node=<"
-                     << AstNode::nodeAddr(nodep) << ">" << " type=" << nodep->typeName()
+                     << Ast_కణుపు::కణుపు_Addr(nodep) << ">" << " type=" << nodep->typeName()
                      << " srcMod=" << (srcModp ? srcModp->prettyNameQ() : "'<null>'")
                      << " srcSomeInstanceName='"
                      << (srcModp ? srcModp->someInstanceName() : string("<null>")) << "'"
@@ -2402,19 +2402,19 @@ public:
                      << " parentSomeInstanceName='"
                      << (modp ? modp->someInstanceName() : string("<null>")) << "'"
                      << " inputSomeInstanceName='" << someInstanceName << "'");
-        string nodeName = nodep->name();
-        if (AstIfaceRefDType* const ifaceRefp = VN_CAST(nodep, IfaceRefDType)) {
-            if (nodeName.empty()) nodeName = ifaceRefp->cellName();
+        string కణుపు_Name = nodep->name();
+        ఒకవేళ (AstIfaceRefDType* స్థిరరాశి ifaceRefp = VN_CAST(nodep, IfaceRefDType)) {
+            ఒకవేళ (కణుపు_Name.ఖాళీలు()) కణుపు_Name = ifaceRefp->cellName();
         }
-        const string instanceName
-            = nodeName.empty() ? someInstanceName : (someInstanceName + "." + nodeName);
+        స్థిరరాశి string instanceName
+            = కణుపు_Name.ఖాళీలు() ? someInstanceName : (someInstanceName + "." + కణుపు_Name);
 
-        if (AstCell* const cellp = VN_CAST(nodep, Cell)) {
-            for (AstPin* pinp = cellp->paramsp(); pinp;) {
-                AstPin* const nextp = VN_AS(pinp->nextp(), Pin);
-                if (!pinp->paramPath().empty() && instanceName != pinp->paramPath()
-                    && !VString::endsWith(instanceName, "." + pinp->paramPath())) {
-                    VL_DO_DANGLING(pinp->unlinkFrBack()->deleteTree(), pinp);
+        ఒకవేళ (AstCell* స్థిరరాశి cellp = VN_CAST(nodep, Cell)) {
+            కొరకు (AstPin* pinp = cellp->paramsp(); pinp;) {
+                AstPin* స్థిరరాశి nextp = VN_AS(pinp->nextp(), Pin);
+                ఒకవేళ (!pinp->param_మార్గం().ఖాళీలు() && instanceName != pinp->param_మార్గం()
+                    && !VString::చివర్లు_With(instanceName, "." + pinp->param_మార్గం())) {
+                    VL_DO_DANGLING(pinp->unlink_Fr_వెనుక()->delete_వృక్షం(), pinp);
                 }
                 pinp = nextp;
             }
@@ -2438,29 +2438,29 @@ public:
         srcModp->someInstanceName(instanceName);
         UINFO(9, "nodeDeparam SET-SRC-INST srcMod="
                      << srcModp->prettyNameQ() << " someInstanceName='"
-                     << srcModp->someInstanceName() << "'" << " node=<" << AstNode::nodeAddr(nodep)
+                     << srcModp->someInstanceName() << "'" << " node=<" << Ast_కణుపు::కణుపు_Addr(nodep)
                      << ">" << " nodeType=" << nodep->typeName());
 
-        AstNodeModule* newModp = nullptr;
-        if (AstCell* const cellp = VN_CAST(nodep, Cell)) {
+        Ast_కణుపు_Module* newModp = శూన్యసూచిక;
+        ఒకవేళ (AstCell* స్థిరరాశి cellp = VN_CAST(nodep, Cell)) {
             newModp = cellDeparam(cellp, srcModp);
-        } else if (AstIfaceRefDType* const ifaceRefDTypep = VN_CAST(nodep, IfaceRefDType)) {
+        } లేకపోతే ఒకవేళ (AstIfaceRefDType* స్థిరరాశి ifaceRefDTypep = VN_CAST(nodep, IfaceRefDType)) {
             newModp = ifaceRefDeparam(ifaceRefDTypep, srcModp);
-        } else if (AstClassRefDType* const classRefp = VN_CAST(nodep, ClassRefDType)) {
+        } లేకపోతే ఒకవేళ (AstClassRefDType* స్థిరరాశి classRefp = VN_CAST(nodep, ClassRefDType)) {
             newModp = classRefDeparam(classRefp, srcModp);
-        } else if (AstClassOrPackageRef* const classRefp = VN_CAST(nodep, ClassOrPackageRef)) {
+        } లేకపోతే ఒకవేళ (AstClassOrPackageRef* స్థిరరాశి classRefp = VN_CAST(nodep, ClassOrPackageRef)) {
             newModp = classRefDeparam(classRefp, srcModp);
-        } else {
+        } లేకపోతే {
             nodep->v3fatalSrc("Expected module parameterization");
         }
         // 'newModp' might be nullptr on error
-        if (!newModp) return nullptr;
+        ఒకవేళ (!newModp) తిరిగి శూన్యసూచిక;
 
         // Set name for later warnings
         newModp->someInstanceName(instanceName);
 
         UINFO(9, "nodeDeparam EXIT  node=<"
-                     << AstNode::nodeAddr(nodep) << ">" << " type=" << nodep->typeName()
+                     << Ast_కణుపు::కణుపు_Addr(nodep) << ">" << " type=" << nodep->typeName()
                      << " srcMod=" << (srcModp ? srcModp->prettyNameQ() : "'<null>'")
                      << " srcSomeInstanceName='"
                      << (srcModp ? srcModp->someInstanceName() : string("<null>")) << "'"
@@ -2471,63 +2471,63 @@ public:
         UINFO(8, "     Done with orig " << nodep);
         // if (debug() >= 10)
         // v3Global.rootp()->dumpTreeFile(v3Global.debugFilename("param-out.tree"));
-        return newModp;
+        తిరిగి newModp;
     }
 
     // Return, and forget, the classes specialized since the previous call
-    std::vector<AstClass*> takeSpecializedClassps() {
-        std::vector<AstClass*> taken;
-        taken.swap(m_specializedClassps);
-        return taken;
+    std::సదిశ<AstClass*> takeSpecializedClassps() {
+        std::సదిశ<AstClass*> తీసుకున్న;
+        తీసుకున్న.మార్పిడి(m_specializedClassps);
+        తిరిగి తీసుకున్న;
     }
 
     // CONSTRUCTORS
-    explicit ParamProcessor(AstNetlist* nodep)
-        : m_hierBlocks{v3Global.opt.hierBlocks(), nodep} {
-        for (AstNodeModule* modp = nodep->modulesp(); modp;
-             modp = VN_AS(modp->nextp(), NodeModule)) {
-            m_allModuleNames.insert(modp->name());
+    స్పష్టమైన ParamProcessor(AstNetlist* nodep)
+        : m_hier_ఖండాలు{v3Global.opt.hier_ఖండాలు(), nodep} {
+        కొరకు (Ast_కణుపు_Module* modp = nodep->modulesp(); modp;
+             modp = VN_AS(modp->nextp(), కణుపు_Module)) {
+            m_all_Module_పేర్లు.చొప్పించు(modp->name());
         }
     }
-    ~ParamProcessor() = default;
+    ~ParamProcessor() = అప్రమేయ;
     VL_UNCOPYABLE(ParamProcessor);
 };
 
 //######################################################################
 // Record classes that are referenced with parameter pins
 
-class ClassRefUnlinkerVisitor final : public VNVisitor {
+తరగతి ClassRefUnlinkerVisitor final : బహిరంగ VNVisitor {
 
-public:
-    explicit ClassRefUnlinkerVisitor(AstNetlist* netlistp) { iterate(netlistp); }
-    void visit(AstClassOrPackageRef* nodep) override {
-        if (nodep->paramsp()) {
-            if (AstClass* const classp = VN_CAST(nodep->classOrPackageSkipp(), Class)) {
-                if (!classp->user3p()) {
+బహిరంగ:
+    స్పష్టమైన ClassRefUnlinkerVisitor(AstNetlist* netlistp) { iterate(netlistp); }
+    శూన్య సందర్శించు(AstClassOrPackageRef* nodep) override {
+        ఒకవేళ (nodep->paramsp()) {
+            ఒకవేళ (AstClass* స్థిరరాశి classp = VN_CAST(nodep->classOrPackageSkipp(), Class)) {
+                ఒకవేళ (!classp->user3p()) {
                     // Check if this ClassOrPackageRef is the lhsp of a DOT node
-                    AstDot* const dotp = VN_CAST(nodep->backp(), Dot);
-                    if (dotp && dotp->lhsp() == nodep) {
+                    AstDot* స్థిరరాశి dotp = VN_CAST(nodep->backp(), Dot);
+                    ఒకవేళ (dotp && dotp->lhsp() == nodep) {
                         // Replace DOT with just its rhsp to avoid leaving DOT with null lhsp
-                        dotp->replaceWith(dotp->rhsp()->unlinkFrBack());
-                        VL_DO_DANGLING2(pushDeletep(dotp), dotp, nodep);
-                    } else {
-                        VL_DO_DANGLING(pushDeletep(nodep->unlinkFrBack()), nodep);
+                        dotp->replaceWith(dotp->rhsp()->unlink_Fr_వెనుక());
+                        VL_DO_DANGLING2(నెట్టు_Deletep(dotp), dotp, nodep);
+                    } లేకపోతే {
+                        VL_DO_DANGLING(నెట్టు_Deletep(nodep->unlink_Fr_వెనుక()), nodep);
                     }
                 }
             }
         }
     }
-    void visit(AstClass* nodep) override {}  // don't iterate inside classes
-    void visit(AstNode* nodep) override { iterateChildren(nodep); }
+    శూన్య సందర్శించు(AstClass* nodep) override {}  // don't iterate inside classes
+    శూన్య సందర్శించు(Ast_కణుపు* nodep) override { iterateChildren(nodep); }
 };
 
 //######################################################################
 //  Relink RefDType nodes to point to parameterized classes' type parameters
 
-class ParamClassRefDTypeRelinkVisitor final : public VNVisitor {
+తరగతి ParamClassRefDTypeRelinkVisitor final : బహిరంగ VNVisitor {
 
-    AstClass* m_classp = nullptr;
-    std::unordered_map<const AstParamTypeDType*, AstClass*> m_paramTypeClassMap;
+    AstClass* m_classp = శూన్యసూచిక;
+    std::unordered_map<స్థిరరాశి AstParamTypeDType*, AstClass*> m_paramTypeClassMap;
 
     // Owner-tracking state for the post-clone REFDTYPE typedef retargeting
     // (see retargetRefDType()). m_ownerModp is the most recently entered
@@ -2535,58 +2535,58 @@ class ParamClassRefDTypeRelinkVisitor final : public VNVisitor {
     // rebuilt lazily on the first AstRefDType visit per owner; the
     // m_ownerMapForp cache key avoids rebuilding when the owner is unchanged
     // (e.g. across siblings under the same parent).
-    AstNodeModule* m_ownerModp = nullptr;
-    AstNodeModule* m_ownerMapForp = nullptr;
-    std::unordered_map<std::string, AstClass*> m_origNameToClone;
-    std::unordered_set<std::string> m_ambiguous;
+    Ast_కణుపు_Module* m_ownerModp = శూన్యసూచిక;
+    Ast_కణుపు_Module* m_ownerMapForp = శూన్యసూచిక;
+    std::unordered_map<std::string, AstClass*> m_orig_Name_గమ్యం_Clone;
+    std::unordered_సమితి<std::string> m_ambiguous;
 
-    void ensureOwnerMap() {
-        if (m_ownerMapForp == m_ownerModp) return;
+    శూన్య ensureOwnerMap() {
+        ఒకవేళ (m_ownerMapForp == m_ownerModp) తిరిగి;
         m_ownerMapForp = m_ownerModp;
-        m_origNameToClone.clear();
+        m_orig_Name_గమ్యం_Clone.clear();
         m_ambiguous.clear();
-        if (!m_ownerModp) return;
+        ఒకవేళ (!m_ownerModp) తిరిగి;
         // Skip bare/generic class templates: their bodies are not
         // authoritative for any specialization, and their self-typedefs
         // (e.g. `typedef cls#(P,Q) this_type;` inside a parameterized class)
         // would otherwise be treated as ground truth and cause REFDTYPEs in
         // the body to be retargeted at the bare template.
-        if (AstClass* const ownerClassp = VN_CAST(m_ownerModp, Class)) {
-            if (ownerClassp->hasGParam()) return;
+        ఒకవేళ (AstClass* స్థిరరాశి ownerClassp = VN_CAST(m_ownerModp, Class)) {
+            ఒకవేళ (ownerClassp->hasGParam()) తిరిగి;
         }
-        for (AstNode* sp = m_ownerModp->stmtsp(); sp; sp = sp->nextp()) {
-            AstTypedef* const tdp = VN_CAST(sp, Typedef);
-            if (!tdp) continue;
-            AstClassRefDType* const crdtp = VN_CAST(tdp->subDTypep(), ClassRefDType);
-            if (!crdtp || !crdtp->classp()) continue;
-            AstClass* const targetp = crdtp->classp();
+        కొరకు (Ast_కణుపు* sp = m_ownerModp->stmtsp(); sp; sp = sp->nextp()) {
+            AstTypedef* స్థిరరాశి tdp = VN_CAST(sp, Typedef);
+            ఒకవేళ (!tdp) కొనసాగు;
+            AstClassRefDType* స్థిరరాశి crdtp = VN_CAST(tdp->subDTypep(), ClassRefDType);
+            ఒకవేళ (!crdtp || !crdtp->classp()) కొనసాగు;
+            AstClass* స్థిరరాశి targetp = crdtp->classp();
             // A typedef pointing at a still-generic template is a forward
             // declaration / unresolved reference, not ground truth.
-            if (targetp->hasGParam()) continue;
-            const std::string origName
-                = targetp->origName().empty() ? targetp->name() : targetp->origName();
-            const auto pair = m_origNameToClone.emplace(origName, targetp);
+            ఒకవేళ (targetp->hasGParam()) కొనసాగు;
+            స్థిరరాశి std::string origName
+                = targetp->origName().ఖాళీలు() ? targetp->name() : targetp->origName();
+            స్థిరరాశి స్వయంచాలక pair = m_orig_Name_గమ్యం_Clone.emplace(origName, targetp);
             // Two locally-resolved typedefs pointing at different
             // specializations of the same template -> ambiguous; we cannot
             // safely guess which one a stripped REFDTYPE meant.
-            if (!pair.second && pair.first->second != targetp) m_ambiguous.insert(origName);
+            ఒకవేళ (!pair.రెండవ && pair.మొదటి->రెండవ != targetp) m_ambiguous.చొప్పించు(origName);
         }
     }
 
     // A class's name before specialization (e.g. "holder" for "holder__Tz1").
-    static string classOrigName(const AstClass* classp) {
-        return classp->origName().empty() ? classp->name() : classp->origName();
+    స్థిర string classOrigName(స్థిరరాశి AstClass* classp) {
+        తిరిగి classp->origName().ఖాళీలు() ? classp->name() : classp->origName();
     }
 
     // Find 'name' in classp or any base class (findTypedefInModule() searches
     // only the class itself).
-    static AstTypedef* findTypedefWithBases(AstClass* classp, const string& name) {
-        for (AstClass* cp = classp; cp; cp = cp->extendsp() ? cp->extendsp()->classp() : nullptr) {
-            if (AstTypedef* const tdp = V3LinkDotIfaceCapture::findTypedefInModule(cp, name)) {
-                if (tdp->subDTypep()) return tdp;
+    స్థిర AstTypedef* కనుగొను_Typedef_With_Bases(AstClass* classp, స్థిరరాశి string& name) {
+        కొరకు (AstClass* cp = classp; cp; cp = cp->extendsp() ? cp->extendsp()->classp() : శూన్యసూచిక) {
+            ఒకవేళ (AstTypedef* స్థిరరాశి tdp = V3LinkDotIfaceCapture::కనుగొను_Typedef_లోపల_Module(cp, name)) {
+                ఒకవేళ (tdp->subDTypep()) తిరిగి tdp;
             }
         }
-        return nullptr;
+        తిరిగి శూన్యసూచిక;
     }
 
     // Re-resolve REFDTYPE.typedefp/refDTypep using the containing module's
@@ -2597,53 +2597,53 @@ class ParamClassRefDTypeRelinkVisitor final : public VNVisitor {
     // stomps the bindings made by the first. By this point each owner's
     // typedefs have been correctly bound (via classRefDeparam), so we use
     // those local typedefs as ground truth.
-    void retargetRefDType(AstRefDType* refp) {
-        if (!m_ownerModp) return;
+    శూన్య retargetRefDType(AstRefDType* refp) {
+        ఒకవేళ (!m_ownerModp) తిరిగి;
 
         // IEEE 1800-2023 8.25.1: a bare class-qualified reference to the class
         // being compiled means the current specialization, but V3LinkDot binds
         // it to the default instance, so a typedef reached through it widens
         // with the template's defaults (#8348). Rebind it to the
         // specialization's own typedef.
-        if (AstClass* const ownerClassp = VN_CAST(m_ownerModp, Class)) {
-            if (!ownerClassp->hasGParam() && !refp->paramsp()) {
+        ఒకవేళ (AstClass* స్థిరరాశి ownerClassp = VN_CAST(m_ownerModp, Class)) {
+            ఒకవేళ (!ownerClassp->hasGParam() && !refp->paramsp()) {
                 // What the reference resolves to: its typedef's owner if
                 // linked, else the class it is qualified by.
-                const AstClass* refClassp = nullptr;
-                if (AstTypedef* const tdp = refp->typedefp()) {
-                    refClassp = VN_CAST(V3LinkDotIfaceCapture::findOwnerModule(tdp), Class);
-                } else if (const AstClassOrPackageRef* const classRefp
+                స్థిరరాశి AstClass* refClassp = శూన్యసూచిక;
+                ఒకవేళ (AstTypedef* స్థిరరాశి tdp = refp->typedefp()) {
+                    refClassp = VN_CAST(V3LinkDotIfaceCapture::కనుగొను_Owner_Module(tdp), Class);
+                } లేకపోతే ఒకవేళ (స్థిరరాశి AstClassOrPackageRef* స్థిరరాశి classRefp
                            = VN_CAST(refp->classOrPackageOpp(), ClassOrPackageRef)) {
                     refClassp = VN_CAST(classRefp->classOrPackageSkipp(), Class);
                 }
                 // Same originating class => bare self reference (another
                 // specialization would carry #(), rejected above).
-                if (refClassp && refClassp != ownerClassp
+                ఒకవేళ (refClassp && refClassp != ownerClassp
                     && classOrigName(refClassp) == classOrigName(ownerClassp)) {
-                    AstTypedef* const selfTdp = findTypedefWithBases(ownerClassp, refp->name());
-                    if (selfTdp) {
+                    AstTypedef* స్థిరరాశి selfTdp = కనుగొను_Typedef_With_Bases(ownerClassp, refp->name());
+                    ఒకవేళ (selfTdp) {
                         UINFO(9, "post-param REFDTYPE self-reference retarget: "
                                      << refp << " from " << refClassp->name() << " to "
                                      << ownerClassp->name());
                         refp->typedefp(selfTdp);
-                        refp->classOrPackagep(V3LinkDotIfaceCapture::findOwnerModule(selfTdp));
+                        refp->classOrPackagep(V3LinkDotIfaceCapture::కనుగొను_Owner_Module(selfTdp));
                         refp->refDTypep(selfTdp->subDTypep());
-                        return;
+                        తిరిగి;
                     }
                 }
             }
         }
 
-        AstTypedef* const oldTdp = refp->typedefp();
-        if (!oldTdp) return;
-        AstClass* const oldOwnerp = VN_CAST(V3LinkDotIfaceCapture::findOwnerModule(oldTdp), Class);
-        if (!oldOwnerp) return;
+        AstTypedef* స్థిరరాశి oldTdp = refp->typedefp();
+        ఒకవేళ (!oldTdp) తిరిగి;
+        AstClass* స్థిరరాశి oldOwnerp = VN_CAST(V3LinkDotIfaceCapture::కనుగొను_Owner_Module(oldTdp), Class);
+        ఒకవేళ (!oldOwnerp) తిరిగి;
 
         ensureOwnerMap();
-        if (m_origNameToClone.empty()) return;
-        const std::string origName
-            = oldOwnerp->origName().empty() ? oldOwnerp->name() : oldOwnerp->origName();
-        if (m_ambiguous.count(origName)) {
+        ఒకవేళ (m_orig_Name_గమ్యం_Clone.ఖాళీలు()) తిరిగి;
+        స్థిరరాశి std::string origName
+            = oldOwnerp->origName().ఖాళీలు() ? oldOwnerp->name() : oldOwnerp->origName();
+        ఒకవేళ (m_ambiguous.లెక్క(origName)) {
             // The owner has two locally-resolved typedefs pointing at
             // different specializations of the same template, e.g.:
             //   typedef driver #(.IW(5)) drv5_t;
@@ -2652,29 +2652,29 @@ class ParamClassRefDTypeRelinkVisitor final : public VNVisitor {
             // tell which sibling it meant; leave it alone.
             UINFO(9, "post-param REFDTYPE retarget skipped (ambiguous owner '" << origName
                                                                                << "'): " << refp);
-            return;
+            తిరిగి;
         }
-        const auto it = m_origNameToClone.find(origName);
-        if (it == m_origNameToClone.end()) return;
-        AstClass* const correctClassp = it->second;
-        if (correctClassp == oldOwnerp) return;
-        AstTypedef* const newTdp
-            = V3LinkDotIfaceCapture::findTypedefInModule(correctClassp, refp->name());
-        if (!newTdp) {
+        స్థిరరాశి స్వయంచాలక it = m_orig_Name_గమ్యం_Clone.కనుగొను(origName);
+        ఒకవేళ (it == m_orig_Name_గమ్యం_Clone.చివర()) తిరిగి;
+        AstClass* స్థిరరాశి correctClassp = it->రెండవ;
+        ఒకవేళ (correctClassp == oldOwnerp) తిరిగి;
+        AstTypedef* స్థిరరాశి newTdp
+            = V3LinkDotIfaceCapture::కనుగొను_Typedef_లోపల_Module(correctClassp, refp->name());
+        ఒకవేళ (!newTdp) {
             // The owner map says correctClassp is the right specialization,
             // but it does not declare a typedef named refp->name(). Caveats
             // of findTypedefInModule (e.g. typedef declared in a base class,
             // not the specialization we resolved to) can land us here.
             UINFO(9, "post-param REFDTYPE retarget skipped (no typedef '"
                          << refp->name() << "' in " << correctClassp->name() << "): " << refp);
-            return;
+            తిరిగి;
         }
         // typedefp / classOrPackagep / refDTypep must agree. If newTdp lacks
         // a subDTypep we cannot keep all three in sync, so skip the entire
         // retarget rather than leaving the REFDTYPE half-updated.
-        if (!newTdp->subDTypep()) {
+        ఒకవేళ (!newTdp->subDTypep()) {
             UINFO(9, "post-param REFDTYPE retarget skipped (newTdp has null subDTypep): " << refp);
-            return;
+            తిరిగి;
         }
         refp->typedefp(newTdp);
         refp->classOrPackagep(correctClassp);
@@ -2683,49 +2683,49 @@ class ParamClassRefDTypeRelinkVisitor final : public VNVisitor {
                                                     << " to " << correctClassp->name());
     }
 
-public:
-    explicit ParamClassRefDTypeRelinkVisitor(AstNetlist* netlistp) { iterate(netlistp); }
-    void visit(AstNodeModule* nodep) override {
+బహిరంగ:
+    స్పష్టమైన ParamClassRefDTypeRelinkVisitor(AstNetlist* netlistp) { iterate(netlistp); }
+    శూన్య సందర్శించు(Ast_కణుపు_Module* nodep) override {
         VL_RESTORER(m_ownerModp);
         m_ownerModp = nodep;
         iterateChildren(nodep);
     }
-    void visit(AstClass* nodep) override {
+    శూన్య సందర్శించు(AstClass* nodep) override {
         VL_RESTORER(m_classp);
         VL_RESTORER(m_ownerModp);
         m_classp = nodep;
         m_ownerModp = nodep;
-        for (AstNode* stmtp = nodep->stmtsp(); stmtp; stmtp = stmtp->nextp()) {
-            if (AstParamTypeDType* const ptp = VN_CAST(stmtp, ParamTypeDType)) {
+        కొరకు (Ast_కణుపు* stmtp = nodep->stmtsp(); stmtp; stmtp = stmtp->nextp()) {
+            ఒకవేళ (AstParamTypeDType* స్థిరరాశి ptp = VN_CAST(stmtp, ParamTypeDType)) {
                 m_paramTypeClassMap[ptp] = nodep;
             }
         }
         iterateChildren(nodep);
     }
-    void visit(AstRefDType* nodep) override {
+    శూన్య సందర్శించు(AstRefDType* nodep) override {
         iterateChildren(nodep);
         // Redirect refs whose refDTypep points at a stale ParamTypeDType in
         // a generic class template that has been replaced by a parametrized
         // clone.
-        if (AstParamTypeDType* const paramtypep = VN_CAST(nodep->refDTypep(), ParamTypeDType)) {
-            const auto it = m_paramTypeClassMap.find(paramtypep);
-            if (it != m_paramTypeClassMap.end()) {
-                AstClass* const origClassp = it->second;
-                if (origClassp->hasGParam() && !origClassp->user3p()) {
-                    if (AstClass* const parametrizedClassp
+        ఒకవేళ (AstParamTypeDType* స్థిరరాశి paramtypep = VN_CAST(nodep->refDTypep(), ParamTypeDType)) {
+            స్థిరరాశి స్వయంచాలక it = m_paramTypeClassMap.కనుగొను(paramtypep);
+            ఒకవేళ (it != m_paramTypeClassMap.చివర()) {
+                AstClass* స్థిరరాశి origClassp = it->రెండవ;
+                ఒకవేళ (origClassp->hasGParam() && !origClassp->user3p()) {
+                    ఒకవేళ (AstClass* స్థిరరాశి parametrizedClassp
                         = VN_CAST(origClassp->user4p(), Class)) {
-                        const string paramName = paramtypep->name();
-                        AstParamTypeDType* newParamTypep = nullptr;
-                        for (AstNode* stmtp = parametrizedClassp->stmtsp(); stmtp;
+                        స్థిరరాశి string paramName = paramtypep->name();
+                        AstParamTypeDType* newParamTypep = శూన్యసూచిక;
+                        కొరకు (Ast_కణుపు* stmtp = parametrizedClassp->stmtsp(); stmtp;
                              stmtp = stmtp->nextp()) {
-                            if (AstParamTypeDType* const ptp = VN_CAST(stmtp, ParamTypeDType)) {
-                                if (ptp->name() == paramName) {
+                            ఒకవేళ (AstParamTypeDType* స్థిరరాశి ptp = VN_CAST(stmtp, ParamTypeDType)) {
+                                ఒకవేళ (ptp->name() == paramName) {
                                     newParamTypep = ptp;
-                                    break;
+                                    ఆపు;
                                 }
                             }
                         }
-                        if (newParamTypep) {
+                        ఒకవేళ (newParamTypep) {
                             nodep->refDTypep(newParamTypep);
                             nodep->classOrPackagep(parametrizedClassp);
                         }
@@ -2737,30 +2737,30 @@ public:
         // resolved typedefs as ground truth (handles sibling-clone stomping).
         retargetRefDType(nodep);
     }
-    void visit(AstNode* nodep) override { iterateChildren(nodep); }
+    శూన్య సందర్శించు(Ast_కణుపు* nodep) override { iterateChildren(nodep); }
 };
 
 //######################################################################
 // Process parameter top state
 
-class ParamState final {
-public:
+తరగతి ParamState final {
+బహిరంగ:
     // STATE - across all visitors
-    std::vector<AstClass*> m_paramClasses;  // Parameterized classes
-    std::vector<AstDot*> m_dots;  // Dot references to process
+    std::సదిశ<AstClass*> m_paramClasses;  // Parameterized classes
+    std::సదిశ<AstDot*> m_dots;  // Dot references to process
     // Work queue keyed by (!isIface, level) so interfaces are always processed
     // before non-interfaces.  This ensures interface clones have their types
     // properly widthed before any module that references those types.
-    using WQKey = std::pair<bool, int>;
-    std::multimap<WQKey, AstNodeModule*> m_workQueueNext;  // Modules left to process
+    ఉపయోగించి WQKey = std::pair<తార్కిక, పూర్ణాంకం>;
+    std::multimap<WQKey, Ast_కణుపు_Module*> m_work_వరుస_తదుపరి;  // Modules left to process
     // Map from AstNodeModule to set of all AstNodeModules that instantiates it.
-    std::unordered_map<AstNodeModule*, std::unordered_set<AstNodeModule*>> m_parentps;
+    std::unordered_map<Ast_కణుపు_Module*, std::unordered_సమితి<Ast_కణుపు_Module*>> m_parentps;
 };
 
 //######################################################################
 // Process parameter visitor
 
-class ParamVisitor final : public VNVisitor {
+తరగతి ParamVisitor final : బహిరంగ VNVisitor {
     // NODE STATE
     // AstNodeModule::user1 -> bool: already fixed level (temporary)
     // AstNodeDType::user2  -> bool: already visited from typedef
@@ -2770,53 +2770,53 @@ class ParamVisitor final : public VNVisitor {
     ParamProcessor m_processor;  // De-parameterize a cell, build modules
     GenForUnroller m_unroller;  // Unroller for AstGenFor
 
-    bool m_iterateModule = false;  // Iterating module body
+    తార్కిక m_iterateModule = అబద్ధం;  // Iterating module body
     string m_unlinkedTxt;  // Text for AstUnlinkedRef
-    std::multimap<bool, AstNode*> m_cellps;  // Cells left to process (in current module)
-    std::unordered_map<const AstNode*, std::string>
-        m_genHierNames;  // Maps ast nodes to generated hierarchy names
-    std::map<const AstRefDType*, bool>
+    std::multimap<తార్కిక, Ast_కణుపు*> m_cellps;  // Cells left to process (in current module)
+    std::unordered_map<స్థిరరాశి Ast_కణుపు*, std::string>
+        m_gen_Hier_పేర్లు;  // Maps ast nodes to generated hierarchy names
+    std::map<స్థిరరాశి AstRefDType*, తార్కిక>
         m_isCircular;  // Stores information whether `AstRefDType` is circular
-    using VarsByName = std::unordered_map<std::string, AstVar*>;
+    ఉపయోగించి VarsByName = std::unordered_map<std::string, AstVar*>;
     // Persists across modules; one specialized interface clone serves every module bound to it
-    std::unordered_map<const AstNodeModule*, VarsByName> m_ifaceParams;
+    std::unordered_map<స్థిరరాశి Ast_కణుపు_Module*, VarsByName> m_ifaceParams;
 
     // STATE - for current visit position (use VL_RESTORER)
-    AstNodeModule* m_modp = nullptr;  // Module iterating
-    std::unordered_set<std::string> m_ifacePortNames;  // Interface port names in current module
+    Ast_కణుపు_Module* m_modp = శూన్యసూచిక;  // Module iterating
+    std::unordered_సమితి<std::string> m_iface_పోర్టు_పేర్లు;  // Interface port names in current module
     std::unordered_map<std::string, AstCell*>
         m_ifaceInstCells;  // Local interface instance cells in current module, keyed by name
     VarsByName m_modIfaceRefs;  // Interface-ref Vars in current module, keyed by name
-    bool m_modIfaceRefsDone = false;  // m_modIfaceRefs has been gathered for m_modp
+    తార్కిక m_mod_Iface_Refs_పూర్తి = అబద్ధం;  // m_modIfaceRefs has been gathered for m_modp
     string m_generateHierName;  // Generate portion of hierarchy name
-    bool m_inGenerateCond = false;  // Traversing a generate condition; see iterateGenerateCond
+    తార్కిక m_లోపల_Generate_Cond = అబద్ధం;  // Traversing a generate condition; see iterateGenerateCond
 
     // METHODS
 
-    void processWorkQ() {
+    శూన్య processWorkQ() {
         UASSERT(!m_iterateModule, "Should not nest");
-        std::multimap<ParamState::WQKey, AstNodeModule*> workQueue;
+        std::multimap<ParamState::WQKey, Ast_కణుపు_Module*> work_వరుస;
         m_generateHierName = "";
-        m_iterateModule = true;
+        m_iterateModule = నిజం;
 
         // Visit all cells under module, recursively
-        while (true) {
+        అయితే (నిజం) {
             // Classes specialized since the last pass still need their bodies elaborated
-            for (AstClass* const classp : m_processor.takeSpecializedClassps()) {
-                m_state.m_workQueueNext.emplace(ParamState::WQKey{true, classp->level()}, classp);
+            కొరకు (AstClass* స్థిరరాశి classp : m_processor.takeSpecializedClassps()) {
+                m_state.m_work_వరుస_తదుపరి.emplace(ParamState::WQKey{నిజం, classp->level()}, classp);
             }
-            if (workQueue.empty()) std::swap(workQueue, m_state.m_workQueueNext);
-            if (workQueue.empty()) break;
+            ఒకవేళ (work_వరుస.ఖాళీలు()) std::మార్పిడి(work_వరుస, m_state.m_work_వరుస_తదుపరి);
+            ఒకవేళ (work_వరుస.ఖాళీలు()) ఆపు;
 
-            const auto itm = workQueue.cbegin();
-            AstNodeModule* const modp = itm->second;
-            workQueue.erase(itm);
+            స్థిరరాశి స్వయంచాలక itm = work_వరుస.cbegin();
+            Ast_కణుపు_Module* స్థిరరాశి modp = itm->రెండవ;
+            work_వరుస.erase(itm);
             // Starting a new module, so what was learned about the last one no longer holds.
             v3Global.rootp()->clearContainingModules();
 
             // Process once; note user2 will be cleared on specialization, so we will do the
             // specialized module if needed
-            if (!modp->user2SetOnce()) {
+            ఒకవేళ (!modp->user2_సమితి_Once()) {
                 UINFO(9, "processWorkQ module begin mod='"
                              << modp->name() << "' orig='" << modp->origName() << "'"
                              << " someInstanceName='" << modp->someInstanceName() << "'"
@@ -2826,67 +2826,67 @@ class ParamVisitor final : public VNVisitor {
 
                 // TODO: this really should be an assert, but classes and hier_blocks are
                 // special...
-                if (modp->someInstanceName().empty()) modp->someInstanceName(modp->origName());
+                ఒకవేళ (modp->someInstanceName().ఖాళీలు()) modp->someInstanceName(modp->origName());
 
                 // Iterate the body
                 {
                     VL_RESTORER(m_modp);
-                    VL_RESTORER_CLEAR(m_ifacePortNames);
+                    VL_RESTORER_CLEAR(m_iface_పోర్టు_పేర్లు);
                     VL_RESTORER_CLEAR(m_ifaceInstCells);
                     VL_RESTORER_CLEAR(m_modIfaceRefs);
-                    VL_RESTORER(m_modIfaceRefsDone);
+                    VL_RESTORER(m_mod_Iface_Refs_పూర్తి);
                     m_modp = modp;
-                    m_modIfaceRefsDone = false;
+                    m_mod_Iface_Refs_పూర్తి = అబద్ధం;
                     iterateChildren(modp);
                 }
             }
 
             // Process interface cells, then non-interface cells, which may reference an interface
             // cell.
-            while (!m_cellps.empty()) {
-                const auto itim = m_cellps.cbegin();
-                AstNode* const cellp = itim->second;
+            అయితే (!m_cellps.ఖాళీలు()) {
+                స్థిరరాశి స్వయంచాలక itim = m_cellps.cbegin();
+                Ast_కణుపు* స్థిరరాశి cellp = itim->రెండవ;
                 m_cellps.erase(itim);
 
                 // Consume the generated hierarchy name for the node
                 string genHierName;
-                const auto genHierIt = m_genHierNames.find(cellp);
-                if (genHierIt != m_genHierNames.end()) {
-                    genHierName = std::move(genHierIt->second);
-                    m_genHierNames.erase(genHierIt);
+                స్థిరరాశి స్వయంచాలక genHierIt = m_gen_Hier_పేర్లు.కనుగొను(cellp);
+                ఒకవేళ (genHierIt != m_gen_Hier_పేర్లు.చివర()) {
+                    genHierName = std::move(genHierIt->రెండవ);
+                    m_gen_Hier_పేర్లు.erase(genHierIt);
                 }
 
-                AstNodeModule* srcModp = nullptr;
-                if (const AstCell* modCellp = VN_CAST(cellp, Cell)) {
+                Ast_కణుపు_Module* srcModp = శూన్యసూచిక;
+                ఒకవేళ (స్థిరరాశి AstCell* modCellp = VN_CAST(cellp, Cell)) {
                     srcModp = modCellp->modp();
-                } else if (const AstClassOrPackageRef* classRefp
+                } లేకపోతే ఒకవేళ (స్థిరరాశి AstClassOrPackageRef* classRefp
                            = VN_CAST(cellp, ClassOrPackageRef)) {
                     srcModp = classRefp->classOrPackageSkipp();
-                    if (VN_IS(classRefp->classOrPackageNodep(), ParamTypeDType)) continue;
-                } else if (const AstClassRefDType* classRefp = VN_CAST(cellp, ClassRefDType)) {
+                    ఒకవేళ (VN_IS(classRefp->classOrPackageNodep(), ParamTypeDType)) కొనసాగు;
+                } లేకపోతే ఒకవేళ (స్థిరరాశి AstClassRefDType* classRefp = VN_CAST(cellp, ClassRefDType)) {
                     srcModp = classRefp->classp();
-                } else if (const AstIfaceRefDType* ifaceRefp = VN_CAST(cellp, IfaceRefDType)) {
+                } లేకపోతే ఒకవేళ (స్థిరరాశి AstIfaceRefDType* ifaceRefp = VN_CAST(cellp, IfaceRefDType)) {
                     srcModp = ifaceRefp->ifacep();
-                } else {
+                } లేకపోతే {
                     cellp->v3fatalSrc("Expected module parameterization");
                 }
-                if (!srcModp) continue;
+                ఒకవేళ (!srcModp) కొనసాగు;
 
                 // Update path
-                const string someInstanceName = modp->someInstanceName() + genHierName;
+                స్థిరరాశి string someInstanceName = modp->someInstanceName() + genHierName;
 
                 // Apply parameter specialization
-                if (AstNodeModule* const newModp
-                    = m_processor.nodeDeparam(cellp, srcModp, modp, someInstanceName)) {
+                ఒకవేళ (Ast_కణుపు_Module* స్థిరరాశి newModp
+                    = m_processor.కణుపు_Deparam(cellp, srcModp, modp, someInstanceName)) {
 
-                    if (VN_IS(srcModp, Iface)) {
+                    ఒకవేళ (VN_IS(srcModp, Iface)) {
                         logTemplateLeakRefs(modp, srcModp, "after queued nodeDeparam", cellp);
                         // After the interface cell is rewired to its clone,
                         // retarget REFDTYPEs in the parent module that still
                         // reference the template interface's types.
-                        if (V3LinkDotIfaceCapture::enabled()) {
-                            if (const AstCell* const modCellp = VN_CAST(cellp, Cell)) {
-                                if (newModp != srcModp) {
+                        ఒకవేళ (V3LinkDotIfaceCapture::enabled()) {
+                            ఒకవేళ (స్థిరరాశి AstCell* స్థిరరాశి modCellp = VN_CAST(cellp, Cell)) {
+                                ఒకవేళ (newModp != srcModp) {
                                     m_processor.retargetIfaceRefs(modp, modCellp->name());
                                 }
                             }
@@ -2894,29 +2894,29 @@ class ParamVisitor final : public VNVisitor {
                     }
 
                     // Add the (now potentially specialized) child module to the work queue
-                    workQueue.emplace(ParamState::WQKey{!VN_IS(newModp, Iface), newModp->level()},
+                    work_వరుస.emplace(ParamState::WQKey{!VN_IS(newModp, Iface), newModp->level()},
                                       newModp);
 
                     // Add to the hierarchy registry
-                    m_state.m_parentps[newModp].insert(modp);
+                    m_state.m_parentps[newModp].చొప్పించు(modp);
 
                     // Eagerly specialize nested iface cells so their types
                     // have correct widths before sibling module cells run.
-                    if (VN_IS(newModp, Iface) && newModp != srcModp) {
+                    ఒకవేళ (VN_IS(newModp, Iface) && newModp != srcModp) {
                         specializeNestedIfaceCells(newModp);
                     }
                 }
             }
         }
 
-        m_iterateModule = false;
+        m_iterateModule = అబద్ధం;
     }
 
     // Extract the base reference name from a dotted VarXRef (e.g., "iface.FOO" -> "iface")
-    static string getRefBaseName(const AstVarXRef* refp) {
-        const string dotted = refp->dotted();
-        if (dotted.empty()) return "";
-        return dotted.substr(0, dotted.find('.'));
+    స్థిర string get_Ref_పునాది_Name(స్థిరరాశి AstVarXRef* refp) {
+        స్థిరరాశి string dotted = refp->dotted();
+        ఒకవేళ (dotted.ఖాళీలు()) తిరిగి "";
+        తిరిగి dotted.substr(0, dotted.కనుగొను('.'));
     }
 
     // Debug-only diagnostic (requires --debugi-V3Param 9).
@@ -2925,138 +2925,138 @@ class ParamVisitor final : public VNVisitor {
     // unspecialized interface template).  Any such "leak" indicates a
     // pointer that was not properly redirected to the clone during
     // deparameterization.  Logs each leak with ancestry for triage.
-    void logTemplateLeakRefs(AstNodeModule* parentModp, AstNodeModule* templateModp,
-                             const char* stage, AstNode* contextp) {
-        if (debug() < 9 || !parentModp || !templateModp || !VN_IS(templateModp, Iface)) return;
+    శూన్య logTemplateLeakRefs(Ast_కణుపు_Module* మాతృ_Modp, Ast_కణుపు_Module* templateModp,
+                             స్థిరరాశి అక్షరం* stage, Ast_కణుపు* contextp) {
+        ఒకవేళ (debug() < 9 || !మాతృ_Modp || !templateModp || !VN_IS(templateModp, Iface)) తిరిగి;
         // LCOV_EXCL_START  // Debug-only diagnostic
-        int leakCount = 0;
-        const auto ancestryOf = [](const AstNode* nodep) {
+        పూర్ణాంకం leak_లెక్క = 0;
+        స్థిరరాశి స్వయంచాలక ancestry_యొక్క = [](స్థిరరాశి Ast_కణుపు* nodep) {
             string ancestry;
-            for (const AstNode* curp = nodep; curp; curp = curp->backp()) {
-                if (!ancestry.empty()) ancestry += "<-";
+            కొరకు (స్థిరరాశి Ast_కణుపు* curp = nodep; curp; curp = curp->backp()) {
+                ఒకవేళ (!ancestry.ఖాళీలు()) ancestry += "<-";
                 ancestry += curp->typeName();
-                if (VN_IS(curp, NodeModule) || VN_IS(curp, Netlist) || VN_IS(curp, TypeTable)) {
-                    break;
+                ఒకవేళ (VN_IS(curp, కణుపు_Module) || VN_IS(curp, Netlist) || VN_IS(curp, Type_పట్టిక)) {
+                    ఆపు;
                 }
             }
-            return ancestry;
+            తిరిగి ancestry;
         };
 
-        parentModp->foreach([&](AstRefDType* refp) {
-            if (refp->typedefp()) {
-                AstNodeModule* const tdOwnerp
-                    = V3LinkDotIfaceCapture::findOwnerModule(refp->typedefp());
-                if (tdOwnerp == templateModp) {
-                    ++leakCount;
+        మాతృ_Modp->foreach([&](AstRefDType* refp) {
+            ఒకవేళ (refp->typedefp()) {
+                Ast_కణుపు_Module* స్థిరరాశి tdOwnerp
+                    = V3LinkDotIfaceCapture::కనుగొను_Owner_Module(refp->typedefp());
+                ఒకవేళ (tdOwnerp == templateModp) {
+                    ++leak_లెక్క;
                     UINFO(9, "TEMPLATE-LEAK "
-                                 << stage << " parent=" << parentModp->prettyNameQ()
+                                 << stage << " parent=" << మాతృ_Modp->prettyNameQ()
                                  << " template=" << templateModp->prettyNameQ() << " contextType="
                                  << (contextp ? contextp->typeName() : string("<null>"))
                                  << " contextName="
                                  << (contextp ? contextp->prettyNameQ() : "'<null>'")
                                  << " leak=REFDTYPE typedef owner" << " ref=<"
-                                 << AstNode::nodeAddr(refp) << ">" << " refName="
-                                 << refp->prettyNameQ() << " ancestry=" << ancestryOf(refp));
+                                 << Ast_కణుపు::కణుపు_Addr(refp) << ">" << " refName="
+                                 << refp->prettyNameQ() << " ancestry=" << ancestry_యొక్క(refp));
                 }
             }
-            if (refp->refDTypep()) {
-                AstNodeModule* const rdOwnerp
-                    = V3LinkDotIfaceCapture::findOwnerModule(refp->refDTypep());
-                if (rdOwnerp == templateModp) {
-                    ++leakCount;
+            ఒకవేళ (refp->refDTypep()) {
+                Ast_కణుపు_Module* స్థిరరాశి rdOwnerp
+                    = V3LinkDotIfaceCapture::కనుగొను_Owner_Module(refp->refDTypep());
+                ఒకవేళ (rdOwnerp == templateModp) {
+                    ++leak_లెక్క;
                     UINFO(9, "TEMPLATE-LEAK "
-                                 << stage << " parent=" << parentModp->prettyNameQ()
+                                 << stage << " parent=" << మాతృ_Modp->prettyNameQ()
                                  << " template=" << templateModp->prettyNameQ() << " contextType="
                                  << (contextp ? contextp->typeName() : string("<null>"))
                                  << " contextName="
                                  << (contextp ? contextp->prettyNameQ() : "'<null>'")
                                  << " leak=REFDTYPE refDType owner" << " ref=<"
-                                 << AstNode::nodeAddr(refp) << ">" << " refName="
-                                 << refp->prettyNameQ() << " ancestry=" << ancestryOf(refp));
+                                 << Ast_కణుపు::కణుపు_Addr(refp) << ">" << " refName="
+                                 << refp->prettyNameQ() << " ancestry=" << ancestry_యొక్క(refp));
                 }
             }
         });
 
-        parentModp->foreach([&](AstVarRef* varrefp) {
-            if (!varrefp->varp()) return;
-            AstNodeModule* const varOwnerp
-                = V3LinkDotIfaceCapture::findOwnerModule(varrefp->varp());
-            if (varOwnerp != templateModp) return;
-            ++leakCount;
+        మాతృ_Modp->foreach([&](AstVarRef* varrefp) {
+            ఒకవేళ (!varrefp->varp()) తిరిగి;
+            Ast_కణుపు_Module* స్థిరరాశి varOwnerp
+                = V3LinkDotIfaceCapture::కనుగొను_Owner_Module(varrefp->varp());
+            ఒకవేళ (varOwnerp != templateModp) తిరిగి;
+            ++leak_లెక్క;
             UINFO(9, "TEMPLATE-LEAK "
-                         << stage << " parent=" << parentModp->prettyNameQ()
+                         << stage << " parent=" << మాతృ_Modp->prettyNameQ()
                          << " template=" << templateModp->prettyNameQ()
                          << " contextType=" << (contextp ? contextp->typeName() : string("<null>"))
                          << " contextName=" << (contextp ? contextp->prettyNameQ() : "'<null>'")
-                         << " leak=VARREF target owner" << " ref=<" << AstNode::nodeAddr(varrefp)
+                         << " leak=VARREF target owner" << " ref=<" << Ast_కణుపు::కణుపు_Addr(varrefp)
                          << ">" << " var=" << varrefp->prettyNameQ()
-                         << " ancestry=" << ancestryOf(varrefp));
+                         << " ancestry=" << ancestry_యొక్క(varrefp));
         });
 
-        if (leakCount > 0) {
+        ఒకవేళ (leak_లెక్క > 0) {
             UINFO(9, "TEMPLATE-LEAK summary stage='"
-                         << stage << "' parent=" << parentModp->prettyNameQ()
-                         << " template=" << templateModp->prettyNameQ() << " count=" << leakCount);
+                         << stage << "' parent=" << మాతృ_Modp->prettyNameQ()
+                         << " template=" << templateModp->prettyNameQ() << " count=" << leak_లెక్క);
         }
         // LCOV_EXCL_STOP
     }
 
     // Flag hierarchical refs in a parameter value. Single top-down pass.
-    void checkParamNotHierRecurse(AstNode* nodep, bool underTypeQuery = false) {
-        for (; nodep; nodep = nodep->nextp()) {
+    శూన్య checkParamNotHierRecurse(Ast_కణుపు* nodep, తార్కిక underTypeQuery = అబద్ధం) {
+        కొరకు (; nodep; nodep = nodep->nextp()) {
             // Refs read only for their type ($bits etc.) are allowed
-            const AstAttrOf* const attrp = VN_CAST(nodep, AttrOf);
-            const bool childUnderQuery
+            స్థిరరాశి Ast_Attr_యొక్క* స్థిరరాశి attrp = VN_CAST(nodep, Attr_యొక్క);
+            స్థిరరాశి తార్కిక బిడ్డ_Under_Query
                 = underTypeQuery || (attrp && attrp->attrType().isTypeQuery());
-            if (const AstVarXRef* const refp = VN_CAST(nodep, VarXRef)) {
+            ఒకవేళ (స్థిరరాశి AstVarXRef* స్థిరరాశి refp = VN_CAST(nodep, VarXRef)) {
                 // Allow hierarchical ref to interface params through interface/modport ports
                 // or local interface instances
-                bool isIfaceRef = false;
-                if (refp->varp() && refp->varp()->isIfaceParam()) {
-                    const string refname = getRefBaseName(refp);
+                తార్కిక isIfaceRef = అబద్ధం;
+                ఒకవేళ (refp->varp() && refp->varp()->isIfaceParam()) {
+                    స్థిరరాశి string refname = get_Ref_పునాది_Name(refp);
                     isIfaceRef
-                        = !refname.empty()
-                          && (m_ifacePortNames.count(refname) || m_ifaceInstCells.count(refname));
+                        = !refname.ఖాళీలు()
+                          && (m_iface_పోర్టు_పేర్లు.లెక్క(refname) || m_ifaceInstCells.లెక్క(refname));
                 }
-                if (!isIfaceRef && !underTypeQuery) {
+                ఒకవేళ (!isIfaceRef && !underTypeQuery) {
                     refp->v3warn(HIERPARAM, "Parameter values cannot use hierarchical values"
                                             " (IEEE 1800-2023 6.20.2)");
                 }
-            } else if (const AstNodeFTaskRef* const refp = VN_CAST(nodep, NodeFTaskRef)) {
-                if (refp->dotted() != "") {
+            } లేకపోతే ఒకవేళ (స్థిరరాశి Ast_కణుపు_FTask_Ref* స్థిరరాశి refp = VN_CAST(nodep, కణుపు_FTask_Ref)) {
+                ఒకవేళ (refp->dotted() != "") {
                     refp->v3error("Parameter values cannot call hierarchical functions"
                                   " (IEEE 1800-2023 6.20.2)");
                 }
             }
-            checkParamNotHierRecurse(nodep->op1p(), childUnderQuery);
-            checkParamNotHierRecurse(nodep->op2p(), childUnderQuery);
-            checkParamNotHierRecurse(nodep->op3p(), childUnderQuery);
-            checkParamNotHierRecurse(nodep->op4p(), childUnderQuery);
+            checkParamNotHierRecurse(nodep->op1p(), బిడ్డ_Under_Query);
+            checkParamNotHierRecurse(nodep->op2p(), బిడ్డ_Under_Query);
+            checkParamNotHierRecurse(nodep->op3p(), బిడ్డ_Under_Query);
+            checkParamNotHierRecurse(nodep->op4p(), బిడ్డ_Under_Query);
         }
     }
 
     // Deparameterize and constify nested interface cells within ifaceModp.
-    void specializeNestedIfaceCells(AstNodeModule* ifaceModp) {
-        for (AstNode* stmtp = ifaceModp->stmtsp(); stmtp; stmtp = stmtp->nextp()) {
-            AstCell* const nestedCellp = VN_CAST(stmtp, Cell);
-            if (!nestedCellp) continue;
-            if (!VN_IS(nestedCellp->modp(), Iface)) continue;
-            if (!nestedCellp->paramsp()) continue;
+    శూన్య specializeNestedIfaceCells(Ast_కణుపు_Module* ifaceModp) {
+        కొరకు (Ast_కణుపు* stmtp = ifaceModp->stmtsp(); stmtp; stmtp = stmtp->nextp()) {
+            AstCell* స్థిరరాశి nestedCellp = VN_CAST(stmtp, Cell);
+            ఒకవేళ (!nestedCellp) కొనసాగు;
+            ఒకవేళ (!VN_IS(nestedCellp->modp(), Iface)) కొనసాగు;
+            ఒకవేళ (!nestedCellp->paramsp()) కొనసాగు;
 
-            AstNodeModule* const nestedSrcModp = nestedCellp->modp();
-            if (AstNodeModule* const nestedNewModp = m_processor.nodeDeparam(
+            Ast_కణుపు_Module* స్థిరరాశి nestedSrcModp = nestedCellp->modp();
+            ఒకవేళ (Ast_కణుపు_Module* స్థిరరాశి nestedNewModp = m_processor.కణుపు_Deparam(
                     nestedCellp, nestedSrcModp, ifaceModp, ifaceModp->someInstanceName())) {
-                if (nestedNewModp != nestedSrcModp) {
+                ఒకవేళ (nestedNewModp != nestedSrcModp) {
                     // Constify the nested clone's params so its types have correct widths.
-                    for (AstNode* sp = nestedNewModp->stmtsp(); sp; sp = sp->nextp()) {
-                        if (AstVar* const varp = VN_CAST(sp, Var)) {
-                            if (varp->isParam() && varp->valuep()) {
+                    కొరకు (Ast_కణుపు* sp = nestedNewModp->stmtsp(); sp; sp = sp->nextp()) {
+                        ఒకవేళ (AstVar* స్థిరరాశి varp = VN_CAST(sp, Var)) {
+                            ఒకవేళ (varp->isParam() && varp->valuep()) {
                                 V3Const::constifyParamsEdit(varp);
                             }
                         }
                     }
                     // Retarget REFDTYPEs in the outer clone to the nested clone's types.
-                    if (V3LinkDotIfaceCapture::enabled()) {
+                    ఒకవేళ (V3LinkDotIfaceCapture::enabled()) {
                         m_processor.retargetIfaceRefs(ifaceModp, nestedCellp->name());
                     }
                     specializeNestedIfaceCells(nestedNewModp);
@@ -3066,51 +3066,51 @@ class ParamVisitor final : public VNVisitor {
     }
 
     // Check if cell parameters reference interface ports or local interface instances
-    bool cellParamsReferenceIfacePorts(AstCell* cellp) {
-        if (!cellp->paramsp()) return false;
+    తార్కిక cellParamsReferenceIfacePorts(AstCell* cellp) {
+        ఒకవేళ (!cellp->paramsp()) తిరిగి అబద్ధం;
 
-        for (AstNode* nodep = cellp->paramsp(); nodep; nodep = nodep->nextp()) {
-            if (AstPin* const pinp = VN_CAST(nodep, Pin)) {
-                if (AstNode* const exprp = pinp->exprp()) {
-                    if (const AstVarXRef* const refp = VN_CAST(exprp, VarXRef)) {
-                        const string refname = getRefBaseName(refp);
-                        if (!refname.empty()
-                            && (m_ifacePortNames.count(refname)
-                                || m_ifaceInstCells.count(refname)))
-                            return true;
+        కొరకు (Ast_కణుపు* nodep = cellp->paramsp(); nodep; nodep = nodep->nextp()) {
+            ఒకవేళ (AstPin* స్థిరరాశి pinp = VN_CAST(nodep, Pin)) {
+                ఒకవేళ (Ast_కణుపు* స్థిరరాశి exprp = pinp->exprp()) {
+                    ఒకవేళ (స్థిరరాశి AstVarXRef* స్థిరరాశి refp = VN_CAST(exprp, VarXRef)) {
+                        స్థిరరాశి string refname = get_Ref_పునాది_Name(refp);
+                        ఒకవేళ (!refname.ఖాళీలు()
+                            && (m_iface_పోర్టు_పేర్లు.లెక్క(refname)
+                                || m_ifaceInstCells.లెక్క(refname)))
+                            తిరిగి నిజం;
                     }
                 }
             }
         }
-        return false;
+        తిరిగి అబద్ధం;
     }
 
     // Split interface array port 'portp' into a variable for each of its elements, in the
     // dimensions of 'dtypep' inwards. 'suffix' is the name suffix of the dimensions outside
     // 'dtypep'.
-    void expandIfaceArrayPortDimensions(AstVar* portp, AstNodeDType* dtypep,
-                                        const std::string& suffix) {
-        const AstUnpackArrayDType* const arrp = VN_CAST(dtypep->skipRefp(), UnpackArrayDType);
+    శూన్య expand_Iface_Array_పోర్టు_Dimensions(AstVar* portp, Ast_కణుపు_DType* dtypep,
+                                        స్థిరరాశి std::string& suffix) {
+        స్థిరరాశి AstUnpackArrayDType* స్థిరరాశి arrp = VN_CAST(dtypep->skipRefp(), UnpackArrayDType);
         // Base case: add the element variable when no dimensions left
-        if (!arrp) {
-            AstVar* const varp = portp->cloneTree(false);
+        ఒకవేళ (!arrp) {
+            AstVar* స్థిరరాశి varp = portp->clone_వృక్షం(అబద్ధం);
             varp->name(portp->name() + suffix);
             varp->origName(portp->origName() + suffix);
-            if (AstNodeDType* const oldp = varp->childDTypep()) {
-                VL_DO_DANGLING(pushDeletep(oldp->unlinkFrBack()), oldp);
+            ఒకవేళ (Ast_కణుపు_DType* స్థిరరాశి oldp = varp->బిడ్డ_DTypep()) {
+                VL_DO_DANGLING(నెట్టు_Deletep(oldp->unlink_Fr_వెనుక()), oldp);
             }
-            varp->dtypep(nullptr);
-            varp->childDTypep(portp->subDTypep()->elemDTypep()->cloneTree(false));
-            portp->addNextHere(varp);
-            return;
+            varp->dtypep(శూన్యసూచిక);
+            varp->బిడ్డ_DTypep(portp->subDTypep()->elemDTypep()->clone_వృక్షం(అబద్ధం));
+            portp->కూడు_తదుపరి_ఇక్కడ(varp);
+            తిరిగి;
         }
 
         // Enumerate the current dimension given by 'arrp'
         // Each element is added right after 'portp', so go from right to left,
         // to end with an enumeration from the left index to the right index.
-        for (const int n : arrp->declRange().seqRightToLeft()) {
-            const std::string s = suffix + "__BRA__" + AstNode::encodeNumber(n) + "__KET__";
-            expandIfaceArrayPortDimensions(portp, arrp->subDTypep(), s);
+        కొరకు (స్థిరరాశి పూర్ణాంకం n : arrp->declRange().seq_కుడి_గమ్యం_ఎడమ()) {
+            స్థిరరాశి std::string s = suffix + "__BRA__" + Ast_కణుపు::encode_సంఖ్య(n) + "__KET__";
+            expand_Iface_Array_పోర్టు_Dimensions(portp, arrp->subDTypep(), s);
         }
     }
 
@@ -3119,63 +3119,63 @@ class ParamVisitor final : public VNVisitor {
     // the left) of the dimensions outside 'rangep'. For an array of interfaces, 'ifaceVarp' is
     // the variable referencing the whole array (see V3LinkCells), which is also split into
     // variables referencing the elements.
-    void expandCellArrayDimensions(AstCell* arrayedCellp, AstVar* ifaceVarp,
-                                   const AstRange* rangep, const std::string& suffix, int idx) {
+    శూన్య expandCellArrayDimensions(AstCell* arrayedCellp, AstVar* ifaceVarp,
+                                   స్థిరరాశి AstRange* rangep, స్థిరరాశి std::string& suffix, పూర్ణాంకం idx) {
         // Base case: insert the element when no dimensions left
-        if (!rangep) {
-            AstCell* const elemp = arrayedCellp->cloneTree(false);
+        ఒకవేళ (!rangep) {
+            AstCell* స్థిరరాశి elemp = arrayedCellp->clone_వృక్షం(అబద్ధం);
             elemp->name(arrayedCellp->name() + suffix);
             elemp->origName(arrayedCellp->origName() + suffix);
             elemp->arrayIdx(idx);
-            arrayedCellp->addNextHere(elemp);
-            if (ifaceVarp) {
-                AstIfaceRefDType* const irefp
-                    = VN_AS(ifaceVarp->subDTypep()->elemDTypep(), IfaceRefDType)->cloneTree(false);
+            arrayedCellp->కూడు_తదుపరి_ఇక్కడ(elemp);
+            ఒకవేళ (ifaceVarp) {
+                AstIfaceRefDType* స్థిరరాశి irefp
+                    = VN_AS(ifaceVarp->subDTypep()->elemDTypep(), IfaceRefDType)->clone_వృక్షం(అబద్ధం);
                 irefp->cellp(elemp);
                 irefp->cellName(elemp->name());
                 // Named like the variable of any interface cell (see V3LinkCells)
-                AstVar* const varp = ifaceVarp->cloneTree(false);
+                AstVar* స్థిరరాశి varp = ifaceVarp->clone_వృక్షం(అబద్ధం);
                 varp->name(elemp->name() + "__Viftop");
                 varp->origName(elemp->origName() + "__Viftop");
-                if (AstNodeDType* const oldp = varp->childDTypep()) {
-                    VL_DO_DANGLING(pushDeletep(oldp->unlinkFrBack()), oldp);
+                ఒకవేళ (Ast_కణుపు_DType* స్థిరరాశి oldp = varp->బిడ్డ_DTypep()) {
+                    VL_DO_DANGLING(నెట్టు_Deletep(oldp->unlink_Fr_వెనుక()), oldp);
                 }
-                varp->dtypep(nullptr);
-                varp->childDTypep(irefp);
-                ifaceVarp->addNextHere(varp);
+                varp->dtypep(శూన్యసూచిక);
+                varp->బిడ్డ_DTypep(irefp);
+                ifaceVarp->కూడు_తదుపరి_ఇక్కడ(varp);
             }
-            return;
+            తిరిగి;
         }
 
         // Enumerate the current dimension given by 'rangep'
         // Each element is added right after 'arrayedCellp', so go from right to left,
         // to end with an enumeration from the left index to the right index.
         idx = (idx + 1) * rangep->elementsConst();
-        const AstRange* const subRangep = VN_AS(rangep->nextp(), Range);
-        for (const int n : rangep->seqRightToLeft()) {
-            const std::string s = suffix + "__BRA__" + AstNode::encodeNumber(n) + "__KET__";
+        స్థిరరాశి AstRange* స్థిరరాశి subRangep = VN_AS(rangep->nextp(), Range);
+        కొరకు (స్థిరరాశి పూర్ణాంకం n : rangep->seq_కుడి_గమ్యం_ఎడమ()) {
+            స్థిరరాశి std::string s = suffix + "__BRA__" + Ast_కణుపు::encode_సంఖ్య(n) + "__KET__";
             expandCellArrayDimensions(arrayedCellp, ifaceVarp, subRangep, s, --idx);
         }
     }
 
     // A generic visitor for cells and class refs
-    void visitCellOrClassRef(AstNode* nodep, bool isIface) {
+    శూన్య సందర్శించు_Cell_Or_Class_Ref(Ast_కణుపు* nodep, తార్కిక isIface) {
         // Must do ifaces first, so push to list and do in proper order
-        m_genHierNames.emplace(nodep, m_generateHierName);
+        m_gen_Hier_పేర్లు.emplace(nodep, m_generateHierName);
 
         // Deparameterize iface cells early so types are available for lparams.
-        if (isIface && VN_CAST(nodep, Cell) && VN_CAST(nodep, Cell)->paramsp()) {
-            AstCell* const cellp = VN_CAST(nodep, Cell);
-            if (!cellParamsReferenceIfacePorts(cellp)) {
-                AstNodeModule* const srcModp = cellp->modp();
-                AstNodeModule* const newModp
-                    = m_processor.nodeDeparam(cellp, srcModp, m_modp, m_modp->someInstanceName());
+        ఒకవేళ (isIface && VN_CAST(nodep, Cell) && VN_CAST(nodep, Cell)->paramsp()) {
+            AstCell* స్థిరరాశి cellp = VN_CAST(nodep, Cell);
+            ఒకవేళ (!cellParamsReferenceIfacePorts(cellp)) {
+                Ast_కణుపు_Module* స్థిరరాశి srcModp = cellp->modp();
+                Ast_కణుపు_Module* స్థిరరాశి newModp
+                    = m_processor.కణుపు_Deparam(cellp, srcModp, m_modp, m_modp->someInstanceName());
                 // Retarget template REFDTYPEs to the clone's types.
-                if (V3LinkDotIfaceCapture::enabled() && cellp->modp() != srcModp) {
+                ఒకవేళ (V3LinkDotIfaceCapture::enabled() && cellp->modp() != srcModp) {
                     m_processor.retargetIfaceRefs(m_modp, cellp->name());
                 }
                 // Specialize nested iface cells so their types are correct.
-                if (newModp && newModp != srcModp) { specializeNestedIfaceCells(newModp); }
+                ఒకవేళ (newModp && newModp != srcModp) { specializeNestedIfaceCells(newModp); }
             }
         }
 
@@ -3183,73 +3183,73 @@ class ParamVisitor final : public VNVisitor {
         iterateChildren(nodep);
         // A generate condition is folded and deleted before the drain loop runs, so
         // queueing from one only leaves a dangling pointer.  See iterateGenerateCond.
-        if (!m_inGenerateCond) m_cellps.emplace(!isIface, nodep);
+        ఒకవేళ (!m_లోపల_Generate_Cond) m_cellps.emplace(!isIface, nodep);
     }
 
     // VISITORS
-    void visit(AstNodeModule* nodep) override {
-        if (nodep->recursiveClone()) nodep->dead(true);  // Fake, made for recursive elimination
-        if (nodep->dead()) return;  // Marked by LinkDot (and above)
+    శూన్య సందర్శించు(Ast_కణుపు_Module* nodep) override {
+        ఒకవేళ (nodep->recursiveClone()) nodep->dead(నిజం);  // Fake, made for recursive elimination
+        ఒకవేళ (nodep->dead()) తిరిగి;  // Marked by LinkDot (and above)
         UINFO(9, "V3Param: visit module name=" << nodep->prettyNameQ() << " orig='"
                                                << nodep->origName() << "' someInstanceName='"
                                                << nodep->someInstanceName() << "' hasGParam="
                                                << (nodep->hasGParam() ? "yes" : "no")
                                                << " user3p=" << (nodep->user3p() ? "set" : "null")
                                                << " dead=" << (nodep->dead() ? "yes" : "no"));
-        if (AstClass* const classp = VN_CAST(nodep, Class)) {
-            if (classp->hasGParam()) {
+        ఒకవేళ (AstClass* స్థిరరాశి classp = VN_CAST(nodep, Class)) {
+            ఒకవేళ (classp->hasGParam()) {
                 // Don't enter into a definition.
                 // If a class is used, it will be visited through a reference and cloned
-                m_state.m_paramClasses.push_back(classp);
-                return;
+                m_state.m_paramClasses.నెట్టు_వెనుక(classp);
+                తిరిగి;
             }
         }
 
-        if (m_iterateModule) {  // Iterating from processWorkQ
+        ఒకవేళ (m_iterateModule) {  // Iterating from processWorkQ
             UINFO(4, " MOD-under-MOD.  " << nodep);
             // Delay until current module is done.
             // processWorkQ() (which we are returning to) will process nodep later
-            m_state.m_workQueueNext.emplace(
+            m_state.m_work_వరుస_తదుపరి.emplace(
                 ParamState::WQKey{!VN_IS(nodep, Iface), nodep->level()}, nodep);
-            return;
+            తిరిగి;
         }
 
         // Start traversal at root-like things
-        if (nodep->isTop()  // Tops
+        ఒకవేళ (nodep->is_శిఖరం()  // Tops
             || VN_IS(nodep, Class)  //  Moved classes
             || VN_IS(nodep, Package)) {  // Likewise haven't done wrapTopPackages yet
-            m_state.m_workQueueNext.emplace(
+            m_state.m_work_వరుస_తదుపరి.emplace(
                 ParamState::WQKey{!VN_IS(nodep, Iface), nodep->level()}, nodep);
             processWorkQ();
         }
     }
 
-    bool isCircularType(const AstRefDType* nodep) {
-        const auto iter = m_isCircular.emplace(nodep, true);
-        if (!iter.second) return iter.first->second;
-        if (const AstRefDType* const subDTypep = VN_CAST(nodep->subDTypep(), RefDType)) {
-            const bool ret = isCircularType(subDTypep);
-            iter.first->second = ret;
-            return ret;
+    తార్కిక isCircularType(స్థిరరాశి AstRefDType* nodep) {
+        స్థిరరాశి స్వయంచాలక iter = m_isCircular.emplace(nodep, నిజం);
+        ఒకవేళ (!iter.రెండవ) తిరిగి iter.మొదటి->రెండవ;
+        ఒకవేళ (స్థిరరాశి AstRefDType* స్థిరరాశి subDTypep = VN_CAST(nodep->subDTypep(), RefDType)) {
+            స్థిరరాశి తార్కిక ret = isCircularType(subDTypep);
+            iter.మొదటి->రెండవ = ret;
+            తిరిగి ret;
         }
-        iter.first->second = false;
-        return false;
+        iter.మొదటి->రెండవ = అబద్ధం;
+        తిరిగి అబద్ధం;
     }
 
-    void visit(AstRefDType* nodep) override {
-        const bool isCircular = isCircularType(nodep);
+    శూన్య సందర్శించు(AstRefDType* nodep) override {
+        స్థిరరాశి తార్కిక isCircular = isCircularType(nodep);
         // A module-body `typedef C#(Cfg)::t alias` the deferred pin/param walk
         // never reached would survive to V3Width unlinked. If its alias chain is
         // broken, run the same deferred resolution here.
-        if (!isCircular && nodep->typedefp() && !nodep->skipRefOrNullp()) {
+        ఒకవేళ (!isCircular && nodep->typedefp() && !nodep->skipRefOrNullp()) {
             m_processor.resolveDeferredDotsReachableFrom(nodep, m_modp);
         }
-        if (isCircular) {
+        ఒకవేళ (isCircular) {
             nodep->v3error("Typedef's type is circular: " << nodep->prettyName());
-        } else if (nodep->typedefp() && nodep->subDTypep()
+        } లేకపోతే ఒకవేళ (nodep->typedefp() && nodep->subDTypep()
                    && (VN_IS(nodep->subDTypep()->skipRefOrNullp(), IfaceRefDType)
                        || VN_IS(nodep->subDTypep()->skipRefOrNullp(), ClassRefDType))
-                   && !nodep->skipRefp()->user2SetOnce()) {
+                   && !nodep->skipRefp()->user2_సమితి_Once()) {
             // The visit() function for every valid nodep->skipRefp() type below
             // must include a `user2SetOnce()` check to avoid adding duplicate
             // nodes to m_cellps
@@ -3257,397 +3257,397 @@ class ParamVisitor final : public VNVisitor {
         }
         iterateChildren(nodep);
     }
-    void visit(AstCell* nodep) override {
-        if (nodep->rangep() && nodep->arrayIdx() < 0) {
+    శూన్య సందర్శించు(AstCell* nodep) override {
+        ఒకవేళ (nodep->rangep() && nodep->arrayIdx() < 0) {
             // Type check the ranges
-            for (AstRange* rangep = nodep->rangep(); rangep;
+            కొరకు (AstRange* rangep = nodep->rangep(); rangep;
                  rangep = VN_AS(rangep->nextp(), Range)) {
-                rangep = VN_AS(V3Width::widthParamsEdit(rangep), Range);
+                rangep = VN_AS(V3_వెడల్పు::వెడల్పు_Params_Edit(rangep), Range);
             }
             // If it's an interface, pick up the corresponding AstIfaceRefDType variable
-            AstVar* const ifaceVarp = [&]() -> AstVar* {
-                if (!VN_IS(nodep->modp(), Iface)) return nullptr;
+            AstVar* స్థిరరాశి ifaceVarp = [&]() -> AstVar* {
+                ఒకవేళ (!VN_IS(nodep->modp(), Iface)) తిరిగి శూన్యసూచిక;
                 // The variable referencing the whole array, right after the cell (see V3LinkCells)
-                AstVar* const varp = VN_CAST(nodep->nextp(), Var);
+                AstVar* స్థిరరాశి varp = VN_CAST(nodep->nextp(), Var);
                 UASSERT_OBJ(varp && varp->name() == nodep->name() + "__Viftop", nodep,
                             "No __Viftop variable for interface array");
-                return varp;
+                తిరిగి varp;
             }();
             // Expand the instance array into its elements
             expandCellArrayDimensions(nodep, ifaceVarp, nodep->rangep(), "", 0);
-            if (ifaceVarp) {
-                ifaceVarp->isIfaceArraySplit(true);
+            ఒకవేళ (ifaceVarp) {
+                ifaceVarp->is_Iface_Array_విభజించు(నిజం);
                 // Until V3Width removes it, the whole array variable refers to the first
                 // element, which is also used for accessing the parameters of the array
-                AstCell* const firstp = VN_AS(nodep->nextp(), Cell);
-                AstIfaceRefDType* const irefp
+                AstCell* స్థిరరాశి firstp = VN_AS(nodep->nextp(), Cell);
+                AstIfaceRefDType* స్థిరరాశి irefp
                     = VN_AS(ifaceVarp->subDTypep()->elemDTypep(), IfaceRefDType);
                 irefp->cellp(firstp);
                 irefp->cellName(firstp->name());
                 m_ifaceInstCells.emplace(nodep->name(), firstp);
             }
-            VL_DO_DANGLING(pushDeletep(nodep->unlinkFrBack()), nodep);
+            VL_DO_DANGLING(నెట్టు_Deletep(nodep->unlink_Fr_వెనుక()), nodep);
             // The elements replaced the arrayed cell in place, so will be iterated next.
-            return;
+            తిరిగి;
         }
         checkParamNotHierRecurse(nodep->paramsp());
-        if (VN_IS(nodep->modp(), Iface)) m_ifaceInstCells.emplace(nodep->name(), nodep);
-        visitCellOrClassRef(nodep, VN_IS(nodep->modp(), Iface));
+        ఒకవేళ (VN_IS(nodep->modp(), Iface)) m_ifaceInstCells.emplace(nodep->name(), nodep);
+        సందర్శించు_Cell_Or_Class_Ref(nodep, VN_IS(nodep->modp(), Iface));
     }
-    void visit(AstIfaceRefDType* nodep) override {
-        nodep->skipRefp()->user2SetOnce();
-        if (nodep->ifacep()) visitCellOrClassRef(nodep, true);
+    శూన్య సందర్శించు(AstIfaceRefDType* nodep) override {
+        nodep->skipRefp()->user2_సమితి_Once();
+        ఒకవేళ (nodep->ifacep()) సందర్శించు_Cell_Or_Class_Ref(nodep, నిజం);
     }
-    void visit(AstClassRefDType* nodep) override {
-        nodep->skipRefp()->user2SetOnce();
+    శూన్య సందర్శించు(AstClassRefDType* nodep) override {
+        nodep->skipRefp()->user2_సమితి_Once();
         checkParamNotHierRecurse(nodep->paramsp());
-        visitCellOrClassRef(nodep, false);
+        సందర్శించు_Cell_Or_Class_Ref(nodep, అబద్ధం);
     }
-    void visit(AstClassOrPackageRef* nodep) override {
+    శూన్య సందర్శించు(AstClassOrPackageRef* nodep) override {
         // If it points to a typedef it is not really a class reference. That typedef will be
         // visited anyway (from its parent node), so even if it points to a parameterized class
         // type, the instance will be created.
-        if (!VN_IS(nodep->classOrPackageNodep(), Typedef)) visitCellOrClassRef(nodep, false);
+        ఒకవేళ (!VN_IS(nodep->classOrPackageNodep(), Typedef)) సందర్శించు_Cell_Or_Class_Ref(nodep, అబద్ధం);
     }
 
     // Recurse into AstGenBlock as generate blocks aren't flattened until V3Begin::debeginAll,
     // well after V3Param runs
-    static void gatherVars(AstNode* stmtsp, bool (*matchp)(const AstVar*), VarsByName& varsr) {
-        for (AstNode* nodep = stmtsp; nodep; nodep = nodep->nextp()) {
-            if (AstVar* const varp = VN_CAST(nodep, Var)) {
+    స్థిర శూన్య gatherVars(Ast_కణుపు* stmtsp, తార్కిక (*matchp)(స్థిరరాశి AstVar*), VarsByName& varsr) {
+        కొరకు (Ast_కణుపు* nodep = stmtsp; nodep; nodep = nodep->nextp()) {
+            ఒకవేళ (AstVar* స్థిరరాశి varp = VN_CAST(nodep, Var)) {
                 // emplace, not assign, so the first declaration of a name wins
-                if (matchp(varp)) varsr.emplace(varp->name(), varp);
-            } else if (AstGenBlock* const genp = VN_CAST(nodep, GenBlock)) {
+                ఒకవేళ (matchp(varp)) varsr.emplace(varp->name(), varp);
+            } లేకపోతే ఒకవేళ (Ast_Gen_ఖండం* స్థిరరాశి genp = VN_CAST(nodep, Gen_ఖండం)) {
                 gatherVars(genp->itemsp(), matchp, varsr);
             }
         }
     }
-    const VarsByName& modIfaceRefs() {
-        if (!m_modIfaceRefsDone) {
+    స్థిరరాశి VarsByName& modIfaceRefs() {
+        ఒకవేళ (!m_mod_Iface_Refs_పూర్తి) {
             gatherVars(
-                m_modp->stmtsp(), [](const AstVar* varp) { return varp->isIfaceRef(); },
+                m_modp->stmtsp(), [](స్థిరరాశి AstVar* varp) { తిరిగి varp->isIfaceRef(); },
                 m_modIfaceRefs);
-            m_modIfaceRefsDone = true;
+            m_mod_Iface_Refs_పూర్తి = నిజం;
         }
-        return m_modIfaceRefs;
+        తిరిగి m_modIfaceRefs;
     }
-    const VarsByName& ifaceParams(AstNodeModule* ifacep) {
-        const auto pair = m_ifaceParams.emplace(ifacep, VarsByName{});
-        if (pair.second) {
+    స్థిరరాశి VarsByName& ifaceParams(Ast_కణుపు_Module* ifacep) {
+        స్థిరరాశి స్వయంచాలక pair = m_ifaceParams.emplace(ifacep, VarsByName{});
+        ఒకవేళ (pair.రెండవ) {
             gatherVars(
-                ifacep->stmtsp(), [](const AstVar* varp) { return varp->isParam(); },
-                pair.first->second);
+                ifacep->stmtsp(), [](స్థిరరాశి AstVar* varp) { తిరిగి varp->isParam(); },
+                pair.మొదటి->రెండవ);
         }
-        return pair.first->second;
+        తిరిగి pair.మొదటి->రెండవ;
     }
     // Resolve a generic-interface 'ifacePort.member' Dot left unlinked by V3LinkDot, now that
     // ifacePort may have been specialized. Returns nullptr if still unresolvable
-    AstNode* tryResolveGenericIfaceDot(AstDot* dotp) {
-        AstParseRef* const lhsp = VN_CAST(dotp->lhsp(), ParseRef);
-        AstParseRef* const rhsp = VN_CAST(dotp->rhsp(), ParseRef);
-        if (!lhsp || !rhsp) return nullptr;
+    Ast_కణుపు* tryResolveGenericIfaceDot(AstDot* dotp) {
+        AstParseRef* స్థిరరాశి lhsp = VN_CAST(dotp->lhsp(), ParseRef);
+        AstParseRef* స్థిరరాశి rhsp = VN_CAST(dotp->rhsp(), ParseRef);
+        ఒకవేళ (!lhsp || !rhsp) తిరిగి శూన్యసూచిక;
         // Always called from visit(AstVar) inside processWorkQ()'s VL_RESTORER(m_modp) scope
-        if (VL_UNCOVERABLE(!m_modp)) return nullptr;
+        ఒకవేళ (VL_UNCOVERABLE(!m_modp)) తిరిగి శూన్యసూచిక;
 
-        const auto& refVars = modIfaceRefs();
-        const auto ifaceVarIt = refVars.find(lhsp->name());
+        స్థిరరాశి స్వయంచాలక& refVars = modIfaceRefs();
+        స్థిరరాశి స్వయంచాలక ifaceVarIt = refVars.కనుగొను(lhsp->name());
         // V3LinkDot only defers Dots whose lhs is a non-array iface-ref var, so this can't fail
-        if (VL_UNCOVERABLE(ifaceVarIt == refVars.end())) return nullptr;
-        AstVar* const ifaceVarp = ifaceVarIt->second;
-        AstIfaceRefDType* const ifacerefp = VN_CAST(ifaceVarp->subDTypep(), IfaceRefDType);
-        if (VL_UNCOVERABLE(!ifacerefp || !ifacerefp->ifacep())) return nullptr;
+        ఒకవేళ (VL_UNCOVERABLE(ifaceVarIt == refVars.చివర())) తిరిగి శూన్యసూచిక;
+        AstVar* స్థిరరాశి ifaceVarp = ifaceVarIt->రెండవ;
+        AstIfaceRefDType* స్థిరరాశి ifacerefp = VN_CAST(ifaceVarp->subDTypep(), IfaceRefDType);
+        ఒకవేళ (VL_UNCOVERABLE(!ifacerefp || !ifacerefp->ifacep())) తిరిగి శూన్యసూచిక;
 
-        const auto& ifaceVars = ifaceParams(ifacerefp->ifacep());
-        const auto targetVarIt = ifaceVars.find(rhsp->name());
-        if (targetVarIt == ifaceVars.end()) return nullptr;
-        AstVar* const targetVarp = targetVarIt->second;
+        స్థిరరాశి స్వయంచాలక& ifaceVars = ifaceParams(ifacerefp->ifacep());
+        స్థిరరాశి స్వయంచాలక లక్ష్యం_Var_It = ifaceVars.కనుగొను(rhsp->name());
+        ఒకవేళ (లక్ష్యం_Var_It == ifaceVars.చివర()) తిరిగి శూన్యసూచిక;
+        AstVar* స్థిరరాశి లక్ష్యం_Varp = లక్ష్యం_Var_It->రెండవ;
         // processWorkQ() visits interface cells first, so the interface is already constified
-        if (VL_UNCOVERABLE(!VN_IS(targetVarp->valuep(), Const))) iterate(targetVarp);
-        if (VL_UNCOVERABLE(!targetVarp->valuep() || !VN_IS(targetVarp->valuep(), Const))) {
-            return nullptr;  // LCOV_EXCL_LINE
+        ఒకవేళ (VL_UNCOVERABLE(!VN_IS(లక్ష్యం_Varp->valuep(), Const))) iterate(లక్ష్యం_Varp);
+        ఒకవేళ (VL_UNCOVERABLE(!లక్ష్యం_Varp->valuep() || !VN_IS(లక్ష్యం_Varp->valuep(), Const))) {
+            తిరిగి శూన్యసూచిక;  // LCOV_EXCL_LINE
         }
-        return targetVarp->valuep()->cloneTree(false);
+        తిరిగి లక్ష్యం_Varp->valuep()->clone_వృక్షం(అబద్ధం);
     }
-    void resolveGenericIfaceDotsIn(AstNode* nodep) {
+    శూన్య resolve_Generic_Iface_Dots_లోపల(Ast_కణుపు* nodep) {
         // Collect first: the deleteTree() below frees a node foreach() would still read from
-        std::vector<AstDot*> dotps;
-        nodep->foreach([&](AstDot* dotp) { dotps.push_back(dotp); });
-        for (AstDot* const dotp : dotps) {
-            if (AstNode* const newp = tryResolveGenericIfaceDot(dotp)) {
+        std::సదిశ<AstDot*> dotps;
+        nodep->foreach([&](AstDot* dotp) { dotps.నెట్టు_వెనుక(dotp); });
+        కొరకు (AstDot* స్థిరరాశి dotp : dotps) {
+            ఒకవేళ (Ast_కణుపు* స్థిరరాశి newp = tryResolveGenericIfaceDot(dotp)) {
                 dotp->replaceWith(newp);
-                VL_DO_DANGLING(dotp->deleteTree(), dotp);
+                VL_DO_DANGLING(dotp->delete_వృక్షం(), dotp);
             }
         }
     }
 
     // Make sure all parameters are constantified
-    void visit(AstVar* nodep) override {
-        if (nodep->user2SetOnce()) return;  // Process once
+    శూన్య సందర్శించు(AstVar* nodep) override {
+        ఒకవేళ (nodep->user2_సమితి_Once()) తిరిగి;  // Process once
         // Interface array port: split it into its elements
-        if (nodep->isIfaceRef() && !nodep->isIfaceParent()
+        ఒకవేళ (nodep->isIfaceRef() && !nodep->is_Iface_మాతృ()
             && (VN_IS(nodep->subDTypep()->skipRefp(), UnpackArrayDType)
                 || VN_IS(nodep->subDTypep()->skipRefp(), BracketArrayDType))) {
             // Also converts any C-style [N] dimensions, the ranges must be constant
-            V3Width::widthParamsEdit(nodep->subDTypep());
-            expandIfaceArrayPortDimensions(nodep, nodep->subDTypep(), "");
-            nodep->isIfaceArraySplit(true);
+            V3_వెడల్పు::వెడల్పు_Params_Edit(nodep->subDTypep());
+            expand_Iface_Array_పోర్టు_Dimensions(nodep, nodep->subDTypep(), "");
+            nodep->is_Iface_Array_విభజించు(నిజం);
         }
         // Build cache of interface port names as we encounter them
-        if (nodep->isIfaceRef()) { m_ifacePortNames.insert(nodep->name()); }
+        ఒకవేళ (nodep->isIfaceRef()) { m_iface_పోర్టు_పేర్లు.చొప్పించు(nodep->name()); }
         iterateChildren(nodep);
-        if (nodep->isParam()) {
+        ఒకవేళ (nodep->isParam()) {
             checkParamNotHierRecurse(nodep->valuep());
-            if (!nodep->valuep() && !VN_IS(m_modp, Class)) {
+            ఒకవేళ (!nodep->valuep() && !VN_IS(m_modp, Class)) {
                 nodep->v3error("Parameter without default value is never given value"
                                << " (IEEE 1800-2023 6.20.1): " << nodep->prettyNameQ());
-            } else if (nodep->valuep()) {
+            } లేకపోతే ఒకవేళ (nodep->valuep()) {
                 // Resolve now: a sibling cell's pin fold may need this before linkDotParamed
-                resolveGenericIfaceDotsIn(nodep->valuep());
+                resolve_Generic_Iface_Dots_లోపల(nodep->valuep());
                 // If the value expression contains a VarXRef to an interface
                 // localparam whose value is not yet constant, defer constification
                 // to avoid premature widthing with unresolved values (see
                 // t_lparam_dep_iface tests).  When the referenced localparam is
                 // already const, proceed normally so FUNCREFs with resolved iface
                 // param args get folded.
-                bool hasUnresolvedLparamXRef = false;
-                nodep->valuep()->foreach([&](const AstVarXRef* xrefp) {
-                    if (const AstVar* const varp = xrefp->varp()) {
-                        if (varp->varType() == VVarType::LPARAM && !VN_IS(varp->valuep(), Const)) {
-                            hasUnresolvedLparamXRef = true;
+                తార్కిక hasUnresolvedLparamXRef = అబద్ధం;
+                nodep->valuep()->foreach([&](స్థిరరాశి AstVarXRef* xrefp) {
+                    ఒకవేళ (స్థిరరాశి AstVar* స్థిరరాశి varp = xrefp->varp()) {
+                        ఒకవేళ (varp->varType() == VVarType::LPARAM && !VN_IS(varp->valuep(), Const)) {
+                            hasUnresolvedLparamXRef = నిజం;
                         }
                     }
                 });
-                if (hasUnresolvedLparamXRef) return;
+                ఒకవేళ (hasUnresolvedLparamXRef) తిరిగి;
                 // Defer if value has any unresolved Dot, or references a deferred lparam
-                const bool hasDot = nodep->valuep()->exists([](AstDot*) { return true; });
-                bool refsDeferred = false;
-                if (!hasDot) {
-                    const auto& deferredVarps = v3Global.rootp()->deferredParamVarps();
-                    nodep->valuep()->foreach([&](const AstVarRef* refp) {
-                        if (refsDeferred) return;
-                        AstVar* const refVarp = refp->varp();
-                        if (refVarp && refVarp->varType() == VVarType::LPARAM
-                            && deferredVarps.count(refVarp)) {
-                            refsDeferred = true;
+                స్థిరరాశి తార్కిక hasDot = nodep->valuep()->exists([](AstDot*) { తిరిగి నిజం; });
+                తార్కిక refsDeferred = అబద్ధం;
+                ఒకవేళ (!hasDot) {
+                    స్థిరరాశి స్వయంచాలక& deferredVarps = v3Global.rootp()->deferredParamVarps();
+                    nodep->valuep()->foreach([&](స్థిరరాశి AstVarRef* refp) {
+                        ఒకవేళ (refsDeferred) తిరిగి;
+                        AstVar* స్థిరరాశి refVarp = refp->varp();
+                        ఒకవేళ (refVarp && refVarp->varType() == VVarType::LPARAM
+                            && deferredVarps.లెక్క(refVarp)) {
+                            refsDeferred = నిజం;
                         }
                     });
                 }
-                if (hasDot || refsDeferred) {
-                    v3Global.rootp()->pushDeferredParamVarp(nodep);
-                    return;
+                ఒకవేళ (hasDot || refsDeferred) {
+                    v3Global.rootp()->నెట్టు_Deferred_Param_Varp(nodep);
+                    తిరిగి;
                 }
                 m_processor.resolveDeferredDotsReachableFrom(nodep, m_modp);
                 V3Const::constifyParamsEdit(nodep);
             }
         }
     }
-    void visit(AstParamTypeDType* nodep) override {
+    శూన్య సందర్శించు(AstParamTypeDType* nodep) override {
         iterateChildren(nodep);
-        if (VN_IS(nodep->skipRefOrNullp(), VoidDType)) {
+        ఒకవేళ (VN_IS(nodep->skipRefOrNullp(), VoidDType)) {
             nodep->v3error("Parameter type without default value is never given value"
                            << " (IEEE 1800-2023 6.20.1): " << nodep->prettyNameQ());
         }
     }
     // Make sure varrefs cause vars to constify before things above
-    void visit(AstVarRef* nodep) override {
+    శూన్య సందర్శించు(AstVarRef* nodep) override {
         // Might jump across functions, so beware if ever add a m_funcp
-        if (nodep->varp()) iterate(nodep->varp());
+        ఒకవేళ (nodep->varp()) iterate(nodep->varp());
     }
-    bool ifaceParamReplace(AstVarXRef* nodep, AstNode* candp) {
-        for (; candp; candp = candp->nextp()) {
-            if (nodep->name() == candp->name()) {
-                if (AstVar* const varp = VN_CAST(candp, Var)) {
+    తార్కిక ifaceParamReplace(AstVarXRef* nodep, Ast_కణుపు* candp) {
+        కొరకు (; candp; candp = candp->nextp()) {
+            ఒకవేళ (nodep->name() == candp->name()) {
+                ఒకవేళ (AstVar* స్థిరరాశి varp = VN_CAST(candp, Var)) {
                     UINFO(9, "Found interface parameter: " << varp);
                     // The interface may not have been visited yet (it is at a
                     // deeper level in the work queue), so its localparams may
                     // not be constified.  Eagerly constify here so that the
                     // caller's hasUnresolvedLparamXRef check sees a Const.
-                    if (varp->isParam() && varp->valuep() && !VN_IS(varp->valuep(), Const)) {
+                    ఒకవేళ (varp->isParam() && varp->valuep() && !VN_IS(varp->valuep(), Const)) {
                         V3Const::constifyParamsEdit(varp);
                     }
                     nodep->varp(varp);
-                    return true;
-                } else if (const AstPin* const pinp = VN_CAST(candp, Pin)) {
+                    తిరిగి నిజం;
+                } లేకపోతే ఒకవేళ (స్థిరరాశి AstPin* స్థిరరాశి pinp = VN_CAST(candp, Pin)) {
                     UINFO(9, "Found interface parameter: " << pinp);
                     UASSERT_OBJ(pinp->exprp(), pinp, "Interface parameter pin missing expression");
-                    nodep->replaceWith(pinp->exprp()->cloneTree(false));
-                    VL_DO_DANGLING(pushDeletep(nodep), nodep);
-                    return true;
+                    nodep->replaceWith(pinp->exprp()->clone_వృక్షం(అబద్ధం));
+                    VL_DO_DANGLING(నెట్టు_Deletep(nodep), nodep);
+                    తిరిగి నిజం;
                 }
             }
         }
-        return false;
+        తిరిగి అబద్ధం;
     }
 
-    void deparamIfaceCellNow(AstCell* cellp) {
-        if (!cellp->paramsp()) return;
-        if (!VN_IS(cellp->modp(), Iface)) return;
-        AstNodeModule* const srcModp = cellp->modp();
-        AstNodeModule* const newModp
-            = m_processor.nodeDeparam(cellp, srcModp, m_modp, m_modp->someInstanceName());
-        if (newModp && newModp != srcModp) {
-            if (V3LinkDotIfaceCapture::enabled()) {
+    శూన్య deparamIfaceCellNow(AstCell* cellp) {
+        ఒకవేళ (!cellp->paramsp()) తిరిగి;
+        ఒకవేళ (!VN_IS(cellp->modp(), Iface)) తిరిగి;
+        Ast_కణుపు_Module* స్థిరరాశి srcModp = cellp->modp();
+        Ast_కణుపు_Module* స్థిరరాశి newModp
+            = m_processor.కణుపు_Deparam(cellp, srcModp, m_modp, m_modp->someInstanceName());
+        ఒకవేళ (newModp && newModp != srcModp) {
+            ఒకవేళ (V3LinkDotIfaceCapture::enabled()) {
                 m_processor.retargetIfaceRefs(m_modp, cellp->name());
             }
             specializeNestedIfaceCells(newModp);
         }
     }
 
-    void visit(AstNodeFTaskRef* nodep) override {
-        if (nodep->containsGenBlock()) {
+    శూన్య సందర్శించు(Ast_కణుపు_FTask_Ref* nodep) override {
+        ఒకవేళ (nodep->కలిగియుంది_Gen_ఖండం()) {
             // Needs relink, as may remove pointed-to task/func
-            nodep->taskp(nullptr);
-            return;
+            nodep->taskp(శూన్యసూచిక);
+            తిరిగి;
         }
         iterateChildren(nodep);
     }
-    void visit(AstEnumItemRef* nodep) override {
+    శూన్య సందర్శించు(Ast_Enum_అంశం_Ref* nodep) override {
         // Needs relink, as may remove pointed-to item
-        if (nodep->containsGenBlock()) nodep->itemp(nullptr);
+        ఒకవేళ (nodep->కలిగియుంది_Gen_ఖండం()) nodep->itemp(శూన్యసూచిక);
         iterateChildren(nodep);
     }
-    void visit(AstVarXRef* nodep) override {
-        if (nodep->containsGenBlock()) {
+    శూన్య సందర్శించు(AstVarXRef* nodep) override {
+        ఒకవేళ (nodep->కలిగియుంది_Gen_ఖండం()) {
             // Needs relink, as may remove pointed-to var
-            nodep->varp(nullptr);
-            return;
+            nodep->varp(శూన్యసూచిక);
+            తిరిగి;
         }
         // Parameters of an interface array are accessed through its first element
-        if (nodep->varp() && nodep->varp()->isParam()) {
-            const auto it = m_ifaceInstCells.find(nodep->dotted());
-            if (it != m_ifaceInstCells.end()) nodep->dotted(it->second->name());
+        ఒకవేళ (nodep->varp() && nodep->varp()->isParam()) {
+            స్థిరరాశి స్వయంచాలక it = m_ifaceInstCells.కనుగొను(nodep->dotted());
+            ఒకవేళ (it != m_ifaceInstCells.చివర()) nodep->dotted(it->రెండవ->name());
         }
         // Check to see if the scope is just an interface because interfaces are special
-        const string dotted = nodep->dotted();
-        if (!dotted.empty() && nodep->varp() && nodep->varp()->isParam()) {
-            const AstNode* backp = nodep;
-            while ((backp = backp->backp())) {
-                if (VN_IS(backp, NodeModule)) {
+        స్థిరరాశి string dotted = nodep->dotted();
+        ఒకవేళ (!dotted.ఖాళీలు() && nodep->varp() && nodep->varp()->isParam()) {
+            స్థిరరాశి Ast_కణుపు* backp = nodep;
+            అయితే ((backp = backp->backp())) {
+                ఒకవేళ (VN_IS(backp, కణుపు_Module)) {
                     UINFO(9, "Hit module boundary, done looking for interface");
-                    break;
+                    ఆపు;
                 }
-                if (const AstVar* const varp = VN_CAST(backp, Var)) {
-                    if (!varp->isIfaceRef()) continue;
+                ఒకవేళ (స్థిరరాశి AstVar* స్థిరరాశి varp = VN_CAST(backp, Var)) {
+                    ఒకవేళ (!varp->isIfaceRef()) కొనసాగు;
                     // Through all dimensions of an array
-                    const AstIfaceRefDType* const ifacerefp
+                    స్థిరరాశి AstIfaceRefDType* స్థిరరాశి ifacerefp
                         = VN_CAST(varp->subDTypep()->elemDTypep(), IfaceRefDType);
-                    if (!ifacerefp) continue;
+                    ఒకవేళ (!ifacerefp) కొనసాగు;
                     // Interfaces passed in on the port map have ifaces
-                    if (const AstIface* const ifacep = ifacerefp->ifacep()) {
-                        if (dotted == backp->name()) {
+                    ఒకవేళ (స్థిరరాశి AstIface* స్థిరరాశి ifacep = ifacerefp->ifacep()) {
+                        ఒకవేళ (dotted == backp->name()) {
                             UINFO(9, "Iface matching scope:  " << ifacep);
-                            if (ifaceParamReplace(nodep, ifacep->stmtsp())) {  //
-                                return;
+                            ఒకవేళ (ifaceParamReplace(nodep, ifacep->stmtsp())) {  //
+                                తిరిగి;
                             }
                         }
                     }
                     // Interfaces declared in this module have cells
-                    else if (AstCell* const cellp = ifacerefp->cellp()) {
-                        if (dotted == cellp->name()) {
+                    లేకపోతే ఒకవేళ (AstCell* స్థిరరాశి cellp = ifacerefp->cellp()) {
+                        ఒకవేళ (dotted == cellp->name()) {
                             UINFO(9, "Iface matching scope:  " << cellp);
                             deparamIfaceCellNow(cellp);
-                            if (ifaceParamReplace(nodep, cellp->modp()->stmtsp())) {  //
-                                return;
+                            ఒకవేళ (ifaceParamReplace(nodep, cellp->modp()->stmtsp())) {  //
+                                తిరిగి;
                             }
                         }
                     }
                 }
             }
             // Fallback: a direct local interface instance ("inst.PARAM"), not reached via a port.
-            const auto ifaceCellIt = m_ifaceInstCells.find(dotted);
-            if (ifaceCellIt != m_ifaceInstCells.end()) {
-                AstCell* const cellp = ifaceCellIt->second;
+            స్థిరరాశి స్వయంచాలక ifaceCellIt = m_ifaceInstCells.కనుగొను(dotted);
+            ఒకవేళ (ifaceCellIt != m_ifaceInstCells.చివర()) {
+                AstCell* స్థిరరాశి cellp = ifaceCellIt->రెండవ;
                 deparamIfaceCellNow(cellp);
                 ifaceParamReplace(nodep, cellp->modp()->stmtsp());
             }
         }
     }
 
-    void visit(AstDot* nodep) override {
+    శూన్య సందర్శించు(AstDot* nodep) override {
         iterate(nodep->lhsp());
         // Check if it is a reference to a field of a parameterized class.
         // If so, the RHS should be updated, when the LHS is replaced
         // by a class with actual parameter values.
-        const AstClass* lhsClassp = nullptr;
-        const AstClassOrPackageRef* const classRefp = VN_CAST(nodep->lhsp(), ClassOrPackageRef);
-        if (classRefp) lhsClassp = VN_CAST(classRefp->classOrPackageSkipp(), Class);
-        AstNode* rhsDefp = nullptr;
-        AstClassOrPackageRef* const rhsp = VN_CAST(nodep->rhsp(), ClassOrPackageRef);
-        if (rhsp) rhsDefp = rhsp->classOrPackageNodep();
-        if (lhsClassp && rhsDefp) {
-            m_state.m_dots.push_back(nodep);
+        స్థిరరాశి AstClass* lhsClassp = శూన్యసూచిక;
+        స్థిరరాశి AstClassOrPackageRef* స్థిరరాశి classRefp = VN_CAST(nodep->lhsp(), ClassOrPackageRef);
+        ఒకవేళ (classRefp) lhsClassp = VN_CAST(classRefp->classOrPackageSkipp(), Class);
+        Ast_కణుపు* rhsDefp = శూన్యసూచిక;
+        AstClassOrPackageRef* స్థిరరాశి rhsp = VN_CAST(nodep->rhsp(), ClassOrPackageRef);
+        ఒకవేళ (rhsp) rhsDefp = rhsp->classOrPackageNodep();
+        ఒకవేళ (lhsClassp && rhsDefp) {
+            m_state.m_dots.నెట్టు_వెనుక(nodep);
             // No need to iterate into rhsp, because there should be nothing to do
-        } else {
+        } లేకపోతే {
             iterate(nodep->rhsp());
         }
     }
 
-    void visit(AstUnlinkedRef* nodep) override {
-        AstVarXRef* const varxrefp = VN_CAST(nodep->refp(), VarXRef);
-        AstNodeFTaskRef* const taskrefp = VN_CAST(nodep->refp(), NodeFTaskRef);
-        AstEnumItemRef* const enumrefp = VN_CAST(nodep->refp(), EnumItemRef);
-        if (varxrefp) {
+    శూన్య సందర్శించు(AstUnlinkedRef* nodep) override {
+        AstVarXRef* స్థిరరాశి varxrefp = VN_CAST(nodep->refp(), VarXRef);
+        Ast_కణుపు_FTask_Ref* స్థిరరాశి taskrefp = VN_CAST(nodep->refp(), కణుపు_FTask_Ref);
+        Ast_Enum_అంశం_Ref* స్థిరరాశి enumrefp = VN_CAST(nodep->refp(), Enum_అంశం_Ref);
+        ఒకవేళ (varxrefp) {
             m_unlinkedTxt = varxrefp->dotted();
-        } else if (taskrefp) {
+        } లేకపోతే ఒకవేళ (taskrefp) {
             m_unlinkedTxt = taskrefp->dotted();
-        } else if (enumrefp) {
+        } లేకపోతే ఒకవేళ (enumrefp) {
             m_unlinkedTxt = enumrefp->dotted();
-        } else {
+        } లేకపోతే {
             nodep->v3fatalSrc("Unexpected AstUnlinkedRef node");
-            return;
+            తిరిగి;
         }
         iterate(nodep->cellrefp());
 
-        if (varxrefp) {
+        ఒకవేళ (varxrefp) {
             varxrefp->dotted(m_unlinkedTxt);
-        } else if (taskrefp) {
+        } లేకపోతే ఒకవేళ (taskrefp) {
             taskrefp->dotted(m_unlinkedTxt);
-        } else {
+        } లేకపోతే {
             enumrefp->dotted(m_unlinkedTxt);
         }
-        nodep->replaceWith(nodep->refp()->unlinkFrBack());
-        VL_DO_DANGLING(pushDeletep(nodep), nodep);
+        nodep->replaceWith(nodep->refp()->unlink_Fr_వెనుక());
+        VL_DO_DANGLING(నెట్టు_Deletep(nodep), nodep);
     }
-    void visit(AstCellArrayRef* nodep) override {
+    శూన్య సందర్శించు(AstCellArrayRef* nodep) override {
         // Multi-dim iface arrays chain multiple selps via nextp(); constify each in place.
-        for (AstNode *s = nodep->selp(), *nxt; s; s = nxt) {
+        కొరకు (Ast_కణుపు *s = nodep->selp(), *nxt; s; s = nxt) {
             nxt = s->nextp();  // cache before constifyParamsEdit replaces s
             V3Const::constifyParamsEdit(s);
         }
-        std::vector<int> indices;
-        for (AstNode* s = nodep->selp(); s; s = s->nextp()) {
-            const AstConst* const constp = VN_CAST(s, Const);
-            if (!constp) {
+        std::సదిశ<పూర్ణాంకం> indices;
+        కొరకు (Ast_కణుపు* s = nodep->selp(); s; s = s->nextp()) {
+            స్థిరరాశి AstConst* స్థిరరాశి constp = VN_CAST(s, Const);
+            ఒకవేళ (!constp) {
                 nodep->v3error("Could not expand constant selection inside dotted reference: "
                                << s->prettyNameQ());
-                return;
+                తిరిగి;
             }
-            indices.push_back(constp->toSInt());
+            indices.నెట్టు_వెనుక(constp->గమ్యం_SInt());
         }
         // Nested iface-array ports may carry a __Viftop suffix that's not in m_unlinkedTxt.
-        const string viftopSuffix = "__Viftop";
-        const string baseName
-            = VString::endsWith(nodep->name(), viftopSuffix)
-                  ? nodep->name().substr(0, nodep->name().size() - viftopSuffix.size())
+        స్థిరరాశి string viftopSuffix = "__Viftop";
+        స్థిరరాశి string పునాది_Name
+            = VString::చివర్లు_With(nodep->name(), viftopSuffix)
+                  ? nodep->name().substr(0, nodep->name().కొలత() - viftopSuffix.కొలత())
                   : nodep->name();
-        const string placeholder = "__BRA__??__KET__";
-        size_t pos = m_unlinkedTxt.find(baseName + placeholder);
+        స్థిరరాశి string placeholder = "__BRA__??__KET__";
+        కొలత_t pos = m_unlinkedTxt.కనుగొను(పునాది_Name + placeholder);
         // An AstCellArrayRef for an iface-array pin expr (e.g. l1(l2.l1[0])) is visited
         // outside AstUnlinkedRef, so m_unlinkedTxt has no placeholder; V3LinkDot resolves later.
-        if (pos == string::npos) {
+        ఒకవేళ (pos == string::npos) {
             UINFO(9, "Skipping unlinked text replacement for " << nodep);
-            return;
+            తిరిగి;
         }
-        pos += baseName.length();
-        for (int idx : indices) {
-            const string replacement = "__BRA__" + AstNode::encodeNumber(idx) + "__KET__";
-            if (m_unlinkedTxt.compare(pos, placeholder.length(), placeholder) != 0) {
+        pos += పునాది_Name.నిడివి();
+        కొరకు (పూర్ణాంకం idx : indices) {
+            స్థిరరాశి string replacement = "__BRA__" + Ast_కణుపు::encode_సంఖ్య(idx) + "__KET__";
+            ఒకవేళ (m_unlinkedTxt.compare(pos, placeholder.నిడివి(), placeholder) != 0) {
                 nodep->v3fatalSrc(  // LCOV_EXCL_LINE
                     "Expected placeholder at position in multi-dim iface dotted reference");
-                return;
+                తిరిగి;
             }
-            m_unlinkedTxt.replace(pos, placeholder.length(), replacement);
-            pos += replacement.length();
+            m_unlinkedTxt.replace(pos, placeholder.నిడివి(), replacement);
+            pos += replacement.నిడివి();
         }
     }
 
@@ -3659,44 +3659,44 @@ class ParamVisitor final : public VNVisitor {
     // because deletion is deferred.  A generate condition doesn't defer and folds
     // immediately, so we can't queue. Anything queued here would be left dangling.
     // Refs in the surviving arm are queued when it is recursed.
-    void iterateGenerateCond(AstNode* nodep) {
-        VL_RESTORER(m_inGenerateCond);
-        m_inGenerateCond = true;
-        iterateAndNextNull(nodep);
+    శూన్య iterateGenerateCond(Ast_కణుపు* nodep) {
+        VL_RESTORER(m_లోపల_Generate_Cond);
+        m_లోపల_Generate_Cond = నిజం;
+        iterate_And_తదుపరి_Null(nodep);
         // The condition may reference deferred lparams whose Dots are still pending.
         m_processor.resolveDeferredDotsReachableFrom(nodep, m_modp);
     }
 
-    void visit(AstGenIf* nodep) override {
+    శూన్య సందర్శించు(AstGenIf* nodep) override {
         UINFO(9, "  GENIF " << nodep);
         iterateGenerateCond(nodep->condp());
         // We suppress errors when widthing params since short-circuiting in
         // the conditional evaluation may mean these error can never occur. We
         // then make sure that short-circuiting is used by constifyParamsEdit.
-        V3Width::widthGenerateParamsEdit(nodep);  // Param typed widthing will
+        V3_వెడల్పు::వెడల్పు_Generate_Params_Edit(nodep);  // Param typed widthing will
                                                   // NOT recurse the body.
         V3Const::constifyGenerateParamsEdit(nodep->condp());  // condp may change
-        if (const AstConst* const constp = VN_CAST(nodep->condp(), Const)) {
-            if (AstNode* const keepp = (constp->isZero() ? nodep->elsesp() : nodep->thensp())) {
-                keepp->unlinkFrBackWithNext();
+        ఒకవేళ (స్థిరరాశి AstConst* స్థిరరాశి constp = VN_CAST(nodep->condp(), Const)) {
+            ఒకవేళ (Ast_కణుపు* స్థిరరాశి keepp = (constp->isZero() ? nodep->elsesp() : nodep->thensp())) {
+                keepp->unlink_Fr_వెనుక_With_తదుపరి();
                 nodep->replaceWith(keepp);
-            } else {
-                nodep->unlinkFrBack();
+            } లేకపోతే {
+                nodep->unlink_Fr_వెనుక();
             }
-            VL_DO_DANGLING(nodep->deleteTree(), nodep);
+            VL_DO_DANGLING(nodep->delete_వృక్షం(), nodep);
             // Normal edit rules will now recurse the replacement
-        } else {
+        } లేకపోతే {
             nodep->condp()->v3error("Generate If condition must evaluate to constant");
         }
     }
 
-    void visit(AstGenBlock* nodep) override {
+    శూన్య సందర్శించు(Ast_Gen_ఖండం* nodep) override {
         // Parameter substitution for generated for loops.
         // TODO Unlike generated IF, we don't have to worry about short-circuiting the
         // conditional expression, since this is currently restricted to simple
         // comparisons. If we ever do move to more generic constant expressions, such code
         // will be needed here.
-        if (AstGenFor* const forp = VN_AS(nodep->genforp(), GenFor)) {
+        ఒకవేళ (AstGenFor* స్థిరరాశి forp = VN_AS(nodep->genforp(), GenFor)) {
             // We should have a GENFOR under here.  We will be replacing the begin,
             // so process here rather than at the generate to avoid iteration problems
             UINFO(9, "  BEGIN " << nodep);
@@ -3705,12 +3705,12 @@ class ParamVisitor final : public VNVisitor {
             iterateGenerateCond(forp->initsp());
             iterateGenerateCond(forp->condp());
             iterateGenerateCond(forp->incsp());
-            V3Width::widthParamsEdit(forp);  // Param typed widthing will NOT recurse the body
+            V3_వెడల్పు::వెడల్పు_Params_Edit(forp);  // Param typed widthing will NOT recurse the body
             // Outer wrapper around generate used to hold genvar, and to ensure genvar
             // doesn't conflict in V3LinkDot resolution with other genvars
             // Now though we need to change BEGIN("zzz", GENFOR(...)) to
             // a BEGIN("zzz__BRA__{loop#}__KET__")
-            const string beginName = nodep->name();
+            స్థిరరాశి string beginName = nodep->name();
             // Leave the original Begin, as need a container for the (possible) GENVAR
             // Note m_unroller will replace some AstVarRef's to the loop variable with constants
             // Don't remove any deleted nodes in m_unroller until whole process finishes,
@@ -3718,104 +3718,104 @@ class ParamVisitor final : public VNVisitor {
             VL_DO_DANGLING(m_unroller.unroll(forp, beginName), forp);
             // Blocks were constructed under the special begin, move them up
             // Note forp is null, so grab statements again
-            if (AstNode* const stmtsp = nodep->genforp()) {
-                stmtsp->unlinkFrBackWithNext();
-                nodep->addNextHere(stmtsp);
+            ఒకవేళ (Ast_కణుపు* స్థిరరాశి stmtsp = nodep->genforp()) {
+                stmtsp->unlink_Fr_వెనుక_With_తదుపరి();
+                nodep->కూడు_తదుపరి_ఇక్కడ(stmtsp);
                 // Note this clears nodep->genforp(), so begin is no longer special
             }
-        } else {
+        } లేకపోతే {
             VL_RESTORER_COPY(m_generateHierName);
             m_generateHierName += "." + nodep->prettyName();
             iterateChildren(nodep);
         }
     }
-    void visit(AstGenFor* nodep) override {  // LCOV_EXCL_LINE
+    శూన్య సందర్శించు(AstGenFor* nodep) override {  // LCOV_EXCL_LINE
         nodep->v3fatalSrc("GENFOR should have been wrapped in BEGIN");
     }
-    void visit(AstGenCase* nodep) override {
+    శూన్య సందర్శించు(AstGenCase* nodep) override {
         UINFO(9, "  GENCASE " << nodep);
-        bool hit = false;
-        AstNode* keepp = nullptr;
+        తార్కిక తగిలింది = అబద్ధం;
+        Ast_కణుపు* keepp = శూన్యసూచిక;
         iterateGenerateCond(nodep->exprp());
         V3Case::caseLint(nodep);
         // Case-item expressions must also be linked before widthing the case.
-        for (AstGenCaseItem* itemp = nodep->itemsp(); itemp;
-             itemp = VN_AS(itemp->nextp(), GenCaseItem)) {
-            for (AstNode* ep = itemp->condsp(); ep; ep = ep->nextp()) {
+        కొరకు (Ast_Gen_Case_అంశం* itemp = nodep->itemsp(); itemp;
+             itemp = VN_AS(itemp->nextp(), Gen_Case_అంశం)) {
+            కొరకు (Ast_కణుపు* ep = itemp->condsp(); ep; ep = ep->nextp()) {
                 m_processor.resolveDeferredDotsReachableFrom(ep, m_modp);
             }
         }
-        V3Width::widthParamsEdit(nodep);  // Param typed widthing will NOT recurse the
+        V3_వెడల్పు::వెడల్పు_Params_Edit(nodep);  // Param typed widthing will NOT recurse the
                                           // body, don't trigger errors yet.
         V3Const::constifyParamsEdit(nodep->exprp());  // exprp may change
-        const AstConst* const exprp = VN_AS(nodep->exprp(), Const);
+        స్థిరరాశి AstConst* స్థిరరాశి exprp = VN_AS(nodep->exprp(), Const);
         // Constify
-        for (AstGenCaseItem* itemp = nodep->itemsp(); itemp;
-             itemp = VN_AS(itemp->nextp(), GenCaseItem)) {
-            for (AstNode* ep = itemp->condsp(); ep;) {
-                AstNode* const nextp = ep->nextp();  // May edit list
+        కొరకు (Ast_Gen_Case_అంశం* itemp = nodep->itemsp(); itemp;
+             itemp = VN_AS(itemp->nextp(), Gen_Case_అంశం)) {
+            కొరకు (Ast_కణుపు* ep = itemp->condsp(); ep;) {
+                Ast_కణుపు* స్థిరరాశి nextp = ep->nextp();  // May edit list
                 iterateGenerateCond(ep);
                 VL_DO_DANGLING(V3Const::constifyParamsEdit(ep), ep);  // ep may change
                 ep = nextp;
             }
         }
         // Item match
-        for (AstGenCaseItem* itemp = nodep->itemsp(); itemp;
-             itemp = VN_AS(itemp->nextp(), GenCaseItem)) {
-            if (!itemp->isDefault()) {
-                for (AstNode* ep = itemp->condsp(); ep; ep = ep->nextp()) {
-                    if (const AstConst* const ccondp = VN_CAST(ep, Const)) {
-                        V3Number match{nodep, 1};
-                        match.opEq(ccondp->num(), exprp->num());
-                        if (!hit && match.isNeqZero()) {
-                            hit = true;
+        కొరకు (Ast_Gen_Case_అంశం* itemp = nodep->itemsp(); itemp;
+             itemp = VN_AS(itemp->nextp(), Gen_Case_అంశం)) {
+            ఒకవేళ (!itemp->isDefault()) {
+                కొరకు (Ast_కణుపు* ep = itemp->condsp(); ep; ep = ep->nextp()) {
+                    ఒకవేళ (స్థిరరాశి AstConst* స్థిరరాశి ccondp = VN_CAST(ep, Const)) {
+                        V3_సంఖ్య సరిపోలిక{nodep, 1};
+                        సరిపోలిక.opEq(ccondp->అంకె(), exprp->అంకె());
+                        ఒకవేళ (!తగిలింది && సరిపోలిక.isNeqZero()) {
+                            తగిలింది = నిజం;
                             keepp = itemp->itemsp();
                         }
-                    } else {
+                    } లేకపోతే {
                         itemp->v3error("Generate Case item does not evaluate to constant");
                     }
                 }
             }
         }
         // Else default match
-        for (AstGenCaseItem* itemp = nodep->itemsp(); itemp;
-             itemp = VN_AS(itemp->nextp(), GenCaseItem)) {
-            if (itemp->isDefault()) {
-                if (!hit) {
-                    hit = true;
+        కొరకు (Ast_Gen_Case_అంశం* itemp = nodep->itemsp(); itemp;
+             itemp = VN_AS(itemp->nextp(), Gen_Case_అంశం)) {
+            ఒకవేళ (itemp->isDefault()) {
+                ఒకవేళ (!తగిలింది) {
+                    తగిలింది = నిజం;
                     keepp = itemp->itemsp();
                 }
             }
         }
         // Replace
-        if (keepp) {
-            keepp->unlinkFrBackWithNext();
+        ఒకవేళ (keepp) {
+            keepp->unlink_Fr_వెనుక_With_తదుపరి();
             nodep->replaceWith(keepp);
-        } else {
-            nodep->unlinkFrBack();
+        } లేకపోతే {
+            nodep->unlink_Fr_వెనుక();
         }
-        VL_DO_DANGLING(nodep->deleteTree(), nodep);
+        VL_DO_DANGLING(nodep->delete_వృక్షం(), nodep);
     }
 
-    void visit(AstNode* nodep) override { iterateChildren(nodep); }
+    శూన్య సందర్శించు(Ast_కణుపు* nodep) override { iterateChildren(nodep); }
 
-public:
+బహిరంగ:
     // CONSTRUCTORS
-    explicit ParamVisitor(ParamState& state, AstNetlist* netlistp)
+    స్పష్టమైన ParamVisitor(ParamState& state, AstNetlist* netlistp)
         : m_state{state}
         , m_processor{netlistp} {
 
         // Relies on modules already being in top-down-order
         iterate(netlistp);
     }
-    ~ParamVisitor() override = default;
+    ~ParamVisitor() override = అప్రమేయ;
     VL_UNCOPYABLE(ParamVisitor);
 };
 
 //######################################################################
 // Process top handler
 
-class ParamTop final : VNDeleter {
+తరగతి Param_శిఖరం final : VNDeleter {
     // NODE STATE
     // AstNodeModule::user1 -> bool: already fixed level (temporary)
 
@@ -3824,115 +3824,115 @@ class ParamTop final : VNDeleter {
 
     // METHODS
 
-    void relinkDots() {
+    శూన్య relinkDots() {
         // RHSs of AstDots need a relink when LHS is a parameterized class reference
-        for (AstDot* const dotp : m_state.m_dots) {
-            const AstClassOrPackageRef* const classRefp = VN_AS(dotp->lhsp(), ClassOrPackageRef);
-            const AstClass* const lhsClassp = VN_AS(classRefp->classOrPackageSkipp(), Class);
-            AstClassOrPackageRef* const rhsp = VN_AS(dotp->rhsp(), ClassOrPackageRef);
-            for (auto* itemp = lhsClassp->membersp(); itemp; itemp = itemp->nextp()) {
-                if (itemp->name() == rhsp->name()) {
+        కొరకు (AstDot* స్థిరరాశి dotp : m_state.m_dots) {
+            స్థిరరాశి AstClassOrPackageRef* స్థిరరాశి classRefp = VN_AS(dotp->lhsp(), ClassOrPackageRef);
+            స్థిరరాశి AstClass* స్థిరరాశి lhsClassp = VN_AS(classRefp->classOrPackageSkipp(), Class);
+            AstClassOrPackageRef* స్థిరరాశి rhsp = VN_AS(dotp->rhsp(), ClassOrPackageRef);
+            కొరకు (స్వయంచాలక* itemp = lhsClassp->membersp(); itemp; itemp = itemp->nextp()) {
+                ఒకవేళ (itemp->name() == rhsp->name()) {
                     rhsp->classOrPackageNodep(itemp);
-                    break;
+                    ఆపు;
                 }
             }
         }
     }
 
-    void fixLevel(AstNodeModule* modp) {
+    శూన్య fixLevel(Ast_కణుపు_Module* modp) {
         // Fix up level of module, based on who instantiates it
-        if (modp->user1SetOnce()) return;  // Already fixed
-        if (m_state.m_parentps[modp].empty()) return;  // Leave top levels alone
-        int maxParentLevel = 0;
-        for (AstNodeModule* parentp : m_state.m_parentps[modp]) {
+        ఒకవేళ (modp->user1_సమితి_Once()) తిరిగి;  // Already fixed
+        ఒకవేళ (m_state.m_parentps[modp].ఖాళీలు()) తిరిగి;  // Leave top levels alone
+        పూర్ణాంకం max_మాతృ_Level = 0;
+        కొరకు (Ast_కణుపు_Module* parentp : m_state.m_parentps[modp]) {
             fixLevel(parentp);  // Ensure parent level is correct
-            maxParentLevel = std::max(maxParentLevel, parentp->level());
+            max_మాతృ_Level = std::max(max_మాతృ_Level, parentp->level());
         }
-        if (modp->level() <= maxParentLevel) modp->level(maxParentLevel + 1);
+        ఒకవేళ (modp->level() <= max_మాతృ_Level) modp->level(max_మాతృ_Level + 1);
         // Not correct fixup of depth(), as it should be mininum.  But depth() is unused
         // past V3LinkParse, so just do something sane in case this code doesn't get updated
-        modp->depth(modp->level());
+        modp->లోతు(modp->level());
     }
 
-    void resortNetlistModules(AstNetlist* netlistp) {
+    శూన్య resortNetlistModules(AstNetlist* netlistp) {
         // Re-sort module list to be in topological order and fix-up incorrect levels. We need to
         // do this globally at the end due to the presence of recursive modules, which might be
         // expanded in orders that reuse earlier specializations later at a lower level.
         // Gather modules
-        std::vector<AstNodeModule*> modps;
-        for (AstNodeModule *modp = netlistp->modulesp(), *nextp; modp; modp = nextp) {
-            nextp = VN_AS(modp->nextp(), NodeModule);
-            modp->unlinkFrBack();
-            modps.push_back(modp);
+        std::సదిశ<Ast_కణుపు_Module*> modps;
+        కొరకు (Ast_కణుపు_Module *modp = netlistp->modulesp(), *nextp; modp; modp = nextp) {
+            nextp = VN_AS(modp->nextp(), కణుపు_Module);
+            modp->unlink_Fr_వెనుక();
+            modps.నెట్టు_వెనుక(modp);
         }
 
         // Fix-up levels
-        const VNUser1InUse user1InUse;
-        for (AstNodeModule* const modp : modps) fixLevel(modp);
+        స్థిరరాశి VNUser1_లోపల_Use user1_లోపల_Use;
+        కొరకు (Ast_కణుపు_Module* స్థిరరాశి modp : modps) fixLevel(modp);
 
         // Sort by level
-        std::stable_sort(modps.begin(), modps.end(),
-                         [](const AstNodeModule* ap, const AstNodeModule* bp) {
-                             return ap->level() < bp->level();
+        std::stable_క్రమీకరించు(modps.begin(), modps.చివర(),
+                         [](స్థిరరాశి Ast_కణుపు_Module* ap, స్థిరరాశి Ast_కణుపు_Module* bp) {
+                             తిరిగి ap->level() < bp->level();
                          });
 
         // Re-insert modules
-        for (AstNodeModule* const modp : modps) netlistp->addModulesp(modp);
+        కొరకు (Ast_కణుపు_Module* స్థిరరాశి modp : modps) netlistp->కూడు_Modulesp(modp);
     }
 
-public:
+బహిరంగ:
     // CONSTRUCTORS
-    explicit ParamTop(AstNetlist* netlistp) {
+    స్పష్టమైన Param_శిఖరం(AstNetlist* netlistp) {
         // Relies on modules already being in top-down-order
-        const ParamVisitor paramVisitor{m_state /*ref*/, netlistp};
+        స్థిరరాశి ParamVisitor paramVisitor{m_state /*ref*/, netlistp};
 
         // Mark classes which cannot be removed because they are still referenced
-        const ClassRefUnlinkerVisitor classUnlinkerVisitor{netlistp};
+        స్థిరరాశి ClassRefUnlinkerVisitor classUnlinkerVisitor{netlistp};
 
-        netlistp->foreach([](AstNodeFTaskRef* ftaskrefp) {
-            AstNodeFTask* ftaskp = ftaskrefp->taskp();
-            if (!ftaskp || !ftaskp->classMethod()) return;
-            const std::string funcName = ftaskp->name();
+        netlistp->foreach([](Ast_కణుపు_FTask_Ref* ftaskrefp) {
+            Ast_కణుపు_FTask* ftaskp = ftaskrefp->taskp();
+            ఒకవేళ (!ftaskp || !ftaskp->class_పద్ధతి()) తిరిగి;
+            స్థిరరాశి std::string funcName = ftaskp->name();
             // Find the nearest containing (ancestor) class for a node.
             // Uses aboveLoopp() which correctly skips sibling links
             // (e.g. covergroup classes) to find the true parent.
-            const auto ancestorClassOf = [](AstNode* startp) -> AstClass* {
-                for (AstNode* np = startp->aboveLoopp(); np; np = np->aboveLoopp()) {
-                    if (AstClass* const cp = VN_CAST(np, Class)) return cp;
+            స్థిరరాశి స్వయంచాలక ancestor_Class_యొక్క = [](Ast_కణుపు* startp) -> AstClass* {
+                కొరకు (Ast_కణుపు* np = startp->aboveLoopp(); np; np = np->aboveLoopp()) {
+                    ఒకవేళ (AstClass* స్థిరరాశి cp = VN_CAST(np, Class)) తిరిగి cp;
                 }
-                return nullptr;
+                తిరిగి శూన్యసూచిక;
             };
-            AstClass* refClassp = ancestorClassOf(ftaskrefp);
-            if (refClassp == ftaskrefp->classOrPackagep())
-                return;  // task is in the same class as reference
-            AstClass* classp = ancestorClassOf(ftaskp);
+            AstClass* refClassp = ancestor_Class_యొక్క(ftaskrefp);
+            ఒకవేళ (refClassp == ftaskrefp->classOrPackagep())
+                తిరిగి;  // task is in the same class as reference
+            AstClass* classp = ancestor_Class_యొక్క(ftaskp);
             UASSERT_OBJ(classp, ftaskrefp, "Class method has no class above it");
             // If the FUNCREF and its task are both in the same (clone) class but
             // classOrPackagep still points to the old template, just retarget it
-            if (refClassp && refClassp == classp && ftaskrefp->classOrPackagep()
+            ఒకవేళ (refClassp && refClassp == classp && ftaskrefp->classOrPackagep()
                 && ftaskrefp->classOrPackagep() != refClassp) {
                 ftaskrefp->classOrPackagep(refClassp);
-                return;
+                తిరిగి;
             }
-            if (classp->user3p()) return;  // will not get removed, no need to relink
-            AstClass* const parametrizedClassp = VN_CAST(classp->user4p(), Class);
-            if (!parametrizedClassp) return;
-            AstNodeFTask* newFuncp = nullptr;
-            parametrizedClassp->exists([&newFuncp, funcName](AstNodeFTask* ftaskp) {
-                if (ftaskp->name() == funcName) {
+            ఒకవేళ (classp->user3p()) తిరిగి;  // will not get removed, no need to relink
+            AstClass* స్థిరరాశి parametrizedClassp = VN_CAST(classp->user4p(), Class);
+            ఒకవేళ (!parametrizedClassp) తిరిగి;
+            Ast_కణుపు_FTask* newFuncp = శూన్యసూచిక;
+            parametrizedClassp->exists([&newFuncp, funcName](Ast_కణుపు_FTask* ftaskp) {
+                ఒకవేళ (ftaskp->name() == funcName) {
                     newFuncp = ftaskp;
-                    return true;
+                    తిరిగి నిజం;
                 }
-                return false;
+                తిరిగి అబద్ధం;
             });
-            if (newFuncp) {
+            ఒకవేళ (newFuncp) {
                 // v3error(ftaskp <<"->" << newFuncp);
                 ftaskrefp->taskp(newFuncp);
                 ftaskrefp->classOrPackagep(parametrizedClassp);
             }
         });
 
-        const ParamClassRefDTypeRelinkVisitor paramClassDTypeRelinkVisitor{netlistp};
+        స్థిరరాశి ParamClassRefDTypeRelinkVisitor paramClassDTypeRelinkVisitor{netlistp};
 
         relinkDots();
 
@@ -3943,62 +3943,62 @@ public:
 
         // Remove defaulted classes
         // Unlike modules, which we keep around and mark dead() for later V3Dead
-        std::unordered_set<AstClass*> removedClassps;
-        for (AstClass* const classp : m_state.m_paramClasses) {
-            if (!classp->user3p()) {
+        std::unordered_సమితి<AstClass*> removedClassps;
+        కొరకు (AstClass* స్థిరరాశి classp : m_state.m_paramClasses) {
+            ఒకవేళ (!classp->user3p()) {
                 // If there was an error, don't remove classes as they might
                 // have remained referenced, and  will crash in V3Broken or
                 // other locations. This is fine, we will abort imminently.
-                if (V3Error::errorCount()) continue;
+                ఒకవేళ (V3Error::error_లెక్క()) కొనసాగు;
                 removedClassps.emplace(classp);
-                VL_DO_DANGLING(pushDeletep(classp->unlinkFrBack()), classp);
-            } else {
+                VL_DO_DANGLING(నెట్టు_Deletep(classp->unlink_Fr_వెనుక()), classp);
+            } లేకపోతే {
                 // Referenced. classp became a specialized class with the default
                 // values of parameters and is not a parameterized class anymore
-                classp->hasGParam(false);
+                classp->hasGParam(అబద్ధం);
             }
         }
         // Remove references to defaulted classes
         // Reuse user3 to mark all nodes being deleted
-        AstNode::user3ClearTree();
-        for (AstClass* classp : removedClassps) {
-            classp->foreach([](AstNode* const nodep) { nodep->user3(true); });
+        Ast_కణుపు::user3_Clear_వృక్షం();
+        కొరకు (AstClass* classp : removedClassps) {
+            classp->foreach([](Ast_కణుపు* స్థిరరాశి nodep) { nodep->user3(నిజం); });
         }
         // Set all links pointing to a user3 (deleting) node as null
-        netlistp->foreach([](AstNode* const nodep) {
-            nodep->foreachLink([&](AstNode** const linkpp, const char* namep) {
-                if (*linkpp && (*linkpp)->user3()) {
+        netlistp->foreach([](Ast_కణుపు* స్థిరరాశి nodep) {
+            nodep->foreachLink([&](Ast_కణుపు** స్థిరరాశి linkpp, స్థిరరాశి అక్షరం* namep) {
+                ఒకవేళ (*linkpp && (*linkpp)->user3()) {
                     UINFO(9, "clear   link " << namep << " on " << nodep);
-                    *linkpp = nullptr;
+                    *linkpp = శూన్యసూచిక;
                     UINFO(9, "cleared link " << namep << " on " << nodep);
                 }
             });
         });
     }
-    ~ParamTop() = default;
-    VL_UNCOPYABLE(ParamTop);
+    ~Param_శిఖరం() = అప్రమేయ;
+    VL_UNCOPYABLE(Param_శిఖరం);
 };
 
 //######################################################################
 // Param class functions
 
-void V3Param::param(AstNetlist* rootp) {
+శూన్య V3Param::param(AstNetlist* rootp) {
     UINFO(2, __FUNCTION__ << ":");
     rootp->clearDeferredParamVarps();  // Defensive: drop any stragglers from a prior invocation
 
-    if (dumpTreeEitherLevel() >= 9) V3LinkDotIfaceCapture::dumpEntries("before V3Param");
-    { ParamTop{rootp}; }
+    ఒకవేళ (dump_వృక్షం_Either_Level() >= 9) V3LinkDotIfaceCapture::dumpEntries("before V3Param");
+    { Param_శిఖరం{rootp}; }
     // The memo is only good while parameterizing, and the tree moves after.
     rootp->clearContainingModules();
-    if (dumpTreeEitherLevel() >= 9) V3LinkDotIfaceCapture::dumpEntries("after V3Param");
+    ఒకవేళ (dump_వృక్షం_Either_Level() >= 9) V3LinkDotIfaceCapture::dumpEntries("after V3Param");
 
-    V3Global::dumpCheckGlobalTree("param", 0, dumpTreeEitherLevel() >= 3);
+    V3Global::dump_Check_Global_వృక్షం("param", 0, dump_వృక్షం_Either_Level() >= 3);
 }
 
-void V3Param::finalizeDeferredParams(AstNetlist* rootp) {
+శూన్య V3Param::finalizeDeferredParams(AstNetlist* rootp) {
     // Constify params whose Dot RHS was resolved by V3LinkDot::linkDotParamed.
-    for (AstVar* const varp : rootp->deferredParamVarps()) {
-        if (varp->valuep() && !VN_IS(varp->valuep(), Const)) V3Const::constifyParamsEdit(varp);
+    కొరకు (AstVar* స్థిరరాశి varp : rootp->deferredParamVarps()) {
+        ఒకవేళ (varp->valuep() && !VN_IS(varp->valuep(), Const)) V3Const::constifyParamsEdit(varp);
     }
     rootp->clearDeferredParamVarps();
 }

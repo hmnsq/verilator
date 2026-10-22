@@ -14,109 +14,109 @@
 //
 //*************************************************************************
 
-#ifndef VERILATOR_V3HIERBLOCK_H_
-#define VERILATOR_V3HIERBLOCK_H_
+#నిర్వచితం_కాకపోతే VERILATOR_V3HIERBLOCK_H_
+#నిర్వచించు VERILATOR_V3HIERBLOCK_H_
 
-#include "verilatedos.h"
+#అన్తర్భావ "verilatedos.h"
 
-#include "V3Ast.h"
-#include "V3Graph.h"
+#అన్తర్భావ "V3Ast.h"
+#అన్తర్భావ "V3Graph.h"
 
-#include <map>
-#include <set>
-#include <string>
-#include <unordered_map>
-#include <unordered_set>
-#include <utility>
-#include <vector>
+#అన్తర్భావ <map>
+#అన్తర్భావ <set>
+#అన్తర్భావ <string>
+#అన్తర్భావ <unordered_map>
+#అన్తర్భావ <unordered_set>
+#అన్తర్భావ <utility>
+#అన్తర్భావ <vector>
 
 class AstNetlist;
-class AstNodeModule;
+class Ast_కణుపు_Module;
 class AstParamTypeDType;
 class AstVar;
 
 //######################################################################
 
-class V3HierGraph final : public V3Graph {
-public:
-    V3HierGraph() = default;
-    ~V3HierGraph() = default;
-    VL_UNCOPYABLE(V3HierGraph);
-    VL_UNMOVABLE(V3HierGraph);
+class V3_Hier_లేఖాచిత్రం final : బహిరంగ V3_లేఖాచిత్రం {
+బహిరంగ:
+    V3_Hier_లేఖాచిత్రం() = అప్రమేయ;
+    ~V3_Hier_లేఖాచిత్రం() = అప్రమేయ;
+    VL_UNCOPYABLE(V3_Hier_లేఖాచిత్రం);
+    VL_UNMOVABLE(V3_Hier_లేఖాచిత్రం);
 
     // Explicit HDL inputs followed by the library-discovered top module file, if any.
-    static VStringList sourceFiles(const string& topModuleFile = "") VL_MT_DISABLED;
+    స్థిర VStringList ఆధారం_Files(స్థిరరాశి string& శిఖరం_Module_File = "") VL_MT_DISABLED;
     // Write command line arguments to .f files for child Verilation run
-    void writeCommandArgsFiles(bool forMkJson) const VL_MT_DISABLED;
-    void writeParametersFiles() const VL_MT_DISABLED;
-    static string topCommandArgsFilename(bool forMkJson) VL_MT_DISABLED;
+    శూన్య write_Command_వాదనలు_Files(bool forMkJson) స్థిరరాశి VL_MT_DISABLED;
+    శూన్య writeParametersFiles() స్థిరరాశి VL_MT_DISABLED;
+    స్థిర string శిఖరం_Command_వాదనలు_Filename(bool forMkJson) VL_MT_DISABLED;
 };
 
-class V3HierBlock final : public V3GraphVertex {
-    VL_RTTI_IMPL(V3HierBlock, V3GraphVertex)
+class V3_Hier_ఖండం final : బహిరంగ V3_లేఖాచిత్రం_శీర్షం {
+    VL_RTTI_IMPL(V3_Hier_ఖండం, V3_లేఖాచిత్రం_శీర్షం)
 
     // TYPES
     // Parameter name, stringified value
     using StrGParam = std::pair<string, string>;
-    using StrGParams = std::vector<StrGParam>;
+    using StrGParams = std::సదిశ<StrGParam>;
 
     // MEMBERS
-    const AstModule* const m_modp;  // Hierarchical block module
+    స్థిరరాశి AstModule* స్థిరరాశి m_modp;  // Hierarchical block module
     // Value parameters that are overridden by #(.param(value)) syntax.
-    const std::vector<AstVar*> m_params;
+    స్థిరరాశి std::సదిశ<AstVar*> m_params;
     // Types parameters that are overridden by #(.param(value)) syntax.
-    const std::vector<AstParamTypeDType*> m_typeParams;
+    స్థిరరాశి std::సదిశ<AstParamTypeDType*> m_typeParams;
 
     // METHODS
-    static StrGParams stringifyParams(const std::vector<AstVar*>& params,
+    స్థిర StrGParams stringifyParams(స్థిరరాశి std::సదిశ<AstVar*>& params,
                                       bool forGOption) VL_MT_DISABLED;
 
-public:
+బహిరంగ:
     // CONSTRUCTORs
-    V3HierBlock(V3HierGraph* graphp, const AstModule* modp, const std::vector<AstVar*>& params,
-                const std::vector<AstParamTypeDType*>& typeParams)
-        : V3GraphVertex{graphp}
+    V3_Hier_ఖండం(V3_Hier_లేఖాచిత్రం* graphp, స్థిరరాశి AstModule* modp, స్థిరరాశి std::సదిశ<AstVar*>& params,
+                స్థిరరాశి std::సదిశ<AstParamTypeDType*>& typeParams)
+        : V3_లేఖాచిత్రం_శీర్షం{graphp}
         , m_modp{modp}
         , m_params{params}
         , m_typeParams{typeParams} {}
-    ~V3HierBlock() VL_MT_DISABLED = default;
-    VL_UNCOPYABLE(V3HierBlock);
-    VL_UNMOVABLE(V3HierBlock);
+    ~V3_Hier_ఖండం() VL_MT_DISABLED = అప్రమేయ;
+    VL_UNCOPYABLE(V3_Hier_ఖండం);
+    VL_UNMOVABLE(V3_Hier_ఖండం);
 
-    const AstModule* modp() const { return m_modp; }
+    స్థిరరాశి AstModule* modp() స్థిరరాశి { తిరిగి m_modp; }
 
     // Whether a string parameter value can be passed to a hierarchical block's Verilation
-    static bool stringParamPassable(const string& value) VL_PURE;
+    స్థిర bool stringParamPassable(స్థిరరాశి string& విలువ) VL_శుద్ధ;
 
     // For emitting Makefile and build definition JSON
-    VStringList commandArgs(bool forMkJson) const VL_MT_DISABLED;
-    VStringList hierBlockArgs() const VL_MT_DISABLED;
-    string hierPrefix() const VL_MT_DISABLED;
-    string hierSomeFilename(bool withDir, const char* prefix,
-                            const char* suffix) const VL_MT_DISABLED;
-    string hierWrapperFilename(bool withDir) const VL_MT_DISABLED;
-    string hierMkFilename(bool withDir) const VL_MT_DISABLED;
-    string hierLibFilename(bool withDir) const VL_MT_DISABLED;
-    string hierGeneratedFilenames(bool withDir) const VL_MT_DISABLED;
+    VStringList command_వాదనలు(bool forMkJson) స్థిరరాశి VL_MT_DISABLED;
+    VStringList hier_ఖండం_వాదనలు() స్థిరరాశి VL_MT_DISABLED;
+    string hier_ఉపసర్గ() స్థిరరాశి VL_MT_DISABLED;
+    string hierSomeFilename(bool withDir, స్థిరరాశి అక్షరం* ఉపసర్గ,
+                            స్థిరరాశి అక్షరం* suffix) స్థిరరాశి VL_MT_DISABLED;
+    string hierWrapperFilename(bool withDir) స్థిరరాశి VL_MT_DISABLED;
+    string hierMkFilename(bool withDir) స్థిరరాశి VL_MT_DISABLED;
+    string hierLibFilename(bool withDir) స్థిరరాశి VL_MT_DISABLED;
+    string hierGeneratedFilenames(bool withDir) స్థిరరాశి VL_MT_DISABLED;
     // Returns the original HDL file if it is not included in v3Global.opt.vFiles().
-    string vFileIfNecessary() const VL_MT_DISABLED;
+    string vFileIfNecessary() స్థిరరాశి VL_MT_DISABLED;
     // Write command line arguments to .f file for this hierarchical block
-    void writeCommandArgsFile(bool forMkJson) const VL_MT_DISABLED;
-    void writeParametersFile() const VL_MT_DISABLED;
-    string commandArgsFilename(bool forMkJson) const VL_MT_DISABLED;
-    string typeParametersFilename() const VL_MT_DISABLED;
+    శూన్య write_Command_వాదనలు_File(bool forMkJson) స్థిరరాశి VL_MT_DISABLED;
+    శూన్య writeParametersFile() స్థిరరాశి VL_MT_DISABLED;
+    string command_వాదనలు_Filename(bool forMkJson) స్థిరరాశి VL_MT_DISABLED;
+    string typeParametersFilename() స్థిరరాశి VL_MT_DISABLED;
 
     // For Graphviz dumps only
-    std::string name() const override { return m_modp->prettyNameQ(); }
-    std::string dotShape() const override { return "box"; }
+    std::string name() స్థిరరాశి override { తిరిగి m_modp->prettyNameQ(); }
+    std::string dotShape() స్థిరరాశి override { తిరిగి "box"; }
 };
 
 //######################################################################
 // Pass to create hierarcical block graph
 
-class V3Hierarchical final {
-public:
-    static void createGraph(AstNetlist* nodep) VL_MT_DISABLED;
+class V3_క్రమానుగత final {
+బహిరంగ:
+    స్థిర శూన్య create_లేఖాచిత్రం(AstNetlist* nodep) VL_MT_DISABLED;
 };
 
-#endif  // guard
+#అయితే_ముగింపు  // guard

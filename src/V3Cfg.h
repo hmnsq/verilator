@@ -53,266 +53,266 @@
 //
 //*************************************************************************
 
-#ifndef VERILATOR_V3CFG_H_
-#define VERILATOR_V3CFG_H_
+#నిర్వచితం_కాకపోతే VERILATOR_V3CFG_H_
+#నిర్వచించు VERILATOR_V3CFG_H_
 
-#include "config_build.h"
-#include "verilatedos.h"
+#అన్తర్భావ "config_build.h"
+#అన్తర్భావ "verilatedos.h"
 
-#include "V3Ast.h"
-#include "V3Graph.h"
+#అన్తర్భావ "V3Ast.h"
+#అన్తర్భావ "V3Graph.h"
 
-#include <functional>
-#include <limits>
-#include <memory>
-#include <vector>
+#అన్తర్భావ <functional>
+#అన్తర్భావ <limits>
+#అన్తర్భావ <memory>
+#అన్తర్భావ <vector>
 
 //######################################################################
 // Control Flow Graph (CFG) and related data structures
 
-class CfgGraph;
-class CfgBlock;
-class CfgEdge;
+class Cfg_లేఖాచిత్రం;
+class Cfg_ఖండం;
+class Cfg_అంచు;
 
-template <typename T_Key, typename T_Value>
+మూస <typename T_కీలకం, typename T_విలువ>
 class CfgMap;
-template <typename T_Value>
-class CfgBlockMap;
-template <typename T_Value>
-class CfgEdgeMap;
+మూస <typename T_విలువ>
+class Cfg_ఖండం_Map;
+మూస <typename T_విలువ>
+class Cfg_అంచు_Map;
 
 //######################################################################
 // CfgBlock - A basic block (verticies of the control flow graph)
 
-class CfgBlock final : public V3GraphVertex {
-    friend class CfgGraph;
-    template <typename T_Key, typename T_Value>
-    friend class CfgMap;
-    friend class CfgBuilder;
+class Cfg_ఖండం final : బహిరంగ V3_లేఖాచిత్రం_శీర్షం {
+    మిత్ర class Cfg_లేఖాచిత్రం;
+    మూస <typename T_కీలకం, typename T_విలువ>
+    మిత్ర class CfgMap;
+    మిత్ర class CfgBuilder;
 
     // STATE
-    CfgGraph* const m_cfgp;  // The control flow graph this CfgBlock is under
-    size_t m_rpoNumber = 0;  // Reverse post-order number and unique ID of this CfgBlock
+    Cfg_లేఖాచిత్రం* స్థిరరాశి m_cfgp;  // The control flow graph this CfgBlock is under
+    కొలత_t m_rpo_సంఖ్య = 0;  // Reverse post-order number and unique ID of this CfgBlock
 
     // V3GraphEdge::user() is set to the unique id by CfgBuilder
-    std::vector<AstNodeStmt*> m_stmtps;  // statements in this CfgBlock
+    std::సదిశ<Ast_కణుపు_Stmt*> m_stmtps;  // statements in this CfgBlock
 
     // PRIVATE METHODS
 
     // CONSTRUCTOR/DESTRUCTOR - via CfgGraph only
-    inline explicit CfgBlock(CfgGraph* cfgp);
-    ~CfgBlock() override = default;
+    అంతఃవరుస explicit Cfg_ఖండం(Cfg_లేఖాచిత్రం* cfgp);
+    ~Cfg_ఖండం() override = అప్రమేయ;
 
-public:
+బహిరంగ:
     // PUBLIC METHODS
 
     // ID (reverse post-order number) of this block
-    inline size_t id();
-    inline size_t id() const;
+    అంతఃవరుస కొలత_t id();
+    అంతఃవరుస కొలత_t id() స్థిరరాశి;
 
     // Is this the entry block of the CFG?
-    bool isEnter() const { return inEmpty(); }
+    bool isEnter() స్థిరరాశి { తిరిగి లోపల_ఖాళీలు(); }
     // Is this the exit block of the CFG?
-    bool isExit() const { return outEmpty(); }
+    bool isExit() స్థిరరాశి { తిరిగి బహిర్గతం_ఖాళీలు(); }
     // Is this a branching block (multiple successors)?
-    bool isBranch() const { return outEdges().hasMultipleElements(); }
+    bool isBranch() స్థిరరాశి { తిరిగి బహిర్గతం_అంచులు().has_గుణిజం_Elements(); }
     // Is this a control flow convergence block (multiple predecessors)?
-    bool isJoin() const { return inEdges().hasMultipleElements(); }
+    bool isJoin() స్థిరరాశి { తిరిగి లోపల_అంచులు().has_గుణిజం_Elements(); }
     // Is this a join of exactly 2 paths?
-    bool isTwoWayJoin() const { return inEdges().hasTwoElements(); }
+    bool isTwoWayJoin() స్థిరరాశి { తిరిగి లోపల_అంచులు().hasTwoElements(); }
 
     // The edge going to the taken (or uncinditional) successor, or nullptr if exit block
-    inline CfgEdge* takenEdgep();
-    inline const CfgEdge* takenEdgep() const;
+    అంతఃవరుస Cfg_అంచు* తీసుకున్న_Edgep();
+    అంతఃవరుస స్థిరరాశి Cfg_అంచు* తీసుకున్న_Edgep() స్థిరరాశి;
     // The edge going to the untaken successor, or nullptr if not a branch, or exit block
-    inline CfgEdge* untknEdgep();
-    inline const CfgEdge* untknEdgep() const;
+    అంతఃవరుస Cfg_అంచు* untknEdgep();
+    అంతఃవరుస స్థిరరాశి Cfg_అంచు* untknEdgep() స్థిరరాశి;
     // The taken successor block, or nullptr if exit block
-    inline CfgBlock* takenp();
-    inline const CfgBlock* takenp() const;
+    అంతఃవరుస Cfg_ఖండం* takenp();
+    అంతఃవరుస స్థిరరాశి Cfg_ఖండం* takenp() స్థిరరాశి;
     // The untakens successor block, or nullptr if not a branch, or exit block
-    inline CfgBlock* untknp();
-    inline const CfgBlock* untknp() const;
+    అంతఃవరుస Cfg_ఖండం* untknp();
+    అంతఃవరుస స్థిరరాశి Cfg_ఖండం* untknp() స్థిరరాశి;
 
     // The first predecessor edge, or nullptr if enter block
-    inline CfgEdge* firstPredecessorEdgep();
-    inline const CfgEdge* firstPredecessorEdgep() const;
+    అంతఃవరుస Cfg_అంచు* మొదటి_Predecessor_Edgep();
+    అంతఃవరుస స్థిరరాశి Cfg_అంచు* మొదటి_Predecessor_Edgep() స్థిరరాశి;
     // The last predecessor edge, or nullptr if enter block
-    inline CfgEdge* lastPredecessorEdgep();
-    inline const CfgEdge* lastPredecessorEdgep() const;
+    అంతఃవరుస Cfg_అంచు* చివరి_Predecessor_Edgep();
+    అంతఃవరుస స్థిరరాశి Cfg_అంచు* చివరి_Predecessor_Edgep() స్థిరరాశి;
     // The first predecessor block, or nullptr if enter block
-    inline CfgBlock* firstPredecessorp();
-    inline const CfgBlock* firstPredecessorp() const;
+    అంతఃవరుస Cfg_ఖండం* మొదటి_Predecessorp();
+    అంతఃవరుస స్థిరరాశి Cfg_ఖండం* మొదటి_Predecessorp() స్థిరరాశి;
     // The last predecessor block, or nullptr if enter block
-    inline CfgBlock* lastPredecessorp();
-    inline const CfgBlock* lastPredecessorp() const;
+    అంతఃవరుస Cfg_ఖండం* చివరి_Predecessorp();
+    అంతఃవరుస స్థిరరాశి Cfg_ఖండం* చివరి_Predecessorp() స్థిరరాశి;
 
     // Statements in this CfgBlock
-    const std::vector<AstNodeStmt*>& stmtps() const { return m_stmtps; }
+    స్థిరరాశి std::సదిశ<Ast_కణుపు_Stmt*>& stmtps() స్థిరరాశి { తిరిగి m_stmtps; }
 
     // Ordering is done on reverese post-order numbering. For loop-free graph
     // this ensures that a block that compares less than another is not a
     // successor of the other block (it is an ancestor, or sibling).
-    bool operator<(const CfgBlock& that) const { return id() < that.id(); }
-    bool operator>(const CfgBlock& that) const { return id() > that.id(); }
-    bool operator==(const CfgBlock& that) const { return this == &that; }
+    bool క్రియాకారకం<(స్థిరరాశి Cfg_ఖండం& that) స్థిరరాశి { తిరిగి id() < that.id(); }
+    bool క్రియాకారకం>(స్థిరరాశి Cfg_ఖండం& that) స్థిరరాశి { తిరిగి id() > that.id(); }
+    bool క్రియాకారకం==(స్థిరరాశి Cfg_ఖండం& that) స్థిరరాశి { తిరిగి this == &that; }
 
     // Iterators
-    void forEachSuccessor(std::function<void(const CfgBlock&)> f) const {
-        for (const V3GraphEdge& edge : outEdges()) f(*static_cast<CfgBlock*>(edge.top()));
+    శూన్య forEachSuccessor(std::function<శూన్య(స్థిరరాశి Cfg_ఖండం&)> f) స్థిరరాశి {
+        కొరకు (స్థిరరాశి V3_లేఖాచిత్రం_అంచు& అంచు : బహిర్గతం_అంచులు()) f(*static_cast<Cfg_ఖండం*>(అంచు.శిఖరం()));
     }
-    void forEachPredecessor(std::function<void(const CfgBlock&)> f) const {
-        for (const V3GraphEdge& edge : inEdges()) f(*static_cast<CfgBlock*>(edge.fromp()));
+    శూన్య forEachPredecessor(std::function<శూన్య(స్థిరరాశి Cfg_ఖండం&)> f) స్థిరరాశి {
+        కొరకు (స్థిరరాశి V3_లేఖాచిత్రం_అంచు& అంచు : లోపల_అంచులు()) f(*static_cast<Cfg_ఖండం*>(అంచు.fromp()));
     }
 
     // Source location for debugging
-    FileLine* fileline() const override {
-        return !m_stmtps.empty() ? m_stmtps.front()->fileline() : nullptr;
+    File_పంక్తి* fileline() స్థిరరాశి override {
+        తిరిగి !m_stmtps.ఖాళీలు() ? m_stmtps.front()->fileline() : nullptr;
     }
 
     // For Graphviz dumps only
-    std::string name() const override;
-    std::string dotShape() const override;
-    std::string dotRank() const override;
+    std::string name() స్థిరరాశి override;
+    std::string dotShape() స్థిరరాశి override;
+    std::string dotRank() స్థిరరాశి override;
 };
 
 //######################################################################
 // CfgEdge - An edges of the control flow graph
 
-class CfgEdge final : public V3GraphEdge {
-    friend class CfgGraph;
-    template <typename T_Key, typename T_Value>
-    friend class CfgMap;
+class Cfg_అంచు final : బహిరంగ V3_లేఖాచిత్రం_అంచు {
+    మిత్ర class Cfg_లేఖాచిత్రం;
+    మూస <typename T_కీలకం, typename T_విలువ>
+    మిత్ర class CfgMap;
 
     // STATE - Immutable after construction, set by CfgBuilder
-    CfgGraph* const m_cfgp;  // The control flow graph this CfgEdge is under
-    size_t m_id = 0;  // Unique ID of this vertex
+    Cfg_లేఖాచిత్రం* స్థిరరాశి m_cfgp;  // The control flow graph this CfgEdge is under
+    కొలత_t m_id = 0;  // Unique ID of this vertex
 
     // PRIVATE METHODS
 
     // CONSTRUCTOR/DESTRUCTOR - via CfgGraph only
-    inline CfgEdge(CfgGraph* graphp, CfgBlock* srcp, CfgBlock* dstp);
-    ~CfgEdge() override = default;
+    అంతఃవరుస Cfg_అంచు(Cfg_లేఖాచిత్రం* graphp, Cfg_ఖండం* srcp, Cfg_ఖండం* dstp);
+    ~Cfg_అంచు() override = అప్రమేయ;
 
-public:
+బహిరంగ:
     // METHODS
 
     // Unique ID of this CfgEdge - no particular meaning
-    inline size_t id();
-    inline size_t id() const;
+    అంతఃవరుస కొలత_t id();
+    అంతఃవరుస కొలత_t id() స్థిరరాశి;
 
     // Source/destination CfgBlock
-    const CfgBlock* srcp() const { return static_cast<const CfgBlock*>(fromp()); }
-    const CfgBlock* dstp() const { return static_cast<const CfgBlock*>(top()); }
-    CfgBlock* srcp() { return static_cast<CfgBlock*>(fromp()); }
-    CfgBlock* dstp() { return static_cast<CfgBlock*>(top()); }
+    స్థిరరాశి Cfg_ఖండం* srcp() స్థిరరాశి { తిరిగి static_cast<స్థిరరాశి Cfg_ఖండం*>(fromp()); }
+    స్థిరరాశి Cfg_ఖండం* dstp() స్థిరరాశి { తిరిగి static_cast<స్థిరరాశి Cfg_ఖండం*>(శిఖరం()); }
+    Cfg_ఖండం* srcp() { తిరిగి static_cast<Cfg_ఖండం*>(fromp()); }
+    Cfg_ఖండం* dstp() { తిరిగి static_cast<Cfg_ఖండం*>(శిఖరం()); }
 
     // For Graphviz dumps only
-    std::string dotLabel() const override;
+    std::string dotLabel() స్థిరరాశి override;
 };
 
 //######################################################################
 // CfgGraph - The control flow graph
 
-class CfgGraph final : public V3Graph {
-    friend class CfgBlock;
-    friend class CfgEdge;
-    template <typename T_Key, typename T_Value>
-    friend class CfgMap;
-    friend class CfgBuilder;
+class Cfg_లేఖాచిత్రం final : బహిరంగ V3_లేఖాచిత్రం {
+    మిత్ర class Cfg_ఖండం;
+    మిత్ర class Cfg_అంచు;
+    మూస <typename T_కీలకం, typename T_విలువ>
+    మిత్ర class CfgMap;
+    మిత్ర class CfgBuilder;
 
     // STATE
-    size_t m_nEdits = 0;  // Edit count of this graph
-    size_t m_nLastOrdered = 0;  // Last edit count blocks were ordered
-    CfgBlock* m_enterp = nullptr;  // The singular entry vertex
-    CfgBlock* m_exitp = nullptr;  // The singular exit vertex
-    size_t m_nBlocks = 0;  // Number of CfgBlocks in this CfgGraph
-    size_t m_nEdges = 0;  // Number of CfgEdges in this CfgGraph
+    కొలత_t m_nEdits = 0;  // Edit count of this graph
+    కొలత_t m_n_చివరి_Ordered = 0;  // Last edit count blocks were ordered
+    Cfg_ఖండం* m_enterp = nullptr;  // The singular entry vertex
+    Cfg_ఖండం* m_exitp = nullptr;  // The singular exit vertex
+    కొలత_t m_n_ఖండాలు = 0;  // Number of CfgBlocks in this CfgGraph
+    కొలత_t m_n_అంచులు = 0;  // Number of CfgEdges in this CfgGraph
 
     // PRIVATE METHODS
 
     // Compute reverse post-order enumeration of blocks, and sort them
     // accordingly. Assign blocks, and edge IDs. Invalidates all previous IDs.
-    void rpoBlocks();
+    శూన్య rpo_ఖండాలు();
 
     // Add a new CfgBlock to this graph
-    CfgBlock* addBlock() {
+    Cfg_ఖండం* కూడు_ఖండం() {
         ++m_nEdits;
-        ++m_nBlocks;
-        return new CfgBlock{this};
+        ++m_n_ఖండాలు;
+        తిరిగి new Cfg_ఖండం{this};
     }
 
     // Add a new taken (or unconditional) CfgEdge to this CFG
-    void addTakenEdge(CfgBlock* srcp, CfgBlock* dstp) {
+    శూన్య కూడు_తీసుకున్న_అంచు(Cfg_ఖండం* srcp, Cfg_ఖండం* dstp) {
         UASSERT_OBJ(srcp->m_cfgp == this, srcp, "'srcp' is not in this graph");
         UASSERT_OBJ(dstp->m_cfgp == this, dstp, "'dstp' is not in this graph");
-        UASSERT_OBJ(!srcp->takenEdgep(), srcp, "Taken edge should be added first");
+        UASSERT_OBJ(!srcp->తీసుకున్న_Edgep(), srcp, "Taken edge should be added first");
         //
         UASSERT_OBJ(dstp != m_enterp, dstp, "Enter block cannot have a predecessor");
         UASSERT_OBJ(srcp != m_exitp, srcp, "Exit block cannot have a successor");
         ++m_nEdits;
-        ++m_nEdges;
-        new CfgEdge{this, srcp, dstp};
+        ++m_n_అంచులు;
+        new Cfg_అంచు{this, srcp, dstp};
     }
 
     // Add a new untaken CfgEdge to this CFG
-    void addUntknEdge(CfgBlock* srcp, CfgBlock* dstp) {
+    శూన్య కూడు_Untkn_అంచు(Cfg_ఖండం* srcp, Cfg_ఖండం* dstp) {
         UASSERT_OBJ(srcp->m_cfgp == this, srcp, "'srcp' is not in this graph");
         UASSERT_OBJ(dstp->m_cfgp == this, dstp, "'dstp' is not in this graph");
-        UASSERT_OBJ(srcp->takenEdgep(), srcp, "Untaken edge should be added second");
+        UASSERT_OBJ(srcp->తీసుకున్న_Edgep(), srcp, "Untaken edge should be added second");
         UASSERT_OBJ(srcp->takenp() != dstp, srcp, "Untaken branch targets the same block");
         //
         UASSERT_OBJ(dstp != m_enterp, dstp, "Enter block cannot have a predecessor");
         UASSERT_OBJ(srcp != m_exitp, srcp, "Exit block cannot have a successor");
         ++m_nEdits;
-        ++m_nEdges;
-        new CfgEdge{this, srcp, dstp};
+        ++m_n_అంచులు;
+        new Cfg_అంచు{this, srcp, dstp};
     }
 
-    size_t idOf(const CfgBlock* bbp) const {
-        UASSERT_OBJ(m_nEdits == m_nLastOrdered, m_enterp, "Cfg was edited but not re-ordered");
-        return bbp->m_rpoNumber;
+    కొలత_t id_యొక్క(స్థిరరాశి Cfg_ఖండం* bbp) స్థిరరాశి {
+        UASSERT_OBJ(m_nEdits == m_n_చివరి_Ordered, m_enterp, "Cfg was edited but not re-ordered");
+        తిరిగి bbp->m_rpo_సంఖ్య;
     }
 
-    size_t idOf(const CfgEdge* edgep) const {
-        UASSERT_OBJ(m_nEdits == m_nLastOrdered, m_enterp, "Cfg was edited but not re-ordered");
-        return edgep->m_id;
+    కొలత_t id_యొక్క(స్థిరరాశి Cfg_అంచు* edgep) స్థిరరాశి {
+        UASSERT_OBJ(m_nEdits == m_n_చివరి_Ordered, m_enterp, "Cfg was edited but not re-ordered");
+        తిరిగి edgep->m_id;
     }
 
     // Implementation for insertTwoWayJoins
-    CfgBlock* getOrCreateTwoWayJoinFor(CfgBlock* bbp);
+    Cfg_ఖండం* getOrCreateTwoWayJoinFor(Cfg_ఖండం* bbp);
 
     // CONSTRUCTOR - use CfgGraph::build, which might fail, so this can't be public
-    CfgGraph() = default;
+    Cfg_లేఖాచిత్రం() = అప్రమేయ;
 
-public:
-    ~CfgGraph() override = default;
+బహిరంగ:
+    ~Cfg_లేఖాచిత్రం() override = అప్రమేయ;
 
     // STATIC FUNCTIONS
 
     // Build CFG for the given list of statements
-    static std::unique_ptr<CfgGraph> build(AstNode* stmtsp);
+    స్థిర std::unique_ptr<Cfg_లేఖాచిత్రం> build(Ast_కణుపు* stmtsp);
 
     // PUBLIC METHODS
 
     // Accessors
-    const CfgBlock& enter() const { return *m_enterp; }
-    const CfgBlock& exit() const { return *m_exitp; }
+    స్థిరరాశి Cfg_ఖండం& enter() స్థిరరాశి { తిరిగి *m_enterp; }
+    స్థిరరాశి Cfg_ఖండం& నిష్క్రమించు() స్థిరరాశి { తిరిగి *m_exitp; }
 
     // Number of basic blocks in this graph
-    size_t nBlocks() const { return m_nBlocks; }
+    కొలత_t n_ఖండాలు() స్థిరరాశి { తిరిగి m_n_ఖండాలు; }
     // Number of control flow edges in this graph
-    size_t nEdges() const { return m_nEdges; }
+    కొలత_t n_అంచులు() స్థిరరాశి { తిరిగి m_n_అంచులు; }
 
     // Create a CfgBlock map for this graph
-    template <typename T_Value>
-    inline CfgBlockMap<T_Value> makeBlockMap() const;
+    మూస <typename T_విలువ>
+    అంతఃవరుస Cfg_ఖండం_Map<T_విలువ> make_ఖండం_Map() స్థిరరాశి;
     // Create a CfgEdgeMap map for this graph
-    template <typename T_Value>
-    inline CfgEdgeMap<T_Value> makeEdgeMap() const;
+    మూస <typename T_విలువ>
+    అంతఃవరుస Cfg_అంచు_Map<T_విలువ> make_అంచు_Map() స్థిరరాశి;
 
     // Returns true iff the graph contains a loop (back-edge)
-    bool containsLoop() const;
+    bool కలిగియుంది_Loop() స్థిరరాశి;
 
     //------------------------------------------------------------------
     // The following methods mutate this CFG and invalidate CfgBlock and
@@ -320,101 +320,101 @@ public:
     // query instances.
 
     // Remove empty blocks, combine sequential blocks. Keeps the enter/exit block, even if empty.
-    void minimize();
+    శూన్య minimize();
 
     // Insert empty blocks to fix critical edges (edges that have a source with
     // multiple successors, and a destination with multiple predecessors)
-    void breakCriticalEdges();
+    శూన్య break_Critical_అంచులు();
 
-    bool insertTwoWayJoins();
+    bool చొప్పించు_Two_Way_Joins();
 };
 
 //######################################################################
 // CfgMap - Map from CfgBlock or CfgEdge to generic values
 
-template <typename T_Key, typename T_Value>
+మూస <typename T_కీలకం, typename T_విలువ>
 class CfgMap VL_NOT_FINAL {
     // As opposed to a std::map/std::unordered_map, all entries are value
     // initialized at construction, and the map is always dense. This can
     // be improved if necessary but is sufficient for our current purposes.
 
-    const CfgGraph* m_cfgp;  // The control flow graph this map is for
-    size_t m_created;  // Edit count of CFG this map was created at
-    std::vector<T_Value> m_map;  // The map, stored as a vector
+    స్థిరరాశి Cfg_లేఖాచిత్రం* m_cfgp;  // The control flow graph this map is for
+    కొలత_t m_created;  // Edit count of CFG this map was created at
+    std::సదిశ<T_విలువ> m_map;  // The map, stored as a vector
 
-protected:
+రక్షిత:
     // CONSTRUCTOR
-    explicit CfgMap(const CfgGraph* cfgp, size_t size)
+    explicit CfgMap(స్థిరరాశి Cfg_లేఖాచిత్రం* cfgp, కొలత_t కొలత)
         : m_cfgp{cfgp}
         , m_created{cfgp->m_nEdits}
-        , m_map{size} {}
+        , m_map{కొలత} {}
 
-public:
+బహిరంగ:
     // Can create an empty map
     CfgMap()
         : m_cfgp{nullptr}
         , m_created{0} {}
 
     // Copyable, movable
-    CfgMap(const CfgMap<T_Key, T_Value>&) = default;
-    CfgMap(CfgMap<T_Key, T_Value>&&) = default;
-    CfgMap<T_Key, T_Value>& operator=(const CfgMap<T_Key, T_Value>&) = default;
-    CfgMap<T_Key, T_Value>& operator=(CfgMap<T_Key, T_Value>&&) = default;
+    CfgMap(స్థిరరాశి CfgMap<T_కీలకం, T_విలువ>&) = అప్రమేయ;
+    CfgMap(CfgMap<T_కీలకం, T_విలువ>&&) = అప్రమేయ;
+    CfgMap<T_కీలకం, T_విలువ>& క్రియాకారకం=(స్థిరరాశి CfgMap<T_కీలకం, T_విలువ>&) = అప్రమేయ;
+    CfgMap<T_కీలకం, T_విలువ>& క్రియాకారకం=(CfgMap<T_కీలకం, T_విలువ>&&) = అప్రమేయ;
 
-    T_Value& operator[](const T_Key& key) {
+    T_విలువ& క్రియాకారకం[](స్థిరరాశి T_కీలకం& కీలకం) {
         UASSERT_OBJ(m_created == m_cfgp->m_nEdits, m_cfgp->m_enterp, "Map is stale");
-        UASSERT_OBJ(m_cfgp == key.m_cfgp, m_cfgp->m_enterp, "Key not in this CFG");
-        return m_map.at(key.id());
+        UASSERT_OBJ(m_cfgp == కీలకం.m_cfgp, m_cfgp->m_enterp, "Key not in this CFG");
+        తిరిగి m_map.at(కీలకం.id());
     }
-    const T_Value& operator[](const T_Key& key) const {
+    స్థిరరాశి T_విలువ& క్రియాకారకం[](స్థిరరాశి T_కీలకం& కీలకం) స్థిరరాశి {
         UASSERT_OBJ(m_created == m_cfgp->m_nEdits, m_cfgp->m_enterp, "Map is stale");
-        UASSERT_OBJ(m_cfgp == key.m_cfgp, m_cfgp->m_enterp, "Key not in this CFG");
-        return m_map.at(key.id());
+        UASSERT_OBJ(m_cfgp == కీలకం.m_cfgp, m_cfgp->m_enterp, "Key not in this CFG");
+        తిరిగి m_map.at(కీలకం.id());
     }
-    T_Value& operator[](const T_Key* keyp) {
+    T_విలువ& క్రియాకారకం[](స్థిరరాశి T_కీలకం* keyp) {
         UASSERT_OBJ(m_created == m_cfgp->m_nEdits, m_cfgp->m_enterp, "Map is stale");
         UASSERT_OBJ(m_cfgp == keyp->m_cfgp, m_cfgp->m_enterp, "Key not in this CFG");
-        return m_map.at(keyp->id());
+        తిరిగి m_map.at(keyp->id());
     }
-    const T_Value& operator[](const T_Key* keyp) const {
+    స్థిరరాశి T_విలువ& క్రియాకారకం[](స్థిరరాశి T_కీలకం* keyp) స్థిరరాశి {
         UASSERT_OBJ(m_created == m_cfgp->m_nEdits, m_cfgp->m_enterp, "Map is stale");
         UASSERT_OBJ(m_cfgp == keyp->m_cfgp, m_cfgp->m_enterp, "Key not in this CFG");
-        return m_map.at(keyp->id());
+        తిరిగి m_map.at(keyp->id());
     }
 };
 
-template <typename T_Value>
-class CfgBlockMap final : public CfgMap<CfgBlock, T_Value> {
-    friend class CfgGraph;
+మూస <typename T_విలువ>
+class Cfg_ఖండం_Map final : బహిరంగ CfgMap<Cfg_ఖండం, T_విలువ> {
+    మిత్ర class Cfg_లేఖాచిత్రం;
     // CONSTRUCTOR - Create one via CfgGraph::makeBlockMap
-    explicit CfgBlockMap(const CfgGraph* cfgp)
-        : CfgMap<CfgBlock, T_Value>{cfgp, cfgp->nBlocks()} {}
+    explicit Cfg_ఖండం_Map(స్థిరరాశి Cfg_లేఖాచిత్రం* cfgp)
+        : CfgMap<Cfg_ఖండం, T_విలువ>{cfgp, cfgp->n_ఖండాలు()} {}
 
-public:
+బహిరంగ:
     // Can create an empty map
-    CfgBlockMap() = default;
+    Cfg_ఖండం_Map() = అప్రమేయ;
     // Copyable, movable
-    CfgBlockMap(const CfgBlockMap&) = default;
-    CfgBlockMap(CfgBlockMap&&) = default;
-    CfgBlockMap& operator=(const CfgBlockMap&) = default;
-    CfgBlockMap& operator=(CfgBlockMap&&) = default;
+    Cfg_ఖండం_Map(స్థిరరాశి Cfg_ఖండం_Map&) = అప్రమేయ;
+    Cfg_ఖండం_Map(Cfg_ఖండం_Map&&) = అప్రమేయ;
+    Cfg_ఖండం_Map& క్రియాకారకం=(స్థిరరాశి Cfg_ఖండం_Map&) = అప్రమేయ;
+    Cfg_ఖండం_Map& క్రియాకారకం=(Cfg_ఖండం_Map&&) = అప్రమేయ;
 };
 
-template <typename T_Value>
-class CfgEdgeMap final : public CfgMap<CfgEdge, T_Value> {
-    friend class CfgGraph;
+మూస <typename T_విలువ>
+class Cfg_అంచు_Map final : బహిరంగ CfgMap<Cfg_అంచు, T_విలువ> {
+    మిత్ర class Cfg_లేఖాచిత్రం;
     // CONSTRUCTOR - Create one via CfgGraph::makeEdgeMap
-    explicit CfgEdgeMap(const CfgGraph* cfgp)
-        : CfgMap<CfgEdge, T_Value>{cfgp, cfgp->nEdges()} {}
+    explicit Cfg_అంచు_Map(స్థిరరాశి Cfg_లేఖాచిత్రం* cfgp)
+        : CfgMap<Cfg_అంచు, T_విలువ>{cfgp, cfgp->n_అంచులు()} {}
 
-public:
+బహిరంగ:
     // Can create an empty map
-    CfgEdgeMap() = default;
+    Cfg_అంచు_Map() = అప్రమేయ;
     // Copyable, movable
-    CfgEdgeMap(const CfgEdgeMap&) = default;
-    CfgEdgeMap(CfgEdgeMap&&) = default;
-    CfgEdgeMap& operator=(const CfgEdgeMap&) = default;
-    CfgEdgeMap& operator=(CfgEdgeMap&&) = default;
+    Cfg_అంచు_Map(స్థిరరాశి Cfg_అంచు_Map&) = అప్రమేయ;
+    Cfg_అంచు_Map(Cfg_అంచు_Map&&) = అప్రమేయ;
+    Cfg_అంచు_Map& క్రియాకారకం=(స్థిరరాశి Cfg_అంచు_Map&) = అప్రమేయ;
+    Cfg_అంచు_Map& క్రియాకారకం=(Cfg_అంచు_Map&&) = అప్రమేయ;
 };
 
 //######################################################################
@@ -422,134 +422,134 @@ public:
 
 // --- CfgBlock ---
 
-CfgBlock::CfgBlock(CfgGraph* cfgp)
-    : V3GraphVertex{cfgp}
+Cfg_ఖండం::Cfg_ఖండం(Cfg_లేఖాచిత్రం* cfgp)
+    : V3_లేఖాచిత్రం_శీర్షం{cfgp}
     , m_cfgp{cfgp} {}
 
-size_t CfgBlock::id() { return m_cfgp->idOf(this); }
-size_t CfgBlock::id() const { return m_cfgp->idOf(this); }
+కొలత_t Cfg_ఖండం::id() { తిరిగి m_cfgp->id_యొక్క(this); }
+కొలత_t Cfg_ఖండం::id() స్థిరరాశి { తిరిగి m_cfgp->id_యొక్క(this); }
 
 // Successor edges
-CfgEdge* CfgBlock::takenEdgep() {  // It's always the first edge
-    return isExit() ? nullptr : static_cast<CfgEdge*>(outEdges().frontp());
+Cfg_అంచు* Cfg_ఖండం::తీసుకున్న_Edgep() {  // It's always the first edge
+    తిరిగి isExit() ? nullptr : static_cast<Cfg_అంచు*>(బహిర్గతం_అంచులు().frontp());
 }
-const CfgEdge* CfgBlock::takenEdgep() const {  // It's always the first edge
-    return isExit() ? nullptr : static_cast<const CfgEdge*>(outEdges().frontp());
+స్థిరరాశి Cfg_అంచు* Cfg_ఖండం::తీసుకున్న_Edgep() స్థిరరాశి {  // It's always the first edge
+    తిరిగి isExit() ? nullptr : static_cast<స్థిరరాశి Cfg_అంచు*>(బహిర్గతం_అంచులు().frontp());
 }
-CfgEdge* CfgBlock::untknEdgep() {  // It's always the second (last) edge
-    return isBranch() ? static_cast<CfgEdge*>(outEdges().backp()) : nullptr;
+Cfg_అంచు* Cfg_ఖండం::untknEdgep() {  // It's always the second (last) edge
+    తిరిగి isBranch() ? static_cast<Cfg_అంచు*>(బహిర్గతం_అంచులు().backp()) : nullptr;
 }
-const CfgEdge* CfgBlock::untknEdgep() const {  // It's always the second (last) edge
-    return isBranch() ? static_cast<const CfgEdge*>(outEdges().backp()) : nullptr;
+స్థిరరాశి Cfg_అంచు* Cfg_ఖండం::untknEdgep() స్థిరరాశి {  // It's always the second (last) edge
+    తిరిగి isBranch() ? static_cast<స్థిరరాశి Cfg_అంచు*>(బహిర్గతం_అంచులు().backp()) : nullptr;
 }
-CfgBlock* CfgBlock::takenp() {
-    return isExit() ? nullptr : static_cast<CfgBlock*>(outEdges().frontp()->top());
+Cfg_ఖండం* Cfg_ఖండం::takenp() {
+    తిరిగి isExit() ? nullptr : static_cast<Cfg_ఖండం*>(బహిర్గతం_అంచులు().frontp()->శిఖరం());
 }
-const CfgBlock* CfgBlock::takenp() const {
-    return isExit() ? nullptr : static_cast<CfgBlock*>(outEdges().frontp()->top());
+స్థిరరాశి Cfg_ఖండం* Cfg_ఖండం::takenp() స్థిరరాశి {
+    తిరిగి isExit() ? nullptr : static_cast<Cfg_ఖండం*>(బహిర్గతం_అంచులు().frontp()->శిఖరం());
 }
-CfgBlock* CfgBlock::untknp() {
-    return isBranch() ? static_cast<CfgBlock*>(outEdges().backp()->top()) : nullptr;
+Cfg_ఖండం* Cfg_ఖండం::untknp() {
+    తిరిగి isBranch() ? static_cast<Cfg_ఖండం*>(బహిర్గతం_అంచులు().backp()->శిఖరం()) : nullptr;
 }
-const CfgBlock* CfgBlock::untknp() const {
-    return isBranch() ? static_cast<const CfgBlock*>(outEdges().backp()->top()) : nullptr;
+స్థిరరాశి Cfg_ఖండం* Cfg_ఖండం::untknp() స్థిరరాశి {
+    తిరిగి isBranch() ? static_cast<స్థిరరాశి Cfg_ఖండం*>(బహిర్గతం_అంచులు().backp()->శిఖరం()) : nullptr;
 }
 
 // Predecessor edges
-CfgEdge* CfgBlock::firstPredecessorEdgep() {  //
-    return static_cast<CfgEdge*>(inEdges().frontp());
+Cfg_అంచు* Cfg_ఖండం::మొదటి_Predecessor_Edgep() {  //
+    తిరిగి static_cast<Cfg_అంచు*>(లోపల_అంచులు().frontp());
 }
-const CfgEdge* CfgBlock::firstPredecessorEdgep() const {  //
-    return static_cast<const CfgEdge*>(inEdges().frontp());
+స్థిరరాశి Cfg_అంచు* Cfg_ఖండం::మొదటి_Predecessor_Edgep() స్థిరరాశి {  //
+    తిరిగి static_cast<స్థిరరాశి Cfg_అంచు*>(లోపల_అంచులు().frontp());
 }
-CfgEdge* CfgBlock::lastPredecessorEdgep() {  //
-    return static_cast<CfgEdge*>(inEdges().backp());
+Cfg_అంచు* Cfg_ఖండం::చివరి_Predecessor_Edgep() {  //
+    తిరిగి static_cast<Cfg_అంచు*>(లోపల_అంచులు().backp());
 }
-const CfgEdge* CfgBlock::lastPredecessorEdgep() const {  //
-    return static_cast<const CfgEdge*>(inEdges().backp());
+స్థిరరాశి Cfg_అంచు* Cfg_ఖండం::చివరి_Predecessor_Edgep() స్థిరరాశి {  //
+    తిరిగి static_cast<స్థిరరాశి Cfg_అంచు*>(లోపల_అంచులు().backp());
 }
-CfgBlock* CfgBlock::firstPredecessorp() {  //
-    return isEnter() ? nullptr : firstPredecessorEdgep()->srcp();
+Cfg_ఖండం* Cfg_ఖండం::మొదటి_Predecessorp() {  //
+    తిరిగి isEnter() ? nullptr : మొదటి_Predecessor_Edgep()->srcp();
 }
-const CfgBlock* CfgBlock::firstPredecessorp() const {  //
-    return isEnter() ? nullptr : firstPredecessorEdgep()->srcp();
+స్థిరరాశి Cfg_ఖండం* Cfg_ఖండం::మొదటి_Predecessorp() స్థిరరాశి {  //
+    తిరిగి isEnter() ? nullptr : మొదటి_Predecessor_Edgep()->srcp();
 }
-CfgBlock* CfgBlock::lastPredecessorp() {  //
-    return isEnter() ? nullptr : lastPredecessorEdgep()->srcp();
+Cfg_ఖండం* Cfg_ఖండం::చివరి_Predecessorp() {  //
+    తిరిగి isEnter() ? nullptr : చివరి_Predecessor_Edgep()->srcp();
 }
-const CfgBlock* CfgBlock::lastPredecessorp() const {  //
-    return isEnter() ? nullptr : lastPredecessorEdgep()->srcp();
+స్థిరరాశి Cfg_ఖండం* Cfg_ఖండం::చివరి_Predecessorp() స్థిరరాశి {  //
+    తిరిగి isEnter() ? nullptr : చివరి_Predecessor_Edgep()->srcp();
 }
 
 // --- CfgEdge ---
 
-CfgEdge::CfgEdge(CfgGraph* cfgp, CfgBlock* srcp, CfgBlock* dstp)
-    : V3GraphEdge{cfgp, srcp, dstp, 1, false}
+Cfg_అంచు::Cfg_అంచు(Cfg_లేఖాచిత్రం* cfgp, Cfg_ఖండం* srcp, Cfg_ఖండం* dstp)
+    : V3_లేఖాచిత్రం_అంచు{cfgp, srcp, dstp, 1, false}
     , m_cfgp{cfgp} {}
 
-size_t CfgEdge::id() { return m_cfgp->idOf(this); }
-size_t CfgEdge::id() const { return m_cfgp->idOf(this); }
+కొలత_t Cfg_అంచు::id() { తిరిగి m_cfgp->id_యొక్క(this); }
+కొలత_t Cfg_అంచు::id() స్థిరరాశి { తిరిగి m_cfgp->id_యొక్క(this); }
 
 // --- CfgGraph ---
 
-template <typename T_Value>
-CfgBlockMap<T_Value> CfgGraph::makeBlockMap() const {
-    return CfgBlockMap<T_Value>{this};
+మూస <typename T_విలువ>
+Cfg_ఖండం_Map<T_విలువ> Cfg_లేఖాచిత్రం::make_ఖండం_Map() స్థిరరాశి {
+    తిరిగి Cfg_ఖండం_Map<T_విలువ>{this};
 }
-template <typename T_Value>
-CfgEdgeMap<T_Value> CfgGraph::makeEdgeMap() const {
-    return CfgEdgeMap<T_Value>{this};
+మూస <typename T_విలువ>
+Cfg_అంచు_Map<T_విలువ> Cfg_లేఖాచిత్రం::make_అంచు_Map() స్థిరరాశి {
+    తిరిగి Cfg_అంచు_Map<T_విలువ>{this};
 }
 
 //######################################################################
 // CfgDominatorTree
 
-class CfgDominatorTree final {
+class Cfg_Dominator_వృక్షం final {
     // STATE
-    CfgBlockMap<const CfgBlock*> m_bb2Idom;  // Map from CfgBlock to its immediate dominator
+    Cfg_ఖండం_Map<స్థిరరాశి Cfg_ఖండం*> m_bb2Idom;  // Map from CfgBlock to its immediate dominator
 
     // PRIVATE METHODS
 
     // Part of algorithm to compute m_bb2Idom, see consructor
-    const CfgBlock* intersect(const CfgBlock* ap, const CfgBlock* bp);
+    స్థిరరాశి Cfg_ఖండం* intersect(స్థిరరాశి Cfg_ఖండం* ap, స్థిరరాశి Cfg_ఖండం* bp);
 
-public:
+బహిరంగ:
     // CONSTRUCTOR
-    explicit CfgDominatorTree(const CfgGraph& cfg);
+    explicit Cfg_Dominator_వృక్షం(స్థిరరాశి Cfg_లేఖాచిత్రం& cfg);
     // Can create an empty map
-    CfgDominatorTree() = default;
+    Cfg_Dominator_వృక్షం() = అప్రమేయ;
     // Copyable, movable
-    CfgDominatorTree(const CfgDominatorTree&) = default;
-    CfgDominatorTree(CfgDominatorTree&&) = default;
-    CfgDominatorTree& operator=(const CfgDominatorTree&) = default;
-    CfgDominatorTree& operator=(CfgDominatorTree&&) = default;
+    Cfg_Dominator_వృక్షం(స్థిరరాశి Cfg_Dominator_వృక్షం&) = అప్రమేయ;
+    Cfg_Dominator_వృక్షం(Cfg_Dominator_వృక్షం&&) = అప్రమేయ;
+    Cfg_Dominator_వృక్షం& క్రియాకారకం=(స్థిరరాశి Cfg_Dominator_వృక్షం&) = అప్రమేయ;
+    Cfg_Dominator_వృక్షం& క్రియాకారకం=(Cfg_Dominator_వృక్షం&&) = అప్రమేయ;
 
     // PUBLIC METHODS
 
     // Return unique CfgBlock that dominates both of the given blocks, but does
     // not strictly dominate any other block that dominates both blocks. It
     // will return 'ap' or 'bp' if one dominates the other (or are the same)
-    const CfgBlock* closestCommonDominator(const CfgBlock* ap, const CfgBlock* bp) const {
-        while (ap != bp) {
-            if (*ap < *bp) {
+    స్థిరరాశి Cfg_ఖండం* closestCommonDominator(స్థిరరాశి Cfg_ఖండం* ap, స్థిరరాశి Cfg_ఖండం* bp) స్థిరరాశి {
+        అయితే (ap != bp) {
+            ఒకవేళ (*ap < *bp) {
                 bp = m_bb2Idom[bp];
-            } else {
+            } లేకపోతే {
                 ap = m_bb2Idom[ap];
             }
         }
-        return ap;
+        తిరిగి ap;
     }
 
     // Returns true if 'ap' dominates 'bp'
-    bool dominates(const CfgBlock* const ap, const CfgBlock* bp) {
+    bool dominates(స్థిరరాశి Cfg_ఖండం* స్థిరరాశి ap, స్థిరరాశి Cfg_ఖండం* bp) {
         // Walk up the dominator tree from 'bp' until reaching 'ap' or the root
-        while (true) {
+        అయితే (true) {
             // True if 'ap' is above (or same as) 'bp'
-            if (ap == bp) return true;
+            ఒకవేళ (ap == bp) తిరిగి true;
             // Step up the dominator tree
             bp = m_bb2Idom[bp];
             // False if reached the root
-            if (!bp) return false;
+            ఒకవేళ (!bp) తిరిగి false;
         }
     }
 };
@@ -564,8 +564,8 @@ namespace V3Cfg {
 // failed due to unhandled statements involved in the CFG. The analysis is
 // conservative and may return variables that are not actually live on entry.
 // On success, returns a vector of AstVarScope nodes that might be live on entry.
-std::unique_ptr<std::vector<AstVarScope*>> liveVarScopes(const CfgGraph&);
+std::unique_ptr<std::సదిశ<AstVarScope*>> సజీవ_Var_Scopes(స్థిరరాశి Cfg_లేఖాచిత్రం&);
 
 }  //namespace V3Cfg
 
-#endif  // VERILATOR_V3CFG_H_
+#అయితే_ముగింపు  // VERILATOR_V3CFG_H_

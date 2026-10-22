@@ -23,82 +23,82 @@
 //              Link to module that instantiates it
 //*************************************************************************
 
-#include "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
+#అన్తర్భావ "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
 
-#include "V3LinkCells.h"
+#అన్తర్భావ "V3LinkCells.h"
 
-#include "V3Graph.h"
-#include "V3Parse.h"
-#include "V3SymTable.h"
+#అన్తర్భావ "V3Graph.h"
+#అన్తర్భావ "V3Parse.h"
+#అన్తర్భావ "V3SymTable.h"
 
-#include <unordered_set>
-#include <vector>
+#అన్తర్భావ <unordered_set>
+#అన్తర్భావ <vector>
 
 VL_DEFINE_DEBUG_FUNCTIONS;
 
 //######################################################################
 // Graph subclasses
 
-class LinkCellsGraph final : public V3Graph {
-public:
-    LinkCellsGraph() = default;
-    ~LinkCellsGraph() override = default;
-    void loopsMessageCb(V3GraphVertex* vertexp, V3EdgeFuncP edgeFuncp) override;
+తరగతి Link_Cells_లేఖాచిత్రం final : బహిరంగ V3_లేఖాచిత్రం {
+బహిరంగ:
+    Link_Cells_లేఖాచిత్రం() = అప్రమేయ;
+    ~Link_Cells_లేఖాచిత్రం() override = అప్రమేయ;
+    శూన్య loops_సందేశం_Cb(V3_లేఖాచిత్రం_శీర్షం* vertexp, V3_అంచు_Func_P అంచు_Funcp) override;
 };
 
-class LinkCellsVertex final : public V3GraphVertex {
-    VL_RTTI_IMPL(LinkCellsVertex, V3GraphVertex)
-    AstNodeModule* const m_modp;
+తరగతి Link_Cells_శీర్షం final : బహిరంగ V3_లేఖాచిత్రం_శీర్షం {
+    VL_RTTI_IMPL(Link_Cells_శీర్షం, V3_లేఖాచిత్రం_శీర్షం)
+    Ast_కణుపు_Module* స్థిరరాశి m_modp;
 
-public:
-    LinkCellsVertex(V3Graph* graphp, AstNodeModule* modp)
-        : V3GraphVertex{graphp}
+బహిరంగ:
+    Link_Cells_శీర్షం(V3_లేఖాచిత్రం* graphp, Ast_కణుపు_Module* modp)
+        : V3_లేఖాచిత్రం_శీర్షం{graphp}
         , m_modp{modp} {}
-    ~LinkCellsVertex() override = default;
-    AstNodeModule* modp() const VL_MT_STABLE { return m_modp; }
-    string name() const override VL_MT_STABLE { return cvtToHex(modp()) + ' ' + modp()->name(); }
-    FileLine* fileline() const override { return modp()->fileline(); }
+    ~Link_Cells_శీర్షం() override = అప్రమేయ;
+    Ast_కణుపు_Module* modp() స్థిరరాశి VL_MT_STABLE { తిరిగి m_modp; }
+    string name() స్థిరరాశి override VL_MT_STABLE { తిరిగి cvt_గమ్యం_Hex(modp()) + ' ' + modp()->name(); }
+    File_పంక్తి* fileline() స్థిరరాశి override { తిరిగి modp()->fileline(); }
     // Recursive modules get space for maximum recursion
-    uint32_t rankAdder() const override {
-        return m_modp->recursiveClone() ? (1 + v3Global.opt.moduleRecursionDepth()) : 1;
+    uint32_t rankAdder() స్థిరరాశి override {
+        తిరిగి m_modp->recursiveClone() ? (1 + v3Global.opt.module_Recursion_లోతు()) : 1;
     }
 };
 
-class LibraryVertex final : public V3GraphVertex {
-    VL_RTTI_IMPL(LibraryVertex, V3GraphVertex)
-public:
-    explicit LibraryVertex(V3Graph* graphp)
-        : V3GraphVertex{graphp} {}
-    ~LibraryVertex() override = default;
-    string name() const override VL_MT_STABLE { return "*LIBRARY*"; }
+తరగతి Library_శీర్షం final : బహిరంగ V3_లేఖాచిత్రం_శీర్షం {
+    VL_RTTI_IMPL(Library_శీర్షం, V3_లేఖాచిత్రం_శీర్షం)
+బహిరంగ:
+    స్పష్టమైన Library_శీర్షం(V3_లేఖాచిత్రం* graphp)
+        : V3_లేఖాచిత్రం_శీర్షం{graphp} {}
+    ~Library_శీర్షం() override = అప్రమేయ;
+    string name() స్థిరరాశి override VL_MT_STABLE { తిరిగి "*LIBRARY*"; }
 };
 
-class CellEdge final : public V3GraphEdge {
-    VL_RTTI_IMPL(CellEdge, V3GraphEdge)
-    AstCell* const m_cellp;
+తరగతి Cell_అంచు final : బహిరంగ V3_లేఖాచిత్రం_అంచు {
+    VL_RTTI_IMPL(Cell_అంచు, V3_లేఖాచిత్రం_అంచు)
+    AstCell* స్థిరరాశి m_cellp;
 
-public:
-    CellEdge(V3Graph* graphp, V3GraphVertex* fromp, V3GraphVertex* top, int weight, bool cutable,
+బహిరంగ:
+    Cell_అంచు(V3_లేఖాచిత్రం* graphp, V3_లేఖాచిత్రం_శీర్షం* fromp, V3_లేఖాచిత్రం_శీర్షం* శిఖరం, పూర్ణాంకం బరువు_2, తార్కిక cutable,
              AstCell* cellp)
-        : V3GraphEdge{graphp, fromp, top, weight, cutable}
+        : V3_లేఖాచిత్రం_అంచు{graphp, fromp, శిఖరం, బరువు_2, cutable}
         , m_cellp{cellp} {}
-    AstCell* cellp() const { return m_cellp; }
-    string name() const override VL_MT_STABLE {
-        return cellp() ? cvtToHex(cellp()) + ' ' + cellp()->name() : "";
+    AstCell* cellp() స్థిరరాశి { తిరిగి m_cellp; }
+    string name() స్థిరరాశి override VL_MT_STABLE {
+        తిరిగి cellp() ? cvt_గమ్యం_Hex(cellp()) + ' ' + cellp()->name() : "";
     }
 };
 
-void LinkCellsGraph::loopsMessageCb(V3GraphVertex* vertexp, V3EdgeFuncP edgeFuncp) {
-    if (const LinkCellsVertex* const vvertexp = vertexp->cast<LinkCellsVertex>()) {
+శూన్య Link_Cells_లేఖాచిత్రం::loops_సందేశం_Cb(V3_లేఖాచిత్రం_శీర్షం* vertexp, V3_అంచు_Func_P అంచు_Funcp) {
+    ఒకవేళ (స్థిరరాశి Link_Cells_శీర్షం* స్థిరరాశి vvertexp = vertexp->cast<Link_Cells_శీర్షం>()) {
         vvertexp->modp()->v3warn(E_UNSUPPORTED,
                                  "Unsupported: Recursive multiple modules (module instantiates "
                                  "something leading back to itself): "
                                      << vvertexp->modp()->prettyNameQ() << '\n'
-                                     << vvertexp->modp()->warnMore()
+                                     << vvertexp->modp()->warn_మరిన్ని()
                                      << "... note: self-recursion (module instantiating itself "
                                         "directly) is supported.");
         V3Error::abortIfErrors();
-    } else {  // Everything should match above, but...
+    } లేకపోతే {  // Everything should match above, but...
         v3fatalSrc("Recursive instantiations");
     }
 }
@@ -107,111 +107,111 @@ void LinkCellsGraph::loopsMessageCb(V3GraphVertex* vertexp, V3EdgeFuncP edgeFunc
 // Link state, as a visitor of each AstNode
 
 // State to pass between config parsing and cell linking visitors.
-struct LinkCellsState final {
+నిర్మాణం LinkCellsState final {
     // Set of possible top module names from command line and configs
-    std::vector<std::pair<std::string, std::string>> m_designs;
+    std::సదిశ<std::pair<std::string, std::string>> m_designs;
     // Default library lists to search
-    std::vector<std::string> m_liblistDefault;
+    std::సదిశ<std::string> m_liblistDefault;
     // Library lists for specific cells
-    std::unordered_map<std::string, std::vector<std::string>> m_liblistCell;
+    std::unordered_map<std::string, std::సదిశ<std::string>> m_liblistCell;
     // Use list for specific cells (libname, cellname)
-    std::unordered_map<std::string, std::vector<std::pair<std::string, std::string>>>
+    std::unordered_map<std::string, std::సదిశ<std::pair<std::string, std::string>>>
         m_uselistCell;
     // Library lists for specific insts
-    std::unordered_map<std::string, std::vector<std::string>> m_liblistInst;
+    std::unordered_map<std::string, std::సదిశ<std::string>> m_liblistInst;
     // Use list for specific insts (libname, cellname)
-    std::unordered_map<std::string, std::vector<std::pair<std::string, std::string>>>
+    std::unordered_map<std::string, std::సదిశ<std::pair<std::string, std::string>>>
         m_uselistInst;
 };
 
-class LinkConfigsVisitor final : public VNVisitor {
+తరగతి LinkConfigsVisitor final : బహిరంగ VNVisitor {
     // STATE
     LinkCellsState& m_state;  // Context for linking cells
-    bool m_isTop = false;  // Whether we're in the top-level config
-    bool m_isDefault = false;  // Whether we're currently in a default clause
+    తార్కిక m_is_శిఖరం = అబద్ధం;  // Whether we're in the top-level config
+    తార్కిక m_isDefault = అబద్ధం;  // Whether we're currently in a default clause
     string m_cell;  // Current cell being processed
     string m_hierInst;  // Current hierarchical instance being processed
-    AstDot* m_dotp = nullptr;  // Current dot being processed
+    AstDot* m_dotp = శూన్యసూచిక;  // Current dot being processed
 
     // VISITORS
-    void visit(AstConfig* nodep) override {
-        VL_RESTORER(m_isTop);
-        const auto& fullName
+    శూన్య సందర్శించు(AstConfig* nodep) override {
+        VL_RESTORER(m_is_శిఖరం);
+        స్థిరరాశి స్వయంచాలక& నిండిన_Name
             = std::pair<std::string, std::string>{nodep->libname(), nodep->configname()};
-        m_isTop = std::find(m_state.m_designs.begin(), m_state.m_designs.end(), fullName)
-                  != m_state.m_designs.end();
+        m_is_శిఖరం = std::కనుగొను(m_state.m_designs.begin(), m_state.m_designs.చివర(), నిండిన_Name)
+                  != m_state.m_designs.చివర();
         m_state.m_designs.erase(
-            std::remove(m_state.m_designs.begin(), m_state.m_designs.end(), fullName),
-            m_state.m_designs.end());
+            std::remove(m_state.m_designs.begin(), m_state.m_designs.చివర(), నిండిన_Name),
+            m_state.m_designs.చివర());
         iterateChildren(nodep);
-        VL_DO_DANGLING(pushDeletep(nodep->unlinkFrBack()), nodep);
+        VL_DO_DANGLING(నెట్టు_Deletep(nodep->unlink_Fr_వెనుక()), nodep);
     }
 
-    void visit(AstConfigCell* nodep) override {
-        if (m_isTop) m_state.m_designs.emplace_back(nodep->libname(), nodep->cellname());
+    శూన్య సందర్శించు(AstConfigCell* nodep) override {
+        ఒకవేళ (m_is_శిఖరం) m_state.m_designs.emplace_వెనుక(nodep->libname(), nodep->cellname());
     }
 
-    void visit(AstConfigRule* nodep) override {
-        if (!nodep->cellp()) {
+    శూన్య సందర్శించు(Ast_Config_నియమం* nodep) override {
+        ఒకవేళ (!nodep->cellp()) {
             VL_RESTORER(m_isDefault);
-            m_isDefault = true;
-            iterateAndNextNull(nodep->usep());
-        } else if (nodep->isCell()) {
+            m_isDefault = నిజం;
+            iterate_And_తదుపరి_Null(nodep->usep());
+        } లేకపోతే ఒకవేళ (nodep->isCell()) {
             VL_RESTORER_CLEAR(m_cell);
             m_cell = nodep->cellp()->name();
-            iterateAndNextNull(nodep->usep());
-        } else {
+            iterate_And_తదుపరి_Null(nodep->usep());
+        } లేకపోతే {
             VL_RESTORER_COPY(m_hierInst);
             {
                 VL_RESTORER(m_dotp);
                 m_dotp = VN_AS(nodep->cellp(), Dot);
-                iterateAndNextNull(nodep->cellp());
+                iterate_And_తదుపరి_Null(nodep->cellp());
             }
-            iterateAndNextNull(nodep->usep());
+            iterate_And_తదుపరి_Null(nodep->usep());
         }
     }
 
-    void visit(AstDot* nodep) override { iterateChildren(nodep); }
+    శూన్య సందర్శించు(AstDot* nodep) override { iterateChildren(nodep); }
 
-    void visit(AstParseRef* nodep) override {
-        if (m_isDefault) {
-            m_state.m_liblistDefault.emplace_back(nodep->name());
-        } else if (!m_cell.empty()) {
-            m_state.m_liblistCell[m_cell].emplace_back(nodep->name());
-        } else if (m_dotp) {
-            m_hierInst += m_hierInst.empty() ? nodep->name() : '.' + nodep->name();
-        } else if (!m_hierInst.empty()) {
-            m_state.m_liblistInst[m_hierInst].emplace_back(nodep->name());
+    శూన్య సందర్శించు(AstParseRef* nodep) override {
+        ఒకవేళ (m_isDefault) {
+            m_state.m_liblistDefault.emplace_వెనుక(nodep->name());
+        } లేకపోతే ఒకవేళ (!m_cell.ఖాళీలు()) {
+            m_state.m_liblistCell[m_cell].emplace_వెనుక(nodep->name());
+        } లేకపోతే ఒకవేళ (m_dotp) {
+            m_hierInst += m_hierInst.ఖాళీలు() ? nodep->name() : '.' + nodep->name();
+        } లేకపోతే ఒకవేళ (!m_hierInst.ఖాళీలు()) {
+            m_state.m_liblistInst[m_hierInst].emplace_వెనుక(nodep->name());
         }
     }
 
-    void visit(AstConfigUse* nodep) override {
-        if (nodep->isConfig()) {
+    శూన్య సందర్శించు(AstConfigUse* nodep) override {
+        ఒకవేళ (nodep->isConfig()) {
             nodep->v3warn(E_UNSUPPORTED, "Unsupported: hierarchical config rule");
-        } else if (!m_cell.empty()) {
-            m_state.m_uselistCell[m_cell].emplace_back(nodep->libname(), nodep->cellname());
-        } else if (m_dotp) {
-            m_hierInst += m_hierInst.empty() ? nodep->name() : '.' + nodep->name();
-        } else if (!m_hierInst.empty()) {
-            m_state.m_uselistInst[m_hierInst].emplace_back(nodep->libname(), nodep->cellname());
+        } లేకపోతే ఒకవేళ (!m_cell.ఖాళీలు()) {
+            m_state.m_uselistCell[m_cell].emplace_వెనుక(nodep->libname(), nodep->cellname());
+        } లేకపోతే ఒకవేళ (m_dotp) {
+            m_hierInst += m_hierInst.ఖాళీలు() ? nodep->name() : '.' + nodep->name();
+        } లేకపోతే ఒకవేళ (!m_hierInst.ఖాళీలు()) {
+            m_state.m_uselistInst[m_hierInst].emplace_వెనుక(nodep->libname(), nodep->cellname());
         }
     }
 
-    void visit(AstNode* nodep) override { iterateChildren(nodep); }
+    శూన్య సందర్శించు(Ast_కణుపు* nodep) override { iterateChildren(nodep); }
 
-public:
+బహిరంగ:
     // CONSTRUCTORS
     LinkConfigsVisitor(AstNetlist* nodep, LinkCellsState& state)
         : m_state{state} {
         // Initialize top module from command line option
-        if (!m_state.m_designs.size() && !v3Global.opt.topModule().empty()) {
-            m_state.m_designs.emplace_back(v3Global.opt.work(), v3Global.opt.topModule());
+        ఒకవేళ (!m_state.m_designs.కొలత() && !v3Global.opt.శిఖరం_Module().ఖాళీలు()) {
+            m_state.m_designs.emplace_వెనుక(v3Global.opt.work(), v3Global.opt.శిఖరం_Module());
         }
         iterate(nodep);
     }
 };
 
-class LinkCellsVisitor final : public VNVisitor {
+తరగతి LinkCellsVisitor final : బహిరంగ VNVisitor {
     // NODE STATE
     //  Entire netlist:
     //   AstNodeModule::user1p()        // V3GraphVertex*    Vertex describing this module
@@ -220,399 +220,399 @@ class LinkCellsVisitor final : public VNVisitor {
     //   AstCell::user2()               // bool   clone renaming completed
     //  Allocated across all readFiles in V3Global::readFiles:
     //   AstNode::user4p()      // VSymEnt*    Package and typedef symbol names
-    const VNUser1InUse m_inuser1;
-    const VNUser2InUse m_inuser2;
+    స్థిరరాశి VNUser1_లోపల_Use m_inuser1;
+    స్థిరరాశి VNUser2_లోపల_Use m_inuser2;
 
     // STATE
-    VInFilter* const m_filterp;  // Parser filter
+    VInFilter* స్థిరరాశి m_filterp;  // Parser filter
     LinkCellsState& m_state;  // State for linking cells
 
     // Below state needs to be preserved between each module call.
-    AstNodeModule* m_modp = nullptr;  // Current module
-    AstVar* m_varp = nullptr;  // Current variable
-    VSymGraph m_mods;  // Symbol table of all module names
-    LinkCellsGraph m_graph;  // Linked graph of all cell interconnects
-    LibraryVertex* m_libVertexp = nullptr;  // Vertex at root of all libraries
-    const V3GraphVertex* m_topVertexp = nullptr;  // Vertex of top module
-    std::unordered_set<string> m_declfnWarned;  // Files we issued DECLFILENAME on
-    string m_origTopModuleName;  // original name of the top module
-    int m_modDepth = 0;  // Depth of the current module
+    Ast_కణుపు_Module* m_modp = శూన్యసూచిక;  // Current module
+    AstVar* m_varp = శూన్యసూచిక;  // Current variable
+    VSym_లేఖాచిత్రం m_mods;  // Symbol table of all module names
+    Link_Cells_లేఖాచిత్రం m_లేఖాచిత్రం;  // Linked graph of all cell interconnects
+    Library_శీర్షం* m_libVertexp = శూన్యసూచిక;  // Vertex at root of all libraries
+    స్థిరరాశి V3_లేఖాచిత్రం_శీర్షం* m_శిఖరం_Vertexp = శూన్యసూచిక;  // Vertex of top module
+    std::unordered_సమితి<string> m_declfnWarned;  // Files we issued DECLFILENAME on
+    string m_orig_శిఖరం_Module_Name;  // original name of the top module
+    పూర్ణాంకం m_mod_లోతు = 0;  // Depth of the current module
 
     // METHODS
-    V3GraphVertex* vertex(AstNodeModule* nodep) {
+    V3_లేఖాచిత్రం_శీర్షం* శీర్షం(Ast_కణుపు_Module* nodep) {
         // Return corresponding vertex for this module
-        if (!nodep->user1p()) nodep->user1p(new LinkCellsVertex{&m_graph, nodep});
-        return nodep->user1u().toGraphVertex();
+        ఒకవేళ (!nodep->user1p()) nodep->user1p(కొత్త Link_Cells_శీర్షం{&m_లేఖాచిత్రం, nodep});
+        తిరిగి nodep->user1u().గమ్యం_లేఖాచిత్రం_శీర్షం();
     }
-    void newEdge(V3GraphVertex* fromp, V3GraphVertex* top, int weight, bool cuttable) {
-        const V3GraphEdge* const edgep = new V3GraphEdge{&m_graph, fromp, top, weight, cuttable};
-        UINFO(9, "    newEdge " << edgep << " " << fromp->name() << " -> " << top->name());
+    శూన్య new_అంచు(V3_లేఖాచిత్రం_శీర్షం* fromp, V3_లేఖాచిత్రం_శీర్షం* శిఖరం, పూర్ణాంకం బరువు_2, తార్కిక cuttable) {
+        స్థిరరాశి V3_లేఖాచిత్రం_అంచు* స్థిరరాశి edgep = కొత్త V3_లేఖాచిత్రం_అంచు{&m_లేఖాచిత్రం, fromp, శిఖరం, బరువు_2, cuttable};
+        UINFO(9, "    newEdge " << edgep << " " << fromp->name() << " -> " << శిఖరం->name());
     }
-    void cellEdge(V3GraphVertex* fromp, V3GraphVertex* top, int weight, bool cuttable,
+    శూన్య cell_అంచు(V3_లేఖాచిత్రం_శీర్షం* fromp, V3_లేఖాచిత్రం_శీర్షం* శిఖరం, పూర్ణాంకం బరువు_2, తార్కిక cuttable,
                   AstCell* cellp) {
-        const V3GraphEdge* const edgep
-            = new CellEdge{&m_graph, fromp, top, weight, cuttable, cellp};
-        UINFO(9, "    cellEdge " << edgep << " " << fromp->name() << " -> " << top->name());
+        స్థిరరాశి V3_లేఖాచిత్రం_అంచు* స్థిరరాశి edgep
+            = కొత్త Cell_అంచు{&m_లేఖాచిత్రం, fromp, శిఖరం, బరువు_2, cuttable, cellp};
+        UINFO(9, "    cellEdge " << edgep << " " << fromp->name() << " -> " << శిఖరం->name());
     }
-    void insertModInLib(const string& name, const string& libname, AstNodeModule* nodep) {
+    శూన్య చొప్పించు_Mod_లోపల_Lib(స్థిరరాశి string& name, స్థిరరాశి string& libname, Ast_కణుపు_Module* nodep) {
         // Be able to find the module under it's library using the name it was given
-        VSymEnt* libSymp = m_mods.rootp()->findIdFlat(libname);
-        if (!libSymp)
-            libSymp = m_mods.rootp()->insert(libname, new VSymEnt{&m_mods, v3Global.rootp()});
-        libSymp->insert(name, new VSymEnt{&m_mods, nodep});
+        VSymEnt* libSymp = m_mods.rootp()->కనుగొను_Id_Flat(libname);
+        ఒకవేళ (!libSymp)
+            libSymp = m_mods.rootp()->చొప్పించు(libname, కొత్త VSymEnt{&m_mods, v3Global.rootp()});
+        libSymp->చొప్పించు(name, కొత్త VSymEnt{&m_mods, nodep});
     }
 
-    AstNodeModule* findModuleLibSym(const string& modName, const string& libname) {
+    Ast_కణుపు_Module* కనుగొను_Module_Lib_Sym(స్థిరరాశి string& modName, స్థిరరాశి string& libname) {
         // Given module name and library name, find within that exact library
-        const VSymEnt* const libSymp = m_mods.rootp()->findIdFallback(libname);
-        if (!libSymp) return nullptr;
-        const VSymEnt* const foundp = libSymp->findIdFallback(modName);
-        return foundp ? VN_AS(foundp->nodep(), NodeModule) : nullptr;
+        స్థిరరాశి VSymEnt* స్థిరరాశి libSymp = m_mods.rootp()->కనుగొను_Id_Fallback(libname);
+        ఒకవేళ (!libSymp) తిరిగి శూన్యసూచిక;
+        స్థిరరాశి VSymEnt* స్థిరరాశి foundp = libSymp->కనుగొను_Id_Fallback(modName);
+        తిరిగి foundp ? VN_AS(foundp->nodep(), కణుపు_Module) : శూన్యసూచిక;
     }
-    AstNodeModule* findModuleSym(const string& modName, const string& libname) {
+    Ast_కణుపు_Module* కనుగొను_Module_Sym(స్థిరరాశి string& modName, స్థిరరాశి string& libname) {
         // Given module and library to start search in, resolve using config library choices
-        AstNodeModule* foundp;
-        const std::string fullName = libname + "." + modName;
+        Ast_కణుపు_Module* foundp;
+        స్థిరరాశి std::string నిండిన_Name = libname + "." + modName;
         // First search cell-specific use list
-        const auto itCellUseList = m_state.m_uselistCell.find(fullName);
-        if (itCellUseList != m_state.m_uselistCell.end()) {
-            for (auto const& u : itCellUseList->second) {
-                foundp = findModuleLibSym(u.second, u.first);
-                if (foundp) return foundp;
+        స్థిరరాశి స్వయంచాలక itCellUseList = m_state.m_uselistCell.కనుగొను(నిండిన_Name);
+        ఒకవేళ (itCellUseList != m_state.m_uselistCell.చివర()) {
+            కొరకు (స్వయంచాలక స్థిరరాశి& u : itCellUseList->రెండవ) {
+                foundp = కనుగొను_Module_Lib_Sym(u.రెండవ, u.మొదటి);
+                ఒకవేళ (foundp) తిరిగి foundp;
             }
         }
         // Then search cell-specific library list
-        const auto itCellLibList = m_state.m_liblistCell.find(fullName);
-        if (itCellLibList != m_state.m_liblistCell.end()) {
-            for (auto const& l : itCellLibList->second) {
-                foundp = findModuleLibSym(modName, l);
-                if (foundp) return foundp;
+        స్థిరరాశి స్వయంచాలక itCellLibList = m_state.m_liblistCell.కనుగొను(నిండిన_Name);
+        ఒకవేళ (itCellLibList != m_state.m_liblistCell.చివర()) {
+            కొరకు (స్వయంచాలక స్థిరరాశి& l : itCellLibList->రెండవ) {
+                foundp = కనుగొను_Module_Lib_Sym(modName, l);
+                ఒకవేళ (foundp) తిరిగి foundp;
             }
         }
         // Then search IEEE config default liblist
-        for (auto const& l : m_state.m_liblistDefault) {
-            foundp = findModuleLibSym(modName, l);
-            if (foundp) return foundp;
+        కొరకు (స్వయంచాలక స్థిరరాశి& l : m_state.m_liblistDefault) {
+            foundp = కనుగొను_Module_Lib_Sym(modName, l);
+            ఒకవేళ (foundp) తిరిగి foundp;
         }
         // Then search local library
-        foundp = findModuleLibSym(modName, libname);
-        if (foundp) return foundp;
+        foundp = కనుగొను_Module_Lib_Sym(modName, libname);
+        ఒకవేళ (foundp) తిరిగి foundp;
         // Then search global
-        foundp = findModuleLibSym(modName, "__GLOBAL");
-        return foundp;
+        foundp = కనుగొను_Module_Lib_Sym(modName, "__GLOBAL");
+        తిరిగి foundp;
     }
 
-    AstNodeModule* resolveModule(AstNode* nodep, const string& modName, const string& libname) {
-        AstNodeModule* modp = findModuleSym(modName, libname);
-        if (!modp) {
+    Ast_కణుపు_Module* resolveModule(Ast_కణుపు* nodep, స్థిరరాశి string& modName, స్థిరరాశి string& libname) {
+        Ast_కణుపు_Module* modp = కనుగొను_Module_Sym(modName, libname);
+        ఒకవేళ (!modp) {
             // Read-subfile
             // If file not found, make AstNotFoundModule, rather than error out.
             // We'll throw the error when we know the module will really be needed.
-            const string prettyName = AstNode::prettyName(modName);
+            స్థిరరాశి string prettyName = Ast_కణుపు::prettyName(modName);
             V3Parse parser{v3Global.rootp(), m_filterp};
             // true below -> other simulators treat modules in link-found files as library cells
-            parser.parseFile(nodep->fileline(), prettyName, true, false, m_modp->libname(), "",
+            parser.parseFile(nodep->fileline(), prettyName, నిజం, అబద్ధం, m_modp->libname(), "",
                              modName);
             V3Error::abortIfErrors();
             // We've read new modules, grab new pointers to their names
-            readModNames();
+            read_Mod_పేర్లు();
             // Check again
-            modp = findModuleSym(modName, libname);
-            if (!modp) {
+            modp = కనుగొను_Module_Sym(modName, libname);
+            ఒకవేళ (!modp) {
                 // This shouldn't throw a message as parseFile will create
                 // a AstNotFoundModule for us
                 nodep->v3error("Can't resolve module reference: '" << prettyName << "'");
             }
         }
-        return modp;
+        తిరిగి modp;
     }
 
-    static void removeLibFlag() {
+    స్థిర శూన్య removeLibFlag() {
         // If the only NodeModules are in libraries, then presumably user
         // wants to check the library, so clear library flag
-        if (!v3Global.opt.topModule().empty()) return;
-        for (AstNodeModule* nodep = v3Global.rootp()->modulesp(); nodep;
-             nodep = VN_AS(nodep->nextp(), NodeModule)) {
-            if (!nodep->inLibrary()) return;
+        ఒకవేళ (!v3Global.opt.శిఖరం_Module().ఖాళీలు()) తిరిగి;
+        కొరకు (Ast_కణుపు_Module* nodep = v3Global.rootp()->modulesp(); nodep;
+             nodep = VN_AS(nodep->nextp(), కణుపు_Module)) {
+            ఒకవేళ (!nodep->లోపల_Library()) తిరిగి;
         }
-        for (AstNodeModule* nodep = v3Global.rootp()->modulesp(); nodep;
-             nodep = VN_AS(nodep->nextp(), NodeModule)) {
-            nodep->inLibrary(false);
+        కొరకు (Ast_కణుపు_Module* nodep = v3Global.rootp()->modulesp(); nodep;
+             nodep = VN_AS(nodep->nextp(), కణుపు_Module)) {
+            nodep->లోపల_Library(అబద్ధం);
         }
     }
 
-    AstCell* findCellByHier(AstNetlist* nodep, const std::string& hierPath) {
-        std::stringstream ss(hierPath);
-        std::string top;
-        bool topFound = false;
-        std::getline(ss, top, '.');
-        for (auto const& pair : m_state.m_designs) {
-            if (top == pair.second) {
-                topFound = true;
-                break;
+    AstCell* కనుగొను_Cell_By_Hier(AstNetlist* nodep, స్థిరరాశి std::string& hier_మార్గం) {
+        std::stringstream ss(hier_మార్గం);
+        std::string శిఖరం;
+        తార్కిక శిఖరం_దొరికింది = అబద్ధం;
+        std::getline(ss, శిఖరం, '.');
+        కొరకు (స్వయంచాలక స్థిరరాశి& pair : m_state.m_designs) {
+            ఒకవేళ (శిఖరం == pair.రెండవ) {
+                శిఖరం_దొరికింది = నిజం;
+                ఆపు;
             }
         }
-        if (!topFound) {
-            nodep->v3error("Can't find top-level module for instance path: '" << hierPath << "'");
+        ఒకవేళ (!శిఖరం_దొరికింది) {
+            nodep->v3error("Can't find top-level module for instance path: '" << hier_మార్గం << "'");
             V3Error::abortIfErrors();
-            return nullptr;
+            తిరిగి శూన్యసూచిక;
         }
 
-        const V3GraphVertex* vtx = m_topVertexp;
-        const CellEdge* finalEdgep = nullptr;
+        స్థిరరాశి V3_లేఖాచిత్రం_శీర్షం* vtx = m_శిఖరం_Vertexp;
+        స్థిరరాశి Cell_అంచు* finalEdgep = శూన్యసూచిక;
         std::string seg;
-        while (std::getline(ss, seg, '.')) {
-            finalEdgep = nullptr;
-            for (const V3GraphEdge& edge : vtx->outEdges()) {
-                if (const CellEdge* const cedgep = edge.cast<CellEdge>()) {
-                    if (cedgep->cellp()->name() == seg) {
-                        vtx = cedgep->top();
+        అయితే (std::getline(ss, seg, '.')) {
+            finalEdgep = శూన్యసూచిక;
+            కొరకు (స్థిరరాశి V3_లేఖాచిత్రం_అంచు& అంచు : vtx->బహిర్గతం_అంచులు()) {
+                ఒకవేళ (స్థిరరాశి Cell_అంచు* స్థిరరాశి cedgep = అంచు.cast<Cell_అంచు>()) {
+                    ఒకవేళ (cedgep->cellp()->name() == seg) {
+                        vtx = cedgep->శిఖరం();
                         finalEdgep = cedgep;
-                        break;
+                        ఆపు;
                     }
                 }
             }
-            if (!finalEdgep) return nullptr;
+            ఒకవేళ (!finalEdgep) తిరిగి శూన్యసూచిక;
         }
 
-        return finalEdgep->cellp();
+        తిరిగి finalEdgep->cellp();
     }
 
-    void assignParamNumbers(AstPin* const firstPinp) {
-        for (AstPin* pinp = firstPinp; pinp; pinp = VN_AS(pinp->nextp(), Pin)) {
-            pinp->param(true);
-            if (pinp->name() == "") pinp->name("__paramNumber" + cvtToStr(pinp->pinNum()));
+    శూన్య కేటాయించు_Param_Numbers(AstPin* స్థిరరాశి మొదటి_Pinp) {
+        కొరకు (AstPin* pinp = మొదటి_Pinp; pinp; pinp = VN_AS(pinp->nextp(), Pin)) {
+            pinp->param(నిజం);
+            ఒకవేళ (pinp->name() == "") pinp->name("__paramNumber" + cvt_గమ్యం_Str(pinp->pin_అంకె()));
         }
     }
 
     // VISITORS
-    void visit(AstNetlist* nodep) override {
-        readModNames();
+    శూన్య సందర్శించు(AstNetlist* nodep) override {
+        read_Mod_పేర్లు();
         iterateChildren(nodep);
 
         // Replace instance module pointers based on config
-        AstNodeModule* modp = nullptr;
-        AstCell* cellp = nullptr;
+        Ast_కణుపు_Module* modp = శూన్యసూచిక;
+        AstCell* cellp = శూన్యసూచిక;
 
         // Search liblists for each instance
-        for (auto const& pair : m_state.m_liblistInst) {
-            cellp = findCellByHier(nodep, pair.first);
-            if (!cellp) continue;
-            for (auto const& libname : pair.second) {
-                modp = findModuleLibSym(cellp->modName(), libname);
-                if (modp) {
+        కొరకు (స్వయంచాలక స్థిరరాశి& pair : m_state.m_liblistInst) {
+            cellp = కనుగొను_Cell_By_Hier(nodep, pair.మొదటి);
+            ఒకవేళ (!cellp) కొనసాగు;
+            కొరకు (స్వయంచాలక స్థిరరాశి& libname : pair.రెండవ) {
+                modp = కనుగొను_Module_Lib_Sym(cellp->modName(), libname);
+                ఒకవేళ (modp) {
                     cellp->modp(modp);
-                    break;
+                    ఆపు;
                 }
             }
         }
 
         // Search uselists for each instance
-        for (auto const& pair : m_state.m_uselistInst) {
-            cellp = findCellByHier(nodep, pair.first);
-            for (auto const& u : pair.second) {
-                modp = findModuleLibSym(u.second, u.first);
-                if (modp) {
+        కొరకు (స్వయంచాలక స్థిరరాశి& pair : m_state.m_uselistInst) {
+            cellp = కనుగొను_Cell_By_Hier(nodep, pair.మొదటి);
+            కొరకు (స్వయంచాలక స్థిరరాశి& u : pair.రెండవ) {
+                modp = కనుగొను_Module_Lib_Sym(u.రెండవ, u.మొదటి);
+                ఒకవేళ (modp) {
                     cellp->modp(modp);
-                    break;
+                    ఆపు;
                 }
             }
         }
 
         // Find levels in graph
-        m_graph.removeRedundantEdgesMax(&V3GraphEdge::followAlwaysTrue);
-        if (dumpGraphLevel()) m_graph.dumpDotFilePrefixed("linkcells");
-        m_graph.rank();
-        for (V3GraphVertex& vtx : m_graph.vertices()) {
-            if (const LinkCellsVertex* const vvertexp = vtx.cast<LinkCellsVertex>()) {
-                AstNodeModule* const vmodp = vvertexp->modp();
+        m_లేఖాచిత్రం.remove_Redundant_అంచులు_Max(&V3_లేఖాచిత్రం_అంచు::followAlwaysTrue);
+        ఒకవేళ (dump_లేఖాచిత్రం_Level()) m_లేఖాచిత్రం.dumpDotFilePrefixed("linkcells");
+        m_లేఖాచిత్రం.rank();
+        కొరకు (V3_లేఖాచిత్రం_శీర్షం& vtx : m_లేఖాచిత్రం.vertices()) {
+            ఒకవేళ (స్థిరరాశి Link_Cells_శీర్షం* స్థిరరాశి vvertexp = vtx.cast<Link_Cells_శీర్షం>()) {
+                Ast_కణుపు_Module* స్థిరరాశి vmodp = vvertexp->modp();
                 vmodp->level(vvertexp->rank());
             }
         }
-        m_graph.rankMin();
-        for (V3GraphVertex& vtx : m_graph.vertices()) {
-            if (const LinkCellsVertex* const vvertexp = vtx.cast<LinkCellsVertex>()) {
+        m_లేఖాచిత్రం.rankMin();
+        కొరకు (V3_లేఖాచిత్రం_శీర్షం& vtx : m_లేఖాచిత్రం.vertices()) {
+            ఒకవేళ (స్థిరరాశి Link_Cells_శీర్షం* స్థిరరాశి vvertexp = vtx.cast<Link_Cells_శీర్షం>()) {
                 // +1 so we leave level 1 for the new wrapper we'll make in a moment
-                AstNodeModule* const vmodp = vvertexp->modp();
-                vmodp->depth(vvertexp->rank() + 1);
+                Ast_కణుపు_Module* స్థిరరాశి vmodp = vvertexp->modp();
+                vmodp->లోతు(vvertexp->rank() + 1);
             }
         }
-        if (v3Global.opt.topModule() != "" && !m_topVertexp) {
+        ఒకవేళ (v3Global.opt.శిఖరం_Module() != "" && !m_శిఖరం_Vertexp) {
             VSpellCheck spell;
-            for (V3GraphVertex& vtx : m_graph.vertices()) {
-                if (const LinkCellsVertex* const vvertexp = vtx.cast<LinkCellsVertex>()) {
-                    AstNodeModule* const vmodp = vvertexp->modp();
-                    if (VN_IS(vmodp, Module)) spell.pushCandidate(vmodp->prettyName());
+            కొరకు (V3_లేఖాచిత్రం_శీర్షం& vtx : m_లేఖాచిత్రం.vertices()) {
+                ఒకవేళ (స్థిరరాశి Link_Cells_శీర్షం* స్థిరరాశి vvertexp = vtx.cast<Link_Cells_శీర్షం>()) {
+                    Ast_కణుపు_Module* స్థిరరాశి vmodp = vvertexp->modp();
+                    ఒకవేళ (VN_IS(vmodp, Module)) spell.నెట్టు_Candidate(vmodp->prettyName());
                 }
             }
-            const string suggest
-                = spell.bestCandidateMsg(AstNode::prettyName(v3Global.opt.topModule()));
+            స్థిరరాశి string suggest
+                = spell.ఉత్తమ_Candidate_సందేశం(Ast_కణుపు::prettyName(v3Global.opt.శిఖరం_Module()));
             v3error("Specified --top-module '"
-                    << AstNode::prettyName(v3Global.opt.topModule())
+                    << Ast_కణుపు::prettyName(v3Global.opt.శిఖరం_Module())
                     << "' was not found in design.\n"
-                    << (suggest.empty() ? "" : V3Error::warnMore() + suggest));
+                    << (suggest.ఖాళీలు() ? "" : V3Error::warn_మరిన్ని() + suggest));
         }
     }
-    void visit(AstNodeModule* nodep) override {
+    శూన్య సందర్శించు(Ast_కణుపు_Module* nodep) override {
         // Module: Pick up modnames, so we can resolve cells later
-        VL_RESTORER(m_modDepth);
+        VL_RESTORER(m_mod_లోతు);
         VL_RESTORER(m_modp);
         {
             // For nested modules/classes, child below parent
-            if (m_modp) newEdge(vertex(m_modp), vertex(nodep), 1, false);
+            ఒకవేళ (m_modp) new_అంచు(శీర్షం(m_modp), శీర్షం(nodep), 1, అబద్ధం);
             m_modp = nodep;
             // Need vertex to levelize even if no edges
-            vertex(m_modp);
-            ++m_modDepth;
+            శీర్షం(m_modp);
+            ++m_mod_లోతు;
             UINFO(4, "Link Module: " << nodep);
-            if (nodep->fileline()->filebasenameNoExt() != nodep->prettyName()
+            ఒకవేళ (nodep->fileline()->filebasenameNoExt() != nodep->prettyName()
                 && !v3Global.opt.isLibraryFile(nodep->fileline()->filename(), nodep->libname())
-                && !VN_IS(nodep, NotFoundModule) && !nodep->recursiveClone()
-                && !nodep->isDollarUnit() && !nodep->isConstPool() && m_modDepth == 1) {
+                && !VN_IS(nodep, Not_దొరికింది_Module) && !nodep->recursiveClone()
+                && !nodep->isDollarUnit() && !nodep->isConstPool() && m_mod_లోతు == 1) {
                 // We only complain once per file, otherwise library-like files
                 // have a huge mess of warnings
-                const auto itFoundPair = m_declfnWarned.insert(nodep->fileline()->filename());
-                if (itFoundPair.second) {
+                స్థిరరాశి స్వయంచాలక it_దొరికింది_Pair = m_declfnWarned.చొప్పించు(nodep->fileline()->filename());
+                ఒకవేళ (it_దొరికింది_Pair.రెండవ) {
                     nodep->v3warn(DECLFILENAME, "Filename '"
                                                     << nodep->fileline()->filebasenameNoExt()
                                                     << "' does not match " << nodep->typeName()
                                                     << " name: " << nodep->prettyNameQ());
                 }
             }
-            if (VN_IS(nodep, Iface) || VN_IS(nodep, Package)) {
-                nodep->inLibrary(true);  // Interfaces can't be at top, unless asked
+            ఒకవేళ (VN_IS(nodep, Iface) || VN_IS(nodep, Package)) {
+                nodep->లోపల_Library(నిజం);  // Interfaces can't be at top, unless asked
             }
 
-            auto const& fullName
+            స్వయంచాలక స్థిరరాశి& నిండిన_Name
                 = std::pair<std::string, std::string>(nodep->libname(), nodep->name());
-            const bool topMatch
-                = std::find(m_state.m_designs.begin(), m_state.m_designs.end(), fullName)
-                  != m_state.m_designs.end();
-            if (topMatch) {
-                m_topVertexp = vertex(nodep);
+            స్థిరరాశి తార్కిక శిఖరం_సరిపోలిక
+                = std::కనుగొను(m_state.m_designs.begin(), m_state.m_designs.చివర(), నిండిన_Name)
+                  != m_state.m_designs.చివర();
+            ఒకవేళ (శిఖరం_సరిపోలిక) {
+                m_శిఖరం_Vertexp = శీర్షం(nodep);
                 UINFO(2, "Link --top-module: " << nodep);
-                nodep->inLibrary(false);  // Safer to make sure it doesn't disappear
+                nodep->లోపల_Library(అబద్ధం);  // Safer to make sure it doesn't disappear
             }
-            if (v3Global.opt.topModule().empty()
-                    ? nodep->inLibrary()  // Library cells are lower
-                    : !topMatch) {  // Any non-specified module is lower
+            ఒకవేళ (v3Global.opt.శిఖరం_Module().ఖాళీలు()
+                    ? nodep->లోపల_Library()  // Library cells are lower
+                    : !శిఖరం_సరిపోలిక) {  // Any non-specified module is lower
                 // Put under a fake vertex so that the graph ranking won't indicate
                 // this is a top level module
-                if (!m_libVertexp) m_libVertexp = new LibraryVertex{&m_graph};
-                newEdge(m_libVertexp, vertex(nodep), 1, false);
+                ఒకవేళ (!m_libVertexp) m_libVertexp = కొత్త Library_శీర్షం{&m_లేఖాచిత్రం};
+                new_అంచు(m_libVertexp, శీర్షం(nodep), 1, అబద్ధం);
             }
             // Note AstBind also has iteration on cells
             iterateChildren(nodep);
-            nodep->checkTree();
+            nodep->check_వృక్షం();
         }
     }
 
-    void visit(AstIfaceRefDType* nodep) override {
+    శూన్య సందర్శించు(AstIfaceRefDType* nodep) override {
         // Cell: Resolve its filename.  If necessary, parse it.
         UINFO(4, "Link IfaceRef: " << nodep);
         // Use findIdUpward instead of findIdFlat; it doesn't matter for now
         // but we might support modules-under-modules someday.
-        AstNodeModule* const modp = resolveModule(nodep, nodep->ifaceName(), m_modp->libname());
-        if (modp) {
-            if (VN_IS(modp, Iface)) {
+        Ast_కణుపు_Module* స్థిరరాశి modp = resolveModule(nodep, nodep->ifaceName(), m_modp->libname());
+        ఒకవేళ (modp) {
+            ఒకవేళ (VN_IS(modp, Iface)) {
                 // Track module depths, so can sort list from parent down to children
-                if (!nodep->isVirtual()) newEdge(vertex(m_modp), vertex(modp), 1, false);
-                if (!nodep->cellp()) nodep->ifacep(VN_AS(modp, Iface));
-            } else if (VN_IS(modp, NotFoundModule)) {  // Will error out later
-            } else {
+                ఒకవేళ (!nodep->isVirtual()) new_అంచు(శీర్షం(m_modp), శీర్షం(modp), 1, అబద్ధం);
+                ఒకవేళ (!nodep->cellp()) nodep->ifacep(VN_AS(modp, Iface));
+            } లేకపోతే ఒకవేళ (VN_IS(modp, Not_దొరికింది_Module)) {  // Will error out later
+            } లేకపోతే {
                 nodep->v3error("Non-interface used as an interface: "
                                << nodep->ifaceNameQ() << "\n"
-                               << nodep->warnMore()
+                               << nodep->warn_మరిన్ని()
                                       + "... Perhaps intended an instantiation but "
                                         "are missing parenthesis (IEEE 1800-2023 23.3.2)?");
             }
         }
         iterateChildren(nodep);
-        assignParamNumbers(nodep->paramsp());
+        కేటాయించు_Param_Numbers(nodep->paramsp());
         // Parser didn't know what was interface, resolve now
         // For historical reasons virtual interface reference variables remain VARs
-        if (m_varp && !nodep->isVirtual()) m_varp->setIfaceRef();
+        ఒకవేళ (m_varp && !nodep->isVirtual()) m_varp->సమితి_Iface_Ref();
         // Note cannot do modport resolution here; modports are allowed underneath generates
         UINFO(4, "Link IfaceRef done: " << nodep);
     }
 
-    void visit(AstPackageExport* nodep) override {
+    శూన్య సందర్శించు(AstPackageExport* nodep) override {
         // Package Import: We need to do the package before the use of a package
         iterateChildren(nodep);
-        if (!nodep->packagep()) {
-            AstNodeModule* const modp = resolveModule(nodep, nodep->pkgName(), m_modp->libname());
-            if (AstPackage* const pkgp = VN_CAST(modp, Package)) nodep->packagep(pkgp);
-            if (!nodep->packagep()) {
+        ఒకవేళ (!nodep->packagep()) {
+            Ast_కణుపు_Module* స్థిరరాశి modp = resolveModule(nodep, nodep->pkgName(), m_modp->libname());
+            ఒకవేళ (AstPackage* స్థిరరాశి pkgp = VN_CAST(modp, Package)) nodep->packagep(pkgp);
+            ఒకవేళ (!nodep->packagep()) {
                 nodep->v3error("Export package not found: " << nodep->prettyPkgNameQ());
-                return;
+                తిరిగి;
             }
         }
     }
-    void visit(AstPackageImport* nodep) override {
+    శూన్య సందర్శించు(AstPackageImport* nodep) override {
         // Package Import: We need to do the package before the use of a package
         iterateChildren(nodep);
-        if (!nodep->packagep()) {
-            AstNodeModule* const modp = resolveModule(nodep, nodep->pkgName(), m_modp->libname());
-            if (AstPackage* const pkgp = VN_CAST(modp, Package)) nodep->packagep(pkgp);
+        ఒకవేళ (!nodep->packagep()) {
+            Ast_కణుపు_Module* స్థిరరాశి modp = resolveModule(nodep, nodep->pkgName(), m_modp->libname());
+            ఒకవేళ (AstPackage* స్థిరరాశి pkgp = VN_CAST(modp, Package)) nodep->packagep(pkgp);
             // If not found, V3LinkDot will report errors
-            if (!nodep->packagep()) {
+            ఒకవేళ (!nodep->packagep()) {
                 nodep->v3error("Import package not found: " << nodep->prettyPkgNameQ());
-                return;
+                తిరిగి;
             }
         }
-        newEdge(vertex(m_modp), vertex(nodep->packagep()), 1, false);
+        new_అంచు(శీర్షం(m_modp), శీర్షం(nodep->packagep()), 1, అబద్ధం);
     }
 
-    void visit(AstBind* nodep) override {
+    శూన్య సందర్శించు(AstBind* nodep) override {
         // Bind: Has cells underneath that need to be put into the new
         // module, and cells which need resolution
         // TODO this doesn't allow bind to dotted hier names, that would require
         // this move to post param, which would mean we do not auto-read modules
         // and means we cannot compute module levels until later.
         UINFO(4, "Link Bind: " << nodep);
-        AstNodeModule* const modp = resolveModule(nodep, nodep->name(), m_modp->libname());
-        if (modp) {
-            AstNode* const cellsp = nodep->cellsp()->unlinkFrBackWithNext();
+        Ast_కణుపు_Module* స్థిరరాశి modp = resolveModule(nodep, nodep->name(), m_modp->libname());
+        ఒకవేళ (modp) {
+            Ast_కణుపు* స్థిరరాశి cellsp = nodep->cellsp()->unlink_Fr_వెనుక_With_తదుపరి();
             // Module may have already linked, so need to pick up these new cells
             VL_RESTORER(m_modp);
             m_modp = modp;
             // Important that this adds to end, as next iterate assumes does all cells
-            modp->addStmtsp(cellsp);
-            iterateAndNextNull(cellsp);
+            modp->కూడు_Stmtsp(cellsp);
+            iterate_And_తదుపరి_Null(cellsp);
         }
-        VL_DO_DANGLING(pushDeletep(nodep->unlinkFrBack()), nodep);
+        VL_DO_DANGLING(నెట్టు_Deletep(nodep->unlink_Fr_వెనుక()), nodep);
     }
 
-    void visit(AstCell* nodep) override {
+    శూన్య సందర్శించు(AstCell* nodep) override {
         // Cell: Resolve its filename.  If necessary, parse it.
         // Execute only once.  Complication is that cloning may result in
         // user1 being set (for pre-clone) so check if user1() matches the
         // m_mod, if 0 never did it, if !=, it is an unprocessed clone
-        const bool cloned = (nodep->user1p() && nodep->user1p() != m_modp);
-        if (nodep->user1p() == m_modp) return;  // AstBind and AstNodeModule may call a cell twice
-        if (nodep->modName() == m_origTopModuleName) {
-            if (v3Global.opt.hierChild() && nodep->modName() == m_modp->origName()) {
+        స్థిరరాశి తార్కిక cloned = (nodep->user1p() && nodep->user1p() != m_modp);
+        ఒకవేళ (nodep->user1p() == m_modp) తిరిగి;  // AstBind and AstNodeModule may call a cell twice
+        ఒకవేళ (nodep->modName() == m_orig_శిఖరం_Module_Name) {
+            ఒకవేళ (v3Global.opt.hier_బిడ్డ() && nodep->modName() == m_modp->origName()) {
                 // Only the root of the recursive instantiation can be a hierarchical block.
                 nodep->modName(m_modp->name());
-            } else {
+            } లేకపోతే {
                 // non-top module will be the top module of this run
-                VL_DO_DANGLING(pushDeletep(nodep->unlinkFrBack()), nodep);
-                return;
+                VL_DO_DANGLING(నెట్టు_Deletep(nodep->unlink_Fr_వెనుక()), nodep);
+                తిరిగి;
             }
         }
         nodep->user1p(m_modp);
         //
-        if (!nodep->modp() || cloned) {
+        ఒకవేళ (!nodep->modp() || cloned) {
             UINFO(4, "Link Cell: " << nodep);
             // Use findIdFallback instead of findIdFlat; it doesn't matter for now
             // but we might support modules-under-modules someday.
-            AstNodeModule* cellmodp = resolveModule(nodep, nodep->modName(), m_modp->libname());
-            if (cellmodp) {
-                if (cellmodp == m_modp || cellmodp->user2p() == m_modp) {
+            Ast_కణుపు_Module* cellmodp = resolveModule(nodep, nodep->modName(), m_modp->libname());
+            ఒకవేళ (cellmodp) {
+                ఒకవేళ (cellmodp == m_modp || cellmodp->user2p() == m_modp) {
                     UINFO(1, "Self-recursive module " << cellmodp);
-                    cellmodp->recursive(true);
-                    nodep->recursive(true);
-                    if (!cellmodp->recursiveClone()) {
+                    cellmodp->recursive(నిజం);
+                    nodep->recursive(నిజం);
+                    ఒకవేళ (!cellmodp->recursiveClone()) {
                         // In the non-Vrcm, which needs to point to Vrcm flavor
                         //
                         // Make a clone which this cell points to
@@ -620,101 +620,101 @@ class LinkCellsVisitor final : public VNVisitor {
                         // This lets us link the XREFs between the (uncloned) children so
                         // they don't point to the same module which would
                         // break parameter resolution.
-                        AstNodeModule* otherModp = VN_CAST(cellmodp->user2p(), NodeModule);
-                        if (!otherModp) {
-                            otherModp = cellmodp->cloneTree(false);
+                        Ast_కణుపు_Module* otherModp = VN_CAST(cellmodp->user2p(), కణుపు_Module);
+                        ఒకవేళ (!otherModp) {
+                            otherModp = cellmodp->clone_వృక్షం(అబద్ధం);
                             otherModp->name(otherModp->name() + "__Vrcm");
-                            otherModp->user1p(nullptr);  // Need new vertex
+                            otherModp->user1p(శూన్యసూచిక);  // Need new vertex
                             otherModp->user2p(cellmodp);
-                            otherModp->recursiveClone(true);
+                            otherModp->recursiveClone(నిజం);
                             // user1 etc will retain its pre-clone value
                             cellmodp->user2p(otherModp);
-                            v3Global.rootp()->addModulesp(otherModp);
-                            newEdge(vertex(cellmodp), vertex(otherModp), 1, false);
+                            v3Global.rootp()->కూడు_Modulesp(otherModp);
+                            new_అంచు(శీర్షం(cellmodp), శీర్షం(otherModp), 1, అబద్ధం);
                         }
                         cellmodp = otherModp;
                         nodep->modp(cellmodp);
-                    } else {
+                    } లేకపోతే {
                         // In the Vrcm, which needs to point back to Vrcm flavor
                         // The cell already has the correct resolution (to Vrcm)
                         nodep->modp(cellmodp);
                         // We don't create a V3GraphEdge (as it would be circular)
                     }
-                } else {  // Non-recursive
+                } లేకపోతే {  // Non-recursive
                     // Track module depths, so can sort list from parent down to children
                     nodep->modp(cellmodp);
-                    cellEdge(vertex(m_modp), vertex(cellmodp), 1, false, nodep);
+                    cell_అంచు(శీర్షం(m_modp), శీర్షం(cellmodp), 1, అబద్ధం, nodep);
                 }
             }
         }
         // Remove AstCell(AstPin("",nullptr)), it's a side effect of how we parse "()"
         // the empty middle is identical to the empty rule that must find pins in "(,)".
-        if (nodep->pinsp() && !nodep->pinsp()->nextp() && nodep->pinsp()->name() == ""
+        ఒకవేళ (nodep->pinsp() && !nodep->pinsp()->nextp() && nodep->pinsp()->name() == ""
             && !nodep->pinsp()->exprp()) {
-            pushDeletep(nodep->pinsp()->unlinkFrBackWithNext());
+            నెట్టు_Deletep(nodep->pinsp()->unlink_Fr_వెనుక_With_తదుపరి());
         }
-        if (nodep->paramsp() && !nodep->paramsp()->nextp() && nodep->paramsp()->name() == ""
+        ఒకవేళ (nodep->paramsp() && !nodep->paramsp()->nextp() && nodep->paramsp()->name() == ""
             && !nodep->paramsp()->exprp()) {
-            pushDeletep(nodep->paramsp()->unlinkFrBackWithNext());
+            నెట్టు_Deletep(nodep->paramsp()->unlink_Fr_వెనుక_With_తదుపరి());
         }
         // Convert .* to list of pins
-        bool pinStar = false;
-        bool pinDotName = false;
-        for (AstPin *nextp, *pinp = nodep->pinsp(); pinp; pinp = nextp) {
+        తార్కిక pin_నక్షత్రం = అబద్ధం;
+        తార్కిక pinDotName = అబద్ధం;
+        కొరకు (AstPin *nextp, *pinp = nodep->pinsp(); pinp; pinp = nextp) {
             nextp = VN_AS(pinp->nextp(), Pin);
-            if (pinp->svDotName()) pinDotName = true;
-            if (pinp->dotStar()) {
-                if (pinStar) pinp->v3error("Duplicate .* in an instance (IEEE 1800-2023 23.3.2)");
-                pinStar = true;
+            ఒకవేళ (pinp->svDotName()) pinDotName = నిజం;
+            ఒకవేళ (pinp->dot_నక్షత్రం()) {
+                ఒకవేళ (pin_నక్షత్రం) pinp->v3error("Duplicate .* in an instance (IEEE 1800-2023 23.3.2)");
+                pin_నక్షత్రం = నిజం;
                 // Done with this fake pin
-                VL_DO_DANGLING(pinp->unlinkFrBack()->deleteTree(), pinp);
+                VL_DO_DANGLING(pinp->unlink_Fr_వెనుక()->delete_వృక్షం(), pinp);
             }
         }
         // Convert unnamed pins to pin number based assignments
-        for (AstPin* pinp = nodep->pinsp(); pinp; pinp = VN_AS(pinp->nextp(), Pin)) {
-            if (pinp->name() == "") pinp->name("__pinNumber" + cvtToStr(pinp->pinNum()));
+        కొరకు (AstPin* pinp = nodep->pinsp(); pinp; pinp = VN_AS(pinp->nextp(), Pin)) {
+            ఒకవేళ (pinp->name() == "") pinp->name("__pinNumber" + cvt_గమ్యం_Str(pinp->pin_అంకె()));
         }
-        assignParamNumbers(nodep->paramsp());
-        if (nodep->modp()) {
+        కేటాయించు_Param_Numbers(nodep->paramsp());
+        ఒకవేళ (nodep->modp()) {
             nodep->modName(nodep->modp()->name());
             // Note what pins exist
-            std::unordered_set<string> ports;  // Symbol table of all connected port names
-            for (AstPin* pinp = nodep->pinsp(); pinp; pinp = VN_AS(pinp->nextp(), Pin)) {
-                if ((pinStar || pinDotName) && pinp->name().substr(0, 11) == "__pinNumber") {
+            std::unordered_సమితి<string> ports;  // Symbol table of all connected port names
+            కొరకు (AstPin* pinp = nodep->pinsp(); pinp; pinp = VN_AS(pinp->nextp(), Pin)) {
+                ఒకవేళ ((pin_నక్షత్రం || pinDotName) && pinp->name().substr(0, 11) == "__pinNumber") {
                     pinp->v3error("Mixing positional and .*/named instantiation connection"
                                   " (IEEE 1800-2023 23.3.2)");
                 }
-                if (!pinp->exprp()) {
-                    if (pinp->name().substr(0, 11) == "__pinNumber") {
+                ఒకవేళ (!pinp->exprp()) {
+                    ఒకవేళ (pinp->name().substr(0, 11) == "__pinNumber") {
                         pinp->v3warn(PINNOCONNECT,
                                      "Instance pin is not connected: " << pinp->prettyNameQ());
-                    } else {
+                    } లేకపోతే {
                         pinp->v3warn(PINCONNECTEMPTY,
                                      "Instance pin connected by name with empty reference: "
                                          << pinp->prettyNameQ());
                     }
                 }
-                ports.insert(pinp->name());
+                ports.చొప్పించు(pinp->name());
             }
             // We search ports, rather than in/out declarations as they aren't resolved yet,
             // and it's easier to do it now than in V3LinkDot when we'd need to repeat steps.
-            for (AstNode* portnodep = nodep->modp()->stmtsp(); portnodep;
+            కొరకు (Ast_కణుపు* portnodep = nodep->modp()->stmtsp(); portnodep;
                  portnodep = portnodep->nextp()) {
-                if (const AstPort* const portp = VN_CAST(portnodep, Port)) {
+                ఒకవేళ (స్థిరరాశి Ast_పోర్టు* స్థిరరాశి portp = VN_CAST(portnodep, పోర్టు_2)) {
 
-                    if (ports.find(portp->name()) == ports.end()
-                        && ports.find("__pinNumber" + cvtToStr(portp->pinNum())) == ports.end()) {
-                        if (pinStar) {
+                    ఒకవేళ (ports.కనుగొను(portp->name()) == ports.చివర()
+                        && ports.కనుగొను("__pinNumber" + cvt_గమ్యం_Str(portp->pin_అంకె())) == ports.చివర()) {
+                        ఒకవేళ (pin_నక్షత్రం) {
                             UINFO(9, "    need .* PORT  " << portp);
                             // Create any not already connected
-                            AstPin* const newp
-                                = new AstPin{nodep->fileline(), 0, portp->name(),
-                                             new AstParseRef{nodep->fileline(), portp->name(),
-                                                             nullptr, nullptr}};
-                            newp->svDotName(true);
-                            newp->svImplicit(true);
-                            nodep->addPinsp(newp);
-                        } else {  // warn on the CELL that needs it, not the port
+                            AstPin* స్థిరరాశి newp
+                                = కొత్త AstPin{nodep->fileline(), 0, portp->name(),
+                                             కొత్త AstParseRef{nodep->fileline(), portp->name(),
+                                                             శూన్యసూచిక, శూన్యసూచిక}};
+                            newp->svDotName(నిజం);
+                            newp->svImplicit(నిజం);
+                            nodep->కూడు_Pinsp(newp);
+                        } లేకపోతే {  // warn on the CELL that needs it, not the port
 
                             // We *might* not want to warn on this port, if it happened to be
                             // an input with a default value in the module declaration. Our
@@ -725,28 +725,28 @@ class LinkCellsVisitor final : public VNVisitor {
 
                             // Get the AstVar for this AstPort, if it exists, using this
                             // inefficient O(n) lookup to match the port name.
-                            const AstVar* portp_varp = nullptr;
-                            for (AstNode* module_stmtsp = nodep->modp()->stmtsp(); module_stmtsp;
+                            స్థిరరాశి AstVar* portp_varp = శూన్యసూచిక;
+                            కొరకు (Ast_కణుపు* module_stmtsp = nodep->modp()->stmtsp(); module_stmtsp;
                                  module_stmtsp = module_stmtsp->nextp()) {
-                                if (const AstVar* const varp = VN_CAST(module_stmtsp, Var)) {
-                                    if (!varp->isParam() && varp->name() == portp->name()) {
+                                ఒకవేళ (స్థిరరాశి AstVar* స్థిరరాశి varp = VN_CAST(module_stmtsp, Var)) {
+                                    ఒకవేళ (!varp->isParam() && varp->name() == portp->name()) {
                                         // not a parameter, same name, break, this is our varp
                                         // (AstVar*)
                                         portp_varp = varp;
-                                        break;
+                                        ఆపు;
                                     }
                                 }
                             }
 
                             // Is the matching Module port: an INPUT, with default value (in
                             // valuep):
-                            if (portp_varp && portp_varp->isInput() && portp_varp->valuep()) {
+                            ఒకవేళ (portp_varp && portp_varp->is_ఆదానం() && portp_varp->valuep()) {
                                 // Do not warn
                                 // Create b/c not already connected, and it does exist.
-                                AstPin* const newp
-                                    = new AstPin{nodep->fileline(), 0, portp->name(), nullptr};
-                                nodep->addPinsp(newp);
-                            } else {
+                                AstPin* స్థిరరాశి newp
+                                    = కొత్త AstPin{nodep->fileline(), 0, portp->name(), శూన్యసూచిక};
+                                nodep->కూడు_Pinsp(newp);
+                            } లేకపోతే {
                                 nodep->v3warn(PINMISSING,
                                               "Instance has missing pin: "
                                                   << portp->prettyNameQ() << '\n'
@@ -754,121 +754,121 @@ class LinkCellsVisitor final : public VNVisitor {
                                                   << portp->warnOther()
                                                   << "... Location of port declaration\n"
                                                   << portp->warnContextSecondary());
-                                AstPin* const newp
-                                    = new AstPin{nodep->fileline(), 0, portp->name(), nullptr};
-                                nodep->addPinsp(newp);
+                                AstPin* స్థిరరాశి newp
+                                    = కొత్త AstPin{nodep->fileline(), 0, portp->name(), శూన్యసూచిక};
+                                nodep->కూడు_Pinsp(newp);
                             }
                         }
                     }
                 }
             }
         }
-        if (VN_IS(nodep->modp(), Iface)) {
+        ఒకవేళ (VN_IS(nodep->modp(), Iface)) {
             // Cell really is the parent's instantiation of an interface, not a normal module
             // Make sure we have a variable to refer to this cell, so can <ifacename>.<innermember>
             // in the same way that a child does.  Rename though to avoid conflict with cell.
             // This is quite similar to how classes work; when unpacked
             // classes are better supported may remap interfaces to be more
             // like a class.
-            if (!nodep->hasIfaceVar()) {
-                const string varName
+            ఒకవేళ (!nodep->hasIfaceVar()) {
+                స్థిరరాశి string varName
                     = nodep->name() + "__Viftop";  // V3LinkDot looks for this naming
-                AstIfaceRefDType* const idtypep = new AstIfaceRefDType{
+                AstIfaceRefDType* స్థిరరాశి idtypep = కొత్త AstIfaceRefDType{
                     nodep->fileline(), nodep->name(), nodep->modp()->name()};
-                idtypep->ifacep(nullptr);  // cellp overrides
+                idtypep->ifacep(శూన్యసూచిక);  // cellp overrides
                 idtypep->cellp(nodep);  // Only set when real parent cell known.
                 AstVar* varp;
-                if (nodep->rangep()) {
+                ఒకవేళ (nodep->rangep()) {
                     // Multi-dim arrays wrap one UnpackArrayDType per range, innermost first.
-                    std::vector<AstRange*> rangesp;
-                    for (AstRange* rp = nodep->rangep(); rp; rp = VN_CAST(rp->nextp(), Range)) {
-                        rangesp.push_back(rp);
+                    std::సదిశ<AstRange*> rangesp;
+                    కొరకు (AstRange* rp = nodep->rangep(); rp; rp = VN_CAST(rp->nextp(), Range)) {
+                        rangesp.నెట్టు_వెనుక(rp);
                     }
-                    AstNodeDType* dtp = idtypep;
-                    for (auto it = rangesp.rbegin(); it != rangesp.rend(); ++it) {
-                        dtp = new AstUnpackArrayDType{nodep->fileline(), VFlagChildDType{}, dtp,
-                                                      (*it)->cloneTree(false)};
+                    Ast_కణుపు_DType* dtp = idtypep;
+                    కొరకు (స్వయంచాలక it = rangesp.rbegin(); it != rangesp.rend(); ++it) {
+                        dtp = కొత్త AstUnpackArrayDType{nodep->fileline(), VFlag_బిడ్డ_DType{}, dtp,
+                                                      (*it)->clone_వృక్షం(అబద్ధం)};
                     }
-                    varp = new AstVar{nodep->fileline(), VVarType::IFACEREF, varName,
-                                      VFlagChildDType{}, dtp};
-                } else {
-                    varp = new AstVar{nodep->fileline(), VVarType::IFACEREF, varName,
-                                      VFlagChildDType{}, idtypep};
+                    varp = కొత్త AstVar{nodep->fileline(), VVarType::IFACEREF, varName,
+                                      VFlag_బిడ్డ_DType{}, dtp};
+                } లేకపోతే {
+                    varp = కొత్త AstVar{nodep->fileline(), VVarType::IFACEREF, varName,
+                                      VFlag_బిడ్డ_DType{}, idtypep};
                 }
-                varp->isIfaceParent(true);
-                nodep->addNextHere(varp);
-                nodep->hasIfaceVar(true);
+                varp->is_Iface_మాతృ(నిజం);
+                nodep->కూడు_తదుపరి_ఇక్కడ(varp);
+                nodep->hasIfaceVar(నిజం);
             }
         }
-        if (nodep->modp()) {  //
+        ఒకవేళ (nodep->modp()) {  //
             iterateChildren(nodep);
         }
         UINFO(4, " Link Cell done: " << nodep);
     }
 
-    void visit(AstRefDType* nodep) override {
+    శూన్య సందర్శించు(AstRefDType* nodep) override {
         iterateChildren(nodep);
-        assignParamNumbers(nodep->paramsp());
-        if (m_varp) {  // Parser didn't know what was interface, resolve now
-            AstNodeModule* const varModp = findModuleSym(nodep->name(), m_modp->libname());
-            if (AstIface* const ifacep = VN_CAST(varModp, Iface)) {
+        కేటాయించు_Param_Numbers(nodep->paramsp());
+        ఒకవేళ (m_varp) {  // Parser didn't know what was interface, resolve now
+            Ast_కణుపు_Module* స్థిరరాశి varModp = కనుగొను_Module_Sym(nodep->name(), m_modp->libname());
+            ఒకవేళ (AstIface* స్థిరరాశి ifacep = VN_CAST(varModp, Iface)) {
                 // Might be an interface, but might also not really be due to interface being
                 // hidden by another declaration.  Assume it is relevant and order as-if.
                 // This is safe because an interface cannot instantiate a module, so false
                 // module->interface edges are harmless.
-                newEdge(vertex(m_modp), vertex(ifacep), 1, false);
+                new_అంచు(శీర్షం(m_modp), శీర్షం(ifacep), 1, అబద్ధం);
             }
         }
     }
-    void visit(AstClassOrPackageRef* nodep) override {
+    శూన్య సందర్శించు(AstClassOrPackageRef* nodep) override {
         iterateChildren(nodep);
-        assignParamNumbers(nodep->paramsp());
+        కేటాయించు_Param_Numbers(nodep->paramsp());
         // Inside a class, an extends or reference to another class
         // Note we don't add a V3GraphEdge{vertex(m_modp), vertex(nodep->classOrPackagep()}
         // We could for an extends, but for another reference we cannot, as
         // it is legal to have classes both with parameters that link to each other
     }
 
-    void visit(AstVar* nodep) override {
+    శూన్య సందర్శించు(AstVar* nodep) override {
         {
             VL_RESTORER(m_varp);
             m_varp = nodep;
-            iterateAndNextNull(nodep->childDTypep());
+            iterate_And_తదుపరి_Null(nodep->బిడ్డ_DTypep());
         }
-        iterateAndNextNull(nodep->delayp());
-        iterateAndNextNull(nodep->valuep());
-        iterateAndNextNull(nodep->attrsp());
+        iterate_And_తదుపరి_Null(nodep->delayp());
+        iterate_And_తదుపరి_Null(nodep->valuep());
+        iterate_And_తదుపరి_Null(nodep->attrsp());
     }
 
-    void visit(AstNode* nodep) override { iterateChildren(nodep); }
+    శూన్య సందర్శించు(Ast_కణుపు* nodep) override { iterateChildren(nodep); }
 
     // METHODS
-    void readModNames() {
+    శూన్య read_Mod_పేర్లు() {
         // mangled_name, BlockOptions
-        const V3HierBlockOptSet& hierBlocks = v3Global.opt.hierBlocks();
-        const auto hierIt = vlstd::as_const(hierBlocks).find(v3Global.opt.topModule());
-        UASSERT((hierIt != hierBlocks.end()) == !!v3Global.opt.hierChild(),
+        స్థిరరాశి V3_Hier_ఖండం_Opt_సమితి& hier_ఖండాలు = v3Global.opt.hier_ఖండాలు();
+        స్థిరరాశి స్వయంచాలక hierIt = vlstd::as_const(hier_ఖండాలు).కనుగొను(v3Global.opt.శిఖరం_Module());
+        UASSERT((hierIt != hier_ఖండాలు.చివర()) == !!v3Global.opt.hier_బిడ్డ(),
                 "information of the top module must exist if --hierarchical-child is set");
         // Look at all modules, and store pointers to all module names
-        for (AstNodeModule *nextp, *nodep = v3Global.rootp()->modulesp(); nodep; nodep = nextp) {
-            nextp = VN_AS(nodep->nextp(), NodeModule);
-            if (v3Global.opt.hierChild() && nodep->origName() == hierIt->second.origName()) {
-                nodep->name(hierIt->first);  // Change name of this module to be mangled name
+        కొరకు (Ast_కణుపు_Module *nextp, *nodep = v3Global.rootp()->modulesp(); nodep; nodep = nextp) {
+            nextp = VN_AS(nodep->nextp(), కణుపు_Module);
+            ఒకవేళ (v3Global.opt.hier_బిడ్డ() && nodep->origName() == hierIt->రెండవ.origName()) {
+                nodep->name(hierIt->మొదటి);  // Change name of this module to be mangled name
                                              // considering parameter
             }
-            const AstNodeModule* const libFoundp
-                = findModuleLibSym(nodep->origName(), nodep->libname());
-            const AstNodeModule* const globalFoundp = findModuleLibSym(nodep->name(), "__GLOBAL");
-            if (libFoundp && libFoundp == nodep) {
+            స్థిరరాశి Ast_కణుపు_Module* స్థిరరాశి libFoundp
+                = కనుగొను_Module_Lib_Sym(nodep->origName(), nodep->libname());
+            స్థిరరాశి Ast_కణుపు_Module* స్థిరరాశి globalFoundp = కనుగొను_Module_Lib_Sym(nodep->name(), "__GLOBAL");
+            ఒకవేళ (libFoundp && libFoundp == nodep) {
                 // Ok
-            } else if (libFoundp && !globalFoundp) {
+            } లేకపోతే ఒకవేళ (libFoundp && !globalFoundp) {
                 // Clones are locally made and don't need to user-resolve globally
                 UASSERT_OBJ(nodep->recursiveClone(), nodep,
                             "Module should be found globally if inserted in lib");
-            } else if (libFoundp) {
-                if (!(libFoundp->fileline()->warnIsOff(V3ErrorCode::MODDUP)
-                      || nodep->fileline()->warnIsOff(V3ErrorCode::MODDUP)
-                      || hierBlocks.find(nodep->name()) != hierBlocks.end())) {
+            } లేకపోతే ఒకవేళ (libFoundp) {
+                ఒకవేళ (!(libFoundp->fileline()->warnIsOff(V3_Error_సంకేతం::MODDUP)
+                      || nodep->fileline()->warnIsOff(V3_Error_సంకేతం::MODDUP)
+                      || hier_ఖండాలు.కనుగొను(nodep->name()) != hier_ఖండాలు.చివర())) {
                     nodep->v3warn(MODDUP, "Duplicate declaration of "
                                               << nodep->verilogKwd() << ": "
                                               << nodep->prettyNameQ() << '\n'
@@ -877,53 +877,53 @@ class LinkCellsVisitor final : public VNVisitor {
                                               << "... Location of original declaration\n"
                                               << libFoundp->warnContextSecondary());
                 }
-                nodep->unlinkFrBack();
-                VL_DO_DANGLING(pushDeletep(nodep), nodep);
-            } else if (globalFoundp && globalFoundp != nodep) {
+                nodep->unlink_Fr_వెనుక();
+                VL_DO_DANGLING(నెట్టు_Deletep(nodep), nodep);
+            } లేకపోతే ఒకవేళ (globalFoundp && globalFoundp != nodep) {
                 // ...__LIB__ stripped by prettyName
-                const string newName = nodep->libname() + "__LIB__" + nodep->origName();
+                స్థిరరాశి string newName = nodep->libname() + "__LIB__" + nodep->origName();
                 UINFO(9, "Module rename as in multiple libraries " << newName << " <- " << nodep);
-                insertModInLib(nodep->origName(), nodep->libname(), nodep);  // Original name
+                చొప్పించు_Mod_లోపల_Lib(nodep->origName(), nodep->libname(), nodep);  // Original name
                 nodep->name(newName);
-                insertModInLib(nodep->name(), "__GLOBAL", nodep);
-            } else {
-                insertModInLib(nodep->origName(), nodep->libname(), nodep);
-                insertModInLib(nodep->name(), "__GLOBAL", nodep);
+                చొప్పించు_Mod_లోపల_Lib(nodep->name(), "__GLOBAL", nodep);
+            } లేకపోతే {
+                చొప్పించు_Mod_లోపల_Lib(nodep->origName(), nodep->libname(), nodep);
+                చొప్పించు_Mod_లోపల_Lib(nodep->name(), "__GLOBAL", nodep);
             }
         }
         // if (debug() >= 9) m_mods.dump(cout, "-syms: ");
     }
 
-public:
+బహిరంగ:
     // CONSTRUCTORS
     LinkCellsVisitor(AstNetlist* nodep, VInFilter* filterp, LinkCellsState& state)
         : m_filterp{filterp}
         , m_state{state}
         , m_mods{nodep} {
-        if (v3Global.opt.hierChild()) {
-            const V3HierBlockOptSet& hierBlocks = v3Global.opt.hierBlocks();
-            UASSERT(!v3Global.opt.topModule().empty(),
+        ఒకవేళ (v3Global.opt.hier_బిడ్డ()) {
+            స్థిరరాశి V3_Hier_ఖండం_Opt_సమితి& hier_ఖండాలు = v3Global.opt.hier_ఖండాలు();
+            UASSERT(!v3Global.opt.శిఖరం_Module().ఖాళీలు(),
                     "top module must be explicitly specified in hierarchical mode");
-            const V3HierBlockOptSet::const_iterator hierIt
-                = hierBlocks.find(v3Global.opt.topModule());
-            UASSERT(hierIt != hierBlocks.end(),
+            స్థిరరాశి V3_Hier_ఖండం_Opt_సమితి::const_iterator hierIt
+                = hier_ఖండాలు.కనుగొను(v3Global.opt.శిఖరం_Module());
+            UASSERT(hierIt != hier_ఖండాలు.చివర(),
                     "top module must be listed in --hierarchical-block");
-            m_origTopModuleName = hierIt->second.origName();
-        } else {
-            m_origTopModuleName = v3Global.opt.topModule();
+            m_orig_శిఖరం_Module_Name = hierIt->రెండవ.origName();
+        } లేకపోతే {
+            m_orig_శిఖరం_Module_Name = v3Global.opt.శిఖరం_Module();
         }
         removeLibFlag();
         iterate(nodep);
     }
     ~LinkCellsVisitor() override {
-        if (debug() >= 5 || dumpGraphLevel() >= 5) { m_mods.dumpFilePrefixed("linkcells"); }
+        ఒకవేళ (debug() >= 5 || dump_లేఖాచిత్రం_Level() >= 5) { m_mods.dumpFilePrefixed("linkcells"); }
     }
 };
 
 //######################################################################
 // Link class functions
 
-void V3LinkCells::link(AstNetlist* nodep, VInFilter* filterp) {
+శూన్య V3LinkCells::link(AstNetlist* nodep, VInFilter* filterp) {
     UINFO(4, __FUNCTION__ << ": ");
     // Configs must be parsed first because they determine the library search order for linking
     LinkCellsState state;

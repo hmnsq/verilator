@@ -19,59 +19,59 @@
 //              Prepend __PVT__ to variable names
 //*************************************************************************
 
-#include "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
+#అన్తర్భావ "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
 
-#include "V3Name.h"
+#అన్తర్భావ "V3Name.h"
 
-#include "V3LanguageWords.h"
-#include "V3MemberMap.h"
-#include "V3UniqueNames.h"
+#అన్తర్భావ "V3LanguageWords.h"
+#అన్తర్భావ "V3MemberMap.h"
+#అన్తర్భావ "V3UniqueNames.h"
 
-#include <vector>
+#అన్తర్భావ <vector>
 
 VL_DEFINE_DEBUG_FUNCTIONS;
 
 //######################################################################
 // Name state, as a visitor of each AstNode
 
-class NameVisitor final : public VNVisitorConst {
+తరగతి NameVisitor final : బహిరంగ VNVisitorConst {
     // NODE STATE
     // Cleared on Netlist
     //  AstCell::user1()        -> bool.  Set true if already processed
     //  AstScope::user1()       -> bool.  Set true if already processed
     //  AstVar::user1()         -> bool.  Set true if already processed
-    const VNUser1InUse m_inuser1;
+    స్థిరరాశి VNUser1_లోపల_Use m_inuser1;
 
     // STATE - for current visit position (use VL_RESTORER)
-    const AstNodeModule* m_modp = nullptr;  // Current module
+    స్థిరరాశి Ast_కణుపు_Module* m_modp = శూన్యసూచిక;  // Current module
 
     // Rename struct / union field properly
-    std::vector<V3UniqueNames> m_nameStack;  // Hierarchy-based renames
+    std::సదిశ<V3_Unique_పేర్లు> m_name_దొంతర;  // Hierarchy-based renames
 
-    void renameKeywordCheck(AstNode* nodep) {
-        const std::string rsvd = V3LanguageWords::isKeyword(nodep->name());
-        if (rsvd != "") {
+    శూన్య renameKeywordCheck(Ast_కణుపు* nodep) {
+        స్థిరరాశి std::string rsvd = V3_Language_పదాలు::isKeyword(nodep->name());
+        ఒకవేళ (rsvd != "") {
             nodep->v3warn(SYMRSVDWORD, "Symbol matches " + rsvd + ": " << nodep->prettyNameQ());
-            const string newname = "__SYM__"s + nodep->name();
+            స్థిరరాశి string newname = "__SYM__"s + nodep->name();
             nodep->name(newname);
-            nodep->editCountInc();
+            nodep->edit_లెక్క_Inc();
         }
     }
 
     // METHODS
-    void rename(AstNode* nodep, bool addPvt) {
-        if (!nodep->user1()) {  // Not already done
-            if (addPvt) {
-                const string newname = "__PVT__"s + nodep->name();
+    శూన్య rename(Ast_కణుపు* nodep, తార్కిక కూడు_Pvt) {
+        ఒకవేళ (!nodep->user1()) {  // Not already done
+            ఒకవేళ (కూడు_Pvt) {
+                స్థిరరాశి string newname = "__PVT__"s + nodep->name();
                 nodep->name(newname);
-                nodep->editCountInc();
-            } else if (VN_IS(nodep, CFunc) && VN_AS(nodep, CFunc)->isConstructor()) {
-            } else if (v3Global.opt.emitAccessors() && VN_IS(nodep, Var)
-                       && VN_AS(nodep, Var)->isSigPublic()) {
-                const string newname = "__Vm_sig_" + nodep->name();
+                nodep->edit_లెక్క_Inc();
+            } లేకపోతే ఒకవేళ (VN_IS(nodep, CFunc) && VN_AS(nodep, CFunc)->isConstructor()) {
+            } లేకపోతే ఒకవేళ (v3Global.opt.emitAccessors() && VN_IS(nodep, Var)
+                       && VN_AS(nodep, Var)->is_Sig_ప్రజా()) {
+                స్థిరరాశి string newname = "__Vm_sig_" + nodep->name();
                 nodep->name(newname);
-                nodep->editCountInc();
-            } else {
+                nodep->edit_లెక్క_Inc();
+            } లేకపోతే {
                 renameKeywordCheck(nodep);
             }
             nodep->user1(1);
@@ -79,102 +79,102 @@ class NameVisitor final : public VNVisitorConst {
     }
 
     // VISITORS
-    void visit(AstNodeModule* nodep) override {
+    శూన్య సందర్శించు(Ast_కణుపు_Module* nodep) override {
         VL_RESTORER(m_modp);
         m_modp = nodep;
         iterateChildrenConst(nodep);
-        rename(nodep, false);
+        rename(nodep, అబద్ధం);
         // Avoid clashing with the classes of the library model itself
-        if (nodep->verilatorLib()) nodep->name(nodep->name() + "__Vlibstub");
+        ఒకవేళ (nodep->verilatorLib()) nodep->name(nodep->name() + "__Vlibstub");
     }
     // Add __PVT__ to names of local signals
-    void visit(AstVar* nodep) override {
+    శూన్య సందర్శించు(AstVar* nodep) override {
         // Don't iterate... Don't need temps for RANGES under the Var.
         rename(nodep,
-               ((!m_modp || !m_modp->isTop()) && !nodep->isSigPublic()
+               ((!m_modp || !m_modp->is_శిఖరం()) && !nodep->is_Sig_ప్రజా()
                 && !nodep->isFuncLocal()  // Isn't exposed, and would mess up dpi import wrappers
-                && !nodep->isTemp()  // Don't bother to rename internal signals
+                && !nodep->is_తాత్కాలిక()  // Don't bother to rename internal signals
                 // Special case, hardcoded m_process references in verilated_std.h and elsewhere
                 && !(m_modp && m_modp->name() == "std__03a__03aprocess"
                      && nodep->name() == "m_process")));
         iterateChildrenConst(nodep);
     }
-    void visit(AstCFunc* nodep) override {
-        if (!nodep->user1()) {
+    శూన్య సందర్శించు(AstCFunc* nodep) override {
+        ఒకవేళ (!nodep->user1()) {
             iterateChildrenConst(nodep);
-            rename(nodep, false);
+            rename(nodep, అబద్ధం);
         }
     }
-    void visit(AstVarRef* nodep) override { iterateConst(nodep->varp()); }
-    void visit(AstCell* nodep) override {
-        if (!nodep->user1()) {
-            rename(nodep, (!nodep->modp()->modPublic() && !VN_IS(nodep->modp(), ClassPackage)));
+    శూన్య సందర్శించు(AstVarRef* nodep) override { iterateConst(nodep->varp()); }
+    శూన్య సందర్శించు(AstCell* nodep) override {
+        ఒకవేళ (!nodep->user1()) {
+            rename(nodep, (!nodep->modp()->mod_ప్రజా() && !VN_IS(nodep->modp(), ClassPackage)));
             iterateChildrenConst(nodep);
         }
     }
-    void visit(AstNodeUOrStructDType* nodep) override {
-        if (nodep->packed()) {
-            m_nameStack.emplace_back("", false);
-            m_nameStack.back().get("get");
-            m_nameStack.back().get("set");
+    శూన్య సందర్శించు(Ast_కణుపు_UOr_Struct_DType* nodep) override {
+        ఒకవేళ (nodep->packed()) {
+            m_name_దొంతర.emplace_వెనుక("", అబద్ధం);
+            m_name_దొంతర.వెనుక().get("get");
+            m_name_దొంతర.వెనుక().get("set");
         }
         iterateChildrenConst(nodep);
-        if (nodep->packed()) m_nameStack.pop_back();
+        ఒకవేళ (nodep->packed()) m_name_దొంతర.తీయి_వెనుక();
     }
-    void visit(AstMemberDType* nodep) override {
-        if (!nodep->user1()) {
-            if (!m_nameStack.empty()) {  // Packed member field
+    శూన్య సందర్శించు(AstMemberDType* nodep) override {
+        ఒకవేళ (!nodep->user1()) {
+            ఒకవేళ (!m_name_దొంతర.ఖాళీలు()) {  // Packed member field
                 renameKeywordCheck(nodep);
-                nodep->name(m_nameStack.back().get(nodep->name()));
+                nodep->name(m_name_దొంతర.వెనుక().get(nodep->name()));
                 nodep->user1(1);
-            } else {
-                rename(nodep, true);
+            } లేకపోతే {
+                rename(nodep, నిజం);
             }
             iterateChildrenConst(nodep);
         }
     }
-    void visit(AstMemberSel* nodep) override {
-        if (!nodep->user1()) {
-            rename(nodep, true);
+    శూన్య సందర్శించు(AstMemberSel* nodep) override {
+        ఒకవేళ (!nodep->user1()) {
+            rename(nodep, నిజం);
             iterateChildrenConst(nodep);
         }
     }
-    void visit(AstStructSel* nodep) override {
-        if (!nodep->user1()) {
-            rename(nodep, true);
+    శూన్య సందర్శించు(AstStructSel* nodep) override {
+        ఒకవేళ (!nodep->user1()) {
+            rename(nodep, నిజం);
             iterateChildrenConst(nodep);
         }
     }
-    void visit(AstScope* nodep) override {
-        if (!nodep->user1SetOnce()) {
-            if (nodep->aboveScopep()) iterateConst(nodep->aboveScopep());
-            if (nodep->aboveCellp()) iterateConst(nodep->aboveCellp());
+    శూన్య సందర్శించు(AstScope* nodep) override {
+        ఒకవేళ (!nodep->user1_సమితి_Once()) {
+            ఒకవేళ (nodep->aboveScopep()) iterateConst(nodep->aboveScopep());
+            ఒకవేళ (nodep->aboveCellp()) iterateConst(nodep->aboveCellp());
             // Always recompute name (as many levels above scope may have changed)
             // Same formula as V3Scope
-            nodep->name(nodep->isTop()         ? "TOP"
+            nodep->name(nodep->is_శిఖరం()         ? "TOP"
                         : VN_IS(m_modp, Class) ? ("TOP." + m_modp->name())
                         : VN_IS(m_modp, ClassPackage)
                             ? ("TOP." + m_modp->name())
                             : (nodep->aboveScopep()->name() + "." + nodep->aboveCellp()->name()));
-            nodep->editCountInc();
+            nodep->edit_లెక్క_Inc();
             iterateChildrenConst(nodep);
         }
     }
 
     //--------------------
-    void visit(AstNode* nodep) override { iterateChildrenConst(nodep); }
+    శూన్య సందర్శించు(Ast_కణుపు* nodep) override { iterateChildrenConst(nodep); }
 
-public:
+బహిరంగ:
     // CONSTRUCTORS
-    explicit NameVisitor(AstNetlist* nodep) { iterateConst(nodep); }
-    ~NameVisitor() override = default;
+    స్పష్టమైన NameVisitor(AstNetlist* nodep) { iterateConst(nodep); }
+    ~NameVisitor() override = అప్రమేయ;
 };
 
 //######################################################################
 // Name class functions
 
-void V3Name::nameAll(AstNetlist* nodep) {
+శూన్య V3Name::nameAll(AstNetlist* nodep) {
     UINFO(2, __FUNCTION__ << ":");
     { NameVisitor{nodep}; }  // Destruct before checking
-    V3Global::dumpCheckGlobalTree("name", 0, dumpTreeEitherLevel() >= 6);
+    V3Global::dump_Check_Global_వృక్షం("name", 0, dump_వృక్షం_Either_Level() >= 6);
 }

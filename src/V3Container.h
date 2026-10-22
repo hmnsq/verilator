@@ -14,56 +14,56 @@
 //
 //*************************************************************************
 
-#ifndef VERILATOR_V3CONTAINER_H_
-#define VERILATOR_V3CONTAINER_H_
+#నిర్వచితం_కాకపోతే VERILATOR_V3CONTAINER_H_
+#నిర్వచించు VERILATOR_V3CONTAINER_H_
 
-#include "config_build.h"
-#include "verilatedos.h"
+#అన్తర్భావ "config_build.h"
+#అన్తర్భావ "verilatedos.h"
 
-#include <unordered_map>
-#include <unordered_set>
-#include <vector>
+#అన్తర్భావ <unordered_map>
+#అన్తర్భావ <unordered_set>
+#అన్తర్భావ <vector>
 
 //============================================================================
 
 // Similar to std::set, but ordered based on call order to emplace.  Used
 // when insertion order is desired (e.g. std::vector), but duplicates need removal.
 // Keys may not be modified.  (If needed in future, m_set could contain vector positions.)
-template <typename T_Key>
-class VInsertionSet final {
-    std::vector<T_Key> m_keys;  // Elements by insertion order
-    std::unordered_set<T_Key> m_keySet;  // Elements by key
-public:
+మూస <typename T_కీలకం>
+class VInsertion_సమితి final {
+    std::సదిశ<T_కీలకం> m_కీలకాలు;  // Elements by insertion order
+    std::unordered_సమితి<T_కీలకం> m_కీలకం_సమితి;  // Elements by key
+బహిరంగ:
     // METHODS
-    bool insert(const T_Key& key) {
+    bool చొప్పించు(స్థిరరాశి T_కీలకం& కీలకం) {
         // Returns if did insertion (second pair argument of traditional emplace)
-        const auto itFoundPair = m_keySet.insert(key);
-        if (itFoundPair.second) m_keys.push_back(key);
-        return itFoundPair.second;
+        స్థిరరాశి స్వయంచాలక it_దొరికింది_Pair = m_కీలకం_సమితి.చొప్పించు(కీలకం);
+        ఒకవేళ (it_దొరికింది_Pair.రెండవ) m_కీలకాలు.నెట్టు_వెనుక(కీలకం);
+        తిరిగి it_దొరికింది_Pair.రెండవ;
     }
-    template <typename T>
-    void insert(T begin, const T end) {
-        static_assert(std::is_same<typename std::iterator_traits<T>::value_type, T_Key>::value,
+    మూస <typename T>
+    శూన్య చొప్పించు(T begin, స్థిరరాశి T చివర) {
+        static_assert(std::is_same<typename std::iterator_traits<T>::విలువ_type, T_కీలకం>::విలువ,
                       "T must be an iterator with value type T_Key");
-        while (begin != end) {
-            if (m_keySet.insert(*begin).second) m_keys.push_back(*begin);
+        అయితే (begin != చివర) {
+            ఒకవేళ (m_కీలకం_సమితి.చొప్పించు(*begin).రెండవ) m_కీలకాలు.నెట్టు_వెనుక(*begin);
             ++begin;
         }
     }
-    void clear() {
-        m_keys.clear();
-        m_keySet.clear();
+    శూన్య clear() {
+        m_కీలకాలు.clear();
+        m_కీలకం_సమితి.clear();
     }
 
     // ACCESSORS
-    bool empty() const { return m_keys.empty(); }
-    size_t size() const { return m_keys.size(); }
-    bool exists(const T_Key& key) const { return m_keySet.find(key) != m_keySet.end(); }
+    bool ఖాళీలు() స్థిరరాశి { తిరిగి m_కీలకాలు.ఖాళీలు(); }
+    కొలత_t కొలత() స్థిరరాశి { తిరిగి m_కీలకాలు.కొలత(); }
+    bool exists(స్థిరరాశి T_కీలకం& కీలకం) స్థిరరాశి { తిరిగి m_కీలకం_సమితి.కనుగొను(కీలకం) != m_కీలకం_సమితి.చివర(); }
 
     // ITERATORS
-    using const_iterator = typename std::vector<T_Key>::const_iterator;
-    const_iterator begin() const { return m_keys.begin(); }
-    const_iterator end() const { return m_keys.end(); }
+    using const_iterator = typename std::సదిశ<T_కీలకం>::const_iterator;
+    const_iterator begin() స్థిరరాశి { తిరిగి m_కీలకాలు.begin(); }
+    const_iterator చివర() స్థిరరాశి { తిరిగి m_కీలకాలు.చివర(); }
 };
 
 //============================================================================
@@ -72,4 +72,4 @@ public:
 // when insertion order is desired (e.g. std::vector), but duplicates need removal.
 // Values may be modified.
 
-#endif  // Guard
+#అయితే_ముగింపు  // Guard

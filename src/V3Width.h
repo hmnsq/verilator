@@ -14,31 +14,31 @@
 //
 //*************************************************************************
 
-#ifndef VERILATOR_V3WIDTH_H_
-#define VERILATOR_V3WIDTH_H_
+#నిర్వచితం_కాకపోతే VERILATOR_V3_వెడల్పు_H
+#నిర్వచించు VERILATOR_V3_వెడల్పు_H
 
-#include "config_build.h"
-#include "verilatedos.h"
+#అన్తర్భావ "config_build.h"
+#అన్తర్భావ "verilatedos.h"
 
 class AstNetlist;
-class AstNode;
-class AstNodeAssign;
-class AstNodeDType;
+class Ast_కణుపు;
+class Ast_కణుపు_కేటాయించు;
+class Ast_కణుపు_DType;
 
 //============================================================================
 
-class V3Width final {
-public:
-    static void width(AstNetlist* nodep) VL_MT_DISABLED;
-    static AstNode* widthParamsEdit(AstNode* nodep) VL_MT_DISABLED;
-    static AstNode* widthGenerateParamsEdit(AstNode* nodep) VL_MT_DISABLED;
-    static AstNode* selectNonConstantRecurse(AstNode* nodep, bool inSel = false) VL_MT_DISABLED;
-    static void streamAssignLowerEdit(AstNodeAssign* nodep) VL_MT_DISABLED;
+class V3_వెడల్పు final {
+బహిరంగ:
+    స్థిర శూన్య వెడల్పు(AstNetlist* nodep) VL_MT_DISABLED;
+    స్థిర Ast_కణుపు* వెడల్పు_Params_Edit(Ast_కణుపు* nodep) VL_MT_DISABLED;
+    స్థిర Ast_కణుపు* వెడల్పు_Generate_Params_Edit(Ast_కణుపు* nodep) VL_MT_DISABLED;
+    స్థిర Ast_కణుపు* selectNonConstantRecurse(Ast_కణుపు* nodep, bool లోపల_Sel = false) VL_MT_DISABLED;
+    స్థిర శూన్య ప్రవాహం_కేటాయించు_క్రింది_Edit(Ast_కణుపు_కేటాయించు* nodep) VL_MT_DISABLED;
 
     // For use only in WidthVisitor
     // Replace AstSelBit, etc with AstSel/AstArraySel
     // Returns replacement node if nodep was deleted, or null if none.
-    static AstNode* widthSelNoIterEdit(AstNode* nodep) VL_MT_DISABLED;
+    స్థిర Ast_కణుపు* వెడల్పు_Sel_No_Iter_Edit(Ast_కణుపు* nodep) VL_MT_DISABLED;
 };
 
-#endif  // Guard
+#అయితే_ముగింపు  // Guard

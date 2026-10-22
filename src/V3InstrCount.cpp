@@ -15,12 +15,12 @@
 //
 //*************************************************************************
 
-#include "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
+#అన్తర్భావ "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
 
-#include "V3InstrCount.h"
+#అన్తర్భావ "V3InstrCount.h"
 
-#include <iomanip>
-#include <unordered_map>
+#అన్తర్భావ <iomanip>
+#అన్తర్భావ <unordered_map>
 
 VL_DEFINE_DEBUG_FUNCTIONS;
 
@@ -30,64 +30,64 @@ VL_DEFINE_DEBUG_FUNCTIONS;
 /// we'll count instructions from either the 'if' or the 'else' branch,
 /// whichever is larger. We know we won't run both.
 
-class InstrCountVisitor final : public VNVisitorConst {
+తరగతి Instr_లెక్క_Visitor final : బహిరంగ VNVisitorConst {
     // NODE STATE
     //  AstNode::user1()        -> bool. Processed if assertNoDups
     //  AstNode::user2()        -> uint64_t.  Path cost + 1, 0 means don't dump
-    const VNUser2InUse m_inuser2;
+    స్థిరరాశి VNUser2_లోపల_Use m_inuser2;
 
     // MEMBERS
-    uint32_t m_instrCount = 0;  // Running count of instructions
-    const AstNode* const m_startNodep;  // Start node of count
-    bool m_tracingCall = false;  // Iterating into a CCall to a CFunc
-    bool m_inCFunc = false;  // Inside AstCFunc
-    bool m_ignoreRemaining = false;  // Ignore remaining statements in the block
-    const bool m_assertNoDups;  // Check for duplicates
-    const std::ostream* const m_osp;  // Dump file
-    std::unordered_map<const AstCFunc*, uint32_t> m_funcCosts;  // Cost of each function
+    uint32_t m_instr_లెక్క = 0;  // Running count of instructions
+    స్థిరరాశి Ast_కణుపు* స్థిరరాశి m_ప్రారంభం_Nodep;  // Start node of count
+    తార్కిక m_tracingCall = అబద్ధం;  // Iterating into a CCall to a CFunc
+    తార్కిక m_లోపల_CFunc = అబద్ధం;  // Inside AstCFunc
+    తార్కిక m_ignore_మిగిలిన = అబద్ధం;  // Ignore remaining statements in the block
+    స్థిరరాశి తార్కిక m_assertNoDups;  // Check for duplicates
+    స్థిరరాశి std::ostream* స్థిరరాశి m_osp;  // Dump file
+    std::unordered_map<స్థిరరాశి AstCFunc*, uint32_t> m_funcCosts;  // Cost of each function
 
     // TYPES
     // Little class to cleanly call startVisitBase/endVisitBase
-    class VisitBase final {
+    తరగతి సందర్శించు_పునాది final {
         // MEMBERS
-        uint32_t m_savedCount;  // Count before visit applied
-        AstNode* const m_nodep;  // Node helper is visiting
-        InstrCountVisitor* const m_visitor;  // Visitor whose start/endVisitBase are called
+        uint32_t m_saved_లెక్క;  // Count before visit applied
+        Ast_కణుపు* స్థిరరాశి m_nodep;  // Node helper is visiting
+        Instr_లెక్క_Visitor* స్థిరరాశి m_visitor;  // Visitor whose start/endVisitBase are called
 
-    public:
+    బహిరంగ:
         // CONSTRUCTORS
-        VisitBase(InstrCountVisitor* visitor, AstNode* nodep)
+        సందర్శించు_పునాది(Instr_లెక్క_Visitor* visitor, Ast_కణుపు* nodep)
             : m_nodep{nodep}
             , m_visitor{visitor} {
-            m_savedCount = m_visitor->startVisitBase(nodep);
+            m_saved_లెక్క = m_visitor->ప్రారంభం_సందర్శించు_పునాది(nodep);
         }
-        ~VisitBase() { m_visitor->endVisitBase(m_savedCount, m_nodep); }
+        ~సందర్శించు_పునాది() { m_visitor->చివర_సందర్శించు_పునాది(m_saved_లెక్క, m_nodep); }
 
-    private:
-        VL_UNCOPYABLE(VisitBase);
+    అంతరంగ:
+        VL_UNCOPYABLE(సందర్శించు_పునాది);
     };
 
-public:
+బహిరంగ:
     // CONSTRUCTORS
-    InstrCountVisitor(AstNode* nodep, bool assertNoDups, std::ostream* osp)
-        : m_startNodep{nodep}
+    Instr_లెక్క_Visitor(Ast_కణుపు* nodep, తార్కిక assertNoDups, std::ostream* osp)
+        : m_ప్రారంభం_Nodep{nodep}
         , m_assertNoDups{assertNoDups}
         , m_osp{osp} {
         iterateConstNull(nodep);
     }
-    ~InstrCountVisitor() override = default;
+    ~Instr_లెక్క_Visitor() override = అప్రమేయ;
 
     // METHODS
-    uint32_t instrCount() const { return m_instrCount; }
+    uint32_t instr_లెక్క() స్థిరరాశి { తిరిగి m_instr_లెక్క; }
 
-private:
-    void reset() {
-        m_instrCount = 0;
-        m_ignoreRemaining = false;
+అంతరంగ:
+    శూన్య reset() {
+        m_instr_లెక్క = 0;
+        m_ignore_మిగిలిన = అబద్ధం;
     }
-    uint32_t startVisitBase(AstNode* nodep) {
-        UASSERT_OBJ(!m_ignoreRemaining, nodep, "Should not reach here if ignoring");
-        if (m_assertNoDups && !m_inCFunc) {
+    uint32_t ప్రారంభం_సందర్శించు_పునాది(Ast_కణుపు* nodep) {
+        UASSERT_OBJ(!m_ignore_మిగిలిన, nodep, "Should not reach here if ignoring");
+        ఒకవేళ (m_assertNoDups && !m_లోపల_CFunc) {
             // Ensure we don't count the same node twice
             //
             // We only enable this assert for the initial LogicMTask counts
@@ -101,29 +101,29 @@ private:
             // collisions in CFuncs.
             UASSERT_OBJ(!nodep->user1p(), nodep,
                         "Node originally inserted below logic vertex "
-                            << static_cast<AstNode*>(nodep->user1p()));
-            nodep->user1p(const_cast<void*>(reinterpret_cast<const void*>(m_startNodep)));
+                            << static_cast<Ast_కణుపు*>(nodep->user1p()));
+            nodep->user1p(const_cast<శూన్య*>(reinterpret_cast<స్థిరరాశి శూన్య*>(m_ప్రారంభం_Nodep)));
         }
 
         // Save the count, and add it back in during ~VisitBase This allows
         // debug prints to show local cost of each subtree, so we can see a
         // hierarchical view of the cost when in debug mode.
-        const uint32_t savedCount = m_instrCount;
-        m_instrCount = nodep->instrCount();
-        return savedCount;
+        స్థిరరాశి uint32_t saved_లెక్క = m_instr_లెక్క;
+        m_instr_లెక్క = nodep->instr_లెక్క();
+        తిరిగి saved_లెక్క;
     }
-    void endVisitBase(uint32_t savedCount, AstNode* nodep) {
-        UINFO(8, "cost " << std::setw(6) << std::left << m_instrCount << "  " << nodep);
-        markCost(nodep);
-        if (!m_ignoreRemaining) m_instrCount += savedCount;
+    శూన్య చివర_సందర్శించు_పునాది(uint32_t saved_లెక్క, Ast_కణుపు* nodep) {
+        UINFO(8, "cost " << std::setw(6) << std::ఎడమ << m_instr_లెక్క << "  " << nodep);
+        mark_ఖర్చు(nodep);
+        ఒకవేళ (!m_ignore_మిగిలిన) m_instr_లెక్క += saved_లెక్క;
     }
-    void markCost(AstNode* nodep) {
-        if (m_osp) nodep->user2(m_instrCount + 1);  // Else don't mark to avoid writeback
+    శూన్య mark_ఖర్చు(Ast_కణుపు* nodep) {
+        ఒకవేళ (m_osp) nodep->user2(m_instr_లెక్క + 1);  // Else don't mark to avoid writeback
     }
 
     // VISITORS
-    void visit(AstNodeSel* nodep) override {
-        if (m_ignoreRemaining) return;
+    శూన్య సందర్శించు(Ast_కణుపు_Sel* nodep) override {
+        ఒకవేళ (m_ignore_మిగిలిన) తిరిగి;
         // This covers both AstArraySel and AstWordSel
         //
         // If some vector is a bazillion dwords long, and we're selecting 1
@@ -131,20 +131,20 @@ private:
         //
         // Hence, exclude the child of the AstWordSel from the computation,
         // whose cost scales with the size of the entire (maybe large) vector.
-        const VisitBase vb{this, nodep};
-        iterateAndNextConstNull(nodep->bitp());
+        స్థిరరాశి సందర్శించు_పునాది vb{ఇది, nodep};
+        iterate_And_తదుపరి_Const_Null(nodep->bitp());
     }
-    void visit(AstSel* nodep) override {
-        if (m_ignoreRemaining) return;
+    శూన్య సందర్శించు(AstSel* nodep) override {
+        ఒకవేళ (m_ignore_మిగిలిన) తిరిగి;
         // Similar to AstNodeSel above, a small select into a large vector
         // is not expensive. Count the cost of the AstSel itself (scales with
         // its width) and the cost of the lsbp() and widthp() nodes, but not
         // the fromp() node which could be disproportionately large.
-        const VisitBase vb{this, nodep};
-        iterateAndNextConstNull(nodep->lsbp());
+        స్థిరరాశి సందర్శించు_పునాది vb{ఇది, nodep};
+        iterate_And_తదుపరి_Const_Null(nodep->lsbp());
     }
-    void visit(AstConcat* nodep) override {
-        if (m_ignoreRemaining) return;
+    శూన్య సందర్శించు(AstConcat* nodep) override {
+        ఒకవేళ (m_ignore_మిగిలిన) తిరిగి;
         // Ignore the cost of the concat node itself. The problem with
         // counting concat is that when we have many things concatted
         // together, it's not a single operation, but this:
@@ -161,83 +161,83 @@ private:
         // in the width of the destination (which we count) and the sum of
         // the cost of the operands.
         iterateChildrenConst(nodep);
-        markCost(nodep);
+        mark_ఖర్చు(nodep);
     }
-    void visit(AstNodeIf* nodep) override {
-        if (m_ignoreRemaining) return;
-        const VisitBase vb{this, nodep};
-        iterateAndNextConstNull(nodep->condp());
-        const uint32_t savedCount = m_instrCount;
+    శూన్య సందర్శించు(Ast_కణుపు_If* nodep) override {
+        ఒకవేళ (m_ignore_మిగిలిన) తిరిగి;
+        స్థిరరాశి సందర్శించు_పునాది vb{ఇది, nodep};
+        iterate_And_తదుపరి_Const_Null(nodep->condp());
+        స్థిరరాశి uint32_t saved_లెక్క = m_instr_లెక్క;
 
         UINFO(8, "thensp:");
         reset();
-        iterateAndNextConstNull(nodep->thensp());
-        uint32_t ifCount = m_instrCount;
-        if (nodep->branchPred().unlikely()) ifCount = 0;
+        iterate_And_తదుపరి_Const_Null(nodep->thensp());
+        uint32_t if_లెక్క = m_instr_లెక్క;
+        ఒకవేళ (nodep->branchPred().unlikely()) if_లెక్క = 0;
 
         UINFO(8, "elsesp:");
         reset();
-        iterateAndNextConstNull(nodep->elsesp());
-        uint32_t elseCount = m_instrCount;
-        if (nodep->branchPred().likely()) elseCount = 0;
+        iterate_And_తదుపరి_Const_Null(nodep->elsesp());
+        uint32_t else_లెక్క = m_instr_లెక్క;
+        ఒకవేళ (nodep->branchPred().likely()) else_లెక్క = 0;
 
         reset();
-        if (ifCount >= elseCount) {
-            m_instrCount = savedCount + ifCount;
-            if (nodep->elsesp()) nodep->elsesp()->user2(0);  // Don't dump it
-        } else {
-            m_instrCount = savedCount + elseCount;
-            if (nodep->thensp()) nodep->thensp()->user2(0);  // Don't dump it
+        ఒకవేళ (if_లెక్క >= else_లెక్క) {
+            m_instr_లెక్క = saved_లెక్క + if_లెక్క;
+            ఒకవేళ (nodep->elsesp()) nodep->elsesp()->user2(0);  // Don't dump it
+        } లేకపోతే {
+            m_instr_లెక్క = saved_లెక్క + else_లెక్క;
+            ఒకవేళ (nodep->thensp()) nodep->thensp()->user2(0);  // Don't dump it
         }
     }
-    void visit(AstCond* nodep) override {
-        if (m_ignoreRemaining) return;
+    శూన్య సందర్శించు(AstCond* nodep) override {
+        ఒకవేళ (m_ignore_మిగిలిన) తిరిగి;
         // Just like if/else above, the ternary operator only evaluates
         // one of the two expressions, so only count the max.
-        const VisitBase vb{this, nodep};
-        iterateAndNextConstNull(nodep->condp());
-        const uint32_t savedCount = m_instrCount;
+        స్థిరరాశి సందర్శించు_పునాది vb{ఇది, nodep};
+        iterate_And_తదుపరి_Const_Null(nodep->condp());
+        స్థిరరాశి uint32_t saved_లెక్క = m_instr_లెక్క;
 
         UINFO(8, "?");
         reset();
-        iterateAndNextConstNull(nodep->thenp());
-        const uint32_t ifCount = m_instrCount;
+        iterate_And_తదుపరి_Const_Null(nodep->thenp());
+        స్థిరరాశి uint32_t if_లెక్క = m_instr_లెక్క;
 
         UINFO(8, ":");
         reset();
-        iterateAndNextConstNull(nodep->elsep());
-        const uint32_t elseCount = m_instrCount;
+        iterate_And_తదుపరి_Const_Null(nodep->elsep());
+        స్థిరరాశి uint32_t else_లెక్క = m_instr_లెక్క;
 
         reset();
-        if (ifCount >= elseCount) {
-            m_instrCount = savedCount + ifCount;
-            if (nodep->elsep()) nodep->elsep()->user2(0);  // Don't dump it
-        } else {
-            m_instrCount = savedCount + elseCount;
-            if (nodep->thenp()) nodep->thenp()->user2(0);  // Don't dump it
+        ఒకవేళ (if_లెక్క >= else_లెక్క) {
+            m_instr_లెక్క = saved_లెక్క + if_లెక్క;
+            ఒకవేళ (nodep->elsep()) nodep->elsep()->user2(0);  // Don't dump it
+        } లేకపోతే {
+            m_instr_లెక్క = saved_లెక్క + else_లెక్క;
+            ఒకవేళ (nodep->thenp()) nodep->thenp()->user2(0);  // Don't dump it
         }
     }
-    void visit(AstCAwait* nodep) override {
-        if (m_ignoreRemaining) return;
+    శూన్య సందర్శించు(AstCAwait* nodep) override {
+        ఒకవేళ (m_ignore_మిగిలిన) తిరిగి;
         iterateChildrenConst(nodep);
         // Anything past a co_await is irrelevant
-        m_ignoreRemaining = true;
+        m_ignore_మిగిలిన = నిజం;
     }
-    void visit(AstFork* nodep) override {
-        if (m_ignoreRemaining) return;
-        const VisitBase vb{this, nodep};
-        iterateAndNextConstNull(nodep->stmtsp());
-        uint32_t totalCount = m_instrCount;
+    శూన్య సందర్శించు(AstFork* nodep) override {
+        ఒకవేళ (m_ignore_మిగిలిన) తిరిగి;
+        స్థిరరాశి సందర్శించు_పునాది vb{ఇది, nodep};
+        iterate_And_తదుపరి_Const_Null(nodep->stmtsp());
+        uint32_t మొత్తం_లెక్క = m_instr_లెక్క;
         // Sum counts in each statement until the first await
-        for (AstNode* stmtp = nodep->forksp(); stmtp; stmtp = stmtp->nextp()) {
+        కొరకు (Ast_కణుపు* stmtp = nodep->forksp(); stmtp; stmtp = stmtp->nextp()) {
             reset();
             iterateConst(stmtp);
-            totalCount += m_instrCount;
+            మొత్తం_లెక్క += m_instr_లెక్క;
         }
-        m_instrCount = totalCount;
-        m_ignoreRemaining = false;
+        m_instr_లెక్క = మొత్తం_లెక్క;
+        m_ignore_మిగిలిన = అబద్ధం;
     }
-    void visit(AstActive* nodep) override {
+    శూన్య సందర్శించు(Ast_చురుకైన* nodep) override {
         // You'd think that the OrderLogicVertex's would be disjoint trees
         // of stuff in the AST, but it isn't so: V3Order makes an
         // OrderLogicVertex for each ACTIVE, and then also makes an
@@ -250,99 +250,99 @@ private:
         // search; there should be no actives beneath the root, as there
         // are no actives-under-actives.  In any case, check that we're at
         // root:
-        markCost(nodep);
-        UASSERT_OBJ(nodep == m_startNodep, nodep, "Multiple actives, or not start node");
+        mark_ఖర్చు(nodep);
+        UASSERT_OBJ(nodep == m_ప్రారంభం_Nodep, nodep, "Multiple actives, or not start node");
     }
-    void visit(AstNodeCCall* nodep) override {
-        if (m_ignoreRemaining) return;
-        const VisitBase vb{this, nodep};
+    శూన్య సందర్శించు(Ast_కణుపు_CCall* nodep) override {
+        ఒకవేళ (m_ignore_మిగిలిన) తిరిగి;
+        స్థిరరాశి సందర్శించు_పునాది vb{ఇది, nodep};
         iterateChildrenConst(nodep);
-        const auto it = m_funcCosts.find(nodep->funcp());
-        if (it == m_funcCosts.end()) {
-            m_tracingCall = true;
+        స్థిరరాశి స్వయంచాలక it = m_funcCosts.కనుగొను(nodep->funcp());
+        ఒకవేళ (it == m_funcCosts.చివర()) {
+            m_tracingCall = నిజం;
             iterateConst(nodep->funcp());
             UASSERT_OBJ(!m_tracingCall, nodep,
                         "visit(AstCFunc) should have cleared m_tracingCall.");
-        } else {
-            m_instrCount += it->second;  // This guards and adds zero cost on recursive calls
+        } లేకపోతే {
+            m_instr_లెక్క += it->రెండవ;  // This guards and adds zero cost on recursive calls
         }
     }
-    void visit(AstCFunc* nodep) override {
+    శూన్య సందర్శించు(AstCFunc* nodep) override {
         // Don't count a CFunc other than by tracing a call or counting it
         // from the root
-        UASSERT_OBJ(m_tracingCall || nodep == m_startNodep, nodep,
+        UASSERT_OBJ(m_tracingCall || nodep == m_ప్రారంభం_Nodep, nodep,
                     "AstCFunc not under AstCCall, or not start node");
-        UASSERT_OBJ(!m_ignoreRemaining, nodep, "Should not be ignoring at the start of a CFunc");
-        const auto emplacePair = m_funcCosts.emplace(nodep, 0);
-        UASSERT_OBJ(emplacePair.second, nodep, "Should visit every CFunc at most once");
-        uint32_t& funcCostr = emplacePair.first->second;
-        m_tracingCall = false;
+        UASSERT_OBJ(!m_ignore_మిగిలిన, nodep, "Should not be ignoring at the start of a CFunc");
+        స్థిరరాశి స్వయంచాలక emplacePair = m_funcCosts.emplace(nodep, 0);
+        UASSERT_OBJ(emplacePair.రెండవ, nodep, "Should visit every CFunc at most once");
+        uint32_t& funcCostr = emplacePair.మొదటి->రెండవ;
+        m_tracingCall = అబద్ధం;
 
-        const uint32_t savedCount = m_instrCount;
+        స్థిరరాశి uint32_t saved_లెక్క = m_instr_లెక్క;
         reset();
         {
-            VL_RESTORER(m_inCFunc);
-            m_inCFunc = true;
-            const VisitBase vb{this, nodep};
+            VL_RESTORER(m_లోపల_CFunc);
+            m_లోపల_CFunc = నిజం;
+            స్థిరరాశి సందర్శించు_పునాది vb{ఇది, nodep};
             iterateChildrenConst(nodep);
         }
-        funcCostr = m_instrCount;
-        m_instrCount += savedCount;
+        funcCostr = m_instr_లెక్క;
+        m_instr_లెక్క += saved_లెక్క;
 
-        m_ignoreRemaining = false;
+        m_ignore_మిగిలిన = అబద్ధం;
     }
-    void visit(AstNodeCons* nodep) override {
-        if (m_ignoreRemaining) return;
-        const VisitBase vb{this, nodep};
+    శూన్య సందర్శించు(Ast_కణుపు_Cons* nodep) override {
+        ఒకవేళ (m_ignore_మిగిలిన) తిరిగి;
+        స్థిరరాశి సందర్శించు_పునాది vb{ఇది, nodep};
         // A constant value is not built at run time, so its parts cost nothing
-        if (!nodep->isConstantTree()) iterateChildrenConst(nodep);
+        ఒకవేళ (!nodep->is_Constant_వృక్షం()) iterateChildrenConst(nodep);
     }
-    void visit(AstNode* nodep) override {
-        if (m_ignoreRemaining) return;
-        const VisitBase vb{this, nodep};
+    శూన్య సందర్శించు(Ast_కణుపు* nodep) override {
+        ఒకవేళ (m_ignore_మిగిలిన) తిరిగి;
+        స్థిరరాశి సందర్శించు_పునాది vb{ఇది, nodep};
         iterateChildrenConst(nodep);
     }
 
-    VL_UNCOPYABLE(InstrCountVisitor);
+    VL_UNCOPYABLE(Instr_లెక్క_Visitor);
 };
 
 // Iterate the graph printing the critical path marked by previous visitation
-class InstrCountDumpVisitor final : public VNVisitorConst {
+తరగతి Instr_లెక్క_Dump_Visitor final : బహిరంగ VNVisitorConst {
     // NODE STATE
     //  AstNode::user2()        -> int.  Path cost, 0 means don't dump
 
     // MEMBERS
-    std::ostream* const m_osp;  // Dump file
-    unsigned m_depth = 0;  // Current tree depth for printing indent
+    std::ostream* స్థిరరాశి m_osp;  // Dump file
+    గుర్తులేని m_లోతు = 0;  // Current tree depth for printing indent
 
-public:
+బహిరంగ:
     // CONSTRUCTORS
-    InstrCountDumpVisitor(AstNode* nodep, std::ostream* osp)
+    Instr_లెక్క_Dump_Visitor(Ast_కణుపు* nodep, std::ostream* osp)
         : m_osp{osp} {
         // No check for nullptr output, so...
         UASSERT_OBJ(osp, nodep, "Don't call if not dumping");
-        if (nodep) iterateConst(nodep);
+        ఒకవేళ (nodep) iterateConst(nodep);
     }
-    ~InstrCountDumpVisitor() override = default;
+    ~Instr_లెక్క_Dump_Visitor() override = అప్రమేయ;
 
-private:
+అంతరంగ:
     // METHODS
-    string indent() const { return string(m_depth, ':') + " "; }
-    void visit(AstNode* nodep) override {
-        ++m_depth;
-        if (const unsigned costPlus1 = nodep->user2()) {
-            *m_osp << "  " << indent() << "cost " << std::setw(6) << std::left << (costPlus1 - 1)
+    string indent() స్థిరరాశి { తిరిగి string(m_లోతు, ':') + " "; }
+    శూన్య సందర్శించు(Ast_కణుపు* nodep) override {
+        ++m_లోతు;
+        ఒకవేళ (స్థిరరాశి గుర్తులేని ఖర్చు_Plus1 = nodep->user2()) {
+            *m_osp << "  " << indent() << "cost " << std::setw(6) << std::ఎడమ << (ఖర్చు_Plus1 - 1)
                    << "  " << nodep << '\n';
             iterateChildrenConst(nodep);
         }
-        --m_depth;
+        --m_లోతు;
     }
 
-    VL_UNCOPYABLE(InstrCountDumpVisitor);
+    VL_UNCOPYABLE(Instr_లెక్క_Dump_Visitor);
 };
 
-uint32_t V3InstrCount::count(AstNode* nodep, bool assertNoDups, std::ostream* osp) {
-    const InstrCountVisitor visitor{nodep, assertNoDups, osp};
-    if (osp) const InstrCountDumpVisitor dumper{nodep, osp};
-    return visitor.instrCount();
+uint32_t V3_Instr_లెక్క::లెక్క(Ast_కణుపు* nodep, తార్కిక assertNoDups, std::ostream* osp) {
+    స్థిరరాశి Instr_లెక్క_Visitor visitor{nodep, assertNoDups, osp};
+    ఒకవేళ (osp) స్థిరరాశి Instr_లెక్క_Dump_Visitor dumper{nodep, osp};
+    తిరిగి visitor.instr_లెక్క();
 }

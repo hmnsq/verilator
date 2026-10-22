@@ -14,24 +14,24 @@
 //
 //*************************************************************************
 
-#define VL_MT_DISABLED_CODE_UNIT 1
+#నిర్వచించు VL_MT_DISABLED_సంకేతం_UNIT 1
 
-#include "config_build.h"
-#include "verilatedos.h"
+#అన్తర్భావ "config_build.h"
+#అన్తర్భావ "verilatedos.h"
 
-#include "V3GraphAlg.h"
+#అన్తర్భావ "V3GraphAlg.h"
 
-#include "V3Global.h"
-#include "V3GraphPathChecker.h"
-#include "V3GraphStream.h"
-#include "V3Stats.h"
+#అన్తర్భావ "V3Global.h"
+#అన్తర్భావ "V3GraphPathChecker.h"
+#అన్తర్భావ "V3GraphStream.h"
+#అన్తర్భావ "V3Stats.h"
 
-#include <algorithm>
-#include <limits>
-#include <list>
-#include <map>
-#include <numeric>
-#include <vector>
+#అన్తర్భావ <algorithm>
+#అన్తర్భావ <limits>
+#అన్తర్భావ <list>
+#అన్తర్భావ <map>
+#అన్తర్భావ <numeric>
+#అన్తర్భావ <vector>
 
 VL_DEFINE_DEBUG_FUNCTIONS;
 
@@ -40,141 +40,141 @@ VL_DEFINE_DEBUG_FUNCTIONS;
 // Algorithms - Remove redundancies
 // Changes user() and weight()
 
-class GraphRemoveRedundant final : GraphAlg<> {
-    const bool m_sumWeights;  // Sum, rather then maximize weights
-private:
-    void main() {
-        for (V3GraphVertex& vertex : m_graphp->vertices()) vertexIterate(&vertex);
+తరగతి లేఖాచిత్రం_Remove_Redundant final : లేఖాచిత్రం_Alg<> {
+    స్థిరరాశి తార్కిక m_కూడిక_Weights;  // Sum, rather then maximize weights
+అంతరంగ:
+    శూన్య ప్రధాన() {
+        కొరకు (V3_లేఖాచిత్రం_శీర్షం& శీర్షం : m_graphp->vertices()) శీర్షం_Iterate(&శీర్షం);
     }
-    void vertexIterate(V3GraphVertex* vertexp) {
+    శూన్య శీర్షం_Iterate(V3_లేఖాచిత్రం_శీర్షం* vertexp) {
         // Clear marks
-        for (V3GraphEdge& edge : vertexp->outEdges()) edge.top()->userp(nullptr);
+        కొరకు (V3_లేఖాచిత్రం_అంచు& అంచు : vertexp->బహిర్గతం_అంచులు()) అంచు.శిఖరం()->userp(శూన్యసూచిక);
 
         // Mark edges and detect duplications
 
-        for (V3GraphEdge* const edgep : vertexp->outEdges().unlinkable()) {
-            if (followEdge(edgep)) {
-                V3GraphVertex* outVertexp = edgep->top();
-                V3GraphEdge* prevEdgep = static_cast<V3GraphEdge*>(outVertexp->userp());
-                if (!prevEdgep) {  // No previous assignment
-                    outVertexp->userp(edgep);
-                } else {  // Duplicate
-                    bool saveOld = true;
-                    if (prevEdgep->cutable() && !edgep->cutable()) {
-                        saveOld = false;  // new !cutable more important than old
-                    } else if (!prevEdgep->cutable() && edgep->cutable()) {
-                        saveOld = true;  // old !cutable more important than new
-                    } else {
-                        saveOld = true;
-                        if (!m_sumWeights
-                            && (prevEdgep->weight() < edgep->weight())) {  // Keep max weight
-                            prevEdgep->weight(edgep->weight());
+        కొరకు (V3_లేఖాచిత్రం_అంచు* స్థిరరాశి edgep : vertexp->బహిర్గతం_అంచులు().unlinkable()) {
+            ఒకవేళ (follow_అంచు(edgep)) {
+                V3_లేఖాచిత్రం_శీర్షం* బహిర్గతం_Vertexp = edgep->శిఖరం();
+                V3_లేఖాచిత్రం_అంచు* prevEdgep = static_cast<V3_లేఖాచిత్రం_అంచు*>(బహిర్గతం_Vertexp->userp());
+                ఒకవేళ (!prevEdgep) {  // No previous assignment
+                    బహిర్గతం_Vertexp->userp(edgep);
+                } లేకపోతే {  // Duplicate
+                    తార్కిక saveOld = నిజం;
+                    ఒకవేళ (prevEdgep->cutable() && !edgep->cutable()) {
+                        saveOld = అబద్ధం;  // new !cutable more important than old
+                    } లేకపోతే ఒకవేళ (!prevEdgep->cutable() && edgep->cutable()) {
+                        saveOld = నిజం;  // old !cutable more important than new
+                    } లేకపోతే {
+                        saveOld = నిజం;
+                        ఒకవేళ (!m_కూడిక_Weights
+                            && (prevEdgep->బరువు_2() < edgep->బరువు_2())) {  // Keep max weight
+                            prevEdgep->బరువు_2(edgep->బరువు_2());
                         }
                     }
-                    if (saveOld) {
-                        if (m_sumWeights) prevEdgep->weight(prevEdgep->weight() + edgep->weight());
+                    ఒకవేళ (saveOld) {
+                        ఒకవేళ (m_కూడిక_Weights) prevEdgep->బరువు_2(prevEdgep->బరువు_2() + edgep->బరువు_2());
                         VL_DO_DANGLING(edgep->unlinkDelete(), edgep);
-                    } else {
-                        if (m_sumWeights) edgep->weight(prevEdgep->weight() + edgep->weight());
+                    } లేకపోతే {
+                        ఒకవేళ (m_కూడిక_Weights) edgep->బరువు_2(prevEdgep->బరువు_2() + edgep->బరువు_2());
                         VL_DO_DANGLING(prevEdgep->unlinkDelete(), prevEdgep);
-                        outVertexp->userp(edgep);
+                        బహిర్గతం_Vertexp->userp(edgep);
                     }
                 }
             }
         }
     }
 
-public:
-    GraphRemoveRedundant(V3Graph* graphp, V3EdgeFuncP edgeFuncp, bool sumWeights)
-        : GraphAlg<>{graphp, edgeFuncp}
-        , m_sumWeights{sumWeights} {
-        main();
+బహిరంగ:
+    లేఖాచిత్రం_Remove_Redundant(V3_లేఖాచిత్రం* graphp, V3_అంచు_Func_P అంచు_Funcp, తార్కిక కూడిక_Weights)
+        : లేఖాచిత్రం_Alg<>{graphp, అంచు_Funcp}
+        , m_కూడిక_Weights{కూడిక_Weights} {
+        ప్రధాన();
     }
-    ~GraphRemoveRedundant() = default;
+    ~లేఖాచిత్రం_Remove_Redundant() = అప్రమేయ;
 };
 
-void V3Graph::removeRedundantEdgesMax(V3EdgeFuncP edgeFuncp) {
-    GraphRemoveRedundant{this, edgeFuncp, false};
+శూన్య V3_లేఖాచిత్రం::remove_Redundant_అంచులు_Max(V3_అంచు_Func_P అంచు_Funcp) {
+    లేఖాచిత్రం_Remove_Redundant{ఇది, అంచు_Funcp, అబద్ధం};
 }
-void V3Graph::removeRedundantEdgesSum(V3EdgeFuncP edgeFuncp) {
-    GraphRemoveRedundant{this, edgeFuncp, true};
+శూన్య V3_లేఖాచిత్రం::remove_Redundant_అంచులు_కూడిక(V3_అంచు_Func_P అంచు_Funcp) {
+    లేఖాచిత్రం_Remove_Redundant{ఇది, అంచు_Funcp, నిజం};
 }
 
 //######################################################################
 //######################################################################
 // Algorithms - remove transitive
 
-class GraphAlgRemoveTransitiveEdges final : GraphAlg<> {
-public:
-    explicit GraphAlgRemoveTransitiveEdges(V3Graph* graphp)
-        : GraphAlg<>(graphp, nullptr) {}
-    void go() {
-        GraphPathChecker checker{m_graphp};
-        for (V3GraphVertex& vtx : m_graphp->vertices()) {
-            V3GraphEdge* deletep = nullptr;
-            for (V3GraphEdge& edge : vtx.outEdges()) {
-                if (deletep) VL_DO_CLEAR(deletep->unlinkDelete(), deletep = nullptr);
+తరగతి లేఖాచిత్రం_Alg_Remove_సంక్రమణ_అంచులు final : లేఖాచిత్రం_Alg<> {
+బహిరంగ:
+    స్పష్టమైన లేఖాచిత్రం_Alg_Remove_సంక్రమణ_అంచులు(V3_లేఖాచిత్రం* graphp)
+        : లేఖాచిత్రం_Alg<>(graphp, శూన్యసూచిక) {}
+    శూన్య go() {
+        లేఖాచిత్రం_మార్గం_Checker checker{m_graphp};
+        కొరకు (V3_లేఖాచిత్రం_శీర్షం& vtx : m_graphp->vertices()) {
+            V3_లేఖాచిత్రం_అంచు* deletep = శూన్యసూచిక;
+            కొరకు (V3_లేఖాచిత్రం_అంచు& అంచు : vtx.బహిర్గతం_అంచులు()) {
+                ఒకవేళ (deletep) VL_DO_CLEAR(deletep->unlinkDelete(), deletep = శూన్యసూచిక);
                 // It should be safe to modify the graph, despite using
                 // the GraphPathChecker, as none of the modifications will
                 // change what can be reached from what, nor should they
                 // change the rank or CP of any node.
-                if (checker.isTransitiveEdge(&edge)) deletep = &edge;
+                ఒకవేళ (checker.is_సంక్రమణ_అంచు(&అంచు)) deletep = &అంచు;
             }
-            if (deletep) VL_DO_DANGLING(deletep->unlinkDelete(), deletep);
+            ఒకవేళ (deletep) VL_DO_DANGLING(deletep->unlinkDelete(), deletep);
         }
     }
 
-private:
-    VL_UNCOPYABLE(GraphAlgRemoveTransitiveEdges);
+అంతరంగ:
+    VL_UNCOPYABLE(లేఖాచిత్రం_Alg_Remove_సంక్రమణ_అంచులు);
 };
 
-void V3Graph::removeTransitiveEdges() { GraphAlgRemoveTransitiveEdges{this}.go(); }
+శూన్య V3_లేఖాచిత్రం::remove_సంక్రమణ_అంచులు() { లేఖాచిత్రం_Alg_Remove_సంక్రమణ_అంచులు{ఇది}.go(); }
 
 //######################################################################
 //######################################################################
 // Algorithms - weakly connected components
 // Changes color()
 
-class GraphAlgWeakly final : GraphAlg<> {
+తరగతి లేఖాచిత్రం_Alg_Weakly final : లేఖాచిత్రం_Alg<> {
     // Sentinel color, meaning not colored yet. Colors themselves are 0 .. m_numColors-1.
-    static constexpr uint32_t UNCOLORED = std::numeric_limits<uint32_t>::max();
+    స్థిర constexpr uint32_t UNCOLORED = std::numeric_limits<uint32_t>::max();
 
-    uint32_t m_numColors = 0;  // Number of colors assigned
+    uint32_t m_అంకె_Colors = 0;  // Number of colors assigned
 
-    void main() {
+    శూన్య ప్రధాన() {
         // Initialize state
-        for (V3GraphVertex& vertex : m_graphp->vertices()) vertex.color(UNCOLORED);
+        కొరకు (V3_లేఖాచిత్రం_శీర్షం& శీర్షం : m_graphp->vertices()) శీర్షం.color(UNCOLORED);
         // Color graph, without gaps
-        for (V3GraphVertex& vertex : m_graphp->vertices()) {
-            if (vertex.color() == UNCOLORED) vertexIterate(&vertex, m_numColors++);
+        కొరకు (V3_లేఖాచిత్రం_శీర్షం& శీర్షం : m_graphp->vertices()) {
+            ఒకవేళ (శీర్షం.color() == UNCOLORED) శీర్షం_Iterate(&శీర్షం, m_అంకె_Colors++);
         }
     }
 
-    void vertexIterate(V3GraphVertex* vertexp, uint32_t currentColor) {
+    శూన్య శీర్షం_Iterate(V3_లేఖాచిత్రం_శీర్షం* vertexp, uint32_t currentColor) {
         // Assign new color to each unvisited node
         // then visit each of its edges, giving them the same color
-        if (vertexp->color() != UNCOLORED) return;  // Already colored it
+        ఒకవేళ (vertexp->color() != UNCOLORED) తిరిగి;  // Already colored it
         vertexp->color(currentColor);
-        for (V3GraphEdge& edge : vertexp->outEdges()) {
-            if (followEdge(&edge)) vertexIterate(edge.top(), currentColor);
+        కొరకు (V3_లేఖాచిత్రం_అంచు& అంచు : vertexp->బహిర్గతం_అంచులు()) {
+            ఒకవేళ (follow_అంచు(&అంచు)) శీర్షం_Iterate(అంచు.శిఖరం(), currentColor);
         }
-        for (V3GraphEdge& edge : vertexp->inEdges()) {
-            if (followEdge(&edge)) vertexIterate(edge.fromp(), currentColor);
+        కొరకు (V3_లేఖాచిత్రం_అంచు& అంచు : vertexp->లోపల_అంచులు()) {
+            ఒకవేళ (follow_అంచు(&అంచు)) శీర్షం_Iterate(అంచు.fromp(), currentColor);
         }
     }
 
-public:
-    GraphAlgWeakly(V3Graph* graphp, V3EdgeFuncP edgeFuncp)
-        : GraphAlg<>(graphp, edgeFuncp) {
-        main();
+బహిరంగ:
+    లేఖాచిత్రం_Alg_Weakly(V3_లేఖాచిత్రం* graphp, V3_అంచు_Func_P అంచు_Funcp)
+        : లేఖాచిత్రం_Alg<>(graphp, అంచు_Funcp) {
+        ప్రధాన();
     }
-    ~GraphAlgWeakly() = default;
+    ~లేఖాచిత్రం_Alg_Weakly() = అప్రమేయ;
 
-    uint32_t numColors() const { return m_numColors; }
+    uint32_t అంకె_Colors() స్థిరరాశి { తిరిగి m_అంకె_Colors; }
 };
 
-uint32_t V3Graph::weaklyConnected(V3EdgeFuncP edgeFuncp) {
-    return GraphAlgWeakly{this, edgeFuncp}.numColors();
+uint32_t V3_లేఖాచిత్రం::weaklyConnected(V3_అంచు_Func_P అంచు_Funcp) {
+    తిరిగి లేఖాచిత్రం_Alg_Weakly{ఇది, అంచు_Funcp}.అంకె_Colors();
 }
 
 //######################################################################
@@ -182,11 +182,11 @@ uint32_t V3Graph::weaklyConnected(V3EdgeFuncP edgeFuncp) {
 // Algorithms - strongly connected components
 // Changes user() and color()
 
-class GraphAlgStrongly final : GraphAlg<> {
+తరగతి లేఖాచిత్రం_Alg_Strongly final : లేఖాచిత్రం_Alg<> {
     uint32_t m_currentDfs = 0;  // DFS count
-    std::vector<V3GraphVertex*> m_callTrace;  // List of everything we hit processing so far
+    std::సదిశ<V3_లేఖాచిత్రం_శీర్షం*> m_callTrace;  // List of everything we hit processing so far
 
-    void main() {
+    శూన్య ప్రధాన() {
         // Use Pearce's algorithm to color the strongly connected components. For reference see
         // "An Improved Algorithm for Finding the Strongly Connected Components of a Directed
         // Graph", David J.Pearce, 2005
@@ -196,228 +196,228 @@ class GraphAlgStrongly final : GraphAlg<> {
         //     Vertex::color    // Output subtree number (fully processed)
 
         // Clear info
-        for (V3GraphVertex& vertex : m_graphp->vertices()) {
-            vertex.color(0);
-            vertex.user(0);
+        కొరకు (V3_లేఖాచిత్రం_శీర్షం& శీర్షం : m_graphp->vertices()) {
+            శీర్షం.color(0);
+            శీర్షం.user(0);
         }
         // Color graph
-        for (V3GraphVertex& vertex : m_graphp->vertices()) {
-            if (!vertex.user()) {
+        కొరకు (V3_లేఖాచిత్రం_శీర్షం& శీర్షం : m_graphp->vertices()) {
+            ఒకవేళ (!శీర్షం.user()) {
                 m_currentDfs++;
-                vertexIterate(&vertex);
+                శీర్షం_Iterate(&శీర్షం);
             }
         }
         // If there's a single vertex of a color, it doesn't need a subgraph
         // This simplifies the consumer's code, and reduces graph debugging clutter
-        for (V3GraphVertex& vertex : m_graphp->vertices()) {
-            bool onecolor = true;
-            for (V3GraphEdge& edge : vertex.outEdges()) {
-                if (followEdge(&edge)) {
-                    if (vertex.color() == edge.top()->color()) {
-                        onecolor = false;
-                        break;
+        కొరకు (V3_లేఖాచిత్రం_శీర్షం& శీర్షం : m_graphp->vertices()) {
+            తార్కిక onecolor = నిజం;
+            కొరకు (V3_లేఖాచిత్రం_అంచు& అంచు : శీర్షం.బహిర్గతం_అంచులు()) {
+                ఒకవేళ (follow_అంచు(&అంచు)) {
+                    ఒకవేళ (శీర్షం.color() == అంచు.శిఖరం()->color()) {
+                        onecolor = అబద్ధం;
+                        ఆపు;
                     }
                 }
             }
-            if (onecolor) vertex.color(0);
+            ఒకవేళ (onecolor) శీర్షం.color(0);
         }
     }
 
-    void vertexIterate(V3GraphVertex* vertexp) {
-        const uint32_t thisDfsNum = m_currentDfs++;
-        vertexp->user(thisDfsNum);
+    శూన్య శీర్షం_Iterate(V3_లేఖాచిత్రం_శీర్షం* vertexp) {
+        స్థిరరాశి uint32_t this_Dfs_అంకె = m_currentDfs++;
+        vertexp->user(this_Dfs_అంకె);
         vertexp->color(0);
-        for (V3GraphEdge& edge : vertexp->outEdges()) {
-            if (followEdge(&edge)) {
-                V3GraphVertex* top = edge.top();
-                if (!top->user()) {  // Dest not computed yet
-                    vertexIterate(top);
+        కొరకు (V3_లేఖాచిత్రం_అంచు& అంచు : vertexp->బహిర్గతం_అంచులు()) {
+            ఒకవేళ (follow_అంచు(&అంచు)) {
+                V3_లేఖాచిత్రం_శీర్షం* శిఖరం = అంచు.శిఖరం();
+                ఒకవేళ (!శిఖరం->user()) {  // Dest not computed yet
+                    శీర్షం_Iterate(శిఖరం);
                 }
-                if (!top->color()) {  // Dest not in a component
-                    if (vertexp->user() > top->user()) vertexp->user(top->user());
+                ఒకవేళ (!శిఖరం->color()) {  // Dest not in a component
+                    ఒకవేళ (vertexp->user() > శిఖరం->user()) vertexp->user(శిఖరం->user());
                 }
             }
         }
-        if (vertexp->user() == thisDfsNum) {  // New head of subtree
-            vertexp->color(thisDfsNum);  // Mark as component
-            while (!m_callTrace.empty()) {
-                V3GraphVertex* popVertexp = m_callTrace.back();
-                if (popVertexp->user() >= thisDfsNum) {  // Lower node is part of this subtree
-                    m_callTrace.pop_back();
-                    popVertexp->color(thisDfsNum);
-                } else {
-                    break;
+        ఒకవేళ (vertexp->user() == this_Dfs_అంకె) {  // New head of subtree
+            vertexp->color(this_Dfs_అంకె);  // Mark as component
+            అయితే (!m_callTrace.ఖాళీలు()) {
+                V3_లేఖాచిత్రం_శీర్షం* తీయి_Vertexp = m_callTrace.వెనుక();
+                ఒకవేళ (తీయి_Vertexp->user() >= this_Dfs_అంకె) {  // Lower node is part of this subtree
+                    m_callTrace.తీయి_వెనుక();
+                    తీయి_Vertexp->color(this_Dfs_అంకె);
+                } లేకపోతే {
+                    ఆపు;
                 }
             }
-        } else {  // In another subtree (maybe...)
-            m_callTrace.push_back(vertexp);
+        } లేకపోతే {  // In another subtree (maybe...)
+            m_callTrace.నెట్టు_వెనుక(vertexp);
         }
     }
 
-public:
-    GraphAlgStrongly(V3Graph* graphp, V3EdgeFuncP edgeFuncp)
-        : GraphAlg<>{graphp, edgeFuncp} {
-        main();
+బహిరంగ:
+    లేఖాచిత్రం_Alg_Strongly(V3_లేఖాచిత్రం* graphp, V3_అంచు_Func_P అంచు_Funcp)
+        : లేఖాచిత్రం_Alg<>{graphp, అంచు_Funcp} {
+        ప్రధాన();
     }
-    ~GraphAlgStrongly() = default;
+    ~లేఖాచిత్రం_Alg_Strongly() = అప్రమేయ;
 };
 
-void V3Graph::stronglyConnected(V3EdgeFuncP edgeFuncp) { GraphAlgStrongly{this, edgeFuncp}; }
+శూన్య V3_లేఖాచిత్రం::stronglyConnected(V3_అంచు_Func_P అంచు_Funcp) { లేఖాచిత్రం_Alg_Strongly{ఇది, అంచు_Funcp}; }
 
 //######################################################################
 //######################################################################
 // Algorithms - ranking
 // Changes user() and rank()
 
-class GraphAlgRank final : GraphAlg<> {
-    void main() {
+తరగతి లేఖాచిత్రం_Alg_Rank final : లేఖాచిత్రం_Alg<> {
+    శూన్య ప్రధాన() {
         // Rank each vertex, ignoring cutable edges
         // Vertex::m_user begin: 1 indicates processing, 2 indicates completed
         // Clear existing ranks
-        for (V3GraphVertex& vertex : m_graphp->vertices()) {
-            vertex.rank(0);
-            vertex.user(0);
+        కొరకు (V3_లేఖాచిత్రం_శీర్షం& శీర్షం : m_graphp->vertices()) {
+            శీర్షం.rank(0);
+            శీర్షం.user(0);
         }
-        for (V3GraphVertex& vertex : m_graphp->vertices()) {
-            if (!vertex.user()) vertexIterate(&vertex, 1);
+        కొరకు (V3_లేఖాచిత్రం_శీర్షం& శీర్షం : m_graphp->vertices()) {
+            ఒకవేళ (!శీర్షం.user()) శీర్షం_Iterate(&శీర్షం, 1);
         }
     }
-    void vertexIterate(V3GraphVertex* vertexp, uint32_t currentRank) {
+    శూన్య శీర్షం_Iterate(V3_లేఖాచిత్రం_శీర్షం* vertexp, uint32_t currentRank) {
         // Assign rank to each unvisited node
         // If larger rank is found, assign it and loop back through
         // If we hit a back node make a list of all loops
-        if (vertexp->user() == 1) {
-            m_graphp->loopsMessageCb(vertexp, m_edgeFuncp);
-            return;  // LCOV_EXCL_LINE  // gcc gprof bug misses this return
+        ఒకవేళ (vertexp->user() == 1) {
+            m_graphp->loops_సందేశం_Cb(vertexp, m_అంచు_Funcp);
+            తిరిగి;  // LCOV_EXCL_LINE  // gcc gprof bug misses this return
         }
-        if (vertexp->rank() >= currentRank) return;  // Already processed it
+        ఒకవేళ (vertexp->rank() >= currentRank) తిరిగి;  // Already processed it
         vertexp->user(1);
         vertexp->rank(currentRank);
-        for (V3GraphEdge& edge : vertexp->outEdges()) {
-            if (followEdge(&edge)) vertexIterate(edge.top(), currentRank + vertexp->rankAdder());
+        కొరకు (V3_లేఖాచిత్రం_అంచు& అంచు : vertexp->బహిర్గతం_అంచులు()) {
+            ఒకవేళ (follow_అంచు(&అంచు)) శీర్షం_Iterate(అంచు.శిఖరం(), currentRank + vertexp->rankAdder());
         }
         vertexp->user(2);
     }
 
-public:
-    GraphAlgRank(V3Graph* graphp, V3EdgeFuncP edgeFuncp)
-        : GraphAlg<>{graphp, edgeFuncp} {
-        main();
+బహిరంగ:
+    లేఖాచిత్రం_Alg_Rank(V3_లేఖాచిత్రం* graphp, V3_అంచు_Func_P అంచు_Funcp)
+        : లేఖాచిత్రం_Alg<>{graphp, అంచు_Funcp} {
+        ప్రధాన();
     }
-    ~GraphAlgRank() = default;
+    ~లేఖాచిత్రం_Alg_Rank() = అప్రమేయ;
 };
 
-void V3Graph::rank() { rank(&V3GraphEdge::followAlwaysTrue); }
-void V3Graph::rank(V3EdgeFuncP edgeFuncp) { GraphAlgRank{this, edgeFuncp}; }
+శూన్య V3_లేఖాచిత్రం::rank() { rank(&V3_లేఖాచిత్రం_అంచు::followAlwaysTrue); }
+శూన్య V3_లేఖాచిత్రం::rank(V3_అంచు_Func_P అంచు_Funcp) { లేఖాచిత్రం_Alg_Rank{ఇది, అంచు_Funcp}; }
 
 //######################################################################
 //######################################################################
 // Algorithms - ranking min
 // Changes user() and rank()
 
-class GraphAlgRankMin final : GraphAlg<> {
-    void main() {
+తరగతి లేఖాచిత్రం_Alg_Rank_Min final : లేఖాచిత్రం_Alg<> {
+    శూన్య ప్రధాన() {
         // Rank each vertex, ignoring cutable edges
         // Vertex::m_user begin: 1 indicates processing, 2 indicates completed
         // Clear existing ranks
-        for (V3GraphVertex& vertex : m_graphp->vertices()) {
-            vertex.rank(0);
-            vertex.user(0);
+        కొరకు (V3_లేఖాచిత్రం_శీర్షం& శీర్షం : m_graphp->vertices()) {
+            శీర్షం.rank(0);
+            శీర్షం.user(0);
         }
-        for (V3GraphVertex& vertex : m_graphp->vertices()) {
-            if (!vertex.user()) vertexIterate(&vertex);
+        కొరకు (V3_లేఖాచిత్రం_శీర్షం& శీర్షం : m_graphp->vertices()) {
+            ఒకవేళ (!శీర్షం.user()) శీర్షం_Iterate(&శీర్షం);
         }
     }
-    uint32_t vertexIterate(V3GraphVertex* vertexp) {
+    uint32_t శీర్షం_Iterate(V3_లేఖాచిత్రం_శీర్షం* vertexp) {
         // Assign rank to each unvisited node
         // If we hit a back node make a list of all loops
-        if (vertexp->user() == 1) {
-            m_graphp->loopsMessageCb(vertexp, m_edgeFuncp);
-            return vertexp->rank();
+        ఒకవేళ (vertexp->user() == 1) {
+            m_graphp->loops_సందేశం_Cb(vertexp, m_అంచు_Funcp);
+            తిరిగి vertexp->rank();
         }
-        if (vertexp->user()) return vertexp->rank();  // Done earlier
+        ఒకవేళ (vertexp->user()) తిరిగి vertexp->rank();  // Done earlier
         vertexp->user(1);
         vertexp->rank(1);  // In case loop
         // If no input edges, then rank 1 (+ adder)
         // Otherwise, get minimum from following all inputs.
         uint32_t minrank = ~0U;
-        for (V3GraphEdge& edge : vertexp->inEdges()) {
-            if (followEdge(&edge)) {
-                const uint32_t nrank = vertexIterate(edge.fromp());
+        కొరకు (V3_లేఖాచిత్రం_అంచు& అంచు : vertexp->లోపల_అంచులు()) {
+            ఒకవేళ (follow_అంచు(&అంచు)) {
+                స్థిరరాశి uint32_t nrank = శీర్షం_Iterate(అంచు.fromp());
                 minrank = std::min(minrank, nrank);
             }
         }
-        if (minrank == ~0U) minrank = 0;
+        ఒకవేళ (minrank == ~0U) minrank = 0;
         vertexp->rank(minrank + vertexp->rankAdder());
         vertexp->user(2);
-        return vertexp->rank();
+        తిరిగి vertexp->rank();
     }
 
-public:
-    GraphAlgRankMin(V3Graph* graphp, V3EdgeFuncP edgeFuncp)
-        : GraphAlg<>{graphp, edgeFuncp} {
-        main();
+బహిరంగ:
+    లేఖాచిత్రం_Alg_Rank_Min(V3_లేఖాచిత్రం* graphp, V3_అంచు_Func_P అంచు_Funcp)
+        : లేఖాచిత్రం_Alg<>{graphp, అంచు_Funcp} {
+        ప్రధాన();
     }
-    ~GraphAlgRankMin() = default;
+    ~లేఖాచిత్రం_Alg_Rank_Min() = అప్రమేయ;
 };
 
-void V3Graph::rankMin() { rankMin(&V3GraphEdge::followAlwaysTrue); }
-void V3Graph::rankMin(V3EdgeFuncP edgeFuncp) { GraphAlgRankMin{this, edgeFuncp}; }
+శూన్య V3_లేఖాచిత్రం::rankMin() { rankMin(&V3_లేఖాచిత్రం_అంచు::followAlwaysTrue); }
+శూన్య V3_లేఖాచిత్రం::rankMin(V3_అంచు_Func_P అంచు_Funcp) { లేఖాచిత్రం_Alg_Rank_Min{ఇది, అంచు_Funcp}; }
 
 //######################################################################
 //######################################################################
 // Algorithms - report loops
 // Changes user()
 
-class GraphAlgRLoops final : GraphAlg<> {
-    std::vector<V3GraphVertex*> m_callTrace;  // List of everything we hit processing so far
-    std::vector<string> m_msgs;  // Output messages
-    bool m_done = false;  // Exit algorithm
+తరగతి లేఖాచిత్రం_Alg_RLoops final : లేఖాచిత్రం_Alg<> {
+    std::సదిశ<V3_లేఖాచిత్రం_శీర్షం*> m_callTrace;  // List of everything we hit processing so far
+    std::సదిశ<string> m_msgs;  // Output messages
+    తార్కిక m_పూర్తి = అబద్ధం;  // Exit algorithm
 
-    void main(V3GraphVertex* vertexp) {
+    శూన్య ప్రధాన(V3_లేఖాచిత్రం_శీర్షం* vertexp) {
         // Vertex::m_user begin: 1 indicates processing, 2 indicates completed
         // Clear existing ranks
         m_graphp->userClearVertices();
         m_callTrace.reserve(100);
-        vertexIterate(vertexp, 0);
+        శీర్షం_Iterate(vertexp, 0);
     }
 
-    void vertexIterate(V3GraphVertex* vertexp, uint32_t currentRank) {
+    శూన్య శీర్షం_Iterate(V3_లేఖాచిత్రం_శీర్షం* vertexp, uint32_t currentRank) {
         // Assign rank to each unvisited node
         // When we hit ourself again, return the list of all loops
-        if (m_done) return;
+        ఒకవేళ (m_పూర్తి) తిరిగి;
 
         // Can't just reserve(), unless we modify size() before setting array directly
-        while (m_callTrace.size() <= currentRank) m_callTrace.push_back(vertexp);
+        అయితే (m_callTrace.కొలత() <= currentRank) m_callTrace.నెట్టు_వెనుక(vertexp);
         m_callTrace[currentRank++] = vertexp;
 
-        if (vertexp->user() == 1) {
-            for (unsigned i = 0; i < currentRank; i++)
-                m_msgs.emplace_back(m_graphp->loopsVertexCb(m_callTrace[i]));
-            m_done = true;
-            return;
+        ఒకవేళ (vertexp->user() == 1) {
+            కొరకు (గుర్తులేని i = 0; i < currentRank; i++)
+                m_msgs.emplace_వెనుక(m_graphp->loops_శీర్షం_Cb(m_callTrace[i]));
+            m_పూర్తి = నిజం;
+            తిరిగి;
         }
-        if (vertexp->user() == 2) return;  // Already processed it
+        ఒకవేళ (vertexp->user() == 2) తిరిగి;  // Already processed it
         vertexp->user(1);
-        for (V3GraphEdge& edge : vertexp->outEdges()) {
-            if (followEdge(&edge)) vertexIterate(edge.top(), currentRank);
+        కొరకు (V3_లేఖాచిత్రం_అంచు& అంచు : vertexp->బహిర్గతం_అంచులు()) {
+            ఒకవేళ (follow_అంచు(&అంచు)) శీర్షం_Iterate(అంచు.శిఖరం(), currentRank);
         }
         vertexp->user(2);
     }
 
-public:
-    GraphAlgRLoops(V3Graph* graphp, V3EdgeFuncP edgeFuncp, V3GraphVertex* vertexp)
-        : GraphAlg<>{graphp, edgeFuncp} {
-        main(vertexp);
+బహిరంగ:
+    లేఖాచిత్రం_Alg_RLoops(V3_లేఖాచిత్రం* graphp, V3_అంచు_Func_P అంచు_Funcp, V3_లేఖాచిత్రం_శీర్షం* vertexp)
+        : లేఖాచిత్రం_Alg<>{graphp, అంచు_Funcp} {
+        ప్రధాన(vertexp);
     }
-    ~GraphAlgRLoops() = default;
-    string message() const {
-        return std::accumulate(m_msgs.begin(), m_msgs.end(), std::string{""});
+    ~లేఖాచిత్రం_Alg_RLoops() = అప్రమేయ;
+    string సందేశం() స్థిరరాశి {
+        తిరిగి std::accumulate(m_msgs.begin(), m_msgs.చివర(), std::string{""});
     }
 };
 
-string V3Graph::reportLoops(V3EdgeFuncP edgeFuncp, V3GraphVertex* vertexp) {
-    return GraphAlgRLoops{this, edgeFuncp, vertexp}.message();
+string V3_లేఖాచిత్రం::reportLoops(V3_అంచు_Func_P అంచు_Funcp, V3_లేఖాచిత్రం_శీర్షం* vertexp) {
+    తిరిగి లేఖాచిత్రం_Alg_RLoops{ఇది, అంచు_Funcp, vertexp}.సందేశం();
 }
 
 //######################################################################
@@ -425,84 +425,84 @@ string V3Graph::reportLoops(V3EdgeFuncP edgeFuncp, V3GraphVertex* vertexp) {
 // Algorithms - subtrees
 // Changes user()
 
-class GraphAlgSubtrees final : GraphAlg<> {
-    V3Graph* const m_loopGraphp;
+తరగతి లేఖాచిత్రం_Alg_Subtrees final : లేఖాచిత్రం_Alg<> {
+    V3_లేఖాచిత్రం* స్థిరరాశి m_loopGraphp;
 
     //! Iterate through all connected nodes of a graph with a loop or loops.
-    V3GraphVertex* vertexIterateAll(V3GraphVertex* vertexp) {
-        if (V3GraphVertex* newVertexp = static_cast<V3GraphVertex*>(vertexp->userp())) {
-            return newVertexp;
-        } else {
+    V3_లేఖాచిత్రం_శీర్షం* శీర్షం_Iterate_All(V3_లేఖాచిత్రం_శీర్షం* vertexp) {
+        ఒకవేళ (V3_లేఖాచిత్రం_శీర్షం* newVertexp = static_cast<V3_లేఖాచిత్రం_శీర్షం*>(vertexp->userp())) {
+            తిరిగి newVertexp;
+        } లేకపోతే {
             newVertexp = vertexp->clone(m_loopGraphp);
             vertexp->userp(newVertexp);
 
-            for (V3GraphEdge& edge : vertexp->outEdges()) {
-                if (followEdge(&edge)) {
-                    V3GraphEdge* newEdgep = static_cast<V3GraphEdge*>(edge.userp());
-                    if (!newEdgep) {
-                        V3GraphVertex* newTop = vertexIterateAll(edge.top());
-                        newEdgep = edge.clone(m_loopGraphp, newVertexp, newTop);
-                        edge.userp(newEdgep);
+            కొరకు (V3_లేఖాచిత్రం_అంచు& అంచు : vertexp->బహిర్గతం_అంచులు()) {
+                ఒకవేళ (follow_అంచు(&అంచు)) {
+                    V3_లేఖాచిత్రం_అంచు* newEdgep = static_cast<V3_లేఖాచిత్రం_అంచు*>(అంచు.userp());
+                    ఒకవేళ (!newEdgep) {
+                        V3_లేఖాచిత్రం_శీర్షం* new_శిఖరం = శీర్షం_Iterate_All(అంచు.శిఖరం());
+                        newEdgep = అంచు.clone(m_loopGraphp, newVertexp, new_శిఖరం);
+                        అంచు.userp(newEdgep);
                     }
                 }
             }
-            return newVertexp;
+            తిరిగి newVertexp;
         }
     }
 
-public:
-    GraphAlgSubtrees(V3Graph* graphp, V3Graph* loopGraphp, V3EdgeFuncP edgeFuncp,
-                     V3GraphVertex* vertexp)
-        : GraphAlg<>{graphp, edgeFuncp}
+బహిరంగ:
+    లేఖాచిత్రం_Alg_Subtrees(V3_లేఖాచిత్రం* graphp, V3_లేఖాచిత్రం* loopGraphp, V3_అంచు_Func_P అంచు_Funcp,
+                     V3_లేఖాచిత్రం_శీర్షం* vertexp)
+        : లేఖాచిత్రం_Alg<>{graphp, అంచు_Funcp}
         , m_loopGraphp{loopGraphp} {
         // Vertex::m_userp - New vertex if we have seen this vertex already
         // Edge::m_userp - New edge if we have seen this edge already
         m_graphp->userClearVertices();
-        m_graphp->userClearEdges();
-        (void)vertexIterateAll(vertexp);
+        m_graphp->user_Clear_అంచులు();
+        (శూన్య)శీర్షం_Iterate_All(vertexp);
     }
-    ~GraphAlgSubtrees() = default;
+    ~లేఖాచిత్రం_Alg_Subtrees() = అప్రమేయ;
 };
 
 //! Report the entire connected graph with a loop or loops
-void V3Graph::subtreeLoops(V3EdgeFuncP edgeFuncp, V3GraphVertex* vertexp, V3Graph* loopGraphp) {
-    GraphAlgSubtrees{this, loopGraphp, edgeFuncp, vertexp};
+శూన్య V3_లేఖాచిత్రం::subtreeLoops(V3_అంచు_Func_P అంచు_Funcp, V3_లేఖాచిత్రం_శీర్షం* vertexp, V3_లేఖాచిత్రం* loopGraphp) {
+    లేఖాచిత్రం_Alg_Subtrees{ఇది, loopGraphp, అంచు_Funcp, vertexp};
 }
 
 //######################################################################
 //######################################################################
 // Algorithms - sorting
 
-void V3Graph::sortVertices() {
+శూన్య V3_లేఖాచిత్రం::క్రమీకరించు_Vertices() {
     // Sort list of vertices by rank, then fanout
-    std::vector<V3GraphVertex*> vertexps;
-    for (V3GraphVertex& vertex : m_vertices) vertexps.push_back(&vertex);
-    std::stable_sort(vertexps.begin(), vertexps.end(),
-                     [](const V3GraphVertex* lhsp, const V3GraphVertex* rhsp) {  //
-                         return lhsp->sortCmp(rhsp) < 0;
+    std::సదిశ<V3_లేఖాచిత్రం_శీర్షం*> vertexps;
+    కొరకు (V3_లేఖాచిత్రం_శీర్షం& శీర్షం : m_vertices) vertexps.నెట్టు_వెనుక(&శీర్షం);
+    std::stable_క్రమీకరించు(vertexps.begin(), vertexps.చివర(),
+                     [](స్థిరరాశి V3_లేఖాచిత్రం_శీర్షం* lhsp, స్థిరరాశి V3_లేఖాచిత్రం_శీర్షం* rhsp) {  //
+                         తిరిగి lhsp->క్రమీకరించు_Cmp(rhsp) < 0;
                      });
     // Re-insert in sorted order
-    for (V3GraphVertex* const vertexp : vertexps) {
+    కొరకు (V3_లేఖాచిత్రం_శీర్షం* స్థిరరాశి vertexp : vertexps) {
         m_vertices.unlink(vertexp);
-        m_vertices.linkBack(vertexp);
+        m_vertices.link_వెనుక(vertexp);
     }
 }
 
-void V3Graph::sortEdges() {
+శూన్య V3_లేఖాచిత్రం::క్రమీకరించు_అంచులు() {
     // Sort edges by rank then fanout of node they point to
-    std::vector<V3GraphEdge*> edges;
-    for (V3GraphVertex& vertex : vertices()) {
+    std::సదిశ<V3_లేఖాచిత్రం_అంచు*> అంచులు;
+    కొరకు (V3_లేఖాచిత్రం_శీర్షం& శీర్షం : vertices()) {
         // Make a vector
-        for (V3GraphEdge& edge : vertex.outEdges()) edges.push_back(&edge);
-        // Sort
-        std::stable_sort(edges.begin(), edges.end(),
-                         [](const V3GraphEdge* lhsp, const V3GraphEdge* rhsp) {  //
-                             return lhsp->sortCmp(rhsp) < 0;
+        కొరకు (V3_లేఖాచిత్రం_అంచు& అంచు : శీర్షం.బహిర్గతం_అంచులు()) అంచులు.నెట్టు_వెనుక(&అంచు);
+        //క్రమీకరించు
+        std::stable_క్రమీకరించు(అంచులు.begin(), అంచులు.చివర(),
+                         [](స్థిరరాశి V3_లేఖాచిత్రం_అంచు* lhsp, స్థిరరాశి V3_లేఖాచిత్రం_అంచు* rhsp) {  //
+                             తిరిగి lhsp->క్రమీకరించు_Cmp(rhsp) < 0;
                          });
         // Relink edges in specified order
-        for (V3GraphEdge* const edgep : edges) edgep->relinkFromp(&vertex);
+        కొరకు (V3_లేఖాచిత్రం_అంచు* స్థిరరాశి edgep : అంచులు) edgep->relinkFromp(&శీర్షం);
         // Prep for next
-        edges.clear();
+        అంచులు.clear();
     }
 }
 
@@ -514,101 +514,101 @@ void V3Graph::sortEdges() {
 //          Visit edges and assign ranks to keep minimal crossings
 //              (Results in better dcache packing.)
 
-void V3Graph::order() {
+శూన్య V3_లేఖాచిత్రం::క్రమం() {
     UINFO(2, "Order:");
 
     // Compute rankings again
-    rank(&V3GraphEdge::followAlwaysTrue);
-    orderPreRanked();
+    rank(&V3_లేఖాచిత్రం_అంచు::followAlwaysTrue);
+    క్రమం_Pre_Ranked();
 }
 
-void V3Graph::orderPreRanked() {
+శూన్య V3_లేఖాచిత్రం::క్రమం_Pre_Ranked() {
     // Compute fanouts
     // Vertex::m_user begin: 1 indicates processing, 2 indicates completed
     userClearVertices();
-    for (V3GraphVertex& vertex : vertices()) {
-        if (!vertex.user()) orderDFSIterate(&vertex);
+    కొరకు (V3_లేఖాచిత్రం_శీర్షం& శీర్షం : vertices()) {
+        ఒకవేళ (!శీర్షం.user()) క్రమం_DFSIterate(&శీర్షం);
     }
 
     // Sort list of vertices by rank, then fanout. Fanout is a bit of a
     // misnomer. It is the sum of all the fanouts of nodes reached from a node
     // *plus* the count of edges in to that node.
-    sortVertices();
+    క్రమీకరించు_Vertices();
     // Sort edges by rank then fanout of node they point to
-    sortEdges();
+    క్రమీకరించు_అంచులు();
 }
 
-double V3Graph::orderDFSIterate(V3GraphVertex* vertexp) {
+ద్విగుణ V3_లేఖాచిత్రం::క్రమం_DFSIterate(V3_లేఖాచిత్రం_శీర్షం* vertexp) {
     // Compute fanouts of each node
     // If forward edge, don't double count that fanout
-    if (vertexp->user() == 2) return vertexp->fanout();  // Already processed it
+    ఒకవేళ (vertexp->user() == 2) తిరిగి vertexp->fanout();  // Already processed it
     UASSERT_OBJ(vertexp->user() != 1, vertexp, "Loop found, backward edges should be dead");
     vertexp->user(1);
-    double fanout = 0;
-    for (V3GraphEdge& edge : vertexp->outEdges()) {
-        if (edge.weight()) fanout += orderDFSIterate(edge.top());
+    ద్విగుణ fanout = 0;
+    కొరకు (V3_లేఖాచిత్రం_అంచు& అంచు : vertexp->బహిర్గతం_అంచులు()) {
+        ఒకవేళ (అంచు.బరువు_2()) fanout += క్రమం_DFSIterate(అంచు.శిఖరం());
     }
     // Just count inbound edges
-    for (V3GraphEdge& edge : vertexp->inEdges()) {
-        if (edge.weight()) ++fanout;
+    కొరకు (V3_లేఖాచిత్రం_అంచు& అంచు : vertexp->లోపల_అంచులు()) {
+        ఒకవేళ (అంచు.బరువు_2()) ++fanout;
     }
     vertexp->fanout(fanout);
     vertexp->user(2);
-    return vertexp->fanout();
+    తిరిగి vertexp->fanout();
 }
 
 //######################################################################
 //######################################################################
 // Algorithms - parallelism report
 
-class GraphAlgParallelismReport final {
+తరగతి లేఖాచిత్రం_Alg_Parallelism_Report final {
     // MEMBERS
-    V3Graph& m_graph;  // The graph
-    const std::function<uint64_t(const V3GraphVertex*)> m_vertexCost;  // vertex cost function
-    V3Graph::ParallelismReport m_report;  // The result report
+    V3_లేఖాచిత్రం& m_లేఖాచిత్రం;  // The graph
+    స్థిరరాశి std::function<uint64_t(స్థిరరాశి V3_లేఖాచిత్రం_శీర్షం*)> m_శీర్షం_ఖర్చు;  // vertex cost function
+    V3_లేఖాచిత్రం::ParallelismReport m_report;  // The result report
 
     // CONSTRUCTORS
-    explicit GraphAlgParallelismReport(V3Graph& graph,
-                                       std::function<uint64_t(const V3GraphVertex*)> vertexCost)
-        : m_graph{graph}
-        , m_vertexCost{vertexCost} {
+    స్పష్టమైన లేఖాచిత్రం_Alg_Parallelism_Report(V3_లేఖాచిత్రం& లేఖాచిత్రం,
+                                       std::function<uint64_t(స్థిరరాశి V3_లేఖాచిత్రం_శీర్షం*)> శీర్షం_ఖర్చు)
+        : m_లేఖాచిత్రం{లేఖాచిత్రం}
+        , m_శీర్షం_ఖర్చు{శీర్షం_ఖర్చు} {
         // For each node, record the critical path cost from the start
         // of the graph through the end of the node.
-        std::unordered_map<const V3GraphVertex*, uint64_t> critPaths;
-        GraphStreamUnordered serialize{&m_graph};
-        for (const V3GraphVertex* vertexp; (vertexp = serialize.nextp());) {
-            ++m_report.m_vertexCount;
-            uint64_t cpCostToHere = 0;
-            for (const V3GraphEdge& edge : vertexp->inEdges()) {
-                ++m_report.m_edgeCount;
+        std::unordered_map<స్థిరరాశి V3_లేఖాచిత్రం_శీర్షం*, uint64_t> critPaths;
+        లేఖాచిత్రం_ప్రవాహం_Unordered serialize{&m_లేఖాచిత్రం};
+        కొరకు (స్థిరరాశి V3_లేఖాచిత్రం_శీర్షం* vertexp; (vertexp = serialize.nextp());) {
+            ++m_report.m_శీర్షం_లెక్క;
+            uint64_t cp_ఖర్చు_గమ్యం_ఇక్కడ = 0;
+            కొరకు (స్థిరరాశి V3_లేఖాచిత్రం_అంచు& అంచు : vertexp->లోపల_అంచులు()) {
+                ++m_report.m_అంచు_లెక్క;
                 // For each upstream item, add its critical path cost to
                 // the cost of this edge, to form a new candidate critical
                 // path cost to the current node. Whichever is largest is
                 // the critical path to reach the start of this node.
-                cpCostToHere = std::max(cpCostToHere, critPaths[edge.fromp()]);
+                cp_ఖర్చు_గమ్యం_ఇక్కడ = std::max(cp_ఖర్చు_గమ్యం_ఇక్కడ, critPaths[అంచు.fromp()]);
             }
             // Include the cost of the current vertex in the critical
             // path, so it represents the critical path to the end of
             // this vertex.
-            cpCostToHere += m_vertexCost(vertexp);
-            critPaths[vertexp] = cpCostToHere;
-            m_report.m_criticalPathCost = std::max(m_report.m_criticalPathCost, cpCostToHere);
+            cp_ఖర్చు_గమ్యం_ఇక్కడ += m_శీర్షం_ఖర్చు(vertexp);
+            critPaths[vertexp] = cp_ఖర్చు_గమ్యం_ఇక్కడ;
+            m_report.m_critical_మార్గం_ఖర్చు = std::max(m_report.m_critical_మార్గం_ఖర్చు, cp_ఖర్చు_గమ్యం_ఇక్కడ);
             // Tally the total cost contributed by vertices.
-            m_report.m_totalGraphCost += m_vertexCost(vertexp);
+            m_report.m_మొత్తం_లేఖాచిత్రం_ఖర్చు += m_శీర్షం_ఖర్చు(vertexp);
         }
     }
-    ~GraphAlgParallelismReport() = default;
-    VL_UNCOPYABLE(GraphAlgParallelismReport);
-    VL_UNMOVABLE(GraphAlgParallelismReport);
+    ~లేఖాచిత్రం_Alg_Parallelism_Report() = అప్రమేయ;
+    VL_UNCOPYABLE(లేఖాచిత్రం_Alg_Parallelism_Report);
+    VL_UNMOVABLE(లేఖాచిత్రం_Alg_Parallelism_Report);
 
-public:
-    static V3Graph::ParallelismReport
-    apply(V3Graph& graph, std::function<uint32_t(const V3GraphVertex*)> vertexCost) {
-        return GraphAlgParallelismReport(graph, vertexCost).m_report;
+బహిరంగ:
+    స్థిర V3_లేఖాచిత్రం::ParallelismReport
+    apply(V3_లేఖాచిత్రం& లేఖాచిత్రం, std::function<uint32_t(స్థిరరాశి V3_లేఖాచిత్రం_శీర్షం*)> శీర్షం_ఖర్చు) {
+        తిరిగి లేఖాచిత్రం_Alg_Parallelism_Report(లేఖాచిత్రం, శీర్షం_ఖర్చు).m_report;
     }
 };
 
-V3Graph::ParallelismReport
-V3Graph::parallelismReport(std::function<uint64_t(const V3GraphVertex*)> vertexCost) {
-    return GraphAlgParallelismReport::apply(*this, vertexCost);
+V3_లేఖాచిత్రం::ParallelismReport
+V3_లేఖాచిత్రం::parallelismReport(std::function<uint64_t(స్థిరరాశి V3_లేఖాచిత్రం_శీర్షం*)> శీర్షం_ఖర్చు) {
+    తిరిగి లేఖాచిత్రం_Alg_Parallelism_Report::apply(*ఇది, శీర్షం_ఖర్చు);
 }

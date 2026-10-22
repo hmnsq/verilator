@@ -14,369 +14,369 @@
 //
 //*************************************************************************
 
-#include "config_build.h"
-#include "verilatedos.h"
+#అన్తర్భావ "config_build.h"
+#అన్తర్భావ "verilatedos.h"
 
-#if defined(_WIN32) || defined(__MINGW32__)
-#include <io.h>  // open, read, write, close
-#endif
+#ఒకవేళ defined(_WIN32) || defined(__MINGW32__)
+#అన్తర్భావ <io.h>  // open, read, write, close
+#అయితే_ముగింపు
 
-#include "V3Error.h"
-#include "V3FileLine.h"
-#include "V3String.h"
+#అన్తర్భావ "V3Error.h"
+#అన్తర్భావ "V3FileLine.h"
+#అన్తర్భావ "V3String.h"
 
-#ifndef V3ERROR_NO_GLOBAL_
-#include "V3Global.h"
+#నిర్వచితం_కాకపోతే V3ERROR_NO_GLOBAL_
+#అన్తర్భావ "V3Global.h"
 VL_DEFINE_DEBUG_FUNCTIONS;
-#endif
+#అయితే_ముగింపు
 
-#include <algorithm>
-#include <fcntl.h>
+#అన్తర్భావ <algorithm>
+#అన్తర్భావ <fcntl.h>
 
-size_t VName::s_minLength = 32;
-size_t VName::s_maxLength = 0;  // Disabled
+కొలత_t VName::s_min_నిడివి = 32;
+కొలత_t VName::s_max_నిడివి = 0;  // Disabled
 std::map<string, string> VName::s_dehashMap;
 
 //######################################################################
 // Wildcard
 
 // Double procedures, inlined, unrolls loop much better
-template <bool Even = true>
-static bool wildMatchImpl(const char* s, const char* p) VL_PURE {
-    for (; *p; s++, p++) {
-        if (*p != '*') {
-            if (((*s) != (*p)) && *p != '?') return false;
-        } else {
+మూస <తార్కిక Even = నిజం>
+స్థిర తార్కిక wild_సరిపోలిక_Impl(స్థిరరాశి అక్షరం* s, స్థిరరాశి అక్షరం* p) VL_శుద్ధ {
+    కొరకు (; *p; s++, p++) {
+        ఒకవేళ (*p != '*') {
+            ఒకవేళ (((*s) != (*p)) && *p != '?') తిరిగి అబద్ధం;
+        } లేకపోతే {
             // Trailing star matches everything.
-            if (!*++p) return true;
-            while (!wildMatchImpl<!Even>(s, p)) {
-                if (*++s == '\0') return false;
+            ఒకవేళ (!*++p) తిరిగి నిజం;
+            అయితే (!wild_సరిపోలిక_Impl<!Even>(s, p)) {
+                ఒకవేళ (*++s == '\0') తిరిగి అబద్ధం;
             }
-            return true;
+            తిరిగి నిజం;
         }
     }
-    return (*s == '\0');
+    తిరిగి (*s == '\0');
 }
 
-bool VString::wildmatch(const char* s, const char* p) VL_PURE {
-    if (*s == '\0') {
-        while (*p == '*') ++p;
-        return *p == '\0';
+తార్కిక VString::wildmatch(స్థిరరాశి అక్షరం* s, స్థిరరాశి అక్షరం* p) VL_శుద్ధ {
+    ఒకవేళ (*s == '\0') {
+        అయితే (*p == '*') ++p;
+        తిరిగి *p == '\0';
     }
-    return wildMatchImpl(s, p);
+    తిరిగి wild_సరిపోలిక_Impl(s, p);
 }
 
-bool VString::wildmatch(const string& s, const string& p) VL_PURE {
-    return wildmatch(s.c_str(), p.c_str());
+తార్కిక VString::wildmatch(స్థిరరాశి string& s, స్థిరరాశి string& p) VL_శుద్ధ {
+    తిరిగి wildmatch(s.c_str(), p.c_str());
 }
 
-string VString::dot(const string& a, const string& dot, const string& b) {
-    if (b == "") return a;
-    if (a == "") return b;
-    return a + dot + b;
+string VString::dot(స్థిరరాశి string& a, స్థిరరాశి string& dot, స్థిరరాశి string& b) {
+    ఒకవేళ (b == "") తిరిగి a;
+    ఒకవేళ (a == "") తిరిగి b;
+    తిరిగి a + dot + b;
 }
 
-string VString::downcase(const string& str) VL_PURE {
-    string result = str;
-    for (char& cr : result) cr = std::tolower(cr);
-    return result;
+string VString::downcase(స్థిరరాశి string& str) VL_శుద్ధ {
+    string ఫలితం = str;
+    కొరకు (అక్షరం& cr : ఫలితం) cr = std::tolower(cr);
+    తిరిగి ఫలితం;
 }
 
-string VString::upcase(const string& str) VL_PURE {
-    string result = str;
-    for (char& cr : result) cr = std::toupper(cr);
-    return result;
+string VString::upcase(స్థిరరాశి string& str) VL_శుద్ధ {
+    string ఫలితం = str;
+    కొరకు (అక్షరం& cr : ఫలితం) cr = std::పెద్ద_అక్షరం(cr);
+    తిరిగి ఫలితం;
 }
 
-string VString::quoteAny(const string& str, char tgt, char esc) VL_PURE {
-    string result;
-    for (const char c : str) {
-        if (c == tgt) result += esc;
-        result += c;
+string VString::quoteAny(స్థిరరాశి string& str, అక్షరం tgt, అక్షరం esc) VL_శుద్ధ {
+    string ఫలితం;
+    కొరకు (స్థిరరాశి అక్షరం c : str) {
+        ఒకవేళ (c == tgt) ఫలితం += esc;
+        ఫలితం += c;
     }
-    return result;
+    తిరిగి ఫలితం;
 }
 
-string VString::dequotePercent(const string& str) {
-    string result;
-    char last = '\0';
-    for (const char c : str) {
-        if (last == '%' && c == '%') {
-            last = '\0';
-        } else {
-            result += c;
-            last = c;
+string VString::dequotePercent(స్థిరరాశి string& str) {
+    string ఫలితం;
+    అక్షరం చివరి = '\0';
+    కొరకు (స్థిరరాశి అక్షరం c : str) {
+        ఒకవేళ (చివరి == '%' && c == '%') {
+            చివరి = '\0';
+        } లేకపోతే {
+            ఫలితం += c;
+            చివరి = c;
         }
     }
-    return result;
+    తిరిగి ఫలితం;
 }
 
-string VString::quoteStringLiteralForShell(const string& str) {
-    string result;
-    constexpr char dquote = '"';
-    constexpr char escape = '\\';
-    result.push_back(dquote);  // Start quoted string
-    result.push_back(escape);
-    result.push_back(dquote);  // "
-    for (const char c : str) {
-        if (c == dquote || c == escape) result.push_back(escape);
-        result.push_back(c);
+string VString::quoteStringLiteralForShell(స్థిరరాశి string& str) {
+    string ఫలితం;
+    constexpr అక్షరం dquote = '"';
+    constexpr అక్షరం escape = '\\';
+    ఫలితం.నెట్టు_వెనుక(dquote);  // Start quoted string
+    ఫలితం.నెట్టు_వెనుక(escape);
+    ఫలితం.నెట్టు_వెనుక(dquote);  // "
+    కొరకు (స్థిరరాశి అక్షరం c : str) {
+        ఒకవేళ (c == dquote || c == escape) ఫలితం.నెట్టు_వెనుక(escape);
+        ఫలితం.నెట్టు_వెనుక(c);
     }
-    result.push_back(escape);
-    result.push_back(dquote);  // "
-    result.push_back(dquote);  // Terminate quoted string
-    return result;
+    ఫలితం.నెట్టు_వెనుక(escape);
+    ఫలితం.నెట్టు_వెనుక(dquote);  // "
+    ఫలితం.నెట్టు_వెనుక(dquote);  // Terminate quoted string
+    తిరిగి ఫలితం;
 }
 
-string VString::escapeStringForPath(const string& str) {
-    if (str.find(R"(\\)") != string::npos)
-        return str;  // if it has been escaped already, don't do it again
-    if (str.find('/') != string::npos) return str;  // can be replaced by `__MINGW32__` or `_WIN32`
-    string result;
-    constexpr char space = ' ';  // escape space like this `Program Files`
-    constexpr char escape = '\\';
-    for (const char c : str) {
-        if (c == space || c == escape) result.push_back(escape);
-        result.push_back(c);
+string VString::escape_String_For_మార్గం(స్థిరరాశి string& str) {
+    ఒకవేళ (str.కనుగొను(R"(\\)") != string::npos)
+        తిరిగి str;  // if it has been escaped already, don't do it again
+    ఒకవేళ (str.కనుగొను('/') != string::npos) తిరిగి str;  // can be replaced by `__MINGW32__` or `_WIN32`
+    string ఫలితం;
+    constexpr అక్షరం space = ' ';  // escape space like this `Program Files`
+    constexpr అక్షరం escape = '\\';
+    కొరకు (స్థిరరాశి అక్షరం c : str) {
+        ఒకవేళ (c == space || c == escape) ఫలితం.నెట్టు_వెనుక(escape);
+        ఫలితం.నెట్టు_వెనుక(c);
     }
-    return result;
+    తిరిగి ఫలితం;
 }
 
-static int vl_decodexdigit(char c) {
-    return std::isdigit(c) ? c - '0' : std::tolower(c) - 'a' + 10;
+స్థిర పూర్ణాంకం vl_decodexdigit(అక్షరం c) {
+    తిరిగి std::అంకెనా(c) ? c - '0' : std::tolower(c) - 'a' + 10;
 }
 
-string VString::unquoteSVString(const string& text, string& errOut) {
-    bool quoted = false;
+string VString::unquoteSVString(స్థిరరాశి string& పాఠ్యం, string& err_బహిర్గతం) {
+    తార్కిక quoted = అబద్ధం;
     string newtext;
-    newtext.reserve(text.size());
-    unsigned char octal_val = 0;
-    int octal_digits = 0;
-    for (string::const_iterator cp = text.begin(); cp != text.end(); ++cp) {
-        if (quoted) {
-            if (std::isdigit(*cp)) {
+    newtext.reserve(పాఠ్యం.కొలత());
+    గుర్తులేని అక్షరం octal_val = 0;
+    పూర్ణాంకం octal_digits = 0;
+    కొరకు (string::const_iterator cp = పాఠ్యం.begin(); cp != పాఠ్యం.చివర(); ++cp) {
+        ఒకవేళ (quoted) {
+            ఒకవేళ (std::అంకెనా(*cp)) {
                 octal_val = octal_val * 8 + (*cp - '0');
-                if (++octal_digits == 3) {
+                ఒకవేళ (++octal_digits == 3) {
                     newtext += octal_val;
                     octal_digits = 0;
                     octal_val = 0;
-                    quoted = false;
+                    quoted = అబద్ధం;
                 }
-            } else {
-                if (octal_digits) {
+            } లేకపోతే {
+                ఒకవేళ (octal_digits) {
                     // Spec allows 1-3 digits
                     newtext += octal_val;
                     octal_digits = 0;
                     octal_val = 0;
-                    quoted = false;
+                    quoted = అబద్ధం;
                     --cp;  // Backup to reprocess terminating character as non-escaped
-                    continue;
+                    కొనసాగు;
                 }
-                quoted = false;
-                if (*cp == 'n') {
+                quoted = అబద్ధం;
+                ఒకవేళ (*cp == 'n') {
                     newtext += '\n';
-                } else if (*cp == 'a') {
+                } లేకపోతే ఒకవేళ (*cp == 'a') {
                     newtext += '\a';  // SystemVerilog 3.1
-                } else if (*cp == 'f') {
+                } లేకపోతే ఒకవేళ (*cp == 'f') {
                     newtext += '\f';  // SystemVerilog 3.1
-                } else if (*cp == 'r') {
+                } లేకపోతే ఒకవేళ (*cp == 'r') {
                     newtext += '\r';
-                } else if (*cp == 't') {
+                } లేకపోతే ఒకవేళ (*cp == 't') {
                     newtext += '\t';
-                } else if (*cp == 'v') {
+                } లేకపోతే ఒకవేళ (*cp == 'v') {
                     newtext += '\v';  // SystemVerilog 3.1
-                } else if (*cp == 'x' && std::isxdigit(cp[1])
+                } లేకపోతే ఒకవేళ (*cp == 'x' && std::isxdigit(cp[1])
                            && std::isxdigit(cp[2])) {  // SystemVerilog 3.1
                     newtext
-                        += static_cast<char>(16 * vl_decodexdigit(cp[1]) + vl_decodexdigit(cp[2]));
+                        += static_cast<అక్షరం>(16 * vl_decodexdigit(cp[1]) + vl_decodexdigit(cp[2]));
                     cp += 2;
-                } else if (std::isalnum(*cp)) {
-                    errOut = "Unknown escape sequence: \\";
-                    errOut += *cp;
-                    break;
-                } else {
+                } లేకపోతే ఒకవేళ (std::అక్షరమా_అంకెనా(*cp)) {
+                    err_బహిర్గతం = "Unknown escape sequence: \\";
+                    err_బహిర్గతం += *cp;
+                    ఆపు;
+                } లేకపోతే {
                     newtext += *cp;
                 }
             }
-        } else if (*cp == '\\') {
-            if (octal_digits) {
+        } లేకపోతే ఒకవేళ (*cp == '\\') {
+            ఒకవేళ (octal_digits) {
                 newtext += octal_val;
                 // below: octal_digits = 0;
                 octal_val = 0;
             }
-            quoted = true;
+            quoted = నిజం;
             octal_digits = 0;
-        } else {
+        } లేకపోతే {
             newtext += *cp;
         }
     }
-    return newtext;
+    తిరిగి newtext;
 }
 
-size_t VString::quotedEnd(const string& str, size_t pos) VL_PURE {
-    for (size_t i = pos + 1; i < str.size(); ++i) {
-        if (str[i] == '\\') {
+కొలత_t VString::quoted_చివర(స్థిరరాశి string& str, కొలత_t pos) VL_శుద్ధ {
+    కొరకు (కొలత_t i = pos + 1; i < str.కొలత(); ++i) {
+        ఒకవేళ (str[i] == '\\') {
             ++i;  // Past the escaped character, as of '\"'
-        } else if (str[i] == '"') {
-            return i + 1;
+        } లేకపోతే ఒకవేళ (str[i] == '"') {
+            తిరిగి i + 1;
         }
     }
-    return string::npos;
+    తిరిగి string::npos;
 }
 
-string VString::spaceUnprintable(const string& str) VL_PURE {
-    string result;
-    for (const char c : str) {
-        if (std::isprint(c)) {
-            result += c;
-        } else {
-            result += ' ';
+string VString::spaceUnprintable(స్థిరరాశి string& str) VL_శుద్ధ {
+    string ఫలితం;
+    కొరకు (స్థిరరాశి అక్షరం c : str) {
+        ఒకవేళ (std::isprint(c)) {
+            ఫలితం += c;
+        } లేకపోతే {
+            ఫలితం += ' ';
         }
     }
-    return result;
+    తిరిగి ఫలితం;
 }
 
-string VString::removeWhitespace(const string& str) {
-    string result;
-    result.reserve(str.size());
-    for (const char c : str) {
-        if (!std::isspace(c)) result += c;
+string VString::removeWhitespace(స్థిరరాశి string& str) {
+    string ఫలితం;
+    ఫలితం.reserve(str.కొలత());
+    కొరకు (స్థిరరాశి అక్షరం c : str) {
+        ఒకవేళ (!std::ఖాళీనా(c)) ఫలితం += c;
     }
-    return result;
+    తిరిగి ఫలితం;
 }
 
-string VString::trimWhitespace(const string& str) {
-    string result;
-    result.reserve(str.size());
-    string add;
-    bool newline = false;
-    for (const char c : str) {
-        if (newline && std::isspace(c)) continue;
-        if (c == '\n') {
-            add = "\n";
-            newline = true;
-            continue;
+string VString::trimWhitespace(స్థిరరాశి string& str) {
+    string ఫలితం;
+    ఫలితం.reserve(str.కొలత());
+    string కూడు;
+    తార్కిక newline = అబద్ధం;
+    కొరకు (స్థిరరాశి అక్షరం c : str) {
+        ఒకవేళ (newline && std::ఖాళీనా(c)) కొనసాగు;
+        ఒకవేళ (c == '\n') {
+            కూడు = "\n";
+            newline = నిజం;
+            కొనసాగు;
         }
-        if (std::isspace(c)) {
-            add += c;
-            continue;
+        ఒకవేళ (std::ఖాళీనా(c)) {
+            కూడు += c;
+            కొనసాగు;
         }
-        if (!add.empty()) {
-            result += add;
-            newline = false;
-            add.clear();
+        ఒకవేళ (!కూడు.ఖాళీలు()) {
+            ఫలితం += కూడు;
+            newline = అబద్ధం;
+            కూడు.clear();
         }
-        result += c;
+        ఫలితం += c;
     }
-    return result;
+    తిరిగి ఫలితం;
 }
 
-bool VString::isIdentifier(const string& str) {
-    for (const char c : str) {
-        if (!isIdentifierChar(c)) return false;
+తార్కిక VString::isIdentifier(స్థిరరాశి string& str) {
+    కొరకు (స్థిరరాశి అక్షరం c : str) {
+        ఒకవేళ (!isIdentifierChar(c)) తిరిగి అబద్ధం;
     }
-    return true;
+    తిరిగి నిజం;
 }
 
-bool VString::isWhitespace(const string& str) {
-    for (const char c : str) {
-        if (!std::isspace(c)) return false;
+తార్కిక VString::isWhitespace(స్థిరరాశి string& str) {
+    కొరకు (స్థిరరాశి అక్షరం c : str) {
+        ఒకవేళ (!std::ఖాళీనా(c)) తిరిగి అబద్ధం;
     }
-    return true;
+    తిరిగి నిజం;
 }
 
-string::size_type VString::leadingWhitespaceCount(const string& str) {
-    string::size_type result = 0;
-    for (const char c : str) {
-        ++result;
-        if (!std::isspace(c)) break;
+string::కొలత_type VString::leading_Whitespace_లెక్క(స్థిరరాశి string& str) {
+    string::కొలత_type ఫలితం = 0;
+    కొరకు (స్థిరరాశి అక్షరం c : str) {
+        ++ఫలితం;
+        ఒకవేళ (!std::ఖాళీనా(c)) ఆపు;
     }
-    return result;
+    తిరిగి ఫలితం;
 }
 
-double VString::parseDouble(const string& str, bool* successp) {
-    char* const strgp = new char[str.size() + 1];
-    char* dp = strgp;
-    if (successp) *successp = true;
-    for (const char* sp = str.c_str(); *sp; ++sp) {
-        if (*sp != '_') *dp++ = *sp;
+ద్విగుణ VString::parseDouble(స్థిరరాశి string& str, తార్కిక* successp) {
+    అక్షరం* స్థిరరాశి strgp = కొత్త అక్షరం[str.కొలత() + 1];
+    అక్షరం* dp = strgp;
+    ఒకవేళ (successp) *successp = నిజం;
+    కొరకు (స్థిరరాశి అక్షరం* sp = str.c_str(); *sp; ++sp) {
+        ఒకవేళ (*sp != '_') *dp++ = *sp;
     }
     *dp++ = '\0';
-    char* endp = strgp;
-    const double d = strtod(strgp, &endp);
-    const size_t parsed_len = endp - strgp;
-    if (parsed_len != std::strlen(strgp)) {
-        if (successp) *successp = false;
+    అక్షరం* endp = strgp;
+    స్థిరరాశి ద్విగుణ d = strtod(strgp, &endp);
+    స్థిరరాశి కొలత_t parsed_len = endp - strgp;
+    ఒకవేళ (parsed_len != std::అక్షరశ్రేణి_పొడవు(strgp)) {
+        ఒకవేళ (successp) *successp = అబద్ధం;
     }
-    VL_DO_DANGLING(delete[] strgp, strgp);
-    return d;
+    VL_DO_DANGLING(తొలగించు[] strgp, strgp);
+    తిరిగి d;
 }
 
-string VString::replaceSubstr(const string& str, const string& from, const string& to) {
-    string result = str;
-    const size_t fromLen = from.size();
-    const size_t toLen = to.size();
+string VString::replaceSubstr(స్థిరరాశి string& str, స్థిరరాశి string& from, స్థిరరాశి string& గమ్యం) {
+    string ఫలితం = str;
+    స్థిరరాశి కొలత_t fromLen = from.కొలత();
+    స్థిరరాశి కొలత_t గమ్యం_Len = గమ్యం.కొలత();
     UASSERT_STATIC(fromLen > 0, "Cannot replace empty string");
-    for (size_t pos = 0; (pos = result.find(from, pos)) != string::npos; pos += toLen) {
-        result.replace(pos, fromLen, to);
+    కొరకు (కొలత_t pos = 0; (pos = ఫలితం.కనుగొను(from, pos)) != string::npos; pos += గమ్యం_Len) {
+        ఫలితం.replace(pos, fromLen, గమ్యం);
     }
-    return result;
+    తిరిగి ఫలితం;
 }
 
-string VString::replaceWord(const string& str, const string& from, const string& to) {
-    string result = str;
-    const size_t len = from.size();
+string VString::replace_మాట(స్థిరరాశి string& str, స్థిరరాశి string& from, స్థిరరాశి string& గమ్యం) {
+    string ఫలితం = str;
+    స్థిరరాశి కొలత_t len = from.కొలత();
     UASSERT_STATIC(len > 0, "Cannot replace empty string");
-    for (size_t pos = 0; (pos = result.find(from, pos)) != string::npos; pos += len) {
+    కొరకు (కొలత_t pos = 0; (pos = ఫలితం.కనుగొను(from, pos)) != string::npos; pos += len) {
         // Only replace whole words
-        if (((pos > 0) && VString::isIdentifierChar(result[pos - 1])) ||  //
-            ((pos + len < result.size()) && VString::isIdentifierChar(result[pos + len]))) {
-            continue;
+        ఒకవేళ (((pos > 0) && VString::isIdentifierChar(ఫలితం[pos - 1])) ||  //
+            ((pos + len < ఫలితం.కొలత()) && VString::isIdentifierChar(ఫలితం[pos + len]))) {
+            కొనసాగు;
         }
-        result.replace(pos, len, to);
+        ఫలితం.replace(pos, len, గమ్యం);
     }
-    return result;
+    తిరిగి ఫలితం;
 }
 
-std::deque<string> VString::split(const string& str, char delimiter) {
+std::deque<string> VString::విభజించు(స్థిరరాశి string& str, అక్షరం delimiter) {
     std::deque<std::string> results;
     std::istringstream is{str};
     std::string token;
-    while (std::getline(is, token, delimiter)) results.push_back(token);
-    return results;
+    అయితే (std::getline(is, token, delimiter)) results.నెట్టు_వెనుక(token);
+    తిరిగి results;
 }
 
-bool VString::endsWith(const string& str, const string& suffix) {
-    if (str.length() < suffix.length()) return false;
-    return str.compare(str.length() - suffix.length(), suffix.length(), suffix) == 0;
+తార్కిక VString::చివర్లు_With(స్థిరరాశి string& str, స్థిరరాశి string& suffix) {
+    ఒకవేళ (str.నిడివి() < suffix.నిడివి()) తిరిగి అబద్ధం;
+    తిరిగి str.compare(str.నిడివి() - suffix.నిడివి(), suffix.నిడివి(), suffix) == 0;
 }
-string VString::aOrAn(const char* word) {
-    switch (word[0]) {
-    case '\0': return "";
-    case 'a':
-    case 'e':
-    case 'i':
-    case 'o':
-    case 'u': return "an";
-    default: return "a";
+string VString::aOrAn(స్థిరరాశి అక్షరం* మాట) {
+    ఎంపిక (మాట[0]) {
+    స్థితి '\0': తిరిగి "";
+    స్థితి 'a':
+    స్థితి 'e':
+    స్థితి 'i':
+    స్థితి 'o':
+    స్థితి 'u': తిరిగి "an";
+    అప్రమేయ: తిరిగి "a";
     }
 }
 
 // MurmurHash64A
-uint64_t VString::hashMurmur(const string& str) VL_PURE {
-    const char* key = str.c_str();
-    const size_t len = str.size();
-    constexpr uint64_t seed = 0;
+uint64_t VString::hashMurmur(స్థిరరాశి string& str) VL_శుద్ధ {
+    స్థిరరాశి అక్షరం* కీలకం = str.c_str();
+    స్థిరరాశి కొలత_t len = str.కొలత();
+    constexpr uint64_t విత్తనం = 0;
     constexpr uint64_t m = 0xc6a4a7935bd1e995ULL;
-    constexpr int r = 47;
+    constexpr పూర్ణాంకం r = 47;
 
-    uint64_t h = seed ^ (len * m);
+    uint64_t h = విత్తనం ^ (len * m);
 
-    const uint64_t* data = reinterpret_cast<const uint64_t*>(key);
-    const uint64_t* end = data + (len / 8);
+    స్థిరరాశి uint64_t* దత్తాంశం = reinterpret_cast<స్థిరరాశి uint64_t*>(కీలకం);
+    స్థిరరాశి uint64_t* చివర = దత్తాంశం + (len / 8);
 
-    while (data != end) {
-        uint64_t k = *data++;
+    అయితే (దత్తాంశం != చివర) {
+        uint64_t k = *దత్తాంశం++;
 
         k *= m;
         k ^= k >> r;
@@ -386,59 +386,59 @@ uint64_t VString::hashMurmur(const string& str) VL_PURE {
         h *= m;
     }
 
-    const unsigned char* data2 = reinterpret_cast<const unsigned char*>(data);
+    స్థిరరాశి గుర్తులేని అక్షరం* data2 = reinterpret_cast<స్థిరరాశి గుర్తులేని అక్షరం*>(దత్తాంశం);
 
-    switch (len & 7) {
-    case 7: h ^= static_cast<uint64_t>(data2[6]) << 48;  // FALLTHRU
-    case 6: h ^= static_cast<uint64_t>(data2[5]) << 40;  // FALLTHRU
-    case 5: h ^= static_cast<uint64_t>(data2[4]) << 32;  // FALLTHRU
-    case 4: h ^= static_cast<uint64_t>(data2[3]) << 24;  // FALLTHRU
-    case 3: h ^= static_cast<uint64_t>(data2[2]) << 16;  // FALLTHRU
-    case 2: h ^= static_cast<uint64_t>(data2[1]) << 8;  // FALLTHRU
-    case 1: h ^= static_cast<uint64_t>(data2[0]); h *= m;  // FALLTHRU
-    default:;
+    ఎంపిక (len & 7) {
+    స్థితి 7: h ^= static_cast<uint64_t>(data2[6]) << 48;  // FALLTHRU
+    స్థితి 6: h ^= static_cast<uint64_t>(data2[5]) << 40;  // FALLTHRU
+    స్థితి 5: h ^= static_cast<uint64_t>(data2[4]) << 32;  // FALLTHRU
+    స్థితి 4: h ^= static_cast<uint64_t>(data2[3]) << 24;  // FALLTHRU
+    స్థితి 3: h ^= static_cast<uint64_t>(data2[2]) << 16;  // FALLTHRU
+    స్థితి 2: h ^= static_cast<uint64_t>(data2[1]) << 8;  // FALLTHRU
+    స్థితి 1: h ^= static_cast<uint64_t>(data2[0]); h *= m;  // FALLTHRU
+    అప్రమేయ:;
     };
 
     h ^= h >> r;
     h *= m;
     h ^= h >> r;
 
-    return h;
+    తిరిగి h;
 }
 
-string VString::base64Enc(const string& str) VL_PURE {
+string VString::base64Enc(స్థిరరాశి string& str) VL_శుద్ధ {
     // Non-URL format (+/), versus URL format (-/).
-    static constexpr const char* const digits
+    స్థిర constexpr స్థిరరాశి అక్షరం* స్థిరరాశి digits
         = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
-    size_t len = str.size();
-    string result;
-    result.reserve(len * 4 / 3 + 2);
-    size_t pos = 0;
-    if (len >= 3) {
-        for (; pos < len - 2; pos += 3) {
-            result += digits[((str[pos] >> 2) & 0x3f)];
-            result
-                += digits[((str[pos] & 0x3) << 4) | (static_cast<int>(str[pos + 1] & 0xf0) >> 4)];
-            result += digits[((str[pos + 1] & 0xf) << 2)
-                             | (static_cast<int>(str[pos + 2] & 0xc0) >> 6)];
-            result += digits[((str[pos + 2] & 0x3f))];
+    కొలత_t len = str.కొలత();
+    string ఫలితం;
+    ఫలితం.reserve(len * 4 / 3 + 2);
+    కొలత_t pos = 0;
+    ఒకవేళ (len >= 3) {
+        కొరకు (; pos < len - 2; pos += 3) {
+            ఫలితం += digits[((str[pos] >> 2) & 0x3f)];
+            ఫలితం
+                += digits[((str[pos] & 0x3) << 4) | (static_cast<పూర్ణాంకం>(str[pos + 1] & 0xf0) >> 4)];
+            ఫలితం += digits[((str[pos + 1] & 0xf) << 2)
+                             | (static_cast<పూర్ణాంకం>(str[pos + 2] & 0xc0) >> 6)];
+            ఫలితం += digits[((str[pos + 2] & 0x3f))];
         }
     }
-    if (len >= 2 && pos < len - 1) {  // Pad 2
-        result += digits[((str[pos] >> 2) & 0x3f)];
-        result += digits[((str[pos] & 0x3) << 4) | (static_cast<int>(str[pos + 1] & 0xf0) >> 4)];
-        result += digits[((str[pos + 1] & 0xf) << 2) | (static_cast<int>(0) >> 6)];
-        result += '=';
-    } else if (pos < len) {  // Pad 1
-        result += digits[((str[pos] >> 2) & 0x3f)];
-        result += digits[((str[pos] & 0x3) << 4) | (static_cast<int>(0) >> 4)];
-        result += '=';
-        result += '=';
+    ఒకవేళ (len >= 2 && pos < len - 1) {  // Pad 2
+        ఫలితం += digits[((str[pos] >> 2) & 0x3f)];
+        ఫలితం += digits[((str[pos] & 0x3) << 4) | (static_cast<పూర్ణాంకం>(str[pos + 1] & 0xf0) >> 4)];
+        ఫలితం += digits[((str[pos + 1] & 0xf) << 2) | (static_cast<పూర్ణాంకం>(0) >> 6)];
+        ఫలితం += '=';
+    } లేకపోతే ఒకవేళ (pos < len) {  // Pad 1
+        ఫలితం += digits[((str[pos] >> 2) & 0x3f)];
+        ఫలితం += digits[((str[pos] & 0x3) << 4) | (static_cast<పూర్ణాంకం>(0) >> 4)];
+        ఫలితం += '=';
+        ఫలితం += '=';
     }
-    return result;
+    తిరిగి ఫలితం;
 }
 
-void VString::selfTest() {
+శూన్య VString::selfTest() {
     UASSERT_SELFTEST(VString::replaceSubstr("aa", "a", "ba"), "baba");
 
     // Cross-checked with 'base64'
@@ -455,7 +455,7 @@ void VString::selfTest() {
 //######################################################################
 // VHashSha512
 
-static constexpr uint64_t sha512K[]
+స్థిర constexpr uint64_t sha512K[]
     = {0x428a2f98d728ae22ULL, 0x7137449123ef65cdULL, 0xb5c0fbcfec4d3b2fULL, 0xe9b5dba58189dbbcULL,
        0x3956c25bf348b538ULL, 0x59f111f1b605d019ULL, 0x923f82a4af194f9bULL, 0xab1c5ed5da6d8118ULL,
        0xd807aa98a3030242ULL, 0x12835b0145706fbeULL, 0x243185be4ee4b28cULL, 0x550c7dc3d5ffb4e2ULL,
@@ -478,38 +478,38 @@ static constexpr uint64_t sha512K[]
        0x4cc5d4becb3e42b6ULL, 0x597f299cfc657e2aULL, 0x5fcb6fab3ad6faecULL, 0x6c44198c4a475817ULL};
 
 VL_ATTR_ALWINLINE
-static uint64_t shaRotr64(uint64_t lhs, uint64_t rhs) VL_PURE {
-    return lhs >> rhs | lhs << (64 - rhs);
+స్థిర uint64_t shaRotr64(uint64_t lhs, uint64_t rhs) VL_శుద్ధ {
+    తిరిగి lhs >> rhs | lhs << (64 - rhs);
 }
 
 VL_ATTR_ALWINLINE
-static void sha512Block(uint64_t* h, const uint64_t* chunk) VL_PURE {
+స్థిర శూన్య sha512_ఖండం(uint64_t* h, స్థిరరాశి uint64_t* chunk) VL_శుద్ధ {
     uint64_t ah[8];
-    const uint64_t* p = chunk;
+    స్థిరరాశి uint64_t* p = chunk;
 
     // Initialize working variables to current hash value
-    for (unsigned i = 0; i < 8; i++) ah[i] = h[i];
+    కొరకు (గుర్తులేని i = 0; i < 8; i++) ah[i] = h[i];
     // Compression function main loop
     uint64_t w[16] = {};
-    for (unsigned i = 0; i < 5; ++i) {
-        for (unsigned j = 0; j < 16; ++j) {
-            if (i == 0) {
+    కొరకు (గుర్తులేని i = 0; i < 5; ++i) {
+        కొరకు (గుర్తులేని j = 0; j < 16; ++j) {
+            ఒకవేళ (i == 0) {
                 w[j] = *p++;
-            } else {
+            } లేకపోతే {
                 // Extend the first 16 words into the remaining
                 // 64 words w[16..79] of the message schedule array:
-                const uint64_t s0 = shaRotr64(w[(j + 1) & 0xf], 1) ^ shaRotr64(w[(j + 1) & 0xf], 8)
+                స్థిరరాశి uint64_t s0 = shaRotr64(w[(j + 1) & 0xf], 1) ^ shaRotr64(w[(j + 1) & 0xf], 8)
                                     ^ (w[(j + 1) & 0xf] >> 7);
-                const uint64_t s1 = shaRotr64(w[(j + 14) & 0xf], 19)
+                స్థిరరాశి uint64_t s1 = shaRotr64(w[(j + 14) & 0xf], 19)
                                     ^ shaRotr64(w[(j + 14) & 0xf], 61) ^ (w[(j + 14) & 0xf] >> 6);
                 w[j] = w[j] + s0 + w[(j + 9) & 0xf] + s1;
             }
-            const uint64_t s1 = shaRotr64(ah[4], 14) ^ shaRotr64(ah[4], 18) ^ shaRotr64(ah[4], 41);
-            const uint64_t ch = (ah[4] & ah[5]) ^ (~ah[4] & ah[6]);
-            const uint64_t temp1 = ah[7] + s1 + ch + sha512K[i * 16 + j] + w[j];
-            const uint64_t s0 = shaRotr64(ah[0], 28) ^ shaRotr64(ah[0], 34) ^ shaRotr64(ah[0], 39);
-            const uint64_t maj = (ah[0] & ah[1]) ^ (ah[0] & ah[2]) ^ (ah[1] & ah[2]);
-            const uint64_t temp2 = s0 + maj;
+            స్థిరరాశి uint64_t s1 = shaRotr64(ah[4], 14) ^ shaRotr64(ah[4], 18) ^ shaRotr64(ah[4], 41);
+            స్థిరరాశి uint64_t ch = (ah[4] & ah[5]) ^ (~ah[4] & ah[6]);
+            స్థిరరాశి uint64_t temp1 = ah[7] + s1 + ch + sha512K[i * 16 + j] + w[j];
+            స్థిరరాశి uint64_t s0 = shaRotr64(ah[0], 28) ^ shaRotr64(ah[0], 34) ^ shaRotr64(ah[0], 39);
+            స్థిరరాశి uint64_t maj = (ah[0] & ah[1]) ^ (ah[0] & ah[2]) ^ (ah[1] & ah[2]);
+            స్థిరరాశి uint64_t temp2 = s0 + maj;
 
             ah[7] = ah[6];
             ah[6] = ah[5];
@@ -521,39 +521,39 @@ static void sha512Block(uint64_t* h, const uint64_t* chunk) VL_PURE {
             ah[0] = temp1 + temp2;
         }
     }
-    for (unsigned i = 0; i < 8; ++i) h[i] += ah[i];
+    కొరకు (గుర్తులేని i = 0; i < 8; ++i) h[i] += ah[i];
 }
 
-void VHashSha512::insert(const void* datap, size_t length) {
+శూన్య VHashSha512::చొప్పించు(స్థిరరాశి శూన్య* datap, కొలత_t నిడివి) {
     UASSERT(!m_final, "Called VHashSha512::insert after finalized the hash value");
-    m_totLength += length;
+    m_tot_నిడివి += నిడివి;
 
-    string tempData;
-    int chunkLen;
-    const uint8_t* chunkp;
-    if (m_remainder == "") {
-        chunkLen = length;
-        chunkp = static_cast<const uint8_t*>(datap);
-    } else {
+    string తాత్కాలిక_దత్తాంశం;
+    పూర్ణాంకం chunkLen;
+    స్థిరరాశి uint8_t* chunkp;
+    ఒకవేళ (m_remainder == "") {
+        chunkLen = నిడివి;
+        chunkp = static_cast<స్థిరరాశి uint8_t*>(datap);
+    } లేకపోతే {
         // If there are large inserts it would be more efficient to avoid this copy
         // by copying bytes in the loop below from either m_remainder or the data
         // as appropriate.
-        tempData = m_remainder + std::string{static_cast<const char*>(datap), length};
-        chunkLen = tempData.length();
-        chunkp = reinterpret_cast<const uint8_t*>(tempData.data());
+        తాత్కాలిక_దత్తాంశం = m_remainder + std::string{static_cast<స్థిరరాశి అక్షరం*>(datap), నిడివి};
+        chunkLen = తాత్కాలిక_దత్తాంశం.నిడివి();
+        chunkp = reinterpret_cast<స్థిరరాశి uint8_t*>(తాత్కాలిక_దత్తాంశం.దత్తాంశం());
     }
 
     // See wikipedia SHA-2 algorithm summary
     uint64_t w[80];  // Round buffer, [0..15] are input data, rest used by rounds
-    int posBegin = 0;  // Position in buffer for start of this block
-    int posEnd = 0;  // Position in buffer for end of this block
+    పూర్ణాంకం posBegin = 0;  // Position in buffer for start of this block
+    పూర్ణాంకం pos_చివర = 0;  // Position in buffer for end of this block
 
     // Process complete 128-byte blocks
-    while (posBegin <= chunkLen - 128) {
-        posEnd = posBegin + 128;
+    అయితే (posBegin <= chunkLen - 128) {
+        pos_చివర = posBegin + 128;
         // 128 byte round input data, being careful to swap on big, keep on little
-        for (int roundByte = 0; posBegin < posEnd; posBegin += 8) {
-            w[roundByte++] = (static_cast<uint64_t>(chunkp[posBegin + 7])
+        కొరకు (పూర్ణాంకం విడత_Byte = 0; posBegin < pos_చివర; posBegin += 8) {
+            w[విడత_Byte++] = (static_cast<uint64_t>(chunkp[posBegin + 7])
                               | (static_cast<uint64_t>(chunkp[posBegin + 6]) << 8)
                               | (static_cast<uint64_t>(chunkp[posBegin + 5]) << 16)
                               | (static_cast<uint64_t>(chunkp[posBegin + 4]) << 24)
@@ -562,90 +562,90 @@ void VHashSha512::insert(const void* datap, size_t length) {
                               | (static_cast<uint64_t>(chunkp[posBegin + 1]) << 48)
                               | (static_cast<uint64_t>(chunkp[posBegin]) << 56));
         }
-        sha512Block(m_inthash, w);
+        sha512_ఖండం(m_inthash, w);
     }
 
-    m_remainder = std::string(reinterpret_cast<const char*>(chunkp + posBegin), chunkLen - posEnd);
+    m_remainder = std::string(reinterpret_cast<స్థిరరాశి అక్షరం*>(chunkp + posBegin), chunkLen - pos_చివర);
 }
 
-void VHashSha512::insertFile(const string& filename) {
-    static constexpr size_t BUFFER_SIZE = 64 * 1024;
+శూన్య VHashSha512::చొప్పించు_File(స్థిరరాశి string& filename) {
+    స్థిర constexpr కొలత_t బఫరు_కొలత = 64 * 1024;
 
-    const int fd = ::open(filename.c_str(), O_RDONLY);
-    if (fd < 0) return;
+    స్థిరరాశి పూర్ణాంకం fd = ::open(filename.c_str(), O_RDONLY);
+    ఒకవేళ (fd < 0) తిరిగి;
 
-    std::array<char, BUFFER_SIZE + 1> buf;
-    while (const ssize_t got = ::read(fd, &buf, BUFFER_SIZE)) {
-        if (got <= 0) break;
-        insert(&buf, got);
+    std::array<అక్షరం, బఫరు_కొలత + 1> buf;
+    అయితే (స్థిరరాశి ssize_t got = ::పఠ(fd, &buf, బఫరు_కొలత)) {
+        ఒకవేళ (got <= 0) ఆపు;
+        చొప్పించు(&buf, got);
     }
     ::close(fd);
 }
 
-void VHashSha512::finalize() {
-    if (!m_final) {
+శూన్య VHashSha512::finalize() {
+    ఒకవేళ (!m_final) {
         // Make sure no 128 byte blocks left
-        insert("");
-        m_final = true;
+        చొప్పించు("");
+        m_final = నిజం;
 
         // Process final possibly non-complete 128-byte block
         uint64_t w[16];  // Round buffer, [0..15] are input data
-        for (int i = 0; i < 16; ++i) w[i] = 0;
-        size_t blockPos = 0;
-        for (; blockPos < m_remainder.length(); ++blockPos) {
-            w[blockPos >> 3]
-                |= ((static_cast<uint64_t>(static_cast<uint8_t>(m_remainder[blockPos])))
-                    << ((7 - (blockPos & 7)) << 3));
+        కొరకు (పూర్ణాంకం i = 0; i < 16; ++i) w[i] = 0;
+        కొలత_t ఖండం_Pos = 0;
+        కొరకు (; ఖండం_Pos < m_remainder.నిడివి(); ++ఖండం_Pos) {
+            w[ఖండం_Pos >> 3]
+                |= ((static_cast<uint64_t>(static_cast<uint8_t>(m_remainder[ఖండం_Pos])))
+                    << ((7 - (ఖండం_Pos & 7)) << 3));
         }
-        w[blockPos >> 3] |= static_cast<uint64_t>(0x80) << ((7 - (blockPos & 7)) << 3);
-        if (m_remainder.length() >= 112) {
-            sha512Block(m_inthash, w);
-            for (int i = 0; i < 16; ++i) w[i] = 0;
+        w[ఖండం_Pos >> 3] |= static_cast<uint64_t>(0x80) << ((7 - (ఖండం_Pos & 7)) << 3);
+        ఒకవేళ (m_remainder.నిడివి() >= 112) {
+            sha512_ఖండం(m_inthash, w);
+            కొరకు (పూర్ణాంకం i = 0; i < 16; ++i) w[i] = 0;
         }
         // Only supporting 2^61 bytes max
         w[14] = 0;
-        w[15] = m_totLength << 3;
-        sha512Block(m_inthash, w);
+        w[15] = m_tot_నిడివి << 3;
+        sha512_ఖండం(m_inthash, w);
 
         m_remainder.clear();
     }
 }
 
-string VHashSha512::digestBinary() {
+string VHashSha512::digest_ద్విమాన() {
     finalize();
-    string result;
-    result.reserve(64);
-    for (size_t i = 0; i < 64; ++i) {
-        result += static_cast<char>((m_inthash[i >> 3] >> (((7 - i) & 0x7) << 3)) & 0xff);
+    string ఫలితం;
+    ఫలితం.reserve(64);
+    కొరకు (కొలత_t i = 0; i < 64; ++i) {
+        ఫలితం += static_cast<అక్షరం>((m_inthash[i >> 3] >> (((7 - i) & 0x7) << 3)) & 0xff);
     }
-    return result;
+    తిరిగి ఫలితం;
 }
 
 uint64_t VHashSha512::digestUInt64() {
-    const string& binhash = digestBinary();
-    uint64_t result = 0;
-    for (size_t byte = 0; byte < sizeof(uint64_t); ++byte) {
-        const unsigned char c = binhash[byte];
-        result = (result << 8) | c;
+    స్థిరరాశి string& binhash = digest_ద్విమాన();
+    uint64_t ఫలితం = 0;
+    కొరకు (కొలత_t byte = 0; byte < పరిమాణం(uint64_t); ++byte) {
+        స్థిరరాశి గుర్తులేని అక్షరం c = binhash[byte];
+        ఫలితం = (ఫలితం << 8) | c;
     }
-    return result;
+    తిరిగి ఫలితం;
 }
 
 string VHashSha512::digestHex() {
-    static constexpr const char* const digits = "0123456789abcdef";
-    const string& binhash = digestBinary();
-    string result;
-    result.reserve(128);
-    for (size_t byte = 0; byte < 64; ++byte) {
-        result += digits[(binhash[byte] >> 4) & 0xf];
-        result += digits[(binhash[byte] >> 0) & 0xf];
+    స్థిర constexpr స్థిరరాశి అక్షరం* స్థిరరాశి digits = "0123456789abcdef";
+    స్థిరరాశి string& binhash = digest_ద్విమాన();
+    string ఫలితం;
+    ఫలితం.reserve(128);
+    కొరకు (కొలత_t byte = 0; byte < 64; ++byte) {
+        ఫలితం += digits[(binhash[byte] >> 4) & 0xf];
+        ఫలితం += digits[(binhash[byte] >> 0) & 0xf];
     }
-    return result;
+    తిరిగి ఫలితం;
 }
 
 string VHashSha512::digestBase64() {
     // Return base64 from hash.  Complete representation of the binary/reversable.
-    return VString::base64Enc(digestBinary());
+    తిరిగి VString::base64Enc(digest_ద్విమాన());
 }
 
 string VHashSha512::digestSymbol24() {
@@ -653,48 +653,48 @@ string VHashSha512::digestSymbol24() {
     // has + and / for last two digits, but need C symbol, and we also
     // avoid conflicts with use of _, so use "AB" at the end.
     // Thus this function is non-reversible.
-    static constexpr const char* const digits
+    స్థిర constexpr స్థిరరాశి అక్షరం* స్థిరరాశి digits
         = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789AB";
-    const string& binhash = digestBinary();
-    string result;
-    result.reserve(84);
-    int pos = 0;
-    for (; pos < (512 / 8) - 2; pos += 3) {
-        result += digits[((binhash[pos] >> 2) & 0x3f)];
-        result += digits[((binhash[pos] & 0x3) << 4)
-                         | (static_cast<int>(binhash[pos + 1] & 0xf0) >> 4)];
-        result += digits[((binhash[pos + 1] & 0xf) << 2)
-                         | (static_cast<int>(binhash[pos + 2] & 0xc0) >> 6)];
-        result += digits[((binhash[pos + 2] & 0x3f))];
+    స్థిరరాశి string& binhash = digest_ద్విమాన();
+    string ఫలితం;
+    ఫలితం.reserve(84);
+    పూర్ణాంకం pos = 0;
+    కొరకు (; pos < (512 / 8) - 2; pos += 3) {
+        ఫలితం += digits[((binhash[pos] >> 2) & 0x3f)];
+        ఫలితం += digits[((binhash[pos] & 0x3) << 4)
+                         | (static_cast<పూర్ణాంకం>(binhash[pos + 1] & 0xf0) >> 4)];
+        ఫలితం += digits[((binhash[pos + 1] & 0xf) << 2)
+                         | (static_cast<పూర్ణాంకం>(binhash[pos + 2] & 0xc0) >> 6)];
+        ఫలితం += digits[((binhash[pos + 2] & 0x3f))];
         // Keep symbols short-ish, with 24 chars/144 bits we won't have hash collisions
-        if (result.size() >= DIGEST_SYMBOL24_LENGTH) break;
+        ఒకవేళ (ఫలితం.కొలత() >= DIGEST_SYMBOL24_నిడివి) ఆపు;
     }
     // Any leftover bits don't matter for our purpose
-    return result;
+    తిరిగి ఫలితం;
 }
 
-void VHashSha512::selfTestOne(const string& data, const string& data2, const string& exp,
-                              const string& exp64, const string& exp24) {
-    VHashSha512 digest{data};
-    if (data2 != "") digest.insert(data2);
-    if (VL_UNCOVERABLE(digest.digestHex() != exp)) {
-        std::cerr << "%Error: When hashing '" << data + data2 << "'\n"  // LCOV_EXCL_LINE
+శూన్య VHashSha512::selfTestOne(స్థిరరాశి string& దత్తాంశం, స్థిరరాశి string& data2, స్థిరరాశి string& ఘాతాంకం,
+                              స్థిరరాశి string& exp64, స్థిరరాశి string& exp24) {
+    VHashSha512 digest{దత్తాంశం};
+    ఒకవేళ (data2 != "") digest.చొప్పించు(data2);
+    ఒకవేళ (VL_UNCOVERABLE(digest.digestHex() != ఘాతాంకం)) {
+        std::cerr << "%Error: When hashing '" << దత్తాంశం + data2 << "'\n"  // LCOV_EXCL_LINE
                   << "        ... got=" << digest.digestHex() << '\n'  // LCOV_EXCL_LINE
-                  << "        ... exp=" << exp << endl;  // LCOV_EXCL_LINE
+                  << "        ... exp=" << ఘాతాంకం << పంక్తి_ముగింపు;  // LCOV_EXCL_LINE
     }
-    if (VL_UNCOVERABLE(digest.digestBase64() != exp64)) {
-        std::cerr << "%Error: When hashing '" << data + data2 << "'\n"  // LCOV_EXCL_LINE
+    ఒకవేళ (VL_UNCOVERABLE(digest.digestBase64() != exp64)) {
+        std::cerr << "%Error: When hashing '" << దత్తాంశం + data2 << "'\n"  // LCOV_EXCL_LINE
                   << "        ... got=" << digest.digestBase64() << '\n'  // LCOV_EXCL_LINE
-                  << "        ... exp=" << exp64 << endl;  // LCOV_EXCL_LINE
+                  << "        ... exp=" << exp64 << పంక్తి_ముగింపు;  // LCOV_EXCL_LINE
     }
-    if (VL_UNCOVERABLE(digest.digestSymbol24() != exp24)) {
-        std::cerr << "%Error: When hashing '" << data + data2 << "'\n"  // LCOV_EXCL_LINE
+    ఒకవేళ (VL_UNCOVERABLE(digest.digestSymbol24() != exp24)) {
+        std::cerr << "%Error: When hashing '" << దత్తాంశం + data2 << "'\n"  // LCOV_EXCL_LINE
                   << "        ... got=" << digest.digestSymbol24() << '\n'  // LCOV_EXCL_LINE
-                  << "        ... exp=" << exp64 << endl;  // LCOV_EXCL_LINE
+                  << "        ... exp=" << exp64 << పంక్తి_ముగింపు;  // LCOV_EXCL_LINE
     }
 }
 
-void VHashSha512::selfTest() {
+శూన్య VHashSha512::selfTest() {
     // Cross-checked with sha512sum
     selfTestOne(
         "", "",
@@ -741,221 +741,221 @@ void VHashSha512::selfTest() {
 //######################################################################
 // VName
 
-string VName::dehash(const string& in) {
-    static constexpr const char VHSH[] = "__Vhsh";
-    static constexpr size_t VHSH_LEN = sizeof(VHSH) - 1 + VHashSha512::DIGEST_SYMBOL24_LENGTH;
-    static const size_t DOT_LEN = std::strlen("__DOT__");
+string VName::dehash(స్థిరరాశి string& లోపల) {
+    స్థిర constexpr స్థిరరాశి అక్షరం VHSH[] = "__Vhsh";
+    స్థిర constexpr కొలత_t VHSH_LEN = పరిమాణం(VHSH) - 1 + VHashSha512::DIGEST_SYMBOL24_నిడివి;
+    స్థిర స్థిరరాశి కొలత_t DOT_LEN = std::అక్షరశ్రేణి_పొడవు("__DOT__");
     std::string dehashed;
 
     // Need to split 'in' into components separated by __DOT__, 'last_dot_pos'
     // keeps track of the position after the most recently found instance of __DOT__
-    for (string::size_type last_dot_pos = 0; last_dot_pos < in.size();) {
-        const string::size_type next_dot_pos = in.find("__DOT__", last_dot_pos);
+    కొరకు (string::కొలత_type చివరి_dot_pos = 0; చివరి_dot_pos < లోపల.కొలత();) {
+        స్థిరరాశి string::కొలత_type తదుపరి_dot_pos = లోపల.కనుగొను("__DOT__", చివరి_dot_pos);
         // Two iterators defining the range between the last and next dots.
-        const auto search_begin = std::begin(in) + last_dot_pos;
-        const auto search_end
-            = next_dot_pos == string::npos ? std::end(in) : std::begin(in) + next_dot_pos;
+        స్థిరరాశి స్వయంచాలక శోధన_begin = std::begin(లోపల) + చివరి_dot_pos;
+        స్థిరరాశి స్వయంచాలక శోధన_చివర
+            = తదుపరి_dot_pos == string::npos ? std::చివర(లోపల) : std::begin(లోపల) + తదుపరి_dot_pos;
 
         // Search for __Vhsh between the two dots.
-        const auto begin_vhsh
-            = std::search(search_begin, search_end, std::begin(VHSH), std::end(VHSH) - 1);
-        if (begin_vhsh != search_end) {
+        స్థిరరాశి స్వయంచాలక begin_vhsh
+            = std::శోధన(శోధన_begin, శోధన_చివర, std::begin(VHSH), std::చివర(VHSH) - 1);
+        ఒకవేళ (begin_vhsh != శోధన_చివర) {
             // V3Decompose and V3BitBlast append suffixes to names already hashed, so the
             // hash does not always reach the end of the component.
-            const auto end_vhsh
-                = begin_vhsh + std::min<size_t>(std::distance(begin_vhsh, search_end), VHSH_LEN);
-            const std::string vhsh{begin_vhsh, end_vhsh};
-            const auto& it = s_dehashMap.find(vhsh);
-            UASSERT(it != s_dehashMap.end(), "String not in reverse hash map '" << vhsh << "'");
+            స్థిరరాశి స్వయంచాలక చివర_vhsh
+                = begin_vhsh + std::min<కొలత_t>(std::దూరం(begin_vhsh, శోధన_చివర), VHSH_LEN);
+            స్థిరరాశి std::string vhsh{begin_vhsh, చివర_vhsh};
+            స్థిరరాశి స్వయంచాలక& it = s_dehashMap.కనుగొను(vhsh);
+            UASSERT(it != s_dehashMap.చివర(), "String not in reverse hash map '" << vhsh << "'");
             // Is this not the first component, but the first to require dehashing?
-            if (last_dot_pos > 0 && dehashed.empty()) {
+            ఒకవేళ (చివరి_dot_pos > 0 && dehashed.ఖాళీలు()) {
                 // Seed 'dehashed' with the previously processed components.
-                dehashed = in.substr(0, last_dot_pos);
+                dehashed = లోపల.substr(0, చివరి_dot_pos);
             }
             // Append the unhashed part of the component.
-            dehashed += std::string{search_begin, begin_vhsh};
+            dehashed += std::string{శోధన_begin, begin_vhsh};
             // Append the bit that was lost to truncation but retrieved from the dehash map.
-            dehashed += it->second;
+            dehashed += it->రెండవ;
             // Append what follows the hash, such as a split variable bit range.
-            dehashed += std::string{end_vhsh, search_end};
+            dehashed += std::string{చివర_vhsh, శోధన_చివర};
         }
         // This component doesn't need dehashing but a previous one might have.
-        else if (!dehashed.empty()) {
-            dehashed += std::string{search_begin, search_end};
+        లేకపోతే ఒకవేళ (!dehashed.ఖాళీలు()) {
+            dehashed += std::string{శోధన_begin, శోధన_చివర};
         }
 
-        if (next_dot_pos != string::npos) {
+        ఒకవేళ (తదుపరి_dot_pos != string::npos) {
             // Is there a __DOT__ to add to the dehashed version of 'in'?
-            if (!dehashed.empty()) dehashed += "__DOT__";
-            last_dot_pos = next_dot_pos + DOT_LEN;
-        } else {
-            last_dot_pos = string::npos;
+            ఒకవేళ (!dehashed.ఖాళీలు()) dehashed += "__DOT__";
+            చివరి_dot_pos = తదుపరి_dot_pos + DOT_LEN;
+        } లేకపోతే {
+            చివరి_dot_pos = string::npos;
         }
     }
-    return dehashed.empty() ? in : dehashed;
+    తిరిగి dehashed.ఖాళీలు() ? లోపల : dehashed;
 }
 
 string VName::hashedName() {
-    if (m_name == "") return "";
-    if (m_hashed != "") return m_hashed;  // Memoized
-    if (s_maxLength == 0 || m_name.length() < s_maxLength) {
+    ఒకవేళ (m_name == "") తిరిగి "";
+    ఒకవేళ (m_hashed != "") తిరిగి m_hashed;  // Memoized
+    ఒకవేళ (s_max_నిడివి == 0 || m_name.నిడివి() < s_max_నిడివి) {
         m_hashed = m_name;
-        return m_hashed;
+        తిరిగి m_hashed;
     }
     VHashSha512 hash{m_name};
-    const string suffix = "__Vhsh" + hash.digestSymbol24();
-    if (s_minLength < s_maxLength) {
+    స్థిరరాశి string suffix = "__Vhsh" + hash.digestSymbol24();
+    ఒకవేళ (s_min_నిడివి < s_max_నిడివి) {
         // Keep a prefix from the original name
         // Backup over digits so adding __Vhash doesn't look like a encoded hex digit
         // ("__0__Vhsh")
-        size_t prefLength = s_minLength;
-        while (prefLength >= 1 && m_name[prefLength - 1] != '_') --prefLength;
-        s_dehashMap[suffix] = m_name.substr(prefLength);
-        m_hashed = m_name.substr(0, prefLength) + suffix;
-    } else {
+        కొలత_t pref_నిడివి = s_min_నిడివి;
+        అయితే (pref_నిడివి >= 1 && m_name[pref_నిడివి - 1] != '_') --pref_నిడివి;
+        s_dehashMap[suffix] = m_name.substr(pref_నిడివి);
+        m_hashed = m_name.substr(0, pref_నిడివి) + suffix;
+    } లేకపోతే {
         s_dehashMap[suffix] = m_name;
         m_hashed = suffix;
     }
-    return m_hashed;
+    తిరిగి m_hashed;
 }
 
 //######################################################################
 // VSpellCheck - Algorithm same as GCC's spellcheck.c
 
-VSpellCheck::EditDistance VSpellCheck::editDistance(const string& s, const string& t) {
+VSpellCheck::Edit_దూరం VSpellCheck::edit_దూరం(స్థిరరాశి string& s, స్థిరరాశి string& t) {
     // Wagner-Fischer algorithm for the Damerau-Levenshtein distance
-    const size_t sLen = s.length();
-    const size_t tLen = t.length();
-    if (sLen == 0) return tLen;
-    if (tLen == 0) return sLen;
-    if (sLen >= LENGTH_LIMIT) return sLen;
-    if (tLen >= LENGTH_LIMIT) return tLen;
+    స్థిరరాశి కొలత_t sLen = s.నిడివి();
+    స్థిరరాశి కొలత_t tLen = t.నిడివి();
+    ఒకవేళ (sLen == 0) తిరిగి tLen;
+    ఒకవేళ (tLen == 0) తిరిగి sLen;
+    ఒకవేళ (sLen >= నిడివి_హద్దు) తిరిగి sLen;
+    ఒకవేళ (tLen >= నిడివి_హద్దు) తిరిగి tLen;
 
-    static std::array<EditDistance, LENGTH_LIMIT + 1> s_v_two_ago;
-    static std::array<EditDistance, LENGTH_LIMIT + 1> s_v_one_ago;
-    static std::array<EditDistance, LENGTH_LIMIT + 1> s_v_next;
+    స్థిర std::array<Edit_దూరం, నిడివి_హద్దు + 1> s_v_two_ago;
+    స్థిర std::array<Edit_దూరం, నిడివి_హద్దు + 1> s_v_one_ago;
+    స్థిర std::array<Edit_దూరం, నిడివి_హద్దు + 1> s_v_తదుపరి;
 
-    for (size_t i = 0; i < sLen + 1; i++) s_v_one_ago[i] = i;
+    కొరకు (కొలత_t i = 0; i < sLen + 1; i++) s_v_one_ago[i] = i;
 
-    for (size_t i = 0; i < tLen; i++) {
-        s_v_next[0] = i + 1;
-        for (size_t j = 0; j < sLen; j++) {
-            const EditDistance cost = (s[j] == t[i] ? 0 : 1);
-            const EditDistance deletion = s_v_next[j] + 1;
-            const EditDistance insertion = s_v_one_ago[j + 1] + 1;
-            const EditDistance substitution = s_v_one_ago[j] + cost;
-            EditDistance cheapest = std::min(deletion, insertion);
+    కొరకు (కొలత_t i = 0; i < tLen; i++) {
+        s_v_తదుపరి[0] = i + 1;
+        కొరకు (కొలత_t j = 0; j < sLen; j++) {
+            స్థిరరాశి Edit_దూరం ఖర్చు = (s[j] == t[i] ? 0 : 1);
+            స్థిరరాశి Edit_దూరం deletion = s_v_తదుపరి[j] + 1;
+            స్థిరరాశి Edit_దూరం insertion = s_v_one_ago[j + 1] + 1;
+            స్థిరరాశి Edit_దూరం substitution = s_v_one_ago[j] + ఖర్చు;
+            Edit_దూరం cheapest = std::min(deletion, insertion);
             cheapest = std::min(cheapest, substitution);
-            if (i > 0 && j > 0 && s[j] == t[i - 1] && s[j - 1] == t[i]) {
-                const EditDistance transposition = s_v_two_ago[j - 1] + 1;
+            ఒకవేళ (i > 0 && j > 0 && s[j] == t[i - 1] && s[j - 1] == t[i]) {
+                స్థిరరాశి Edit_దూరం transposition = s_v_two_ago[j - 1] + 1;
                 cheapest = std::min(cheapest, transposition);
             }
-            s_v_next[j + 1] = cheapest;
+            s_v_తదుపరి[j + 1] = cheapest;
         }
-        for (size_t j = 0; j < sLen + 1; j++) {
+        కొరకు (కొలత_t j = 0; j < sLen + 1; j++) {
             s_v_two_ago[j] = s_v_one_ago[j];
-            s_v_one_ago[j] = s_v_next[j];
+            s_v_one_ago[j] = s_v_తదుపరి[j];
         }
     }
 
-    const EditDistance result = s_v_next[sLen];
-    return result;
+    స్థిరరాశి Edit_దూరం ఫలితం = s_v_తదుపరి[sLen];
+    తిరిగి ఫలితం;
 }
 
-VSpellCheck::EditDistance VSpellCheck::cutoffDistance(size_t goal_len, size_t candidate_len) {
+VSpellCheck::Edit_దూరం VSpellCheck::cutoff_దూరం(కొలత_t goal_len, కొలత_t candidate_len) {
     // Return max acceptable edit distance
-    const size_t max_length = std::max(goal_len, candidate_len);
-    const size_t min_length = std::min(goal_len, candidate_len);
-    if (max_length <= 1) return 0;
-    if (max_length - min_length <= 1) return std::max(max_length / 3, static_cast<size_t>(1));
-    return (max_length + 2) / 3;
+    స్థిరరాశి కొలత_t max_నిడివి_2 = std::max(goal_len, candidate_len);
+    స్థిరరాశి కొలత_t min_నిడివి = std::min(goal_len, candidate_len);
+    ఒకవేళ (max_నిడివి_2 <= 1) తిరిగి 0;
+    ఒకవేళ (max_నిడివి_2 - min_నిడివి <= 1) తిరిగి std::max(max_నిడివి_2 / 3, static_cast<కొలత_t>(1));
+    తిరిగి (max_నిడివి_2 + 2) / 3;
 }
 
-VSpellCheck::Candidate VSpellCheck::bestCandidateInfo(const string& goal,
-                                                      EditDistance& distancer) const {
-    Candidate best;
-    const size_t gLen = goal.length();
-    distancer = LENGTH_LIMIT * 10;
-    for (const Candidate& candidate : m_candidates) {
-        const size_t cLen = candidate.str.length();
+VSpellCheck::Candidate VSpellCheck::ఉత్తమ_Candidate_Info(స్థిరరాశి string& goal,
+                                                      Edit_దూరం& distancer) స్థిరరాశి {
+    Candidate ఉత్తమ;
+    స్థిరరాశి కొలత_t gLen = goal.నిడివి();
+    distancer = నిడివి_హద్దు * 10;
+    కొరకు (స్థిరరాశి Candidate& candidate : m_candidates) {
+        స్థిరరాశి కొలత_t cLen = candidate.str.నిడివి();
 
         // Min distance must be inserting/deleting to make lengths match
-        const EditDistance min_distance = (cLen > gLen ? (cLen - gLen) : (gLen - cLen));
-        if (min_distance >= distancer) continue;  // Short-circuit if already better
+        స్థిరరాశి Edit_దూరం min_దూరం = (cLen > gLen ? (cLen - gLen) : (gLen - cLen));
+        ఒకవేళ (min_దూరం >= distancer) కొనసాగు;  // Short-circuit if already better
 
-        const EditDistance cutoff = cutoffDistance(gLen, cLen);
-        if (min_distance > cutoff) continue;  // Short-circuit if already too bad
+        స్థిరరాశి Edit_దూరం cutoff = cutoff_దూరం(gLen, cLen);
+        ఒకవేళ (min_దూరం > cutoff) కొనసాగు;  // Short-circuit if already too bad
 
-        const EditDistance dist = editDistance(goal, candidate.str);
+        స్థిరరాశి Edit_దూరం dist = edit_దూరం(goal, candidate.str);
         UINFO(9, "EditDistance dist=" << dist << " cutoff=" << cutoff << " goal=" << goal
-                                      << " candidate=" << candidate.str << ":'" << candidate.msg
+                                      << " candidate=" << candidate.str << ":'" << candidate.సందేశం_2
                                       << "'");
-        if (dist < distancer && dist <= cutoff) {
+        ఒకవేళ (dist < distancer && dist <= cutoff) {
             distancer = dist;
-            best = candidate;
+            ఉత్తమ = candidate;
         }
     }
 
     // If goal matches candidate avoid suggesting replacing with self
-    if (distancer == 0) return Candidate{.str = best.str, .msg = ""};
-    return best;
+    ఒకవేళ (distancer == 0) తిరిగి Candidate{.str = ఉత్తమ.str, .సందేశం_2 = ""};
+    తిరిగి ఉత్తమ;
 }
 
-void VSpellCheck::selfTestDistanceOne(const string& a, const string& b, EditDistance expected) {
-    UASSERT_SELFTEST(editDistance(a, b), expected);
-    UASSERT_SELFTEST(editDistance(b, a), expected);
+శూన్య VSpellCheck::self_Test_దూరం_One(స్థిరరాశి string& a, స్థిరరాశి string& b, Edit_దూరం expected) {
+    UASSERT_SELFTEST(edit_దూరం(a, b), expected);
+    UASSERT_SELFTEST(edit_దూరం(b, a), expected);
 }
 
-void VSpellCheck::selfTestSuggestOne(bool matches, const string& c, const string& goal,
-                                     EditDistance dist) {
-    EditDistance gdist;
+శూన్య VSpellCheck::selfTestSuggestOne(తార్కిక matches, స్థిరరాశి string& c, స్థిరరాశి string& goal,
+                                     Edit_దూరం dist) {
+    Edit_దూరం gdist;
     VSpellCheck speller;
-    speller.pushCandidate(c);
-    const string got = speller.bestCandidateInfo(goal, gdist /*ref*/).str;
-    if (matches) {
+    speller.నెట్టు_Candidate(c);
+    స్థిరరాశి string got = speller.ఉత్తమ_Candidate_Info(goal, gdist /*ref*/).str;
+    ఒకవేళ (matches) {
         UASSERT_SELFTEST(got, c);
         UASSERT_SELFTEST(gdist, dist);
-    } else {
+    } లేకపోతే {
         UASSERT_SELFTEST(got, "");
     }
 }
 
-void VSpellCheck::selfTest() {
+శూన్య VSpellCheck::selfTest() {
     {
-        selfTestDistanceOne("ab", "ac", 1);
-        selfTestDistanceOne("ab", "a", 1);
-        selfTestDistanceOne("a", "b", 1);
+        self_Test_దూరం_One("ab", "ac", 1);
+        self_Test_దూరం_One("ab", "a", 1);
+        self_Test_దూరం_One("a", "b", 1);
     }
     {
-        selfTestSuggestOne(true, "DEL_ETE", "DELETE", 1);
-        selfTestSuggestOne(true, "abcdef", "acbdef", 1);
-        selfTestSuggestOne(true, "db", "dc", 1);
-        selfTestSuggestOne(true, "db", "dba", 1);
+        selfTestSuggestOne(నిజం, "DEL_ETE", "DELETE", 1);
+        selfTestSuggestOne(నిజం, "abcdef", "acbdef", 1);
+        selfTestSuggestOne(నిజం, "db", "dc", 1);
+        selfTestSuggestOne(నిజం, "db", "dba", 1);
         // Negative suggestions
-        selfTestSuggestOne(false, "x", "y", 1);
-        selfTestSuggestOne(false, "sqrt", "assert", 3);
+        selfTestSuggestOne(అబద్ధం, "x", "y", 1);
+        selfTestSuggestOne(అబద్ధం, "sqrt", "assert", 3);
     }
     {
-        const VSpellCheck speller;
-        UASSERT_SELFTEST(speller.bestCandidate("").str, "");
-    }
-    {
-        VSpellCheck speller;
-        speller.pushCandidate("fred");
-        speller.pushCandidate("wilma");
-        speller.pushCandidate("barney");
-        UASSERT_SELFTEST(speller.bestCandidate("fre").str, "fred");
-        UASSERT_SELFTEST(speller.bestCandidate("whilma").str, "wilma");
-        UASSERT_SELFTEST(speller.bestCandidate("Barney").str, "barney");
-        UASSERT_SELFTEST(speller.bestCandidate("nothing close").str, "");
+        స్థిరరాశి VSpellCheck speller;
+        UASSERT_SELFTEST(speller.ఉత్తమ_Candidate("").str, "");
     }
     {
         VSpellCheck speller;
-        for (unsigned i = 0; i < NUM_CANDIDATE_LIMIT; ++i) speller.pushCandidate("fred");
-        UASSERT_SELFTEST(speller.m_candidates.size(), NUM_CANDIDATE_LIMIT);
-        speller.pushCandidate("wilma");
-        UASSERT_SELFTEST(speller.m_candidates.size(), NUM_CANDIDATE_LIMIT);
-        UASSERT_SELFTEST(speller.bestCandidate("fre").str, "fred");
-        UASSERT_SELFTEST(speller.bestCandidate("wilma").str, "");
+        speller.నెట్టు_Candidate("fred");
+        speller.నెట్టు_Candidate("wilma");
+        speller.నెట్టు_Candidate("barney");
+        UASSERT_SELFTEST(speller.ఉత్తమ_Candidate("fre").str, "fred");
+        UASSERT_SELFTEST(speller.ఉత్తమ_Candidate("whilma").str, "wilma");
+        UASSERT_SELFTEST(speller.ఉత్తమ_Candidate("Barney").str, "barney");
+        UASSERT_SELFTEST(speller.ఉత్తమ_Candidate("nothing close").str, "");
+    }
+    {
+        VSpellCheck speller;
+        కొరకు (గుర్తులేని i = 0; i < అంకె_CANDIDATE_హద్దు; ++i) speller.నెట్టు_Candidate("fred");
+        UASSERT_SELFTEST(speller.m_candidates.కొలత(), అంకె_CANDIDATE_హద్దు);
+        speller.నెట్టు_Candidate("wilma");
+        UASSERT_SELFTEST(speller.m_candidates.కొలత(), అంకె_CANDIDATE_హద్దు);
+        UASSERT_SELFTEST(speller.ఉత్తమ_Candidate("fre").str, "fred");
+        UASSERT_SELFTEST(speller.ఉత్తమ_Candidate("wilma").str, "");
     }
 }

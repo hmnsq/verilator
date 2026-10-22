@@ -26,353 +26,353 @@
 //
 //*************************************************************************
 
-#include "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
+#అన్తర్భావ "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
 
-#include "V3AssertNfa.h"
+#అన్తర్భావ "V3AssertNfa.h"
 
-#include "V3Assert.h"
-#include "V3Const.h"
-#include "V3Graph.h"
-#include "V3Stats.h"
-#include "V3Task.h"
-#include "V3UniqueNames.h"
+#అన్తర్భావ "V3Assert.h"
+#అన్తర్భావ "V3Const.h"
+#అన్తర్భావ "V3Graph.h"
+#అన్తర్భావ "V3Stats.h"
+#అన్తర్భావ "V3Task.h"
+#అన్తర్భావ "V3UniqueNames.h"
 
-#include <set>
-#include <unordered_set>
-#include <vector>
+#అన్తర్భావ <set>
+#అన్తర్భావ <unordered_set>
+#అన్తర్భావ <vector>
 
 VL_DEFINE_DEBUG_FUNCTIONS;
 
 //######################################################################
 // NFA Graph Data Structures (V3Graph-derived per upstream convention)
 
-namespace {
+నామాకాశ {
 
-class SvaStateVertex;
+తరగతి Sva_State_శీర్షం;
 
 // Per-vertex algorithm data, stored via V3GraphVertex::userp() during lowering
-struct SvaVertexData final {
-    AstVar* stateVarp = nullptr;  // NBA state register for this vertex
-    AstVar* delayRingVarp = nullptr;  // Packed occupancy bits or per-slot match counts
-    AstVar* delayRingHeadVarp
-        = nullptr;  // Cached outgoing slot; isolates readers from in-place writes
-    AstVar* delayRingIdxVarp = nullptr;  // Next slot written in delayRingVarp
-    AstVar* delayRingLiveCountVarp = nullptr;  // Number of threads in delayRingVarp
-    AstVar* delayRingWrappedVarp = nullptr;  // All slots written since the last clear
-    AstVar* doneLVarp = nullptr;  // SAnd LHS done-latch
-    AstVar* doneRVarp = nullptr;  // SAnd RHS done-latch
-    AstNodeExpr* stateSigp = nullptr;  // Combinational state signal; OWNED during lowering
-    AstNodeExpr* stateCountSigp = nullptr;  // Cover-sequence match count; OWNED during lowering
-    AstNodeExpr* stateCountOverflowSigp = nullptr;  // Count overflow; OWNED during lowering
-    bool delayRingCounts = false;  // Ring slots hold cover-sequence match counts
-    bool needsReg = false;  // True if vertex has incoming clocked edge
+నిర్మాణం Sva_శీర్షం_దత్తాంశం final {
+    AstVar* stateVarp = శూన్యసూచిక;  // NBA state register for this vertex
+    AstVar* delayRingVarp = శూన్యసూచిక;  // Packed occupancy bits or per-slot match counts
+    AstVar* delay_Ring_తల_Varp
+        = శూన్యసూచిక;  // Cached outgoing slot; isolates readers from in-place writes
+    AstVar* delayRingIdxVarp = శూన్యసూచిక;  // Next slot written in delayRingVarp
+    AstVar* delay_Ring_సజీవ_లెక్క_Varp = శూన్యసూచిక;  // Number of threads in delayRingVarp
+    AstVar* delayRingWrappedVarp = శూన్యసూచిక;  // All slots written since the last clear
+    AstVar* పూర్తి_LVarp = శూన్యసూచిక;  // SAnd LHS done-latch
+    AstVar* పూర్తి_RVarp = శూన్యసూచిక;  // SAnd RHS done-latch
+    Ast_కణుపు_సమాసం* stateSigp = శూన్యసూచిక;  // Combinational state signal; OWNED during lowering
+    Ast_కణుపు_సమాసం* state_లెక్క_Sigp = శూన్యసూచిక;  // Cover-sequence match count; OWNED during lowering
+    Ast_కణుపు_సమాసం* state_లెక్క_అధికప్రవాహం_Sigp = శూన్యసూచిక;  // Count overflow; OWNED during lowering
+    తార్కిక delayRingCounts = అబద్ధం;  // Ring slots hold cover-sequence match counts
+    తార్కిక needsReg = అబద్ధం;  // True if vertex has incoming clocked edge
 };
 
 // NFA state vertex -- one per NFA position in the sequence evaluation
-class SvaStateVertex final : public V3GraphVertex {
-    VL_RTTI_IMPL(SvaStateVertex, V3GraphVertex)
-public:
+తరగతి Sva_State_శీర్షం final : బహిరంగ V3_లేఖాచిత్రం_శీర్షం {
+    VL_RTTI_IMPL(Sva_State_శీర్షం, V3_లేఖాచిత్రం_శీర్షం)
+బహిరంగ:
     // True if this is the sequence-match terminal vertex
-    bool m_isMatch = false;
+    తార్కిక m_is_సరిపోలిక = అబద్ధం;
     // OWNED throughout-guard condition clones; IEEE 1800-2023 16.9.9
-    std::vector<AstNodeExpr*> m_throughoutConds;
+    std::సదిశ<Ast_కణుపు_సమాసం*> m_throughoutConds;
     // Nonzero for a ring-buffer vertex for ## delays.
-    bool m_isFixedDelayRing = false;
-    unsigned m_delayRingSize = 0;  // Number of ring slots. Range: max-min+1.
-    AstNodeExpr* m_delayRingClearCondp = nullptr;  // local RHS for pure-boolean range
-    AstNodeExpr* m_delayRingAdvanceCondp = nullptr;  // Advance only when this condition holds
-    bool m_replayAbortReject = false;  // Compressed repetition needs per-thread abort replay
+    తార్కిక m_isFixedDelayRing = అబద్ధం;
+    గుర్తులేని m_delay_Ring_కొలత = 0;  // Number of ring slots. Range: max-min+1.
+    Ast_కణుపు_సమాసం* m_delayRingClearCondp = శూన్యసూచిక;  // local RHS for pure-boolean range
+    Ast_కణుపు_సమాసం* m_delayRingAdvanceCondp = శూన్యసూచిక;  // Advance only when this condition holds
+    తార్కిక m_replayAbortReject = అబద్ధం;  // Compressed repetition needs per-thread abort replay
     // OWNED; enclosing-abort fire condition clearing state or suppressing guard rejection
-    AstNodeExpr* m_abortClearp = nullptr;
+    Ast_కణుపు_సమాసం* m_abortClearp = శూన్యసూచిక;
     // OWNED; reject-abort fire condition rejecting all represented live threads
-    AstNodeExpr* m_abortRejectp = nullptr;
+    Ast_కణుపు_సమాసం* m_abortRejectp = శూన్యసూచిక;
     // Liveness terminal (IEEE weak semantics): reject must not fire from this source
-    bool m_isUnbounded = false;
+    తార్కిక m_isUnbounded = అబద్ధం;
     // Temporal sequence AND combiner; IEEE 1800-2023 16.9.5
-    bool m_isAndCombiner = false;
-    SvaStateVertex* m_andLhsTermp = nullptr;  // LHS sub-NFA terminal vertex
-    SvaStateVertex* m_andRhsTermp = nullptr;  // RHS sub-NFA terminal vertex
-    AstNodeExpr* m_andLhsCondp = nullptr;  // OWNED; LHS final condition (may be nullptr)
-    AstNodeExpr* m_andRhsCondp = nullptr;  // OWNED; RHS final condition (may be nullptr)
+    తార్కిక m_isAndCombiner = అబద్ధం;
+    Sva_State_శీర్షం* m_andLhsTermp = శూన్యసూచిక;  // LHS sub-NFA terminal vertex
+    Sva_State_శీర్షం* m_andRhsTermp = శూన్యసూచిక;  // RHS sub-NFA terminal vertex
+    Ast_కణుపు_సమాసం* m_andLhsCondp = శూన్యసూచిక;  // OWNED; LHS final condition (may be nullptr)
+    Ast_కణుపు_సమాసం* m_andRhsCondp = శూన్యసూచిక;  // OWNED; RHS final condition (may be nullptr)
     // Reject sink for SAnd rejectOnFail wiring; not a state-signal source
-    bool m_isRejectSink = false;
+    తార్కిక m_isRejectSink = అబద్ధం;
     // In-window vertex of a strong s_always[m:n]: if its state is still set at
     // end-of-simulation the universal-quantifier window never completed, which is
     // a liveness failure (IEEE 1800-2023 16.12.11 strong semantics).
-    bool m_strongPending = false;
+    తార్కిక m_strongPending = అబద్ధం;
     // Ring introduced for the checked portion of a bounded strong s_always window.
-    bool m_strongAlwaysRing = false;
+    తార్కిక m_strongAlwaysRing = అబద్ధం;
 
     // CONSTRUCTORS
-    explicit SvaStateVertex(V3Graph* graphp)
-        : V3GraphVertex{graphp} {}
-    ~SvaStateVertex() override {
-        for (AstNodeExpr* cp : m_throughoutConds) VL_DO_DANGLING(cp->deleteTree(), cp);
-        if (m_delayRingClearCondp)
-            VL_DO_DANGLING(m_delayRingClearCondp->deleteTree(), m_delayRingClearCondp);
-        if (m_delayRingAdvanceCondp)
-            VL_DO_DANGLING(m_delayRingAdvanceCondp->deleteTree(), m_delayRingAdvanceCondp);
-        if (m_abortClearp) VL_DO_DANGLING(m_abortClearp->deleteTree(), m_abortClearp);
-        if (m_abortRejectp) VL_DO_DANGLING(m_abortRejectp->deleteTree(), m_abortRejectp);
-        if (m_andLhsCondp) VL_DO_DANGLING(m_andLhsCondp->deleteTree(), m_andLhsCondp);
-        if (m_andRhsCondp) VL_DO_DANGLING(m_andRhsCondp->deleteTree(), m_andRhsCondp);
+    స్పష్టమైన Sva_State_శీర్షం(V3_లేఖాచిత్రం* graphp)
+        : V3_లేఖాచిత్రం_శీర్షం{graphp} {}
+    ~Sva_State_శీర్షం() override {
+        కొరకు (Ast_కణుపు_సమాసం* cp : m_throughoutConds) VL_DO_DANGLING(cp->delete_వృక్షం(), cp);
+        ఒకవేళ (m_delayRingClearCondp)
+            VL_DO_DANGLING(m_delayRingClearCondp->delete_వృక్షం(), m_delayRingClearCondp);
+        ఒకవేళ (m_delayRingAdvanceCondp)
+            VL_DO_DANGLING(m_delayRingAdvanceCondp->delete_వృక్షం(), m_delayRingAdvanceCondp);
+        ఒకవేళ (m_abortClearp) VL_DO_DANGLING(m_abortClearp->delete_వృక్షం(), m_abortClearp);
+        ఒకవేళ (m_abortRejectp) VL_DO_DANGLING(m_abortRejectp->delete_వృక్షం(), m_abortRejectp);
+        ఒకవేళ (m_andLhsCondp) VL_DO_DANGLING(m_andLhsCondp->delete_వృక్షం(), m_andLhsCondp);
+        ఒకవేళ (m_andRhsCondp) VL_DO_DANGLING(m_andRhsCondp->delete_వృక్షం(), m_andRhsCondp);
     }
     // METHODS
     // LCOV_EXCL_START -- Graphviz dump only
-    string name() const override {
-        string name = "s" + cvtToStr(color());
-        if (m_delayRingSize) {
+    string name() స్థిరరాశి override {
+        string name = "s" + cvt_గమ్యం_Str(color());
+        ఒకవేళ (m_delay_Ring_కొలత) {
             name += "\\n";
             name += m_isFixedDelayRing ? "fixed chain " : "range chain ";
-            name += cvtToStr(m_delayRingSize) + " slots";
+            name += cvt_గమ్యం_Str(m_delay_Ring_కొలత) + " slots";
         }
-        return name;
+        తిరిగి name;
     }
-    string dotColor() const override {
-        if (m_isMatch) return "red";
-        if (m_delayRingSize) return "blue";
-        if (m_isAndCombiner) return "purple";
-        return "black";
+    string dotColor() స్థిరరాశి override {
+        ఒకవేళ (m_is_సరిపోలిక) తిరిగి "red";
+        ఒకవేళ (m_delay_Ring_కొలత) తిరిగి "blue";
+        ఒకవేళ (m_isAndCombiner) తిరిగి "purple";
+        తిరిగి "black";
     }
     // LCOV_EXCL_STOP
     // Access per-vertex algorithm data (valid only during lowering phase)
-    SvaVertexData* datap() const { return static_cast<SvaVertexData*>(userp()); }
+    Sva_శీర్షం_దత్తాంశం* datap() స్థిరరాశి { తిరిగి static_cast<Sva_శీర్షం_దత్తాంశం*>(userp()); }
 };
 
 // NFA transition edge -- clocked (##1) or combinational link (##0)
-class SvaTransEdge final : public V3GraphEdge {
-    VL_RTTI_IMPL(SvaTransEdge, V3GraphEdge)
-public:
-    AstNodeExpr* m_condp;  // Transition condition; nullptr = unconditional; OWNED
-    bool m_consumesCycle;  // true = clocked edge (##1), false = link (##0/boolean)
+తరగతి Sva_Trans_అంచు final : బహిరంగ V3_లేఖాచిత్రం_అంచు {
+    VL_RTTI_IMPL(Sva_Trans_అంచు, V3_లేఖాచిత్రం_అంచు)
+బహిరంగ:
+    Ast_కణుపు_సమాసం* m_condp;  // Transition condition; nullptr = unconditional; OWNED
+    తార్కిక m_consumes_చక్రం;  // true = clocked edge (##1), false = link (##0/boolean)
     // Reject when source is active and condp is false; set only on
     // outermost required-step Link
-    bool m_rejectOnFail = false;
+    తార్కిక m_rejectOnFail = అబద్ధం;
     // Optional dynamic condition vertex for m_rejectOnFail. Used when the
     // success condition is another NFA state rather than a static expression.
-    SvaStateVertex* m_condVtxp = nullptr;
+    Sva_State_శీర్షం* m_condVtxp = శూన్యసూచిక;
 
     // CONSTRUCTORS
-    SvaTransEdge(V3Graph* graphp, V3GraphVertex* fromp, V3GraphVertex* top, AstNodeExpr* condp,
-                 bool consumesCycle)
-        : V3GraphEdge{graphp, fromp, top, /*weight=*/1}
+    Sva_Trans_అంచు(V3_లేఖాచిత్రం* graphp, V3_లేఖాచిత్రం_శీర్షం* fromp, V3_లేఖాచిత్రం_శీర్షం* శిఖరం, Ast_కణుపు_సమాసం* condp,
+                 తార్కిక consumes_చక్రం)
+        : V3_లేఖాచిత్రం_అంచు{graphp, fromp, శిఖరం, /*weight=*/1}
         , m_condp{condp}
-        , m_consumesCycle{consumesCycle} {}
-    ~SvaTransEdge() override {
-        if (m_condp) VL_DO_DANGLING(m_condp->deleteTree(), m_condp);
+        , m_consumes_చక్రం{consumes_చక్రం} {}
+    ~Sva_Trans_అంచు() override {
+        ఒకవేళ (m_condp) VL_DO_DANGLING(m_condp->delete_వృక్షం(), m_condp);
     }
     // METHODS
     // LCOV_EXCL_START -- Graphviz dump only
-    string dotLabel() const override { return m_consumesCycle ? "##1" : "link"; }
-    string dotStyle() const override { return m_consumesCycle ? "" : "dashed"; }
+    string dotLabel() స్థిరరాశి override { తిరిగి m_consumes_చక్రం ? "##1" : "link"; }
+    string dotStyle() స్థిరరాశి override { తిరిగి m_consumes_చక్రం ? "" : "dashed"; }
     // LCOV_EXCL_STOP
     // Typed accessors for NFA vertices
-    SvaStateVertex* fromVtxp() const { return static_cast<SvaStateVertex*>(fromp()); }
-    SvaStateVertex* toVtxp() const { return static_cast<SvaStateVertex*>(top()); }
+    Sva_State_శీర్షం* fromVtxp() స్థిరరాశి { తిరిగి static_cast<Sva_State_శీర్షం*>(fromp()); }
+    Sva_State_శీర్షం* గమ్యం_Vtxp() స్థిరరాశి { తిరిగి static_cast<Sva_State_శీర్షం*>(శిఖరం()); }
 };
 
 // NFA graph container
-class SvaGraph final {
-public:
-    V3Graph m_graph;  // Owns all vertices and edges
-    SvaStateVertex* m_startVertexp = nullptr;  // Trigger/start vertex
-    SvaStateVertex* m_matchVertexp = nullptr;  // Sequence-match terminal vertex
+తరగతి Sva_లేఖాచిత్రం final {
+బహిరంగ:
+    V3_లేఖాచిత్రం m_లేఖాచిత్రం;  // Owns all vertices and edges
+    Sva_State_శీర్షం* m_ప్రారంభం_Vertexp = శూన్యసూచిక;  // Trigger/start vertex
+    Sva_State_శీర్షం* m_సరిపోలిక_Vertexp = శూన్యసూచిక;  // Sequence-match terminal vertex
 
     // Create a new state vertex
-    SvaStateVertex* createStateVertex() { return new SvaStateVertex{&m_graph}; }
+    Sva_State_శీర్షం* create_State_శీర్షం() { తిరిగి కొత్త Sva_State_శీర్షం{&m_లేఖాచిత్రం}; }
     // Create the match terminal vertex
-    SvaStateVertex* createMatchVertex() {
-        SvaStateVertex* const vtxp = createStateVertex();
-        vtxp->m_isMatch = true;
-        m_matchVertexp = vtxp;
-        return vtxp;
+    Sva_State_శీర్షం* create_సరిపోలిక_శీర్షం() {
+        Sva_State_శీర్షం* స్థిరరాశి vtxp = create_State_శీర్షం();
+        vtxp->m_is_సరిపోలిక = నిజం;
+        m_సరిపోలిక_Vertexp = vtxp;
+        తిరిగి vtxp;
     }
     // Add a clocked transition edge (##1)
-    SvaTransEdge* addClockedEdge(SvaStateVertex* fromp, SvaStateVertex* top,
-                                 AstNodeExpr* condp = nullptr) {
-        return new SvaTransEdge{&m_graph, fromp, top, condp, /*consumesCycle=*/true};
+    Sva_Trans_అంచు* కూడు_Clocked_అంచు(Sva_State_శీర్షం* fromp, Sva_State_శీర్షం* శిఖరం,
+                                 Ast_కణుపు_సమాసం* condp = శూన్యసూచిక) {
+        తిరిగి కొత్త Sva_Trans_అంచు{&m_లేఖాచిత్రం, fromp, శిఖరం, condp, /*consumesCycle=*/నిజం};
     }
     // Add a combinational link (##0 / boolean condition)
-    SvaTransEdge* addLink(SvaStateVertex* fromp, SvaStateVertex* top,
-                          AstNodeExpr* condp = nullptr) {
-        return new SvaTransEdge{&m_graph, fromp, top, condp, /*consumesCycle=*/false};
+    Sva_Trans_అంచు* కూడు_Link(Sva_State_శీర్షం* fromp, Sva_State_శీర్షం* శిఖరం,
+                          Ast_కణుపు_సమాసం* condp = శూన్యసూచిక) {
+        తిరిగి కొత్త Sva_Trans_అంచు{&m_లేఖాచిత్రం, fromp, శిఖరం, condp, /*consumesCycle=*/అబద్ధం};
     }
     // Collect all edges into a flat vector for iteration.
     // Used by the lowering phase which needs global edge scans.
-    std::vector<const SvaTransEdge*> allEdges() const {
-        std::vector<const SvaTransEdge*> result;
-        for (const V3GraphVertex& vtxr : m_graph.vertices()) {
-            for (const V3GraphEdge& edger : vtxr.outEdges()) {
-                result.push_back(static_cast<const SvaTransEdge*>(&edger));
+    std::సదిశ<స్థిరరాశి Sva_Trans_అంచు*> all_అంచులు() స్థిరరాశి {
+        std::సదిశ<స్థిరరాశి Sva_Trans_అంచు*> ఫలితం;
+        కొరకు (స్థిరరాశి V3_లేఖాచిత్రం_శీర్షం& vtxr : m_లేఖాచిత్రం.vertices()) {
+            కొరకు (స్థిరరాశి V3_లేఖాచిత్రం_అంచు& edger : vtxr.బహిర్గతం_అంచులు()) {
+                ఫలితం.నెట్టు_వెనుక(static_cast<స్థిరరాశి Sva_Trans_అంచు*>(&edger));
             }
         }
-        return result;
+        తిరిగి ఫలితం;
     }
 };
 
 //######################################################################
 // Builder result: terminal vertex + optional final condition (match Link condition).
-struct BuildResult final {
-    SvaStateVertex* termVertexp;  // Primary terminal; contributes to both match and reject
-    AstNodeExpr* finalCondp;  // nullptr = unconditional
+నిర్మాణం Build_ఫలితం final {
+    Sva_State_శీర్షం* పదం_Vertexp;  // Primary terminal; contributes to both match and reject
+    Ast_కణుపు_సమాసం* finalCondp;  // nullptr = unconditional
     // Mid-window sources for range delays (pure boolean RHS): match-only (isUnbounded)
-    std::vector<SvaStateVertex*> midSources;
-    bool errorEmitted = false;  // Builder already emitted specific error; skip generic
+    std::సదిశ<Sva_State_శీర్షం*> midSources;
+    తార్కిక errorEmitted = అబద్ధం;  // Builder already emitted specific error; skip generic
     // For cover_sequence: when true, midSources already enumerate every
     // end-of-match, so wireMatchAndMidSources must NOT add the main
     // termVtxp -> matchVertex Link (would double-count via the merge vertex).
-    bool termIsMidMerge = false;
-    bool valid() const { return termVertexp != nullptr; }
-    static BuildResult fail(bool errored = false) { return {nullptr, nullptr, {}, errored}; }
-    static BuildResult failWithError() { return {nullptr, nullptr, {}, true}; }
+    తార్కిక పదం_Is_Mid_విలీనం = అబద్ధం;
+    తార్కిక valid() స్థిరరాశి { తిరిగి పదం_Vertexp != శూన్యసూచిక; }
+    స్థిర Build_ఫలితం fail(తార్కిక errored = అబద్ధం) { తిరిగి {శూన్యసూచిక, శూన్యసూచిక, {}, errored}; }
+    స్థిర Build_ఫలితం failWithError() { తిరిగి {శూన్యసూచిక, శూన్యసూచిక, {}, నిజం}; }
 };
 
 // Parser-marked SAnd of overlapped implications: a property if/else/case.
-static bool hasPropertyControlConjunction(const AstNodeExpr* nodep) {
-    return nodep->exists([](const AstSAnd* andp) { return andp->propertyControl(); });
+స్థిర తార్కిక hasPropertyControlConjunction(స్థిరరాశి Ast_కణుపు_సమాసం* nodep) {
+    తిరిగి nodep->exists([](స్థిరరాశి AstSAnd* andp) { తిరిగి andp->propertyControl(); });
 }
 
-static AstConst* newTypedConstp(FileLine* const flp, const AstNodeDType* const dtypep,
-                                const uint32_t value) {
-    AstConst* const constp = new AstConst{flp, AstConst::DTyped{}, dtypep};
-    constp->num().setLong(value);
-    return constp;
+స్థిర AstConst* newTypedConstp(File_పంక్తి* స్థిరరాశి flp, స్థిరరాశి Ast_కణుపు_DType* స్థిరరాశి dtypep,
+                                స్థిరరాశి uint32_t విలువ) {
+    AstConst* స్థిరరాశి constp = కొత్త AstConst{flp, AstConst::DTyped{}, dtypep};
+    constp->అంకె().సమితి_Long(విలువ);
+    తిరిగి constp;
 }
 
-static AstNodeExpr* sampled(AstNodeExpr* exprp) {
-    return new AstSampled{exprp->fileline(), exprp, exprp->dtypep(), true};
+స్థిర Ast_కణుపు_సమాసం* sampled(Ast_కణుపు_సమాసం* exprp) {
+    తిరిగి కొత్త AstSampled{exprp->fileline(), exprp, exprp->dtypep(), నిజం};
 }
 
-static const char* assertPassOnQuery(bool vacuous) {
-    static constexpr const char* queries[2]
+స్థిర స్థిరరాశి అక్షరం* assertPassOnQuery(తార్కిక vacuous) {
+    స్థిర constexpr స్థిరరాశి అక్షరం* queries[2]
         = {"ASSERT_CTL_PASS_ON_NONVACUOUS", "ASSERT_CTL_PASS_ON_VACUOUS"};
-    return queries[vacuous];
+    తిరిగి queries[vacuous];
 }
 
-static AstNodeExpr* assertOnCond(FileLine* flp, VAssertType type,
+స్థిర Ast_కణుపు_సమాసం* assertOnCond(File_పంక్తి* flp, VAssertType type,
                                  VAssertDirectiveType directiveType) {
-    if (!v3Global.opt.assertOn()) { return new AstConst{flp, AstConst::BitFalse{}}; }
-    return new AstCExpr{flp, AstCExpr::Pure{},
+    ఒకవేళ (!v3Global.opt.assertOn()) { తిరిగి కొత్త AstConst{flp, AstConst::బిట్టు_False{}}; }
+    తిరిగి కొత్త AstCExpr{flp, AstCExpr::శుద్ధ{},
                         V3AssertCommon::assertCtlGetCall("ASSERT_CTL_ON", type, directiveType), 1};
 }
 
-static AstNodeExpr* assertKillGet(FileLine* flp, VAssertType type,
+స్థిర Ast_కణుపు_సమాసం* assertKillGet(File_పంక్తి* flp, VAssertType type,
                                   VAssertDirectiveType directiveType) {
-    return new AstCExpr{flp, AstCExpr::Pure{},
+    తిరిగి కొత్త AstCExpr{flp, AstCExpr::శుద్ధ{},
                         V3AssertCommon::assertCtlGetCall("ASSERT_CTL_KILL", type, directiveType),
                         32};
 }
 
-static string assertActionControlPrefix(VAssertDirectiveType directiveType) {
-    const int controlled = !!(static_cast<int>(directiveType)
-                              & (static_cast<int>(VAssertDirectiveType::ASSERT)
-                                 | static_cast<int>(VAssertDirectiveType::COVER)
-                                 | static_cast<int>(VAssertDirectiveType::ASSUME)));
-    const int checkRuntime = controlled & static_cast<int>(v3Global.opt.assertOn());
-    return "("s + std::to_string(controlled ^ 1) + " || ("s + std::to_string(checkRuntime)
+స్థిర string assert_Action_Control_ఉపసర్గ(VAssertDirectiveType directiveType) {
+    స్థిరరాశి పూర్ణాంకం controlled = !!(static_cast<పూర్ణాంకం>(directiveType)
+                              & (static_cast<పూర్ణాంకం>(VAssertDirectiveType::ASSERT)
+                                 | static_cast<పూర్ణాంకం>(VAssertDirectiveType::COVER)
+                                 | static_cast<పూర్ణాంకం>(VAssertDirectiveType::ASSUME)));
+    స్థిరరాశి పూర్ణాంకం checkRuntime = controlled & static_cast<పూర్ణాంకం>(v3Global.opt.assertOn());
+    తిరిగి "("s + std::గమ్యం_string(controlled ^ 1) + " || ("s + std::గమ్యం_string(checkRuntime)
            + " && "s;
 }
 
-static AstNodeExpr* assertPassOnCond(FileLine* flp, VAssertType type,
-                                     VAssertDirectiveType directiveType, bool vacuous) {
-    return new AstCExpr{
-        flp, AstCExpr::Pure{},
-        assertActionControlPrefix(directiveType)
+స్థిర Ast_కణుపు_సమాసం* assertPassOnCond(File_పంక్తి* flp, VAssertType type,
+                                     VAssertDirectiveType directiveType, తార్కిక vacuous) {
+    తిరిగి కొత్త AstCExpr{
+        flp, AstCExpr::శుద్ధ{},
+        assert_Action_Control_ఉపసర్గ(directiveType)
             + V3AssertCommon::assertCtlGetCall(assertPassOnQuery(vacuous), type, directiveType)
             + "))"s,
         1};
 }
 
-static AstNodeExpr* assertFailOnCond(FileLine* flp, VAssertType type,
+స్థిర Ast_కణుపు_సమాసం* assertFailOnCond(File_పంక్తి* flp, VAssertType type,
                                      VAssertDirectiveType directiveType) {
-    return new AstCExpr{
-        flp, AstCExpr::Pure{},
-        assertActionControlPrefix(directiveType)
+    తిరిగి కొత్త AstCExpr{
+        flp, AstCExpr::శుద్ధ{},
+        assert_Action_Control_ఉపసర్గ(directiveType)
             + V3AssertCommon::assertCtlGetCall("ASSERT_CTL_FAIL_ON", type, directiveType) + "))"s,
         1};
 }
 
-static AstIf* newPassOnIf(FileLine* flp, AstNodeExpr* firep, AstNode* bodyp, VAssertType type,
-                          VAssertDirectiveType directiveType, bool vacuous) {
-    AstNodeExpr* const condp
-        = new AstLogAnd{flp, firep, assertPassOnCond(flp, type, directiveType, vacuous)};
-    AstIf* const ifp = new AstIf{flp, condp, bodyp};
-    ifp->isBoundsCheck(true);
-    ifp->user1(true);
-    return ifp;
+స్థిర AstIf* newPassOnIf(File_పంక్తి* flp, Ast_కణుపు_సమాసం* firep, Ast_కణుపు* bodyp, VAssertType type,
+                          VAssertDirectiveType directiveType, తార్కిక vacuous) {
+    Ast_కణుపు_సమాసం* స్థిరరాశి condp
+        = కొత్త AstLogAnd{flp, firep, assertPassOnCond(flp, type, directiveType, vacuous)};
+    AstIf* స్థిరరాశి ifp = కొత్త AstIf{flp, condp, bodyp};
+    ifp->isBoundsCheck(నిజం);
+    ifp->user1(నిజం);
+    తిరిగి ifp;
 }
 
-static AstNodeStmt* newIfAssertFailOn(AstNode* bodyp, VAssertDirectiveType directiveType,
+స్థిర Ast_కణుపు_Stmt* newIfAssertFailOn(Ast_కణుపు* bodyp, VAssertDirectiveType directiveType,
                                       VAssertType type) {
-    FileLine* const flp = bodyp->fileline();
-    AstNodeExpr* const condp = assertFailOnCond(flp, type, directiveType);
-    AstIf* const ifp = new AstIf{flp, condp, bodyp};
-    ifp->isBoundsCheck(true);
-    ifp->user1(true);
-    return ifp;
+    File_పంక్తి* స్థిరరాశి flp = bodyp->fileline();
+    Ast_కణుపు_సమాసం* స్థిరరాశి condp = assertFailOnCond(flp, type, directiveType);
+    AstIf* స్థిరరాశి ifp = కొత్త AstIf{flp, condp, bodyp};
+    ifp->isBoundsCheck(నిజం);
+    ifp->user1(నిజం);
+    తిరిగి ifp;
 }
 
 //######################################################################
 // NFA Builder
 
-class SvaNfaBuilder final {
-    SvaGraph& m_graph;  // NFA graph being built
-    AstNodeModule* const m_modp;  // Module to receive hoisted sampled-prop temps
-    V3UniqueNames& m_propTempNames;  // Module-shared temp-var name source
-    std::vector<AstNodeExpr*> m_temporalGuardStack;  // Guards active across nested temporal states
+తరగతి SvaNfaBuilder final {
+    Sva_లేఖాచిత్రం& m_లేఖాచిత్రం;  // NFA graph being built
+    Ast_కణుపు_Module* స్థిరరాశి m_modp;  // Module to receive hoisted sampled-prop temps
+    V3_Unique_పేర్లు& m_prop_తాత్కాలిక_పేర్లు;  // Module-shared temp-var name source
+    std::సదిశ<Ast_కణుపు_సమాసం*> m_temporal_Guard_దొంతర;  // Guards active across nested temporal states
     // Outer abort conditions, AND-ed as !cond into inner abort edges
     // (IEEE 1800-2023 16.12.14 outer-wraps-inner).
-    std::vector<AstNodeExpr*> m_outerAbortStack;
-    bool m_inUnboundedScope = false;  // Sticky: nodes created after inherit liveness
-    bool m_markStrongPending = false;  // Mark new vertices as strong s_always in-window
-    bool m_isCover = false;  // Cover directives do not fail at end-of-simulation
+    std::సదిశ<Ast_కణుపు_సమాసం*> m_outer_Abort_దొంతర;
+    తార్కిక m_లోపల_Unbounded_Scope = అబద్ధం;  // Sticky: nodes created after inherit liveness
+    తార్కిక m_markStrongPending = అబద్ధం;  // Mark new vertices as strong s_always in-window
+    తార్కిక m_isCover = అబద్ధం;  // Cover directives do not fail at end-of-simulation
     // IEEE 1800-2023 16.14.3 cover sequence: each end-of-match fires the action,
     // not just the first. Builder builds parallel-branch (no first-match-wins)
     // topology when true. Default false preserves cover_property semantics.
-    bool m_isCoverSeq = false;
+    తార్కిక m_isCoverSeq = అబద్ధం;
     // Unsupported endpoint topology must reject, not ignore, or the wait hangs
-    bool m_isSeqEvent = false;
-    bool m_inSequencePrefix = false;  // Prefix composition does not preserve every endpoint
-    bool m_wantBoolLeaf = false;  // Building a |-> / |=> or top-level body (see buildOrMerge)
+    తార్కిక m_isSeqEvent = అబద్ధం;
+    తార్కిక m_లోపల_Sequence_ఉపసర్గ = అబద్ధం;  // Prefix composition does not preserve every endpoint
+    తార్కిక m_want_Bool_ఆకు = అబద్ధం;  // Building a |-> / |=> or top-level body (see buildOrMerge)
 
-    struct RangeDelayRejectInfo final {
-        SvaStateVertex* startp = nullptr;
-        unsigned range = 0;
-        int rhsLen = 0;
+    నిర్మాణం RangeDelayRejectInfo final {
+        Sva_State_శీర్షం* startp = శూన్యసూచిక;
+        గుర్తులేని range = 0;
+        పూర్ణాంకం rhsLen = 0;
     };
 
-    void warnEndpointUnsupported(FileLine* flp, const string& what) const {
-        if (m_isSeqEvent) {
+    శూన్య warnEndpointUnsupported(File_పంక్తి* flp, స్థిరరాశి string& what) స్థిరరాశి {
+        ఒకవేళ (m_isSeqEvent) {
             flp->v3warn(E_UNSUPPORTED,
                         "Unsupported: sequence used as an event control with " << what);
-        } else {
+        } లేకపోతే {
             flp->v3warn(COVERIGN, "Ignoring unsupported: cover sequence with " << what);
         }
     }
 
-    AstNodeExpr* throughoutCond(AstNodeExpr* baseCondp, FileLine* flp) {
-        if (m_temporalGuardStack.empty()) return baseCondp;
+    Ast_కణుపు_సమాసం* throughoutCond(Ast_కణుపు_సమాసం* పునాది_Condp, File_పంక్తి* flp) {
+        ఒకవేళ (m_temporal_Guard_దొంతర.ఖాళీలు()) తిరిగి పునాది_Condp;
         // AND all active temporal guards (supports nesting)
         // Each must use $sampled values.
-        AstNodeExpr* guardp = nullptr;
-        for (AstNodeExpr* const condp : m_temporalGuardStack) {
-            AstNodeExpr* const clonep = sampled(condp->cloneTreePure(false));
-            if (!guardp) {
+        Ast_కణుపు_సమాసం* guardp = శూన్యసూచిక;
+        కొరకు (Ast_కణుపు_సమాసం* స్థిరరాశి condp : m_temporal_Guard_దొంతర) {
+            Ast_కణుపు_సమాసం* స్థిరరాశి clonep = sampled(condp->clone_వృక్షం_శుద్ధ(అబద్ధం));
+            ఒకవేళ (!guardp) {
                 guardp = clonep;
-            } else {
-                guardp = new AstLogAnd{flp, guardp, clonep};
+            } లేకపోతే {
+                guardp = కొత్త AstLogAnd{flp, guardp, clonep};
             }
         }
-        if (baseCondp) { guardp = new AstLogAnd{flp, baseCondp, guardp}; }
-        return guardp;
+        ఒకవేళ (పునాది_Condp) { guardp = కొత్త AstLogAnd{flp, పునాది_Condp, guardp}; }
+        తిరిగి guardp;
     }
 
-    static unsigned getConstUInt(AstNodeExpr* exprp) {
-        AstNodeExpr* const constp = V3Const::constifyEdit(exprp->cloneTreePure(false));
-        const AstConst* const cp = VN_CAST(constp, Const);
-        const unsigned val = cp ? cp->toUInt() : 0;
-        VL_DO_DANGLING(constp->deleteTree(), constp);
-        return val;
+    స్థిర గుర్తులేని getConstUInt(Ast_కణుపు_సమాసం* exprp) {
+        Ast_కణుపు_సమాసం* స్థిరరాశి constp = V3Const::constifyEdit(exprp->clone_వృక్షం_శుద్ధ(అబద్ధం));
+        స్థిరరాశి AstConst* స్థిరరాశి cp = VN_CAST(constp, Const);
+        స్థిరరాశి గుర్తులేని val = cp ? cp->గమ్యం_UInt() : 0;
+        VL_DO_DANGLING(constp->delete_వృక్షం(), constp);
+        తిరిగి val;
     }
 
     // Static fixed-length analysis: clock ticks from entry to terminal, or -1.
@@ -388,55 +388,55 @@ class SvaNfaBuilder final {
     //  - Unbounded waits ##[M:$]             -> infinite/variable
     //  - ConsRep / SGotoRep / SAnd / SOr     -> defer (rare in intersect)
     //  - SIntersect nested in SIntersect     -> defer
-    static int fixedLength(AstNodeExpr* nodep) {
-        if (AstSExpr* const sexprp = VN_CAST(nodep, SExpr)) {
-            AstDelay* const delayp = VN_CAST(sexprp->delayp(), Delay);
-            if (!delayp || !delayp->isCycleDelay()) return -1;
-            unsigned delayCycles;
-            if (delayp->isRangeDelay()) {
-                if (delayp->isUnbounded()) return -1;  // LCOV_EXCL_LINE
-                const unsigned minD = getConstUInt(delayp->lhsp());
-                const unsigned maxD = getConstUInt(delayp->rhsp());
-                if (minD != maxD) return -1;
-                delayCycles = minD;
-            } else {
-                delayCycles = getConstUInt(delayp->lhsp());
+    స్థిర పూర్ణాంకం fixed_నిడివి(Ast_కణుపు_సమాసం* nodep) {
+        ఒకవేళ (AstSExpr* స్థిరరాశి sexprp = VN_CAST(nodep, SExpr)) {
+            AstDelay* స్థిరరాశి delayp = VN_CAST(sexprp->delayp(), Delay);
+            ఒకవేళ (!delayp || !delayp->is_చక్రం_Delay()) తిరిగి -1;
+            గుర్తులేని delay_చక్రాలు;
+            ఒకవేళ (delayp->isRangeDelay()) {
+                ఒకవేళ (delayp->isUnbounded()) తిరిగి -1;  // LCOV_EXCL_LINE
+                స్థిరరాశి గుర్తులేని minD = getConstUInt(delayp->lhsp());
+                స్థిరరాశి గుర్తులేని maxD = getConstUInt(delayp->rhsp());
+                ఒకవేళ (minD != maxD) తిరిగి -1;
+                delay_చక్రాలు = minD;
+            } లేకపోతే {
+                delay_చక్రాలు = getConstUInt(delayp->lhsp());
             }
-            int preLen = 0;
-            if (AstNodeExpr* const prep = sexprp->preExprp()) {
-                preLen = fixedLength(prep);
-                if (preLen < 0) return -1;  // LCOV_EXCL_LINE
+            పూర్ణాంకం preLen = 0;
+            ఒకవేళ (Ast_కణుపు_సమాసం* స్థిరరాశి prep = sexprp->preExprp()) {
+                preLen = fixed_నిడివి(prep);
+                ఒకవేళ (preLen < 0) తిరిగి -1;  // LCOV_EXCL_LINE
             }
-            const int bodyLen = fixedLength(sexprp->exprp());
-            if (bodyLen < 0) return -1;  // LCOV_EXCL_LINE
-            return preLen + delayCycles + bodyLen;
+            స్థిరరాశి పూర్ణాంకం bodyLen = fixed_నిడివి(sexprp->exprp());
+            ఒకవేళ (bodyLen < 0) తిరిగి -1;  // LCOV_EXCL_LINE
+            తిరిగి preLen + delay_చక్రాలు + bodyLen;
         }
-        if (AstSThroughout* const throughp = VN_CAST(nodep, SThroughout)) {
-            return fixedLength(throughp->rhsp());
+        ఒకవేళ (AstSThroughout* స్థిరరాశి throughp = VN_CAST(nodep, SThroughout)) {
+            తిరిగి fixed_నిడివి(throughp->rhsp());
         }
-        if (AstSOr* const orp = VN_CAST(nodep, SOr)) {
+        ఒకవేళ (AstSOr* స్థిరరాశి orp = VN_CAST(nodep, SOr)) {
             // Alternatives must share one end cycle; buildSWithin relies on
             // this to pair the OR with an SIntersect.
-            const int lhsLen = fixedLength(orp->lhsp());
-            const int rhsLen = fixedLength(orp->rhsp());
-            if (lhsLen < 0 || rhsLen < 0 || lhsLen != rhsLen) return -1;
-            return lhsLen;
+            స్థిరరాశి పూర్ణాంకం lhsLen = fixed_నిడివి(orp->lhsp());
+            స్థిరరాశి పూర్ణాంకం rhsLen = fixed_నిడివి(orp->rhsp());
+            ఒకవేళ (lhsLen < 0 || rhsLen < 0 || lhsLen != rhsLen) తిరిగి -1;
+            తిరిగి lhsLen;
         }
-        if (AstSWithin* const withinp = VN_CAST(nodep, SWithin)) {
+        ఒకవేళ (AstSWithin* స్థిరరాశి withinp = VN_CAST(nodep, SWithin)) {
             // `seq1 within seq2` ends at seq2's end cycle (IEEE 16.9.10).
-            const int lhsLen = fixedLength(withinp->lhsp());
-            const int rhsLen = fixedLength(withinp->rhsp());
-            if (lhsLen < 0 || rhsLen < 0 || lhsLen > rhsLen) return -1;
-            return rhsLen;
+            స్థిరరాశి పూర్ణాంకం lhsLen = fixed_నిడివి(withinp->lhsp());
+            స్థిరరాశి పూర్ణాంకం rhsLen = fixed_నిడివి(withinp->rhsp());
+            ఒకవేళ (lhsLen < 0 || rhsLen < 0 || lhsLen > rhsLen) తిరిగి -1;
+            తిరిగి rhsLen;
         }
         // LCOV_EXCL_START -- defensive: V3AssertPre rejects composite SVA ops
         // nested in an intersect arm before fixedLength runs (clock-context
         // resolution fails). Kept as a guard in case future parser relaxations
         // permit it.
-        if (nodep->isMultiCycleSva()) return -1;
+        ఒకవేళ (nodep->is_Multi_చక్రం_Sva()) తిరిగి -1;
         // LCOV_EXCL_STOP
         // Plain boolean expression (no SVA constructs) -- 0 cycles.
-        return 0;
+        తిరిగి 0;
     }
 
     // Contiguous match-length range [lo,hi] for an operand whose length varies
@@ -444,65 +444,65 @@ class SvaNfaBuilder final {
     // variable-length `intersect` lowering (IEEE 1800-2023 16.9.6): more than
     // one ranged delay would make the per-length realization ambiguous, so it
     // is reported unsupported rather than mis-paired.
-    static std::pair<int, int> lengthRange(AstNodeExpr* nodep) {
-        if (AstSExpr* const sexprp = VN_CAST(nodep, SExpr)) {
-            AstDelay* const delayp = VN_CAST(sexprp->delayp(), Delay);
-            if (!delayp || !delayp->isCycleDelay()) return {-1, -1};
-            std::pair<int, int> delayRange;
-            if (delayp->isRangeDelay()) {
-                if (delayp->isUnbounded()) return {-1, -1};
-                const unsigned minD = getConstUInt(delayp->lhsp());
-                const unsigned maxD = getConstUInt(delayp->rhsp());
+    స్థిర std::pair<పూర్ణాంకం, పూర్ణాంకం> నిడివి_Range(Ast_కణుపు_సమాసం* nodep) {
+        ఒకవేళ (AstSExpr* స్థిరరాశి sexprp = VN_CAST(nodep, SExpr)) {
+            AstDelay* స్థిరరాశి delayp = VN_CAST(sexprp->delayp(), Delay);
+            ఒకవేళ (!delayp || !delayp->is_చక్రం_Delay()) తిరిగి {-1, -1};
+            std::pair<పూర్ణాంకం, పూర్ణాంకం> delayRange;
+            ఒకవేళ (delayp->isRangeDelay()) {
+                ఒకవేళ (delayp->isUnbounded()) తిరిగి {-1, -1};
+                స్థిరరాశి గుర్తులేని minD = getConstUInt(delayp->lhsp());
+                స్థిరరాశి గుర్తులేని maxD = getConstUInt(delayp->rhsp());
                 delayRange = {minD, maxD};
-            } else {
-                const unsigned d = getConstUInt(delayp->lhsp());
+            } లేకపోతే {
+                స్థిరరాశి గుర్తులేని d = getConstUInt(delayp->lhsp());
                 delayRange = {d, d};
             }
-            std::pair<int, int> preRange{0, 0};
-            if (AstNodeExpr* const prep = sexprp->preExprp()) {
-                preRange = lengthRange(prep);
-                if (preRange.first < 0) return {-1, -1};
+            std::pair<పూర్ణాంకం, పూర్ణాంకం> preRange{0, 0};
+            ఒకవేళ (Ast_కణుపు_సమాసం* స్థిరరాశి prep = sexprp->preExprp()) {
+                preRange = నిడివి_Range(prep);
+                ఒకవేళ (preRange.మొదటి < 0) తిరిగి {-1, -1};
             }
-            const std::pair<int, int> bodyRange = lengthRange(sexprp->exprp());
-            if (bodyRange.first < 0) return {-1, -1};
-            const int variableParts = (preRange.first != preRange.second)
-                                      + (delayRange.first != delayRange.second)
-                                      + (bodyRange.first != bodyRange.second);
-            if (variableParts > 1) return {-1, -1};
-            return {preRange.first + delayRange.first + bodyRange.first,
-                    preRange.second + delayRange.second + bodyRange.second};
+            స్థిరరాశి std::pair<పూర్ణాంకం, పూర్ణాంకం> bodyRange = నిడివి_Range(sexprp->exprp());
+            ఒకవేళ (bodyRange.మొదటి < 0) తిరిగి {-1, -1};
+            స్థిరరాశి పూర్ణాంకం variableParts = (preRange.మొదటి != preRange.రెండవ)
+                                      + (delayRange.మొదటి != delayRange.రెండవ)
+                                      + (bodyRange.మొదటి != bodyRange.రెండవ);
+            ఒకవేళ (variableParts > 1) తిరిగి {-1, -1};
+            తిరిగి {preRange.మొదటి + delayRange.మొదటి + bodyRange.మొదటి,
+                    preRange.రెండవ + delayRange.రెండవ + bodyRange.రెండవ};
         }
-        if (AstSThroughout* const throughp = VN_CAST(nodep, SThroughout)) {
-            return lengthRange(throughp->rhsp());
+        ఒకవేళ (AstSThroughout* స్థిరరాశి throughp = VN_CAST(nodep, SThroughout)) {
+            తిరిగి నిడివి_Range(throughp->rhsp());
         }
-        if (nodep->isMultiCycleSva()) return {-1, -1};
-        return {0, 0};  // plain boolean -- 0 cycles
+        ఒకవేళ (nodep->is_Multi_చక్రం_Sva()) తిరిగి {-1, -1};
+        తిరిగి {0, 0};  // plain boolean -- 0 cycles
     }
 
     // Clone `operand` with its sole variable ranged cycle delay pinned so the
     // total match length is exactly `len`. `lo` is the operand's minimum length
     // (lengthRange().first). A fixed operand has no such delay and is returned
     // as a plain clone (callers only request its single achievable length).
-    static AstNodeExpr* realizeAtLength(AstNodeExpr* operand, int len, int lo) {
-        AstNodeExpr* const clonep = operand->cloneTreePure(false);
-        AstDelay* rangeDelayp = nullptr;
+    స్థిర Ast_కణుపు_సమాసం* realize_At_నిడివి(Ast_కణుపు_సమాసం* నిర్వాహ్యం, పూర్ణాంకం len, పూర్ణాంకం lo) {
+        Ast_కణుపు_సమాసం* స్థిరరాశి clonep = నిర్వాహ్యం->clone_వృక్షం_శుద్ధ(అబద్ధం);
+        AstDelay* rangeDelayp = శూన్యసూచిక;
         clonep->foreach([&](AstDelay* dp) {
-            if (!rangeDelayp && dp->isRangeDelay() && !dp->isUnbounded()
+            ఒకవేళ (!rangeDelayp && dp->isRangeDelay() && !dp->isUnbounded()
                 && getConstUInt(dp->lhsp()) != getConstUInt(dp->rhsp())) {
                 rangeDelayp = dp;
             }
         });
-        if (rangeDelayp) {
-            FileLine* const flp = rangeDelayp->fileline();
-            const unsigned pinned = getConstUInt(rangeDelayp->lhsp()) + (len - lo);
-            AstNodeExpr* const oldMinp = rangeDelayp->lhsp();
-            oldMinp->replaceWith(new AstConst{flp, pinned});
-            VL_DO_DANGLING(oldMinp->deleteTree(), oldMinp);
+        ఒకవేళ (rangeDelayp) {
+            File_పంక్తి* స్థిరరాశి flp = rangeDelayp->fileline();
+            స్థిరరాశి గుర్తులేని pinned = getConstUInt(rangeDelayp->lhsp()) + (len - lo);
+            Ast_కణుపు_సమాసం* స్థిరరాశి oldMinp = rangeDelayp->lhsp();
+            oldMinp->replaceWith(కొత్త AstConst{flp, pinned});
+            VL_DO_DANGLING(oldMinp->delete_వృక్షం(), oldMinp);
             // Drop the max bound so it lowers as a fixed `##d`, not `##[d:d]`.
-            AstNode* const oldMaxp = rangeDelayp->rhsp()->unlinkFrBack();
-            VL_DO_DANGLING(oldMaxp->deleteTree(), oldMaxp);
+            Ast_కణుపు* స్థిరరాశి oldMaxp = rangeDelayp->rhsp()->unlink_Fr_వెనుక();
+            VL_DO_DANGLING(oldMaxp->delete_వృక్షం(), oldMaxp);
         }
-        return clonep;
+        తిరిగి clonep;
     }
 
     // Cuts AST size from O(N * sizeof(exprp)) to O(N) + O(sizeof(exprp)) by
@@ -511,355 +511,355 @@ class SvaNfaBuilder final {
     // any exprp -- even an impure one would now evaluate exactly once per
     // clock instead of N times. Orphan temps from failed builds are unused
     // MODULETEMPs and are removed by V3Dead.
-    AstVar* tryHoistSampled(AstNodeExpr* exprp, FileLine* flp, unsigned cloneCount) {
-        constexpr unsigned kHoistThreshold = 2;
-        if (cloneCount < kHoistThreshold) return nullptr;
-        AstVar* const tempVarp
-            = new AstVar{flp, VVarType::MODULETEMP, m_propTempNames.get(exprp), exprp->dtypep()};
-        m_modp->addStmtsp(tempVarp);
-        AstAssign* const assignp = new AstAssign{flp, new AstVarRef{flp, tempVarp, VAccess::WRITE},
-                                                 sampled(exprp->cloneTreePure(false))};
-        m_modp->addStmtsp(new AstAlways{flp, VAlwaysKwd::ALWAYS_COMB, nullptr, assignp});
-        return tempVarp;
+    AstVar* tryHoistSampled(Ast_కణుపు_సమాసం* exprp, File_పంక్తి* flp, గుర్తులేని clone_లెక్క) {
+        constexpr గుర్తులేని k_Hoist_పరిమితి = 2;
+        ఒకవేళ (clone_లెక్క < k_Hoist_పరిమితి) తిరిగి శూన్యసూచిక;
+        AstVar* స్థిరరాశి తాత్కాలిక_Varp
+            = కొత్త AstVar{flp, VVarType::MODULETEMP, m_prop_తాత్కాలిక_పేర్లు.get(exprp), exprp->dtypep()};
+        m_modp->కూడు_Stmtsp(తాత్కాలిక_Varp);
+        Ast_కేటాయించు* స్థిరరాశి assignp = కొత్త Ast_కేటాయించు{flp, కొత్త AstVarRef{flp, తాత్కాలిక_Varp, VAccess::WRITE},
+                                                 sampled(exprp->clone_వృక్షం_శుద్ధ(అబద్ధం))};
+        m_modp->కూడు_Stmtsp(కొత్త AstAlways{flp, VAlwaysKwd::ALWAYS_COMB, శూన్యసూచిక, assignp});
+        తిరిగి తాత్కాలిక_Varp;
     }
 
-    static AstNodeExpr* sampledRefOrClone(AstVar* hoistVarp, AstNodeExpr* exprp, FileLine* flp) {
-        if (hoistVarp) return new AstVarRef{flp, hoistVarp, VAccess::READ};
-        return sampled(exprp->cloneTreePure(false));
+    స్థిర Ast_కణుపు_సమాసం* sampledRefOrClone(AstVar* hoistVarp, Ast_కణుపు_సమాసం* exprp, File_పంక్తి* flp) {
+        ఒకవేళ (hoistVarp) తిరిగి కొత్త AstVarRef{flp, hoistVarp, VAccess::READ};
+        తిరిగి sampled(exprp->clone_వృక్షం_శుద్ధ(అబద్ధం));
     }
 
     // Create vertex and inherit temporal guards from the current scope.
-    SvaStateVertex* scopedCreateVertex() {
-        SvaStateVertex* const vtxp = m_graph.createStateVertex();
-        for (AstNodeExpr* const cp : m_temporalGuardStack) {
-            vtxp->m_throughoutConds.push_back(cp->cloneTreePure(false));
+    Sva_State_శీర్షం* scoped_Create_శీర్షం() {
+        Sva_State_శీర్షం* స్థిరరాశి vtxp = m_లేఖాచిత్రం.create_State_శీర్షం();
+        కొరకు (Ast_కణుపు_సమాసం* స్థిరరాశి cp : m_temporal_Guard_దొంతర) {
+            vtxp->m_throughoutConds.నెట్టు_వెనుక(cp->clone_వృక్షం_శుద్ధ(అబద్ధం));
         }
-        if (m_inUnboundedScope) vtxp->m_isUnbounded = true;
-        if (m_markStrongPending) vtxp->m_strongPending = true;
-        return vtxp;
+        ఒకవేళ (m_లోపల_Unbounded_Scope) vtxp->m_isUnbounded = నిజం;
+        ఒకవేళ (m_markStrongPending) vtxp->m_strongPending = నిజం;
+        తిరిగి vtxp;
     }
 
     // AND current temporal guards into every edge/link.
-    SvaTransEdge* guardedLink(SvaStateVertex* fromp, SvaStateVertex* top, AstNodeExpr* condp,
-                              FileLine* flp) {
-        return m_graph.addLink(fromp, top, throughoutCond(condp, flp));
+    Sva_Trans_అంచు* guardedLink(Sva_State_శీర్షం* fromp, Sva_State_శీర్షం* శిఖరం, Ast_కణుపు_సమాసం* condp,
+                              File_పంక్తి* flp) {
+        తిరిగి m_లేఖాచిత్రం.కూడు_Link(fromp, శిఖరం, throughoutCond(condp, flp));
     }
-    SvaTransEdge* guardedLink(SvaStateVertex* fromp, SvaStateVertex* top, FileLine* flp) {
-        return m_graph.addLink(fromp, top, throughoutCond(nullptr, flp));
+    Sva_Trans_అంచు* guardedLink(Sva_State_శీర్షం* fromp, Sva_State_శీర్షం* శిఖరం, File_పంక్తి* flp) {
+        తిరిగి m_లేఖాచిత్రం.కూడు_Link(fromp, శిఖరం, throughoutCond(శూన్యసూచిక, flp));
     }
-    SvaTransEdge* guardedEdge(SvaStateVertex* fromp, SvaStateVertex* top, AstNodeExpr* condp,
-                              FileLine* flp) {
-        return m_graph.addClockedEdge(fromp, top, throughoutCond(condp, flp));
+    Sva_Trans_అంచు* guarded_అంచు(Sva_State_శీర్షం* fromp, Sva_State_శీర్షం* శిఖరం, Ast_కణుపు_సమాసం* condp,
+                              File_పంక్తి* flp) {
+        తిరిగి m_లేఖాచిత్రం.కూడు_Clocked_అంచు(fromp, శిఖరం, throughoutCond(condp, flp));
     }
-    SvaTransEdge* guardedEdge(SvaStateVertex* fromp, SvaStateVertex* top, FileLine* flp) {
-        return m_graph.addClockedEdge(fromp, top, throughoutCond(nullptr, flp));
+    Sva_Trans_అంచు* guarded_అంచు(Sva_State_శీర్షం* fromp, Sva_State_శీర్షం* శిఖరం, File_పంక్తి* flp) {
+        తిరిగి m_లేఖాచిత్రం.కూడు_Clocked_అంచు(fromp, శిఖరం, throughoutCond(శూన్యసూచిక, flp));
     }
 
-    SvaStateVertex* addDelayChain(SvaStateVertex* startp, unsigned size, FileLine* flp,
-                                  bool isFixed = true, AstNodeExpr* clearCondp = nullptr,
-                                  AstNodeExpr* advanceCondp = nullptr) {
-        if (isFixed && size == 0) return startp;
-        UASSERT_OBJ(size > 0, startp, "Delay chain needs at least one slot");
-        if (isFixed && size == 1 && !advanceCondp) {
-            SvaStateVertex* const nextp = scopedCreateVertex();
-            guardedEdge(startp, nextp, flp);
-            return nextp;
+    Sva_State_శీర్షం* కూడు_Delay_Chain(Sva_State_శీర్షం* startp, గుర్తులేని కొలత, File_పంక్తి* flp,
+                                  తార్కిక isFixed = నిజం, Ast_కణుపు_సమాసం* clearCondp = శూన్యసూచిక,
+                                  Ast_కణుపు_సమాసం* advanceCondp = శూన్యసూచిక) {
+        ఒకవేళ (isFixed && కొలత == 0) తిరిగి startp;
+        UASSERT_OBJ(కొలత > 0, startp, "Delay chain needs at least one slot");
+        ఒకవేళ (isFixed && కొలత == 1 && !advanceCondp) {
+            Sva_State_శీర్షం* స్థిరరాశి nextp = scoped_Create_శీర్షం();
+            guarded_అంచు(startp, nextp, flp);
+            తిరిగి nextp;
         }
-        SvaStateVertex* const ringVtxp = scopedCreateVertex();
+        Sva_State_శీర్షం* స్థిరరాశి ringVtxp = scoped_Create_శీర్షం();
         ringVtxp->m_isFixedDelayRing = isFixed;
-        ringVtxp->m_delayRingSize = size;
-        if (clearCondp) {
+        ringVtxp->m_delay_Ring_కొలత = కొలత;
+        ఒకవేళ (clearCondp) {
             UASSERT_OBJ(!isFixed, startp, "Fixed delay cannot have a clear condition");
-            ringVtxp->m_delayRingClearCondp = clearCondp->cloneTreePure(false);
+            ringVtxp->m_delayRingClearCondp = clearCondp->clone_వృక్షం_శుద్ధ(అబద్ధం);
         }
         ringVtxp->m_delayRingAdvanceCondp = advanceCondp;
-        if (isFixed) {
-            guardedEdge(startp, ringVtxp, flp);
-        } else {
+        ఒకవేళ (isFixed) {
+            guarded_అంచు(startp, ringVtxp, flp);
+        } లేకపోతే {
             guardedLink(startp, ringVtxp, flp);
         }
-        return ringVtxp;
+        తిరిగి ringVtxp;
     }
 
     // Build NFA for an SExpr. finalCond = RHS (not yet added as a vertex).
     // isTopLevelStep: marks outermost required boolean check as rejectOnFail.
     // Apply a range delay `##[M:N]` to currentp. Returns true on success. On
     // failure, emits a diagnostic and returns false.
-    bool applyRangeDelay(AstSExpr* sexprp, SvaStateVertex*& currentp,
-                         std::vector<SvaStateVertex*>& midSources,
-                         RangeDelayRejectInfo* rangeRejectInfop = nullptr) {
-        FileLine* const flp = sexprp->fileline();
-        AstDelay* const delayp = VN_AS(sexprp->delayp(), Delay);
-        AstNodeExpr* const rhsExprp = sexprp->exprp();
-        const unsigned minDelay = getConstUInt(delayp->lhsp());
-        if (delayp->isUnbounded()) {
+    తార్కిక applyRangeDelay(AstSExpr* sexprp, Sva_State_శీర్షం*& currentp,
+                         std::సదిశ<Sva_State_శీర్షం*>& midSources,
+                         RangeDelayRejectInfo* rangeRejectInfop = శూన్యసూచిక) {
+        File_పంక్తి* స్థిరరాశి flp = sexprp->fileline();
+        AstDelay* స్థిరరాశి delayp = VN_AS(sexprp->delayp(), Delay);
+        Ast_కణుపు_సమాసం* స్థిరరాశి rhsExprp = sexprp->exprp();
+        స్థిరరాశి గుర్తులేని minDelay = getConstUInt(delayp->lhsp());
+        ఒకవేళ (delayp->isUnbounded()) {
             // `##[M:$]`: wait M cycles, then retain every matured attempt in a
             // one-slot ring while also exposing the first eligible tick.
-            currentp = addDelayChain(currentp, minDelay, flp);
-            SvaStateVertex* const waitRingp = addDelayChain(currentp, 1, flp, false);
+            currentp = కూడు_Delay_Chain(currentp, minDelay, flp);
+            Sva_State_శీర్షం* స్థిరరాశి waitRingp = కూడు_Delay_Chain(currentp, 1, flp, అబద్ధం);
             // The ring's live count is updated in NBA, so this link retains the previous
             // tick's live attempts alongside new arrivals for the next tick.
             guardedLink(waitRingp, waitRingp, flp);
-            SvaStateVertex* const mergeVtxp = scopedCreateVertex();
-            guardedLink(currentp, mergeVtxp, flp);
-            guardedLink(waitRingp, mergeVtxp, flp);
-            currentp = mergeVtxp;
-            currentp->m_isUnbounded = true;  // Liveness, so no reject.
-            m_inUnboundedScope = true;
-            return true;
+            Sva_State_శీర్షం* స్థిరరాశి విలీనం_Vtxp = scoped_Create_శీర్షం();
+            guardedLink(currentp, విలీనం_Vtxp, flp);
+            guardedLink(waitRingp, విలీనం_Vtxp, flp);
+            currentp = విలీనం_Vtxp;
+            currentp->m_isUnbounded = నిజం;  // Liveness, so no reject.
+            m_లోపల_Unbounded_Scope = నిజం;
+            తిరిగి నిజం;
         }
-        const unsigned maxDelay = getConstUInt(delayp->rhsp());
-        if (minDelay == maxDelay) {
-            currentp = addDelayChain(currentp, minDelay, flp);
-            return true;
+        స్థిరరాశి గుర్తులేని maxDelay = getConstUInt(delayp->rhsp());
+        ఒకవేళ (minDelay == maxDelay) {
+            currentp = కూడు_Delay_Chain(currentp, minDelay, flp);
+            తిరిగి నిజం;
         }
-        const unsigned range = maxDelay - minDelay;
-        currentp = addDelayChain(currentp, minDelay, flp);
-        const bool multiCycleRhs = rhsExprp->isMultiCycleSva();
-        const AstNodeExpr* const preExprp = sexprp->preExprp();
+        స్థిరరాశి గుర్తులేని range = maxDelay - minDelay;
+        currentp = కూడు_Delay_Chain(currentp, minDelay, flp);
+        స్థిరరాశి తార్కిక multi_చక్రం_Rhs = rhsExprp->is_Multi_చక్రం_Sva();
+        స్థిరరాశి Ast_కణుపు_సమాసం* స్థిరరాశి preExprp = sexprp->preExprp();
         // Prefix and nested-sequence composition can lose endpoints or their multiplicity
         // required by cover sequence (IEEE 1800-2023 16.14.3), regardless of the range width.
-        if (m_isCoverSeq
-            && (multiCycleRhs || m_inSequencePrefix
-                || (preExprp && preExprp->isMultiCycleSva()))) {
+        ఒకవేళ (m_isCoverSeq
+            && (multi_చక్రం_Rhs || m_లోపల_Sequence_ఉపసర్గ
+                || (preExprp && preExprp->is_Multi_చక్రం_Sva()))) {
             warnEndpointUnsupported(flp, "this ranged cycle delay");
-            return false;
+            తిరిగి అబద్ధం;
         }
-        if (m_inSequencePrefix) {
+        ఒకవేళ (m_లోపల_Sequence_ఉపసర్గ) {
             flp->v3warn(E_UNSUPPORTED,
                         "Unsupported: Bounded ranged cycle delay in a sequence prefix");
-            return false;
+            తిరిగి అబద్ధం;
         }
-        if (multiCycleRhs) {
+        ఒకవేళ (multi_చక్రం_Rhs) {
             // Launch a candidate at every eligible tick. Candidate-local misses are not
             // assertion rejects while a later position can still match.
-            if (rangeRejectInfop) {
-                const int rhsLen = fixedLength(rhsExprp);
-                if (rhsLen >= 0) *rangeRejectInfop = {currentp, range, rhsLen};
+            ఒకవేళ (rangeRejectInfop) {
+                స్థిరరాశి పూర్ణాంకం rhsLen = fixed_నిడివి(rhsExprp);
+                ఒకవేళ (rhsLen >= 0) *rangeRejectInfop = {currentp, range, rhsLen};
             }
-            SvaStateVertex* const tailp = addDelayChain(currentp, range + 1U, flp, false);
-            SvaStateVertex* const mergeVtxp = scopedCreateVertex();
-            mergeVtxp->m_isUnbounded = true;
-            guardedLink(currentp, mergeVtxp, flp);
-            guardedLink(tailp, mergeVtxp, flp);
-            currentp = mergeVtxp;
-            m_inUnboundedScope = true;
-        } else {
+            Sva_State_శీర్షం* స్థిరరాశి tailp = కూడు_Delay_Chain(currentp, range + 1U, flp, అబద్ధం);
+            Sva_State_శీర్షం* స్థిరరాశి విలీనం_Vtxp = scoped_Create_శీర్షం();
+            విలీనం_Vtxp->m_isUnbounded = నిజం;
+            guardedLink(currentp, విలీనం_Vtxp, flp);
+            guardedLink(tailp, విలీనం_Vtxp, flp);
+            currentp = విలీనం_Vtxp;
+            m_లోపల_Unbounded_Scope = నిజం;
+        } లేకపోతే {
             // The first eligible tick is explicit. The ring retains attempts for the
             // remaining ticks and exposes the final tick for rejection. Only properties
             // clear on success, since cover sequence counts every endpoint.
-            midSources.push_back(currentp);
-            currentp = addDelayChain(currentp, range + 1U, flp, false,
-                                     m_isCoverSeq ? nullptr : rhsExprp);
+            midSources.నెట్టు_వెనుక(currentp);
+            currentp = కూడు_Delay_Chain(currentp, range + 1U, flp, అబద్ధం,
+                                     m_isCoverSeq ? శూన్యసూచిక : rhsExprp);
         }
-        return true;
+        తిరిగి నిజం;
     }
 
-    void addFiniteRangeReject(const RangeDelayRejectInfo& info, const BuildResult& result,
-                              FileLine* flp) {
-        if (!info.startp) return;
+    శూన్య కూడు_Finite_Range_Reject(స్థిరరాశి RangeDelayRejectInfo& info, స్థిరరాశి Build_ఫలితం& ఫలితం,
+                              File_పంక్తి* flp) {
+        ఒకవేళ (!info.startp) తిరిగి;
 
-        SvaStateVertex* const expiryVtxp
-            = addDelayChain(info.startp, info.range + info.rhsLen, flp);
-        SvaStateVertex* const expiryMatchp = scopedCreateVertex();
-        std::vector<SvaStateVertex*> sources = result.midSources;
-        sources.push_back(result.termVertexp);
-        for (SvaStateVertex* const srcp : sources) {
-            AstNodeExpr* const condp
-                = result.finalCondp ? sampled(result.finalCondp->cloneTreePure(false)) : nullptr;
-            SvaStateVertex* const successNowp = scopedCreateVertex();
+        Sva_State_శీర్షం* స్థిరరాశి expiryVtxp
+            = కూడు_Delay_Chain(info.startp, info.range + info.rhsLen, flp);
+        Sva_State_శీర్షం* స్థిరరాశి expiryMatchp = scoped_Create_శీర్షం();
+        std::సదిశ<Sva_State_శీర్షం*> sources = ఫలితం.midSources;
+        sources.నెట్టు_వెనుక(ఫలితం.పదం_Vertexp);
+        కొరకు (Sva_State_శీర్షం* స్థిరరాశి srcp : sources) {
+            Ast_కణుపు_సమాసం* స్థిరరాశి condp
+                = ఫలితం.finalCondp ? sampled(ఫలితం.finalCondp->clone_వృక్షం_శుద్ధ(అబద్ధం)) : శూన్యసూచిక;
+            Sva_State_శీర్షం* స్థిరరాశి successNowp = scoped_Create_శీర్షం();
             guardedLink(srcp, successNowp, condp, flp);
             // Retain a success through the latest deadline it can satisfy.
-            SvaStateVertex* const historyp
-                = addDelayChain(successNowp, info.range + 1U, flp, false);
+            Sva_State_శీర్షం* స్థిరరాశి historyp
+                = కూడు_Delay_Chain(successNowp, info.range + 1U, flp, అబద్ధం);
             guardedLink(successNowp, expiryMatchp, flp);
             guardedLink(historyp, expiryMatchp, flp);
         }
 
-        SvaStateVertex* const sinkVtxp = m_graph.createStateVertex();
-        sinkVtxp->m_isRejectSink = true;
-        SvaTransEdge* const rejectp = m_graph.addLink(expiryVtxp, sinkVtxp);
-        rejectp->m_rejectOnFail = true;
+        Sva_State_శీర్షం* స్థిరరాశి sinkVtxp = m_లేఖాచిత్రం.create_State_శీర్షం();
+        sinkVtxp->m_isRejectSink = నిజం;
+        Sva_Trans_అంచు* స్థిరరాశి rejectp = m_లేఖాచిత్రం.కూడు_Link(expiryVtxp, sinkVtxp);
+        rejectp->m_rejectOnFail = నిజం;
         rejectp->m_condVtxp = expiryMatchp;
     }
 
-    BuildResult buildSExpr(AstSExpr* sexprp, SvaStateVertex* entryVtxp,
-                           bool isTopLevelStep = false) {
-        AstDelay* const delayp = VN_CAST(sexprp->delayp(), Delay);
-        if (!delayp || !delayp->isCycleDelay()) return BuildResult::fail();
+    Build_ఫలితం buildSExpr(AstSExpr* sexprp, Sva_State_శీర్షం* నమోదు_Vtxp,
+                           తార్కిక is_శిఖరం_Level_అడుగు = అబద్ధం) {
+        AstDelay* స్థిరరాశి delayp = VN_CAST(sexprp->delayp(), Delay);
+        ఒకవేళ (!delayp || !delayp->is_చక్రం_Delay()) తిరిగి Build_ఫలితం::fail();
 
-        FileLine* const flp = sexprp->fileline();
-        AstNodeExpr* const exprp = sexprp->exprp();
+        File_పంక్తి* స్థిరరాశి flp = sexprp->fileline();
+        Ast_కణుపు_సమాసం* స్థిరరాశి exprp = sexprp->exprp();
 
         // Handle LHS (preExpr)
-        SvaStateVertex* currentp = entryVtxp;
-        if (AstNodeExpr* const preExprp = sexprp->preExprp()) {
-            VL_RESTORER(m_inSequencePrefix);
-            m_inSequencePrefix = true;
-            const BuildResult pre = buildExpr(preExprp, currentp, isTopLevelStep);
-            if (!pre.valid()) return BuildResult::fail(pre.errorEmitted);  // LCOV_EXCL_LINE
-            if (pre.finalCondp) {
-                SvaStateVertex* const condVtxp = scopedCreateVertex();
-                SvaTransEdge* const edgep = guardedLink(
-                    pre.termVertexp, condVtxp, sampled(pre.finalCondp->cloneTreePure(false)), flp);
-                if (isTopLevelStep && !pre.termVertexp->m_isUnbounded && !m_inUnboundedScope) {
+        Sva_State_శీర్షం* currentp = నమోదు_Vtxp;
+        ఒకవేళ (Ast_కణుపు_సమాసం* స్థిరరాశి preExprp = sexprp->preExprp()) {
+            VL_RESTORER(m_లోపల_Sequence_ఉపసర్గ);
+            m_లోపల_Sequence_ఉపసర్గ = నిజం;
+            స్థిరరాశి Build_ఫలితం pre = build_సమాసం(preExprp, currentp, is_శిఖరం_Level_అడుగు);
+            ఒకవేళ (!pre.valid()) తిరిగి Build_ఫలితం::fail(pre.errorEmitted);  // LCOV_EXCL_LINE
+            ఒకవేళ (pre.finalCondp) {
+                Sva_State_శీర్షం* స్థిరరాశి condVtxp = scoped_Create_శీర్షం();
+                Sva_Trans_అంచు* స్థిరరాశి edgep = guardedLink(
+                    pre.పదం_Vertexp, condVtxp, sampled(pre.finalCondp->clone_వృక్షం_శుద్ధ(అబద్ధం)), flp);
+                ఒకవేళ (is_శిఖరం_Level_అడుగు && !pre.పదం_Vertexp->m_isUnbounded && !m_లోపల_Unbounded_Scope) {
                     // Do not mark liveness sources: first boolean check is deferred.
-                    edgep->m_rejectOnFail = true;
+                    edgep->m_rejectOnFail = నిజం;
                 }
                 freeUnlinkedCondp(pre.finalCondp);
                 currentp = condVtxp;
-            } else {
-                currentp = pre.termVertexp;
+            } లేకపోతే {
+                currentp = pre.పదం_Vertexp;
             }
         }
 
         // Handle delay
-        std::vector<SvaStateVertex*> rangeMidSources;
+        std::సదిశ<Sva_State_శీర్షం*> rangeMidSources;
         RangeDelayRejectInfo rangeRejectInfo;
-        const bool addRangeReject = isTopLevelStep && !m_inUnboundedScope;
-        if (delayp->isRangeDelay()) {
-            if (!applyRangeDelay(sexprp, currentp, rangeMidSources,
-                                 addRangeReject ? &rangeRejectInfo : nullptr)) {
-                return BuildResult::failWithError();
+        స్థిరరాశి తార్కిక కూడు_Range_Reject = is_శిఖరం_Level_అడుగు && !m_లోపల_Unbounded_Scope;
+        ఒకవేళ (delayp->isRangeDelay()) {
+            ఒకవేళ (!applyRangeDelay(sexprp, currentp, rangeMidSources,
+                                 కూడు_Range_Reject ? &rangeRejectInfo : శూన్యసూచిక)) {
+                తిరిగి Build_ఫలితం::failWithError();
             }
-        } else {
-            const unsigned delayCycles = getConstUInt(delayp->lhsp());
-            currentp = addDelayChain(currentp, delayCycles, flp);
+        } లేకపోతే {
+            స్థిరరాశి గుర్తులేని delay_చక్రాలు = getConstUInt(delayp->lhsp());
+            currentp = కూడు_Delay_Chain(currentp, delay_చక్రాలు, flp);
         }
 
         // Multi-cycle RHS: recurse (only plain boolean is returned as finalCondp).
-        if (exprp->isMultiCycleSva()) {
-            const BuildResult result = buildExpr(exprp, currentp, isTopLevelStep);
-            if (result.valid()) addFiniteRangeReject(rangeRejectInfo, result, flp);
-            return result;
+        ఒకవేళ (exprp->is_Multi_చక్రం_Sva()) {
+            స్థిరరాశి Build_ఫలితం ఫలితం = build_సమాసం(exprp, currentp, is_శిఖరం_Level_అడుగు);
+            ఒకవేళ (ఫలితం.valid()) కూడు_Finite_Range_Reject(rangeRejectInfo, ఫలితం, flp);
+            తిరిగి ఫలితం;
         }
-        return {currentp, exprp, std::move(rangeMidSources)};
+        తిరిగి {currentp, exprp, std::move(rangeMidSources)};
     }
 
-    BuildResult buildConsRep(AstSConsRep* repp, SvaStateVertex* entryVtxp,
-                             bool isTopLevelStep = false) {
-        FileLine* const flp = repp->fileline();
-        AstNodeExpr* const exprp = repp->exprp();
+    Build_ఫలితం buildConsRep(AstSConsRep* repp, Sva_State_శీర్షం* నమోదు_Vtxp,
+                             తార్కిక is_శిఖరం_Level_అడుగు = అబద్ధం) {
+        File_పంక్తి* స్థిరరాశి flp = repp->fileline();
+        Ast_కణుపు_సమాసం* స్థిరరాశి exprp = repp->exprp();
         // Multi-cycle expr in ConsRep not yet supported; bail to avoid invalid AST.
-        if (exprp->isMultiCycleSva()) {
+        ఒకవేళ (exprp->is_Multi_చక్రం_Sva()) {
             repp->v3warn(E_UNSUPPORTED, "Unsupported: multi-cycle sequence expression inside"
                                         " consecutive repetition (IEEE 1800-2023 16.9.2)");
-            return BuildResult::failWithError();
+            తిరిగి Build_ఫలితం::failWithError();
         }
-        const unsigned minN = getConstUInt(repp->countp());
+        స్థిరరాశి గుర్తులేని minN = getConstUInt(repp->countp());
 
         // Sum sites across prefix + unbounded/range tail so one hoist covers
         // every check edge of this repetition.
-        unsigned totalSites = minN;
-        if (repp->unbounded()) {
-            totalSites += 1;
-        } else if (repp->maxCountp()) {
-            totalSites += getConstUInt(repp->maxCountp()) - minN;
+        గుర్తులేని మొత్తం_Sites = minN;
+        ఒకవేళ (repp->unbounded()) {
+            మొత్తం_Sites += 1;
+        } లేకపోతే ఒకవేళ (repp->maxCountp()) {
+            మొత్తం_Sites += getConstUInt(repp->maxCountp()) - minN;
         }
-        AstVar* const hoistVarp = tryHoistSampled(exprp, flp, totalSites);
+        AstVar* స్థిరరాశి hoistVarp = tryHoistSampled(exprp, flp, మొత్తం_Sites);
 
         // Cover-sequence (IEEE 1800-2023 16.14.3): collect each end-of-match
         // position so they all fire the action, not just the merged terminal.
-        std::vector<SvaStateVertex*> consMidSources;
+        std::సదిశ<Sva_State_శీర్షం*> consMidSources;
 
-        SvaStateVertex* currentp = entryVtxp;
-        for (unsigned i = 0; i < minN; ++i) {
+        Sva_State_శీర్షం* currentp = నమోదు_Vtxp;
+        కొరకు (గుర్తులేని i = 0; i < minN; ++i) {
             // Keep the first repetition explicit, collapse all remaining checks into the ring.
-            if (i == 1) {
-                currentp = addDelayChain(currentp, minN - 1, flp);
+            ఒకవేళ (i == 1) {
+                currentp = కూడు_Delay_Chain(currentp, minN - 1, flp);
                 currentp->m_delayRingClearCondp
-                    = new AstLogNot{flp, sampledRefOrClone(hoistVarp, exprp, flp)};
-                currentp->m_replayAbortReject = true;
-                if (isTopLevelStep) {
-                    currentp->m_throughoutConds.push_back(
+                    = కొత్త AstLogNot{flp, sampledRefOrClone(hoistVarp, exprp, flp)};
+                currentp->m_replayAbortReject = నిజం;
+                ఒకవేళ (is_శిఖరం_Level_అడుగు) {
+                    currentp->m_throughoutConds.నెట్టు_వెనుక(
                         sampledRefOrClone(hoistVarp, exprp, flp));
                 }
                 i = minN - 1;
             }
             // Every repetition in the minimum prefix is required.
-            SvaStateVertex* const condVtxp = scopedCreateVertex();
-            SvaTransEdge* const linkp
+            Sva_State_శీర్షం* స్థిరరాశి condVtxp = scoped_Create_శీర్షం();
+            Sva_Trans_అంచు* స్థిరరాశి linkp
                 = guardedLink(currentp, condVtxp, sampledRefOrClone(hoistVarp, exprp, flp), flp);
             // Only an outermost required step rejects the property. Its first check is explicit,
             // later required checks reject through the ring's throughout guard.
-            if (isTopLevelStep && i == 0) linkp->m_rejectOnFail = true;
+            ఒకవేళ (is_శిఖరం_Level_అడుగు && i == 0) linkp->m_rejectOnFail = నిజం;
             currentp = condVtxp;
         }
         // After minN: currentp is the first valid end-of-match position for [*m:n].
-        if (m_isCoverSeq && (repp->unbounded() || repp->maxCountp())) {
-            consMidSources.push_back(currentp);
+        ఒకవేళ (m_isCoverSeq && (repp->unbounded() || repp->maxCountp())) {
+            consMidSources.నెట్టు_వెనుక(currentp);
         }
 
-        if (repp->unbounded()) {
-            if (minN == 0) {
-                SvaStateVertex* const waitVtxp = scopedCreateVertex();
-                guardedEdge(currentp, waitVtxp, flp);
-                SvaStateVertex* const checkVtxp = scopedCreateVertex();
+        ఒకవేళ (repp->unbounded()) {
+            ఒకవేళ (minN == 0) {
+                Sva_State_శీర్షం* స్థిరరాశి waitVtxp = scoped_Create_శీర్షం();
+                guarded_అంచు(currentp, waitVtxp, flp);
+                Sva_State_శీర్షం* స్థిరరాశి checkVtxp = scoped_Create_శీర్షం();
                 guardedLink(waitVtxp, checkVtxp, sampledRefOrClone(hoistVarp, exprp, flp), flp);
-                guardedEdge(checkVtxp, waitVtxp, flp);
+                guarded_అంచు(checkVtxp, waitVtxp, flp);
                 guardedLink(currentp, checkVtxp, flp);
                 currentp = checkVtxp;
-            } else {
-                SvaStateVertex* const loopBackVtxp = scopedCreateVertex();
-                guardedEdge(currentp, loopBackVtxp, flp);
-                SvaStateVertex* const reCheckVtxp = scopedCreateVertex();
-                guardedLink(loopBackVtxp, reCheckVtxp, sampledRefOrClone(hoistVarp, exprp, flp),
+            } లేకపోతే {
+                Sva_State_శీర్షం* స్థిరరాశి loop_వెనుక_Vtxp = scoped_Create_శీర్షం();
+                guarded_అంచు(currentp, loop_వెనుక_Vtxp, flp);
+                Sva_State_శీర్షం* స్థిరరాశి reCheckVtxp = scoped_Create_శీర్షం();
+                guardedLink(loop_వెనుక_Vtxp, reCheckVtxp, sampledRefOrClone(hoistVarp, exprp, flp),
                             flp);
-                guardedEdge(reCheckVtxp, loopBackVtxp, flp);
+                guarded_అంచు(reCheckVtxp, loop_వెనుక_Vtxp, flp);
                 guardedLink(reCheckVtxp, currentp, flp);
             }
-            currentp->m_isUnbounded = true;
-            m_inUnboundedScope = true;
-        } else if (repp->maxCountp()) {
-            const unsigned maxN = getConstUInt(repp->maxCountp());
-            SvaStateVertex* const mergeVtxp = scopedCreateVertex();
-            guardedLink(currentp, mergeVtxp, flp);
-            unsigned tailMinN = minN;
-            SvaStateVertex* tailStartp = currentp;
-            if (minN == 0) {
+            currentp->m_isUnbounded = నిజం;
+            m_లోపల_Unbounded_Scope = నిజం;
+        } లేకపోతే ఒకవేళ (repp->maxCountp()) {
+            స్థిరరాశి గుర్తులేని maxN = getConstUInt(repp->maxCountp());
+            Sva_State_శీర్షం* స్థిరరాశి విలీనం_Vtxp = scoped_Create_శీర్షం();
+            guardedLink(currentp, విలీనం_Vtxp, flp);
+            గుర్తులేని తోక_Min_N = minN;
+            Sva_State_శీర్షం* తోక_Startp = currentp;
+            ఒకవేళ (minN == 0) {
                 // Build the first optional iteration explicitly. Feeding the empty endpoint
                 // directly into a range ring would incorrectly keep that match alive.
-                SvaStateVertex* const nextVtxp = scopedCreateVertex();
-                guardedEdge(currentp, nextVtxp, flp);
-                SvaStateVertex* const checkVtxp = scopedCreateVertex();
-                guardedLink(nextVtxp, checkVtxp, sampledRefOrClone(hoistVarp, exprp, flp), flp);
-                guardedLink(checkVtxp, mergeVtxp, flp);
-                if (m_isCoverSeq) consMidSources.push_back(checkVtxp);
-                tailStartp = checkVtxp;
-                tailMinN = 1;
+                Sva_State_శీర్షం* స్థిరరాశి తదుపరి_Vtxp = scoped_Create_శీర్షం();
+                guarded_అంచు(currentp, తదుపరి_Vtxp, flp);
+                Sva_State_శీర్షం* స్థిరరాశి checkVtxp = scoped_Create_శీర్షం();
+                guardedLink(తదుపరి_Vtxp, checkVtxp, sampledRefOrClone(hoistVarp, exprp, flp), flp);
+                guardedLink(checkVtxp, విలీనం_Vtxp, flp);
+                ఒకవేళ (m_isCoverSeq) consMidSources.నెట్టు_వెనుక(checkVtxp);
+                తోక_Startp = checkVtxp;
+                తోక_Min_N = 1;
             }
-            if (maxN > tailMinN) {
+            ఒకవేళ (maxN > తోక_Min_N) {
                 // Add tail-ring only if the tail is non-empty.
-                SvaStateVertex* const nextVtxp
-                    = addDelayChain(tailStartp, maxN - tailMinN + 1, flp, false);
-                nextVtxp->m_delayRingClearCondp
-                    = new AstLogNot{flp, sampledRefOrClone(hoistVarp, exprp, flp)};
-                nextVtxp->m_replayAbortReject = true;
-                SvaStateVertex* const checkVtxp = scopedCreateVertex();
-                guardedLink(nextVtxp, checkVtxp, sampledRefOrClone(hoistVarp, exprp, flp), flp);
-                guardedLink(checkVtxp, mergeVtxp, flp);
-                if (m_isCoverSeq) consMidSources.push_back(checkVtxp);
+                Sva_State_శీర్షం* స్థిరరాశి తదుపరి_Vtxp
+                    = కూడు_Delay_Chain(తోక_Startp, maxN - తోక_Min_N + 1, flp, అబద్ధం);
+                తదుపరి_Vtxp->m_delayRingClearCondp
+                    = కొత్త AstLogNot{flp, sampledRefOrClone(hoistVarp, exprp, flp)};
+                తదుపరి_Vtxp->m_replayAbortReject = నిజం;
+                Sva_State_శీర్షం* స్థిరరాశి checkVtxp = scoped_Create_శీర్షం();
+                guardedLink(తదుపరి_Vtxp, checkVtxp, sampledRefOrClone(hoistVarp, exprp, flp), flp);
+                guardedLink(checkVtxp, విలీనం_Vtxp, flp);
+                ఒకవేళ (m_isCoverSeq) consMidSources.నెట్టు_వెనుక(checkVtxp);
             }
-            currentp = mergeVtxp;
+            currentp = విలీనం_Vtxp;
         }
         // finalCond = nullptr (already checked via Links)
-        BuildResult res;
-        res.termVertexp = currentp;
-        res.finalCondp = nullptr;
+        Build_ఫలితం res;
+        res.పదం_Vertexp = currentp;
+        res.finalCondp = శూన్యసూచిక;
         res.midSources = std::move(consMidSources);
         // mergeVtxp is the OR of all the end-positions we already pushed to
         // midSources, so the main termVtxp -> matchVertex Link would duplicate.
-        res.termIsMidMerge = m_isCoverSeq && !res.midSources.empty();
-        return res;
+        res.పదం_Is_Mid_విలీనం = m_isCoverSeq && !res.midSources.ఖాళీలు();
+        తిరిగి res;
     }
 
     // always[lo:hi] / s_always[lo:hi] (IEEE 1800-2023 16.12.11).
-    BuildResult buildPropAlways(AstPropAlways* nodep, SvaStateVertex* entryVtxp,
-                                bool isTopLevelStep = false) {
-        FileLine* const flp = nodep->fileline();
-        AstNodeExpr* const propp = nodep->propp();
-        const unsigned lo = getConstUInt(nodep->loBoundp());
-        if (VN_IS(nodep->hiBoundp(), Unbounded)) {
+    Build_ఫలితం buildPropAlways(AstPropAlways* nodep, Sva_State_శీర్షం* నమోదు_Vtxp,
+                                తార్కిక is_శిఖరం_Level_అడుగు = అబద్ధం) {
+        File_పంక్తి* స్థిరరాశి flp = nodep->fileline();
+        Ast_కణుపు_సమాసం* స్థిరరాశి propp = nodep->propp();
+        స్థిరరాశి గుర్తులేని lo = getConstUInt(nodep->loBoundp());
+        ఒకవేళ (VN_IS(nodep->hiBoundp(), Unbounded)) {
             // Weak always [lo:$]: unbounded upper bound (IEEE 1800-2023 16.12.11).
             // p must hold at every clock tick at least lo cycles after the attempt
             // start; those ticks are not required to exist, so there is no
@@ -867,17 +867,17 @@ class SvaNfaBuilder final {
             // every cycle; each observed cycle is a safety obligation, so a false p
             // rejects immediately.
             UASSERT_OBJ(!nodep->isStrong(), nodep, "Unbounded always must be weak (V3Width)");
-            SvaStateVertex* const livep = addDelayChain(entryVtxp, lo, flp);
-            livep->m_isUnbounded = true;
-            guardedEdge(livep, livep, flp);  // stay active every subsequent cycle
-            SvaStateVertex* const sinkp = m_graph.createStateVertex();
-            sinkp->m_isRejectSink = true;
-            SvaTransEdge* const rejEdgep
-                = guardedLink(livep, sinkp, sampled(propp->cloneTreePure(false)), flp);
-            if (isTopLevelStep) rejEdgep->m_rejectOnFail = true;
-            return {livep, nullptr, {}};
+            Sva_State_శీర్షం* స్థిరరాశి livep = కూడు_Delay_Chain(నమోదు_Vtxp, lo, flp);
+            livep->m_isUnbounded = నిజం;
+            guarded_అంచు(livep, livep, flp);  // stay active every subsequent cycle
+            Sva_State_శీర్షం* స్థిరరాశి sinkp = m_లేఖాచిత్రం.create_State_శీర్షం();
+            sinkp->m_isRejectSink = నిజం;
+            Sva_Trans_అంచు* స్థిరరాశి rejEdgep
+                = guardedLink(livep, sinkp, sampled(propp->clone_వృక్షం_శుద్ధ(అబద్ధం)), flp);
+            ఒకవేళ (is_శిఖరం_Level_అడుగు) rejEdgep->m_rejectOnFail = నిజం;
+            తిరిగి {livep, శూన్యసూచిక, {}};
         }
-        const unsigned hi = getConstUInt(nodep->hiBoundp());
+        స్థిరరాశి గుర్తులేని hi = getConstUInt(nodep->hiBoundp());
         // Strong s_always[m:n]: mark every in-window registered vertex so an
         // attempt still mid-window at end-of-simulation is reported as a liveness
         // failure (IEEE strong: the n+1 ticks must exist). An attempt that has
@@ -888,231 +888,231 @@ class SvaNfaBuilder final {
         m_markStrongPending = nodep->isStrong();
         // Check the first in-window tick, then reuse a guarded fixed-delay ring
         // for the remaining ticks instead of creating one state per cycle.
-        SvaStateVertex* currentp = addDelayChain(entryVtxp, lo, flp);
-        SvaStateVertex* const checkp = scopedCreateVertex();
-        SvaTransEdge* const linkp
-            = guardedLink(currentp, checkp, sampled(propp->cloneTreePure(false)), flp);
-        if (isTopLevelStep) linkp->m_rejectOnFail = true;
+        Sva_State_శీర్షం* currentp = కూడు_Delay_Chain(నమోదు_Vtxp, lo, flp);
+        Sva_State_శీర్షం* స్థిరరాశి checkp = scoped_Create_శీర్షం();
+        Sva_Trans_అంచు* స్థిరరాశి linkp
+            = guardedLink(currentp, checkp, sampled(propp->clone_వృక్షం_శుద్ధ(అబద్ధం)), flp);
+        ఒకవేళ (is_శిఖరం_Level_అడుగు) linkp->m_rejectOnFail = నిజం;
         currentp = checkp;
-        m_temporalGuardStack.push_back(propp);
-        currentp = addDelayChain(currentp, hi - lo, flp);
-        if (nodep->isStrong() && currentp->m_delayRingSize) currentp->m_strongAlwaysRing = true;
-        m_temporalGuardStack.pop_back();
-        return {currentp, propp, {}};
+        m_temporal_Guard_దొంతర.నెట్టు_వెనుక(propp);
+        currentp = కూడు_Delay_Chain(currentp, hi - lo, flp);
+        ఒకవేళ (nodep->isStrong() && currentp->m_delay_Ring_కొలత) currentp->m_strongAlwaysRing = నిజం;
+        m_temporal_Guard_దొంతర.తీయి_వెనుక();
+        తిరిగి {currentp, propp, {}};
     }
 
-    BuildResult buildGotoRep(AstSGotoRep* repp, SvaStateVertex* entryVtxp) {
-        FileLine* const flp = repp->fileline();
-        AstNodeExpr* const exprp = repp->exprp();
-        const unsigned minN = getConstUInt(repp->countp());
-        if (minN == 0) return BuildResult::fail();
-        const bool hasMax = repp->maxCountp() != nullptr;
-        const unsigned maxN = hasMax ? getConstUInt(repp->maxCountp()) : minN;
-        if (m_isCoverSeq) {
+    Build_ఫలితం buildGotoRep(AstSGotoRep* repp, Sva_State_శీర్షం* నమోదు_Vtxp) {
+        File_పంక్తి* స్థిరరాశి flp = repp->fileline();
+        Ast_కణుపు_సమాసం* స్థిరరాశి exprp = repp->exprp();
+        స్థిరరాశి గుర్తులేని minN = getConstUInt(repp->countp());
+        ఒకవేళ (minN == 0) తిరిగి Build_ఫలితం::fail();
+        స్థిరరాశి తార్కిక hasMax = repp->maxCountp() != శూన్యసూచిక;
+        స్థిరరాశి గుర్తులేని maxN = hasMax ? getConstUInt(repp->maxCountp()) : minN;
+        ఒకవేళ (m_isCoverSeq) {
             // Several attempts may coalesce in the one-bit wait vertex before reaching the ring,
             // so a cover sequence action block could run too few times.
             warnEndpointUnsupported(flp, "a goto repetition");
-            return BuildResult::failWithError();
+            తిరిగి Build_ఫలితం::failWithError();
         }
 
-        AstVar* const hoistVarp = tryHoistSampled(exprp, flp, 2);
+        AstVar* స్థిరరాశి hoistVarp = tryHoistSampled(exprp, flp, 2);
 
         // The first guardedEdge is the ##1 before waiting for a match. In the wait state, false
         // takes the clocked self-loop, while true takes the zero-delay guardedLink on that tick.
-        SvaStateVertex* const waitVtxp = scopedCreateVertex();
-        guardedEdge(entryVtxp, waitVtxp, flp);
-        guardedEdge(waitVtxp, waitVtxp,
-                    new AstLogNot{flp, sampledRefOrClone(hoistVarp, exprp, flp)}, flp);
-        SvaStateVertex* currentp = scopedCreateVertex();
+        Sva_State_శీర్షం* స్థిరరాశి waitVtxp = scoped_Create_శీర్షం();
+        guarded_అంచు(నమోదు_Vtxp, waitVtxp, flp);
+        guarded_అంచు(waitVtxp, waitVtxp,
+                    కొత్త AstLogNot{flp, sampledRefOrClone(hoistVarp, exprp, flp)}, flp);
+        Sva_State_శీర్షం* currentp = scoped_Create_శీర్షం();
         guardedLink(waitVtxp, currentp, sampledRefOrClone(hoistVarp, exprp, flp), flp);
 
-        if (minN > 1) {
-            SvaStateVertex* const ringVtxp = addDelayChain(
-                currentp, minN - 1, flp, true, nullptr, sampledRefOrClone(hoistVarp, exprp, flp));
-            ringVtxp->m_replayAbortReject = true;
-            SvaStateVertex* const checkVtxp = scopedCreateVertex();
+        ఒకవేళ (minN > 1) {
+            Sva_State_శీర్షం* స్థిరరాశి ringVtxp = కూడు_Delay_Chain(
+                currentp, minN - 1, flp, నిజం, శూన్యసూచిక, sampledRefOrClone(hoistVarp, exprp, flp));
+            ringVtxp->m_replayAbortReject = నిజం;
+            Sva_State_శీర్షం* స్థిరరాశి checkVtxp = scoped_Create_శీర్షం();
             guardedLink(ringVtxp, checkVtxp, sampledRefOrClone(hoistVarp, exprp, flp), flp);
             currentp = checkVtxp;
         }
-        if (!hasMax) {
-            currentp->m_isUnbounded = true;  // [->N] waits unboundedly
-            m_inUnboundedScope = true;
-            return {currentp, nullptr, {}};
+        ఒకవేళ (!hasMax) {
+            currentp->m_isUnbounded = నిజం;  // [->N] waits unboundedly
+            m_లోపల_Unbounded_Scope = నిజం;
+            తిరిగి {currentp, శూన్యసూచిక, {}};
         }
 
         // [->M:N]: the range ring holds matches from M through N and advances
         // only on expr, preserving arbitrarily long gaps between occurrences.
-        SvaStateVertex* const mergeVtxp = scopedCreateVertex();
-        guardedLink(currentp, mergeVtxp, flp);  // accept at match_M
-        if (maxN > minN) {
-            SvaStateVertex* const ringVtxp
-                = addDelayChain(currentp, maxN - minN + 1, flp, false, nullptr,
+        Sva_State_శీర్షం* స్థిరరాశి విలీనం_Vtxp = scoped_Create_శీర్షం();
+        guardedLink(currentp, విలీనం_Vtxp, flp);  // accept at match_M
+        ఒకవేళ (maxN > minN) {
+            Sva_State_శీర్షం* స్థిరరాశి ringVtxp
+                = కూడు_Delay_Chain(currentp, maxN - minN + 1, flp, అబద్ధం, శూన్యసూచిక,
                                 sampledRefOrClone(hoistVarp, exprp, flp));
-            ringVtxp->m_replayAbortReject = true;
-            SvaStateVertex* const checkVtxp = scopedCreateVertex();
+            ringVtxp->m_replayAbortReject = నిజం;
+            Sva_State_శీర్షం* స్థిరరాశి checkVtxp = scoped_Create_శీర్షం();
             guardedLink(ringVtxp, checkVtxp, sampledRefOrClone(hoistVarp, exprp, flp), flp);
-            guardedLink(checkVtxp, mergeVtxp, flp);
+            guardedLink(checkVtxp, విలీనం_Vtxp, flp);
         }
-        mergeVtxp->m_isUnbounded = true;  // [->M:N] still has unbounded waits between matches
-        m_inUnboundedScope = true;
-        return {mergeVtxp, nullptr, {}};
+        విలీనం_Vtxp->m_isUnbounded = నిజం;  // [->M:N] still has unbounded waits between matches
+        m_లోపల_Unbounded_Scope = నిజం;
+        తిరిగి {విలీనం_Vtxp, శూన్యసూచిక, {}};
     }
 
     // True if the sequence has a zero-minimum consecutive repetition, which may match empty
-    static bool hasZeroMinRep(const AstNodeExpr* seqp) {
-        return seqp->exists(
-            [](const AstSConsRep* repp) { return getConstUInt(repp->countp()) == 0; });
+    స్థిర తార్కిక hasZeroMinRep(స్థిరరాశి Ast_కణుపు_సమాసం* seqp) {
+        తిరిగి seqp->exists(
+            [](స్థిరరాశి AstSConsRep* repp) { తిరిగి getConstUInt(repp->countp()) == 0; });
     }
 
     // True if a leaf's condition has no implication or multi-cycle sequence in it
     // (a leaf can be e.g. 'not (x |-> y)')
-    static bool isPlainBoolean(const AstNodeExpr* condp) {
-        return !condp->exists(
-            [](const AstNodeExpr* np) { return np->isMultiCycleSva() || VN_IS(np, Implication); });
+    స్థిర తార్కిక isPlainBoolean(స్థిరరాశి Ast_కణుపు_సమాసం* condp) {
+        తిరిగి !condp->exists(
+            [](స్థిరరాశి Ast_కణుపు_సమాసం* np) { తిరిగి np->is_Multi_చక్రం_Sva() || VN_IS(np, Implication); });
     }
 
     // Build merge vertex for SOr / LogOr: both branches feed into one vertex.
-    BuildResult buildOrMerge(AstNodeExpr* lhsp, AstNodeExpr* rhsp, SvaStateVertex* entryVtxp,
-                             FileLine* flp, bool wantBoolLeaf) {
-        const BuildResult lhs = buildExpr(lhsp, entryVtxp);
-        const BuildResult rhs = buildExpr(rhsp, entryVtxp);
-        if (!lhs.valid() || !rhs.valid()) {  // LCOV_EXCL_START -- sub-build fail bail
+    Build_ఫలితం build_Or_విలీనం(Ast_కణుపు_సమాసం* lhsp, Ast_కణుపు_సమాసం* rhsp, Sva_State_శీర్షం* నమోదు_Vtxp,
+                             File_పంక్తి* flp, తార్కిక want_Bool_ఆకు) {
+        స్థిరరాశి Build_ఫలితం lhs = build_సమాసం(lhsp, నమోదు_Vtxp);
+        స్థిరరాశి Build_ఫలితం rhs = build_సమాసం(rhsp, నమోదు_Vtxp);
+        ఒకవేళ (!lhs.valid() || !rhs.valid()) {  // LCOV_EXCL_START -- sub-build fail bail
             freeUnlinkedCondp(lhs.finalCondp);
             freeUnlinkedCondp(rhs.finalCondp);
-            return BuildResult::fail(lhs.errorEmitted || rhs.errorEmitted);
+            తిరిగి Build_ఫలితం::fail(lhs.errorEmitted || rhs.errorEmitted);
         }  // LCOV_EXCL_STOP
         // IEEE 1800-2023 16.14.3: a cover sequence counts every end-of-match. A
         // sequence operand of 'or' can end more than once, but only its final
         // end reaches the merge vertex below, so reject sequence operands rather
         // than under-count. Plain boolean disjunction has one end per cycle and
         // is handled by the OR-fold.
-        const bool booleanOnly = lhs.termVertexp == entryVtxp && lhs.finalCondp
-                                 && rhs.termVertexp == entryVtxp && rhs.finalCondp;
-        if (m_isCoverSeq && !booleanOnly) {
+        స్థిరరాశి తార్కిక booleanOnly = lhs.పదం_Vertexp == నమోదు_Vtxp && lhs.finalCondp
+                                 && rhs.పదం_Vertexp == నమోదు_Vtxp && rhs.finalCondp;
+        ఒకవేళ (m_isCoverSeq && !booleanOnly) {
             warnEndpointUnsupported(flp, "a sequence operand of 'or'");
             freeUnlinkedCondp(lhs.finalCondp);
             freeUnlinkedCondp(rhs.finalCondp);
-            return BuildResult::failWithError();
+            తిరిగి Build_ఫలితం::failWithError();
         }
-        if (booleanOnly && wantBoolLeaf) {
-            if (isPlainBoolean(lhs.finalCondp) && isPlainBoolean(rhs.finalCondp)) {
+        ఒకవేళ (booleanOnly && want_Bool_ఆకు) {
+            ఒకవేళ (isPlainBoolean(lhs.finalCondp) && isPlainBoolean(rhs.finalCondp)) {
                 // As a |-> / |=> or top-level body, a disjunction of two plain booleans must
                 // be able to reject: return it as a boolean finalCondp. The merge vertex
                 // below drops the attempt silently when both operands are false.
-                AstNodeExpr* const orCondp
-                    = new AstLogOr{flp, lhs.finalCondp->cloneTreePure(false),
-                                   rhs.finalCondp->cloneTreePure(false)};
+                Ast_కణుపు_సమాసం* స్థిరరాశి orCondp
+                    = కొత్త AstLogOr{flp, lhs.finalCondp->clone_వృక్షం_శుద్ధ(అబద్ధం),
+                                   rhs.finalCondp->clone_వృక్షం_శుద్ధ(అబద్ధం)};
                 freeUnlinkedCondp(lhs.finalCondp);
                 freeUnlinkedCondp(rhs.finalCondp);
-                return {entryVtxp, orCondp, {}};
+                తిరిగి {నమోదు_Vtxp, orCondp, {}};
             }
         }
-        SvaStateVertex* const mergeVtxp = scopedCreateVertex();
-        if (booleanOnly) {
+        Sva_State_శీర్షం* స్థిరరాశి విలీనం_Vtxp = scoped_Create_శీర్షం();
+        ఒకవేళ (booleanOnly) {
             UASSERT_OBJ(lhs.finalCondp && rhs.finalCondp, lhsp,
                         "Single-cycle SOr operands must have finalCondp");
-            guardedLink(entryVtxp, mergeVtxp,
-                        new AstLogOr{flp, sampled(lhs.finalCondp->cloneTreePure(false)),
-                                     sampled(rhs.finalCondp->cloneTreePure(false))},
+            guardedLink(నమోదు_Vtxp, విలీనం_Vtxp,
+                        కొత్త AstLogOr{flp, sampled(lhs.finalCondp->clone_వృక్షం_శుద్ధ(అబద్ధం)),
+                                     sampled(rhs.finalCondp->clone_వృక్షం_శుద్ధ(అబద్ధం))},
                         flp);
-        } else {
-            if (lhs.finalCondp) {
-                guardedLink(lhs.termVertexp, mergeVtxp,
-                            sampled(lhs.finalCondp->cloneTreePure(false)), flp);
-            } else {
-                guardedLink(lhs.termVertexp, mergeVtxp, flp);
+        } లేకపోతే {
+            ఒకవేళ (lhs.finalCondp) {
+                guardedLink(lhs.పదం_Vertexp, విలీనం_Vtxp,
+                            sampled(lhs.finalCondp->clone_వృక్షం_శుద్ధ(అబద్ధం)), flp);
+            } లేకపోతే {
+                guardedLink(lhs.పదం_Vertexp, విలీనం_Vtxp, flp);
             }
-            if (rhs.finalCondp) {
-                guardedLink(rhs.termVertexp, mergeVtxp,
-                            sampled(rhs.finalCondp->cloneTreePure(false)), flp);
-            } else {
-                guardedLink(rhs.termVertexp, mergeVtxp, flp);
+            ఒకవేళ (rhs.finalCondp) {
+                guardedLink(rhs.పదం_Vertexp, విలీనం_Vtxp,
+                            sampled(rhs.finalCondp->clone_వృక్షం_శుద్ధ(అబద్ధం)), flp);
+            } లేకపోతే {
+                guardedLink(rhs.పదం_Vertexp, విలీనం_Vtxp, flp);
             }
         }
         freeUnlinkedCondp(lhs.finalCondp);
         freeUnlinkedCondp(rhs.finalCondp);
-        return {mergeVtxp, nullptr, {}};
+        తిరిగి {విలీనం_Vtxp, శూన్యసూచిక, {}};
     }
 
     // Build done-latch combiner for SAnd/SIntersect (IEEE 1800-2023 16.9.5).
-    BuildResult buildAndCombiner(AstNodeExpr* lhsExprp, AstNodeExpr* rhsExprp,
-                                 SvaStateVertex* entryVtxp, FileLine* flp) {
+    Build_ఫలితం buildAndCombiner(Ast_కణుపు_సమాసం* lhsExprp, Ast_కణుపు_సమాసం* rhsExprp,
+                                 Sva_State_శీర్షం* నమోదు_Vtxp, File_పంక్తి* flp) {
         // Snapshot-restore scope so LHS liveness does not leak into RHS.
-        const bool savedScope = m_inUnboundedScope;
-        const BuildResult lhs = buildExpr(lhsExprp, entryVtxp);
-        const bool lhsScope = m_inUnboundedScope;
-        m_inUnboundedScope = savedScope;
-        const BuildResult rhs = buildExpr(rhsExprp, entryVtxp);
-        const bool rhsScope = m_inUnboundedScope;
-        m_inUnboundedScope = savedScope || lhsScope || rhsScope;
-        if (!lhs.valid() || !rhs.valid()) {  // LCOV_EXCL_START -- sub-build fail bail
+        స్థిరరాశి తార్కిక savedScope = m_లోపల_Unbounded_Scope;
+        స్థిరరాశి Build_ఫలితం lhs = build_సమాసం(lhsExprp, నమోదు_Vtxp);
+        స్థిరరాశి తార్కిక lhsScope = m_లోపల_Unbounded_Scope;
+        m_లోపల_Unbounded_Scope = savedScope;
+        స్థిరరాశి Build_ఫలితం rhs = build_సమాసం(rhsExprp, నమోదు_Vtxp);
+        స్థిరరాశి తార్కిక rhsScope = m_లోపల_Unbounded_Scope;
+        m_లోపల_Unbounded_Scope = savedScope || lhsScope || rhsScope;
+        ఒకవేళ (!lhs.valid() || !rhs.valid()) {  // LCOV_EXCL_START -- sub-build fail bail
             freeUnlinkedCondp(lhs.finalCondp);
             freeUnlinkedCondp(rhs.finalCondp);
-            return BuildResult::fail(lhs.errorEmitted || rhs.errorEmitted);
+            తిరిగి Build_ఫలితం::fail(lhs.errorEmitted || rhs.errorEmitted);
         }  // LCOV_EXCL_STOP
 
         // Single-cycle operands: use boolean AND (done-latch would fire across cycles).
         // If both operands stayed at entry, they must be boolean leaves which
         // buildExpr returns with finalCondp=nodep (non-null).
-        if (lhs.termVertexp == entryVtxp && rhs.termVertexp == entryVtxp) {
+        ఒకవేళ (lhs.పదం_Vertexp == నమోదు_Vtxp && rhs.పదం_Vertexp == నమోదు_Vtxp) {
             UASSERT_OBJ(lhs.finalCondp && rhs.finalCondp, lhsExprp,
                         "Single-cycle SAnd operands must have finalCondp");
-            AstNodeExpr* const condp = new AstLogAnd{flp, lhs.finalCondp->cloneTreePure(false),
-                                                     rhs.finalCondp->cloneTreePure(false)};
+            Ast_కణుపు_సమాసం* స్థిరరాశి condp = కొత్త AstLogAnd{flp, lhs.finalCondp->clone_వృక్షం_శుద్ధ(అబద్ధం),
+                                                     rhs.finalCondp->clone_వృక్షం_శుద్ధ(అబద్ధం)};
             freeUnlinkedCondp(lhs.finalCondp);
             freeUnlinkedCondp(rhs.finalCondp);
-            return {entryVtxp, condp, {}};
+            తిరిగి {నమోదు_Vtxp, condp, {}};
         }
         // Range-delay mid-window sources in either sub-branch would need
         // to be folded into the latch's match-now signal, which the
         // current combiner does not support.
-        if (!lhs.midSources.empty() || !rhs.midSources.empty()) {
+        ఒకవేళ (!lhs.midSources.ఖాళీలు() || !rhs.midSources.ఖాళీలు()) {
             flp->v3warn(E_UNSUPPORTED,
                         "Unsupported: ranged cycle delay in an operand of property 'and'");
             freeUnlinkedCondp(lhs.finalCondp);
             freeUnlinkedCondp(rhs.finalCondp);
-            return BuildResult::failWithError();
+            తిరిగి Build_ఫలితం::failWithError();
         }
-        SvaStateVertex* const combVtxp = scopedCreateVertex();
-        combVtxp->m_isAndCombiner = true;
-        combVtxp->m_andLhsTermp = lhs.termVertexp;
-        combVtxp->m_andRhsTermp = rhs.termVertexp;
-        if (lhs.finalCondp) combVtxp->m_andLhsCondp = lhs.finalCondp->cloneTreePure(false);
-        if (rhs.finalCondp) combVtxp->m_andRhsCondp = rhs.finalCondp->cloneTreePure(false);
-        if (lhs.termVertexp->m_isUnbounded || rhs.termVertexp->m_isUnbounded) {
-            combVtxp->m_isUnbounded = true;
+        Sva_State_శీర్షం* స్థిరరాశి combVtxp = scoped_Create_శీర్షం();
+        combVtxp->m_isAndCombiner = నిజం;
+        combVtxp->m_andLhsTermp = lhs.పదం_Vertexp;
+        combVtxp->m_andRhsTermp = rhs.పదం_Vertexp;
+        ఒకవేళ (lhs.finalCondp) combVtxp->m_andLhsCondp = lhs.finalCondp->clone_వృక్షం_శుద్ధ(అబద్ధం);
+        ఒకవేళ (rhs.finalCondp) combVtxp->m_andRhsCondp = rhs.finalCondp->clone_వృక్షం_శుద్ధ(అబద్ధం);
+        ఒకవేళ (lhs.పదం_Vertexp->m_isUnbounded || rhs.పదం_Vertexp->m_isUnbounded) {
+            combVtxp->m_isUnbounded = నిజం;
         }
         // Wire terminal-boolean rejects to a dedicated sink so each side can fail
         // the AND independently. Skip for liveness or single-cycle operands
         // (single-cycle termVertexp == entryVtxp would fire every cycle).
-        if (!combVtxp->m_isUnbounded) {
-            bool needSink = false;
-            const bool lhsMultiCycle = (lhs.termVertexp != entryVtxp);
-            const bool rhsMultiCycle = (rhs.termVertexp != entryVtxp);
-            if (lhs.finalCondp && lhsMultiCycle && !lhs.termVertexp->m_isUnbounded) {
-                needSink = true;
+        ఒకవేళ (!combVtxp->m_isUnbounded) {
+            తార్కిక needSink = అబద్ధం;
+            స్థిరరాశి తార్కిక lhs_Multi_చక్రం = (lhs.పదం_Vertexp != నమోదు_Vtxp);
+            స్థిరరాశి తార్కిక rhs_Multi_చక్రం = (rhs.పదం_Vertexp != నమోదు_Vtxp);
+            ఒకవేళ (lhs.finalCondp && lhs_Multi_చక్రం && !lhs.పదం_Vertexp->m_isUnbounded) {
+                needSink = నిజం;
             }
-            if (rhs.finalCondp && rhsMultiCycle && !rhs.termVertexp->m_isUnbounded) {
-                needSink = true;
+            ఒకవేళ (rhs.finalCondp && rhs_Multi_చక్రం && !rhs.పదం_Vertexp->m_isUnbounded) {
+                needSink = నిజం;
             }
-            if (needSink) {
-                SvaStateVertex* const sinkVtxp = m_graph.createStateVertex();
-                sinkVtxp->m_isRejectSink = true;
-                if (lhs.finalCondp && lhsMultiCycle && !lhs.termVertexp->m_isUnbounded) {
-                    SvaTransEdge* const ep = m_graph.addLink(
-                        lhs.termVertexp, sinkVtxp, sampled(lhs.finalCondp->cloneTreePure(false)));
-                    ep->m_rejectOnFail = true;
+            ఒకవేళ (needSink) {
+                Sva_State_శీర్షం* స్థిరరాశి sinkVtxp = m_లేఖాచిత్రం.create_State_శీర్షం();
+                sinkVtxp->m_isRejectSink = నిజం;
+                ఒకవేళ (lhs.finalCondp && lhs_Multi_చక్రం && !lhs.పదం_Vertexp->m_isUnbounded) {
+                    Sva_Trans_అంచు* స్థిరరాశి ep = m_లేఖాచిత్రం.కూడు_Link(
+                        lhs.పదం_Vertexp, sinkVtxp, sampled(lhs.finalCondp->clone_వృక్షం_శుద్ధ(అబద్ధం)));
+                    ep->m_rejectOnFail = నిజం;
                 }
-                if (rhs.finalCondp && rhsMultiCycle && !rhs.termVertexp->m_isUnbounded) {
-                    SvaTransEdge* const ep = m_graph.addLink(
-                        rhs.termVertexp, sinkVtxp, sampled(rhs.finalCondp->cloneTreePure(false)));
-                    ep->m_rejectOnFail = true;
+                ఒకవేళ (rhs.finalCondp && rhs_Multi_చక్రం && !rhs.పదం_Vertexp->m_isUnbounded) {
+                    Sva_Trans_అంచు* స్థిరరాశి ep = m_లేఖాచిత్రం.కూడు_Link(
+                        rhs.పదం_Vertexp, sinkVtxp, sampled(rhs.finalCondp->clone_వృక్షం_శుద్ధ(అబద్ధం)));
+                    ep->m_rejectOnFail = నిజం;
                 }
             }
         }
         freeUnlinkedCondp(lhs.finalCondp);
         freeUnlinkedCondp(rhs.finalCondp);
-        return {combVtxp, nullptr, {}};
+        తిరిగి {combVtxp, శూన్యసూచిక, {}};
     }
 
     // Lower `seq1 within seq2` (IEEE 1800-2023 16.9.10) as:
@@ -1121,161 +1121,161 @@ class SvaNfaBuilder final {
     // The OR lives inside a single SIntersect so one AndCombiner done-latch
     // serves all offsets; lifting it out would double-count matches where
     // multiple offsets accept on the same seq2 end cycle.
-    BuildResult buildSWithin(AstSWithin* nodep, SvaStateVertex* entryVtxp,
-                             bool isTopLevelStep = false) {
-        const int innerLen = fixedLength(nodep->lhsp());
-        const int outerLen = fixedLength(nodep->rhsp());
-        if (innerLen < 0 || outerLen < 0) {
+    Build_ఫలితం buildSWithin(AstSWithin* nodep, Sva_State_శీర్షం* నమోదు_Vtxp,
+                             తార్కిక is_శిఖరం_Level_అడుగు = అబద్ధం) {
+        స్థిరరాశి పూర్ణాంకం innerLen = fixed_నిడివి(nodep->lhsp());
+        స్థిరరాశి పూర్ణాంకం outerLen = fixed_నిడివి(nodep->rhsp());
+        ఒకవేళ (innerLen < 0 || outerLen < 0) {
             nodep->v3warn(E_UNSUPPORTED, "Unsupported: within with ranged cycle-delay operand");
-            return BuildResult::failWithError();
+            తిరిగి Build_ఫలితం::failWithError();
         }
-        if (innerLen > outerLen) {
-            return buildNeverMatchIntersect(
-                nodep, entryVtxp, isTopLevelStep,
+        ఒకవేళ (innerLen > outerLen) {
+            తిరిగి build_Never_సరిపోలిక_Intersect(
+                nodep, నమోదు_Vtxp, is_శిఖరం_Level_అడుగు,
                 "the inner sequence is longer than the outer sequence");
         }
-        FileLine* const flp = nodep->fileline();
-        const int slack = outerLen - innerLen;
-        AstNodeExpr* innerOrp = nullptr;
-        for (int i = 0; i <= slack; ++i) {
-            const int postPad = slack - i;
-            AstNodeExpr* branchp = nodep->lhsp()->cloneTreePure(false);
-            if (i > 0) {
-                AstConst* const prePadp = new AstConst{flp, AstConst::BitTrue{}};
-                AstDelay* const delayp
-                    = new AstDelay{flp, new AstConst{flp, static_cast<uint32_t>(i)}, true};
-                AstSExpr* const wrapped = new AstSExpr{flp, prePadp, delayp, branchp};
-                wrapped->dtypeSetBit();
+        File_పంక్తి* స్థిరరాశి flp = nodep->fileline();
+        స్థిరరాశి పూర్ణాంకం slack = outerLen - innerLen;
+        Ast_కణుపు_సమాసం* innerOrp = శూన్యసూచిక;
+        కొరకు (పూర్ణాంకం i = 0; i <= slack; ++i) {
+            స్థిరరాశి పూర్ణాంకం postPad = slack - i;
+            Ast_కణుపు_సమాసం* branchp = nodep->lhsp()->clone_వృక్షం_శుద్ధ(అబద్ధం);
+            ఒకవేళ (i > 0) {
+                AstConst* స్థిరరాశి prePadp = కొత్త AstConst{flp, AstConst::బిట్టు_True{}};
+                AstDelay* స్థిరరాశి delayp
+                    = కొత్త AstDelay{flp, కొత్త AstConst{flp, static_cast<uint32_t>(i)}, నిజం};
+                AstSExpr* స్థిరరాశి wrapped = కొత్త AstSExpr{flp, prePadp, delayp, branchp};
+                wrapped->dtype_సమితి_బిట్టు();
                 branchp = wrapped;
             }
-            if (postPad > 0) {
-                AstConst* const postTruep = new AstConst{flp, AstConst::BitTrue{}};
-                AstDelay* const delayp
-                    = new AstDelay{flp, new AstConst{flp, static_cast<uint32_t>(postPad)}, true};
-                AstSExpr* const wrapped = new AstSExpr{flp, branchp, delayp, postTruep};
-                wrapped->dtypeSetBit();
+            ఒకవేళ (postPad > 0) {
+                AstConst* స్థిరరాశి postTruep = కొత్త AstConst{flp, AstConst::బిట్టు_True{}};
+                AstDelay* స్థిరరాశి delayp
+                    = కొత్త AstDelay{flp, కొత్త AstConst{flp, static_cast<uint32_t>(postPad)}, నిజం};
+                AstSExpr* స్థిరరాశి wrapped = కొత్త AstSExpr{flp, branchp, delayp, postTruep};
+                wrapped->dtype_సమితి_బిట్టు();
                 branchp = wrapped;
             }
-            innerOrp = innerOrp ? static_cast<AstNodeExpr*>(new AstSOr{flp, innerOrp, branchp})
+            innerOrp = innerOrp ? static_cast<Ast_కణుపు_సమాసం*>(కొత్త AstSOr{flp, innerOrp, branchp})
                                 : branchp;
         }
-        AstNodeExpr* const outerClonep = nodep->rhsp()->cloneTreePure(false);
-        AstNodeExpr* const combinedp = new AstSIntersect{flp, innerOrp, outerClonep};
-        BuildResult result = buildExpr(combinedp, entryVtxp, isTopLevelStep);
-        VL_DO_DANGLING(combinedp->deleteTree(), combinedp);
+        Ast_కణుపు_సమాసం* స్థిరరాశి outerClonep = nodep->rhsp()->clone_వృక్షం_శుద్ధ(అబద్ధం);
+        Ast_కణుపు_సమాసం* స్థిరరాశి combinedp = కొత్త AstSIntersect{flp, innerOrp, outerClonep};
+        Build_ఫలితం ఫలితం = build_సమాసం(combinedp, నమోదు_Vtxp, is_శిఖరం_Level_అడుగు);
+        VL_DO_DANGLING(combinedp->delete_వృక్షం(), combinedp);
         // When both operands are plain booleans, buildAndCombiner returns a
         // freshly-allocated AstAnd as finalCondp with no parent. Callers up
         // the chain clone-and-discard finalCondp, so leave it parent-less and
         // it leaks; anchor it in the graph now via an edge.
-        if (result.valid() && result.finalCondp && !result.finalCondp->backp()) {
-            SvaStateVertex* const wrapVtxp = scopedCreateVertex();
-            guardedLink(result.termVertexp, wrapVtxp, sampled(result.finalCondp), flp);
-            result = {wrapVtxp, nullptr, result.midSources};
+        ఒకవేళ (ఫలితం.valid() && ఫలితం.finalCondp && !ఫలితం.finalCondp->backp()) {
+            Sva_State_శీర్షం* స్థిరరాశి wrapVtxp = scoped_Create_శీర్షం();
+            guardedLink(ఫలితం.పదం_Vertexp, wrapVtxp, sampled(ఫలితం.finalCondp), flp);
+            ఫలితం = {wrapVtxp, శూన్యసూచిక, ఫలితం.midSources};
         }
-        return result;
+        తిరిగి ఫలితం;
     }
 
     // Collect the boolean leaf checks of a fixed-length sequence keyed by their
     // clock offset from the start. Returns false for anything other than nested
     // AstSExpr with fixed cycle delays over boolean leaves (e.g. throughout).
-    static bool flattenFixedSeq(AstNodeExpr* nodep, int baseOffset,
-                                std::map<int, std::vector<AstNodeExpr*>>& out) {
-        if (AstSExpr* const sexprp = VN_CAST(nodep, SExpr)) {
-            AstDelay* const delayp = VN_CAST(sexprp->delayp(), Delay);
-            if (!delayp || !delayp->isCycleDelay() || delayp->isUnbounded()) return false;
-            const unsigned delayCycles = getConstUInt(delayp->lhsp());
-            if (delayp->isRangeDelay() && getConstUInt(delayp->rhsp()) != delayCycles)
-                return false;
-            int preLen = 0;
-            if (AstNodeExpr* const prep = sexprp->preExprp()) {
-                if (!flattenFixedSeq(prep, baseOffset, out)) return false;
-                preLen = fixedLength(prep);
-                if (preLen < 0) return false;
+    స్థిర తార్కిక flattenFixedSeq(Ast_కణుపు_సమాసం* nodep, పూర్ణాంకం పునాది_స్థానభ్రంశం,
+                                std::map<పూర్ణాంకం, std::సదిశ<Ast_కణుపు_సమాసం*>>& బహిర్గతం) {
+        ఒకవేళ (AstSExpr* స్థిరరాశి sexprp = VN_CAST(nodep, SExpr)) {
+            AstDelay* స్థిరరాశి delayp = VN_CAST(sexprp->delayp(), Delay);
+            ఒకవేళ (!delayp || !delayp->is_చక్రం_Delay() || delayp->isUnbounded()) తిరిగి అబద్ధం;
+            స్థిరరాశి గుర్తులేని delay_చక్రాలు = getConstUInt(delayp->lhsp());
+            ఒకవేళ (delayp->isRangeDelay() && getConstUInt(delayp->rhsp()) != delay_చక్రాలు)
+                తిరిగి అబద్ధం;
+            పూర్ణాంకం preLen = 0;
+            ఒకవేళ (Ast_కణుపు_సమాసం* స్థిరరాశి prep = sexprp->preExprp()) {
+                ఒకవేళ (!flattenFixedSeq(prep, పునాది_స్థానభ్రంశం, బహిర్గతం)) తిరిగి అబద్ధం;
+                preLen = fixed_నిడివి(prep);
+                ఒకవేళ (preLen < 0) తిరిగి అబద్ధం;
             }
-            return flattenFixedSeq(sexprp->exprp(), baseOffset + preLen + delayCycles, out);
+            తిరిగి flattenFixedSeq(sexprp->exprp(), పునాది_స్థానభ్రంశం + preLen + delay_చక్రాలు, బహిర్గతం);
         }
-        if (nodep->isMultiCycleSva()) return false;
-        out[baseOffset].push_back(nodep);
-        return true;
+        ఒకవేళ (nodep->is_Multi_చక్రం_Sva()) తిరిగి అబద్ధం;
+        బహిర్గతం[పునాది_స్థానభ్రంశం].నెట్టు_వెనుక(nodep);
+        తిరిగి నిజం;
     }
 
     // Conjoin two equal-length fixed sequences into one: at each clock offset
     // AND the boolean checks of both operands (IEEE 1800-2023 16.9.6 -- both
     // operands match the same window). Returns null if either operand is not a
     // plain fixed sequence of boolean leaves.
-    static AstNodeExpr* conjoinFixedSeqs(AstNodeExpr* lhsp, AstNodeExpr* rhsp, FileLine* flp) {
-        std::map<int, std::vector<AstNodeExpr*>> checks;
-        if (!flattenFixedSeq(lhsp, 0, checks) || !flattenFixedSeq(rhsp, 0, checks)) return nullptr;
-        if (checks.empty()) return nullptr;
-        AstNodeExpr* resultp = nullptr;
-        int prevOffset = 0;
-        for (const auto& offsetChecks : checks) {
-            const int offset = offsetChecks.first;
-            AstNodeExpr* condp = nullptr;
-            for (AstNodeExpr* const leafp : offsetChecks.second) {
-                AstNodeExpr* const clonep = leafp->cloneTreePure(false);
-                if (!condp) {
+    స్థిర Ast_కణుపు_సమాసం* conjoinFixedSeqs(Ast_కణుపు_సమాసం* lhsp, Ast_కణుపు_సమాసం* rhsp, File_పంక్తి* flp) {
+        std::map<పూర్ణాంకం, std::సదిశ<Ast_కణుపు_సమాసం*>> checks;
+        ఒకవేళ (!flattenFixedSeq(lhsp, 0, checks) || !flattenFixedSeq(rhsp, 0, checks)) తిరిగి శూన్యసూచిక;
+        ఒకవేళ (checks.ఖాళీలు()) తిరిగి శూన్యసూచిక;
+        Ast_కణుపు_సమాసం* resultp = శూన్యసూచిక;
+        పూర్ణాంకం prev_స్థానభ్రంశం = 0;
+        కొరకు (స్థిరరాశి స్వయంచాలక& స్థానభ్రంశం_Checks : checks) {
+            స్థిరరాశి పూర్ణాంకం స్థానభ్రంశం = స్థానభ్రంశం_Checks.మొదటి;
+            Ast_కణుపు_సమాసం* condp = శూన్యసూచిక;
+            కొరకు (Ast_కణుపు_సమాసం* స్థిరరాశి leafp : స్థానభ్రంశం_Checks.రెండవ) {
+                Ast_కణుపు_సమాసం* స్థిరరాశి clonep = leafp->clone_వృక్షం_శుద్ధ(అబద్ధం);
+                ఒకవేళ (!condp) {
                     condp = clonep;
-                } else {
-                    condp = new AstLogAnd{flp, condp, clonep};
-                    condp->dtypeSetBit();
+                } లేకపోతే {
+                    condp = కొత్త AstLogAnd{flp, condp, clonep};
+                    condp->dtype_సమితి_బిట్టు();
                 }
             }
-            if (!resultp) {
-                if (offset > 0) {
-                    AstDelay* const delayp = new AstDelay{
-                        flp, new AstConst{flp, static_cast<uint32_t>(offset)}, /*isCycle=*/true};
+            ఒకవేళ (!resultp) {
+                ఒకవేళ (స్థానభ్రంశం > 0) {
+                    AstDelay* స్థిరరాశి delayp = కొత్త AstDelay{
+                        flp, కొత్త AstConst{flp, static_cast<uint32_t>(స్థానభ్రంశం)}, /*isCycle=*/నిజం};
                     resultp
-                        = new AstSExpr{flp, new AstConst{flp, AstConst::BitTrue{}}, delayp, condp};
-                    resultp->dtypeSetBit();
-                } else {
+                        = కొత్త AstSExpr{flp, కొత్త AstConst{flp, AstConst::బిట్టు_True{}}, delayp, condp};
+                    resultp->dtype_సమితి_బిట్టు();
+                } లేకపోతే {
                     resultp = condp;
                 }
-            } else {
-                AstDelay* const delayp = new AstDelay{
-                    flp, new AstConst{flp, static_cast<uint32_t>(offset - prevOffset)},
-                    /*isCycle=*/true};
-                resultp = new AstSExpr{flp, resultp, delayp, condp};
-                resultp->dtypeSetBit();
+            } లేకపోతే {
+                AstDelay* స్థిరరాశి delayp = కొత్త AstDelay{
+                    flp, కొత్త AstConst{flp, static_cast<uint32_t>(స్థానభ్రంశం - prev_స్థానభ్రంశం)},
+                    /*isCycle=*/నిజం};
+                resultp = కొత్త AstSExpr{flp, resultp, delayp, condp};
+                resultp->dtype_సమితి_బిట్టు();
             }
-            prevOffset = offset;
+            prev_స్థానభ్రంశం = స్థానభ్రంశం;
         }
-        return resultp;
+        తిరిగి resultp;
     }
 
     // `seq` is a simple ranged sequence `start ##[m:n] end` (start/end boolean,
     // start may be absent). Used to collapse a both-variable intersect to one
     // ranged delay.
-    struct SimpleRanged final {
-        bool ok = false;
-        AstNodeExpr* startp = nullptr;  // may be null (absent start)
-        AstNodeExpr* endp = nullptr;
+    నిర్మాణం SimpleRanged final {
+        తార్కిక ok = అబద్ధం;
+        Ast_కణుపు_సమాసం* startp = శూన్యసూచిక;  // may be null (absent start)
+        Ast_కణుపు_సమాసం* endp = శూన్యసూచిక;
     };
-    static SimpleRanged asSimpleRanged(AstNodeExpr* nodep) {
-        AstSExpr* const sexprp = VN_CAST(nodep, SExpr);
-        if (!sexprp) return {};
-        AstDelay* const delayp = VN_CAST(sexprp->delayp(), Delay);
-        if (!delayp || !delayp->isCycleDelay() || !delayp->isRangeDelay() || delayp->isUnbounded())
-            return {};
-        if (getConstUInt(delayp->lhsp()) == getConstUInt(delayp->rhsp())) return {};
-        AstNodeExpr* const prep = sexprp->preExprp();
-        if (prep && fixedLength(prep) != 0) return {};
-        if (fixedLength(sexprp->exprp()) != 0) return {};
-        return {true, prep, sexprp->exprp()};
+    స్థిర SimpleRanged asSimpleRanged(Ast_కణుపు_సమాసం* nodep) {
+        AstSExpr* స్థిరరాశి sexprp = VN_CAST(nodep, SExpr);
+        ఒకవేళ (!sexprp) తిరిగి {};
+        AstDelay* స్థిరరాశి delayp = VN_CAST(sexprp->delayp(), Delay);
+        ఒకవేళ (!delayp || !delayp->is_చక్రం_Delay() || !delayp->isRangeDelay() || delayp->isUnbounded())
+            తిరిగి {};
+        ఒకవేళ (getConstUInt(delayp->lhsp()) == getConstUInt(delayp->rhsp())) తిరిగి {};
+        Ast_కణుపు_సమాసం* స్థిరరాశి prep = sexprp->preExprp();
+        ఒకవేళ (prep && fixed_నిడివి(prep) != 0) తిరిగి {};
+        ఒకవేళ (fixed_నిడివి(sexprp->exprp()) != 0) తిరిగి {};
+        తిరిగి {నిజం, prep, sexprp->exprp()};
     }
 
     // Build the NFA for a synthesized intersect lowering tree, then free it.
     // buildExpr returns the terminal condition (finalCondp) by reference into the
     // tree; detach a clone so the tree can be freed here. The graph already holds
     // clones/hoists of every edge condition, so nothing else dangles.
-    BuildResult buildFromLoweringTree(AstNodeExpr* treep, SvaStateVertex* entryVtxp,
-                                      bool isTopLevelStep) {
-        BuildResult result = buildExpr(treep, entryVtxp, isTopLevelStep);
-        if (result.valid() && result.finalCondp) {
-            result.finalCondp = result.finalCondp->cloneTreePure(false);
+    Build_ఫలితం build_From_Lowering_వృక్షం(Ast_కణుపు_సమాసం* treep, Sva_State_శీర్షం* నమోదు_Vtxp,
+                                      తార్కిక is_శిఖరం_Level_అడుగు) {
+        Build_ఫలితం ఫలితం = build_సమాసం(treep, నమోదు_Vtxp, is_శిఖరం_Level_అడుగు);
+        ఒకవేళ (ఫలితం.valid() && ఫలితం.finalCondp) {
+            ఫలితం.finalCondp = ఫలితం.finalCondp->clone_వృక్షం_శుద్ధ(అబద్ధం);
         }
-        VL_DO_DANGLING(treep->deleteTree(), treep);
-        return result;
+        VL_DO_DANGLING(treep->delete_వృక్షం(), treep);
+        తిరిగి ఫలితం;
     }
 
     // Empty common-length intersection -- unequal fixed lengths, or disjoint
@@ -1283,11 +1283,11 @@ class SvaNfaBuilder final {
     // over a window of the same length, so with no common length the intersect
     // simply never matches. This is legal (matching nothing), not an error, so
     // lower to a constant false rather than rejecting legal code.
-    BuildResult buildNeverMatchIntersect(AstNodeExpr* nodep, SvaStateVertex* entryVtxp,
-                                         bool isTopLevelStep, const char* reason) {
+    Build_ఫలితం build_Never_సరిపోలిక_Intersect(Ast_కణుపు_సమాసం* nodep, Sva_State_శీర్షం* నమోదు_Vtxp,
+                                         తార్కిక is_శిఖరం_Level_అడుగు, స్థిరరాశి అక్షరం* reason) {
         nodep->v3warn(NEVERMATCH, "Sequence can never match because " << reason << ".");
-        AstNodeExpr* const falsep = new AstConst{nodep->fileline(), AstConst::BitFalse{}};
-        return buildFromLoweringTree(falsep, entryVtxp, isTopLevelStep);
+        Ast_కణుపు_సమాసం* స్థిరరాశి falsep = కొత్త AstConst{nodep->fileline(), AstConst::బిట్టు_False{}};
+        తిరిగి build_From_Lowering_వృక్షం(falsep, నమోదు_Vtxp, is_శిఖరం_Level_అడుగు);
     }
 
     // Lower `seq1 intersect seq2` when an operand's match length varies
@@ -1303,70 +1303,70 @@ class SvaNfaBuilder final {
     //    per-length branches cannot reject correctly -- a single missed length
     //    would fail the whole intersect, cf. Lesson 48.)
     //  - otherwise unsupported (clean error, not the legacy fall-through crash).
-    BuildResult buildVarLenIntersect(AstSIntersect* nodep, SvaStateVertex* entryVtxp,
-                                     bool isTopLevelStep) {
-        const std::pair<int, int> lhsRange = lengthRange(nodep->lhsp());
-        const std::pair<int, int> rhsRange = lengthRange(nodep->rhsp());
-        if (lhsRange.first < 0 || rhsRange.first < 0) {
+    Build_ఫలితం buildVarLenIntersect(AstSIntersect* nodep, Sva_State_శీర్షం* నమోదు_Vtxp,
+                                     తార్కిక is_శిఖరం_Level_అడుగు) {
+        స్థిరరాశి std::pair<పూర్ణాంకం, పూర్ణాంకం> lhsRange = నిడివి_Range(nodep->lhsp());
+        స్థిరరాశి std::pair<పూర్ణాంకం, పూర్ణాంకం> rhsRange = నిడివి_Range(nodep->rhsp());
+        ఒకవేళ (lhsRange.మొదటి < 0 || rhsRange.మొదటి < 0) {
             nodep->v3warn(E_UNSUPPORTED,
                           "Unsupported: intersect with this variable-length operand");
-            return BuildResult::failWithError();
+            తిరిగి Build_ఫలితం::failWithError();
         }
-        const int lo = std::max(lhsRange.first, rhsRange.first);
-        const int hi = std::min(lhsRange.second, rhsRange.second);
-        if (lo > hi) {
+        స్థిరరాశి పూర్ణాంకం lo = std::max(lhsRange.మొదటి, rhsRange.మొదటి);
+        స్థిరరాశి పూర్ణాంకం hi = std::min(lhsRange.రెండవ, rhsRange.రెండవ);
+        ఒకవేళ (lo > hi) {
             // Disjoint length ranges share no common length -> never matches.
-            return buildNeverMatchIntersect(nodep, entryVtxp, isTopLevelStep,
+            తిరిగి build_Never_సరిపోలిక_Intersect(nodep, నమోదు_Vtxp, is_శిఖరం_Level_అడుగు,
                                             "intersect operands have no common length");
         }
-        FileLine* const flp = nodep->fileline();
-        if (lo == hi) {
-            AstNodeExpr* const lp = realizeAtLength(nodep->lhsp(), lo, lhsRange.first);
-            AstNodeExpr* const rp = realizeAtLength(nodep->rhsp(), lo, rhsRange.first);
-            AstNodeExpr* const conjp = conjoinFixedSeqs(lp, rp, flp);
-            VL_DO_DANGLING(lp->deleteTree(), lp);
-            VL_DO_DANGLING(rp->deleteTree(), rp);
-            if (!conjp) {
+        File_పంక్తి* స్థిరరాశి flp = nodep->fileline();
+        ఒకవేళ (lo == hi) {
+            Ast_కణుపు_సమాసం* స్థిరరాశి lp = realize_At_నిడివి(nodep->lhsp(), lo, lhsRange.మొదటి);
+            Ast_కణుపు_సమాసం* స్థిరరాశి rp = realize_At_నిడివి(nodep->rhsp(), lo, rhsRange.మొదటి);
+            Ast_కణుపు_సమాసం* స్థిరరాశి conjp = conjoinFixedSeqs(lp, rp, flp);
+            VL_DO_DANGLING(lp->delete_వృక్షం(), lp);
+            VL_DO_DANGLING(rp->delete_వృక్షం(), rp);
+            ఒకవేళ (!conjp) {
                 nodep->v3warn(E_UNSUPPORTED,
                               "Unsupported: intersect operand is not a plain boolean sequence");
-                return BuildResult::failWithError();
+                తిరిగి Build_ఫలితం::failWithError();
             }
-            return buildFromLoweringTree(conjp, entryVtxp, isTopLevelStep);
+            తిరిగి build_From_Lowering_వృక్షం(conjp, నమోదు_Vtxp, is_శిఖరం_Level_అడుగు);
         }
-        const SimpleRanged sl = asSimpleRanged(nodep->lhsp());
-        const SimpleRanged sr = asSimpleRanged(nodep->rhsp());
-        if (!sl.ok || !sr.ok) {
+        స్థిరరాశి SimpleRanged sl = asSimpleRanged(nodep->lhsp());
+        స్థిరరాశి SimpleRanged sr = asSimpleRanged(nodep->rhsp());
+        ఒకవేళ (!sl.ok || !sr.ok) {
             nodep->v3warn(E_UNSUPPORTED,
                           "Unsupported: intersect of two sequences that each vary in length over a"
                           " range with internal structure");
-            return BuildResult::failWithError();
+            తిరిగి Build_ఫలితం::failWithError();
         }
-        const auto andBool = [&](AstNodeExpr* ap, AstNodeExpr* bp) -> AstNodeExpr* {
-            AstNodeExpr* const aClonep
-                = ap ? ap->cloneTreePure(false) : new AstConst{flp, AstConst::BitTrue{}};
-            AstNodeExpr* const bClonep
-                = bp ? bp->cloneTreePure(false) : new AstConst{flp, AstConst::BitTrue{}};
-            AstLogAnd* const andp = new AstLogAnd{flp, aClonep, bClonep};
-            andp->dtypeSetBit();
-            return andp;
+        స్థిరరాశి స్వయంచాలక andBool = [&](Ast_కణుపు_సమాసం* ap, Ast_కణుపు_సమాసం* bp) -> Ast_కణుపు_సమాసం* {
+            Ast_కణుపు_సమాసం* స్థిరరాశి aClonep
+                = ap ? ap->clone_వృక్షం_శుద్ధ(అబద్ధం) : కొత్త AstConst{flp, AstConst::బిట్టు_True{}};
+            Ast_కణుపు_సమాసం* స్థిరరాశి bClonep
+                = bp ? bp->clone_వృక్షం_శుద్ధ(అబద్ధం) : కొత్త AstConst{flp, AstConst::బిట్టు_True{}};
+            AstLogAnd* స్థిరరాశి andp = కొత్త AstLogAnd{flp, aClonep, bClonep};
+            andp->dtype_సమితి_బిట్టు();
+            తిరిగి andp;
         };
-        AstDelay* const delayp = new AstDelay{flp, new AstConst{flp, static_cast<uint32_t>(lo)},
-                                              /*isCycle=*/true};
-        delayp->rhsp(new AstConst{flp, static_cast<uint32_t>(hi)});
-        AstSExpr* const reducedp
-            = new AstSExpr{flp, andBool(sl.startp, sr.startp), delayp, andBool(sl.endp, sr.endp)};
-        reducedp->dtypeSetBit();
-        return buildFromLoweringTree(reducedp, entryVtxp, isTopLevelStep);
+        AstDelay* స్థిరరాశి delayp = కొత్త AstDelay{flp, కొత్త AstConst{flp, static_cast<uint32_t>(lo)},
+                                              /*isCycle=*/నిజం};
+        delayp->rhsp(కొత్త AstConst{flp, static_cast<uint32_t>(hi)});
+        AstSExpr* స్థిరరాశి reducedp
+            = కొత్త AstSExpr{flp, andBool(sl.startp, sr.startp), delayp, andBool(sl.endp, sr.endp)};
+        reducedp->dtype_సమితి_బిట్టు();
+        తిరిగి build_From_Lowering_వృక్షం(reducedp, నమోదు_Vtxp, is_శిఖరం_Level_అడుగు);
     }
 
-    BuildResult buildThroughout(AstSThroughout* nodep, SvaStateVertex* entryVtxp,
-                                bool isTopLevelStep = false) {
+    Build_ఫలితం buildThroughout(AstSThroughout* nodep, Sva_State_శీర్షం* నమోదు_Vtxp,
+                                తార్కిక is_శిఖరం_Level_అడుగు = అబద్ధం) {
         // Mark entryVtxp so "cond false at tick 0" is detected as throughout-drop.
-        entryVtxp->m_throughoutConds.push_back(nodep->lhsp()->cloneTreePure(false));
-        m_temporalGuardStack.push_back(nodep->lhsp());
-        const BuildResult result = buildExpr(nodep->rhsp(), entryVtxp, isTopLevelStep);
-        m_temporalGuardStack.pop_back();
-        return result;
+        నమోదు_Vtxp->m_throughoutConds.నెట్టు_వెనుక(nodep->lhsp()->clone_వృక్షం_శుద్ధ(అబద్ధం));
+        m_temporal_Guard_దొంతర.నెట్టు_వెనుక(nodep->lhsp());
+        స్థిరరాశి Build_ఫలితం ఫలితం = build_సమాసం(nodep->rhsp(), నమోదు_Vtxp, is_శిఖరం_Level_అడుగు);
+        m_temporal_Guard_దొంతర.తీయి_వెనుక();
+        తిరిగి ఫలితం;
     }
 
     // until / until_with per IEEE 1800-2023 16.12.12.
@@ -1388,69 +1388,69 @@ class SvaNfaBuilder final {
     //   REQUIRE = sampled(p)                 accept = sampled(p) && sampled(q)
     // Strong forms use the same checks and mark the registered wait state as
     // an end-of-simulation liveness obligation.
-    BuildResult buildUntil(AstUntil* nodep, SvaStateVertex* entryVtxp, bool isTopLevelStep) {
-        FileLine* const flp = nodep->fileline();
-        if (!isTopLevelStep) {
+    Build_ఫలితం buildUntil(AstUntil* nodep, Sva_State_శీర్షం* నమోదు_Vtxp, తార్కిక is_శిఖరం_Level_అడుగు) {
+        File_పంక్తి* స్థిరరాశి flp = nodep->fileline();
+        ఒకవేళ (!is_శిఖరం_Level_అడుగు) {
             nodep->v3warn(E_UNSUPPORTED, "Unsupported: '" << nodep->verilogKwd()
                                                           << "' in complex property expression");
-            return BuildResult::failWithError();
+            తిరిగి Build_ఫలితం::failWithError();
         }
-        AstNodeExpr* const lhsp = nodep->lhsp();
-        AstNodeExpr* const rhsp = nodep->rhsp();
-        const auto hasSeq = [](const AstNodeExpr* ep) {
-            return ep->exists([](const AstNodeExpr* np) { return np->isMultiCycleSva(); });
+        Ast_కణుపు_సమాసం* స్థిరరాశి lhsp = nodep->lhsp();
+        Ast_కణుపు_సమాసం* స్థిరరాశి rhsp = nodep->rhsp();
+        స్థిరరాశి స్వయంచాలక hasSeq = [](స్థిరరాశి Ast_కణుపు_సమాసం* ep) {
+            తిరిగి ep->exists([](స్థిరరాశి Ast_కణుపు_సమాసం* np) { తిరిగి np->is_Multi_చక్రం_Sva(); });
         };
-        if (hasSeq(lhsp) || hasSeq(rhsp)) {
+        ఒకవేళ (hasSeq(lhsp) || hasSeq(rhsp)) {
             nodep->v3warn(E_UNSUPPORTED, "Unsupported: '" << nodep->verilogKwd()
                                                           << "' in complex property expression");
-            return BuildResult::failWithError();
+            తిరిగి Build_ఫలితం::failWithError();
         }
 
-        const bool ov = nodep->isOverlapping();
-        AstNodeExpr* const lhsBitp = nodep->lhsp();
-        AstNodeExpr* const rhsBitp = nodep->rhsp();
+        స్థిరరాశి తార్కిక ov = nodep->isOverlapping();
+        Ast_కణుపు_సమాసం* స్థిరరాశి lhsBitp = nodep->lhsp();
+        Ast_కణుపు_సమాసం* స్థిరరాశి rhsBitp = nodep->rhsp();
         // p hoist count: continue, require (ov: 1 use; nov: 1 use). At least 2 uses.
-        AstVar* const pHoistp = tryHoistSampled(lhsBitp, flp, 2);
+        AstVar* స్థిరరాశి pHoistp = tryHoistSampled(lhsBitp, flp, 2);
         // q hoist count: continue (1) + require nov (1) = 2; ov: continue only (1).
-        AstVar* const qHoistp = ov ? nullptr : tryHoistSampled(rhsBitp, flp, 2);
+        AstVar* స్థిరరాశి qHoistp = ov ? శూన్యసూచిక : tryHoistSampled(rhsBitp, flp, 2);
 
-        SvaStateVertex* const waitCp = scopedCreateVertex();
-        SvaStateVertex* const waitRp = scopedCreateVertex();
-        waitCp->m_isUnbounded = true;
+        Sva_State_శీర్షం* స్థిరరాశి waitCp = scoped_Create_శీర్షం();
+        Sva_State_శీర్షం* స్థిరరాశి waitRp = scoped_Create_శీర్షం();
+        waitCp->m_isUnbounded = నిజం;
         waitRp->m_strongPending = nodep->isStrong() && !m_isCover;
 
         // Entry and back-loop Links carry no condition; throughout-folding still applies.
-        guardedLink(entryVtxp, waitCp, flp);
+        guardedLink(నమోదు_Vtxp, waitCp, flp);
         guardedLink(waitRp, waitCp, flp);
 
         // Continue clocked edge: p && !q advances to next-cycle wait.
-        AstNodeExpr* const contCondp
-            = new AstLogAnd{flp, sampledRefOrClone(pHoistp, lhsBitp, flp),
-                            new AstLogNot{flp, sampledRefOrClone(qHoistp, rhsBitp, flp)}};
-        guardedEdge(waitCp, waitRp, contCondp, flp);
+        Ast_కణుపు_సమాసం* స్థిరరాశి contCondp
+            = కొత్త AstLogAnd{flp, sampledRefOrClone(pHoistp, lhsBitp, flp),
+                            కొత్త AstLogNot{flp, sampledRefOrClone(qHoistp, rhsBitp, flp)}};
+        guarded_అంచు(waitCp, waitRp, contCondp, flp);
 
         // Reject sink: fires when require-condition is false.
-        SvaStateVertex* const sinkVtxp = m_graph.createStateVertex();
-        sinkVtxp->m_isRejectSink = true;
-        AstNodeExpr* requireCondp;
-        if (ov) {
+        Sva_State_శీర్షం* స్థిరరాశి sinkVtxp = m_లేఖాచిత్రం.create_State_శీర్షం();
+        sinkVtxp->m_isRejectSink = నిజం;
+        Ast_కణుపు_సమాసం* requireCondp;
+        ఒకవేళ (ov) {
             requireCondp = sampledRefOrClone(pHoistp, lhsBitp, flp);
-        } else {
-            requireCondp = new AstLogOr{flp, sampledRefOrClone(pHoistp, lhsBitp, flp),
+        } లేకపోతే {
+            requireCondp = కొత్త AstLogOr{flp, sampledRefOrClone(pHoistp, lhsBitp, flp),
                                         sampledRefOrClone(qHoistp, rhsBitp, flp)};
         }
-        SvaTransEdge* const rejEdgep = m_graph.addLink(waitCp, sinkVtxp, requireCondp);
-        rejEdgep->m_rejectOnFail = true;
+        Sva_Trans_అంచు* స్థిరరాశి rejEdgep = m_లేఖాచిత్రం.కూడు_Link(waitCp, sinkVtxp, requireCondp);
+        rejEdgep->m_rejectOnFail = నిజం;
 
         // Accept condition rides via finalCondp; assembleResult $sampled-wraps it.
-        AstNodeExpr* acceptCondp;
-        if (ov) {
+        Ast_కణుపు_సమాసం* acceptCondp;
+        ఒకవేళ (ov) {
             acceptCondp
-                = new AstLogAnd{flp, lhsBitp->cloneTreePure(false), rhsBitp->cloneTreePure(false)};
-        } else {
-            acceptCondp = rhsBitp->cloneTreePure(false);
+                = కొత్త AstLogAnd{flp, lhsBitp->clone_వృక్షం_శుద్ధ(అబద్ధం), rhsBitp->clone_వృక్షం_శుద్ధ(అబద్ధం)};
+        } లేకపోతే {
+            acceptCondp = rhsBitp->clone_వృక్షం_శుద్ధ(అబద్ధం);
         }
-        return {waitCp, acceptCondp, {}};
+        తిరిగి {waitCp, acceptCondp, {}};
     }
 
     // IEEE 1800-2023 16.12.14 property abort operators. Sync and async share
@@ -1460,163 +1460,163 @@ class SvaNfaBuilder final {
     // verdict (sync vs async only changes the user-visible spelling).
 
     // Build `condp && !outer_1 && !outer_2 ...` (unsampled).
-    AstNodeExpr* abortFireExpr(AstNodeExpr* condp, FileLine* flp) {
-        AstNodeExpr* resultp = condp->cloneTreePure(false);
-        for (AstNodeExpr* const op : m_outerAbortStack)
-            resultp = new AstLogAnd{flp, resultp, new AstLogNot{flp, op->cloneTreePure(false)}};
-        return resultp;
+    Ast_కణుపు_సమాసం* abort_Fire_సమాసం(Ast_కణుపు_సమాసం* condp, File_పంక్తి* flp) {
+        Ast_కణుపు_సమాసం* resultp = condp->clone_వృక్షం_శుద్ధ(అబద్ధం);
+        కొరకు (Ast_కణుపు_సమాసం* స్థిరరాశి op : m_outer_Abort_దొంతర)
+            resultp = కొత్త AstLogAnd{flp, resultp, కొత్త AstLogNot{flp, op->clone_వృక్షం_శుద్ధ(అబద్ధం)}};
+        తిరిగి resultp;
     }
 
     // True when unguarded ring-wide rejection or a same-tick Link chain already accounts the
     // attempt: a required-step Link covers both outcomes; followed-by pairs both edges.
-    static bool chainAccountsSource(const SvaStateVertex* srcp,
-                                    const std::unordered_set<const V3GraphEdge*>& preEdges) {
-        if (srcp->m_delayRingSize && srcp->m_throughoutConds.empty()) return true;
-        for (const V3GraphEdge& edger : srcp->inEdges()) {
-            if (preEdges.count(&edger)) continue;
-            const SvaTransEdge& tedger = static_cast<const SvaTransEdge&>(edger);
-            if (tedger.m_consumesCycle) continue;
-            const auto* const fromp = static_cast<const SvaStateVertex*>(tedger.fromVtxp());
-            if (fromp->m_abortRejectp) return true;
+    స్థిర తార్కిక chain_Accounts_ఆధారం(స్థిరరాశి Sva_State_శీర్షం* srcp,
+                                    స్థిరరాశి std::unordered_సమితి<స్థిరరాశి V3_లేఖాచిత్రం_అంచు*>& pre_అంచులు) {
+        ఒకవేళ (srcp->m_delay_Ring_కొలత && srcp->m_throughoutConds.ఖాళీలు()) తిరిగి నిజం;
+        కొరకు (స్థిరరాశి V3_లేఖాచిత్రం_అంచు& edger : srcp->లోపల_అంచులు()) {
+            ఒకవేళ (pre_అంచులు.లెక్క(&edger)) కొనసాగు;
+            స్థిరరాశి Sva_Trans_అంచు& tedger = static_cast<స్థిరరాశి Sva_Trans_అంచు&>(edger);
+            ఒకవేళ (tedger.m_consumes_చక్రం) కొనసాగు;
+            స్థిరరాశి స్వయంచాలక* స్థిరరాశి fromp = static_cast<స్థిరరాశి Sva_State_శీర్షం*>(tedger.fromVtxp());
+            ఒకవేళ (fromp->m_abortRejectp) తిరిగి నిజం;
         }
-        bool plainNonSink = false;
-        bool markedSink = false;
-        for (const V3GraphEdge& edger : srcp->outEdges()) {
-            if (preEdges.count(&edger)) continue;
-            const SvaTransEdge& tedger = static_cast<const SvaTransEdge&>(edger);
-            if (tedger.m_consumesCycle) continue;
-            const bool sink = static_cast<const SvaStateVertex*>(tedger.toVtxp())->m_isRejectSink;
-            if (tedger.m_rejectOnFail) {
-                if (!sink) return true;
-                markedSink = true;
-            } else if (!sink) {
-                if (srcp->m_abortRejectp) return true;
-                plainNonSink = true;
+        తార్కిక plainNonSink = అబద్ధం;
+        తార్కిక markedSink = అబద్ధం;
+        కొరకు (స్థిరరాశి V3_లేఖాచిత్రం_అంచు& edger : srcp->బహిర్గతం_అంచులు()) {
+            ఒకవేళ (pre_అంచులు.లెక్క(&edger)) కొనసాగు;
+            స్థిరరాశి Sva_Trans_అంచు& tedger = static_cast<స్థిరరాశి Sva_Trans_అంచు&>(edger);
+            ఒకవేళ (tedger.m_consumes_చక్రం) కొనసాగు;
+            స్థిరరాశి తార్కిక sink = static_cast<స్థిరరాశి Sva_State_శీర్షం*>(tedger.గమ్యం_Vtxp())->m_isRejectSink;
+            ఒకవేళ (tedger.m_rejectOnFail) {
+                ఒకవేళ (!sink) తిరిగి నిజం;
+                markedSink = నిజం;
+            } లేకపోతే ఒకవేళ (!sink) {
+                ఒకవేళ (srcp->m_abortRejectp) తిరిగి నిజం;
+                plainNonSink = నిజం;
             }
         }
-        return plainNonSink && markedSink;
+        తిరిగి plainNonSink && markedSink;
     }
 
     // Reject edge: fires when the source is live and the abort samples true.
-    void addAbortRejectEdge(SvaStateVertex* srcp, SvaStateVertex* sinkp, AstNodeExpr* condp,
-                            FileLine* flp) {
-        AstNodeExpr* const notFirep = new AstLogNot{flp, sampled(abortFireExpr(condp, flp))};
-        m_graph.addLink(srcp, sinkp, notFirep)->m_rejectOnFail = true;
-        return;
+    శూన్య కూడు_Abort_Reject_అంచు(Sva_State_శీర్షం* srcp, Sva_State_శీర్షం* sinkp, Ast_కణుపు_సమాసం* condp,
+                            File_పంక్తి* flp) {
+        Ast_కణుపు_సమాసం* స్థిరరాశి notFirep = కొత్త AstLogNot{flp, sampled(abort_Fire_సమాసం(condp, flp))};
+        m_లేఖాచిత్రం.కూడు_Link(srcp, sinkp, notFirep)->m_rejectOnFail = నిజం;
+        తిరిగి;
     }
 
     // On the fire tick: kill body threads; accept kinds also forgive step misses.
-    void gateBodyEdgesOnAbort(const std::unordered_set<const V3GraphEdge*>& preEdges,
-                              AstNodeExpr* condp, VAbortKind kind, FileLine* flp) {
-        for (V3GraphVertex& vtxr : m_graph.m_graph.vertices()) {
-            for (V3GraphEdge& edger : vtxr.outEdges()) {
-                if (preEdges.count(&edger)) continue;
-                SvaTransEdge* const tedgep = static_cast<SvaTransEdge*>(&edger);
-                if (tedgep->m_rejectOnFail) {
-                    if (!kind.isAccept()) continue;
-                    AstNodeExpr* const firep = sampled(abortFireExpr(condp, flp));
+    శూన్య gate_Body_అంచులు_On_Abort(స్థిరరాశి std::unordered_సమితి<స్థిరరాశి V3_లేఖాచిత్రం_అంచు*>& pre_అంచులు,
+                              Ast_కణుపు_సమాసం* condp, VAbort_రకం రకం, File_పంక్తి* flp) {
+        కొరకు (V3_లేఖాచిత్రం_శీర్షం& vtxr : m_లేఖాచిత్రం.m_లేఖాచిత్రం.vertices()) {
+            కొరకు (V3_లేఖాచిత్రం_అంచు& edger : vtxr.బహిర్గతం_అంచులు()) {
+                ఒకవేళ (pre_అంచులు.లెక్క(&edger)) కొనసాగు;
+                Sva_Trans_అంచు* స్థిరరాశి tedgep = static_cast<Sva_Trans_అంచు*>(&edger);
+                ఒకవేళ (tedgep->m_rejectOnFail) {
+                    ఒకవేళ (!రకం.isAccept()) కొనసాగు;
+                    Ast_కణుపు_సమాసం* స్థిరరాశి firep = sampled(abort_Fire_సమాసం(condp, flp));
                     tedgep->m_condp
-                        = tedgep->m_condp ? new AstLogOr{flp, tedgep->m_condp, firep} : firep;
-                } else if (tedgep->m_consumesCycle) {
-                    AstNodeExpr* const notFirep
-                        = new AstLogNot{flp, sampled(abortFireExpr(condp, flp))};
+                        = tedgep->m_condp ? కొత్త AstLogOr{flp, tedgep->m_condp, firep} : firep;
+                } లేకపోతే ఒకవేళ (tedgep->m_consumes_చక్రం) {
+                    Ast_కణుపు_సమాసం* స్థిరరాశి notFirep
+                        = కొత్త AstLogNot{flp, sampled(abort_Fire_సమాసం(condp, flp))};
                     tedgep->m_condp = tedgep->m_condp
-                                          ? new AstLogAnd{flp, tedgep->m_condp, notFirep}
+                                          ? కొత్త AstLogAnd{flp, tedgep->m_condp, notFirep}
                                           : notFirep;
                 }
             }
         }
     }
 
-    BuildResult buildAbortOn(AstNodeExpr* condp, AstNodeExpr* bodyp, SvaStateVertex* entryVtxp,
-                             VAbortKind kind, FileLine* flp, bool isTopLevelStep) {
+    Build_ఫలితం buildAbortOn(Ast_కణుపు_సమాసం* condp, Ast_కణుపు_సమాసం* bodyp, Sva_State_శీర్షం* నమోదు_Vtxp,
+                             VAbort_రకం రకం, File_పంక్తి* flp, తార్కిక is_శిఖరం_Level_అడుగు) {
         // Snapshot pre-body vertices/edges so post-build diff yields the body's sub-NFA.
-        std::unordered_set<const V3GraphVertex*> preExisting;
-        std::unordered_set<const V3GraphEdge*> preEdges;
-        for (V3GraphVertex& vtxr : m_graph.m_graph.vertices()) {
-            preExisting.insert(&vtxr);
-            for (V3GraphEdge& edger : vtxr.outEdges()) preEdges.insert(&edger);
+        std::unordered_సమితి<స్థిరరాశి V3_లేఖాచిత్రం_శీర్షం*> preExisting;
+        std::unordered_సమితి<స్థిరరాశి V3_లేఖాచిత్రం_అంచు*> pre_అంచులు;
+        కొరకు (V3_లేఖాచిత్రం_శీర్షం& vtxr : m_లేఖాచిత్రం.m_లేఖాచిత్రం.vertices()) {
+            preExisting.చొప్పించు(&vtxr);
+            కొరకు (V3_లేఖాచిత్రం_అంచు& edger : vtxr.బహిర్గతం_అంచులు()) pre_అంచులు.చొప్పించు(&edger);
         }
 
-        m_outerAbortStack.push_back(condp);
-        const BuildResult bodyResult = buildExpr(bodyp, entryVtxp, isTopLevelStep);
-        m_outerAbortStack.pop_back();
-        if (!bodyResult.valid()) return bodyResult;
+        m_outer_Abort_దొంతర.నెట్టు_వెనుక(condp);
+        స్థిరరాశి Build_ఫలితం body_ఫలితం = build_సమాసం(bodyp, నమోదు_Vtxp, is_శిఖరం_Level_అడుగు);
+        m_outer_Abort_దొంతర.తీయి_వెనుక();
+        ఒకవేళ (!body_ఫలితం.valid()) తిరిగి body_ఫలితం;
 
-        gateBodyEdgesOnAbort(preEdges, condp, kind, flp);
+        gate_Body_అంచులు_On_Abort(pre_అంచులు, condp, రకం, flp);
 
         // Live-thread sources for the abort edge: entry + new body vertices,
         // minus reject sinks (they carry reject fuel, not live-thread fuel).
-        std::vector<SvaStateVertex*> abortSources;
-        abortSources.push_back(entryVtxp);
-        for (V3GraphVertex& vtxr : m_graph.m_graph.vertices()) {
-            if (preExisting.count(&vtxr)) continue;
-            auto* const sp = static_cast<SvaStateVertex*>(&vtxr);
-            if (sp->m_delayRingSize || !sp->m_throughoutConds.empty()) {
-                AstNodeExpr* const firep = abortFireExpr(condp, flp);
+        std::సదిశ<Sva_State_శీర్షం*> abortSources;
+        abortSources.నెట్టు_వెనుక(నమోదు_Vtxp);
+        కొరకు (V3_లేఖాచిత్రం_శీర్షం& vtxr : m_లేఖాచిత్రం.m_లేఖాచిత్రం.vertices()) {
+            ఒకవేళ (preExisting.లెక్క(&vtxr)) కొనసాగు;
+            స్వయంచాలక* స్థిరరాశి sp = static_cast<Sva_State_శీర్షం*>(&vtxr);
+            ఒకవేళ (sp->m_delay_Ring_కొలత || !sp->m_throughoutConds.ఖాళీలు()) {
+                Ast_కణుపు_సమాసం* స్థిరరాశి firep = abort_Fire_సమాసం(condp, flp);
                 sp->m_abortClearp
-                    = sp->m_abortClearp ? new AstLogOr{flp, sp->m_abortClearp, firep} : firep;
+                    = sp->m_abortClearp ? కొత్త AstLogOr{flp, sp->m_abortClearp, firep} : firep;
             }
-            if (!kind.isAccept()
-                && ((sp->m_delayRingSize && sp->m_throughoutConds.empty())
+            ఒకవేళ (!రకం.isAccept()
+                && ((sp->m_delay_Ring_కొలత && sp->m_throughoutConds.ఖాళీలు())
                     || sp->m_replayAbortReject)) {
-                AstNodeExpr* const firep = abortFireExpr(condp, flp);
+                Ast_కణుపు_సమాసం* స్థిరరాశి firep = abort_Fire_సమాసం(condp, flp);
                 sp->m_abortRejectp
-                    = sp->m_abortRejectp ? new AstLogOr{flp, sp->m_abortRejectp, firep} : firep;
+                    = sp->m_abortRejectp ? కొత్త AstLogOr{flp, sp->m_abortRejectp, firep} : firep;
             }
-            if (sp->m_isRejectSink) continue;
-            abortSources.push_back(sp);
+            ఒకవేళ (sp->m_isRejectSink) కొనసాగు;
+            abortSources.నెట్టు_వెనుక(sp);
         }
 
-        auto sampledAbortFire = [&]() -> AstNodeExpr* {
-            AstNodeExpr* const expr = abortFireExpr(condp, flp);
-            return sampled(expr);
+        స్వయంచాలక sampledAbortFire = [&]() -> Ast_కణుపు_సమాసం* {
+            Ast_కణుపు_సమాసం* స్థిరరాశి సమాసం = abort_Fire_సమాసం(condp, flp);
+            తిరిగి sampled(సమాసం);
         };
 
-        if (kind.isAccept()) {
+        ఒకవేళ (రకం.isAccept()) {
             // Match-only sink fed by $sampled(abort-fire) from every live source;
             // registered as midSource so it never contributes a reject.
-            SvaStateVertex* const acceptSinkp = scopedCreateVertex();
-            for (SvaStateVertex* const srcp : abortSources)
+            Sva_State_శీర్షం* స్థిరరాశి acceptSinkp = scoped_Create_శీర్షం();
+            కొరకు (Sva_State_శీర్షం* స్థిరరాశి srcp : abortSources)
                 guardedLink(srcp, acceptSinkp, sampledAbortFire(), flp);
-            std::vector<SvaStateVertex*> midSources = bodyResult.midSources;
-            midSources.push_back(acceptSinkp);
-            AstNodeExpr* finalCondp = bodyResult.finalCondp;
-            if (finalCondp) {
-                if (finalCondp->backp()) finalCondp = finalCondp->cloneTreePure(false);
-                finalCondp = new AstLogOr{flp, finalCondp, abortFireExpr(condp, flp)};
+            std::సదిశ<Sva_State_శీర్షం*> midSources = body_ఫలితం.midSources;
+            midSources.నెట్టు_వెనుక(acceptSinkp);
+            Ast_కణుపు_సమాసం* finalCondp = body_ఫలితం.finalCondp;
+            ఒకవేళ (finalCondp) {
+                ఒకవేళ (finalCondp->backp()) finalCondp = finalCondp->clone_వృక్షం_శుద్ధ(అబద్ధం);
+                finalCondp = కొత్త AstLogOr{flp, finalCondp, abort_Fire_సమాసం(condp, flp)};
             }
-            return {bodyResult.termVertexp, finalCondp, std::move(midSources)};
+            తిరిగి {body_ఫలితం.పదం_Vertexp, finalCondp, std::move(midSources)};
         }
 
         // rejectOnFail treats m_condp as the success condition and fires on
         // !condp, so the edge carries !sampledAbortFire().
-        SvaStateVertex* const rejectSinkp = m_graph.createStateVertex();
-        rejectSinkp->m_isRejectSink = true;
-        for (SvaStateVertex* const srcp : abortSources)
-            if (!chainAccountsSource(srcp, preEdges))
-                addAbortRejectEdge(srcp, rejectSinkp, condp, flp);
-        AstNodeExpr* finalCondp = bodyResult.finalCondp;
-        if (finalCondp) {
-            if (finalCondp->backp()) finalCondp = finalCondp->cloneTreePure(false);
+        Sva_State_శీర్షం* స్థిరరాశి rejectSinkp = m_లేఖాచిత్రం.create_State_శీర్షం();
+        rejectSinkp->m_isRejectSink = నిజం;
+        కొరకు (Sva_State_శీర్షం* స్థిరరాశి srcp : abortSources)
+            ఒకవేళ (!chain_Accounts_ఆధారం(srcp, pre_అంచులు))
+                కూడు_Abort_Reject_అంచు(srcp, rejectSinkp, condp, flp);
+        Ast_కణుపు_సమాసం* finalCondp = body_ఫలితం.finalCondp;
+        ఒకవేళ (finalCondp) {
+            ఒకవేళ (finalCondp->backp()) finalCondp = finalCondp->clone_వృక్షం_శుద్ధ(అబద్ధం);
             finalCondp
-                = new AstLogAnd{flp, finalCondp, new AstLogNot{flp, abortFireExpr(condp, flp)}};
+                = కొత్త AstLogAnd{flp, finalCondp, కొత్త AstLogNot{flp, abort_Fire_సమాసం(condp, flp)}};
         }
-        return {bodyResult.termVertexp, finalCondp, bodyResult.midSources};
+        తిరిగి {body_ఫలితం.పదం_Vertexp, finalCondp, body_ఫలితం.midSources};
     }
 
-public:
+బహిరంగ:
     // Free a dropped sub-result condition that is not linked into the AST
     // (abort folds synthesize unparented finalCondp trees).
-    static void freeUnlinkedCondp(AstNodeExpr* condp) {
-        if (condp && !condp->backp()) VL_DO_DANGLING(condp->deleteTree(), condp);
+    స్థిర శూన్య freeUnlinkedCondp(Ast_కణుపు_సమాసం* condp) {
+        ఒకవేళ (condp && !condp->backp()) VL_DO_DANGLING(condp->delete_వృక్షం(), condp);
     }
 
-    SvaNfaBuilder(SvaGraph& graph, AstNodeModule* modp, V3UniqueNames& propTempNames,
-                  bool isCoverSeq = false, bool isSeqEvent = false, bool isCover = false)
-        : m_graph{graph}
+    SvaNfaBuilder(Sva_లేఖాచిత్రం& లేఖాచిత్రం, Ast_కణుపు_Module* modp, V3_Unique_పేర్లు& prop_తాత్కాలిక_పేర్లు,
+                  తార్కిక isCoverSeq = అబద్ధం, తార్కిక isSeqEvent = అబద్ధం, తార్కిక isCover = అబద్ధం)
+        : m_లేఖాచిత్రం{లేఖాచిత్రం}
         , m_modp{modp}
-        , m_propTempNames{propTempNames}
+        , m_prop_తాత్కాలిక_పేర్లు{prop_తాత్కాలిక_పేర్లు}
         , m_isCover{isCover}
         , m_isCoverSeq{isCoverSeq}
         , m_isSeqEvent{isSeqEvent} {}
@@ -1624,83 +1624,83 @@ public:
     // Reset scope between antecedent and consequent: liveness must not leak.
     // m_outerAbortStack survives: an abort wrapping the implication covers the
     // consequent too (IEEE 1800-2023 16.12.14).
-    void resetScope() {
-        m_inUnboundedScope = false;
-        m_temporalGuardStack.clear();
+    శూన్య resetScope() {
+        m_లోపల_Unbounded_Scope = అబద్ధం;
+        m_temporal_Guard_దొంతర.clear();
     }
 
-    BuildResult buildExpr(AstNodeExpr* nodep, SvaStateVertex* entryVtxp,
-                          bool isTopLevelStep = false) {
-        VL_RESTORER(m_wantBoolLeaf);
-        const bool wantBoolLeaf = m_wantBoolLeaf;
-        m_wantBoolLeaf = false;
-        if (AstSExpr* const sexprp = VN_CAST(nodep, SExpr)) {
-            return buildSExpr(sexprp, entryVtxp, isTopLevelStep);
+    Build_ఫలితం build_సమాసం(Ast_కణుపు_సమాసం* nodep, Sva_State_శీర్షం* నమోదు_Vtxp,
+                          తార్కిక is_శిఖరం_Level_అడుగు = అబద్ధం) {
+        VL_RESTORER(m_want_Bool_ఆకు);
+        స్థిరరాశి తార్కిక want_Bool_ఆకు = m_want_Bool_ఆకు;
+        m_want_Bool_ఆకు = అబద్ధం;
+        ఒకవేళ (AstSExpr* స్థిరరాశి sexprp = VN_CAST(nodep, SExpr)) {
+            తిరిగి buildSExpr(sexprp, నమోదు_Vtxp, is_శిఖరం_Level_అడుగు);
         }
-        if (AstSConsRep* const repp = VN_CAST(nodep, SConsRep)) {
-            return buildConsRep(repp, entryVtxp, isTopLevelStep);
+        ఒకవేళ (AstSConsRep* స్థిరరాశి repp = VN_CAST(nodep, SConsRep)) {
+            తిరిగి buildConsRep(repp, నమోదు_Vtxp, is_శిఖరం_Level_అడుగు);
         }
-        if (AstPropAlways* const alwaysp = VN_CAST(nodep, PropAlways)) {
-            return buildPropAlways(alwaysp, entryVtxp, isTopLevelStep);
+        ఒకవేళ (AstPropAlways* స్థిరరాశి alwaysp = VN_CAST(nodep, PropAlways)) {
+            తిరిగి buildPropAlways(alwaysp, నమోదు_Vtxp, is_శిఖరం_Level_అడుగు);
         }
-        if (AstSGotoRep* const repp = VN_CAST(nodep, SGotoRep)) {
-            return buildGotoRep(repp, entryVtxp);
+        ఒకవేళ (AstSGotoRep* స్థిరరాశి repp = VN_CAST(nodep, SGotoRep)) {
+            తిరిగి buildGotoRep(repp, నమోదు_Vtxp);
         }
-        if (AstSThroughout* const throughoutp = VN_CAST(nodep, SThroughout)) {
-            return buildThroughout(throughoutp, entryVtxp, isTopLevelStep);
+        ఒకవేళ (AstSThroughout* స్థిరరాశి throughoutp = VN_CAST(nodep, SThroughout)) {
+            తిరిగి buildThroughout(throughoutp, నమోదు_Vtxp, is_శిఖరం_Level_అడుగు);
         }
-        if (AstSOr* const orp = VN_CAST(nodep, SOr)) {
-            return buildOrMerge(orp->lhsp(), orp->rhsp(), entryVtxp, orp->fileline(),
-                                wantBoolLeaf);
+        ఒకవేళ (AstSOr* స్థిరరాశి orp = VN_CAST(nodep, SOr)) {
+            తిరిగి build_Or_విలీనం(orp->lhsp(), orp->rhsp(), నమోదు_Vtxp, orp->fileline(),
+                                want_Bool_ఆకు);
         }
-        if (AstLogOr* const orp = VN_CAST(nodep, LogOr)) {
-            return buildOrMerge(orp->lhsp(), orp->rhsp(), entryVtxp, orp->fileline(),
-                                wantBoolLeaf);
+        ఒకవేళ (AstLogOr* స్థిరరాశి orp = VN_CAST(nodep, LogOr)) {
+            తిరిగి build_Or_విలీనం(orp->lhsp(), orp->rhsp(), నమోదు_Vtxp, orp->fileline(),
+                                want_Bool_ఆకు);
         }
-        if (AstSAnd* const andp = VN_CAST(nodep, SAnd)) {
-            return buildAndCombiner(andp->lhsp(), andp->rhsp(), entryVtxp, andp->fileline());
+        ఒకవేళ (AstSAnd* స్థిరరాశి andp = VN_CAST(nodep, SAnd)) {
+            తిరిగి buildAndCombiner(andp->lhsp(), andp->rhsp(), నమోదు_Vtxp, andp->fileline());
         }
-        if (AstSIntersect* const intp = VN_CAST(nodep, SIntersect)) {
+        ఒకవేళ (AstSIntersect* స్థిరరాశి intp = VN_CAST(nodep, SIntersect)) {
             // IEEE 1800-2023 16.9.6: both operands match over one window with
             // equal start and end (equal length). Lower to a single sequence
             // that conjoins both operands' per-cycle checks -- correct under
             // concurrent attempts, where the done-latch combiner conflates the
             // two operands' start times and over-accepts. The combiner remains
             // only as a fallback for operands that do not flatten.
-            const int lhsLen = fixedLength(intp->lhsp());
-            const int rhsLen = fixedLength(intp->rhsp());
-            if (lhsLen >= 0 && rhsLen >= 0) {
-                if (lhsLen != rhsLen) {
+            స్థిరరాశి పూర్ణాంకం lhsLen = fixed_నిడివి(intp->lhsp());
+            స్థిరరాశి పూర్ణాంకం rhsLen = fixed_నిడివి(intp->rhsp());
+            ఒకవేళ (lhsLen >= 0 && rhsLen >= 0) {
+                ఒకవేళ (lhsLen != rhsLen) {
                     // Unequal fixed lengths share no common length -> never matches.
-                    return buildNeverMatchIntersect(intp, entryVtxp, isTopLevelStep,
+                    తిరిగి build_Never_సరిపోలిక_Intersect(intp, నమోదు_Vtxp, is_శిఖరం_Level_అడుగు,
                                                     "intersect operands have no common length");
                 }
-                if (AstNodeExpr* const conjp
+                ఒకవేళ (Ast_కణుపు_సమాసం* స్థిరరాశి conjp
                     = conjoinFixedSeqs(intp->lhsp(), intp->rhsp(), intp->fileline())) {
-                    return buildFromLoweringTree(conjp, entryVtxp, isTopLevelStep);
+                    తిరిగి build_From_Lowering_వృక్షం(conjp, నమోదు_Vtxp, is_శిఖరం_Level_అడుగు);
                 }
-                return buildAndCombiner(intp->lhsp(), intp->rhsp(), entryVtxp, intp->fileline());
+                తిరిగి buildAndCombiner(intp->lhsp(), intp->rhsp(), నమోదు_Vtxp, intp->fileline());
             }
-            return buildVarLenIntersect(intp, entryVtxp, isTopLevelStep);
+            తిరిగి buildVarLenIntersect(intp, నమోదు_Vtxp, is_శిఖరం_Level_అడుగు);
         }
-        if (AstSWithin* const withinp = VN_CAST(nodep, SWithin)) {
-            return buildSWithin(withinp, entryVtxp, isTopLevelStep);
+        ఒకవేళ (AstSWithin* స్థిరరాశి withinp = VN_CAST(nodep, SWithin)) {
+            తిరిగి buildSWithin(withinp, నమోదు_Vtxp, is_శిఖరం_Level_అడుగు);
         }
-        if (AstAbortOn* const ap = VN_CAST(nodep, AbortOn)) {
-            return buildAbortOn(ap->condp(), ap->propp(), entryVtxp, ap->kind(), ap->fileline(),
-                                isTopLevelStep);
+        ఒకవేళ (AstAbortOn* స్థిరరాశి ap = VN_CAST(nodep, AbortOn)) {
+            తిరిగి buildAbortOn(ap->condp(), ap->propp(), నమోదు_Vtxp, ap->రకం(), ap->fileline(),
+                                is_శిఖరం_Level_అడుగు);
         }
-        if (VN_IS(nodep, SNonConsRep)) return BuildResult::fail();
-        if (AstImplication* const implp = VN_CAST(nodep, Implication)) {
-            return buildImplicationEdges(implp->lhsp(), implp->rhsp(), entryVtxp,
+        ఒకవేళ (VN_IS(nodep, SNonConsRep)) తిరిగి Build_ఫలితం::fail();
+        ఒకవేళ (AstImplication* స్థిరరాశి implp = VN_CAST(nodep, Implication)) {
+            తిరిగి build_Implication_అంచులు(implp->lhsp(), implp->rhsp(), నమోదు_Vtxp,
                                          implp->isOverlapped(), implp->isFollowedBy(),
                                          implp->lhsp(), implp->fileline());
         }
-        if (AstUntil* const untilp = VN_CAST(nodep, Until)) {
-            return buildUntil(untilp, entryVtxp, isTopLevelStep);
+        ఒకవేళ (AstUntil* స్థిరరాశి untilp = VN_CAST(nodep, Until)) {
+            తిరిగి buildUntil(untilp, నమోదు_Vtxp, is_శిఖరం_Level_అడుగు);
         }
         // Boolean leaf (including LogAnd): return as finalCond
-        return {entryVtxp, nodep, {}};
+        తిరిగి {నమోదు_Vtxp, nodep, {}};
     }
 
     // Wire an implication / followed-by from `entryVtxp`: builds the antecedent,
@@ -1709,230 +1709,230 @@ public:
     // nested AstImplication in pexpr position and for the top-level assertion
     // antecedent -- `errorNodep` anchors the "unsupported sequence antecedent"
     // error, which differs between the two call sites.
-    BuildResult buildImplicationEdges(AstNodeExpr* antExprp, AstNodeExpr* bodyExprp,
-                                      SvaStateVertex* entryVtxp, bool isOverlapped,
-                                      bool isFollowedBy, AstNode* errorNodep, FileLine* flp) {
-        const BuildResult antResult = buildExpr(antExprp, entryVtxp);
-        if (!antResult.valid()) return antResult;
+    Build_ఫలితం build_Implication_అంచులు(Ast_కణుపు_సమాసం* antExprp, Ast_కణుపు_సమాసం* bodyExprp,
+                                      Sva_State_శీర్షం* నమోదు_Vtxp, తార్కిక isOverlapped,
+                                      తార్కిక isFollowedBy, Ast_కణుపు* errorNodep, File_పంక్తి* flp) {
+        స్థిరరాశి Build_ఫలితం ant_ఫలితం = build_సమాసం(antExprp, నమోదు_Vtxp);
+        ఒకవేళ (!ant_ఫలితం.valid()) తిరిగి ant_ఫలితం;
 
         // Followed-by requires pure-boolean antecedent for non-vacuous-fail at
         // the attempt-start cycle. IEEE 1800-2023 16.12.9 permits a multi-cycle
         // sequence LHS, so this is an implementation gap rather than illegal SV.
-        if (isFollowedBy && antResult.termVertexp != entryVtxp) {
+        ఒకవేళ (isFollowedBy && ant_ఫలితం.పదం_Vertexp != నమోదు_Vtxp) {
             errorNodep->v3warn(E_UNSUPPORTED,
                                "Unsupported: sequence expression as antecedent of followed-by"
                                " (#-# / #=#) (IEEE 1800-2023 16.12.9)");
-            return BuildResult::failWithError();
+            తిరిగి Build_ఫలితం::failWithError();
         }
-        UASSERT_OBJ(!isFollowedBy || antResult.finalCondp, errorNodep,
+        UASSERT_OBJ(!isFollowedBy || ant_ఫలితం.finalCondp, errorNodep,
                     "followed-by antecedent terminal at entry must carry finalCondp");
 
         // Use raw createStateVertex() so trigVtxp starts without liveness --
         // reaching the antecedent terminal is a definitive event.
-        SvaStateVertex* const trigVtxp = m_graph.createStateVertex();
-        if (antResult.finalCondp) {
-            m_graph.addLink(antResult.termVertexp, trigVtxp,
-                            sampled(antResult.finalCondp->cloneTreePure(false)));
+        Sva_State_శీర్షం* స్థిరరాశి trigVtxp = m_లేఖాచిత్రం.create_State_శీర్షం();
+        ఒకవేళ (ant_ఫలితం.finalCondp) {
+            m_లేఖాచిత్రం.కూడు_Link(ant_ఫలితం.పదం_Vertexp, trigVtxp,
+                            sampled(ant_ఫలితం.finalCondp->clone_వృక్షం_శుద్ధ(అబద్ధం)));
             // Followed-by non-vacuous fail: rejectOnFail fires when the attempt
             // is live (termVtx reachable) and sampled(antecedent) is false.
-            if (isFollowedBy) {
-                SvaStateVertex* const sinkVtxp = m_graph.createStateVertex();
-                sinkVtxp->m_isRejectSink = true;
-                SvaTransEdge* const ep
-                    = m_graph.addLink(antResult.termVertexp, sinkVtxp,
-                                      sampled(antResult.finalCondp->cloneTreePure(false)));
-                ep->m_rejectOnFail = true;
+            ఒకవేళ (isFollowedBy) {
+                Sva_State_శీర్షం* స్థిరరాశి sinkVtxp = m_లేఖాచిత్రం.create_State_శీర్షం();
+                sinkVtxp->m_isRejectSink = నిజం;
+                Sva_Trans_అంచు* స్థిరరాశి ep
+                    = m_లేఖాచిత్రం.కూడు_Link(ant_ఫలితం.పదం_Vertexp, sinkVtxp,
+                                      sampled(ant_ఫలితం.finalCondp->clone_వృక్షం_శుద్ధ(అబద్ధం)));
+                ep->m_rejectOnFail = నిజం;
             }
             // finalCondp is cloned into the Sampled nodes; if the original is
             // not parented anywhere in the AST anymore it must be freed here
             // or ASan flags it as a leak (e.g. t_sequence_bool_ops).
-            if (!antResult.finalCondp->backp()) {
-                VL_DO_DANGLING(antResult.finalCondp->deleteTree(), antResult.finalCondp);
+            ఒకవేళ (!ant_ఫలితం.finalCondp->backp()) {
+                VL_DO_DANGLING(ant_ఫలితం.finalCondp->delete_వృక్షం(), ant_ఫలితం.finalCondp);
             }
-        } else {
-            m_graph.addLink(antResult.termVertexp, trigVtxp);
+        } లేకపోతే {
+            m_లేఖాచిత్రం.కూడు_Link(ant_ఫలితం.పదం_Vertexp, trigVtxp);
         }
         resetScope();
 
-        SvaStateVertex* bodyEntryp = trigVtxp;
-        if (!isOverlapped) {
-            SvaStateVertex* const delayVtxp = m_graph.createStateVertex();
-            m_graph.addClockedEdge(trigVtxp, delayVtxp);
+        Sva_State_శీర్షం* bodyEntryp = trigVtxp;
+        ఒకవేళ (!isOverlapped) {
+            Sva_State_శీర్షం* స్థిరరాశి delayVtxp = m_లేఖాచిత్రం.create_State_శీర్షం();
+            m_లేఖాచిత్రం.కూడు_Clocked_అంచు(trigVtxp, delayVtxp);
             bodyEntryp = delayVtxp;
         }
         // An empty antecedent match must not start the consequent, but a zero-minimum
         // repetition's empty match is not handled here; keep the merge vertex for those
-        VL_RESTORER(m_wantBoolLeaf);
-        m_wantBoolLeaf = !isFollowedBy && !hasZeroMinRep(antExprp);
-        return buildExpr(bodyExprp, bodyEntryp, /*isTopLevelStep=*/true);
+        VL_RESTORER(m_want_Bool_ఆకు);
+        m_want_Bool_ఆకు = !isFollowedBy && !hasZeroMinRep(antExprp);
+        తిరిగి build_సమాసం(bodyExprp, bodyEntryp, /*isTopLevelStep=*/నిజం);
     }
 
-    BuildResult build(AstNodeExpr* exprp) {
-        m_graph.m_startVertexp = scopedCreateVertex();
-        VL_RESTORER(m_wantBoolLeaf);
-        m_wantBoolLeaf = true;
-        return buildExpr(exprp, m_graph.m_startVertexp, /*isTopLevelStep=*/true);
+    Build_ఫలితం build(Ast_కణుపు_సమాసం* exprp) {
+        m_లేఖాచిత్రం.m_ప్రారంభం_Vertexp = scoped_Create_శీర్షం();
+        VL_RESTORER(m_want_Bool_ఆకు);
+        m_want_Bool_ఆకు = నిజం;
+        తిరిగి build_సమాసం(exprp, m_లేఖాచిత్రం.m_ప్రారంభం_Vertexp, /*isTopLevelStep=*/నిజం);
     }
 };
 
 //######################################################################
 // NFA Lowering (converts NFA graph to synthesizable AstAlways blocks)
 
-class SvaNfaLowering final {
-    AstNodeModule* const m_modp;  // Module to add state vars and always blocks to
-    AstNodeDType* const m_u32DTypep;  // Shared unsigned counter dtype
-    V3UniqueNames m_names{"__Vnfa"};
-    size_t m_statDelayRingEdgeVisits = 0;  // Delay-ring incoming edges visited
+తరగతి SvaNfaLowering final {
+    Ast_కణుపు_Module* స్థిరరాశి m_modp;  // Module to add state vars and always blocks to
+    Ast_కణుపు_DType* స్థిరరాశి m_u32DTypep;  // Shared unsigned counter dtype
+    V3_Unique_పేర్లు m_పేర్లు{"__Vnfa"};
+    కొలత_t m_stat_Delay_Ring_అంచు_Visits = 0;  // Delay-ring incoming edges visited
 
     // Per-lowering shared context (passed to phase sub-functions)
     // Per-vertex lowering state is stored in SvaVertexData and accessed via
     // V3GraphVertex::userp() (see SvaStateVertex::datap()).
-    struct LowerCtx final {
-        FileLine* flp;  // Source location for generated AST
-        AstSenTree* senTreep;  // Clock sensitivity tree
-        AstNodeExpr* disableExprp;  // disable iff expression (may be nullptr)
-        AstNodeExpr* matchCondp;  // Final boolean match condition (may be nullptr)
+    నిర్మాణం క్రింది_Ctx final {
+        File_పంక్తి* flp;  // Source location for generated AST
+        Ast_Sen_వృక్షం* senTreep;  // Clock sensitivity tree
+        Ast_కణుపు_సమాసం* disableExprp;  // disable iff expression (may be nullptr)
+        Ast_కణుపు_సమాసం* సరిపోలిక_Condp;  // Final boolean match condition (may be nullptr)
         VAssertType assertType;  // Assertion type for control tasks
         VAssertDirectiveType directiveType;  // Directive type for control tasks
         AstVar* killVarp;  // Last observed kill generation
-        SvaGraph& graph;  // NFA graph
+        Sva_లేఖాచిత్రం& లేఖాచిత్రం;  // NFA graph
     };
 
     // Build a match-now expression: stateSig[i] && $sampled(condp)
-    static AstNodeExpr* buildMatchNow(FileLine* flp, AstNodeExpr* stateExprp, AstNodeExpr* condp) {
-        AstNodeExpr* const statep = stateExprp->cloneTreePure(false);
-        if (!condp) return statep;
-        return new AstLogAnd{flp, statep, sampled(condp->cloneTreePure(false))};
+    స్థిర Ast_కణుపు_సమాసం* build_సరిపోలిక_Now(File_పంక్తి* flp, Ast_కణుపు_సమాసం* stateExprp, Ast_కణుపు_సమాసం* condp) {
+        Ast_కణుపు_సమాసం* స్థిరరాశి statep = stateExprp->clone_వృక్షం_శుద్ధ(అబద్ధం);
+        ఒకవేళ (!condp) తిరిగి statep;
+        తిరిగి కొత్త AstLogAnd{flp, statep, sampled(condp->clone_వృక్షం_శుద్ధ(అబద్ధం))};
     }
-    static AstNodeExpr* andCond(FileLine* flp, AstNodeExpr* exprp, AstNodeExpr* condp) {
-        if (!condp) return exprp;
-        return new AstLogAnd{flp, exprp, condp->cloneTreePure(false)};
+    స్థిర Ast_కణుపు_సమాసం* andCond(File_పంక్తి* flp, Ast_కణుపు_సమాసం* exprp, Ast_కణుపు_సమాసం* condp) {
+        ఒకవేళ (!condp) తిరిగి exprp;
+        తిరిగి కొత్త AstLogAnd{flp, exprp, condp->clone_వృక్షం_శుద్ధ(అబద్ధం)};
     }
     // bp is always non-null; only ap can be null (serving as accumulator).
-    static AstNodeExpr* orExprs(FileLine* flp, AstNodeExpr* ap, AstNodeExpr* bp) {
-        if (!ap) return bp;
-        return new AstLogOr{flp, ap, bp};
+    స్థిర Ast_కణుపు_సమాసం* orExprs(File_పంక్తి* flp, Ast_కణుపు_సమాసం* ap, Ast_కణుపు_సమాసం* bp) {
+        ఒకవేళ (!ap) తిరిగి bp;
+        తిరిగి కొత్త AstLogOr{flp, ap, bp};
     }
-    static AstNodeExpr* addCountp(FileLine* const flp, AstNodeExpr* const totalCountp,
-                                  AstNodeExpr* const contributionp,
-                                  AstNodeExpr* const enablep = nullptr) {
+    స్థిర Ast_కణుపు_సమాసం* కూడు_Countp(File_పంక్తి* స్థిరరాశి flp, Ast_కణుపు_సమాసం* స్థిరరాశి మొత్తం_Countp,
+                                  Ast_కణుపు_సమాసం* స్థిరరాశి contributionp,
+                                  Ast_కణుపు_సమాసం* స్థిరరాశి enablep = శూన్యసూచిక) {
         // contribution = enable ? contribution : 0;
-        AstNodeExpr* const enabledContributionp
-            = enablep ? new AstCond{flp, enablep, contributionp,
+        Ast_కణుపు_సమాసం* స్థిరరాశి enabledContributionp
+            = enablep ? కొత్త AstCond{flp, enablep, contributionp,
                                     newTypedConstp(flp, contributionp->dtypep(), 0)}
                       : contributionp;
-        if (!totalCountp) return enabledContributionp;
-        return new AstAdd{flp, totalCountp, enabledContributionp};
+        ఒకవేళ (!మొత్తం_Countp) తిరిగి enabledContributionp;
+        తిరిగి కొత్త Ast_కూడు{flp, మొత్తం_Countp, enabledContributionp};
     }
-    static AstNodeExpr* gateCheckedCountp(FileLine* const flp, AstNodeExpr* const countp,
-                                          AstNodeExpr*& overflowp, AstNodeExpr* const enablep) {
-        if (overflowp) {
-            overflowp = new AstLogAnd{flp, enablep->cloneTreePure(false), overflowp};
+    స్థిర Ast_కణుపు_సమాసం* gateCheckedCountp(File_పంక్తి* స్థిరరాశి flp, Ast_కణుపు_సమాసం* స్థిరరాశి countp,
+                                          Ast_కణుపు_సమాసం*& overflowp, Ast_కణుపు_సమాసం* స్థిరరాశి enablep) {
+        ఒకవేళ (overflowp) {
+            overflowp = కొత్త AstLogAnd{flp, enablep->clone_వృక్షం_శుద్ధ(అబద్ధం), overflowp};
         }
-        return addCountp(flp, nullptr, countp, enablep);
+        తిరిగి కూడు_Countp(flp, శూన్యసూచిక, countp, enablep);
     }
-    static AstNodeExpr* addCheckedCountp(FileLine* const flp, AstNodeExpr* const totalCountp,
-                                         AstNodeExpr* const contributionp, AstNodeExpr*& overflowp,
-                                         AstNodeExpr* const contributionOverflowp = nullptr) {
-        if (contributionOverflowp) { overflowp = orExprs(flp, overflowp, contributionOverflowp); }
-        if (!totalCountp) return contributionp;
-        AstNodeExpr* const oldTotalp = totalCountp->cloneTreePure(false);
-        AstNodeExpr* const resultp = new AstAdd{flp, totalCountp, contributionp};
+    స్థిర Ast_కణుపు_సమాసం* కూడు_Checked_Countp(File_పంక్తి* స్థిరరాశి flp, Ast_కణుపు_సమాసం* స్థిరరాశి మొత్తం_Countp,
+                                         Ast_కణుపు_సమాసం* స్థిరరాశి contributionp, Ast_కణుపు_సమాసం*& overflowp,
+                                         Ast_కణుపు_సమాసం* స్థిరరాశి contributionOverflowp = శూన్యసూచిక) {
+        ఒకవేళ (contributionOverflowp) { overflowp = orExprs(flp, overflowp, contributionOverflowp); }
+        ఒకవేళ (!మొత్తం_Countp) తిరిగి contributionp;
+        Ast_కణుపు_సమాసం* స్థిరరాశి oldTotalp = మొత్తం_Countp->clone_వృక్షం_శుద్ధ(అబద్ధం);
+        Ast_కణుపు_సమాసం* స్థిరరాశి resultp = కొత్త Ast_కూడు{flp, మొత్తం_Countp, contributionp};
         overflowp
-            = orExprs(flp, overflowp, new AstLt{flp, resultp->cloneTreePure(false), oldTotalp});
-        return resultp;
+            = orExprs(flp, overflowp, కొత్త AstLt{flp, resultp->clone_వృక్షం_శుద్ధ(అబద్ధం), oldTotalp});
+        తిరిగి resultp;
     }
-    AstIf* newCountOverflowWarning(FileLine* const flp, AstNodeExpr* const condp) const {
-        AstDisplay* const dispp = new AstDisplay{
+    AstIf* new_లెక్క_అధికప్రవాహం_Warning(File_పంక్తి* స్థిరరాశి flp, Ast_కణుపు_సమాసం* స్థిరరాశి condp) స్థిరరాశి {
+        AstDisplay* స్థిరరాశి dispp = కొత్త AstDisplay{
             flp, VDisplayType::DT_WARNING,
             "Cover sequence match count overflowed 32-bit storage; results may be incorrect.",
-            nullptr, nullptr};
+            శూన్యసూచిక, శూన్యసూచిక};
         dispp->fmtp()->timeunit(m_modp->timeunit());
-        AstIf* const ifp = new AstIf{flp, condp, dispp};
+        AstIf* స్థిరరాశి ifp = కొత్త AstIf{flp, condp, dispp};
         ifp->branchPred(VBranchPred::BP_UNLIKELY);
-        return ifp;
+        తిరిగి ifp;
     }
-    static AstNodeExpr* killActive(LowerCtx& c) {
-        return new AstNeq{c.flp, new AstVarRef{c.flp, c.killVarp, VAccess::READ},
+    స్థిర Ast_కణుపు_సమాసం* kill_చురుకైన(క్రింది_Ctx& c) {
+        తిరిగి కొత్త AstNeq{c.flp, కొత్త AstVarRef{c.flp, c.killVarp, VAccess::READ},
                           assertKillGet(c.flp, c.assertType, c.directiveType)};
     }
-    static AstNodeExpr* notKillActive(LowerCtx& c) { return new AstLogNot{c.flp, killActive(c)}; }
-    static AstNodeExpr* gateNotKill(LowerCtx& c, AstNodeExpr* exprp) {
-        if (!exprp) return nullptr;
-        return new AstLogAnd{c.flp, exprp, notKillActive(c)};
+    స్థిర Ast_కణుపు_సమాసం* not_Kill_చురుకైన(క్రింది_Ctx& c) { తిరిగి కొత్త AstLogNot{c.flp, kill_చురుకైన(c)}; }
+    స్థిర Ast_కణుపు_సమాసం* gateNotKill(క్రింది_Ctx& c, Ast_కణుపు_సమాసం* exprp) {
+        ఒకవేళ (!exprp) తిరిగి శూన్యసూచిక;
+        తిరిగి కొత్త AstLogAnd{c.flp, exprp, not_Kill_చురుకైన(c)};
     }
-    static AstNodeExpr* nextRingIndex(FileLine* flp, AstNodeExpr* idxExprp, uint32_t size) {
-        const auto u32Const = [flp](uint32_t value) {
-            return new AstConst{flp, AstConst::WidthedValue{}, 32, value};
+    స్థిర Ast_కణుపు_సమాసం* తదుపరి_Ring_సూచీ(File_పంక్తి* flp, Ast_కణుపు_సమాసం* idxExprp, uint32_t కొలత) {
+        స్థిరరాశి స్వయంచాలక u32Const = [flp](uint32_t విలువ) {
+            తిరిగి కొత్త AstConst{flp, AstConst::Widthed_విలువ{}, 32, విలువ};
         };
-        UASSERT_OBJ(size > 0, idxExprp, "Ring size must be positive");
-        if (size == 1) {
-            VL_DO_DANGLING(idxExprp->deleteTree(), idxExprp);
-            return u32Const(0);
+        UASSERT_OBJ(కొలత > 0, idxExprp, "Ring size must be positive");
+        ఒకవేళ (కొలత == 1) {
+            VL_DO_DANGLING(idxExprp->delete_వృక్షం(), idxExprp);
+            తిరిగి u32Const(0);
         }
         // idx == size - 1 ? 0 : idx + 1
-        AstAdd* const addp = new AstAdd{flp, idxExprp->cloneTreePure(false), u32Const(1)};
+        Ast_కూడు* స్థిరరాశి addp = కొత్త Ast_కూడు{flp, idxExprp->clone_వృక్షం_శుద్ధ(అబద్ధం), u32Const(1)};
         addp->dtypeFrom(idxExprp);
-        AstCond* const condp
-            = new AstCond{flp, new AstEq{flp, idxExprp, u32Const(size - 1)}, u32Const(0), addp};
+        AstCond* స్థిరరాశి condp
+            = కొత్త AstCond{flp, కొత్త AstEq{flp, idxExprp, u32Const(కొలత - 1)}, u32Const(0), addp};
         condp->dtypeFrom(idxExprp);
-        return condp;
+        తిరిగి condp;
     }
-    static AstNodeExpr* delayRingSlot(FileLine* flp, SvaStateVertex* vtxp, AstNodeExpr* idxExprp,
+    స్థిర Ast_కణుపు_సమాసం* delay_Ring_స్థానం(File_పంక్తి* flp, Sva_State_శీర్షం* vtxp, Ast_కణుపు_సమాసం* idxExprp,
                                       VAccess access = VAccess::READ) {
         // ring[idx]
-        AstVar* const ringp = vtxp->datap()->delayRingVarp;
-        AstVarRef* const refp = new AstVarRef{flp, ringp, access};
-        if (vtxp->datap()->delayRingCounts) return new AstArraySel{flp, refp, idxExprp};
-        return new AstSel{flp, refp, idxExprp, 1};
+        AstVar* స్థిరరాశి ringp = vtxp->datap()->delayRingVarp;
+        AstVarRef* స్థిరరాశి refp = కొత్త AstVarRef{flp, ringp, access};
+        ఒకవేళ (vtxp->datap()->delayRingCounts) తిరిగి కొత్త AstArraySel{flp, refp, idxExprp};
+        తిరిగి కొత్త AstSel{flp, refp, idxExprp, 1};
     }
-    static AstNodeExpr* delayRingHeadCount(FileLine* flp, SvaStateVertex* vtxp) {
-        AstNodeExpr* const headp
-            = new AstVarRef{flp, vtxp->datap()->delayRingHeadVarp, VAccess::READ};
-        if (vtxp->datap()->delayRingCounts) return headp;
-        return new AstExtend{flp, headp, vtxp->datap()->delayRingLiveCountVarp->dtypep()->width()};
+    స్థిర Ast_కణుపు_సమాసం* delay_Ring_తల_లెక్క(File_పంక్తి* flp, Sva_State_శీర్షం* vtxp) {
+        Ast_కణుపు_సమాసం* స్థిరరాశి headp
+            = కొత్త AstVarRef{flp, vtxp->datap()->delay_Ring_తల_Varp, VAccess::READ};
+        ఒకవేళ (vtxp->datap()->delayRingCounts) తిరిగి headp;
+        తిరిగి కొత్త AstExtend{flp, headp, vtxp->datap()->delay_Ring_సజీవ_లెక్క_Varp->dtypep()->వెడల్పు()};
     }
-    static AstNodeExpr* delayRingAtLastIndex(FileLine* const flp, AstVar* const idxp,
-                                             const uint32_t size) {
-        return new AstEq{flp, new AstVarRef{flp, idxp, VAccess::READ},
-                         new AstConst{flp, AstConst::WidthedValue{}, 32, size - 1}};
+    స్థిర Ast_కణుపు_సమాసం* delay_Ring_At_చివరి_సూచీ(File_పంక్తి* స్థిరరాశి flp, AstVar* స్థిరరాశి idxp,
+                                             స్థిరరాశి uint32_t కొలత) {
+        తిరిగి కొత్త AstEq{flp, కొత్త AstVarRef{flp, idxp, VAccess::READ},
+                         కొత్త AstConst{flp, AstConst::Widthed_విలువ{}, 32, కొలత - 1}};
     }
-    static AstNodeExpr* delayRingOutputCount(FileLine* const flp, SvaStateVertex* const vtxp) {
-        AstVar* const idxp = vtxp->datap()->delayRingIdxVarp;
-        const uint32_t size = vtxp->m_delayRingSize;
-        AstNodeExpr* outgoingValidp
-            = new AstVarRef{flp, vtxp->datap()->delayRingWrappedVarp, VAccess::READ};
-        if (!vtxp->m_isFixedDelayRing) {
+    స్థిర Ast_కణుపు_సమాసం* delay_Ring_Output_లెక్క(File_పంక్తి* స్థిరరాశి flp, Sva_State_శీర్షం* స్థిరరాశి vtxp) {
+        AstVar* స్థిరరాశి idxp = vtxp->datap()->delayRingIdxVarp;
+        స్థిరరాశి uint32_t కొలత = vtxp->m_delay_Ring_కొలత;
+        Ast_కణుపు_సమాసం* outgoingValidp
+            = కొత్త AstVarRef{flp, vtxp->datap()->delayRingWrappedVarp, VAccess::READ};
+        ఒకవేళ (!vtxp->m_isFixedDelayRing) {
             outgoingValidp
-                = new AstLogOr{flp, outgoingValidp, delayRingAtLastIndex(flp, idxp, size)};
+                = కొత్త AstLogOr{flp, outgoingValidp, delay_Ring_At_చివరి_సూచీ(flp, idxp, కొలత)};
         }
-        AstVar* const liveCountVarp = vtxp->datap()->delayRingLiveCountVarp;
-        return new AstCond{flp, outgoingValidp, delayRingHeadCount(flp, vtxp),
-                           newTypedConstp(flp, liveCountVarp->dtypep(), 0)};
+        AstVar* స్థిరరాశి సజీవ_లెక్క_Varp = vtxp->datap()->delay_Ring_సజీవ_లెక్క_Varp;
+        తిరిగి కొత్త AstCond{flp, outgoingValidp, delay_Ring_తల_లెక్క(flp, vtxp),
+                           newTypedConstp(flp, సజీవ_లెక్క_Varp->dtypep(), 0)};
     }
-    static AstNodeExpr* delayRingHasLiveThreadsp(FileLine* const flp,
-                                                 AstVar* const liveCountVarp) {
+    స్థిర Ast_కణుపు_సమాసం* delay_Ring_Has_సజీవ_Threadsp(File_పంక్తి* స్థిరరాశి flp,
+                                                 AstVar* స్థిరరాశి సజీవ_లెక్క_Varp) {
         // active = live_count != 0;
-        return new AstNeq{flp, new AstVarRef{flp, liveCountVarp, VAccess::READ},
-                          newTypedConstp(flp, liveCountVarp->dtypep(), 0)};
+        తిరిగి కొత్త AstNeq{flp, కొత్త AstVarRef{flp, సజీవ_లెక్క_Varp, VAccess::READ},
+                          newTypedConstp(flp, సజీవ_లెక్క_Varp->dtypep(), 0)};
     }
 
     // Phase 3 output signals
-    struct SignalSet final {
-        AstNodeExpr* terminalActivep = nullptr;  // OR of all successful terminal matches
-        AstNodeExpr* matchCountp = nullptr;  // NFA paths completing the sequence this tick
-        AstNodeExpr* matchCountOverflowp = nullptr;  // Match count overflow this tick
-        AstNodeExpr* rejectBasep = nullptr;  // Reject when a terminal match fails
-        AstNodeExpr* requiredStepRejectp = nullptr;  // Per-source reject from rejectOnFail Links
-        AstNodeExpr* throughoutRejectp = nullptr;  // Reject when a throughout guard drops
-        AstNodeExpr* threadFailCountp = nullptr;  // Number of threads rejected on this tick
+    నిర్మాణం Signal_సమితి final {
+        Ast_కణుపు_సమాసం* terminalActivep = శూన్యసూచిక;  // OR of all successful terminal matches
+        Ast_కణుపు_సమాసం* సరిపోలిక_Countp = శూన్యసూచిక;  // NFA paths completing the sequence this tick
+        Ast_కణుపు_సమాసం* సరిపోలిక_లెక్క_Overflowp = శూన్యసూచిక;  // Match count overflow this tick
+        Ast_కణుపు_సమాసం* rejectBasep = శూన్యసూచిక;  // Reject when a terminal match fails
+        Ast_కణుపు_సమాసం* required_అడుగు_Rejectp = శూన్యసూచిక;  // Per-source reject from rejectOnFail Links
+        Ast_కణుపు_సమాసం* throughoutRejectp = శూన్యసూచిక;  // Reject when a throughout guard drops
+        Ast_కణుపు_సమాసం* threadFailCountp = శూన్యసూచిక;  // Number of threads rejected on this tick
     };
 
     // Disable condition also aborts attempts between clock events. A constant disable
     // never rises, and $sampled is unsupported in a sensitivity list.
-    static bool isAsyncDisable(const AstNodeExpr* const disableExprp) {
-        return disableExprp && !VN_IS(disableExprp, Const)
-               && !disableExprp->exists([](const AstSampled*) { return true; });
+    స్థిర తార్కిక isAsyncDisable(స్థిరరాశి Ast_కణుపు_సమాసం* స్థిరరాశి disableExprp) {
+        తిరిగి disableExprp && !VN_IS(disableExprp, Const)
+               && !disableExprp->exists([](స్థిరరాశి AstSampled*) { తిరిగి నిజం; });
     }
 
     // Emit the clocked update block of registers that hold pending attempts. The clearp
@@ -1943,282 +1943,282 @@ class SvaNfaLowering final {
     // would advance the attempts as if the clock had ticked. Blocks that hold no attempt
     // state, such as the $assertkill acknowledge in emitKillAckNba, do not go through here.
     // Callers pass a null clearp when the disable cannot rise between clock events.
-    void addStateAlways(LowerCtx& c, AstNode* bodyp, AstNode* clearp) {
-        m_modp->addStmtsp(
-            new AstAlways{c.flp, VAlwaysKwd::ALWAYS, c.senTreep->cloneTree(false), bodyp});
-        if (!clearp) return;
-        m_modp->addStmtsp(new AstAlways{
+    శూన్య కూడు_State_Always(క్రింది_Ctx& c, Ast_కణుపు* bodyp, Ast_కణుపు* clearp) {
+        m_modp->కూడు_Stmtsp(
+            కొత్త AstAlways{c.flp, VAlwaysKwd::ALWAYS, c.senTreep->clone_వృక్షం(అబద్ధం), bodyp});
+        ఒకవేళ (!clearp) తిరిగి;
+        m_modp->కూడు_Stmtsp(కొత్త AstAlways{
             c.flp, VAlwaysKwd::ALWAYS,
-            new AstSenTree{c.flp, new AstSenItem{c.flp, VEdgeType::ET_POSEDGE,
-                                                 c.disableExprp->cloneTreePure(false)}},
+            కొత్త Ast_Sen_వృక్షం{c.flp, కొత్త Ast_Sen_అంశం{c.flp, VEdgeType::ET_POSEDGE,
+                                                 c.disableExprp->clone_వృక్షం_శుద్ధ(అబద్ధం)}},
             clearp});
     }
 
     // Phase 2/2b/2c: Emit NBA register updates and in-place delay-ring writes.
     // Phase 2: State register NBA always block. Each clocked-edge target
     // latches the OR of its incoming contributions.
-    void emitStateRegisterNba(LowerCtx& c) {
-        const bool asyncDisable = isAsyncDisable(c.disableExprp);
-        AstNode* bodyp = nullptr;
-        AstNode* clearp = nullptr;
-        for (const V3GraphVertex& vtxr : c.graph.m_graph.vertices()) {
-            const SvaStateVertex* const vtxp = static_cast<const SvaStateVertex*>(&vtxr);
-            if (!vtxp->datap()->stateVarp) continue;
+    శూన్య emit_State_రిజిస్టరు_Nba(క్రింది_Ctx& c) {
+        స్థిరరాశి తార్కిక asyncDisable = isAsyncDisable(c.disableExprp);
+        Ast_కణుపు* bodyp = శూన్యసూచిక;
+        Ast_కణుపు* clearp = శూన్యసూచిక;
+        కొరకు (స్థిరరాశి V3_లేఖాచిత్రం_శీర్షం& vtxr : c.లేఖాచిత్రం.m_లేఖాచిత్రం.vertices()) {
+            స్థిరరాశి Sva_State_శీర్షం* స్థిరరాశి vtxp = static_cast<స్థిరరాశి Sva_State_శీర్షం*>(&vtxr);
+            ఒకవేళ (!vtxp->datap()->stateVarp) కొనసాగు;
 
-            AstNodeExpr* nextStatep = nullptr;
-            for (const V3GraphEdge& edger : vtxp->inEdges()) {
-                const SvaTransEdge& tedger = static_cast<const SvaTransEdge&>(edger);
-                if (!tedger.m_consumesCycle) continue;
-                const SvaStateVertex* const fromVtxp = tedger.fromVtxp();
+            Ast_కణుపు_సమాసం* తదుపరి_Statep = శూన్యసూచిక;
+            కొరకు (స్థిరరాశి V3_లేఖాచిత్రం_అంచు& edger : vtxp->లోపల_అంచులు()) {
+                స్థిరరాశి Sva_Trans_అంచు& tedger = static_cast<స్థిరరాశి Sva_Trans_అంచు&>(edger);
+                ఒకవేళ (!tedger.m_consumes_చక్రం) కొనసాగు;
+                స్థిరరాశి Sva_State_శీర్షం* స్థిరరాశి fromVtxp = tedger.fromVtxp();
                 UASSERT_OBJ(fromVtxp->datap()->stateSigp, fromVtxp,
                             "Clocked-edge source missing stateSig");
 
-                AstNodeExpr* srcSigp = fromVtxp->datap()->stateSigp->cloneTreePure(false);
+                Ast_కణుపు_సమాసం* srcSigp = fromVtxp->datap()->stateSigp->clone_వృక్షం_శుద్ధ(అబద్ధం);
                 srcSigp = andCond(c.flp, srcSigp, tedger.m_condp);
 
-                if (c.disableExprp) {
-                    AstNodeExpr* const notDisp
-                        = new AstLogNot{c.flp, c.disableExprp->cloneTreePure(false)};
-                    srcSigp = new AstLogAnd{c.flp, srcSigp, notDisp};
+                ఒకవేళ (c.disableExprp) {
+                    Ast_కణుపు_సమాసం* స్థిరరాశి notDisp
+                        = కొత్త AstLogNot{c.flp, c.disableExprp->clone_వృక్షం_శుద్ధ(అబద్ధం)};
+                    srcSigp = కొత్త AstLogAnd{c.flp, srcSigp, notDisp};
                 }
-                nextStatep = orExprs(c.flp, nextStatep, srcSigp);
+                తదుపరి_Statep = orExprs(c.flp, తదుపరి_Statep, srcSigp);
             }
 
-            UASSERT_OBJ(nextStatep, vtxp,
+            UASSERT_OBJ(తదుపరి_Statep, vtxp,
                         "Registered vertex has no clocked incoming contribution");
-            nextStatep = gateNotKill(c, nextStatep);
+            తదుపరి_Statep = gateNotKill(c, తదుపరి_Statep);
 
-            AstAssignDly* const assignp = new AstAssignDly{
-                c.flp, new AstVarRef{c.flp, vtxp->datap()->stateVarp, VAccess::WRITE}, nextStatep};
-            bodyp = AstNode::addNextNull(bodyp, assignp);
-            if (asyncDisable) {
-                clearp = AstNode::addNextNull(
+            Ast_కేటాయించు_Dly* స్థిరరాశి assignp = కొత్త Ast_కేటాయించు_Dly{
+                c.flp, కొత్త AstVarRef{c.flp, vtxp->datap()->stateVarp, VAccess::WRITE}, తదుపరి_Statep};
+            bodyp = Ast_కణుపు::కూడు_తదుపరి_Null(bodyp, assignp);
+            ఒకవేళ (asyncDisable) {
+                clearp = Ast_కణుపు::కూడు_తదుపరి_Null(
                     clearp,
-                    new AstAssignDly{
-                        c.flp, new AstVarRef{c.flp, vtxp->datap()->stateVarp, VAccess::WRITE},
-                        new AstConst{c.flp, AstConst::BitFalse{}}});
+                    కొత్త Ast_కేటాయించు_Dly{
+                        c.flp, కొత్త AstVarRef{c.flp, vtxp->datap()->stateVarp, VAccess::WRITE},
+                        కొత్త AstConst{c.flp, AstConst::బిట్టు_False{}}});
             }
         }
-        if (bodyp) addStateAlways(c, bodyp, clearp);
+        ఒకవేళ (bodyp) కూడు_State_Always(c, bodyp, clearp);
     }
 
     // Phase 2b: In-place ring storage and registered ring metadata.
-    void emitDelayRingUpdates(LowerCtx& c, const bool countMatches) {
-        const bool asyncDisable = isAsyncDisable(c.disableExprp);
-        for (V3GraphVertex& vtxr : c.graph.m_graph.vertices()) {
-            SvaStateVertex* const vtxp = static_cast<SvaStateVertex*>(&vtxr);
-            if (!vtxp->datap()->delayRingVarp) continue;
-            AstVar* const idxp = vtxp->datap()->delayRingIdxVarp;
-            AstVar* const liveCountVarp = vtxp->datap()->delayRingLiveCountVarp;
-            AstVar* const wrappedp = vtxp->datap()->delayRingWrappedVarp;
-            const uint32_t size = static_cast<uint32_t>(vtxp->m_delayRingSize);
+    శూన్య emitDelayRingUpdates(క్రింది_Ctx& c, స్థిరరాశి తార్కిక లెక్క_Matches) {
+        స్థిరరాశి తార్కిక asyncDisable = isAsyncDisable(c.disableExprp);
+        కొరకు (V3_లేఖాచిత్రం_శీర్షం& vtxr : c.లేఖాచిత్రం.m_లేఖాచిత్రం.vertices()) {
+            Sva_State_శీర్షం* స్థిరరాశి vtxp = static_cast<Sva_State_శీర్షం*>(&vtxr);
+            ఒకవేళ (!vtxp->datap()->delayRingVarp) కొనసాగు;
+            AstVar* స్థిరరాశి idxp = vtxp->datap()->delayRingIdxVarp;
+            AstVar* స్థిరరాశి సజీవ_లెక్క_Varp = vtxp->datap()->delay_Ring_సజీవ_లెక్క_Varp;
+            AstVar* స్థిరరాశి wrappedp = vtxp->datap()->delayRingWrappedVarp;
+            స్థిరరాశి uint32_t కొలత = static_cast<uint32_t>(vtxp->m_delay_Ring_కొలత);
 
-            AstNodeExpr* incomingp = nullptr;
-            AstNodeExpr* incomingOverflowp = nullptr;
-            for (const V3GraphEdge& edger : vtxp->inEdges()) {
-                ++m_statDelayRingEdgeVisits;
-                const SvaTransEdge& tedger = static_cast<const SvaTransEdge&>(edger);
-                UASSERT_OBJ(tedger.m_consumesCycle == vtxp->m_isFixedDelayRing, vtxp,
+            Ast_కణుపు_సమాసం* incomingp = శూన్యసూచిక;
+            Ast_కణుపు_సమాసం* incomingOverflowp = శూన్యసూచిక;
+            కొరకు (స్థిరరాశి V3_లేఖాచిత్రం_అంచు& edger : vtxp->లోపల_అంచులు()) {
+                ++m_stat_Delay_Ring_అంచు_Visits;
+                స్థిరరాశి Sva_Trans_అంచు& tedger = static_cast<స్థిరరాశి Sva_Trans_అంచు&>(edger);
+                UASSERT_OBJ(tedger.m_consumes_చక్రం == vtxp->m_isFixedDelayRing, vtxp,
                             "Delay-ring incoming edge kind mismatch");
-                const SvaStateVertex* const fromVtxp = tedger.fromVtxp();
+                స్థిరరాశి Sva_State_శీర్షం* స్థిరరాశి fromVtxp = tedger.fromVtxp();
                 UASSERT_OBJ(fromVtxp->datap()->stateSigp, fromVtxp,
                             "Delay-ring incoming source missing stateSig");
-                UASSERT_OBJ(!countMatches || fromVtxp->datap()->stateCountSigp, fromVtxp,
+                UASSERT_OBJ(!లెక్క_Matches || fromVtxp->datap()->state_లెక్క_Sigp, fromVtxp,
                             "Delay-ring incoming source missing stateCountSig");
                 // IEEE 1800-2023 16.14.1/16.14.3: assertion alternatives belong to one
                 // evaluation; only cover sequence counts each end-of-match.
-                AstNodeExpr* contribp
-                    = countMatches
-                          ? fromVtxp->datap()->stateCountSigp->cloneTreePure(false)
-                          : new AstExtend{c.flp,
-                                          fromVtxp->datap()->stateSigp->cloneTreePure(false),
-                                          m_u32DTypep->width()};
-                AstNodeExpr* contribOverflowp
-                    = countMatches && fromVtxp->datap()->stateCountOverflowSigp
-                          ? fromVtxp->datap()->stateCountOverflowSigp->cloneTreePure(false)
-                          : nullptr;
-                if (tedger.m_condp) {
-                    AstNodeExpr* const enablep = tedger.m_condp->cloneTreePure(false);
-                    contribp = countMatches
+                Ast_కణుపు_సమాసం* contribp
+                    = లెక్క_Matches
+                          ? fromVtxp->datap()->state_లెక్క_Sigp->clone_వృక్షం_శుద్ధ(అబద్ధం)
+                          : కొత్త AstExtend{c.flp,
+                                          fromVtxp->datap()->stateSigp->clone_వృక్షం_శుద్ధ(అబద్ధం),
+                                          m_u32DTypep->వెడల్పు()};
+                Ast_కణుపు_సమాసం* contribOverflowp
+                    = లెక్క_Matches && fromVtxp->datap()->state_లెక్క_అధికప్రవాహం_Sigp
+                          ? fromVtxp->datap()->state_లెక్క_అధికప్రవాహం_Sigp->clone_వృక్షం_శుద్ధ(అబద్ధం)
+                          : శూన్యసూచిక;
+                ఒకవేళ (tedger.m_condp) {
+                    Ast_కణుపు_సమాసం* స్థిరరాశి enablep = tedger.m_condp->clone_వృక్షం_శుద్ధ(అబద్ధం);
+                    contribp = లెక్క_Matches
                                    ? gateCheckedCountp(c.flp, contribp, contribOverflowp, enablep)
-                                   : addCountp(c.flp, nullptr, contribp, enablep);
+                                   : కూడు_Countp(c.flp, శూన్యసూచిక, contribp, enablep);
                 }
-                if (c.disableExprp) {
-                    AstNodeExpr* const notDisp
-                        = new AstLogNot{c.flp, c.disableExprp->cloneTreePure(false)};
-                    contribp = countMatches
+                ఒకవేళ (c.disableExprp) {
+                    Ast_కణుపు_సమాసం* స్థిరరాశి notDisp
+                        = కొత్త AstLogNot{c.flp, c.disableExprp->clone_వృక్షం_శుద్ధ(అబద్ధం)};
+                    contribp = లెక్క_Matches
                                    ? gateCheckedCountp(c.flp, contribp, contribOverflowp, notDisp)
-                                   : addCountp(c.flp, nullptr, contribp, notDisp);
+                                   : కూడు_Countp(c.flp, శూన్యసూచిక, contribp, notDisp);
                 }
-                incomingp = countMatches ? addCheckedCountp(c.flp, incomingp, contribp,
+                incomingp = లెక్క_Matches ? కూడు_Checked_Countp(c.flp, incomingp, contribp,
                                                             incomingOverflowp, contribOverflowp)
-                                         : addCountp(c.flp, incomingp, contribp);
+                                         : కూడు_Countp(c.flp, incomingp, contribp);
             }
             UASSERT_OBJ(incomingp, vtxp, "Delay ring has no incoming edge");
-            const bool storesCounts = vtxp->datap()->delayRingCounts;
-            AstNodeExpr* const incomingCountp
+            స్థిరరాశి తార్కిక storesCounts = vtxp->datap()->delayRingCounts;
+            Ast_కణుపు_సమాసం* స్థిరరాశి incomingCountp
                 = storesCounts
-                      ? incomingp->cloneTreePure(false)
-                      : new AstExtend{c.flp,
-                                      new AstNeq{c.flp, incomingp->cloneTreePure(false),
+                      ? incomingp->clone_వృక్షం_శుద్ధ(అబద్ధం)
+                      : కొత్త AstExtend{c.flp,
+                                      కొత్త AstNeq{c.flp, incomingp->clone_వృక్షం_శుద్ధ(అబద్ధం),
                                                  newTypedConstp(c.flp, incomingp->dtypep(), 0)},
-                                      m_u32DTypep->width()};
-            AstNodeExpr* const storedIncomingp
+                                      m_u32DTypep->వెడల్పు()};
+            Ast_కణుపు_సమాసం* స్థిరరాశి storedIncomingp
                 = storesCounts ? incomingp
-                               : new AstNeq{c.flp, incomingp,
+                               : కొత్త AstNeq{c.flp, incomingp,
                                             newTypedConstp(c.flp, incomingp->dtypep(), 0)};
             // Only this block accesses the storage. Other processes read the cached head, so
             // the ring can be updated in place without an NBA shadow copy.
-            AstAssign* const writeIncomingp = new AstAssign{
+            Ast_కేటాయించు* స్థిరరాశి writeIncomingp = కొత్త Ast_కేటాయించు{
                 c.flp,
-                delayRingSlot(c.flp, vtxp, new AstVarRef{c.flp, idxp, VAccess::READ},
+                delay_Ring_స్థానం(c.flp, vtxp, కొత్త AstVarRef{c.flp, idxp, VAccess::READ},
                               VAccess::WRITE),
                 storedIncomingp};
-            AstNode* updateBodyp = writeIncomingp;
+            Ast_కణుపు* updateBodyp = writeIncomingp;
             // live_count <= live_count - outgoing_count + incoming_count;
-            AstNodeExpr* const outgoingp = delayRingOutputCount(c.flp, vtxp);
-            AstNodeExpr* const afterOutgoingp
-                = new AstSub{c.flp, new AstVarRef{c.flp, liveCountVarp, VAccess::READ}, outgoingp};
-            AstNodeExpr* const oldAfterOutgoingp = afterOutgoingp->cloneTreePure(false);
-            AstAdd* const nextLiveCountp = new AstAdd{c.flp, afterOutgoingp, incomingCountp};
-            if (storesCounts) {
-                AstNodeExpr* const liveOverflowp
-                    = new AstLt{c.flp, nextLiveCountp->cloneTreePure(false), oldAfterOutgoingp};
-                AstNodeExpr* const overflowp = orExprs(c.flp, incomingOverflowp, liveOverflowp);
-                updateBodyp = newCountOverflowWarning(c.flp, overflowp);
-                updateBodyp->addNext(writeIncomingp);
-            } else {
-                VL_DO_DANGLING(oldAfterOutgoingp->deleteTree(), oldAfterOutgoingp);
+            Ast_కణుపు_సమాసం* స్థిరరాశి outgoingp = delay_Ring_Output_లెక్క(c.flp, vtxp);
+            Ast_కణుపు_సమాసం* స్థిరరాశి afterOutgoingp
+                = కొత్త AstSub{c.flp, కొత్త AstVarRef{c.flp, సజీవ_లెక్క_Varp, VAccess::READ}, outgoingp};
+            Ast_కణుపు_సమాసం* స్థిరరాశి oldAfterOutgoingp = afterOutgoingp->clone_వృక్షం_శుద్ధ(అబద్ధం);
+            Ast_కూడు* స్థిరరాశి తదుపరి_సజీవ_Countp = కొత్త Ast_కూడు{c.flp, afterOutgoingp, incomingCountp};
+            ఒకవేళ (storesCounts) {
+                Ast_కణుపు_సమాసం* స్థిరరాశి సజీవ_Overflowp
+                    = కొత్త AstLt{c.flp, తదుపరి_సజీవ_Countp->clone_వృక్షం_శుద్ధ(అబద్ధం), oldAfterOutgoingp};
+                Ast_కణుపు_సమాసం* స్థిరరాశి overflowp = orExprs(c.flp, incomingOverflowp, సజీవ_Overflowp);
+                updateBodyp = new_లెక్క_అధికప్రవాహం_Warning(c.flp, overflowp);
+                updateBodyp->కూడు_తదుపరి(writeIncomingp);
+            } లేకపోతే {
+                VL_DO_DANGLING(oldAfterOutgoingp->delete_వృక్షం(), oldAfterOutgoingp);
             }
             // Cache the outgoing slot for the next index after the write. Reading after
             // writing also handles one-slot rings and two-slot range rings without alias cases.
-            AstNodeExpr* nextHeadIdxp
-                = nextRingIndex(c.flp, new AstVarRef{c.flp, idxp, VAccess::READ}, size);
-            if (!vtxp->m_isFixedDelayRing) {
-                nextHeadIdxp = nextRingIndex(c.flp, nextHeadIdxp, size);
+            Ast_కణుపు_సమాసం* తదుపరి_తల_Idxp
+                = తదుపరి_Ring_సూచీ(c.flp, కొత్త AstVarRef{c.flp, idxp, VAccess::READ}, కొలత);
+            ఒకవేళ (!vtxp->m_isFixedDelayRing) {
+                తదుపరి_తల_Idxp = తదుపరి_Ring_సూచీ(c.flp, తదుపరి_తల_Idxp, కొలత);
             }
-            updateBodyp->addNext(new AstAssignDly{
-                c.flp, new AstVarRef{c.flp, vtxp->datap()->delayRingHeadVarp, VAccess::WRITE},
-                delayRingSlot(c.flp, vtxp, nextHeadIdxp)});
-            updateBodyp->addNext(new AstAssignDly{
-                c.flp, new AstVarRef{c.flp, liveCountVarp, VAccess::WRITE}, nextLiveCountp});
+            updateBodyp->కూడు_తదుపరి(కొత్త Ast_కేటాయించు_Dly{
+                c.flp, కొత్త AstVarRef{c.flp, vtxp->datap()->delay_Ring_తల_Varp, VAccess::WRITE},
+                delay_Ring_స్థానం(c.flp, vtxp, తదుపరి_తల_Idxp)});
+            updateBodyp->కూడు_తదుపరి(కొత్త Ast_కేటాయించు_Dly{
+                c.flp, కొత్త AstVarRef{c.flp, సజీవ_లెక్క_Varp, VAccess::WRITE}, తదుపరి_సజీవ_Countp});
             // wrapped <= wrapped || idx == size - 1;
-            updateBodyp->addNext(
-                new AstAssignDly{c.flp, new AstVarRef{c.flp, wrappedp, VAccess::WRITE},
-                                 new AstLogOr{c.flp, new AstVarRef{c.flp, wrappedp, VAccess::READ},
-                                              delayRingAtLastIndex(c.flp, idxp, size)}});
+            updateBodyp->కూడు_తదుపరి(
+                కొత్త Ast_కేటాయించు_Dly{c.flp, కొత్త AstVarRef{c.flp, wrappedp, VAccess::WRITE},
+                                 కొత్త AstLogOr{c.flp, కొత్త AstVarRef{c.flp, wrappedp, VAccess::READ},
+                                              delay_Ring_At_చివరి_సూచీ(c.flp, idxp, కొలత)}});
             // idx <= next_idx;
-            updateBodyp->addNext(new AstAssignDly{
-                c.flp, new AstVarRef{c.flp, idxp, VAccess::WRITE},
-                nextRingIndex(c.flp, new AstVarRef{c.flp, idxp, VAccess::READ}, size)});
-            if (vtxp->m_delayRingAdvanceCondp) {
-                updateBodyp = new AstIf{
-                    c.flp, sampled(vtxp->m_delayRingAdvanceCondp->cloneTreePure(false)),
+            updateBodyp->కూడు_తదుపరి(కొత్త Ast_కేటాయించు_Dly{
+                c.flp, కొత్త AstVarRef{c.flp, idxp, VAccess::WRITE},
+                తదుపరి_Ring_సూచీ(c.flp, కొత్త AstVarRef{c.flp, idxp, VAccess::READ}, కొలత)});
+            ఒకవేళ (vtxp->m_delayRingAdvanceCondp) {
+                updateBodyp = కొత్త AstIf{
+                    c.flp, sampled(vtxp->m_delayRingAdvanceCondp->clone_వృక్షం_శుద్ధ(అబద్ధం)),
                     updateBodyp};
             }
 
-            AstNodeExpr* clearCondp = killActive(c);
-            if (vtxp->m_delayRingClearCondp) {
+            Ast_కణుపు_సమాసం* clearCondp = kill_చురుకైన(c);
+            ఒకవేళ (vtxp->m_delayRingClearCondp) {
                 clearCondp = orExprs(c.flp, clearCondp,
-                                     sampled(vtxp->m_delayRingClearCondp->cloneTreePure(false)));
+                                     sampled(vtxp->m_delayRingClearCondp->clone_వృక్షం_శుద్ధ(అబద్ధం)));
             }
-            if (vtxp->m_abortClearp) {
+            ఒకవేళ (vtxp->m_abortClearp) {
                 clearCondp = orExprs(c.flp, clearCondp,
-                                     sampled(vtxp->m_abortClearp->cloneTreePure(false)));
+                                     sampled(vtxp->m_abortClearp->clone_వృక్షం_శుద్ధ(అబద్ధం)));
             }
-            if (c.disableExprp) {
-                clearCondp = orExprs(c.flp, clearCondp, c.disableExprp->cloneTreePure(false));
+            ఒకవేళ (c.disableExprp) {
+                clearCondp = orExprs(c.flp, clearCondp, c.disableExprp->clone_వృక్షం_శుద్ధ(అబద్ధం));
             }
-            AstNodeExpr* guardp = nullptr;
-            for (AstNodeExpr* const cp : vtxp->m_throughoutConds) {
-                AstNodeExpr* const sampledp = sampled(cp->cloneTreePure(false));
-                guardp = guardp ? static_cast<AstNodeExpr*>(new AstLogAnd{c.flp, guardp, sampledp})
+            Ast_కణుపు_సమాసం* guardp = శూన్యసూచిక;
+            కొరకు (Ast_కణుపు_సమాసం* స్థిరరాశి cp : vtxp->m_throughoutConds) {
+                Ast_కణుపు_సమాసం* స్థిరరాశి sampledp = sampled(cp->clone_వృక్షం_శుద్ధ(అబద్ధం));
+                guardp = guardp ? static_cast<Ast_కణుపు_సమాసం*>(కొత్త AstLogAnd{c.flp, guardp, sampledp})
                                 : sampledp;
             }
-            if (guardp) clearCondp = orExprs(c.flp, clearCondp, new AstLogNot{c.flp, guardp});
+            ఒకవేళ (guardp) clearCondp = orExprs(c.flp, clearCondp, కొత్త AstLogNot{c.flp, guardp});
             // Logically clear the ring without touching its wide storage.
-            AstAssignDly* const clearCountp
-                = new AstAssignDly{c.flp, new AstVarRef{c.flp, liveCountVarp, VAccess::WRITE},
-                                   newTypedConstp(c.flp, liveCountVarp->dtypep(), 0)};
-            clearCountp->addNext(new AstAssignDly{c.flp,
-                                                  new AstVarRef{c.flp, wrappedp, VAccess::WRITE},
-                                                  new AstConst{c.flp, AstConst::BitFalse{}}});
-            clearCountp->addNext(new AstAssignDly{c.flp,
-                                                  new AstVarRef{c.flp, idxp, VAccess::WRITE},
+            Ast_కేటాయించు_Dly* స్థిరరాశి clearCountp
+                = కొత్త Ast_కేటాయించు_Dly{c.flp, కొత్త AstVarRef{c.flp, సజీవ_లెక్క_Varp, VAccess::WRITE},
+                                   newTypedConstp(c.flp, సజీవ_లెక్క_Varp->dtypep(), 0)};
+            clearCountp->కూడు_తదుపరి(కొత్త Ast_కేటాయించు_Dly{c.flp,
+                                                  కొత్త AstVarRef{c.flp, wrappedp, VAccess::WRITE},
+                                                  కొత్త AstConst{c.flp, AstConst::బిట్టు_False{}}});
+            clearCountp->కూడు_తదుపరి(కొత్త Ast_కేటాయించు_Dly{c.flp,
+                                                  కొత్త AstVarRef{c.flp, idxp, VAccess::WRITE},
                                                   newTypedConstp(c.flp, idxp->dtypep(), 0)});
-            updateBodyp = new AstIf{c.flp, clearCondp, clearCountp, updateBodyp};
+            updateBodyp = కొత్త AstIf{c.flp, clearCondp, clearCountp, updateBodyp};
 
-            addStateAlways(c, updateBodyp, asyncDisable ? clearCountp->cloneTree(true) : nullptr);
+            కూడు_State_Always(c, updateBodyp, asyncDisable ? clearCountp->clone_వృక్షం(నిజం) : శూన్యసూచిక);
         }
     }
 
     // Phase 2c: SAnd combiner done-latch always block.
     // NBA semantics ensure doneL/doneR read pre-update values (IEEE 16.9.5).
-    void emitAndCombinerDoneLatchNba(LowerCtx& c) {
-        const bool asyncDisable = isAsyncDisable(c.disableExprp);
-        for (const V3GraphVertex& vtxr : c.graph.m_graph.vertices()) {
-            const SvaStateVertex* const avp = static_cast<const SvaStateVertex*>(&vtxr);
-            if (!avp->datap()->doneLVarp) continue;
+    శూన్య emit_And_Combiner_పూర్తి_Latch_Nba(క్రింది_Ctx& c) {
+        స్థిరరాశి తార్కిక asyncDisable = isAsyncDisable(c.disableExprp);
+        కొరకు (స్థిరరాశి V3_లేఖాచిత్రం_శీర్షం& vtxr : c.లేఖాచిత్రం.m_లేఖాచిత్రం.vertices()) {
+            స్థిరరాశి Sva_State_శీర్షం* స్థిరరాశి avp = static_cast<స్థిరరాశి Sva_State_శీర్షం*>(&vtxr);
+            ఒకవేళ (!avp->datap()->పూర్తి_LVarp) కొనసాగు;
             // doneLVars is non-null only for AndCombiner vertices, which always
             // have both m_andLhsTermp and m_andRhsTermp set at build time.
             UASSERT_OBJ(avp->m_andLhsTermp && avp->m_andRhsTermp, avp,
                         "AndCombiner vertex missing LHS/RHS terminal");
-            const SvaStateVertex* const lhsTermp = avp->m_andLhsTermp;
-            const SvaStateVertex* const rhsTermp = avp->m_andRhsTermp;
+            స్థిరరాశి Sva_State_శీర్షం* స్థిరరాశి lhsTermp = avp->m_andLhsTermp;
+            స్థిరరాశి Sva_State_శీర్షం* స్థిరరాశి rhsTermp = avp->m_andRhsTermp;
             // resolveLinks' 2*N+2 fixed-point pass is guaranteed to populate
             // stateSigp on every AndCombiner and its LHS/RHS terminals.
             UASSERT_OBJ(lhsTermp->datap()->stateSigp && rhsTermp->datap()->stateSigp
                             && avp->datap()->stateSigp,
                         avp, "AndCombiner stateSigp chain unresolved after resolveLinks");
 
-            AstAssignDly* const clearLp = new AstAssignDly{
-                c.flp, new AstVarRef{c.flp, avp->datap()->doneLVarp, VAccess::WRITE},
-                new AstConst{c.flp, AstConst::BitFalse{}}};
-            AstAssignDly* const clearRp = new AstAssignDly{
-                c.flp, new AstVarRef{c.flp, avp->datap()->doneRVarp, VAccess::WRITE},
-                new AstConst{c.flp, AstConst::BitFalse{}}};
-            clearLp->addNext(clearRp);
+            Ast_కేటాయించు_Dly* స్థిరరాశి clearLp = కొత్త Ast_కేటాయించు_Dly{
+                c.flp, కొత్త AstVarRef{c.flp, avp->datap()->పూర్తి_LVarp, VAccess::WRITE},
+                కొత్త AstConst{c.flp, AstConst::బిట్టు_False{}}};
+            Ast_కేటాయించు_Dly* స్థిరరాశి clearRp = కొత్త Ast_కేటాయించు_Dly{
+                c.flp, కొత్త AstVarRef{c.flp, avp->datap()->పూర్తి_RVarp, VAccess::WRITE},
+                కొత్త AstConst{c.flp, AstConst::బిట్టు_False{}}};
+            clearLp->కూడు_తదుపరి(clearRp);
 
-            AstNodeExpr* const matchLNowp
-                = buildMatchNow(c.flp, lhsTermp->datap()->stateSigp, avp->m_andLhsCondp);
-            AstNodeExpr* const matchRNowp
-                = buildMatchNow(c.flp, rhsTermp->datap()->stateSigp, avp->m_andRhsCondp);
-            AstNodeExpr* gateLp = matchLNowp;
-            AstNodeExpr* gateRp = matchRNowp;
-            if (c.disableExprp) {
-                AstNodeExpr* const notDisLp
-                    = new AstLogNot{c.flp, c.disableExprp->cloneTreePure(false)};
-                gateLp = new AstLogAnd{c.flp, gateLp, notDisLp};
-                AstNodeExpr* const notDisRp
-                    = new AstLogNot{c.flp, c.disableExprp->cloneTreePure(false)};
-                gateRp = new AstLogAnd{c.flp, gateRp, notDisRp};
+            Ast_కణుపు_సమాసం* స్థిరరాశి సరిపోలిక_LNowp
+                = build_సరిపోలిక_Now(c.flp, lhsTermp->datap()->stateSigp, avp->m_andLhsCondp);
+            Ast_కణుపు_సమాసం* స్థిరరాశి సరిపోలిక_RNowp
+                = build_సరిపోలిక_Now(c.flp, rhsTermp->datap()->stateSigp, avp->m_andRhsCondp);
+            Ast_కణుపు_సమాసం* gateLp = సరిపోలిక_LNowp;
+            Ast_కణుపు_సమాసం* gateRp = సరిపోలిక_RNowp;
+            ఒకవేళ (c.disableExprp) {
+                Ast_కణుపు_సమాసం* స్థిరరాశి notDisLp
+                    = కొత్త AstLogNot{c.flp, c.disableExprp->clone_వృక్షం_శుద్ధ(అబద్ధం)};
+                gateLp = కొత్త AstLogAnd{c.flp, gateLp, notDisLp};
+                Ast_కణుపు_సమాసం* స్థిరరాశి notDisRp
+                    = కొత్త AstLogNot{c.flp, c.disableExprp->clone_వృక్షం_శుద్ధ(అబద్ధం)};
+                gateRp = కొత్త AstLogAnd{c.flp, gateRp, notDisRp};
             }
-            AstAssignDly* const setLp = new AstAssignDly{
-                c.flp, new AstVarRef{c.flp, avp->datap()->doneLVarp, VAccess::WRITE},
-                new AstConst{c.flp, AstConst::BitTrue{}}};
-            AstIf* const setLIfp = new AstIf{c.flp, gateLp, setLp, nullptr};
-            AstAssignDly* const setRp = new AstAssignDly{
-                c.flp, new AstVarRef{c.flp, avp->datap()->doneRVarp, VAccess::WRITE},
-                new AstConst{c.flp, AstConst::BitTrue{}}};
-            AstIf* const setRIfp = new AstIf{c.flp, gateRp, setRp, nullptr};
-            setLIfp->addNext(setRIfp);
+            Ast_కేటాయించు_Dly* స్థిరరాశి సమితి_Lp = కొత్త Ast_కేటాయించు_Dly{
+                c.flp, కొత్త AstVarRef{c.flp, avp->datap()->పూర్తి_LVarp, VAccess::WRITE},
+                కొత్త AstConst{c.flp, AstConst::బిట్టు_True{}}};
+            AstIf* స్థిరరాశి సమితి_LIfp = కొత్త AstIf{c.flp, gateLp, సమితి_Lp, శూన్యసూచిక};
+            Ast_కేటాయించు_Dly* స్థిరరాశి సమితి_Rp = కొత్త Ast_కేటాయించు_Dly{
+                c.flp, కొత్త AstVarRef{c.flp, avp->datap()->పూర్తి_RVarp, VAccess::WRITE},
+                కొత్త AstConst{c.flp, AstConst::బిట్టు_True{}}};
+            AstIf* స్థిరరాశి సమితి_RIfp = కొత్త AstIf{c.flp, gateRp, సమితి_Rp, శూన్యసూచిక};
+            సమితి_LIfp->కూడు_తదుపరి(సమితి_RIfp);
 
-            AstNodeExpr* clearCondp = new AstLogOr{c.flp, killActive(c),
-                                                   avp->datap()->stateSigp->cloneTreePure(false)};
-            if (c.disableExprp) {
-                clearCondp = orExprs(c.flp, clearCondp, c.disableExprp->cloneTreePure(false));
+            Ast_కణుపు_సమాసం* clearCondp = కొత్త AstLogOr{c.flp, kill_చురుకైన(c),
+                                                   avp->datap()->stateSigp->clone_వృక్షం_శుద్ధ(అబద్ధం)};
+            ఒకవేళ (c.disableExprp) {
+                clearCondp = orExprs(c.flp, clearCondp, c.disableExprp->clone_వృక్షం_శుద్ధ(అబద్ధం));
             }
-            AstIf* const topp = new AstIf{c.flp, clearCondp, clearLp, setLIfp};
-            addStateAlways(c, topp, asyncDisable ? clearLp->cloneTree(true) : nullptr);
+            AstIf* స్థిరరాశి topp = కొత్త AstIf{c.flp, clearCondp, clearLp, సమితి_LIfp};
+            కూడు_State_Always(c, topp, asyncDisable ? clearLp->clone_వృక్షం(నిజం) : శూన్యసూచిక);
         }
     }
 
-    void emitKillAckNba(LowerCtx& c) {
-        AstAssignDly* const ackp
-            = new AstAssignDly{c.flp, new AstVarRef{c.flp, c.killVarp, VAccess::WRITE},
+    శూన్య emitKillAckNba(క్రింది_Ctx& c) {
+        Ast_కేటాయించు_Dly* స్థిరరాశి ackp
+            = కొత్త Ast_కేటాయించు_Dly{c.flp, కొత్త AstVarRef{c.flp, c.killVarp, VAccess::WRITE},
                                assertKillGet(c.flp, c.assertType, c.directiveType)};
-        m_modp->addStmtsp(
-            new AstAlways{c.flp, VAlwaysKwd::ALWAYS, c.senTreep->cloneTree(false), ackp});
+        m_modp->కూడు_Stmtsp(
+            కొత్త AstAlways{c.flp, VAlwaysKwd::ALWAYS, c.senTreep->clone_వృక్షం(అబద్ధం), ackp});
     }
 
     // Phase 3/3a/3b: Compute terminal match/reject signals, required-step reject,
@@ -2227,182 +2227,182 @@ class SvaNfaLowering final {
     // Builder only adds Links (non-clocked) to matchVertex via addLink in
     // wireMatchAndMidSources. For cover sequence, also count each end-of-match
     // so the action can be replayed without unrolling endpoints.
-    void computeTerminalMatchAndReject(LowerCtx& c, SignalSet& sigs, const bool needMatchCount) {
-        for (const SvaTransEdge* const tedgep : c.graph.allEdges()) {
-            if (tedgep->toVtxp() != c.graph.m_matchVertexp) continue;
-            SvaStateVertex* const fromVtxp = tedgep->fromVtxp();
+    శూన్య compute_Terminal_సరిపోలిక_And_Reject(క్రింది_Ctx& c, Signal_సమితి& sigs, స్థిరరాశి తార్కిక need_సరిపోలిక_లెక్క) {
+        కొరకు (స్థిరరాశి Sva_Trans_అంచు* స్థిరరాశి tedgep : c.లేఖాచిత్రం.all_అంచులు()) {
+            ఒకవేళ (tedgep->గమ్యం_Vtxp() != c.లేఖాచిత్రం.m_సరిపోలిక_Vertexp) కొనసాగు;
+            Sva_State_శీర్షం* స్థిరరాశి fromVtxp = tedgep->fromVtxp();
             UASSERT_OBJ(fromVtxp->datap()->stateSigp, fromVtxp,
                         "Terminal-link source missing stateSig");
 
-            AstNodeExpr* srcSigp = fromVtxp->datap()->stateSigp->cloneTreePure(false);
+            Ast_కణుపు_సమాసం* srcSigp = fromVtxp->datap()->stateSigp->clone_వృక్షం_శుద్ధ(అబద్ధం);
             srcSigp = andCond(c.flp, srcSigp, tedgep->m_condp);
-            if (needMatchCount) {
-                UASSERT_OBJ(fromVtxp->datap()->stateCountSigp, fromVtxp,
+            ఒకవేళ (need_సరిపోలిక_లెక్క) {
+                UASSERT_OBJ(fromVtxp->datap()->state_లెక్క_Sigp, fromVtxp,
                             "Terminal-link source missing stateCountSig");
-                AstNodeExpr* contributionp
-                    = fromVtxp->datap()->stateCountSigp->cloneTreePure(false);
-                AstNodeExpr* contributionOverflowp
-                    = fromVtxp->datap()->stateCountOverflowSigp
-                          ? fromVtxp->datap()->stateCountOverflowSigp->cloneTreePure(false)
-                          : nullptr;
-                if (tedgep->m_condp) {
+                Ast_కణుపు_సమాసం* contributionp
+                    = fromVtxp->datap()->state_లెక్క_Sigp->clone_వృక్షం_శుద్ధ(అబద్ధం);
+                Ast_కణుపు_సమాసం* contributionOverflowp
+                    = fromVtxp->datap()->state_లెక్క_అధికప్రవాహం_Sigp
+                          ? fromVtxp->datap()->state_లెక్క_అధికప్రవాహం_Sigp->clone_వృక్షం_శుద్ధ(అబద్ధం)
+                          : శూన్యసూచిక;
+                ఒకవేళ (tedgep->m_condp) {
                     contributionp = gateCheckedCountp(c.flp, contributionp, contributionOverflowp,
-                                                      tedgep->m_condp->cloneTreePure(false));
+                                                      tedgep->m_condp->clone_వృక్షం_శుద్ధ(అబద్ధం));
                 }
-                sigs.matchCountp
-                    = addCheckedCountp(c.flp, sigs.matchCountp, contributionp,
-                                       sigs.matchCountOverflowp, contributionOverflowp);
+                sigs.సరిపోలిక_Countp
+                    = కూడు_Checked_Countp(c.flp, sigs.సరిపోలిక_Countp, contributionp,
+                                       sigs.సరిపోలిక_లెక్క_Overflowp, contributionOverflowp);
             }
 
-            if (fromVtxp->m_delayRingSize && !fromVtxp->m_isFixedDelayRing) {
+            ఒకవేళ (fromVtxp->m_delay_Ring_కొలత && !fromVtxp->m_isFixedDelayRing) {
                 sigs.terminalActivep
-                    = orExprs(c.flp, sigs.terminalActivep, srcSigp->cloneTreePure(false));
+                    = orExprs(c.flp, sigs.terminalActivep, srcSigp->clone_వృక్షం_శుద్ధ(అబద్ధం));
                 // reject |= (wrapped || idx == size - 1) && head && final_condition;
-                AstNodeExpr* expireContribp = delayRingOutputCount(c.flp, fromVtxp);
+                Ast_కణుపు_సమాసం* expireContribp = delay_Ring_Output_లెక్క(c.flp, fromVtxp);
                 expireContribp = andCond(c.flp, expireContribp, tedgep->m_condp);
                 sigs.rejectBasep = orExprs(c.flp, sigs.rejectBasep, expireContribp);
-                VL_DO_DANGLING(srcSigp->deleteTree(), srcSigp);
-            } else if (fromVtxp->m_isUnbounded || fromVtxp->m_isAndCombiner) {
+                VL_DO_DANGLING(srcSigp->delete_వృక్షం(), srcSigp);
+            } లేకపోతే ఒకవేళ (fromVtxp->m_isUnbounded || fromVtxp->m_isAndCombiner) {
                 sigs.terminalActivep = orExprs(c.flp, sigs.terminalActivep, srcSigp);
-            } else {
+            } లేకపోతే {
                 sigs.terminalActivep
-                    = orExprs(c.flp, sigs.terminalActivep, srcSigp->cloneTreePure(false));
+                    = orExprs(c.flp, sigs.terminalActivep, srcSigp->clone_వృక్షం_శుద్ధ(అబద్ధం));
                 sigs.rejectBasep = orExprs(c.flp, sigs.rejectBasep, srcSigp);
             }
         }
         // wireMatchAndMidSources always adds a Link from result.termVertexp
         // to m_matchVertexp, so the loop above always sets terminalActivep.
-        UASSERT_OBJ(sigs.terminalActivep, c.graph.m_matchVertexp,
+        UASSERT_OBJ(sigs.terminalActivep, c.లేఖాచిత్రం.m_సరిపోలిక_Vertexp,
                     "No terminal edge to match vertex");
     }
 
-    AstNodeExpr* newThroughoutThreadFailCountp(LowerCtx& c, AstVar* const delayRingLiveCountVarp,
-                                               AstNodeExpr* const stateExprp,
-                                               AstNodeExpr* const enablep) {
-        AstNodeExpr* const activeThreadCountp
-            = delayRingLiveCountVarp
-                  ? static_cast<AstNodeExpr*>(
-                        new AstVarRef{c.flp, delayRingLiveCountVarp, VAccess::READ})
-                  : new AstExtend{c.flp, stateExprp->cloneTreePure(false), m_u32DTypep->width()};
-        return addCountp(c.flp, nullptr, activeThreadCountp, enablep);
+    Ast_కణుపు_సమాసం* newThroughoutThreadFailCountp(క్రింది_Ctx& c, AstVar* స్థిరరాశి delay_Ring_సజీవ_లెక్క_Varp,
+                                               Ast_కణుపు_సమాసం* స్థిరరాశి stateExprp,
+                                               Ast_కణుపు_సమాసం* స్థిరరాశి enablep) {
+        Ast_కణుపు_సమాసం* స్థిరరాశి చురుకైన_Thread_Countp
+            = delay_Ring_సజీవ_లెక్క_Varp
+                  ? static_cast<Ast_కణుపు_సమాసం*>(
+                        కొత్త AstVarRef{c.flp, delay_Ring_సజీవ_లెక్క_Varp, VAccess::READ})
+                  : కొత్త AstExtend{c.flp, stateExprp->clone_వృక్షం_శుద్ధ(అబద్ధం), m_u32DTypep->వెడల్పు()};
+        తిరిగి కూడు_Countp(c.flp, శూన్యసూచిక, చురుకైన_Thread_Countp, enablep);
     }
 
     // Phase 3b: Throughout-drop and ring-wide abort rejection.
-    void computeThroughoutReject(LowerCtx& c, SignalSet& sigs, const bool needThreadFailCount) {
-        for (const V3GraphVertex& vtxr : c.graph.m_graph.vertices()) {
-            const SvaStateVertex* const vtxp = static_cast<const SvaStateVertex*>(&vtxr);
-            const auto& conds = vtxp->m_throughoutConds;
-            if (conds.empty() && !vtxp->m_abortRejectp) continue;
-            if (vtxp->m_isAndCombiner) continue;
-            AstNodeExpr* stateExprp = nullptr;
-            if (vtxp->datap()->stateVarp) {
-                stateExprp = new AstVarRef{c.flp, vtxp->datap()->stateVarp, VAccess::READ};
-            } else if (vtxp->datap()->delayRingVarp && vtxp->m_isFixedDelayRing) {
+    శూన్య computeThroughoutReject(క్రింది_Ctx& c, Signal_సమితి& sigs, స్థిరరాశి తార్కిక need_Thread_Fail_లెక్క) {
+        కొరకు (స్థిరరాశి V3_లేఖాచిత్రం_శీర్షం& vtxr : c.లేఖాచిత్రం.m_లేఖాచిత్రం.vertices()) {
+            స్థిరరాశి Sva_State_శీర్షం* స్థిరరాశి vtxp = static_cast<స్థిరరాశి Sva_State_శీర్షం*>(&vtxr);
+            స్థిరరాశి స్వయంచాలక& conds = vtxp->m_throughoutConds;
+            ఒకవేళ (conds.ఖాళీలు() && !vtxp->m_abortRejectp) కొనసాగు;
+            ఒకవేళ (vtxp->m_isAndCombiner) కొనసాగు;
+            Ast_కణుపు_సమాసం* stateExprp = శూన్యసూచిక;
+            ఒకవేళ (vtxp->datap()->stateVarp) {
+                stateExprp = కొత్త AstVarRef{c.flp, vtxp->datap()->stateVarp, VAccess::READ};
+            } లేకపోతే ఒకవేళ (vtxp->datap()->delayRingVarp && vtxp->m_isFixedDelayRing) {
                 stateExprp
-                    = delayRingHasLiveThreadsp(c.flp, vtxp->datap()->delayRingLiveCountVarp);
-            } else {
+                    = delay_Ring_Has_సజీవ_Threadsp(c.flp, vtxp->datap()->delay_Ring_సజీవ_లెక్క_Varp);
+            } లేకపోతే {
                 UASSERT_OBJ(vtxp->datap()->stateSigp, vtxp,
                             "Throughout-conds vertex missing state representation");
-                stateExprp = vtxp->datap()->stateSigp->cloneTreePure(false);
+                stateExprp = vtxp->datap()->stateSigp->clone_వృక్షం_శుద్ధ(అబద్ధం);
             }
-            AstNodeExpr* guardp = nullptr;
-            for (AstNodeExpr* const cp : conds) {
-                AstNodeExpr* const sp = sampled(cp->cloneTreePure(false));
-                guardp = guardp ? static_cast<AstNodeExpr*>(new AstLogAnd{c.flp, guardp, sp}) : sp;
+            Ast_కణుపు_సమాసం* guardp = శూన్యసూచిక;
+            కొరకు (Ast_కణుపు_సమాసం* స్థిరరాశి cp : conds) {
+                Ast_కణుపు_సమాసం* స్థిరరాశి sp = sampled(cp->clone_వృక్షం_శుద్ధ(అబద్ధం));
+                guardp = guardp ? static_cast<Ast_కణుపు_సమాసం*>(కొత్త AstLogAnd{c.flp, guardp, sp}) : sp;
             }
-            if (vtxp->m_abortRejectp) {
-                AstNodeExpr* const notAbortp
-                    = new AstLogNot{c.flp, sampled(vtxp->m_abortRejectp->cloneTreePure(false))};
+            ఒకవేళ (vtxp->m_abortRejectp) {
+                Ast_కణుపు_సమాసం* స్థిరరాశి notAbortp
+                    = కొత్త AstLogNot{c.flp, sampled(vtxp->m_abortRejectp->clone_వృక్షం_శుద్ధ(అబద్ధం))};
                 guardp = guardp
-                             ? static_cast<AstNodeExpr*>(new AstLogAnd{c.flp, guardp, notAbortp})
+                             ? static_cast<Ast_కణుపు_సమాసం*>(కొత్త AstLogAnd{c.flp, guardp, notAbortp})
                              : notAbortp;
             }
-            AstNodeExpr* rejectCondp = new AstLogNot{c.flp, guardp};
-            if (vtxp->m_abortClearp) {
+            Ast_కణుపు_సమాసం* rejectCondp = కొత్త AstLogNot{c.flp, guardp};
+            ఒకవేళ (vtxp->m_abortClearp) {
                 // Any abort clears the ring. Accept aborts suppress a simultaneous guard failure;
                 // reject aborts are restored below so they still force rejection.
-                AstNodeExpr* const notAbortClearp
-                    = new AstLogNot{c.flp, sampled(vtxp->m_abortClearp->cloneTreePure(false))};
-                rejectCondp = new AstLogAnd{c.flp, rejectCondp, notAbortClearp};
-                if (vtxp->m_abortRejectp) {
-                    rejectCondp = new AstLogOr{
-                        c.flp, rejectCondp, sampled(vtxp->m_abortRejectp->cloneTreePure(false))};
+                Ast_కణుపు_సమాసం* స్థిరరాశి notAbortClearp
+                    = కొత్త AstLogNot{c.flp, sampled(vtxp->m_abortClearp->clone_వృక్షం_శుద్ధ(అబద్ధం))};
+                rejectCondp = కొత్త AstLogAnd{c.flp, rejectCondp, notAbortClearp};
+                ఒకవేళ (vtxp->m_abortRejectp) {
+                    rejectCondp = కొత్త AstLogOr{
+                        c.flp, rejectCondp, sampled(vtxp->m_abortRejectp->clone_వృక్షం_శుద్ధ(అబద్ధం))};
                 }
             }
-            if (needThreadFailCount) {
-                AstNodeExpr* const contributionp
-                    = newThroughoutThreadFailCountp(c, vtxp->datap()->delayRingLiveCountVarp,
-                                                    stateExprp, rejectCondp->cloneTreePure(false));
-                sigs.threadFailCountp = addCountp(c.flp, sigs.threadFailCountp, contributionp);
-                if (vtxp->m_abortRejectp && vtxp->m_delayRingAdvanceCondp) {
+            ఒకవేళ (need_Thread_Fail_లెక్క) {
+                Ast_కణుపు_సమాసం* స్థిరరాశి contributionp
+                    = newThroughoutThreadFailCountp(c, vtxp->datap()->delay_Ring_సజీవ_లెక్క_Varp,
+                                                    stateExprp, rejectCondp->clone_వృక్షం_శుద్ధ(అబద్ధం));
+                sigs.threadFailCountp = కూడు_Countp(c.flp, sigs.threadFailCountp, contributionp);
+                ఒకవేళ (vtxp->m_abortRejectp && vtxp->m_delayRingAdvanceCondp) {
                     // An advancing ring thread also occupies its same-tick match vertex in the
                     // unrolled NFA, so abort rejection must replay both fail actions.
-                    AstNodeExpr* const abortAndAdvancep = new AstLogAnd{
-                        c.flp, sampled(vtxp->m_abortRejectp->cloneTreePure(false)),
-                        sampled(vtxp->m_delayRingAdvanceCondp->cloneTreePure(false))};
-                    AstNodeExpr* const matchContributionp = newThroughoutThreadFailCountp(
-                        c, vtxp->datap()->delayRingLiveCountVarp, stateExprp, abortAndAdvancep);
+                    Ast_కణుపు_సమాసం* స్థిరరాశి abortAndAdvancep = కొత్త AstLogAnd{
+                        c.flp, sampled(vtxp->m_abortRejectp->clone_వృక్షం_శుద్ధ(అబద్ధం)),
+                        sampled(vtxp->m_delayRingAdvanceCondp->clone_వృక్షం_శుద్ధ(అబద్ధం))};
+                    Ast_కణుపు_సమాసం* స్థిరరాశి సరిపోలిక_Contributionp = newThroughoutThreadFailCountp(
+                        c, vtxp->datap()->delay_Ring_సజీవ_లెక్క_Varp, stateExprp, abortAndAdvancep);
                     sigs.threadFailCountp
-                        = addCountp(c.flp, sigs.threadFailCountp, matchContributionp);
+                        = కూడు_Countp(c.flp, sigs.threadFailCountp, సరిపోలిక_Contributionp);
                 }
             }
             sigs.throughoutRejectp = orExprs(c.flp, sigs.throughoutRejectp,
-                                             new AstLogAnd{c.flp, stateExprp, rejectCondp});
+                                             కొత్త AstLogAnd{c.flp, stateExprp, rejectCondp});
         }
     }
 
-    SignalSet computeSignals(LowerCtx& c, const bool needThreadFailCount,
-                             const bool needThroughoutThreadFailCount, const bool needMatchCount) {
-        SignalSet sigs;
+    Signal_సమితి compute_సంకేతాలు(క్రింది_Ctx& c, స్థిరరాశి తార్కిక need_Thread_Fail_లెక్క,
+                             స్థిరరాశి తార్కిక need_Throughout_Thread_Fail_లెక్క, స్థిరరాశి తార్కిక need_సరిపోలిక_లెక్క) {
+        Signal_సమితి sigs;
 
-        computeTerminalMatchAndReject(c, sigs, needMatchCount);
+        compute_Terminal_సరిపోలిక_And_Reject(c, sigs, need_సరిపోలిక_లెక్క);
 
         // Phase 3a: required-step rejection.
         // Builder only sets m_rejectOnFail on non-clocked Links with m_condp
         // or m_condVtxp, and the source always has a resolved stateSig.
-        for (const SvaTransEdge* const tedgep : c.graph.allEdges()) {
-            if (!tedgep->m_rejectOnFail) continue;
-            const SvaStateVertex* const fromVtxp = tedgep->fromVtxp();
+        కొరకు (స్థిరరాశి Sva_Trans_అంచు* స్థిరరాశి tedgep : c.లేఖాచిత్రం.all_అంచులు()) {
+            ఒకవేళ (!tedgep->m_rejectOnFail) కొనసాగు;
+            స్థిరరాశి Sva_State_శీర్షం* స్థిరరాశి fromVtxp = tedgep->fromVtxp();
             UASSERT_OBJ(fromVtxp->datap()->stateSigp && (tedgep->m_condp || tedgep->m_condVtxp),
                         fromVtxp,
                         "rejectOnFail Link must have condp/condVtxp and source stateSig");
-            AstNodeExpr* const srcSigp = fromVtxp->datap()->stateSigp->cloneTreePure(false);
-            AstNodeExpr* condp = nullptr;
-            if (tedgep->m_condVtxp) {
+            Ast_కణుపు_సమాసం* స్థిరరాశి srcSigp = fromVtxp->datap()->stateSigp->clone_వృక్షం_శుద్ధ(అబద్ధం);
+            Ast_కణుపు_సమాసం* condp = శూన్యసూచిక;
+            ఒకవేళ (tedgep->m_condVtxp) {
                 UASSERT_OBJ(tedgep->m_condVtxp->datap()->stateSigp, tedgep->m_condVtxp,
                             "rejectOnFail condVtxp missing stateSig");
-                condp = tedgep->m_condVtxp->datap()->stateSigp->cloneTreePure(false);
-                if (tedgep->m_condp) {
-                    condp = new AstLogOr{c.flp, condp, tedgep->m_condp->cloneTreePure(false)};
+                condp = tedgep->m_condVtxp->datap()->stateSigp->clone_వృక్షం_శుద్ధ(అబద్ధం);
+                ఒకవేళ (tedgep->m_condp) {
+                    condp = కొత్త AstLogOr{c.flp, condp, tedgep->m_condp->clone_వృక్షం_శుద్ధ(అబద్ధం)};
                 }
-            } else {
-                condp = tedgep->m_condp->cloneTreePure(false);
+            } లేకపోతే {
+                condp = tedgep->m_condp->clone_వృక్షం_శుద్ధ(అబద్ధం);
             }
-            AstNodeExpr* const notCondp = new AstLogNot{c.flp, condp};
-            AstNodeExpr* const rawFailp = new AstLogAnd{c.flp, srcSigp, notCondp};
-            if (needThreadFailCount) {
+            Ast_కణుపు_సమాసం* స్థిరరాశి notCondp = కొత్త AstLogNot{c.flp, condp};
+            Ast_కణుపు_సమాసం* స్థిరరాశి rawFailp = కొత్త AstLogAnd{c.flp, srcSigp, notCondp};
+            ఒకవేళ (need_Thread_Fail_లెక్క) {
                 // thread_fail_count += fail;
-                sigs.threadFailCountp = addCountp(
+                sigs.threadFailCountp = కూడు_Countp(
                     c.flp, sigs.threadFailCountp,
-                    new AstExtend{c.flp, rawFailp->cloneTreePure(false), m_u32DTypep->width()});
+                    కొత్త AstExtend{c.flp, rawFailp->clone_వృక్షం_శుద్ధ(అబద్ధం), m_u32DTypep->వెడల్పు()});
             }
-            AstNodeExpr* const failp = gateNotKill(c, rawFailp);
-            sigs.requiredStepRejectp = orExprs(c.flp, sigs.requiredStepRejectp, failp);
+            Ast_కణుపు_సమాసం* స్థిరరాశి failp = gateNotKill(c, rawFailp);
+            sigs.required_అడుగు_Rejectp = orExprs(c.flp, sigs.required_అడుగు_Rejectp, failp);
         }
 
-        computeThroughoutReject(c, sigs, needThroughoutThreadFailCount);
-        if (sigs.threadFailCountp) {
+        computeThroughoutReject(c, sigs, need_Throughout_Thread_Fail_లెక్క);
+        ఒకవేళ (sigs.threadFailCountp) {
             sigs.threadFailCountp
-                = addCountp(c.flp, nullptr, sigs.threadFailCountp, notKillActive(c));
+                = కూడు_Countp(c.flp, శూన్యసూచిక, sigs.threadFailCountp, not_Kill_చురుకైన(c));
         }
-        if (sigs.matchCountp) {
-            if (c.matchCondp) {
-                sigs.matchCountp
-                    = gateCheckedCountp(c.flp, sigs.matchCountp, sigs.matchCountOverflowp,
-                                        sampled(c.matchCondp->cloneTreePure(false)));
+        ఒకవేళ (sigs.సరిపోలిక_Countp) {
+            ఒకవేళ (c.సరిపోలిక_Condp) {
+                sigs.సరిపోలిక_Countp
+                    = gateCheckedCountp(c.flp, sigs.సరిపోలిక_Countp, sigs.సరిపోలిక_లెక్క_Overflowp,
+                                        sampled(c.సరిపోలిక_Condp->clone_వృక్షం_శుద్ధ(అబద్ధం)));
             }
-            sigs.matchCountp = gateCheckedCountp(c.flp, sigs.matchCountp, sigs.matchCountOverflowp,
-                                                 notKillActive(c));
+            sigs.సరిపోలిక_Countp = gateCheckedCountp(c.flp, sigs.సరిపోలిక_Countp, sigs.సరిపోలిక_లెక్క_Overflowp,
+                                                 not_Kill_చురుకైన(c));
         }
         sigs.terminalActivep = gateNotKill(c, sigs.terminalActivep);
         sigs.rejectBasep = gateNotKill(c, sigs.rejectBasep);
@@ -2411,456 +2411,456 @@ class SvaNfaLowering final {
         // Clean up intermediate state signals. These are orphan subtrees
         // (never linked into the enclosing AST); deleteTree() is immediate
         // which is what we want since stateSigp lifetime ends with this scope.
-        for (V3GraphVertex& vtxr : c.graph.m_graph.vertices()) {
-            SvaStateVertex* const vtxp = static_cast<SvaStateVertex*>(&vtxr);
-            AstNodeExpr*& sigp = vtxp->datap()->stateSigp;
-            if (sigp) VL_DO_DANGLING(sigp->deleteTree(), sigp);
-            AstNodeExpr*& countp = vtxp->datap()->stateCountSigp;
-            if (countp) VL_DO_DANGLING(countp->deleteTree(), countp);
-            AstNodeExpr*& overflowp = vtxp->datap()->stateCountOverflowSigp;
-            if (overflowp) VL_DO_DANGLING(overflowp->deleteTree(), overflowp);
+        కొరకు (V3_లేఖాచిత్రం_శీర్షం& vtxr : c.లేఖాచిత్రం.m_లేఖాచిత్రం.vertices()) {
+            Sva_State_శీర్షం* స్థిరరాశి vtxp = static_cast<Sva_State_శీర్షం*>(&vtxr);
+            Ast_కణుపు_సమాసం*& sigp = vtxp->datap()->stateSigp;
+            ఒకవేళ (sigp) VL_DO_DANGLING(sigp->delete_వృక్షం(), sigp);
+            Ast_కణుపు_సమాసం*& countp = vtxp->datap()->state_లెక్క_Sigp;
+            ఒకవేళ (countp) VL_DO_DANGLING(countp->delete_వృక్షం(), countp);
+            Ast_కణుపు_సమాసం*& overflowp = vtxp->datap()->state_లెక్క_అధికప్రవాహం_Sigp;
+            ఒకవేళ (overflowp) VL_DO_DANGLING(overflowp->delete_వృక్షం(), overflowp);
         }
         // Disable iff gating (IEEE 1800-2023 16.12) on the current level value.
-        if (c.disableExprp) {
+        ఒకవేళ (c.disableExprp) {
             // terminalActivep is always set, so gate it unconditionally.
-            AstNodeExpr* const notTermp
-                = new AstLogNot{c.flp, c.disableExprp->cloneTreePure(false)};
-            sigs.terminalActivep = new AstLogAnd{c.flp, sigs.terminalActivep, notTermp};
-            if (sigs.rejectBasep) {
-                AstNodeExpr* const notDisp
-                    = new AstLogNot{c.flp, c.disableExprp->cloneTreePure(false)};
-                sigs.rejectBasep = new AstLogAnd{c.flp, sigs.rejectBasep, notDisp};
+            Ast_కణుపు_సమాసం* స్థిరరాశి notTermp
+                = కొత్త AstLogNot{c.flp, c.disableExprp->clone_వృక్షం_శుద్ధ(అబద్ధం)};
+            sigs.terminalActivep = కొత్త AstLogAnd{c.flp, sigs.terminalActivep, notTermp};
+            ఒకవేళ (sigs.rejectBasep) {
+                Ast_కణుపు_సమాసం* స్థిరరాశి notDisp
+                    = కొత్త AstLogNot{c.flp, c.disableExprp->clone_వృక్షం_శుద్ధ(అబద్ధం)};
+                sigs.rejectBasep = కొత్త AstLogAnd{c.flp, sigs.rejectBasep, notDisp};
             }
-            if (sigs.throughoutRejectp) {
-                AstNodeExpr* const notDisp
-                    = new AstLogNot{c.flp, c.disableExprp->cloneTreePure(false)};
-                sigs.throughoutRejectp = new AstLogAnd{c.flp, sigs.throughoutRejectp, notDisp};
+            ఒకవేళ (sigs.throughoutRejectp) {
+                Ast_కణుపు_సమాసం* స్థిరరాశి notDisp
+                    = కొత్త AstLogNot{c.flp, c.disableExprp->clone_వృక్షం_శుద్ధ(అబద్ధం)};
+                sigs.throughoutRejectp = కొత్త AstLogAnd{c.flp, sigs.throughoutRejectp, notDisp};
             }
-            if (sigs.requiredStepRejectp) {
-                AstNodeExpr* const notDisp
-                    = new AstLogNot{c.flp, c.disableExprp->cloneTreePure(false)};
-                sigs.requiredStepRejectp = new AstLogAnd{c.flp, sigs.requiredStepRejectp, notDisp};
+            ఒకవేళ (sigs.required_అడుగు_Rejectp) {
+                Ast_కణుపు_సమాసం* స్థిరరాశి notDisp
+                    = కొత్త AstLogNot{c.flp, c.disableExprp->clone_వృక్షం_శుద్ధ(అబద్ధం)};
+                sigs.required_అడుగు_Rejectp = కొత్త AstLogAnd{c.flp, sigs.required_అడుగు_Rejectp, notDisp};
             }
-            if (sigs.matchCountp) {
-                sigs.matchCountp = gateCheckedCountp(
-                    c.flp, sigs.matchCountp, sigs.matchCountOverflowp,
-                    new AstLogNot{c.flp, c.disableExprp->cloneTreePure(false)});
+            ఒకవేళ (sigs.సరిపోలిక_Countp) {
+                sigs.సరిపోలిక_Countp = gateCheckedCountp(
+                    c.flp, sigs.సరిపోలిక_Countp, sigs.సరిపోలిక_లెక్క_Overflowp,
+                    కొత్త AstLogNot{c.flp, c.disableExprp->clone_వృక్షం_శుద్ధ(అబద్ధం)});
             }
         }
 
-        if (sigs.matchCountOverflowp) {
-            m_modp->addStmtsp(
-                new AstAlways{c.flp, VAlwaysKwd::ALWAYS, c.senTreep->cloneTree(false),
-                              newCountOverflowWarning(c.flp, sigs.matchCountOverflowp)});
-            sigs.matchCountOverflowp = nullptr;
+        ఒకవేళ (sigs.సరిపోలిక_లెక్క_Overflowp) {
+            m_modp->కూడు_Stmtsp(
+                కొత్త AstAlways{c.flp, VAlwaysKwd::ALWAYS, c.senTreep->clone_వృక్షం(అబద్ధం),
+                              new_లెక్క_అధికప్రవాహం_Warning(c.flp, sigs.సరిపోలిక_లెక్క_Overflowp)});
+            sigs.సరిపోలిక_లెక్క_Overflowp = శూన్యసూచిక;
         }
 
-        return sigs;
+        తిరిగి sigs;
     }
 
     // Phase 1: Resolve combinational Links via fixed-point propagation.
-    void resolveLinks(LowerCtx& c, AstNodeExpr* triggerExprp, const bool countMatches) {
+    శూన్య resolveLinks(క్రింది_Ctx& c, Ast_కణుపు_సమాసం* triggerExprp, స్థిరరాశి తార్కిక లెక్క_Matches) {
         // datap() was freshly allocated in lower() -- all state signals start null.
-        c.graph.m_startVertexp->datap()->stateSigp = triggerExprp->cloneTreePure(false);
-        c.graph.m_startVertexp->datap()->stateCountSigp
-            = new AstExtend{c.flp, triggerExprp->cloneTreePure(false), m_u32DTypep->width()};
-        for (V3GraphVertex& vtxr : c.graph.m_graph.vertices()) {
-            SvaStateVertex* const vtxp = static_cast<SvaStateVertex*>(&vtxr);
-            if (vtxp->datap()->stateVarp) {
+        c.లేఖాచిత్రం.m_ప్రారంభం_Vertexp->datap()->stateSigp = triggerExprp->clone_వృక్షం_శుద్ధ(అబద్ధం);
+        c.లేఖాచిత్రం.m_ప్రారంభం_Vertexp->datap()->state_లెక్క_Sigp
+            = కొత్త AstExtend{c.flp, triggerExprp->clone_వృక్షం_శుద్ధ(అబద్ధం), m_u32DTypep->వెడల్పు()};
+        కొరకు (V3_లేఖాచిత్రం_శీర్షం& vtxr : c.లేఖాచిత్రం.m_లేఖాచిత్రం.vertices()) {
+            Sva_State_శీర్షం* స్థిరరాశి vtxp = static_cast<Sva_State_శీర్షం*>(&vtxr);
+            ఒకవేళ (vtxp->datap()->stateVarp) {
                 vtxp->datap()->stateSigp
-                    = new AstVarRef{c.flp, vtxp->datap()->stateVarp, VAccess::READ};
-                vtxp->datap()->stateCountSigp = new AstExtend{
-                    c.flp, new AstVarRef{c.flp, vtxp->datap()->stateVarp, VAccess::READ},
-                    m_u32DTypep->width()};
-            } else if (vtxp->datap()->delayRingVarp) {
-                if (vtxp->m_isFixedDelayRing) {
+                    = కొత్త AstVarRef{c.flp, vtxp->datap()->stateVarp, VAccess::READ};
+                vtxp->datap()->state_లెక్క_Sigp = కొత్త AstExtend{
+                    c.flp, కొత్త AstVarRef{c.flp, vtxp->datap()->stateVarp, VAccess::READ},
+                    m_u32DTypep->వెడల్పు()};
+            } లేకపోతే ఒకవేళ (vtxp->datap()->delayRingVarp) {
+                ఒకవేళ (vtxp->m_isFixedDelayRing) {
                     // state_count = wrapped ? head : 0; state = state_count != 0;
-                    AstNodeExpr* const countp = delayRingOutputCount(c.flp, vtxp);
-                    vtxp->datap()->stateSigp = new AstNeq{c.flp, countp->cloneTreePure(false),
+                    Ast_కణుపు_సమాసం* స్థిరరాశి countp = delay_Ring_Output_లెక్క(c.flp, vtxp);
+                    vtxp->datap()->stateSigp = కొత్త AstNeq{c.flp, countp->clone_వృక్షం_శుద్ధ(అబద్ధం),
                                                           newTypedConstp(c.flp, m_u32DTypep, 0)};
-                    vtxp->datap()->stateCountSigp = countp;
-                } else {
+                    vtxp->datap()->state_లెక్క_Sigp = countp;
+                } లేకపోతే {
                     vtxp->datap()->stateSigp
-                        = delayRingHasLiveThreadsp(c.flp, vtxp->datap()->delayRingLiveCountVarp);
-                    vtxp->datap()->stateCountSigp = new AstVarRef{
-                        c.flp, vtxp->datap()->delayRingLiveCountVarp, VAccess::READ};
+                        = delay_Ring_Has_సజీవ_Threadsp(c.flp, vtxp->datap()->delay_Ring_సజీవ_లెక్క_Varp);
+                    vtxp->datap()->state_లెక్క_Sigp = కొత్త AstVarRef{
+                        c.flp, vtxp->datap()->delay_Ring_సజీవ_లెక్క_Varp, VAccess::READ};
                 }
             }
         }
         // Fixed-point propagation along zero-delay (Link) edges. Rebuild each
         // derived signal from its incoming edges on every pass; appending the same
         // contributions repeatedly makes merge expressions grow exponentially.
-        const size_t passes = 2 * c.graph.m_graph.vertices().size() + 2;
-        for (size_t pass = 0; pass < passes; ++pass) {
+        స్థిరరాశి కొలత_t passes = 2 * c.లేఖాచిత్రం.m_లేఖాచిత్రం.vertices().కొలత() + 2;
+        కొరకు (కొలత_t pass = 0; pass < passes; ++pass) {
             // Rebuild SAnd combiners once both sub-NFA terminals are available.
-            for (V3GraphVertex& vtxr : c.graph.m_graph.vertices()) {
-                SvaStateVertex* const vtxp = static_cast<SvaStateVertex*>(&vtxr);
-                if (!vtxp->m_isAndCombiner) continue;
+            కొరకు (V3_లేఖాచిత్రం_శీర్షం& vtxr : c.లేఖాచిత్రం.m_లేఖాచిత్రం.vertices()) {
+                Sva_State_శీర్షం* స్థిరరాశి vtxp = static_cast<Sva_State_శీర్షం*>(&vtxr);
+                ఒకవేళ (!vtxp->m_isAndCombiner) కొనసాగు;
                 // AndCombiner vertices always have both terminal pointers set.
                 UASSERT_OBJ(vtxp->m_andLhsTermp && vtxp->m_andRhsTermp, vtxp,
                             "AndCombiner vertex missing LHS/RHS terminal");
-                const SvaStateVertex* const lhsTermp = vtxp->m_andLhsTermp;
-                const SvaStateVertex* const rhsTermp = vtxp->m_andRhsTermp;
-                if (!lhsTermp->datap()->stateSigp || !rhsTermp->datap()->stateSigp) continue;
-                AstNodeExpr* const matchLp
-                    = buildMatchNow(c.flp, lhsTermp->datap()->stateSigp, vtxp->m_andLhsCondp);
-                AstNodeExpr* const matchRp
-                    = buildMatchNow(c.flp, rhsTermp->datap()->stateSigp, vtxp->m_andRhsCondp);
-                AstNodeExpr* const doneLOrp = new AstLogOr{
-                    c.flp, new AstVarRef{c.flp, vtxp->datap()->doneLVarp, VAccess::READ}, matchLp};
-                AstNodeExpr* const doneROrp = new AstLogOr{
-                    c.flp, new AstVarRef{c.flp, vtxp->datap()->doneRVarp, VAccess::READ}, matchRp};
-                AstNodeExpr* const bothp = new AstLogAnd{c.flp, doneLOrp, doneROrp};
-                AstNodeExpr* const oneNowp = new AstLogOr{c.flp, matchLp->cloneTreePure(false),
-                                                          matchRp->cloneTreePure(false)};
-                if (vtxp->datap()->stateSigp) {
-                    VL_DO_DANGLING(vtxp->datap()->stateSigp->deleteTree(),
+                స్థిరరాశి Sva_State_శీర్షం* స్థిరరాశి lhsTermp = vtxp->m_andLhsTermp;
+                స్థిరరాశి Sva_State_శీర్షం* స్థిరరాశి rhsTermp = vtxp->m_andRhsTermp;
+                ఒకవేళ (!lhsTermp->datap()->stateSigp || !rhsTermp->datap()->stateSigp) కొనసాగు;
+                Ast_కణుపు_సమాసం* స్థిరరాశి సరిపోలిక_Lp
+                    = build_సరిపోలిక_Now(c.flp, lhsTermp->datap()->stateSigp, vtxp->m_andLhsCondp);
+                Ast_కణుపు_సమాసం* స్థిరరాశి సరిపోలిక_Rp
+                    = build_సరిపోలిక_Now(c.flp, rhsTermp->datap()->stateSigp, vtxp->m_andRhsCondp);
+                Ast_కణుపు_సమాసం* స్థిరరాశి పూర్తి_LOrp = కొత్త AstLogOr{
+                    c.flp, కొత్త AstVarRef{c.flp, vtxp->datap()->పూర్తి_LVarp, VAccess::READ}, సరిపోలిక_Lp};
+                Ast_కణుపు_సమాసం* స్థిరరాశి పూర్తి_ROrp = కొత్త AstLogOr{
+                    c.flp, కొత్త AstVarRef{c.flp, vtxp->datap()->పూర్తి_RVarp, VAccess::READ}, సరిపోలిక_Rp};
+                Ast_కణుపు_సమాసం* స్థిరరాశి bothp = కొత్త AstLogAnd{c.flp, పూర్తి_LOrp, పూర్తి_ROrp};
+                Ast_కణుపు_సమాసం* స్థిరరాశి oneNowp = కొత్త AstLogOr{c.flp, సరిపోలిక_Lp->clone_వృక్షం_శుద్ధ(అబద్ధం),
+                                                          సరిపోలిక_Rp->clone_వృక్షం_శుద్ధ(అబద్ధం)};
+                ఒకవేళ (vtxp->datap()->stateSigp) {
+                    VL_DO_DANGLING(vtxp->datap()->stateSigp->delete_వృక్షం(),
                                    vtxp->datap()->stateSigp);
                 }
-                vtxp->datap()->stateSigp = new AstLogAnd{c.flp, bothp, oneNowp};
-                if (vtxp->datap()->stateCountSigp) {
-                    VL_DO_DANGLING(vtxp->datap()->stateCountSigp->deleteTree(),
-                                   vtxp->datap()->stateCountSigp);
+                vtxp->datap()->stateSigp = కొత్త AstLogAnd{c.flp, bothp, oneNowp};
+                ఒకవేళ (vtxp->datap()->state_లెక్క_Sigp) {
+                    VL_DO_DANGLING(vtxp->datap()->state_లెక్క_Sigp->delete_వృక్షం(),
+                                   vtxp->datap()->state_లెక్క_Sigp);
                 }
-                vtxp->datap()->stateCountSigp = new AstExtend{
-                    c.flp, vtxp->datap()->stateSigp->cloneTreePure(false), m_u32DTypep->width()};
+                vtxp->datap()->state_లెక్క_Sigp = కొత్త AstExtend{
+                    c.flp, vtxp->datap()->stateSigp->clone_వృక్షం_శుద్ధ(అబద్ధం), m_u32DTypep->వెడల్పు()};
             }
 
-            for (V3GraphVertex& vtxr : c.graph.m_graph.vertices()) {
-                SvaStateVertex* const vtxp = static_cast<SvaStateVertex*>(&vtxr);
-                if (vtxp == c.graph.m_startVertexp || vtxp->datap()->stateVarp
-                    || vtxp->datap()->delayRingVarp || vtxp->m_isAndCombiner || vtxp->m_isMatch
+            కొరకు (V3_లేఖాచిత్రం_శీర్షం& vtxr : c.లేఖాచిత్రం.m_లేఖాచిత్రం.vertices()) {
+                Sva_State_శీర్షం* స్థిరరాశి vtxp = static_cast<Sva_State_శీర్షం*>(&vtxr);
+                ఒకవేళ (vtxp == c.లేఖాచిత్రం.m_ప్రారంభం_Vertexp || vtxp->datap()->stateVarp
+                    || vtxp->datap()->delayRingVarp || vtxp->m_isAndCombiner || vtxp->m_is_సరిపోలిక
                     || vtxp->m_isRejectSink) {
-                    continue;
+                    కొనసాగు;
                 }
-                AstNodeExpr* nextStatep = nullptr;
-                AstNodeExpr* nextStateCountp = nullptr;
-                AstNodeExpr* nextStateCountOverflowp = nullptr;
-                for (const V3GraphEdge& er : vtxp->inEdges()) {
-                    const SvaTransEdge& te = static_cast<const SvaTransEdge&>(er);
-                    const SvaStateVertex* const fromVtxp = te.fromVtxp();
-                    if (!fromVtxp->datap()->stateSigp) continue;
-                    UASSERT_OBJ(fromVtxp->datap()->stateCountSigp, fromVtxp,
+                Ast_కణుపు_సమాసం* తదుపరి_Statep = శూన్యసూచిక;
+                Ast_కణుపు_సమాసం* తదుపరి_State_Countp = శూన్యసూచిక;
+                Ast_కణుపు_సమాసం* తదుపరి_State_లెక్క_Overflowp = శూన్యసూచిక;
+                కొరకు (స్థిరరాశి V3_లేఖాచిత్రం_అంచు& er : vtxp->లోపల_అంచులు()) {
+                    స్థిరరాశి Sva_Trans_అంచు& te = static_cast<స్థిరరాశి Sva_Trans_అంచు&>(er);
+                    స్థిరరాశి Sva_State_శీర్షం* స్థిరరాశి fromVtxp = te.fromVtxp();
+                    ఒకవేళ (!fromVtxp->datap()->stateSigp) కొనసాగు;
+                    UASSERT_OBJ(fromVtxp->datap()->state_లెక్క_Sigp, fromVtxp,
                                 "Link source missing stateCountSig");
-                    AstNodeExpr* const contributionp = andCond(
-                        c.flp, fromVtxp->datap()->stateSigp->cloneTreePure(false), te.m_condp);
-                    nextStatep = orExprs(c.flp, nextStatep, contributionp);
-                    AstNodeExpr* countContributionp
-                        = fromVtxp->datap()->stateCountSigp->cloneTreePure(false);
-                    AstNodeExpr* countContributionOverflowp
-                        = countMatches && fromVtxp->datap()->stateCountOverflowSigp
-                              ? fromVtxp->datap()->stateCountOverflowSigp->cloneTreePure(false)
-                              : nullptr;
-                    if (te.m_condp) {
-                        AstNodeExpr* const enablep = te.m_condp->cloneTreePure(false);
-                        countContributionp
-                            = countMatches
-                                  ? gateCheckedCountp(c.flp, countContributionp,
-                                                      countContributionOverflowp, enablep)
-                                  : addCountp(c.flp, nullptr, countContributionp, enablep);
+                    Ast_కణుపు_సమాసం* స్థిరరాశి contributionp = andCond(
+                        c.flp, fromVtxp->datap()->stateSigp->clone_వృక్షం_శుద్ధ(అబద్ధం), te.m_condp);
+                    తదుపరి_Statep = orExprs(c.flp, తదుపరి_Statep, contributionp);
+                    Ast_కణుపు_సమాసం* లెక్క_Contributionp
+                        = fromVtxp->datap()->state_లెక్క_Sigp->clone_వృక్షం_శుద్ధ(అబద్ధం);
+                    Ast_కణుపు_సమాసం* లెక్క_Contribution_Overflowp
+                        = లెక్క_Matches && fromVtxp->datap()->state_లెక్క_అధికప్రవాహం_Sigp
+                              ? fromVtxp->datap()->state_లెక్క_అధికప్రవాహం_Sigp->clone_వృక్షం_శుద్ధ(అబద్ధం)
+                              : శూన్యసూచిక;
+                    ఒకవేళ (te.m_condp) {
+                        Ast_కణుపు_సమాసం* స్థిరరాశి enablep = te.m_condp->clone_వృక్షం_శుద్ధ(అబద్ధం);
+                        లెక్క_Contributionp
+                            = లెక్క_Matches
+                                  ? gateCheckedCountp(c.flp, లెక్క_Contributionp,
+                                                      లెక్క_Contribution_Overflowp, enablep)
+                                  : కూడు_Countp(c.flp, శూన్యసూచిక, లెక్క_Contributionp, enablep);
                     }
-                    nextStateCountp
-                        = countMatches
-                              ? addCheckedCountp(c.flp, nextStateCountp, countContributionp,
-                                                 nextStateCountOverflowp,
-                                                 countContributionOverflowp)
-                              : addCountp(c.flp, nextStateCountp, countContributionp);
+                    తదుపరి_State_Countp
+                        = లెక్క_Matches
+                              ? కూడు_Checked_Countp(c.flp, తదుపరి_State_Countp, లెక్క_Contributionp,
+                                                 తదుపరి_State_లెక్క_Overflowp,
+                                                 లెక్క_Contribution_Overflowp)
+                              : కూడు_Countp(c.flp, తదుపరి_State_Countp, లెక్క_Contributionp);
                 }
-                if (vtxp->datap()->stateSigp) {
-                    VL_DO_DANGLING(vtxp->datap()->stateSigp->deleteTree(),
+                ఒకవేళ (vtxp->datap()->stateSigp) {
+                    VL_DO_DANGLING(vtxp->datap()->stateSigp->delete_వృక్షం(),
                                    vtxp->datap()->stateSigp);
                 }
-                vtxp->datap()->stateSigp = nextStatep;
-                if (vtxp->datap()->stateCountSigp) {
-                    VL_DO_DANGLING(vtxp->datap()->stateCountSigp->deleteTree(),
-                                   vtxp->datap()->stateCountSigp);
+                vtxp->datap()->stateSigp = తదుపరి_Statep;
+                ఒకవేళ (vtxp->datap()->state_లెక్క_Sigp) {
+                    VL_DO_DANGLING(vtxp->datap()->state_లెక్క_Sigp->delete_వృక్షం(),
+                                   vtxp->datap()->state_లెక్క_Sigp);
                 }
-                vtxp->datap()->stateCountSigp = nextStateCountp;
-                if (vtxp->datap()->stateCountOverflowSigp) {
-                    VL_DO_DANGLING(vtxp->datap()->stateCountOverflowSigp->deleteTree(),
-                                   vtxp->datap()->stateCountOverflowSigp);
+                vtxp->datap()->state_లెక్క_Sigp = తదుపరి_State_Countp;
+                ఒకవేళ (vtxp->datap()->state_లెక్క_అధికప్రవాహం_Sigp) {
+                    VL_DO_DANGLING(vtxp->datap()->state_లెక్క_అధికప్రవాహం_Sigp->delete_వృక్షం(),
+                                   vtxp->datap()->state_లెక్క_అధికప్రవాహం_Sigp);
                 }
-                vtxp->datap()->stateCountOverflowSigp = nextStateCountOverflowp;
+                vtxp->datap()->state_లెక్క_అధికప్రవాహం_Sigp = తదుపరి_State_లెక్క_Overflowp;
             }
         }
     }
 
-public:
+బహిరంగ:
     // Combine terminal/reject signals into final output expression.
-    static AstNodeExpr* assembleResult(AstNodeCoverOrAssert* const assertp, const bool negated,
-                                       AstNodeExpr* const matchCondp, const SignalSet& sigs,
-                                       AstNodeExpr** const outMatchpp) {
-        FileLine* const flp = assertp->fileline();
-        const bool isCover = VN_IS(assertp, Cover);
-        AstNodeExpr* const terminalActivep = sigs.terminalActivep;
-        AstNodeExpr* const rejectBasep = sigs.rejectBasep;
-        AstNodeExpr* const throughoutRejectp = sigs.throughoutRejectp;
-        AstNodeExpr* const requiredStepRejectp = sigs.requiredStepRejectp;
+    స్థిర Ast_కణుపు_సమాసం* assemble_ఫలితం(Ast_కణుపు_Cover_Or_Assert* స్థిరరాశి assertp, స్థిరరాశి తార్కిక negated,
+                                       Ast_కణుపు_సమాసం* స్థిరరాశి సరిపోలిక_Condp, స్థిరరాశి Signal_సమితి& sigs,
+                                       Ast_కణుపు_సమాసం** స్థిరరాశి బహిర్గతం_Matchpp) {
+        File_పంక్తి* స్థిరరాశి flp = assertp->fileline();
+        స్థిరరాశి తార్కిక isCover = VN_IS(assertp, Cover);
+        Ast_కణుపు_సమాసం* స్థిరరాశి terminalActivep = sigs.terminalActivep;
+        Ast_కణుపు_సమాసం* స్థిరరాశి rejectBasep = sigs.rejectBasep;
+        Ast_కణుపు_సమాసం* స్థిరరాశి throughoutRejectp = sigs.throughoutRejectp;
+        Ast_కణుపు_సమాసం* స్థిరరాశి required_అడుగు_Rejectp = sigs.required_అడుగు_Rejectp;
         // Property negation (IEEE 1800-2023 16.12.1 `not`): invert match/reject.
-        if (negated) {
-            if (isCover) {
-                if (terminalActivep)
-                    VL_DO_DANGLING(terminalActivep->deleteTree(), terminalActivep);
-                AstNodeExpr* negRejectp = nullptr;
-                if (matchCondp && rejectBasep) {
-                    AstNodeExpr* const sampledCondp = sampled(matchCondp->cloneTreePure(false));
-                    AstNodeExpr* const notCondp = new AstLogNot{flp, sampledCondp};
-                    negRejectp = new AstLogAnd{flp, rejectBasep, notCondp};
-                } else if (rejectBasep) {
-                    VL_DO_DANGLING(rejectBasep->deleteTree(), rejectBasep);
+        ఒకవేళ (negated) {
+            ఒకవేళ (isCover) {
+                ఒకవేళ (terminalActivep)
+                    VL_DO_DANGLING(terminalActivep->delete_వృక్షం(), terminalActivep);
+                Ast_కణుపు_సమాసం* negRejectp = శూన్యసూచిక;
+                ఒకవేళ (సరిపోలిక_Condp && rejectBasep) {
+                    Ast_కణుపు_సమాసం* స్థిరరాశి sampledCondp = sampled(సరిపోలిక_Condp->clone_వృక్షం_శుద్ధ(అబద్ధం));
+                    Ast_కణుపు_సమాసం* స్థిరరాశి notCondp = కొత్త AstLogNot{flp, sampledCondp};
+                    negRejectp = కొత్త AstLogAnd{flp, rejectBasep, notCondp};
+                } లేకపోతే ఒకవేళ (rejectBasep) {
+                    VL_DO_DANGLING(rejectBasep->delete_వృక్షం(), rejectBasep);
                 }
-                if (throughoutRejectp) negRejectp = orExprs(flp, negRejectp, throughoutRejectp);
-                if (requiredStepRejectp)
-                    negRejectp = orExprs(flp, negRejectp, requiredStepRejectp);
-                return negRejectp ? negRejectp : new AstConst{flp, AstConst::BitFalse{}};
+                ఒకవేళ (throughoutRejectp) negRejectp = orExprs(flp, negRejectp, throughoutRejectp);
+                ఒకవేళ (required_అడుగు_Rejectp)
+                    negRejectp = orExprs(flp, negRejectp, required_అడుగు_Rejectp);
+                తిరిగి negRejectp ? negRejectp : కొత్త AstConst{flp, AstConst::బిట్టు_False{}};
             }
             // Negated assert/assume: output = !match.
-            AstNodeExpr* matchp = terminalActivep;
-            if (matchCondp) {
-                AstNodeExpr* const sampledCondp = sampled(matchCondp->cloneTreePure(false));
-                matchp = new AstLogAnd{flp, matchp, sampledCondp};
+            Ast_కణుపు_సమాసం* matchp = terminalActivep;
+            ఒకవేళ (సరిపోలిక_Condp) {
+                Ast_కణుపు_సమాసం* స్థిరరాశి sampledCondp = sampled(సరిపోలిక_Condp->clone_వృక్షం_శుద్ధ(అబద్ధం));
+                matchp = కొత్త AstLogAnd{flp, matchp, sampledCondp};
             }
-            if (outMatchpp) {
-                AstNodeExpr* notPMatchp = nullptr;
-                if (matchCondp && rejectBasep) {
-                    AstNodeExpr* const sampledCondp = sampled(matchCondp->cloneTreePure(false));
-                    notPMatchp = new AstLogAnd{flp, rejectBasep->cloneTreePure(false),
-                                               new AstLogNot{flp, sampledCondp}};
-                } else if (rejectBasep) {
-                    notPMatchp = rejectBasep->cloneTreePure(false);
+            ఒకవేళ (బహిర్గతం_Matchpp) {
+                Ast_కణుపు_సమాసం* notPMatchp = శూన్యసూచిక;
+                ఒకవేళ (సరిపోలిక_Condp && rejectBasep) {
+                    Ast_కణుపు_సమాసం* స్థిరరాశి sampledCondp = sampled(సరిపోలిక_Condp->clone_వృక్షం_శుద్ధ(అబద్ధం));
+                    notPMatchp = కొత్త AstLogAnd{flp, rejectBasep->clone_వృక్షం_శుద్ధ(అబద్ధం),
+                                               కొత్త AstLogNot{flp, sampledCondp}};
+                } లేకపోతే ఒకవేళ (rejectBasep) {
+                    notPMatchp = rejectBasep->clone_వృక్షం_శుద్ధ(అబద్ధం);
                 }
-                if (throughoutRejectp)
-                    notPMatchp = orExprs(flp, notPMatchp, throughoutRejectp->cloneTreePure(false));
-                if (requiredStepRejectp)
+                ఒకవేళ (throughoutRejectp)
+                    notPMatchp = orExprs(flp, notPMatchp, throughoutRejectp->clone_వృక్షం_శుద్ధ(అబద్ధం));
+                ఒకవేళ (required_అడుగు_Rejectp)
                     notPMatchp
-                        = orExprs(flp, notPMatchp, requiredStepRejectp->cloneTreePure(false));
-                *outMatchpp = notPMatchp;
+                        = orExprs(flp, notPMatchp, required_అడుగు_Rejectp->clone_వృక్షం_శుద్ధ(అబద్ధం));
+                *బహిర్గతం_Matchpp = notPMatchp;
             }
-            if (throughoutRejectp)
-                VL_DO_DANGLING(throughoutRejectp->deleteTree(), throughoutRejectp);
-            if (rejectBasep) VL_DO_DANGLING(rejectBasep->deleteTree(), rejectBasep);
-            if (requiredStepRejectp)
-                VL_DO_DANGLING(requiredStepRejectp->deleteTree(), requiredStepRejectp);
-            AstNodeExpr* const resultExprp = new AstLogNot{flp, matchp};
-            return resultExprp;
+            ఒకవేళ (throughoutRejectp)
+                VL_DO_DANGLING(throughoutRejectp->delete_వృక్షం(), throughoutRejectp);
+            ఒకవేళ (rejectBasep) VL_DO_DANGLING(rejectBasep->delete_వృక్షం(), rejectBasep);
+            ఒకవేళ (required_అడుగు_Rejectp)
+                VL_DO_DANGLING(required_అడుగు_Rejectp->delete_వృక్షం(), required_అడుగు_Rejectp);
+            Ast_కణుపు_సమాసం* స్థిరరాశి ఫలితం_Exprp = కొత్త AstLogNot{flp, matchp};
+            తిరిగి ఫలితం_Exprp;
         }
-        if (isCover) {
-            if (throughoutRejectp)
-                VL_DO_DANGLING(throughoutRejectp->deleteTree(), throughoutRejectp);
-            if (rejectBasep) VL_DO_DANGLING(rejectBasep->deleteTree(), rejectBasep);
-            if (requiredStepRejectp)
-                VL_DO_DANGLING(requiredStepRejectp->deleteTree(), requiredStepRejectp);
-            if (matchCondp) {
-                AstNodeExpr* const sampledCondp = sampled(matchCondp->cloneTreePure(false));
-                return new AstLogAnd{flp, terminalActivep, sampledCondp};
+        ఒకవేళ (isCover) {
+            ఒకవేళ (throughoutRejectp)
+                VL_DO_DANGLING(throughoutRejectp->delete_వృక్షం(), throughoutRejectp);
+            ఒకవేళ (rejectBasep) VL_DO_DANGLING(rejectBasep->delete_వృక్షం(), rejectBasep);
+            ఒకవేళ (required_అడుగు_Rejectp)
+                VL_DO_DANGLING(required_అడుగు_Rejectp->delete_వృక్షం(), required_అడుగు_Rejectp);
+            ఒకవేళ (సరిపోలిక_Condp) {
+                Ast_కణుపు_సమాసం* స్థిరరాశి sampledCondp = sampled(సరిపోలిక_Condp->clone_వృక్షం_శుద్ధ(అబద్ధం));
+                తిరిగి కొత్త AstLogAnd{flp, terminalActivep, sampledCondp};
             }
-            return terminalActivep;
+            తిరిగి terminalActivep;
         }
         // Assert/assume: output = !reject
-        AstNodeExpr* rejectp = nullptr;
-        if (matchCondp && rejectBasep) {
-            AstNodeExpr* const sampledCondp = sampled(matchCondp->cloneTreePure(false));
-            rejectp = new AstLogAnd{flp, rejectBasep, new AstLogNot{flp, sampledCondp}};
-        } else if (rejectBasep) {
-            VL_DO_DANGLING(rejectBasep->deleteTree(), rejectBasep);
+        Ast_కణుపు_సమాసం* rejectp = శూన్యసూచిక;
+        ఒకవేళ (సరిపోలిక_Condp && rejectBasep) {
+            Ast_కణుపు_సమాసం* స్థిరరాశి sampledCondp = sampled(సరిపోలిక_Condp->clone_వృక్షం_శుద్ధ(అబద్ధం));
+            rejectp = కొత్త AstLogAnd{flp, rejectBasep, కొత్త AstLogNot{flp, sampledCondp}};
+        } లేకపోతే ఒకవేళ (rejectBasep) {
+            VL_DO_DANGLING(rejectBasep->delete_వృక్షం(), rejectBasep);
         }
-        if (outMatchpp) {
-            AstNodeExpr* matchExprp = terminalActivep->cloneTreePure(false);
-            if (matchCondp) {
-                AstNodeExpr* const sp = sampled(matchCondp->cloneTreePure(false));
-                matchExprp = new AstLogAnd{flp, matchExprp, sp};
+        ఒకవేళ (బహిర్గతం_Matchpp) {
+            Ast_కణుపు_సమాసం* సరిపోలిక_Exprp = terminalActivep->clone_వృక్షం_శుద్ధ(అబద్ధం);
+            ఒకవేళ (సరిపోలిక_Condp) {
+                Ast_కణుపు_సమాసం* స్థిరరాశి sp = sampled(సరిపోలిక_Condp->clone_వృక్షం_శుద్ధ(అబద్ధం));
+                సరిపోలిక_Exprp = కొత్త AstLogAnd{flp, సరిపోలిక_Exprp, sp};
             }
-            *outMatchpp = matchExprp;
+            *బహిర్గతం_Matchpp = సరిపోలిక_Exprp;
         }
-        if (terminalActivep) VL_DO_DANGLING(terminalActivep->deleteTree(), terminalActivep);
-        if (throughoutRejectp) rejectp = orExprs(flp, rejectp, throughoutRejectp);
-        if (requiredStepRejectp) rejectp = orExprs(flp, rejectp, requiredStepRejectp);
-        if (!rejectp) return new AstConst{flp, AstConst::BitTrue{}};
-        AstNodeExpr* const resultExprp = new AstLogNot{flp, rejectp};
-        return resultExprp;
+        ఒకవేళ (terminalActivep) VL_DO_DANGLING(terminalActivep->delete_వృక్షం(), terminalActivep);
+        ఒకవేళ (throughoutRejectp) rejectp = orExprs(flp, rejectp, throughoutRejectp);
+        ఒకవేళ (required_అడుగు_Rejectp) rejectp = orExprs(flp, rejectp, required_అడుగు_Rejectp);
+        ఒకవేళ (!rejectp) తిరిగి కొత్త AstConst{flp, AstConst::బిట్టు_True{}};
+        Ast_కణుపు_సమాసం* స్థిరరాశి ఫలితం_Exprp = కొత్త AstLogNot{flp, rejectp};
+        తిరిగి ఫలితం_Exprp;
     }
 
-    explicit SvaNfaLowering(AstNodeModule* modp)
+    స్పష్టమైన SvaNfaLowering(Ast_కణుపు_Module* modp)
         : m_modp{modp}
-        , m_u32DTypep{modp->findBasicDType(VBasicDTypeKwd::UINT32)} {}
+        , m_u32DTypep{modp->కనుగొను_Basic_DType(VBasicDTypeKwd::UINT32)} {}
     ~SvaNfaLowering() {
-        V3Stats::addStatSum("Assertions, NFA delay ring edge visits", m_statDelayRingEdgeVisits);
+        V3Stats::కూడు_Stat_కూడిక("Assertions, NFA delay ring edge visits", m_stat_Delay_Ring_అంచు_Visits);
     }
 
     // Lower NFA graph to synthesizable AstAlways blocks and raw result signals.
     // Links are combinational; Edges are registered (NBA).
-    SignalSet lower(AstNodeCoverOrAssert* const assertp, SvaGraph& graph,
-                    AstSenTree* const senTreep, AstNodeExpr* const matchCondp,
-                    AstNodeExpr* const disableExprp, const bool needThreadFailCount,
-                    const bool needThroughoutThreadFailCount) {
-        FileLine* const flp = assertp->fileline();
-        AstCover* const coverp = VN_CAST(assertp, Cover);
-        const bool isSeqEvent = coverp && coverp->isSeqEvent();
-        const VAssertType assertType
-            = isSeqEvent ? VAssertType{VAssertType::INTERNAL} : assertp->userType();
-        const VAssertDirectiveType directiveType
-            = isSeqEvent ? VAssertDirectiveType{VAssertDirectiveType::INTERNAL}
+    Signal_సమితి క్రింది(Ast_కణుపు_Cover_Or_Assert* స్థిరరాశి assertp, Sva_లేఖాచిత్రం& లేఖాచిత్రం,
+                    Ast_Sen_వృక్షం* స్థిరరాశి senTreep, Ast_కణుపు_సమాసం* స్థిరరాశి సరిపోలిక_Condp,
+                    Ast_కణుపు_సమాసం* స్థిరరాశి disableExprp, స్థిరరాశి తార్కిక need_Thread_Fail_లెక్క,
+                    స్థిరరాశి తార్కిక need_Throughout_Thread_Fail_లెక్క) {
+        File_పంక్తి* స్థిరరాశి flp = assertp->fileline();
+        AstCover* స్థిరరాశి coverp = VN_CAST(assertp, Cover);
+        స్థిరరాశి తార్కిక isSeqEvent = coverp && coverp->isSeqEvent();
+        స్థిరరాశి VAssertType assertType
+            = isSeqEvent ? VAssertType{VAssertType::అంతర్గత} : assertp->userType();
+        స్థిరరాశి VAssertDirectiveType directiveType
+            = isSeqEvent ? VAssertDirectiveType{VAssertDirectiveType::అంతర్గత}
                          : assertp->directive();
-        const std::string baseName = m_names.get("");
+        స్థిరరాశి std::string పునాది_Name = m_పేర్లు.get("");
 
         // Number vertices with sequential colors for array indexing.
-        int N = 0;
-        for (V3GraphVertex& vtxr : graph.m_graph.vertices()) { vtxr.color(N++); }
-        std::vector<SvaStateVertex*> vtx(N, nullptr);
-        for (V3GraphVertex& vtxr : graph.m_graph.vertices()) {
-            vtx[vtxr.color()] = static_cast<SvaStateVertex*>(&vtxr);
+        పూర్ణాంకం N = 0;
+        కొరకు (V3_లేఖాచిత్రం_శీర్షం& vtxr : లేఖాచిత్రం.m_లేఖాచిత్రం.vertices()) { vtxr.color(N++); }
+        std::సదిశ<Sva_State_శీర్షం*> vtx(N, శూన్యసూచిక);
+        కొరకు (V3_లేఖాచిత్రం_శీర్షం& vtxr : లేఖాచిత్రం.m_లేఖాచిత్రం.vertices()) {
+            vtx[vtxr.color()] = static_cast<Sva_State_శీర్షం*>(&vtxr);
         }
 
         // Allocate per-vertex lowering data (stored via V3GraphVertex::userp()).
-        std::vector<SvaVertexData> vertexData(N);
-        for (int i = 0; i < N; ++i) vtx[i]->userp(&vertexData[i]);
+        std::సదిశ<Sva_శీర్షం_దత్తాంశం> శీర్షం_దత్తాంశం(N);
+        కొరకు (పూర్ణాంకం i = 0; i < N; ++i) vtx[i]->userp(&శీర్షం_దత్తాంశం[i]);
 
         // Identify registered vertices (targets of clocked edges).
-        for (int i = 0; i < N; ++i) {
-            for (const V3GraphEdge& edger : vtx[i]->outEdges()) {
-                const SvaTransEdge& tedger = static_cast<const SvaTransEdge&>(edger);
-                const int toIdx = tedger.toVtxp()->color();
-                if (tedger.m_consumesCycle && tedger.toVtxp() != graph.m_matchVertexp
-                    && !tedger.toVtxp()->m_isRejectSink) {
-                    vtx[toIdx]->datap()->needsReg = true;
+        కొరకు (పూర్ణాంకం i = 0; i < N; ++i) {
+            కొరకు (స్థిరరాశి V3_లేఖాచిత్రం_అంచు& edger : vtx[i]->బహిర్గతం_అంచులు()) {
+                స్థిరరాశి Sva_Trans_అంచు& tedger = static_cast<స్థిరరాశి Sva_Trans_అంచు&>(edger);
+                స్థిరరాశి పూర్ణాంకం గమ్యం_Idx = tedger.గమ్యం_Vtxp()->color();
+                ఒకవేళ (tedger.m_consumes_చక్రం && tedger.గమ్యం_Vtxp() != లేఖాచిత్రం.m_సరిపోలిక_Vertexp
+                    && !tedger.గమ్యం_Vtxp()->m_isRejectSink) {
+                    vtx[గమ్యం_Idx]->datap()->needsReg = నిజం;
                 }
             }
         }
 
         // A packed range ring can emit several live endpoints without needing per-slot counts.
         // Widen only a ring whose input can already carry multiplicity.
-        std::vector<bool> stateMayHaveMultiplicity(N);
-        std::vector<bool> ringNeedsMultiplicity(N);
-        std::vector<int> multiplicityWork;
-        const bool countMatches = coverp && coverp->isCoverSeq() && !isSeqEvent;
-        if (countMatches) {
-            for (int i = 0; i < N; ++i) {
-                const bool multipleInputs = vtx[i]->inEdges().size() > 1;
-                const bool isRing = vtx[i]->m_delayRingSize;
-                ringNeedsMultiplicity[i] = isRing && multipleInputs;
-                const bool startsMultiplicity = isRing
+        std::సదిశ<తార్కిక> stateMayHaveMultiplicity(N);
+        std::సదిశ<తార్కిక> ringNeedsMultiplicity(N);
+        std::సదిశ<పూర్ణాంకం> multiplicityWork;
+        స్థిరరాశి తార్కిక లెక్క_Matches = coverp && coverp->isCoverSeq() && !isSeqEvent;
+        ఒకవేళ (లెక్క_Matches) {
+            కొరకు (పూర్ణాంకం i = 0; i < N; ++i) {
+                స్థిరరాశి తార్కిక గుణిజం_Inputs = vtx[i]->లోపల_అంచులు().కొలత() > 1;
+                స్థిరరాశి తార్కిక isRing = vtx[i]->m_delay_Ring_కొలత;
+                ringNeedsMultiplicity[i] = isRing && గుణిజం_Inputs;
+                స్థిరరాశి తార్కిక startsMultiplicity = isRing
                                                     ? !vtx[i]->m_isFixedDelayRing
-                                                    : multipleInputs && !vtx[i]->datap()->needsReg;
-                if (startsMultiplicity) {
-                    stateMayHaveMultiplicity[i] = true;
-                    multiplicityWork.push_back(i);
+                                                    : గుణిజం_Inputs && !vtx[i]->datap()->needsReg;
+                ఒకవేళ (startsMultiplicity) {
+                    stateMayHaveMultiplicity[i] = నిజం;
+                    multiplicityWork.నెట్టు_వెనుక(i);
                 }
             }
-            for (size_t wi = 0; wi < multiplicityWork.size(); ++wi) {
-                for (const V3GraphEdge& edger : vtx[multiplicityWork[wi]]->outEdges()) {
-                    const SvaTransEdge& tedger = static_cast<const SvaTransEdge&>(edger);
-                    const int ti = tedger.toVtxp()->color();
-                    const bool isRing = vtx[ti]->m_delayRingSize;
-                    if (isRing) ringNeedsMultiplicity[ti] = true;
+            కొరకు (కొలత_t wi = 0; wi < multiplicityWork.కొలత(); ++wi) {
+                కొరకు (స్థిరరాశి V3_లేఖాచిత్రం_అంచు& edger : vtx[multiplicityWork[wi]]->బహిర్గతం_అంచులు()) {
+                    స్థిరరాశి Sva_Trans_అంచు& tedger = static_cast<స్థిరరాశి Sva_Trans_అంచు&>(edger);
+                    స్థిరరాశి పూర్ణాంకం ti = tedger.గమ్యం_Vtxp()->color();
+                    స్థిరరాశి తార్కిక isRing = vtx[ti]->m_delay_Ring_కొలత;
+                    ఒకవేళ (isRing) ringNeedsMultiplicity[ti] = నిజం;
                     // Match and reject sinks have no outgoing edges, so they stop naturally.
-                    const bool stopsMultiplicity = !isRing && vtx[ti]->datap()->needsReg;
-                    if (stateMayHaveMultiplicity[ti] || stopsMultiplicity) { continue; }
-                    stateMayHaveMultiplicity[ti] = true;
-                    multiplicityWork.push_back(ti);
+                    స్థిరరాశి తార్కిక stopsMultiplicity = !isRing && vtx[ti]->datap()->needsReg;
+                    ఒకవేళ (stateMayHaveMultiplicity[ti] || stopsMultiplicity) { కొనసాగు; }
+                    stateMayHaveMultiplicity[ti] = నిజం;
+                    multiplicityWork.నెట్టు_వెనుక(ti);
                 }
             }
         }
 
-        const bool asyncDisable = isAsyncDisable(disableExprp);
+        స్థిరరాశి తార్కిక asyncDisable = isAsyncDisable(disableExprp);
         // Registers cleared on a rising disable are also written by their clocked block.
-        FileLine* const regFlp = asyncDisable ? new FileLine{flp} : flp;
-        if (asyncDisable) regFlp->warnOff(V3ErrorCode::MULTIDRIVEN, true);
+        File_పంక్తి* స్థిరరాశి regFlp = asyncDisable ? కొత్త File_పంక్తి{flp} : flp;
+        ఒకవేళ (asyncDisable) regFlp->warnOff(V3_Error_సంకేతం::MULTIDRIVEN, నిజం);
 
-        AstVar* const killVarp
-            = new AstVar{flp, VVarType::MODULETEMP, baseName + "__kill", m_u32DTypep};
+        AstVar* స్థిరరాశి killVarp
+            = కొత్త AstVar{flp, VVarType::MODULETEMP, పునాది_Name + "__kill", m_u32DTypep};
         killVarp->lifetime(VLifetime::STATIC_EXPLICIT);
-        m_modp->addStmtsp(killVarp);
-        for (int i = 0; i < N; ++i) {
-            if (vtx[i]->m_isAndCombiner) {
-                const std::string base = baseName + "__a" + std::to_string(i);
-                AstVar* const lp = new AstVar{regFlp, VVarType::MODULETEMP, base + "_doneL",
-                                              m_modp->findBitDType()};
+        m_modp->కూడు_Stmtsp(killVarp);
+        కొరకు (పూర్ణాంకం i = 0; i < N; ++i) {
+            ఒకవేళ (vtx[i]->m_isAndCombiner) {
+                స్థిరరాశి std::string పునాది = పునాది_Name + "__a" + std::గమ్యం_string(i);
+                AstVar* స్థిరరాశి lp = కొత్త AstVar{regFlp, VVarType::MODULETEMP, పునాది + "_doneL",
+                                              m_modp->కనుగొను_బిట్టు_DType()};
                 lp->lifetime(VLifetime::STATIC_EXPLICIT);
-                m_modp->addStmtsp(lp);
-                vtx[i]->datap()->doneLVarp = lp;
-                AstVar* const rp = new AstVar{regFlp, VVarType::MODULETEMP, base + "_doneR",
-                                              m_modp->findBitDType()};
+                m_modp->కూడు_Stmtsp(lp);
+                vtx[i]->datap()->పూర్తి_LVarp = lp;
+                AstVar* స్థిరరాశి rp = కొత్త AstVar{regFlp, VVarType::MODULETEMP, పునాది + "_doneR",
+                                              m_modp->కనుగొను_బిట్టు_DType()};
                 rp->lifetime(VLifetime::STATIC_EXPLICIT);
-                m_modp->addStmtsp(rp);
-                vtx[i]->datap()->doneRVarp = rp;
-                continue;
+                m_modp->కూడు_Stmtsp(rp);
+                vtx[i]->datap()->పూర్తి_RVarp = rp;
+                కొనసాగు;
             }
-            if (vtx[i]->m_delayRingSize) {
-                const std::string base = baseName + "__d" + std::to_string(i);
-                const bool storesCounts = countMatches && ringNeedsMultiplicity[i];
-                AstNodeDType* ringDTypep = nullptr;
-                if (storesCounts) {
+            ఒకవేళ (vtx[i]->m_delay_Ring_కొలత) {
+                స్థిరరాశి std::string పునాది = పునాది_Name + "__d" + std::గమ్యం_string(i);
+                స్థిరరాశి తార్కిక storesCounts = లెక్క_Matches && ringNeedsMultiplicity[i];
+                Ast_కణుపు_DType* ringDTypep = శూన్యసూచిక;
+                ఒకవేళ (storesCounts) {
                     // int unsigned ring [size];
-                    ringDTypep = new AstUnpackArrayDType{
+                    ringDTypep = కొత్త AstUnpackArrayDType{
                         flp, m_u32DTypep,
-                        new AstRange{flp, static_cast<int>(vtx[i]->m_delayRingSize - 1), 0}};
-                    v3Global.rootp()->typeTablep()->addTypesp(ringDTypep);
-                } else {
+                        కొత్త AstRange{flp, static_cast<పూర్ణాంకం>(vtx[i]->m_delay_Ring_కొలత - 1), 0}};
+                    v3Global.rootp()->typeTablep()->కూడు_Typesp(ringDTypep);
+                } లేకపోతే {
                     // bit [size-1:0] ring;
-                    ringDTypep = m_modp->findBitDType(vtx[i]->m_delayRingSize,
-                                                      vtx[i]->m_delayRingSize, VSigning::UNSIGNED);
+                    ringDTypep = m_modp->కనుగొను_బిట్టు_DType(vtx[i]->m_delay_Ring_కొలత,
+                                                      vtx[i]->m_delay_Ring_కొలత, VSigning::UNSIGNED);
                 }
-                AstVar* const ringp
-                    = new AstVar{flp, VVarType::MODULETEMP, base + "_ring", ringDTypep};
+                AstVar* స్థిరరాశి ringp
+                    = కొత్త AstVar{flp, VVarType::MODULETEMP, పునాది + "_ring", ringDTypep};
                 ringp->lifetime(VLifetime::STATIC_EXPLICIT);
-                m_modp->addStmtsp(ringp);
+                m_modp->కూడు_Stmtsp(ringp);
                 vtx[i]->datap()->delayRingVarp = ringp;
                 vtx[i]->datap()->delayRingCounts = storesCounts;
-                AstVar* const headp
-                    = new AstVar{flp, VVarType::MODULETEMP, base + "_head",
-                                 storesCounts ? m_u32DTypep : m_modp->findBitDType()};
+                AstVar* స్థిరరాశి headp
+                    = కొత్త AstVar{flp, VVarType::MODULETEMP, పునాది + "_head",
+                                 storesCounts ? m_u32DTypep : m_modp->కనుగొను_బిట్టు_DType()};
                 headp->lifetime(VLifetime::STATIC_EXPLICIT);
-                m_modp->addStmtsp(headp);
-                vtx[i]->datap()->delayRingHeadVarp = headp;
+                m_modp->కూడు_Stmtsp(headp);
+                vtx[i]->datap()->delay_Ring_తల_Varp = headp;
                 // int unsigned idx;
-                AstVar* const idxp
-                    = new AstVar{regFlp, VVarType::MODULETEMP, base + "_idx", m_u32DTypep};
+                AstVar* స్థిరరాశి idxp
+                    = కొత్త AstVar{regFlp, VVarType::MODULETEMP, పునాది + "_idx", m_u32DTypep};
                 idxp->lifetime(VLifetime::STATIC_EXPLICIT);
-                m_modp->addStmtsp(idxp);
+                m_modp->కూడు_Stmtsp(idxp);
                 vtx[i]->datap()->delayRingIdxVarp = idxp;
                 // int unsigned live_count;
-                AstVar* const liveCountVarp
-                    = new AstVar{regFlp, VVarType::MODULETEMP, base + "_liveCount", m_u32DTypep};
-                liveCountVarp->lifetime(VLifetime::STATIC_EXPLICIT);
-                m_modp->addStmtsp(liveCountVarp);
-                vtx[i]->datap()->delayRingLiveCountVarp = liveCountVarp;
-                AstVar* const wrappedp = new AstVar{regFlp, VVarType::MODULETEMP,
-                                                    base + "_wrapped", m_modp->findBitDType()};
+                AstVar* స్థిరరాశి సజీవ_లెక్క_Varp
+                    = కొత్త AstVar{regFlp, VVarType::MODULETEMP, పునాది + "_liveCount", m_u32DTypep};
+                సజీవ_లెక్క_Varp->lifetime(VLifetime::STATIC_EXPLICIT);
+                m_modp->కూడు_Stmtsp(సజీవ_లెక్క_Varp);
+                vtx[i]->datap()->delay_Ring_సజీవ_లెక్క_Varp = సజీవ_లెక్క_Varp;
+                AstVar* స్థిరరాశి wrappedp = కొత్త AstVar{regFlp, VVarType::MODULETEMP,
+                                                    పునాది + "_wrapped", m_modp->కనుగొను_బిట్టు_DType()};
                 wrappedp->lifetime(VLifetime::STATIC_EXPLICIT);
-                m_modp->addStmtsp(wrappedp);
+                m_modp->కూడు_Stmtsp(wrappedp);
                 vtx[i]->datap()->delayRingWrappedVarp = wrappedp;
-                continue;
+                కొనసాగు;
             }
-            if (!vtx[i]->datap()->needsReg) continue;
-            if (vtx[i] == graph.m_startVertexp || vtx[i]->m_isMatch) continue;
-            const std::string varName = baseName + "__s" + std::to_string(i);
-            AstVar* const varp
-                = new AstVar{regFlp, VVarType::MODULETEMP, varName, m_modp->findBitDType()};
+            ఒకవేళ (!vtx[i]->datap()->needsReg) కొనసాగు;
+            ఒకవేళ (vtx[i] == లేఖాచిత్రం.m_ప్రారంభం_Vertexp || vtx[i]->m_is_సరిపోలిక) కొనసాగు;
+            స్థిరరాశి std::string varName = పునాది_Name + "__s" + std::గమ్యం_string(i);
+            AstVar* స్థిరరాశి varp
+                = కొత్త AstVar{regFlp, VVarType::MODULETEMP, varName, m_modp->కనుగొను_బిట్టు_DType()};
             varp->lifetime(VLifetime::STATIC_EXPLICIT);
-            m_modp->addStmtsp(varp);
+            m_modp->కూడు_Stmtsp(varp);
             vtx[i]->datap()->stateVarp = varp;
         }
 
         // Build lowering context for phase sub-functions.
-        LowerCtx c{flp,        senTreep,      disableExprp, matchCondp,
-                   assertType, directiveType, killVarp,     graph};
+        క్రింది_Ctx c{flp,        senTreep,      disableExprp, సరిపోలిక_Condp,
+                   assertType, directiveType, killVarp,     లేఖాచిత్రం};
 
         // Phase 1: Resolve combinational Links via fixed-point propagation.
-        AstNodeExpr* const triggerExprp
-            = isSeqEvent ? new AstConst{flp, AstConst::BitTrue{}}
+        Ast_కణుపు_సమాసం* స్థిరరాశి triggerExprp
+            = isSeqEvent ? కొత్త AstConst{flp, AstConst::బిట్టు_True{}}
                          : assertOnCond(flp, assertp->userType(), assertp->directive());
-        resolveLinks(c, triggerExprp, countMatches);
-        VL_DO_DANGLING(triggerExprp->deleteTree(), triggerExprp);
+        resolveLinks(c, triggerExprp, లెక్క_Matches);
+        VL_DO_DANGLING(triggerExprp->delete_వృక్షం(), triggerExprp);
 
         // Phase 2/2b/2c: Emit NBA register updates and in-place delay-ring writes.
-        emitStateRegisterNba(c);
-        emitDelayRingUpdates(c, countMatches);
-        emitAndCombinerDoneLatchNba(c);
+        emit_State_రిజిస్టరు_Nba(c);
+        emitDelayRingUpdates(c, లెక్క_Matches);
+        emit_And_Combiner_పూర్తి_Latch_Nba(c);
         emitKillAckNba(c);
 
         // Phase 3/3a/3b: Compute terminal match/reject signals (cleans up stateSig).
-        const SignalSet sigs
-            = computeSignals(c, needThreadFailCount, needThroughoutThreadFailCount, countMatches);
+        స్థిరరాశి Signal_సమితి sigs
+            = compute_సంకేతాలు(c, need_Thread_Fail_లెక్క, need_Throughout_Thread_Fail_లెక్క, లెక్క_Matches);
 
         // Strong s_always[m:n] end-of-simulation liveness: if any in-window state
         // is still set at $finish, the universal-quantifier window never completed
@@ -2868,39 +2868,39 @@ public:
         // from a final block; V3Assert turns the DT_ERROR display into the standard
         // "Assertion failed in %m" message.
         // pending = |{strong state registers, strong delay live counts != 0};
-        AstNodeExpr* pendingp = nullptr;
-        for (int i = 0; i < N; ++i) {
-            if (!vtx[i]->m_strongPending) continue;
-            AstNodeExpr* pendingExprp = nullptr;
-            if (vtx[i]->datap()->stateVarp) {
-                pendingExprp = new AstVarRef{flp, vtx[i]->datap()->stateVarp, VAccess::READ};
-            } else if (vtx[i]->m_strongAlwaysRing) {
+        Ast_కణుపు_సమాసం* pendingp = శూన్యసూచిక;
+        కొరకు (పూర్ణాంకం i = 0; i < N; ++i) {
+            ఒకవేళ (!vtx[i]->m_strongPending) కొనసాగు;
+            Ast_కణుపు_సమాసం* pendingExprp = శూన్యసూచిక;
+            ఒకవేళ (vtx[i]->datap()->stateVarp) {
+                pendingExprp = కొత్త AstVarRef{flp, vtx[i]->datap()->stateVarp, VAccess::READ};
+            } లేకపోతే ఒకవేళ (vtx[i]->m_strongAlwaysRing) {
                 pendingExprp
-                    = delayRingHasLiveThreadsp(flp, vtx[i]->datap()->delayRingLiveCountVarp);
-            } else {
-                continue;
+                    = delay_Ring_Has_సజీవ_Threadsp(flp, vtx[i]->datap()->delay_Ring_సజీవ_లెక్క_Varp);
+            } లేకపోతే {
+                కొనసాగు;
             }
-            if (!pendingp) {
+            ఒకవేళ (!pendingp) {
                 pendingp = pendingExprp;
-            } else {
-                pendingp = new AstLogOr{flp, pendingp, pendingExprp};
+            } లేకపోతే {
+                pendingp = కొత్త AstLogOr{flp, pendingp, pendingExprp};
             }
         }
-        if (pendingp) {
-            AstCExpr* const assertOnp
-                = new AstCExpr{flp, AstCExpr::Pure{}, "vlSymsp->_vm_contextp__->assertOn()", 1};
-            AstNodeExpr* const condp = new AstLogAnd{flp, assertOnp, pendingp};
-            AstDisplay* const dispp
-                = new AstDisplay{flp, VDisplayType::DT_ERROR, "", nullptr, nullptr};
+        ఒకవేళ (pendingp) {
+            AstCExpr* స్థిరరాశి assertOnp
+                = కొత్త AstCExpr{flp, AstCExpr::శుద్ధ{}, "vlSymsp->_vm_contextp__->assertOn()", 1};
+            Ast_కణుపు_సమాసం* స్థిరరాశి condp = కొత్త AstLogAnd{flp, assertOnp, pendingp};
+            AstDisplay* స్థిరరాశి dispp
+                = కొత్త AstDisplay{flp, VDisplayType::DT_ERROR, "", శూన్యసూచిక, శూన్యసూచిక};
             dispp->fmtp()->timeunit(m_modp->timeunit());
-            AstNodeStmt* const firep = dispp;
-            if (v3Global.opt.stopFail()) firep->addNext(new AstStop{flp, false});
-            m_modp->addStmtsp(new AstFinal{flp, new AstIf{flp, condp, firep}});
+            Ast_కణుపు_Stmt* స్థిరరాశి firep = dispp;
+            ఒకవేళ (v3Global.opt.stopFail()) firep->కూడు_తదుపరి(కొత్త AstStop{flp, అబద్ధం});
+            m_modp->కూడు_Stmtsp(కొత్త AstFinal{flp, కొత్త AstIf{flp, condp, firep}});
         }
 
         // Clear userp on every vertex before vertexData is destroyed.
-        for (int i = 0; i < N; ++i) vtx[i]->userp(nullptr);
-        return sigs;
+        కొరకు (పూర్ణాంకం i = 0; i < N; ++i) vtx[i]->userp(శూన్యసూచిక);
+        తిరిగి sigs;
     }
 };
 
@@ -2909,196 +2909,196 @@ public:
 //######################################################################
 // Top-level visitor
 
-class AssertNfaVisitor final : public VNVisitor {
+తరగతి AssertNfaVisitor final : బహిరంగ VNVisitor {
     // STATE
-    AstNodeModule* m_modp = nullptr;  // Current module being processed
-    AstClocking* m_defaultClockingp = nullptr;  // Default clocking
-    AstDefaultDisable* m_defaultDisablep = nullptr;  // Default disable iff
-    SvaNfaLowering* m_loweringp = nullptr;  // NFA-to-hardware lowering engine
-    AstSenTree* m_sampledValueClockp = nullptr;  // Inherited clock during scoped attachment
-    V3UniqueNames m_propVarNames{"__Vpropvar"};  // Property-local variable names
-    V3UniqueNames m_propTempNames{"__VnfaSampled"};  // Hoisted $sampled(propp) temps
-    V3UniqueNames m_failCountNames{"__VnfaRemainingFailCount"};  // Fail replay counter names
-    std::set<const AstProperty*> m_inliningProps;  // Recursion guard for inlineNamedProperty
+    Ast_కణుపు_Module* m_modp = శూన్యసూచిక;  // Current module being processed
+    AstClocking* m_defaultClockingp = శూన్యసూచిక;  // Default clocking
+    AstDefaultDisable* m_defaultDisablep = శూన్యసూచిక;  // Default disable iff
+    SvaNfaLowering* m_loweringp = శూన్యసూచిక;  // NFA-to-hardware lowering engine
+    Ast_Sen_వృక్షం* m_sampled_విలువ_Clockp = శూన్యసూచిక;  // Inherited clock during scoped attachment
+    V3_Unique_పేర్లు m_prop_Var_పేర్లు{"__Vpropvar"};  // Property-local variable names
+    V3_Unique_పేర్లు m_prop_తాత్కాలిక_పేర్లు{"__VnfaSampled"};  // Hoisted $sampled(propp) temps
+    V3_Unique_పేర్లు m_fail_లెక్క_పేర్లు{"__VnfaRemainingFailCount"};  // Fail replay counter names
+    std::సమితి<స్థిరరాశి AstProperty*> m_inliningProps;  // Recursion guard for inlineNamedProperty
 
-    template <typename T_Node>
-    void visitSampledValue(T_Node* const nodep) {
-        if (m_sampledValueClockp && !nodep->sentreep()) {
-            nodep->sentreep(m_sampledValueClockp->cloneTree(true));
+    మూస <రకం_పేరు T_కణుపు>
+    శూన్య సందర్శించు_Sampled_విలువ(T_కణుపు* స్థిరరాశి nodep) {
+        ఒకవేళ (m_sampled_విలువ_Clockp && !nodep->sentreep()) {
+            nodep->sentreep(m_sampled_విలువ_Clockp->clone_వృక్షం(నిజం));
         }
         iterateChildren(nodep);
     }
 
     // Wire match vertex and mid-window sources for a successful NFA build.
-    static void wireMatchAndMidSources(SvaGraph& graph, const BuildResult& result, FileLine* flp) {
-        graph.createMatchVertex();
+    స్థిర శూన్య wire_సరిపోలిక_And_Mid_Sources(Sva_లేఖాచిత్రం& లేఖాచిత్రం, స్థిరరాశి Build_ఫలితం& ఫలితం, File_పంక్తి* flp) {
+        లేఖాచిత్రం.create_సరిపోలిక_శీర్షం();
         // Skip the main term Link when midSources already cover every
         // end-of-match (cover_sequence path); otherwise the per-mid extraction
         // double-counts via the merge vertex.
-        if (!result.termIsMidMerge) { graph.addLink(result.termVertexp, graph.m_matchVertexp); }
-        for (SvaStateVertex* srcVtxp : result.midSources) {
-            AstNodeExpr* condp = nullptr;
-            for (AstNodeExpr* const tc : srcVtxp->m_throughoutConds) {
-                AstNodeExpr* const tcClone = tc->cloneTreePure(false);
-                condp = condp ? new AstLogAnd{flp, condp, tcClone} : tcClone;
+        ఒకవేళ (!ఫలితం.పదం_Is_Mid_విలీనం) { లేఖాచిత్రం.కూడు_Link(ఫలితం.పదం_Vertexp, లేఖాచిత్రం.m_సరిపోలిక_Vertexp); }
+        కొరకు (Sva_State_శీర్షం* srcVtxp : ఫలితం.midSources) {
+            Ast_కణుపు_సమాసం* condp = శూన్యసూచిక;
+            కొరకు (Ast_కణుపు_సమాసం* స్థిరరాశి tc : srcVtxp->m_throughoutConds) {
+                Ast_కణుపు_సమాసం* స్థిరరాశి tcClone = tc->clone_వృక్షం_శుద్ధ(అబద్ధం);
+                condp = condp ? కొత్త AstLogAnd{flp, condp, tcClone} : tcClone;
             }
-            graph.addLink(srcVtxp, graph.m_matchVertexp, condp);
-            srcVtxp->m_isUnbounded = true;
+            లేఖాచిత్రం.కూడు_Link(srcVtxp, లేఖాచిత్రం.m_సరిపోలిక_Vertexp, condp);
+            srcVtxp->m_isUnbounded = నిజం;
         }
     }
 
-    static AstNodeExpr* getSequenceBodyExprp(const AstSequence* seqp) {
-        AstNode* bodyp = seqp->stmtsp();
-        while (bodyp && VN_IS(bodyp, Var)) bodyp = bodyp->nextp();
-        return VN_CAST(bodyp, NodeExpr);
+    స్థిర Ast_కణుపు_సమాసం* getSequenceBodyExprp(స్థిరరాశి AstSequence* seqp) {
+        Ast_కణుపు* bodyp = seqp->stmtsp();
+        అయితే (bodyp && VN_IS(bodyp, Var)) bodyp = bodyp->nextp();
+        తిరిగి VN_CAST(bodyp, కణుపు_సమాసం);
     }
 
-    static AstPropSpec* getPropertySpecp(const AstProperty* propp) {
-        AstNode* stmtp = propp->stmtsp();
+    స్థిర AstPropSpec* getPropertySpecp(స్థిరరాశి AstProperty* propp) {
+        Ast_కణుపు* stmtp = propp->stmtsp();
         // V3LinkParse emits InitialStaticStmt for property-local variable
         // initialisers; the InitialAutomaticStmt variant only appears for
         // task/function-scope automatic lifetime, not properties.
-        while (stmtp
+        అయితే (stmtp
                && (VN_IS(stmtp, Var) || VN_IS(stmtp, InitialStaticStmt)
                    || VN_IS(stmtp, InitialAutomaticStmt))) {  // LCOV_EXCL_LINE
             stmtp = stmtp->nextp();
         }
-        return VN_CAST(stmtp, PropSpec);
+        తిరిగి VN_CAST(stmtp, PropSpec);
     }
 
-    void inlineNamedProperty(AstPropSpec* outerSpecp, AstFuncRef* funcrefp,
-                             const AstProperty* propyp) {
+    శూన్య inlineNamedProperty(AstPropSpec* outerSpecp, AstFuncRef* funcrefp,
+                             స్థిరరాశి AstProperty* propyp) {
         // Recursion guard: IEEE 1800-2023 16.12.1 forbids recursive properties.
         // V3Width emits "Recursive property call" for direct recursion before this
         // pass runs; this catches any nested-inlining cycle that slips past.
-        if (!m_inliningProps.emplace(propyp).second) {
+        ఒకవేళ (!m_inliningProps.emplace(propyp).రెండవ) {
             funcrefp->v3error("Illegal recursive property reference");  // LCOV_EXCL_LINE
-            return;  // LCOV_EXCL_LINE
+            తిరిగి;  // LCOV_EXCL_LINE
         }
-        struct Guard final {
-            std::set<const AstProperty*>& setr;
-            const AstProperty* keyp;
+        నిర్మాణం Guard final {
+            std::సమితి<స్థిరరాశి AstProperty*>& setr;
+            స్థిరరాశి AstProperty* keyp;
             ~Guard() { setr.erase(keyp); }
         } guard{m_inliningProps, propyp};
         AstPropSpec* propSpecp = getPropertySpecp(propyp);
         UASSERT_OBJ(propSpecp, funcrefp, "Property has no body PropSpec");
-        propSpecp = propSpecp->cloneTree(false);
+        propSpecp = propSpecp->clone_వృక్షం(అబద్ధం);
 
-        const V3TaskConnects tconnects = V3Task::taskConnects(funcrefp, propyp->stmtsp());
-        std::unordered_map<const AstVar*, AstNodeExpr*> portMap;
-        for (const auto& tconnect : tconnects) {
-            portMap[tconnect.first] = tconnect.second->exprp();
+        స్థిరరాశి V3TaskConnects tconnects = V3Task::taskConnects(funcrefp, propyp->stmtsp());
+        std::unordered_map<స్థిరరాశి AstVar*, Ast_కణుపు_సమాసం*> పోర్టు_Map;
+        కొరకు (స్థిరరాశి స్వయంచాలక& tconnect : tconnects) {
+            పోర్టు_Map[tconnect.మొదటి] = tconnect.రెండవ->exprp();
         }
 
         // Promote property-local variables to module-level temps (IEEE 16.10).
-        std::unordered_map<const AstVar*, AstVar*> localVarMap;
-        for (AstNode* stmtp = propyp->stmtsp(); stmtp; stmtp = stmtp->nextp()) {
-            if (AstVar* const varp = VN_CAST(stmtp, Var)) {
-                if (!varp->isIO()) {
-                    const string newName = m_propVarNames.get(varp);
-                    AstVar* const newVarp = new AstVar{varp->fileline(), VVarType::MODULETEMP,
+        std::unordered_map<స్థిరరాశి AstVar*, AstVar*> localVarMap;
+        కొరకు (Ast_కణుపు* stmtp = propyp->stmtsp(); stmtp; stmtp = stmtp->nextp()) {
+            ఒకవేళ (AstVar* స్థిరరాశి varp = VN_CAST(stmtp, Var)) {
+                ఒకవేళ (!varp->isIO()) {
+                    స్థిరరాశి string newName = m_prop_Var_పేర్లు.get(varp);
+                    AstVar* స్థిరరాశి newVarp = కొత్త AstVar{varp->fileline(), VVarType::MODULETEMP,
                                                        newName, varp->dtypep()};
                     newVarp->lifetime(VLifetime::STATIC_EXPLICIT);
-                    m_modp->addStmtsp(newVarp);
+                    m_modp->కూడు_Stmtsp(newVarp);
                     localVarMap[varp] = newVarp;
                 }
             }
         }
 
         propSpecp->foreach([&](AstVarRef* refp) {
-            const auto portIt = portMap.find(refp->varp());
-            if (portIt != portMap.end()) {
-                refp->replaceWith(portIt->second->cloneTree(false));
-                VL_DO_DANGLING(pushDeletep(refp), refp);
-                return;
+            స్థిరరాశి స్వయంచాలక పోర్టు_It = పోర్టు_Map.కనుగొను(refp->varp());
+            ఒకవేళ (పోర్టు_It != పోర్టు_Map.చివర()) {
+                refp->replaceWith(పోర్టు_It->రెండవ->clone_వృక్షం(అబద్ధం));
+                VL_DO_DANGLING(నెట్టు_Deletep(refp), refp);
+                తిరిగి;
             }
-            const auto localIt = localVarMap.find(refp->varp());
-            if (localIt != localVarMap.end()) refp->varp(localIt->second);
+            స్థిరరాశి స్వయంచాలక localIt = localVarMap.కనుగొను(refp->varp());
+            ఒకవేళ (localIt != localVarMap.చివర()) refp->varp(localIt->రెండవ);
         });  // LCOV_EXCL_LINE -- gcov attributes lambda's implicit return to `})`
 
-        for (const auto& tconnect : tconnects) {
-            pushDeletep(tconnect.second->exprp()->unlinkFrBack());
+        కొరకు (స్థిరరాశి స్వయంచాలక& tconnect : tconnects) {
+            నెట్టు_Deletep(tconnect.రెండవ->exprp()->unlink_Fr_వెనుక());
         }
         V3AssertCommon::checkSvaInstanceDelays(propSpecp, funcrefp);
 
         // Merge disable iff (IEEE 1800-2023 16.12.1)
-        if (outerSpecp->disablep() && propSpecp->disablep()) {
+        ఒకవేళ (outerSpecp->disablep() && propSpecp->disablep()) {
             outerSpecp->v3error("disable iff expression before property call "
                                 "and in its body is not legal");
-            pushDeletep(propSpecp->disablep()->unlinkFrBack());
+            నెట్టు_Deletep(propSpecp->disablep()->unlink_Fr_వెనుక());
         }
-        if (outerSpecp->disablep()) {
-            propSpecp->disablep(outerSpecp->disablep()->unlinkFrBack());
+        ఒకవేళ (outerSpecp->disablep()) {
+            propSpecp->disablep(outerSpecp->disablep()->unlink_Fr_వెనుక());
         }
 
-        if (outerSpecp->sensesp() && propSpecp->sensesp()) {
+        ఒకవేళ (outerSpecp->sensesp() && propSpecp->sensesp()) {
             outerSpecp->v3warn(E_UNSUPPORTED,
                                "Unsupported: Clock event before property call and in its body");
-            pushDeletep(propSpecp->sensesp()->unlinkFrBack());
+            నెట్టు_Deletep(propSpecp->sensesp()->unlink_Fr_వెనుక());
         }
-        if (outerSpecp->sensesp()) {
-            AstSenItem* const sensesp = outerSpecp->sensesp();
-            sensesp->unlinkFrBack();
+        ఒకవేళ (outerSpecp->sensesp()) {
+            Ast_Sen_అంశం* స్థిరరాశి sensesp = outerSpecp->sensesp();
+            sensesp->unlink_Fr_వెనుక();
             propSpecp->sensesp(sensesp);
         }
 
         outerSpecp->replaceWith(propSpecp);
-        VL_DO_DANGLING(pushDeletep(outerSpecp), outerSpecp);
+        VL_DO_DANGLING(నెట్టు_Deletep(outerSpecp), outerSpecp);
     }
 
-    void inlineSequenceRef(AstFuncRef* funcrefp, AstSequence* seqp) {
-        AstNodeExpr* const bodyExprp = getSequenceBodyExprp(seqp);
+    శూన్య inlineSequenceRef(AstFuncRef* funcrefp, AstSequence* seqp) {
+        Ast_కణుపు_సమాసం* స్థిరరాశి bodyExprp = getSequenceBodyExprp(seqp);
         UASSERT_OBJ(bodyExprp, funcrefp, "Sequence has no body expression");
-        AstNodeExpr* const clonedp = bodyExprp->cloneTree(false);
+        Ast_కణుపు_సమాసం* స్థిరరాశి clonedp = bodyExprp->clone_వృక్షం(అబద్ధం);
 
-        const V3TaskConnects tconnects = V3Task::taskConnects(funcrefp, seqp->stmtsp());
-        std::unordered_map<const AstVar*, AstNodeExpr*> portMap;
-        for (const auto& tconnect : tconnects) {
-            portMap[tconnect.first] = tconnect.second->exprp();
+        స్థిరరాశి V3TaskConnects tconnects = V3Task::taskConnects(funcrefp, seqp->stmtsp());
+        std::unordered_map<స్థిరరాశి AstVar*, Ast_కణుపు_సమాసం*> పోర్టు_Map;
+        కొరకు (స్థిరరాశి స్వయంచాలక& tconnect : tconnects) {
+            పోర్టు_Map[tconnect.మొదటి] = tconnect.రెండవ->exprp();
         }
         clonedp->foreach([&](AstVarRef* refp) {
-            const auto it = portMap.find(refp->varp());
-            if (it != portMap.end()) {
-                refp->replaceWith(it->second->cloneTree(false));
-                VL_DO_DANGLING(pushDeletep(refp), refp);
+            స్థిరరాశి స్వయంచాలక it = పోర్టు_Map.కనుగొను(refp->varp());
+            ఒకవేళ (it != పోర్టు_Map.చివర()) {
+                refp->replaceWith(it->రెండవ->clone_వృక్షం(అబద్ధం));
+                VL_DO_DANGLING(నెట్టు_Deletep(refp), refp);
             }
         });
-        for (const auto& tconnect : tconnects) {
-            pushDeletep(tconnect.second->exprp()->unlinkFrBack());
+        కొరకు (స్థిరరాశి స్వయంచాలక& tconnect : tconnects) {
+            నెట్టు_Deletep(tconnect.రెండవ->exprp()->unlink_Fr_వెనుక());
         }
         V3AssertCommon::checkSvaInstanceDelays(clonedp, funcrefp);
         funcrefp->replaceWith(clonedp);
-        VL_DO_DANGLING(pushDeletep(funcrefp), funcrefp);
+        VL_DO_DANGLING(నెట్టు_Deletep(funcrefp), funcrefp);
         // Clear referenced flag so V3AssertPre cleanup does not emit
         // spurious UNSUPPORTED for sequences that were already inlined here.
-        seqp->isReferenced(false);
+        seqp->isReferenced(అబద్ధం);
     }
 
     // Must run before hasMultiCycleExpr() so NFA sees sequence bodies.
-    void inlineAllSequenceRefs(AstNode* rootp) {
-        bool changed = true;
-        while (changed) {
-            changed = false;
+    శూన్య inlineAllSequenceRefs(Ast_కణుపు* rootp) {
+        తార్కిక మారింది = నిజం;
+        అయితే (మారింది) {
+            మారింది = అబద్ధం;
             rootp->foreach([&](AstFuncRef* funcrefp) {
-                if (changed) return;
-                if (AstSequence* const seqp = VN_CAST(funcrefp->taskp(), Sequence)) {
+                ఒకవేళ (మారింది) తిరిగి;
+                ఒకవేళ (AstSequence* స్థిరరాశి seqp = VN_CAST(funcrefp->taskp(), Sequence)) {
                     inlineSequenceRef(funcrefp, seqp);
-                    changed = true;
+                    మారింది = నిజం;
                 }
             });
         }
     }
 
-    static bool hasMultiCycleExpr(const AstNode* nodep) {
-        return nodep->exists([](const AstNode* np) {
-            if (const auto* const ep = VN_CAST(np, NodeExpr)) return ep->isMultiCycleSva();
-            return false;
+    స్థిర తార్కిక has_Multi_చక్రం_సమాసం(స్థిరరాశి Ast_కణుపు* nodep) {
+        తిరిగి nodep->exists([](స్థిరరాశి Ast_కణుపు* np) {
+            ఒకవేళ (స్థిరరాశి స్వయంచాలక* స్థిరరాశి ep = VN_CAST(np, కణుపు_సమాసం)) తిరిగి ep->is_Multi_చక్రం_Sva();
+            తిరిగి అబద్ధం;
         });
     }
 
-    static VPropStrength effectiveAssertPropStrength(const AstPropSpec* const propSpecp) {
-        if (propSpecp->propStrength() != VPropStrength::DEFAULT) return propSpecp->propStrength();
-        return propSpecp->fileline()->language() <= V3LangCode::L1800_2005 ? VPropStrength::STRONG
+    స్థిర VPropStrength effectiveAssertPropStrength(స్థిరరాశి AstPropSpec* స్థిరరాశి propSpecp) {
+        ఒకవేళ (propSpecp->propStrength() != VPropStrength::DEFAULT) తిరిగి propSpecp->propStrength();
+        తిరిగి propSpecp->fileline()->language() <= V3_Lang_సంకేతం::L1800_2005 ? VPropStrength::STRONG
                                                                            : VPropStrength::WEAK;
     }
 
@@ -3108,250 +3108,250 @@ class AssertNfaVisitor final : public VNVisitor {
     // forms are also lowered there. NFA still owns sequence operands and any
     // embedding inside a multi-cycle context (implication consequent, or/and
     // operands, etc.).
-    static bool isBareTopLevelUntil(AstNode* propp) {
-        AstNode* p = propp;
-        if (AstPropSpec* const specp = VN_CAST(p, PropSpec)) p = specp->propp();
-        while (AstLogNot* const notp = VN_CAST(p, LogNot)) p = notp->lhsp();
-        AstUntil* const untilp = VN_CAST(p, Until);
-        if (!untilp) return false;
-        const auto hasSeq = [](const AstNodeExpr* ep) {
-            return ep->exists([](const AstNodeExpr* np) { return np->isMultiCycleSva(); });
+    స్థిర తార్కిక is_Bare_శిఖరం_Level_Until(Ast_కణుపు* propp) {
+        Ast_కణుపు* p = propp;
+        ఒకవేళ (AstPropSpec* స్థిరరాశి specp = VN_CAST(p, PropSpec)) p = specp->propp();
+        అయితే (AstLogNot* స్థిరరాశి notp = VN_CAST(p, LogNot)) p = notp->lhsp();
+        AstUntil* స్థిరరాశి untilp = VN_CAST(p, Until);
+        ఒకవేళ (!untilp) తిరిగి అబద్ధం;
+        స్థిరరాశి స్వయంచాలక hasSeq = [](స్థిరరాశి Ast_కణుపు_సమాసం* ep) {
+            తిరిగి ep->exists([](స్థిరరాశి Ast_కణుపు_సమాసం* np) { తిరిగి np->is_Multi_చక్రం_Sva(); });
         };
-        if (hasSeq(untilp->lhsp()) || hasSeq(untilp->rhsp())) return false;
-        return true;
+        ఒకవేళ (hasSeq(untilp->lhsp()) || hasSeq(untilp->rhsp())) తిరిగి అబద్ధం;
+        తిరిగి నిజం;
     }
 
-    struct PropertyParts final {
-        AstNodeExpr* triggerExprp = nullptr;
-        AstNodeExpr* seqExprp = nullptr;
-        bool isOverlapped = true;
-        bool hasImplication = false;
-        bool isFollowedBy = false;  // True for #-# / #=# (non-vacuous-fail on antecedent miss)
+    నిర్మాణం PropertyParts final {
+        Ast_కణుపు_సమాసం* triggerExprp = శూన్యసూచిక;
+        Ast_కణుపు_సమాసం* seqExprp = శూన్యసూచిక;
+        తార్కిక isOverlapped = నిజం;
+        తార్కిక hasImplication = అబద్ధం;
+        తార్కిక isFollowedBy = అబద్ధం;  // True for #-# / #=# (non-vacuous-fail on antecedent miss)
     };
 
-    static PropertyParts decomposeProperty(AstNode* propp) {
+    స్థిర PropertyParts decomposeProperty(Ast_కణుపు* propp) {
         PropertyParts parts;
-        if (AstPropSpec* const specp = VN_CAST(propp, PropSpec)) { propp = specp->propp(); }
-        if (AstImplication* const implp = VN_CAST(propp, Implication)) {
-            parts.hasImplication = true;
+        ఒకవేళ (AstPropSpec* స్థిరరాశి specp = VN_CAST(propp, PropSpec)) { propp = specp->propp(); }
+        ఒకవేళ (AstImplication* స్థిరరాశి implp = VN_CAST(propp, Implication)) {
+            parts.hasImplication = నిజం;
             parts.isOverlapped = implp->isOverlapped();
             parts.isFollowedBy = implp->isFollowedBy();
             parts.triggerExprp = implp->lhsp();
             parts.seqExprp = implp->rhsp();
-        } else if (AstNodeExpr* const exprp = VN_CAST(propp, NodeExpr)) {
-            parts.triggerExprp = nullptr;
+        } లేకపోతే ఒకవేళ (Ast_కణుపు_సమాసం* స్థిరరాశి exprp = VN_CAST(propp, కణుపు_సమాసం)) {
+            parts.triggerExprp = శూన్యసూచిక;
             parts.seqExprp = exprp;
         }
-        return parts;
+        తిరిగి parts;
     }
 
-    static bool canSplitImplicationPassActions(const PropertyParts& parts) {
+    స్థిర తార్కిక can_విభజించు_Implication_Pass_Actions(స్థిరరాశి PropertyParts& parts) {
         UASSERT(parts.hasImplication,
                 "Implication pass action split requested without implication");
         UASSERT(parts.triggerExprp, "Implication pass action split requested without trigger");
         // Direct vacuous/nonvacuous classification uses the antecedent value in the current
         // assertion attempt. Leave delayed antecedents on the existing NFA pass path.
-        return !hasMultiCycleExpr(parts.triggerExprp);
+        తిరిగి !has_Multi_చక్రం_సమాసం(parts.triggerExprp);
     }
 
-    static void splitImplicationPassActions(AstAssert* assertp, const PropertyParts& parts,
-                                            AstNodeExpr* nonvacuousMatchp) {
-        FileLine* const flp = assertp->fileline();
+    స్థిర శూన్య విభజించు_Implication_Pass_Actions(AstAssert* assertp, స్థిరరాశి PropertyParts& parts,
+                                            Ast_కణుపు_సమాసం* nonvacuousMatchp) {
+        File_పంక్తి* స్థిరరాశి flp = assertp->fileline();
 
-        AstNode* const passsp = assertp->passsp()->unlinkFrBackWithNext();
-        AstNode* splitsp = nullptr;
+        Ast_కణుపు* స్థిరరాశి passsp = assertp->passsp()->unlink_Fr_వెనుక_With_తదుపరి();
+        Ast_కణుపు* splitsp = శూన్యసూచిక;
 
-        if (!parts.isFollowedBy) {
-            AstNodeExpr* const vacuousp
-                = new AstLogNot{flp, sampled(parts.triggerExprp->cloneTreePure(false))};
-            AstNode* const vacuousBodyp = passsp->cloneTree(false);
+        ఒకవేళ (!parts.isFollowedBy) {
+            Ast_కణుపు_సమాసం* స్థిరరాశి vacuousp
+                = కొత్త AstLogNot{flp, sampled(parts.triggerExprp->clone_వృక్షం_శుద్ధ(అబద్ధం))};
+            Ast_కణుపు* స్థిరరాశి vacuousBodyp = passsp->clone_వృక్షం(అబద్ధం);
             splitsp = newPassOnIf(flp, vacuousp, vacuousBodyp, assertp->userType(),
-                                  assertp->directive(), /*vacuous=*/true);
+                                  assertp->directive(), /*vacuous=*/నిజం);
         }
 
-        AstIf* const nonvacuousp
+        AstIf* స్థిరరాశి nonvacuousp
             = newPassOnIf(flp, nonvacuousMatchp, passsp, assertp->userType(), assertp->directive(),
-                          /*vacuous=*/false);
-        splitsp = splitsp ? AstNode::addNext<AstNode, AstNode>(splitsp, nonvacuousp)
-                          : static_cast<AstNode*>(nonvacuousp);
-        assertp->addPasssp(splitsp);
+                          /*vacuous=*/అబద్ధం);
+        splitsp = splitsp ? Ast_కణుపు::కూడు_తదుపరి<Ast_కణుపు, Ast_కణుపు>(splitsp, nonvacuousp)
+                          : static_cast<Ast_కణుపు*>(nonvacuousp);
+        assertp->కూడు_Passsp(splitsp);
     }
 
     // On a PropSpec-wrapped assertion whose NFA build failed with a semantic
     // error (errorEmitted), replace the body with a BitFalse const so later
     // passes see a well-formed AST. Returns true if replaced.
-    void replaceBodyOnBuildError(FileLine* flp, AstPropSpec* propSpecp, bool errorEmitted) {
-        if (!errorEmitted) return;
-        AstNode* const innerPropp = propSpecp->propp();
-        innerPropp->replaceWith(new AstConst{flp, AstConst::BitFalse{}});
-        VL_DO_DANGLING(pushDeletep(innerPropp), innerPropp);
+    శూన్య replaceBodyOnBuildError(File_పంక్తి* flp, AstPropSpec* propSpecp, తార్కిక errorEmitted) {
+        ఒకవేళ (!errorEmitted) తిరిగి;
+        Ast_కణుపు* స్థిరరాశి innerPropp = propSpecp->propp();
+        innerPropp->replaceWith(కొత్త AstConst{flp, AstConst::బిట్టు_False{}});
+        VL_DO_DANGLING(నెట్టు_Deletep(innerPropp), innerPropp);
     }
 
     // Hoist a leading clocking event (IEEE 1800-2023 16.7):
-    bool hoistClockedSeq(AstPropSpec* specp) {
-        while (AstSClocked* const clockedp = VN_CAST(specp->propp(), SClocked)) {
-            if (specp->sensesp()) {
+    తార్కిక hoistClockedSeq(AstPropSpec* specp) {
+        అయితే (AstSClocked* స్థిరరాశి clockedp = VN_CAST(specp->propp(), SClocked)) {
+            ఒకవేళ (specp->sensesp()) {
                 clockedp->v3warn(E_UNSUPPORTED, "Unsupported: multiclocked sequence or property");
-                replaceBodyOnBuildError(specp->fileline(), specp, true);
-                return true;
+                replaceBodyOnBuildError(specp->fileline(), specp, నిజం);
+                తిరిగి నిజం;
             }
-            for (const AstSenItem* sp = clockedp->sensesp(); sp;
-                 sp = VN_CAST(sp->nextp(), SenItem)) {
-                if (!sp->edgeType().anEdge()) {
+            కొరకు (స్థిరరాశి Ast_Sen_అంశం* sp = clockedp->sensesp(); sp;
+                 sp = VN_CAST(sp->nextp(), Sen_అంశం)) {
+                ఒకవేళ (!sp->అంచు_Type().an_అంచు()) {
                     clockedp->v3warn(E_UNSUPPORTED,
                                      "Unsupported: non-edge clocking event on a sequence; "
                                      "use an edge such as @(posedge clk)");
-                    replaceBodyOnBuildError(specp->fileline(), specp, true);
-                    return true;
+                    replaceBodyOnBuildError(specp->fileline(), specp, నిజం);
+                    తిరిగి నిజం;
                 }
             }
-            specp->sensesp(clockedp->sensesp()->unlinkFrBackWithNext());
-            AstNodeExpr* const bodyp = clockedp->exprp()->unlinkFrBack();
+            specp->sensesp(clockedp->sensesp()->unlink_Fr_వెనుక_With_తదుపరి());
+            Ast_కణుపు_సమాసం* స్థిరరాశి bodyp = clockedp->exprp()->unlink_Fr_వెనుక();
             clockedp->replaceWith(bodyp);
-            VL_DO_DANGLING(pushDeletep(clockedp), clockedp);
+            VL_DO_DANGLING(నెట్టు_Deletep(clockedp), clockedp);
         }
         // A clocking event anywhere else in the sequence is not supported.
-        const AstSClocked* nestedp = nullptr;
-        specp->propp()->foreach([&](const AstSClocked* p) {
-            if (!nestedp) nestedp = p;
+        స్థిరరాశి AstSClocked* nestedp = శూన్యసూచిక;
+        specp->propp()->foreach([&](స్థిరరాశి AstSClocked* p) {
+            ఒకవేళ (!nestedp) nestedp = p;
         });
-        if (nestedp) {
+        ఒకవేళ (nestedp) {
             nestedp->v3warn(E_UNSUPPORTED,
                             "Unsupported: clocking event inside sequence expression");
-            replaceBodyOnBuildError(specp->fileline(), specp, true);
-            return true;
+            replaceBodyOnBuildError(specp->fileline(), specp, నిజం);
+            తిరిగి నిజం;
         }
-        return false;
+        తిరిగి అబద్ధం;
     }
 
     // Build the NFA graph for a property body, handling both the antecedent
     // |-> consequent and simple sequence cases. Returns the consequent/body
     // BuildResult (invalid on parse/build failure).
-    BuildResult buildAssertionGraph(SvaNfaBuilder& builder, SvaGraph& graph, AstNodeExpr* seqBodyp,
-                                    const PropertyParts& parts, FileLine* flp) {
-        if (!parts.hasImplication) return builder.build(seqBodyp);
+    Build_ఫలితం build_Assertion_లేఖాచిత్రం(SvaNfaBuilder& builder, Sva_లేఖాచిత్రం& లేఖాచిత్రం, Ast_కణుపు_సమాసం* seqBodyp,
+                                    స్థిరరాశి PropertyParts& parts, File_పంక్తి* flp) {
+        ఒకవేళ (!parts.hasImplication) తిరిగి builder.build(seqBodyp);
 
-        graph.m_startVertexp = graph.createStateVertex();
-        return builder.buildImplicationEdges(parts.triggerExprp, seqBodyp, graph.m_startVertexp,
+        లేఖాచిత్రం.m_ప్రారంభం_Vertexp = లేఖాచిత్రం.create_State_శీర్షం();
+        తిరిగి builder.build_Implication_అంచులు(parts.triggerExprp, seqBodyp, లేఖాచిత్రం.m_ప్రారంభం_Vertexp,
                                              parts.isOverlapped, parts.isFollowedBy,
                                              parts.triggerExprp, flp);
     }
 
     // Install pass-action gating and replay simultaneous per-thread failures.
-    void attachActionHandlers(AstAssert* const assertp, AstNodeExpr* matchExprp,
-                              AstSenTree* const threadFailReplaySenTreep,
-                              AstNodeExpr* const threadFailCountp) {
+    శూన్య attachActionHandlers(AstAssert* స్థిరరాశి assertp, Ast_కణుపు_సమాసం* సరిపోలిక_Exprp,
+                              Ast_Sen_వృక్షం* స్థిరరాశి threadFailReplaySenTreep,
+                              Ast_కణుపు_సమాసం* స్థిరరాశి threadFailCountp) {
         // Gate pass handler on match to prevent vacuous-pass firings.
-        if (matchExprp) {
+        ఒకవేళ (సరిపోలిక_Exprp) {
             // needMatch implies passsp() was non-null when evaluated above;
             // lowering does not mutate the assert's pass-action between the
             // two reads, so passsp() is still non-null here.
-            AstNode* passsp = assertp->passsp();
+            Ast_కణుపు* passsp = assertp->passsp();
             UASSERT_OBJ(passsp, assertp, "needMatch set but passsp is null");
-            passsp->unlinkFrBackWithNext();
-            FileLine* const flp = assertp->fileline();
-            AstIf* const ifp = new AstIf{flp, matchExprp, passsp, nullptr};
-            assertp->addPasssp(ifp);
+            passsp->unlink_Fr_వెనుక_With_తదుపరి();
+            File_పంక్తి* స్థిరరాశి flp = assertp->fileline();
+            AstIf* స్థిరరాశి ifp = కొత్త AstIf{flp, సరిపోలిక_Exprp, passsp, శూన్యసూచిక};
+            assertp->కూడు_Passsp(ifp);
             // Fail-handler prefix for overlapping instances (IEEE 16.12):
             // fires when reject=1 && match=1 in the same cycle.
-            if (assertp->failsp()) assertp->prependFailsp(ifp->cloneTree(false));
+            ఒకవేళ (assertp->failsp()) assertp->prependFailsp(ifp->clone_వృక్షం(అబద్ధం));
         }
 
-        if (threadFailCountp) {
+        ఒకవేళ (threadFailCountp) {
             UASSERT_OBJ(threadFailReplaySenTreep, assertp,
                         "Thread fail count missing sensitivity tree");
-            AstNode* const failsp = assertp->failsp();
-            FileLine* const flp = assertp->fileline();
+            Ast_కణుపు* స్థిరరాశి failsp = assertp->failsp();
+            File_పంక్తి* స్థిరరాశి flp = assertp->fileline();
             // IEEE 1800-2023 16.12 requires one action-block evaluation per failed
             // thread. AstAssert handles the first, so replay the rest here.
-            AstVar* const remainingFailCountVarp
-                = new AstVar{flp, VVarType::MODULETEMP, m_failCountNames.get(""),
-                             m_modp->findBasicDType(VBasicDTypeKwd::UINT32)};
-            remainingFailCountVarp->lifetime(VLifetime::STATIC_EXPLICIT);
-            m_modp->addStmtsp(remainingFailCountVarp);
-            AstNode* const replayStmtsp = new AstAssign{
-                flp, new AstVarRef{flp, remainingFailCountVarp, VAccess::WRITE}, threadFailCountp};
-            AstLoop* const replayLoopp = new AstLoop{flp};
-            replayLoopp->addStmtsp(new AstLoopTest{
+            AstVar* స్థిరరాశి మిగిలిన_Fail_లెక్క_Varp
+                = కొత్త AstVar{flp, VVarType::MODULETEMP, m_fail_లెక్క_పేర్లు.get(""),
+                             m_modp->కనుగొను_Basic_DType(VBasicDTypeKwd::UINT32)};
+            మిగిలిన_Fail_లెక్క_Varp->lifetime(VLifetime::STATIC_EXPLICIT);
+            m_modp->కూడు_Stmtsp(మిగిలిన_Fail_లెక్క_Varp);
+            Ast_కణుపు* స్థిరరాశి replayStmtsp = కొత్త Ast_కేటాయించు{
+                flp, కొత్త AstVarRef{flp, మిగిలిన_Fail_లెక్క_Varp, VAccess::WRITE}, threadFailCountp};
+            AstLoop* స్థిరరాశి replayLoopp = కొత్త AstLoop{flp};
+            replayLoopp->కూడు_Stmtsp(కొత్త AstLoopTest{
                 flp, replayLoopp,
-                new AstGt{flp, new AstVarRef{flp, remainingFailCountVarp, VAccess::READ},
-                          newTypedConstp(flp, remainingFailCountVarp->dtypep(), 1)}});
-            replayLoopp->addStmtsp(newIfAssertFailOn(failsp->cloneTree(true), assertp->directive(),
+                కొత్త AstGt{flp, కొత్త AstVarRef{flp, మిగిలిన_Fail_లెక్క_Varp, VAccess::READ},
+                          newTypedConstp(flp, మిగిలిన_Fail_లెక్క_Varp->dtypep(), 1)}});
+            replayLoopp->కూడు_Stmtsp(newIfAssertFailOn(failsp->clone_వృక్షం(నిజం), assertp->directive(),
                                                      assertp->userType()));
-            AstSub* const decrementedFailCountp
-                = new AstSub{flp, new AstVarRef{flp, remainingFailCountVarp, VAccess::READ},
-                             newTypedConstp(flp, remainingFailCountVarp->dtypep(), 1)};
-            replayLoopp->addStmtsp(
-                new AstAssign{flp, new AstVarRef{flp, remainingFailCountVarp, VAccess::WRITE},
+            AstSub* స్థిరరాశి decrementedFailCountp
+                = కొత్త AstSub{flp, కొత్త AstVarRef{flp, మిగిలిన_Fail_లెక్క_Varp, VAccess::READ},
+                             newTypedConstp(flp, మిగిలిన_Fail_లెక్క_Varp->dtypep(), 1)};
+            replayLoopp->కూడు_Stmtsp(
+                కొత్త Ast_కేటాయించు{flp, కొత్త AstVarRef{flp, మిగిలిన_Fail_లెక్క_Varp, VAccess::WRITE},
                               decrementedFailCountp});
-            replayStmtsp->addNext(replayLoopp);
-            m_modp->addStmtsp(
-                new AstAlways{flp, VAlwaysKwd::ALWAYS, threadFailReplaySenTreep, replayStmtsp});
+            replayStmtsp->కూడు_తదుపరి(replayLoopp);
+            m_modp->కూడు_Stmtsp(
+                కొత్త AstAlways{flp, VAlwaysKwd::ALWAYS, threadFailReplaySenTreep, replayStmtsp});
         }
     }
 
     // Replace one VarRef to a captured local var with $past(rhs, K)
     // (or rhs inline when K == 0). No-op if refp is not in matchMap.
-    void substituteMatchItemRef(AstVarRef* refp, unsigned K,
-                                const std::unordered_map<const AstVar*, AstNodeExpr*>& matchMap) {
-        const auto it = matchMap.find(refp->varp());
-        if (it == matchMap.end()) return;
-        AstNodeExpr* newp = it->second->cloneTreePure(false);
-        if (K > 0) {
-            AstConst* const ticksp = new AstConst{refp->fileline(), AstConst::WidthedValue{}, 32,
+    శూన్య substitute_సరిపోలిక_అంశం_Ref(AstVarRef* refp, గుర్తులేని K,
+                                స్థిరరాశి std::unordered_map<స్థిరరాశి AstVar*, Ast_కణుపు_సమాసం*>& సరిపోలిక_Map) {
+        స్థిరరాశి స్వయంచాలక it = సరిపోలిక_Map.కనుగొను(refp->varp());
+        ఒకవేళ (it == సరిపోలిక_Map.చివర()) తిరిగి;
+        Ast_కణుపు_సమాసం* newp = it->రెండవ->clone_వృక్షం_శుద్ధ(అబద్ధం);
+        ఒకవేళ (K > 0) {
+            AstConst* స్థిరరాశి ticksp = కొత్త AstConst{refp->fileline(), AstConst::Widthed_విలువ{}, 32,
                                                   static_cast<uint32_t>(K)};
-            AstPast* const pastp = new AstPast{refp->fileline(), newp, ticksp, nullptr,
-                                               /* propertyTiming */ true};
+            AstPast* స్థిరరాశి pastp = కొత్త AstPast{refp->fileline(), newp, ticksp, శూన్యసూచిక,
+                                               /* propertyTiming */ నిజం};
             pastp->dtypeFrom(newp);
             newp = pastp;
         }
         refp->replaceWith(newp);
-        VL_DO_DANGLING(pushDeletep(refp), refp);
-        return;
+        VL_DO_DANGLING(నెట్టు_Deletep(refp), refp);
+        తిరిగి;
     }
 
     // Recursively walk a consequent. Returns cycle length consumed and
     // substitutes each VarRef to a captured local var with $past(rhs, K)
     // (or rhs inline when K == 0). Reports E_UNSUPPORTED on non-constant
     // delays or composite sequence operators and returns -1 on failure.
-    int
-    walkSubstituteMatchItems(AstNodeExpr* nodep, unsigned K,
-                             const std::unordered_map<const AstVar*, AstNodeExpr*>& matchItems) {
-        if (AstSExpr* const sexprp = VN_CAST(nodep, SExpr)) {
+    పూర్ణాంకం
+    walk_Substitute_సరిపోలిక_వస్తువులు(Ast_కణుపు_సమాసం* nodep, గుర్తులేని K,
+                             స్థిరరాశి std::unordered_map<స్థిరరాశి AstVar*, Ast_కణుపు_సమాసం*>& సరిపోలిక_వస్తువులు) {
+        ఒకవేళ (AstSExpr* స్థిరరాశి sexprp = VN_CAST(nodep, SExpr)) {
             // IEEE 1800-2023 16.9.2: cycle_delay's lhsp is a constant_expression
             // and the delay form in a sequence is always `##N`, folded by
             // V3Const + V3Param before V3AssertNfa. Range form `##[m:n]` is the
             // only user-visible reject here.
-            AstDelay* const delayp = VN_AS(sexprp->delayp(), Delay);
-            UASSERT_OBJ(delayp->isCycleDelay() && VN_IS(delayp->lhsp(), Const), sexprp,
+            AstDelay* స్థిరరాశి delayp = VN_AS(sexprp->delayp(), Delay);
+            UASSERT_OBJ(delayp->is_చక్రం_Delay() && VN_IS(delayp->lhsp(), Const), sexprp,
                         "SVA cycle delay must have a constant lhsp");
-            if (delayp->isRangeDelay()) {
+            ఒకవేళ (delayp->isRangeDelay()) {
                 sexprp->v3warn(E_UNSUPPORTED, "Unsupported: property local variable used across "
                                               "non-constant cycle delay in consequent"
                                               " (IEEE 1800-2023 16.10)");
-                return -1;
+                తిరిగి -1;
             }
-            const unsigned delayCycles = VN_AS(delayp->lhsp(), Const)->toUInt();
-            int preLen = 0;
-            if (AstNodeExpr* const prep = sexprp->preExprp()) {
-                preLen = walkSubstituteMatchItems(prep, K, matchItems);
-                if (preLen < 0) return -1;
+            స్థిరరాశి గుర్తులేని delay_చక్రాలు = VN_AS(delayp->lhsp(), Const)->గమ్యం_UInt();
+            పూర్ణాంకం preLen = 0;
+            ఒకవేళ (Ast_కణుపు_సమాసం* స్థిరరాశి prep = sexprp->preExprp()) {
+                preLen = walk_Substitute_సరిపోలిక_వస్తువులు(prep, K, సరిపోలిక_వస్తువులు);
+                ఒకవేళ (preLen < 0) తిరిగి -1;
             }
-            const int bodyLen
-                = walkSubstituteMatchItems(sexprp->exprp(), K + preLen + delayCycles, matchItems);
-            if (bodyLen < 0) return -1;
-            return preLen + delayCycles + bodyLen;
+            స్థిరరాశి పూర్ణాంకం bodyLen
+                = walk_Substitute_సరిపోలిక_వస్తువులు(sexprp->exprp(), K + preLen + delay_చక్రాలు, సరిపోలిక_వస్తువులు);
+            ఒకవేళ (bodyLen < 0) తిరిగి -1;
+            తిరిగి preLen + delay_చక్రాలు + bodyLen;
         }
-        if (nodep->isMultiCycleSva()) {
+        ఒకవేళ (nodep->is_Multi_చక్రం_Sva()) {
             nodep->v3warn(E_UNSUPPORTED, "Unsupported: property local variable used across "
                                          "composite sequence operator in consequent"
                                          " (IEEE 1800-2023 16.10)");
-            return -1;
+            తిరిగి -1;
         }
-        std::vector<AstVarRef*> refs;
-        nodep->foreach([&refs](AstVarRef* p) { refs.push_back(p); });
-        for (AstVarRef* const refp : refs) substituteMatchItemRef(refp, K, matchItems);
-        return 0;
+        std::సదిశ<AstVarRef*> refs;
+        nodep->foreach([&refs](AstVarRef* p) { refs.నెట్టు_వెనుక(p); });
+        కొరకు (AstVarRef* స్థిరరాశి refp : refs) substitute_సరిపోలిక_అంశం_Ref(refp, K, సరిపోలిక_వస్తువులు);
+        తిరిగి 0;
     }
 
     // Lower property-local match-item assignments before NFA construction.
@@ -3363,49 +3363,49 @@ class AssertNfaVisitor final : public VNVisitor {
     // is replaced with `$past(rhs_expr, K)` where K = (overlapped ? 0 : 1)
     // plus any accumulated `##N` delay. Returns true if E_UNSUPPORTED was
     // emitted; caller must replace the body with BitFalse and bail.
-    bool liftMatchItemSubstitutions(PropertyParts& parts, AstNodeExpr* seqBodyp) {
-        if (!parts.hasImplication) return false;
-        AstExprStmt* const exprStmtp = VN_CAST(parts.triggerExprp, ExprStmt);
-        if (!exprStmtp) return false;
+    తార్కిక lift_సరిపోలిక_అంశం_Substitutions(PropertyParts& parts, Ast_కణుపు_సమాసం* seqBodyp) {
+        ఒకవేళ (!parts.hasImplication) తిరిగి అబద్ధం;
+        Ast_సమాసం_Stmt* స్థిరరాశి సమాసం_Stmtp = VN_CAST(parts.triggerExprp, సమాసం_Stmt);
+        ఒకవేళ (!సమాసం_Stmtp) తిరిగి అబద్ధం;
         // IEEE 1800-2023 16.10 BNF requires `(expr, match_item {, match_item})`
         // with at least one match item; V3LinkParse only emits ExprStmt for
         // this form and only emits AstAssign with VarRef LHS for each item.
-        std::unordered_map<const AstVar*, AstNodeExpr*> matchItems;
-        for (AstNode* stmtp = exprStmtp->stmtsp(); stmtp; stmtp = stmtp->nextp()) {
-            AstAssign* const assignp = VN_AS(stmtp, Assign);
-            AstVarRef* const lhsRefp = VN_AS(assignp->lhsp(), VarRef);
-            matchItems[lhsRefp->varp()] = assignp->rhsp();
+        std::unordered_map<స్థిరరాశి AstVar*, Ast_కణుపు_సమాసం*> సరిపోలిక_వస్తువులు;
+        కొరకు (Ast_కణుపు* stmtp = సమాసం_Stmtp->stmtsp(); stmtp; stmtp = stmtp->nextp()) {
+            Ast_కేటాయించు* స్థిరరాశి assignp = VN_AS(stmtp, కేటాయించు);
+            AstVarRef* స్థిరరాశి lhsRefp = VN_AS(assignp->lhsp(), VarRef);
+            సరిపోలిక_వస్తువులు[lhsRefp->varp()] = assignp->rhsp();
         }
-        const unsigned startK = parts.isOverlapped ? 0 : 1;
-        const int length = walkSubstituteMatchItems(seqBodyp, startK, matchItems);
+        స్థిరరాశి గుర్తులేని ప్రారంభం_K = parts.isOverlapped ? 0 : 1;
+        స్థిరరాశి పూర్ణాంకం నిడివి = walk_Substitute_సరిపోలిక_వస్తువులు(seqBodyp, ప్రారంభం_K, సరిపోలిక_వస్తువులు);
         // Match-item substitution / strip mutates ancestor purity. Release
         // builds don't auto-clear caches on edits, so refresh here.
-        VIsCached::clearCacheTree();
-        if (length < 0) return true;
-        AstNodeExpr* const antBoolp = exprStmtp->resultp()->unlinkFrBack();
-        exprStmtp->replaceWith(antBoolp);
-        VL_DO_DANGLING(pushDeletep(exprStmtp), exprStmtp);
+        VIsCached::clear_Cache_వృక్షం();
+        ఒకవేళ (నిడివి < 0) తిరిగి నిజం;
+        Ast_కణుపు_సమాసం* స్థిరరాశి antBoolp = సమాసం_Stmtp->resultp()->unlink_Fr_వెనుక();
+        సమాసం_Stmtp->replaceWith(antBoolp);
+        VL_DO_DANGLING(నెట్టు_Deletep(సమాసం_Stmtp), సమాసం_Stmtp);
         parts.triggerExprp = antBoolp;
-        return false;
+        తిరిగి అబద్ధం;
     }
 
     // Outcome counts for a property if/case are wrong in an outcome-multiplying
     // context. Returns that context, or nullptr when the shape is supported.
-    static const char* unsupportedPropertyControl(const AstNodeCoverOrAssert* assertp,
-                                                  const AstNodeExpr* seqBodyp, bool negated) {
-        if (!hasPropertyControlConjunction(seqBodyp)) return nullptr;
-        if (negated) return "negation";
-        if (VN_IS(assertp, Cover)) return "cover";
-        if (VN_AS(assertp, Assert)->passsp()) return "a pass action";
-        return nullptr;
+    స్థిర స్థిరరాశి అక్షరం* unsupportedPropertyControl(స్థిరరాశి Ast_కణుపు_Cover_Or_Assert* assertp,
+                                                  స్థిరరాశి Ast_కణుపు_సమాసం* seqBodyp, తార్కిక negated) {
+        ఒకవేళ (!hasPropertyControlConjunction(seqBodyp)) తిరిగి శూన్యసూచిక;
+        ఒకవేళ (negated) తిరిగి "negation";
+        ఒకవేళ (VN_IS(assertp, Cover)) తిరిగి "cover";
+        ఒకవేళ (VN_AS(assertp, Assert)->passsp()) తిరిగి "a pass action";
+        తిరిగి శూన్యసూచిక;
     }
 
     // Inline property/sequence refs and reject unsupported shapes.
     // Returns the PropSpec to lower, or nullptr when fully handled here.
-    AstPropSpec* prepareAssertionProp(AstNodeCoverOrAssert* assertp) {
-        if (AstPropSpec* const specp = VN_CAST(assertp->propp(), PropSpec)) {
-            if (AstFuncRef* const funcrefp = VN_CAST(specp->propp(), FuncRef)) {
-                if (const AstProperty* const propyp = VN_CAST(funcrefp->taskp(), Property)) {
+    AstPropSpec* prepareAssertionProp(Ast_కణుపు_Cover_Or_Assert* assertp) {
+        ఒకవేళ (AstPropSpec* స్థిరరాశి specp = VN_CAST(assertp->propp(), PropSpec)) {
+            ఒకవేళ (AstFuncRef* స్థిరరాశి funcrefp = VN_CAST(specp->propp(), FuncRef)) {
+                ఒకవేళ (స్థిరరాశి AstProperty* స్థిరరాశి propyp = VN_CAST(funcrefp->taskp(), Property)) {
                     inlineNamedProperty(specp, funcrefp, propyp);
                 }
             }
@@ -3413,214 +3413,214 @@ class AssertNfaVisitor final : public VNVisitor {
 
         inlineAllSequenceRefs(assertp->propp());
 
-        if (AstPropSpec* const specp = VN_CAST(assertp->propp(), PropSpec)) {
-            if (hoistClockedSeq(specp)) return nullptr;
+        ఒకవేళ (AstPropSpec* స్థిరరాశి specp = VN_CAST(assertp->propp(), PropSpec)) {
+            ఒకవేళ (hoistClockedSeq(specp)) తిరిగి శూన్యసూచిక;
         }
 
-        AstPropSpec* const propp = VN_AS(assertp->propp(), PropSpec);
-        if (!VN_IS(assertp, Cover)
+        AstPropSpec* స్థిరరాశి propp = VN_AS(assertp->propp(), PropSpec);
+        ఒకవేళ (!VN_IS(assertp, Cover)
             && effectiveAssertPropStrength(propp) == VPropStrength::STRONG) {
             propp->v3warn(E_UNSUPPORTED,
                           "Unsupported: strong property in " + assertp->verilogKwd() + ".");
-            replaceBodyOnBuildError(assertp->fileline(), propp, /*errorEmitted=*/true);
-            return nullptr;
+            replaceBodyOnBuildError(assertp->fileline(), propp, /*errorEmitted=*/నిజం);
+            తిరిగి శూన్యసూచిక;
         }
 
-        if (!hasMultiCycleExpr(propp)) return nullptr;
+        ఒకవేళ (!has_Multi_చక్రం_సమాసం(propp)) తిరిగి శూన్యసూచిక;
         // A nested property instance keeps its body behind the call; lowering would drop it.
-        if (propp->exists([](const AstFuncRef* refp) { return VN_IS(refp->taskp(), Property); })) {
+        ఒకవేళ (propp->exists([](స్థిరరాశి AstFuncRef* refp) { తిరిగి VN_IS(refp->taskp(), Property); })) {
             assertp->v3warn(E_UNSUPPORTED,
                             "Unsupported: property instance inside a multi-cycle property "
                             "expression");
-            VL_DO_DANGLING(pushDeletep(assertp->unlinkFrBack()), assertp);
-            return nullptr;
+            VL_DO_DANGLING(నెట్టు_Deletep(assertp->unlink_Fr_వెనుక()), assertp);
+            తిరిగి శూన్యసూచిక;
         }
-        if (isBareTopLevelUntil(propp)) return nullptr;
-        return propp;
+        ఒకవేళ (is_Bare_శిఖరం_Level_Until(propp)) తిరిగి శూన్యసూచిక;
+        తిరిగి propp;
     }
 
-    void processAssertion(AstNodeCoverOrAssert* assertp) {
-        if (assertp->immediate()) return;
+    శూన్య processAssertion(Ast_కణుపు_Cover_Or_Assert* assertp) {
+        ఒకవేళ (assertp->తక్షణ()) తిరిగి;
 
-        AstPropSpec* const propp = prepareAssertionProp(assertp);
-        if (!propp) return;
+        AstPropSpec* స్థిరరాశి propp = prepareAssertionProp(assertp);
+        ఒకవేళ (!propp) తిరిగి;
 
         PropertyParts parts = decomposeProperty(propp);
         UASSERT_OBJ(parts.seqExprp, propp, "Property body must be an expression");
 
         // Unwrap `not` (IEEE 1800-2023 16.12.1); odd count -> negated semantics.
-        AstNodeExpr* seqBodyp = parts.seqExprp;
-        bool negated = false;
-        while (AstLogNot* const notp = VN_CAST(seqBodyp, LogNot)) {
+        Ast_కణుపు_సమాసం* seqBodyp = parts.seqExprp;
+        తార్కిక negated = అబద్ధం;
+        అయితే (AstLogNot* స్థిరరాశి notp = VN_CAST(seqBodyp, LogNot)) {
             negated = !negated;
             seqBodyp = notp->lhsp();
         }
 
-        const char* const propertyControlp
+        స్థిరరాశి అక్షరం* స్థిరరాశి propertyControlp
             = unsupportedPropertyControl(assertp, seqBodyp, negated);
 
         // Substitute property-local match-item refs in consequent with
         // $past(rhs, K) before NFA build (IEEE 1800-2023 16.10).
-        if (liftMatchItemSubstitutions(parts, seqBodyp)) {
-            AstPropSpec* const psp = VN_CAST(assertp->propp(), PropSpec);
+        ఒకవేళ (lift_సరిపోలిక_అంశం_Substitutions(parts, seqBodyp)) {
+            AstPropSpec* స్థిరరాశి psp = VN_CAST(assertp->propp(), PropSpec);
             UASSERT_OBJ(psp, assertp, "Concurrent assertion must have PropSpec");
-            replaceBodyOnBuildError(assertp->fileline(), psp, /*errorEmitted=*/true);
-            return;
+            replaceBodyOnBuildError(assertp->fileline(), psp, /*errorEmitted=*/నిజం);
+            తిరిగి;
         }
 
-        AstCover* const coverp = VN_CAST(assertp, Cover);
-        const bool isCoverSeq = coverp && coverp->isCoverSeq();
+        AstCover* స్థిరరాశి coverp = VN_CAST(assertp, Cover);
+        స్థిరరాశి తార్కిక isCoverSeq = coverp && coverp->isCoverSeq();
         // A sequence event control is not an assertion directive; no default
         // disable iff, no assertion control
-        const bool isSeqEvent = coverp && coverp->isSeqEvent();
-        const bool countMatches = isCoverSeq && !isSeqEvent;
+        స్థిరరాశి తార్కిక isSeqEvent = coverp && coverp->isSeqEvent();
+        స్థిరరాశి తార్కిక లెక్క_Matches = isCoverSeq && !isSeqEvent;
         // Inherit module defaults (IEEE 14.12, 16.15) when assertion has none.
-        if (!propp->sensesp() && m_defaultClockingp) {
-            propp->sensesp(m_defaultClockingp->sentreep()->sensesp()->cloneTree(true));
+        ఒకవేళ (!propp->sensesp() && m_defaultClockingp) {
+            propp->sensesp(m_defaultClockingp->sentreep()->sensesp()->clone_వృక్షం(నిజం));
         }
-        if (!propp->disablep() && m_defaultDisablep && !isSeqEvent) {
-            propp->disablep(m_defaultDisablep->condp()->cloneTreePure(true));
+        ఒకవేళ (!propp->disablep() && m_defaultDisablep && !isSeqEvent) {
+            propp->disablep(m_defaultDisablep->condp()->clone_వృక్షం_శుద్ధ(నిజం));
         }
-        if (!propp->sensesp()) return;
-        AstSenTree* senTreep
-            = new AstSenTree{propp->fileline(), propp->sensesp()->cloneTree(true)};
-        AstNodeExpr* const disableExprp = propp->disablep();
+        ఒకవేళ (!propp->sensesp()) తిరిగి;
+        Ast_Sen_వృక్షం* senTreep
+            = కొత్త Ast_Sen_వృక్షం{propp->fileline(), propp->sensesp()->clone_వృక్షం(నిజం)};
+        Ast_కణుపు_సమాసం* స్థిరరాశి disableExprp = propp->disablep();
 
         // NFA lowering clones repeated operands and may hoist them into an
         // always_comb block. Resolve implicit sampled-value clocks first, while
         // the enclosing assertion clock is still available.
         {
-            VL_RESTORER(m_sampledValueClockp);
-            m_sampledValueClockp = senTreep;
+            VL_RESTORER(m_sampled_విలువ_Clockp);
+            m_sampled_విలువ_Clockp = senTreep;
             iterate(propp->propp());
         }
 
-        FileLine* const flp = assertp->fileline();
+        File_పంక్తి* స్థిరరాశి flp = assertp->fileline();
 
-        SvaGraph graph;
-        SvaNfaBuilder builder{graph,      m_modp,     m_propTempNames,
-                              isCoverSeq, isSeqEvent, coverp != nullptr};
+        Sva_లేఖాచిత్రం లేఖాచిత్రం;
+        SvaNfaBuilder builder{లేఖాచిత్రం,      m_modp,     m_prop_తాత్కాలిక_పేర్లు,
+                              isCoverSeq, isSeqEvent, coverp != శూన్యసూచిక};
 
-        const BuildResult result = buildAssertionGraph(builder, graph, seqBodyp, parts, flp);
-        if (result.valid()) wireMatchAndMidSources(graph, result, flp);
-        if (!result.valid()) {
+        స్థిరరాశి Build_ఫలితం ఫలితం = build_Assertion_లేఖాచిత్రం(builder, లేఖాచిత్రం, seqBodyp, parts, flp);
+        ఒకవేళ (ఫలితం.valid()) wire_సరిపోలిక_And_Mid_Sources(లేఖాచిత్రం, ఫలితం, flp);
+        ఒకవేళ (!ఫలితం.valid()) {
             // Fall through to V3AssertPre for unsupported constructs; only
             // replace the body on real semantic errors. Any hoisted temps
             // from this attempt become orphan MODULETEMPs; V3Dead removes
             // them along with the dead always_comb driver.
-            replaceBodyOnBuildError(flp, propp, result.errorEmitted);
-            VL_DO_DANGLING(pushDeletep(senTreep), senTreep);
-            return;
+            replaceBodyOnBuildError(flp, propp, ఫలితం.errorEmitted);
+            VL_DO_DANGLING(నెట్టు_Deletep(senTreep), senTreep);
+            తిరిగి;
         }
         // After the build, so a construct the builder rejects reports itself.
-        if (propertyControlp) {
+        ఒకవేళ (propertyControlp) {
             seqBodyp->v3warn(E_UNSUPPORTED,
                              "Unsupported: temporal property if/case with " << propertyControlp);
-            replaceBodyOnBuildError(flp, propp, /*errorEmitted=*/true);
-            VL_DO_DANGLING(pushDeletep(senTreep), senTreep);
-            return;
+            replaceBodyOnBuildError(flp, propp, /*errorEmitted=*/నిజం);
+            VL_DO_DANGLING(నెట్టు_Deletep(senTreep), senTreep);
+            తిరిగి;
         }
-        if (countMatches && !v3Global.opt.coverageUser()) {
-            SvaNfaBuilder::freeUnlinkedCondp(result.finalCondp);
-            VL_DO_DANGLING(pushDeletep(senTreep), senTreep);
-            AstNode* const innerPropp = propp->propp();
-            innerPropp->replaceWith(new AstConst{flp, AstConst::BitFalse{}});
-            VL_DO_DANGLING(pushDeletep(innerPropp), innerPropp);
-            return;
+        ఒకవేళ (లెక్క_Matches && !v3Global.opt.coverageUser()) {
+            SvaNfaBuilder::freeUnlinkedCondp(ఫలితం.finalCondp);
+            VL_DO_DANGLING(నెట్టు_Deletep(senTreep), senTreep);
+            Ast_కణుపు* స్థిరరాశి innerPropp = propp->propp();
+            innerPropp->replaceWith(కొత్త AstConst{flp, AstConst::బిట్టు_False{}});
+            VL_DO_DANGLING(నెట్టు_Deletep(innerPropp), innerPropp);
+            తిరిగి;
         }
 
-        AstAssert* const assertAssertp = VN_CAST(assertp, Assert);
-        const bool splitImplicationPasssp = assertAssertp && assertAssertp->passsp()
+        AstAssert* స్థిరరాశి assertAssertp = VN_CAST(assertp, Assert);
+        స్థిరరాశి తార్కిక విభజించు_Implication_Passsp = assertAssertp && assertAssertp->passsp()
                                             && parts.hasImplication
-                                            && canSplitImplicationPassActions(parts);
-        const bool needMatch = assertAssertp && assertAssertp->passsp()
-                               && (!parts.hasImplication || splitImplicationPasssp);
+                                            && can_విభజించు_Implication_Pass_Actions(parts);
+        స్థిరరాశి తార్కిక need_సరిపోలిక = assertAssertp && assertAssertp->passsp()
+                               && (!parts.hasImplication || విభజించు_Implication_Passsp);
 
-        const bool needsThreadFailReplay
+        స్థిరరాశి తార్కిక needsThreadFailReplay
             = assertAssertp && assertAssertp->failsp() && !parts.hasImplication;
-        const auto signals
-            = m_loweringp->lower(assertp, graph, senTreep, result.finalCondp, disableExprp,
+        స్థిరరాశి స్వయంచాలక సంకేతాలు
+            = m_loweringp->క్రింది(assertp, లేఖాచిత్రం, senTreep, ఫలితం.finalCondp, disableExprp,
                                  needsThreadFailReplay, needsThreadFailReplay && !negated);
-        AstNodeExpr* matchExprp = nullptr;
-        AstNodeExpr* outputExprp = m_loweringp->assembleResult(
-            assertp, negated, result.finalCondp, signals, needMatch ? &matchExprp : nullptr);
-        if (countMatches) {
-            UASSERT_OBJ(signals.matchCountp, coverp, "Cover sequence missing match count");
-            VL_DO_DANGLING(outputExprp->deleteTree(), outputExprp);
-            propp->matchCountp(signals.matchCountp);
-            outputExprp = new AstNeq{flp, signals.matchCountp->cloneTreePure(false),
-                                     newTypedConstp(flp, signals.matchCountp->dtypep(), 0)};
+        Ast_కణుపు_సమాసం* సరిపోలిక_Exprp = శూన్యసూచిక;
+        Ast_కణుపు_సమాసం* outputExprp = m_loweringp->assemble_ఫలితం(
+            assertp, negated, ఫలితం.finalCondp, సంకేతాలు, need_సరిపోలిక ? &సరిపోలిక_Exprp : శూన్యసూచిక);
+        ఒకవేళ (లెక్క_Matches) {
+            UASSERT_OBJ(సంకేతాలు.సరిపోలిక_Countp, coverp, "Cover sequence missing match count");
+            VL_DO_DANGLING(outputExprp->delete_వృక్షం(), outputExprp);
+            propp->సరిపోలిక_Countp(సంకేతాలు.సరిపోలిక_Countp);
+            outputExprp = కొత్త AstNeq{flp, సంకేతాలు.సరిపోలిక_Countp->clone_వృక్షం_శుద్ధ(అబద్ధం),
+                                     newTypedConstp(flp, సంకేతాలు.సరిపోలిక_Countp->dtypep(), 0)};
         }
 
-        AstSenTree* const threadFailReplaySenTreep
-            = signals.threadFailCountp ? senTreep->cloneTree(false) : nullptr;
+        Ast_Sen_వృక్షం* స్థిరరాశి threadFailReplaySenTreep
+            = సంకేతాలు.threadFailCountp ? senTreep->clone_వృక్షం(అబద్ధం) : శూన్యసూచిక;
 
-        VL_DO_DANGLING(pushDeletep(senTreep), senTreep);
-        if (result.finalCondp && !result.finalCondp->backp()) pushDeletep(result.finalCondp);
+        VL_DO_DANGLING(నెట్టు_Deletep(senTreep), senTreep);
+        ఒకవేళ (ఫలితం.finalCondp && !ఫలితం.finalCondp->backp()) నెట్టు_Deletep(ఫలితం.finalCondp);
 
-        if (splitImplicationPasssp) {
-            splitImplicationPassActions(assertAssertp, parts, matchExprp);
-        } else {
-            attachActionHandlers(assertAssertp, matchExprp, threadFailReplaySenTreep,
-                                 signals.threadFailCountp);
+        ఒకవేళ (విభజించు_Implication_Passsp) {
+            విభజించు_Implication_Pass_Actions(assertAssertp, parts, సరిపోలిక_Exprp);
+        } లేకపోతే {
+            attachActionHandlers(assertAssertp, సరిపోలిక_Exprp, threadFailReplaySenTreep,
+                                 సంకేతాలు.threadFailCountp);
         }
 
-        AstNode* const innerPropp = propp->propp();
+        Ast_కణుపు* స్థిరరాశి innerPropp = propp->propp();
         innerPropp->replaceWith(outputExprp);
-        VL_DO_DANGLING(pushDeletep(innerPropp), innerPropp);
+        VL_DO_DANGLING(నెట్టు_Deletep(innerPropp), innerPropp);
 
-        UINFO(4, "NFA converted assertion at " << flp << endl);
+        UINFO(4, "NFA converted assertion at " << flp << పంక్తి_ముగింపు);
 
-        if (dumpGraphLevel() >= 6) graph.m_graph.dumpDotFilePrefixed("assert-nfa");
+        ఒకవేళ (dump_లేఖాచిత్రం_Level() >= 6) లేఖాచిత్రం.m_లేఖాచిత్రం.dumpDotFilePrefixed("assert-nfa");
     }
 
     // VISITORS
-    void visit(AstNodeModule* nodep) override {
+    శూన్య సందర్శించు(Ast_కణుపు_Module* nodep) override {
         VL_RESTORER(m_modp);
         VL_RESTORER(m_loweringp);
         VL_RESTORER(m_defaultClockingp);
         VL_RESTORER(m_defaultDisablep);
         m_modp = nodep;
         // A class nested in a module is in the scope of the module's default clocking
-        if (!VN_IS(nodep, Class)) m_defaultClockingp = nullptr;
+        ఒకవేళ (!VN_IS(nodep, Class)) m_defaultClockingp = శూన్యసూచిక;
         m_defaultDisablep = nodep->defaultDisablep();
         SvaNfaLowering lowering{nodep};
         m_loweringp = &lowering;
         iterateChildren(nodep);
     }
-    void visit(AstClocking* nodep) override {
-        if (nodep->isDefault() && !m_defaultClockingp) m_defaultClockingp = nodep;
+    శూన్య సందర్శించు(AstClocking* nodep) override {
+        ఒకవేళ (nodep->isDefault() && !m_defaultClockingp) m_defaultClockingp = nodep;
         iterateChildren(nodep);
     }
-    void visit(AstGenBlock* nodep) override {
+    శూన్య సందర్శించు(Ast_Gen_ఖండం* nodep) override {
         VL_RESTORER(m_defaultDisablep);
         m_defaultDisablep = nodep->defaultDisablep();
         iterateChildren(nodep);
     }
-    void visit(AstDefaultDisable* nodep) override {}
-    void visit(AstFell* nodep) override { visitSampledValue(nodep); }
-    void visit(AstPast* nodep) override { visitSampledValue(nodep); }
-    void visit(AstRose* nodep) override { visitSampledValue(nodep); }
-    void visit(AstStable* nodep) override { visitSampledValue(nodep); }
-    void visit(AstAssert* nodep) override { processAssertion(nodep); }
-    void visit(AstCover* nodep) override { processAssertion(nodep); }
-    void visit(AstRestrict* nodep) override {
+    శూన్య సందర్శించు(AstDefaultDisable* nodep) override {}
+    శూన్య సందర్శించు(AstFell* nodep) override { సందర్శించు_Sampled_విలువ(nodep); }
+    శూన్య సందర్శించు(AstPast* nodep) override { సందర్శించు_Sampled_విలువ(nodep); }
+    శూన్య సందర్శించు(AstRose* nodep) override { సందర్శించు_Sampled_విలువ(nodep); }
+    శూన్య సందర్శించు(AstStable* nodep) override { సందర్శించు_Sampled_విలువ(nodep); }
+    శూన్య సందర్శించు(AstAssert* nodep) override { processAssertion(nodep); }
+    శూన్య సందర్శించు(AstCover* nodep) override { processAssertion(nodep); }
+    శూన్య సందర్శించు(AstRestrict* nodep) override {
         // Restrict property is ignored by simulators (IEEE 1800-2023 16.12.2).
         // Remove here so temporal SExpr don't leak to V3AssertPre.
-        VL_DO_DANGLING(pushDeletep(nodep->unlinkFrBack()), nodep);
+        VL_DO_DANGLING(నెట్టు_Deletep(nodep->unlink_Fr_వెనుక()), nodep);
     }
-    void visit(AstAssertIntrinsic* nodep) override {}
-    void visit(AstNode* nodep) override { iterateChildren(nodep); }
+    శూన్య సందర్శించు(AstAssertIntrinsic* nodep) override {}
+    శూన్య సందర్శించు(Ast_కణుపు* nodep) override { iterateChildren(nodep); }
 
-public:
-    explicit AssertNfaVisitor(AstNetlist* nodep) { iterate(nodep); }
+బహిరంగ:
+    స్పష్టమైన AssertNfaVisitor(AstNetlist* nodep) { iterate(nodep); }
 };
 
 //######################################################################
 // Top entry point
 
-void V3AssertNfa::assertNfaAll(AstNetlist* nodep) {
-    UINFO(2, __FUNCTION__ << ":" << endl);
+శూన్య V3AssertNfa::assertNfaAll(AstNetlist* nodep) {
+    UINFO(2, __FUNCTION__ << ":" << పంక్తి_ముగింపు);
     { AssertNfaVisitor{nodep}; }
-    V3Global::dumpCheckGlobalTree("assertnfa", 0, dumpTreeEitherLevel() >= 3);
+    V3Global::dump_Check_Global_వృక్షం("assertnfa", 0, dump_వృక్షం_Either_Level() >= 3);
 }

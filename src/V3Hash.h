@@ -14,74 +14,74 @@
 //
 //*************************************************************************
 
-#ifndef VERILATOR_V3HASH_H_
-#define VERILATOR_V3HASH_H_
+#నిర్వచితం_కాకపోతే VERILATOR_V3HASH_H_
+#నిర్వచించు VERILATOR_V3HASH_H_
 
-#include "verilatedos.h"
+#అన్తర్భావ "verilatedos.h"
 
-#include <cstdint>
-#include <string>
+#అన్తర్భావ <cstdint>
+#అన్తర్భావ <string>
 
 //######################################################################
 // V3Hash -- Generic hashing
 
 class V3Hash final {
-    uint32_t m_value;  // The 32-bit hash value.
+    uint32_t m_విలువ;  // The 32-bit hash value.
 
-    static uint32_t combine(uint32_t a, uint32_t b) {
-        return a ^ (b + 0x9e3779b9 + (a << 6) + (a >> 2));
+    స్థిర uint32_t combine(uint32_t a, uint32_t b) {
+        తిరిగి a ^ (b + 0x9e3779b9 + (a << 6) + (a >> 2));
     }
 
-public:
+బహిరంగ:
     // CONSTRUCTORS
     V3Hash()
-        : m_value{0} {}
+        : m_విలువ{0} {}
     explicit V3Hash(uint32_t val)
-        : m_value{val} {}
+        : m_విలువ{val} {}
     explicit V3Hash(uint64_t val)
-        : m_value{combine(static_cast<uint32_t>(val), static_cast<uint32_t>(val >> 32))} {}
-    explicit V3Hash(const std::string& val);
-    explicit V3Hash(double val);
+        : m_విలువ{combine(static_cast<uint32_t>(val), static_cast<uint32_t>(val >> 32))} {}
+    explicit V3Hash(స్థిరరాశి std::string& val);
+    explicit V3Hash(ద్విగుణ val);
 
     explicit V3Hash(int32_t val)
         : V3Hash{static_cast<uint32_t>(val)} {}
     explicit V3Hash(int64_t val)
         : V3Hash{static_cast<uint64_t>(val)} {}
-    explicit V3Hash(const void* val)
+    explicit V3Hash(స్థిరరాశి శూన్య* val)
         : V3Hash{static_cast<uint64_t>(reinterpret_cast<uintptr_t>(val))} {}
 
     // METHODS
-    uint32_t value() const VL_MT_SAFE { return m_value; }
-    std::string toString() const VL_MT_SAFE;
+    uint32_t విలువ() స్థిరరాశి VL_MT_సురక్షిత { తిరిగి m_విలువ; }
+    std::string గమ్యం_String() స్థిరరాశి VL_MT_సురక్షిత;
 
     // OPERATORS
     // Comparisons
-    bool operator==(const V3Hash& rh) const { return m_value == rh.m_value; }
-    bool operator!=(const V3Hash& rh) const { return m_value != rh.m_value; }
-    bool operator<(const V3Hash& rh) const { return m_value < rh.m_value; }
+    bool క్రియాకారకం==(స్థిరరాశి V3Hash& rh) స్థిరరాశి { తిరిగి m_విలువ == rh.m_విలువ; }
+    bool క్రియాకారకం!=(స్థిరరాశి V3Hash& rh) స్థిరరాశి { తిరిగి m_విలువ != rh.m_విలువ; }
+    bool క్రియాకారకం<(స్థిరరాశి V3Hash& rh) స్థిరరాశి { తిరిగి m_విలువ < rh.m_విలువ; }
 
     // '+' combines hashes
-    template <typename T>
-    V3Hash operator+(T that) const {
-        return V3Hash{combine(m_value, V3Hash{that}.m_value)};
+    మూస <typename T>
+    V3Hash క్రియాకారకం+(T that) స్థిరరాశి {
+        తిరిగి V3Hash{combine(m_విలువ, V3Hash{that}.m_విలువ)};
     }
-    V3Hash operator+(const std::string& that) const {
-        return V3Hash{combine(m_value, V3Hash{that}.m_value)};
+    V3Hash క్రియాకారకం+(స్థిరరాశి std::string& that) స్థిరరాశి {
+        తిరిగి V3Hash{combine(m_విలువ, V3Hash{that}.m_విలువ)};
     }
 
     // '+=' combines in place
-    template <typename T>
-    V3Hash& operator+=(T that) {
-        return *this = *this + that;
+    మూస <typename T>
+    V3Hash& క్రియాకారకం+=(T that) {
+        తిరిగి *this = *this + that;
     }
-    V3Hash& operator+=(const std::string& that) { return *this = *this + that; }
+    V3Hash& క్రియాకారకం+=(స్థిరరాశి std::string& that) { తిరిగి *this = *this + that; }
 };
 
-std::ostream& operator<<(std::ostream& os, const V3Hash& rhs) VL_MT_SAFE;
+std::ostream& క్రియాకారకం<<(std::ostream& os, స్థిరరాశి V3Hash& rhs) VL_MT_సురక్షిత;
 
-template <>
-struct std::hash<V3Hash> {
-    std::size_t operator()(const V3Hash& h) const noexcept { return h.value(); }
+మూస <>
+నిర్మాణం std::hash<V3Hash> {
+    std::కొలత_t క్రియాకారకం()(స్థిరరాశి V3Hash& h) స్థిరరాశి noexcept { తిరిగి h.విలువ(); }
 };
 
-#endif  // Guard
+#అయితే_ముగింపు  // Guard

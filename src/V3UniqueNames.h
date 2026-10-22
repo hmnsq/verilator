@@ -16,67 +16,67 @@
 //
 //*************************************************************************
 
-#ifndef VERILATOR_V3UNIQUENAMES_H_
-#define VERILATOR_V3UNIQUENAMES_H_
+#నిర్వచితం_కాకపోతే VERILATOR_V3UNIQUENAMES_H_
+#నిర్వచించు VERILATOR_V3UNIQUENAMES_H_
 
-#include "config_build.h"
-#include "verilatedos.h"
+#అన్తర్భావ "config_build.h"
+#అన్తర్భావ "verilatedos.h"
 
-#include "V3Hasher.h"
+#అన్తర్భావ "V3Hasher.h"
 
-#include <map>
-#include <string>
+#అన్తర్భావ <map>
+#అన్తర్భావ <string>
 
-class V3UniqueNames final {
-    std::string m_prefix;  // Prefix to attach to all names
+class V3_Unique_పేర్లు final {
+    std::string m_ఉపసర్గ;  // Prefix to attach to all names
 
-    std::map<std::string, unsigned> m_multiplicity;  // Suffix number for given key
+    std::map<std::string, గుర్తులేని> m_multiplicity;  // Suffix number for given key
 
-    bool m_addSuffix = true;  // Ad suffix or not
+    bool m_కూడు_Suffix = true;  // Ad suffix or not
 
-public:
-    V3UniqueNames() = default;
-    explicit V3UniqueNames(const std::string& prefix, bool addSuffix = true)
-        : m_prefix{prefix}
-        , m_addSuffix{addSuffix} {
-        if (!m_prefix.empty()) {
-            UASSERT(VString::startsWith(m_prefix, "__V"), "Prefix must start with '__V'");
-            UASSERT(!VString::endsWith(m_prefix, "_"), "Prefix must not end with '_'");
+బహిరంగ:
+    V3_Unique_పేర్లు() = అప్రమేయ;
+    explicit V3_Unique_పేర్లు(స్థిరరాశి std::string& ఉపసర్గ, bool కూడు_Suffix = true)
+        : m_ఉపసర్గ{ఉపసర్గ}
+        , m_కూడు_Suffix{కూడు_Suffix} {
+        ఒకవేళ (!m_ఉపసర్గ.ఖాళీలు()) {
+            UASSERT(VString::startsWith(m_ఉపసర్గ, "__V"), "Prefix must start with '__V'");
+            UASSERT(!VString::చివర్లు_With(m_ఉపసర్గ, "_"), "Prefix must not end with '_'");
         }
     }
 
     // Return argument, prepended with the prefix if any, then appended with a unique suffix each
     // time we are called with the same argument.
-    std::string get(const std::string& name) {
-        if (!m_addSuffix) {
-            if (m_multiplicity.count(name) == 0) {
+    std::string get(స్థిరరాశి std::string& name) {
+        ఒకవేళ (!m_కూడు_Suffix) {
+            ఒకవేళ (m_multiplicity.లెక్క(name) == 0) {
                 m_multiplicity[name] = 0;
-                return name;
+                తిరిగి name;
             }
-            return get(name + "__" + cvtToStr(m_multiplicity[name]++));
+            తిరిగి get(name + "__" + cvt_గమ్యం_Str(m_multiplicity[name]++));
         }
         // NORMAL mode
-        const unsigned num = m_multiplicity[name]++;
-        std::string result;
-        if (!m_prefix.empty()) {
-            result += m_prefix;
-            result += "_";
+        స్థిరరాశి గుర్తులేని అంకె = m_multiplicity[name]++;
+        std::string ఫలితం;
+        ఒకవేళ (!m_ఉపసర్గ.ఖాళీలు()) {
+            ఫలితం += m_ఉపసర్గ;
+            ఫలితం += "_";
         }
-        result += name;
-        result += "__";
-        result += cvtToStr(num);
-        return result;
+        ఫలితం += name;
+        ఫలితం += "__";
+        ఫలితం += cvt_గమ్యం_Str(అంకె);
+        తిరిగి ఫలితం;
     }
 
     // Return hash of node as string, prepended with the prefix if any, appended with a unique
     // suffix each time we are called with a node that hashes to the same value.
-    std::string get(const AstNode* nodep) {
-        if (nodep == nullptr) { return get(""); }
-        return get(V3Hasher::uncachedHash(nodep).toString());
+    std::string get(స్థిరరాశి Ast_కణుపు* nodep) {
+        ఒకవేళ (nodep == nullptr) { తిరిగి get(""); }
+        తిరిగి get(V3Hasher::uncachedHash(nodep).గమ్యం_String());
     }
 
     // Reset to initial state (as if just constructed)
-    void reset() { m_multiplicity.clear(); }
+    శూన్య reset() { m_multiplicity.clear(); }
 };
 
-#endif  // Guard
+#అయితే_ముగింపు  // Guard

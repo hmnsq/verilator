@@ -72,21 +72,21 @@
 //
 //*************************************************************************
 
-#include "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
+#అన్తర్భావ "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
 
-#include "V3MergeCond.h"
+#అన్తర్భావ "V3MergeCond.h"
 
-#include "V3AstUserAllocator.h"
-#include "V3DupFinder.h"
-#include "V3Hasher.h"
-#include "V3Stats.h"
+#అన్తర్భావ "V3AstUserAllocator.h"
+#అన్తర్భావ "V3DupFinder.h"
+#అన్తర్భావ "V3Hasher.h"
+#అన్తర్భావ "V3Stats.h"
 
-#include <queue>
-#include <set>
+#అన్తర్భావ <queue>
+#అన్తర్భావ <set>
 
 VL_DEFINE_DEBUG_FUNCTIONS;
 
-namespace {
+నామాకాశ {
 
 //######################################################################
 // Utilities
@@ -95,15 +95,15 @@ namespace {
 // if there is one and it is in a supported position, which are:
 // - RHS is the Cond
 // - RHS is And(Const, Cond). This And is inserted often by V3Clean.
-AstCond* extractCondFromRhs(AstNode* rhsp) {
-    if (AstCond* const condp = VN_CAST(rhsp, Cond)) {
-        return condp;
-    } else if (const AstAnd* const andp = VN_CAST(rhsp, And)) {
-        if (AstCond* const condp = VN_CAST(andp->rhsp(), Cond)) {
-            if (VN_IS(andp->lhsp(), Const)) return condp;
+AstCond* వెలికితీయి_Cond_From_Rhs(Ast_కణుపు* rhsp) {
+    ఒకవేళ (AstCond* స్థిరరాశి condp = VN_CAST(rhsp, Cond)) {
+        తిరిగి condp;
+    } లేకపోతే ఒకవేళ (స్థిరరాశి AstAnd* స్థిరరాశి andp = VN_CAST(rhsp, And)) {
+        ఒకవేళ (AstCond* స్థిరరాశి condp = VN_CAST(andp->rhsp(), Cond)) {
+            ఒకవేళ (VN_IS(andp->lhsp(), Const)) తిరిగి condp;
         }
     }
-    return nullptr;
+    తిరిగి శూన్యసూచిక;
 }
 
 // Predicate to check if two sets are disjoint. This is stable, as we only need
@@ -111,20 +111,20 @@ AstCond* extractCondFromRhs(AstNode* rhsp) {
 // property. It is also efficient as we use sorted sets, and therefore can
 // enumerate elements in order (what the ordering is, is unimportant), meaning
 // the worst case complexity is O(size of smaller set).
-bool areDisjoint(const std::set<const AstVar*>& a, const std::set<const AstVar*>& b) {
-    if (a.empty() || b.empty()) return true;
-    const auto endA = a.end();
-    const auto endB = b.end();
-    auto itA = a.begin();
-    auto itB = b.begin();
-    while (true) {
-        if (*itA == *itB) return false;
-        if (std::less<const AstVar*>{}(*itA, *itB)) {
-            itA = std::lower_bound(++itA, endA, *itB);
-            if (itA == endA) return true;
-        } else {
-            itB = std::lower_bound(++itB, endB, *itA);
-            if (itB == endB) return true;
+తార్కిక areDisjoint(స్థిరరాశి std::సమితి<స్థిరరాశి AstVar*>& a, స్థిరరాశి std::సమితి<స్థిరరాశి AstVar*>& b) {
+    ఒకవేళ (a.ఖాళీలు() || b.ఖాళీలు()) తిరిగి నిజం;
+    స్థిరరాశి స్వయంచాలక చివర_A = a.చివర();
+    స్థిరరాశి స్వయంచాలక చివర_B = b.చివర();
+    స్వయంచాలక itA = a.begin();
+    స్వయంచాలక itB = b.begin();
+    అయితే (నిజం) {
+        ఒకవేళ (*itA == *itB) తిరిగి అబద్ధం;
+        ఒకవేళ (std::less<స్థిరరాశి AstVar*>{}(*itA, *itB)) {
+            itA = std::క్రింది_bound(++itA, చివర_A, *itB);
+            ఒకవేళ (itA == చివర_A) తిరిగి నిజం;
+        } లేకపోతే {
+            itB = std::క్రింది_bound(++itB, చివర_B, *itA);
+            ఒకవేళ (itB == చివర_B) తిరిగి నిజం;
         }
     }
 }
@@ -132,37 +132,37 @@ bool areDisjoint(const std::set<const AstVar*>& a, const std::set<const AstVar*>
 //######################################################################
 // Structure containing information required for code motion/merging
 
-struct StmtProperties final {
-    AstNodeExpr* m_condp = nullptr;  // The condition expression, if a conditional node
-    std::set<const AstVar*> m_rdVars;  // Variables read by this statement
-    std::set<const AstVar*> m_wrVars;  // Variables written by this statement
-    bool m_isFence = false;  // Nothing should move across this statement, nor should it be merged
-    bool m_sideEffect = false;  // Statement may have side effect, without access to model state
-    bool m_implPubRd = false;  // Statement may implicitly read public state (without VarRef)
-    bool m_implPubWr = false;  // Statement may implicitly write public state (without VarRef)
-    bool m_explPubRef = false;  // Statement explicitly references public state via VarRef
-    AstNodeStmt* m_prevWithSameCondp = nullptr;  // Previous node in same list, with same condition
-    bool writesConditionVar(bool condPubWritable) const {
+నిర్మాణం StmtProperties final {
+    Ast_కణుపు_సమాసం* m_condp = శూన్యసూచిక;  // The condition expression, if a conditional node
+    std::సమితి<స్థిరరాశి AstVar*> m_rdVars;  // Variables read by this statement
+    std::సమితి<స్థిరరాశి AstVar*> m_wrVars;  // Variables written by this statement
+    తార్కిక m_isFence = అబద్ధం;  // Nothing should move across this statement, nor should it be merged
+    తార్కిక m_sideEffect = అబద్ధం;  // Statement may have side effect, without access to model state
+    తార్కిక m_implPubRd = అబద్ధం;  // Statement may implicitly read public state (without VarRef)
+    తార్కిక m_implPubWr = అబద్ధం;  // Statement may implicitly write public state (without VarRef)
+    తార్కిక m_explPubRef = అబద్ధం;  // Statement explicitly references public state via VarRef
+    Ast_కణుపు_Stmt* m_prevWithSameCondp = శూన్యసూచిక;  // Previous node in same list, with same condition
+    తార్కిక writesConditionVar(తార్కిక condPubWritable) స్థిరరాశి {
         // This relies on MarkVarsVisitor having been called on the condition node
-        for (const AstVar* const varp : m_wrVars) {
-            if (varp->user1()) return true;
+        కొరకు (స్థిరరాశి AstVar* స్థిరరాశి varp : m_wrVars) {
+            ఒకవేళ (varp->user1()) తిరిగి నిజం;
         }
         // If the condition contains a public variable, check if it might be written
-        if (condPubWritable && m_implPubWr) return true;
+        ఒకవేళ (condPubWritable && m_implPubWr) తిరిగి నిజం;
         // Otherwise not written
-        return false;
+        తిరిగి అబద్ధం;
     }
 };
 
 // We store the statement properties in user3 via AstUser3Allocator
-using StmtPropertiesAllocator = AstUser3Allocator<AstNodeStmt, StmtProperties>;
+ఉపయోగించి StmtPropertiesAllocator = AstUser3Allocator<Ast_కణుపు_Stmt, StmtProperties>;
 
 //######################################################################
 // Code motion analysis and implementation
 
 // Pure analysis visitor that build the StmtProperties for each statement in the given
 // AstNode list (following AstNode::nextp())
-class CodeMotionAnalysisVisitor final : public VNVisitorConst {
+తరగతి సంకేతం_Motion_Analysis_Visitor final : బహిరంగ VNVisitorConst {
     // NODE STATE
     // AstNodeStmt::user3   -> StmtProperties (accessed via m_stmtProperties, managed externally,
     //                         see MergeCondVisitor::process)
@@ -177,53 +177,53 @@ class CodeMotionAnalysisVisitor final : public VNVisitorConst {
     V3Hasher m_hasher;  // Used by V3DupFinder
     // Stack of a V3DupFinder used for finding identical condition expressions within one
     // statement list.
-    std::vector<V3DupFinder> m_stack;
-    StmtProperties* m_propsp = nullptr;  // StmtProperties structure of current AstNodeStmt
+    std::సదిశ<V3DupFinder> m_దొంతర;
+    StmtProperties* m_propsp = శూన్యసూచిక;  // StmtProperties structure of current AstNodeStmt
 
     // Extract condition expression from a mergeable conditional statement, if any
-    static AstNodeExpr* extractCondition(const AstNodeStmt* nodep) {
-        AstNodeExpr* conditionp = nullptr;
-        if (const AstNodeAssign* const assignp = VN_CAST(nodep, NodeAssign)) {
-            if (AstCond* const conditionalp = extractCondFromRhs(assignp->rhsp())) {
+    స్థిర Ast_కణుపు_సమాసం* వెలికితీయి_Condition(స్థిరరాశి Ast_కణుపు_Stmt* nodep) {
+        Ast_కణుపు_సమాసం* conditionp = శూన్యసూచిక;
+        ఒకవేళ (స్థిరరాశి Ast_కణుపు_కేటాయించు* స్థిరరాశి assignp = VN_CAST(nodep, కణుపు_కేటాయించు)) {
+            ఒకవేళ (AstCond* స్థిరరాశి conditionalp = వెలికితీయి_Cond_From_Rhs(assignp->rhsp())) {
                 conditionp = conditionalp->condp();
             }
-        } else if (const AstNodeIf* const ifp = VN_CAST(nodep, NodeIf)) {
+        } లేకపోతే ఒకవేళ (స్థిరరాశి Ast_కణుపు_If* స్థిరరాశి ifp = VN_CAST(nodep, కణుపు_If)) {
             conditionp = ifp->condp();
         }
-        while (AstCCast* const castp = VN_CAST(conditionp, CCast)) conditionp = castp->lhsp();
-        return conditionp;
+        అయితే (AstCCast* స్థిరరాశి castp = VN_CAST(conditionp, CCast)) conditionp = castp->lhsp();
+        తిరిగి conditionp;
     }
 
-    void analyzeStmt(AstNodeStmt* nodep, bool tryCondMatch) {
+    శూన్య analyzeStmt(Ast_కణుపు_Stmt* nodep, తార్కిక try_Cond_సరిపోలిక) {
         VL_RESTORER(m_propsp);
         // Keep hold of props of enclosing statement
-        StmtProperties* const outerPropsp = m_propsp;
+        StmtProperties* స్థిరరాశి outerPropsp = m_propsp;
         // Grab the props of this statement
         m_propsp = &m_stmtProperties(nodep);
 
         // Extract condition from statement
-        if (AstNodeExpr* const condp = extractCondition(nodep)) {
+        ఒకవేళ (Ast_కణుపు_సమాసం* స్థిరరాశి condp = వెలికితీయి_Condition(nodep)) {
             // Remember condition node. We always need this as it is used in the later
             // traversal.
             m_propsp->m_condp = condp;
             // If this is a conditional statement, try to find an earlier one with the same
             // condition in the same list (unless we have been told not to bother because we know
             // this node is in a singleton list).
-            if (tryCondMatch) {
+            ఒకవేళ (try_Cond_సరిపోలిక) {
                 // Grab the duplicate finder of this list
-                V3DupFinder& dupFinder = m_stack.back();
+                V3DupFinder& dupFinder = m_దొంతర.వెనుక();
                 // Find a duplicate condition
-                const V3DupFinder::iterator& dit = dupFinder.findDuplicate(condp);
-                if (dit == dupFinder.end()) {
+                స్థిరరాశి V3DupFinder::iterator& dit = dupFinder.కనుగొను_Duplicate(condp);
+                ఒకవేళ (dit == dupFinder.చివర()) {
                     // First time seeing this condition in the current list
-                    dupFinder.insert(condp);
+                    dupFinder.చొప్పించు(condp);
                     // Remember last statement with this condition (which is this statement)
                     condp->user3p(nodep);
-                } else {
+                } లేకపోతే {
                     // Seen a conditional with the same condition earlier in the current list
-                    AstNodeExpr* const firstp = VN_AS(dit->second, NodeExpr);
+                    Ast_కణుపు_సమాసం* స్థిరరాశి firstp = VN_AS(dit->రెండవ, కణుపు_సమాసం);
                     // Add to properties for easy retrieval during optimization
-                    m_propsp->m_prevWithSameCondp = static_cast<AstNodeStmt*>(firstp->user3p());
+                    m_propsp->m_prevWithSameCondp = static_cast<Ast_కణుపు_Stmt*>(firstp->user3p());
                     // Remember last statement with this condition (which is this statement)
                     firstp->user3p(nodep);
                 }
@@ -231,13 +231,13 @@ class CodeMotionAnalysisVisitor final : public VNVisitorConst {
         }
 
         // Analyze this statement
-        analyzeNode(nodep);
+        analyze_కణుపు(nodep);
 
         // If there is an enclosing statement, propagate properties upwards
-        if (outerPropsp) {
+        ఒకవేళ (outerPropsp) {
             // Add all rd/wr vars to outer statement
-            outerPropsp->m_rdVars.insert(m_propsp->m_rdVars.cbegin(), m_propsp->m_rdVars.cend());
-            outerPropsp->m_wrVars.insert(m_propsp->m_wrVars.cbegin(), m_propsp->m_wrVars.cend());
+            outerPropsp->m_rdVars.చొప్పించు(m_propsp->m_rdVars.cbegin(), m_propsp->m_rdVars.cend());
+            outerPropsp->m_wrVars.చొప్పించు(m_propsp->m_wrVars.cbegin(), m_propsp->m_wrVars.cend());
             // Propagate flags to enclosing statement
             outerPropsp->m_isFence |= m_propsp->m_isFence;
             outerPropsp->m_sideEffect |= m_propsp->m_sideEffect;
@@ -247,209 +247,209 @@ class CodeMotionAnalysisVisitor final : public VNVisitorConst {
         }
     }
 
-    void analyzeVarRef(AstVarRef* nodep) {
-        const VAccess access = nodep->access();
-        AstVar* const varp = nodep->varp();
+    శూన్య analyzeVarRef(AstVarRef* nodep) {
+        స్థిరరాశి VAccess access = nodep->access();
+        AstVar* స్థిరరాశి varp = nodep->varp();
         // Gather read and written variables
-        if (access.isReadOrRW()) m_propsp->m_rdVars.insert(varp);
-        if (access.isWriteOrRW()) m_propsp->m_wrVars.insert(varp);
-        if (varp->isSigPublic() || varp->isWrittenByDpi() || varp->isReadByDpi()) {
-            m_propsp->m_explPubRef = true;
+        ఒకవేళ (access.isReadOrRW()) m_propsp->m_rdVars.చొప్పించు(varp);
+        ఒకవేళ (access.isWriteOrRW()) m_propsp->m_wrVars.చొప్పించు(varp);
+        ఒకవేళ (varp->is_Sig_ప్రజా() || varp->isWrittenByDpi() || varp->isReadByDpi()) {
+            m_propsp->m_explPubRef = నిజం;
         }
     }
 
-    void checkProperties(AstNode* nodep) {
+    శూన్య checkProperties(Ast_కణుపు* nodep) {
         // Ignore StmtExpr. It interferes with special casing DPI calls below,
         // and it only checks if the child expr is impure, which is checked
         // explicitly during the analysis.
-        if (VN_IS(nodep, StmtExpr)) return;
+        ఒకవేళ (VN_IS(nodep, Stmt_సమాసం)) తిరిగి;
 
         // Call to a DPI import
-        if (const AstNodeCCall* const ccallp = VN_CAST(nodep, NodeCCall)) {
-            AstCFunc* const funcp = ccallp->funcp();
-            if (funcp->dpiImportWrapper()) {
-                if (!funcp->dpiPure()) {
+        ఒకవేళ (స్థిరరాశి Ast_కణుపు_CCall* స్థిరరాశి ccallp = VN_CAST(nodep, కణుపు_CCall)) {
+            AstCFunc* స్థిరరాశి funcp = ccallp->funcp();
+            ఒకవేళ (funcp->dpiImportWrapper()) {
+                ఒకవేళ (!funcp->dpi_శుద్ధ()) {
                     // Assume has side effect and accesses public state
-                    m_propsp->m_sideEffect = true;
-                    m_propsp->m_implPubRd = true;
-                    m_propsp->m_implPubWr = true;
+                    m_propsp->m_sideEffect = నిజం;
+                    m_propsp->m_implPubRd = నిజం;
+                    m_propsp->m_implPubWr = నిజం;
                 }
-                return;
+                తిరిగి;
             }
         }
 
         // Side effect, but assume does not access public state
-        if (VN_IS(nodep, Display) || VN_IS(nodep, Stop)) {
-            m_propsp->m_sideEffect = true;
-            return;
+        ఒకవేళ (VN_IS(nodep, Display) || VN_IS(nodep, Stop)) {
+            m_propsp->m_sideEffect = నిజం;
+            తిరిగి;
         }
 
         // If impure, or branch, mark statement as fence
-        if (!nodep->isPure() || nodep->isBrancher()) m_propsp->m_isFence = true;
+        ఒకవేళ (!nodep->is_శుద్ధ() || nodep->isBrancher()) m_propsp->m_isFence = నిజం;
     }
 
-    void analyzeNode(AstNode* nodep) {
+    శూన్య analyze_కణుపు(Ast_కణుపు* nodep) {
         // Check properties of this node if under a statement
-        if (m_propsp) checkProperties(nodep);
+        ఒకవేళ (m_propsp) checkProperties(nodep);
         // Analyze children
         iterateChildrenConst(nodep);
     }
 
     // VISITORS
-    void visit(AstNode* nodep) override {
+    శూన్య సందర్శించు(Ast_కణుపు* nodep) override {
         // Push a new stack entry at the start of a list, but only if the list is not a
         // single element (this saves a lot of allocations in expressions)
-        bool singletonListStart = false;
-        if (nodep->backp()->nextp() != nodep) {  // If at head of list
-            singletonListStart = nodep->nextp() == nullptr;
-            if (!singletonListStart) m_stack.emplace_back(m_hasher);
+        తార్కిక singleton_List_ప్రారంభం = అబద్ధం;
+        ఒకవేళ (nodep->backp()->nextp() != nodep) {  // If at head of list
+            singleton_List_ప్రారంభం = nodep->nextp() == శూన్యసూచిక;
+            ఒకవేళ (!singleton_List_ప్రారంభం) m_దొంతర.emplace_వెనుక(m_hasher);
         }
 
         // Analyze node
-        if (AstNodeStmt* const stmtp = VN_CAST(nodep, NodeStmt)) {
-            analyzeStmt(stmtp, /*tryCondMatch:*/ !singletonListStart);
-        } else if (AstVarRef* const vrefp = VN_CAST(nodep, VarRef)) {
+        ఒకవేళ (Ast_కణుపు_Stmt* స్థిరరాశి stmtp = VN_CAST(nodep, కణుపు_Stmt)) {
+            analyzeStmt(stmtp, /*tryCondMatch:*/ !singleton_List_ప్రారంభం);
+        } లేకపోతే ఒకవేళ (AstVarRef* స్థిరరాశి vrefp = VN_CAST(nodep, VarRef)) {
             analyzeVarRef(vrefp);
-        } else {
-            analyzeNode(nodep);
+        } లేకపోతే {
+            analyze_కణుపు(nodep);
         }
 
         // Pop the stack at the end of a list
-        if (!singletonListStart && !nodep->nextp()) m_stack.pop_back();
+        ఒకవేళ (!singleton_List_ప్రారంభం && !nodep->nextp()) m_దొంతర.తీయి_వెనుక();
     }
 
     // CONSTRUCTOR
-    CodeMotionAnalysisVisitor(AstNode* nodep, StmtPropertiesAllocator& stmtProperties)
+    సంకేతం_Motion_Analysis_Visitor(Ast_కణుపు* nodep, StmtPropertiesAllocator& stmtProperties)
         : m_stmtProperties{stmtProperties} {
-        iterateAndNextConstNull(nodep);
+        iterate_And_తదుపరి_Const_Null(nodep);
     }
 
-public:
+బహిరంగ:
     // Analyze the statement list starting at nodep, filling in stmtProperties.
-    static void analyze(AstNode* nodep, StmtPropertiesAllocator& stmtProperties) {
-        CodeMotionAnalysisVisitor{nodep, stmtProperties};
+    స్థిర శూన్య analyze(Ast_కణుపు* nodep, StmtPropertiesAllocator& stmtProperties) {
+        సంకేతం_Motion_Analysis_Visitor{nodep, stmtProperties};
     }
 };
 
-class CodeMotionOptimizeVisitor final : public VNVisitor {
+తరగతి సంకేతం_Motion_Optimize_Visitor final : బహిరంగ VNVisitor {
     // Do not move a node more than this many statements.
     // This bounds complexity at O(N), rather than O(N^2).
-    static constexpr unsigned MAX_DISTANCE = 500;
+    స్థిర constexpr గుర్తులేని MAX_దూరం = 500;
 
     // NODE STATE
     // AstNodeStmt::user3   -> StmtProperties (accessed via m_stmtProperties, managed externally,
     //                         see MergeCondVisitor::process)
     // AstNodeStmt::user4   -> bool: Already processed this node
 
-    VNUser4InUse m_user4InUse;
+    VNUser4_లోపల_Use m_user4_లోపల_Use;
 
-    const StmtPropertiesAllocator& m_stmtProperties;
+    స్థిరరాశి StmtPropertiesAllocator& m_stmtProperties;
 
     // MEMBERS
 
     // Predicate that checks if the order of two statements can be swapped
-    bool areSwappable(const AstNodeStmt* ap, const AstNodeStmt* bp) const {
-        const StmtProperties& aProps = m_stmtProperties(ap);
-        const StmtProperties& bProps = m_stmtProperties(bp);
+    తార్కిక areSwappable(స్థిరరాశి Ast_కణుపు_Stmt* ap, స్థిరరాశి Ast_కణుపు_Stmt* bp) స్థిరరాశి {
+        స్థిరరాశి StmtProperties& aProps = m_stmtProperties(ap);
+        స్థిరరాశి StmtProperties& bProps = m_stmtProperties(bp);
         // Don't move across fences
-        if (aProps.m_isFence) return false;
-        if (bProps.m_isFence) return false;
+        ఒకవేళ (aProps.m_isFence) తిరిగి అబద్ధం;
+        ఒకవేళ (bProps.m_isFence) తిరిగి అబద్ధం;
         // Don't swap side effecting statements, but can move others across them
-        if (aProps.m_sideEffect && bProps.m_sideEffect) return false;
+        ఒకవేళ (aProps.m_sideEffect && bProps.m_sideEffect) తిరిగి అబద్ధం;
         // Don't swap if there is a hazard around public state - must observe ordering
-        const bool bPubRef = bProps.m_implPubWr || bProps.m_implPubRd || bProps.m_explPubRef;
-        if (aProps.m_implPubWr && bPubRef) return false;
-        const bool aPubRef = aProps.m_implPubWr || aProps.m_implPubRd || aProps.m_explPubRef;
-        if (aPubRef && bProps.m_implPubWr) return false;
+        స్థిరరాశి తార్కిక bPubRef = bProps.m_implPubWr || bProps.m_implPubRd || bProps.m_explPubRef;
+        ఒకవేళ (aProps.m_implPubWr && bPubRef) తిరిగి అబద్ధం;
+        స్థిరరాశి తార్కిక aPubRef = aProps.m_implPubWr || aProps.m_implPubRd || aProps.m_explPubRef;
+        ఒకవేళ (aPubRef && bProps.m_implPubWr) తిరిగి అబద్ధం;
         // If either statement writes a variable that the other reads, they are not swappable
-        if (!areDisjoint(aProps.m_rdVars, bProps.m_wrVars)) return false;
-        if (!areDisjoint(bProps.m_rdVars, aProps.m_wrVars)) return false;
+        ఒకవేళ (!areDisjoint(aProps.m_rdVars, bProps.m_wrVars)) తిరిగి అబద్ధం;
+        ఒకవేళ (!areDisjoint(bProps.m_rdVars, aProps.m_wrVars)) తిరిగి అబద్ధం;
         // If they both write to the same variable, they are not swappable
-        if (!areDisjoint(aProps.m_wrVars, bProps.m_wrVars)) return false;
+        ఒకవేళ (!areDisjoint(aProps.m_wrVars, bProps.m_wrVars)) తిరిగి అబద్ధం;
         // Otherwise good to go
-        return true;
+        తిరిగి నిజం;
     }
 
     // VISITORS
-    void visit(AstNodeStmt* nodep) override {
+    శూన్య సందర్శించు(Ast_కణుపు_Stmt* nodep) override {
         // Process only on first encounter
-        if (nodep->user4SetOnce()) return;
+        ఒకవేళ (nodep->user4_సమితి_Once()) తిరిగి;
         // First re-order children
         iterateChildren(nodep);
         // Grab hold of previous node with same condition
-        AstNodeStmt* prevp = m_stmtProperties(nodep).m_prevWithSameCondp;
+        Ast_కణుపు_Stmt* prevp = m_stmtProperties(nodep).m_prevWithSameCondp;
         // If no previous node with same condition, we are done
-        if (!prevp) return;
-#ifdef VL_DEBUG
+        ఒకవేళ (!prevp) తిరిగి;
+#నిర్వచితమైతే VL_DEBUG
         {  // Sanity check, only in debug build, otherwise expensive
-            const AstNode* currp = prevp;
-            while (currp && currp != nodep) currp = currp->nextp();
+            స్థిరరాశి Ast_కణుపు* currp = prevp;
+            అయితే (currp && currp != nodep) currp = currp->nextp();
             UASSERT_OBJ(currp, nodep, "Predecessor not in same list as " << currp);
         }
-#endif
+#అయితే_ముగింపు
         // Otherwise try to move this node backwards, as close as we can to the previous node
         // with the same condition
-        if (AstNodeStmt* predp = VN_CAST(nodep->backp(), NodeStmt)) {
+        ఒకవేళ (Ast_కణుపు_Stmt* predp = VN_CAST(nodep->backp(), కణుపు_Stmt)) {
             // 'predp' is the newly computed predecessor node of 'nodep', which is initially
             // (without movement) the 'backp' of the node.
-            for (unsigned i = MAX_DISTANCE; i; --i) {
+            కొరకు (గుర్తులేని i = MAX_దూరం; i; --i) {
                 // If the predecessor is the previous node with the same condition, job done
-                if (predp == prevp) break;
+                ఒకవేళ (predp == prevp) ఆపు;
                 // Don't move past a non-statement (e.g.: AstVar), or end of list
-                AstNodeStmt* const backp = VN_CAST(predp->backp(), NodeStmt);
-                if (!backp) break;
+                Ast_కణుపు_Stmt* స్థిరరాశి backp = VN_CAST(predp->backp(), కణుపు_Stmt);
+                ఒకవేళ (!backp) ఆపు;
                 // Don't swap statements if doing so would change program semantics
-                if (!areSwappable(predp, nodep)) break;
+                ఒకవేళ (!areSwappable(predp, nodep)) ఆపు;
                 // Otherwise move 'nodep' back
                 predp = backp;
             }
 
             // If we decided that 'nodep' should be moved back
-            if (nodep->backp() != predp) {
+            ఒకవేళ (nodep->backp() != predp) {
                 // Move the current node to directly follow the computed predecessor
-                nodep->unlinkFrBack();
-                predp->addNextHere(nodep);
+                nodep->unlink_Fr_వెనుక();
+                predp->కూడు_తదుపరి_ఇక్కడ(nodep);
                 // If the predecessor is the previous node with the same condition, job done
-                if (predp == prevp) return;
+                ఒకవేళ (predp == prevp) తిరిగి;
             }
         }
         // If we reach here, it means we were unable to move the current node all the way back
         // such that it immediately follows the previous statement with the same condition. Now
         // try to move all previous statements with the same condition forward, in the hope of
         // compacting the list further.
-        for (AstNodeStmt* currp = nodep; prevp;
+        కొరకు (Ast_కణుపు_Stmt* currp = nodep; prevp;
              currp = prevp, prevp = m_stmtProperties(currp).m_prevWithSameCondp) {
             // Move prevp (previous statement with same condition) towards currp
-            if (AstNodeStmt* succp = VN_CAST(prevp->nextp(), NodeStmt)) {
+            ఒకవేళ (Ast_కణుపు_Stmt* succp = VN_CAST(prevp->nextp(), కణుపు_Stmt)) {
                 // 'succp' is the newly computed successor node of 'prevp', which is initially
                 // (without movement) the 'nextp' of the node.
-                for (unsigned i = MAX_DISTANCE; --i;) {
+                కొరకు (గుర్తులేని i = MAX_దూరం; --i;) {
                     // If the successor of the previous statement with same condition is the
                     // target node, we are done with this predecessor
-                    if (succp == currp) break;
+                    ఒకవేళ (succp == currp) ఆపు;
                     // Don't move past a non-statement (e.g.: AstVar), or end of list
-                    AstNodeStmt* const nextp = VN_CAST(succp->nextp(), NodeStmt);
-                    if (!nextp) break;
+                    Ast_కణుపు_Stmt* స్థిరరాశి nextp = VN_CAST(succp->nextp(), కణుపు_Stmt);
+                    ఒకవేళ (!nextp) ఆపు;
                     // Don't swap statements if doing so would change program semantics
-                    if (!areSwappable(prevp, succp)) break;
+                    ఒకవేళ (!areSwappable(prevp, succp)) ఆపు;
                     // Otherwise move further forward
                     succp = nextp;
                 }
 
                 // If we decided that 'prevp' should be moved forward
-                if (prevp->nextp() != succp) {
+                ఒకవేళ (prevp->nextp() != succp) {
                     // Move the current node to directly before the computed successor
-                    prevp->unlinkFrBack();
-                    succp->addHereThisAsNext(prevp);
+                    prevp->unlink_Fr_వెనుక();
+                    succp->కూడు_ఇక్కడ_This_As_తదుపరి(prevp);
                 }
             }
         }
     }
 
-    void visit(AstNode* nodep) override {}  // Ignore all non-statements
+    శూన్య సందర్శించు(Ast_కణుపు* nodep) override {}  // Ignore all non-statements
 
     // CONSTRUCTOR
-    CodeMotionOptimizeVisitor(AstNode* nodep, const StmtPropertiesAllocator& stmtProperties)
+    సంకేతం_Motion_Optimize_Visitor(Ast_కణుపు* nodep, స్థిరరాశి StmtPropertiesAllocator& stmtProperties)
         : m_stmtProperties{stmtProperties} {
         // We assert the given node is at the head of the list otherwise we might move a node
         // before the given node. This is easy to fix in the above iteration with a check on a
@@ -457,25 +457,25 @@ class CodeMotionOptimizeVisitor final : public VNVisitor {
         // Note: we will do iterateAndNextNull which requires nodep->backp() != nullptr anyway
         UASSERT_OBJ(nodep->backp()->nextp() != nodep, nodep, "Must be at head of list");
         // Optimize the list
-        iterateAndNextNull(nodep);
+        iterate_And_తదుపరి_Null(nodep);
     }
 
-public:
+బహిరంగ:
     // Given an AstNode list (held via AstNode::nextp()), move conditional statements as close
     // together as possible
-    static AstNode* optimize(AstNode* nodep, const StmtPropertiesAllocator& stmtProperties) {
-        { CodeMotionOptimizeVisitor{nodep, stmtProperties}; }
+    స్థిర Ast_కణుపు* optimize(Ast_కణుపు* nodep, స్థిరరాశి StmtPropertiesAllocator& stmtProperties) {
+        { సంకేతం_Motion_Optimize_Visitor{nodep, stmtProperties}; }
         // It is possible for the head of the list to be moved later such that it is no longer
         // in head position. If so, rewind the list and return the new head.
-        while (nodep->backp()->nextp() == nodep) nodep = nodep->backp();
-        return nodep;
+        అయితే (nodep->backp()->nextp() == nodep) nodep = nodep->backp();
+        తిరిగి nodep;
     }
 };
 
 //######################################################################
 // Conditional merging
 
-class MergeCondVisitor final : public VNVisitor {
+తరగతి విలీనం_Cond_Visitor final : బహిరంగ VNVisitor {
     // NODE STATE
     // AstVar::user1        -> bool: Set for variables referenced by m_mgCondp
     //                         (Only below MergeCondVisitor::process).
@@ -489,195 +489,195 @@ class MergeCondVisitor final : public VNVisitor {
 
     // STATE
     VDouble0 m_statMerges;  // Statistic tracking
-    VDouble0 m_statMergedItems;  // Statistic tracking
-    VDouble0 m_statCandidateItems;  // Statistic tracking
+    VDouble0 m_stat_Merged_వస్తువులు;  // Statistic tracking
+    VDouble0 m_stat_Candidate_వస్తువులు;  // Statistic tracking
     VDouble0 m_statLongestList;  // Statistic tracking
 
-    AstNode* m_mgFirstp = nullptr;  // First node in merged sequence
-    AstNodeExpr* m_mgCondp = nullptr;  // The condition of the first node
-    const AstNode* m_mgLastp = nullptr;  // Last node in merged sequence
-    const AstNode* m_mgNextp = nullptr;  // Next node in list being examined
-    bool m_mgCondPubWritable = false;  // True if m_mgCondp contains a public writable variable
+    Ast_కణుపు* m_mgFirstp = శూన్యసూచిక;  // First node in merged sequence
+    Ast_కణుపు_సమాసం* m_mgCondp = శూన్యసూచిక;  // The condition of the first node
+    స్థిరరాశి Ast_కణుపు* m_mgLastp = శూన్యసూచిక;  // Last node in merged sequence
+    స్థిరరాశి Ast_కణుపు* m_mgNextp = శూన్యసూచిక;  // Next node in list being examined
+    తార్కిక m_mgCondPubWritable = అబద్ధం;  // True if m_mgCondp contains a public writable variable
     uint32_t m_listLenght = 0;  // Length of current list
 
-    std::queue<AstNode*>* m_workQueuep = nullptr;  // Node lists (via AstNode::nextp()) to merge
+    std::వరుస<Ast_కణుపు*>* m_workQueuep = శూన్యసూచిక;  // Node lists (via AstNode::nextp()) to merge
     // Statement properties for code motion and merging
-    StmtPropertiesAllocator* m_stmtPropertiesp = nullptr;
+    StmtPropertiesAllocator* m_stmtPropertiesp = శూన్యసూచిక;
 
     // METHODS
 
     // Function that processes a whole sub-tree
-    void process(AstNode* nodep) {
+    శూన్య process(Ast_కణుపు* nodep) {
         // Set up work queue
-        std::queue<AstNode*> workQueue;
-        m_workQueuep = &workQueue;
-        m_workQueuep->push(nodep);
+        std::వరుస<Ast_కణుపు*> work_వరుస;
+        m_workQueuep = &work_వరుస;
+        m_workQueuep->నెట్టు(nodep);
 
-        do {
+        చేయి {
             // Set up user* for this iteration
-            const VNUser1InUse user1InUse;
-            const VNUser2InUse user2InUse;
-            const VNUser3InUse user3InUse;
+            స్థిరరాశి VNUser1_లోపల_Use user1_లోపల_Use;
+            స్థిరరాశి VNUser2_లోపల_Use user2_లోపల_Use;
+            స్థిరరాశి VNUser3_లోపల_Use user3_లోపల_Use;
             // Statement properties only preserved for this iteration,
             // then memory is released immediately.
             StmtPropertiesAllocator stmtProperties;
             m_stmtPropertiesp = &stmtProperties;
 
             // Pop off current work item
-            AstNode* currp = m_workQueuep->front();
-            m_workQueuep->pop();
+            Ast_కణుపు* currp = m_workQueuep->front();
+            m_workQueuep->తీయి();
 
             // Analyze sub-tree list for code motion and conditional merging
-            CodeMotionAnalysisVisitor::analyze(currp, stmtProperties);
+            సంకేతం_Motion_Analysis_Visitor::analyze(currp, stmtProperties);
             // Perform the code motion within the whole sub-tree list
-            if (v3Global.opt.fMergeCondMotion()) {
-                currp = CodeMotionOptimizeVisitor::optimize(currp, stmtProperties);
+            ఒకవేళ (v3Global.opt.f_విలీనం_Cond_Motion()) {
+                currp = సంకేతం_Motion_Optimize_Visitor::optimize(currp, stmtProperties);
             }
 
             // Merge conditionals in the whole sub-tree list (this might create new work items)
-            iterateAndNextNull(currp);
+            iterate_And_తదుపరి_Null(currp);
 
             // Close pending merge, if there is one at the end of the whole sub-tree list
-            if (m_mgFirstp) mergeEnd();
-            m_stmtPropertiesp = nullptr;
-        } while (!m_workQueuep->empty());
+            ఒకవేళ (m_mgFirstp) విలీనం_చివర();
+            m_stmtPropertiesp = శూన్యసూచిక;
+        } అయితే (!m_workQueuep->ఖాళీలు());
 
-        m_workQueuep = nullptr;
+        m_workQueuep = శూన్యసూచిక;
     }
 
     // Skip past AstArraySel and AstWordSel with const index
-    static AstNode* skipConstSels(AstNode* nodep) {
-        while (const AstArraySel* const aselp = VN_CAST(nodep, ArraySel)) {
+    స్థిర Ast_కణుపు* skipConstSels(Ast_కణుపు* nodep) {
+        అయితే (స్థిరరాశి AstArraySel* స్థిరరాశి aselp = VN_CAST(nodep, ArraySel)) {
             // ArraySel index is not constant, so might be expensive
-            if (!VN_IS(aselp->bitp(), Const)) return nodep;
+            ఒకవేళ (!VN_IS(aselp->bitp(), Const)) తిరిగి nodep;
             nodep = aselp->fromp();
         }
-        while (const AstWordSel* const wselp = VN_CAST(nodep, WordSel)) {
+        అయితే (స్థిరరాశి Ast_మాట_Sel* స్థిరరాశి wselp = VN_CAST(nodep, మాట_Sel)) {
             // WordSel index is not constant, so might be expensive
-            if (!VN_IS(wselp->bitp(), Const)) return nodep;
+            ఒకవేళ (!VN_IS(wselp->bitp(), Const)) తిరిగి nodep;
             nodep = wselp->fromp();
         }
-        return nodep;
+        తిరిగి nodep;
     }
 
     // Check if this node is cheap enough that duplicating it in two branches of an
     // AstIf is not likely to cause a performance degradation.
-    static bool isCheapNode(AstNode* nodep) {
+    స్థిర తార్కిక is_Cheap_కణుపు(Ast_కణుపు* nodep) {
         // Comments are cheap
-        if (VN_IS(nodep, Comment)) return true;
+        ఒకవేళ (VN_IS(nodep, Comment)) తిరిగి నిజం;
         // So are some assignments
-        if (const AstNodeAssign* const assignp = VN_CAST(nodep, NodeAssign)) {
+        ఒకవేళ (స్థిరరాశి Ast_కణుపు_కేటాయించు* స్థిరరాశి assignp = VN_CAST(nodep, కణుపు_కేటాయించు)) {
             // Check LHS
-            AstNode* const lhsp = skipConstSels(assignp->lhsp());
+            Ast_కణుపు* స్థిరరాశి lhsp = skipConstSels(assignp->lhsp());
             // LHS is not a VarRef, so might be expensive
-            if (!VN_IS(lhsp, VarRef)) return false;
+            ఒకవేళ (!VN_IS(lhsp, VarRef)) తిరిగి అబద్ధం;
 
             // Check RHS
-            AstNode* const rhsp = skipConstSels(assignp->rhsp());
+            Ast_కణుపు* స్థిరరాశి rhsp = skipConstSels(assignp->rhsp());
             // RHS is not a VarRef or Constant so might be expensive
-            if (!VN_IS(rhsp, VarRef) && !VN_IS(rhsp, Const)) return false;
+            ఒకవేళ (!VN_IS(rhsp, VarRef) && !VN_IS(rhsp, Const)) తిరిగి అబద్ధం;
 
             // Otherwise it is a cheap assignment
-            return true;
+            తిరిగి నిజం;
         }
         // Others are not
-        return false;
+        తిరిగి అబద్ధం;
     }
 
     // Predicate to check if an expression yields only 0 or 1 (i.e.: a 1-bit value)
-    static bool yieldsOneOrZero(const AstNode* nodep) {
+    స్థిర తార్కిక yieldsOneOrZero(స్థిరరాశి Ast_కణుపు* nodep) {
         UASSERT_OBJ(!nodep->isWide(), nodep, "Cannot handle wide nodes");
-        if (const AstConst* const constp = VN_CAST(nodep, Const)) {
-            return constp->num().toUQuad() <= 1;
+        ఒకవేళ (స్థిరరాశి AstConst* స్థిరరాశి constp = VN_CAST(nodep, Const)) {
+            తిరిగి constp->అంకె().గమ్యం_UQuad() <= 1;
         }
-        if (const AstVarRef* const vrefp = VN_CAST(nodep, VarRef)) {
-            const AstVar* const varp = vrefp->varp();
-            return varp->widthMin() == 1 && !varp->dtypep()->isSigned();
+        ఒకవేళ (స్థిరరాశి AstVarRef* స్థిరరాశి vrefp = VN_CAST(nodep, VarRef)) {
+            స్థిరరాశి AstVar* స్థిరరాశి varp = vrefp->varp();
+            తిరిగి varp->వెడల్పు_Min() == 1 && !varp->dtypep()->isSigned();
         }
-        if (const AstShiftR* const shiftp = VN_CAST(nodep, ShiftR)) {
+        ఒకవేళ (స్థిరరాశి Ast_జరుపు_R* స్థిరరాశి shiftp = VN_CAST(nodep, జరుపు_R)) {
             // Shift right by width - 1 or more
-            if (const AstConst* const constp = VN_CAST(shiftp->rhsp(), Const)) {
-                const AstVarRef* const vrefp = VN_CAST(shiftp->lhsp(), VarRef);
-                const int width = vrefp && !vrefp->varp()->dtypep()->isSigned()
-                                      ? vrefp->varp()->widthMin()
-                                      : shiftp->width();
-                if (constp->toSInt() >= width - 1) return true;
+            ఒకవేళ (స్థిరరాశి AstConst* స్థిరరాశి constp = VN_CAST(shiftp->rhsp(), Const)) {
+                స్థిరరాశి AstVarRef* స్థిరరాశి vrefp = VN_CAST(shiftp->lhsp(), VarRef);
+                స్థిరరాశి పూర్ణాంకం వెడల్పు = vrefp && !vrefp->varp()->dtypep()->isSigned()
+                                      ? vrefp->varp()->వెడల్పు_Min()
+                                      : shiftp->వెడల్పు();
+                ఒకవేళ (constp->గమ్యం_SInt() >= వెడల్పు - 1) తిరిగి నిజం;
             }
-            return false;
+            తిరిగి అబద్ధం;
         }
-        if (VN_IS(nodep, Eq) || VN_IS(nodep, Neq) || VN_IS(nodep, Lt) || VN_IS(nodep, Lte)
+        ఒకవేళ (VN_IS(nodep, Eq) || VN_IS(nodep, Neq) || VN_IS(nodep, Lt) || VN_IS(nodep, Lte)
             || VN_IS(nodep, Gt) || VN_IS(nodep, Gte)) {
-            return true;
+            తిరిగి నిజం;
         }
-        if (const AstNodeBiop* const biopp = VN_CAST(nodep, NodeBiop)) {
-            if (VN_IS(nodep, And))
-                return yieldsOneOrZero(biopp->lhsp()) || yieldsOneOrZero(biopp->rhsp());
-            if (VN_IS(nodep, Or) || VN_IS(nodep, Xor))
-                return yieldsOneOrZero(biopp->lhsp()) && yieldsOneOrZero(biopp->rhsp());
-            return false;
+        ఒకవేళ (స్థిరరాశి Ast_కణుపు_Biop* స్థిరరాశి biopp = VN_CAST(nodep, కణుపు_Biop)) {
+            ఒకవేళ (VN_IS(nodep, And))
+                తిరిగి yieldsOneOrZero(biopp->lhsp()) || yieldsOneOrZero(biopp->rhsp());
+            ఒకవేళ (VN_IS(nodep, Or) || VN_IS(nodep, Xor))
+                తిరిగి yieldsOneOrZero(biopp->lhsp()) && yieldsOneOrZero(biopp->rhsp());
+            తిరిగి అబద్ధం;
         }
-        if (const AstCond* const condp = VN_CAST(nodep, Cond)) {
-            return yieldsOneOrZero(condp->thenp()) && yieldsOneOrZero(condp->elsep());
+        ఒకవేళ (స్థిరరాశి AstCond* స్థిరరాశి condp = VN_CAST(nodep, Cond)) {
+            తిరిగి yieldsOneOrZero(condp->thenp()) && yieldsOneOrZero(condp->elsep());
         }
-        if (const AstCCast* const castp = VN_CAST(nodep, CCast)) {
+        ఒకవేళ (స్థిరరాశి AstCCast* స్థిరరాశి castp = VN_CAST(nodep, CCast)) {
             // Cast never sign extends
-            return yieldsOneOrZero(castp->lhsp());
+            తిరిగి yieldsOneOrZero(castp->lhsp());
         }
-        return false;
+        తిరిగి అబద్ధం;
     }
 
     // Apply (1'b1 & _) cleaning mask if necessary. This is required because this pass is after
     // V3Clean, and sometimes we have an AstAnd with a 1-bit condition on one side, but a more
     // than 1-bit value on the other side, so we need to keep only the LSB.
-    static AstNodeExpr* maskLsb(AstNodeExpr* nodep) {
-        if (yieldsOneOrZero(nodep)) return nodep;
+    స్థిర Ast_కణుపు_సమాసం* ముసుగు_Lsb(Ast_కణుపు_సమాసం* nodep) {
+        ఒకవేళ (yieldsOneOrZero(nodep)) తిరిగి nodep;
         // Otherwise apply masking
-        AstConst* const maskp = new AstConst{nodep->fileline(), AstConst::BitTrue{}};
+        AstConst* స్థిరరాశి maskp = కొత్త AstConst{nodep->fileline(), AstConst::బిట్టు_True{}};
         // Mask on left, as conventional
-        return new AstAnd{nodep->fileline(), maskp, nodep};
+        తిరిగి కొత్త AstAnd{nodep->fileline(), maskp, nodep};
     }
 
     // Fold the RHS expression of an assignment assuming the given condition state.
     // Unlink bits from the RHS which is only used once, and can be reused (is an unmodified
     // sub-tree). What remains of the RHS is expected to be deleted by the caller.
-    AstNodeExpr* foldAndUnlink(AstNodeExpr* rhsp, bool condTrue) {
-        if (rhsp->sameTree(m_mgCondp)) {
-            return new AstConst{rhsp->fileline(), AstConst::BitTrue{}, condTrue};
-        } else if (const AstCond* const condp = extractCondFromRhs(rhsp)) {
-            AstNodeExpr* const resp
-                = condTrue ? condp->thenp()->unlinkFrBack() : condp->elsep()->unlinkFrBack();
-            if (condp == rhsp) return resp;
-            if (const AstAnd* const andp = VN_CAST(rhsp, And)) {
+    Ast_కణుపు_సమాసం* foldAndUnlink(Ast_కణుపు_సమాసం* rhsp, తార్కిక condTrue) {
+        ఒకవేళ (rhsp->same_వృక్షం(m_mgCondp)) {
+            తిరిగి కొత్త AstConst{rhsp->fileline(), AstConst::బిట్టు_True{}, condTrue};
+        } లేకపోతే ఒకవేళ (స్థిరరాశి AstCond* స్థిరరాశి condp = వెలికితీయి_Cond_From_Rhs(rhsp)) {
+            Ast_కణుపు_సమాసం* స్థిరరాశి resp
+                = condTrue ? condp->thenp()->unlink_Fr_వెనుక() : condp->elsep()->unlink_Fr_వెనుక();
+            ఒకవేళ (condp == rhsp) తిరిగి resp;
+            ఒకవేళ (స్థిరరాశి AstAnd* స్థిరరాశి andp = VN_CAST(rhsp, And)) {
                 UASSERT_OBJ(andp->rhsp() == condp, rhsp, "Should not try to fold this");
-                return new AstAnd{andp->fileline(), andp->lhsp()->cloneTreePure(false), resp};
+                తిరిగి కొత్త AstAnd{andp->fileline(), andp->lhsp()->clone_వృక్షం_శుద్ధ(అబద్ధం), resp};
             }
-        } else if (const AstAnd* const andp = VN_CAST(rhsp, And)) {
-            if (andp->lhsp()->sameTree(m_mgCondp)) {
-                return condTrue ? maskLsb(andp->rhsp()->unlinkFrBack())
-                                : new AstConst{rhsp->fileline(), AstConst::BitFalse{}};
-            } else {
-                UASSERT_OBJ(andp->rhsp()->sameTree(m_mgCondp), rhsp,
+        } లేకపోతే ఒకవేళ (స్థిరరాశి AstAnd* స్థిరరాశి andp = VN_CAST(rhsp, And)) {
+            ఒకవేళ (andp->lhsp()->same_వృక్షం(m_mgCondp)) {
+                తిరిగి condTrue ? ముసుగు_Lsb(andp->rhsp()->unlink_Fr_వెనుక())
+                                : కొత్త AstConst{rhsp->fileline(), AstConst::బిట్టు_False{}};
+            } లేకపోతే {
+                UASSERT_OBJ(andp->rhsp()->same_వృక్షం(m_mgCondp), rhsp,
                             "AstAnd doesn't hold condition expression");
-                return condTrue ? maskLsb(andp->lhsp()->unlinkFrBack())
-                                : new AstConst{rhsp->fileline(), AstConst::BitFalse{}};
+                తిరిగి condTrue ? ముసుగు_Lsb(andp->lhsp()->unlink_Fr_వెనుక())
+                                : కొత్త AstConst{rhsp->fileline(), AstConst::బిట్టు_False{}};
             }
-        } else if (VN_IS(rhsp, ArraySel) || VN_IS(rhsp, WordSel) || VN_IS(rhsp, VarRef)
+        } లేకపోతే ఒకవేళ (VN_IS(rhsp, ArraySel) || VN_IS(rhsp, మాట_Sel) || VN_IS(rhsp, VarRef)
                    || VN_IS(rhsp, Const)) {
-            return rhsp->cloneTree(false);
+            తిరిగి rhsp->clone_వృక్షం(అబద్ధం);
         }
         // LCOV_EXCL_START
-        if (debug()) rhsp->dumpTree("Don't know how to fold expression: ");
+        ఒకవేళ (debug()) rhsp->dump_వృక్షం("Don't know how to fold expression: ");
         rhsp->v3fatalSrc("Should not try to fold this during conditional merging");
-        return nullptr;
+        తిరిగి శూన్యసూచిక;
         // LCOV_EXCL_STOP
     }
 
-    void mergeEnd() {
+    శూన్య విలీనం_చివర() {
         UASSERT(m_mgFirstp, "mergeEnd without list");
         // Drop leading cheap nodes. These were only added in the hope of finding
         // an earlier reduced form, but we failed to do so.
-        while (m_mgFirstp->user2() && m_mgFirstp != m_mgLastp) {
-            const AstNode* const backp = m_mgFirstp;
+        అయితే (m_mgFirstp->user2() && m_mgFirstp != m_mgLastp) {
+            స్థిరరాశి Ast_కణుపు* స్థిరరాశి backp = m_mgFirstp;
             m_mgFirstp = m_mgFirstp->nextp();
             --m_listLenght;
             UASSERT_OBJ(m_mgFirstp && m_mgFirstp->backp() == backp, m_mgLastp,
@@ -685,8 +685,8 @@ class MergeCondVisitor final : public VNVisitor {
         }
         // Drop trailing cheap nodes. These were only added in the hope of finding
         // a later conditional to merge, but we failed to do so.
-        while (m_mgLastp->user2() && m_mgFirstp != m_mgLastp) {
-            const AstNode* const nextp = m_mgLastp;
+        అయితే (m_mgLastp->user2() && m_mgFirstp != m_mgLastp) {
+            స్థిరరాశి Ast_కణుపు* స్థిరరాశి nextp = m_mgLastp;
             m_mgLastp = m_mgLastp->backp();
             --m_listLenght;
             UASSERT_OBJ(m_mgLastp && m_mgLastp->nextp() == nextp, m_mgFirstp,
@@ -694,153 +694,153 @@ class MergeCondVisitor final : public VNVisitor {
         }
         // If the list contains a single AstNodeIf, we will want to merge its branches.
         // If so, keep hold of the AstNodeIf in this variable.
-        AstNodeIf* recursivep = nullptr;
+        Ast_కణుపు_If* recursivep = శూన్యసూచిక;
         // Merge if list is longer than one node
-        if (m_mgFirstp != m_mgLastp) {
+        ఒకవేళ (m_mgFirstp != m_mgLastp) {
             UINFO(6, "MergeCond - First: " << m_mgFirstp << " Last: " << m_mgLastp);
             ++m_statMerges;
-            if (m_listLenght > m_statLongestList) m_statLongestList = m_listLenght;
+            ఒకవేళ (m_listLenght > m_statLongestList) m_statLongestList = m_listLenght;
 
             // We need a copy of the condition in the new equivalent 'if' statement,
             // and we also need to keep track of it for comparisons later.
-            m_mgCondp = m_mgCondp->cloneTreePure(false);
+            m_mgCondp = m_mgCondp->clone_వృక్షం_శుద్ధ(అబద్ధం);
             // Create equivalent 'if' statement and insert it before the first node
-            AstIf* const resultp = new AstIf{m_mgCondp->fileline(), m_mgCondp};
-            m_mgFirstp->addHereThisAsNext(resultp);
+            AstIf* స్థిరరాశి resultp = కొత్త AstIf{m_mgCondp->fileline(), m_mgCondp};
+            m_mgFirstp->కూడు_ఇక్కడ_This_As_తదుపరి(resultp);
             // Try to preserve branch prediction if we can
-            size_t nLikely = 0;
-            size_t nUnlikely = 0;
+            కొలత_t nLikely = 0;
+            కొలత_t nUnlikely = 0;
             // Unzip the list and insert under branches
-            AstNode* nextp = m_mgFirstp;
-            do {
+            Ast_కణుపు* nextp = m_mgFirstp;
+            చేయి {
                 // Grab next pointer and unlink
-                AstNode* const currp = nextp;
-                nextp = currp != m_mgLastp ? currp->nextp() : nullptr;
-                currp->unlinkFrBack();
+                Ast_కణుపు* స్థిరరాశి currp = nextp;
+                nextp = currp != m_mgLastp ? currp->nextp() : శూన్యసూచిక;
+                currp->unlink_Fr_వెనుక();
                 // Skip over comments
-                if (VN_IS(currp, Comment)) {
-                    VL_DO_DANGLING(currp->deleteTree(), currp);
-                    continue;
+                ఒకవేళ (VN_IS(currp, Comment)) {
+                    VL_DO_DANGLING(currp->delete_వృక్షం(), currp);
+                    కొనసాగు;
                 }
-                // Count
-                ++m_statMergedItems;
-                if (AstNodeAssign* const assignp = VN_CAST(currp, NodeAssign)) {
+                //లెక్క
+                ++m_stat_Merged_వస్తువులు;
+                ఒకవేళ (Ast_కణుపు_కేటాయించు* స్థిరరాశి assignp = VN_CAST(currp, కణుపు_కేటాయించు)) {
                     // Unlink RHS and clone to get the 2 assignments (reusing assignp)
-                    AstNodeExpr* const rhsp = assignp->rhsp()->unlinkFrBack();
-                    AstNodeAssign* const thenp = assignp;
-                    AstNodeAssign* const elsep = assignp->cloneTree(false);
+                    Ast_కణుపు_సమాసం* స్థిరరాశి rhsp = assignp->rhsp()->unlink_Fr_వెనుక();
+                    Ast_కణుపు_కేటాయించు* స్థిరరాశి thenp = assignp;
+                    Ast_కణుపు_కేటాయించు* స్థిరరాశి elsep = assignp->clone_వృక్షం(అబద్ధం);
                     // Construct the new RHSs and add to branches
-                    thenp->rhsp(foldAndUnlink(rhsp, true));
-                    elsep->rhsp(foldAndUnlink(rhsp, false));
-                    resultp->addThensp(thenp);
-                    resultp->addElsesp(elsep);
+                    thenp->rhsp(foldAndUnlink(rhsp, నిజం));
+                    elsep->rhsp(foldAndUnlink(rhsp, అబద్ధం));
+                    resultp->కూడు_Thensp(thenp);
+                    resultp->కూడు_Elsesp(elsep);
                     // Cleanup
-                    VL_DO_DANGLING(rhsp->deleteTree(), rhsp);
-                } else {
-                    AstNodeIf* const ifp = VN_AS(currp, NodeIf);
+                    VL_DO_DANGLING(rhsp->delete_వృక్షం(), rhsp);
+                } లేకపోతే {
+                    Ast_కణుపు_If* స్థిరరాశి ifp = VN_AS(currp, కణుపు_If);
                     UASSERT_OBJ(ifp, currp, "Must be AstNodeIf");
                     // Move branch contents under new if
-                    if (AstNode* const listp = ifp->thensp()) {
-                        resultp->addThensp(listp->unlinkFrBackWithNext());
+                    ఒకవేళ (Ast_కణుపు* స్థిరరాశి listp = ifp->thensp()) {
+                        resultp->కూడు_Thensp(listp->unlink_Fr_వెనుక_With_తదుపరి());
                     }
-                    if (AstNode* const listp = ifp->elsesp()) {
-                        resultp->addElsesp(listp->unlinkFrBackWithNext());
+                    ఒకవేళ (Ast_కణుపు* స్థిరరాశి listp = ifp->elsesp()) {
+                        resultp->కూడు_Elsesp(listp->unlink_Fr_వెనుక_With_తదుపరి());
                     }
                     // Record branch prediction
-                    if (ifp->branchPred().likely()) ++nLikely;
-                    if (ifp->branchPred().unlikely()) ++nUnlikely;
+                    ఒకవేళ (ifp->branchPred().likely()) ++nLikely;
+                    ఒకవేళ (ifp->branchPred().unlikely()) ++nUnlikely;
                     // Cleanup
-                    VL_DO_DANGLING(ifp->deleteTree(), ifp);
+                    VL_DO_DANGLING(ifp->delete_వృక్షం(), ifp);
                 }
-            } while (nextp);
+            } అయితే (nextp);
             // If prediction is unanimous, assign it to the merged AstIf
-            if (nLikely && !nUnlikely) resultp->branchPred(VBranchPred::BP_LIKELY);
-            if (!nLikely && nUnlikely) resultp->branchPred(VBranchPred::BP_UNLIKELY);
+            ఒకవేళ (nLikely && !nUnlikely) resultp->branchPred(VBranchPred::BP_LIKELY);
+            ఒకవేళ (!nLikely && nUnlikely) resultp->branchPred(VBranchPred::BP_UNLIKELY);
             // Merge the branches of the resulting AstIf after re-analysis
-            if (resultp->thensp()) m_workQueuep->push(resultp->thensp());
-            if (resultp->elsesp()) m_workQueuep->push(resultp->elsesp());
-        } else if (AstNodeIf* const ifp = VN_CAST(m_mgFirstp, NodeIf)) {
+            ఒకవేళ (resultp->thensp()) m_workQueuep->నెట్టు(resultp->thensp());
+            ఒకవేళ (resultp->elsesp()) m_workQueuep->నెట్టు(resultp->elsesp());
+        } లేకపోతే ఒకవేళ (Ast_కణుపు_If* స్థిరరాశి ifp = VN_CAST(m_mgFirstp, కణుపు_If)) {
             // There was nothing to merge this AstNodeIf with, so try to merge its branches.
             // No re-analysis is required for this, so do it directly below
             recursivep = ifp;
         }
         // Reset state
-        m_mgFirstp = nullptr;
-        m_mgCondp = nullptr;
-        m_mgLastp = nullptr;
-        m_mgNextp = nullptr;
-        m_mgCondPubWritable = false;
-        AstNode::user1ClearTree();  // Clear marked variables
-        AstNode::user2ClearTree();
+        m_mgFirstp = శూన్యసూచిక;
+        m_mgCondp = శూన్యసూచిక;
+        m_mgLastp = శూన్యసూచిక;
+        m_mgNextp = శూన్యసూచిక;
+        m_mgCondPubWritable = అబద్ధం;
+        Ast_కణుపు::user1_Clear_వృక్షం();  // Clear marked variables
+        Ast_కణుపు::user2_Clear_వృక్షం();
         // Merge recursively within the branches of an un-merged AstNodeIF
-        if (recursivep) {
-            iterateAndNextNull(recursivep->thensp());
-            iterateAndNextNull(recursivep->elsesp());
+        ఒకవేళ (recursivep) {
+            iterate_And_తదుపరి_Null(recursivep->thensp());
+            iterate_And_తదుపరి_Null(recursivep->elsesp());
             // Close a pending merge to ensure merge state is
             // reset as expected at the end of this function
             // cppcheck-has-bug-suppress knownConditionTrueFalse
-            if (m_mgFirstp) mergeEnd();
+            ఒకవేళ (m_mgFirstp) విలీనం_చివర();
         }
     }
 
     // Check if the node can be simplified if included under the if
-    bool isSimplifiableNode(AstNode* nodep) {
+    తార్కిక is_Simplifiable_కణుపు(Ast_కణుపు* nodep) {
         UASSERT_OBJ(m_mgFirstp, nodep, "Cannot check with empty list");
-        if (const AstNodeAssign* const assignp = VN_CAST(nodep, NodeAssign)) {
+        ఒకవేళ (స్థిరరాశి Ast_కణుపు_కేటాయించు* స్థిరరాశి assignp = VN_CAST(nodep, కణుపు_కేటాయించు)) {
             // If it's an assignment to a 1-bit signal, try reduced forms
-            if (assignp->lhsp()->widthMin() == 1) {
+            ఒకవేళ (assignp->lhsp()->వెడల్పు_Min() == 1) {
                 // Is it a 'lhs = cond & value' or 'lhs = value & cond'?
-                if (const AstAnd* const andp = VN_CAST(assignp->rhsp(), And)) {
-                    if (andp->lhsp()->sameTree(m_mgCondp) || andp->rhsp()->sameTree(m_mgCondp)) {
-                        return true;
+                ఒకవేళ (స్థిరరాశి AstAnd* స్థిరరాశి andp = VN_CAST(assignp->rhsp(), And)) {
+                    ఒకవేళ (andp->lhsp()->same_వృక్షం(m_mgCondp) || andp->rhsp()->same_వృక్షం(m_mgCondp)) {
+                        తిరిగి నిజం;
                     }
                 }
                 // Is it 'lhs = cond'?
-                if (assignp->rhsp()->sameTree(m_mgCondp)) return true;
+                ఒకవేళ (assignp->rhsp()->same_వృక్షం(m_mgCondp)) తిరిగి నిజం;
             }
         }
-        return false;
+        తిరిగి అబద్ధం;
     }
 
-    bool addToList(AstNodeStmt* nodep, AstNodeExpr* condp) {
+    తార్కిక కూడు_గమ్యం_List(Ast_కణుపు_Stmt* nodep, Ast_కణుపు_సమాసం* condp) {
         // Set up head of new list if node is first in list
-        if (!m_mgFirstp) {
+        ఒకవేళ (!m_mgFirstp) {
             UASSERT_OBJ(condp, nodep, "Cannot start new list without condition");
             // Mark variable references in the condition, record if a public variable is involved
-            condp->foreach([&](const AstVarRef* nodep) {
-                AstVar* const varp = nodep->varp();
+            condp->foreach([&](స్థిరరాశి AstVarRef* nodep) {
+                AstVar* స్థిరరాశి varp = nodep->varp();
                 varp->user1(1);
-                if (varp->isSigPublic() || varp->isWrittenByDpi()) m_mgCondPubWritable = true;
+                ఒకవేళ (varp->is_Sig_ప్రజా() || varp->isWrittenByDpi()) m_mgCondPubWritable = నిజం;
             });
             // Now check again if mergeable. We need this to pick up assignments to conditions,
             // e.g.: 'c = c ? a : b' at the beginning of the list, which is in fact not mergeable
             // because it updates the condition. We simply bail on these.
-            if ((*m_stmtPropertiesp)(nodep).writesConditionVar(m_mgCondPubWritable)) {
+            ఒకవేళ ((*m_stmtPropertiesp)(nodep).writesConditionVar(m_mgCondPubWritable)) {
                 // Clear marked variables
-                AstNode::user1ClearTree();
-                m_mgCondPubWritable = false;
+                Ast_కణుపు::user1_Clear_వృక్షం();
+                m_mgCondPubWritable = అబద్ధం;
                 // We did not add to the list
-                return false;
+                తిరిగి అబద్ధం;
             }
             m_mgFirstp = nodep;
             m_mgCondp = condp;
             m_listLenght = 0;
             // Add any preceding nodes to the list that would allow us to extend the merge
             // range
-            while (true) {
-                AstNodeStmt* const backp = VN_CAST(m_mgFirstp->backp(), NodeStmt);
-                if (!backp || backp->nextp() != m_mgFirstp) break;  // Don't move up the tree
-                const StmtProperties& props = (*m_stmtPropertiesp)(backp);
-                if (props.m_isFence || props.writesConditionVar(m_mgCondPubWritable)) break;
-                if (isSimplifiableNode(backp)) {
+            అయితే (నిజం) {
+                Ast_కణుపు_Stmt* స్థిరరాశి backp = VN_CAST(m_mgFirstp->backp(), కణుపు_Stmt);
+                ఒకవేళ (!backp || backp->nextp() != m_mgFirstp) ఆపు;  // Don't move up the tree
+                స్థిరరాశి StmtProperties& props = (*m_stmtPropertiesp)(backp);
+                ఒకవేళ (props.m_isFence || props.writesConditionVar(m_mgCondPubWritable)) ఆపు;
+                ఒకవేళ (is_Simplifiable_కణుపు(backp)) {
                     ++m_listLenght;
                     m_mgFirstp = backp;
-                } else if (isCheapNode(backp)) {
+                } లేకపోతే ఒకవేళ (is_Cheap_కణుపు(backp)) {
                     backp->user2(1);
                     ++m_listLenght;
                     m_mgFirstp = backp;
-                } else {
-                    break;
+                } లేకపోతే {
+                    ఆపు;
                 }
             }
         }
@@ -851,99 +851,99 @@ class MergeCondVisitor final : public VNVisitor {
         // Set up expected next node in list.
         m_mgNextp = nodep->nextp();
         // If last under parent, done with current list
-        if (!m_mgNextp) mergeEnd();
+        ఒకవేళ (!m_mgNextp) విలీనం_చివర();
         // Statistics
-        ++m_statCandidateItems;
+        ++m_stat_Candidate_వస్తువులు;
         // We did add to the list
-        return true;
+        తిరిగి నిజం;
     }
 
     // If this node is the next expected node and is helpful to add to the list, do so,
     // otherwise end the current merge. Return true if added, false if ended merge.
-    bool addIfHelpfulElseEndMerge(AstNodeStmt* nodep) {
+    తార్కిక కూడు_If_Helpful_Else_చివర_విలీనం(Ast_కణుపు_Stmt* nodep) {
         UASSERT_OBJ(m_mgFirstp, nodep, "List must be open");
-        if (!checkOrMakeMergeable(nodep)) return false;
-        if (!m_mgFirstp) return false;  // If 'checkOrMakeMergeable' closed the list
-        if (m_mgNextp == nodep) {
-            if (isSimplifiableNode(nodep)) {
-                if (addToList(nodep, nullptr)) return true;
-            } else if (isCheapNode(nodep)) {
+        ఒకవేళ (!checkOrMakeMergeable(nodep)) తిరిగి అబద్ధం;
+        ఒకవేళ (!m_mgFirstp) తిరిగి అబద్ధం;  // If 'checkOrMakeMergeable' closed the list
+        ఒకవేళ (m_mgNextp == nodep) {
+            ఒకవేళ (is_Simplifiable_కణుపు(nodep)) {
+                ఒకవేళ (కూడు_గమ్యం_List(nodep, శూన్యసూచిక)) తిరిగి నిజం;
+            } లేకపోతే ఒకవేళ (is_Cheap_కణుపు(nodep)) {
                 nodep->user2(1);
-                if (addToList(nodep, nullptr)) return true;
+                ఒకవేళ (కూడు_గమ్యం_List(nodep, శూన్యసూచిక)) తిరిగి నిజం;
             }
         }
         // Not added to list, so we are done with the current list
-        mergeEnd();
-        return false;
+        విలీనం_చివర();
+        తిరిగి అబద్ధం;
     }
 
-    bool checkOrMakeMergeable(const AstNodeStmt* nodep) {
-        const StmtProperties& props = (*m_stmtPropertiesp)(nodep);
-        if (props.m_isFence) return false;  // Fence node never mergeable
+    తార్కిక checkOrMakeMergeable(స్థిరరాశి Ast_కణుపు_Stmt* nodep) {
+        స్థిరరాశి StmtProperties& props = (*m_stmtPropertiesp)(nodep);
+        ఒకవేళ (props.m_isFence) తిరిగి అబద్ధం;  // Fence node never mergeable
         // If the statement writes a condition variable of a pending merge,
         // we must end the pending merge
-        if (m_mgFirstp && props.writesConditionVar(m_mgCondPubWritable)) mergeEnd();
-        return true;  // Now surely mergeable
+        ఒకవేళ (m_mgFirstp && props.writesConditionVar(m_mgCondPubWritable)) విలీనం_చివర();
+        తిరిగి నిజం;  // Now surely mergeable
     }
 
-    void mergeEndIfIncompatible(const AstNode* nodep, const AstNode* condp) {
-        if (m_mgFirstp && (m_mgNextp != nodep || !condp->sameTree(m_mgCondp))) {
+    శూన్య విలీనం_చివర_If_Incompatible(స్థిరరాశి Ast_కణుపు* nodep, స్థిరరాశి Ast_కణుపు* condp) {
+        ఒకవేళ (m_mgFirstp && (m_mgNextp != nodep || !condp->same_వృక్షం(m_mgCondp))) {
             // Node in different list, or has different condition. Finish current list.
-            mergeEnd();
+            విలీనం_చివర();
         }
     }
 
     // VISITORS
-    void visit(AstNodeAssign* nodep) override {
-        if (AstNodeExpr* const condp = (*m_stmtPropertiesp)(nodep).m_condp) {
+    శూన్య సందర్శించు(Ast_కణుపు_కేటాయించు* nodep) override {
+        ఒకవేళ (Ast_కణుపు_సమాసం* స్థిరరాశి condp = (*m_stmtPropertiesp)(nodep).m_condp) {
             // Check if mergeable
-            if (!checkOrMakeMergeable(nodep)) return;
+            ఒకవేళ (!checkOrMakeMergeable(nodep)) తిరిగి;
             // Close potentially incompatible pending merge
-            mergeEndIfIncompatible(nodep, condp);
+            విలీనం_చివర_If_Incompatible(nodep, condp);
             // Add current node
-            addToList(nodep, condp);
-        } else if (m_mgFirstp) {
-            addIfHelpfulElseEndMerge(nodep);
+            కూడు_గమ్యం_List(nodep, condp);
+        } లేకపోతే ఒకవేళ (m_mgFirstp) {
+            కూడు_If_Helpful_Else_చివర_విలీనం(nodep);
         }
     }
 
-    void visit(AstNodeIf* nodep) override {
+    శూన్య సందర్శించు(Ast_కణుపు_If* nodep) override {
         // Check if mergeable
-        if (!checkOrMakeMergeable(nodep)) {
+        ఒకవేళ (!checkOrMakeMergeable(nodep)) {
             // If not mergeable, try to merge the branches
-            iterateAndNextNull(nodep->thensp());
-            iterateAndNextNull(nodep->elsesp());
-            return;
+            iterate_And_తదుపరి_Null(nodep->thensp());
+            iterate_And_తదుపరి_Null(nodep->elsesp());
+            తిరిగి;
         }
         // Close potentially incompatible pending merge
-        mergeEndIfIncompatible(nodep, nodep->condp());
+        విలీనం_చివర_If_Incompatible(nodep, nodep->condp());
         // Add current node
-        addToList(nodep, nodep->condp());
+        కూడు_గమ్యం_List(nodep, nodep->condp());
     }
 
-    void visit(AstNodeStmt* nodep) override {
-        if (m_mgFirstp && addIfHelpfulElseEndMerge(nodep)) return;
+    శూన్య సందర్శించు(Ast_కణుపు_Stmt* nodep) override {
+        ఒకవేళ (m_mgFirstp && కూడు_If_Helpful_Else_చివర_విలీనం(nodep)) తిరిగి;
         iterateChildren(nodep);
     }
 
-    void visit(AstCFunc* nodep) override {
+    శూన్య సందర్శించు(AstCFunc* nodep) override {
         // Merge function body
-        if (nodep->stmtsp()) process(nodep->stmtsp());
+        ఒకవేళ (nodep->stmtsp()) process(nodep->stmtsp());
     }
 
     // For speed, only iterate what is necessary.
-    void visit(AstNetlist* nodep) override { iterateAndNextNull(nodep->modulesp()); }
-    void visit(AstNodeModule* nodep) override { iterateAndNextNull(nodep->stmtsp()); }
-    void visit(AstNode* nodep) override {}
+    శూన్య సందర్శించు(AstNetlist* nodep) override { iterate_And_తదుపరి_Null(nodep->modulesp()); }
+    శూన్య సందర్శించు(Ast_కణుపు_Module* nodep) override { iterate_And_తదుపరి_Null(nodep->stmtsp()); }
+    శూన్య సందర్శించు(Ast_కణుపు* nodep) override {}
 
-public:
+బహిరంగ:
     // CONSTRUCTORS
-    explicit MergeCondVisitor(AstNetlist* nodep) { iterate(nodep); }
-    ~MergeCondVisitor() override {
-        V3Stats::addStat("Optimizations, MergeCond merges", m_statMerges);
-        V3Stats::addStat("Optimizations, MergeCond candidate items", m_statCandidateItems);
-        V3Stats::addStat("Optimizations, MergeCond merged items", m_statMergedItems);
-        V3Stats::addStat("Optimizations, MergeCond longest merge", m_statLongestList);
+    స్పష్టమైన విలీనం_Cond_Visitor(AstNetlist* nodep) { iterate(nodep); }
+    ~విలీనం_Cond_Visitor() override {
+        V3Stats::కూడు_Stat("Optimizations, MergeCond merges", m_statMerges);
+        V3Stats::కూడు_Stat("Optimizations, MergeCond candidate items", m_stat_Candidate_వస్తువులు);
+        V3Stats::కూడు_Stat("Optimizations, MergeCond merged items", m_stat_Merged_వస్తువులు);
+        V3Stats::కూడు_Stat("Optimizations, MergeCond longest merge", m_statLongestList);
     }
 };
 
@@ -952,8 +952,8 @@ public:
 //######################################################################
 // MergeConditionals class functions
 
-void V3MergeCond::mergeAll(AstNetlist* nodep) {
+శూన్య V3_విలీనం_Cond::విలీనం_All(AstNetlist* nodep) {
     UINFO(2, __FUNCTION__ << ":");
-    { MergeCondVisitor{nodep}; }
-    V3Global::dumpCheckGlobalTree("merge_cond", 0, dumpTreeEitherLevel() >= 6);
+    { విలీనం_Cond_Visitor{nodep}; }
+    V3Global::dump_Check_Global_వృక్షం("merge_cond", 0, dump_వృక్షం_Either_Level() >= 6);
 }

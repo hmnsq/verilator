@@ -14,13 +14,13 @@
 //
 //*************************************************************************
 
-#ifndef VERILATOR_V3LIBMAP_H_
-#define VERILATOR_V3LIBMAP_H_
+#నిర్వచితం_కాకపోతే VERILATOR_V3LIBMAP_H_
+#నిర్వచించు VERILATOR_V3LIBMAP_H_
 
-#include "config_build.h"
-#include "verilatedos.h"
+#అన్తర్భావ "config_build.h"
+#అన్తర్భావ "verilatedos.h"
 
-#include <vector>
+#అన్తర్భావ <vector>
 
 class AstNetlist;
 class VInFilter;
@@ -30,38 +30,38 @@ class V3ParseSym;
 
 // State to pass between config parsing and cell linking visitors.
 class LibMapping final {
-    const string m_pattern;  // Pattern to match
-    const string m_libname;  // Library name
-    const string m_base;  // Relative path of the libmap file
+    స్థిరరాశి string m_నమూనా;  // Pattern to match
+    స్థిరరాశి string m_libname;  // Library name
+    స్థిరరాశి string m_పునాది;  // Relative path of the libmap file
 
-public:
-    LibMapping(const string& pattern_, const string& libname_, const string& base_)
-        : m_pattern{pattern_}
+బహిరంగ:
+    LibMapping(స్థిరరాశి string& నమూనా_3, స్థిరరాశి string& libname_, స్థిరరాశి string& పునాది_2)
+        : m_నమూనా{నమూనా_3}
         , m_libname{libname_}
-        , m_base{base_} {}
-    string pattern() const { return m_pattern; }
-    string libname() const { return m_libname; }
-    string base() const { return m_base; }
+        , m_పునాది{పునాది_2} {}
+    string నమూనా_2() స్థిరరాశి { తిరిగి m_నమూనా; }
+    string libname() స్థిరరాశి { తిరిగి m_libname; }
+    string పునాది() స్థిరరాశి { తిరిగి m_పునాది; }
 };
 
 class V3LibMap final {
-private:
+అంతరంగ:
     // STATE
     // 33.3.1.1 File path resolution
     //   If a file name potentially matches multiple file path specifications, the path
     //   specifications shall be resolved in the following order: a) File path specifications that
     //   end with an explicit file name b) File path specifications that end with a wildcarded file
     //   name c) File path specifications that end with a directory name
-    std::vector<LibMapping> m_explicitMappings;
-    std::vector<LibMapping> m_wildcardMappings;
-    std::vector<LibMapping> m_directoryMappings;
+    std::సదిశ<LibMapping> m_explicitMappings;
+    std::సదిశ<LibMapping> m_wildcardMappings;
+    std::సదిశ<LibMapping> m_directoryMappings;
 
     // METHODS
-public:
-    string matchMapping(const string& filename);
-    void addPattern(const string& pattern, const string& libname, const string& base);
+బహిరంగ:
+    string సరిపోలిక_Mapping(స్థిరరాశి string& filename);
+    శూన్య కూడు_నమూనా(స్థిరరాశి string& నమూనా_2, స్థిరరాశి string& libname, స్థిరరాశి string& పునాది);
 
-    static void map(AstNetlist* nodep) VL_MT_DISABLED;
+    స్థిర శూన్య map(AstNetlist* nodep) VL_MT_DISABLED;
 };
 
-#endif  // Guard
+#అయితే_ముగింపు  // Guard

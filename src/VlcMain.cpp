@@ -15,177 +15,177 @@
 //*************************************************************************
 
 // clang-format off
-#define VL_MT_DISABLED_CODE_UNIT 1
+#నిర్వచించు VL_MT_DISABLED_సంకేతం_UNIT 1
 
-#include "config_build.h"
-#ifndef HAVE_CONFIG_PACKAGE
+#అన్తర్భావ "config_build.h"
+#నిర్వచితం_కాకపోతే HAVE_CONFIG_PACKAGE
 # error "Something failed during ./configure as config_package.h is incomplete. Perhaps you used autoreconf, don't."
-#endif
+#అయితే_ముగింపు
 // clang-format on
 
-#include "verilatedos.h"
+#అన్తర్భావ "verilatedos.h"
 
 // Cheat for speed and compile .cpp files into one object TODO: Reconsider
-#ifndef V3ERROR_NO_GLOBAL_
-#define V3ERROR_NO_GLOBAL_
-#endif
-#include "V3Error.h"
-static int debug() { return V3Error::debugDefault(); }
-#include "V3Error.cpp"
-#include "V3String.cpp"
-#define V3OPTION_PARSER_NO_VOPTION_BOOL
+#నిర్వచితం_కాకపోతే V3ERROR_NO_GLOBAL_
+#నిర్వచించు V3ERROR_NO_GLOBAL_
+#అయితే_ముగింపు
+#అన్తర్భావ "V3Error.h"
+స్థిర పూర్ణాంకం debug() { తిరిగి V3Error::debugDefault(); }
+#అన్తర్భావ "V3Error.cpp"
+#అన్తర్భావ "V3String.cpp"
+#నిర్వచించు V3OPTION_PARSER_NO_VOPTION_BOOL
 // clang-format off
-#include "V3OptionParser.cpp"
-#include "V3Os.cpp"
-#include "VlcTop.cpp"
+#అన్తర్భావ "V3OptionParser.cpp"
+#అన్తర్భావ "V3Os.cpp"
+#అన్తర్భావ "VlcTop.cpp"
 // clang-format on
 
-#include "VlcOptions.h"
-#include "VlcTop.h"
+#అన్తర్భావ "VlcOptions.h"
+#అన్తర్భావ "VlcTop.h"
 
-#include <algorithm>
-#include <fstream>
+#అన్తర్భావ <algorithm>
+#అన్తర్భావ <fstream>
 
 //######################################################################
 // VlcOptions
 
-void VlcOptions::addReadFile(const string& filename) { m_readFiles.insert(filename); }
+శూన్య VlcOptions::కూడు_Read_File(స్థిరరాశి string& filename) { m_readFiles.చొప్పించు(filename); }
 
-string VlcOptions::version() {
+string VlcOptions::సంస్కరణ() {
     string ver = PACKAGE_STRING;
-    ver += " rev " + cvtToStr(DTVERSION_rev);
-    return ver;
+    ver += " rev " + cvt_గమ్యం_Str(DTVERSION_rev);
+    తిరిగి ver;
 }
 
-void VlcOptions::parseReportOption() {
-    if (m_report.empty()) return;
-    string::size_type start = 0;
-    while (true) {
-        const string::size_type comma = m_report.find(',', start);
-        const string kind = m_report.substr(start, comma - start);
-        if (kind == "summary") {
-            m_reportSummary = true;
-        } else if (kind == "hier" || kind == "hierarchy") {
-            m_reportHierarchy = true;
-        } else {
+శూన్య VlcOptions::parseReportOption() {
+    ఒకవేళ (m_report.ఖాళీలు()) తిరిగి;
+    string::కొలత_type ప్రారంభం = 0;
+    అయితే (నిజం) {
+        స్థిరరాశి string::కొలత_type comma = m_report.కనుగొను(',', ప్రారంభం);
+        స్థిరరాశి string రకం = m_report.substr(ప్రారంభం, comma - ప్రారంభం);
+        ఒకవేళ (రకం == "summary") {
+            m_reportSummary = నిజం;
+        } లేకపోతే ఒకవేళ (రకం == "hier" || రకం == "hierarchy") {
+            m_reportHierarchy = నిజం;
+        } లేకపోతే {
             v3fatal("Invalid --report option: " << m_report);
         }
-        if (comma == string::npos) break;
-        start = comma + 1;
+        ఒకవేళ (comma == string::npos) ఆపు;
+        ప్రారంభం = comma + 1;
     }
 }
 
-void VlcOptions::parseOptsList(int argc, char** argv) {
+శూన్య VlcOptions::parseOptsList(పూర్ణాంకం argc, అక్షరం** argv) {
     V3OptionParser parser;
     V3OptionParser::AppendHelper DECL_OPTION{parser};
-    V3OPTION_PARSER_DECL_TAGS;
+    V3_OPTION_PARSER_DECL_ట్యాగులు;
 
-    DECL_OPTION("-annotate", Set, &m_annotateOut);
+    DECL_OPTION("-annotate", సమితి_2, &m_annotate_బహిర్గతం);
     DECL_OPTION("-annotate-all", OnOff, &m_annotateAll);
-    DECL_OPTION("-annotate-min", Set, &m_annotateMin);
+    DECL_OPTION("-annotate-min", సమితి_2, &m_annotateMin);
     DECL_OPTION("-annotate-points", OnOff, &m_annotatePoints);
     DECL_OPTION("-debug", CbCall, []() { V3Error::debugDefault(3); });
-    DECL_OPTION("-debugi", CbVal, [](int v) { V3Error::debugDefault(v); });
-    DECL_OPTION("-filter-type", Set, &m_filterType);
+    DECL_OPTION("-debugi", CbVal, [](పూర్ణాంకం v) { V3Error::debugDefault(v); });
+    DECL_OPTION("-filter-type", సమితి_2, &m_filterType);
     DECL_OPTION("-include-reset-arcs", OnOff, &m_includeResetArcs);
-    DECL_OPTION("-levels", Set, &m_reportLevels);
+    DECL_OPTION("-levels", సమితి_2, &m_report_స్థాయిలు);
     DECL_OPTION("-rank", OnOff, &m_rank);
-    DECL_OPTION("-report", Set, &m_report);
+    DECL_OPTION("-report", సమితి_2, &m_report);
     DECL_OPTION("-unlink", OnOff, &m_unlink);
     DECL_OPTION("-V", CbCall, []() {
-        showVersion(true);
-        std::exit(0);
+        show_సంస్కరణ(నిజం);
+        std::నిష్క్రమించు(0);
     });
     DECL_OPTION("-version", CbCall, []() {
-        showVersion(false);
-        std::exit(0);
+        show_సంస్కరణ(అబద్ధం);
+        std::నిష్క్రమించు(0);
     });
-    DECL_OPTION("-write", Set, &m_writeFile);
-    DECL_OPTION("-write-info", Set, &m_writeInfoFile);
+    DECL_OPTION("-write", సమితి_2, &m_writeFile);
+    DECL_OPTION("-write-info", సమితి_2, &m_writeInfoFile);
     parser.finalize();
 
     // Parse parameters
     // Note argc and argv DO NOT INCLUDE the filename in [0]!!!
     // May be called recursively when there are -f files.
-    for (int i = 0; i < argc;) {
+    కొరకు (పూర్ణాంకం i = 0; i < argc;) {
         UINFO(9, " Option: " << argv[i]);
-        if (argv[i][0] == '-') {
-            if (const int consumed = parser.parse(i, argc, argv).first) {
+        ఒకవేళ (argv[i][0] == '-') {
+            ఒకవేళ (స్థిరరాశి పూర్ణాంకం consumed = parser.parse(i, argc, argv).మొదటి) {
                 i += consumed;
-            } else {
+            } లేకపోతే {
                 v3fatal("Invalid option: " << argv[i] << parser.getSuggestion(argv[i]));
                 ++i;  // LCOV_EXCL_LINE
             }
-        } else {
-            addReadFile(argv[i]);
+        } లేకపోతే {
+            కూడు_Read_File(argv[i]);
             ++i;
         }
     }
     parseReportOption();
 }
 
-void VlcOptions::showVersion(bool verbose) {
-    std::cout << version();
-    std::cout << "\n";
-    if (!verbose) return;
+శూన్య VlcOptions::show_సంస్కరణ(తార్కిక verbose) {
+    std::బయటకు << సంస్కరణ();
+    std::బయటకు << "\n";
+    ఒకవేళ (!verbose) తిరిగి;
 
-    std::cout << "\n";
-    std::cout << "Copyright 2003-2026 by Wilson Snyder.  Verilator is free software; you can\n";
-    std::cout << "redistribute it and/or modify the Verilator internals under the terms of\n";
-    std::cout << "either the GNU Lesser General Public License Version 3 or the Perl Artistic\n";
-    std::cout << "License Version 2.0.\n";
+    std::బయటకు << "\n";
+    std::బయటకు << "Copyright 2003-2026 by Wilson Snyder.  Verilator is free software; you can\n";
+    std::బయటకు << "redistribute it and/or modify the Verilator internals under the terms of\n";
+    std::బయటకు << "either the GNU Lesser General Public License Version 3 or the Perl Artistic\n";
+    std::బయటకు << "License Version 2.0.\n";
 
-    std::cout << "\n";
-    std::cout << "See https://verilator.org for documentation\n";
+    std::బయటకు << "\n";
+    std::బయటకు << "See https://verilator.org for documentation\n";
 }
 
 //######################################################################
 
-int main(int argc, char** argv) {
+పూర్ణాంకం ప్రధాన(పూర్ణాంకం argc, అక్షరం** argv) {
     // General initialization
     std::ios::sync_with_stdio();
 
-    VlcTop top;
+    Vlc_శిఖరం శిఖరం;
 
     // Command option parsing
-    top.opt.parseOptsList(argc - 1, argv + 1);
+    శిఖరం.opt.parseOptsList(argc - 1, argv + 1);
 
-    if (top.opt.readFiles().empty()) top.opt.addReadFile("vlt_coverage.dat");
+    ఒకవేళ (శిఖరం.opt.readFiles().ఖాళీలు()) శిఖరం.opt.కూడు_Read_File("vlt_coverage.dat");
 
     {
-        const VlStringSet& readFiles = top.opt.readFiles();
-        for (const auto& filename : readFiles) top.readCoverage(filename);
+        స్థిరరాశి Vl_String_సమితి& readFiles = శిఖరం.opt.readFiles();
+        కొరకు (స్థిరరాశి స్వయంచాలక& filename : readFiles) శిఖరం.readCoverage(filename);
     }
 
-    if (debug() >= 9) {
-        top.tests().dump(true);
-        top.points().dump();
+    ఒకవేళ (debug() >= 9) {
+        శిఖరం.tests().dump(నిజం);
+        శిఖరం.points().dump();
     }
 
-    const bool defaultReport = !top.opt.reportSpecified() && !top.opt.rank()
-                               && top.opt.writeFile().empty() && top.opt.writeInfoFile().empty();
-    if (top.opt.reportSpecified()) {
-        if (top.opt.reportSummary()) top.printTypeSummary();
-        if (top.opt.reportHierarchy()) top.printHierarchyReport();
-    } else if (defaultReport) {
-        top.printTypeSummary();
+    స్థిరరాశి తార్కిక defaultReport = !శిఖరం.opt.reportSpecified() && !శిఖరం.opt.rank()
+                               && శిఖరం.opt.writeFile().ఖాళీలు() && శిఖరం.opt.writeInfoFile().ఖాళీలు();
+    ఒకవేళ (శిఖరం.opt.reportSpecified()) {
+        ఒకవేళ (శిఖరం.opt.reportSummary()) శిఖరం.printTypeSummary();
+        ఒకవేళ (శిఖరం.opt.reportHierarchy()) శిఖరం.printHierarchyReport();
+    } లేకపోతే ఒకవేళ (defaultReport) {
+        శిఖరం.printTypeSummary();
     }
 
     V3Error::abortIfWarnings();
-    if (!top.opt.annotateOut().empty()) top.annotate(top.opt.annotateOut());
+    ఒకవేళ (!శిఖరం.opt.annotate_బహిర్గతం().ఖాళీలు()) శిఖరం.annotate(శిఖరం.opt.annotate_బహిర్గతం());
 
-    if (top.opt.rank()) {
-        top.rank();
-        top.tests().dump(false);
+    ఒకవేళ (శిఖరం.opt.rank()) {
+        శిఖరం.rank();
+        శిఖరం.tests().dump(అబద్ధం);
     }
 
-    if (!top.opt.writeFile().empty() || !top.opt.writeInfoFile().empty()) {
-        if (!top.opt.writeFile().empty()) top.writeCoverage(top.opt.writeFile());
-        if (!top.opt.writeInfoFile().empty()) top.writeInfo(top.opt.writeInfoFile());
+    ఒకవేళ (!శిఖరం.opt.writeFile().ఖాళీలు() || !శిఖరం.opt.writeInfoFile().ఖాళీలు()) {
+        ఒకవేళ (!శిఖరం.opt.writeFile().ఖాళీలు()) శిఖరం.writeCoverage(శిఖరం.opt.writeFile());
+        ఒకవేళ (!శిఖరం.opt.writeInfoFile().ఖాళీలు()) శిఖరం.writeInfo(శిఖరం.opt.writeInfoFile());
         V3Error::abortIfWarnings();
-        if (top.opt.unlink()) {
-            const VlStringSet& readFiles = top.opt.readFiles();
-            for (const auto& filename : readFiles) unlink(filename.c_str());
+        ఒకవేళ (శిఖరం.opt.unlink()) {
+            స్థిరరాశి Vl_String_సమితి& readFiles = శిఖరం.opt.readFiles();
+            కొరకు (స్థిరరాశి స్వయంచాలక& filename : readFiles) unlink(filename.c_str());
         }
     }
 

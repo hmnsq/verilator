@@ -14,22 +14,22 @@
 //
 //*************************************************************************
 
-#include "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
+#అన్తర్భావ "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
 
-#include "V3Dfg.h"
-#include "V3DfgPasses.h"
-#include "V3Error.h"
-#include "V3Hash.h"
+#అన్తర్భావ "V3Dfg.h"
+#అన్తర్భావ "V3DfgPasses.h"
+#అన్తర్భావ "V3Error.h"
+#అన్తర్భావ "V3Hash.h"
 
-#include <algorithm>
-#include <fstream>
-#include <queue>
-#include <unordered_map>
-#include <vector>
+#అన్తర్భావ <algorithm>
+#అన్తర్భావ <fstream>
+#అన్తర్భావ <queue>
+#అన్తర్భావ <unordered_map>
+#అన్తర్భావ <vector>
 
 VL_DEFINE_DEBUG_FUNCTIONS;
 
-namespace V3DfgBreakCycles {
+నామాకాశ V3_Dfg_Break_చక్రాలు {
 
 // Mutable map from vertices to the SCC index they belong to. Initialized
 // from a proper analysis, then updated as we break cycles. After updates
@@ -37,86 +37,86 @@ namespace V3DfgBreakCycles {
 // cyclic might not actually be if an SCC split into multple SCCs after a
 // fixup. However it should always be true that if a vertex is thought to
 // be non-cyclic based on this datastructure, then it indeed is not cyclic.
-class SccInfo final {
-    DfgGraph& m_dfg;  // The annotated graph
+తరగతి SccInfo final {
+    Dfg_లేఖాచిత్రం& m_dfg;  // The annotated graph
     // The map from vertices to their SCC index (0 if trivial SCC - non cyclic)
-    std::unordered_map<const DfgVertex*, uint64_t> m_vtx2Scc;
-    size_t m_nCyclicVertices = 0;  // Number of vertices in non-trivial SCCs
+    std::unordered_map<స్థిరరాశి Dfg_శీర్షం*, uint64_t> m_vtx2Scc;
+    కొలత_t m_nCyclicVertices = 0;  // Number of vertices in non-trivial SCCs
 
-public:
-    SccInfo(DfgGraph& dfg)
+బహిరంగ:
+    SccInfo(Dfg_లేఖాచిత్రం& dfg)
         : m_dfg{dfg} {
         // Initialize m_vtx2Scc for the graph from a proper analysis
         DfgUserMap<uint64_t> vtx2Scc = dfg.makeUserMap<uint64_t>();
         V3DfgPasses::colorStronglyConnectedComponents(dfg, vtx2Scc);
-        m_dfg.forEachVertex([&](const DfgVertex& vtx) {
-            const uint64_t sccIdx = vtx2Scc[vtx];
+        m_dfg.for_Each_శీర్షం([&](స్థిరరాశి Dfg_శీర్షం& vtx) {
+            స్థిరరాశి uint64_t sccIdx = vtx2Scc[vtx];
             m_vtx2Scc[&vtx] = sccIdx;
-            if (sccIdx) ++m_nCyclicVertices;
+            ఒకవేళ (sccIdx) ++m_nCyclicVertices;
         });
     }
 
     // Is the graph cyclic still?
-    bool isCyclic() const { return m_nCyclicVertices; }
+    తార్కిక isCyclic() స్థిరరాశి { తిరిగి m_nCyclicVertices; }
 
     // Returns the index of the SCC the given vertex is a part of
     // This is 0 iff the vertex is in a trivial SCC (no cycles through vertex)
-    uint64_t get(const DfgVertex& vtx) const { return m_vtx2Scc.at(&vtx); }
+    uint64_t get(స్థిరరాశి Dfg_శీర్షం& vtx) స్థిరరాశి { తిరిగి m_vtx2Scc.at(&vtx); }
 
     // Add a new vertex to graph that is part of the given SCC
-    void add(const DfgVertex& vtx, uint64_t sccIdx) {
-        const bool newEntry = m_vtx2Scc.emplace(&vtx, sccIdx).second;
-        UASSERT_OBJ(newEntry, &vtx, "Vertex already inserted");
-        if (sccIdx) ++m_nCyclicVertices;
+    శూన్య కూడు(స్థిరరాశి Dfg_శీర్షం& vtx, uint64_t sccIdx) {
+        స్థిరరాశి తార్కిక new_నమోదు = m_vtx2Scc.emplace(&vtx, sccIdx).రెండవ;
+        UASSERT_OBJ(new_నమోదు, &vtx, "Vertex already inserted");
+        ఒకవేళ (sccIdx) ++m_nCyclicVertices;
     }
 
-    bool stillCyclicFwd(const DfgVertex& vtx) const {
+    తార్కిక stillCyclicFwd(స్థిరరాశి Dfg_శీర్షం& vtx) స్థిరరాశి {
         // If it only reads non-cyclic vertices, it has also become acyclic
-        return vtx.foreachSource([&](const DfgVertex& src) {  //
-            return m_vtx2Scc.at(&src);
+        తిరిగి vtx.foreach_ఆధారం([&](స్థిరరాశి Dfg_శీర్షం& src) {  //
+            తిరిగి m_vtx2Scc.at(&src);
         });
     }
 
-    bool stillCyclicBwd(const DfgVertex& vtx) const {
+    తార్కిక stillCyclicBwd(స్థిరరాశి Dfg_శీర్షం& vtx) స్థిరరాశి {
         // If itonly drives non-cyclic vertices, it has also become acyclic
-        return vtx.foreachSink([&](const DfgVertex& dst) {  //
-            return m_vtx2Scc.at(&dst);
+        తిరిగి vtx.foreachSink([&](స్థిరరాశి Dfg_శీర్షం& dst) {  //
+            తిరిగి m_vtx2Scc.at(&dst);
         });
     }
 
     // The given vertex is known to have become acyclic after some edits,
     // propagate through graph to mark connected vertices as well.
-    void updateAcyclic(const DfgVertex& vtx) {
+    శూన్య updateAcyclic(స్థిరరాశి Dfg_శీర్షం& vtx) {
         // Mark as acyclic
         uint64_t& sccIdxr = m_vtx2Scc.at(&vtx);
         UASSERT_OBJ(sccIdxr, &vtx, "Vertex should be cyclic");
         sccIdxr = 0;
         --m_nCyclicVertices;
         // Propagate the update through the graph forward
-        vtx.foreachSink([&](const DfgVertex& dst) {
+        vtx.foreachSink([&](స్థిరరాశి Dfg_శీర్షం& dst) {
             // Sink was known to be acyclic, stop
-            if (!m_vtx2Scc.at(&dst)) return false;
-            if (!stillCyclicFwd(dst)) updateAcyclic(dst);
-            return false;
+            ఒకవేళ (!m_vtx2Scc.at(&dst)) తిరిగి అబద్ధం;
+            ఒకవేళ (!stillCyclicFwd(dst)) updateAcyclic(dst);
+            తిరిగి అబద్ధం;
         });
         // Propagate the update through the graph backward
-        vtx.foreachSource([&](const DfgVertex& src) {
+        vtx.foreach_ఆధారం([&](స్థిరరాశి Dfg_శీర్షం& src) {
             // Source was known to be acyclic, stop
-            if (!m_vtx2Scc.at(&src)) return false;
-            if (!stillCyclicBwd(src)) updateAcyclic(src);
-            return false;
+            ఒకవేళ (!m_vtx2Scc.at(&src)) తిరిగి అబద్ధం;
+            ఒకవేళ (!stillCyclicBwd(src)) updateAcyclic(src);
+            తిరిగి అబద్ధం;
         });
     }
 
     // Update after replacing 'vtxp' with 'replacement'
-    void updateReplacement(const DfgVertex& vtx, DfgVertex& replacement) {
+    శూన్య updateReplacement(స్థిరరాశి Dfg_శీర్షం& vtx, Dfg_శీర్షం& replacement) {
         UASSERT_OBJ(!vtx.hasSinks(), &vtx, "Replaced vertex should have no sinks");
         updateAcyclic(vtx);
-        if (!get(replacement)) {
-            replacement.foreachSink([&](DfgVertex& dst) {
-                if (!get(dst)) return false;
-                if (!stillCyclicFwd(dst)) updateAcyclic(dst);
-                return false;
+        ఒకవేళ (!get(replacement)) {
+            replacement.foreachSink([&](Dfg_శీర్షం& dst) {
+                ఒకవేళ (!get(dst)) తిరిగి అబద్ధం;
+                ఒకవేళ (!stillCyclicFwd(dst)) updateAcyclic(dst);
+                తిరిగి అబద్ధం;
             });
         }
     }
@@ -136,75 +136,75 @@ public:
        on the SccInfo must indeed be not cyclic, but might still think a
        vertex is cyclic based on the SccInfo but it actually isn't.
     */
-    void validate() const {
+    శూన్య validate() స్థిరరాశి {
         // Re-compute the actual SCCs
         DfgUserMap<uint64_t> actual = m_dfg.makeUserMap<uint64_t>();
         V3DfgPasses::colorStronglyConnectedComponents(m_dfg, actual);
         // Assert that if we think a vertex is not cyclic, it indeed is not
-        m_dfg.forEachVertex([&](const DfgVertex& vtx) {
+        m_dfg.for_Each_శీర్షం([&](స్థిరరాశి Dfg_శీర్షం& vtx) {
             // 'think not cyclic' implies 'actually not cyclic'
             UASSERT_OBJ(m_vtx2Scc.at(&vtx) || !actual.at(vtx), &vtx, "Inconsisten SccInfo");
         });
     }
 };
 
-class TraceDriver final : public DfgVisitor {
+తరగతి TraceDriver final : బహిరంగ DfgVisitor {
     // TYPES
     // Key for caching the result of a trace
-    struct CacheKey final {
-        DfgVertex* m_vtxp;  // Vertex being traced
+    నిర్మాణం Cache_కీలకం final {
+        Dfg_శీర్షం* m_vtxp;  // Vertex being traced
         uint32_t m_lsb;  // LSB of the range within m_vtxp being traced
         uint32_t m_msb;  // MSB of the range within m_vtxp being traced
 
-        CacheKey() = delete;
-        CacheKey(DfgVertex* vtxp, uint32_t lsb, uint32_t msb)
+        Cache_కీలకం() = తొలగించు;
+        Cache_కీలకం(Dfg_శీర్షం* vtxp, uint32_t lsb, uint32_t msb)
             : m_vtxp{vtxp}
             , m_lsb{lsb}
             , m_msb{msb} {}
 
-        struct Hash final {
-            size_t operator()(const CacheKey& item) const {
+        నిర్మాణం Hash final {
+            కొలత_t క్రియాకారకం()(స్థిరరాశి Cache_కీలకం& అంశం_2) స్థిరరాశి {
                 // cppcheck-suppress unreadVariable
-                V3Hash hash{item.m_vtxp};
-                hash += item.m_lsb;
-                hash += item.m_msb;
-                return hash.value();
+                V3Hash hash{అంశం_2.m_vtxp};
+                hash += అంశం_2.m_lsb;
+                hash += అంశం_2.m_msb;
+                తిరిగి hash.విలువ();
             }
         };
 
-        struct Equal final {
-            bool operator()(const CacheKey& a, const CacheKey& b) const {
-                return a.m_vtxp == b.m_vtxp && a.m_lsb == b.m_lsb && a.m_msb == b.m_msb;
+        నిర్మాణం Equal final {
+            తార్కిక క్రియాకారకం()(స్థిరరాశి Cache_కీలకం& a, స్థిరరాశి Cache_కీలకం& b) స్థిరరాశి {
+                తిరిగి a.m_vtxp == b.m_vtxp && a.m_lsb == b.m_lsb && a.m_msb == b.m_msb;
             }
         };
     };
 
     // STATE
-    DfgGraph& m_dfg;  // The graph being processed
+    Dfg_లేఖాచిత్రం& m_dfg;  // The graph being processed
     SccInfo& m_sccInfo;  // The SccInfo instance
     // The strongly connected component we are currently trying to escape
     uint64_t m_component = 0;
     uint32_t m_lsb = 0;  // LSB to extract from the currently visited Vertex
     uint32_t m_msb = 0;  // MSB to extract from the currently visited Vertex
-    std::vector<uint32_t> m_idxs;  // Indices to extract from the currently visited Vertex
-    std::vector<DfgVertex**> m_pendingps;  // Pending pass-through cache entries across trace calls
+    std::సదిశ<uint32_t> m_idxs;  // Indices to extract from the currently visited Vertex
+    std::సదిశ<Dfg_శీర్షం**> m_pendingps;  // Pending pass-through cache entries across trace calls
     // Result of tracing the currently visited Vertex. Use RETURN_RESULT below!
-    DfgVertex* m_resp = nullptr;
+    Dfg_శీర్షం* m_resp = శూన్యసూచిక;
     // Set instead of 'm_resp' when the result of tracing the currently visited Vertex is
     // exactly the result of tracing 'm_tailp' at the updated [m_msb:m_lsb]. 'trace'
     // resolves these iteratively. Use RETURN_RESULT_TAIL below!
-    DfgVertex* m_tailp = nullptr;
+    Dfg_శీర్షం* m_tailp = శూన్యసూచిక;
     // When tracing a splice, this is the corresponding 'defaultp' of the variable it drives
-    DfgVertex* m_defaultp = nullptr;
-    DfgVertex* m_splicep = nullptr;  // The splice vertex being traced, just for assertions
+    Dfg_శీర్షం* m_defaultp = శూన్యసూచిక;
+    Dfg_శీర్షం* m_splicep = శూన్యసూచిక;  // The splice vertex being traced, just for assertions
     // Result cache for reusing already traced vertices
-    std::unordered_map<CacheKey, DfgVertex*, CacheKey::Hash, CacheKey::Equal> m_cache;
+    std::unordered_map<Cache_కీలకం, Dfg_శీర్షం*, Cache_కీలకం::Hash, Cache_కీలకం::Equal> m_cache;
     // Cache for boundary vertices (where m_sccInfo.get(*vtxp) != m_component)
-    std::unordered_map<CacheKey, DfgVertex*, CacheKey::Hash, CacheKey::Equal> m_boundaryCache;
+    std::unordered_map<Cache_కీలకం, Dfg_శీర్షం*, Cache_కీలకం::Hash, Cache_కీలకం::Equal> m_boundaryCache;
 
-#ifdef VL_DEBUG
-    std::ofstream m_lineCoverageFile;  // Line coverage file, just for testing
-#endif
+#నిర్వచితమైతే VL_DEBUG
+    std::ofstream m_పంక్తి_Coverage_File;  // Line coverage file, just for testing
+#అయితే_ముగింపు
 
     // METHODS
 
@@ -215,42 +215,42 @@ class TraceDriver final : public DfgVisitor {
     // be true, as all the vertices we create here are driven from outside the
     // component we are trying to escape, and will sink into that component.
     // Given those are separate SCCs, these new vertices must be acyclic.
-    template <typename Vertex>
-    Vertex* make(const DfgVertex* refp, uint32_t width) {
-        static_assert(std::is_base_of<DfgVertex, Vertex>::value  //
-                          && !std::is_base_of<DfgVertexVar, Vertex>::value,
+    మూస <రకం_పేరు శీర్షం_2>
+    శీర్షం_2* make(స్థిరరాశి Dfg_శీర్షం* refp, uint32_t వెడల్పు) {
+        static_assert(std::is_పునాది_యొక్క<Dfg_శీర్షం, శీర్షం_2>::విలువ  //
+                          && !std::is_పునాది_యొక్క<Dfg_శీర్షం_Var, శీర్షం_2>::విలువ,
                       "Should only make operation vertices and constants");
 
-        if VL_CONSTEXPR_CXX17 (std::is_same<DfgConst, Vertex>::value) {
-            DfgConst* const vtxp = new DfgConst{m_dfg, refp->fileline(), width, 0};
-            m_sccInfo.add(*vtxp, 0);
-            return reinterpret_cast<Vertex*>(vtxp);
-        } else {
+        ఒకవేళ VL_CONSTEXPR_CXX17 (std::is_same<DfgConst, శీర్షం_2>::విలువ) {
+            DfgConst* స్థిరరాశి vtxp = కొత్త DfgConst{m_dfg, refp->fileline(), వెడల్పు, 0};
+            m_sccInfo.కూడు(*vtxp, 0);
+            తిరిగి reinterpret_cast<శీర్షం_2*>(vtxp);
+        } లేకపోతే {
             // TODO: this is a gross hack around lack of C++17 'if constexpr' Vtx is always Vertex
             // when this code is actually executed, but needs a fudged type to type check when
             // Vertex is DfgConst, in which case this code is unreachable ...
-            using Vtx = typename std::conditional<std::is_same<DfgConst, Vertex>::value, DfgSel,
-                                                  Vertex>::type;
-            Vtx* const vtxp = new Vtx{m_dfg, refp->fileline(), DfgDataType::packed(width)};
-            m_sccInfo.add(*vtxp, 0);
-            return reinterpret_cast<Vertex*>(vtxp);
+            ఉపయోగించి Vtx = రకం_పేరు std::conditional<std::is_same<DfgConst, శీర్షం_2>::విలువ, DfgSel,
+                                                  శీర్షం_2>::type;
+            Vtx* స్థిరరాశి vtxp = కొత్త Vtx{m_dfg, refp->fileline(), Dfg_దత్తాంశం_Type::packed(వెడల్పు)};
+            m_sccInfo.కూడు(*vtxp, 0);
+            తిరిగి reinterpret_cast<శీర్షం_2*>(vtxp);
         }
     }
 
     // Create temporary capable of holding the result of 'vtxp'
-    DfgVertexVar* createTmp(const char* prefix, DfgVertex* vtxp) {
-        FileLine* const flp = vtxp->fileline();
-        DfgVertex::ScopeCache scopeCache;
-        AstScope* const scopep = vtxp->scopep(scopeCache);
-        DfgVertexVar* const varp = m_dfg.makeNewVar(flp, prefix, vtxp->dtype(), scopep);
-        varp->vscp()->varp()->isInternal(true);
+    Dfg_శీర్షం_Var* createTmp(స్థిరరాశి అక్షరం* ఉపసర్గ, Dfg_శీర్షం* vtxp) {
+        File_పంక్తి* స్థిరరాశి flp = vtxp->fileline();
+        Dfg_శీర్షం::ScopeCache scopeCache;
+        AstScope* స్థిరరాశి scopep = vtxp->scopep(scopeCache);
+        Dfg_శీర్షం_Var* స్థిరరాశి varp = m_dfg.makeNewVar(flp, ఉపసర్గ, vtxp->dtype(), scopep);
+        varp->vscp()->varp()->is_అంతర్గత(నిజం);
         varp->tmpForp(varp->vscp());
-        m_sccInfo.add(*varp, 0);
-        return varp;
+        m_sccInfo.కూడు(*varp, 0);
+        తిరిగి varp;
     }
 
     // Trace drivers of the given packed vertex, at the given bit range.
-    DfgVertex* trace(DfgVertex* vtxp, uint32_t msb, uint32_t lsb) {
+    Dfg_శీర్షం* trace(Dfg_శీర్షం* vtxp, uint32_t msb, uint32_t lsb) {
         // Many vertices just pass the traced bit range through to one of their sources
         // (see RETURN_RESULT_TAIL). Chains of such vertices can be tens of thousands of
         // vertices long in large designs (e.g.: a wide concatenation), so resolve them
@@ -258,63 +258,63 @@ class TraceDriver final : public DfgVisitor {
         // 'm_pendingps' holds the cache entries of the vertices on the current chain. They
         // all yield the same result, which is filled in when the chain is resolved.
         // Note: references into 'm_cache' are stable across the insertions below.
-        DfgVertex* const startVtxp = vtxp;
-        const uint32_t startMsb = msb;
-        const uint32_t startLsb = lsb;
-        const size_t pendingBegin = m_pendingps.size();
-        DfgVertex* resp = nullptr;
+        Dfg_శీర్షం* స్థిరరాశి ప్రారంభం_Vtxp = vtxp;
+        స్థిరరాశి uint32_t ప్రారంభం_Msb = msb;
+        స్థిరరాశి uint32_t ప్రారంభం_Lsb = lsb;
+        స్థిరరాశి కొలత_t pendingBegin = m_pendingps.కొలత();
+        Dfg_శీర్షం* resp = శూన్యసూచిక;
 
-        while (true) {
+        అయితే (నిజం) {
             UASSERT_OBJ(vtxp->isPacked(), vtxp, "Can only trace packed type vertices");
-            UASSERT_OBJ(vtxp->size() > msb, vtxp, "Traced Vertex too narrow");
+            UASSERT_OBJ(vtxp->కొలత() > msb, vtxp, "Traced Vertex too narrow");
             UASSERT_OBJ(!m_defaultp || vtxp == m_splicep, vtxp, "Tracing wrong vertex");
 
             // If the currently traced vertex is in a different component,
             // then we found what we were looking for. But if it's a splice
             // with a corresponding default, we need to keep going as the
             // splice does not fully define the value we are seeking.
-            if (m_sccInfo.get(*vtxp) != m_component && !m_defaultp) {
-                DfgVertex*& respr
+            ఒకవేళ (m_sccInfo.get(*vtxp) != m_component && !m_defaultp) {
+                Dfg_శీర్షం*& respr
                     = m_boundaryCache
                           .emplace(std::piecewise_construct, std::forward_as_tuple(vtxp, msb, lsb),
-                                   std::forward_as_tuple(nullptr))
-                          .first->second;
-                if (!respr) {
+                                   std::forward_as_tuple(శూన్యసూచిక))
+                          .మొదటి->రెండవ;
+                ఒకవేళ (!respr) {
                     respr = vtxp;
                     // If the result is a splice, we need to insert a temporary for it
                     // as a splice cannot be fed into arbitray logic
-                    if (DfgVertexSplice* const splicep = respr->cast<DfgVertexSplice>()) {
-                        DfgVertexVar* const tmpp = createTmp("TraceDriver", splicep);
+                    ఒకవేళ (Dfg_శీర్షం_Splice* స్థిరరాశి splicep = respr->cast<Dfg_శీర్షం_Splice>()) {
+                        Dfg_శీర్షం_Var* స్థిరరాశి tmpp = createTmp("TraceDriver", splicep);
                         // Note: we can't do 'splicep->replaceWith(tmpp)', as other
                         // variable sinks of the splice might have a defaultp driver.
                         tmpp->srcp(splicep);
                         respr = tmpp;
                     }
                     // Apply a Sel to extract the relevant bits if only a part is needed
-                    if (msb != respr->width() - 1 || lsb != 0) {
-                        DfgSel* const selp = make<DfgSel>(respr, msb - lsb + 1);
+                    ఒకవేళ (msb != respr->వెడల్పు() - 1 || lsb != 0) {
+                        DfgSel* స్థిరరాశి selp = make<DfgSel>(respr, msb - lsb + 1);
                         selp->fromp(respr);
                         selp->lsb(lsb);
                         respr = selp;
                     }
                 }
                 resp = respr;
-                break;
+                ఆపు;
             }
 
             // Normal cache for intra-component traces
-            DfgVertex*& respr = m_cache
+            Dfg_శీర్షం*& respr = m_cache
                                     .emplace(std::piecewise_construct,  //
                                              std::forward_as_tuple(vtxp, msb, lsb),  //
-                                             std::forward_as_tuple(nullptr))
-                                    .first->second;
+                                             std::forward_as_tuple(శూన్యసూచిక))
+                                    .మొదటి->రెండవ;
 
             // Trace the vertex
-            if (respr) {
+            ఒకవేళ (respr) {
                 // If already traced this vtxp/msb/lsb, just use the result.
                 // This is important to avoid combinatorial explosion when the
                 // same sub-expression is needed multiple times.
-            } else {
+            } లేకపోతే {
                 // Otherwise visit the vertex to trace it
                 VL_RESTORER(m_msb);
                 VL_RESTORER(m_lsb);
@@ -323,133 +323,133 @@ class TraceDriver final : public DfgVisitor {
                 VL_RESTORER(m_tailp);
                 m_msb = msb;
                 m_lsb = lsb;
-                m_resp = nullptr;
-                m_tailp = nullptr;
+                m_resp = శూన్యసూచిక;
+                m_tailp = శూన్యసూచిక;
                 iterate(vtxp);
-                UASSERT_OBJ((m_resp != nullptr) != (m_tailp != nullptr), vtxp,
+                UASSERT_OBJ((m_resp != శూన్యసూచిక) != (m_tailp != శూన్యసూచిక), vtxp,
                             "Expected exactly one trace result");
-                if (m_tailp) {
+                ఒకవేళ (m_tailp) {
                     // This vertex just passes the range through, so continue with its
                     // source, at the updated range. Its cache entry is filled in when
                     // the chain is resolved.
-                    m_pendingps.push_back(&respr);
+                    m_pendingps.నెట్టు_వెనుక(&respr);
                     vtxp = m_tailp;
                     msb = m_msb;
                     lsb = m_lsb;
-                    continue;
+                    కొనసాగు;
                 }
                 respr = m_resp;
             }
             resp = respr;
-            break;
+            ఆపు;
         }
 
         // We only ever trace drivers of bits that are known to be independent
         // of the cycles, so we should always be able to find an acyclic driver.
-        UASSERT_OBJ(resp, startVtxp, "Tracing driver failed for " << startVtxp->typeName());
-        UASSERT_OBJ(resp->width() == (startMsb - startLsb + 1), startVtxp, "Wrong result width");
+        UASSERT_OBJ(resp, ప్రారంభం_Vtxp, "Tracing driver failed for " << ప్రారంభం_Vtxp->typeName());
+        UASSERT_OBJ(resp->వెడల్పు() == (ప్రారంభం_Msb - ప్రారంభం_Lsb + 1), ప్రారంభం_Vtxp, "Wrong result width");
         // Every vertex on the pass-through chain resolves to the same driver
-        for (size_t i = pendingBegin; i < m_pendingps.size(); ++i) *m_pendingps[i] = resp;
+        కొరకు (కొలత_t i = pendingBegin; i < m_pendingps.కొలత(); ++i) *m_pendingps[i] = resp;
         m_pendingps.resize(pendingBegin);
-        return resp;
+        తిరిగి resp;
     }
 
     // Trace drivers of the given array vertex, at the current m_idxs, m_msb, m_lsb.
-    DfgVertex* traceSameIdx(DfgVertex* const vtxp) {
+    Dfg_శీర్షం* traceSameIdx(Dfg_శీర్షం* స్థిరరాశి vtxp) {
         UASSERT_OBJ(vtxp->isArray(), vtxp, "Should be an array vertex");
-        UASSERT_OBJ(!m_idxs.empty(), vtxp, "Should have a pending index");
+        UASSERT_OBJ(!m_idxs.ఖాళీలు(), vtxp, "Should have a pending index");
         VL_RESTORER(m_resp);
-        m_resp = nullptr;
+        m_resp = శూన్యసూచిక;
         iterate(vtxp);  // Resolve the element, the array visitors set 'm_resp'
         UASSERT_OBJ(m_resp, vtxp, "Tracing driver failed for " << vtxp->typeName());
-        UASSERT_OBJ(m_resp->width() == (m_msb - m_lsb + 1), vtxp, "Wrong result width");
-        return m_resp;
+        UASSERT_OBJ(m_resp->వెడల్పు() == (m_msb - m_lsb + 1), vtxp, "Wrong result width");
+        తిరిగి m_resp;
     }
 
     // Trace drivers of the given array vertex, pushing the given index, at current m_msb, m_lsb.
-    DfgVertex* tracePushIdx(DfgVertex* const vtxp, const uint32_t idx) {
-        const size_t nIdxs = m_idxs.size();
-        m_idxs.push_back(idx);
-        DfgVertex* const resp = traceSameIdx(vtxp);
-        m_idxs.pop_back();
-        UASSERT_OBJ(m_idxs.size() == nIdxs, vtxp, "Index stack size mismatch");
-        return resp;
+    Dfg_శీర్షం* trace_నెట్టు_Idx(Dfg_శీర్షం* స్థిరరాశి vtxp, స్థిరరాశి uint32_t idx) {
+        స్థిరరాశి కొలత_t nIdxs = m_idxs.కొలత();
+        m_idxs.నెట్టు_వెనుక(idx);
+        Dfg_శీర్షం* స్థిరరాశి resp = traceSameIdx(vtxp);
+        m_idxs.తీయి_వెనుక();
+        UASSERT_OBJ(m_idxs.కొలత() == nIdxs, vtxp, "Index stack size mismatch");
+        తిరిగి resp;
     }
 
     // Trace drivers of the given vertex, popping the innermost index, at current m_msb, m_lsb.
-    DfgVertex* tracePopIdx(DfgVertex* const vtxp) {
-        UASSERT_OBJ(!m_idxs.empty(), vtxp, "Should have a pending index");
-        const size_t nIdxs = m_idxs.size();
-        const uint32_t idx = m_idxs.back();
-        m_idxs.pop_back();
-        DfgVertex* const resp = m_idxs.empty() ? trace(vtxp, m_msb, m_lsb) : traceSameIdx(vtxp);
-        m_idxs.push_back(idx);
-        UASSERT_OBJ(m_idxs.size() == nIdxs, vtxp, "Index stack size mismatch");
-        return resp;
+    Dfg_శీర్షం* trace_తీయి_Idx(Dfg_శీర్షం* స్థిరరాశి vtxp) {
+        UASSERT_OBJ(!m_idxs.ఖాళీలు(), vtxp, "Should have a pending index");
+        స్థిరరాశి కొలత_t nIdxs = m_idxs.కొలత();
+        స్థిరరాశి uint32_t idx = m_idxs.వెనుక();
+        m_idxs.తీయి_వెనుక();
+        Dfg_శీర్షం* స్థిరరాశి resp = m_idxs.ఖాళీలు() ? trace(vtxp, m_msb, m_lsb) : traceSameIdx(vtxp);
+        m_idxs.నెట్టు_వెనుక(idx);
+        UASSERT_OBJ(m_idxs.కొలత() == nIdxs, vtxp, "Index stack size mismatch");
+        తిరిగి resp;
     }
 
-    template <typename Vertex>
-    Vertex* traceBitwiseBinary(Vertex* vtxp) {
-        static_assert(std::is_base_of<DfgVertexBinary, Vertex>::value,
+    మూస <రకం_పేరు శీర్షం_2>
+    శీర్షం_2* trace_Bitwise_ద్విమాన(శీర్షం_2* vtxp) {
+        static_assert(std::is_పునాది_యొక్క<Dfg_శీర్షం_ద్విమాన, శీర్షం_2>::విలువ,
                       "Should only call on DfgVertexBinary");
-        Vertex* const resp = make<Vertex>(vtxp, m_msb - m_lsb + 1);
+        శీర్షం_2* స్థిరరాశి resp = make<శీర్షం_2>(vtxp, m_msb - m_lsb + 1);
         resp->rhsp(trace(vtxp->rhsp(), m_msb, m_lsb));
         resp->lhsp(trace(vtxp->lhsp(), m_msb, m_lsb));
-        return resp;
+        తిరిగి resp;
     }
 
-    template <typename Vertex>
-    DfgVertex* traceAddSub(Vertex* vtxp) {
-        static_assert(std::is_base_of<DfgVertexBinary, Vertex>::value,
+    మూస <రకం_పేరు శీర్షం_2>
+    Dfg_శీర్షం* trace_కూడు_Sub(శీర్షం_2* vtxp) {
+        static_assert(std::is_పునాది_యొక్క<Dfg_శీర్షం_ద్విమాన, శీర్షం_2>::విలువ,
                       "Should only call on DfgVertexBinary");
-        Vertex* const opp = make<Vertex>(vtxp, m_msb + 1);
+        శీర్షం_2* స్థిరరాశి opp = make<శీర్షం_2>(vtxp, m_msb + 1);
         opp->rhsp(trace(vtxp->rhsp(), m_msb, 0));
         opp->lhsp(trace(vtxp->lhsp(), m_msb, 0));
-        DfgSel* const selp = make<DfgSel>(vtxp, m_msb - m_lsb + 1);
+        DfgSel* స్థిరరాశి selp = make<DfgSel>(vtxp, m_msb - m_lsb + 1);
         selp->fromp(opp);
         selp->lsb(m_lsb);
-        return selp;
+        తిరిగి selp;
     }
 
-    template <typename Vertex>
-    Vertex* traceReduction(Vertex* vtxp) {
-        static_assert(std::is_base_of<DfgVertexUnary, Vertex>::value,
+    మూస <రకం_పేరు శీర్షం_2>
+    శీర్షం_2* traceReduction(శీర్షం_2* vtxp) {
+        static_assert(std::is_పునాది_యొక్క<Dfg_శీర్షం_Unary, శీర్షం_2>::విలువ,
                       "Should only call on DfgVertexUnary");
-        Vertex* const resp = make<Vertex>(vtxp, 1);
-        resp->srcp(trace(vtxp->srcp(), vtxp->srcp()->width() - 1, 0));
-        return resp;
+        శీర్షం_2* స్థిరరాశి resp = make<శీర్షం_2>(vtxp, 1);
+        resp->srcp(trace(vtxp->srcp(), vtxp->srcp()->వెడల్పు() - 1, 0));
+        తిరిగి resp;
     }
 
-    template <typename Vertex>
-    Vertex* traceCmp(Vertex* vtxp) {
-        static_assert(std::is_base_of<DfgVertexBinary, Vertex>::value,
+    మూస <రకం_పేరు శీర్షం_2>
+    శీర్షం_2* traceCmp(శీర్షం_2* vtxp) {
+        static_assert(std::is_పునాది_యొక్క<Dfg_శీర్షం_ద్విమాన, శీర్షం_2>::విలువ,
                       "Should only call on DfgVertexBinary");
-        Vertex* const resp = make<Vertex>(vtxp, m_msb - m_lsb + 1);
-        resp->rhsp(trace(vtxp->rhsp(), vtxp->rhsp()->width() - 1, 0));
-        resp->lhsp(trace(vtxp->lhsp(), vtxp->lhsp()->width() - 1, 0));
-        return resp;
+        శీర్షం_2* స్థిరరాశి resp = make<శీర్షం_2>(vtxp, m_msb - m_lsb + 1);
+        resp->rhsp(trace(vtxp->rhsp(), vtxp->rhsp()->వెడల్పు() - 1, 0));
+        resp->lhsp(trace(vtxp->lhsp(), vtxp->lhsp()->వెడల్పు() - 1, 0));
+        తిరిగి resp;
     }
 
     // Use this macro to return the result from 'visit' methods. This also emits
     // a line to m_lineCoverageFile for testing.
     // TODO: Use C++20 std::source_location instead of a macro
-#ifdef VL_DEBUG
-#define TRACE_RESULT_COVER() \
-    do { \
-        if (VL_UNLIKELY(m_lineCoverageFile.is_open())) m_lineCoverageFile << __LINE__ << '\n'; \
-    } while (false)
-#else
-#define TRACE_RESULT_COVER() \
-    do { \
-    } while (false)
-#endif
+#నిర్వచితమైతే VL_DEBUG
+#నిర్వచించు TRACE_ఫలితం_COVER() \
+    చేయి { \
+        ఒకవేళ (VL_UNLIKELY(m_పంక్తి_Coverage_File.is_open())) m_పంక్తి_Coverage_File << __LINE__ << '\n'; \
+    } అయితే (అబద్ధం)
+#లేకపోతే
+#నిర్వచించు TRACE_ఫలితం_COVER() \
+    చేయి { \
+    } అయితే (అబద్ధం)
+#అయితే_ముగింపు
 
-#define RETURN_RESULT(vtxp) \
-    do { \
+#నిర్వచించు RETURN_ఫలితం(vtxp) \
+    చేయి { \
         m_resp = (vtxp); \
-        TRACE_RESULT_COVER(); \
-        return; \
-    } while (false)
+        TRACE_ఫలితం_COVER(); \
+        తిరిగి; \
+    } అయితే (అబద్ధం)
 
     // Use this macro in 'visit' methods when the result is exactly the result of tracing
     // 'srcp' at [smsb:slsb]. 'trace' then continues iteratively instead of recursing, so
@@ -457,930 +457,930 @@ class TraceDriver final : public DfgVisitor {
     // Note this overwrites 'm_msb'/'m_lsb', which is fine as the visitor returns
     // immediately. Only use this when no state set up by the visitor (e.g.: 'm_defaultp')
     // has to stay live while 'srcp' is traced, as that happens after the visitor returned.
-#define RETURN_RESULT_TAIL(srcp, smsb, slsb) \
-    do { \
+#నిర్వచించు RETURN_ఫలితం_తోక(srcp, smsb, slsb) \
+    చేయి { \
         /* Evaluate all arguments before assigning, as they usually read 'm_msb'/'m_lsb' */ \
-        DfgVertex* const tailp = (srcp); \
-        const uint32_t tailMsb = (smsb); \
-        const uint32_t tailLsb = (slsb); \
+        Dfg_శీర్షం* స్థిరరాశి tailp = (srcp); \
+        స్థిరరాశి uint32_t తోక_Msb = (smsb); \
+        స్థిరరాశి uint32_t తోక_Lsb = (slsb); \
         m_tailp = tailp; \
-        m_msb = tailMsb; \
-        m_lsb = tailLsb; \
-        TRACE_RESULT_COVER(); \
-        return; \
-    } while (false)
+        m_msb = తోక_Msb; \
+        m_lsb = తోక_Lsb; \
+        TRACE_ఫలితం_COVER(); \
+        తిరిగి; \
+    } అయితే (అబద్ధం)
 
     // VISITORS
-    void visit(DfgVertex* vtxp) override {  // LCOV_EXCL_START
+    శూన్య సందర్శించు(Dfg_శీర్షం* vtxp) override {  // LCOV_EXCL_START
         vtxp->v3fatalSrc("TraceDriver - Unhandled vertex type: " << vtxp->typeName());
     }  // LCOV_EXCL_STOP
 
-    void visit(DfgSplicePacked* vtxp) override {
+    శూన్య సందర్శించు(DfgSplicePacked* vtxp) override {
         UASSERT_OBJ(m_splicep == vtxp, vtxp, "Unexpected trace of DfgSplicePacked");
-        DfgVertex* defaultp = m_defaultp;
-        m_defaultp = nullptr;
-        m_splicep = nullptr;
+        Dfg_శీర్షం* defaultp = m_defaultp;
+        m_defaultp = శూన్యసూచిక;
+        m_splicep = శూన్యసూచిక;
 
-        struct Driver final {
-            DfgVertex* m_vtxp;  // Vertex driving this range
+        నిర్మాణం Driver final {
+            Dfg_శీర్షం* m_vtxp;  // Vertex driving this range
             uint32_t m_lsb;  // LSB of driven range (internal, not Verilog)
             uint32_t m_msb;  // MSB of driven range (internal, not Verilog)
-            Driver() = delete;
-            Driver(DfgVertex* vtxp, uint32_t lsb, uint32_t msb)
+            Driver() = తొలగించు;
+            Driver(Dfg_శీర్షం* vtxp, uint32_t lsb, uint32_t msb)
                 : m_vtxp{vtxp}
                 , m_lsb{lsb}
                 , m_msb{msb} {}
         };
-        std::vector<Driver> drivers;
+        std::సదిశ<Driver> drivers;
 
         // Look at all the drivers, one might cover the whole range, but also gather all drivers
-        bool tryWholeDefault = defaultp;
-        DfgVertex* coverp = nullptr;  // Driver covering the whole searched range, if any
+        తార్కిక try_సంపూర్ణ_Default = defaultp;
+        Dfg_శీర్షం* coverp = శూన్యసూచిక;  // Driver covering the whole searched range, if any
         uint32_t coverLsb = 0;  // LSB of the range driven by 'coverp'
-        vtxp->foreachDriver([&](DfgVertex& src, uint32_t lsb) {
-            const uint32_t msb = lsb + src.width() - 1;
-            drivers.emplace_back(&src, lsb, msb);
+        vtxp->foreachDriver([&](Dfg_శీర్షం& src, uint32_t lsb) {
+            స్థిరరాశి uint32_t msb = lsb + src.వెడల్పు() - 1;
+            drivers.emplace_వెనుక(&src, lsb, msb);
             // Check if this driver covers any of the bits, then we can't use whole default
-            if (m_msb >= lsb && msb >= m_lsb) tryWholeDefault = false;
+            ఒకవేళ (m_msb >= lsb && msb >= m_lsb) try_సంపూర్ణ_Default = అబద్ధం;
             // If it does not cover the whole searched bit range, move on
-            if (m_lsb < lsb || msb < m_msb) return false;
+            ఒకవేళ (m_lsb < lsb || msb < m_msb) తిరిగి అబద్ధం;
             // Driver covers whole search range, we are done gathering
             coverp = &src;
             coverLsb = lsb;
-            return true;
+            తిరిగి నిజం;
         });
 
         // Trace the driver covering the whole searched range, if there is one
-        if (coverp) RETURN_RESULT_TAIL(coverp, m_msb - coverLsb, m_lsb - coverLsb);
+        ఒకవేళ (coverp) RETURN_ఫలితం_తోక(coverp, m_msb - coverLsb, m_lsb - coverLsb);
 
         // Trace the default driver if no other drivers cover the searched range
-        if (tryWholeDefault) RETURN_RESULT_TAIL(defaultp, m_msb, m_lsb);
+        ఒకవేళ (try_సంపూర్ణ_Default) RETURN_ఫలితం_తోక(defaultp, m_msb, m_lsb);
 
         // Hard case: We need to combine multiple drivers to produce the searched bit range
 
         // Sort drivers (they are non-overlapping)
-        std::sort(drivers.begin(), drivers.end(), [](const Driver& a, const Driver& b) {  //
-            return a.m_lsb < b.m_lsb;
+        std::క్రమీకరించు(drivers.begin(), drivers.చివర(), [](స్థిరరాశి Driver& a, స్థిరరాశి Driver& b) {  //
+            తిరిగి a.m_lsb < b.m_lsb;
         });
 
         // Gather terms
-        std::vector<DfgVertex*> termps;
+        std::సదిశ<Dfg_శీర్షం*> termps;
         uint32_t lsb = m_lsb;
-        for (const Driver& driver : drivers) {
+        కొరకు (స్థిరరాశి Driver& driver : drivers) {
             // Driver is below the searched LSB, move on
-            if (lsb > driver.m_msb) continue;
+            ఒకవేళ (lsb > driver.m_msb) కొనసాగు;
             // Driver is above the searched MSB, done
-            if (driver.m_lsb > m_msb) break;
+            ఒకవేళ (driver.m_lsb > m_msb) ఆపు;
             // Gap below this driver, trace default to fill it
-            if (driver.m_lsb > lsb) {
+            ఒకవేళ (driver.m_lsb > lsb) {
                 UASSERT_OBJ(defaultp, vtxp, "Should have a default driver if needs tracing");
-                termps.emplace_back(trace(defaultp, driver.m_lsb - 1, lsb));
+                termps.emplace_వెనుక(trace(defaultp, driver.m_lsb - 1, lsb));
                 lsb = driver.m_lsb;
             }
             // Driver covers searched range, pick the needed/available bits
-            const uint32_t lim = std::min(m_msb, driver.m_msb);
-            termps.emplace_back(trace(driver.m_vtxp, lim - driver.m_lsb, lsb - driver.m_lsb));
+            స్థిరరాశి uint32_t lim = std::min(m_msb, driver.m_msb);
+            termps.emplace_వెనుక(trace(driver.m_vtxp, lim - driver.m_lsb, lsb - driver.m_lsb));
             lsb = lim + 1;
         }
-        if (m_msb >= lsb) {
+        ఒకవేళ (m_msb >= lsb) {
             UASSERT_OBJ(defaultp, vtxp, "Should have a default driver if needs tracing");
-            termps.emplace_back(trace(defaultp, m_msb, lsb));
+            termps.emplace_వెనుక(trace(defaultp, m_msb, lsb));
         }
 
         // The earlier cheks cover the case when either a whole driver or the default covers
         // the whole range, so there should be at least 2 terms required here.
-        UASSERT_OBJ(termps.size() >= 2, vtxp, "Should have returned in special cases");
+        UASSERT_OBJ(termps.కొలత() >= 2, vtxp, "Should have returned in special cases");
 
         // Concatenate all terms and set result
-        DfgVertex* resp = termps.front();
-        for (size_t i = 1; i < termps.size(); ++i) {
-            DfgVertex* const termp = termps[i];
-            DfgConcat* const catp = make<DfgConcat>(termp, resp->width() + termp->width());
+        Dfg_శీర్షం* resp = termps.front();
+        కొరకు (కొలత_t i = 1; i < termps.కొలత(); ++i) {
+            Dfg_శీర్షం* స్థిరరాశి termp = termps[i];
+            DfgConcat* స్థిరరాశి catp = make<DfgConcat>(termp, resp->వెడల్పు() + termp->వెడల్పు());
             catp->rhsp(resp);
             catp->lhsp(termp);
             resp = catp;
         }
-        RETURN_RESULT(resp);
+        RETURN_ఫలితం(resp);
     }
 
-    void visit(DfgSpliceArray* vtxp) override {
+    శూన్య సందర్శించు(DfgSpliceArray* vtxp) override {
         UASSERT_OBJ(m_splicep == vtxp, vtxp, "Unexpected trace of DfgSpliceArray");
-        DfgVertex* const defaultp = m_defaultp;
-        m_defaultp = nullptr;
-        m_splicep = nullptr;
+        Dfg_శీర్షం* స్థిరరాశి defaultp = m_defaultp;
+        m_defaultp = శూన్యసూచిక;
+        m_splicep = శూన్యసూచిక;
 
         // Explicit per-element driver (a UnitArray wrapping the element value)
-        const uint32_t idx = m_idxs.back();
-        if (DfgVertex* const driverp = vtxp->driverAt(idx)) {
-            DfgVertex* const srcp = driverp->as<DfgUnitArray>()->srcp();
-            if (srcp->is<DfgVertexSplice>()) {
+        స్థిరరాశి uint32_t idx = m_idxs.వెనుక();
+        ఒకవేళ (Dfg_శీర్షం* స్థిరరాశి driverp = vtxp->driverAt(idx)) {
+            Dfg_శీర్షం* స్థిరరాశి srcp = driverp->as<DfgUnitArray>()->srcp();
+            ఒకవేళ (srcp->is<Dfg_శీర్షం_Splice>()) {
                 // Partial-element propagation is rejected during synthesis.
                 UASSERT_OBJ(!defaultp, vtxp, "Array default with partial element driver");
                 m_splicep = srcp;
             }
             // Consume this index, then trace the element value
-            RETURN_RESULT(tracePopIdx(srcp));
+            RETURN_ఫలితం(trace_తీయి_Idx(srcp));
         }
         // An element not driven explicitly comes from the default array at the same index.
         UASSERT_OBJ(defaultp, vtxp, "Independent array element should have a driver or default");
-        RETURN_RESULT(traceSameIdx(defaultp));
+        RETURN_ఫలితం(traceSameIdx(defaultp));
     }
 
-    void visit(DfgVertexVar* vtxp) override {
+    శూన్య సందర్శించు(Dfg_శీర్షం_Var* vtxp) override {
         UASSERT_OBJ(!vtxp->isVolatile(), vtxp, "Should not trace through volatile variable");
-        DfgVertex* const srcp = vtxp->srcp();
-        DfgVertex* const defaultp = vtxp->defaultp();
-        DfgVertex* const drvp = srcp ? srcp : defaultp;
+        Dfg_శీర్షం* స్థిరరాశి srcp = vtxp->srcp();
+        Dfg_శీర్షం* స్థిరరాశి defaultp = vtxp->defaultp();
+        Dfg_శీర్షం* స్థిరరాశి drvp = srcp ? srcp : defaultp;
         // If we are about to trace a splice, set the defaultp to the corresponding default
-        if (srcp && srcp->is<DfgVertexSplice>()) {
+        ఒకవేళ (srcp && srcp->is<Dfg_శీర్షం_Splice>()) {
             m_defaultp = defaultp;
             m_splicep = srcp;
         }
         UASSERT_OBJ(drvp, vtxp, "Should not have to trace undriven variable");
         // Packed variable: trace the driver. Array variable: continue navigating it at
         // the pending element (both at the same bit range).
-        RETURN_RESULT(m_idxs.empty() ? trace(drvp, m_msb, m_lsb) : traceSameIdx(drvp));
+        RETURN_ఫలితం(m_idxs.ఖాళీలు() ? trace(drvp, m_msb, m_lsb) : traceSameIdx(drvp));
     }
 
-    void visit(DfgArraySel* vtxp) override {
+    శూన్య సందర్శించు(DfgArraySel* vtxp) override {
         // If constant index, push it and trace the selected element through the array
         // structure of 'fromp'. This handles arbitrarily nested (multi-dimensional)
         // arrays, as each nested ArraySel pushes a further index.
-        if (const DfgConst* const idxp = vtxp->bitp()->cast<DfgConst>()) {
-            RETURN_RESULT(tracePushIdx(vtxp->fromp(), idxp->toU32()));
+        ఒకవేళ (స్థిరరాశి DfgConst* స్థిరరాశి idxp = vtxp->bitp()->cast<DfgConst>()) {
+            RETURN_ఫలితం(trace_నెట్టు_Idx(vtxp->fromp(), idxp->గమ్యం_U32()));
         }
 
         // If index is not constant, independence was proven only if the 'fromp' is
         // independent, so no need to trace that, just reference it with the traced
         // index. This only happens at the packed ArraySel leaf.
-        UASSERT_OBJ(m_idxs.empty(), vtxp, "Non-constant index below an outer array index");
-        DfgArraySel* const resp = make<DfgArraySel>(vtxp, vtxp->width());
+        UASSERT_OBJ(m_idxs.ఖాళీలు(), vtxp, "Non-constant index below an outer array index");
+        DfgArraySel* స్థిరరాశి resp = make<DfgArraySel>(vtxp, vtxp->వెడల్పు());
         resp->fromp(vtxp->fromp());
-        resp->bitp(trace(vtxp->bitp(), vtxp->bitp()->width() - 1, 0));
-        DfgSel* const selp = make<DfgSel>(vtxp, m_msb - m_lsb + 1);
+        resp->bitp(trace(vtxp->bitp(), vtxp->bitp()->వెడల్పు() - 1, 0));
+        DfgSel* స్థిరరాశి selp = make<DfgSel>(vtxp, m_msb - m_lsb + 1);
         selp->fromp(resp);
         selp->lsb(m_lsb);
-        RETURN_RESULT(selp);
+        RETURN_ఫలితం(selp);
     }
 
-    void visit(DfgUnitArray* vtxp) override {
+    శూన్య సందర్శించు(DfgUnitArray* vtxp) override {
         // Single-element array adapter, the pending index must be 0, unwrap the element
-        UASSERT_OBJ(m_idxs.back() == 0, vtxp, "UnitArray element index should be 0");
-        RETURN_RESULT(tracePopIdx(vtxp->srcp()));
+        UASSERT_OBJ(m_idxs.వెనుక() == 0, vtxp, "UnitArray element index should be 0");
+        RETURN_ఫలితం(trace_తీయి_Idx(vtxp->srcp()));
     }
 
-    void visit(DfgConcat* vtxp) override {
-        DfgVertex* const rhsp = vtxp->rhsp();
-        DfgVertex* const lhsp = vtxp->lhsp();
-        const uint32_t rWidth = rhsp->width();
+    శూన్య సందర్శించు(DfgConcat* vtxp) override {
+        Dfg_శీర్షం* స్థిరరాశి rhsp = vtxp->rhsp();
+        Dfg_శీర్షం* స్థిరరాశి lhsp = vtxp->lhsp();
+        స్థిరరాశి uint32_t r_వెడల్పు = rhsp->వెడల్పు();
         // If the traced bits are wholly in the RHS
-        if (rWidth > m_msb) RETURN_RESULT_TAIL(rhsp, m_msb, m_lsb);
+        ఒకవేళ (r_వెడల్పు > m_msb) RETURN_ఫలితం_తోక(rhsp, m_msb, m_lsb);
         // If the traced bits are wholly in the LHS
-        if (m_lsb >= rWidth) RETURN_RESULT_TAIL(lhsp, m_msb - rWidth, m_lsb - rWidth);
+        ఒకవేళ (m_lsb >= r_వెడల్పు) RETURN_ఫలితం_తోక(lhsp, m_msb - r_వెడల్పు, m_lsb - r_వెడల్పు);
         // The traced bit spans both sides, trace both
-        DfgConcat* const resp = make<DfgConcat>(vtxp, m_msb - m_lsb + 1);
-        resp->rhsp(trace(rhsp, rWidth - 1, m_lsb));
-        resp->lhsp(trace(lhsp, m_msb - rWidth, 0));
-        RETURN_RESULT(resp);
+        DfgConcat* స్థిరరాశి resp = make<DfgConcat>(vtxp, m_msb - m_lsb + 1);
+        resp->rhsp(trace(rhsp, r_వెడల్పు - 1, m_lsb));
+        resp->lhsp(trace(lhsp, m_msb - r_వెడల్పు, 0));
+        RETURN_ఫలితం(resp);
     }
 
-    void visit(DfgRep* vtxp) override {
-        DfgVertex* const srcp = vtxp->srcp();
-        const uint32_t sWidth = srcp->width();
+    శూన్య సందర్శించు(DfgRep* vtxp) override {
+        Dfg_శీర్షం* స్థిరరాశి srcp = vtxp->srcp();
+        స్థిరరాశి uint32_t s_వెడల్పు = srcp->వెడల్పు();
         // If we need more bits than the source, then we need the whole source
-        if (m_msb - m_lsb + 1 > sWidth) {
-            DfgRep* const repp = make<DfgRep>(vtxp, vtxp->width());
-            repp->srcp(trace(srcp, sWidth - 1, 0));
-            DfgSel* const resp = make<DfgSel>(vtxp, m_msb - m_lsb + 1);
+        ఒకవేళ (m_msb - m_lsb + 1 > s_వెడల్పు) {
+            DfgRep* స్థిరరాశి repp = make<DfgRep>(vtxp, vtxp->వెడల్పు());
+            repp->srcp(trace(srcp, s_వెడల్పు - 1, 0));
+            DfgSel* స్థిరరాశి resp = make<DfgSel>(vtxp, m_msb - m_lsb + 1);
             resp->fromp(repp);
             resp->lsb(m_lsb);
-            RETURN_RESULT(resp);
+            RETURN_ఫలితం(resp);
         }
         // If the requested bits are within the same repliacted word
-        if (m_msb / sWidth == m_lsb / sWidth) {
-            RETURN_RESULT_TAIL(srcp, m_msb % sWidth, m_lsb % sWidth);
+        ఒకవేళ (m_msb / s_వెడల్పు == m_lsb / s_వెడల్పు) {
+            RETURN_ఫలితం_తోక(srcp, m_msb % s_వెడల్పు, m_lsb % s_వెడల్పు);
         }
         // The requested bits span two replicated words
-        DfgConcat* const resp = make<DfgConcat>(vtxp, m_msb - m_lsb + 1);
-        resp->rhsp(trace(srcp, sWidth - 1, m_lsb % sWidth));
-        resp->lhsp(trace(srcp, m_msb % sWidth, 0));
-        RETURN_RESULT(resp);
+        DfgConcat* స్థిరరాశి resp = make<DfgConcat>(vtxp, m_msb - m_lsb + 1);
+        resp->rhsp(trace(srcp, s_వెడల్పు - 1, m_lsb % s_వెడల్పు));
+        resp->lhsp(trace(srcp, m_msb % s_వెడల్పు, 0));
+        RETURN_ఫలితం(resp);
     }
 
-    void visit(DfgExtend* vtxp) override {
-        DfgVertex* const srcp = vtxp->srcp();
-        const uint32_t sWidth = srcp->width();
+    శూన్య సందర్శించు(DfgExtend* vtxp) override {
+        Dfg_శీర్షం* స్థిరరాశి srcp = vtxp->srcp();
+        స్థిరరాశి uint32_t s_వెడల్పు = srcp->వెడల్పు();
         // If the traced bits are wholly in the input
-        if (sWidth > m_msb) RETURN_RESULT_TAIL(srcp, m_msb, m_lsb);
+        ఒకవేళ (s_వెడల్పు > m_msb) RETURN_ఫలితం_తోక(srcp, m_msb, m_lsb);
         // If the traced bits are wholly in the extension
-        if (m_lsb >= sWidth) RETURN_RESULT(make<DfgConst>(vtxp, m_msb - m_lsb + 1));
+        ఒకవేళ (m_lsb >= s_వెడల్పు) RETURN_ఫలితం(make<DfgConst>(vtxp, m_msb - m_lsb + 1));
         // The traced bits span both sides
-        DfgExtend* const resp = make<DfgExtend>(vtxp, m_msb - m_lsb + 1);
-        resp->srcp(trace(srcp, sWidth - 1, m_lsb));
-        RETURN_RESULT(resp);
+        DfgExtend* స్థిరరాశి resp = make<DfgExtend>(vtxp, m_msb - m_lsb + 1);
+        resp->srcp(trace(srcp, s_వెడల్పు - 1, m_lsb));
+        RETURN_ఫలితం(resp);
     }
 
-    void visit(DfgExtendS* vtxp) override {
-        DfgVertex* const srcp = vtxp->srcp();
-        const uint32_t sWidth = srcp->width();
+    శూన్య సందర్శించు(DfgExtendS* vtxp) override {
+        Dfg_శీర్షం* స్థిరరాశి srcp = vtxp->srcp();
+        స్థిరరాశి uint32_t s_వెడల్పు = srcp->వెడల్పు();
         // If the traced bits are wholly in the input
-        if (sWidth > m_msb) RETURN_RESULT_TAIL(srcp, m_msb, m_lsb);
+        ఒకవేళ (s_వెడల్పు > m_msb) RETURN_ఫలితం_తోక(srcp, m_msb, m_lsb);
         // If the traced bits are wholly in the extension
-        if (m_lsb >= sWidth) {
-            if (m_msb == m_lsb) RETURN_RESULT_TAIL(srcp, sWidth - 1, sWidth - 1);
-            DfgExtendS* const resp = make<DfgExtendS>(vtxp, m_msb - m_lsb + 1);
-            resp->srcp(trace(srcp, sWidth - 1, sWidth - 1));
-            RETURN_RESULT(resp);
+        ఒకవేళ (m_lsb >= s_వెడల్పు) {
+            ఒకవేళ (m_msb == m_lsb) RETURN_ఫలితం_తోక(srcp, s_వెడల్పు - 1, s_వెడల్పు - 1);
+            DfgExtendS* స్థిరరాశి resp = make<DfgExtendS>(vtxp, m_msb - m_lsb + 1);
+            resp->srcp(trace(srcp, s_వెడల్పు - 1, s_వెడల్పు - 1));
+            RETURN_ఫలితం(resp);
         }
         // The traced bits span both sides
-        DfgExtendS* const resp = make<DfgExtendS>(vtxp, m_msb - m_lsb + 1);
-        resp->srcp(trace(srcp, sWidth - 1, m_lsb));
-        RETURN_RESULT(resp);
+        DfgExtendS* స్థిరరాశి resp = make<DfgExtendS>(vtxp, m_msb - m_lsb + 1);
+        resp->srcp(trace(srcp, s_వెడల్పు - 1, m_lsb));
+        RETURN_ఫలితం(resp);
     }
 
-    void visit(DfgSel* vtxp) override {
-        const uint32_t lsb = vtxp->lsb();
-        RETURN_RESULT_TAIL(vtxp->srcp(), m_msb + lsb, m_lsb + lsb);
+    శూన్య సందర్శించు(DfgSel* vtxp) override {
+        స్థిరరాశి uint32_t lsb = vtxp->lsb();
+        RETURN_ఫలితం_తోక(vtxp->srcp(), m_msb + lsb, m_lsb + lsb);
     }
 
-    void visit(DfgNot* vtxp) override {
-        DfgNot* const resp = make<DfgNot>(vtxp, m_msb - m_lsb + 1);
+    శూన్య సందర్శించు(DfgNot* vtxp) override {
+        DfgNot* స్థిరరాశి resp = make<DfgNot>(vtxp, m_msb - m_lsb + 1);
         resp->srcp(trace(vtxp->srcp(), m_msb, m_lsb));
-        RETURN_RESULT(resp);
+        RETURN_ఫలితం(resp);
     }
 
-    void visit(DfgAnd* vtxp) override { RETURN_RESULT(traceBitwiseBinary(vtxp)); }
-    void visit(DfgOr* vtxp) override { RETURN_RESULT(traceBitwiseBinary(vtxp)); }
-    void visit(DfgXor* vtxp) override { RETURN_RESULT(traceBitwiseBinary(vtxp)); }
-    void visit(DfgAdd* vtxp) override { RETURN_RESULT(traceAddSub(vtxp)); }
-    void visit(DfgSub* vtxp) override { RETURN_RESULT(traceAddSub(vtxp)); }
-    void visit(DfgRedAnd* vtxp) override { RETURN_RESULT(traceReduction(vtxp)); }
-    void visit(DfgRedOr* vtxp) override { RETURN_RESULT(traceReduction(vtxp)); }
-    void visit(DfgRedXor* vtxp) override { RETURN_RESULT(traceReduction(vtxp)); }
-    void visit(DfgEq* vtxp) override { RETURN_RESULT(traceCmp(vtxp)); }
-    void visit(DfgNeq* vtxp) override { RETURN_RESULT(traceCmp(vtxp)); }
-    void visit(DfgLt* vtxp) override { RETURN_RESULT(traceCmp(vtxp)); }
-    void visit(DfgLte* vtxp) override { RETURN_RESULT(traceCmp(vtxp)); }
-    void visit(DfgGt* vtxp) override { RETURN_RESULT(traceCmp(vtxp)); }
-    void visit(DfgGte* vtxp) override { RETURN_RESULT(traceCmp(vtxp)); }
+    శూన్య సందర్శించు(DfgAnd* vtxp) override { RETURN_ఫలితం(trace_Bitwise_ద్విమాన(vtxp)); }
+    శూన్య సందర్శించు(DfgOr* vtxp) override { RETURN_ఫలితం(trace_Bitwise_ద్విమాన(vtxp)); }
+    శూన్య సందర్శించు(DfgXor* vtxp) override { RETURN_ఫలితం(trace_Bitwise_ద్విమాన(vtxp)); }
+    శూన్య సందర్శించు(Dfg_కూడు* vtxp) override { RETURN_ఫలితం(trace_కూడు_Sub(vtxp)); }
+    శూన్య సందర్శించు(DfgSub* vtxp) override { RETURN_ఫలితం(trace_కూడు_Sub(vtxp)); }
+    శూన్య సందర్శించు(DfgRedAnd* vtxp) override { RETURN_ఫలితం(traceReduction(vtxp)); }
+    శూన్య సందర్శించు(DfgRedOr* vtxp) override { RETURN_ఫలితం(traceReduction(vtxp)); }
+    శూన్య సందర్శించు(DfgRedXor* vtxp) override { RETURN_ఫలితం(traceReduction(vtxp)); }
+    శూన్య సందర్శించు(DfgEq* vtxp) override { RETURN_ఫలితం(traceCmp(vtxp)); }
+    శూన్య సందర్శించు(DfgNeq* vtxp) override { RETURN_ఫలితం(traceCmp(vtxp)); }
+    శూన్య సందర్శించు(DfgLt* vtxp) override { RETURN_ఫలితం(traceCmp(vtxp)); }
+    శూన్య సందర్శించు(DfgLte* vtxp) override { RETURN_ఫలితం(traceCmp(vtxp)); }
+    శూన్య సందర్శించు(DfgGt* vtxp) override { RETURN_ఫలితం(traceCmp(vtxp)); }
+    శూన్య సందర్శించు(DfgGte* vtxp) override { RETURN_ఫలితం(traceCmp(vtxp)); }
 
-    void visit(DfgShiftRS* vtxp) override {
-        DfgVertex* const lhsp = vtxp->lhsp();
-        if (const DfgConst* const rConstp = vtxp->rhsp()->cast<DfgConst>()) {
-            const uint32_t shiftAmnt = rConstp->toU32();
+    శూన్య సందర్శించు(Dfg_జరుపు_RS* vtxp) override {
+        Dfg_శీర్షం* స్థిరరాశి lhsp = vtxp->lhsp();
+        ఒకవేళ (స్థిరరాశి DfgConst* స్థిరరాశి rConstp = vtxp->rhsp()->cast<DfgConst>()) {
+            స్థిరరాశి uint32_t జరుపు_Amnt = rConstp->గమ్యం_U32();
             // Width of lower half of result
-            const uint32_t lowerWidth = shiftAmnt > vtxp->width() ? 0 : vtxp->width() - shiftAmnt;
+            స్థిరరాశి uint32_t క్రింది_వెడల్పు = జరుపు_Amnt > vtxp->వెడల్పు() ? 0 : vtxp->వెడల్పు() - జరుపు_Amnt;
             // If the traced bits are wholly in the input
-            if (lowerWidth > m_msb) {
-                RETURN_RESULT_TAIL(lhsp, m_msb + shiftAmnt, m_lsb + shiftAmnt);
+            ఒకవేళ (క్రింది_వెడల్పు > m_msb) {
+                RETURN_ఫలితం_తోక(lhsp, m_msb + జరుపు_Amnt, m_lsb + జరుపు_Amnt);
             }
             // If the traced bits are wholly in the extension
-            if (m_lsb >= lowerWidth) {
-                DfgExtendS* const resp = make<DfgExtendS>(vtxp, m_msb - m_lsb + 1);
-                resp->srcp(trace(lhsp, lhsp->width() - 1, lhsp->width() - 1));
-                RETURN_RESULT(resp);
+            ఒకవేళ (m_lsb >= క్రింది_వెడల్పు) {
+                DfgExtendS* స్థిరరాశి resp = make<DfgExtendS>(vtxp, m_msb - m_lsb + 1);
+                resp->srcp(trace(lhsp, lhsp->వెడల్పు() - 1, lhsp->వెడల్పు() - 1));
+                RETURN_ఫలితం(resp);
             }
             // The traced bits span both sides
-            DfgExtendS* const resp = make<DfgExtendS>(vtxp, m_msb - m_lsb + 1);
-            resp->srcp(trace(lhsp, lowerWidth - 1 + shiftAmnt, m_lsb + shiftAmnt));
-            RETURN_RESULT(resp);
+            DfgExtendS* స్థిరరాశి resp = make<DfgExtendS>(vtxp, m_msb - m_lsb + 1);
+            resp->srcp(trace(lhsp, క్రింది_వెడల్పు - 1 + జరుపు_Amnt, m_lsb + జరుపు_Amnt));
+            RETURN_ఫలితం(resp);
         }
 
-        DfgShiftRS* const shiftrsp = make<DfgShiftRS>(vtxp, vtxp->lhsp()->width() - m_lsb);
-        shiftrsp->rhsp(trace(vtxp->rhsp(), vtxp->rhsp()->width() - 1, 0));
-        shiftrsp->lhsp(trace(vtxp->lhsp(), vtxp->lhsp()->width() - 1, m_lsb));
-        if (m_msb == vtxp->lhsp()->width() - 1) RETURN_RESULT(shiftrsp);
-        DfgSel* const selp = make<DfgSel>(vtxp, m_msb - m_lsb + 1);
+        Dfg_జరుపు_RS* స్థిరరాశి shiftrsp = make<Dfg_జరుపు_RS>(vtxp, vtxp->lhsp()->వెడల్పు() - m_lsb);
+        shiftrsp->rhsp(trace(vtxp->rhsp(), vtxp->rhsp()->వెడల్పు() - 1, 0));
+        shiftrsp->lhsp(trace(vtxp->lhsp(), vtxp->lhsp()->వెడల్పు() - 1, m_lsb));
+        ఒకవేళ (m_msb == vtxp->lhsp()->వెడల్పు() - 1) RETURN_ఫలితం(shiftrsp);
+        DfgSel* స్థిరరాశి selp = make<DfgSel>(vtxp, m_msb - m_lsb + 1);
         selp->fromp(shiftrsp);
         selp->lsb(0);
-        RETURN_RESULT(selp);
+        RETURN_ఫలితం(selp);
     }
 
-    void visit(DfgShiftR* vtxp) override {
-        DfgVertex* const lhsp = vtxp->lhsp();
-        if (const DfgConst* const rConstp = vtxp->rhsp()->cast<DfgConst>()) {
-            const uint32_t shiftAmnt = rConstp->toU32();
+    శూన్య సందర్శించు(Dfg_జరుపు_R* vtxp) override {
+        Dfg_శీర్షం* స్థిరరాశి lhsp = vtxp->lhsp();
+        ఒకవేళ (స్థిరరాశి DfgConst* స్థిరరాశి rConstp = vtxp->rhsp()->cast<DfgConst>()) {
+            స్థిరరాశి uint32_t జరుపు_Amnt = rConstp->గమ్యం_U32();
             // Width of lower half of result
-            const uint32_t lowerWidth = shiftAmnt > vtxp->width() ? 0 : vtxp->width() - shiftAmnt;
+            స్థిరరాశి uint32_t క్రింది_వెడల్పు = జరుపు_Amnt > vtxp->వెడల్పు() ? 0 : vtxp->వెడల్పు() - జరుపు_Amnt;
             // If the traced bits are wholly in the input
-            if (lowerWidth > m_msb) {
-                RETURN_RESULT_TAIL(lhsp, m_msb + shiftAmnt, m_lsb + shiftAmnt);
+            ఒకవేళ (క్రింది_వెడల్పు > m_msb) {
+                RETURN_ఫలితం_తోక(lhsp, m_msb + జరుపు_Amnt, m_lsb + జరుపు_Amnt);
             }
             // If the traced bits are wholly in the extension
-            if (m_lsb >= lowerWidth) RETURN_RESULT(make<DfgConst>(vtxp, m_msb - m_lsb + 1));
+            ఒకవేళ (m_lsb >= క్రింది_వెడల్పు) RETURN_ఫలితం(make<DfgConst>(vtxp, m_msb - m_lsb + 1));
             // The traced bits span both sides
-            DfgExtend* const resp = make<DfgExtend>(vtxp, m_msb - m_lsb + 1);
-            resp->srcp(trace(lhsp, lowerWidth - 1 + shiftAmnt, m_lsb + shiftAmnt));
-            RETURN_RESULT(resp);
+            DfgExtend* స్థిరరాశి resp = make<DfgExtend>(vtxp, m_msb - m_lsb + 1);
+            resp->srcp(trace(lhsp, క్రింది_వెడల్పు - 1 + జరుపు_Amnt, m_lsb + జరుపు_Amnt));
+            RETURN_ఫలితం(resp);
         }
 
-        DfgShiftR* const shiftrp = make<DfgShiftR>(vtxp, vtxp->lhsp()->width() - m_lsb);
-        shiftrp->rhsp(trace(vtxp->rhsp(), vtxp->rhsp()->width() - 1, 0));
-        shiftrp->lhsp(trace(vtxp->lhsp(), vtxp->lhsp()->width() - 1, m_lsb));
-        if (m_msb == vtxp->lhsp()->width() - 1) RETURN_RESULT(shiftrp);
-        DfgSel* const selp = make<DfgSel>(vtxp, m_msb - m_lsb + 1);
+        Dfg_జరుపు_R* స్థిరరాశి shiftrp = make<Dfg_జరుపు_R>(vtxp, vtxp->lhsp()->వెడల్పు() - m_lsb);
+        shiftrp->rhsp(trace(vtxp->rhsp(), vtxp->rhsp()->వెడల్పు() - 1, 0));
+        shiftrp->lhsp(trace(vtxp->lhsp(), vtxp->lhsp()->వెడల్పు() - 1, m_lsb));
+        ఒకవేళ (m_msb == vtxp->lhsp()->వెడల్పు() - 1) RETURN_ఫలితం(shiftrp);
+        DfgSel* స్థిరరాశి selp = make<DfgSel>(vtxp, m_msb - m_lsb + 1);
         selp->fromp(shiftrp);
         selp->lsb(0);
-        RETURN_RESULT(selp);
+        RETURN_ఫలితం(selp);
     }
 
-    void visit(DfgShiftL* vtxp) override {
-        DfgVertex* const lhsp = vtxp->lhsp();
-        if (const DfgConst* const rConstp = vtxp->rhsp()->cast<DfgConst>()) {
-            const uint32_t shiftAmnt = rConstp->toU32();
+    శూన్య సందర్శించు(Dfg_జరుపు_L* vtxp) override {
+        Dfg_శీర్షం* స్థిరరాశి lhsp = vtxp->lhsp();
+        ఒకవేళ (స్థిరరాశి DfgConst* స్థిరరాశి rConstp = vtxp->rhsp()->cast<DfgConst>()) {
+            స్థిరరాశి uint32_t జరుపు_Amnt = rConstp->గమ్యం_U32();
             // Width of lower half of result
-            const uint32_t lowerWidth = shiftAmnt > vtxp->width() ? vtxp->width() : shiftAmnt;
+            స్థిరరాశి uint32_t క్రింది_వెడల్పు = జరుపు_Amnt > vtxp->వెడల్పు() ? vtxp->వెడల్పు() : జరుపు_Amnt;
             // If the traced bits are wholly in the input
-            if (m_lsb >= lowerWidth) {
-                RETURN_RESULT_TAIL(lhsp, m_msb - shiftAmnt, m_lsb - shiftAmnt);
+            ఒకవేళ (m_lsb >= క్రింది_వెడల్పు) {
+                RETURN_ఫలితం_తోక(lhsp, m_msb - జరుపు_Amnt, m_lsb - జరుపు_Amnt);
             }
             // If the traced bits are wholly in the extension
-            if (lowerWidth > m_msb) RETURN_RESULT(make<DfgConst>(vtxp, m_msb - m_lsb + 1));
+            ఒకవేళ (క్రింది_వెడల్పు > m_msb) RETURN_ఫలితం(make<DfgConst>(vtxp, m_msb - m_lsb + 1));
             // The traced bits span both sides
-            DfgConcat* const resp = make<DfgConcat>(vtxp, m_msb - m_lsb + 1);
-            resp->rhsp(make<DfgConst>(vtxp, resp->width() - (m_msb - lowerWidth + 1)));
-            resp->lhsp(trace(lhsp, m_msb - shiftAmnt, lowerWidth - shiftAmnt));
-            RETURN_RESULT(resp);
+            DfgConcat* స్థిరరాశి resp = make<DfgConcat>(vtxp, m_msb - m_lsb + 1);
+            resp->rhsp(make<DfgConst>(vtxp, resp->వెడల్పు() - (m_msb - క్రింది_వెడల్పు + 1)));
+            resp->lhsp(trace(lhsp, m_msb - జరుపు_Amnt, క్రింది_వెడల్పు - జరుపు_Amnt));
+            RETURN_ఫలితం(resp);
         }
 
-        DfgShiftL* const shiftlp = make<DfgShiftL>(vtxp, m_msb + 1);
-        shiftlp->rhsp(trace(vtxp->rhsp(), vtxp->rhsp()->width() - 1, 0));
+        Dfg_జరుపు_L* స్థిరరాశి shiftlp = make<Dfg_జరుపు_L>(vtxp, m_msb + 1);
+        shiftlp->rhsp(trace(vtxp->rhsp(), vtxp->rhsp()->వెడల్పు() - 1, 0));
         shiftlp->lhsp(trace(vtxp->lhsp(), m_msb, 0));
-        if (m_lsb == 0) RETURN_RESULT(shiftlp);
-        DfgSel* const selp = make<DfgSel>(vtxp, m_msb - m_lsb + 1);
+        ఒకవేళ (m_lsb == 0) RETURN_ఫలితం(shiftlp);
+        DfgSel* స్థిరరాశి selp = make<DfgSel>(vtxp, m_msb - m_lsb + 1);
         selp->fromp(shiftlp);
         selp->lsb(m_lsb);
-        RETURN_RESULT(selp);
+        RETURN_ఫలితం(selp);
     }
 
-    void visit(DfgCond* vtxp) override {
-        DfgCond* const resp = make<DfgCond>(vtxp, m_msb - m_lsb + 1);
-        resp->condp(trace(vtxp->condp(), vtxp->condp()->width() - 1, 0));
+    శూన్య సందర్శించు(DfgCond* vtxp) override {
+        DfgCond* స్థిరరాశి resp = make<DfgCond>(vtxp, m_msb - m_lsb + 1);
+        resp->condp(trace(vtxp->condp(), vtxp->condp()->వెడల్పు() - 1, 0));
         resp->thenp(trace(vtxp->thenp(), m_msb, m_lsb));
         resp->elsep(trace(vtxp->elsep(), m_msb, m_lsb));
-        RETURN_RESULT(resp);
+        RETURN_ఫలితం(resp);
     }
 
-    void visit(DfgMatchMasked* vtxp) override {
-        DfgMatchMasked* const resp = make<DfgMatchMasked>(vtxp, vtxp->width());
-        resp->lhsp(trace(vtxp->lhsp(), vtxp->lhsp()->width() - 1, 0));
-        resp->matchp(trace(vtxp->matchp(), vtxp->matchp()->width() - 1, 0));
-        DfgSel* const selp = make<DfgSel>(vtxp, m_msb - m_lsb + 1);
+    శూన్య సందర్శించు(Dfg_సరిపోలిక_Masked* vtxp) override {
+        Dfg_సరిపోలిక_Masked* స్థిరరాశి resp = make<Dfg_సరిపోలిక_Masked>(vtxp, vtxp->వెడల్పు());
+        resp->lhsp(trace(vtxp->lhsp(), vtxp->lhsp()->వెడల్పు() - 1, 0));
+        resp->matchp(trace(vtxp->matchp(), vtxp->matchp()->వెడల్పు() - 1, 0));
+        DfgSel* స్థిరరాశి selp = make<DfgSel>(vtxp, m_msb - m_lsb + 1);
         selp->fromp(resp);
         selp->lsb(m_lsb);
-        RETURN_RESULT(selp);
+        RETURN_ఫలితం(selp);
     }
 
-#undef RETURN_RESULT
-#undef TRACE_RESULT_COVER
-#undef RETURN_RESULT_TAIL
+#నిర్వచనం_రద్దు RETURN_ఫలితం
+#నిర్వచనం_రద్దు TRACE_ఫలితం_COVER
+#నిర్వచనం_రద్దు RETURN_ఫలితం_తోక
 
-public:
+బహిరంగ:
     // CONSTRUCTOR
-    TraceDriver(DfgGraph& dfg, SccInfo& sccInfo)
+    TraceDriver(Dfg_లేఖాచిత్రం& dfg, SccInfo& sccInfo)
         : m_dfg{dfg}
         , m_sccInfo{sccInfo} {
-#ifdef VL_DEBUG
-        if (v3Global.opt.debugCheck()) {
-            m_lineCoverageFile.open(  //
-                v3Global.opt.makeDir() + "/" + v3Global.opt.prefix()
+#నిర్వచితమైతే VL_DEBUG
+        ఒకవేళ (v3Global.opt.debugCheck()) {
+            m_పంక్తి_Coverage_File.open(  //
+                v3Global.opt.makeDir() + "/" + v3Global.opt.ఉపసర్గ()
                     + "__V3DfgBreakCycles-TraceDriver-line-coverage.txt",  //
-                std::ios_base::out | std::ios_base::app);
+                std::ios_పునాది::బహిర్గతం | std::ios_పునాది::app);
         }
-#endif
+#అయితే_ముగింపు
     }
 
     // Given a Vertex that is part of an SCC, return a vertex that is equivalent
     // to 'vtxp[lsb +: width]', but is not part of the same SCC. This should only
     // be called if the bit range is known to be independent of the SCC, so the
     // trace can always succeed.
-    DfgVertex* apply(DfgVertex& vtx, uint32_t lsb, uint32_t width) {
+    Dfg_శీర్షం* apply(Dfg_శీర్షం& vtx, uint32_t lsb, uint32_t వెడల్పు) {
         VL_RESTORER(m_component);
         m_component = m_sccInfo.get(vtx);
-        return trace(&vtx, lsb + width - 1, lsb);
+        తిరిగి trace(&vtx, lsb + వెడల్పు - 1, lsb);
     }
 };
 
 // A bit mask for each bit in a value, which can be either packed or aggregate type
-class BitMask final {
+తరగతి బిట్టు_ముసుగు final {
     // TYPES
-    const DfgDataType& m_dtype;
-    union {
-        V3Number m_num;  // The bits, if packed
-        std::vector<BitMask> m_sub;  // The per element masks, if aggregate
+    స్థిరరాశి Dfg_దత్తాంశం_Type& m_dtype;
+    సంఘం {
+        V3_సంఖ్య m_అంకె;  // The bits, if packed
+        std::సదిశ<బిట్టు_ముసుగు> m_sub;  // The per element masks, if aggregate
     };
 
-public:
+బహిరంగ:
     // CONSTRUCTOR
-    BitMask(FileLine* flp, const DfgDataType& dtype)
+    బిట్టు_ముసుగు(File_పంక్తి* flp, స్థిరరాశి Dfg_దత్తాంశం_Type& dtype)
         : m_dtype{dtype} {
         UASSERT_OBJ(!m_dtype.isNull(), flp, "Expected non-null data type");
-        if (m_dtype.isPacked()) {
-            new (&m_num) V3Number{flp, static_cast<int>(m_dtype.size()), 0};
-        } else {
-            new (&m_sub) std::vector<BitMask>{};
-            m_sub.reserve(m_dtype.size());
-            for (uint32_t i = 0; i < m_dtype.size(); ++i)
-                m_sub.emplace_back(flp, m_dtype.elemDtype());
+        ఒకవేళ (m_dtype.isPacked()) {
+            కొత్త (&m_అంకె) V3_సంఖ్య{flp, static_cast<పూర్ణాంకం>(m_dtype.కొలత()), 0};
+        } లేకపోతే {
+            కొత్త (&m_sub) std::సదిశ<బిట్టు_ముసుగు>{};
+            m_sub.reserve(m_dtype.కొలత());
+            కొరకు (uint32_t i = 0; i < m_dtype.కొలత(); ++i)
+                m_sub.emplace_వెనుక(flp, m_dtype.elemDtype());
         }
     }
-    BitMask(const DfgVertex& vtx)
-        : BitMask{vtx.fileline(), vtx.dtype()} {}
-    BitMask(const BitMask& other)
+    బిట్టు_ముసుగు(స్థిరరాశి Dfg_శీర్షం& vtx)
+        : బిట్టు_ముసుగు{vtx.fileline(), vtx.dtype()} {}
+    బిట్టు_ముసుగు(స్థిరరాశి బిట్టు_ముసుగు& other)
         : m_dtype{other.m_dtype} {
-        if (m_dtype.isPacked()) {
-            new (&m_num) V3Number{other.m_num};
-        } else {
-            new (&m_sub) std::vector<BitMask>{other.m_sub};
+        ఒకవేళ (m_dtype.isPacked()) {
+            కొత్త (&m_అంకె) V3_సంఖ్య{other.m_అంకె};
+        } లేకపోతే {
+            కొత్త (&m_sub) std::సదిశ<బిట్టు_ముసుగు>{other.m_sub};
         }
     }
-    BitMask& operator=(const BitMask& other) {
-        if (this != &other) {
+    బిట్టు_ముసుగు& క్రియాకారకం=(స్థిరరాశి బిట్టు_ముసుగు& other) {
+        ఒకవేళ (ఇది != &other) {
             UASSERT(m_dtype == other.m_dtype, "Expected same data type");
-            if (other.m_dtype.isPacked()) {
-                m_num = other.m_num;
-            } else {
+            ఒకవేళ (other.m_dtype.isPacked()) {
+                m_అంకె = other.m_అంకె;
+            } లేకపోతే {
                 m_sub = other.m_sub;
             }
         }
-        return *this;
+        తిరిగి *ఇది;
     }
-    ~BitMask() {
-        if (m_dtype.isPacked()) {
-            m_num.~V3Number();
-        } else {
-            m_sub.~vector<BitMask>();
+    ~బిట్టు_ముసుగు() {
+        ఒకవేళ (m_dtype.isPacked()) {
+            m_అంకె.~V3_సంఖ్య();
+        } లేకపోతే {
+            m_sub.~సదిశ<బిట్టు_ముసుగు>();
         }
     }
 
     // METHODS
-    V3Number& num() {
+    V3_సంఖ్య& అంకె() {
         UASSERT(m_dtype.isPacked(), "Expected packed data type");
-        return m_num;
+        తిరిగి m_అంకె;
     }
-    const V3Number& num() const {
+    స్థిరరాశి V3_సంఖ్య& అంకె() స్థిరరాశి {
         UASSERT(m_dtype.isPacked(), "Expected packed data type");
-        return m_num;
+        తిరిగి m_అంకె;
     }
-    std::vector<BitMask>& sub() {
+    std::సదిశ<బిట్టు_ముసుగు>& sub() {
         UASSERT(m_dtype.isArray(), "Expected array data type");
-        return m_sub;
+        తిరిగి m_sub;
     }
 
-    bool isZero() const {
-        if (m_dtype.isPacked()) return m_num.isEqZero();
+    తార్కిక isZero() స్థిరరాశి {
+        ఒకవేళ (m_dtype.isPacked()) తిరిగి m_అంకె.isEqZero();
 
-        for (const BitMask& sub : m_sub) {
-            if (!sub.isZero()) return false;
+        కొరకు (స్థిరరాశి బిట్టు_ముసుగు& sub : m_sub) {
+            ఒకవేళ (!sub.isZero()) తిరిగి అబద్ధం;
         }
-        return true;
+        తిరిగి నిజం;
     }
-    bool isOnes() const {
-        if (m_dtype.isPacked()) return m_num.isEqAllOnes();
+    తార్కిక isOnes() స్థిరరాశి {
+        ఒకవేళ (m_dtype.isPacked()) తిరిగి m_అంకె.isEqAllOnes();
 
-        for (const BitMask& sub : m_sub) {
-            if (!sub.isOnes()) return false;
+        కొరకు (స్థిరరాశి బిట్టు_ముసుగు& sub : m_sub) {
+            ఒకవేళ (!sub.isOnes()) తిరిగి అబద్ధం;
         }
-        return true;
+        తిరిగి నిజం;
     }
-    void setZero() {
-        if (m_dtype.isPacked()) {
-            m_num.setAllBits0();
-        } else {
-            for (BitMask& sub : m_sub) sub.setZero();
+    శూన్య సమితి_Zero() {
+        ఒకవేళ (m_dtype.isPacked()) {
+            m_అంకె.సమితి_All_Bits0();
+        } లేకపోతే {
+            కొరకు (బిట్టు_ముసుగు& sub : m_sub) sub.సమితి_Zero();
         }
     }
-    void setOnes() {
-        if (m_dtype.isPacked()) {
-            m_num.setAllBits1();
-        } else {
-            for (BitMask& sub : m_sub) sub.setOnes();
+    శూన్య సమితి_Ones() {
+        ఒకవేళ (m_dtype.isPacked()) {
+            m_అంకె.సమితి_All_Bits1();
+        } లేకపోతే {
+            కొరకు (బిట్టు_ముసుగు& sub : m_sub) sub.సమితి_Ones();
         }
     }
 
-    bool operator==(const BitMask& other) const {
+    తార్కిక క్రియాకారకం==(స్థిరరాశి బిట్టు_ముసుగు& other) స్థిరరాశి {
         UASSERT(m_dtype == other.m_dtype, "Expected same data type");
-        if (m_dtype.isPacked()) return m_num.isCaseEq(other.m_num);
-        return m_sub == other.m_sub;
+        ఒకవేళ (m_dtype.isPacked()) తిరిగి m_అంకె.isCaseEq(other.m_అంకె);
+        తిరిగి m_sub == other.m_sub;
     }
-    bool operator!=(const BitMask& other) const { return !(*this == other); }
+    తార్కిక క్రియాకారకం!=(స్థిరరాశి బిట్టు_ముసుగు& other) స్థిరరాశి { తిరిగి !(*ఇది == other); }
 
     // 'this' has a clear bit where 'that' has a set bit, that is,
     // 'this' has a proper subset of bits set compared to 'that'.
-    bool isContractionOf(const BitMask& that) const {
+    తార్కిక is_Contraction_యొక్క(స్థిరరాశి బిట్టు_ముసుగు& that) స్థిరరాశి {
         UASSERT(m_dtype == that.m_dtype, "Expected same data type");
-        if (m_dtype.isPacked()) {
-            const size_t words = VL_WORDS_I(m_dtype.size());
-            for (size_t i = 0; i < words; ++i) {
-                if (~m_num.edataWord(i) & that.m_num.edataWord(i)) return true;
+        ఒకవేళ (m_dtype.isPacked()) {
+            స్థిరరాశి కొలత_t పదాలు = VL_పదాలు_I(m_dtype.కొలత());
+            కొరకు (కొలత_t i = 0; i < పదాలు; ++i) {
+                ఒకవేళ (~m_అంకె.edata_మాట(i) & that.m_అంకె.edata_మాట(i)) తిరిగి నిజం;
             }
-            return false;
+            తిరిగి అబద్ధం;
         }
 
         UASSERT(m_dtype.isArray(), "Expected array data type");
-        for (size_t i = 0; i < m_sub.size(); ++i) {
-            if (m_sub[i].isContractionOf(that.m_sub[i])) return true;
+        కొరకు (కొలత_t i = 0; i < m_sub.కొలత(); ++i) {
+            ఒకవేళ (m_sub[i].is_Contraction_యొక్క(that.m_sub[i])) తిరిగి నిజం;
         }
-        return false;
+        తిరిగి అబద్ధం;
     }
 
-    std::string toString() const {
-        if (m_dtype.isPacked()) return "0x" + m_num.displayed(m_num.fileline(), "%x");
-        std::string result;
-        result += "{";
-        for (const BitMask& sub : m_sub) {
-            if (&sub != &m_sub.front()) result += ", ";
-            result += sub.toString();
+    std::string గమ్యం_String() స్థిరరాశి {
+        ఒకవేళ (m_dtype.isPacked()) తిరిగి "0x" + m_అంకె.displayed(m_అంకె.fileline(), "%x");
+        std::string ఫలితం;
+        ఫలితం += "{";
+        కొరకు (స్థిరరాశి బిట్టు_ముసుగు& sub : m_sub) {
+            ఒకవేళ (&sub != &m_sub.front()) ఫలితం += ", ";
+            ఫలితం += sub.గమ్యం_String();
         }
-        result += "}";
-        return result;
+        ఫలితం += "}";
+        తిరిగి ఫలితం;
     }
 };
 
-class IndependentBits final : public DfgVisitor {
+తరగతి Independent_బిట్లు final : బహిరంగ DfgVisitor {
     // TYPES
-    struct VertexState final {
-        size_t m_rpoNumber = 0;  // Reverse Postorder Number of vertex
-        bool m_isOnWorkList = false;  // Whether the vertex is on the work list
+    నిర్మాణం శీర్షం_State final {
+        కొలత_t m_rpo_సంఖ్య = 0;  // Reverse Postorder Number of vertex
+        తార్కిక m_isOnWorkList = అబద్ధం;  // Whether the vertex is on the work list
     };
 
     // STATE
-    const SccInfo& m_sccInfo;  // The SccInfo instance
+    స్థిరరాశి SccInfo& m_sccInfo;  // The SccInfo instance
     // Vertex to current bit mask map. The mask is set for the bits that are independent of the SCC
-    std::unordered_map<const DfgVertex*, BitMask> m_vtxp2Mask;
+    std::unordered_map<స్థిరరాశి Dfg_శీర్షం*, బిట్టు_ముసుగు> m_vtxp2_ముసుగు;
     // Work list for the traversal (min-queue of vertex RPO numbers)
-    std::priority_queue<size_t, std::vector<size_t>, std::greater<size_t>> m_workQueue;
-    std::unordered_map<const DfgVertex*, VertexState> m_vtxp2State;  // State of each vertex
+    std::ప్రాధాన్యత_వరుస<కొలత_t, std::సదిశ<కొలత_t>, std::greater<కొలత_t>> m_work_వరుస;
+    std::unordered_map<స్థిరరాశి Dfg_శీర్షం*, శీర్షం_State> m_vtxp2State;  // State of each vertex
 
-#ifdef VL_DEBUG
-    std::ofstream m_lineCoverageFile;  // Line coverage file, just for testing
-#endif
+#నిర్వచితమైతే VL_DEBUG
+    std::ofstream m_పంక్తి_Coverage_File;  // Line coverage file, just for testing
+#అయితే_ముగింపు
 
     // METHODS
 
     // Retrieve the mask for the given vertex (create it with value 0 if needed)
-    BitMask& mask(const DfgVertex& vtx) {
+    బిట్టు_ముసుగు& ముసుగు(స్థిరరాశి Dfg_శీర్షం& vtx) {
         // Look up (or create) mask for 'vtx'
-        return m_vtxp2Mask
+        తిరిగి m_vtxp2_ముసుగు
             .emplace(std::piecewise_construct,  //
                      std::forward_as_tuple(&vtx), std::forward_as_tuple(vtx))
-            .first->second;
+            .మొదటి->రెండవ;
     }
 
     // Use this macro to call 'mask' in 'visit' methods. This also emits
     // a line to m_lineCoverageFile for testing.
     // TODO: Use C++20 std::source_location instead of a macro
-#ifdef VL_DEBUG
-#define MASK(vtxp) \
-    ([this](const DfgVertex& vtx) -> BitMask& { \
-        if (VL_UNLIKELY(m_lineCoverageFile.is_open())) m_lineCoverageFile << __LINE__ << '\n'; \
-        return mask(vtx); \
+#నిర్వచితమైతే VL_DEBUG
+#నిర్వచించు ముసుగు_2(vtxp) \
+    ([ఇది](స్థిరరాశి Dfg_శీర్షం& vtx) -> బిట్టు_ముసుగు& { \
+        ఒకవేళ (VL_UNLIKELY(m_పంక్తి_Coverage_File.is_open())) m_పంక్తి_Coverage_File << __LINE__ << '\n'; \
+        తిరిగి ముసుగు(vtx); \
     }(*vtxp))
-#else
-#define MASK(vtxp) mask(*vtxp)
-#endif
+#లేకపోతే
+#నిర్వచించు ముసుగు_2(vtxp) ముసుగు(*vtxp)
+#అయితే_ముగింపు
 
     // Clear all bits at or below the most significant clear bit
-    void floodTowardsLsb(V3Number& num) {
-        for (int i = num.width() - 1; i >= 0; --i) {
-            if (num.bitIs1(i)) continue;
-            num.opSetRange(0, i + 1, '0');
-            break;
+    శూన్య floodTowardsLsb(V3_సంఖ్య& అంకె) {
+        కొరకు (పూర్ణాంకం i = అంకె.వెడల్పు() - 1; i >= 0; --i) {
+            ఒకవేళ (అంకె.బిట్టు_Is1(i)) కొనసాగు;
+            అంకె.op_సమితి_Range(0, i + 1, '0');
+            ఆపు;
         }
     }
 
     // Clear all bits at or above the least significant clear bit
-    void floodTowardsMsb(V3Number& num) {
-        for (int i = 0; i < num.width(); ++i) {
-            if (num.bitIs1(i)) continue;
-            num.opSetRange(i, num.width() - i, '0');
-            break;
+    శూన్య floodTowardsMsb(V3_సంఖ్య& అంకె) {
+        కొరకు (పూర్ణాంకం i = 0; i < అంకె.వెడల్పు(); ++i) {
+            ఒకవేళ (అంకె.బిట్టు_Is1(i)) కొనసాగు;
+            అంకె.op_సమితి_Range(i, అంకె.వెడల్పు() - i, '0');
+            ఆపు;
         }
     }
 
-    void propagateFromDriver(BitMask& m, const DfgVertex* srcp) {
+    శూన్య propagateFromDriver(బిట్టు_ముసుగు& m, స్థిరరాశి Dfg_శీర్షం* srcp) {
         // If there is no driver, we are done
-        if (!srcp) return;
+        ఒకవేళ (!srcp) తిరిగి;
         // If it is driven by a splice, we need to combine the masks of the drivers
-        if (const DfgSplicePacked* const splicep = srcp->cast<DfgSplicePacked>()) {
-            splicep->foreachDriver([&](const DfgVertex& src, uint32_t lo) {
-                m.num().opSelInto(MASK(&src).num(), lo, src.width());
-                return false;
+        ఒకవేళ (స్థిరరాశి DfgSplicePacked* స్థిరరాశి splicep = srcp->cast<DfgSplicePacked>()) {
+            splicep->foreachDriver([&](స్థిరరాశి Dfg_శీర్షం& src, uint32_t lo) {
+                m.అంకె().opSelInto(ముసుగు_2(&src).అంకె(), lo, src.వెడల్పు());
+                తిరిగి అబద్ధం;
             });
-            return;
+            తిరిగి;
         }
-        if (const DfgSpliceArray* const splicep = srcp->cast<DfgSpliceArray>()) {
-            splicep->foreachDriver([&](const DfgVertex& src, uint32_t lo) {
-                if (const DfgUnitArray* const uap = src.cast<DfgUnitArray>()) {
-                    m.sub().at(lo) = MASK(uap->srcp());
-                } else {
+        ఒకవేళ (స్థిరరాశి DfgSpliceArray* స్థిరరాశి splicep = srcp->cast<DfgSpliceArray>()) {
+            splicep->foreachDriver([&](స్థిరరాశి Dfg_శీర్షం& src, uint32_t lo) {
+                ఒకవేళ (స్థిరరాశి DfgUnitArray* స్థిరరాశి uap = src.cast<DfgUnitArray>()) {
+                    m.sub().at(lo) = ముసుగు_2(uap->srcp());
+                } లేకపోతే {
                     // m.sub().at(lo) = Can't happen MASK(&src);
                 }
-                return false;
+                తిరిగి అబద్ధం;
             });
-            return;
+            తిరిగి;
         }
         // Otherwise, we just use the mask of the single driver
-        m = MASK(srcp);
+        m = ముసుగు_2(srcp);
     }
 
     // VISITORS
-    void visit(DfgVertex* vtxp) override {  // LCOV_EXCL_START
+    శూన్య సందర్శించు(Dfg_శీర్షం* vtxp) override {  // LCOV_EXCL_START
         UINFO(9, "IndependentBits - Unhandled vertex type: " << vtxp->typeName());
         // Conservative assumption about all bits being dependent prevails
     }  // LCOV_EXCL_STOP
 
-    void visit(DfgVertexVar* vtxp) override {
+    శూన్య సందర్శించు(Dfg_శీర్షం_Var* vtxp) override {
         // We cannot trace through a volatile variable, so pretend all bits are dependent
-        if (vtxp->isVolatile()) return;
+        ఒకవేళ (vtxp->isVolatile()) తిరిగి;
 
-        BitMask& m = MASK(vtxp);
-        DfgVertex* const srcp = vtxp->srcp();
-        DfgVertex* const defaultp = vtxp->defaultp();
+        బిట్టు_ముసుగు& m = ముసుగు_2(vtxp);
+        Dfg_శీర్షం* స్థిరరాశి srcp = vtxp->srcp();
+        Dfg_శీర్షం* స్థిరరాశి defaultp = vtxp->defaultp();
         // If there is a default driver, we start from that
-        if (defaultp) m = MASK(defaultp);
+        ఒకవేళ (defaultp) m = ముసుగు_2(defaultp);
         // Then propagate mask from the driver
         propagateFromDriver(m, srcp);
     }
 
-    void visit(DfgVertexSplice* vtxp) override {
-        propagateFromDriver(MASK(vtxp), vtxp);  // Needed to continue traversal
+    శూన్య సందర్శించు(Dfg_శీర్షం_Splice* vtxp) override {
+        propagateFromDriver(ముసుగు_2(vtxp), vtxp);  // Needed to continue traversal
     }
 
-    void visit(DfgUnitArray* vtxp) override { MASK(vtxp).sub().at(0) = MASK(vtxp->srcp()); }
+    శూన్య సందర్శించు(DfgUnitArray* vtxp) override { ముసుగు_2(vtxp).sub().at(0) = ముసుగు_2(vtxp->srcp()); }
 
-    void visit(DfgArraySel* vtxp) override {
-        DfgVertex* const fromp = vtxp->fromp();
+    శూన్య సందర్శించు(DfgArraySel* vtxp) override {
+        Dfg_శీర్షం* స్థిరరాశి fromp = vtxp->fromp();
 
         // If constant index, copy mask of relevant element
-        if (const DfgConst* const idxp = vtxp->bitp()->cast<DfgConst>()) {
-            MASK(vtxp) = MASK(vtxp->fromp()).sub().at(idxp->toSizeT());
-            return;
+        ఒకవేళ (స్థిరరాశి DfgConst* స్థిరరాశి idxp = vtxp->bitp()->cast<DfgConst>()) {
+            ముసుగు_2(vtxp) = ముసుగు_2(vtxp->fromp()).sub().at(idxp->గమ్యం_కొలత_T());
+            తిరిగి;
         }
 
         // If index is not constant, independent only if the index is indenpendent, and the array
         // is independent. TODO: could relax by '&' reducing, not sure if worth it.
-        if (MASK(vtxp->bitp()).isOnes() && MASK(fromp).isOnes()) MASK(vtxp).setOnes();
+        ఒకవేళ (ముసుగు_2(vtxp->bitp()).isOnes() && ముసుగు_2(fromp).isOnes()) ముసుగు_2(vtxp).సమితి_Ones();
     }
 
-    void visit(DfgConcat* vtxp) override {
-        const DfgVertex* const rhsp = vtxp->rhsp();
-        const DfgVertex* const lhsp = vtxp->lhsp();
-        V3Number& m = MASK(vtxp).num();
-        m.opSelInto(MASK(rhsp).num(), 0, rhsp->width());
-        m.opSelInto(MASK(lhsp).num(), rhsp->width(), lhsp->width());
+    శూన్య సందర్శించు(DfgConcat* vtxp) override {
+        స్థిరరాశి Dfg_శీర్షం* స్థిరరాశి rhsp = vtxp->rhsp();
+        స్థిరరాశి Dfg_శీర్షం* స్థిరరాశి lhsp = vtxp->lhsp();
+        V3_సంఖ్య& m = ముసుగు_2(vtxp).అంకె();
+        m.opSelInto(ముసుగు_2(rhsp).అంకె(), 0, rhsp->వెడల్పు());
+        m.opSelInto(ముసుగు_2(lhsp).అంకె(), rhsp->వెడల్పు(), lhsp->వెడల్పు());
     }
 
-    void visit(DfgRep* vtxp) override {
-        const uint32_t count = vtxp->count();
-        const DfgVertex* const srcp = vtxp->srcp();
-        const uint32_t sWidth = srcp->width();
-        V3Number& vMask = MASK(vtxp).num();
-        V3Number& sMask = MASK(srcp).num();
-        for (uint32_t i = 0; i < count; ++i) vMask.opSelInto(sMask, i * sWidth, sWidth);
+    శూన్య సందర్శించు(DfgRep* vtxp) override {
+        స్థిరరాశి uint32_t లెక్క = vtxp->లెక్క();
+        స్థిరరాశి Dfg_శీర్షం* స్థిరరాశి srcp = vtxp->srcp();
+        స్థిరరాశి uint32_t s_వెడల్పు = srcp->వెడల్పు();
+        V3_సంఖ్య& v_ముసుగు = ముసుగు_2(vtxp).అంకె();
+        V3_సంఖ్య& s_ముసుగు = ముసుగు_2(srcp).అంకె();
+        కొరకు (uint32_t i = 0; i < లెక్క; ++i) v_ముసుగు.opSelInto(s_ముసుగు, i * s_వెడల్పు, s_వెడల్పు);
     }
 
-    void visit(DfgSel* vtxp) override {
-        const uint32_t lsb = vtxp->lsb();
-        const uint32_t msb = lsb + vtxp->width() - 1;
-        MASK(vtxp).num().opSel(MASK(vtxp->fromp()).num(), msb, lsb);
+    శూన్య సందర్శించు(DfgSel* vtxp) override {
+        స్థిరరాశి uint32_t lsb = vtxp->lsb();
+        స్థిరరాశి uint32_t msb = lsb + vtxp->వెడల్పు() - 1;
+        ముసుగు_2(vtxp).అంకె().opSel(ముసుగు_2(vtxp->fromp()).అంకె(), msb, lsb);
     }
 
-    void visit(DfgExtend* vtxp) override {
-        const DfgVertex* const srcp = vtxp->srcp();
-        const uint32_t sWidth = srcp->width();
-        V3Number& s = MASK(srcp).num();
-        V3Number& m = MASK(vtxp).num();
-        m.opSelInto(s, 0, sWidth);
-        m.opSetRange(sWidth, vtxp->width() - sWidth, '1');
+    శూన్య సందర్శించు(DfgExtend* vtxp) override {
+        స్థిరరాశి Dfg_శీర్షం* స్థిరరాశి srcp = vtxp->srcp();
+        స్థిరరాశి uint32_t s_వెడల్పు = srcp->వెడల్పు();
+        V3_సంఖ్య& s = ముసుగు_2(srcp).అంకె();
+        V3_సంఖ్య& m = ముసుగు_2(vtxp).అంకె();
+        m.opSelInto(s, 0, s_వెడల్పు);
+        m.op_సమితి_Range(s_వెడల్పు, vtxp->వెడల్పు() - s_వెడల్పు, '1');
     }
-    void visit(DfgExtendS* vtxp) override {
-        const DfgVertex* const srcp = vtxp->srcp();
-        const uint32_t sWidth = srcp->width();
-        V3Number& s = MASK(srcp).num();
-        V3Number& m = MASK(vtxp).num();
-        m.opSelInto(s, 0, sWidth);
-        m.opSetRange(sWidth, vtxp->width() - sWidth, s.bitIs0(sWidth - 1) ? '0' : '1');
-    }
-
-    void visit(DfgNot* vtxp) override {  //
-        MASK(vtxp) = MASK(vtxp->srcp());
+    శూన్య సందర్శించు(DfgExtendS* vtxp) override {
+        స్థిరరాశి Dfg_శీర్షం* స్థిరరాశి srcp = vtxp->srcp();
+        స్థిరరాశి uint32_t s_వెడల్పు = srcp->వెడల్పు();
+        V3_సంఖ్య& s = ముసుగు_2(srcp).అంకె();
+        V3_సంఖ్య& m = ముసుగు_2(vtxp).అంకె();
+        m.opSelInto(s, 0, s_వెడల్పు);
+        m.op_సమితి_Range(s_వెడల్పు, vtxp->వెడల్పు() - s_వెడల్పు, s.బిట్టు_Is0(s_వెడల్పు - 1) ? '0' : '1');
     }
 
-    void visit(DfgAnd* vtxp) override {  //
-        MASK(vtxp).num().opAnd(MASK(vtxp->lhsp()).num(), MASK(vtxp->rhsp()).num());
-    }
-    void visit(DfgOr* vtxp) override {  //
-        MASK(vtxp).num().opAnd(MASK(vtxp->lhsp()).num(), MASK(vtxp->rhsp()).num());
-    }
-    void visit(DfgXor* vtxp) override {  //
-        MASK(vtxp).num().opAnd(MASK(vtxp->lhsp()).num(), MASK(vtxp->rhsp()).num());
+    శూన్య సందర్శించు(DfgNot* vtxp) override {  //
+        ముసుగు_2(vtxp) = ముసుగు_2(vtxp->srcp());
     }
 
-    void visit(DfgAdd* vtxp) override {
-        V3Number& m = MASK(vtxp).num();
-        m.opAnd(MASK(vtxp->lhsp()).num(), MASK(vtxp->rhsp()).num());
+    శూన్య సందర్శించు(DfgAnd* vtxp) override {  //
+        ముసుగు_2(vtxp).అంకె().opAnd(ముసుగు_2(vtxp->lhsp()).అంకె(), ముసుగు_2(vtxp->rhsp()).అంకె());
+    }
+    శూన్య సందర్శించు(DfgOr* vtxp) override {  //
+        ముసుగు_2(vtxp).అంకె().opAnd(ముసుగు_2(vtxp->lhsp()).అంకె(), ముసుగు_2(vtxp->rhsp()).అంకె());
+    }
+    శూన్య సందర్శించు(DfgXor* vtxp) override {  //
+        ముసుగు_2(vtxp).అంకె().opAnd(ముసుగు_2(vtxp->lhsp()).అంకె(), ముసుగు_2(vtxp->rhsp()).అంకె());
+    }
+
+    శూన్య సందర్శించు(Dfg_కూడు* vtxp) override {
+        V3_సంఖ్య& m = ముసుగు_2(vtxp).అంకె();
+        m.opAnd(ముసుగు_2(vtxp->lhsp()).అంకె(), ముసుగు_2(vtxp->rhsp()).అంకె());
         floodTowardsMsb(m);
     }
-    void visit(DfgSub* vtxp) override {  // Same as Add: 2's complement (a - b) == (a + ~b + 1)
-        V3Number& m = MASK(vtxp).num();
-        m.opAnd(MASK(vtxp->lhsp()).num(), MASK(vtxp->rhsp()).num());
+    శూన్య సందర్శించు(DfgSub* vtxp) override {  // Same as Add: 2's complement (a - b) == (a + ~b + 1)
+        V3_సంఖ్య& m = ముసుగు_2(vtxp).అంకె();
+        m.opAnd(ముసుగు_2(vtxp->lhsp()).అంకె(), ముసుగు_2(vtxp->rhsp()).అంకె());
         floodTowardsMsb(m);
     }
 
-    void visit(DfgRedAnd* vtxp) override {
-        const bool independent = MASK(vtxp->lhsp()).isOnes();
-        if (independent) MASK(vtxp).setOnes();
+    శూన్య సందర్శించు(DfgRedAnd* vtxp) override {
+        స్థిరరాశి తార్కిక independent = ముసుగు_2(vtxp->lhsp()).isOnes();
+        ఒకవేళ (independent) ముసుగు_2(vtxp).సమితి_Ones();
     }
-    void visit(DfgRedOr* vtxp) override {
-        const bool independent = MASK(vtxp->lhsp()).isOnes();
-        if (independent) MASK(vtxp).setOnes();
+    శూన్య సందర్శించు(DfgRedOr* vtxp) override {
+        స్థిరరాశి తార్కిక independent = ముసుగు_2(vtxp->lhsp()).isOnes();
+        ఒకవేళ (independent) ముసుగు_2(vtxp).సమితి_Ones();
     }
-    void visit(DfgRedXor* vtxp) override {
-        const bool independent = MASK(vtxp->lhsp()).isOnes();
-        if (independent) MASK(vtxp).setOnes();
-    }
-
-    void visit(DfgEq* vtxp) override {
-        const bool independent = MASK(vtxp->lhsp()).isOnes() && MASK(vtxp->rhsp()).isOnes();
-        if (independent) MASK(vtxp).setOnes();
-    }
-    void visit(DfgNeq* vtxp) override {
-        const bool independent = MASK(vtxp->lhsp()).isOnes() && MASK(vtxp->rhsp()).isOnes();
-        if (independent) MASK(vtxp).setOnes();
-    }
-    void visit(DfgLt* vtxp) override {
-        const bool independent = MASK(vtxp->lhsp()).isOnes() && MASK(vtxp->rhsp()).isOnes();
-        if (independent) MASK(vtxp).setOnes();
-    }
-    void visit(DfgLte* vtxp) override {
-        const bool independent = MASK(vtxp->lhsp()).isOnes() && MASK(vtxp->rhsp()).isOnes();
-        if (independent) MASK(vtxp).setOnes();
-    }
-    void visit(DfgGt* vtxp) override {
-        const bool independent = MASK(vtxp->lhsp()).isOnes() && MASK(vtxp->rhsp()).isOnes();
-        if (independent) MASK(vtxp).setOnes();
-    }
-    void visit(DfgGte* vtxp) override {
-        const bool independent = MASK(vtxp->lhsp()).isOnes() && MASK(vtxp->rhsp()).isOnes();
-        if (independent) MASK(vtxp).setOnes();
+    శూన్య సందర్శించు(DfgRedXor* vtxp) override {
+        స్థిరరాశి తార్కిక independent = ముసుగు_2(vtxp->lhsp()).isOnes();
+        ఒకవేళ (independent) ముసుగు_2(vtxp).సమితి_Ones();
     }
 
-    void visit(DfgShiftRS* vtxp) override {
-        DfgVertex* const rhsp = vtxp->rhsp();
-        DfgVertex* const lhsp = vtxp->lhsp();
-        const uint32_t width = vtxp->width();
+    శూన్య సందర్శించు(DfgEq* vtxp) override {
+        స్థిరరాశి తార్కిక independent = ముసుగు_2(vtxp->lhsp()).isOnes() && ముసుగు_2(vtxp->rhsp()).isOnes();
+        ఒకవేళ (independent) ముసుగు_2(vtxp).సమితి_Ones();
+    }
+    శూన్య సందర్శించు(DfgNeq* vtxp) override {
+        స్థిరరాశి తార్కిక independent = ముసుగు_2(vtxp->lhsp()).isOnes() && ముసుగు_2(vtxp->rhsp()).isOnes();
+        ఒకవేళ (independent) ముసుగు_2(vtxp).సమితి_Ones();
+    }
+    శూన్య సందర్శించు(DfgLt* vtxp) override {
+        స్థిరరాశి తార్కిక independent = ముసుగు_2(vtxp->lhsp()).isOnes() && ముసుగు_2(vtxp->rhsp()).isOnes();
+        ఒకవేళ (independent) ముసుగు_2(vtxp).సమితి_Ones();
+    }
+    శూన్య సందర్శించు(DfgLte* vtxp) override {
+        స్థిరరాశి తార్కిక independent = ముసుగు_2(vtxp->lhsp()).isOnes() && ముసుగు_2(vtxp->rhsp()).isOnes();
+        ఒకవేళ (independent) ముసుగు_2(vtxp).సమితి_Ones();
+    }
+    శూన్య సందర్శించు(DfgGt* vtxp) override {
+        స్థిరరాశి తార్కిక independent = ముసుగు_2(vtxp->lhsp()).isOnes() && ముసుగు_2(vtxp->rhsp()).isOnes();
+        ఒకవేళ (independent) ముసుగు_2(vtxp).సమితి_Ones();
+    }
+    శూన్య సందర్శించు(DfgGte* vtxp) override {
+        స్థిరరాశి తార్కిక independent = ముసుగు_2(vtxp->lhsp()).isOnes() && ముసుగు_2(vtxp->rhsp()).isOnes();
+        ఒకవేళ (independent) ముసుగు_2(vtxp).సమితి_Ones();
+    }
+
+    శూన్య సందర్శించు(Dfg_జరుపు_RS* vtxp) override {
+        Dfg_శీర్షం* స్థిరరాశి rhsp = vtxp->rhsp();
+        Dfg_శీర్షం* స్థిరరాశి lhsp = vtxp->lhsp();
+        స్థిరరాశి uint32_t వెడల్పు = vtxp->వెడల్పు();
 
         // Constant shift can be computed precisely
-        if (DfgConst* const rConstp = rhsp->cast<DfgConst>()) {
-            const uint32_t shiftAmount = rConstp->toU32();
-            if (shiftAmount >= width) {
-                if (MASK(lhsp).num().bitIs1(width - 1)) { MASK(vtxp).setOnes(); }
-            } else {
-                V3Number& m = MASK(vtxp).num();
-                m.opShiftRS(MASK(lhsp).num(), rConstp->num(), width);
-                m.opSetRange(width - shiftAmount, shiftAmount, '1');
+        ఒకవేళ (DfgConst* స్థిరరాశి rConstp = rhsp->cast<DfgConst>()) {
+            స్థిరరాశి uint32_t జరుపు_Amount = rConstp->గమ్యం_U32();
+            ఒకవేళ (జరుపు_Amount >= వెడల్పు) {
+                ఒకవేళ (ముసుగు_2(lhsp).అంకె().బిట్టు_Is1(వెడల్పు - 1)) { ముసుగు_2(vtxp).సమితి_Ones(); }
+            } లేకపోతే {
+                V3_సంఖ్య& m = ముసుగు_2(vtxp).అంకె();
+                m.op_జరుపు_RS(ముసుగు_2(lhsp).అంకె(), rConstp->అంకె(), వెడల్పు);
+                m.op_సమితి_Range(వెడల్పు - జరుపు_Amount, జరుపు_Amount, '1');
             }
-            return;
+            తిరిగి;
         }
 
         // Otherwise, as the shift amount is non-negative, all independent
         // and consecutive top bits in the lhs yield an independent result
         // if the shift amount is independent.
-        if (MASK(rhsp).isOnes()) {
-            V3Number& m = MASK(vtxp).num();
-            m = MASK(lhsp).num();
+        ఒకవేళ (ముసుగు_2(rhsp).isOnes()) {
+            V3_సంఖ్య& m = ముసుగు_2(vtxp).అంకె();
+            m = ముసుగు_2(lhsp).అంకె();
             floodTowardsLsb(m);
         }
     }
 
-    void visit(DfgShiftR* vtxp) override {
-        DfgVertex* const rhsp = vtxp->rhsp();
-        DfgVertex* const lhsp = vtxp->lhsp();
-        const uint32_t width = vtxp->width();
+    శూన్య సందర్శించు(Dfg_జరుపు_R* vtxp) override {
+        Dfg_శీర్షం* స్థిరరాశి rhsp = vtxp->rhsp();
+        Dfg_శీర్షం* స్థిరరాశి lhsp = vtxp->lhsp();
+        స్థిరరాశి uint32_t వెడల్పు = vtxp->వెడల్పు();
 
         // Constant shift can be computed precisely
-        if (DfgConst* const rConstp = rhsp->cast<DfgConst>()) {
-            const uint32_t shiftAmount = rConstp->toU32();
-            if (shiftAmount >= width) {
-                MASK(vtxp).setOnes();
-            } else {
-                V3Number& m = MASK(vtxp).num();
-                m.opShiftR(MASK(lhsp).num(), rConstp->num());
-                m.opSetRange(width - shiftAmount, shiftAmount, '1');
+        ఒకవేళ (DfgConst* స్థిరరాశి rConstp = rhsp->cast<DfgConst>()) {
+            స్థిరరాశి uint32_t జరుపు_Amount = rConstp->గమ్యం_U32();
+            ఒకవేళ (జరుపు_Amount >= వెడల్పు) {
+                ముసుగు_2(vtxp).సమితి_Ones();
+            } లేకపోతే {
+                V3_సంఖ్య& m = ముసుగు_2(vtxp).అంకె();
+                m.op_జరుపు_R(ముసుగు_2(lhsp).అంకె(), rConstp->అంకె());
+                m.op_సమితి_Range(వెడల్పు - జరుపు_Amount, జరుపు_Amount, '1');
             }
-            return;
+            తిరిగి;
         }
 
         // Otherwise, as the shift amount is non-negative, all independent
         // and consecutive top bits in the lhs yield an independent result
         // if the shift amount is independent.
-        if (MASK(rhsp).isOnes()) {
-            V3Number& m = MASK(vtxp).num();
-            m = MASK(lhsp).num();
+        ఒకవేళ (ముసుగు_2(rhsp).isOnes()) {
+            V3_సంఖ్య& m = ముసుగు_2(vtxp).అంకె();
+            m = ముసుగు_2(lhsp).అంకె();
             floodTowardsLsb(m);
         }
     }
 
-    void visit(DfgShiftL* vtxp) override {
-        DfgVertex* const rhsp = vtxp->rhsp();
-        DfgVertex* const lhsp = vtxp->lhsp();
-        const uint32_t width = vtxp->width();
+    శూన్య సందర్శించు(Dfg_జరుపు_L* vtxp) override {
+        Dfg_శీర్షం* స్థిరరాశి rhsp = vtxp->rhsp();
+        Dfg_శీర్షం* స్థిరరాశి lhsp = vtxp->lhsp();
+        స్థిరరాశి uint32_t వెడల్పు = vtxp->వెడల్పు();
 
         // Constant shift can be computed precisely
-        if (DfgConst* const rConstp = rhsp->cast<DfgConst>()) {
-            const uint32_t shiftAmount = rConstp->toU32();
-            if (shiftAmount >= width) {
-                MASK(vtxp).setOnes();
-            } else {
-                V3Number& m = MASK(vtxp).num();
-                m.opShiftL(MASK(lhsp).num(), rConstp->num());
-                m.opSetRange(0, shiftAmount, '1');
+        ఒకవేళ (DfgConst* స్థిరరాశి rConstp = rhsp->cast<DfgConst>()) {
+            స్థిరరాశి uint32_t జరుపు_Amount = rConstp->గమ్యం_U32();
+            ఒకవేళ (జరుపు_Amount >= వెడల్పు) {
+                ముసుగు_2(vtxp).సమితి_Ones();
+            } లేకపోతే {
+                V3_సంఖ్య& m = ముసుగు_2(vtxp).అంకె();
+                m.op_జరుపు_L(ముసుగు_2(lhsp).అంకె(), rConstp->అంకె());
+                m.op_సమితి_Range(0, జరుపు_Amount, '1');
             }
-            return;
+            తిరిగి;
         }
 
         // Otherwise, as the shift amount is non-negative, all independent
         // and consecutive bottom bits in the lhs yield an independent result
         // if the shift amount is independent.
-        if (MASK(rhsp).isOnes()) {
-            V3Number& m = MASK(vtxp).num();
-            m = MASK(lhsp).num();
+        ఒకవేళ (ముసుగు_2(rhsp).isOnes()) {
+            V3_సంఖ్య& m = ముసుగు_2(vtxp).అంకె();
+            m = ముసుగు_2(lhsp).అంకె();
             floodTowardsMsb(m);
         }
     }
 
-    void visit(DfgCond* vtxp) override {
-        if (MASK(vtxp->condp()).isOnes()) {
-            MASK(vtxp).num().opAnd(MASK(vtxp->thenp()).num(), MASK(vtxp->elsep()).num());
+    శూన్య సందర్శించు(DfgCond* vtxp) override {
+        ఒకవేళ (ముసుగు_2(vtxp->condp()).isOnes()) {
+            ముసుగు_2(vtxp).అంకె().opAnd(ముసుగు_2(vtxp->thenp()).అంకె(), ముసుగు_2(vtxp->elsep()).అంకె());
         }
     }
 
-    void visit(DfgMatchMasked* vtxp) override {
-        if (MASK(vtxp->lhsp()).isOnes() && MASK(vtxp->matchp()).isOnes()) { MASK(vtxp).setOnes(); }
+    శూన్య సందర్శించు(Dfg_సరిపోలిక_Masked* vtxp) override {
+        ఒకవేళ (ముసుగు_2(vtxp->lhsp()).isOnes() && ముసుగు_2(vtxp->matchp()).isOnes()) { ముసుగు_2(vtxp).సమితి_Ones(); }
     }
 
-#undef MASK
+#నిర్వచనం_రద్దు ముసుగు_2
 
     // Enqueue sinks of vertex to work list for traversal - only called from constructor
-    void enqueueSinks(DfgVertex& vtx) {
-        vtx.foreachSink([&](DfgVertex& sink) {
+    శూన్య వరుసలో_చేర్చు_Sinks(Dfg_శీర్షం& vtx) {
+        vtx.foreachSink([&](Dfg_శీర్షం& sink) {
             // Ignore if sink is not part of an SCC, already has all bits marked independent
-            if (!m_sccInfo.get(sink)) return false;
+            ఒకవేళ (!m_sccInfo.get(sink)) తిరిగి అబద్ధం;
             // Otherwise just enqueue it
-            VertexState& state = m_vtxp2State.at(&sink);
-            if (!state.m_isOnWorkList) {
+            శీర్షం_State& state = m_vtxp2State.at(&sink);
+            ఒకవేళ (!state.m_isOnWorkList) {
                 UINFO(9, "Enqueuing vertex " << &sink << " " << sink.typeName());
-                m_workQueue.push(state.m_rpoNumber);
+                m_work_వరుస.నెట్టు(state.m_rpo_సంఖ్య);
             }
-            state.m_isOnWorkList = true;
-            return false;
+            state.m_isOnWorkList = నిజం;
+            తిరిగి అబద్ధం;
         });
     };
 
-    void dfsPostOrder(std::unordered_set<DfgVertex*>& visited,  //
-                      std::vector<DfgVertex*>& postOrderEnumeration,  //
-                      DfgVertex& vtx) {
+    శూన్య dfs_Post_క్రమం(std::unordered_సమితి<Dfg_శీర్షం*>& సందర్శించిన,  //
+                      std::సదిశ<Dfg_శీర్షం*>& post_క్రమం_Enumeration,  //
+                      Dfg_శీర్షం& vtx) {
         // Mark visited, skip if already visited
-        if (!visited.insert(&vtx).second) return;
+        ఒకవేళ (!సందర్శించిన.చొప్పించు(&vtx).రెండవ) తిరిగి;
         // Visit un-visited successors
-        vtx.foreachSink([&](DfgVertex& snk) {
-            dfsPostOrder(visited, postOrderEnumeration, snk);
-            return false;
+        vtx.foreachSink([&](Dfg_శీర్షం& snk) {
+            dfs_Post_క్రమం(సందర్శించిన, post_క్రమం_Enumeration, snk);
+            తిరిగి అబద్ధం;
         });
         // Add to post order enumeration
-        postOrderEnumeration.emplace_back(&vtx);
+        post_క్రమం_Enumeration.emplace_వెనుక(&vtx);
     };
 
-    IndependentBits(DfgGraph& dfg, const SccInfo& sccInfo)
+    Independent_బిట్లు(Dfg_లేఖాచిత్రం& dfg, స్థిరరాశి SccInfo& sccInfo)
         : m_sccInfo{sccInfo} {
 
-#ifdef VL_DEBUG
-        if (v3Global.opt.debugCheck()) {
-            m_lineCoverageFile.open(  //
-                v3Global.opt.makeDir() + "/" + v3Global.opt.prefix()
+#నిర్వచితమైతే VL_DEBUG
+        ఒకవేళ (v3Global.opt.debugCheck()) {
+            m_పంక్తి_Coverage_File.open(  //
+                v3Global.opt.makeDir() + "/" + v3Global.opt.ఉపసర్గ()
                     + "__V3DfgBreakCycles-IndependentBits-line-coverage.txt",  //
-                std::ios_base::out | std::ios_base::app);
+                std::ios_పునాది::బహిర్గతం | std::ios_పునాది::app);
         }
-#endif
+#అయితే_ముగింపు
 
         // Compute Reverse-Postorder enumeration of vertices
-        std::vector<DfgVertex*> rpoEnumeration;
-        std::unordered_set<DfgVertex*> visited;
-        dfg.forEachVertex([&](DfgVertex& vtx) {
-            if (!vtx.nInputs()) dfsPostOrder(visited, rpoEnumeration, vtx);
+        std::సదిశ<Dfg_శీర్షం*> rpoEnumeration;
+        std::unordered_సమితి<Dfg_శీర్షం*> సందర్శించిన;
+        dfg.for_Each_శీర్షం([&](Dfg_శీర్షం& vtx) {
+            ఒకవేళ (!vtx.nInputs()) dfs_Post_క్రమం(సందర్శించిన, rpoEnumeration, vtx);
         });
-        dfg.forEachVertex([&](DfgVertex& vtx) {  //
-            dfsPostOrder(visited, rpoEnumeration, vtx);
+        dfg.for_Each_శీర్షం([&](Dfg_శీర్షం& vtx) {  //
+            dfs_Post_క్రమం(సందర్శించిన, rpoEnumeration, vtx);
         });
-        std::reverse(rpoEnumeration.begin(), rpoEnumeration.end());
-        UASSERT(rpoEnumeration.size() == dfg.size(), "Inconsistent vertex count");
+        std::తిరగేయి(rpoEnumeration.begin(), rpoEnumeration.చివర());
+        UASSERT(rpoEnumeration.కొలత() == dfg.కొలత(), "Inconsistent vertex count");
 
         // Initialzie VertexState for each vertex
-        for (size_t i = 0; i < rpoEnumeration.size(); ++i) {
-            VertexState& state = m_vtxp2State[rpoEnumeration[i]];
-            state.m_rpoNumber = i;
-            state.m_isOnWorkList = false;
+        కొరకు (కొలత_t i = 0; i < rpoEnumeration.కొలత(); ++i) {
+            శీర్షం_State& state = m_vtxp2State[rpoEnumeration[i]];
+            state.m_rpo_సంఖ్య = i;
+            state.m_isOnWorkList = అబద్ధం;
         }
 
         // Set up the initial conditions:
@@ -1388,31 +1388,31 @@ class IndependentBits final : public DfgVisitor {
         // - For vertices in an SCC, dispatch to analyse at least once, as some vertices
         //   always assign constants bits, which are always independent (eg Extend/Shift)
         // Enqueue sinks of all SCC vertices that have at least one independent bit
-        for (DfgVertex* const vtxp : rpoEnumeration) {
-            if (m_sccInfo.get(*vtxp)) continue;
-            mask(*vtxp).setOnes();
+        కొరకు (Dfg_శీర్షం* స్థిరరాశి vtxp : rpoEnumeration) {
+            ఒకవేళ (m_sccInfo.get(*vtxp)) కొనసాగు;
+            ముసుగు(*vtxp).సమితి_Ones();
         }
-        for (DfgVertex* const vtxp : rpoEnumeration) {
-            if (!m_sccInfo.get(*vtxp)) continue;
+        కొరకు (Dfg_శీర్షం* స్థిరరాశి vtxp : rpoEnumeration) {
+            ఒకవేళ (!m_sccInfo.get(*vtxp)) కొనసాగు;
             iterate(vtxp);
             UINFO(9, "Initial independent bits of " << vtxp << " " << vtxp->typeName()
-                                                    << " are: " << mask(*vtxp).toString());
-            if (!mask(*vtxp).isZero()) enqueueSinks(*vtxp);
+                                                    << " are: " << ముసుగు(*vtxp).గమ్యం_String());
+            ఒకవేళ (!ముసుగు(*vtxp).isZero()) వరుసలో_చేర్చు_Sinks(*vtxp);
         }
 
         // Propagate independent bits until no more changes are made
-        while (!m_workQueue.empty()) {
+        అయితే (!m_work_వరుస.ఖాళీలు()) {
             // Grab next item
-            DfgVertex* const currp = rpoEnumeration[m_workQueue.top()];
-            m_workQueue.pop();
-            m_vtxp2State.at(currp).m_isOnWorkList = false;
+            Dfg_శీర్షం* స్థిరరాశి currp = rpoEnumeration[m_work_వరుస.శిఖరం()];
+            m_work_వరుస.తీయి();
+            m_vtxp2State.at(currp).m_isOnWorkList = అబద్ధం;
             // Should not enqueue vertices that are not in an SCC
             UASSERT_OBJ(m_sccInfo.get(*currp), currp, "Vertex should be in an SCC");
 
             // Grab current mask of item
-            const BitMask& currMask = mask(*currp);
+            స్థిరరాశి బిట్టు_ముసుగు& curr_ముసుగు = ముసుగు(*currp);
             // Remember current mask so we can check if it changed
-            const BitMask prevMask = currMask;
+            స్థిరరాశి బిట్టు_ముసుగు prev_ముసుగు = curr_ముసుగు;
 
             UINFO(9, "Analyzing independent bits of " << currp << " " << currp->typeName());
 
@@ -1420,92 +1420,92 @@ class IndependentBits final : public DfgVisitor {
             iterate(currp);
 
             // If mask changed, enqueue sinks
-            if (prevMask != currMask) {
+            ఒకవేళ (prev_ముసుగు != curr_ముసుగు) {
                 UINFO(9, "Independent bits of "  //
                              << currp << " " << currp->typeName() << " changed"  //
-                             << "\n    form: " << prevMask.toString()
-                             << "\n      to: " << currMask.toString());
-                enqueueSinks(*currp);
+                             << "\n    form: " << prev_ముసుగు.గమ్యం_String()
+                             << "\n      to: " << curr_ముసుగు.గమ్యం_String());
+                వరుసలో_చేర్చు_Sinks(*currp);
                 // Check the mask only ever expands (no bit goes 1 -> 0)
-                if (VL_UNLIKELY(v3Global.opt.debugCheck())) {
-                    UASSERT_OBJ(!currMask.isContractionOf(prevMask), currp,
+                ఒకవేళ (VL_UNLIKELY(v3Global.opt.debugCheck())) {
+                    UASSERT_OBJ(!curr_ముసుగు.is_Contraction_యొక్క(prev_ముసుగు), currp,
                                 "Mask should only expand");
                 }
             }
         }
     }
 
-public:
+బహిరంగ:
     // Given a DfgGraph, and a map from vertices to the SCCs they reside in,
     // returns a map from vertices to a bit mask, where a bit in the mask is
     // set if the corresponding bit in that vertex is known to be independent
     // of the values of vertices in the same SCC as the vertex resides in.
-    static std::unordered_map<const DfgVertex*, BitMask> apply(DfgGraph& dfg,
-                                                               const SccInfo& sccInfo) {
-        return std::move(IndependentBits{dfg, sccInfo}.m_vtxp2Mask);
+    స్థిర std::unordered_map<స్థిరరాశి Dfg_శీర్షం*, బిట్టు_ముసుగు> apply(Dfg_లేఖాచిత్రం& dfg,
+                                                               స్థిరరాశి SccInfo& sccInfo) {
+        తిరిగి std::move(Independent_బిట్లు{dfg, sccInfo}.m_vtxp2_ముసుగు);
     }
 };
 
-class FixUp final {
-    DfgGraph& m_dfg;  // The graph being processed
+తరగతి Fix_పైకి final {
+    Dfg_లేఖాచిత్రం& m_dfg;  // The graph being processed
     SccInfo& m_sccInfo;  // The SccInfo instance
     TraceDriver m_traceDriver{m_dfg, m_sccInfo};
     // The independent bits map
-    const std::unordered_map<const DfgVertex*, BitMask> m_independentBits
-        = IndependentBits::apply(m_dfg, m_sccInfo);
-    size_t m_nImprovements = 0;  // Number of improvements made
+    స్థిరరాశి std::unordered_map<స్థిరరాశి Dfg_శీర్షం*, బిట్టు_ముసుగు> m_independent_బిట్లు
+        = Independent_బిట్లు::apply(m_dfg, m_sccInfo);
+    కొలత_t m_nImprovements = 0;  // Number of improvements made
 
     // Returns a bitmask set if that bit of 'vtx' is used (has a sink)
-    static BitMask computeUsedBits(DfgVertex& vtx) {
-        BitMask result{vtx};
-        vtx.foreachSink([&result](DfgVertex& sink) {
+    స్థిర బిట్టు_ముసుగు compute_వాడిన_బిట్లు(Dfg_శీర్షం& vtx) {
+        బిట్టు_ముసుగు ఫలితం{vtx};
+        vtx.foreachSink([&ఫలితం](Dfg_శీర్షం& sink) {
             // If used via a Sel, mark the selected bits used
-            if (const DfgSel* const selp = sink.cast<DfgSel>()) {
-                result.num().opSetRange(selp->lsb(), selp->width(), '1');
-                return false;
+            ఒకవేళ (స్థిరరాశి DfgSel* స్థిరరాశి selp = sink.cast<DfgSel>()) {
+                ఫలితం.అంకె().op_సమితి_Range(selp->lsb(), selp->వెడల్పు(), '1');
+                తిరిగి అబద్ధం;
             }
             // Used without a Sel, so all bits are used
-            result.setOnes();
-            return true;
+            ఫలితం.సమితి_Ones();
+            తిరిగి నిజం;
         });
-        return result;
+        తిరిగి ఫలితం;
     }
 
-    static std::string debugStr(const DfgVertex& vtx) {  // LCOV_EXCL_START
-        if (const DfgArraySel* const aselp = vtx.cast<DfgArraySel>()) {
-            const size_t i = aselp->bitp()->as<DfgConst>()->toSizeT();
-            return debugStr(*aselp->fromp()) + "[" + std::to_string(i) + "]";
+    స్థిర std::string debugStr(స్థిరరాశి Dfg_శీర్షం& vtx) {  // LCOV_EXCL_START
+        ఒకవేళ (స్థిరరాశి DfgArraySel* స్థిరరాశి aselp = vtx.cast<DfgArraySel>()) {
+            స్థిరరాశి కొలత_t i = aselp->bitp()->as<DfgConst>()->గమ్యం_కొలత_T();
+            తిరిగి debugStr(*aselp->fromp()) + "[" + std::గమ్యం_string(i) + "]";
         }
-        if (const DfgVertexVar* const varp = vtx.cast<DfgVertexVar>()) {
-            return varp->vscp()->name();
+        ఒకవేళ (స్థిరరాశి Dfg_శీర్షం_Var* స్థిరరాశి varp = vtx.cast<Dfg_శీర్షం_Var>()) {
+            తిరిగి varp->vscp()->name();
         }
         vtx.v3fatalSrc("Unhandled node type");
     }  // LCOV_EXCL_STOP
 
     // Trace drivers of independent bits of 'vtxp' in the range '[hi:lo]'
     // append replacement terms to 'termps'.
-    void gatherTerms(std::vector<DfgVertex*>& termps, DfgVertex& vtx, const V3Number& indpBits,
-                     const uint32_t hi, const uint32_t lo) {
+    శూన్య gatherTerms(std::సదిశ<Dfg_శీర్షం*>& termps, Dfg_శీర్షం& vtx, స్థిరరాశి V3_సంఖ్య& indp_బిట్లు,
+                     స్థిరరాశి uint32_t hi, స్థిరరాశి uint32_t lo) {
         // Iterate through consecutive dependent/non-dependet ranges within [hi:lo]
-        bool isIndependent = indpBits.bitIs1(lo);
+        తార్కిక isIndependent = indp_బిట్లు.బిట్టు_Is1(lo);
         uint32_t lsb = lo;
-        for (uint32_t msb = lo; msb <= hi; ++msb) {
-            const bool endRange = msb == hi || isIndependent != indpBits.bitIs1(msb + 1);
-            if (!endRange) continue;
-            const uint32_t width = msb - lsb + 1;
+        కొరకు (uint32_t msb = lo; msb <= hi; ++msb) {
+            స్థిరరాశి తార్కిక చివర_Range = msb == hi || isIndependent != indp_బిట్లు.బిట్టు_Is1(msb + 1);
+            ఒకవేళ (!చివర_Range) కొనసాగు;
+            స్థిరరాశి uint32_t వెడల్పు = msb - lsb + 1;
             // Compute the term to use for this range
-            if (isIndependent) {
+            ఒకవేళ (isIndependent) {
                 // If the range is independent of the cycles, trace its driver
                 ++m_nImprovements;
-                termps.emplace_back(m_traceDriver.apply(vtx, lsb, width));
-            } else {
+                termps.emplace_వెనుక(m_traceDriver.apply(vtx, lsb, వెడల్పు));
+            } లేకపోతే {
                 // If dependent, fall back on using the part of the variable
-                DfgSel* const selp = new DfgSel{m_dfg, vtx.fileline(), DfgDataType::packed(width)};
+                DfgSel* స్థిరరాశి selp = కొత్త DfgSel{m_dfg, vtx.fileline(), Dfg_దత్తాంశం_Type::packed(వెడల్పు)};
                 // Same component as 'vtxp', as reads 'vtxp' and will replace 'vtxp'
-                m_sccInfo.add(*selp, m_sccInfo.get(vtx));
+                m_sccInfo.కూడు(*selp, m_sccInfo.get(vtx));
                 // Do not connect selp->fromp yet, need to do afer replacing 'vtxp'
                 selp->lsb(lsb);
-                termps.emplace_back(selp);
+                termps.emplace_వెనుక(selp);
             }
             // Next iteration
             isIndependent = !isIndependent;
@@ -1513,57 +1513,57 @@ class FixUp final {
         }
     }
 
-    void fixUpPacked(DfgVertex& vtx) {
+    శూన్య fix_పైకి_Packed(Dfg_శీర్షం& vtx) {
         UASSERT_OBJ(vtx.isPacked(), &vtx, "Should be a packed type");
         UASSERT_OBJ(!vtx.is<DfgSplicePacked>(), &vtx, "Should not be a splice");
 
         // Get which bits of 'vtxp' are independent of the SCCs
-        const BitMask& indpBits = m_independentBits.at(&vtx);
-        UINFO(9, "Independent bits of '" << debugStr(vtx) << "' are " << indpBits.toString());
+        స్థిరరాశి బిట్టు_ముసుగు& indp_బిట్లు = m_independent_బిట్లు.at(&vtx);
+        UINFO(9, "Independent bits of '" << debugStr(vtx) << "' are " << indp_బిట్లు.గమ్యం_String());
         // Can't do anything if all bits are dependent
-        if (indpBits.isZero()) return;
+        ఒకవేళ (indp_బిట్లు.isZero()) తిరిగి;
 
         // Figure out which bits of 'vtxp' are used
-        const BitMask usedBits = computeUsedBits(vtx);
-        UINFO(9, "Used        bits of '" << debugStr(vtx) << "' are " << usedBits.toString());
+        స్థిరరాశి బిట్టు_ముసుగు వాడిన_బిట్లు = compute_వాడిన_బిట్లు(vtx);
+        UINFO(9, "Used        bits of '" << debugStr(vtx) << "' are " << వాడిన_బిట్లు.గమ్యం_String());
 
         // Nothing to do if no used bits are independen (all used bits are dependent)
-        V3Number usedAndIndependent{vtx.fileline(), static_cast<int>(vtx.width()), 0};
-        usedAndIndependent.opAnd(usedBits.num(), indpBits.num());
-        if (usedAndIndependent.isEqZero()) return;
+        V3_సంఖ్య వాడిన_And_Independent{vtx.fileline(), static_cast<పూర్ణాంకం>(vtx.వెడల్పు()), 0};
+        వాడిన_And_Independent.opAnd(వాడిన_బిట్లు.అంకె(), indp_బిట్లు.అంకె());
+        ఒకవేళ (వాడిన_And_Independent.isEqZero()) తిరిగి;
 
         // We are computing the terms to concatenate and replace 'vtxp' with
-        std::vector<DfgVertex*> termps;
+        std::సదిశ<Dfg_శీర్షం*> termps;
 
         // Iterate through consecutive used/unused ranges
-        FileLine* const flp = vtx.fileline();
-        const uint32_t width = vtx.width();
-        bool isUsed = usedBits.num().bitIs1(0);  // Is current range used
+        File_పంక్తి* స్థిరరాశి flp = vtx.fileline();
+        స్థిరరాశి uint32_t వెడల్పు = vtx.వెడల్పు();
+        తార్కిక is_వాడిన = వాడిన_బిట్లు.అంకె().బిట్టు_Is1(0);  // Is current range used
         uint32_t lsb = 0;  // LSB of current range
-        for (uint32_t msb = 0; msb < width; ++msb) {
-            const bool endRange = msb == width - 1 || isUsed != usedBits.num().bitIs1(msb + 1);
-            if (!endRange) continue;
-            if (isUsed) {
+        కొరకు (uint32_t msb = 0; msb < వెడల్పు; ++msb) {
+            స్థిరరాశి తార్కిక చివర_Range = msb == వెడల్పు - 1 || is_వాడిన != వాడిన_బిట్లు.అంకె().బిట్టు_Is1(msb + 1);
+            ఒకవేళ (!చివర_Range) కొనసాగు;
+            ఒకవేళ (is_వాడిన) {
                 // The range is used, compute the replacement terms
-                gatherTerms(termps, vtx, indpBits.num(), msb, lsb);
-            } else {
+                gatherTerms(termps, vtx, indp_బిట్లు.అంకె(), msb, lsb);
+            } లేకపోతే {
                 // The range is not used, just use constant 0 as a placeholder
-                DfgConst* const constp = new DfgConst{m_dfg, flp, msb - lsb + 1, 0};
-                m_sccInfo.add(*constp, 0);
-                termps.emplace_back(constp);
+                DfgConst* స్థిరరాశి constp = కొత్త DfgConst{m_dfg, flp, msb - lsb + 1, 0};
+                m_sccInfo.కూడు(*constp, 0);
+                termps.emplace_వెనుక(constp);
             }
             // Next iteration
-            isUsed = !isUsed;
+            is_వాడిన = !is_వాడిన;
             lsb = msb + 1;
         }
 
         // Concatenate all the terms to create the replacement
-        DfgVertex* replacementp = termps.front();
-        const uint64_t vComp = m_sccInfo.get(vtx);
-        for (size_t i = 1; i < termps.size(); ++i) {
-            DfgVertex* const termp = termps[i];
-            const uint32_t catWidth = replacementp->width() + termp->width();
-            DfgConcat* const catp = new DfgConcat{m_dfg, flp, DfgDataType::packed(catWidth)};
+        Dfg_శీర్షం* replacementp = termps.front();
+        స్థిరరాశి uint64_t vComp = m_sccInfo.get(vtx);
+        కొరకు (కొలత_t i = 1; i < termps.కొలత(); ++i) {
+            Dfg_శీర్షం* స్థిరరాశి termp = termps[i];
+            స్థిరరాశి uint32_t cat_వెడల్పు = replacementp->వెడల్పు() + termp->వెడల్పు();
+            DfgConcat* స్థిరరాశి catp = కొత్త DfgConcat{m_dfg, flp, Dfg_దత్తాంశం_Type::packed(cat_వెడల్పు)};
             catp->rhsp(replacementp);
             catp->lhsp(termp);
             // Need to figure out which component the replacement vertex
@@ -1571,18 +1571,18 @@ class FixUp final {
             // component, it's part of that component, otherwise its not
             // cyclic (all terms are from outside the original component,
             // and feed into the original component).
-            const uint64_t tComp = m_sccInfo.get(*termp);
-            const uint64_t rComp = m_sccInfo.get(*replacementp);
-            m_sccInfo.add(*catp, tComp == vComp || rComp == vComp ? vComp : 0);
+            స్థిరరాశి uint64_t tComp = m_sccInfo.get(*termp);
+            స్థిరరాశి uint64_t rComp = m_sccInfo.get(*replacementp);
+            m_sccInfo.కూడు(*catp, tComp == vComp || rComp == vComp ? vComp : 0);
             replacementp = catp;
         }
 
         // Replace the vertex
         vtx.replaceWith(replacementp);
         // Connect the Sel nodes in the replacement
-        for (DfgVertex* const termp : termps) {
-            if (DfgSel* const selp = termp->cast<DfgSel>()) {
-                if (!selp->fromp()) selp->fromp(&vtx);
+        కొరకు (Dfg_శీర్షం* స్థిరరాశి termp : termps) {
+            ఒకవేళ (DfgSel* స్థిరరాశి selp = termp->cast<DfgSel>()) {
+                ఒకవేళ (!selp->fromp()) selp->fromp(&vtx);
             }
         }
 
@@ -1591,115 +1591,115 @@ class FixUp final {
                     "Replacement vertex SCC inconsistent");
 
         // If we broke the cycle through this vertex, update the SccInfo
-        if (!vtx.hasSinks()) m_sccInfo.updateReplacement(vtx, *replacementp);
+        ఒకవేళ (!vtx.hasSinks()) m_sccInfo.updateReplacement(vtx, *replacementp);
     }
 
-    void main(DfgVertexVar& var) {
+    శూన్య ప్రధాన(Dfg_శీర్షం_Var& var) {
         UINFO(9, "FixUp of " << var.vscp()->name());
 
-        if (var.is<DfgVarPacked>()) {
+        ఒకవేళ (var.is<DfgVarPacked>()) {
             // For Packed variables, fix up as whole
-            fixUpPacked(var);
-        } else if (var.is<DfgVarArray>()) {
+            fix_పైకి_Packed(var);
+        } లేకపోతే ఒకవేళ (var.is<DfgVarArray>()) {
             // For array variables, fix up element-wise
-            const uint64_t component = m_sccInfo.get(var);
-            var.foreachSink([&](DfgVertex& sink) {
+            స్థిరరాశి uint64_t component = m_sccInfo.get(var);
+            var.foreachSink([&](Dfg_శీర్షం& sink) {
                 // Ignore if sink is not part of same cycle
-                if (m_sccInfo.get(sink) != component) return false;
+                ఒకవేళ (m_sccInfo.get(sink) != component) తిరిగి అబద్ధం;
                 // Only handle ArraySels with constant index
-                DfgArraySel* const aselp = sink.cast<DfgArraySel>();
-                if (!aselp) return false;
-                if (!aselp->bitp()->is<DfgConst>()) return false;
+                DfgArraySel* స్థిరరాశి aselp = sink.cast<DfgArraySel>();
+                ఒకవేళ (!aselp) తిరిగి అబద్ధం;
+                ఒకవేళ (!aselp->bitp()->is<DfgConst>()) తిరిగి అబద్ధం;
                 // Fix up the word
-                fixUpPacked(*aselp);
-                return false;
+                fix_పైకి_Packed(*aselp);
+                తిరిగి అబద్ధం;
             });
         }
 
         UINFO(9, "FixUp made " << m_nImprovements << " improvements");
     }
 
-    FixUp(DfgGraph& dfg, SccInfo& sccInfo)
+    Fix_పైకి(Dfg_లేఖాచిత్రం& dfg, SccInfo& sccInfo)
         : m_dfg{dfg}
         , m_sccInfo{sccInfo} {}
 
-public:
+బహిరంగ:
     // Compute which bits of vertices are independent of the SCC they reside
     // in, and replace rferences to used independent bits with an equivalent
     // vertex that is not part of the same SCC.
-    static size_t apply(DfgGraph& dfg, SccInfo& sccInfo) {
-        if (!sccInfo.isCyclic()) return 0;
+    స్థిర కొలత_t apply(Dfg_లేఖాచిత్రం& dfg, SccInfo& sccInfo) {
+        ఒకవేళ (!sccInfo.isCyclic()) తిరిగి 0;
 
-        FixUp fixUp{dfg, sccInfo};
+        Fix_పైకి fix_పైకి{dfg, sccInfo};
 
         // TODO: Compute minimal feedback vertex set and cut only those.
         //       Sadly that is a computationally hard problem.
 
         // Fix up cyclic variables, stop as soon as the graph becomes acyclic
-        for (DfgVertexVar& vtx : dfg.varVertices()) {
-            if (!sccInfo.get(vtx)) continue;
-            fixUp.main(vtx);
-            if (!sccInfo.isCyclic()) break;
+        కొరకు (Dfg_శీర్షం_Var& vtx : dfg.varVertices()) {
+            ఒకవేళ (!sccInfo.get(vtx)) కొనసాగు;
+            fix_పైకి.ప్రధాన(vtx);
+            ఒకవేళ (!sccInfo.isCyclic()) ఆపు;
         }
         // Return the number of improvements made
-        return fixUp.m_nImprovements;
+        తిరిగి fix_పైకి.m_nImprovements;
     }
 };
 
-void breakCycles(DfgGraph& dfg, V3DfgBreakCyclesContext& ctx) {
+శూన్య break_చక్రాలు(Dfg_లేఖాచిత్రం& dfg, V3_Dfg_Break_చక్రాలు_Context& ctx) {
     // Shorthand for dumping graph at given dump level
-    const auto dump = [&](int level, const DfgGraph& dfg, const std::string& name) {
-        if (dumpDfgLevel() >= level) dfg.dumpDotFilePrefixed("breakCycles-" + name);
+    స్థిరరాశి స్వయంచాలక dump = [&](పూర్ణాంకం level, స్థిరరాశి Dfg_లేఖాచిత్రం& dfg, స్థిరరాశి std::string& name) {
+        ఒకవేళ (dumpDfgLevel() >= level) dfg.dumpDotFilePrefixed("breakCycles-" + name);
     };
 
     // Show input for debugging
     dump(7, dfg, "input");
 
     // How many improvements have we made
-    size_t nImprovements = 0;
-    size_t prevNImprovements;
+    కొలత_t nImprovements = 0;
+    కొలత_t prevNImprovements;
 
     // Iterate while an improvement can be made and the graph is still cyclic
-    do {
+    చేయి {
         // Compute SCCs
         SccInfo sccInfo{dfg};
 
         // Fix up independent ranges in vertices
         UINFO(9, "New iteration after " << nImprovements << " improvements");
         prevNImprovements = nImprovements;
-        const size_t nFixed = FixUp::apply(dfg, sccInfo);
-        if (nFixed) {
+        స్థిరరాశి కొలత_t nFixed = Fix_పైకి::apply(dfg, sccInfo);
+        ఒకవేళ (nFixed) {
             nImprovements += nFixed;
             ctx.m_nImprovements += nFixed;
             dump(9, dfg, "FixUp");
         }
 
         // Validate SccInfo if in debug mode
-        if (v3Global.opt.debugCheck()) sccInfo.validate();
+        ఒకవేళ (v3Global.opt.debugCheck()) sccInfo.validate();
 
         // Congrats if it has become acyclic
-        if (!sccInfo.isCyclic()) {
+        ఒకవేళ (!sccInfo.isCyclic()) {
             UINFO(7, "Graph became acyclic after " << nImprovements << " improvements");
             dump(7, dfg, "result-acyclic");
             ++ctx.m_nFixed;
-            return;
+            తిరిగి;
         }
-    } while (nImprovements != prevNImprovements);
+    } అయితే (nImprovements != prevNImprovements);
 
     // Debug dump
-    if (dumpDfgLevel() >= 9) {
-        const SccInfo sccInfo{dfg};
-        dfg.dumpDotFilePrefixed("breakCycles-remaining", [&](const DfgVertex& vtx) {
-            return sccInfo.get(vtx);  //
+    ఒకవేళ (dumpDfgLevel() >= 9) {
+        స్థిరరాశి SccInfo sccInfo{dfg};
+        dfg.dumpDotFilePrefixed("breakCycles-remaining", [&](స్థిరరాశి Dfg_శీర్షం& vtx) {
+            తిరిగి sccInfo.get(vtx);  //
         });
     }
 
     // Accounting
-    if (nImprovements) {
+    ఒకవేళ (nImprovements) {
         UINFO(7, "Graph was improved " << nImprovements << " times");
         dump(7, dfg, "result-improved");
         ++ctx.m_nImproved;
-    } else {
+    } లేకపోతే {
         UINFO(7, "Graph NOT improved");
         ++ctx.m_nUnchanged;
     }
@@ -1721,26 +1721,26 @@ void breakCycles(DfgGraph& dfg, V3DfgBreakCyclesContext& ctx) {
     // are kept regardless. Breaking a cycle there is essentially free, as they must be
     // materialized anyway, whereas cutting an internal variable forces it to survive
     // via its DfgPrev when it could otherwise be inlined away later.
-    std::vector<DfgVertexVar*> varps;
-    for (DfgVertexVar& vtx : dfg.varVertices()) {
-        if (!vtx.tmpForp()) varps.push_back(&vtx);
+    std::సదిశ<Dfg_శీర్షం_Var*> varps;
+    కొరకు (Dfg_శీర్షం_Var& vtx : dfg.varVertices()) {
+        ఒకవేళ (!vtx.tmpForp()) varps.నెట్టు_వెనుక(&vtx);
     }
-    std::stable_partition(varps.begin(), varps.end(), [](const DfgVertexVar* varp) {
-        return varp->hasExtRefs() || varp->isVolatile();
+    std::stable_విభజన(varps.begin(), varps.చివర(), [](స్థిరరాశి Dfg_శీర్షం_Var* varp) {
+        తిరిగి varp->hasExtRefs() || varp->isVolatile();
     });
 
     // Insert DfgPrev vertices until the graph becomes acyclic
     SccInfo sccInfo{dfg};
-    for (DfgVertexVar* const varp : varps) {
+    కొరకు (Dfg_శీర్షం_Var* స్థిరరాశి varp : varps) {
         // Stop as soon as it becomes acyclic
-        if (!sccInfo.isCyclic()) break;
+        ఒకవేళ (!sccInfo.isCyclic()) ఆపు;
 
         // Ignore if variable is not part of a cycle
-        if (!sccInfo.get(*varp)) continue;
+        ఒకవేళ (!sccInfo.get(*varp)) కొనసాగు;
 
         // Insert a DfgPrev vertex for the variable
-        DfgPrev* const prevp = new DfgPrev{dfg, varp->vscp()};
-        sccInfo.add(*prevp, 0);
+        DfgPrev* స్థిరరాశి prevp = కొత్త DfgPrev{dfg, varp->vscp()};
+        sccInfo.కూడు(*prevp, 0);
         varp->replaceWith(prevp);
         ++ctx.m_nPrevInserted;
 
@@ -1748,15 +1748,15 @@ void breakCycles(DfgGraph& dfg, V3DfgBreakCyclesContext& ctx) {
         sccInfo.updateReplacement(*varp, *prevp);
     }
     // Validate SccInfo if in debug mode
-    if (v3Global.opt.debugCheck()) sccInfo.validate();
+    ఒకవేళ (v3Global.opt.debugCheck()) sccInfo.validate();
     UASSERT(!sccInfo.isCyclic(), "Graph should become acyclic");
 
     dump(7, dfg, "result-withprev");
 }
 
 }  //namespace V3DfgBreakCycles
-void V3DfgPasses::breakCycles(DfgGraph& dfg, V3DfgContext& ctx) {
-    V3DfgBreakCycles::breakCycles(dfg, ctx.m_breakCyclesContext);
-    if (v3Global.opt.debugCheck()) V3DfgPasses::typeCheck(dfg);
-    V3DfgPasses::removeUnused(dfg);
+శూన్య V3DfgPasses::break_చక్రాలు(Dfg_లేఖాచిత్రం& dfg, V3DfgContext& ctx) {
+    V3_Dfg_Break_చక్రాలు::break_చక్రాలు(dfg, ctx.m_break_చక్రాలు_Context);
+    ఒకవేళ (v3Global.opt.debugCheck()) V3DfgPasses::typeCheck(dfg);
+    V3DfgPasses::remove_వాడని(dfg);
 }

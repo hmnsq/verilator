@@ -14,23 +14,23 @@
 //
 //*************************************************************************
 
-#ifndef VERILATOR_V3LANGCODE_H_
-#define VERILATOR_V3LANGCODE_H_
+#నిర్వచితం_కాకపోతే VERILATOR_V3LANGCODE_H_
+#నిర్వచించు VERILATOR_V3LANGCODE_H_
 
-#include "config_build.h"
-#include "verilatedos.h"
+#అన్తర్భావ "config_build.h"
+#అన్తర్భావ "verilatedos.h"
 
-#include <map>
-#include <set>
-#include <vector>
+#అన్తర్భావ <map>
+#అన్తర్భావ <set>
+#అన్తర్భావ <vector>
 
 //######################################################################
 //! Class for the different languages supported.
 //! A separate file, since used both in V3Options (globally) and FileLine 9per
 //! file).
-class V3LangCode final {
-public:
-    enum en : uint8_t {
+class V3_Lang_సంకేతం final {
+బహిరంగ:
+    గణన en : uint8_t {
         L_ERROR,  // Must be first.
         L1364_1995,
         L1364_2001,
@@ -41,34 +41,34 @@ public:
         L1800_2017,
         L1800_2023,
         // ***Add new elements below also***
-        _ENUM_END
+        ENUM_చివర
     };
-    const char* ascii() const {
-        const char* const names[]
+    స్థిరరాశి అక్షరం* ascii() స్థిరరాశి {
+        స్థిరరాశి అక్షరం* స్థిరరాశి పేర్లు[]
             = {// These must match the `begin_keywords values
                " ERROR",    "1364-1995", "1364-2001", "1364-2005", "1800-2005",
                "1800-2009", "1800-2012", "1800-2017", "1800-2023"};
-        return names[m_e];
+        తిరిగి పేర్లు[m_e];
     }
-    static V3LangCode mostRecent() VL_MT_SAFE { return V3LangCode{L1800_2023}; }
-    bool systemVerilog() const {
-        return m_e == L1800_2005 || m_e == L1800_2009 || m_e == L1800_2012 || m_e == L1800_2017
+    స్థిర V3_Lang_సంకేతం mostRecent() VL_MT_సురక్షిత { తిరిగి V3_Lang_సంకేతం{L1800_2023}; }
+    bool systemVerilog() స్థిరరాశి {
+        తిరిగి m_e == L1800_2005 || m_e == L1800_2009 || m_e == L1800_2012 || m_e == L1800_2017
                || m_e == L1800_2023;
     }
-    bool legal() const { return m_e != L_ERROR; }
+    bool legal() స్థిరరాశి { తిరిగి m_e != L_ERROR; }
     //
-    enum en m_e;
-    V3LangCode()
+    గణన en m_e;
+    V3_Lang_సంకేతం()
         : m_e{L_ERROR} {}
     // cppcheck-suppress noExplicitConstructor
-    constexpr V3LangCode(en _e)
+    constexpr V3_Lang_సంకేతం(en _e)
         : m_e{_e} {}
-    explicit V3LangCode(const char* textp);
-    explicit V3LangCode(int _e)
+    explicit V3_Lang_సంకేతం(స్థిరరాశి అక్షరం* textp);
+    explicit V3_Lang_సంకేతం(పూర్ణాంకం _e)
         : m_e(static_cast<en>(_e)) {}  // Need () or GCC 4.8 false warning
-    constexpr operator en() const { return m_e; }
+    constexpr క్రియాకారకం en() స్థిరరాశి { తిరిగి m_e; }
 };
 
 //######################################################################
 
-#endif  // guard
+#అయితే_ముగింపు  // guard

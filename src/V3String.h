@@ -14,140 +14,140 @@
 //
 //*************************************************************************
 
-#ifndef VERILATOR_V3STRING_H_
-#define VERILATOR_V3STRING_H_
+#నిర్వచితం_కాకపోతే VERILATOR_V3STRING_H_
+#నిర్వచించు VERILATOR_V3STRING_H_
 
-#include "config_build.h"
-#include "verilatedos.h"
+#అన్తర్భావ "config_build.h"
+#అన్తర్భావ "verilatedos.h"
 
 // No V3 headers here - this is a base class for Vlc etc
 
-#include <deque>
-#include <iomanip>
-#include <map>
-#include <set>
-#include <sstream>
-#include <string>
-#include <type_traits>
-#include <unordered_map>
-#include <vector>
+#అన్తర్భావ <deque>
+#అన్తర్భావ <iomanip>
+#అన్తర్భావ <map>
+#అన్తర్భావ <set>
+#అన్తర్భావ <sstream>
+#అన్తర్భావ <string>
+#అన్తర్భావ <type_traits>
+#అన్తర్భావ <unordered_map>
+#అన్తర్భావ <vector>
 
-using VStringList = std::vector<std::string>;
-using VStringSet = std::set<std::string>;
+using VStringList = std::సదిశ<std::string>;
+using VString_సమితి = std::సమితి<std::string>;
 
 //######################################################################
 // Global string-related functions
 
-template <typename T>
-std::string cvtToStr(const T& t) VL_PURE {
+మూస <typename T>
+std::string cvt_గమ్యం_Str(స్థిరరాశి T& t) VL_శుద్ధ {
     std::ostringstream os;
     os << t;
-    return os.str();
+    తిరిగి os.str();
 }
-template <typename T>
-typename std::enable_if<std::is_pointer<T>::value, std::string>::type
-cvtToHex(const T tp) VL_PURE {
+మూస <typename T>
+typename std::enable_if<std::is_సూచిక<T>::విలువ, std::string>::type
+cvt_గమ్యం_Hex(స్థిరరాశి T tp) VL_శుద్ధ {
     std::ostringstream os;
-    os << static_cast<const void*>(tp);
-    return os.str();
+    os << static_cast<స్థిరరాశి శూన్య*>(tp);
+    తిరిగి os.str();
 }
-template <typename T>
-typename std::enable_if<std::is_integral<T>::value, std::string>::type cvtToHex(const T t) {
+మూస <typename T>
+typename std::enable_if<std::is_integral<T>::విలువ, std::string>::type cvt_గమ్యం_Hex(స్థిరరాశి T t) {
     std::ostringstream os;
-    os << std::hex << std::setw(sizeof(T) * 8 / 4) << std::setfill('0') << t;
-    return os.str();
+    os << std::hex << std::setw(పరిమాణం(T) * 8 / 4) << std::setfill('0') << t;
+    తిరిగి os.str();
 }
 
-inline string ucfirst(const string& text) {
-    string result = text;
-    result[0] = std::toupper(result[0]);
-    return result;
+అంతఃవరుస string ucfirst(స్థిరరాశి string& పాఠ్యం) {
+    string ఫలితం = పాఠ్యం;
+    ఫలితం[0] = std::పెద్ద_అక్షరం(ఫలితం[0]);
+    తిరిగి ఫలితం;
 }
 
 //######################################################################
 // VString - String manipulation
 
 class VString final {
-    static bool wildmatchi(const char* s, const char* p) VL_PURE;
+    స్థిర bool wildmatchi(స్థిరరాశి అక్షరం* s, స్థిరరాశి అక్షరం* p) VL_శుద్ధ;
 
-public:
+బహిరంగ:
     // METHODS (generic string utilities)
     // Return true if p with ? or *'s matches s
-    static bool wildmatch(const char* s, const char* p) VL_PURE;
+    స్థిర bool wildmatch(స్థిరరాశి అక్షరం* s, స్థిరరాశి అక్షరం* p) VL_శుద్ధ;
     // Return true if p with ? or *'s matches s
-    static bool wildmatch(const string& s, const string& p) VL_PURE;
+    స్థిర bool wildmatch(స్థిరరాశి string& s, స్థిరరాశి string& p) VL_శుద్ధ;
     // Return {a}{dot}{b}, omitting dot if a or b are empty
-    static string dot(const string& a, const string& dot, const string& b);
+    స్థిర string dot(స్థిరరాశి string& a, స్థిరరాశి string& dot, స్థిరరాశి string& b);
     // Convert string to lowercase (tolower)
-    static string downcase(const string& str) VL_PURE;
+    స్థిర string downcase(స్థిరరాశి string& str) VL_శుద్ధ;
     // Convert string to upper case (toupper)
-    static string upcase(const string& str) VL_PURE;
+    స్థిర string upcase(స్థిరరాశి string& str) VL_శుద్ధ;
     // Insert esc just before tgt
-    static string quoteAny(const string& str, char tgt, char esc) VL_PURE;
+    స్థిర string quoteAny(స్థిరరాశి string& str, అక్షరం tgt, అక్షరం esc) VL_శుద్ధ;
     // Replace any \'s with \\  (two consecutive backslashes)
-    static string quoteBackslash(const string& str) VL_PURE { return quoteAny(str, '\\', '\\'); }
+    స్థిర string quoteBackslash(స్థిరరాశి string& str) VL_శుద్ధ { తిరిగి quoteAny(str, '\\', '\\'); }
     // Replace any %'s with %%
-    static string quotePercent(const string& str) VL_PURE { return quoteAny(str, '%', '%'); }
+    స్థిర string quotePercent(స్థిరరాశి string& str) VL_శుద్ధ { తిరిగి quoteAny(str, '%', '%'); }
     // Replace any %%'s with %
-    static string dequotePercent(const string& str);
+    స్థిర string dequotePercent(స్థిరరాశి string& str);
     // Surround a raw string by double quote and escape if necessary
     // e.g. input abc's  becomes "\"abc\'s\""
-    static string escapeStringForPath(const string& str);
+    స్థిర string escape_String_For_మార్గం(స్థిరరాశి string& str);
     // Convert SV quoted string input from source code to normal form.
     // Reverse is V3OutFormatter::quoteNameControls(...)
-    static string unquoteSVString(const string& text, string& errOut);
+    స్థిర string unquoteSVString(స్థిరరాశి string& పాఠ్యం, string& err_బహిర్గతం);
     // Position just past the string literal 'pos' opens with '"', as written by
     // V3OutFormatter::quoteNameControls(...), whose escapes each begin with '\', or npos if the
     // literal does not end
-    static size_t quotedEnd(const string& str, size_t pos) VL_PURE;
+    స్థిర కొలత_t quoted_చివర(స్థిరరాశి string& str, కొలత_t pos) VL_శుద్ధ;
     // Escape path in Windows
     // e.g. input `C:\Program Files\My Program\My Program.exe` becomes
     // `C:\\Program\ Files\\My\ Program\\My\ Program.exe`
-    static string quoteStringLiteralForShell(const string& str);
+    స్థిర string quoteStringLiteralForShell(స్థిరరాశి string& str);
     // Replace any unprintable with space
     // This includes removing tabs, so column tracking is correct
-    static string spaceUnprintable(const string& str) VL_PURE;
+    స్థిర string spaceUnprintable(స్థిరరాశి string& str) VL_శుద్ధ;
     // Remove any whitespace
-    static string removeWhitespace(const string& str);
+    స్థిర string removeWhitespace(స్థిరరాశి string& str);
     // Trim leading/trailing whitespace on each line
-    static string trimWhitespace(const string& str);
+    స్థిర string trimWhitespace(స్థిరరాశి string& str);
     // Return true if only identifer or ""
-    static bool isIdentifier(const string& str);
+    స్థిర bool isIdentifier(స్థిరరాశి string& str);
     // Return true if char is valid character in C identifiers
-    static bool isIdentifierChar(char c) { return isalnum(c) || c == '_'; }
+    స్థిర bool isIdentifierChar(అక్షరం c) { తిరిగి అక్షరమా_అంకెనా(c) || c == '_'; }
     // Return true if only whitespace or ""
-    static bool isWhitespace(const string& str);
+    స్థిర bool isWhitespace(స్థిరరాశి string& str);
     // Return number of spaces/tabs leading in string
-    static string::size_type leadingWhitespaceCount(const string& str);
+    స్థిర string::కొలత_type leading_Whitespace_లెక్క(స్థిరరాశి string& str);
     // Return double by parsing string
-    static double parseDouble(const string& str, bool* successp);
+    స్థిర ద్విగుణ parseDouble(స్థిరరాశి string& str, bool* successp);
     // Replace substring. Often replaceWord is more appropriate.
-    static string replaceSubstr(const string& str, const string& from, const string& to);
+    స్థిర string replaceSubstr(స్థిరరాశి string& str, స్థిరరాశి string& from, స్థిరరాశి string& గమ్యం);
     // Replace all occurrences of the word 'from' in 'str' with 'to'. A word is considered
     // to be a consecutive sequence of the characters [a-zA-Z0-9_]. Sub-words are not replaced.
     // e.g.: replaceWords("one apple bad_apple", "apple", "banana") -> "one banana bad_apple"
-    static string replaceWord(const string& str, const string& from, const string& to);
+    స్థిర string replace_మాట(స్థిరరాశి string& str, స్థిరరాశి string& from, స్థిరరాశి string& గమ్యం);
     // Return deque of strings split by the given delimiter
-    static std::deque<string> split(const string& str, char delimiter = ',');
+    స్థిర std::deque<string> విభజించు(స్థిరరాశి string& str, అక్షరం delimiter = ',');
     // Predicate to check if 'str' starts with 'prefix'
-    static bool startsWith(const string& str, const char* prefixp) {
-        return !str.rfind(prefixp, 0);  // Faster than .find(_) == 0
+    స్థిర bool startsWith(స్థిరరాశి string& str, స్థిరరాశి అక్షరం* prefixp) {
+        తిరిగి !str.rfind(prefixp, 0);  // Faster than .find(_) == 0
     }
-    static bool startsWith(const string& str, const string& prefix) {
-        return !str.rfind(prefix, 0);  // Faster than .find(_) == 0
+    స్థిర bool startsWith(స్థిరరాశి string& str, స్థిరరాశి string& ఉపసర్గ) {
+        తిరిగి !str.rfind(ఉపసర్గ, 0);  // Faster than .find(_) == 0
     }
     // Predicate to check if 'str' ends with 'suffix'
-    static bool endsWith(const string& str, const string& suffix);
+    స్థిర bool చివర్లు_With(స్థిరరాశి string& str, స్థిరరాశి string& suffix);
     // Return proper article (a/an) for a word. May be inaccurate for some special words
-    static string aOrAn(const char* word);
-    static string aOrAn(const string& word) { return aOrAn(word.c_str()); }
+    స్థిర string aOrAn(స్థిరరాశి అక్షరం* మాట);
+    స్థిర string aOrAn(స్థిరరాశి string& మాట) { తిరిగి aOrAn(మాట.c_str()); }
     // Hash the string
-    static uint64_t hashMurmur(const string& str) VL_PURE;
+    స్థిర uint64_t hashMurmur(స్థిరరాశి string& str) VL_శుద్ధ;
 
     // Base 64 encode
-    static string base64Enc(const string& str) VL_PURE;
+    స్థిర string base64Enc(స్థిరరాశి string& str) VL_శుద్ధ;
 
-    static void selfTest();  // Test this class
+    స్థిర శూన్య selfTest();  // Test this class
 };
 
 //######################################################################
@@ -162,9 +162,9 @@ class VHashSha512 final {
     // MEMBERS
     uint64_t m_inthash[8];  // Intermediate hash, in host order
     string m_remainder;  // Unhashed data
-    size_t m_totLength = 0;  // Total all-chunk length as needed by output digest
+    కొలత_t m_tot_నిడివి = 0;  // Total all-chunk length as needed by output digest
     bool m_final = false;  // Finalized
-public:
+బహిరంగ:
     // CONSTRUCTORS
     VHashSha512() {
         m_inthash[0] = 0x6a09e667f3bcc908ULL;
@@ -176,36 +176,36 @@ public:
         m_inthash[6] = 0x1f83d9abfb41bd6bULL;
         m_inthash[7] = 0x5be0cd19137e2179ULL;
     }
-    explicit VHashSha512(const string& data)
+    explicit VHashSha512(స్థిరరాశి string& దత్తాంశం)
         : VHashSha512{} {
-        insert(data);
+        చొప్పించు(దత్తాంశం);
     }
-    ~VHashSha512() = default;
+    ~VHashSha512() = అప్రమేయ;
 
     // CONSTANTS
     // Characters digestSymbol24 keeps, 6 bits each, so 144 bits and no collisions in practice
-    static constexpr size_t DIGEST_SYMBOL24_LENGTH = 24;
+    స్థిర constexpr కొలత_t DIGEST_SYMBOL24_నిడివి = 24;
 
     // METHODS
     string digestBase64();  // Return digest formatted in Base64 (non-URL flavor)
-    string digestBinary();  // Return digest as 64 character binary
+    string digest_ద్విమాన();  // Return digest as 64 character binary
     string digestHex();  // Return digest formatted as a hex string
     string digestSymbol24();  // Return non-reversable short-formatted as C symbol/base64ish
     uint64_t digestUInt64();  // Return 64-bits of digest
-    static void selfTest();  // Test this class
+    స్థిర శూన్య selfTest();  // Test this class
 
     // Inserting hash data
-    void insert(const void* datap, size_t length);  // Process data into the digest
-    void insert(const string& data) {
-        insert(data.data(), data.length());
+    శూన్య చొప్పించు(స్థిరరాశి శూన్య* datap, కొలత_t నిడివి);  // Process data into the digest
+    శూన్య చొప్పించు(స్థిరరాశి string& దత్తాంశం) {
+        చొప్పించు(దత్తాంశం.దత్తాంశం(), దత్తాంశం.నిడివి());
     }  // Process data into the digest
-    void insert(uint64_t value) { insert(cvtToStr(value)); }
-    void insertFile(const string& filename);
+    శూన్య చొప్పించు(uint64_t విలువ) { చొప్పించు(cvt_గమ్యం_Str(విలువ)); }
+    శూన్య చొప్పించు_File(స్థిరరాశి string& filename);
 
-private:
-    static void selfTestOne(const string& data, const string& data2, const string& exp,
-                            const string& exp64, const string& exp24);
-    void finalize();  // Process remaining data
+అంతరంగ:
+    స్థిర శూన్య selfTestOne(స్థిరరాశి string& దత్తాంశం, స్థిరరాశి string& data2, స్థిరరాశి string& ఘాతాంకం,
+                            స్థిరరాశి string& exp64, స్థిరరాశి string& exp24);
+    శూన్య finalize();  // Process remaining data
 };
 
 //######################################################################
@@ -215,27 +215,27 @@ private:
 class VName final {
     string m_name;  // Pre-hashed symbol name
     string m_hashed;  // Hashed version of symbol name
-    static std::map<string, string> s_dehashMap;  // hashed -> original decoder
+    స్థిర std::map<string, string> s_dehashMap;  // hashed -> original decoder
 
-    static size_t s_maxLength;  // Length at which to start hashing
-    static size_t s_minLength;  // Length to preserve if over maxLength
+    స్థిర కొలత_t s_max_నిడివి;  // Length at which to start hashing
+    స్థిర కొలత_t s_min_నిడివి;  // Length to preserve if over maxLength
 
-public:
+బహిరంగ:
     // CONSTRUCTORS
-    explicit VName(const string& name)
+    explicit VName(స్థిరరాశి string& name)
         : m_name{name} {}
-    ~VName() = default;
+    ~VName() = అప్రమేయ;
     // METHODS
-    void name(const string& name) {
+    శూన్య name(స్థిరరాశి string& name) {
         m_name = name;
         m_hashed = "";
     }
-    string name() const { return m_name; }
+    string name() స్థిరరాశి { తిరిగి m_name; }
     string hashedName();
     // CONFIG STATIC METHODS
     // Length at which to start hashing, 0=disable
-    static void maxLength(size_t flag) { s_maxLength = flag; }
-    static string dehash(const string& in);
+    స్థిర శూన్య max_నిడివి(కొలత_t flag) { s_max_నిడివి = flag; }
+    స్థిర string dehash(స్థిరరాశి string& లోపల);
 };
 
 //######################################################################
@@ -243,56 +243,56 @@ public:
 
 class VSpellCheck final {
     // CONSTANTS
-    static constexpr unsigned NUM_CANDIDATE_LIMIT = 10000;  // Avoid searching huge netlists
-    static constexpr unsigned LENGTH_LIMIT = 100;  // Maximum string length to search
+    స్థిర constexpr గుర్తులేని అంకె_CANDIDATE_హద్దు = 10000;  // Avoid searching huge netlists
+    స్థిర constexpr గుర్తులేని నిడివి_హద్దు = 100;  // Maximum string length to search
     // TYPES
-    using EditDistance = unsigned int;
-    struct Candidate final {
+    using Edit_దూరం = గుర్తులేని పూర్ణాంకం;
+    నిర్మాణం Candidate final {
         std::string str;  // String to be matched
-        std::string msg;  // Message to print on a match
+        std::string సందేశం_2;  // Message to print on a match
     };
     // MEMBERS
-    std::vector<Candidate> m_candidates;  // Strings we try to match
-public:
+    std::సదిశ<Candidate> m_candidates;  // Strings we try to match
+బహిరంగ:
     // CONSTRUCTORS
-    VSpellCheck() = default;
-    ~VSpellCheck() = default;
+    VSpellCheck() = అప్రమేయ;
+    ~VSpellCheck() = అప్రమేయ;
     // METHODS
     // Push a symbol table value to be considered as a candidate
     // The first item pushed has highest priority, all else being equal
-    void pushCandidate(const string& str) { pushCandidate(str, str); }
+    శూన్య నెట్టు_Candidate(స్థిరరాశి string& str) { నెట్టు_Candidate(str, str); }
     // First argument is string to be matched, the second one is message to print on success
-    void pushCandidate(const string& str, const string& msg) {
-        if (m_candidates.size() < NUM_CANDIDATE_LIMIT) m_candidates.push_back({str, msg});
+    శూన్య నెట్టు_Candidate(స్థిరరాశి string& str, స్థిరరాశి string& సందేశం_2) {
+        ఒకవేళ (m_candidates.కొలత() < అంకె_CANDIDATE_హద్దు) m_candidates.నెట్టు_వెనుక({str, సందేశం_2});
     }
     // Return candidate is closest to provided string, or "" for none
-    VSpellCheck::Candidate bestCandidate(const string& goal) const {
-        EditDistance dist;
-        return bestCandidateInfo(goal, dist /*ref*/);
+    VSpellCheck::Candidate ఉత్తమ_Candidate(స్థిరరాశి string& goal) స్థిరరాశి {
+        Edit_దూరం dist;
+        తిరిగి ఉత్తమ_Candidate_Info(goal, dist /*ref*/);
     }
     // Return friendly message
-    string bestCandidateMsg(const string& goal) const {
-        const auto candidate = bestCandidate(goal);
-        if (candidate.msg.empty()) return "";
-        return "... Suggested alternative: '"s + candidate.msg + "'";
+    string ఉత్తమ_Candidate_సందేశం(స్థిరరాశి string& goal) స్థిరరాశి {
+        స్థిరరాశి స్వయంచాలక candidate = ఉత్తమ_Candidate(goal);
+        ఒకవేళ (candidate.సందేశం_2.ఖాళీలు()) తిరిగి "";
+        తిరిగి "... Suggested alternative: '"s + candidate.సందేశం_2 + "'";
     }
-    static void selfTest();
-    std::vector<std::string> candidates() const {
-        std::vector<std::string> result;
-        result.reserve(m_candidates.size());
-        for (const auto& candidate : m_candidates) { result.push_back(candidate.msg); }
-        return result;
+    స్థిర శూన్య selfTest();
+    std::సదిశ<std::string> candidates() స్థిరరాశి {
+        std::సదిశ<std::string> ఫలితం;
+        ఫలితం.reserve(m_candidates.కొలత());
+        కొరకు (స్థిరరాశి స్వయంచాలక& candidate : m_candidates) { ఫలితం.నెట్టు_వెనుక(candidate.సందేశం_2); }
+        తిరిగి ఫలితం;
     }
 
-private:
-    static EditDistance editDistance(const string& s, const string& t);
-    static EditDistance cutoffDistance(size_t goal_len, size_t candidate_len);
-    VSpellCheck::Candidate bestCandidateInfo(const string& goal, EditDistance& distancer) const;
-    static void selfTestDistanceOne(const string& a, const string& b, EditDistance expected);
-    static void selfTestSuggestOne(bool matches, const string& c, const string& goal,
-                                   EditDistance dist);
+అంతరంగ:
+    స్థిర Edit_దూరం edit_దూరం(స్థిరరాశి string& s, స్థిరరాశి string& t);
+    స్థిర Edit_దూరం cutoff_దూరం(కొలత_t goal_len, కొలత_t candidate_len);
+    VSpellCheck::Candidate ఉత్తమ_Candidate_Info(స్థిరరాశి string& goal, Edit_దూరం& distancer) స్థిరరాశి;
+    స్థిర శూన్య self_Test_దూరం_One(స్థిరరాశి string& a, స్థిరరాశి string& b, Edit_దూరం expected);
+    స్థిర శూన్య selfTestSuggestOne(bool matches, స్థిరరాశి string& c, స్థిరరాశి string& goal,
+                                   Edit_దూరం dist);
 };
 
 //######################################################################
 
-#endif  // guard
+#అయితే_ముగింపు  // guard

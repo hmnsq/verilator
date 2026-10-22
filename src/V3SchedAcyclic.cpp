@@ -33,89 +33,89 @@
 //
 //*************************************************************************
 
-#include "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
+#అన్తర్భావ "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
 
-#include "V3EmitV.h"
-#include "V3File.h"
-#include "V3Graph.h"
-#include "V3Sched.h"
-#include "V3SenTree.h"
-#include "V3Stats.h"
+#అన్తర్భావ "V3EmitV.h"
+#అన్తర్భావ "V3File.h"
+#అన్తర్భావ "V3Graph.h"
+#అన్తర్భావ "V3Sched.h"
+#అన్తర్భావ "V3SenTree.h"
+#అన్తర్భావ "V3Stats.h"
 
-#include <map>
-#include <unordered_map>
-#include <unordered_set>
-#include <utility>
-#include <vector>
+#అన్తర్భావ <map>
+#అన్తర్భావ <unordered_map>
+#అన్తర్భావ <unordered_set>
+#అన్తర్భావ <utility>
+#అన్తర్భావ <vector>
 
 VL_DEFINE_DEBUG_FUNCTIONS;
 
-namespace V3Sched {
+నామాకాశ V3Sched {
 
-namespace {
+నామాకాశ {
 
 // ##############################################################################
 //  Data structures (graph types)
 
-class SchedAcyclicLogicVertex final : public V3GraphVertex {
-    VL_RTTI_IMPL(SchedAcyclicLogicVertex, V3GraphVertex)
-    AstNode* const m_logicp;  // The logic node this vertex represents
-    AstScope* const m_scopep;  // The enclosing AstScope of the logic node
+తరగతి Sched_Acyclic_Logic_శీర్షం final : బహిరంగ V3_లేఖాచిత్రం_శీర్షం {
+    VL_RTTI_IMPL(Sched_Acyclic_Logic_శీర్షం, V3_లేఖాచిత్రం_శీర్షం)
+    Ast_కణుపు* స్థిరరాశి m_logicp;  // The logic node this vertex represents
+    AstScope* స్థిరరాశి m_scopep;  // The enclosing AstScope of the logic node
 
-public:
-    SchedAcyclicLogicVertex(V3Graph* graphp, AstNode* logicp, AstScope* scopep)
-        : V3GraphVertex{graphp}
+బహిరంగ:
+    Sched_Acyclic_Logic_శీర్షం(V3_లేఖాచిత్రం* graphp, Ast_కణుపు* logicp, AstScope* scopep)
+        : V3_లేఖాచిత్రం_శీర్షం{graphp}
         , m_logicp{logicp}
         , m_scopep{scopep} {}
-    V3GraphVertex* clone(V3Graph* graphp) const override {
-        return new SchedAcyclicLogicVertex{graphp, logicp(), scopep()};
+    V3_లేఖాచిత్రం_శీర్షం* clone(V3_లేఖాచిత్రం* graphp) స్థిరరాశి override {
+        తిరిగి కొత్త Sched_Acyclic_Logic_శీర్షం{graphp, logicp(), scopep()};
     }
 
-    AstNode* logicp() const { return m_logicp; }
-    AstScope* scopep() const { return m_scopep; }
+    Ast_కణుపు* logicp() స్థిరరాశి { తిరిగి m_logicp; }
+    AstScope* scopep() స్థిరరాశి { తిరిగి m_scopep; }
 
     // LCOV_EXCL_START // Debug code
-    string name() const override VL_MT_STABLE { return m_logicp->fileline()->ascii(); };
-    string dotShape() const override { return "rectangle2"; }
+    string name() స్థిరరాశి override VL_MT_STABLE { తిరిగి m_logicp->fileline()->ascii(); };
+    string dotShape() స్థిరరాశి override { తిరిగి "rectangle2"; }
     // LCOV_EXCL_STOP
 };
 
-class SchedAcyclicVarVertex final : public V3GraphVertex {
-    VL_RTTI_IMPL(SchedAcyclicVarVertex, V3GraphVertex)
-    AstVarScope* const m_vscp;  // The AstVarScope this vertex represents
+తరగతి Sched_Acyclic_Var_శీర్షం final : బహిరంగ V3_లేఖాచిత్రం_శీర్షం {
+    VL_RTTI_IMPL(Sched_Acyclic_Var_శీర్షం, V3_లేఖాచిత్రం_శీర్షం)
+    AstVarScope* స్థిరరాశి m_vscp;  // The AstVarScope this vertex represents
 
-public:
-    SchedAcyclicVarVertex(V3Graph* graphp, AstVarScope* vscp)
-        : V3GraphVertex{graphp}
+బహిరంగ:
+    Sched_Acyclic_Var_శీర్షం(V3_లేఖాచిత్రం* graphp, AstVarScope* vscp)
+        : V3_లేఖాచిత్రం_శీర్షం{graphp}
         , m_vscp{vscp} {}
-    AstVarScope* vscp() const { return m_vscp; }
-    AstVar* varp() const { return m_vscp->varp(); }
-    V3GraphVertex* clone(V3Graph* graphp) const override {
-        return new SchedAcyclicVarVertex{graphp, vscp()};
+    AstVarScope* vscp() స్థిరరాశి { తిరిగి m_vscp; }
+    AstVar* varp() స్థిరరాశి { తిరిగి m_vscp->varp(); }
+    V3_లేఖాచిత్రం_శీర్షం* clone(V3_లేఖాచిత్రం* graphp) స్థిరరాశి override {
+        తిరిగి కొత్త Sched_Acyclic_Var_శీర్షం{graphp, vscp()};
     }
 
     // LCOV_EXCL_START // Debug code
-    string name() const override VL_MT_STABLE { return m_vscp->name(); }
-    string dotShape() const override { return "ellipse"; }
-    string dotColor() const override { return "blue"; }
+    string name() స్థిరరాశి override VL_MT_STABLE { తిరిగి m_vscp->name(); }
+    string dotShape() స్థిరరాశి override { తిరిగి "ellipse"; }
+    string dotColor() స్థిరరాశి override { తిరిగి "blue"; }
     // LCOV_EXCL_STOP
 };
 
-class Graph final : public V3Graph {
-    string loopsVertexCb(V3GraphVertex* vtxp) override {
-        if (SchedAcyclicLogicVertex* const lvtxp = vtxp->cast<SchedAcyclicLogicVertex>()) {
-            AstNode* const logicp = lvtxp->logicp();
+తరగతి లేఖాచిత్రం_2 final : బహిరంగ V3_లేఖాచిత్రం {
+    string loops_శీర్షం_Cb(V3_లేఖాచిత్రం_శీర్షం* vtxp) override {
+        ఒకవేళ (Sched_Acyclic_Logic_శీర్షం* స్థిరరాశి lvtxp = vtxp->cast<Sched_Acyclic_Logic_శీర్షం>()) {
+            Ast_కణుపు* స్థిరరాశి logicp = lvtxp->logicp();
             std::string logicName = logicp->prettyTypeName();
-            if (const AstAlways* const alwaysp = VN_CAST(logicp, Always)) {
-                if (alwaysp->keyword() == VAlwaysKwd::CONT_ASSIGN) {
+            ఒకవేళ (స్థిరరాశి AstAlways* స్థిరరాశి alwaysp = VN_CAST(logicp, Always)) {
+                ఒకవేళ (alwaysp->keyword() == VAlwaysKwd::CONT_కేటాయించు) {
                     logicName = "ASSIGNW";  // Keep using historiacl name until we have better
                 }
             }
-            return logicp->fileline()->warnOther() + "     Example path: " + logicName + "\n";
-        } else {
-            SchedAcyclicVarVertex* const vvtxp = vtxp->as<SchedAcyclicVarVertex>();
-            AstVarScope* const vscp = vvtxp->vscp();
-            return vscp->fileline()->warnOther() + "     Example path: " + vscp->prettyName()
+            తిరిగి logicp->fileline()->warnOther() + "     Example path: " + logicName + "\n";
+        } లేకపోతే {
+            Sched_Acyclic_Var_శీర్షం* స్థిరరాశి vvtxp = vtxp->as<Sched_Acyclic_Var_శీర్షం>();
+            AstVarScope* స్థిరరాశి vscp = vvtxp->vscp();
+            తిరిగి vscp->fileline()->warnOther() + "     Example path: " + vscp->prettyName()
                    + "\n";
         }
     }
@@ -124,91 +124,91 @@ class Graph final : public V3Graph {
 //##############################################################################
 // Algorithm implementation
 
-std::unique_ptr<Graph> buildGraph(const LogicByScope& lbs) {
-    std::unique_ptr<Graph> graphp{new Graph};
+std::unique_ptr<లేఖాచిత్రం_2> build_లేఖాచిత్రం(స్థిరరాశి LogicByScope& lbs) {
+    std::unique_ptr<లేఖాచిత్రం_2> graphp{కొత్త లేఖాచిత్రం_2};
 
     // AstVarScope::user1() -> VarVertx
-    const VNUser1InUse user1InUse;
-    const auto getVarVertex = [&](AstVarScope* vscp) {
-        if (!vscp->user1p()) vscp->user1p(new SchedAcyclicVarVertex{graphp.get(), vscp});
-        return vscp->user1u().to<SchedAcyclicVarVertex*>();
+    స్థిరరాశి VNUser1_లోపల_Use user1_లోపల_Use;
+    స్థిరరాశి స్వయంచాలక get_Var_శీర్షం = [&](AstVarScope* vscp) {
+        ఒకవేళ (!vscp->user1p()) vscp->user1p(కొత్త Sched_Acyclic_Var_శీర్షం{graphp.get(), vscp});
+        తిరిగి vscp->user1u().గమ్యం<Sched_Acyclic_Var_శీర్షం*>();
     };
 
-    const auto addEdge = [&](V3GraphVertex* fromp, V3GraphVertex* top, int weight, bool cuttable) {
-        new V3GraphEdge{graphp.get(), fromp, top, weight, cuttable};
+    స్థిరరాశి స్వయంచాలక కూడు_అంచు = [&](V3_లేఖాచిత్రం_శీర్షం* fromp, V3_లేఖాచిత్రం_శీర్షం* శిఖరం, పూర్ణాంకం బరువు_2, తార్కిక cuttable) {
+        కొత్త V3_లేఖాచిత్రం_అంచు{graphp.get(), fromp, శిఖరం, బరువు_2, cuttable};
     };
 
-    for (const auto& entry : lbs) {
-        AstScope* const scopep = entry.m_scopep;
-        AstActive* const activep = entry.m_activep;
+    కొరకు (స్థిరరాశి స్వయంచాలక& నమోదు_2 : lbs) {
+        AstScope* స్థిరరాశి scopep = నమోదు_2.m_scopep;
+        Ast_చురుకైన* స్థిరరాశి activep = నమోదు_2.m_activep;
         UASSERT_OBJ(activep->hasCombo(), activep, "Not combinational logic");
-        for (AstNode* nodep = activep->stmtsp(); nodep; nodep = nodep->nextp()) {
+        కొరకు (Ast_కణుపు* nodep = activep->stmtsp(); nodep; nodep = nodep->nextp()) {
             // Can safely ignore Postponed as we generate them all
-            if (VN_IS(nodep, AlwaysPostponed)) continue;
+            ఒకవేళ (VN_IS(nodep, AlwaysPostponed)) కొనసాగు;
 
-            SchedAcyclicLogicVertex* const lvtxp
-                = new SchedAcyclicLogicVertex{graphp.get(), nodep, scopep};
-            const VNUser2InUse user2InUse;
-            const VNUser3InUse user3InUse;
+            Sched_Acyclic_Logic_శీర్షం* స్థిరరాశి lvtxp
+                = కొత్త Sched_Acyclic_Logic_శీర్షం{graphp.get(), nodep, scopep};
+            స్థిరరాశి VNUser2_లోపల_Use user2_లోపల_Use;
+            స్థిరరాశి VNUser3_లోపల_Use user3_లోపల_Use;
 
-            V3Sched::util::VarScopeSet forceReadEdgeIgnores;
-            V3Sched::util::collectForceReadEdgeIgnores(nodep, forceReadEdgeIgnores);
+            V3Sched::util::Var_Scope_సమితి force_Read_అంచు_Ignores;
+            V3Sched::util::collect_Force_Read_అంచు_Ignores(nodep, force_Read_అంచు_Ignores);
 
             nodep->foreach([&](AstVarRef* refp) {
-                AstVarScope* const vscp = refp->varScopep();
-                SchedAcyclicVarVertex* const vvtxp = getVarVertex(vscp);
+                AstVarScope* స్థిరరాశి vscp = refp->varScopep();
+                Sched_Acyclic_Var_శీర్షం* స్థిరరాశి vvtxp = get_Var_శీర్షం(vscp);
                 // We want to cut the narrowest signals
-                const int weight = vscp->width() / 8 + 1;
+                స్థిరరాశి పూర్ణాంకం బరువు_2 = vscp->వెడల్పు() / 8 + 1;
                 // If written, add logic -> var edge
-                if (refp->access().isWriteOrRW() && !refp->varp()->ignoreSchedWrite()
-                    && !vscp->user2SetOnce())
-                    addEdge(lvtxp, vvtxp, weight, true);
+                ఒకవేళ (refp->access().isWriteOrRW() && !refp->varp()->ignoreSchedWrite()
+                    && !vscp->user2_సమితి_Once())
+                    కూడు_అంచు(lvtxp, vvtxp, బరువు_2, నిజం);
                 // If read, add var -> logic edge
                 // Note: Use same heuristic as ordering does to ignore written variables
                 // TODO: Use live variable analysis.
-                if (refp->access().isReadOrRW() && !vscp->user3SetOnce() && !vscp->user2()
-                    && !forceReadEdgeIgnores.count(vscp))
-                    addEdge(vvtxp, lvtxp, weight, true);
+                ఒకవేళ (refp->access().isReadOrRW() && !vscp->user3_సమితి_Once() && !vscp->user2()
+                    && !force_Read_అంచు_Ignores.లెక్క(vscp))
+                    కూడు_అంచు(vvtxp, lvtxp, బరువు_2, నిజం);
             });
         }
     }
 
-    return graphp;
+    తిరిగి graphp;
 }
 
-void removeNonCyclic(Graph* graphp) {
+శూన్య removeNonCyclic(లేఖాచిత్రం_2* graphp) {
     // Work queue
-    std::vector<V3GraphVertex*> queue;
+    std::సదిశ<V3_లేఖాచిత్రం_శీర్షం*> వరుస;
 
-    const auto enqueue = [&](V3GraphVertex* vtxp) {
-        if (vtxp->user()) return;  // Already in queue
+    స్థిరరాశి స్వయంచాలక వరుసలో_చేర్చు = [&](V3_లేఖాచిత్రం_శీర్షం* vtxp) {
+        ఒకవేళ (vtxp->user()) తిరిగి;  // Already in queue
         vtxp->user(1);
-        queue.push_back(vtxp);
+        వరుస.నెట్టు_వెనుక(vtxp);
     };
 
     // Start with vertices with no inputs or outputs
-    for (V3GraphVertex& vtx : graphp->vertices()) {
-        if (vtx.inEmpty() || vtx.outEmpty()) enqueue(&vtx);
+    కొరకు (V3_లేఖాచిత్రం_శీర్షం& vtx : graphp->vertices()) {
+        ఒకవేళ (vtx.లోపల_ఖాళీలు() || vtx.బహిర్గతం_ఖాళీలు()) వరుసలో_చేర్చు(&vtx);
     }
 
     // Iterate while we still have candidates
-    while (!queue.empty()) {
+    అయితే (!వరుస.ఖాళీలు()) {
         // Pop next candidate
-        V3GraphVertex* const vtxp = queue.back();
-        queue.pop_back();
+        V3_లేఖాచిత్రం_శీర్షం* స్థిరరాశి vtxp = వరుస.వెనుక();
+        వరుస.తీయి_వెనుక();
         vtxp->user(0);  // No longer in queue
 
-        if (vtxp->inEmpty()) {
+        ఒకవేళ (vtxp->లోపల_ఖాళీలు()) {
             // Enqueue children for consideration, remove out edges, and delete this vertex
-            for (V3GraphEdge* const edgep : vtxp->outEdges().unlinkable()) {
-                enqueue(edgep->top());
+            కొరకు (V3_లేఖాచిత్రం_అంచు* స్థిరరాశి edgep : vtxp->బహిర్గతం_అంచులు().unlinkable()) {
+                వరుసలో_చేర్చు(edgep->శిఖరం());
                 VL_DO_DANGLING(edgep->unlinkDelete(), edgep);
             }
             VL_DO_DANGLING(vtxp->unlinkDelete(graphp), vtxp);
-        } else if (vtxp->outEmpty()) {
+        } లేకపోతే ఒకవేళ (vtxp->బహిర్గతం_ఖాళీలు()) {
             // Enqueue parents for consideration, remove in edges, and delete this vertex
-            for (V3GraphEdge* const edgep : vtxp->inEdges().unlinkable()) {
-                enqueue(edgep->fromp());
+            కొరకు (V3_లేఖాచిత్రం_అంచు* స్థిరరాశి edgep : vtxp->లోపల_అంచులు().unlinkable()) {
+                వరుసలో_చేర్చు(edgep->fromp());
                 VL_DO_DANGLING(edgep->unlinkDelete(), edgep);
             }
             VL_DO_DANGLING(vtxp->unlinkDelete(graphp), vtxp);
@@ -217,215 +217,215 @@ void removeNonCyclic(Graph* graphp) {
 }
 
 // Has this VarVertex been cut? (any edges in or out has been cut)
-bool isCut(const SchedAcyclicVarVertex* vtxp) {
-    for (const V3GraphEdge& edge : vtxp->inEdges()) {
-        if (edge.weight() == 0) return true;
+తార్కిక isCut(స్థిరరాశి Sched_Acyclic_Var_శీర్షం* vtxp) {
+    కొరకు (స్థిరరాశి V3_లేఖాచిత్రం_అంచు& అంచు : vtxp->లోపల_అంచులు()) {
+        ఒకవేళ (అంచు.బరువు_2() == 0) తిరిగి నిజం;
     }
-    for (const V3GraphEdge& edge : vtxp->outEdges()) {
-        if (edge.weight() == 0) return true;
+    కొరకు (స్థిరరాశి V3_లేఖాచిత్రం_అంచు& అంచు : vtxp->బహిర్గతం_అంచులు()) {
+        ఒకవేళ (అంచు.బరువు_2() == 0) తిరిగి నిజం;
     }
-    return false;
+    తిరిగి అబద్ధం;
 }
 
-std::vector<SchedAcyclicVarVertex*> findCutVertices(Graph* graphp) {
+std::సదిశ<Sched_Acyclic_Var_శీర్షం*> కనుగొను_Cut_Vertices(లేఖాచిత్రం_2* graphp) {
     // List of cut vertices being computed here
-    std::vector<SchedAcyclicVarVertex*> result;
-    const VNUser1InUse user1InUse;  // bool: already added to result
+    std::సదిశ<Sched_Acyclic_Var_శీర్షం*> ఫలితం;
+    స్థిరరాశి VNUser1_లోపల_Use user1_లోపల_Use;  // bool: already added to result
 
     // Statistics
-    size_t nCyclicVtxs = 0;  // Number of vertices that are part of an SCC (cycle)
-    size_t nCyclicVars = 0;  // Number of variables that are part of an SCC (cycle)
-    std::unordered_set<uint32_t> sccs;  // Unique SCC colors
+    కొలత_t nCyclicVtxs = 0;  // Number of vertices that are part of an SCC (cycle)
+    కొలత_t nCyclicVars = 0;  // Number of variables that are part of an SCC (cycle)
+    std::unordered_సమితి<uint32_t> sccs;  // Unique SCC colors
 
-    for (V3GraphVertex& vtx : graphp->vertices()) {
-        if (!vtx.color()) continue;  // Not part of an SCC (cycle), can ignore
+    కొరకు (V3_లేఖాచిత్రం_శీర్షం& vtx : graphp->vertices()) {
+        ఒకవేళ (!vtx.color()) కొనసాగు;  // Not part of an SCC (cycle), can ignore
         ++nCyclicVtxs;
-        if (SchedAcyclicVarVertex* const vvtxp = vtx.cast<SchedAcyclicVarVertex>()) {
+        ఒకవేళ (Sched_Acyclic_Var_శీర్షం* స్థిరరాశి vvtxp = vtx.cast<Sched_Acyclic_Var_శీర్షం>()) {
             ++nCyclicVars;
-            if (!vvtxp->vscp()->user1SetOnce() && isCut(vvtxp)) result.push_back(vvtxp);
+            ఒకవేళ (!vvtxp->vscp()->user1_సమితి_Once() && isCut(vvtxp)) ఫలితం.నెట్టు_వెనుక(vvtxp);
         }
         // Don't bother counting if not dumping statistics
-        if (v3Global.opt.stats()) sccs.insert(vtx.color());
+        ఒకవేళ (v3Global.opt.stats()) sccs.చొప్పించు(vtx.color());
     }
 
-    V3Stats::addStat("Scheduling, Cycles, cyclic variables", nCyclicVars);
-    V3Stats::addStat("Scheduling, Cycles, cyclic logic blocks", nCyclicVtxs - nCyclicVars);
-    V3Stats::addStat("Scheduling, Cycles, unique SCCs", sccs.size());
-    V3Stats::addStat("Scheduling, Cycles, cut variables", result.size());
+    V3Stats::కూడు_Stat("Scheduling, Cycles, cyclic variables", nCyclicVars);
+    V3Stats::కూడు_Stat("Scheduling, Cycles, cyclic logic blocks", nCyclicVtxs - nCyclicVars);
+    V3Stats::కూడు_Stat("Scheduling, Cycles, unique SCCs", sccs.కొలత());
+    V3Stats::కూడు_Stat("Scheduling, Cycles, cut variables", ఫలితం.కొలత());
 
-    return result;
+    తిరిగి ఫలితం;
 }
 
-void resetEdgeWeights(const std::vector<SchedAcyclicVarVertex*>& cutVertices) {
-    for (SchedAcyclicVarVertex* const vvtxp : cutVertices) {
-        for (V3GraphEdge& e : vvtxp->inEdges()) e.weight(1);
-        for (V3GraphEdge& e : vvtxp->outEdges()) e.weight(1);
+శూన్య reset_అంచు_Weights(స్థిరరాశి std::సదిశ<Sched_Acyclic_Var_శీర్షం*>& cutVertices) {
+    కొరకు (Sched_Acyclic_Var_శీర్షం* స్థిరరాశి vvtxp : cutVertices) {
+        కొరకు (V3_లేఖాచిత్రం_అంచు& e : vvtxp->లోపల_అంచులు()) e.బరువు_2(1);
+        కొరకు (V3_లేఖాచిత్రం_అంచు& e : vvtxp->బహిర్గతం_అంచులు()) e.బరువు_2(1);
     }
 }
 
 // A VarVertex together with its fanout
-using Candidate = std::pair<SchedAcyclicVarVertex*, unsigned>;
+ఉపయోగించి Candidate = std::pair<Sched_Acyclic_Var_శీర్షం*, గుర్తులేని>;
 
 // Gather all splitting candidates that are in the same SCC as the given vertex
-void gatherSCCCandidates(V3GraphVertex* vtxp, std::vector<Candidate>& candidates) {
-    if (vtxp->user()) return;  // Already done
-    vtxp->user(true);
+శూన్య gatherSCCCandidates(V3_లేఖాచిత్రం_శీర్షం* vtxp, std::సదిశ<Candidate>& candidates) {
+    ఒకవేళ (vtxp->user()) తిరిగి;  // Already done
+    vtxp->user(నిజం);
 
-    if (SchedAcyclicVarVertex* const vvtxp = vtxp->cast<SchedAcyclicVarVertex>()) {
-        AstVar* const varp = vvtxp->varp();
-        const string name = varp->prettyName();
-        if (!varp->user3SetOnce()  // Only consider each AstVar once
-            && varp->width() != 1  // Ignore 1-bit signals (they cannot be split further)
-            && name.find("__Vdly") == string::npos  // Ignore internal signals
-            && name.find("__Vcell") == string::npos) {
+    ఒకవేళ (Sched_Acyclic_Var_శీర్షం* స్థిరరాశి vvtxp = vtxp->cast<Sched_Acyclic_Var_శీర్షం>()) {
+        AstVar* స్థిరరాశి varp = vvtxp->varp();
+        స్థిరరాశి string name = varp->prettyName();
+        ఒకవేళ (!varp->user3_సమితి_Once()  // Only consider each AstVar once
+            && varp->వెడల్పు() != 1  // Ignore 1-bit signals (they cannot be split further)
+            && name.కనుగొను("__Vdly") == string::npos  // Ignore internal signals
+            && name.కనుగొను("__Vcell") == string::npos) {
             // Also compute the fanout of this vertex
-            const unsigned fanout = vtxp->outEdges().size();
-            candidates.emplace_back(vvtxp, fanout);
+            స్థిరరాశి గుర్తులేని fanout = vtxp->బహిర్గతం_అంచులు().కొలత();
+            candidates.emplace_వెనుక(vvtxp, fanout);
         }
     }
 
     // Iterate through all the vertices within the same strongly connected component (same color)
-    for (V3GraphEdge& edge : vtxp->outEdges()) {
-        V3GraphVertex* const top = edge.top();
-        if (top->color() == vtxp->color()) gatherSCCCandidates(top, candidates);
+    కొరకు (V3_లేఖాచిత్రం_అంచు& అంచు : vtxp->బహిర్గతం_అంచులు()) {
+        V3_లేఖాచిత్రం_శీర్షం* స్థిరరాశి శిఖరం = అంచు.శిఖరం();
+        ఒకవేళ (శిఖరం->color() == vtxp->color()) gatherSCCCandidates(శిఖరం, candidates);
     }
-    for (V3GraphEdge& edge : vtxp->inEdges()) {
-        V3GraphVertex* const fromp = edge.fromp();
-        if (fromp->color() == vtxp->color()) gatherSCCCandidates(fromp, candidates);
+    కొరకు (V3_లేఖాచిత్రం_అంచు& అంచు : vtxp->లోపల_అంచులు()) {
+        V3_లేఖాచిత్రం_శీర్షం* స్థిరరాశి fromp = అంచు.fromp();
+        ఒకవేళ (fromp->color() == vtxp->color()) gatherSCCCandidates(fromp, candidates);
     }
 }
 
 // Find all variables in a loop (SCC) that are candidates for splitting to break loops.
-std::string reportLoopVars(FileLine* /*warnFl*/, Graph* graphp, SchedAcyclicVarVertex* vvtxp) {
+std::string reportLoopVars(File_పంక్తి* /*warnFl*/, లేఖాచిత్రం_2* graphp, Sched_Acyclic_Var_శీర్షం* vvtxp) {
     std::ostringstream ss;
     // Vector of variables in UNOPTFLAT loop that are candidates for splitting.
-    std::vector<Candidate> candidates;
+    std::సదిశ<Candidate> candidates;
     {
         // AstNode::user3 is used to mark if we have done a particular variable.
         // V3GraphVertex::user is used to mark if we have seen this vertex before.
-        const VNUser3InUse user3InUse;
+        స్థిరరాశి VNUser3_లోపల_Use user3_లోపల_Use;
         graphp->userClearVertices();
         gatherSCCCandidates(vvtxp, candidates);
         graphp->userClearVertices();
     }
 
     // Possible we only have candidates the user cannot do anything about, so don't bother them.
-    if (candidates.empty()) return "";
+    ఒకవేళ (candidates.ఖాళీలు()) తిరిగి "";
 
     // There may be a very large number of candidates, so only report up to 10 of the "most
     // important" signals.
-    unsigned splittable = 0;
-    const auto reportFirst10
-        = [&](std::function<bool(const Candidate&, const Candidate&)> less) -> string {
-        std::stable_sort(candidates.begin(), candidates.end(), less);
+    గుర్తులేని splittable = 0;
+    స్థిరరాశి స్వయంచాలక reportFirst10
+        = [&](std::function<తార్కిక(స్థిరరాశి Candidate&, స్థిరరాశి Candidate&)> less) -> string {
+        std::stable_క్రమీకరించు(candidates.begin(), candidates.చివర(), less);
         std::ostringstream ss2;
-        for (size_t i = 0; i < 10; i++) {
-            if (i == candidates.size()) break;
-            const Candidate& candidate = candidates[i];
-            AstVar* const varp = candidate.first->varp();
+        కొరకు (కొలత_t i = 0; i < 10; i++) {
+            ఒకవేళ (i == candidates.కొలత()) ఆపు;
+            స్థిరరాశి Candidate& candidate = candidates[i];
+            AstVar* స్థిరరాశి varp = candidate.మొదటి->varp();
 
-            ss2 << V3Error::warnMore() << "    " << varp->fileline() << ' ' << varp->prettyName()
-                << ", width " << std::dec << varp->width() << ", circular fanout "
-                << candidate.second;
-            if (!varp->cannotSplitKindReason()) {
+            ss2 << V3Error::warn_మరిన్ని() << "    " << varp->fileline() << ' ' << varp->prettyName()
+                << ", width " << std::dec << varp->వెడల్పు() << ", circular fanout "
+                << candidate.రెండవ;
+            ఒకవేళ (!varp->cannot_విభజించు_రకం_Reason()) {
                 ss2 << ", can split_var";
                 ++splittable;
             }
             ss2 << '\n';
         }
-        return ss2.str();
+        తిరిగి ss2.str();
     };
 
     // Widest variables
-    ss << V3Error::warnMore() << "... Widest variables candidate to splitting:\n"
-       << reportFirst10([](const Candidate& a, const Candidate& b) {
-              return a.first->varp()->width() > b.first->varp()->width();
+    ss << V3Error::warn_మరిన్ని() << "... Widest variables candidate to splitting:\n"
+       << reportFirst10([](స్థిరరాశి Candidate& a, స్థిరరాశి Candidate& b) {
+              తిరిగి a.మొదటి->varp()->వెడల్పు() > b.మొదటి->varp()->వెడల్పు();
           });
 
     // Highest fanout
-    ss << V3Error::warnMore() << "... Candidates with the highest fanout:\n"
-       << reportFirst10([](const Candidate& a, const Candidate& b) {  //
-              return a.second > b.second;
+    ss << V3Error::warn_మరిన్ని() << "... Candidates with the highest fanout:\n"
+       << reportFirst10([](స్థిరరాశి Candidate& a, స్థిరరాశి Candidate& b) {  //
+              తిరిగి a.రెండవ > b.రెండవ;
           });
 
-    if (splittable) {
-        ss << V3Error::warnMore()
+    ఒకవేళ (splittable) {
+        ss << V3Error::warn_మరిన్ని()
            << "... Suggest add /*verilator split_var*/ to appropriate variables above.\n";
     }
-    V3Stats::addStat("Scheduling, split_var, candidates", splittable);
-    return ss.str();
+    V3Stats::కూడు_Stat("Scheduling, split_var, candidates", splittable);
+    తిరిగి ss.str();
 }
 
-void reportCycles(Graph* graphp, const std::vector<SchedAcyclicVarVertex*>& cutVertices) {
-    for (SchedAcyclicVarVertex* vvtxp : cutVertices) {
-        AstVarScope* const vscp = vvtxp->vscp();
-        FileLine* const flp = vscp->fileline();
+శూన్య report_చక్రాలు(లేఖాచిత్రం_2* graphp, స్థిరరాశి std::సదిశ<Sched_Acyclic_Var_శీర్షం*>& cutVertices) {
+    కొరకు (Sched_Acyclic_Var_శీర్షం* vvtxp : cutVertices) {
+        AstVarScope* స్థిరరాశి vscp = vvtxp->vscp();
+        File_పంక్తి* స్థిరరాశి flp = vscp->fileline();
 
         // First v3warn not inside warnIsOff so we can see the suppressions with --debug
-        if (flp->warnIsOff(V3ErrorCode::UNOPTFLAT)) {
+        ఒకవేళ (flp->warnIsOff(V3_Error_సంకేతం::UNOPTFLAT)) {
             // First v3warn not inside warnIsOff so we can see the suppressions with --debug
             vscp->v3warn(UNOPTFLAT, "Signal unoptimizable: Circular combinational logic: "
                                         << vscp->prettyNameQ());
-        } else {
+        } లేకపోతే {
             vscp->v3warn(UNOPTFLAT,
                          "Signal unoptimizable: Circular combinational logic: "
                              << vscp->prettyNameQ() << '\n'
                              << vscp->warnContextPrimary()
                              << V3Error::warnAdditionalInfo()
                              // Calls Graph::loopsVertexCb
-                             << graphp->reportLoops(&V3GraphEdge::followAlwaysTrue, vvtxp)
+                             << graphp->reportLoops(&V3_లేఖాచిత్రం_అంచు::followAlwaysTrue, vvtxp)
                              // Report candidate variables for splitting
                              << (v3Global.opt.reportUnoptflat()
                                      ? reportLoopVars(vscp->fileline(), graphp, vvtxp)
                                      : ""));
             // Complain just once
-            flp->modifyWarnOff(V3ErrorCode::UNOPTFLAT, true);
+            flp->modifyWarnOff(V3_Error_సంకేతం::UNOPTFLAT, నిజం);
             // Create a subgraph for the UNOPTFLAT loop
-            if (v3Global.opt.reportUnoptflat()) {
-                V3Graph loopGraph;
-                graphp->subtreeLoops(&V3GraphEdge::followAlwaysTrue, vvtxp, &loopGraph);
-                loopGraph.dumpDotFilePrefixedAlways("unoptflat");
+            ఒకవేళ (v3Global.opt.reportUnoptflat()) {
+                V3_లేఖాచిత్రం loop_లేఖాచిత్రం;
+                graphp->subtreeLoops(&V3_లేఖాచిత్రం_అంచు::followAlwaysTrue, vvtxp, &loop_లేఖాచిత్రం);
+                loop_లేఖాచిత్రం.dumpDotFilePrefixedAlways("unoptflat");
             }
         }
     }
 }
 
-void dumpSccs(V3Graph* graphp) {
+శూన్య dumpSccs(V3_లేఖాచిత్రం* graphp) {
     // Map from SCC color to vertices in that SCC
-    std::map<uint32_t, std::vector<V3GraphVertex*>> scc2Vtxps;
+    std::map<uint32_t, std::సదిశ<V3_లేఖాచిత్రం_శీర్షం*>> scc2Vtxps;
 
     // Gather all vertices in each SCC
-    for (V3GraphVertex& vtx : graphp->vertices()) {
-        if (!vtx.color()) continue;
-        scc2Vtxps[vtx.color()].push_back(&vtx);
+    కొరకు (V3_లేఖాచిత్రం_శీర్షం& vtx : graphp->vertices()) {
+        ఒకవేళ (!vtx.color()) కొనసాగు;
+        scc2Vtxps[vtx.color()].నెట్టు_వెనుక(&vtx);
     }
 
     // Dump Verilog for each SCC into separate files
-    for (const auto& pair : scc2Vtxps) {
-        const uint32_t color = pair.first;
-        const std::vector<V3GraphVertex*>& vtxps = pair.second;
+    కొరకు (స్థిరరాశి స్వయంచాలక& pair : scc2Vtxps) {
+        స్థిరరాశి uint32_t color = pair.మొదటి;
+        స్థిరరాశి std::సదిశ<V3_లేఖాచిత్రం_శీర్షం*>& vtxps = pair.రెండవ;
 
         // Open dump file
-        const std::string fname
-            = v3Global.debugFilename("sched_scc_" + std::to_string(color) + ".v");
-        const std::unique_ptr<std::ofstream> ofp{V3File::new_ofstream(fname)};
-        if (ofp->fail()) v3fatal("Can't write file: " << fname);
+        స్థిరరాశి std::string fname
+            = v3Global.debugFilename("sched_scc_" + std::గమ్యం_string(color) + ".v");
+        స్థిరరాశి std::unique_ptr<std::ofstream> ofp{V3File::new_ofstream(fname)};
+        ఒకవేళ (ofp->fail()) v3fatal("Can't write file: " << fname);
 
         // Write header
-        *ofp << "// SCC " << color << ", size: " << vtxps.size() << "\n\n";
+        *ofp << "// SCC " << color << ", size: " << vtxps.కొలత() << "\n\n";
 
         // Dump variables
         *ofp << "//////////////////////////////////////////////////////////////////////\n";
         *ofp << "// Variables\n";
         *ofp << "//////////////////////////////////////////////////////////////////////\n";
         *ofp << "\n";
-        for (V3GraphVertex* vtxp : vtxps) {
-            const SchedAcyclicVarVertex* const vvtxp = vtxp->cast<SchedAcyclicVarVertex>();
-            if (!vvtxp) continue;
-            AstVarScope* const vscp = vvtxp->vscp();
+        కొరకు (V3_లేఖాచిత్రం_శీర్షం* vtxp : vtxps) {
+            స్థిరరాశి Sched_Acyclic_Var_శీర్షం* స్థిరరాశి vvtxp = vtxp->cast<Sched_Acyclic_Var_శీర్షం>();
+            ఒకవేళ (!vvtxp) కొనసాగు;
+            AstVarScope* స్థిరరాశి vscp = vvtxp->vscp();
             *ofp << "// " << vscp->fileline()->ascii() << "\n";
             *ofp << "// " << vscp->prettyName() << "\n";
-            V3EmitV::debugVerilogForTree(vscp->varp(), *ofp);
+            V3EmitV::debug_Verilog_For_వృక్షం(vscp->varp(), *ofp);
             *ofp << "\n";
         }
 
@@ -435,93 +435,93 @@ void dumpSccs(V3Graph* graphp) {
         *ofp << "// Logic\n";
         *ofp << "//////////////////////////////////////////////////////////////////////\n";
         *ofp << "\n";
-        for (V3GraphVertex* vtxp : vtxps) {
-            const SchedAcyclicLogicVertex* const lvtxp = vtxp->cast<SchedAcyclicLogicVertex>();
-            if (!lvtxp) continue;
+        కొరకు (V3_లేఖాచిత్రం_శీర్షం* vtxp : vtxps) {
+            స్థిరరాశి Sched_Acyclic_Logic_శీర్షం* స్థిరరాశి lvtxp = vtxp->cast<Sched_Acyclic_Logic_శీర్షం>();
+            ఒకవేళ (!lvtxp) కొనసాగు;
             *ofp << "// " << lvtxp->logicp()->fileline()->ascii() << "\n";
-            V3EmitV::debugVerilogForTree(lvtxp->logicp(), *ofp);
+            V3EmitV::debug_Verilog_For_వృక్షం(lvtxp->logicp(), *ofp);
             *ofp << "\n";
         }
     }
 }
 
 LogicByScope fixCuts(AstNetlist* netlistp,
-                     const std::vector<SchedAcyclicVarVertex*>& cutVertices) {
+                     స్థిరరాశి std::సదిశ<Sched_Acyclic_Var_శీర్షం*>& cutVertices) {
     // For all logic that reads a cut vertex, build a map from logic -> list of cut AstVarScope
     // they read. Also build a vector of the involved logic for deterministic results.
-    std::unordered_map<SchedAcyclicLogicVertex*, std::vector<AstVarScope*>> lvtx2Cuts;
-    std::vector<SchedAcyclicLogicVertex*> lvtxps;
+    std::unordered_map<Sched_Acyclic_Logic_శీర్షం*, std::సదిశ<AstVarScope*>> lvtx2Cuts;
+    std::సదిశ<Sched_Acyclic_Logic_శీర్షం*> lvtxps;
     {
-        const VNUser1InUse user1InUse;  // bool: already added to 'lvtxps'
-        for (SchedAcyclicVarVertex* const vvtxp : cutVertices) {
-            for (V3GraphEdge& edge : vvtxp->outEdges()) {
-                SchedAcyclicLogicVertex* const lvtxp
-                    = static_cast<SchedAcyclicLogicVertex*>(edge.top());
-                if (!lvtxp->logicp()->user1SetOnce()) lvtxps.push_back(lvtxp);
-                lvtx2Cuts[lvtxp].push_back(vvtxp->vscp());
+        స్థిరరాశి VNUser1_లోపల_Use user1_లోపల_Use;  // bool: already added to 'lvtxps'
+        కొరకు (Sched_Acyclic_Var_శీర్షం* స్థిరరాశి vvtxp : cutVertices) {
+            కొరకు (V3_లేఖాచిత్రం_అంచు& అంచు : vvtxp->బహిర్గతం_అంచులు()) {
+                Sched_Acyclic_Logic_శీర్షం* స్థిరరాశి lvtxp
+                    = static_cast<Sched_Acyclic_Logic_శీర్షం*>(అంచు.శిఖరం());
+                ఒకవేళ (!lvtxp->logicp()->user1_సమితి_Once()) lvtxps.నెట్టు_వెనుక(lvtxp);
+                lvtx2Cuts[lvtxp].నెట్టు_వెనుక(vvtxp->vscp());
             }
         }
     }
 
     // Make the logic reading cut vertices use a hybrid sensitivity (combinational, but with some
     // explicit additional triggers on the cut variables)
-    LogicByScope result;
-    SenTreeFinder finder{netlistp};
-    for (SchedAcyclicLogicVertex* const lvtxp : lvtxps) {
-        AstNode* const logicp = lvtxp->logicp();
-        logicp->unlinkFrBack();
-        FileLine* const flp = logicp->fileline();
+    LogicByScope ఫలితం;
+    Sen_వృక్షం_Finder finder{netlistp};
+    కొరకు (Sched_Acyclic_Logic_శీర్షం* స్థిరరాశి lvtxp : lvtxps) {
+        Ast_కణుపు* స్థిరరాశి logicp = lvtxp->logicp();
+        logicp->unlink_Fr_వెనుక();
+        File_పంక్తి* స్థిరరాశి flp = logicp->fileline();
         // Build the hybrid sensitivity list
-        AstSenItem* senItemsp = nullptr;
-        for (AstVarScope* const vscp : lvtx2Cuts[lvtxp]) {
-            AstVarRef* const refp = new AstVarRef{flp, vscp, VAccess::READ};
-            AstSenItem* const nextp = new AstSenItem{flp, VEdgeType::ET_HYBRID, refp};
-            senItemsp = AstNode::addNext(senItemsp, nextp);
+        Ast_Sen_అంశం* senItemsp = శూన్యసూచిక;
+        కొరకు (AstVarScope* స్థిరరాశి vscp : lvtx2Cuts[lvtxp]) {
+            AstVarRef* స్థిరరాశి refp = కొత్త AstVarRef{flp, vscp, VAccess::READ};
+            Ast_Sen_అంశం* స్థిరరాశి nextp = కొత్త Ast_Sen_అంశం{flp, VEdgeType::ET_HYBRID, refp};
+            senItemsp = Ast_కణుపు::కూడు_తదుపరి(senItemsp, nextp);
         }
-        AstSenTree* const senTree = new AstSenTree{flp, senItemsp};
+        Ast_Sen_వృక్షం* స్థిరరాశి sen_వృక్షం = కొత్త Ast_Sen_వృక్షం{flp, senItemsp};
         // Add logic to result with new sensitivity
-        result.add(lvtxp->scopep(), finder.getSenTree(senTree), logicp);
+        ఫలితం.కూడు(lvtxp->scopep(), finder.get_Sen_వృక్షం(sen_వృక్షం), logicp);
         // SenTreeFinder::getSenTree clones, so clean up
-        VL_DO_DANGLING(senTree->deleteTree(), senTree);
+        VL_DO_DANGLING(sen_వృక్షం->delete_వృక్షం(), sen_వృక్షం);
     }
-    return result;
+    తిరిగి ఫలితం;
 }
 
 }  // namespace
 
-LogicByScope breakCycles(AstNetlist* netlistp, const LogicByScope& combinationalLogic) {
+LogicByScope break_చక్రాలు(AstNetlist* netlistp, స్థిరరాశి LogicByScope& combinationalLogic) {
     // Build the dataflow (dependency) graph
-    const std::unique_ptr<Graph> graphp = buildGraph(combinationalLogic);
+    స్థిరరాశి std::unique_ptr<లేఖాచిత్రం_2> graphp = build_లేఖాచిత్రం(combinationalLogic);
 
     // Remove nodes that don't form part of a cycle
     removeNonCyclic(graphp.get());
 
     // Nothing to do if no cycles, yay!
-    if (graphp->empty()) return LogicByScope{};
+    ఒకవేళ (graphp->ఖాళీలు()) తిరిగి LogicByScope{};
 
     // Dump for debug
-    if (dumpGraphLevel() >= 6) graphp->dumpDotFilePrefixed("sched-comb-cycles");
+    ఒకవేళ (dump_లేఖాచిత్రం_Level() >= 6) graphp->dumpDotFilePrefixed("sched-comb-cycles");
 
     // Make graph acyclic by cutting some edges. Note: This also colors strongly connected
     // components which reportCycles uses to print each SCCs separately.
     // TODO: A more optimal algorithm that cuts by removing/marking VarVertex vertices is possible
     //       Search for "Feedback vertex set" (current algorithm is "Feedback arc set")
-    graphp->acyclic(&V3GraphEdge::followAlwaysTrue);
+    graphp->acyclic(&V3_లేఖాచిత్రం_అంచు::followAlwaysTrue);
 
     // Find all cut vertices
-    const std::vector<SchedAcyclicVarVertex*> cutVertices = findCutVertices(graphp.get());
+    స్థిరరాశి std::సదిశ<Sched_Acyclic_Var_శీర్షం*> cutVertices = కనుగొను_Cut_Vertices(graphp.get());
 
     // Reset edge weights for reporting
-    resetEdgeWeights(cutVertices);
+    reset_అంచు_Weights(cutVertices);
 
     // Report warnings/diagnostics
-    reportCycles(graphp.get(), cutVertices);
+    report_చక్రాలు(graphp.get(), cutVertices);
 
     // Debug dump
-    if (dumpLevel() >= 6) dumpSccs(graphp.get());
+    ఒకవేళ (dumpLevel() >= 6) dumpSccs(graphp.get());
 
     // Fix cuts by converting dependent logic to use hybrid sensitivities
-    return fixCuts(netlistp, cutVertices);
+    తిరిగి fixCuts(netlistp, cutVertices);
 }
 
 }  // namespace V3Sched

@@ -21,308 +21,308 @@
 //
 //*************************************************************************
 
-#include "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
+#అన్తర్భావ "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
 
-#include "V3Cfg.h"
-#include "V3Const.h"
-#include "V3Dfg.h"
-#include "V3DfgPasses.h"
+#అన్తర్భావ "V3Cfg.h"
+#అన్తర్భావ "V3Const.h"
+#అన్తర్భావ "V3Dfg.h"
+#అన్తర్భావ "V3DfgPasses.h"
 
 VL_DEFINE_DEBUG_FUNCTIONS;
 
-class AstToDfgAddAstRefs final : public VNVisitorConst {
+తరగతి Ast_గమ్యం_Dfg_కూడు_Ast_Refs final : బహిరంగ VNVisitorConst {
     // STATE
-    DfgGraph& m_dfg;  // The graph being processed
+    Dfg_లేఖాచిత్రం& m_dfg;  // The graph being processed
     // Function to get the DfgVertexVar for a AstVarScope
-    const std::function<DfgVertexVar*(AstVarScope*)> m_getVarVertex;
-    bool m_inSenItem = false;  // Inside an AstSenItem
-    bool m_inLoop = false;  // Inside an AstLoop
+    స్థిరరాశి std::function<Dfg_శీర్షం_Var*(AstVarScope*)> m_get_Var_శీర్షం;
+    తార్కిక m_లోపల_Sen_అంశం = అబద్ధం;  // Inside an AstSenItem
+    తార్కిక m_లోపల_Loop = అబద్ధం;  // Inside an AstLoop
 
     // VISITORS
-    void visit(AstNode* nodep) override { iterateChildrenConst(nodep); }
+    శూన్య సందర్శించు(Ast_కణుపు* nodep) override { iterateChildrenConst(nodep); }
 
-    void visit(AstSenItem* nodep) override {
-        VL_RESTORER(m_inSenItem);
-        m_inSenItem = true;
+    శూన్య సందర్శించు(Ast_Sen_అంశం* nodep) override {
+        VL_RESTORER(m_లోపల_Sen_అంశం);
+        m_లోపల_Sen_అంశం = నిజం;
         iterateChildrenConst(nodep);
     }
 
-    void visit(AstLoop* nodep) override {
-        VL_RESTORER(m_inLoop);
-        m_inLoop = true;
+    శూన్య సందర్శించు(AstLoop* nodep) override {
+        VL_RESTORER(m_లోపల_Loop);
+        m_లోపల_Loop = నిజం;
         iterateChildrenConst(nodep);
     }
 
-    void visit(AstVarRef* nodep) override {
+    శూన్య సందర్శించు(AstVarRef* nodep) override {
         // Disguised hierarchical reference handled as external reference, ignore
-        if (nodep->classOrPackagep()) return;
+        ఒకవేళ (nodep->classOrPackagep()) తిరిగి;
         // If target is not supported, ignore
-        AstVarScope* const vscp = nodep->varScopep();
-        if (!V3Dfg::isSupported(vscp)) return;
+        AstVarScope* స్థిరరాశి vscp = nodep->varScopep();
+        ఒకవేళ (!V3Dfg::isSupported(vscp)) తిరిగి;
         // V3Dfg::isSupported should reject vars with READWRITE references
         UASSERT_OBJ(!nodep->access().isRW(), nodep, "AstVarScope with READWRITE ref not rejected");
         // Get target variable vergtex, ignore if not given one
-        DfgVertexVar* const varp = m_getVarVertex(vscp);
-        if (!varp) return;
+        Dfg_శీర్షం_Var* స్థిరరాశి varp = m_get_Var_శీర్షం(vscp);
+        ఒకవేళ (!varp) తిరిగి;
         // Create Ast reference vertices
-        if (nodep->access().isReadOnly()) {
-            DfgAstRd* const astp = new DfgAstRd{m_dfg, nodep, m_inSenItem, m_inLoop};
+        ఒకవేళ (nodep->access().isReadOnly()) {
+            DfgAstRd* స్థిరరాశి astp = కొత్త DfgAstRd{m_dfg, nodep, m_లోపల_Sen_అంశం, m_లోపల_Loop};
             astp->srcp(varp);
-            return;
+            తిరిగి;
         }
         // Mark as written from non-DFG logic
-        DfgVertexVar::setHasModWrRefs(vscp);
+        Dfg_శీర్షం_Var::సమితి_Has_Mod_Wr_Refs(vscp);
     }
 
-    AstToDfgAddAstRefs(DfgGraph& dfg, AstNode* nodep,
-                       std::function<DfgVertexVar*(AstVarScope*)> getVarVertex)
+    Ast_గమ్యం_Dfg_కూడు_Ast_Refs(Dfg_లేఖాచిత్రం& dfg, Ast_కణుపు* nodep,
+                       std::function<Dfg_శీర్షం_Var*(AstVarScope*)> get_Var_శీర్షం)
         : m_dfg{dfg}
-        , m_getVarVertex{getVarVertex} {
+        , m_get_Var_శీర్షం{get_Var_శీర్షం} {
         iterateConst(nodep);
     }
 
-public:
-    static void apply(DfgGraph& dfg, AstNode* nodep,
-                      std::function<DfgVertexVar*(AstVarScope*)> getVarVertex) {
-        AstToDfgAddAstRefs{dfg, nodep, getVarVertex};
+బహిరంగ:
+    స్థిర శూన్య apply(Dfg_లేఖాచిత్రం& dfg, Ast_కణుపు* nodep,
+                      std::function<Dfg_శీర్షం_Var*(AstVarScope*)> get_Var_శీర్షం) {
+        Ast_గమ్యం_Dfg_కూడు_Ast_Refs{dfg, nodep, get_Var_శీర్షం};
     }
 };
 
-void V3DfgPasses::addAstRefs(DfgGraph& dfg, AstNode* nodep,
-                             std::function<DfgVertexVar*(AstVarScope*)> getVarVertex) {
-    AstToDfgAddAstRefs::apply(dfg, nodep, getVarVertex);
+శూన్య V3DfgPasses::కూడు_Ast_Refs(Dfg_లేఖాచిత్రం& dfg, Ast_కణుపు* nodep,
+                             std::function<Dfg_శీర్షం_Var*(AstVarScope*)> get_Var_శీర్షం) {
+    Ast_గమ్యం_Dfg_కూడు_Ast_Refs::apply(dfg, nodep, get_Var_శీర్షం);
 }
 
-class AstToDfgVisitor final : public VNVisitor {
+తరగతి Ast_గమ్యం_Dfg_Visitor final : బహిరంగ VNVisitor {
     // NODE STATE
     // AstVarScope::user2() -> DfgVertexVar* : the corresponding variable vertex
     // AstVarScope::user3() -> bool : Already gathered - used fine grained below
-    const VNUser2InUse m_user2InUse;
+    స్థిరరాశి VNUser2_లోపల_Use m_user2_లోపల_Use;
 
     // STATE
-    DfgGraph& m_dfg;  // The graph being built
-    V3DfgAstToDfgContext& m_ctx;  // The context for stats
-    AstScope* m_scopep = nullptr;  // The current scope, iff T_Scoped
+    Dfg_లేఖాచిత్రం& m_dfg;  // The graph being built
+    V3_Dfg_Ast_గమ్యం_Dfg_Context& m_ctx;  // The context for stats
+    AstScope* m_scopep = శూన్యసూచిక;  // The current scope, iff T_Scoped
 
     // METHODS
 
     // Mark variables referenced under node
-    void markReferenced(AstNode* nodep) {
-        V3DfgPasses::addAstRefs(m_dfg, nodep, [this](AstVarScope* vscp) {  //
-            return getVarVertex(vscp);
+    శూన్య markReferenced(Ast_కణుపు* nodep) {
+        V3DfgPasses::కూడు_Ast_Refs(m_dfg, nodep, [ఇది](AstVarScope* vscp) {  //
+            తిరిగి get_Var_శీర్షం(vscp);
         });
     }
 
-    DfgVertexVar* getVarVertex(AstVarScope* varp) {
-        if (!varp->user2p()) {
+    Dfg_శీర్షం_Var* get_Var_శీర్షం(AstVarScope* varp) {
+        ఒకవేళ (!varp->user2p()) {
             // TODO: fix this up when removing the different flavours of DfgVar
-            const AstNodeDType* const dtypep = varp->dtypep()->skipRefp();
-            DfgVertexVar* const vtxp
+            స్థిరరాశి Ast_కణుపు_DType* స్థిరరాశి dtypep = varp->dtypep()->skipRefp();
+            Dfg_శీర్షం_Var* స్థిరరాశి vtxp
                 = VN_IS(dtypep, UnpackArrayDType)
-                      ? static_cast<DfgVertexVar*>(new DfgVarArray{m_dfg, varp})
-                      : static_cast<DfgVertexVar*>(new DfgVarPacked{m_dfg, varp});
+                      ? static_cast<Dfg_శీర్షం_Var*>(కొత్త DfgVarArray{m_dfg, varp})
+                      : static_cast<Dfg_శీర్షం_Var*>(కొత్త DfgVarPacked{m_dfg, varp});
             varp->user2p(vtxp);
         }
-        return varp->user2u().template to<DfgVertexVar*>();
+        తిరిగి varp->user2u().మూస గమ్యం<Dfg_శీర్షం_Var*>();
     }
 
     // Gather variables written by the given logic node.
     // Return nullptr if any are not supported.
-    std::unique_ptr<std::vector<DfgVertexVar*>> gatherWritten(const AstNode* nodep) {
-        const VNUser3InUse user3InUse;
-        std::unique_ptr<std::vector<DfgVertexVar*>> resp{new std::vector<DfgVertexVar*>{}};
-        const bool abort = nodep->exists([&](const AstVarRef* refp) -> bool {
-            if (refp->access().isReadOnly()) return false;
-            AstVarScope* const vscp = refp->varScopep();
-            if (!V3Dfg::isSupported(vscp)) return true;
-            if (!vscp->user3SetOnce()) resp->emplace_back(getVarVertex(vscp));
-            return false;
+    std::unique_ptr<std::సదిశ<Dfg_శీర్షం_Var*>> gatherWritten(స్థిరరాశి Ast_కణుపు* nodep) {
+        స్థిరరాశి VNUser3_లోపల_Use user3_లోపల_Use;
+        std::unique_ptr<std::సదిశ<Dfg_శీర్షం_Var*>> resp{కొత్త std::సదిశ<Dfg_శీర్షం_Var*>{}};
+        స్థిరరాశి తార్కిక abort = nodep->exists([&](స్థిరరాశి AstVarRef* refp) -> తార్కిక {
+            ఒకవేళ (refp->access().isReadOnly()) తిరిగి అబద్ధం;
+            AstVarScope* స్థిరరాశి vscp = refp->varScopep();
+            ఒకవేళ (!V3Dfg::isSupported(vscp)) తిరిగి నిజం;
+            ఒకవేళ (!vscp->user3_సమితి_Once()) resp->emplace_వెనుక(get_Var_శీర్షం(vscp));
+            తిరిగి అబద్ధం;
         });
-        if (abort) {
+        ఒకవేళ (abort) {
             ++m_ctx.m_nonRepVar;
-            return nullptr;
+            తిరిగి శూన్యసూచిక;
         }
-        return resp;
+        తిరిగి resp;
     }
 
     // Gather variables read by the given logic node.
     // Return nullptr if any are not supported.
-    std::unique_ptr<std::vector<DfgVertexVar*>> gatherRead(const AstNode* nodep) {
-        const VNUser3InUse user3InUse;
-        std::unique_ptr<std::vector<DfgVertexVar*>> resp{new std::vector<DfgVertexVar*>{}};
-        const bool abort = nodep->exists([&](const AstVarRef* refp) -> bool {
-            if (refp->access().isWriteOnly()) return false;
-            AstVarScope* const vscp = refp->varScopep();
-            if (!V3Dfg::isSupported(vscp)) return true;
-            if (!vscp->user3SetOnce()) resp->emplace_back(getVarVertex(vscp));
-            return false;
+    std::unique_ptr<std::సదిశ<Dfg_శీర్షం_Var*>> gatherRead(స్థిరరాశి Ast_కణుపు* nodep) {
+        స్థిరరాశి VNUser3_లోపల_Use user3_లోపల_Use;
+        std::unique_ptr<std::సదిశ<Dfg_శీర్షం_Var*>> resp{కొత్త std::సదిశ<Dfg_శీర్షం_Var*>{}};
+        స్థిరరాశి తార్కిక abort = nodep->exists([&](స్థిరరాశి AstVarRef* refp) -> తార్కిక {
+            ఒకవేళ (refp->access().isWriteOnly()) తిరిగి అబద్ధం;
+            AstVarScope* స్థిరరాశి vscp = refp->varScopep();
+            ఒకవేళ (!V3Dfg::isSupported(vscp)) తిరిగి నిజం;
+            ఒకవేళ (!vscp->user3_సమితి_Once()) resp->emplace_వెనుక(get_Var_శీర్షం(vscp));
+            తిరిగి అబద్ధం;
         });
-        if (abort) {
+        ఒకవేళ (abort) {
             ++m_ctx.m_nonRepVar;
-            return nullptr;
+            తిరిగి శూన్యసూచిక;
         }
-        return resp;
+        తిరిగి resp;
     }
 
     // Gather variables live in to the given CFG.
     // Return nullptr if any are not supported.
-    std::unique_ptr<std::vector<DfgVertexVar*>> gatherLive(const CfgGraph& cfg) {
+    std::unique_ptr<std::సదిశ<Dfg_శీర్షం_Var*>> gather_సజీవ(స్థిరరాశి Cfg_లేఖాచిత్రం& cfg) {
         // Run analysis
-        std::unique_ptr<std::vector<AstVarScope*>> varps = V3Cfg::liveVarScopes(cfg);
-        if (!varps) {
-            ++m_ctx.m_nonRepLive;
-            return nullptr;
+        std::unique_ptr<std::సదిశ<AstVarScope*>> varps = V3Cfg::సజీవ_Var_Scopes(cfg);
+        ఒకవేళ (!varps) {
+            ++m_ctx.m_non_Rep_సజీవ;
+            తిరిగి శూన్యసూచిక;
         }
 
         // Convert to vertics
-        const VNUser3InUse user3InUse;
-        std::unique_ptr<std::vector<DfgVertexVar*>> resp{new std::vector<DfgVertexVar*>{}};
-        resp->reserve(varps->size());
-        for (AstVarScope* const varp : *varps) {
-            if (!V3Dfg::isSupported(varp)) {
+        స్థిరరాశి VNUser3_లోపల_Use user3_లోపల_Use;
+        std::unique_ptr<std::సదిశ<Dfg_శీర్షం_Var*>> resp{కొత్త std::సదిశ<Dfg_శీర్షం_Var*>{}};
+        resp->reserve(varps->కొలత());
+        కొరకు (AstVarScope* స్థిరరాశి varp : *varps) {
+            ఒకవేళ (!V3Dfg::isSupported(varp)) {
                 ++m_ctx.m_nonRepVar;
-                return nullptr;
+                తిరిగి శూన్యసూచిక;
             }
-            UASSERT_OBJ(!varp->user3SetOnce(), varp, "Live variables should be unique");
-            resp->emplace_back(getVarVertex(varp));
+            UASSERT_OBJ(!varp->user3_సమితి_Once(), varp, "Live variables should be unique");
+            resp->emplace_వెనుక(get_Var_శీర్షం(varp));
         }
-        return resp;
+        తిరిగి resp;
     }
 
     // Connect inputs and outputs of a DfgLogic
-    void connect(DfgLogic& vtx, const std::vector<DfgVertexVar*>& iVarps,
-                 const std::vector<DfgVertexVar*>& oVarps) {
+    శూన్య connect(DfgLogic& vtx, స్థిరరాశి std::సదిశ<Dfg_శీర్షం_Var*>& iVarps,
+                 స్థిరరాశి std::సదిశ<Dfg_శీర్షం_Var*>& oVarps) {
         // Connect inputs
-        for (DfgVertexVar* const iVarp : iVarps) vtx.addInput(iVarp);
+        కొరకు (Dfg_శీర్షం_Var* స్థిరరాశి iVarp : iVarps) vtx.కూడు_ఆదానం(iVarp);
         // Connect outputs
-        for (DfgVertexVar* const oVarp : oVarps) {
-            if (!oVarp->srcp()) oVarp->srcp(new DfgUnresolved{m_dfg, oVarp});
-            oVarp->srcp()->as<DfgUnresolved>()->addDriver(&vtx);
+        కొరకు (Dfg_శీర్షం_Var* స్థిరరాశి oVarp : oVarps) {
+            ఒకవేళ (!oVarp->srcp()) oVarp->srcp(కొత్త DfgUnresolved{m_dfg, oVarp});
+            oVarp->srcp()->as<DfgUnresolved>()->కూడు_Driver(&vtx);
         }
     }
 
     // Convert AstAlways to DfgLogic, return true if successful.
-    bool convert(AstAlways* nodep) {
-        const VAlwaysKwd kwd = nodep->keyword();
-        if (kwd == VAlwaysKwd::CONT_ASSIGN) {
+    తార్కిక convert(AstAlways* nodep) {
+        స్థిరరాశి VAlwaysKwd kwd = nodep->keyword();
+        ఒకవేళ (kwd == VAlwaysKwd::CONT_కేటాయించు) {
             // TODO: simplify once CFG analysis can handle arrays
-            if (const AstAssignW* const ap = VN_CAST(nodep->stmtsp(), AssignW)) {
-                if (ap->nextp()) return false;
+            ఒకవేళ (స్థిరరాశి Ast_కేటాయించు_W* స్థిరరాశి ap = VN_CAST(nodep->stmtsp(), కేటాయించు_W)) {
+                ఒకవేళ (ap->nextp()) తిరిగి అబద్ధం;
                 // Cannot handle assignment with timing control
-                if (ap->timingControlp()) return false;
+                ఒకవేళ (ap->timingControlp()) తిరిగి అబద్ధం;
                 // Potentially convertible block
                 ++m_ctx.m_inputs;
                 // Gather written variables, give up if any are not supported
-                const std::unique_ptr<std::vector<DfgVertexVar*>> oVarpsp = gatherWritten(ap);
-                if (!oVarpsp) return false;
+                స్థిరరాశి std::unique_ptr<std::సదిశ<Dfg_శీర్షం_Var*>> oVarpsp = gatherWritten(ap);
+                ఒకవేళ (!oVarpsp) తిరిగి అబద్ధం;
                 // Gather read variables, give up if any are not supported
-                const std::unique_ptr<std::vector<DfgVertexVar*>> iVarpsp = gatherRead(ap);
-                if (!iVarpsp) return false;
+                స్థిరరాశి std::unique_ptr<std::సదిశ<Dfg_శీర్షం_Var*>> iVarpsp = gatherRead(ap);
+                ఒకవేళ (!iVarpsp) తిరిగి అబద్ధం;
                 // Create the DfgLogic
-                DfgLogic* const logicp = new DfgLogic{m_dfg, nodep, m_scopep, nullptr};
+                DfgLogic* స్థిరరాశి logicp = కొత్త DfgLogic{m_dfg, nodep, m_scopep, శూన్యసూచిక};
                 // Connect it up
                 connect(*logicp, *iVarpsp, *oVarpsp);
-                // Done
+                //పూర్తి
                 ++m_ctx.m_representable;
-                return true;
+                తిరిగి నిజం;
             }
         }
 
         // Can only handle combinational logic
-        if (nodep->sentreep()) return false;
-        if (kwd != VAlwaysKwd::ALWAYS  //
+        ఒకవేళ (nodep->sentreep()) తిరిగి అబద్ధం;
+        ఒకవేళ (kwd != VAlwaysKwd::ALWAYS  //
             && kwd != VAlwaysKwd::ALWAYS_COMB  //
-            && kwd != VAlwaysKwd::CONT_ASSIGN) {
-            return false;
+            && kwd != VAlwaysKwd::CONT_కేటాయించు) {
+            తిరిగి అబద్ధం;
         }
 
         // Potentially convertible block
         ++m_ctx.m_inputs;
         // Attempt to build CFG of AstAlways, give up if failed
-        std::unique_ptr<CfgGraph> cfgp = CfgGraph::build(nodep->stmtsp());
-        if (!cfgp) {
+        std::unique_ptr<Cfg_లేఖాచిత్రం> cfgp = Cfg_లేఖాచిత్రం::build(nodep->stmtsp());
+        ఒకవేళ (!cfgp) {
             ++m_ctx.m_nonRepCfg;
-            return false;
+            తిరిగి అబద్ధం;
         }
         // Gather written variables, give up if any are not supported
-        const std::unique_ptr<std::vector<DfgVertexVar*>> oVarpsp = gatherWritten(nodep);
-        if (!oVarpsp) return false;
+        స్థిరరాశి std::unique_ptr<std::సదిశ<Dfg_శీర్షం_Var*>> oVarpsp = gatherWritten(nodep);
+        ఒకవేళ (!oVarpsp) తిరిగి అబద్ధం;
         // Gather read variables, give up if any are not supported
-        const std::unique_ptr<std::vector<DfgVertexVar*>> iVarpsp = gatherLive(*cfgp);
-        if (!iVarpsp) return false;
+        స్థిరరాశి std::unique_ptr<std::సదిశ<Dfg_శీర్షం_Var*>> iVarpsp = gather_సజీవ(*cfgp);
+        ఒకవేళ (!iVarpsp) తిరిగి అబద్ధం;
         // Create the DfgLogic
-        DfgLogic* const logicp = new DfgLogic{m_dfg, nodep, m_scopep, std::move(cfgp)};
+        DfgLogic* స్థిరరాశి logicp = కొత్త DfgLogic{m_dfg, nodep, m_scopep, std::move(cfgp)};
         // Connect it up
         connect(*logicp, *iVarpsp, *oVarpsp);
-        // Done
+        //పూర్తి
         ++m_ctx.m_representable;
-        return true;
+        తిరిగి నిజం;
     }
 
     // VISITORS
     // Unhandled node
-    void visit(AstNode* nodep) override { markReferenced(nodep); }
+    శూన్య సందర్శించు(Ast_కణుపు* nodep) override { markReferenced(nodep); }
 
     // Containers to descend through to find logic constructs
-    void visit(AstNetlist* nodep) override { iterateAndNextNull(nodep->modulesp()); }
-    void visit(AstModule* nodep) override { iterateAndNextNull(nodep->stmtsp()); }
-    void visit(AstIface* nodep) override {
-        if (!nodep->hasVirtualRef()) {
-            iterateAndNextNull(nodep->stmtsp());
-        } else {
+    శూన్య సందర్శించు(AstNetlist* nodep) override { iterate_And_తదుపరి_Null(nodep->modulesp()); }
+    శూన్య సందర్శించు(AstModule* nodep) override { iterate_And_తదుపరి_Null(nodep->stmtsp()); }
+    శూన్య సందర్శించు(AstIface* nodep) override {
+        ఒకవేళ (!nodep->hasVirtualRef()) {
+            iterate_And_తదుపరి_Null(nodep->stmtsp());
+        } లేకపోతే {
             markReferenced(nodep);
         }
     }
-    void visit(AstTopScope* nodep) override { iterate(nodep->scopep()); }
-    void visit(AstScope* nodep) override {
+    శూన్య సందర్శించు(Ast_శిఖరం_Scope* nodep) override { iterate(nodep->scopep()); }
+    శూన్య సందర్శించు(AstScope* nodep) override {
         VL_RESTORER(m_scopep);
         m_scopep = nodep;
         iterateChildren(nodep);
     }
-    void visit(AstActive* nodep) override {
-        if (nodep->hasCombo()) {
+    శూన్య సందర్శించు(Ast_చురుకైన* nodep) override {
+        ఒకవేళ (nodep->hasCombo()) {
             iterateChildren(nodep);
-        } else {
+        } లేకపోతే {
             markReferenced(nodep);
         }
     }
 
     // Non-representable constructs
-    void visit(AstCell* nodep) override { markReferenced(nodep); }
-    void visit(AstNodeProcedure* nodep) override { markReferenced(nodep); }
+    శూన్య సందర్శించు(AstCell* nodep) override { markReferenced(nodep); }
+    శూన్య సందర్శించు(Ast_కణుపు_Procedure* nodep) override { markReferenced(nodep); }
 
     // Potentially representable constructs
-    void visit(AstAlways* nodep) override {
-        if (!convert(nodep)) markReferenced(nodep);
+    శూన్య సందర్శించు(AstAlways* nodep) override {
+        ఒకవేళ (!convert(nodep)) markReferenced(nodep);
     }
 
     // CONSTRUCTOR
-    AstToDfgVisitor(DfgGraph& dfg, AstNetlist& root, V3DfgAstToDfgContext& ctx)
+    Ast_గమ్యం_Dfg_Visitor(Dfg_లేఖాచిత్రం& dfg, AstNetlist& మూలం, V3_Dfg_Ast_గమ్యం_Dfg_Context& ctx)
         : m_dfg{dfg}
         , m_ctx{ctx} {
-        iterate(&root);
+        iterate(&మూలం);
     }
-    VL_UNCOPYABLE(AstToDfgVisitor);
-    VL_UNMOVABLE(AstToDfgVisitor);
+    VL_UNCOPYABLE(Ast_గమ్యం_Dfg_Visitor);
+    VL_UNMOVABLE(Ast_గమ్యం_Dfg_Visitor);
 
-public:
-    static void apply(DfgGraph& dfg, AstNetlist& root, V3DfgAstToDfgContext& ctx) {
+బహిరంగ:
+    స్థిర శూన్య apply(Dfg_లేఖాచిత్రం& dfg, AstNetlist& మూలం, V3_Dfg_Ast_గమ్యం_Dfg_Context& ctx) {
         // Convert all logic under 'root'
-        AstToDfgVisitor{dfg, root, ctx};
+        Ast_గమ్యం_Dfg_Visitor{dfg, మూలం, ctx};
         // Remove unread and undriven variables (created when something failed to convert)
-        for (DfgVertexVar* const varp : dfg.varVertices().unlinkable()) {
-            if (varp->srcp()) continue;
-            const bool keep = varp->foreachSink([&](DfgVertex& d) { return !d.is<DfgAstRd>(); });
-            if (!keep) {
-                while (varp->hasSinks()) varp->firtsSinkp()->unlinkDelete(dfg);
+        కొరకు (Dfg_శీర్షం_Var* స్థిరరాశి varp : dfg.varVertices().unlinkable()) {
+            ఒకవేళ (varp->srcp()) కొనసాగు;
+            స్థిరరాశి తార్కిక keep = varp->foreachSink([&](Dfg_శీర్షం& d) { తిరిగి !d.is<DfgAstRd>(); });
+            ఒకవేళ (!keep) {
+                అయితే (varp->hasSinks()) varp->firtsSinkp()->unlinkDelete(dfg);
                 VL_DO_DANGLING(varp->unlinkDelete(dfg), varp);
             }
         }
     }
 };
 
-std::unique_ptr<DfgGraph> V3DfgPasses::astToDfg(AstNetlist& netlist, V3DfgContext& ctx) {
-    DfgGraph* const dfgp = new DfgGraph{ctx, "netlist"};
-    AstToDfgVisitor::apply(*dfgp, netlist, ctx.m_ast2DfgContext);
-    return std::unique_ptr<DfgGraph>{dfgp};
+std::unique_ptr<Dfg_లేఖాచిత్రం> V3DfgPasses::ast_గమ్యం_Dfg(AstNetlist& netlist, V3DfgContext& ctx) {
+    Dfg_లేఖాచిత్రం* స్థిరరాశి dfgp = కొత్త Dfg_లేఖాచిత్రం{ctx, "netlist"};
+    Ast_గమ్యం_Dfg_Visitor::apply(*dfgp, netlist, ctx.m_ast2DfgContext);
+    తిరిగి std::unique_ptr<Dfg_లేఖాచిత్రం>{dfgp};
 }

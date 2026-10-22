@@ -14,35 +14,35 @@
 //
 //*************************************************************************
 
-#ifndef VERILATOR_VLCOPTIONS_H_
-#define VERILATOR_VLCOPTIONS_H_
+#నిర్వచితం_కాకపోతే VERILATOR_VLCOPTIONS_H_
+#నిర్వచించు VERILATOR_VLCOPTIONS_H_
 
-#include "config_build.h"
-#include "verilatedos.h"
+#అన్తర్భావ "config_build.h"
+#అన్తర్భావ "verilatedos.h"
 
-#include "VlcPoint.h"
-#include "config_rev.h"
+#అన్తర్భావ "VlcPoint.h"
+#అన్తర్భావ "config_rev.h"
 
-#include <map>
-#include <set>
-#include <vector>
+#అన్తర్భావ <map>
+#అన్తర్భావ <set>
+#అన్తర్భావ <vector>
 
 //######################################################################
 // V3Options - Command line options
 
-using VlStringSet = std::set<std::string>;
+using Vl_String_సమితి = std::సమితి<std::string>;
 
 class VlcOptions final {
     // MEMBERS (general options)
     // clang-format off
-    string m_annotateOut;       // main switch: --annotate I<output_directory>
+    string m_annotate_బహిర్గతం;       // main switch: --annotate I<output_directory>
     bool m_annotateAll = false;  // main switch: --annotate-all
-    int m_annotateMin = 10;     // main switch: --annotate-min I<count>
+    పూర్ణాంకం m_annotateMin = 10;     // main switch: --annotate-min I<count>
     bool m_annotatePoints = false;  // main switch: --annotate-points
     bool m_includeResetArcs = false;  // main switch: --include-reset-arcs
     string m_filterType = "*";  // main switch: --filter-type
-    VlStringSet m_readFiles;    // main switch: --read
-    int m_reportLevels = -1;    // main switch: --levels, negative means all depths
+    Vl_String_సమితి m_readFiles;    // main switch: --read
+    పూర్ణాంకం m_report_స్థాయిలు = -1;    // main switch: --levels, negative means all depths
     string m_report;            // main switch: --report
     bool m_reportSummary = false;  // main switch: --report summary
     bool m_reportHierarchy = false;  // main switch: --report hier or hierarchy
@@ -52,44 +52,44 @@ class VlcOptions final {
     string m_writeInfoFile;     // main switch: --write-info
     // clang-format on
 
-private:
+అంతరంగ:
     // METHODS
-    void parseReportOption() VL_MT_DISABLED;
-    static void showVersion(bool verbose) VL_MT_DISABLED;
+    శూన్య parseReportOption() VL_MT_DISABLED;
+    స్థిర శూన్య show_సంస్కరణ(bool verbose) VL_MT_DISABLED;
 
-public:
+బహిరంగ:
     // CONSTRUCTORS
-    VlcOptions() = default;
-    ~VlcOptions() = default;
+    VlcOptions() = అప్రమేయ;
+    ~VlcOptions() = అప్రమేయ;
 
     // METHODS
-    void parseOptsList(int argc, char** argv) VL_MT_DISABLED;
-    void addReadFile(const string& filename) VL_MT_DISABLED;
+    శూన్య parseOptsList(పూర్ణాంకం argc, అక్షరం** argv) VL_MT_DISABLED;
+    శూన్య కూడు_Read_File(స్థిరరాశి string& filename) VL_MT_DISABLED;
 
     // ACCESSORS (options)
-    const VlStringSet& readFiles() const { return m_readFiles; }
-    string annotateOut() const { return m_annotateOut; }
-    bool annotateAll() const { return m_annotateAll; }
-    int annotateMin() const { return m_annotateMin; }
-    bool countOk(uint64_t count) const { return count >= static_cast<uint64_t>(m_annotateMin); }
-    bool annotatePoints() const { return m_annotatePoints; }
-    bool includeResetArcs() const { return m_includeResetArcs; }
-    int reportLevels() const { return m_reportLevels; }
-    bool reportSpecified() const { return !m_report.empty(); }
-    bool reportSummary() const { return m_reportSummary; }
-    bool reportHierarchy() const { return m_reportHierarchy; }
-    bool rank() const { return m_rank; }
-    bool unlink() const { return m_unlink; }
-    string writeFile() const { return m_writeFile; }
-    string writeInfoFile() const { return m_writeInfoFile; }
-    bool isTypeMatch(const char* name) const {
-        return VString::wildmatch(VlcPoint::typeExtract(name), m_filterType);
+    స్థిరరాశి Vl_String_సమితి& readFiles() స్థిరరాశి { తిరిగి m_readFiles; }
+    string annotate_బహిర్గతం() స్థిరరాశి { తిరిగి m_annotate_బహిర్గతం; }
+    bool annotateAll() స్థిరరాశి { తిరిగి m_annotateAll; }
+    పూర్ణాంకం annotateMin() స్థిరరాశి { తిరిగి m_annotateMin; }
+    bool లెక్క_Ok(uint64_t లెక్క) స్థిరరాశి { తిరిగి లెక్క >= static_cast<uint64_t>(m_annotateMin); }
+    bool annotatePoints() స్థిరరాశి { తిరిగి m_annotatePoints; }
+    bool includeResetArcs() స్థిరరాశి { తిరిగి m_includeResetArcs; }
+    పూర్ణాంకం report_స్థాయిలు() స్థిరరాశి { తిరిగి m_report_స్థాయిలు; }
+    bool reportSpecified() స్థిరరాశి { తిరిగి !m_report.ఖాళీలు(); }
+    bool reportSummary() స్థిరరాశి { తిరిగి m_reportSummary; }
+    bool reportHierarchy() స్థిరరాశి { తిరిగి m_reportHierarchy; }
+    bool rank() స్థిరరాశి { తిరిగి m_rank; }
+    bool unlink() స్థిరరాశి { తిరిగి m_unlink; }
+    string writeFile() స్థిరరాశి { తిరిగి m_writeFile; }
+    string writeInfoFile() స్థిరరాశి { తిరిగి m_writeInfoFile; }
+    bool is_Type_సరిపోలిక(స్థిరరాశి అక్షరం* name) స్థిరరాశి {
+        తిరిగి VString::wildmatch(Vlc_బిందువు::type_వెలికితీయి(name), m_filterType);
     }
 
     // METHODS (from main)
-    static string version() VL_MT_DISABLED;
+    స్థిర string సంస్కరణ() VL_MT_DISABLED;
 };
 
 //######################################################################
 
-#endif  // guard
+#అయితే_ముగింపు  // guard

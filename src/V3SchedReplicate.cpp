@@ -34,22 +34,22 @@
 //
 //*************************************************************************
 
-#include "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
+#అన్తర్భావ "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
 
-#include "V3Graph.h"
-#include "V3Sched.h"
+#అన్తర్భావ "V3Graph.h"
+#అన్తర్భావ "V3Sched.h"
 
 VL_DEFINE_DEBUG_FUNCTIONS;
 
-namespace V3Sched {
+నామాకాశ V3Sched {
 
-namespace {
+నామాకాశ {
 
 // Driving region flags
-enum RegionFlags : uint8_t {
+గణన RegionFlags : uint8_t {
     NONE = 0x0,  //
-    INPUT = 0x1,  // Variable/logic is driven from top level input
-    ACTIVE = 0x2,  // Variable/logic is driven from 'act' region logic
+    ఆదానం = 0x1,  // Variable/logic is driven from top level input
+    చురుకైన_2 = 0x2,  // Variable/logic is driven from 'act' region logic
     NBA = 0x4,  // Variable/logic is driven from 'nba' region logic
     OBSERVED = 0x8,  // Variable/logic is driven from 'obs' region logic
     REACTIVE = 0x10,  // Variable/logic is driven from 're' region logic
@@ -58,254 +58,254 @@ enum RegionFlags : uint8_t {
 //##############################################################################
 // Data structures (graph types)
 
-class SchedReplicateVertex VL_NOT_FINAL : public V3GraphVertex {
-    VL_RTTI_IMPL(SchedReplicateVertex, V3GraphVertex)
+తరగతి Sched_Replicate_శీర్షం VL_NOT_FINAL : బహిరంగ V3_లేఖాచిత్రం_శీర్షం {
+    VL_RTTI_IMPL(Sched_Replicate_శీర్షం, V3_లేఖాచిత్రం_శీర్షం)
     RegionFlags m_drivingRegions{RegionFlags::NONE};  // The regions driving this vertex
 
-public:
-    explicit SchedReplicateVertex(V3Graph* graphp)
-        : V3GraphVertex{graphp} {}
-    uint8_t drivingRegions() const { return m_drivingRegions; }
-    void addDrivingRegions(uint8_t regions) {
+బహిరంగ:
+    స్పష్టమైన Sched_Replicate_శీర్షం(V3_లేఖాచిత్రం* graphp)
+        : V3_లేఖాచిత్రం_శీర్షం{graphp} {}
+    uint8_t drivingRegions() స్థిరరాశి { తిరిగి m_drivingRegions; }
+    శూన్య కూడు_Driving_Regions(uint8_t regions) {
         m_drivingRegions = static_cast<RegionFlags>(m_drivingRegions | regions);
     }
 
     // LCOV_EXCL_START // Debug code
-    string dotColor() const override {
-        switch (static_cast<unsigned>(m_drivingRegions)) {
-        case NONE: return "black";
-        case INPUT: return "red";
-        case ACTIVE: return "green";
-        case NBA: return "blue";
-        case INPUT | ACTIVE: return "yellow";
-        case INPUT | NBA: return "magenta";
-        case ACTIVE | NBA: return "cyan";
-        case INPUT | ACTIVE | NBA: return "gray80";  // don't want white on white background
+    string dotColor() స్థిరరాశి override {
+        ఎంపిక (static_cast<గుర్తులేని>(m_drivingRegions)) {
+        స్థితి NONE: తిరిగి "black";
+        స్థితి ఆదానం: తిరిగి "red";
+        స్థితి చురుకైన_2: తిరిగి "green";
+        స్థితి NBA: తిరిగి "blue";
+        స్థితి ఆదానం | చురుకైన_2: తిరిగి "yellow";
+        స్థితి ఆదానం | NBA: తిరిగి "magenta";
+        స్థితి చురుకైన_2 | NBA: తిరిగి "cyan";
+        స్థితి ఆదానం | చురుకైన_2 | NBA: తిరిగి "gray80";  // don't want white on white background
 
-        case REACTIVE: return "gray60";
-        case REACTIVE | INPUT: return "lightcoral";
-        case REACTIVE | ACTIVE: return "lightgreen";
-        case REACTIVE | NBA: return "lightblue";
-        case REACTIVE | INPUT | ACTIVE: return "lightyellow";
-        case REACTIVE | INPUT | NBA: return "lightpink";
-        case REACTIVE | ACTIVE | NBA: return "lightcyan";
-        case REACTIVE | INPUT | ACTIVE | NBA: return "gray90";
+        స్థితి REACTIVE: తిరిగి "gray60";
+        స్థితి REACTIVE | ఆదానం: తిరిగి "lightcoral";
+        స్థితి REACTIVE | చురుకైన_2: తిరిగి "lightgreen";
+        స్థితి REACTIVE | NBA: తిరిగి "lightblue";
+        స్థితి REACTIVE | ఆదానం | చురుకైన_2: తిరిగి "lightyellow";
+        స్థితి REACTIVE | ఆదానం | NBA: తిరిగి "lightpink";
+        స్థితి REACTIVE | చురుకైన_2 | NBA: తిరిగి "lightcyan";
+        స్థితి REACTIVE | ఆదానం | చురుకైన_2 | NBA: తిరిగి "gray90";
 
-        case OBSERVED: return "gray20";
-        case OBSERVED | INPUT: return "darkred";
-        case OBSERVED | ACTIVE: return "darkgreen";
-        case OBSERVED | NBA: return "darkblue";
-        case OBSERVED | INPUT | ACTIVE: return "gold";
-        case OBSERVED | INPUT | NBA: return "purple";
-        case OBSERVED | ACTIVE | NBA: return "darkcyan";
-        case OBSERVED | INPUT | ACTIVE | NBA: return "gray30";
+        స్థితి OBSERVED: తిరిగి "gray20";
+        స్థితి OBSERVED | ఆదానం: తిరిగి "darkred";
+        స్థితి OBSERVED | చురుకైన_2: తిరిగి "darkgreen";
+        స్థితి OBSERVED | NBA: తిరిగి "darkblue";
+        స్థితి OBSERVED | ఆదానం | చురుకైన_2: తిరిగి "gold";
+        స్థితి OBSERVED | ఆదానం | NBA: తిరిగి "purple";
+        స్థితి OBSERVED | చురుకైన_2 | NBA: తిరిగి "darkcyan";
+        స్థితి OBSERVED | ఆదానం | చురుకైన_2 | NBA: తిరిగి "gray30";
 
-        case REACTIVE | OBSERVED: return "gray40";
-        case REACTIVE | OBSERVED | INPUT: return "indianred";
-        case REACTIVE | OBSERVED | ACTIVE: return "olive";
-        case REACTIVE | OBSERVED | NBA: return "dodgerBlue";
-        case REACTIVE | OBSERVED | INPUT | ACTIVE: return "khaki";
-        case REACTIVE | OBSERVED | INPUT | NBA: return "plum";
-        case REACTIVE | OBSERVED | ACTIVE | NBA: return "lightSeaGreen";
-        case REACTIVE | OBSERVED | INPUT | ACTIVE | NBA: return "gray50";
-        default: v3fatalSrc("There are only 5 region bits"); return "";
+        స్థితి REACTIVE | OBSERVED: తిరిగి "gray40";
+        స్థితి REACTIVE | OBSERVED | ఆదానం: తిరిగి "indianred";
+        స్థితి REACTIVE | OBSERVED | చురుకైన_2: తిరిగి "olive";
+        స్థితి REACTIVE | OBSERVED | NBA: తిరిగి "dodgerBlue";
+        స్థితి REACTIVE | OBSERVED | ఆదానం | చురుకైన_2: తిరిగి "khaki";
+        స్థితి REACTIVE | OBSERVED | ఆదానం | NBA: తిరిగి "plum";
+        స్థితి REACTIVE | OBSERVED | చురుకైన_2 | NBA: తిరిగి "lightSeaGreen";
+        స్థితి REACTIVE | OBSERVED | ఆదానం | చురుకైన_2 | NBA: తిరిగి "gray50";
+        అప్రమేయ: v3fatalSrc("There are only 5 region bits"); తిరిగి "";
         }
     }
     // LCOV_EXCL_STOP
 };
 
-class SchedReplicateLogicVertex final : public SchedReplicateVertex {
-    VL_RTTI_IMPL(SchedReplicateLogicVertex, SchedReplicateVertex)
-    AstScope* const m_scopep;  // The enclosing AstScope of the logic node
-    AstSenTree* const m_senTreep;  // The sensitivity of the logic node
-    AstNode* const m_logicp;  // The logic node this vertex represents
-    RegionFlags const m_assignedRegion;  // The region this logic is originally assigned to
+తరగతి Sched_Replicate_Logic_శీర్షం final : బహిరంగ Sched_Replicate_శీర్షం {
+    VL_RTTI_IMPL(Sched_Replicate_Logic_శీర్షం, Sched_Replicate_శీర్షం)
+    AstScope* స్థిరరాశి m_scopep;  // The enclosing AstScope of the logic node
+    Ast_Sen_వృక్షం* స్థిరరాశి m_senTreep;  // The sensitivity of the logic node
+    Ast_కణుపు* స్థిరరాశి m_logicp;  // The logic node this vertex represents
+    RegionFlags స్థిరరాశి m_assignedRegion;  // The region this logic is originally assigned to
 
-public:
-    SchedReplicateLogicVertex(V3Graph* graphp, AstScope* scopep, AstSenTree* senTreep,
-                              AstNode* logicp, RegionFlags assignedRegion)
-        : SchedReplicateVertex{graphp}
+బహిరంగ:
+    Sched_Replicate_Logic_శీర్షం(V3_లేఖాచిత్రం* graphp, AstScope* scopep, Ast_Sen_వృక్షం* senTreep,
+                              Ast_కణుపు* logicp, RegionFlags assignedRegion)
+        : Sched_Replicate_శీర్షం{graphp}
         , m_scopep{scopep}
         , m_senTreep{senTreep}
         , m_logicp{logicp}
         , m_assignedRegion{assignedRegion} {
-        addDrivingRegions(assignedRegion);
+        కూడు_Driving_Regions(assignedRegion);
     }
-    AstScope* scopep() const { return m_scopep; }
-    AstSenTree* senTreep() const { return m_senTreep; }
-    AstNode* logicp() const { return m_logicp; }
-    RegionFlags assignedRegion() const { return m_assignedRegion; }
+    AstScope* scopep() స్థిరరాశి { తిరిగి m_scopep; }
+    Ast_Sen_వృక్షం* senTreep() స్థిరరాశి { తిరిగి m_senTreep; }
+    Ast_కణుపు* logicp() స్థిరరాశి { తిరిగి m_logicp; }
+    RegionFlags assignedRegion() స్థిరరాశి { తిరిగి m_assignedRegion; }
 
     // For graph dumping
-    string name() const override VL_MT_STABLE { return m_logicp->fileline()->ascii(); };
-    string dotShape() const override { return "rectangle"; }
+    string name() స్థిరరాశి override VL_MT_STABLE { తిరిగి m_logicp->fileline()->ascii(); };
+    string dotShape() స్థిరరాశి override { తిరిగి "rectangle"; }
 };
 
-class SchedReplicateVarVertex final : public SchedReplicateVertex {
-    VL_RTTI_IMPL(SchedReplicateVarVertex, SchedReplicateVertex)
-    AstVarScope* const m_vscp;  // The AstVarScope this vertex represents
+తరగతి Sched_Replicate_Var_శీర్షం final : బహిరంగ Sched_Replicate_శీర్షం {
+    VL_RTTI_IMPL(Sched_Replicate_Var_శీర్షం, Sched_Replicate_శీర్షం)
+    AstVarScope* స్థిరరాశి m_vscp;  // The AstVarScope this vertex represents
 
-public:
-    SchedReplicateVarVertex(V3Graph* graphp, AstVarScope* vscp)
-        : SchedReplicateVertex{graphp}
+బహిరంగ:
+    Sched_Replicate_Var_శీర్షం(V3_లేఖాచిత్రం* graphp, AstVarScope* vscp)
+        : Sched_Replicate_శీర్షం{graphp}
         , m_vscp{vscp} {
         // Top level inputs are
-        if (varp()->isPrimaryInish() || varp()->isSigUserRWPublic() || varp()->sampled()
+        ఒకవేళ (varp()->isPrimaryInish() || varp()->isSigUserRWPublic() || varp()->sampled()
             || varp()->isWrittenByDpi() || varp()->sensIfacep() || varp()->isVirtIface()) {
-            addDrivingRegions(INPUT);
+            కూడు_Driving_Regions(ఆదానం);
         }
         // Currently we always execute suspendable processes at the beginning of
         // the act region, which means combinational logic driven from a suspendable
         // processes must be present in the 'act' region
-        if (varp()->isWrittenBySuspendable()) addDrivingRegions(ACTIVE);
+        ఒకవేళ (varp()->isWrittenBySuspendable()) కూడు_Driving_Regions(చురుకైన_2);
     }
-    AstVarScope* vscp() const { return m_vscp; }
-    AstVar* varp() const { return m_vscp->varp(); }
-    AstScope* scopep() const { return m_vscp->scopep(); }
+    AstVarScope* vscp() స్థిరరాశి { తిరిగి m_vscp; }
+    AstVar* varp() స్థిరరాశి { తిరిగి m_vscp->varp(); }
+    AstScope* scopep() స్థిరరాశి { తిరిగి m_vscp->scopep(); }
 
     // For graph dumping
-    string name() const override VL_MT_STABLE { return m_vscp->name(); }
-    string dotShape() const override { return varp()->isPrimaryInish() ? "invhouse" : "ellipse"; }
+    string name() స్థిరరాశి override VL_MT_STABLE { తిరిగి m_vscp->name(); }
+    string dotShape() స్థిరరాశి override { తిరిగి varp()->isPrimaryInish() ? "invhouse" : "ellipse"; }
 };
 
-class Graph final : public V3Graph {};
+తరగతి లేఖాచిత్రం_2 final : బహిరంగ V3_లేఖాచిత్రం {};
 
 //##############################################################################
 // Algorithm implementation
 
-std::unique_ptr<Graph> buildGraph(const LogicRegions& logicRegions) {
-    std::unique_ptr<Graph> graphp{new Graph};
+std::unique_ptr<లేఖాచిత్రం_2> build_లేఖాచిత్రం(స్థిరరాశి LogicRegions& logicRegions) {
+    std::unique_ptr<లేఖాచిత్రం_2> graphp{కొత్త లేఖాచిత్రం_2};
 
     // AstVarScope::user1() -> VarVertx
-    const VNUser1InUse user1InUse;
-    const auto getVarVertex = [&](AstVarScope* vscp) {
-        if (!vscp->user1p()) vscp->user1p(new SchedReplicateVarVertex{graphp.get(), vscp});
-        return vscp->user1u().to<SchedReplicateVarVertex*>();
+    స్థిరరాశి VNUser1_లోపల_Use user1_లోపల_Use;
+    స్థిరరాశి స్వయంచాలక get_Var_శీర్షం = [&](AstVarScope* vscp) {
+        ఒకవేళ (!vscp->user1p()) vscp->user1p(కొత్త Sched_Replicate_Var_శీర్షం{graphp.get(), vscp});
+        తిరిగి vscp->user1u().గమ్యం<Sched_Replicate_Var_శీర్షం*>();
     };
 
-    const auto addEdge = [&](SchedReplicateVertex* fromp, SchedReplicateVertex* top) {
-        new V3GraphEdge{graphp.get(), fromp, top, 1};
+    స్థిరరాశి స్వయంచాలక కూడు_అంచు = [&](Sched_Replicate_శీర్షం* fromp, Sched_Replicate_శీర్షం* శిఖరం) {
+        కొత్త V3_లేఖాచిత్రం_అంచు{graphp.get(), fromp, శిఖరం, 1};
     };
 
-    const auto addLogic = [&](RegionFlags region, AstScope* scopep, AstActive* activep) {
-        AstSenTree* const senTreep = activep->sentreep();
+    స్థిరరాశి స్వయంచాలక కూడు_Logic = [&](RegionFlags region, AstScope* scopep, Ast_చురుకైన* activep) {
+        Ast_Sen_వృక్షం* స్థిరరాశి senTreep = activep->sentreep();
 
         // Predicate for whether a read of the given variable triggers this block
-        std::function<bool(AstVarScope*)> readTriggersThisLogic;
+        std::function<తార్కిక(AstVarScope*)> readTriggersThisLogic;
 
-        const VNUser4InUse user4InUse;  // bool: Explicit sensitivity of hybrid logic just below
+        స్థిరరాశి VNUser4_లోపల_Use user4_లోపల_Use;  // bool: Explicit sensitivity of hybrid logic just below
 
-        if (senTreep->hasClocked()) {
+        ఒకవేళ (senTreep->hasClocked()) {
             // Clocked logic is never triggered by reads
-            readTriggersThisLogic = [](AstVarScope*) { return false; };
-        } else if (senTreep->hasCombo()) {
+            readTriggersThisLogic = [](AstVarScope*) { తిరిగి అబద్ధం; };
+        } లేకపోతే ఒకవేళ (senTreep->hasCombo()) {
             // Combinational logic is always triggered by reads
-            readTriggersThisLogic = [](AstVarScope*) { return true; };
-        } else {
+            readTriggersThisLogic = [](AstVarScope*) { తిరిగి నిజం; };
+        } లేకపోతే {
             UASSERT_OBJ(senTreep->hasHybrid(), activep, "unexpected");
             // Hybrid logic is triggered by all reads, except for reads of the explicit
             // sensitivities
-            readTriggersThisLogic = [](AstVarScope* vscp) { return !vscp->user4(); };
-            senTreep->foreach([](const AstVarRef* refp) {  //
-                refp->varScopep()->user4(true);
+            readTriggersThisLogic = [](AstVarScope* vscp) { తిరిగి !vscp->user4(); };
+            senTreep->foreach([](స్థిరరాశి AstVarRef* refp) {  //
+                refp->varScopep()->user4(నిజం);
             });
         }
 
-        for (AstNode* nodep = activep->stmtsp(); nodep; nodep = nodep->nextp()) {
-            SchedReplicateLogicVertex* const lvtxp
-                = new SchedReplicateLogicVertex{graphp.get(), scopep, senTreep, nodep, region};
-            const VNUser2InUse user2InUse;
-            const VNUser3InUse user3InUse;
+        కొరకు (Ast_కణుపు* nodep = activep->stmtsp(); nodep; nodep = nodep->nextp()) {
+            Sched_Replicate_Logic_శీర్షం* స్థిరరాశి lvtxp
+                = కొత్త Sched_Replicate_Logic_శీర్షం{graphp.get(), scopep, senTreep, nodep, region};
+            స్థిరరాశి VNUser2_లోపల_Use user2_లోపల_Use;
+            స్థిరరాశి VNUser3_లోపల_Use user3_లోపల_Use;
 
-            V3Sched::util::VarScopeSet forceReadEdgeIgnores;
-            V3Sched::util::collectForceReadEdgeIgnores(nodep, forceReadEdgeIgnores);
+            V3Sched::util::Var_Scope_సమితి force_Read_అంచు_Ignores;
+            V3Sched::util::collect_Force_Read_అంచు_Ignores(nodep, force_Read_అంచు_Ignores);
 
             nodep->foreach([&](AstVarRef* refp) {
-                AstVarScope* const vscp = refp->varScopep();
-                SchedReplicateVarVertex* const vvtxp = getVarVertex(vscp);
-                if (refp->access().isReadOrRW() && !vscp->user3SetOnce()
+                AstVarScope* స్థిరరాశి vscp = refp->varScopep();
+                Sched_Replicate_Var_శీర్షం* స్థిరరాశి vvtxp = get_Var_శీర్షం(vscp);
+                ఒకవేళ (refp->access().isReadOrRW() && !vscp->user3_సమితి_Once()
                     && readTriggersThisLogic(vscp) && !vscp->user2()
-                    && !forceReadEdgeIgnores.count(vscp)) {  //
-                    addEdge(vvtxp, lvtxp);
+                    && !force_Read_అంచు_Ignores.లెక్క(vscp)) {  //
+                    కూడు_అంచు(vvtxp, lvtxp);
                 }
                 // If written, add logic -> var edge
                 // Note: See V3Order for why AlwaysPostponed is safe to be ignored. We ignore it
                 // as otherwise we would end up with a false cycle.
-                if (refp->access().isWriteOrRW() && !refp->varp()->ignoreSchedWrite()
-                    && !vscp->user2SetOnce() && !VN_IS(nodep, AlwaysPostponed)) {  //
-                    addEdge(lvtxp, vvtxp);
+                ఒకవేళ (refp->access().isWriteOrRW() && !refp->varp()->ignoreSchedWrite()
+                    && !vscp->user2_సమితి_Once() && !VN_IS(nodep, AlwaysPostponed)) {  //
+                    కూడు_అంచు(lvtxp, vvtxp);
                 }
             });
         }
     };
 
-    for (const auto& entry : logicRegions.m_pre) addLogic(ACTIVE, entry.m_scopep, entry.m_activep);
-    for (const auto& entry : logicRegions.m_act) addLogic(ACTIVE, entry.m_scopep, entry.m_activep);
-    for (const auto& entry : logicRegions.m_nba) addLogic(NBA, entry.m_scopep, entry.m_activep);
-    for (const auto& entry : logicRegions.m_obs)
-        addLogic(OBSERVED, entry.m_scopep, entry.m_activep);
-    for (const auto& entry : logicRegions.m_react)
-        addLogic(REACTIVE, entry.m_scopep, entry.m_activep);
+    కొరకు (స్థిరరాశి స్వయంచాలక& నమోదు_2 : logicRegions.m_pre) కూడు_Logic(చురుకైన_2, నమోదు_2.m_scopep, నమోదు_2.m_activep);
+    కొరకు (స్థిరరాశి స్వయంచాలక& నమోదు_2 : logicRegions.m_act) కూడు_Logic(చురుకైన_2, నమోదు_2.m_scopep, నమోదు_2.m_activep);
+    కొరకు (స్థిరరాశి స్వయంచాలక& నమోదు_2 : logicRegions.m_nba) కూడు_Logic(NBA, నమోదు_2.m_scopep, నమోదు_2.m_activep);
+    కొరకు (స్థిరరాశి స్వయంచాలక& నమోదు_2 : logicRegions.m_obs)
+        కూడు_Logic(OBSERVED, నమోదు_2.m_scopep, నమోదు_2.m_activep);
+    కొరకు (స్థిరరాశి స్వయంచాలక& నమోదు_2 : logicRegions.m_react)
+        కూడు_Logic(REACTIVE, నమోదు_2.m_scopep, నమోదు_2.m_activep);
 
-    return graphp;
+    తిరిగి graphp;
 }
 
-void propagateDrivingRegions(SchedReplicateVertex* vtxp) {
+శూన్య propagateDrivingRegions(Sched_Replicate_శీర్షం* vtxp) {
     // Note: The graph is always acyclic, so the recursion will terminate
 
     // Nothing to do if already visited
-    if (vtxp->user()) return;
+    ఒకవేళ (vtxp->user()) తిరిగి;
 
     // Compute union of driving regions of all inputs
     uint8_t drivingRegions = 0;
-    for (V3GraphEdge& edge : vtxp->inEdges()) {
-        SchedReplicateVertex* const srcp = edge.fromp()->as<SchedReplicateVertex>();
+    కొరకు (V3_లేఖాచిత్రం_అంచు& అంచు : vtxp->లోపల_అంచులు()) {
+        Sched_Replicate_శీర్షం* స్థిరరాశి srcp = అంచు.fromp()->as<Sched_Replicate_శీర్షం>();
         propagateDrivingRegions(srcp);
         drivingRegions |= srcp->drivingRegions();
     }
 
     // Add any new driving regions
-    vtxp->addDrivingRegions(drivingRegions);
+    vtxp->కూడు_Driving_Regions(drivingRegions);
 
     // Mark as visited
-    vtxp->user(true);
+    vtxp->user(నిజం);
 }
 
-LogicReplicas replicate(Graph* graphp) {
-    LogicReplicas result;
-    for (V3GraphVertex& vtx : graphp->vertices()) {
-        if (SchedReplicateLogicVertex* const lvtxp = vtx.cast<SchedReplicateLogicVertex>()) {
-            const auto replicateTo = [&](LogicByScope& lbs) {
-                lbs.add(lvtxp->scopep(), lvtxp->senTreep(), lvtxp->logicp()->cloneTree(false));
+LogicReplicas replicate(లేఖాచిత్రం_2* graphp) {
+    LogicReplicas ఫలితం;
+    కొరకు (V3_లేఖాచిత్రం_శీర్షం& vtx : graphp->vertices()) {
+        ఒకవేళ (Sched_Replicate_Logic_శీర్షం* స్థిరరాశి lvtxp = vtx.cast<Sched_Replicate_Logic_శీర్షం>()) {
+            స్థిరరాశి స్వయంచాలక replicate_గమ్యం = [&](LogicByScope& lbs) {
+                lbs.కూడు(lvtxp->scopep(), lvtxp->senTreep(), lvtxp->logicp()->clone_వృక్షం(అబద్ధం));
             };
-            const uint8_t targetRegions = lvtxp->drivingRegions() & ~lvtxp->assignedRegion();
-            UASSERT(!lvtxp->senTreep()->hasClocked() || targetRegions == 0,
+            స్థిరరాశి uint8_t లక్ష్యం_Regions = lvtxp->drivingRegions() & ~lvtxp->assignedRegion();
+            UASSERT(!lvtxp->senTreep()->hasClocked() || లక్ష్యం_Regions == 0,
                     "replicating clocked logic");
-            if (targetRegions & INPUT) replicateTo(result.m_ico);
-            if (targetRegions & ACTIVE) replicateTo(result.m_act);
-            if (targetRegions & NBA) replicateTo(result.m_nba);
-            if (targetRegions & OBSERVED) replicateTo(result.m_obs);
-            if (targetRegions & REACTIVE) replicateTo(result.m_react);
+            ఒకవేళ (లక్ష్యం_Regions & ఆదానం) replicate_గమ్యం(ఫలితం.m_ico);
+            ఒకవేళ (లక్ష్యం_Regions & చురుకైన_2) replicate_గమ్యం(ఫలితం.m_act);
+            ఒకవేళ (లక్ష్యం_Regions & NBA) replicate_గమ్యం(ఫలితం.m_nba);
+            ఒకవేళ (లక్ష్యం_Regions & OBSERVED) replicate_గమ్యం(ఫలితం.m_obs);
+            ఒకవేళ (లక్ష్యం_Regions & REACTIVE) replicate_గమ్యం(ఫలితం.m_react);
         }
     }
-    return result;
+    తిరిగి ఫలితం;
 }
 
 }  // namespace
 
 LogicReplicas replicateLogic(LogicRegions& logicRegionsRegions) {
     // Build the dataflow (dependency) graph
-    const std::unique_ptr<Graph> graphp = buildGraph(logicRegionsRegions);
+    స్థిరరాశి std::unique_ptr<లేఖాచిత్రం_2> graphp = build_లేఖాచిత్రం(logicRegionsRegions);
     // Dump for debug
-    if (dumpGraphLevel() >= 6) graphp->dumpDotFilePrefixed("sched-replicate");
+    ఒకవేళ (dump_లేఖాచిత్రం_Level() >= 6) graphp->dumpDotFilePrefixed("sched-replicate");
     // Propagate driving region flags
-    for (V3GraphVertex& vtx : graphp->vertices()) {
-        propagateDrivingRegions(vtx.as<SchedReplicateVertex>());
+    కొరకు (V3_లేఖాచిత్రం_శీర్షం& vtx : graphp->vertices()) {
+        propagateDrivingRegions(vtx.as<Sched_Replicate_శీర్షం>());
     }
     // Dump for debug
-    if (dumpGraphLevel() >= 6) graphp->dumpDotFilePrefixed("sched-replicate-propagated");
+    ఒకవేళ (dump_లేఖాచిత్రం_Level() >= 6) graphp->dumpDotFilePrefixed("sched-replicate-propagated");
     // Replicate the necessary logic
-    return replicate(graphp.get());
+    తిరిగి replicate(graphp.get());
 }
 
 }  // namespace V3Sched

@@ -22,246 +22,246 @@
 //
 //*************************************************************************
 
-#include "V3PchAstMT.h"
+#అన్తర్భావ "V3PchAstMT.h"
 
-#include "V3Broken.h"
+#అన్తర్భావ "V3Broken.h"
 
-#include "V3ConstPool.h"
+#అన్తర్భావ "V3ConstPool.h"
 
-#include <unordered_set>
+#అన్తర్భావ <unordered_set>
 
 VL_DEFINE_DEBUG_FUNCTIONS;
 
 //######################################################################
 // Generation counter for AstNode::m_brokenState
 
-static class BrokenCntGlobal {
+స్థిర తరగతి BrokenCntGlobal {
     // This is a 7 bit generation counter, stored in the bottom 7 bits of AstNode::m_brokenState,
     // used to mark a node as being present under the root AstNetlist in the current traversal. A
     // value 0 is invalid, as the AstNode constructor uses that to initialize m_brokenState
-    static constexpr uint8_t MIN_VALUE = 1;
-    static constexpr uint8_t MAX_VALUE = 127;
+    స్థిర constexpr uint8_t MIN_విలువ = 1;
+    స్థిర constexpr uint8_t MAX_విలువ = 127;
 
-    uint8_t m_count = MIN_VALUE;
+    uint8_t m_లెక్క = MIN_విలువ;
 
-public:
-    uint8_t get() const VL_MT_SAFE {
-        UASSERT(MIN_VALUE <= m_count && m_count <= MAX_VALUE, "Invalid generation number");
-        return m_count;
+బహిరంగ:
+    uint8_t get() స్థిరరాశి VL_MT_సురక్షిత {
+        UASSERT(MIN_విలువ <= m_లెక్క && m_లెక్క <= MAX_విలువ, "Invalid generation number");
+        తిరిగి m_లెక్క;
     }
 
-    void inc() {
-        ++m_count;
-        if (m_count > MAX_VALUE) m_count = MIN_VALUE;
+    శూన్య inc() {
+        ++m_లెక్క;
+        ఒకవేళ (m_లెక్క > MAX_విలువ) m_లెక్క = MIN_విలువ;
     }
 } s_brokenCntGlobal;
 
-static bool s_brokenAllowMidvisitorCheck = false;
+స్థిర తార్కిక s_brokenAllowMidvisitorCheck = అబద్ధం;
 
 //######################################################################
 // Table of allocated AstNode pointers
 
-static class AllocTable final {
-    friend class V3Broken;
+స్థిర తరగతి Alloc_పట్టిక final {
+    మిత్ర తరగతి V3Broken;
     // MEMBERS
     V3Mutex m_mutex;  // Mutex for m_allocated
     // Set of all nodes allocated but not freed
-    std::unordered_set<const AstNode*> m_allocated VL_GUARDED_BY(m_mutex);
+    std::unordered_సమితి<స్థిరరాశి Ast_కణుపు*> m_allocated VL_GUARDED_BY(m_mutex);
 
-public:
+బహిరంగ:
     // METHODS
-    void addNewed(const AstNode* nodep) VL_MT_SAFE_EXCLUDES(m_mutex) {
+    శూన్య కూడు_Newed(స్థిరరాశి Ast_కణుపు* nodep) VL_MT_సురక్షిత_EXCLUDES(m_mutex) {
         // Called by operator new on any node - only if VL_LEAK_CHECKS
         // LCOV_EXCL_START
-        const V3LockGuard lock{m_mutex};
-        if (VL_UNCOVERABLE(!m_allocated.emplace(nodep).second)) {
+        స్థిరరాశి V3_తాళం_Guard తాళం_2{m_mutex};
+        ఒకవేళ (VL_UNCOVERABLE(!m_allocated.emplace(nodep).రెండవ)) {
             nodep->v3fatalSrc("Newing AstNode object that is already allocated");
         }
         // LCOV_EXCL_STOP
     }
-    void deleted(const AstNode* nodep) VL_MT_SAFE_EXCLUDES(m_mutex) {
+    శూన్య deleted(స్థిరరాశి Ast_కణుపు* nodep) VL_MT_సురక్షిత_EXCLUDES(m_mutex) {
         // Called by operator delete on any node - only if VL_LEAK_CHECKS
         // LCOV_EXCL_START
-        const V3LockGuard lock{m_mutex};
-        if (VL_UNCOVERABLE(m_allocated.erase(nodep) == 0)) {
+        స్థిరరాశి V3_తాళం_Guard తాళం_2{m_mutex};
+        ఒకవేళ (VL_UNCOVERABLE(m_allocated.erase(nodep) == 0)) {
             nodep->v3fatalSrc("Deleting AstNode object that was not allocated or already freed");
         }
         // LCOV_EXCL_STOP
     }
 
-private:  // for V3Broken only
+అంతరంగ:  // for V3Broken only
     // cppcheck-suppress unusedPrivateFunction
-    bool isAllocated(const AstNode* nodep) const VL_REQUIRES(m_mutex) {
-        return m_allocated.count(nodep) != 0;
+    తార్కిక isAllocated(స్థిరరాశి Ast_కణుపు* nodep) స్థిరరాశి VL_REQUIRES(m_mutex) {
+        తిరిగి m_allocated.లెక్క(nodep) != 0;
     }
-    void checkForLeaks() VL_REQUIRES(m_mutex) {
-        if (!v3Global.opt.debugCheck()) return;
+    శూన్య checkForLeaks() VL_REQUIRES(m_mutex) {
+        ఒకవేళ (!v3Global.opt.debugCheck()) తిరిగి;
 
-        const uint8_t brokenCntCurrent = s_brokenCntGlobal.get();
+        స్థిరరాశి uint8_t brokenCntCurrent = s_brokenCntGlobal.get();
 
         // Those with backp() are probably under a parent that was leaked and has no backp()
-        for (const bool withBack : {false, true}) {
-            for (const AstNode* const nodep : m_allocated) {
+        కొరకు (స్థిరరాశి తార్కిక with_వెనుక : {అబద్ధం, నిజం}) {
+            కొరకు (స్థిరరాశి Ast_కణుపు* స్థిరరాశి nodep : m_allocated) {
                 // LCOV_EXCL_START
                 // Most likely not leaked, so check that first
-                if (VL_UNCOVERABLE(nodep->brokenState() != brokenCntCurrent)) {
-                    const bool hasBack = nodep->backp() != nullptr;
-                    if (hasBack != withBack) continue;
+                ఒకవేళ (VL_UNCOVERABLE(nodep->brokenState() != brokenCntCurrent)) {
+                    స్థిరరాశి తార్కిక has_వెనుక = nodep->backp() != శూన్యసూచిక;
+                    ఒకవేళ (has_వెనుక != with_వెనుక) కొనసాగు;
                     // Use only AstNode::dump instead of the virtual one, as there
                     // may be varp() and other cross links that are bad.
                     // When get this message, find what forgot to delete the
                     // node by running GDB, where for node "<e###>" use:
                     //    watch *(AstNode::s_editCntGbl)==####
-                    //    run
+                    //నిరంతరం
                     //    bt
                     std::cerr << "%Error: LeakedNode"
-                              << (withBack ? " with back pointer: " : ": ");
-                    nodep->AstNode::dump(std::cerr);
-                    std::cerr << endl;
+                              << (with_వెనుక ? " with back pointer: " : ": ");
+                    nodep->Ast_కణుపు::dump(std::cerr);
+                    std::cerr << పంక్తి_ముగింపు;
                     V3Error::incErrors();
                 }
                 // LCOV_EXCL_STOP
             }
         }
     }
-} s_allocTable;
+} s_alloc_పట్టిక;
 
-void V3Broken::addNewed(const AstNode* nodep) { s_allocTable.addNewed(nodep); }
-void V3Broken::deleted(const AstNode* nodep) { s_allocTable.deleted(nodep); }
+శూన్య V3Broken::కూడు_Newed(స్థిరరాశి Ast_కణుపు* nodep) { s_alloc_పట్టిక.కూడు_Newed(nodep); }
+శూన్య V3Broken::deleted(స్థిరరాశి Ast_కణుపు* nodep) { s_alloc_పట్టిక.deleted(nodep); }
 
 //######################################################################
 // Table of AstNode pointers that can be linked to via member pointers
 
-static class LinkableTable final {
+స్థిర తరగతి Linkable_పట్టిక final {
     // MEMBERS
-    std::unordered_set<const AstNode*> m_linkable;  // Set of all nodes allocated but not freed
+    std::unordered_సమితి<స్థిరరాశి Ast_కణుపు*> m_linkable;  // Set of all nodes allocated but not freed
 
-public:
+బహిరంగ:
     // METHODS
-    void clear() { m_linkable.clear(); }
-    void addLinkable(const AstNode* nodep) { m_linkable.emplace(nodep); }
-    bool isLinkable(const AstNode* nodep) const { return m_linkable.count(nodep) != 0; }
-} s_linkableTable;
+    శూన్య clear() { m_linkable.clear(); }
+    శూన్య కూడు_Linkable(స్థిరరాశి Ast_కణుపు* nodep) { m_linkable.emplace(nodep); }
+    తార్కిక isLinkable(స్థిరరాశి Ast_కణుపు* nodep) స్థిరరాశి { తిరిగి m_linkable.లెక్క(nodep) != 0; }
+} s_linkable_పట్టిక;
 
-bool V3Broken::isLinkable(const AstNode* nodep) { return s_linkableTable.isLinkable(nodep); }
+తార్కిక V3Broken::isLinkable(స్థిరరాశి Ast_కణుపు* nodep) { తిరిగి s_linkable_పట్టిక.isLinkable(nodep); }
 
 //######################################################################
 // Check every node in tree
 
-class BrokenCheckVisitor final : public VNVisitorConst {
+తరగతి BrokenCheckVisitor final : బహిరంగ VNVisitorConst {
     // Constants for marking we are under/not under a node
-    const uint8_t m_brokenCntCurrentNotUnder = s_brokenCntGlobal.get();  // Top bit is clear
-    const uint8_t m_brokenCntCurrentUnder = m_brokenCntCurrentNotUnder | 0x80;  // Top bit is set
+    స్థిరరాశి uint8_t m_brokenCntCurrentNotUnder = s_brokenCntGlobal.get();  // Top bit is clear
+    స్థిరరాశి uint8_t m_brokenCntCurrentUnder = m_brokenCntCurrentNotUnder | 0x80;  // Top bit is set
 
     // STATE - across all visitors
     // All local variables declared in current function
-    std::set<const AstVar*> m_localVars;
+    std::సమితి<స్థిరరాశి AstVar*> m_localVars;
     // Variable references in current function that do not reference an in-scope local
-    std::map<const AstVar*, const AstNodeVarRef*> m_suspectRefs;
+    std::map<స్థిరరాశి AstVar*, స్థిరరాశి Ast_కణుపు_Var_Ref*> m_suspectRefs;
     // Local variables declared in the scope of the current statement
-    std::vector<std::unordered_set<const AstVar*>> m_localsStack;
+    std::సదిశ<std::unordered_సమితి<స్థిరరాశి AstVar*>> m_locals_దొంతర;
     // Number of write references encountered
-    size_t m_nWriteRefs = 0;
+    కొలత_t m_nWriteRefs = 0;
     // Number of function calls encountered
-    size_t m_nCalls = 0;
+    కొలత_t m_nCalls = 0;
 
     // STATE - for current visit position (use VL_RESTORER)
-    const AstCFunc* m_cfuncp = nullptr;  // Current CFunc, if any
-    bool m_inScope = false;  // Under AstScope
-    std::set<std::string> m_cFuncNames;  // CFunc by name in current class/module
+    స్థిరరాశి AstCFunc* m_cfuncp = శూన్యసూచిక;  // Current CFunc, if any
+    తార్కిక m_లోపల_Scope = అబద్ధం;  // Under AstScope
+    std::సమితి<std::string> m_c_Func_పేర్లు;  // CFunc by name in current class/module
 
-private:
+అంతరంగ:
     // METHODS
-    static void checkWidthMin(const AstNode* nodep) {
-        UASSERT_OBJ(nodep->width() == nodep->widthMin()
-                        || v3Global.widthMinUsage() != VWidthMinUsage::MATCHES_WIDTH,
+    స్థిర శూన్య check_వెడల్పు_Min(స్థిరరాశి Ast_కణుపు* nodep) {
+        UASSERT_OBJ(nodep->వెడల్పు() == nodep->వెడల్పు_Min()
+                        || v3Global.వెడల్పు_Min_Usage() != VWidthMinUsage::MATCHES_వెడల్పు,
                     nodep, "Width != WidthMin");
     }
 
-    void processEnter(AstNode* nodep) {
+    శూన్య processEnter(Ast_కణుపు* nodep) {
         nodep->brokenState(m_brokenCntCurrentUnder);
-        const char* const whyp = nodep->brokenGen();
+        స్థిరరాశి అక్షరం* స్థిరరాశి whyp = nodep->brokenGen();
         UASSERT_OBJ(!whyp, nodep,
                     "Broken link in node (or something without maybePointedTo): " << whyp);
-        if (!s_brokenAllowMidvisitorCheck) nodep->checkIter();
-        if (nodep->dtypep()) {
+        ఒకవేళ (!s_brokenAllowMidvisitorCheck) nodep->checkIter();
+        ఒకవేళ (nodep->dtypep()) {
             UASSERT_OBJ(nodep->dtypep()->brokeExists(), nodep,
-                        "Broken link in node->dtypep() to " << cvtToHex(nodep->dtypep()));
+                        "Broken link in node->dtypep() to " << cvt_గమ్యం_Hex(nodep->dtypep()));
             UASSERT_OBJ(nodep->dtypep(), nodep,
-                        "Non-dtype link in node->dtypep() to " << cvtToHex(nodep->dtypep()));
+                        "Non-dtype link in node->dtypep() to " << cvt_గమ్యం_Hex(nodep->dtypep()));
         }
-        if (v3Global.assertDTypesResolved()) {
-            if (nodep->hasDType()) {
-            } else {
-                UASSERT_OBJ(!VN_IS(nodep, NodeExpr), nodep,
+        ఒకవేళ (v3Global.assertDTypesResolved()) {
+            ఒకవేళ (nodep->hasDType()) {
+            } లేకపోతే {
+                UASSERT_OBJ(!VN_IS(nodep, కణుపు_సమాసం), nodep,
                             "All AstNodeExpr must have a dtype post V3WidthCommit");
                 UASSERT_OBJ(!nodep->dtypep(), nodep,
                             "DType on node without hasDType(): " << nodep->prettyTypeName());
             }
-            UASSERT_OBJ(!nodep->getChildDTypep(), nodep,
+            UASSERT_OBJ(!nodep->get_బిడ్డ_DTypep(), nodep,
                         "childDTypep() non-null on node after should have removed");
-            if (const AstNodeDType* const dnodep = VN_CAST(nodep, NodeDType))
-                checkWidthMin(dnodep);
+            ఒకవేళ (స్థిరరాశి Ast_కణుపు_DType* స్థిరరాశి dnodep = VN_CAST(nodep, కణుపు_DType))
+                check_వెడల్పు_Min(dnodep);
         }
-        checkWidthMin(nodep);
+        check_వెడల్పు_Min(nodep);
     }
-    void processExit(AstNode* nodep) { nodep->brokenState(m_brokenCntCurrentNotUnder); }
-    void processAndIterate(AstNode* nodep) {
+    శూన్య processExit(Ast_కణుపు* nodep) { nodep->brokenState(m_brokenCntCurrentNotUnder); }
+    శూన్య processAndIterate(Ast_కణుపు* nodep) {
         processEnter(nodep);
         iterateChildrenConst(nodep);
         processExit(nodep);
     }
-    void processAndIterateList(AstNode* nodep) {
-        while (nodep) {
+    శూన్య processAndIterateList(Ast_కణుపు* nodep) {
+        అయితే (nodep) {
             processAndIterate(nodep);
             nodep = nodep->nextp();
         }
     }
-    void pushLocalScope() {
-        if (m_cfuncp) m_localsStack.emplace_back();
+    శూన్య నెట్టు_Local_Scope() {
+        ఒకవేళ (m_cfuncp) m_locals_దొంతర.emplace_వెనుక();
     }
-    void popLocalScope() {
-        if (m_cfuncp) m_localsStack.pop_back();
+    శూన్య తీయి_Local_Scope() {
+        ఒకవేళ (m_cfuncp) m_locals_దొంతర.తీయి_వెనుక();
     }
-    bool isInScopeLocal(const AstVar* varp) const {
-        for (const auto& set : m_localsStack) {
-            if (set.count(varp)) return true;
+    తార్కిక is_లోపల_Scope_Local(స్థిరరాశి AstVar* varp) స్థిరరాశి {
+        కొరకు (స్థిరరాశి స్వయంచాలక& సమితి : m_locals_దొంతర) {
+            ఒకవేళ (సమితి.లెక్క(varp)) తిరిగి నిజం;
         }
-        return false;
+        తిరిగి అబద్ధం;
     }
-    static void checkArgRefs(AstNodeExpr* nodep, const char* descrp, AstNodeExpr* argsp) {
-        if (!std::strcmp(descrp, "TODO")) return;  // Skip if not yet checked
+    స్థిర శూన్య checkArgRefs(Ast_కణుపు_సమాసం* nodep, స్థిరరాశి అక్షరం* descrp, Ast_కణుపు_సమాసం* argsp) {
+        ఒకవేళ (!std::strcmp(descrp, "TODO")) తిరిగి;  // Skip if not yet checked
 
         // Check each argument
-        const char* dp = descrp;
-        for (AstNodeExpr* argp = argsp; argp; argp = VN_AS(argp->nextp(), NodeExpr)) {
-            if (argp->fileline()->erroringOn()) return;  // Intentionally skip all checks
-            const AstNodeExpr* const lvalp = argp->getVAccessTargetRecurse();
-            const VAccess access
+        స్థిరరాశి అక్షరం* dp = descrp;
+        కొరకు (Ast_కణుపు_సమాసం* argp = argsp; argp; argp = VN_AS(argp->nextp(), కణుపు_సమాసం)) {
+            ఒకవేళ (argp->fileline()->erroringOn()) తిరిగి;  // Intentionally skip all checks
+            స్థిరరాశి Ast_కణుపు_సమాసం* స్థిరరాశి lvalp = argp->get_VAccess_లక్ష్యం_Recurse();
+            స్థిరరాశి VAccess access
                 = lvalp ? lvalp->getVAccessRecurse()  // Since we call it on a result of above call
                                                       // there should be no recursion at all
                         : VAccess{VAccess::READ};
-            if (dp[0] == '+') --dp;  // Repeats the entry before it
-            switch (dp[0]) {
-            case 'r':
+            ఒకవేళ (dp[0] == '+') --dp;  // Repeats the entry before it
+            ఎంపిక (dp[0]) {
+            స్థితి 'r':
                 UASSERT_OBJ(access.isReadOnly(), argp,
                             "Input argument of library call is not a read-only expression");
-                break;
-            case 'w':
+                ఆపు;
+            స్థితి 'w':
                 UASSERT_OBJ(lvalp, argp,  //
                             "Output argument of library call is not a valid C++ LValue");
                 UASSERT_OBJ(access.isWriteOnly(), argp,
                             "Output argument of library call is not write-only");
-                break;
-            case 'm':
+                ఆపు;
+            స్థితి 'm':
                 UASSERT_OBJ(lvalp, argp,  //
                             "Inout argument of library call is not a valid C++ LValue");
                 UASSERT_OBJ(access.isRW(), argp,
                             "Inout argument of library call is not read-write");
-                break;
-            default:
+                ఆపు;
+            అప్రమేయ:
                 UASSERT_OBJ(dp[0], argp, "Unexpected trailing arguments to library call");
-                break;  // LCOV_EXCL_LINE
+                ఆపు;  // LCOV_EXCL_LINE
             }
             ++dp;
         }
@@ -269,201 +269,201 @@ private:
     }
 
     // VISITORS
-    void visit(AstNodeAssign* nodep) override {
+    శూన్య సందర్శించు(Ast_కణుపు_కేటాయించు* nodep) override {
         processEnter(nodep);
         iterateConst(nodep->rhsp());
-        const size_t nWriteRefs = m_nWriteRefs;
-        const size_t nCalls = m_nCalls;
+        స్థిరరాశి కొలత_t nWriteRefs = m_nWriteRefs;
+        స్థిరరాశి కొలత_t nCalls = m_nCalls;
         iterateConst(nodep->lhsp());
         // Only check if there are no calls on the LHS, as calls might return an LValue
-        if (v3Global.assertDTypesResolved() && m_nCalls == nCalls) {
+        ఒకవేళ (v3Global.assertDTypesResolved() && m_nCalls == nCalls) {
             UASSERT_OBJ(m_nWriteRefs > nWriteRefs, nodep, "No write refs on LHS of assignment");
         }
         processExit(nodep);
-        UASSERT_OBJ(!(v3Global.assertDTypesResolved() && VN_IS(nodep->lhsp(), NodeVarRef)
-                      && !VN_AS(nodep->lhsp(), NodeVarRef)->access().isWriteOrRW()),
+        UASSERT_OBJ(!(v3Global.assertDTypesResolved() && VN_IS(nodep->lhsp(), కణుపు_Var_Ref)
+                      && !VN_AS(nodep->lhsp(), కణుపు_Var_Ref)->access().isWriteOrRW()),
                     nodep, "Assignment LHS is not an lvalue");
     }
-    void visit(AstRelease* nodep) override {
+    శూన్య సందర్శించు(AstRelease* nodep) override {
         processAndIterate(nodep);
-        UASSERT_OBJ(!(v3Global.assertDTypesResolved() && VN_IS(nodep->lhsp(), NodeVarRef)
-                      && !VN_AS(nodep->lhsp(), NodeVarRef)->access().isWriteOrRW()),
+        UASSERT_OBJ(!(v3Global.assertDTypesResolved() && VN_IS(nodep->lhsp(), కణుపు_Var_Ref)
+                      && !VN_AS(nodep->lhsp(), కణుపు_Var_Ref)->access().isWriteOrRW()),
                     nodep, "Release LHS is not an lvalue");
     }
-    void visit(AstScope* nodep) override {
-        VL_RESTORER(m_inScope);
-        m_inScope = true;
-        VL_RESTORER_CLEAR(m_cFuncNames);
+    శూన్య సందర్శించు(AstScope* nodep) override {
+        VL_RESTORER(m_లోపల_Scope);
+        m_లోపల_Scope = నిజం;
+        VL_RESTORER_CLEAR(m_c_Func_పేర్లు);
         processAndIterate(nodep);
     }
-    void visit(AstNodeModule* nodep) override {
-        VL_RESTORER_CLEAR(m_cFuncNames);
+    శూన్య సందర్శించు(Ast_కణుపు_Module* nodep) override {
+        VL_RESTORER_CLEAR(m_c_Func_పేర్లు);
         processAndIterate(nodep);
     }
-    void visit(AstNodeUOrStructDType* nodep) override {
-        VL_RESTORER_CLEAR(m_cFuncNames);
+    శూన్య సందర్శించు(Ast_కణుపు_UOr_Struct_DType* nodep) override {
+        VL_RESTORER_CLEAR(m_c_Func_పేర్లు);
         processAndIterate(nodep);
     }
-    void visit(AstNodeVarRef* nodep) override {
+    శూన్య సందర్శించు(Ast_కణుపు_Var_Ref* nodep) override {
         processAndIterate(nodep);
         // m_inScope because some Vars have initial variable references without scopes
         // This might false fire with some debug flags, as not certain we don't have temporary
         // clear varScopep's during some an infrequent dump just before we re-LinkDot.
         UASSERT_OBJ(
-            !(v3Global.assertScoped() && m_inScope && nodep->varp() && !nodep->varScopep()), nodep,
+            !(v3Global.assertScoped() && m_లోపల_Scope && nodep->varp() && !nodep->varScopep()), nodep,
             "VarRef missing VarScope pointer");
         UASSERT_OBJ(!v3Global.assertScoped() || !nodep->classOrPackagep(), nodep,
                     "VarRef classOrPackagep must be nullptr after V3Scope");
-        if (m_cfuncp) {
+        ఒకవేళ (m_cfuncp) {
             // Check if variable is an in-scope local, otherwise mark as suspect
-            if (const AstVar* const varp = nodep->varp()) {
-                if (!isInScopeLocal(varp)) {
+            ఒకవేళ (స్థిరరాశి AstVar* స్థిరరాశి varp = nodep->varp()) {
+                ఒకవేళ (!is_లోపల_Scope_Local(varp)) {
                     // This only stores the first ref for each Var, which is what we want
                     m_suspectRefs.emplace(varp, nodep);
                 }
             }
         }
-        if (nodep->access().isWriteOrRW()) ++m_nWriteRefs;
+        ఒకవేళ (nodep->access().isWriteOrRW()) ++m_nWriteRefs;
     }
-    void visit(AstNodeCCall* nodep) override {
+    శూన్య సందర్శించు(Ast_కణుపు_CCall* nodep) override {
         ++m_nCalls;
         processAndIterate(nodep);
     }
-    void visit(AstCMethodHard* nodep) override {
+    శూన్య సందర్శించు(AstCMethodHard* nodep) override {
         ++m_nCalls;
         processAndIterate(nodep);
-        checkArgRefs(nodep, nodep->method().args(), nodep->pinsp());
+        checkArgRefs(nodep, nodep->పద్ధతి().వాదనలు(), nodep->pinsp());
     }
-    void visit(AstCFuncHard* nodep) override {
+    శూన్య సందర్శించు(AstCFuncHard* nodep) override {
         ++m_nCalls;
         processAndIterate(nodep);
-        checkArgRefs(nodep, nodep->function().args(), nodep->pinsp());
+        checkArgRefs(nodep, nodep->function().వాదనలు(), nodep->pinsp());
     }
-    void visit(AstNodeFTaskRef* nodep) override {
+    శూన్య సందర్శించు(Ast_కణుపు_FTask_Ref* nodep) override {
         ++m_nCalls;
         processAndIterate(nodep);
     }
-    void visit(AstCFunc* nodep) override {
+    శూన్య సందర్శించు(AstCFunc* nodep) override {
         UASSERT_OBJ(!m_cfuncp, nodep, "Nested AstCFunc");
         VL_RESTORER(m_cfuncp);
         m_cfuncp = nodep;
         m_localVars.clear();
         m_suspectRefs.clear();
-        m_localsStack.clear();
-        pushLocalScope();
+        m_locals_దొంతర.clear();
+        నెట్టు_Local_Scope();
 
         // Check for duplicate names, otherwise linker might just ignore them
-        string nameArgs = nodep->name();
-        if (!nodep->argTypes().empty()) nameArgs += "(" + nodep->argTypes() + ")";
-        UASSERT_OBJ(m_cFuncNames.emplace(nameArgs).second, nodep,
-                    "Duplicate cfunc name: '" << nameArgs << "'");
+        string name_వాదనలు = nodep->name();
+        ఒకవేళ (!nodep->argTypes().ఖాళీలు()) name_వాదనలు += "(" + nodep->argTypes() + ")";
+        UASSERT_OBJ(m_c_Func_పేర్లు.emplace(name_వాదనలు).రెండవ, nodep,
+                    "Duplicate cfunc name: '" << name_వాదనలు << "'");
 
         processAndIterate(nodep);
 
         // Check suspect references are all to non-locals
-        for (const auto& pair : m_suspectRefs) {
-            UASSERT_OBJ(m_localVars.count(pair.first) == 0, pair.second,
-                        "Local variable not in scope where referenced: " << pair.first);
+        కొరకు (స్థిరరాశి స్వయంచాలక& pair : m_suspectRefs) {
+            UASSERT_OBJ(m_localVars.లెక్క(pair.మొదటి) == 0, pair.రెండవ,
+                        "Local variable not in scope where referenced: " << pair.మొదటి);
         }
     }
-    void visit(AstNodeIf* nodep) override {
+    శూన్య సందర్శించు(Ast_కణుపు_If* nodep) override {
         // Each branch is a separate local variable scope
-        pushLocalScope();
+        నెట్టు_Local_Scope();
         processEnter(nodep);
         processAndIterate(nodep->condp());
-        if (AstNode* const thensp = nodep->thensp()) {
-            pushLocalScope();
+        ఒకవేళ (Ast_కణుపు* స్థిరరాశి thensp = nodep->thensp()) {
+            నెట్టు_Local_Scope();
             processAndIterateList(thensp);
-            popLocalScope();
+            తీయి_Local_Scope();
         }
-        if (AstNode* const elsesp = nodep->elsesp()) {
-            pushLocalScope();
+        ఒకవేళ (Ast_కణుపు* స్థిరరాశి elsesp = nodep->elsesp()) {
+            నెట్టు_Local_Scope();
             processAndIterateList(elsesp);
-            popLocalScope();
+            తీయి_Local_Scope();
         }
         processExit(nodep);
-        popLocalScope();
+        తీయి_Local_Scope();
     }
-    void visit(AstNodeStmt* nodep) override {
+    శూన్య సందర్శించు(Ast_కణుపు_Stmt* nodep) override {
         // For local variable checking act as if any statement introduces a new scope.
         // This is aggressive but conservatively correct.
-        pushLocalScope();
+        నెట్టు_Local_Scope();
         processAndIterate(nodep);
-        popLocalScope();
+        తీయి_Local_Scope();
     }
-    void visit(AstVar* nodep) override {
+    శూన్య సందర్శించు(AstVar* nodep) override {
         processAndIterate(nodep);
-        if (m_cfuncp) {
-            m_localVars.insert(nodep);
-            m_localsStack.back().insert(nodep);
+        ఒకవేళ (m_cfuncp) {
+            m_localVars.చొప్పించు(nodep);
+            m_locals_దొంతర.వెనుక().చొప్పించు(nodep);
         }
     }
-    void visit(AstNode* nodep) override {
+    శూన్య సందర్శించు(Ast_కణుపు* nodep) override {
         // Process not just iterate
         processAndIterate(nodep);
     }
 
-public:
+బహిరంగ:
     // CONSTRUCTORS
-    explicit BrokenCheckVisitor(AstNetlist* nodep) { iterateConstNull(nodep); }
-    ~BrokenCheckVisitor() override = default;
+    స్పష్టమైన BrokenCheckVisitor(AstNetlist* nodep) { iterateConstNull(nodep); }
+    ~BrokenCheckVisitor() override = అప్రమేయ;
 };
 
 //######################################################################
 // Broken check entry point
 
-void V3Broken::brokenAll(AstNetlist* nodep) {
+శూన్య V3Broken::brokenAll(AstNetlist* nodep) {
     // UINFO(9, __FUNCTION__ << ": ");
-    static bool s_inBroken = false;
-    if (VL_UNCOVERABLE(s_inBroken)) {
+    స్థిర తార్కిక s_లోపల_Broken = అబద్ధం;
+    ఒకవేళ (VL_UNCOVERABLE(s_లోపల_Broken)) {
         // A error called by broken can recurse back into broken; avoid this
         UINFO(1, "Broken called under broken, skipping recursion.");  // LCOV_EXCL_LINE
-    } else {
-        s_inBroken = true;
+    } లేకపోతే {
+        s_లోపల_Broken = నిజం;
 
-        const V3LockGuard lock{s_allocTable.m_mutex};
+        స్థిరరాశి V3_తాళం_Guard తాళం_2{s_alloc_పట్టిక.m_mutex};
 
         // Mark every node in the tree
-        const uint8_t brokenCntCurrent = s_brokenCntGlobal.get();
-        nodep->foreach([brokenCntCurrent](AstNode* nodep) VL_NO_THREAD_SAFETY_ANALYSIS {
-#ifdef VL_LEAK_CHECKS
-            UASSERT_OBJ(s_allocTable.isAllocated(nodep), nodep,
+        స్థిరరాశి uint8_t brokenCntCurrent = s_brokenCntGlobal.get();
+        nodep->foreach([brokenCntCurrent](Ast_కణుపు* nodep) VL_NO_THREAD_SAFETY_ANALYSIS {
+#నిర్వచితమైతే VL_LEAK_CHECKS
+            UASSERT_OBJ(s_alloc_పట్టిక.isAllocated(nodep), nodep,
                         "AstNode is in tree, but not allocated");
-#endif
+#అయితే_ముగింపు
             UASSERT_OBJ(nodep->brokenState() != brokenCntCurrent, nodep,
                         "AstNode is already in tree at another location");
-            if (nodep->maybePointedTo()) s_linkableTable.addLinkable(nodep);
+            ఒకవేళ (nodep->maybe_Pointed_గమ్యం()) s_linkable_పట్టిక.కూడు_Linkable(nodep);
             nodep->brokenState(brokenCntCurrent);
         });
 
         // Check every node in tree
-        const BrokenCheckVisitor cvisitor{nodep};
+        స్థిరరాశి BrokenCheckVisitor cvisitor{nodep};
 
         // Check the constant pool lookup cache refers only to nodes in the tree
-        const char* const whyp = V3ConstPool::broken();
+        స్థిరరాశి అక్షరం* స్థిరరాశి whyp = V3ConstPool::broken();
         UASSERT_OBJ(!whyp, nodep, "Broken constant pool cache: " << whyp);
 
-        s_allocTable.checkForLeaks();
-        s_linkableTable.clear();
+        s_alloc_పట్టిక.checkForLeaks();
+        s_linkable_పట్టిక.clear();
         s_brokenCntGlobal.inc();
-        s_inBroken = false;
+        s_లోపల_Broken = అబద్ధం;
     }
 }
 
-void V3Broken::allowMidvisitorCheck(bool flag) { s_brokenAllowMidvisitorCheck = flag; }
+శూన్య V3Broken::allowMidvisitorCheck(తార్కిక flag) { s_brokenAllowMidvisitorCheck = flag; }
 
 //######################################################################
 // Self test
 
-void V3Broken::selfTest() {
+శూన్య V3Broken::selfTest() {
     // Exercise addNewed and deleted for coverage, as otherwise only used with VL_LEAK_CHECKS
-    FileLine* const fl = new FileLine{FileLine::commandLineFilename()};
-    AstNode* const newp = new AstBegin{fl, "[EditWrapper]", nullptr, false};
+    File_పంక్తి* స్థిరరాశి fl = కొత్త File_పంక్తి{File_పంక్తి::command_పంక్తి_Filename()};
+    Ast_కణుపు* స్థిరరాశి newp = కొత్త AstBegin{fl, "[EditWrapper]", శూన్యసూచిక, అబద్ధం};
     // Don't actually do it with VL_LEAK_CHECKS, when new/delete calls these.
     // Otherwise you call addNewed twice on the same address, which is an error.
-#ifndef VL_LEAK_CHECKS
-    addNewed(newp);
+#నిర్వచితం_కాకపోతే VL_LEAK_CHECKS
+    కూడు_Newed(newp);
     deleted(newp);
-#endif
-    VL_DO_DANGLING(newp->deleteTree(), newp);
+#అయితే_ముగింపు
+    VL_DO_DANGLING(newp->delete_వృక్షం(), newp);
 }

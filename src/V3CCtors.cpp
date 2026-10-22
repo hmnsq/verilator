@@ -24,106 +24,106 @@
 //      This transformation honors outputSplitCFuncs.
 //*************************************************************************
 
-#include "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
+#అన్తర్భావ "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
 
-#include "V3CCtors.h"
+#అన్తర్భావ "V3CCtors.h"
 
-#include "V3EmitCBase.h"
+#అన్తర్భావ "V3EmitCBase.h"
 
-#include <list>
+#అన్తర్భావ <list>
 
 VL_DEFINE_DEBUG_FUNCTIONS;
 
-class VCtorType final {
-public:
-    enum en : uint8_t { MODULE, CLASS, COVERAGE };
+తరగతి VCtorType final {
+బహిరంగ:
+    గణన en : uint8_t { MODULE, CLASS, COVERAGE };
 
-private:
-    const enum en m_e;
+అంతరంగ:
+    స్థిరరాశి గణన en m_e;
 
-public:
+బహిరంగ:
     // cppcheck-suppress noExplicitConstructor
     constexpr VCtorType(en _e)
         : m_e{_e} {}
-    bool isClass() const { return m_e == CLASS; }
-    bool isCoverage() const { return m_e == COVERAGE; }
+    తార్కిక isClass() స్థిరరాశి { తిరిగి m_e == CLASS; }
+    తార్కిక isCoverage() స్థిరరాశి { తిరిగి m_e == COVERAGE; }
 };
 
-class V3CCtorsBuilder final {
-    AstNodeModule* const m_modp;  // Current module/class
-    const string m_basename;
-    const VCtorType m_type;  // What kind of constructor are we creating
+తరగతి V3CCtorsBuilder final {
+    Ast_కణుపు_Module* స్థిరరాశి m_modp;  // Current module/class
+    స్థిరరాశి string m_basename;
+    స్థిరరాశి VCtorType m_type;  // What kind of constructor are we creating
     std::list<AstCFunc*> m_newFunctions;  // Created functions, latest is at back
-    int m_numStmts = 0;  // Number of statements output
+    పూర్ణాంకం m_అంకె_Stmts = 0;  // Number of statements output
 
     AstCFunc* makeNewFunc() {
-        const int funcNum = m_newFunctions.size();
-        const string funcName = m_basename + "_" + cvtToStr(funcNum);
-        AstCFunc* const funcp = new AstCFunc{m_modp->fileline(), funcName, nullptr, "void"};
-        funcp->isStatic(false);
+        స్థిరరాశి పూర్ణాంకం func_అంకె = m_newFunctions.కొలత();
+        స్థిరరాశి string funcName = m_basename + "_" + cvt_గమ్యం_Str(func_అంకె);
+        AstCFunc* స్థిరరాశి funcp = కొత్త AstCFunc{m_modp->fileline(), funcName, శూన్యసూచిక, "void"};
+        funcp->isStatic(అబద్ధం);
         funcp->isLoose(!m_type.isClass());
-        funcp->keepIfEmpty(true);  // TODO relax
-        funcp->declPrivate(true);
+        funcp->keep_If_ఖాళీలు(నిజం);  // TODO relax
+        funcp->decl_వ్యక్తిగత(నిజం);
         funcp->slow(!m_type.isClass());  // Only classes construct on fast path
-        if (!m_type.isCoverage()) m_modp->ctorVarReset(true);
-        string preventUnusedStmt;
-        if (m_type.isClass()) {
+        ఒకవేళ (!m_type.isCoverage()) m_modp->ctorVarReset(నిజం);
+        string prevent_వాడని_Stmt;
+        ఒకవేళ (m_type.isClass()) {
             funcp->argTypes(EmitCUtil::symClassVar());
-            preventUnusedStmt = "(void)vlSymsp;  // Prevent unused variable warning";
-        } else if (m_type.isCoverage()) {
+            prevent_వాడని_Stmt = "(void)vlSymsp;  // Prevent unused variable warning";
+        } లేకపోతే ఒకవేళ (m_type.isCoverage()) {
             funcp->argTypes("bool first");
-            preventUnusedStmt = "(void)first;  // Prevent unused variable warning";
+            prevent_వాడని_Stmt = "(void)first;  // Prevent unused variable warning";
         }
-        if (!preventUnusedStmt.empty()) {
-            funcp->addStmtsp(new AstCStmt{m_modp->fileline(), preventUnusedStmt});
+        ఒకవేళ (!prevent_వాడని_Stmt.ఖాళీలు()) {
+            funcp->కూడు_Stmtsp(కొత్త AstCStmt{m_modp->fileline(), prevent_వాడని_Stmt});
         }
-        m_modp->addStmtsp(funcp);
-        m_numStmts = 0;
-        return funcp;
+        m_modp->కూడు_Stmtsp(funcp);
+        m_అంకె_Stmts = 0;
+        తిరిగి funcp;
     }
 
-public:
-    void add(AstNode* nodep) {
-        if (m_newFunctions.empty()) m_newFunctions.push_back(makeNewFunc());
-        if (v3Global.opt.outputSplitCFuncs() && m_numStmts > v3Global.opt.outputSplitCFuncs()) {
-            m_newFunctions.push_back(makeNewFunc());
+బహిరంగ:
+    శూన్య కూడు(Ast_కణుపు* nodep) {
+        ఒకవేళ (m_newFunctions.ఖాళీలు()) m_newFunctions.నెట్టు_వెనుక(makeNewFunc());
+        ఒకవేళ (v3Global.opt.output_విభజించు_CFuncs() && m_అంకె_Stmts > v3Global.opt.output_విభజించు_CFuncs()) {
+            m_newFunctions.నెట్టు_వెనుక(makeNewFunc());
         }
-        m_newFunctions.back()->addStmtsp(nodep);
-        m_numStmts += 1;
+        m_newFunctions.వెనుక()->కూడు_Stmtsp(nodep);
+        m_అంకె_Stmts += 1;
     }
 
-    V3CCtorsBuilder(AstNodeModule* nodep, const string& basename, VCtorType type)
+    V3CCtorsBuilder(Ast_కణుపు_Module* nodep, స్థిరరాశి string& basename, VCtorType type)
         : m_modp{nodep}
         , m_basename{basename}
         , m_type{type} {
         // Expect coverage function to always exist, so must always create at least one.
-        if (m_type.isCoverage()) m_newFunctions.push_back(makeNewFunc());
+        ఒకవేళ (m_type.isCoverage()) m_newFunctions.నెట్టు_వెనుక(makeNewFunc());
     }
 
     ~V3CCtorsBuilder() {
-        if (m_newFunctions.size() == 0) {
-        } else if (m_newFunctions.size() == 1) {
+        ఒకవేళ (m_newFunctions.కొలత() == 0) {
+        } లేకపోతే ఒకవేళ (m_newFunctions.కొలత() == 1) {
             // No split was necessary, rename the one function to the basename
             m_newFunctions.front()->name(m_basename);
-        } else {
+        } లేకపోతే {
             // Split was necessary, create root function and call all others from that
-            AstCFunc* const rootFuncp = makeNewFunc();
-            rootFuncp->name(m_basename);
-            for (AstCFunc* const funcp : m_newFunctions) {
-                AstCCall* const callp = new AstCCall{m_modp->fileline(), funcp};
-                callp->dtypeSetVoid();
-                if (m_type.isClass()) {
+            AstCFunc* స్థిరరాశి మూలం_Funcp = makeNewFunc();
+            మూలం_Funcp->name(m_basename);
+            కొరకు (AstCFunc* స్థిరరాశి funcp : m_newFunctions) {
+                AstCCall* స్థిరరాశి callp = కొత్త AstCCall{m_modp->fileline(), funcp};
+                callp->dtype_సమితి_Void();
+                ఒకవేళ (m_type.isClass()) {
                     callp->argTypes("vlSymsp");
-                } else {
-                    if (m_type.isCoverage()) callp->argTypes("first");
-                    callp->selfPointer(VSelfPointerText{VSelfPointerText::This{}});
+                } లేకపోతే {
+                    ఒకవేళ (m_type.isCoverage()) callp->argTypes("first");
+                    callp->self_సూచిక(VSelf_సూచిక_పాఠ్యం{VSelf_సూచిక_పాఠ్యం::This{}});
                 }
-                rootFuncp->addStmtsp(callp->makeStmt());
+                మూలం_Funcp->కూడు_Stmtsp(callp->makeStmt());
             }
         }
     }
 
-private:
+అంతరంగ:
     VL_UNCOPYABLE(V3CCtorsBuilder);
 };
 
@@ -131,31 +131,31 @@ private:
 
 // Link state, as a visitor of each AstNode
 
-class CCtorsVisitor final : public VNVisitor {
+తరగతి CCtorsVisitor final : బహిరంగ VNVisitor {
     // NODE STATE
 
     // STATE - for current visit position (use VL_RESTORER)
-    AstNodeModule* m_modp = nullptr;  // Current module
-    AstCFunc* m_cfuncp = nullptr;  // Current function
-    V3CCtorsBuilder* m_varResetp = nullptr;  // Builder of _ctor_var_reset
-    std::map<AstCStmt*, const AstNodeModule*> m_ctorCalls;  // Calls to _ctor_var_reset
+    Ast_కణుపు_Module* m_modp = శూన్యసూచిక;  // Current module
+    AstCFunc* m_cfuncp = శూన్యసూచిక;  // Current function
+    V3CCtorsBuilder* m_varResetp = శూన్యసూచిక;  // Builder of _ctor_var_reset
+    std::map<AstCStmt*, స్థిరరాశి Ast_కణుపు_Module*> m_ctorCalls;  // Calls to _ctor_var_reset
 
     // METHODS
-    static void insertSc(AstCFunc* cfuncp, const AstNodeModule* modp, VSystemCSectionType type) {
-        const auto txtAndFlp = EmitCBaseVisitorConst::scSection(modp, type);
-        if (txtAndFlp.first.empty()) return;
+    స్థిర శూన్య చొప్పించు_Sc(AstCFunc* cfuncp, స్థిరరాశి Ast_కణుపు_Module* modp, VSystemCSectionType type) {
+        స్థిరరాశి స్వయంచాలక txtAndFlp = EmitCBaseVisitorConst::scSection(modp, type);
+        ఒకవేళ (txtAndFlp.మొదటి.ఖాళీలు()) తిరిగి;
         // Use an AstCStmtUser as this is from user input
-        AstCStmtUser* const cstmtp = new AstCStmtUser{txtAndFlp.second};
-        cstmtp->add(txtAndFlp.first);
-        cfuncp->addStmtsp(cstmtp);
+        AstCStmtUser* స్థిరరాశి cstmtp = కొత్త AstCStmtUser{txtAndFlp.రెండవ};
+        cstmtp->కూడు(txtAndFlp.మొదటి);
+        cfuncp->కూడు_Stmtsp(cstmtp);
     }
 
     // VISITORS
-    void visit(AstNodeModule* nodep) override {
-        if (nodep->isConstPool()) return;  // Special emit rules
-        if (const AstClass* const classp = VN_CAST(nodep, Class)) {
+    శూన్య సందర్శించు(Ast_కణుపు_Module* nodep) override {
+        ఒకవేళ (nodep->isConstPool()) తిరిగి;  // Special emit rules
+        ఒకవేళ (స్థిరరాశి AstClass* స్థిరరాశి classp = VN_CAST(nodep, Class)) {
             // Interface class may only have pure virtuals and params which do not need cctor reset
-            if (classp->isInterfaceClass()) return;
+            ఒకవేళ (classp->isInterfaceClass()) తిరిగి;
         }
         VL_RESTORER(m_modp);
         VL_RESTORER(m_varResetp);
@@ -166,116 +166,116 @@ class CCtorsVisitor final : public VNVisitor {
         m_varResetp = &var_reset;
         iterateChildren(nodep);
 
-        if (v3Global.opt.coverage()) {
+        ఒకవేళ (v3Global.opt.coverage()) {
             V3CCtorsBuilder configure_coverage{nodep, "_configure_coverage", VCtorType::COVERAGE};
-            for (AstNode *np = nodep->stmtsp(), *nextp; np; np = nextp) {
+            కొరకు (Ast_కణుపు *np = nodep->stmtsp(), *nextp; np; np = nextp) {
                 nextp = np->nextp();
-                if (AstNodeCoverDecl* const coverp = VN_CAST(np, NodeCoverDecl)) {
+                ఒకవేళ (Ast_కణుపు_Cover_Decl* స్థిరరాశి coverp = VN_CAST(np, కణుపు_Cover_Decl)) {
                     // ... else we don't have a static VlSym to be able to coverage insert
                     UASSERT_OBJ(!VN_IS(nodep, Class), coverp,
                                 "NodeCoverDecl should be in class's package, not class itself");
-                    configure_coverage.add(coverp->unlinkFrBack());
+                    configure_coverage.కూడు(coverp->unlink_Fr_వెనుక());
                 }
             }
         }
-        if (AstClass* const classp = VN_CAST(nodep, Class)) {
-            AstCFunc* const funcp = new AstCFunc{classp->fileline(), "~", nullptr, ""};
-            funcp->isDestructor(true);
-            funcp->isStatic(false);
+        ఒకవేళ (AstClass* స్థిరరాశి classp = VN_CAST(nodep, Class)) {
+            AstCFunc* స్థిరరాశి funcp = కొత్త AstCFunc{classp->fileline(), "~", శూన్యసూచిక, ""};
+            funcp->isDestructor(నిజం);
+            funcp->isStatic(అబద్ధం);
             // If can be referred to by base pointer, need virtual delete
             funcp->isVirtual(classp->isExtended());
-            funcp->slow(false);
-            insertSc(funcp, classp, VSystemCSectionType::DTOR);
-            classp->addStmtsp(funcp);
+            funcp->slow(అబద్ధం);
+            చొప్పించు_Sc(funcp, classp, VSystemCSectionType::DTOR);
+            classp->కూడు_Stmtsp(funcp);
         }
     }
 
-    void visit(AstCFunc* nodep) override {
+    శూన్య సందర్శించు(AstCFunc* nodep) override {
         VL_RESTORER(m_varResetp);
         VL_RESTORER(m_cfuncp);
-        m_varResetp = nullptr;
+        m_varResetp = శూన్యసూచిక;
         m_cfuncp = nodep;
         iterateChildren(nodep);
-        if (nodep->name() == "new") insertSc(nodep, m_modp, VSystemCSectionType::CTOR);
+        ఒకవేళ (nodep->name() == "new") చొప్పించు_Sc(nodep, m_modp, VSystemCSectionType::CTOR);
     }
-    void visit(AstCStmt* nodep) override {
-        if (nodep->stmtType() == VCStmtType::CTOR_VAR_RESET_CALL) {
+    శూన్య సందర్శించు(AstCStmt* nodep) override {
+        ఒకవేళ (nodep->stmtType() == VCStmtType::CTOR_VAR_RESET_CALL) {
             UASSERT_OBJ(m_modp, nodep, "ctor_var_reset call not under module");
             m_ctorCalls.emplace(nodep, m_modp);
         }
         iterateChildren(nodep);
     }
-    void visit(AstVar* nodep) override {
-        if (nodep->needsCReset()) {
-            AstNode* const crstp = new AstAssign{
-                nodep->fileline(), new AstVarRef{nodep->fileline(), nodep, VAccess::WRITE},
-                new AstCReset{nodep->fileline(), nodep, true}};
-            if (m_varResetp) {
-                m_varResetp->add(crstp);
-            } else if (m_cfuncp) {
-                nodep->addNextHere(crstp);
-            } else {
+    శూన్య సందర్శించు(AstVar* nodep) override {
+        ఒకవేళ (nodep->needsCReset()) {
+            Ast_కణుపు* స్థిరరాశి crstp = కొత్త Ast_కేటాయించు{
+                nodep->fileline(), కొత్త AstVarRef{nodep->fileline(), nodep, VAccess::WRITE},
+                కొత్త AstCReset{nodep->fileline(), nodep, నిజం}};
+            ఒకవేళ (m_varResetp) {
+                m_varResetp->కూడు(crstp);
+            } లేకపోతే ఒకవేళ (m_cfuncp) {
+                nodep->కూడు_తదుపరి_ఇక్కడ(crstp);
+            } లేకపోతే {
                 nodep->v3fatalSrc("Var needs CReset but nowhere to place it");
             }
         }
     }
 
-    void visit(AstNode* nodep) override { iterateChildren(nodep); }
+    శూన్య సందర్శించు(Ast_కణుపు* nodep) override { iterateChildren(nodep); }
 
-public:
+బహిరంగ:
     // CONSTRUCTORS
-    explicit CCtorsVisitor(AstNode* nodep) { iterate(nodep); }
+    స్పష్టమైన CCtorsVisitor(Ast_కణుపు* nodep) { iterate(nodep); }
     ~CCtorsVisitor() override {
         // Remove CStmts to ctor_var_resets that are no longer needed
-        for (auto& itr : m_ctorCalls) {
-            AstCStmt* const nodep = itr.first;
-            const AstNodeModule* const modp = itr.second;
-            if (!modp->ctorVarReset()) VL_DO_DANGLING(nodep->unlinkFrBack()->deleteTree(), nodep);
+        కొరకు (స్వయంచాలక& itr : m_ctorCalls) {
+            AstCStmt* స్థిరరాశి nodep = itr.మొదటి;
+            స్థిరరాశి Ast_కణుపు_Module* స్థిరరాశి modp = itr.రెండవ;
+            ఒకవేళ (!modp->ctorVarReset()) VL_DO_DANGLING(nodep->unlink_Fr_వెనుక()->delete_వృక్షం(), nodep);
         }
     }
 };
 
 //######################################################################
 
-void V3CCtors::evalAsserts() {
-    AstNodeModule* const modp = v3Global.rootp()->modulesp();  // Top module wrapper
-    AstCFunc* const funcp
-        = new AstCFunc{modp->fileline(), "_eval_debug_assertions", nullptr, "void"};
-    funcp->declPrivate(true);
-    funcp->isStatic(false);
-    funcp->isLoose(true);
-    funcp->keepIfEmpty(true);
-    funcp->slow(false);
+శూన్య V3CCtors::evalAsserts() {
+    Ast_కణుపు_Module* స్థిరరాశి modp = v3Global.rootp()->modulesp();  // Top module wrapper
+    AstCFunc* స్థిరరాశి funcp
+        = కొత్త AstCFunc{modp->fileline(), "_eval_debug_assertions", శూన్యసూచిక, "void"};
+    funcp->decl_వ్యక్తిగత(నిజం);
+    funcp->isStatic(అబద్ధం);
+    funcp->isLoose(నిజం);
+    funcp->keep_If_ఖాళీలు(నిజం);
+    funcp->slow(అబద్ధం);
     funcp->ifdef("VL_DEBUG");
-    modp->addStmtsp(funcp);
-    for (AstNode* np = modp->stmtsp(); np; np = np->nextp()) {
-        if (AstVar* const varp = VN_CAST(np, Var)) {
-            if (varp->isPrimaryInish() && !varp->isSc()) {
-                if (const AstBasicDType* const basicp
+    modp->కూడు_Stmtsp(funcp);
+    కొరకు (Ast_కణుపు* np = modp->stmtsp(); np; np = np->nextp()) {
+        ఒకవేళ (AstVar* స్థిరరాశి varp = VN_CAST(np, Var)) {
+            ఒకవేళ (varp->isPrimaryInish() && !varp->isSc()) {
+                ఒకవేళ (స్థిరరాశి AstBasicDType* స్థిరరాశి basicp
                     = VN_CAST(varp->dtypeSkipRefp(), BasicDType)) {
-                    const int storedWidth = basicp->widthAlignBytes() * 8;
-                    const int lastWordWidth = varp->width() % storedWidth;
-                    if (lastWordWidth != 0) {
+                    స్థిరరాశి పూర్ణాంకం stored_వెడల్పు = basicp->వెడల్పు_Align_బైట్లు() * 8;
+                    స్థిరరాశి పూర్ణాంకం చివరి_మాట_వెడల్పు = varp->వెడల్పు() % stored_వెడల్పు;
+                    ఒకవేళ (చివరి_మాట_వెడల్పు != 0) {
                         // if (signal & CONST(upper_non_clean_mask)) { fail; }
-                        AstVarRef* const vrefp
-                            = new AstVarRef{varp->fileline(), varp, VAccess::READ};
-                        vrefp->selfPointer(VSelfPointerText{VSelfPointerText::This{}});
-                        AstNodeExpr* newp = vrefp;
-                        if (varp->isWide()) {
-                            newp = new AstWordSel{
+                        AstVarRef* స్థిరరాశి vrefp
+                            = కొత్త AstVarRef{varp->fileline(), varp, VAccess::READ};
+                        vrefp->self_సూచిక(VSelf_సూచిక_పాఠ్యం{VSelf_సూచిక_పాఠ్యం::This{}});
+                        Ast_కణుపు_సమాసం* newp = vrefp;
+                        ఒకవేళ (varp->isWide()) {
+                            newp = కొత్త Ast_మాట_Sel{
                                 varp->fileline(), newp,
-                                new AstConst(varp->fileline(), varp->widthWords() - 1)};
+                                కొత్త AstConst(varp->fileline(), varp->వెడల్పు_పదాలు() - 1)};
                         }
-                        const uint64_t value = VL_MASK_Q(storedWidth) & ~VL_MASK_Q(lastWordWidth);
-                        newp = new AstAnd{varp->fileline(), newp,
-                                          new AstConst(varp->fileline(), AstConst::WidthedValue{},
-                                                       storedWidth, value)};
-                        AstNodeIf* const ifp = new AstIf{
+                        స్థిరరాశి uint64_t విలువ = VL_ముసుగు_Q(stored_వెడల్పు) & ~VL_ముసుగు_Q(చివరి_మాట_వెడల్పు);
+                        newp = కొత్త AstAnd{varp->fileline(), newp,
+                                          కొత్త AstConst(varp->fileline(), AstConst::Widthed_విలువ{},
+                                                       stored_వెడల్పు, విలువ)};
+                        Ast_కణుపు_If* స్థిరరాశి ifp = కొత్త AstIf{
                             varp->fileline(), newp,
-                            new AstCStmt{varp->fileline(), "Verilated::overWidthError(\""
+                            కొత్త AstCStmt{varp->fileline(), "Verilated::overWidthError(\""
                                                                + varp->prettyName() + "\");"}};
                         ifp->branchPred(VBranchPred::BP_UNLIKELY);
-                        funcp->addStmtsp(ifp);
+                        funcp->కూడు_Stmtsp(ifp);
                     }
                 }
             }
@@ -283,9 +283,9 @@ void V3CCtors::evalAsserts() {
     }
 }
 
-void V3CCtors::cctorsAll() {
+శూన్య V3CCtors::cctorsAll() {
     UINFO(2, __FUNCTION__ << ":");
     evalAsserts();
     { CCtorsVisitor{v3Global.rootp()}; }
-    V3Global::dumpCheckGlobalTree("cctors", 0, dumpTreeEitherLevel() >= 3);
+    V3Global::dump_Check_Global_వృక్షం("cctors", 0, dump_వృక్షం_Either_Level() >= 3);
 }

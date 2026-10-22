@@ -14,22 +14,22 @@
 //
 //*************************************************************************
 
-#include "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
+#అన్తర్భావ "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
 
-#include "V3Dfg.h"
-#include "V3DfgPasses.h"
+#అన్తర్భావ "V3Dfg.h"
+#అన్తర్భావ "V3DfgPasses.h"
 
 VL_DEFINE_DEBUG_FUNCTIONS;
 
 //------------------------------------------------------------------------------
 // DfgDataType
 
-const DfgDataType* DfgDataType::s_nullTypep{nullptr};
-std::unordered_map<uint32_t, const DfgDataType*> DfgDataType::s_packedTypes{};
+స్థిరరాశి Dfg_దత్తాంశం_Type* Dfg_దత్తాంశం_Type::s_nullTypep{శూన్యసూచిక};
+std::unordered_map<uint32_t, స్థిరరాశి Dfg_దత్తాంశం_Type*> Dfg_దత్తాంశం_Type::s_packedTypes{};
 
 //------------------------------------------------------------------------------
 // Type checker - for internal validation only
 
-void V3DfgPasses::typeCheck(const DfgGraph& dfg) {
-    dfg.forEachVertex([&](const DfgVertex& vtx) { vtx.typeCheck(dfg); });
+శూన్య V3DfgPasses::typeCheck(స్థిరరాశి Dfg_లేఖాచిత్రం& dfg) {
+    dfg.for_Each_శీర్షం([&](స్థిరరాశి Dfg_శీర్షం& vtx) { vtx.typeCheck(dfg); });
 }

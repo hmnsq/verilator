@@ -14,17 +14,17 @@
 //
 //*************************************************************************
 
-#ifndef VERILATOR_V3EMITCBASE_H_
-#define VERILATOR_V3EMITCBASE_H_
+#నిర్వచితం_కాకపోతే VERILATOR_V3EMITCBASE_H_
+#నిర్వచించు VERILATOR_V3EMITCBASE_H_
 
-#include "config_build.h"
-#include "verilatedos.h"
+#అన్తర్భావ "config_build.h"
+#అన్తర్భావ "verilatedos.h"
 
-#include "V3Ast.h"
-#include "V3File.h"
+#అన్తర్భావ "V3Ast.h"
+#అన్తర్భావ "V3File.h"
 
-#include <cmath>
-#include <cstdarg>
+#అన్తర్భావ <cmath>
+#అన్తర్భావ <cstdarg>
 
 //######################################################################
 // Set user4p in all CFunc, Var, and coverage declarations to point to the
@@ -35,14 +35,14 @@ class EmitCParentModule final {
     //   AstCFunc::user4p()          AstNodeModule* Parent module pointer
     //   AstVar::user4p()            AstNodeModule* Parent module pointer
     //   AstNodeCoverDecl::user4p()  AstNodeModule* Parent module pointer
-    const VNUser4InUse user4InUse;
+    స్థిరరాశి VNUser4_లోపల_Use user4_లోపల_Use;
 
-public:
+బహిరంగ:
     EmitCParentModule();
     VL_UNCOPYABLE(EmitCParentModule);
 
-    static const AstNodeModule* get(const AstNode* nodep) VL_MT_STABLE {
-        return VN_AS(nodep->user4p(), NodeModule);
+    స్థిర స్థిరరాశి Ast_కణుపు_Module* get(స్థిరరాశి Ast_కణుపు* nodep) VL_MT_STABLE {
+        తిరిగి VN_AS(nodep->user4p(), కణుపు_Module);
     }
 };
 
@@ -50,131 +50,131 @@ public:
 // EmitC-related utility functions
 
 class EmitCUtil final {
-public:
-    static string voidSelfAssign(const AstNodeModule* modp) {
-        const string className = prefixNameProtect(modp);
-        return className + "* const __restrict vlSelf VL_ATTR_UNUSED = static_cast<" + className
+బహిరంగ:
+    స్థిర string void_Self_కేటాయించు(స్థిరరాశి Ast_కణుపు_Module* modp) {
+        స్థిరరాశి string className = ఉపసర్గ_Name_Protect(modp);
+        తిరిగి className + "* const __restrict vlSelf VL_ATTR_UNUSED = static_cast<" + className
                + "*>(voidSelf);\n";
     }
-    static string pchClassName() VL_MT_STABLE { return v3Global.opt.prefix() + "__pch"; }
-    static string symClassName() VL_MT_STABLE {
-        return v3Global.opt.prefix() + "_" + VIdProtect::protect("_Syms");
+    స్థిర string pchClassName() VL_MT_STABLE { తిరిగి v3Global.opt.ఉపసర్గ() + "__pch"; }
+    స్థిర string symClassName() VL_MT_STABLE {
+        తిరిగి v3Global.opt.ఉపసర్గ() + "_" + VIdProtect::protect("_Syms");
     }
-    static string symClassVar() { return symClassName() + "* __restrict vlSymsp"; }
-    static string symClassAssign() {
-        return symClassName() + "* const __restrict vlSymsp VL_ATTR_UNUSED = vlSelf->vlSymsp;\n";
+    స్థిర string symClassVar() { తిరిగి symClassName() + "* __restrict vlSymsp"; }
+    స్థిర string sym_Class_కేటాయించు() {
+        తిరిగి symClassName() + "* const __restrict vlSymsp VL_ATTR_UNUSED = vlSelf->vlSymsp;\n";
     }
-    static string topClassName() VL_MT_SAFE {  // Return name of top wrapper module
-        return v3Global.opt.prefix();
+    స్థిర string శిఖరం_Class_Name() VL_MT_సురక్షిత {  // Return name of top wrapper module
+        తిరిగి v3Global.opt.ఉపసర్గ();
     }
     // Return name of the VlExecGraph describing an AstExecGraph
-    static string execGraphName(const AstExecGraph* nodep) {
-        return topClassName() + "__ExecGraph__" + nodep->nameProtect();
+    స్థిర string exec_లేఖాచిత్రం_Name(స్థిరరాశి Ast_Exec_లేఖాచిత్రం* nodep) {
+        తిరిగి శిఖరం_Class_Name() + "__ExecGraph__" + nodep->nameProtect();
     }
     // Name of a constant pool variable
-    static std::string constPoolName(const AstVar* varp) {
-        UASSERT_OBJ(varp->constPoolEntry(), varp, "Not a constant pool variable");
-        return topClassName() + "__ConstPool__" + varp->nameProtect();
+    స్థిర std::string constPoolName(స్థిరరాశి AstVar* varp) {
+        UASSERT_OBJ(varp->const_Pool_నమోదు(), varp, "Not a constant pool variable");
+        తిరిగి శిఖరం_Class_Name() + "__ConstPool__" + varp->nameProtect();
     }
     // Return C++ class name for a module/class object
-    static string prefixNameProtect(const AstNode* nodep) VL_MT_STABLE;
+    స్థిర string ఉపసర్గ_Name_Protect(స్థిరరాశి Ast_కణుపు* nodep) VL_MT_STABLE;
 };
 
 //######################################################################
 // Base Visitor class -- holds output file pointer
 
-class EmitCBaseVisitorConst VL_NOT_FINAL : public VNVisitorConst {
-public:
+class EmitCBaseVisitorConst VL_NOT_FINAL : బహిరంగ VNVisitorConst {
+బహిరంగ:
     // TYPES
     // Rendered text statements, each with its cost, for splitting them into sub-functions
-    class TextStmts final {
-    public:
-        struct Stmt final {
-            std::string m_text;  // Statement text
-            size_t m_cost;  // Cost of statement, for splitting
+    class పాఠ్యం_Stmts final {
+    బహిరంగ:
+        నిర్మాణం Stmt final {
+            std::string m_పాఠ్యం;  // Statement text
+            కొలత_t m_ఖర్చు;  // Cost of statement, for splitting
         };
 
-    private:
-        std::vector<Stmt> m_stmts;  // Statements
+    అంతరంగ:
+        std::సదిశ<Stmt> m_stmts;  // Statements
 
-    public:
+    బహిరంగ:
         // Add a statement
-        void add(const std::string& stmt) {
-            const size_t cost = stmt.empty() || VString::startsWith(stmt, "//")
+        శూన్య కూడు(స్థిరరాశి std::string& stmt) {
+            స్థిరరాశి కొలత_t ఖర్చు = stmt.ఖాళీలు() || VString::startsWith(stmt, "//")
                                     ? 0  // Blanks and comments are free
-                                    : AstNode::INSTR_COUNT_CTOR_DTOR;
-            m_stmts.push_back({stmt, cost});
+                                    : Ast_కణుపు::INSTR_లెక్క_CTOR_DTOR;
+            m_stmts.నెట్టు_వెనుక({stmt, ఖర్చు});
         }
-        size_t size() const { return m_stmts.size(); }
-        const Stmt& operator[](size_t i) const { return m_stmts[i]; }
-        std::vector<Stmt>::const_iterator begin() const { return m_stmts.begin(); }
-        std::vector<Stmt>::const_iterator end() const { return m_stmts.end(); }
+        కొలత_t కొలత() స్థిరరాశి { తిరిగి m_stmts.కొలత(); }
+        స్థిరరాశి Stmt& క్రియాకారకం[](కొలత_t i) స్థిరరాశి { తిరిగి m_stmts[i]; }
+        std::సదిశ<Stmt>::const_iterator begin() స్థిరరాశి { తిరిగి m_stmts.begin(); }
+        std::సదిశ<Stmt>::const_iterator చివర() స్థిరరాశి { తిరిగి m_stmts.చివర(); }
     };
 
-private:
+అంతరంగ:
     // STATE
-    V3OutCFile* m_ofp = nullptr;  // File handle to emit to
+    V3_బహిర్గతం_CFile* m_ofp = nullptr;  // File handle to emit to
     AstCFile* m_cfilep = nullptr;  // Current AstCFile being emitted
-    std::vector<AstCFile*> m_newCfileps;  // AstCFiles created
-    size_t m_splitSize = 0;  // Complexity of this file
-    const size_t m_splitLimit = v3Global.opt.outputSplit()
-                                    ? static_cast<size_t>(v3Global.opt.outputSplit())
-                                    : std::numeric_limits<size_t>::max();
+    std::సదిశ<AstCFile*> m_newCfileps;  // AstCFiles created
+    కొలత_t m_విభజించు_కొలత = 0;  // Complexity of this file
+    స్థిరరాశి కొలత_t m_విభజించు_హద్దు = v3Global.opt.output_విభజించు()
+                                    ? static_cast<కొలత_t>(v3Global.opt.output_విభజించు())
+                                    : std::numeric_limits<కొలత_t>::max();
 
     // METHODS
 
     // Create new AstCFile and open it for writing
-    void openNewOutputFile(const std::string& baseName, bool slow, bool support, bool source,
-                           const char* const descriptionp) {
-        std::string fileName = v3Global.opt.makeDir() + "/" + baseName;
-        if (source) {
-            if (slow) fileName += "__Slow";
+    శూన్య openNewOutputFile(స్థిరరాశి std::string& పునాది_Name, bool slow, bool support, bool ఆధారం,
+                           స్థిరరాశి అక్షరం* స్థిరరాశి descriptionp) {
+        std::string fileName = v3Global.opt.makeDir() + "/" + పునాది_Name;
+        ఒకవేళ (ఆధారం) {
+            ఒకవేళ (slow) fileName += "__Slow";
             fileName += ".cpp";
-        } else {
+        } లేకపోతే {
             fileName += ".h";
         }
-        AstCFile* const cfilep = new AstCFile{v3Global.rootp()->fileline(), fileName};
+        AstCFile* స్థిరరాశి cfilep = new AstCFile{v3Global.rootp()->fileline(), fileName};
         cfilep->slow(slow);
-        cfilep->source(source);
+        cfilep->ఆధారం(ఆధారం);
         cfilep->support(support);
-        m_newCfileps.emplace_back(cfilep);
+        m_newCfileps.emplace_వెనుక(cfilep);
         openOutputFile(cfilep, descriptionp);
     }
 
     // Reduce 'stmts' to a single statement, via a balanced tree of loose sub-functions
     // 'void <prefix>__<n>(<params>)' of at most 'maxCost' each (see emitSplitCtorDtor).
     // Returns the declaration of the root sub-function, or empty if nothing was split.
-    std::string emitSplitTextStmts(TextStmts& stmts, const std::string& prefix,
-                                   const std::string& params, const std::string& args,
-                                   size_t maxCost, bool support, const char* descriptionp,
-                                   const std::function<void()>& emitHeader);
+    std::string emit_విభజించు_పాఠ్యం_Stmts(పాఠ్యం_Stmts& stmts, స్థిరరాశి std::string& ఉపసర్గ,
+                                   స్థిరరాశి std::string& params, స్థిరరాశి std::string& వాదనలు,
+                                   కొలత_t max_ఖర్చు, bool support, స్థిరరాశి అక్షరం* descriptionp,
+                                   స్థిరరాశి std::function<శూన్య()>& emit_శీర్షిక);
 
-public:
+బహిరంగ:
     // Create new source AstCFile and open it for writing
-    void openNewOutputSourceFile(const std::string& baseName, bool slow, bool support,
-                                 const char* descriptionp) {
-        V3Stats::addStatSum(V3Stats::STAT_CPP_FILES, 1);
-        openNewOutputFile(baseName, slow, support, true, descriptionp);
+    శూన్య open_New_Output_ఆధారం_File(స్థిరరాశి std::string& పునాది_Name, bool slow, bool support,
+                                 స్థిరరాశి అక్షరం* descriptionp) {
+        V3Stats::కూడు_Stat_కూడిక(V3Stats::STAT_CPP_FILES, 1);
+        openNewOutputFile(పునాది_Name, slow, support, true, descriptionp);
     }
 
     // Create new header AstCFile and open it for writing
-    void openNewOutputHeaderFile(const std::string& baseName, const char* descriptionp) {
-        openNewOutputFile(baseName, false, false, false, descriptionp);
+    శూన్య open_New_Output_శీర్షిక_File(స్థిరరాశి std::string& పునాది_Name, స్థిరరాశి అక్షరం* descriptionp) {
+        openNewOutputFile(పునాది_Name, false, false, false, descriptionp);
     }
 
     // Open exisitng AstCFile for writing
-    void openOutputFile(AstCFile* cfilep, const char* descriptionp) {
+    శూన్య openOutputFile(AstCFile* cfilep, స్థిరరాశి అక్షరం* descriptionp) {
         UASSERT(!m_ofp, "Output file is already open");
         m_cfilep = cfilep;
-        m_splitSize = 0;
-        if (v3Global.opt.lintOnly()) {
+        m_విభజించు_కొలత = 0;
+        ఒకవేళ (v3Global.opt.lintOnly()) {
             // Unfortunately we have some lint checks in EmitCImp, so we can't
             // just skip processing. TODO: Move them to an earlier stage.
-            m_ofp = new V3OutCFile{VL_DEV_NULL};
-            return;
+            m_ofp = new V3_బహిర్గతం_CFile{VL_DEV_NULL};
+            తిరిగి;
         }
-        m_ofp = new V3OutCFile{cfilep->name()};
-        putsHeader();
+        m_ofp = new V3_బహిర్గతం_CFile{cfilep->name()};
+        puts_శీర్షిక();
         // Emit description
         m_ofp->putsNoTracking("// DESCR" /* keep this comment */ "IPTION: Verilator output: ");
         m_ofp->putsNoTracking(descriptionp);
@@ -182,24 +182,24 @@ public:
     }
 
     // Close current output file. Sets ofp() and outFileNodep() to nullptr.
-    void closeOutputFile() {
+    శూన్య closeOutputFile() {
         UASSERT(m_ofp, "No currently open output file");
         VL_DO_CLEAR(delete m_ofp, m_ofp = nullptr);
-        m_cfilep->complexityScore(m_splitSize);
+        m_cfilep->complexityScore(m_విభజించు_కొలత);
         m_cfilep = nullptr;
     }
 
-    std::vector<AstCFile*> getAndClearCfileps() {
+    std::సదిశ<AstCFile*> getAndClearCfileps() {
         UASSERT(!m_ofp, "Output file is open");
-        return std::move(m_newCfileps);
+        తిరిగి std::move(m_newCfileps);
     }
 
-    void splitSizeInc(size_t count) { m_splitSize += count; }
-    void splitSizeInc(const AstNode* nodep) {
-        splitSizeInc(static_cast<size_t>(nodep->nodeCount()));
+    శూన్య విభజించు_కొలత_Inc(కొలత_t లెక్క) { m_విభజించు_కొలత += లెక్క; }
+    శూన్య విభజించు_కొలత_Inc(స్థిరరాశి Ast_కణుపు* nodep) {
+        విభజించు_కొలత_Inc(static_cast<కొలత_t>(nodep->కణుపు_లెక్క()));
     }
-    bool splitNeeded(size_t splitLimit) const { return m_splitSize >= splitLimit; }
-    bool splitNeeded() const { return splitNeeded(m_splitLimit); }
+    bool విభజించు_Needed(కొలత_t విభజించు_హద్దు) స్థిరరాశి { తిరిగి m_విభజించు_కొలత >= విభజించు_హద్దు; }
+    bool విభజించు_Needed() స్థిరరాశి { తిరిగి విభజించు_Needed(m_విభజించు_హద్దు); }
 
     // If the given constructor/destructor statements, plus 'baseCost', exceed the
     // --output-split-cfuncs limit, split them into loose sub-functions
@@ -208,84 +208,84 @@ public:
     // statements are then each replaced with a single call to the root sub-function. Returns
     // the declarations of the root ctor/dtor sub-functions, or empty strings if not split.
     std::pair<std::string, std::string>
-    emitSplitCtorDtor(TextStmts& ctorStmts, TextStmts& dtorStmts, size_t baseCost,
-                      const std::string& prefix, const std::string& params,
-                      const std::string& args, bool support, const char* descriptionp,
-                      const std::function<void()>& emitHeader);
+    emit_విభజించు_Ctor_Dtor(పాఠ్యం_Stmts& ctorStmts, పాఠ్యం_Stmts& dtorStmts, కొలత_t పునాది_ఖర్చు,
+                      స్థిరరాశి std::string& ఉపసర్గ, స్థిరరాశి std::string& params,
+                      స్థిరరాశి std::string& వాదనలు, bool support, స్థిరరాశి అక్షరం* descriptionp,
+                      స్థిరరాశి std::function<శూన్య()>& emit_శీర్షిక);
 
     // Returns pointer to current output file object.
-    V3OutCFile* ofp() const VL_MT_SAFE { return m_ofp; }
+    V3_బహిర్గతం_CFile* ofp() స్థిరరాశి VL_MT_సురక్షిత { తిరిగి m_ofp; }
 
-    void puts(const string& str) { ofp()->puts(str); }
-    void putns(const AstNode* nodep, const string& str) { ofp()->putns(nodep, str); }
-    void putsHeader() { ofp()->putsHeader(); }
-    void putbs(const string& str) { ofp()->putbs(str); }
-    void putnbs(const AstNode* nodep, const string& str) { ofp()->putnbs(nodep, str); }
-    void putsDecoration(const AstNode* nodep, const string& str) {
-        if (v3Global.opt.decoration()) putns(nodep, str);
+    శూన్య puts(స్థిరరాశి string& str) { ofp()->puts(str); }
+    శూన్య putns(స్థిరరాశి Ast_కణుపు* nodep, స్థిరరాశి string& str) { ofp()->putns(nodep, str); }
+    శూన్య puts_శీర్షిక() { ofp()->puts_శీర్షిక(); }
+    శూన్య putbs(స్థిరరాశి string& str) { ofp()->putbs(str); }
+    శూన్య putnbs(స్థిరరాశి Ast_కణుపు* nodep, స్థిరరాశి string& str) { ofp()->putnbs(nodep, str); }
+    శూన్య putsDecoration(స్థిరరాశి Ast_కణుపు* nodep, స్థిరరాశి string& str) {
+        ఒకవేళ (v3Global.opt.decoration()) putns(nodep, str);
     }
-    void putsQuoted(const string& str) { ofp()->putsQuoted(str); }
-    void ensureNewLine() { ofp()->ensureNewLine(); }
-    bool optSystemC() { return v3Global.opt.systemC(); }
-    static string protect(const string& name) VL_MT_SAFE { return VIdProtect::protect(name); }
-    static string funcNameProtect(const AstCFunc* nodep, const AstNodeModule* modp = nullptr);
-    static bool isExplicitlyConstructed(const AstVar* varp) VL_MT_STABLE {
+    శూన్య putsQuoted(స్థిరరాశి string& str) { ofp()->putsQuoted(str); }
+    శూన్య ensure_New_పంక్తి() { ofp()->ensure_New_పంక్తి(); }
+    bool optSystemC() { తిరిగి v3Global.opt.systemC(); }
+    స్థిర string protect(స్థిరరాశి string& name) VL_MT_సురక్షిత { తిరిగి VIdProtect::protect(name); }
+    స్థిర string funcNameProtect(స్థిరరాశి AstCFunc* nodep, స్థిరరాశి Ast_కణుపు_Module* modp = nullptr);
+    స్థిర bool isExplicitlyConstructed(స్థిరరాశి AstVar* varp) VL_MT_STABLE {
         // Only model member variables may be handled explicitly
-        const AstNodeModule* const modp = EmitCParentModule::get(varp);
-        if (!modp || !varp->isModelState()) return false;
+        స్థిరరాశి Ast_కణుపు_Module* స్థిరరాశి modp = EmitCParentModule::get(varp);
+        ఒకవేళ (!modp || !varp->isModelState()) తిరిగి false;
         // Classes use real constructors
-        if (VN_IS(modp, Class)) return false;
+        ఒకవేళ (VN_IS(modp, Class)) తిరిగి false;
         // Constant pool has special handling
-        if (modp->isConstPool()) return false;
+        ఒకవేళ (modp->isConstPool()) తిరిగి false;
         // Otherwise explicitly handled if not trivially constructible,
         // meaning a runtime C++ constructor/destructor invocation is needed
-        return !varp->isTriviallyConstructible();
+        తిరిగి !varp->isTriviallyConstructible();
     }
     // Name to access a module member as
-    static std::string varName(const AstVar* varp) VL_MT_STABLE {
-        const std::string name = varp->nameProtect();
+    స్థిర std::string varName(స్థిరరాశి AstVar* varp) VL_MT_STABLE {
+        స్థిరరాశి std::string name = varp->nameProtect();
         // Primary IOs live 'union { struct { HERE } __VprimaryPorts; }'
-        if (varp->isPrimaryIO()) return "__VprimaryPorts." + name;
+        ఒకవేళ (varp->isPrimaryIO()) తిరిగి "__VprimaryPorts." + name;
         // Explicitly constructed variables live 'union { struct { HERE } __Vnontrivs; }'
-        if (isExplicitlyConstructed(varp)) return "__Vnontrivs." + name;
+        ఒకవేళ (isExplicitlyConstructed(varp)) తిరిగి "__Vnontrivs." + name;
         // Otherwise they should be available in the local scope where emitted
-        return name;
+        తిరిగి name;
     }
     // Argument list; if 'cpp', C++ rather than a C header
-    string cFuncArgs(const AstCFunc* nodep, bool cpp = true);
-    void emitCDefaultConstructor(const AstNodeModule* modp);
-    void emitCFuncHeader(const AstCFunc* funcp, const AstNodeModule* modp, bool withScope);
-    void emitCFuncDecl(const AstCFunc* funcp, const AstNodeModule* modp, bool cLinkage = false);
-    void emitVarDecl(const AstVar* nodep, bool asRef = false);
-    void emitVarAccessors(const AstVar* nodep);
-    template <typename T_Callable>
-    static void forModCUse(const AstNodeModule* modp, VUseType useType, T_Callable action) {
-        for (const AstNode* itemp = modp->stmtsp(); itemp; itemp = itemp->nextp()) {
-            if (const AstCUse* const usep = VN_CAST(itemp, CUse)) {
-                if (usep->useType().containsAny(useType)) {
-                    if (usep->useType().containsAny(VUseType::INT_INCLUDE)) {
-                        action("#include \"" + EmitCUtil::prefixNameProtect(usep) + ".h\"\n");
-                        continue;  // Forward declaration is not necessary
+    string c_Func_వాదనలు(స్థిరరాశి AstCFunc* nodep, bool cpp = true);
+    శూన్య emitCDefaultConstructor(స్థిరరాశి Ast_కణుపు_Module* modp);
+    శూన్య emit_CFunc_శీర్షిక(స్థిరరాశి AstCFunc* funcp, స్థిరరాశి Ast_కణుపు_Module* modp, bool withScope);
+    శూన్య emitCFuncDecl(స్థిరరాశి AstCFunc* funcp, స్థిరరాశి Ast_కణుపు_Module* modp, bool cLinkage = false);
+    శూన్య emitVarDecl(స్థిరరాశి AstVar* nodep, bool asRef = false);
+    శూన్య emitVarAccessors(స్థిరరాశి AstVar* nodep);
+    మూస <typename T_Callable>
+    స్థిర శూన్య forModCUse(స్థిరరాశి Ast_కణుపు_Module* modp, VUseType useType, T_Callable action) {
+        కొరకు (స్థిరరాశి Ast_కణుపు* itemp = modp->stmtsp(); itemp; itemp = itemp->nextp()) {
+            ఒకవేళ (స్థిరరాశి AstCUse* స్థిరరాశి usep = VN_CAST(itemp, CUse)) {
+                ఒకవేళ (usep->useType().కలిగియుంది_Any(useType)) {
+                    ఒకవేళ (usep->useType().కలిగియుంది_Any(VUseType::INT_INCLUDE)) {
+                        action("#include \"" + EmitCUtil::ఉపసర్గ_Name_Protect(usep) + ".h\"\n");
+                        కొనసాగు;  // Forward declaration is not necessary
                     }
-                    if (usep->useType().containsAny(VUseType::INT_FWD_CLASS)) {
-                        action("class " + EmitCUtil::prefixNameProtect(usep) + ";\n");
+                    ఒకవేళ (usep->useType().కలిగియుంది_Any(VUseType::INT_FWD_CLASS)) {
+                        action("class " + EmitCUtil::ఉపసర్గ_Name_Protect(usep) + ";\n");
                     }
                 }
             }
         }
     }
-    void emitModCUse(const AstNodeModule* modp, VUseType useType);
-    void emitSystemCSection(const AstNodeModule* modp, VSystemCSectionType type);
-    static std::pair<string, FileLine*> scSection(const AstNodeModule* modp,
+    శూన్య emitModCUse(స్థిరరాశి Ast_కణుపు_Module* modp, VUseType useType);
+    శూన్య emitSystemCSection(స్థిరరాశి Ast_కణుపు_Module* modp, VSystemCSectionType type);
+    స్థిర std::pair<string, File_పంక్తి*> scSection(స్థిరరాశి Ast_కణుపు_Module* modp,
                                                   VSystemCSectionType type);
 
     // CONSTRUCTORS
-    EmitCBaseVisitorConst() = default;
+    EmitCBaseVisitorConst() = అప్రమేయ;
     ~EmitCBaseVisitorConst() override {
         UASSERT(!m_ofp, "Did not close output file");
         // Add files cerated to the netlist (unless retrieved before destruction)
-        for (AstCFile* const cfilep : m_newCfileps) v3Global.rootp()->addFilesp(cfilep);
+        కొరకు (AstCFile* స్థిరరాశి cfilep : m_newCfileps) v3Global.rootp()->కూడు_Filesp(cfilep);
     }
 };
 
-#endif  // guard
+#అయితే_ముగింపు  // guard

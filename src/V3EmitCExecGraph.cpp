@@ -21,37 +21,37 @@
 //
 //*************************************************************************
 
-#include "V3PchAstMT.h"
+#అన్తర్భావ "V3PchAstMT.h"
 
-#include "V3EmitC.h"
-#include "V3EmitCFunc.h"
-#include "V3ExecGraph.h"
+#అన్తర్భావ "V3EmitC.h"
+#అన్తర్భావ "V3EmitCFunc.h"
+#అన్తర్భావ "V3ExecGraph.h"
 
-#include <unordered_map>
-#include <vector>
+#అన్తర్భావ <unordered_map>
+#అన్తర్భావ <vector>
 
 VL_DEFINE_DEBUG_FUNCTIONS;
 
 //######################################################################
 // Exec graph emitter
 
-class EmitCExecGraph final : public EmitCFunc {
+తరగతి Emit_CExec_లేఖాచిత్రం final : బహిరంగ EmitCFunc {
     // METHODS
-    void emitGraph(AstExecGraph* nodep) {
-        const std::string name = EmitCUtil::execGraphName(nodep);
-        const AstUnpackArrayDType* const trigDtypep
+    శూన్య emit_లేఖాచిత్రం(Ast_Exec_లేఖాచిత్రం* nodep) {
+        స్థిరరాశి std::string name = EmitCUtil::exec_లేఖాచిత్రం_Name(nodep);
+        స్థిరరాశి AstUnpackArrayDType* స్థిరరాశి trigDtypep
             = VN_AS(nodep->triggerp()->varp()->dtypep()->skipRefp(), UnpackArrayDType);
 
         // MTask of each function, and the index of each function in the topological order
-        std::unordered_map<const AstCFunc*, const ExecMTask*> mtaskps;
-        for (const V3GraphVertex& vtx : nodep->depGraphp()->vertices()) {
-            const ExecMTask* const mtaskp = vtx.as<ExecMTask>();
+        std::unordered_map<స్థిరరాశి AstCFunc*, స్థిరరాశి ExecMTask*> mtaskps;
+        కొరకు (స్థిరరాశి V3_లేఖాచిత్రం_శీర్షం& vtx : nodep->depGraphp()->vertices()) {
+            స్థిరరాశి ExecMTask* స్థిరరాశి mtaskp = vtx.as<ExecMTask>();
             mtaskps.emplace(mtaskp->funcp(), mtaskp);
         }
-        std::unordered_map<const AstCFunc*, uint32_t> indices;
-        for (const AstCCall* callp = nodep->callsp(); callp;
+        std::unordered_map<స్థిరరాశి AstCFunc*, uint32_t> indices;
+        కొరకు (స్థిరరాశి AstCCall* callp = nodep->callsp(); callp;
              callp = VN_AS(callp->nextp(), CCall)) {
-            indices.emplace(callp->funcp(), indices.size());
+            indices.emplace(callp->funcp(), indices.కొలత());
         }
 
         // Declare the MTask functions and their trigger masks, and the dispatch function
@@ -64,11 +64,11 @@ class EmitCExecGraph final : public EmitCFunc {
         putns(nodep, "static VL_CONSTINIT_CXX20 const VlExecGraph::Vertex " + name
                          + "__vertices[] = {\n");
         AstVarRef* maskp = nodep->maskps();
-        for (const AstCCall* callp = nodep->callsp(); callp;
+        కొరకు (స్థిరరాశి AstCCall* callp = nodep->callsp(); callp;
              callp = VN_AS(callp->nextp(), CCall)) {
             UASSERT_OBJ(maskp, callp, "MTask call without trigger mask");
             putns(callp, "{&" + funcNameProtect(callp->funcp()) + ", ");
-            puts(std::to_string(mtaskps.at(callp->funcp())->cost()) + ", ");
+            puts(std::గమ్యం_string(mtaskps.at(callp->funcp())->ఖర్చు()) + ", ");
             iterateConst(maskp);
             puts(".data()},\n");
             maskp = VN_AS(maskp->nextp(), VarRef);
@@ -76,49 +76,49 @@ class EmitCExecGraph final : public EmitCFunc {
         puts("};\n");
 
         // The dependencies between MTasks
-        uint32_t nEdges = 0;
-        for (const AstCCall* callp = nodep->callsp(); callp;
+        uint32_t n_అంచులు = 0;
+        కొరకు (స్థిరరాశి AstCCall* callp = nodep->callsp(); callp;
              callp = VN_AS(callp->nextp(), CCall)) {
-            for (const V3GraphEdge& edge : mtaskps.at(callp->funcp())->outEdges()) {
-                if (!nEdges) {
+            కొరకు (స్థిరరాశి V3_లేఖాచిత్రం_అంచు& అంచు : mtaskps.at(callp->funcp())->బహిర్గతం_అంచులు()) {
+                ఒకవేళ (!n_అంచులు) {
                     puts("\nstatic VL_CONSTINIT_CXX20 const VlExecGraph::Edge " + name
                          + "__edges[] = {\n");
                 }
-                puts("{" + std::to_string(indices.at(callp->funcp())) + ", "
-                     + std::to_string(indices.at(edge.top()->as<ExecMTask>()->funcp())) + "},\n");
-                ++nEdges;
+                puts("{" + std::గమ్యం_string(indices.at(callp->funcp())) + ", "
+                     + std::గమ్యం_string(indices.at(అంచు.శిఖరం()->as<ExecMTask>()->funcp())) + "},\n");
+                ++n_అంచులు;
             }
         }
-        if (nEdges) puts("};\n");
+        ఒకవేళ (n_అంచులు) puts("};\n");
 
         // The graph
-        const std::string edgesName = nEdges ? name + "__edges" : "nullptr";
+        స్థిరరాశి std::string అంచులు_Name = n_అంచులు ? name + "__edges" : "nullptr";
         putns(nodep, "\nVL_CONSTINIT_CXX20 VlExecGraph " + name + "{\n");
-        puts(name + "__vertices, " + std::to_string(indices.size()) + ",\n");
-        puts(edgesName + ", " + std::to_string(nEdges) + ",\n");
-        puts(std::to_string(trigDtypep->elementsConst()) + ",\n");
+        puts(name + "__vertices, " + std::గమ్యం_string(indices.కొలత()) + ",\n");
+        puts(అంచులు_Name + ", " + std::గమ్యం_string(n_అంచులు) + ",\n");
+        puts(std::గమ్యం_string(trigDtypep->elementsConst()) + ",\n");
         iterateConst(nodep->triggerCostsp());
         puts(".data(),\n");
         puts("&" + funcNameProtect(nodep->runfuncp()) + ",\n");
         // Profiling measures the parallel execution, so never run serially
-        const bool profiling = v3Global.opt.profExec() || v3Global.opt.profPgo();
+        స్థిరరాశి తార్కిక profiling = v3Global.opt.profExec() || v3Global.opt.profPgo();
         puts(profiling ? "0" : "VL_THREADS_SERIAL_COST");
         puts("\n};\n");
     }
 
-public:
-    explicit EmitCExecGraph(AstNetlist* netlistp) {
-        std::vector<AstExecGraph*> execGraphps;
-        netlistp->topModulep()->foreach(
-            [&](AstExecGraph* nodep) { execGraphps.push_back(nodep); });
-        if (execGraphps.empty()) return;
+బహిరంగ:
+    స్పష్టమైన Emit_CExec_లేఖాచిత్రం(AstNetlist* netlistp) {
+        std::సదిశ<Ast_Exec_లేఖాచిత్రం*> execGraphps;
+        netlistp->శిఖరం_Modulep()->foreach(
+            [&](Ast_Exec_లేఖాచిత్రం* nodep) { execGraphps.నెట్టు_వెనుక(nodep); });
+        ఒకవేళ (execGraphps.ఖాళీలు()) తిరిగి;
 
-        openNewOutputSourceFile(EmitCUtil::topClassName() + "__ExecGraph", true, false,
+        open_New_Output_ఆధారం_File(EmitCUtil::శిఖరం_Class_Name() + "__ExecGraph", నిజం, అబద్ధం,
                                 "Exec graphs");
         puts("\n");
         puts("#include \"verilated.h\"\n");
         puts("#include \"verilated_threads.h\"\n");
-        for (AstExecGraph* const nodep : execGraphps) emitGraph(nodep);
+        కొరకు (Ast_Exec_లేఖాచిత్రం* స్థిరరాశి nodep : execGraphps) emit_లేఖాచిత్రం(nodep);
         closeOutputFile();
     }
 };
@@ -126,7 +126,7 @@ public:
 //######################################################################
 // EmitC static functions
 
-void V3EmitC::emitcExecGraph() {
+శూన్య V3EmitC::emitc_Exec_లేఖాచిత్రం() {
     UINFO(2, __FUNCTION__ << ":");
-    EmitCExecGraph{v3Global.rootp()};
+    Emit_CExec_లేఖాచిత్రం{v3Global.rootp()};
 }

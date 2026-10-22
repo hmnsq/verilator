@@ -22,244 +22,244 @@
 //
 //*************************************************************************
 
-#include "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
+#అన్తర్భావ "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
 
-#include "V3Udp.h"
+#అన్తర్భావ "V3Udp.h"
 
-#include "V3Error.h"
+#అన్తర్భావ "V3Error.h"
 
-#include <vector>
+#అన్తర్భావ <vector>
 
 VL_DEFINE_DEBUG_FUNCTIONS;
 
-class UdpVisitor final : public VNVisitor {
-    bool m_inInitial = false;  // Is inside of an initial block
-    AstVar* m_oFieldVarp = nullptr;  // Output filed var of table line
-    std::vector<AstVar*> m_inputVars;  // All the input vars in the AstPrimitive
-    std::vector<AstVar*> m_outputVars;  // All the output vars in the AstPrimitive
-    AstPrimitive* m_primp = nullptr;  // The current primitive
-    bool m_isFirstOutput = false;  // Whether the first IO port is output
-    AstVarRef* m_outputInitVerfp = nullptr;  // Initial output value for sequential UDP
-    AstAlways* m_alwaysBlockp = nullptr;  // Main Always block in UDP transform
+తరగతి UdpVisitor final : బహిరంగ VNVisitor {
+    తార్కిక m_లోపల_Initial = అబద్ధం;  // Is inside of an initial block
+    AstVar* m_o_క్షేత్రం_Varp = శూన్యసూచిక;  // Output filed var of table line
+    std::సదిశ<AstVar*> m_ఆదానం_Vars;  // All the input vars in the AstPrimitive
+    std::సదిశ<AstVar*> m_outputVars;  // All the output vars in the AstPrimitive
+    AstPrimitive* m_primp = శూన్యసూచిక;  // The current primitive
+    తార్కిక m_is_మొదటి_Output = అబద్ధం;  // Whether the first IO port is output
+    AstVarRef* m_outputInitVerfp = శూన్యసూచిక;  // Initial output value for sequential UDP
+    AstAlways* m_alwaysBlockp = శూన్యసూచిక;  // Main Always block in UDP transform
 
-    void visit(AstInitial* nodep) override {
-        VL_RESTORER(m_inInitial);
-        if (m_primp) m_inInitial = true;
+    శూన్య సందర్శించు(AstInitial* nodep) override {
+        VL_RESTORER(m_లోపల_Initial);
+        ఒకవేళ (m_primp) m_లోపల_Initial = నిజం;
         iterateChildren(nodep);
     }
-    void visit(AstAssign* nodep) override {
-        if (m_inInitial) { m_outputInitVerfp = VN_CAST(nodep->lhsp(), VarRef); }
+    శూన్య సందర్శించు(Ast_కేటాయించు* nodep) override {
+        ఒకవేళ (m_లోపల_Initial) { m_outputInitVerfp = VN_CAST(nodep->lhsp(), VarRef); }
         iterateChildren(nodep);
     }
-    void visit(AstPrimitive* nodep) override {
+    శూన్య సందర్శించు(AstPrimitive* nodep) override {
         UASSERT_OBJ(!m_primp, nodep, "Primitives cannot nest");
         VL_RESTORER(m_primp);
         VL_RESTORER(m_outputInitVerfp);
-        VL_RESTORER(m_isFirstOutput);
-        VL_RESTORER_CLEAR(m_inputVars);
+        VL_RESTORER(m_is_మొదటి_Output);
+        VL_RESTORER_CLEAR(m_ఆదానం_Vars);
         VL_RESTORER_CLEAR(m_outputVars);
-        m_outputInitVerfp = nullptr;
+        m_outputInitVerfp = శూన్యసూచిక;
         m_primp = nodep;
-        m_isFirstOutput = false;
+        m_is_మొదటి_Output = అబద్ధం;
         iterateChildren(nodep);
     }
-    void visit(AstVar* nodep) override {
+    శూన్య సందర్శించు(AstVar* nodep) override {
         // Push the input and output vars for primitive.
-        if (m_primp) {
-            if (nodep->isIO()) {
-                if (nodep->isInput()) {
-                    m_inputVars.push_back(nodep);
-                } else {
-                    m_outputVars.push_back(nodep);
+        ఒకవేళ (m_primp) {
+            ఒకవేళ (nodep->isIO()) {
+                ఒకవేళ (nodep->is_ఆదానం()) {
+                    m_ఆదానం_Vars.నెట్టు_వెనుక(nodep);
+                } లేకపోతే {
+                    m_outputVars.నెట్టు_వెనుక(nodep);
                 }
-                if ((m_inputVars.size() == 0) && (m_outputVars.size() == 1)) {
-                    m_isFirstOutput = true;
+                ఒకవేళ ((m_ఆదానం_Vars.కొలత() == 0) && (m_outputVars.కొలత() == 1)) {
+                    m_is_మొదటి_Output = నిజం;
                 }
             }
         }
         iterateChildren(nodep);
     }
-    void visit(AstUdpTable* nodep) override {
-        FileLine* const fl = nodep->fileline();
-        if (m_outputVars.size() != 1) {
-            m_outputVars.back()->v3error(
-                m_outputVars.size()
+    శూన్య సందర్శించు(Ast_Udp_పట్టిక* nodep) override {
+        File_పంక్తి* స్థిరరాశి fl = nodep->fileline();
+        ఒకవేళ (m_outputVars.కొలత() != 1) {
+            m_outputVars.వెనుక()->v3error(
+                m_outputVars.కొలత()
                 << " output ports for UDP table, there must be one output port");
         }
-        if (!m_isFirstOutput && m_outputVars.size()) {
-            m_inputVars[0]->v3error("First UDP port must be the output port");
+        ఒకవేళ (!m_is_మొదటి_Output && m_outputVars.కొలత()) {
+            m_ఆదానం_Vars[0]->v3error("First UDP port must be the output port");
         }
-        m_oFieldVarp = m_outputVars[0];
+        m_o_క్షేత్రం_Varp = m_outputVars[0];
 
-        m_alwaysBlockp = new AstAlways{fl, VAlwaysKwd::ALWAYS, nullptr, nullptr};
-        fl->warnOff(V3ErrorCode::LATCH, true);
+        m_alwaysBlockp = కొత్త AstAlways{fl, VAlwaysKwd::ALWAYS, శూన్యసూచిక, శూన్యసూచిక};
+        fl->warnOff(V3_Error_సంకేతం::LATCH, నిజం);
         iterateChildren(nodep);
 
         nodep->replaceWith(m_alwaysBlockp);
-        VL_DO_DANGLING(pushDeletep(nodep), nodep);
+        VL_DO_DANGLING(నెట్టు_Deletep(nodep), nodep);
     }
-    void visit(AstUdpTableLine* nodep) override {
-        FileLine* const fl = nodep->fileline();
-        if (!nodep->udpIsCombo() && !m_oFieldVarp->isBitLogic()) {
-            m_oFieldVarp->v3error("For sequential UDP, the output must be of 'reg' data type");
+    శూన్య సందర్శించు(Ast_Udp_పట్టిక_పంక్తి* nodep) override {
+        File_పంక్తి* స్థిరరాశి fl = nodep->fileline();
+        ఒకవేళ (!nodep->udpIsCombo() && !m_o_క్షేత్రం_Varp->is_బిట్టు_Logic()) {
+            m_o_క్షేత్రం_Varp->v3error("For sequential UDP, the output must be of 'reg' data type");
         }
-        if (nodep->udpIsCombo() && m_oFieldVarp->isBitLogic()) {
-            m_oFieldVarp->v3error(
+        ఒకవేళ (nodep->udpIsCombo() && m_o_క్షేత్రం_Varp->is_బిట్టు_Logic()) {
+            m_o_క్షేత్రం_Varp->v3error(
                 "For combinational UDP, the output must not be a 'reg' data type");
         }
-        AstNode* iNodep = nodep->iFieldsp();
-        AstNode* oNodep = nodep->oFieldsp();
-        AstSenTree* edgetrigp = nullptr;
+        Ast_కణుపు* iNodep = nodep->iFieldsp();
+        Ast_కణుపు* oNodep = nodep->oFieldsp();
+        Ast_Sen_వృక్షం* edgetrigp = శూన్యసూచిక;
 
-        AstLogAnd* logandp = new AstLogAnd{fl, new AstConst{fl, AstConst::BitTrue{}},
-                                           new AstConst{fl, AstConst::BitTrue{}}};
+        AstLogAnd* logandp = కొత్త AstLogAnd{fl, కొత్త AstConst{fl, AstConst::బిట్టు_True{}},
+                                           కొత్త AstConst{fl, AstConst::బిట్టు_True{}}};
 
-        for (AstVar* const varp : m_inputVars) {
-            if (!iNodep) break;
-            if (AstUdpTableLineVal* linevalp = VN_CAST(iNodep, UdpTableLineVal)) {
+        కొరకు (AstVar* స్థిరరాశి varp : m_ఆదానం_Vars) {
+            ఒకవేళ (!iNodep) ఆపు;
+            ఒకవేళ (Ast_Udp_పట్టిక_పంక్తి_Val* linevalp = VN_CAST(iNodep, Udp_పట్టిక_పంక్తి_Val)) {
                 string valName = linevalp->name();
-                if (isEdgeTrig(valName)) {
-                    if (nodep->udpIsCombo()) {
+                ఒకవేళ (is_అంచు_Trig(valName)) {
+                    ఒకవేళ (nodep->udpIsCombo()) {
                         linevalp->v3error(
                             "There should not be a edge trigger for combinational UDP table line");
                     }
-                    if (edgetrigp) {
+                    ఒకవేళ (edgetrigp) {
                         linevalp->v3error("There can be only one edge trigger signal");
-                        VL_DO_DANGLING(pushDeletep(edgetrigp), edgetrigp);
+                        VL_DO_DANGLING(నెట్టు_Deletep(edgetrigp), edgetrigp);
                     }
-                    edgetrigp = new AstSenTree{
-                        fl, new AstSenItem{fl, VEdgeType::ET_BOTHEDGE,
-                                           new AstVarRef{fl, varp, VAccess::READ}}};
+                    edgetrigp = కొత్త Ast_Sen_వృక్షం{
+                        fl, కొత్త Ast_Sen_అంశం{fl, VEdgeType::ET_BOTHEDGE,
+                                           కొత్త AstVarRef{fl, varp, VAccess::READ}}};
                 }
-                if (valName == "0" || valName == "f") {
-                    logandp = new AstLogAnd{
-                        fl, logandp, new AstLogNot{fl, new AstVarRef{fl, varp, VAccess::READ}}};
-                } else if (valName == "1" || valName == "r") {
-                    logandp = new AstLogAnd{fl, logandp, new AstVarRef{fl, varp, VAccess::READ}};
-                } else if (valName == "x" || valName == "X") {
+                ఒకవేళ (valName == "0" || valName == "f") {
+                    logandp = కొత్త AstLogAnd{
+                        fl, logandp, కొత్త AstLogNot{fl, కొత్త AstVarRef{fl, varp, VAccess::READ}}};
+                } లేకపోతే ఒకవేళ (valName == "1" || valName == "r") {
+                    logandp = కొత్త AstLogAnd{fl, logandp, కొత్త AstVarRef{fl, varp, VAccess::READ}};
+                } లేకపోతే ఒకవేళ (valName == "x" || valName == "X") {
                     // No x inputs supported yet, so this whole table line
                     // can never match. Drop the whole thing.
-                    if (edgetrigp) VL_DO_DANGLING(pushDeletep(edgetrigp), edgetrigp);
-                    if (logandp) VL_DO_DANGLING(pushDeletep(logandp), logandp);
-                    return;
+                    ఒకవేళ (edgetrigp) VL_DO_DANGLING(నెట్టు_Deletep(edgetrigp), edgetrigp);
+                    ఒకవేళ (logandp) VL_DO_DANGLING(నెట్టు_Deletep(logandp), logandp);
+                    తిరిగి;
                 }
             }
             iNodep = iNodep->nextp();
         }
 
         uint32_t inputvars = 0;
-        for (const AstNode* icountp = nodep->iFieldsp(); icountp; icountp = icountp->nextp())
+        కొరకు (స్థిరరాశి Ast_కణుపు* icountp = nodep->iFieldsp(); icountp; icountp = icountp->nextp())
             ++inputvars;
-        if (inputvars != m_inputVars.size()) {
-            nodep->v3error("Incorrect number of input values, expected " << m_inputVars.size()
+        ఒకవేళ (inputvars != m_ఆదానం_Vars.కొలత()) {
+            nodep->v3error("Incorrect number of input values, expected " << m_ఆదానం_Vars.కొలత()
                                                                          << ", got " << inputvars);
         }
 
-        string const oValName = nodep->udpIsCombo() ? oNodep->name() : oNodep->nextp()->name();
-        if (oValName == "-") {
-            if (edgetrigp) VL_DO_DANGLING(pushDeletep(edgetrigp), edgetrigp);
-            if (logandp) VL_DO_DANGLING(pushDeletep(logandp), logandp);
-            return;
+        string స్థిరరాశి oValName = nodep->udpIsCombo() ? oNodep->name() : oNodep->nextp()->name();
+        ఒకవేళ (oValName == "-") {
+            ఒకవేళ (edgetrigp) VL_DO_DANGLING(నెట్టు_Deletep(edgetrigp), edgetrigp);
+            ఒకవేళ (logandp) VL_DO_DANGLING(నెట్టు_Deletep(logandp), logandp);
+            తిరిగి;
         }
 
-        if (!nodep->udpIsCombo()) {
-            if (oNodep->name() == "0") {
-                logandp = new AstLogAnd{
+        ఒకవేళ (!nodep->udpIsCombo()) {
+            ఒకవేళ (oNodep->name() == "0") {
+                logandp = కొత్త AstLogAnd{
                     fl, logandp,
-                    new AstLogNot{fl, new AstVarRef{fl, m_oFieldVarp, VAccess::READ}}};
-            } else if (oNodep->name() == "1") {
+                    కొత్త AstLogNot{fl, కొత్త AstVarRef{fl, m_o_క్షేత్రం_Varp, VAccess::READ}}};
+            } లేకపోతే ఒకవేళ (oNodep->name() == "1") {
                 logandp
-                    = new AstLogAnd{fl, logandp, new AstVarRef{fl, m_oFieldVarp, VAccess::READ}};
-            } else if (oNodep->name() == "x" || oNodep->name() == "X") {
+                    = కొత్త AstLogAnd{fl, logandp, కొత్త AstVarRef{fl, m_o_క్షేత్రం_Varp, VAccess::READ}};
+            } లేకపోతే ఒకవేళ (oNodep->name() == "x" || oNodep->name() == "X") {
                 // No x inputs supported yet, so this whole table line
                 // can never match. Drop the whole thing.
-                if (edgetrigp) VL_DO_DANGLING(pushDeletep(edgetrigp), edgetrigp);
-                if (logandp) VL_DO_DANGLING(pushDeletep(logandp), logandp);
-                return;
+                ఒకవేళ (edgetrigp) VL_DO_DANGLING(నెట్టు_Deletep(edgetrigp), edgetrigp);
+                ఒకవేళ (logandp) VL_DO_DANGLING(నెట్టు_Deletep(logandp), logandp);
+                తిరిగి;
             }
         }
 
-        fl->warnOff(V3ErrorCode::LATCH, true);
+        fl->warnOff(V3_Error_సంకేతం::LATCH, నిజం);
         // Edge-triggered lines are clocked logic, so update like a flop:
         // other clocked logic reading the output sees the pre-edge value, regardless of ordering
-        AstNodeStmt* const assignp
-            = newOutputAssign(fl, getOutputNum(nodep, oValName), edgetrigp != nullptr);
-        AstIf* const ifp = new AstIf{fl, logandp, assignp};
-        if (nodep->udpIsCombo()) {
-            if (!isCombOutputSig(oValName)) {
+        Ast_కణుపు_Stmt* స్థిరరాశి assignp
+            = new_Output_కేటాయించు(fl, get_Output_అంకె(nodep, oValName), edgetrigp != శూన్యసూచిక);
+        AstIf* స్థిరరాశి ifp = కొత్త AstIf{fl, logandp, assignp};
+        ఒకవేళ (nodep->udpIsCombo()) {
+            ఒకవేళ (!isCombOutputSig(oValName)) {
                 oNodep->v3error("Illegal value for combinational UDP line output");
             }
-            m_alwaysBlockp->addStmtsp(ifp);
-            if (edgetrigp) VL_DO_DANGLING(pushDeletep(edgetrigp), edgetrigp);
-            return;
+            m_alwaysBlockp->కూడు_Stmtsp(ifp);
+            ఒకవేళ (edgetrigp) VL_DO_DANGLING(నెట్టు_Deletep(edgetrigp), edgetrigp);
+            తిరిగి;
         }
-        if (!isSequentOutputSig(oValName)) {
+        ఒకవేళ (!isSequentOutputSig(oValName)) {
             oNodep->nextp()->v3error("Illegal value for sequential UDP line output");
         }
-        m_alwaysBlockp->addNext(new AstAlways{fl, VAlwaysKwd::ALWAYS, edgetrigp, ifp});
+        m_alwaysBlockp->కూడు_తదుపరి(కొత్త AstAlways{fl, VAlwaysKwd::ALWAYS, edgetrigp, ifp});
     }
-    void visit(AstNode* nodep) override { iterateChildren(nodep); }
-    void visit(AstLogAnd* nodep) override { iterateChildren(nodep); }
-    void visit(AstLogNot* nodep) override { iterateChildren(nodep); }
+    శూన్య సందర్శించు(Ast_కణుపు* nodep) override { iterateChildren(nodep); }
+    శూన్య సందర్శించు(AstLogAnd* nodep) override { iterateChildren(nodep); }
+    శూన్య సందర్శించు(AstLogNot* nodep) override { iterateChildren(nodep); }
     // For logic processing.
-    static bool isEdgeTrig(std::string& valName) {
-        if (valName == "x" || valName == "X") return false;
-        if (valName == "*") return true;
-        if (valName == "01" || valName == "p" || valName == "P" || valName == "r"
+    స్థిర తార్కిక is_అంచు_Trig(std::string& valName) {
+        ఒకవేళ (valName == "x" || valName == "X") తిరిగి అబద్ధం;
+        ఒకవేళ (valName == "*") తిరిగి నిజం;
+        ఒకవేళ (valName == "01" || valName == "p" || valName == "P" || valName == "r"
             || valName == "R") {
             valName = "r";
-            return true;
+            తిరిగి నిజం;
         }
-        if (valName == "10" || valName == "n" || valName == "N" || valName == "f"
+        ఒకవేళ (valName == "10" || valName == "n" || valName == "N" || valName == "f"
             || valName == "F") {
             valName = "f";
-            return true;
+            తిరిగి నిజం;
         }
-        if (valName.size() == 2) {
-            if (valName[0] == 'x' || valName[0] == 'X' || valName[1] == 'x' || valName[1] == 'X')
+        ఒకవేళ (valName.కొలత() == 2) {
+            ఒకవేళ (valName[0] == 'x' || valName[0] == 'X' || valName[1] == 'x' || valName[1] == 'X')
                 valName = "x";
-            else if (valName[0] == '1' || valName[1] == '0')
+            లేకపోతే ఒకవేళ (valName[0] == '1' || valName[1] == '0')
                 valName = "f";
-            else if (valName[0] == '0' || valName[1] == '1')
+            లేకపోతే ఒకవేళ (valName[0] == '0' || valName[1] == '1')
                 valName = "r";
-            return true;
+            తిరిగి నిజం;
         }
-        if (valName[0] != '0' && valName[0] != '1') { valName = "?"; }
-        return false;
+        ఒకవేళ (valName[0] != '0' && valName[0] != '1') { valName = "?"; }
+        తిరిగి అబద్ధం;
     }
-    static bool isCombOutputSig(const std::string& valName) {
-        return (valName == "0" || valName == "1" || valName == "x" || valName == "X");
+    స్థిర తార్కిక isCombOutputSig(స్థిరరాశి std::string& valName) {
+        తిరిగి (valName == "0" || valName == "1" || valName == "x" || valName == "X");
     }
-    static bool isSequentOutputSig(const std::string& valName) {
-        return (valName == "0" || valName == "1" || valName == "x" || valName == "X"
+    స్థిర తార్కిక isSequentOutputSig(స్థిరరాశి std::string& valName) {
+        తిరిగి (valName == "0" || valName == "1" || valName == "x" || valName == "X"
                 || valName == "-");
     }
-    AstNodeStmt* newOutputAssign(FileLine* fl, const V3Number& outNum, bool isDelayed) const {
-        AstVarRef* const lhsp = new AstVarRef{fl, m_oFieldVarp, VAccess::WRITE};
-        AstConst* const rhsp = new AstConst{fl, outNum};
-        if (isDelayed) return new AstAssignDly{fl, lhsp, rhsp};
-        return new AstAssign{fl, lhsp, rhsp};
+    Ast_కణుపు_Stmt* new_Output_కేటాయించు(File_పంక్తి* fl, స్థిరరాశి V3_సంఖ్య& బహిర్గతం_అంకె, తార్కిక isDelayed) స్థిరరాశి {
+        AstVarRef* స్థిరరాశి lhsp = కొత్త AstVarRef{fl, m_o_క్షేత్రం_Varp, VAccess::WRITE};
+        AstConst* స్థిరరాశి rhsp = కొత్త AstConst{fl, బహిర్గతం_అంకె};
+        ఒకవేళ (isDelayed) తిరిగి కొత్త Ast_కేటాయించు_Dly{fl, lhsp, rhsp};
+        తిరిగి కొత్త Ast_కేటాయించు{fl, lhsp, rhsp};
     }
-    static V3Number getOutputNum(AstNode* nodep, const std::string& fieldNames) {
-        V3Number outputNum{nodep, 1};
-        if (fieldNames == "0") {
-            outputNum.setBit(0, 0);
-        } else if (fieldNames == "1") {
-            outputNum.setBit(0, 1);
-        } else {
-            outputNum.setBit(0, 'x');
+    స్థిర V3_సంఖ్య get_Output_అంకె(Ast_కణుపు* nodep, స్థిరరాశి std::string& క్షేత్రం_పేర్లు) {
+        V3_సంఖ్య output_అంకె{nodep, 1};
+        ఒకవేళ (క్షేత్రం_పేర్లు == "0") {
+            output_అంకె.సమితి_బిట్టు(0, 0);
+        } లేకపోతే ఒకవేళ (క్షేత్రం_పేర్లు == "1") {
+            output_అంకె.సమితి_బిట్టు(0, 1);
+        } లేకపోతే {
+            output_అంకె.సమితి_బిట్టు(0, 'x');
         }
-        return outputNum;
+        తిరిగి output_అంకె;
     }
 
-public:
+బహిరంగ:
     // CONSTRUCTORS
-    explicit UdpVisitor(AstNetlist* nodep) { iterate(nodep); }
-    ~UdpVisitor() override = default;
+    స్పష్టమైన UdpVisitor(AstNetlist* nodep) { iterate(nodep); }
+    ~UdpVisitor() override = అప్రమేయ;
 };
 
-void V3Udp::udpResolve(AstNetlist* rootp) {
+శూన్య V3Udp::udpResolve(AstNetlist* rootp) {
     UINFO(4, __FUNCTION__ << ": ");
-    { const UdpVisitor visitor{rootp}; }  // Destruct before checking
-    V3Global::dumpCheckGlobalTree("udp", 0, dumpTreeEitherLevel() >= 3);
+    { స్థిరరాశి UdpVisitor visitor{rootp}; }  // Destruct before checking
+    V3Global::dump_Check_Global_వృక్షం("udp", 0, dump_వృక్షం_Either_Level() >= 3);
 }

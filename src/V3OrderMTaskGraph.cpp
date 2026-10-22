@@ -14,160 +14,160 @@
 //
 //*************************************************************************
 
-#include "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
+#అన్తర్భావ "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
 
-#include "V3OrderMTaskGraph.h"
+#అన్తర్భావ "V3OrderMTaskGraph.h"
 
-#include "V3Global.h"
-#include "V3InstrCount.h"
+#అన్తర్భావ "V3Global.h"
+#అన్తర్భావ "V3InstrCount.h"
 
-#include <algorithm>
-#include <memory>
-#include <unordered_set>
+#అన్తర్భావ <algorithm>
+#అన్తర్భావ <memory>
+#అన్తర్భావ <unordered_set>
 
 VL_DEFINE_DEBUG_FUNCTIONS;
 
 //######################################################################
 // LogicMTask
 
-uint32_t LogicMTask::s_nextId = 1;  // Start at 1, for historic reasons
+uint32_t LogicMTask::s_తదుపరి_Id = 1;  // Start at 1, for historic reasons
 
-LogicMTask::LogicMTask(OrderMTaskGraph& graph, OrderMoveVertex* mVtxp)
-    : V3GraphVertex{&graph} {
-    UASSERT(s_nextId < 0xFFFFFFFFUL, "Too many LogicMTask instances");
-    if (!mVtxp) return;
-    m_mVertices.linkBack(mVtxp);
-    if (const OrderLogicVertex* const olvp = mVtxp->logicp()) {
-        m_cost += V3InstrCount::count(olvp->nodep(), true);
+LogicMTask::LogicMTask(క్రమం_MTask_లేఖాచిత్రం& లేఖాచిత్రం, క్రమం_Move_శీర్షం* mVtxp)
+    : V3_లేఖాచిత్రం_శీర్షం{&లేఖాచిత్రం} {
+    UASSERT(s_తదుపరి_Id < 0xFFFFFFFFUL, "Too many LogicMTask instances");
+    ఒకవేళ (!mVtxp) తిరిగి;
+    m_mVertices.link_వెనుక(mVtxp);
+    ఒకవేళ (స్థిరరాశి క్రమం_Logic_శీర్షం* స్థిరరాశి olvp = mVtxp->logicp()) {
+        m_ఖర్చు += V3_Instr_లెక్క::లెక్క(olvp->nodep(), నిజం);
     }
 }
 
 //######################################################################
 // OrderMTaskGraph
 
-OrderMTaskGraph::OrderMTaskGraph(OrderMoveGraph& moveGraph)
-    : m_moveGraph{moveGraph}
-    , m_entryp{new LogicMTask{*this, nullptr}}
-    , m_exitp{new LogicMTask{*this, nullptr}}
-    , m_slowAsserts{v3Global.opt.debugPartition()} {}
+క్రమం_MTask_లేఖాచిత్రం::క్రమం_MTask_లేఖాచిత్రం(క్రమం_Move_లేఖాచిత్రం& move_లేఖాచిత్రం)
+    : m_move_లేఖాచిత్రం{move_లేఖాచిత్రం}
+    , m_entryp{కొత్త LogicMTask{*ఇది, శూన్యసూచిక}}
+    , m_exitp{కొత్త LogicMTask{*ఇది, శూన్యసూచిక}}
+    , m_slowAsserts{v3Global.opt.debug_విభజన()} {}
 
-bool OrderMTaskGraph::pathExistsImpl(LogicMTask* fromp, LogicMTask* top,
-                                     const MTaskEdge* excludedEdgep) {
+తార్కిక క్రమం_MTask_లేఖాచిత్రం::మార్గం_Exists_Impl(LogicMTask* fromp, LogicMTask* శిఖరం,
+                                     స్థిరరాశి MTask_అంచు* excludedEdgep) {
     UDEBUGONLY(UASSERT_OBJ(fromp->m_generation != m_currentGeneration, fromp,
                            "Should not visit an MTask twice in the same search"););
     // Mark visited.
     fromp->m_generation = m_currentGeneration;
 
     // Base case: we found a path.
-    if (fromp == top) return true;
+    ఒకవేళ (fromp == శిఖరం) తిరిగి నిజం;
 
     // Base case: fromp is too late, cannot possibly be a prereq for top.
-    if (fromp->cpExclusive<GraphWay::REVERSE>() < top->cpInclusive<GraphWay::REVERSE>()) {
-        return false;
+    ఒకవేళ (fromp->cpExclusive<లేఖాచిత్రం_Way::తిరగేయి_2>() < శిఖరం->cpInclusive<లేఖాచిత్రం_Way::తిరగేయి_2>()) {
+        తిరిగి అబద్ధం;
     }
-    if (fromp->cpInclusive<GraphWay::FORWARD>() > top->cpExclusive<GraphWay::FORWARD>()) {
-        return false;
+    ఒకవేళ (fromp->cpInclusive<లేఖాచిత్రం_Way::FORWARD>() > శిఖరం->cpExclusive<లేఖాచిత్రం_Way::FORWARD>()) {
+        తిరిగి అబద్ధం;
     }
 
     // Recursively look for a path
-    for (const V3GraphEdge& follow : fromp->outEdges()) {
-        if (&follow == excludedEdgep) continue;
-        LogicMTask* const nextp = static_cast<LogicMTask*>(follow.top());
+    కొరకు (స్థిరరాశి V3_లేఖాచిత్రం_అంచు& follow : fromp->బహిర్గతం_అంచులు()) {
+        ఒకవేళ (&follow == excludedEdgep) కొనసాగు;
+        LogicMTask* స్థిరరాశి nextp = static_cast<LogicMTask*>(follow.శిఖరం());
         // Don't visit the same MTask twice in the same search.
-        if (nextp->m_generation == m_currentGeneration) continue;
-        if (pathExistsImpl(nextp, top, nullptr)) return true;
+        ఒకవేళ (nextp->m_generation == m_currentGeneration) కొనసాగు;
+        ఒకవేళ (మార్గం_Exists_Impl(nextp, శిఖరం, శూన్యసూచిక)) తిరిగి నిజం;
     }
-    return false;
+    తిరిగి అబద్ధం;
 }
 
-template <GraphWay::en N_Way>
-void OrderMTaskGraph::propagatePush(LogicMTask* mtaskp) {
-    constexpr GraphWay way{N_Way};
-    constexpr GraphWay inv{way.invert()};
-    const uint64_t inclusiveCp = mtaskp->cpInclusive<way>();
+మూస <లేఖాచిత్రం_Way::en N_Way>
+శూన్య క్రమం_MTask_లేఖాచిత్రం::propagate_నెట్టు(LogicMTask* mtaskp) {
+    constexpr లేఖాచిత్రం_Way way{N_Way};
+    constexpr లేఖాచిత్రం_Way inv{way.invert()};
+    స్థిరరాశి uint64_t inclusiveCp = mtaskp->cpInclusive<way>();
 
-    for (V3GraphEdge& graphEdge : mtaskp->edges<way>()) {
-        MTaskEdge& edge = static_cast<MTaskEdge&>(graphEdge);
+    కొరకు (V3_లేఖాచిత్రం_అంచు& లేఖాచిత్రం_అంచు : mtaskp->అంచులు<way>()) {
+        MTask_అంచు& అంచు = static_cast<MTask_అంచు&>(లేఖాచిత్రం_అంచు);
 
-        LogicMTask* const relativep = edge.furtherMTaskp<N_Way>();
-        EdgeHeap::Node& edgeHeapNode = edge.m_edgeHeapNode[inv];
-        if (inclusiveCp > edgeHeapNode.key().m_cp) {
-            relativep->m_edgeHeap[inv].increaseKey(&edgeHeapNode, inclusiveCp);
+        LogicMTask* స్థిరరాశి relativep = అంచు.furtherMTaskp<N_Way>();
+        అంచు_కుప్ప::కణుపు_2& అంచు_కుప్ప_కణుపు = అంచు.m_అంచు_కుప్ప_కణుపు[inv];
+        ఒకవేళ (inclusiveCp > అంచు_కుప్ప_కణుపు.కీలకం().m_cp) {
+            relativep->m_అంచు_కుప్ప[inv].increase_కీలకం(&అంచు_కుప్ప_కణుపు, inclusiveCp);
         }
 
-        const uint64_t relativeCp = relativep->cpExclusive<way>();
+        స్థిరరాశి uint64_t relativeCp = relativep->cpExclusive<way>();
 
-        if (relativeCp >= inclusiveCp) continue;
+        ఒకవేళ (relativeCp >= inclusiveCp) కొనసాగు;
 
         // relativep's critical path is out of step with its longest !wayward edge.
         // Schedule that to be resolved.
-        const uint64_t increment = inclusiveCp - relativeCp;
+        స్థిరరాశి uint64_t increment = inclusiveCp - relativeCp;
 
-        PropagatePendingHeap::Node*& pendingNodepRef = relativep->m_propagateHeapNodep;
-        if (PropagatePendingHeap::Node* const nodep = pendingNodepRef) {
+        Propagate_Pending_కుప్ప::కణుపు_2*& pendingNodepRef = relativep->m_propagate_కుప్ప_Nodep;
+        ఒకవేళ (Propagate_Pending_కుప్ప::కణుపు_2* స్థిరరాశి nodep = pendingNodepRef) {
             // Already in heap. Increase the increment if needed.
-            if (increment > nodep->key().m_increment) {
-                m_pendingHeap.increaseKey(nodep, increment);
+            ఒకవేళ (increment > nodep->కీలకం().m_increment) {
+                m_pending_కుప్ప.increase_కీలకం(nodep, increment);
             }
-            continue;
+            కొనసాగు;
         }
 
         // Add to heap
-        PropagatePendingHeap::Node* const nodep = m_pendingNodePool.alloc();
+        Propagate_Pending_కుప్ప::కణుపు_2* స్థిరరాశి nodep = m_pending_కణుపు_Pool.alloc();
         pendingNodepRef = nodep;
-        m_pendingHeap.insert(nodep, {increment, relativep->id(), relativep});
+        m_pending_కుప్ప.చొప్పించు(nodep, {increment, relativep->id(), relativep});
     }
 }
 
-template <GraphWay::en N_Way>
-void OrderMTaskGraph::propagateResolve() {
-    constexpr GraphWay way{N_Way};
-    constexpr GraphWay inv{way.invert()};
+మూస <లేఖాచిత్రం_Way::en N_Way>
+శూన్య క్రమం_MTask_లేఖాచిత్రం::propagateResolve() {
+    constexpr లేఖాచిత్రం_Way way{N_Way};
+    constexpr లేఖాచిత్రం_Way inv{way.invert()};
 
     // Each pending MTask is keyed on how much its critical path will grow by. Resolving them in
     // decreasing order of that growth means each MTask needs resolving only once: the growth of a
     // wayward MTask is never larger than the growth of the MTask it was pushed from, so once an
     // MTask has been resolved, no larger growth can be pushed onto it later.
-    while (!m_pendingHeap.empty()) {
+    అయితే (!m_pending_కుప్ప.ఖాళీలు()) {
         // Pop max element from heap
-        PropagatePendingHeap::Node* const maxp = m_pendingHeap.max();
-        m_pendingHeap.remove(maxp);
+        Propagate_Pending_కుప్ప::కణుపు_2* స్థిరరాశి maxp = m_pending_కుప్ప.max();
+        m_pending_కుప్ప.remove(maxp);
         // Pick up values
-        LogicMTask* const mtaskp = maxp->key().m_mtaskp;
-        const uint64_t cpGrowBy = maxp->key().m_increment;
+        LogicMTask* స్థిరరాశి mtaskp = maxp->కీలకం().m_mtaskp;
+        స్థిరరాశి uint64_t cpGrowBy = maxp->కీలకం().m_increment;
         // Confirm that we only set each node's CP once. That's an important property of this
         // algorithm, which allows it to be far faster than a recursive one.
         UASSERT_OBJ(mtaskp->m_generation != m_currentGeneration, mtaskp, "Set CP on node twice");
         mtaskp->m_generation = m_currentGeneration;
         // Free the heap node, we are done with it
-        m_pendingNodePool.free(maxp);
-        mtaskp->m_propagateHeapNodep = nullptr;
+        m_pending_కణుపు_Pool.విడుదల(maxp);
+        mtaskp->m_propagate_కుప్ప_Nodep = శూన్యసూచిక;
         // Update the critical path of mtaskp, that was out-of-date with respect to its edges
         uint64_t& cpRef = mtaskp->m_cpExclusive[way];
-        const uint64_t newCp = cpRef + cpGrowBy;
+        స్థిరరాశి uint64_t newCp = cpRef + cpGrowBy;
         // Check that CP matches that of the longest edge wayward of mtaskp.
-        if (VL_UNLIKELY(m_slowAsserts)) {
-            const uint64_t edgeCp = mtaskp->m_edgeHeap[inv].max()->key().m_cp;
-            UASSERT_OBJ(edgeCp == newCp, mtaskp, "CP doesn't match longest wayward edge");
+        ఒకవేళ (VL_UNLIKELY(m_slowAsserts)) {
+            స్థిరరాశి uint64_t అంచు_Cp = mtaskp->m_అంచు_కుప్ప[inv].max()->కీలకం().m_cp;
+            UASSERT_OBJ(అంచు_Cp == newCp, mtaskp, "CP doesn't match longest wayward edge");
         }
         cpRef = newCp;
-        propagatePush<N_Way>(mtaskp);
+        propagate_నెట్టు<N_Way>(mtaskp);
     }
 }
 
-uint64_t OrderMTaskGraph::totalCost() const {
-    uint64_t cost = 0;
-    for (const V3GraphVertex& vtx : vertices()) cost += static_cast<const LogicMTask&>(vtx).cost();
-    return cost;
+uint64_t క్రమం_MTask_లేఖాచిత్రం::మొత్తం_ఖర్చు() స్థిరరాశి {
+    uint64_t ఖర్చు = 0;
+    కొరకు (స్థిరరాశి V3_లేఖాచిత్రం_శీర్షం& vtx : vertices()) ఖర్చు += static_cast<స్థిరరాశి LogicMTask&>(vtx).ఖర్చు();
+    తిరిగి ఖర్చు;
 }
 
-void OrderMTaskGraph::addEdge(LogicMTask* fromp, LogicMTask* top) {
-    UASSERT_OBJ(fromp != top, fromp, "Should not create self-edges");
-    UDEBUGONLY(UASSERT_OBJ(!fromp->hasEdgeTo(top), fromp, "Should not create redundant edges"););
+శూన్య క్రమం_MTask_లేఖాచిత్రం::కూడు_అంచు(LogicMTask* fromp, LogicMTask* శిఖరం) {
+    UASSERT_OBJ(fromp != శిఖరం, fromp, "Should not create self-edges");
+    UDEBUGONLY(UASSERT_OBJ(!fromp->has_అంచు_గమ్యం(శిఖరం), fromp, "Should not create redundant edges"););
 
     // Create the edge. This inserts it into the edge heap of both endpoints with the correct
     // critical path keys, as the critical paths of the endpoints are still unchanged here.
-    new MTaskEdge{this, fromp, top};
+    కొత్త MTask_అంచు{ఇది, fromp, శిఖరం};
 
     // The path through the new edge might be longer than the current critical path of its
     // endpoints, in which case the critical paths need updating. Note each endpoint is the seed of
@@ -181,15 +181,15 @@ void OrderMTaskGraph::addEdge(LogicMTask* fromp, LogicMTask* top) {
     // edge, so the new relative is the only relative of either seed that can have a stale critical
     // path, and if it does not need updating the propagation does nothing. It would however still
     // walk all edges of the seed to discover that, which is expensive for a high degree seed.
-    if (fromp->cpInclusive<GraphWay::FORWARD>() > top->cpExclusive<GraphWay::FORWARD>()) {
-        propagate<GraphWay::FORWARD>(fromp);
+    ఒకవేళ (fromp->cpInclusive<లేఖాచిత్రం_Way::FORWARD>() > శిఖరం->cpExclusive<లేఖాచిత్రం_Way::FORWARD>()) {
+        propagate<లేఖాచిత్రం_Way::FORWARD>(fromp);
     }
-    if (top->cpInclusive<GraphWay::REVERSE>() > fromp->cpExclusive<GraphWay::REVERSE>()) {
-        propagate<GraphWay::REVERSE>(top);
+    ఒకవేళ (శిఖరం->cpInclusive<లేఖాచిత్రం_Way::తిరగేయి_2>() > fromp->cpExclusive<లేఖాచిత్రం_Way::తిరగేయి_2>()) {
+        propagate<లేఖాచిత్రం_Way::తిరగేయి_2>(శిఖరం);
     }
 }
 
-void OrderMTaskGraph::mergeMTasks(LogicMTask* recipientp, LogicMTask* donorp) {
+శూన్య క్రమం_MTask_లేఖాచిత్రం::విలీనం_MTasks(LogicMTask* recipientp, LogicMTask* donorp) {
     UASSERT_OBJ(recipientp != donorp, recipientp, "Should not merge an MTask with itself");
 
     // Note we redirect the edges before updating the cost and critical paths of the recipient,
@@ -200,81 +200,81 @@ void OrderMTaskGraph::mergeMTasks(LogicMTask* recipientp, LogicMTask* donorp) {
     // either of the two MTasks it is made of, in both directions.
 
     // Process outgoing edges of donor
-    while (MTaskEdge* const edgep = static_cast<MTaskEdge*>(donorp->outEdges().frontp())) {
-        LogicMTask* const relativep = edgep->toMTaskp();
+    అయితే (MTask_అంచు* స్థిరరాశి edgep = static_cast<MTask_అంచు*>(donorp->బహిర్గతం_అంచులు().frontp())) {
+        LogicMTask* స్థిరరాశి relativep = edgep->గమ్యం_MTaskp();
 
-        relativep->removeRelativeEdge<GraphWay::REVERSE>(edgep);
+        relativep->remove_Relative_అంచు<లేఖాచిత్రం_Way::తిరగేయి_2>(edgep);
 
-        if (relativep == recipientp || recipientp->hasEdgeTo(relativep)) {
+        ఒకవేళ (relativep == recipientp || recipientp->has_అంచు_గమ్యం(relativep)) {
             // This is either the edge connecting the two MTasks, which becomes internal to the
             // merged MTask, or is parallel with an existing edge of the recipient. Drop it.
             VL_DO_DANGLING(edgep->unlinkDelete(), edgep);
-        } else {
+        } లేకపోతే {
             // No existing edge between recipient and relative of donor.
             // Redirect the edge from donor -> relative to recipient -> relative.
             edgep->relinkFromp(recipientp);
-            recipientp->addDependent(relativep);
-            recipientp->stealRelativeEdge<GraphWay::FORWARD>(edgep);
-            relativep->addRelativeEdge<GraphWay::REVERSE>(edgep);
+            recipientp->కూడు_Dependent(relativep);
+            recipientp->steal_Relative_అంచు<లేఖాచిత్రం_Way::FORWARD>(edgep);
+            relativep->కూడు_Relative_అంచు<లేఖాచిత్రం_Way::తిరగేయి_2>(edgep);
         }
     }
 
     // Process incoming edges of donor
-    while (MTaskEdge* const edgep = static_cast<MTaskEdge*>(donorp->inEdges().frontp())) {
-        LogicMTask* const relativep = edgep->fromMTaskp();
+    అయితే (MTask_అంచు* స్థిరరాశి edgep = static_cast<MTask_అంచు*>(donorp->లోపల_అంచులు().frontp())) {
+        LogicMTask* స్థిరరాశి relativep = edgep->fromMTaskp();
 
         relativep->removeDependent(donorp);
-        relativep->removeRelativeEdge<GraphWay::FORWARD>(edgep);
+        relativep->remove_Relative_అంచు<లేఖాచిత్రం_Way::FORWARD>(edgep);
 
-        if (relativep == recipientp || relativep->hasEdgeTo(recipientp)) {
+        ఒకవేళ (relativep == recipientp || relativep->has_అంచు_గమ్యం(recipientp)) {
             // This is either the edge connecting the two MTasks, which becomes internal to the
             // merged MTask, or is parallel with an existing edge of the recipient. Drop it.
             VL_DO_DANGLING(edgep->unlinkDelete(), edgep);
-        } else {
+        } లేకపోతే {
             // No existing edge between recipient and relative of donor.
             // Redirect the edge from relative -> donor to relative -> recipient.
-            edgep->relinkTop(recipientp);
-            relativep->addDependent(recipientp);
-            relativep->addRelativeEdge<GraphWay::FORWARD>(edgep);
-            recipientp->stealRelativeEdge<GraphWay::REVERSE>(edgep);
+            edgep->relink_శిఖరం(recipientp);
+            relativep->కూడు_Dependent(recipientp);
+            relativep->కూడు_Relative_అంచు<లేఖాచిత్రం_Way::FORWARD>(edgep);
+            recipientp->steal_Relative_అంచు<లేఖాచిత్రం_Way::తిరగేయి_2>(edgep);
         }
     }
 
     // Move the contents of the donor into the recipient, update its cost
-    recipientp->m_mVertices.splice(recipientp->m_mVertices.end(), donorp->m_mVertices);
-    recipientp->m_cost += donorp->m_cost;
+    recipientp->m_mVertices.splice(recipientp->m_mVertices.చివర(), donorp->m_mVertices);
+    recipientp->m_ఖర్చు += donorp->m_ఖర్చు;
 
     // The recipient now holds all edges of the merged MTask, and the critical paths of all its
     // relatives are still up to date, so the critical paths implied by its edges are the critical
     // paths of the merged MTask.
-    const uint64_t newCpFwd = recipientp->cpExclusiveFromEdges<GraphWay::FORWARD>();
-    const uint64_t newCpRev = recipientp->cpExclusiveFromEdges<GraphWay::REVERSE>();
+    స్థిరరాశి uint64_t newCpFwd = recipientp->cp_Exclusive_From_అంచులు<లేఖాచిత్రం_Way::FORWARD>();
+    స్థిరరాశి uint64_t newCpRev = recipientp->cp_Exclusive_From_అంచులు<లేఖాచిత్రం_Way::తిరగేయి_2>();
 
     // Set the new critical paths, then propagate the increases to the relatives. Note this also
     // brings the keys of all edges of the merged MTask up to date in the relatives' edge heaps.
-    recipientp->cpExclusive<GraphWay::FORWARD>(newCpFwd);
-    propagate<GraphWay::FORWARD>(recipientp);
-    recipientp->cpExclusive<GraphWay::REVERSE>(newCpRev);
-    propagate<GraphWay::REVERSE>(recipientp);
+    recipientp->cpExclusive<లేఖాచిత్రం_Way::FORWARD>(newCpFwd);
+    propagate<లేఖాచిత్రం_Way::FORWARD>(recipientp);
+    recipientp->cpExclusive<లేఖాచిత్రం_Way::తిరగేయి_2>(newCpRev);
+    propagate<లేఖాచిత్రం_Way::తిరగేయి_2>(recipientp);
 
     // Remove the donor from the graph
-    VL_DO_DANGLING(donorp->unlinkDelete(this), donorp);
+    VL_DO_DANGLING(donorp->unlinkDelete(ఇది), donorp);
 }
 
-void OrderMTaskGraph::removeTransitiveEdges() {
+శూన్య క్రమం_MTask_లేఖాచిత్రం::remove_సంక్రమణ_అంచులు() {
     // Removing a transitive edge cannot change any critical path, so none need updating here.
     // Only the edge heaps and the dependent sets need maintaining.
-    for (V3GraphVertex& vtx : vertices()) {
-        for (V3GraphEdge* const graphEdgep : vtx.outEdges().unlinkable()) {
-            MTaskEdge* const edgep = static_cast<MTaskEdge*>(graphEdgep);
-            LogicMTask* const fromp = edgep->fromMTaskp();
-            LogicMTask* const top = edgep->toMTaskp();
+    కొరకు (V3_లేఖాచిత్రం_శీర్షం& vtx : vertices()) {
+        కొరకు (V3_లేఖాచిత్రం_అంచు* స్థిరరాశి లేఖాచిత్రం_Edgep : vtx.బహిర్గతం_అంచులు().unlinkable()) {
+            MTask_అంచు* స్థిరరాశి edgep = static_cast<MTask_అంచు*>(లేఖాచిత్రం_Edgep);
+            LogicMTask* స్థిరరాశి fromp = edgep->fromMTaskp();
+            LogicMTask* స్థిరరాశి శిఖరం = edgep->గమ్యం_MTaskp();
             // If the MTasks are also connected by some other path, then this is a transitive edge
-            if (!pathExists(fromp, top, edgep)) continue;
+            ఒకవేళ (!మార్గం_Exists(fromp, శిఖరం, edgep)) కొనసాగు;
             // Maintain the additional data structures of the OrderMTaskGraph
-            fromp->removeDependent(top);
-            fromp->removeRelativeEdge<GraphWay::FORWARD>(edgep);
-            top->removeRelativeEdge<GraphWay::REVERSE>(edgep);
+            fromp->removeDependent(శిఖరం);
+            fromp->remove_Relative_అంచు<లేఖాచిత్రం_Way::FORWARD>(edgep);
+            శిఖరం->remove_Relative_అంచు<లేఖాచిత్రం_Way::తిరగేయి_2>(edgep);
             VL_DO_DANGLING(edgep->unlinkDelete(), edgep);
         }
     }
@@ -282,52 +282,52 @@ void OrderMTaskGraph::removeTransitiveEdges() {
     validate();
 }
 
-void OrderMTaskGraph::removeEmptyMTasks() {
+శూన్య క్రమం_MTask_లేఖాచిత్రం::remove_ఖాళీలు_MTasks() {
     // This transform preserves the critical paths as it connects every predecessor of the
     // removed MTask to every successor, and the removed MTask itself has zero cost.
-    for (V3GraphVertex* const vtxp : vertices().unlinkable()) {
-        LogicMTask* const mtaskp = static_cast<LogicMTask*>(vtxp);
+    కొరకు (V3_లేఖాచిత్రం_శీర్షం* స్థిరరాశి vtxp : vertices().unlinkable()) {
+        LogicMTask* స్థిరరాశి mtaskp = static_cast<LogicMTask*>(vtxp);
 
         // Keep the entry and exit vertices.
-        if (mtaskp == m_entryp || mtaskp == m_exitp) continue;
+        ఒకవేళ (mtaskp == m_entryp || mtaskp == m_exitp) కొనసాగు;
 
         // Keep any MTask that holds logic
-        bool empty = true;
-        for (const OrderMoveVertex& mVtx : mtaskp->vertexList()) {
-            if (mVtx.logicp()) {
-                empty = false;
-                break;
+        తార్కిక ఖాళీలు = నిజం;
+        కొరకు (స్థిరరాశి క్రమం_Move_శీర్షం& mVtx : mtaskp->శీర్షం_List()) {
+            ఒకవేళ (mVtx.logicp()) {
+                ఖాళీలు = అబద్ధం;
+                ఆపు;
             }
         }
-        if (!empty) continue;
+        ఒకవేళ (!ఖాళీలు) కొనసాగు;
 
         // The MTask holding no logic should have zero cost
-        UASSERT_OBJ(!mtaskp->cost(), mtaskp, "MTask holding no logic should have 0 cost");
+        UASSERT_OBJ(!mtaskp->ఖర్చు(), mtaskp, "MTask holding no logic should have 0 cost");
 
         // Connect each predecessor directly to each successor.
-        for (V3GraphEdge& inEdge : mtaskp->inEdges()) {
-            LogicMTask* const fromp = static_cast<MTaskEdge&>(inEdge).fromMTaskp();
-            for (V3GraphEdge& outEdge : mtaskp->outEdges()) {
-                LogicMTask* const top = static_cast<MTaskEdge&>(outEdge).toMTaskp();
-                if (!fromp->hasEdgeTo(top)) addEdge(fromp, top);
+        కొరకు (V3_లేఖాచిత్రం_అంచు& లోపల_అంచు : mtaskp->లోపల_అంచులు()) {
+            LogicMTask* స్థిరరాశి fromp = static_cast<MTask_అంచు&>(లోపల_అంచు).fromMTaskp();
+            కొరకు (V3_లేఖాచిత్రం_అంచు& బహిర్గతం_అంచు : mtaskp->బహిర్గతం_అంచులు()) {
+                LogicMTask* స్థిరరాశి శిఖరం = static_cast<MTask_అంచు&>(బహిర్గతం_అంచు).గమ్యం_MTaskp();
+                ఒకవేళ (!fromp->has_అంచు_గమ్యం(శిఖరం)) కూడు_అంచు(fromp, శిఖరం);
             }
         }
 
         // Remove incoming edges of 'mtaskp'
-        while (MTaskEdge* const edgep = static_cast<MTaskEdge*>(mtaskp->inEdges().frontp())) {
-            LogicMTask* const relativep = edgep->fromMTaskp();
+        అయితే (MTask_అంచు* స్థిరరాశి edgep = static_cast<MTask_అంచు*>(mtaskp->లోపల_అంచులు().frontp())) {
+            LogicMTask* స్థిరరాశి relativep = edgep->fromMTaskp();
             relativep->removeDependent(mtaskp);
-            relativep->removeRelativeEdge<GraphWay::FORWARD>(edgep);
+            relativep->remove_Relative_అంచు<లేఖాచిత్రం_Way::FORWARD>(edgep);
             VL_DO_DANGLING(edgep->unlinkDelete(), edgep);
         }
         // Remove outgoing edges of 'mtaskp'
-        while (MTaskEdge* const edgep = static_cast<MTaskEdge*>(mtaskp->outEdges().frontp())) {
-            LogicMTask* const relativep = edgep->toMTaskp();
-            relativep->removeRelativeEdge<GraphWay::REVERSE>(edgep);
+        అయితే (MTask_అంచు* స్థిరరాశి edgep = static_cast<MTask_అంచు*>(mtaskp->బహిర్గతం_అంచులు().frontp())) {
+            LogicMTask* స్థిరరాశి relativep = edgep->గమ్యం_MTaskp();
+            relativep->remove_Relative_అంచు<లేఖాచిత్రం_Way::తిరగేయి_2>(edgep);
             VL_DO_DANGLING(edgep->unlinkDelete(), edgep);
         }
         // Delete the empty MTask
-        VL_DO_DANGLING(mtaskp->unlinkDelete(this), mtaskp);
+        VL_DO_DANGLING(mtaskp->unlinkDelete(ఇది), mtaskp);
     }
     // Confirm the above left the maintained state consistent
     validate();
@@ -336,55 +336,55 @@ void OrderMTaskGraph::removeEmptyMTasks() {
 // Check the critical paths in the given direction, and the critical paths cached in the edge heaps
 // in the opposite direction, against those implied by the edges. Note this deliberately iterates
 // the edge lists, rather than consulting the edge heaps, so the heaps are validated, not trusted.
-template <GraphWay::en N_Way>
-void OrderMTaskGraph::validateWay() const {
-    constexpr GraphWay way{N_Way};
-    constexpr GraphWay inv = way.invert();
-    for (const V3GraphVertex& vtx : vertices()) {
-        const LogicMTask& mtask = *vtx.as<LogicMTask>();
-        uint64_t cpCost = 0;
-        std::unordered_set<const V3GraphVertex*> relatives;
-        for (const V3GraphEdge& graphEdge : mtask.edges<inv>()) {
-            const MTaskEdge& edge = *graphEdge.as<MTaskEdge>();
-            const LogicMTask& relative = *(edge.furtherp<inv>()->template as<LogicMTask>());
+మూస <లేఖాచిత్రం_Way::en N_Way>
+శూన్య క్రమం_MTask_లేఖాచిత్రం::validateWay() స్థిరరాశి {
+    constexpr లేఖాచిత్రం_Way way{N_Way};
+    constexpr లేఖాచిత్రం_Way inv = way.invert();
+    కొరకు (స్థిరరాశి V3_లేఖాచిత్రం_శీర్షం& vtx : vertices()) {
+        స్థిరరాశి LogicMTask& mtask = *vtx.as<LogicMTask>();
+        uint64_t cp_ఖర్చు = 0;
+        std::unordered_సమితి<స్థిరరాశి V3_లేఖాచిత్రం_శీర్షం*> relatives;
+        కొరకు (స్థిరరాశి V3_లేఖాచిత్రం_అంచు& లేఖాచిత్రం_అంచు : mtask.అంచులు<inv>()) {
+            స్థిరరాశి MTask_అంచు& అంచు = *లేఖాచిత్రం_అంచు.as<MTask_అంచు>();
+            స్థిరరాశి LogicMTask& relative = *(అంచు.furtherp<inv>()->మూస as<LogicMTask>());
             // Run a few asserts on the graph, while we are iterating through...
-            UASSERT_OBJ(edge.weight() != 0, &mtask, "Should be no cut edges in MTask graph");
+            UASSERT_OBJ(అంచు.బరువు_2() != 0, &mtask, "Should be no cut edges in MTask graph");
             UASSERT_OBJ(&relative != &mtask, &mtask, "Should be no self edges in MTask graph");
-            const bool first = relatives.insert(&relative).second;
-            UASSERT_OBJ(first, &mtask, "Should be no redundant edges in MTask graph");
-            const uint64_t inclusiveCp = relative.cpInclusive<way>();
+            స్థిరరాశి తార్కిక మొదటి = relatives.చొప్పించు(&relative).రెండవ;
+            UASSERT_OBJ(మొదటి, &mtask, "Should be no redundant edges in MTask graph");
+            స్థిరరాశి uint64_t inclusiveCp = relative.cpInclusive<way>();
             // The critical path cached in the edge heap must match that of the relative
-            UASSERT_OBJ(edge.cachedCp(inv) == inclusiveCp, &mtask,
+            UASSERT_OBJ(అంచు.cachedCp(inv) == inclusiveCp, &mtask,
                         "Cached critical path does not match the relative");
             // As must the ID it is keyed on, which breaks ties between equal critical paths
-            UASSERT_OBJ(edge.cachedId(inv) == relative.id(), &mtask,
+            UASSERT_OBJ(అంచు.cachedId(inv) == relative.id(), &mtask,
                         "Cached ID does not match the relative");
-            cpCost = std::max(cpCost, inclusiveCp);
+            cp_ఖర్చు = std::max(cp_ఖర్చు, inclusiveCp);
         }
-        const uint64_t cp = mtask.cpExclusive<way>();
-        UASSERT_OBJ(cp == cpCost, &mtask, "Critical path does not match the edges");
+        స్థిరరాశి uint64_t cp = mtask.cpExclusive<way>();
+        UASSERT_OBJ(cp == cp_ఖర్చు, &mtask, "Critical path does not match the edges");
         // The edge heap must yield the same, that is: it must return the largest of its keys
-        UASSERT_OBJ(mtask.cpExclusiveFromEdges<N_Way>() == cpCost, &mtask,
+        UASSERT_OBJ(mtask.cp_Exclusive_From_అంచులు<N_Way>() == cp_ఖర్చు, &mtask,
                     "Edge heap maximum does not match the edges");
     }
 }
 
-void OrderMTaskGraph::validate() const {
-    if (!m_slowAsserts) return;
+శూన్య క్రమం_MTask_లేఖాచిత్రం::validate() స్థిరరాశి {
+    ఒకవేళ (!m_slowAsserts) తిరిగి;
 
-    validateWay<GraphWay::FORWARD>();
-    validateWay<GraphWay::REVERSE>();
+    validateWay<లేఖాచిత్రం_Way::FORWARD>();
+    validateWay<లేఖాచిత్రం_Way::తిరగేయి_2>();
 
     // Check the dependents set of each MTask agrees with its out-edges
-    for (const V3GraphVertex& vtx : vertices()) {
-        const LogicMTask& mtask = *vtx.as<LogicMTask>();
-        size_t nDependents = 0;
-        for (const V3GraphEdge& graphEdge : mtask.outEdges()) {
-            LogicMTask* const top = graphEdge.as<MTaskEdge>()->toMTaskp();
-            UASSERT_OBJ(mtask.hasEdgeTo(top), &mtask, "Dependent missing from the dependents set");
+    కొరకు (స్థిరరాశి V3_లేఖాచిత్రం_శీర్షం& vtx : vertices()) {
+        స్థిరరాశి LogicMTask& mtask = *vtx.as<LogicMTask>();
+        కొలత_t nDependents = 0;
+        కొరకు (స్థిరరాశి V3_లేఖాచిత్రం_అంచు& లేఖాచిత్రం_అంచు : mtask.బహిర్గతం_అంచులు()) {
+            LogicMTask* స్థిరరాశి శిఖరం = లేఖాచిత్రం_అంచు.as<MTask_అంచు>()->గమ్యం_MTaskp();
+            UASSERT_OBJ(mtask.has_అంచు_గమ్యం(శిఖరం), &mtask, "Dependent missing from the dependents set");
             ++nDependents;
         }
-        UASSERT_OBJ(mtask.m_dependents.size() == nDependents, &mtask,
+        UASSERT_OBJ(mtask.m_dependents.కొలత() == nDependents, &mtask,
                     "Stale entry in the dependents set");
     }
 }
@@ -392,13 +392,13 @@ void OrderMTaskGraph::validate() const {
 //######################################################################
 // OrderMTaskGraphBuilder
 
-class OrderMTaskGraphBuilder final {
+తరగతి క్రమం_MTask_లేఖాచిత్రం_Builder final {
     // NODE STATE
     // Used by V3InstrCount::count within the LogicMTask constructor only
-    const VNUser1InUse m_user1InUse;
+    స్థిరరాశి VNUser1_లోపల_Use m_user1_లోపల_Use;
 
     // MEMBERS
-    OrderMTaskGraph& m_mtaskGraph;  // Output OrderMTaskGraph
+    క్రమం_MTask_లేఖాచిత్రం& m_mtask_లేఖాచిత్రం;  // Output OrderMTaskGraph
 
     // METHODS
 
@@ -414,107 +414,107 @@ class OrderMTaskGraphBuilder final {
     // not require more dependency edges than keeping the intermediate vertex. That is, we bypass a
     // variable vertex if fanIn * fanOut <= fanIn + fanOut. This is true if fanIn or fanOut are 1,
     // or if they are both 2. This can significantly reduce the initial size of OrderMTaskGraph.
-    static bool bypassOk(OrderMoveVertex* mvtxp) {
+    స్థిర తార్కిక bypassOk(క్రమం_Move_శీర్షం* mvtxp) {
         // Need to keep all logic vertices
-        if (mvtxp->logicp()) return false;
+        ఒకవేళ (mvtxp->logicp()) తిరిగి అబద్ధం;
         // Count fan-in, up to 3
-        unsigned fanIn = 0;
-        auto& inEdges = mvtxp->inEdges();
-        for (auto it = inEdges.begin(); it != inEdges.end(); ++it) {
-            if (++fanIn == 3) break;
+        గుర్తులేని fan_లోపల = 0;
+        స్వయంచాలక& లోపల_అంచులు = mvtxp->లోపల_అంచులు();
+        కొరకు (స్వయంచాలక it = లోపల_అంచులు.begin(); it != లోపల_అంచులు.చివర(); ++it) {
+            ఒకవేళ (++fan_లోపల == 3) ఆపు;
         }
         // If fanIn no more than one, bypass
-        if (fanIn <= 1) return true;
+        ఒకవేళ (fan_లోపల <= 1) తిరిగి నిజం;
         // Count fan-out, up to 3
-        unsigned fanOut = 0;
-        auto& outEdges = mvtxp->outEdges();
-        for (auto it = outEdges.begin(); it != outEdges.end(); ++it) {
-            if (++fanOut == 3) break;
+        గుర్తులేని fan_బహిర్గతం = 0;
+        స్వయంచాలక& బహిర్గతం_అంచులు = mvtxp->బహిర్గతం_అంచులు();
+        కొరకు (స్వయంచాలక it = బహిర్గతం_అంచులు.begin(); it != బహిర్గతం_అంచులు.చివర(); ++it) {
+            ఒకవేళ (++fan_బహిర్గతం == 3) ఆపు;
         }
         // If fan-out no more than one, bypass
-        if (fanOut <= 1) return true;
+        ఒకవేళ (fan_బహిర్గతం <= 1) తిరిగి నిజం;
         // They can only be (2, 2), (2, 3), (3, 2), (3, 3) at this point, bypass if (2, 2)
-        return fanIn + fanOut == 4;
+        తిరిగి fan_లోపల + fan_బహిర్గతం == 4;
     }
 
     // Add an edge to the graph, if there is not already an edge between the two vertices.
-    void addEdge(LogicMTask* srcp, LogicMTask* dstp) {
-        if (srcp->hasEdgeTo(dstp)) return;  // Don't create redundant edges.
-        m_mtaskGraph.addEdge(srcp, dstp);
+    శూన్య కూడు_అంచు(LogicMTask* srcp, LogicMTask* dstp) {
+        ఒకవేళ (srcp->has_అంచు_గమ్యం(dstp)) తిరిగి;  // Don't create redundant edges.
+        m_mtask_లేఖాచిత్రం.కూడు_అంచు(srcp, dstp);
     }
 
     // CONSTRUCTORS
-    explicit OrderMTaskGraphBuilder(OrderMTaskGraph& mtaskGraph)
-        : m_mtaskGraph{mtaskGraph} {
+    స్పష్టమైన క్రమం_MTask_లేఖాచిత్రం_Builder(క్రమం_MTask_లేఖాచిత్రం& mtask_లేఖాచిత్రం)
+        : m_mtask_లేఖాచిత్రం{mtask_లేఖాచిత్రం} {
 
         // Create the LogicMTasks for each OrderMoveVertex
-        for (V3GraphVertex& vtx : mtaskGraph.moveGraph().vertices()) {
-            OrderMoveVertex& mVtx = static_cast<OrderMoveVertex&>(vtx);
-            if (bypassOk(&mVtx)) {
-                mVtx.userp(nullptr);  // Set to nullptr to mark as bypassed
-            } else {
-                mVtx.userp(new LogicMTask{mtaskGraph, &mVtx});  // Create vertex and set userp
+        కొరకు (V3_లేఖాచిత్రం_శీర్షం& vtx : mtask_లేఖాచిత్రం.move_లేఖాచిత్రం().vertices()) {
+            క్రమం_Move_శీర్షం& mVtx = static_cast<క్రమం_Move_శీర్షం&>(vtx);
+            ఒకవేళ (bypassOk(&mVtx)) {
+                mVtx.userp(శూన్యసూచిక);  // Set to nullptr to mark as bypassed
+            } లేకపోతే {
+                mVtx.userp(కొత్త LogicMTask{mtask_లేఖాచిత్రం, &mVtx});  // Create vertex and set userp
             }
         }
 
-        LogicMTask& entry = *mtaskGraph.entryp();
-        LogicMTask& exit = *mtaskGraph.exitp();
+        LogicMTask& నమోదు_2 = *mtask_లేఖాచిత్రం.entryp();
+        LogicMTask& నిష్క్రమించు = *mtask_లేఖాచిత్రం.exitp();
 
         // Create the MTask dependency edges based on the OrderMoveGraph dependencies
-        for (V3GraphVertex& vtx : mtaskGraph.vertices()) {
+        కొరకు (V3_లేఖాచిత్రం_శీర్షం& vtx : mtask_లేఖాచిత్రం.vertices()) {
             LogicMTask& mtask = static_cast<LogicMTask&>(vtx);
 
             // Entry and exit vertices handled separately
-            if (VL_UNLIKELY((&mtask == &entry) || (&mtask == &exit))) continue;
+            ఒకవేళ (VL_UNLIKELY((&mtask == &నమోదు_2) || (&mtask == &నిష్క్రమించు))) కొనసాగు;
 
-            OrderMoveVertex::List& vertexList = mtask.vertexList();
+            క్రమం_Move_శీర్షం::List& శీర్షం_List = mtask.శీర్షం_List();
             // At this point, there should only be one OrderMoveVertex per LogicMTask
-            UASSERT_OBJ(vertexList.hasSingleElement(), &mtask, "Multiple OrderMoveVertex");
-            OrderMoveVertex* const mVtxp = vertexList.frontp();
+            UASSERT_OBJ(శీర్షం_List.hasSingleElement(), &mtask, "Multiple OrderMoveVertex");
+            క్రమం_Move_శీర్షం* స్థిరరాశి mVtxp = శీర్షం_List.frontp();
             UASSERT_OBJ(mVtxp->userp(), &mtask, "Bypassed OrderMoveVertex should not have MTask");
 
             // Iterate downstream direct dependents
-            for (const V3GraphEdge& dEdge : mVtxp->outEdges()) {
-                V3GraphVertex* const top = dEdge.top();
+            కొరకు (స్థిరరాశి V3_లేఖాచిత్రం_అంచు& d_అంచు : mVtxp->బహిర్గతం_అంచులు()) {
+                V3_లేఖాచిత్రం_శీర్షం* స్థిరరాశి శిఖరం = d_అంచు.శిఖరం();
 
                 // If the opposite end of the edge is not a bypassed vertex, add direct dependency
-                if (LogicMTask* const otherp = static_cast<LogicMTask*>(top->userp())) {
-                    addEdge(&mtask, otherp);
-                    continue;
+                ఒకవేళ (LogicMTask* స్థిరరాశి otherp = static_cast<LogicMTask*>(శిఖరం->userp())) {
+                    కూడు_అంచు(&mtask, otherp);
+                    కొనసాగు;
                 }
 
                 // The opposite end of the edge is a bypassed vertex, add transitive dependencies
-                for (const V3GraphEdge& tEdge : top->outEdges()) {
-                    LogicMTask* const transp = static_cast<LogicMTask*>(tEdge.top()->userp());
+                కొరకు (స్థిరరాశి V3_లేఖాచిత్రం_అంచు& t_అంచు : శిఖరం->బహిర్గతం_అంచులు()) {
+                    LogicMTask* స్థిరరాశి transp = static_cast<LogicMTask*>(t_అంచు.శిఖరం()->userp());
                     // The Move graph is bipartite (logic <-> var), and logic is never
                     // bypassed, hence 'transp' must be non-nullptr.
                     UASSERT_OBJ(transp, mVtxp, "This cannot be a bypassed vertex");
-                    addEdge(&mtask, transp);
+                    కూడు_అంచు(&mtask, transp);
                 }
             }
         }
 
         // Create Dependencies to/from the entry/exit vertices, so all vertices are
         // reachable from the entry point and flow to the exit point.
-        for (V3GraphVertex& vtx : mtaskGraph.vertices()) {
+        కొరకు (V3_లేఖాచిత్రం_శీర్షం& vtx : mtask_లేఖాచిత్రం.vertices()) {
             LogicMTask& mtask = static_cast<LogicMTask&>(vtx);
-            if (VL_UNLIKELY((&mtask == &entry) || (&mtask == &exit))) continue;
+            ఒకవేళ (VL_UNLIKELY((&mtask == &నమోదు_2) || (&mtask == &నిష్క్రమించు))) కొనసాగు;
             // Add the entry/exit edges if not otherwise connected
-            if (mtask.inEmpty()) addEdge(&entry, &mtask);
-            if (mtask.outEmpty()) addEdge(&mtask, &exit);
+            ఒకవేళ (mtask.లోపల_ఖాళీలు()) కూడు_అంచు(&నమోదు_2, &mtask);
+            ఒకవేళ (mtask.బహిర్గతం_ఖాళీలు()) కూడు_అంచు(&mtask, &నిష్క్రమించు);
         }
     }
-    ~OrderMTaskGraphBuilder() = default;
-    VL_UNCOPYABLE(OrderMTaskGraphBuilder);
-    VL_UNMOVABLE(OrderMTaskGraphBuilder);
+    ~క్రమం_MTask_లేఖాచిత్రం_Builder() = అప్రమేయ;
+    VL_UNCOPYABLE(క్రమం_MTask_లేఖాచిత్రం_Builder);
+    VL_UNMOVABLE(క్రమం_MTask_లేఖాచిత్రం_Builder);
 
-public:
-    static void apply(OrderMTaskGraph& mtaskGraph) { OrderMTaskGraphBuilder{mtaskGraph}; }
+బహిరంగ:
+    స్థిర శూన్య apply(క్రమం_MTask_లేఖాచిత్రం& mtask_లేఖాచిత్రం) { క్రమం_MTask_లేఖాచిత్రం_Builder{mtask_లేఖాచిత్రం}; }
 };
 
-std::unique_ptr<OrderMTaskGraph> OrderMTaskGraph::build(OrderMoveGraph& moveGraph) {
-    std::unique_ptr<OrderMTaskGraph> resp{new OrderMTaskGraph{moveGraph}};
-    OrderMTaskGraphBuilder::apply(*resp);
+std::unique_ptr<క్రమం_MTask_లేఖాచిత్రం> క్రమం_MTask_లేఖాచిత్రం::build(క్రమం_Move_లేఖాచిత్రం& move_లేఖాచిత్రం) {
+    std::unique_ptr<క్రమం_MTask_లేఖాచిత్రం> resp{కొత్త క్రమం_MTask_లేఖాచిత్రం{move_లేఖాచిత్రం}};
+    క్రమం_MTask_లేఖాచిత్రం_Builder::apply(*resp);
     resp->validate();
-    return resp;
+    తిరిగి resp;
 }

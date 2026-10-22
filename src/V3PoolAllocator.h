@@ -14,72 +14,72 @@
 //
 //*************************************************************************
 
-#ifndef VERILATOR_V3POOLALLOCATOR_H_
-#define VERILATOR_V3POOLALLOCATOR_H_
+#నిర్వచితం_కాకపోతే VERILATOR_V3POOLALLOCATOR_H_
+#నిర్వచించు VERILATOR_V3POOLALLOCATOR_H_
 
-#include "config_build.h"
-#include "verilatedos.h"
+#అన్తర్భావ "config_build.h"
+#అన్తర్భావ "verilatedos.h"
 
-#include <cstddef>
-#include <memory>
-#include <new>
-#include <utility>
-#include <vector>
+#అన్తర్భావ <cstddef>
+#అన్తర్భావ <memory>
+#అన్తర్భావ <new>
+#అన్తర్భావ <utility>
+#అన్తర్భావ <vector>
 
 // Hands out elements of a single type, allocated 'N_ChunkSize' at a time for
 // efficiency. Released elements are recycled via a free list stored in the
 // same storage. All memory is released when the pool is destroyed, so the
 // elements it handed out must not be used beyond its lifetime, and must all
 // have been released by then.
-template <typename T_Elem, size_t N_ChunkSize = 128>
+మూస <typename T_Elem, కొలత_t N_Chunk_కొలత = 128>
 class PoolAllocator final {
-    static_assert(N_ChunkSize > 0, "Chunk size must be non-zero");
+    static_assert(N_Chunk_కొలత > 0, "Chunk size must be non-zero");
 
     // A slot of storage, holding either a live element, or a link in the free list.
-    union Slot final {
+    సంఘం స్థానం final {
         T_Elem m_elem;  // Storage for the allocated element
-        Slot* m_nextFreep;  // Link to the next free slot
-        Slot() {}
-        ~Slot() {}
+        స్థానం* m_తదుపరి_Freep;  // Link to the next free slot
+        స్థానం() {}
+        ~స్థానం() {}
     };
 
     // MEMBERS
-    Slot* m_freep = nullptr;  // Head of the free list
-    std::vector<std::unique_ptr<Slot[]>> m_allocated;  // The allocated chunks
+    స్థానం* m_freep = nullptr;  // Head of the free list
+    std::సదిశ<std::unique_ptr<స్థానం[]>> m_allocated;  // The allocated chunks
 
-public:
+బహిరంగ:
     // CONSTRUCTORS
-    PoolAllocator() = default;
+    PoolAllocator() = అప్రమేయ;
     VL_UNCOPYABLE(PoolAllocator);
     VL_UNMOVABLE(PoolAllocator);
 
     // METHODS
     // Allocate an element, constructed with the given arguments
-    template <typename... Args>
-    T_Elem* alloc(Args&&... args) {
+    మూస <typename... వాదనలు_2>
+    T_Elem* alloc(వాదనలు_2&&... వాదనలు) {
         // If no free slots available, then make some
-        if (!m_freep) {
+        ఒకవేళ (!m_freep) {
             // Allocate in chunks for efficiency
-            m_allocated.emplace_back(new Slot[N_ChunkSize]);
+            m_allocated.emplace_వెనుక(new స్థానం[N_Chunk_కొలత]);
             // Chain the new slots into the free list
-            Slot* const chunkp = m_allocated.back().get();
-            for (size_t i = 1; i < N_ChunkSize; ++i) chunkp[i - 1].m_nextFreep = &chunkp[i];
-            chunkp[N_ChunkSize - 1].m_nextFreep = nullptr;
+            స్థానం* స్థిరరాశి chunkp = m_allocated.వెనుక().get();
+            కొరకు (కొలత_t i = 1; i < N_Chunk_కొలత; ++i) chunkp[i - 1].m_తదుపరి_Freep = &chunkp[i];
+            chunkp[N_Chunk_కొలత - 1].m_తదుపరి_Freep = nullptr;
             m_freep = chunkp;
         }
         // Free slots are available, pick up the first one
-        Slot* const slotp = m_freep;
-        m_freep = slotp->m_nextFreep;
-        return new (&slotp->m_elem) T_Elem{std::forward<Args>(args)...};
+        స్థానం* స్థిరరాశి slotp = m_freep;
+        m_freep = slotp->m_తదుపరి_Freep;
+        తిరిగి new (&slotp->m_elem) T_Elem{std::forward<వాదనలు_2>(వాదనలు)...};
     }
 
     // Destroy an element, and return its slot for future allocation
-    void free(T_Elem* elemp) {
+    శూన్య విడుదల(T_Elem* elemp) {
         elemp->~T_Elem();
-        Slot* const slotp = reinterpret_cast<Slot*>(elemp);
-        slotp->m_nextFreep = m_freep;
+        స్థానం* స్థిరరాశి slotp = reinterpret_cast<స్థానం*>(elemp);
+        slotp->m_తదుపరి_Freep = m_freep;
         m_freep = slotp;
     }
 };
 
-#endif  // Guard
+#అయితే_ముగింపు  // Guard

@@ -25,368 +25,368 @@
 //
 //*************************************************************************
 
-#include "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
+#అన్తర్భావ "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
 
-#include "V3Inline.h"
+#అన్తర్భావ "V3Inline.h"
 
-#include "V3AstUserAllocator.h"
-#include "V3Graph.h"
-#include "V3Stats.h"
+#అన్తర్భావ "V3AstUserAllocator.h"
+#అన్తర్భావ "V3Graph.h"
+#అన్తర్భావ "V3Stats.h"
 
-#include <unordered_map>
-#include <vector>
+#అన్తర్భావ <unordered_map>
+#అన్తర్భావ <vector>
 
 VL_DEFINE_DEBUG_FUNCTIONS;
 
 // CONFIG
-static const int INLINE_MODS_SMALLER = 100;  // If a mod is < this # nodes, can always inline it
+స్థిర స్థిరరాశి పూర్ణాంకం INLINE_MODS_SMALLER = 100;  // If a mod is < this # nodes, can always inline it
 
 //######################################################################
 // Bipartite module instantiation graph containing module and cell vertices
 
-class InlineModModuleVertex;
-class InlineModCellVertex;
+తరగతి Inline_Mod_Module_శీర్షం;
+తరగతి Inline_Mod_Cell_శీర్షం;
 
-class InlineModGraph final : public V3Graph {
+తరగతి Inline_Mod_లేఖాచిత్రం final : బహిరంగ V3_లేఖాచిత్రం {
     // NODE STATE
     // AstNodeModule::user4p() -> InlineModModuleVertex*, the module vertex
     // AstCell::user4p()       -> InlineModCellVertex*, the cell vertex
 
-    VNUser4InUse m_user4InUse;
+    VNUser4_లోపల_Use m_user4_లోపల_Use;
 
-public:
-    InlineModGraph()
-        : V3Graph{} {}
-    ~InlineModGraph() override = default;
+బహిరంగ:
+    Inline_Mod_లేఖాచిత్రం()
+        : V3_లేఖాచిత్రం{} {}
+    ~Inline_Mod_లేఖాచిత్రం() override = అప్రమేయ;
 
     // METHODS
-    InlineModModuleVertex* getInlineModModuleVertexp(AstNodeModule* modp);
-    InlineModCellVertex* getInlineModCellVertexp(AstCell* cellp);
-    void addEdge(InlineModModuleVertex& from, InlineModCellVertex& to);
-    void addEdge(InlineModCellVertex& from, InlineModModuleVertex& to);
+    Inline_Mod_Module_శీర్షం* getInlineModModuleVertexp(Ast_కణుపు_Module* modp);
+    Inline_Mod_Cell_శీర్షం* getInlineModCellVertexp(AstCell* cellp);
+    శూన్య కూడు_అంచు(Inline_Mod_Module_శీర్షం& from, Inline_Mod_Cell_శీర్షం& గమ్యం);
+    శూన్య కూడు_అంచు(Inline_Mod_Cell_శీర్షం& from, Inline_Mod_Module_శీర్షం& గమ్యం);
 
     // debug
-    std::string dotRankDir() const override { return "LR"; }
+    std::string dotRankDir() స్థిరరాశి override { తిరిగి "LR"; }
 };
 
-class InlineModEitherVertex VL_NOT_FINAL : public V3GraphVertex {
-    VL_RTTI_IMPL(InlineModEitherVertex, V3GraphVertex)
-protected:
-    explicit InlineModEitherVertex(InlineModGraph& graph)
-        : V3GraphVertex{&graph} {}
+తరగతి Inline_Mod_Either_శీర్షం VL_NOT_FINAL : బహిరంగ V3_లేఖాచిత్రం_శీర్షం {
+    VL_RTTI_IMPL(Inline_Mod_Either_శీర్షం, V3_లేఖాచిత్రం_శీర్షం)
+రక్షిత:
+    స్పష్టమైన Inline_Mod_Either_శీర్షం(Inline_Mod_లేఖాచిత్రం& లేఖాచిత్రం)
+        : V3_లేఖాచిత్రం_శీర్షం{&లేఖాచిత్రం} {}
 };
 
-class InlineModModuleVertex final : public InlineModEitherVertex {
-    VL_RTTI_IMPL(InlineModModuleVertex, InlineModEitherVertex)
-    AstNodeModule* const m_modp;  // The module
-    const char* m_noInlineHardWyp = nullptr;  // First reason the module can never be inlined
-    const char* m_noInlineSoftWyp = nullptr;  // First reason not to inline unless forced
-    const char* m_shouldInlineWhyp = nullptr;  // First reason why this module should be inlined
-    size_t m_size = 0;  // The size (statement count) of the module
-    size_t mutable m_flattenedSize = 0;  // The size of the module if flattened
-    bool mutable m_flattenedSizeValid = false;  // Whether the flattened size is valid
-    size_t mutable m_instanceCount = 0;  // The number of total instances of this module
-    bool mutable m_instanceCountValid = false;  // Whether the instance count is valid
+తరగతి Inline_Mod_Module_శీర్షం final : బహిరంగ Inline_Mod_Either_శీర్షం {
+    VL_RTTI_IMPL(Inline_Mod_Module_శీర్షం, Inline_Mod_Either_శీర్షం)
+    Ast_కణుపు_Module* స్థిరరాశి m_modp;  // The module
+    స్థిరరాశి అక్షరం* m_noInlineHardWyp = శూన్యసూచిక;  // First reason the module can never be inlined
+    స్థిరరాశి అక్షరం* m_noInlineSoftWyp = శూన్యసూచిక;  // First reason not to inline unless forced
+    స్థిరరాశి అక్షరం* m_shouldInlineWhyp = శూన్యసూచిక;  // First reason why this module should be inlined
+    కొలత_t m_కొలత = 0;  // The size (statement count) of the module
+    కొలత_t మార్చదగిన m_flattened_కొలత = 0;  // The size of the module if flattened
+    తార్కిక మార్చదగిన m_flattened_కొలత_Valid = అబద్ధం;  // Whether the flattened size is valid
+    కొలత_t మార్చదగిన m_instance_లెక్క = 0;  // The number of total instances of this module
+    తార్కిక మార్చదగిన m_instance_లెక్క_Valid = అబద్ధం;  // Whether the instance count is valid
 
-public:
-    InlineModModuleVertex(InlineModGraph& graph, AstNodeModule* modp)
-        : InlineModEitherVertex{graph}
+బహిరంగ:
+    Inline_Mod_Module_శీర్షం(Inline_Mod_లేఖాచిత్రం& లేఖాచిత్రం, Ast_కణుపు_Module* modp)
+        : Inline_Mod_Either_శీర్షం{లేఖాచిత్రం}
         , m_modp{modp} {}
-    ~InlineModModuleVertex() override = default;
+    ~Inline_Mod_Module_శీర్షం() override = అప్రమేయ;
 
     // ACCESSORS
-    AstNodeModule* modp() const { return m_modp; }
-    size_t size() const { return m_size; }
-    void size(size_t value) { m_size = value; }
-    void sizeInc(size_t value = 1) { m_size += value; }
-    bool noInlineHard() const { return m_noInlineHardWyp; }
-    void setNoInlineHard(const char* whyp) {
-        if (!m_noInlineHardWyp) m_noInlineHardWyp = whyp;
+    Ast_కణుపు_Module* modp() స్థిరరాశి { తిరిగి m_modp; }
+    కొలత_t కొలత() స్థిరరాశి { తిరిగి m_కొలత; }
+    శూన్య కొలత(కొలత_t విలువ) { m_కొలత = విలువ; }
+    శూన్య కొలత_Inc(కొలత_t విలువ = 1) { m_కొలత += విలువ; }
+    తార్కిక noInlineHard() స్థిరరాశి { తిరిగి m_noInlineHardWyp; }
+    శూన్య సమితి_No_Inline_Hard(స్థిరరాశి అక్షరం* whyp) {
+        ఒకవేళ (!m_noInlineHardWyp) m_noInlineHardWyp = whyp;
     }
-    bool noInlineSoft() const { return m_noInlineSoftWyp; }
-    void setNoInlineSoft(const char* whyp) {
-        if (!m_noInlineSoftWyp) m_noInlineSoftWyp = whyp;
+    తార్కిక noInlineSoft() స్థిరరాశి { తిరిగి m_noInlineSoftWyp; }
+    శూన్య సమితి_No_Inline_Soft(స్థిరరాశి అక్షరం* whyp) {
+        ఒకవేళ (!m_noInlineSoftWyp) m_noInlineSoftWyp = whyp;
     }
-    bool shouldInline() const { return m_shouldInlineWhyp; }
-    void setShouldInline(const char* whyp) {
-        if (!m_shouldInlineWhyp) m_shouldInlineWhyp = whyp;
+    తార్కిక shouldInline() స్థిరరాశి { తిరిగి m_shouldInlineWhyp; }
+    శూన్య సమితి_Should_Inline(స్థిరరాశి అక్షరం* whyp) {
+        ఒకవేళ (!m_shouldInlineWhyp) m_shouldInlineWhyp = whyp;
     }
     // Mark every instance below this module for inlining
-    void setFlatten();
+    శూన్య సమితి_Flatten();
 
     // Total size of module, with all hierarchy below flattened
-    size_t flattenedSize() const {
-        if (!m_flattenedSizeValid) {
-            m_flattenedSizeValid = true;
-            m_flattenedSize = m_size;
-            for (const V3GraphEdge& e1 : outEdges()) {
-                for (const V3GraphEdge& e2 : e1.top()->outEdges()) {
-                    InlineModModuleVertex* const mVtxp = e2.top()->as<InlineModModuleVertex>();
-                    m_flattenedSize += mVtxp->flattenedSize();
+    కొలత_t flattened_కొలత() స్థిరరాశి {
+        ఒకవేళ (!m_flattened_కొలత_Valid) {
+            m_flattened_కొలత_Valid = నిజం;
+            m_flattened_కొలత = m_కొలత;
+            కొరకు (స్థిరరాశి V3_లేఖాచిత్రం_అంచు& e1 : బహిర్గతం_అంచులు()) {
+                కొరకు (స్థిరరాశి V3_లేఖాచిత్రం_అంచు& e2 : e1.శిఖరం()->బహిర్గతం_అంచులు()) {
+                    Inline_Mod_Module_శీర్షం* స్థిరరాశి mVtxp = e2.శిఖరం()->as<Inline_Mod_Module_శీర్షం>();
+                    m_flattened_కొలత += mVtxp->flattened_కొలత();
                 }
             }
         }
-        return m_flattenedSize;
+        తిరిగి m_flattened_కొలత;
     }
     // Total number of instances of this module in the whole hierarchy of the design
     // Note this is the same as the number of AstScopes the module has.
-    size_t instanceCount() const {
-        if (!m_instanceCountValid) {
-            m_instanceCountValid = true;
-            m_instanceCount = 0;
-            for (const V3GraphEdge& e1 : inEdges()) {
-                for (const V3GraphEdge& e2 : e1.fromp()->inEdges()) {
-                    InlineModModuleVertex* const mVtxp = e2.fromp()->as<InlineModModuleVertex>();
-                    m_instanceCount += mVtxp->instanceCount();
+    కొలత_t instance_లెక్క() స్థిరరాశి {
+        ఒకవేళ (!m_instance_లెక్క_Valid) {
+            m_instance_లెక్క_Valid = నిజం;
+            m_instance_లెక్క = 0;
+            కొరకు (స్థిరరాశి V3_లేఖాచిత్రం_అంచు& e1 : లోపల_అంచులు()) {
+                కొరకు (స్థిరరాశి V3_లేఖాచిత్రం_అంచు& e2 : e1.fromp()->లోపల_అంచులు()) {
+                    Inline_Mod_Module_శీర్షం* స్థిరరాశి mVtxp = e2.fromp()->as<Inline_Mod_Module_శీర్షం>();
+                    m_instance_లెక్క += mVtxp->instance_లెక్క();
                 }
             }
-            if (!m_instanceCount) {
-                UASSERT_OBJ(m_modp->isTop(), m_modp, "non-top level module should have instances");
-                m_instanceCount = 1;
+            ఒకవేళ (!m_instance_లెక్క) {
+                UASSERT_OBJ(m_modp->is_శిఖరం(), m_modp, "non-top level module should have instances");
+                m_instance_లెక్క = 1;
             }
         }
-        return m_instanceCount;
+        తిరిగి m_instance_లెక్క;
     }
 
     // debug
-    FileLine* fileline() const override { return m_modp->fileline(); }
-    std::string dotShape() const override { return "box"; }
-    std::string dotColor() const override {
-        return m_noInlineHardWyp    ? "red"
+    File_పంక్తి* fileline() స్థిరరాశి override { తిరిగి m_modp->fileline(); }
+    std::string dotShape() స్థిరరాశి override { తిరిగి "box"; }
+    std::string dotColor() స్థిరరాశి override {
+        తిరిగి m_noInlineHardWyp    ? "red"
                : m_shouldInlineWhyp ? "blue"
                : m_noInlineSoftWyp  ? "orange"
                                     : "black";
     }
-    std::string name() const override VL_MT_STABLE {
-        std::string str = m_modp->typeName() + " "s + cvtToHex(m_modp);
+    std::string name() స్థిరరాశి override VL_MT_STABLE {
+        std::string str = m_modp->typeName() + " "s + cvt_గమ్యం_Hex(m_modp);
         str += "\n" + m_modp->name() + " @ " + fileline()->ascii();
-        str += "\ninstanceCount: " + std::to_string(instanceCount());
-        str += "\nsize: " + std::to_string(m_size);
-        str += "\nflattenedSize: " + std::to_string(flattenedSize());
-        if (m_shouldInlineWhyp) str += "\nShouldInline: "s + m_shouldInlineWhyp;
-        if (m_noInlineHardWyp) str += "\nNoInlineHard: "s + m_noInlineHardWyp;
-        if (m_noInlineSoftWyp) str += "\nNoInlineSoft: "s + m_noInlineSoftWyp;
+        str += "\ninstanceCount: " + std::గమ్యం_string(instance_లెక్క());
+        str += "\nsize: " + std::గమ్యం_string(m_కొలత);
+        str += "\nflattenedSize: " + std::గమ్యం_string(flattened_కొలత());
+        ఒకవేళ (m_shouldInlineWhyp) str += "\nShouldInline: "s + m_shouldInlineWhyp;
+        ఒకవేళ (m_noInlineHardWyp) str += "\nNoInlineHard: "s + m_noInlineHardWyp;
+        ఒకవేళ (m_noInlineSoftWyp) str += "\nNoInlineSoft: "s + m_noInlineSoftWyp;
         str += "\n";
-        return str;
+        తిరిగి str;
     }
 };
 
-class InlineModCellVertex final : public InlineModEitherVertex {
-    VL_RTTI_IMPL(InlineModCellVertex, InlineModEitherVertex)
-    AstCell* const m_cellp;  // The cell (instance)
-    const char* m_doInlineWyp = nullptr;  // First reason this instance should be inlined
-    bool m_flatten = false;  // Whether this cell and below already flattened (avoid O(n^2))
+తరగతి Inline_Mod_Cell_శీర్షం final : బహిరంగ Inline_Mod_Either_శీర్షం {
+    VL_RTTI_IMPL(Inline_Mod_Cell_శీర్షం, Inline_Mod_Either_శీర్షం)
+    AstCell* స్థిరరాశి m_cellp;  // The cell (instance)
+    స్థిరరాశి అక్షరం* m_doInlineWyp = శూన్యసూచిక;  // First reason this instance should be inlined
+    తార్కిక m_flatten = అబద్ధం;  // Whether this cell and below already flattened (avoid O(n^2))
 
-public:
-    InlineModCellVertex(InlineModGraph& graph, AstCell* cellp)
-        : InlineModEitherVertex{graph}
+బహిరంగ:
+    Inline_Mod_Cell_శీర్షం(Inline_Mod_లేఖాచిత్రం& లేఖాచిత్రం, AstCell* cellp)
+        : Inline_Mod_Either_శీర్షం{లేఖాచిత్రం}
         , m_cellp{cellp} {}
-    ~InlineModCellVertex() override = default;
+    ~Inline_Mod_Cell_శీర్షం() override = అప్రమేయ;
 
     // ACCESSORS
-    AstCell* cellp() const { return m_cellp; }
-    bool doInline() const { return m_doInlineWyp; }
-    void setDoInline(const char* whyp) {
-        if (!m_doInlineWyp) m_doInlineWyp = whyp;
+    AstCell* cellp() స్థిరరాశి { తిరిగి m_cellp; }
+    తార్కిక doInline() స్థిరరాశి { తిరిగి m_doInlineWyp; }
+    శూన్య సమితి_Do_Inline(స్థిరరాశి అక్షరం* whyp) {
+        ఒకవేళ (!m_doInlineWyp) m_doInlineWyp = whyp;
     }
-    bool flatten() const { return m_flatten; }
-    void setFlatten() { m_flatten = true; }
+    తార్కిక flatten() స్థిరరాశి { తిరిగి m_flatten; }
+    శూన్య సమితి_Flatten() { m_flatten = నిజం; }
 
     // The module vertx this cell is instantiating
-    InlineModModuleVertex& instanceOf() const {
-        UASSERT_OBJ(outSize1(), this, "Cell should have exactly one outgoing edge");
-        return *outEdges().frontp()->top()->as<InlineModModuleVertex>();
+    Inline_Mod_Module_శీర్షం& instance_యొక్క() స్థిరరాశి {
+        UASSERT_OBJ(బహిర్గతం_Size1(), ఇది, "Cell should have exactly one outgoing edge");
+        తిరిగి *బహిర్గతం_అంచులు().frontp()->శిఖరం()->as<Inline_Mod_Module_శీర్షం>();
     }
     // The module vertex this cell is instantiated in
-    InlineModModuleVertex& instanceIn() const {
-        UASSERT_OBJ(inSize1(), this, "Cell should have exactly one incoming edge");
-        return *inEdges().frontp()->fromp()->as<InlineModModuleVertex>();
+    Inline_Mod_Module_శీర్షం& instance_లోపల() స్థిరరాశి {
+        UASSERT_OBJ(లోపల_Size1(), ఇది, "Cell should have exactly one incoming edge");
+        తిరిగి *లోపల_అంచులు().frontp()->fromp()->as<Inline_Mod_Module_శీర్షం>();
     }
 
     // debug
-    FileLine* fileline() const override { return m_cellp->fileline(); }
-    std::string dotColor() const override { return m_doInlineWyp ? "green" : "black"; }
-    std::string dotShape() const override { return "ellipse"; }
-    std::string name() const override VL_MT_STABLE {
-        std::string str = m_cellp->typeName() + " "s + cvtToHex(m_cellp);
+    File_పంక్తి* fileline() స్థిరరాశి override { తిరిగి m_cellp->fileline(); }
+    std::string dotColor() స్థిరరాశి override { తిరిగి m_doInlineWyp ? "green" : "black"; }
+    std::string dotShape() స్థిరరాశి override { తిరిగి "ellipse"; }
+    std::string name() స్థిరరాశి override VL_MT_STABLE {
+        std::string str = m_cellp->typeName() + " "s + cvt_గమ్యం_Hex(m_cellp);
         str += "\n" + m_cellp->name() + " @ " + fileline()->ascii();
-        if (m_doInlineWyp) str += "\nDoInline: "s + m_doInlineWyp;
+        ఒకవేళ (m_doInlineWyp) str += "\nDoInline: "s + m_doInlineWyp;
         str += "\n";
-        return str;
+        తిరిగి str;
     }
 };
 
-InlineModModuleVertex* InlineModGraph::getInlineModModuleVertexp(AstNodeModule* modp) {
-    if (!modp->user4p()) modp->user4p(new InlineModModuleVertex{*this, modp});
-    return modp->user4u().to<InlineModModuleVertex*>();
+Inline_Mod_Module_శీర్షం* Inline_Mod_లేఖాచిత్రం::getInlineModModuleVertexp(Ast_కణుపు_Module* modp) {
+    ఒకవేళ (!modp->user4p()) modp->user4p(కొత్త Inline_Mod_Module_శీర్షం{*ఇది, modp});
+    తిరిగి modp->user4u().గమ్యం<Inline_Mod_Module_శీర్షం*>();
 }
-InlineModCellVertex* InlineModGraph::getInlineModCellVertexp(AstCell* cellp) {
-    if (!cellp->user4p()) cellp->user4p(new InlineModCellVertex{*this, cellp});
-    return cellp->user4u().to<InlineModCellVertex*>();
-}
-
-void InlineModGraph::addEdge(InlineModModuleVertex& parent, InlineModCellVertex& cell) {
-    UASSERT_OBJ(cell.inEmpty(), &cell, "Cell should have at most one incoming edge");
-    new V3GraphEdge{this, &parent, &cell, 1, /* cutable: */ false};
-}
-void InlineModGraph::addEdge(InlineModCellVertex& cell, InlineModModuleVertex& submodule) {
-    UASSERT_OBJ(cell.outEmpty(), &cell, "Cell should have at most one outgoing edge");
-    new V3GraphEdge{this, &cell, &submodule, 1, /* cutable: */ false};
+Inline_Mod_Cell_శీర్షం* Inline_Mod_లేఖాచిత్రం::getInlineModCellVertexp(AstCell* cellp) {
+    ఒకవేళ (!cellp->user4p()) cellp->user4p(కొత్త Inline_Mod_Cell_శీర్షం{*ఇది, cellp});
+    తిరిగి cellp->user4u().గమ్యం<Inline_Mod_Cell_శీర్షం*>();
 }
 
-void InlineModModuleVertex::setFlatten() {
-    for (V3GraphEdge& edge : outEdges()) {
-        InlineModCellVertex& cVtx = *edge.top()->as<InlineModCellVertex>();
-        if (cVtx.flatten()) continue;
-        cVtx.setFlatten();
-        InlineModModuleVertex& iVtx = cVtx.instanceOf();
-        if (!iVtx.noInlineHard() && !iVtx.noInlineSoft()) cVtx.setDoInline("flatten parent");
-        iVtx.setFlatten();
+శూన్య Inline_Mod_లేఖాచిత్రం::కూడు_అంచు(Inline_Mod_Module_శీర్షం& మాతృ, Inline_Mod_Cell_శీర్షం& cell) {
+    UASSERT_OBJ(cell.లోపల_ఖాళీలు(), &cell, "Cell should have at most one incoming edge");
+    కొత్త V3_లేఖాచిత్రం_అంచు{ఇది, &మాతృ, &cell, 1, /* cutable: */ అబద్ధం};
+}
+శూన్య Inline_Mod_లేఖాచిత్రం::కూడు_అంచు(Inline_Mod_Cell_శీర్షం& cell, Inline_Mod_Module_శీర్షం& submodule) {
+    UASSERT_OBJ(cell.బహిర్గతం_ఖాళీలు(), &cell, "Cell should have at most one outgoing edge");
+    కొత్త V3_లేఖాచిత్రం_అంచు{ఇది, &cell, &submodule, 1, /* cutable: */ అబద్ధం};
+}
+
+శూన్య Inline_Mod_Module_శీర్షం::సమితి_Flatten() {
+    కొరకు (V3_లేఖాచిత్రం_అంచు& అంచు : బహిర్గతం_అంచులు()) {
+        Inline_Mod_Cell_శీర్షం& cVtx = *అంచు.శిఖరం()->as<Inline_Mod_Cell_శీర్షం>();
+        ఒకవేళ (cVtx.flatten()) కొనసాగు;
+        cVtx.సమితి_Flatten();
+        Inline_Mod_Module_శీర్షం& iVtx = cVtx.instance_యొక్క();
+        ఒకవేళ (!iVtx.noInlineHard() && !iVtx.noInlineSoft()) cVtx.సమితి_Do_Inline("flatten parent");
+        iVtx.సమితి_Flatten();
     }
 }
 
 //######################################################################
 // Visitor that builds the bipartite module instantiation graph
 
-class InlineModGraphBuilder final : public VNVisitor {
+తరగతి Inline_Mod_లేఖాచిత్రం_Builder final : బహిరంగ VNVisitor {
     // STATE
-    std::unique_ptr<InlineModGraph> m_graphp{new InlineModGraph};  // The graph being built
-    InlineModModuleVertex* m_modVtxp = nullptr;  // Vertex of module currently being iterated
-    const AstScope* m_sizedScopep = nullptr;  // The scope of current module measured for size
+    std::unique_ptr<Inline_Mod_లేఖాచిత్రం> m_graphp{కొత్త Inline_Mod_లేఖాచిత్రం};  // The graph being built
+    Inline_Mod_Module_శీర్షం* m_modVtxp = శూన్యసూచిక;  // Vertex of module currently being iterated
+    స్థిరరాశి AstScope* m_sizedScopep = శూన్యసూచిక;  // The scope of current module measured for size
 
     // VISITORS
-    void visit(AstNodeModule* nodep) override {
+    శూన్య సందర్శించు(Ast_కణుపు_Module* nodep) override {
         UASSERT_OBJ(!m_modVtxp, nodep, "Unsupported: Nested modules");
 
         // Create the module vertex
-        InlineModModuleVertex* const vtxp = m_graphp->getInlineModModuleVertexp(nodep);
+        Inline_Mod_Module_శీర్షం* స్థిరరాశి vtxp = m_graphp->getInlineModModuleVertexp(nodep);
 
         // Check if the module itself is not inlineable
 
         // TODO: All references are resolved by now, but AstIfaceRefDType::cellp and
         // the AstIntfRef records still name the interface instance, so keep it.
-        if (VN_IS(nodep, Iface)) vtxp->setNoInlineHard("Interface");
+        ఒకవేళ (VN_IS(nodep, Iface)) vtxp->సమితి_No_Inline_Hard("Interface");
         // Never inline the constant pool, even if packages become inlineable
-        if (nodep->isConstPool()) vtxp->setNoInlineHard("Constant pool");
+        ఒకవేళ (nodep->isConstPool()) vtxp->సమితి_No_Inline_Hard("Constant pool");
         // Never inline packages - TODO: conceptually fine, but why not?
-        if (VN_IS(nodep, Package)) vtxp->setNoInlineHard("Package");
+        ఒకవేళ (VN_IS(nodep, Package)) vtxp->సమితి_No_Inline_Hard("Package");
         // Never inline the wrapper of a --lib-create library, its instances
         // create the library models at construction (see V3EmitCSyms)
-        if (nodep->verilatorLib()) vtxp->setNoInlineHard("verilatorLib");
+        ఒకవేళ (nodep->verilatorLib()) vtxp->సమితి_No_Inline_Hard("verilatorLib");
 
         // Don't inline public modules by default
-        if (nodep->modPublic()) vtxp->setNoInlineSoft("Public module");
+        ఒకవేళ (nodep->mod_ప్రజా()) vtxp->సమితి_No_Inline_Soft("Public module");
 
         // Iterate children
         VL_RESTORER(m_modVtxp);
         VL_RESTORER(m_sizedScopep);
         m_modVtxp = vtxp;
-        m_sizedScopep = nullptr;
+        m_sizedScopep = శూన్యసూచిక;
         iterateChildrenConst(nodep);
     }
 
-    void visit(AstClass* nodep) override {
+    శూన్య సందర్శించు(AstClass* nodep) override {
         // TODO allow inlining of modules that contain classes
-        if (m_modVtxp) m_modVtxp->setNoInlineHard("Contains class");
+        ఒకవేళ (m_modVtxp) m_modVtxp->సమితి_No_Inline_Hard("Contains class");
     }
 
-    void visit(AstScope* nodep) override {
+    శూన్య సందర్శించు(AstScope* nodep) override {
         // Every instance of a module holds an identical copy of the module body under
         // its own AstScope, so only measure the size of one of them.
-        if (!m_sizedScopep) m_sizedScopep = nodep;
-        if (m_sizedScopep != nodep) return;
-        if (m_modVtxp) m_modVtxp->sizeInc();
+        ఒకవేళ (!m_sizedScopep) m_sizedScopep = nodep;
+        ఒకవేళ (m_sizedScopep != nodep) తిరిగి;
+        ఒకవేళ (m_modVtxp) m_modVtxp->కొలత_Inc();
         iterateChildrenConst(nodep);
     }
 
     // Cells instantiate modules
-    void visit(AstCell* nodep) override {
+    శూన్య సందర్శించు(AstCell* nodep) override {
         UASSERT_OBJ(m_modVtxp, nodep, "Cell should be under a module");
 
         // Create the cell vertex
-        InlineModCellVertex* const vtxp = m_graphp->getInlineModCellVertexp(nodep);
+        Inline_Mod_Cell_శీర్షం* స్థిరరాశి vtxp = m_graphp->getInlineModCellVertexp(nodep);
 
         // Add containing-module/instantiated-module edges
-        m_graphp->addEdge(*m_modVtxp, *vtxp);
-        m_graphp->addEdge(*vtxp, *m_graphp->getInlineModModuleVertexp(nodep->modp()));
+        m_graphp->కూడు_అంచు(*m_modVtxp, *vtxp);
+        m_graphp->కూడు_అంచు(*vtxp, *m_graphp->getInlineModModuleVertexp(nodep->modp()));
 
         // Iterate children
         iterateChildrenConst(nodep);
     }
 
-    void visit(AstPragma* nodep) override {
-        if (nodep->pragType() == VPragmaType::INLINE_MODULE) {
-            if (!m_modVtxp) {
+    శూన్య సందర్శించు(AstPragma* nodep) override {
+        ఒకవేళ (nodep->pragType() == VPragmaType::INLINE_MODULE) {
+            ఒకవేళ (!m_modVtxp) {
                 nodep->v3error("Inline pragma not under a module");  // LCOV_EXCL_LINE
-            } else {
-                m_modVtxp->setShouldInline("Pragma INLINE_MODULE");
+            } లేకపోతే {
+                m_modVtxp->సమితి_Should_Inline("Pragma INLINE_MODULE");
             }
-            VL_DO_DANGLING(nodep->unlinkFrBack()->deleteTree(), nodep);
-            return;
+            VL_DO_DANGLING(nodep->unlink_Fr_వెనుక()->delete_వృక్షం(), nodep);
+            తిరిగి;
         }
 
-        if (nodep->pragType() == VPragmaType::NO_INLINE_MODULE) {
-            if (!m_modVtxp) {
+        ఒకవేళ (nodep->pragType() == VPragmaType::NO_INLINE_MODULE) {
+            ఒకవేళ (!m_modVtxp) {
                 nodep->v3error("Inline pragma not under a module");  // LCOV_EXCL_LINE
-            } else {
-                m_modVtxp->setNoInlineSoft("Pragma NO_INLINE_MODULE");
+            } లేకపోతే {
+                m_modVtxp->సమితి_No_Inline_Soft("Pragma NO_INLINE_MODULE");
             }
-            VL_DO_DANGLING(nodep->unlinkFrBack()->deleteTree(), nodep);
-            return;
+            VL_DO_DANGLING(nodep->unlink_Fr_వెనుక()->delete_వృక్షం(), nodep);
+            తిరిగి;
         }
 
         iterateChildrenConst(nodep);
     }
 
     // Base node
-    void visit(AstNode* nodep) override {
-        if (m_modVtxp) m_modVtxp->sizeInc();
+    శూన్య సందర్శించు(Ast_కణుపు* nodep) override {
+        ఒకవేళ (m_modVtxp) m_modVtxp->కొలత_Inc();
         iterateChildrenConst(nodep);
     }
 
     // CONSTRUCTORS
-    explicit InlineModGraphBuilder(AstNetlist* nodep) {
+    స్పష్టమైన Inline_Mod_లేఖాచిత్రం_Builder(AstNetlist* nodep) {
         // Build the module instantiation graph
         iterateConst(nodep);
         // Order vertices (any topological order is fine), can't be cyclic at this point
-        m_graphp->order();
+        m_graphp->క్రమం();
         // Check that the first vertex is the top level module (everything, including packages,
         // have a corresponding AstCell under the top level at this point).
-        UASSERT_OBJ(m_graphp->vertices().frontp()->as<InlineModModuleVertex>()->modp()->isTop(),
+        UASSERT_OBJ(m_graphp->vertices().frontp()->as<Inline_Mod_Module_శీర్షం>()->modp()->is_శిఖరం(),
                     nodep, "First vertex should be top level module");
-#ifdef VL_DEBUG
-        for (const V3GraphVertex& vtx : m_graphp->vertices()) {
+#నిర్వచితమైతే VL_DEBUG
+        కొరకు (స్థిరరాశి V3_లేఖాచిత్రం_శీర్షం& vtx : m_graphp->vertices()) {
             // First vertex is the top levelmodule, we checked above
-            if (&vtx == m_graphp->vertices().frontp()) continue;
+            ఒకవేళ (&vtx == m_graphp->vertices().frontp()) కొనసాగు;
             // Otherwise it should have instantiations
-            UASSERT_OBJ(!vtx.inEmpty(), &vtx, "Should have edges from root");
+            UASSERT_OBJ(!vtx.లోపల_ఖాళీలు(), &vtx, "Should have edges from root");
         }
-#endif
+#అయితే_ముగింపు
     }
-    ~InlineModGraphBuilder() override = default;
+    ~Inline_Mod_లేఖాచిత్రం_Builder() override = అప్రమేయ;
 
-public:
-    static std::unique_ptr<InlineModGraph> apply(AstNetlist* nodep) {
-        return std::move(InlineModGraphBuilder{nodep}.m_graphp);
+బహిరంగ:
+    స్థిర std::unique_ptr<Inline_Mod_లేఖాచిత్రం> apply(AstNetlist* nodep) {
+        తిరిగి std::move(Inline_Mod_లేఖాచిత్రం_Builder{nodep}.m_graphp);
     }
 };
 
 //######################################################################
 // Module inliner
 
-namespace ModuleInliner {
+నామాకాశ ModuleInliner {
 
 // The scopes instantiated directly under each scope (that is parent -> children links)
-using ScopeChildren = std::unordered_map<const AstScope*, std::vector<AstScope*>>;
+ఉపయోగించి ScopeChildren = std::unordered_map<స్థిరరాశి AstScope*, std::సదిశ<AstScope*>>;
 
 // Record downward links from parent scopes to their child scopes
-void gatherScopes(const AstNodeModule* modp, ScopeChildren& children) {
-    for (AstNode* nodep = modp->stmtsp(); nodep; nodep = nodep->nextp()) {
-        if (AstScope* const scopep = VN_CAST(nodep, Scope)) {
+శూన్య gatherScopes(స్థిరరాశి Ast_కణుపు_Module* modp, ScopeChildren& children) {
+    కొరకు (Ast_కణుపు* nodep = modp->stmtsp(); nodep; nodep = nodep->nextp()) {
+        ఒకవేళ (AstScope* స్థిరరాశి scopep = VN_CAST(nodep, Scope)) {
             // Note the top scope is held under the AstTopScope, so is not seen here
             UASSERT_OBJ(scopep->aboveScopep(), scopep, "Instance scope should have a scope above");
-            children[scopep->aboveScopep()].push_back(scopep);
-        } else if (const AstNodeModule* const subModp = VN_CAST(nodep, NodeModule)) {
+            children[scopep->aboveScopep()].నెట్టు_వెనుక(scopep);
+        } లేకపోతే ఒకవేళ (స్థిరరాశి Ast_కణుపు_Module* స్థిరరాశి subModp = VN_CAST(nodep, కణుపు_Module)) {
             // An AstClass holds its scopes under itself
             UASSERT_OBJ(VN_IS(subModp, Class), subModp, "Nested module should be a class");
             gatherScopes(subModp, children);
@@ -396,142 +396,142 @@ void gatherScopes(const AstNodeModule* modp, ScopeChildren& children) {
 
 // Rename the given scope, and all scopes below it, after the scope named by 'oldPrefix'
 // (the original parent of 'scopep') has been inlined into the scope above it
-void renameScopes(AstScope* scopep, const std::string& oldPrefix, const std::string& newPrefix,
-                  const ScopeChildren& children) {
-    UASSERT_OBJ(VString::startsWith(scopep->name(), oldPrefix), scopep,
+శూన్య renameScopes(AstScope* scopep, స్థిరరాశి std::string& old_ఉపసర్గ, స్థిరరాశి std::string& new_ఉపసర్గ,
+                  స్థిరరాశి ScopeChildren& children) {
+    UASSERT_OBJ(VString::startsWith(scopep->name(), old_ఉపసర్గ), scopep,
                 "Scope name should start with the name of the scope above it");
-    scopep->name(newPrefix + scopep->name().substr(oldPrefix.size()));
-    const auto it = children.find(scopep);
-    if (it == children.end()) return;
-    for (AstScope* const childp : it->second) {
-        renameScopes(childp, oldPrefix, newPrefix, children);
+    scopep->name(new_ఉపసర్గ + scopep->name().substr(old_ఉపసర్గ.కొలత()));
+    స్థిరరాశి స్వయంచాలక it = children.కనుగొను(scopep);
+    ఒకవేళ (it == children.చివర()) తిరిగి;
+    కొరకు (AstScope* స్థిరరాశి childp : it->రెండవ) {
+        renameScopes(childp, old_ఉపసర్గ, new_ఉపసర్గ, children);
     }
 }
 
 // Merge the given scope (instance) of the inlined cell into the scope above it
-void inlineScope(AstScope* scopep, AstCell* cellp, const std::string& prefix,
+శూన్య inlineScope(AstScope* scopep, AstCell* cellp, స్థిరరాశి std::string& ఉపసర్గ,
                  ScopeChildren& children) {
-    AstScope* const parentScopep = scopep->aboveScopep();
-    UASSERT_OBJ(parentScopep, scopep, "Inlined scope should have a scope above");
+    AstScope* స్థిరరాశి మాతృ_Scopep = scopep->aboveScopep();
+    UASSERT_OBJ(మాతృ_Scopep, scopep, "Inlined scope should have a scope above");
     UINFO(6, "  Inline Scope " << scopep);
-    UINFO(6, "     into      " << parentScopep);
+    UINFO(6, "     into      " << మాతృ_Scopep);
 
     // Move the variables of the inlined scope into the scope above
-    for (AstVarScope *vscp = scopep->varsp(), *nextp; vscp; vscp = nextp) {
+    కొరకు (AstVarScope *vscp = scopep->varsp(), *nextp; vscp; vscp = nextp) {
         nextp = VN_AS(vscp->nextp(), VarScope);
         // Note V3Scope attaches variables of non-virtual interface references to the
         // scope of the interface instance, so only update if it is this scope
-        if (vscp->scopep() == scopep) vscp->scopep(parentScopep);
+        ఒకవేళ (vscp->scopep() == scopep) vscp->scopep(మాతృ_Scopep);
         // If the module was cloned, point to the cloned variable
-        if (AstVar* const newVarp = VN_CAST(vscp->varp()->user3p(), Var)) {
+        ఒకవేళ (AstVar* స్థిరరాశి newVarp = VN_CAST(vscp->varp()->user3p(), Var)) {
             vscp->varp(newVarp);
             vscp->dtypeFrom(newVarp);
         }
-        if (!cellp->isTrace()) vscp->trace(false);
-        parentScopep->addVarsp(vscp->unlinkFrBack());
+        ఒకవేళ (!cellp->isTrace()) vscp->trace(అబద్ధం);
+        మాతృ_Scopep->కూడు_Varsp(vscp->unlink_Fr_వెనుక());
     }
 
     // Move the logic of the inlined scope into the scope above
-    for (AstNode *nodep = scopep->blocksp(), *nextp; nodep; nodep = nextp) {
+    కొరకు (Ast_కణుపు *nodep = scopep->blocksp(), *nextp; nodep; nodep = nextp) {
         nextp = nodep->nextp();
-        nodep->unlinkFrBack();
-        if (AstNodeFTask* const ftaskp = VN_CAST(nodep, NodeFTask)) {
-            ftaskp->name(prefix + ftaskp->name());
+        nodep->unlink_Fr_వెనుక();
+        ఒకవేళ (Ast_కణుపు_FTask* స్థిరరాశి ftaskp = VN_CAST(nodep, కణుపు_FTask)) {
+            ftaskp->name(ఉపసర్గ + ftaskp->name());
         }
         // If the module was cloned, point coverage increments to the cloned declarations
-        if (v3Global.opt.coverage()) {
+        ఒకవేళ (v3Global.opt.coverage()) {
             nodep->foreach([&](AstCoverInc* incp) {
-                AstNodeCoverDecl* const declp = incp->declp();
-                if (declp->perInstance()) {
+                Ast_కణుపు_Cover_Decl* స్థిరరాశి declp = incp->declp();
+                ఒకవేళ (declp->చొప్పున_Instance()) {
                     // Not cloned, fix up the path here, as only this scope refers to it
-                    if (!incp->isDuplicate()) {
+                    ఒకవేళ (!incp->isDuplicate()) {
                         declp->hier(VString::dot(cellp->prettyName(), ".", declp->hier()));
                     }
-                    return;
+                    తిరిగి;
                 }
-                if (AstNodeCoverDecl* const newDeclp = VN_CAST(declp->user3p(), NodeCoverDecl)) {
+                ఒకవేళ (Ast_కణుపు_Cover_Decl* స్థిరరాశి newDeclp = VN_CAST(declp->user3p(), కణుపు_Cover_Decl)) {
                     incp->declp(newDeclp);
                 }
             });
         }
-        parentScopep->addBlocksp(nodep);
+        మాతృ_Scopep->కూడు_Blocksp(nodep);
     }
 
     // Move the inline records of the inlined scope into the scope above
-    for (AstNode *nodep = scopep->inlinesp(), *nextp; nodep; nodep = nextp) {
+    కొరకు (Ast_కణుపు *nodep = scopep->inlinesp(), *nextp; nodep; nodep = nextp) {
         nextp = nodep->nextp();
-        AstCellInlineScope* const cisp = VN_AS(nodep->unlinkFrBack(), CellInlineScope);
-        cisp->name(prefix + cisp->name());
-        parentScopep->addInlinesp(cisp);
+        AstCellInlineScope* స్థిరరాశి cisp = VN_AS(nodep->unlink_Fr_వెనుక(), CellInlineScope);
+        cisp->name(ఉపసర్గ + cisp->name());
+        మాతృ_Scopep->కూడు_Inlinesp(cisp);
     }
     // ... and add one for the instance we are inlining now
-    if (v3Global.opt.vpi()) {
-        parentScopep->addInlinesp(
-            new AstCellInlineScope{cellp->fileline(), cellp->name(), cellp->modp()->origName()});
+    ఒకవేళ (v3Global.opt.vpi()) {
+        మాతృ_Scopep->కూడు_Inlinesp(
+            కొత్త AstCellInlineScope{cellp->fileline(), cellp->name(), cellp->modp()->origName()});
     }
 
     // Reparent and rename the scopes instantiated under the inlined scope
-    const std::string oldPrefix = scopep->name() + ".";
-    const std::string newPrefix = scopep->name() + "__DOT__";
-    std::vector<AstScope*> childScopeps;
+    స్థిరరాశి std::string old_ఉపసర్గ = scopep->name() + ".";
+    స్థిరరాశి std::string new_ఉపసర్గ = scopep->name() + "__DOT__";
+    std::సదిశ<AstScope*> బిడ్డ_Scopeps;
     {
-        const auto it = children.find(scopep);
-        if (it != children.end()) {
-            childScopeps = std::move(it->second);
+        స్థిరరాశి స్వయంచాలక it = children.కనుగొను(scopep);
+        ఒకవేళ (it != children.చివర()) {
+            బిడ్డ_Scopeps = std::move(it->రెండవ);
             children.erase(it);
         }
     }
-    for (AstScope* const childScopep : childScopeps) {
+    కొరకు (AstScope* స్థిరరాశి బిడ్డ_Scopep : బిడ్డ_Scopeps) {
         // A class scope would hang off the scope of the module declaring it, but modules
         // containing classes are never inlined
-        UASSERT_OBJ(!VN_IS(childScopep->modp(), Class), childScopep,
+        UASSERT_OBJ(!VN_IS(బిడ్డ_Scopep->modp(), Class), బిడ్డ_Scopep,
                     "Inlined scope should not contain a class scope");
-        if (AstCell* const newCellp = VN_CAST(childScopep->aboveCellp()->user3p(), Cell)) {
+        ఒకవేళ (AstCell* స్థిరరాశి newCellp = VN_CAST(బిడ్డ_Scopep->aboveCellp()->user3p(), Cell)) {
             // If the module was cloned, point to the cloned cell
-            childScopep->aboveCellp(newCellp);
+            బిడ్డ_Scopep->aboveCellp(newCellp);
         }
-        childScopep->aboveScopep(parentScopep);
-        renameScopes(childScopep, oldPrefix, newPrefix, children);
+        బిడ్డ_Scopep->aboveScopep(మాతృ_Scopep);
+        renameScopes(బిడ్డ_Scopep, old_ఉపసర్గ, new_ఉపసర్గ, children);
     }
     // Children of the inlined scope are now children of the scope above. Note this must
     // come after the erase above, as inserting into 'children' can invalidate 'it'.
-    std::vector<AstScope*>& parentChildps = children[parentScopep];
-    parentChildps.erase(std::remove(parentChildps.begin(), parentChildps.end(), scopep),
-                        parentChildps.end());
-    parentChildps.insert(parentChildps.end(), childScopeps.begin(), childScopeps.end());
+    std::సదిశ<AstScope*>& మాతృ_Childps = children[మాతృ_Scopep];
+    మాతృ_Childps.erase(std::remove(మాతృ_Childps.begin(), మాతృ_Childps.చివర(), scopep),
+                        మాతృ_Childps.చివర());
+    మాతృ_Childps.చొప్పించు(మాతృ_Childps.చివర(), బిడ్డ_Scopeps.begin(), బిడ్డ_Scopeps.చివర());
 
     UASSERT_OBJ(!scopep->varsp() && !scopep->blocksp() && !scopep->inlinesp(), scopep,
                 "Inlined scope should be empty");
 }
 
 // Inline 'cellp' into 'modp'. 'last' indicatest this is tha last instance of the inlined module
-void inlineCell(AstNodeModule* modp, AstCell* cellp, bool last, InlineModGraph& graph,
+శూన్య inlineCell(Ast_కణుపు_Module* modp, AstCell* cellp, తార్కిక చివరి, Inline_Mod_లేఖాచిత్రం& లేఖాచిత్రం,
                 ScopeChildren& children) {
     UINFO(5, " Inline Cell  " << cellp);
     UINFO(5, " into Module  " << modp);
 
     // NODE STATE
     //  AstNode::user3p()  -> AstNode*. The clone of this module level declaration
-    const VNUser3InUse user3InUse;
+    స్థిరరాశి VNUser3_లోపల_Use user3_లోపల_Use;
 
     VNDeleter deleter;
-    deleter.pushDeletep(cellp->unlinkFrBack());
+    deleter.నెట్టు_Deletep(cellp->unlink_Fr_వెనుక());
 
-    AstNodeModule* const subModp = cellp->modp();  // The module being inlined
+    Ast_కణుపు_Module* స్థిరరాశి subModp = cellp->modp();  // The module being inlined
 
     // Unlink all scopes of the instantiated module, so they are not cloned with it
-    std::vector<AstScope*> inlineScopeps;  // Scopes under 'cellp'
-    std::vector<AstScope*> otherScopeps;  // Scopes under some other instance
-    for (AstNode *nodep = subModp->stmtsp(), *nextp; nodep; nodep = nextp) {
+    std::సదిశ<AstScope*> inlineScopeps;  // Scopes under 'cellp'
+    std::సదిశ<AstScope*> otherScopeps;  // Scopes under some other instance
+    కొరకు (Ast_కణుపు *nodep = subModp->stmtsp(), *nextp; nodep; nodep = nextp) {
         nextp = nodep->nextp();
-        AstScope* const scopep = VN_CAST(nodep, Scope);
-        if (!scopep) continue;
-        scopep->unlinkFrBack();
-        if (scopep->aboveCellp() == cellp) {
-            inlineScopeps.push_back(scopep);
-            deleter.pushDeletep(scopep);
-        } else {
-            otherScopeps.push_back(scopep);
+        AstScope* స్థిరరాశి scopep = VN_CAST(nodep, Scope);
+        ఒకవేళ (!scopep) కొనసాగు;
+        scopep->unlink_Fr_వెనుక();
+        ఒకవేళ (scopep->aboveCellp() == cellp) {
+            inlineScopeps.నెట్టు_వెనుక(scopep);
+            deleter.నెట్టు_Deletep(scopep);
+        } లేకపోతే {
+            otherScopeps.నెట్టు_వెనుక(scopep);
         }
     }
 
@@ -546,141 +546,141 @@ void inlineCell(AstNodeModule* modp, AstCell* cellp, bool last, InlineModGraph& 
     // large trees also improves speed.
 
     // The module we will yank the declarations out of and put into 'modp'
-    AstNodeModule* inlinedp;
-    if (last) {
-        inlinedp = subModp->unlinkFrBack();
+    Ast_కణుపు_Module* inlinedp;
+    ఒకవేళ (చివరి) {
+        inlinedp = subModp->unlink_Fr_వెనుక();
         // This is the only instantiation, so all scopes are being inlined
-        UASSERT_OBJ(otherScopeps.empty(), cellp, "Last instance, but has other scopes");
-    } else {
-        inlinedp = subModp->cloneTree(false);
+        UASSERT_OBJ(otherScopeps.ఖాళీలు(), cellp, "Last instance, but has other scopes");
+    } లేకపోతే {
+        inlinedp = subModp->clone_వృక్షం(అబద్ధం);
         // Compute map from the original module items to their clones
-        for (AstNode *ap = subModp->stmtsp(), *bp = inlinedp->stmtsp(); ap || bp;
+        కొరకు (Ast_కణుపు *ap = subModp->stmtsp(), *bp = inlinedp->stmtsp(); ap || bp;
              ap = ap->nextp(), bp = bp->nextp()) {
             UASSERT_OBJ(ap && bp, ap ? ap : bp, "Clone has different number of children");
             ap->user3p(bp);
         }
         // Per instance coverage declarations must not be duplicated, drop the clones
-        if (v3Global.opt.coverageFsm()) {
-            for (AstNode *nodep = inlinedp->stmtsp(), *nextp; nodep; nodep = nextp) {
+        ఒకవేళ (v3Global.opt.coverageFsm()) {
+            కొరకు (Ast_కణుపు *nodep = inlinedp->stmtsp(), *nextp; nodep; nodep = nextp) {
                 nextp = nodep->nextp();
-                const AstNodeCoverDecl* const declp = VN_CAST(nodep, NodeCoverDecl);
-                if (declp && declp->perInstance()) {
-                    VL_DO_DANGLING(deleter.pushDeletep(nodep->unlinkFrBack()), nodep);
+                స్థిరరాశి Ast_కణుపు_Cover_Decl* స్థిరరాశి declp = VN_CAST(nodep, కణుపు_Cover_Decl);
+                ఒకవేళ (declp && declp->చొప్పున_Instance()) {
+                    VL_DO_DANGLING(deleter.నెట్టు_Deletep(nodep->unlink_Fr_వెనుక()), nodep);
                 }
             }
         }
         // Put back the scopes of the instances we are not inlining this time
-        for (AstScope* const scopep : otherScopeps) subModp->addStmtsp(scopep);
+        కొరకు (AstScope* స్థిరరాశి scopep : otherScopeps) subModp->కూడు_Stmtsp(scopep);
     }
-    deleter.pushDeletep(inlinedp);
+    deleter.నెట్టు_Deletep(inlinedp);
 
     // Prefix for renaming inlined declarations
-    const std::string prefix = cellp->name() + "__DOT__";
+    స్థిరరాశి std::string ఉపసర్గ = cellp->name() + "__DOT__";
 
     // Move the `systemc_* blocks of the inlined module into 'modp'
-    if (AstSystemCSection* const sectionsp = inlinedp->scSectionsp()) {
-        modp->addScSectionsp(sectionsp->unlinkFrBackWithNext());
+    ఒకవేళ (AstSystemCSection* స్థిరరాశి sectionsp = inlinedp->scSectionsp()) {
+        modp->కూడు_Sc_Sectionsp(sectionsp->unlink_Fr_వెనుక_With_తదుపరి());
     }
 
     // Move the module level declarations of the inlined module into 'modp'
-    InlineModModuleVertex* const mVtxp = graph.getInlineModModuleVertexp(modp);
-    for (AstNode *nodep = inlinedp->stmtsp(), *nextp; nodep; nodep = nextp) {
+    Inline_Mod_Module_శీర్షం* స్థిరరాశి mVtxp = లేఖాచిత్రం.getInlineModModuleVertexp(modp);
+    కొరకు (Ast_కణుపు *nodep = inlinedp->stmtsp(), *nextp; nodep; nodep = nextp) {
         nextp = nodep->nextp();
-        nodep->unlinkFrBack();
+        nodep->unlink_Fr_వెనుక();
         UASSERT_OBJ(!VN_IS(nodep, Class), nodep,
                     "Module containing a class should not be inlined");
-        if (AstVar* const varp = VN_CAST(nodep, Var)) {
-            varp->name(prefix + varp->name());
+        ఒకవేళ (AstVar* స్థిరరాశి varp = VN_CAST(nodep, Var)) {
+            varp->name(ఉపసర్గ + varp->name());
             // Variable is now local to 'modp', rename to avoid conflicts and clear I/O bits
-            if (varp->direction() == VDirection::INOUT && varp->varType() == VVarType::WIRE) {
+            ఒకవేళ (varp->direction() == VDirection::INOUT && varp->varType() == VVarType::WIRE) {
                 varp->varType(VVarType::TRIWIRE);
             }
             varp->direction(VDirection::NONE);
-            if (!cellp->isTrace()) varp->trace(false);
-        } else if (AstCell* const subCellp = VN_CAST(nodep, Cell)) {
-            subCellp->name(prefix + subCellp->name());
+            ఒకవేళ (!cellp->isTrace()) varp->trace(అబద్ధం);
+        } లేకపోతే ఒకవేళ (AstCell* స్థిరరాశి subCellp = VN_CAST(nodep, Cell)) {
+            subCellp->name(ఉపసర్గ + subCellp->name());
             // Need to update graph. Note the vertex of the original cell was either
             // deleted (if 'last'), or user4p is a copy made by cloneTree, so reset it.
-            subCellp->user4p(nullptr);
-            InlineModCellVertex* const vtxp = graph.getInlineModCellVertexp(subCellp);
-            graph.addEdge(*mVtxp, *vtxp);
-            graph.addEdge(*vtxp, *graph.getInlineModModuleVertexp(subCellp->modp()));
-        } else if (AstTypedef* const typedefp = VN_CAST(nodep, Typedef)) {
-            typedefp->name(prefix + typedefp->name());
-        } else if (AstNodeCoverDecl* const declp = VN_CAST(nodep, NodeCoverDecl)) {
+            subCellp->user4p(శూన్యసూచిక);
+            Inline_Mod_Cell_శీర్షం* స్థిరరాశి vtxp = లేఖాచిత్రం.getInlineModCellVertexp(subCellp);
+            లేఖాచిత్రం.కూడు_అంచు(*mVtxp, *vtxp);
+            లేఖాచిత్రం.కూడు_అంచు(*vtxp, *లేఖాచిత్రం.getInlineModModuleVertexp(subCellp->modp()));
+        } లేకపోతే ఒకవేళ (AstTypedef* స్థిరరాశి typedefp = VN_CAST(nodep, Typedef)) {
+            typedefp->name(ఉపసర్గ + typedefp->name());
+        } లేకపోతే ఒకవేళ (Ast_కణుపు_Cover_Decl* స్థిరరాశి declp = VN_CAST(nodep, కణుపు_Cover_Decl)) {
             // Fix path in coverage statements. Per instance ones are fixed in inlineScope.
-            if (!declp->perInstance()) {
+            ఒకవేళ (!declp->చొప్పున_Instance()) {
                 declp->hier(VString::dot(cellp->prettyName(), ".", declp->hier()));
             }
         }
-        modp->addStmtsp(nodep);
+        modp->కూడు_Stmtsp(nodep);
     }
 
     // Merge each scope (instance) of the inlined cell into the scope above it
-    for (AstScope* const scopep : inlineScopeps) inlineScope(scopep, cellp, prefix, children);
+    కొరకు (AstScope* స్థిరరాశి scopep : inlineScopeps) inlineScope(scopep, cellp, ఉపసర్గ, children);
 }
 
 // Apply all inlining decisions
-void process(AstNetlist* netlistp, InlineModGraph& graph) {
+శూన్య process(AstNetlist* netlistp, Inline_Mod_లేఖాచిత్రం& లేఖాచిత్రం) {
     // Number of inlined instances, for statistics
     VDouble0 m_nInlined;
 
     // Record the scope hierarchy - we need the downward links
     ScopeChildren children;
-    for (AstNodeModule* modp = netlistp->modulesp(); modp;
-         modp = VN_AS(modp->nextp(), NodeModule)) {
+    కొరకు (Ast_కణుపు_Module* modp = netlistp->modulesp(); modp;
+         modp = VN_AS(modp->nextp(), కణుపు_Module)) {
         gatherScopes(modp, children);
     }
 
     // Gather all cells that need to be inlined (this is in topological order)
-    std::vector<InlineModCellVertex*> cVtxps;
-    for (V3GraphVertex& vtx : graph.vertices()) {
-        InlineModCellVertex* const cVtxp = vtx.cast<InlineModCellVertex>();
-        if (!cVtxp) continue;
-        if (!cVtxp->doInline()) continue;
-        cVtxps.push_back(cVtxp);
+    std::సదిశ<Inline_Mod_Cell_శీర్షం*> cVtxps;
+    కొరకు (V3_లేఖాచిత్రం_శీర్షం& vtx : లేఖాచిత్రం.vertices()) {
+        Inline_Mod_Cell_శీర్షం* స్థిరరాశి cVtxp = vtx.cast<Inline_Mod_Cell_శీర్షం>();
+        ఒకవేళ (!cVtxp) కొనసాగు;
+        ఒకవేళ (!cVtxp->doInline()) కొనసాగు;
+        cVtxps.నెట్టు_వెనుక(cVtxp);
     }
 
     // Inline cells bottom up (leaves into roots)
-    for (InlineModCellVertex* const cVtxp : vlstd::reverse_view(cVtxps)) {
+    కొరకు (Inline_Mod_Cell_శీర్షం* స్థిరరాశి cVtxp : vlstd::తిరగేయి_view(cVtxps)) {
         // Pick up parts before deleting
-        InlineModModuleVertex& mVtx = cVtxp->instanceIn();
-        InlineModModuleVertex* const iVtxp = &cVtxp->instanceOf();
-        AstCell* const cellp = cVtxp->cellp();
-        const bool last = iVtxp->inSize1();
+        Inline_Mod_Module_శీర్షం& mVtx = cVtxp->instance_లోపల();
+        Inline_Mod_Module_శీర్షం* స్థిరరాశి iVtxp = &cVtxp->instance_యొక్క();
+        AstCell* స్థిరరాశి cellp = cVtxp->cellp();
+        స్థిరరాశి తార్కిక చివరి = iVtxp->లోపల_Size1();
         UASSERT_OBJ(!iVtxp->noInlineHard(), cellp, "Should not be inlining if not possible");
 
         // Update
         ++m_nInlined;
-        mVtx.sizeInc(iVtxp->size());  // For debug dump only
+        mVtx.కొలత_Inc(iVtxp->కొలత());  // For debug dump only
 
         // Delete the cell we are inlining
-        VL_DO_DANGLING(cVtxp->unlinkDelete(&graph), cVtxp);
+        VL_DO_DANGLING(cVtxp->unlinkDelete(&లేఖాచిత్రం), cVtxp);
         // Delete the module we are inlining if this is the last instance
-        if (last) {
-            while (!iVtxp->outEmpty()) {
-                InlineModCellVertex* const tVtxp
-                    = iVtxp->outEdges().frontp()->top()->as<InlineModCellVertex>();
+        ఒకవేళ (చివరి) {
+            అయితే (!iVtxp->బహిర్గతం_ఖాళీలు()) {
+                Inline_Mod_Cell_శీర్షం* స్థిరరాశి tVtxp
+                    = iVtxp->బహిర్గతం_అంచులు().frontp()->శిఖరం()->as<Inline_Mod_Cell_శీర్షం>();
                 // Bottom up ordering ensures this
                 UASSERT_OBJ(!tVtxp->doInline(), tVtxp, "Should have been inlined");
-                VL_DO_DANGLING(tVtxp->unlinkDelete(&graph), tVtxp);
+                VL_DO_DANGLING(tVtxp->unlinkDelete(&లేఖాచిత్రం), tVtxp);
             }
-            VL_DO_DANGLING(iVtxp->unlinkDelete(&graph), iVtxp);
+            VL_DO_DANGLING(iVtxp->unlinkDelete(&లేఖాచిత్రం), iVtxp);
         }
 
         // Do it
-        inlineCell(mVtx.modp(), cellp, last, graph, children);
-        if (dumpGraphLevel() >= 9) graph.dumpDotFilePrefixed("inlinemod-cell");
+        inlineCell(mVtx.modp(), cellp, చివరి, లేఖాచిత్రం, children);
+        ఒకవేళ (dump_లేఖాచిత్రం_Level() >= 9) లేఖాచిత్రం.dumpDotFilePrefixed("inlinemod-cell");
     }
 
     // Restore varp() == varScopep()->varp() on all references, as cloning modules for
     // inlining repointed some AstVarScopes. Hierarchical references can be anywhere.
-    netlistp->foreach([](AstNodeVarRef* refp) {
-        AstVarScope* const vscp = refp->varScopep();
-        if (vscp && refp->varp() != vscp->varp()) refp->varp(vscp->varp());
+    netlistp->foreach([](Ast_కణుపు_Var_Ref* refp) {
+        AstVarScope* స్థిరరాశి vscp = refp->varScopep();
+        ఒకవేళ (vscp && refp->varp() != vscp->varp()) refp->varp(vscp->varp());
     });
 
-    V3Stats::addStat("Optimizations, Inlined instances", m_nInlined);
+    V3Stats::కూడు_Stat("Optimizations, Inlined instances", m_nInlined);
 }
 
 }  //namespace ModuleInliner
@@ -688,68 +688,68 @@ void process(AstNetlist* netlistp, InlineModGraph& graph) {
 //######################################################################
 // V3Inline class functions
 
-void V3Inline::inlineAll(AstNetlist* nodep) {
+శూన్య V3Inline::inlineAll(AstNetlist* nodep) {
     UINFO(2, __FUNCTION__ << ":");
 
     // Build the bipartite module instantiation graph
-    std::unique_ptr<InlineModGraph> graphp = InlineModGraphBuilder::apply(nodep);
-    if (dumpGraphLevel() >= 6) graphp->dumpDotFilePrefixed("inlinemod-graph");
+    std::unique_ptr<Inline_Mod_లేఖాచిత్రం> graphp = Inline_Mod_లేఖాచిత్రం_Builder::apply(nodep);
+    ఒకవేళ (dump_లేఖాచిత్రం_Level() >= 6) graphp->dumpDotFilePrefixed("inlinemod-graph");
 
     // Decide which instances to inline
-    const size_t designSize
-        = graphp->vertices().frontp()->as<InlineModModuleVertex>()->flattenedSize();
-    for (V3GraphVertex& vtx : graphp->vertices()) {
-        if (InlineModModuleVertex* const mVtxp = vtx.cast<InlineModModuleVertex>()) {
+    స్థిరరాశి కొలత_t design_కొలత
+        = graphp->vertices().frontp()->as<Inline_Mod_Module_శీర్షం>()->flattened_కొలత();
+    కొరకు (V3_లేఖాచిత్రం_శీర్షం& vtx : graphp->vertices()) {
+        ఒకవేళ (Inline_Mod_Module_శీర్షం* స్థిరరాశి mVtxp = vtx.cast<Inline_Mod_Module_శీర్షం>()) {
             // If this module is less than 10% of the design, flatten this module
-            if (mVtxp->flattenedSize() * 10 < designSize) mVtxp->setFlatten();
+            ఒకవేళ (mVtxp->flattened_కొలత() * 10 < design_కొలత) mVtxp->సమితి_Flatten();
             // Don't inline if can't inline
-            if (mVtxp->noInlineHard()) continue;
+            ఒకవేళ (mVtxp->noInlineHard()) కొనసాగు;
             // Don't inline if soft off
-            if (mVtxp->noInlineSoft()) continue;
+            ఒకవేళ (mVtxp->noInlineSoft()) కొనసాగు;
             // If all instances of this module combined are less than 20% of the design, inline all
-            size_t totalSize = mVtxp->flattenedSize() * mVtxp->instanceCount();
-            if (totalSize * 5 < designSize) {
-                for (V3GraphEdge& edge : mVtxp->inEdges()) {
-                    InlineModCellVertex* const cVtxp = edge.fromp()->as<InlineModCellVertex>();
-                    cVtxp->setDoInline("< 20% of design");
+            కొలత_t మొత్తం_కొలత = mVtxp->flattened_కొలత() * mVtxp->instance_లెక్క();
+            ఒకవేళ (మొత్తం_కొలత * 5 < design_కొలత) {
+                కొరకు (V3_లేఖాచిత్రం_అంచు& అంచు : mVtxp->లోపల_అంచులు()) {
+                    Inline_Mod_Cell_శీర్షం* స్థిరరాశి cVtxp = అంచు.fromp()->as<Inline_Mod_Cell_శీర్షం>();
+                    cVtxp->సమితి_Do_Inline("< 20% of design");
                 }
             }
             // No more decisions based on module vertex
-            continue;
+            కొనసాగు;
         }
 
         // The instantiation
-        InlineModCellVertex& cVtx = *vtx.as<InlineModCellVertex>();
+        Inline_Mod_Cell_శీర్షం& cVtx = *vtx.as<Inline_Mod_Cell_శీర్షం>();
         // The module instantiated by this cell
-        InlineModModuleVertex& mVtx = cVtx.instanceOf();
+        Inline_Mod_Module_శీర్షం& mVtx = cVtx.instance_యొక్క();
 
         // Don't inline if can't inline, duh!
-        if (mVtx.noInlineHard()) continue;
+        ఒకవేళ (mVtx.noInlineHard()) కొనసాగు;
 
         // If it should be inlined, inlined it
-        if (mVtx.shouldInline()) cVtx.setDoInline("should inline");
+        ఒకవేళ (mVtx.shouldInline()) cVtx.సమితి_Do_Inline("should inline");
         // If --flatten, inline it
-        if (v3Global.opt.flatten()) cVtx.setDoInline("--flatten");
+        ఒకవేళ (v3Global.opt.flatten()) cVtx.సమితి_Do_Inline("--flatten");
 
         // Don't inline for other reasons if soft off
-        if (mVtx.noInlineSoft()) continue;
+        ఒకవేళ (mVtx.noInlineSoft()) కొనసాగు;
 
         // If instatiated in exactly one static site, inline it
-        if (mVtx.inSize1()) cVtx.setDoInline("Single static instance");
+        ఒకవేళ (mVtx.లోపల_Size1()) cVtx.సమితి_Do_Inline("Single static instance");
         // If small, inline it
-        if (mVtx.size() < INLINE_MODS_SMALLER) cVtx.setDoInline("Small");
+        ఒకవేళ (mVtx.కొలత() < INLINE_MODS_SMALLER) cVtx.సమితి_Do_Inline("Small");
         // If inlineMult is 0, inline it
-        if (v3Global.opt.inlineMult() < 1) cVtx.setDoInline("inlineMult < 1");
+        ఒకవేళ (v3Global.opt.inlineMult() < 1) cVtx.సమితి_Do_Inline("inlineMult < 1");
         // If it would yield less than the given number of ops, inline it
-        const size_t inlinedSize = mVtx.inEdges().size() * mVtx.size();
-        const size_t limit = v3Global.opt.inlineMult();
-        if (inlinedSize < limit) cVtx.setDoInline("inlinedSize < inlineMult");
+        స్థిరరాశి కొలత_t inlined_కొలత = mVtx.లోపల_అంచులు().కొలత() * mVtx.కొలత();
+        స్థిరరాశి కొలత_t హద్దు = v3Global.opt.inlineMult();
+        ఒకవేళ (inlined_కొలత < హద్దు) cVtx.సమితి_Do_Inline("inlinedSize < inlineMult");
     }
-    if (dumpGraphLevel() >= 6) graphp->dumpDotFilePrefixed("inlinemod-decision");
+    ఒకవేళ (dump_లేఖాచిత్రం_Level() >= 6) graphp->dumpDotFilePrefixed("inlinemod-decision");
 
     // Inline the modules we decided to inline
     ModuleInliner::process(nodep, *graphp);
-    if (dumpGraphLevel() >= 6) graphp->dumpDotFilePrefixed("inlinemod-inlined");
+    ఒకవేళ (dump_లేఖాచిత్రం_Level() >= 6) graphp->dumpDotFilePrefixed("inlinemod-inlined");
 
-    V3Global::dumpCheckGlobalTree("inline", 0, dumpTreeEitherLevel() >= 3);
+    V3Global::dump_Check_Global_వృక్షం("inline", 0, dump_వృక్షం_Either_Level() >= 3);
 }

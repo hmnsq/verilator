@@ -29,177 +29,177 @@
 //
 //*************************************************************************
 
-#include "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
+#అన్తర్భావ "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
 
-#include "V3Common.h"
+#అన్తర్భావ "V3Common.h"
 
-#include "V3EmitCBase.h"
+#అన్తర్భావ "V3EmitCBase.h"
 
 VL_DEFINE_DEBUG_FUNCTIONS;
 
 //######################################################################
 // Common component builders
 
-string V3Common::makeToStringCall(AstNodeDType* nodep, const std::string& lhs) {
+string V3Common::make_గమ్యం_String_Call(Ast_కణుపు_DType* nodep, స్థిరరాశి std::string& lhs) {
     std::string stmt;
-    if (VN_IS(nodep->skipRefp(), BasicDType) && nodep->isWide()) {
+    ఒకవేళ (VN_IS(nodep->skipRefp(), BasicDType) && nodep->isWide()) {
         stmt += "VL_TO_STRING_W(";
-        stmt += cvtToStr(nodep->widthWords());
+        stmt += cvt_గమ్యం_Str(nodep->వెడల్పు_పదాలు());
         stmt += ", ";
-    } else {
+    } లేకపోతే {
         stmt += "VL_TO_STRING(";
     }
     stmt += lhs;
     stmt += ")";
-    return stmt;
+    తిరిగి stmt;
 }
 
-static void makeVlToString(AstIface* nodep) {
-    AstCFunc* const funcp
-        = new AstCFunc{nodep->fileline(), "VL_TO_STRING", nullptr, "std::string"};
-    funcp->argTypes("const " + EmitCUtil::prefixNameProtect(nodep) + "* obj");
-    funcp->isMethod(false);
-    funcp->isConst(false);
-    funcp->isStatic(false);
-    funcp->protect(false);
-    AstNodeExpr* const exprp = new AstCExpr{nodep->fileline(), "obj ? obj->vlNamep : \"null\""};
-    exprp->dtypeSetString();
-    funcp->addStmtsp(new AstCReturn{nodep->fileline(), exprp});
-    nodep->addStmtsp(funcp);
+స్థిర శూన్య make_Vl_గమ్యం_String(AstIface* nodep) {
+    AstCFunc* స్థిరరాశి funcp
+        = కొత్త AstCFunc{nodep->fileline(), "VL_TO_STRING", శూన్యసూచిక, "std::string"};
+    funcp->argTypes("const " + EmitCUtil::ఉపసర్గ_Name_Protect(nodep) + "* obj");
+    funcp->is_పద్ధతి(అబద్ధం);
+    funcp->isConst(అబద్ధం);
+    funcp->isStatic(అబద్ధం);
+    funcp->protect(అబద్ధం);
+    Ast_కణుపు_సమాసం* స్థిరరాశి exprp = కొత్త AstCExpr{nodep->fileline(), "obj ? obj->vlNamep : \"null\""};
+    exprp->dtype_సమితి_String();
+    funcp->కూడు_Stmtsp(కొత్త AstCReturn{nodep->fileline(), exprp});
+    nodep->కూడు_Stmtsp(funcp);
 }
-static void makeVlToString(AstNodeUOrStructDType* nodep) {
-    AstNodeModule* const modp = nodep->classOrPackagep();
+స్థిర శూన్య make_Vl_గమ్యం_String(Ast_కణుపు_UOr_Struct_DType* nodep) {
+    Ast_కణుపు_Module* స్థిరరాశి modp = nodep->classOrPackagep();
     UASSERT_OBJ(modp, nodep, "Unlinked struct package");
-    AstCFunc* const funcp
-        = new AstCFunc{nodep->fileline(), "VL_TO_STRING", nullptr, "std::string"};
-    funcp->argTypes("const " + EmitCUtil::prefixNameProtect(nodep) + "& obj");
-    funcp->isMethod(false);
-    funcp->isConst(false);
-    funcp->isStatic(false);
-    funcp->protect(false);
-    funcp->addStmtsp(new AstCStmt{nodep->fileline(), "std::string out;"});
-    for (const AstMemberDType* itemp = nodep->membersp(); itemp;
+    AstCFunc* స్థిరరాశి funcp
+        = కొత్త AstCFunc{nodep->fileline(), "VL_TO_STRING", శూన్యసూచిక, "std::string"};
+    funcp->argTypes("const " + EmitCUtil::ఉపసర్గ_Name_Protect(nodep) + "& obj");
+    funcp->is_పద్ధతి(అబద్ధం);
+    funcp->isConst(అబద్ధం);
+    funcp->isStatic(అబద్ధం);
+    funcp->protect(అబద్ధం);
+    funcp->కూడు_Stmtsp(కొత్త AstCStmt{nodep->fileline(), "std::string out;"});
+    కొరకు (స్థిరరాశి AstMemberDType* itemp = nodep->membersp(); itemp;
          itemp = VN_AS(itemp->nextp(), MemberDType)) {
         std::string stmt = "out += \"";
-        if (itemp == nodep->membersp()) {
+        ఒకవేళ (itemp == nodep->membersp()) {
             stmt += "'{";
-        } else {
+        } లేకపోతే {
             stmt += ", ";
         }
         stmt += VIdProtect::protect(itemp->prettyName()) + ":\" + ";
-        stmt += V3Common::makeToStringCall(itemp->dtypep(), "obj."s + itemp->nameProtect());
+        stmt += V3Common::make_గమ్యం_String_Call(itemp->dtypep(), "obj."s + itemp->nameProtect());
         stmt += ";";
-        funcp->addStmtsp(new AstCStmt{nodep->fileline(), stmt});
+        funcp->కూడు_Stmtsp(కొత్త AstCStmt{nodep->fileline(), stmt});
     }
-    funcp->addStmtsp(new AstCStmt{nodep->fileline(), "out += \"}\";"});
+    funcp->కూడు_Stmtsp(కొత్త AstCStmt{nodep->fileline(), "out += \"}\";"});
 
-    AstCExpr* const exprp = new AstCExpr{nodep->fileline(), "out"};
-    exprp->dtypeSetString();
-    funcp->addStmtsp(new AstCReturn{nodep->fileline(), exprp});
+    AstCExpr* స్థిరరాశి exprp = కొత్త AstCExpr{nodep->fileline(), "out"};
+    exprp->dtype_సమితి_String();
+    funcp->కూడు_Stmtsp(కొత్త AstCReturn{nodep->fileline(), exprp});
 
-    modp->addStmtsp(funcp);
+    modp->కూడు_Stmtsp(funcp);
 }
-static void makeToString(AstClass* nodep) {
-    AstCFunc* const funcp = new AstCFunc{nodep->fileline(), "to_string", nullptr, "std::string"};
-    funcp->isConst(true);
-    funcp->isStatic(false);
-    funcp->isVirtual(true);
-    funcp->protect(false);
-    AstCExpr* const exprp = new AstCExpr{nodep->fileline(), R"("'{"s + to_string_middle() + "}")"};
-    exprp->dtypeSetString();
-    funcp->addStmtsp(new AstCReturn{nodep->fileline(), exprp});
-    nodep->addStmtsp(funcp);
+స్థిర శూన్య make_గమ్యం_String(AstClass* nodep) {
+    AstCFunc* స్థిరరాశి funcp = కొత్త AstCFunc{nodep->fileline(), "to_string", శూన్యసూచిక, "std::string"};
+    funcp->isConst(నిజం);
+    funcp->isStatic(అబద్ధం);
+    funcp->isVirtual(నిజం);
+    funcp->protect(అబద్ధం);
+    AstCExpr* స్థిరరాశి exprp = కొత్త AstCExpr{nodep->fileline(), R"("'{"s + to_string_middle() + "}")"};
+    exprp->dtype_సమితి_String();
+    funcp->కూడు_Stmtsp(కొత్త AstCReturn{nodep->fileline(), exprp});
+    nodep->కూడు_Stmtsp(funcp);
 }
-static void makeToStringMiddle(AstClass* nodep) {
-    AstCFunc* const funcp
-        = new AstCFunc{nodep->fileline(), "to_string_middle", nullptr, "std::string"};
-    funcp->isConst(true);
-    funcp->isStatic(false);
-    funcp->protect(false);
-    AstNodeStmt* stmtsp = nullptr;
+స్థిర శూన్య make_గమ్యం_String_మధ్య(AstClass* nodep) {
+    AstCFunc* స్థిరరాశి funcp
+        = కొత్త AstCFunc{nodep->fileline(), "to_string_middle", శూన్యసూచిక, "std::string"};
+    funcp->isConst(నిజం);
+    funcp->isStatic(అబద్ధం);
+    funcp->protect(అబద్ధం);
+    Ast_కణుపు_Stmt* stmtsp = శూన్యసూచిక;
     std::string comma;
-    for (AstNode* itemp = nodep->membersp(); itemp; itemp = itemp->nextp()) {
-        if (const auto* const varp = VN_CAST(itemp, Var)) {
-            const AstBasicDType* const basicp = varp->dtypeSkipRefp()->basicp();
-            if (!varp->isParam() && !varp->isInternal()
+    కొరకు (Ast_కణుపు* itemp = nodep->membersp(); itemp; itemp = itemp->nextp()) {
+        ఒకవేళ (స్థిరరాశి స్వయంచాలక* స్థిరరాశి varp = VN_CAST(itemp, Var)) {
+            స్థిరరాశి AstBasicDType* స్థిరరాశి basicp = varp->dtypeSkipRefp()->basicp();
+            ఒకవేళ (!varp->isParam() && !varp->is_అంతర్గత()
                 && !(basicp && (basicp->isRandomGenerator() || basicp->isStdRandomGenerator()))) {
                 string stmt = "out += \"";
                 stmt += comma;
                 comma = ", ";
                 stmt += itemp->origNameProtect();
                 stmt += ":\" + ";
-                stmt += V3Common::makeToStringCall(itemp->dtypep(), itemp->nameProtect());
+                stmt += V3Common::make_గమ్యం_String_Call(itemp->dtypep(), itemp->nameProtect());
                 stmt += ";";
-                nodep->user1(true);  // So what we extend dumps this
-                stmtsp = AstNode::addNextNull(stmtsp, new AstCStmt{nodep->fileline(), stmt});
+                nodep->user1(నిజం);  // So what we extend dumps this
+                stmtsp = Ast_కణుపు::కూడు_తదుపరి_Null(stmtsp, కొత్త AstCStmt{nodep->fileline(), stmt});
             }
         }
     }
-    if (nodep->extendsp()) {
+    ఒకవేళ (nodep->extendsp()) {
         string stmt = "out += ";
-        if (!comma.empty()) stmt += "\", \" + ";
+        ఒకవేళ (!comma.ఖాళీలు()) stmt += "\", \" + ";
         // comma = ", ";  // Nothing further so not needed
-        stmt += EmitCUtil::prefixNameProtect(nodep->extendsp()->dtypep());
+        stmt += EmitCUtil::ఉపసర్గ_Name_Protect(nodep->extendsp()->dtypep());
         stmt += "::to_string_middle();";
-        nodep->user1(true);  // So what we extend dumps this
-        stmtsp = AstNode::addNextNull(stmtsp, new AstCStmt{nodep->fileline(), stmt});
+        nodep->user1(నిజం);  // So what we extend dumps this
+        stmtsp = Ast_కణుపు::కూడు_తదుపరి_Null(stmtsp, కొత్త AstCStmt{nodep->fileline(), stmt});
     }
 
-    AstNodeExpr* exprp;
-    if (stmtsp) {
-        funcp->addStmtsp(new AstCStmt{nodep->fileline(), "std::string out;"});
-        funcp->addStmtsp(stmtsp);
-        exprp = new AstCExpr{nodep->fileline(), "out"};
-        exprp->dtypeSetString();
-    } else {  // Nothing to print, return ""
-        exprp = new AstConst{nodep->fileline(), AstConst::String{}, ""};
+    Ast_కణుపు_సమాసం* exprp;
+    ఒకవేళ (stmtsp) {
+        funcp->కూడు_Stmtsp(కొత్త AstCStmt{nodep->fileline(), "std::string out;"});
+        funcp->కూడు_Stmtsp(stmtsp);
+        exprp = కొత్త AstCExpr{nodep->fileline(), "out"};
+        exprp->dtype_సమితి_String();
+    } లేకపోతే {  // Nothing to print, return ""
+        exprp = కొత్త AstConst{nodep->fileline(), AstConst::String{}, ""};
     }
-    funcp->addStmtsp(new AstCReturn{nodep->fileline(), exprp});
+    funcp->కూడు_Stmtsp(కొత్త AstCReturn{nodep->fileline(), exprp});
 
-    nodep->addStmtsp(funcp);
+    nodep->కూడు_Stmtsp(funcp);
 }
 
-class ToStringVisitor final : public VNVisitorConst {
+తరగతి గమ్యం_String_Visitor final : బహిరంగ VNVisitorConst {
     // NODE STATE
     //  AstNode::user1()  -> bool. to_string() was emitted
     //  AstClass::user2()  -> PrintedFromParent. Used to propagate emission of to_string() from
     //  parent to child
-    const VNUser1InUse m_inuser1;
-    const VNUser2InUse m_inuser2;
-    size_t m_emitTowardsRoot
+    స్థిరరాశి VNUser1_లోపల_Use m_inuser1;
+    స్థిరరాశి VNUser2_లోపల_Use m_inuser2;
+    కొలత_t m_emit_Towards_మూలం
         = 0;  // class that require its ancestors to emit to_string() sets this
-    size_t m_emitForMembers = 0;  // class/struct that requires its members (and their members
+    కొలత_t m_emitForMembers = 0;  // class/struct that requires its members (and their members
                                   // recursively) to emit to_string() sets this
-    enum class PrintedFromParent : uint8_t {
+    గణన తరగతి Printed_From_మాతృ : uint8_t {
         UNRESOLVED,
-        PRINTED_FROM_PARENT,
-        NO_PRINTED_FROM_PARENT
+        PRINTED_FROM_మాతృ,
+        NO_PRINTED_FROM_మాతృ
     };
 
-    VDouble0 m_statClassToString;
-    VDouble0 m_statInterfaceToString;
-    VDouble0 m_statStructUnionToString;
+    VDouble0 m_stat_Class_గమ్యం_String;
+    VDouble0 m_stat_Interface_గమ్యం_String;
+    VDouble0 m_stat_Struct_Union_గమ్యం_String;
 
-    void markClassIterate(AstClass* classp) {
-        if (classp->user1SetOnce()) return;
+    శూన్య markClassIterate(AstClass* classp) {
+        ఒకవేళ (classp->user1_సమితి_Once()) తిరిగి;
         VL_RESTORER(m_emitForMembers);
         ++m_emitForMembers;
-        for (AstNode* stmtp = classp->stmtsp(); stmtp; stmtp = stmtp->nextp()) {
-            if (AstVar* const varp = VN_CAST(stmtp, Var)) {
-                AstNodeDType* nodeDtypep = varp->dtypep();
-                if (AstIfaceRefDType* const ifaceRedDTypep = VN_CAST(nodeDtypep, IfaceRefDType)) {
-                    if (ifaceRedDTypep->ifacep()) iterateConst(ifaceRedDTypep->ifacep());
-                } else {
-                    while (nodeDtypep && nodeDtypep->subDTypep()
-                           && nodeDtypep->subDTypep()->skipRefp()) {
-                        nodeDtypep = nodeDtypep->subDTypep()->skipRefp();
-                        if (AstIfaceRefDType* const ifaceRedDTypep
-                            = VN_CAST(nodeDtypep, IfaceRefDType)) {
-                            if (ifaceRedDTypep->ifacep()) {
+        కొరకు (Ast_కణుపు* stmtp = classp->stmtsp(); stmtp; stmtp = stmtp->nextp()) {
+            ఒకవేళ (AstVar* స్థిరరాశి varp = VN_CAST(stmtp, Var)) {
+                Ast_కణుపు_DType* కణుపు_Dtypep = varp->dtypep();
+                ఒకవేళ (AstIfaceRefDType* స్థిరరాశి ifaceRedDTypep = VN_CAST(కణుపు_Dtypep, IfaceRefDType)) {
+                    ఒకవేళ (ifaceRedDTypep->ifacep()) iterateConst(ifaceRedDTypep->ifacep());
+                } లేకపోతే {
+                    అయితే (కణుపు_Dtypep && కణుపు_Dtypep->subDTypep()
+                           && కణుపు_Dtypep->subDTypep()->skipRefp()) {
+                        కణుపు_Dtypep = కణుపు_Dtypep->subDTypep()->skipRefp();
+                        ఒకవేళ (AstIfaceRefDType* స్థిరరాశి ifaceRedDTypep
+                            = VN_CAST(కణుపు_Dtypep, IfaceRefDType)) {
+                            ఒకవేళ (ifaceRedDTypep->ifacep()) {
                                 iterateConst(ifaceRedDTypep->ifacep());
                             }
-                        } else if (AstNodeUOrStructDType* const uOrStructDTypep
-                                   = VN_CAST(nodeDtypep, NodeUOrStructDType)) {
+                        } లేకపోతే ఒకవేళ (Ast_కణుపు_UOr_Struct_DType* స్థిరరాశి uOrStructDTypep
+                                   = VN_CAST(కణుపు_Dtypep, కణుపు_UOr_Struct_DType)) {
                             iterateConst(uOrStructDTypep);
                         }
                     }
@@ -207,99 +207,99 @@ class ToStringVisitor final : public VNVisitorConst {
             }
         }
 
-        makeToString(classp);
-        makeToStringMiddle(classp);
-        ++m_statClassToString;
+        make_గమ్యం_String(classp);
+        make_గమ్యం_String_మధ్య(classp);
+        ++m_stat_Class_గమ్యం_String;
     }
-    void visit(AstNodeUOrStructDType* structp) override {
-        if (structp->user1())
-            return;  // if to_string() was already emitted skip the rest of the function
-        if (structp->emitToString()) ++m_emitForMembers;
-        if (m_emitForMembers
+    శూన్య సందర్శించు(Ast_కణుపు_UOr_Struct_DType* structp) override {
+        ఒకవేళ (structp->user1())
+            తిరిగి;  // if to_string() was already emitted skip the rest of the function
+        ఒకవేళ (structp->emit_గమ్యం_String()) ++m_emitForMembers;
+        ఒకవేళ (m_emitForMembers
             > 0) {  // either this struct directly requires emission of to_string() or the
                     // class/struct that has this struct as a field requires it to emit to_string()
-            for (AstMemberDType* memberp = structp->membersp(); memberp;
+            కొరకు (AstMemberDType* memberp = structp->membersp(); memberp;
                  memberp = VN_AS(memberp->nextp(), MemberDType)) {
-                AstNodeDType* nodeDtypep = memberp->dtypep();
-                if (AstNodeUOrStructDType* const uOrStructDTypep
-                    = VN_CAST(nodeDtypep, NodeUOrStructDType)) {
+                Ast_కణుపు_DType* కణుపు_Dtypep = memberp->dtypep();
+                ఒకవేళ (Ast_కణుపు_UOr_Struct_DType* స్థిరరాశి uOrStructDTypep
+                    = VN_CAST(కణుపు_Dtypep, కణుపు_UOr_Struct_DType)) {
                     iterateConst(uOrStructDTypep);
-                } else {
-                    while (nodeDtypep && nodeDtypep->subDTypep()) {
-                        nodeDtypep = nodeDtypep->subDTypep()->skipRefp();
-                        if (AstNodeUOrStructDType* const uOrStructDTypep
-                            = VN_CAST(nodeDtypep, NodeUOrStructDType)) {
+                } లేకపోతే {
+                    అయితే (కణుపు_Dtypep && కణుపు_Dtypep->subDTypep()) {
+                        కణుపు_Dtypep = కణుపు_Dtypep->subDTypep()->skipRefp();
+                        ఒకవేళ (Ast_కణుపు_UOr_Struct_DType* స్థిరరాశి uOrStructDTypep
+                            = VN_CAST(కణుపు_Dtypep, కణుపు_UOr_Struct_DType)) {
                             iterateConst(uOrStructDTypep);
                         }
                     }
                 }
             }
-            if (structp->emitToString()) --m_emitForMembers;
+            ఒకవేళ (structp->emit_గమ్యం_String()) --m_emitForMembers;
 
-            if (!structp->packed()) {
-                makeVlToString(structp);
-                ++m_statStructUnionToString;
+            ఒకవేళ (!structp->packed()) {
+                make_Vl_గమ్యం_String(structp);
+                ++m_stat_Struct_Union_గమ్యం_String;
             }
 
-            structp->user1(true);  // mark that to_string() was emitted to not emit it twice (if
+            structp->user1(నిజం);  // mark that to_string() was emitted to not emit it twice (if
                                    // e.g two printed classes have this struct as a field)
         }
     }
-    void visit(AstIface* ifacep) override {
-        if (ifacep->user1())
-            return;  // if to_string() was already emitted skip the rest of the function
-        if (m_emitForMembers
+    శూన్య సందర్శించు(AstIface* ifacep) override {
+        ఒకవేళ (ifacep->user1())
+            తిరిగి;  // if to_string() was already emitted skip the rest of the function
+        ఒకవేళ (m_emitForMembers
             > 0) {  // class that has this iface as a field requires it to emit to_string()
-            makeVlToString(ifacep);
-            ++m_statInterfaceToString;
-            ifacep->user1(true);  // mark that to_string() was emitted to not emit it twice (if e.g
+            make_Vl_గమ్యం_String(ifacep);
+            ++m_stat_Interface_గమ్యం_String;
+            ifacep->user1(నిజం);  // mark that to_string() was emitted to not emit it twice (if e.g
                                   // two printed classes have this interface as a field)
         }
     }
     // go towards class hierarchy root, if there is any printed from class on the way, mark its
     // ancestors, and mark everything on the return path from the printed from class
-    void visit(AstClass* classp) override {
-        if (classp->user1()) return;
-        if (classp->isPrintedFrom()) {
+    శూన్య సందర్శించు(AstClass* classp) override {
+        ఒకవేళ (classp->user1()) తిరిగి;
+        ఒకవేళ (classp->isPrintedFrom()) {
             markClassIterate(classp);
-            VL_RESTORER(m_emitTowardsRoot);
-            ++m_emitTowardsRoot;
-            for (const AstClassExtends* extendp = classp->extendsp(); extendp;
+            VL_RESTORER(m_emit_Towards_మూలం);
+            ++m_emit_Towards_మూలం;
+            కొరకు (స్థిరరాశి AstClassExtends* extendp = classp->extendsp(); extendp;
                  extendp = VN_AS(extendp->nextp(), ClassExtends)) {
-                if (extendp->classp() && !extendp->classp()->user1()) {
+                ఒకవేళ (extendp->classp() && !extendp->classp()->user1()) {
                     iterateConst(extendp->classp());
                 }
             }
-            classp->user2(static_cast<int>(PrintedFromParent::PRINTED_FROM_PARENT));
-        } else {
-            PrintedFromParent printed_parent = static_cast<PrintedFromParent>(classp->user2());
-            if (printed_parent != PrintedFromParent::UNRESOLVED && m_emitTowardsRoot == 0) {
-                return;
+            classp->user2(static_cast<పూర్ణాంకం>(Printed_From_మాతృ::PRINTED_FROM_మాతృ));
+        } లేకపోతే {
+            Printed_From_మాతృ printed_మాతృ = static_cast<Printed_From_మాతృ>(classp->user2());
+            ఒకవేళ (printed_మాతృ != Printed_From_మాతృ::UNRESOLVED && m_emit_Towards_మూలం == 0) {
+                తిరిగి;
             }
 
-            if (m_emitTowardsRoot > 0) markClassIterate(classp);
+            ఒకవేళ (m_emit_Towards_మూలం > 0) markClassIterate(classp);
 
-            bool is_root = true;
-            for (const AstClassExtends* extendp = classp->extendsp(); extendp;
+            తార్కిక is_మూలం = నిజం;
+            కొరకు (స్థిరరాశి AstClassExtends* extendp = classp->extendsp(); extendp;
                  extendp = VN_AS(extendp->nextp(), ClassExtends)) {
-                if (extendp->classp()) {
-                    if (static_cast<PrintedFromParent>(extendp->classp()->user2())
-                            == PrintedFromParent::UNRESOLVED
-                        || (m_emitTowardsRoot > 0 && !extendp->classp()->user1())) {
+                ఒకవేళ (extendp->classp()) {
+                    ఒకవేళ (static_cast<Printed_From_మాతృ>(extendp->classp()->user2())
+                            == Printed_From_మాతృ::UNRESOLVED
+                        || (m_emit_Towards_మూలం > 0 && !extendp->classp()->user1())) {
                         iterateConst(extendp->classp());
                     }
-                    if (printed_parent != PrintedFromParent::PRINTED_FROM_PARENT) {
-                        printed_parent
-                            = static_cast<PrintedFromParent>(extendp->classp()->user2());
+                    ఒకవేళ (printed_మాతృ != Printed_From_మాతృ::PRINTED_FROM_మాతృ) {
+                        printed_మాతృ
+                            = static_cast<Printed_From_మాతృ>(extendp->classp()->user2());
                     }
-                    is_root = false;
+                    is_మూలం = అబద్ధం;
                 }
             }
 
-            if (is_root) printed_parent = PrintedFromParent::NO_PRINTED_FROM_PARENT;
+            ఒకవేళ (is_మూలం) printed_మాతృ = Printed_From_మాతృ::NO_PRINTED_FROM_మాతృ;
 
-            classp->user2(static_cast<int>(printed_parent));
-            if (printed_parent == PrintedFromParent::PRINTED_FROM_PARENT) {
+            classp->user2(static_cast<పూర్ణాంకం>(printed_మాతృ));
+            ఒకవేళ (printed_మాతృ == Printed_From_మాతృ::PRINTED_FROM_మాతృ) {
                 markClassIterate(classp);
 
                 // If one parent is printed from, other parent also has to emit to_string() to
@@ -307,43 +307,43 @@ class ToStringVisitor final : public VNVisitorConst {
                 // Base  IFaceClass (printed from)
                 //   V    V
                 //   Derived (this class)
-                VL_RESTORER(m_emitTowardsRoot);
-                ++m_emitTowardsRoot;
-                for (const AstClassExtends* extendp = classp->extendsp(); extendp;
+                VL_RESTORER(m_emit_Towards_మూలం);
+                ++m_emit_Towards_మూలం;
+                కొరకు (స్థిరరాశి AstClassExtends* extendp = classp->extendsp(); extendp;
                      extendp = VN_AS(extendp->nextp(), ClassExtends)) {
-                    if (extendp->classp() && !extendp->classp()->user1()) {
+                    ఒకవేళ (extendp->classp() && !extendp->classp()->user1()) {
                         iterateConst(extendp->classp());
                     }
                 }
             }
         }
     }
-    void visit(AstNode* nodep) override { iterateChildrenConst(nodep); }
+    శూన్య సందర్శించు(Ast_కణుపు* nodep) override { iterateChildrenConst(nodep); }
 
-public:
-    explicit ToStringVisitor(AstNode* nodep) {
-        if (v3Global.hasPrintedObjects()) {
-            AstNode::user1ClearTree();
-            AstNode::user2ClearTree();
+బహిరంగ:
+    స్పష్టమైన గమ్యం_String_Visitor(Ast_కణుపు* nodep) {
+        ఒకవేళ (v3Global.hasPrintedObjects()) {
+            Ast_కణుపు::user1_Clear_వృక్షం();
+            Ast_కణుపు::user2_Clear_వృక్షం();
 
             iterateConst(nodep);
         }
 
-        V3Stats::addStat("Optimizations, Class ToString emitted", m_statClassToString);
-        V3Stats::addStat("Optimizations, Interface ToString emitted", m_statInterfaceToString);
-        V3Stats::addStat("Optimizations, Struct/union ToString emitted",
-                         m_statStructUnionToString);
+        V3Stats::కూడు_Stat("Optimizations, Class ToString emitted", m_stat_Class_గమ్యం_String);
+        V3Stats::కూడు_Stat("Optimizations, Interface ToString emitted", m_stat_Interface_గమ్యం_String);
+        V3Stats::కూడు_Stat("Optimizations, Struct/union ToString emitted",
+                         m_stat_Struct_Union_గమ్యం_String);
     }
-    ~ToStringVisitor() override = default;
+    ~గమ్యం_String_Visitor() override = అప్రమేయ;
 };
 
 //######################################################################
 // V3Common class functions
 
-void V3Common::commonAll() {
+శూన్య V3Common::commonAll() {
     UINFO(2, __FUNCTION__ << ":");
 
-    ToStringVisitor{v3Global.rootp()};
+    గమ్యం_String_Visitor{v3Global.rootp()};
 
-    V3Global::dumpCheckGlobalTree("common", 0, dumpTreeEitherLevel() >= 3);
+    V3Global::dump_Check_Global_వృక్షం("common", 0, dump_వృక్షం_Either_Level() >= 3);
 }

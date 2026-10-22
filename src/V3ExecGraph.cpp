@@ -14,54 +14,54 @@
 //
 //*************************************************************************
 
-#include "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
+#అన్తర్భావ "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
 
-#include "V3ExecGraph.h"
+#అన్తర్భావ "V3ExecGraph.h"
 
-#include "V3ConstPool.h"
-#include "V3Control.h"
-#include "V3EmitCBase.h"
-#include "V3File.h"
-#include "V3GraphStream.h"
-#include "V3Hasher.h"
-#include "V3InstrCount.h"
-#include "V3Os.h"
-#include "V3Stats.h"
+#అన్తర్భావ "V3ConstPool.h"
+#అన్తర్భావ "V3Control.h"
+#అన్తర్భావ "V3EmitCBase.h"
+#అన్తర్భావ "V3File.h"
+#అన్తర్భావ "V3GraphStream.h"
+#అన్తర్భావ "V3Hasher.h"
+#అన్తర్భావ "V3InstrCount.h"
+#అన్తర్భావ "V3Os.h"
+#అన్తర్భావ "V3Stats.h"
 
-#include <map>
-#include <memory>
-#include <unordered_map>
-#include <vector>
+#అన్తర్భావ <map>
+#అన్తర్భావ <memory>
+#అన్తర్భావ <unordered_map>
+#అన్తర్భావ <vector>
 
 VL_DEFINE_DEBUG_FUNCTIONS;
 
-AstCFunc* ExecMTask::createCFunc(AstExecGraph* execGraphp, AstScope* scopep, AstNodeStmt* stmtsp,
+AstCFunc* ExecMTask::createCFunc(Ast_Exec_లేఖాచిత్రం* execGraphp, AstScope* scopep, Ast_కణుపు_Stmt* stmtsp,
                                  uint32_t id) {
-    const std::string newName = execGraphp->name() + "_mtask" + std::to_string(id);
-    AstCFunc* const newp = new AstCFunc{execGraphp->fileline(), newName, scopep};
-    newp->isLoose(true);
-    newp->voidSelf(true);  // Called through VlExecGraph::Fnp
-    newp->dontCombine(true);
-    newp->addStmtsp(stmtsp);
-    if (scopep) scopep->addBlocksp(newp);
-    return newp;
+    స్థిరరాశి std::string newName = execGraphp->name() + "_mtask" + std::గమ్యం_string(id);
+    AstCFunc* స్థిరరాశి newp = కొత్త AstCFunc{execGraphp->fileline(), newName, scopep};
+    newp->isLoose(నిజం);
+    newp->voidSelf(నిజం);  // Called through VlExecGraph::Fnp
+    newp->dontCombine(నిజం);
+    newp->కూడు_Stmtsp(stmtsp);
+    ఒకవేళ (scopep) scopep->కూడు_Blocksp(newp);
+    తిరిగి newp;
 }
 
-ExecMTask::ExecMTask(AstExecGraph* execGraphp, AstScope* scopep,
-                     AstNodeStmt* stmtsp) VL_MT_DISABLED  //
-    : V3GraphVertex{execGraphp->depGraphp()},
-      m_id{s_nextId++},
+ExecMTask::ExecMTask(Ast_Exec_లేఖాచిత్రం* execGraphp, AstScope* scopep,
+                     Ast_కణుపు_Stmt* stmtsp) VL_MT_DISABLED  //
+    : V3_లేఖాచిత్రం_శీర్షం{execGraphp->depGraphp()},
+      m_id{s_తదుపరి_Id++},
       m_funcp{createCFunc(execGraphp, scopep, stmtsp, m_id)},
-      m_hashName{V3Hasher::uncachedHash(m_funcp).toString()} {}
+      m_hashName{V3Hasher::uncachedHash(m_funcp).గమ్యం_String()} {}
 
-void ExecMTask::dump(std::ostream& str) const {
-    str << name() << "." << cvtToHex(this);
-    if (priority() || cost()) str << " [pr=" << priority() << " c=" << cvtToStr(cost()) << "]";
+శూన్య ExecMTask::dump(std::ostream& str) స్థిరరాశి {
+    str << name() << "." << cvt_గమ్యం_Hex(ఇది);
+    ఒకవేళ (ప్రాధాన్యత_2() || ఖర్చు()) str << " [pr=" << ప్రాధాన్యత_2() << " c=" << cvt_గమ్యం_Str(ఖర్చు()) << "]";
 }
 
-std::atomic<uint32_t> ExecMTask::s_nextId{0};
+std::atomic<uint32_t> ExecMTask::s_తదుపరి_Id{0};
 
-namespace V3ExecGraph {
+నామాకాశ V3_Exec_లేఖాచిత్రం {
 
 //######################################################################
 // ThreadSchedule
@@ -71,59 +71,59 @@ namespace V3ExecGraph {
 // PackThreads::pack, which is moved from there and is const, which means we can only acquire a
 // const reference to is so no further modifications are allowed, so all members are public
 // (attributes).
-class ThreadSchedule final {
-    friend class PackThreads;
+తరగతి Thread_కాలపట్టిక final {
+    మిత్ర తరగతి Pack_దారాలు;
 
     uint32_t m_id;  // Unique ID of a schedule
-    static uint32_t s_nextId;  // Next ID number to use
-    std::unordered_set<const ExecMTask*> mtasks;  // Mtasks in this schedule
-    uint32_t m_endTime = 0;  // Latest task end time in this schedule
+    స్థిర uint32_t s_తదుపరి_Id;  // Next ID number to use
+    std::unordered_సమితి<స్థిరరాశి ExecMTask*> mtasks;  // Mtasks in this schedule
+    uint32_t m_చివర_సమయం = 0;  // Latest task end time in this schedule
 
-public:
+బహిరంగ:
     // CONSTANTS
-    static constexpr uint32_t UNASSIGNED = 0xffffffff;
+    స్థిర constexpr uint32_t UNASSIGNED = 0xffffffff;
 
     // TYPES
-    struct MTaskState final {
-        uint32_t completionTime = 0;  // Estimated time this mtask will complete
+    నిర్మాణం MTaskState final {
+        uint32_t completion_సమయం = 0;  // Estimated time this mtask will complete
         uint32_t threadId = UNASSIGNED;  // Thread id this MTask is assigned to
-        const ExecMTask* nextp = nullptr;  // Next MTask on same thread after this
+        స్థిరరాశి ExecMTask* nextp = శూన్యసూచిక;  // Next MTask on same thread after this
     };
 
     // MEMBERS
     // Allocation of sequence of MTasks to threads. Can be considered a map from thread ID to
     // the sequence of MTasks to be executed by that thread.
-    std::vector<std::vector<const ExecMTask*>> m_threads;
+    std::సదిశ<std::సదిశ<స్థిరరాశి ExecMTask*>> m_దారాలు;
 
     // Global state for each mtask.
-    static std::unordered_map<const ExecMTask*, MTaskState> s_mtaskState;
+    స్థిర std::unordered_map<స్థిరరాశి ExecMTask*, MTaskState> s_mtaskState;
 
-    explicit ThreadSchedule(uint32_t nThreads)
-        : m_id{s_nextId++}
-        , m_threads{nThreads} {}
-    ThreadSchedule(ThreadSchedule&&) = default;
-    ThreadSchedule& operator=(ThreadSchedule&&) = default;
+    స్పష్టమైన Thread_కాలపట్టిక(uint32_t n_దారాలు)
+        : m_id{s_తదుపరి_Id++}
+        , m_దారాలు{n_దారాలు} {}
+    Thread_కాలపట్టిక(Thread_కాలపట్టిక&&) = అప్రమేయ;
+    Thread_కాలపట్టిక& క్రియాకారకం=(Thread_కాలపట్టిక&&) = అప్రమేయ;
 
-private:
-    VL_UNCOPYABLE(ThreadSchedule);
+అంతరంగ:
+    VL_UNCOPYABLE(Thread_కాలపట్టిక);
 
-    static constexpr double s_threadBoxWidth = 2.5;
-    static constexpr double s_threadBoxHeight = 1.5;
-    static constexpr double s_horizontalGap = s_threadBoxWidth / 2;
+    స్థిర constexpr ద్విగుణ s_thread_Box_వెడల్పు = 2.5;
+    స్థిర constexpr ద్విగుణ s_thread_Box_ఎత్తు = 1.5;
+    స్థిర constexpr ద్విగుణ s_horizontalGap = s_thread_Box_వెడల్పు / 2;
 
     // Debugging
     // Variant of dumpDotFilePrefixed without --dump option check
-    static void dumpDotFilePrefixedAlways(const std::vector<ThreadSchedule>& schedules,
-                                          const string& nameComment, uint32_t nThreads) {
-        dumpDotFile(schedules, v3Global.debugFilename(nameComment) + ".dot", nThreads);
+    స్థిర శూన్య dumpDotFilePrefixedAlways(స్థిరరాశి std::సదిశ<Thread_కాలపట్టిక>& schedules,
+                                          స్థిరరాశి string& nameComment, uint32_t n_దారాలు) {
+        dumpDotFile(schedules, v3Global.debugFilename(nameComment) + ".dot", n_దారాలు);
     }
-    static void dumpDotFile(const std::vector<ThreadSchedule>& schedules, const string& filename,
-                            uint32_t nThreads) {
+    స్థిర శూన్య dumpDotFile(స్థిరరాశి std::సదిశ<Thread_కాలపట్టిక>& schedules, స్థిరరాశి string& filename,
+                            uint32_t n_దారాలు) {
         // This generates a file used by graphviz, https://www.graphviz.org
-        const std::unique_ptr<std::ofstream> logp{V3File::new_ofstream(filename)};
-        if (logp->fail()) v3fatal("Can't write file: " << filename);
+        స్థిరరాశి std::unique_ptr<std::ofstream> logp{V3File::new_ofstream(filename)};
+        ఒకవేళ (logp->fail()) v3fatal("Can't write file: " << filename);
 
-        // Header
+        //శీర్షిక
         *logp << "digraph v3graph {\n";
         *logp << "  graph[layout=\"neato\" labelloc=t labeljust=l label=\"" << filename << "\"]\n";
         *logp << "  node[shape=\"rect\" ratio=\"fill\" fixedsize=true]\n";
@@ -131,100 +131,100 @@ private:
         // Thread labels
         *logp << "\n  // Threads\n";
 
-        for (uint32_t i = 0; i < nThreads; ++i) {
-            const string name = "t" + std::to_string(i);
-            const string label = "Thread " + std::to_string(i);
-            constexpr double posX = -s_horizontalGap;
-            const double posY = -static_cast<double>(i) * s_threadBoxHeight;
-            dumpDotFileEmitBlock(logp, name, label, s_threadBoxWidth, s_threadBoxHeight, posX,
+        కొరకు (uint32_t i = 0; i < n_దారాలు; ++i) {
+            స్థిరరాశి string name = "t" + std::గమ్యం_string(i);
+            స్థిరరాశి string label = "Thread " + std::గమ్యం_string(i);
+            constexpr ద్విగుణ posX = -s_horizontalGap;
+            స్థిరరాశి ద్విగుణ posY = -static_cast<ద్విగుణ>(i) * s_thread_Box_ఎత్తు;
+            dump_Dot_File_Emit_ఖండం(logp, name, label, s_thread_Box_వెడల్పు, s_thread_Box_ఎత్తు, posX,
                                  posY, "grey");
         }
 
         // MTask nodes
         *logp << "\n  // MTasks\n";
 
-        uint32_t maxCost = 0;
-        for (const auto& state : ThreadSchedule::s_mtaskState) {
-            const ExecMTask* const mtaskp = state.first;
-            maxCost = std::max(maxCost, mtaskp->cost());
+        uint32_t max_ఖర్చు = 0;
+        కొరకు (స్థిరరాశి స్వయంచాలక& state : Thread_కాలపట్టిక::s_mtaskState) {
+            స్థిరరాశి ExecMTask* స్థిరరాశి mtaskp = state.మొదటి;
+            max_ఖర్చు = std::max(max_ఖర్చు, mtaskp->ఖర్చు());
         }
         // To avoid segments getting too large, limit maximal mtask length.
         // Based on the mtask cost, normalize it using segment cost
-        constexpr uint32_t segmentsPerLongestMtask = 4;
-        const uint32_t segmentCost = maxCost / segmentsPerLongestMtask;
+        constexpr uint32_t segments_చొప్పున_Longest_Mtask = 4;
+        స్థిరరాశి uint32_t segment_ఖర్చు = max_ఖర్చు / segments_చొప్పున_Longest_Mtask;
 
         // Create columns of tasks whose execution intervals overlaps.
         // Keep offset for each column for correctly aligned tasks.
-        std::vector<double> offsets(nThreads, 0.0);
-        for (const ThreadSchedule& schedule : schedules) {
-            if (schedule.mtasks.empty()) continue;
-            using Column = std::vector<const ExecMTask*>;
-            std::vector<Column> columns = {{}};
+        std::సదిశ<ద్విగుణ> offsets(n_దారాలు, 0.0);
+        కొరకు (స్థిరరాశి Thread_కాలపట్టిక& కాలపట్టిక : schedules) {
+            ఒకవేళ (కాలపట్టిక.mtasks.ఖాళీలు()) కొనసాగు;
+            ఉపయోగించి స్తంభం = std::సదిశ<స్థిరరాశి ExecMTask*>;
+            std::సదిశ<స్తంభం> columns = {{}};
 
             // Order tasks based on their start time
-            struct Cmp final {
-                bool operator()(const ExecMTask* const a, const ExecMTask* const b) const {
-                    if (startTime(a) == startTime(b)) return threadId(a) < threadId(b);
-                    return startTime(a) < startTime(b);
+            నిర్మాణం Cmp final {
+                తార్కిక క్రియాకారకం()(స్థిరరాశి ExecMTask* స్థిరరాశి a, స్థిరరాశి ExecMTask* స్థిరరాశి b) స్థిరరాశి {
+                    ఒకవేళ (ప్రారంభం_సమయం(a) == ప్రారంభం_సమయం(b)) తిరిగి threadId(a) < threadId(b);
+                    తిరిగి ప్రారంభం_సమయం(a) < ప్రారంభం_సమయం(b);
                 }
             };
-            const std::multiset<const ExecMTask*, Cmp> tasks(schedule.mtasks.begin(),
-                                                             schedule.mtasks.end());
+            స్థిరరాశి std::multiset<స్థిరరాశి ExecMTask*, Cmp> tasks(కాలపట్టిక.mtasks.begin(),
+                                                             కాలపట్టిక.mtasks.చివర());
 
-            for (const ExecMTask* const mtaskp : tasks) {
-                Column& column = columns.back();
-                UASSERT(column.size() <= nThreads, "Invalid partitioning");
+            కొరకు (స్థిరరాశి ExecMTask* స్థిరరాశి mtaskp : tasks) {
+                స్తంభం& స్తంభం_2 = columns.వెనుక();
+                UASSERT(స్తంభం_2.కొలత() <= n_దారాలు, "Invalid partitioning");
 
-                bool intersects = true;
-                for (const ExecMTask* const earlierMtask : column) {
-                    if (endTime(mtaskp) <= startTime(earlierMtask)
-                        || startTime(mtaskp) >= endTime(earlierMtask)) {
-                        intersects = false;
-                        break;
+                తార్కిక intersects = నిజం;
+                కొరకు (స్థిరరాశి ExecMTask* స్థిరరాశి earlierMtask : స్తంభం_2) {
+                    ఒకవేళ (చివర_సమయం(mtaskp) <= ప్రారంభం_సమయం(earlierMtask)
+                        || ప్రారంభం_సమయం(mtaskp) >= చివర_సమయం(earlierMtask)) {
+                        intersects = అబద్ధం;
+                        ఆపు;
                     }
                 }
-                if (intersects) {
-                    column.emplace_back(mtaskp);
-                } else {
-                    columns.emplace_back(Column{mtaskp});
+                ఒకవేళ (intersects) {
+                    స్తంభం_2.emplace_వెనుక(mtaskp);
+                } లేకపోతే {
+                    columns.emplace_వెనుక(స్తంభం{mtaskp});
                 }
             }
 
-            UASSERT(!columns.front().empty(), "Should be populated by mtasks");
+            UASSERT(!columns.front().ఖాళీలు(), "Should be populated by mtasks");
 
-            for (const Column& column : columns) {
-                double lastColumnOffset = 0;
-                for (const ExecMTask* const mtaskp : column) {
-                    dumpDotFileEmitMTask(logp, mtaskp, schedule, segmentCost, offsets);
-                    lastColumnOffset = std::max(lastColumnOffset, offsets[threadId(mtaskp)]);
+            కొరకు (స్థిరరాశి స్తంభం& స్తంభం_2 : columns) {
+                ద్విగుణ చివరి_స్తంభం_స్థానభ్రంశం = 0;
+                కొరకు (స్థిరరాశి ExecMTask* స్థిరరాశి mtaskp : స్తంభం_2) {
+                    dumpDotFileEmitMTask(logp, mtaskp, కాలపట్టిక, segment_ఖర్చు, offsets);
+                    చివరి_స్తంభం_స్థానభ్రంశం = std::max(చివరి_స్తంభం_స్థానభ్రంశం, offsets[threadId(mtaskp)]);
                 }
                 // Even out column offset
-                std::fill(offsets.begin(), offsets.end(), lastColumnOffset);
+                std::fill(offsets.begin(), offsets.చివర(), చివరి_స్తంభం_స్థానభ్రంశం);
             }
 
-            dumpDotFileEmitFork(logp, offsets.front(), nThreads);
+            dumpDotFileEmitFork(logp, offsets.front(), n_దారాలు);
 
             // Emit MTask dependency edges
             *logp << "\n  // MTask dependencies\n";
 
-            for (const std::vector<const ExecMTask*>& thread : schedule.m_threads) {
-                if (thread.empty()) break;  // No more threads
+            కొరకు (స్థిరరాశి std::సదిశ<స్థిరరాశి ExecMTask*>& thread : కాలపట్టిక.m_దారాలు) {
+                ఒకవేళ (thread.ఖాళీలు()) ఆపు;  // No more threads
 
                 // Show that schedule ends when all tasks are finished
-                *logp << "  " << thread.back()->name() << " -> fork_"
-                      << static_cast<int>(offsets.front()) << "\n";
+                *logp << "  " << thread.వెనుక()->name() << " -> fork_"
+                      << static_cast<పూర్ణాంకం>(offsets.front()) << "\n";
 
                 // Show that tasks from the same thread are executed in a sequence
-                for (size_t i = 1; i < thread.size(); ++i)
+                కొరకు (కొలత_t i = 1; i < thread.కొలత(); ++i)
                     *logp << "  " << thread[i - 1]->name() << " -> " << thread[i]->name() << "\n";
 
                 // Emit cross-task dependencies
-                for (const ExecMTask* const mtaskp : thread) {
-                    for (const V3GraphEdge& edge : mtaskp->outEdges()) {
-                        const ExecMTask* const topMTaskp = edge.top()->cast<const ExecMTask>();
-                        if (topMTaskp && schedule.contains(topMTaskp)
-                            && threadId(topMTaskp) != threadId(mtaskp))
-                            *logp << "  " << mtaskp->name() << " -> " << topMTaskp->name() << "\n";
+                కొరకు (స్థిరరాశి ExecMTask* స్థిరరాశి mtaskp : thread) {
+                    కొరకు (స్థిరరాశి V3_లేఖాచిత్రం_అంచు& అంచు : mtaskp->బహిర్గతం_అంచులు()) {
+                        స్థిరరాశి ExecMTask* స్థిరరాశి శిఖరం_MTaskp = అంచు.శిఖరం()->cast<స్థిరరాశి ExecMTask>();
+                        ఒకవేళ (శిఖరం_MTaskp && కాలపట్టిక.కలిగియుంది(శిఖరం_MTaskp)
+                            && threadId(శిఖరం_MTaskp) != threadId(mtaskp))
+                            *logp << "  " << mtaskp->name() << " -> " << శిఖరం_MTaskp->name() << "\n";
                     }
                 }
             }
@@ -234,96 +234,96 @@ private:
         *logp << "}\n";
         logp->close();
     }
-    static void dumpDotFileEmitBlock(const std::unique_ptr<std::ofstream>& logp,
-                                     const string& name, const string& label, double width,
-                                     double height, double xPos, double yPos,
-                                     const string& fillColor) {
-        *logp << "  " << name << " [label=\"" << label << "\" width=" << width
-              << " height=" << height << " pos=\"" << xPos << "," << yPos
+    స్థిర శూన్య dump_Dot_File_Emit_ఖండం(స్థిరరాశి std::unique_ptr<std::ofstream>& logp,
+                                     స్థిరరాశి string& name, స్థిరరాశి string& label, ద్విగుణ వెడల్పు,
+                                     ద్విగుణ ఎత్తు, ద్విగుణ xPos, ద్విగుణ yPos,
+                                     స్థిరరాశి string& fillColor) {
+        *logp << "  " << name << " [label=\"" << label << "\" width=" << వెడల్పు
+              << " height=" << ఎత్తు << " pos=\"" << xPos << "," << yPos
               << "!\" style=\"filled\" fillcolor=\"" << fillColor << "\"]\n";
     }
-    static void dumpDotFileEmitMTask(const std::unique_ptr<std::ofstream>& logp,
-                                     const ExecMTask* const mtaskp, const ThreadSchedule& schedule,
-                                     uint32_t segmentCost, std::vector<double>& offsets) {
-        for (int i = 0; i < mtaskp->threads(); ++i) {
+    స్థిర శూన్య dumpDotFileEmitMTask(స్థిరరాశి std::unique_ptr<std::ofstream>& logp,
+                                     స్థిరరాశి ExecMTask* స్థిరరాశి mtaskp, స్థిరరాశి Thread_కాలపట్టిక& కాలపట్టిక,
+                                     uint32_t segment_ఖర్చు, std::సదిశ<ద్విగుణ>& offsets) {
+        కొరకు (పూర్ణాంకం i = 0; i < mtaskp->దారాలు(); ++i) {
             // Keep original name for the original thread of hierarchical task to keep
             // dependency tracking, add '_' for the rest to differentiate them.
-            const string name = i == 0 ? mtaskp->name() : mtaskp->name() + '_' + std::to_string(i);
-            const string label = mtaskp->name() + " (" + std::to_string(startTime(mtaskp)) + ':'
-                                 + std::to_string(endTime(mtaskp)) + ')'
-                                 + "\\ncost=" + std::to_string(mtaskp->cost())
-                                 + "\\npriority=" + std::to_string(mtaskp->priority());
-            const double width
-                = std::max(s_threadBoxWidth,
-                           s_threadBoxWidth * static_cast<double>(mtaskp->cost()) / segmentCost);
-            const uint32_t mtaskThreadId = threadId(mtaskp) + i * schedule.m_threads.size();
-            const double xPos = width / 2 + offsets[mtaskThreadId];
-            offsets[mtaskThreadId] += width + s_horizontalGap;
-            const double yPos = -s_threadBoxHeight * static_cast<double>(mtaskThreadId);
-            const string fillColor = i == 0 ? "white" : "lightgreen";
-            dumpDotFileEmitBlock(logp, name, label, width, s_threadBoxHeight, xPos, yPos,
+            స్థిరరాశి string name = i == 0 ? mtaskp->name() : mtaskp->name() + '_' + std::గమ్యం_string(i);
+            స్థిరరాశి string label = mtaskp->name() + " (" + std::గమ్యం_string(ప్రారంభం_సమయం(mtaskp)) + ':'
+                                 + std::గమ్యం_string(చివర_సమయం(mtaskp)) + ')'
+                                 + "\\ncost=" + std::గమ్యం_string(mtaskp->ఖర్చు())
+                                 + "\\npriority=" + std::గమ్యం_string(mtaskp->ప్రాధాన్యత_2());
+            స్థిరరాశి ద్విగుణ వెడల్పు
+                = std::max(s_thread_Box_వెడల్పు,
+                           s_thread_Box_వెడల్పు * static_cast<ద్విగుణ>(mtaskp->ఖర్చు()) / segment_ఖర్చు);
+            స్థిరరాశి uint32_t mtaskThreadId = threadId(mtaskp) + i * కాలపట్టిక.m_దారాలు.కొలత();
+            స్థిరరాశి ద్విగుణ xPos = వెడల్పు / 2 + offsets[mtaskThreadId];
+            offsets[mtaskThreadId] += వెడల్పు + s_horizontalGap;
+            స్థిరరాశి ద్విగుణ yPos = -s_thread_Box_ఎత్తు * static_cast<ద్విగుణ>(mtaskThreadId);
+            స్థిరరాశి string fillColor = i == 0 ? "white" : "lightgreen";
+            dump_Dot_File_Emit_ఖండం(logp, name, label, వెడల్పు, s_thread_Box_ఎత్తు, xPos, yPos,
                                  fillColor);
         }
     }
 
-    static void dumpDotFileEmitFork(const std::unique_ptr<std::ofstream>& logp, double offset,
-                                    uint32_t nThreads) {
-        const string& name = "fork_" + std::to_string(static_cast<int>(offset));
-        constexpr double width = s_threadBoxWidth / 8;
-        const double height = s_threadBoxHeight * nThreads;
-        const double xPos = offset - s_horizontalGap / 2;
-        const double yPos
-            = -static_cast<double>(nThreads) / 2 * s_threadBoxHeight + s_threadBoxHeight / 2;
-        dumpDotFileEmitBlock(logp, name, "", width, height, xPos, yPos, "black");
+    స్థిర శూన్య dumpDotFileEmitFork(స్థిరరాశి std::unique_ptr<std::ofstream>& logp, ద్విగుణ స్థానభ్రంశం,
+                                    uint32_t n_దారాలు) {
+        స్థిరరాశి string& name = "fork_" + std::గమ్యం_string(static_cast<పూర్ణాంకం>(స్థానభ్రంశం));
+        constexpr ద్విగుణ వెడల్పు = s_thread_Box_వెడల్పు / 8;
+        స్థిరరాశి ద్విగుణ ఎత్తు = s_thread_Box_ఎత్తు * n_దారాలు;
+        స్థిరరాశి ద్విగుణ xPos = స్థానభ్రంశం - s_horizontalGap / 2;
+        స్థిరరాశి ద్విగుణ yPos
+            = -static_cast<ద్విగుణ>(n_దారాలు) / 2 * s_thread_Box_ఎత్తు + s_thread_Box_ఎత్తు / 2;
+        dump_Dot_File_Emit_ఖండం(logp, name, "", వెడల్పు, ఎత్తు, xPos, yPos, "black");
     }
 
-public:
-    static uint32_t threadId(const ExecMTask* mtaskp) {
-        const auto& it = s_mtaskState.find(mtaskp);
-        return it != s_mtaskState.end() ? it->second.threadId : UNASSIGNED;
+బహిరంగ:
+    స్థిర uint32_t threadId(స్థిరరాశి ExecMTask* mtaskp) {
+        స్థిరరాశి స్వయంచాలక& it = s_mtaskState.కనుగొను(mtaskp);
+        తిరిగి it != s_mtaskState.చివర() ? it->రెండవ.threadId : UNASSIGNED;
     }
-    static uint32_t startTime(const ExecMTask* mtaskp) {
-        return s_mtaskState.at(mtaskp).completionTime - mtaskp->cost();
+    స్థిర uint32_t ప్రారంభం_సమయం(స్థిరరాశి ExecMTask* mtaskp) {
+        తిరిగి s_mtaskState.at(mtaskp).completion_సమయం - mtaskp->ఖర్చు();
     }
-    static uint32_t endTime(const ExecMTask* mtaskp) {
-        return s_mtaskState.at(mtaskp).completionTime;
+    స్థిర uint32_t చివర_సమయం(స్థిరరాశి ExecMTask* mtaskp) {
+        తిరిగి s_mtaskState.at(mtaskp).completion_సమయం;
     }
 
     // Returns the number of cross-thread dependencies of the given MTask. If > 0, the MTask must
     // test whether its dependencies are ready before starting, and therefore may need to block.
-    uint32_t crossThreadDependencies(const ExecMTask* mtaskp) const {
-        const uint32_t thisThreadId = threadId(mtaskp);
-        uint32_t result = 0;
-        for (const V3GraphEdge& edge : mtaskp->inEdges()) {
-            const ExecMTask* const prevp = edge.fromp()->as<ExecMTask>();
-            if (threadId(prevp) != thisThreadId && contains(prevp)) ++result;
+    uint32_t crossThreadDependencies(స్థిరరాశి ExecMTask* mtaskp) స్థిరరాశి {
+        స్థిరరాశి uint32_t thisThreadId = threadId(mtaskp);
+        uint32_t ఫలితం = 0;
+        కొరకు (స్థిరరాశి V3_లేఖాచిత్రం_అంచు& అంచు : mtaskp->లోపల_అంచులు()) {
+            స్థిరరాశి ExecMTask* స్థిరరాశి prevp = అంచు.fromp()->as<ExecMTask>();
+            ఒకవేళ (threadId(prevp) != thisThreadId && కలిగియుంది(prevp)) ++ఫలితం;
         }
-        return result;
+        తిరిగి ఫలితం;
     }
 
-    uint32_t id() const { return m_id; }
-    uint32_t scheduleOn(const ExecMTask* mtaskp, uint32_t bestThreadId) {
+    uint32_t id() స్థిరరాశి { తిరిగి m_id; }
+    uint32_t కాలపట్టిక_On(స్థిరరాశి ExecMTask* mtaskp, uint32_t ఉత్తమ_Thread_Id) {
         mtasks.emplace(mtaskp);
-        const uint32_t bestEndTime = mtaskp->predictStart() + mtaskp->cost();
-        m_endTime = std::max(m_endTime, bestEndTime);
-        s_mtaskState[mtaskp].completionTime = bestEndTime;
-        s_mtaskState[mtaskp].threadId = bestThreadId;
+        స్థిరరాశి uint32_t ఉత్తమ_చివర_సమయం = mtaskp->predict_ప్రారంభం() + mtaskp->ఖర్చు();
+        m_చివర_సమయం = std::max(m_చివర_సమయం, ఉత్తమ_చివర_సమయం);
+        s_mtaskState[mtaskp].completion_సమయం = ఉత్తమ_చివర_సమయం;
+        s_mtaskState[mtaskp].threadId = ఉత్తమ_Thread_Id;
 
         // Reference to thread in schedule we are assigning this MTask to.
-        std::vector<const ExecMTask*>& bestThread = m_threads[bestThreadId];
-        if (!bestThread.empty()) s_mtaskState[bestThread.back()].nextp = mtaskp;
+        std::సదిశ<స్థిరరాశి ExecMTask*>& ఉత్తమ_Thread = m_దారాలు[ఉత్తమ_Thread_Id];
+        ఒకవేళ (!ఉత్తమ_Thread.ఖాళీలు()) s_mtaskState[ఉత్తమ_Thread.వెనుక()].nextp = mtaskp;
 
         // Add the MTask to the schedule
-        bestThread.push_back(mtaskp);
-        return bestEndTime;
+        ఉత్తమ_Thread.నెట్టు_వెనుక(mtaskp);
+        తిరిగి ఉత్తమ_చివర_సమయం;
     }
-    bool contains(const ExecMTask* mtaskp) const { return mtasks.count(mtaskp); }
-    uint32_t endTime() const { return m_endTime; }
+    తార్కిక కలిగియుంది(స్థిరరాశి ExecMTask* mtaskp) స్థిరరాశి { తిరిగి mtasks.లెక్క(mtaskp); }
+    uint32_t చివర_సమయం() స్థిరరాశి { తిరిగి m_చివర_సమయం; }
 };
 
-uint32_t ThreadSchedule::s_nextId = 0;
-std::unordered_map<const ExecMTask*, ThreadSchedule::MTaskState> ThreadSchedule::s_mtaskState{};
-constexpr double V3ExecGraph::ThreadSchedule::s_threadBoxWidth;
+uint32_t Thread_కాలపట్టిక::s_తదుపరి_Id = 0;
+std::unordered_map<స్థిరరాశి ExecMTask*, Thread_కాలపట్టిక::MTaskState> Thread_కాలపట్టిక::s_mtaskState{};
+constexpr ద్విగుణ V3_Exec_లేఖాచిత్రం::Thread_కాలపట్టిక::s_thread_Box_వెడల్పు;
 
 //######################################################################
 // PackThreads
@@ -343,247 +343,247 @@ constexpr double V3ExecGraph::ThreadSchedule::s_threadBoxWidth;
 // depending on which thread is looking. Be a little bit pessimistic when
 // thread A checks the end time of an mtask running on thread B. This extra
 // "padding" avoids tight "layovers" at cross-thread dependencies.
-class PackThreads final {
+తరగతి Pack_దారాలు final {
     // TYPES
-    struct MTaskCmp final {
-        bool operator()(const ExecMTask* ap, const ExecMTask* bp) const {
-            return ap->id() < bp->id();
+    నిర్మాణం MTaskCmp final {
+        తార్కిక క్రియాకారకం()(స్థిరరాశి ExecMTask* ap, స్థిరరాశి ExecMTask* bp) స్థిరరాశి {
+            తిరిగి ap->id() < bp->id();
         }
     };
 
     // MEMBERS
-    const uint32_t m_nThreads;  // Number of threads
-    const uint32_t m_nHierThreads;  // Number of threads used for hierarchical tasks
-    const uint32_t m_sandbagNumerator;  // Numerator padding for est runtime
-    const uint32_t m_sandbagDenom;  // Denominator padding for est runtime
+    స్థిరరాశి uint32_t m_n_దారాలు;  // Number of threads
+    స్థిరరాశి uint32_t m_n_Hier_దారాలు;  // Number of threads used for hierarchical tasks
+    స్థిరరాశి uint32_t m_sandbagNumerator;  // Numerator padding for est runtime
+    స్థిరరాశి uint32_t m_sandbagDenom;  // Denominator padding for est runtime
 
     // CONSTRUCTORS
-    explicit PackThreads(uint32_t nThreads = v3Global.opt.threads(),
-                         uint32_t nHierThreads = v3Global.opt.hierThreads(),
-                         unsigned sandbagNumerator = 30, unsigned sandbagDenom = 100)
-        : m_nThreads{nThreads}
-        , m_nHierThreads{nHierThreads}
+    స్పష్టమైన Pack_దారాలు(uint32_t n_దారాలు = v3Global.opt.దారాలు(),
+                         uint32_t n_Hier_దారాలు = v3Global.opt.hier_దారాలు(),
+                         గుర్తులేని sandbagNumerator = 30, గుర్తులేని sandbagDenom = 100)
+        : m_n_దారాలు{n_దారాలు}
+        , m_n_Hier_దారాలు{n_Hier_దారాలు}
         , m_sandbagNumerator{sandbagNumerator}
         , m_sandbagDenom{sandbagDenom} {}
-    ~PackThreads() = default;
-    VL_UNCOPYABLE(PackThreads);
+    ~Pack_దారాలు() = అప్రమేయ;
+    VL_UNCOPYABLE(Pack_దారాలు);
 
     // METHODS
-    uint32_t completionTime(const ThreadSchedule& schedule, const ExecMTask* mtaskp,
+    uint32_t completion_సమయం(స్థిరరాశి Thread_కాలపట్టిక& కాలపట్టిక, స్థిరరాశి ExecMTask* mtaskp,
                             uint32_t threadId) {
         // Ignore tasks that were scheduled on a different schedule
-        if (!schedule.contains(mtaskp)) return 0;
-        const ThreadSchedule::MTaskState& state = schedule.s_mtaskState.at(mtaskp);
-        UASSERT(state.threadId != ThreadSchedule::UNASSIGNED, "Mtask should have assigned thread");
-        if (threadId == state.threadId) {
+        ఒకవేళ (!కాలపట్టిక.కలిగియుంది(mtaskp)) తిరిగి 0;
+        స్థిరరాశి Thread_కాలపట్టిక::MTaskState& state = కాలపట్టిక.s_mtaskState.at(mtaskp);
+        UASSERT(state.threadId != Thread_కాలపట్టిక::UNASSIGNED, "Mtask should have assigned thread");
+        ఒకవేళ (threadId == state.threadId) {
             // No overhead on same thread
-            return state.completionTime;
+            తిరిగి state.completion_సమయం;
         }
 
         // Add some padding to the estimated runtime when looking from
         // another thread
-        uint32_t sandbaggedEndTime
-            = state.completionTime + (m_sandbagNumerator * mtaskp->cost()) / m_sandbagDenom;
+        uint32_t sandbagged_చివర_సమయం
+            = state.completion_సమయం + (m_sandbagNumerator * mtaskp->ఖర్చు()) / m_sandbagDenom;
 
         // If task B is packed after task A on thread 0, don't let thread 1
         // think that A finishes earlier than thread 0 thinks that B
         // finishes, otherwise we get priority inversions and fail the self
         // test.
-        if (state.nextp) {
-            const uint32_t successorEndTime
-                = completionTime(schedule, state.nextp, state.threadId);
-            if ((sandbaggedEndTime >= successorEndTime) && (successorEndTime > 1)) {
-                sandbaggedEndTime = successorEndTime - 1;
+        ఒకవేళ (state.nextp) {
+            స్థిరరాశి uint32_t successor_చివర_సమయం
+                = completion_సమయం(కాలపట్టిక, state.nextp, state.threadId);
+            ఒకవేళ ((sandbagged_చివర_సమయం >= successor_చివర_సమయం) && (successor_చివర_సమయం > 1)) {
+                sandbagged_చివర_సమయం = successor_చివర_సమయం - 1;
             }
         }
 
         UINFO(6, "Sandbagged end time for " << mtaskp->name() << " on th " << threadId << " = "
-                                            << sandbaggedEndTime);
-        return sandbaggedEndTime;
+                                            << sandbagged_చివర_సమయం);
+        తిరిగి sandbagged_చివర_సమయం;
     }
 
-    static bool isReady(ThreadSchedule& schedule, const ExecMTask* mtaskp) {
-        for (const V3GraphEdge& edgeIn : mtaskp->inEdges()) {
-            const ExecMTask* const prevp = edgeIn.fromp()->as<const ExecMTask>();
-            if (schedule.threadId(prevp) == ThreadSchedule::UNASSIGNED) {
+    స్థిర తార్కిక isReady(Thread_కాలపట్టిక& కాలపట్టిక, స్థిరరాశి ExecMTask* mtaskp) {
+        కొరకు (స్థిరరాశి V3_లేఖాచిత్రం_అంచు& అంచు_లోపల : mtaskp->లోపల_అంచులు()) {
+            స్థిరరాశి ExecMTask* స్థిరరాశి prevp = అంచు_లోపల.fromp()->as<స్థిరరాశి ExecMTask>();
+            ఒకవేళ (కాలపట్టిక.threadId(prevp) == Thread_కాలపట్టిక::UNASSIGNED) {
                 // This predecessor is not assigned yet
-                return false;
+                తిరిగి అబద్ధం;
             }
         }
-        return true;
+        తిరిగి నిజం;
     }
 
     // Pack an MTasks from given graph into m_nThreads threads, return the schedule.
-    std::vector<ThreadSchedule> pack(V3Graph& mtaskGraph) {
-        std::vector<ThreadSchedule> result;
-        result.emplace_back(ThreadSchedule{m_nThreads});
+    std::సదిశ<Thread_కాలపట్టిక> pack(V3_లేఖాచిత్రం& mtask_లేఖాచిత్రం) {
+        std::సదిశ<Thread_కాలపట్టిక> ఫలితం;
+        ఫలితం.emplace_వెనుక(Thread_కాలపట్టిక{m_n_దారాలు});
 
         // To support scheduling tasks that utilize more than one thread, we introduce a wide
         // task (ExecMTask with threads() > 1). Those tasks are scheduled on a separate thread
         // schedule to ensure that indexes for simulation-time thread pool workers are not shadowed
         // by another tasks.
         // For retaining control over thread schedules, we distinguish SchedulingModes:
-        enum class SchedulingMode : uint8_t {
+        గణన తరగతి Scheduling_బహుళకం : uint8_t {
             SCHEDULING,  // Schedule normal tasks
             WIDE_TASK_DISCOVERED,  // Found a wide task, if this is the only one available,
                                    // switch to WIDE_TASK_SCHEDULING
             WIDE_TASK_SCHEDULING  // Schedule wide tasks
         };
-        SchedulingMode mode = SchedulingMode::SCHEDULING;
+        Scheduling_బహుళకం బహుళకం = Scheduling_బహుళకం::SCHEDULING;
 
         // Time each thread is occupied until
-        std::vector<uint32_t> busyUntil(std::max(m_nThreads, m_nHierThreads), 0);
+        std::సదిశ<uint32_t> busyUntil(std::max(m_n_దారాలు, m_n_Hier_దారాలు), 0);
 
         // MTasks ready to be assigned next. All their dependencies are already assigned.
-        std::set<ExecMTask*, MTaskCmp> readyMTasks;
-        int maxThreadWorkers = 1;
+        std::సమితి<ExecMTask*, MTaskCmp> readyMTasks;
+        పూర్ణాంకం maxThreadWorkers = 1;
 
         // Build initial ready list
-        for (V3GraphVertex& vtx : mtaskGraph.vertices()) {
-            ExecMTask* const mtaskp = vtx.as<ExecMTask>();
-            if (isReady(result.back(), mtaskp)) readyMTasks.insert(mtaskp);
+        కొరకు (V3_లేఖాచిత్రం_శీర్షం& vtx : mtask_లేఖాచిత్రం.vertices()) {
+            ExecMTask* స్థిరరాశి mtaskp = vtx.as<ExecMTask>();
+            ఒకవేళ (isReady(ఫలితం.వెనుక(), mtaskp)) readyMTasks.చొప్పించు(mtaskp);
             // TODO right now we schedule tasks assuming they take the same number of threads for
             // simplification.
-            maxThreadWorkers = std::max(maxThreadWorkers, mtaskp->threads());
+            maxThreadWorkers = std::max(maxThreadWorkers, mtaskp->దారాలు());
         }
 
-        while (!readyMTasks.empty()) {
+        అయితే (!readyMTasks.ఖాళీలు()) {
             // For each task in the ready set, compute when it might start
             // on each thread (in that thread's local time frame.)
-            uint32_t bestTime = 0xffffffff;
-            uint32_t bestThreadId = 0;
-            ExecMTask* bestMtaskp = nullptr;  // Todo: const ExecMTask*
-            ThreadSchedule& schedule = result.back();
-            for (uint32_t threadId = 0; threadId < schedule.m_threads.size(); ++threadId) {
-                for (ExecMTask* const mtaskp : readyMTasks) {
-                    if (mode != SchedulingMode::WIDE_TASK_SCHEDULING && mtaskp->threads() > 1) {
-                        mode = SchedulingMode::WIDE_TASK_DISCOVERED;
-                        continue;
+            uint32_t ఉత్తమ_సమయం = 0xffffffff;
+            uint32_t ఉత్తమ_Thread_Id = 0;
+            ExecMTask* ఉత్తమ_Mtaskp = శూన్యసూచిక;  // Todo: const ExecMTask*
+            Thread_కాలపట్టిక& కాలపట్టిక = ఫలితం.వెనుక();
+            కొరకు (uint32_t threadId = 0; threadId < కాలపట్టిక.m_దారాలు.కొలత(); ++threadId) {
+                కొరకు (ExecMTask* స్థిరరాశి mtaskp : readyMTasks) {
+                    ఒకవేళ (బహుళకం != Scheduling_బహుళకం::WIDE_TASK_SCHEDULING && mtaskp->దారాలు() > 1) {
+                        బహుళకం = Scheduling_బహుళకం::WIDE_TASK_DISCOVERED;
+                        కొనసాగు;
                     }
-                    if (mode == SchedulingMode::WIDE_TASK_SCHEDULING && mtaskp->threads() <= 1)
-                        continue;
+                    ఒకవేళ (బహుళకం == Scheduling_బహుళకం::WIDE_TASK_SCHEDULING && mtaskp->దారాలు() <= 1)
+                        కొనసాగు;
 
-                    uint32_t timeBegin = busyUntil[threadId];
-                    if (timeBegin > bestTime) {
-                        UINFO(6, "th " << threadId << " busy until " << timeBegin
-                                       << ", later than bestTime " << bestTime
+                    uint32_t సమయం_Begin = busyUntil[threadId];
+                    ఒకవేళ (సమయం_Begin > ఉత్తమ_సమయం) {
+                        UINFO(6, "th " << threadId << " busy until " << సమయం_Begin
+                                       << ", later than bestTime " << ఉత్తమ_సమయం
                                        << ", skipping thread.");
-                        break;
+                        ఆపు;
                     }
-                    for (const V3GraphEdge& edge : mtaskp->inEdges()) {
-                        const ExecMTask* const priorp = edge.fromp()->as<ExecMTask>();
-                        const uint32_t priorEndTime = completionTime(schedule, priorp, threadId);
-                        if (priorEndTime > timeBegin) timeBegin = priorEndTime;
+                    కొరకు (స్థిరరాశి V3_లేఖాచిత్రం_అంచు& అంచు : mtaskp->లోపల_అంచులు()) {
+                        స్థిరరాశి ExecMTask* స్థిరరాశి priorp = అంచు.fromp()->as<ExecMTask>();
+                        స్థిరరాశి uint32_t పూర్వ_చివర_సమయం = completion_సమయం(కాలపట్టిక, priorp, threadId);
+                        ఒకవేళ (పూర్వ_చివర_సమయం > సమయం_Begin) సమయం_Begin = పూర్వ_చివర_సమయం;
                     }
-                    UINFO(6, "Task " << mtaskp->name() << " start at " << timeBegin
+                    UINFO(6, "Task " << mtaskp->name() << " start at " << సమయం_Begin
                                      << " on thread " << threadId);
-                    if ((timeBegin < bestTime)
-                        || ((timeBegin == bestTime)
-                            && bestMtaskp  // Redundant, but appeases static analysis tools
-                            && (mtaskp->priority() > bestMtaskp->priority()))) {
-                        bestTime = timeBegin;
-                        bestThreadId = threadId;
-                        bestMtaskp = mtaskp;
+                    ఒకవేళ ((సమయం_Begin < ఉత్తమ_సమయం)
+                        || ((సమయం_Begin == ఉత్తమ_సమయం)
+                            && ఉత్తమ_Mtaskp  // Redundant, but appeases static analysis tools
+                            && (mtaskp->ప్రాధాన్యత_2() > ఉత్తమ_Mtaskp->ప్రాధాన్యత_2()))) {
+                        ఉత్తమ_సమయం = సమయం_Begin;
+                        ఉత్తమ_Thread_Id = threadId;
+                        ఉత్తమ_Mtaskp = mtaskp;
                     }
                 }
             }
 
-            const uint32_t endTime = schedule.endTime();
+            స్థిరరాశి uint32_t చివర_సమయం = కాలపట్టిక.చివర_సమయం();
 
-            if (!bestMtaskp && mode == SchedulingMode::WIDE_TASK_DISCOVERED) {
-                mode = SchedulingMode::WIDE_TASK_SCHEDULING;
-                const uint32_t size = m_nHierThreads / maxThreadWorkers;
-                UASSERT(size, "Thread pool size should be bigger than 0");
+            ఒకవేళ (!ఉత్తమ_Mtaskp && బహుళకం == Scheduling_బహుళకం::WIDE_TASK_DISCOVERED) {
+                బహుళకం = Scheduling_బహుళకం::WIDE_TASK_SCHEDULING;
+                స్థిరరాశి uint32_t కొలత = m_n_Hier_దారాలు / maxThreadWorkers;
+                UASSERT(కొలత, "Thread pool size should be bigger than 0");
                 // If no tasks were added to the normal thread schedule, clear it.
-                if (schedule.s_mtaskState.empty()) result.clear();
-                result.emplace_back(ThreadSchedule{size});
-                std::fill(busyUntil.begin(), busyUntil.end(), endTime);
-                continue;
+                ఒకవేళ (కాలపట్టిక.s_mtaskState.ఖాళీలు()) ఫలితం.clear();
+                ఫలితం.emplace_వెనుక(Thread_కాలపట్టిక{కొలత});
+                std::fill(busyUntil.begin(), busyUntil.చివర(), చివర_సమయం);
+                కొనసాగు;
             }
 
-            if (!bestMtaskp && mode == SchedulingMode::WIDE_TASK_SCHEDULING) {
-                mode = SchedulingMode::SCHEDULING;
-                UASSERT(!schedule.s_mtaskState.empty(), "Mtask should be added");
-                result.emplace_back(ThreadSchedule{m_nThreads});
-                std::fill(busyUntil.begin(), busyUntil.end(), endTime);
-                continue;
+            ఒకవేళ (!ఉత్తమ_Mtaskp && బహుళకం == Scheduling_బహుళకం::WIDE_TASK_SCHEDULING) {
+                బహుళకం = Scheduling_బహుళకం::SCHEDULING;
+                UASSERT(!కాలపట్టిక.s_mtaskState.ఖాళీలు(), "Mtask should be added");
+                ఫలితం.emplace_వెనుక(Thread_కాలపట్టిక{m_n_దారాలు});
+                std::fill(busyUntil.begin(), busyUntil.చివర(), చివర_సమయం);
+                కొనసాగు;
             }
 
-            UASSERT(bestMtaskp, "Should have found some task");
+            UASSERT(ఉత్తమ_Mtaskp, "Should have found some task");
 
-            bestMtaskp->predictStart(bestTime);
-            const uint32_t bestEndTime = schedule.scheduleOn(bestMtaskp, bestThreadId);
-            busyUntil[bestThreadId] = bestEndTime;
+            ఉత్తమ_Mtaskp->predict_ప్రారంభం(ఉత్తమ_సమయం);
+            స్థిరరాశి uint32_t ఉత్తమ_చివర_సమయం = కాలపట్టిక.కాలపట్టిక_On(ఉత్తమ_Mtaskp, ఉత్తమ_Thread_Id);
+            busyUntil[ఉత్తమ_Thread_Id] = ఉత్తమ_చివర_సమయం;
 
             // Update the ready list
-            const size_t erased = readyMTasks.erase(bestMtaskp);
-            UASSERT_OBJ(erased > 0, bestMtaskp, "Should have erased something?");
-            for (const V3GraphEdge& edgeOut : bestMtaskp->outEdges()) {
-                ExecMTask* const nextp = edgeOut.top()->as<ExecMTask>();
+            స్థిరరాశి కొలత_t erased = readyMTasks.erase(ఉత్తమ_Mtaskp);
+            UASSERT_OBJ(erased > 0, ఉత్తమ_Mtaskp, "Should have erased something?");
+            కొరకు (స్థిరరాశి V3_లేఖాచిత్రం_అంచు& అంచు_బహిర్గతం : ఉత్తమ_Mtaskp->బహిర్గతం_అంచులు()) {
+                ExecMTask* స్థిరరాశి nextp = అంచు_బహిర్గతం.శిఖరం()->as<ExecMTask>();
                 // Dependent MTask should not yet be assigned to a thread
-                UASSERT(schedule.threadId(nextp) == ThreadSchedule::UNASSIGNED,
+                UASSERT(కాలపట్టిక.threadId(nextp) == Thread_కాలపట్టిక::UNASSIGNED,
                         "Tasks after one being assigned should not be assigned yet");
                 // Dependent MTask should not be ready yet, since dependency is just being assigned
-                UASSERT_OBJ(readyMTasks.find(nextp) == readyMTasks.end(), nextp,
+                UASSERT_OBJ(readyMTasks.కనుగొను(nextp) == readyMTasks.చివర(), nextp,
                             "Tasks after one being assigned should not be ready");
-                if (isReady(schedule, nextp)) {
-                    readyMTasks.insert(nextp);
+                ఒకవేళ (isReady(కాలపట్టిక, nextp)) {
+                    readyMTasks.చొప్పించు(nextp);
                     UINFO(6, "Inserted " << nextp->name() << " into ready");
                 }
             }
         }
 
         // All schedules are combined on a single graph
-        if (dumpGraphLevel() >= 4)
-            ThreadSchedule::dumpDotFilePrefixedAlways(result, "schedule", m_nThreads);
+        ఒకవేళ (dump_లేఖాచిత్రం_Level() >= 4)
+            Thread_కాలపట్టిక::dumpDotFilePrefixedAlways(ఫలితం, "schedule", m_n_దారాలు);
 
-        return result;
+        తిరిగి ఫలితం;
     }
 
-public:
+బహిరంగ:
     // SELF TEST
-    static void selfTest() {
+    స్థిర శూన్య selfTest() {
         // Dummy trigger vector for the test graphs, which are never emitted
-        FileLine* const flp = v3Global.rootp()->fileline();
-        AstVar* const varp = new AstVar{flp, VVarType::MODULETEMP, "__VtestTriggered",
-                                        v3Global.rootp()->findUInt64DType()};
-        AstScope* const scopep = new AstScope{flp, nullptr, "test", nullptr, nullptr};
-        AstVarScope* const trigVscp = new AstVarScope{flp, scopep, varp};
-        selfTestHierFirst(trigVscp);
-        selfTestNormalFirst(trigVscp);
-        VL_DO_DANGLING(trigVscp->deleteTree(), trigVscp);
-        VL_DO_DANGLING(scopep->deleteTree(), scopep);
-        VL_DO_DANGLING(varp->deleteTree(), varp);
+        File_పంక్తి* స్థిరరాశి flp = v3Global.rootp()->fileline();
+        AstVar* స్థిరరాశి varp = కొత్త AstVar{flp, VVarType::MODULETEMP, "__VtestTriggered",
+                                        v3Global.rootp()->కనుగొను_UInt64_DType()};
+        AstScope* స్థిరరాశి scopep = కొత్త AstScope{flp, శూన్యసూచిక, "test", శూన్యసూచిక, శూన్యసూచిక};
+        AstVarScope* స్థిరరాశి trigVscp = కొత్త AstVarScope{flp, scopep, varp};
+        self_Test_Hier_మొదటి(trigVscp);
+        self_Test_సాధారణ_మొదటి(trigVscp);
+        VL_DO_DANGLING(trigVscp->delete_వృక్షం(), trigVscp);
+        VL_DO_DANGLING(scopep->delete_వృక్షం(), scopep);
+        VL_DO_DANGLING(varp->delete_వృక్షం(), varp);
     }
-    static void selfTestNormalFirst(AstVarScope* trigVscp) {
-        FileLine* const flp = v3Global.rootp()->fileline();
-        AstExecGraph* const execGraphp = new AstExecGraph{flp, "test", trigVscp};
-        V3Graph& graph = *execGraphp->depGraphp();
-        const auto makeBody = [&]() -> AstNodeStmt* { return new AstComment{flp, ""}; };
-        ExecMTask* const t0 = new ExecMTask{execGraphp, nullptr, makeBody()};
-        t0->cost(1000);
-        t0->priority(1100);
-        ExecMTask* const t1 = new ExecMTask{execGraphp, nullptr, makeBody()};
-        t1->cost(100);
-        t1->priority(100);
-        ExecMTask* const t2 = new ExecMTask{execGraphp, nullptr, makeBody()};
-        t2->cost(100);
-        t2->priority(100);
-        t2->threads(2);
-        ExecMTask* const t3 = new ExecMTask{execGraphp, nullptr, makeBody()};
-        t3->cost(100);
-        t3->priority(100);
-        t3->threads(3);
-        ExecMTask* const t4 = new ExecMTask{execGraphp, nullptr, makeBody()};
-        t4->cost(100);
-        t4->priority(100);
-        t4->threads(3);
-        ExecMTask* const t5 = new ExecMTask{execGraphp, nullptr, makeBody()};
-        t5->cost(100);
-        t5->priority(100);
-        ExecMTask* const t6 = new ExecMTask{execGraphp, nullptr, makeBody()};
-        t6->cost(100);
-        t6->priority(100);
+    స్థిర శూన్య self_Test_సాధారణ_మొదటి(AstVarScope* trigVscp) {
+        File_పంక్తి* స్థిరరాశి flp = v3Global.rootp()->fileline();
+        Ast_Exec_లేఖాచిత్రం* స్థిరరాశి execGraphp = కొత్త Ast_Exec_లేఖాచిత్రం{flp, "test", trigVscp};
+        V3_లేఖాచిత్రం& లేఖాచిత్రం = *execGraphp->depGraphp();
+        స్థిరరాశి స్వయంచాలక makeBody = [&]() -> Ast_కణుపు_Stmt* { తిరిగి కొత్త AstComment{flp, ""}; };
+        ExecMTask* స్థిరరాశి t0 = కొత్త ExecMTask{execGraphp, శూన్యసూచిక, makeBody()};
+        t0->ఖర్చు(1000);
+        t0->ప్రాధాన్యత_2(1100);
+        ExecMTask* స్థిరరాశి t1 = కొత్త ExecMTask{execGraphp, శూన్యసూచిక, makeBody()};
+        t1->ఖర్చు(100);
+        t1->ప్రాధాన్యత_2(100);
+        ExecMTask* స్థిరరాశి t2 = కొత్త ExecMTask{execGraphp, శూన్యసూచిక, makeBody()};
+        t2->ఖర్చు(100);
+        t2->ప్రాధాన్యత_2(100);
+        t2->దారాలు(2);
+        ExecMTask* స్థిరరాశి t3 = కొత్త ExecMTask{execGraphp, శూన్యసూచిక, makeBody()};
+        t3->ఖర్చు(100);
+        t3->ప్రాధాన్యత_2(100);
+        t3->దారాలు(3);
+        ExecMTask* స్థిరరాశి t4 = కొత్త ExecMTask{execGraphp, శూన్యసూచిక, makeBody()};
+        t4->ఖర్చు(100);
+        t4->ప్రాధాన్యత_2(100);
+        t4->దారాలు(3);
+        ExecMTask* స్థిరరాశి t5 = కొత్త ExecMTask{execGraphp, శూన్యసూచిక, makeBody()};
+        t5->ఖర్చు(100);
+        t5->ప్రాధాన్యత_2(100);
+        ExecMTask* స్థిరరాశి t6 = కొత్త ExecMTask{execGraphp, శూన్యసూచిక, makeBody()};
+        t6->ఖర్చు(100);
+        t6->ప్రాధాన్యత_2(100);
 
         /*
                           0
@@ -594,299 +594,299 @@ public:
                          /    \
                         5      6
         */
-        new V3GraphEdge{&graph, t0, t1, 1};
-        new V3GraphEdge{&graph, t0, t2, 1};
-        new V3GraphEdge{&graph, t2, t3, 1};
-        new V3GraphEdge{&graph, t2, t4, 1};
-        new V3GraphEdge{&graph, t3, t5, 1};
-        new V3GraphEdge{&graph, t4, t6, 1};
+        కొత్త V3_లేఖాచిత్రం_అంచు{&లేఖాచిత్రం, t0, t1, 1};
+        కొత్త V3_లేఖాచిత్రం_అంచు{&లేఖాచిత్రం, t0, t2, 1};
+        కొత్త V3_లేఖాచిత్రం_అంచు{&లేఖాచిత్రం, t2, t3, 1};
+        కొత్త V3_లేఖాచిత్రం_అంచు{&లేఖాచిత్రం, t2, t4, 1};
+        కొత్త V3_లేఖాచిత్రం_అంచు{&లేఖాచిత్రం, t3, t5, 1};
+        కొత్త V3_లేఖాచిత్రం_అంచు{&లేఖాచిత్రం, t4, t6, 1};
 
-        constexpr uint32_t threads = 2;
-        constexpr uint32_t hierThreads = 6;
-        PackThreads packer{threads, hierThreads,
+        constexpr uint32_t దారాలు = 2;
+        constexpr uint32_t hier_దారాలు = 6;
+        Pack_దారాలు packer{దారాలు, hier_దారాలు,
                            3,  // Sandbag numerator
                            10};  // Sandbag denom
 
-        const std::vector<ThreadSchedule> scheduled = packer.pack(graph);
-        UASSERT_SELFTEST(scheduled.size(), 3);
-        UASSERT_SELFTEST(scheduled[0].m_threads.size(), threads);
-        UASSERT_SELFTEST(scheduled[0].m_threads[0].size(), 2);
-        for (size_t i = 1; i < scheduled[0].m_threads.size(); ++i)
-            UASSERT_SELFTEST(scheduled[0].m_threads[i].size(), 0);
+        స్థిరరాశి std::సదిశ<Thread_కాలపట్టిక> scheduled = packer.pack(లేఖాచిత్రం);
+        UASSERT_SELFTEST(scheduled.కొలత(), 3);
+        UASSERT_SELFTEST(scheduled[0].m_దారాలు.కొలత(), దారాలు);
+        UASSERT_SELFTEST(scheduled[0].m_దారాలు[0].కొలత(), 2);
+        కొరకు (కొలత_t i = 1; i < scheduled[0].m_దారాలు.కొలత(); ++i)
+            UASSERT_SELFTEST(scheduled[0].m_దారాలు[i].కొలత(), 0);
 
-        UASSERT_SELFTEST(scheduled[0].m_threads[0][0], t0);
-        UASSERT_SELFTEST(scheduled[0].m_threads[0][1], t1);
+        UASSERT_SELFTEST(scheduled[0].m_దారాలు[0][0], t0);
+        UASSERT_SELFTEST(scheduled[0].m_దారాలు[0][1], t1);
 
-        UASSERT_SELFTEST(scheduled[1].m_threads.size(), hierThreads / 3);
-        UASSERT_SELFTEST(scheduled[1].m_threads[0][0], t2);
-        UASSERT_SELFTEST(scheduled[1].m_threads[0][1], t3);
-        UASSERT_SELFTEST(scheduled[1].m_threads[1][0], t4);
+        UASSERT_SELFTEST(scheduled[1].m_దారాలు.కొలత(), hier_దారాలు / 3);
+        UASSERT_SELFTEST(scheduled[1].m_దారాలు[0][0], t2);
+        UASSERT_SELFTEST(scheduled[1].m_దారాలు[0][1], t3);
+        UASSERT_SELFTEST(scheduled[1].m_దారాలు[1][0], t4);
 
-        UASSERT_SELFTEST(scheduled[2].m_threads.size(), threads);
-        UASSERT_SELFTEST(scheduled[2].m_threads[0][0], t5);
-        UASSERT_SELFTEST(scheduled[2].m_threads[1][0], t6);
+        UASSERT_SELFTEST(scheduled[2].m_దారాలు.కొలత(), దారాలు);
+        UASSERT_SELFTEST(scheduled[2].m_దారాలు[0][0], t5);
+        UASSERT_SELFTEST(scheduled[2].m_దారాలు[1][0], t6);
 
-        UASSERT_SELFTEST(ThreadSchedule::s_mtaskState.size(), 7);
+        UASSERT_SELFTEST(Thread_కాలపట్టిక::s_mtaskState.కొలత(), 7);
 
-        UASSERT_SELFTEST(ThreadSchedule::threadId(t0), 0);
-        UASSERT_SELFTEST(ThreadSchedule::threadId(t1), 0);
-        UASSERT_SELFTEST(ThreadSchedule::threadId(t2), 0);
-        UASSERT_SELFTEST(ThreadSchedule::threadId(t3), 0);
-        UASSERT_SELFTEST(ThreadSchedule::threadId(t4), 1);
-        UASSERT_SELFTEST(ThreadSchedule::threadId(t5), 0);
-        UASSERT_SELFTEST(ThreadSchedule::threadId(t6), 1);
+        UASSERT_SELFTEST(Thread_కాలపట్టిక::threadId(t0), 0);
+        UASSERT_SELFTEST(Thread_కాలపట్టిక::threadId(t1), 0);
+        UASSERT_SELFTEST(Thread_కాలపట్టిక::threadId(t2), 0);
+        UASSERT_SELFTEST(Thread_కాలపట్టిక::threadId(t3), 0);
+        UASSERT_SELFTEST(Thread_కాలపట్టిక::threadId(t4), 1);
+        UASSERT_SELFTEST(Thread_కాలపట్టిక::threadId(t5), 0);
+        UASSERT_SELFTEST(Thread_కాలపట్టిక::threadId(t6), 1);
 
         // On its native thread, we see the actual end time for t0:
-        UASSERT_SELFTEST(packer.completionTime(scheduled[0], t0, 0), 1000);
+        UASSERT_SELFTEST(packer.completion_సమయం(scheduled[0], t0, 0), 1000);
         // On the other thread, we see a sandbagged end time which does not
         // exceed the t1 end time:
-        UASSERT_SELFTEST(packer.completionTime(scheduled[0], t0, 1), 1099);
+        UASSERT_SELFTEST(packer.completion_సమయం(scheduled[0], t0, 1), 1099);
 
         // Actual end time on native thread:
-        UASSERT_SELFTEST(packer.completionTime(scheduled[0], t1, 0), 1100);
+        UASSERT_SELFTEST(packer.completion_సమయం(scheduled[0], t1, 0), 1100);
         // Sandbagged end time seen on thread 1.  Note it does not compound
         // with t0's sandbagged time; compounding caused trouble in
         // practice.
-        UASSERT_SELFTEST(packer.completionTime(scheduled[0], t1, 1), 1130);
+        UASSERT_SELFTEST(packer.completion_సమయం(scheduled[0], t1, 1), 1130);
 
         // Wide task scheduling
 
         // Task does not depend on previous or future schedules
-        UASSERT_SELFTEST(packer.completionTime(scheduled[0], t2, 0), 0);
-        UASSERT_SELFTEST(packer.completionTime(scheduled[2], t2, 0), 0);
+        UASSERT_SELFTEST(packer.completion_సమయం(scheduled[0], t2, 0), 0);
+        UASSERT_SELFTEST(packer.completion_సమయం(scheduled[2], t2, 0), 0);
 
         // We allow sandbagging for hierarchical children tasks, this does not affect
         // wide task scheduling. When the next schedule is created it doesn't matter
         // anyway.
-        UASSERT_SELFTEST(packer.completionTime(scheduled[1], t2, 0), 1200);
-        UASSERT_SELFTEST(packer.completionTime(scheduled[1], t2, 1), 1230);
-        UASSERT_SELFTEST(packer.completionTime(scheduled[1], t2, 2), 1230);
-        UASSERT_SELFTEST(packer.completionTime(scheduled[1], t2, 3), 1230);
-        UASSERT_SELFTEST(packer.completionTime(scheduled[1], t2, 4), 1230);
-        UASSERT_SELFTEST(packer.completionTime(scheduled[1], t2, 5), 1230);
+        UASSERT_SELFTEST(packer.completion_సమయం(scheduled[1], t2, 0), 1200);
+        UASSERT_SELFTEST(packer.completion_సమయం(scheduled[1], t2, 1), 1230);
+        UASSERT_SELFTEST(packer.completion_సమయం(scheduled[1], t2, 2), 1230);
+        UASSERT_SELFTEST(packer.completion_సమయం(scheduled[1], t2, 3), 1230);
+        UASSERT_SELFTEST(packer.completion_సమయం(scheduled[1], t2, 4), 1230);
+        UASSERT_SELFTEST(packer.completion_సమయం(scheduled[1], t2, 5), 1230);
 
-        UASSERT_SELFTEST(packer.completionTime(scheduled[1], t3, 0), 1300);
-        UASSERT_SELFTEST(packer.completionTime(scheduled[1], t3, 1), 1330);
-        UASSERT_SELFTEST(packer.completionTime(scheduled[1], t3, 2), 1330);
-        UASSERT_SELFTEST(packer.completionTime(scheduled[1], t3, 3), 1330);
-        UASSERT_SELFTEST(packer.completionTime(scheduled[1], t3, 4), 1330);
-        UASSERT_SELFTEST(packer.completionTime(scheduled[1], t3, 5), 1330);
+        UASSERT_SELFTEST(packer.completion_సమయం(scheduled[1], t3, 0), 1300);
+        UASSERT_SELFTEST(packer.completion_సమయం(scheduled[1], t3, 1), 1330);
+        UASSERT_SELFTEST(packer.completion_సమయం(scheduled[1], t3, 2), 1330);
+        UASSERT_SELFTEST(packer.completion_సమయం(scheduled[1], t3, 3), 1330);
+        UASSERT_SELFTEST(packer.completion_సమయం(scheduled[1], t3, 4), 1330);
+        UASSERT_SELFTEST(packer.completion_సమయం(scheduled[1], t3, 5), 1330);
 
-        UASSERT_SELFTEST(packer.completionTime(scheduled[1], t4, 0), 1360);
-        UASSERT_SELFTEST(packer.completionTime(scheduled[1], t4, 1), 1330);
-        UASSERT_SELFTEST(packer.completionTime(scheduled[1], t4, 2), 1360);
-        UASSERT_SELFTEST(packer.completionTime(scheduled[1], t4, 3), 1360);
-        UASSERT_SELFTEST(packer.completionTime(scheduled[1], t4, 4), 1360);
-        UASSERT_SELFTEST(packer.completionTime(scheduled[1], t4, 5), 1360);
+        UASSERT_SELFTEST(packer.completion_సమయం(scheduled[1], t4, 0), 1360);
+        UASSERT_SELFTEST(packer.completion_సమయం(scheduled[1], t4, 1), 1330);
+        UASSERT_SELFTEST(packer.completion_సమయం(scheduled[1], t4, 2), 1360);
+        UASSERT_SELFTEST(packer.completion_సమయం(scheduled[1], t4, 3), 1360);
+        UASSERT_SELFTEST(packer.completion_సమయం(scheduled[1], t4, 4), 1360);
+        UASSERT_SELFTEST(packer.completion_సమయం(scheduled[1], t4, 5), 1360);
 
-        for (V3GraphVertex& vtx : graph.vertices()) vtx.as<ExecMTask>()->funcp()->deleteTree();
-        VL_DO_DANGLING(execGraphp->deleteTree(), execGraphp);
-        ThreadSchedule::s_mtaskState.clear();
+        కొరకు (V3_లేఖాచిత్రం_శీర్షం& vtx : లేఖాచిత్రం.vertices()) vtx.as<ExecMTask>()->funcp()->delete_వృక్షం();
+        VL_DO_DANGLING(execGraphp->delete_వృక్షం(), execGraphp);
+        Thread_కాలపట్టిక::s_mtaskState.clear();
     }
-    static void selfTestHierFirst(AstVarScope* trigVscp) {
-        FileLine* const flp = v3Global.rootp()->fileline();
-        AstExecGraph* const execGraphp = new AstExecGraph{flp, "test", trigVscp};
-        V3Graph& graph = *execGraphp->depGraphp();
-        const auto makeBody = [&]() -> AstNodeStmt* { return new AstComment{flp, ""}; };
-        ExecMTask* const t0 = new ExecMTask{execGraphp, nullptr, makeBody()};
-        t0->cost(1000);
-        t0->priority(1100);
-        t0->threads(2);
-        ExecMTask* const t1 = new ExecMTask{execGraphp, nullptr, makeBody()};
-        t1->cost(100);
-        t1->priority(100);
+    స్థిర శూన్య self_Test_Hier_మొదటి(AstVarScope* trigVscp) {
+        File_పంక్తి* స్థిరరాశి flp = v3Global.rootp()->fileline();
+        Ast_Exec_లేఖాచిత్రం* స్థిరరాశి execGraphp = కొత్త Ast_Exec_లేఖాచిత్రం{flp, "test", trigVscp};
+        V3_లేఖాచిత్రం& లేఖాచిత్రం = *execGraphp->depGraphp();
+        స్థిరరాశి స్వయంచాలక makeBody = [&]() -> Ast_కణుపు_Stmt* { తిరిగి కొత్త AstComment{flp, ""}; };
+        ExecMTask* స్థిరరాశి t0 = కొత్త ExecMTask{execGraphp, శూన్యసూచిక, makeBody()};
+        t0->ఖర్చు(1000);
+        t0->ప్రాధాన్యత_2(1100);
+        t0->దారాలు(2);
+        ExecMTask* స్థిరరాశి t1 = కొత్త ExecMTask{execGraphp, శూన్యసూచిక, makeBody()};
+        t1->ఖర్చు(100);
+        t1->ప్రాధాన్యత_2(100);
 
         /*
                           0
                           |
                           1
         */
-        new V3GraphEdge{&graph, t0, t1, 1};
+        కొత్త V3_లేఖాచిత్రం_అంచు{&లేఖాచిత్రం, t0, t1, 1};
 
-        constexpr uint32_t threads = 1;
-        constexpr uint32_t hierThreads = 2;
-        PackThreads packer{threads, hierThreads,
+        constexpr uint32_t దారాలు = 1;
+        constexpr uint32_t hier_దారాలు = 2;
+        Pack_దారాలు packer{దారాలు, hier_దారాలు,
                            3,  // Sandbag numerator
                            10};  // Sandbag denom
 
-        const std::vector<ThreadSchedule> scheduled = packer.pack(graph);
-        UASSERT_SELFTEST(scheduled.size(), 2);
-        UASSERT_SELFTEST(scheduled[0].m_threads.size(), hierThreads / 2);
-        UASSERT_SELFTEST(scheduled[0].m_threads[0].size(), 1);
-        for (size_t i = 1; i < scheduled[0].m_threads.size(); ++i)
-            UASSERT_SELFTEST(scheduled[0].m_threads[i].size(), 0);
+        స్థిరరాశి std::సదిశ<Thread_కాలపట్టిక> scheduled = packer.pack(లేఖాచిత్రం);
+        UASSERT_SELFTEST(scheduled.కొలత(), 2);
+        UASSERT_SELFTEST(scheduled[0].m_దారాలు.కొలత(), hier_దారాలు / 2);
+        UASSERT_SELFTEST(scheduled[0].m_దారాలు[0].కొలత(), 1);
+        కొరకు (కొలత_t i = 1; i < scheduled[0].m_దారాలు.కొలత(); ++i)
+            UASSERT_SELFTEST(scheduled[0].m_దారాలు[i].కొలత(), 0);
 
-        UASSERT_SELFTEST(scheduled[0].m_threads[0][0], t0);
+        UASSERT_SELFTEST(scheduled[0].m_దారాలు[0][0], t0);
 
-        UASSERT_SELFTEST(scheduled[1].m_threads.size(), threads);
-        UASSERT_SELFTEST(scheduled[1].m_threads[0].size(), 1);
-        for (size_t i = 1; i < scheduled[1].m_threads.size(); ++i)
-            UASSERT_SELFTEST(scheduled[1].m_threads[i].size(), 0);
-        UASSERT_SELFTEST(scheduled[1].m_threads[0][0], t1);
+        UASSERT_SELFTEST(scheduled[1].m_దారాలు.కొలత(), దారాలు);
+        UASSERT_SELFTEST(scheduled[1].m_దారాలు[0].కొలత(), 1);
+        కొరకు (కొలత_t i = 1; i < scheduled[1].m_దారాలు.కొలత(); ++i)
+            UASSERT_SELFTEST(scheduled[1].m_దారాలు[i].కొలత(), 0);
+        UASSERT_SELFTEST(scheduled[1].m_దారాలు[0][0], t1);
 
-        UASSERT_SELFTEST(ThreadSchedule::s_mtaskState.size(), 2);
+        UASSERT_SELFTEST(Thread_కాలపట్టిక::s_mtaskState.కొలత(), 2);
 
-        UASSERT_SELFTEST(ThreadSchedule::threadId(t0), 0);
-        UASSERT_SELFTEST(ThreadSchedule::threadId(t1), 0);
+        UASSERT_SELFTEST(Thread_కాలపట్టిక::threadId(t0), 0);
+        UASSERT_SELFTEST(Thread_కాలపట్టిక::threadId(t1), 0);
 
-        UASSERT_SELFTEST(packer.completionTime(scheduled[0], t0, 0), 1000);
+        UASSERT_SELFTEST(packer.completion_సమయం(scheduled[0], t0, 0), 1000);
 
-        UASSERT_SELFTEST(packer.completionTime(scheduled[1], t1, 0), 1100);
-        UASSERT_SELFTEST(packer.completionTime(scheduled[1], t1, 1), 1130);
+        UASSERT_SELFTEST(packer.completion_సమయం(scheduled[1], t1, 0), 1100);
+        UASSERT_SELFTEST(packer.completion_సమయం(scheduled[1], t1, 1), 1130);
 
-        for (V3GraphVertex& vtx : graph.vertices()) vtx.as<ExecMTask>()->funcp()->deleteTree();
-        VL_DO_DANGLING(execGraphp->deleteTree(), execGraphp);
-        ThreadSchedule::s_mtaskState.clear();
+        కొరకు (V3_లేఖాచిత్రం_శీర్షం& vtx : లేఖాచిత్రం.vertices()) vtx.as<ExecMTask>()->funcp()->delete_వృక్షం();
+        VL_DO_DANGLING(execGraphp->delete_వృక్షం(), execGraphp);
+        Thread_కాలపట్టిక::s_mtaskState.clear();
     }
 
-    static std::vector<ThreadSchedule> apply(V3Graph& mtaskGraph) {
-        return PackThreads{}.pack(mtaskGraph);
+    స్థిర std::సదిశ<Thread_కాలపట్టిక> apply(V3_లేఖాచిత్రం& mtask_లేఖాచిత్రం) {
+        తిరిగి Pack_దారాలు{}.pack(mtask_లేఖాచిత్రం);
     }
 };
 
-using EstimateAndProfiled = std::pair<uint64_t, uint64_t>;  // cost est, cost profiled
-using Costs = std::unordered_map<uint32_t, EstimateAndProfiled>;
+ఉపయోగించి EstimateAndProfiled = std::pair<uint64_t, uint64_t>;  // cost est, cost profiled
+ఉపయోగించి Costs = std::unordered_map<uint32_t, EstimateAndProfiled>;
 
-void normalizeCosts(Costs& costs) {
-    const auto scaleCost = [](uint64_t value, double multiplier) {
-        double scaled = static_cast<double>(value) * multiplier;
-        if (value && scaled < 1) scaled = 1;
-        return static_cast<uint64_t>(scaled);
+శూన్య normalizeCosts(Costs& costs) {
+    స్థిరరాశి స్వయంచాలక scale_ఖర్చు = [](uint64_t విలువ, ద్విగుణ multiplier) {
+        ద్విగుణ scaled = static_cast<ద్విగుణ>(విలువ) * multiplier;
+        ఒకవేళ (విలువ && scaled < 1) scaled = 1;
+        తిరిగి static_cast<uint64_t>(scaled);
     };
 
     // For all costs with a profile, compute sum
-    uint64_t sumCostProfiled = 0;  // For data with estimate and profile
-    uint64_t sumCostEstimate = 0;  // For data with estimate and profile
-    for (const auto& est : costs) {
-        if (est.second.second) {
-            sumCostEstimate += est.second.first;
-            sumCostProfiled += est.second.second;
+    uint64_t కూడిక_ఖర్చు_Profiled = 0;  // For data with estimate and profile
+    uint64_t కూడిక_ఖర్చు_Estimate = 0;  // For data with estimate and profile
+    కొరకు (స్థిరరాశి స్వయంచాలక& est : costs) {
+        ఒకవేళ (est.రెండవ.రెండవ) {
+            కూడిక_ఖర్చు_Estimate += est.రెండవ.మొదటి;
+            కూడిక_ఖర్చు_Profiled += est.రెండవ.రెండవ;
         }
     }
 
-    if (sumCostEstimate) {
+    ఒకవేళ (కూడిక_ఖర్చు_Estimate) {
         // For data where we don't have profiled data, compute how much to
         // scale up/down the estimate to make on same relative scale as
         // profiled data.  (Improves results if only a few profiles missing.)
-        const double estToProfile
-            = static_cast<double>(sumCostProfiled) / static_cast<double>(sumCostEstimate);
-        UINFO(5, "Estimated data needs scaling by " << estToProfile
-                                                    << ", sumCostProfiled=" << sumCostProfiled
-                                                    << " sumCostEstimate=" << sumCostEstimate);
-        for (auto& est : costs) {
-            uint64_t& costEstimate = est.second.first;
-            costEstimate = scaleCost(costEstimate, estToProfile);
+        స్థిరరాశి ద్విగుణ est_గమ్యం_Profile
+            = static_cast<ద్విగుణ>(కూడిక_ఖర్చు_Profiled) / static_cast<ద్విగుణ>(కూడిక_ఖర్చు_Estimate);
+        UINFO(5, "Estimated data needs scaling by " << est_గమ్యం_Profile
+                                                    << ", sumCostProfiled=" << కూడిక_ఖర్చు_Profiled
+                                                    << " sumCostEstimate=" << కూడిక_ఖర్చు_Estimate);
+        కొరకు (స్వయంచాలక& est : costs) {
+            uint64_t& ఖర్చు_Estimate = est.రెండవ.మొదటి;
+            ఖర్చు_Estimate = scale_ఖర్చు(ఖర్చు_Estimate, est_గమ్యం_Profile);
         }
     }
 
     // COSTS can overflow a uint32.  Using maximum value of costs, scale all down
-    uint64_t maxCost = 0;
-    for (auto& est : costs) {
-        const uint64_t& costEstimate = est.second.first;
-        const uint64_t& costProfiled = est.second.second;
-        if (maxCost < costEstimate) maxCost = costEstimate;
-        if (maxCost < costProfiled) maxCost = costProfiled;
-        UINFO(9, "Post uint scale: ce = " << est.second.first << " cp=" << est.second.second);
+    uint64_t max_ఖర్చు = 0;
+    కొరకు (స్వయంచాలక& est : costs) {
+        స్థిరరాశి uint64_t& ఖర్చు_Estimate = est.రెండవ.మొదటి;
+        స్థిరరాశి uint64_t& ఖర్చు_Profiled = est.రెండవ.రెండవ;
+        ఒకవేళ (max_ఖర్చు < ఖర్చు_Estimate) max_ఖర్చు = ఖర్చు_Estimate;
+        ఒకవేళ (max_ఖర్చు < ఖర్చు_Profiled) max_ఖర్చు = ఖర్చు_Profiled;
+        UINFO(9, "Post uint scale: ce = " << est.రెండవ.మొదటి << " cp=" << est.రెండవ.రెండవ);
     }
-    constexpr uint64_t scaleDownTo = 10000000;  // Extra room for future algorithms to add costs
-    if (maxCost > scaleDownTo) {
-        const double scaleup = static_cast<double>(scaleDownTo) / static_cast<double>(maxCost);
+    constexpr uint64_t scale_కిందికి_గమ్యం = 10000000;  // Extra room for future algorithms to add costs
+    ఒకవేళ (max_ఖర్చు > scale_కిందికి_గమ్యం) {
+        స్థిరరాశి ద్విగుణ scaleup = static_cast<ద్విగుణ>(scale_కిందికి_గమ్యం) / static_cast<ద్విగుణ>(max_ఖర్చు);
         UINFO(5, "Scaling data to within 32-bits by multiply by=" << scaleup
-                                                                  << ", maxCost=" << maxCost);
-        for (auto& est : costs) {
-            est.second.first = scaleCost(est.second.first, scaleup);
-            est.second.second = scaleCost(est.second.second, scaleup);
+                                                                  << ", maxCost=" << max_ఖర్చు);
+        కొరకు (స్వయంచాలక& est : costs) {
+            est.రెండవ.మొదటి = scale_ఖర్చు(est.రెండవ.మొదటి, scaleup);
+            est.రెండవ.రెండవ = scale_ఖర్చు(est.రెండవ.రెండవ, scaleup);
         }
     }
 }
 
-void removeEmptyMTasks(AstExecGraph* execGraphp) {
+శూన్య remove_ఖాళీలు_MTasks(Ast_Exec_లేఖాచిత్రం* execGraphp) {
     // Remove the calls to empty MTask functions, then the MTasks
-    for (AstCCall *callp = execGraphp->callsp(), *nextp; callp; callp = nextp) {
+    కొరకు (AstCCall *callp = execGraphp->callsp(), *nextp; callp; callp = nextp) {
         nextp = VN_AS(callp->nextp(), CCall);
-        if (!callp->funcp()->stmtsp()) VL_DO_DANGLING(callp->unlinkFrBack()->deleteTree(), callp);
+        ఒకవేళ (!callp->funcp()->stmtsp()) VL_DO_DANGLING(callp->unlink_Fr_వెనుక()->delete_వృక్షం(), callp);
     }
-    V3Graph* const execMTaskGraphp = execGraphp->depGraphp();
-    for (V3GraphVertex* const vtxp : execMTaskGraphp->vertices().unlinkable()) {
-        ExecMTask* const mtaskp = vtxp->as<ExecMTask>();
-        AstCFunc* const funcp = mtaskp->funcp();
-        if (funcp->stmtsp()) continue;
+    V3_లేఖాచిత్రం* స్థిరరాశి execMTaskGraphp = execGraphp->depGraphp();
+    కొరకు (V3_లేఖాచిత్రం_శీర్షం* స్థిరరాశి vtxp : execMTaskGraphp->vertices().unlinkable()) {
+        ExecMTask* స్థిరరాశి mtaskp = vtxp->as<ExecMTask>();
+        AstCFunc* స్థిరరాశి funcp = mtaskp->funcp();
+        ఒకవేళ (funcp->stmtsp()) కొనసాగు;
 
         UINFO(6, "Removing empty MTask " << mtaskp->name());
         // Redirect edges
-        mtaskp->rerouteEdges(execMTaskGraphp);
+        mtaskp->reroute_అంచులు(execMTaskGraphp);
         // Delete the MTask function
-        VL_DO_DANGLING(funcp->unlinkFrBack()->deleteTree(), funcp);
+        VL_DO_DANGLING(funcp->unlink_Fr_వెనుక()->delete_వృక్షం(), funcp);
         // Delete the MTask vertex
         VL_DO_DANGLING(mtaskp->unlinkDelete(execMTaskGraphp), mtaskp);
     }
     // Remove redundant dependencies
-    execMTaskGraphp->removeRedundantEdgesMax(&V3GraphEdge::followAlwaysTrue);
+    execMTaskGraphp->remove_Redundant_అంచులు_Max(&V3_లేఖాచిత్రం_అంచు::followAlwaysTrue);
 }
 
-void fillinCosts(V3Graph* execMTaskGraphp) {
+శూన్య fillinCosts(V3_లేఖాచిత్రం* execMTaskGraphp) {
     // Pass 1: See what profiling data applies
     Costs costs;  // For each mtask, costs
 
-    for (V3GraphVertex& vtx : execMTaskGraphp->vertices()) {
-        ExecMTask* const mtp = vtx.as<ExecMTask>();
+    కొరకు (V3_లేఖాచిత్రం_శీర్షం& vtx : execMTaskGraphp->vertices()) {
+        ExecMTask* స్థిరరాశి mtp = vtx.as<ExecMTask>();
         // This estimate is 64 bits, but the final mtask graph algorithm needs 32 bits
-        const uint64_t costEstimate = V3InstrCount::count(mtp->funcp(), false);
-        const uint64_t costProfiled
-            = V3Control::getProfileData(v3Global.opt.prefix(), mtp->hashName());
-        if (costProfiled) {
+        స్థిరరాశి uint64_t ఖర్చు_Estimate = V3_Instr_లెక్క::లెక్క(mtp->funcp(), అబద్ధం);
+        స్థిరరాశి uint64_t ఖర్చు_Profiled
+            = V3Control::get_Profile_దత్తాంశం(v3Global.opt.ఉపసర్గ(), mtp->hashName());
+        ఒకవేళ (ఖర్చు_Profiled) {
             UINFO(5, "Profile data for mtask " << mtp->id() << " " << mtp->hashName()
-                                               << " cost override " << costProfiled);
+                                               << " cost override " << ఖర్చు_Profiled);
         }
-        costs[mtp->id()] = std::make_pair(costEstimate, costProfiled);
+        costs[mtp->id()] = std::make_pair(ఖర్చు_Estimate, ఖర్చు_Profiled);
     }
 
     normalizeCosts(costs /*ref*/);
 
-    int totalEstimates = 0;
-    int missingProfiles = 0;
-    for (V3GraphVertex& vtx : execMTaskGraphp->vertices()) {
-        ExecMTask* const mtp = vtx.as<ExecMTask>();
-        const uint32_t costEstimate = costs[mtp->id()].first;
-        const uint64_t costProfiled = costs[mtp->id()].second;
-        UINFO(9, "ce = " << costEstimate << " cp=" << costProfiled);
-        UASSERT(costEstimate <= (1UL << 31), "cost scaling math would overflow uint32");
-        UASSERT(costProfiled <= (1UL << 31), "cost scaling math would overflow uint32");
-        const uint64_t costProfiled32 = static_cast<uint32_t>(costProfiled);
-        uint32_t costToUse = costProfiled32;
-        if (!costProfiled32) {
-            costToUse = costEstimate;
-            if (costEstimate != 0) ++missingProfiles;
+    పూర్ణాంకం మొత్తం_Estimates = 0;
+    పూర్ణాంకం missingProfiles = 0;
+    కొరకు (V3_లేఖాచిత్రం_శీర్షం& vtx : execMTaskGraphp->vertices()) {
+        ExecMTask* స్థిరరాశి mtp = vtx.as<ExecMTask>();
+        స్థిరరాశి uint32_t ఖర్చు_Estimate = costs[mtp->id()].మొదటి;
+        స్థిరరాశి uint64_t ఖర్చు_Profiled = costs[mtp->id()].రెండవ;
+        UINFO(9, "ce = " << ఖర్చు_Estimate << " cp=" << ఖర్చు_Profiled);
+        UASSERT(ఖర్చు_Estimate <= (1UL << 31), "cost scaling math would overflow uint32");
+        UASSERT(ఖర్చు_Profiled <= (1UL << 31), "cost scaling math would overflow uint32");
+        స్థిరరాశి uint64_t ఖర్చు_Profiled32 = static_cast<uint32_t>(ఖర్చు_Profiled);
+        uint32_t ఖర్చు_గమ్యం_Use = ఖర్చు_Profiled32;
+        ఒకవేళ (!ఖర్చు_Profiled32) {
+            ఖర్చు_గమ్యం_Use = ఖర్చు_Estimate;
+            ఒకవేళ (ఖర్చు_Estimate != 0) ++missingProfiles;
         }
-        if (costEstimate != 0) ++totalEstimates;
-        mtp->cost(costToUse);
-        mtp->priority(costToUse);
+        ఒకవేళ (ఖర్చు_Estimate != 0) ++మొత్తం_Estimates;
+        mtp->ఖర్చు(ఖర్చు_గమ్యం_Use);
+        mtp->ప్రాధాన్యత_2(ఖర్చు_గమ్యం_Use);
     }
 
-    if (missingProfiles) {
-        if (FileLine* const fl = V3Control::getProfileDataFileLine()) {
-            if (V3Control::containsMTaskProfileData()) {
+    ఒకవేళ (missingProfiles) {
+        ఒకవేళ (File_పంక్తి* స్థిరరాశి fl = V3Control::get_Profile_దత్తాంశం_File_పంక్తి()) {
+            ఒకవేళ (V3Control::కలిగియుంది_MTask_Profile_దత్తాంశం()) {
                 fl->v3warn(PROFOUTOFDATE, "Profile data for mtasks may be out of date. "
-                                              << missingProfiles << " of " << totalEstimates
+                                              << missingProfiles << " of " << మొత్తం_Estimates
                                               << " mtasks had no data");
             }
         }
     }
 }
 
-void finalizeCosts(V3Graph* execMTaskGraphp) {
-    GraphStreamUnordered ser(execMTaskGraphp, GraphWay::REVERSE);
-    while (const V3GraphVertex* const vxp = ser.nextp()) {
-        ExecMTask* const mtp = const_cast<V3GraphVertex*>(vxp)->as<ExecMTask>();
+శూన్య finalizeCosts(V3_లేఖాచిత్రం* execMTaskGraphp) {
+    లేఖాచిత్రం_ప్రవాహం_Unordered ser(execMTaskGraphp, లేఖాచిత్రం_Way::తిరగేయి_2);
+    అయితే (స్థిరరాశి V3_లేఖాచిత్రం_శీర్షం* స్థిరరాశి vxp = ser.nextp()) {
+        ExecMTask* స్థిరరాశి mtp = const_cast<V3_లేఖాచిత్రం_శీర్షం*>(vxp)->as<ExecMTask>();
         // "Priority" is the critical path from the start of the mtask, to
         // the end of the graph reachable from this mtask.  Given the
         // choice among several ready mtasks, we'll want to start the
         // highest priority one first, so we're always working on the "long
         // pole"
-        for (V3GraphEdge& edge : mtp->outEdges()) {
-            const ExecMTask* const followp = edge.top()->as<ExecMTask>();
-            if ((followp->priority() + mtp->cost()) > mtp->priority()) {
-                mtp->priority(followp->priority() + mtp->cost());
+        కొరకు (V3_లేఖాచిత్రం_అంచు& అంచు : mtp->బహిర్గతం_అంచులు()) {
+            స్థిరరాశి ExecMTask* స్థిరరాశి followp = అంచు.శిఖరం()->as<ExecMTask>();
+            ఒకవేళ ((followp->ప్రాధాన్యత_2() + mtp->ఖర్చు()) > mtp->ప్రాధాన్యత_2()) {
+                mtp->ప్రాధాన్యత_2(followp->ప్రాధాన్యత_2() + mtp->ఖర్చు());
             }
         }
     }
@@ -894,372 +894,372 @@ void finalizeCosts(V3Graph* execMTaskGraphp) {
     // Removing tasks may cause edges that were formerly non-transitive to
     // become transitive. Also we just created new edges around the removed
     // tasks, which could be transitive. Prune out all transitive edges.
-    execMTaskGraphp->removeTransitiveEdges();
+    execMTaskGraphp->remove_సంక్రమణ_అంచులు();
 
     // Record summary stats for final m_tasks graph.
-    const auto report = execMTaskGraphp->parallelismReport([](const V3GraphVertex* vtxp) {  //
-        return vtxp->as<const ExecMTask>()->cost();
+    స్థిరరాశి స్వయంచాలక report = execMTaskGraphp->parallelismReport([](స్థిరరాశి V3_లేఖాచిత్రం_శీర్షం* vtxp) {  //
+        తిరిగి vtxp->as<స్థిరరాశి ExecMTask>()->ఖర్చు();
     });
-    V3Stats::addStat("MTask graph, final, critical path cost", report.criticalPathCost());
-    V3Stats::addStat("MTask graph, final, total graph cost", report.totalGraphCost());
-    V3Stats::addStat("MTask graph, final, mtask count", report.vertexCount());
-    V3Stats::addStat("MTask graph, final, edge count", report.edgeCount());
-    V3Stats::addStat("MTask graph, final, parallelism factor", report.parallelismFactor());
-    if (debug() >= 3) {
+    V3Stats::కూడు_Stat("MTask graph, final, critical path cost", report.critical_మార్గం_ఖర్చు());
+    V3Stats::కూడు_Stat("MTask graph, final, total graph cost", report.మొత్తం_లేఖాచిత్రం_ఖర్చు());
+    V3Stats::కూడు_Stat("MTask graph, final, mtask count", report.శీర్షం_లెక్క());
+    V3Stats::కూడు_Stat("MTask graph, final, edge count", report.అంచు_లెక్క());
+    V3Stats::కూడు_Stat("MTask graph, final, parallelism factor", report.parallelism_గుణకం());
+    ఒకవేళ (debug() >= 3) {
         UINFO(0, "\n");
         UINFO(0, "    Final mtask parallelism report:");
-        UINFO(0, "    Critical path cost = " << report.criticalPathCost());
-        UINFO(0, "    Total graph cost = " << report.totalGraphCost());
-        UINFO(0, "    MTask vertex count = " << report.vertexCount());
-        UINFO(0, "    Edge count = " << report.edgeCount());
-        UINFO(0, "    Parallelism factor = " << report.parallelismFactor());
+        UINFO(0, "    Critical path cost = " << report.critical_మార్గం_ఖర్చు());
+        UINFO(0, "    Total graph cost = " << report.మొత్తం_లేఖాచిత్రం_ఖర్చు());
+        UINFO(0, "    MTask vertex count = " << report.శీర్షం_లెక్క());
+        UINFO(0, "    Edge count = " << report.అంచు_లెక్క());
+        UINFO(0, "    Parallelism factor = " << report.parallelism_గుణకం());
     }
 }
 
 // Create an mtask state variable in the top module, waiting for 'nDependencies'
-AstVar* newMTaskStateVar(const std::string& name, uint32_t nDependencies) {
-    AstNodeModule* const modp = v3Global.rootp()->topModulep();
-    FileLine* const fl = modp->fileline();
-    AstBasicDType* const dtypep
-        = v3Global.rootp()->typeTablep()->findBasicDType(fl, VBasicDTypeKwd::MTASKSTATE);
-    AstVar* const varp = new AstVar{fl, VVarType::MODULETEMP, "__Vm_mtaskstate_" + name, dtypep};
-    varp->isConst(true);
-    varp->valuep(new AstConst{fl, nDependencies});
-    modp->addStmtsp(varp);
-    return varp;
+AstVar* newMTaskStateVar(స్థిరరాశి std::string& name, uint32_t nDependencies) {
+    Ast_కణుపు_Module* స్థిరరాశి modp = v3Global.rootp()->శిఖరం_Modulep();
+    File_పంక్తి* స్థిరరాశి fl = modp->fileline();
+    AstBasicDType* స్థిరరాశి dtypep
+        = v3Global.rootp()->typeTablep()->కనుగొను_Basic_DType(fl, VBasicDTypeKwd::MTASKSTATE);
+    AstVar* స్థిరరాశి varp = కొత్త AstVar{fl, VVarType::MODULETEMP, "__Vm_mtaskstate_" + name, dtypep};
+    varp->isConst(నిజం);
+    varp->valuep(కొత్త AstConst{fl, nDependencies});
+    modp->కూడు_Stmtsp(varp);
+    తిరిగి varp;
 }
 
 // Statement calling 'method' on the given mtask state variable
-AstCStmt* newMTaskStateCall(AstVar* varp, const std::string& method) {
-    FileLine* const fl = varp->fileline();
-    AstVarRef* const refp = new AstVarRef{fl, varp, VAccess::READWRITE};
+AstCStmt* newMTaskStateCall(AstVar* varp, స్థిరరాశి std::string& పద్ధతి) {
+    File_పంక్తి* స్థిరరాశి fl = varp->fileline();
+    AstVarRef* స్థిరరాశి refp = కొత్త AstVarRef{fl, varp, VAccess::READWRITE};
     // Not 'this', the thread functions are static
-    const AstScope* const topScopep = v3Global.rootp()->topScopep()->scopep();
-    refp->selfPointer(VSelfPointerText{VSelfPointerText::VlSyms{}, topScopep->nameDotless()});
-    AstCStmt* const stmtp = new AstCStmt{fl};
-    stmtp->add(refp);
-    stmtp->add("." + method + ";");
-    return stmtp;
+    స్థిరరాశి AstScope* స్థిరరాశి శిఖరం_Scopep = v3Global.rootp()->శిఖరం_Scopep()->scopep();
+    refp->self_సూచిక(VSelf_సూచిక_పాఠ్యం{VSelf_సూచిక_పాఠ్యం::VlSyms{}, శిఖరం_Scopep->nameDotless()});
+    AstCStmt* స్థిరరాశి stmtp = కొత్త AstCStmt{fl};
+    stmtp->కూడు(refp);
+    stmtp->కూడు("." + పద్ధతి + ";");
+    తిరిగి stmtp;
 }
 
-void addMTaskToFunction(const ThreadSchedule& schedule, const uint32_t threadId, AstCFunc* funcp,
-                        const ExecMTask* mtaskp,
-                        const std::unordered_map<const ExecMTask*, AstVar*>& stateVars) {
-    AstScope* const scopep = v3Global.rootp()->topScopep()->scopep();
-    AstNodeModule* const modp = v3Global.rootp()->topModulep();
-    FileLine* const fl = modp->fileline();
+శూన్య కూడు_MTask_గమ్యం_Function(స్థిరరాశి Thread_కాలపట్టిక& కాలపట్టిక, స్థిరరాశి uint32_t threadId, AstCFunc* funcp,
+                        స్థిరరాశి ExecMTask* mtaskp,
+                        స్థిరరాశి std::unordered_map<స్థిరరాశి ExecMTask*, AstVar*>& stateVars) {
+    AstScope* స్థిరరాశి scopep = v3Global.rootp()->శిఖరం_Scopep()->scopep();
+    Ast_కణుపు_Module* స్థిరరాశి modp = v3Global.rootp()->శిఖరం_Modulep();
+    File_పంక్తి* స్థిరరాశి fl = modp->fileline();
 
     // Helper function to make the code a bit more legible
-    const auto addCStmt = [=](const string& stmt) -> void {  //
-        funcp->addStmtsp(new AstCStmt{fl, stmt});
+    స్థిరరాశి స్వయంచాలక కూడు_CStmt = [=](స్థిరరాశి string& stmt) -> శూన్య {  //
+        funcp->కూడు_Stmtsp(కొత్త AstCStmt{fl, stmt});
     };
 
-    if (schedule.crossThreadDependencies(mtaskp)) {
+    ఒకవేళ (కాలపట్టిక.crossThreadDependencies(mtaskp)) {
         // This mtask has dependencies executed on another thread, so it may block. Wait on the
         // task state variable to be notified.
-        if (v3Global.opt.profExec()) {
-            addCStmt("VL_EXEC_TRACE_ADD_RECORD(vlSymsp).threadScheduleWaitBegin();");
+        ఒకవేళ (v3Global.opt.profExec()) {
+            కూడు_CStmt("VL_EXEC_TRACE_ADD_RECORD(vlSymsp).threadScheduleWaitBegin();");
         }
-        funcp->addStmtsp(
+        funcp->కూడు_Stmtsp(
             newMTaskStateCall(stateVars.at(mtaskp), "waitUntilUpstreamDone(even_cycle)"));
-        if (v3Global.opt.profExec()) {
-            addCStmt("VL_EXEC_TRACE_ADD_RECORD(vlSymsp).threadScheduleWaitEnd();");
+        ఒకవేళ (v3Global.opt.profExec()) {
+            కూడు_CStmt("VL_EXEC_TRACE_ADD_RECORD(vlSymsp).threadScheduleWaitEnd();");
         }
     }
 
-    if (v3Global.opt.profPgo()) {
+    ఒకవేళ (v3Global.opt.profPgo()) {
         // No lock around startCounter, as counter numbers are unique per thread
-        addCStmt("vlSymsp->_vm_pgoProfiler.startCounter(" + std::to_string(mtaskp->id()) + ");");
+        కూడు_CStmt("vlSymsp->_vm_pgoProfiler.startCounter(" + std::గమ్యం_string(mtaskp->id()) + ");");
     }
 
     // Call the MTask function
-    AstCCall* const callp = new AstCCall{fl, mtaskp->funcp()};
-    callp->selfPointer(VSelfPointerText{VSelfPointerText::VlSyms{}, scopep->nameDotless()});
-    callp->dtypeSetVoid();
-    funcp->addStmtsp(callp->makeStmt());
+    AstCCall* స్థిరరాశి callp = కొత్త AstCCall{fl, mtaskp->funcp()};
+    callp->self_సూచిక(VSelf_సూచిక_పాఠ్యం{VSelf_సూచిక_పాఠ్యం::VlSyms{}, scopep->nameDotless()});
+    callp->dtype_సమితి_Void();
+    funcp->కూడు_Stmtsp(callp->makeStmt());
 
-    if (v3Global.opt.profPgo()) {
+    ఒకవేళ (v3Global.opt.profPgo()) {
         // No lock around stopCounter, as counter numbers are unique per thread
-        addCStmt("vlSymsp->_vm_pgoProfiler.stopCounter(" + std::to_string(mtaskp->id()) + ");");
+        కూడు_CStmt("vlSymsp->_vm_pgoProfiler.stopCounter(" + std::గమ్యం_string(mtaskp->id()) + ");");
     }
 
     // For any dependent mtask that's on another thread, signal one dependency completion.
-    for (const V3GraphEdge& edge : mtaskp->outEdges()) {
-        const ExecMTask* const nextp = edge.top()->as<ExecMTask>();
-        if (schedule.threadId(nextp) != threadId && schedule.contains(nextp)) {
-            funcp->addStmtsp(
+    కొరకు (స్థిరరాశి V3_లేఖాచిత్రం_అంచు& అంచు : mtaskp->బహిర్గతం_అంచులు()) {
+        స్థిరరాశి ExecMTask* స్థిరరాశి nextp = అంచు.శిఖరం()->as<ExecMTask>();
+        ఒకవేళ (కాలపట్టిక.threadId(nextp) != threadId && కాలపట్టిక.కలిగియుంది(nextp)) {
+            funcp->కూడు_Stmtsp(
                 newMTaskStateCall(stateVars.at(nextp), "signalUpstreamDone(even_cycle)"));
         }
     }
 }
 
-const std::vector<AstCFunc*> createThreadFunctions(const ThreadSchedule& schedule,
-                                                   const string& tag) {
-    AstNodeModule* const modp = v3Global.rootp()->topModulep();
-    FileLine* const fl = modp->fileline();
+స్థిరరాశి std::సదిశ<AstCFunc*> createThreadFunctions(స్థిరరాశి Thread_కాలపట్టిక& కాలపట్టిక,
+                                                   స్థిరరాశి string& ట్యాగ్) {
+    Ast_కణుపు_Module* స్థిరరాశి modp = v3Global.rootp()->శిఖరం_Modulep();
+    File_పంక్తి* స్థిరరాశి fl = modp->fileline();
 
-    std::vector<AstCFunc*> funcps;
+    std::సదిశ<AstCFunc*> funcps;
 
     // Create the task state variables up front, as threads signal mtasks on other threads
-    std::unordered_map<const ExecMTask*, AstVar*> stateVars;
-    for (const std::vector<const ExecMTask*>& thread : schedule.m_threads) {
-        for (const ExecMTask* const mtaskp : thread) {
-            if (const uint32_t nDependencies = schedule.crossThreadDependencies(mtaskp)) {
-                stateVars.emplace(mtaskp, newMTaskStateVar(cvtToStr(mtaskp->id()), nDependencies));
+    std::unordered_map<స్థిరరాశి ExecMTask*, AstVar*> stateVars;
+    కొరకు (స్థిరరాశి std::సదిశ<స్థిరరాశి ExecMTask*>& thread : కాలపట్టిక.m_దారాలు) {
+        కొరకు (స్థిరరాశి ExecMTask* స్థిరరాశి mtaskp : thread) {
+            ఒకవేళ (స్థిరరాశి uint32_t nDependencies = కాలపట్టిక.crossThreadDependencies(mtaskp)) {
+                stateVars.emplace(mtaskp, newMTaskStateVar(cvt_గమ్యం_Str(mtaskp->id()), nDependencies));
             }
         }
     }
 
     // For each thread, create a function representing its entry point
-    for (const std::vector<const ExecMTask*>& thread : schedule.m_threads) {
-        if (thread.empty()) continue;
-        const uint32_t threadId = schedule.threadId(thread.front());
-        const string name{"__Vthread__" + tag + "__s" + cvtToStr(schedule.id()) + "__t"
-                          + cvtToStr(threadId)};
-        AstCFunc* const funcp = new AstCFunc{fl, name, nullptr, "void"};
-        modp->addStmtsp(funcp);
-        funcps.push_back(funcp);
-        funcp->isStatic(true);  // Uses void self pointer, so static and hand rolled
-        funcp->isLoose(true);
-        funcp->entryPoint(true);
+    కొరకు (స్థిరరాశి std::సదిశ<స్థిరరాశి ExecMTask*>& thread : కాలపట్టిక.m_దారాలు) {
+        ఒకవేళ (thread.ఖాళీలు()) కొనసాగు;
+        స్థిరరాశి uint32_t threadId = కాలపట్టిక.threadId(thread.front());
+        స్థిరరాశి string name{"__Vthread__" + ట్యాగ్ + "__s" + cvt_గమ్యం_Str(కాలపట్టిక.id()) + "__t"
+                          + cvt_గమ్యం_Str(threadId)};
+        AstCFunc* స్థిరరాశి funcp = కొత్త AstCFunc{fl, name, శూన్యసూచిక, "void"};
+        modp->కూడు_Stmtsp(funcp);
+        funcps.నెట్టు_వెనుక(funcp);
+        funcp->isStatic(నిజం);  // Uses void self pointer, so static and hand rolled
+        funcp->isLoose(నిజం);
+        funcp->నమోదు_బిందువు(నిజం);
         funcp->argTypes("void* voidSelf, bool even_cycle");
 
         // Setup vlSelf and vlSyms
-        funcp->addStmtsp(new AstCStmt{fl, EmitCUtil::voidSelfAssign(modp)});
-        funcp->addStmtsp(new AstCStmt{fl, EmitCUtil::symClassAssign()});
+        funcp->కూడు_Stmtsp(కొత్త AstCStmt{fl, EmitCUtil::void_Self_కేటాయించు(modp)});
+        funcp->కూడు_Stmtsp(కొత్త AstCStmt{fl, EmitCUtil::sym_Class_కేటాయించు()});
 
         // Invoke each mtask scheduled to this thread from the thread function
-        for (const ExecMTask* const mtaskp : thread) {
-            addMTaskToFunction(schedule, threadId, funcp, mtaskp, stateVars);
+        కొరకు (స్థిరరాశి ExecMTask* స్థిరరాశి mtaskp : thread) {
+            కూడు_MTask_గమ్యం_Function(కాలపట్టిక, threadId, funcp, mtaskp, stateVars);
         }
     }
 
-    return funcps;
+    తిరిగి funcps;
 }
 
-void addThreadStartWrapper(AstExecGraph* const execGraphp) {
+శూన్య కూడు_Thread_ప్రారంభం_Wrapper(Ast_Exec_లేఖాచిత్రం* స్థిరరాశి execGraphp) {
     // FileLine used for constructing nodes below
-    FileLine* const fl = v3Global.rootp()->fileline();
-    const string& tag = execGraphp->name();
+    File_పంక్తి* స్థిరరాశి fl = v3Global.rootp()->fileline();
+    స్థిరరాశి string& ట్యాగ్ = execGraphp->name();
 
     // Add thread function invocations to execGraph
-    const auto addCStmt = [=](const string& stmt) -> void {  //
-        execGraphp->runfuncp()->addStmtsp(new AstCStmt{fl, stmt});
+    స్థిరరాశి స్వయంచాలక కూడు_CStmt = [=](స్థిరరాశి string& stmt) -> శూన్య {  //
+        execGraphp->runfuncp()->కూడు_Stmtsp(కొత్త AstCStmt{fl, stmt});
     };
 
-    if (v3Global.opt.profExec()) {
-        addCStmt("VL_EXEC_TRACE_ADD_RECORD(vlSymsp).execGraphBegin();");
+    ఒకవేళ (v3Global.opt.profExec()) {
+        కూడు_CStmt("VL_EXEC_TRACE_ADD_RECORD(vlSymsp).execGraphBegin();");
     }
 
-    addCStmt("vlSymsp->__Vm_even_cycle__" + tag + " = !vlSymsp->__Vm_even_cycle__" + tag + ";");
+    కూడు_CStmt("vlSymsp->__Vm_even_cycle__" + ట్యాగ్ + " = !vlSymsp->__Vm_even_cycle__" + ట్యాగ్ + ";");
 
-    if (!v3Global.opt.hierBlocks().empty()) addCStmt("std::vector<size_t> indexes;");
+    ఒకవేళ (!v3Global.opt.hier_ఖండాలు().ఖాళీలు()) కూడు_CStmt("std::vector<size_t> indexes;");
 }
 
-void addThreadEndWrapper(AstExecGraph* const execGraphp) {
+శూన్య కూడు_Thread_చివర_Wrapper(Ast_Exec_లేఖాచిత్రం* స్థిరరాశి execGraphp) {
     // Add thread function invocations to execGraph
-    const auto addCStmt = [=](const string& stmt) -> void {  //
-        FileLine* const flp = v3Global.rootp()->fileline();
-        execGraphp->runfuncp()->addStmtsp(new AstCStmt{flp, stmt});
+    స్థిరరాశి స్వయంచాలక కూడు_CStmt = [=](స్థిరరాశి string& stmt) -> శూన్య {  //
+        File_పంక్తి* స్థిరరాశి flp = v3Global.rootp()->fileline();
+        execGraphp->runfuncp()->కూడు_Stmtsp(కొత్త AstCStmt{flp, stmt});
     };
 
-    addCStmt("Verilated::mtaskId(0);");
-    if (v3Global.opt.profExec()) { addCStmt("VL_EXEC_TRACE_ADD_RECORD(vlSymsp).execGraphEnd();"); }
+    కూడు_CStmt("Verilated::mtaskId(0);");
+    ఒకవేళ (v3Global.opt.profExec()) { కూడు_CStmt("VL_EXEC_TRACE_ADD_RECORD(vlSymsp).execGraphEnd();"); }
 }
-void addThreadStartToExecGraph(AstExecGraph* const execGraphp,
-                               const std::vector<AstCFunc*>& funcps, uint32_t scheduleId) {
+శూన్య కూడు_Thread_ప్రారంభం_గమ్యం_Exec_లేఖాచిత్రం(Ast_Exec_లేఖాచిత్రం* స్థిరరాశి execGraphp,
+                               స్థిరరాశి std::సదిశ<AstCFunc*>& funcps, uint32_t కాలపట్టిక_Id) {
     // FileLine used for constructing nodes below
-    FileLine* const fl = v3Global.rootp()->fileline();
-    const string& tag = execGraphp->name();
+    File_పంక్తి* స్థిరరాశి fl = v3Global.rootp()->fileline();
+    స్థిరరాశి string& ట్యాగ్ = execGraphp->name();
 
     // The fake "final" mtask state variable, signaled by each thread when finished
-    AstVar* const finalVarp
-        = newMTaskStateVar("final__" + cvtToStr(scheduleId) + "__" + tag, funcps.size());
-    for (AstCFunc* const funcp : funcps) {
-        funcp->addStmtsp(newMTaskStateCall(finalVarp, "signalUpstreamDone(even_cycle)"));
+    AstVar* స్థిరరాశి finalVarp
+        = newMTaskStateVar("final__" + cvt_గమ్యం_Str(కాలపట్టిక_Id) + "__" + ట్యాగ్, funcps.కొలత());
+    కొరకు (AstCFunc* స్థిరరాశి funcp : funcps) {
+        funcp->కూడు_Stmtsp(newMTaskStateCall(finalVarp, "signalUpstreamDone(even_cycle)"));
     }
 
     // Add thread function invocations to execGraph
-    const auto addCStmt = [=](const string& stmt) -> void {  //
-        execGraphp->runfuncp()->addStmtsp(new AstCStmt{fl, stmt});
+    స్థిరరాశి స్వయంచాలక కూడు_CStmt = [=](స్థిరరాశి string& stmt) -> శూన్య {  //
+        execGraphp->runfuncp()->కూడు_Stmtsp(కొత్త AstCStmt{fl, stmt});
     };
 
-    const uint32_t last = funcps.size() - 1;
-    if (!v3Global.opt.hierBlocks().empty() && last > 0) {
-        addCStmt("for (size_t i = 0; i < " + std::to_string(last) + "; ++i) {\n"  //
+    స్థిరరాశి uint32_t చివరి = funcps.కొలత() - 1;
+    ఒకవేళ (!v3Global.opt.hier_ఖండాలు().ఖాళీలు() && చివరి > 0) {
+        కూడు_CStmt("for (size_t i = 0; i < " + std::గమ్యం_string(చివరి) + "; ++i) {\n"  //
                  + "indexes.push_back(vlSymsp->__Vm_threadPoolp->assignWorkerIndex());\n"  //
                  + "}");
     }
     uint32_t i = 0;
-    for (AstCFunc* const funcp : funcps) {
-        if (i != last) {
+    కొరకు (AstCFunc* స్థిరరాశి funcp : funcps) {
+        ఒకవేళ (i != చివరి) {
             // The first N-1 will run on the thread pool.
-            AstCStmt* const cstmtp = new AstCStmt{fl};
-            execGraphp->runfuncp()->addStmtsp(cstmtp);
-            cstmtp->add("vlSymsp->__Vm_threadPoolp->workerp(");
-            if (v3Global.opt.hierChild() || !v3Global.opt.hierBlocks().empty()) {
-                cstmtp->add("indexes[" + std::to_string(i) + "]");
-            } else {
-                cstmtp->add(std::to_string(i));
+            AstCStmt* స్థిరరాశి cstmtp = కొత్త AstCStmt{fl};
+            execGraphp->runfuncp()->కూడు_Stmtsp(cstmtp);
+            cstmtp->కూడు("vlSymsp->__Vm_threadPoolp->workerp(");
+            ఒకవేళ (v3Global.opt.hier_బిడ్డ() || !v3Global.opt.hier_ఖండాలు().ఖాళీలు()) {
+                cstmtp->కూడు("indexes[" + std::గమ్యం_string(i) + "]");
+            } లేకపోతే {
+                cstmtp->కూడు(std::గమ్యం_string(i));
             }
-            cstmtp->add(")->addTask(");
-            cstmtp->add(new AstAddrOfCFunc{fl, funcp});
-            cstmtp->add(", vlSelf, vlSymsp->__Vm_even_cycle__" + tag + ");");
-        } else {
+            cstmtp->కూడు(")->addTask(");
+            cstmtp->కూడు(కొత్త Ast_Addr_యొక్క_CFunc{fl, funcp});
+            cstmtp->కూడు(", vlSelf, vlSymsp->__Vm_even_cycle__" + ట్యాగ్ + ");");
+        } లేకపోతే {
             // The last will run on the main thread.
-            AstCCall* const callp = new AstCCall{fl, funcp};
-            callp->dtypeSetVoid();
-            callp->argTypes("vlSelf, vlSymsp->__Vm_even_cycle__" + tag);
-            execGraphp->runfuncp()->addStmtsp(callp->makeStmt());
+            AstCCall* స్థిరరాశి callp = కొత్త AstCCall{fl, funcp};
+            callp->dtype_సమితి_Void();
+            callp->argTypes("vlSelf, vlSymsp->__Vm_even_cycle__" + ట్యాగ్);
+            execGraphp->runfuncp()->కూడు_Stmtsp(callp->makeStmt());
         }
         ++i;
     }
-    V3Stats::addStatSum("Optimizations, Thread schedule total tasks", i);
+    V3Stats::కూడు_Stat_కూడిక("Optimizations, Thread schedule total tasks", i);
 
-    if (v3Global.opt.profExec()) {
-        addCStmt("VL_EXEC_TRACE_ADD_RECORD(vlSymsp).threadScheduleWaitBegin();");
+    ఒకవేళ (v3Global.opt.profExec()) {
+        కూడు_CStmt("VL_EXEC_TRACE_ADD_RECORD(vlSymsp).threadScheduleWaitBegin();");
     }
-    execGraphp->runfuncp()->addStmtsp(newMTaskStateCall(
-        finalVarp, "waitUntilUpstreamDone(vlSymsp->__Vm_even_cycle__" + tag + ")"));
-    if (v3Global.opt.profExec()) {
-        addCStmt("VL_EXEC_TRACE_ADD_RECORD(vlSymsp).threadScheduleWaitEnd();");
+    execGraphp->runfuncp()->కూడు_Stmtsp(newMTaskStateCall(
+        finalVarp, "waitUntilUpstreamDone(vlSymsp->__Vm_even_cycle__" + ట్యాగ్ + ")"));
+    ఒకవేళ (v3Global.opt.profExec()) {
+        కూడు_CStmt("VL_EXEC_TRACE_ADD_RECORD(vlSymsp).threadScheduleWaitEnd();");
     }
     // Free all assigned worker indices in this section
-    if (!v3Global.opt.hierBlocks().empty() && last > 0) {
-        addCStmt("vlSymsp->__Vm_threadPoolp->freeWorkerIndexes(indexes);");
+    ఒకవేళ (!v3Global.opt.hier_ఖండాలు().ఖాళీలు() && చివరి > 0) {
+        కూడు_CStmt("vlSymsp->__Vm_threadPoolp->freeWorkerIndexes(indexes);");
     }
 }
 
-void processMTaskBodies(AstExecGraph* const execGraphp) {
-    for (V3GraphVertex* const vtxp : execGraphp->depGraphp()->vertices().unlinkable()) {
-        ExecMTask* const mtaskp = vtxp->as<ExecMTask>();
-        AstCFunc* const funcp = mtaskp->funcp();
+శూన్య processMTaskBodies(Ast_Exec_లేఖాచిత్రం* స్థిరరాశి execGraphp) {
+    కొరకు (V3_లేఖాచిత్రం_శీర్షం* స్థిరరాశి vtxp : execGraphp->depGraphp()->vertices().unlinkable()) {
+        ExecMTask* స్థిరరాశి mtaskp = vtxp->as<ExecMTask>();
+        AstCFunc* స్థిరరాశి funcp = mtaskp->funcp();
         // Temporarily unlink function body so we can add more statemetns
-        AstNode* stmtsp = funcp->stmtsp()->unlinkFrBackWithNext();
+        Ast_కణుపు* stmtsp = funcp->stmtsp()->unlink_Fr_వెనుక_With_తదుపరి();
 
         // Helper function to make the code a bit more legible
-        const auto addCStmt = [=](const string& stmt) -> void {  //
-            funcp->addStmtsp(new AstCStmt{execGraphp->fileline(), stmt});
+        స్థిరరాశి స్వయంచాలక కూడు_CStmt = [=](స్థిరరాశి string& stmt) -> శూన్య {  //
+            funcp->కూడు_Stmtsp(కొత్త AstCStmt{execGraphp->fileline(), stmt});
         };
 
         // Profiling mtaskStart
-        if (v3Global.opt.profExec()) {
-            std::string args = std::to_string(mtaskp->id());
-            args += ", " + std::to_string(mtaskp->predictStart());
-            args += ", \"";
-            if (v3Global.opt.hierChild()) args += v3Global.opt.topModule();
-            args += "\"";
-            addCStmt("VL_EXEC_TRACE_ADD_RECORD(vlSymsp).mtaskBegin(" + args + ");");
+        ఒకవేళ (v3Global.opt.profExec()) {
+            std::string వాదనలు = std::గమ్యం_string(mtaskp->id());
+            వాదనలు += ", " + std::గమ్యం_string(mtaskp->predict_ప్రారంభం());
+            వాదనలు += ", \"";
+            ఒకవేళ (v3Global.opt.hier_బిడ్డ()) వాదనలు += v3Global.opt.శిఖరం_Module();
+            వాదనలు += "\"";
+            కూడు_CStmt("VL_EXEC_TRACE_ADD_RECORD(vlSymsp).mtaskBegin(" + వాదనలు + ");");
         }
         // Set mtask ID in the run-time system
-        addCStmt("Verilated::mtaskId(" + std::to_string(mtaskp->id()) + ");");
+        కూడు_CStmt("Verilated::mtaskId(" + std::గమ్యం_string(mtaskp->id()) + ");");
         // Add back the body
-        funcp->addStmtsp(stmtsp);
+        funcp->కూడు_Stmtsp(stmtsp);
         // Flush message queue
-        addCStmt("Verilated::endOfThreadMTask(vlSymsp->__Vm_evalMsgQp);");
+        కూడు_CStmt("Verilated::endOfThreadMTask(vlSymsp->__Vm_evalMsgQp);");
         // Profiling mtaskEnd
-        if (v3Global.opt.profExec()) {
-            const std::string& args = std::to_string(mtaskp->cost());
-            addCStmt("VL_EXEC_TRACE_ADD_RECORD(vlSymsp).mtaskEnd(" + args + ");");
+        ఒకవేళ (v3Global.opt.profExec()) {
+            స్థిరరాశి std::string& వాదనలు = std::గమ్యం_string(mtaskp->ఖర్చు());
+            కూడు_CStmt("VL_EXEC_TRACE_ADD_RECORD(vlSymsp).mtaskEnd(" + వాదనలు + ");");
         }
     }
 }
 
-void implementExecGraph(AstExecGraph* const execGraphp, const ThreadSchedule& schedule) {
+శూన్య implement_Exec_లేఖాచిత్రం(Ast_Exec_లేఖాచిత్రం* స్థిరరాశి execGraphp, స్థిరరాశి Thread_కాలపట్టిక& కాలపట్టిక) {
     // Nothing to be done if there are no MTasks in the graph at all.
-    if (execGraphp->depGraphp()->empty()) return;
+    ఒకవేళ (execGraphp->depGraphp()->ఖాళీలు()) తిరిగి;
 
     // Create a function to be run by each thread.
-    const std::vector<AstCFunc*>& funcps = createThreadFunctions(schedule, execGraphp->name());
-    UASSERT(!funcps.empty(), "Non-empty ExecGraph yields no threads?");
+    స్థిరరాశి std::సదిశ<AstCFunc*>& funcps = createThreadFunctions(కాలపట్టిక, execGraphp->name());
+    UASSERT(!funcps.ఖాళీలు(), "Non-empty ExecGraph yields no threads?");
 
     // Start the thread functions from the function that dispatches the graph.
-    addThreadStartToExecGraph(execGraphp, funcps, schedule.id());
+    కూడు_Thread_ప్రారంభం_గమ్యం_Exec_లేఖాచిత్రం(execGraphp, funcps, కాలపట్టిక.id());
 }
 
-void createRunFunction(AstExecGraph* const execGraphp) {
+శూన్య create_నిరంతరం_Function(Ast_Exec_లేఖాచిత్రం* స్థిరరాశి execGraphp) {
     // Create the function that dispatches the graph to the thread pool, as scheduled statically
-    FileLine* const flp = execGraphp->fileline();
-    AstNodeModule* const modp = v3Global.rootp()->topModulep();
-    AstCFunc* const funcp = new AstCFunc{flp, "runExecGraph_" + execGraphp->name(), nullptr};
-    funcp->isLoose(true);
-    funcp->voidSelf(true);  // Called through VlExecGraph::Fnp
-    funcp->dontCombine(true);
-    modp->addStmtsp(funcp);
+    File_పంక్తి* స్థిరరాశి flp = execGraphp->fileline();
+    Ast_కణుపు_Module* స్థిరరాశి modp = v3Global.rootp()->శిఖరం_Modulep();
+    AstCFunc* స్థిరరాశి funcp = కొత్త AstCFunc{flp, "runExecGraph_" + execGraphp->name(), శూన్యసూచిక};
+    funcp->isLoose(నిజం);
+    funcp->voidSelf(నిజం);  // Called through VlExecGraph::Fnp
+    funcp->dontCombine(నిజం);
+    modp->కూడు_Stmtsp(funcp);
     execGraphp->runfuncp(funcp);
 }
 
-void addTriggerMasks(AstExecGraph* const execGraphp) {
+శూన్య కూడు_Trigger_Masks(Ast_Exec_లేఖాచిత్రం* స్థిరరాశి execGraphp) {
     // Add to 'maskps' a constant table for each MTask in 'callsp', with the trigger bits its
     // code tests
-    FileLine* const flp = execGraphp->fileline();
-    AstVar* const triggersp = execGraphp->triggerp()->varp();
-    for (AstCCall* callp = execGraphp->callsp(); callp; callp = VN_AS(callp->nextp(), CCall)) {
-        std::map<uint32_t, uint64_t> wordMasks;
-        callp->funcp()->foreach([&](const AstTriggered* trigp) {
+    File_పంక్తి* స్థిరరాశి flp = execGraphp->fileline();
+    AstVar* స్థిరరాశి triggersp = execGraphp->triggerp()->varp();
+    కొరకు (AstCCall* callp = execGraphp->callsp(); callp; callp = VN_AS(callp->nextp(), CCall)) {
+        std::map<uint32_t, uint64_t> మాట_Masks;
+        callp->funcp()->foreach([&](స్థిరరాశి AstTriggered* trigp) {
             UASSERT_OBJ(trigp->trigRefp()->varp() == triggersp, trigp,
                         "MTask tests another trigger vector");
-            for (const uint32_t index : trigp->indices()) {
-                wordMasks[VL_BITWORD_Q(index)] |= VL_BIT_Q(index);
+            కొరకు (స్థిరరాశి uint32_t సూచీ : trigp->indices()) {
+                మాట_Masks[VL_BITWORD_Q(సూచీ)] |= VL_బిట్టు_Q(సూచీ);
             }
         });
-        AstConsArray* const consp = new AstConsArray{flp, triggersp->dtypep(),
-                                                     new AstConst{flp, AstConst::Unsized64{}, 0}};
-        for (const auto& wordMask : wordMasks) {
-            consp->valuep(wordMask.first,
-                          new AstConst{flp, AstConst::Unsized64{}, wordMask.second});
+        AstConsArray* స్థిరరాశి consp = కొత్త AstConsArray{flp, triggersp->dtypep(),
+                                                     కొత్త AstConst{flp, AstConst::Unsized64{}, 0}};
+        కొరకు (స్థిరరాశి స్వయంచాలక& మాట_ముసుగు : మాట_Masks) {
+            consp->valuep(మాట_ముసుగు.మొదటి,
+                          కొత్త AstConst{flp, AstConst::Unsized64{}, మాట_ముసుగు.రెండవ});
         }
-        execGraphp->addMaskps(V3ConstPool::find(consp));
-        VL_DO_DANGLING(consp->deleteTree(), consp);
+        execGraphp->కూడు_Maskps(V3ConstPool::కనుగొను(consp));
+        VL_DO_DANGLING(consp->delete_వృక్షం(), consp);
     }
 }
 
-void addTriggerCosts(AstExecGraph* const execGraphp) {
+శూన్య కూడు_Trigger_Costs(Ast_Exec_లేఖాచిత్రం* స్థిరరాశి execGraphp) {
     // Set 'triggerCostsp' to a constant table with the static cost of the logic each trigger
     // guards in the MTasks
-    FileLine* const flp = execGraphp->fileline();
-    const uint32_t nTriggers
+    File_పంక్తి* స్థిరరాశి flp = execGraphp->fileline();
+    స్థిరరాశి uint32_t nTriggers
         = VN_AS(execGraphp->triggerp()->varp()->dtypep(), UnpackArrayDType)->elementsConst()
           * VL_QUADSIZE;
-    std::vector<uint32_t> costs(nTriggers, 0);
-    for (AstCCall* callp = execGraphp->callsp(); callp; callp = VN_AS(callp->nextp(), CCall)) {
+    std::సదిశ<uint32_t> costs(nTriggers, 0);
+    కొరకు (AstCCall* callp = execGraphp->callsp(); callp; callp = VN_AS(callp->nextp(), CCall)) {
         callp->funcp()->foreach([&](AstIf* ifp) {
-            if (const AstTriggered* const trigp = VN_CAST(ifp->condp(), Triggered)) {
-                const uint32_t cost = V3InstrCount::count(ifp, false);
-                for (const uint32_t index : trigp->indices()) costs.at(index) += cost;
+            ఒకవేళ (స్థిరరాశి AstTriggered* స్థిరరాశి trigp = VN_CAST(ifp->condp(), Triggered)) {
+                స్థిరరాశి uint32_t ఖర్చు = V3_Instr_లెక్క::లెక్క(ifp, అబద్ధం);
+                కొరకు (స్థిరరాశి uint32_t సూచీ : trigp->indices()) costs.at(సూచీ) += ఖర్చు;
             }
         });
     }
-    AstNetlist* const netlistp = v3Global.rootp();
-    AstUnpackArrayDType* const dtypep
-        = new AstUnpackArrayDType{flp, netlistp->findBitDType(32, 32, VSigning::UNSIGNED),
-                                  new AstRange{flp, static_cast<int>(nTriggers - 1), 0}};
-    netlistp->typeTablep()->addTypesp(dtypep);
-    AstConsArray* const consp = new AstConsArray{flp, dtypep, new AstConst{flp, 0}};
-    for (uint32_t index = 0; index < nTriggers; ++index) {
-        if (costs[index]) consp->valuep(index, new AstConst{flp, costs[index]});
+    AstNetlist* స్థిరరాశి netlistp = v3Global.rootp();
+    AstUnpackArrayDType* స్థిరరాశి dtypep
+        = కొత్త AstUnpackArrayDType{flp, netlistp->కనుగొను_బిట్టు_DType(32, 32, VSigning::UNSIGNED),
+                                  కొత్త AstRange{flp, static_cast<పూర్ణాంకం>(nTriggers - 1), 0}};
+    netlistp->typeTablep()->కూడు_Typesp(dtypep);
+    AstConsArray* స్థిరరాశి consp = కొత్త AstConsArray{flp, dtypep, కొత్త AstConst{flp, 0}};
+    కొరకు (uint32_t సూచీ = 0; సూచీ < nTriggers; ++సూచీ) {
+        ఒకవేళ (costs[సూచీ]) consp->valuep(సూచీ, కొత్త AstConst{flp, costs[సూచీ]});
     }
-    execGraphp->triggerCostsp(V3ConstPool::find(consp));
-    VL_DO_DANGLING(consp->deleteTree(), consp);
+    execGraphp->triggerCostsp(V3ConstPool::కనుగొను(consp));
+    VL_DO_DANGLING(consp->delete_వృక్షం(), consp);
 }
 
 // Called by Verilator top stage
-void implement(AstNetlist* netlistp) {
+శూన్య implement(AstNetlist* netlistp) {
     // Gather all ExecGraphs
-    std::vector<AstExecGraph*> execGraphps;
-    netlistp->topModulep()->foreach([&](AstExecGraph* egp) { execGraphps.emplace_back(egp); });
+    std::సదిశ<Ast_Exec_లేఖాచిత్రం*> execGraphps;
+    netlistp->శిఖరం_Modulep()->foreach([&](Ast_Exec_లేఖాచిత్రం* egp) { execGraphps.emplace_వెనుక(egp); });
 
     // Process each
-    for (AstExecGraph* const execGraphp : execGraphps) {
+    కొరకు (Ast_Exec_లేఖాచిత్రం* స్థిరరాశి execGraphp : execGraphps) {
         // Some MTasks may have become empty after scheduling due to
         // optimizations after scheduling. Remove those.
-        removeEmptyMTasks(execGraphp);
+        remove_ఖాళీలు_MTasks(execGraphp);
 
         // In some very small test cases, we might end up with a completely
         // empty ExecGraph, if so just delete it.
-        if (execGraphp->depGraphp()->empty()) {
-            VL_DO_DANGLING(execGraphp->unlinkFrBack()->deleteTree(), execGraphp);
-            return;
+        ఒకవేళ (execGraphp->depGraphp()->ఖాళీలు()) {
+            VL_DO_DANGLING(execGraphp->unlink_Fr_వెనుక()->delete_వృక్షం(), execGraphp);
+            తిరిగి;
         }
 
         // Back in V3Order, we partitioned mtasks using provisional cost
@@ -1270,45 +1270,45 @@ void implement(AstNetlist* netlistp) {
         fillinCosts(execGraphp->depGraphp());
         finalizeCosts(execGraphp->depGraphp());
 
-        if (dumpGraphLevel() >= 4) execGraphp->depGraphp()->dumpDotFilePrefixedAlways("pack");
+        ఒకవేళ (dump_లేఖాచిత్రం_Level() >= 4) execGraphp->depGraphp()->dumpDotFilePrefixedAlways("pack");
 
-        createRunFunction(execGraphp);
-        addThreadStartWrapper(execGraphp);
+        create_నిరంతరం_Function(execGraphp);
+        కూడు_Thread_ప్రారంభం_Wrapper(execGraphp);
 
         // Schedule the mtasks: statically associate each mtask with a thread,
         // and determine the order in which each thread will run its mtasks.
-        const std::vector<ThreadSchedule> packed = PackThreads::apply(*execGraphp->depGraphp());
-        V3Stats::addStatSum("Optimizations, Thread schedule count",
-                            static_cast<double>(packed.size()));
+        స్థిరరాశి std::సదిశ<Thread_కాలపట్టిక> packed = Pack_దారాలు::apply(*execGraphp->depGraphp());
+        V3Stats::కూడు_Stat_కూడిక("Optimizations, Thread schedule count",
+                            static_cast<ద్విగుణ>(packed.కొలత()));
 
         // Process MTask function bodies to add additional code
         processMTaskBodies(execGraphp);
 
-        for (const ThreadSchedule& schedule : packed) {
+        కొరకు (స్థిరరాశి Thread_కాలపట్టిక& కాలపట్టిక : packed) {
             // Replace the graph body with its multi-threaded implementation.
-            implementExecGraph(execGraphp, schedule);
+            implement_Exec_లేఖాచిత్రం(execGraphp, కాలపట్టిక);
         }
 
-        addThreadEndWrapper(execGraphp);
+        కూడు_Thread_చివర_Wrapper(execGraphp);
 
-        addTriggerMasks(execGraphp);
-        addTriggerCosts(execGraphp);
+        కూడు_Trigger_Masks(execGraphp);
+        కూడు_Trigger_Costs(execGraphp);
     }
 }
 
-void selfTest() {
+శూన్య selfTest() {
     {  // Test that omitted profile data correctly scales estimates
         Costs costs({// id  est  prof
                      {1, {10, 1000}},
                      {2, {20, 0}},  // Note no profile
                      {3, {30, 3000}}});
         normalizeCosts(costs);
-        UASSERT_SELFTEST(costs[1].first, 1000);
-        UASSERT_SELFTEST(costs[1].second, 1000);
-        UASSERT_SELFTEST(costs[2].first, 2000);
-        UASSERT_SELFTEST(costs[2].second, 0);
-        UASSERT_SELFTEST(costs[3].first, 3000);
-        UASSERT_SELFTEST(costs[3].second, 3000);
+        UASSERT_SELFTEST(costs[1].మొదటి, 1000);
+        UASSERT_SELFTEST(costs[1].రెండవ, 1000);
+        UASSERT_SELFTEST(costs[2].మొదటి, 2000);
+        UASSERT_SELFTEST(costs[2].రెండవ, 0);
+        UASSERT_SELFTEST(costs[3].మొదటి, 3000);
+        UASSERT_SELFTEST(costs[3].రెండవ, 3000);
     }
     {  // Test that very large profile data properly scales
         Costs costs({// id  est  prof
@@ -1316,15 +1316,15 @@ void selfTest() {
                      {2, {20, 200000000000}},
                      {3, {30, 1}}});  // Make sure doesn't underflow
         normalizeCosts(costs);
-        UASSERT_SELFTEST(costs[1].first, 2500000);
-        UASSERT_SELFTEST(costs[1].second, 5000000);
-        UASSERT_SELFTEST(costs[2].first, 5000000);
-        UASSERT_SELFTEST(costs[2].second, 10000000);
-        UASSERT_SELFTEST(costs[3].first, 7500000);
-        UASSERT_SELFTEST(costs[3].second, 1);
+        UASSERT_SELFTEST(costs[1].మొదటి, 2500000);
+        UASSERT_SELFTEST(costs[1].రెండవ, 5000000);
+        UASSERT_SELFTEST(costs[2].మొదటి, 5000000);
+        UASSERT_SELFTEST(costs[2].రెండవ, 10000000);
+        UASSERT_SELFTEST(costs[3].మొదటి, 7500000);
+        UASSERT_SELFTEST(costs[3].రెండవ, 1);
     }
 
-    PackThreads::selfTest();
+    Pack_దారాలు::selfTest();
 }
 
 }  // namespace V3ExecGraph

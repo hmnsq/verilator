@@ -18,53 +18,53 @@
 //
 //*************************************************************************
 
-#include "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
+#అన్తర్భావ "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
 
-#include "V3OrderCFuncEmitter.h"
-#include "V3OrderInternal.h"
+#అన్తర్భావ "V3OrderCFuncEmitter.h"
+#అన్తర్భావ "V3OrderInternal.h"
 
-#include <memory>
+#అన్తర్భావ <memory>
 
 VL_DEFINE_DEBUG_FUNCTIONS;
 
 //######################################################################
 // OrderSerial class
 
-AstNodeStmt* V3Order::createSerial(OrderMoveGraph& moveGraph, const std::string& tag, bool slow) {
+Ast_కణుపు_Stmt* V3_క్రమం::createSerial(క్రమం_Move_లేఖాచిత్రం& move_లేఖాచిత్రం, స్థిరరాశి std::string& ట్యాగ్, తార్కిక slow) {
 
-    UINFO(2, "  Constructing serial code for '" + tag + "'");
+    UINFO(2, "  Constructing serial code for '" + ట్యాగ్ + "'");
 
     // Serializer
-    OrderMoveGraphSerializer serializer{moveGraph};
+    క్రమం_Move_లేఖాచిత్రం_Serializer serializer{move_లేఖాచిత్రం};
 
     // Add initially ready vertices (those with no dependencies) to the serializer as seeds
-    for (V3GraphVertex& vtx : moveGraph.vertices()) {
-        if (vtx.inEmpty()) serializer.addSeed(vtx.as<OrderMoveVertex>());
+    కొరకు (V3_లేఖాచిత్రం_శీర్షం& vtx : move_లేఖాచిత్రం.vertices()) {
+        ఒకవేళ (vtx.లోపల_ఖాళీలు()) serializer.కూడు_విత్తనం(vtx.as<క్రమం_Move_శీర్షం>());
     }
 
     // Emit all logic as they become ready
-    V3OrderCFuncEmitter emitter{moveGraph.orderGraph().trigVscp(), tag, slow};
-    OrderMoveDomScope* prevDomScopep = nullptr;
-    while (OrderMoveVertex* const mVtxp = serializer.getNext()) {
+    V3_క్రమం_CFunc_Emitter emitter{move_లేఖాచిత్రం.క్రమం_లేఖాచిత్రం_2().trigVscp(), ట్యాగ్, slow};
+    క్రమం_Move_Dom_Scope* prevDomScopep = శూన్యసూచిక;
+    అయితే (క్రమం_Move_శీర్షం* స్థిరరాశి mVtxp = serializer.get_తదుపరి()) {
         // We only really care about logic vertices
-        if (OrderLogicVertex* const logicp = mVtxp->logicp()) {
+        ఒకవేళ (క్రమం_Logic_శీర్షం* స్థిరరాశి logicp = mVtxp->logicp()) {
             // Force a new function if the domain or scope changed, for better combining.
-            OrderMoveDomScope* const domScopep = &mVtxp->domScope();
-            if (domScopep != prevDomScopep) emitter.forceNewFunction();
+            క్రమం_Move_Dom_Scope* స్థిరరాశి domScopep = &mVtxp->domScope();
+            ఒకవేళ (domScopep != prevDomScopep) emitter.forceNewFunction();
             prevDomScopep = domScopep;
             // Emit the logic under this vertex
             emitter.emitLogic(logicp);
         }
         // Can delete the vertex now
-        VL_DO_DANGLING(mVtxp->unlinkDelete(&moveGraph), mVtxp);
+        VL_DO_DANGLING(mVtxp->unlinkDelete(&move_లేఖాచిత్రం), mVtxp);
     }
 
     // Delete the remaining variable vertices
-    for (V3GraphVertex* const vtxp : moveGraph.vertices().unlinkable()) {
-        if (!vtxp->as<OrderMoveVertex>()->logicp()) {
-            VL_DO_DANGLING(vtxp->unlinkDelete(&moveGraph), vtxp);
+    కొరకు (V3_లేఖాచిత్రం_శీర్షం* స్థిరరాశి vtxp : move_లేఖాచిత్రం.vertices().unlinkable()) {
+        ఒకవేళ (!vtxp->as<క్రమం_Move_శీర్షం>()->logicp()) {
+            VL_DO_DANGLING(vtxp->unlinkDelete(&move_లేఖాచిత్రం), vtxp);
         }
     }
 
-    return emitter.getStmts();
+    తిరిగి emitter.getStmts();
 }

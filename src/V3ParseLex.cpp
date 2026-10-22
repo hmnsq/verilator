@@ -14,48 +14,48 @@
 //
 //*************************************************************************
 
-#define VL_MT_DISABLED_CODE_UNIT 1
+#నిర్వచించు VL_MT_DISABLED_సంకేతం_UNIT 1
 
-#include "config_build.h"
-#include "verilatedos.h"
+#అన్తర్భావ "config_build.h"
+#అన్తర్భావ "verilatedos.h"
 
-#include "V3ParseImp.h"
+#అన్తర్భావ "V3ParseImp.h"
 
-#include <fstream>
+#అన్తర్భావ <fstream>
 
 //======================================================================
 // Build in LEX script
 
-#define yyFlexLexer V3LexerBase
-#include "V3Lexer.yy.cpp"
-#undef yyFlexLexer
+#నిర్వచించు yyFlexLexer V3_Lexer_పునాది
+#అన్తర్భావ "V3Lexer.yy.cpp"
+#నిర్వచనం_రద్దు yyFlexLexer
 
 //######################################################################
 // Lex-derived class
 
 /// Override the base lexer class so we can add some access functions
-class V3Lexer final : public V3LexerBase {
-public:
+తరగతి V3Lexer final : బహిరంగ V3_Lexer_పునాది {
+బహిరంగ:
     // CONSTRUCTORS
     V3Lexer()
-        : V3LexerBase{nullptr} {}
-    ~V3Lexer() override = default;
+        : V3_Lexer_పునాది{శూన్యసూచిక} {}
+    ~V3Lexer() override = అప్రమేయ;
     // METHODS
-    void unputString(const char* textp, size_t length) {
+    శూన్య unputString(స్థిరరాశి అక్షరం* textp, కొలత_t నిడివి) {
         // Add characters to input stream in back-to-front order
-        const char* cp = textp;
-        for (cp += length - 1; length--; cp--) unput(*cp);
+        స్థిరరాశి అక్షరం* cp = textp;
+        కొరకు (cp += నిడివి - 1; నిడివి--; cp--) unput(*cp);
     }
 };
 
-void V3ParseImp::lexUnputString(const char* textp, size_t length) {
-    parsep()->m_lexerp->unputString(textp, length);
+శూన్య V3ParseImp::lexUnputString(స్థిరరాశి అక్షరం* textp, కొలత_t నిడివి) {
+    parsep()->m_lexerp->unputString(textp, నిడివి);
 }
 
-void V3ParseImp::yylexReadTok() {
+శూన్య V3ParseImp::yylexReadTok() {
     // Call yylex() remembering last non-whitespace token
-    parsep()->lexFileline()->startToken();
-    const int token = parsep()->m_lexerp->yylex();
+    parsep()->lexFileline()->ప్రారంభం_Token();
+    స్థిరరాశి పూర్ణాంకం token = parsep()->m_lexerp->yylex();
     m_lexPrevToken = token;  // Save so can find '#' to parse following number
     yylval.token = token;
 }
@@ -63,12 +63,12 @@ void V3ParseImp::yylexReadTok() {
 //######################################################################
 // Read class functions
 
-void V3ParseImp::lexNew() {
-    if (m_lexerp) delete m_lexerp;  // Restart from clean slate.
-    m_lexerp = new V3Lexer;
-    if (debugFlex() >= 9) m_lexerp->set_debug(~0);
+శూన్య V3ParseImp::lexNew() {
+    ఒకవేళ (m_lexerp) తొలగించు m_lexerp;  // Restart from clean slate.
+    m_lexerp = కొత్త V3Lexer;
+    ఒకవేళ (debugFlex() >= 9) m_lexerp->సమితి_debug(~0);
 }
 
-void V3ParseImp::lexDestroy() {
-    if (m_lexerp) VL_DO_CLEAR(delete m_lexerp, m_lexerp = nullptr);
+శూన్య V3ParseImp::lexDestroy() {
+    ఒకవేళ (m_lexerp) VL_DO_CLEAR(తొలగించు m_lexerp, m_lexerp = శూన్యసూచిక);
 }

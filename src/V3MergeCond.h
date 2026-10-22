@@ -14,19 +14,19 @@
 //
 //*************************************************************************
 
-#ifndef VERILATOR_V3MERGECOND_H_
-#define VERILATOR_V3MERGECOND_H_
+#నిర్వచితం_కాకపోతే VERILATOR_V3MERGECOND_H_
+#నిర్వచించు VERILATOR_V3MERGECOND_H_
 
-#include "config_build.h"
-#include "verilatedos.h"
+#అన్తర్భావ "config_build.h"
+#అన్తర్భావ "verilatedos.h"
 
 class AstNetlist;
 
 //============================================================================
 
-class V3MergeCond final {
-public:
-    static void mergeAll(AstNetlist* nodep) VL_MT_DISABLED;
+class V3_విలీనం_Cond final {
+బహిరంగ:
+    స్థిర శూన్య విలీనం_All(AstNetlist* nodep) VL_MT_DISABLED;
 };
 
-#endif  // Guard
+#అయితే_ముగింపు  // Guard

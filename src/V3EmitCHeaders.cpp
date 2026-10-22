@@ -14,238 +14,238 @@
 //
 //*************************************************************************
 
-#include "V3PchAstMT.h"
+#అన్తర్భావ "V3PchAstMT.h"
 
-#include "V3EmitC.h"
-#include "V3EmitCBase.h"
-#include "V3File.h"
-#include "V3MemberMap.h"
-#include "V3UniqueNames.h"
+#అన్తర్భావ "V3EmitC.h"
+#అన్తర్భావ "V3EmitCBase.h"
+#అన్తర్భావ "V3File.h"
+#అన్తర్భావ "V3MemberMap.h"
+#అన్తర్భావ "V3UniqueNames.h"
 
-#include <algorithm>
-#include <cstdint>
-#include <set>
-#include <string>
-#include <vector>
+#అన్తర్భావ <algorithm>
+#అన్తర్భావ <cstdint>
+#అన్తర్భావ <set>
+#అన్తర్భావ <string>
+#అన్తర్భావ <vector>
 
 VL_DEFINE_DEBUG_FUNCTIONS;
 
 //######################################################################
 // Internal EmitC implementation
 
-class EmitCHeader final : public EmitCBaseVisitorConst {
-    V3UniqueNames m_names;
+తరగతి EmitCHeader final : బహిరంగ EmitCBaseVisitorConst {
+    V3_Unique_పేర్లు m_పేర్లు;
     VMemberMap m_memberMap;
     // METHODS
 
-    class CoverCountVisitor final : public VNVisitorConst {
-        int m_bins = 0;  // Running total of coverage bins counted so far
+    తరగతి Cover_లెక్క_Visitor final : బహిరంగ VNVisitorConst {
+        పూర్ణాంకం m_bins = 0;  // Running total of coverage bins counted so far
 
-        void visit(AstNodeCoverDecl* nodep) override {
+        శూన్య సందర్శించు(Ast_కణుపు_Cover_Decl* nodep) override {
             // Each module class owns the counters for declarations it emits;
             // duplicate no-inline instances need separate arrays for
             // forcePerInstance reporting.
-            if (!nodep->dataDeclNullp()) m_bins += nodep->size();
+            ఒకవేళ (!nodep->దత్తాంశం_Decl_Nullp()) m_bins += nodep->కొలత();
         }
-        void visit(AstNode* nodep) override { iterateChildrenConst(nodep); }
+        శూన్య సందర్శించు(Ast_కణుపు* nodep) override { iterateChildrenConst(nodep); }
 
-    public:
-        explicit CoverCountVisitor(const AstNodeModule* modp) {
-            iterateConst(const_cast<AstNodeModule*>(modp));
+    బహిరంగ:
+        స్పష్టమైన Cover_లెక్క_Visitor(స్థిరరాశి Ast_కణుపు_Module* modp) {
+            iterateConst(const_cast<Ast_కణుపు_Module*>(modp));
         }
-        int bins() const { return m_bins; }
+        పూర్ణాంకం bins() స్థిరరాశి { తిరిగి m_bins; }
     };
 
-    void decorateFirst(bool& first, const string& str) {
-        if (first) {
-            putsDecoration(nullptr, str);
-            first = false;
+    శూన్య decorate_మొదటి(తార్కిక& మొదటి, స్థిరరాశి string& str) {
+        ఒకవేళ (మొదటి) {
+            putsDecoration(శూన్యసూచిక, str);
+            మొదటి = అబద్ధం;
         }
     }
-    void emitCellDecls(const AstNodeModule* modp) {
-        bool first = true;
-        for (const AstNode* nodep = modp->stmtsp(); nodep; nodep = nodep->nextp()) {
-            if (const AstCell* const cellp = VN_CAST(nodep, Cell)) {
-                if (cellp->modp()->isConstPool()) continue;  // Special emit rules
-                decorateFirst(first, "// CELLS\n");
-                putns(cellp, EmitCUtil::prefixNameProtect(cellp->modp()) + "* "
+    శూన్య emitCellDecls(స్థిరరాశి Ast_కణుపు_Module* modp) {
+        తార్కిక మొదటి = నిజం;
+        కొరకు (స్థిరరాశి Ast_కణుపు* nodep = modp->stmtsp(); nodep; nodep = nodep->nextp()) {
+            ఒకవేళ (స్థిరరాశి AstCell* స్థిరరాశి cellp = VN_CAST(nodep, Cell)) {
+                ఒకవేళ (cellp->modp()->isConstPool()) కొనసాగు;  // Special emit rules
+                decorate_మొదటి(మొదటి, "// CELLS\n");
+                putns(cellp, EmitCUtil::ఉపసర్గ_Name_Protect(cellp->modp()) + "* "
                                  + cellp->nameProtect() + ";\n");
             }
         }
     }
-    void emitDesignVarDecls(const AstNodeModule* modp) {
+    శూన్య emitDesignVarDecls(స్థిరరాశి Ast_కణుపు_Module* modp) {
         // V3VariableOrder puts all variables at the front of the list: top level ports, then
         // trivially constructible variables, then the not trivially constructible ones, then
         // those that are not model state
-        const AstVar* portp = nullptr;
-        const AstVar* trivp = nullptr;
-        const AstVar* nontp = nullptr;
-        size_t nPort = 0;
-        size_t nTriv = 0;
-        size_t nNont = 0;
-        for (const AstNode* nodep = modp->stmtsp(); nodep; nodep = nodep->nextp()) {
-            const AstVar* const varp = VN_CAST(nodep, Var);
-            if (!varp) break;
-            if (!varp->isModelState()) {
+        స్థిరరాశి AstVar* portp = శూన్యసూచిక;
+        స్థిరరాశి AstVar* trivp = శూన్యసూచిక;
+        స్థిరరాశి AstVar* nontp = శూన్యసూచిక;
+        కొలత_t n_పోర్టు = 0;
+        కొలత_t nTriv = 0;
+        కొలత_t nNont = 0;
+        కొరకు (స్థిరరాశి Ast_కణుపు* nodep = modp->stmtsp(); nodep; nodep = nodep->nextp()) {
+            స్థిరరాశి AstVar* స్థిరరాశి varp = VN_CAST(nodep, Var);
+            ఒకవేళ (!varp) ఆపు;
+            ఒకవేళ (!varp->isModelState()) {
                 // Cache line alignment is only effective on emitted fields
-                UASSERT_OBJ(!varp->mtaskCacheLineAlign(), varp, "Aligned non-field");
-            } else if (varp->isPrimaryIO()) {
-                if (!portp) portp = varp;
-                ++nPort;
-            } else if (varp->isTriviallyConstructible()) {
-                if (!trivp) trivp = varp;
+                UASSERT_OBJ(!varp->mtask_Cache_పంక్తి_Align(), varp, "Aligned non-field");
+            } లేకపోతే ఒకవేళ (varp->isPrimaryIO()) {
+                ఒకవేళ (!portp) portp = varp;
+                ++n_పోర్టు;
+            } లేకపోతే ఒకవేళ (varp->isTriviallyConstructible()) {
+                ఒకవేళ (!trivp) trivp = varp;
                 ++nTriv;
-            } else {
-                if (!nontp) nontp = varp;
+            } లేకపోతే {
+                ఒకవేళ (!nontp) nontp = varp;
                 ++nNont;
             }
         }
 
-        const auto emitAndStep = [&](const AstVar*& varpr) {
+        స్థిరరాశి స్వయంచాలక emit_And_అడుగు = [&](స్థిరరాశి AstVar*& varpr) {
             emitVarDecl(varpr);
             varpr = VN_CAST(varpr->nextp(), Var);
         };
 
         // Emit primary ports
-        if (nPort) {
-            putsDecoration(nullptr, "\n// TOP LEVEL PORTS\n");
+        ఒకవేళ (n_పోర్టు) {
+            putsDecoration(శూన్యసూచిక, "\n// TOP LEVEL PORTS\n");
             // In anonymous union to prevent the C++ compiler from generating
             // constructor/destructor calls
             puts("union {\nstruct {\n");
-            for (size_t i = 0; i < nPort; ++i) emitAndStep(portp);
+            కొరకు (కొలత_t i = 0; i < n_పోర్టు; ++i) emit_And_అడుగు(portp);
             puts("} __VprimaryPorts;\n};\n");
         }
 
         // Emit trivially constructible variables
-        if (nTriv) {
-            putsDecoration(nullptr, "\n// TRIVIALLY CONSTRUCTIBLE STATE\n");
-            if (v3Global.opt.compLimitMembers() == 0) {
+        ఒకవేళ (nTriv) {
+            putsDecoration(శూన్యసూచిక, "\n// TRIVIALLY CONSTRUCTIBLE STATE\n");
+            ఒకవేళ (v3Global.opt.comp_హద్దు_Members() == 0) {
                 // Anonymous structs disabled, so just emit them directly
-                for (size_t i = 0; i < nTriv; ++i) emitAndStep(trivp);
-            } else {
-                const size_t lim = v3Global.opt.compLimitMembers();
-                size_t anonL3s = 1;
-                size_t anonL2s = 1;
-                size_t anonL1s = 1;
-                if (nTriv > (lim * lim * lim)) {
+                కొరకు (కొలత_t i = 0; i < nTriv; ++i) emit_And_అడుగు(trivp);
+            } లేకపోతే {
+                స్థిరరాశి కొలత_t lim = v3Global.opt.comp_హద్దు_Members();
+                కొలత_t anonL3s = 1;
+                కొలత_t anonL2s = 1;
+                కొలత_t anonL1s = 1;
+                ఒకవేళ (nTriv > (lim * lim * lim)) {
                     anonL3s = (nTriv + (lim * lim * lim) - 1) / (lim * lim * lim);
                     anonL2s = lim;
                     anonL1s = lim;
-                } else if (nTriv > (lim * lim)) {
+                } లేకపోతే ఒకవేళ (nTriv > (lim * lim)) {
                     anonL2s = (nTriv + (lim * lim) - 1) / (lim * lim);
                     anonL1s = lim;
-                } else if (nTriv > lim) {
+                } లేకపోతే ఒకవేళ (nTriv > lim) {
                     anonL1s = (nTriv + lim - 1) / lim;
                 }
-                if (anonL1s != 1) {
+                ఒకవేళ (anonL1s != 1) {
                     putsDecoration(
-                        nullptr,
+                        శూన్యసూచిక,
                         "// Anonymous structures to workaround compiler member-count bugs\n");
                 }
-                size_t nEmitted = 0;
-                for (size_t l3 = 0; l3 < anonL3s && nEmitted < nTriv; ++l3) {
-                    if (anonL3s != 1) puts("struct {\n");
-                    for (size_t l2 = 0; l2 < anonL2s && nEmitted < nTriv; ++l2) {
-                        if (anonL2s != 1) puts("struct {\n");
-                        for (size_t l1 = 0; l1 < anonL1s && nEmitted < nTriv; ++l1) {
-                            if (anonL1s != 1) puts("struct {\n");
-                            for (size_t l0 = 0; l0 < lim && nEmitted < nTriv; ++l0, ++nEmitted) {
-                                emitAndStep(trivp);
+                కొలత_t nEmitted = 0;
+                కొరకు (కొలత_t l3 = 0; l3 < anonL3s && nEmitted < nTriv; ++l3) {
+                    ఒకవేళ (anonL3s != 1) puts("struct {\n");
+                    కొరకు (కొలత_t l2 = 0; l2 < anonL2s && nEmitted < nTriv; ++l2) {
+                        ఒకవేళ (anonL2s != 1) puts("struct {\n");
+                        కొరకు (కొలత_t l1 = 0; l1 < anonL1s && nEmitted < nTriv; ++l1) {
+                            ఒకవేళ (anonL1s != 1) puts("struct {\n");
+                            కొరకు (కొలత_t l0 = 0; l0 < lim && nEmitted < nTriv; ++l0, ++nEmitted) {
+                                emit_And_అడుగు(trivp);
                             }
-                            if (anonL1s != 1) puts("};\n");
+                            ఒకవేళ (anonL1s != 1) puts("};\n");
                         }
-                        if (anonL2s != 1) puts("};\n");
+                        ఒకవేళ (anonL2s != 1) puts("};\n");
                     }
-                    if (anonL3s != 1) puts("};\n");
+                    ఒకవేళ (anonL3s != 1) puts("};\n");
                 }
                 UASSERT_OBJ(nEmitted == nTriv, modp, "Not all variables emitted");
             }
         }
 
         // Emit not trivially constructible variables
-        if (nNont) {
-            putsDecoration(nullptr, "\n// NOT TRIVIALLY CONSTRUCTIBLE STATE\n");
+        ఒకవేళ (nNont) {
+            putsDecoration(శూన్యసూచిక, "\n// NOT TRIVIALLY CONSTRUCTIBLE STATE\n");
             // Classes use real constructors
-            if (VN_IS(modp, Class)) {
-                for (size_t i = 0; i < nNont; ++i) emitAndStep(nontp);
-                return;
+            ఒకవేళ (VN_IS(modp, Class)) {
+                కొరకు (కొలత_t i = 0; i < nNont; ++i) emit_And_అడుగు(nontp);
+                తిరిగి;
             }
             // Output under an anonymous union to prevent the C++ compiler from generating
             // constructor/destructor calls for them. They are managed explicitly in ctor/dtor.
             // While 'union { singleVar; }' for each variable would be simpler, it blows up
             // clang's compile time when using pre-compiled headers, joy.
             puts("union {\nstruct {\n");
-            for (size_t i = 0; i < nNont; ++i) emitAndStep(nontp);
+            కొరకు (కొలత_t i = 0; i < nNont; ++i) emit_And_అడుగు(nontp);
             puts("} __Vnontrivs;\n};\n");
         }
     }
-    void emitInternalVarDecls(const AstNodeModule* modp) {
-        if (const AstClass* const classp = VN_CAST(modp, Class)) {
-            if (classp->needRNG()) {
-                putsDecoration(nullptr, "\n// INTERNAL VARIABLES\n");
+    శూన్య emit_అంతర్గత_Var_Decls(స్థిరరాశి Ast_కణుపు_Module* modp) {
+        ఒకవేళ (స్థిరరాశి AstClass* స్థిరరాశి classp = VN_CAST(modp, Class)) {
+            ఒకవేళ (classp->needRNG()) {
+                putsDecoration(శూన్యసూచిక, "\n// INTERNAL VARIABLES\n");
                 puts("VlRNGReseeds __Vm_rng;\n");
             }
-        } else {  // not class
-            putsDecoration(nullptr, "\n// INTERNAL VARIABLES\n");
+        } లేకపోతే {  // not class
+            putsDecoration(శూన్యసూచిక, "\n// INTERNAL VARIABLES\n");
             puts(EmitCUtil::symClassName() + "* vlSymsp;\n");
             puts("const char* vlNamep;\n");
             // Allocate object-local coverage counters only on modules that
             // contain emitted coverage declarations.
-            const int coverBins = CoverCountVisitor{modp}.bins();
-            if (coverBins) {
-                puts(v3Global.opt.threads() > 1 ? "std::atomic<uint32_t>" : "uint32_t");
+            స్థిరరాశి పూర్ణాంకం coverBins = Cover_లెక్క_Visitor{modp}.bins();
+            ఒకవేళ (coverBins) {
+                puts(v3Global.opt.దారాలు() > 1 ? "std::atomic<uint32_t>" : "uint32_t");
                 puts(" __Vcoverage[");
-                puts(std::to_string(coverBins));
+                puts(std::గమ్యం_string(coverBins));
                 puts("]{};\n");
             }
         }
     }
-    void emitParamDecls(const AstNodeModule* modp) {
-        bool first = true;
-        for (AstNode* nodep = modp->stmtsp(); nodep; nodep = nodep->nextp()) {
-            if (const AstVar* const varp = VN_CAST(nodep, Var)) {
-                if (varp->isParam()) {
-                    decorateFirst(first, "\n// PARAMETERS\n");
+    శూన్య emitParamDecls(స్థిరరాశి Ast_కణుపు_Module* modp) {
+        తార్కిక మొదటి = నిజం;
+        కొరకు (Ast_కణుపు* nodep = modp->stmtsp(); nodep; nodep = nodep->nextp()) {
+            ఒకవేళ (స్థిరరాశి AstVar* స్థిరరాశి varp = VN_CAST(nodep, Var)) {
+                ఒకవేళ (varp->isParam()) {
+                    decorate_మొదటి(మొదటి, "\n// PARAMETERS\n");
                     putns(varp, "static const ");
-                    puts(varp->dtypep()->cType(varp->nameProtect(), false, false));
+                    puts(varp->dtypep()->cType(varp->nameProtect(), అబద్ధం, అబద్ధం));
                     puts(";\n");
                 }
             }
         }
     }
-    void emitCtorDtorDecls(const AstNodeModule* modp) {
+    శూన్య emitCtorDtorDecls(స్థిరరాశి Ast_కణుపు_Module* modp) {
         // Classes use CFuncs with isConstructor/isDestructor
-        if (VN_IS(modp, Class)) return;
+        ఒకవేళ (VN_IS(modp, Class)) తిరిగి;
 
         // Proper modules use loose split ctor/dtor and are not copyable/movable
-        const std::string name = EmitCUtil::prefixNameProtect(modp);
-        putsDecoration(nullptr, "\n// CONSTRUCTORS\n");
+        స్థిరరాశి std::string name = EmitCUtil::ఉపసర్గ_Name_Protect(modp);
+        putsDecoration(శూన్యసూచిక, "\n// CONSTRUCTORS\n");
         putns(modp, name + "(" + EmitCUtil::symClassName() + "* symsp, const char* namep);\n");
         putns(modp, "~" + name + "();\n");
         putns(modp, "VL_UNCOPYABLE(" + name + ");\n");
         putns(modp, "VL_UNMOVABLE(" + name + ");\n");
     }
-    void emitInternalMethodDecls(const AstNodeModule* modp) {
-        bool first = true;
-        const string section = "\n// INTERNAL METHODS\n";
+    శూన్య emit_అంతర్గత_పద్ధతి_Decls(స్థిరరాశి Ast_కణుపు_Module* modp) {
+        తార్కిక మొదటి = నిజం;
+        స్థిరరాశి string section = "\n// INTERNAL METHODS\n";
 
-        if (!VN_IS(modp, Class)) {
-            decorateFirst(first, section);
-            if (v3Global.opt.coverage()) {
+        ఒకవేళ (!VN_IS(modp, Class)) {
+            decorate_మొదటి(మొదటి, section);
+            ఒకవేళ (v3Global.opt.coverage()) {
                 puts("void " + protect("__Vconfigure") + "(bool first);\n");
             }
-        } else {
-            decorateFirst(first, section);
-            const std::string name = V3OutFormatter::quoteNameControls(
-                VIdProtect::protectWordsIf(modp->prettyName(), v3Global.opt.protectIds()));
+        } లేకపోతే {
+            decorate_మొదటి(మొదటి, section);
+            స్థిరరాశి std::string name = V3_బహిర్గతం_Formatter::quoteNameControls(
+                VIdProtect::protect_పదాలు_If(modp->prettyName(), v3Global.opt.protectIds()));
             // "override", but don't want clang to start checking them:
             puts("virtual const char* typeName() const { return \""s + name + "\"; }\n");
         }
 
-        if (v3Global.opt.coverage() && !VN_IS(modp, Class)) {
-            decorateFirst(first, section);
+        ఒకవేళ (v3Global.opt.coverage() && !VN_IS(modp, Class)) {
+            decorate_మొదటి(మొదటి, section);
             puts("void __vlCoverInsert(");
-            puts(v3Global.opt.threads() > 1 ? "std::atomic<uint32_t>" : "uint32_t");
+            puts(v3Global.opt.దారాలు() > 1 ? "std::atomic<uint32_t>" : "uint32_t");
             puts("* countp, bool enable, bool localCounter, const char* filenamep, int lineno, "
                  "int column,\n");
             puts("const char* hierp, const char* pagep, const char* commentp, const char* "
@@ -254,163 +254,163 @@ class EmitCHeader final : public EmitCBaseVisitorConst {
                  "fsmTagp);\n");
         }
 
-        if (v3Global.opt.coverageToggle() && !VN_IS(modp, Class)) {
-            decorateFirst(first, section);
+        ఒకవేళ (v3Global.opt.coverageToggle() && !VN_IS(modp, Class)) {
+            decorate_మొదటి(మొదటి, section);
             puts("void __vlCoverToggleInsert(int begin, int end, bool ranged, ");
-            puts(v3Global.opt.threads() > 1 ? "std::atomic<uint32_t>" : "uint32_t");
+            puts(v3Global.opt.దారాలు() > 1 ? "std::atomic<uint32_t>" : "uint32_t");
             puts("* countp, bool enable, bool localCounter, const char* filenamep, int lineno, "
                  "int column,\n");
             puts("const char* hierp, const char* pagep, const char* commentp);\n");
         }
 
-        if (v3Global.opt.savable()) {
-            decorateFirst(first, section);
+        ఒకవేళ (v3Global.opt.savable()) {
+            decorate_మొదటి(మొదటి, section);
             puts("void " + protect("__Vserialize") + "(VerilatedSerialize& os);\n");
             puts("void " + protect("__Vdeserialize") + "(VerilatedDeserialize& os);\n");
         }
 
         // Polymorphic clone for concrete (non-abstract, non-interface) classes
-        if (const AstClass* const classp = VN_CAST(modp, Class)) {
-            if (!classp->isInterfaceClass() && !classp->isVirtual()) {
-                decorateFirst(first, section);
-                using EmbeddedCovergroupVar = std::pair<const AstClass*, const AstVar*>;
-                std::vector<EmbeddedCovergroupVar> embeddedCovergroupVars;
-                const auto hasEnclosingBackPointer = [](const AstClass* covergroupp) {
-                    return covergroupp->exists([](const AstVar* const varp) {
-                        const AstClassRefDType* const refp
+        ఒకవేళ (స్థిరరాశి AstClass* స్థిరరాశి classp = VN_CAST(modp, Class)) {
+            ఒకవేళ (!classp->isInterfaceClass() && !classp->isVirtual()) {
+                decorate_మొదటి(మొదటి, section);
+                ఉపయోగించి EmbeddedCovergroupVar = std::pair<స్థిరరాశి AstClass*, స్థిరరాశి AstVar*>;
+                std::సదిశ<EmbeddedCovergroupVar> embeddedCovergroupVars;
+                స్థిరరాశి స్వయంచాలక has_Enclosing_వెనుక_సూచిక = [](స్థిరరాశి AstClass* covergroupp) {
+                    తిరిగి covergroupp->exists([](స్థిరరాశి AstVar* స్థిరరాశి varp) {
+                        స్థిరరాశి AstClassRefDType* స్థిరరాశి refp
                             = VN_CAST(varp->dtypep()->skipRefp(), ClassRefDType);
-                        return refp && refp->rawPointer();
+                        తిరిగి refp && refp->raw_సూచిక();
                     });
                 };
                 const_cast<AstClass*>(classp)->foreachMember(
-                    [&](AstClass* const memberClassp, AstVar* const varp) {
-                        const AstClassRefDType* const refp
+                    [&](AstClass* స్థిరరాశి memberClassp, AstVar* స్థిరరాశి varp) {
+                        స్థిరరాశి AstClassRefDType* స్థిరరాశి refp
                             = VN_CAST(varp->dtypep()->skipRefp(), ClassRefDType);
-                        if (refp && refp->classp()->isCovergroup()
-                            && hasEnclosingBackPointer(refp->classp())) {
-                            embeddedCovergroupVars.emplace_back(memberClassp, varp);
+                        ఒకవేళ (refp && refp->classp()->isCovergroup()
+                            && has_Enclosing_వెనుక_సూచిక(refp->classp())) {
+                            embeddedCovergroupVars.emplace_వెనుక(memberClassp, varp);
                         }
                     });
-                const string className = EmitCUtil::prefixNameProtect(classp);
-                if (embeddedCovergroupVars.empty() && !classp->hasRandVarsUpdate()) {
+                స్థిరరాశి string className = EmitCUtil::ఉపసర్గ_Name_Protect(classp);
+                ఒకవేళ (embeddedCovergroupVars.ఖాళీలు() && !classp->hasRandVarsUpdate()) {
                     putns(classp,
                           "VlClass* clone() const { return new " + className + "(*this); }\n");
-                } else {
+                } లేకపోతే {
                     putns(classp, "VlClass* clone() const { " + className + "* const clonep = new "
                                       + className + "(*this); ");
-                    if (classp->hasRandVarsUpdate()) {
-                        const string updateName = "__VnoInFunc___VupdateRandVars";
-                        AstCFunc* const updatep
-                            = VN_AS(m_memberMap.findMember(classp, updateName), CFunc);
+                    ఒకవేళ (classp->hasRandVarsUpdate()) {
+                        స్థిరరాశి string updateName = "__VnoInFunc___VupdateRandVars";
+                        AstCFunc* స్థిరరాశి updatep
+                            = VN_AS(m_memberMap.కనుగొను_Member(classp, updateName), CFunc);
                         UASSERT_OBJ(updatep, classp, "Missing updateRandVars method");
                         puts("clonep->" + updatep->nameProtect() + "();\n");
                     }
-                    for (const EmbeddedCovergroupVar& item : embeddedCovergroupVars) {
-                        puts("clonep->" + EmitCUtil::prefixNameProtect(item.first)
-                             + "::" + item.second->nameProtect() + " = VlNull{}; ");
+                    కొరకు (స్థిరరాశి EmbeddedCovergroupVar& అంశం_2 : embeddedCovergroupVars) {
+                        puts("clonep->" + EmitCUtil::ఉపసర్గ_Name_Protect(అంశం_2.మొదటి)
+                             + "::" + అంశం_2.రెండవ->nameProtect() + " = VlNull{}; ");
                     }
                     puts("return clonep; }\n");
                 }
             }
         }
     }
-    void emitEnums(const AstNodeModule* modp) {
-        bool first = true;
-        for (const AstNode* nodep = modp->stmtsp(); nodep; nodep = nodep->nextp()) {
-            const AstTypedef* const tdefp = VN_CAST(nodep, Typedef);
-            if (!tdefp) continue;
-            if (!tdefp->attrPublic()) continue;
-            const AstEnumDType* const edtypep
-                = VN_CAST(tdefp->dtypep()->skipRefToEnump(), EnumDType);
-            if (!edtypep) continue;
-            decorateFirst(first, "\n// ENUMS (that were declared public)\n");
-            if (edtypep->width() > 64) {
+    శూన్య emitEnums(స్థిరరాశి Ast_కణుపు_Module* modp) {
+        తార్కిక మొదటి = నిజం;
+        కొరకు (స్థిరరాశి Ast_కణుపు* nodep = modp->stmtsp(); nodep; nodep = nodep->nextp()) {
+            స్థిరరాశి AstTypedef* స్థిరరాశి tdefp = VN_CAST(nodep, Typedef);
+            ఒకవేళ (!tdefp) కొనసాగు;
+            ఒకవేళ (!tdefp->attr_ప్రజా()) కొనసాగు;
+            స్థిరరాశి AstEnumDType* స్థిరరాశి edtypep
+                = VN_CAST(tdefp->dtypep()->skip_Ref_గమ్యం_Enump(), EnumDType);
+            ఒకవేళ (!edtypep) కొనసాగు;
+            decorate_మొదటి(మొదటి, "\n// ENUMS (that were declared public)\n");
+            ఒకవేళ (edtypep->వెడల్పు() > 64) {
                 putsDecoration(tdefp,
                                "// enum " + tdefp->nameProtect() + " ignored: Too wide for C++\n");
-            } else {
+            } లేకపోతే {
                 putns(tdefp, "enum " + tdefp->name() + " {\n");
-                for (const AstEnumItem* itemp = edtypep->itemsp(); itemp;
-                     itemp = VN_AS(itemp->nextp(), EnumItem)) {
-                    if (const AstConst* const constp = VN_CAST(itemp->valuep(), Const)) {
-                        if (constp->num().isFourState()) {
+                కొరకు (స్థిరరాశి Ast_Enum_అంశం* itemp = edtypep->itemsp(); itemp;
+                     itemp = VN_AS(itemp->nextp(), Enum_అంశం)) {
+                    ఒకవేళ (స్థిరరాశి AstConst* స్థిరరాశి constp = VN_CAST(itemp->valuep(), Const)) {
+                        ఒకవేళ (constp->అంకె().isFourState()) {
                             putns(itemp, "// " + itemp->nameProtect() + " is four-state\n");
-                            continue;
+                            కొనసాగు;
                         }
                     }
                     putns(itemp, itemp->nameProtect());
                     puts(" = ");
-                    putns(itemp, VN_AS(itemp->valuep(), Const)->num().emitC());
-                    if (VN_IS(itemp->nextp(), EnumItem)) puts(",");
+                    putns(itemp, VN_AS(itemp->valuep(), Const)->అంకె().emitC());
+                    ఒకవేళ (VN_IS(itemp->nextp(), Enum_అంశం)) puts(",");
                     puts("\n");
                 }
                 puts("};\n");
             }
         }
     }
-    void emitStructDecl(const AstNodeModule* modp, AstNodeUOrStructDType* sdtypep,
-                        std::set<AstNodeUOrStructDType*>& emitted) {
-        if (emitted.count(sdtypep) > 0) return;
-        emitted.insert(sdtypep);
-        for (AstMemberDType* itemp = sdtypep->membersp(); itemp;
+    శూన్య emitStructDecl(స్థిరరాశి Ast_కణుపు_Module* modp, Ast_కణుపు_UOr_Struct_DType* sdtypep,
+                        std::సమితి<Ast_కణుపు_UOr_Struct_DType*>& emitted) {
+        ఒకవేళ (emitted.లెక్క(sdtypep) > 0) తిరిగి;
+        emitted.చొప్పించు(sdtypep);
+        కొరకు (AstMemberDType* itemp = sdtypep->membersp(); itemp;
              itemp = VN_AS(itemp->nextp(), MemberDType)) {
-            AstNodeUOrStructDType* const subp = itemp->getChildStructp();
-            if (subp && (!subp->packed() || sdtypep->packed())) {
+            Ast_కణుపు_UOr_Struct_DType* స్థిరరాశి subp = itemp->get_బిడ్డ_Structp();
+            ఒకవేళ (subp && (!subp->packed() || sdtypep->packed())) {
                 // Recurse if it belongs to the current module
-                if (subp->classOrPackagep() == modp) {
+                ఒకవేళ (subp->classOrPackagep() == modp) {
                     emitStructDecl(modp, subp, emitted);
                     puts("\n");
                 }
             }
         }
-        if (sdtypep->packed()) {
+        ఒకవేళ (sdtypep->packed()) {
             emitPackedUOrSBody(sdtypep);
-        } else {
+        } లేకపోతే {
             emitUnpackedUOrSBody(sdtypep);
         }
     }
-    enum class AttributeType : uint8_t { WIDTH, DIMENSION };
+    గణన తరగతి AttributeType : uint8_t { వెడల్పు_2, DIMENSION };
     // Get member attribute based on type
-    int getNodeAttribute(const AstMemberDType* itemp, AttributeType type) {
-        const bool isArrayType = itemp->dtypep()->isNonPackedArray();
-        switch (type) {
-        case AttributeType::WIDTH: {
-            if (isArrayType) {
+    పూర్ణాంకం get_కణుపు_Attribute(స్థిరరాశి AstMemberDType* itemp, AttributeType type) {
+        స్థిరరాశి తార్కిక isArrayType = itemp->dtypep()->isNonPackedArray();
+        ఎంపిక (type) {
+        స్థితి AttributeType::వెడల్పు_2: {
+            ఒకవేళ (isArrayType) {
                 // For arrays, get innermost element width
-                const AstNodeDType* dtype = itemp->dtypep();
-                while (dtype->subDTypep()) dtype = dtype->subDTypep();
-                return dtype->width();
+                స్థిరరాశి Ast_కణుపు_DType* dtype = itemp->dtypep();
+                అయితే (dtype->subDTypep()) dtype = dtype->subDTypep();
+                తిరిగి dtype->వెడల్పు();
             }
-            return itemp->width();
+            తిరిగి itemp->వెడల్పు();
         }
-        case AttributeType::DIMENSION: {
+        స్థితి AttributeType::DIMENSION: {
             // Return array dimension or 0 for non-arrays
-            return isArrayType ? itemp->dtypep()->dimensions(true).second : 0;
+            తిరిగి isArrayType ? itemp->dtypep()->dimensions(నిజం).రెండవ : 0;
         }
-        default: {
-            return 0;
+        అప్రమేయ: {
+            తిరిగి 0;
         }
         }
     }
-    template <AttributeType T>
-    void emitMemberVector(const AstNodeUOrStructDType* sdtypep) {
+    మూస <AttributeType T>
+    శూన్య emit_Member_సదిశ(స్థిరరాశి Ast_కణుపు_UOr_Struct_DType* sdtypep) {
         puts("return {");
-        bool needComma = false;
-        for (const AstMemberDType* itemp = sdtypep->membersp(); itemp;
+        తార్కిక needComma = అబద్ధం;
+        కొరకు (స్థిరరాశి AstMemberDType* itemp = sdtypep->membersp(); itemp;
              itemp = VN_AS(itemp->nextp(), MemberDType)) {
-            if (!itemp->isConstrainedRand()) continue;
+            ఒకవేళ (!itemp->isConstrainedRand()) కొనసాగు;
             // Comma handling: add before element except first
-            if (needComma) puts(",\n");
-            putns(itemp, std::to_string(getNodeAttribute(itemp, T)));
-            needComma = true;
+            ఒకవేళ (needComma) puts(",\n");
+            putns(itemp, std::గమ్యం_string(get_కణుపు_Attribute(itemp, T)));
+            needComma = నిజం;
         }
         puts("};\n}\n");
     }
-    void emitUnpackedUOrSBody(AstNodeUOrStructDType* sdtypep) {
+    శూన్య emitUnpackedUOrSBody(Ast_కణుపు_UOr_Struct_DType* sdtypep) {
         putns(sdtypep, sdtypep->verilogKwd());  // "struct"/"union"
-        puts(" " + EmitCUtil::prefixNameProtect(sdtypep) + " {\n");
-        for (const AstMemberDType* itemp = sdtypep->membersp(); itemp;
+        puts(" " + EmitCUtil::ఉపసర్గ_Name_Protect(sdtypep) + " {\n");
+        కొరకు (స్థిరరాశి AstMemberDType* itemp = sdtypep->membersp(); itemp;
              itemp = VN_AS(itemp->nextp(), MemberDType)) {
-            putns(itemp, itemp->dtypep()->cType(itemp->nameProtect(), false, false));
+            putns(itemp, itemp->dtypep()->cType(itemp->nameProtect(), అబద్ధం, అబద్ధం));
             puts(";\n");
         }
 
@@ -420,66 +420,66 @@ class EmitCHeader final : public EmitCBaseVisitorConst {
         // - memberIndices: Retrieve member indices
         // - memberWidth: Retrieve member width
         // - memberDimension: Retrieve member dimension
-        if (sdtypep->isConstrainedRand()) {
-            bool needComma = false;
+        ఒకవేళ (sdtypep->isConstrainedRand()) {
+            తార్కిక needComma = అబద్ధం;
             putns(sdtypep, "\nstd::vector<std::string> memberNames(void) const {\n");
             puts("return {");
-            for (const AstMemberDType* itemp = sdtypep->membersp(); itemp;
+            కొరకు (స్థిరరాశి AstMemberDType* itemp = sdtypep->membersp(); itemp;
                  itemp = VN_AS(itemp->nextp(), MemberDType)) {
-                if (!itemp->isConstrainedRand()) continue;
-                if (needComma) puts(",\n");
+                ఒకవేళ (!itemp->isConstrainedRand()) కొనసాగు;
+                ఒకవేళ (needComma) puts(",\n");
                 putns(itemp, "\"" + itemp->shortName() + "\"");
-                needComma = true;
+                needComma = నిజం;
             }
             puts("};\n}\n");
 
             putns(sdtypep, "\nstd::vector<int> memberWidth(void) const {\n");
-            emitMemberVector<AttributeType::WIDTH>(sdtypep);
+            emit_Member_సదిశ<AttributeType::వెడల్పు_2>(sdtypep);
 
             putns(sdtypep, "\nstd::vector<int> memberDimension(void) const {\n");
-            emitMemberVector<AttributeType::DIMENSION>(sdtypep);
+            emit_Member_సదిశ<AttributeType::DIMENSION>(sdtypep);
 
-            needComma = false;
+            needComma = అబద్ధం;
             putns(sdtypep, "\nauto memberIndices(void) const {\n");
             puts("return std::index_sequence_for<");
-            for (const AstMemberDType* itemp = sdtypep->membersp(); itemp;
+            కొరకు (స్థిరరాశి AstMemberDType* itemp = sdtypep->membersp(); itemp;
                  itemp = VN_AS(itemp->nextp(), MemberDType)) {
-                if (!itemp->isConstrainedRand()) continue;
-                if (needComma) puts(",\n");
-                putns(itemp, itemp->dtypep()->cType("", false, false));
-                needComma = true;
+                ఒకవేళ (!itemp->isConstrainedRand()) కొనసాగు;
+                ఒకవేళ (needComma) puts(",\n");
+                putns(itemp, itemp->dtypep()->cType("", అబద్ధం, అబద్ధం));
+                needComma = నిజం;
             }
             puts(">{};\n}\n");
 
-            needComma = false;
+            needComma = అబద్ధం;
             putns(sdtypep, "\ntemplate <typename T>");
             putns(sdtypep, "\nauto getMembers(T& obj) {\n");
             puts("return std::tie(");
-            for (const AstMemberDType* itemp = sdtypep->membersp(); itemp;
+            కొరకు (స్థిరరాశి AstMemberDType* itemp = sdtypep->membersp(); itemp;
                  itemp = VN_AS(itemp->nextp(), MemberDType)) {
-                if (!itemp->isConstrainedRand()) continue;
-                if (needComma) puts(",\n");
+                ఒకవేళ (!itemp->isConstrainedRand()) కొనసాగు;
+                ఒకవేళ (needComma) puts(",\n");
                 putns(itemp, "obj." + itemp->nameProtect());
-                needComma = true;
+                needComma = నిజం;
             }
             puts(");\n}\n");
         }
-        putns(sdtypep, "\nbool operator==(const " + EmitCUtil::prefixNameProtect(sdtypep)
+        putns(sdtypep, "\nbool operator==(const " + EmitCUtil::ఉపసర్గ_Name_Protect(sdtypep)
                            + "& rhs) const {\n");
         puts("return ");
-        for (const AstMemberDType* itemp = sdtypep->membersp(); itemp;
+        కొరకు (స్థిరరాశి AstMemberDType* itemp = sdtypep->membersp(); itemp;
              itemp = VN_AS(itemp->nextp(), MemberDType)) {
-            if (itemp != sdtypep->membersp()) puts("\n    && ");
+            ఒకవేళ (itemp != sdtypep->membersp()) puts("\n    && ");
             putns(itemp, itemp->nameProtect() + " == " + "rhs." + itemp->nameProtect());
         }
         puts(";\n");
         puts("}\n");
-        putns(sdtypep, "bool operator!=(const " + EmitCUtil::prefixNameProtect(sdtypep)
+        putns(sdtypep, "bool operator!=(const " + EmitCUtil::ఉపసర్గ_Name_Protect(sdtypep)
                            + "& rhs) const {\n");
         puts("return !(*this == rhs);\n}\n");
-        putns(sdtypep, "\nbool operator<(const " + EmitCUtil::prefixNameProtect(sdtypep)
+        putns(sdtypep, "\nbool operator<(const " + EmitCUtil::ఉపసర్గ_Name_Protect(sdtypep)
                            + "& rhs) const {\n");
-        for (const AstMemberDType* itemp = sdtypep->membersp(); itemp;
+        కొరకు (స్థిరరాశి AstMemberDType* itemp = sdtypep->membersp(); itemp;
              itemp = VN_AS(itemp->nextp(), MemberDType)) {
             putns(itemp, "if (" + itemp->nameProtect() + " < rhs." + itemp->nameProtect()
                              + ") return true;\n");
@@ -490,183 +490,183 @@ class EmitCHeader final : public EmitCBaseVisitorConst {
         puts("}\n");
         puts("};\n");
         puts("template <>\n");
-        putns(sdtypep, "struct VlIsCustomStruct<" + EmitCUtil::prefixNameProtect(sdtypep)
+        putns(sdtypep, "struct VlIsCustomStruct<" + EmitCUtil::ఉపసర్గ_Name_Protect(sdtypep)
                            + "> : public std::true_type {};\n");
     }
 
     // getfunc: VL_ASSIGNSEL_XX(rbits, obits, off, lhsdata, rhsdata);
     // !getfunc: VL_SELASSIGN_XX(rbits, obits, lhsdata, rhsdata, off);
-    void emitVlAssign(const AstNodeDType* const lhstype, const AstNodeDType* rhstype,
-                      const std::string& off, const std::string& lhsdata,
-                      const std::string& rhsdata, bool getfunc) {
+    శూన్య emit_Vl_కేటాయించు(స్థిరరాశి Ast_కణుపు_DType* స్థిరరాశి lhstype, స్థిరరాశి Ast_కణుపు_DType* rhstype,
+                      స్థిరరాశి std::string& off, స్థిరరాశి std::string& lhsdata,
+                      స్థిరరాశి std::string& rhsdata, తార్కిక getfunc) {
         puts(getfunc ? "VL_ASSIGNSEL_" : "VL_SELASSIGN_");
         puts(lhstype->charIQWN());
         puts(rhstype->charIQWN());
-        puts("(" + std::to_string(lhstype->width()) + ", ");  // LHS width
-        if (getfunc) {
-            puts(std::to_string(rhstype->width()) + ", ");  // Number of copy bits
+        puts("(" + std::గమ్యం_string(lhstype->వెడల్పు()) + ", ");  // LHS width
+        ఒకవేళ (getfunc) {
+            puts(std::గమ్యం_string(rhstype->వెడల్పు()) + ", ");  // Number of copy bits
             puts(off + ", ");  // LHS offset
-        } else {
+        } లేకపోతే {
             // Number of copy bits. Use widthTototalBytes to
             // make VL_SELASSIGN_XX clear upper unused bits for us.
             // puts(std::to_string(lhstype->width()) + ", ");
-            puts(std::to_string(lhstype->widthTotalBytes() * 8) + ", ");
+            puts(std::గమ్యం_string(lhstype->వెడల్పు_మొత్తం_బైట్లు() * 8) + ", ");
         }
         puts(lhsdata + ", ");  // LHS data
         puts(rhsdata);  // RHS data
-        if (!getfunc) {
+        ఒకవేళ (!getfunc) {
             puts(", " + off);  // RHS offset
         }
         puts(");\n");
     }
 
     // `retOrArg` should be prefixed by `&` or suffixed by `.data()` depending on its type
-    void emitPackedMember(const AstNodeDType* parentDtypep, const AstNodeDType* dtypep,
-                          const std::string& fieldname, const std::string& offset, bool getfunc,
-                          const std::string& retOrArg) {
+    శూన్య emitPackedMember(స్థిరరాశి Ast_కణుపు_DType* మాతృ_Dtypep, స్థిరరాశి Ast_కణుపు_DType* dtypep,
+                          స్థిరరాశి std::string& fieldname, స్థిరరాశి std::string& స్థానభ్రంశం, తార్కిక getfunc,
+                          స్థిరరాశి std::string& retOrArg) {
         dtypep = dtypep->skipRefp();
-        if (const auto* adtypep = VN_CAST(dtypep, PackArrayDType)) {
-            const std::string index = m_names.get("__Vi");
-            puts("for (int " + index + " = 0; " + index + " < "
-                 + std::to_string(adtypep->elementsConst()) + "; ++" + index + ") {\n");
+        ఒకవేళ (స్థిరరాశి స్వయంచాలక* adtypep = VN_CAST(dtypep, PackArrayDType)) {
+            స్థిరరాశి std::string సూచీ = m_పేర్లు.get("__Vi");
+            puts("for (int " + సూచీ + " = 0; " + సూచీ + " < "
+                 + std::గమ్యం_string(adtypep->elementsConst()) + "; ++" + సూచీ + ") {\n");
 
-            const std::string offsetInLoop
-                = offset + " + " + index + " * " + std::to_string(adtypep->subDTypep()->width());
-            const std::string newName = fieldname + "[" + index + "]";
-            emitPackedMember(parentDtypep, adtypep->subDTypep(), newName, offsetInLoop, getfunc,
+            స్థిరరాశి std::string స్థానభ్రంశం_లోపల_Loop
+                = స్థానభ్రంశం + " + " + సూచీ + " * " + std::గమ్యం_string(adtypep->subDTypep()->వెడల్పు());
+            స్థిరరాశి std::string newName = fieldname + "[" + సూచీ + "]";
+            emitPackedMember(మాతృ_Dtypep, adtypep->subDTypep(), newName, స్థానభ్రంశం_లోపల_Loop, getfunc,
                              retOrArg);
             puts("}\n");
-        } else if (VN_IS(dtypep, NodeUOrStructDType)) {
-            const std::string tmp = m_names.get("__Vtmp");
-            if (getfunc) {  // Emit `get` func;
+        } లేకపోతే ఒకవేళ (VN_IS(dtypep, కణుపు_UOr_Struct_DType)) {
+            స్థిరరాశి std::string tmp = m_పేర్లు.get("__Vtmp");
+            ఒకవేళ (getfunc) {  // Emit `get` func;
                 // auto __tmp = field.get();
                 puts("auto " + tmp + " = " + fieldname + ".get();\n");
                 // VL_ASSIGNSEL_XX(rbits, obits, lsb, lhsdata, rhsdata);
-                emitVlAssign(parentDtypep, dtypep, offset, retOrArg, tmp, getfunc);
-            } else {  // Emit `set` func
-                const std::string tmptype = AstCDType::typeToHold(dtypep->width());
+                emit_Vl_కేటాయించు(మాతృ_Dtypep, dtypep, స్థానభ్రంశం, retOrArg, tmp, getfunc);
+            } లేకపోతే {  // Emit `set` func
+                స్థిరరాశి std::string tmptype = AstCDType::type_గమ్యం_Hold(dtypep->వెడల్పు());
                 // type tmp;
                 puts(tmptype + " " + tmp + ";\n");
                 // VL_SELASSIGN_XX(rbits, obits, lhsdata, rhsdata, roffset);
-                emitVlAssign(dtypep, parentDtypep, offset, tmp, retOrArg, getfunc);
+                emit_Vl_కేటాయించు(dtypep, మాతృ_Dtypep, స్థానభ్రంశం, tmp, retOrArg, getfunc);
                 // field.set(__tmp);
                 puts(fieldname + ".set(" + tmp + ");\n");
             }
-        } else {
+        } లేకపోతే {
             UASSERT_OBJ(VN_IS(dtypep, EnumDType) || VN_IS(dtypep, BasicDType), dtypep,
                         "Unsupported type in packed struct or union");
-            if (getfunc) {  // Emit `get` func;
+            ఒకవేళ (getfunc) {  // Emit `get` func;
                 // VL_ASSIGNSEL_XX(rbits, obits, lsb, lhsdata, rhsdata);
-                emitVlAssign(parentDtypep, dtypep, offset, retOrArg, fieldname, getfunc);
-            } else {  // Emit `set` func
+                emit_Vl_కేటాయించు(మాతృ_Dtypep, dtypep, స్థానభ్రంశం, retOrArg, fieldname, getfunc);
+            } లేకపోతే {  // Emit `set` func
                 // VL_SELASSIGN_XX(rbits, obits, lhsdata, rhsdata, roffset);
-                emitVlAssign(dtypep, parentDtypep, offset, fieldname, retOrArg, getfunc);
+                emit_Vl_కేటాయించు(dtypep, మాతృ_Dtypep, స్థానభ్రంశం, fieldname, retOrArg, getfunc);
             }
         }
     }
-    void emitPackedUOrSBody(AstNodeUOrStructDType* sdtypep) {
+    శూన్య emitPackedUOrSBody(Ast_కణుపు_UOr_Struct_DType* sdtypep) {
         putns(sdtypep, sdtypep->verilogKwd());  // "struct"/"union"
-        puts(" " + EmitCUtil::prefixNameProtect(sdtypep) + " {\n");
+        puts(" " + EmitCUtil::ఉపసర్గ_Name_Protect(sdtypep) + " {\n");
 
         AstMemberDType* itemp;
-        AstMemberDType* lastItemp;
-        const AstMemberDType* witemp = nullptr;
+        AstMemberDType* చివరి_Itemp;
+        స్థిరరాశి AstMemberDType* witemp = శూన్యసూచిక;
         // LSB is first field in C, so loop backwards
-        for (lastItemp = sdtypep->membersp(); lastItemp && lastItemp->nextp();
-             lastItemp = VN_AS(lastItemp->nextp(), MemberDType)) {
-            if (lastItemp->width() == sdtypep->width()) witemp = lastItemp;
+        కొరకు (చివరి_Itemp = sdtypep->membersp(); చివరి_Itemp && చివరి_Itemp->nextp();
+             చివరి_Itemp = VN_AS(చివరి_Itemp->nextp(), MemberDType)) {
+            ఒకవేళ (చివరి_Itemp->వెడల్పు() == sdtypep->వెడల్పు()) witemp = చివరి_Itemp;
         }
-        for (itemp = lastItemp; itemp; itemp = VN_CAST(itemp->backp(), MemberDType)) {
-            putns(itemp, itemp->dtypep()->cType(itemp->nameProtect(), false, false, true));
+        కొరకు (itemp = చివరి_Itemp; itemp; itemp = VN_CAST(itemp->backp(), MemberDType)) {
+            putns(itemp, itemp->dtypep()->cType(itemp->nameProtect(), అబద్ధం, అబద్ధం, నిజం));
             puts(";\n");
         }
 
-        const std::string retArgName = m_names.get("__v");
-        const std::string retArgType = AstCDType::typeToHold(sdtypep->width());
+        స్థిరరాశి std::string retArgName = m_పేర్లు.get("__v");
+        స్థిరరాశి std::string retArgType = AstCDType::type_గమ్యం_Hold(sdtypep->వెడల్పు());
 
         // Emit `get` member function
         puts(retArgType + " get() const {\n");
         puts(retArgType + " " + retArgName + ";\n");
-        if (VN_IS(sdtypep, StructDType)) {
-            for (itemp = lastItemp; itemp; itemp = VN_CAST(itemp->backp(), MemberDType)) {
+        ఒకవేళ (VN_IS(sdtypep, StructDType)) {
+            కొరకు (itemp = చివరి_Itemp; itemp; itemp = VN_CAST(itemp->backp(), MemberDType)) {
                 emitPackedMember(sdtypep, itemp->dtypep(), itemp->nameProtect(),
-                                 std::to_string(itemp->lsb()), /*getfunc=*/true, retArgName);
+                                 std::గమ్యం_string(itemp->lsb()), /*getfunc=*/నిజం, retArgName);
             }
-        } else {
+        } లేకపోతే {
             // We only need to fill the widest field of union
             emitPackedMember(sdtypep, witemp->dtypep(), witemp->nameProtect(),
-                             std::to_string(witemp->lsb()), /*getfunc=*/true, retArgName);
+                             std::గమ్యం_string(witemp->lsb()), /*getfunc=*/నిజం, retArgName);
         }
         puts("return " + retArgName + ";\n");
         puts("}\n");
 
         // Emit `set` member function
         puts("void set(const " + retArgType + "& " + retArgName + ") {\n");
-        if (VN_IS(sdtypep, StructDType)) {
-            for (itemp = lastItemp; itemp; itemp = VN_CAST(itemp->backp(), MemberDType)) {
+        ఒకవేళ (VN_IS(sdtypep, StructDType)) {
+            కొరకు (itemp = చివరి_Itemp; itemp; itemp = VN_CAST(itemp->backp(), MemberDType)) {
                 emitPackedMember(sdtypep, itemp->dtypep(), itemp->nameProtect(),
-                                 std::to_string(itemp->lsb()), /*getfunc=*/false, retArgName);
+                                 std::గమ్యం_string(itemp->lsb()), /*getfunc=*/అబద్ధం, retArgName);
             }
-        } else {
+        } లేకపోతే {
             // We only need to fill the widest field of union
             emitPackedMember(sdtypep, witemp->dtypep(), witemp->nameProtect(),
-                             std::to_string(witemp->lsb()), /*getfunc=*/false, retArgName);
+                             std::గమ్యం_string(witemp->lsb()), /*getfunc=*/అబద్ధం, retArgName);
         }
 
         puts("}\n");
 
         puts("};\n");
-        m_names.reset();
+        m_పేర్లు.reset();
     }
-    void emitStructs(const AstNodeModule* modp) {
+    శూన్య emitStructs(స్థిరరాశి Ast_కణుపు_Module* modp) {
         // Track structs that've been emitted already
-        std::set<AstNodeUOrStructDType*> emitted;
-        for (const AstNode* nodep = modp->stmtsp(); nodep; nodep = nodep->nextp()) {
-            const AstTypedef* const tdefp = VN_CAST(nodep, Typedef);
-            if (!tdefp) continue;
-            AstNodeUOrStructDType* const sdtypep
-                = VN_CAST(tdefp->dtypep()->skipRefToEnump(), NodeUOrStructDType);
-            if (!sdtypep) continue;
+        std::సమితి<Ast_కణుపు_UOr_Struct_DType*> emitted;
+        కొరకు (స్థిరరాశి Ast_కణుపు* nodep = modp->stmtsp(); nodep; nodep = nodep->nextp()) {
+            స్థిరరాశి AstTypedef* స్థిరరాశి tdefp = VN_CAST(nodep, Typedef);
+            ఒకవేళ (!tdefp) కొనసాగు;
+            Ast_కణుపు_UOr_Struct_DType* స్థిరరాశి sdtypep
+                = VN_CAST(tdefp->dtypep()->skip_Ref_గమ్యం_Enump(), కణుపు_UOr_Struct_DType);
+            ఒకవేళ (!sdtypep) కొనసాగు;
             // V3Inline can copy one module into several parents. Only the module that
             // declares the struct emits it, so C++ sees only one definition.
-            const bool declaredInOtherModule = sdtypep->classOrPackagep() != modp;
-            if (declaredInOtherModule) continue;
+            స్థిరరాశి తార్కిక declared_లోపల_Other_Module = sdtypep->classOrPackagep() != modp;
+            ఒకవేళ (declared_లోపల_Other_Module) కొనసాగు;
             emitStructDecl(modp, sdtypep, emitted);
         }
     }
-    void emitFuncDecls(const AstNodeModule* modp, bool inClassBody) {
-        std::vector<const AstCFunc*> funcsp;
+    శూన్య emitFuncDecls(స్థిరరాశి Ast_కణుపు_Module* modp, తార్కిక లోపల_Class_Body) {
+        std::సదిశ<స్థిరరాశి AstCFunc*> funcsp;
 
-        for (const AstNode* nodep = modp->stmtsp(); nodep; nodep = nodep->nextp()) {
-            if (const AstCFunc* const funcp = VN_CAST(nodep, CFunc)) {
-                if (funcp->dpiImportPrototype())  // Declared in __Dpi.h
-                    continue;
-                if (funcp->dpiExportDispatcher())  // Declared in __Dpi.h
-                    continue;
-                if (funcp->isMethod() != inClassBody)  // Only methods go inside class
-                    continue;
-                if (funcp->isMethod() && funcp->isLoose())  // Loose methods are declared lazily
-                    continue;
-                funcsp.push_back(funcp);
+        కొరకు (స్థిరరాశి Ast_కణుపు* nodep = modp->stmtsp(); nodep; nodep = nodep->nextp()) {
+            ఒకవేళ (స్థిరరాశి AstCFunc* స్థిరరాశి funcp = VN_CAST(nodep, CFunc)) {
+                ఒకవేళ (funcp->dpiImportPrototype())  // Declared in __Dpi.h
+                    కొనసాగు;
+                ఒకవేళ (funcp->dpiExportDispatcher())  // Declared in __Dpi.h
+                    కొనసాగు;
+                ఒకవేళ (funcp->is_పద్ధతి() != లోపల_Class_Body)  // Only methods go inside class
+                    కొనసాగు;
+                ఒకవేళ (funcp->is_పద్ధతి() && funcp->isLoose())  // Loose methods are declared lazily
+                    కొనసాగు;
+                funcsp.నెట్టు_వెనుక(funcp);
             }
         }
 
-        std::stable_sort(funcsp.begin(), funcsp.end(), [](const AstNode* ap, const AstNode* bp) {
-            return ap->name() < bp->name();
+        std::stable_క్రమీకరించు(funcsp.begin(), funcsp.చివర(), [](స్థిరరాశి Ast_కణుపు* ap, స్థిరరాశి Ast_కణుపు* bp) {
+            తిరిగి ap->name() < bp->name();
         });
 
-        for (const AstCFunc* const funcp : funcsp) {
-            if (inClassBody) ofp()->putsPrivate(funcp->declPrivate());
+        కొరకు (స్థిరరాశి AstCFunc* స్థిరరాశి funcp : funcsp) {
+            ఒకవేళ (లోపల_Class_Body) ofp()->puts_వ్యక్తిగత(funcp->decl_వ్యక్తిగత());
             emitCFuncDecl(funcp, modp);
         }
     }
-    void emitAll(const AstNodeModule* modp) {
+    శూన్య emitAll(స్థిరరాశి Ast_కణుపు_Module* modp) {
         // Include files required by this AstNodeModule
-        if (const AstClass* const classp = VN_CAST(modp, Class)) {
-            for (const AstClassExtends* extp = classp->extendsp(); extp;
+        ఒకవేళ (స్థిరరాశి AstClass* స్థిరరాశి classp = VN_CAST(modp, Class)) {
+            కొరకు (స్థిరరాశి AstClassExtends* extp = classp->extendsp(); extp;
                  extp = VN_AS(extp->nextp(), ClassExtends)) {
                 putns(extp, "#include \""
-                                + EmitCUtil::prefixNameProtect(extp->classp()->classOrPackagep())
+                                + EmitCUtil::ఉపసర్గ_Name_Protect(extp->classp()->classOrPackagep())
                                 + ".h\"\n");
             }
         }
@@ -682,40 +682,40 @@ class EmitCHeader final : public EmitCBaseVisitorConst {
         // Open class body {{{
         puts("\n");
         putns(modp, "class ");
-        if (!VN_IS(modp, Class)) puts("alignas(VL_CACHE_LINE_BYTES) ");
-        puts(EmitCUtil::prefixNameProtect(modp));
-        if (const AstClass* const classp = VN_CAST(modp, Class)) {
+        ఒకవేళ (!VN_IS(modp, Class)) puts("alignas(VL_CACHE_LINE_BYTES) ");
+        puts(EmitCUtil::ఉపసర్గ_Name_Protect(modp));
+        ఒకవేళ (స్థిరరాశి AstClass* స్థిరరాశి classp = VN_CAST(modp, Class)) {
             puts(" : ");
-            if (classp->extendsp()) {
-                bool needComma = false;
-                for (const AstClassExtends* extp = classp->extendsp(); extp;
+            ఒకవేళ (classp->extendsp()) {
+                తార్కిక needComma = అబద్ధం;
+                కొరకు (స్థిరరాశి AstClassExtends* extp = classp->extendsp(); extp;
                      extp = VN_AS(extp->nextp(), ClassExtends)) {
-                    if (needComma) puts(", ");
+                    ఒకవేళ (needComma) puts(", ");
                     // Use virtual only for interfaces for class inheritance
                     // (extends)
-                    puts(extp->classp()->useVirtualPublic() ? "virtual public " : "public ");
-                    putns(extp, EmitCUtil::prefixNameProtect(extp->classp()));
-                    needComma = true;
+                    puts(extp->classp()->use_Virtual_ప్రజా() ? "virtual public " : "public ");
+                    putns(extp, EmitCUtil::ఉపసర్గ_Name_Protect(extp->classp()));
+                    needComma = నిజం;
                 }
-            } else {
+            } లేకపోతే {
                 puts("public virtual VlClass");
             }
-        } else {
+        } లేకపోతే {
             puts(" final");
         }
         puts(" {\n");
-        ofp()->resetPrivate();
-        ofp()->putsPrivate(false);  // public:
+        ofp()->reset_వ్యక్తిగత();
+        ofp()->puts_వ్యక్తిగత(అబద్ధం);  // public:
 
         // Emit all class body contents
         emitCellDecls(modp);
         emitEnums(modp);
         emitDesignVarDecls(modp);
-        emitInternalVarDecls(modp);
+        emit_అంతర్గత_Var_Decls(modp);
         emitParamDecls(modp);
         emitCtorDtorDecls(modp);
-        emitInternalMethodDecls(modp);
-        emitFuncDecls(modp, /* inClassBody: */ true);
+        emit_అంతర్గత_పద్ధతి_Decls(modp);
+        emitFuncDecls(modp, /* inClassBody: */ నిజం);
 
         // From `systemc_interface
         emitSystemCSection(modp, VSystemCSectionType::INT);
@@ -726,77 +726,77 @@ class EmitCHeader final : public EmitCBaseVisitorConst {
 
         // Emit out of class function declarations
         puts("\n");
-        emitFuncDecls(modp, /* inClassBody: */ false);
+        emitFuncDecls(modp, /* inClassBody: */ అబద్ధం);
         emitSystemCSection(modp, VSystemCSectionType::HDR_POST);
     }
 
     // VISITORS
-    void visit(AstNode* nodep) override { nodep->v3fatalSrc("Unused"); }  // LCOV_EXCL_LINE
+    శూన్య సందర్శించు(Ast_కణుపు* nodep) override { nodep->v3fatalSrc("Unused"); }  // LCOV_EXCL_LINE
 
-    explicit EmitCHeader(const AstNodeModule* modp) {
-        UINFO(5, "  Emitting header for " << EmitCUtil::prefixNameProtect(modp));
+    స్పష్టమైన EmitCHeader(స్థిరరాశి Ast_కణుపు_Module* modp) {
+        UINFO(5, "  Emitting header for " << EmitCUtil::ఉపసర్గ_Name_Protect(modp));
 
         // Open output file
-        openNewOutputHeaderFile(EmitCUtil::prefixNameProtect(modp), "Design internal header");
-        puts("// See " + EmitCUtil::topClassName() + ".h for the primary calling header\n");
+        open_New_Output_శీర్షిక_File(EmitCUtil::ఉపసర్గ_Name_Protect(modp), "Design internal header");
+        puts("// See " + EmitCUtil::శిఖరం_Class_Name() + ".h for the primary calling header\n");
 
         ofp()->putsGuard();
 
         // Include files
         puts("\n");
-        ofp()->putsIntTopInclude();
+        ofp()->puts_Int_శిఖరం_Include();
         puts("#include \"verilated.h\"\n");
-        if (modp->isTop() && optSystemC()) puts("#include \"verilated_sc.h\"\n");
-        if (v3Global.opt.mtasks()) puts("#include \"verilated_threads.h\"\n");
-        if (v3Global.opt.savable()) puts("#include \"verilated_save.h\"\n");
-        if (v3Global.opt.coverage()) puts("#include \"verilated_cov.h\"\n");
-        if (v3Global.opt.coverage() || v3Global.useCovergroup())
+        ఒకవేళ (modp->is_శిఖరం() && optSystemC()) puts("#include \"verilated_sc.h\"\n");
+        ఒకవేళ (v3Global.opt.mtasks()) puts("#include \"verilated_threads.h\"\n");
+        ఒకవేళ (v3Global.opt.savable()) puts("#include \"verilated_save.h\"\n");
+        ఒకవేళ (v3Global.opt.coverage()) puts("#include \"verilated_cov.h\"\n");
+        ఒకవేళ (v3Global.opt.coverage() || v3Global.useCovergroup())
             puts("#include \"verilated_covergroup.h\"\n");
-        if (v3Global.usesTiming()) puts("#include \"verilated_timing.h\"\n");
-        if (v3Global.useRandomizeMethods()) puts("#include \"verilated_random.h\"\n");
-        if (v3Global.usesForce()) puts("#include \"verilated_force.h\"\n");
+        ఒకవేళ (v3Global.ఉపయోగిస్తుంది_Timing()) puts("#include \"verilated_timing.h\"\n");
+        ఒకవేళ (v3Global.useRandomizeMethods()) puts("#include \"verilated_random.h\"\n");
+        ఒకవేళ (v3Global.ఉపయోగిస్తుంది_Force()) puts("#include \"verilated_force.h\"\n");
 
-        std::set<string> cuse_set;
-        auto add_to_cuse_set = [&](string s) { cuse_set.insert(s); };
+        std::సమితి<string> cuse_సమితి;
+        స్వయంచాలక కూడు_గమ్యం_cuse_సమితి = [&](string s) { cuse_సమితి.చొప్పించు(s); };
 
-        forModCUse(modp, VUseType::INT_FWD_CLASS | VUseType::INT_INCLUDE, add_to_cuse_set);
-        if (const AstClassPackage* const packagep = VN_CAST(modp, ClassPackage)) {
+        forModCUse(modp, VUseType::INT_FWD_CLASS | VUseType::INT_INCLUDE, కూడు_గమ్యం_cuse_సమితి);
+        ఒకవేళ (స్థిరరాశి AstClassPackage* స్థిరరాశి packagep = VN_CAST(modp, ClassPackage)) {
             forModCUse(packagep->classp(), VUseType::INT_INCLUDE | VUseType::INT_FWD_CLASS,
-                       add_to_cuse_set);
+                       కూడు_గమ్యం_cuse_సమితి);
         }
 
-        for (const string& s : cuse_set) puts(s);
+        కొరకు (స్థిరరాశి string& s : cuse_సమితి) puts(s);
         puts("\n");
 
         emitAll(modp);
 
-        if (const AstClassPackage* const packagep = VN_CAST(modp, ClassPackage)) {
+        ఒకవేళ (స్థిరరాశి AstClassPackage* స్థిరరాశి packagep = VN_CAST(modp, ClassPackage)) {
             // Put the non-static class implementation in same h file for speed
             emitAll(packagep->classp());
         }
 
-        ofp()->putsEndGuard();
+        ofp()->puts_చివర_Guard();
 
         // Close output file
         closeOutputFile();
     }
-    ~EmitCHeader() override = default;
+    ~EmitCHeader() override = అప్రమేయ;
 
-public:
-    static void main(const AstNodeModule* modp) { const EmitCHeader emitCHeader{modp}; }
+బహిరంగ:
+    స్థిర శూన్య ప్రధాన(స్థిరరాశి Ast_కణుపు_Module* modp) { స్థిరరాశి EmitCHeader emitCHeader{modp}; }
 };
 
 //######################################################################
 // EmitC class functions
 
-void V3EmitC::emitcHeaders() {
+శూన్య V3EmitC::emitc_శీర్షికలు() {
     UINFO(2, __FUNCTION__ << ":");
 
     // Process each module in turn
-    for (const AstNode* nodep = v3Global.rootp()->modulesp(); nodep; nodep = nodep->nextp()) {
-        if (VN_IS(nodep, Class)) continue;  // Declared with the ClassPackage
-        const AstNodeModule* const modp = VN_AS(nodep, NodeModule);
-        if (modp->isConstPool()) continue;  // Emitted by V3EmitCConstPool
-        EmitCHeader::main(modp);
+    కొరకు (స్థిరరాశి Ast_కణుపు* nodep = v3Global.rootp()->modulesp(); nodep; nodep = nodep->nextp()) {
+        ఒకవేళ (VN_IS(nodep, Class)) కొనసాగు;  // Declared with the ClassPackage
+        స్థిరరాశి Ast_కణుపు_Module* స్థిరరాశి modp = VN_AS(nodep, కణుపు_Module);
+        ఒకవేళ (modp->isConstPool()) కొనసాగు;  // Emitted by V3EmitCConstPool
+        EmitCHeader::ప్రధాన(modp);
     }
 }

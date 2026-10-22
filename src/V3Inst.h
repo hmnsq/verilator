@@ -14,13 +14,13 @@
 //
 //*************************************************************************
 
-#ifndef VERILATOR_V3INST_H_
-#define VERILATOR_V3INST_H_
+#నిర్వచితం_కాకపోతే VERILATOR_V3INST_H_
+#నిర్వచించు VERILATOR_V3INST_H_
 
-#include "config_build.h"
-#include "verilatedos.h"
+#అన్తర్భావ "config_build.h"
+#అన్తర్భావ "verilatedos.h"
 
-class AstAssignW;
+class Ast_కేటాయించు_W;
 class AstCell;
 class AstNetlist;
 class AstPin;
@@ -28,11 +28,11 @@ class AstPin;
 //============================================================================
 
 class V3Inst final {
-public:
-    static void instAll(AstNetlist* nodep) VL_MT_DISABLED;
-    static AstAssignW* pinReconnectSimple(AstPin* pinp, AstCell* cellp, bool forTristate,
+బహిరంగ:
+    స్థిర శూన్య instAll(AstNetlist* nodep) VL_MT_DISABLED;
+    స్థిర Ast_కేటాయించు_W* pinReconnectSimple(AstPin* pinp, AstCell* cellp, bool forTristate,
                                           bool alwaysCvt = false) VL_MT_DISABLED;
-    static void checkOutputShort(const AstPin* nodep) VL_MT_DISABLED;
+    స్థిర శూన్య checkOutputShort(స్థిరరాశి AstPin* nodep) VL_MT_DISABLED;
 };
 
-#endif  // Guard
+#అయితే_ముగింపు  // Guard

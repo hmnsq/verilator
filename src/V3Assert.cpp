@@ -14,234 +14,234 @@
 //
 //*************************************************************************
 
-#include "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
+#అన్తర్భావ "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
 
-#include "V3Assert.h"
+#అన్తర్భావ "V3Assert.h"
 
-#include "V3AstUserAllocator.h"
-#include "V3Const.h"
-#include "V3Stats.h"
-#include "V3UniqueNames.h"
+#అన్తర్భావ "V3AstUserAllocator.h"
+#అన్తర్భావ "V3Const.h"
+#అన్తర్భావ "V3Stats.h"
+#అన్తర్భావ "V3UniqueNames.h"
 
 VL_DEFINE_DEBUG_FUNCTIONS;
 
-namespace {
+నామాకాశ {
 
-class DefaultDisableLocalVisitor final : public VNVisitor {
+తరగతి DefaultDisableLocalVisitor final : బహిరంగ VNVisitor {
     // STATE
-    AstNode* m_scopep = nullptr;
+    Ast_కణుపు* m_scopep = శూన్యసూచిక;
 
     // VISITORS
-    void visit(AstNodeModule* nodep) override {
+    శూన్య సందర్శించు(Ast_కణుపు_Module* nodep) override {
         VL_RESTORER(m_scopep);
         m_scopep = nodep;
-        nodep->defaultDisablep(nullptr);
+        nodep->defaultDisablep(శూన్యసూచిక);
         iterateChildren(nodep);
     }
-    void visit(AstGenBlock* nodep) override {
+    శూన్య సందర్శించు(Ast_Gen_ఖండం* nodep) override {
         VL_RESTORER(m_scopep);
         m_scopep = nodep;
-        nodep->defaultDisablep(nullptr);
+        nodep->defaultDisablep(శూన్యసూచిక);
         iterateChildren(nodep);
     }
-    void visit(AstDefaultDisable* nodep) override {
+    శూన్య సందర్శించు(AstDefaultDisable* nodep) override {
         UASSERT_OBJ(nodep, m_scopep,
                     "default disable iff must be inside a module or generate block");
-        AstDefaultDisable* defaultp = nullptr;
-        if (const AstNodeModule* const modp = VN_CAST(m_scopep, NodeModule)) {
+        AstDefaultDisable* defaultp = శూన్యసూచిక;
+        ఒకవేళ (స్థిరరాశి Ast_కణుపు_Module* స్థిరరాశి modp = VN_CAST(m_scopep, కణుపు_Module)) {
             defaultp = modp->defaultDisablep();
-        } else {
-            defaultp = VN_AS(m_scopep, GenBlock)->defaultDisablep();
+        } లేకపోతే {
+            defaultp = VN_AS(m_scopep, Gen_ఖండం)->defaultDisablep();
         }
-        if (VL_UNLIKELY(defaultp)) {
+        ఒకవేళ (VL_UNLIKELY(defaultp)) {
             nodep->v3error("Only one 'default disable iff' allowed per "
-                           << (VN_IS(m_scopep, NodeModule) ? "module" : "generate block")
+                           << (VN_IS(m_scopep, కణుపు_Module) ? "module" : "generate block")
                            << " (IEEE 1800-2023 16.15)");
-        } else if (AstNodeModule* const modp = VN_CAST(m_scopep, NodeModule)) {
+        } లేకపోతే ఒకవేళ (Ast_కణుపు_Module* స్థిరరాశి modp = VN_CAST(m_scopep, కణుపు_Module)) {
             modp->defaultDisablep(nodep);
-        } else {
-            VN_AS(m_scopep, GenBlock)->defaultDisablep(nodep);
+        } లేకపోతే {
+            VN_AS(m_scopep, Gen_ఖండం)->defaultDisablep(nodep);
         }
     }
-    void visit(AstNode* nodep) override { iterateChildren(nodep); }
+    శూన్య సందర్శించు(Ast_కణుపు* nodep) override { iterateChildren(nodep); }
 
-public:
-    explicit DefaultDisableLocalVisitor(AstNetlist* nodep) { iterate(nodep); }
+బహిరంగ:
+    స్పష్టమైన DefaultDisableLocalVisitor(AstNetlist* nodep) { iterate(nodep); }
 };
 
-class DefaultDisablePropagateVisitor final : public VNVisitor {
+తరగతి DefaultDisablePropagateVisitor final : బహిరంగ VNVisitor {
     // STATE
-    AstDefaultDisable* m_defaultDisablep = nullptr;
+    AstDefaultDisable* m_defaultDisablep = శూన్యసూచిక;
 
     // VISITORS
-    void visit(AstNodeModule* nodep) override {
+    శూన్య సందర్శించు(Ast_కణుపు_Module* nodep) override {
         VL_RESTORER(m_defaultDisablep);
         m_defaultDisablep = nodep->defaultDisablep();
         iterateChildren(nodep);
     }
-    void visit(AstGenBlock* nodep) override {
+    శూన్య సందర్శించు(Ast_Gen_ఖండం* nodep) override {
         VL_RESTORER(m_defaultDisablep);
-        if (!nodep->defaultDisablep()) nodep->defaultDisablep(m_defaultDisablep);
+        ఒకవేళ (!nodep->defaultDisablep()) nodep->defaultDisablep(m_defaultDisablep);
         m_defaultDisablep = nodep->defaultDisablep();
         iterateChildren(nodep);
     }
-    void visit(AstNode* nodep) override { iterateChildren(nodep); }
+    శూన్య సందర్శించు(Ast_కణుపు* nodep) override { iterateChildren(nodep); }
 
-public:
-    explicit DefaultDisablePropagateVisitor(AstNetlist* nodep) { iterate(nodep); }
+బహిరంగ:
+    స్పష్టమైన DefaultDisablePropagateVisitor(AstNetlist* nodep) { iterate(nodep); }
 };
 
 // Lower a sequence used as an event control ('@seq', IEEE 1800-2023 9.4.2.4) into a
 // synthesized event fired by an internal 'cover sequence' on each end-of-match
-class SeqEventLowerVisitor final : public VNVisitor {
+తరగతి Seq_Event_క్రింది_Visitor final : బహిరంగ VNVisitor {
     // STATE
-    AstNodeModule* m_modp = nullptr;  // Current module
-    V3UniqueNames m_names{"__VseqEvent"};  // Synthesized event names
+    Ast_కణుపు_Module* m_modp = శూన్యసూచిక;  // Current module
+    V3_Unique_పేర్లు m_పేర్లు{"__VseqEvent"};  // Synthesized event names
 
     // VISITORS
-    void visit(AstNodeModule* nodep) override {
+    శూన్య సందర్శించు(Ast_కణుపు_Module* nodep) override {
         VL_RESTORER(m_modp);
         m_modp = nodep;
         iterateChildren(nodep);
     }
-    void visit(AstSenItem* nodep) override {
-        AstFuncRef* const funcrefp = VN_CAST(nodep->sensp(), FuncRef);
-        if (funcrefp && VN_IS(funcrefp->taskp(), Sequence)) {
-            FileLine* const flp = nodep->fileline();
-            AstVar* const eventp = new AstVar{flp, VVarType::MODULETEMP, m_names.get(nodep),
-                                              m_modp->findBasicDType(VBasicDTypeKwd::EVENT)};
+    శూన్య సందర్శించు(Ast_Sen_అంశం* nodep) override {
+        AstFuncRef* స్థిరరాశి funcrefp = VN_CAST(nodep->sensp(), FuncRef);
+        ఒకవేళ (funcrefp && VN_IS(funcrefp->taskp(), Sequence)) {
+            File_పంక్తి* స్థిరరాశి flp = nodep->fileline();
+            AstVar* స్థిరరాశి eventp = కొత్త AstVar{flp, VVarType::MODULETEMP, m_పేర్లు.get(nodep),
+                                              m_modp->కనుగొను_Basic_DType(VBasicDTypeKwd::EVENT)};
             eventp->lifetime(VLifetime::STATIC_EXPLICIT);
-            m_modp->addStmtsp(eventp);
-            v3Global.setHasEvents();
-            funcrefp->unlinkFrBack();
-            nodep->sensp(new AstVarRef{flp, eventp, VAccess::READ});
-            const bool automaticActual = funcrefp->exists([](const AstNodeVarRef* refp) {
-                return refp->varp() && refp->varp()->lifetime().isAutomatic();
+            m_modp->కూడు_Stmtsp(eventp);
+            v3Global.సమితి_Has_Events();
+            funcrefp->unlink_Fr_వెనుక();
+            nodep->sensp(కొత్త AstVarRef{flp, eventp, VAccess::READ});
+            స్థిరరాశి తార్కిక automaticActual = funcrefp->exists([](స్థిరరాశి Ast_కణుపు_Var_Ref* refp) {
+                తిరిగి refp->varp() && refp->varp()->lifetime().isAutomatic();
             });
-            if (automaticActual) {
+            ఒకవేళ (automaticActual) {
                 nodep->v3error("Arguments to a sequence used as an event control must be"
                                " static (IEEE 1800-2023 9.4.2.4)");
-                VN_AS(funcrefp->taskp(), Sequence)->isReferenced(false);
-                VL_DO_DANGLING(pushDeletep(funcrefp), funcrefp);
-                return;
+                VN_AS(funcrefp->taskp(), Sequence)->isReferenced(అబద్ధం);
+                VL_DO_DANGLING(నెట్టు_Deletep(funcrefp), funcrefp);
+                తిరిగి;
             }
-            AstFireEvent* const firep
-                = new AstFireEvent{flp, new AstVarRef{flp, eventp, VAccess::WRITE}, false};
-            AstCover* const coverp
-                = new AstCover{flp, new AstPropSpec{flp, nullptr, nullptr, funcrefp}, firep,
+            AstFireEvent* స్థిరరాశి firep
+                = కొత్త AstFireEvent{flp, కొత్త AstVarRef{flp, eventp, VAccess::WRITE}, అబద్ధం};
+            AstCover* స్థిరరాశి coverp
+                = కొత్త AstCover{flp, కొత్త AstPropSpec{flp, శూన్యసూచిక, శూన్యసూచిక, funcrefp}, firep,
                                VAssertType::CONCURRENT};
-            coverp->isCoverSeq(true);
-            coverp->isSeqEvent(true);
-            m_modp->addStmtsp(coverp);
-            return;
+            coverp->isCoverSeq(నిజం);
+            coverp->isSeqEvent(నిజం);
+            m_modp->కూడు_Stmtsp(coverp);
+            తిరిగి;
         }
         iterateChildren(nodep);
     }
-    void visit(AstNode* nodep) override { iterateChildren(nodep); }
+    శూన్య సందర్శించు(Ast_కణుపు* nodep) override { iterateChildren(nodep); }
 
-public:
-    explicit SeqEventLowerVisitor(AstNetlist* nodep) { iterate(nodep); }
+బహిరంగ:
+    స్పష్టమైన Seq_Event_క్రింది_Visitor(AstNetlist* nodep) { iterate(nodep); }
 };
 
 }  // namespace
 
-void V3AssertCommon::collectDefaultDisable(AstNetlist* nodep) {
+శూన్య V3AssertCommon::collectDefaultDisable(AstNetlist* nodep) {
     { DefaultDisableLocalVisitor{nodep}; }
     { DefaultDisablePropagateVisitor{nodep}; }
 }
 
-void V3AssertCommon::lowerSequenceEvents(AstNetlist* nodep) {
-    { SeqEventLowerVisitor{nodep}; }
-    V3Global::dumpCheckGlobalTree("assertseqevent", 0, dumpTreeEitherLevel() >= 3);
+శూన్య V3AssertCommon::క్రింది_Sequence_Events(AstNetlist* nodep) {
+    { Seq_Event_క్రింది_Visitor{nodep}; }
+    V3Global::dump_Check_Global_వృక్షం("assertseqevent", 0, dump_వృక్షం_Either_Level() >= 3);
 }
 
-string V3AssertCommon::assertCtlGetCall(const char* query, VAssertType type,
+string V3AssertCommon::assertCtlGetCall(స్థిరరాశి అక్షరం* query, VAssertType type,
                                         VAssertDirectiveType directiveType) {
     // Template arguments let the runtime build the type/directive mask at C++ compile time
-    return "vlSymsp->_vm_contextp__->assertCtlGet<"s + std::to_string(type) + ", "s
-           + std::to_string(directiveType) + ">(VerilatedAssertCtlQuery::"s + query + ")"s;
+    తిరిగి "vlSymsp->_vm_contextp__->assertCtlGet<"s + std::గమ్యం_string(type) + ", "s
+           + std::గమ్యం_string(directiveType) + ">(VerilatedAssertCtlQuery::"s + query + ")"s;
 }
 
-bool V3AssertCommon::checkSvaValueLimit(AstNode* nodep, const AstConst* constp, const char* what) {
+తార్కిక V3AssertCommon::check_Sva_విలువ_హద్దు(Ast_కణుపు* nodep, స్థిరరాశి AstConst* constp, స్థిరరాశి అక్షరం* what) {
     // Temporal values can materialize as O(N) AST or state in later passes.
     // Leave headroom for a range ring's extra slot and V3Number's signed
     // `(bits + 31) / 32` word count.
-    static constexpr unsigned SVA_VALUE_HARD_LIMIT
-        = static_cast<unsigned>(std::numeric_limits<int>::max()) - 32U;
-    const unsigned configuredLimit = static_cast<unsigned>(v3Global.opt.maxNumWidth());
-    const unsigned limit = std::min(configuredLimit, SVA_VALUE_HARD_LIMIT);
-    if (constp->num().fitsInUInt() && constp->toUInt() <= limit) return true;
+    స్థిర constexpr గుర్తులేని SVA_విలువ_HARD_హద్దు
+        = static_cast<గుర్తులేని>(std::numeric_limits<పూర్ణాంకం>::max()) - 32U;
+    స్థిరరాశి గుర్తులేని configured_హద్దు = static_cast<గుర్తులేని>(v3Global.opt.max_అంకె_వెడల్పు());
+    స్థిరరాశి గుర్తులేని హద్దు = std::min(configured_హద్దు, SVA_విలువ_HARD_హద్దు);
+    ఒకవేళ (constp->అంకె().సరిపోతుంది_లోపల_UInt() && constp->గమ్యం_UInt() <= హద్దు) తిరిగి నిజం;
     nodep->v3warn(E_UNSUPPORTED, "Unsupported: " << what << " exceeds implementation limit of "
-                                                 << limit
-                                                 << (configuredLimit <= SVA_VALUE_HARD_LIMIT
+                                                 << హద్దు
+                                                 << (configured_హద్దు <= SVA_విలువ_HARD_హద్దు
                                                          ? " (--max-num-width)"
                                                          : " (host arithmetic limit)"));
-    return false;
+    తిరిగి అబద్ధం;
 }
 
 // The bound of a cycle delay in a sequence, if a non-negative elaboration-time constant
-static const AstConst* checkSvaDelayBound(AstNode* errp, AstNodeExpr* boundp, const char* what) {
-    const AstConst* const constp = VN_CAST(boundp, Const);
-    if (!constp || (constp->dtypep()->isSigned() && constp->num().isNegative())) {
+స్థిర స్థిరరాశి AstConst* checkSvaDelayBound(Ast_కణుపు* errp, Ast_కణుపు_సమాసం* boundp, స్థిరరాశి అక్షరం* what) {
+    స్థిరరాశి AstConst* స్థిరరాశి constp = VN_CAST(boundp, Const);
+    ఒకవేళ (!constp || (constp->dtypep()->isSigned() && constp->అంకె().isNegative())) {
         errp->v3error(what << " is not a non-negative elaboration-time constant"
                               " (IEEE 1800-2023 16.7)");
-        return nullptr;
+        తిరిగి శూన్యసూచిక;
     }
-    if (!V3AssertCommon::checkSvaValueLimit(errp, constp, "SVA cycle delay")) return nullptr;
-    return constp;
+    ఒకవేళ (!V3AssertCommon::check_Sva_విలువ_హద్దు(errp, constp, "SVA cycle delay")) తిరిగి శూన్యసూచిక;
+    తిరిగి constp;
 }
 
 // Fold the bounds of a cycle delay in a sequence, and return if they are valid, else report it
 // on errp
-static bool svaCycleDelayValid(const AstDelay* nodep, AstNode* errp) {
+స్థిర తార్కిక sva_చక్రం_Delay_Valid(స్థిరరాశి AstDelay* nodep, Ast_కణుపు* errp) {
     V3Const::constifyParamsNoWarnEdit(nodep->lhsp());
-    const AstConst* const minConstp = checkSvaDelayBound(
+    స్థిరరాశి AstConst* స్థిరరాశి minConstp = checkSvaDelayBound(
         errp, nodep->lhsp(), nodep->isRangeDelay() ? "Range delay minimum" : "Delay value");
-    if (!nodep->rhsp() || nodep->isUnbounded()) return minConstp != nullptr;
+    ఒకవేళ (!nodep->rhsp() || nodep->isUnbounded()) తిరిగి minConstp != శూన్యసూచిక;
     V3Const::constifyParamsNoWarnEdit(nodep->rhsp());
-    const AstConst* const maxConstp
+    స్థిరరాశి AstConst* స్థిరరాశి maxConstp
         = checkSvaDelayBound(errp, nodep->rhsp(), "Range delay maximum");
-    if (!minConstp || !maxConstp) return false;
-    if (maxConstp->toUInt() < minConstp->toUInt()) {
+    ఒకవేళ (!minConstp || !maxConstp) తిరిగి అబద్ధం;
+    ఒకవేళ (maxConstp->గమ్యం_UInt() < minConstp->గమ్యం_UInt()) {
         errp->v3error("Range delay maximum must be >= minimum (IEEE 1800-2023 16.7)");
-        return false;
+        తిరిగి అబద్ధం;
     }
-    return true;
+    తిరిగి నిజం;
 }
 
-void V3AssertCommon::checkSvaCycleDelay(AstDelay* nodep, AstNode* errp) {
-    if (svaCycleDelayValid(nodep, errp)) return;
+శూన్య V3AssertCommon::check_Sva_చక్రం_Delay(AstDelay* nodep, Ast_కణుపు* errp) {
+    ఒకవేళ (sva_చక్రం_Delay_Valid(nodep, errp)) తిరిగి;
     // Make the delay valid, so later steps do not fail after the error
-    FileLine* const flp = nodep->fileline();
-    AstNodeExpr* const minp = nodep->lhsp();
-    minp->replaceWith(new AstConst{flp, AstConst::BitFalseErroring{}});
-    VL_DO_DANGLING(minp->deleteTree(), minp);
-    if (nodep->rhsp() && !nodep->isUnbounded()) {
-        AstNodeExpr* const maxp = nodep->rhsp();
-        maxp->replaceWith(new AstConst{flp, AstConst::BitFalseErroring{}});
-        VL_DO_DANGLING(maxp->deleteTree(), maxp);
+    File_పంక్తి* స్థిరరాశి flp = nodep->fileline();
+    Ast_కణుపు_సమాసం* స్థిరరాశి minp = nodep->lhsp();
+    minp->replaceWith(కొత్త AstConst{flp, AstConst::బిట్టు_False_Erroring{}});
+    VL_DO_DANGLING(minp->delete_వృక్షం(), minp);
+    ఒకవేళ (nodep->rhsp() && !nodep->isUnbounded()) {
+        Ast_కణుపు_సమాసం* స్థిరరాశి maxp = nodep->rhsp();
+        maxp->replaceWith(కొత్త AstConst{flp, AstConst::బిట్టు_False_Erroring{}});
+        VL_DO_DANGLING(maxp->delete_వృక్షం(), maxp);
     }
 }
 
-bool V3AssertCommon::refsSvaFormal(const AstNode* nodep) {
-    return nodep->exists([](const AstNodeVarRef* refp) {
-        const AstVar* const varp = refp->varp();
-        if (!varp || !varp->isIO()) return false;
-        const AstNode* const declp = varp->aboveLoopp();
-        return VN_IS(declp, Sequence) || VN_IS(declp, Property);
+తార్కిక V3AssertCommon::refsSvaFormal(స్థిరరాశి Ast_కణుపు* nodep) {
+    తిరిగి nodep->exists([](స్థిరరాశి Ast_కణుపు_Var_Ref* refp) {
+        స్థిరరాశి AstVar* స్థిరరాశి varp = refp->varp();
+        ఒకవేళ (!varp || !varp->isIO()) తిరిగి అబద్ధం;
+        స్థిరరాశి Ast_కణుపు* స్థిరరాశి declp = varp->aboveLoopp();
+        తిరిగి VN_IS(declp, Sequence) || VN_IS(declp, Property);
     });
 }
 
-void V3AssertCommon::checkSvaInstanceDelays(AstNode* nodep, AstNode* instp) {
+శూన్య V3AssertCommon::checkSvaInstanceDelays(Ast_కణుపు* nodep, Ast_కణుపు* instp) {
     // A delay still referencing a formal argument of an enclosing sequence or property is
     // checked when that is instanced. Collect first, as checking edits the delays.
-    std::vector<AstDelay*> delayps;
+    std::సదిశ<AstDelay*> delayps;
     nodep->foreach([&](AstDelay* delayp) {
-        if (!delayp->isCycleDelay() || refsSvaFormal(delayp->lhsp())) return;
-        if (delayp->rhsp() && refsSvaFormal(delayp->rhsp())) return;
-        delayps.push_back(delayp);
+        ఒకవేళ (!delayp->is_చక్రం_Delay() || refsSvaFormal(delayp->lhsp())) తిరిగి;
+        ఒకవేళ (delayp->rhsp() && refsSvaFormal(delayp->rhsp())) తిరిగి;
+        delayps.నెట్టు_వెనుక(delayp);
     });
-    for (AstDelay* const delayp : delayps) checkSvaCycleDelay(delayp, instp);
+    కొరకు (AstDelay* స్థిరరాశి delayp : delayps) check_Sva_చక్రం_Delay(delayp, instp);
 }
 
 //######################################################################
@@ -249,134 +249,134 @@ void V3AssertCommon::checkSvaInstanceDelays(AstNode* nodep, AstNode* instp) {
 // If any AstFuture, then move all non-future varrefs to be one cycle behind,
 // see IEEE 1800-2023 16.9.4.
 
-class AssertDeFutureVisitor final : public VNVisitor {
+తరగతి AssertDeFutureVisitor final : బహిరంగ VNVisitor {
     // STATE - across all visitors
-    AstNodeModule* const m_modp;  // Module future is underneath
-    const AstFuture* m_futurep;  // First AstFuture found
-    const unsigned m_pastNum;  // Prefix unique number for this module
+    Ast_కణుపు_Module* స్థిరరాశి m_modp;  // Module future is underneath
+    స్థిరరాశి AstFuture* m_futurep;  // First AstFuture found
+    స్థిరరాశి గుర్తులేని m_past_అంకె;  // Prefix unique number for this module
     std::map<AstVar*, AstVar*> m_delayedVars;  // Old to delayed variable mapping
     // STATE - for current visit position (use VL_RESTORER)
-    bool m_inFuture = false;  // Inside a future
-    bool m_unsupported = false;  // Printed unsupported
+    తార్కిక m_లోపల_Future = అబద్ధం;  // Inside a future
+    తార్కిక m_unsupported = అబద్ధం;  // Printed unsupported
 
     // METHODS
-    void unsupported(AstNode* nodep) {
-        if (m_unsupported) return;
-        m_unsupported = true;
+    శూన్య unsupported(Ast_కణుపు* nodep) {
+        ఒకవేళ (m_unsupported) తిరిగి;
+        m_unsupported = నిజం;
         nodep->v3warn(E_UNSUPPORTED,
                       "Unsupported/illegal: Future value function used with expression with "
                           << nodep->prettyOperatorName());
     }
     // VISITORS
-    void visit(AstFuture* nodep) override {
-        VL_RESTORER(m_inFuture);
-        m_inFuture = true;
+    శూన్య సందర్శించు(AstFuture* nodep) override {
+        VL_RESTORER(m_లోపల_Future);
+        m_లోపల_Future = నిజం;
         iterateChildren(nodep);
         // Done with the future, this subexpression is current-time
-        nodep->replaceWith(nodep->exprp()->unlinkFrBack());
-        VL_DO_DANGLING(pushDeletep(nodep), nodep);
+        nodep->replaceWith(nodep->exprp()->unlink_Fr_వెనుక());
+        VL_DO_DANGLING(నెట్టు_Deletep(nodep), nodep);
     }
-    void visit(AstNodeVarRef* nodep) override {
-        if (nodep->user1SetOnce()) return;
-        if (m_inFuture || m_unsupported)
-            return;  // Need user1 set above, don't process when Future is removed
-        if (nodep->access().isWriteOrRW()) {
+    శూన్య సందర్శించు(Ast_కణుపు_Var_Ref* nodep) override {
+        ఒకవేళ (nodep->user1_సమితి_Once()) తిరిగి;
+        ఒకవేళ (m_లోపల_Future || m_unsupported)
+            తిరిగి;  // Need user1 set above, don't process when Future is removed
+        ఒకవేళ (nodep->access().isWriteOrRW()) {
             unsupported(nodep);
-            return;
+            తిరిగి;
         }
-        auto it = m_delayedVars.find(nodep->varp());
+        స్వయంచాలక it = m_delayedVars.కనుగొను(nodep->varp());
         AstVar* outvarp;
-        if (it == m_delayedVars.end()) {
-            AstSenTree* const sentreep = m_futurep->sentreep();
-            AstAlways* const alwaysp = new AstAlways{nodep->fileline(), VAlwaysKwd::ALWAYS,
-                                                     sentreep->cloneTree(false), nullptr};
-            m_modp->addStmtsp(alwaysp);
-            outvarp = new AstVar{nodep->fileline(), VVarType::MODULETEMP,
-                                 "__Vnotfuture" + cvtToStr(m_pastNum) + "_" + nodep->name(),
+        ఒకవేళ (it == m_delayedVars.చివర()) {
+            Ast_Sen_వృక్షం* స్థిరరాశి sentreep = m_futurep->sentreep();
+            AstAlways* స్థిరరాశి alwaysp = కొత్త AstAlways{nodep->fileline(), VAlwaysKwd::ALWAYS,
+                                                     sentreep->clone_వృక్షం(అబద్ధం), శూన్యసూచిక};
+            m_modp->కూడు_Stmtsp(alwaysp);
+            outvarp = కొత్త AstVar{nodep->fileline(), VVarType::MODULETEMP,
+                                 "__Vnotfuture" + cvt_గమ్యం_Str(m_past_అంకె) + "_" + nodep->name(),
                                  nodep->dtypep()};
-            m_modp->addStmtsp(outvarp);
-            AstVarRef* varRefAWritep = new AstVarRef{nodep->fileline(), outvarp, VAccess::WRITE};
-            varRefAWritep->user1(true);
-            AstNodeVarRef* varRefAReadp = nodep->cloneTree(false);
-            varRefAReadp->user1(true);
-            AstNode* const assp = new AstAssignDly{nodep->fileline(), varRefAWritep, varRefAReadp};
-            alwaysp->addStmtsp(assp);
+            m_modp->కూడు_Stmtsp(outvarp);
+            AstVarRef* varRefAWritep = కొత్త AstVarRef{nodep->fileline(), outvarp, VAccess::WRITE};
+            varRefAWritep->user1(నిజం);
+            Ast_కణుపు_Var_Ref* varRefAReadp = nodep->clone_వృక్షం(అబద్ధం);
+            varRefAReadp->user1(నిజం);
+            Ast_కణుపు* స్థిరరాశి assp = కొత్త Ast_కేటాయించు_Dly{nodep->fileline(), varRefAWritep, varRefAReadp};
+            alwaysp->కూడు_Stmtsp(assp);
             m_delayedVars.emplace(nodep->varp(), outvarp);
-        } else {
-            outvarp = it->second;
+        } లేకపోతే {
+            outvarp = it->రెండవ;
         }
-        AstVarRef* newp = new AstVarRef{nodep->fileline(), outvarp, VAccess::READ};
-        newp->user1(true);
+        AstVarRef* newp = కొత్త AstVarRef{nodep->fileline(), outvarp, VAccess::READ};
+        newp->user1(నిజం);
         UINFO(9, "DeFuture " << nodep << "  becomes " << newp);
         nodep->replaceWith(newp);
-        VL_DO_DANGLING(pushDeletep(nodep), nodep);
+        VL_DO_DANGLING(నెట్టు_Deletep(nodep), nodep);
     }
-    void visit(AstNodeFTaskRef* nodep) override { unsupported(nodep); }
-    void visit(AstMethodCall* nodep) override { unsupported(nodep); }
-    void visit(AstNode* nodep) override {
-        if (!nodep->isPure()) unsupported(nodep);
+    శూన్య సందర్శించు(Ast_కణుపు_FTask_Ref* nodep) override { unsupported(nodep); }
+    శూన్య సందర్శించు(Ast_పద్ధతి_Call* nodep) override { unsupported(nodep); }
+    శూన్య సందర్శించు(Ast_కణుపు* nodep) override {
+        ఒకవేళ (!nodep->is_శుద్ధ()) unsupported(nodep);
         iterateChildren(nodep);
     }
 
-public:
+బహిరంగ:
     // CONSTRUCTORS
-    explicit AssertDeFutureVisitor(AstNode* nodep, AstNodeModule* modp, unsigned pastNum)
+    స్పష్టమైన AssertDeFutureVisitor(Ast_కణుపు* nodep, Ast_కణుపు_Module* modp, గుర్తులేని past_అంకె)
         : m_modp{modp}
-        , m_pastNum{pastNum} {
+        , m_past_అంకె{past_అంకె} {
         // See if any Future before we process
-        if (nodep->forall([&](const AstFuture* futurep) -> bool {
+        ఒకవేళ (nodep->forall([&](స్థిరరాశి AstFuture* futurep) -> తార్కిక {
                 m_futurep = futurep;
-                return false;
+                తిరిగి అబద్ధం;
             }))
-            return;
+            తిరిగి;
         // UINFOTREE(9, nodep, "", "defuture-in");
-        visit(nodep);  // Nodep may get deleted
+        సందర్శించు(nodep);  // Nodep may get deleted
         // UINFOTREE(9, nodep, "", "defuture-ou");
     }
-    ~AssertDeFutureVisitor() = default;
+    ~AssertDeFutureVisitor() = అప్రమేయ;
 };
 
 // Prepare one default sampled expression.
-class DefaultSampledValueVisitor final : public VNVisitor {
+తరగతి Default_Sampled_విలువ_Visitor final : బహిరంగ VNVisitor {
     // METHODS
-    static AstConst* newTypeDefault(AstNodeExpr* nodep) {
-        AstConst* const constp
-            = new AstConst{nodep->fileline(), AstConst::DTyped{}, nodep->dtypep()};
-        if (nodep->dtypep()->isFourstate()) constp->num().setAllBitsX();
+    స్థిర AstConst* newTypeDefault(Ast_కణుపు_సమాసం* nodep) {
+        AstConst* స్థిరరాశి constp
+            = కొత్త AstConst{nodep->fileline(), AstConst::DTyped{}, nodep->dtypep()};
+        ఒకవేళ (nodep->dtypep()->isFourstate()) constp->అంకె().సమితి_All_బిట్లు_X();
         constp->dtypeFrom(nodep);
-        return constp;
+        తిరిగి constp;
     }
 
     // VISITORS
-    void visit(AstCMethodHard* nodep) override {
-        if (nodep->method() == VCMethod::EVENT_IS_TRIGGERED) {
-            nodep->replaceWith(new AstConst{nodep->fileline(), AstConst::BitFalse{}});
-            VL_DO_DANGLING(pushDeletep(nodep), nodep);
-        } else {
+    శూన్య సందర్శించు(AstCMethodHard* nodep) override {
+        ఒకవేళ (nodep->పద్ధతి() == VCMethod::EVENT_IS_TRIGGERED) {
+            nodep->replaceWith(కొత్త AstConst{nodep->fileline(), AstConst::బిట్టు_False{}});
+            VL_DO_DANGLING(నెట్టు_Deletep(nodep), nodep);
+        } లేకపోతే {
             iterateChildren(nodep);
         }
     }
-    void visit(AstNodeVarRef* nodep) override {
-        AstVar* const varp = nodep->varp();
-        if (varp->isParam()
+    శూన్య సందర్శించు(Ast_కణుపు_Var_Ref* nodep) override {
+        AstVar* స్థిరరాశి varp = nodep->varp();
+        ఒకవేళ (varp->isParam()
             || (!varp->isNet() && varp->lifetime().isStatic() && varp->hasUserInit())) {
-            return;
+            తిరిగి;
         }
         nodep->replaceWith(newTypeDefault(nodep));
-        VL_DO_DANGLING(pushDeletep(nodep), nodep);
+        VL_DO_DANGLING(నెట్టు_Deletep(nodep), nodep);
     }
-    void visit(AstNode* nodep) override { iterateChildren(nodep); }
+    శూన్య సందర్శించు(Ast_కణుపు* nodep) override { iterateChildren(nodep); }
 
-public:
-    explicit DefaultSampledValueVisitor(AstNode* nodep) { iterate(nodep); }
+బహిరంగ:
+    స్పష్టమైన Default_Sampled_విలువ_Visitor(Ast_కణుపు* nodep) { iterate(nodep); }
 };
 
 //######################################################################
 // AssertVisitor
 
-class AssertVisitor final : public VNVisitor {
+తరగతి AssertVisitor final : బహిరంగ VNVisitor {
     // CONSTANTS
-    static constexpr uint8_t ALL_ASSERT_TYPES
+    స్థిర constexpr uint8_t ALL_ASSERT_TYPES
         = std::numeric_limits<std::underlying_type<VAssertType::en>::type>::max();
 
     // NODE STATE/TYPES
@@ -385,419 +385,419 @@ class AssertVisitor final : public VNVisitor {
     //  AstAlways::user2p()      -> std::vector<AstVar*>. Delayed variables via 'm_delayed'
     //  AstNodeVarRef::user2()   -> bool.  True if shouldn't be sampled
     //  AstIf::user2()           -> bool.  True for assertOn() checks inserted in this pass
-    const VNUser1InUse m_user1InUse;
-    const VNUser2InUse m_user2InUse;
-    AstUser2Allocator<AstAlways, std::vector<AstVar*>> m_delayed;
+    స్థిరరాశి VNUser1_లోపల_Use m_user1_లోపల_Use;
+    స్థిరరాశి VNUser2_లోపల_Use m_user2_లోపల_Use;
+    AstUser2Allocator<AstAlways, std::సదిశ<AstVar*>> m_delayed;
 
     // STATE
-    AstNodeModule* m_modp = nullptr;  // Last module
-    const AstNode* m_beginp = nullptr;  // Last AstBegin/AstGenBlock
-    unsigned m_monitorNum = 0;  // Global $monitor numbering (not per module)
-    AstVar* m_monitorNumVarp = nullptr;  // $monitor number variable
-    AstVar* m_monitorOffVarp = nullptr;  // $monitoroff variable
-    unsigned m_modPastNum = 0;  // Module past numbering
-    unsigned m_modStrobeNum = 0;  // Module $strobe numbering
-    AstNodeProcedure* m_procedurep = nullptr;  // Current procedure
+    Ast_కణుపు_Module* m_modp = శూన్యసూచిక;  // Last module
+    స్థిరరాశి Ast_కణుపు* m_beginp = శూన్యసూచిక;  // Last AstBegin/AstGenBlock
+    గుర్తులేని m_monitor_అంకె = 0;  // Global $monitor numbering (not per module)
+    AstVar* m_monitor_అంకె_Varp = శూన్యసూచిక;  // $monitor number variable
+    AstVar* m_monitorOffVarp = శూన్యసూచిక;  // $monitoroff variable
+    గుర్తులేని m_mod_Past_అంకె = 0;  // Module past numbering
+    గుర్తులేని m_mod_Strobe_అంకె = 0;  // Module $strobe numbering
+    Ast_కణుపు_Procedure* m_procedurep = శూన్యసూచిక;  // Current procedure
     VDouble0 m_statCover;  // Statistic tracking
     VDouble0 m_statAsNotImm;  // Statistic tracking
     VDouble0 m_statAsImm;  // Statistic tracking
-    VDouble0 m_statAsFull;  // Statistic tracking
+    VDouble0 m_stat_As_నిండిన;  // Statistic tracking
     VDouble0 m_statPastVars;  // Statistic tracking
     VDouble0 m_statAssertOnCombined;  // Statistic tracking
     VDouble0 m_statAssertOnHoisted;  // Statistic tracking
-    bool m_inSampled = false;  // True inside a sampled expression
-    bool m_inRestrict = false;  // True inside restrict assertion
-    AstNode* m_passsp = nullptr;  // Current pass statement
-    AstNode* m_failsp = nullptr;  // Current fail statement
-    AstNodeCoverOrAssert* m_assertp = nullptr;  // Current assertion
-    AstFinal* m_finalp = nullptr;  // Current final block
+    తార్కిక m_లోపల_Sampled = అబద్ధం;  // True inside a sampled expression
+    తార్కిక m_లోపల_Restrict = అబద్ధం;  // True inside restrict assertion
+    Ast_కణుపు* m_passsp = శూన్యసూచిక;  // Current pass statement
+    Ast_కణుపు* m_failsp = శూన్యసూచిక;  // Current fail statement
+    Ast_కణుపు_Cover_Or_Assert* m_assertp = శూన్యసూచిక;  // Current assertion
+    AstFinal* m_finalp = శూన్యసూచిక;  // Current final block
     VDouble0 m_statLiftedCaseExprs;  // Count of purified case expressions
-    AstNodeFTask* m_ftaskp = nullptr;  // Current function/task
-    V3UniqueNames m_caseTempNames{"__VCase"};
-    V3UniqueNames m_matchCountNames{"__VnfaRemainingMatchCount"};  // Match replay counter names
+    Ast_కణుపు_FTask* m_ftaskp = శూన్యసూచిక;  // Current function/task
+    V3_Unique_పేర్లు m_case_తాత్కాలిక_పేర్లు{"__VCase"};
+    V3_Unique_పేర్లు m_సరిపోలిక_లెక్క_పేర్లు{"__VnfaRemainingMatchCount"};  // Match replay counter names
     // Maps from (expression, senTree) to the AstAlways that computes its delayed values.
-    std::unordered_map<VNRef<AstNodeExpr>, std::unordered_map<VNRef<AstSenTree>, AstAlways*>>
+    std::unordered_map<VNRef<Ast_కణుపు_సమాసం>, std::unordered_map<VNRef<Ast_Sen_వృక్షం>, AstAlways*>>
         m_modExpr2Sen2DelayedAlwaysp;
     // Source sampled-value history is initialized, unlike internal property-lowering history.
-    std::unordered_map<VNRef<AstNodeExpr>, std::unordered_map<VNRef<AstSenTree>, AstAlways*>>
+    std::unordered_map<VNRef<Ast_కణుపు_సమాసం>, std::unordered_map<VNRef<Ast_Sen_వృక్షం>, AstAlways*>>
         m_modExpr2Sen2DefaultDelayedAlwaysp;
     // Map from delayed-value AstAlways to its last-sampling-tick time variable
-    std::unordered_map<const AstAlways*, AstVar*> m_delayedAlways2TickTimep;
+    std::unordered_map<స్థిరరాశి AstAlways*, AstVar*> m_delayedAlways2TickTimep;
 
     // METHODS
-    static const char* assertPassOnQuery(bool vacuous) {
-        static constexpr const char* queries[2]
+    స్థిర స్థిరరాశి అక్షరం* assertPassOnQuery(తార్కిక vacuous) {
+        స్థిర constexpr స్థిరరాశి అక్షరం* queries[2]
             = {"ASSERT_CTL_PASS_ON_NONVACUOUS", "ASSERT_CTL_PASS_ON_VACUOUS"};
-        return queries[vacuous];
+        తిరిగి queries[vacuous];
     }
-    static AstNodeExpr* assertOnCond(FileLine* fl, VAssertType type,
+    స్థిర Ast_కణుపు_సమాసం* assertOnCond(File_పంక్తి* fl, VAssertType type,
                                      VAssertDirectiveType directiveType) {
         // cppcheck-suppress missingReturn
-        switch (directiveType) {
-        case VAssertDirectiveType::INTRINSIC: return new AstConst{fl, AstConst::BitTrue{}};
-        case VAssertDirectiveType::VIOLATION_CASE: {
-            if (v3Global.opt.assertCase()) {
-                return new AstCExpr{fl, AstCExpr::Pure{}, "vlSymsp->_vm_contextp__->assertOn()",
+        ఎంపిక (directiveType) {
+        స్థితి VAssertDirectiveType::INTRINSIC: తిరిగి కొత్త AstConst{fl, AstConst::బిట్టు_True{}};
+        స్థితి VAssertDirectiveType::VIOLATION_CASE: {
+            ఒకవేళ (v3Global.opt.assertCase()) {
+                తిరిగి కొత్త AstCExpr{fl, AstCExpr::శుద్ధ{}, "vlSymsp->_vm_contextp__->assertOn()",
                                     1};
             }
             // If assertions are off, have constant propagation rip them out later
             // This allows syntax errors and such to be detected normally.
-            return new AstConst{fl, AstConst::BitFalse{}};
+            తిరిగి కొత్త AstConst{fl, AstConst::బిట్టు_False{}};
         }
-        case VAssertDirectiveType::ASSERT:
-        case VAssertDirectiveType::COVER:
-        case VAssertDirectiveType::ASSUME: {
-            if (v3Global.opt.assertOn()) {
-                return new AstCExpr{
-                    fl, AstCExpr::Pure{},
+        స్థితి VAssertDirectiveType::ASSERT:
+        స్థితి VAssertDirectiveType::COVER:
+        స్థితి VAssertDirectiveType::ASSUME: {
+            ఒకవేళ (v3Global.opt.assertOn()) {
+                తిరిగి కొత్త AstCExpr{
+                    fl, AstCExpr::శుద్ధ{},
                     V3AssertCommon::assertCtlGetCall("ASSERT_CTL_ON", type, directiveType), 1};
             }
-            return new AstConst{fl, AstConst::BitFalse{}};
+            తిరిగి కొత్త AstConst{fl, AstConst::బిట్టు_False{}};
         }
-        case VAssertDirectiveType::INTERNAL:
-        case VAssertDirectiveType::VIOLATION_IF:
-        case VAssertDirectiveType::RESTRICT: {
-            if (v3Global.opt.assertOn()) {
-                return new AstCExpr{fl, AstCExpr::Pure{}, "vlSymsp->_vm_contextp__->assertOn()",
+        స్థితి VAssertDirectiveType::అంతర్గత:
+        స్థితి VAssertDirectiveType::VIOLATION_IF:
+        స్థితి VAssertDirectiveType::RESTRICT: {
+            ఒకవేళ (v3Global.opt.assertOn()) {
+                తిరిగి కొత్త AstCExpr{fl, AstCExpr::శుద్ధ{}, "vlSymsp->_vm_contextp__->assertOn()",
                                     1};
             }
-            return new AstConst{fl, AstConst::BitFalse{}};
+            తిరిగి కొత్త AstConst{fl, AstConst::బిట్టు_False{}};
         }
         }
         VL_UNREACHABLE;
     }
 
-    static bool isControlled(VAssertDirectiveType directiveType) {
-        return (static_cast<int>(directiveType)
-                & (static_cast<int>(VAssertDirectiveType::ASSERT)
-                   | static_cast<int>(VAssertDirectiveType::COVER)
-                   | static_cast<int>(VAssertDirectiveType::ASSUME)));
+    స్థిర తార్కిక isControlled(VAssertDirectiveType directiveType) {
+        తిరిగి (static_cast<పూర్ణాంకం>(directiveType)
+                & (static_cast<పూర్ణాంకం>(VAssertDirectiveType::ASSERT)
+                   | static_cast<పూర్ణాంకం>(VAssertDirectiveType::COVER)
+                   | static_cast<పూర్ణాంకం>(VAssertDirectiveType::ASSUME)));
     }
-    static AstNodeExpr* assertPassOnCond(FileLine* fl, VAssertType type,
-                                         VAssertDirectiveType directiveType, bool vacuous) {
-        if (!isControlled(directiveType)) return new AstConst{fl, AstConst::BitTrue{}};
-        if (!v3Global.opt.assertOn()) return new AstConst{fl, AstConst::BitFalse{}};
-        return new AstCExpr{
-            fl, AstCExpr::Pure{},
+    స్థిర Ast_కణుపు_సమాసం* assertPassOnCond(File_పంక్తి* fl, VAssertType type,
+                                         VAssertDirectiveType directiveType, తార్కిక vacuous) {
+        ఒకవేళ (!isControlled(directiveType)) తిరిగి కొత్త AstConst{fl, AstConst::బిట్టు_True{}};
+        ఒకవేళ (!v3Global.opt.assertOn()) తిరిగి కొత్త AstConst{fl, AstConst::బిట్టు_False{}};
+        తిరిగి కొత్త AstCExpr{
+            fl, AstCExpr::శుద్ధ{},
             V3AssertCommon::assertCtlGetCall(assertPassOnQuery(vacuous), type, directiveType), 1};
     }
-    static AstNodeExpr* assertFailOnCond(FileLine* fl, VAssertType type,
+    స్థిర Ast_కణుపు_సమాసం* assertFailOnCond(File_పంక్తి* fl, VAssertType type,
                                          VAssertDirectiveType directiveType) {
-        if (!isControlled(directiveType)) return new AstConst{fl, AstConst::BitTrue{}};
-        if (!v3Global.opt.assertOn()) return new AstConst{fl, AstConst::BitFalse{}};
-        return new AstCExpr{
-            fl, AstCExpr::Pure{},
+        ఒకవేళ (!isControlled(directiveType)) తిరిగి కొత్త AstConst{fl, AstConst::బిట్టు_True{}};
+        ఒకవేళ (!v3Global.opt.assertOn()) తిరిగి కొత్త AstConst{fl, AstConst::బిట్టు_False{}};
+        తిరిగి కొత్త AstCExpr{
+            fl, AstCExpr::శుద్ధ{},
             V3AssertCommon::assertCtlGetCall("ASSERT_CTL_FAIL_ON", type, directiveType), 1};
     }
-    string assertDisplayMessage(const AstNode* nodep, const string& prefix, const string& message,
+    string assert_Display_సందేశం(స్థిరరాశి Ast_కణుపు* nodep, స్థిరరాశి string& ఉపసర్గ, స్థిరరాశి string& సందేశం,
                                 VDisplayType severity) {
-        if (severity == VDisplayType::DT_ERROR || severity == VDisplayType::DT_FATAL) {
-            return ("[%0t] "s + prefix + ": " + nodep->fileline()->filebasename() + ":"
-                    + cvtToStr(nodep->fileline()->lineno()) + ": Assertion failed in %m"
-                    + ((message != "") ? ": " : "") + message + "\n");
+        ఒకవేళ (severity == VDisplayType::DT_ERROR || severity == VDisplayType::DT_FATAL) {
+            తిరిగి ("[%0t] "s + ఉపసర్గ + ": " + nodep->fileline()->filebasename() + ":"
+                    + cvt_గమ్యం_Str(nodep->fileline()->lineno()) + ": Assertion failed in %m"
+                    + ((సందేశం != "") ? ": " : "") + సందేశం + "\n");
         }
-        return ("[%0t] "s + prefix + ": " + nodep->fileline()->filebasename() + ":"
-                + cvtToStr(nodep->fileline()->lineno()) + ": %m" + ((message != "") ? ": " : "")
-                + message + "\n");
+        తిరిగి ("[%0t] "s + ఉపసర్గ + ": " + nodep->fileline()->filebasename() + ":"
+                + cvt_గమ్యం_Str(nodep->fileline()->lineno()) + ": %m" + ((సందేశం != "") ? ": " : "")
+                + సందేశం + "\n");
     }
-    void replaceDisplay(AstDisplay* nodep, const string& prefix) {
-        nodep->fmtp()->text(
-            assertDisplayMessage(nodep, prefix, nodep->fmtp()->text(), nodep->displayType()));
+    శూన్య replaceDisplay(AstDisplay* nodep, స్థిరరాశి string& ఉపసర్గ) {
+        nodep->fmtp()->పాఠ్యం(
+            assert_Display_సందేశం(nodep, ఉపసర్గ, nodep->fmtp()->పాఠ్యం(), nodep->displayType()));
         nodep->displayType(VDisplayType::DT_WRITE);
         // cppcheck-suppress nullPointer
-        AstNodeExpr* const timenewp = new AstTime{nodep->fileline(), m_modp->timeunit()};
+        Ast_కణుపు_సమాసం* స్థిరరాశి timenewp = కొత్త Ast_సమయం{nodep->fileline(), m_modp->timeunit()};
         nodep->fmtp()->prependExprsp(timenewp);
-        if (!nodep->fmtp()->scopeNamep() && nodep->fmtp()->formatScopeTracking()) {
-            nodep->fmtp()->scopeNamep(new AstScopeName{nodep->fileline(), true});
+        ఒకవేళ (!nodep->fmtp()->scopeNamep() && nodep->fmtp()->formatScopeTracking()) {
+            nodep->fmtp()->scopeNamep(కొత్త AstScopeName{nodep->fileline(), నిజం});
         }
     }
-    AstSampled* newSampledExpr(AstNodeExpr* nodep) {
-        return new AstSampled{nodep->fileline(), nodep, nodep->dtypep(), true};
+    AstSampled* new_Sampled_సమాసం(Ast_కణుపు_సమాసం* nodep) {
+        తిరిగి కొత్త AstSampled{nodep->fileline(), nodep, nodep->dtypep(), నిజం};
     }
-    AstVarRef* newMonitorNumVarRefp(const AstNode* nodep, VAccess access) {
-        if (!m_monitorNumVarp) {
-            m_monitorNumVarp = new AstVar{nodep->fileline(), VVarType::MODULETEMP, "__VmonitorNum",
-                                          nodep->findUInt64DType()};
-            v3Global.rootp()->dollarUnitPkgp()->addStmtsp(m_monitorNumVarp);
+    AstVarRef* new_Monitor_అంకె_Var_Refp(స్థిరరాశి Ast_కణుపు* nodep, VAccess access) {
+        ఒకవేళ (!m_monitor_అంకె_Varp) {
+            m_monitor_అంకె_Varp = కొత్త AstVar{nodep->fileline(), VVarType::MODULETEMP, "__VmonitorNum",
+                                          nodep->కనుగొను_UInt64_DType()};
+            v3Global.rootp()->dollarUnitPkgp()->కూడు_Stmtsp(m_monitor_అంకె_Varp);
         }
-        AstVarRef* const varrefp = new AstVarRef{nodep->fileline(), m_monitorNumVarp, access};
+        AstVarRef* స్థిరరాశి varrefp = కొత్త AstVarRef{nodep->fileline(), m_monitor_అంకె_Varp, access};
         varrefp->classOrPackagep(v3Global.rootp()->dollarUnitPkgp());
-        return varrefp;
+        తిరిగి varrefp;
     }
-    AstVarRef* newMonitorOffVarRefp(const AstNode* nodep, VAccess access) {
-        if (!m_monitorOffVarp) {
-            m_monitorOffVarp = new AstVar{nodep->fileline(), VVarType::MODULETEMP, "__VmonitorOff",
-                                          nodep->findBitDType()};
-            v3Global.rootp()->dollarUnitPkgp()->addStmtsp(m_monitorOffVarp);
+    AstVarRef* newMonitorOffVarRefp(స్థిరరాశి Ast_కణుపు* nodep, VAccess access) {
+        ఒకవేళ (!m_monitorOffVarp) {
+            m_monitorOffVarp = కొత్త AstVar{nodep->fileline(), VVarType::MODULETEMP, "__VmonitorOff",
+                                          nodep->కనుగొను_బిట్టు_DType()};
+            v3Global.rootp()->dollarUnitPkgp()->కూడు_Stmtsp(m_monitorOffVarp);
         }
-        AstVarRef* const varrefp = new AstVarRef{nodep->fileline(), m_monitorOffVarp, access};
+        AstVarRef* స్థిరరాశి varrefp = కొత్త AstVarRef{nodep->fileline(), m_monitorOffVarp, access};
         varrefp->classOrPackagep(v3Global.rootp()->dollarUnitPkgp());
-        return varrefp;
+        తిరిగి varrefp;
     }
-    static AstIf* newIfAssertOn(AstNode* bodyp, VAssertDirectiveType directiveType,
-                                VAssertType type = VAssertType::INTERNAL) {
+    స్థిర AstIf* newIfAssertOn(Ast_కణుపు* bodyp, VAssertDirectiveType directiveType,
+                                VAssertType type = VAssertType::అంతర్గత) {
         // Add an internal if to check assertions are on.
         // Don't make this an AND term, as it's unlikely to need to test this.
-        FileLine* const fl = bodyp->fileline();
+        File_పంక్తి* స్థిరరాశి fl = bodyp->fileline();
 
-        AstNodeExpr* const condp = assertOnCond(fl, type, directiveType);
-        AstIf* const newp = new AstIf{fl, condp, bodyp};
-        newp->isBoundsCheck(true);  // To avoid LATCH warning
-        newp->user2(true);  // Mark as an assertOn() check
-        return newp;
+        Ast_కణుపు_సమాసం* స్థిరరాశి condp = assertOnCond(fl, type, directiveType);
+        AstIf* స్థిరరాశి newp = కొత్త AstIf{fl, condp, bodyp};
+        newp->isBoundsCheck(నిజం);  // To avoid LATCH warning
+        newp->user2(నిజం);  // Mark as an assertOn() check
+        తిరిగి newp;
     }
-    static AstNodeStmt* newIfAssertPassOn(AstNode* bodyp, VAssertDirectiveType directiveType,
-                                          VAssertType type, bool vacuous) {
+    స్థిర Ast_కణుపు_Stmt* newIfAssertPassOn(Ast_కణుపు* bodyp, VAssertDirectiveType directiveType,
+                                          VAssertType type, తార్కిక vacuous) {
         // Add an internal if to check assertion passOn is enabled.
         // Don't make this an AND term, as it's unlikely to need to test this.
-        FileLine* const fl = bodyp->fileline();
-        AstNodeExpr* const condp = assertPassOnCond(fl, type, directiveType, vacuous);
-        AstNodeIf* const newp = new AstIf{fl, condp, bodyp};
-        newp->isBoundsCheck(true);  // To avoid LATCH warning
-        newp->user1(true);  // Don't assert/cover this if
-        newp->user2(true);  // Mark as an assertOn() check
-        return newp;
+        File_పంక్తి* స్థిరరాశి fl = bodyp->fileline();
+        Ast_కణుపు_సమాసం* స్థిరరాశి condp = assertPassOnCond(fl, type, directiveType, vacuous);
+        Ast_కణుపు_If* స్థిరరాశి newp = కొత్త AstIf{fl, condp, bodyp};
+        newp->isBoundsCheck(నిజం);  // To avoid LATCH warning
+        newp->user1(నిజం);  // Don't assert/cover this if
+        newp->user2(నిజం);  // Mark as an assertOn() check
+        తిరిగి newp;
     }
-    static AstNodeStmt* newIfAssertFailOn(AstNode* bodyp, VAssertDirectiveType directiveType,
+    స్థిర Ast_కణుపు_Stmt* newIfAssertFailOn(Ast_కణుపు* bodyp, VAssertDirectiveType directiveType,
                                           VAssertType type) {
         // Add an internal if to check assertion failOn is enabled.
         // Don't make this an AND term, as it's unlikely to need to test this.
-        FileLine* const fl = bodyp->fileline();
-        AstNodeExpr* const condp = assertFailOnCond(fl, type, directiveType);
-        AstNodeIf* const newp = new AstIf{fl, condp, bodyp};
-        newp->isBoundsCheck(true);  // To avoid LATCH warning
-        newp->user1(true);  // Don't assert/cover this if
-        newp->user2(true);  // Mark as an assertOn() check
-        return newp;
+        File_పంక్తి* స్థిరరాశి fl = bodyp->fileline();
+        Ast_కణుపు_సమాసం* స్థిరరాశి condp = assertFailOnCond(fl, type, directiveType);
+        Ast_కణుపు_If* స్థిరరాశి newp = కొత్త AstIf{fl, condp, bodyp};
+        newp->isBoundsCheck(నిజం);  // To avoid LATCH warning
+        newp->user1(నిజం);  // Don't assert/cover this if
+        newp->user2(నిజం);  // Mark as an assertOn() check
+        తిరిగి newp;
     }
 
-    static AstIf* assertCond(const AstNodeCoverOrAssert* nodep, AstNodeExpr* propp,
-                             AstNode* passsp, AstNode* failsp) {
-        AstIf* const ifp = new AstIf{nodep->fileline(), propp, passsp, failsp};
+    స్థిర AstIf* assertCond(స్థిరరాశి Ast_కణుపు_Cover_Or_Assert* nodep, Ast_కణుపు_సమాసం* propp,
+                             Ast_కణుపు* passsp, Ast_కణుపు* failsp) {
+        AstIf* స్థిరరాశి ifp = కొత్త AstIf{nodep->fileline(), propp, passsp, failsp};
         // It's more LIKELY that we'll take the nullptr if clause
         // than the sim-killing else clause:
         ifp->branchPred(VBranchPred::BP_LIKELY);
-        ifp->isBoundsCheck(true);  // To avoid LATCH warning
-        return ifp;
+        ifp->isBoundsCheck(నిజం);  // To avoid LATCH warning
+        తిరిగి ifp;
     }
 
-    AstNodeStmt* assertBody(const AstNodeCoverOrAssert* nodep, AstNode* propp, AstNode* passsp,
-                            AstNode* failsp) {
-        if (AstPExpr* const pexprp = VN_CAST(propp, PExpr)) {
-            if (!v3Global.opt.timing().isSetTrue()) {
+    Ast_కణుపు_Stmt* assertBody(స్థిరరాశి Ast_కణుపు_Cover_Or_Assert* nodep, Ast_కణుపు* propp, Ast_కణుపు* passsp,
+                            Ast_కణుపు* failsp) {
+        ఒకవేళ (AstPExpr* స్థిరరాశి pexprp = VN_CAST(propp, PExpr)) {
+            ఒకవేళ (!v3Global.opt.timing().is_సమితి_True()) {
                 nodep->v3warn(E_NOTIMING, "This property expression requires --timing");
-                VL_DO_DANGLING(pushDeletep(pexprp), pexprp);
-                return new AstBegin{nodep->fileline(), "", nullptr, false};
+                VL_DO_DANGLING(నెట్టు_Deletep(pexprp), pexprp);
+                తిరిగి కొత్త AstBegin{nodep->fileline(), "", శూన్యసూచిక, అబద్ధం};
             }
-            AstFork* const forkp = new AstFork{nodep->fileline(), VJoinType::JOIN_NONE};
-            forkp->addForksp(pexprp->bodyp()->unlinkFrBack());
-            if (AstNodeStmt* const finalp = pexprp->finalp()) {
-                if (!m_finalp) {
-                    m_finalp = new AstFinal{m_modp->fileline(), finalp->unlinkFrBack()};
-                    m_modp->addStmtsp(m_finalp);
-                } else {
-                    m_finalp->addStmtsp(finalp->unlinkFrBack());
+            AstFork* స్థిరరాశి forkp = కొత్త AstFork{nodep->fileline(), VJoinType::JOIN_NONE};
+            forkp->కూడు_Forksp(pexprp->bodyp()->unlink_Fr_వెనుక());
+            ఒకవేళ (Ast_కణుపు_Stmt* స్థిరరాశి finalp = pexprp->finalp()) {
+                ఒకవేళ (!m_finalp) {
+                    m_finalp = కొత్త AstFinal{m_modp->fileline(), finalp->unlink_Fr_వెనుక()};
+                    m_modp->కూడు_Stmtsp(m_finalp);
+                } లేకపోతే {
+                    m_finalp->కూడు_Stmtsp(finalp->unlink_Fr_వెనుక());
                 }
             }
-            VL_DO_DANGLING2(pushDeletep(pexprp), pexprp, propp);
-            return forkp;
+            VL_DO_DANGLING2(నెట్టు_Deletep(pexprp), pexprp, propp);
+            తిరిగి forkp;
         }
 
-        return assertCond(nodep, VN_AS(propp, NodeExpr), passsp, failsp);
+        తిరిగి assertCond(nodep, VN_AS(propp, కణుపు_సమాసం), passsp, failsp);
     }
 
-    AstNodeStmt* newFireAssertUnchecked(const AstNodeStmt* nodep, const string& message,
-                                        AstNodeExpr* exprsp = nullptr) {
+    Ast_కణుపు_Stmt* newFireAssertUnchecked(స్థిరరాశి Ast_కణుపు_Stmt* nodep, స్థిరరాశి string& సందేశం,
+                                        Ast_కణుపు_సమాసం* exprsp = శూన్యసూచిక) {
         // Like newFireAssert() but omits the asserts-on check
-        AstDisplay* const dispp
-            = new AstDisplay{nodep->fileline(), VDisplayType::DT_ERROR, message, nullptr, nullptr};
+        AstDisplay* స్థిరరాశి dispp
+            = కొత్త AstDisplay{nodep->fileline(), VDisplayType::DT_ERROR, సందేశం, శూన్యసూచిక, శూన్యసూచిక};
         dispp->fmtp()->timeunit(m_modp->timeunit());
-        AstNodeStmt* const bodysp = dispp;
+        Ast_కణుపు_Stmt* స్థిరరాశి bodysp = dispp;
         replaceDisplay(dispp, "%%Error");  // Convert to standard DISPLAY format
-        if (exprsp) dispp->fmtp()->exprsp()->addNext(exprsp);
-        if (v3Global.opt.stopFail()) bodysp->addNext(new AstStop{nodep->fileline(), false});
-        return bodysp;
+        ఒకవేళ (exprsp) dispp->fmtp()->exprsp()->కూడు_తదుపరి(exprsp);
+        ఒకవేళ (v3Global.opt.stopFail()) bodysp->కూడు_తదుపరి(కొత్త AstStop{nodep->fileline(), అబద్ధం});
+        తిరిగి bodysp;
     }
 
-    AstNodeStmt* newFireAssert(const AstNodeStmt* nodep, VAssertDirectiveType directiveType,
-                               VAssertType assertType, const string& message,
-                               AstNodeExpr* exprsp = nullptr) {
-        AstNodeStmt* bodysp = newFireAssertUnchecked(nodep, message, exprsp);
+    Ast_కణుపు_Stmt* newFireAssert(స్థిరరాశి Ast_కణుపు_Stmt* nodep, VAssertDirectiveType directiveType,
+                               VAssertType assertType, స్థిరరాశి string& సందేశం,
+                               Ast_కణుపు_సమాసం* exprsp = శూన్యసూచిక) {
+        Ast_కణుపు_Stmt* bodysp = newFireAssertUnchecked(nodep, సందేశం, exprsp);
         bodysp = newIfAssertOn(bodysp, directiveType, assertType);
-        return bodysp;
+        తిరిగి bodysp;
     }
 
-    AstVar* createDelayedVar(const std::string& name, AstAlways* alwaysp, AstNodeExpr* exprp,
-                             AstNodeExpr* initp) {
-        FileLine* const flp = exprp->fileline();
-        AstVar* const varp = new AstVar{flp, VVarType::MODULETEMP, name, exprp->dtypep()};
+    AstVar* createDelayedVar(స్థిరరాశి std::string& name, AstAlways* alwaysp, Ast_కణుపు_సమాసం* exprp,
+                             Ast_కణుపు_సమాసం* initp) {
+        File_పంక్తి* స్థిరరాశి flp = exprp->fileline();
+        AstVar* స్థిరరాశి varp = కొత్త AstVar{flp, VVarType::MODULETEMP, name, exprp->dtypep()};
         // TODO: this lifetime seems nonsene (can't have NBAs to automatics), but is as before
         varp->lifetime(VLifetime::AUTOMATIC_EXPLICIT);
-        m_modp->addStmtsp(varp);
+        m_modp->కూడు_Stmtsp(varp);
         // Before enough clock ticks, $past returns the expression's default sampled value.
-        if (initp) {
-            m_modp->addStmtsp(new AstInitialStatic{
-                flp, new AstAssign{flp, new AstVarRef{flp, varp, VAccess::WRITE}, initp}});
+        ఒకవేళ (initp) {
+            m_modp->కూడు_Stmtsp(కొత్త AstInitialStatic{
+                flp, కొత్త Ast_కేటాయించు{flp, కొత్త AstVarRef{flp, varp, VAccess::WRITE}, initp}});
         }
         ++m_statPastVars;
         // Actually set the delayed value
-        AstNodeExpr* const lhsp = new AstVarRef{flp, varp, VAccess::WRITE};
-        AstAssignDly* const assignp = new AstAssignDly{flp, lhsp, exprp};
+        Ast_కణుపు_సమాసం* స్థిరరాశి lhsp = కొత్త AstVarRef{flp, varp, VAccess::WRITE};
+        Ast_కేటాయించు_Dly* స్థిరరాశి assignp = కొత్త Ast_కేటాయించు_Dly{flp, lhsp, exprp};
         alwaysp->prependStmtsp(assignp);
-        return varp;
+        తిరిగి varp;
     }
 
-    AstAlways* getDelayedAlways(AstNodeExpr* exprp, AstNodeExpr* initp, AstSenTree* senTreep) {
-        auto& expr2Sen2Alwaysr
+    AstAlways* getDelayedAlways(Ast_కణుపు_సమాసం* exprp, Ast_కణుపు_సమాసం* initp, Ast_Sen_వృక్షం* senTreep) {
+        స్వయంచాలక& expr2Sen2Alwaysr
             = initp ? m_modExpr2Sen2DefaultDelayedAlwaysp : m_modExpr2Sen2DelayedAlwaysp;
         AstAlways*& alwayspr = expr2Sen2Alwaysr[*exprp][*senTreep];
-        if (!alwayspr) {
-            FileLine* const flp = exprp->fileline();
+        ఒకవేళ (!alwayspr) {
+            File_పంక్తి* స్థిరరాశి flp = exprp->fileline();
             // Create the always block that computes the delayed values
-            alwayspr = new AstAlways{flp, VAlwaysKwd::ALWAYS, senTreep, nullptr};
-            m_modp->addStmtsp(alwayspr);
+            alwayspr = కొత్త AstAlways{flp, VAlwaysKwd::ALWAYS, senTreep, శూన్యసూచిక};
+            m_modp->కూడు_Stmtsp(alwayspr);
             // Create the once-delayed variable
-            const std::string name = "_Vpast_" + cvtToStr(m_modPastNum++) + "_1";
-            AstVar* const varp = createDelayedVar(name, alwayspr, exprp, initp);
+            స్థిరరాశి std::string name = "_Vpast_" + cvt_గమ్యం_Str(m_mod_Past_అంకె++) + "_1";
+            AstVar* స్థిరరాశి varp = createDelayedVar(name, alwayspr, exprp, initp);
             // Add it to delayed variable vector
-            m_delayed(alwayspr).emplace_back(varp);
-        } else {
+            m_delayed(alwayspr).emplace_వెనుక(varp);
+        } లేకపోతే {
             // Reusing exiting, not needed
-            VL_DO_DANGLING(pushDeletep(exprp), exprp);
-            if (initp) VL_DO_DANGLING(pushDeletep(initp), initp);
-            VL_DO_DANGLING(pushDeletep(senTreep), senTreep);
+            VL_DO_DANGLING(నెట్టు_Deletep(exprp), exprp);
+            ఒకవేళ (initp) VL_DO_DANGLING(నెట్టు_Deletep(initp), initp);
+            VL_DO_DANGLING(నెట్టు_Deletep(senTreep), senTreep);
         }
-        return alwayspr;
+        తిరిగి alwayspr;
     }
 
-    AstNodeExpr* getPastValue(AstNodeExpr* exprp, AstNodeExpr* initp, AstSenTree* senTreep,
+    Ast_కణుపు_సమాసం* get_Past_విలువ(Ast_కణుపు_సమాసం* exprp, Ast_కణుపు_సమాసం* initp, Ast_Sen_వృక్షం* senTreep,
                               uint32_t ticks) {
         UASSERT_OBJ(ticks > 0, exprp, "Delay must be > 0");
-        FileLine* const flp = exprp->fileline();
-        AstAlways* const alwaysp
-            = getDelayedAlways(exprp, initp ? initp->cloneTreePure(false) : nullptr, senTreep);
-        AstNodeExpr* const resultp = pastValueRef(alwaysp, flp, ticks, initp);
-        if (initp) VL_DO_DANGLING(pushDeletep(initp), initp);
-        return resultp;
+        File_పంక్తి* స్థిరరాశి flp = exprp->fileline();
+        AstAlways* స్థిరరాశి alwaysp
+            = getDelayedAlways(exprp, initp ? initp->clone_వృక్షం_శుద్ధ(అబద్ధం) : శూన్యసూచిక, senTreep);
+        Ast_కణుపు_సమాసం* స్థిరరాశి resultp = past_విలువ_Ref(alwaysp, flp, ticks, initp);
+        ఒకవేళ (initp) VL_DO_DANGLING(నెట్టు_Deletep(initp), initp);
+        తిరిగి resultp;
     }
 
-    AstNodeExpr* pastValueRef(AstAlways* alwaysp, FileLine* flp, uint32_t ticks,
-                              AstNodeExpr* initp) {
-        std::vector<AstVar*>& delayedr = m_delayed(alwaysp);
+    Ast_కణుపు_సమాసం* past_విలువ_Ref(AstAlways* alwaysp, File_పంక్తి* flp, uint32_t ticks,
+                              Ast_కణుపు_సమాసం* initp) {
+        std::సదిశ<AstVar*>& delayedr = m_delayed(alwaysp);
         // Ensure the required delay exists
-        while (delayedr.size() < ticks) {
-            AstVar* const firstp = delayedr.front();
-            FileLine* const varFlp = firstp->fileline();
+        అయితే (delayedr.కొలత() < ticks) {
+            AstVar* స్థిరరాశి firstp = delayedr.front();
+            File_పంక్తి* స్థిరరాశి varFlp = firstp->fileline();
             // Create once more delayed value
             std::string name = firstp->name();
-            name.resize(name.size() - 1);
-            name += std::to_string(delayedr.size() + 1);
-            AstNodeExpr* const prevp = new AstVarRef{varFlp, delayedr.back(), VAccess::READ};
-            AstVar* const varp = createDelayedVar(name, alwaysp, prevp,
-                                                  initp ? initp->cloneTreePure(false) : nullptr);
+            name.resize(name.కొలత() - 1);
+            name += std::గమ్యం_string(delayedr.కొలత() + 1);
+            Ast_కణుపు_సమాసం* స్థిరరాశి prevp = కొత్త AstVarRef{varFlp, delayedr.వెనుక(), VAccess::READ};
+            AstVar* స్థిరరాశి varp = createDelayedVar(name, alwaysp, prevp,
+                                                  initp ? initp->clone_వృక్షం_శుద్ధ(అబద్ధం) : శూన్యసూచిక);
             // Add it to delayed variable vector
-            delayedr.emplace_back(varp);
+            delayedr.emplace_వెనుక(varp);
         }
         // Return a reference to the appropriately delayed variable
-        return new AstVarRef{flp, delayedr.at(ticks - 1), VAccess::READ};
+        తిరిగి కొత్త AstVarRef{flp, delayedr.at(ticks - 1), VAccess::READ};
     }
 
     // Time of the pipeline's last sampling tick, for end-of-simulation readers
-    AstVar* getPastTickTimeVar(AstAlways* alwaysp) {
+    AstVar* get_Past_Tick_సమయం_Var(AstAlways* alwaysp) {
         AstVar*& varpr = m_delayedAlways2TickTimep[alwaysp];
-        if (!varpr) {
-            FileLine* const flp = alwaysp->fileline();
-            varpr = new AstVar{flp, VVarType::MODULETEMP,
-                               "_Vpast_" + cvtToStr(m_modPastNum++) + "_t",
-                               m_modp->findUInt64DType()};
-            m_modp->addStmtsp(varpr);
-            AstNodeExpr* const timep = new AstCExpr{flp, "vlSymsp->_vm_contextp__->time()", 64};
-            alwaysp->addStmtsp(
-                new AstAssign{flp, new AstVarRef{flp, varpr, VAccess::WRITE}, timep});
+        ఒకవేళ (!varpr) {
+            File_పంక్తి* స్థిరరాశి flp = alwaysp->fileline();
+            varpr = కొత్త AstVar{flp, VVarType::MODULETEMP,
+                               "_Vpast_" + cvt_గమ్యం_Str(m_mod_Past_అంకె++) + "_t",
+                               m_modp->కనుగొను_UInt64_DType()};
+            m_modp->కూడు_Stmtsp(varpr);
+            Ast_కణుపు_సమాసం* స్థిరరాశి timep = కొత్త AstCExpr{flp, "vlSymsp->_vm_contextp__->time()", 64};
+            alwaysp->కూడు_Stmtsp(
+                కొత్త Ast_కేటాయించు{flp, కొత్త AstVarRef{flp, varpr, VAccess::WRITE}, timep});
         }
-        return varpr;
+        తిరిగి varpr;
     }
 
-    void visitAssertionIterate(AstNodeCoverOrAssert* nodep, AstNode* failsp) {
-        if (m_beginp && nodep->name() == "") nodep->name(m_beginp->name());
+    శూన్య సందర్శించు_Assertion_Iterate(Ast_కణుపు_Cover_Or_Assert* nodep, Ast_కణుపు* failsp) {
+        ఒకవేళ (m_beginp && nodep->name() == "") nodep->name(m_beginp->name());
 
-        { AssertDeFutureVisitor{nodep->propp(), m_modp, m_modPastNum++}; }
+        { AssertDeFutureVisitor{nodep->propp(), m_modp, m_mod_Past_అంకె++}; }
 
-        iterateAndNextNull(nodep->sentreep());
-        if (AstAssert* const assertp = VN_CAST(nodep, Assert)) {
-            iterateAndNextNull(assertp->failsp());
-        } else if (AstAssertIntrinsic* const assertp = VN_CAST(nodep, AssertIntrinsic)) {
-            iterateAndNextNull(assertp->failsp());
-        } else if (AstCover* const coverp = VN_CAST(nodep, Cover)) {
-            iterateAndNextNull(coverp->coverincsp());
-        } else if (!VN_IS(nodep, Restrict)) {
+        iterate_And_తదుపరి_Null(nodep->sentreep());
+        ఒకవేళ (AstAssert* స్థిరరాశి assertp = VN_CAST(nodep, Assert)) {
+            iterate_And_తదుపరి_Null(assertp->failsp());
+        } లేకపోతే ఒకవేళ (AstAssertIntrinsic* స్థిరరాశి assertp = VN_CAST(nodep, AssertIntrinsic)) {
+            iterate_And_తదుపరి_Null(assertp->failsp());
+        } లేకపోతే ఒకవేళ (AstCover* స్థిరరాశి coverp = VN_CAST(nodep, Cover)) {
+            iterate_And_తదుపరి_Null(coverp->coverincsp());
+        } లేకపోతే ఒకవేళ (!VN_IS(nodep, Restrict)) {
             nodep->v3fatalSrc("Unhandled assert type");
         }
-        iterateAndNextNull(nodep->passsp());
-        AstSenTree* sentreep = nodep->sentreep();
-        if (nodep->immediate()) {
+        iterate_And_తదుపరి_Null(nodep->passsp());
+        Ast_Sen_వృక్షం* sentreep = nodep->sentreep();
+        ఒకవేళ (nodep->తక్షణ()) {
             UASSERT_OBJ(!sentreep, nodep, "Immediate assertions don't have sensitivity");
-        } else {
+        } లేకపోతే {
             UASSERT_OBJ(sentreep, nodep, "Concurrent assertions must have sensitivity");
             // Explicit inline clock differs from the enclosing always: hoist
             // and warn. To support this need queue of asserts to activate.
-            if (m_procedurep && !nodep->senFromAlways()) {
+            ఒకవేళ (m_procedurep && !nodep->senFromAlways()) {
                 nodep->v3warn(E_UNSUPPORTED,
                               "Unsupported: Procedural concurrent assertion with"
                               " clocking event inside always (IEEE 1800-2023 16.14.6)");
-                static_cast<AstNode*>(m_procedurep)->addNext(nodep->unlinkFrBack());
-                return;  // Later iterate will pick up
+                static_cast<Ast_కణుపు*>(m_procedurep)->కూడు_తదుపరి(nodep->unlink_Fr_వెనుక());
+                తిరిగి;  // Later iterate will pick up
             }
-            sentreep->unlinkFrBack();
-            if (m_procedurep) { VL_DO_DANGLING(pushDeletep(sentreep), sentreep); }
+            sentreep->unlink_Fr_వెనుక();
+            ఒకవేళ (m_procedurep) { VL_DO_DANGLING(నెట్టు_Deletep(sentreep), sentreep); }
         }
         //
-        const string& message = nodep->name();
-        AstNode* passsp = nodep->passsp();
-        if (passsp) passsp->unlinkFrBackWithNext();
-        if (AstAssert* const assertp = VN_CAST(nodep, Assert)) {
+        స్థిరరాశి string& సందేశం = nodep->name();
+        Ast_కణుపు* passsp = nodep->passsp();
+        ఒకవేళ (passsp) passsp->unlink_Fr_వెనుక_With_తదుపరి();
+        ఒకవేళ (AstAssert* స్థిరరాశి assertp = VN_CAST(nodep, Assert)) {
             failsp = assertp->failsp();
-        } else if (AstAssertIntrinsic* const assertp = VN_CAST(nodep, AssertIntrinsic)) {
+        } లేకపోతే ఒకవేళ (AstAssertIntrinsic* స్థిరరాశి assertp = VN_CAST(nodep, AssertIntrinsic)) {
             failsp = assertp->failsp();
         }
-        if (failsp) failsp->unlinkFrBackWithNext();
+        ఒకవేళ (failsp) failsp->unlink_Fr_వెనుక_With_తదుపరి();
 
-        bool selfDestruct = false;
-        bool passspGated = false;
-        const AstCover* const coverp = VN_CAST(nodep, Cover);
+        తార్కిక selfDestruct = అబద్ధం;
+        తార్కిక passspGated = అబద్ధం;
+        స్థిరరాశి AstCover* స్థిరరాశి coverp = VN_CAST(nodep, Cover);
         // A sequence event control is not an assertion directive; no assertion control
-        const bool seqEvent = coverp && coverp->isSeqEvent();
-        if (coverp) {
+        స్థిరరాశి తార్కిక seqEvent = coverp && coverp->isSeqEvent();
+        ఒకవేళ (coverp) {
             ++m_statCover;
-            if (seqEvent) {
+            ఒకవేళ (seqEvent) {
                 // Keep the event-fire action, with no coverage bucket
-            } else if (!v3Global.opt.coverageUser()) {
-                selfDestruct = true;
-            } else {
+            } లేకపోతే ఒకవేళ (!v3Global.opt.coverageUser()) {
+                selfDestruct = నిజం;
+            } లేకపోతే {
                 // V3Coverage assigned us a bucket to increment.
-                AstCoverInc* const covincp = VN_AS(coverp->coverincsp(), CoverInc);
+                AstCoverInc* స్థిరరాశి covincp = VN_AS(coverp->coverincsp(), CoverInc);
                 UASSERT_OBJ(covincp, coverp, "Missing AstCoverInc under assertion");
-                covincp->unlinkFrBackWithNext();  // next() might have  AstAssign for trace
-                if (message != "") covincp->declp()->comment(message);
-                if (passsp) {
+                covincp->unlink_Fr_వెనుక_With_తదుపరి();  // next() might have  AstAssign for trace
+                ఒకవేళ (సందేశం != "") covincp->declp()->comment(సందేశం);
+                ఒకవేళ (passsp) {
                     passsp = newIfAssertPassOn(passsp, nodep->directive(), nodep->userType(),
-                                               /*vacuous=*/false);
-                    passspGated = true;
-                    passsp = AstNode::addNext<AstNode, AstNode>(covincp, passsp);
-                } else {
+                                               /*vacuous=*/అబద్ధం);
+                    passspGated = నిజం;
+                    passsp = Ast_కణుపు::కూడు_తదుపరి<Ast_కణుపు, Ast_కణుపు>(covincp, passsp);
+                } లేకపోతే {
                     passsp = covincp;
                 }
             }
-        } else if (VN_IS(nodep, Assert) || VN_IS(nodep, AssertIntrinsic)) {
-            if (nodep->immediate()) {
+        } లేకపోతే ఒకవేళ (VN_IS(nodep, Assert) || VN_IS(nodep, AssertIntrinsic)) {
+            ఒకవేళ (nodep->తక్షణ()) {
                 ++m_statAsImm;
-            } else {
+            } లేకపోతే {
                 ++m_statAsNotImm;
             }
-            if (!passsp && !failsp)
+            ఒకవేళ (!passsp && !failsp)
                 failsp = newFireAssertUnchecked(
                     nodep, VN_IS(nodep, AssertIntrinsic) ? "'$cast' failed." : "'assert' failed.");
-        } else {
+        } లేకపోతే {
             nodep->v3fatalSrc("Unknown node type");
         }
 
@@ -809,690 +809,690 @@ class AssertVisitor final : public VNVisitor {
         m_assertp = nodep;
         iterate(nodep->propp());
 
-        AstNode* propExprp;
-        AstNodeExpr* disablep = nullptr;
-        AstNodeExpr* matchCountp = nullptr;
-        if (AstPropSpec* const specp = VN_CAST(nodep->propp(), PropSpec)) {
-            propExprp = specp->propp()->unlinkFrBack();
-            if (specp->disablep()) disablep = specp->disablep()->unlinkFrBack();
-            matchCountp = specp->matchCountp();
-        } else {
-            propExprp = nodep->propp()->unlinkFrBack();
+        Ast_కణుపు* propExprp;
+        Ast_కణుపు_సమాసం* disablep = శూన్యసూచిక;
+        Ast_కణుపు_సమాసం* సరిపోలిక_Countp = శూన్యసూచిక;
+        ఒకవేళ (AstPropSpec* స్థిరరాశి specp = VN_CAST(nodep->propp(), PropSpec)) {
+            propExprp = specp->propp()->unlink_Fr_వెనుక();
+            ఒకవేళ (specp->disablep()) disablep = specp->disablep()->unlink_Fr_వెనుక();
+            సరిపోలిక_Countp = specp->సరిపోలిక_Countp();
+        } లేకపోతే {
+            propExprp = nodep->propp()->unlink_Fr_వెనుక();
         }
-        FileLine* const flp = nodep->fileline();
-        bool passspAlreadyGated = false;
-        if (passsp && VN_IS(passsp, If)) passspAlreadyGated = VN_AS(passsp, If)->user1();
-        if (passsp && !passspGated && !passspAlreadyGated && !VN_IS(propExprp, PExpr)
+        File_పంక్తి* స్థిరరాశి flp = nodep->fileline();
+        తార్కిక passspAlreadyGated = అబద్ధం;
+        ఒకవేళ (passsp && VN_IS(passsp, If)) passspAlreadyGated = VN_AS(passsp, If)->user1();
+        ఒకవేళ (passsp && !passspGated && !passspAlreadyGated && !VN_IS(propExprp, PExpr)
             && !seqEvent) {
             passsp = newIfAssertPassOn(passsp, nodep->directive(), nodep->userType(),
-                                       /*vacuous=*/false);
+                                       /*vacuous=*/అబద్ధం);
         }
-        if (failsp && !VN_IS(propExprp, PExpr)) {
+        ఒకవేళ (failsp && !VN_IS(propExprp, PExpr)) {
             failsp = newIfAssertFailOn(failsp, nodep->directive(), nodep->userType());
         }
-        if (coverp && matchCountp && passsp) {
+        ఒకవేళ (coverp && సరిపోలిక_Countp && passsp) {
             // Convert the match count into a loop that decrements a temporary variable until it
             // reaches zero.
-            matchCountp->unlinkFrBack();
-            AstVar* const remainingp = new AstVar{
-                flp, VVarType::MODULETEMP, m_matchCountNames.get(""), matchCountp->dtypep()};
+            సరిపోలిక_Countp->unlink_Fr_వెనుక();
+            AstVar* స్థిరరాశి remainingp = కొత్త AstVar{
+                flp, VVarType::MODULETEMP, m_సరిపోలిక_లెక్క_పేర్లు.get(""), సరిపోలిక_Countp->dtypep()};
             remainingp->lifetime(VLifetime::STATIC_EXPLICIT);
-            m_modp->addStmtsp(remainingp);
-            AstNode* const replaysp
-                = new AstAssign{flp, new AstVarRef{flp, remainingp, VAccess::WRITE}, matchCountp};
-            AstLoop* const loopp = new AstLoop{flp};
-            loopp->addStmtsp(
-                new AstLoopTest{flp, loopp, new AstVarRef{flp, remainingp, VAccess::READ}});
-            loopp->addStmtsp(passsp);
-            loopp->addStmtsp(
-                new AstAssign{flp, new AstVarRef{flp, remainingp, VAccess::WRITE},
-                              new AstSub{flp, new AstVarRef{flp, remainingp, VAccess::READ},
-                                         new AstConst{flp, AstConst::WidthedValue{},
-                                                      remainingp->dtypep()->width(), 1}}});
-            replaysp->addNext(loopp);
+            m_modp->కూడు_Stmtsp(remainingp);
+            Ast_కణుపు* స్థిరరాశి replaysp
+                = కొత్త Ast_కేటాయించు{flp, కొత్త AstVarRef{flp, remainingp, VAccess::WRITE}, సరిపోలిక_Countp};
+            AstLoop* స్థిరరాశి loopp = కొత్త AstLoop{flp};
+            loopp->కూడు_Stmtsp(
+                కొత్త AstLoopTest{flp, loopp, కొత్త AstVarRef{flp, remainingp, VAccess::READ}});
+            loopp->కూడు_Stmtsp(passsp);
+            loopp->కూడు_Stmtsp(
+                కొత్త Ast_కేటాయించు{flp, కొత్త AstVarRef{flp, remainingp, VAccess::WRITE},
+                              కొత్త AstSub{flp, కొత్త AstVarRef{flp, remainingp, VAccess::READ},
+                                         కొత్త AstConst{flp, AstConst::Widthed_విలువ{},
+                                                      remainingp->dtypep()->వెడల్పు(), 1}}});
+            replaysp->కూడు_తదుపరి(loopp);
             passsp = replaysp;
         }
-        AstNode* bodysp = assertBody(nodep, propExprp, passsp, failsp);
-        if (disablep) bodysp = new AstIf{flp, new AstLogNot{flp, disablep}, bodysp};
+        Ast_కణుపు* bodysp = assertBody(nodep, propExprp, passsp, failsp);
+        ఒకవేళ (disablep) bodysp = కొత్త AstIf{flp, కొత్త AstLogNot{flp, disablep}, bodysp};
         // Add assertOn check last, for better combining
-        if (!seqEvent) bodysp = newIfAssertOn(bodysp, nodep->directive(), nodep->userType());
-        if (sentreep) bodysp = new AstAlways{flp, VAlwaysKwd::ALWAYS, sentreep, bodysp};
+        ఒకవేళ (!seqEvent) bodysp = newIfAssertOn(bodysp, nodep->directive(), nodep->userType());
+        ఒకవేళ (sentreep) bodysp = కొత్త AstAlways{flp, VAlwaysKwd::ALWAYS, sentreep, bodysp};
 
-        if (passsp && !passsp->backp()) VL_DO_DANGLING(pushDeletep(passsp), passsp);
-        if (failsp && !failsp->backp()) VL_DO_DANGLING(pushDeletep(failsp), failsp);
+        ఒకవేళ (passsp && !passsp->backp()) VL_DO_DANGLING(నెట్టు_Deletep(passsp), passsp);
+        ఒకవేళ (failsp && !failsp->backp()) VL_DO_DANGLING(నెట్టు_Deletep(failsp), failsp);
 
         // Install it
-        if (selfDestruct) {
+        ఒకవేళ (selfDestruct) {
             // Delete it after making the tree.  This way we can tell the user
             // if it wasn't constructed nicely or has other errors without needing --coverage.
-            VL_DO_DANGLING(bodysp->deleteTree(), bodysp);
-            nodep->unlinkFrBack();
-        } else {
+            VL_DO_DANGLING(bodysp->delete_వృక్షం(), bodysp);
+            nodep->unlink_Fr_వెనుక();
+        } లేకపోతే {
             nodep->replaceWith(bodysp);
         }
         // Bye
-        VL_DO_DANGLING(pushDeletep(nodep), nodep);
+        VL_DO_DANGLING(నెట్టు_Deletep(nodep), nodep);
     }
 
-    bool isEmptyStmt(AstNode* nodep) {
-        if (!nodep) return true;
-        if (AstBegin* const beginp = VN_CAST(nodep, Begin)) {
-            if (beginp->declsp()) return false;
-            for (AstNode* stmtp = beginp->stmtsp(); stmtp; stmtp = stmtp->nextp()) {
-                if (!isEmptyStmt(stmtp)) return false;
+    తార్కిక is_ఖాళీలు_Stmt(Ast_కణుపు* nodep) {
+        ఒకవేళ (!nodep) తిరిగి నిజం;
+        ఒకవేళ (AstBegin* స్థిరరాశి beginp = VN_CAST(nodep, Begin)) {
+            ఒకవేళ (beginp->declsp()) తిరిగి అబద్ధం;
+            కొరకు (Ast_కణుపు* stmtp = beginp->stmtsp(); stmtp; stmtp = stmtp->nextp()) {
+                ఒకవేళ (!is_ఖాళీలు_Stmt(stmtp)) తిరిగి అబద్ధం;
             }
-            return true;
+            తిరిగి నిజం;
         }
-        return false;
+        తిరిగి అబద్ధం;
     }
 
     // VISITORS
-    void visit(AstIf* nodep) override {
-        if (!nodep->user1SetOnce()) {
-            if (nodep->uniquePragma() || nodep->unique0Pragma()) {
-                const AstNodeIf* ifp = nodep;
-                AstNodeExpr* propp = nullptr;
-                bool hasDefaultElse = false;
-                do {
+    శూన్య సందర్శించు(AstIf* nodep) override {
+        ఒకవేళ (!nodep->user1_సమితి_Once()) {
+            ఒకవేళ (nodep->uniquePragma() || nodep->unique0Pragma()) {
+                స్థిరరాశి Ast_కణుపు_If* ifp = nodep;
+                Ast_కణుపు_సమాసం* propp = శూన్యసూచిక;
+                తార్కిక hasDefaultElse = అబద్ధం;
+                చేయి {
                     // If this statement ends with 'else if', then nextIf will point to the
                     // nextIf statement.  Otherwise it will be null.
-                    const AstNodeIf* const nextifp = dynamic_cast<AstNodeIf*>(ifp->elsesp());
-                    iterateAndNextNull(ifp->condp());
+                    స్థిరరాశి Ast_కణుపు_If* స్థిరరాశి nextifp = dynamic_cast<Ast_కణుపు_If*>(ifp->elsesp());
+                    iterate_And_తదుపరి_Null(ifp->condp());
 
                     // Recurse into the true case.
-                    iterateAndNextNull(ifp->thensp());
+                    iterate_And_తదుపరి_Null(ifp->thensp());
 
                     // If the last else is not an else if, recurse into that too.
-                    if (ifp->elsesp() && !nextifp) {  //
-                        iterateAndNextNull(ifp->elsesp());
+                    ఒకవేళ (ifp->elsesp() && !nextifp) {  //
+                        iterate_And_తదుపరి_Null(ifp->elsesp());
                     }
 
                     // Build a bitmask of the true predicates
-                    AstNodeExpr* const predp = ifp->condp()->cloneTreePure(false);
-                    if (propp) {
-                        propp = new AstConcat{nodep->fileline(), predp, propp};
-                    } else {
+                    Ast_కణుపు_సమాసం* స్థిరరాశి predp = ifp->condp()->clone_వృక్షం_శుద్ధ(అబద్ధం);
+                    ఒకవేళ (propp) {
+                        propp = కొత్త AstConcat{nodep->fileline(), predp, propp};
+                    } లేకపోతే {
                         propp = predp;
                     }
 
                     // Record if this ends with an 'else' that does not have an if
-                    if (ifp->elsesp() && !nextifp) hasDefaultElse = true;
+                    ఒకవేళ (ifp->elsesp() && !nextifp) hasDefaultElse = నిజం;
 
                     ifp = nextifp;
-                } while (ifp);
+                } అయితే (ifp);
 
-                const bool allow_none = nodep->unique0Pragma();
+                స్థిరరాశి తార్కిక allow_none = nodep->unique0Pragma();
 
                 // Empty case means no property
-                if (!propp) propp = new AstConst{nodep->fileline(), AstConst::BitFalse{}};
+                ఒకవేళ (!propp) propp = కొత్త AstConst{nodep->fileline(), AstConst::బిట్టు_False{}};
 
                 // Note: if this ends with an 'else', then we don't need to validate that one of
                 // the predicates evaluates to true.
-                AstNodeExpr* const ohot
+                Ast_కణుపు_సమాసం* స్థిరరాశి ohot
                     = ((allow_none || hasDefaultElse)
-                           ? static_cast<AstNodeExpr*>(new AstOneHot0{nodep->fileline(), propp})
-                           : static_cast<AstNodeExpr*>(new AstOneHot{nodep->fileline(), propp}));
-                const VAssertType assertType
+                           ? static_cast<Ast_కణుపు_సమాసం*>(కొత్త AstOneHot0{nodep->fileline(), propp})
+                           : static_cast<Ast_కణుపు_సమాసం*>(కొత్త AstOneHot{nodep->fileline(), propp}));
+                స్థిరరాశి VAssertType assertType
                     = nodep->uniquePragma() ? VAssertType::UNIQUE : VAssertType::UNIQUE0;
                 // Move, not clone, as the branches might declare referenced variables
                 VNRelinker relinker;
-                nodep->unlinkFrBack(&relinker);
-                AstIf* const checkifp
-                    = new AstIf{nodep->fileline(), new AstLogNot{nodep->fileline(), ohot},
+                nodep->unlink_Fr_వెనుక(&relinker);
+                AstIf* స్థిరరాశి checkifp
+                    = కొత్త AstIf{nodep->fileline(), కొత్త AstLogNot{nodep->fileline(), ohot},
                                 newFireAssert(nodep, VAssertDirectiveType::VIOLATION_IF,
                                               assertType, "'unique if' statement violated"),
                                 nodep};
-                checkifp->isBoundsCheck(true);  // To avoid LATCH warning
+                checkifp->isBoundsCheck(నిజం);  // To avoid LATCH warning
                 checkifp->branchPred(VBranchPred::BP_UNLIKELY);
                 relinker.relink(checkifp);
-                return;
+                తిరిగి;
             }
         }
 
         iterateChildren(nodep);
 
-        if (nodep->user2()) {
+        ఒకవేళ (nodep->user2()) {
             // Combine consecutive assertOn checks if possible
-            if (AstIf* const backp = VN_CAST(nodep->backp(), If)) {
-                if (backp->nextp() == nodep  //
+            ఒకవేళ (AstIf* స్థిరరాశి backp = VN_CAST(nodep->backp(), If)) {
+                ఒకవేళ (backp->nextp() == nodep  //
                     && backp->user2()  //
-                    && backp->condp()->sameTree(nodep->condp())) {
+                    && backp->condp()->same_వృక్షం(nodep->condp())) {
                     ++m_statAssertOnCombined;
-                    backp->addThensp(nodep->thensp()->unlinkFrBackWithNext());
-                    nodep->unlinkFrBack();
-                    VL_DO_DANGLING(pushDeletep(nodep), nodep);
-                    return;
+                    backp->కూడు_Thensp(nodep->thensp()->unlink_Fr_వెనుక_With_తదుపరి());
+                    nodep->unlink_Fr_వెనుక();
+                    VL_DO_DANGLING(నెట్టు_Deletep(nodep), nodep);
+                    తిరిగి;
                 }
             }
             // Combine nested assertOn checks if possible
-            if (nodep->thensp() && !nodep->thensp()->nextp() && isEmptyStmt(nodep->elsesp())) {
-                AstIf* const checkp = VN_CAST(nodep->thensp(), If);
-                if (checkp  //
+            ఒకవేళ (nodep->thensp() && !nodep->thensp()->nextp() && is_ఖాళీలు_Stmt(nodep->elsesp())) {
+                AstIf* స్థిరరాశి checkp = VN_CAST(nodep->thensp(), If);
+                ఒకవేళ (checkp  //
                     && checkp->user2()  //
-                    && checkp->condp()->sameTree(nodep->condp())) {
+                    && checkp->condp()->same_వృక్షం(nodep->condp())) {
                     ++m_statAssertOnCombined;
-                    nodep->addThensp(checkp->thensp()->unlinkFrBackWithNext());
-                    VL_DO_DANGLING(pushDeletep(checkp->unlinkFrBack()), checkp);
-                    return;
+                    nodep->కూడు_Thensp(checkp->thensp()->unlink_Fr_వెనుక_With_తదుపరి());
+                    VL_DO_DANGLING(నెట్టు_Deletep(checkp->unlink_Fr_వెనుక()), checkp);
+                    తిరిగి;
                 }
             }
-            return;
+            తిరిగి;
         }
 
         // Swap assertOn check with single statement 'if' statement to bubble up for combining
         // Note we can't just swap the conditions as they two Ifs have different flags,
         // so swapping the Ifs themeselves then swapping back the bodies.
-        if (nodep->condp()->isPure()) {
-            if (nodep->thensp() && !nodep->thensp()->nextp() && isEmptyStmt(nodep->elsesp())) {
-                AstIf* const checkp = VN_CAST(nodep->thensp(), If);
-                if (checkp && checkp->user2()) {
+        ఒకవేళ (nodep->condp()->is_శుద్ధ()) {
+            ఒకవేళ (nodep->thensp() && !nodep->thensp()->nextp() && is_ఖాళీలు_Stmt(nodep->elsesp())) {
+                AstIf* స్థిరరాశి checkp = VN_CAST(nodep->thensp(), If);
+                ఒకవేళ (checkp && checkp->user2()) {
                     ++m_statAssertOnHoisted;
-                    nodep->replaceWith(checkp->unlinkFrBack());
-                    nodep->addThensp(checkp->thensp()->unlinkFrBackWithNext());
-                    checkp->addThensp(nodep);
-                    return;
+                    nodep->replaceWith(checkp->unlink_Fr_వెనుక());
+                    nodep->కూడు_Thensp(checkp->thensp()->unlink_Fr_వెనుక_With_తదుపరి());
+                    checkp->కూడు_Thensp(nodep);
+                    తిరిగి;
                 }
             }
-            if (nodep->elsesp() && !nodep->elsesp()->nextp() && isEmptyStmt(nodep->thensp())) {
-                AstIf* const checkp = VN_CAST(nodep->elsesp(), If);
-                if (checkp && checkp->user2()) {
+            ఒకవేళ (nodep->elsesp() && !nodep->elsesp()->nextp() && is_ఖాళీలు_Stmt(nodep->thensp())) {
+                AstIf* స్థిరరాశి checkp = VN_CAST(nodep->elsesp(), If);
+                ఒకవేళ (checkp && checkp->user2()) {
                     ++m_statAssertOnHoisted;
-                    nodep->replaceWith(checkp->unlinkFrBack());
-                    nodep->addElsesp(checkp->thensp()->unlinkFrBackWithNext());
-                    checkp->addThensp(nodep);
-                    return;
+                    nodep->replaceWith(checkp->unlink_Fr_వెనుక());
+                    nodep->కూడు_Elsesp(checkp->thensp()->unlink_Fr_వెనుక_With_తదుపరి());
+                    checkp->కూడు_Thensp(nodep);
+                    తిరిగి;
                 }
             }
         }
     }
 
     //========== Case assertions
-    void visit(AstCase* nodep) override {
+    శూన్య సందర్శించు(AstCase* nodep) override {
         // Introduce temporary variable for AstCase if needed - it is done here and not in V3Case
         // because this phase is before V3Scope and V3Case is not. Doing it before V3Scope ensures
         // that V3Scope will take care of a scope creation
         // We also need to do it before V3Begin, co that pragmas like `unique0` also work correctly
-        if (!nodep->exprp()->isPure()) {
+        ఒకవేళ (!nodep->exprp()->is_శుద్ధ()) {
             ++m_statLiftedCaseExprs;
-            FileLine* const fl = nodep->exprp()->fileline();
-            AstVar* const varp = new AstVar{fl, VVarType::BLOCKTEMP, m_caseTempNames.get(nodep),
+            File_పంక్తి* స్థిరరాశి fl = nodep->exprp()->fileline();
+            AstVar* స్థిరరాశి varp = కొత్త AstVar{fl, VVarType::BLOCKTEMP, m_case_తాత్కాలిక_పేర్లు.get(nodep),
                                             nodep->exprp()->dtypep()};
-            AstNodeExpr* const origp = nodep->exprp()->unlinkFrBack();
-            nodep->addHereThisAsNext(
-                new AstAssign{fl, new AstVarRef{fl, varp, VAccess::WRITE}, origp});
-            nodep->exprp(new AstVarRef{fl, varp, VAccess::READ});
-            if (m_ftaskp) {
-                varp->funcLocal(true);
+            Ast_కణుపు_సమాసం* స్థిరరాశి origp = nodep->exprp()->unlink_Fr_వెనుక();
+            nodep->కూడు_ఇక్కడ_This_As_తదుపరి(
+                కొత్త Ast_కేటాయించు{fl, కొత్త AstVarRef{fl, varp, VAccess::WRITE}, origp});
+            nodep->exprp(కొత్త AstVarRef{fl, varp, VAccess::READ});
+            ఒకవేళ (m_ftaskp) {
+                varp->funcLocal(నిజం);
                 varp->lifetime(VLifetime::AUTOMATIC_EXPLICIT);
                 m_ftaskp->prependStmtsp(varp);
-            } else {
+            } లేకపోతే {
                 m_modp->prependStmtsp(varp);
             }
-            VIsCached::clearCacheTree();
+            VIsCached::clear_Cache_వృక్షం();
         }
         iterateChildren(nodep);
-        if (!nodep->user1SetOnce()) {
-            bool has_default = false;
-            for (AstCaseItem* itemp = nodep->itemsp(); itemp;
-                 itemp = VN_AS(itemp->nextp(), CaseItem)) {
-                if (itemp->isDefault()) has_default = true;
+        ఒకవేళ (!nodep->user1_సమితి_Once()) {
+            తార్కిక has_default = అబద్ధం;
+            కొరకు (Ast_Case_అంశం* itemp = nodep->itemsp(); itemp;
+                 itemp = VN_AS(itemp->nextp(), Case_అంశం)) {
+                ఒకవేళ (itemp->isDefault()) has_default = నిజం;
             }
-            const AstNodeDType* exprDtypep = nodep->exprp()->dtypep()->skipRefp();
+            స్థిరరాశి Ast_కణుపు_DType* సమాసం_Dtypep = nodep->exprp()->dtypep()->skipRefp();
 
-            VAssertType assertType = VAssertType::INTERNAL;
-            if (nodep->priorityPragma()) {
-                assertType = VAssertType::PRIORITY;
-            } else if (nodep->uniquePragma()) {
+            VAssertType assertType = VAssertType::అంతర్గత;
+            ఒకవేళ (nodep->ప్రాధాన్యత_Pragma()) {
+                assertType = VAssertType::ప్రాధాన్యత;
+            } లేకపోతే ఒకవేళ (nodep->uniquePragma()) {
                 assertType = VAssertType::UNIQUE;
-            } else if (nodep->unique0Pragma()) {
+            } లేకపోతే ఒకవేళ (nodep->unique0Pragma()) {
                 assertType = VAssertType::UNIQUE0;
             }
 
             string valFmt;
-            if (exprDtypep->isIntegralOrPacked())
-                valFmt = " for '" + cvtToStr(exprDtypep->widthMin()) + "'h%X'";
-            if (nodep->fullPragma() || nodep->priorityPragma()) {
+            ఒకవేళ (సమాసం_Dtypep->isIntegralOrPacked())
+                valFmt = " for '" + cvt_గమ్యం_Str(సమాసం_Dtypep->వెడల్పు_Min()) + "'h%X'";
+            ఒకవేళ (nodep->నిండిన_Pragma() || nodep->ప్రాధాన్యత_Pragma()) {
                 // Need to add a default if there isn't one already
-                ++m_statAsFull;
-                if (!has_default) {
-                    nodep->addItemsp(new AstCaseItem{
-                        nodep->fileline(), nullptr /*DEFAULT*/,
+                ++m_stat_As_నిండిన;
+                ఒకవేళ (!has_default) {
+                    nodep->కూడు_Itemsp(కొత్త Ast_Case_అంశం{
+                        nodep->fileline(), శూన్యసూచిక /*DEFAULT*/,
                         newFireAssert(nodep, VAssertDirectiveType::VIOLATION_CASE, assertType,
                                       nodep->pragmaString() + ", but non-match found" + valFmt,
-                                      valFmt.empty() ? nullptr
-                                                     : nodep->exprp()->cloneTreePure(false))});
+                                      valFmt.ఖాళీలు() ? శూన్యసూచిక
+                                                     : nodep->exprp()->clone_వృక్షం_శుద్ధ(అబద్ధం))});
                 }
             }
-            if (nodep->parallelPragma() || nodep->uniquePragma() || nodep->unique0Pragma()) {
+            ఒకవేళ (nodep->parallelPragma() || nodep->uniquePragma() || nodep->unique0Pragma()) {
                 // Need to check that one, and only one of the case items match at any moment
                 // If there's a default, we allow none to match, else exactly one must match
-                ++m_statAsFull;
-                if (!has_default && !nodep->itemsp()) {
+                ++m_stat_As_నిండిన;
+                ఒకవేళ (!has_default && !nodep->itemsp()) {
                     // Not parallel, but harmlessly so.
-                } else {
-                    AstNodeExpr* propp = nullptr;
-                    for (AstCaseItem* itemp = nodep->itemsp(); itemp;
-                         itemp = VN_AS(itemp->nextp(), CaseItem)) {
-                        AstNodeExpr* itembitp = nullptr;
-                        for (AstNodeExpr* icondp = itemp->condsp(); icondp;
-                             icondp = VN_AS(icondp->nextp(), NodeExpr)) {
-                            AstNodeExpr* onep;
-                            if (AstInsideRange* const rcondp = VN_CAST(icondp, InsideRange)) {
+                } లేకపోతే {
+                    Ast_కణుపు_సమాసం* propp = శూన్యసూచిక;
+                    కొరకు (Ast_Case_అంశం* itemp = nodep->itemsp(); itemp;
+                         itemp = VN_AS(itemp->nextp(), Case_అంశం)) {
+                        Ast_కణుపు_సమాసం* itembitp = శూన్యసూచిక;
+                        కొరకు (Ast_కణుపు_సమాసం* icondp = itemp->condsp(); icondp;
+                             icondp = VN_AS(icondp->nextp(), కణుపు_సమాసం)) {
+                            Ast_కణుపు_సమాసం* onep;
+                            ఒకవేళ (AstInsideRange* స్థిరరాశి rcondp = VN_CAST(icondp, InsideRange)) {
                                 onep = rcondp->newAndFromInside(
-                                    nodep->exprp()->cloneTreePure(true),
-                                    rcondp->lhsp()->cloneTreePure(true),
-                                    rcondp->rhsp()->cloneTreePure(true));
-                            } else if (nodep->casex() || nodep->casez() || nodep->caseInside()) {
+                                    nodep->exprp()->clone_వృక్షం_శుద్ధ(నిజం),
+                                    rcondp->lhsp()->clone_వృక్షం_శుద్ధ(నిజం),
+                                    rcondp->rhsp()->clone_వృక్షం_శుద్ధ(నిజం));
+                            } లేకపోతే ఒకవేళ (nodep->casex() || nodep->casez() || nodep->caseInside()) {
                                 onep = AstEqWild::newTyped(itemp->fileline(),
-                                                           nodep->exprp()->cloneTreePure(false),
-                                                           icondp->cloneTreePure(false));
-                            } else {
+                                                           nodep->exprp()->clone_వృక్షం_శుద్ధ(అబద్ధం),
+                                                           icondp->clone_వృక్షం_శుద్ధ(అబద్ధం));
+                            } లేకపోతే {
                                 onep = AstEq::newTyped(icondp->fileline(),
-                                                       nodep->exprp()->cloneTreePure(false),
-                                                       icondp->cloneTreePure(false));
+                                                       nodep->exprp()->clone_వృక్షం_శుద్ధ(అబద్ధం),
+                                                       icondp->clone_వృక్షం_శుద్ధ(అబద్ధం));
                             }
                             // OR together all conditions within the same case item
-                            if (onep) {
-                                if (itembitp) {
-                                    itembitp = new AstOr{icondp->fileline(), onep, itembitp};
-                                } else {
+                            ఒకవేళ (onep) {
+                                ఒకవేళ (itembitp) {
+                                    itembitp = కొత్త AstOr{icondp->fileline(), onep, itembitp};
+                                } లేకపోతే {
                                     itembitp = onep;
                                 }
                             }
                         }
-                        if (itembitp) {
-                            if (propp) {
-                                propp = new AstConcat{itemp->fileline(), itembitp, propp};
-                            } else {
+                        ఒకవేళ (itembitp) {
+                            ఒకవేళ (propp) {
+                                propp = కొత్త AstConcat{itemp->fileline(), itembitp, propp};
+                            } లేకపోతే {
                                 propp = itembitp;
                             }
                         }
                     }
                     // Empty case means no property
-                    if (!propp) propp = new AstConst{nodep->fileline(), AstConst::BitFalse{}};
-                    const bool allow_none = has_default || nodep->unique0Pragma();
+                    ఒకవేళ (!propp) propp = కొత్త AstConst{nodep->fileline(), AstConst::బిట్టు_False{}};
+                    స్థిరరాశి తార్కిక allow_none = has_default || nodep->unique0Pragma();
                     // The following assertion looks as below.
                     // if (!$onehot(propp)) begin
                     //     if (propp == '0) begin if (!allow_none) $error("none match"); end
                     //     else $error("multiple match");
-                    // end
-                    AstNodeExpr* const ohot = new AstOneHot{nodep->fileline(), propp};
-                    AstConst* const zero = new AstConst{
-                        nodep->fileline(), AstConst::WidthedValue{}, propp->width(), 0};
-                    AstIf* const ohotIfp
-                        = new AstIf{nodep->fileline(), new AstLogNot{nodep->fileline(), ohot}};
-                    AstIf* const zeroIfp = new AstIf{
+                    //చివర
+                    Ast_కణుపు_సమాసం* స్థిరరాశి ohot = కొత్త AstOneHot{nodep->fileline(), propp};
+                    AstConst* స్థిరరాశి zero = కొత్త AstConst{
+                        nodep->fileline(), AstConst::Widthed_విలువ{}, propp->వెడల్పు(), 0};
+                    AstIf* స్థిరరాశి ohotIfp
+                        = కొత్త AstIf{nodep->fileline(), కొత్త AstLogNot{nodep->fileline(), ohot}};
+                    AstIf* స్థిరరాశి zeroIfp = కొత్త AstIf{
                         nodep->fileline(),
-                        new AstEq{nodep->fileline(), propp->cloneTreePure(false), zero}};
-                    AstNodeExpr* const exprp = nodep->exprp();
-                    const string pragmaStr = nodep->pragmaString();
-                    if (!allow_none)
-                        zeroIfp->addThensp(
+                        కొత్త AstEq{nodep->fileline(), propp->clone_వృక్షం_శుద్ధ(అబద్ధం), zero}};
+                    Ast_కణుపు_సమాసం* స్థిరరాశి exprp = nodep->exprp();
+                    స్థిరరాశి string pragmaStr = nodep->pragmaString();
+                    ఒకవేళ (!allow_none)
+                        zeroIfp->కూడు_Thensp(
                             newFireAssert(nodep, VAssertDirectiveType::VIOLATION_CASE, assertType,
                                           pragmaStr + ", but none matched" + valFmt,
-                                          valFmt.empty() ? nullptr : exprp->cloneTreePure(false)));
-                    zeroIfp->addElsesp(
+                                          valFmt.ఖాళీలు() ? శూన్యసూచిక : exprp->clone_వృక్షం_శుద్ధ(అబద్ధం)));
+                    zeroIfp->కూడు_Elsesp(
                         newFireAssert(nodep, VAssertDirectiveType::VIOLATION_CASE, assertType,
                                       pragmaStr + ", but multiple matches found" + valFmt,
-                                      valFmt.empty() ? nullptr : exprp->cloneTreePure(false)));
-                    ohotIfp->addThensp(zeroIfp);
-                    ohotIfp->isBoundsCheck(true);  // To avoid LATCH warning
+                                      valFmt.ఖాళీలు() ? శూన్యసూచిక : exprp->clone_వృక్షం_శుద్ధ(అబద్ధం)));
+                    ohotIfp->కూడు_Thensp(zeroIfp);
+                    ohotIfp->isBoundsCheck(నిజం);  // To avoid LATCH warning
                     ohotIfp->branchPred(VBranchPred::BP_UNLIKELY);
-                    nodep->addNotParallelp(ohotIfp);
+                    nodep->కూడు_Not_Parallelp(ohotIfp);
                 }
             }
         }
     }
 
-    void visit(AstFuture* nodep) override {
+    శూన్య సందర్శించు(AstFuture* nodep) override {
         nodep->v3error("Future sampled value function called outside property or sequence "
                        "expression (IEEE 16.9.4)");
-        nodep->replaceWith(new AstConst{nodep->fileline(), 0});
-        VL_DO_DANGLING(pushDeletep(nodep), nodep);
+        nodep->replaceWith(కొత్త AstConst{nodep->fileline(), 0});
+        VL_DO_DANGLING(నెట్టు_Deletep(nodep), nodep);
     }
 
     //========== Past
-    void visit(AstPast* nodep) override {
-        if (!nodep->propertyTiming()) {
-            nodep->initp(nodep->exprp()->cloneTreePure(false));
-            { DefaultSampledValueVisitor{nodep->initp()}; }
+    శూన్య సందర్శించు(AstPast* nodep) override {
+        ఒకవేళ (!nodep->propertyTiming()) {
+            nodep->initp(nodep->exprp()->clone_వృక్షం_శుద్ధ(అబద్ధం));
+            { Default_Sampled_విలువ_Visitor{nodep->initp()}; }
         }
-        AstNodeExpr* const initp = nodep->initp() ? nodep->initp()->unlinkFrBack() : nullptr;
+        Ast_కణుపు_సమాసం* స్థిరరాశి initp = nodep->initp() ? nodep->initp()->unlink_Fr_వెనుక() : శూన్యసూచిక;
         iterateChildren(nodep);
         uint32_t ticks = 1;
-        if (nodep->ticksp()) {
+        ఒకవేళ (nodep->ticksp()) {
             UASSERT_OBJ(VN_IS(nodep->ticksp(), Const), nodep,
                         "Expected constant ticks, checked in V3Width");
-            ticks = VN_AS(nodep->ticksp(), Const)->toUInt();
+            ticks = VN_AS(nodep->ticksp(), Const)->గమ్యం_UInt();
         }
         UASSERT_OBJ(ticks >= 1, nodep, "0 tick should have been checked in V3Width");
-        AstNodeExpr* const exprp = newSampledExpr(nodep->exprp()->unlinkFrBack());
-        AstSenTree* const senTreep = nodep->sentreep()->unlinkFrBack();
-        AstNodeExpr* inp = nullptr;
+        Ast_కణుపు_సమాసం* స్థిరరాశి exprp = new_Sampled_సమాసం(nodep->exprp()->unlink_Fr_వెనుక());
+        Ast_Sen_వృక్షం* స్థిరరాశి senTreep = nodep->sentreep()->unlink_Fr_వెనుక();
+        Ast_కణుపు_సమాసం* inp = శూన్యసూచిక;
         // Deliberately emitted for every ftask $past; calls outside final take the normal stage
-        if (VN_IS(m_procedurep, Final) || m_ftaskp) {
+        ఒకవేళ (VN_IS(m_procedurep, Final) || m_ftaskp) {
             // A sampling-tick finish reads one stage deeper (IEEE 1800-2023 16.9.3).
-            FileLine* const flp = nodep->fileline();
-            AstAlways* const alwaysp
-                = getDelayedAlways(exprp, initp ? initp->cloneTreePure(false) : nullptr, senTreep);
-            AstNodeExpr* const betweenTicksp = pastValueRef(alwaysp, flp, ticks, initp);
-            AstNodeExpr* const onTickp = pastValueRef(alwaysp, flp, ticks + 1, initp);
-            if (initp) VL_DO_DANGLING(pushDeletep(initp), initp);
-            AstNodeExpr* const onTickCondp = new AstLogAnd{
-                flp, new AstCExpr{flp, "vlSymsp->_vm_contextp__->executingFinal()", 1},
-                new AstEq{flp, new AstVarRef{flp, getPastTickTimeVar(alwaysp), VAccess::READ},
-                          new AstCExpr{flp, "vlSymsp->_vm_contextp__->finishPendingTime()", 64}}};
-            AstCond* const condp = new AstCond{flp, onTickCondp, onTickp, betweenTicksp};
+            File_పంక్తి* స్థిరరాశి flp = nodep->fileline();
+            AstAlways* స్థిరరాశి alwaysp
+                = getDelayedAlways(exprp, initp ? initp->clone_వృక్షం_శుద్ధ(అబద్ధం) : శూన్యసూచిక, senTreep);
+            Ast_కణుపు_సమాసం* స్థిరరాశి betweenTicksp = past_విలువ_Ref(alwaysp, flp, ticks, initp);
+            Ast_కణుపు_సమాసం* స్థిరరాశి onTickp = past_విలువ_Ref(alwaysp, flp, ticks + 1, initp);
+            ఒకవేళ (initp) VL_DO_DANGLING(నెట్టు_Deletep(initp), initp);
+            Ast_కణుపు_సమాసం* స్థిరరాశి onTickCondp = కొత్త AstLogAnd{
+                flp, కొత్త AstCExpr{flp, "vlSymsp->_vm_contextp__->executingFinal()", 1},
+                కొత్త AstEq{flp, కొత్త AstVarRef{flp, get_Past_Tick_సమయం_Var(alwaysp), VAccess::READ},
+                          కొత్త AstCExpr{flp, "vlSymsp->_vm_contextp__->finishPendingTime()", 64}}};
+            AstCond* స్థిరరాశి condp = కొత్త AstCond{flp, onTickCondp, onTickp, betweenTicksp};
             condp->dtypeFrom(onTickp);
             inp = condp;
-        } else {
-            inp = getPastValue(exprp, initp, senTreep, ticks);
+        } లేకపోతే {
+            inp = get_Past_విలువ(exprp, initp, senTreep, ticks);
         }
         nodep->replaceWith(inp);
-        VL_DO_DANGLING(pushDeletep(nodep), nodep);
+        VL_DO_DANGLING(నెట్టు_Deletep(nodep), nodep);
     }
 
     //========== Move $sampled down to read-only variables
-    void visit(AstSampled* nodep) override {
-        if (nodep->user1()) return;
-        VL_RESTORER(m_inSampled);
+    శూన్య సందర్శించు(AstSampled* nodep) override {
+        ఒకవేళ (nodep->user1()) తిరిగి;
+        VL_RESTORER(m_లోపల_Sampled);
         {
-            m_inSampled = true;
+            m_లోపల_Sampled = నిజం;
             iterateChildren(nodep);
         }
-        if (nodep->exprp()) {
-            nodep->replaceWith(nodep->exprp()->unlinkFrBack());
-        } else {
-            nodep->unlinkFrBack();
+        ఒకవేళ (nodep->exprp()) {
+            nodep->replaceWith(nodep->exprp()->unlink_Fr_వెనుక());
+        } లేకపోతే {
+            nodep->unlink_Fr_వెనుక();
         }
-        VL_DO_DANGLING(pushDeletep(nodep), nodep);
+        VL_DO_DANGLING(నెట్టు_Deletep(nodep), nodep);
     }
-    void visit(AstNodeVarRef* nodep) override {
-        if (m_inSampled && !nodep->user2() && !nodep->varp()->isTemp()) {
-            if (!nodep->access().isReadOnly()) {
+    శూన్య సందర్శించు(Ast_కణుపు_Var_Ref* nodep) override {
+        ఒకవేళ (m_లోపల_Sampled && !nodep->user2() && !nodep->varp()->is_తాత్కాలిక()) {
+            ఒకవేళ (!nodep->access().isReadOnly()) {
                 nodep->v3warn(E_UNSUPPORTED,
                               "Unsupported: Write to variable in sampled expression");
-            } else {
+            } లేకపోతే {
                 VNRelinker relinkHandle;
-                nodep->unlinkFrBack(&relinkHandle);
-                AstSampled* const newp = newSampledExpr(nodep);
+                nodep->unlink_Fr_వెనుక(&relinkHandle);
+                AstSampled* స్థిరరాశి newp = new_Sampled_సమాసం(nodep);
                 relinkHandle.relink(newp);
                 newp->user1(1);
-                v3Global.setHasSampled();
+                v3Global.సమితి_Has_Sampled();
             }
         }
     }
     // Don't sample sensitivities
-    void visit(AstSenItem* nodep) override {
-        VL_RESTORER(m_inSampled);
-        m_inSampled = false;
+    శూన్య సందర్శించు(Ast_Sen_అంశం* nodep) override {
+        VL_RESTORER(m_లోపల_Sampled);
+        m_లోపల_Sampled = అబద్ధం;
         iterateChildren(nodep);
     }
-    void visit(AstPExprClause* nodep) override {
-        AstNode* stmtsp = nullptr;
-        if (nodep->pass() && m_passsp) {
+    శూన్య సందర్శించు(AstPExprClause* nodep) override {
+        Ast_కణుపు* stmtsp = శూన్యసూచిక;
+        ఒకవేళ (nodep->pass() && m_passsp) {
             // Cover adds COVERINC by AstNode::addNext, thus need to clone next too.
-            stmtsp = m_passsp->cloneTree(true);
+            stmtsp = m_passsp->clone_వృక్షం(నిజం);
             stmtsp = newIfAssertPassOn(stmtsp, m_assertp->directive(), m_assertp->userType(),
                                        nodep->vacuous());
-        } else if (!nodep->pass() && m_failsp) {
-            stmtsp = m_failsp->cloneTree(true);
+        } లేకపోతే ఒకవేళ (!nodep->pass() && m_failsp) {
+            stmtsp = m_failsp->clone_వృక్షం(నిజం);
             stmtsp = newIfAssertFailOn(stmtsp, m_assertp->directive(), m_assertp->userType());
         }
-        if (stmtsp) {
-            stmtsp->foreachAndNext([](AstNodeVarRef* const refp) {
+        ఒకవేళ (stmtsp) {
+            stmtsp->foreach_And_తదుపరి([](Ast_కణుపు_Var_Ref* స్థిరరాశి refp) {
                 // References inside action blocks shouldn't be implicitly sampled
                 // m_passsp/m_failsp have been already visited once and refs explicitly sampled
                 // are handled already
                 refp->user2(1);
             });
             nodep->replaceWith(stmtsp);
-        } else {
-            nodep->unlinkFrBack();
+        } లేకపోతే {
+            nodep->unlink_Fr_వెనుక();
         }
-        VL_DO_DANGLING(pushDeletep(nodep), nodep);
+        VL_DO_DANGLING(నెట్టు_Deletep(nodep), nodep);
     }
-    void visit(AstPExpr* nodep) override {
-        if (m_inRestrict) {
-            VL_DO_DANGLING(pushDeletep(nodep->unlinkFrBack()), nodep);
-        } else {
+    శూన్య సందర్శించు(AstPExpr* nodep) override {
+        ఒకవేళ (m_లోపల_Restrict) {
+            VL_DO_DANGLING(నెట్టు_Deletep(nodep->unlink_Fr_వెనుక()), nodep);
+        } లేకపోతే {
             iterateChildren(nodep);
         }
     }
 
     //========== Statements
-    void visit(AstDisplay* nodep) override {
+    శూన్య సందర్శించు(AstDisplay* nodep) override {
         iterateChildren(nodep);
         // Replace the special types with standard text
-        if (nodep->displayType() == VDisplayType::DT_INFO) {
+        ఒకవేళ (nodep->displayType() == VDisplayType::DT_INFO) {
             replaceDisplay(nodep, "-Info");
-        } else if (nodep->displayType() == VDisplayType::DT_WARNING) {
+        } లేకపోతే ఒకవేళ (nodep->displayType() == VDisplayType::DT_WARNING) {
             replaceDisplay(nodep, "%%Warning");
-        } else if (nodep->displayType() == VDisplayType::DT_ERROR) {
+        } లేకపోతే ఒకవేళ (nodep->displayType() == VDisplayType::DT_ERROR) {
             replaceDisplay(nodep, "%%Error");
-        } else if (nodep->displayType() == VDisplayType::DT_FATAL) {
+        } లేకపోతే ఒకవేళ (nodep->displayType() == VDisplayType::DT_FATAL) {
             replaceDisplay(nodep, "%%Fatal");
-        } else if (nodep->displayType() == VDisplayType::DT_MONITOR) {
+        } లేకపోతే ఒకవేళ (nodep->displayType() == VDisplayType::DT_MONITOR) {
             nodep->displayType(VDisplayType::DT_DISPLAY);
-            FileLine* const fl = nodep->fileline();
+            File_పంక్తి* స్థిరరాశి fl = nodep->fileline();
 
-            AstSenItem* monSenItemsp = nullptr;
-            if (AstNode* const monExprsp = nodep->fmtp()->exprsp()) {
-                monExprsp->foreachAndNext([&](AstVarRef* varrefp) {
-                    AstSenItem* const senItemp
-                        = new AstSenItem{fl, VEdgeType::ET_CHANGED,
+            Ast_Sen_అంశం* monSenItemsp = శూన్యసూచిక;
+            ఒకవేళ (Ast_కణుపు* స్థిరరాశి monExprsp = nodep->fmtp()->exprsp()) {
+                monExprsp->foreach_And_తదుపరి([&](AstVarRef* varrefp) {
+                    Ast_Sen_అంశం* స్థిరరాశి senItemp
+                        = కొత్త Ast_Sen_అంశం{fl, VEdgeType::ET_మారింది,
                                          // Clone so get VarRef or VarXRef as needed
-                                         varrefp->cloneTree(false)};
-                    monSenItemsp = AstNode::addNextNull(monSenItemsp, senItemp);
+                                         varrefp->clone_వృక్షం(అబద్ధం)};
+                    monSenItemsp = Ast_కణుపు::కూడు_తదుపరి_Null(monSenItemsp, senItemp);
                 });
             }
 
-            AstSenTree* const monSenTree = new AstSenTree{fl, monSenItemsp};
-            const auto monNum = ++m_monitorNum;
+            Ast_Sen_వృక్షం* స్థిరరాశి mon_Sen_వృక్షం = కొత్త Ast_Sen_వృక్షం{fl, monSenItemsp};
+            స్థిరరాశి స్వయంచాలక mon_అంకె = ++m_monitor_అంకె;
             // Where $monitor was we do "__VmonitorNum = N;"
-            AstAssign* const newsetp = new AstAssign{
-                fl, newMonitorNumVarRefp(nodep, VAccess::WRITE), new AstConst{fl, monNum}};
+            Ast_కేటాయించు* స్థిరరాశి newsetp = కొత్త Ast_కేటాయించు{
+                fl, new_Monitor_అంకె_Var_Refp(nodep, VAccess::WRITE), కొత్త AstConst{fl, mon_అంకె}};
             nodep->replaceWith(newsetp);
             // Add "always_comb if (__VmonitorOn && __VmonitorNum==N) $display(...);"
-            AstNode* const stmtsp = nodep;
-            AstIf* const ifp = new AstIf{
+            Ast_కణుపు* స్థిరరాశి stmtsp = nodep;
+            AstIf* స్థిరరాశి ifp = కొత్త AstIf{
                 fl,
-                new AstLogAnd{fl, new AstLogNot{fl, newMonitorOffVarRefp(nodep, VAccess::READ)},
-                              new AstEq{fl, new AstConst{fl, monNum},
-                                        newMonitorNumVarRefp(nodep, VAccess::READ)}},
+                కొత్త AstLogAnd{fl, కొత్త AstLogNot{fl, newMonitorOffVarRefp(nodep, VAccess::READ)},
+                              కొత్త AstEq{fl, కొత్త AstConst{fl, mon_అంకె},
+                                        new_Monitor_అంకె_Var_Refp(nodep, VAccess::READ)}},
                 stmtsp};
-            ifp->isBoundsCheck(true);  // To avoid LATCH warning
+            ifp->isBoundsCheck(నిజం);  // To avoid LATCH warning
             ifp->branchPred(VBranchPred::BP_UNLIKELY);
-            AstNode* const newp = new AstAlways{fl, VAlwaysKwd::ALWAYS, monSenTree, ifp};
-            m_modp->addStmtsp(newp);
-        } else if (nodep->displayType() == VDisplayType::DT_STROBE) {
+            Ast_కణుపు* స్థిరరాశి newp = కొత్త AstAlways{fl, VAlwaysKwd::ALWAYS, mon_Sen_వృక్షం, ifp};
+            m_modp->కూడు_Stmtsp(newp);
+        } లేకపోతే ఒకవేళ (nodep->displayType() == VDisplayType::DT_STROBE) {
             nodep->displayType(VDisplayType::DT_DISPLAY);
             // Need one-shot
-            FileLine* const fl = nodep->fileline();
-            AstVar* const varp
-                = new AstVar{fl, VVarType::MODULETEMP, "__Vstrobe" + cvtToStr(m_modStrobeNum++),
-                             nodep->findBitDType()};
-            m_modp->addStmtsp(varp);
+            File_పంక్తి* స్థిరరాశి fl = nodep->fileline();
+            AstVar* స్థిరరాశి varp
+                = కొత్త AstVar{fl, VVarType::MODULETEMP, "__Vstrobe" + cvt_గమ్యం_Str(m_mod_Strobe_అంకె++),
+                             nodep->కనుగొను_బిట్టు_DType()};
+            m_modp->కూడు_Stmtsp(varp);
             // Where $strobe was we do "__Vstrobe = '1;"
-            AstAssign* const newsetp = new AstAssign{fl, new AstVarRef{fl, varp, VAccess::WRITE},
-                                                     new AstConst{fl, AstConst::BitTrue{}}};
+            Ast_కేటాయించు* స్థిరరాశి newsetp = కొత్త Ast_కేటాయించు{fl, కొత్త AstVarRef{fl, varp, VAccess::WRITE},
+                                                     కొత్త AstConst{fl, AstConst::బిట్టు_True{}}};
             nodep->replaceWith(newsetp);
             // Add "always_comb if (__Vstrobe) begin $display(...); __Vstrobe = '0; end"
-            AstNode* const stmtsp = nodep;
-            AstIf* const ifp = new AstIf{fl, new AstVarRef{fl, varp, VAccess::READ}, stmtsp};
-            ifp->isBoundsCheck(true);  // To avoid LATCH warning
+            Ast_కణుపు* స్థిరరాశి stmtsp = nodep;
+            AstIf* స్థిరరాశి ifp = కొత్త AstIf{fl, కొత్త AstVarRef{fl, varp, VAccess::READ}, stmtsp};
+            ifp->isBoundsCheck(నిజం);  // To avoid LATCH warning
             ifp->branchPred(VBranchPred::BP_UNLIKELY);
-            AstNode* const newp = new AstAlwaysPostponed{fl, ifp};
-            stmtsp->addNext(new AstAssign{fl, new AstVarRef{fl, varp, VAccess::WRITE},
-                                          new AstConst{fl, AstConst::BitFalse{}}});
-            m_modp->addStmtsp(newp);
+            Ast_కణుపు* స్థిరరాశి newp = కొత్త AstAlwaysPostponed{fl, ifp};
+            stmtsp->కూడు_తదుపరి(కొత్త Ast_కేటాయించు{fl, కొత్త AstVarRef{fl, varp, VAccess::WRITE},
+                                          కొత్త AstConst{fl, AstConst::బిట్టు_False{}}});
+            m_modp->కూడు_Stmtsp(newp);
         }
     }
-    void visit(AstMonitorOff* nodep) override {
-        AstAssign* const newp
-            = new AstAssign{nodep->fileline(), newMonitorOffVarRefp(nodep, VAccess::WRITE),
-                            new AstConst{nodep->fileline(), AstConst::BitTrue{}, nodep->off()}};
+    శూన్య సందర్శించు(AstMonitorOff* nodep) override {
+        Ast_కేటాయించు* స్థిరరాశి newp
+            = కొత్త Ast_కేటాయించు{nodep->fileline(), newMonitorOffVarRefp(nodep, VAccess::WRITE),
+                            కొత్త AstConst{nodep->fileline(), AstConst::బిట్టు_True{}, nodep->off()}};
         nodep->replaceWith(newp);
-        VL_DO_DANGLING(pushDeletep(nodep), nodep);
+        VL_DO_DANGLING(నెట్టు_Deletep(nodep), nodep);
     }
-    void visit(AstAssert* nodep) override {  //
-        visitAssertionIterate(nodep, nodep->failsp());
+    శూన్య సందర్శించు(AstAssert* nodep) override {  //
+        సందర్శించు_Assertion_Iterate(nodep, nodep->failsp());
     }
-    void visit(AstAssertCtl* nodep) override {
+    శూన్య సందర్శించు(AstAssertCtl* nodep) override {
         iterateChildren(nodep);
 
-        bool assertTypeConst = true;
-        if (!nodep->assertTypesp()) {
+        తార్కిక assertTypeConst = నిజం;
+        ఒకవేళ (!nodep->assertTypesp()) {
             nodep->assertTypes(VAssertType{ALL_ASSERT_TYPES});
-        } else if (const AstConst* const assertTypesp = VN_CAST(nodep->assertTypesp(), Const)) {
-            nodep->assertTypes(VAssertType{assertTypesp->toSInt()});
-        } else {
-            assertTypeConst = false;
+        } లేకపోతే ఒకవేళ (స్థిరరాశి AstConst* స్థిరరాశి assertTypesp = VN_CAST(nodep->assertTypesp(), Const)) {
+            nodep->assertTypes(VAssertType{assertTypesp->గమ్యం_SInt()});
+        } లేకపోతే {
+            assertTypeConst = అబద్ధం;
         }
 
-        bool controlTypeConst = false;
-        if (const AstConst* const constp = VN_CAST(nodep->controlTypep(), Const)) {
-            nodep->ctlType(constp->toSInt());
-            controlTypeConst = true;
+        తార్కిక controlTypeConst = అబద్ధం;
+        ఒకవేళ (స్థిరరాశి AstConst* స్థిరరాశి constp = VN_CAST(nodep->controlTypep(), Const)) {
+            nodep->ctlType(constp->గమ్యం_SInt());
+            controlTypeConst = నిజం;
         }
-        if (controlTypeConst
-            && (nodep->ctlType() < VAssertCtlType::LOCK
+        ఒకవేళ (controlTypeConst
+            && (nodep->ctlType() < VAssertCtlType::తాళం
                 || nodep->ctlType() > VAssertCtlType::VACUOUS_OFF)) {
-            nodep->unlinkFrBack();
+            nodep->unlink_Fr_వెనుక();
             nodep->v3error("Bad $assertcontrol control_type '"
-                           << cvtToStr(static_cast<int>(nodep->ctlType()))
+                           << cvt_గమ్యం_Str(static_cast<పూర్ణాంకం>(nodep->ctlType()))
                            << "' (IEEE 1800-2023 Table 20-5)");
-            VL_DO_DANGLING(pushDeletep(nodep), nodep);
-            return;
+            VL_DO_DANGLING(నెట్టు_Deletep(nodep), nodep);
+            తిరిగి;
         }
-        if (assertTypeConst && nodep->assertTypes() != ALL_ASSERT_TYPES
-            && nodep->assertTypes().containsAny(VAssertType::UNIQUE | VAssertType::UNIQUE0
-                                                | VAssertType::PRIORITY)) {
+        ఒకవేళ (assertTypeConst && nodep->assertTypes() != ALL_ASSERT_TYPES
+            && nodep->assertTypes().కలిగియుంది_Any(VAssertType::UNIQUE | VAssertType::UNIQUE0
+                                                | VAssertType::ప్రాధాన్యత)) {
             nodep->v3warn(E_UNSUPPORTED, "Unsupported: assert control assertion_type");
-            VL_DO_DANGLING(pushDeletep(nodep->unlinkFrBack()), nodep);
-            return;
+            VL_DO_DANGLING(నెట్టు_Deletep(nodep->unlink_Fr_వెనుక()), nodep);
+            తిరిగి;
         }
 
-        bool directiveTypeConst = true;
-        if (!nodep->directiveTypesp()) {
+        తార్కిక directiveTypeConst = నిజం;
+        ఒకవేళ (!nodep->directiveTypesp()) {
             nodep->directiveTypes(VAssertDirectiveType::ASSERT | VAssertDirectiveType::ASSUME
                                   | VAssertDirectiveType::COVER);
-        } else if (const AstConst* const directiveTypesp
+        } లేకపోతే ఒకవేళ (స్థిరరాశి AstConst* స్థిరరాశి directiveTypesp
                    = VN_CAST(nodep->directiveTypesp(), Const)) {
-            nodep->directiveTypes(VAssertDirectiveType{directiveTypesp->toSInt()});
-        } else {
-            directiveTypeConst = false;
+            nodep->directiveTypes(VAssertDirectiveType{directiveTypesp->గమ్యం_SInt()});
+        } లేకపోతే {
+            directiveTypeConst = అబద్ధం;
         }
-        if (!directiveTypeConst) {
+        ఒకవేళ (!directiveTypeConst) {
             nodep->v3warn(E_UNSUPPORTED,
                           "Unsupported: non-const assert directive type expression");
-            VL_DO_DANGLING(pushDeletep(nodep->unlinkFrBack()), nodep);
-            return;
+            VL_DO_DANGLING(నెట్టు_Deletep(nodep->unlink_Fr_వెనుక()), nodep);
+            తిరిగి;
         }
 
-        FileLine* const fl = nodep->fileline();
+        File_పంక్తి* స్థిరరాశి fl = nodep->fileline();
         UINFO(9, "Generating assertctl for a module: " << m_modp);
-        AstCStmt* const newp = new AstCStmt{fl};
-        newp->add("vlSymsp->_vm_contextp__->assertCtl(");
-        newp->add(nodep->controlTypep()->unlinkFrBack());
-        newp->add(", ");
-        if (nodep->assertTypesp()) {
-            newp->add(nodep->assertTypesp()->unlinkFrBack());
-        } else {
-            newp->add(std::to_string(ALL_ASSERT_TYPES));
+        AstCStmt* స్థిరరాశి newp = కొత్త AstCStmt{fl};
+        newp->కూడు("vlSymsp->_vm_contextp__->assertCtl(");
+        newp->కూడు(nodep->controlTypep()->unlink_Fr_వెనుక());
+        newp->కూడు(", ");
+        ఒకవేళ (nodep->assertTypesp()) {
+            newp->కూడు(nodep->assertTypesp()->unlink_Fr_వెనుక());
+        } లేకపోతే {
+            newp->కూడు(std::గమ్యం_string(ALL_ASSERT_TYPES));
         }
-        newp->add(", " + std::to_string(nodep->directiveTypes()) + ");\n");
+        newp->కూడు(", " + std::గమ్యం_string(nodep->directiveTypes()) + ");\n");
         nodep->replaceWith(newp);
-        VL_DO_DANGLING(pushDeletep(nodep), nodep);
+        VL_DO_DANGLING(నెట్టు_Deletep(nodep), nodep);
     }
-    void visit(AstAssertIntrinsic* nodep) override {  //
-        visitAssertionIterate(nodep, nodep->failsp());
+    శూన్య సందర్శించు(AstAssertIntrinsic* nodep) override {  //
+        సందర్శించు_Assertion_Iterate(nodep, nodep->failsp());
     }
-    void visit(AstCover* nodep) override {  //
-        visitAssertionIterate(nodep, nullptr);
+    శూన్య సందర్శించు(AstCover* nodep) override {  //
+        సందర్శించు_Assertion_Iterate(nodep, శూన్యసూచిక);
     }
-    void visit(AstRestrict* nodep) override {
-        VL_RESTORER(m_inRestrict);
-        m_inRestrict = true;
+    శూన్య సందర్శించు(AstRestrict* nodep) override {
+        VL_RESTORER(m_లోపల_Restrict);
+        m_లోపల_Restrict = నిజం;
         iterateChildren(nodep);
         // IEEE says simulator ignores these
-        VL_DO_DANGLING(pushDeletep(nodep->unlinkFrBack()), nodep);
+        VL_DO_DANGLING(నెట్టు_Deletep(nodep->unlink_Fr_వెనుక()), nodep);
     }
 
-    void visit(AstNodeModule* nodep) override {
+    శూన్య సందర్శించు(Ast_కణుపు_Module* nodep) override {
         VL_RESTORER(m_modp);
-        VL_RESTORER(m_modPastNum);
-        VL_RESTORER(m_modStrobeNum);
+        VL_RESTORER(m_mod_Past_అంకె);
+        VL_RESTORER(m_mod_Strobe_అంకె);
         VL_RESTORER(m_finalp);
         VL_RESTORER_CLEAR(m_modExpr2Sen2DelayedAlwaysp);
         VL_RESTORER_CLEAR(m_modExpr2Sen2DefaultDelayedAlwaysp);
         VL_RESTORER_CLEAR(m_delayedAlways2TickTimep);
         m_modp = nodep;
-        m_modPastNum = 0;
-        m_modStrobeNum = 0;
-        m_finalp = nullptr;
+        m_mod_Past_అంకె = 0;
+        m_mod_Strobe_అంకె = 0;
+        m_finalp = శూన్యసూచిక;
         iterateChildren(nodep);
     }
-    void visit(AstNodeProcedure* nodep) override {
+    శూన్య సందర్శించు(Ast_కణుపు_Procedure* nodep) override {
         VL_RESTORER(m_procedurep);
         m_procedurep = nodep;
         iterateChildren(nodep);
     }
-    void visit(AstNodeFTask* nodep) override {
+    శూన్య సందర్శించు(Ast_కణుపు_FTask* nodep) override {
         VL_RESTORER(m_ftaskp);
         m_ftaskp = nodep;
         iterateChildren(nodep);
     }
-    void visit(AstGenBlock* nodep) override {
+    శూన్య సందర్శించు(Ast_Gen_ఖండం* nodep) override {
         // This code is needed rather than a visitor in V3Begin,
         // because V3Assert is called before V3Begin
         VL_RESTORER(m_beginp);
         m_beginp = nodep;
         iterateChildren(nodep);
     }
-    void visit(AstBegin* nodep) override {
+    శూన్య సందర్శించు(AstBegin* nodep) override {
         // This code is needed rather than a visitor in V3Begin,
         // because V3Assert is called before V3Begin
         VL_RESTORER(m_beginp);
         m_beginp = nodep;
         iterateChildren(nodep);
         // If the body is a single assertOn check, bubble it up for combining
-        if (!nodep->declsp()) {
-            if (AstIf* const ifp = VN_CAST(nodep->stmtsp(), If)) {
-                if (ifp->user2() && !ifp->nextp()) {
+        ఒకవేళ (!nodep->declsp()) {
+            ఒకవేళ (AstIf* స్థిరరాశి ifp = VN_CAST(nodep->stmtsp(), If)) {
+                ఒకవేళ (ifp->user2() && !ifp->nextp()) {
                     ++m_statAssertOnHoisted;
-                    nodep->replaceWith(ifp->unlinkFrBack());
-                    nodep->addStmtsp(ifp->thensp()->unlinkFrBackWithNext());
-                    ifp->addThensp(nodep);
+                    nodep->replaceWith(ifp->unlink_Fr_వెనుక());
+                    nodep->కూడు_Stmtsp(ifp->thensp()->unlink_Fr_వెనుక_With_తదుపరి());
+                    ifp->కూడు_Thensp(nodep);
                 }
             }
         }
     }
 
-    void visit(AstNode* nodep) override { iterateChildren(nodep); }
+    శూన్య సందర్శించు(Ast_కణుపు* nodep) override { iterateChildren(nodep); }
 
-public:
+బహిరంగ:
     // CONSTRUCTORS
-    explicit AssertVisitor(AstNetlist* nodep) { iterate(nodep); }
+    స్పష్టమైన AssertVisitor(AstNetlist* nodep) { iterate(nodep); }
     ~AssertVisitor() override {
-        V3Stats::addStat("Assertions, assert non-immediate statements", m_statAsNotImm);
-        V3Stats::addStat("Assertions, assert immediate statements", m_statAsImm);
-        V3Stats::addStat("Assertions, cover statements", m_statCover);
-        V3Stats::addStat("Assertions, full/parallel case", m_statAsFull);
-        V3Stats::addStat("Assertions, $past variables", m_statPastVars);
-        V3Stats::addStat("Assertions, assertOn checks combined", m_statAssertOnCombined);
-        V3Stats::addStat("Assertions, assertOn checks hoisted", m_statAssertOnHoisted);
-        V3Stats::addStat("Assertions, lifted impure case expressions", m_statLiftedCaseExprs);
+        V3Stats::కూడు_Stat("Assertions, assert non-immediate statements", m_statAsNotImm);
+        V3Stats::కూడు_Stat("Assertions, assert immediate statements", m_statAsImm);
+        V3Stats::కూడు_Stat("Assertions, cover statements", m_statCover);
+        V3Stats::కూడు_Stat("Assertions, full/parallel case", m_stat_As_నిండిన);
+        V3Stats::కూడు_Stat("Assertions, $past variables", m_statPastVars);
+        V3Stats::కూడు_Stat("Assertions, assertOn checks combined", m_statAssertOnCombined);
+        V3Stats::కూడు_Stat("Assertions, assertOn checks hoisted", m_statAssertOnHoisted);
+        V3Stats::కూడు_Stat("Assertions, lifted impure case expressions", m_statLiftedCaseExprs);
         // Rewrites can change purity, e.g. by compiling out assertion statements with --no-assert
-        VIsCached::clearCacheTree();
+        VIsCached::clear_Cache_వృక్షం();
     }
 };
 
 //######################################################################
 // Top Assert class
 
-void V3Assert::assertAll(AstNetlist* nodep) {
+శూన్య V3Assert::assertAll(AstNetlist* nodep) {
     UINFO(2, __FUNCTION__ << ":");
     { AssertVisitor{nodep}; }  // Destruct before checking
-    V3Global::dumpCheckGlobalTree("assert", 0, dumpTreeEitherLevel() >= 3);
+    V3Global::dump_Check_Global_వృక్షం("assert", 0, dump_వృక్షం_Either_Level() >= 3);
 }

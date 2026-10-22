@@ -14,20 +14,20 @@
 //
 //*************************************************************************
 
-#ifndef VERILATOR_V3PARAM_H_
-#define VERILATOR_V3PARAM_H_
+#నిర్వచితం_కాకపోతే VERILATOR_V3PARAM_H_
+#నిర్వచించు VERILATOR_V3PARAM_H_
 
-#include "config_build.h"
-#include "verilatedos.h"
+#అన్తర్భావ "config_build.h"
+#అన్తర్భావ "verilatedos.h"
 
 class AstNetlist;
 
 //============================================================================
 
 class V3Param final {
-public:
-    static void param(AstNetlist* rootp) VL_MT_DISABLED;
-    static void finalizeDeferredParams(AstNetlist* rootp) VL_MT_DISABLED;
+బహిరంగ:
+    స్థిర శూన్య param(AstNetlist* rootp) VL_MT_DISABLED;
+    స్థిర శూన్య finalizeDeferredParams(AstNetlist* rootp) VL_MT_DISABLED;
 };
 
-#endif  // Guard
+#అయితే_ముగింపు  // Guard

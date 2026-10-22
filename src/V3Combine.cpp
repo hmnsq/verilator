@@ -19,90 +19,90 @@
 //      Also drop empty CFuncs
 //*************************************************************************
 
-#include "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
+#అన్తర్భావ "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
 
-#include "V3Combine.h"
+#అన్తర్భావ "V3Combine.h"
 
-#include "V3AstUserAllocator.h"
-#include "V3DupFinder.h"
-#include "V3Stats.h"
+#అన్తర్భావ "V3AstUserAllocator.h"
+#అన్తర్భావ "V3DupFinder.h"
+#అన్తర్భావ "V3Stats.h"
 
-#include <list>
-#include <vector>
+#అన్తర్భావ <list>
+#అన్తర్భావ <vector>
 
 VL_DEFINE_DEBUG_FUNCTIONS;
 
-class CombineVisitor final : VNVisitor {
+తరగతి CombineVisitor final : VNVisitor {
     // NODE STATE
     // AstNodeModule::user1()   List of AstCFuncs in this module (via m_cfuncs)
     // AstCFunc::user1()        List of AstCCalls to this function (via m_callSites)
     // AstCFunc::user2()        bool: Already replaced (in 'process')
     // AstCFunc::user3()        bool: Marks functions earlier in iteration order (in 'combinePass')
     // *::user4()               Used by V3Hasher
-    const VNUser1InUse m_user1InUse;
+    స్థిరరాశి VNUser1_లోపల_Use m_user1_లోపల_Use;
 
     // TYPES
-    using funcit_t = std::list<AstCFunc*>::iterator;
-    struct CFuncs final {
+    ఉపయోగించి funcit_t = std::list<AstCFunc*>::iterator;
+    నిర్మాణం CFuncs final {
         std::list<AstCFunc*> m_fast;  // Functions that are not slow
         std::list<AstCFunc*> m_slow;  // Functions marked for slow files
     };
 
     // STATE
-    AstUser1Allocator<AstNodeModule, CFuncs> m_cfuncs;  // AstCFuncs under module
-    AstUser1Allocator<AstCFunc, std::vector<AstCCall*>> m_callSites;  // Call sites of the AstCFunc
-    AstNodeModule* m_modp = nullptr;  // Current module
-    const V3Hasher m_hasher;  // For hashing
+    AstUser1Allocator<Ast_కణుపు_Module, CFuncs> m_cfuncs;  // AstCFuncs under module
+    AstUser1Allocator<AstCFunc, std::సదిశ<AstCCall*>> m_callSites;  // Call sites of the AstCFunc
+    Ast_కణుపు_Module* m_modp = శూన్యసూచిక;  // Current module
+    స్థిరరాశి V3Hasher m_hasher;  // For hashing
     VDouble0 m_cfuncsCombined;  // Statistic tracking
 
     // METHODS
 
-    void removeEmptyFunctions(std::list<AstCFunc*>& funcps) {
-        for (funcit_t it = funcps.begin(), nit; it != funcps.end(); it = nit) {
-            AstCFunc* const funcp = *it;
+    శూన్య remove_ఖాళీలు_Functions(std::list<AstCFunc*>& funcps) {
+        కొరకు (funcit_t it = funcps.begin(), nit; it != funcps.చివర(); it = nit) {
+            AstCFunc* స్థిరరాశి funcp = *it;
             nit = it;
             ++nit;
 
-            if (funcp->emptyBody()) {
+            ఒకవేళ (funcp->ఖాళీలు_Body()) {
                 // Delete call sites
-                for (AstCCall* const callp : m_callSites(funcp)) {
-                    UASSERT_OBJ(VN_IS(callp->backp(), StmtExpr), callp,
+                కొరకు (AstCCall* స్థిరరాశి callp : m_callSites(funcp)) {
+                    UASSERT_OBJ(VN_IS(callp->backp(), Stmt_సమాసం), callp,
                                 "Deleting non-statement call");
-                    VL_DO_DANGLING(callp->backp()->unlinkFrBack()->deleteTree(), callp);
+                    VL_DO_DANGLING(callp->backp()->unlink_Fr_వెనుక()->delete_వృక్షం(), callp);
                 }
                 m_callSites(funcp).clear();
                 // Remove from list
                 funcps.erase(it);
                 // Delete function
-                VL_DO_DANGLING(funcp->unlinkFrBack()->deleteTree(), funcp);
+                VL_DO_DANGLING(funcp->unlink_Fr_వెనుక()->delete_వృక్షం(), funcp);
             }
         }
     }
 
     // One pass of combining. Returns true if did replacement.
-    bool combinePass(std::list<AstCFunc*>& funcps, V3DupFinder& dupFinder) {
-        const VNUser3InUse user3InUse;
+    తార్కిక combinePass(std::list<AstCFunc*>& funcps, V3DupFinder& dupFinder) {
+        స్థిరరాశి VNUser3_లోపల_Use user3_లోపల_Use;
 
-        bool replaced = false;
+        తార్కిక replaced = అబద్ధం;
 
         // Replace all identical functions with the first function in the list
-        for (funcit_t it = funcps.begin(), nit; it != funcps.end(); it = nit) {
-            AstCFunc* const funcp = *it;
+        కొరకు (funcit_t it = funcps.begin(), nit; it != funcps.చివర(); it = nit) {
+            AstCFunc* స్థిరరాశి funcp = *it;
             nit = it;
             ++nit;
 
             // Remove functions already replaced in the previous iteration
-            if (funcp->user2()) {
+            ఒకవేళ (funcp->user2()) {
                 funcps.erase(it);
-                VL_DO_DANGLING(funcp->unlinkFrBack()->deleteTree(), funcp);
-                continue;
+                VL_DO_DANGLING(funcp->unlink_Fr_వెనుక()->delete_వృక్షం(), funcp);
+                కొనసాగు;
             }
 
-            while (true) {
-                auto dit = dupFinder.findDuplicate(funcp);
-                if (dit == dupFinder.end()) break;
+            అయితే (నిజం) {
+                స్వయంచాలక dit = dupFinder.కనుగొను_Duplicate(funcp);
+                ఒకవేళ (dit == dupFinder.చివర()) ఆపు;
 
-                AstCFunc* oldp = VN_AS(dit->second, CFunc);
+                AstCFunc* oldp = VN_AS(dit->రెండవ, CFunc);
                 AstCFunc* newp = funcp;
                 UASSERT_OBJ(!oldp->user2(), oldp, "Should have been removed from dupFinder");
 
@@ -110,21 +110,21 @@ class CombineVisitor final : VNVisitor {
                 // necessary because replacing a call site in a later function might have made that
                 // function equivalent to an earlier function, but we want the first equivalent
                 // function in the list to be the canonical one.
-                if (oldp->user3()) std::swap(oldp, newp);
+                ఒకవేళ (oldp->user3()) std::మార్పిడి(oldp, newp);
 
                 // Something is being replaced
                 UINFO(9, "Replacing " << oldp);
                 UINFO(9, "     with " << newp);
                 ++m_cfuncsCombined;
-                replaced = true;
+                replaced = నిజం;
 
                 // Mark as replaced
-                oldp->user2(true);
+                oldp->user2(నిజం);
 
                 // Redirect the calls
-                for (AstCCall* const callp : m_callSites(oldp)) {
+                కొరకు (AstCCall* స్థిరరాశి callp : m_callSites(oldp)) {
                     // For sanity check only
-                    const V3Hash oldHash = m_hasher(callp);
+                    స్థిరరాశి V3Hash oldHash = m_hasher(callp);
 
                     // Redirect the call
                     callp->funcp(newp);
@@ -140,75 +140,75 @@ class CombineVisitor final : VNVisitor {
 
                 // If we just replaced the function we are iterating (because there was an
                 // equivalent earlier in the list), then move on, as this is on longer a candidate
-                if (oldp == funcp) break;
+                ఒకవేళ (oldp == funcp) ఆపు;
             }
 
             // Mark as function earlier in list of functions.
-            funcp->user3(true);
+            funcp->user3(నిజం);
         }
 
-        return replaced;
+        తిరిగి replaced;
     }
 
     // cppcheck-suppress constParameterPointer
-    void process(AstNetlist* netlistp) {
+    శూన్య process(AstNetlist* netlistp) {
         // First, remove empty functions. We need to do this separately, because removing
         // calls can change the hashes of the callers.
-        for (AstNodeModule* modulep = netlistp->modulesp(); modulep;
-             modulep = VN_AS(modulep->nextp(), NodeModule)) {
-            removeEmptyFunctions(m_cfuncs(modulep).m_fast);
-            removeEmptyFunctions(m_cfuncs(modulep).m_slow);
+        కొరకు (Ast_కణుపు_Module* modulep = netlistp->modulesp(); modulep;
+             modulep = VN_AS(modulep->nextp(), కణుపు_Module)) {
+            remove_ఖాళీలు_Functions(m_cfuncs(modulep).m_fast);
+            remove_ఖాళీలు_Functions(m_cfuncs(modulep).m_slow);
         }
 
         // Combine functions within each module
-        for (AstNodeModule* modulep = netlistp->modulesp(); modulep;
-             modulep = VN_AS(modulep->nextp(), NodeModule)) {
+        కొరకు (Ast_కణుపు_Module* modulep = netlistp->modulesp(); modulep;
+             modulep = VN_AS(modulep->nextp(), కణుపు_Module)) {
             // Put fast functions first, so they are preferred over slow functions
-            auto funcps = std::move(m_cfuncs(modulep).m_fast);
-            funcps.splice(funcps.end(), m_cfuncs(modulep).m_slow);
+            స్వయంచాలక funcps = std::move(m_cfuncs(modulep).m_fast);
+            funcps.splice(funcps.చివర(), m_cfuncs(modulep).m_slow);
 
             V3DupFinder dupFinder{m_hasher};
 
             // First, hash all functions
-            for (AstCFunc* const funcp : funcps) dupFinder.insert(funcp);
+            కొరకు (AstCFunc* స్థిరరాశి funcp : funcps) dupFinder.చొప్పించు(funcp);
 
             // Iterate to fixed point
             {
-                const VNUser2InUse user2InUse;
-                while (combinePass(funcps, dupFinder)) {}
+                స్థిరరాశి VNUser2_లోపల_Use user2_లోపల_Use;
+                అయితే (combinePass(funcps, dupFinder)) {}
             }
         }
     }
 
     // VISITORS
-    void visit(AstNetlist* nodep) override {
+    శూన్య సందర్శించు(AstNetlist* nodep) override {
         // Gather functions and references
         iterateChildrenConst(nodep);
         // Combine functions
         process(nodep);
     }
-    void visit(AstNodeModule* nodep) override {
+    శూన్య సందర్శించు(Ast_కణుపు_Module* nodep) override {
         UASSERT_OBJ(!m_modp, nodep, "Should not nest");
         VL_RESTORER(m_modp);
         m_modp = nodep;
         iterateChildrenConst(nodep);
     }
-    void visit(AstCFunc* nodep) override {
+    శూన్య సందర్శించు(AstCFunc* nodep) override {
         iterateChildrenConst(nodep);
-        if (nodep->dontCombine()) return;
-        auto& coll = nodep->slow() ? m_cfuncs(m_modp).m_slow : m_cfuncs(m_modp).m_fast;
-        coll.emplace_back(nodep);
+        ఒకవేళ (nodep->dontCombine()) తిరిగి;
+        స్వయంచాలక& coll = nodep->slow() ? m_cfuncs(m_modp).m_slow : m_cfuncs(m_modp).m_fast;
+        coll.emplace_వెనుక(nodep);
     }
-    void visit(AstCCall* nodep) override {
+    శూన్య సందర్శించు(AstCCall* nodep) override {
         iterateChildrenConst(nodep);
-        AstCFunc* const funcp = nodep->funcp();
-        if (funcp->dontCombine()) return;
-        m_callSites(funcp).emplace_back(nodep);
+        AstCFunc* స్థిరరాశి funcp = nodep->funcp();
+        ఒకవేళ (funcp->dontCombine()) తిరిగి;
+        m_callSites(funcp).emplace_వెనుక(nodep);
     }
 
-    void visit(AstAddrOfCFunc* nodep) override {
+    శూన్య సందర్శించు(Ast_Addr_యొక్క_CFunc* nodep) override {
         iterateChildrenConst(nodep);
-        if (nodep->funcp()->dontCombine()) return;
+        ఒకవేళ (nodep->funcp()->dontCombine()) తిరిగి;
         // LCOV_EXCL_START
         // We cannot yet handle references via AstAddrOfCFunc, but currently those are
         // only used in tracing functions, which are not combined. Blow up in case this changes.
@@ -218,23 +218,23 @@ class CombineVisitor final : VNVisitor {
     }
 
     //--------------------
-    void visit(AstNode* nodep) override { iterateChildrenConst(nodep); }
+    శూన్య సందర్శించు(Ast_కణుపు* nodep) override { iterateChildrenConst(nodep); }
 
     // CONSTRUCTORS
-    explicit CombineVisitor(AstNetlist* nodep) { iterate(nodep); }
+    స్పష్టమైన CombineVisitor(AstNetlist* nodep) { iterate(nodep); }
     ~CombineVisitor() override {
-        V3Stats::addStat("Optimizations, Combined CFuncs", m_cfuncsCombined);
+        V3Stats::కూడు_Stat("Optimizations, Combined CFuncs", m_cfuncsCombined);
     }
 
-public:
-    static void apply(AstNetlist* netlistp) { CombineVisitor{netlistp}; }
+బహిరంగ:
+    స్థిర శూన్య apply(AstNetlist* netlistp) { CombineVisitor{netlistp}; }
 };
 
 //######################################################################
 // Combine class functions
 
-void V3Combine::combineAll(AstNetlist* nodep) {
+శూన్య V3Combine::combineAll(AstNetlist* nodep) {
     UINFO(2, __FUNCTION__ << ":");
     CombineVisitor::apply(nodep);
-    V3Global::dumpCheckGlobalTree("combine", 0, dumpTreeEitherLevel() >= 3);
+    V3Global::dump_Check_Global_వృక్షం("combine", 0, dump_వృక్షం_Either_Level() >= 3);
 }

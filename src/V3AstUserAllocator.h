@@ -15,105 +15,105 @@
 //
 //*************************************************************************
 
-#ifndef VERILATOR_V3ASTUSERALLOCATOR_H_
-#define VERILATOR_V3ASTUSERALLOCATOR_H_
+#నిర్వచితం_కాకపోతే VERILATOR_V3ASTUSERALLOCATOR_H_
+#నిర్వచించు VERILATOR_V3ASTUSERALLOCATOR_H_
 
-#include "config_build.h"
-#include "verilatedos.h"
+#అన్తర్భావ "config_build.h"
+#అన్తర్భావ "verilatedos.h"
 
-#include "V3Ast.h"
+#అన్తర్భావ "V3Ast.h"
 
-#include <type_traits>
-#include <utility>
-#include <vector>
+#అన్తర్భావ <type_traits>
+#అన్తర్భావ <utility>
+#అన్తర్భావ <vector>
 
-template <typename T_Node, typename T_Data, int N_UserN>
-class AstUserAllocatorBase VL_NOT_FINAL {
+మూస <typename T_కణుపు, typename T_దత్తాంశం, పూర్ణాంకం N_UserN>
+class Ast_User_Allocator_పునాది VL_NOT_FINAL {
     static_assert(1 <= N_UserN && N_UserN <= 4, "Wrong user pointer number");
-    static_assert(std::is_base_of<AstNode, T_Node>::value, "T_Node must be an AstNode type");
+    static_assert(std::is_పునాది_యొక్క<Ast_కణుపు, T_కణుపు>::విలువ, "T_Node must be an AstNode type");
 
-private:
-    std::deque<T_Data> m_allocated;
+అంతరంగ:
+    std::deque<T_దత్తాంశం> m_allocated;
 
-    T_Data* getUserp(const T_Node* nodep) const {
-        if VL_CONSTEXPR_CXX17 (N_UserN == 1) {
-            const VNUser user = nodep->user1u();
-            return user.to<T_Data*>();
-        } else if VL_CONSTEXPR_CXX17 (N_UserN == 2) {
-            const VNUser user = nodep->user2u();
-            return user.to<T_Data*>();
-        } else if VL_CONSTEXPR_CXX17 (N_UserN == 3) {
-            const VNUser user = nodep->user3u();
-            return user.to<T_Data*>();
-        } else {
-            const VNUser user = nodep->user4u();
-            return user.to<T_Data*>();
+    T_దత్తాంశం* getUserp(స్థిరరాశి T_కణుపు* nodep) స్థిరరాశి {
+        ఒకవేళ VL_CONSTEXPR_CXX17 (N_UserN == 1) {
+            స్థిరరాశి VNUser user = nodep->user1u();
+            తిరిగి user.గమ్యం<T_దత్తాంశం*>();
+        } లేకపోతే ఒకవేళ VL_CONSTEXPR_CXX17 (N_UserN == 2) {
+            స్థిరరాశి VNUser user = nodep->user2u();
+            తిరిగి user.గమ్యం<T_దత్తాంశం*>();
+        } లేకపోతే ఒకవేళ VL_CONSTEXPR_CXX17 (N_UserN == 3) {
+            స్థిరరాశి VNUser user = nodep->user3u();
+            తిరిగి user.గమ్యం<T_దత్తాంశం*>();
+        } లేకపోతే {
+            స్థిరరాశి VNUser user = nodep->user4u();
+            తిరిగి user.గమ్యం<T_దత్తాంశం*>();
         }
     }
 
-    void setUserp(T_Node* nodep, T_Data* userp) const {
-        if VL_CONSTEXPR_CXX17 (N_UserN == 1) {
+    శూన్య సమితి_Userp(T_కణుపు* nodep, T_దత్తాంశం* userp) స్థిరరాశి {
+        ఒకవేళ VL_CONSTEXPR_CXX17 (N_UserN == 1) {
             nodep->user1u(VNUser{userp});
-        } else if VL_CONSTEXPR_CXX17 (N_UserN == 2) {
+        } లేకపోతే ఒకవేళ VL_CONSTEXPR_CXX17 (N_UserN == 2) {
             nodep->user2u(VNUser{userp});
-        } else if VL_CONSTEXPR_CXX17 (N_UserN == 3) {
+        } లేకపోతే ఒకవేళ VL_CONSTEXPR_CXX17 (N_UserN == 3) {
             nodep->user3u(VNUser{userp});
-        } else {
+        } లేకపోతే {
             nodep->user4u(VNUser{userp});
         }
     }
 
-protected:
-    AstUserAllocatorBase() {
-        if VL_CONSTEXPR_CXX17 (N_UserN == 1) {
-            VNUser1InUse::check();
-        } else if VL_CONSTEXPR_CXX17 (N_UserN == 2) {
-            VNUser2InUse::check();
-        } else if VL_CONSTEXPR_CXX17 (N_UserN == 3) {
-            VNUser3InUse::check();
-        } else {
-            VNUser4InUse::check();
+రక్షిత:
+    Ast_User_Allocator_పునాది() {
+        ఒకవేళ VL_CONSTEXPR_CXX17 (N_UserN == 1) {
+            VNUser1_లోపల_Use::check();
+        } లేకపోతే ఒకవేళ VL_CONSTEXPR_CXX17 (N_UserN == 2) {
+            VNUser2_లోపల_Use::check();
+        } లేకపోతే ఒకవేళ VL_CONSTEXPR_CXX17 (N_UserN == 3) {
+            VNUser3_లోపల_Use::check();
+        } లేకపోతే {
+            VNUser4_లోపల_Use::check();
         }
     }
 
-    VL_UNCOPYABLE(AstUserAllocatorBase);
+    VL_UNCOPYABLE(Ast_User_Allocator_పునాది);
 
-public:
+బహిరంగ:
     // Get a reference to the user data. If does not exist, construct it with given arguments.
-    template <typename... Args>
-    T_Data& operator()(T_Node* nodep, Args&&... args) {
-        T_Data* userp = getUserp(nodep);
-        if (!userp) {
-            m_allocated.emplace_back(std::forward<Args>(args)...);
-            userp = &m_allocated.back();
-            setUserp(nodep, userp);
+    మూస <typename... వాదనలు_2>
+    T_దత్తాంశం& క్రియాకారకం()(T_కణుపు* nodep, వాదనలు_2&&... వాదనలు) {
+        T_దత్తాంశం* userp = getUserp(nodep);
+        ఒకవేళ (!userp) {
+            m_allocated.emplace_వెనుక(std::forward<వాదనలు_2>(వాదనలు)...);
+            userp = &m_allocated.వెనుక();
+            సమితి_Userp(nodep, userp);
         }
-        return *userp;
+        తిరిగి *userp;
     }
 
     // Get a reference to the user data
-    T_Data& operator()(const T_Node* nodep) const {
-        T_Data* const userp = getUserp(nodep);
+    T_దత్తాంశం& క్రియాకారకం()(స్థిరరాశి T_కణుపు* nodep) స్థిరరాశి {
+        T_దత్తాంశం* స్థిరరాశి userp = getUserp(nodep);
         UASSERT_OBJ(userp, nodep, "Missing User data on const AstNode");
-        return *userp;
+        తిరిగి *userp;
     }
 
     // Get a pointer to the user data if exists, otherwise nullptr
-    T_Data* tryGet(const T_Node* nodep) const { return getUserp(nodep); }
+    T_దత్తాంశం* tryGet(స్థిరరాశి T_కణుపు* nodep) స్థిరరాశి { తిరిగి getUserp(nodep); }
 
-    void clear() { m_allocated.clear(); }
+    శూన్య clear() { m_allocated.clear(); }
 };
 
 // User pointer allocator classes. T_Node is the type of node the allocator should be applied to
 // and is there for a bit of extra type safety. T_Data is the type of the data structure
 // managed by the allocator.
-template <typename T_Node, typename T_Data>
-class AstUser1Allocator final : public AstUserAllocatorBase<T_Node, T_Data, 1> {};
-template <typename T_Node, typename T_Data>
-class AstUser2Allocator final : public AstUserAllocatorBase<T_Node, T_Data, 2> {};
-template <typename T_Node, typename T_Data>
-class AstUser3Allocator final : public AstUserAllocatorBase<T_Node, T_Data, 3> {};
-template <typename T_Node, typename T_Data>
-class AstUser4Allocator final : public AstUserAllocatorBase<T_Node, T_Data, 4> {};
+మూస <typename T_కణుపు, typename T_దత్తాంశం>
+class AstUser1Allocator final : బహిరంగ Ast_User_Allocator_పునాది<T_కణుపు, T_దత్తాంశం, 1> {};
+మూస <typename T_కణుపు, typename T_దత్తాంశం>
+class AstUser2Allocator final : బహిరంగ Ast_User_Allocator_పునాది<T_కణుపు, T_దత్తాంశం, 2> {};
+మూస <typename T_కణుపు, typename T_దత్తాంశం>
+class AstUser3Allocator final : బహిరంగ Ast_User_Allocator_పునాది<T_కణుపు, T_దత్తాంశం, 3> {};
+మూస <typename T_కణుపు, typename T_దత్తాంశం>
+class AstUser4Allocator final : బహిరంగ Ast_User_Allocator_పునాది<T_కణుపు, T_దత్తాంశం, 4> {};
 
-#endif  // Guard
+#అయితే_ముగింపు  // Guard

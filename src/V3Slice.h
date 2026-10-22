@@ -14,19 +14,19 @@
 //
 //*************************************************************************
 
-#ifndef VERILATOR_V3SLICE_H_
-#define VERILATOR_V3SLICE_H_
+#నిర్వచితం_కాకపోతే VERILATOR_V3_ముక్క_H
+#నిర్వచించు VERILATOR_V3_ముక్క_H
 
-#include "config_build.h"
-#include "verilatedos.h"
+#అన్తర్భావ "config_build.h"
+#అన్తర్భావ "verilatedos.h"
 
 class AstNetlist;
 
 //============================================================================
 
-class V3Slice final {
-public:
-    static void sliceAll(AstNetlist* nodep) VL_MT_DISABLED;
+class V3_ముక్క final {
+బహిరంగ:
+    స్థిర శూన్య ముక్క_All(AstNetlist* nodep) VL_MT_DISABLED;
 };
 
-#endif  // Guard
+#అయితే_ముగింపు  // Guard

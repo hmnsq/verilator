@@ -14,32 +14,32 @@
 //
 //*************************************************************************
 
-#ifndef VERILATOR_V3GRAPH_H_
-#define VERILATOR_V3GRAPH_H_
+#నిర్వచితం_కాకపోతే VERILATOR_V3_లేఖాచిత్రం_H
+#నిర్వచించు VERILATOR_V3_లేఖాచిత్రం_H
 
-#include "config_build.h"
-#include "verilatedos.h"
+#అన్తర్భావ "config_build.h"
+#అన్తర్భావ "verilatedos.h"
 
-#include "V3Error.h"
-#include "V3List.h"
-#include "V3Rtti.h"
+#అన్తర్భావ "V3Error.h"
+#అన్తర్భావ "V3List.h"
+#అన్తర్భావ "V3Rtti.h"
 
-#include <algorithm>
-#include <functional>
+#అన్తర్భావ <algorithm>
+#అన్తర్భావ <functional>
 
-class FileLine;
-class V3Graph;
-class V3GraphVertex;
-class V3GraphEdge;
-class GraphAcycEdge;
-class OrderEitherVertex;
-class OrderLogicVertex;
+class File_పంక్తి;
+class V3_లేఖాచిత్రం;
+class V3_లేఖాచిత్రం_శీర్షం;
+class V3_లేఖాచిత్రం_అంచు;
+class లేఖాచిత్రం_Acyc_అంచు;
+class క్రమం_Either_శీర్షం;
+class క్రమం_Logic_శీర్షం;
 
 //=============================================================================
 // Most graph algorithms accept an arbitrary function that returns
 // True for those edges we should honor.
 
-using V3EdgeFuncP = bool (*)(const V3GraphEdge* edgep);
+using V3_అంచు_Func_P = bool (*)(స్థిరరాశి V3_లేఖాచిత్రం_అంచు* edgep);
 
 //=============================================================================
 // When the Graph represents a directional acyclical graph (DAG), following
@@ -47,446 +47,446 @@ using V3EdgeFuncP = bool (*)(const V3GraphEdge* edgep);
 // it's useful to have algorithms that can walk in either direction, hence
 // some methods take GraphWay to programmatically select the direction.
 
-class GraphWay final {
-public:
-    enum en : uint8_t {
+class లేఖాచిత్రం_Way final {
+బహిరంగ:
+    గణన en : uint8_t {
         FORWARD = 0,
-        REVERSE = 1,
-        NUM_WAYS = 2  // NUM_WAYS is not an actual way, it's typically
+        తిరగేయి_2 = 1,
+        అంకె_WAYS = 2  // NUM_WAYS is not an actual way, it's typically
         //          // an array dimension or loop bound.
     };
-    enum en m_e;
-    GraphWay()
+    గణన en m_e;
+    లేఖాచిత్రం_Way()
         : m_e{FORWARD} {}
     // cppcheck-suppress noExplicitConstructor
-    constexpr GraphWay(en _e)
+    constexpr లేఖాచిత్రం_Way(en _e)
         : m_e{_e} {}
-    explicit constexpr GraphWay(int _e)
+    explicit constexpr లేఖాచిత్రం_Way(పూర్ణాంకం _e)
         : m_e(static_cast<en>(_e)) {}  // Need () or GCC 4.8 false warning
-    constexpr operator en() const { return m_e; }
-    const char* ascii() const {
-        static constexpr const char* const names[] = {"FORWARD", "REVERSE"};
-        return names[m_e];
+    constexpr క్రియాకారకం en() స్థిరరాశి { తిరిగి m_e; }
+    స్థిరరాశి అక్షరం* ascii() స్థిరరాశి {
+        స్థిర constexpr స్థిరరాశి అక్షరం* స్థిరరాశి పేర్లు[] = {"FORWARD", "REVERSE"};
+        తిరిగి పేర్లు[m_e];
     }
     // METHODS unique to this class
-    constexpr GraphWay invert() const { return GraphWay{m_e ^ 1}; }
-    constexpr bool forward() const { return m_e == FORWARD; }
-    constexpr bool reverse() const { return m_e != FORWARD; }
+    constexpr లేఖాచిత్రం_Way invert() స్థిరరాశి { తిరిగి లేఖాచిత్రం_Way{m_e ^ 1}; }
+    constexpr bool forward() స్థిరరాశి { తిరిగి m_e == FORWARD; }
+    constexpr bool తిరగేయి() స్థిరరాశి { తిరిగి m_e != FORWARD; }
 };
-constexpr bool operator==(const GraphWay& lhs, const GraphWay& rhs) { return lhs.m_e == rhs.m_e; }
-constexpr bool operator==(const GraphWay& lhs, GraphWay::en rhs) { return lhs.m_e == rhs; }
-constexpr bool operator==(GraphWay::en lhs, const GraphWay& rhs) { return lhs == rhs.m_e; }
+constexpr bool క్రియాకారకం==(స్థిరరాశి లేఖాచిత్రం_Way& lhs, స్థిరరాశి లేఖాచిత్రం_Way& rhs) { తిరిగి lhs.m_e == rhs.m_e; }
+constexpr bool క్రియాకారకం==(స్థిరరాశి లేఖాచిత్రం_Way& lhs, లేఖాచిత్రం_Way::en rhs) { తిరిగి lhs.m_e == rhs; }
+constexpr bool క్రియాకారకం==(లేఖాచిత్రం_Way::en lhs, స్థిరరాశి లేఖాచిత్రం_Way& rhs) { తిరిగి lhs == rhs.m_e; }
 
 //============================================================================
 // TODO should we have a smaller edge structure when we don't need weight etc?
 
-class V3GraphEdge VL_NOT_FINAL {
-    VL_RTTI_IMPL_BASE(V3GraphEdge)
+class V3_లేఖాచిత్రం_అంచు VL_NOT_FINAL {
+    VL_RTTI_IMPL_పునాది(V3_లేఖాచిత్రం_అంచు)
     // Wires/variables aren't edges.  Edges have only a single to/from vertex
-public:
+బహిరంగ:
     // ENUMS
-    enum Cutable : uint8_t { NOT_CUTABLE = false, CUTABLE = true };  // For passing to V3GraphEdge
-protected:
-    friend class V3Graph;
-    friend class V3GraphVertex;
-    friend class GraphAcyc;
-    friend class GraphAcycEdge;
+    గణన Cutable : uint8_t { NOT_CUTABLE = false, CUTABLE = true };  // For passing to V3GraphEdge
+రక్షిత:
+    మిత్ర class V3_లేఖాచిత్రం;
+    మిత్ర class V3_లేఖాచిత్రం_శీర్షం;
+    మిత్ర class లేఖాచిత్రం_Acyc;
+    మిత్ర class లేఖాచిత్రం_Acyc_అంచు;
 
-    V3ListLinks<V3GraphEdge> m_oLinks;  // List links to store instances of this class (out edges)
-    V3ListLinks<V3GraphEdge> m_iLinks;  // List links to store instances of this class (in edges)
+    V3ListLinks<V3_లేఖాచిత్రం_అంచు> m_oLinks;  // List links to store instances of this class (out edges)
+    V3ListLinks<V3_లేఖాచిత్రం_అంచు> m_iLinks;  // List links to store instances of this class (in edges)
     //
-    V3GraphVertex* m_fromp;  // Vertices pointing to this edge
-    V3GraphVertex* m_top;  // Vertices this edge points to
-    int m_weight;  // Weight of the connection
+    V3_లేఖాచిత్రం_శీర్షం* m_fromp;  // Vertices pointing to this edge
+    V3_లేఖాచిత్రం_శీర్షం* m_శిఖరం;  // Vertices this edge points to
+    పూర్ణాంకం m_బరువు;  // Weight of the connection
     bool m_cutable;  // Interconnect may be broken in order sorting
-    union {
-        void* m_userp;  // Marker for some algorithms
+    సంఘం {
+        శూన్య* m_userp;  // Marker for some algorithms
         uint64_t m_user;  // Marker for some algorithms
     };
     // METHODS
-    void init(V3Graph* graphp, V3GraphVertex* fromp, V3GraphVertex* top, int weight,
+    శూన్య init(V3_లేఖాచిత్రం* graphp, V3_లేఖాచిత్రం_శీర్షం* fromp, V3_లేఖాచిత్రం_శీర్షం* శిఖరం, పూర్ణాంకం బరువు_2,
               bool cutable = false) VL_MT_DISABLED;
-    void cut() { m_weight = 0; }  // 0 weight is same as disconnected
+    శూన్య cut() { m_బరువు = 0; }  // 0 weight is same as disconnected
     // CONSTRUCTORS
-    V3GraphEdge(V3Graph* graphp, V3GraphVertex* fromp, V3GraphVertex* top,
-                const V3GraphEdge& old) VL_MT_DISABLED {
-        init(graphp, fromp, top, old.m_weight, old.m_cutable);
+    V3_లేఖాచిత్రం_అంచు(V3_లేఖాచిత్రం* graphp, V3_లేఖాచిత్రం_శీర్షం* fromp, V3_లేఖాచిత్రం_శీర్షం* శిఖరం,
+                స్థిరరాశి V3_లేఖాచిత్రం_అంచు& old) VL_MT_DISABLED {
+        init(graphp, fromp, శిఖరం, old.m_బరువు, old.m_cutable);
     }
 
-private:
-    V3ListLinks<V3GraphEdge>& oLinks() { return m_oLinks; }
-    V3ListLinks<V3GraphEdge>& iLinks() { return m_iLinks; }
+అంతరంగ:
+    V3ListLinks<V3_లేఖాచిత్రం_అంచు>& oLinks() { తిరిగి m_oLinks; }
+    V3ListLinks<V3_లేఖాచిత్రం_అంచు>& iLinks() { తిరిగి m_iLinks; }
 
-public:
+బహిరంగ:
     // List types to store instances of this class
-    using OList = V3List<V3GraphEdge, &V3GraphEdge::oLinks>;
-    using IList = V3List<V3GraphEdge, &V3GraphEdge::iLinks>;
+    using OList = V3List<V3_లేఖాచిత్రం_అంచు, &V3_లేఖాచిత్రం_అంచు::oLinks>;
+    using IList = V3List<V3_లేఖాచిత్రం_అంచు, &V3_లేఖాచిత్రం_అంచు::iLinks>;
 
     //! Add DAG from one node to the specified node
-    V3GraphEdge(V3Graph* graphp, V3GraphVertex* fromp, V3GraphVertex* top, int weight,
+    V3_లేఖాచిత్రం_అంచు(V3_లేఖాచిత్రం* graphp, V3_లేఖాచిత్రం_శీర్షం* fromp, V3_లేఖాచిత్రం_శీర్షం* శిఖరం, పూర్ణాంకం బరువు_2,
                 bool cutable = false) VL_MT_DISABLED {
-        init(graphp, fromp, top, weight, cutable);
+        init(graphp, fromp, శిఖరం, బరువు_2, cutable);
     }
     //! Clone copy constructor.  Doesn't copy existing vertices or user/userp.
-    virtual V3GraphEdge* clone(V3Graph* graphp, V3GraphVertex* fromp,
-                               V3GraphVertex* top) const VL_MT_DISABLED {
-        return new V3GraphEdge{graphp, fromp, top, *this};
+    మాయా V3_లేఖాచిత్రం_అంచు* clone(V3_లేఖాచిత్రం* graphp, V3_లేఖాచిత్రం_శీర్షం* fromp,
+                               V3_లేఖాచిత్రం_శీర్షం* శిఖరం) స్థిరరాశి VL_MT_DISABLED {
+        తిరిగి new V3_లేఖాచిత్రం_అంచు{graphp, fromp, శిఖరం, *this};
     }
-    virtual ~V3GraphEdge() = default;
+    మాయా ~V3_లేఖాచిత్రం_అంచు() = అప్రమేయ;
     // METHODS
     // Return true iff of type T
-    template <typename T>
-    bool is() const {
-        static_assert(std::is_base_of<V3GraphEdge, T>::value,
+    మూస <typename T>
+    bool is() స్థిరరాశి {
+        static_assert(std::is_పునాది_యొక్క<V3_లేఖాచిత్రం_అంచు, T>::విలువ,
                       "'T' must be a subtype of V3GraphEdge");
-        return V3Rtti::isInstanceOf<T>(this);
+        తిరిగి V3Rtti::is_Instance_యొక్క<T>(this);
     }
 
     // Return cast to subtype T and assert of that type
-    template <typename T>
+    మూస <typename T>
     T* as() {
         UASSERT(is<T>(), "V3GraphEdge is not of expected type");
-        return static_cast<T*>(this);
+        తిరిగి static_cast<T*>(this);
     }
-    template <typename T>
-    const T* as() const {
+    మూస <typename T>
+    స్థిరరాశి T* as() స్థిరరాశి {
         UASSERT(is<T>(), "V3GraphEdge is not of expected type");
-        return static_cast<const T*>(this);
+        తిరిగి static_cast<స్థిరరాశి T*>(this);
     }
 
     // Return cast to subtype T, else nullptr if different type
-    template <typename T>
+    మూస <typename T>
     T* cast() {
-        return is<T>() ? static_cast<T*>(this) : nullptr;
+        తిరిగి is<T>() ? static_cast<T*>(this) : nullptr;
     }
-    template <typename T>
-    const T* cast() const {
-        return is<T>() ? static_cast<const T*>(this) : nullptr;
+    మూస <typename T>
+    స్థిరరాశి T* cast() స్థిరరాశి {
+        తిరిగి is<T>() ? static_cast<స్థిరరాశి T*>(this) : nullptr;
     }
 
-    virtual string name() const VL_MT_DISABLED;
-    virtual string dotLabel() const { return ""; }
-    virtual string dotColor() const { return cutable() ? "yellowGreen" : "red"; }
-    virtual string dotStyle() const { return cutable() ? "dashed" : ""; }
-    virtual int sortCmp(const V3GraphEdge* rhsp) const VL_MT_DISABLED;
-    void unlinkDelete() VL_MT_DISABLED;
-    void relinkFromp(V3GraphVertex* newFromp) VL_MT_DISABLED;
-    void relinkTop(V3GraphVertex* newTop) VL_MT_DISABLED;
+    మాయా string name() స్థిరరాశి VL_MT_DISABLED;
+    మాయా string dotLabel() స్థిరరాశి { తిరిగి ""; }
+    మాయా string dotColor() స్థిరరాశి { తిరిగి cutable() ? "yellowGreen" : "red"; }
+    మాయా string dotStyle() స్థిరరాశి { తిరిగి cutable() ? "dashed" : ""; }
+    మాయా పూర్ణాంకం క్రమీకరించు_Cmp(స్థిరరాశి V3_లేఖాచిత్రం_అంచు* rhsp) స్థిరరాశి VL_MT_DISABLED;
+    శూన్య unlinkDelete() VL_MT_DISABLED;
+    శూన్య relinkFromp(V3_లేఖాచిత్రం_శీర్షం* newFromp) VL_MT_DISABLED;
+    శూన్య relink_శిఖరం(V3_లేఖాచిత్రం_శీర్షం* new_శిఖరం) VL_MT_DISABLED;
     // ACCESSORS
-    int weight() const { return m_weight; }
-    void weight(int weight) { m_weight = weight; }
-    bool cutable() const { return m_cutable; }
-    void cutable(bool cutable) { m_cutable = cutable; }
-    void userp(void* user) { m_userp = user; }
-    void* userp() const { return m_userp; }
-    void user(uint64_t user) { m_user = user; }
-    uint64_t user() const { return m_user; }
-    V3GraphVertex* fromp() const { return m_fromp; }
-    V3GraphVertex* top() const { return m_top; }
-    template <GraphWay::en N_Way>
-    V3GraphVertex* furtherp() const {
-        return N_Way == GraphWay::FORWARD ? top() : fromp();
+    పూర్ణాంకం బరువు_2() స్థిరరాశి { తిరిగి m_బరువు; }
+    శూన్య బరువు_2(పూర్ణాంకం బరువు_2) { m_బరువు = బరువు_2; }
+    bool cutable() స్థిరరాశి { తిరిగి m_cutable; }
+    శూన్య cutable(bool cutable) { m_cutable = cutable; }
+    శూన్య userp(శూన్య* user) { m_userp = user; }
+    శూన్య* userp() స్థిరరాశి { తిరిగి m_userp; }
+    శూన్య user(uint64_t user) { m_user = user; }
+    uint64_t user() స్థిరరాశి { తిరిగి m_user; }
+    V3_లేఖాచిత్రం_శీర్షం* fromp() స్థిరరాశి { తిరిగి m_fromp; }
+    V3_లేఖాచిత్రం_శీర్షం* శిఖరం() స్థిరరాశి { తిరిగి m_శిఖరం; }
+    మూస <లేఖాచిత్రం_Way::en N_Way>
+    V3_లేఖాచిత్రం_శీర్షం* furtherp() స్థిరరాశి {
+        తిరిగి N_Way == లేఖాచిత్రం_Way::FORWARD ? శిఖరం() : fromp();
     }
     // STATIC ACCESSORS
-    static bool followNotCutable(const V3GraphEdge* edgep) { return !edgep->m_cutable; }
-    static bool followAlwaysTrue(const V3GraphEdge*) { return true; }
+    స్థిర bool followNotCutable(స్థిరరాశి V3_లేఖాచిత్రం_అంచు* edgep) { తిరిగి !edgep->m_cutable; }
+    స్థిర bool followAlwaysTrue(స్థిరరాశి V3_లేఖాచిత్రం_అంచు*) { తిరిగి true; }
 };
 
 //============================================================================
 
-class V3GraphVertex VL_NOT_FINAL {
-    VL_RTTI_IMPL_BASE(V3GraphVertex)
-    friend class V3Graph;
-    friend class V3GraphEdge;
-    friend class GraphAcyc;
-    friend class GraphAlgRank;
-    friend class GraphAlgRankDepth;
-    V3ListLinks<V3GraphVertex> m_links;  // List links to store instances of this class
-    V3GraphEdge::OList m_outs;  // List of outbound edges
-    V3GraphEdge::IList m_ins;  // List of inbound edges
-    double m_fanout;  // Order fanout
+class V3_లేఖాచిత్రం_శీర్షం VL_NOT_FINAL {
+    VL_RTTI_IMPL_పునాది(V3_లేఖాచిత్రం_శీర్షం)
+    మిత్ర class V3_లేఖాచిత్రం;
+    మిత్ర class V3_లేఖాచిత్రం_అంచు;
+    మిత్ర class లేఖాచిత్రం_Acyc;
+    మిత్ర class లేఖాచిత్రం_Alg_Rank;
+    మిత్ర class లేఖాచిత్రం_Alg_Rank_లోతు;
+    V3ListLinks<V3_లేఖాచిత్రం_శీర్షం> m_links;  // List links to store instances of this class
+    V3_లేఖాచిత్రం_అంచు::OList m_outs;  // List of outbound edges
+    V3_లేఖాచిత్రం_అంచు::IList m_ins;  // List of inbound edges
+    ద్విగుణ m_fanout;  // Order fanout
     uint32_t m_color;  // Color of the node
     uint32_t m_rank;  // Rank of edge
-    union {
-        void* m_userp;  // Marker for some algorithms
+    సంఘం {
+        శూన్య* m_userp;  // Marker for some algorithms
         uint32_t m_user;  // Marker for some algorithms
     };
     // ACCESSORS
-    void fanout(double fanout) { m_fanout = fanout; }
+    శూన్య fanout(ద్విగుణ fanout) { m_fanout = fanout; }
 
-protected:
+రక్షిత:
     // CONSTRUCTORS
-    V3GraphVertex(V3Graph* graphp, const V3GraphVertex& old) VL_MT_DISABLED;
+    V3_లేఖాచిత్రం_శీర్షం(V3_లేఖాచిత్రం* graphp, స్థిరరాశి V3_లేఖాచిత్రం_శీర్షం& old) VL_MT_DISABLED;
 
-private:
-    V3ListLinks<V3GraphVertex>& links() { return m_links; }
+అంతరంగ:
+    V3ListLinks<V3_లేఖాచిత్రం_శీర్షం>& links() { తిరిగి m_links; }
 
-public:
+బహిరంగ:
     // List types to store instances of this class
-    using List = V3List<V3GraphVertex, &V3GraphVertex::links>;
+    using List = V3List<V3_లేఖాచిత్రం_శీర్షం, &V3_లేఖాచిత్రం_శీర్షం::links>;
 
-    explicit V3GraphVertex(V3Graph* graphp) VL_MT_DISABLED;
+    explicit V3_లేఖాచిత్రం_శీర్షం(V3_లేఖాచిత్రం* graphp) VL_MT_DISABLED;
     //! Clone copy constructor. Doesn't copy edges or user/userp.
-    virtual V3GraphVertex* clone(V3Graph* graphp) const VL_MT_DISABLED {
-        return new V3GraphVertex{graphp, *this};
+    మాయా V3_లేఖాచిత్రం_శీర్షం* clone(V3_లేఖాచిత్రం* graphp) స్థిరరాశి VL_MT_DISABLED {
+        తిరిగి new V3_లేఖాచిత్రం_శీర్షం{graphp, *this};
     }
-    virtual ~V3GraphVertex() = default;
-    void unlinkEdges(V3Graph* graphp) VL_MT_DISABLED;
-    void unlinkDelete(V3Graph* graphp) VL_MT_DISABLED;
+    మాయా ~V3_లేఖాచిత్రం_శీర్షం() = అప్రమేయ;
+    శూన్య unlink_అంచులు(V3_లేఖాచిత్రం* graphp) VL_MT_DISABLED;
+    శూన్య unlinkDelete(V3_లేఖాచిత్రం* graphp) VL_MT_DISABLED;
 
     // METHODS
     // Return true iff of type T
-    template <typename T>
-    bool is() const {
-        static_assert(std::is_base_of<V3GraphVertex, T>::value,
+    మూస <typename T>
+    bool is() స్థిరరాశి {
+        static_assert(std::is_పునాది_యొక్క<V3_లేఖాచిత్రం_శీర్షం, T>::విలువ,
                       "'T' must be a subtype of V3GraphVertex");
-        return V3Rtti::isInstanceOf<T>(this);
+        తిరిగి V3Rtti::is_Instance_యొక్క<T>(this);
     }
 
     // Return cast to subtype T and assert of that type
-    template <typename T>
+    మూస <typename T>
     T* as() {
         UASSERT_OBJ(is<T>(), this, "V3GraphVertex is not of expected type");
-        return static_cast<T*>(this);
+        తిరిగి static_cast<T*>(this);
     }
-    template <typename T>
-    const T* as() const {
+    మూస <typename T>
+    స్థిరరాశి T* as() స్థిరరాశి {
         UASSERT_OBJ(is<T>(), this, "V3GraphVertex is not of expected type");
-        return static_cast<const T*>(this);
+        తిరిగి static_cast<స్థిరరాశి T*>(this);
     }
 
     // Return cast to subtype T, else nullptr if different type
-    template <typename T>
+    మూస <typename T>
     T* cast() {
-        return is<T>() ? static_cast<T*>(this) : nullptr;
+        తిరిగి is<T>() ? static_cast<T*>(this) : nullptr;
     }
-    template <typename T>
-    const T* cast() const {
-        return is<T>() ? static_cast<const T*>(this) : nullptr;
+    మూస <typename T>
+    స్థిరరాశి T* cast() స్థిరరాశి {
+        తిరిగి is<T>() ? static_cast<స్థిరరాశి T*>(this) : nullptr;
     }
 
     // ACCESSORS
-    virtual string name() const { return ""; }
-    virtual string dotColor() const { return "black"; }
-    virtual string dotShape() const { return ""; }
-    virtual string dotStyle() const { return ""; }
-    virtual string dotName() const { return ""; }
-    virtual string dotRank() const { return ""; }
-    virtual uint32_t rankAdder() const { return 1; }
-    virtual FileLine* fileline() const { return nullptr; }  // nullptr for unknown
-    virtual int sortCmp(const V3GraphVertex* rhsp) const {
+    మాయా string name() స్థిరరాశి { తిరిగి ""; }
+    మాయా string dotColor() స్థిరరాశి { తిరిగి "black"; }
+    మాయా string dotShape() స్థిరరాశి { తిరిగి ""; }
+    మాయా string dotStyle() స్థిరరాశి { తిరిగి ""; }
+    మాయా string dotName() స్థిరరాశి { తిరిగి ""; }
+    మాయా string dotRank() స్థిరరాశి { తిరిగి ""; }
+    మాయా uint32_t rankAdder() స్థిరరాశి { తిరిగి 1; }
+    మాయా File_పంక్తి* fileline() స్థిరరాశి { తిరిగి nullptr; }  // nullptr for unknown
+    మాయా పూర్ణాంకం క్రమీకరించు_Cmp(స్థిరరాశి V3_లేఖాచిత్రం_శీర్షం* rhsp) స్థిరరాశి {
         // LHS goes first if of lower rank, or lower fanout
-        if (m_rank < rhsp->m_rank) return -1;
-        if (m_rank > rhsp->m_rank) return 1;
-        if (m_fanout < rhsp->m_fanout) return -1;
-        if (m_fanout > rhsp->m_fanout) return 1;
-        return 0;
+        ఒకవేళ (m_rank < rhsp->m_rank) తిరిగి -1;
+        ఒకవేళ (m_rank > rhsp->m_rank) తిరిగి 1;
+        ఒకవేళ (m_fanout < rhsp->m_fanout) తిరిగి -1;
+        ఒకవేళ (m_fanout > rhsp->m_fanout) తిరిగి 1;
+        తిరిగి 0;
     }
-    uint32_t color() const { return m_color; }
-    void color(uint32_t color) { m_color = color; }
-    uint32_t rank() const { return m_rank; }
-    void rank(uint32_t rank) { m_rank = rank; }
-    double fanout() const { return m_fanout; }
-    void user(uint32_t user) { m_user = user; }
-    uint32_t user() const VL_MT_STABLE { return m_user; }
-    void userp(void* userp) { m_userp = userp; }
-    void* userp() const VL_MT_STABLE { return m_userp; }
-    V3GraphEdge::IList& inEdges() { return m_ins; }
-    const V3GraphEdge::IList& inEdges() const { return m_ins; }
-    template <GraphWay::en N_Way>
-    inline auto& edges();
-    template <GraphWay::en N_Way>
-    inline const auto& edges() const;
-    bool inEmpty() const { return m_ins.empty(); }
-    bool inSize1() const { return m_ins.hasSingleElement(); }
-    V3GraphEdge::OList& outEdges() { return m_outs; }
-    const V3GraphEdge::OList& outEdges() const { return m_outs; }
-    bool outEmpty() const { return m_outs.empty(); }
-    bool outSize1() const { return m_outs.hasSingleElement(); }
+    uint32_t color() స్థిరరాశి { తిరిగి m_color; }
+    శూన్య color(uint32_t color) { m_color = color; }
+    uint32_t rank() స్థిరరాశి { తిరిగి m_rank; }
+    శూన్య rank(uint32_t rank) { m_rank = rank; }
+    ద్విగుణ fanout() స్థిరరాశి { తిరిగి m_fanout; }
+    శూన్య user(uint32_t user) { m_user = user; }
+    uint32_t user() స్థిరరాశి VL_MT_STABLE { తిరిగి m_user; }
+    శూన్య userp(శూన్య* userp) { m_userp = userp; }
+    శూన్య* userp() స్థిరరాశి VL_MT_STABLE { తిరిగి m_userp; }
+    V3_లేఖాచిత్రం_అంచు::IList& లోపల_అంచులు() { తిరిగి m_ins; }
+    స్థిరరాశి V3_లేఖాచిత్రం_అంచు::IList& లోపల_అంచులు() స్థిరరాశి { తిరిగి m_ins; }
+    మూస <లేఖాచిత్రం_Way::en N_Way>
+    అంతఃవరుస స్వయంచాలక& అంచులు();
+    మూస <లేఖాచిత్రం_Way::en N_Way>
+    అంతఃవరుస స్థిరరాశి స్వయంచాలక& అంచులు() స్థిరరాశి;
+    bool లోపల_ఖాళీలు() స్థిరరాశి { తిరిగి m_ins.ఖాళీలు(); }
+    bool లోపల_Size1() స్థిరరాశి { తిరిగి m_ins.hasSingleElement(); }
+    V3_లేఖాచిత్రం_అంచు::OList& బహిర్గతం_అంచులు() { తిరిగి m_outs; }
+    స్థిరరాశి V3_లేఖాచిత్రం_అంచు::OList& బహిర్గతం_అంచులు() స్థిరరాశి { తిరిగి m_outs; }
+    bool బహిర్గతం_ఖాళీలు() స్థిరరాశి { తిరిగి m_outs.ఖాళీలు(); }
+    bool బహిర్గతం_Size1() స్థిరరాశి { తిరిగి m_outs.hasSingleElement(); }
     // METHODS
     /// Error reporting
-    void v3errorEnd(const std::ostringstream& str) const
+    శూన్య v3error_చివర(స్థిరరాశి std::ostringstream& str) స్థిరరాశి
         VL_RELEASE(V3Error::s().m_mutex) VL_MT_DISABLED;
-    void v3errorEndFatal(const std::ostringstream& str) const
+    శూన్య v3error_చివర_Fatal(స్థిరరాశి std::ostringstream& str) స్థిరరాశి
         VL_RELEASE(V3Error::s().m_mutex) VL_MT_DISABLED;
     /// Edges are routed around this vertex to point from "from" directly to "to"
-    void rerouteEdges(V3Graph* graphp) VL_MT_DISABLED;
+    శూన్య reroute_అంచులు(V3_లేఖాచిత్రం* graphp) VL_MT_DISABLED;
 };
 
-std::ostream& operator<<(std::ostream& os, V3GraphVertex* vertexp) VL_MT_DISABLED;
+std::ostream& క్రియాకారకం<<(std::ostream& os, V3_లేఖాచిత్రం_శీర్షం* vertexp) VL_MT_DISABLED;
 
-template <>
-inline auto& V3GraphVertex::edges<GraphWay::FORWARD>() {
-    return m_outs;
+మూస <>
+అంతఃవరుస స్వయంచాలక& V3_లేఖాచిత్రం_శీర్షం::అంచులు<లేఖాచిత్రం_Way::FORWARD>() {
+    తిరిగి m_outs;
 }
 
-template <>
-inline auto& V3GraphVertex::edges<GraphWay::REVERSE>() {
-    return m_ins;
+మూస <>
+అంతఃవరుస స్వయంచాలక& V3_లేఖాచిత్రం_శీర్షం::అంచులు<లేఖాచిత్రం_Way::తిరగేయి_2>() {
+    తిరిగి m_ins;
 }
 
-template <>
-inline const auto& V3GraphVertex::edges<GraphWay::FORWARD>() const {
-    return m_outs;
+మూస <>
+అంతఃవరుస స్థిరరాశి స్వయంచాలక& V3_లేఖాచిత్రం_శీర్షం::అంచులు<లేఖాచిత్రం_Way::FORWARD>() స్థిరరాశి {
+    తిరిగి m_outs;
 }
 
-template <>
-inline const auto& V3GraphVertex::edges<GraphWay::REVERSE>() const {
-    return m_ins;
+మూస <>
+అంతఃవరుస స్థిరరాశి స్వయంచాలక& V3_లేఖాచిత్రం_శీర్షం::అంచులు<లేఖాచిత్రం_Way::తిరగేయి_2>() స్థిరరాశి {
+    తిరిగి m_ins;
 }
 
 //============================================================================
 
-class V3Graph VL_NOT_FINAL {
+class V3_లేఖాచిత్రం VL_NOT_FINAL {
     // MEMBERS
-    V3GraphVertex::List m_vertices;  // All vertices
+    V3_లేఖాచిత్రం_శీర్షం::List m_vertices;  // All vertices
 
-protected:
-    friend class V3GraphVertex;
-    friend class V3GraphEdge;
-    friend class GraphAcyc;
+రక్షిత:
+    మిత్ర class V3_లేఖాచిత్రం_శీర్షం;
+    మిత్ర class V3_లేఖాచిత్రం_అంచు;
+    మిత్ర class లేఖాచిత్రం_Acyc;
     // METHODS
-    double orderDFSIterate(V3GraphVertex* vertexp) VL_MT_DISABLED;
-    void dumpEdge(std::ostream& os, const V3GraphVertex& vertex,
-                  const V3GraphEdge& edge) const VL_MT_DISABLED;
+    ద్విగుణ క్రమం_DFSIterate(V3_లేఖాచిత్రం_శీర్షం* vertexp) VL_MT_DISABLED;
+    శూన్య dump_అంచు(std::ostream& os, స్థిరరాశి V3_లేఖాచిత్రం_శీర్షం& శీర్షం,
+                  స్థిరరాశి V3_లేఖాచిత్రం_అంచు& అంచు) స్థిరరాశి VL_MT_DISABLED;
     // ACCESSORS
 
-public:
-    V3Graph() VL_MT_DISABLED;
-    virtual ~V3Graph() VL_MT_DISABLED;
-    virtual string dotRankDir() const { return "TB"; }  // rankdir for dot plotting
+బహిరంగ:
+    V3_లేఖాచిత్రం() VL_MT_DISABLED;
+    మాయా ~V3_లేఖాచిత్రం() VL_MT_DISABLED;
+    మాయా string dotRankDir() స్థిరరాశి { తిరిగి "TB"; }  // rankdir for dot plotting
 
     // METHODS
-    void clear() VL_MT_DISABLED;  // Empty it of all vertices/edges, as if making a new object
-    bool empty() const { return m_vertices.empty(); }
-    V3GraphVertex::List& vertices() { return m_vertices; }
-    const V3GraphVertex::List& vertices() const { return m_vertices; }
+    శూన్య clear() VL_MT_DISABLED;  // Empty it of all vertices/edges, as if making a new object
+    bool ఖాళీలు() స్థిరరాశి { తిరిగి m_vertices.ఖాళీలు(); }
+    V3_లేఖాచిత్రం_శీర్షం::List& vertices() { తిరిగి m_vertices; }
+    స్థిరరాశి V3_లేఖాచిత్రం_శీర్షం::List& vertices() స్థిరరాశి { తిరిగి m_vertices; }
 
     // METHODS - ALGORITHMS
 
     /// Assign same color to all vertices in the same weakly connected component
     /// Thus different color if there's no edges between the two subgraphs
     /// Colors are assigned densely, as 0 .. n-1, and 'n' is returned
-    uint32_t weaklyConnected(V3EdgeFuncP edgeFuncp) VL_MT_DISABLED;
+    uint32_t weaklyConnected(V3_అంచు_Func_P అంచు_Funcp) VL_MT_DISABLED;
 
     /// Assign same color to all vertices that are strongly connected
     /// Thus different color if there's no directional circuit within the subgraphs.
     /// (I.E. all loops will occur within each color, not between them.)
     /// Side-effect: changes user()
-    void stronglyConnected(V3EdgeFuncP edgeFuncp) VL_MT_DISABLED;
+    శూన్య stronglyConnected(V3_అంచు_Func_P అంచు_Funcp) VL_MT_DISABLED;
 
     /// Assign an ordering number to all vertexes in a tree.
     /// For multiple usages of a vertex, get the maximum of all inbound ranks + 1
     /// All nodes with no inputs will get rank 1
     /// Side-effect: changes user()
-    void rank(V3EdgeFuncP edgeFuncp) VL_MT_DISABLED;
-    void rank() VL_MT_DISABLED;
+    శూన్య rank(V3_అంచు_Func_P అంచు_Funcp) VL_MT_DISABLED;
+    శూన్య rank() VL_MT_DISABLED;
 
     /// Assign an ordering number to all vertexes in a tree.
     /// For multiple usages of a vertex, get the minimu of all inbound ranks + 1
     /// All nodes with no inputs will get rank 1
     /// Side-effect: changes user()
-    void rankMin(V3EdgeFuncP edgeFuncp) VL_MT_DISABLED;
-    void rankMin() VL_MT_DISABLED;
+    శూన్య rankMin(V3_అంచు_Func_P అంచు_Funcp) VL_MT_DISABLED;
+    శూన్య rankMin() VL_MT_DISABLED;
 
     /// Sort all vertices and edges using the V3GraphVertex::sortCmp() function
-    void sortVertices() VL_MT_DISABLED;
+    శూన్య క్రమీకరించు_Vertices() VL_MT_DISABLED;
     /// Sort all edges and edges using the V3GraphEdge::sortCmp() function
-    void sortEdges() VL_MT_DISABLED;
+    శూన్య క్రమీకరించు_అంచులు() VL_MT_DISABLED;
 
     /// Order all vertices by rank and fanout, lowest first
     /// Sort all vertices by rank and fanout, lowest first
     /// Sort all edges by weight, lowest first
     /// Side-effect: assigns ranks to every node, and changes user()
-    void order() VL_MT_DISABLED;
+    శూన్య క్రమం() VL_MT_DISABLED;
 
     /// Similar to order() but does not assign ranks. Caller must
     /// ensure that the graph has been ranked ahead of the call.
     /// Side-effect: assigns ranks to every node, and changes user()
-    void orderPreRanked() VL_MT_DISABLED;
+    శూన్య క్రమం_Pre_Ranked() VL_MT_DISABLED;
 
     /// Make acyclical (into a tree) by breaking a minimal subset of cutable edges.
     /// Side-effect: changes rank(), changes user()
-    void acyclic(V3EdgeFuncP edgeFuncp) VL_MT_DISABLED;
+    శూన్య acyclic(V3_అంచు_Func_P అంచు_Funcp) VL_MT_DISABLED;
 
     /// Remove any redundant edges, weights become MAX of any other weight
     /// Side-effect: changes user()
-    void removeRedundantEdgesMax(V3EdgeFuncP edgeFuncp) VL_MT_DISABLED;
+    శూన్య remove_Redundant_అంచులు_Max(V3_అంచు_Func_P అంచు_Funcp) VL_MT_DISABLED;
 
     /// Remove any redundant edges, weights become SUM of any other weight
     /// Side-effect: changes user()
-    void removeRedundantEdgesSum(V3EdgeFuncP edgeFuncp) VL_MT_DISABLED;
+    శూన్య remove_Redundant_అంచులు_కూడిక(V3_అంచు_Func_P అంచు_Funcp) VL_MT_DISABLED;
 
     /// Remove any transitive edges.  E.g. if have edges A->B, B->C, and A->C
     /// then A->C is a "transitive" edge; it's implied by the first two
     /// (assuming the DAG is a dependency graph.)
     /// This algorithm can be expensive.
-    void removeTransitiveEdges() VL_MT_DISABLED;
+    శూన్య remove_సంక్రమణ_అంచులు() VL_MT_DISABLED;
 
     /// Call loopsVertexCb on any one loop starting where specified
     /// Side-effect: changes user()
-    string reportLoops(V3EdgeFuncP edgeFuncp, V3GraphVertex* vertexp) VL_MT_DISABLED;
+    string reportLoops(V3_అంచు_Func_P అంచు_Funcp, V3_లేఖాచిత్రం_శీర్షం* vertexp) VL_MT_DISABLED;
 
     /// Build a subgraph of all loops starting where specified
     /// Side-effect: changes user()
-    void subtreeLoops(V3EdgeFuncP edgeFuncp, V3GraphVertex* vertexp,
-                      V3Graph* loopGraphp) VL_MT_DISABLED;
+    శూన్య subtreeLoops(V3_అంచు_Func_P అంచు_Funcp, V3_లేఖాచిత్రం_శీర్షం* vertexp,
+                      V3_లేఖాచిత్రం* loopGraphp) VL_MT_DISABLED;
 
     /// Clear user()
-    void userClearVertices() VL_MT_DISABLED;
-    void userClearEdges() VL_MT_DISABLED;
+    శూన్య userClearVertices() VL_MT_DISABLED;
+    శూన్య user_Clear_అంచులు() VL_MT_DISABLED;
 
     /// Debugging
-    void dump(std::ostream& os = std::cout) const VL_MT_DISABLED;
-    void dumpDotFile(const string& filename, bool colorAsSubgraph) const VL_MT_DISABLED;
-    void dumpDotFilePrefixed(const string& nameComment,
-                             bool colorAsSubgraph = false) const VL_MT_DISABLED;
-    void dumpDotFilePrefixedAlways(const string& nameComment,
-                                   bool colorAsSubgraph = false) const VL_MT_DISABLED;
-    void dumpEdges(std::ostream& os, const V3GraphVertex& vertex) const VL_MT_DISABLED;
+    శూన్య dump(std::ostream& os = std::cout) స్థిరరాశి VL_MT_DISABLED;
+    శూన్య dumpDotFile(స్థిరరాశి string& filename, bool colorAsSubgraph) స్థిరరాశి VL_MT_DISABLED;
+    శూన్య dumpDotFilePrefixed(స్థిరరాశి string& nameComment,
+                             bool colorAsSubgraph = false) స్థిరరాశి VL_MT_DISABLED;
+    శూన్య dumpDotFilePrefixedAlways(స్థిరరాశి string& nameComment,
+                                   bool colorAsSubgraph = false) స్థిరరాశి VL_MT_DISABLED;
+    శూన్య dump_అంచులు(std::ostream& os, స్థిరరాశి V3_లేఖాచిత్రం_శీర్షం& శీర్షం) స్థిరరాశి VL_MT_DISABLED;
     // Print a hash of the shape of graphp. When debugging nondeterminism, this can help
     // pinpoint where it's coming from.
-    void hashGraphDebug(const char* debugName) const VL_MT_DISABLED;
+    శూన్య hash_లేఖాచిత్రం_Debug(స్థిరరాశి అక్షరం* debugName) స్థిరరాశి VL_MT_DISABLED;
 
-    static void selfTest() VL_MT_DISABLED;
+    స్థిర శూన్య selfTest() VL_MT_DISABLED;
 
     class ParallelismReport final {
-        friend class GraphAlgParallelismReport;
+        మిత్ర class లేఖాచిత్రం_Alg_Parallelism_Report;
         // Total cost of evaluating the whole graph. The ratio of m_totalGraphCost to
         // m_criticalPathCost gives us an estimate of the parallelizability of this graph which is
         // only as good as the guess returned by vertexCost.
-        uint64_t m_totalGraphCost = 0;
+        uint64_t m_మొత్తం_లేఖాచిత్రం_ఖర్చు = 0;
 
         // Cost of the critical path, in abstract units (the same units returned by the vertexCost)
-        uint64_t m_criticalPathCost = 0;
+        uint64_t m_critical_మార్గం_ఖర్చు = 0;
 
-        uint64_t m_vertexCount = 0;  // Number of vertexes in the graph
-        uint64_t m_edgeCount = 0;  // Number of edges in the grap
+        uint64_t m_శీర్షం_లెక్క = 0;  // Number of vertexes in the graph
+        uint64_t m_అంచు_లెక్క = 0;  // Number of edges in the grap
 
-        ParallelismReport() = default;
+        ParallelismReport() = అప్రమేయ;
 
-    public:
-        ~ParallelismReport() = default;
-        ParallelismReport(const ParallelismReport&) = default;
-        ParallelismReport& operator=(const ParallelismReport&) = default;
+    బహిరంగ:
+        ~ParallelismReport() = అప్రమేయ;
+        ParallelismReport(స్థిరరాశి ParallelismReport&) = అప్రమేయ;
+        ParallelismReport& క్రియాకారకం=(స్థిరరాశి ParallelismReport&) = అప్రమేయ;
 
-        uint64_t totalGraphCost() const { return m_totalGraphCost; }
-        uint64_t criticalPathCost() const { return m_criticalPathCost; }
-        uint64_t vertexCount() const { return m_vertexCount; }
-        uint64_t edgeCount() const { return m_edgeCount; }
-        double parallelismFactor() const {
-            return (static_cast<double>(m_totalGraphCost) / m_criticalPathCost);
+        uint64_t మొత్తం_లేఖాచిత్రం_ఖర్చు() స్థిరరాశి { తిరిగి m_మొత్తం_లేఖాచిత్రం_ఖర్చు; }
+        uint64_t critical_మార్గం_ఖర్చు() స్థిరరాశి { తిరిగి m_critical_మార్గం_ఖర్చు; }
+        uint64_t శీర్షం_లెక్క() స్థిరరాశి { తిరిగి m_శీర్షం_లెక్క; }
+        uint64_t అంచు_లెక్క() స్థిరరాశి { తిరిగి m_అంచు_లెక్క; }
+        ద్విగుణ parallelism_గుణకం() స్థిరరాశి {
+            తిరిగి (static_cast<ద్విగుణ>(m_మొత్తం_లేఖాచిత్రం_ఖర్చు) / m_critical_మార్గం_ఖర్చు);
         }
     };
 
     ParallelismReport
-    parallelismReport(std::function<uint64_t(const V3GraphVertex*)> vertexCost) VL_MT_DISABLED;
+    parallelismReport(std::function<uint64_t(స్థిరరాశి V3_లేఖాచిత్రం_శీర్షం*)> శీర్షం_ఖర్చు) VL_MT_DISABLED;
 
     // CALLBACKS
-    virtual void loopsMessageCb(V3GraphVertex* vertexp, V3EdgeFuncP edgeFuncp) VL_MT_DISABLED;
-    virtual string loopsVertexCb(V3GraphVertex* vertexp) VL_MT_DISABLED;
+    మాయా శూన్య loops_సందేశం_Cb(V3_లేఖాచిత్రం_శీర్షం* vertexp, V3_అంచు_Func_P అంచు_Funcp) VL_MT_DISABLED;
+    మాయా string loops_శీర్షం_Cb(V3_లేఖాచిత్రం_శీర్షం* vertexp) VL_MT_DISABLED;
 };
 
 //============================================================================
 
-#endif  // Guard
+#అయితే_ముగింపు  // Guard

@@ -14,32 +14,32 @@
 //
 //*************************************************************************
 
-#include "V3Hash.h"
+#అన్తర్భావ "V3Hash.h"
 
-#include <cstring>
-#include <functional>
-#include <iomanip>
-#include <iostream>
-#include <sstream>
+#అన్తర్భావ <cstring>
+#అన్తర్భావ <functional>
+#అన్తర్భావ <iomanip>
+#అన్తర్భావ <iostream>
+#అన్తర్భావ <sstream>
 
-V3Hash::V3Hash(const std::string& val)
-    : m_value{static_cast<uint32_t>(std::hash<std::string>{}(val))} {}
+V3Hash::V3Hash(స్థిరరాశి std::string& val)
+    : m_విలువ{static_cast<uint32_t>(std::hash<std::string>{}(val))} {}
 
-V3Hash::V3Hash(double val) {
+V3Hash::V3Hash(ద్విగుణ val) {
     // By value, so +0.0 and -0.0, which compare equal, hash the same
-    if (val == 0.0) val = 0.0;
-    static_assert(sizeof(double) == sizeof(uint64_t), "Hashing assumes 64-bit double");
-    uint64_t bits;
-    std::memcpy(&bits, &val, sizeof(bits));
-    m_value = V3Hash{bits}.m_value;
+    ఒకవేళ (val == 0.0) val = 0.0;
+    static_assert(పరిమాణం(ద్విగుణ) == పరిమాణం(uint64_t), "Hashing assumes 64-bit double");
+    uint64_t బిట్లు;
+    std::జ్ఞాపకం_నకలు(&బిట్లు, &val, పరిమాణం(బిట్లు));
+    m_విలువ = V3Hash{బిట్లు}.m_విలువ;
 }
 
-std::ostream& operator<<(std::ostream& os, const V3Hash& rhs) VL_MT_SAFE {
-    return os << 'h' << std::hex << std::setw(8) << std::setfill('0') << rhs.value();
+std::ostream& క్రియాకారకం<<(std::ostream& os, స్థిరరాశి V3Hash& rhs) VL_MT_సురక్షిత {
+    తిరిగి os << 'h' << std::hex << std::setw(8) << std::setfill('0') << rhs.విలువ();
 }
 
-std::string V3Hash::toString() const VL_MT_SAFE {
+std::string V3Hash::గమ్యం_String() స్థిరరాశి VL_MT_సురక్షిత {
     std::ostringstream os;
-    os << *this;
-    return os.str();
+    os << *ఇది;
+    తిరిగి os.str();
 }

@@ -14,18 +14,18 @@
 //
 //*************************************************************************
 
-#ifndef VERILATOR_V3DECOMPOSE_H_
-#define VERILATOR_V3DECOMPOSE_H_
+#నిర్వచితం_కాకపోతే VERILATOR_V3DECOMPOSE_H_
+#నిర్వచించు VERILATOR_V3DECOMPOSE_H_
 
-#include "verilatedos.h"
+#అన్తర్భావ "verilatedos.h"
 
 //============================================================================
 
 class AstNetlist;
 
 class V3Decompose final {
-public:
-    static void decomposeAll(AstNetlist* nodep) VL_MT_DISABLED;
+బహిరంగ:
+    స్థిర శూన్య decomposeAll(AstNetlist* nodep) VL_MT_DISABLED;
 };
 
-#endif  // Guard
+#అయితే_ముగింపు  // Guard
