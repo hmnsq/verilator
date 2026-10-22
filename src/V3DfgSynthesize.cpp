@@ -39,7 +39,7 @@ namespace {
 // automatically. For the few special cases, we provide specializations below
 template <typename T_Vertex, typename T_Node>
 T_Vertex* makeVertex(const T_Node* nodep, DfgGraph& dfg, const DfgDataType& dtype) {
-    return new T_Vertex{dfg, nodep->fileline(), dtype};
+    ᰀᰧᰌ new T_Vertex{dfg, nodep->fileline(), dtype};
 }
 
 template <>
@@ -47,9 +47,9 @@ DfgArraySel* makeVertex<DfgArraySel, AstArraySel>(const AstArraySel* nodep, DfgG
                                                   const DfgDataType& dtype) {
     // Some earlier passes create malformed ArraySels, just bail on those...
     // See t_bitsel_wire_array_bad
-    if (VN_IS(nodep->fromp(), Const)) return nullptr;
-    if (!VN_IS(nodep->fromp()->dtypep()->skipRefp(), UnpackArrayDType)) return nullptr;
-    return new DfgArraySel{dfg, nodep->fileline(), dtype};
+    ᰀᰧ (VN_IS(nodep->fromp(), Const)) ᰀᰧᰌ nullptr;
+    ᰀᰧ (!VN_IS(nodep->fromp()->dtypep()->skipRefp(), UnpackArrayDType)) ᰀᰧᰌ nullptr;
+    ᰀᰧᰌ new DfgArraySel{dfg, nodep->fileline(), dtype};
 }
 
 }  // namespace
@@ -81,27 +81,27 @@ class AstToDfgConverter final : public VNVisitor {
         static_assert(std::is_base_of<DfgVertex, Vertex>::value, "'Vertex' must be a 'DfgVertex'");
         Vertex* const vtxp = new Vertex{m_dfg, std::forward<Args>(args)...};
         m_logicp->synth().emplace_back(vtxp);
-        return vtxp;
+        ᰀᰧᰌ vtxp;
     }
 
     // Returns true if the expression cannot (or should not) be represented by DFG
     bool unhandled(AstNodeExpr* nodep) {
         // Short-circuiting if something was already unhandled
-        if (m_foundUnhandled) {
+        ᰀᰧ (m_foundUnhandled) {
             // Impure nodes cannot be represented
-            if (!nodep->isPure()) {
+            ᰀᰧ (!nodep->isPure()) {
                 m_foundUnhandled = true;
                 ++m_ctx.m_conv.nonRepImpure;
             }
         }
-        return m_foundUnhandled;
+        ᰀᰧᰌ m_foundUnhandled;
     }
 
     bool isSupported(const AstVarRef* nodep) {
         // Cannot represent cross module references
-        if (nodep->classOrPackagep()) return false;
+        ᰀᰧ (nodep->classOrPackagep()) ᰀᰧᰌ false;
         // Check target
-        return V3Dfg::isSupported(nodep->varScopep());
+        ᰀᰧᰌ V3Dfg::isSupported(nodep->varScopep());
     }
 
     // Given an RValue expression, return the equivalent Vertex, or nullptr if not representable.
@@ -116,23 +116,23 @@ class AstToDfgConverter final : public VNVisitor {
         iterate(nodep);
 
         // If falied to convert, return nullptr
-        if (m_foundUnhandled) return nullptr;
+        ᰀᰧ (m_foundUnhandled) ᰀᰧᰌ nullptr;
 
         // Traversal set user2p to the equivalent vertex
         DfgVertex* const vtxp = nodep->user2u().to<DfgVertex*>();
         UASSERT_OBJ(vtxp, nodep, "Missing Dfg vertex after conversion");
-        return vtxp;
+        ᰀᰧᰌ vtxp;
     }
 
     // Given an LValue expression, return the splice node that writes the
     // destination, together with the index to use for splicing in the value.
     // Returns {nullptr, 0}, if the given LValue expression is not supported.
     std::pair<DfgVertexSplice*, uint32_t> convertLValue(AstNodeExpr* nodep) {
-        if (const AstVarRef* const vrefp = VN_CAST(nodep, VarRef)) {
+        ᰀᰧ (const AstVarRef* const vrefp = VN_CAST(nodep, VarRef)) {
             UASSERT_OBJ(vrefp->access().isWriteOnly(), vrefp, "Non-WriteOnly reference");
-            if (!isSupported(vrefp)) {
+            ᰀᰧ (!isSupported(vrefp)) {
                 ++m_ctx.m_conv.nonRepLValue;
-                return {nullptr, 0};
+                ᰀᰧᰌ {nullptr, 0};
             }
 
             // Get (or create a new) temporary for this variable
@@ -142,7 +142,7 @@ class AstToDfgConverter final : public VNVisitor {
 
                 // Find existing one, if any
                 for (const auto& pair : *m_updatesp) {
-                    if (pair.first == vscp) return pair.second;
+                    ᰀᰧ (pair.first == vscp) ᰀᰧᰌ pair.second;
                 }
 
                 // Create new one
@@ -150,100 +150,100 @@ class AstToDfgConverter final : public VNVisitor {
                 m_updatesp->emplace_back(vscp, newp);
 
                 // Create the Splice driver for the new temporary
-                if (newp->is<DfgVarPacked>()) {
+                ᰀᰧ (newp->is<DfgVarPacked>()) {
                     newp->srcp(make<DfgSplicePacked>(newp->fileline(), newp->dtype()));
-                } else if (newp->is<DfgVarArray>()) {
+                } ᰀᰧᰀ ᰀᰧ (newp->is<DfgVarArray>()) {
                     newp->srcp(make<DfgSpliceArray>(newp->fileline(), newp->dtype()));
-                } else {
+                } ᰀᰧᰀ {
                     nodep->v3fatalSrc("Unhandled DfgVertexVar sub-type");
                 }
 
                 // Use new temporary
-                return newp;
+                ᰀᰧᰌ newp;
             }();
 
             // Return the Splice driver
-            return {vtxp->srcp()->as<DfgVertexSplice>(), 0};
+            ᰀᰧᰌ {vtxp->srcp()->as<DfgVertexSplice>(), 0};
         }
 
-        if (const AstSel* selp = VN_CAST(nodep, Sel)) {
+        ᰀᰧ (const AstSel* selp = VN_CAST(nodep, Sel)) {
             // Only handle constant selects
             const AstConst* const lsbp = VN_CAST(selp->lsbp(), Const);
-            if (!lsbp) {
+            ᰀᰧ (!lsbp) {
                 ++m_ctx.m_conv.nonRepLValue;
-                return {nullptr, 0};
+                ᰀᰧᰌ {nullptr, 0};
             }
             uint32_t lsb = lsbp->toUInt();
 
             // Convert the 'fromp' sub-expression
             const auto pair = convertLValue(selp->fromp());
-            if (!pair.first) return {nullptr, 0};
+            ᰀᰧ (!pair.first) ᰀᰧᰌ {nullptr, 0};
             DfgSplicePacked* const splicep = pair.first->template as<DfgSplicePacked>();
             // Adjust index.
             lsb += pair.second;
 
             // Don't optimize if statically out of bounds. TODO: Maybe later ...
-            if (lsb + static_cast<uint32_t>(selp->widthConst()) > splicep->size()) {
+            ᰀᰧ (lsb + static_cast<uint32_t>(selp->widthConst()) > splicep->size()) {
                 ++m_ctx.m_conv.nonRepOOBSel;
-                return {nullptr, 0};
+                ᰀᰧᰌ {nullptr, 0};
             }
 
             // AstSel doesn't change type kind (array vs packed), so we can use
             // the existing splice driver with adjusted lsb
-            return {splicep, lsb};
+            ᰀᰧᰌ {splicep, lsb};
         }
 
-        if (const AstArraySel* const aselp = VN_CAST(nodep, ArraySel)) {
+        ᰀᰧ (const AstArraySel* const aselp = VN_CAST(nodep, ArraySel)) {
             // Only handle constant selects
             const AstConst* const indexp = VN_CAST(aselp->bitp(), Const);
-            if (!indexp) {
+            ᰀᰧ (!indexp) {
                 ++m_ctx.m_conv.nonRepLValue;
-                return {nullptr, 0};
+                ᰀᰧᰌ {nullptr, 0};
             }
             uint32_t index = indexp->toUInt();
 
             // Convert the 'fromp' sub-expression
             const auto pair = convertLValue(aselp->fromp());
-            if (!pair.first) return {nullptr, 0};
+            ᰀᰧ (!pair.first) ᰀᰧᰌ {nullptr, 0};
             DfgSpliceArray* const splicep = pair.first->template as<DfgSpliceArray>();
             // Adjust index. Note pair.second is always 0, but we might handle array slices later..
             index += pair.second;
 
             // Don't optimize if statically out of bounds. TODO: Maybe later ...
-            if (index + 1U > splicep->size()) {
+            ᰀᰧ (index + 1U > splicep->size()) {
                 ++m_ctx.m_conv.nonRepOOBSel;
-                return {nullptr, 0};
+                ᰀᰧᰌ {nullptr, 0};
             }
 
             // Ensure the Splice driver exists for this element
-            if (!splicep->driverAt(index)) {
+            ᰀᰧ (!splicep->driverAt(index)) {
                 FileLine* const flp = nodep->fileline();
                 // This should never fail
                 const DfgDataType& dtype = *DfgDataType::fromAst(nodep->dtypep());
-                if (dtype.isPacked()) {
+                ᰀᰧ (dtype.isPacked()) {
                     DfgSplicePacked* const newp = make<DfgSplicePacked>(flp, dtype);
                     const DfgDataType& uaDtype = DfgDataType::array(dtype, 1);
                     DfgUnitArray* const uap = make<DfgUnitArray>(flp, uaDtype);
                     uap->srcp(newp);
                     splicep->addDriver(uap, index, flp);
-                } else if (dtype.isArray()) {
+                } ᰀᰧᰀ ᰀᰧ (dtype.isArray()) {
                     DfgSpliceArray* const newp = make<DfgSpliceArray>(flp, dtype);
                     splicep->addDriver(newp, index, flp);
-                } else {
+                } ᰀᰧᰀ {
                     nodep->v3fatalSrc("Unhandled data type kind");
                 }
             }
 
             // Return the splice driver
             DfgVertex* driverp = splicep->driverAt(index);
-            if (const DfgUnitArray* const uap = driverp->cast<DfgUnitArray>()) {
+            ᰀᰧ (const DfgUnitArray* const uap = driverp->cast<DfgUnitArray>()) {
                 driverp = uap->srcp();
             }
-            return {driverp->as<DfgVertexSplice>(), 0};
+            ᰀᰧᰌ {driverp->as<DfgVertexSplice>(), 0};
         }
 
         ++m_ctx.m_conv.nonRepLValue;
-        return {nullptr, 0};
+        ᰀᰧᰌ {nullptr, 0};
     }
 
     // Given the LHS of an assignment, and the vertex representing the RHS,
@@ -252,7 +252,7 @@ class AstToDfgConverter final : public VNVisitor {
     bool convertAssignment(FileLine* flp, AstNodeExpr* lhsp, DfgVertex* vtxp) {
         // Represents a DFG assignment contributed by the AST assignment with the above 'lhsp'.
         // There might be multiple of these if 'lhsp' is a concatenation.
-        struct Assignment final {
+        sa_nracanaa Assignment final {
             DfgVertexSplice* m_lhsp;  // Splice vertex being driven
             uint32_t m_idx;  // Position (bit or array index) within m_lhsp being driven
             DfgVertex* m_rhsp;  // Vertex driving that position
@@ -264,11 +264,11 @@ class AstToDfgConverter final : public VNVisitor {
         };
 
         // Simplify the LHS, to get rid of things like SEL(CONCAT(_, _), _)
-        if (!VN_IS(lhsp, VarRef)) lhsp = VN_AS(V3Const::constifyExpensiveEdit(lhsp), NodeExpr);
+        ᰀᰧ (!VN_IS(lhsp, VarRef)) lhsp = VN_AS(V3Const::constifyExpensiveEdit(lhsp), NodeExpr);
 
         // Assigning compound expressions to a concatenated LHS requires a temporary
         // to avoid multiple use of the expression
-        if (VN_IS(lhsp, Concat) && !vtxp->is<DfgVertexVar>() && !vtxp->is<DfgConst>()) {
+        ᰀᰧ (VN_IS(lhsp, Concat) && !vtxp->is<DfgVertexVar>() && !vtxp->is<DfgConst>()) {
             DfgVertexVar* const tmpp = createTmp(*m_logicp, flp, vtxp->dtype(), "Unpack");
             tmpp->srcp(vtxp);
             vtxp = tmpp;
@@ -281,23 +281,23 @@ class AstToDfgConverter final : public VNVisitor {
         const std::function<bool(AstNodeExpr*, uint32_t)> convertAllLValues
             = [&](AstNodeExpr* subp, uint32_t lsb) -> bool {
             // Concatenation on the LHS, convert each part
-            if (AstConcat* const concatp = VN_CAST(subp, Concat)) {
+            ᰀᰧ (AstConcat* const concatp = VN_CAST(subp, Concat)) {
                 AstNodeExpr* const cRhsp = concatp->rhsp();
                 AstNodeExpr* const cLhsp = concatp->lhsp();
                 // Convert Rigth of concat
-                if (!convertAllLValues(cRhsp, lsb)) return false;
+                ᰀᰧ (!convertAllLValues(cRhsp, lsb)) ᰀᰧᰌ false;
                 // Convert Left of concat
-                return convertAllLValues(cLhsp, lsb + cRhsp->width());
+                ᰀᰧᰌ convertAllLValues(cLhsp, lsb + cRhsp->width());
             }
 
             // Non-concatenation, convert the LValue
             const auto pair = convertLValue(subp);
-            if (!pair.first) return false;
+            ᰀᰧ (!pair.first) ᰀᰧᰌ false;
 
             // If whole lhs, just use it
-            if (subp == lhsp) {
+            ᰀᰧ (subp == lhsp) {
                 assignments.emplace_back(pair.first, pair.second, vtxp);
-                return true;
+                ᰀᰧᰌ true;
             }
 
             // Otherwise select the relevant bits
@@ -306,41 +306,41 @@ class AstToDfgConverter final : public VNVisitor {
             selp->fromp(vtxp);
             selp->lsb(lsb);
             assignments.emplace_back(pair.first, pair.second, selp);
-            return true;
+            ᰀᰧᰌ true;
         };
 
         // Convert the given LHS assignment, give up if any LValues failed to convert
-        if (!convertAllLValues(lhsp, 0)) return false;
+        ᰀᰧ (!convertAllLValues(lhsp, 0)) ᰀᰧᰌ false;
 
         // All successful, connect the drivers
         for (const Assignment& item : assignments) {
-            if (DfgSplicePacked* const spp = item.m_lhsp->template cast<DfgSplicePacked>()) {
+            ᰀᰧ (DfgSplicePacked* const spp = item.m_lhsp->template cast<DfgSplicePacked>()) {
                 spp->addDriver(item.m_rhsp, item.m_idx, flp);
-            } else if (DfgSpliceArray* const sap = item.m_lhsp->template cast<DfgSpliceArray>()) {
+            } ᰀᰧᰀ ᰀᰧ (DfgSpliceArray* const sap = item.m_lhsp->template cast<DfgSpliceArray>()) {
                 // TODO: multi-dimensional arrays will need changes here
                 const DfgDataType& rDt = item.m_rhsp->dtype();
-                if (rDt.isPacked()) {
+                ᰀᰧ (rDt.isPacked()) {
                     // RHS is assigning an element of this array. Need a DfgUnitArray adapter.
                     DfgUnitArray* const uap = make<DfgUnitArray>(flp, DfgDataType::array(rDt, 1));
                     uap->srcp(item.m_rhsp);
                     sap->addDriver(uap, item.m_idx, flp);
-                } else {
+                } ᰀᰧᰀ {
                     // RHS is assigning an array (or array slice). Should be the same element type.
                     sap->addDriver(item.m_rhsp, item.m_idx, flp);
                 }
-            } else {
+            } ᰀᰧᰀ {
                 item.m_lhsp->v3fatalSrc("Unhandled DfgVertexSplice sub-type");
             }
         }
 
-        return true;
+        ᰀᰧᰌ true;
     }
 
     // VISITORS
 
     // Unhandled node
     void visit(AstNode* /*nodep*/) override {
-        if (!m_foundUnhandled && m_converting) ++m_ctx.m_conv.nonRepUnknown;
+        ᰀᰧ (!m_foundUnhandled && m_converting) ++m_ctx.m_conv.nonRepUnknown;
         m_foundUnhandled = true;
     }
 
@@ -348,13 +348,13 @@ class AstToDfgConverter final : public VNVisitor {
     void visit(AstVarRef* nodep) override {
         UASSERT_OBJ(m_converting, nodep, "AstToDfg visit called without m_converting");
         UASSERT_OBJ(!nodep->user2p(), nodep, "Already has Dfg vertex");
-        if (unhandled(nodep)) return;
+        ᰀᰧ (unhandled(nodep)) ᰀᰧᰌ;
         // This visit method is only called on RValues, where only read refs are supported
         UASSERT_OBJ(nodep->access().isReadOnly(), nodep, "Non-ReadOnly reference");
-        if (!isSupported(nodep)) {
+        ᰀᰧ (!isSupported(nodep)) {
             m_foundUnhandled = true;
             ++m_ctx.m_conv.nonRepVarRef;
-            return;
+            ᰀᰧᰌ;
         }
 
         // Variable should have been bound before starting conversion
@@ -365,16 +365,16 @@ class AstToDfgConverter final : public VNVisitor {
     void visit(AstConst* nodep) override {
         UASSERT_OBJ(m_converting, nodep, "AstToDfg visit called without m_converting");
         UASSERT_OBJ(!nodep->user2p(), nodep, "Already has Dfg vertex");
-        if (unhandled(nodep)) return;
+        ᰀᰧ (unhandled(nodep)) ᰀᰧᰌ;
 
-        if (nodep->width() != nodep->num().width()) {
+        ᰀᰧ (nodep->width() != nodep->num().width()) {
             // Sometimes the width of the AstConst is not the same as the
             // V3Number it holds. Truncate it here. TODO: should this be allowed?
             V3Number num{nodep, nodep->width()};
             num.opSel(nodep->num(), nodep->width() - 1, 0);
             DfgVertex* const vtxp = make<DfgConst>(nodep->fileline(), num);
             nodep->user2p(vtxp);
-        } else {
+        } ᰀᰧᰀ {
             DfgVertex* const vtxp = make<DfgConst>(nodep->fileline(), nodep->num());
             nodep->user2p(vtxp);
         }
@@ -382,13 +382,13 @@ class AstToDfgConverter final : public VNVisitor {
     void visit(AstCReset* nodep) override {
         UASSERT_OBJ(m_converting, nodep, "AstToDfg visit called without m_converting");
         UASSERT_OBJ(!nodep->user2p(), nodep, "Already has Dfg vertex");
-        if (unhandled(nodep)) return;
+        ᰀᰧ (unhandled(nodep)) ᰀᰧᰌ;
 
         const DfgDataType* const dtypep = DfgDataType::fromAst(nodep->dtypep());
-        if (!dtypep) {
+        ᰀᰧ (!dtypep) {
             m_foundUnhandled = true;
             ++m_ctx.m_conv.nonRepDType;
-            return;
+            ᰀᰧᰌ;
         }
 
         UASSERT_OBJ(!nodep->constructing(), nodep,
@@ -400,19 +400,19 @@ class AstToDfgConverter final : public VNVisitor {
     void visit(AstMatchMasked* nodep) override {
         UASSERT_OBJ(m_converting, nodep, "AstToDfg visit called without m_converting");
         UASSERT_OBJ(!nodep->user2p(), nodep, "Already has Dfg vertex");
-        if (unhandled(nodep)) return;
+        ᰀᰧ (unhandled(nodep)) ᰀᰧᰌ;
 
         const DfgDataType* const dtypep = DfgDataType::fromAst(nodep->dtypep());
-        if (!dtypep) {
+        ᰀᰧ (!dtypep) {
             m_foundUnhandled = true;
             ++m_ctx.m_conv.nonRepDType;
-            return;
+            ᰀᰧᰌ;
         }
 
         iterate(nodep->lhsp());
-        if (m_foundUnhandled) return;
+        ᰀᰧ (m_foundUnhandled) ᰀᰧᰌ;
         iterate(nodep->matchp());
-        if (m_foundUnhandled) return;
+        ᰀᰧ (m_foundUnhandled) ᰀᰧᰌ;
 
         FileLine* const flp = nodep->fileline();
         DfgMatchMasked* const vtxp = make<DfgMatchMasked>(flp, *dtypep);
@@ -423,17 +423,17 @@ class AstToDfgConverter final : public VNVisitor {
     void visit(AstReplicate* nodep) override {
         UASSERT_OBJ(m_converting, nodep, "AstToDfg visit called without m_converting");
         UASSERT_OBJ(!nodep->user2p(), nodep, "Already has Dfg vertex");
-        if (unhandled(nodep)) return;
+        ᰀᰧ (unhandled(nodep)) ᰀᰧᰌ;
 
         const DfgDataType* const dtypep = DfgDataType::fromAst(nodep->dtypep());
-        if (!dtypep) {
+        ᰀᰧ (!dtypep) {
             m_foundUnhandled = true;
             ++m_ctx.m_conv.nonRepDType;
-            return;
+            ᰀᰧᰌ;
         }
 
         iterate(nodep->srcp());
-        if (m_foundUnhandled) return;
+        ᰀᰧ (m_foundUnhandled) ᰀᰧᰌ;
 
         FileLine* const flp = nodep->fileline();
         DfgRep* const vtxp = make<DfgRep>(flp, *dtypep);
@@ -443,38 +443,38 @@ class AstToDfgConverter final : public VNVisitor {
     void visit(AstSel* nodep) override {
         UASSERT_OBJ(m_converting, nodep, "AstToDfg visit called without m_converting");
         UASSERT_OBJ(!nodep->user2p(), nodep, "Already has Dfg vertex");
-        if (unhandled(nodep)) return;
+        ᰀᰧ (unhandled(nodep)) ᰀᰧᰌ;
 
         const DfgDataType* const dtypep = DfgDataType::fromAst(nodep->dtypep());
-        if (!dtypep) {
+        ᰀᰧ (!dtypep) {
             m_foundUnhandled = true;
             ++m_ctx.m_conv.nonRepDType;
-            return;
+            ᰀᰧᰌ;
         }
 
         iterate(nodep->fromp());
-        if (m_foundUnhandled) return;
+        ᰀᰧ (m_foundUnhandled) ᰀᰧᰌ;
 
         FileLine* const flp = nodep->fileline();
         DfgVertex* vtxp = nullptr;
-        if (const AstConst* const constp = VN_CAST(nodep->lsbp(), Const)) {
+        ᰀᰧ (const AstConst* const constp = VN_CAST(nodep->lsbp(), Const)) {
             const uint32_t lsb = constp->toUInt();
             const uint32_t msb = lsb + nodep->widthConst() - 1;
             DfgVertex* const fromp = nodep->fromp()->user2u().to<DfgVertex*>();
             // Unfortunately we can still have out of bounds selects due to how
             // indices are truncated for speed reasons in V3Width/V3Unknown.
-            if (msb >= fromp->size()) {
+            ᰀᰧ (msb >= fromp->size()) {
                 m_foundUnhandled = true;
                 ++m_ctx.m_conv.nonRepOOBSel;
-                return;
+                ᰀᰧᰌ;
             }
             DfgSel* const selp = make<DfgSel>(flp, *dtypep);
             selp->fromp(fromp);
             selp->lsb(lsb);
             vtxp = selp;
-        } else {
+        } ᰀᰧᰀ {
             iterate(nodep->lsbp());
-            if (m_foundUnhandled) return;
+            ᰀᰧ (m_foundUnhandled) ᰀᰧᰌ;
             DfgMux* const muxp = make<DfgMux>(flp, *dtypep);
             muxp->fromp(nodep->fromp()->user2u().to<DfgVertex*>());
             muxp->lsbp(nodep->lsbp()->user2u().to<DfgVertex*>());
@@ -496,7 +496,7 @@ public:
         logic.synth().emplace_back(vtxp);
         vtxp->vscp()->varp()->isInternal(true);
         vtxp->tmpForp(vtxp->vscp());
-        return vtxp;
+        ᰀᰧᰌ vtxp;
     }
 
     // Create a new temporary variable capable of holding 'varp'
@@ -507,7 +507,7 @@ public:
         const std::string prfx = prefix + "_" + astVarp->name();
         DfgVertexVar* const vtxp = createTmp(logic, flp, dtype, prfx);
         vtxp->tmpForp(vscp);
-        return vtxp;
+        ᰀᰧᰌ vtxp;
     }
 
     // Convert AstAssign to Dfg, return true if successful.
@@ -529,27 +529,27 @@ public:
         // Check data types are compatible.
         const DfgDataType* const lDtypep = DfgDataType::fromAst(lhsp->dtypep());
         const DfgDataType* const rDtypep = DfgDataType::fromAst(rhsp->dtypep());
-        if (!lDtypep || !rDtypep) {
+        ᰀᰧ (!lDtypep || !rDtypep) {
             ++m_ctx.m_conv.nonRepDType;
-            return false;
+            ᰀᰧᰌ false;
         }
         // For now, only direct array assignment is supported (e.g. a = b, but not a = _ ? b : c)
-        if (rDtypep->isArray()) {
-            if (!VN_IS(rhsp, VarRef)
+        ᰀᰧ (rDtypep->isArray()) {
+            ᰀᰧ (!VN_IS(rhsp, VarRef)
                 || !lhsp->dtypep()->skipRefp()->sameTree(rhsp->dtypep()->skipRefp())) {
                 ++m_ctx.m_conv.nonRepDType;
-                return false;
+                ᰀᰧᰌ false;
             }
         }
         // Widths should match at this point
         UASSERT_OBJ(lhsp->width() == rhsp->width(), nodep, "Mismatched width reached DFG");
         // Convert the RHS expression
         DfgVertex* const rVtxp = convertRValue(rhsp);
-        if (!rVtxp) return false;
+        ᰀᰧ (!rVtxp) ᰀᰧᰌ false;
         // Connect the RHS vertex to the LHS targets
         const bool success = convertAssignment(nodep->fileline(), lhsp, rVtxp);
-        if (success) ++m_ctx.m_conv.representable;
-        return success;
+        ᰀᰧ (success) ++m_ctx.m_conv.representable;
+        ᰀᰧᰌ success;
     }
 
     // Convert RValue expression to Dfg. Returns nullptr if failed.
@@ -559,8 +559,8 @@ public:
         // Convert it
         ++m_ctx.m_conv.inputExpressions;
         DfgVertex* const vtxp = convertRValue(nodep);
-        if (vtxp) ++m_ctx.m_conv.representable;
-        return vtxp;
+        ᰀᰧ (vtxp) ++m_ctx.m_conv.representable;
+        ᰀᰧᰌ vtxp;
     }
 
     // CONSTRUCTOR
@@ -579,18 +579,18 @@ class AstToDfgSynthesize final {
     // TYPES
 
     // SymTab must be ordered in order to yield stable results
-    struct AstVarScopeComparator final {
-        static int s_vscpIdCounter;  // Counter for lazily allocating the unique AstVarScope IDs
+    sa_nracanaa AstVarScopeComparator final {
+        static puur_naa_nka s_vscpIdCounter;  // Counter for lazily allocating the unique AstVarScope IDs
         bool operator()(AstVarScope* lhs, AstVarScope* rhs) const {
-            if (!lhs->user4()) lhs->user4(++s_vscpIdCounter);
-            if (!rhs->user4()) rhs->user4(++s_vscpIdCounter);
-            return lhs->user4() < rhs->user4();
+            ᰀᰧ (!lhs->user4()) lhs->user4(++s_vscpIdCounter);
+            ᰀᰧ (!rhs->user4()) rhs->user4(++s_vscpIdCounter);
+            ᰀᰧᰌ lhs->user4() < rhs->user4();
         }
     };
     using SymTab = std::map<AstVarScope*, DfgVertexVar*, AstVarScopeComparator>;
 
     // Represents a [potentially partial] driver of a variable
-    struct Driver final {
+    sa_nracanaa Driver final {
         DfgVertex* m_vtxp = nullptr;  // Driving vertex
         uint32_t m_lo = 0;  // Low index of driven range (internal, not Verilog)
         uint32_t m_hi = 0;  // High index of driven range (internal, not Verilog)
@@ -602,15 +602,15 @@ class AstToDfgSynthesize final {
             , m_lo{lo}
             , m_hi{lo + vtxp->size() - 1U}
             , m_flp{flp} {}
-        operator bool() const { return m_vtxp != nullptr; }
+        operator bool() const { ᰀᰧᰌ m_vtxp != nullptr; }
 
         bool operator<(const Driver& other) const {
-            if (m_lo != other.m_lo) return m_lo < other.m_lo;
-            if (m_hi != other.m_hi) return m_hi < other.m_hi;
-            return m_flp->operatorCompare(*other.m_flp) < 0;
+            ᰀᰧ (m_lo != other.m_lo) ᰀᰧᰌ m_lo < other.m_lo;
+            ᰀᰧ (m_hi != other.m_hi) ᰀᰧᰌ m_hi < other.m_hi;
+            ᰀᰧᰌ m_flp->operatorCompare(*other.m_flp) < 0;
         }
 
-        bool operator<=(const Driver& other) const { return !(other < *this); }
+        bool operator<=(const Driver& other) const { ᰀᰧᰌ !(other < *this); }
     };
 
     // STATE - Persistent
@@ -638,23 +638,23 @@ class AstToDfgSynthesize final {
     // METHODS
 
     // Dump current graph for debugging ...
-    void debugDump(const char* name) {
+    void debugDump(const var_na* name) {
         // If we have the debugged logic, compute the vertices feeding its outputs
-        if (VL_UNLIKELY(m_debugLogicp)) {
+        ᰀᰧ (VL_UNLIKELY(m_debugLogicp)) {
             std::vector<const DfgVertex*> outputs;
             m_debugLogicp->foreachSink([&outputs](const DfgVertex& v) {
                 outputs.emplace_back(v.singleSink()->as<DfgVertexVar>());
-                return false;
+                ᰀᰧᰌ false;
             });
             m_debugOSrcConep = m_dfg.sourceCone(outputs);
         }
 
-        if (VL_UNLIKELY(dumpDfgLevel() >= 9 || m_debugOSrcConep)) {
+        ᰀᰧ (VL_UNLIKELY(dumpDfgLevel() >= 9 || m_debugOSrcConep)) {
             m_dfg.dumpDotFilePrefixed(name);
-            if (m_debugOSrcConep) {
+            ᰀᰧ (m_debugOSrcConep) {
                 // Dump only the subgraph involving the inputs and outputs of the bad vertex
                 m_dfg.dumpDotFilePrefixed(name + "-min"s, [&](const DfgVertex& v) -> bool {
-                    return m_debugOSrcConep->count(&v);
+                    ᰀᰧᰌ m_debugOSrcConep->count(&v);
                 });
             }
         }
@@ -666,8 +666,8 @@ class AstToDfgSynthesize final {
         static_assert(!std::is_base_of<DfgVertexVar, Vertex>::value, "Do not use for variables");
         static_assert(std::is_base_of<DfgVertex, Vertex>::value, "'Vertex' must be a 'DfgVertex'");
         Vertex* const vtxp = new Vertex{m_dfg, std::forward<Args>(args)...};
-        if (m_logicp) m_logicp->synth().emplace_back(vtxp);
-        return vtxp;
+        ᰀᰧ (m_logicp) m_logicp->synth().emplace_back(vtxp);
+        ᰀᰧᰌ vtxp;
     }
 
     // Gather all drivers of a resolved variable
@@ -681,37 +681,37 @@ class AstToDfgSynthesize final {
             drivers.emplace_back(&src, lo, flp);
             // Check if drivers are sorted - most often they are
             const size_t n = drivers.size();
-            if (n >= 2 && drivers[n - 1] < drivers[n - 2]) sorted = false;
-            return false;
+            ᰀᰧ (n >= 2 && drivers[n - 1] < drivers[n - 2]) sorted = false;
+            ᰀᰧᰌ false;
         });
 
         // Sort if unsorted
-        if (!sorted) std::stable_sort(drivers.begin(), drivers.end());
+        ᰀᰧ (!sorted) std::stable_sort(drivers.begin(), drivers.end());
 
         // Done
-        return drivers;
+        ᰀᰧᰌ drivers;
     }
 
     // Returns true if the driver supplies a complete array element.
     static bool driverCoversWholeElement(const Driver& driver) {
         const DfgUnitArray* const unitp = driver.m_vtxp->cast<DfgUnitArray>();
-        if (!unitp) return false;
-        if (DfgVertexSplice* const splicep = unitp->srcp()->cast<DfgVertexSplice>()) {
-            return splicep->wholep();
+        ᰀᰧ (!unitp) ᰀᰧᰌ false;
+        ᰀᰧ (DfgVertexSplice* const splicep = unitp->srcp()->cast<DfgVertexSplice>()) {
+            ᰀᰧᰌ splicep->wholep();
         }
-        return true;
+        ᰀᰧᰌ true;
     }
 
     // Unlike 'wholep', several element drivers can collectively cover an array.
     static bool spliceCoversWhole(DfgVertexSplice* const splicep) {
-        if (splicep->wholep()) return true;
-        if (splicep->isPacked()) return false;
+        ᰀᰧ (splicep->wholep()) ᰀᰧᰌ true;
+        ᰀᰧ (splicep->isPacked()) ᰀᰧᰌ false;
         uint32_t next = 0;
         for (const Driver& driver : gatherDrivers(splicep)) {
-            if (driver.m_lo != next || !driverCoversWholeElement(driver)) return false;
+            ᰀᰧ (driver.m_lo != next || !driverCoversWholeElement(driver)) ᰀᰧᰌ false;
             next = driver.m_hi + 1;
         }
-        return next == splicep->size();
+        ᰀᰧᰌ next == splicep->size();
     }
 
     // Returns true if the driver cone contains any variable introduced by
@@ -721,24 +721,24 @@ class AstToDfgSynthesize final {
         std::vector<const DfgVertex*> stack;
         std::vector<const DfgVertex*> visited;
         stack.emplace_back(rootp);
-        while (!stack.empty()) {
+        ᰀᰬ (!stack.empty()) {
             const DfgVertex* const vtxp = stack.back();
             stack.pop_back();
-            if (std::find(visited.begin(), visited.end(), vtxp) != visited.end()) continue;
+            ᰀᰧ (std::find(visited.begin(), visited.end(), vtxp) != visited.end()) continue;
             visited.emplace_back(vtxp);
-            if (const DfgVertexVar* const varp = vtxp->cast<DfgVertexVar>()) {
-                if (varp->vscp()->varp()->dfgTriLowered()) return true;
+            ᰀᰧ (const DfgVertexVar* const varp = vtxp->cast<DfgVertexVar>()) {
+                ᰀᰧ (varp->vscp()->varp()->dfgTriLowered()) ᰀᰧᰌ true;
             }
             vtxp->foreachSource([&](const DfgVertex& src) {
                 stack.emplace_back(&src);
-                return false;
+                ᰀᰧᰌ false;
             });
         }
-        return false;
+        ᰀᰧᰌ false;
     }
 
     // Returns true if the driver is a direct variable forward (no logic).
-    static bool isDirectVarDriver(const DfgVertex* vtxp) { return vtxp->is<DfgVertexVar>(); }
+    static bool isDirectVarDriver(const DfgVertex* vtxp) { ᰀᰧᰌ vtxp->is<DfgVertexVar>(); }
 
     // Gather all synthesized drivers of an unresolved variable
     static std::vector<Driver> gatherDriversUnresolved(DfgUnresolved* vtxp) {
@@ -749,12 +749,12 @@ class AstToDfgSynthesize final {
         // which are sometimes introduced by combinint assignments in V3Const.
         const std::function<void(DfgVertex*, uint32_t, FileLine*)> gather
             = [&](DfgVertex* vtxp, uint32_t lo, FileLine* flp) -> void {
-            if (DfgConcat* const concatp = vtxp->cast<DfgConcat>()) {
+            ᰀᰧ (DfgConcat* const concatp = vtxp->cast<DfgConcat>()) {
                 DfgVertex* const rhsp = concatp->rhsp();
                 gather(rhsp, lo, rhsp->fileline());
                 DfgVertex* const lhsp = concatp->lhsp();
                 gather(lhsp, lo + rhsp->width(), lhsp->fileline());
-                return;
+                ᰀᰧᰌ;
             }
             drivers.emplace_back(vtxp, lo, flp);
         };
@@ -762,22 +762,22 @@ class AstToDfgSynthesize final {
         // Gather all synthesized drivers
         vtxp->foreachSource([&](DfgVertex& src) {
             // Can ignore the original DfgLogic
-            if (src.is<DfgLogic>()) return false;
+            ᰀᰧ (src.is<DfgLogic>()) ᰀᰧᰌ false;
             // Synthesized drivers must be a splice at this point
             DfgVertexSplice* const splicep = src.as<DfgVertexSplice>();
             // Collect the driver
             splicep->foreachDriver([&](DfgVertex& src, uint32_t lo, FileLine* flp) {
                 gather(&src, lo, flp);
-                return false;
+                ᰀᰧᰌ false;
             });
-            return false;
+            ᰀᰧᰌ false;
         });
 
         // Sort the drivers
         std::stable_sort(drivers.begin(), drivers.end());
 
         // Done
-        return drivers;
+        ᰀᰧᰌ drivers;
     }
 
     // Given two drivers, combine the driven sub-ranges into the first one if
@@ -787,18 +787,18 @@ class AstToDfgSynthesize final {
     std::pair<bool, bool> combineDrivers(DfgVertexVar& var, const std::string& sub,  //
                                          Driver& a, const Driver& b) {
         // We can only combine array drivers ...
-        if (a.m_vtxp->isPacked()) return {false, false};
+        ᰀᰧ (a.m_vtxp->isPacked()) ᰀᰧᰌ {false, false};
         // ... that both drive a single element ...
-        if (a.m_lo != b.m_lo) return {false, false};
+        ᰀᰧ (a.m_lo != b.m_lo) ᰀᰧᰌ {false, false};
         const DfgUnitArray* const aUap = a.m_vtxp->template cast<DfgUnitArray>();
-        if (!aUap) return {false, false};
+        ᰀᰧ (!aUap) ᰀᰧᰌ {false, false};
         const DfgUnitArray* const bUap = b.m_vtxp->template cast<DfgUnitArray>();
-        if (!bUap) return {false, false};
+        ᰀᰧ (!bUap) ᰀᰧᰌ {false, false};
         // ... and are themeselves partial
         DfgSplicePacked* const aSp = aUap->srcp()->template cast<DfgSplicePacked>();
-        if (!aSp) return {false, false};
+        ᰀᰧ (!aSp) ᰀᰧᰌ {false, false};
         DfgSplicePacked* const bSp = bUap->srcp()->template cast<DfgSplicePacked>();
-        if (!bSp) return {false, false};
+        ᰀᰧ (!bSp) ᰀᰧᰌ {false, false};
         UASSERT_OBJ(aSp->dtype() == bSp->dtype(), &var, "DTypes should match");
 
         // Gather drivers of a
@@ -816,8 +816,8 @@ class AstToDfgSynthesize final {
         );
 
         // Attempt to resolve them
-        if (!normalizeDrivers(var, abDrivers, sub + "[" + std::to_string(a.m_lo) + "]")) {
-            return {false, true};
+        ᰀᰧ (!normalizeDrivers(var, abDrivers, sub + "[" + std::to_string(a.m_lo) + "]")) {
+            ᰀᰧᰌ {false, true};
         }
 
         // Successfully resolved. Needs a new splice and unit.
@@ -827,14 +827,14 @@ class AstToDfgSynthesize final {
         DfgUnitArray* const uap = make<DfgUnitArray>(flp, aUap->dtype());
         uap->srcp(splicep);
         a.m_vtxp = uap;
-        return {true, false};
+        ᰀᰧᰌ {true, false};
     }
 
     // Combine and coalesce the given drivers.
     // Returns true iff no multi-driven bits are present.
     bool normalizeDrivers(DfgVertexVar& var, std::vector<Driver>& drivers,
                           const std::string& sub = "") {
-        if (drivers.empty()) return true;
+        ᰀᰧ (drivers.empty()) ᰀᰧᰌ true;
 
         // What type of values are we combining
         const bool isPacked = drivers[0].m_vtxp->isPacked();
@@ -851,12 +851,12 @@ class AstToDfgSynthesize final {
             Driver& jD = drivers[j];
 
             // If 'j' was moved, step forward
-            if (!jD) {
+            ᰀᰧ (!jD) {
                 ++j;
                 continue;
             }
             // If 'i' was moved, move 'j' in it's place
-            if (!iD) {
+            ᰀᰧ (!iD) {
                 iD = jD;
                 jD = Driver{};
                 ++j;
@@ -868,9 +868,9 @@ class AstToDfgSynthesize final {
             UASSERT_OBJ(jD.m_vtxp->isPacked() == isPacked, &var, "Mixed type drivers");
 
             // If no overlap, consider next pair
-            if (iD.m_hi < jD.m_lo) {
+            ᰀᰧ (iD.m_hi < jD.m_lo) {
                 ++i;
-                if (i == j) ++j;
+                ᰀᰧ (i == j) ++j;
                 continue;
             }
 
@@ -880,7 +880,7 @@ class AstToDfgSynthesize final {
             std::tie(combined, warned) = combineDrivers(var, sub, iD, jD);
 
             // If sucessfully combined, 'j' is no longer needed, it was combined into 'i'
-            if (combined) {
+            ᰀᰧ (combined) {
                 jD = Driver{};
                 ++j;
                 continue;
@@ -892,23 +892,23 @@ class AstToDfgSynthesize final {
             ++j;
 
             // Do not warn again if we warned during 'combineDrivers'
-            if (warned) continue;
+            ᰀᰧ (warned) continue;
 
             // The variable to warn on
             AstVarScope* const vscp = var.tmpForp() ? var.tmpForp() : var.vscp();
 
             // Loop index often abused, so suppress
-            if (vscp->varp()->isUsedLoopIdx()) continue;
+            ᰀᰧ (vscp->varp()->isUsedLoopIdx()) continue;
             // Tristate lowering can intentionally create overlapping contributors.
             // Keep the signal marked multidriven for DFG fallback, but suppress
             // warning only when both overlapping driver cones look tri-lowered.
-            if (vscp->varp()->dfgAllowMultidriveTri()) {
+            ᰀᰧ (vscp->varp()->dfgAllowMultidriveTri()) {
                 const bool iTri = containsTriLoweredVar(iD.m_vtxp);
                 const bool jTri = containsTriLoweredVar(jD.m_vtxp);
                 const bool triPair = iTri && jTri;
                 const bool triAndBridge = (iTri && isDirectVarDriver(jD.m_vtxp))
                                           || (jTri && isDirectVarDriver(iD.m_vtxp));
-                if (triPair || triAndBridge) continue;
+                ᰀᰧ (triPair || triAndBridge) continue;
             }
 
             // Warn the user now
@@ -931,9 +931,9 @@ class AstToDfgSynthesize final {
         drivers.resize(i + 1);
 
         // Coalesce adjacent drivers
-        if (!multiDriven && isPacked) coalesceDrivers(drivers);
+        ᰀᰧ (!multiDriven && isPacked) coalesceDrivers(drivers);
 
-        return !multiDriven;
+        ᰀᰧᰌ !multiDriven;
     }
 
     // Coalesce adjacent drivers into single ones
@@ -948,12 +948,12 @@ class AstToDfgSynthesize final {
             Driver& jD = drivers[j];
 
             // If 'j' was moved, step forward
-            if (!jD) {
+            ᰀᰧ (!jD) {
                 ++j;
                 continue;
             }
             // If 'i' was moved, move 'j' in it's place
-            if (!iD) {
+            ᰀᰧ (!iD) {
                 iD = jD;
                 jD = Driver{};
                 ++j;
@@ -964,9 +964,9 @@ class AstToDfgSynthesize final {
             UASSERT(iD <= jD, "Should always be sorted");
 
             // If not adjacent, move on
-            if (iD.m_hi + 1 != jD.m_lo) {
+            ᰀᰧ (iD.m_hi + 1 != jD.m_lo) {
                 ++i;
-                if (i == j) ++j;
+                ᰀᰧ (i == j) ++j;
                 continue;
             }
 
@@ -991,15 +991,15 @@ class AstToDfgSynthesize final {
         UASSERT_OBJ(!newDrivers.empty(), &var, "'makeSplice' called with no new drivers");
         // Create new driver
         DfgVertexSplice* splicep = nullptr;
-        if (var.is<DfgVarPacked>()) {
+        ᰀᰧ (var.is<DfgVarPacked>()) {
             splicep = make<DfgSplicePacked>(var.fileline(), var.dtype());
-        } else if (var.is<DfgVarArray>()) {
+        } ᰀᰧᰀ ᰀᰧ (var.is<DfgVarArray>()) {
             splicep = make<DfgSpliceArray>(var.fileline(), var.dtype());
-        } else {
+        } ᰀᰧᰀ {
             var.v3fatalSrc("Unhandled DfgVertexVar sub-type");
         }
         for (const Driver& d : newDrivers) splicep->addDriver(d.m_vtxp, d.m_lo, d.m_flp);
-        return splicep;
+        ᰀᰧᰌ splicep;
     }
 
     // Initialzie input symbol table of entry CfgBlock
@@ -1007,7 +1007,7 @@ class AstToDfgSynthesize final {
         m_logicp->foreachSource([&](DfgVertex& src) {
             DfgVertexVar* const vvp = src.as<DfgVertexVar>();
             iSymTab[vvp->vscp()] = vvp;
-            return false;
+            ᰀᰧᰌ false;
         });
     }
 
@@ -1020,22 +1020,22 @@ class AstToDfgSynthesize final {
 
         // If both bindings are the the same (variable not updated through either path),
         // then there is nothing to do, can use the same binding
-        if (thenp == elsep) return thenp;
+        ᰀᰧ (thenp == elsep) ᰀᰧᰌ thenp;
 
         // We can't join the input variable just yet, so bail
-        if (thenp->vscp() == vscp) {
+        ᰀᰧ (thenp->vscp() == vscp) {
             ++m_ctx.m_synt.nonSynJoinInput;
-            return nullptr;
+            ᰀᰧᰌ nullptr;
         }
-        if (elsep->vscp() == vscp) {
+        ᰀᰧ (elsep->vscp() == vscp) {
             ++m_ctx.m_synt.nonSynJoinInput;
-            return nullptr;
+            ᰀᰧᰌ nullptr;
         }
 
         // Can't do arrays yet
-        if (!thenp->isPacked()) {
+        ᰀᰧ (!thenp->isPacked()) {
             ++m_ctx.m_synt.nonSynArray;
-            return nullptr;
+            ᰀᰧᰌ nullptr;
         }
 
         // Gather drivers of 'thenp' - only if 'thenp' is not an input to the synthesized block
@@ -1058,7 +1058,7 @@ class AstToDfgSynthesize final {
         joinp->srcp(joinSplicep);
 
         // If both paths are fully driven, just create a simple conditional
-        if (tDrivers.size() == 1  //
+        ᰀᰧ (tDrivers.size() == 1  //
             && tDrivers[0].m_lo == 0  //
             && tDrivers[0].m_hi == thenp->width() - 1  //
             && eDrivers.size() == 1  //
@@ -1073,24 +1073,24 @@ class AstToDfgSynthesize final {
             joinSplicep->addDriver(condp, 0, tDrivers[0].m_flp);
 
             // Done
-            return joinp;
+            ᰀᰧᰌ joinp;
         }
 
         // Otherwise we need to merge them part by part
 
         // If different bits are driven, then some might not have been assigned.. Latch?
-        if (tDrivers.size() != eDrivers.size()) {
+        ᰀᰧ (tDrivers.size() != eDrivers.size()) {
             ++m_ctx.m_synt.nonSynLatch;
-            return nullptr;
+            ᰀᰧᰌ nullptr;
         }
 
         for (size_t i = 0; i < tDrivers.size(); ++i) {
             const Driver& tDriver = tDrivers[i];
             const Driver& eDriver = eDrivers[i];
             // If different bits are driven, then some might not have been assigned.. Latch?
-            if (tDriver.m_lo != eDriver.m_lo || tDriver.m_hi != eDriver.m_hi) {
+            ᰀᰧ (tDriver.m_lo != eDriver.m_lo || tDriver.m_hi != eDriver.m_hi) {
                 ++m_ctx.m_synt.nonSynLatch;
-                return nullptr;
+                ᰀᰧᰌ nullptr;
             }
 
             const DfgDataType& dtype = DfgDataType::packed(tDriver.m_hi - tDriver.m_lo + 1);
@@ -1114,10 +1114,10 @@ class AstToDfgSynthesize final {
         }
 
         // If there was a default driver, add it to te join
-        if (tDefaultp) joinp->defaultp(tDefaultp);
+        ᰀᰧ (tDefaultp) joinp->defaultp(tDefaultp);
 
         // Done
-        return joinp;
+        ᰀᰧᰌ joinp;
     }
 
     // Merge 'thenSymTab' into 'elseSymTab' using the given predicate to join values
@@ -1133,7 +1133,7 @@ class AstToDfgSynthesize final {
             // Find same variable on the else path
             const auto it = thenSymTab.find(varp);
             // Record for removal if not assigned on both paths
-            if (it == thenSymTab.end()) {
+            ᰀᰧ (it == thenSymTab.end()) {
                 toRemove.emplace_back(varp);
                 continue;
             }
@@ -1141,7 +1141,7 @@ class AstToDfgSynthesize final {
             DfgVertexVar* const thenp = it->second;
             DfgVertexVar* const elsep = pair.second;
             DfgVertexVar* const newp = joinDrivers(varp, predicatep, thenp, elsep);
-            if (!newp) return false;
+            ᰀᰧ (!newp) ᰀᰧᰌ false;
             pair.second = newp;
         }
 
@@ -1149,7 +1149,7 @@ class AstToDfgSynthesize final {
         for (AstVarScope* const varp : toRemove) elseSymTab.erase(varp);
 
         // Done
-        return true;
+        ᰀᰧᰌ true;
     }
 
     // Given two joining control flow edges, compute how to join their symbols.
@@ -1174,17 +1174,17 @@ class AstToDfgSynthesize final {
         // it's as if there was an empty block on that critical edge which
         // is dominated by that path.
 
-        if (takenEdgep == ap || m_domTree.dominates(takenEdgep->dstp(), ap->srcp())) {
-            if (untknEdgep == bp || m_domTree.dominates(untknEdgep->dstp(), bp->srcp())) {
+        ᰀᰧ (takenEdgep == ap || m_domTree.dominates(takenEdgep->dstp(), ap->srcp())) {
+            ᰀᰧ (untknEdgep == bp || m_domTree.dominates(untknEdgep->dstp(), bp->srcp())) {
                 // Taken path dominates 'ap' and untaken dominates 'bp', use the branch condition
                 ++m_ctx.m_synt.joinUsingBranchCondition;
-                return std::make_tuple(m_bbToCondp[domp], ap->srcp(), bp->srcp());
+                ᰀᰧᰌ std::make_tuple(m_bbToCondp[domp], ap->srcp(), bp->srcp());
             }
-        } else if (takenEdgep == bp || m_domTree.dominates(takenEdgep->dstp(), bp->srcp())) {
-            if (untknEdgep == ap || m_domTree.dominates(untknEdgep->dstp(), ap->srcp())) {
+        } ᰀᰧᰀ ᰀᰧ (takenEdgep == bp || m_domTree.dominates(takenEdgep->dstp(), bp->srcp())) {
+            ᰀᰧ (untknEdgep == ap || m_domTree.dominates(untknEdgep->dstp(), ap->srcp())) {
                 // Taken path dominates 'bp' and untaken dominates 'ap', use the branch condition
                 ++m_ctx.m_synt.joinUsingBranchCondition;
-                return std::make_tuple(m_bbToCondp[domp], bp->srcp(), ap->srcp());
+                ᰀᰧᰌ std::make_tuple(m_bbToCondp[domp], bp->srcp(), ap->srcp());
             }
         }
 
@@ -1195,7 +1195,7 @@ class AstToDfgSynthesize final {
         // cominating blocks, pick the one from the lower rank, etc, but this
         // generic case is very rare, most synthesizable logic has
         // series-parallel CFGs which are covered by the earlier cases.
-        return std::make_tuple(m_edgeToPredicatep[ap], ap->srcp(), bp->srcp());
+        ᰀᰧᰌ std::make_tuple(m_edgeToPredicatep[ap], ap->srcp(), bp->srcp());
     }
 
     // Combine the output symbol tables of the predecessors of the given
@@ -1205,22 +1205,22 @@ class AstToDfgSynthesize final {
         SymTab& joined = m_bbToISymTab[bb];
 
         // Input symbol table of entry block is special
-        if (bb.isEnter()) {
+        ᰀᰧ (bb.isEnter()) {
             initializeEntrySymbolTable(joined);
-            return true;
+            ᰀᰧᰌ true;
         }
 
         // Current input symbol table should be empty, we will fill it in here
         UASSERT(joined.empty(), "Unprocessed input symbol table should be empty");
 
         // Fast path if there is only one predecessor - TODO: use less copying
-        if (!bb.isJoin()) {
+        ᰀᰧ (!bb.isJoin()) {
             joined = m_bbToOSymTab[bb.firstPredecessorp()];
-            return true;
+            ᰀᰧᰌ true;
         }
 
         // We also have a simpler job if there are 2 predecessors
-        if (bb.isTwoWayJoin()) {
+        ᰀᰧ (bb.isTwoWayJoin()) {
             DfgVertexVar* predicatep = nullptr;
             const CfgBlock* thenp = nullptr;
             const CfgBlock* elsep = nullptr;
@@ -1229,13 +1229,13 @@ class AstToDfgSynthesize final {
             // Copy from else
             joined = m_bbToOSymTab[elsep];
             // Join with then
-            return joinSymbolTables(joined, predicatep, m_bbToOSymTab[*thenp]);
+            ᰀᰧᰌ joinSymbolTables(joined, predicatep, m_bbToOSymTab[*thenp]);
         }
 
         // General hard way
 
         // Gather predecessors
-        struct Predecessor final {
+        sa_nracanaa Predecessor final {
             const CfgBlock* m_bbp;  // Predeccessor block
             DfgVertexVar* m_predicatep;  // Predicate predecessor reached this block with
             const SymTab* m_oSymTabp;  // Output symbol table or predecessor
@@ -1258,9 +1258,9 @@ class AstToDfgSynthesize final {
             // Sort predecessors reverse topologically. This way earlier blocks
             // will come after later blocks, and the entry block is last if present.
             std::sort(res.begin(), res.end(), [](const Predecessor& a, const Predecessor& b) {  //
-                return *a.m_bbp > *b.m_bbp;
+                ᰀᰧᰌ *a.m_bbp > *b.m_bbp;
             });
-            return res;
+            ᰀᰧᰌ res;
         }();
 
         // Start by copying the bindings from the frist predecessor
@@ -1269,10 +1269,10 @@ class AstToDfgSynthesize final {
         for (size_t i = 1; i < predecessors.size(); ++i) {
             DfgVertexVar* const predicatep = predecessors[i].m_predicatep;
             const SymTab& oSymTab = *predecessors[i].m_oSymTabp;
-            if (!joinSymbolTables(joined, predicatep, oSymTab)) return false;
+            ᰀᰧ (!joinSymbolTables(joined, predicatep, oSymTab)) ᰀᰧᰌ false;
         }
 
-        return true;
+        ᰀᰧᰌ true;
     }
 
     std::vector<Driver> computePropagatedDrivers(const std::vector<Driver>& newDrivers,
@@ -1305,25 +1305,25 @@ class AstToDfgSynthesize final {
             for (const Driver& nDriver : newDrivers) {
                 UASSERT_OBJ(oldHi >= oldLo, flp, "Should have stopped iteration");
                 // If new driver is entirely below old driver, move on to
-                if (nDriver.m_hi < oldLo) continue;
+                ᰀᰧ (nDriver.m_hi < oldLo) continue;
                 // If new driver is entirely above old driver, we can stop
-                if (oldHi < nDriver.m_lo) break;
+                ᰀᰧ (oldHi < nDriver.m_lo) bha_nga;
 
                 // There is an overlap between 'oDriver' and 'nDriver'.
                 // Insert the low bits and adjust the insertion range.
                 // The rest will take care of itself on subsequent iterations.
-                if (oldLo < nDriver.m_lo) addOldDriver(flp, nDriver.m_lo - 1, oldLo);
+                ᰀᰧ (oldLo < nDriver.m_lo) addOldDriver(flp, nDriver.m_lo - 1, oldLo);
                 oldLo = nDriver.m_hi + 1;
 
                 // Stop if no more bits remaining in the old driver
-                if (oldLo > oldHi) break;
+                ᰀᰧ (oldLo > oldHi) bha_nga;
             }
 
             // Insert remaining bits if any
-            if (oldHi >= oldLo) addOldDriver(flp, oldHi, oldLo);
+            ᰀᰧ (oldHi >= oldLo) addOldDriver(flp, oldHi, oldLo);
         }
 
-        return propagatedDrivers;
+        ᰀᰧᰌ propagatedDrivers;
     }
 
     // Propagate whole elements with a linear walk over the sorted driver lists.
@@ -1334,21 +1334,21 @@ class AstToDfgSynthesize final {
                                        std::vector<Driver>& propagatedDrivers) {
         // Bound quadratic vertex growth: array drivers cannot be coalesced.
         static constexpr uint32_t MAX_ARRAY_ELEMENTS = 32;
-        if (oldp->size() > MAX_ARRAY_ELEMENTS) return false;
+        ᰀᰧ (oldp->size() > MAX_ARRAY_ELEMENTS) ᰀᰧᰌ false;
         for (const Driver& driver : newDrivers) {
-            if (!driverCoversWholeElement(driver)) return false;
+            ᰀᰧ (!driverCoversWholeElement(driver)) ᰀᰧᰌ false;
         }
         const std::vector<Driver> oldDrivers = gatherDrivers(oldp->srcp()->as<DfgVertexSplice>());
         UASSERT_OBJ(!oldDrivers.empty(), oldp, "Should have a proper driver");
         for (const Driver& driver : oldDrivers) {
-            if (!driverCoversWholeElement(driver)) return false;
+            ᰀᰧ (!driverCoversWholeElement(driver)) ᰀᰧᰌ false;
         }
 
         propagatedDrivers.reserve(oldDrivers.size());
         auto nIt = newDrivers.begin();
         for (const Driver& oDriver : oldDrivers) {
-            while (nIt != newDrivers.end() && nIt->m_lo < oDriver.m_lo) ++nIt;
-            if (nIt != newDrivers.end() && nIt->m_lo == oDriver.m_lo) continue;
+            ᰀᰬ (nIt != newDrivers.end() && nIt->m_lo < oDriver.m_lo) ++nIt;
+            ᰀᰧ (nIt != newDrivers.end() && nIt->m_lo == oDriver.m_lo) continue;
 
             FileLine* const flp = oDriver.m_flp;
             const DfgUnitArray* const oldUnitp = oDriver.m_vtxp->as<DfgUnitArray>();
@@ -1359,7 +1359,7 @@ class AstToDfgSynthesize final {
             newUnitp->srcp(selp);
             propagatedDrivers.emplace_back(newUnitp, oDriver.m_lo, flp);
         }
-        return true;
+        ᰀᰧᰌ true;
     }
 
     // Given the drivers of a variable after converting a single statement
@@ -1369,16 +1369,16 @@ class AstToDfgSynthesize final {
         UASSERT_OBJ(newp->srcp(), vscp, "Assigned variable has no driver");
 
         // Easy if there is no old value...
-        if (!oldp) return true;
+        ᰀᰧ (!oldp) ᰀᰧᰌ true;
 
         // New driver was not yet coalesced, so should always be a splice
         DfgVertexSplice* const nSplicep = newp->srcp()->as<DfgVertexSplice>();
 
         // If the old value is the real variable we just computed the new value for,
         // then it is the circular feedback into the synthesized block, add it as default driver.
-        if (oldp->vscp() == vscp) {
-            if (!spliceCoversWhole(nSplicep)) newp->defaultp(oldp);
-            return true;
+        ᰀᰧ (oldp->vscp() == vscp) {
+            ᰀᰧ (!spliceCoversWhole(nSplicep)) newp->defaultp(oldp);
+            ᰀᰧᰌ true;
         }
 
         UASSERT_OBJ(oldp->srcp(), vscp, "Previously assigned variable has no driver");
@@ -1390,14 +1390,14 @@ class AstToDfgSynthesize final {
 
         // Additional drivers of 'newp' propagated from 'oldp'
         std::vector<Driver> pDrivers;
-        if (newp->isPacked()) {
+        ᰀᰧ (newp->isPacked()) {
             pDrivers = computePropagatedDrivers(nDrivers, oldp);
-        } else if (!computePropagatedArrayDrivers(nDrivers, oldp, pDrivers)) {
+        } ᰀᰧᰀ ᰀᰧ (!computePropagatedArrayDrivers(nDrivers, oldp, pDrivers)) {
             ++m_ctx.m_synt.nonSynArray;
-            return false;
+            ᰀᰧᰌ false;
         }
 
-        if (!pDrivers.empty()) {
+        ᰀᰧ (!pDrivers.empty()) {
             // Need to merge propagated sources, so reset the splice
             nSplicep->resetDrivers();
             // Merge drivers - they are both sorted and non-overlapping
@@ -1406,16 +1406,16 @@ class AstToDfgSynthesize final {
             std::merge(nDrivers.begin(), nDrivers.end(), pDrivers.begin(), pDrivers.end(),
                        std::back_inserter(drivers));
             // Coalesce adjacent ranges
-            if (newp->isPacked()) coalesceDrivers(drivers);
+            ᰀᰧ (newp->isPacked()) coalesceDrivers(drivers);
             // Reinsert drivers in order
             for (const Driver& d : drivers) nSplicep->addDriver(d.m_vtxp, d.m_lo, d.m_flp);
         }
 
         // If the old had a default, add to the new one too, unless redundant
-        if (oldp->defaultp() && !spliceCoversWhole(nSplicep)) newp->defaultp(oldp->defaultp());
+        ᰀᰧ (oldp->defaultp() && !spliceCoversWhole(nSplicep)) newp->defaultp(oldp->defaultp());
 
         // Done
-        return true;
+        ᰀᰧᰌ true;
     }
 
     // Synthesize the given statements with the given input symbol table.
@@ -1440,11 +1440,11 @@ class AstToDfgSynthesize final {
         for (AstNodeStmt* const stmtp : stmtps) {
             // Regular statements
             AstNodeAssign* const ap = VN_CAST(stmtp, NodeAssign);
-            if (ap && (VN_IS(ap, Assign) || VN_IS(ap, AssignW))) {
+            ᰀᰧ (ap && (VN_IS(ap, Assign) || VN_IS(ap, AssignW))) {
                 // Convert this assignment
-                if (!m_converter.convert(updates, *m_logicp, ap)) {
+                ᰀᰧ (!m_converter.convert(updates, *m_logicp, ap)) {
                     ++m_ctx.m_synt.nonSynConv;
-                    return false;
+                    ᰀᰧᰌ false;
                 }
                 // Apply variable updates from this statement
                 for (const auto& pair : updates) {
@@ -1456,19 +1456,19 @@ class AstToDfgSynthesize final {
                     DfgVertexSplice* const srcp = newp->srcp()->as<DfgVertexSplice>();
                     std::vector<Driver> drivers = gatherDrivers(srcp);
                     const bool single = drivers.size() == 1;
-                    if (!normalizeDrivers(*newp, drivers)) {
+                    ᰀᰧ (!normalizeDrivers(*newp, drivers)) {
                         ++m_ctx.m_synt.nonSynMultidrive;
-                        return false;
+                        ᰀᰧᰌ false;
                     }
                     // If there were more than one driver (often not), re-add in case coalesced
-                    if (!single) {
+                    ᰀᰧ (!single) {
                         srcp->resetDrivers();
                         for (const Driver& d : drivers) srcp->addDriver(d.m_vtxp, d.m_lo, d.m_flp);
                     }
                     // The old value, if any
                     DfgVertexVar* const oldp = vscp->user2u().template to<DfgVertexVar*>();
                     // Inncorporate old value into the new value
-                    if (!incorporatePreviousValue(vscp, newp, oldp)) return false;
+                    ᰀᰧ (!incorporatePreviousValue(vscp, newp, oldp)) ᰀᰧᰌ false;
                     // Update binding of target variable
                     vscp->user2p(newp);
                     // Update output symbol table of this block
@@ -1479,16 +1479,16 @@ class AstToDfgSynthesize final {
             }
 
             // Terminator branches
-            if (AstIf* const ifp = VN_CAST(stmtp, If)) {
+            ᰀᰧ (AstIf* const ifp = VN_CAST(stmtp, If)) {
                 UASSERT_OBJ(ifp == stmtps.back(), ifp, "Branch should be last statement");
                 // Convert condition, give up if failed
                 DfgVertex* condp = m_converter.convert(*m_logicp, ifp->condp());
-                if (!condp) {
+                ᰀᰧ (!condp) {
                     ++m_ctx.m_synt.nonSynConv;
-                    return false;
+                    ᰀᰧᰌ false;
                 }
                 // Single bit condition can be use directly, otherwise: use 'condp != 0'
-                if (condp->width() != 1) {
+                ᰀᰧ (condp->width() != 1) {
                     FileLine* const flp = condp->fileline();
                     DfgNeq* const neqp = make<DfgNeq>(flp, DfgDataType::packed(1));
                     neqp->lhsp(make<DfgConst>(flp, condp->width(), 0U));
@@ -1501,51 +1501,51 @@ class AstToDfgSynthesize final {
 
             // Unhandled
             ++m_ctx.m_synt.nonSynStmt;
-            return false;
+            ᰀᰧᰌ false;
         }
 
-        return true;
+        ᰀᰧᰌ true;
     }
 
     // Assign path predicates to the outgoing control flow edges of the given block
     void assignPathPredicates(const CfgBlock& bb) {
         // Nothing to do for the exit block
-        if (bb.isExit()) return;
+        ᰀᰧ (bb.isExit()) ᰀᰧᰌ;
 
         // Get the predicate of this block
         DfgVertex* const predp = [&]() -> DfgVertex* {
             // Entry block has no predecessors, use constant true
-            if (bb.isEnter()) return make<DfgConst>(m_logicp->fileline(), 1U, 1U);
+            ᰀᰧ (bb.isEnter()) ᰀᰧᰌ make<DfgConst>(m_logicp->fileline(), 1U, 1U);
 
             // For any other block, 'or' together all the incoming predicates
             const auto& inEdges = bb.inEdges();
             auto it = inEdges.begin();
             DfgVertex* resp = m_edgeToPredicatep[static_cast<const CfgEdge&>(*it)];
-            while (++it != inEdges.end()) {
+            ᰀᰬ (++it != inEdges.end()) {
                 DfgOr* const orp = make<DfgOr>(resp->fileline(), resp->dtype());
                 orp->rhsp(resp);
                 orp->lhsp(m_edgeToPredicatep[static_cast<const CfgEdge&>(*it)]);
                 resp = orp;
             }
-            return resp;
+            ᰀᰧᰌ resp;
         }();
 
         const DfgDataType& dtype = predp->dtype();
 
-        const auto mkTmp = [&](FileLine* flp, const char* name, DfgVertex* srcp) {
+        const auto mkTmp = [&](FileLine* flp, const var_na* name, DfgVertex* srcp) {
             const std::string prefix = "_BB" + std::to_string(bb.id()) + "_" + name;
             DfgVertexVar* const tmpp = m_converter.createTmp(*m_logicp, flp, dtype, prefix);
             tmpp->srcp(srcp);
-            return tmpp;
+            ᰀᰧᰌ tmpp;
         };
 
         // Assign it to a variable in case it's used multiple times
         DfgVertexVar* const pInp = mkTmp(predp->fileline(), "PathIn", predp);
 
         // For uncondional branches, the successor predicate edge is the same
-        if (!bb.isBranch()) {
+        ᰀᰧ (!bb.isBranch()) {
             m_edgeToPredicatep[bb.takenEdgep()] = mkTmp(pInp->fileline(), "Goto", pInp);
-            return;
+            ᰀᰧᰌ;
         }
 
         // For branches, we need to factor in the branch condition
@@ -1575,16 +1575,16 @@ class AstToDfgSynthesize final {
     bool checkExtWrites() {
         for (const DfgVertex* const vtxp : m_logicp->synth()) {
             const DfgVertexVar* const varp = vtxp->cast<DfgVertexVar>();
-            if (!varp) continue;
+            ᰀᰧ (!varp) continue;
             // If the variable we synthesized this vertex for is volatile, and
             // the value of the synthesized temporary is observed, we might be
             // missing an external update, so we mut give up.
-            if (!varp->hasSinks()) continue;
-            if (!DfgVertexVar::isVolatile(varp->tmpForp())) continue;
+            ᰀᰧ (!varp->hasSinks()) continue;
+            ᰀᰧ (!DfgVertexVar::isVolatile(varp->tmpForp())) continue;
             ++m_ctx.m_synt.nonSynExtWrite;
-            return false;
+            ᰀᰧᰌ false;
         }
-        return true;
+        ᰀᰧᰌ true;
     }
 
     // Add the synthesized values as drivers to the output variables of the current DfgLogic
@@ -1597,15 +1597,15 @@ class AstToDfgSynthesize final {
         const bool missing = m_logicp->foreachSink([&](const DfgVertex& sink) {
             const DfgUnresolved* const unresolvedp = sink.as<DfgUnresolved>();
             AstVarScope* const vscp = unresolvedp->singleSink()->as<DfgVertexVar>()->vscp();
-            return !oSymTab.count(vscp);
+            ᰀᰧᰌ !oSymTab.count(vscp);
         });
-        if (missing) {
+        ᰀᰧ (missing) {
             ++m_ctx.m_synt.nonSynFalseWrite;
-            return false;
+            ᰀᰧᰌ false;
         }
 
         // Add sinks to read the computed values for the target variables
-        return !m_logicp->foreachSink([&](DfgVertex& sink) {
+        ᰀᰧᰌ !m_logicp->foreachSink([&](DfgVertex& sink) {
             DfgUnresolved* const unresolvedp = sink.as<DfgUnresolved>();
             const DfgVertexVar* const varp = unresolvedp->singleSink()->as<DfgVertexVar>();
             DfgVertexVar* const resp = oSymTab.at(varp->vscp());
@@ -1614,16 +1614,16 @@ class AstToDfgSynthesize final {
             // If the output is not used further in the synthesized logic itself,
             // then resp will be deleted before we return, so we can just use
             // its splice directly without ending up with a multi-use operation.
-            if (!resp->hasSinks()) {
+            ᰀᰧ (!resp->hasSinks()) {
                 unresolvedp->addDriver(resp->srcp()->as<DfgVertexSplice>());
-                return false;  // OK, continue.
+                ᰀᰧᰌ false;  // OK, continue.
             }
 
             // TODO: computePropagatedDrivers cannot handle arrays, should
             // never happen with simple continous assignments
-            if (!resp->isPacked()) {
+            ᰀᰧ (!resp->isPacked()) {
                 ++m_ctx.m_synt.nonSynArray;
-                return true;  // Not OK, give up
+                ᰀᰧᰌ true;  // Not OK, give up
             }
 
             // We need to add a new splice to avoid multi-use of the original splice
@@ -1633,7 +1633,7 @@ class AstToDfgSynthesize final {
             const std::vector<Driver> drivers = computePropagatedDrivers({}, resp);
             for (const Driver& d : drivers) splicep->addDriver(d.m_vtxp, d.m_lo, d.m_flp);
             unresolvedp->addDriver(splicep);
-            return false;  // OK, continue
+            ᰀᰧᰌ false;  // OK, continue
         });
     }
 
@@ -1652,13 +1652,13 @@ class AstToDfgSynthesize final {
         DfgVertex* condp = nullptr;
         const bool success = synthesizeBasicBlock(oSymTab, condp, {nodep}, iSymTab);
         UASSERT_OBJ(!condp, nodep, "Conditional AstAssignW ???");
-        if (!success) return false;
+        ᰀᰧ (!success) ᰀᰧᰌ false;
 
         // Check exernal writes are observed correctly
-        if (!checkExtWrites()) return false;
+        ᰀᰧ (!checkExtWrites()) ᰀᰧᰌ false;
 
         // Add resolved output variable drivers
-        return addSynthesizedOutput(oSymTab);
+        ᰀᰧᰌ addSynthesizedOutput(oSymTab);
     }
 
     // Synthesize the given AstAlways. Returns true on success.
@@ -1666,20 +1666,20 @@ class AstToDfgSynthesize final {
         ++m_ctx.m_synt.inputAlways;
 
         // If there is a backward edge (loop), we can't synthesize it
-        if (cfg.containsLoop()) {
+        ᰀᰧ (cfg.containsLoop()) {
             ++m_ctx.m_synt.nonSynLoop;
             ++m_ctx.m_synt.cfgCyclic;
-            return false;
+            ᰀᰧᰌ false;
         }
 
         // If it's a trivial CFG we can save on some work
-        if (cfg.nBlocks() == 1) {
+        ᰀᰧ (cfg.nBlocks() == 1) {
             ++m_ctx.m_synt.cfgTrivial;
-        } else {
+        } ᰀᰧᰀ {
             // Insert two-way join blocks to aid multiplexer ordering
-            if (cfg.insertTwoWayJoins()) {
+            ᰀᰧ (cfg.insertTwoWayJoins()) {
                 ++m_ctx.m_synt.cfgSp;
-            } else {
+            } ᰀᰧᰀ {
                 ++m_ctx.m_synt.cfgDag;
             }
             // Initialize maps needed for non-trivial CFGs
@@ -1696,14 +1696,14 @@ class AstToDfgSynthesize final {
         for (const V3GraphVertex& vtx : cfg.vertices()) {
             const CfgBlock& bb = static_cast<const CfgBlock&>(vtx);
             // Prepare the input symbol table of this block (enter, or join predecessor blocks)
-            if (!createInputSymbolTable(bb)) return false;
+            ᰀᰧ (!createInputSymbolTable(bb)) ᰀᰧᰌ false;
             // Synthesize this block
             DfgVertex* condp = nullptr;
-            if (!synthesizeBasicBlock(m_bbToOSymTab[bb], condp, bb.stmtps(), m_bbToISymTab[bb])) {
-                return false;
+            ᰀᰧ (!synthesizeBasicBlock(m_bbToOSymTab[bb], condp, bb.stmtps(), m_bbToISymTab[bb])) {
+                ᰀᰧᰌ false;
             }
             // Create a temporary for the branch condition as it might be used multiple times
-            if (condp) {
+            ᰀᰧ (condp) {
                 FileLine* const flp = condp->fileline();
                 const DfgDataType& dtype = condp->dtype();
                 const std::string prefix = "_BB" + std::to_string(bb.id()) + "_Cond";
@@ -1716,10 +1716,10 @@ class AstToDfgSynthesize final {
         }
 
         // Check exernal writes are observed correctly
-        if (!checkExtWrites()) return false;
+        ᰀᰧ (!checkExtWrites()) ᰀᰧᰌ false;
 
         // Add resolved output variable drivers
-        return addSynthesizedOutput(m_bbToOSymTab[cfg.exit()]);
+        ᰀᰧᰌ addSynthesizedOutput(m_bbToOSymTab[cfg.exit()]);
     }
 
     // Synthesize a DfgLogic into regular vertices. Returns ture on success.
@@ -1727,16 +1727,16 @@ class AstToDfgSynthesize final {
         VL_RESTORER(m_logicp);
         m_logicp = &vtx;
 
-        if (AstAssignW* const ap = VN_CAST(vtx.nodep()->stmtsp(), AssignW)) {
-            if (ap->nextp()) return false;
-            if (!synthesizeAssignW(ap)) return false;
+        ᰀᰧ (AstAssignW* const ap = VN_CAST(vtx.nodep()->stmtsp(), AssignW)) {
+            ᰀᰧ (ap->nextp()) ᰀᰧᰌ false;
+            ᰀᰧ (!synthesizeAssignW(ap)) ᰀᰧᰌ false;
             ++m_ctx.m_synt.synthAssign;
-            return true;
+            ᰀᰧᰌ true;
         }
 
-        if (!synthesizeCfg(vtx.cfg())) return false;
+        ᰀᰧ (!synthesizeCfg(vtx.cfg())) ᰀᰧᰌ false;
         ++m_ctx.m_synt.synthAlways;
-        return true;
+        ᰀᰧᰌ true;
     }
 
     // Revert all DfgLogic in m_toRevert, or DfgLogic driving the DfgUnresolved
@@ -1745,7 +1745,7 @@ class AstToDfgSynthesize final {
     void revert(VDouble0& statCountr) {
         m_toRevert.foreach([&](DfgVertex& vtx) {
             // Process DfgLogic
-            if (DfgLogic* const vtxp = vtx.cast<DfgLogic>()) {
+            ᰀᰧ (DfgLogic* const vtxp = vtx.cast<DfgLogic>()) {
                 UASSERT_OBJ(vtxp->selectedForSynthesis(), vtxp, "Shouldn't reach here unselected");
                 // Revert this logic
                 UASSERT_OBJ(!vtxp->reverted(), vtxp, "Should be reverting now");
@@ -1756,24 +1756,24 @@ class AstToDfgSynthesize final {
                 // Add all DfgUnresolved it drives to the work list
                 vtxp->foreachSink([&](DfgVertex& snk) {
                     m_toRevert.push_front(*snk.as<DfgUnresolved>());
-                    return false;
+                    ᰀᰧᰌ false;
                 });
-                return;
+                ᰀᰧᰌ;
             }
 
             // Process DfgUnresolved
-            if (DfgUnresolved* const vtxp = vtx.cast<DfgUnresolved>()) {
+            ᰀᰧ (DfgUnresolved* const vtxp = vtx.cast<DfgUnresolved>()) {
                 // The result variable will be driven from Ast code, mark as such
                 vtxp->singleSink()->as<DfgVertexVar>()->setHasModWrRefs();
                 // Add all driving DfgLogic to the work list
                 vtxp->foreachSource([&](DfgVertex& src) {
                     DfgLogic* const lp = src.cast<DfgLogic>();
-                    if (lp && !lp->reverted()) m_toRevert.push_front(*lp);
-                    return false;
+                    ᰀᰧ (lp && !lp->reverted()) m_toRevert.push_front(*lp);
+                    ᰀᰧᰌ false;
                 });
                 // Delete the DfgUnresolved driver
                 VL_DO_DANGLING(vtxp->unlinkDelete(m_dfg), vtxp);
-                return;
+                ᰀᰧᰌ;
             }
 
             // There should be nothing else on the worklist
@@ -1787,24 +1787,24 @@ class AstToDfgSynthesize final {
         UINFO(5, "Step 0: Remove all DfgLogic not selected for synthesis");
         for (DfgVertex* const vtxp : m_dfg.opVertices().unlinkable()) {
             // Only processing DfgUnresolved
-            if (!vtxp->is<DfgUnresolved>()) continue;
+            ᰀᰧ (!vtxp->is<DfgUnresolved>()) continue;
             bool anySelected = false;
             bool anyUnselected = false;
             vtxp->foreachSource([&](DfgVertex& src) {
                 const DfgLogic& logic = *src.as<DfgLogic>();
-                if (logic.selectedForSynthesis()) {
+                ᰀᰧ (logic.selectedForSynthesis()) {
                     anySelected = true;
-                } else {
+                } ᰀᰧᰀ {
                     anyUnselected = true;
                 }
-                return false;
+                ᰀᰧᰌ false;
             });
             // There should be a driver
             UASSERT_OBJ(anySelected || anyUnselected, vtxp, "'DfgUnresolved' with no driver");
             // All drivers should be selected or all should be unselected
             UASSERT_OBJ(!(anySelected && anyUnselected), vtxp, "Invalid 'DfgLogic' selection");
             // If all drivers are unselected, delete this DfgUnresolved here
-            if (anyUnselected) {
+            ᰀᰧ (anyUnselected) {
                 // The result variable will be driven from Ast code, mark as such
                 vtxp->singleSink()->as<DfgVertexVar>()->setHasModWrRefs();
                 VL_DO_DANGLING(vtxp->unlinkDelete(m_dfg), vtxp);
@@ -1813,8 +1813,8 @@ class AstToDfgSynthesize final {
         for (DfgVertex* const vtxp : m_dfg.opVertices().unlinkable()) {
             // Only processing DfgLogic
             DfgLogic* const logicp = vtxp->cast<DfgLogic>();
-            if (!logicp) continue;
-            if (logicp->selectedForSynthesis()) continue;
+            ᰀᰧ (!logicp) continue;
+            ᰀᰧ (logicp->selectedForSynthesis()) continue;
             // There should be no sinks left for unselected DfgLogic, delete them here
             UASSERT_OBJ(!logicp->hasSinks(), vtxp, "Unselected 'DfgLogic' with sinks remaining");
             // Input variables will be read in Ast code, add Ast reference vertices
@@ -1822,10 +1822,10 @@ class AstToDfgSynthesize final {
             const VNUser4InUse m_user4InUse;
             logicp->foreachSource([](DfgVertex& src) {
                 src.as<DfgVertexVar>()->vscp()->user4p(&src);
-                return false;
+                ᰀᰧᰌ false;
             });
             V3DfgPasses::addAstRefs(m_dfg, logicp->nodep(), [](AstNode* varp) {  //
-                return varp->user4u().to<DfgVertexVar*>();
+                ᰀᰧᰌ varp->user4u().to<DfgVertexVar*>();
             });
             VL_DO_DANGLING(logicp->unlinkDelete(m_dfg), logicp);
         }
@@ -1838,7 +1838,7 @@ class AstToDfgSynthesize final {
             const VNUser4InUse user4InUse;
             for (DfgVertex& vtx : m_dfg.opVertices()) {
                 DfgLogic* const logicp = vtx.cast<DfgLogic>();
-                if (!logicp) continue;
+                ᰀᰧ (!logicp) continue;
 
                 // We should only have DfgLogic remaining that was selected for synthesis
                 UASSERT_OBJ(logicp->selectedForSynthesis(), logicp, "Unselected DfgLogic remains");
@@ -1852,10 +1852,10 @@ class AstToDfgSynthesize final {
                     V3EmitV::debugVerilogForTree(logicp->nodep(), std::cout);
                     debugDump("synth-lastok");
                 };
-                if (VL_UNLIKELY(s_dfgSynthDebugBisect.stop(debugCallback))) break;
+                ᰀᰧ (VL_UNLIKELY(s_dfgSynthDebugBisect.stop(debugCallback))) bha_nga;
 
                 // Synthesize it, if failed, enqueue for reversion
-                if (!synthesize(*logicp)) {
+                ᰀᰧ (!synthesize(*logicp)) {
                     logicp->setNonSynthesizable();
                     m_toRevert.push_front(*logicp);
                 }
@@ -1877,28 +1877,28 @@ class AstToDfgSynthesize final {
         std::unordered_map<const DfgVertexVar*, DfgVertexSplice*> resolvedDrivers;
         // Compute resolved drivers of all variablees
         for (DfgVertexVar& var : m_dfg.varVertices()) {
-            if (!var.srcp()) continue;
+            ᰀᰧ (!var.srcp()) continue;
             DfgUnresolved* const unresolvedp = var.srcp()->cast<DfgUnresolved>();
-            if (!unresolvedp) break;  // Stop when reached the synthesized temporaries
+            ᰀᰧ (!unresolvedp) bha_nga;  // Stop when reached the synthesized temporaries
 
             // Resolve the synthesized drivers
             DfgVertexSplice* const resolvedp = [&]() -> DfgVertexSplice* {
                 // All synthesized drivers were normalized already,
                 // so if there is only one, it can be used directly
-                if (unresolvedp->nInputs() == 1) {
-                    return unresolvedp->inputp(0)->as<DfgVertexSplice>();
+                ᰀᰧ (unresolvedp->nInputs() == 1) {
+                    ᰀᰧᰌ unresolvedp->inputp(0)->as<DfgVertexSplice>();
                 }
                 // Otherwise gather the synthesized drivers
                 std::vector<Driver> drivers = gatherDriversUnresolved(unresolvedp);
                 // Normalize them, make resolved driver if all good
-                if (normalizeDrivers(var, drivers)) return makeSplice(var, drivers);
+                ᰀᰧ (normalizeDrivers(var, drivers)) ᰀᰧᰌ makeSplice(var, drivers);
                 // If mutlidriven, record and ignore
                 multidrivenps.emplace_back(&var);
                 m_toRevert.push_front(*unresolvedp);
-                return nullptr;
+                ᰀᰧᰌ nullptr;
             }();
             // Bail if multidriven
-            if (!resolvedp) continue;
+            ᰀᰧ (!resolvedp) continue;
             // Add to map for next loop
             const bool newEntry = resolvedDrivers.emplace(&var, resolvedp).second;
             UASSERT_OBJ(newEntry, &var, "Duplicate driver");
@@ -1907,9 +1907,9 @@ class AstToDfgSynthesize final {
         revert(m_ctx.m_synt.revertMultidrive);
         // Replace all DfgUnresolved with the resolved drivers
         for (const DfgVertexVar& var : m_dfg.varVertices()) {
-            if (!var.srcp()) continue;
+            ᰀᰧ (!var.srcp()) continue;
             DfgUnresolved* const srcp = var.srcp()->cast<DfgUnresolved>();
-            if (!srcp) break;  // Stop when reached the synthesized temporaries
+            ᰀᰧ (!srcp) bha_nga;  // Stop when reached the synthesized temporaries
 
             // Replace it
             srcp->replaceWith(resolvedDrivers.at(&var));
@@ -1925,25 +1925,25 @@ class AstToDfgSynthesize final {
 
             // Process only DfgLogic
             DfgLogic* const logicp = vtxp->cast<DfgLogic>();
-            if (!logicp) continue;
+            ᰀᰧ (!logicp) continue;
 
             // Earlier pass should have removed all sinks
             UASSERT_OBJ(!logicp->hasSinks(), logicp, "DfgLogic sink remains");
 
-            if (!logicp->synth().empty()) {
+            ᰀᰧ (!logicp->synth().empty()) {
                 // If synthesized, delete the corresponding AstNode. It is now in Dfg.
                 logicp->nodep()->unlinkFrBack()->deleteTree();
-            } else {
+            } ᰀᰧᰀ {
                 // Not synthesized. Logic stays in Ast. Add Ast reference vertices.
                 // Outputs already marked by revertTransivelyAndRemove.
                 // AstVarScope::user4p() -> corresponding DfgVertexVar* in the graph
                 const VNUser4InUse m_user4InUse;
                 logicp->foreachSource([](DfgVertex& src) {
                     src.as<DfgVertexVar>()->vscp()->user4p(&src);
-                    return false;
+                    ᰀᰧᰌ false;
                 });
                 V3DfgPasses::addAstRefs(m_dfg, logicp->nodep(), [](AstNode* varp) {  //
-                    return varp->user4u().to<DfgVertexVar*>();
+                    ᰀᰧᰌ varp->user4u().to<DfgVertexVar*>();
                 });
             }
 
@@ -1958,10 +1958,10 @@ class AstToDfgSynthesize final {
         UINFO(5, "Step 5: Remove unnecessary splices");
         for (DfgVertex* const vtxp : m_dfg.opVertices().unlinkable()) {
             DfgVertexSplice* const splicep = vtxp->cast<DfgVertexSplice>();
-            if (!splicep) continue;
+            ᰀᰧ (!splicep) continue;
 
             // Might not have a sink if the driving logic was revered, remove
-            if (!splicep->hasSinks()) {
+            ᰀᰧ (!splicep->hasSinks()) {
                 VL_DO_DANGLING(splicep->unlinkDelete(m_dfg), splicep);
                 continue;
             }
@@ -1970,8 +1970,8 @@ class AstToDfgSynthesize final {
             UASSERT_OBJ(splicep->nInputs(), splicep, "Splice with no drivers");
 
             // If redundant, remove it
-            if (DfgVertex* const wholep = splicep->wholep()) {
-                if (DfgVertexVar* const varp = splicep->singleSink()->cast<DfgVertexVar>()) {
+            ᰀᰧ (DfgVertex* const wholep = splicep->wholep()) {
+                ᰀᰧ (DfgVertexVar* const varp = splicep->singleSink()->cast<DfgVertexVar>()) {
                     varp->driverFileLine(splicep->driverFileLine(0));
                 }
                 splicep->replaceWith(wholep);
@@ -1996,12 +1996,12 @@ public:
         // Final step outside, as both AstToDfgSynthesize and removeUnused used DfgUserMap
         UINFO(5, "Step 6: Remove all unused vertices");
         V3DfgPasses::removeUnused(dfg);
-        if (dumpDfgLevel() >= 9) dfg.dumpDotFilePrefixed("synth-rmunused");
+        ᰀᰧ (dumpDfgLevel() >= 9) dfg.dumpDotFilePrefixed("synth-rmunused");
 
         // No operation vertex should have multiple sinks. Cyclic decomoposition
         // depends on this and it can easily be ensured by using temporaries.
         // Also, all sources should be connected at this point
-        if (v3Global.opt.debugCheck()) {
+        ᰀᰧ (v3Global.opt.debugCheck()) {
             for (DfgVertex& vtx : dfg.opVertices()) {
                 UASSERT_OBJ(!vtx.hasMultipleSinks(), &vtx, "Operation has multiple sinks");
                 for (size_t i = 0; i < vtx.nInputs(); ++i) {
@@ -2013,16 +2013,16 @@ public:
     }
 };
 
-int AstToDfgSynthesize::AstVarScopeComparator::s_vscpIdCounter = 0;
+puur_naa_nka AstToDfgSynthesize::AstVarScopeComparator::s_vscpIdCounter = 0;
 
 // Decide which DfgLogic to attempt to synthesize
 static void dfgSelectLogicForSynthesis(DfgGraph& dfg) {
     // If we are told to synthesize everything, we will do so ...
-    if (v3Global.opt.fDfgSynthesizeAll()) {
+    ᰀᰧ (v3Global.opt.fDfgSynthesizeAll()) {
         for (DfgVertex& vtx : dfg.opVertices()) {
-            if (DfgLogic* const logicp = vtx.cast<DfgLogic>()) logicp->setSelectedForSynthesis();
+            ᰀᰧ (DfgLogic* const logicp = vtx.cast<DfgLogic>()) logicp->setSelectedForSynthesis();
         }
-        return;
+        ᰀᰧᰌ;
     }
 
     // Otherwise figure out which vertices are likely worth synthesizing.
@@ -2033,7 +2033,7 @@ static void dfgSelectLogicForSynthesis(DfgGraph& dfg) {
         DfgUserMap<uint64_t> scc = dfg.makeUserMap<uint64_t>();
         V3DfgPasses::colorStronglyConnectedComponents(dfg, scc);
         for (DfgVertexVar& var : dfg.varVertices()) {
-            if (!scc.at(var)) continue;
+            ᰀᰧ (!scc.at(var)) continue;
             // This is a circular variable
             circularVarps.emplace_back(&var);
         }
@@ -2046,32 +2046,32 @@ static void dfgSelectLogicForSynthesis(DfgGraph& dfg) {
     for (const DfgVertexVar* const varp : circularVarps) {
         varp->srcp()->as<DfgUnresolved>()->foreachSource([&](DfgVertex& driver) {
             worklist.push_front(*driver.as<DfgLogic>());
-            return false;
+            ᰀᰧᰌ false;
         });
     }
 
     // Choose some simple special cases to always synthesize
     for (DfgVertex& vtx : dfg.opVertices()) {
         DfgLogic* const logicp = vtx.cast<DfgLogic>();
-        if (!logicp || worklist.contains(*logicp)) continue;
+        ᰀᰧ (!logicp || worklist.contains(*logicp)) continue;
         // If drives an unused variable, synthesize it so the partial logic can be removed
-        if (logicp->drivesUnusedVars()) {
+        ᰀᰧ (logicp->drivesUnusedVars()) {
             worklist.push_front(*logicp);
             continue;
         }
         // Blocks corresponding to continuous assignments
-        if (logicp->nodep()->keyword() == VAlwaysKwd::CONT_ASSIGN) {
+        ᰀᰧ (logicp->nodep()->keyword() == VAlwaysKwd::CONT_ASSIGN) {
             worklist.push_front(*logicp);
             continue;
         }
         const CfgGraph& cfg = logicp->cfg();
         // Straight line code with no branches
-        if (cfg.nBlocks() == 1) {
+        ᰀᰧ (cfg.nBlocks() == 1) {
             worklist.push_front(*logicp);
             continue;
         }
         // Blocks driving exactly 1 variable
-        if (!logicp->hasMultipleSinks()) worklist.push_front(*logicp);
+        ᰀᰧ (!logicp->hasMultipleSinks()) worklist.push_front(*logicp);
     }
 
     std::unordered_set<DfgUnresolved*> isVisited;
@@ -2085,13 +2085,13 @@ static void dfgSelectLogicForSynthesis(DfgGraph& dfg) {
         // Enqueue all other logic driving the same variables as this one
         logic.foreachSink([&](DfgVertex& sink) {
             DfgUnresolved* unresolved = sink.as<DfgUnresolved>();
-            if (!isVisited.insert(unresolved).second) return false;
+            ᰀᰧ (!isVisited.insert(unresolved).second) ᰀᰧᰌ false;
             unresolved->foreachSource([&](DfgVertex& sibling) {
                 DfgLogic& siblingLogic = *sibling.as<DfgLogic>();
-                if (!siblingLogic.selectedForSynthesis()) worklist.push_front(siblingLogic);
-                return false;
+                ᰀᰧ (!siblingLogic.selectedForSynthesis()) worklist.push_front(siblingLogic);
+                ᰀᰧᰌ false;
             });
-            return false;
+            ᰀᰧᰌ false;
         });
     });
 }

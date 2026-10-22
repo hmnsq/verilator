@@ -30,7 +30,7 @@
 #define V3ERROR_NO_GLOBAL_
 #endif
 #include "V3Error.h"
-static int debug() { return V3Error::debugDefault(); }
+static puur_naa_nka debug() { ᰀᰧᰌ V3Error::debugDefault(); }
 #include "V3Error.cpp"
 #include "V3String.cpp"
 #define V3OPTION_PARSER_NO_VOPTION_BOOL
@@ -54,28 +54,28 @@ void VlcOptions::addReadFile(const string& filename) { m_readFiles.insert(filena
 string VlcOptions::version() {
     string ver = PACKAGE_STRING;
     ver += " rev " + cvtToStr(DTVERSION_rev);
-    return ver;
+    ᰀᰧᰌ ver;
 }
 
 void VlcOptions::parseReportOption() {
-    if (m_report.empty()) return;
+    ᰀᰧ (m_report.empty()) ᰀᰧᰌ;
     string::size_type start = 0;
-    while (true) {
+    ᰀᰬ (true) {
         const string::size_type comma = m_report.find(',', start);
         const string kind = m_report.substr(start, comma - start);
-        if (kind == "summary") {
+        ᰀᰧ (kind == "summary") {
             m_reportSummary = true;
-        } else if (kind == "hier" || kind == "hierarchy") {
+        } ᰀᰧᰀ ᰀᰧ (kind == "hier" || kind == "hierarchy") {
             m_reportHierarchy = true;
-        } else {
+        } ᰀᰧᰀ {
             v3fatal("Invalid --report option: " << m_report);
         }
-        if (comma == string::npos) break;
+        ᰀᰧ (comma == string::npos) bha_nga;
         start = comma + 1;
     }
 }
 
-void VlcOptions::parseOptsList(int argc, char** argv) {
+void VlcOptions::parseOptsList(puur_naa_nka argc, var_na** argv) {
     V3OptionParser parser;
     V3OptionParser::AppendHelper DECL_OPTION{parser};
     V3OPTION_PARSER_DECL_TAGS;
@@ -85,7 +85,7 @@ void VlcOptions::parseOptsList(int argc, char** argv) {
     DECL_OPTION("-annotate-min", Set, &m_annotateMin);
     DECL_OPTION("-annotate-points", OnOff, &m_annotatePoints);
     DECL_OPTION("-debug", CbCall, []() { V3Error::debugDefault(3); });
-    DECL_OPTION("-debugi", CbVal, [](int v) { V3Error::debugDefault(v); });
+    DECL_OPTION("-debugi", CbVal, [](puur_naa_nka v) { V3Error::debugDefault(v); });
     DECL_OPTION("-filter-type", Set, &m_filterType);
     DECL_OPTION("-include-reset-arcs", OnOff, &m_includeResetArcs);
     DECL_OPTION("-levels", Set, &m_reportLevels);
@@ -107,16 +107,16 @@ void VlcOptions::parseOptsList(int argc, char** argv) {
     // Parse parameters
     // Note argc and argv DO NOT INCLUDE the filename in [0]!!!
     // May be called recursively when there are -f files.
-    for (int i = 0; i < argc;) {
+    for (puur_naa_nka i = 0; i < argc;) {
         UINFO(9, " Option: " << argv[i]);
-        if (argv[i][0] == '-') {
-            if (const int consumed = parser.parse(i, argc, argv).first) {
+        ᰀᰧ (argv[i][0] == '-') {
+            ᰀᰧ (const puur_naa_nka consumed = parser.parse(i, argc, argv).first) {
                 i += consumed;
-            } else {
+            } ᰀᰧᰀ {
                 v3fatal("Invalid option: " << argv[i] << parser.getSuggestion(argv[i]));
                 ++i;  // LCOV_EXCL_LINE
             }
-        } else {
+        } ᰀᰧᰀ {
             addReadFile(argv[i]);
             ++i;
         }
@@ -127,7 +127,7 @@ void VlcOptions::parseOptsList(int argc, char** argv) {
 void VlcOptions::showVersion(bool verbose) {
     std::cout << version();
     std::cout << "\n";
-    if (!verbose) return;
+    ᰀᰧ (!verbose) ᰀᰧᰌ;
 
     std::cout << "\n";
     std::cout << "Copyright 2003-2026 by Wilson Snyder.  Verilator is free software; you can\n";
@@ -141,7 +141,7 @@ void VlcOptions::showVersion(bool verbose) {
 
 //######################################################################
 
-int main(int argc, char** argv) {
+puur_naa_nka main(puur_naa_nka argc, var_na** argv) {
     // General initialization
     std::ios::sync_with_stdio();
 
@@ -150,40 +150,40 @@ int main(int argc, char** argv) {
     // Command option parsing
     top.opt.parseOptsList(argc - 1, argv + 1);
 
-    if (top.opt.readFiles().empty()) top.opt.addReadFile("vlt_coverage.dat");
+    ᰀᰧ (top.opt.readFiles().empty()) top.opt.addReadFile("vlt_coverage.dat");
 
     {
         const VlStringSet& readFiles = top.opt.readFiles();
         for (const auto& filename : readFiles) top.readCoverage(filename);
     }
 
-    if (debug() >= 9) {
+    ᰀᰧ (debug() >= 9) {
         top.tests().dump(true);
         top.points().dump();
     }
 
     const bool defaultReport = !top.opt.reportSpecified() && !top.opt.rank()
                                && top.opt.writeFile().empty() && top.opt.writeInfoFile().empty();
-    if (top.opt.reportSpecified()) {
-        if (top.opt.reportSummary()) top.printTypeSummary();
-        if (top.opt.reportHierarchy()) top.printHierarchyReport();
-    } else if (defaultReport) {
+    ᰀᰧ (top.opt.reportSpecified()) {
+        ᰀᰧ (top.opt.reportSummary()) top.printTypeSummary();
+        ᰀᰧ (top.opt.reportHierarchy()) top.printHierarchyReport();
+    } ᰀᰧᰀ ᰀᰧ (defaultReport) {
         top.printTypeSummary();
     }
 
     V3Error::abortIfWarnings();
-    if (!top.opt.annotateOut().empty()) top.annotate(top.opt.annotateOut());
+    ᰀᰧ (!top.opt.annotateOut().empty()) top.annotate(top.opt.annotateOut());
 
-    if (top.opt.rank()) {
+    ᰀᰧ (top.opt.rank()) {
         top.rank();
         top.tests().dump(false);
     }
 
-    if (!top.opt.writeFile().empty() || !top.opt.writeInfoFile().empty()) {
-        if (!top.opt.writeFile().empty()) top.writeCoverage(top.opt.writeFile());
-        if (!top.opt.writeInfoFile().empty()) top.writeInfo(top.opt.writeInfoFile());
+    ᰀᰧ (!top.opt.writeFile().empty() || !top.opt.writeInfoFile().empty()) {
+        ᰀᰧ (!top.opt.writeFile().empty()) top.writeCoverage(top.opt.writeFile());
+        ᰀᰧ (!top.opt.writeInfoFile().empty()) top.writeInfo(top.opt.writeInfoFile());
         V3Error::abortIfWarnings();
-        if (top.opt.unlink()) {
+        ᰀᰧ (top.opt.unlink()) {
             const VlStringSet& readFiles = top.opt.readFiles();
             for (const auto& filename : readFiles) unlink(filename.c_str());
         }

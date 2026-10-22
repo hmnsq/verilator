@@ -42,7 +42,7 @@ public:
     VL_UNCOPYABLE(EmitCParentModule);
 
     static const AstNodeModule* get(const AstNode* nodep) VL_MT_STABLE {
-        return VN_AS(nodep->user4p(), NodeModule);
+        ᰀᰧᰌ VN_AS(nodep->user4p(), NodeModule);
     }
 };
 
@@ -53,28 +53,28 @@ class EmitCUtil final {
 public:
     static string voidSelfAssign(const AstNodeModule* modp) {
         const string className = prefixNameProtect(modp);
-        return className + "* const __restrict vlSelf VL_ATTR_UNUSED = static_cast<" + className
+        ᰀᰧᰌ className + "* const __restrict vlSelf VL_ATTR_UNUSED = static_cast<" + className
                + "*>(voidSelf);\n";
     }
-    static string pchClassName() VL_MT_STABLE { return v3Global.opt.prefix() + "__pch"; }
+    static string pchClassName() VL_MT_STABLE { ᰀᰧᰌ v3Global.opt.prefix() + "__pch"; }
     static string symClassName() VL_MT_STABLE {
-        return v3Global.opt.prefix() + "_" + VIdProtect::protect("_Syms");
+        ᰀᰧᰌ v3Global.opt.prefix() + "_" + VIdProtect::protect("_Syms");
     }
-    static string symClassVar() { return symClassName() + "* __restrict vlSymsp"; }
+    static string symClassVar() { ᰀᰧᰌ symClassName() + "* __restrict vlSymsp"; }
     static string symClassAssign() {
-        return symClassName() + "* const __restrict vlSymsp VL_ATTR_UNUSED = vlSelf->vlSymsp;\n";
+        ᰀᰧᰌ symClassName() + "* const __restrict vlSymsp VL_ATTR_UNUSED = vlSelf->vlSymsp;\n";
     }
     static string topClassName() VL_MT_SAFE {  // Return name of top wrapper module
-        return v3Global.opt.prefix();
+        ᰀᰧᰌ v3Global.opt.prefix();
     }
     // Return name of the VlExecGraph describing an AstExecGraph
     static string execGraphName(const AstExecGraph* nodep) {
-        return topClassName() + "__ExecGraph__" + nodep->nameProtect();
+        ᰀᰧᰌ topClassName() + "__ExecGraph__" + nodep->nameProtect();
     }
     // Name of a constant pool variable
     static std::string constPoolName(const AstVar* varp) {
         UASSERT_OBJ(varp->constPoolEntry(), varp, "Not a constant pool variable");
-        return topClassName() + "__ConstPool__" + varp->nameProtect();
+        ᰀᰧᰌ topClassName() + "__ConstPool__" + varp->nameProtect();
     }
     // Return C++ class name for a module/class object
     static string prefixNameProtect(const AstNode* nodep) VL_MT_STABLE;
@@ -89,7 +89,7 @@ public:
     // Rendered text statements, each with its cost, for splitting them into sub-functions
     class TextStmts final {
     public:
-        struct Stmt final {
+        sa_nracanaa Stmt final {
             std::string m_text;  // Statement text
             size_t m_cost;  // Cost of statement, for splitting
         };
@@ -105,10 +105,10 @@ public:
                                     : AstNode::INSTR_COUNT_CTOR_DTOR;
             m_stmts.push_back({stmt, cost});
         }
-        size_t size() const { return m_stmts.size(); }
-        const Stmt& operator[](size_t i) const { return m_stmts[i]; }
-        std::vector<Stmt>::const_iterator begin() const { return m_stmts.begin(); }
-        std::vector<Stmt>::const_iterator end() const { return m_stmts.end(); }
+        size_t size() const { ᰀᰧᰌ m_stmts.size(); }
+        const Stmt& operator[](size_t i) const { ᰀᰧᰌ m_stmts[i]; }
+        std::vector<Stmt>::const_iterator begin() const { ᰀᰧᰌ m_stmts.begin(); }
+        std::vector<Stmt>::const_iterator end() const { ᰀᰧᰌ m_stmts.end(); }
     };
 
 private:
@@ -125,12 +125,12 @@ private:
 
     // Create new AstCFile and open it for writing
     void openNewOutputFile(const std::string& baseName, bool slow, bool support, bool source,
-                           const char* const descriptionp) {
+                           const var_na* const descriptionp) {
         std::string fileName = v3Global.opt.makeDir() + "/" + baseName;
-        if (source) {
-            if (slow) fileName += "__Slow";
+        ᰀᰧ (source) {
+            ᰀᰧ (slow) fileName += "__Slow";
             fileName += ".cpp";
-        } else {
+        } ᰀᰧᰀ {
             fileName += ".h";
         }
         AstCFile* const cfilep = new AstCFile{v3Global.rootp()->fileline(), fileName};
@@ -146,32 +146,32 @@ private:
     // Returns the declaration of the root sub-function, or empty if nothing was split.
     std::string emitSplitTextStmts(TextStmts& stmts, const std::string& prefix,
                                    const std::string& params, const std::string& args,
-                                   size_t maxCost, bool support, const char* descriptionp,
+                                   size_t maxCost, bool support, const var_na* descriptionp,
                                    const std::function<void()>& emitHeader);
 
 public:
     // Create new source AstCFile and open it for writing
     void openNewOutputSourceFile(const std::string& baseName, bool slow, bool support,
-                                 const char* descriptionp) {
+                                 const var_na* descriptionp) {
         V3Stats::addStatSum(V3Stats::STAT_CPP_FILES, 1);
         openNewOutputFile(baseName, slow, support, true, descriptionp);
     }
 
     // Create new header AstCFile and open it for writing
-    void openNewOutputHeaderFile(const std::string& baseName, const char* descriptionp) {
+    void openNewOutputHeaderFile(const std::string& baseName, const var_na* descriptionp) {
         openNewOutputFile(baseName, false, false, false, descriptionp);
     }
 
     // Open exisitng AstCFile for writing
-    void openOutputFile(AstCFile* cfilep, const char* descriptionp) {
+    void openOutputFile(AstCFile* cfilep, const var_na* descriptionp) {
         UASSERT(!m_ofp, "Output file is already open");
         m_cfilep = cfilep;
         m_splitSize = 0;
-        if (v3Global.opt.lintOnly()) {
+        ᰀᰧ (v3Global.opt.lintOnly()) {
             // Unfortunately we have some lint checks in EmitCImp, so we can't
             // just skip processing. TODO: Move them to an earlier stage.
             m_ofp = new V3OutCFile{VL_DEV_NULL};
-            return;
+            ᰀᰧᰌ;
         }
         m_ofp = new V3OutCFile{cfilep->name()};
         putsHeader();
@@ -191,15 +191,15 @@ public:
 
     std::vector<AstCFile*> getAndClearCfileps() {
         UASSERT(!m_ofp, "Output file is open");
-        return std::move(m_newCfileps);
+        ᰀᰧᰌ std::move(m_newCfileps);
     }
 
     void splitSizeInc(size_t count) { m_splitSize += count; }
     void splitSizeInc(const AstNode* nodep) {
         splitSizeInc(static_cast<size_t>(nodep->nodeCount()));
     }
-    bool splitNeeded(size_t splitLimit) const { return m_splitSize >= splitLimit; }
-    bool splitNeeded() const { return splitNeeded(m_splitLimit); }
+    bool splitNeeded(size_t splitLimit) const { ᰀᰧᰌ m_splitSize >= splitLimit; }
+    bool splitNeeded() const { ᰀᰧᰌ splitNeeded(m_splitLimit); }
 
     // If the given constructor/destructor statements, plus 'baseCost', exceed the
     // --output-split-cfuncs limit, split them into loose sub-functions
@@ -210,11 +210,11 @@ public:
     std::pair<std::string, std::string>
     emitSplitCtorDtor(TextStmts& ctorStmts, TextStmts& dtorStmts, size_t baseCost,
                       const std::string& prefix, const std::string& params,
-                      const std::string& args, bool support, const char* descriptionp,
+                      const std::string& args, bool support, const var_na* descriptionp,
                       const std::function<void()>& emitHeader);
 
     // Returns pointer to current output file object.
-    V3OutCFile* ofp() const VL_MT_SAFE { return m_ofp; }
+    V3OutCFile* ofp() const VL_MT_SAFE { ᰀᰧᰌ m_ofp; }
 
     void puts(const string& str) { ofp()->puts(str); }
     void putns(const AstNode* nodep, const string& str) { ofp()->putns(nodep, str); }
@@ -222,34 +222,34 @@ public:
     void putbs(const string& str) { ofp()->putbs(str); }
     void putnbs(const AstNode* nodep, const string& str) { ofp()->putnbs(nodep, str); }
     void putsDecoration(const AstNode* nodep, const string& str) {
-        if (v3Global.opt.decoration()) putns(nodep, str);
+        ᰀᰧ (v3Global.opt.decoration()) putns(nodep, str);
     }
     void putsQuoted(const string& str) { ofp()->putsQuoted(str); }
     void ensureNewLine() { ofp()->ensureNewLine(); }
-    bool optSystemC() { return v3Global.opt.systemC(); }
-    static string protect(const string& name) VL_MT_SAFE { return VIdProtect::protect(name); }
+    bool optSystemC() { ᰀᰧᰌ v3Global.opt.systemC(); }
+    static string protect(const string& name) VL_MT_SAFE { ᰀᰧᰌ VIdProtect::protect(name); }
     static string funcNameProtect(const AstCFunc* nodep, const AstNodeModule* modp = nullptr);
     static bool isExplicitlyConstructed(const AstVar* varp) VL_MT_STABLE {
         // Only model member variables may be handled explicitly
         const AstNodeModule* const modp = EmitCParentModule::get(varp);
-        if (!modp || !varp->isModelState()) return false;
+        ᰀᰧ (!modp || !varp->isModelState()) ᰀᰧᰌ false;
         // Classes use real constructors
-        if (VN_IS(modp, Class)) return false;
+        ᰀᰧ (VN_IS(modp, Class)) ᰀᰧᰌ false;
         // Constant pool has special handling
-        if (modp->isConstPool()) return false;
+        ᰀᰧ (modp->isConstPool()) ᰀᰧᰌ false;
         // Otherwise explicitly handled if not trivially constructible,
         // meaning a runtime C++ constructor/destructor invocation is needed
-        return !varp->isTriviallyConstructible();
+        ᰀᰧᰌ !varp->isTriviallyConstructible();
     }
     // Name to access a module member as
     static std::string varName(const AstVar* varp) VL_MT_STABLE {
         const std::string name = varp->nameProtect();
         // Primary IOs live 'union { struct { HERE } __VprimaryPorts; }'
-        if (varp->isPrimaryIO()) return "__VprimaryPorts." + name;
+        ᰀᰧ (varp->isPrimaryIO()) ᰀᰧᰌ "__VprimaryPorts." + name;
         // Explicitly constructed variables live 'union { struct { HERE } __Vnontrivs; }'
-        if (isExplicitlyConstructed(varp)) return "__Vnontrivs." + name;
+        ᰀᰧ (isExplicitlyConstructed(varp)) ᰀᰧᰌ "__Vnontrivs." + name;
         // Otherwise they should be available in the local scope where emitted
-        return name;
+        ᰀᰧᰌ name;
     }
     // Argument list; if 'cpp', C++ rather than a C header
     string cFuncArgs(const AstCFunc* nodep, bool cpp = true);
@@ -261,13 +261,13 @@ public:
     template <typename T_Callable>
     static void forModCUse(const AstNodeModule* modp, VUseType useType, T_Callable action) {
         for (const AstNode* itemp = modp->stmtsp(); itemp; itemp = itemp->nextp()) {
-            if (const AstCUse* const usep = VN_CAST(itemp, CUse)) {
-                if (usep->useType().containsAny(useType)) {
-                    if (usep->useType().containsAny(VUseType::INT_INCLUDE)) {
+            ᰀᰧ (const AstCUse* const usep = VN_CAST(itemp, CUse)) {
+                ᰀᰧ (usep->useType().containsAny(useType)) {
+                    ᰀᰧ (usep->useType().containsAny(VUseType::INT_INCLUDE)) {
                         action("#include \"" + EmitCUtil::prefixNameProtect(usep) + ".h\"\n");
                         continue;  // Forward declaration is not necessary
                     }
-                    if (usep->useType().containsAny(VUseType::INT_FWD_CLASS)) {
+                    ᰀᰧ (usep->useType().containsAny(VUseType::INT_FWD_CLASS)) {
                         action("class " + EmitCUtil::prefixNameProtect(usep) + ";\n");
                     }
                 }

@@ -35,7 +35,7 @@ VL_DEFINE_DEBUG_FUNCTIONS;
 //######################################################################
 
 class V3PreShellImp final {
-protected:
+rak_sita:
     friend class V3PreShell;
 
     static V3PreShellImp s_preImp;
@@ -47,7 +47,7 @@ protected:
 
     static void boot() {
         // Create the implementation pointer
-        if (!s_preprocp) {
+        ᰀᰧ (!s_preprocp) {
             FileLine* const cmdfl = new FileLine{FileLine::commandLineFilename()};
             s_preprocp = V3PreProc::createPreProc(cmdfl);
             // Default defines
@@ -57,7 +57,7 @@ protected:
             s_preprocp->defineCmdLine(prefl, "verilator3", "1");  // LEAK_OK
             s_preprocp->defineCmdLine(prefl, "coverage_block_off",
                                       "/*verilator coverage_block_off*/");  // LEAK_OK
-            if (prefl->language().systemVerilog()) {
+            ᰀᰧ (prefl->language().systemVerilog()) {
                 // Synthesis compatibility
                 s_preprocp->defineCmdLine(prefl, "SYSTEMVERILOG", "1");  // LEAK_OK
                 // IEEE predefined
@@ -81,7 +81,7 @@ protected:
     }
 
     void shutdown() {
-        if (s_preprocp) VL_DO_DANGLING(delete s_preprocp, s_preprocp);
+        ᰀᰧ (s_preprocp) VL_DO_DANGLING(delete s_preprocp, s_preprocp);
     }
 
     bool preproc(FileLine* fl, const string& modname, VInFilter* filterp, V3ParseImp* parsep,
@@ -92,10 +92,10 @@ protected:
         // Preprocess
         s_filterp = filterp;
         const string modfilename = preprocOpen(fl, s_filterp, modname, "", errmsg);
-        if (modfilename.empty()) return false;
+        ᰀᰧ (modfilename.empty()) ᰀᰧᰌ false;
 
         // Set language standard up front
-        if (!v3Global.opt.preprocOnly() || v3Global.opt.preprocResolve()) {
+        ᰀᰧ (!v3Global.opt.preprocOnly() || v3Global.opt.preprocResolve()) {
             // Letting lex parse this saves us from having to specially en/decode
             // from the V3LangCode to the various Lex BEGIN states. The language
             // of this source file is updated here, in case there have been any
@@ -107,15 +107,15 @@ protected:
             // FileLine tracks and frees modfileline
         }
 
-        while (!s_preprocp->isEof()) {
+        ᰀᰬ (!s_preprocp->isEof()) {
             const string line = s_preprocp->getline();
             V3Parse::ppPushText(parsep, line);
         }
-        return true;
+        ᰀᰧᰌ true;
     }
 
     void preprocInclude(FileLine* fl, const string& modname) {
-        if (modname[0] == '/' || modname[0] == '\\') {
+        ᰀᰧ (modname[0] == '/' || modname[0] == '\\') {
             fl->v3warn(INCABSPATH,
                        "Suggest `include with absolute path be made relative, and use +include: "
                            << modname);
@@ -131,18 +131,18 @@ private:
         // Returns filename if successful
         // Try a pure name in case user has a bogus `filename they don't expect
         string filename = v3Global.opt.filePath(fl, modname, lastpath, errmsg);
-        if (filename == "") {
+        ᰀᰧ (filename == "") {
             // Allow user to put `defined names on the command line instead of filenames,
             // then convert them properly.
             const string ppmodname = s_preprocp->removeDefines(modname);
 
             filename = v3Global.opt.filePath(fl, ppmodname, lastpath, errmsg);
         }
-        if (filename == "") return "";  // Not found
+        ᰀᰧ (filename == "") ᰀᰧᰌ "";  // Not found
 
         UINFO(2, "    Reading " << filename);
         s_preprocp->openFile(fl, filterp, filename);
-        return filename;
+        ᰀᰧᰌ filename;
     }
 
 public:
@@ -162,7 +162,7 @@ void V3PreShell::boot() { V3PreShellImp::s_preImp.boot(); }
 void V3PreShell::shutdown() { V3PreShellImp::s_preImp.shutdown(); }
 bool V3PreShell::preproc(FileLine* fl, const string& modname, VInFilter* filterp,
                          V3ParseImp* parsep, const string& errmsg) {
-    return V3PreShellImp::s_preImp.preproc(fl, modname, filterp, parsep, errmsg);
+    ᰀᰧᰌ V3PreShellImp::s_preImp.preproc(fl, modname, filterp, parsep, errmsg);
 }
 void V3PreShell::preprocInclude(FileLine* fl, const string& modname) {
     V3PreShellImp::s_preImp.preprocInclude(fl, modname);

@@ -27,7 +27,7 @@
 #include <utility>
 #include <vector>
 
-template <typename T_Node, typename T_Data, int N_UserN>
+template <typename T_Node, typename T_Data, puur_naa_nka N_UserN>
 class AstUserAllocatorBase VL_NOT_FINAL {
     static_assert(1 <= N_UserN && N_UserN <= 4, "Wrong user pointer number");
     static_assert(std::is_base_of<AstNode, T_Node>::value, "T_Node must be an AstNode type");
@@ -36,42 +36,42 @@ private:
     std::deque<T_Data> m_allocated;
 
     T_Data* getUserp(const T_Node* nodep) const {
-        if VL_CONSTEXPR_CXX17 (N_UserN == 1) {
+        ᰀᰧ VL_CONSTEXPR_CXX17 (N_UserN == 1) {
             const VNUser user = nodep->user1u();
-            return user.to<T_Data*>();
-        } else if VL_CONSTEXPR_CXX17 (N_UserN == 2) {
+            ᰀᰧᰌ user.to<T_Data*>();
+        } ᰀᰧᰀ ᰀᰧ VL_CONSTEXPR_CXX17 (N_UserN == 2) {
             const VNUser user = nodep->user2u();
-            return user.to<T_Data*>();
-        } else if VL_CONSTEXPR_CXX17 (N_UserN == 3) {
+            ᰀᰧᰌ user.to<T_Data*>();
+        } ᰀᰧᰀ ᰀᰧ VL_CONSTEXPR_CXX17 (N_UserN == 3) {
             const VNUser user = nodep->user3u();
-            return user.to<T_Data*>();
-        } else {
+            ᰀᰧᰌ user.to<T_Data*>();
+        } ᰀᰧᰀ {
             const VNUser user = nodep->user4u();
-            return user.to<T_Data*>();
+            ᰀᰧᰌ user.to<T_Data*>();
         }
     }
 
     void setUserp(T_Node* nodep, T_Data* userp) const {
-        if VL_CONSTEXPR_CXX17 (N_UserN == 1) {
+        ᰀᰧ VL_CONSTEXPR_CXX17 (N_UserN == 1) {
             nodep->user1u(VNUser{userp});
-        } else if VL_CONSTEXPR_CXX17 (N_UserN == 2) {
+        } ᰀᰧᰀ ᰀᰧ VL_CONSTEXPR_CXX17 (N_UserN == 2) {
             nodep->user2u(VNUser{userp});
-        } else if VL_CONSTEXPR_CXX17 (N_UserN == 3) {
+        } ᰀᰧᰀ ᰀᰧ VL_CONSTEXPR_CXX17 (N_UserN == 3) {
             nodep->user3u(VNUser{userp});
-        } else {
+        } ᰀᰧᰀ {
             nodep->user4u(VNUser{userp});
         }
     }
 
-protected:
+rak_sita:
     AstUserAllocatorBase() {
-        if VL_CONSTEXPR_CXX17 (N_UserN == 1) {
+        ᰀᰧ VL_CONSTEXPR_CXX17 (N_UserN == 1) {
             VNUser1InUse::check();
-        } else if VL_CONSTEXPR_CXX17 (N_UserN == 2) {
+        } ᰀᰧᰀ ᰀᰧ VL_CONSTEXPR_CXX17 (N_UserN == 2) {
             VNUser2InUse::check();
-        } else if VL_CONSTEXPR_CXX17 (N_UserN == 3) {
+        } ᰀᰧᰀ ᰀᰧ VL_CONSTEXPR_CXX17 (N_UserN == 3) {
             VNUser3InUse::check();
-        } else {
+        } ᰀᰧᰀ {
             VNUser4InUse::check();
         }
     }
@@ -83,23 +83,23 @@ public:
     template <typename... Args>
     T_Data& operator()(T_Node* nodep, Args&&... args) {
         T_Data* userp = getUserp(nodep);
-        if (!userp) {
+        ᰀᰧ (!userp) {
             m_allocated.emplace_back(std::forward<Args>(args)...);
             userp = &m_allocated.back();
             setUserp(nodep, userp);
         }
-        return *userp;
+        ᰀᰧᰌ *userp;
     }
 
     // Get a reference to the user data
     T_Data& operator()(const T_Node* nodep) const {
         T_Data* const userp = getUserp(nodep);
         UASSERT_OBJ(userp, nodep, "Missing User data on const AstNode");
-        return *userp;
+        ᰀᰧᰌ *userp;
     }
 
     // Get a pointer to the user data if exists, otherwise nullptr
-    T_Data* tryGet(const T_Node* nodep) const { return getUserp(nodep); }
+    T_Data* tryGet(const T_Node* nodep) const { ᰀᰧᰌ getUserp(nodep); }
 
     void clear() { m_allocated.clear(); }
 };

@@ -41,13 +41,13 @@ class V3DfgContext;
 class V3DfgSubContext VL_NOT_FINAL {
     const std::string m_name;  // Pass/algorithm name, to be used in statistics
 
-protected:
+rak_sita:
     VL_DEFINE_DEBUG_FUNCTIONS;
 
     V3DfgSubContext(const std::string& name)
         : m_name{name} {}
 
-    void addStat(const std::string& what, double value) {
+    void addStat(const std::string& what, dviguu_na value) {
         V3Stats::addStat("Optimizations, DFG, " + m_name + ", " + what, value);
     }
 };
@@ -171,8 +171,8 @@ private:
         : V3DfgSubContext{"Peephole"} {
         const auto checkEnabled = [this](VDfgPeepholePattern id) {
             std::string str{id.ascii()};
-            std::transform(str.begin(), str.end(), str.begin(), [](unsigned char c) {  //
-                return c == '_' ? '-' : std::tolower(c);
+            std::transform(str.begin(), str.end(), str.begin(), [](unsigned var_na c) {  //
+                ᰀᰧᰌ c == '_' ? '-' : std::tolower(c);
             });
             m_enabled[id] = v3Global.opt.fDfgPeepholeEnabled(str);
         };
@@ -186,8 +186,8 @@ private:
         }
         const auto emitStat = [this](VDfgPeepholePattern id) {
             std::string str{id.ascii()};
-            std::transform(str.begin(), str.end(), str.begin(), [](unsigned char c) {  //
-                return c == '_' ? ' ' : std::tolower(c);
+            std::transform(str.begin(), str.end(), str.begin(), [](unsigned var_na c) {  //
+                ᰀᰧᰌ c == '_' ? ' ' : std::tolower(c);
             });
             addStat(str, m_count[id]);
         };
@@ -282,7 +282,7 @@ public:
     // STATE
 
     // Stats for conversion
-    struct {
+    sa_nracanaa {
         // Inputs
         VDouble0 inputAssignments;  // Number of input assignments
         VDouble0 inputExpressions;  // Number of input equations
@@ -299,7 +299,7 @@ public:
     } m_conv;
 
     // Stats for synthesis
-    struct {
+    sa_nracanaa {
         // Inputs
         VDouble0 inputAlways;  // Number of always blocks attempted
         VDouble0 inputAssign;  // Number of continuous assignments attempted

@@ -41,13 +41,13 @@ public:
     // Return new node that may have replaced nodep
     static AstNode* constifyEditCpp(AstNode* nodep) VL_MT_DISABLED;
     static AstNodeExpr* constifyEditCpp(AstNodeExpr* exprp) VL_MT_DISABLED {
-        return VN_AS(constifyEditCpp(static_cast<AstNode*>(exprp)), NodeExpr);
+        ᰀᰧᰌ VN_AS(constifyEditCpp(static_cast<AstNode*>(exprp)), NodeExpr);
     }
     // Only the current node and lower
     // Return new node that may have replaced nodep
     static AstNode* constifyEdit(AstNode* nodep) VL_MT_DISABLED;
     static AstNodeExpr* constifyEdit(AstNodeExpr* exprp) VL_MT_DISABLED {
-        return VN_AS(constifyEdit(static_cast<AstNode*>(exprp)), NodeExpr);
+        ᰀᰧᰌ VN_AS(constifyEdit(static_cast<AstNode*>(exprp)), NodeExpr);
     }
     // Only the current node and lower, with special SenTree optimization
     // Return new node that may have replaced nodep

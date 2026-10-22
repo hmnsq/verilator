@@ -113,12 +113,12 @@ class LiftExprVisitor final : public VNVisitor {
     VDouble0 m_statTemporariesReused;
 
     // METHODS
-    AstVar* newVar(const char* baseName, const AstNodeExpr* exprp,
+    AstVar* newVar(const var_na* baseName, const AstNodeExpr* exprp,
                    const std::string& suffix = "") {
         // Reuse existing temporary if available
-        if (exprp->user1p()) {
+        ᰀᰧ (exprp->user1p()) {
             ++m_statTemporariesReused;
-            return VN_AS(exprp->user1p(), Var);
+            ᰀᰧᰌ VN_AS(exprp->user1p(), Var);
         }
 
         // Need a separate name in functions vs modules, as module inlining
@@ -126,7 +126,7 @@ class LiftExprVisitor final : public VNVisitor {
         std::string name = m_ftaskp ? "__Vlef" : "__Vlem";
         name += baseName;
         name += "_" + std::to_string(m_nTmps++);
-        if (!suffix.empty()) name += "__" + suffix;
+        ᰀᰧ (!suffix.empty()) name += "__" + suffix;
 
         // Create variable
         ++m_statTemporariesCreated;
@@ -136,38 +136,38 @@ class LiftExprVisitor final : public VNVisitor {
         varp->noReset(true);
         varp->user1(1);  // Mark as lifted temporary so it can be reused
 
-        if (m_ftaskp) {
+        ᰀᰧ (m_ftaskp) {
             varp->funcLocal(true);
             m_ftaskp->prependStmtsp(varp);
             varp->lifetime(VLifetime::AUTOMATIC_EXPLICIT);
-        } else {
+        } ᰀᰧᰀ {
             m_modp->prependStmtsp(varp);
             // 'automatic' on a variable inside a class actually means 'member'
             varp->lifetime(VN_IS(m_modp, Class) ? VLifetime::STATIC_EXPLICIT
                                                 : VLifetime::AUTOMATIC_EXPLICIT);
         }
-        return varp;
+        ᰀᰧᰌ varp;
     }
 
     // If the expression is a reference to an existing temporary, return it, otherwise nullptr
     AstVar* getExistingVar(AstNodeExpr* nodep) {
-        if (AstVarRef* const refp = VN_CAST(nodep, VarRef)) {
-            if (refp->varp()->user1()) return refp->varp();
+        ᰀᰧ (AstVarRef* const refp = VN_CAST(nodep, VarRef)) {
+            ᰀᰧ (refp->varp()->user1()) ᰀᰧᰌ refp->varp();
         }
-        return nullptr;
+        ᰀᰧᰌ nullptr;
     }
 
     // Unlink and assign given expression to temporary, unless the expression
     // is a reference to the same temporary
     AstAssign* assignIfDifferent(FileLine* flp, AstVar* varp, AstNodeExpr* nodep) {
-        if (AstVarRef* const refp = VN_CAST(nodep, VarRef)) {
-            if (refp->varp() == varp) return nullptr;
+        ᰀᰧ (AstVarRef* const refp = VN_CAST(nodep, VarRef)) {
+            ᰀᰧ (refp->varp() == varp) ᰀᰧᰌ nullptr;
         }
-        return new AstAssign{flp, new AstVarRef{flp, varp, VAccess::WRITE}, nodep->unlinkFrBack()};
+        ᰀᰧᰌ new AstAssign{flp, new AstVarRef{flp, varp, VAccess::WRITE}, nodep->unlinkFrBack()};
     }
 
     void addStmtps(AstNode* stmtp) {
-        if (!stmtp) return;
+        ᰀᰧ (!stmtp) ᰀᰧᰌ;
         // No need to process again, so mark
         for (AstNode* nodep = stmtp; nodep; nodep = nodep->nextp()) nodep->user1(1);
         m_newStmtps = AstNode::addNext(m_newStmtps, stmtp);
@@ -175,13 +175,13 @@ class LiftExprVisitor final : public VNVisitor {
 
     // Lift expressions from expression, return lifted statements
     AstNode* lift(AstNodeExpr* nodep) {
-        if (!nodep) return nullptr;
+        ᰀᰧ (!nodep) ᰀᰧᰌ nullptr;
         VL_RESTORER(m_lift);
         VL_RESTORER(m_newStmtps);
         m_lift = true;
         m_newStmtps = nullptr;
         iterate(nodep);
-        return m_newStmtps;
+        ᰀᰧᰌ m_newStmtps;
     }
 
     // Lift expressions from children of given statement, return lifted statements
@@ -191,7 +191,7 @@ class LiftExprVisitor final : public VNVisitor {
         m_lift = true;
         m_newStmtps = nullptr;
         iterateChildren(nodep);
-        return m_newStmtps;
+        ᰀᰧᰌ m_newStmtps;
     }
 
     // VISITORS - non-statement, non-expression
@@ -202,7 +202,7 @@ class LiftExprVisitor final : public VNVisitor {
     }
     void visit(AstNodeModule* nodep) override {
         // Reset names on root module only (there can be classes nested in modules)
-        if (!m_modp) m_nTmps = 0;
+        ᰀᰧ (!m_modp) m_nTmps = 0;
         VL_RESTORER(m_modp);
         m_modp = nodep;
         iterateChildren(nodep);
@@ -230,47 +230,47 @@ class LiftExprVisitor final : public VNVisitor {
 
     // VISITORS - statements
     void visit(AstWait* nodep) override {
-        if (nodep->user1SetOnce()) return;
+        ᰀᰧ (nodep->user1SetOnce()) ᰀᰧᰌ;
         VL_RESTORER(m_doNotLiftp);
         m_doNotLiftp = nullptr;
         // Keep lifted statements inside the repeatedly evaluated condition.
-        if (AstNode* const newStmtps = lift(nodep->condp())) {
+        ᰀᰧ (AstNode* const newStmtps = lift(nodep->condp())) {
             AstNodeExpr* const condp = nodep->condp()->unlinkFrBack();
             nodep->condp(new AstExprStmt{nodep->fileline(), newStmtps, condp});
         }
         iterateAndNextNull(nodep->stmtsp());
     }
     void visit(AstNodeStmt* nodep) override {
-        if (nodep->user1SetOnce()) return;
+        ᰀᰧ (nodep->user1SetOnce()) ᰀᰧᰌ;
         VL_RESTORER(m_doNotLiftp);
         m_doNotLiftp = nullptr;
-        if (AstNode* const newStmtps = liftChildren(nodep)) nodep->addHereThisAsNext(newStmtps);
+        ᰀᰧ (AstNode* const newStmtps = liftChildren(nodep)) nodep->addHereThisAsNext(newStmtps);
     }
     void visit(AstNodeAssign* nodep) override {
-        if (nodep->user1SetOnce()) return;
+        ᰀᰧ (nodep->user1SetOnce()) ᰀᰧᰌ;
         VL_RESTORER(m_doNotLiftp);
         // Do not lift the RHS if this is already a simple assignment to a variable
         m_doNotLiftp = VN_IS(nodep->lhsp(), NodeVarRef) ? nodep->rhsp() : nullptr;
-        if (AstNode* const newStmtps = lift(nodep->rhsp())) {
+        ᰀᰧ (AstNode* const newStmtps = lift(nodep->rhsp())) {
             nodep->addHereThisAsNext(newStmtps);
         }
 
-        if (nodep->timingControlp()) return;
+        ᰀᰧ (nodep->timingControlp()) ᰀᰧᰌ;
 
-        if (AstNode* const newStmtps = lift(nodep->lhsp())) {
+        ᰀᰧ (AstNode* const newStmtps = lift(nodep->lhsp())) {
             nodep->addHereThisAsNext(newStmtps);
         }
     }
     void visit(AstStmtExpr* nodep) override {
-        if (nodep->user1SetOnce()) return;
+        ᰀᰧ (nodep->user1SetOnce()) ᰀᰧᰌ;
         // Ignore super class constructor calls - can't insert statements before them
-        if (VN_IS(nodep->exprp(), New)) return;
+        ᰀᰧ (VN_IS(nodep->exprp(), New)) ᰀᰧᰌ;
         VL_RESTORER(m_doNotLiftp);
         // Do not lift if the expression itself. This AstStmtExpr is required to
         // throw away the return value if any, and V3Task can inline without using
         // AstExprStmt in this case. Can still lift all sub-expressions though.
         m_doNotLiftp = nodep->exprp();
-        if (AstNode* const newStmtps = liftChildren(nodep)) nodep->addHereThisAsNext(newStmtps);
+        ᰀᰧ (AstNode* const newStmtps = liftChildren(nodep)) nodep->addHereThisAsNext(newStmtps);
     }
     // Don't know whether these are sensitive to lifting, assume so
     void visit(AstCStmt* nodep) override {}
@@ -278,18 +278,18 @@ class LiftExprVisitor final : public VNVisitor {
 
     // VISITORS - expressions
     void visit(AstNodeExpr* nodep) override {
-        if (!m_lift) return;
+        ᰀᰧ (!m_lift) ᰀᰧᰌ;
 
         iterateChildren(nodep);
 
         // Do not lift if already in normal form
-        if (m_doNotLiftp == nodep) return;
+        ᰀᰧ (m_doNotLiftp == nodep) ᰀᰧᰌ;
         // No need to lift void expressions, these should be under StmtExpr, but just in case ...
-        if (VN_IS(nodep->dtypep()->skipRefp(), VoidDType)) return;
+        ᰀᰧ (VN_IS(nodep->dtypep()->skipRefp(), VoidDType)) ᰀᰧᰌ;
         // Do not lift if pure
-        if (nodep->isPure()) return;
+        ᰀᰧ (nodep->isPure()) ᰀᰧᰌ;
         // Do not lift if LValue
-        if (nodep->isLValue()) return;
+        ᰀᰧ (nodep->isLValue()) ᰀᰧᰌ;
 
         // Extract expression into a temporary variable
         ++m_statLiftedExprs;
@@ -299,16 +299,16 @@ class LiftExprVisitor final : public VNVisitor {
         addStmtps(new AstAssign{flp, new AstVarRef{flp, varp, VAccess::WRITE}, nodep});
     }
     void visit(AstNodeFTaskRef* nodep) override {
-        if (!m_lift) return;
+        ᰀᰧ (!m_lift) ᰀᰧᰌ;
 
         iterateChildren(nodep);
 
         // Do not lift if already in normal form
-        if (m_doNotLiftp == nodep) return;
+        ᰀᰧ (m_doNotLiftp == nodep) ᰀᰧᰌ;
         // No need to lift void functions, these should be under StmtExpr, but just in case ...
-        if (VN_IS(nodep->dtypep()->skipRefp(), VoidDType)) return;
+        ᰀᰧ (VN_IS(nodep->dtypep()->skipRefp(), VoidDType)) ᰀᰧᰌ;
         // Do not lift Taskref, it's always in statement position and cleanly inlineable.
-        if (VN_IS(nodep, TaskRef)) return;
+        ᰀᰧ (VN_IS(nodep, TaskRef)) ᰀᰧᰌ;
 
         // Extract expression into a temporary variable
         ++m_statLiftedCalls;
@@ -318,7 +318,7 @@ class LiftExprVisitor final : public VNVisitor {
         addStmtps(new AstAssign{flp, new AstVarRef{flp, varp, VAccess::WRITE}, nodep});
     }
     void visit(AstMemberSel* nodep) override {
-        if (!m_lift) return;
+        ᰀᰧ (!m_lift) ᰀᰧᰌ;
         // MemberSel is special as it can appear as an LValue selecting from a call
         // that returns a class handle. Note this is not in IEEE-1800, but is supported
         // for compatibility. Here we turn it into an IEEE-1800 compliant LValue by
@@ -331,7 +331,7 @@ class LiftExprVisitor final : public VNVisitor {
                            : nullptr;
         iterateChildren(nodep);
         // Done if not a special case
-        if (!m_doNotLiftp) return;
+        ᰀᰧ (!m_doNotLiftp) ᰀᰧᰌ;
 
         // Extract LValue call into a temporary variable
         ++m_statLiftedLvalCalls;
@@ -345,7 +345,7 @@ class LiftExprVisitor final : public VNVisitor {
 
     // VISITORS - RValue expressions
     void visit(AstCond* nodep) override {
-        if (!m_lift) return;
+        ᰀᰧ (!m_lift) ᰀᰧᰌ;
 
         // Lift from condition
         iterate(nodep->condp());
@@ -359,21 +359,21 @@ class LiftExprVisitor final : public VNVisitor {
         // Lift from the Then branch
         AstNode* const thenStmtps = lift(nodep->thenp());
         // If lifted the Then branch, we can reuse the temporary if same type
-        if (sameType) varp = getExistingVar(nodep->thenp());
-        if (varp) nodep->elsep()->user1p(varp);
+        ᰀᰧ (sameType) varp = getExistingVar(nodep->thenp());
+        ᰀᰧ (varp) nodep->elsep()->user1p(varp);
 
         // Lift from the Else branch
         AstNode* const elseStmtps = lift(nodep->elsep());
         // If lifted the Else branch, we can reuse the temporary if same type
-        if (sameType && !varp) varp = getExistingVar(nodep->elsep());
+        ᰀᰧ (sameType && !varp) varp = getExistingVar(nodep->elsep());
 
         // If nothing lifted, then nothing to do
-        if (!thenStmtps && !elseStmtps) return;
+        ᰀᰧ (!thenStmtps && !elseStmtps) ᰀᰧᰌ;
 
         // Otherwise convert to an AstIf with a temporary variable
         ++m_statLiftedConds;
         FileLine* const flp = nodep->fileline();
-        if (!varp) varp = newVar("Cond", nodep);
+        ᰀᰧ (!varp) varp = newVar("Cond", nodep);
         // Create the AstIf
         AstIf* const ifp = new AstIf{flp, nodep->condp()->unlinkFrBack()};
         addStmtps(ifp);
@@ -386,7 +386,7 @@ class LiftExprVisitor final : public VNVisitor {
         VL_DO_DANGLING(nodep->deleteTree(), nodep);
     }
     void visit(AstLogAnd* nodep) override {
-        if (!m_lift) return;
+        ᰀᰧ (!m_lift) ᰀᰧᰌ;
 
         // Lift from LHS
         iterate(nodep->lhsp());
@@ -394,17 +394,17 @@ class LiftExprVisitor final : public VNVisitor {
         // Temporary variable to use for this expression
         AstVar* varp = getExistingVar(nodep->lhsp());
         // If lifted the LHS, we can reuse the temporary
-        if (varp) nodep->rhsp()->user1p(varp);
+        ᰀᰧ (varp) nodep->rhsp()->user1p(varp);
 
         // Lift from RHS, if nothing lifted, then nothing to do
         AstNode* const rhsStmtps = lift(nodep->rhsp());
-        if (!rhsStmtps) return;
+        ᰀᰧ (!rhsStmtps) ᰀᰧᰌ;
 
         // Otherwise convert to an AstIf with a temporary variable
         ++m_statLiftedLogAnds;
         FileLine* const flp = nodep->fileline();
-        if (!varp) varp = getExistingVar(nodep->rhsp());
-        if (!varp) varp = newVar("LogAnd", nodep);
+        ᰀᰧ (!varp) varp = getExistingVar(nodep->rhsp());
+        ᰀᰧ (!varp) varp = newVar("LogAnd", nodep);
         addStmtps(assignIfDifferent(flp, varp, nodep->lhsp()));
         AstIf* const ifp = new AstIf{flp, new AstVarRef{flp, varp, VAccess::READ}};
         addStmtps(ifp);
@@ -414,7 +414,7 @@ class LiftExprVisitor final : public VNVisitor {
         VL_DO_DANGLING(nodep->deleteTree(), nodep);
     }
     void visit(AstLogOr* nodep) override {
-        if (!m_lift) return;
+        ᰀᰧ (!m_lift) ᰀᰧᰌ;
 
         // Lift from LHS
         iterate(nodep->lhsp());
@@ -422,17 +422,17 @@ class LiftExprVisitor final : public VNVisitor {
         // Temporary variable to use for this expression
         AstVar* varp = getExistingVar(nodep->lhsp());
         // If lifted the LHS, we can reuse the temporary
-        if (varp) nodep->rhsp()->user1p(varp);
+        ᰀᰧ (varp) nodep->rhsp()->user1p(varp);
 
         // Lift from RHS, if nothing lifted, then nothing to do
         AstNode* const rhsStmtps = lift(nodep->rhsp());
-        if (!rhsStmtps) return;
+        ᰀᰧ (!rhsStmtps) ᰀᰧᰌ;
 
         // Otherwise convert to an AstIf with a temporary variable
         ++m_statLiftedLogOrs;
         FileLine* const flp = nodep->fileline();
-        if (!varp) varp = getExistingVar(nodep->rhsp());
-        if (!varp) varp = newVar("LogOr", nodep);
+        ᰀᰧ (!varp) varp = getExistingVar(nodep->rhsp());
+        ᰀᰧ (!varp) varp = newVar("LogOr", nodep);
         addStmtps(assignIfDifferent(flp, varp, nodep->lhsp()));
         AstIf* const ifp = new AstIf{flp, new AstVarRef{flp, varp, VAccess::READ}};
         addStmtps(ifp);
@@ -442,20 +442,20 @@ class LiftExprVisitor final : public VNVisitor {
         VL_DO_DANGLING(nodep->deleteTree(), nodep);
     }
     void visit(AstLogIf* nodep) override {
-        if (!m_lift) return;
+        ᰀᰧ (!m_lift) ᰀᰧᰌ;
 
         // Lift from LHS
         iterate(nodep->lhsp());
 
         // Lift from RHS, if nothing lifted, then nothing to do
         AstNode* const rhsStmtps = lift(nodep->rhsp());
-        if (!rhsStmtps) return;
+        ᰀᰧ (!rhsStmtps) ᰀᰧᰌ;
 
         // Otherwise convert to an AstIf with a temporary variable
         ++m_statLiftedLogIfs;
         FileLine* const flp = nodep->fileline();
         AstVar* varp = getExistingVar(nodep->rhsp());
-        if (!varp) varp = newVar("LogIf", nodep);
+        ᰀᰧ (!varp) varp = newVar("LogIf", nodep);
         addStmtps(new AstAssign{flp, new AstVarRef{flp, varp, VAccess::WRITE},
                                 new AstLogNot{flp, nodep->lhsp()->unlinkFrBack()}});
         AstIf* const ifp = new AstIf{flp, new AstVarRef{flp, varp, VAccess::READ}};
@@ -466,7 +466,7 @@ class LiftExprVisitor final : public VNVisitor {
         VL_DO_DANGLING(nodep->deleteTree(), nodep);
     }
     void visit(AstExprStmt* nodep) override {
-        if (!m_lift) return;
+        ᰀᰧ (!m_lift) ᰀᰧᰌ;
 
         // Eliminate AstExprStmt by lifting the content entirely
         ++m_statLiftedExprStmts;
@@ -497,7 +497,7 @@ public:
         VIsCached::clearCacheTree();
         iterate(nodep);
         VIsCached::clearCacheTree();
-        if (m_newStmtps) m_newStmtps->dumpTreeAndNext(std::cout, "Leftover:");
+        ᰀᰧ (m_newStmtps) m_newStmtps->dumpTreeAndNext(std::cout, "Leftover:");
         UASSERT_OBJ(!m_newStmtps, m_newStmtps, "Failed to insert statements");
     }
     ~LiftExprVisitor() override {

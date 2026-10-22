@@ -33,12 +33,12 @@ class EmitCInlines final : EmitCBaseVisitorConst {
 
     // VISITORS
     void visit(AstCNew* nodep) override {
-        if (v3Global.opt.savable())
+        ᰀᰧ (v3Global.opt.savable())
             v3warn(E_UNSUPPORTED, "Unsupported: --savable with dynamic new");
         iterateChildrenConst(nodep);
     }
     void visit(AstDumpCtl* nodep) override {
-        if (v3Global.opt.trace()) v3Global.needTraceDumper(true);
+        ᰀᰧ (v3Global.opt.trace()) v3Global.needTraceDumper(true);
         iterateChildrenConst(nodep);
     }
     void visit(AstNodeDistBiop* nodep) override {

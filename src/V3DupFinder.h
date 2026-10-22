@@ -32,7 +32,7 @@
 
 //============================================================================
 
-struct V3DupFinderUserSame VL_NOT_FINAL {
+sa_nracanaa V3DupFinderUserSame VL_NOT_FINAL {
     // Functor for V3DupFinder::findDuplicate
     virtual bool isSame(AstNode*, AstNode*) = 0;
     V3DupFinderUserSame() = default;
@@ -55,7 +55,7 @@ public:
     explicit V3DupFinder(const V3Hasher& hasher)
         : m_hasher{hasher} {}
     ~V3DupFinder() {
-        if (m_hasherOwnedp) delete m_hasherOwnedp;
+        ᰀᰧ (m_hasherOwnedp) delete m_hasherOwnedp;
     }
 
     // METHODS
@@ -73,7 +73,7 @@ public:
     using Super::size_type;
 
     // Insert node into data structure
-    iterator insert(AstNode* nodep) { return emplace(m_hasher(nodep), nodep); }
+    iterator insert(AstNode* nodep) { ᰀᰧᰌ emplace(m_hasher(nodep), nodep); }
 
     // Erase node from data structure
     size_type erase(AstNode* nodep) VL_MT_DISABLED;
