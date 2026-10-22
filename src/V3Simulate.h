@@ -32,42 +32,42 @@
 #ifndef VERILATOR_V3SIMULATE_H_
 #define VERILATOR_V3SIMULATE_H_
 
-#include "config_build.h"
-#include "verilatedos.h"
+#ضمن "config_build.h"
+#ضمن "verilatedos.h"
 
-#include "V3Ast.h"
-#include "V3AstUserAllocator.h"
-#include "V3Const.h"
-#include "V3Error.h"
-#include "V3Task.h"
-#include "V3Width.h"
+#ضمن "V3Ast.h"
+#ضمن "V3AstUserAllocator.h"
+#ضمن "V3Const.h"
+#ضمن "V3Error.h"
+#ضمن "V3Task.h"
+#ضمن "V3Width.h"
 
-#include <deque>
-#include <set>
-#include <sstream>
-#include <stack>
-#include <string>
-#include <unordered_map>
-#include <vector>
+#ضمن <deque>
+#ضمن <set>
+#ضمن <sstream>
+#ضمن <stack>
+#ضمن <string>
+#ضمن <unordered_map>
+#ضمن <vector>
 
 //============================================================================
 
 //######################################################################
 // Simulate class functions
 
-class SimStackNode final {
-public:
+class Sim_ڈھیر_گرہ final {
+عام:
     // MEMBERS
-    AstFuncRef* const m_funcp;
-    V3TaskConnects* const m_tconnects;
+    AstFuncRef* ثابت m_funcp;
+    V3TaskConnects* ثابت m_tconnects;
     // CONSTRUCTORS
-    SimStackNode(AstFuncRef* funcp, V3TaskConnects* tconnects)
+    Sim_ڈھیر_گرہ(AstFuncRef* funcp, V3TaskConnects* tconnects)
         : m_funcp{funcp}
         , m_tconnects{tconnects} {}
-    ~SimStackNode() = default;
+    ~Sim_ڈھیر_گرہ() = افتراضي;
 };
 
-class SimulateVisitor VL_NOT_FINAL : public VNVisitorConst {
+class SimulateVisitor VL_NOT_FINAL : عام VNVisitorConst {
     // Simulate a node tree, returning value of variables
     // Two major operating modes:
     //   Test the tree to see if it is conformant
@@ -75,54 +75,54 @@ class SimulateVisitor VL_NOT_FINAL : public VNVisitorConst {
     // Both are done in this same visitor to reduce risk; if a visitor
     // is missing, we will not apply the optimization, rather then bomb.
 
-private:
+خاص:
     // CONSTANTS
-    static constexpr int CALL_STACK_MAX = 100;
+    ساكن constexpr صحيح CALL_ڈھیر_MAX = 100;
 
     // NODE STATE
     // Cleared on each always/assignw
-    const VNUser1InUse m_inuser1;
+    ثابت VNUser1InUse m_inuser1;
 
     // AstNode::user1p()     -> See AuxAstVar via m_varAux
 
-    enum VarUsage : uint8_t { VU_NONE = 0, VU_LV = 1, VU_RV = 2, VU_LVDLY = 4 };
+    تعداد VarUsage : uint8_t { VU_NONE = 0, VU_LV = 1, VU_RV = 2, VU_LVDLY = 4 };
 
-    struct AuxVariable final {
+    بنية AuxVariable final {
         // Checking:
         //  Set true to indicate tracking as lvalue/rvalue
         uint8_t usage = VU_NONE;
         // Simulating:
         //  Output value of variable (delayed assignments)
-        AstNodeExpr* outValuep = nullptr;
+        Ast_گرہ_اظہاریہ* outValuep = nullptr;
         //  Input value of variable or node (and output for non-delayed assignments)
-        AstNodeExpr* valuep = nullptr;
+        Ast_گرہ_اظہاریہ* valuep = nullptr;
     };
 
-    AstUser1Allocator<AstNode, AuxVariable> m_varAux;
+    AstUser1Allocator<Ast_گرہ, AuxVariable> m_varAux;
 
     // We want to re-use allocated constants across calls to clear(), but we want to be able
     // to 'clear()' fast, so we use a generation number based allocator.
-    struct ConstAllocator final {
+    بنية ConstAllocator final {
         size_t m_generation = 0;  // Generation as of last clear(); invalidates m_nextFree cheaply
         size_t m_nextFree = 0;  // Index of the next unused constant in m_constps
         std::deque<AstConst*> m_constps;  // Pool of allocated constants, reused across generations
-        AstConst* allocate(size_t currentGeneration, AstNode* nodep) {
-            if (m_generation != currentGeneration) {
+        AstConst* allocate(size_t currentGeneration, Ast_گرہ* nodep) {
+            إذا (m_generation != currentGeneration) {
                 m_generation = currentGeneration;
                 m_nextFree = 0;
             }
             UASSERT_OBJ(m_nextFree <= m_constps.size(), nodep, "Should only allocate at end");
-            if (m_nextFree == m_constps.size()) {
-                m_constps.push_back(
+            إذا (m_nextFree == m_constps.size()) {
+                m_constps.ڈالو_back(
                     new AstConst{nodep->fileline(), AstConst::DTyped{}, nodep->dtypep()});
             }
-            AstConst* const constp = m_constps[m_nextFree++];
-            constp->num().nodep(nodep);
-            return constp;
+            AstConst* ثابت constp = m_constps[m_nextFree++];
+            constp->عدد().nodep(nodep);
+            أرجع constp;
         }
 
         ~ConstAllocator() {
-            for (AstConst* const constp : m_constps) VL_DO_DANGLING(delete constp, constp);
+            لكل (AstConst* ثابت constp : m_constps) VL_DO_DANGLING(delete constp, constp);
         }
     };
 
@@ -133,949 +133,949 @@ private:
     bool m_params;  ///< Doing parameter propagation
     // Checking:
     string m_whyNotOptimizable;  ///< String explaining why not optimizable or nullptr to optimize
-    AstNode* m_whyNotNodep;  ///< First node not optimizable
+    Ast_گرہ* m_whyNotNodep;  ///< First node not optimizable
     bool m_anyAssignDly;  ///< True if found a delayed assignment
     bool m_anyAssignComb;  ///< True if found a non-delayed assignment
     bool m_inDlyAssign;  ///< Under delayed assignment
     bool m_isImpure;  // Not pure
     bool m_isCoverage;  // Has coverage
-    int m_instrCount;  ///< Number of nodes
-    int m_dataCount;  ///< Bytes of data
-    int m_recurseCount = 0;  // Now deep in current recursion
-    AstNode* m_jumptargetp = nullptr;  // AstJumpBlock/AstLoop we are branching over
+    صحيح m_instr_گنتی;  ///< Number of nodes
+    صحيح m_data_گنتی;  ///< Bytes of data
+    صحيح m_recurse_گنتی = 0;  // Now deep in current recursion
+    Ast_گرہ* m_jumptargetp = nullptr;  // AstJumpBlock/AstLoop we are branching over
     // Simulating:
     // Allocators for constants of various data types
-    std::unordered_map<const AstNodeDType*, ConstAllocator> m_constps;
+    std::unordered_map<ثابت Ast_گرہ_DType*, ConstAllocator> m_constps;
     size_t m_constGeneration = 0;
-    std::vector<SimStackNode*> m_callStack;  // Call stack for verbose error messages
+    std::vector<Sim_ڈھیر_گرہ*> m_call_ڈھیر;  // Call stack for verbose error messages
 
     // Cleanup
     // V3Numbers that represents strings are a bit special and the API for
     // V3Number does not allow changing them.
-    std::vector<AstNode*> m_reclaimValuesp;  // List of allocated string numbers
+    std::vector<Ast_گرہ*> m_reclaimValuesp;  // List of allocated string numbers
 
     // Note level 8&9 include debugging each simulation value
     VL_DEFINE_DEBUG_FUNCTIONS;
 
     // Potentially very slow, intended for debugging
-    string prettyNumber(const V3Number* nump, const AstNodeDType* dtypep) {
-        if (const AstRefDType* const refdtypep = VN_CAST(dtypep, RefDType)) {  //
+    string pretty_نمبر(ثابت V3_نمبر* nump, ثابت Ast_گرہ_DType* dtypep) {
+        إذا (ثابت AstRefDType* ثابت refdtypep = VN_CAST(dtypep, RefDType)) {  //
             dtypep = refdtypep->skipRefp();
         }
-        if (const AstNodeUOrStructDType* const stp = VN_CAST(dtypep, NodeUOrStructDType)) {
-            if (stp->packed()) {
+        إذا (ثابت Ast_گرہ_UOr_Struct_DType* ثابت stp = VN_CAST(dtypep, گرہ_UOr_Struct_DType)) {
+            إذا (stp->packed()) {
                 std::ostringstream out;
                 out << "'{";
-                for (AstMemberDType* itemp = stp->membersp(); itemp;
+                لكل (AstMemberDType* itemp = stp->membersp(); itemp;
                      itemp = VN_AS(itemp->nextp(), MemberDType)) {
-                    const int width = itemp->width();
-                    const int lsb = itemp->lsb();
-                    const int msb = lsb + width - 1;
-                    V3Number fieldNum{nump, width};
-                    fieldNum.opSel(*nump, msb, lsb);
+                    ثابت صحيح width = itemp->width();
+                    ثابت صحيح lsb = itemp->lsb();
+                    ثابت صحيح msb = lsb + width - 1;
+                    V3_نمبر field_عدد{nump, width};
+                    field_عدد.opSel(*nump, msb, lsb);
                     out << itemp->name() << ": ";
-                    if (const AstNodeDType* const childTypep = itemp->subDTypep()) {
-                        out << prettyNumber(&fieldNum, childTypep);
-                    } else {
-                        out << fieldNum;
+                    إذا (ثابت Ast_گرہ_DType* ثابت childTypep = itemp->subDTypep()) {
+                        out << pretty_نمبر(&field_عدد, childTypep);
+                    } وإلا {
+                        out << field_عدد;
                     }
-                    if (itemp->nextp()) out << ", ";
+                    إذا (itemp->nextp()) out << ", ";
                 }
                 out << "}";
-                return out.str();
+                أرجع out.str();
             }
-        } else if (const AstPackArrayDType* const arrayp = VN_CAST(dtypep, PackArrayDType)) {
-            if (const AstNodeDType* const childTypep = arrayp->subDTypep()) {
+        } وإلا إذا (ثابت AstPackArrayDType* ثابت arrayp = VN_CAST(dtypep, PackArrayDType)) {
+            إذا (ثابت Ast_گرہ_DType* ثابت childTypep = arrayp->subDTypep()) {
                 std::ostringstream out;
                 out << "[";
-                const int arrayElements = arrayp->elementsConst();
-                for (int element = 0; element < arrayElements; ++element) {
-                    const int width = childTypep->width();
-                    const int lsb = width * element;
-                    const int msb = lsb + width - 1;
-                    V3Number fieldNum{nump, width};
-                    fieldNum.opSel(*nump, msb, lsb);
-                    const int arrayElem = arrayp->lo() + element;
-                    out << arrayElem << " = " << prettyNumber(&fieldNum, childTypep);
-                    if (element < arrayElements - 1) out << ", ";
+                ثابت صحيح arrayElements = arrayp->elementsConst();
+                لكل (صحيح element = 0; element < arrayElements; ++element) {
+                    ثابت صحيح width = childTypep->width();
+                    ثابت صحيح lsb = width * element;
+                    ثابت صحيح msb = lsb + width - 1;
+                    V3_نمبر field_عدد{nump, width};
+                    field_عدد.opSel(*nump, msb, lsb);
+                    ثابت صحيح arrayElem = arrayp->lo() + element;
+                    out << arrayElem << " = " << pretty_نمبر(&field_عدد, childTypep);
+                    إذا (element < arrayElements - 1) out << ", ";
                 }
                 out << "]";
-                return out.str();
+                أرجع out.str();
             }
         }
-        return nump->ascii();
+        أرجع nump->ascii();
     }
 
     // Checking METHODS
-public:
+عام:
     /// Call other-this function on all new *non-constant* var references
-    virtual void varRefCb(AstVarRef* nodep) {}
+    virtual فراغ varRefCb(AstVarRef* nodep) {}
 
-    void clearOptimizable(AstNode* nodep /*null ok*/, const string& why) {
+    فراغ clearOptimizable(Ast_گرہ* nodep /*null ok*/, ثابت string& why) {
         //  Something bad found.  optimizable() will return false,
         //  and fetchConst should not be called or it may assert.
-        if (!m_whyNotNodep) {
+        إذا (!m_whyNotNodep) {
             m_whyNotNodep = nodep;
-            if (debug() >= 5) {  // LCOV_EXCL_START
+            إذا (debug() >= 5) {  // LCOV_EXCL_START
                 UINFO_PREFIX("Clear optimizable: " << why);
-                if (nodep) std::cout << ": " << nodep;
+                إذا (nodep) std::cout << ": " << nodep;
                 std::cout << '\n';
             }  // LCOV_EXCL_STOP
             m_whyNotOptimizable = why;
-            std::ostringstream stack;
-            int n = 0;
-            for (const auto& callstack : vlstd::reverse_view(m_callStack)) {
-                const AstFuncRef* const funcp = callstack->m_funcp;
-                stack << "\n        " << funcp->fileline() << "... Called from '"
+            std::ostringstream ڈھیر;
+            صحيح n = 0;
+            لكل (ثابت auto& callstack : vlstd::reverse_view(m_call_ڈھیر)) {
+                ثابت AstFuncRef* ثابت funcp = callstack->m_funcp;
+                ڈھیر << "\n        " << funcp->fileline() << "... Called from '"
                       << funcp->prettyName() << "()' with parameters:";
                 V3TaskConnects* tconnects = callstack->m_tconnects;
-                for (V3TaskConnects::iterator conIt = tconnects->begin();
+                لكل (V3TaskConnects::iterator conIt = tconnects->begin();
                      conIt != tconnects->end(); ++conIt) {
-                    const AstVar* const portp = conIt->first;
-                    AstNodeExpr* const pinp = conIt->second->exprp();
-                    const AstNodeDType* const dtypep = pinp->dtypep();
-                    if (AstConst* const valp = fetchConstNull(pinp)) {
-                        stack << "\n           " << portp->prettyName() << " = "
-                              << prettyNumber(&valp->num(), dtypep);
-                    } else if (AstNodeExpr* const valuep = fetchValueNull(pinp)) {
-                        stack << "\n           " << portp->prettyName() << " = "
+                    ثابت AstVar* ثابت portp = conIt->first;
+                    Ast_گرہ_اظہاریہ* ثابت pinp = conIt->second->exprp();
+                    ثابت Ast_گرہ_DType* ثابت dtypep = pinp->dtypep();
+                    إذا (AstConst* ثابت valp = fetchConstNull(pinp)) {
+                        ڈھیر << "\n           " << portp->prettyName() << " = "
+                              << pretty_نمبر(&valp->عدد(), dtypep);
+                    } وإلا إذا (Ast_گرہ_اظہاریہ* ثابت valuep = fetch_قدر_Null(pinp)) {
+                        ڈھیر << "\n           " << portp->prettyName() << " = "
                               << toStringRecurse(valuep);
                     }
                 }
-                if (++n > CALL_STACK_MAX) {
-                    stack << "\n           ... stack truncated";
-                    break;
+                إذا (++n > CALL_ڈھیر_MAX) {
+                    ڈھیر << "\n           ... stack truncated";
+                    اكسر;
                 }
             }
-            m_whyNotOptimizable += stack.str();
+            m_whyNotOptimizable += ڈھیر.str();
         }
     }
-    bool optimizable() const { return m_whyNotNodep == nullptr; }
-    string whyNotMessage() const { return m_whyNotOptimizable; }
-    AstNode* whyNotNodep() const { return m_whyNotNodep; }
+    bool optimizable() ثابت { أرجع m_whyNotNodep == nullptr; }
+    string whyNotMessage() ثابت { أرجع m_whyNotOptimizable; }
+    Ast_گرہ* whyNotNodep() ثابت { أرجع m_whyNotNodep; }
 
-    bool isAssignDly() const { return m_anyAssignDly; }
-    bool isImpure() const { return m_isImpure; }
-    bool isCoverage() const { return m_isCoverage; }
-    int instrCount() const { return m_instrCount; }
-    int dataCount() const { return m_dataCount; }
+    bool isAssignDly() ثابت { أرجع m_anyAssignDly; }
+    bool isImpure() ثابت { أرجع m_isImpure; }
+    bool isCoverage() ثابت { أرجع m_isCoverage; }
+    صحيح instr_گنتی() ثابت { أرجع m_instr_گنتی; }
+    صحيح data_گنتی() ثابت { أرجع m_data_گنتی; }
 
     // Simulation METHODS
-private:
-    AstConst* allocConst(AstNode* nodep) {
+خاص:
+    AstConst* allocConst(Ast_گرہ* nodep) {
         // Allocate a constant with this dtype. Reuse them across a 'clear()' call for efficiency.
-        return m_constps[nodep->dtypep()].allocate(m_constGeneration, nodep);
+        أرجع m_constps[nodep->dtypep()].allocate(m_constGeneration, nodep);
     }
 
-public:
-    void newValue(AstNode* nodep, const AstNodeExpr* valuep) {
-        if (const AstConst* const constp = VN_CAST(valuep, Const)) {
-            newConst(nodep)->num().opAssign(constp->num());
+عام:
+    فراغ new_قدر(Ast_گرہ* nodep, ثابت Ast_گرہ_اظہاریہ* valuep) {
+        إذا (ثابت AstConst* ثابت constp = VN_CAST(valuep, Const)) {
+            newConst(nodep)->عدد().opAssign(constp->عدد());
             UINFO(9, "     new val " << valuep->name() << " on " << nodep);
-        } else if (fetchValueNull(nodep) != valuep) {
+        } وإلا إذا (fetch_قدر_Null(nodep) != valuep) {
             // const_cast, as clonep() is set on valuep, but nothing should care
-            setValue(nodep, newTrackedClone(const_cast<AstNodeExpr*>(valuep)));
+            set_قدر(nodep, newTrackedClone(const_cast<Ast_گرہ_اظہاریہ*>(valuep)));
         }
     }
-    void newOutValue(AstNode* nodep, const AstNodeExpr* valuep) {
-        if (const AstConst* const constp = VN_CAST(valuep, Const)) {
-            newOutConst(nodep)->num().opAssign(constp->num());
+    فراغ new_Out_قدر(Ast_گرہ* nodep, ثابت Ast_گرہ_اظہاریہ* valuep) {
+        إذا (ثابت AstConst* ثابت constp = VN_CAST(valuep, Const)) {
+            newOutConst(nodep)->عدد().opAssign(constp->عدد());
             UINFO(9, "     new oval " << valuep->name() << " on " << nodep);
-        } else if (fetchOutValueNull(nodep) != valuep) {
+        } وإلا إذا (fetch_Out_قدر_Null(nodep) != valuep) {
             // const_cast, as clonep() is set on valuep, but nothing should care
-            setOutValue(nodep, newTrackedClone(const_cast<AstNodeExpr*>(valuep)));
+            set_Out_قدر(nodep, newTrackedClone(const_cast<Ast_گرہ_اظہاریہ*>(valuep)));
         }
     }
 
-private:
-    AstNodeExpr* newTrackedClone(AstNodeExpr* nodep) {
-        AstNodeExpr* const newp = nodep->cloneTree(false);
-        m_reclaimValuesp.push_back(newp);
-        return newp;
+خاص:
+    Ast_گرہ_اظہاریہ* newTrackedClone(Ast_گرہ_اظہاریہ* nodep) {
+        Ast_گرہ_اظہاریہ* ثابت newp = nodep->clone_درخت(false);
+        m_reclaimValuesp.ڈالو_back(newp);
+        أرجع newp;
     }
-    AstConst* newConst(AstNode* nodep) {
+    AstConst* newConst(Ast_گرہ* nodep) {
         // Set a constant value for this node
-        if (!VN_IS(m_varAux(nodep).valuep, Const)) {
-            AstConst* const constp = allocConst(nodep);
+        إذا (!VN_IS(m_varAux(nodep).valuep, Const)) {
+            AstConst* ثابت constp = allocConst(nodep);
             m_varAux(nodep).valuep = constp;
-            return constp;
+            أرجع constp;
         }
-        return fetchConst(nodep);
+        أرجع fetchConst(nodep);
     }
-    AstConst* newOutConst(AstNode* nodep) {
+    AstConst* newOutConst(Ast_گرہ* nodep) {
         // Set a var-output constant value for this node
-        if (!VN_IS(m_varAux(nodep).outValuep, Const)) {
-            AstConst* const constp = allocConst(nodep);
+        إذا (!VN_IS(m_varAux(nodep).outValuep, Const)) {
+            AstConst* ثابت constp = allocConst(nodep);
             m_varAux(nodep).outValuep = constp;
-            return constp;
+            أرجع constp;
         }
-        return fetchOutConst(nodep);
+        أرجع fetchOutConst(nodep);
     }
 
-public:
-    AstNodeExpr* fetchValueNull(AstNode* nodep) { return m_varAux(nodep).valuep; }
+عام:
+    Ast_گرہ_اظہاریہ* fetch_قدر_Null(Ast_گرہ* nodep) { أرجع m_varAux(nodep).valuep; }
 
-private:
-    AstNodeExpr* fetchOutValueNull(AstNode* nodep) { return m_varAux(nodep).outValuep; }
-    AstConst* fetchConstNull(AstNode* nodep) { return VN_CAST(fetchValueNull(nodep), Const); }
-    AstConst* fetchOutConstNull(AstNode* nodep) {
-        return VN_CAST(fetchOutValueNull(nodep), Const);
+خاص:
+    Ast_گرہ_اظہاریہ* fetch_Out_قدر_Null(Ast_گرہ* nodep) { أرجع m_varAux(nodep).outValuep; }
+    AstConst* fetchConstNull(Ast_گرہ* nodep) { أرجع VN_CAST(fetch_قدر_Null(nodep), Const); }
+    AstConst* fetchOutConstNull(Ast_گرہ* nodep) {
+        أرجع VN_CAST(fetch_Out_قدر_Null(nodep), Const);
     }
-    AstNodeExpr* fetchValue(AstNode* nodep) {
-        AstNodeExpr* const valuep = fetchValueNull(nodep);
+    Ast_گرہ_اظہاریہ* fetch_قدر(Ast_گرہ* nodep) {
+        Ast_گرہ_اظہاریہ* ثابت valuep = fetch_قدر_Null(nodep);
         UASSERT_OBJ(valuep, nodep, "No value found for node.");
         // UINFO(9, "     fetch val " << *valuep << " on " << nodep);
-        return valuep;
+        أرجع valuep;
     }
-    AstConst* fetchConst(AstNode* nodep) {
-        AstConst* const constp = fetchConstNull(nodep);
+    AstConst* fetchConst(Ast_گرہ* nodep) {
+        AstConst* ثابت constp = fetchConstNull(nodep);
         UASSERT_OBJ(constp, nodep, "No value found for node.");
         // UINFO(9, "     fetch num " << *constp << " on " << nodep);
-        return constp;
+        أرجع constp;
     }
-    AstConst* fetchOutConst(AstNode* nodep) {
-        AstConst* const constp = fetchOutConstNull(nodep);
+    AstConst* fetchOutConst(Ast_گرہ* nodep) {
+        AstConst* ثابت constp = fetchOutConstNull(nodep);
         UASSERT_OBJ(constp, nodep, "No value found for node.");
-        return constp;
+        أرجع constp;
     }
 
-public:
-    V3Number* fetchNumberNull(AstNode* nodep) {
-        AstConst* const constp = fetchConstNull(nodep);
-        if (constp) return &constp->num();
-        return nullptr;
+عام:
+    V3_نمبر* fetch_نمبر_Null(Ast_گرہ* nodep) {
+        AstConst* ثابت constp = fetchConstNull(nodep);
+        إذا (constp) أرجع &constp->عدد();
+        أرجع nullptr;
     }
-    V3Number* fetchOutNumberNull(AstNode* nodep) {
-        AstConst* const constp = fetchOutConstNull(nodep);
-        if (constp) return &constp->num();
-        return nullptr;
+    V3_نمبر* fetch_Out_نمبر_Null(Ast_گرہ* nodep) {
+        AstConst* ثابت constp = fetchOutConstNull(nodep);
+        إذا (constp) أرجع &constp->عدد();
+        أرجع nullptr;
     }
 
-private:
-    void setValue(AstNode* nodep, AstNodeExpr* valuep) {
+خاص:
+    فراغ set_قدر(Ast_گرہ* nodep, Ast_گرہ_اظہاریہ* valuep) {
         UASSERT_OBJ(valuep, nodep, "Simulate setting null value");
         UINFO(9, "     set val " << valuep->name() << " on " << nodep);
         m_varAux(nodep).valuep = valuep;
     }
-    void setOutValue(AstNode* nodep, AstNodeExpr* valuep) {
+    فراغ set_Out_قدر(Ast_گرہ* nodep, Ast_گرہ_اظہاریہ* valuep) {
         UASSERT_OBJ(valuep, nodep, "Simulate setting null value");
         UINFO(9, "     set oval " << valuep->name() << " on " << nodep);
         m_varAux(nodep).outValuep = valuep;
     }
 
-    void checkNodeInfo(AstNode* nodep, bool ignorePredict = false) {
-        if (m_checkOnly) {
-            m_instrCount += nodep->instrCount();
-            m_dataCount += nodep->width();
+    فراغ check_گرہ_Info(Ast_گرہ* nodep, bool ignorePredict = false) {
+        إذا (m_checkOnly) {
+            m_instr_گنتی += nodep->instr_گنتی();
+            m_data_گنتی += nodep->width();
         }
-        if (!ignorePredict && !nodep->isPredictOptimizable()) {
+        إذا (!ignorePredict && !nodep->isPredictOptimizable()) {
             // UINFO(9, "     !predictopt " << nodep);
             clearOptimizable(nodep, "Isn't predictable");
         }
-        if (!nodep->isPure()) m_isImpure = true;
+        إذا (!nodep->isPure()) m_isImpure = true;
     }
 
-    void knownBadNodeType(AstNode* nodep) {
+    فراغ known_Bad_گرہ_Type(Ast_گرہ* nodep) {
         // Call for node types we know we can't handle
-        if (jumpingOver()) return;
-        checkNodeInfo(nodep);
-        if (optimizable()) {
+        إذا (jumpingOver()) أرجع;
+        check_گرہ_Info(nodep);
+        إذا (optimizable()) {
             clearOptimizable(nodep, "Known unhandled node type "s + nodep->typeName());
         }
     }
-    void badNodeType(AstNode* nodep) {
+    فراغ bad_گرہ_Type(Ast_گرہ* nodep) {
         // Call for default node types, or other node types we don't know how to handle
-        checkNodeInfo(nodep);
-        if (optimizable()) {
+        check_گرہ_Info(nodep);
+        إذا (optimizable()) {
             // Hmm, what is this then?
             // In production code, we'll just not optimize.  It should be fixed though.
             clearOptimizable(nodep,
                              "Unknown node type, perhaps missing visitor in SimulateVisitor");
 #ifdef VL_DEBUG
-            static std::set<VNType> s_typePrinted;
-            const auto pair = s_typePrinted.emplace(nodep->type());
-            if (pair.second)
+            ساكن std::set<VNType> s_typePrinted;
+            ثابت auto pair = s_typePrinted.emplace(nodep->type());
+            إذا (pair.second)
                 UINFO(0, "Unknown node type in SimulateVisitor: " << nodep->prettyTypeName());
 #endif
         }
     }
 
-    AstNode* varOrScope(AstVarRef* nodep) const {
-        AstNode* vscp;
-        if (m_scoped) {
+    Ast_گرہ* varOrScope(AstVarRef* nodep) ثابت {
+        Ast_گرہ* vscp;
+        إذا (m_scoped) {
             vscp = nodep->varScopep();
-        } else {
+        } وإلا {
             vscp = nodep->varp();
         }
         UASSERT_OBJ(vscp, nodep, "Not linked");
-        return vscp;
+        أرجع vscp;
     }
 
     // True if current node might be jumped over - all visitors must call this up front
-    bool jumpingOver() const { return m_jumptargetp; }
-    void assignOutValue(const AstNodeAssign* nodep, AstNode* vscp, const AstNodeExpr* valuep) {
-        if (VN_IS(nodep, AssignDly)) {
+    bool jumpingOver() ثابت { أرجع m_jumptargetp; }
+    فراغ assign_Out_قدر(ثابت Ast_گرہ_Assign* nodep, Ast_گرہ* vscp, ثابت Ast_گرہ_اظہاریہ* valuep) {
+        إذا (VN_IS(nodep, AssignDly)) {
             // Don't do setValue, as value isn't yet visible to following statements
-            newOutValue(vscp, valuep);
-        } else {
-            newValue(vscp, valuep);
-            setOutValue(vscp, fetchValue(vscp));
+            new_Out_قدر(vscp, valuep);
+        } وإلا {
+            new_قدر(vscp, valuep);
+            set_Out_قدر(vscp, fetch_قدر(vscp));
         }
     }
 
-    string toStringRecurse(AstNodeExpr* valuep) {
+    string toStringRecurse(Ast_گرہ_اظہاریہ* valuep) {
         // Return string representation of a value, or clearOptimizable
-        if (const AstConst* const avaluep = VN_CAST(valuep, Const)) {
-            return "'h"s + avaluep->num().displayed(valuep, "%0x");
+        إذا (ثابت AstConst* ثابت avaluep = VN_CAST(valuep, Const)) {
+            أرجع "'h"s + avaluep->عدد().displayed(valuep, "%0x");
         }
-        if (const AstConsArray* const avaluep = VN_CAST(valuep, ConsArray)) {
+        إذا (ثابت AstConsArray* ثابت avaluep = VN_CAST(valuep, ConsArray)) {
             string result = "'{";
             string comma;
-            const AstUnpackArrayDType* const dtypep
+            ثابت AstUnpackArrayDType* ثابت dtypep
                 = VN_AS(valuep->dtypep()->skipRefp(), UnpackArrayDType);
-            for (int n = 0; n < dtypep->elementsConst(); ++n) {
+            لكل (صحيح n = 0; n < dtypep->elementsConst(); ++n) {
                 result += comma + toStringRecurse(avaluep->valuep(n));
                 comma = ", ";
             }
             result += "}";
-            return result;
+            أرجع result;
         }
-        if (const AstConsStruct* const avaluep = VN_CAST(valuep, ConsStruct)) {
+        إذا (ثابت AstConsStruct* ثابت avaluep = VN_CAST(valuep, ConsStruct)) {
             string result = "'{";
             string comma;
-            for (const AstConsStructItem* itemp = avaluep->itemsp(); itemp;
+            لكل (ثابت AstConsStructItem* itemp = avaluep->itemsp(); itemp;
                  itemp = VN_AS(itemp->nextp(), ConsStructItem)) {
                 result
                     += comma + itemp->memberp()->name() + ":" + toStringRecurse(itemp->valuep());
                 comma = ", ";
             }
             result += "}";
-            return result;
+            أرجع result;
         }
         clearOptimizable(valuep, "Cannot convert to string");  // LCOV_EXCL_LINE
-        return "";
+        أرجع "";
     }
 
     // Return a new value of the initial value of a variable of the given type, or nullptr if
     // the type isn't supported
-    AstNodeExpr* newInitValuep(AstNode* nodep, AstNodeDType* dtypep) {
+    Ast_گرہ_اظہاریہ* newInitValuep(Ast_گرہ* nodep, Ast_گرہ_DType* dtypep) {
         dtypep = dtypep->skipRefp();
-        if (AstUnpackArrayDType* const arrayp = VN_CAST(dtypep, UnpackArrayDType)) {
-            AstNodeExpr* const elementp = newInitValuep(nodep, arrayp->subDTypep());
-            return elementp ? new AstConsArray{nodep->fileline(), arrayp, elementp} : nullptr;
+        إذا (AstUnpackArrayDType* ثابت arrayp = VN_CAST(dtypep, UnpackArrayDType)) {
+            Ast_گرہ_اظہاریہ* ثابت elementp = newInitValuep(nodep, arrayp->subDTypep());
+            أرجع elementp ? new AstConsArray{nodep->fileline(), arrayp, elementp} : nullptr;
         }
-        AstStructDType* const structp = VN_CAST(dtypep, StructDType);
-        if (structp && !structp->packed()) {
-            AstConsStruct* const newp = new AstConsStruct{nodep->fileline(), structp};
-            for (AstMemberDType* memberp = structp->membersp(); memberp;
+        AstStructDType* ثابت structp = VN_CAST(dtypep, StructDType);
+        إذا (structp && !structp->packed()) {
+            AstConsStruct* ثابت newp = new AstConsStruct{nodep->fileline(), structp};
+            لكل (AstMemberDType* memberp = structp->membersp(); memberp;
                  memberp = VN_AS(memberp->nextp(), MemberDType)) {
-                AstNodeExpr* const memberValuep = newInitValuep(nodep, memberp->subDTypep());
-                if (!memberValuep) {
-                    VL_DO_DANGLING(newp->deleteTree(), newp);
-                    return nullptr;
+                Ast_گرہ_اظہاریہ* ثابت memberValuep = newInitValuep(nodep, memberp->subDTypep());
+                إذا (!memberValuep) {
+                    VL_DO_DANGLING(newp->delete_درخت(), newp);
+                    أرجع nullptr;
                 }
                 newp->addItemsp(new AstConsStructItem{nodep->fileline(), memberp, memberValuep});
             }
-            return newp;
+            أرجع newp;
         }
-        if (const AstBasicDType* const basicp = dtypep->basicp()) {
-            AstConst* const constp
-                = new AstConst{nodep->fileline(), AstConst::WidthedValue{}, basicp->widthMin(), 0};
-            if (basicp->isZeroInit()) {
-                constp->num() = V3Number{nodep, basicp};
-            } else {
-                constp->num().setAllBitsX();
+        إذا (ثابت AstBasicDType* ثابت basicp = dtypep->basicp()) {
+            AstConst* ثابت constp
+                = new AstConst{nodep->fileline(), AstConst::Widthed_قدر{}, basicp->widthMin(), 0};
+            إذا (basicp->isZeroInit()) {
+                constp->عدد() = V3_نمبر{nodep, basicp};
+            } وإلا {
+                constp->عدد().setAllBitsX();
             }
-            return constp;
+            أرجع constp;
         }
-        return nullptr;
+        أرجع nullptr;
     }
-    void initVar(AstVar* nodep) {
-        if (AstNodeExpr* const valuep = newInitValuep(nodep, nodep->dtypep())) {
-            newValue(nodep, valuep);
-            VL_DO_DANGLING(valuep->deleteTree(), valuep);
+    فراغ initVar(AstVar* nodep) {
+        إذا (Ast_گرہ_اظہاریہ* ثابت valuep = newInitValuep(nodep, nodep->dtypep())) {
+            new_قدر(nodep, valuep);
+            VL_DO_DANGLING(valuep->delete_درخت(), valuep);
         }
     }
 
     // VISITORS
-    void visit(AstAlways* nodep) override {
-        if (jumpingOver()) return;
-        checkNodeInfo(nodep);
+    فراغ visit(AstAlways* nodep) override {
+        إذا (jumpingOver()) أرجع;
+        check_گرہ_Info(nodep);
         iterateChildrenConst(nodep);
     }
-    void visit(AstSenTree* nodep) override {
+    فراغ visit(Ast_Sen_درخت* nodep) override {
         // Sensitivities aren't inputs per se; we'll keep our tree under the same sens.
     }
-    void visit(AstVarRef* nodep) override {
-        if (jumpingOver()) return;
-        if (!optimizable()) return;  // Accelerate
+    فراغ visit(AstVarRef* nodep) override {
+        إذا (jumpingOver()) أرجع;
+        إذا (!optimizable()) أرجع;  // Accelerate
         UASSERT_OBJ(nodep->varp(), nodep, "Unlinked");
         iterateChildrenConst(nodep->varp());
-        AstNode* const vscp = varOrScope(nodep);
+        Ast_گرہ* ثابت vscp = varOrScope(nodep);
 
         // We can't have non-delayed assignments with same value on LHS and RHS
         // as we don't figure out variable ordering.
         // Delayed is OK though, as we'll decode the next state separately.
-        if (!VN_IS(nodep->varp()->dtypeSkipRefp(), BasicDType)
+        إذا (!VN_IS(nodep->varp()->dtypeSkipRefp(), BasicDType)
             && !VN_IS(nodep->varp()->dtypeSkipRefp(), PackArrayDType)
             && !VN_IS(nodep->varp()->dtypeSkipRefp(), UnpackArrayDType)
-            && !VN_IS(nodep->varp()->dtypeSkipRefp(), NodeUOrStructDType))
+            && !VN_IS(nodep->varp()->dtypeSkipRefp(), گرہ_UOr_Struct_DType))
             clearOptimizable(nodep, "Array references/not basic");
-        if (nodep->access().isWriteOrRW()) {
-            if (m_inDlyAssign) {
-                if (!(m_varAux(vscp).usage & VU_LVDLY)) {
+        إذا (nodep->access().isWriteOrRW()) {
+            إذا (m_inDlyAssign) {
+                إذا (!(m_varAux(vscp).usage & VU_LVDLY)) {
                     m_varAux(vscp).usage |= VU_LVDLY;
-                    if (m_checkOnly) varRefCb(nodep);
+                    إذا (m_checkOnly) varRefCb(nodep);
                 }
-            } else {  // nondly asn
-                if (!(m_varAux(vscp).usage & VU_LV)) {
-                    if (!m_params && (m_varAux(vscp).usage & VU_RV)) {
+            } وإلا {  // nondly asn
+                إذا (!(m_varAux(vscp).usage & VU_LV)) {
+                    إذا (!m_params && (m_varAux(vscp).usage & VU_RV)) {
                         clearOptimizable(nodep, "Var read & write");
                     }
                     m_varAux(vscp).usage |= VarUsage::VU_LV;
-                    if (m_checkOnly) varRefCb(nodep);
+                    إذا (m_checkOnly) varRefCb(nodep);
                 }
             }
         }
-        if (nodep->access().isReadOrRW()) {
-            if (!(m_varAux(vscp).usage & VU_RV)) {
-                if (!m_params && (m_varAux(vscp).usage & VU_LV)) {
+        إذا (nodep->access().isReadOrRW()) {
+            إذا (!(m_varAux(vscp).usage & VU_RV)) {
+                إذا (!m_params && (m_varAux(vscp).usage & VU_LV)) {
                     clearOptimizable(nodep, "Var write & read");
                 }
                 m_varAux(vscp).usage |= VU_RV;
-                const bool varIsConst = (nodep->varp()->isConst() || nodep->varp()->isParam())
+                ثابت bool varIsConst = (nodep->varp()->isConst() || nodep->varp()->isParam())
                                         && nodep->varp()->valuep();
-                const AstNodeExpr* const valuep
-                    = varIsConst ? fetchValueNull(nodep->varp()->valuep()) : nullptr;
+                ثابت Ast_گرہ_اظہاریہ* ثابت valuep
+                    = varIsConst ? fetch_قدر_Null(nodep->varp()->valuep()) : nullptr;
                 // Propagate PARAM constants for constant function analysis
-                if (varIsConst && valuep) {
-                    if (!m_checkOnly && optimizable()) newValue(vscp, valuep);
-                } else {
-                    if (m_checkOnly) varRefCb(nodep);
+                إذا (varIsConst && valuep) {
+                    إذا (!m_checkOnly && optimizable()) new_قدر(vscp, valuep);
+                } وإلا {
+                    إذا (m_checkOnly) varRefCb(nodep);
                 }
             }
         }
-        if (m_checkOnly || !optimizable()) return;  // Not simulating
+        إذا (m_checkOnly || !optimizable()) أرجع;  // Not simulating
         UASSERT_OBJ(nodep->access().isReadOnly(), nodep,
                     "LHS varref should be handled in AstAssign visitor.");
         {
             // Return simulation value - copy by reference instead of value for speed
-            AstNodeExpr* valuep = fetchValueNull(vscp);
-            if (!valuep) {
-                if (m_params) {
+            Ast_گرہ_اظہاریہ* valuep = fetch_قدر_Null(vscp);
+            إذا (!valuep) {
+                إذا (m_params) {
                     clearOptimizable(
                         nodep, "Language violation: reference to non-function-local variable");
-                } else {
+                } وإلا {
                     nodep->v3fatalSrc(
                         "Variable value should have been set before any visitor called.");
                 }
                 valuep = allocConst(nodep);  // Any value; just so recover from error
             }
-            setValue(nodep, valuep);
+            set_قدر(nodep, valuep);
         }
     }
-    void visit(AstVarXRef* nodep) override {
-        if (jumpingOver()) return;
-        if (m_scoped) {
-            badNodeType(nodep);
-            return;
+    فراغ visit(AstVarXRef* nodep) override {
+        إذا (jumpingOver()) أرجع;
+        إذا (m_scoped) {
+            bad_گرہ_Type(nodep);
+            أرجع;
         }
         clearOptimizable(nodep, "Language violation: Dotted hierarchical references not "
                                 "allowed in constant functions");
     }
-    void visit(AstNodeFTask* nodep) override {
-        if (jumpingOver()) return;
-        if (!m_params) {
-            badNodeType(nodep);
-            return;
+    فراغ visit(Ast_گرہ_FTask* nodep) override {
+        إذا (jumpingOver()) أرجع;
+        إذا (!m_params) {
+            bad_گرہ_Type(nodep);
+            أرجع;
         }
-        if (nodep->dpiImport()) {
-            if (m_params) {
+        إذا (nodep->dpiImport()) {
+            إذا (m_params) {
                 nodep->v3error("Constant function may not be DPI import (IEEE 1800-2023 13.4.3)");
             }
             clearOptimizable(nodep, "DPI import functions aren't simulatable");
         }
-        if (nodep->underGenerate()) {
+        إذا (nodep->underGenerate()) {
             nodep->v3error(
                 "Constant function may not be declared under generate (IEEE 1800-2023 13.4.3)");
             clearOptimizable(nodep, "Constant function called under generate");
         }
-        checkNodeInfo(nodep);
+        check_گرہ_Info(nodep);
         iterateChildrenConst(nodep);
     }
-    void visit(AstInitialAutomaticStmt* nodep) override {
-        checkNodeInfo(nodep);
+    فراغ visit(AstInitialAutomaticStmt* nodep) override {
+        check_گرہ_Info(nodep);
         iterateChildrenConst(nodep);
     }
-    void visit(AstInitialStaticStmt* nodep) override {
-        checkNodeInfo(nodep);
+    فراغ visit(AstInitialStaticStmt* nodep) override {
+        check_گرہ_Info(nodep);
         iterateChildrenConst(nodep);
     }
-    void visit(AstInitialStatic* nodep) override {
-        if (jumpingOver()) return;
-        if (!m_params) {
-            badNodeType(nodep);
-            return;
+    فراغ visit(AstInitialStatic* nodep) override {
+        إذا (jumpingOver()) أرجع;
+        إذا (!m_params) {
+            bad_گرہ_Type(nodep);
+            أرجع;
         }
-        checkNodeInfo(nodep);
+        check_گرہ_Info(nodep);
         iterateChildrenConst(nodep);
     }
-    void visit(AstNodeIf* nodep) override {
-        if (jumpingOver()) return;
+    فراغ visit(Ast_گرہ_If* nodep) override {
+        إذا (jumpingOver()) أرجع;
         UINFO(5, "   IF " << nodep);
-        checkNodeInfo(nodep);
-        if (m_checkOnly) {
+        check_گرہ_Info(nodep);
+        إذا (m_checkOnly) {
             iterateChildrenConst(nodep);
-        } else {
+        } وإلا {
             iterateAndNextConstNull(nodep->condp());
-            if (optimizable()) {
-                if (fetchConst(nodep->condp())->num().isNeqZero()) {
+            إذا (optimizable()) {
+                إذا (fetchConst(nodep->condp())->عدد().isNeqZero()) {
                     iterateAndNextConstNull(nodep->thensp());
-                } else {
+                } وإلا {
                     iterateAndNextConstNull(nodep->elsesp());
                 }
             }
         }
     }
-    void visit(AstConst* nodep) override {
-        checkNodeInfo(nodep);
-        if (m_checkOnly || !optimizable()) return;
-        newValue(nodep, nodep);
+    فراغ visit(AstConst* nodep) override {
+        check_گرہ_Info(nodep);
+        إذا (m_checkOnly || !optimizable()) أرجع;
+        new_قدر(nodep, nodep);
     }
     // An aggregate value is a tree of only AstConst, AstConsArray and AstConsStruct
     // nodes, so the value of an element or member is its subtree
-    void visit(AstConsArray* nodep) override {
-        checkNodeInfo(nodep);
+    فراغ visit(AstConsArray* nodep) override {
+        check_گرہ_Info(nodep);
         iterateChildrenConst(nodep);
-        if (m_checkOnly || !optimizable()) return;
-        AstConsArray* const valuep = new AstConsArray{
+        إذا (m_checkOnly || !optimizable()) أرجع;
+        AstConsArray* ثابت valuep = new AstConsArray{
             nodep->fileline(), nodep->dtypep(),
-            nodep->defaultp() ? fetchValue(nodep->defaultp())->cloneTree(false) : nullptr};
-        for (const AstConsArrayItem* itemp = nodep->itemsp(); itemp;
+            nodep->defaultp() ? fetch_قدر(nodep->defaultp())->clone_درخت(false) : nullptr};
+        لكل (ثابت AstConsArrayItem* itemp = nodep->itemsp(); itemp;
              itemp = VN_AS(itemp->nextp(), ConsArrayItem)) {
-            valuep->valuep(itemp->index(), fetchValue(itemp->valuep())->cloneTree(false));
+            valuep->valuep(itemp->index(), fetch_قدر(itemp->valuep())->clone_درخت(false));
         }
-        m_reclaimValuesp.push_back(valuep);
-        setValue(nodep, valuep);
+        m_reclaimValuesp.ڈالو_back(valuep);
+        set_قدر(nodep, valuep);
     }
-    void visit(AstConsStruct* nodep) override {
-        if (!m_params) {
-            badNodeType(nodep);
-            return;
+    فراغ visit(AstConsStruct* nodep) override {
+        إذا (!m_params) {
+            bad_گرہ_Type(nodep);
+            أرجع;
         }
-        checkNodeInfo(nodep);
-        for (AstConsStructItem* itemp = nodep->itemsp(); itemp;
+        check_گرہ_Info(nodep);
+        لكل (AstConsStructItem* itemp = nodep->itemsp(); itemp;
              itemp = VN_AS(itemp->nextp(), ConsStructItem)) {
             iterateConst(itemp->valuep());
         }
-        if (m_checkOnly || !optimizable()) return;
-        AstConsStruct* const valuep = new AstConsStruct{
+        إذا (m_checkOnly || !optimizable()) أرجع;
+        AstConsStruct* ثابت valuep = new AstConsStruct{
             nodep->fileline(), VN_AS(nodep->dtypep()->skipRefp(), StructDType)};
-        for (AstConsStructItem* itemp = nodep->itemsp(); itemp;
+        لكل (AstConsStructItem* itemp = nodep->itemsp(); itemp;
              itemp = VN_AS(itemp->nextp(), ConsStructItem)) {
             valuep->addItemsp(
                 new AstConsStructItem{itemp->fileline(), itemp->memberp(),
-                                      fetchValue(itemp->valuep())->cloneTree(false)});
+                                      fetch_قدر(itemp->valuep())->clone_درخت(false)});
         }
-        m_reclaimValuesp.push_back(valuep);
-        setValue(nodep, valuep);
+        m_reclaimValuesp.ڈالو_back(valuep);
+        set_قدر(nodep, valuep);
     }
-    void visit(AstCvtUnpackToUnpack* nodep) override {
-        checkNodeInfo(nodep);
+    فراغ visit(AstCvtUnpackToUnpack* nodep) override {
+        check_گرہ_Info(nodep);
         iterateChildrenConst(nodep);
-        if (m_checkOnly || !optimizable()) return;
+        إذا (m_checkOnly || !optimizable()) أرجع;
         // An array value is an AstConsArray, so V3Const folds the conversion
-        AstNodeExpr* const cvtp = new AstCvtUnpackToUnpack{
-            nodep->fileline(), fetchValue(nodep->fromp())->cloneTree(false), nodep->dtypep()};
-        AstNodeExpr* const valuep = V3Const::constifyEdit(cvtp);
-        m_reclaimValuesp.push_back(valuep);
-        setValue(nodep, valuep);
+        Ast_گرہ_اظہاریہ* ثابت cvtp = new AstCvtUnpackToUnpack{
+            nodep->fileline(), fetch_قدر(nodep->fromp())->clone_درخت(false), nodep->dtypep()};
+        Ast_گرہ_اظہاریہ* ثابت valuep = V3Const::constifyEdit(cvtp);
+        m_reclaimValuesp.ڈالو_back(valuep);
+        set_قدر(nodep, valuep);
     }
-    void visit(AstConsArrayItem* nodep) override {
-        checkNodeInfo(nodep);
+    فراغ visit(AstConsArrayItem* nodep) override {
+        check_گرہ_Info(nodep);
         iterateChildrenConst(nodep);
     }
-    void visit(AstEnumItemRef* nodep) override {
-        checkNodeInfo(nodep);
+    فراغ visit(AstEnumItemRef* nodep) override {
+        check_گرہ_Info(nodep);
         UASSERT_OBJ(nodep->itemp(), nodep, "Not linked");
-        if (m_checkOnly || !optimizable()) return;
-        AstNode* const valuep = nodep->itemp()->valuep();
-        if (valuep) {
+        إذا (m_checkOnly || !optimizable()) أرجع;
+        Ast_گرہ* ثابت valuep = nodep->itemp()->valuep();
+        إذا (valuep) {
             iterateAndNextConstNull(valuep);
-            if (!optimizable()) return;
-            newValue(nodep, fetchValue(valuep));
-        } else {
+            إذا (!optimizable()) أرجع;
+            new_قدر(nodep, fetch_قدر(valuep));
+        } وإلا {
             clearOptimizable(nodep, "No value found for enum item");  // LCOV_EXCL_LINE
         }
     }
-    void visit(AstNodeUniop* nodep) override {
-        if (!optimizable()) return;  // Accelerate
-        checkNodeInfo(nodep);
+    فراغ visit(Ast_گرہ_Uniop* nodep) override {
+        إذا (!optimizable()) أرجع;  // Accelerate
+        check_گرہ_Info(nodep);
         iterateChildrenConst(nodep);
-        if (m_checkOnly || !optimizable()) return;
-        nodep->numberOperate(newConst(nodep)->num(), fetchConst(nodep->lhsp())->num());
+        إذا (m_checkOnly || !optimizable()) أرجع;
+        nodep->نمبر_Operate(newConst(nodep)->عدد(), fetchConst(nodep->lhsp())->عدد());
     }
     // Set resultr to whether the aggregate values are equal, like a logical and of comparing
     // each element or member. V3Width allows comparing only values of matching types, so the
     // values have the same shape, and an array value is of an unpacked array, as associative
     // and dynamic arrays and queues are not values here.
-    void aggregateEqRecurse(V3Number& resultr, AstNode* nodep, bool caseEq, AstNodeExpr* lhsp,
-                            AstNodeExpr* rhsp) {
-        if (const AstConst* const lconstp = VN_CAST(lhsp, Const)) {
-            const V3Number& lnum = lconstp->num();
-            const V3Number& rnum = VN_AS(rhsp, Const)->num();
-            V3Number eq{nodep, 1};
-            if (lnum.isDouble()) {
+    فراغ aggregateEqRecurse(V3_نمبر& resultr, Ast_گرہ* nodep, bool caseEq, Ast_گرہ_اظہاریہ* lhsp,
+                            Ast_گرہ_اظہاریہ* rhsp) {
+        إذا (ثابت AstConst* ثابت lconstp = VN_CAST(lhsp, Const)) {
+            ثابت V3_نمبر& lnum = lconstp->عدد();
+            ثابت V3_نمبر& rnum = VN_AS(rhsp, Const)->عدد();
+            V3_نمبر eq{nodep, 1};
+            إذا (lnum.isDouble()) {
                 eq.opEqD(lnum, rnum);
-            } else if (lnum.isString()) {
+            } وإلا إذا (lnum.isString()) {
                 eq.opEqN(lnum, rnum);
-            } else if (caseEq) {
+            } وإلا إذا (caseEq) {
                 eq.opCaseEq(lnum, rnum);
-            } else {
+            } وإلا {
                 eq.opEq(lnum, rnum);
             }
-            const V3Number prev = resultr;
+            ثابت V3_نمبر prev = resultr;
             resultr.opLogAnd(prev, eq);
-        } else if (const AstConsArray* const lconsp = VN_CAST(lhsp, ConsArray)) {
-            const AstUnpackArrayDType* const dtypep
+        } وإلا إذا (ثابت AstConsArray* ثابت lconsp = VN_CAST(lhsp, ConsArray)) {
+            ثابت AstUnpackArrayDType* ثابت dtypep
                 = VN_AS(lhsp->dtypep()->skipRefp(), UnpackArrayDType);
-            for (int n = 0; n < dtypep->elementsConst(); ++n) {
+            لكل (صحيح n = 0; n < dtypep->elementsConst(); ++n) {
                 aggregateEqRecurse(resultr, nodep, caseEq, lconsp->valuep(n),
                                    VN_AS(rhsp, ConsArray)->valuep(n));
             }
-        } else {
-            const AstConsStructItem* ritemp = VN_AS(rhsp, ConsStruct)->itemsp();
-            for (const AstConsStructItem* litemp = VN_AS(lhsp, ConsStruct)->itemsp(); litemp;
+        } وإلا {
+            ثابت AstConsStructItem* ritemp = VN_AS(rhsp, ConsStruct)->itemsp();
+            لكل (ثابت AstConsStructItem* litemp = VN_AS(lhsp, ConsStruct)->itemsp(); litemp;
                  litemp = VN_AS(litemp->nextp(), ConsStructItem),
                                           ritemp = VN_AS(ritemp->nextp(), ConsStructItem)) {
                 aggregateEqRecurse(resultr, nodep, caseEq, litemp->valuep(), ritemp->valuep());
             }
         }
     }
-    void handleAggregateCompare(AstNodeBiop* nodep) {
+    فراغ handleAggregateCompare(Ast_گرہ_Biop* nodep) {
         // V3Width allows only equality operators on aggregates (IEEE 1800-2023 11.3)
-        const bool caseEq = VN_IS(nodep, EqCase) || VN_IS(nodep, NeqCase);
-        const bool neq = VN_IS(nodep, Neq) || VN_IS(nodep, NeqCase);
+        ثابت bool caseEq = VN_IS(nodep, EqCase) || VN_IS(nodep, NeqCase);
+        ثابت bool neq = VN_IS(nodep, Neq) || VN_IS(nodep, NeqCase);
         UASSERT_OBJ(caseEq || neq || VN_IS(nodep, Eq), nodep, "Unexpected operator on aggregate");
-        V3Number& resultr = newConst(nodep)->num();
+        V3_نمبر& resultr = newConst(nodep)->عدد();
         resultr.setAllBits1();
-        aggregateEqRecurse(resultr, nodep, caseEq, fetchValue(nodep->lhsp()),
-                           fetchValue(nodep->rhsp()));
-        if (neq) {
-            const V3Number eq = resultr;
+        aggregateEqRecurse(resultr, nodep, caseEq, fetch_قدر(nodep->lhsp()),
+                           fetch_قدر(nodep->rhsp()));
+        إذا (neq) {
+            ثابت V3_نمبر eq = resultr;
             resultr.opLogNot(eq);
         }
     }
-    void visit(AstNodeBiop* nodep) override {
-        if (!optimizable()) return;  // Accelerate
-        checkNodeInfo(nodep);
+    فراغ visit(Ast_گرہ_Biop* nodep) override {
+        إذا (!optimizable()) أرجع;  // Accelerate
+        check_گرہ_Info(nodep);
         iterateChildrenConst(nodep);
-        if (m_checkOnly || !optimizable()) return;
+        إذا (m_checkOnly || !optimizable()) أرجع;
         // A value that is not a constant is an aggregate, and V3Width allows only
         // equality operators on aggregates (IEEE 1800-2023 11.3)
-        if (!VN_IS(fetchValue(nodep->lhsp()), Const)) {
+        إذا (!VN_IS(fetch_قدر(nodep->lhsp()), Const)) {
             handleAggregateCompare(nodep);
-            return;
+            أرجع;
         }
-        AstConst* const valuep = newConst(nodep);
-        nodep->numberOperate(newConst(nodep)->num(), fetchConst(nodep->lhsp())->num(),
-                             fetchConst(nodep->rhsp())->num());
+        AstConst* ثابت valuep = newConst(nodep);
+        nodep->نمبر_Operate(newConst(nodep)->عدد(), fetchConst(nodep->lhsp())->عدد(),
+                             fetchConst(nodep->rhsp())->عدد());
         // See #5490. 'numberOperate' on partially out of range select yields 'x' bits,
         // but in reality it would yield '0's without V3Table, so force 'x' bits to '0',
         // to ensure the result is the same with and without V3Table.
-        if (!m_params && VN_IS(nodep, Sel) && valuep->num().isAnyX()) {
-            const V3Number num{valuep, valuep->width(), valuep->num()};
-            valuep->num().opBitsOne(num);
+        إذا (!m_params && VN_IS(nodep, Sel) && valuep->عدد().isAnyX()) {
+            ثابت V3_نمبر عدد{valuep, valuep->width(), valuep->عدد()};
+            valuep->عدد().opBitsOne(عدد);
         }
     }
-    void visit(AstNodeTriop* nodep) override {
-        if (!optimizable()) return;  // Accelerate
-        checkNodeInfo(nodep);
+    فراغ visit(Ast_گرہ_Triop* nodep) override {
+        إذا (!optimizable()) أرجع;  // Accelerate
+        check_گرہ_Info(nodep);
         iterateChildrenConst(nodep);
-        if (m_checkOnly || !optimizable()) return;
-        nodep->numberOperate(newConst(nodep)->num(), fetchConst(nodep->lhsp())->num(),
-                             fetchConst(nodep->rhsp())->num(), fetchConst(nodep->thsp())->num());
+        إذا (m_checkOnly || !optimizable()) أرجع;
+        nodep->نمبر_Operate(newConst(nodep)->عدد(), fetchConst(nodep->lhsp())->عدد(),
+                             fetchConst(nodep->rhsp())->عدد(), fetchConst(nodep->thsp())->عدد());
     }
-    void visit(AstNodeQuadop* nodep) override {
-        if (!optimizable()) return;  // Accelerate
-        checkNodeInfo(nodep);
+    فراغ visit(Ast_گرہ_Quadop* nodep) override {
+        إذا (!optimizable()) أرجع;  // Accelerate
+        check_گرہ_Info(nodep);
         iterateChildrenConst(nodep);
-        if (m_checkOnly || !optimizable()) return;
-        nodep->numberOperate(newConst(nodep)->num(), fetchConst(nodep->lhsp())->num(),
-                             fetchConst(nodep->rhsp())->num(), fetchConst(nodep->thsp())->num(),
-                             fetchConst(nodep->fhsp())->num());
+        إذا (m_checkOnly || !optimizable()) أرجع;
+        nodep->نمبر_Operate(newConst(nodep)->عدد(), fetchConst(nodep->lhsp())->عدد(),
+                             fetchConst(nodep->rhsp())->عدد(), fetchConst(nodep->thsp())->عدد(),
+                             fetchConst(nodep->fhsp())->عدد());
     }
-    void visit(AstLogAnd* nodep) override {
+    فراغ visit(AstLogAnd* nodep) override {
         // Need to short circuit
-        if (!optimizable()) return;  // Accelerate
-        checkNodeInfo(nodep);
-        if (m_checkOnly) {
+        إذا (!optimizable()) أرجع;  // Accelerate
+        check_گرہ_Info(nodep);
+        إذا (m_checkOnly) {
             iterateChildrenConst(nodep);
-        } else {
+        } وإلا {
             iterateConst(nodep->lhsp());
-            if (!optimizable()) return;
-            if (fetchConst(nodep->lhsp())->num().isNeqZero()) {
+            إذا (!optimizable()) أرجع;
+            إذا (fetchConst(nodep->lhsp())->عدد().isNeqZero()) {
                 iterateConst(nodep->rhsp());
-                if (!optimizable()) return;
-                newValue(nodep, fetchValue(nodep->rhsp()));
-            } else {
-                newValue(nodep, fetchValue(nodep->lhsp()));  // a zero
+                إذا (!optimizable()) أرجع;
+                new_قدر(nodep, fetch_قدر(nodep->rhsp()));
+            } وإلا {
+                new_قدر(nodep, fetch_قدر(nodep->lhsp()));  // a zero
             }
         }
     }
-    void visit(AstLogOr* nodep) override {
+    فراغ visit(AstLogOr* nodep) override {
         // Need to short circuit
-        if (!optimizable()) return;  // Accelerate
-        checkNodeInfo(nodep);
-        if (m_checkOnly) {
+        إذا (!optimizable()) أرجع;  // Accelerate
+        check_گرہ_Info(nodep);
+        إذا (m_checkOnly) {
             iterateChildrenConst(nodep);
-        } else {
+        } وإلا {
             iterateConst(nodep->lhsp());
-            if (!optimizable()) return;
-            if (fetchConst(nodep->lhsp())->num().isNeqZero()) {
-                newValue(nodep, fetchValue(nodep->lhsp()));  // a one
-            } else {
+            إذا (!optimizable()) أرجع;
+            إذا (fetchConst(nodep->lhsp())->عدد().isNeqZero()) {
+                new_قدر(nodep, fetch_قدر(nodep->lhsp()));  // a one
+            } وإلا {
                 iterateConst(nodep->rhsp());
-                if (!optimizable()) return;
-                newValue(nodep, fetchValue(nodep->rhsp()));
+                إذا (!optimizable()) أرجع;
+                new_قدر(nodep, fetch_قدر(nodep->rhsp()));
             }
         }
     }
-    void visit(AstLogIf* nodep) override {
+    فراغ visit(AstLogIf* nodep) override {
         // Need to short circuit, same as (!A || B)
-        if (!optimizable()) return;  // Accelerate
-        checkNodeInfo(nodep);
-        if (m_checkOnly) {
+        إذا (!optimizable()) أرجع;  // Accelerate
+        check_گرہ_Info(nodep);
+        إذا (m_checkOnly) {
             iterateChildrenConst(nodep);
-        } else {
+        } وإلا {
             iterateConst(nodep->lhsp());
-            if (!optimizable()) return;
-            if (fetchConst(nodep->lhsp())->num().isEqZero()) {
-                const AstConst cnst{nodep->fileline(), AstConst::WidthedValue{}, 1, 1};  // a one
-                newValue(nodep, &cnst);  // a one
-            } else {
+            إذا (!optimizable()) أرجع;
+            إذا (fetchConst(nodep->lhsp())->عدد().isEqZero()) {
+                ثابت AstConst cnst{nodep->fileline(), AstConst::Widthed_قدر{}, 1, 1};  // a one
+                new_قدر(nodep, &cnst);  // a one
+            } وإلا {
                 iterateConst(nodep->rhsp());
-                if (!optimizable()) return;
-                newValue(nodep, fetchValue(nodep->rhsp()));
+                إذا (!optimizable()) أرجع;
+                new_قدر(nodep, fetch_قدر(nodep->rhsp()));
             }
         }
     }
-    void visit(AstCond* nodep) override {
+    فراغ visit(AstCond* nodep) override {
         // We could use above visit(AstNodeTriop), but need to do short circuiting.
         // It's also slower even O(n^2) to evaluate both sides when we
         // really only need to evaluate one side.
-        if (!optimizable()) return;  // Accelerate
-        checkNodeInfo(nodep);
-        if (m_checkOnly) {
+        إذا (!optimizable()) أرجع;  // Accelerate
+        check_گرہ_Info(nodep);
+        إذا (m_checkOnly) {
             iterateChildrenConst(nodep);
-        } else {
+        } وإلا {
             iterateConst(nodep->condp());
-            if (!optimizable()) return;
-            if (fetchConst(nodep->condp())->num().isNeqZero()) {
+            إذا (!optimizable()) أرجع;
+            إذا (fetchConst(nodep->condp())->عدد().isNeqZero()) {
                 iterateConst(nodep->thenp());
-                if (!optimizable()) return;
-                newValue(nodep, fetchValue(nodep->thenp()));
-            } else {
+                إذا (!optimizable()) أرجع;
+                new_قدر(nodep, fetch_قدر(nodep->thenp()));
+            } وإلا {
                 iterateConst(nodep->elsep());
-                if (!optimizable()) return;
-                newValue(nodep, fetchValue(nodep->elsep()));
+                إذا (!optimizable()) أرجع;
+                new_قدر(nodep, fetch_قدر(nodep->elsep()));
             }
         }
     }
 
-    void handleAssignElement(AstNodeAssign* nodep, AstNodeExpr* lhsp, AstNodeExpr* valueFromp) {
+    فراغ handleAssignElement(Ast_گرہ_Assign* nodep, Ast_گرہ_اظہاریہ* lhsp, Ast_گرہ_اظہاریہ* قدر_Fromp) {
         // Assign an element or member, maybe nested, of a variable, by editing the variable's
         // value. Selects, from the element inwards:
-        std::vector<AstNodeExpr*> selps;
-        AstNodeExpr* fromp = lhsp;
-        while (true) {
-            if (AstArraySel* const selp = VN_CAST(fromp, ArraySel)) {
-                checkNodeInfo(selp);
+        std::vector<Ast_گرہ_اظہاریہ*> selps;
+        Ast_گرہ_اظہاریہ* fromp = lhsp;
+        طالما (true) {
+            إذا (AstArraySel* ثابت selp = VN_CAST(fromp, ArraySel)) {
+                check_گرہ_Info(selp);
                 iterateAndNextConstNull(selp->bitp());  // Bit index
-                selps.push_back(selp);
+                selps.ڈالو_back(selp);
                 fromp = selp->fromp();
-            } else if (AstStructSel* const selp = VN_CAST(fromp, StructSel)) {
-                checkNodeInfo(selp);
-                selps.push_back(selp);
+            } وإلا إذا (AstStructSel* ثابت selp = VN_CAST(fromp, StructSel)) {
+                check_گرہ_Info(selp);
+                selps.ڈالو_back(selp);
                 fromp = selp->fromp();
-            } else {
-                break;
+            } وإلا {
+                اكسر;
             }
         }
-        AstVarRef* const varrefp = VN_CAST(fromp, VarRef);
-        if (!varrefp) {
+        AstVarRef* ثابت varrefp = VN_CAST(fromp, VarRef);
+        إذا (!varrefp) {
             clearOptimizable(fromp, "Array select LHS isn't simple variable");
-            return;
+            أرجع;
         }
-        if (m_checkOnly || !optimizable()) return;
-        AstNode* const vscp = varOrScope(varrefp);
-        AstNodeExpr* rootp = fetchOutValueNull(vscp);
-        if (!rootp) rootp = fetchValueNull(vscp);
-        if (!rootp) {  // As initVar couldn't make an initial value of its type
+        إذا (m_checkOnly || !optimizable()) أرجع;
+        Ast_گرہ* ثابت vscp = varOrScope(varrefp);
+        Ast_گرہ_اظہاریہ* rootp = fetch_Out_قدر_Null(vscp);
+        إذا (!rootp) rootp = fetch_قدر_Null(vscp);
+        إذا (!rootp) {  // As initVar couldn't make an initial value of its type
             clearOptimizable(varrefp, "Assigned variable has unsupported data type");
-            return;
+            أرجع;
         }
         // Find the value of the selected element, making a defaulted array element explicit
-        AstNodeExpr* itemp = rootp;
-        for (AstNodeExpr* const selp : vlstd::reverse_view(selps)) {
-            if (const AstArraySel* const aselp = VN_CAST(selp, ArraySel)) {
-                AstConsArray* const consp = VN_AS(itemp, ConsArray);
-                const uint32_t index = fetchConst(aselp->bitp())->toUInt();
-                const int elements
+        Ast_گرہ_اظہاریہ* itemp = rootp;
+        لكل (Ast_گرہ_اظہاریہ* ثابت selp : vlstd::reverse_view(selps)) {
+            إذا (ثابت AstArraySel* ثابت aselp = VN_CAST(selp, ArraySel)) {
+                AstConsArray* ثابت consp = VN_AS(itemp, ConsArray);
+                ثابت uint32_t index = fetchConst(aselp->bitp())->toUInt();
+                ثابت صحيح elements
                     = VN_AS(consp->dtypep()->skipRefp(), UnpackArrayDType)->elementsConst();
-                if (index >= static_cast<uint32_t>(elements)) {
-                    return;  // Ignore a write out of bounds (IEEE 1800-2023 7.4.6)
+                إذا (index >= static_cast<uint32_t>(elements)) {
+                    أرجع;  // Ignore a write out of bounds (IEEE 1800-2023 7.4.6)
                 }
                 itemp = consp->valuep(index);
-                if (itemp == consp->defaultp()) {  // Make a defaulted element explicit
-                    itemp = itemp->cloneTree(false);
+                إذا (itemp == consp->defaultp()) {  // Make a defaulted element explicit
+                    itemp = itemp->clone_درخت(false);
                     consp->valuep(index, itemp);
                 }
-            } else {
+            } وإلا {
                 itemp = VN_AS(itemp, ConsStruct)->memberValuep(selp->name());
             }
         }
         // Clone first, as the value assigned may be the old value of the element
-        AstNodeExpr* const valuep = newTrackedClone(fetchValue(valueFromp));
+        Ast_گرہ_اظہاریہ* ثابت valuep = newTrackedClone(fetch_قدر(قدر_Fromp));
         UINFO(9, "     set " << lhsp << " = " << valuep);
         itemp->replaceWith(valuep);
-        m_reclaimValuesp.push_back(itemp);
+        m_reclaimValuesp.ڈالو_back(itemp);
         UINFOTREE(9, rootp, "", "aggregate");
-        assignOutValue(nodep, vscp, rootp);
+        assign_Out_قدر(nodep, vscp, rootp);
     }
-    void handleAssignSel(AstNodeAssign* nodep, AstSel* selp, AstNodeExpr* valueFromp) {
+    فراغ handleAssignSel(Ast_گرہ_Assign* nodep, AstSel* selp, Ast_گرہ_اظہاریہ* قدر_Fromp) {
         AstVarRef* varrefp = nullptr;
-        V3Number lsb{nodep};
+        V3_نمبر lsb{nodep};
         handleAssignSelRecurse(nodep, selp, varrefp /*ref*/, lsb /*ref*/, 0);
-        if (m_checkOnly || !optimizable()) return;
+        إذا (m_checkOnly || !optimizable()) أرجع;
         UASSERT_OBJ(varrefp, nodep,
                     "Indicated optimizable, but no variable found on RHS of select");
-        AstNode* const vscp = varOrScope(varrefp);
+        Ast_گرہ* ثابت vscp = varOrScope(varrefp);
         AstConst* outconstp = nullptr;
-        if (AstConst* const vscpnump = fetchOutConstNull(vscp)) {
+        إذا (AstConst* ثابت vscpnump = fetchOutConstNull(vscp)) {
             outconstp = vscpnump;
-        } else if (AstConst* const vscpnump = fetchConstNull(vscp)) {
+        } وإلا إذا (AstConst* ثابت vscpnump = fetchConstNull(vscp)) {
             outconstp = vscpnump;
-        } else {  // Assignment to unassigned variable, all bits are X or 0
-            outconstp = new AstConst{nodep->fileline(), AstConst::WidthedValue{},
+        } وإلا {  // Assignment to unassigned variable, all bits are X or 0
+            outconstp = new AstConst{nodep->fileline(), AstConst::Widthed_قدر{},
                                      varrefp->varp()->widthMin(), 0};
-            if (varrefp->varp()->basicp() && varrefp->varp()->basicp()->isZeroInit()) {
-                outconstp->num().setAllBits0();
-            } else {
-                outconstp->num().setAllBitsX();
+            إذا (varrefp->varp()->basicp() && varrefp->varp()->basicp()->isZeroInit()) {
+                outconstp->عدد().setAllBits0();
+            } وإلا {
+                outconstp->عدد().setAllBitsX();
             }
             m_reclaimValuesp.emplace_back(outconstp);
         }
-        outconstp->num().opSelInto(fetchConst(valueFromp)->num(), lsb, selp->widthConst());
-        assignOutValue(nodep, vscp, outconstp);
+        outconstp->عدد().opSelInto(fetchConst(قدر_Fromp)->عدد(), lsb, selp->widthConst());
+        assign_Out_قدر(nodep, vscp, outconstp);
     }
-    void handleAssignSelRecurse(AstNodeAssign* nodep, AstSel* selp, AstVarRef*& outVarrefpRef,
-                                V3Number& lsbRef, int depth) {
+    فراغ handleAssignSelRecurse(Ast_گرہ_Assign* nodep, AstSel* selp, AstVarRef*& outVarrefpRef,
+                                V3_نمبر& lsbRef, صحيح depth) {
         // Recurse down to find final variable being set (outVarrefp), with
         // lsb to be eventually set on lsbRef
-        checkNodeInfo(selp);
+        check_گرہ_Info(selp);
         iterateAndNextConstNull(selp->lsbp());  // Bit index
-        if (AstVarRef* const varrefp = VN_CAST(selp->fromp(), VarRef)) {
+        إذا (AstVarRef* ثابت varrefp = VN_CAST(selp->fromp(), VarRef)) {
             outVarrefpRef = varrefp;
-            lsbRef = fetchConst(selp->lsbp())->num();
-            return;  // And presumably still optimizable()
+            lsbRef = fetchConst(selp->lsbp())->عدد();
+            أرجع;  // And presumably still optimizable()
         }
-        if (AstSel* const subselp = VN_CAST(selp->fromp(), Sel)) {
-            V3Number sublsb{nodep};
+        إذا (AstSel* ثابت subselp = VN_CAST(selp->fromp(), Sel)) {
+            V3_نمبر sublsb{nodep};
             handleAssignSelRecurse(nodep, subselp, outVarrefpRef, sublsb /*ref*/, depth + 1);
-            if (optimizable()) {
+            إذا (optimizable()) {
                 lsbRef = sublsb;
-                lsbRef.opAdd(sublsb, fetchConst(selp->lsbp())->num());
+                lsbRef.opAdd(sublsb, fetchConst(selp->lsbp())->عدد());
             }
-        } else {
+        } وإلا {
             clearOptimizable(selp->fromp(), "Select LHS isn't simple variable");
         }
     }
-    void handleAssignRecurse(AstNodeAssign* nodep, AstNodeExpr* lhsp, AstNodeExpr* valueFromp) {
-        if (!optimizable()) return;
-        if (VN_IS(lhsp, ArraySel) || VN_IS(lhsp, StructSel)) {
-            if (!m_params) {
+    فراغ handleAssignRecurse(Ast_گرہ_Assign* nodep, Ast_گرہ_اظہاریہ* lhsp, Ast_گرہ_اظہاریہ* قدر_Fromp) {
+        إذا (!optimizable()) أرجع;
+        إذا (VN_IS(lhsp, ArraySel) || VN_IS(lhsp, StructSel)) {
+            إذا (!m_params) {
                 clearOptimizable(lhsp, "Assign LHS has select");
-                return;
+                أرجع;
             }
-            handleAssignElement(nodep, lhsp, valueFromp);
-        } else if (AstConcat* const selp = VN_CAST(lhsp, Concat)) {
-            checkNodeInfo(selp);
-            if (!VN_IS(selp->rhsp()->dtypep()->skipRefp(), BasicDType)) {
+            handleAssignElement(nodep, lhsp, قدر_Fromp);
+        } وإلا إذا (AstConcat* ثابت selp = VN_CAST(lhsp, Concat)) {
+            check_گرہ_Info(selp);
+            إذا (!VN_IS(selp->rhsp()->dtypep()->skipRefp(), BasicDType)) {
                 clearOptimizable(lhsp, "Assign LHS concat of non-basic type");
-                return;
+                أرجع;
             }
             // Split value into left and right concat values
-            if (!m_checkOnly) {
+            إذا (!m_checkOnly) {
                 {
-                    AstConst* const outconstp
-                        = new AstConst{selp->lhsp()->fileline(), AstConst::WidthedValue{},
+                    AstConst* ثابت outconstp
+                        = new AstConst{selp->lhsp()->fileline(), AstConst::Widthed_قدر{},
                                        selp->lhsp()->width(), 0};
-                    outconstp->num().opSel(fetchConst(valueFromp)->num(),
+                    outconstp->عدد().opSel(fetchConst(قدر_Fromp)->عدد(),
                                            selp->lhsp()->width() + selp->rhsp()->width() + 1,
                                            selp->rhsp()->width());
-                    newValue(selp->lhsp(), outconstp);
-                    VL_DO_DANGLING(outconstp->deleteTree(), outconstp);
+                    new_قدر(selp->lhsp(), outconstp);
+                    VL_DO_DANGLING(outconstp->delete_درخت(), outconstp);
                 }
                 {
-                    AstConst* const outconstp
-                        = new AstConst{selp->rhsp()->fileline(), AstConst::WidthedValue{},
+                    AstConst* ثابت outconstp
+                        = new AstConst{selp->rhsp()->fileline(), AstConst::Widthed_قدر{},
                                        selp->rhsp()->widthMin(), 0};
-                    outconstp->num().opSel(fetchConst(valueFromp)->num(),
+                    outconstp->عدد().opSel(fetchConst(قدر_Fromp)->عدد(),
                                            selp->rhsp()->width() - 1, 0);
-                    newValue(selp->rhsp(), outconstp);
-                    VL_DO_DANGLING(outconstp->deleteTree(), outconstp);
+                    new_قدر(selp->rhsp(), outconstp);
+                    VL_DO_DANGLING(outconstp->delete_درخت(), outconstp);
                 }
             }
             handleAssignRecurse(nodep, selp->lhsp(), selp->lhsp());
             handleAssignRecurse(nodep, selp->rhsp(), selp->rhsp());
-        } else if (AstReplicate* const selp = VN_CAST(lhsp, Replicate)) {
-            checkNodeInfo(selp);
+        } وإلا إذا (AstReplicate* ثابت selp = VN_CAST(lhsp, Replicate)) {
+            check_گرہ_Info(selp);
             iterateAndNextConstNull(selp->countp());
-            AstConst* const countp = VN_CAST(selp->countp(), Const);
-            if (!countp || !countp->num().isEqOne()) {
+            AstConst* ثابت countp = VN_CAST(selp->countp(), Const);
+            إذا (!countp || !countp->عدد().isEqOne()) {
                 clearOptimizable(selp, "Replicate LHS count isn't one");
-                return;
+                أرجع;
             }
-            handleAssignRecurse(nodep, selp->srcp(), valueFromp);
-        } else if (AstSel* const selp = VN_CAST(lhsp, Sel)) {
-            if (!m_params) {
+            handleAssignRecurse(nodep, selp->srcp(), قدر_Fromp);
+        } وإلا إذا (AstSel* ثابت selp = VN_CAST(lhsp, Sel)) {
+            إذا (!m_params) {
                 clearOptimizable(lhsp, "Assign LHS has select");
-                return;
+                أرجع;
             }
-            handleAssignSel(nodep, selp, valueFromp);
-        } else if (VN_IS(lhsp, VarRef)) {
-            if (m_checkOnly) {
+            handleAssignSel(nodep, selp, قدر_Fromp);
+        } وإلا إذا (VN_IS(lhsp, VarRef)) {
+            إذا (m_checkOnly) {
                 iterateAndNextConstNull(lhsp);
-            } else {
-                AstNode* const vscp = varOrScope(VN_CAST(lhsp, VarRef));
-                assignOutValue(nodep, vscp, fetchValue(valueFromp));
+            } وإلا {
+                Ast_گرہ* ثابت vscp = varOrScope(VN_CAST(lhsp, VarRef));
+                assign_Out_قدر(nodep, vscp, fetch_قدر(قدر_Fromp));
             }
-        } else {
+        } وإلا {
             clearOptimizable(lhsp, "Assign LHS isn't simple variable");
         }
     }
-    void visit(AstNodeAssign* nodep) override {
-        if (jumpingOver()) return;
-        if (!optimizable()) return;  // Accelerate
-        checkNodeInfo(nodep);
+    فراغ visit(Ast_گرہ_Assign* nodep) override {
+        إذا (jumpingOver()) أرجع;
+        إذا (!optimizable()) أرجع;  // Accelerate
+        check_گرہ_Info(nodep);
 
         VL_RESTORER(m_inDlyAssign);
 
-        if (VN_IS(nodep, AssignForce)) {
+        إذا (VN_IS(nodep, AssignForce)) {
             clearOptimizable(nodep, "Force");
-        } else if (VN_IS(nodep, AssignDly)) {
-            if (m_anyAssignComb) clearOptimizable(nodep, "Mix of dly/non-dly assigns");
+        } وإلا إذا (VN_IS(nodep, AssignDly)) {
+            إذا (m_anyAssignComb) clearOptimizable(nodep, "Mix of dly/non-dly assigns");
             m_anyAssignDly = true;
             m_inDlyAssign = true;
-        } else {
-            if (m_anyAssignDly) clearOptimizable(nodep, "Mix of dly/non-dly assigns");
+        } وإلا {
+            إذا (m_anyAssignDly) clearOptimizable(nodep, "Mix of dly/non-dly assigns");
             m_anyAssignComb = true;
         }
 
-        if (VN_IS(nodep->rhsp(), CReset)) {
+        إذا (VN_IS(nodep->rhsp(), CReset)) {
             initVar(VN_AS(nodep->lhsp(), VarRef)->varp());
-            return;
+            أرجع;
         }
 
         iterateAndNextConstNull(nodep->rhsp());  // Value to assign
@@ -1083,86 +1083,86 @@ private:
         // UINFO(9, "set " << fetchConst(nodep->rhsp())->num().ascii() << " for assign "
         //  << nodep->lhsp()->name());
     }
-    void visit(AstArraySel* nodep) override {
-        checkNodeInfo(nodep);
+    فراغ visit(AstArraySel* nodep) override {
+        check_گرہ_Info(nodep);
         iterateChildrenConst(nodep);
-        if (const AstConsArray* const consp = VN_CAST(fetchValueNull(nodep->fromp()), ConsArray)) {
-            const AstConst* const indexp = fetchConst(nodep->bitp());
-            const uint32_t offset = indexp->num().toUInt();
-            AstNodeExpr* const itemp = consp->valuep(offset);
-            if (!itemp) {
+        إذا (ثابت AstConsArray* ثابت consp = VN_CAST(fetch_قدر_Null(nodep->fromp()), ConsArray)) {
+            ثابت AstConst* ثابت indexp = fetchConst(nodep->bitp());
+            ثابت uint32_t offset = indexp->عدد().toUInt();
+            Ast_گرہ_اظہاریہ* ثابت itemp = consp->valuep(offset);
+            إذا (!itemp) {
                 clearOptimizable(nodep, "Array select out of range: " + std::to_string(offset));
-            } else {
-                setValue(nodep, itemp);
+            } وإلا {
+                set_قدر(nodep, itemp);
             }
-        } else {
+        } وإلا {
             clearOptimizable(nodep, "Array select of non-array");
         }
     }
-    void visit(AstStructSel* nodep) override {
-        if (!m_params) {
-            badNodeType(nodep);
-            return;
+    فراغ visit(AstStructSel* nodep) override {
+        إذا (!m_params) {
+            bad_گرہ_Type(nodep);
+            أرجع;
         }
-        checkNodeInfo(nodep);
+        check_گرہ_Info(nodep);
         iterateChildrenConst(nodep);
-        if (m_checkOnly || !optimizable()) return;
-        AstConsStruct* const consp = VN_AS(fetchValue(nodep->fromp()), ConsStruct);
-        setValue(nodep, consp->memberValuep(nodep->name()));
+        إذا (m_checkOnly || !optimizable()) أرجع;
+        AstConsStruct* ثابت consp = VN_AS(fetch_قدر(nodep->fromp()), ConsStruct);
+        set_قدر(nodep, consp->memberValuep(nodep->name()));
     }
 
     // Evaluate a slice of an unpacked array.  If the base value is a constant
     // AstConsArray, build a new AstConsArray representing the slice and assign
     // it as this node's value.  New index 0 corresponds to the lowest index of
     // the slice.  Otherwise, mark this node as unoptimizable.
-    void visit(AstSliceSel* nodep) override {
-        checkNodeInfo(nodep);
+    فراغ visit(AstSliceSel* nodep) override {
+        check_گرہ_Info(nodep);
         iterateChildrenConst(nodep);
-        if (m_checkOnly || !optimizable()) return;
+        إذا (m_checkOnly || !optimizable()) أرجع;
         // Fetch the base constant array
-        if (const AstConsArray* const consp = VN_CAST(fetchValueNull(nodep->fromp()), ConsArray)) {
-            const VNumRange& sliceRange = nodep->declRange();
-            const uint32_t sliceElements = sliceRange.elements();
-            const int sliceLo = sliceRange.lo();
+        إذا (ثابت AstConsArray* ثابت consp = VN_CAST(fetch_قدر_Null(nodep->fromp()), ConsArray)) {
+            ثابت VNumRange& sliceRange = nodep->declRange();
+            ثابت uint32_t sliceElements = sliceRange.elements();
+            ثابت صحيح sliceLo = sliceRange.lo();
             // Use this node's dtype for the slice array
-            AstNodeDType* const dtypep = nodep->dtypep()->skipRefp();
-            AstConsArray* const newConsp = new AstConsArray{nodep->fileline(), dtypep};
+            Ast_گرہ_DType* ثابت dtypep = nodep->dtypep()->skipRefp();
+            AstConsArray* ثابت newConsp = new AstConsArray{nodep->fileline(), dtypep};
             // Copy slice elements in ascending order
-            for (uint32_t idx = 0; idx < sliceElements; ++idx) {
-                const uint32_t baseIdx = sliceLo + idx;
-                newConsp->valuep(idx, consp->valuep(baseIdx)->cloneTree(false));
+            لكل (uint32_t idx = 0; idx < sliceElements; ++idx) {
+                ثابت uint32_t baseIdx = sliceLo + idx;
+                newConsp->valuep(idx, consp->valuep(baseIdx)->clone_درخت(false));
             }
             // Assign the new constant array and track it for later deletion
-            setValue(nodep, newConsp);
-            m_reclaimValuesp.push_back(newConsp);
-        } else {
+            set_قدر(nodep, newConsp);
+            m_reclaimValuesp.ڈالو_back(newConsp);
+        } وإلا {
             clearOptimizable(nodep, "Slice select of non-array");
         }
     }
 
-    void visit(AstBegin* nodep) override {
-        checkNodeInfo(nodep);
+    فراغ visit(AstBegin* nodep) override {
+        check_گرہ_Info(nodep);
         iterateChildrenConst(nodep);
     }
-    void visit(AstCase* nodep) override {
-        if (jumpingOver()) return;
+    فراغ visit(AstCase* nodep) override {
+        إذا (jumpingOver()) أرجع;
         UINFO(5, "   CASE " << nodep);
-        checkNodeInfo(nodep);
-        if (m_checkOnly) {
+        check_گرہ_Info(nodep);
+        إذا (m_checkOnly) {
             iterateChildrenConst(nodep);
-        } else if (optimizable()) {
+        } وإلا إذا (optimizable()) {
             iterateAndNextConstNull(nodep->exprp());
             bool hit = false;
-            for (AstCaseItem* itemp = nodep->itemsp(); itemp;
+            لكل (AstCaseItem* itemp = nodep->itemsp(); itemp;
                  itemp = VN_AS(itemp->nextp(), CaseItem)) {
-                if (!itemp->isDefault()) {
-                    for (AstNode* ep = itemp->condsp(); ep; ep = ep->nextp()) {
-                        if (hit) break;
+                إذا (!itemp->isDefault()) {
+                    لكل (Ast_گرہ* ep = itemp->condsp(); ep; ep = ep->nextp()) {
+                        إذا (hit) اكسر;
                         iterateAndNextConstNull(ep);
-                        if (optimizable()) {
-                            V3Number match{nodep, 1};
-                            match.opEq(fetchConst(nodep->exprp())->num(), fetchConst(ep)->num());
-                            if (match.isNeqZero()) {
+                        إذا (optimizable()) {
+                            V3_نمبر match{nodep, 1};
+                            match.opEq(fetchConst(nodep->exprp())->عدد(), fetchConst(ep)->عدد());
+                            إذا (match.isNeqZero()) {
                                 iterateAndNextConstNull(itemp->stmtsp());
                                 hit = true;
                             }
@@ -1171,10 +1171,10 @@ private:
                 }
             }
             // Else default match
-            for (AstCaseItem* itemp = nodep->itemsp(); itemp;
+            لكل (AstCaseItem* itemp = nodep->itemsp(); itemp;
                  itemp = VN_AS(itemp->nextp(), CaseItem)) {
-                if (hit) break;
-                if (itemp->isDefault()) {
+                إذا (hit) اكسر;
+                إذا (itemp->isDefault()) {
                     iterateAndNextConstNull(itemp->stmtsp());
                     hit = true;
                 }
@@ -1182,143 +1182,143 @@ private:
         }
     }
 
-    void visit(AstCaseItem* nodep) override {
+    فراغ visit(AstCaseItem* nodep) override {
         // Real handling is in AstNodeCase
-        if (jumpingOver()) return;
-        checkNodeInfo(nodep);
+        إذا (jumpingOver()) أرجع;
+        check_گرہ_Info(nodep);
         iterateChildrenConst(nodep);
     }
 
-    void visit(AstComment*) override {}
+    فراغ visit(AstComment*) override {}
 
-    void visit(AstStmtExpr* nodep) override {
-        if (jumpingOver()) return;
-        checkNodeInfo(nodep);
+    فراغ visit(Ast_Stmt_اظہاریہ* nodep) override {
+        إذا (jumpingOver()) أرجع;
+        check_گرہ_Info(nodep);
         iterateChildrenConst(nodep);
     }
-    void visit(AstExprStmt* nodep) override {
-        if (jumpingOver()) return;
-        checkNodeInfo(nodep);
+    فراغ visit(Ast_اظہاریہ_Stmt* nodep) override {
+        إذا (jumpingOver()) أرجع;
+        check_گرہ_Info(nodep);
         iterateAndNextConstNull(nodep->stmtsp());
-        if (!optimizable()) return;
+        إذا (!optimizable()) أرجع;
         iterateAndNextConstNull(nodep->resultp());
-        if (m_checkOnly || !optimizable()) return;
-        newValue(nodep, fetchValue(nodep->resultp()));
+        إذا (m_checkOnly || !optimizable()) أرجع;
+        new_قدر(nodep, fetch_قدر(nodep->resultp()));
     }
 
-    void visit(AstJumpBlock* nodep) override {
-        if (jumpingOver()) return;
+    فراغ visit(AstJumpBlock* nodep) override {
+        إذا (jumpingOver()) أرجع;
         iterateChildrenConst(nodep);
-        if (m_jumptargetp == nodep) {
+        إذا (m_jumptargetp == nodep) {
             UINFO(5, "   JUMP DONE " << nodep);
             m_jumptargetp = nullptr;
         }
     }
-    void visit(AstJumpGo* nodep) override {
-        if (jumpingOver()) return;
-        checkNodeInfo(nodep);
-        if (!m_checkOnly) {
+    فراغ visit(AstJumpGo* nodep) override {
+        إذا (jumpingOver()) أرجع;
+        check_گرہ_Info(nodep);
+        إذا (!m_checkOnly) {
             UINFO(5, "   JUMP GO " << nodep);
             UASSERT_OBJ(!m_jumptargetp, nodep, "Jump inside jump");
             m_jumptargetp = nodep->blockp();
         }
     }
-    void visit(AstLoop* nodep) override {
+    فراغ visit(AstLoop* nodep) override {
         UASSERT_OBJ(!nodep->contsp(), nodep, "'contsp' only used before LinkJump");
-        if (jumpingOver()) return;
+        إذا (jumpingOver()) أرجع;
         UINFO(5, "   LOOP " << nodep);
         // Doing lots of loops is slow, so only for parameters
-        if (!m_params) {
-            badNodeType(nodep);
-            return;
+        إذا (!m_params) {
+            bad_گرہ_Type(nodep);
+            أرجع;
         }
-        checkNodeInfo(nodep);
-        if (m_checkOnly) {
+        check_گرہ_Info(nodep);
+        إذا (m_checkOnly) {
             iterateChildrenConst(nodep);
-            return;
+            أرجع;
         }
-        if (!optimizable()) return;
+        إذا (!optimizable()) أرجع;
 
-        size_t iterCount = 0;
-        const size_t iterLimit = v3Global.opt.unrollLimit();
-        while (true) {
-            if (iterCount > iterLimit) {
+        size_t iter_گنتی = 0;
+        ثابت size_t iterLimit = v3Global.opt.unrollLimit();
+        طالما (true) {
+            إذا (iter_گنتی > iterLimit) {
                 clearOptimizable(nodep, "Loop simulation took too long; probably this is an "
                                         "infinite loop, otherwise set '--unroll-limit' above "
                                             + std::to_string(iterLimit));
-                break;
+                اكسر;
             }
-            ++iterCount;
+            ++iter_گنتی;
 
             UINFO(5, "    LOOP-ITER " << nodep);
             iterateAndNextConstNull(nodep->stmtsp());
-            if (jumpingOver()) break;
+            إذا (jumpingOver()) اكسر;
         }
 
-        if (m_jumptargetp == nodep) {
+        إذا (m_jumptargetp == nodep) {
             UINFO(5, "   LOOP TEST DONE " << nodep);
             m_jumptargetp = nullptr;
         }
     }
-    void visit(AstLoopTest* nodep) override {
-        if (jumpingOver()) return;
-        checkNodeInfo(nodep);
+    فراغ visit(AstLoopTest* nodep) override {
+        إذا (jumpingOver()) أرجع;
+        check_گرہ_Info(nodep);
         iterateConst(nodep->condp());
-        if (m_checkOnly || !optimizable()) return;
-        if (fetchConst(nodep->condp())->num().isEqZero()) {
+        إذا (m_checkOnly || !optimizable()) أرجع;
+        إذا (fetchConst(nodep->condp())->عدد().isEqZero()) {
             UINFO(5, "   LOOP TEST GO " << nodep);
             UASSERT_OBJ(!m_jumptargetp, nodep, "Jump inside jump");
             m_jumptargetp = nodep->loopp();
         }
     }
 
-    void visit(AstStop* nodep) override {
-        if (jumpingOver()) return;
-        if (m_params) {  // This message seems better than an obscure $stop
+    فراغ visit(AstStop* nodep) override {
+        إذا (jumpingOver()) أرجع;
+        إذا (m_params) {  // This message seems better than an obscure $stop
             // The spec says $stop is just ignored, it seems evil to ignore assertions
             clearOptimizable(
                 nodep,
                 "$stop executed during function constification; maybe indicates assertion firing");
         }
-        checkNodeInfo(nodep);
+        check_گرہ_Info(nodep);
     }
-    void visit(AstFuncRef* nodep) override {
-        if (jumpingOver()) return;
-        if (!optimizable()) return;  // Accelerate
+    فراغ visit(AstFuncRef* nodep) override {
+        إذا (jumpingOver()) أرجع;
+        إذا (!optimizable()) أرجع;  // Accelerate
         UINFO(5, "   FUNCREF " << nodep);
-        checkNodeInfo(nodep);
-        if (!m_params) {
-            badNodeType(nodep);
-            return;
+        check_گرہ_Info(nodep);
+        إذا (!m_params) {
+            bad_گرہ_Type(nodep);
+            أرجع;
         }
-        AstNodeFTask* funcp = nodep->taskp();
+        Ast_گرہ_FTask* funcp = nodep->taskp();
         UASSERT_OBJ(funcp, nodep, "Not linked");
-        if (m_params) V3Width::widthParamsEdit(funcp);
+        إذا (m_params) V3Width::widthParamsEdit(funcp);
         VL_DANGLING(funcp);  // Make sure we've sized the function
         funcp = nodep->taskp();
         UASSERT_OBJ(funcp, nodep, "Not linked");
 
-        if (funcp->recursive()) {
-            if (m_recurseCount >= v3Global.opt.funcRecursionDepth()) {
+        إذا (funcp->recursive()) {
+            إذا (m_recurse_گنتی >= v3Global.opt.funcRecursionDepth()) {
                 clearOptimizable(funcp, "Constant function recursed more than "s
                                             + std::to_string(v3Global.opt.funcRecursionDepth())
                                             + " times");
-                return;
+                أرجع;
             }
-            ++m_recurseCount;
+            ++m_recurse_گنتی;
         }
 
         // Values from previous call, so can save to stack
         // The "stack" is this visit function's local stack, as this visit is itself recursing
-        std::map<AstNode*, AstNodeExpr*> oldValues;
+        std::map<Ast_گرہ*, Ast_گرہ_اظہاریہ*> old_اقدار;
 
-        if (funcp->recursive() && !m_checkOnly) {
+        إذا (funcp->recursive() && !m_checkOnly) {
             // Save local automatics
-            funcp->foreach([this, &oldValues](AstVar* varp) {
-                if (varp->lifetime().isAutomatic()) {  // This also does function's I/O
-                    if (AstNodeExpr* const valuep = fetchValueNull(varp)) {
-                        AstNodeExpr* const nvaluep = newTrackedClone(valuep);
-                        oldValues.emplace(varp, nvaluep);
+            funcp->foreach([this, &old_اقدار](AstVar* varp) {
+                إذا (varp->lifetime().isAutomatic()) {  // This also does function's I/O
+                    إذا (Ast_گرہ_اظہاریہ* ثابت valuep = fetch_قدر_Null(varp)) {
+                        Ast_گرہ_اظہاریہ* ثابت nvaluep = newTrackedClone(valuep);
+                        old_اقدار.emplace(varp, nvaluep);
                     }
                 }
             });
@@ -1328,11 +1328,11 @@ private:
             // we could look at the visit stack to determine what nodes
             // need save-restore, but that is difficult to get right, and
             // recursion is rare.
-            funcp->foreach([this, &oldValues](AstNodeExpr* exprp) {
-                if (VN_IS(exprp, Const)) return;  // Speed up as won't change
-                if (AstNodeExpr* const valuep = fetchValueNull(exprp)) {
-                    AstNodeExpr* const nvaluep = newTrackedClone(valuep);
-                    oldValues.emplace(exprp, nvaluep);
+            funcp->foreach([this, &old_اقدار](Ast_گرہ_اظہاریہ* exprp) {
+                إذا (VN_IS(exprp, Const)) أرجع;  // Speed up as won't change
+                إذا (Ast_گرہ_اظہاریہ* ثابت valuep = fetch_قدر_Null(exprp)) {
+                    Ast_گرہ_اظہاریہ* ثابت nvaluep = newTrackedClone(valuep);
+                    old_اقدار.emplace(exprp, nvaluep);
                 }
             });
         }
@@ -1340,219 +1340,219 @@ private:
         V3TaskConnects tconnects = V3Task::taskConnects(nodep, nodep->taskp()->stmtsp());
         // Must do this in two steps, eval all params, then apply them
         // Otherwise chained functions may have the wrong results
-        std::vector<std::pair<AstVar*, AstNodeExpr*>> portValues;
-        for (V3TaskConnects::iterator it = tconnects.begin(); it != tconnects.end(); ++it) {
-            AstVar* const portp = it->first;
-            AstNode* const pinp = it->second->exprp();
-            if (pinp) {  // Else too few arguments in function call - ignore it
-                if (portp->isWritable()) {
+        std::vector<std::pair<AstVar*, Ast_گرہ_اظہاریہ*>> port_اقدار;
+        لكل (V3TaskConnects::iterator it = tconnects.begin(); it != tconnects.end(); ++it) {
+            AstVar* ثابت portp = it->first;
+            Ast_گرہ* ثابت pinp = it->second->exprp();
+            إذا (pinp) {  // Else too few arguments in function call - ignore it
+                إذا (portp->isWritable()) {
                     clearOptimizable(
                         portp,
                         "Language violation: Outputs/refs not allowed in constant functions");
-                    return;
+                    أرجع;
                 }
                 // Evaluate pin value
                 iterateConst(pinp);
                 // Clone in case are recursing
-                portValues.emplace_back(std::make_pair(portp, newTrackedClone(fetchValue(pinp))));
+                port_اقدار.emplace_back(std::make_pair(portp, newTrackedClone(fetch_قدر(pinp))));
             }
         }
         // Apply value to the function
-        if (!m_checkOnly && optimizable())
-            for (const auto& it : portValues) {
-                if (!m_checkOnly && optimizable()) newValue(it.first, it.second);
+        إذا (!m_checkOnly && optimizable())
+            لكل (ثابت auto& it : port_اقدار) {
+                إذا (!m_checkOnly && optimizable()) new_قدر(it.first, it.second);
             }
-        SimStackNode stackNode{nodep, &tconnects};
+        Sim_ڈھیر_گرہ ڈھیر_گرہ{nodep, &tconnects};
         // cppcheck-suppress danglingLifetime
-        m_callStack.push_back(&stackNode);
-        if (!m_checkOnly) {
+        m_call_ڈھیر.ڈالو_back(&ڈھیر_گرہ);
+        إذا (!m_checkOnly) {
             // Clear output variable
             initVar(VN_CAST(funcp->fvarp(), Var));
             // Clear other automatic variables
             funcp->foreach([this](AstVar* varp) {
-                if (varp->lifetime().isAutomatic() && (!varp->isIO() || varp->isFuncReturn()))
+                إذا (varp->lifetime().isAutomatic() && (!varp->isIO() || varp->isFuncReturn()))
                     initVar(varp);
             });
         }
 
         // Evaluate the function
         iterateConst(funcp);
-        m_callStack.pop_back();
-        const AstNodeExpr* returnp = nullptr;
-        if (!m_checkOnly && optimizable()) {
+        m_call_ڈھیر.نکالو_back();
+        ثابت Ast_گرہ_اظہاریہ* returnp = nullptr;
+        إذا (!m_checkOnly && optimizable()) {
             // Grab return value from output variable
             UASSERT_OBJ(funcp->fvarp(), nodep, "Function reference points at non-function");
-            returnp = newTrackedClone(fetchValue(funcp->fvarp()));
+            returnp = newTrackedClone(fetch_قدر(funcp->fvarp()));
             UINFO(5, "func " << nodep->name() << " return = " << returnp);
         }
         // Restore local automatics (none unless recursed)
-        for (const auto& it : oldValues) {
-            if (it.second) newValue(it.first, it.second);
+        لكل (ثابت auto& it : old_اقدار) {
+            إذا (it.second) new_قدر(it.first, it.second);
         }
-        if (returnp) newValue(nodep, returnp);
-        if (funcp->recursive()) {
-            UASSERT_OBJ(m_recurseCount > 0, nodep, "recurse underflow");
-            --m_recurseCount;
-        }
-    }
-
-    void visit(AstVar* nodep) override {
-        if (jumpingOver()) return;
-        if (!m_params) {
-            badNodeType(nodep);
-            return;
+        إذا (returnp) new_قدر(nodep, returnp);
+        إذا (funcp->recursive()) {
+            UASSERT_OBJ(m_recurse_گنتی > 0, nodep, "recurse underflow");
+            --m_recurse_گنتی;
         }
     }
 
-    void visit(AstScopeName* /*nodep*/) override {
-        if (jumpingOver()) return;
+    فراغ visit(AstVar* nodep) override {
+        إذا (jumpingOver()) أرجع;
+        إذا (!m_params) {
+            bad_گرہ_Type(nodep);
+            أرجع;
+        }
+    }
+
+    فراغ visit(AstScopeName* /*nodep*/) override {
+        إذا (jumpingOver()) أرجع;
         // Ignore
     }
 
-    void visit(AstSFormatArg* nodep) override {
-        checkNodeInfo(nodep);
+    فراغ visit(AstSFormatArg* nodep) override {
+        check_گرہ_Info(nodep);
         // Constant enum names come from the dtype, not the runtime lookup.
         iterateAndNextConstNull(nodep->exprp());
     }
-    void visit(AstSFormatF* nodep) override {
-        if (jumpingOver()) return;
-        if (!optimizable()) return;  // Accelerate
-        checkNodeInfo(nodep);
+    فراغ visit(AstSFormatF* nodep) override {
+        إذا (jumpingOver()) أرجع;
+        إذا (!optimizable()) أرجع;  // Accelerate
+        check_گرہ_Info(nodep);
         iterateChildrenConst(nodep);
-        if (m_checkOnly || !optimizable()) return;
+        إذا (m_checkOnly || !optimizable()) أرجع;
 
-        AstNode* nextArgp = nodep->exprsp();
+        Ast_گرہ* nextArgp = nodep->exprsp();
         string result;
-        const string format = nodep->text();
+        ثابت string format = nodep->text();
         auto pos = format.cbegin();
         bool inPct = false;
         string width;
-        for (; pos != format.cend(); ++pos) {
-            if (!inPct && pos[0] == '%') {
+        لكل (; pos != format.cend(); ++pos) {
+            إذا (!inPct && pos[0] == '%') {
                 inPct = true;
                 width = "";
-            } else if (!inPct) {  // Normal text
+            } وإلا إذا (!inPct) {  // Normal text
                 result += *pos;
-            } else {  // Format character
-                if (std::isdigit(pos[0])) {
+            } وإلا {  // Format character
+                إذا (std::isdigit(pos[0])) {
                     width += pos[0];
-                    continue;
+                    استمر;
                 }
 
                 inPct = false;
 
-                if (V3Number::displayedFmtHasArg(std::tolower(pos[0]), false)) {
-                    AstNode* const argp = nextArgp;
+                إذا (V3_نمبر::displayedFmtHasArg(std::tolower(pos[0]), false)) {
+                    Ast_گرہ* ثابت argp = nextArgp;
                     nextArgp = nextArgp->nextp();
-                    AstSFormatArg* const fargp = VN_CAST(argp, SFormatArg);
-                    AstNode* const subargp = fargp ? fargp->exprp() : argp;
-                    AstConst* const constp = fetchConstNull(subargp);
-                    const VFormatAttr formatAttr
+                    AstSFormatArg* ثابت fargp = VN_CAST(argp, SFormatArg);
+                    Ast_گرہ* ثابت subargp = fargp ? fargp->exprp() : argp;
+                    AstConst* ثابت constp = fetchConstNull(subargp);
+                    ثابت VFormatAttr formatAttr
                         = argp ? AstSFormatArg::formatAttrDefauled(fargp, subargp->dtypep())
                                : VFormatAttr{};
-                    if (!constp) {
+                    إذا (!constp) {
                         clearOptimizable(nodep,
                                          "Argument for $display-like statement is not constant");
-                        break;
+                        اكسر;
                     }
-                    const string pformat = "%"s + width + pos[0];
+                    ثابت string pformat = "%"s + width + pos[0];
                     result += formatAttr.isEnum()
-                                  ? constp->num().displayedEnum(fargp, pformat)
-                                  : constp->num().displayed(nodep, pformat, formatAttr);
-                } else {
-                    switch (std::tolower(pos[0])) {
-                    case '%': result += "%"; break;
-                    case 'm':
+                                  ? constp->عدد().displayedEnum(fargp, pformat)
+                                  : constp->عدد().displayed(nodep, pformat, formatAttr);
+                } وإلا {
+                    بدل (std::tolower(pos[0])) {
+                    حالة '%': result += "%"; اكسر;
+                    حالة 'm':
                         // This happens prior to AstScope so we don't
                         // know the scope name. Leave the %m in place.
                         result += "%m";
-                        break;
-                    default: clearOptimizable(nodep, "Unknown $display-like format code."); break;
+                        اكسر;
+                    افتراضي: clearOptimizable(nodep, "Unknown $display-like format code."); اكسر;
                     }
                 }
             }
         }
 
-        AstConst* const resultConstp = new AstConst{nodep->fileline(), AstConst::String{}, result};
-        setValue(nodep, resultConstp);
-        m_reclaimValuesp.push_back(resultConstp);
+        AstConst* ثابت resultConstp = new AstConst{nodep->fileline(), AstConst::String{}, result};
+        set_قدر(nodep, resultConstp);
+        m_reclaimValuesp.ڈالو_back(resultConstp);
     }
 
-    void visit(AstDisplay* nodep) override {
-        if (jumpingOver()) return;
-        if (!optimizable()) return;  // Accelerate
+    فراغ visit(AstDisplay* nodep) override {
+        إذا (jumpingOver()) أرجع;
+        إذا (!optimizable()) أرجع;  // Accelerate
         // We ignore isPredictOptimizable as $display is often in constant
         // functions and we want them to work if used with parameters
-        checkNodeInfo(nodep, /*display:*/ true);
+        check_گرہ_Info(nodep, /*display:*/ true);
         iterateChildrenConst(nodep);
-        if (m_params) {
-            const AstConst* const textp = fetchConst(nodep->fmtp());
-            switch (nodep->displayType()) {
-            case VDisplayType::DT_DISPLAY:  // FALLTHRU
-            case VDisplayType::DT_INFO: v3warn(USERINFO, textp->name()); break;
-            case VDisplayType::DT_ERROR: v3warn(USERERROR, textp->name()); break;
-            case VDisplayType::DT_WARNING: v3warn(USERWARN, textp->name()); break;
-            case VDisplayType::DT_FATAL: v3warn(USERFATAL, textp->name()); break;
-            case VDisplayType::DT_WRITE:  // FALLTHRU
-            default: clearOptimizable(nodep, "Unexpected display type");
+        إذا (m_params) {
+            ثابت AstConst* ثابت textp = fetchConst(nodep->fmtp());
+            بدل (nodep->displayType()) {
+            حالة VDisplayType::DT_DISPLAY:  // FALLTHRU
+            حالة VDisplayType::DT_INFO: v3warn(USERINFO, textp->name()); اكسر;
+            حالة VDisplayType::DT_ERROR: v3warn(USERERROR, textp->name()); اكسر;
+            حالة VDisplayType::DT_WARNING: v3warn(USERWARN, textp->name()); اكسر;
+            حالة VDisplayType::DT_FATAL: v3warn(USERFATAL, textp->name()); اكسر;
+            حالة VDisplayType::DT_WRITE:  // FALLTHRU
+            افتراضي: clearOptimizable(nodep, "Unexpected display type");
             }
         }
     }
-    void visit(AstToStringN* nodep) override {
-        if (jumpingOver()) return;
-        if (!optimizable()) return;  // Accelerate
-        checkNodeInfo(nodep);
+    فراغ visit(AstToStringN* nodep) override {
+        إذا (jumpingOver()) أرجع;
+        إذا (!optimizable()) أرجع;  // Accelerate
+        check_گرہ_Info(nodep);
         iterateChildrenConst(nodep);
-        if (m_checkOnly || !optimizable()) return;
-        const std::string result = toStringRecurse(fetchValue(nodep->lhsp()));
-        if (!optimizable()) return;
-        AstConst* const resultConstp = new AstConst{nodep->fileline(), AstConst::String{}, result};
-        setValue(nodep, resultConstp);
-        m_reclaimValuesp.push_back(resultConstp);
+        إذا (m_checkOnly || !optimizable()) أرجع;
+        ثابت std::string result = toStringRecurse(fetch_قدر(nodep->lhsp()));
+        إذا (!optimizable()) أرجع;
+        AstConst* ثابت resultConstp = new AstConst{nodep->fileline(), AstConst::String{}, result};
+        set_قدر(nodep, resultConstp);
+        m_reclaimValuesp.ڈالو_back(resultConstp);
     }
 
-    void visit(AstCoverInc* /*nodep*/) override { m_isCoverage = true; }
+    فراغ visit(AstCoverInc* /*nodep*/) override { m_isCoverage = true; }
 
     // ====
     // Known Bad
-    void visit(AstCMethodHard* nodep) override {
+    فراغ visit(AstCMethodHard* nodep) override {
         // Some CMethods such as size() on queues could be supported, but
         // instead we should change those methods to new Ast types so we can
         // properly dispatch them
-        knownBadNodeType(nodep);
+        known_Bad_گرہ_Type(nodep);
     }
-    void visit(AstGetInitialRandomSeed* nodep) override { knownBadNodeType(nodep); }
-    void visit(AstMemberSel* nodep) override { knownBadNodeType(nodep); }
-    void visit(AstSampled* nodep) override { knownBadNodeType(nodep); }
+    فراغ visit(AstGetInitialRandomSeed* nodep) override { known_Bad_گرہ_Type(nodep); }
+    فراغ visit(AstMemberSel* nodep) override { known_Bad_گرہ_Type(nodep); }
+    فراغ visit(AstSampled* nodep) override { known_Bad_گرہ_Type(nodep); }
     // ====
     // default
     // These types are definitely not reducible
     //   AstCoverInc, AstFinish,
     //   AstRand, AstTime, AstCCall, AstCStmt*, AstCExpr*
-    void visit(AstNode* nodep) override {
-        if (jumpingOver()) return;
-        badNodeType(nodep);
+    فراغ visit(Ast_گرہ* nodep) override {
+        إذا (jumpingOver()) أرجع;
+        bad_گرہ_Type(nodep);
     }
 
     // MEMBERS - called by constructor
-    void setMode(bool scoped, bool checkOnly, bool params) {
+    فراغ setMode(bool scoped, bool checkOnly, bool params) {
         m_checkOnly = checkOnly;
         m_scoped = scoped;
         m_params = params;
     }
-    void mainGuts(AstNode* nodep) {
+    فراغ mainGuts(Ast_گرہ* nodep) {
         iterateConst(nodep);
         UASSERT_OBJ(!m_jumptargetp, m_jumptargetp, "Jump target was not found");
     }
 
-public:
+عام:
     // CONSTRUCTORS
     SimulateVisitor() {
         // Note AstUser#InUse ensures only one invocation exists at once
         setMode(false, false, false);
         clear();  // We reuse this structure in the main loop, so put initializers inside clear()
     }
-    void clear() {
+    فراغ clear() {
         m_whyNotOptimizable = "";
         m_whyNotNodep = nullptr;
         m_anyAssignComb = false;
@@ -1560,35 +1560,35 @@ public:
         m_inDlyAssign = false;
         m_isImpure = false;
         m_isCoverage = false;
-        m_instrCount = 0;
-        m_dataCount = 0;
+        m_instr_گنتی = 0;
+        m_data_گنتی = 0;
         m_jumptargetp = nullptr;
 
-        AstNode::user1ClearTree();
+        Ast_گرہ::user1_Clear_درخت();
         m_varAux.clear();
         ++m_constGeneration;
     }
-    void mainTableCheck(AstNode* nodep) {
+    فراغ mainTableCheck(Ast_گرہ* nodep) {
         setMode(true /*scoped*/, true /*checking*/, false /*params*/);
         mainGuts(nodep);
     }
-    void mainTableEmulate(AstNode* nodep) {
+    فراغ mainTableEmulate(Ast_گرہ* nodep) {
         setMode(true /*scoped*/, false /*checking*/, false /*params*/);
         mainGuts(nodep);
     }
-    void mainParamEmulate(AstNode* nodep) {
+    فراغ mainParamEmulate(Ast_گرہ* nodep) {
         setMode(false /*scoped*/, false /*checking*/, true /*params*/);
         mainGuts(nodep);
     }
     ~SimulateVisitor() override {
         m_constps.clear();
         // A value replaced in an aggregate may be listed twice
-        std::set<AstNode*> unusedRootps;
-        for (AstNode* const nodep : m_reclaimValuesp) {
-            if (!nodep->backp()) unusedRootps.emplace(nodep);
+        std::set<Ast_گرہ*> unusedRootps;
+        لكل (Ast_گرہ* ثابت nodep : m_reclaimValuesp) {
+            إذا (!nodep->backp()) unusedRootps.emplace(nodep);
         }
         m_reclaimValuesp.clear();
-        for (AstNode* const nodep : unusedRootps) VL_DO_DANGLING(nodep->deleteTree(), nodep);
+        لكل (Ast_گرہ* ثابت nodep : unusedRootps) VL_DO_DANGLING(nodep->delete_درخت(), nodep);
     }
 };
 
